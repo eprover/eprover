@@ -563,11 +563,10 @@ bool eqn_list_rec_subsume(Eqn_p subsum_list, Eqn_p sub_cand_list,
          continue;
       }
 
-
-
-      cmpres = EqnHasAppVar(eqn) ?
+      /* If it is an applied var, try it against anything of the same sign */
+      cmpres = EqnHasTopLevelVar(subsum_list) ?
                   (PropsAreEquiv(eqn, subsum_list, EPIsPositive|EPIsEquLiteral) ? 0 : 1)
-                  : EqnSubsumeQOrderCompare(eqn,subsum_list);
+                  : EqnSubsumeQOrderCompare(eqn, subsum_list);
 
       /*fprintf(stderr, "? in eqn_list_rec_subsume: Compared ");
       EqnPrint(stderr, eqn, false, true);
@@ -608,7 +607,7 @@ bool eqn_list_rec_subsume(Eqn_p subsum_list, Eqn_p sub_cand_list,
                    subst, pick_list))
          {
             /*fprintf(stderr, "? matched with equations not inverted with substitution ");
-            SubstPrint(stderr, subst, eqn->bank->sig, DEREF_ALWAYS);
+            SubstPrint(stderr, subst, eqn->bank->sig, DEREF_ONCE);
             fprintf(stderr, "\n");*/
             return true;
          }
@@ -627,7 +626,7 @@ bool eqn_list_rec_subsume(Eqn_p subsum_list, Eqn_p sub_cand_list,
                 subst, pick_list))
          {
             /*fprintf(stderr, "? matched with equations inverted with substitution ");
-            SubstPrint(stderr, subst, eqn->bank->sig, DEREF_ALWAYS);
+            SubstPrint(stderr, subst, eqn->bank->sig, DEREF_ONCE);
             fprintf(stderr, "\n");*/
             return true;
          }

@@ -1234,7 +1234,7 @@ void perform_subsumption_test(ClauseSet_p set, Clause_p test, Clause_p exp_subsu
 
    fprintf(stderr, "# test %d :  ", test_nr );
    ClausePrint(stderr, test, true);
-   fprintf(stderr, ".\n");
+   fprintf(stderr, "\n");
 
    FVPackedClause_p test_fvp =  FVIndexPackClause(test, set->fvindex);
    Clause_p subsumer = ClauseSetSubsumesFVPackedClause(set, test_fvp);
@@ -1246,7 +1246,7 @@ void perform_subsumption_test(ClauseSet_p set, Clause_p test, Clause_p exp_subsu
    if (subsumer)
    {
       ClausePrint(stderr, subsumer, true);
-      fprintf(stderr, ".\n");
+      fprintf(stderr, "\n");
    }
    else 
    {
@@ -1259,7 +1259,7 @@ void perform_subsumption_test(ClauseSet_p set, Clause_p test, Clause_p exp_subsu
       if (exp_subsumer)
       {
          ClausePrint(stderr, exp_subsumer, true);
-         fprintf(stderr, ".\n");
+         fprintf(stderr, "\n");
       }
       else 
       {
@@ -1464,6 +1464,21 @@ void test_subsumption_sorting(ProofState_p p)
    a7 7   tcf(i_0_15, plain, ![X2:a > a > a, X1:a > a > a]:(h(d,d)=h(c,c)|$@_var(X1,d,d)!=$@_var(X2,c,d)|f(d,d,c)!=g(c))).
    a6 8   tcf(i_0_13, plain, (h(d,d)=h(c,c)|f(d,d,c)!=g(c)|f(c,d,d)!=h(c,d))).
 
+   # test 1 :  tcf(i_0_9, plain, ![X2:a > a, X1:a > a > a > a]:(h(c,d)=h(c,c)|g(d)=g(c)|f(c,d,c)=f(c,c,d)|$@_var(X2,d)=$@_var(X2,c)|$@_var(X1,c,d,c)=$@_var(X1,c,c,d))).
+   + test passed with subsumer  (none).
+   # test 2 :  tcf(i_0_11, plain, ![X1:a > a]:(h(c,d)=h(c,c)|g(d)=g(c)|f(c,d,c)=f(c,c,d)|$@_var(X1,d)=$@_var(X1,c))).
+   - test failed with subsumer  (none).
+   - expected tcf(i_0_10, plain, ![X1:a > a > a]:(f(b,d,c)=f(b,c,d)|$@_var(X1,c,d)=$@_var(X1,c,c))).
+   # test 3 :  tcf(i_0_13, plain, (h(d,d)=h(c,c)|f(c,d,d)!=h(c,d)|f(d,d,c)!=g(c))).
+   - test failed with subsumer  (none).
+   - expected tcf(i_0_12, plain, ![X3:a > a > a, X2:a > a > a, X1:a > a]:($@_var(X3,d,d)=$@_var(X3,c,c)|f(d,d,c)!=g(c)|$@_var(X1,d)!=$@_var(X2,c,d))).
+   # test 4 :  tcf(i_0_14, plain, (f(c,d,d)=h(c,d)|f(d,d,c)=g(c)|h(d,d)!=h(c,c))).
+   + test passed with subsumer  (none).
+   # test 5 :  tcf(i_0_15, plain, ![X2:a > a > a, X1:a > a > a]:(h(d,d)=h(c,c)|f(d,d,c)!=g(c)|$@_var(X1,d,d)!=$@_var(X2,c,d))).
+   - test failed with subsumer  (none).
+   - expected tcf(i_0_12, plain, ![X3:a > a > a, X2:a > a > a, X1:a > a]:($@_var(X3,d,d)=$@_var(X3,c,c)|f(d,d,c)!=g(c)|$@_var(X1,d)!=$@_var(X2,c,d))).
+
+
    */
 
    Clause_p a1  = get_clause_by_nr(p->axioms, 1);
@@ -1489,6 +1504,20 @@ void test_subsumption_sorting(ProofState_p p)
       ClausePrint(stderr, allClauses[i], true);
       fprintf(stderr, "\n");
    }
+
+   ClauseSetExtractEntry(a1);
+   ClauseSetExtractEntry(a5);
+
+   ClauseSet_p set = p->processed_non_units;
+   ClauseSetIndexedInsert(set, FVIndexPackClause(a1, set->fvindex));
+   ClauseSetIndexedInsert(set, FVIndexPackClause(a5, set->fvindex));
+
+   perform_subsumption_test(set, a2, NULL, p->signature);
+   perform_subsumption_test(set, a3, a1,   p->signature);
+   perform_subsumption_test(set, a4, NULL,   p->signature);
+   perform_subsumption_test(set, a6, a5,   p->signature);
+   perform_subsumption_test(set, a6P, NULL,   p->signature);
+   perform_subsumption_test(set, a7, a5,   p->signature);
 }
 
 int main(int argc, char* argv[])
