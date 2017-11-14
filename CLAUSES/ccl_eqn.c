@@ -1466,6 +1466,11 @@ int EqnSubsumeQOrderCompare(const void* lit1, const void* lit2)
    }
    else if (ProblemIsHO == PROBLEM_IS_HO)
    {
+      // I deliberately leave it to be run only in HO case
+      // to keep behavior in FO case as Stephan intended,
+      // even though I do not understand why he decides not
+      // to treat equational literals
+
       // if term is applied variable it can match any f code
       if (!TermIsAppliedVar(l1->lterm))
       {
