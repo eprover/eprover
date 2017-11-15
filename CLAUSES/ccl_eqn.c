@@ -1475,7 +1475,7 @@ int EqnSubsumeQOrderCompare(const void* lit1, const void* lit2)
       // if term is applied variable it can match any f code
       if (!TermIsAppliedVar(l1->lterm))
       {
-         res = TermIsAppliedVar(l2->lterm) ? 1 : CMP(l1->lterm->f_code, l2->lterm->f_code);   
+         res = TermIsAppliedVar(l2->lterm) ? 1 : 0;   
       }
       else
       {
