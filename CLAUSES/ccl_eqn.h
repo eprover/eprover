@@ -206,6 +206,7 @@ Term_p  EqnTBTermParse(Scanner_p in, TB_p bank);
 void    EqnPrint(FILE* out, Eqn_p eq, bool negated, bool fullterms);
 #define EqnPrintOriginal(out, eq)               \
    EqnPrint((out), (eq), normal, true)
+void    EqnPrintDeref(FILE* out, Eqn_p eq, DerefType deref);
 void    EqnFOFPrint(FILE* out, Eqn_p eq, bool negated, bool fullterms, bool pcl);
 void    EqnTSTPPrint(FILE* out, Eqn_p eq, bool fullterms);
 

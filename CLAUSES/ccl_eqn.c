@@ -868,6 +868,25 @@ void EqnPrint(FILE* out, Eqn_p eq, bool negated,  bool fullterms)
 #endif
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: EqnPrintDeref()
+//
+//   Print a (potentially instantiated) equation (in standard infix).
+//
+// Global Variables: -
+//
+// Side Effects    : Oputput
+//
+/----------------------------------------------------------------------*/
+
+void EqnPrintDeref(FILE* out, Eqn_p eq, DerefType deref)
+{
+   TermPrint(out, eq->lterm, eq->bank->sig, deref);
+   fprintf(out, "%s", EqnIsPositive(eq)?"=":"!=");
+   TermPrint(out, eq->rterm, eq->bank->sig, deref);
+}
+
 
 /*-----------------------------------------------------------------------
 //
