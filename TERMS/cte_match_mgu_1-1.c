@@ -137,7 +137,7 @@ int PartiallyMatchVar(Term_p var_matcher, Term_p to_match, Sig_p sig, bool perfo
    return matched_up_to;
 }
 
-// TODO: add weight computation.
+
 int SubstComputeMatchHO(Term_p matcher, Term_p to_match, Subst_p subst, Sig_p sig)
 {
    long matcher_weight  = TermStandardWeight(matcher);
@@ -163,12 +163,7 @@ int SubstComputeMatchHO(Term_p matcher, Term_p to_match, Subst_p subst, Sig_p si
    {
       to_match =  PLocalStackPop(to_match_stack);
       matcher  =  PLocalStackPop(matcher_stack);
-
-      /*fprintf(stderr, "$ Matcher : ");
-      TermPrint(stderr, matcher, sig, DEREF_NEVER);
-      fprintf(stderr, " , to match : ");
-      TermPrint(stderr, to_match, sig, DEREF_NEVER);
-      fprintf(stderr, "\n");*/
+      
 
       if (TermIsAppliedVar(matcher) || TermIsVar(matcher))
       {
@@ -282,7 +277,12 @@ int SubstComputeMatchHO(Term_p matcher, Term_p to_match, Subst_p subst, Sig_p si
 
    if (res == MATCH_INIT && PLocalStackEmpty(matcher_stack))
    {
+      /*fprintf(stderr, "$ with matching substitution ");
+      SubstPrint(stderr, subst, sig, DEREF_ONCE);
+      fprintf(stderr, ".\n");*/
+
       res = PLocalStackTop(to_match_stack);
+
    }
    else
    {
@@ -291,6 +291,7 @@ int SubstComputeMatchHO(Term_p matcher, Term_p to_match, Subst_p subst, Sig_p si
 
    if(res == NOT_MATCHED)
    {
+      //fprintf(stderr, "$ with failure.\n");
       SubstBacktrackToPos(subst,backtrack);
    }
 
@@ -725,6 +726,7 @@ __inline__ bool SubstMatchComplete(Term_p t, Term_p s, Subst_p subst, Sig_p sig)
    {
       // no arguments of s remaining after the match
       PStackPointer backtrack = PStackGetSP(subst);
+
       int res =  SubstComputeMatchHO(t, s, subst, sig);
       if (res != 0)
       {
