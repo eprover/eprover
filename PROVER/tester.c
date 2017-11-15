@@ -1512,9 +1512,9 @@ void test_subsumption_sorting(ProofState_p p)
    ClauseSetIndexedInsert(set, FVIndexPackClause(a1, set->fvindex));
    ClauseSetIndexedInsert(set, FVIndexPackClause(a5, set->fvindex));
 
-   perform_subsumption_test(set, a2, NULL, p->signature);
+   perform_subsumption_test(set, a2, a1, p->signature);
    perform_subsumption_test(set, a3, a1,   p->signature);
-   perform_subsumption_test(set, a4, NULL,   p->signature);
+   perform_subsumption_test(set, a4, a1,   p->signature);
    perform_subsumption_test(set, a6, a5,   p->signature);
    perform_subsumption_test(set, a6P, NULL,   p->signature);
    perform_subsumption_test(set, a7, a5,   p->signature);
