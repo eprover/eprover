@@ -94,6 +94,8 @@ void    EqnListDeleteTermProperties(Eqn_p list, TermProperties props);
 
 void    EqnListPrint(FILE* out, Eqn_p list, char* sep,
                      bool negated,  bool fullterms);
+void    EqnListPrintDeref(FILE* out, Eqn_p list, char* sep,
+                          DerefType deref);
 void    EqnListTSTPPrint(FILE* out, Eqn_p list, char* sep, bool fullterms);
 Eqn_p   EqnListParse(Scanner_p in, TB_p bank, TokenType sep);
 

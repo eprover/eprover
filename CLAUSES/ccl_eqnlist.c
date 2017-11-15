@@ -1233,6 +1233,35 @@ void EqnListPrint(FILE* out, Eqn_p list, char* sep,
    }
 }
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: EqnListPrintDeref()
+//
+//   Print an instantiated list of equations (mostly for debugging).
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+void EqnListPrintDeref(FILE* out, Eqn_p list, char* sep,
+                       DerefType deref)
+{
+   Eqn_p handle;
+
+   for(handle = list; handle; handle=handle->next)
+   {
+      EqnPrintDeref(out, handle, deref);
+      if(handle->next)
+      {
+         fprintf(out, "%s", sep);
+      }
+   }
+}
+
+
 /*-----------------------------------------------------------------------
 //
 // Function: EqnListTSTPPrint()
