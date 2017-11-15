@@ -348,7 +348,10 @@ static Eqn_p find_spec_literal(Eqn_p lit, Eqn_p list)
 
    for(;list;list = list->next)
    {
-      cmpres = EqnSubsumeQOrderCompare(lit, list);
+      /*cmpres = EqnSubsumeQOrderCompare(lit, list);*/
+      cmpres = EqnHasTopLevelVarL(lit) ?
+                  (PropsAreEquiv(lit, list, EPIsPositive) ? 0 : -1)
+                  : EqnSubsumeQOrderCompare(lit, list);
       if(cmpres > 0)
       {
          list = NULL;
@@ -389,7 +392,34 @@ static Eqn_p find_spec_literal(Eqn_p lit, Eqn_p list)
    }
    SubstDelete(subst);
 
-   assert(ProblemIsHO != PROBLEM_NOT_HO || list == old_res);
+#ifndef NDEBUG
+   if (list != old_res)
+   {
+      fprintf(stderr, "Subsumption error found. Old: ");
+      if (old_res)
+      {
+         EqnPrint(stderr, old_res, false, true);   
+      }
+      else
+      {
+         fprintf(stderr, "-");
+      }
+      
+      fprintf(stderr, ", new: ");
+
+      if (list)
+      {
+         EqnPrint(stderr, list, false, true);
+      }
+      else
+      {
+         fprintf(stderr, "-\n");
+      }
+      
+      fprintf(stderr, ".\n");
+      assert(false);
+   }
+#endif
    return list;
 }
 
@@ -540,7 +570,6 @@ bool eqn_list_rec_subsume_old(Eqn_p subsum_list, Eqn_p sub_cand_list,
 }
 #endif
 
-
 static
 bool eqn_list_rec_subsume(Eqn_p subsum_list, Eqn_p sub_cand_list,
            Subst_p subst, long* pick_list)
@@ -551,11 +580,19 @@ bool eqn_list_rec_subsume(Eqn_p subsum_list, Eqn_p sub_cand_list,
 
    if(!subsum_list)
    {
+      //fprintf(stderr, "# subsum list empty.\n");
       return true;
    }
 
+   /*fprintf(stderr, "# started eqn list rec %p: ", subsum_list);
+   EqnListPrint(stderr, subsum_list, "//", false, true);
+   fprintf(stderr, "\n#sub_cand_list %p: ", sub_cand_list);
+   EqnListPrint(stderr, sub_cand_list, "\\\\", false, true);
+   fprintf(stderr, ".\n");*/
+   
    for(eqn = sub_cand_list, lcount=0; eqn; eqn = eqn->next, lcount++)
    {
+
       /* We now use strict multiset-subsumption. I should probably
          rewrite this code to be more efficient for that case...*/
       if(pick_list[lcount])
@@ -564,9 +601,10 @@ bool eqn_list_rec_subsume(Eqn_p subsum_list, Eqn_p sub_cand_list,
       }
 
       /* If it is an applied var, try it against anything of the same sign */
-      cmpres = EqnHasTopLevelVar(subsum_list) ?
-                  (PropsAreEquiv(eqn, subsum_list, EPIsPositive|EPIsEquLiteral) ? 0 : 1)
+      cmpres = EqnHasTopLevelVarL(subsum_list) ?
+                  (PropsAreEquiv(eqn, subsum_list, EPIsPositive) ? 0 : 1)
                   : EqnSubsumeQOrderCompare(eqn, subsum_list);
+      //cmpres = EqnSubsumeQOrderCompare(eqn, subsum_list);
 
       /*fprintf(stderr, "? in eqn_list_rec_subsume: Compared ");
       EqnPrint(stderr, eqn, false, true);
@@ -576,6 +614,7 @@ bool eqn_list_rec_subsume(Eqn_p subsum_list, Eqn_p sub_cand_list,
 
       if(cmpres < 0)
       {
+         //fprintf(stderr, "failed cmpres.\n");
          return false;
       }
       if(cmpres >  0)
@@ -585,6 +624,7 @@ bool eqn_list_rec_subsume(Eqn_p subsum_list, Eqn_p sub_cand_list,
 
       if(EqnStandardWeight(eqn) < EqnStandardWeight(subsum_list))
       {
+         //fprintf(stderr, "failed weight.\n");
          return false;
       }
 
@@ -603,8 +643,13 @@ bool eqn_list_rec_subsume(Eqn_p subsum_list, Eqn_p sub_cand_list,
       if(SubstMatchComplete(subsum_list->lterm, eqn->lterm, subst, eqn->bank->sig)&&
          SubstMatchComplete(subsum_list->rterm, eqn->rterm, subst, eqn->bank->sig))
       {
+         /*fprintf(stderr, "# match between ");
+         EqnPrint(stderr, subsum_list, false, true);
+         fprintf(stderr, "and ");
+         EqnPrint(stderr, eqn, false, true);
+         fprintf(stderr, "suceeded.\n");*/
          if(eqn_list_rec_subsume(subsum_list->next, sub_cand_list,
-                   subst, pick_list))
+                                 subst, pick_list))
          {
             /*fprintf(stderr, "? matched with equations not inverted with substitution ");
             SubstPrint(stderr, subst, eqn->bank->sig, DEREF_ONCE);
@@ -622,8 +667,13 @@ bool eqn_list_rec_subsume(Eqn_p subsum_list, Eqn_p sub_cand_list,
       if(SubstMatchComplete(subsum_list->lterm, eqn->rterm, subst, eqn->bank->sig)&&
          SubstMatchComplete(subsum_list->rterm, eqn->lterm, subst, eqn->bank->sig))
       {
+         /*fprintf(stderr, "# match between ");
+         EqnPrint(stderr, subsum_list, false, true);
+         fprintf(stderr, "and ");
+         EqnPrint(stderr, eqn, false, true);
+         fprintf(stderr, "suceeded.\n");*/
          if(eqn_list_rec_subsume(subsum_list->next, sub_cand_list,
-                subst, pick_list))
+                                 subst, pick_list))
          {
             /*fprintf(stderr, "? matched with equations inverted with substitution ");
             SubstPrint(stderr, subst, eqn->bank->sig, DEREF_ONCE);
@@ -634,6 +684,7 @@ bool eqn_list_rec_subsume(Eqn_p subsum_list, Eqn_p sub_cand_list,
       SubstBacktrackToPos(subst, state);
       pick_list[lcount]--;
    }
+   // fprintf(stderr, "failed traversal.\n");
    return false;
 }
 
@@ -673,9 +724,10 @@ static bool clause_subsumes_clause(Clause_p subsumer, Clause_p
       PERF_CTR_EXIT(SubsumeTimer);
       return UnitClauseSubsumesClause(subsumer, sub_candidate);
    }
-   //printf("# sub_candidate %p: ", sub_candidate->set);ClausePrint(stdout, sub_candidate, true);
-   //printf("\n# subsumer     %p: ", subsumer->set);ClausePrint(stdout, subsumer, true);
-   //printf("\n");
+   
+   /*printf("# sub_candidate %p: ", sub_candidate->set);ClausePrint(stdout, sub_candidate, true);
+   printf("\n# subsumer     %p: ", subsumer->set);ClausePrint(stdout, subsumer, true);
+   printf("\n");*/
 
    assert(sub_candidate->weight == ClauseStandardWeight(sub_candidate));
    assert(subsumer->weight == ClauseStandardWeight(subsumer));
