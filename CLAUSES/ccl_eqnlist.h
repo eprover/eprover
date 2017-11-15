@@ -17,8 +17,8 @@ Contents
 
 Changes
 
-<1> Fri Apr 10 16:46:17 MET DST 1998
-    New
+Created: Fri Apr 10 16:46:17 MET DST 1998
+New
 
 -----------------------------------------------------------------------*/
 
@@ -53,16 +53,16 @@ Eqn_p    EqnListFromArray(Eqn_p* array, int lenght);
 PStack_p EqnListToStack(Eqn_p list);
 
 Eqn_p   EqnListExtractElement(EqnRef element);
-#define EqnListExtractFirst(list)\
-        EqnListExtractElement(list)
+#define EqnListExtractFirst(list)               \
+   EqnListExtractElement(list)
 Eqn_p   EqnListExtractByProps(EqnRef list, EqnProperties props, bool
-               negate);
+                              negate);
 void    EqnListDeleteElement(EqnRef element);
-#define EqnListDeleteFirst(list)\
-        EqnListDeleteElement(list)
+#define EqnListDeleteFirst(list)                \
+   EqnListDeleteElement(list)
 void    EqnListInsertElement(EqnRef pos, Eqn_p element);
-#define EqnListInsertFirst(list, element)\
-        EqnListInsertElement((list), (element))
+#define EqnListInsertFirst(list, element)       \
+   EqnListInsertElement((list), (element))
 Eqn_p   EqnListAppend(EqnRef list, Eqn_p newpart);
 Eqn_p   EqnListFlatCopy(Eqn_p list);
 Eqn_p   EqnListCopy(Eqn_p list, TB_p bank);
@@ -93,14 +93,14 @@ bool    EqnListEqnIsStrictlyMaximal(OCB_p ocb, Eqn_p list, Eqn_p eqn);
 void    EqnListDeleteTermProperties(Eqn_p list, TermProperties props);
 
 void    EqnListPrint(FILE* out, Eqn_p list, char* sep,
-           bool negated,  bool fullterms);
+                     bool negated,  bool fullterms);
 void    EqnListTSTPPrint(FILE* out, Eqn_p list, char* sep, bool fullterms);
 Eqn_p   EqnListParse(Scanner_p in, TB_p bank, TokenType sep);
 
 FunCode NormSubstEqnListExcept(Eqn_p list, Eqn_p except, Subst_p
-                subst, VarBank_p vars);
-#define NormSubstEqnList(list, subst, vars) \
-        NormSubstEqnListExcept((list), NULL, (subst), (vars))
+                               subst, VarBank_p vars);
+#define NormSubstEqnList(list, subst, vars)                     \
+   NormSubstEqnListExcept((list), NULL, (subst), (vars))
 
 long    EqnListDepth(Eqn_p list);
 
@@ -122,8 +122,3 @@ long    EqnListCollectSubterms(Eqn_p list, PStack_p collector);
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
-
-
-
