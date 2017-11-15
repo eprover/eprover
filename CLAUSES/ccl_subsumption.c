@@ -585,11 +585,11 @@ bool eqn_list_rec_subsume(Eqn_p subsum_list, Eqn_p sub_cand_list,
       return true;
    }
 
-   //fprintf(stderr, "# started eqn list rec %p: ", subsum_list);
-   //EqnListPrint(stderr, subsum_list, "//", false, true);
-   //fprintf(stderr, "\n#sub_cand_list %p: ", sub_cand_list);
-   //EqnListPrint(stderr, sub_cand_list, "\\\\", false, true);
-   //fprintf(stderr, ".\n");
+   /*fprintf(stderr, "# started eqn list rec %p: ", subsum_list);
+   EqnListPrint(stderr, subsum_list, "//", false, true);
+   fprintf(stderr, "\n#sub_cand_list %p: ", sub_cand_list);
+   EqnListPrint(stderr, sub_cand_list, "\\\\", false, true);
+   fprintf(stderr, ".\n");*/
    
    for(eqn = sub_cand_list, lcount=0; eqn; eqn = eqn->next, lcount++)
    {
