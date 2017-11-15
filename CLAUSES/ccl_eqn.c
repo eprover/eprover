@@ -600,10 +600,10 @@ Eqn_p EqnAlloc(Term_p lterm, Term_p rterm, TB_p bank,  bool positive)
 #ifndef ENABLE_LFHO
       assert(!TermIsVar(lterm));
 #endif
-      /* TermPrint(stdout, lterm, bank->sig, DEREF_NEVER);
+      /*TermPrint(stdout, lterm, bank->sig, DEREF_NEVER);
       printf("===");
       TermPrint(stdout, rterm, bank->sig, DEREF_NEVER);
-      printf("\n"); */
+      printf("\n");
 
       if (!TermIsVar(lterm) && !TermIsAppliedVar(lterm))
       {
@@ -611,13 +611,14 @@ Eqn_p EqnAlloc(Term_p lterm, Term_p rterm, TB_p bank,  bool positive)
       }
       
       TermCellSetProp(lterm, TPPredPos);
-      if(SigQueryFuncProp(bank->sig, lterm->f_code, FPPseudoPred))
+      if(!TermIsVar(lterm) && SigQueryFuncProp(bank->sig, lterm->f_code, FPPseudoPred))
       {
          EqnSetProp(handle, EPPseudoLit);
-      }
+      }*/
    }
 
-   if(lterm->type != rterm->type)
+   /* Allowing predicate variables to be stored in equation */
+   if(lterm->type != rterm->type && !(TypeIsPredicate(lterm->type) && rterm == bank->true_term))
    {
       TermAssertSameSort(bank->sig, lterm, rterm);
    }
