@@ -63,6 +63,7 @@ static __inline__ Term_p TermEquivCellAlloc(Term_p source, VarBank_p vars);
 bool   TermStructEqual(Term_p t1, Term_p t2);
 bool   TermStructEqualNoDeref(Term_p t1, Term_p t2);
 bool   TermStructEqualDeref(Term_p t1, Term_p t2, DerefType deref_1, DerefType deref_2);
+bool   TermStructPrefixEqual(Term_p l, Term_p r, DerefType d_l, DerefType d_r, int remaining, Sig_p sig);
 
 long   TermStructWeightCompare(Term_p t1, Term_p t2);
 

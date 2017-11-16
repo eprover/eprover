@@ -344,14 +344,22 @@ static Eqn_p find_spec_literal(Eqn_p lit, Eqn_p list)
    int cmpres;
 #ifndef NDEBUG
    Eqn_p old_res = find_spec_literal_old(lit, list);
+   Eqn_p orig_list = list;
+   Eqn_p got_up_to = list;
 #endif
 
-   for(;list;list = list->next)
+   for(;list;got_up_to = list = list->next)
    {
       /*cmpres = EqnSubsumeQOrderCompare(lit, list);*/
       cmpres = EqnHasTopLevelVarL(lit) ?
                   (PropsAreEquiv(lit, list, EPIsPositive|EPIsEquLiteral) ? 0 : -1)
                   : EqnSubsumeQOrderCompare(lit, list);
+
+      /*fprintf(stderr, "cmp ");
+      EqnPrint(stderr, lit, false, true);
+      fprintf(stderr, "and ");
+      EqnPrint(stderr, list, false, true);
+      fprintf(stderr, "with result %d.\n", cmpres);*/
 
       if(cmpres > 0)
       {
@@ -363,9 +371,16 @@ static Eqn_p find_spec_literal(Eqn_p lit, Eqn_p list)
          continue;
       }
       if(EqnStandardWeight(lit) > EqnStandardWeight(list))
-      {
-         list = NULL;
-         break;
+      { 
+         if (!EqnHasTopLevelVar(lit))
+         {   
+            list = NULL;
+            break; 
+         }
+         else
+         {
+            continue;
+         }
       }
 
 
@@ -396,7 +411,7 @@ static Eqn_p find_spec_literal(Eqn_p lit, Eqn_p list)
 #ifndef NDEBUG
    if (list != old_res)
    {
-      fprintf(stderr, "Subsumption error found. Old: ");
+      fprintf(stderr, "! subsumption check error found. Old: ");
       if (old_res)
       {
          EqnPrint(stderr, old_res, false, true);   
@@ -414,10 +429,25 @@ static Eqn_p find_spec_literal(Eqn_p lit, Eqn_p list)
       }
       else
       {
-         fprintf(stderr, "-\n");
+         fprintf(stderr, "-");
       }
       
       fprintf(stderr, ".\n");
+
+
+      fprintf(stderr, "! attempt was from ");
+      EqnPrint(stderr, lit, false, true);
+      fprintf(stderr, " to ");
+      EqnListPrint(stderr, orig_list, "|", false, true);
+      fprintf(stderr, ".\n");
+
+      fprintf(stderr, "! failed at ");
+      if (got_up_to)
+        EqnPrint(stderr, got_up_to, false, true);
+      else
+        fprintf(stderr, "-");
+      fprintf(stderr, " with cmpres = %d.\n", cmpres);
+
       assert(false);
    }
 #endif
@@ -581,41 +611,24 @@ bool eqn_list_rec_subsume(Eqn_p subsum_list, Eqn_p sub_cand_list,
 
    if(!subsum_list)
    {
-      //fprintf(stderr, "# subsum list empty.\n");
       return true;
    }
-
-   /*fprintf(stderr, "# started eqn list rec %p: ", subsum_list);
-   EqnListPrint(stderr, subsum_list, "//", false, true);
-   fprintf(stderr, "\n#sub_cand_list %p: ", sub_cand_list);
-   EqnListPrint(stderr, sub_cand_list, "\\\\", false, true);
-   fprintf(stderr, ".\n");*/
    
    for(eqn = sub_cand_list, lcount=0; eqn; eqn = eqn->next, lcount++)
    {
-
-      /* We now use strict multiset-subsumption. I should probably
-         rewrite this code to be more efficient for that case...*/
       if(pick_list[lcount])
       {
          continue;
       }
 
-      /* If it is an applied var, try it against anything of the same sign */
+      /* If it is an (applied) var, 
+         try it against anything of the same sign */
       cmpres = EqnHasTopLevelVarL(subsum_list) ?
                   (PropsAreEquiv(eqn, subsum_list, EPIsPositive|EPIsEquLiteral) ? 0 : 1)
                   : EqnSubsumeQOrderCompare(eqn, subsum_list);
-      //cmpres = EqnSubsumeQOrderCompare(eqn, subsum_list);
-
-      /*fprintf(stderr, "? in eqn_list_rec_subsume: Compared ");
-      EqnPrint(stderr, eqn, false, true);
-      fprintf(stderr, " and ");
-      EqnPrint(stderr, subsum_list, false, true);
-      fprintf(stderr, " with result %d.\n", cmpres);*/
 
       if(cmpres < 0)
       {
-         //fprintf(stderr, "failed cmpres.\n");
          return false;
       }
       if(cmpres >  0)
@@ -625,8 +638,16 @@ bool eqn_list_rec_subsume(Eqn_p subsum_list, Eqn_p sub_cand_list,
 
       if(EqnStandardWeight(eqn) < EqnStandardWeight(subsum_list))
       {
-         //fprintf(stderr, "failed weight.\n");
-         return false;
+         if (!EqnHasTopLevelVar(subsum_list))
+         {
+            // but if both have vars at the top level, we reached the end.
+            return false;
+         }
+         else
+         {
+            continue; // if it is applied var we have to just move over
+                      // heavier terms to get to applied vars again.
+         }
       }
 
       assert(PropsAreEquiv(subsum_list, eqn, EPIsPositive|EPIsEquLiteral));
@@ -644,17 +665,9 @@ bool eqn_list_rec_subsume(Eqn_p subsum_list, Eqn_p sub_cand_list,
       if(SubstMatchComplete(subsum_list->lterm, eqn->lterm, subst, eqn->bank->sig)&&
          SubstMatchComplete(subsum_list->rterm, eqn->rterm, subst, eqn->bank->sig))
       {
-         /*fprintf(stderr, "# match between ");
-         EqnPrint(stderr, subsum_list, false, true);
-         fprintf(stderr, "and ");
-         EqnPrint(stderr, eqn, false, true);
-         fprintf(stderr, "suceeded.\n");*/
          if(eqn_list_rec_subsume(subsum_list->next, sub_cand_list,
                                  subst, pick_list))
          {
-            /*fprintf(stderr, "? matched with equations not inverted with substitution ");
-            SubstPrint(stderr, subst, eqn->bank->sig, DEREF_ONCE);
-            fprintf(stderr, "\n");*/
             return true;
          }
       }
@@ -668,11 +681,6 @@ bool eqn_list_rec_subsume(Eqn_p subsum_list, Eqn_p sub_cand_list,
       if(SubstMatchComplete(subsum_list->lterm, eqn->rterm, subst, eqn->bank->sig)&&
          SubstMatchComplete(subsum_list->rterm, eqn->lterm, subst, eqn->bank->sig))
       {
-         /*fprintf(stderr, "# match between ");
-         EqnPrint(stderr, subsum_list, false, true);
-         fprintf(stderr, "and ");
-         EqnPrint(stderr, eqn, false, true);
-         fprintf(stderr, "suceeded.\n");*/
          if(eqn_list_rec_subsume(subsum_list->next, sub_cand_list,
                                  subst, pick_list))
          {
@@ -685,7 +693,6 @@ bool eqn_list_rec_subsume(Eqn_p subsum_list, Eqn_p sub_cand_list,
       SubstBacktrackToPos(subst, state);
       pick_list[lcount]--;
    }
-   // fprintf(stderr, "failed traversal.\n");
    return false;
 }
 

@@ -1442,49 +1442,31 @@ int EqnSubsumeQOrderCompare(const void* lit1, const void* lit2)
    const Eqn_p l1 = (const Eqn_p) lit1;
    const Eqn_p l2 = (const Eqn_p) lit2;
 
-   /*fprintf(stderr, "\n? Comparing ");
-   EqnPrint(stderr, l1, false, true);
-   fprintf(stderr, " and ");
-   EqnPrint(stderr, l2, false, true);*/
-
    res = EqnIsPositive(l1) - EqnIsPositive(l2);
    if(res)
    {
-      //fprintf(stderr, " with result -- polarity %d.\n ", res);
       return res;
    }
    res = EqnIsEquLit(l1) - EqnIsEquLit(l2);
    if(res)
    {
-      //fprintf(stderr, " with result -- equality %d.\n ", res);
       return res;
    }
-   /* This means that both of the sides of the equation are
-      predicates */
-   if(!EqnIsEquLit(l1))
+
+   if (TermIsAppliedVar(l1->lterm))
+   {
+      // if both are vars order them by the weight
+      res = TermIsAppliedVar(l2->lterm) ? 0 : -1;
+   }
+   else if (TermIsAppliedVar(l2->lterm))
+   {
+      // we know that l1 is not a top level var so we say l2 is bigger anyways
+      res = 1;
+   }
+   else if (!EqnIsEquLit(l1))
    {
       res = CMP(l1->lterm->f_code, l2->lterm->f_code);
    }
-   else if (ProblemIsHO == PROBLEM_IS_HO)
-   {
-      // I deliberately leave it to be run only in HO case
-      // to keep behavior in FO case as Stephan intended,
-      // even though I do not understand why he decides not
-      // to treat equational literals
-
-      // if term is applied variable it can match any f code
-      if (!TermIsAppliedVar(l1->lterm))
-      {
-         res = TermIsAppliedVar(l2->lterm) ? 1 : 0;   
-      }
-      else
-      {
-         // we say that the variable is bigger!
-         res = -1;
-      }
-   }
-
-   //fprintf(stderr, " with result -- f symbol %d.\n ", res);
    return res;
 }
 
