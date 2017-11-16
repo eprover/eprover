@@ -299,6 +299,20 @@ long compute_pos_into_pm_term(ParamodInfo_p pminfo,
       SubstPrint(stdout, subst, pminfo->bank->sig, DEREF_ALWAYS);
       printf("\n"); */
 
+      if (unif_res.term_remaining > 0)
+      {
+         fprintf(stderr, "# paramodulation from ");
+         TermPrint(stderr, olterm, pminfo->bank->sig, DEREF_ALWAYS);
+         fprintf(stderr, " to prefix of term ");
+         TermPrint(stderr, into_clauses->term, pminfo->bank->sig, DEREF_ALWAYS);
+         fprintf(stderr, "(");
+         TermPrint(stderr, TermCreatePrefix(into_clauses->term, 
+                                            into_clauses->term->arity - unif_res.term_remaining), 
+                           pminfo->bank->sig, DEREF_ALWAYS);
+         fprintf(stderr, " - %d) compute_pos_into_pm_term.\n", unif_res.term_remaining);
+
+      }
+
       max_side = ClausePosGetSide(pminfo->from_pos);
       rep_side = ClausePosGetOtherSide(pminfo->from_pos);
       pminfo->remaining_args = unif_res.term_remaining;
@@ -523,6 +537,15 @@ long compute_pos_from_pm_term(ParamodInfo_p pminfo,
       /* printf("# Mgu from:\n");
       SubstPrint(stdout, subst, pminfo->bank->sig, DEREF_ALWAYS);
       printf("\n"); */
+
+      if (unif_res.term_remaining > 0)
+      {
+         fprintf(stderr, "# paramodulation from ");
+         TermPrint(stderr, from_clauses->term, pminfo->bank->sig, DEREF_ALWAYS);
+         fprintf(stderr, " to prefix of term ");
+         TermPrint(stderr, olterm, pminfo->bank->sig, DEREF_ALWAYS);
+         fprintf(stderr, "(remaining args %d).compute_pos_from_pm_term\n", unif_res.term_remaining);
+      }
 
       max_side = ClausePosGetSide(pminfo->into_pos);
       min_side = ClausePosGetOtherSide(pminfo->into_pos);

@@ -191,10 +191,11 @@ Clause_p ClausePlainParamodConstruct(ParamodInfo_p ol_desc)
    fprintf(stderr, ".\n");*/
 
 
-   assert(ol_desc->remaining_args != 0  || TermStructEqualDeref(ClausePosGetSubterm(ol_desc->from_pos),
+   assert(TermStructPrefixEqual(ClausePosGetSubterm(ol_desc->from_pos),
                                ClausePosGetSubterm(ol_desc->into_pos),
                                DEREF_ALWAYS,
-                               DEREF_ALWAYS));
+                               DEREF_ALWAYS,
+                               ol_desc->remaining_args, ol_desc->bank->sig));
    assert(EqnIsPositive(ol_desc->from_pos->literal));
    assert(PStackEmpty(ol_desc->from_pos->pos));
 
@@ -273,10 +274,11 @@ Clause_p ClauseSimParamodConstruct(ParamodInfo_p ol_desc)
    Eqn_p     into_copy, from_copy;
    Subst_p   subst = SubstAlloc();
 
-   assert(TermStructEqualDeref(ClausePosGetSubterm(ol_desc->from_pos),
+   assert(TermStructPrefixEqual(ClausePosGetSubterm(ol_desc->from_pos),
                                ClausePosGetSubterm(ol_desc->into_pos),
                                DEREF_ALWAYS,
-                               DEREF_ALWAYS));
+                               DEREF_ALWAYS,
+                               ol_desc->remaining_args, ol_desc->bank->sig));
 
    VarBankResetVCount(ol_desc->freshvars);
    into_term = ClausePosGetSubterm(ol_desc->into_pos);
@@ -413,9 +415,25 @@ Term_p ComputeOverlap(TB_p bank, OCB_p ocb, ClausePos_p from, Term_p
 
    unify_res = SubstMguPossiblyPartial(max_side, sub_into, subst, bank->sig);
 
+   /* If unification succeeded and potentially prefix of into term has been unified */
    if(!UnifFailed(unify_res) && 
        (!(unify_res.term_remaining > 0) || unify_res.term_side == RightTerm))
    {
+      if (unify_res.term_remaining > 0)
+      {
+         fprintf(stderr, "# paramodulation from ");
+         TermPrint(stderr, max_side, bank->sig, DEREF_ALWAYS);
+         fprintf(stderr, " to prefix of term ");
+         TermPrint(stderr, sub_into, bank->sig, DEREF_ALWAYS);
+         fprintf(stderr, "(" );
+         TermPrint(stderr, TermCreatePrefix(sub_into, 
+                                            sub_into->arity - unify_res.term_remaining), 
+                           bank->sig, DEREF_ALWAYS);
+         fprintf(stderr, " - %d). ComputeOverlap\n", unify_res.term_remaining);
+
+      }
+
+
       // if we match from from to into -- into can be missing arguments
       if(!EqnIsOriented(from->literal)
           && TOGreater(ocb, rep_side, max_side, DEREF_ALWAYS,
@@ -640,7 +658,7 @@ Clause_p ClauseOrderedSimParamod(TB_p bank, OCB_p ocb, ClausePos_p
    subst = SubstAlloc();
    VarBankResetVCount(freshvars);
    unify_res = SubstMguPossiblyPartial(from_term, into_term, subst, bank->sig);
-   if((UnifFailed(unify_res) || (!(unify_res.term_remaining > 0) || unify_res.term_side == RightTerm)) ||
+   if((UnifFailed(unify_res) || ((unify_res.term_remaining > 0) && unify_res.term_side != RightTerm)) ||
       (!EqnIsOriented(from->literal) &&
        TOGreater(ocb, ClausePosGetOtherSide(from), from_term,
                  DEREF_ALWAYS, DEREF_ALWAYS)))
@@ -686,6 +704,20 @@ Clause_p ClauseOrderedSimParamod(TB_p bank, OCB_p ocb, ClausePos_p
    { /* Now we build the new clause! */
       /* _all_ instances of into_term are handled */
       TermCellDelProp(into_term, TPPotentialParamod);
+
+      if (unify_res.term_remaining > 0)
+      {
+         fprintf(stderr, "# paramodulation from ");
+         TermPrint(stderr, from_term, bank->sig, DEREF_ALWAYS);
+         fprintf(stderr, " to prefix of term ");
+         TermPrint(stderr, into_term, bank->sig, DEREF_ALWAYS);
+         fprintf(stderr, "(");
+         TermPrint(stderr, TermCreatePrefix(into_term, 
+                                            into_term->arity - unify_res.term_remaining), 
+                           bank->sig, DEREF_ALWAYS);
+         fprintf(stderr, " - %d).ClauseOrderedSimParamod\n", unify_res.term_remaining);
+
+      }
 
       NormSubstEqnListExcept(into->clause->literals, NULL, subst, freshvars);
       NormSubstEqnListExcept(from->clause->literals, NULL, subst, freshvars);
