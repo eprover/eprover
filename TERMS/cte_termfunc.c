@@ -770,6 +770,59 @@ bool TermStructEqualDeref(Term_p t1, Term_p t2, DerefType deref_1, DerefType der
    return true;
 }
 
+bool TermStructPrefixEqual(Term_p l, Term_p r, DerefType d_l, DerefType d_r, int remaining, Sig_p sig)
+{
+   bool res = true;
+   if (remaining == 0)
+   {
+      res = TermStructEqualDeref(l, r, d_l, d_r);
+   }
+   else
+   {
+      l = TermDeref(l, &d_l);
+      r = TermDeref(r, &d_r);
+
+      if (TermIsAppliedVar(r) && (r->arity - remaining == 1))
+      {
+         // f-code comparisons woudl fail without this hack.
+         r = r->args[0];
+      }
+
+      if (l->f_code != r->f_code || (!TermIsVar(r) && r->arity < remaining))
+      {
+         res = false;
+      }
+      else
+      {
+         assert((TermIsVar(l) && TermIsVar(r)) || l->arity == r->arity-remaining);
+
+         for(int i=0; i<l->arity; i++)
+         {
+            if (!TermStructEqualDeref(l->args[i], r->args[i], d_l, d_r))
+            {
+               res = false;
+               break;
+            }
+         }   
+      }
+   }
+
+   
+
+   if (!res)
+   {
+      fprintf(stderr, "! failed for ");
+      TermPrint(stderr, l, sig, DEREF_ALWAYS);
+      fprintf(stderr, " and ");
+      TermPrint(stderr, r, sig, DEREF_ALWAYS);
+      fprintf(stderr, " (%d).\n", remaining);
+   }
+
+   return res;
+
+
+
+}
 /*-----------------------------------------------------------------------
 //
 // Function: TermStructWeightCompare()

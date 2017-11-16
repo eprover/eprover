@@ -382,6 +382,8 @@ long    EqnCollectSubterms(Eqn_p eqn, PStack_p collector);
 #define EqnHasAppVar(eqn) (TermIsAppliedVar((eqn)->lterm) \
                             || TermIsAppliedVar((eqn)->rterm))
 #define EqnHasTopLevelVarL(eqn) (TermIsVar((eqn)->lterm) || TermIsAppliedVar((eqn)->lterm))
+#define EqnHasTopLevelVar(eqn)  (TermIsVar((eqn)->lterm) || TermIsAppliedVar((eqn)->lterm) || \
+                                 TermIsVar((eqn)->rterm) || TermIsAppliedVar((eqn)->rterm))
 
 
 /*---------------------------------------------------------------------*/
