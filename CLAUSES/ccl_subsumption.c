@@ -351,7 +351,7 @@ static Eqn_p find_spec_literal(Eqn_p lit, Eqn_p list)
    for(;list;got_up_to = list = list->next)
    {
       /*cmpres = EqnSubsumeQOrderCompare(lit, list);*/
-      cmpres = EqnHasTopLevelVarL(lit) ?
+      cmpres = EqnHasTopLevelVar(lit) ?
                   (PropsAreEquiv(lit, list, EPIsPositive|EPIsEquLiteral) ? 0 : -1)
                   : EqnSubsumeQOrderCompare(lit, list);
 
@@ -623,7 +623,7 @@ bool eqn_list_rec_subsume(Eqn_p subsum_list, Eqn_p sub_cand_list,
 
       /* If it is an (applied) var, 
          try it against anything of the same sign */
-      cmpres = EqnHasTopLevelVarL(subsum_list) ?
+      cmpres = EqnHasTopLevelVar(subsum_list) ?
                   (PropsAreEquiv(eqn, subsum_list, EPIsPositive|EPIsEquLiteral) ? 0 : 1)
                   : EqnSubsumeQOrderCompare(eqn, subsum_list);
 
@@ -768,6 +768,15 @@ static bool clause_subsumes_clause(Clause_p subsumer, Clause_p
    res = eqn_list_rec_subsume(subsumer->literals,
                sub_candidate->literals, subst,
                pick_list);
+#ifndef NDEBUG
+   Subst_p dbg_subst = SubstAlloc();
+   long*   dbg_pick_list = IntArrayAlloc(ClauseLiteralNumber(sub_candidate));
+   assert(res == eqn_list_rec_subsume_old(subsumer->literals,
+               sub_candidate->literals, dbg_subst,
+               dbg_pick_list));
+   SubstDelete(dbg_subst);
+   IntArrayFree(dbg_pick_list, ClauseLiteralNumber(sub_candidate));
+#endif
    IntArrayFree(pick_list, ClauseLiteralNumber(sub_candidate));
 
    SubstDelete(subst);
