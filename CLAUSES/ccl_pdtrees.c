@@ -531,10 +531,17 @@ static void pdtree_forward(PDTree_p tree, Subst_p subst)
 {
    PDTNode_p handle = tree->tree_pos, next = NULL;
    FunCode   i = tree->tree_pos->trav_count, limit;
-   Term_p    term = PStackTopP(tree->term_stack);
+   Term_p    term = PStackGetSP(tree->term_stack) ? PStackTopP(tree->term_stack) : NULL;
 
-   /*fprintf(stderr, "At the beginning of pdtree_forward\n");
-   print_term_stack(tree->term_stack, tree->sig);*/
+   //fprintf(stderr, "At the beginning of pdtree_forward\n");
+   //print_term_stack(tree->term_stack, tree->sig);
+
+   // we might have term f g b to match but in the tree there is term f g b x y 
+   if (!term)
+   {
+      fprintf(stderr, "#! left because term is empty\n");
+      tree->tree_pos->trav_count = PDT_NODE_CLOSED(tree, handle);
+   }
 
    limit = PDT_NODE_CLOSED(tree,handle);
    while(i<limit)
@@ -552,6 +559,10 @@ static void pdtree_forward(PDTree_p tree, Subst_p subst)
           next->bound      = false;
           assert(!next->variable);
           tree->tree_pos = next;
+          /*if (next)
+            fprintf(stderr, "next->entries ? %p next->leaf %d? \n", next->entries,  next->leaf);
+          else
+            fprintf(stderr, "no next\n");*/
 #ifdef MEASURE_EXPENSIVE
           tree->visited_count++;
 #endif
@@ -753,8 +764,8 @@ void pdt_node_print(FILE* out, PDTNode_p node, int level)
       PTree_p trav;
       ClausePos_p entry;
 
-      fprintf(out, "%sleaf size=%ld age=%lu\n", IndentStr(2*level),
-             node->size_constr, node->age_constr);
+      fprintf(out, "%sleaf size=%ld age=%lu leaf?=%d\n", IndentStr(2*level),
+             node->size_constr, node->age_constr, node->leaf);
       trav_stack = PTreeTraverseInit(node->entries);
 
       while((trav = PTreeTraverseNext(trav_stack)))
@@ -1165,6 +1176,8 @@ long PDTreeDelete(PDTree_p tree, Term_p term, Clause_p clause)
    assert(term);
    assert(clause);
 
+
+   //fprintf(stderr, "# called remove!\n");
    /* printf("\nRemoving: ");
    ClausePrint(stdout, clause, true);
    if(clause->literals)
@@ -1337,6 +1350,11 @@ PDTNode_p PDTreeFindNextIndexedLeaf(PDTree_p tree, Subst_p subst)
       else
       {
          pdtree_forward(tree, subst);
+         if (tree->tree_pos && tree->tree_pos->entries)
+         {
+            // take clauses from this node
+            break;
+         }
       }
    }
    return tree->tree_pos;
@@ -1365,6 +1383,7 @@ MatchInfo_p PDTreeFindNextDemodulator(PDTree_p tree, Subst_p subst)
    {
       if(tree->store_stack)
       {
+         //fprintf(stderr, "Returning from store stack.");
          res_cell = PTreeTraverseNext(tree->store_stack);
          if(res_cell)
          {
