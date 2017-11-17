@@ -413,11 +413,12 @@ PStackPointer SubstBindAppVar(Subst_p subst, Term_p var, Term_p to_bind, int up_
    assert(to_bind);
    assert(TermIsVar(var));
    assert(!(var->binding));
-   //assert(!TermCellQueryProp(to_bind, TPPredPos));
+   assert(ProblemIsHO == PROBLEM_IS_HO || !TermCellQueryProp(to_bind, TPPredPos));
    assert(var->type);
    assert(to_bind->type);
 
    Term_p to_bind_pref = TermCreatePrefix(to_bind, up_to);
+   to_bind_pref->type = var->type;
 
    var->binding = to_bind_pref;
    PStackPushP(subst, var);    

@@ -146,7 +146,8 @@ int SubstComputeMatchHO(Term_p matcher, Term_p to_match, Subst_p subst, Sig_p si
    assert(TermStandardWeight(matcher)  == TermWeight(matcher, DEFAULT_VWEIGHT, DEFAULT_FWEIGHT));
    assert(TermStandardWeight(to_match) == TermWeight(to_match, DEFAULT_VWEIGHT, DEFAULT_FWEIGHT));
 
-   if((matcher_weight > to_match_weight) || (TermCellQueryProp(to_match, TPPredPos) && TermIsVar(matcher)))
+   // matching of variables against terms is OK in HO case.
+   if((matcher_weight > to_match_weight) /*|| (TermCellQueryProp(to_match, TPPredPos) && TermIsVar(matcher))*/)
    {
       return NOT_MATCHED;
    }
