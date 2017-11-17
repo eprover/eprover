@@ -34,15 +34,15 @@ thf(a_type,type,(
 
 thf(cPU_X238B_pme,conjecture,(
     ! [Z: a,P: a > a > a,L: a > a,R: a > a,X: a > $o] :
-      ( ( ( ( L @ Z )
+      ( ( (  L @ Z 
           = Z )
-        & ( ( R @ Z )
+        & (  R @ Z 
           = Z )
         & ! [Xx: a,Xy: a] :
-            ( ( L @ ( P @ Xx @ Xy ) )
+            (  L @ ( P @ Xx @ Xy ) 
             = Xx )
         & ! [Xx: a,Xy: a] :
-            ( ( R @ ( P @ Xx @ Xy ) )
+            (  R @ ( P @ Xx @ Xy ) 
             = Xy )
         & ! [Xt: a] :
             ( ( Xt != Z )
