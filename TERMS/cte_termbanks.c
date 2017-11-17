@@ -1329,13 +1329,13 @@ Term_p  TBTermParseRealHO(Scanner_p in, TB_p bank, bool check_symb_prop)
       head = parse_one_ho(in, bank);
    }
 
-   if (!TermIsVar(head) && !SigGetType(bank->sig, head->f_code))
+   if (!TermIsVar(head) && !TermIsAppliedVar(head) && !SigGetType(bank->sig, head->f_code))
    {
       DStr_p msg = DStrAlloc();
       if (head->f_code > 0) 
       {
          DStrAppendStr(msg, SigFindName(bank->sig, head->f_code));
-         DStrAppendStr(msg, "with id ");
+         DStrAppendStr(msg, " with id ");
       }
       DStrAppendInt(msg, (int)head->f_code);
       DStrAppendStr(msg, " has not been declared previously. This needs to change.");

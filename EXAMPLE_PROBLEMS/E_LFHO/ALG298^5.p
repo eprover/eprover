@@ -52,20 +52,20 @@ thf(c_stara,type,(
 thf(cTHM270_pme,conjecture,(
     ! [Xf: a > b,Xg: a > c,Xh: b > c] :
       ( ( ! [Xx: a] :
-            ( ( Xh @ ( Xf @ Xx ) )
+            (  Xh @ ( Xf @ Xx ) 
             = ( Xg @ Xx ) )
         & ! [Xy: b] :
           ? [Xx: a] :
-            ( ( Xf @ Xx )
+            (  Xf @ Xx 
             = Xy )
         & ! [Xx: a,Xy: a] :
-            ( ( Xf @ ( c_stara @ Xx @ Xy ) )
+            (  Xf @ ( c_stara @ Xx @ Xy ) 
             = ( c_starb @ ( Xf @ Xx ) @ ( Xf @ Xy ) ) )
         & ! [Xx: a,Xy: a] :
-            ( ( Xg @ ( c_stara @ Xx @ Xy ) )
+            (  Xg @ ( c_stara @ Xx @ Xy ) 
             = ( c_starc @ ( Xg @ Xx ) @ ( Xg @ Xy ) ) ) )
      => ! [Xx: b,Xy: b] :
-          ( ( Xh @ ( c_starb @ Xx @ Xy ) )
+          (  Xh @ ( c_starb @ Xx @ Xy ) 
           = ( c_starc @ ( Xh @ Xx ) @ ( Xh @ Xy ) ) ) ) )).
 
 %------------------------------------------------------------------------------
