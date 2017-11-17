@@ -734,9 +734,6 @@ bool TermStructEqualNoDeref(Term_p t1, Term_p t2)
       // to have same head but different arities.
       // in that case the type must be different.
       assert(ProblemIsHO == PROBLEM_IS_HO);
-      fprintf(stderr, "Type 1: %p , Type 2: %p.\n", t1->type, t2->type);
-      fprintf(stderr, "Type 1 fcode: %ld , Type 2 fcode: %ld.\n", t1->type->f_code, t2->type->f_code);
-      fprintf(stderr, "Type 1 arity: %d , Type 2 fcode: %d.\n", t1->type->arity, t2->type->arity);
       assert(TermIsAppliedVar(t1) || t1->arity != t2->arity);
       return false;
    }
