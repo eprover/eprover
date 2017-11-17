@@ -216,7 +216,8 @@ static long fp_index_rek_find_unif(FPTree_p index, IndexFP_p key,
                                     sig,
                                     current+1,
                                     collect);
-      if(!SigIsPredicate(sig, key[current]))
+      /* This is true only in FO case */
+      if(ProblemIsHO == PROBLEM_IS_HO || !SigIsPredicate(sig, key[current]))
       {  /* Predicates can never unify with variables */
          res += fp_index_rek_find_unif(fpindex_alternative(index, ANY_VAR),
                                        key,
@@ -271,7 +272,8 @@ static long fp_index_rek_find_unif(FPTree_p index, IndexFP_p key,
       {
          assert(child);
 
-         if(i<=0 || !SigIsPredicate(sig, i))
+         // Similarly in HO case we allow var to unify with a predicate
+         if(i<=0 || ProblemIsHO == PROBLEM_IS_HO || !SigIsPredicate(sig, i))
          {
             res += fp_index_rek_find_unif(child,
                                           key,
@@ -370,7 +372,7 @@ static long fp_index_rek_find_matchable(FPTree_p index, IndexFP_p key,
       {
          assert(child);
 
-         if(i<=0 || !SigIsPredicate(sig, i))
+         if(i<=0 || ProblemIsHO == PROBLEM_IS_HO || !SigIsPredicate(sig, i))
          {
             res += fp_index_rek_find_matchable(child,
                                                key,
