@@ -64,10 +64,10 @@ thf(cHAS_LOST_MONEY,type,(
     cHAS_LOST_MONEY: $o )).
 
 thf(cPORKCHOP1,conjecture,
-    ( ( ( ( cLOGICIAN
+    ( ( ( ( (cLOGICIAN)
           & cEATS_PORKCHOPS )
        => cLIKELY_LOSE_MONEY )
-      & ( ( cGAMBLER
+      & ( ( (cGAMBLER)
           & ~ ( cRAVENOUS ) )
        => cLIKELY_LOSE_MONEY )
       & ( ( ~ ( cLIVELY )
@@ -77,17 +77,17 @@ thf(cPORKCHOP1,conjecture,
       & ( ( ~ ( cGAMBLER )
           & ~ ( cEATS_PORKCHOPS ) )
        => cRAVENOUS )
-      & ( ( cLIVELY
+      & ( ( (cLIVELY)
           & cIN_BED_BEFORE_FOUR )
        => cBETTER_TAKE_TO_CAB_DRIVING )
-      & ( ( cRAVENOUS
+      & ( ( (cRAVENOUS)
           & ~ ( cHAS_LOST_MONEY )
           & ~ ( cRISES_AT_FIVE ) )
        => cEATS_PORKCHOPS )
-      & ( ( cLOGICIAN
+      & ( ( (cLOGICIAN)
           & cLIKELY_LOSE_MONEY )
        => cBETTER_TAKE_TO_CAB_DRIVING )
-      & ( ( cEARNEST
+      & ( ( (cEARNEST)
           & ~ ( cLIVELY )
           & cGAMBLER
           & ~ ( cHAS_LOST_MONEY ) )
@@ -95,32 +95,32 @@ thf(cPORKCHOP1,conjecture,
       & ( ( ~ ( cGAMBLER )
           & ~ ( cRAVENOUS ) )
        => cLIVELY )
-      & ( ( cLIVELY
+      & ( ( (cLIVELY)
           & cLOGICIAN
           & cEARNEST )
        => ~ ( cLIKELY_LOSE_MONEY ) )
-      & ( ( cRAVENOUS
+      & ( ( (cRAVENOUS)
           & cEARNEST )
        => ~ ( cBETTER_TAKE_TO_CAB_DRIVING ) )
-      & ( ( cGAMBLER
+      & ( ( (cGAMBLER)
           & ~ ( cLIVELY )
           & ~ ( cLIKELY_LOSE_MONEY ) )
        => ~ ( cIN_BED_BEFORE_FOUR ) )
-      & ( ( cHAS_LOST_MONEY
+      & ( ( (cHAS_LOST_MONEY)
           & ~ ( cEATS_PORKCHOPS )
           & ~ ( cRISES_AT_FIVE ) )
        => cBETTER_TAKE_TO_CAB_DRIVING )
-      & ( ( cGAMBLER
+      & ( ( (cGAMBLER)
           & cIN_BED_BEFORE_FOUR
           & ~ ( cRAVENOUS ) )
        => ~ ( cBETTER_TAKE_TO_CAB_DRIVING ) )
-      & ( ( cRAVENOUS
+      & ( ( (cRAVENOUS)
           & ~ ( cLIVELY )
           & ~ ( cLIKELY_LOSE_MONEY ) )
        => cGAMBLER ) )
-   => ( ( cEARNEST
+   => ( ( (cEARNEST)
         & cLOGICIAN )
-     => ( cRISES_AT_FIVE
+     => ( (cRISES_AT_FIVE)
         & ~ ( cIN_BED_BEFORE_FOUR ) ) ) )).
 
 %------------------------------------------------------------------------------
