@@ -121,6 +121,12 @@ int PartiallyMatchVar(Term_p var_matcher, Term_p to_match, Sig_p sig, bool perfo
       assert(matched_up_to != 0 || matcher_type == term_head_type);
    }
 
+   /* The case where we could eat up arguments, but they are not there. */
+   if (matched_up_to > to_match->arity)
+   {
+      return NOT_MATCHED;
+   }
+
    if (perform_occur_check)
    {
       for(int i=0; i<matched_up_to; i++)
