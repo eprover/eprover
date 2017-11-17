@@ -771,11 +771,22 @@ static bool clause_subsumes_clause(Clause_p subsumer, Clause_p
 #ifndef NDEBUG
    Subst_p dbg_subst = SubstAlloc();
    long*   dbg_pick_list = IntArrayAlloc(ClauseLiteralNumber(sub_candidate));
-   assert(res == eqn_list_rec_subsume_old(subsumer->literals,
+   bool res_old =eqn_list_rec_subsume_old(subsumer->literals,
                sub_candidate->literals, dbg_subst,
-               dbg_pick_list));
+               dbg_pick_list);
+   if (res_old != res)
+   {
+      fprintf(stderr, "! subsumption error found: previously result was %d, now result is %d\n", 
+                      res_old, res);
+      fprintf(stderr, "! subsumer: ");
+      EqnListPrint(stderr, subsumer->literals, "|", false, true);
+      fprintf(stderr, " <-> subsumption cadidate: ");
+      EqnListPrint(stderr, sub_candidate->literals, "|", false, true);
+      fprintf(stderr, ".\n");
+   }
    SubstDelete(dbg_subst);
    IntArrayFree(dbg_pick_list, ClauseLiteralNumber(sub_candidate));
+   //assert(res == res_old);
 #endif
    IntArrayFree(pick_list, ClauseLiteralNumber(sub_candidate));
 
