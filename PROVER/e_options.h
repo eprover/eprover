@@ -146,6 +146,9 @@ typedef enum
    OPT_FORWARD_DEMOD,
    OPT_STRONG_RHS_INSTANCE,
    OPT_STRONGSUBSUMPTION,
+   OPT_SAT_STEP_INTERVAL,
+   OPT_SAT_SIZE_INTERVAL,
+   OPT_SATCHECK,
    OPT_WATCHLIST,
    OPT_WATCHLIST_NO_SIMPLIFY,
    OPT_NO_INDEXED_SUBSUMPTION,
@@ -1077,7 +1080,7 @@ OptCell opts[] =
     " index is traversed."},
 
    {OPT_FORWARD_DEMOD,
-    'F', "forward_demod_level",
+    'F', "forward-demod-level",
     ReqArg, NULL,
     "Set the desired level for rewriting of unprocessed clauses. A "
     "value of 0 means no rewriting, 1 indicates to use rules "
@@ -1096,6 +1099,23 @@ OptCell opts[] =
     "Try multiple positions and unit-equations to try to "
     "equationally subsume a "
     "single new clause. Default is to search for a single position."},
+
+   {OPT_SAT_STEP_INTERVAL,
+    '\0', "sat-step-freq",
+    OptArg, "1000",
+    "Enable periodic SAT checking at the given interval of main loop "
+    "iterations."},
+
+   {OPT_SAT_SIZE_INTERVAL,
+    '\0', "sat-size-freq",
+    OptArg, "1000",
+    "Enable periodic SAT checking whenever the total proof state size "
+    "increases by the given limit."},
+
+   {OPT_SATCHECK,
+    '\0', "sat-check",
+    OptArg, "MaxConjFreqConst",
+    "Set the grounding strategy for periodic SAT checking."},
 
    {OPT_WATCHLIST,
     '\0', "watchlist",

@@ -162,9 +162,11 @@ long    TBTermDelPropCount(Term_p term, TermProperties prop);
    (GiveProps((term),TPGarbageFlag)!=(bank)->garbage_state)
 void    TBGCMarkTerm(TB_p bank, Term_p term);
 long    TBGCSweep(TB_p bank);
+Term_p  TBCreateConstTerm(TB_p bank, FunCode const);
 Term_p  TBCreateMinTerm(TB_p bank, FunCode min_const);
 
 long    TBTermCollectSubterms(Term_p term, PStack_p collector);
+Term_p  TBGetFirstConstTerm(TB_p bank, SortType sort);
 
 
 /*---------------------------------------------------------------------*/

@@ -284,6 +284,7 @@ bool EqnEqlitRecode(Eqn_p lit)
    {
       Term_p t = TermDefaultCellAlloc();
 
+      t->sort = STBool;
       t->f_code = SigGetEqnCode(lit->bank->sig, true);
       t->args = TermArgArrayAlloc(2);
       t->arity = 2;

@@ -236,6 +236,8 @@ int     SigCountAritySymbols(Sig_p sig, int arity, bool predicates);
 int     SigCountSymbols(Sig_p sig, bool predicates);
 int     SigAddSymbolArities(Sig_p sig, PDArray_p distrib, bool
              predicates, long selection[]);
+long    SigCollectSortConsts(Sig_p sig, SortType sort, PStack_p res);
+
 
 /* Special functions for dealing with special symbols */
 

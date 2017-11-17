@@ -127,15 +127,27 @@ void         ProofStateFree(ProofState_p junk);
 //void         ProofStateGCMarkTerms(ProofState_p state);
 //long         ProofStateGCSweepTerms(ProofState_p state);
 
-#define      ProofStateStorage(state) \
-   (ClauseSetStorage((state)->unprocessed)+\
-    ClauseSetStorage((state)->processed_pos_rules)+\
-    ClauseSetStorage((state)->processed_pos_eqns)+\
-    ClauseSetStorage((state)->processed_neg_units)+\
-    ClauseSetStorage((state)->processed_non_units)+\
-    ClauseSetStorage((state)->archive)+\
+#define      ProofStateStorage(state)                   \
+   (ClauseSetStorage((state)->unprocessed)+             \
+    ClauseSetStorage((state)->processed_pos_rules)+     \
+    ClauseSetStorage((state)->processed_pos_eqns)+      \
+    ClauseSetStorage((state)->processed_neg_units)+     \
+    ClauseSetStorage((state)->processed_non_units)+     \
+    ClauseSetStorage((state)->archive)+                 \
     TBStorage((state)->terms))
 
+#define      ProofStateProcCardinality(state)          \
+   (ClauseSetCardinality((state)->processed_pos_rules)+   \
+    ClauseSetCardinality((state)->processed_pos_eqns)+    \
+    ClauseSetCardinality((state)->processed_neg_units)+   \
+    ClauseSetCardinality((state)->processed_non_units))
+
+#define      ProofStateUnprocCardinality(state)  \
+    ClauseSetCardinality((state)->unprocessed)
+
+#define      ProofStateCardinality(state)          \
+   (ProofStateProcCardinality(state)+              \
+    ProofStateUnprocCardinality(state))
 
 bool ProofStateIsUntyped(ProofState_p state);
 void ProofStateAnalyseGC(ProofState_p state);

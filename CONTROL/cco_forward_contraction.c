@@ -297,10 +297,10 @@ FVPackedClause_p ForwardContractClause(ProofState_p state,
 /----------------------------------------------------------------------*/
 
 Clause_p ForwardContractSet(ProofState_p state, ProofControl_p
-             control, ClauseSet_p set, bool
-             non_unit_subsumption, RewriteLevel level,
-             unsigned long* count_eliminated, bool
-             terminate_on_empty)
+                            control, ClauseSet_p set, bool
+                            non_unit_subsumption, RewriteLevel level,
+                            unsigned long* count_eliminated, bool
+                            terminate_on_empty)
 {
    Clause_p handle, next;
 
@@ -316,19 +316,19 @@ Clause_p ForwardContractSet(ProofState_p state, ProofControl_p
       assert(handle);
 
       if(forward_contract_keep(state, control, handle,
-                count_eliminated, count_eliminated,
-                non_unit_subsumption, false, false, level))
+                               count_eliminated, count_eliminated,
+                               non_unit_subsumption, false, false, level))
       {
-    if(terminate_on_empty&&ClauseIsEmpty(handle))
-    {
-       ClauseSetExtractEntry(handle);
-       return handle;
-    }
+         if(terminate_on_empty&&ClauseIsEmpty(handle))
+         {
+            ClauseSetExtractEntry(handle);
+            return handle;
+         }
       }
       else
       {
-    ClauseDetachParents(handle);
-    ClauseSetDeleteEntry(handle);
+         ClauseDetachParents(handle);
+         ClauseSetDeleteEntry(handle);
       }
       handle = next;
    }
@@ -527,5 +527,3 @@ Clause_p ProofStateFilterUnprocessed(ProofState_p state,
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-

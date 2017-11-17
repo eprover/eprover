@@ -32,6 +32,7 @@ Changes
 #include <ccl_paramod.h>
 #include <ccl_splitting.h>
 #include <ccl_condensation.h>
+#include <ccl_satinterface.h>
 #include <che_to_weightgen.h>
 #include <che_to_precgen.h>
 #include <ccl_clausefunc.h>
@@ -120,6 +121,11 @@ typedef struct heuristic_parms_cell
    char                rw_bw_index_type[MAX_PM_INDEX_NAME_LEN];
    char                pm_from_index_type[MAX_PM_INDEX_NAME_LEN];
    char                pm_into_index_type[MAX_PM_INDEX_NAME_LEN];
+
+   /* SAT checking */
+   GroundingStrategy   sat_check_grounding;
+   long                sat_check_step_limit;
+   long                sat_check_size_limit;
 
    /* Various things */
    long                filter_limit;

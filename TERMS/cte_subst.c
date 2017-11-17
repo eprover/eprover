@@ -435,21 +435,82 @@ Subst_p SubstPseudoGroundVarBank(VarBank_p vars)
    for (i=0; i < PDArraySize(vars->stacks); i++)
    {
       varstack = PDArrayElementP(vars->stacks, i);
+      printf("# varstack: %p\n", varstack);
       if (varstack)
       {
          size = PDArraySize(varstack);
-         if(size)
+         printf("# varstack size: %ld\n", size);
+         if(size > 1)
          {
-            norm = PDArrayElementP(varstack,0);
-            for(j=1; j< size; j++)
+            norm = PDArrayElementP(varstack,1);
+            printf("# varstack[1]: %p\n", norm);
+            for(j=2; j< size; j++)
             {
                current = PDArrayElementP(varstack,j);
+               printf("# varstack[%ld]: %p\n", j, current);
+               if(current)
+               {
+                  SubstAddBinding(subst, current, norm);
+               }
+            }
+         }
+      }
+   }
+   return subst;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function:
+//
+//
+//
+// Global Variables:
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+
+Subst_p SubstGroundVarBankFirstConst(TB_p terms)
+{
+   Subst_p subst = SubstAlloc();
+   VarBank_p vars = terms->vars;
+   VarBankStack_p varstack;
+   long i, j, size;
+   Term_p current, norm, backup;
+
+   assert(vars);
+
+   for (i=0; i < PDArraySize(vars->stacks); i++)
+   {
+      varstack = PDArrayElementP(vars->stacks, i);
+      printf("# varstack: %p\n", varstack);
+      if (varstack)
+      {
+         size = PDArraySize(varstack);
+         printf("# varstack size: %ld\n", size);
+         backup = PDArrayElementP(varstack,1);
+
+         norm = TBGetFirstConstTerm(terms, i);
+         if(!norm)
+         {
+            norm = backup;
+         }
+         printf("# varstack[1]: %p\n", norm);
+         for(j=1; j< size; j++)
+         {
+            current = PDArrayElementP(varstack,j);
+            printf("# varstack[%ld]: %p\n", j, current);
+            if(current)
+            {
                SubstAddBinding(subst, current, norm);
             }
          }
       }
    }
    return subst;
+
 }
 
 

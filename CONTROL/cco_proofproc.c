@@ -835,6 +835,42 @@ static Clause_p cleanup_unprocessed_clauses(ProofState_p state,
    return unsatisfiable;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: SATCheck()
+//
+//   Create ground (or pseudo-ground) instances of the clause set,
+//   hand them to a SAT solver, and check then for unsatisfiability.
+//
+// Global Variables:
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+
+Clause_p SATCheck(ProofState_p state, ProofControl_p control)
+{
+   Clause_p res = NULL;
+
+   res = ForwardContractSetReweight(state, control, state->unprocessed,
+                                    false, 2,
+                                    &(state->proc_trivial_count));
+
+
+   SatClauseSet_p set = SatClauseSetAlloc();
+
+   printf("# SatCheck()..\n");
+
+   SatClauseSetImportProofState(set, state, control->heuristic_parms.sat_check_grounding);
+
+   printf("# SatCheck()..imported\n");
+
+   res = SatClauseSetCheckUnsat(set);
+
+   SatClauseSetFree(set);
+
+   return res;
+}
 
 #ifdef PRINT_SHARING
 
@@ -1480,22 +1516,16 @@ Clause_p Saturate(ProofState_p state, ProofControl_p control, long
 {
    Clause_p unsatisfiable = NULL;
    long count = 0;
+   long sat_check_count = 0;
 
    while(!TimeIsUp &&
          !ClauseSetEmpty(state->unprocessed) &&
-         step_limit>count &&
-         proc_limit>(state->processed_pos_rules->members +
-                     state->processed_pos_eqns->members +
-                     state->processed_neg_units->members +
-                     state->processed_non_units->members) &&
-         unproc_limit>state->unprocessed->members &&
-         total_limit>(state->processed_pos_rules->members +
-                      state->processed_pos_eqns->members +
-                      state->processed_neg_units->members +
-                      state->processed_non_units->members+
-                      state->unprocessed->members)&&
+         step_limit   > count &&
+         proc_limit   > ProofStateProcCardinality(state) &&
+         unproc_limit > ProofStateUnprocCardinality(state) &&
+         total_limit  > ProofStateCardinality(state) &&
          generated_limit > (state->generated_count -
-                           state->backward_rewritten_count)&&
+                            state->backward_rewritten_count)&&
          tb_insert_limit > state->terms->insertions &&
          (!state->watchlist||!ClauseSetEmpty(state->watchlist)))
    {
@@ -1509,6 +1539,17 @@ Clause_p Saturate(ProofState_p state, ProofControl_p control, long
       if(unsatisfiable)
       {
          break;
+      }
+      if((count/(sat_check_count+1) > control->heuristic_parms.sat_check_step_limit)||
+         (ProofStateCardinality(state)/(sat_check_count+1) >
+          control->heuristic_parms.sat_check_size_limit))
+      {
+         unsatisfiable = SATCheck(state, control);
+         if(unsatisfiable)
+         {
+            break;
+         }
+         sat_check_count++;
       }
    }
    return unsatisfiable;

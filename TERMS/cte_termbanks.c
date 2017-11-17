@@ -1377,6 +1377,29 @@ long TBGCSweep(TB_p bank)
 
 /*-----------------------------------------------------------------------
 //
+// Function: TBCreateConstTerm()
+//
+//   Create constant term for a given symbol.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+Term_p TBCreateConstTerm(TB_p bank, FunCode fconst)
+{
+   Term_p res,
+      t = TermConstCellAlloc(fconst);
+
+   res = TBInsert(bank, t, DEREF_NEVER);
+   TermFree(t);
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: TBCreateMinTerm()
 //
 //   If bank->min_term exists, return it. Otherwise create and return
@@ -1392,9 +1415,7 @@ Term_p TBCreateMinTerm(TB_p bank, FunCode min_const)
 {
    if(!bank->min_term)
    {
-      Term_p t = TermConstCellAlloc(min_const);
-      bank->min_term = TBInsert(bank, t, DEREF_NEVER);
-      TermFree(t);
+      bank->min_term = TBCreateConstTerm(bank, min_const);
    }
    assert(bank->min_term->f_code == min_const);
    return bank->min_term;
@@ -1433,6 +1454,34 @@ long TBTermCollectSubterms(Term_p term, PStack_p collector)
          res += TBTermCollectSubterms(term->args[i], collector);
       }
    }
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: TBGetFirstConstTerm()
+//
+//    Return a constant term with the first constant of the proper
+//    sort in sig.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+Term_p TBGetFirstConstTerm(TB_p bank, SortType sort)
+{
+   PStack_p cand_stack = PStackAlloc();
+   Term_p   res = NULL;
+
+   SigCollectSortConsts(bank->sig, sort, cand_stack);
+   if(!PStackEmpty(cand_stack))
+   {
+      res = TBCreateConstTerm(bank, PStackElementInt(cand_stack, 0));
+   }
+   PStackFree(cand_stack);
    return res;
 }
 

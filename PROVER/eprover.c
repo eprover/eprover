@@ -1405,6 +1405,27 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_STRONGSUBSUMPTION:
             StrongUnitForwardSubsumption = true;
             break;
+      case OPT_SAT_STEP_INTERVAL:
+            h_parms->sat_check_step_limit =
+               CLStateGetIntArgCheckRange(handle, arg, 1, LONG_MAX);
+            break;
+      case OPT_SAT_SIZE_INTERVAL:
+            h_parms->sat_check_size_limit =
+               CLStateGetIntArgCheckRange(handle, arg, 1, LONG_MAX);
+            break;
+      case OPT_SATCHECK:
+            h_parms->sat_check_grounding = StringIndex(arg, GroundingStratNames);
+            if(h_parms->sat_check_grounding<=0)
+            {
+               DStr_p err = DStrAlloc();
+               DStrAppendStr(err,
+                             "Wrong argument to option --sat-check. Possible "
+                             "values: ");
+               DStrAppendStrArray(err, GroundingStratNames+1, ", ");
+               Error(DStrView(err), USAGE_ERROR);
+               DStrFree(err);
+            }
+            break;
       case OPT_WATCHLIST:
             if(strcmp(WATCHLIST_INLINE_STRING, arg)==0 ||
                strcmp(WATCHLIST_INLINE_QSTRING, arg)==0  )
