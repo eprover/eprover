@@ -1,25 +1,24 @@
 /*-----------------------------------------------------------------------
 
-File  : clb_simple_stuff.h
+  File  : clb_simple_stuff.h
 
-Author: Stephan Schulz
+  Author: Stephan Schulz
 
-Contents
+  Contents
 
   Useful routines, usually pretty trivial.
 
-  Copyright 1998, 1999 by the author.
+  Copyright 1998-2017 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
+  Changes
 
-<1> Fri Oct 16 17:30:21 MET DST 1998
-    New
+  Created: Fri Oct 16 17:30:21 MET DST 1998
 
------------------------------------------------------------------------*/
+  -----------------------------------------------------------------------*/
 
 #ifndef CLB_SIMPLE_STUFF
 
@@ -47,14 +46,14 @@ typedef struct
 
 #define MAXINDENTSPACES 72
 
-#define WeightedObjectArrayAlloc(number) \
-        SecureMalloc(number * sizeof(WeightedObjectCell))
+#define WeightedObjectArrayAlloc(number)                        \
+   SecureMalloc(number * sizeof(WeightedObjectCell))
 #define WeightedObjectArrayFree(array) FREE(array)
 
 int     WeightedObjectCompareFun(WeightedObject_p o1, WeightedObject_p o2);
 
-#define WeightedObjectArraySort(array, size) \
-        qsort(array, size, sizeof(WeightedObjectCell),\
+#define WeightedObjectArraySort(array, size)            \
+   qsort(array, size, sizeof(WeightedObjectCell),               \
          (ComparisonFunctionType)WeightedObjectCompareFun)
 
 void     JKISSSeed(int seed1, int seed2, int seed3);

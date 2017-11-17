@@ -1,25 +1,24 @@
 /*-----------------------------------------------------------------------
 
-File  : clb_simple_stuff.c
+  File  : clb_simple_stuff.c
 
-Author: Stephan Schulz
+  Author: Stephan Schulz
 
-Contents
+  Contents
 
   Useful routines, usually pretty trivial.
 
-  Copyright 1998, 1999 by the author.
+  Copyright 1998-2017 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
+  Changes
 
-<1> Fri Oct 16 17:30:21 MET DST 1998
-    New
+  Created: Fri Oct 16 17:30:21 MET DST 1998
 
------------------------------------------------------------------------*/
+  -----------------------------------------------------------------------*/
 
 #include "clb_simple_stuff.h"
 
@@ -161,10 +160,10 @@ int StringIndex(char* key, char* list[])
    {
       for(i=0; list[i]; i++)
       {
-    if(strcmp(key, list[i])==0)
-    {
-       return i;
-    }
+         if(strcmp(key, list[i])==0)
+         {
+            return i;
+         }
       }
    }
    return -1;
