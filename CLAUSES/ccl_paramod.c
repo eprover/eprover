@@ -298,8 +298,8 @@ Clause_p ClauseSimParamodConstruct(ParamodInfo_p ol_desc)
    assert(ClausePosGetSide(ol_desc->from_pos)->type == ClausePosGetOtherSide(ol_desc->from_pos)->type);
 
    rhs_instance = TBInsertNoProps(ol_desc->bank,
-                                  MakeRewrittenTerm(into_term,
-                                                    ClausePosGetOtherSide(ol_desc->from_pos),
+                                  MakeRewrittenTerm(TermDerefAlways(into_term),
+                                                    TermDerefAlways(ClausePosGetOtherSide(ol_desc->from_pos)),
                                                     ol_desc->remaining_args),
                                   DEREF_ALWAYS);
    into_copy = EqnListCopyRepl(ol_desc->into->literals,
@@ -424,6 +424,7 @@ Term_p ComputeOverlap(TB_p bank, OCB_p ocb, ClausePos_p from, Term_p
    if(!UnifFailed(unify_res) && 
        (!(unify_res.term_remaining > 0) || unify_res.term_side == RightTerm))
    {
+#ifdef PRINT_PARTIAL_PARAMODULATION
       if (unify_res.term_remaining > 0)
       {
          fprintf(stderr, "# paramodulation from ");
@@ -437,6 +438,7 @@ Term_p ComputeOverlap(TB_p bank, OCB_p ocb, ClausePos_p from, Term_p
          fprintf(stderr, " - %d). ComputeOverlap\n", unify_res.term_remaining);
 
       }
+#endif
 
 
       // if we match from from to into -- into can be missing arguments
@@ -710,6 +712,7 @@ Clause_p ClauseOrderedSimParamod(TB_p bank, OCB_p ocb, ClausePos_p
       /* _all_ instances of into_term are handled */
       TermCellDelProp(into_term, TPPotentialParamod);
 
+#ifdef PRINT_PARTIAL_PARAMODULATION
       if (unify_res.term_remaining > 0)
       {
          fprintf(stderr, "# paramodulation from ");
@@ -723,11 +726,13 @@ Clause_p ClauseOrderedSimParamod(TB_p bank, OCB_p ocb, ClausePos_p
          fprintf(stderr, " - %d).ClauseOrderedSimParamod\n", unify_res.term_remaining);
 
       }
+#endif
 
       NormSubstEqnListExcept(into->clause->literals, NULL, subst, freshvars);
       NormSubstEqnListExcept(from->clause->literals, NULL, subst, freshvars);
       rhs_instance = TBInsertNoProps(bank,
-                                     MakeRewrittenTerm(into_term, ClausePosGetOtherSide(from), 
+                                     MakeRewrittenTerm(TermDerefAlways(into_term), 
+                                                       TermDerefAlways(ClausePosGetOtherSide(from)), 
                                                        unify_res.term_remaining),
                                      DEREF_ALWAYS);
       into_copy = EqnListCopyRepl(into->clause->literals,
