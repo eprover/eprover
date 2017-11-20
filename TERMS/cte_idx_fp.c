@@ -166,7 +166,7 @@ FunCode TermFPSampleFO(Term_p term, va_list ap)
 #ifdef ENABLE_LFHO
 FunCode TermFPSampleHO(Term_p term, va_list ap)
 {
-  int pos = 0;
+  /*int pos = 0;
   FunCode res = 0;
 
   for(pos = va_arg(ap, int); pos != -1;  pos = va_arg(ap, int))
@@ -188,7 +188,44 @@ FunCode TermFPSampleHO(Term_p term, va_list ap)
   if(pos == -1)
   {
      res = (TermIsVar(term) || TermIsAppliedVar(term)) ? ANY_VAR : term->f_code;
+  }*/
+
+  int pos = 0;
+  FunCode res = 0;
+
+  for(pos = va_arg(ap, int); pos != -1;  pos = va_arg(ap, int))
+  {
+     if(TermIsVar(term))
+     {
+        res = BELOW_VAR;
+        break;
+     }
+     if(TermIsAppliedVar(term))
+     {
+        int max_arity = TypeGetSymbolArity(term->type);
+        if (pos >= max_arity) 
+        {
+           res = NOT_IN_TERM;
+           break;
+        }
+        else
+        {
+           res = BELOW_VAR;
+           break;
+        }
+     }
+     if(pos >= term->arity)
+     {
+        res = NOT_IN_TERM;
+        break;
+     }
+     term = term->args[pos];
   }
+  if(pos == -1)
+  {
+     res = TermIsVar(term) || TermIsAppliedVar(term) ? ANY_VAR:term->f_code;
+  }
+  va_end(ap);
 
   return res;
 }
@@ -279,18 +316,31 @@ FunCode TermFPFlexSampleHO(Term_p term, IntOrP* *seq)
 
   while((pos=(*seq)->i_val)!=-1)
   {
-     long actual_pos = term->arity - 1 - pos;
-     if(TermIsVar(term) || (actual_pos < 0 && TermIsAppliedVar(term)))
+     if(TermIsVar(term))
      {
         res = BELOW_VAR;
         break;
      }
-     if(actual_pos < 0 )
+     if(TermIsAppliedVar(term))
+     {
+        int max_arity = TypeGetSymbolArity(term->type);
+        if (pos >= max_arity) 
+        {
+           res = NOT_IN_TERM;
+           break;
+        }
+        else
+        {
+           res = BELOW_VAR;
+           break;
+        }
+     }
+     if(pos >= term->arity)
      {
         res = NOT_IN_TERM;
         break;
      }
-     term = term->args[actual_pos];
+     term = term->args[pos];
      (*seq)++;
   }
   if(pos == -1)
