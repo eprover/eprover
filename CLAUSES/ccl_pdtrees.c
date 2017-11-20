@@ -577,7 +577,7 @@ static void pdtree_forward(PDTree_p tree, Subst_p subst)
        {
           assert(next->variable);
           bool bound = false;
-          if((!next->variable->binding)&&(!TermCellQueryProp(term,TPPredPos)))
+          if((!next->variable->binding)&&(ProblemIsHO == PROBLEM_IS_HO || !TermCellQueryProp(term,TPPredPos)))
           {
              if (ProblemIsHO == PROBLEM_NOT_HO)
              {
