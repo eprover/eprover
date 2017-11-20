@@ -12,7 +12,7 @@ def run_e(args, stdin_file = None):
 
   out = out.decode('utf-8')
   try:
-    szs_line = next(filter(lambda x: 'SZS status' in x, out.split()))
+    szs_line = next(filter(lambda x: 'SZS status' in x, out.split('\n')))
     szs_line = szs_line.replace("# SZS status", "")
   except StopIteration:
     szs_line = 'status line not found in the output'
@@ -37,7 +37,7 @@ def print_report_csv(report, columns = None, outpath = sys.stdout):
     out.write(",".join(columns) + "\n")
 
     for line in report:
-      out.write(",".join([line[col] if col in line else 'n/a' \
+      out.write(",".join([str(line[col]) if col in line else 'n/a' \
                          for col in columns]) + "\n")
 
 
@@ -86,7 +86,7 @@ def main():
     usage(sys.argv[0])
   else:
     test_indexing(sys.argv[1], sys.argv[2], 
-                  int(sys.argv[3]) if len(sys.argv) >= 4 else 60)
+                  int(sys.argv[3]) if len(sys.argv) >= 4 else 10)
 
 
 if __name__ == '__main__':

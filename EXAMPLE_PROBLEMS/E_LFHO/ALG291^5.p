@@ -46,7 +46,7 @@ thf(cPU_X238B_pme,conjecture,(
             = Xy )
         & ! [Xt: a] :
             ( ( Xt != Z )
-          <=> ( Xt
+          <=> ( (Xt)
               = ( P @ ( L @ Xt ) @ ( R @ Xt ) ) ) )
         & ! [X0: a > $o] :
             ( ? [Xt: a] :
@@ -65,7 +65,7 @@ thf(cPU_X238B_pme,conjecture,(
                            => ( X0 @ ( L @ Xz0 ) ) ) )
                      => ? [Xv: a] :
                           ( ( X0 @ Xv )
-                          & ( ( R @ Xv )
+                          & (  R @ Xv 
                             = Xx_9 ) ) )
                  => ( X @ Xx_9 ) )
               & ( X_0 @ ( P @ Xx @ Xz ) ) )
@@ -78,7 +78,7 @@ thf(cPU_X238B_pme,conjecture,(
                            => ( X0 @ ( L @ Xz0 ) ) ) )
                      => ? [Xv: a] :
                           ( ( X0 @ Xv )
-                          & ( ( R @ Xv )
+                          & (  R @ Xv 
                             = Xx_10 ) ) )
                  => ( X_0 @ Xx_10 ) )
               & ? [Xx_12: a] :
@@ -90,7 +90,7 @@ thf(cPU_X238B_pme,conjecture,(
                                => ( X0 @ ( L @ Xz0 ) ) ) )
                          => ? [Xv: a] :
                               ( ( X0 @ Xv )
-                              & ( ( R @ Xv )
+                              & (  R @ Xv 
                                 = Xx_11 ) ) )
                      => ( X @ Xx_11 ) )
                   & ! [X0: a > $o] :
