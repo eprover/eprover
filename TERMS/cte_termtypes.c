@@ -669,9 +669,29 @@ Term_p applied_var_deref(Term_p orig)
 
 __inline__ Term_p MakeRewrittenTerm(Term_p orig, Term_p new, int remaining_orig)
 {
+   if (new->f_code == SIG_TRUE_CODE || new->f_code == SIG_FALSE_CODE)
+   {
+      return new;
+   }
+
+   orig = TermDerefAlways(orig);
+   new  = TermDerefAlways(new);
+   
    if (remaining_orig)
    {
-      Term_p new_term = TermTopAlloc(new->f_code, new->arity + remaining_orig);
+      Term_p new_term;
+      if (TermIsVar(new))
+      {
+         new_term = TermTopAlloc(SIG_APP_VAR_CODE, remaining_orig+1);
+         new_term->args[0] = new;
+      }
+      else
+      {
+         new_term = TermTopAlloc(new->f_code, new->arity + remaining_orig);
+      }
+
+      
+
       new_term->type = orig->type; // no inference after this step -- speedup.
       new_term->properties = orig->properties & (TPIsAppVar | TPPredPos);
 
@@ -679,7 +699,7 @@ __inline__ Term_p MakeRewrittenTerm(Term_p orig, Term_p new, int remaining_orig)
       {
          new_term->args[i] = new->args[i];
       }
-      for(int i=orig->arity - remaining_orig, j=0; i < orig->arity; i++, j++)
+      for(int i=orig->arity - remaining_orig, j=TermIsVar(new) ? 1 : 0; i < orig->arity; i++, j++)
       {
          new_term->args[j + new->arity] = orig->args[i];
       }
