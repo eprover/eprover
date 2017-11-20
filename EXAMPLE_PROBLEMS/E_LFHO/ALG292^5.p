@@ -34,15 +34,15 @@ thf(a_type,type,(
 
 thf(cPU_X238A_pme,conjecture,(
     ! [Z: a,P: a > a > a,L: a > a,R: a > a,F: a > $o] :
-      ( ( ( ( L @ Z )
+      ( ( (  L @ Z 
           = Z )
-        & ( ( R @ Z )
+        & (  R @ Z 
           = Z )
         & ! [Xx: a,Xy: a] :
-            ( ( L @ ( P @ Xx @ Xy ) )
+            (  L @ ( P @ Xx @ Xy ) 
             = Xx )
         & ! [Xx: a,Xy: a] :
-            ( ( R @ ( P @ Xx @ Xy ) )
+            (  R @ ( P @ Xx @ Xy ) 
             = Xy )
         & ! [Xt: a] :
             ( ( Xt != Z )
@@ -65,7 +65,7 @@ thf(cPU_X238A_pme,conjecture,(
                            => ( X0 @ ( L @ Xz0 ) ) ) )
                      => ? [Xv: a] :
                           ( ( X0 @ Xv )
-                          & ( ( R @ Xv )
+                          & (  R @ Xv 
                             = Xx_5 ) ) )
                  => ( X @ Xx_5 ) )
               & ( F @ ( P @ Xx @ Xz ) ) )
@@ -78,7 +78,7 @@ thf(cPU_X238A_pme,conjecture,(
                            => ( X0 @ ( L @ Xz0 ) ) ) )
                      => ? [Xv: a] :
                           ( ( X0 @ Xv )
-                          & ( ( R @ Xv )
+                          & (  R @ Xv 
                             = Xx_6 ) ) )
                  => ( X @ Xx_6 ) )
               & ? [Xx_8: a] :
@@ -90,7 +90,7 @@ thf(cPU_X238A_pme,conjecture,(
                                => ( X0 @ ( L @ Xz0 ) ) ) )
                          => ? [Xv: a] :
                               ( ( X0 @ Xv )
-                              & ( ( R @ Xv )
+                              & (  R @ Xv 
                                 = Xx_7 ) ) )
                      => ! [X0: a > $o] :
                           ( ( ( X0 @ Xx )
@@ -99,7 +99,7 @@ thf(cPU_X238A_pme,conjecture,(
                                => ( X0 @ ( L @ Xz0 ) ) ) )
                          => ? [Xv: a] :
                               ( ( X0 @ Xv )
-                              & ( ( R @ Xv )
+                              & (  R @ Xv 
                                 = Xx_7 ) ) ) )
                   & ( F @ ( P @ Xx_8 @ Xz ) ) ) ) ) ) )).
 
