@@ -669,13 +669,13 @@ Term_p applied_var_deref(Term_p orig)
 
 __inline__ Term_p MakeRewrittenTerm(Term_p orig, Term_p new, int remaining_orig)
 {
-   if (new->f_code == SIG_TRUE_CODE || new->f_code == SIG_FALSE_CODE)
+   /*if (new->f_code == SIG_TRUE_CODE || new->f_code == SIG_FALSE_CODE)
    {
       return new;
-   }
+   }*/
 
-   orig = TermDerefAlways(orig);
-   new  = TermDerefAlways(new);
+   /*orig = TermDerefAlways(orig);
+   new  = TermDerefAlways(new);*/
    
    if (remaining_orig)
    {

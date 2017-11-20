@@ -188,7 +188,8 @@ Term_p TBTermPosReplace(TB_p bank, Term_p repl, TermPos_p pos,
 #ifdef ENABLE_LFHO
       if (remains != -1)
       {
-         handle->args[subscript] = MakeRewrittenTerm(handle->args[subscript], repl, remains);
+         handle->args[subscript] = MakeRewrittenTerm(TermDerefAlways(handle->args[subscript]), 
+                                                     TermDerefAlways(repl), remains);
          remains = -1;
       }
       else
@@ -213,7 +214,7 @@ Term_p TBTermPosReplace(TB_p bank, Term_p repl, TermPos_p pos,
       TermPrint(stderr, MakeRewrittenTerm(old_into, repl, remains), bank->sig, DEREF_ALWAYS);
       fprintf(stderr, ".\n");*/
 
-      repl = TBInsertNoProps(bank, MakeRewrittenTerm(old_into, repl, remains) , deref);
+      repl = TBInsertNoProps(bank, MakeRewrittenTerm(TermDerefAlways(old_into), TermDerefAlways(repl), remains) , deref);
    }
    else
    {

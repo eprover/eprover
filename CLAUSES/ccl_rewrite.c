@@ -192,7 +192,7 @@ static RWResultType term_is_top_rewritable(TB_p bank, OCB_p ocb,
          }
          if(!TermIsRewritten(term) || (res == RWAlwaysRewritable))
          {
-            rterm = TBInsertInstantiated(bank, MakeRewrittenTerm(term, eqn->rterm, remains));
+            rterm = TBInsertInstantiated(bank, MakeRewrittenTerm(term, eqn->rterm,  remains));
             TermAddRWLink(term, rterm, new_demod, ClauseIsSOS(new_demod), res);
          }
       }
