@@ -149,6 +149,7 @@ typedef enum
    OPT_SAT_STEP_INTERVAL,
    OPT_SAT_SIZE_INTERVAL,
    OPT_SATCHECK,
+   OPT_SAT_NORMALIZE,
    OPT_WATCHLIST,
    OPT_WATCHLIST_NO_SIMPLIFY,
    OPT_NO_INDEXED_SUBSUMPTION,
@@ -1116,6 +1117,12 @@ OptCell opts[] =
     '\0', "sat-check",
     OptArg, "MaxConjFreqConst",
     "Set the grounding strategy for periodic SAT checking."},
+
+   {OPT_SAT_NORMALIZE,
+    '\0', "sat-disable-normalization",
+    NoArg, NULL,
+    "Disable the full simplification of clauses before grounding for "
+    "SAT checking."},
 
    {OPT_WATCHLIST,
     '\0', "watchlist",

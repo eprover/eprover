@@ -126,6 +126,7 @@ typedef struct heuristic_parms_cell
    GroundingStrategy   sat_check_grounding;
    long                sat_check_step_limit;
    long                sat_check_size_limit;
+   bool                sat_check_normalize;
 
    /* Various things */
    long                filter_limit;

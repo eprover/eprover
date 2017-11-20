@@ -149,7 +149,7 @@ void HeuristicParmsInitialize(HeuristicParms_p handle)
    handle->sat_check_grounding           = GMFirstConst;
    handle->sat_check_step_limit          = LONG_MAX;
    handle->sat_check_size_limit          = LONG_MAX;
-
+   handle->sat_check_normalize           = true;
    handle->filter_limit                  = DEFAULT_FILTER_LIMIT;
    handle->filter_copies_limit           = DEFAULT_FILTER_COPIES_LIMIT;
    handle->reweight_limit                = DEFAULT_REWEIGHT_INTERVAL;

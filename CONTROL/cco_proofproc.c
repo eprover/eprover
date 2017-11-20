@@ -852,23 +852,27 @@ Clause_p SATCheck(ProofState_p state, ProofControl_p control)
 {
    Clause_p res = NULL;
 
-   res = ForwardContractSetReweight(state, control, state->unprocessed,
-                                    false, 2,
-                                    &(state->proc_trivial_count));
+   if(control->heuristic_parms.sat_check_normalize)
+   {
+      res = ForwardContractSetReweight(state, control, state->unprocessed,
+                                       false, 2,
+                                       &(state->proc_trivial_count));
+   }
+   if(!res)
+   {
+      SatClauseSet_p set = SatClauseSetAlloc();
 
+      printf("# SatCheck()..\n");
 
-   SatClauseSet_p set = SatClauseSetAlloc();
+      SatClauseSetImportProofState(set, state,
+                                   control->heuristic_parms.sat_check_grounding);
 
-   printf("# SatCheck()..\n");
+      printf("# SatCheck()..imported\n");
 
-   SatClauseSetImportProofState(set, state, control->heuristic_parms.sat_check_grounding);
+      res = SatClauseSetCheckUnsat(set);
 
-   printf("# SatCheck()..imported\n");
-
-   res = SatClauseSetCheckUnsat(set);
-
-   SatClauseSetFree(set);
-
+      SatClauseSetFree(set);
+   }
    return res;
 }
 

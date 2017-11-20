@@ -1426,6 +1426,9 @@ CLState_p process_options(int argc, char* argv[])
                DStrFree(err);
             }
             break;
+      case OPT_SAT_NORMALIZE:
+            h_parms->sat_check_normalize = false;
+            break;
       case OPT_WATCHLIST:
             if(strcmp(WATCHLIST_INLINE_STRING, arg)==0 ||
                strcmp(WATCHLIST_INLINE_QSTRING, arg)==0  )

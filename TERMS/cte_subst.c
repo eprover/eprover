@@ -462,13 +462,14 @@ Subst_p SubstPseudoGroundVarBank(VarBank_p vars)
 
 /*-----------------------------------------------------------------------
 //
-// Function:
+// Function: SubstGroundVarBankFirstConst()
 //
+//   Create a substitution binding each variable to the first constant
+//   of the proper sort.
 //
+// Global Variables: 0
 //
-// Global Variables:
-//
-// Side Effects    :
+// Side Effects    : -
 //
 /----------------------------------------------------------------------*/
 
