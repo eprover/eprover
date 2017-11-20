@@ -36,6 +36,8 @@ TEST/patterntest
 *.exe
 *.out
 *.dSYM/
+*.csv
+cachegrind*
 ._*
 .DS_Store
 .DS_Store?
