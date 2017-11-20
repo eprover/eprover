@@ -210,7 +210,10 @@ static long fp_index_rek_find_unif(FPTree_p index, IndexFP_p key,
       /* t|p is a function symbol, compatible with:
          - the same symbol or
          - any variable
-         - or a below_var position */
+         - or a below_var position 
+         - in HO case, we can also (partially) unify with a prefix of a term,
+           thus a function symbol is unifiable with a NOT_IN_TERM position           
+         */
       res += fp_index_rek_find_unif(fpindex_alternative(index, key[current]),
                                     key,
                                     sig,
@@ -229,6 +232,14 @@ static long fp_index_rek_find_unif(FPTree_p index, IndexFP_p key,
                                        sig,
                                        current+1,
                                        collect);
+         if (ProblemIsHO == PROBLEM_IS_HO)
+         {
+            res += fp_index_rek_find_unif(fpindex_alternative(index, NOT_IN_TERM),
+                                       key,
+                                       sig,
+                                       current+1,
+                                       collect);
+         }
       }
    }
    else if(key[current] == NOT_IN_TERM)
@@ -245,6 +256,30 @@ static long fp_index_rek_find_unif(FPTree_p index, IndexFP_p key,
                                     sig,
                                     current+1,
                                     collect);
+      if (ProblemIsHO == PROBLEM_IS_HO)
+      {
+         /* In HO case, we can unify with any variable 
+            or fun_code position */
+
+         res += fp_index_rek_find_unif(fpindex_alternative(index, ANY_VAR),
+                                    key,
+                                    sig,
+                                    current+1,
+                                    collect);  
+
+
+         iter = IntMapIterAlloc(index->f_alternatives, 1, LONG_MAX);
+         while((child=IntMapIterNext(iter, &i)))
+         {
+            assert(child);
+            res += fp_index_rek_find_unif(child,
+                                          key,
+                                          sig,
+                                          current+1,
+                                          collect);
+         }
+         IntMapIterFree(iter);   
+      }
    }
    else if(key[current] == BELOW_VAR || key[current] == ANY_VAR)
    {
@@ -266,6 +301,15 @@ static long fp_index_rek_find_unif(FPTree_p index, IndexFP_p key,
                                     current+1,
                                     collect);
 
+      if (ProblemIsHO == PROBLEM_IS_HO)
+      {
+         res += fp_index_rek_find_unif(fpindex_alternative(index, NOT_IN_TERM),
+                                    key,
+                                    sig,
+                                    current+1,
+                                    collect);   
+      }
+      
       iter_start = key[current] == BELOW_VAR? 0:1;
       iter = IntMapIterAlloc(index->f_alternatives, iter_start, LONG_MAX);
       while((child=IntMapIterNext(iter, &i)))
@@ -345,6 +389,27 @@ static long fp_index_rek_find_matchable(FPTree_p index, IndexFP_p key,
                                          sig,
                                          current+1,
                                          collect);
+
+      if (ProblemIsHO == PROBLEM_IS_HO)
+      {
+         iter = IntMapIterAlloc(index->f_alternatives, 1, LONG_MAX);
+         while((child=IntMapIterNext(iter, &i)))
+         {
+            assert(child);
+            res += fp_index_rek_find_matchable(child,
+                                          key,
+                                          sig,
+                                          current+1,
+                                          collect);
+         }
+         IntMapIterFree(iter);   
+
+         res += fp_index_rek_find_matchable(fpindex_alternative(index, ANY_VAR),
+                                            key,
+                                            sig,
+                                            current+1,
+                                            collect);
+      }
    }
    else if(key[current] == BELOW_VAR || key[current] == ANY_VAR)
    {
