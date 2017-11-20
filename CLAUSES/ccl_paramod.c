@@ -184,11 +184,15 @@ Clause_p ClausePlainParamodConstruct(ParamodInfo_p ol_desc)
    Eqn_p     into_copy, from_copy, pm_lit;
    Subst_p   subst = SubstAlloc();
 
-   /*fprintf(stderr, "? paramodulation from ");
+#ifdef PRINT_PARTIAL_PARAMODULATION
+   fprintf(stderr, "? paramodulation from ");
    TermPrint(stderr, ClausePosGetSubterm(ol_desc->from_pos), ol_desc->bank->sig, DEREF_ALWAYS);
-   fprintf(stderr, " into  ");
+   fprintf(stderr, "(clause ");
+   EqnListPrint(stderr, ol_desc->from_pos->clause->literals, "|", false, true);
+   fprintf(stderr, ") into  ");
    TermPrint(stderr, ClausePosGetSubterm(ol_desc->into_pos), ol_desc->bank->sig, DEREF_ALWAYS);
-   fprintf(stderr, ".\n");*/
+   fprintf(stderr, "(%d remaining).\n", ol_desc->remaining_args);
+#endif
 
 
    assert(TermStructPrefixEqual(ClausePosGetSubterm(ol_desc->from_pos),
@@ -210,7 +214,8 @@ Clause_p ClausePlainParamodConstruct(ParamodInfo_p ol_desc)
    into_rhs = ClausePosGetOtherSide(ol_desc->into_pos);
    new_lhs = TBTermPosReplace(ol_desc->bank, from_rhs,
                               ol_desc->into_pos->pos,
-                              DEREF_ALWAYS, ol_desc->remaining_args);
+                              DEREF_ALWAYS, ol_desc->remaining_args,
+                              ClausePosGetSubterm(ol_desc->into_pos));
 
    new_rhs = TBInsertOpt(ol_desc->bank,
                          into_rhs,
@@ -293,7 +298,7 @@ Clause_p ClauseSimParamodConstruct(ParamodInfo_p ol_desc)
    assert(ClausePosGetSide(ol_desc->from_pos)->type == ClausePosGetOtherSide(ol_desc->from_pos)->type);
 
    rhs_instance = TBInsertNoProps(ol_desc->bank,
-                                  MakeRewrittenTerm(ClausePosGetSide(ol_desc->from_pos),
+                                  MakeRewrittenTerm(into_term,
                                                     ClausePosGetOtherSide(ol_desc->from_pos),
                                                     ol_desc->remaining_args),
                                   DEREF_ALWAYS);
@@ -448,7 +453,7 @@ Term_p ComputeOverlap(TB_p bank, OCB_p ocb, ClausePos_p from, Term_p
          SubstNormTerm(into, subst, freshvars, bank->sig);
          SubstNormTerm(rep_side, subst, freshvars, bank->sig);
          new_rside = TBTermPosReplace(bank, rep_side, pos,
-                       DEREF_ALWAYS, unify_res.term_remaining);
+                       DEREF_ALWAYS, unify_res.term_remaining, sub_into);
       }
    }
    return new_rside;

@@ -299,6 +299,7 @@ long compute_pos_into_pm_term(ParamodInfo_p pminfo,
       SubstPrint(stdout, subst, pminfo->bank->sig, DEREF_ALWAYS);
       printf("\n"); */
 
+#ifdef PRINT_PARTIAL_PARAMODULATION
       if (unif_res.term_remaining > 0)
       {
          fprintf(stderr, "# paramodulation from ");
@@ -312,6 +313,7 @@ long compute_pos_into_pm_term(ParamodInfo_p pminfo,
          fprintf(stderr, " - %d) compute_pos_into_pm_term.\n", unif_res.term_remaining);
 
       }
+#endif
 
       max_side = ClausePosGetSide(pminfo->from_pos);
       rep_side = ClausePosGetOtherSide(pminfo->from_pos);
@@ -538,6 +540,7 @@ long compute_pos_from_pm_term(ParamodInfo_p pminfo,
       SubstPrint(stdout, subst, pminfo->bank->sig, DEREF_ALWAYS);
       printf("\n"); */
 
+#ifdef PRINT_PARTIAL_PARAMODULATION
       if (unif_res.term_remaining > 0)
       {
          fprintf(stderr, "# paramodulation from ");
@@ -546,6 +549,7 @@ long compute_pos_from_pm_term(ParamodInfo_p pminfo,
          TermPrint(stderr, olterm, pminfo->bank->sig, DEREF_ALWAYS);
          fprintf(stderr, "(remaining args %d).compute_pos_from_pm_term\n", unif_res.term_remaining);
       }
+#endif
 
       max_side = ClausePosGetSide(pminfo->into_pos);
       min_side = ClausePosGetOtherSide(pminfo->into_pos);

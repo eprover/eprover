@@ -150,6 +150,8 @@ Term_p TermFollowRWChain(Term_p term)
 //   appear in the term...---> This has been fixed. Each term in repl
 //   and its superterms should now be dereferenced only once.
 //
+//   TODO: EXPLAIN WHY YOU NEED OLD_INTO
+//
 // Global Variables: -
 //
 // Side Effects    : Memory management, changes term bank
@@ -157,20 +159,18 @@ Term_p TermFollowRWChain(Term_p term)
 /----------------------------------------------------------------------*/
 
 Term_p TBTermPosReplace(TB_p bank, Term_p repl, TermPos_p pos, 
-         DerefType deref, int remains)
+         DerefType deref, int remains, Term_p old_into)
 {
    Term_p        handle, old;
    int           subscript;
    PStackPointer i;
    PStack_p      store = PStackAlloc();
 
-
    assert(bank);
    assert(repl);
    assert(pos);
 
    i = PStackGetSP(pos);
-
 
    /* Note that we start inside-out here - the first term handled is
       the actual subterm replaced, at the end repl is the complete
@@ -188,12 +188,12 @@ Term_p TBTermPosReplace(TB_p bank, Term_p repl, TermPos_p pos,
 #ifdef ENABLE_LFHO
       if (remains != -1)
       {
-         handle->args[subscript] = MakeRewrittenTerm(handle->args[subscript], repl, remains);  
+         handle->args[subscript] = MakeRewrittenTerm(handle->args[subscript], repl, remains);
+         remains = -1;
       }
       else
       {
          handle->args[subscript] = repl;
-         remains = -1;
       }
 #else
       handle->args[subscript] = repl;
@@ -202,7 +202,24 @@ Term_p TBTermPosReplace(TB_p bank, Term_p repl, TermPos_p pos,
       PStackPushP(store, handle);
       repl = handle;
    }
-   repl = TBInsertNoProps(bank, repl, deref);
+
+   if (remains != -1 && remains != 0)
+   {
+      /*fprintf(stderr, "original: ");
+      TermPrint(stderr, old_into, bank->sig, DEREF_ALWAYS);
+      fprintf(stderr, ", replace: ");
+      TermPrint(stderr, repl, bank->sig, DEREF_ALWAYS);
+      fprintf(stderr, ", rewritten: ");
+      TermPrint(stderr, MakeRewrittenTerm(old_into, repl, remains), bank->sig, DEREF_ALWAYS);
+      fprintf(stderr, ".\n");*/
+
+      repl = TBInsertNoProps(bank, MakeRewrittenTerm(old_into, repl, remains) , deref);
+   }
+   else
+   {
+      repl  = TBInsertNoProps(bank, repl, deref);
+   }
+   
 
    while(!PStackEmpty(store))
    {

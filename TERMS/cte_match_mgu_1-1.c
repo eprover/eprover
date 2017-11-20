@@ -500,7 +500,6 @@ UnificationResult SubstComputeMguHO(Term_p t1, Term_p t2, Subst_p subst, Sig_p s
    #ifdef MEASURE_UNIFICATION
       UnifAttempts++;
    #endif
-
    PERF_CTR_ENTRY(MguTimer);
 
    
@@ -517,6 +516,8 @@ UnificationResult SubstComputeMguHO(Term_p t1, Term_p t2, Subst_p subst, Sig_p s
    PStackPointer backtrack = PStackGetSP(subst); /* For backtracking */
 
    bool res = true;
+   bool any_true_false = t1->f_code == SIG_TRUE_CODE || t1->f_code == SIG_FALSE_CODE
+                        || t2->f_code == SIG_TRUE_CODE || t2->f_code == SIG_FALSE_CODE;
    PStack_p jobs_t1 = PStackAlloc();
    PStack_p jobs_t2 = PStackAlloc();
 
@@ -602,6 +603,7 @@ UnificationResult SubstComputeMguHO(Term_p t1, Term_p t2, Subst_p subst, Sig_p s
       #ifdef MEASURE_UNIFICATION
          UnifSuccesses++;
       #endif
+
       WhichTerm term_side = PStackEmpty(jobs_t1) ? RightTerm : LeftTerm;
       if (term_side == RightTerm)
       {
@@ -610,6 +612,13 @@ UnificationResult SubstComputeMguHO(Term_p t1, Term_p t2, Subst_p subst, Sig_p s
       else
       {
          un_res = (UnificationResult){term_side, PStackGetSP(jobs_t1)};
+      }
+
+      if (any_true_false && un_res.term_remaining != 0)
+      {
+         fprintf(stderr, "!!!! TRIED TO UNIFY WITH TRUE/FALSE !!!\n");
+         un_res = UNIF_FAILED;
+         SubstBacktrackToPos(subst, backtrack);
       }
    }
 

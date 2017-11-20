@@ -224,6 +224,7 @@ void SigInsertInternalCodes(Sig_p sig)
    SigSetFuncProp(sig, sig->answer_code, FPInterpreted|FPPseudoPred);
 
    sig->app_var_code =  SigInsertId(sig, "$@_var", 1, true);
+   assert(sig->app_var_code == SIG_APP_VAR_CODE);
 
 
    Type_p* args = TypeArgArrayAlloc(2);

@@ -161,6 +161,7 @@ typedef struct sigcell
 #define SIG_FALSE_CODE 2
 #define SIG_NIL_CODE   3
 #define SIG_CONS_CODE  4
+#define SIG_APP_VAR_CODE 17
 
 /* Handle properties */
 
