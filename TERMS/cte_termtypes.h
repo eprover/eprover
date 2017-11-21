@@ -161,7 +161,8 @@ typedef uintptr_t DerefType, *DerefType_p;
 #define TERMCELL_DYN_MEM (TERMCELL_MEM+4*TERMARG_MEM)
 
 #ifdef ENABLE_LFHO
-#define CAN_DEREF(term) (((term)->binding) || (TermIsAppliedVar(term) && term->args[0]->binding))
+// we don't do just term->binding cause the argument might become unbound.
+#define CAN_DEREF(term) ((TermIsVar(term) && (term)->binding) || (TermIsAppliedVar(term) && term->args[0]->binding))
 #else
 #define CAN_DEREF(term) (((term)->binding))
 #endif
@@ -299,11 +300,10 @@ static __inline__ Type_p GetHeadType(Sig_p sig, Term_p term)
 
 static __inline__ Term_p deref_step(Term_p orig)
 {
-   assert(orig->f_code < 0 || TermIsAppliedVar(orig));
+   assert(TermIsTopLevelVar(orig));
    // assert(bank != NULL || orig->arity == 0);
    if (TermIsVar(orig))
    {
-      //fprintf(stderr, "Derefing normal var bind %p orig %p bind->bind %p\n", orig->binding, orig, orig->binding->binding);
       return orig->binding;
    }
    else
@@ -315,7 +315,7 @@ static __inline__ Term_p deref_step(Term_p orig)
 
 static __inline__ Term_p TermDerefAlways(Term_p term)
 {
-   assert(TermIsVar(term)||!(term->binding));
+   assert(TermIsTopLevelVar(term) || !(term->binding));
 
    while(CAN_DEREF(term))
    {
@@ -325,6 +325,16 @@ static __inline__ Term_p TermDerefAlways(Term_p term)
       term = term->binding;
 #endif
    }
+
+#ifdef ENABLE_LFHO
+   if (term->binding)
+   {
+      assert(TermIsAppliedVar(term));
+      // What happened here is that the argument top-level var
+      // has been unbound, we just propagate this to the top.
+      term->binding = NULL;
+   }
+#endif
    return term;
 }
 
@@ -342,7 +352,7 @@ static __inline__ Term_p TermDerefAlways(Term_p term)
 /----------------------------------------------------------------------*/
 static __inline__ Term_p TermDeref(Term_p term, DerefType_p deref)
 {
-   assert(TermIsVar(term) || !(term->binding));
+   assert(TermIsTopLevelVar(term) || !(term->binding));
 
    if(*deref == DEREF_ALWAYS)
    {
