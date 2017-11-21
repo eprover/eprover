@@ -297,7 +297,7 @@ void TermPrintHO(FILE* out, Term_p term, Sig_p sig, DerefType deref)
       VarPrint(out, (TermIsVar(term) ? term : term->args[0])->f_code);
    }
 
-   for (int i = 0; i < term->arity; ++i)
+   for (int i = TermIsAppliedVar(term) ? 1 : 0; i < term->arity; ++i)
    {
 #ifdef PRINT_AT
       fputs(" @ ", out);
