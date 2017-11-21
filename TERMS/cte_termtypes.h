@@ -180,6 +180,7 @@ typedef uintptr_t DerefType, *DerefType_p;
 #define TermIsVar(t) ((t)->f_code < 0)
 #define TermIsConst(t)(!TermIsVar(t) && ((t)->arity==0))
 #define TermIsAppliedVar(term) (TermCellQueryProp((term), TPIsAppVar))
+#define TermIsTopLevelVar(term) (TermIsVar(term) || TermIsAppliedVar(term))
 
 #define TermCellSetProp(term, prop) SetProp((term), (prop))
 #define TermCellDelProp(term, prop) DelProp((term), (prop))
