@@ -47,7 +47,14 @@ extern bool      TermPrintTypes;
                         (FuncSymbStartToken|Mult))
 
 void   VarPrint(FILE* out, FunCode var);
-void   TermPrint(FILE* out, Term_p term, Sig_p sig, DerefType deref);
+void TermPrintFO(FILE* out, Term_p term, Sig_p sig, DerefType deref);
+#ifdef ENABLE_LFHO
+void TermPrintHO(FILE* out, Term_p term, Sig_p sig, DerefType deref);
+#define TermPrint(out, term, sig, deref) (ProblemIsHO == PROBLEM_IS_HO ? \
+        TermPrintHO(out, term, sig, deref) : TermPrintFO(out, term, sig, deref))
+#else
+#define TermPrint(out, term, sig, deref) TermPrintFO(out, term, sig, deref)
+#endif
 void   TermPrintArgList(FILE* out, Term_p *args, int arity, Sig_p sig,
          DerefType deref);
 FuncSymbType TermParseOperator(Scanner_p in, DStr_p id);

@@ -217,7 +217,7 @@ void VarPrint(FILE* out, FunCode var)
 
 //#define PRINT_SIG_DBG 1
 
-void TermPrint(FILE* out, Term_p term, Sig_p sig, DerefType deref)
+void TermPrintFO(FILE* out, Term_p term, Sig_p sig, DerefType deref)
 {
    assert(term);
    assert(sig||TermIsVar(term));
@@ -278,6 +278,45 @@ void TermPrint(FILE* out, Term_p term, Sig_p sig, DerefType deref)
       TypePrintTSTP(out, sig->type_bank, term->type);
    }
 }
+
+#define PRINT_AT
+
+#ifdef ENABLE_LFHO
+void TermPrintHO(FILE* out, Term_p term, Sig_p sig, DerefType deref)
+{
+   assert(term);
+   assert(sig||TermIsVar(term));
+
+   term = TermDeref(term, &deref);
+   if (!TermIsTopLevelVar(term))
+   {
+      fputs(SigFindName(sig, term->f_code), out);
+   }
+   else
+   {
+      VarPrint(out, (TermIsVar(term) ? term : term->args[0])->f_code);
+   }
+
+   for (int i = 0; i < term->arity; ++i)
+   {
+#ifdef PRINT_AT
+      fputs(" @ ", out);
+#else 
+      fputs(" ", out);
+#endif
+      if (term->args[i]->arity)
+      {
+         fputs("(", out);
+         TermPrint(out, term->args[i], sig, deref);
+         fputs(")", out);
+      }
+      else
+      {
+         TermPrint(out, term->args[i], sig, deref);
+      }
+   }  
+}
+#endif
 
 
 /*--------------------------------------------------------------------
