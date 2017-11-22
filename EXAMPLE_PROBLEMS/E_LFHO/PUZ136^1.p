@@ -52,7 +52,7 @@ thf(horus,type,(
 thf(ax2,axiom,(
     ~ ( parent @ sutekh @ horus ) )).
 
-thf(hotwo,question,(
+thf(hotwo,conjecture,(
     ? [P: $i > $o,X: $i,Y: $i] :
       ( ( P @ X )
       & ~ ( P @ Y ) ) )).
