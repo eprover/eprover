@@ -204,7 +204,7 @@ Term_p TBTermPosReplace(TB_p bank, Term_p repl, TermPos_p pos,
       repl = handle;
    }
 
-   if (remains != -1 && remains != 0)
+   if (remains > 0)
    {
       /*fprintf(stderr, "original: ");
       TermPrint(stderr, old_into, bank->sig, DEREF_ALWAYS);
