@@ -304,7 +304,8 @@ void TermPrintHO(FILE* out, Term_p term, Sig_p sig, DerefType deref)
 #else 
       fputs(" ", out);
 #endif
-      if (term->args[i]->arity)
+      if (term->args[i]->arity || 
+            (deref != DEREF_NEVER && term->args[i]->binding && term->args[i]->binding->arity))
       {
          fputs("(", out);
          TermPrint(out, term->args[i], sig, deref);
