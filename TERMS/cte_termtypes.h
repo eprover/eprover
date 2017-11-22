@@ -162,7 +162,7 @@ typedef uintptr_t DerefType, *DerefType_p;
 
 #ifdef ENABLE_LFHO
 // we don't do just term->binding cause the argument might become unbound.
-#define CAN_DEREF(term) ((TermIsVar(term) && (term)->binding) || (TermIsAppliedVar(term) && term->args[0]->binding))
+#define CAN_DEREF(term) (((term)->binding) || (TermIsAppliedVar(term) && term->args[0]->binding))
 #else
 #define CAN_DEREF(term) (((term)->binding))
 #endif
@@ -325,16 +325,6 @@ static __inline__ Term_p TermDerefAlways(Term_p term)
       term = term->binding;
 #endif
    }
-
-#ifdef ENABLE_LFHO
-   if (term->binding)
-   {
-      assert(TermIsAppliedVar(term));
-      // What happened here is that the argument top-level var
-      // has been unbound, we just propagate this to the top.
-      term->binding = NULL;
-   }
-#endif
    return term;
 }
 
