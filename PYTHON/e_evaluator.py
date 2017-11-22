@@ -3,15 +3,18 @@ def run_e(args, stdin_file = None):
   import subprocess as sp
 
   start = t.time()
+  out = None
   try:
-    res = sp.run(args) if stdin_file is None \
-                       else sp.run(args, stdin = stdin_file)
+    res = sp.run(args, stdout = sp.PIPE) if stdin_file is None \
+                       else sp.run(args, stdin = stdin_file, stdout = sp.PIPE)
     out = res.stdout
   except sp.SubprocessError as e:
     out = b'# SZS status hoE crashed'
     print('SubprocessError: {0}'.format(e))
   end   = t.time()
 
+  if out is None:
+    raise Error("OUT NOT INIT!")
   out = out.decode('utf-8')
   try:
     szs_line = next(filter(lambda x: 'SZS status' in x, out.split('\n')))

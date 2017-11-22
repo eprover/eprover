@@ -590,6 +590,14 @@ MatchInfo_p indexed_find_demodulator_mi(OCB_p ocb, Term_p term,
         repl = TBInsert(bank, repl, DEREF_ONCE);
       }
       
+      fprintf(stderr, "# rewrtiting ");
+      TermPrint(stderr, term, bank->sig, DEREF_ONCE);
+      fprintf(stderr, "using rule ");
+      TermPrint(stderr, ClausePosGetSide(mi->matcher), bank->sig, DEREF_ONCE);
+      fprintf(stderr, " -> ");
+      TermPrint(stderr, ClausePosGetOtherSide(mi->matcher), bank->sig, DEREF_ONCE);
+      fprintf(stderr, ".\n");
+
 
       assert(mi->matcher->clause->ident);
       TermAddRWLink(term, repl, mi->matcher->clause, ClauseIsSOS(mi->matcher->clause),

@@ -33,42 +33,43 @@
 %          : Polymorphic definitions expanded.
 %          : 
 %------------------------------------------------------------------------------
-thf(a_type,type,(
+tff(a_type,type,(
     a: $tType )).
+tff(joinType, type, join : (a*a) > a).
+tff(meetType, type, meet : (a*a) > a).
 
-thf(cMODULAR_EQUIV_THM_pme,conjecture,(
-    ! [JOIN: a > a > a,MEET: a > a > a] :
-      ( ( ! [Xx: a] :
-            (  JOIN @ Xx @ Xx 
+tff(cMODULAR_EQUIV_THM_pme,negated_conjecture,(
+      ~ ( ( ! [Xx: a] :
+            (  join(Xx,Xx)
             = Xx )
         & ! [Xx: a] :
-            (  MEET @ Xx @ Xx 
+            (  meet(Xx,Xx)
             = Xx )
         & ! [Xx: a,Xy: a,Xz: a] :
-            (  JOIN @ ( JOIN @ Xx @ Xy ) @ Xz 
-            =  JOIN @ Xx @ ( JOIN @ Xy @ Xz ) ) 
+            (  join(join( Xx , Xy ) ,Xz )
+            =  join(Xx, join(Xy, Xz ) ) ) 
         & ! [Xx: a,Xy: a,Xz: a] :
-            (  MEET @ ( MEET @ Xx @ Xy ) @ Xz 
-            =  MEET @ Xx @ ( MEET @ Xy @ Xz ) ) 
+            (  meet ( meet(Xx, Xy), Xz )
+            =  meet (Xx, meet( Xy , Xz ) ) )
         & ! [Xx: a,Xy: a] :
-            (  JOIN @ Xx @ Xy 
-            =  JOIN @ Xy @ Xx ) 
+            (  join (Xx, Xy)
+            =  join (Xy, Xx ) )
         & ! [Xx: a,Xy: a] :
-            (  MEET @ Xx @ Xy 
-            =  MEET @ Xy @ Xx ) 
+            (  meet (Xx,Xy)
+            =  meet (Xy,Xx) )
         & ! [Xx: a,Xy: a] :
-            (  JOIN @ ( MEET @ Xx @ Xy ) @ Xy 
+            (  join(meet(Xx , Xy ),  Xy )
             = Xy )
         & ! [Xx: a,Xy: a] :
-            (  MEET @ ( JOIN @ Xx @ Xy ) @ Xy 
+            (  meet( join (Xx, Xy ), Xy )
             = Xy ) )
      => ( ! [Xx: a,Xy: a,Xz: a] :
-            ( (  JOIN @ Xx @ Xz 
+            ( (  join (Xx , Xz )
               = Xz )
-           => (  JOIN @ Xx @ ( MEET @ Xy @ Xz ) 
-              =  MEET @ ( JOIN @ Xx @ Xy ) @ Xz ) ) 
+           => (  join (Xx, meet (Xy , Xz) )
+              =  meet (join(Xx, Xy ) , Xz ) ) )
       <=> ! [Xx: a,Xy: a,Xz: a] :
-            (  JOIN @ Xx @ ( MEET @ Xy @ ( JOIN @ Xx @ Xz ) ) 
-            =  MEET @ ( JOIN @ Xx @ Xy ) @ ( JOIN @ Xx @ Xz ) ) ) ) ) ).
+            (  join (Xx, meet(Xy, join (Xx, Xz) ) )
+            =  meet( join (Xx, Xy ), join (Xx , Xz ) ) ) ) ) )).
 
 %------------------------------------------------------------------------------
