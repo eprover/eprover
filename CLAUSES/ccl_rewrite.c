@@ -100,17 +100,23 @@ static bool instance_is_rule(OCB_p ocb, TB_p bank,
 //
 /----------------------------------------------------------------------*/
 
-/*static 
+static 
 //__TEMP__DBG__
-void print_rewrite_rule(Clause_p demod)
+void print_rewrite_rule(Clause_p demod, OCB_p ocb)
 {
+   Term_p lhs = demod->literals->lterm;
+   Term_p rhs = demod->literals->rterm;
+
    fprintf(stderr, " [ rewrite rule ");
-   TermPrint(stderr, demod->literals->lterm, demod->literals->bank->sig, DEREF_ONCE);
+   TermPrint(stderr, lhs, demod->literals->bank->sig, DEREF_ONCE);
    fprintf(stderr, " -> ");
-   TermPrint(stderr, demod->literals->rterm, demod->literals->bank->sig, DEREF_ONCE);
-   fprintf(stderr, " ]");
+   TermPrint(stderr, rhs, demod->literals->bank->sig, DEREF_ONCE);
+
+   CompareResult cmp_res = TOCompare(ocb, lhs, rhs, DEREF_ONCE, DEREF_ONCE);
+   fprintf(stderr, ", KBO6 cmp %s, EqOritented %d) ].\n", POCompareSymbol[cmp_res],
+                                                          EqnIsOriented(demod->literals));
 }
-*/
+
 
 /* static */ Term_p term_follow_top_RW_chain(Term_p term, RWDesc_p desc,
                                              bool restricted_rw)
@@ -125,6 +131,13 @@ void print_rewrite_rule(Clause_p demod)
       {
          desc->sos_rewritten = true;
       }
+
+
+      fprintf(stderr, "Rewriting ");
+      TermPrint(stderr, term, desc->bank->sig, DEREF_ONCE);
+      fprintf(stderr, " to ");
+      TermPrint(stderr, TermRWReplaceField(term), desc->bank->sig, DEREF_ONCE);
+      print_rewrite_rule(TermRWDemodField(term), desc->ocb);
 
       assert(TOGreater(desc->ocb, term, TermRWReplaceField(term), DEREF_ONCE, DEREF_ONCE));
 
