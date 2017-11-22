@@ -4,10 +4,12 @@ def run_e(args, stdin_file = None):
 
   start = t.time()
   try:
-    out = sp.check_output(args) if stdin_file is None \
-                                else sp.check_output(args, stdin = stdin_file)
-  except sp.CalledProcessError:
+    res = sp.run(args) if stdin_file is None \
+                       else sp.run(args, stdin = stdin_file)
+    out = res.stdout
+  except sp.SubprocessError as e:
     out = b'# SZS status hoE crashed'
+    print('SubprocessError: {0}'.format(e))
   end   = t.time()
 
   out = out.decode('utf-8')
