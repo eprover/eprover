@@ -100,12 +100,22 @@ static bool instance_is_rule(OCB_p ocb, TB_p bank,
 //
 /----------------------------------------------------------------------*/
 
+/*static 
+//__TEMP__DBG__
+void print_rewrite_rule(Clause_p demod)
+{
+   fprintf(stderr, " [ rewrite rule ");
+   TermPrint(stderr, demod->literals->lterm, demod->literals->bank->sig, DEREF_ONCE);
+   fprintf(stderr, " -> ");
+   TermPrint(stderr, demod->literals->rterm, demod->literals->bank->sig, DEREF_ONCE);
+   fprintf(stderr, " ]");
+}
+*/
+
 /* static */ Term_p term_follow_top_RW_chain(Term_p term, RWDesc_p desc,
                                              bool restricted_rw)
 {
    assert(term);
-
-   Term_p orig = term;
 
    while(TermIsTopRewritten(term)&&(!restricted_rw||TermIsRRewritten(term)))
    {
@@ -116,20 +126,9 @@ static bool instance_is_rule(OCB_p ocb, TB_p bank,
          desc->sos_rewritten = true;
       }
 
-      if (TermRWReplaceField(term) == orig)
-      {
-         term->rw_data.nf_date[desc->level-1] = orig->rw_data.nf_date[desc->level-1];
-         orig->rw_data.rw_desc.replace = term->rw_data.rw_desc.replace = NULL;
-         orig->rw_data.rw_desc.demod   = term->rw_data.rw_desc.demod   = NULL;
-         TermCellDelProp(term, TPIsRewritten);
+      assert(TOGreater(desc->ocb, term, TermRWReplaceField(term), DEREF_ONCE, DEREF_ONCE));
 
-         fprintf(stderr, "# found rewrite cycle.\n");
-         term  = orig;
-      }
-      else
-      {
-         term = TermRWReplaceField(term);
-      }
+      term = TermRWReplaceField(term);
       assert(term);
    }
    return term;
@@ -590,13 +589,13 @@ MatchInfo_p indexed_find_demodulator_mi(OCB_p ocb, Term_p term,
         repl = TBInsert(bank, repl, DEREF_ONCE);
       }
       
-      fprintf(stderr, "# rewrtiting ");
+      /*fprintf(stderr, "# rewrtiting ");
       TermPrint(stderr, term, bank->sig, DEREF_ONCE);
       fprintf(stderr, "using rule ");
       TermPrint(stderr, ClausePosGetSide(mi->matcher), bank->sig, DEREF_ONCE);
       fprintf(stderr, " -> ");
       TermPrint(stderr, ClausePosGetOtherSide(mi->matcher), bank->sig, DEREF_ONCE);
-      fprintf(stderr, ".\n");
+      fprintf(stderr, ".\n");*/
 
 
       assert(mi->matcher->clause->ident);
