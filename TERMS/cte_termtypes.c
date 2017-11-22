@@ -625,11 +625,6 @@ Term_p applied_var_deref(Term_p orig)
    assert(orig->arity > 1);
    assert(orig->args[0]->binding);
 
-   if (orig->binding)
-   {
-      return orig->binding;
-   }
-
    Term_p res;
 
    if (TermIsVar(orig->args[0]->binding))
@@ -667,9 +662,7 @@ Term_p applied_var_deref(Term_p orig)
       {
          res->args[bound->arity + i] = orig->args[i + 1];
       }
-   }   
-
-   orig->binding = res;
+   }
 
    return res;
 }
