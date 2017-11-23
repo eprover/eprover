@@ -68,6 +68,19 @@ static bool instance_is_rule(OCB_p ocb, TB_p bank,
                              Term_p lside, Term_p rside, Subst_p subst)
 
 {
+   /*fprintf(stderr, "Checking if ");
+   TermPrint(stderr, lside, bank->sig, DEREF_NEVER);
+   fprintf(stderr, " = ");
+   TermPrint(stderr, rside, bank->sig, DEREF_NEVER);
+
+   fprintf(stderr, "{ instantiated ");
+   TermPrint(stderr, lside, bank->sig, DEREF_ONCE);
+   fprintf(stderr, " -> ");
+   TermPrint(stderr, rside, bank->sig, DEREF_ONCE);
+   fprintf(stderr, " } is a rewrite rule -- ");*/
+
+
+
    if(RewriteStrongRHSInst)
    {
       SubstCompleteInstance(subst, rside,
@@ -76,13 +89,17 @@ static bool instance_is_rule(OCB_p ocb, TB_p bank,
    else if(TermHasUnboundVariables(rside))
    {
       RewriteUnboundVarFails++;
+      //fprintf(stderr, " rhs has unbound vars -- fail.\n");
       return false;
    }
    if(SubstIsRenaming(subst)) /* Save comparisons */
    {
+      //fprintf(stderr, " subst is renaming -- fail.\n");
       return false;
    }
-   return TOGreater(ocb, lside, rside, DEREF_ONCE, DEREF_ONCE);
+   bool res =  TOGreater(ocb, lside, rside, DEREF_ONCE, DEREF_ONCE);
+   //fprintf(stderr, res ? " lhs > rhs -- OK.\n" : "lhs <?> rhs -- NOT OK.\n");
+   return res;
 }
 
 
@@ -100,7 +117,7 @@ static bool instance_is_rule(OCB_p ocb, TB_p bank,
 //
 /----------------------------------------------------------------------*/
 
-static 
+/*static 
 //__TEMP__DBG__
 void print_rewrite_rule(Clause_p demod, OCB_p ocb)
 {
@@ -116,6 +133,7 @@ void print_rewrite_rule(Clause_p demod, OCB_p ocb)
    fprintf(stderr, ", KBO6 cmp %s, EqOritented %d) ].\n", POCompareSymbol[cmp_res],
                                                           EqnIsOriented(demod->literals));
 }
+*/
 
 
 /* static */ Term_p term_follow_top_RW_chain(Term_p term, RWDesc_p desc,
@@ -131,13 +149,6 @@ void print_rewrite_rule(Clause_p demod, OCB_p ocb)
       {
          desc->sos_rewritten = true;
       }
-
-
-      fprintf(stderr, "Rewriting ");
-      TermPrint(stderr, term, desc->bank->sig, DEREF_ONCE);
-      fprintf(stderr, " to ");
-      TermPrint(stderr, TermRWReplaceField(term), desc->bank->sig, DEREF_ONCE);
-      print_rewrite_rule(TermRWDemodField(term), desc->ocb);
 
       assert(TOGreater(desc->ocb, term, TermRWReplaceField(term), DEREF_ONCE, DEREF_ONCE));
 
@@ -592,6 +603,7 @@ MatchInfo_p indexed_find_demodulator_mi(OCB_p ocb, Term_p term,
 
 
       repl = MIGetRewrittenTerm(mi, term);
+      assert(TOGreater(ocb, term, repl, DEREF_ONCE, DEREF_ONCE));
 
       if (ProblemIsHO == PROBLEM_NOT_HO)
       {
@@ -601,15 +613,6 @@ MatchInfo_p indexed_find_demodulator_mi(OCB_p ocb, Term_p term,
       {
         repl = TBInsert(bank, repl, DEREF_ONCE);
       }
-      
-      /*fprintf(stderr, "# rewrtiting ");
-      TermPrint(stderr, term, bank->sig, DEREF_ONCE);
-      fprintf(stderr, "using rule ");
-      TermPrint(stderr, ClausePosGetSide(mi->matcher), bank->sig, DEREF_ONCE);
-      fprintf(stderr, " -> ");
-      TermPrint(stderr, ClausePosGetOtherSide(mi->matcher), bank->sig, DEREF_ONCE);
-      fprintf(stderr, ".\n");*/
-
 
       assert(mi->matcher->clause->ident);
       TermAddRWLink(term, repl, mi->matcher->clause, ClauseIsSOS(mi->matcher->clause),
