@@ -1136,6 +1136,8 @@ long SigCollectSortConsts(Sig_p sig, SortType sort, PStack_p res)
          }
          if(f_sort==sort)
          {
+            /* printf("Collecting constant %ld (%s) for sort %d\n", */
+            /*        i, SigFindName(sig, i), sort); */
             PStackPushInt(res, i);
             rescount++;
          }

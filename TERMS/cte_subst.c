@@ -435,19 +435,19 @@ Subst_p SubstPseudoGroundVarBank(VarBank_p vars)
    for (i=0; i < PDArraySize(vars->stacks); i++)
    {
       varstack = PDArrayElementP(vars->stacks, i);
-      printf("# varstack: %p\n", varstack);
+      // printf("# varstack: %p\n", varstack);
       if (varstack)
       {
          size = PDArraySize(varstack);
-         printf("# varstack size: %ld\n", size);
+         // printf("# varstack size: %ld\n", size);
          if(size > 1)
          {
             norm = PDArrayElementP(varstack,1);
-            printf("# varstack[1]: %p\n", norm);
+            // printf("# varstack[1]: %p\n", norm);
             for(j=2; j< size; j++)
             {
                current = PDArrayElementP(varstack,j);
-               printf("# varstack[%ld]: %p\n", j, current);
+               // printf("# varstack[%ld]: %p\n", j, current);
                if(current)
                {
                   SubstAddBinding(subst, current, norm);
@@ -486,11 +486,11 @@ Subst_p SubstGroundVarBankFirstConst(TB_p terms)
    for (i=0; i < PDArraySize(vars->stacks); i++)
    {
       varstack = PDArrayElementP(vars->stacks, i);
-      printf("# varstack: %p\n", varstack);
+      // printf("# varstack: %p\n", varstack);
       if (varstack)
       {
          size = PDArraySize(varstack);
-         printf("# varstack size: %ld\n", size);
+         // printf("# varstack size: %ld\n", size);
          backup = PDArrayElementP(varstack,1);
 
          norm = TBGetFirstConstTerm(terms, i);
@@ -498,11 +498,11 @@ Subst_p SubstGroundVarBankFirstConst(TB_p terms)
          {
             norm = backup;
          }
-         printf("# varstack[1]: %p\n", norm);
+         // printf("# varstack[1]: %p\n", norm);
          for(j=1; j< size; j++)
          {
             current = PDArrayElementP(varstack,j);
-            printf("# varstack[%ld]: %p\n", j, current);
+            // printf("# varstack[%ld]: %p\n", j, current);
             if(current)
             {
                SubstAddBinding(subst, current, norm);
@@ -511,7 +511,6 @@ Subst_p SubstGroundVarBankFirstConst(TB_p terms)
       }
    }
    return subst;
-
 }
 
 

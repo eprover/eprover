@@ -1,27 +1,24 @@
 /*-----------------------------------------------------------------------
 
-File  : cco_forward_contraction.c
+  File  : cco_forward_contraction.c
 
-Author: Stephan Schulz
+  Author: Stephan Schulz
 
-Contents
+  Contents
 
   Functions that apply the processed clause sets to simplify or
   eliminate a potential new clause. Extracted from
   cco_proofproc.[ch].
 
-  Copyright 1998, 1999 by the author.
+  Copyright 1998-2017 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
+  Created: Mon Nov  9 17:46:50 MET 1998
 
-<1> Mon Nov  9 17:46:50 MET 1998
-    New
-
------------------------------------------------------------------------*/
+  -----------------------------------------------------------------------*/
 
 #include "cco_forward_contraction.h"
 
@@ -59,16 +56,16 @@ Changes
 /----------------------------------------------------------------------*/
 
 static FVPackedClause_p forward_contract_keep(ProofState_p state, ProofControl_p
-                     control, Clause_p clause, unsigned long*
-                     subsumed_count, unsigned long* trivial_count,
-                     bool non_unit_subsumption,
-                     bool context_sr,
+                                              control, Clause_p clause, unsigned long*
+                                              subsumed_count, unsigned long* trivial_count,
+                                              bool non_unit_subsumption,
+                                              bool context_sr,
                                               bool condense,
-                     RewriteLevel level)
+                                              RewriteLevel level)
 {
    FVPackedClause_p pclause;
    Clause_p subsumer = 0;
-   bool trivial;
+   bool trivial = false;
 
    assert(clause);
    assert(state);
@@ -172,7 +169,7 @@ static FVPackedClause_p forward_contract_keep(ProofState_p state, ProofControl_p
 
 bool ForwardModifyClause(ProofState_p state,
                          ProofControl_p control,
-          Clause_p clause,
+                         Clause_p clause,
                          bool context_sr,
                          bool condense,
                          RewriteLevel level)
@@ -255,12 +252,12 @@ bool ForwardModifyClause(ProofState_p state,
 /----------------------------------------------------------------------*/
 
 FVPackedClause_p ForwardContractClause(ProofState_p state,
-                   ProofControl_p control,
-                   Clause_p clause,
-                   bool non_unit_subsumption,
-                   bool context_sr,
+                                       ProofControl_p control,
+                                       Clause_p clause,
+                                       bool non_unit_subsumption,
+                                       bool context_sr,
                                        bool condense,
-                   RewriteLevel level)
+                                       RewriteLevel level)
 {
    FVPackedClause_p res;
 
@@ -268,10 +265,10 @@ FVPackedClause_p ForwardContractClause(ProofState_p state,
    assert(state);
 
    res = forward_contract_keep(state, control, clause,
-                &(state->proc_forward_subsumed_count),
-                &(state->proc_trivial_count),
-                non_unit_subsumption, context_sr, condense,
-                level);
+                               &(state->proc_forward_subsumed_count),
+                               &(state->proc_trivial_count),
+                               non_unit_subsumption, context_sr, condense,
+                               level);
 
    if(!res)
    {
@@ -303,6 +300,7 @@ Clause_p ForwardContractSet(ProofState_p state, ProofControl_p
                             terminate_on_empty)
 {
    Clause_p handle, next;
+   FVPackedClause_p phandle;
 
    assert(state);
    assert(set);
@@ -315,10 +313,11 @@ Clause_p ForwardContractSet(ProofState_p state, ProofControl_p
 
       assert(handle);
 
-      if(forward_contract_keep(state, control, handle,
-                               count_eliminated, count_eliminated,
-                               non_unit_subsumption, false, false, level))
-      {
+      if((phandle = forward_contract_keep(state, control, handle,
+                                          count_eliminated, count_eliminated,
+                                          non_unit_subsumption, false, false, level)))
+         {
+         FVUnpackClause(phandle);
          if(terminate_on_empty&&ClauseIsEmpty(handle))
          {
             ClauseSetExtractEntry(handle);
@@ -394,19 +393,19 @@ void ClauseSetReweight(HCB_p heuristic, ClauseSet_p set)
 /----------------------------------------------------------------------*/
 
 Clause_p ForwardContractSetReweight(ProofState_p state, ProofControl_p
-                control, ClauseSet_p set, bool
-                non_unit_subsumption, RewriteLevel
-                level, unsigned long* count_eliminated)
+                                    control, ClauseSet_p set, bool
+                                    non_unit_subsumption, RewriteLevel
+                                    level, unsigned long* count_eliminated)
 {
-   Clause_p    handle;
+   Clause_p handle = NULL;
 
    assert(state);
    assert(set);
    assert(!set->demod_index);
 
    handle = ForwardContractSet(state, control, set,
-                non_unit_subsumption, level,
-                count_eliminated, true);
+                               non_unit_subsumption, level,
+                               count_eliminated, true);
 
    if(handle)
    {
@@ -431,8 +430,8 @@ Clause_p ForwardContractSetReweight(ProofState_p state, ProofControl_p
 /----------------------------------------------------------------------*/
 
 void ClauseSetFilterReweigth(ProofControl_p
-              control, ClauseSet_p set,
-              unsigned long* count_eliminated)
+                             control, ClauseSet_p set,
+                             unsigned long* count_eliminated)
 {
    *count_eliminated += ClauseSetFilterTrivial(set);
    ClauseSetReweight(control->hcb, set);
@@ -455,8 +454,8 @@ void ClauseSetFilterReweigth(ProofControl_p
 /----------------------------------------------------------------------*/
 
 Clause_p ProofStateFilterUnprocessed(ProofState_p state,
-                 ProofControl_p control, char*
-                 desc)
+                                     ProofControl_p control, char*
+                                     desc)
 {
    Clause_p handle = NULL;
 
@@ -465,59 +464,59 @@ Clause_p ProofStateFilterUnprocessed(ProofState_p state,
       switch(*desc)
       {
       case 'u':
-       state->non_redundant_deleted+=
-          ClauseSetDeleteNonUnits(state->unprocessed);
-       break;
+            state->non_redundant_deleted+=
+               ClauseSetDeleteNonUnits(state->unprocessed);
+            break;
       case 'c':
-       state->other_redundant_count+=
-          ClauseSetDeleteCopies(state->unprocessed);
-       break;
+            state->other_redundant_count+=
+               ClauseSetDeleteCopies(state->unprocessed);
+            break;
       case 'n':
-       handle =
-          ForwardContractSet(state, control,
-              state->unprocessed,
-              false, NoRewrite,
-              &(state->proc_trivial_count), true);
-       break;
+            handle =
+               ForwardContractSet(state, control,
+                                  state->unprocessed,
+                                  false, NoRewrite,
+                                  &(state->proc_trivial_count), true);
+            break;
       case 'N':
-       handle =
-          ForwardContractSet(state, control,
-              state->unprocessed,
-              true, NoRewrite,
-              &(state->proc_trivial_count), true);
-       break;
+            handle =
+               ForwardContractSet(state, control,
+                                  state->unprocessed,
+                                  true, NoRewrite,
+                                  &(state->proc_trivial_count), true);
+            break;
       case 'r':
-       handle =
-          ForwardContractSet(state, control,
-              state->unprocessed,
-              false, RuleRewrite,
-              &(state->proc_trivial_count), true);
-       break;
+            handle =
+               ForwardContractSet(state, control,
+                                  state->unprocessed,
+                                  false, RuleRewrite,
+                                  &(state->proc_trivial_count), true);
+            break;
       case 'R':
-       handle =
-          ForwardContractSet(state, control,
-              state->unprocessed,
-              true, RuleRewrite,
-              &(state->proc_trivial_count), true);
-       break;
+            handle =
+               ForwardContractSet(state, control,
+                                  state->unprocessed,
+                                  true, RuleRewrite,
+                                  &(state->proc_trivial_count), true);
+            break;
       case 'f':
-       handle =
-          ForwardContractSet(state, control,
-              state->unprocessed,
-              false, FullRewrite,
-              &(state->proc_trivial_count), true);
-       break;
+            handle =
+               ForwardContractSet(state, control,
+                                  state->unprocessed,
+                                  false, FullRewrite,
+                                  &(state->proc_trivial_count), true);
+            break;
       case 'F':
-       handle =
-          ForwardContractSet(state, control,
-              state->unprocessed,
-              true, FullRewrite,
-              &(state->proc_trivial_count), true);
-       break;
+            handle =
+               ForwardContractSet(state, control,
+                                  state->unprocessed,
+                                  true, FullRewrite,
+                                  &(state->proc_trivial_count), true);
+            break;
       }
       if(handle)
       {
-    break;
+         break;
       }
       desc++;
    }

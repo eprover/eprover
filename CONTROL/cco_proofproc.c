@@ -854,20 +854,24 @@ Clause_p SATCheck(ProofState_p state, ProofControl_p control)
 
    if(control->heuristic_parms.sat_check_normalize)
    {
+      // printf("# Cardinality of unprocessed: %ld\n",
+      //        ClauseSetCardinality(state->unprocessed));
       res = ForwardContractSetReweight(state, control, state->unprocessed,
                                        false, 2,
                                        &(state->proc_trivial_count));
+      // printf("# ForwardContraction done\n");
+
    }
    if(!res)
    {
       SatClauseSet_p set = SatClauseSetAlloc();
 
-      printf("# SatCheck()..\n");
+      // printf("# SatCheck()..\n");
 
       SatClauseSetImportProofState(set, state,
                                    control->heuristic_parms.sat_check_grounding);
 
-      printf("# SatCheck()..imported\n");
+      // printf("# SatCheck()..imported\n");
 
       res = SatClauseSetCheckUnsat(set);
 
@@ -1551,6 +1555,7 @@ Clause_p Saturate(ProofState_p state, ProofControl_p control, long
          unsatisfiable = SATCheck(state, control);
          if(unsatisfiable)
          {
+            PStackPushP(state->extract_roots, unsatisfiable);
             break;
          }
          sat_check_count++;

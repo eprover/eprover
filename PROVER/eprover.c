@@ -1414,8 +1414,8 @@ CLState_p process_options(int argc, char* argv[])
                CLStateGetIntArgCheckRange(handle, arg, 1, LONG_MAX);
             break;
       case OPT_SATCHECK:
-            h_parms->sat_check_grounding = StringIndex(arg, GroundingStratNames);
-            if(h_parms->sat_check_grounding<=0)
+            tmp = StringIndex(arg, GroundingStratNames);
+            if(tmp <= 0)
             {
                DStr_p err = DStrAlloc();
                DStrAppendStr(err,
@@ -1425,6 +1425,7 @@ CLState_p process_options(int argc, char* argv[])
                Error(DStrView(err), USAGE_ERROR);
                DStrFree(err);
             }
+            h_parms->sat_check_grounding = tmp;
             break;
       case OPT_SAT_NORMALIZE:
             h_parms->sat_check_normalize = false;

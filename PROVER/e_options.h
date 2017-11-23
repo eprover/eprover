@@ -1115,7 +1115,7 @@ OptCell opts[] =
 
    {OPT_SATCHECK,
     '\0', "sat-check",
-    OptArg, "MaxConjFreqConst",
+    OptArg, "FirstConst",
     "Set the grounding strategy for periodic SAT checking."},
 
    {OPT_SAT_NORMALIZE,

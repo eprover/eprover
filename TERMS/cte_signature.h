@@ -262,6 +262,7 @@ void    SigParseTFFTypeDeclaration(Scanner_p in, Sig_p sig);
 bool    SigHasUnimplementedInterpretedSymbols(Sig_p sig);
 void    SigUpdateFeatureOffset(Sig_p sig, FunCode f);
 
+typedef bool (*FunConstCmpFunType)(FunCode,  FunCode, long*, long*);
 
 /*---------------------------------------------------------------------*/
 /*                        Inline functions                             */
