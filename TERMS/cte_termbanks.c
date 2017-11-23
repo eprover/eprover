@@ -680,12 +680,45 @@ Term_p TBInsertInstantiatedFO(TB_p bank, Term_p term)
    return t;
 }
 
+Term_p TBInsertInstantiatedHO(TB_p bank, Term_p term)
+{
+   int    i;
+   Term_p t;
+
+   assert(term);
+
+   if(term->binding)
+   {
+      return TBInsert(bank, term->binding, DEREF_NEVER);
+   }
+
+   if(TermIsVar(term))
+   {
+      t = VarBankVarAssertAlloc(bank->vars, term->f_code, term->type);
+   }
+   else
+   {
+      t = TermTopCopyWithoutArgs(term); /* This is an unshared term cell at the moment */
+      t->properties    = TPIgnoreProps;
+
+      assert(SysDateIsCreationDate(t->rw_data.nf_date[0]));
+      assert(SysDateIsCreationDate(t->rw_data.nf_date[1]));
+
+      for(i=0; i<t->arity; i++)
+      {
+         t->args[i] = TBInsertInstantiatedFO(bank, term->args[i]);
+      }
+      t = tb_termtop_insert(bank, t);
+   }
+   return t;
+}
+
 #ifdef ENABLE_LFHO
 __inline__ Term_p TBInsertInstantiated(TB_p bank, Term_p term)
 {
    if (ProblemIsHO == PROBLEM_IS_HO)
    {
-      return TBInsert(bank, term, DEREF_ONCE);
+      return TBInsertInstantiatedHO(bank, term);
    }
    else
    {
