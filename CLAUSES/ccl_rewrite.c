@@ -68,7 +68,7 @@ static bool instance_is_rule(OCB_p ocb, TB_p bank,
                              Term_p lside, Term_p rside, Subst_p subst)
 
 {
-   /*fprintf(stderr, "Checking if ");
+   fprintf(stderr, "Checking if ");
    TermPrint(stderr, lside, bank->sig, DEREF_NEVER);
    fprintf(stderr, " = ");
    TermPrint(stderr, rside, bank->sig, DEREF_NEVER);
@@ -77,7 +77,7 @@ static bool instance_is_rule(OCB_p ocb, TB_p bank,
    TermPrint(stderr, lside, bank->sig, DEREF_ONCE);
    fprintf(stderr, " -> ");
    TermPrint(stderr, rside, bank->sig, DEREF_ONCE);
-   fprintf(stderr, " } is a rewrite rule -- ");*/
+   fprintf(stderr, " } is a rewrite rule -- ");
 
 
 
@@ -89,16 +89,16 @@ static bool instance_is_rule(OCB_p ocb, TB_p bank,
    else if(TermHasUnboundVariables(rside))
    {
       RewriteUnboundVarFails++;
-      //fprintf(stderr, " rhs has unbound vars -- fail.\n");
+      fprintf(stderr, " rhs has unbound vars -- fail.\n");
       return false;
    }
    if(SubstIsRenaming(subst)) /* Save comparisons */
    {
-      //fprintf(stderr, " subst is renaming -- fail.\n");
+      fprintf(stderr, " subst is renaming -- fail.\n");
       return false;
    }
    bool res =  TOGreater(ocb, lside, rside, DEREF_ONCE, DEREF_ONCE);
-   //fprintf(stderr, res ? " lhs > rhs -- OK.\n" : "lhs <?> rhs -- NOT OK.\n");
+   fprintf(stderr, res ? " lhs > rhs -- OK.\n" : "lhs <?> rhs -- NOT OK.\n");
    return res;
 }
 
@@ -119,17 +119,24 @@ static bool instance_is_rule(OCB_p ocb, TB_p bank,
 
 static 
 //__TEMP__DBG__
-void print_rewrite_rule(Clause_p demod, OCB_p ocb)
+void print_rewrite_rule(Clause_p demod, RWDesc_p desc, Term_p left, Term_p right)
 {
    Term_p lhs = demod->literals->lterm;
    Term_p rhs = demod->literals->rterm;
+   OCB_p ocb = desc->ocb;
+
+   fprintf(stderr, "Rewritten ");
+   TermPrint(stderr, left, ocb->sig, DEREF_NEVER);
+   fprintf(stderr, " to ");
+   TermPrint(stderr, right, ocb->sig, DEREF_NEVER);
+   fprintf(stderr, " KBO6= %s.\n", POCompareSymbol[TOCompare(ocb, left, right, DEREF_NEVER, DEREF_NEVER)]);
 
    fprintf(stderr, " [ rewrite rule ");
-   TermPrint(stderr, lhs, demod->literals->bank->sig, DEREF_ONCE);
+   TermPrint(stderr, lhs, demod->literals->bank->sig, DEREF_NEVER);
    fprintf(stderr, " -> ");
-   TermPrint(stderr, rhs, demod->literals->bank->sig, DEREF_ONCE);
+   TermPrint(stderr, rhs, demod->literals->bank->sig, DEREF_NEVER);
 
-   CompareResult cmp_res = TOCompare(ocb, lhs, rhs, DEREF_ONCE, DEREF_ONCE);
+   CompareResult cmp_res = TOCompare(ocb, lhs, rhs, DEREF_NEVER, DEREF_NEVER);
    fprintf(stderr, ", KBO6 cmp %s, EqOritented %d) ].\n", POCompareSymbol[cmp_res],
                                                           EqnIsOriented(demod->literals));
 }
@@ -149,13 +156,11 @@ void print_rewrite_rule(Clause_p demod, OCB_p ocb)
          desc->sos_rewritten = true;
       }
 
-      /*TermPrint(stderr, term, desc->bank->sig, DEREF_ONCE);
-      fprintf(stderr, " -> ");
-      TermPrint(stderr, TermRWReplaceField(term), desc->bank->sig, DEREF_ONCE);
-      print_rewrite_rule(TermRWDemodField(term), desc->ocb);*/
-
-      assert(TOGreater(desc->ocb, term, TermRWReplaceField(term), DEREF_ONCE, DEREF_ONCE));
-
+      if(!TOGreater(desc->ocb, term, TermRWReplaceField(term), DEREF_NEVER, DEREF_NEVER))
+      {
+         print_rewrite_rule(TermRWDemodField(term), desc, term, TermRWReplaceField(term));
+         assert(false);
+      }
       term = TermRWReplaceField(term);
       assert(term);
    }
@@ -539,7 +544,7 @@ MatchInfo_p indexed_find_demodulator_mi(OCB_p ocb, Term_p term,
           (!restricted_rw ||
       !SubstIsRenaming(subst)))
        {
-          //fprintf(stderr, "l -> r\n");
+          fprintf(stderr, "l -> r\n");
           res = pos;
        }
        break;
@@ -553,7 +558,7 @@ MatchInfo_p indexed_find_demodulator_mi(OCB_p ocb, Term_p term,
                /* The prevous condition seems wrong! If subst is a
                   real substitution, we can alwayws rewrite! TODO! */
        {
-          //fprintf(stderr, "r -> l\n");
+          fprintf(stderr, "r -> l\n");
           res = pos;
        }
        break;
@@ -563,6 +568,7 @@ MatchInfo_p indexed_find_demodulator_mi(OCB_p ocb, Term_p term,
       }
       if(res)
       {
+         fprintf(stderr, "breaking.\n");
          break;
       }
    }
@@ -621,7 +627,7 @@ MatchInfo_p indexed_find_demodulator_mi(OCB_p ocb, Term_p term,
          TermPrint(stderr, term, bank->sig, DEREF_NEVER);
          fprintf(stderr, " to ");
          TermPrint(stderr, repl, bank->sig, DEREF_NEVER);
-         fprintf(stderr, ". (KBO6 res = %s)\n", POCompareSymbol[TOCompare(ocb, term, repl, DEREF_NEVER, DEREF_ONCE)]);
+         fprintf(stderr, ". (KBO6 res = %s)\n", POCompareSymbol[TOCompare(ocb, term, repl, DEREF_NEVER, DEREF_NEVER)]);
          fprintf(stderr, "  Used rule ");
          TermPrint(stderr, ClausePosGetSide(mi->matcher), bank->sig, DEREF_NEVER);
          fprintf(stderr, " -> ");
