@@ -1488,9 +1488,8 @@ Term_p MIGetRewrittenTerm(MatchInfo_p mi, Term_p original)
    else
    {
       Term_p other_side = ClausePosGetOtherSide(mi->matcher);
-      DerefType deref = DEREF_ONCE;
       int remaining_orig = mi->remaining_on_stack;
-      return MakeRewrittenTerm(original, TermDeref(other_side, &deref),
+      return MakeRewrittenTerm(original, other_side,
                                remaining_orig);
    }
 }
