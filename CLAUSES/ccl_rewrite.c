@@ -544,7 +544,7 @@ MatchInfo_p indexed_find_demodulator_mi(OCB_p ocb, Term_p term,
           (!restricted_rw ||
       !SubstIsRenaming(subst)))
        {
-          fprintf(stderr, "l -> r\n");
+          //fprintf(stderr, "l -> r\n");
           res = pos;
        }
        break;
@@ -558,7 +558,7 @@ MatchInfo_p indexed_find_demodulator_mi(OCB_p ocb, Term_p term,
                /* The prevous condition seems wrong! If subst is a
                   real substitution, we can alwayws rewrite! TODO! */
        {
-          fprintf(stderr, "r -> l\n");
+          //fprintf(stderr, "r -> l\n");
           res = pos;
        }
        break;
@@ -568,7 +568,7 @@ MatchInfo_p indexed_find_demodulator_mi(OCB_p ocb, Term_p term,
       }
       if(res)
       {
-         fprintf(stderr, "breaking.\n");
+         //fprintf(stderr, "breaking.\n");
          break;
       }
    }
@@ -623,7 +623,7 @@ MatchInfo_p indexed_find_demodulator_mi(OCB_p ocb, Term_p term,
       if (!TOGreater(ocb, term, repl, DEREF_NEVER, DEREF_NEVER))
       {
          /* DBG_TO_BE_DELETED */
-         fprintf(stderr, "Rewritten \n");
+         /*fprintf(stderr, "Rewritten \n");
          TermPrint(stderr, term, bank->sig, DEREF_NEVER);
          fprintf(stderr, " to ");
          TermPrint(stderr, repl, bank->sig, DEREF_NEVER);
@@ -639,7 +639,7 @@ MatchInfo_p indexed_find_demodulator_mi(OCB_p ocb, Term_p term,
          fprintf(stderr, " -> ");
          TermPrint(stderr, ClausePosGetOtherSide(mi->matcher), bank->sig, DEREF_ONCE);
          fprintf(stderr, "(KBO6 res = %s).\n", POCompareSymbol[TOCompare(ocb, ClausePosGetSide(mi->matcher), ClausePosGetOtherSide(mi->matcher), 
-                                                                         DEREF_ONCE, DEREF_ONCE)]);
+                                                                         DEREF_ONCE, DEREF_ONCE)]);*/
          assert(false);
       }
       
