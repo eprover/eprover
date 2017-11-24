@@ -64,8 +64,6 @@ void          SubstBacktrackSkolem(Subst_p subst);
 void          SubstSkolemizeTerm(Term_p term, Subst_p subst, Sig_p sig);
 void          SubstCompleteInstance(Subst_p subst, Term_p term,
                                     Term_p default_binding);
-Subst_p       SubstPseudoGroundVarBank(VarBank_p vars);
-Subst_p       SubstGroundVarBankFirstConst(TB_p terms);
 
 
 /*-----------------------------------------------------------------------
