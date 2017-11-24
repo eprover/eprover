@@ -1427,6 +1427,9 @@ CLState_p process_options(int argc, char* argv[])
             }
             h_parms->sat_check_grounding = tmp;
             break;
+      case OPT_SAT_NORMCONST:
+            h_parms->sat_check_normconst = true;
+            break;
       case OPT_SAT_NORMALIZE:
             h_parms->sat_check_normalize = false;
             break;

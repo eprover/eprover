@@ -869,7 +869,8 @@ Clause_p SATCheck(ProofState_p state, ProofControl_p control)
       // printf("# SatCheck()..\n");
 
       SatClauseSetImportProofState(set, state,
-                                   control->heuristic_parms.sat_check_grounding);
+                                   control->heuristic_parms.sat_check_grounding,
+                                   control->heuristic_parms.sat_check_normconst);
 
       // printf("# SatCheck()..imported\n");
 

@@ -149,6 +149,7 @@ typedef enum
    OPT_SAT_STEP_INTERVAL,
    OPT_SAT_SIZE_INTERVAL,
    OPT_SATCHECK,
+   OPT_SAT_NORMCONST,
    OPT_SAT_NORMALIZE,
    OPT_WATCHLIST,
    OPT_WATCHLIST_NO_SIMPLIFY,
@@ -1117,6 +1118,13 @@ OptCell opts[] =
     '\0', "sat-check",
     OptArg, "FirstConst",
     "Set the grounding strategy for periodic SAT checking."},
+
+   {OPT_SAT_NORMCONST,
+    '\0', "sat-normalize-const",
+    NoArg, NULL,
+    "Use the current normal form (as recorded in the termbank rewrite "
+    "cache) of the selected constant as the term for the grounding "
+    "substitution."},
 
    {OPT_SAT_NORMALIZE,
     '\0', "sat-disable-normalization",
