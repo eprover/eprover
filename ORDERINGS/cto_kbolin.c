@@ -622,7 +622,7 @@ static CompareResult kbolincmp_ho(OCB_p ocb, Term_p s, Term_p t,
 
                for(int j=i; j<t->arity; j++)
                {
-                  mfyvwbrhs(ocb, t->args[j], deref_s);  
+                  mfyvwbrhs(ocb, t->args[j], deref_t);  
                }
 
                CompareResult g_or_n = ocb->neg_bal?to_uncomparable:to_greater;
@@ -772,11 +772,11 @@ CompareResult KBO6Compare(OCB_p ocb, Term_p s, Term_p t,
 
    kbo6reset(ocb);
 
-   fprintf(stderr, "? comparing ");
+   /*fprintf(stderr, "? comparing ");
    TermPrint(stderr, s, ocb->sig, deref_s);
    fprintf(stderr, " against ");
    TermPrint(stderr, t, ocb->sig, deref_t);
-   fprintf(stderr, ".\n");
+   fprintf(stderr, ".\n");*/
 
 #ifdef ENABLE_LFHO
    res = ProblemIsHO == PROBLEM_IS_HO ? 
@@ -788,7 +788,7 @@ CompareResult KBO6Compare(OCB_p ocb, Term_p s, Term_p t,
    assert((kbo6reset(ocb), res == kbo6cmp(ocb, s, t, deref_s, deref_t)));
 #endif
 
-   fprintf(stderr, " (res %s)\n", POCompareSymbol[res]);
+   //fprintf(stderr, " (res %s)\n", POCompareSymbol[res]);
 
    return res;
 }
@@ -821,11 +821,11 @@ bool KBO6Greater(OCB_p ocb, Term_p s, Term_p t,
 {
    CompareResult res;
 
-   fprintf(stderr, "? greater ");
+   /*fprintf(stderr, "? greater ");
    TermPrint(stderr, s, ocb->sig, deref_s);
    fprintf(stderr, " against ");
    TermPrint(stderr, t, ocb->sig, deref_t);
-   fprintf(stderr, ".\n");
+   fprintf(stderr, ".\n");*/
 
    kbo6reset(ocb);
 #ifdef ENABLE_LFHO
@@ -837,7 +837,7 @@ bool KBO6Greater(OCB_p ocb, Term_p s, Term_p t,
    assert((kbo6reset(ocb), res == kbo6cmp(ocb, s, t, deref_s, deref_t)));
 #endif
 
-   fprintf(stderr, " (res %s)\n", POCompareSymbol[res]);
+   //fprintf(stderr, " (res %s)\n", POCompareSymbol[res]);
 
    return res == to_greater;
 }
