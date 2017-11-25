@@ -68,7 +68,7 @@ static bool instance_is_rule(OCB_p ocb, TB_p bank,
                              Term_p lside, Term_p rside, Subst_p subst)
 
 {
-   fprintf(stderr, "Checking if ");
+   /*fprintf(stderr, "Checking if ");
    TermPrint(stderr, lside, bank->sig, DEREF_NEVER);
    fprintf(stderr, " = ");
    TermPrint(stderr, rside, bank->sig, DEREF_NEVER);
@@ -77,7 +77,7 @@ static bool instance_is_rule(OCB_p ocb, TB_p bank,
    TermPrint(stderr, lside, bank->sig, DEREF_ONCE);
    fprintf(stderr, " -> ");
    TermPrint(stderr, rside, bank->sig, DEREF_ONCE);
-   fprintf(stderr, " } is a rewrite rule -- ");
+   fprintf(stderr, " } is a rewrite rule -- ");*/
 
 
 
@@ -89,16 +89,16 @@ static bool instance_is_rule(OCB_p ocb, TB_p bank,
    else if(TermHasUnboundVariables(rside))
    {
       RewriteUnboundVarFails++;
-      fprintf(stderr, " rhs has unbound vars -- fail.\n");
+      //fprintf(stderr, " rhs has unbound vars -- fail.\n");
       return false;
    }
    if(SubstIsRenaming(subst)) /* Save comparisons */
    {
-      fprintf(stderr, " subst is renaming -- fail.\n");
+      //fprintf(stderr, " subst is renaming -- fail.\n");
       return false;
    }
    bool res =  TOGreater(ocb, lside, rside, DEREF_ONCE, DEREF_ONCE);
-   fprintf(stderr, res ? " lhs > rhs -- OK.\n" : "lhs <?> rhs -- NOT OK.\n");
+   //fprintf(stderr, res ? " lhs > rhs -- OK.\n" : "lhs <?> rhs -- NOT OK.\n");
    return res;
 }
 
@@ -544,7 +544,7 @@ MatchInfo_p indexed_find_demodulator_mi(OCB_p ocb, Term_p term,
           (!restricted_rw ||
       !SubstIsRenaming(subst)))
        {
-          fprintf(stderr, "l -> r\n");
+          //fprintf(stderr, "l -> r\n");
           res = pos;
        }
        break;
@@ -558,7 +558,7 @@ MatchInfo_p indexed_find_demodulator_mi(OCB_p ocb, Term_p term,
                /* The prevous condition seems wrong! If subst is a
                   real substitution, we can alwayws rewrite! TODO! */
        {
-          fprintf(stderr, "r -> l\n");
+          //fprintf(stderr, "r -> l\n");
           res = pos;
        }
        break;
@@ -568,7 +568,7 @@ MatchInfo_p indexed_find_demodulator_mi(OCB_p ocb, Term_p term,
       }
       if(res)
       {
-         fprintf(stderr, "breaking.\n");
+         //fprintf(stderr, "breaking.\n");
          break;
       }
    }
