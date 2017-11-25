@@ -629,7 +629,8 @@ Term_p applied_var_deref(Term_p orig)
 
    if (TermIsVar(orig->args[0]->binding))
    {
-      assert(orig->args[0] != orig->args[0]->binding);
+      // if deref once , this is OK.
+      //assert(orig->args[0] != orig->args[0]->binding);
 
       res = TermTopAlloc(orig->f_code, orig->arity);
       res->properties = orig->properties;

@@ -577,8 +577,16 @@ MatchInfo_p indexed_find_demodulator_mi(OCB_p ocb, Term_p term,
    //MatchInfoPrint(match_info);
    /* If there is match info and no args are remaining,
       then term has to be structuraly equal */
-   assert(!(match_info && !match_info->remaining_on_stack) 
-            || TermStructEqualDeref(ClausePosGetSide(match_info->matcher), term, DEREF_ONCE, DEREF_NEVER));
+   if((match_info && !match_info->remaining_on_stack) 
+            && !TermStructEqualDeref(ClausePosGetSide(match_info->matcher), term, DEREF_ONCE, DEREF_NEVER))
+   {
+      fprintf(stderr, "Term ");
+      TermPrint(stderr, ClausePosGetSide(match_info->matcher), ocb->sig, DEREF_ONCE);
+      fprintf(stderr, " should match ");
+      TermPrint(stderr, term, ocb->sig, DEREF_NEVER);
+      fprintf(stderr, ".\n");
+      assert(false);
+   }
    return match_info;
 }
 
