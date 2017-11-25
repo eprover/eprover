@@ -575,7 +575,9 @@ MatchInfo_p indexed_find_demodulator_mi(OCB_p ocb, Term_p term,
    PDTreeSearchExit(demodulators->demod_index);
 
    //MatchInfoPrint(match_info);
-   assert(!(match_info && match_info->remaining_on_stack) 
+   /* If there is match info and no args are remaining,
+      then term has to be structuraly equal */
+   assert(!(match_info && !match_info->remaining_on_stack) 
             || TermStructEqualDeref(ClausePosGetSide(match_info->matcher), term, DEREF_ONCE, DEREF_NEVER));
    return match_info;
 }
