@@ -167,6 +167,9 @@ Term_p  TBCreateMinTerm(TB_p bank, FunCode min_const);
 
 long    TBTermCollectSubterms(Term_p term, PStack_p collector);
 Term_p  TBGetFirstConstTerm(TB_p bank, SortType sort);
+Term_p  TBGetFreqConstTerm(TB_p terms, SortType sort,
+                           long* conj_dist_array,
+                           long* dist_array, FunConstCmpFunType is_better);
 
 
 /*---------------------------------------------------------------------*/

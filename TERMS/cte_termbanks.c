@@ -1485,6 +1485,53 @@ Term_p TBGetFirstConstTerm(TB_p bank, SortType sort)
    return res;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: TBGetFreqConstTerm()
+//
+//   Find the best (according to is_better) constant of the give sort,
+//   and return a shared term with this constant. If no suitable
+//   constant exists, returns NULL. conj_dist_array contains number of
+//   occurances for each symbol in conjecture clauses, dist_array the
+//   same for all clauses.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+Term_p TBGetFreqConstTerm(TB_p terms, SortType sort,
+                          long* conj_dist_array,
+                          long* dist_array, FunConstCmpFunType is_better)
+{
+   Term_p res = NULL;
+   long   cand_no;
+   PStackPointer i;
+   FunCode f = 0, cand;
+
+   PStack_p candidates = PStackAlloc();
+   cand_no = SigCollectSortConsts(terms->sig, sort, candidates);
+
+   if(cand_no)
+   {
+      f = PStackElementInt(candidates, 0);
+      for(i=1; i<PStackGetSP(candidates); i++)
+      {
+         cand = PStackElementInt(candidates, i);
+
+         if(is_better(cand, f, conj_dist_array, dist_array))
+         {
+            f = cand;
+         }
+      }
+      res = TBCreateConstTerm(terms, f);
+   }
+   PStackFree(candidates);
+   return res;
+}
+
+
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
