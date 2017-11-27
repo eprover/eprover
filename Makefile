@@ -29,7 +29,7 @@ PROJECT  = E
 LIBS     = BASICS INOUT TERMS ORDERINGS CLAUSES PROPOSITIONAL LEARN \
            ANALYSIS PCL2 HEURISTICS CONTROL
 HEADERS  = $(LIBS) EXTERNAL PROVER
-CODE     = $(LIBS) PROVER SIMPLE_APPS EXTERNAL
+CODE     = $(LIBS) PROVER SIMPLE_APPS EXTERNAL CONTRIB
 PARTS    = $(CODE) DOC
 
 all: E
@@ -88,6 +88,7 @@ fulldistrib: man documentation cleandist default_config
 
 # Build StarExec package. This is not supposed to be super-portable
 
+
 starexec:
 	touch $(STAREXECPATH)
 	echo $(STAREXECPATH)
@@ -95,6 +96,7 @@ starexec:
 	./configure --prefix=$(STAREXECPATH)
 	make
 	make install
+
 	cp etc/STAREXEC2.0/starexec_run* $(STAREXECPATH)/bin
 	$(eval E_VERSION=`$$(STAREXECPATH)/bin/eprover --version | cut -d' ' -f1-2| sed -e 's/ /-/'`)
 	cd $(STAREXECPATH); zip -r $(E_VERSION).zip bin man
@@ -133,6 +135,7 @@ config:
 	echo 'Configuring build system'
 	$(MAKE) links
 	$(MAKE) depend
+	cd CONTRIB; $(MAKE) config
 
 
 # Configure and copy executables to the installation directory
@@ -150,6 +153,7 @@ install: top
 	-sh -c 'development_tools/e_install PROVER/ekb_delete   $(EXECPATH)'
 	-sh -c 'development_tools/e_install PROVER/ekb_ginsert  $(EXECPATH)'
 	-sh -c 'development_tools/e_install PROVER/ekb_insert   $(EXECPATH)'
+	-sh -c 'development_tools/e_install CONTRIB/picosat-965/picosat $(EXECPATH)'
 	-sh -c 'mkdir -p $(MANPATH)'
 	-sh -c 'development_tools/e_install DOC/man/eprover.1      $(MANPATH)'
 	-sh -c 'development_tools/e_install DOC/man/epclextract.1  $(MANPATH)'
