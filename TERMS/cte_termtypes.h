@@ -360,11 +360,20 @@ static __inline__ Term_p TermDeref(Term_p term, DerefType_p deref)
       while(*deref && CAN_DEREF(term))
       {
 #ifdef ENABLE_LFHO
+      bool originally_app_var = TermIsAppliedVar(term);
       term = deref_step(term);
+      if ((*deref) == DEREF_ONCE && originally_app_var)
+      {
+        break;
+      }
+      else
+      {
+        (*deref)--;
+      }
 #else
       term = term->binding;
+      (*deref)--;
 #endif
-         (*deref)--;
       }
    }
    return term;
