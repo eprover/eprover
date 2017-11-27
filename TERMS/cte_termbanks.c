@@ -706,7 +706,7 @@ Term_p TBInsertInstantiatedHO(TB_p bank, Term_p term)
 
       for(i=0; i<t->arity; i++)
       {
-         t->args[i] = TBInsertInstantiatedFO(bank, term->args[i]);
+         t->args[i] = TBInsertInstantiatedHO(bank, term->args[i]);
       }
       t = tb_termtop_insert(bank, t);
    }
