@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 from e_evaluator import *
-ERRORS_ONLY = True
+ERRORS_ONLY = False
 
 
 def print_errors(binary, test_folder, timeout=60):
@@ -28,6 +28,10 @@ def print_errors(binary, test_folder, timeout=60):
           'E status report': res[0],
           'errors': res[2]
         })
+
+      if exp_status != res[0]:
+        print("Theorem status difference in {0} ({1}/{2})".format(filepath, 
+                                                                  exp_status, res[0]))
 
   columns = ['filename', 'theorem status', 
             'runtime', 'E status report', 'errors']

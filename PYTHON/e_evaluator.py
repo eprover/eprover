@@ -1,3 +1,5 @@
+PRINT_STATUS = True
+
 def run_e(args, stdin_file = None):
   import time as t
   import subprocess as sp
@@ -5,6 +7,10 @@ def run_e(args, stdin_file = None):
 
   start = t.time()
   out = None
+
+  if PRINT_STATUS:
+    print("Working on {0}".format(args[1]))
+
   with open(".e_tmp_err", "w") as tmp_err:
     try:
       res = sp.run(args, stdout = sp.PIPE, stderr=tmp_err)\
@@ -27,7 +33,7 @@ def run_e(args, stdin_file = None):
   except StopIteration:
     szs_line = 'status line not found in the output'
 
-  return (szs_line, end-start, err)
+  return (szs_line.strip(), end-start, err.strip())
 
 
 def get_theorem_status(problem_filepath):
