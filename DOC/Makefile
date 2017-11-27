@@ -34,6 +34,5 @@ DOC_LIB = *.tex
 
 $(LIB): $(DOC_LIB)
 	$(PDFLATEX) eprover.tex
-	$(BIBTEX) eprover
-	$(PDFLATEX) eprover.tex
+	#$(BIBTEX) eprover
 	$(PDFLATEX) eprover.tex
