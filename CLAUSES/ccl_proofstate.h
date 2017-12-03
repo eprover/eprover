@@ -92,6 +92,7 @@ typedef struct proofstatecell
    unsigned long paramod_count;
    unsigned long factor_count;
    unsigned long resolv_count;
+   unsigned long propunsat_count;
 
    /* The following are only set by ProofStateAnalyse() after
       DerivationCompute() at the end of the proof search. */

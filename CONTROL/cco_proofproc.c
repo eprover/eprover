@@ -875,7 +875,10 @@ Clause_p SATCheck(ProofState_p state, ProofControl_p control)
       // printf("# SatCheck()..imported\n");
 
       res = SatClauseSetCheckUnsat(set);
-
+      if(res)
+      {
+         state->propunsat_count++;
+      }
       SatClauseSetFree(set);
    }
    return res;
