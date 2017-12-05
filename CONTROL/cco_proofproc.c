@@ -854,7 +854,7 @@ Clause_p SATCheck(ProofState_p state, ProofControl_p control)
 
    if(control->heuristic_parms.sat_check_normalize)
    {
-      // printf("# Cardinality of unprocessed: %ld\n",
+      //printf("# Cardinality of unprocessed: %ld\n",
       //        ClauseSetCardinality(state->unprocessed));
       res = ForwardContractSetReweight(state, control, state->unprocessed,
                                        false, 2,
@@ -866,7 +866,9 @@ Clause_p SATCheck(ProofState_p state, ProofControl_p control)
    {
       SatClauseSet_p set = SatClauseSetAlloc();
 
-      // printf("# SatCheck()..\n");
+      //printf("# SatCheck() %ld, %ld..\n",
+      //       state->proc_non_trivial_count,
+      //       ProofStateCardinality(state));
 
       SatClauseSetImportProofState(set, state,
                                    control->heuristic_parms.sat_check_grounding,
@@ -875,9 +877,10 @@ Clause_p SATCheck(ProofState_p state, ProofControl_p control)
       // printf("# SatCheck()..imported\n");
 
       res = SatClauseSetCheckUnsat(set);
+      state->satcheck_count++;
       if(res)
       {
-         state->propunsat_count++;
+         state->satcheck_success++;
       }
       SatClauseSetFree(set);
    }
@@ -1527,8 +1530,10 @@ Clause_p Saturate(ProofState_p state, ProofControl_p control, long
                   long answer_limit)
 {
    Clause_p unsatisfiable = NULL;
-   long count = 0;
-   long sat_check_count = 0;
+   long
+      count = 0,
+      sat_check_size_limit = control->heuristic_parms.sat_check_size_limit,
+      sat_check_step_limit = control->heuristic_parms.sat_check_step_limit;
 
    while(!TimeIsUp &&
          !ClauseSetEmpty(state->unprocessed) &&
@@ -1552,17 +1557,26 @@ Clause_p Saturate(ProofState_p state, ProofControl_p control, long
       {
          break;
       }
-      if((count/(sat_check_count+1) > control->heuristic_parms.sat_check_step_limit)||
-         (ProofStateCardinality(state)/(sat_check_count+1) >
-          control->heuristic_parms.sat_check_size_limit))
+      if(control->heuristic_parms.sat_check_grounding != GMNoGrounding)
       {
-         unsatisfiable = SATCheck(state, control);
+         if(ProofStateCardinality(state) >= sat_check_size_limit)
+         {
+            unsatisfiable = SATCheck(state, control);
+            while(sat_check_size_limit <= ProofStateCardinality(state))
+            {
+               sat_check_size_limit += control->heuristic_parms.sat_check_size_limit;
+            }
+         }
+         else if(state->proc_non_trivial_count >= sat_check_step_limit)
+         {
+            unsatisfiable = SATCheck(state, control);
+            sat_check_step_limit += control->heuristic_parms.sat_check_step_limit;
+         }
          if(unsatisfiable)
          {
             PStackPushP(state->extract_roots, unsatisfiable);
             break;
          }
-         sat_check_count++;
       }
    }
    return unsatisfiable;

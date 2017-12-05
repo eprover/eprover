@@ -214,7 +214,8 @@ ProofState_p ProofStateAlloc(FunctionProperties free_symb_prop)
    handle->paramod_count      = 0;
    handle->factor_count       = 0;
    handle->resolv_count       = 0;
-   handle->propunsat_count    = 0;
+   handle->satcheck_count     = 0;
+   handle->satcheck_success   = 0;
    handle->gc_count           = 0;
    handle->gc_used_count      = 0;
 
@@ -579,8 +580,10 @@ void ProofStateStatisticsPrint(FILE* out, ProofState_p state)
       state->factor_count);
    fprintf(out, "# Equation resolutions                 : %ld\n",
       state->resolv_count);
-   fprintf(out, "# Propositional unsatisfiability       : %ld\n",
-      state->propunsat_count);
+   fprintf(out, "# Propositional unsat checks           : %ld\n",
+      state->satcheck_count);
+   fprintf(out, "# Propositional unsat check successes  : %ld\n",
+      state->satcheck_success);
    fprintf(out,
       "# Current number of processed clauses  : %ld\n"
       "#    Positive orientable unit clauses  : %ld\n"

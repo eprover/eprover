@@ -146,11 +146,11 @@ void HeuristicParmsInitialize(HeuristicParms_p handle)
    strcpy(handle->pm_from_index_type, DEFAULT_PM_FROM_INDEX_NAME);
    strcpy(handle->pm_into_index_type, DEFAULT_PM_INTO_INDEX_NAME);
 
-   handle->sat_check_grounding           = GMFirstConst;
+   handle->sat_check_grounding           = GMNoGrounding;
    handle->sat_check_step_limit          = LONG_MAX;
    handle->sat_check_size_limit          = LONG_MAX;
    handle->sat_check_normconst           = false;
-   handle->sat_check_normalize           = true;
+   handle->sat_check_normalize           = false;
    handle->filter_limit                  = DEFAULT_FILTER_LIMIT;
    handle->filter_copies_limit           = DEFAULT_FILTER_COPIES_LIMIT;
    handle->reweight_limit                = DEFAULT_REWEIGHT_INTERVAL;

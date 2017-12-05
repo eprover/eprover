@@ -1103,34 +1103,36 @@ OptCell opts[] =
     "single new clause. Default is to search for a single position."},
 
    {OPT_SAT_STEP_INTERVAL,
-    '\0', "sat-step-freq",
-    OptArg, "1000",
+    '\0', "satcheck-proc-interval",
+    OptArg, "5000",
     "Enable periodic SAT checking at the given interval of main loop "
-    "iterations."},
+    "non-trivial processed clauses."},
 
    {OPT_SAT_SIZE_INTERVAL,
-    '\0', "sat-size-freq",
-    OptArg, "1000",
+    '\0', "satcheck-gen-interval",
+    OptArg, "10000",
     "Enable periodic SAT checking whenever the total proof state size "
     "increases by the given limit."},
 
    {OPT_SATCHECK,
-    '\0', "sat-check",
+    '\0', "satcheck",
     OptArg, "FirstConst",
-    "Set the grounding strategy for periodic SAT checking."},
+    "Set the grounding strategy for periodic SAT checking. Note that to "
+    "enable SAT checking, it is also necessary to set the interval with "
+    "one of the previous two options."},
 
    {OPT_SAT_NORMCONST,
-    '\0', "sat-normalize-const",
+    '\0', "satcheck-normalize-const",
     NoArg, NULL,
     "Use the current normal form (as recorded in the termbank rewrite "
     "cache) of the selected constant as the term for the grounding "
     "substitution."},
 
    {OPT_SAT_NORMALIZE,
-    '\0', "sat-disable-normalization",
+    '\0', "satcheck-normalize-unproc",
     NoArg, NULL,
-    "Disable the full simplification of clauses before grounding for "
-    "SAT checking."},
+    "Enable re-simplification (heuristic re-revaluation) of unprocessed "
+    "clauses before grounding for SAT checking."},
 
    {OPT_WATCHLIST,
     '\0', "watchlist",
