@@ -30,6 +30,9 @@ def test_indexing(binary, test_folder, timeout=60):
         'theorem status non-indexed': non_indexed_res[0]
       })
 
+      if indexed_res[0].strip() != non_indexed_res[0].strip():
+        print('Index state difference result: {0}.'.format(file))
+
   columns = ['filename', 'theorem status', 
             'runtime indexed', 'theorem status indexed', 
             'runtime non-indexed', 'theorem status non-indexed']
