@@ -166,30 +166,41 @@ FunCode TermFPSampleFO(Term_p term, va_list ap)
 #ifdef ENABLE_LFHO
 FunCode TermFPSampleHO(Term_p term, va_list ap)
 {
-  int pos = 0;
-  FunCode res = 0;
+   assert(ProblemIsHO == PROBLEM_IS_HO);
+   int pos = va_arg(ap, int);
+   FunCode res = 0;
 
-  for(pos = va_arg(ap, int); pos != -1;  pos = va_arg(ap, int))
-  {
-     if(TermIsVar(term) || TermIsAppliedVar(term))
-     {
-        res = BELOW_VAR;
-        break;
-     }
-     if(pos >= term->arity)
-     {
-        res = NOT_IN_TERM;
-        break;
-     }
-     term = term->args[pos];
-  }
-  if(pos == -1)
-  {
-     res = TermIsVar(term) || TermIsAppliedVar(term) ? ANY_VAR:term->f_code;
-  }
-  va_end(ap);
+   if (!TermIsTopLevelVar(term) && pos != -1 && pos >= term->arity)
+   {
+      res = BELOW_VAR;
+   }
+   else
+   {
+      for(; pos != -1;  pos = va_arg(ap, int))
+      {
+         if(TermIsTopLevelVar(term))
+         {
+            res = BELOW_VAR;
+            break;
+         }
+         if(pos >= term->arity)
+         {
+            res = NOT_IN_TERM;
+            break;
+         }
+         term = term->args[pos];
+      }
+      if(pos == -1)
+      {
+         res = TermIsVar(term) ? ANY_VAR : 
+                  (TermIsAppliedVar(term) ? BELOW_VAR : term->f_code);
+      }  
+   }
 
-  return res;
+
+   va_end(ap);
+
+   return res;
 }
 #endif
 
@@ -273,39 +284,50 @@ FunCode TermFPFlexSampleFO(Term_p term, IntOrP* *seq)
 #ifdef ENABLE_LFHO
 FunCode TermFPFlexSampleHO(Term_p term, IntOrP* *seq)
 {
-  FunCode res = 0;
-  long pos;
+   FunCode res = 0;
+   long pos = (*seq)->i_val;
 
-  while((pos=(*seq)->i_val)!=-1)
-  {
-     if(TermIsVar(term) || TermIsAppliedVar(term))
-     {
-        res = BELOW_VAR;
-        break;
-     }
-     if(pos >= term->arity)
-     {
-        res = NOT_IN_TERM;
-        break;
-     }
-     term = term->args[pos];
-     (*seq)++;
-  }
-  if(pos == -1)
-  {
-     res = (TermIsVar(term) || TermIsAppliedVar(term)) ? ANY_VAR : term->f_code;
-  }
-  else
-  {
-     /* Find the end of the position */
-     while((pos=(*seq)->i_val)!=-1)
-     {
-        (*seq)++;
-     }
-  }
-  /* We want to point beyond the end */
-  (*seq)++;
-  return res;
+   if (pos != -1  && !TermIsTopLevelVar(term) && pos >= term->arity)
+   {
+      res = BELOW_VAR;
+   }
+   else
+   {
+      while((pos=(*seq)->i_val)!=-1)
+      {
+         if(TermIsTopLevelVar(term))
+         {
+            res = BELOW_VAR;
+            break;
+         }
+         if(pos >= term->arity)
+         {
+            res = NOT_IN_TERM;
+            break;
+         }
+         term = term->args[pos];
+         (*seq)++;
+      }
+      
+      if(pos == -1)
+      {
+         res = TermIsVar(term) ? ANY_VAR : 
+                     (TermIsAppliedVar(term) ? BELOW_VAR : term->f_code);
+      }
+      else
+      {
+        /* Find the end of the position */
+        while((pos=(*seq)->i_val)!=-1)
+        {
+           (*seq)++;
+        }
+      }
+      /* We want to point beyond the end */
+      (*seq)++;   
+   }
+
+   
+   return res;
 }
 
 __inline__ FunCode TermFPFlexSample(Term_p term, IntOrP* *seq)
