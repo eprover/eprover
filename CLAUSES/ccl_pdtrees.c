@@ -1387,7 +1387,7 @@ MatchInfo_p PDTreeFindNextDemodulator(PDTree_p tree, Subst_p subst)
          res_cell = PTreeTraverseNext(tree->store_stack);
          if(res_cell)
          {
-            mi->remaining_on_stack = PStackGetSP(tree->term_stack);
+            mi->trailing_args = PStackGetSP(tree->term_stack);
             mi->matcher = res_cell->key;
             return mi;
          }
@@ -1438,19 +1438,19 @@ static __inline__ void add_unapplied_rest(PStack_p term_stack, int start_from, T
 MatchInfo_p CreateMatchInfo(int remaining, ClausePos_p clause)
 {
    MatchInfo_p match_info = MatchInfoAlloc();
-   match_info->remaining_on_stack = remaining;
+   match_info->trailing_args = remaining;
    match_info->matcher = clause;
    return match_info;
 }
 
 bool MatchInfoAllIsMatched(MatchInfo_p mi)
 {
-   return mi->remaining_on_stack == 0;
+   return mi->trailing_args == 0;
 }
 
 int MatchInfoGetPrefixPosition(MatchInfo_p mi, Term_p t)
 {
-   return t->arity - mi->remaining_on_stack;
+   return t->arity - mi->trailing_args;
 }
 
 Term_p MatchInfoMatchedPrefix(MatchInfo_p mi, Term_p to_match)
@@ -1481,14 +1481,14 @@ Term_p MIGetRewrittenTerm(MatchInfo_p mi, Term_p original)
 {
    if (ProblemIsHO == PROBLEM_NOT_HO)
    {
-      assert(mi->remaining_on_stack == 0);
+      assert(mi->trailing_args == 0);
       // nothing is done in FO case.
       return ClausePosGetOtherSide(mi->matcher);
    }
    else
    {
       Term_p other_side = ClausePosGetOtherSide(mi->matcher);
-      int remaining_orig = mi->remaining_on_stack;
+      int remaining_orig = mi->trailing_args;
       return MakeRewrittenTerm(original, other_side,
                                remaining_orig);
    }

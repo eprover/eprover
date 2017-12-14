@@ -190,7 +190,6 @@ bool ForwardModifyClause(ProofState_p state,
 
    while(!done)
    {
-      // This should work well now.
       ClauseComputeLINormalform(control->ocb,
                                 state->terms, clause,
                                 state->demods, level,

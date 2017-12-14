@@ -469,34 +469,8 @@ static bool find_rewritable_clauses(OCB_p ocb, ClauseSet_p set,
 // Side Effects    : Instantiates
 //
 /----------------------------------------------------------------------*/
-MatchInfo_p indexed_find_demodulator_mi(OCB_p ocb, Term_p term,
-                   SysDate date,
-                   ClauseSet_p demodulators,
-                   Subst_p subst,
-                   bool prefer_general,
-                                            bool restricted_rw);
 
-
-static ClausePos_p indexed_find_demodulator(OCB_p ocb, Term_p term,
-                   SysDate date,
-                   ClauseSet_p demodulators,
-                   Subst_p subst,
-                   bool prefer_general,
-                                            bool restricted_rw)
-{
-   MatchInfo_p mi = indexed_find_demodulator_mi(ocb, term, date, demodulators,
-                                      subst, prefer_general, restricted_rw);
-   ClausePos_p res = mi ? mi->matcher : NULL;
-   if (mi)
-   {
-      MatchInfoFree(mi);
-   }
-
-   return res;
-}
-
-
-MatchInfo_p indexed_find_demodulator_mi(OCB_p ocb, Term_p term,
+MatchInfo_p indexed_find_demodulator(OCB_p ocb, Term_p term,
                    SysDate date,
                    ClauseSet_p demodulators,
                    Subst_p subst,
@@ -574,7 +548,8 @@ MatchInfo_p indexed_find_demodulator_mi(OCB_p ocb, Term_p term,
 
    /* If there is match info and no args are remaining,
       then term has to be structuraly equal */
-   if((match_info && !match_info->remaining_on_stack) 
+#ifndef NDEBUG
+   if((match_info && !match_info->trailing_args) 
             && !TermStructEqualDeref(ClausePosGetSide(match_info->matcher), term, DEREF_ONCE, DEREF_NEVER))
    {
       fprintf(stderr, "Term ");
@@ -588,6 +563,7 @@ MatchInfo_p indexed_find_demodulator_mi(OCB_p ocb, Term_p term,
       fprintf(stderr, ".\n");
       assert(false);
    }
+#endif
    return match_info;
 }
 
@@ -619,7 +595,7 @@ MatchInfo_p indexed_find_demodulator_mi(OCB_p ocb, Term_p term,
    assert(!TermIsVar(term));
    assert(!TermIsTopRewritten(term));
 
-   mi = indexed_find_demodulator_mi(ocb, term, date, demodulators,
+   mi = indexed_find_demodulator(ocb, term, date, demodulators,
               subst, prefer_general, restricted_rw);
    if(mi)
    {
@@ -630,33 +606,12 @@ MatchInfo_p indexed_find_demodulator_mi(OCB_p ocb, Term_p term,
       repl = TBInsertInstantiated(bank, repl);
 
       assert(mi->matcher->clause->ident);
-      
-      if (!TOGreater(ocb, term, repl, DEREF_NEVER, DEREF_NEVER))
-      {
-         /* DBG_TO_BE_DELETED */
-         /*fprintf(stderr, "Rewritten \n");
-         TermPrint(stderr, term, bank->sig, DEREF_NEVER);
-         fprintf(stderr, " to ");
-         TermPrint(stderr, repl, bank->sig, DEREF_NEVER);
-         fprintf(stderr, ". (KBO6 res = %s)\n", POCompareSymbol[TOCompare(ocb, term, repl, DEREF_NEVER, DEREF_NEVER)]);
-         fprintf(stderr, "  Used rule ");
-         TermPrint(stderr, ClausePosGetSide(mi->matcher), bank->sig, DEREF_NEVER);
-         fprintf(stderr, " -> ");
-         TermPrint(stderr, ClausePosGetOtherSide(mi->matcher), bank->sig, DEREF_NEVER);
-         fprintf(stderr, "(KBO6 res = %s).\n", POCompareSymbol[TOCompare(ocb, ClausePosGetSide(mi->matcher), ClausePosGetOtherSide(mi->matcher), 
-                                                                         DEREF_NEVER, DEREF_NEVER)]);
-         fprintf(stderr, "  Instantied rule ");
-         TermPrint(stderr, ClausePosGetSide(mi->matcher), bank->sig, DEREF_ONCE);
-         fprintf(stderr, " -> ");
-         TermPrint(stderr, ClausePosGetOtherSide(mi->matcher), bank->sig, DEREF_ONCE);
-         fprintf(stderr, "(KBO6 res = %s).\n", POCompareSymbol[TOCompare(ocb, ClausePosGetSide(mi->matcher), ClausePosGetOtherSide(mi->matcher), 
-                                                                         DEREF_ONCE, DEREF_ONCE)]);*/
-         assert(false);
-      }
+      assert(TOGreater(ocb, term, repl, DEREF_NEVER, DEREF_NEVER));
       
       TermAddRWLink(term, repl, mi->matcher->clause, ClauseIsSOS(mi->matcher->clause),
                     restricted_rw?RWAlwaysRewritable:RWLimitedRewritable);
       term = repl;
+      MatchInfoFree(mi);
    }
    SubstDelete(subst);
 
