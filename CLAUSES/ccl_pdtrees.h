@@ -107,7 +107,7 @@ typedef struct pd_tree_cell
 
 
 typedef struct match_info_cell {
-  int remaining_on_stack;
+  int trailing_args;
   ClausePos_p matcher;
 }MatchInfoCell, *MatchInfo_p;
 
