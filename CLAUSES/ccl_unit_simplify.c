@@ -96,14 +96,13 @@ SimplifyRes FindTopSimplifyingUnit(ClauseSet_p units, Term_p t1,
       TermPrint(stderr, ClausePosGetOtherSide(pos), sig, DEREF_NEVER);
       fprintf(stderr, ".\n");*/
 
-      if((ProblemIsHO == PROBLEM_NOT_HO && 
-            (remains = SubstComputeMatch(ClausePosGetOtherSide(pos), t2, subst))) || 
-          (ProblemIsHO == PROBLEM_IS_HO && 
-            (remains = SubstComputeMatchHO(ClausePosGetOtherSide(pos), t2, subst, sig)) != NOT_MATCHED))
+      if((remains = SubstMatchPossiblyPartial(ClausePosGetOtherSide(pos), t2, subst, sig)) 
+            != NOT_MATCHED)
       {
         // if the problem is not HO, we match completely.
         assert(!(ProblemIsHO == PROBLEM_NOT_HO) || remains == true);
         assert(pos->clause->set == units);
+        assert(remains = mi->trailing_args);
         remains = ProblemIsHO == PROBLEM_NOT_HO ? 0 : remains;
         res = (SimplifyRes){.pos = pos, .remaining_args = remains};
         MatchInfoFree(mi);
@@ -156,15 +155,13 @@ SimplifyRes FindSignedTopSimplifyingUnit(ClauseSet_p units, Term_p t1,
       fprintf(stderr, ".\n");*/
 
       if(EQUIV(EqnIsPositive(pos->literal), sign)
-          &&
-          ((ProblemIsHO == PROBLEM_IS_HO && 
-              (remains = SubstComputeMatchHO(ClausePosGetOtherSide(pos), t2, subst, sig)) != NOT_MATCHED)
-           || (ProblemIsHO == PROBLEM_NOT_HO && 
-                (remains = SubstComputeMatch(ClausePosGetOtherSide(pos), t2, subst)))))
+          && (remains = 
+                SubstMatchPossiblyPartial(ClausePosGetOtherSide(pos), t2, subst, sig)) != NOT_MATCHED)
       {
         // if the problem is not HO, we match completely.
-        assert(!(ProblemIsHO == PROBLEM_NOT_HO) || remains == true);
+        assert(!(ProblemIsHO == PROBLEM_NOT_HO) || remains == 0);
         assert(pos->clause->set == units);
+        assert(remains == mi->trailing_args);
         remains = ProblemIsHO == PROBLEM_NOT_HO ? 0 : remains;
         res = (SimplifyRes){.pos = pos, .remaining_args = remains};
         MatchInfoFree(mi);
