@@ -199,6 +199,7 @@ void    EqnFree(Eqn_p junk);
 
 Eqn_p   EqnParse(Scanner_p in, TB_p bank);
 Eqn_p   EqnFOFParse(Scanner_p in, TB_p bank);
+Eqn_p   EqnHOFParse(Scanner_p in, TB_p terms, bool *continue_parsing);
 Term_p  EqnTermsTBTermEncode(TB_p bank, Term_p lterm, Term_p rterm,
                              bool positive, PatEqnDirection dir);
 #define EqnTBTermEncode(eqn, dir) \

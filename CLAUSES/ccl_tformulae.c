@@ -381,6 +381,38 @@ static TFormula_p quantified_tform_tstp_parse(Scanner_p in,
 
 /*-----------------------------------------------------------------------
 //
+// Function: assoc_tform_tstp_parse()
+//
+//   Parse a sequence of formulas connected by a single AC operator
+//   and return it.
+//
+// Global Variables:
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+
+static TFormula_p assoc_tform_tstp_parse(Scanner_p in, TB_p terms, TFormula_p head)
+{
+   TokenType  optok;
+   FunCode    op;
+   TFormula_p f2;
+
+   optok =  AktTokenType(in);
+   op    =  tptp_operator_convert(terms->sig, optok);
+
+   while(TestInpTok(in, optok))
+   {
+      AcceptInpTok(in, optok);
+      f2 = literal_tform_tstp_parse(in, terms);
+      head = TFormulaFCodeAlloc(terms, op, head, f2);
+   }
+   return head;
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: literal_tform_tstp_parse()
 //
 //   Parse an elementary formula in TSTP format.
@@ -424,10 +456,26 @@ static TFormula_p literal_tform_tstp_parse(Scanner_p in, TB_p terms)
          }
          else
          {
-            Eqn_p lit;
-            lit = EqnFOFParse(in, terms);
+            AcceptInpTok(in, OpenBracket);
+            bool continue_parsing = true;
+            Eqn_p lit = EqnHOFParse(in, terms, &continue_parsing);
             res = TFormulaLitAlloc(lit);
             EqnFree(lit);
+
+            if(continue_parsing)
+            {
+               if(TestInpTok(in, FOFAssocOp))
+               {
+                  res = assoc_tform_tstp_parse(in, terms, res);
+               }
+               else if(TestInpTok(in, FOFBinOp))
+               {
+                  FunCode op = tptp_operator_parse(terms->sig, in);
+                  TFormula_p f2 = literal_tform_tstp_parse(in, terms);
+                  res = TFormulaFCodeAlloc(terms, op, res, f2);
+               }
+               AcceptInpTok(in, CloseBracket);
+            }
          }
       }
 
@@ -447,38 +495,6 @@ static TFormula_p literal_tform_tstp_parse(Scanner_p in, TB_p terms)
       EqnFree(lit);
    }
    return res;
-}
-
-
-/*-----------------------------------------------------------------------
-//
-// Function: assoc_tform_tstp_parse()
-//
-//   Parse a sequence of formulas connected by a single AC operator
-//   and return it.
-//
-// Global Variables:
-//
-// Side Effects    :
-//
-/----------------------------------------------------------------------*/
-
-static TFormula_p assoc_tform_tstp_parse(Scanner_p in, TB_p terms, TFormula_p head)
-{
-   TokenType  optok;
-   FunCode    op;
-   TFormula_p f2;
-
-   optok =  AktTokenType(in);
-   op    =  tptp_operator_convert(terms->sig, optok);
-
-   while(TestInpTok(in, optok))
-   {
-      AcceptInpTok(in, optok);
-      f2 = literal_tform_tstp_parse(in, terms);
-      head = TFormulaFCodeAlloc(terms, op, head, f2);
-   }
-   return head;
 }
 
 
