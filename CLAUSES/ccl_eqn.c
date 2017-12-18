@@ -573,7 +573,6 @@ bool eqn_parse_real(Scanner_p in, TB_p bank, Term_p *lref,
 // Side Effects    : Adds references
 //
 /----------------------------------------------------------------------*/
-#undef ENABLE_PREDICATE_SATURATING
 Eqn_p EqnAlloc(Term_p lterm, Term_p rterm, TB_p bank,  bool positive)
 {
    Eqn_p handle = EqnCellAlloc();
@@ -610,61 +609,6 @@ Eqn_p EqnAlloc(Term_p lterm, Term_p rterm, TB_p bank,  bool positive)
       {
          EqnSetProp(handle, EPPseudoLit);
       }
-
-#ifdef ENABLE_PREDICATE_SATURATING
-      if (ProblemIsHO == PROBLEM_IS_HO)
-      {
-         // Saturating predicate with variables if it is not saturated.
-         /*fprintf(stderr, "Fixing ");
-         TermPrint(stderr, lterm, bank->sig, DEREF_NEVER);
-         fprintf(stderr, " of type ");
-         TypePrintTSTP(stderr, bank->sig->type_bank, lterm->type);
-         fprintf(stderr, ".\n");*/
-
-
-         int max_arity = TypeGetSymbolArity(lterm->type);
-         int acutal_arity = TermIsAppliedVar(lterm) ? lterm->arity-1 : lterm->arity;
-         if (acutal_arity < max_arity)
-         {
-            //fprintf(stderr, "#! had to fix predicates.\n");
-            int vars_to_add = max_arity - acutal_arity;
-            Term_p new_lterm = TermTopAlloc(lterm->f_code, max_arity + (TermIsAppliedVar(lterm) || TermIsVar(lterm) ? 1 : 0));
-            new_lterm->type = bank->sig->type_bank->bool_type;
-            new_lterm->properties = lterm->properties;
-            
-            int start;
-            if (!TermIsVar(lterm))
-            {
-               for(int i=0; i<lterm->arity; i++)
-               {
-                  new_lterm->args[i] = lterm->args[i];
-               }
-               start = lterm->arity;
-            }
-            else
-            {
-               new_lterm->f_code = bank->sig->app_var_code;
-               new_lterm->args[0] = lterm;
-               TermCellSetProp(new_lterm, TPIsAppVar);
-               start = 1;
-            }
-
-            for(int i=0; i<vars_to_add; i++)
-            {
-               Type_p type = lterm->type->args[start + i - TermIsAppliedVar(new_lterm) ? 1 : 0];
-               assert(type);
-               new_lterm->args[start+i] = VarBankGetFreshVar(bank->vars, type);
-               assert(new_lterm->args[start]);
-            }
-
-            /*fprintf(stderr, "Fixed to ");
-            TermPrint(stderr, new_lterm, bank->sig, DEREF_NEVER);
-            fprintf(stderr, ".\n");*/
-
-            lterm = TBInsert(bank, new_lterm, DEREF_NEVER);
-         }
-      }
-#endif
    }
 
    /* Allowing predicate variables to be stored in equation */
@@ -761,6 +705,67 @@ Eqn_p EqnFOFParse(Scanner_p in, TB_p bank)
    handle = EqnAlloc(lterm, rterm, bank, positive);
 
    return handle;
+}
+
+Eqn_p EqnHOFParse(Scanner_p in, TB_p bank, bool* continue_parsing)
+{
+   Term_p  lterm;
+   Term_p  rterm;
+   bool    positive = true;
+   bool    pure_eq  = false;
+
+   lterm = TBTermParse(in, bank);
+   BOOL_TERM_NORMALIZE(lterm);
+
+   *continue_parsing = true;
+   if (TestInpTok(in, CloseBracket) && TestTok(LookToken(in,1), NegEqualSign|EqualSign))
+   {
+      AcceptInpTok(in, CloseBracket);
+      *continue_parsing = false;
+   }
+   
+   if (TestInpTok(in, NegEqualSign|EqualSign))
+   {
+      if(TestInpTok(in, EqualSign))
+      {
+         AcceptInpTok(in, EqualSign);
+      } 
+      else
+      {
+         AcceptInpTok(in, NegEqualSign);
+         positive = !positive;
+      }
+      pure_eq = true;
+   }
+   else if (TestInpTok(in, CloseBracket))
+   {
+      AcceptInpTok(in, CloseBracket);
+      *continue_parsing = false;
+   }
+
+   if (pure_eq)
+   {
+      rterm = TBTermParse(in, bank);
+
+      if (!TermIsTopLevelVar(lterm) && !SigIsFunction(bank->sig, lterm->f_code))
+      {
+         TypeDeclareIsNotPredicate(bank->sig, lterm);
+      }
+      if (!TermIsTopLevelVar(rterm) && !SigIsFunction(bank->sig, rterm->f_code))
+      {
+         TypeDeclareIsNotPredicate(bank->sig, rterm);
+      }
+   }
+   else
+   {
+      if (!TermIsTopLevelVar(lterm) && !SigIsPredicate(bank->sig, lterm->f_code))
+      {
+         TypeDeclareIsPredicate(bank->sig, lterm);
+      }
+      rterm = bank->true_term;
+   }
+
+   return EqnAlloc(lterm, rterm, bank, positive);
 }
 
 
