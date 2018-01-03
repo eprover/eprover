@@ -96,6 +96,9 @@ TFormula_p TFormulaClauseClosedEncode(TB_p bank, Clause_p clause);
 Clause_p   TFormulaCollectClause(TFormula_p form, TB_p terms,
                                  VarBank_p fresh_vars);
 
+void TFormulaAppEncode(FILE* out, TB_p bank, TFormula_p form);
+void PreloadTypes(TB_p bank, TFormula_p form);
+
 
 bool       TFormulaIsUntyped(TFormula_p form);
 

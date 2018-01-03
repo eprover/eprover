@@ -1593,6 +1593,22 @@ void SigUpdateFeatureOffset(Sig_p sig, FunCode f)
 }
 
 
+FunCode SigGetTypedApp(Sig_p sig, Type_p t1, Type_p t2)
+{
+   DStr_p typed_app_name = DStrAlloc();
+   
+   DStrAppendStr(typed_app_name, "__app_");
+   DStrAppendInt(typed_app_name, t1->type_uid);
+   DStrAppendChar(typed_app_name, '_');
+   DStrAppendInt(typed_app_name, t2->type_uid);
+
+   FunCode ret_fcode = SigInsertId(sig, DStrView(typed_app_name), 2, false);
+
+   DStrFree(typed_app_name);
+
+   return ret_fcode;
+}
+
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/

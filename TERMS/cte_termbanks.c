@@ -1007,7 +1007,6 @@ void TBPrintTerm(FILE* out, TB_p bank, Term_p term, bool fullterms)
 }
 
 
-
 /*-----------------------------------------------------------------------
 //
 // Function:  TBPrintBankTerms()

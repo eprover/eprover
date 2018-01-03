@@ -265,6 +265,9 @@ bool    SigHasUnimplementedInterpretedSymbols(Sig_p sig);
 void    SigUpdateFeatureOffset(Sig_p sig, FunCode f);
 
 
+FunCode SigGetTypedApp(Sig_p sig, Type_p t1, Type_p t2);
+
+
 /*---------------------------------------------------------------------*/
 /*                        Inline functions                             */
 /*---------------------------------------------------------------------*/
