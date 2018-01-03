@@ -554,6 +554,45 @@ void WFormulaTSTPPrint(FILE* out, WFormula_p form, bool fullterms,
    }
 }
 
+void WFormulaAppEncode(FILE* out, WFormula_p form)
+{
+   char *typename = "plain", *formula_kind = "thf";
+
+   switch(FormulaQueryType(form))
+   {
+   case CPTypeAxiom:
+         if(FormulaQueryProp(form, CPInputFormula))
+         {
+            typename = "axiom";
+         }
+         break;
+   case CPTypeHypothesis:
+         typename = "hypothesis";
+         break;
+   case CPTypeConjecture:
+         typename = "conjecture";
+         break;
+   case CPTypeQuestion:
+         typename = "question";
+         break;
+   case CPTypeLemma:
+         typename = "lemma";
+         break;
+   case CPTypeNegConjecture:
+         typename = "negated_conjecture";
+         break;
+   default:
+    break;
+   }
+   fprintf(out, "%s(%s, %s", formula_kind, WFormulaGetId(form), typename);
+   fprintf(out, ", ");
+
+   assert(!form->is_clause);
+   TFormulaAppEncode(out, form->terms, form->tformula);
+   fprintf(out, ").");
+}
+
+
 
 /*-----------------------------------------------------------------------
 //

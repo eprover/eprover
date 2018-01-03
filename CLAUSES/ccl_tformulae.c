@@ -719,6 +719,20 @@ void tformula_print_or_chain(FILE* out, TB_p bank, TFormula_p form,
    }
 }
 
+void tformula_appencode_or_chain(FILE* out, TB_p bank, TFormula_p form)
+{
+   if(form->f_code!=bank->sig->or_code)
+   {
+      TFormulaAppEncode(out, bank, form);
+   }
+   else
+   {
+      tformula_appencode_or_chain(out, bank, form->args[0]);
+      fputs("|", out);
+      TFormulaAppEncode(out, bank, form->args[1]);
+   }
+}  
+
 
 
 /*-----------------------------------------------------------------------
@@ -840,6 +854,153 @@ void TFormulaTPTPPrint(FILE* out, TB_p bank, TFormula_p form, bool fullterms, bo
          TFormulaTPTPPrint(out, bank, form->args[1], fullterms, pcl);
       }
       fputs(")", out);
+   }
+}
+
+void TFormulaAppEncode(FILE* out, TB_p bank, TFormula_p form)
+{
+   assert(form);
+
+   if(TFormulaIsLiteral(bank->sig, form))
+   {
+      Eqn_p tmp;
+
+      assert(form->f_code == bank->sig->eqn_code ||
+             form->f_code == bank->sig->neqn_code);
+
+      tmp = EqnAlloc(form->args[0], form->args[1], bank, true);
+
+      EqnAppEncode(out, tmp, form->f_code == bank->sig->neqn_code);
+      EqnFree(tmp);
+   }
+   else if(TFormulaIsQuantified(bank->sig,form))
+   {
+      FunCode quantifier = form->f_code;
+      if(form->f_code == bank->sig->qex_code)
+      {
+         fputs("?[", out);
+      }
+      else
+      {
+         fputs("![", out);
+      }
+      assert(TermIsVar(form->args[0]));
+      VarPrint(out, form->args[0]->f_code);
+      fputs(":", out);
+
+      DStr_p type_name = TypeAppEncodedName(form->args[0]->type);
+
+      fprintf(out, "%s", DStrView(type_name));
+
+      DStrFree(type_name);
+      
+      
+      while(form->args[1]->f_code == quantifier)
+      {
+         form = form->args[1];
+         fputs(", ", out);
+
+         assert(TermIsVar(form->args[0]));
+         VarPrint(out, form->args[0]->f_code);
+         fputs(":", out);
+         type_name = TypeAppEncodedName(form->args[0]->type);
+
+         fprintf(out, "%s", DStrView(type_name));
+
+         DStrFree(type_name);
+      }
+      fputs("]:", out);
+      TFormulaAppEncode(out, bank, form->args[1]);
+   }
+   else if(TFormulaIsUnary(form))
+   {
+      assert(form->f_code == bank->sig->not_code);
+      fputs("~(", out);
+      TFormulaAppEncode(out, bank, form->args[0]);
+      fputs(")", out);
+   }
+   else
+   {
+      char* oprep = "XXX";
+
+      assert(TFormulaIsBinary(form));
+      fputs("(", out);
+      if(form->f_code == bank->sig->or_code)
+      {
+         tformula_appencode_or_chain(out, bank, form);
+      }
+      else
+      {
+         TFormulaAppEncode(out, bank, form->args[0]);
+         if(form->f_code == bank->sig->and_code)
+         {
+            oprep = "&";
+         }
+         else if(form->f_code == bank->sig->or_code)
+         {
+            oprep = "|";
+         }
+         else if(form->f_code == bank->sig->impl_code)
+         {
+            oprep = "=>";
+         }
+         else if(form->f_code == bank->sig->equiv_code)
+         {
+            oprep = "<=>";
+         }
+         else if(form->f_code == bank->sig->nand_code)
+         {
+            oprep = "~&";
+         }
+         else if(form->f_code == bank->sig->nor_code)
+         {
+         oprep = "~|";
+         }
+         else if(form->f_code == bank->sig->bimpl_code)
+         {
+            oprep = "<=";
+         }
+         else if(form->f_code == bank->sig->xor_code)
+         {
+            oprep = "<~>";
+         }
+         else
+         {
+            assert(false && "Wrong operator");
+         }
+         fputs(oprep, out);
+         TFormulaAppEncode(out, bank, form->args[1]);
+      }
+      fputs(")", out);
+   }
+}
+
+
+void PreloadTypes(TB_p bank, TFormula_p form)
+{
+   assert(form);
+
+   if(TFormulaIsLiteral(bank->sig, form))
+   {
+      assert(form->f_code == bank->sig->eqn_code ||
+             form->f_code == bank->sig->neqn_code);
+
+      /* This would app encode the terms and create needed types */
+      TermFree(TermAppEncode(form->args[0], bank->sig));
+      TermFree(TermAppEncode(form->args[1], bank->sig));
+   }
+   else if(TFormulaIsQuantified(bank->sig,form))
+   {
+      PreloadTypes(bank, form->args[1]);
+   }
+   else if(TFormulaIsUnary(form))
+   {
+      PreloadTypes(bank, form->args[0]);
+   }
+   else
+   {
+      PreloadTypes(bank, form->args[0]);
+      PreloadTypes(bank, form->args[1]);
    }
 }
 

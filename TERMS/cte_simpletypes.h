@@ -95,6 +95,6 @@ Type_p  TypeCopy(Type_p orig);
 
 int TypesCmp(Type_p t1, Type_p t2);
 Type_p FlattenType(Type_p type);
-
+DStr_p TypeAppEncodedName(Type_p type);
 
 #endif

@@ -351,7 +351,7 @@ static Eqn_p find_spec_literal(Eqn_p lit, Eqn_p list)
    for(;list;got_up_to = list = list->next)
    {
       /*cmpres = EqnSubsumeQOrderCompare(lit, list);*/
-      cmpres = EqnHasTopLevelVar(lit) ?
+      cmpres = EqnIsPartVar(lit) ?
                   (PropsAreEquiv(lit, list, EPIsPositive|EPIsEquLiteral) ? 0 : -1)
                   : EqnSubsumeQOrderCompare(lit, list);
 
