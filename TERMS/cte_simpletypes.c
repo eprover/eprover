@@ -147,3 +147,42 @@ Type_p  GetReturnSort(Type_p type)
       return type;
    }
 }
+
+static const char* get_builtin_name(Type_p t)
+{
+   assert(!SortIsUserDefined(t->f_code) && !TypeIsArrow(t));
+
+   switch(t->f_code)
+   {
+      case STBool:
+         return "$o";
+      case STIndividuals:
+         return "$i";
+      case STKind:
+         return "$tType";
+      case STInteger:
+         return "$int";
+      case STRational:
+         return "$rat";
+      case STReal:
+         return "$real";
+      default:
+         assert("Type not built-in " && false);
+   }
+}
+
+DStr_p TypeAppEncodedName(Type_p type)
+{
+   DStr_p name = DStrAlloc();
+   if (SortIsUserDefined(type->f_code) || TypeIsArrow(type))
+   {
+      DStrAppendStr(name, "__type_");
+      DStrAppendInt(name, type->type_uid);
+   }
+   else
+   {
+      DStrAppendStr(name, (char*)get_builtin_name(type));
+   }
+   
+   return name;
+}

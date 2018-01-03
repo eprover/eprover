@@ -352,6 +352,33 @@ void FormulaSetPrint(FILE* out, FormulaSet_p set, bool fullterms)
    }
 }
 
+void FormulaSetAppEncode(FILE* out, FormulaSet_p set)
+{
+   WFormula_p handle;
+
+   handle = set->anchor->succ;
+   while(handle!=set->anchor)
+   {
+      PreloadTypes(handle->terms, handle->tformula);
+      handle = handle->succ;
+   }
+
+   TypeBankAppEncodeTypes(out, handle->terms->sig->type_bank);
+
+   handle = set->anchor->succ;
+   while(handle!=set->anchor)
+   {
+      if (!TFormulaIsPropTrue(handle->terms->sig, handle->tformula))
+      {
+         WFormulaAppEncode(out, handle);
+         fputc('\n', out);
+         handle = handle->succ;   
+      }
+      
+   }
+}
+
+
 /*-----------------------------------------------------------------------
 //
 // Function: FormulaSetHasInterpretedSymbol()

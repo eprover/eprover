@@ -1,6 +1,4 @@
-PRINT_STATUS = True
-
-def run_e(args, stdin_file = None):
+def run_e(args, stdin_file = None, print_status = False):
   import time as t
   import subprocess as sp
   import os
@@ -8,7 +6,7 @@ def run_e(args, stdin_file = None):
   start = t.time()
   out = None
 
-  if PRINT_STATUS:
+  if print_status:
     print("Working on {0}".format(args[1]))
 
   with open(".e_tmp_err", "w") as tmp_err:

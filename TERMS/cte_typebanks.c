@@ -593,3 +593,24 @@ void TypeBankFree(TypeBank_p bank)
    SizeFree(bank, sizeof(*bank));
 }
 
+void TypeBankAppEncodeTypes(FILE* out, TypeBank_p tb)
+{
+   int total_types = 0;
+   for(int i=0; i<TYPEBANK_SIZE; i++)
+   {
+      PStack_p iter = PTreeTraverseInit(tb->hash_table[i]);
+      Type_p type;
+      while((type = (Type_p)PTreeTraverseNext(iter)))
+      {
+         if (TypeIsArrow(type) || SortIsUserDefined(type->f_code))
+         {
+            total_types++;
+            DStr_p type_name = TypeAppEncodedName(type);
+            fprintf(out, "tff(typedecl%d, type, %s: $tType).\n", total_types, DStrView(type_name));
+            DStrFree(type_name);   
+         }
+      }
+      PTreeTraverseExit(iter);
+   }
+}
+

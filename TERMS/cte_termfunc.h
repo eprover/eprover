@@ -146,6 +146,8 @@ Term_p  TermCheckConsistency(Term_p term, DerefType deref);
 void    TermAssertSameSort(Sig_p sig, Term_p t1, Term_p t2);
 bool    TermIsUntyped(Term_p t);
 
+Term_p  TermAppEncode(Term_p orig, Sig_p sig);
+
 
 /*-----------------------------------------------------------------------
 //

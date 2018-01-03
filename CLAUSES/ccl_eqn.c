@@ -1054,6 +1054,36 @@ void EqnFOFPrint(FILE* out, Eqn_p eq, bool negated,  bool fullterms, bool pcl)
 }
 
 
+void EqnAppEncode(FILE* out, Eqn_p eq, bool negated)
+{
+   bool positive = XOR(EqnIsPositive(eq), negated);
+
+   Term_p l_app_enc = TermAppEncode(eq->lterm, eq->bank->sig);   
+   if(EqnIsEquLit(eq))
+   {
+      Term_p r_app_enc = TermAppEncode(eq->rterm, eq->bank->sig);
+
+      TBPrintTerm(out, eq->bank, l_app_enc, true);
+      if(!positive)
+      {
+         fputc('!', out);
+      }
+      fputc('=', out);
+      TBPrintTerm(out, eq->bank, r_app_enc, true);
+
+      TermFree(r_app_enc);
+   }
+   else
+   {
+      if(!positive)
+      {
+         fputc('~', out);
+      }
+      TBPrintTerm(out, eq->bank, l_app_enc, true);
+   }
+   TermFree(l_app_enc);
+}
+
 
 /*-----------------------------------------------------------------------
 //
