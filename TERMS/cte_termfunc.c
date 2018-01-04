@@ -2016,7 +2016,11 @@ Term_p TermAppEncode(Term_p orig, Sig_p sig)
    app_encoded->args[0] = TermAppEncode(orig_prefix, sig);
    app_encoded->args[1] = TermAppEncode(applied_to, sig);
 
-   TermFree(orig_prefix);
+   if (!TermIsVar(orig_prefix))
+   {
+      TermTopFree(orig_prefix);   
+   }
+   
 
    return app_encoded; 
 }
