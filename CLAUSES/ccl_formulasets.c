@@ -363,9 +363,8 @@ void FormulaSetAppEncode(FILE* out, FormulaSet_p set)
       handle = handle->succ;
    }
    
-
    handle = set->anchor->succ;
-   TypeBankAppEncodeTypes(out, handle->terms->sig->type_bank);
+   TypeBankAppEncodeTypes(out, handle->terms->sig->type_bank, true);
    
    while(handle!=set->anchor)
    {

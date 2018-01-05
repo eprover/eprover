@@ -174,9 +174,10 @@ static const char* get_builtin_name(Type_p t)
 DStr_p TypeAppEncodedName(Type_p type)
 {
    DStr_p name = DStrAlloc();
-   DStrAppendStr(name, "__type_");
+   
    if (SortIsUserDefined(type->f_code) || TypeIsArrow(type))
    {
+      DStrAppendStr(name, "__type_");
       DStrAppendInt(name, type->type_uid);
    }
    else
