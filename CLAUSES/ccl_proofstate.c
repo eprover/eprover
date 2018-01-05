@@ -164,15 +164,15 @@ ProofState_p ProofStateAlloc(FunctionProperties free_symb_prop)
    handle->f_archive            = FormulaSetAlloc();
    handle->extract_roots        = PStackAlloc();
    GlobalIndicesNull(&(handle->gindices));
-   handle->fvi_initialized     = false;
-   handle->fvi_cspec           = NULL;
+   handle->fvi_initialized      = false;
+   handle->fvi_cspec            = NULL;
    handle->processed_pos_rules->demod_index = PDTreeAlloc();
    handle->processed_pos_eqns->demod_index  = PDTreeAlloc();
    handle->processed_neg_units->demod_index = PDTreeAlloc();
    handle->demods[0]            = handle->processed_pos_rules;
    handle->demods[1]            = handle->processed_pos_eqns;
    handle->demods[2]            = NULL;
-   handle->watchlist            = NULL;
+   handle->watchlist            = ClauseSetAlloc();
    GlobalIndicesNull(&(handle->wlindices));
    handle->state_is_complete       = true;
    handle->has_interpreted_symbols = false;
@@ -194,6 +194,7 @@ ProofState_p ProofStateAlloc(FunctionProperties free_symb_prop)
    GCRegisterClauseSet(handle->gc_terms, handle->definition_store->def_clauses);
    GCRegisterFormulaSet(handle->gc_terms, handle->definition_store->def_archive);
    GCRegisterFormulaSet(handle->gc_terms, handle->f_archive);
+   GCRegisterClauseSet(handle->gc_terms, handle->watchlist);
 
    handle->status_reported              = false;
    handle->answer_count                 = 0;
@@ -226,13 +227,64 @@ ProofState_p ProofStateAlloc(FunctionProperties free_symb_prop)
 }
 
 
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: ProofStateLoadWatchlist()
+//
+//   Load the watchlist (if requested and not inline), remove it if
+//   not requested.
+//
+// Global Variables: -
+//
+// Side Effects    : IO, memory ops.
+//
+/----------------------------------------------------------------------*/
+
+void ProofStateLoadWatchlist(ProofState_p state, OCB_p ocb,
+                             char* watchlist_filename,
+                             IOFormat parse_format)
+{
+   Scanner_p in;
+
+   assert(state->watchlist);
+
+   if(watchlist_filename)
+   {
+      if(watchlist_filename!=UseInlinedWatchList)
+      {
+         in = CreateScanner(StreamTypeFile, watchlist_filename, true, NULL);
+         ScannerSetFormat(in, parse_format);
+         ClauseSetParseList(in, state->watchlist,
+                            state->terms);
+         CheckInpTok(in, NoToken);
+         DestroyScanner(in);
+      }
+      ClauseSetSetTPTPType(state->watchlist, CPTypeWatchClause);
+
+      ClauseSetSetProp(state->watchlist, CPWatchOnly);
+      ClauseSetDefaultWeighClauses(state->watchlist);
+      ClauseSetMarkMaximalTerms(ocb, state->watchlist);
+      ClauseSetSortLiterals(state->watchlist, EqnSubsumeInverseCompareRef);
+      ClauseSetDocInital(GlobalOut, OutputLevel, state->watchlist);
+   }
+   else if(!watchlist_filename)
+   {
+      GCDeregisterClauseSet(state->gc_terms, state->watchlist);
+      ClauseSetFree(state->watchlist);
+      state->watchlist = NULL;
+   }
+}
+
+
+
+
 /*-----------------------------------------------------------------------
 //
 // Function: ProofStateInitWatchlist()
 //
-//   Initialize the watchlist, either by parsing it from the provided
-//   file, or by collecting all clauses of type CPTypeWatchClause from
-//   state->axioms.
+//   Initialize the (preloaded) watchlist.
 //
 // Global Variables: -
 //
@@ -240,63 +292,25 @@ ProofState_p ProofStateAlloc(FunctionProperties free_symb_prop)
 //
 /----------------------------------------------------------------------*/
 
-void ProofStateInitWatchlist(ProofState_p state, OCB_p ocb,
-                             char* watchlist_filename,
-                             IOFormat parse_format)
+void ProofStateInitWatchlist(ProofState_p state)
 {
-   Scanner_p in;
    ClauseSet_p tmpset;
+   Clause_p handle;
 
-   if(watchlist_filename)
+   if(state->watchlist)
    {
-      state->watchlist = ClauseSetAlloc();
-      GCRegisterClauseSet(state->gc_terms, state->watchlist);
+      tmpset = ClauseSetAlloc();
 
-      if(watchlist_filename != UseInlinedWatchList)
+      while(!ClauseSetEmpty(state->watchlist))
       {
-         tmpset = ClauseSetAlloc();
-         in = CreateScanner(StreamTypeFile, watchlist_filename, true, NULL);
-         ScannerSetFormat(in, parse_format);
-         ClauseSetParseList(in, tmpset,
-                            state->terms);
-         CheckInpTok(in, NoToken);
-         DestroyScanner(in);
-         ClauseSetIndexedInsertClauseSet(state->watchlist, tmpset);
-         ClauseSetSetTPTPType(state->watchlist, CPTypeWatchClause);
-         ClauseSetFree(tmpset);
+         handle = ClauseSetExtractFirst(state->watchlist);
+         ClauseSetInsert(tmpset, handle);
       }
-      else
-      {
-         PStack_p stack = PStackAlloc();
-         Clause_p handle;
-
-         for(handle =  state->axioms->anchor->succ;
-             handle!= state->axioms->anchor;
-             handle = handle->succ)
-         {
-            if(ClauseQueryTPTPType(handle)==CPTypeWatchClause)
-            {
-               //printf("WL detected: ");ClausePrint(stdout, handle, true); printf("\n");
-               PStackPushP(stack, handle);
-            }
-         }
-         while(!PStackEmpty(stack))
-         {
-            handle = PStackPopP(stack);
-            ClauseSetExtractEntry(handle);
-            ClauseSetIndexedInsertClause(state->watchlist, handle);
-         }
-         PStackFree(stack);
-      }
-      ClauseSetSetProp(state->watchlist, CPWatchOnly);
-      ClauseSetDefaultWeighClauses(state->watchlist);
-      ClauseSetMarkMaximalTerms(ocb, state->watchlist);
-      ClauseSetSortLiterals(state->watchlist, EqnSubsumeInverseCompareRef);
+      ClauseSetIndexedInsertClauseSet(state->watchlist, tmpset);
+      ClauseSetFree(tmpset);
       GlobalIndicesInsertClauseSet(&(state->wlindices),state->watchlist);
-      ClauseSetDocInital(GlobalOut, OutputLevel, state->watchlist);
       // ClauseSetPrint(stdout, state->watchlist, true);
    }
-   //printf("# watchlist: %p\n", state->watchlist);
 }
 
 

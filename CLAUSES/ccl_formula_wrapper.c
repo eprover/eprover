@@ -405,7 +405,10 @@ WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms)
    else
    {
       type = (FormulaProperties)
-         ClauseTypeParse(in,
+         ClauseTypeParse(in,is_tcf?
+                         "axiom|hypothesis|definition|assumption|"
+                         "lemma|theorem|conjecture|question|negated_conjecture|"
+                         "plain|unknown|watchlist":
                          "axiom|hypothesis|definition|assumption|"
                          "lemma|theorem|conjecture|question|negated_conjecture|"
                          "plain|unknown");

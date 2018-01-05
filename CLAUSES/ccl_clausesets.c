@@ -623,9 +623,10 @@ void ClauseSetIndexedInsertClause(ClauseSet_p set, Clause_p newclause)
 
 /*-----------------------------------------------------------------------
 //
-// Function:
+// Function: ClauseSetIndexedInsertClauseSet()
 //
-//
+//   Update the standard weight of all clauses in source and insert
+//   them into set (and the indices of set).
 //
 // Global Variables:
 //

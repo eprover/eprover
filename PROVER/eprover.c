@@ -156,8 +156,9 @@ ProofState_p parse_spec(CLState_p state,
          DocOutputFormat = pcl_format;
       }
 
-      FormulaAndClauseSetParse(in, proofstate->axioms,
+      FormulaAndClauseSetParse(in,
                                proofstate->f_axioms,
+                               proofstate->watchlist,
                                proofstate->terms,
                                NULL,
                                &skip_includes);
@@ -429,6 +430,7 @@ int main(int argc, char* argv[])
    {
       FormulaSetArchive(proofstate->f_axioms, proofstate->f_ax_archive);
    }
+   //printf("Alive (-2)!\n");
    if((neg_conjectures =
        FormulaSetPreprocConjectures(proofstate->f_axioms,
                                     proofstate->f_ax_archive,
@@ -437,6 +439,7 @@ int main(int argc, char* argv[])
    {
       VERBOUT("Negated conjectures.\n");
    }
+   //printf("Alive (-1)!\n");
 
    if(new_cnf)
    {
@@ -458,6 +461,7 @@ int main(int argc, char* argv[])
                                proofstate->gc_terms);
    }
 
+   //printf("Alive (0)!\n");
 
    if(cnf_size)
    {
@@ -482,7 +486,7 @@ int main(int argc, char* argv[])
                                             eqdef_incrlimit,
                                             eqdef_maxclauses);
    }
-
+   //printf("Alive (0.5)!\n");
    proofcontrol = ProofControlAlloc();
    ProofControlInit(proofstate, proofcontrol, h_parms,
                     fvi_parms, wfcb_definitions, hcb_definitions);
@@ -494,9 +498,13 @@ int main(int argc, char* argv[])
                      proofcontrol->heuristic_parms.rw_bw_index_type,
                      "NoIndex",
                      "NoIndex");
-   ProofStateInit(proofstate, proofcontrol);
-   ProofStateInitWatchlist(proofstate, proofcontrol->ocb,
+   //printf("Alive (1)!\n");
+   ProofStateLoadWatchlist(proofstate, proofcontrol->ocb,
                            watchlist_filename, parse_format);
+
+   ProofStateInit(proofstate, proofcontrol);
+   //printf("Alive (2)!\n");
+   ProofStateInitWatchlist(proofstate);
 
    VERBOUT2("Prover state initialized\n");
    preproc_time = GetTotalCPUTime();

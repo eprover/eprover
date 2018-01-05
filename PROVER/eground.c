@@ -379,7 +379,7 @@ int main(int argc, char* argv[])
    VarBank_p       freshvars;
    SortTable_p     sort_table;
    Sig_p           sig;
-   ClauseSet_p     clauses;
+   ClauseSet_p     clauses, dummy;
    FormulaSet_p    formulas, f_ax_archive;
    GroundSet_p     groundset;
    Scanner_p       in;
@@ -417,6 +417,7 @@ int main(int argc, char* argv[])
    collector    = GCAdminAlloc(terms);
    def_store    = DefStoreAlloc(terms);
    clauses      = ClauseSetAlloc();
+   dummy        = ClauseSetAlloc();
    formulas     = FormulaSetAlloc();
    f_ax_archive = FormulaSetAlloc();
 
@@ -434,12 +435,13 @@ int main(int argc, char* argv[])
       }
 
       /* ClauseSetParseList(in, clauses, terms); */
-      FormulaAndClauseSetParse(in,clauses, formulas, terms,
+      FormulaAndClauseSetParse(in, formulas, dummy, terms,
                                NULL, &skip_includes);
       CheckInpTok(in, NoToken);
       DestroyScanner(in);
    }
    CLStateFree(state);
+   ClauseSetFree(dummy);
 
    if(FormulaSetPreprocConjectures(formulas, f_ax_archive, false, false))
    {

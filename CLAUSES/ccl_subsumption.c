@@ -603,6 +603,19 @@ static bool clause_subsumes_clause(Clause_p subsumer, Clause_p
 
    PERF_CTR_ENTRY(SubsumeTimer);
 
+   /* if(!ClauseIsSubsumeOrdered(sub_candidate)) */
+   /* { */
+   /*    printf("# sub_candidate %p: ", sub_candidate->set);ClausePrint(stdout, sub_candidate, true); */
+   /*    printf("\n# subsumer     %p: ", subsumer->set);ClausePrint(stdout, subsumer, true); */
+   /*    printf("\n"); */
+
+   /*    printf("# %ld, %ld\n", EqnStandardWeight(sub_candidate->literals),EqnStandardWeight(sub_candidate->literals->next)); */
+   /*    printf("# EqnSubsumeInverseCompareRef()=%d\n", EqnSubsumeInverseCompareRef(&(sub_candidate->literals), &(sub_candidate->literals->next))); */
+   /*    printf("# EqnSubsumeQOrderCompare()=%d\n", EqnSubsumeQOrderCompare(sub_candidate->literals, sub_candidate->literals->next)); */
+   /*    ClauseSubsumeOrderSortLits(sub_candidate); */
+   /*    printf("# sub_candidate %p: ", sub_candidate->set);ClausePrint(stdout, sub_candidate, true); */
+   /*    printf("\n"); */
+   /* } */
    assert(ClauseIsSubsumeOrdered(subsumer));
    assert(ClauseIsSubsumeOrdered(sub_candidate));
 

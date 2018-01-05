@@ -458,10 +458,10 @@ long StructFOFSpecParseAxioms(StructFOFSpec_p ctrl, PStack_p axfiles,
    PStackPointer i;
    char*        iname;
    FormulaSet_p fset;
-   ClauseSet_p  cset;
+   ClauseSet_p  dummy;
    Scanner_p    in;
    long         res = 0;
-   static IntOrP dummy = {0};
+   static IntOrP dummyVal = {0};
 
 
    for(i=0; i<PStackGetSP(axfiles); i++)
@@ -473,15 +473,15 @@ long StructFOFSpecParseAxioms(StructFOFSpec_p ctrl, PStack_p axfiles,
          ScannerSetFormat(in, parse_format);
 
          fprintf(GlobalOut, "# Parsing %s\n", iname);
-         cset = ClauseSetAlloc();
+         dummy = ClauseSetAlloc();
          fset = FormulaSetAlloc();
-         res += FormulaAndClauseSetParse(in, cset, fset, ctrl->terms,
+         res += FormulaAndClauseSetParse(in, fset, dummy, ctrl->terms,
                                          NULL,
                                          &(ctrl->parsed_includes));
-         assert(ClauseSetCardinality(cset)==0);
-         PStackPushP(ctrl->clause_sets, cset);
+         assert(ClauseSetCardinality(dummy)==0);
+         PStackPushP(ctrl->clause_sets, dummy);
          PStackPushP(ctrl->formula_sets, fset);
-         StrTreeStore(&(ctrl->parsed_includes), iname, dummy, dummy);
+         StrTreeStore(&(ctrl->parsed_includes), iname, dummyVal, dummyVal);
 
          DestroyScanner(in);
       }

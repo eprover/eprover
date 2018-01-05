@@ -675,7 +675,9 @@ long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive,
 //
 //   Parse a mixture of clauses and formulas (if the syntax supports
 //   it). Return number of elements parsed (even if discarded by
-//   filter).
+//   filter). Watch list clauses are parsed as clauses in wlset,
+//   everything else (even clauses) is parsed as a formula and put
+//   into fset.
 //
 // Global Variables: -
 //
@@ -683,8 +685,8 @@ long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive,
 //
 /----------------------------------------------------------------------*/
 
-long FormulaAndClauseSetParse(Scanner_p in, ClauseSet_p cset,
-                              FormulaSet_p fset, TB_p terms,
+long FormulaAndClauseSetParse(Scanner_p in, FormulaSet_p fset,
+                              ClauseSet_p wlset, TB_p terms,
                               StrTree_p *name_selector,
                               StrTree_p *skip_includes)
 {
@@ -701,7 +703,7 @@ long FormulaAndClauseSetParse(Scanner_p in, ClauseSet_p cset,
    switch(ScannerGetFormat(in))
    {
    case LOPFormat:
-         //* LOP does not at the moment support full FOF */
+         //* LOP does not at the moment support full FOF, or inline watchlists */
          while(ClauseStartsMaybe(in))
          {
             form = WFormClauseParse(in, terms);
@@ -719,28 +721,28 @@ long FormulaAndClauseSetParse(Scanner_p in, ClauseSet_p cset,
             {
                StrTree_p new_limit = NULL;
                Scanner_p new_in;
-               ClauseSet_p  ncset = ClauseSetAlloc();
                FormulaSet_p nfset = FormulaSetAlloc();
+               ClauseSet_p  nwlset = ClauseSetAlloc();
 
                new_in = ScannerParseInclude(in, &new_limit, skip_includes);
 
                if(new_in)
                {
                   res += FormulaAndClauseSetParse(new_in,
-                                                  ncset,
                                                   nfset,
+                                                  nwlset,
                                                   terms,
                                                   &new_limit,
                                                   skip_includes);
                   DestroyScanner(new_in);
                }
                StrTreeFree(new_limit);
-               ClauseSetInsertSet(cset, ncset);
                FormulaSetInsertSet(fset, nfset);
-               assert(ClauseSetEmpty(ncset));
+               ClauseSetInsertSet(wlset, nwlset);
                assert(ClauseSetEmpty(nfset));
-               ClauseSetFree(ncset);
+               assert(ClauseSetEmpty(nwlset));
                FormulaSetFree(nfset);
+               ClauseSetFree(nwlset);
             }
             else
             {
@@ -750,7 +752,6 @@ long FormulaAndClauseSetParse(Scanner_p in, ClauseSet_p cset,
                   // fprintf(stdout, "Parsed: ");
                   // WFormulaPrint(stdout, form, true);
                   // fprintf(stdout, "\n");
-                  FormulaSetInsert(fset, form);
                }
                else
                {
@@ -758,6 +759,16 @@ long FormulaAndClauseSetParse(Scanner_p in, ClauseSet_p cset,
                   //clause = ClauseParse(in, terms);
                   //ClauseSetInsert(cset, clause);
                   form = WFormClauseParse(in, terms);
+               }
+               if(FormulaQueryType(form)==CPTypeWatchClause)
+               {
+                  assert(form->is_clause);
+                  clause = WFormClauseToClause(form);
+                  ClauseSetInsert(wlset, clause);
+                  WFormulaFree(form);
+               }
+               else
+               {
                   FormulaSetInsert(fset, form);
                }
                res++;
@@ -777,8 +788,8 @@ long FormulaAndClauseSetParse(Scanner_p in, ClauseSet_p cset,
          }
          form = nextform;
       }
-      clause = cset->anchor->succ;
-      while(clause!= cset->anchor)
+      clause = wlset->anchor->succ;
+      while(clause!= wlset->anchor)
       {
          nextclause = clause->succ;
          if(!verify_name(name_selector, clause->info))

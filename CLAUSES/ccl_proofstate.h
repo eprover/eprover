@@ -120,10 +120,12 @@ typedef enum
    SizeFree(junk, sizeof(ProofStateCell))
 
 ProofState_p ProofStateAlloc(FunctionProperties free_symb_prop);
-void         ProofStateInitWatchlist(ProofState_p state,
-                                     OCB_p ocb,
+void         ProofStateLoadWatchlist(ProofState_p state, OCB_p ocb,
                                      char* watchlist_filename,
                                      IOFormat parse_format);
+
+
+void         ProofStateInitWatchlist(ProofState_p state);
 void         ProofStateResetClauseSets(ProofState_p state, bool term_gc);
 void         ProofStateFree(ProofState_p junk);
 //void         ProofStateGCMarkTerms(ProofState_p state);

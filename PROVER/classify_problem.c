@@ -823,8 +823,7 @@ int main(int argc, char* argv[])
          in    = CreateScanner(StreamTypeFile, state->argv[i], true, NULL);
          ScannerSetFormat(in, parse_format);
 
-         FormulaAndClauseSetParse(in, fstate->axioms,
-                                  fstate->f_axioms,
+         FormulaAndClauseSetParse(in, fstate->f_axioms, fstate->watchlist,
                                   fstate->terms, NULL, &skip_includes);
          if(raw_classify)
          {
