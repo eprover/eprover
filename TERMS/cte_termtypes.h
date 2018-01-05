@@ -228,7 +228,6 @@ static __inline__ Term_p TermConstCellAlloc(FunCode symbol);
 static __inline__ Term_p TermTopAlloc(FunCode f_code, int arity);
 static __inline__ Term_p TermTopCopy(Term_p source);
 static __inline__ Term_p TermTopCopyWithoutArgs(Term_p source);
-static __inline__ Term_p TermCreatePrefix(Term_p orig, int up_to);
 
 void    TermTopFree(Term_p junk);
 void    TermFree(Term_p junk);
@@ -524,54 +523,7 @@ static __inline__ Term_p TermTopAlloc(FunCode f_code, int arity)
 }
 
 // UP TO -- NOT INCLUDING!
-static __inline__ Term_p TermCreatePrefix(Term_p orig, int up_to)
-{
-   assert(orig && orig->arity >= up_to && up_to >= 0);
-   Term_p prefix;
 
-   if (!TermIsAppliedVar(orig))
-   {
-      if (up_to == orig->arity)
-      {
-         // do not create a copy of the term!
-         prefix = orig;
-      }
-      else
-      {
-         prefix = TermTopAlloc(orig->f_code, up_to);
-         for(int i=0; i<up_to; i++)
-         {
-            prefix->args[i] = orig->args[i];
-         }
-      }
-   }
-   else
-   {
-      if (up_to == orig->arity-1)
-      {
-         prefix =  orig;
-      }
-      else
-      {
-         if (up_to == 0)
-         {
-            prefix = orig->args[0];
-         }
-         else
-         {
-            prefix = TermTopAlloc(orig->f_code, up_to+1);
-            prefix->properties = TPIsAppVar;
-            for(int i=0; i<up_to+1; i++)
-            {
-               prefix->args[i] = orig->args[i];
-            }
-         }
-      }
-   }
-   
-
-   return prefix;  
-}
 
 #endif
 
