@@ -184,15 +184,16 @@ Clause_p ClausePlainParamodConstruct(ParamodInfo_p ol_desc)
    Eqn_p     into_copy, from_copy, pm_lit;
    Subst_p   subst = SubstAlloc();
 
-#ifdef PRINT_PARTIAL_PARAMODULATION
-   fprintf(stderr, "? paramodulation from ");
+
+   /*fprintf(stderr, "? paramodulation from ");
    TermPrint(stderr, ClausePosGetSubterm(ol_desc->from_pos), ol_desc->bank->sig, DEREF_ALWAYS);
    fprintf(stderr, "(clause ");
    EqnListPrint(stderr, ol_desc->from_pos->clause->literals, "|", false, true);
    fprintf(stderr, ") into  ");
    TermPrint(stderr, ClausePosGetSubterm(ol_desc->into_pos), ol_desc->bank->sig, DEREF_ALWAYS);
-   fprintf(stderr, "(%d remaining).\n", ol_desc->remaining_args);
-#endif
+   fprintf(stderr, "(clause ");
+   EqnListPrint(stderr, ol_desc->into_pos->clause->literals, "|", false, true);
+   fprintf(stderr, ") (%d remaining).\n", ol_desc->remaining_args);*/
 
 
    assert(TermStructPrefixEqual(ClausePosGetSubterm(ol_desc->from_pos),
