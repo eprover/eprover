@@ -556,7 +556,7 @@ void WFormulaTSTPPrint(FILE* out, WFormula_p form, bool fullterms,
 
 void WFormulaAppEncode(FILE* out, WFormula_p form)
 {
-   char *typename = "plain", *formula_kind = "thf";
+   char *typename = "plain", *formula_kind = "tff";
 
    switch(FormulaQueryType(form))
    {
