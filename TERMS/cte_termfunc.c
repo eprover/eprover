@@ -341,13 +341,13 @@ void TermPrintArgList(FILE* out, Term_p *args, int arity, Sig_p sig,
    assert(arity>=1);
    putc('(', out);
 
-   TermPrint(out, args[0], sig, deref);
+   TermPrintFO(out, args[0], sig, deref);
 
    for(i=1; i<arity; i++)
    {
       putc(',', out);
       /* putc(' ', out); */
-      TermPrint(out, args[i], sig, deref);
+      TermPrintFO(out, args[i], sig, deref);
    }
    putc(')', out);
 }
@@ -2009,6 +2009,7 @@ Term_p TermAppEncode(Term_p orig, Sig_p sig)
    Term_p orig_prefix = TermCreatePrefix(orig, orig->arity - 1);
    Term_p applied_to  = orig->args[orig->arity-1];
    
+   assert(!orig_prefix->type);
    TypeInferSort(sig, orig_prefix);
    assert(orig_prefix->type);
 
