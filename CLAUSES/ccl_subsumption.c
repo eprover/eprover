@@ -351,9 +351,7 @@ static Eqn_p find_spec_literal(Eqn_p lit, Eqn_p list)
    for(;list;got_up_to = list = list->next)
    {
       /*cmpres = EqnSubsumeQOrderCompare(lit, list);*/
-      cmpres = EqnIsPartVar(lit) ?
-                  (PropsAreEquiv(lit, list, EPIsPositive|EPIsEquLiteral) ? 0 : -1)
-                  : EqnSubsumeQOrderCompare(lit, list);
+      cmpres = EqnSubsumeQOrderCompare(lit, list);
 
       /*fprintf(stderr, "cmp ");
       EqnPrint(stderr, lit, false, true);
@@ -621,11 +619,7 @@ bool eqn_list_rec_subsume(Eqn_p subsum_list, Eqn_p sub_cand_list,
          continue;
       }
 
-      /* If it is an (applied) var, 
-         try it against anything of the same sign */
-      cmpres = EqnHasTopLevelVar(subsum_list) ?
-                  (PropsAreEquiv(eqn, subsum_list, EPIsPositive|EPIsEquLiteral) ? 0 : 1)
-                  : EqnSubsumeQOrderCompare(eqn, subsum_list);
+      cmpres = EqnSubsumeQOrderCompare(eqn, subsum_list);
 
       if(cmpres < 0)
       {
@@ -638,16 +632,7 @@ bool eqn_list_rec_subsume(Eqn_p subsum_list, Eqn_p sub_cand_list,
 
       if(EqnStandardWeight(eqn) < EqnStandardWeight(subsum_list))
       {
-         if (!EqnHasTopLevelVar(subsum_list))
-         {
-            // but if both have vars at the top level, we reached the end.
-            return false;
-         }
-         else
-         {
-            continue; // if it is applied var we have to just move over
-                      // heavier terms to get to applied vars again.
-         }
+         return false;
       }
 
       assert(PropsAreEquiv(subsum_list, eqn, EPIsPositive|EPIsEquLiteral));

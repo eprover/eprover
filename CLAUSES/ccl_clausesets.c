@@ -1608,12 +1608,12 @@ ClausePos_p ClauseSetFindEqDefinition(ClauseSet_p set, int min_arity,
       }
    }
    
-   if(res)
+   /*if(res)
    {
       printf("# EqDef found: ");
       ClausePrint(stdout, res->clause, true);
       printf(" Side %d\n", res->side);
-   } 
+   }*/ 
    return res;
 }
 
