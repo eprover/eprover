@@ -1063,13 +1063,13 @@ void EqnAppEncode(FILE* out, Eqn_p eq, bool negated)
    {
       Term_p r_app_enc = TermAppEncode(eq->rterm, eq->bank->sig);
 
-      TBPrintTerm(out, eq->bank, l_app_enc, true);
+      TermPrintFO(out, l_app_enc, eq->bank->sig, DEREF_NEVER);
       if(!positive)
       {
          fputc('!', out);
       }
       fputc('=', out);
-      TBPrintTerm(out, eq->bank, r_app_enc, true);
+      TermPrintFO(out, r_app_enc, eq->bank->sig, DEREF_NEVER);
 
       TermFree(r_app_enc);
    }
@@ -1079,7 +1079,7 @@ void EqnAppEncode(FILE* out, Eqn_p eq, bool negated)
       {
          fputc('~', out);
       }
-      TBPrintTerm(out, eq->bank, l_app_enc, true);
+      TermPrintFO(out, l_app_enc, eq->bank->sig, DEREF_NEVER);
    }
    TermFree(l_app_enc);
 }
