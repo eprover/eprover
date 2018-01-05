@@ -1272,6 +1272,11 @@ void ProofStateInit(ProofState_p state, ProofControl_p control)
    assert(ClauseSetEmpty(state->processed_neg_units));
    assert(ClauseSetEmpty(state->processed_non_units));
 
+   if(!state->fvi_initialized)
+   {
+      fvi_param_init(state, control);
+   }
+
    tmphcb = GetHeuristic("Uniq", state, control, &(control->heuristic_parms));
    assert(tmphcb);
    ClauseSetReweight(tmphcb, state->axioms);
@@ -1331,10 +1336,6 @@ void ProofStateInit(ProofState_p state, ProofControl_p control)
                      control->heuristic_parms.pm_from_index_type,
                      control->heuristic_parms.pm_into_index_type);
 
-   if(!state->fvi_initialized)
-   {
-      fvi_param_init(state, control);
-   }
 }
 
 
