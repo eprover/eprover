@@ -1597,7 +1597,7 @@ FunCode SigGetTypedApp(Sig_p sig, Type_p arg1, Type_p arg2, Type_p ret)
 {
    DStr_p typed_app_name = DStrAlloc();
    
-   DStrAppendStr(typed_app_name, "__app_");
+   DStrAppendStr(typed_app_name, "app_");
    DStrAppendInt(typed_app_name, arg1->type_uid);
    DStrAppendChar(typed_app_name, '_');
    DStrAppendInt(typed_app_name, arg2->type_uid);
@@ -1626,7 +1626,7 @@ FunCode SigGetTypedApp(Sig_p sig, Type_p arg1, Type_p arg2, Type_p ret)
 
 void SigPrintAppEncodedDecls(FILE* out, Sig_p sig)
 {
-   for(FunCode i=sig->internal_symbols+1; i < sig->f_count; i++)
+   for(FunCode i=sig->internal_symbols+1; i <= sig->f_count; i++)
    {
       fprintf(stderr, "tff(symboltypedecl%ld, type, %s: ", 
                       (i+1)-sig->internal_symbols, SigFindName(sig, i));

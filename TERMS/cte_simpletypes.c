@@ -177,7 +177,7 @@ DStr_p TypeAppEncodedName(Type_p type)
    
    if (SortIsUserDefined(type->f_code) || TypeIsArrow(type))
    {
-      DStrAppendStr(name, "__type_");
+      DStrAppendStr(name, "type_");
       DStrAppendInt(name, type->type_uid);
    }
    else
