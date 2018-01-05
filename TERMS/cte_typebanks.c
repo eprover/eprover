@@ -606,7 +606,8 @@ void TypeBankAppEncodeTypes(FILE* out, TypeBank_p tb)
          {
             total_types++;
             DStr_p type_name = TypeAppEncodedName(type);
-            fprintf(out, "tff(typedecl%d, type, %s: $tType).\n", total_types, DStrView(type_name));
+            TypePrintTSTP(stderr, tb, type);
+            fprintf(out, "\ntff(typedecl%d, type, %s: $tType).\n", total_types, DStrView(type_name));
             DStrFree(type_name);   
          }
       }

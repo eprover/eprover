@@ -47,7 +47,7 @@ typedef struct typecell {
    TypeUniqueID      type_uid;
 } TypeCell, *Type_p;
 
-#define SortIsUserDefined(sort) (sort > STPredefined)
+#define SortIsUserDefined(sort) ((sort) > STPredefined)
 #define SortIsInterpreted(sort) (((sort)>=STInteger)&&((sort)<=STPredefined))
 
 Type_p  GetReturnSort(Type_p type);

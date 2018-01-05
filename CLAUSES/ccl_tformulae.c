@@ -986,12 +986,7 @@ void PreloadTypes(TB_p bank, TFormula_p form)
              form->f_code == bank->sig->neqn_code);
 
       /* This would app encode the terms and create needed types */
-      fprintf(stderr, "Encoding first: ");
-      TermPrint(stderr, form->args[0], bank->sig, DEREF_NEVER);
       TermFree(TermAppEncode(form->args[0], bank->sig));
-      fprintf(stderr, "\nEncoding second: ");
-      TermPrint(stderr, form->args[1], bank->sig, DEREF_NEVER);
-      fprintf(stderr, "\nDone.\n");
       TermFree(TermAppEncode(form->args[1], bank->sig));
    }
    else if(TFormulaIsQuantified(bank->sig,form))
