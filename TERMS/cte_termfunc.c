@@ -2006,10 +2006,10 @@ Term_p TermAppEncode(Term_p orig, Sig_p sig)
    }
 
    assert(orig->arity > 0);
-   Term_p orig_prefix = TermCreatePrefix(orig, orig->arity - 1);
+   Term_p orig_prefix = TermCreatePrefix(orig, orig->arity - 1 - TermIsAppliedVar(orig) ? 1 : 0);
    Term_p applied_to  = orig->args[orig->arity-1];
    
-   assert(!orig_prefix->type);
+   assert(TermIsVar(orig_prefix) || !orig_prefix->type);
    TypeInferSort(sig, orig_prefix);
    assert(orig_prefix->type);
 
@@ -2026,6 +2026,55 @@ Term_p TermAppEncode(Term_p orig, Sig_p sig)
    return app_encoded; 
 }
 
+
+Term_p TermCreatePrefix(Term_p orig, int up_to)
+{
+   assert(orig && orig->arity >= up_to && up_to >= 0);
+   Term_p prefix;
+
+   if (!TermIsAppliedVar(orig))
+   {
+      if (up_to == orig->arity)
+      {
+         // do not create a copy of the term!
+         prefix = orig;
+      }
+      else
+      {
+         prefix = TermTopAlloc(orig->f_code, up_to);
+         for(int i=0; i<up_to; i++)
+         {
+            prefix->args[i] = orig->args[i];
+         }
+      }
+   }
+   else
+   {
+      if (up_to == orig->arity-1)
+      {
+         prefix =  orig;
+      }
+      else
+      {
+         if (up_to == 0)
+         {
+            prefix = orig->args[0];
+         }
+         else
+         {
+            prefix = TermTopAlloc(orig->f_code, up_to+1);
+            prefix->properties = TPIsAppVar;
+            for(int i=0; i<up_to+1; i++)
+            {
+               prefix->args[i] = orig->args[i];
+            }
+         }
+      }
+   }
+   
+
+   return prefix;  
+}
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
