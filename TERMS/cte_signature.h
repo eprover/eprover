@@ -59,9 +59,10 @@ typedef enum
                            * defintion off if not in use! */
    FPClSplitDef   = 4096, /* Predicate is a clause split defined
                            * symbol. */
-   FPPseudoPred   = 8192  /* Pseudo-predicate used for side effects
+   FPPseudoPred   = 8192, /* Pseudo-predicate used for side effects
                            * only, does not conceptually contribute to
                            * truth of clause */
+   FPTypedApplication = FPPseudoPred * 2
 }FunctionProperties;
 
 
@@ -265,7 +266,8 @@ bool    SigHasUnimplementedInterpretedSymbols(Sig_p sig);
 void    SigUpdateFeatureOffset(Sig_p sig, FunCode f);
 
 
-FunCode SigGetTypedApp(Sig_p sig, Type_p t1, Type_p t2);
+FunCode SigGetTypedApp(Sig_p sig, Type_p arg1, Type_p arg2, Type_p ret);
+void SigPrintAppEncodedDecls(FILE* out, Sig_p sig);
 
 
 /*---------------------------------------------------------------------*/

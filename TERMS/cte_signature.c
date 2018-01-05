@@ -1593,20 +1593,68 @@ void SigUpdateFeatureOffset(Sig_p sig, FunCode f)
 }
 
 
-FunCode SigGetTypedApp(Sig_p sig, Type_p t1, Type_p t2)
+FunCode SigGetTypedApp(Sig_p sig, Type_p arg1, Type_p arg2, Type_p ret)
 {
    DStr_p typed_app_name = DStrAlloc();
    
    DStrAppendStr(typed_app_name, "__app_");
-   DStrAppendInt(typed_app_name, t1->type_uid);
+   DStrAppendInt(typed_app_name, arg1->type_uid);
    DStrAppendChar(typed_app_name, '_');
-   DStrAppendInt(typed_app_name, t2->type_uid);
+   DStrAppendInt(typed_app_name, arg2->type_uid);
+   DStrAppendChar(typed_app_name, '_');
+   DStrAppendInt(typed_app_name, ret->type_uid);
+
+
+   Type_p* arr = TypeArgArrayAlloc(3);
+   arr[0] = arg1;
+   arr[1] = arg2;
+   arr[2] = ret;
+
+   Type_p app_type = AllocArrowType(3, arr);
 
    FunCode ret_fcode = SigInsertId(sig, DStrView(typed_app_name), 2, false);
+   if(!sig->f_info[ret_fcode].type)
+   {
+      sig->f_info[ret_fcode].type = app_type;
+   }
+   SigSetFuncProp(sig, ret_fcode, FPTypedApplication);
 
    DStrFree(typed_app_name);
 
    return ret_fcode;
+}
+
+void SigPrintAppEncodedDecls(FILE* out, Sig_p sig)
+{
+   for(FunCode i=sig->internal_symbols+1; i < sig->f_count; i++)
+   {
+      fprintf(stderr, "tff(symboltypedecl%ld, type, %s: ", 
+                      (i+1)-sig->internal_symbols, SigFindName(sig, i));
+      if (SigQueryFuncProp(sig, i, FPTypedApplication))
+      {
+         Type_p t = SigGetType(sig, i);
+         DStr_p left = TypeAppEncodedName(t->args[0]);
+         DStr_p right = TypeAppEncodedName(t->args[1]);
+         DStr_p ret = TypeAppEncodedName(t->args[2]);
+
+
+         fprintf(stderr, "(%s * %s) > %s",  
+                         DStrView(left), DStrView(right), DStrView(ret));
+
+         DStrFree(left);
+         DStrFree(right);
+         DStrFree(ret);
+      }
+      else
+      {
+         Type_p t = SigGetType(sig, i);
+         DStr_p typename = TypeAppEncodedName(t);
+
+         fprintf(stderr, "%s", DStrView(typename));
+      }
+      fprintf(stderr, ").\n");
+   }
+
 }
 
 /*---------------------------------------------------------------------*/
