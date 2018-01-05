@@ -2013,7 +2013,7 @@ Term_p TermAppEncode(Term_p orig, Sig_p sig)
    TypeInferSort(sig, orig_prefix);
    assert(orig_prefix->type);
 
-   Term_p app_encoded = TermTopAlloc(SigGetTypedApp(sig, orig_prefix->type, applied_to->type), 2);
+   Term_p app_encoded = TermTopAlloc(SigGetTypedApp(sig, orig_prefix->type, applied_to->type, orig->type), 2);
    app_encoded->args[0] = TermAppEncode(orig_prefix, sig);
    app_encoded->args[1] = TermAppEncode(applied_to, sig);
 
