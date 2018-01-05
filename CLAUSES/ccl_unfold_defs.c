@@ -269,6 +269,11 @@ long ClauseSetUnfoldAllEqDefs(ClauseSet_p set, ClauseSet_p passive,
    long res = false;
    Clause_p start = NULL;
 
+   if (ProblemIsHO == PROBLEM_IS_HO)
+   {
+      return res;
+   }
+
    while((demod = ClauseSetFindEqDefinition(set, min_arity, start)))
    {
       start = demod->clause->succ;
@@ -333,7 +338,6 @@ long ClauseSetPreprocess(ClauseSet_p set, ClauseSet_p passive,
    }
    /* No further ClauseSetCanonize() here - no changes since the one
       above. */
-   fprintf(stderr, "Res: %d .\n", res);
    return res;
 }
 

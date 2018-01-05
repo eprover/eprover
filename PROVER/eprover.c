@@ -477,7 +477,7 @@ int main(int argc, char* argv[])
    }
 
    raw_clause_no = proofstate->axioms->members;
-   if(!no_preproc && ProblemIsHO != PROBLEM_IS_HO)
+   if(!no_preproc)
    {
       if(BuildProofObject)
       {

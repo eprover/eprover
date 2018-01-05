@@ -1538,20 +1538,11 @@ int EqnSubsumeQOrderCompare(const void* lit1, const void* lit2)
       return res;
    }
 
-   if (TermIsAppliedVar(l1->lterm))
-   {
-      // if both are vars order them by the weight
-      res = TermIsAppliedVar(l2->lterm) ? 0 : -1;
-   }
-   else if (TermIsAppliedVar(l2->lterm))
-   {
-      // we know that l1 is not a top level var so we say l2 is bigger anyways
-      res = 1;
-   }
-   else if (ProblemIsHO == PROBLEM_NOT_HO && !EqnIsEquLit(l1))
+   if (!EqnIsEquLit(l1) && ProblemIsHO == PROBLEM_NOT_HO)
    {
       // In HO case, we might have variables that we want to keep at the end
       // (comparing them by the weight) -- predicate variables (imagine ~X2)
+
       res = CMP(l1->lterm->f_code, l2->lterm->f_code);
    }
    return res;
