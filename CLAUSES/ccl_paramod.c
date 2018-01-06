@@ -217,7 +217,7 @@ Clause_p ClausePlainParamodConstruct(ParamodInfo_p ol_desc)
                               ol_desc->into_pos->pos,
                               DEREF_ALWAYS, ol_desc->remaining_args,
                               ClausePosGetSubterm(ol_desc->into_pos));
-
+   
    new_rhs = TBInsertOpt(ol_desc->bank,
                          into_rhs,
                          DEREF_ALWAYS);
