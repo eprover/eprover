@@ -562,10 +562,6 @@ static void generate_new_clauses(ProofState_p state, ProofControl_p
                                     control->heuristic_parms.pm_type);
       }
       PERF_CTR_EXIT(ParamodTimer);
-
-#ifndef NDEBUG
-      fprintf(stderr, "# Paramods: %ld. \n", state->paramod_count);
-#endif
    }
 }
 

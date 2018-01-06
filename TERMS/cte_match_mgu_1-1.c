@@ -179,7 +179,8 @@ int SubstComputeMatchHO(Term_p matcher, Term_p to_match, Subst_p subst, Sig_p si
          // if it is bound -> then it has to be bound to prefix.
          if (var->binding && TermIsPrefix(var->binding, to_match))
          {
-            int bound_arity = var->binding->arity;
+            int bound_arity = var->binding->arity == 0 && TermIsAppliedVar(to_match) ? 
+                                 1 : var->binding->arity;
             PLocalStackEnsureSpace(to_match_stack, to_match->arity - bound_arity);
 
             for(int i=to_match->arity-1; i >= bound_arity; i--)
@@ -189,7 +190,7 @@ int SubstComputeMatchHO(Term_p matcher, Term_p to_match, Subst_p subst, Sig_p si
 
             if (matcher->arity)
             {
-               PLocalStackEnsureSpace(matcher_stack, matcher->arity-1);
+               PLocalStackEnsureSpace(matcher_stack, matcher->arity);
 
                for(int i=matcher->arity-1; i; i--)
                {
