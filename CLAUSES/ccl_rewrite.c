@@ -601,12 +601,34 @@ MatchInfo_p indexed_find_demodulator(OCB_p ocb, Term_p term,
    {
       RewriteSuccesses++;
 
+      repl = TBInsertInstantiated(bank, ClausePosGetOtherSide(mi->matcher));
 
-      repl = MIGetRewrittenTerm(mi, term);
-      repl = TBInsertInstantiated(bank, repl);
+      if (ProblemIsHO == PROBLEM_IS_HO)
+      {
+         /* To make sure remaining arguments of the term to be rewritten
+            are variable-disjoint from the demodulator */
+         repl = MakeRewrittenTerm(term, repl, mi->trailing_args);
+         repl = TBInsert(bank, repl, DEREF_NEVER);      
+      }
+   
 
       assert(mi->matcher->clause->ident);
-      assert(TOGreater(ocb, term, repl, DEREF_NEVER, DEREF_NEVER));
+#ifndef NDEBUG
+      if(!TOGreater(ocb, term, repl, DEREF_NEVER, DEREF_NEVER))
+      {
+         fprintf(stderr, "lhs: ");
+         TermPrint(stderr, ClausePosGetSide(mi->matcher), bank->sig, DEREF_NEVER);
+         fprintf(stderr, " of type ");
+         TypePrintTSTP(stderr, bank->sig->type_bank, ClausePosGetSide(mi->matcher)->type);
+         fprintf(stderr, " ( instantiated ");
+         TermPrint(stderr, ClausePosGetSide(mi->matcher), bank->sig, DEREF_ONCE);
+         fprintf(stderr, " ) \n rhs: ");
+         TermPrint(stderr, ClausePosGetOtherSide(mi->matcher), bank->sig, DEREF_NEVER);
+         fprintf(stderr, " ( instantiated ");
+         TermPrint(stderr, ClausePosGetOtherSide(mi->matcher), bank->sig, DEREF_ONCE);
+         fprintf(stderr, " ). \n");
+      }
+#endif
       
       TermAddRWLink(term, repl, mi->matcher->clause, ClauseIsSOS(mi->matcher->clause),
                     restricted_rw?RWAlwaysRewritable:RWLimitedRewritable);
