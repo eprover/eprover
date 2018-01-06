@@ -469,15 +469,15 @@ int main(int argc, char* argv[])
    }
 
    raw_clause_no = proofstate->axioms->members;
+   ProofStateLoadWatchlist(proofstate, watchlist_filename, parse_format);
+
    if(!no_preproc)
    {
       if(BuildProofObject)
       {
          ClauseSetArchive(proofstate->ax_archive, proofstate->axioms);
-         if(proofstate->watchlist)
-         {
-            ClauseSetArchive(proofstate->ax_archive, proofstate->watchlist);
-         }
+         assert(proofstate->watchlist);
+         ClauseSetArchive(proofstate->ax_archive, proofstate->watchlist);
       }
       preproc_removed = ClauseSetPreprocess(proofstate->axioms,
                                             proofstate->watchlist,
@@ -499,12 +499,10 @@ int main(int argc, char* argv[])
                      "NoIndex",
                      "NoIndex");
    //printf("Alive (1)!\n");
-   ProofStateLoadWatchlist(proofstate, proofcontrol->ocb,
-                           watchlist_filename, parse_format);
 
    ProofStateInit(proofstate, proofcontrol);
    //printf("Alive (2)!\n");
-   ProofStateInitWatchlist(proofstate);
+   ProofStateInitWatchlist(proofstate, proofcontrol->ocb);
 
    VERBOUT2("Prover state initialized\n");
    preproc_time = GetTotalCPUTime();

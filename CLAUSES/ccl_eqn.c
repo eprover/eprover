@@ -628,6 +628,7 @@ Eqn_p EqnParse(Scanner_p in, TB_p bank)
 
    positive = eqn_parse_real(in, bank, &lterm, &rterm, false);
    handle = EqnAlloc(lterm, rterm, bank, positive);
+   // EqnPrint(stdout, handle, false, true);
 
    return handle;
 }

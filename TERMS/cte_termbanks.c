@@ -313,10 +313,9 @@ static Term_p tb_subterm_parse(Scanner_p in, TB_p bank)
 static int tb_term_parse_arglist(Scanner_p in, Term_p** arg_anchor,
                                  TB_p bank, bool check_symb_prop)
 {
-   Term_p *handle, tmp;
-   int    arity;
-   int    size;
-   int    i;
+   Term_p   tmp;
+   PStackPointer i, arity;
+   PStack_p args;
 
    AcceptInpTok(in, OpenBracket);
    if(TestInpTok(in, CloseBracket))
@@ -325,35 +324,29 @@ static int tb_term_parse_arglist(Scanner_p in, Term_p** arg_anchor,
       *arg_anchor = NULL;
       return 0;
    }
-   size = TERMS_INITIAL_ARGS;
-   handle = (Term_p*)SizeMalloc(size*sizeof(Term_p));
-   arity = 0;
+   args = PStackAlloc();
+
    tmp = check_symb_prop?
       tb_subterm_parse(in, bank):
       TBRawTermParse(in,bank);
+   PStackPushP(args, tmp);
 
-   handle[arity] = tmp;
-   arity++;
    while(TestInpTok(in, Comma))
    {
       NextToken(in);
-      if(arity==size)
-      {
-         size+=TERMS_INITIAL_ARGS;
-         handle = (Term_p*)SecureRealloc(handle, size*sizeof(Term_p));
-      }
-      handle[arity] = check_symb_prop?
+      tmp  = check_symb_prop?
          tb_subterm_parse(in, bank):
          TBRawTermParse(in,bank);
-      arity++;
+      PStackPushP(args, tmp);
    }
    AcceptInpTok(in, CloseBracket);
+   arity = PStackGetSP(args);
    *arg_anchor = TermArgArrayAlloc(arity);
    for(i=0;i<arity;i++)
    {
-      (*arg_anchor)[i] = handle[i];
+      (*arg_anchor)[i] = PStackElementP(args,i);
    }
-   SizeFree(handle, size*sizeof(Term_p));
+   PStackFree(args);
 
    return arity;
 }

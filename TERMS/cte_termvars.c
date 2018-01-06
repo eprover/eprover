@@ -186,8 +186,8 @@ void VarBankFree(VarBank_p junk)
 /*-----------------------------------------------------------------------
 //
 // Function: VarBankCreateStack
-//    Create a stack for the given sort
 //
+//    Create a stack for the given sort
 //
 // Global Variables: -
 //

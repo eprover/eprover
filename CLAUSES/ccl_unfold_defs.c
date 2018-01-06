@@ -259,7 +259,7 @@ bool ClauseSetUnfoldEqDef(ClauseSet_p set, ClausePos_p demod)
 
 long ClauseSetUnfoldAllEqDefs(ClauseSet_p set, ClauseSet_p passive,
                               ClauseSet_p archive,
-               int min_arity, int eqdef_incrlimit)
+                              int min_arity, int eqdef_incrlimit)
 {
    ClausePos_p demod;
    long res = false;
@@ -336,11 +336,3 @@ long ClauseSetPreprocess(ClauseSet_p set, ClauseSet_p passive,
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
-
-
-
-
-
-

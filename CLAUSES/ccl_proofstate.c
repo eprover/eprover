@@ -161,6 +161,7 @@ ProofState_p ProofStateAlloc(FunctionProperties free_symb_prop)
    handle->unprocessed          = ClauseSetAlloc();
    handle->tmp_store            = ClauseSetAlloc();
    handle->archive              = ClauseSetAlloc();
+   handle->watchlist            = ClauseSetAlloc();
    handle->f_archive            = FormulaSetAlloc();
    handle->extract_roots        = PStackAlloc();
    GlobalIndicesNull(&(handle->gindices));
@@ -172,7 +173,6 @@ ProofState_p ProofStateAlloc(FunctionProperties free_symb_prop)
    handle->demods[0]            = handle->processed_pos_rules;
    handle->demods[1]            = handle->processed_pos_eqns;
    handle->demods[2]            = NULL;
-   handle->watchlist            = ClauseSetAlloc();
    GlobalIndicesNull(&(handle->wlindices));
    handle->state_is_complete       = true;
    handle->has_interpreted_symbols = false;
@@ -191,10 +191,10 @@ ProofState_p ProofStateAlloc(FunctionProperties free_symb_prop)
    GCRegisterClauseSet(handle->gc_terms, handle->unprocessed);
    GCRegisterClauseSet(handle->gc_terms, handle->tmp_store);
    GCRegisterClauseSet(handle->gc_terms, handle->archive);
+   GCRegisterClauseSet(handle->gc_terms, handle->watchlist);
    GCRegisterClauseSet(handle->gc_terms, handle->definition_store->def_clauses);
    GCRegisterFormulaSet(handle->gc_terms, handle->definition_store->def_archive);
    GCRegisterFormulaSet(handle->gc_terms, handle->f_archive);
-   GCRegisterClauseSet(handle->gc_terms, handle->watchlist);
 
    handle->status_reported              = false;
    handle->answer_count                 = 0;
@@ -242,7 +242,7 @@ ProofState_p ProofStateAlloc(FunctionProperties free_symb_prop)
 //
 /----------------------------------------------------------------------*/
 
-void ProofStateLoadWatchlist(ProofState_p state, OCB_p ocb,
+void ProofStateLoadWatchlist(ProofState_p state,
                              char* watchlist_filename,
                              IOFormat parse_format)
 {
@@ -262,10 +262,8 @@ void ProofStateLoadWatchlist(ProofState_p state, OCB_p ocb,
          DestroyScanner(in);
       }
       ClauseSetSetTPTPType(state->watchlist, CPTypeWatchClause);
-
       ClauseSetSetProp(state->watchlist, CPWatchOnly);
       ClauseSetDefaultWeighClauses(state->watchlist);
-      ClauseSetMarkMaximalTerms(ocb, state->watchlist);
       ClauseSetSortLiterals(state->watchlist, EqnSubsumeInverseCompareRef);
       ClauseSetDocInital(GlobalOut, OutputLevel, state->watchlist);
    }
@@ -292,7 +290,7 @@ void ProofStateLoadWatchlist(ProofState_p state, OCB_p ocb,
 //
 /----------------------------------------------------------------------*/
 
-void ProofStateInitWatchlist(ProofState_p state)
+void ProofStateInitWatchlist(ProofState_p state, OCB_p ocb)
 {
    ClauseSet_p tmpset;
    Clause_p handle;
@@ -301,6 +299,7 @@ void ProofStateInitWatchlist(ProofState_p state)
    {
       tmpset = ClauseSetAlloc();
 
+      ClauseSetMarkMaximalTerms(ocb, state->watchlist);
       while(!ClauseSetEmpty(state->watchlist))
       {
          handle = ClauseSetExtractFirst(state->watchlist);
