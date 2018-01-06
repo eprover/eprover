@@ -348,7 +348,7 @@ static Eqn_p find_spec_literal(Eqn_p lit, Eqn_p list)
    Eqn_p got_up_to = list;
 #endif
 
-   for(;list;got_up_to = list = list->next)
+   for(;list;list = list->next)
    {
       /*cmpres = EqnSubsumeQOrderCompare(lit, list);*/
       cmpres = EqnSubsumeQOrderCompare(lit, list);
