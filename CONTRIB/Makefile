@@ -32,7 +32,8 @@ include ../Makefile.services
 config:
 	cd $(PICOSAT); ./configure.sh
 
-$(PICOSAT)/Makefile: config
+$(PICOSAT)/makefile:
+	make config
 
-picosat: $(PICOSAT)/Makefile
+picosat: $(PICOSAT)/makefile
 	cd $(PICOSAT); $(MAKE); $(MAKE)
