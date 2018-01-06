@@ -602,6 +602,13 @@ bool TermIsPrefix(Term_p needle, Term_p haystack)
       /* needle can be null if it was binding field of non-bound var,
          which is common use case for this function 
        */
+
+      if (TermIsVar(needle))
+      {
+         return TermIsVar(haystack) ? needle == haystack : 
+                  (TermIsAppliedVar(haystack) ? needle == haystack->args[0] : false);
+      }
+
       if (needle->arity <= haystack->arity && needle->f_code == haystack->f_code) 
       {
          for(i=0; i<needle->arity; i++)

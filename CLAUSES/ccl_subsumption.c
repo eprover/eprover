@@ -540,7 +540,7 @@ bool eqn_list_rec_subsume_old(Eqn_p subsum_list, Eqn_p sub_cand_list,
 
       if(pick_list[lcount])
       {
-    continue;
+         continue;
       }
 
       /* Some optimizations: Of course both equation need to have the
@@ -550,16 +550,16 @@ bool eqn_list_rec_subsume_old(Eqn_p subsum_list, Eqn_p sub_cand_list,
     equation is maximal, so has to be the more general one. */
       if(!PropsAreEquiv(eqn, subsum_list, EPIsPositive|EPIsEquLiteral))
       {
-    continue;
+         continue;
       }
       if(EqnIsOriented(subsum_list) && !EqnIsOriented(eqn))
       {
-    continue;
+         continue;
       }
       /* This assumption is no longer valid with selection (selection
-    works by making arbitrary negative literals
-    maximal). Moreover, for some strange reason it also slowed
-    down the ordinary case */
+       works by making arbitrary negative literals
+       maximal). Moreover, for some strange reason it also slowed
+       down the ordinary case */
       /* if(EqnIsMaximal(eqn) && !EqnIsMaximal(subsum_list))
       {
     continue;
@@ -570,27 +570,27 @@ bool eqn_list_rec_subsume_old(Eqn_p subsum_list, Eqn_p sub_cand_list,
       if(SubstMatchComplete(subsum_list->lterm, eqn->lterm, subst, eqn->bank->sig)&&
          SubstMatchComplete(subsum_list->rterm, eqn->rterm, subst, eqn->bank->sig))
       {
-    if(eqn_list_rec_subsume_old(subsum_list->next, sub_cand_list,
-                subst, pick_list))
-    {
-       return true;
-    }
+          if(eqn_list_rec_subsume_old(subsum_list->next, sub_cand_list,
+                      subst, pick_list))
+          {
+             return true;
+          }
       }
       SubstBacktrackToPos(subst, state);
       if(EqnIsOriented(subsum_list))
       {
-    state = PStackGetSP(subst);
-    pick_list[lcount]--;
-    continue;
+          state = PStackGetSP(subst);
+          pick_list[lcount]--;
+          continue;
       }
       if(SubstMatchComplete(subsum_list->lterm, eqn->rterm, subst, eqn->bank->sig)&&
          SubstMatchComplete(subsum_list->rterm, eqn->lterm, subst, eqn->bank->sig))
       {
-    if(eqn_list_rec_subsume_old(subsum_list->next, sub_cand_list,
-             subst, pick_list))
-    {
-       return true;
-    }
+          if(eqn_list_rec_subsume_old(subsum_list->next, sub_cand_list,
+                   subst, pick_list))
+          {
+             return true;
+          }
       }
       SubstBacktrackToPos(subst, state);
       pick_list[lcount]--;
@@ -623,22 +623,15 @@ bool eqn_list_rec_subsume(Eqn_p subsum_list, Eqn_p sub_cand_list,
 
       if(cmpres < 0)
       {
-         fprintf(stderr, "quitting res < 0\n");
          return false;
       }
       if(cmpres >  0)
       {
-         fprintf(stderr, "skipping res > 0\n");
          continue;
       }
 
       if(EqnStandardWeight(eqn) < EqnStandardWeight(subsum_list))
       {
-         fprintf(stderr, "eqn weight mismatch > 0\n");
-         EqnPrint(stderr, eqn, true, true);
-         fprintf(stderr, " ?=? ");
-         EqnPrint(stderr, subsum_list, true, true);
-         fprintf(stderr, ".\n");
          return false;
       }
 
@@ -657,7 +650,6 @@ bool eqn_list_rec_subsume(Eqn_p subsum_list, Eqn_p sub_cand_list,
       if(SubstMatchComplete(subsum_list->lterm, eqn->lterm, subst, eqn->bank->sig)&&
          SubstMatchComplete(subsum_list->rterm, eqn->rterm, subst, eqn->bank->sig))
       {
-         fprintf(stderr, "OK!\n");
          if(eqn_list_rec_subsume(subsum_list->next, sub_cand_list,
                                  subst, pick_list))
          {
@@ -674,7 +666,6 @@ bool eqn_list_rec_subsume(Eqn_p subsum_list, Eqn_p sub_cand_list,
       if(SubstMatchComplete(subsum_list->lterm, eqn->rterm, subst, eqn->bank->sig)&&
          SubstMatchComplete(subsum_list->rterm, eqn->lterm, subst, eqn->bank->sig))
       {
-         fprintf(stderr, "OK!\n");
          if(eqn_list_rec_subsume(subsum_list->next, sub_cand_list,
                                  subst, pick_list))
          {
@@ -727,9 +718,9 @@ static bool clause_subsumes_clause(Clause_p subsumer, Clause_p
       return UnitClauseSubsumesClause(subsumer, sub_candidate);
    }
    
-   printf("# sub_candidate %p: ", sub_candidate->set);ClausePrint(stdout, sub_candidate, true);
+   /*printf("# sub_candidate %p: ", sub_candidate->set);ClausePrint(stdout, sub_candidate, true);
    printf("\n# subsumer     %p: ", subsumer->set);ClausePrint(stdout, subsumer, true);
-   printf("\n");
+   printf("\n");*/
 
    assert(sub_candidate->weight == ClauseStandardWeight(sub_candidate));
    assert(subsumer->weight == ClauseStandardWeight(subsumer));
@@ -740,13 +731,11 @@ static bool clause_subsumes_clause(Clause_p subsumer, Clause_p
       (subsumer->neg_lit_no > sub_candidate->neg_lit_no))
    {
       PERF_CTR_EXIT(SubsumeTimer);
-      printf("#exiting because of lit no mismatch.\n");
       return false;
    }
    if(subsumer->weight > sub_candidate->weight)
    {
       PERF_CTR_EXIT(SubsumeTimer);
-      printf("#exiting because of weight mismatch.\n");
       return false;
    }
    if(((sub_candidate->pos_lit_no >=3) ||
@@ -754,7 +743,6 @@ static bool clause_subsumes_clause(Clause_p subsumer, Clause_p
       !check_subsumption_possibility(subsumer, sub_candidate))
    {
       PERF_CTR_EXIT(SubsumeTimer);
-      printf("#subsumption possibility check failed.\n");
       return false;
    }
    subst = SubstAlloc();
@@ -771,6 +759,7 @@ static bool clause_subsumes_clause(Clause_p subsumer, Clause_p
    bool res_old =eqn_list_rec_subsume_old(subsumer->literals,
                sub_candidate->literals, dbg_subst,
                dbg_pick_list);
+   //fprintf(stderr, "Old res %d.\n", res_old);
    if (res_old != res)
    {
       fprintf(stderr, "! subsumption error found: previously result was %d, now result is %d\n", 
@@ -783,7 +772,7 @@ static bool clause_subsumes_clause(Clause_p subsumer, Clause_p
    }
    SubstDelete(dbg_subst);
    IntArrayFree(dbg_pick_list, ClauseLiteralNumber(sub_candidate));
-   assert(false);
+   assert(res_old == res);
 #endif
    IntArrayFree(pick_list, ClauseLiteralNumber(sub_candidate));
 
@@ -795,7 +784,7 @@ static bool clause_subsumes_clause(Clause_p subsumer, Clause_p
    {
       ClauseClauseSubsumptionSuccesses++;
    }
-   printf("#subsumption res is %d.\n", res);
+   //printf("#subsumption res is %d.\n", res);
    return res;
 }
 
