@@ -156,11 +156,13 @@ void print_rewrite_rule(Clause_p demod, RWDesc_p desc, Term_p left, Term_p right
          desc->sos_rewritten = true;
       }
 
+#ifndef NDEBUG
       if(!TOGreater(desc->ocb, term, TermRWReplaceField(term), DEREF_NEVER, DEREF_NEVER))
       {
          print_rewrite_rule(TermRWDemodField(term), desc, term, TermRWReplaceField(term));
          assert(false);
       }
+#endif
       term = TermRWReplaceField(term);
       assert(term);
    }

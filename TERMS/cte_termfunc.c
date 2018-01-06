@@ -1998,6 +1998,24 @@ bool TermIsUntyped(Term_p term)
    return res;
 }
 
+Term_p discard_last(Term_p term)
+{
+   if (TermIsAppliedVar(term) && term->arity == 2)
+   {
+      return term->args[0];
+   }
+
+   Term_p res = TermTopAlloc(term->f_code, term->arity-1);
+   res->properties = term->properties | TPIsAppVar;
+   for(int i=0; i<term->arity-1; i++)
+   {
+      res->args[i] = term->args[i];
+   }
+
+   res->type = NULL;
+   return res;
+}
+
 Term_p TermAppEncode(Term_p orig, Sig_p sig)
 {
    if (orig->arity == 0)
@@ -2006,7 +2024,7 @@ Term_p TermAppEncode(Term_p orig, Sig_p sig)
    }
 
    assert(orig->arity > 0);
-   Term_p orig_prefix = TermCreatePrefix(orig, orig->arity - 1 - TermIsAppliedVar(orig) ? 1 : 0);
+   Term_p orig_prefix = discard_last(orig);
    Term_p applied_to  = orig->args[orig->arity-1];
    
    assert(TermIsVar(orig_prefix) || !orig_prefix->type);
