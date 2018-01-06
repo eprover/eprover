@@ -2006,7 +2006,7 @@ Term_p discard_last(Term_p term)
    }
 
    Term_p res = TermTopAlloc(term->f_code, term->arity-1);
-   res->properties = term->properties | TPIsAppVar;
+   res->properties = term->properties & TPIsAppVar;
    for(int i=0; i<term->arity-1; i++)
    {
       res->args[i] = term->args[i];

@@ -203,6 +203,7 @@ void TypeInferSort(Sig_p sig, Term_p term)
    Type_p sort, *args;
    int i;
 
+
    if(TermIsVar(term))
    {
       if(!term->type)
@@ -285,6 +286,7 @@ void TypeInferSort(Sig_p sig, Term_p term)
                fprintf(stderr, " and type ");
                TypePrintTSTP(stderr, sig->type_bank, type);
                fprintf(stderr, "\n");
+               assert(false);
                Error("Type error", SYNTAX_ERROR);
             }
             else
