@@ -229,12 +229,6 @@ int SubstComputeMatchHO(Term_p matcher, Term_p to_match, Subst_p subst, Sig_p si
                   matched_up_to++;
                }
 
-               /*fprintf(stderr, "$     var  ");
-               TermPrint(stderr, var, sig, DEREF_NEVER);
-               fprintf(stderr, " bound to ");
-               TermPrint(stderr, var->binding, sig, DEREF_NEVER);
-               fprintf(stderr, " matched up to %d.\n", matched_up_to);*/
-
                PLocalStackEnsureSpace(to_match_stack, to_match->arity - matched_up_to);
                for(int i=to_match->arity-1; i >= matched_up_to; i--)
                {
