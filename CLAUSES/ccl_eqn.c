@@ -404,7 +404,13 @@ static bool eqn_parse_prefix(Scanner_p in, TB_p bank, Term_p *lref,
                        "used at predicate position", false);
 
       }
-      SigDeclareIsPredicate(bank->sig, lterm->f_code);
+      //SigDeclareIsPredicate(bank->sig, lterm->f_code);
+      TypeDeclareIsPredicate(bank->sig, lterm);
+   }
+   else
+   {
+      TypeDeclareIsNotPredicate(bank->sig, lterm);
+      TypeDeclareIsNotPredicate(bank->sig, rterm);
    }
    *lref = lterm;
    *rref = rterm;
@@ -564,10 +570,7 @@ Eqn_p EqnAlloc(Term_p lterm, Term_p rterm, TB_p bank,  bool positive)
       }
    }
 
-   if(lterm->sort != rterm->sort)
-   {
-      TermAssertSameSort(bank->sig, lterm, rterm);
-   }
+   TermAssertSameSort(bank->sig, lterm, rterm);
 
    handle->bank = bank;
    handle->next = NULL;
