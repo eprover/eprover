@@ -1522,7 +1522,8 @@ CLState_p process_options(int argc, char* argv[])
             else
             {
                Error("Option --fvindex-featuretypes requires "
-                     "'None', 'AC', 'SS', or 'All'.", USAGE_ERROR);
+                     "'None', 'AC', 'SS', 'All', 'Bill', 'BillPlus',"
+                     " 'ACFold', 'ACStagger'.", USAGE_ERROR);
             }
             break;
       case OPT_FVINDEX_MAXFEATURES:

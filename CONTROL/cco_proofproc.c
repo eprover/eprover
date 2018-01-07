@@ -1043,11 +1043,11 @@ void ProofControlInit(ProofState_p state,ProofControl_p control,
    }
    control->heuristic_parms     = *params;
 
-   control->fvi_parms           = *fvi_params;
    control->hcb = GetHeuristic(params->heuristic_name,
                                state,
                                control,
                                params);
+   control->fvi_parms           = *fvi_params;
    if(!control->heuristic_parms.split_clauses)
    {
       control->fvi_parms.symbol_slack = 0;
