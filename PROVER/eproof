@@ -6,10 +6,10 @@
 # Author: Stephan Schulz
 #
 # Contents
-# 
+#
 #   Shell script for automatic proof generation with E. See the help
 #   text below for ore information and copyright status.
-# 
+#
 # Changes
 #
 # <1> Distant past
@@ -43,26 +43,26 @@ tmpfile2=$TMPDIR/"eprooftmp_"${host}"_"${pid}
 
 status=0
 
-cleanup () 
-{  
+cleanup ()
+{
     ulimit -S unlimited
     touch $tmpfile $tmpfile2
     rm -f $tmpfile $tmpfile2
     wait
-    trap - EXIT 
+    trap - EXIT
     exit $status
-} 
+}
 
 sighandler ()
 {
     echo "# Cannot determine problem status: Terminated by signal. Cleaning up"
     # Reset the signal trap to ignore further signals
     trap "" SIGXCPU SIGINT SIGQUIT SIGTERM SIGXFSZ SIGHUP SIGABRT SIGPIPE
-    # Kill subprocesses in the process group, if any. 
+    # Kill subprocesses in the process group, if any.
     kill -TERM -$$
-    
+
     #Now cleanup and exit
-    cleanup 
+    cleanup
 }
 
 print_help ()
@@ -145,8 +145,8 @@ trap 'cleanup' EXIT
 trap 'sighandler' SIGXCPU SIGINT SIGQUIT SIGTERM SIGXFSZ SIGHUP SIGABRT SIGPIPE
 
 
-cat /dev/null > $tmpfile 
-cat /dev/null > $tmpfile2 
+cat /dev/null > $tmpfile
+cat /dev/null > $tmpfile2
 
 searchlimit=2000000000 # Effectively unlimited
 prooflimit=2000000000
@@ -179,11 +179,11 @@ for argument in  "$@"; do
 	head1=`echo "$argument"|cut -c1-2`
 	if [ "$head" = "--cpu-limit" ] ; then
 	    timelimit=`echo $argument|cut -d= -f2`
-	fi    
+	fi
 	if [ "$head1" = "-o" ] ; then
 	    echo "Short option -o not supported by eproof, use --output-file=<file>"
 	    exit 1
-	fi    
+	fi
 	if [ "$head" = "--output-file" ] ; then
 	    outfile=`echo $argument|cut -d= -f2`
 	    cat /dev/null > $outfile
@@ -211,14 +211,14 @@ for argument in  "$@"; do
 	fi
 
     fi
-    if [ "$argument" ] ; then        
+    if [ "$argument" ] ; then
         newargs=$newargs" '"$argument"'"
     fi
 done
 
 print_tail=`expr $print_res + $print_stats`
 
-sh -c "\"$EXECPATH\"/eprover $newargs -l4 -R -o- --pcl-terms-compressed --pcl-compact> $tmpfile" &
+sh -c "\"$EXECPATH\"/eprover $newargs -l4 -R -o- --pcl-out --pcl-terms-compressed --pcl-compact> $tmpfile" &
 wait %%
 status=$?
 $TAIL -70 $tmpfile > $tmpfile2
@@ -261,6 +261,3 @@ else
     echo "# Cannot determine problem status within resource limit"
 fi
 cleanup
-
-
-
