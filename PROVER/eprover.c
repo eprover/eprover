@@ -476,8 +476,10 @@ int main(int argc, char* argv[])
       if(BuildProofObject)
       {
          ClauseSetArchive(proofstate->ax_archive, proofstate->axioms);
-         assert(proofstate->watchlist);
-         ClauseSetArchive(proofstate->ax_archive, proofstate->watchlist);
+         if(proofstate->watchlist)
+         {
+            ClauseSetArchive(proofstate->ax_archive, proofstate->watchlist);
+         }
       }
       preproc_removed = ClauseSetPreprocess(proofstate->axioms,
                                             proofstate->watchlist,
