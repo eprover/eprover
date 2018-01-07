@@ -157,6 +157,7 @@ void HeuristicParmsInitialize(HeuristicParms_p handle)
    handle->delete_bad_limit              = DEFAULT_DELETE_BAD_LIMIT;
    handle->mem_limit                     = 0;
    handle->watchlist_simplify            = true;
+   handle->watchlist_is_static           = false;
    handle->use_tptp_sos                  = false;
    handle->presat_interreduction         = false;
    handle->detsort_bw_rw                 = false;

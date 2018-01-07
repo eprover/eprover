@@ -152,6 +152,7 @@ typedef enum
    OPT_SAT_NORMCONST,
    OPT_SAT_NORMALIZE,
    OPT_WATCHLIST,
+   OPT_STATIC_WATCHLIST,
    OPT_WATCHLIST_NO_SIMPLIFY,
    OPT_NO_INDEXED_SUBSUMPTION,
    OPT_FVINDEX_STYLE,
@@ -1151,12 +1152,20 @@ OptCell opts[] =
     "'watchlist' if you want to put watchlist clauses into the normal input"
     " stream. This is only supported for TPTP input formats."},
 
+   {OPT_STATIC_WATCHLIST,
+    '\0', "static-watchlist",
+    OptArg, WATCHLIST_INLINE_QSTRING,
+    "This is identical to the previous option, but subsumed clauses will"
+    "not be removed from the watchlist (and hence the prover will not "
+    "terminate if all watchlist clauses have been subsumed. This may be "
+    "more useful for heuristic guidance."},
+
    {OPT_WATCHLIST_NO_SIMPLIFY,
     '\0', "no-watchlist-simplification",
     NoArg, NULL,
-    "Normally, that watchlist is brought into normal form with respect "
-    "to the current processed clause set and certain simplifications."
-    " This option disables this behaviour."},
+    "By default, the watchlist is brought into normal form with respect "
+    "to the current processed clause set and certain simplifications. "
+    "This option disables simplification for the watchlist."},
 
    {OPT_NO_INDEXED_SUBSUMPTION,
     '\0', "conventional-subsumption",

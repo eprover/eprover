@@ -8,7 +8,7 @@
 
   Main program for the E equational theorem prover.
 
-  Copyright 1998-2017 by the authors.
+  Copyright 1998-2018 by the authors.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
@@ -1439,6 +1439,9 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_SAT_NORMALIZE:
             h_parms->sat_check_normalize = true;
             break;
+      case OPT_STATIC_WATCHLIST:
+            h_parms->watchlist_is_static = true;
+            //intentional fall-through
       case OPT_WATCHLIST:
             if(strcmp(WATCHLIST_INLINE_STRING, arg)==0 ||
                strcmp(WATCHLIST_INLINE_QSTRING, arg)==0  )

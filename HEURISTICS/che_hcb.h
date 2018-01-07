@@ -136,6 +136,7 @@ typedef struct heuristic_parms_cell
    long long           delete_bad_limit;
    rlim_t              mem_limit;
    bool                watchlist_simplify;
+   bool                watchlist_is_static;
    bool                use_tptp_sos;
    bool                presat_interreduction;
 
