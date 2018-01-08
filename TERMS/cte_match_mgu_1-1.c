@@ -129,7 +129,7 @@ int PartiallyMatchVar(Term_p var_matcher, Term_p to_match, Sig_p sig, bool perfo
 
    if (perform_occur_check)
    {
-      for(int i=0; i<matched_up_to; i++)
+      for(int i=0; i<matched_up_to + TermIsAppliedVar(to_match) ? 1 : 0; i++)
       {
          if (occur_check(to_match->args[i], var_matcher))
          {
@@ -762,6 +762,7 @@ __inline__ bool SubstMguComplete(Term_p t, Term_p s, Subst_p subst, Sig_p sig)
       {
          SubstBacktrackToPos(subst, backtrack);
       }
+      
       return !UnifFailed(res) && res.term_remaining == 0;
    }  
 }
