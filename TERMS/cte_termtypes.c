@@ -637,7 +637,10 @@ Term_p applied_var_deref(Term_p orig)
    if (TermIsVar(orig->args[0]->binding))
    {
       // if deref once , this is OK.
-      //assert(orig->args[0] != orig->args[0]->binding);
+      //assert(orig->args[0] != orig->args[0]->binding)
+
+      /*fprintf(stderr, "orig->args->binding = %p, orig = %p, binding var\n", orig->args[0]->binding, orig);
+      fprintf(stderr, "orig->args->binding->binding = %p\n", orig->args[0]->binding->binding);*/
 
       res = TermTopAlloc(orig->f_code, orig->arity);
       res->properties = orig->properties;
@@ -652,6 +655,8 @@ Term_p applied_var_deref(Term_p orig)
    {
       Term_p bound = orig->args[0]->binding;
       int arity = bound->arity + orig->arity-1;
+
+      //fprintf(stderr, "orig->args->binding = %p, orig = %p, binding not var\n", orig->args[0]->binding, orig);
 
       res = TermTopAlloc(bound->f_code, arity);
       res->args = TermArgArrayAlloc(arity);
