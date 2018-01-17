@@ -1,0 +1,77 @@
+E Prover Hacked by Prague Automated Reasoning Group (PARG)
+==========================================================
+
+This file briefly describes the changes made by PARG.  
+
+Version history
+---------------
+
+* E-2.0 with CICM'16 similarity based clause weight functions
+
+Similarity Based Weight Functions
+---------------------------------
+
+Implementation of new weight functions based on similarity with the conjecture,
+is described in the conference papers.
+
+* Jan Jakubuv, Josef Urban: 
+  Extending E Prover with Similarity Based Clause Selection Strategies.  
+  CICM 2016: 151-156
+
+* Jan Jakubuv, Josef Urban:
+  BliStrTune: Hierarchical Invention of Theorem Proving Strategies. 
+  CPP 2017: 43-52
+
+Implementation changes are briefly described here.  The following modules
+implement the six new clause evaluation functions (Term, Tfidf, Pref, Lev, Ted,
+Struc from the papers).
+
+HEURISTICS/che_termweight.[ch]
+HEURISTICS/che_tfidfweight.[ch]
+HEURISTICS/che_prefixweight.[ch]
+HEURISTICS/che_levweight.[ch]
+HEURISTICS/che_treeweight.[ch]
+HEURISTICS/che_strucweight.[ch]
+
+Two more new modules implement some common functions for the above heuristics.
+
+HEURISTICS/che_termweights.[ch] - Functions to compute generalizations and some
+   tuple tools.
+TERMS/cte_termweightext.[ch] - Generic ways to extend a term weight function to
+   a clause weight function.  A function `W` which assigns the weight to a term is
+   extended to function which assigns the weight to a clause in three possible ways.
+
+   1. W is called for each literal/term and results are summed (possibly
+      multiplied by some constants).
+   2. W is called for every subterm of every literal and everything is summed.
+   3. W is called for every subterm and for every literal we take the max of
+      the subterm values.  Literal values are then summed as usual.
+
+The following modules/files were modified.
+
+CLAUSES/ccl_clauses.[ch] - Generic term weight extensions for literals and
+   clauses (see above).
+CLAUSES/ccl_eqn.[ch] - Generic term weight extensions for equalities (above).
+CLAUSES/ccl_pdtrees.[ch] - discrimination tree changes for Pref heuristic.
+   A discrimination tree is used to represent all conjecture subterms (and
+   possibly their generalizations).  PDTreeInsert is extended so that it can
+   take a term instead of a clause and so that it does not store anything in
+   the leaves.  PDTreeInsertTerm is the old version of PDTreeInsert while
+   PDTreeInsert is a wrapper around it.  PDTreeMatchPrefix is a new functions
+   which computes how long prefix a given term shares with some term in the
+   tree.
+HEURISTICS/che_wfcbadmin.c - The list of heuristics is extended.
+HEURISTICS/che_wfcbadmin.h - New includes added.
+TERMS/cte_termbanks.[ch] - A function TBFindRec to find a term (possibly from
+   another term bank) in a given term bank (this differs from TBFind as the
+   term does not need to be from the term bank in which we are looking for it).
+   Also some debug functions to display a term bank as a DOT graph are there.
+TERMS/cte_termfunc.[ch] - Functions for normalization of variables in a term.
+   Some of them are probably duplicating already existing functions (sorry).
+TERMS/cte_termtypes.h - Field `freq` is added to Term_p.
+
+These two Makefile's are changed because of new modules.
+
+HEURISTICS/Makefile
+TERMS/Makefile
+
