@@ -2037,6 +2037,17 @@ double ClauseFunWeight(Clause_p clause, double max_term_multiplier,
    return res;
 }
 
+double ClauseTermExtWeight(Clause_p clause, TermWeightExtension_p twe)
+{
+   Eqn_p  lit;
+   double res = 0;
+
+   for(lit = clause->literals; lit; lit = lit->next)
+   {
+      res += LiteralTermExtWeight(lit, twe);
+   }
+   return res;
+}
 
 
 

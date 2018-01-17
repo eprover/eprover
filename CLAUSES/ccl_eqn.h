@@ -27,6 +27,7 @@
 #include <cte_match_mgu_1-1.h>
 #include <cte_replace.h>
 #include <cto_orderings.h>
+#include <cte_termweightext.h>
 
 
 
@@ -339,7 +340,7 @@ double  LiteralFunWeight(Eqn_p eq,
                          double app_var_mult,
                          long* typefreqs);
 
-
+double  LiteralTermExtWeight(Eqn_p eq, TermWeightExtension_p twe);
 
 double LiteralNonLinearWeight(Eqn_p eq, double max_term_multiplier,
                               double max_literal_multiplier, double

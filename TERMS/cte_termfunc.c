@@ -2168,6 +2168,144 @@ Term_p TermCreatePrefix(Term_p orig, int arg_num)
    return prefix;  
 }
 
+// TODO: remove
+void TermCellSetPropRec(Term_p term, TermProperties prop)
+{
+   PStack_p open = PStackAlloc();
+   assert(term);
+
+   PStackPushP(open, term);
+
+   while(!PStackEmpty(open))
+   {
+      term = PStackPopP(open);
+      assert(term);
+
+      TermCellSetProp(term, prop); 
+
+      if(!TermIsVar(term))
+      {
+         int i;
+
+         for(i=0; i<term->arity; i++)
+         {
+            assert(term->args);
+            PStackPushP(open, term->args[i]);
+         }
+      }
+   }
+   PStackFree(open);
+}
+
+NumTree_p create_var_renaming_de_bruin(VarBank_p vars, Term_p term)
+{
+   int i;
+   NumTree_p node;
+   NumTree_p root;
+   PStack_p open;
+   long fresh_var_code;
+
+   open = PStackAlloc();
+   fresh_var_code = -2;
+   root = NULL;
+
+   PStackPushP(open, term);
+   while(!PStackEmpty(open))
+   {
+      term = PStackPopP(open);
+      if(TermIsVar(term))
+      {
+         if (!NumTreeFind(&root, term->f_code)) {
+            node = NumTreeCellAllocEmpty();
+            node->key = term->f_code;
+            node->val1.p_val = VarBankVarAssertAlloc(vars, fresh_var_code, term->type);
+            //node->val1.p_val = VarBankVarAssertAlloc(vars, fresh_var_code, STIndividuals);
+            fresh_var_code -= 2;
+
+            NumTreeInsert(&root, node);
+         }
+      }
+      else
+      {
+         for(i=0; i<term->arity; i++)
+         {
+            PStackPushP(open, term->args[term->arity-1-i]);
+         }
+      }
+   }
+   PStackFree(open);
+
+   return root;
+}
+
+Term_p TermCopyRenameVars(NumTree_p* renaming, Term_p term) 
+{
+    int i;
+    Term_p copy;
+    NumTree_p entry;
+
+    if (TermIsVar(term))
+    {
+        entry = NumTreeFind(renaming, term->f_code);
+        assert(entry);
+        copy = (Term_p)(entry->val1.p_val);
+    }
+    else 
+    {
+        copy = TermTopCopy(term);
+        for (i=0; i<term->arity; i++) 
+        {
+            copy->args[i] = TermCopyRenameVars(renaming, term->args[i]);
+        }
+    }
+
+    assert(copy);
+    return copy;
+}
+
+Term_p TermCopyNormalizeVars(VarBank_p vars, Term_p term, VarNormStyle var_norm) 
+{
+   switch (var_norm) {
+   case NSUnivar:
+      return TermCopyUnifyVars(vars,term);
+   case NSAlpha:
+      return TermCopyNormalizeVarsAlpha(vars,term);
+   default:
+      return TermCopy(term,vars,DEREF_NEVER);
+   } 
+}
+
+Term_p TermCopyNormalizeVarsAlpha(VarBank_p vars, Term_p term) 
+{
+    Term_p copy;
+    NumTree_p renaming;
+
+    renaming = create_var_renaming_de_bruin(vars, term);
+    copy = TermCopyRenameVars(&renaming, term);
+    NumTreeFree(renaming);
+
+    return copy;
+}
+
+Term_p TermCopyUnifyVars(VarBank_p vars, Term_p term) 
+{
+    int i;
+
+    if (TermIsVar(term))
+    {
+        //return VarBankVarAssertAlloc(vars, -2, STIndividuals);
+        return VarBankVarAssertAlloc(vars, -2, term->type);
+    }
+
+    Term_p new = TermTopCopy(term);
+    for (i=0; i<term->arity; i++) 
+    {
+        new->args[i] = TermCopyUnifyVars(vars, term->args[i]);
+    }
+
+    return new;
+}
+
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/

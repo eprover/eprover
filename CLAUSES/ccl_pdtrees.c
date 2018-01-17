@@ -1029,20 +1029,27 @@ Term_p TermLRTraversePrevAppVar(PStack_p stack, Term_p original_term, Term_p var
 
 void PDTreeInsert(PDTree_p tree, ClausePos_p demod_side)
 {
-   Term_p    term, curr;
+   Term_p term;
+   
+   assert(demod_side);
+   term = ClausePosGetSide(demod_side);
+   PDTreeInsertTerm(tree,term,demod_side,true);
+}
+
+void PDTreeInsertTerm(PDTree_p tree, Term_p term, ClausePos_p demod_side, bool store_data)
+{
+   Term_p    curr; // term;
    PDTNode_p node, *next;
    bool      res;
    long      tmp;
 
    assert(tree);
    assert(tree->tree);
-   assert(demod_side);
 
-   term = ClausePosGetSide(demod_side);
    TermLRTraverseInit(tree->term_stack, term);
    node              = tree->tree;
    tmp = TermStandardWeight(term);
-   if(!SysDateIsInvalid(node->age_constr))
+   if(demod_side&&(!SysDateIsInvalid(node->age_constr)))
    {
       node->age_constr  = SysDateMaximum(demod_side->clause->date,
                                          node->age_constr);
@@ -1083,7 +1090,7 @@ void PDTreeInsert(PDTree_p tree, ClausePos_p demod_side)
       //assert(!node->variable || (TermIsVar(curr) && node->variable->type == curr->type));
       tmp = TermStandardWeight(term);
       node->size_constr = MIN(tmp, node->size_constr);
-      if(!SysDateIsInvalid(node->age_constr))
+      if(demod_side&&(!SysDateIsInvalid(node->age_constr)))
       {
          node->age_constr  = SysDateMaximum(demod_side->clause->date,
                                             node->age_constr);
@@ -1092,13 +1099,53 @@ void PDTreeInsert(PDTree_p tree, ClausePos_p demod_side)
       curr = TermLRTraverseNext(tree->term_stack);
    }
    assert(node);
-   res = PTreeStore(&(node->entries), demod_side);
+   if (store_data) 
+   {
+      res = PTreeStore(&(node->entries), demod_side);
+      UNUSED(res); assert(ret);
+   }
    tree->clause_count++;
-   UNUSED(res); assert(res);
    //printf("ISizeConstr %p: %ld\n", tree, pdt_verify_size_constraint(tree->tree));
    //printf("IDateConstr %p: %ld\n", tree, pdt_verify_age_constraint(tree->tree));
 }
 
+PDTNode_p PDTreeMatchPrefix(PDTree_p tree, Term_p term, long* matched, long* remains)
+{
+   Term_p    curr;
+   PDTNode_p node, last, *next;
+
+   assert(tree);
+   assert(tree->tree);
+
+   *matched = 0;
+   *remains = 0;
+   TermLRTraverseInit(tree->term_stack, term);
+   node = tree->tree;
+   last = node;
+   curr = TermLRTraverseNext(tree->term_stack);
+   while(curr)
+   {
+      if (!node) {
+         (*remains)++;
+      }
+      else {
+         next = pdt_select_alt_ref(tree, node, curr);
+         if(!(*next))
+         {
+            (*remains)++;
+            node = NULL;
+         }
+         else {
+            (*matched)++;
+            node = *next;
+            last = node;
+         }
+      }
+      curr = TermLRTraverseNext(tree->term_stack);
+   }
+
+   return last;
+}
 
 /*-----------------------------------------------------------------------
 //

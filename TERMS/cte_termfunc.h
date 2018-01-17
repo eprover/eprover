@@ -31,6 +31,13 @@
 /*                    Data type declarations                           */
 /*---------------------------------------------------------------------*/
 
+typedef enum 
+{
+   NSNone = -1,
+   NSUnivar = 0,
+   NSAlpha = 1
+}VarNormStyle;
+
 
 
 
@@ -150,6 +157,13 @@ Term_p TermCreatePrefix(Term_p orig, int up_to);
 Term_p TermAppEncode(Term_p orig, Sig_p sig);
 
 #define TERM_APPLY_APP_VAR_MULT(w, t, p) (TermIsAppliedVar(t) ? (w)*(p) : (w))
+
+void   TermCellSetPropRec(Term_p term, TermProperties prop);
+Term_p TermCopyUnifyVars(VarBank_p vars, Term_p term);
+Term_p TermCopyRenameVars(NumTree_p* renaming, Term_p term);
+Term_p TermCopyNormalizeVarsAlpha(VarBank_p vars, Term_p term);
+Term_p TermCopyNormalizeVars(VarBank_p vars, Term_p term, 
+                             VarNormStyle var_norm);
 
 /*-----------------------------------------------------------------------
 //
