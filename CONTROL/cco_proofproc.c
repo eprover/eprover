@@ -1152,6 +1152,7 @@ void fvi_param_init(ProofState_p state, ProofControl_p control)
    symbols = MIN(state->original_symbols+control->fvi_parms.symbol_slack,
                  control->fvi_parms.max_symbols);
 
+   // printf("### Symbols: %ld\n", symbols);
    switch(control->fvi_parms.cspec.features)
    {
    case FVIBillFeatures:
@@ -1161,6 +1162,7 @@ void fvi_param_init(ProofState_p state, ProofControl_p control)
          cspec = BillPlusFeaturesCollectAlloc(state->signature, symbols*2+4);
          break;
    case FVIACFold:
+         // printf("# FVIACFold\n");
          cspec = FVCollectAlloc(FVICollectFeatures,
                                 true,
                                 0,
@@ -1216,9 +1218,9 @@ void fvi_param_init(ProofState_p state, ProofControl_p control)
                                 0, 0, 0,
                                 0, 0, 0,
                                 0, 0, 0);
-         cspec->max_symbols = symbols;
          break;
    }
+   cspec->max_symbols=symbols;
    state->fvi_cspec = cspec;
 
    perm = PermVectorCompute(state->axioms,
