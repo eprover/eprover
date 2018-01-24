@@ -1,25 +1,24 @@
 /*-----------------------------------------------------------------------
 
-File  : ccl_freqvectors.c
+  File  : ccl_freqvectors.c
 
-Author: Stephan Schulz
+  Author: Stephan Schulz
 
-Contents
+  Contents
 
   Algorithms for frequency count vectors.
 
-Copyright 1998-2011 by the author.
+  Copyright 1998-2018 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
+  Changes
 
-<1> Tue Jul  8 21:50:44 CEST 2003
-    New (separated functionality from ccl_fcvindexing.c)
+  Createrd: Tue Jul  8 21:50:44 CEST 2003
 
------------------------------------------------------------------------*/
+  -----------------------------------------------------------------------*/
 
 #include "ccl_freqvectors.h"
 
@@ -100,7 +99,7 @@ int tuple3_compare_23lex(const void* tuple1, const void* tuple2)
 /----------------------------------------------------------------------*/
 
 static void gather_feature_vec(FVCollect_p cspec, long* full_vec,
-                            FreqVector_p vec, long findex)
+                               FreqVector_p vec, long findex)
 {
    long resindex = -1, base = 0, offset = 0, mod = 0;
 
@@ -170,9 +169,9 @@ static void gather_feature_vec(FVCollect_p cspec, long* full_vec,
 /----------------------------------------------------------------------*/
 
 PermVector_p PermVectorComputeInternal(FreqVector_p fmax, FreqVector_p fmin,
-                   FreqVector_p fsum,
-                   long max_len,
-                   bool eliminate_uninformative)
+                                       FreqVector_p fsum,
+                                       long max_len,
+                                       bool eliminate_uninformative)
 {
    Tuple3Cell *array;
    long i, size, start=0, start1=0, diff;
@@ -199,7 +198,7 @@ PermVector_p PermVectorComputeInternal(FreqVector_p fmax, FreqVector_p fmin,
    {
       for(i=0; i<fsum->size && !array[i].diff; i++)
       {
-    /* Intentionally empty */
+         /* Intentionally empty */
       };
       start1 = i;
    }
@@ -349,7 +348,7 @@ void FreqVectorPrint(FILE* out, FreqVector_p vec)
 /----------------------------------------------------------------------*/
 
 void VarFreqVectorAddVals(FreqVector_p vec, long symbols, FVIndexType features,
-           Clause_p clause)
+                          Clause_p clause)
 {
    long *unused, *pfreqstart, *nfreqstart, *pdepthstart, *ndepthstart;
    long unused_size = 0;
@@ -357,42 +356,42 @@ void VarFreqVectorAddVals(FreqVector_p vec, long symbols, FVIndexType features,
 
    assert(clause);
    assert((features == FVIACFeatures) ||
-     (features == FVISSFeatures) ||
-     (features == FVIAllFeatures));
+          (features == FVISSFeatures) ||
+          (features == FVIAllFeatures));
    assert(vec);
    assert(vec->size == FVSize(symbols, features));
 
    switch(features)
    {
    case FVIACFeatures:
-    vec->array[0] += clause->pos_lit_no;
-    vec->array[1] += clause->neg_lit_no;
-    unused_size = symbols+1;
-    unused = SizeMalloc(sizeof(long)*unused_size);
-    pdepthstart = ndepthstart = unused;
-    nfreqstart = &(vec->array[FV_CLAUSE_FEATURES]);
-    pfreqstart = &(vec->array[FV_CLAUSE_FEATURES+1*(symbols+1)]);
-    break;
+         vec->array[0] += clause->pos_lit_no;
+         vec->array[1] += clause->neg_lit_no;
+         unused_size = symbols+1;
+         unused = SizeMalloc(sizeof(long)*unused_size);
+         pdepthstart = ndepthstart = unused;
+         nfreqstart = &(vec->array[FV_CLAUSE_FEATURES]);
+         pfreqstart = &(vec->array[FV_CLAUSE_FEATURES+1*(symbols+1)]);
+         break;
    case FVISSFeatures:
-    unused_size = symbols+1;
-    unused = SizeMalloc(sizeof(long)*unused_size);
-    pfreqstart = nfreqstart = unused;
-    ndepthstart = &(vec->array[0]);
-    pdepthstart = &(vec->array[0+1*(symbols+1)]);
-    break;
+         unused_size = symbols+1;
+         unused = SizeMalloc(sizeof(long)*unused_size);
+         pfreqstart = nfreqstart = unused;
+         ndepthstart = &(vec->array[0]);
+         pdepthstart = &(vec->array[0+1*(symbols+1)]);
+         break;
    case FVIAllFeatures:
-    vec->array[0] += clause->pos_lit_no;
-    vec->array[1] += clause->neg_lit_no;
-    unused = NULL;
-    nfreqstart  = &(vec->array[FV_CLAUSE_FEATURES]);
-    pfreqstart  = &(vec->array[FV_CLAUSE_FEATURES+1*(symbols+1)]);
-    pdepthstart = &(vec->array[FV_CLAUSE_FEATURES+2*(symbols+1)]);
-    ndepthstart = &(vec->array[FV_CLAUSE_FEATURES+3*(symbols+1)]);
-    break;
+         vec->array[0] += clause->pos_lit_no;
+         vec->array[1] += clause->neg_lit_no;
+         unused = NULL;
+         nfreqstart  = &(vec->array[FV_CLAUSE_FEATURES]);
+         pfreqstart  = &(vec->array[FV_CLAUSE_FEATURES+1*(symbols+1)]);
+         pdepthstart = &(vec->array[FV_CLAUSE_FEATURES+2*(symbols+1)]);
+         ndepthstart = &(vec->array[FV_CLAUSE_FEATURES+3*(symbols+1)]);
+         break;
    default:
-    assert(features == FVINoFeatures);
-    assert(false);
-    return; /* Cheapest way to fix compiler warning */
+         assert(features == FVINoFeatures);
+         assert(false);
+         return; /* Cheapest way to fix compiler warning */
    }
    if(unused)
    { /* Stiffle insure warnings - we don't use unused (duh!), but
@@ -408,17 +407,17 @@ void VarFreqVectorAddVals(FreqVector_p vec, long symbols, FVIndexType features,
    {
       if(EqnIsPositive(handle))
       {
-    EqnAddSymbolFeaturesLimited(handle,
-                 pfreqstart,
-                 pdepthstart,
-                 symbols);
+         EqnAddSymbolFeaturesLimited(handle,
+                                     pfreqstart,
+                                     pdepthstart,
+                                     symbols);
       }
       else
       {
-    EqnAddSymbolFeaturesLimited(handle,
-                 nfreqstart,
-                 ndepthstart,
-                 symbols);
+         EqnAddSymbolFeaturesLimited(handle,
+                                     nfreqstart,
+                                     ndepthstart,
+                                     symbols);
       }
    }
    if(unused)
@@ -449,8 +448,8 @@ FreqVector_p VarFreqVectorCompute(Clause_p clause, FVCollect_p cspec)
    assert(clause);
 
    assert((cspec->features == FVIACFeatures) ||
-     (cspec->features == FVISSFeatures) ||
-     (cspec->features == FVIAllFeatures) ||
+          (cspec->features == FVISSFeatures) ||
+          (cspec->features == FVIAllFeatures) ||
           (cspec->features == FVICollectFeatures));
 
    if(cspec->features == FVICollectFeatures)
@@ -486,14 +485,14 @@ FreqVector_p VarFreqVectorCompute(Clause_p clause, FVCollect_p cspec)
 /----------------------------------------------------------------------*/
 
 FreqVector_p OptimizedVarFreqVectorCompute(Clause_p clause,
-                  PermVector_p perm,
-                  FVCollect_p cspec)
+                                           PermVector_p perm,
+                                           FVCollect_p cspec)
 {
    FreqVector_p vec, res;
 
    assert((cspec->features == FVIACFeatures) ||
-     (cspec->features == FVISSFeatures) ||
-     (cspec->features == FVIAllFeatures) ||
+          (cspec->features == FVISSFeatures) ||
+          (cspec->features == FVIAllFeatures) ||
           (cspec->features == FVICollectFeatures));
 
    PERF_CTR_ENTRY(FreqVecTimer);
@@ -509,9 +508,9 @@ FreqVector_p OptimizedVarFreqVectorCompute(Clause_p clause,
       res = FreqVectorAlloc(perm->size);
       for(i=0; i<perm->size; i++)
       {
-    assert(perm->array[i]>=0);
-    assert(perm->array[i]<vec->size);
-    res->array[i] = vec->array[perm->array[i]];
+         assert(perm->array[i]>=0);
+         assert(perm->array[i]<vec->size);
+         res->array[i] = vec->array[perm->array[i]];
       }
       res->clause = clause;
       FreqVectorFree(vec);
@@ -893,7 +892,7 @@ FVCollect_p BillPlusFeaturesCollectAlloc(Sig_p sig, long len)
 /----------------------------------------------------------------------*/
 
 FVPackedClause_p FVPackClause(Clause_p clause, PermVector_p perm,
-               FVCollect_p cspec)
+                              FVCollect_p cspec)
 {
    FVPackedClause_p res;
 
@@ -1001,7 +1000,7 @@ void FreqVectorAdd(FreqVector_p dest, FreqVector_p s1, FreqVector_p s2)
 /----------------------------------------------------------------------*/
 
 void FreqVectorMulAdd(FreqVector_p dest, FreqVector_p s1, long f1,
-            FreqVector_p s2, long f2)
+                      FreqVector_p s2, long f2)
 {
    long i;
 
@@ -1073,5 +1072,3 @@ void FreqVectorMin(FreqVector_p dest, FreqVector_p s1, FreqVector_p s2)
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
