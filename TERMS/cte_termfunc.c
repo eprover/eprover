@@ -1328,7 +1328,7 @@ bool TermIsDefTerm(Term_p term, int min_arity)
 
    assert(term);
 
-   if(TermIsVar(term))
+   if(TermIsVar(term) || TermIsAppliedVar(term))
    {
       return false;
    }
@@ -1590,7 +1590,7 @@ void TermAddSymbolDistributionLimited(Term_p term, long *dist_array, long limit)
          int i;
 
          assert(term->f_code > 0);
-         if(term->f_code < limit)
+         if(term->f_code < limit && !TermIsAppliedVar(term))
          {
             dist_array[term->f_code]++;
          }
@@ -1635,11 +1635,11 @@ void TermAddSymbolDistExist(Term_p term, long *dist_array,
          int i;
 
          assert(term->f_code > 0);
-         if(!dist_array[term->f_code])
+         if(!dist_array[term->f_code] && !TermIsAppliedVar(term))
          {
             PStackPushInt(exists, term->f_code);
          }
-         dist_array[term->f_code]++;
+         dist_array[term->f_code] += TermIsAppliedVar(term) ? 0 : 1;
 
          for(i=0; i<term->arity; i++)
          {
@@ -1676,14 +1676,15 @@ void TermAddSymbolFeaturesLimited(Term_p term, long depth,
    {
       int i;
 
-      if(term->f_code < limit)
+      if(term->f_code < limit && !TermIsAppliedVar(term))
       {
+         assert(term->f_code != SIG_APP_VAR_CODE);
          freq_array[term->f_code]++;
          depth_array[term->f_code] = MAX(depth, depth_array[term->f_code]);
       }
       else
       {
-         freq_array[0]++;
+         freq_array[0] += TermIsAppliedVar(term) ? 0 : 1;
          depth_array[0] = MAX(depth, depth_array[0]);
       }
       for(i=0; i<term->arity; i++)
@@ -1726,6 +1727,7 @@ void TermAddSymbolFeatures(Term_p term, PStack_p mod_stack, long depth,
       if (!TermIsAppliedVar(term))
       {
          // ignore applied var f code.
+         assert(term->f_code != SIG_APP_VAR_CODE);
          long findex = 4*term->f_code+offset;
 
          if(feature_array[findex] == 0)
@@ -1770,8 +1772,9 @@ void TermComputeFunctionRanks(Term_p term, long *rank_array, long *count)
    {
       TermComputeFunctionRanks(term->args[i], rank_array, count);
    }
-   if(!rank_array[term->f_code])
+   if(!rank_array[term->f_code] && !TermIsAppliedVar(term))
    {
+      assert(term->f_code != SIG_APP_VAR_CODE);
       rank_array[term->f_code] = (*count)++;
    }
 }

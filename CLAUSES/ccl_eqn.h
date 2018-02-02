@@ -157,7 +157,7 @@ void    EqnFree(Eqn_p junk);
 #define EqnIsStrictlyMaximal(eq)                                        \
    EqnQueryProp((eq), EPIsStrictlyMaximal)
 
-#define EqnGetPredCode(eq) (EqnIsEquLit(eq) || TermIsVar((eq)->lterm)?0:(eq)->lterm->f_code)
+#define EqnGetPredCode(eq) (EqnIsEquLit(eq) || TermIsTopLevelVar((eq)->lterm)?0:(eq)->lterm->f_code)
 #define EqnIsSplitLit(eq)                       \
    (EqnIsEquLit(eq)?false:                                              \
     SigQueryFuncProp((eq)->bank->sig, EqnGetPredCode(eq), FPClSplitDef))

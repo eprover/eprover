@@ -198,6 +198,8 @@ static long compute_into_pm_pos_clause(ParamodInfo_p pminfo,
 
    pminfo->into = into_clause_pos->clause;
 
+   //fprintf(stderr, "construction into !\n");
+
    iterstack = NumTreeTraverseInit(into_clause_pos->pos);
    while ((cell = NumTreeTraverseNext(iterstack)))
    {
@@ -299,7 +301,7 @@ long compute_pos_into_pm_term(ParamodInfo_p pminfo,
       SubstPrint(stdout, subst, pminfo->bank->sig, DEREF_ALWAYS);
       printf("\n"); */
 
-#ifdef PRINT_PARTIAL_PARAMODULATION
+/*#ifdef PRINT_PARTIAL_PARAMODULATION
       if (unif_res.term_remaining > 0)
       {
          fprintf(stderr, "# paramodulation from ");
@@ -313,7 +315,7 @@ long compute_pos_into_pm_term(ParamodInfo_p pminfo,
          fprintf(stderr, " - %d) compute_pos_into_pm_term.\n", unif_res.term_remaining);
 
       }
-#endif
+#endif*/
 
       max_side = ClausePosGetSide(pminfo->from_pos);
       rep_side = ClausePosGetOtherSide(pminfo->from_pos);
@@ -1026,6 +1028,7 @@ long ComputeAllParamodulantsIndexed(TB_p bank, OCB_p ocb,
    pminfo.ocb       = ocb;
    pminfo.new_orig  = parent_alias;
 
+
    res += ComputeIntoParamodulants(&pminfo,
                                    pm_type,
                                    clause,
@@ -1038,7 +1041,7 @@ long ComputeAllParamodulantsIndexed(TB_p bank, OCB_p ocb,
                                    clause,
                                    from_index,
                                    store);
-
+   
    return res;
 }
 

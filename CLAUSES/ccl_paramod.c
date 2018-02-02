@@ -185,17 +185,6 @@ Clause_p ClausePlainParamodConstruct(ParamodInfo_p ol_desc)
    Subst_p   subst = SubstAlloc();
 
 
-   /*fprintf(stderr, "? paramodulation from ");
-   TermPrint(stderr, ClausePosGetSubterm(ol_desc->from_pos), ol_desc->bank->sig, DEREF_ALWAYS);
-   fprintf(stderr, "(clause ");
-   EqnListPrint(stderr, ol_desc->from_pos->clause->literals, "|", false, true);
-   fprintf(stderr, ") into  ");
-   TermPrint(stderr, ClausePosGetSubterm(ol_desc->into_pos), ol_desc->bank->sig, DEREF_ALWAYS);
-   fprintf(stderr, "(clause ");
-   EqnListPrint(stderr, ol_desc->into_pos->clause->literals, "|", false, true);
-   fprintf(stderr, ") (%d remaining).\n", ol_desc->remaining_args);*/
-
-
    assert(TermStructPrefixEqual(ClausePosGetSubterm(ol_desc->from_pos),
                                ClausePosGetSubterm(ol_desc->into_pos),
                                DEREF_ALWAYS,
@@ -254,6 +243,25 @@ Clause_p ClausePlainParamodConstruct(ParamodInfo_p ol_desc)
       }
    }
    SubstDelete(subst);
+
+   if(res)
+   {
+      fprintf(stderr, "? Clause result \n");
+      ClausePrint(stderr, res, true);
+      fprintf(stderr, ".\n");
+
+
+      fprintf(stderr, "? paramodulation from ");
+      TermPrint(stderr, ClausePosGetSubterm(ol_desc->from_pos), ol_desc->bank->sig, DEREF_ALWAYS);
+      fprintf(stderr, "(clause ");
+      EqnListPrint(stderr, ol_desc->from_pos->clause->literals, "|", false, true);
+      fprintf(stderr, ") into  ");
+      TermPrint(stderr, ClausePosGetSubterm(ol_desc->into_pos), ol_desc->bank->sig, DEREF_ALWAYS);
+      fprintf(stderr, "(clause ");
+      EqnListPrint(stderr, ol_desc->into_pos->clause->literals, "|", false, true);
+      fprintf(stderr, ") (%d remaining).\n", ol_desc->remaining_args);   
+   }
+   
 
    return res;
 }
@@ -328,9 +336,29 @@ Clause_p ClauseSimParamodConstruct(ParamodInfo_p ol_desc)
          EqnListRemoveResolved(&into_copy);
          EqnListRemoveDuplicates(into_copy);
          res = ClauseAlloc(into_copy);
+
       }
    }
    SubstDelete(subst);
+   //fprintf(stderr, "%s\n", res ? "success" : "not success");
+
+   if (res)
+   {
+      fprintf(stderr, "? Successful simulataneous paramodulation with result: \n"); 
+      ClausePrint(stderr, res, true);
+      fprintf(stderr, "\n");
+
+      fprintf(stderr, "Paramodulation from clause: "); 
+      ClausePrint(stderr, ol_desc->from_pos->clause, true);
+      fprintf(stderr, "(term : " );
+      TermPrint(stderr, ClausePosGetSubterm(ol_desc->from_pos), ol_desc->bank->sig, DEREF_ALWAYS);
+      fprintf(stderr, ", side %d).\nParamodulation into clause: ", ol_desc->from_pos->side); 
+      ClausePrint(stderr, ol_desc->into_pos->clause, true);
+      fprintf(stderr, "(term : " );
+      TermPrint(stderr, ClausePosGetSubterm(ol_desc->into_pos), ol_desc->bank->sig, DEREF_ALWAYS);
+      fprintf(stderr, ", side %d).\n",  ol_desc->into_pos->side);
+
+   }
    return res;
 }
 
