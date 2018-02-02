@@ -138,11 +138,12 @@ static void gather_feature_vec(FVCollect_p cspec, long* full_vec,
       }
       if(mod)
       {
-         resindex = base+(offset+(findex/4))%mod;
+
+         resindex = base+(offset+(findex/4))%mod;         
       }
    }
    if(resindex != -1)
-   {
+   {      
       vec->array[resindex]+=full_vec[findex];
    }
 }
@@ -500,8 +501,9 @@ FreqVector_p OptimizedVarFreqVectorCompute(Clause_p clause,
 
 
    /* printf("Symbols used: %ld\n", sig_symbols); */
-   vec = VarFreqVectorCompute(clause, cspec);
-   /* FreqVectorPrint(GlobalOut, vec); */
+   vec = VarFreqVectorCompute(clause, cspec);   
+   /*FreqVectorPrint(GlobalOut, vec); */
+   
    if(perm)
    {
       long i;
@@ -509,9 +511,9 @@ FreqVector_p OptimizedVarFreqVectorCompute(Clause_p clause,
       res = FreqVectorAlloc(perm->size);
       for(i=0; i<perm->size; i++)
       {
-    assert(perm->array[i]>=0);
-    assert(perm->array[i]<vec->size);
-    res->array[i] = vec->array[perm->array[i]];
+         assert(perm->array[i]>=0);
+         assert(perm->array[i]<vec->size);
+         res->array[i] = vec->array[perm->array[i]];
       }
       res->clause = clause;
       FreqVectorFree(vec);
@@ -693,6 +695,7 @@ FreqVector_p FVCollectFreqVectorCompute(Clause_p clause, FVCollect_p cspec)
       while(!PStackEmpty(mod_stack))
       {
          findex = PStackPopInt(mod_stack);
+
          gather_feature_vec(cspec, full_vec, vec, findex);
          full_vec[findex] = 0;
          gather_feature_vec(cspec, full_vec, vec, findex+1);
@@ -701,6 +704,8 @@ FreqVector_p FVCollectFreqVectorCompute(Clause_p clause, FVCollect_p cspec)
 
       PStackFree(mod_stack);
    }
+
+   //FreqVectorPrint(stderr, vec);
    return vec;
 }
 

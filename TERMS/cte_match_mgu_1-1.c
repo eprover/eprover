@@ -148,6 +148,7 @@ int SubstComputeMatchHO(Term_p matcher, Term_p to_match, Subst_p subst, Sig_p si
 {
    long matcher_weight  = TermStandardWeight(matcher);
    long to_match_weight = TermStandardWeight(to_match);
+   //fprintf(stderr, "called match %p %p!\n", matcher, to_match);
 
    assert(TermStandardWeight(matcher)  == TermWeight(matcher, DEFAULT_VWEIGHT, DEFAULT_FWEIGHT));
    assert(TermStandardWeight(to_match) == TermWeight(to_match, DEFAULT_VWEIGHT, DEFAULT_FWEIGHT));
@@ -729,67 +730,181 @@ bool SubstComputeMgu(Term_p t1, Term_p t2, Subst_p subst)
 #ifdef ENABLE_LFHO
 __inline__ bool SubstMatchComplete(Term_p t, Term_p s, Subst_p subst, Sig_p sig)
 {
+   bool res;
    if (ProblemIsHO == PROBLEM_NOT_HO)
    {
-      return SubstComputeMatch(t, s, subst);
+      res = SubstComputeMatch(t, s, subst);
    }
    else
    {
       // no arguments of s remaining after the match
       PStackPointer backtrack = PStackGetSP(subst);
 
-      int res =  SubstComputeMatchHO(t, s, subst, sig);
-      if (res != 0)
+      int res_i =  SubstComputeMatchHO(t, s, subst, sig);
+
+      if (res_i != 0)
       {
          SubstBacktrackToPos(subst, backtrack);
       }
-      return res == 0;
+      res = res_i == 0;
    }
+
+   int size = PStackGetSP(subst);
+   for (long i = 0; i < size; ++i)
+   {
+      Term_p var = PStackElementP(subst, i);
+
+      if (var->binding->f_code < 0)
+      {
+         continue;
+      }
+
+      if (StringStartsWith(SigFindName(sig, var->binding->f_code), "esk")
+            || StringStartsWith(SigFindName(sig, var->binding->f_code), "epred"))
+      {
+         fprintf(stderr, "Unified with a Skolem -- %d variables %d total variables.\n", 
+                         var->binding->arity, TypeGetSymbolArity(SigGetType(sig, var->binding->f_code)));
+
+         if(var->binding->arity < TypeGetSymbolArity(SigGetType(sig, var->binding->f_code)))
+         {
+            fprintf(stderr, "Partially applied skolem, quiting.");
+            assert(false);
+         }
+      }
+   }
+
+   return res;
 }
 
 __inline__ bool SubstMguComplete(Term_p t, Term_p s, Subst_p subst, Sig_p sig)
 {
+   bool res;
    if (ProblemIsHO == PROBLEM_NOT_HO)
    {
-      return SubstComputeMgu(t, s, subst);
+      res = SubstComputeMgu(t, s, subst);
    }
    else
    {
       // no arguments of s remaining after the match
       PStackPointer backtrack = PStackGetSP(subst);
-      UnificationResult res =  SubstComputeMguHO(t, s, subst, sig);
-      if (UnifFailed(res) || res.term_remaining != 0)
+      UnificationResult u_res =  SubstComputeMguHO(t, s, subst, sig);
+
+      
+      if (UnifFailed(u_res) || u_res.term_remaining != 0)
       {
          SubstBacktrackToPos(subst, backtrack);
       }
       
-      return !UnifFailed(res) && res.term_remaining == 0;
+      res = !UnifFailed(u_res) && u_res.term_remaining == 0;
    }  
+
+   int size = PStackGetSP(subst);
+   for (long i = 0; i < size; ++i)
+   {
+      Term_p var = PStackElementP(subst, i);
+
+      if (var->binding->f_code < 0)
+      {
+         continue;
+      }
+
+      if (StringStartsWith(SigFindName(sig, var->binding->f_code), "esk")
+            || StringStartsWith(SigFindName(sig, var->binding->f_code), "epred"))
+      {
+         fprintf(stderr, "Unified with a Skolem -- %d variables %d total variables.\n", 
+                         var->binding->arity, TypeGetSymbolArity(SigGetType(sig, var->binding->f_code)));
+
+         if(var->binding->arity < TypeGetSymbolArity(SigGetType(sig, var->binding->f_code)))
+         {
+            fprintf(stderr, "Partially applied skolem, quiting.");
+            assert(false);
+         }
+      }
+   }
+
+
+   return res;
 }
 
 __inline__ int SubstMatchPossiblyPartial(Term_p t, Term_p s, Subst_p subst, Sig_p sig)
 {
+   int res;
    if (ProblemIsHO == PROBLEM_NOT_HO)
    {
-      return SubstComputeMatch(t, s, subst) ? 0 : NOT_MATCHED;
+      res = SubstComputeMatch(t, s, subst) ? 0 : NOT_MATCHED;
    }
    else
    {
-      return SubstComputeMatchHO(t, s, subst, sig);
+      res = SubstComputeMatchHO(t, s, subst, sig);
    }
+
+   int size = PStackGetSP(subst);
+   for (long i = 0; i < size; ++i)
+   {
+      Term_p var = PStackElementP(subst, i);
+
+      if (var->binding->f_code < 0)
+      {
+         continue;
+      }
+
+      if (StringStartsWith(SigFindName(sig, var->binding->f_code), "esk")
+            || StringStartsWith(SigFindName(sig, var->binding->f_code), "epred"))
+      {
+         fprintf(stderr, "Unified with a Skolem -- %d variables %d total variables.\n", 
+                         var->binding->arity, TypeGetSymbolArity(SigGetType(sig, var->binding->f_code)));
+
+         if(var->binding->arity < TypeGetSymbolArity(SigGetType(sig, var->binding->f_code)))
+         {
+            fprintf(stderr, "Partially applied skolem, quiting.");
+            assert(false);
+         }
+      }
+   }
+
+
+   return res;
 }
 #endif
 
 UnificationResult SubstMguPossiblyPartial(Term_p t, Term_p s, Subst_p subst, Sig_p sig)
 {
+   UnificationResult res;
    if (ProblemIsHO == PROBLEM_NOT_HO)
    {
-      return (UnificationResult) {SubstComputeMgu(t,s,subst) ? RightTerm : NoTerm, 0};
+      res = (UnificationResult) {SubstComputeMgu(t,s,subst) ? RightTerm : NoTerm, 0};
    }
    else
    {
-      return SubstComputeMguHO(t,s,subst,sig);
+      res = SubstComputeMguHO(t,s,subst,sig);
    }
+
+   int size = PStackGetSP(subst);
+   for (long i = 0; i < size; ++i)
+   {
+      Term_p var = PStackElementP(subst, i);
+
+      if (var->binding->f_code < 0)
+      {
+         continue;
+      }
+
+      if (StringStartsWith(SigFindName(sig, var->binding->f_code), "esk")
+            || StringStartsWith(SigFindName(sig, var->binding->f_code), "epred"))
+      {
+         fprintf(stderr, "Unified with a Skolem -- %d variables %d total variables.\n", 
+                         var->binding->arity, TypeGetSymbolArity(SigGetType(sig, var->binding->f_code)));
+
+         if(var->binding->arity < TypeGetSymbolArity(SigGetType(sig, var->binding->f_code)))
+         {
+            fprintf(stderr, "Partially applied skolem, quiting.");
+            assert(false);
+         }
+      }
+   }
+
+
+   return res;
 }
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */

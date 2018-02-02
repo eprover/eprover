@@ -198,6 +198,18 @@ char* IndentStr(int level)
 }
 
 
+bool StringStartsWith(const char* pattern, const char* prefix)
+{
+   while(*prefix)
+   {
+      if (!*pattern || *prefix++ != *pattern++)
+      {
+         return false;
+      }
+   }
+   return true;
+}
+
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
