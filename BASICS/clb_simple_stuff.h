@@ -61,6 +61,8 @@ void     JKISSSeed(int seed1, int seed2, int seed3);
 unsigned JKISSRand();
 double   JKISSRandDouble();
 
+bool    StringStartsWith(const char* pattern, const char* prefix);
+
 int    StringIndex(char* key, char* list[]);
 
 char*  IndentStr(int level);

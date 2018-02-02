@@ -1433,7 +1433,9 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control,
    }
    if(control->heuristic_parms.selection_strategy != SelectNoGeneration)
    {
+      /*fprintf(stderr, "? paramods before: %ld state->paramod_count.\n", state->paramod_count);*/
       generate_new_clauses(state, control, clause, tmp_copy);
+      /*fprintf(stderr, "? paramods after: %ld state->paramod_count.\n", state->paramod_count);*/
    }
    ClauseFree(tmp_copy);
    if(TermCellStoreNodes(&(state->tmp_terms->term_store))>TMPBANK_GC_LIMIT)
