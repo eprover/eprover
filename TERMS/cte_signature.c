@@ -1450,13 +1450,14 @@ void SigPrintTypeDeclsTSTP(FILE* out, Sig_p sig)
 {
    FunCode i;
    Func_p fun;
+   const char* tag = ProblemIsHO == PROBLEM_IS_HO ? "thf" : "tff";
 
    for(i=sig->internal_symbols+1; i <= sig->f_count; i++)
    {
       fun = &sig->f_info[i];
       if (fun->type)
       {
-         fprintf(out, "tff(decl_%ld, type, %s: ", i, fun->name);
+         fprintf(out, "%s(decl_%ld, type, %s: ", tag, i, fun->name);
          TypePrintTSTP(out, sig->type_bank, fun->type);
          fprintf(out, ").\n");
       }

@@ -244,7 +244,7 @@ Clause_p ClausePlainParamodConstruct(ParamodInfo_p ol_desc)
    }
    SubstDelete(subst);
 
-   if(res)
+   /*if(res)
    {
       fprintf(stderr, "? Clause result \n");
       ClausePrint(stderr, res, true);
@@ -260,7 +260,7 @@ Clause_p ClausePlainParamodConstruct(ParamodInfo_p ol_desc)
       fprintf(stderr, "(clause ");
       EqnListPrint(stderr, ol_desc->into_pos->clause->literals, "|", false, true);
       fprintf(stderr, ") (%d remaining).\n", ol_desc->remaining_args);   
-   }
+   }*/
    
 
    return res;
@@ -342,7 +342,7 @@ Clause_p ClauseSimParamodConstruct(ParamodInfo_p ol_desc)
    SubstDelete(subst);
    //fprintf(stderr, "%s\n", res ? "success" : "not success");
 
-   if (res)
+   /*if (res)
    {
       fprintf(stderr, "? Successful simulataneous paramodulation with result: \n"); 
       ClausePrint(stderr, res, true);
@@ -358,7 +358,7 @@ Clause_p ClauseSimParamodConstruct(ParamodInfo_p ol_desc)
       TermPrint(stderr, ClausePosGetSubterm(ol_desc->into_pos), ol_desc->bank->sig, DEREF_ALWAYS);
       fprintf(stderr, ", side %d).\n",  ol_desc->into_pos->side);
 
-   }
+   }*/
    return res;
 }
 
