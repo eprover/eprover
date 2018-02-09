@@ -57,7 +57,7 @@ def cmp_binaries(bin1, bin2, test_folder, limit=None, timeout=60):
 
 
 def usage(prog_name):
-  print("python {0} <e binary> <e_binary> <test folder> [limit] [timeout]".format(prog_name))
+  print("python {0} <e binary> <e_binary> <test folder> [limit = None] [timeout = 35]".format(prog_name))
 
 
 def main():
@@ -66,9 +66,12 @@ def main():
   if len(sys.argv) < 4:
     usage(sys.argv[0])
   else:
+    if len(sys.argv) >= 5:
+        limit = None if sys.argv[4].lower() == "none" else int(sys.argv[4])
+    if len(sys.argv) >= 6:
+        timeout = int(sys.argv[5]) 
     cmp_binaries(sys.argv[1], sys.argv[2], sys.argv[3],
-                  int(sys.argv[4]) if len(sys.argv) >= 5 else None,
-                  int(sys.argv[5]) if len(sys.argv) >= 6 else 35)
+                 limit, timeout)
 
 
 if __name__ == '__main__':

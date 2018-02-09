@@ -754,7 +754,7 @@ static bool clause_subsumes_clause(Clause_p subsumer, Clause_p
                sub_candidate->literals, subst,
                pick_list);
 #ifndef NDEBUG
-   Subst_p dbg_subst = SubstAlloc();
+/*   Subst_p dbg_subst = SubstAlloc();
    long*   dbg_pick_list = IntArrayAlloc(ClauseLiteralNumber(sub_candidate));
    bool res_old =eqn_list_rec_subsume_old(subsumer->literals,
                sub_candidate->literals, dbg_subst,
@@ -773,6 +773,7 @@ static bool clause_subsumes_clause(Clause_p subsumer, Clause_p
    SubstDelete(dbg_subst);
    IntArrayFree(dbg_pick_list, ClauseLiteralNumber(sub_candidate));
    assert(res_old == res);
+*/
 #endif
    IntArrayFree(pick_list, ClauseLiteralNumber(sub_candidate));
 

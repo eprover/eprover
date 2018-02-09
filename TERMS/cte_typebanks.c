@@ -555,12 +555,22 @@ void TypePrintTSTP(FILE* out, TypeBank_p bank, Type_p type)
 
 Type_p TypeChangeReturnType(TypeBank_p bank, Type_p type, Type_p new_ret)
 {
-   assert(TypeIsArrow(type));
+   assert(TypeIsArrow(type) || type->f_code == STIndividuals);
    
-   Type_p copy = TypeCopy(type);
-   copy->args[copy->arity-1] = new_ret;
-
-   return TypeBankInsertTypeShared(bank, copy);
+   Type_p res;
+   if (TypeIsArrow(type))
+   {
+      Type_p copy = TypeCopy(type);
+      copy->args[copy->arity-1] = new_ret;
+      res = TypeBankInsertTypeShared(bank, copy);
+   }
+   else
+   {
+      res = bank->bool_type;
+   }
+   
+   return res;
+   
 }
 
 void tree_free_fun(void* a)
