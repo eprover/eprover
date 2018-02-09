@@ -749,30 +749,6 @@ __inline__ bool SubstMatchComplete(Term_p t, Term_p s, Subst_p subst, Sig_p sig)
       res = res_i == 0;
    }
 
-   int size = PStackGetSP(subst);
-   for (long i = 0; i < size; ++i)
-   {
-      Term_p var = PStackElementP(subst, i);
-
-      if (var->binding->f_code < 0)
-      {
-         continue;
-      }
-
-      if (StringStartsWith(SigFindName(sig, var->binding->f_code), "esk")
-            || StringStartsWith(SigFindName(sig, var->binding->f_code), "epred"))
-      {
-         fprintf(stderr, "Unified with a Skolem -- %d variables %d total variables.\n", 
-                         var->binding->arity, TypeGetSymbolArity(SigGetType(sig, var->binding->f_code)));
-
-         if(var->binding->arity < TypeGetSymbolArity(SigGetType(sig, var->binding->f_code)))
-         {
-            fprintf(stderr, "Partially applied skolem, quiting.");
-            assert(false);
-         }
-      }
-   }
-
    return res;
 }
 
@@ -798,31 +774,6 @@ __inline__ bool SubstMguComplete(Term_p t, Term_p s, Subst_p subst, Sig_p sig)
       res = !UnifFailed(u_res) && u_res.term_remaining == 0;
    }  
 
-   int size = PStackGetSP(subst);
-   for (long i = 0; i < size; ++i)
-   {
-      Term_p var = PStackElementP(subst, i);
-
-      if (var->binding->f_code < 0)
-      {
-         continue;
-      }
-
-      if (StringStartsWith(SigFindName(sig, var->binding->f_code), "esk")
-            || StringStartsWith(SigFindName(sig, var->binding->f_code), "epred"))
-      {
-         fprintf(stderr, "Unified with a Skolem -- %d variables %d total variables.\n", 
-                         var->binding->arity, TypeGetSymbolArity(SigGetType(sig, var->binding->f_code)));
-
-         if(var->binding->arity < TypeGetSymbolArity(SigGetType(sig, var->binding->f_code)))
-         {
-            fprintf(stderr, "Partially applied skolem, quiting.");
-            assert(false);
-         }
-      }
-   }
-
-
    return res;
 }
 
@@ -837,31 +788,6 @@ __inline__ int SubstMatchPossiblyPartial(Term_p t, Term_p s, Subst_p subst, Sig_
    {
       res = SubstComputeMatchHO(t, s, subst, sig);
    }
-
-   int size = PStackGetSP(subst);
-   for (long i = 0; i < size; ++i)
-   {
-      Term_p var = PStackElementP(subst, i);
-
-      if (var->binding->f_code < 0)
-      {
-         continue;
-      }
-
-      if (StringStartsWith(SigFindName(sig, var->binding->f_code), "esk")
-            || StringStartsWith(SigFindName(sig, var->binding->f_code), "epred"))
-      {
-         fprintf(stderr, "Unified with a Skolem -- %d variables %d total variables.\n", 
-                         var->binding->arity, TypeGetSymbolArity(SigGetType(sig, var->binding->f_code)));
-
-         if(var->binding->arity < TypeGetSymbolArity(SigGetType(sig, var->binding->f_code)))
-         {
-            fprintf(stderr, "Partially applied skolem, quiting.");
-            assert(false);
-         }
-      }
-   }
-
 
    return res;
 }
@@ -878,31 +804,6 @@ UnificationResult SubstMguPossiblyPartial(Term_p t, Term_p s, Subst_p subst, Sig
    {
       res = SubstComputeMguHO(t,s,subst,sig);
    }
-
-   int size = PStackGetSP(subst);
-   for (long i = 0; i < size; ++i)
-   {
-      Term_p var = PStackElementP(subst, i);
-
-      if (var->binding->f_code < 0)
-      {
-         continue;
-      }
-
-      if (StringStartsWith(SigFindName(sig, var->binding->f_code), "esk")
-            || StringStartsWith(SigFindName(sig, var->binding->f_code), "epred"))
-      {
-         fprintf(stderr, "Unified with a Skolem -- %d variables %d total variables.\n", 
-                         var->binding->arity, TypeGetSymbolArity(SigGetType(sig, var->binding->f_code)));
-
-         if(var->binding->arity < TypeGetSymbolArity(SigGetType(sig, var->binding->f_code)))
-         {
-            fprintf(stderr, "Partially applied skolem, quiting.");
-            assert(false);
-         }
-      }
-   }
-
 
    return res;
 }

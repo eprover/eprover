@@ -1532,6 +1532,11 @@ void ClauseTSTPPrint(FILE* out, Clause_p clause, bool fullterms, bool complete)
       kind = "tcf";
    }
 
+   if (ProblemIsHO == PROBLEM_IS_HO)
+   {
+      kind = "thf";
+   }
+
    switch(ClauseQueryTPTPType(clause))
    {
    case CPTypeAxiom:

@@ -680,6 +680,7 @@ Term_p applied_var_deref(Term_p orig)
    return res;
 }
 
+#ifdef ENABLE_LFHO
 __inline__ Term_p MakeRewrittenTerm(Term_p orig, Term_p new, int remaining_orig)
 {  
    if (remaining_orig)
@@ -716,6 +717,7 @@ __inline__ Term_p MakeRewrittenTerm(Term_p orig, Term_p new, int remaining_orig)
       return new;
    }
 }
+#endif
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
