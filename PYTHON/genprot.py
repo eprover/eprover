@@ -272,7 +272,7 @@ if __name__ == "__main__":
                 report.write("# {0[Command]} \n".format(firstvalue(problems)))
             except KeyError:
                 report.write("# Could not find command\n")
-            report.writelines("# {:%2d} {} \n".format(*pair)
+            report.writelines("# {:>2} {} \n".format(*pair)
                               for pair in enumerate(fieldnames, 1))
             if not args.header:
                 report.write("#")
