@@ -192,6 +192,10 @@ void VarPrint(FILE* out, FunCode var)
 {
    char id;
 
+   if (var >= 0)
+   {
+      fprintf(stderr, "%ld\n", var);
+   }
    assert(var<0);
 
    id = 'X';

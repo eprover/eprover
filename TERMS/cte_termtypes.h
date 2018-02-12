@@ -124,6 +124,8 @@ typedef struct termcell
                                       rewrites - it might be possible
                                       to combine the previous two in a
                                       union. */
+   struct termcell* binding_cache; /* For caching the term applied variable
+                                      expands to. */
    long             entry_no;      /* Counter for terms in a given
                                       termbank - needed for
                                       administration and external
@@ -161,8 +163,8 @@ typedef uintptr_t DerefType, *DerefType_p;
 #define TERMCELL_DYN_MEM (TERMCELL_MEM+4*TERMARG_MEM)
 
 #ifdef ENABLE_LFHO
-// we don't do just term->binding cause the argument might become unbound.
-#define CAN_DEREF(term) (((term)->binding) || (TermIsAppliedVar(term) && term->args[0]->binding))
+#define CAN_DEREF(term) ((TermIsVar(term) && (term)->binding) || (TermIsAppliedVar(term) && \
+                                (term->binding_cache || term->args[0]->binding)))
 #else
 #define CAN_DEREF(term) (((term)->binding))
 #endif
@@ -180,7 +182,7 @@ typedef uintptr_t DerefType, *DerefType_p;
 #define RewriteAdr(level) (assert(level),(level)-1)
 #define TermIsVar(t) ((t)->f_code < 0)
 #define TermIsConst(t)(!TermIsVar(t) && ((t)->arity==0))
-#define TermIsAppliedVar(term) (TermCellQueryProp((term), TPIsAppVar))
+#define TermIsAppliedVar(term) (term->f_code == SIG_APP_VAR_CODE)
 #define TermIsTopLevelVar(term) (TermIsVar(term) || TermIsAppliedVar(term))
 
 #define TermCellSetProp(term, prop) SetProp((term), (prop))
@@ -465,6 +467,7 @@ static __inline__ Term_p TermDefaultCellAlloc(void)
    handle->arity      = 0;
    handle->type       = NULL;
    handle->binding    = NULL;
+   handle->binding_cache = NULL;
    handle->args       = NULL;
    handle->rw_data.nf_date[0] = SysDateCreationTime();
    handle->rw_data.nf_date[1] = SysDateCreationTime();
