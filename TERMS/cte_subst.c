@@ -426,7 +426,7 @@ PStackPointer SubstBindAppVar(Subst_p subst, Term_p var, Term_p to_bind, int up_
    return ret;
 }
 
-void SubstHandleUnsharedPartialMatches(Subst_p subst, TB_p bank)
+/*void SubstHandleUnsharedPartialMatches(Subst_p subst, TB_p bank)
 {
    PStackPointer i, limit;
 
@@ -449,7 +449,7 @@ void SubstHandleUnsharedPartialMatches(Subst_p subst, TB_p bank)
 #endif
       }
    }
-}
+}*/
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
