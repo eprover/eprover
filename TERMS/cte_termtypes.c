@@ -23,6 +23,9 @@
 
 #include "cte_termtypes.h"
 
+#define BINDING_FRESH(t) ((t)->binding_cache && (t)->binding && \
+                           (t)->binding == (t)->args[0]->binding)
+
 /*---------------------------------------------------------------------*/
 /*                        Global Variables                             */
 /*---------------------------------------------------------------------*/
@@ -626,56 +629,90 @@ bool TermIsPrefix(Term_p needle, Term_p haystack)
    return res;
 }
 
+void clear_stale_cache(Term_p app_var)
+{
+   assert(TermIsAppliedVar(app_var));
+   if (app_var->binding_cache && !TermIsShared(app_var->binding_cache))
+   {
+      TermTopFree(app_var->binding_cache);
+   }
+   app_var->binding_cache = NULL;
+   app_var->binding = NULL;
+}
+
+void register_new_cache(Term_p app_var, Term_p bound_to)
+{
+   assert(TermIsAppliedVar(app_var));
+   assert(app_var->args[0]->binding);
+
+   app_var->binding = app_var->args[0]->binding;
+   app_var->binding_cache = bound_to;
+}
+
+
+
 Term_p applied_var_deref(Term_p orig)
 {
    assert(TermIsAppliedVar(orig));
    assert(orig->arity > 1);
-   assert(orig->args[0]->binding);
+   assert(orig->args[0]->binding || orig->binding_cache);
 
    Term_p res;
 
-   if (TermIsVar(orig->args[0]->binding))
+   if (BINDING_FRESH(orig))
    {
-      // if deref once , this is OK.
-      //assert(orig->args[0] != orig->args[0]->binding)
-
-      /*fprintf(stderr, "orig->args->binding = %p, orig = %p, binding var\n", orig->args[0]->binding, orig);
-      fprintf(stderr, "orig->args->binding->binding = %p\n", orig->args[0]->binding->binding);*/
-
-      res = TermTopAlloc(orig->f_code, orig->arity);
-      res->properties = orig->properties;
-      res->type = orig->type;
-      res->args[0] = orig->args[0]->binding;
-      for(int i=1; i<orig->arity; i++)
-      {
-         res->args[i] = orig->args[i];
-      }
+      res = orig->binding_cache;      
    }
    else
    {
-      Term_p bound = orig->args[0]->binding;
-      int arity = bound->arity + orig->arity-1;
+      clear_stale_cache(orig);
 
-      //fprintf(stderr, "orig->args->binding = %p, orig = %p, binding not var\n", orig->args[0]->binding, orig);
-
-      res = TermTopAlloc(bound->f_code, arity);
-      res->args = TermArgArrayAlloc(arity);
-
-      res->type = orig->type; // derefing keeps the types
-      res->properties = bound->properties & (TPPredPos | TPIsAppVar);
-
-      assert(!res->binding || res->f_code < 0 /* if bound -> then variable */);
-
-      for(int i=0; i<bound->arity; i++)
+      if (orig->args[0]->binding)
       {
-         res->args[i] = bound->args[i];
+         if (TermIsVar(orig->args[0]->binding))
+         {
+            res = TermTopAlloc(orig->f_code, orig->arity);
+            res->properties = orig->properties;
+            res->type = orig->type;
+            res->args[0] = orig->args[0]->binding;
+            for(int i=1; i<orig->arity; i++)
+            {
+               res->args[i] = orig->args[i];
+            }
+         }
+         else
+         {
+            Term_p bound = orig->args[0]->binding;
+            int arity = bound->arity + orig->arity-1;
+
+            res = TermTopAlloc(bound->f_code, arity);
+            res->args = TermArgArrayAlloc(arity);
+
+            res->type = orig->type; // derefing keeps the types
+            res->properties = bound->properties & (TPPredPos | TPIsAppVar);
+
+            assert(!res->binding || res->f_code < 0 /* if bound -> then variable */);
+
+            for(int i=0; i<bound->arity; i++)
+            {
+               res->args[i] = bound->args[i];
+            }
+
+            for(int i=0; i<orig->arity-1; i++)
+            {
+               res->args[bound->arity + i] = orig->args[i + 1];
+            }
+         }
+
+         register_new_cache(orig, res);
       }
-
-      for(int i=0; i<orig->arity-1; i++)
+      else
       {
-         res->args[bound->arity + i] = orig->args[i + 1];
+         res = orig;
       }
    }
+
+   
 
    return res;
 }

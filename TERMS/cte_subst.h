@@ -68,7 +68,7 @@ void          SubstSkolemizeTerm(Term_p term, Subst_p subst, Sig_p sig);
 void          SubstCompleteInstance(Subst_p subst, Term_p term,
                                     Term_p default_binding);
 
-void SubstHandleUnsharedPartialMatches(Subst_p subst, TB_p bank);
+//void SubstHandleUnsharedPartialMatches(Subst_p subst, TB_p bank);
 
 /*-----------------------------------------------------------------------
 //
