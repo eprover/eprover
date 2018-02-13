@@ -504,7 +504,7 @@ int main(int argc, char* argv[])
 
    ProofStateInit(proofstate, proofcontrol);
    //printf("Alive (2)!\n");
-   ProofStateInitWatchlist(proofstate, proofcontrol->ocb);
+   //ProofStateInitWatchlist(proofstate, proofcontrol->ocb);
 
    VERBOUT2("Prover state initialized\n");
    preproc_time = GetTotalCPUTime();

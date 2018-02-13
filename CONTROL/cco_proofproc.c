@@ -1331,6 +1331,7 @@ void ProofStateInit(ProofState_p state, ProofControl_p control)
    {
       fvi_param_init(state, control);
    }
+   ProofStateInitWatchlist(state, control->ocb);
 
    tmphcb = GetHeuristic("Uniq", state, control, &(control->heuristic_parms));
    assert(tmphcb);
