@@ -577,6 +577,36 @@ static void generate_new_clauses(ProofState_p state, ProofControl_p
    }
 }
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: eval_clause_set()
+//
+//   Add evaluations to all clauses in state->eval_set. Factored out
+//   so that batch-processing with e.g. neural networks can be easily
+//   integrated.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void eval_clause_set(ProofState_p state, ProofControl_p control)
+{
+   Clause_p handle;
+   assert(state);
+   assert(control);
+
+   for(handle = state->eval_store->anchor->succ;
+       handle != state->eval_store->anchor;
+       handle = handle->succ)
+   {
+      HCBClauseEvaluate(control->hcb, handle);
+   }
+}
+
+
 /*-----------------------------------------------------------------------
 //
 // Function: insert_new_clauses()
@@ -679,7 +709,14 @@ static Clause_p insert_new_clauses(ProofState_p state, ProofControl_p control)
       {
          ClausePushDerivation(handle, DCCnfEvalGC, NULL, NULL);
       }
-      HCBClauseEvaluate(control->hcb, handle);
+//      HCBClauseEvaluate(control->hcb, handle);
+
+      ClauseSetInsert(state->eval_store, handle);
+   }
+   eval_clause_set(state, control);
+
+   while((handle = ClauseSetExtractFirst(state->eval_store)))
+   {
       ClauseDelProp(handle, CPIsOriented);
       DocClauseQuoteDefault(6, handle, "eval");
 

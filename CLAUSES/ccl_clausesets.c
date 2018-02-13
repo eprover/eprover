@@ -267,9 +267,6 @@ static void tptp_eq_pred_axiom_print(FILE* out, char* symbol, int arity,
 static void clause_set_extract_entry(Clause_p clause)
 {
    int     i;
-#ifndef NDEBUG
-   Eval_p test;
-#endif
    Eval_p *root;
 
    assert(clause);
@@ -281,14 +278,11 @@ static void clause_set_extract_entry(Clause_p clause)
       for(i=0; i<clause->evaluations->eval_no; i++)
       {
          root = (void*)&PDArrayElementP(clause->set->eval_indices, i);
-#ifndef NDEBUG
-         test =
-#endif
-            EvalTreeExtractEntry(root,
-                                 clause->evaluations,
-                                 i);
-         assert(test);
-         assert(test->object == clause);
+         // This may fail (silently) if the clause evaluation was
+         // added to a clause already in a set!
+         EvalTreeExtractEntry(root,
+                              clause->evaluations,
+                              i);
       }
    }
    clause->pred->succ = clause->succ;
