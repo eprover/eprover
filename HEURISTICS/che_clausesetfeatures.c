@@ -1549,7 +1549,7 @@ void ProofStatePrintSelective(FILE* out, ProofState_p state, char*
       switch(*current)
       {
       case 't':
-            if(!ClauseSetIsUntyped(state->axioms))
+            if(ProblemIsHO == PROBLEM_IS_HO || !ClauseSetIsUntyped(state->axioms))
             {
                fprintf(out, "# Type declarations:\n");
                SigPrintTypeDeclsTSTP(out, state->terms->sig);
