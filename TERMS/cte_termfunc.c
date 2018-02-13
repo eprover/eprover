@@ -1979,7 +1979,7 @@ void TermAssertSameSort(Sig_p sig, Term_p t1, Term_p t2)
 /----------------------------------------------------------------------*/
 bool TermIsUntyped(Term_p term)
 {
-   bool res = true;
+   bool res = false;
 
    PLocalStackInit(stack);
 

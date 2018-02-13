@@ -1535,7 +1535,6 @@ void ClauseTSTPPrint(FILE* out, Clause_p clause, bool fullterms, bool complete)
    if (ProblemIsHO == PROBLEM_IS_HO)
    {
       kind = "thf";
-      is_untyped = false;
    }
 
    switch(ClauseQueryTPTPType(clause))

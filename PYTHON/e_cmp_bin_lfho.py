@@ -52,7 +52,7 @@ def cmp_binaries(bin1, bin2, test_folder_1, test_folder_2, limit=None, timeout=6
   columns = ['filename', 'theorem status', 
             'runtime bin1', 'theorem status bin1', 
             'runtime bin2', 'theorem status bin2']
-  print_report_csv(report, columns, 'two_bins_cache_non_cache.csv')
+  print_report_csv(report, columns, 'two_bins_app_non_app.csv')
 
 
 def usage(prog_name):
