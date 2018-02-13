@@ -775,7 +775,7 @@ void TFormulaTPTPPrint(FILE* out, TB_p bank, TFormula_p form, bool fullterms, bo
          fputs("![", out);
       }
       TermPrint(out, form->args[0], bank->sig, DEREF_NEVER);
-      if(!TypeIsIndividual(form->args[0]->type))
+      if(ProblemIsHO == PROBLEM_IS_HO || !TypeIsIndividual(form->args[0]->type))
       {
          fputs(":", out);
          TypePrintTSTP(out, bank->sig->type_bank, form->args[0]->type);
@@ -785,7 +785,7 @@ void TFormulaTPTPPrint(FILE* out, TB_p bank, TFormula_p form, bool fullterms, bo
          form = form->args[1];
          fputs(", ", out);
          TermPrint(out, form->args[0], bank->sig, DEREF_NEVER);
-         if(!TypeIsIndividual(form->args[0]->type))
+         if(ProblemIsHO == PROBLEM_IS_HO || !TypeIsIndividual(form->args[0]->type))
          {
             fputs(":", out);
             TypePrintTSTP(out, bank->sig->type_bank, form->args[0]->type);
