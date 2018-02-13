@@ -185,7 +185,10 @@ def process_file(data, features, archivename, path, fileopener, info):
             entry["Version"] = eversion
         if entry["Problem"] in features:
             entry.update(features[entry["Problem"]])
-        data[configname][problemname] = entry
+        if not configname in data or \
+           not problemname in data[configname] \
+           or entry["Failure"]!=failuremap["unknown"]:
+            data[configname][problemname] = entry
 
 def swap(d,key1,key2):
     d[key1],d[key2] = d[key2],d[key1]
