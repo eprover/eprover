@@ -548,11 +548,10 @@ MatchInfo_p indexed_find_demodulator(OCB_p ocb, Term_p term,
    }
    PDTreeSearchExit(demodulators->demod_index);
 
-   /* If there is match info and no args are remaining,
-      then term has to be structuraly equal */
 #ifndef NDEBUG
-   if((match_info && !match_info->trailing_args) 
-            && !TermStructEqualDeref(ClausePosGetSide(match_info->matcher), term, DEREF_ONCE, DEREF_NEVER))
+   if(match_info 
+      && !TermStructPrefixEqual(ClausePosGetSide(match_info->matcher), term, DEREF_ONCE, DEREF_NEVER, 
+                                match_info->trailing_args, ocb->sig))
    {
       fprintf(stderr, "Term ");
       TermPrint(stderr, ClausePosGetSide(match_info->matcher), ocb->sig, DEREF_NEVER);
@@ -751,7 +750,6 @@ static Term_p term_li_normalform(RWDesc_p desc, Term_p term,
 {
    bool    modified = true;
    Term_p new_term;
-
 
    if(desc->level == NoRewrite)
    {

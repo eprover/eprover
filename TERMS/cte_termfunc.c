@@ -2051,52 +2051,50 @@ Term_p TermAppEncode(Term_p orig, Sig_p sig)
    return app_encoded; 
 }
 
-
-Term_p TermCreatePrefix(Term_p orig, int up_to)
+/*-----------------------------------------------------------------------
+//
+// Function: TermCreatePrefix()
+//
+//    Create a prefix containing arg_num arguments of original term orig.
+//    If orig was an applied variable and arg_num is 0, return the shared
+//    variable that is the first argument. 
+//
+//    NB: In case caller needs proper prefix, returned term will not be
+//    shared (unless it is a variable head of applied variable)!
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+Term_p TermCreatePrefix(Term_p orig, int arg_num)
 {
-   assert(orig && orig->arity >= up_to && up_to >= 0);
+   assert(orig && orig->arity >= arg_num && arg_num >= 0);
+   assert(!TermIsAppliedVar(orig) || orig->arity != arg_num);
+   
    Term_p prefix;
 
-   if (!TermIsAppliedVar(orig))
+   if (arg_num == ARG_NUM(orig))
    {
-      if (up_to == orig->arity)
-      {
-         // do not create a copy of the term!
-         prefix = orig;
-      }
-      else
-      {
-         prefix = TermTopAlloc(orig->f_code, up_to);
-         for(int i=0; i<up_to; i++)
-         {
-            prefix->args[i] = orig->args[i];
-         }
-      }
+      prefix = orig;
+   }
+   else if (TermIsAppliedVar(orig) && arg_num == 0)
+   {
+      // due to app-encoding of applied variables,
+      // the term head is hidden in first argument
+      prefix = orig->args[0];
    }
    else
    {
-      if (up_to == orig->arity-1)
+      assert(arg_num < ARG_NUM(orig));
+      int pref_len = arg_num + TermIsAppliedVar(orig) ? 1 : 0;
+      prefix = TermTopAlloc(orig->f_code, pref_len);
+
+      for(int i=0; i < pref_len; i++)
       {
-         prefix =  orig;
-      }
-      else
-      {
-         if (up_to == 0)
-         {
-            prefix = orig->args[0];
-         }
-         else
-         {
-            prefix = TermTopAlloc(orig->f_code, up_to+1);
-            prefix->properties = TPIsAppVar;
-            for(int i=0; i<up_to+1; i++)
-            {
-               prefix->args[i] = orig->args[i];
-            }
-         }
+         prefix->args[i] = orig->args[i];
       }
    }
-   
+
 
    return prefix;  
 }
