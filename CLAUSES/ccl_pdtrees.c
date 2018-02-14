@@ -539,7 +539,7 @@ static void pdtree_forward(PDTree_p tree, Subst_p subst)
    // we might have term f g b to match but in the tree there is term f g b x y 
    if (!term)
    {
-      fprintf(stderr, "#! left because term is empty\n");
+      //fprintf(stderr, "#! left because term is empty\n");
       tree->tree_pos->trav_count = PDT_NODE_CLOSED(tree, handle);
    }
 
@@ -581,6 +581,7 @@ static void pdtree_forward(PDTree_p tree, Subst_p subst)
           {
              if (ProblemIsHO == PROBLEM_NOT_HO)
              {
+               // FIXME: this assertion might fail at the top level sometimes.
                assert(next->variable->type == term->type);
                //fprintf(stderr, "Matched simple var\n");
                PStackDiscardTop(tree->term_stack);
@@ -593,13 +594,12 @@ static void pdtree_forward(PDTree_p tree, Subst_p subst)
                if (matched_up_to != NOT_MATCHED)
                {
                   SubstBindAppVar(subst, next->variable, term, matched_up_to);
-                  // TODO: POSSIBLY INSERT THE BOUND TERM IN THE BANK HERE
                   PStackPushP(tree->term_proc, term);
                   PStackDiscardTop(tree->term_stack);
 
-                  if (matched_up_to != term->arity)
+                  if (matched_up_to != ARG_NUM(term))
                   {
-                    add_unapplied_rest(tree->term_stack, matched_up_to + (TermIsAppliedVar(term) ? 1 : 0), term);  
+                    add_unapplied_rest(tree->term_stack, matched_up_to, term);  
                   }
                   
                   /*fprintf(stderr, "Matched variable ");
@@ -633,32 +633,28 @@ static void pdtree_forward(PDTree_p tree, Subst_p subst)
              }
           
          }
-          // this check here is problematic!!!
-          // if we have no term sharing -- well, we're screwed.
-          // well, maybe we're not -- TODO : TALK TO JASMIN.
-          else if(next->variable->binding == term || 
-                    (ProblemIsHO == PROBLEM_IS_HO && TermIsPrefix(next->variable->binding, term)))
-          {
-             //fprintf(stderr, "Got into next->variable->binding prefix part.\n");
-             PStackDiscardTop(tree->term_stack);
-             if (ProblemIsHO == PROBLEM_IS_HO)
-             {
-               // no harm would be done if the problem is not HO
-               // but I just do not want to enter this function either way -- premature optimization
-               // maybe, but who cares.
-              PStackPushP(tree->term_proc, term);
-              add_unapplied_rest(tree->term_stack, next->variable->binding->arity, term);
-             }
-             next->trav_count   = PDT_NODE_INIT_VAL(tree);
-             next->bound        = false;
-             tree->tree_pos     = next;
-             tree->term_weight  -= (TermStandardWeight(next->variable->binding) -
-                                         TermStandardWeight(next->variable));
-   #ifdef MEASURE_EXPENSIVE
-             tree->visited_count++;
-   #endif
-             break;
-          }
+         else if(next->variable->binding == term || 
+                 (ProblemIsHO == PROBLEM_IS_HO && TermIsPrefix(next->variable->binding, term)))
+         {
+            //fprintf(stderr, "Got into next->variable->binding prefix part.\n");
+            PStackDiscardTop(tree->term_stack);
+            if (ProblemIsHO == PROBLEM_IS_HO)
+            {
+               PStackPushP(tree->term_proc, term);
+               int args_eaten = next->variable->binding->arity - 
+                                 TermIsAppliedVar(next->variable->binding) ? 1 : 0;
+               add_unapplied_rest(tree->term_stack, args_eaten, term);
+            }
+            next->trav_count   = PDT_NODE_INIT_VAL(tree);
+            next->bound        = false;
+            tree->tree_pos     = next;
+            tree->term_weight  -= (TermStandardWeight(next->variable->binding) -
+                                      TermStandardWeight(next->variable));
+#ifdef MEASURE_EXPENSIVE
+              tree->visited_count++;
+#endif
+            break;
+         }
       }
     }
    }
@@ -1055,8 +1051,10 @@ Term_p TermLRTraversePrevAppVar(PStack_p stack, Term_p original_term, Term_p var
    for(i=0; i<to_backtrack_nr; i++)
    {
       tmp = PStackPopP(stack);
-      UNUSED(tmp); assert(tmp == original_term->args[var->binding->arity + i + 
-                                                     (TermIsAppliedVar(original_term) && TermIsVar(var->binding))]); // 0 based indexing
+      UNUSED(tmp); 
+      // 0 based indexing
+      assert(tmp == original_term->args[var->binding->arity + i + 
+                                       (TermIsAppliedVar(original_term) && TermIsVar(var->binding))]); 
    }
    PStackPushP(stack, original_term);
 
@@ -1427,9 +1425,12 @@ void PDTreePrint(FILE* out, PDTree_p tree)
    pdt_node_print(out, tree->tree, 0);
 }
 
-static __inline__ void add_unapplied_rest(PStack_p term_stack, int start_from, Term_p to_match)
+// gets number of eaten args and put whatever is not eaten to stack 
+static __inline__ void add_unapplied_rest(PStack_p term_stack, int eaten_args, Term_p to_match)
 {
-   for(int i=to_match->arity-1; i >= start_from; i--)
+   // make up for app encoding
+   int limit = eaten_args + TermIsAppliedVar(to_match) ? 1 : 0;
+   for(int i=to_match->arity-1; i >= limit; i--)
    {
       PStackPushP(term_stack, to_match->args[i]);
    }

@@ -40,6 +40,7 @@ PERF_CTR_DEFINE(MguTimer);
 #define MATCH_INIT -2
 
 const UnificationResult UNIF_FAILED = {NoTerm, -1};
+const UnificationResult UNIF_INIT = {NoTerm, -2};
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
@@ -89,18 +90,34 @@ static bool occur_check(restrict Term_p term, restrict Term_p var)
 /*                         Exported Functions                          */
 /*---------------------------------------------------------------------*/
 
+/*-----------------------------------------------------------------------
+//
+// Function: PartiallyMatchVar()
+//
+//   Given a variable var_matcher, determine the number of arguments 
+//   of to_match that are actually matched. Performs occur check if 
+//   needed.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
 int PartiallyMatchVar(Term_p var_matcher, Term_p to_match, Sig_p sig, bool perform_occur_check)
 {
    assert(TermIsVar(var_matcher) && !var_matcher->binding);
    assert(!TermIsAppliedVar(to_match) || to_match->f_code == sig->app_var_code);
+   assert(ProblemIsHO == PROBLEM_IS_HO || !TypeIsArrow(var_matcher->type));
+   
 
-   int matched_up_to = NOT_MATCHED;
+   int args_to_eat = NOT_MATCHED;
    Type_p term_head_type = GetHeadType(sig, to_match);
    Type_p matcher_type   = var_matcher->type;
 
    if (matcher_type == to_match->type)
    {
-      matched_up_to = to_match->arity - (TermIsAppliedVar(to_match) ? 1 : 0);
+      args_to_eat = ARG_NUM(to_match);
    }
    else if (TypeIsArrow(term_head_type) && TypeIsArrow(matcher_type) 
                && matcher_type->arity <= term_head_type->arity)
@@ -115,21 +132,21 @@ int PartiallyMatchVar(Term_p var_matcher, Term_p to_match, Sig_p sig, bool perfo
          }
       }
 
-      matched_up_to = start_idx;
+      args_to_eat = start_idx;
       // if they have the same nr of args and args match -> they're the same
       // -> nice place to check the type sharing invariant
-      assert(matched_up_to != 0 || matcher_type == term_head_type);
+      assert(args_to_eat != 0 || matcher_type == term_head_type);
    }
 
    /* The case where we could eat up arguments, but they are not there. */
-   if (matched_up_to > to_match->arity)
+   if (args_to_eat > ARG_NUM(to_match))
    {
       return NOT_MATCHED;
    }
 
    if (perform_occur_check)
    {
-      for(int i=0; i<matched_up_to + TermIsAppliedVar(to_match) ? 1 : 0; i++)
+      for(int i=0; i<args_to_eat + TermIsAppliedVar(to_match) ? 1 : 0; i++)
       {
          if (occur_check(to_match->args[i], var_matcher))
          {
@@ -140,166 +157,128 @@ int PartiallyMatchVar(Term_p var_matcher, Term_p to_match, Sig_p sig, bool perfo
 
 
    // the number of arguments eaten
-   return matched_up_to;
+   return args_to_eat;
 }
 
+#define FAIL_AND_BREAK(res, val) { (res) = (val); break; }
 
 int SubstComputeMatchHO(Term_p matcher, Term_p to_match, Subst_p subst, Sig_p sig)
 {
+   assert(ProblemIsHO == PROBLEM_NOT_HO);
    long matcher_weight  = TermStandardWeight(matcher);
    long to_match_weight = TermStandardWeight(to_match);
-   //fprintf(stderr, "called match %p %p!\n", matcher, to_match);
 
    assert(TermStandardWeight(matcher)  == TermWeight(matcher, DEFAULT_VWEIGHT, DEFAULT_FWEIGHT));
    assert(TermStandardWeight(to_match) == TermWeight(to_match, DEFAULT_VWEIGHT, DEFAULT_FWEIGHT));
 
-   // matching of variables against terms is OK in HO case.
-   if((matcher_weight > to_match_weight) /*|| (TermCellQueryProp(to_match, TPPredPos) && TermIsVar(matcher))*/)
+   int res = MATCH_INIT;
+   if(matcher_weight > to_match_weight)
    {
       return NOT_MATCHED;
    }
 
-   int res = MATCH_INIT;
-   PStackPointer backtrack = PStackGetSP(subst); /* For backtracking */
-   PLocalStackInit(matcher_stack);
-   PLocalStackInit(to_match_stack);
+   PStackPointer backtrack = PStackGetSP(subst);
+   PLocalStackInit(jobs);
 
-   PLocalStackPush(matcher_stack, matcher);
-   PLocalStackPush(to_match_stack, to_match);
+   PLocalStackPush(jobs, matcher);
+   PLocalStackPush(jobs, to_match);
 
-   while(!PLocalStackEmpty(matcher_stack) && !PLocalStackEmpty(to_match_stack))
+   // Index from which to start slicing the target term
+   int start_idx;
+
+   while(!PLocalStackEmpty(jobs))
    {
-      to_match =  PLocalStackPop(to_match_stack);
-      matcher  =  PLocalStackPop(matcher_stack);
-      
+      to_match =  PLocalStackPop(jobs);
+      matcher  =  PLocalStackPop(jobs);
 
-      if (TermIsAppliedVar(matcher) || TermIsVar(matcher))
+
+      if (TermIsTopLevelVar(matcher))
       {
          Term_p var = TermIsAppliedVar(matcher) ? matcher->args[0] : matcher;
 
-         // if it is bound -> then it has to be bound to prefix.
-         if (var->binding && TermIsPrefix(var->binding, to_match))
+         if (var->binding)
          {
-            int bound_arity = var->binding->arity == 0 && TermIsAppliedVar(to_match) ? 
-                                 1 : var->binding->arity;
-            PLocalStackEnsureSpace(to_match_stack, to_match->arity - bound_arity);
-
-            for(int i=to_match->arity-1; i >= bound_arity; i--)
+            // by now there is no prefix matching, since we already bound sthg
+            assert(res != MATCH_INIT); 
+            if (TermIsPrefix(var->binding, to_match))
             {
-               PLocalStackPush(to_match_stack, to_match->args[i]);
-            }
-
-            if (matcher->arity)
-            {
-               PLocalStackEnsureSpace(matcher_stack, matcher->arity);
-
-               for(int i=matcher->arity-1; i; i--)
+               start_idx = ARG_NUM(var->binding);
+               assert(ARG_NUM(matcher) == 
+                        to_match->arity - start_idx - TermIsAppliedVar(to_match) ? 1 :0);
+               
+               matcher_weight += TermStandardWeight(var->binding) - DEFAULT_VWEIGHT;
+               if(matcher_weight > to_match_weight)
                {
-                  PLocalStackPush(matcher_stack, matcher->args[i]);  
+                  FAIL_AND_BREAK(res, NOT_MATCHED);
                }
             }
-
-            matcher_weight += TermStandardWeight(var->binding) - DEFAULT_VWEIGHT;
-            if(matcher_weight > to_match_weight)
+            else
             {
-               res = NOT_MATCHED;
-               break;
+               FAIL_AND_BREAK(res, NOT_MATCHED);
             }
-         }
-         else if (var->binding)
-         {
-            res = NOT_MATCHED;
-            break;
          }
          else
          {
-            int matched_up_to = PartiallyMatchVar(var, to_match, sig, false);
-            if (matched_up_to != NOT_MATCHED)
+            int args_eaten = PartiallyMatchVar(var, to_match, sig, false);
+            if (args_eaten == NOT_MATCHED)
             {
-               SubstBindAppVar(subst, var, to_match, matched_up_to);
+               FAIL_AND_BREAK(res, NOT_MATCHED);
+            }
+            else
+            {
+               SubstBindAppVar(subst, var, to_match, args_eaten);                  
+               start_idx = args_eaten;
 
                matcher_weight += TermStandardWeight(var->binding) - DEFAULT_VWEIGHT;
                if(matcher_weight > to_match_weight)
                {
-                  res = NOT_MATCHED;
-                  break;
+                  FAIL_AND_BREAK(res, NOT_MATCHED);
                }
 
-               if (TermIsAppliedVar(to_match))
+               if (args_eaten + ARG_NUM(matcher) != ARG_NUM(to_match))
                {
-                  matched_up_to++;
+                  assert(res == MATCH_INIT);
+                  res = ARG_NUM(to_match) - args_eaten + ARG_NUM(matcher);
                }
-
-               PLocalStackEnsureSpace(to_match_stack, to_match->arity - matched_up_to);
-               for(int i=to_match->arity-1; i >= matched_up_to; i--)
-               {
-                  PLocalStackPush(to_match_stack, to_match->args[i]);
-               }
-
-               if (matcher->arity)
-               {
-                  PLocalStackEnsureSpace(matcher_stack, matcher->arity-1);
-
-                  for(int i=matcher->arity-1; i; i--)
-                  {
-                     PLocalStackPush(matcher_stack, matcher->args[i]);  
-                  }
-               }   
             }
-            else
-            {
-               res = NOT_MATCHED;
-               break;
-            }   
          }
       }
       else
       {
-         if(matcher->f_code != to_match->f_code)
+         if (matcher->f_code != to_match->f_code 
+               || matcher->arity > to_match ->arity)
          {
-            // if the RHS is applied var -- bad luck.
-            res = NOT_MATCHED;
-            break;
+            FAIL_AND_BREAK(res, NOT_MATCHED);
          }
          else
          {
-            PLocalStackEnsureSpace(to_match_stack, to_match->arity);
-            for(int i=to_match->arity-1; i >= 0; i--)
-            {
-               PLocalStackPush(to_match_stack, to_match->args[i]);
-            }
+            start_idx = 0;
 
-            PLocalStackEnsureSpace(matcher_stack, matcher->arity);
-            for(int i=matcher->arity-1; i >= 0; i--)
+            if (ARG_NUM(matcher) != ARG_NUM(to_match))
             {
-               PLocalStackPush(matcher_stack, matcher->args[i]);
+               assert(res == MATCH_INIT);
+               res = ARG_NUM(to_match) - ARG_NUM(matcher);
             }
          }
       }
-   }
 
-   if (res == MATCH_INIT && PLocalStackEmpty(matcher_stack))
-   {
-      /*fprintf(stderr, "$ with matching substitution ");
-      SubstPrint(stderr, subst, sig, DEREF_ONCE);
-      fprintf(stderr, ".\n");*/
-
-      res = PLocalStackTop(to_match_stack);
-
-   }
-   else
-   {
-      res = NOT_MATCHED;
+      const int offset = start_idx + TermIsAppliedVar(to_match) ? 1 : 0;
+      assert(matcher->arity + offset <= to_match->arity);
+      
+      PLocalStackEnsureSpace(jobs, 2*(matcher->arity));
+      for(int i=TermIsAppliedVar(matcher) ? 1 : 0; i<matcher->arity; i++)
+      {
+         PLocalStackPush(jobs, matcher->args[i]);
+         PLocalStackPush(jobs, to_match->args[i+offset]);
+      }
    }
 
    if(res == NOT_MATCHED)
    {
-      //fprintf(stderr, "$ with failure.\n");
-      SubstBacktrackToPos(subst,backtrack);
+      SubstBacktrackToPos(subst, backtrack);
    }
 
-   PLocalStackFree(to_match_stack);
-   PLocalStackFree(matcher_stack);
+   PLocalStackFree(jobs);
    return res;
 
 }
@@ -429,56 +408,6 @@ bool SubstComputeMatch(Term_p matcher, Term_p to_match, Subst_p subst)
 //
 /----------------------------------------------------------------------*/
 
-static __inline__ bool unify_var(Term_p var, Term_p match_to, PStack_p match_to_stack, Sig_p sig, Subst_p subst)
-{
-   if (TermIsVar(match_to))
-   {
-      if (var == match_to)
-      {
-         return true;
-      }
-      else if (var->type == match_to->type && !occur_check(var, match_to))
-      {
-         SubstAddBinding(subst, var, match_to);
-         return true;
-      }
-      return false;
-   }
-   else
-   {
-      int res = PartiallyMatchVar(var, match_to, sig, true);
-      if (res != NOT_MATCHED)
-      {
-         SubstBindAppVar(subst, var, match_to, res);
-
-         // TODO : HACK -- could and should be done more elegant
-         // In unification variable should not be bound to
-         // itself -- that is just ignored.
-         if (var->binding == var)
-         {
-            var->binding = NULL;
-            (void)PStackPopP(subst);
-         }
-
-         res += TermIsAppliedVar(match_to) ? 1 : 0;
-
-         for(int i=match_to->arity-1; i >= res; i--)
-         {
-            PStackPushP(match_to_stack, match_to->args[i]);
-         }
-      }
-      return res != NOT_MATCHED;
-   }
-}
-
-static void __inline__ push_rest(Term_p var, PStack_p stack)
-{
-   for(int i = var->arity-1; i; i--)
-   {
-      PStackPushP(stack, var->args[i]);
-   }
-}
-
 void print_stack(PStack_p stack, Sig_p sig)
 {
    for(int i=0; i<PStackGetSP(stack); i++)
@@ -490,139 +419,126 @@ void print_stack(PStack_p stack, Sig_p sig)
    }
 }
 
-UnificationResult SubstComputeMguHO(Term_p t1, Term_p t2, Subst_p subst, Sig_p sig)
+static __inline__ bool reorientation_needed(Term_p t1, Term_p t2)
 {
-   //printf("Unify %lu %lu\n", t1->entry_no, t2->entry_no);
+   if (TermIsTopLevelVar(t2))
+   {
+      return !TermIsTopLevelVar(t1) ||
+               TypeGetSymbolArity(GetHeadType(NULL, t2)) <
+               TypeGetSymbolArity(GetHeadType(NULL, t1));
+   }
+   else
+   {
+      return !TermIsTopLevelVar(t1) && t1->f_code == t2->f_code &&
+               t2->arity < t1->arity;
+   }
+}
+
+
+
+UnificationResult SubstComputeMguHO(Term_p t1, Term_p t2, Subst_p subst, Sig_p sig)
+{   
    #ifdef MEASURE_UNIFICATION
       UnifAttempts++;
    #endif
    PERF_CTR_ENTRY(MguTimer);
 
    
-   /*
-   IN HO CASE WE CAN UNIFY VARS!
-   
-   if((TermCellQueryProp(t1, TPPredPos) && TermIsVar(t2))||
-      (TermCellQueryProp(t2, TPPredPos) && TermIsVar(t1)))
+   PStackPointer backtrack = PStackGetSP(subst);  //For backtracking 
+
+   PQueue_p jobs = PQueueAlloc();
+   bool swapped = reorientation_needed(t1, t2);
+   UnificationResult res = UNIF_INIT;
+
+   PQueueStoreP(jobs, t1);
+   PQueueStoreP(jobs, t2);
+
+   while(!PQueueEmpty(jobs))
    {
-      PERF_CTR_EXIT(MguTimer);
-      return UNIF_FAILED;
+      t2 =  TermDerefAlways(PQueueGetLastP(jobs));
+      t1 =  TermDerefAlways(PQueueGetLastP(jobs));
 
-   }*/
-   PStackPointer backtrack = PStackGetSP(subst); /* For backtracking */
+      int start_idx;
 
-   bool res = true;
-   bool any_true_false = t1->f_code == SIG_TRUE_CODE || t1->f_code == SIG_FALSE_CODE
-                        || t2->f_code == SIG_TRUE_CODE || t2->f_code == SIG_FALSE_CODE;
-   PStack_p jobs_t1 = PStackAlloc();
-   PStack_p jobs_t2 = PStackAlloc();
+      if (reorientation_needed(t1, t2))
+      {
+         SWAP(t1, t2);
+      }
 
-   /*fprintf(stderr, "\n? unifiying ");
-   TermPrint(stderr, t1, sig, DEREF_NEVER);
-   fprintf(stderr, " === ");
-   TermPrint(stderr, t2, sig, DEREF_NEVER);
-   fprintf(stderr, " . ");*/
-
-   PStackPushP(jobs_t1, t1);
-   PStackPushP(jobs_t2, t2);
-
-   while(!PStackEmpty(jobs_t1) && !PStackEmpty(jobs_t2))
-   {
-      t1 = TermDerefAlways(PStackPopP(jobs_t1));
-      t2 = TermDerefAlways(PStackPopP(jobs_t2));
-
-      assert(t1->type);
-      assert(t2->type);
-      
-      bool bound = false;
-      if(TermIsVar(t1) || TermIsAppliedVar(t1))
+      if (TermIsTopLevelVar(t1))
       {
          Term_p var = TermIsAppliedVar(t1) ? t1->args[0] : t1;
+         
+         int args_eaten = PartiallyMatchVar(var, t2, sig, true);
+         if (args_eaten == NOT_MATCHED)
+         {
+            FAIL_AND_BREAK(res, UNIF_FAILED);
+         }
+         
+         SubstBindAppVar(subst, var, t2, args_eaten);
+         
+         if (var->binding == var)
+         {
+            var->binding = NULL;
+            PStackPop(subst);
+         }
 
-         bound = unify_var(var, t2, jobs_t2, sig, subst);
-         // this one can fail! -- we can reorient variables and try again.
-         if(bound && TermIsAppliedVar(t1))
-         {
-            push_rest(t1, jobs_t1);
-         }
+         start_idx = ARG_NUM(var->binding);
+         assert(args_eaten == ARG_NUM(var->binding));         
       }
-      // trying to bind t1 to t2 can fail, but t2 to t1 can succeeed
-      // this failure will be very cheap -- 
-      if (!bound && (TermIsVar(t2) || TermIsAppliedVar(t2)))
-      {         
-         Term_p var = TermIsAppliedVar(t2) ? t2->args[0] : t2;
-         if (!(bound = unify_var(var, t1, jobs_t1, sig, subst)))
-         {
-            res = false;
-            break;
-         }
-         if(TermIsAppliedVar(t2))
-         {
-            push_rest(t2, jobs_t2);
-         }
-      }
-
-      // the previous did not suceed.
-      if(!bound)
+      else
       {
-         if(t1->f_code != t2->f_code)
+         assert(!TermIsTopLevelVar(t1) && !TermIsTopLevelVar(t2));
+
+         if (t1->f_code != t2->f_code)
          {
-            res = false;
-            break;
+            FAIL_AND_BREAK(res, UNIF_FAILED);
+         }
+
+         start_idx = 0;         
+      }
+
+      const int offset = start_idx + TermIsAppliedVar(t2) ? 1 : 0;
+      assert(t1->arity + offset <= t2->arity);
+
+      assert(ARG_NUM(t2) == ARG_NUM(t1) + start_idx || UnifIsInit(res));
+      if (UnifIsInit(res))
+      {
+         res = (UnificationResult){swapped ? RightTerm : LeftTerm, 
+                                // args in t2 - eaten args - args in t1
+                                ARG_NUM(t2) - start_idx - ARG_NUM(t1)};   
+      }
+      
+      for(int i=TermIsAppliedVar(t1) ? 1 : 0; i<t1->arity; i++)
+      {
+         if(TermIsTopLevelVar(t1->args[i]) || TermIsTopLevelVar(t2->args[i]))
+         {
+            PQueueBuryP(jobs, t2->args[i+offset]);
+            PQueueBuryP(jobs, t1->args[i]);
          }
          else
          {
-            assert(t1->type);
-            assert(t2->type);
-            //assert(t1->type == t2->type);
-
-            for(int i=t1->arity-1; i>=0; i--)
-            {
-               PStackPushP(jobs_t1, t1->args[i]);
-            }
-            for(int i=t2->arity-1; i>=0; i--)
-            {
-               PStackPushP(jobs_t2, t2->args[i]);
-            }
-         }
+            PQueueStoreP(jobs, t1->args[i]);
+            PQueueStoreP(jobs, t2->args[i+offset]);
+         }  
       }
    }
 
-   UnificationResult un_res = UNIF_FAILED;
-
-   if(!res)
+   if (UnifFailed(res))
    {
-      SubstBacktrackToPos(subst,backtrack);
+      SubstBacktrackToPos(subst,backtrack);  
    }
    else
    {
       #ifdef MEASURE_UNIFICATION
          UnifSuccesses++;
       #endif
-
-      WhichTerm term_side = PStackEmpty(jobs_t1) ? RightTerm : LeftTerm;
-      if (term_side == RightTerm)
-      {
-         un_res = (UnificationResult){term_side, PStackGetSP(jobs_t2)};
-      }
-      else
-      {
-         un_res = (UnificationResult){term_side, PStackGetSP(jobs_t1)};
-      }
-
-      if (any_true_false && un_res.term_remaining != 0)
-      {
-         fprintf(stderr, "!!!! TRIED TO UNIFY WITH TRUE/FALSE !!!\n");
-         un_res = UNIF_FAILED;
-         SubstBacktrackToPos(subst, backtrack);
-      }
    }
 
-   PStackFree(jobs_t1);
-   PStackFree(jobs_t2);
+   PQueueFree(jobs);
 
    PERF_CTR_EXIT(MguTimer);
-   return un_res;
+   return res;
 }
 
 

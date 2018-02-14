@@ -45,8 +45,11 @@ typedef struct unif_res{
 } UnificationResult;
 
 extern const UnificationResult UNIF_FAILED;
+extern const UnificationResult UNIF_INIT;
 
 #define UnifFailed(u_res) ((u_res).term_side == NoTerm)
+#define UnifIsInit(u_res) ((u_res).term_side == NoTerm && (u_res).term_remaining == -2)
+
 
 #define GetSideStr(ur) ((ur).term_side == NoTerm ? "Failed" : (ur).term_side == LeftTerm ? "Left" : "Right")
 
