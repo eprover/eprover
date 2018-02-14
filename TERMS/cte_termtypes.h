@@ -170,6 +170,15 @@ typedef uintptr_t DerefType, *DerefType_p;
 #endif
 
 
+#ifdef ENABLE_LFHO
+/* Sometimes we are not interested in the arity of the term, but the 
+   number of arguments the term has. Due to encoding of applied variables,
+   we have to discard argument 0, which is actually the head variable */ 
+#define ARG_NUM(term) (TermIsAppliedVar(term) ? term->arity-1 : term->arity) 
+#else
+#define ARG_NUM(term) (term->arity)
+#endif
+
 /*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
