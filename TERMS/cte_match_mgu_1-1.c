@@ -184,7 +184,7 @@ int SubstComputeMatchHO(Term_p matcher, Term_p to_match, Subst_p subst, Sig_p si
    PLocalStackPush(jobs, to_match);
 
    // Index from which to start slicing the target term
-   int start_idx;
+   int start_idx; 
 
    while(!PLocalStackEmpty(jobs))
    {
@@ -197,8 +197,6 @@ int SubstComputeMatchHO(Term_p matcher, Term_p to_match, Subst_p subst, Sig_p si
 
          if (var->binding)
          {
-            // by now there is no prefix matching, since we already bound sthg
-            assert(res != MATCH_INIT); 
             if (TermIsPrefix(var->binding, to_match))
             {
                start_idx = ARG_NUM(var->binding);
@@ -210,6 +208,9 @@ int SubstComputeMatchHO(Term_p matcher, Term_p to_match, Subst_p subst, Sig_p si
                {
                   FAIL_AND_BREAK(res, NOT_MATCHED);
                }
+
+               assert(ARG_NUM(to_match) - start_idx - ARG_NUM(matcher) == 0 || res == MATCH_INIT);
+               res = ARG_NUM(to_match) - start_idx - ARG_NUM(matcher);
             }
             else
             {
@@ -228,6 +229,7 @@ int SubstComputeMatchHO(Term_p matcher, Term_p to_match, Subst_p subst, Sig_p si
                SubstBindAppVar(subst, var, to_match, args_eaten);                  
                start_idx = args_eaten;
 
+
                matcher_weight += TermStandardWeight(var->binding) - DEFAULT_VWEIGHT;
                if(matcher_weight > to_match_weight)
                {
@@ -235,7 +237,7 @@ int SubstComputeMatchHO(Term_p matcher, Term_p to_match, Subst_p subst, Sig_p si
                }
 
                assert(args_eaten + ARG_NUM(matcher) == ARG_NUM(to_match) || res == MATCH_INIT);
-               res = ARG_NUM(to_match) - args_eaten + ARG_NUM(matcher);
+               res = ARG_NUM(to_match) - args_eaten - ARG_NUM(matcher);
             }
          }
       }
@@ -550,8 +552,8 @@ UnificationResult SubstComputeMguHO(Term_p t1, Term_p t2, Subst_p subst, Sig_p s
       #ifdef MEASURE_UNIFICATION
          UnifSuccesses++;
       #endif
-      fprintf(stderr, "remaining: %d, side = %s\n", 
-               res.term_remaining, res.term_side == RightTerm ? "right" : "left");
+      /*fprintf(stderr, "remaining: %d, side = %s\n", 
+               res.term_remaining, res.term_side == RightTerm ? "right" : "left");*/
    }
 
    PQueueFree(jobs);
