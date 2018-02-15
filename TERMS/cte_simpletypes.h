@@ -91,7 +91,7 @@ Type_p  TypeCopy(Type_p orig);
 #define  TypeIsIndividual(t)  ((t)->f_code == STIndividuals)
 #define  TypeIsTypeConstructor(t) (TypeIsKind(t) || (TypeIsArrow(t) && TypeIsKind((t)->args[0])))
 
-#define  TypeGetSymbolArity(t) (TypeIsArrow(t) ? (t)->arity -1 : 0)
+int TypeGetSymbolArity(Type_p t); 
 
 int TypesCmp(Type_p t1, Type_p t2);
 Type_p FlattenType(Type_p type);
