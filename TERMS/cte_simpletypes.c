@@ -187,3 +187,8 @@ DStr_p TypeAppEncodedName(Type_p type)
    
    return name;
 }
+
+__inline__ int TypeGetSymbolArity(Type_p t)
+{
+  return (TypeIsArrow(t) ? (t)->arity -1 : 0);
+}
