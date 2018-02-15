@@ -450,6 +450,13 @@ UnificationResult SubstComputeMguHO(Term_p t1, Term_p t2, Subst_p subst, Sig_p s
    PQueueStoreP(jobs, t1);
    PQueueStoreP(jobs, t2);
 
+   /*fprintf(stderr, "t1 = ");
+   TermPrint(stderr, t1, sig, DEREF_NEVER);
+   fprintf(stderr, ", t2 = ");
+   TermPrint(stderr, t2, sig, DEREF_NEVER);
+   fprintf(stderr, ".\n");
+   */
+
    while(!PQueueEmpty(jobs))
    {
       t2 =  TermDerefAlways(PQueueGetLastP(jobs));
@@ -513,7 +520,7 @@ UnificationResult SubstComputeMguHO(Term_p t1, Term_p t2, Subst_p subst, Sig_p s
 
       if (UnifIsInit(res))
       {
-         res = (UnificationResult){swapped ? RightTerm : LeftTerm, 
+         res = (UnificationResult){swapped ? LeftTerm : RightTerm, 
                                 // args in t2 - eaten args - args in t1
                                 ARG_NUM(t2) - start_idx - ARG_NUM(t1)};   
       }
@@ -543,6 +550,8 @@ UnificationResult SubstComputeMguHO(Term_p t1, Term_p t2, Subst_p subst, Sig_p s
       #ifdef MEASURE_UNIFICATION
          UnifSuccesses++;
       #endif
+      fprintf(stderr, "remaining: %d, side = %s\n", 
+               res.term_remaining, res.term_side == RightTerm ? "right" : "left");
    }
 
    PQueueFree(jobs);
