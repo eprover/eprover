@@ -2086,7 +2086,7 @@ Term_p TermCreatePrefix(Term_p orig, int arg_num)
    else
    {
       assert(arg_num < ARG_NUM(orig));
-      int pref_len = arg_num + TermIsAppliedVar(orig) ? 1 : 0;
+      int pref_len = arg_num + (TermIsAppliedVar(orig) ? 1 : 0);
       prefix = TermTopAlloc(orig->f_code, pref_len);
 
       for(int i=0; i < pref_len; i++)
