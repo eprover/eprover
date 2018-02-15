@@ -164,12 +164,17 @@ int PartiallyMatchVar(Term_p var_matcher, Term_p to_match, Sig_p sig, bool perfo
 
 int SubstComputeMatchHO(Term_p matcher, Term_p to_match, Subst_p subst, Sig_p sig)
 {
-   assert(ProblemIsHO == PROBLEM_NOT_HO);
+   assert(ProblemIsHO == PROBLEM_IS_HO);
    long matcher_weight  = TermStandardWeight(matcher);
    long to_match_weight = TermStandardWeight(to_match);
 
    assert(TermStandardWeight(matcher)  == TermWeight(matcher, DEFAULT_VWEIGHT, DEFAULT_FWEIGHT));
    assert(TermStandardWeight(to_match) == TermWeight(to_match, DEFAULT_VWEIGHT, DEFAULT_FWEIGHT));
+
+   TermPrint(stderr, matcher, sig, DEREF_NEVER);
+   fprintf(stderr, " =m?> ");
+   TermPrint(stderr, to_match, sig, DEREF_NEVER);
+   fprintf(stderr, ".\n");
 
    int res = MATCH_INIT;
    if(matcher_weight > to_match_weight)
@@ -190,7 +195,6 @@ int SubstComputeMatchHO(Term_p matcher, Term_p to_match, Subst_p subst, Sig_p si
    {
       to_match =  PLocalStackPop(jobs);
       matcher  =  PLocalStackPop(jobs);
-
 
       if (TermIsTopLevelVar(matcher))
       {
@@ -262,7 +266,10 @@ int SubstComputeMatchHO(Term_p matcher, Term_p to_match, Subst_p subst, Sig_p si
          }
       }
 
-      const int offset = start_idx + TermIsAppliedVar(to_match) ? 1 : 0;
+      const int offset = start_idx + (TermIsAppliedVar(to_match) ? 1 : 0)
+                                   - (TermIsAppliedVar(matcher) ? 1 : 0);
+      fprintf(stderr, "offset = %d, start_idx = %d, |matcher| = %d, |to_match| = %d\n", 
+                      offset, start_idx, matcher->arity, to_match->arity);
       assert(matcher->arity + offset <= to_match->arity);
       
       PLocalStackEnsureSpace(jobs, 2*(matcher->arity));
@@ -306,7 +313,7 @@ int SubstComputeMatchHO(Term_p matcher, Term_p to_match, Subst_p subst, Sig_p si
 
 bool SubstComputeMatch(Term_p matcher, Term_p to_match, Subst_p subst)
 {
-   assert(ProblemIsHO == PROBLEM_NOT_HO);
+   assert(ProblemIsHO == PROBLEM_IS_HO);
    long matcher_weight  = TermStandardWeight(matcher);
    long to_match_weight = TermStandardWeight(to_match);
 
@@ -425,7 +432,9 @@ static __inline__ bool reorientation_needed(Term_p t1, Term_p t2)
    {
       return !TermIsTopLevelVar(t1) ||
                TypeGetSymbolArity(GetHeadType(NULL, t2)) <
-               TypeGetSymbolArity(GetHeadType(NULL, t1));
+               TypeGetSymbolArity(GetHeadType(NULL, t1)) ||
+               (TypeGetSymbolArity(GetHeadType(NULL, t2)) ==
+               TypeGetSymbolArity(GetHeadType(NULL, t1)) && t2->arity < t1->arity);
    }
    else
    {
@@ -442,7 +451,7 @@ UnificationResult SubstComputeMguHO(Term_p t1, Term_p t2, Subst_p subst, Sig_p s
       UnifAttempts++;
    #endif
    PERF_CTR_ENTRY(MguTimer);
-
+   assert(ProblemIsHO == PROBLEM_IS_HO);
    
    PStackPointer backtrack = PStackGetSP(subst);  //For backtracking 
 
@@ -453,16 +462,39 @@ UnificationResult SubstComputeMguHO(Term_p t1, Term_p t2, Subst_p subst, Sig_p s
    PQueueStoreP(jobs, t1);
    PQueueStoreP(jobs, t2);
 
+   fprintf(stderr, "beginning: \n");
+   TermPrint(stderr, t1, sig, DEREF_NEVER);
+   fprintf(stderr, " (head type ");
+   TypePrintTSTP(stderr, sig->type_bank, GetHeadType(sig, t1));
+   fprintf(stderr, ") =?= ");
+   TermPrint(stderr, t2, sig, DEREF_NEVER);
+   fprintf(stderr, " (head type ");
+   TypePrintTSTP(stderr, sig->type_bank, GetHeadType(sig, t2));
+   fprintf(stderr, ").\n");
+
    while(!PQueueEmpty(jobs))
    {
       t2 =  TermDerefAlways(PQueueGetLastP(jobs));
       t1 =  TermDerefAlways(PQueueGetLastP(jobs));
+
+      fprintf(stderr, "inside: \n");
+      TermPrint(stderr, t1, sig, DEREF_NEVER);
+      fprintf(stderr, " (head type ");
+      TypePrintTSTP(stderr, sig->type_bank, GetHeadType(sig, t1));
+      fprintf(stderr, ") =?= ");
+      TermPrint(stderr, t2, sig, DEREF_NEVER);
+      fprintf(stderr, " (head type ");
+      TypePrintTSTP(stderr, sig->type_bank, GetHeadType(sig, t2));
+      fprintf(stderr, ").\n");
+
+      
 
       int start_idx;
 
       if (reorientation_needed(t1, t2))
       {
          SWAP(t1, t2);
+         fprintf(stderr, "swapped.\n");
       }
 
       if (TermIsTopLevelVar(t1))
@@ -480,11 +512,14 @@ UnificationResult SubstComputeMguHO(Term_p t1, Term_p t2, Subst_p subst, Sig_p s
          if (var->binding == var)
          {
             var->binding = NULL;
+            start_idx = 0;
             PStackPop(subst);
          }
-
-         start_idx = ARG_NUM(var->binding);
-         assert(args_eaten == ARG_NUM(var->binding));         
+         else
+         {
+            start_idx = ARG_NUM(var->binding);
+            assert(args_eaten == ARG_NUM(var->binding));   
+         }      
       }
       else
       {
@@ -498,20 +533,33 @@ UnificationResult SubstComputeMguHO(Term_p t1, Term_p t2, Subst_p subst, Sig_p s
          start_idx = 0;         
       }
 
-      const int offset = start_idx + TermIsAppliedVar(t2) ? 1 : 0;
-      assert(t1->arity + offset <= t2->arity);
+      if (t1->arity > t2->arity)
+      {
+         // making sure that the argument with less arguments is on the left
+         // previously we made sure that the variable is on the left.
+         SWAP(t1, t2);
+         swapped = !swapped;
+      }
 
+      const int offset = start_idx + (TermIsAppliedVar(t2) ? 1 : 0)
+                                   - (TermIsAppliedVar(t1) ? 1 : 0);
+      assert(t1->arity + offset <= t2->arity);
       assert(ARG_NUM(t2) == ARG_NUM(t1) + start_idx || UnifIsInit(res));
+
+      fprintf(stderr, "|t1| = %d, |t2| = %d, offset = %d, start_idx = %d.\n",
+                      t1->arity, t2->arity, offset, start_idx);
+
       if (UnifIsInit(res))
       {
          res = (UnificationResult){swapped ? RightTerm : LeftTerm, 
                                 // args in t2 - eaten args - args in t1
                                 ARG_NUM(t2) - start_idx - ARG_NUM(t1)};   
       }
-      
+     
+
       for(int i=TermIsAppliedVar(t1) ? 1 : 0; i<t1->arity; i++)
       {
-         if(TermIsTopLevelVar(t1->args[i]) || TermIsTopLevelVar(t2->args[i]))
+         if(TermIsTopLevelVar(t1->args[i]) || TermIsTopLevelVar(t2->args[i+offset]))
          {
             PQueueBuryP(jobs, t2->args[i+offset]);
             PQueueBuryP(jobs, t1->args[i]);
@@ -526,13 +574,19 @@ UnificationResult SubstComputeMguHO(Term_p t1, Term_p t2, Subst_p subst, Sig_p s
 
    if (UnifFailed(res))
    {
-      SubstBacktrackToPos(subst,backtrack);  
+      SubstBacktrackToPos(subst,backtrack);
+      fprintf(stderr, "fail.\n");  
    }
    else
    {
       #ifdef MEASURE_UNIFICATION
          UnifSuccesses++;
       #endif
+      fprintf(stderr, "substitution = ");
+      SubstPrint(stderr, subst, sig, DEREF_ALWAYS);
+      fprintf(stderr, ".\n");
+      fprintf(stderr, "side = %s, remaining args = %d\n",
+              res.term_side == LeftTerm ? "left" : "right", res.term_remaining);
    }
 
    PQueueFree(jobs);
