@@ -851,11 +851,11 @@ bool TermStructEqualDeref(Term_p t1, Term_p t2, DerefType deref_1, DerefType der
 
 bool TermStructPrefixEqual(Term_p l, Term_p r, DerefType d_l, DerefType d_r, int remaining, Sig_p sig)
 {
-   /*fprintf(stderr, "? query for ");
+   fprintf(stderr, "? query for ");
    TermPrint(stderr, l, sig, DEREF_ONCE);
    fprintf(stderr, " and ");
    TermPrint(stderr, r, sig, DEREF_NEVER);
-   fprintf(stderr, " (%d).\n", remaining);*/
+   fprintf(stderr, " (%d).\n", remaining);
 
    bool res = true;
    if (remaining == 0)
