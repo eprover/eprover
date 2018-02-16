@@ -195,6 +195,11 @@ bool ForwardModifyClause(ProofState_p state,
                                 state->demods, level,
                                 control->heuristic_parms.prefer_general);
 
+      /*fprintf(stderr, "after one step: ");
+      ClausePrint(stderr, clause, true);
+      fprintf(stderr, ".\n");*/
+
+
       limited_rw = ClauseQueryProp(clause, CPLimitedRW);
       removed_lits = ClauseRemoveSuperfluousLiterals(clause);
       if(removed_lits)
