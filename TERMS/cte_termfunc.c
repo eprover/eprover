@@ -884,23 +884,18 @@ bool TermStructPrefixEqual(Term_p l, Term_p r, DerefType d_l, DerefType d_r, int
             }
          }   
       }
-   }
-
-   
+   }   
 
    if (!res)
    {
       fprintf(stderr, "! failed for ");
-      TermPrint(stderr, l, sig, DEREF_ALWAYS);
+      TermPrint(stderr, l, sig, DEREF_NEVER);
       fprintf(stderr, " and ");
-      TermPrint(stderr, r, sig, DEREF_ALWAYS);
+      TermPrint(stderr, r, sig, DEREF_NEVER);
       fprintf(stderr, " (%d).\n", remaining);
    }
 
    return res;
-
-
-
 }
 /*-----------------------------------------------------------------------
 //
