@@ -161,6 +161,7 @@ int PartiallyMatchVar(Term_p var_matcher, Term_p to_match, Sig_p sig, bool perfo
 }
 
 #define FAIL_AND_BREAK(res, val) { (res) = (val); break; }
+#define UPDATE_IF_INIT(res, new) (res) = ((res) == MATCH_INIT) ? (new) : (res)
 
 int SubstComputeMatchHO(Term_p matcher, Term_p to_match, Subst_p subst, Sig_p sig)
 {
@@ -201,7 +202,7 @@ int SubstComputeMatchHO(Term_p matcher, Term_p to_match, Subst_p subst, Sig_p si
             {
                start_idx = ARG_NUM(var->binding);
                assert(ARG_NUM(matcher) == 
-                        to_match->arity - start_idx - TermIsAppliedVar(to_match) ? 1 :0);
+                        to_match->arity - start_idx - (TermIsAppliedVar(to_match) ? 1 :0));
                
                matcher_weight += TermStandardWeight(var->binding) - DEFAULT_VWEIGHT;
                if(matcher_weight > to_match_weight)
@@ -210,7 +211,7 @@ int SubstComputeMatchHO(Term_p matcher, Term_p to_match, Subst_p subst, Sig_p si
                }
 
                assert(ARG_NUM(to_match) - start_idx - ARG_NUM(matcher) == 0 || res == MATCH_INIT);
-               res = ARG_NUM(to_match) - start_idx - ARG_NUM(matcher);
+               UPDATE_IF_INIT(res, ARG_NUM(to_match) - start_idx - ARG_NUM(matcher));
             }
             else
             {
@@ -237,7 +238,7 @@ int SubstComputeMatchHO(Term_p matcher, Term_p to_match, Subst_p subst, Sig_p si
                }
 
                assert(args_eaten + ARG_NUM(matcher) == ARG_NUM(to_match) || res == MATCH_INIT);
-               res = ARG_NUM(to_match) - args_eaten - ARG_NUM(matcher);
+               UPDATE_IF_INIT(res, ARG_NUM(to_match) - args_eaten - ARG_NUM(matcher));
             }
          }
       }
@@ -253,7 +254,7 @@ int SubstComputeMatchHO(Term_p matcher, Term_p to_match, Subst_p subst, Sig_p si
             assert(ARG_NUM(matcher) == ARG_NUM(to_match) || res == MATCH_INIT);
 
             start_idx = 0;
-            res = ARG_NUM(to_match) - ARG_NUM(matcher);
+            UPDATE_IF_INIT(res, ARG_NUM(to_match) - ARG_NUM(matcher));
          }
       }
 

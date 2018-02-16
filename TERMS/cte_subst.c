@@ -357,16 +357,16 @@ void SubstSkolemizeTerm(Term_p term, Subst_p subst, Sig_p sig)
    {
       if(!(term->binding))
       {
-    PStackPushP(subst, term);
-    term->binding =
-       TermConstCellAlloc(SigGetNewSkolemCode(sig,0));
+         PStackPushP(subst, term);
+         term->binding =
+            TermConstCellAlloc(SigGetNewSkolemCode(sig,0));
       }
    }
    else
    {
       for(i=0;i<term->arity;i++)
       {
-    SubstSkolemizeTerm(term->args[i], subst, sig);
+         SubstSkolemizeTerm(term->args[i], subst, sig);
       }
    }
 }
