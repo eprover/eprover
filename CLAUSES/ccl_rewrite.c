@@ -610,8 +610,7 @@ MatchInfo_p indexed_find_demodulator(OCB_p ocb, Term_p term,
             are variable-disjoint from the demodulator */
          repl = MakeRewrittenTerm(term, repl, mi->trailing_args);
          repl = TBInsert(bank, repl, DEREF_NEVER);      
-      }
-   
+      } 
 
       assert(mi->matcher->clause->ident);
 #ifndef NDEBUG
