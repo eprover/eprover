@@ -533,8 +533,8 @@ static void pdtree_forward(PDTree_p tree, Subst_p subst)
    FunCode   i = tree->tree_pos->trav_count, limit;
    Term_p    term = PStackGetSP(tree->term_stack) ? PStackTopP(tree->term_stack) : NULL;
 
-   //fprintf(stderr, "At the beginning of pdtree_forward\n");
-   //print_term_stack(tree->term_stack, tree->sig);
+   /*fprintf(stderr, "At the beginning of pdtree_forward\n");
+   print_term_stack(tree->term_stack, tree->sig);*/
 
    // we might have term f g b to match but in the tree there is term f g b x y 
    if (!term)
@@ -606,7 +606,7 @@ static void pdtree_forward(PDTree_p tree, Subst_p subst)
                   TermPrint(stderr, next->variable, tree->sig, DEREF_NEVER);
                   fprintf(stderr, " of type ");
                   TypePrintTSTP(stderr, tree->sig->type_bank, next->variable->type);
-                  fprintf(stderr, " to term (up to %d) ", matched_up_to);
+                  fprintf(stderr, " to term ( %d) ", matched_up_to);
                   TermPrint(stderr, term, tree->sig, DEREF_NEVER);
                   fprintf(stderr, " with binding ");
                   TermPrint(stderr, next->variable->binding, tree->sig, DEREF_NEVER);
@@ -642,7 +642,7 @@ static void pdtree_forward(PDTree_p tree, Subst_p subst)
             {
                PStackPushP(tree->term_proc, term);
                int args_eaten = next->variable->binding->arity - 
-                                 TermIsAppliedVar(next->variable->binding) ? 1 : 0;
+                                 (TermIsAppliedVar(next->variable->binding) ? 1 : 0);
                add_unapplied_rest(tree->term_stack, args_eaten, term);
             }
             next->trav_count   = PDT_NODE_INIT_VAL(tree);
@@ -1429,7 +1429,7 @@ void PDTreePrint(FILE* out, PDTree_p tree)
 static __inline__ void add_unapplied_rest(PStack_p term_stack, int eaten_args, Term_p to_match)
 {
    // make up for app encoding
-   int limit = eaten_args + TermIsAppliedVar(to_match) ? 1 : 0;
+   int limit = eaten_args + (TermIsAppliedVar(to_match) ? 1 : 0);
    for(int i=to_match->arity-1; i >= limit; i--)
    {
       PStackPushP(term_stack, to_match->args[i]);
