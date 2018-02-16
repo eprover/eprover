@@ -148,16 +148,6 @@ SimplifyRes FindSignedTopSimplifyingUnit(ClauseSet_p units, Term_p t1,
       pos = mi->matcher;
       Sig_p sig = pos->literal->bank->sig;
 
-      fprintf(stderr, "? Found ");
-      TermPrint(stderr, ClausePosGetSide(pos), sig, DEREF_NEVER);
-      fprintf(stderr, " -> ");
-      TermPrint(stderr, ClausePosGetOtherSide(pos), sig, DEREF_NEVER);
-      fprintf(stderr, " for the term pair (");
-      TermPrint(stderr, t1, sig, DEREF_NEVER);
-      fprintf(stderr, ", ");
-      TermPrint(stderr, t2, sig, DEREF_NEVER);
-      fprintf(stderr, ").\n");
-
       if(EQUIV(EqnIsPositive(pos->literal), sign)
           && (remains = 
                 SubstMatchPossiblyPartial(ClausePosGetOtherSide(pos), t2, subst, sig)) != NOT_MATCHED)
