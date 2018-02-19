@@ -132,7 +132,7 @@ static Term_p tb_termtop_insert(TB_p bank, Term_p t)
 
    assert(t);
    assert(!TermIsVar(t));
-   assert(t->f_code != bank->sig->app_var_code || TermIsAppliedVar(t));
+   assert(t->f_code != SIG_APP_VAR_CODE || TermIsAppliedVar(t));
 
    /* Infer the sort of this term (may be temporary) */
    if(t->type == NULL)
@@ -156,7 +156,7 @@ static Term_p tb_termtop_insert(TB_p bank, Term_p t)
       TermCellAssignProp(t,TPGarbageFlag, bank->garbage_state);
       TermCellSetProp(t, TPIsShared); /* Groundness may change below */
       t->v_count = 0;
-      t->f_count = t->f_code != bank->sig->app_var_code ? 1 : 0;
+      t->f_count = t->f_code != SIG_APP_VAR_CODE ? 1 : 0;
       t->weight = DEFAULT_FWEIGHT*t->f_count;
       for(int i=0; i<t->arity; i++)
       {
@@ -294,10 +294,6 @@ static Term_p tb_subterm_parse(Scanner_p in, TB_p bank)
 }
 
 
-
-
-
-
 /*-----------------------------------------------------------------------
 //
 // Function: tb_term_parse_arglist()
@@ -360,7 +356,144 @@ static int tb_term_parse_arglist(Scanner_p in, Term_p** arg_anchor,
    return arity;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: normalize_head()
+//
+//   Makes sure that term is represented in a flattened representation.
+//
+// Global Variables: -
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+Term_p normalize_head(Term_p head, Term_p* rest_args, int rest_arity, Sig_p sig)
+{
+   assert(ProblemIsHO == PROBLEM_IS_HO);
+   Term_p res;
+   if (rest_arity == 0)
+   {
+      res = head; // do not copy in case there is nothing to be copied
+   }
+   else
+   {
+      res = TermDefaultCellAlloc();
+      int total_arity = head->arity + rest_arity;
 
+      if (TermIsVar(head))
+      {
+         total_arity++; // var is going to be the first argument
+         res->args = TermArgArrayAlloc(total_arity);
+         res->f_code = SIG_APP_VAR_CODE;
+
+         res->args[0] = head;
+         for(int i=1; i<total_arity; i++)
+         {
+            res->args[i] = rest_args[i-1];
+         }
+      }
+      else if (total_arity)
+      {
+         res->f_code = head->f_code;
+         res->args = TermArgArrayAlloc(total_arity);
+         int i;
+         for(i=0; i < head->arity; i++)
+         {
+            res->args[i] = head->args[i];
+         }
+
+         for(i=0; i < rest_arity; i++)
+         {
+            res->args[head->arity + i] = rest_args[i];
+         }
+
+         if (!TermIsShared(head))
+         {
+            TermTopFree(head);
+         }
+      }
+      else
+      {
+         res->args = NULL;
+      }
+      res->arity = total_arity;
+   }
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: make_head()
+//
+//   Makes term that has function code that corresponds to f_name
+//   and no arguments.
+//
+// Global Variables: -
+//
+// Side Effects    : Input, memory operations, changes term bank
+//
+/----------------------------------------------------------------------*/
+static Term_p __inline__ make_head(Sig_p sig, const char* f_name)
+{
+   Term_p head = TermDefaultCellAlloc();
+   head->f_code = SigFindFCode(sig, f_name);
+   if(!head->f_code)
+   {
+      DStr_p msg = DStrAlloc();
+      DStrAppendStr(msg, "Function symbol ");
+      DStrAppendStr(msg, (char*)f_name);
+      DStrAppendStr(msg, " has not been defined previously.");
+      Error(DStrView(msg), SYNTAX_ERROR);
+   }
+   head->arity = 0;
+   head->args = NULL;
+
+   return head;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: parse_one_ho()
+//
+//    Parses one HO symbol. 
+//
+// Global Variables: -
+//
+// Side Effects    : Input, memory operations
+//
+/----------------------------------------------------------------------*/
+static Term_p __inline__  parse_one_ho(Scanner_p in, TB_p bank)
+{
+   assert(ProblemIsHO == PROBLEM_IS_HO);
+
+   FuncSymbType   id_type;
+   DStr_p id      = DStrAlloc();
+   Type_p type;
+   Term_p head;
+   
+   if((id_type=TermParseOperator(in, id))==FSIdentVar)
+   {
+      /* A variable may be annotated with a sort */
+      if(TestInpTok(in, Colon))
+      {
+         AcceptInpTok(in, Colon);
+         type = TypeBankParseType(in, bank->sig->type_bank);
+         head = VarBankExtNameAssertAllocSort(bank->vars, DStrView(id), type);
+      }
+      else
+      {
+         head = VarBankExtNameAssertAlloc(bank->vars, DStrView(id));
+      }
+   }
+   else
+   {
+      head = make_head(bank->sig, DStrView(id));
+   }
+
+   DStrFree(id);
+   return head;
+}
 
 
 
@@ -496,7 +629,6 @@ long TBTermNodes(TB_p bank)
 // Side Effects    : Changes term bank
 //
 /----------------------------------------------------------------------*/
-
 Term_p TBInsert(TB_p bank, Term_p term, DerefType deref)
 {
    int    i;
@@ -545,7 +677,7 @@ Term_p TBInsertNoProps(TB_p bank, Term_p term, DerefType deref)
    Term_p t;
 
    assert(term);
-   assert(term->f_code != bank->sig->app_var_code || TermIsAppliedVar(term));
+   assert(term->f_code != bank->sig->SIG_APP_VAR_CODE || TermIsAppliedVar(term));
 
 
    term = TermDeref(term, &deref);
@@ -557,7 +689,7 @@ Term_p TBInsertNoProps(TB_p bank, Term_p term, DerefType deref)
    else
    {
       t = TermTopCopyWithoutArgs(term); /* This is an unshared term cell at the moment */
-      t->properties = (term->f_code == bank->sig->app_var_code ? TPIsAppVar : TPIgnoreProps);
+      t->properties = TPIgnoreProps;
 
       assert(SysDateIsCreationDate(t->rw_data.nf_date[0]));
       assert(SysDateIsCreationDate(t->rw_data.nf_date[1]));
@@ -608,7 +740,7 @@ Term_p  TBInsertRepl(TB_p bank, Term_p term, DerefType deref, Term_p old, Term_p
    else
    {
       t = TermTopCopyWithoutArgs(term); /* This is an unshared term cell at the moment */
-      t->properties = TermIsAppliedVar(term) ? TPIsAppVar : TPIgnoreProps;
+      t->properties = TPIgnoreProps;
 
       assert(SysDateIsCreationDate(t->rw_data.nf_date[0]));
       assert(SysDateIsCreationDate(t->rw_data.nf_date[1]));
@@ -625,7 +757,7 @@ Term_p  TBInsertRepl(TB_p bank, Term_p term, DerefType deref, Term_p old, Term_p
 
 /*-----------------------------------------------------------------------
 //
-// Function: TBInsertInstantiated()
+// Function: TBInsertInstantiatedFO()
 //
 //   Insert a term into the termbank under the assumption that it is a
 //   right side of a rule (or equation) composed of terms from bank,
@@ -680,6 +812,19 @@ Term_p TBInsertInstantiatedFO(TB_p bank, Term_p term)
    return t;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: TBInsertInstantiatedHO()
+//
+//    Differs from TBInsertInstantiatedFO by inserting every binding in
+//    the termbank. The reason is that bindings might be unshared terms,
+//    so we need to make sure we share them.
+//
+// Global Variables: TBSupportReplace
+//
+// Side Effects    : Changes term bank
+//
+/----------------------------------------------------------------------*/
 Term_p TBInsertInstantiatedHO(TB_p bank, Term_p term)
 {
    int    i;
@@ -714,6 +859,18 @@ Term_p TBInsertInstantiatedHO(TB_p bank, Term_p term)
 }
 
 #ifdef ENABLE_LFHO
+/*-----------------------------------------------------------------------
+//
+// Function: TBInsertInstantiated()
+//
+//    Wrapper that chooses which function to call based on the 
+//    problem type.
+//
+// Global Variables: TBSupportReplace
+//
+// Side Effects    : Changes term bank
+//
+/----------------------------------------------------------------------*/
 __inline__ Term_p TBInsertInstantiated(TB_p bank, Term_p term)
 {
    if (ProblemIsHO == PROBLEM_IS_HO)
@@ -1232,114 +1389,22 @@ Term_p TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop)
    return handle;
 }
 
-
-Term_p normalize_head(Term_p head, Term_p* rest_args, int rest_arity, Sig_p sig)
-{
-   assert(ProblemIsHO == PROBLEM_IS_HO);
-   Term_p res;
-   if (rest_arity == 0)
-   {
-      res = head; // do not copy in case there is nothing to be copied
-   }
-   else
-   {
-      res = TermDefaultCellAlloc();
-      int total_arity = head->arity + rest_arity;
-
-      if (TermIsVar(head))
-      {
-         total_arity++; // var is going to be the first argument
-         res->args = TermArgArrayAlloc(total_arity);
-         res->f_code = sig->app_var_code;
-
-         res->args[0] = head;
-         for(int i=1; i<total_arity; i++)
-         {
-            res->args[i] = rest_args[i-1];
-         }
-      }
-      else if (total_arity)
-      {
-         res->f_code = head->f_code;
-         res->args = TermArgArrayAlloc(total_arity);
-         int i;
-         for(i=0; i < head->arity; i++)
-         {
-            res->args[i] = head->args[i];
-         }
-
-         for(i=0; i < rest_arity; i++)
-         {
-            res->args[head->arity + i] = rest_args[i];
-         }
-      }
-      else
-      {
-         res->args = NULL;
-      }
-      res->arity = total_arity;
-   }
-
-   if (res->f_code == sig->app_var_code)
-   {
-      TermCellSetProp(res, TPIsAppVar);
-   }
-   return res;
-}
-
-
-
-static Term_p __inline__ make_head(Sig_p sig, const char* f_name)
-{
-   Term_p head = TermDefaultCellAlloc();
-   head->f_code = SigFindFCode(sig, f_name);
-   if(!head->f_code)
-   {
-      DStr_p msg = DStrAlloc();
-      DStrAppendStr(msg, "Function symbol ");
-      DStrAppendStr(msg, (char*)f_name);
-      DStrAppendStr(msg, " has not been defined previously.");
-      Error(DStrView(msg), SYNTAX_ERROR);
-   }
-   head->arity = 0;
-   head->args = NULL;
-
-   return head;
-}
-
-static Term_p __inline__  parse_one_ho(Scanner_p in, TB_p bank)
-{
-   assert(ProblemIsHO == PROBLEM_IS_HO);
-
-   FuncSymbType   id_type;
-   DStr_p id      = DStrAlloc();
-   Type_p type;
-   Term_p head;
-   
-   if((id_type=TermParseOperator(in, id))==FSIdentVar)
-   {
-      /* A variable may be annotated with a sort */
-      if(TestInpTok(in, Colon))
-      {
-         AcceptInpTok(in, Colon);
-         type = TypeBankParseType(in, bank->sig->type_bank);
-         head = VarBankExtNameAssertAllocSort(bank->vars, DStrView(id), type);
-      }
-      else
-      {
-         head = VarBankExtNameAssertAlloc(bank->vars, DStrView(id));
-      }
-   }
-   else
-   {
-      head = make_head(bank->sig, DStrView(id));
-   }
-
-   DStrFree(id);
-   return head;
-}
-
-
+/*-----------------------------------------------------------------------
+//
+// Function: TBTermParseRealHO()
+//
+//   Parse a term from the given scanner object directly into the
+//   termbank. Supports TPTP thf syntax except for:
+//       - lambdas
+//       - formulas as arguments to predicates
+//       - !! and ~ @ syntax (or in general @ with no lhs argument)
+//       - ... anything else for what you get error message :)
+//
+// Global Variables: -
+//
+// Side Effects    : Input, memory operations, changes termbank.
+//
+/----------------------------------------------------------------------*/
 Term_p  TBTermParseRealHO(Scanner_p in, TB_p bank, bool check_symb_prop)
 {
    Term_p  head    = NULL;

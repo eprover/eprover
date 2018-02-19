@@ -124,7 +124,7 @@ static void push_fcodes(PStack_p stack, Term_p t)
 
 /*-----------------------------------------------------------------------
 //
-// Function: TermFPSample()
+// Function: TermFPSampleFO()
 //
 //   Sample the term at the position described by the optional
 //   arguments (encoding a (-1)-terminated position.
@@ -164,6 +164,20 @@ FunCode TermFPSampleFO(Term_p term, va_list ap)
 }
 
 #ifdef ENABLE_LFHO
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: TermFPSampleHO()
+//
+//  For details see TermFPSampleFO(). It differs by supporting
+//  prefix matching/unification, where terms can have trailing arguments.
+//
+// Global Variables:
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
 FunCode TermFPSampleHO(Term_p term, va_list ap)
 {
    assert(ProblemIsHO == PROBLEM_IS_HO);
@@ -204,6 +218,17 @@ FunCode TermFPSampleHO(Term_p term, va_list ap)
 }
 #endif
 
+/*-----------------------------------------------------------------------
+//
+// Function: TermFPSample()
+//
+//   Based on problem type, chooses appropriate fingerprinting function.
+//
+// Global Variables:
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
 FunCode  TermFPSample(Term_p term, ...)
 {
    va_list args;
@@ -282,6 +307,17 @@ FunCode TermFPFlexSampleFO(Term_p term, IntOrP* *seq)
 }
 
 #ifdef ENABLE_LFHO
+/*-----------------------------------------------------------------------
+//
+// Function: TermFPFlexSampleHO()
+//
+//   Similar to TermFPFlexSample(), but supports HO fingerprinting.
+//
+// Global Variables:
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
 FunCode TermFPFlexSampleHO(Term_p term, IntOrP* *seq)
 {
    FunCode res = 0;
@@ -330,6 +366,17 @@ FunCode TermFPFlexSampleHO(Term_p term, IntOrP* *seq)
    return res;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: TermFPFlexSample()
+//
+//   Based on problem type, chooses appropriate fingerprinting function.
+//
+// Global Variables:
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
 __inline__ FunCode TermFPFlexSample(Term_p term, IntOrP* *seq)
 {
    if (ProblemIsHO == PROBLEM_IS_HO)

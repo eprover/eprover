@@ -42,6 +42,9 @@ PERF_CTR_DEFINE(MguTimer);
 const UnificationResult UNIF_FAILED = {NoTerm, -1};
 const UnificationResult UNIF_INIT = {NoTerm, -2};
 
+#define FAIL_AND_BREAK(res, val) { (res) = (val); break; }
+#define UPDATE_IF_INIT(res, new) (res) = ((res) == MATCH_INIT) ? (new) : (res)
+
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
 /*---------------------------------------------------------------------*/
@@ -50,6 +53,35 @@ const UnificationResult UNIF_INIT = {NoTerm, -2};
 /*---------------------------------------------------------------------*/
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
+
+/*-----------------------------------------------------------------------
+//
+// Function: reorientation_needed()
+//
+//   Determines whether terms have to be reoriented in HO unification
+//   algorithm. Generalizes FO reorientation (rhs var, lhs non-var).
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+static __inline__ bool reorientation_needed(Term_p t1, Term_p t2)
+{
+   if (TermIsTopLevelVar(t2))
+   {
+      return !TermIsTopLevelVar(t1) ||
+               TypeGetSymbolArity(GetHeadType(NULL, t2)) <
+               TypeGetSymbolArity(GetHeadType(NULL, t1)) ||
+               (TypeGetSymbolArity(GetHeadType(NULL, t2)) ==
+               TypeGetSymbolArity(GetHeadType(NULL, t1)) && t2->arity < t1->arity);
+   }
+   else
+   {
+      return false;
+   }
+}
+
 
 
 /*-----------------------------------------------------------------------
@@ -104,10 +136,11 @@ static bool occur_check(restrict Term_p term, restrict Term_p var)
 //
 /----------------------------------------------------------------------*/
 
-int PartiallyMatchVar(Term_p var_matcher, Term_p to_match, Sig_p sig, bool perform_occur_check)
+int PartiallyMatchVar(Term_p var_matcher, Term_p to_match, Sig_p sig, 
+                      bool perform_occur_check)
 {
    assert(TermIsVar(var_matcher) && !var_matcher->binding);
-   assert(!TermIsAppliedVar(to_match) || to_match->f_code == sig->app_var_code);
+   assert(!TermIsAppliedVar(to_match) || to_match->f_code == sig->SIG_APP_VAR_CODE);
    assert(ProblemIsHO == PROBLEM_IS_HO || !TypeIsArrow(var_matcher->type));
    
 
@@ -160,9 +193,123 @@ int PartiallyMatchVar(Term_p var_matcher, Term_p to_match, Sig_p sig, bool perfo
    return args_to_eat;
 }
 
-#define FAIL_AND_BREAK(res, val) { (res) = (val); break; }
-#define UPDATE_IF_INIT(res, new) (res) = ((res) == MATCH_INIT) ? (new) : (res)
+/*-----------------------------------------------------------------------
+//
+// Function: SubstComputeMatch()
+//
+//   Try to compute a match from matcher onto to_match and record it in
+//   subst. Return true if match exits (in this case subst is
+//   changed and needs to be backtracked by the caller), false
+//   otherwise (subst is unchanged). Both terms are assumed to contain
+//   no bindings except those stored in subst.
+//
+//   The routine will work and compute a valid match if the two terms
+//   share variables. However, this will lead to temporary incorrect
+//   term structures (a variable may be bound to itself or a superterm
+//   containing it).
+//
+// Global Variables: -
+//
+// Side Effects    : Instantiates terms
+//
+/----------------------------------------------------------------------*/
 
+bool SubstComputeMatch(Term_p matcher, Term_p to_match, Subst_p subst)
+{
+   assert(ProblemIsHO == PROBLEM_IS_HO);
+   long matcher_weight  = TermStandardWeight(matcher);
+   long to_match_weight = TermStandardWeight(to_match);
+
+   assert(TermStandardWeight(matcher)  == TermWeight(matcher, DEFAULT_VWEIGHT, DEFAULT_FWEIGHT));
+   assert(TermStandardWeight(to_match) == TermWeight(to_match, DEFAULT_VWEIGHT, DEFAULT_FWEIGHT));
+
+   if((matcher_weight > to_match_weight) || (TermCellQueryProp(to_match, TPPredPos) && TermIsVar(matcher)))
+   {
+      return false;
+   }
+
+   bool res = true;
+   PStackPointer backtrack = PStackGetSP(subst); /* For backtracking */
+   PLocalStackInit(jobs);
+
+   PLocalStackPush(jobs, matcher);
+   PLocalStackPush(jobs, to_match);
+
+   while(!PLocalStackEmpty(jobs))
+   {
+      to_match =  PLocalStackPop(jobs);
+      matcher  =  PLocalStackPop(jobs);
+
+      if(TermIsVar(matcher))
+      {
+         assert(matcher->type);
+         assert(to_match->type);
+         if(matcher->type != to_match->type)
+         {
+            res = false;
+            break;
+         }
+         if(matcher->binding)
+         {
+            if(matcher->binding != to_match)
+            {
+               res = false;
+               break;
+            }
+         }
+         else
+         {
+            SubstAddBinding(subst, matcher, to_match);
+         }
+
+         matcher_weight += TermStandardWeight(to_match) - DEFAULT_VWEIGHT;
+
+         if(matcher_weight > to_match_weight)
+         {
+            res = false;
+            break;
+         }
+      }
+      else
+      {
+         if(matcher->f_code != to_match->f_code)
+         {
+            res = false;
+            break;
+         }
+         else
+         {
+            PLocalStackEnsureSpace(jobs, 2*matcher->arity);
+            for(int i=matcher->arity-1; i>=0; i--)
+            {
+               PLocalStackPush(jobs, matcher->args[i]);
+               PLocalStackPush(jobs, to_match->args[i]);
+            }
+         }
+      }
+   }
+
+   PLocalStackFree(jobs);
+   if(!res)
+   {
+      SubstBacktrackToPos(subst,backtrack);
+   }
+   return res;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: SubstComputeMatchHO()
+//
+//  Generalization of SubstComputeMatch(). Behaves exactly the same,
+//  except for the fact that it matches HO terms. For details, see
+//  SubstComputeMatch().
+//
+// Global Variables: -
+//
+// Side Effects    : Instantiates terms
+//
+/----------------------------------------------------------------------*/
 int SubstComputeMatchHO(Term_p matcher, Term_p to_match, Subst_p subst, Sig_p sig)
 {
    assert(ProblemIsHO == PROBLEM_IS_HO);
@@ -282,160 +429,20 @@ int SubstComputeMatchHO(Term_p matcher, Term_p to_match, Subst_p subst, Sig_p si
 
 }
 
-/*-----------------------------------------------------------------------
-//
-// Function: SubstComputeMatch()
-//
-//   Try to compute a match from matcher onto to_match and record it in
-//   subst. Return true if match exits (in this case subst is
-//   changed and needs to be backtracked by the caller), false
-//   otherwise (subst is unchanged). Both terms are assumed to contain
-//   no bindings except those stored in subst.
-//
-//   The routine will work and compute a valid match if the two terms
-//   share variables. However, this will lead to temporary incorrect
-//   term structures (a variable may be bound to itself or a superterm
-//   containing it).
-//
-// Global Variables: -
-//
-// Side Effects    : Instantiates terms
-//
-/----------------------------------------------------------------------*/
-
-bool SubstComputeMatch(Term_p matcher, Term_p to_match, Subst_p subst)
-{
-   assert(ProblemIsHO == PROBLEM_IS_HO);
-   long matcher_weight  = TermStandardWeight(matcher);
-   long to_match_weight = TermStandardWeight(to_match);
-
-   assert(TermStandardWeight(matcher)  == TermWeight(matcher, DEFAULT_VWEIGHT, DEFAULT_FWEIGHT));
-   assert(TermStandardWeight(to_match) == TermWeight(to_match, DEFAULT_VWEIGHT, DEFAULT_FWEIGHT));
-
-   if((matcher_weight > to_match_weight) || (TermCellQueryProp(to_match, TPPredPos) && TermIsVar(matcher)))
-   {
-      return false;
-   }
-
-   bool res = true;
-   PStackPointer backtrack = PStackGetSP(subst); /* For backtracking */
-   PLocalStackInit(jobs);
-
-   PLocalStackPush(jobs, matcher);
-   PLocalStackPush(jobs, to_match);
-
-   while(!PLocalStackEmpty(jobs))
-   {
-      to_match =  PLocalStackPop(jobs);
-      matcher  =  PLocalStackPop(jobs);
-
-      if(TermIsVar(matcher))
-      {
-         assert(matcher->type);
-         assert(to_match->type);
-         if(matcher->type != to_match->type)
-         {
-            res = false;
-            break;
-         }
-         if(matcher->binding)
-         {
-            if(matcher->binding != to_match)
-            {
-               res = false;
-               break;
-            }
-         }
-         else
-         {
-            SubstAddBinding(subst, matcher, to_match);
-         }
-
-         matcher_weight += TermStandardWeight(to_match) - DEFAULT_VWEIGHT;
-
-         if(matcher_weight > to_match_weight)
-         {
-            res = false;
-            break;
-         }
-      }
-      else
-      {
-         if(matcher->f_code != to_match->f_code)
-         {
-            res = false;
-            break;
-         }
-         else
-         {
-            PLocalStackEnsureSpace(jobs, 2*matcher->arity);
-            for(int i=matcher->arity-1; i>=0; i--)
-            {
-               PLocalStackPush(jobs, matcher->args[i]);
-               PLocalStackPush(jobs, to_match->args[i]);
-            }
-         }
-      }
-   }
-
-   PLocalStackFree(jobs);
-   if(!res)
-   {
-      SubstBacktrackToPos(subst,backtrack);
-   }
-   return res;
-}
-
 
 /*-----------------------------------------------------------------------
 //
-// Function: SubstComputeMgu()
+// Function: SubstComputeMguHO()
 //
-//   Compute an mgu between two terms. Currently without any special
-//   optimization (double entry checking in the  to-solve stack has
-//   been deleted as ineficient). Returns true and modifies
-//   subst if sucessful, false otherwise (as for match, see
-//   above). Terms have to be variable disjoint, otherwise behaviour
-//   is unpredictable!
-//
-//   Solution with stacks is more efficient than unsorted queues,
-//   sorted queues (variables last) are significantly better again!
+//  Generalization of SubstComputeMgu(). Behaves exactly the same,
+//  except for the fact that it unifies HO terms. For details, see
+//  SubstComputeMgu().
 //
 // Global Variables:
 //
 // Side Effects    :
 //
 /----------------------------------------------------------------------*/
-
-void print_stack(PStack_p stack, Sig_p sig)
-{
-   for(int i=0; i<PStackGetSP(stack); i++)
-   {
-      Term_p term = PStackElementP(stack, i);
-      fprintf(stderr, "%d - ", i);
-      TermPrint(stderr, term, sig, DEREF_ALWAYS);
-      fprintf(stderr, "\n");
-   }
-}
-
-static __inline__ bool reorientation_needed(Term_p t1, Term_p t2)
-{
-   if (TermIsTopLevelVar(t2))
-   {
-      return !TermIsTopLevelVar(t1) ||
-               TypeGetSymbolArity(GetHeadType(NULL, t2)) <
-               TypeGetSymbolArity(GetHeadType(NULL, t1)) ||
-               (TypeGetSymbolArity(GetHeadType(NULL, t2)) ==
-               TypeGetSymbolArity(GetHeadType(NULL, t1)) && t2->arity < t1->arity);
-   }
-   else
-   {
-      return false;
-   }
-}
-
-
-
 UnificationResult SubstComputeMguHO(Term_p t1, Term_p t2, Subst_p subst, Sig_p sig)
 {   
    #ifdef MEASURE_UNIFICATION
@@ -452,18 +459,6 @@ UnificationResult SubstComputeMguHO(Term_p t1, Term_p t2, Subst_p subst, Sig_p s
 
    PQueueStoreP(jobs, t1);
    PQueueStoreP(jobs, t2);
-
-   /*fprintf(stderr, "t1 = "); 
-   TermPrint(stderr, t1, sig, DEREF_NEVER);
-   fprintf(stderr, " (head type = ");
-   TypePrintTSTP(stderr, sig->type_bank, GetHeadType(sig, t1));
-   fprintf(stderr, "), t2 = ");
-   TermPrint(stderr, t2, sig, DEREF_NEVER);
-   fprintf(stderr, " (head type = ");
-   TypePrintTSTP(stderr, sig->type_bank, GetHeadType(sig, t2));
-   fprintf(stderr, ").\n");
-   fprintf(stderr, "|min_t| = %d, |max_t| = %d, offset_min = %d, offset_max = %d\n", 
-            t1->arity, t2->arity, offset_min, offset_max);*/
 
 #ifndef NDEBUG
    Term_p debug_t1 = t1;
@@ -520,16 +515,6 @@ UnificationResult SubstComputeMguHO(Term_p t1, Term_p t2, Subst_p subst, Sig_p s
          start_idx = 0;         
       }
 
-      //fprintf(stderr, "t1 = "); 
-      //TermPrint(stderr, t1, sig, DEREF_NEVER);
-      /*fprintf(stderr, " (head type = ");
-      TypePrintTSTP(stderr, sig->type_bank, GetHeadType(sig, t1));*/
-      //fprintf(stderr, "), t2 = ");
-      //TermPrint(stderr, t2, sig, DEREF_NEVER);
-      /*fprintf(stderr, " (head type = ");
-      TypePrintTSTP(stderr, sig->type_bank, GetHeadType(sig, t2));*/
-      //fprintf(stderr, ").\n");
-
       Term_p min_term = t1;
       Term_p max_term = t2;
       int offset_min = 0;
@@ -546,8 +531,6 @@ UnificationResult SubstComputeMguHO(Term_p t1, Term_p t2, Subst_p subst, Sig_p s
 
       offset_min += TermIsAppliedVar(min_term) ? 1 : 0;
       offset_max += (TermIsAppliedVar(max_term) ? 1 : 0);
-                     //- (TermIsAppliedVar(min_term) ? 1 : 0);
-
       
       assert(min_term->arity - offset_min <= max_term->arity - offset_max && min_term->arity >= offset_min &&
                max_term->arity >= offset_max);
@@ -558,12 +541,6 @@ UnificationResult SubstComputeMguHO(Term_p t1, Term_p t2, Subst_p subst, Sig_p s
                                                       : (!swapped ? LeftTerm : RightTerm), 
                                   ABS(ARG_NUM(t1) - ARG_NUM(t2) + start_idx)};   
       }
-
-      /*fprintf(stderr, "min_term == t1 = %d, UnifIsInit == %d, remains = %d, where = %s\n", 
-                       min_term == t1, UnifIsInit(res), res.term_remaining, res.term_side == LeftTerm ? "left" : "right");
-      fprintf(stderr, "offset_min = %d, offset_max = %d, |min_t| = %d, |max_t| = %d\n",
-                        offset_min, offset_max, min_term->arity, max_term->arity);*/
-
 
       for(int i=0; i<min_term->arity - offset_min; i++)
       {
@@ -585,17 +562,12 @@ UnificationResult SubstComputeMguHO(Term_p t1, Term_p t2, Subst_p subst, Sig_p s
    if (UnifFailed(res))
    {
       SubstBacktrackToPos(subst,backtrack);
-      //fprintf(stderr, "fail.\n");
    }
    else
    {
       #ifdef MEASURE_UNIFICATION
          UnifSuccesses++;
       #endif
-      /*fprintf(stderr, "remaining: %d, side = %s\n", 
-               res.term_remaining, res.term_side == RightTerm ? "right" : "left");
-      SubstPrint(stderr, subst, sig, DEREF_NEVER);
-      fprintf(stderr, ".\n");*/
 
       assert(TermStructPrefixEqual(res.term_side == RightTerm ? debug_t1 : debug_t2,
                                    res.term_side == RightTerm ? debug_t2 : debug_t1,
@@ -609,7 +581,25 @@ UnificationResult SubstComputeMguHO(Term_p t1, Term_p t2, Subst_p subst, Sig_p s
    return res;
 }
 
-
+/*-----------------------------------------------------------------------
+//
+// Function: SubstComputeMgu()
+//
+//   Compute an mgu between two terms. Currently without any special
+//   optimization (double entry checking in the  to-solve stack has
+//   been deleted as ineficient). Returns true and modifies
+//   subst if sucessful, false otherwise (as for match, see
+//   above). Terms have to be variable disjoint, otherwise behaviour
+//   is unpredictable!
+//
+//   Solution with stacks is more efficient than unsorted queues,
+//   sorted queues (variables last) are significantly better again!
+//
+// Global Variables:
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
 bool SubstComputeMgu(Term_p t1, Term_p t2, Subst_p subst)
 {
    //printf("Unify %lu %lu\n", t1->entry_no, t2->entry_no);
@@ -711,20 +701,36 @@ bool SubstComputeMgu(Term_p t1, Term_p t2, Subst_p subst)
 }
 
 
+// Definitions are needed only if we are working in LFHOL mode.
+// Otherwise, macros expand to usual FO functions.
 #ifdef ENABLE_LFHO
-__inline__ bool SubstMatchComplete(Term_p t, Term_p s, Subst_p subst, Sig_p sig)
+
+/*-----------------------------------------------------------------------
+//
+// Function: SubstMatchComplete()
+//
+//  Determines whether pattern matches target so that no arguments remain
+//  in the target. If so, it adds bindings to subst and returns true.
+//  Otherwise, leaves subst unchanged and returns false.
+//
+// Global Variables:
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+__inline__ bool SubstMatchComplete(Term_p pattern, Term_p target, Subst_p subst, Sig_p sig)
 {
    bool res;
    if (ProblemIsHO == PROBLEM_NOT_HO)
    {
-      res = SubstComputeMatch(t, s, subst);
+      res = SubstComputeMatch(pattern, target, subst);
    }
    else
    {
       // no arguments of s remaining after the match
       PStackPointer backtrack = PStackGetSP(subst);
 
-      int res_i =  SubstComputeMatchHO(t, s, subst, sig);
+      int res_i =  SubstComputeMatchHO(pattern, target, subst, sig);
 
       if (res_i != 0)
       {
@@ -736,6 +742,19 @@ __inline__ bool SubstMatchComplete(Term_p t, Term_p s, Subst_p subst, Sig_p sig)
    return res;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: SubstMguComplete()
+//
+//  Determines whether t unifies with s so that no arguments remain
+//  in either t or s. If so, it adds bindings to subst and returns true.
+//  Otherwise, leaves subst unchanged and returns false.
+//
+// Global Variables:
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
 __inline__ bool SubstMguComplete(Term_p t, Term_p s, Subst_p subst, Sig_p sig)
 {
    bool res;
@@ -761,22 +780,51 @@ __inline__ bool SubstMguComplete(Term_p t, Term_p s, Subst_p subst, Sig_p sig)
    return res;
 }
 
-__inline__ int SubstMatchPossiblyPartial(Term_p t, Term_p s, Subst_p subst, Sig_p sig)
+/*-----------------------------------------------------------------------
+//
+// Function: SubstMatchPossiblyPartial()
+//
+//  Determines if pattern can match target so that n arguments are
+//  remaining in target (n <= ARG_NUM(target)). In that case, it adds
+//  bindings to subst and returns n. Otherwise returns NOT_MATCHED and
+//  leaves subst unchanged.
+//
+// Global Variables:
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+__inline__ int SubstMatchPossiblyPartial(Term_p pattern, Term_p target, Subst_p subst, Sig_p sig)
 {
    int res;
    if (ProblemIsHO == PROBLEM_NOT_HO)
    {
-      res = SubstComputeMatch(t, s, subst) ? 0 : NOT_MATCHED;
+      res = SubstComputeMatch(pattern, target, subst) ? 0 : NOT_MATCHED;
    }
    else
    {
-      res = SubstComputeMatchHO(t, s, subst, sig);
+      res = SubstComputeMatchHO(pattern, target, subst, sig);
    }
 
    return res;
 }
 #endif
 
+/*-----------------------------------------------------------------------
+//
+// Function: SubstMguPossiblyPartial()
+//
+//  Determines if t can unify with s so that n arguments are
+//  remaining in either side (n <= ARG_NUM(t) || n <= ARG_NUM(s)). 
+//  In that case, it adds bindings to subst and returns object encoding n 
+//  and term in which arguments are remaining. Otherwise returns 
+//  object encoding failure and leaves subst unchanged.
+//
+// Global Variables:
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
 UnificationResult SubstMguPossiblyPartial(Term_p t, Term_p s, Subst_p subst, Sig_p sig)
 {
    UnificationResult res;

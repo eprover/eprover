@@ -23,6 +23,8 @@
 
 #include "cte_termtypes.h"
 
+// checks if the binding is present and if it is the cache for the
+// right term
 #define BINDING_FRESH(t) ((t)->binding_cache && (t)->binding && \
                            (t)->binding == (t)->args[0]->binding)
 
@@ -41,19 +43,126 @@
 /*---------------------------------------------------------------------*/
 
 
-
 /*-----------------------------------------------------------------------
 //
-// Function: TermDeref()
+// Function: clear_stale_cache()
 //
-//   Dereference a term. deref* tells us how many derefences to do
-//   at most, it will be decremented for each dereferenciation.
+//   Clears the cache if it is not up to date.
 //
 // Global Variables: -
 //
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
+void clear_stale_cache(Term_p app_var)
+{
+   assert(TermIsAppliedVar(app_var));
+   if (app_var->binding_cache && !TermIsShared(app_var->binding_cache))
+   {
+      TermTopFree(app_var->binding_cache);
+   }
+   app_var->binding_cache = NULL;
+   app_var->binding = NULL;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: register_new_cache()
+//
+//   Stores the new binding cache, bound_to pair for applied variable.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+void register_new_cache(Term_p app_var, Term_p bound_to)
+{
+   assert(TermIsAppliedVar(app_var));
+   assert(app_var->args[0]->binding);
+
+   app_var->binding = app_var->args[0]->binding;
+   app_var->binding_cache = bound_to;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: applied_var_deref()
+//
+//   Expands applied variable to a proper term.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+__inline__ Term_p applied_var_deref(Term_p orig)
+{
+   assert(TermIsAppliedVar(orig));
+   assert(orig->arity > 1);
+   assert(orig->args[0]->binding || orig->binding_cache);
+
+   Term_p res;
+
+   if (BINDING_FRESH(orig))
+   {
+      res = orig->binding_cache;      
+   }
+   else
+   {
+      clear_stale_cache(orig);
+
+      if (orig->args[0]->binding)
+      {
+         if (TermIsVar(orig->args[0]->binding))
+         {
+            res = TermTopAlloc(orig->f_code, orig->arity);
+            res->properties = orig->properties;
+            res->type = orig->type;
+            res->args[0] = orig->args[0]->binding;
+            for(int i=1; i<orig->arity; i++)
+            {
+               res->args[i] = orig->args[i];
+            }
+         }
+         else
+         {
+            Term_p bound = orig->args[0]->binding;
+            int arity = bound->arity + orig->arity-1;
+
+            res = TermTopAlloc(bound->f_code, arity);
+            res->args = TermArgArrayAlloc(arity);
+
+            res->type = orig->type; // derefing keeps the types
+            res->properties = bound->properties & (TPPredPos);
+
+            assert(!res->binding || res->f_code < 0 /* if bound -> then variable */);
+
+            for(int i=0; i<bound->arity; i++)
+            {
+               res->args[i] = bound->args[i];
+            }
+
+            for(int i=0; i<orig->arity-1; i++)
+            {
+               res->args[bound->arity + i] = orig->args[i + 1];
+            }
+         }
+
+         register_new_cache(orig, res);
+      }
+      else
+      {
+         res = orig;
+      }
+   }
+
+   
+
+   return res;
+}
+
 
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
@@ -594,6 +703,17 @@ void TermStackDelProps(PStack_p stack, TermProperties prop)
    }
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: TermStackDelProps()
+//
+//   Checks if needle is a prefix of haystack.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
 
 bool TermIsPrefix(Term_p needle, Term_p haystack)
 {
@@ -629,95 +749,20 @@ bool TermIsPrefix(Term_p needle, Term_p haystack)
    return res;
 }
 
-void clear_stale_cache(Term_p app_var)
-{
-   assert(TermIsAppliedVar(app_var));
-   if (app_var->binding_cache && !TermIsShared(app_var->binding_cache))
-   {
-      TermTopFree(app_var->binding_cache);
-   }
-   app_var->binding_cache = NULL;
-   app_var->binding = NULL;
-}
-
-void register_new_cache(Term_p app_var, Term_p bound_to)
-{
-   assert(TermIsAppliedVar(app_var));
-   assert(app_var->args[0]->binding);
-
-   app_var->binding = app_var->args[0]->binding;
-   app_var->binding_cache = bound_to;
-}
-
-
-
-__inline__ Term_p applied_var_deref(Term_p orig)
-{
-   assert(TermIsAppliedVar(orig));
-   assert(orig->arity > 1);
-   assert(orig->args[0]->binding || orig->binding_cache);
-
-   Term_p res;
-
-   if (BINDING_FRESH(orig))
-   {
-      res = orig->binding_cache;      
-   }
-   else
-   {
-      clear_stale_cache(orig);
-
-      if (orig->args[0]->binding)
-      {
-         if (TermIsVar(orig->args[0]->binding))
-         {
-            res = TermTopAlloc(orig->f_code, orig->arity);
-            res->properties = orig->properties;
-            res->type = orig->type;
-            res->args[0] = orig->args[0]->binding;
-            for(int i=1; i<orig->arity; i++)
-            {
-               res->args[i] = orig->args[i];
-            }
-         }
-         else
-         {
-            Term_p bound = orig->args[0]->binding;
-            int arity = bound->arity + orig->arity-1;
-
-            res = TermTopAlloc(bound->f_code, arity);
-            res->args = TermArgArrayAlloc(arity);
-
-            res->type = orig->type; // derefing keeps the types
-            res->properties = bound->properties & (TPPredPos | TPIsAppVar);
-
-            assert(!res->binding || res->f_code < 0 /* if bound -> then variable */);
-
-            for(int i=0; i<bound->arity; i++)
-            {
-               res->args[i] = bound->args[i];
-            }
-
-            for(int i=0; i<orig->arity-1; i++)
-            {
-               res->args[bound->arity + i] = orig->args[i + 1];
-            }
-         }
-
-         register_new_cache(orig, res);
-      }
-      else
-      {
-         res = orig;
-      }
-   }
-
-   
-
-   return res;
-}
 
 #ifdef ENABLE_LFHO
+/*-----------------------------------------------------------------------
+//
+// Function: MakeRewrittenTerm()
+//
+//   Rewrite the prefix of orig using new, leaving remaining_orig
+//   arguments of orig intact.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
 __inline__ Term_p MakeRewrittenTerm(Term_p orig, Term_p new, int remaining_orig)
 {  
    if (remaining_orig)
@@ -736,7 +781,7 @@ __inline__ Term_p MakeRewrittenTerm(Term_p orig, Term_p new, int remaining_orig)
       
 
       new_term->type = orig->type; // no inference after this step -- speedup.
-      new_term->properties = orig->properties & (TPIsAppVar | TPPredPos);
+      new_term->properties = orig->properties & (TPPredPos);
 
       for(int i=0; i < new->arity; i++)
       {

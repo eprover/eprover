@@ -223,8 +223,12 @@ void SigInsertInternalCodes(Sig_p sig)
    sig->answer_code =  SigInsertId(sig, "$answer", 1, true);
    SigSetFuncProp(sig, sig->answer_code, FPInterpreted|FPPseudoPred);
 
-   sig->app_var_code =  SigInsertId(sig, "$@_var", 1, true);
-   assert(sig->app_var_code == SIG_APP_VAR_CODE);
+#ifndef NDEBUG
+   // surpressing compiler warning
+   FunCode SIG_APP_VAR_CODE =  
+#endif
+   SigInsertId(sig, "$@_var", 1, true);
+   assert(SIG_APP_VAR_CODE == SIG_APP_VAR_CODE); //for future code changes
 
 
    Type_p* args = TypeArgArrayAlloc(2);
@@ -1593,7 +1597,8 @@ void SigUpdateFeatureOffset(Sig_p sig, FunCode f)
    }
 }
 
-
+// TODO: Used for app encoder purposes only only.
+// Can be removed after testing.
 FunCode SigGetTypedApp(Sig_p sig, Type_p arg1, Type_p arg2, Type_p ret)
 {
    DStr_p typed_app_name = DStrAlloc();
@@ -1624,6 +1629,7 @@ FunCode SigGetTypedApp(Sig_p sig, Type_p arg1, Type_p arg2, Type_p ret)
 
    return ret_fcode;
 }
+
 
 void SigPrintAppEncodedDecls(FILE* out, Sig_p sig)
 {

@@ -84,7 +84,6 @@ typedef enum
                                    this occurs with positive polarity. */
    TPNegPolarity      = 1<<19,  /* In the term encoding of a formula,
                                    this occurs with negative polarity. */
-   TPIsAppVar         = 1<<20,
 }TermProperties;
 
 
@@ -270,13 +269,26 @@ void    TermStackDelProps(PStack_p stack, TermProperties prop);
 /*                  Inline functions                                   */
 /*---------------------------------------------------------------------*/
 
+// forward declaration of function used in inline functions 
 Term_p applied_var_deref(Term_p orig);
+
+/*-----------------------------------------------------------------------
+//
+// Function: GetHeadType()
+//
+//   Returns the type of the head term symbol.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
 static __inline__ Type_p GetHeadType(Sig_p sig, Term_p term)
 {
 #ifdef ENABLE_LFHO
    if (TermIsAppliedVar(term))
    {
-      assert(!sig || term->f_code == sig->app_var_code);
+      assert(!sig || term->f_code == sig->SIG_APP_VAR_CODE);
       return term->args[0]->type;
    }
    else if (TermIsVar(term))
@@ -286,7 +298,7 @@ static __inline__ Type_p GetHeadType(Sig_p sig, Term_p term)
    }
    else
    {
-      assert(term->f_code != sig->app_var_code);
+      assert(term->f_code != sig->SIG_APP_VAR_CODE);
       return SigGetType(sig, term->f_code);
    }
 #else
@@ -298,16 +310,15 @@ static __inline__ Type_p GetHeadType(Sig_p sig, Term_p term)
 
 /*-----------------------------------------------------------------------
 //
-// Function: TermDerefAlways()
+// Function: deref_step()
 //
-//   Dereference a term as many times as possible.
+//   Dereference term once
 //
 // Global Variables: -
 //
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
-
 static __inline__ Term_p deref_step(Term_p orig)
 {
    assert(TermIsTopLevelVar(orig));
@@ -323,6 +334,17 @@ static __inline__ Term_p deref_step(Term_p orig)
    }
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: TermDerefAlways()
+//
+//   Dereference a term as many times as possible.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
 static __inline__ Term_p TermDerefAlways(Term_p term)
 {
    assert(TermIsTopLevelVar(term) || !(term->binding));
@@ -410,7 +432,7 @@ static __inline__ Term_p TermTopCopyWithoutArgs(restrict Term_p source)
    Term_p handle = TermDefaultCellAlloc();
 
    /* All other properties are tied to the specific term! */
-   handle->properties = (source->properties&(TPPredPos|TPIsAppVar));
+   handle->properties = (source->properties&(TPPredPos));
    TermCellDelProp(handle, TPOutputFlag); /* As it gets a new id below */
 
    handle->f_code = source->f_code;
