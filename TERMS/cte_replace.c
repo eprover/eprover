@@ -214,7 +214,9 @@ Term_p TBTermPosReplace(TB_p bank, Term_p repl, TermPos_p pos,
       TermPrint(stderr, MakeRewrittenTerm(old_into, repl, remains), bank->sig, DEREF_ALWAYS);
       fprintf(stderr, ".\n");*/
 
-      repl = TBInsertNoProps(bank, MakeRewrittenTerm(TermDerefAlways(old_into), TermDerefAlways(repl), remains) , deref);
+      repl = TBInsertNoProps(bank, MakeRewrittenTerm(TermDerefAlways(old_into), 
+                                                     TermDerefAlways(repl), remains) , 
+                             deref);
    }
    else
    {
