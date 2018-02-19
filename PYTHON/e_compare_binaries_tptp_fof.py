@@ -32,7 +32,8 @@ def cmp_binaries(bin1, bin2, test_folder, limit=None, timeout=60):
       exp_status = get_theorem_status(filepath)
         
       args_bin1 = [bin1, filepath, '--auto', '--silent',
-                      '--cpu-limit={0}'.format(timeout)]
+                      '--cpu-limit={0}'.format(timeout),
+                      '--detsort-rw', '--detsort-new']
       bin1_indexed_res  = run_e(args_bin1)
 
       args_bin2  = [bin2] + args_bin1[1:]
