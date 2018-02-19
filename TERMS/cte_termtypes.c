@@ -651,7 +651,7 @@ void register_new_cache(Term_p app_var, Term_p bound_to)
 
 
 
-Term_p applied_var_deref(Term_p orig)
+__inline__ Term_p applied_var_deref(Term_p orig)
 {
    assert(TermIsAppliedVar(orig));
    assert(orig->arity > 1);
