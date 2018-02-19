@@ -178,6 +178,7 @@ int SubstComputeMatchHO(Term_p matcher, Term_p to_match, Subst_p subst, Sig_p si
       return NOT_MATCHED;
    }
 
+   
    PStackPointer backtrack = PStackGetSP(subst);
    PLocalStackInit(jobs);
 

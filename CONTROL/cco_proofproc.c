@@ -1312,6 +1312,7 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control,
 
    clause = control->hcb->hcb_select(control->hcb,
                                      state->unprocessed);
+
    //EvalListPrintComment(GlobalOut, clause->evaluations); printf("\n");
    if(OutputLevel==1)
    {

@@ -182,23 +182,12 @@ bool ForwardModifyClause(ProofState_p state,
    bool limited_rw;
    bool condensed;
 
-   /*fprintf(stderr, "Started forward modification of ");
-   ClausePrint(stderr, clause, true);
-   fprintf(stderr, ".\n");*/
-
-   
-
    while(!done)
    {
       ClauseComputeLINormalform(control->ocb,
                                 state->terms, clause,
                                 state->demods, level,
                                 control->heuristic_parms.prefer_general);
-
-      /*fprintf(stderr, "after one step: ");
-      ClausePrint(stderr, clause, true);
-      fprintf(stderr, ".\n");*/
-
 
       limited_rw = ClauseQueryProp(clause, CPLimitedRW);
       removed_lits = ClauseRemoveSuperfluousLiterals(clause);
