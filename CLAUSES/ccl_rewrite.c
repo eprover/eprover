@@ -79,6 +79,10 @@ static bool instance_is_rule(OCB_p ocb, TB_p bank,
    TermPrint(stderr, rside, bank->sig, DEREF_ONCE);
    fprintf(stderr, " } is a rewrite rule -- ");*/
 
+   if (rside == bank->true_term)
+   {
+     return false;
+   }
 
 
    if(RewriteStrongRHSInst)
@@ -627,6 +631,8 @@ MatchInfo_p indexed_find_demodulator(OCB_p ocb, Term_p term,
          fprintf(stderr, " ( instantiated ");
          TermPrint(stderr, ClausePosGetOtherSide(mi->matcher), bank->sig, DEREF_ONCE);
          fprintf(stderr, " ). \n");
+         fprintf(stderr, "Query term: ");
+         TermPrint(stderr, term, bank->sig, DEREF_NEVER);
       }
 #endif
       
@@ -768,7 +774,7 @@ static Term_p term_li_normalform(RWDesc_p desc, Term_p term,
       assert(!TermIsRewritten(term));
       return term;
    }
-   while(modified)
+   while(modified && term != desc->bank->true_term)
    {
       modified = term_subterm_rewrite(desc, &term);
 
@@ -987,7 +993,8 @@ static long term_find_rw_clauses(Clause_p demod,
 
    BWRWMatchAttempts++;
    int remains = NOT_MATCHED;
-   if((remains = SubstMatchPossiblyPartial(lterm, term, subst, ocb->sig)) != NOT_MATCHED)
+   if(rterm != eqn->bank->true_term && 
+       (remains = SubstMatchPossiblyPartial(lterm, term, subst, ocb->sig)) != NOT_MATCHED)
    {
       BWRWMatchSuccesses++;
       if(oriented
