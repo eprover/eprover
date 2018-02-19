@@ -51,7 +51,8 @@ extern const UnificationResult UNIF_INIT;
 #define UnifIsInit(u_res) ((u_res).term_side == NoTerm && (u_res).term_remaining == -2)
 
 
-#define GetSideStr(ur) ((ur).term_side == NoTerm ? "Failed" : (ur).term_side == LeftTerm ? "Left" : "Right")
+#define GetSideStr(ur) ((ur).term_side == NoTerm ? "Failed" : \
+                          (ur).term_side == LeftTerm ? "Left" : "Right")
 
 
 /*---------------------------------------------------------------------*/
@@ -78,16 +79,23 @@ UnificationResult SubstComputeMguHO(Term_p t1, Term_p t2, Subst_p subst, Sig_p s
 
 
 #ifdef ENABLE_LFHO
+
+// If we're working in HOL mode, we choose run FO/HO unification/matching
+// based ont the problem type.
 bool SubstMatchComplete(Term_p t, Term_p s, Subst_p subst, Sig_p sig);
 bool SubstMguComplete(Term_p t, Term_p s, Subst_p subst, Sig_p sig);
-
 int SubstMatchPossiblyPartial(Term_p t, Term_p s, Subst_p subst, Sig_p sig);
+
 #else
+
+// If we are working in FOL mode, we revert to normal E behavior.
 #define SubstMatchComplete(t, s, subst, sig) (SubstComputeMatch(t, s, subst))
 #define SubstMguComplete(t, s, subst, sig)   (SubstComputeMgu(t, s, subst))
 #define SubstMatchPossiblyPartial(t, s, subst, sig)  (SubstComputeMatch(t, s, subst) ? 0 : NOT_MATCHED)
+
 #endif
 
+// the return result is considerably more complex, so we have to run wrapper
 UnificationResult SubstMguPossiblyPartial(Term_p t, Term_p s, Subst_p subst, Sig_p sig);
 
 

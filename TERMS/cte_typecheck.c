@@ -38,6 +38,20 @@ Changes
 /*---------------------------------------------------------------------*/
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
+
+/*-----------------------------------------------------------------------
+//
+// Function: term_determine_type
+//
+//   Given number of arguments and type, return the type of the term
+//   resulting from consuming the number of arguments. Returned type is
+//   shared.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
 Type_p term_determine_type(Term_p term, Type_p type, TypeBank_p bank)
 {
    int term_arity = term->arity - (TermIsAppliedVar(term) ? 1 : 0);
@@ -197,7 +211,7 @@ bool TypeCheckConsistent(Sig_p sig, Term_p term)
 /----------------------------------------------------------------------*/
 void TypeInferSort(Sig_p sig, Term_p term)
 {
-   assert(term->f_code != sig->app_var_code || TermIsAppliedVar(term));
+   assert(term->f_code != sig->SIG_APP_VAR_CODE || TermIsAppliedVar(term));
 
    Type_p type;
    Type_p sort, *args;

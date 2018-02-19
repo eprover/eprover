@@ -16,6 +16,9 @@ Contents
 
 Changes
 
+<2> Somewhere at the end of 2017. Completely rewritten 
+    by Petar Vukmirovic.
+
 <1> Sat Jul  6 09:45:14 CEST 2013
     New
 
@@ -65,7 +68,6 @@ Type_p  GetReturnSort(Type_p type);
 #define TypeCellFree(junk) SizeFree(junk, sizeof(TypeCell))
 
 void TypeFree(Type_p junk);
-
 
 static __inline__ Type_p TypeAlloc(TypeConsCode c_code, int arity, Type_p* args)
 {

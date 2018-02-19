@@ -209,18 +209,15 @@ void VarPrint(FILE* out, FunCode var)
 
 /*-----------------------------------------------------------------------
 //
-// Function: TermPrint()
+// Function: TermPrintFO()
 //
-//   Print a term to the given stream.
+//   Print a FO term to the given stream.
 //
 // Global Variables: TermPrintLists
 //
 // Side Effects    : Output
 //
 /----------------------------------------------------------------------*/
-
-//#define PRINT_SIG_DBG 1
-
 void TermPrintFO(FILE* out, Term_p term, Sig_p sig, DerefType deref)
 {
    assert(term);
@@ -286,6 +283,18 @@ void TermPrintFO(FILE* out, Term_p term, Sig_p sig, DerefType deref)
 #define PRINT_AT
 
 #ifdef ENABLE_LFHO
+/*-----------------------------------------------------------------------
+//
+// Function: TermPrintHO()
+//
+//   Print a HO term to the given stream. If PRINT_AT is defined
+//   terms will be delimited by @, otherwise " ".
+//
+// Global Variables: TermPrintLists
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
 void TermPrintHO(FILE* out, Term_p term, Sig_p sig, DerefType deref)
 {
    assert(term);
@@ -849,6 +858,19 @@ bool TermStructEqualDeref(Term_p t1, Term_p t2, DerefType deref_1, DerefType der
    return true;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: TermStructPrefixEqual()
+//
+//   Return true if the two terms have the same
+//   structures where there are trailing arguments in r. 
+//   Dereference both terms as designated by deref_1, deref_2.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
 bool TermStructPrefixEqual(Term_p l, Term_p r, DerefType d_l, DerefType d_r, int remaining, Sig_p sig)
 {
    bool res = true;
@@ -1295,7 +1317,6 @@ long TermSymTypeWeight(Term_p term, long vweight, long fweight, long
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
-
 long TermDepth(Term_p term)
 {
    long maxdepth = 0, ldepth;
@@ -1320,7 +1341,6 @@ long TermDepth(Term_p term)
 // Side Effects    : Sets TPOpFlag
 //
 /----------------------------------------------------------------------*/
-
 bool TermIsDefTerm(Term_p term, int min_arity)
 {
    int i;
@@ -1366,7 +1386,6 @@ bool TermIsDefTerm(Term_p term, int min_arity)
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
-
 bool TermHasFCode(Term_p term, FunCode f)
 {
    int i;
@@ -1399,7 +1418,6 @@ bool TermHasFCode(Term_p term, FunCode f)
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
-
 bool TermHasUnboundVariables(Term_p term)
 {
    bool res = false;
@@ -1666,7 +1684,6 @@ void TermAddSymbolDistExist(Term_p term, long *dist_array,
 // Side Effects    : Changes the arrays.
 //
 /----------------------------------------------------------------------*/
-
 void TermAddSymbolFeaturesLimited(Term_p term, long depth,
                                   long *freq_array, long* depth_array,
                                   long limit)
@@ -1716,7 +1733,6 @@ void TermAddSymbolFeaturesLimited(Term_p term, long depth,
 // Side Effects    : Changes the arrays.
 //
 /----------------------------------------------------------------------*/
-
 void TermAddSymbolFeatures(Term_p term, PStack_p mod_stack, long depth,
                            long *feature_array, long offset)
 {
@@ -1854,7 +1870,7 @@ long TermAddFunOcc(Term_p term, PDArray_p f_occur, PStack_p res_stack)
       term = PStackPopP(stack);
       if(!TermIsVar(term))
       {
-         if(!PDArrayElementInt(f_occur, term->f_code))
+         if(!TermIsAppliedVar(term) && !PDArrayElementInt(f_occur, term->f_code))
          {
             res++;
             PStackPushInt(res_stack, term->f_code);
@@ -2000,6 +2016,7 @@ bool TermIsUntyped(Term_p term)
    return res;
 }
 
+// those two can safely be deleted after testing.
 Term_p discard_last(Term_p term)
 {
    if (TermIsAppliedVar(term) && term->arity == 2)
@@ -2008,7 +2025,7 @@ Term_p discard_last(Term_p term)
    }
 
    Term_p res = TermTopAlloc(term->f_code, term->arity-1);
-   res->properties = term->properties & TPIsAppVar;
+   res->properties = term->properties;
    for(int i=0; i<term->arity-1; i++)
    {
       res->args[i] = term->args[i];

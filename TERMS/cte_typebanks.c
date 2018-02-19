@@ -1,8 +1,38 @@
+/*-----------------------------------------------------------------------
+
+File  : cte_typebanks.c
+
+Author: Petar Vukmirovic
+
+Contents
+
+  This module implements type sharing invariant: 
+   -Each two types that are structuraly the same,
+    should be the same object in memory.
+
+  Sharing is inspired by term sharing (hashing + splay trees).
+
+  Copyright 1998, 1999 by the author.
+  This code is released under the GNU General Public Licence and
+  the GNU Lesser General Public License.
+  See the file COPYING in the main E directory for details..
+  Run "eprover -h" for contact information.
+
+Created: Tue Feb 24 01:23:24 MET 1998 - Ripped out of the now obsolete
+         cte_terms.h
+
+-----------------------------------------------------------------------*/
+
+
 #include "cte_typebanks.h"
 #include "cte_functypes.h"
 #include <clb_verbose.h>
 
+/*---------------------------------------------------------------------*/
+/*                        Global Variables                             */
+/*---------------------------------------------------------------------*/
 #define REALLOC_STEP       16
+
 
 #define GetNameId(node)       ((node)->val1.i_val)
 #define GetArity(node)        ((node)->val2.i_val)
@@ -11,6 +41,16 @@
 #define type_a1hash(t) (type_a0hash(t)^(((intptr_t)(t)->args[0])>>3))
 #define type_aritynhash(t) (type_a1hash(t)^(((intptr_t)(t)->args[1])>>4))
 
+#define hash_type(type)\
+((((type)->arity == 0)?\
+  type_a0hash(type):\
+  (((type)->arity == 1)?type_a1hash(type):type_aritynhash(type)))\
+   &(TYPEBANK_HASH_MASK))
+
+
+/*---------------------------------------------------------------------*/
+/*                      Forward Declarations                           */
+/*---------------------------------------------------------------------*/
 typedef struct back_idx_info
 {
    const char* name;
@@ -20,6 +60,21 @@ typedef struct back_idx_info
 Type_p parse_single_type(Scanner_p in, TypeBank_p bank);
 FuncSymbType TermParseOperator(Scanner_p in, DStr_p id);
 
+/*---------------------------------------------------------------------*/
+/*                         Internal Functions                          */
+/*---------------------------------------------------------------------*/
+
+/*-----------------------------------------------------------------------
+//
+// Function: bii_alloc()
+//
+//   Allocates one cell of bacl_idx_info based on construction arguments.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
 static __inline__ back_idx_info* bii_alloc(const char* name, int arity)
 {
    back_idx_info* ptr = SizeMalloc(sizeof(back_idx_info));
@@ -28,13 +83,18 @@ static __inline__ back_idx_info* bii_alloc(const char* name, int arity)
    return ptr;
 }
 
-#define hash_type(type)\
-((((type)->arity == 0)?\
-  type_a0hash(type):\
-  (((type)->arity == 1)?type_a1hash(type):type_aritynhash(type)))\
-   &(TYPEBANK_HASH_MASK))
 
-
+/*-----------------------------------------------------------------------
+//
+// Function: cmp_types()
+//
+//   Wrapper for ad-hoc type comparison.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
 int cmp_types(const void* el1, const void* el2)
 {
    assert(el1 && el2);
@@ -46,7 +106,17 @@ int cmp_types(const void* el1, const void* el2)
    return res;
 }
 
-
+/*-----------------------------------------------------------------------
+//
+// Function: type_arg_realloc()
+//
+//   Reallocate new argument array if needed.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
 static __inline__ void type_arg_realloc(Type_p** args, int current, int new)
 {
   Type_p* new_arr = SizeMalloc(new * sizeof(Type_p));
@@ -61,8 +131,162 @@ static __inline__ void type_arg_realloc(Type_p** args, int current, int new)
   *args = new_arr;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: handle_args()
+//
+//   Make sure that arguments are shared. 
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+void __inline__ handle_args(TypeBank_p bank, Type_p t)
+{
+   assert(bank);
+   assert(t);
+
+   for(int i=0; i<t->arity; i++)
+   {
+      assert(t->args[i]);
+      t->args[i] = t->args[i]->type_uid == INVALID_TYPE_UID ?
+                   TypeBankInsertTypeShared(bank, t->args[i]) : t->args[i];
+   }
+}
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: ensure_not_kind()
+//
+//   Reports an error if argument is kind.
+//
+// Global Variables: -
+//
+// Side Effects    : Stops program execution on error.
+//
+/----------------------------------------------------------------------*/
+static void __inline__ ensure_not_kind(Type_p arg, Scanner_p in)
+{
+   if (TypeIsKind(arg))
+   {
+      AktTokenError(in, "Only ground types supported.", true);
+   }
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: parse_single_type()
+//
+//   Parses one type and makes sure it is shared.
+//
+// Global Variables: -
+//
+// Side Effects    : input reading, memory management
+//
+/----------------------------------------------------------------------*/
+Type_p parse_single_type(Scanner_p in, TypeBank_p bank)
+{
+   DStr_p         id;
+   FuncSymbType   id_type;
+   Type_p         type;
+   Type_p*        typeArgs = NULL;
+   int            arity = 0;
+
+   id = DStrAlloc();
+
+   id_type = TermParseOperator(in, id);
+   if (id_type != FSIdentFreeFun && id_type != FSIdentInterpreted)
+   {
+      AktTokenError(in, "Function identifier expected", true);
+   }
+
+   if (TestInpTok(in, OpenBracket))
+   {
+      AcceptInpTok(in, OpenBracket);
+
+      int allocated = REALLOC_STEP;
+      typeArgs = TypeArgArrayAlloc(allocated);
+
+      Type_p arg = parse_single_type(in, bank);
+      ensure_not_kind(arg, in);
+
+      typeArgs[arity++] = arg;
+
+      while(TestInpTok(in, Comma))
+      {
+         AcceptInpTok(in, Comma);
+
+         if (arity == allocated)
+         {
+            type_arg_realloc(&typeArgs, allocated, allocated + REALLOC_STEP);
+            allocated += REALLOC_STEP;
+         }
+
+         arg = parse_single_type(in, bank);
+         ensure_not_kind(arg, in);
+
+         typeArgs[arity++] = arg;
+      }
+      AcceptInpTok(in, CloseBracket);
+
+      //If f_code did not exist previously, it is a type constructor
+      TypeConsCode tc_code;
+      if ((tc_code = TypeBankFindTCCode(bank, DStrView(id))) == NAME_NOT_FOUND)
+      {
+         tc_code = TypeBankDefineTypeConstructor(bank, DStrView(id), arity);
+      }
+      else if (TypeBankFindTCArity(bank, tc_code) != arity)
+      {
+         DStr_p msg = DStrAlloc();
+         DStrAppendStr(msg, "Redefition of type constructor ");
+         DStrAppendStr(msg, (char*)TypeBankFindTCName(bank, tc_code));
+         DStrAppendStr(msg, ". Mismatch in number of arguments.");
+         AktTokenError(in, DStrView(msg), true);
+      }
+
+      type_arg_realloc(&typeArgs, allocated, arity); // cut array to right size
+      type = TypeAlloc(tc_code, arity, typeArgs);
+   }
+   else
+   {
+      TypeConsCode tc_code;
+      if ((tc_code = TypeBankFindTCCode(bank, DStrView(id))) == NAME_NOT_FOUND)
+      {
+         tc_code = TypeBankDefineSimpleSort(bank, DStrView(id));
+      }
+      else if (TypeBankFindTCArity(bank, tc_code) != 0)
+      {
+         DStr_p msg = DStrAlloc();
+         DStrAppendStr(msg, "Type constructor ");
+         DStrAppendStr(msg, (char*)TypeBankFindTCName(bank, tc_code));
+         DStrAppendStr(msg, "has not been declared as simple sort.");
+         AktTokenError(in, DStrView(msg), true);
+      }
+      type = AllocSimpleSort(tc_code);
+   }
+
+
+   DStrFree(id);
+   return TypeBankInsertTypeShared(bank, type);
+}
+
+/*---------------------------------------------------------------------*/
+/*                         Exported Functions                          */
+/*---------------------------------------------------------------------*/
+
+/*-----------------------------------------------------------------------
+//
+// Function: TypeBankAlloc()
+//
+//   Allocate TypeBank cell.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
 TypeBank_p TypeBankAlloc()
 {
    TypeBank_p handle = TypeBankCellAlloc();
@@ -105,19 +329,18 @@ TypeBank_p TypeBankAlloc()
    return handle;
 }
 
-void __inline__ handle_args(TypeBank_p bank, Type_p t)
-{
-   assert(bank);
-   assert(t);
-
-   for(int i=0; i<t->arity; i++)
-   {
-      assert(t->args[i]);
-      t->args[i] = t->args[i]->type_uid == INVALID_TYPE_UID ?
-                   TypeBankInsertTypeShared(bank, t->args[i]) : t->args[i];
-   }
-}
-
+/*-----------------------------------------------------------------------
+//
+// Function: TypeBankInsertTypeShared()
+//
+//  Insert type t to type bank to make it shared. If the term t was not 
+//  present in the bank, return new type and free the original type.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
 Type_p TypeBankInsertTypeShared(TypeBank_p bank, Type_p t)
 {
    assert(bank);
@@ -154,7 +377,17 @@ Type_p TypeBankInsertTypeShared(TypeBank_p bank, Type_p t)
    return res;
 }
 
-
+/*-----------------------------------------------------------------------
+//
+// Function: TypeBankDefineTypeConstructor()
+//
+//    Register type constructor with given name and arity.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
 TypeConsCode TypeBankDefineTypeConstructor(TypeBank_p bank, const char* name, int arity)
 {
    assert(bank);
@@ -192,12 +425,35 @@ TypeConsCode TypeBankDefineTypeConstructor(TypeBank_p bank, const char* name, in
    }
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: TypeBankDefineSimpleSort()
+//
+//    Register simple sort with given name.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
 TypeConsCode TypeBankDefineSimpleSort(TypeBank_p bank, const char* name)
 {
    assert(bank);
    return TypeBankDefineTypeConstructor(bank, name, 0);
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: TypeBankFindTCCode()
+//
+//    Find type constructor code corresponding to given name. If 
+//    the name is not found NAME_NOT_FOUND is returned.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
 TypeConsCode TypeBankFindTCCode(TypeBank_p bank, const char* name)
 {
    assert(bank);
@@ -206,6 +462,19 @@ TypeConsCode TypeBankFindTCCode(TypeBank_p bank, const char* name)
    return node ? GetNameId(node) : NAME_NOT_FOUND;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: TypeBankFindTCArity()
+//
+//    Return the arity of given type constructor. Behavior is undefined
+//    if type constructor does not exist (in debug mode error will be
+//    reported).
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
 int TypeBankFindTCArity(TypeBank_p bank, TypeConsCode tc_code)
 {
    assert(tc_code != INVALID_TYPE_UID && tc_code < PStackGetSP(bank->back_idx));
@@ -214,6 +483,19 @@ int TypeBankFindTCArity(TypeBank_p bank, TypeConsCode tc_code)
    return ((back_idx_info*)PStackElementP(bank->back_idx, tc_code))->arity;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: TypeBankFindTCName()
+//
+//    Return the name of given type constructor. Behavior is undefined
+//    if type constructor does not exist (in debug mode error will be
+//    reported).
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
 const char* TypeBankFindTCName(TypeBank_p bank, TypeConsCode tc_code)
 {
    assert(tc_code != INVALID_TYPE_UID && tc_code < PStackGetSP(bank->back_idx));
@@ -222,6 +504,19 @@ const char* TypeBankFindTCName(TypeBank_p bank, TypeConsCode tc_code)
    return ((back_idx_info*)PStackElementP(bank->back_idx, tc_code))->name;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: TypeBankParseType()
+//
+//    Parses the TPTP FO type syntax (A1 * A2 * ... * An) > B
+//    or TPTP HO type syntax A1 > A2 > ... > An. Mixing of syntaxes
+//    is not allowed.
+//
+// Global Variables: -
+//
+// Side Effects    : input reading, memory management
+//
+/----------------------------------------------------------------------*/
 Type_p TypeBankParseType(Scanner_p in, TypeBank_p bank)
 {
    Type_p leftArg    = NULL;
@@ -390,102 +685,18 @@ Type_p TypeBankParseType(Scanner_p in, TypeBank_p bank)
    return TypeBankInsertTypeShared(bank, res);
 }
 
-
-static void __inline__ ensure_not_kind(Type_p arg, Scanner_p in)
-{
-   if (TypeIsKind(arg))
-   {
-      AktTokenError(in, "Only ground types supported.", true);
-   }
-}
-
-
-Type_p parse_single_type(Scanner_p in, TypeBank_p bank)
-{
-   DStr_p         id;
-   FuncSymbType   id_type;
-   Type_p         type;
-   Type_p*        typeArgs = NULL;
-   int            arity = 0;
-
-   id = DStrAlloc();
-
-   id_type = TermParseOperator(in, id);
-   if (id_type != FSIdentFreeFun && id_type != FSIdentInterpreted)
-   {
-      AktTokenError(in, "Function identifier expected", true);
-   }
-
-   if (TestInpTok(in, OpenBracket))
-   {
-      AcceptInpTok(in, OpenBracket);
-
-      int allocated = REALLOC_STEP;
-      typeArgs = TypeArgArrayAlloc(allocated);
-
-      Type_p arg = parse_single_type(in, bank);
-      ensure_not_kind(arg, in);
-
-      typeArgs[arity++] = arg;
-
-      while(TestInpTok(in, Comma))
-      {
-         AcceptInpTok(in, Comma);
-
-         if (arity == allocated)
-         {
-            type_arg_realloc(&typeArgs, allocated, allocated + REALLOC_STEP);
-            allocated += REALLOC_STEP;
-         }
-
-         arg = parse_single_type(in, bank);
-         ensure_not_kind(arg, in);
-
-         typeArgs[arity++] = arg;
-      }
-      AcceptInpTok(in, CloseBracket);
-
-      //If f_code did not exist previously, it is a type constructor
-      TypeConsCode tc_code;
-      if ((tc_code = TypeBankFindTCCode(bank, DStrView(id))) == NAME_NOT_FOUND)
-      {
-         tc_code = TypeBankDefineTypeConstructor(bank, DStrView(id), arity);
-      }
-      else if (TypeBankFindTCArity(bank, tc_code) != arity)
-      {
-         DStr_p msg = DStrAlloc();
-         DStrAppendStr(msg, "Redefition of type constructor ");
-         DStrAppendStr(msg, (char*)TypeBankFindTCName(bank, tc_code));
-         DStrAppendStr(msg, ". Mismatch in number of arguments.");
-         AktTokenError(in, DStrView(msg), true);
-      }
-
-      type_arg_realloc(&typeArgs, allocated, arity); // cut array to right size
-      type = TypeAlloc(tc_code, arity, typeArgs);
-   }
-   else
-   {
-      TypeConsCode tc_code;
-      if ((tc_code = TypeBankFindTCCode(bank, DStrView(id))) == NAME_NOT_FOUND)
-      {
-         tc_code = TypeBankDefineSimpleSort(bank, DStrView(id));
-      }
-      else if (TypeBankFindTCArity(bank, tc_code) != 0)
-      {
-         DStr_p msg = DStrAlloc();
-         DStrAppendStr(msg, "Type constructor ");
-         DStrAppendStr(msg, (char*)TypeBankFindTCName(bank, tc_code));
-         DStrAppendStr(msg, "has not been declared as simple sort.");
-         AktTokenError(in, DStrView(msg), true);
-      }
-      type = AllocSimpleSort(tc_code);
-   }
-
-
-   DStrFree(id);
-   return TypeBankInsertTypeShared(bank, type);
-}
-
+/*-----------------------------------------------------------------------
+//
+// Function: TypePrintTSTP()
+//
+//    Prints type in either FO or HO format, based on ProblemIsHO
+//    status. 
+//
+// Global Variables: ProblemIsHO
+//
+// Side Effects    : writing to output stream
+//
+/----------------------------------------------------------------------*/
 void TypePrintTSTP(FILE* out, TypeBank_p bank, Type_p type)
 {
    assert(type);
@@ -553,6 +764,19 @@ void TypePrintTSTP(FILE* out, TypeBank_p bank, Type_p type)
    }
 }
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: TypePrintTSTP()
+//
+//    Changes return type of the given type to new_ret.
+//    
+//
+// Global Variables: ProblemIsHO
+//
+// Side Effects    : writing to output stream
+//
+/----------------------------------------------------------------------*/
 Type_p TypeChangeReturnType(TypeBank_p bank, Type_p type, Type_p new_ret)
 {
    assert(TypeIsArrow(type) || type->f_code == STIndividuals);
@@ -573,12 +797,36 @@ Type_p TypeChangeReturnType(TypeBank_p bank, Type_p type, Type_p new_ret)
    
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: tree_free_fun()
+//
+//    Frees the type. Not yet implemented.
+//    
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
 void tree_free_fun(void* a)
 {
    // Still have to figure out how types will be deleted.
    // Might have to implement GC-like mechanism.
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: TypeBankFree()
+//
+//    Frees the whole typebank.
+//    
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
 void TypeBankFree(TypeBank_p bank)
 {
    for(int i=0; i<PStackGetSP(bank->back_idx); i++)
@@ -603,6 +851,7 @@ void TypeBankFree(TypeBank_p bank)
    SizeFree(bank, sizeof(*bank));
 }
 
+// to be deleted
 void TypeBankAppEncodeTypes(FILE* out, TypeBank_p tb, bool print_type_comment)
 {
    int total_types = 0;

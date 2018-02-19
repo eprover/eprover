@@ -406,6 +406,21 @@ void SubstCompleteInstance(Subst_p subst, Term_p term,
    }
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: SubstCompleteInstance()
+//
+//   Bind variable var to prefix of term to_bind with up_to arguments
+//   eaten. Prefix will potentially be created (if it is a proper 
+//   non-variable prefix). 
+//
+//    IMPORTANT: If prefix is created it will be unshared!
+//
+// Global Variables: -
+//
+// Side Effects    : Changes subst.
+//
+/----------------------------------------------------------------------*/
 PStackPointer SubstBindAppVar(Subst_p subst, Term_p var, Term_p to_bind, int up_to)
 {
    PStackPointer ret = PStackGetSP(subst);
@@ -425,31 +440,6 @@ PStackPointer SubstBindAppVar(Subst_p subst, Term_p var, Term_p to_bind, int up_
 
    return ret;
 }
-
-/*void SubstHandleUnsharedPartialMatches(Subst_p subst, TB_p bank)
-{
-   PStackPointer i, limit;
-
-   limit = PStackGetSP(subst);
-   for(i=0; i<limit; i++)
-   {
-      Term_p var = ((Term_p)PStackElementP(subst, i));
-      Term_p binding = var->binding;
-      if (!TermIsShared(binding))
-      {
-         var->binding = TBInsert(bank, binding, DEREF_NEVER);
-#ifndef NDEBUG
-
-         if (Verbose > 1)
-         {
-            fprintf(stderr, "# Term ");
-            TermPrint(stderr, binding, bank->sig, DEREF_NEVER);
-            fprintf(stderr, " is going to be inserted, since it is not bound.\n");
-         }
-#endif
-      }
-   }
-}*/
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */

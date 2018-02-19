@@ -1725,11 +1725,11 @@ int main(int argc, char* argv[])
          Error("E ignored your precedence (or you typed it wrong more likely).", SYNTAX_ERROR);
 
       }
-      if (OCBFunWeight(proofcontrol->ocb, proofstate->signature->app_var_code) != 0)
+      if (OCBFunWeight(proofcontrol->ocb, SIG_APP_VAR_CODE) != 0)
       {
          Error("App var code does not have weight 0.", SYNTAX_ERROR);
       }
-      if (OCBFunWeight(proofcontrol->ocb, proofstate->signature->app_var_code) != 0)
+      if (OCBFunWeight(proofcontrol->ocb, SIG_APP_VAR_CODE) != 0)
       {
          Error("App var code does not have weight 0.", SYNTAX_ERROR);
       }
