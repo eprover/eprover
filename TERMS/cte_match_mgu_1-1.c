@@ -460,9 +460,9 @@ UnificationResult SubstComputeMguHO(Term_p t1, Term_p t2, Subst_p subst, Sig_p s
    TermPrint(stderr, t2, sig, DEREF_NEVER);
    fprintf(stderr, " (head type = ");
    TypePrintTSTP(stderr, sig->type_bank, GetHeadType(sig, t2));
-   fprintf(stderr, ").\n");*/
-   //fprintf(stderr, "|min_t| = %d, |max_t| = %d, offset_min = %d, offset_max = %d\n", 
-   //         t1->arity, t2->arity, offset_min, offset_max);*/
+   fprintf(stderr, ").\n");
+   fprintf(stderr, "|min_t| = %d, |max_t| = %d, offset_min = %d, offset_max = %d\n", 
+            t1->arity, t2->arity, offset_min, offset_max);*/
 
 #ifndef NDEBUG
    Term_p debug_t1 = t1;
@@ -471,6 +471,7 @@ UnificationResult SubstComputeMguHO(Term_p t1, Term_p t2, Subst_p subst, Sig_p s
 
    while(!PQueueEmpty(jobs))
    {
+      //fprintf(stderr, "|jobs|: %ld\n", PQueueCardinality(jobs));
       t2 =  TermDerefAlways(PQueueGetLastP(jobs));
       t1 =  TermDerefAlways(PQueueGetLastP(jobs)); 
 
@@ -518,6 +519,16 @@ UnificationResult SubstComputeMguHO(Term_p t1, Term_p t2, Subst_p subst, Sig_p s
          start_idx = 0;         
       }
 
+      //fprintf(stderr, "t1 = "); 
+      //TermPrint(stderr, t1, sig, DEREF_NEVER);
+      /*fprintf(stderr, " (head type = ");
+      TypePrintTSTP(stderr, sig->type_bank, GetHeadType(sig, t1));*/
+      //fprintf(stderr, "), t2 = ");
+      //TermPrint(stderr, t2, sig, DEREF_NEVER);
+      /*fprintf(stderr, " (head type = ");
+      TypePrintTSTP(stderr, sig->type_bank, GetHeadType(sig, t2));*/
+      //fprintf(stderr, ").\n");
+
       Term_p min_term = t1;
       Term_p max_term = t2;
       int offset_min = 0;
@@ -533,12 +544,12 @@ UnificationResult SubstComputeMguHO(Term_p t1, Term_p t2, Subst_p subst, Sig_p s
       }
 
       offset_min += TermIsAppliedVar(min_term) ? 1 : 0;
-      offset_max += (TermIsAppliedVar(max_term) ? 1 : 0)
-                     - (TermIsAppliedVar(min_term) ? 1 : 0);
+      offset_max += (TermIsAppliedVar(max_term) ? 1 : 0);
+                     //- (TermIsAppliedVar(min_term) ? 1 : 0);
 
-     
       
-      assert(min_term->arity - offset_min <= max_term->arity - offset_max);
+      assert(min_term->arity - offset_min <= max_term->arity - offset_max && min_term->arity >= offset_min &&
+               max_term->arity >= offset_max);
 
       if (UnifIsInit(res))
       {
@@ -546,12 +557,17 @@ UnificationResult SubstComputeMguHO(Term_p t1, Term_p t2, Subst_p subst, Sig_p s
                                                       : (!swapped ? LeftTerm : RightTerm), 
                                   ABS(ARG_NUM(t1) - ARG_NUM(t2) + start_idx)};   
       }
-     
 
-      for(int i=offset_min; i<min_term->arity; i++)
+      /*fprintf(stderr, "min_term == t1 = %d, UnifIsInit == %d, remains = %d, where = %s\n", 
+                       min_term == t1, UnifIsInit(res), res.term_remaining, res.term_side == LeftTerm ? "left" : "right");
+      fprintf(stderr, "offset_min = %d, offset_max = %d, |min_t| = %d, |max_t| = %d\n",
+                        offset_min, offset_max, min_term->arity, max_term->arity);*/
+
+
+      for(int i=0; i<min_term->arity - offset_min; i++)
       {
-         Term_p min_arg = min_term->args[i];
-         Term_p max_arg = max_term->args[offset_max + i];
+         Term_p min_arg = min_term->args[i + offset_min];
+         Term_p max_arg = max_term->args[i + offset_max];
          if(TermIsTopLevelVar(min_arg) || TermIsTopLevelVar(max_arg))
          {
             PQueueBuryP(jobs, max_arg);

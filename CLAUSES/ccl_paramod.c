@@ -450,8 +450,8 @@ Term_p ComputeOverlap(TB_p bank, OCB_p ocb, ClausePos_p from, Term_p
    unify_res = SubstMguPossiblyPartial(max_side, sub_into, subst, bank->sig);
 
    /* If unification succeeded and potentially prefix of into term has been unified */
-   if(!UnifFailed(unify_res) && 
-       (!(unify_res.term_remaining > 0) || unify_res.term_side == RightTerm))
+   if(!UnifFailed(unify_res) 
+         && CheckHOUnificationConstraints(unify_res, RightTerm, max_side, sub_into))
    {
 #ifdef PRINT_PARTIAL_PARAMODULATION
       if (unify_res.term_remaining > 0)
@@ -694,7 +694,7 @@ Clause_p ClauseOrderedSimParamod(TB_p bank, OCB_p ocb, ClausePos_p
    subst = SubstAlloc();
    VarBankResetVCount(freshvars);
    unify_res = SubstMguPossiblyPartial(from_term, into_term, subst, bank->sig);
-   if((UnifFailed(unify_res) || ((unify_res.term_remaining > 0) && unify_res.term_side != RightTerm)) ||
+   if((UnifFailed(unify_res) || !CheckHOUnificationConstraints(unify_res, RightTerm, from_term, into_term)) ||
       (!EqnIsOriented(from->literal) &&
        TOGreater(ocb, ClausePosGetOtherSide(from), from_term,
                  DEREF_ALWAYS, DEREF_ALWAYS)))
@@ -1069,6 +1069,15 @@ Term_p ClausePosNextParamodPair(ClausePos_p from_pos, ClausePos_p
    return res;
 }
 
+
+bool CheckHOUnificationConstraints(UnificationResult res, WhichTerm exp_side, Term_p from, Term_p to)
+{
+   return
+      // if we have some args remaining, we have them on the right side 
+      (res.term_remaining == 0 || res.term_side == exp_side) && 
+            // and we do not paramodulate at the variable head.
+            !(TermIsAppliedVar(to) && to->arity - res.term_remaining == 1);
+}
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
