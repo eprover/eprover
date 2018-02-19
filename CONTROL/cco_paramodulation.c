@@ -291,7 +291,7 @@ long compute_pos_into_pm_term(ParamodInfo_p pminfo,
 
    /*printf("\n@i %ld\n", DebugCount); */
    if(!UnifFailed((unif_res = SubstMguPossiblyPartial(olterm, into_clauses->term, subst, pminfo->bank->sig)))
-        && (!(unif_res.term_remaining > 0) || unif_res.term_side == RightTerm))
+        && CheckHOUnificationConstraints(unif_res, RightTerm, olterm, into_clauses->term))
    {
       // TERM FROM HAS TO MATCH FULLY... TERM INTO CAN MATCH PARTIALLY
 
@@ -535,7 +535,7 @@ long compute_pos_from_pm_term(ParamodInfo_p pminfo,
 
    /*printf("\n@f %ld\n", DebugCount); */
    if(!UnifFailed(unif_res = SubstMguPossiblyPartial(olterm, from_clauses->term, subst, pminfo->bank->sig))
-       && (!(unif_res.term_remaining > 0) || unif_res.term_side == LeftTerm))
+       && (CheckHOUnificationConstraints(unif_res, LeftTerm, from_clauses->term, olterm)))
    {
       /* Check into-clause ordering constraints */
       /* printf("# Mgu from:\n");
