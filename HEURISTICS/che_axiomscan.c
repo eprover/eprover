@@ -63,14 +63,15 @@ FunCode DetectCommutativity(Clause_p clause)
 {
    Eqn_p lit;
 
-   /* printf("DetectCommutativity: ");
-      ClausePrint(stdout,clause,true);printf("\n"); */
+    /*printf("DetectCommutativity: ");
+      ClausePrint(stdout,clause,true);printf("\n");*/
 
    FAIL_ON(!ClauseIsUnit(clause));
    lit = clause->literals;
 
    assert(lit);
    FAIL_ON(!EqnIsPositive(lit));
+   FAIL_ON(TermIsAppliedVar(lit->lterm) || TermIsAppliedVar(lit->rterm));
    FAIL_ON((TermStandardWeight(lit->lterm)!=
        DEFAULT_FWEIGHT+(2*DEFAULT_VWEIGHT))||
       (TermStandardWeight(lit->rterm)!=

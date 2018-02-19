@@ -1076,7 +1076,7 @@ bool CheckHOUnificationConstraints(UnificationResult res, WhichTerm exp_side, Te
       // if we have some args remaining, we have them on the right side 
       (res.term_remaining == 0 || res.term_side == exp_side) && 
             // and we do not paramodulate at the variable head.
-            !(TermIsAppliedVar(to) && to->arity - res.term_remaining == 1);
+            !(TermIsAppliedVar(to) && ARG_NUM(to) == res.term_remaining);
 }
 
 /*---------------------------------------------------------------------*/
