@@ -1,3 +1,24 @@
+/*-----------------------------------------------------------------------
+
+File  : cte_typebanks.h
+
+Author: Petar Vukmirovic
+
+Contents
+
+  Declarations of functions needed for manipulating shared type objects.
+
+  Copyright 1998, 1999 by the author.
+  This code is released under the GNU General Public Licence and
+  the GNU Lesser General Public License.
+  See the file COPYING in the main E directory for details..
+  Run "eprover -h" for contact information.
+
+
+
+-----------------------------------------------------------------------*/
+
+
 #ifndef CTE_TYPEBANKS
 #define CTE_TYPEBANKS
 
@@ -11,6 +32,9 @@
 
 #define NAME_NOT_FOUND          -1
 
+/*---------------------------------------------------------------------*/
+/*                    Data type declarations                           */
+/*---------------------------------------------------------------------*/
 typedef struct typebank_cell {
    PStack_p       back_idx;                   // Type constructor or simple type back index
    StrTree_p      name_idx;                   // Name to arity, type_identifier pair
@@ -31,7 +55,9 @@ typedef struct typebank_cell {
    Type_p default_type;
 } TypeBank, *TypeBank_p;
 
-//extern bool ProblemIsHO;
+/*---------------------------------------------------------------------*/
+/*                Exported Functions and Variables                     */
+/*---------------------------------------------------------------------*/
 
 #define TypeBankCellAlloc()   SizeMalloc(sizeof(TypeBank));
 void    TypeBankFree(TypeBank_p junk);
@@ -54,4 +80,6 @@ void         TypeBankAppEncodeTypes(FILE* out, TypeBank_p tb, bool print_type_co
 
 #endif
 
-
+/*---------------------------------------------------------------------*/
+/*                        End of File                                  */
+/*---------------------------------------------------------------------*/
