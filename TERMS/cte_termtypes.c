@@ -23,10 +23,6 @@
 
 #include "cte_termtypes.h"
 
-// checks if the binding is present and if it is the cache for the
-// right term
-#define BINDING_FRESH(t) ((t)->binding_cache && (t)->binding && \
-                           (t)->binding == (t)->args[0]->binding)
 
 /*---------------------------------------------------------------------*/
 /*                        Global Variables                             */
@@ -45,18 +41,21 @@
 
 /*-----------------------------------------------------------------------
 //
-// Function: clear_stale_cache()
+// Function: ClearStaleCache()
 //
-//   Clears the cache if it is not up to date.
+//   Clears the cache if it is not up to date. Assumes that cache
+//   is stale (see BINDING_FRESH).
 //
 // Global Variables: -
 //
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
-static __inline__ void clear_stale_cache(Term_p app_var)
+void ClearStaleCache(Term_p app_var)
 {
    assert(TermIsAppliedVar(app_var));
+   assert(!BINDING_FRESH(app_var));
+
    if (app_var->binding_cache && !TermIsShared(app_var->binding_cache))
    {
       TermTopFree(app_var->binding_cache);
@@ -111,7 +110,7 @@ __inline__ Term_p applied_var_deref(Term_p orig)
    }
    else
    {
-      clear_stale_cache(orig);
+      ClearStaleCache(orig);
 
       if (orig->args[0]->binding)
       {
@@ -192,6 +191,20 @@ void TermTopFree(Term_p junk)
    {
       assert(!junk->args);
    }
+
+   if (TermIsAppliedVar(junk))
+   {
+      if (junk->binding && !TermIsShared(junk->binding))
+      {
+         TermTopFree(junk->binding);
+      }
+
+      if (junk->binding_cache && !TermIsShared(junk->binding_cache))
+      {
+         TermTopFree(junk->binding_cache);
+      }
+   }
+
    TermCellFree(junk);
 }
 

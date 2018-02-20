@@ -14,8 +14,6 @@ Contents
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-
-
 -----------------------------------------------------------------------*/
 
 
