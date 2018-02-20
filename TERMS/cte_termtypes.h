@@ -178,6 +178,12 @@ typedef uintptr_t DerefType, *DerefType_p;
 #define ARG_NUM(term) (term->arity)
 #endif
 
+// checks if the binding is present and if it is the cache for the
+// right term
+#define BINDING_FRESH(t) ((t)->binding_cache && (t)->binding && \
+                           (t)->binding == (t)->args[0]->binding)
+
+
 /*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
@@ -264,6 +270,8 @@ static __inline__ Term_p  TermTopCopy(Term_p source);
 
 void    TermStackSetProps(PStack_p stack, TermProperties prop);
 void    TermStackDelProps(PStack_p stack, TermProperties prop);
+
+void ClearStaleCache(Term_p app_var);
 
 /*---------------------------------------------------------------------*/
 /*                  Inline functions                                   */
