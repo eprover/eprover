@@ -296,7 +296,7 @@ static __inline__ Type_p GetHeadType(Sig_p sig, Term_p term)
 #ifdef ENABLE_LFHO
    if (TermIsAppliedVar(term))
    {
-      assert(!sig || term->f_code == sig->SIG_APP_VAR_CODE);
+      assert(!sig || term->f_code == SIG_APP_VAR_CODE);
       return term->args[0]->type;
    }
    else if (TermIsVar(term))
@@ -306,7 +306,7 @@ static __inline__ Type_p GetHeadType(Sig_p sig, Term_p term)
    }
    else
    {
-      assert(term->f_code != sig->SIG_APP_VAR_CODE);
+      assert(term->f_code != SIG_APP_VAR_CODE);
       return SigGetType(sig, term->f_code);
    }
 #else

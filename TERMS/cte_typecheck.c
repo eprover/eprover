@@ -211,8 +211,6 @@ bool TypeCheckConsistent(Sig_p sig, Term_p term)
 /----------------------------------------------------------------------*/
 void TypeInferSort(Sig_p sig, Term_p term)
 {
-   assert(term->f_code != sig->SIG_APP_VAR_CODE || TermIsAppliedVar(term));
-
    Type_p type;
    Type_p sort, *args;
    int i;

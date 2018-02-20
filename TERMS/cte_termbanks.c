@@ -677,8 +677,6 @@ Term_p TBInsertNoProps(TB_p bank, Term_p term, DerefType deref)
    Term_p t;
 
    assert(term);
-   assert(term->f_code != bank->sig->SIG_APP_VAR_CODE || TermIsAppliedVar(term));
-
 
    term = TermDeref(term, &deref);
 
