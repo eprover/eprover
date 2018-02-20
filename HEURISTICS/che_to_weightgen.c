@@ -270,12 +270,12 @@ static PStack_p find_max_symbols(OCB_p ocb)
 static void set_maximal_0(OCB_p ocb)
 {
    assert(ocb->precedence||ocb->prec_weights);
-#ifdef ENABLE_LFHO
+/*#ifdef ENABLE_LFHO
    if (ProblemIsHO == PROBLEM_IS_HO)
    {
       return;
    }
-#endif
+#endif*/
    PStack_p maxsymbs = find_max_symbols(ocb);
    if(!PStackEmpty(maxsymbs))
    {
@@ -309,12 +309,12 @@ static void set_maximal_0(OCB_p ocb)
 static void set_maximal_unary_0(OCB_p ocb)
 {
    assert(ocb->precedence||ocb->prec_weights);
-#ifdef ENABLE_LFHO
+/*#ifdef ENABLE_LFHO
    if (ProblemIsHO == PROBLEM_IS_HO)
    {
       return;
    }
-#endif
+#endif*/
    PStack_p maxsymbs = find_max_symbols(ocb);
    if(!PStackEmpty(maxsymbs))
    {

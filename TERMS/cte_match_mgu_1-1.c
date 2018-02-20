@@ -142,7 +142,7 @@ int PartiallyMatchVar(Term_p var_matcher, Term_p to_match, Sig_p sig,
                       bool perform_occur_check)
 {
    assert(TermIsVar(var_matcher) && !var_matcher->binding);
-   assert(!TermIsAppliedVar(to_match) || to_match->f_code == sig->SIG_APP_VAR_CODE);
+   assert(!TermIsAppliedVar(to_match) || to_match->f_code == SIG_APP_VAR_CODE);
    assert(ProblemIsHO == PROBLEM_IS_HO || !TypeIsArrow(var_matcher->type));
    
 
