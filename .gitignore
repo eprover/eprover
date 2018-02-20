@@ -12,6 +12,7 @@ PROVER/e_server
 PROVER/edpll
 PROVER/eground
 PROVER/tester
+PROVER/app_encoder
 PROVER/e_stratpar
 PROVER/ekb_create
 PROVER/ekb_delete
