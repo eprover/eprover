@@ -186,7 +186,7 @@ FunCode TermFPSampleHO(Term_p term, va_list ap)
 
    if (!TermIsTopLevelVar(term) && pos != -1 && pos >= term->arity)
    {
-      res = BELOW_VAR;
+      res = ANY_VAR;
    }
    else
    {
@@ -325,7 +325,7 @@ FunCode TermFPFlexSampleHO(Term_p term, IntOrP* *seq)
 
    if (pos != -1  && !TermIsTopLevelVar(term) && pos >= term->arity)
    {
-      res = BELOW_VAR;
+      res = ANY_VAR;
    }
    else
    {
