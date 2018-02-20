@@ -1107,7 +1107,7 @@ void PDTreeInsert(PDTree_p tree, ClausePos_p demod_side)
       if (TermIsAppliedVar(curr))
       {
          // good place to check preservation of invariant
-         assert(curr->f_code == tree->sig->SIG_APP_VAR_CODE);
+         assert(curr->f_code == SIG_APP_VAR_CODE);
          curr = TermLRTraverseNext(tree->term_stack);
          continue; // skipping the symbol for applied var.
       }

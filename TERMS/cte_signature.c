@@ -225,10 +225,10 @@ void SigInsertInternalCodes(Sig_p sig)
 
 #ifndef NDEBUG
    // surpressing compiler warning
-   FunCode SIG_APP_VAR_CODE =  
+   FunCode app_var_code =  
 #endif
    SigInsertId(sig, "$@_var", 1, true);
-   assert(SIG_APP_VAR_CODE == SIG_APP_VAR_CODE); //for future code changes
+   assert(app_var_code == SIG_APP_VAR_CODE); //for future code changes
 
 
    Type_p* args = TypeArgArrayAlloc(2);
