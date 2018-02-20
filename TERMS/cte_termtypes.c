@@ -54,7 +54,7 @@
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
-void clear_stale_cache(Term_p app_var)
+static __inline__ void clear_stale_cache(Term_p app_var)
 {
    assert(TermIsAppliedVar(app_var));
    if (app_var->binding_cache && !TermIsShared(app_var->binding_cache))
@@ -76,7 +76,7 @@ void clear_stale_cache(Term_p app_var)
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
-void register_new_cache(Term_p app_var, Term_p bound_to)
+static __inline__ void register_new_cache(Term_p app_var, Term_p bound_to)
 {
    assert(TermIsAppliedVar(app_var));
    assert(app_var->args[0]->binding);
