@@ -291,7 +291,11 @@ static __inline__ int SigFindArity(Sig_p sig, FunCode f_code)
    assert(f_code > 0);
    assert(f_code <= sig->f_count);
 
-   return (sig->f_info[f_code]).arity;
+   if (ProblemIsHO == PROBLEM_NOT_HO)
+   {
+      return (sig->f_info[f_code]).arity;   
+   }
+   
 }
 
 
