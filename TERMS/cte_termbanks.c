@@ -367,7 +367,7 @@ static int tb_term_parse_arglist(Scanner_p in, Term_p** arg_anchor,
 // Side Effects    :
 //
 /----------------------------------------------------------------------*/
-Term_p normalize_head(Term_p head, Term_p* rest_args, int rest_arity, Sig_p sig)
+Term_p normalize_head(Term_p head, Term_p* rest_args, int rest_arity)
 {
    assert(ProblemIsHO == PROBLEM_IS_HO);
    Term_p res;
@@ -1466,7 +1466,7 @@ Term_p  TBTermParseRealHO(Scanner_p in, TB_p bank, bool check_symb_prop)
       rest_args[rest_arity++] = arg;
    }
 
-   res = normalize_head(head, rest_args, rest_arity, bank->sig);
+   res = normalize_head(head, rest_args, rest_arity);
    res = TBInsert(bank, res, true);
 
    if (rest_arity)
