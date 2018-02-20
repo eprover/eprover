@@ -1614,6 +1614,11 @@ void TBGCMarkTerm(TB_p bank, Term_p term)
          {
             PStackPushP(stack, TermRWReplaceField(term));
          }
+
+         if (TermIsAppliedVar(term) && !BINDING_FRESH(term))
+         {
+            ClearStaleCache(term);
+         }
       }
    }
    PStackFree(stack);
