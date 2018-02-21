@@ -71,12 +71,13 @@ bool SubstBacktrackSingle(Subst_p subst)
       return false;
    }
    handle = PStackPopP(subst);
-#ifdef ENABLE_LFHO
+   
    if (!TermIsShared(handle->binding))
    {
-      TermTopFree(handle->binding);
+      assert(ProblemIsHO == PROBLEM_IS_HO);
    }
-#endif
+
+   assert(TermIsVar(handle));
    handle->binding = NULL;
 
    return true;
