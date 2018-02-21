@@ -218,7 +218,7 @@ int PartiallyMatchVar(Term_p var_matcher, Term_p to_match, Sig_p sig,
 
 bool SubstComputeMatch(Term_p matcher, Term_p to_match, Subst_p subst)
 {
-   assert(ProblemIsHO == PROBLEM_IS_HO);
+   assert(ProblemIsHO == PROBLEM_NOT_HO);
    long matcher_weight  = TermStandardWeight(matcher);
    long to_match_weight = TermStandardWeight(to_match);
 

@@ -198,6 +198,7 @@ void TermTopFree(Term_p junk)
       {
          TermTopFree(junk->binding_cache);
       }
+      junk->binding_cache = NULL;
    }
 
    TermCellFree(junk);
