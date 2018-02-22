@@ -158,9 +158,9 @@ SimplifyRes FindSignedTopSimplifyingUnit(ClauseSet_p units, Term_p t1,
         assert(remains == mi->trailing_args);
         remains = ProblemIsHO == PROBLEM_NOT_HO ? 0 : remains;
         res = (SimplifyRes){.pos = pos, .remaining_args = remains};
-        MatchInfoFree(mi);
         break;
       }
+      MatchInfoFree(mi);
    }
    PDTreeSearchExit(units->demod_index);
    SubstDelete(subst);
