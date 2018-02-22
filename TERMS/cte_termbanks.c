@@ -491,8 +491,7 @@ static Term_p __inline__  parse_one_ho(Scanner_p in, TB_p bank)
    }
    else
    {
-      head = make_head(bank->sig, DStrView(id));
-      head = tb_termtop_insert(bank, head);
+      head = tb_termtop_insert(bank, make_head(bank->sig, DStrView(id)));
    }
 
    DStrFree(id);
@@ -1471,9 +1470,13 @@ Term_p  TBTermParseRealHO(Scanner_p in, TB_p bank, bool check_symb_prop)
 
    res = normalize_head(head, rest_args, rest_arity);
 
-   if (!TermIsVar(res))
+   if (!TermIsVar(res) && !TermIsShared(res))
    {
       res = tb_termtop_insert(bank, res);   
+   }
+   else
+   {
+      assert(TermIsVar(res) || TBFind(bank, res));
    }
 
    if (allocated)
