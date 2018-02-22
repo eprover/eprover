@@ -1478,24 +1478,6 @@ ClausePos_p GetMatcherClausePos(MatchInfo_p mi)
    return mi->matcher;
 }
 
-Term_p MIGetRewrittenTerm(MatchInfo_p mi, Term_p original)
-{
-   if (ProblemIsHO == PROBLEM_NOT_HO)
-   {
-      assert(mi->trailing_args == 0);
-      // nothing is done in FO case.
-      return ClausePosGetOtherSide(mi->matcher);
-   }
-   else
-   {
-      Term_p other_side = ClausePosGetOtherSide(mi->matcher);
-      int remaining_orig = mi->trailing_args;
-      fprintf(stderr, "remaining: %d\n", remaining_orig);
-      return MakeRewrittenTerm(original, other_side,
-                               remaining_orig);
-   }
-}
-
 void   MatchInfoPrint(MatchInfo_p mi)
 {
    if (mi)
