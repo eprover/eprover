@@ -549,6 +549,7 @@ MatchInfo_p indexed_find_demodulator(OCB_p ocb, Term_p term,
          //fprintf(stderr, "breaking.\n");
          break;
       }
+      MatchInfoFree(match_info);
    }
    PDTreeSearchExit(demodulators->demod_index);
 
