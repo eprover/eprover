@@ -132,7 +132,6 @@ static Term_p tb_termtop_insert(TB_p bank, Term_p t)
 
    assert(t);
    assert(!TermIsVar(t));
-   assert(t->f_code != SIG_APP_VAR_CODE || TermIsAppliedVar(t));
 
    /* Infer the sort of this term (may be temporary) */
    if(t->type == NULL)
@@ -361,6 +360,7 @@ static int tb_term_parse_arglist(Scanner_p in, Term_p** arg_anchor,
 // Function: normalize_head()
 //
 //   Makes sure that term is represented in a flattened representation.
+//    NB: Term is unshared at this point!
 //
 // Global Variables: -
 //
@@ -406,15 +406,16 @@ Term_p normalize_head(Term_p head, Term_p* rest_args, int rest_arity)
          {
             res->args[head->arity + i] = rest_args[i];
          }
-
-         if (!TermIsShared(head))
-         {
-            TermTopFree(head);
-         }
       }
       else
       {
          res->args = NULL;
+      }
+      
+      if (!TermIsShared(head))
+      {
+         assert(!TermIsVar(head));
+         TermTopFree(head);
       }
       res->arity = total_arity;
    }
@@ -428,6 +429,7 @@ Term_p normalize_head(Term_p head, Term_p* rest_args, int rest_arity)
 //
 //   Makes term that has function code that corresponds to f_name
 //   and no arguments.
+//    NB:  Term is unshared at this point!
 //
 // Global Variables: -
 //
@@ -448,6 +450,7 @@ static Term_p __inline__ make_head(Sig_p sig, const char* f_name)
    }
    head->arity = 0;
    head->args = NULL;
+   head->type = SigGetType(sig, head->f_code);
 
    return head;
 }
@@ -489,9 +492,11 @@ static Term_p __inline__  parse_one_ho(Scanner_p in, TB_p bank)
    else
    {
       head = make_head(bank->sig, DStrView(id));
+      head = tb_termtop_insert(bank, head);
    }
 
    DStrFree(id);
+   assert(TermIsShared(head));
    return head;
 }
 
@@ -1465,12 +1470,17 @@ Term_p  TBTermParseRealHO(Scanner_p in, TB_p bank, bool check_symb_prop)
    }
 
    res = normalize_head(head, rest_args, rest_arity);
-   res = TBInsert(bank, res, true);
 
-   if (rest_arity)
+   if (!TermIsVar(res))
+   {
+      res = tb_termtop_insert(bank, res);   
+   }
+
+   if (allocated)
    {
       SizeFree(rest_args, allocated*sizeof(Term_p));
    }
+   assert(TermIsShared(res));
    return res;
 }
 
