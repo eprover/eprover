@@ -613,12 +613,10 @@ MatchInfo_p indexed_find_demodulator(OCB_p ocb, Term_p term,
       {
          /* To make sure remaining arguments of the term to be rewritten
             are variable-disjoint from the demodulator */
-         Term_p repl_tmp = MakeRewrittenTerm(term, repl, mi->trailing_args);
-         repl = TBInsert(bank, repl, DEREF_NEVER);
-
+         repl = MakeRewrittenTerm(term, repl, mi->trailing_args);
          if(mi->trailing_args)
          {
-            TermTopFree(repl_tmp);
+            repl = TBTermTopInsert(bank, repl);
          }      
       } 
 
