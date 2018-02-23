@@ -306,11 +306,20 @@ Clause_p ClauseSimParamodConstruct(ParamodInfo_p ol_desc)
                           subst, ol_desc->freshvars);
    assert(ClausePosGetSide(ol_desc->from_pos)->type == ClausePosGetOtherSide(ol_desc->from_pos)->type);
 
-   rhs_instance = TBInsertNoProps(ol_desc->bank,
-                                  MakeRewrittenTerm(TermDerefAlways(into_term),
-                                                    TermDerefAlways(ClausePosGetOtherSide(ol_desc->from_pos)),
-                                                    ol_desc->remaining_args),
-                                  DEREF_ALWAYS);
+   Term_p tmp_rhs = MakeRewrittenTerm(TermDerefAlways(into_term),
+                                      TermDerefAlways(ClausePosGetOtherSide(ol_desc->from_pos)),
+                                      ol_desc->remaining_args);
+
+
+   rhs_instance = TBInsertNoProps(ol_desc->bank, tmp_rhs, DEREF_ALWAYS);
+
+   if (ol_desc->remaining_args)
+   {
+      TermTopFree(tmp_rhs);
+      tmp_rhs = NULL;
+   }
+
+
    into_copy = EqnListCopyRepl(ol_desc->into->literals,
                                ol_desc->bank, into_term, rhs_instance);
    if(EqnListFindTrue(into_copy))
@@ -741,29 +750,21 @@ Clause_p ClauseOrderedSimParamod(TB_p bank, OCB_p ocb, ClausePos_p
       /* _all_ instances of into_term are handled */
       TermCellDelProp(into_term, TPPotentialParamod);
 
-#ifdef PRINT_PARTIAL_PARAMODULATION
-      if (unify_res.term_remaining > 0)
-      {
-         fprintf(stderr, "# paramodulation from ");
-         TermPrint(stderr, from_term, bank->sig, DEREF_ALWAYS);
-         fprintf(stderr, " to prefix of term ");
-         TermPrint(stderr, into_term, bank->sig, DEREF_ALWAYS);
-         fprintf(stderr, "(");
-         TermPrint(stderr, TermCreatePrefix(into_term, 
-                                            into_term->arity - unify_res.term_remaining), 
-                           bank->sig, DEREF_ALWAYS);
-         fprintf(stderr, " - %d).ClauseOrderedSimParamod\n", unify_res.term_remaining);
-
-      }
-#endif
-
       NormSubstEqnListExcept(into->clause->literals, NULL, subst, freshvars);
       NormSubstEqnListExcept(from->clause->literals, NULL, subst, freshvars);
-      rhs_instance = TBInsertNoProps(bank,
-                                     MakeRewrittenTerm(TermDerefAlways(into_term), 
-                                                       TermDerefAlways(ClausePosGetOtherSide(from)), 
-                                                       unify_res.term_remaining),
-                                     DEREF_ALWAYS);
+
+      Term_p tmp_rhs = MakeRewrittenTerm(TermDerefAlways(into_term), 
+                                         TermDerefAlways(ClausePosGetOtherSide(from)), 
+                                         unify_res.term_remaining);
+
+      rhs_instance = TBInsertNoProps(bank, tmp_rhs, DEREF_ALWAYS);
+
+      if (unify_res.term_remaining)
+      {
+         TermTopFree(tmp_rhs);
+         tmp_rhs = NULL;
+      }
+
       into_copy = EqnListCopyRepl(into->clause->literals,
                                   bank, into_term, rhs_instance);
       if(EqnListFindTrue(into_copy))
