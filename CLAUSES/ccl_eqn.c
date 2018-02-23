@@ -392,7 +392,6 @@ static bool eqn_parse_infix(Scanner_p in, TB_p bank, Term_p *lref,
    *lref = lterm;
    *rref = rterm;
 
-
    if (in_parens)
    {
       AcceptInpTok(in, CloseBracket);
@@ -651,6 +650,8 @@ void EqnFree(Eqn_p junk)
    TBDelete(junk->bank, junk->lterm);
    TermReleaseRef(&(junk->rterm));
    TBDelete(junk->bank, junk->rterm); */
+   assert(TermIsShared(junk->lterm));
+   assert(TermIsShared(junk->rterm));
    EqnCellFree(junk);
 }
 

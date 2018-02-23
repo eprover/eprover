@@ -230,7 +230,15 @@ static RWResultType term_is_top_rewritable(TB_p bank, OCB_p ocb,
          }
          if(!TermIsRewritten(term) || (res == RWAlwaysRewritable))
          {
-            rterm = TBInsertInstantiated(bank, MakeRewrittenTerm(term, eqn->rterm,  remains));
+            Term_p tmp_rewritten = MakeRewrittenTerm(term, eqn->rterm,  remains);
+            rterm = TBInsertInstantiated(bank, tmp_rewritten);
+
+            if (remains)
+            {
+               TermTopFree(tmp_rewritten);
+               tmp_rewritten = NULL;
+            }
+
             TermAddRWLink(term, rterm, new_demod, ClauseIsSOS(new_demod), res);
          }
       }
@@ -252,7 +260,15 @@ static RWResultType term_is_top_rewritable(TB_p bank, OCB_p ocb,
                TermCellSetProp(term, TPIsRRewritable|TPIsRewritable);
                res = RWAlwaysRewritable;
 
-               rterm = TBInsertInstantiated(bank, MakeRewrittenTerm(term, eqn->lterm, remains));
+               Term_p tmp_rewritten = MakeRewrittenTerm(term, eqn->lterm, remains);
+
+               rterm = TBInsertInstantiated(bank, tmp_rewritten);
+
+               if (remains)
+               {
+                  TermTopFree(tmp_rewritten);
+               }
+
                TermAddRWLink(term, rterm, new_demod, ClauseIsSOS(new_demod), res);
          }
       }
@@ -1020,7 +1036,15 @@ static long term_find_rw_clauses(Clause_p demod,
          }
          if(!TermIsRewritten(term) || (rwres == RWAlwaysRewritable))
          {
-            rterm = TBInsertInstantiated(eqn->bank, MakeRewrittenTerm(term, rterm, remains));
+            Term_p tmp_rewritten = MakeRewrittenTerm(term, rterm, remains);
+
+            rterm = TBInsertInstantiated(eqn->bank, tmp_rewritten);
+
+            if (remains)
+            {
+               TermTopFree(tmp_rewritten);
+            }
+
             TermAddRWLink(term, rterm, demod, ClauseIsSOS(demod), rwres);
             //TermDeleteRWLink(term);
          }

@@ -196,7 +196,7 @@ void TermTopFree(Term_p junk)
 
    if (TermIsAppliedVar(junk))
    {
-      if (junk->binding_cache /*&& !TermIsShared(junk->binding_cache)*/)
+      if (junk->binding_cache)
       {
          TermTopFree(junk->binding_cache);
       }
