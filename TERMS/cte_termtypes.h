@@ -84,6 +84,8 @@ typedef enum
                                    this occurs with positive polarity. */
    TPNegPolarity      = 1<<19,  /* In the term encoding of a formula,
                                    this occurs with negative polarity. */
+   TPIsDerefedAppVar  = 1<<20,  /* Is the object obtained as a cache
+                                   for applied variables */
 }TermProperties;
 
 

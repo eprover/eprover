@@ -82,6 +82,8 @@ static __inline__ void register_new_cache(Term_p app_var, Term_p bound_to)
 
    app_var->binding = app_var->args[0]->binding;
    app_var->binding_cache = bound_to;
+
+   TermCellSetProp(app_var->binding_cache, TPIsDerefedAppVar);
 }
 
 
@@ -194,7 +196,7 @@ void TermTopFree(Term_p junk)
 
    if (TermIsAppliedVar(junk))
    {
-      if (junk->binding_cache && !TermIsShared(junk->binding_cache))
+      if (junk->binding_cache /*&& !TermIsShared(junk->binding_cache)*/)
       {
          TermTopFree(junk->binding_cache);
       }

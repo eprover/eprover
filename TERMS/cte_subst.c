@@ -72,9 +72,10 @@ bool SubstBacktrackSingle(Subst_p subst)
    }
    handle = PStackPopP(subst);
    
-   if (!TermIsShared(handle->binding))
+   if (!TermIsShared(handle->binding) 
+         && !TermCellQueryProp(handle->binding, TPIsDerefedAppVar))
    {
-      assert(ProblemIsHO == PROBLEM_IS_HO);
+      TermTopFree(handle->binding);
    }
 
    assert(TermIsVar(handle));
