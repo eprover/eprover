@@ -691,6 +691,7 @@ Term_p TBInsertNoProps(TB_p bank, Term_p term, DerefType deref)
    else
    {
       t = TermTopCopyWithoutArgs(term); /* This is an unshared term cell at the moment */
+      
       t->properties = TPIgnoreProps;
 
       assert(SysDateIsCreationDate(t->rw_data.nf_date[0]));
