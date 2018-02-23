@@ -436,7 +436,7 @@ Term_p normalize_head(Term_p head, Term_p* rest_args, int rest_arity)
 // Side Effects    : Input, memory operations, changes term bank
 //
 /----------------------------------------------------------------------*/
-static Term_p __inline__ make_head(Sig_p sig, const char* f_name)
+static Term_p make_head(Sig_p sig, const char* f_name)
 {
    Term_p head = TermDefaultCellAlloc();
    head->f_code = SigFindFCode(sig, f_name);
