@@ -1,5 +1,6 @@
 Makefile.dependencies
 include/
+bin/
 EXTERNAL/CSSCPA_filter
 PROVER/checkproof
 PROVER/classify_problem
