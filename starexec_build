@@ -1,0 +1,5 @@
+#!/bin/sh
+
+./configure --bindir=./bin/
+make install
+
