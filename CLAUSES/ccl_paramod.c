@@ -1071,6 +1071,7 @@ Term_p ClausePosNextParamodPair(ClausePos_p from_pos, ClausePos_p
 }
 
 
+#ifdef ENABLE_LFHO
 bool CheckHOUnificationConstraints(UnificationResult res, WhichTerm exp_side, Term_p from, Term_p to)
 {
    return
@@ -1079,6 +1080,7 @@ bool CheckHOUnificationConstraints(UnificationResult res, WhichTerm exp_side, Te
             // and we do not paramodulate at the variable head.
             !(TermIsAppliedVar(to) && ARG_NUM(to) == res.term_remaining);
 }
+#endif
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
