@@ -1354,7 +1354,6 @@ void SigDeclareIsFunction(Sig_p sig, FunCode f_code)
       assert(new_type->type_uid != INVALID_TYPE_UID);
 
       SigDeclareFinalType(sig, f_code, new_type);
-      TypeFree(type);
    }
    else
    {
@@ -1391,7 +1390,6 @@ void SigDeclareIsPredicate(Sig_p sig, FunCode f_code)
    {
       new_type = TypeChangeReturnType(sig->type_bank, type, sig->type_bank->bool_type);
       SigDeclareFinalType(sig, f_code, new_type);
-      TypeFree(type);
    }
    else
    {
