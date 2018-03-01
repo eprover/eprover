@@ -1534,6 +1534,8 @@ void SigParseTFFTypeDeclaration(Scanner_p in, Sig_p sig)
       {
          TypeBankDefineSimpleSort(sig->type_bank, DStrView(id));
       }
+
+      TypeFree(type);
    }
 
    DStrFree(id);

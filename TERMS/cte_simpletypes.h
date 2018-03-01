@@ -31,6 +31,10 @@ Changes
 #include "cio_scanner.h"
 #include <clb_ptrees.h>
 
+/*---------------------------------------------------------------------*/
+/*                    Data type declarations                           */
+/*---------------------------------------------------------------------*/
+
 #define ArrowTypeCons 0
 #define STBool        1     /* Boolean sort, will replace/extend the predicate bit */
 #define STIndividuals 2     /* Default sort, "individuums" */
@@ -50,6 +54,10 @@ typedef struct typecell {
    TypeUniqueID      type_uid;
 } TypeCell, *Type_p;
 
+/*---------------------------------------------------------------------*/
+/*                Exported Functions and Variables                     */
+/*---------------------------------------------------------------------*/
+
 #define SortIsUserDefined(sort) ((sort) > STPredefined)
 #define SortIsInterpreted(sort) (((sort)>=STInteger)&&((sort)<=STPredefined))
 
@@ -66,20 +74,6 @@ Type_p  GetReturnSort(Type_p type);
 
 #define TypeCellAlloc()    (Type_p) SizeMalloc(sizeof(TypeCell))
 #define TypeCellFree(junk) SizeFree(junk, sizeof(TypeCell))
-
-void TypeFree(Type_p junk);
-
-static __inline__ Type_p TypeAlloc(TypeConsCode c_code, int arity, Type_p* args)
-{
-   Type_p handle = TypeCellAlloc();
-
-   handle->f_code = c_code;
-   handle->arity  = arity;
-   handle->args   = args;
-   handle->type_uid  = INVALID_TYPE_UID;
-
-   return handle;
-}
 
 Type_p  TypeCopy(Type_p orig);
 
@@ -98,5 +92,31 @@ int TypeGetSymbolArity(Type_p t);
 int TypesCmp(Type_p t1, Type_p t2);
 Type_p FlattenType(Type_p type);
 DStr_p TypeAppEncodedName(Type_p type);
+
+void TypeFree(Type_p junk);
+
+/*-----------------------------------------------------------------------
+//
+// Function: TypeAlloc()
+//
+//   Allocates new type cell.
+//
+//
+// Global Variables: -
+//
+// Side Effects    : Changes bindings, adds to the substitution.
+//
+/----------------------------------------------------------------------*/
+static __inline__ Type_p TypeAlloc(TypeConsCode c_code, int arity, Type_p* args)
+{
+   Type_p handle = TypeCellAlloc();
+
+   handle->f_code = c_code;
+   handle->arity  = arity;
+   handle->args   = args;
+   handle->type_uid  = INVALID_TYPE_UID;
+
+   return handle;
+}
 
 #endif
