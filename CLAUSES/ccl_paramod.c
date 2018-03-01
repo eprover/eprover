@@ -402,7 +402,7 @@ Clause_p ClauseParamodConstruct(ParamodInfo_p ol_desc, bool sim_pm)
    assert(PackClausePos(ol_desc->from_pos) == ol_desc->from_cpos);
    assert(PackClausePos(ol_desc->into_pos) == ol_desc->into_cpos);
 
-   if(sim_pm)
+   if(sim_pm && ol_desc->remaining_args == 0)
    {
       res = ClauseSimParamodConstruct(ol_desc);
    }

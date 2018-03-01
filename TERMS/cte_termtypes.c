@@ -184,6 +184,7 @@ __inline__ Term_p applied_var_deref(Term_p orig)
 
 void TermTopFree(Term_p junk)
 {
+   assert(junk);
    if(junk->arity)
    {
       assert(junk->args);
