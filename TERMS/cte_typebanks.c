@@ -811,8 +811,7 @@ Type_p TypeChangeReturnType(TypeBank_p bank, Type_p type, Type_p new_ret)
 /----------------------------------------------------------------------*/
 void tree_free_fun(void* a)
 {
-   // Still have to figure out how types will be deleted.
-   // Might have to implement GC-like mechanism.
+   TypeFree((Type_p) a);
 }
 
 /*-----------------------------------------------------------------------
