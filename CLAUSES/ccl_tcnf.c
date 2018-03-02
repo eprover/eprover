@@ -1514,6 +1514,7 @@ TFormula_p TFormulaMiniScope2(TB_p terms, TFormula_p form,
 
 TFormula_p TFormulaVarRename(TB_p terms, TFormula_p form)
 {
+   assert(!TermIsAppliedVar(form));
    Term_p old_var = NULL, new_var = NULL;
    TFormula_p handle = NULL, arg1=NULL, arg2=NULL;
 

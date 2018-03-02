@@ -103,7 +103,7 @@ __inline__ Term_p applied_var_deref(Term_p orig)
    assert(TermIsAppliedVar(orig));
    assert(orig->arity > 1);
    assert(orig->args[0]->binding || orig->binding_cache);
-   assert(TermIsShared(orig));
+   //assert(TermIsShared(orig));
 
    Term_p res;
 
@@ -120,7 +120,7 @@ __inline__ Term_p applied_var_deref(Term_p orig)
          if (TermIsVar(orig->args[0]->binding))
          {
             res = TermTopAlloc(orig->f_code, orig->arity);
-            res->properties = orig->properties;
+            res->properties = orig->properties & (TPPredPos);
             res->type = orig->type;
             res->args[0] = orig->args[0]->binding;
             for(int i=1; i<orig->arity; i++)
