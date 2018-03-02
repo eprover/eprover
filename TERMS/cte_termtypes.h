@@ -332,7 +332,7 @@ static __inline__ Type_p GetHeadType(Sig_p sig, Term_p term)
 static __inline__ Term_p deref_step(Term_p orig)
 {
    assert(TermIsTopLevelVar(orig));
-   assert(TermIsVar(orig) || TermIsShared(orig));
+   //assert(TermIsVar(orig) || TermIsShared(orig));
    // assert(bank != NULL || orig->arity == 0);
    if (TermIsVar(orig))
    {

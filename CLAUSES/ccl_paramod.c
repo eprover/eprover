@@ -262,6 +262,7 @@ Clause_p ClausePlainParamodConstruct(ParamodInfo_p ol_desc)
       fprintf(stderr, ") (%d remaining).\n", ol_desc->remaining_args);   
    }*/
    
+   assert(!res || ClauseAllTermsShared(res));
 
    return res;
 }

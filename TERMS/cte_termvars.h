@@ -49,7 +49,7 @@ typedef PDArray_p VarBankStack_p;
 typedef struct varbankcell
 {
    FunCode     v_count;    /* FunCode counter for new variables */
-   TypeBank_p  type_bank;  
+   TypeBank_p  type_bank;  /* Provides type information */
    FunCode     max_var;    /* Largest variable ever created */
    PDArray_p   stacks;     /* Maps each sort to a bank of variables */
    StrTree_p   ext_index;  /* Associate names and cells */
