@@ -1327,6 +1327,8 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control,
    ClauseDetachParents(clause);
    ClauseRemoveEvaluations(clause);
 
+   assert(ClauseAllTermsShared(clause));
+
    assert(!ClauseQueryProp(clause, CPIsIRVictim));
 
    if(ProofObjectRecordsGCSelection)
