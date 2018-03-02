@@ -132,6 +132,14 @@ static Term_p tb_termtop_insert(TB_p bank, Term_p t)
 
    assert(t);
    assert(!TermIsVar(t));
+   assert(!TermIsAppliedVar(t) || TermIsVar(t->args[0]));
+
+#ifndef NDEBUG
+   for(int i=0; i<t->arity; i++)
+   {
+      assert(TermIsShared(t->args[i]));
+   }
+#endif
 
    /* Infer the sort of this term (may be temporary) */
    if(t->type == NULL)
@@ -145,6 +153,7 @@ static Term_p tb_termtop_insert(TB_p bank, Term_p t)
 
    if(new) /* Term node already existed, just add properties */
    {
+      assert(!TermIsShared(t));
       new->properties = (new->properties | t->properties)/*& bank->prop_mask*/;
       TermTopFree(t);
       return new;
@@ -412,13 +421,9 @@ Term_p normalize_head(Term_p head, Term_p* rest_args, int rest_arity)
          res->args = NULL;
       }
       
-      if (!TermIsShared(head))
-      {
-         assert(!TermIsVar(head));
-         TermTopFree(head);
-      }
       res->arity = total_arity;
    }
+   assert(TermIsShared(head));
    return res;
 }
 
@@ -828,16 +833,24 @@ Term_p TBInsertInstantiatedFO(TB_p bank, Term_p term)
 // Side Effects    : Changes term bank
 //
 /----------------------------------------------------------------------*/
-Term_p TBInsertInstantiatedHO(TB_p bank, Term_p term)
+Term_p TBInsertInstantiatedHO(TB_p bank, Term_p term, bool follow_bind)
 {
    int    i;
    Term_p t;
 
    assert(term);
 
-   if(term->binding)
+   if(TermIsVar(term) && term->binding)
    {
-      return TBInsert(bank, term->binding, DEREF_NEVER);
+      return follow_bind ? TBInsert(bank, term->binding, DEREF_NEVER) : term;
+   }
+   
+   int ignore_args = 0;
+   if(TermIsAppliedVar(term) && term->args[0]->binding && follow_bind)
+   {
+      ignore_args = term->args[0]->binding->arity + (TermIsVar(term->args[0]->binding) ? 1 : 0);
+      DerefType d = DEREF_ONCE;
+      term = TermDeref(term, &d);
    }
 
    if(TermIsVar(term))
@@ -854,7 +867,7 @@ Term_p TBInsertInstantiatedHO(TB_p bank, Term_p term)
 
       for(i=0; i<t->arity; i++)
       {
-         t->args[i] = TBInsertInstantiatedHO(bank, term->args[i]);
+         t->args[i] = TBInsertInstantiatedHO(bank, term->args[i], follow_bind && (i >= ignore_args));
       }
       t = tb_termtop_insert(bank, t);
    }
@@ -878,7 +891,7 @@ __inline__ Term_p TBInsertInstantiated(TB_p bank, Term_p term)
 {
    if (ProblemIsHO == PROBLEM_IS_HO)
    {
-      return TBInsertInstantiatedHO(bank, term);
+      return TBInsertInstantiatedHO(bank, term, true);
    }
    else
    {
@@ -914,6 +927,7 @@ Term_p TBInsertOpt(TB_p bank, Term_p term, DerefType deref)
 
    if(TermIsGround(term) && ProblemIsHO == PROBLEM_NOT_HO)
    {
+      assert(TermIsShared(term));
       return term;
    }
 
