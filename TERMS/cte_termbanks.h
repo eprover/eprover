@@ -135,7 +135,7 @@ Term_p  TBInsertRepl(TB_p bank, Term_p term, DerefType deref, Term_p old, Term_p
 Term_p  TBInsertInstantiatedFO(TB_p bank, Term_p term);
 //     In LFHOL, some prefixes might not be shared, so 
 //     we make sure this happens.
-Term_p TBInsertInstantiatedHO(TB_p bank, Term_p term);
+Term_p TBInsertInstantiatedHO(TB_p bank, Term_p term, bool follow);
 
 #ifdef ENABLE_LFHO
 Term_p  TBInsertInstantiated(TB_p bank, Term_p term);

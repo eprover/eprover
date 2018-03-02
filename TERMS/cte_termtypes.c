@@ -103,6 +103,7 @@ __inline__ Term_p applied_var_deref(Term_p orig)
    assert(TermIsAppliedVar(orig));
    assert(orig->arity > 1);
    assert(orig->args[0]->binding || orig->binding_cache);
+   assert(TermIsShared(orig));
 
    Term_p res;
 
@@ -133,8 +134,7 @@ __inline__ Term_p applied_var_deref(Term_p orig)
             int arity = bound->arity + orig->arity-1;
 
             res = TermTopAlloc(bound->f_code, arity);
-            res->args = TermArgArrayAlloc(arity);
-
+            
             res->type = orig->type; // derefing keeps the types
             res->properties = bound->properties & (TPPredPos);
 
