@@ -373,8 +373,9 @@ static TFormula_p quantified_tform_tstp_parse(Scanner_p in,
       }
    }
    res = TFormulaFCodeAlloc(terms, quantor, var, rest);
-
    VarBankPopEnv(terms->vars);
+
+   assert(TermIsShared(res));
    return res;
 }
 
@@ -494,6 +495,7 @@ static TFormula_p literal_tform_tstp_parse(Scanner_p in, TB_p terms)
       res = TFormulaLitAlloc(lit);
       EqnFree(lit);
    }
+   assert(TermIsShared(res));
    return res;
 }
 
