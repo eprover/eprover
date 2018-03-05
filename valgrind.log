@@ -1,211 +1,93 @@
-==7832== Memcheck, a memory error detector
-==7832== Copyright (C) 2002-2015, and GNU GPL'd, by Julian Seward et al.
-==7832== Using Valgrind-3.11.0 and LibVEX; rerun with -h for copyright info
-==7832== Command: ./PROVER/eprover ../../tptp/lfhol.probs.bool_enc_cnf/SEV206^5.p --soft-cpu-limit=60 --auto --silent
-==7832== Parent PID: 21190
-==7832== 
-==7832== Conditional jump or move depends on uninitialised value(s)
-==7832==    at 0x79959D: SizeFreeReal (clb_memory.h:224)
-==7832==    by 0x79959D: IntMapIterFree (clb_intmap.c:637)
-==7832==    by 0x7278FD: PDTNodeFree (ccl_pdtrees.c:939)
-==7832==    by 0x727A7F: PDTreeFree (ccl_pdtrees.c:869)
-==7832==    by 0x72D942: ClauseSetFree (ccl_clausesets.c:392)
-==7832==    by 0x74E564: ProofStateFree (ccl_proofstate.c:363)
-==7832==    by 0x404985: main (eprover.c:769)
-==7832==  Uninitialised value was created by a heap allocation
-==7832==    at 0x4C2DB8F: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
-==7832==    by 0x78E282: SecureMalloc (clb_memory.c:157)
-==7832==    by 0x798792: SizeMallocReal (clb_memory.h:177)
-==7832==    by 0x798792: IntMapAlloc (clb_intmap.c:234)
-==7832==    by 0x72734F: PDTNodeAlloc (ccl_pdtrees.c:896)
-==7832==    by 0x727456: PDTreeAlloc (ccl_pdtrees.c:831)
-==7832==    by 0x74DD8D: ProofStateAlloc (ccl_proofstate.c:170)
-==7832==    by 0x401F8B: parse_spec (eprover.c:143)
-==7832==    by 0x403C23: main (eprover.c:404)
-==7832== 
-==7832== 
-==7832== HEAP SUMMARY:
-==7832==     in use at exit: 930 bytes in 18 blocks
-==7832==   total heap usage: 57,908 allocs, 57,890 frees, 2,426,796 bytes allocated
-==7832== 
-==7832== 3 bytes in 1 blocks are definitely lost in loss record 1 of 10
-==7832==    at 0x4C2DB8F: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
-==7832==    by 0x78E282: SecureMalloc (clb_memory.c:157)
-==7832==    by 0x78E4D0: SecureStrdup (clb_memory.c:265)
-==7832==    by 0x76A4C6: VarBankPopEnv (cte_termvars.c:579)
-==7832==    by 0x71C3CA: quantified_tform_tstp_parse (ccl_tformulae.c:376)
-==7832==    by 0x71C2EA: quantified_tform_tstp_parse (ccl_tformulae.c:348)
-==7832==    by 0x71C2EA: quantified_tform_tstp_parse (ccl_tformulae.c:348)
-==7832==    by 0x71BE61: literal_tform_tstp_parse (ccl_tformulae.c:436)
-==7832==    by 0x71BD52: TFormulaTSTPParse (ccl_tformulae.c:1059)
-==7832==    by 0x71E151: WFormulaTSTPParse (ccl_formula_wrapper.c:447)
-==7832==    by 0x71E39E: WFormulaParse (ccl_formula_wrapper.c:626)
-==7832==    by 0x73366C: FormulaAndClauseSetParse (ccl_formulafunc.c:750)
-==7832==    by 0x402025: parse_spec (eprover.c:161)
-==7832==    by 0x403C23: main (eprover.c:404)
-==7832== 
-==7832== 6 bytes in 2 blocks are definitely lost in loss record 2 of 10
-==7832==    at 0x4C2DB8F: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
-==7832==    by 0x78E282: SecureMalloc (clb_memory.c:157)
-==7832==    by 0x78E4D0: SecureStrdup (clb_memory.c:265)
-==7832==    by 0x76A4C6: VarBankPopEnv (cte_termvars.c:579)
-==7832==    by 0x71C3CA: quantified_tform_tstp_parse (ccl_tformulae.c:376)
-==7832==    by 0x71C2EA: quantified_tform_tstp_parse (ccl_tformulae.c:348)
-==7832==    by 0x71BE61: literal_tform_tstp_parse (ccl_tformulae.c:436)
-==7832==    by 0x71BD52: TFormulaTSTPParse (ccl_tformulae.c:1059)
-==7832==    by 0x71E151: WFormulaTSTPParse (ccl_formula_wrapper.c:447)
-==7832==    by 0x71E39E: WFormulaParse (ccl_formula_wrapper.c:626)
-==7832==    by 0x73366C: FormulaAndClauseSetParse (ccl_formulafunc.c:750)
-==7832==    by 0x402025: parse_spec (eprover.c:161)
-==7832==    by 0x403C23: main (eprover.c:404)
-==7832== 
-==7832== 9 bytes in 3 blocks are definitely lost in loss record 3 of 10
-==7832==    at 0x4C2DB8F: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
-==7832==    by 0x78E282: SecureMalloc (clb_memory.c:157)
-==7832==    by 0x78E4D0: SecureStrdup (clb_memory.c:265)
-==7832==    by 0x76A4C6: VarBankPopEnv (cte_termvars.c:579)
-==7832==    by 0x71C3CA: quantified_tform_tstp_parse (ccl_tformulae.c:376)
-==7832==    by 0x71BE61: literal_tform_tstp_parse (ccl_tformulae.c:436)
-==7832==    by 0x71BD52: TFormulaTSTPParse (ccl_tformulae.c:1059)
-==7832==    by 0x71E151: WFormulaTSTPParse (ccl_formula_wrapper.c:447)
-==7832==    by 0x71E39E: WFormulaParse (ccl_formula_wrapper.c:626)
-==7832==    by 0x73366C: FormulaAndClauseSetParse (ccl_formulafunc.c:750)
-==7832==    by 0x402025: parse_spec (eprover.c:161)
-==7832==    by 0x403C23: main (eprover.c:404)
-==7832== 
-==7832== 152 (120 direct, 32 indirect) bytes in 1 blocks are definitely lost in loss record 4 of 10
-==7832==    at 0x4C2DB8F: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
-==7832==    by 0x78E282: SecureMalloc (clb_memory.c:157)
-==7832==    by 0x71ACE5: SizeMallocReal (clb_memory.h:177)
-==7832==    by 0x71ACE5: TermDefaultCellAlloc (cte_termtypes.h:506)
-==7832==    by 0x71ACE5: TermTopAlloc (cte_termtypes.h:558)
-==7832==    by 0x71ACE5: TFormulaFCodeAlloc (ccl_tformulae.c:604)
-==7832==    by 0x71C07C: literal_tform_tstp_parse (ccl_tformulae.c:489)
-==7832==    by 0x71C134: assoc_tform_tstp_parse (ccl_tformulae.c:408)
-==7832==    by 0x71BFB7: literal_tform_tstp_parse (ccl_tformulae.c:470)
-==7832==    by 0x71C3A9: quantified_tform_tstp_parse (ccl_tformulae.c:372)
-==7832==    by 0x71C2EA: quantified_tform_tstp_parse (ccl_tformulae.c:348)
-==7832==    by 0x71BE61: literal_tform_tstp_parse (ccl_tformulae.c:436)
-==7832==    by 0x71BD52: TFormulaTSTPParse (ccl_tformulae.c:1059)
-==7832==    by 0x71E151: WFormulaTSTPParse (ccl_formula_wrapper.c:447)
-==7832==    by 0x71E39E: WFormulaParse (ccl_formula_wrapper.c:626)
-==7832==    by 0x73366C: FormulaAndClauseSetParse (ccl_formulafunc.c:750)
-==7832==    by 0x402025: parse_spec (eprover.c:161)
-==7832==    by 0x403C23: main (eprover.c:404)
-==7832== 
-==7832== 152 (120 direct, 32 indirect) bytes in 1 blocks are definitely lost in loss record 5 of 10
-==7832==    at 0x4C2DB8F: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
-==7832==    by 0x78E282: SecureMalloc (clb_memory.c:157)
-==7832==    by 0x713548: SizeMallocReal (clb_memory.h:177)
-==7832==    by 0x713548: TermDefaultCellAlloc (cte_termtypes.h:506)
-==7832==    by 0x713548: EqnTermsTBTermEncode (ccl_eqn.c:801)
-==7832==    by 0x71AEFE: TFormulaLitAlloc (ccl_tformulae.c:643)
-==7832==    by 0x71C097: literal_tform_tstp_parse (ccl_tformulae.c:495)
-==7832==    by 0x71C134: assoc_tform_tstp_parse (ccl_tformulae.c:408)
-==7832==    by 0x71BFB7: literal_tform_tstp_parse (ccl_tformulae.c:470)
-==7832==    by 0x71C3A9: quantified_tform_tstp_parse (ccl_tformulae.c:372)
-==7832==    by 0x71C2EA: quantified_tform_tstp_parse (ccl_tformulae.c:348)
-==7832==    by 0x71C2EA: quantified_tform_tstp_parse (ccl_tformulae.c:348)
-==7832==    by 0x71BE61: literal_tform_tstp_parse (ccl_tformulae.c:436)
-==7832==    by 0x71BD52: TFormulaTSTPParse (ccl_tformulae.c:1059)
-==7832==    by 0x71E151: WFormulaTSTPParse (ccl_formula_wrapper.c:447)
-==7832==    by 0x71E39E: WFormulaParse (ccl_formula_wrapper.c:626)
-==7832==    by 0x73366C: FormulaAndClauseSetParse (ccl_formulafunc.c:750)
-==7832==    by 0x402025: parse_spec (eprover.c:161)
-==7832==    by 0x403C23: main (eprover.c:404)
-==7832== 
-==7832== 152 (120 direct, 32 indirect) bytes in 1 blocks are definitely lost in loss record 6 of 10
-==7832==    at 0x4C2DB8F: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
-==7832==    by 0x78E282: SecureMalloc (clb_memory.c:157)
-==7832==    by 0x772144: SizeMallocReal (clb_memory.h:177)
-==7832==    by 0x772144: TermDefaultCellAlloc (cte_termtypes.h:506)
-==7832==    by 0x772144: normalize_head (cte_termbanks.c:389)
-==7832==    by 0x77566A: TBTermParseRealHO (cte_termbanks.c:1486)
-==7832==    by 0x7754EC: TBTermParseRealHO (cte_termbanks.c:1469)
-==7832==    by 0x7125E6: TBTermParse (cte_termbanks.h:187)
-==7832==    by 0x7125E6: eqn_parse_infix (ccl_eqn.c:320)
-==7832==    by 0x712E40: eqn_parse_real (ccl_eqn.c:546)
-==7832==    by 0x713161: EqnFOFParse (ccl_eqn.c:705)
-==7832==    by 0x71C08C: literal_tform_tstp_parse (ccl_tformulae.c:494)
-==7832==    by 0x71C134: assoc_tform_tstp_parse (ccl_tformulae.c:408)
-==7832==    by 0x71BFB7: literal_tform_tstp_parse (ccl_tformulae.c:470)
-==7832==    by 0x71C3A9: quantified_tform_tstp_parse (ccl_tformulae.c:372)
-==7832==    by 0x71BE61: literal_tform_tstp_parse (ccl_tformulae.c:436)
-==7832==    by 0x71BD52: TFormulaTSTPParse (ccl_tformulae.c:1059)
-==7832==    by 0x71E151: WFormulaTSTPParse (ccl_formula_wrapper.c:447)
-==7832==    by 0x71E39E: WFormulaParse (ccl_formula_wrapper.c:626)
-==7832==    by 0x73366C: FormulaAndClauseSetParse (ccl_formulafunc.c:750)
-==7832==    by 0x402025: parse_spec (eprover.c:161)
-==7832==    by 0x403C23: main (eprover.c:404)
-==7832== 
-==7832== 152 (120 direct, 32 indirect) bytes in 1 blocks are definitely lost in loss record 7 of 10
-==7832==    at 0x4C2DB8F: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
-==7832==    by 0x78E282: SecureMalloc (clb_memory.c:157)
-==7832==    by 0x772144: SizeMallocReal (clb_memory.h:177)
-==7832==    by 0x772144: TermDefaultCellAlloc (cte_termtypes.h:506)
-==7832==    by 0x772144: normalize_head (cte_termbanks.c:389)
-==7832==    by 0x77566A: TBTermParseRealHO (cte_termbanks.c:1486)
-==7832==    by 0x7131B7: TBTermParse (cte_termbanks.h:187)
-==7832==    by 0x7131B7: EqnHOFParse (ccl_eqn.c:718)
-==7832==    by 0x71BF65: literal_tform_tstp_parse (ccl_tformulae.c:462)
-==7832==    by 0x71C3A9: quantified_tform_tstp_parse (ccl_tformulae.c:372)
-==7832==    by 0x71C2EA: quantified_tform_tstp_parse (ccl_tformulae.c:348)
-==7832==    by 0x71C2EA: quantified_tform_tstp_parse (ccl_tformulae.c:348)
-==7832==    by 0x71C2EA: quantified_tform_tstp_parse (ccl_tformulae.c:348)
-==7832==    by 0x71C2EA: quantified_tform_tstp_parse (ccl_tformulae.c:348)
-==7832==    by 0x71C2EA: quantified_tform_tstp_parse (ccl_tformulae.c:348)
-==7832==    by 0x71C2EA: quantified_tform_tstp_parse (ccl_tformulae.c:348)
-==7832==    by 0x71C2EA: quantified_tform_tstp_parse (ccl_tformulae.c:348)
-==7832==    by 0x71C2EA: quantified_tform_tstp_parse (ccl_tformulae.c:348)
-==7832==    by 0x71BE61: literal_tform_tstp_parse (ccl_tformulae.c:436)
-==7832==    by 0x71BD52: TFormulaTSTPParse (ccl_tformulae.c:1059)
-==7832==    by 0x71E151: WFormulaTSTPParse (ccl_formula_wrapper.c:447)
-==7832==    by 0x71E39E: WFormulaParse (ccl_formula_wrapper.c:626)
-==7832==    by 0x73366C: FormulaAndClauseSetParse (ccl_formulafunc.c:750)
-==7832==    by 0x402025: parse_spec (eprover.c:161)
-==7832==    by 0x403C23: main (eprover.c:404)
-==7832== 
-==7832== 152 (120 direct, 32 indirect) bytes in 1 blocks are definitely lost in loss record 8 of 10
-==7832==    at 0x4C2DB8F: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
-==7832==    by 0x78E282: SecureMalloc (clb_memory.c:157)
-==7832==    by 0x71ACE5: SizeMallocReal (clb_memory.h:177)
-==7832==    by 0x71ACE5: TermDefaultCellAlloc (cte_termtypes.h:506)
-==7832==    by 0x71ACE5: TermTopAlloc (cte_termtypes.h:558)
-==7832==    by 0x71ACE5: TFormulaFCodeAlloc (ccl_tformulae.c:604)
-==7832==    by 0x71B052: TFormulaQuantorAlloc (ccl_tformulae.c:693)
-==7832==    by 0x752CF0: TFormulaShiftQuantors2 (ccl_tcnf.c:1662)
-==7832==    by 0x7533D9: WTFormulaConjunctiveNF2 (ccl_tcnf.c:1873)
-==7832==    by 0x73421E: WFormulaCNF2 (ccl_formulafunc.c:479)
-==7832==    by 0x734E4C: FormulaSetCNF2 (ccl_formulafunc.c:643)
-==7832==    by 0x403E07: main (eprover.c:451)
-==7832== 
-==7832== 152 (120 direct, 32 indirect) bytes in 1 blocks are definitely lost in loss record 9 of 10
-==7832==    at 0x4C2DB8F: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
-==7832==    by 0x78E282: SecureMalloc (clb_memory.c:157)
-==7832==    by 0x760FE8: SizeMallocReal (clb_memory.h:177)
-==7832==    by 0x760FE8: TermDefaultCellAlloc (cte_termtypes.h:506)
-==7832==    by 0x760FE8: TermTopAlloc (cte_termtypes.h:558)
-==7832==    by 0x760FE8: applied_var_deref (cte_termtypes.c:122)
-==7832==    by 0x7731D2: deref_step (cte_termtypes.h:344)
-==7832==    by 0x7731D2: TermDeref (cte_termtypes.h:395)
-==7832==    by 0x7731D2: TBInsertNoProps (cte_termbanks.c:690)
-==7832==    by 0x7731AF: TBInsertNoProps (cte_termbanks.c:707)
-==7832==    by 0x7731AF: TBInsertNoProps (cte_termbanks.c:707)
-==7832==    by 0x752437: TFormulaVarRename (ccl_tcnf.c:1530)
-==7832==    by 0x7524C8: TFormulaVarRename (ccl_tcnf.c:1545)
-==7832==    by 0x752484: TFormulaVarRename (ccl_tcnf.c:1541)
-==7832==    by 0x752458: TFormulaVarRename (ccl_tcnf.c:1537)
-==7832==    by 0x75338B: WTFormulaConjunctiveNF2 (ccl_tcnf.c:1863)
-==7832==    by 0x73421E: WFormulaCNF2 (ccl_formulafunc.c:479)
-==7832==    by 0x734E4C: FormulaSetCNF2 (ccl_formulafunc.c:643)
-==7832==    by 0x403E07: main (eprover.c:451)
-==7832== 
-==7832== LEAK SUMMARY:
-==7832==    definitely lost: 738 bytes in 12 blocks
-==7832==    indirectly lost: 192 bytes in 6 blocks
-==7832==      possibly lost: 0 bytes in 0 blocks
-==7832==    still reachable: 0 bytes in 0 blocks
-==7832==         suppressed: 0 bytes in 0 blocks
-==7832== 
-==7832== For counts of detected and suppressed errors, rerun with: -v
-==7832== ERROR SUMMARY: 10 errors from 10 contexts (suppressed: 0 from 0)
+==14372== Memcheck, a memory error detector
+==14372== Copyright (C) 2002-2015, and GNU GPL'd, by Julian Seward et al.
+==14372== Using Valgrind-3.11.0 and LibVEX; rerun with -h for copyright info
+==14372== Command: ./PROVER/eprover ../../tptp/lfhol.probs.bool_enc_cnf/SEV106^5.p --soft-cpu-limit=100 --auto --silent
+==14372== Parent PID: 3866
+==14372== 
+==14372== 
+==14372== Process terminating with default action of signal 6 (SIGABRT)
+==14372==    at 0x5178428: raise (raise.c:54)
+==14372==    by 0x517A029: abort (abort.c:89)
+==14372==    by 0x5170BD6: __assert_fail_base (assert.c:92)
+==14372==    by 0x5170C81: __assert_fail (assert.c:101)
+==14372==    by 0x7658E9: tb_termtop_insert (cte_termbanks.c:164)
+==14372==    by 0x767ACA: TBTermTopInsert (cte_termbanks.c:1012)
+==14372==    by 0x75624F: applied_var_deref (cte_termtypes.c:159)
+==14372==    by 0x766D37: deref_step (cte_termtypes.h:345)
+==14372==    by 0x766D37: TermDeref (cte_termtypes.h:396)
+==14372==    by 0x766D37: TBInsertNoProps (cte_termbanks.c:683)
+==14372==    by 0x766D15: TBInsertNoProps (cte_termbanks.c:700)
+==14372==    by 0x76CB87: TBTermPosReplace (cte_replace.c:231)
+==14372==    by 0x73918B: ClausePlainParamodConstruct (ccl_paramod.c:205)
+==14372==    by 0x739B92: ClauseParamodConstruct (ccl_paramod.c:412)
+==14372==    by 0x40C7E7: compute_from_pm_pos_clause (cco_paramodulation.c:486)
+==14372==    by 0x40C7E7: compute_pos_from_pm_term (cco_paramodulation.c:585)
+==14372==    by 0x40CF79: compute_pos_from_pm_termtree (cco_paramodulation.c:622)
+==14372==    by 0x40CF79: compute_pos_from_pm (cco_paramodulation.c:661)
+==14372==    by 0x40E420: ComputeFromParamodulants (cco_paramodulation.c:937)
+==14372==    by 0x40EBF7: ComputeAllParamodulantsIndexed (cco_paramodulation.c:1045)
+==14372==    by 0x4070F7: generate_new_clauses (cco_proofproc.c:522)
+==14372==    by 0x4070F7: ProcessClause (cco_proofproc.c:1440)
+==14372==    by 0x407320: Saturate (cco_proofproc.c:1508)
+==14372==    by 0x404047: main (eprover.c:544)
+==14372== 
+==14372== HEAP SUMMARY:
+==14372==     in use at exit: 2,194,140 bytes in 33,291 blocks
+==14372==   total heap usage: 47,142 allocs, 13,851 frees, 2,483,940 bytes allocated
+==14372== 
+==14372== 6 bytes in 2 blocks are definitely lost in loss record 31 of 1,158
+==14372==    at 0x4C2DB8F: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==14372==    by 0x78020A: SecureMalloc (clb_memory.c:157)
+==14372==    by 0x7803E4: SecureStrdup (clb_memory.c:265)
+==14372==    by 0x75EA79: VarBankPopEnv (cte_termvars.c:579)
+==14372==    by 0x716C96: quantified_tform_tstp_parse (ccl_tformulae.c:376)
+==14372==    by 0x716BB6: quantified_tform_tstp_parse (ccl_tformulae.c:348)
+==14372==    by 0x716BB6: quantified_tform_tstp_parse (ccl_tformulae.c:348)
+==14372==    by 0x71672D: literal_tform_tstp_parse (ccl_tformulae.c:436)
+==14372==    by 0x71661E: TFormulaTSTPParse (ccl_tformulae.c:1059)
+==14372==    by 0x718739: WFormulaTSTPParse (ccl_formula_wrapper.c:447)
+==14372==    by 0x718986: WFormulaParse (ccl_formula_wrapper.c:626)
+==14372==    by 0x72BE26: FormulaAndClauseSetParse (ccl_formulafunc.c:750)
+==14372==    by 0x401FB6: parse_spec (eprover.c:161)
+==14372==    by 0x403BB4: main (eprover.c:404)
+==14372== 
+==14372== 9 bytes in 3 blocks are definitely lost in loss record 62 of 1,158
+==14372==    at 0x4C2DB8F: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==14372==    by 0x78020A: SecureMalloc (clb_memory.c:157)
+==14372==    by 0x7803E4: SecureStrdup (clb_memory.c:265)
+==14372==    by 0x75EA79: VarBankPopEnv (cte_termvars.c:579)
+==14372==    by 0x716C96: quantified_tform_tstp_parse (ccl_tformulae.c:376)
+==14372==    by 0x71672D: literal_tform_tstp_parse (ccl_tformulae.c:436)
+==14372==    by 0x71661E: TFormulaTSTPParse (ccl_tformulae.c:1059)
+==14372==    by 0x718739: WFormulaTSTPParse (ccl_formula_wrapper.c:447)
+==14372==    by 0x718986: WFormulaParse (ccl_formula_wrapper.c:626)
+==14372==    by 0x72BE26: FormulaAndClauseSetParse (ccl_formulafunc.c:750)
+==14372==    by 0x401FB6: parse_spec (eprover.c:161)
+==14372==    by 0x403BB4: main (eprover.c:404)
+==14372== 
+==14372== 9 bytes in 3 blocks are definitely lost in loss record 63 of 1,158
+==14372==    at 0x4C2DB8F: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==14372==    by 0x78020A: SecureMalloc (clb_memory.c:157)
+==14372==    by 0x7803E4: SecureStrdup (clb_memory.c:265)
+==14372==    by 0x75EA79: VarBankPopEnv (cte_termvars.c:579)
+==14372==    by 0x716C96: quantified_tform_tstp_parse (ccl_tformulae.c:376)
+==14372==    by 0x716BB6: quantified_tform_tstp_parse (ccl_tformulae.c:348)
+==14372==    by 0x71672D: literal_tform_tstp_parse (ccl_tformulae.c:436)
+==14372==    by 0x71661E: TFormulaTSTPParse (ccl_tformulae.c:1059)
+==14372==    by 0x718739: WFormulaTSTPParse (ccl_formula_wrapper.c:447)
+==14372==    by 0x718986: WFormulaParse (ccl_formula_wrapper.c:626)
+==14372==    by 0x72BE26: FormulaAndClauseSetParse (ccl_formulafunc.c:750)
+==14372==    by 0x401FB6: parse_spec (eprover.c:161)
+==14372==    by 0x403BB4: main (eprover.c:404)
+==14372== 
+==14372== LEAK SUMMARY:
+==14372==    definitely lost: 24 bytes in 8 blocks
+==14372==    indirectly lost: 0 bytes in 0 blocks
+==14372==      possibly lost: 0 bytes in 0 blocks
+==14372==    still reachable: 2,194,116 bytes in 33,283 blocks
+==14372==         suppressed: 0 bytes in 0 blocks
+==14372== Reachable blocks (those to which a pointer was found) are not shown.
+==14372== To see them, rerun with: --leak-check=full --show-leak-kinds=all
+==14372== 
+==14372== For counts of detected and suppressed errors, rerun with: -v
+==14372== ERROR SUMMARY: 3 errors from 3 contexts (suppressed: 0 from 0)

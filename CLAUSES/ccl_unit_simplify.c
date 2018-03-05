@@ -96,7 +96,7 @@ SimplifyRes FindTopSimplifyingUnit(ClauseSet_p units, Term_p t1,
       TermPrint(stderr, ClausePosGetOtherSide(pos), sig, DEREF_NEVER);
       fprintf(stderr, ".\n");*/
 
-      if((remains = SubstMatchPossiblyPartial(ClausePosGetOtherSide(pos), t2, subst, sig)) 
+      if((remains = SubstMatchPossiblyPartial(ClausePosGetOtherSide(pos), t2, subst, units->demod_index->bank)) 
             != NOT_MATCHED)
       {
         // if the problem is not HO, we match completely.
@@ -146,11 +146,12 @@ SimplifyRes FindSignedTopSimplifyingUnit(ClauseSet_p units, Term_p t1,
    while((mi = PDTreeFindNextDemodulator(units->demod_index, subst)))
    {
       pos = mi->matcher;
-      Sig_p sig = pos->literal->bank->sig;
+      //Sig_p sig = pos->literal->bank->sig;
+      TB_p bank = units->demod_index->bank;
 
       if(EQUIV(EqnIsPositive(pos->literal), sign)
           && (remains = 
-                SubstMatchPossiblyPartial(ClausePosGetOtherSide(pos), t2, subst, sig)) != NOT_MATCHED)
+                SubstMatchPossiblyPartial(ClausePosGetOtherSide(pos), t2, subst, bank)) != NOT_MATCHED)
       {
         // if the problem is not HO, we match completely.
         assert(!(ProblemIsHO == PROBLEM_NOT_HO) || remains == 0);

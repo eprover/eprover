@@ -27,6 +27,7 @@
 /*---------------------------------------------------------------------*/
 
 char* UseInlinedWatchList = WATCHLIST_INLINE_STRING;
+extern TB_p bank;
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
@@ -148,6 +149,9 @@ ProofState_p ProofStateAlloc(FunctionProperties free_symb_prop)
    SigInsertInternalCodes(handle->signature);
    handle->original_symbols     = 0;
    handle->terms                = TBAlloc(handle->signature);
+
+   bank = handle->terms;
+
    handle->tmp_terms            = TBAlloc(handle->signature);
    handle->freshvars            = VarBankAlloc(handle->type_bank);
    handle->f_axioms             = FormulaSetAlloc();
@@ -166,9 +170,9 @@ ProofState_p ProofStateAlloc(FunctionProperties free_symb_prop)
    GlobalIndicesNull(&(handle->gindices));
    handle->fvi_initialized     = false;
    handle->fvi_cspec           = NULL;
-   handle->processed_pos_rules->demod_index = PDTreeAlloc(handle->signature);
-   handle->processed_pos_eqns->demod_index  = PDTreeAlloc(handle->signature);
-   handle->processed_neg_units->demod_index = PDTreeAlloc(handle->signature);
+   handle->processed_pos_rules->demod_index = PDTreeAlloc(handle->terms);
+   handle->processed_pos_eqns->demod_index  = PDTreeAlloc(handle->terms);
+   handle->processed_neg_units->demod_index = PDTreeAlloc(handle->terms);
    handle->demods[0]            = handle->processed_pos_rules;
    handle->demods[1]            = handle->processed_pos_eqns;
    handle->demods[2]            = NULL;

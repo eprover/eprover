@@ -86,6 +86,7 @@ typedef enum
                                    this occurs with negative polarity. */
    TPIsDerefedAppVar  = 1<<20,  /* Is the object obtained as a cache
                                    for applied variables */
+   TPFromNonShared    = 1<<21,  /* for dbg */
 }TermProperties;
 
 
@@ -165,7 +166,7 @@ typedef uintptr_t DerefType, *DerefType_p;
 
 #ifdef ENABLE_LFHO
 #define CAN_DEREF(term) ((TermIsVar(term) && (term)->binding) || (TermIsAppliedVar(term) && \
-                                (term->binding_cache || term->args[0]->binding)))
+                                (term->args[0]->binding)))
 #else
 #define CAN_DEREF(term) (((term)->binding))
 #endif

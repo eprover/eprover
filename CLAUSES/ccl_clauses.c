@@ -2509,6 +2509,7 @@ Clause_p ClauseNormalizeVars(Clause_p clause, VarBank_p fresh_vars)
    Subst_p subst;
 
    assert(!ClauseQueryProp(clause,CPIsDIndexed));
+   assert(clause->literals->bank->vars != fresh_vars);
 
    if(!ClauseIsEmpty(clause))
    {

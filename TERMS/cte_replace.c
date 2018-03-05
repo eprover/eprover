@@ -175,6 +175,7 @@ Term_p TBTermPosReplace(TB_p bank, Term_p repl, TermPos_p pos,
    /* Note that we start inside-out here - the first term handled is
       the actual subterm replaced, at the end repl is the complete
       term generated.*/
+
    while(i)
    {
       i--;
@@ -189,8 +190,10 @@ Term_p TBTermPosReplace(TB_p bank, Term_p repl, TermPos_p pos,
       if (remains != -1)
       {
          Term_p tmp_repl = MakeRewrittenTerm(TermDerefAlways(handle->args[subscript]), 
-                                                     TermDerefAlways(repl), remains);
+                                             TermDerefAlways(repl), remains);
+
          handle->args[subscript] = remains ? TBTermTopInsert(bank, tmp_repl) : tmp_repl;
+
          remains = -1;
       }
       else
