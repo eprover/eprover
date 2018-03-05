@@ -101,7 +101,7 @@ typedef struct pd_tree_cell
                searched? */
    unsigned  long visited_count; /* How many nodes in the index have
                been visited? */
-   Sig_p     sig;            /* Used for determining head symbol types
+   TB_p      bank;            /* Used for determining head symbol types
                                 in HO case */
 }PDTreeCell, *PDTree_p;
 
@@ -146,7 +146,7 @@ extern unsigned long PDTNodeCounter;
 #define PDTREE_CELL_MEM MEMSIZE(PDTreeCell)
 #endif
 
-PDTree_p  PDTreeAlloc(Sig_p sig);
+PDTree_p  PDTreeAlloc(TB_p bank);
 void      PDTreeFree(PDTree_p tree);
 
 #ifdef CONSTANT_MEM_ESTIMATE

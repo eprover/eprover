@@ -134,13 +134,6 @@ static Term_p tb_termtop_insert(TB_p bank, Term_p t)
    assert(!TermIsVar(t));
    assert(!TermIsAppliedVar(t) || TermIsVar(t->args[0]));
 
-#ifndef NDEBUG
-   for(int i=0; i<t->arity; i++)
-   {
-      assert(TermIsShared(t->args[i]));
-   }
-#endif
-
    /* Infer the sort of this term (may be temporary) */
    if(t->type == NULL)
    {
@@ -1641,10 +1634,10 @@ void TBGCMarkTerm(TB_p bank, Term_p term)
             PStackPushP(stack, TermRWReplaceField(term));
          }
 
-         if (TermIsAppliedVar(term))
+         if (TermIsAppliedVar(term) && term->binding_cache)
          {
-            term->binding_cache = NULL;
-            ClearStaleCache(term);
+            assert(TermIsShared(term->binding_cache));
+            PStackPushP(stack, term->binding_cache);
          }
       }
    }

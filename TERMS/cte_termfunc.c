@@ -2105,6 +2105,8 @@ Term_p TermCreatePrefix(Term_p orig, int arg_num)
       {
          prefix->args[i] = orig->args[i];
       }
+
+      assert(!TermIsShared(prefix));
    }
 
 

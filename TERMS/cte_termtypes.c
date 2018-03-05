@@ -22,12 +22,13 @@
 -----------------------------------------------------------------------*/
 
 #include "cte_termtypes.h"
+#include "cte_termbanks.h"
 
 
 /*---------------------------------------------------------------------*/
 /*                        Global Variables                             */
 /*---------------------------------------------------------------------*/
-
+TB_p bank;
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
@@ -56,10 +57,10 @@ void ClearStaleCache(Term_p app_var)
    assert(TermIsAppliedVar(app_var));
    assert(!BINDING_FRESH(app_var));
 
-   if (app_var->binding_cache && !TermIsShared(app_var->binding_cache))
+   /*if (app_var->binding_cache && !TermIsShared(app_var->binding_cache))
    {
       TermTopFree(app_var->binding_cache);
-   }
+   }*/
    app_var->binding_cache = NULL;
    app_var->binding = NULL;
 }
@@ -84,6 +85,10 @@ static __inline__ void register_new_cache(Term_p app_var, Term_p bound_to)
    app_var->binding_cache = bound_to;
 
    TermCellSetProp(app_var->binding_cache, TPIsDerefedAppVar);
+   if (!TermIsShared(app_var))
+   {
+      TermCellSetProp(app_var->binding_cache, TPFromNonShared);
+   }
 }
 
 
@@ -98,17 +103,33 @@ static __inline__ void register_new_cache(Term_p app_var, Term_p bound_to)
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
+
+Term_p insert_deref(Term_p deref_cache)
+{
+   for(int i=0; i<deref_cache->arity; i++)
+   {
+      if (!TermIsVar(deref_cache->args[i]) && !TermIsShared(deref_cache->args[i]))
+      {
+         deref_cache->args[i] = TBInsert(bank, deref_cache->args[i], DEREF_NEVER);
+      }
+   }
+
+   return TBTermTopInsert(bank, deref_cache);
+}
+
+
 __inline__ Term_p applied_var_deref(Term_p orig)
 {
+
    assert(TermIsAppliedVar(orig));
    assert(orig->arity > 1);
    assert(orig->args[0]->binding || orig->binding_cache);
-   //assert(TermIsShared(orig));
 
    Term_p res;
 
    if (BINDING_FRESH(orig))
    {
+      assert(TermCellQueryProp(orig->binding_cache, TPIsDerefedAppVar));
       res = orig->binding_cache;      
    }
    else
@@ -151,7 +172,7 @@ __inline__ Term_p applied_var_deref(Term_p orig)
             }
          }
 
-         register_new_cache(orig, res);
+         register_new_cache(orig, insert_deref(res));
       }
       else
       {
@@ -195,14 +216,14 @@ void TermTopFree(Term_p junk)
       assert(!junk->args);
    }
 
-   if (TermIsAppliedVar(junk))
+   /*if (TermIsAppliedVar(junk))
    {
       if (junk->binding_cache)
       {
          TermTopFree(junk->binding_cache);
       }
       junk->binding_cache = NULL;
-   }
+   }*/
 
    TermCellFree(junk);
 }

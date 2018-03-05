@@ -590,10 +590,10 @@ static void pdtree_forward(PDTree_p tree, Subst_p subst)
              }
              else
              {
-               int matched_up_to = PartiallyMatchVar(next->variable, term, tree->sig, false);
+               int matched_up_to = PartiallyMatchVar(next->variable, term, tree->bank->sig, false);
                if (matched_up_to != NOT_MATCHED)
                {
-                  SubstBindAppVar(subst, next->variable, term, matched_up_to);
+                  SubstBindAppVar(subst, next->variable, term, matched_up_to, tree->bank);
                   PStackPushP(tree->term_proc, term);
                   PStackDiscardTop(tree->term_stack);
 
@@ -822,7 +822,7 @@ void pdt_node_print(FILE* out, PDTNode_p node, int level)
 //
 /----------------------------------------------------------------------*/
 
-PDTree_p PDTreeAlloc(Sig_p sig)
+PDTree_p PDTreeAlloc(TB_p bank)
 {
    PDTree_p handle;
 
@@ -844,7 +844,7 @@ PDTree_p PDTreeAlloc(Sig_p sig)
    handle->arr_storage_est = 0;
    handle->match_count     = 0;
    handle->visited_count   = 0;
-   handle->sig             = sig;
+   handle->bank            = bank;
 
    return handle;
 }
