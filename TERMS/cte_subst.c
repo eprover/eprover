@@ -71,12 +71,6 @@ bool SubstBacktrackSingle(Subst_p subst)
       return false;
    }
    handle = PStackPopP(subst);
-   
-   if (!TermIsShared(handle->binding) 
-         && !TermCellQueryProp(handle->binding, TPIsDerefedAppVar))
-   {
-      TermTopFree(handle->binding);
-   }
 
    assert(TermIsVar(handle));
    handle->binding = NULL;
@@ -429,7 +423,7 @@ void SubstCompleteInstance(Subst_p subst, Term_p term,
 // Side Effects    : Changes subst.
 //
 /----------------------------------------------------------------------*/
-PStackPointer SubstBindAppVar(Subst_p subst, Term_p var, Term_p to_bind, int up_to)
+PStackPointer SubstBindAppVar(Subst_p subst, Term_p var, Term_p to_bind, int up_to, TB_p bank)
 {
    PStackPointer ret = PStackGetSP(subst);
    assert(var);
@@ -441,9 +435,10 @@ PStackPointer SubstBindAppVar(Subst_p subst, Term_p var, Term_p to_bind, int up_
    assert(to_bind->type);
 
    Term_p to_bind_pref = TermCreatePrefix(to_bind, up_to);
+
    to_bind_pref->type = var->type;
 
-   var->binding = to_bind_pref;
+   var->binding = TermIsShared(to_bind_pref) ? to_bind_pref : TBTermTopInsert(bank, to_bind_pref);
    PStackPushP(subst, var);    
 
    return ret;
