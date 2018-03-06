@@ -57,10 +57,6 @@ void ClearStaleCache(Term_p app_var)
    assert(TermIsAppliedVar(app_var));
    assert(!BINDING_FRESH(app_var));
 
-   /*if (app_var->binding_cache && !TermIsShared(app_var->binding_cache))
-   {
-      TermTopFree(app_var->binding_cache);
-   }*/
    app_var->binding_cache = NULL;
    app_var->binding = NULL;
 }
@@ -120,7 +116,6 @@ Term_p insert_deref(Term_p deref_cache)
 
 __inline__ Term_p applied_var_deref(Term_p orig)
 {
-
    assert(TermIsAppliedVar(orig));
    assert(orig->arity > 1);
    assert(orig->args[0]->binding || orig->binding_cache);
@@ -130,11 +125,12 @@ __inline__ Term_p applied_var_deref(Term_p orig)
    if (BINDING_FRESH(orig))
    {
       assert(TermCellQueryProp(orig->binding_cache, TPIsDerefedAppVar));
-      res = orig->binding_cache;      
+      res = orig->binding_cache;
    }
    else
    {
       ClearStaleCache(orig);
+
 
       if (orig->args[0]->binding)
       {
@@ -172,7 +168,8 @@ __inline__ Term_p applied_var_deref(Term_p orig)
             }
          }
 
-         register_new_cache(orig, insert_deref(res));
+
+         register_new_cache(orig, (res = insert_deref(res)));
       }
       else
       {

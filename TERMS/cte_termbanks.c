@@ -134,6 +134,13 @@ static Term_p tb_termtop_insert(TB_p bank, Term_p t)
    assert(!TermIsVar(t));
    assert(!TermIsAppliedVar(t) || TermIsVar(t->args[0]));
 
+#ifndef NDEBUG
+   for(int i=0; i<t->arity; i++)
+   {
+      assert(TermIsShared(t->args[i]));
+   }
+#endif   
+
    /* Infer the sort of this term (may be temporary) */
    if(t->type == NULL)
    {
@@ -1449,7 +1456,7 @@ Term_p  TBTermParseRealHO(Scanner_p in, TB_p bank, bool check_symb_prop)
    }
 
    allocated = TERMS_INITIAL_ARGS;
-   rest_args = (Term_p*)SizeMalloc(allocated*sizeof(Term_p));
+   rest_args = (Term_p*)SecureMalloc(allocated*sizeof(Term_p));
    rest_arity = 0;
    
    while(TestInpTok(in, Application))
@@ -1489,7 +1496,7 @@ Term_p  TBTermParseRealHO(Scanner_p in, TB_p bank, bool check_symb_prop)
 
    if (allocated)
    {
-      SizeFree(rest_args, allocated*sizeof(Term_p));
+      FREE(rest_args);
    }
    assert(TermIsShared(res));
    return res;
