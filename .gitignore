@@ -38,6 +38,9 @@ TEST/patterntest
 *.exe
 *.out
 *.csv
+*.zip
+*.tar.gz
+*.tar
 out*
 *.dSYM/
 *.csv
