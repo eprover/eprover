@@ -41,6 +41,7 @@ TEST/patterntest
 *.zip
 *.tar.gz
 *.tar
+*.err
 out*
 *.dSYM/
 *.csv
