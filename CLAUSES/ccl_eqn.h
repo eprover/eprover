@@ -239,6 +239,7 @@ bool    EqnHasUnboundVars(Eqn_p eq, EqnSide dom_side);
 EqnSide EqnIsDefinition(Eqn_p eq, int min_arity);
 
 int     EqnSubsumeQOrderCompare(const void* lit1, const void* lit2);
+int     EqnSubsumeQOrderCompareIgnoreAppVar(const void* lit1, const void* lit2);
 int     EqnSubsumeInverseCompareRef(const void* lit1ref, const void* lit2ref);
 int     EqnSubsumeInverseRefinedCompareRef(const void* lit1ref, const void* lit2ref);
 int     EqnSubsumeCompare(Eqn_p l1, Eqn_p l2);

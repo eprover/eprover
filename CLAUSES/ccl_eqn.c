@@ -1548,12 +1548,69 @@ int EqnSubsumeQOrderCompare(const void* lit1, const void* lit2)
    {
       // In HO case, we might have variables that we want to keep at the end
       // (comparing them by the weight) -- predicate variables (imagine ~X2)
-
-      res = CMP(l1->lterm->f_code, l2->lterm->f_code);
+      if (ProblemIsHO == PROBLEM_NOT_HO)
+      {
+         res = CMP(l1->lterm->f_code, l2->lterm->f_code);   
+      }
+      else
+      {
+         return TermIsTopLevelVar(l1->lterm) ? (TermIsTopLevelVar(l2->lterm) ? 0 : -1)
+                 : (TermIsTopLevelVar(l2->lterm) ? 1 : CMP(l1->lterm->f_code, l2->lterm->f_code));
+      }
+      
    }
    return res;
 }
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: EqnSubsumeQOrderCompareIgnoreAppVar()
+//
+//   Compare two equations with a quasi-ordering that
+//   ensures that only equivalent equations can subsume each other.
+//
+//   Makes (applied) variables behave as wildcards. 
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+int EqnSubsumeQOrderCompareIgnoreAppVar(const void* lit1, const void* lit2)
+{
+   int res;
+   const Eqn_p l1 = (const Eqn_p) lit1;
+   const Eqn_p l2 = (const Eqn_p) lit2;
+
+   res = EqnIsPositive(l1) - EqnIsPositive(l2);
+   if(res)
+   {
+      return res;
+   }
+   res = EqnIsEquLit(l1) - EqnIsEquLit(l2);
+   if(res)
+   {
+      return res;
+   }
+
+   if (!EqnIsEquLit(l1) && ProblemIsHO == PROBLEM_NOT_HO)
+   {
+      // In HO case, we might have variables that we want to keep at the end
+      // (comparing them by the weight) -- predicate variables (imagine ~X2)
+      if (ProblemIsHO == PROBLEM_NOT_HO)
+      {
+         res = CMP(l1->lterm->f_code, l2->lterm->f_code);   
+      }
+      else
+      {
+         return TermIsTopLevelVar(l1->lterm) ? 0 : CMP(l1->lterm->f_code, l2->lterm->f_code);
+      }
+      
+   }
+   return res;
+}
 
 /*-----------------------------------------------------------------------
 //

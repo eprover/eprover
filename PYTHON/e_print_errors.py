@@ -17,7 +17,7 @@ def print_errors(binary, test_folder, timeout=60):
         
       args = [binary, filepath, '--auto', '--silent',
               '--cpu-limit={0}'.format(timeout)]
-      res  = run_e(args)
+      res  = run_e(args, print_status=True)
 
       # if errors_only then an error has to be present.
       if not ERRORS_ONLY or any(res[2].strip()):

@@ -351,7 +351,7 @@ static Eqn_p find_spec_literal(Eqn_p lit, Eqn_p list)
    for(;list;list = list->next)
    {
       /*cmpres = EqnSubsumeQOrderCompare(lit, list);*/
-      cmpres = EqnSubsumeQOrderCompare(lit, list);
+      cmpres = EqnSubsumeQOrderCompareIgnoreAppVar(lit, list);
 
       /*fprintf(stderr, "cmp ");
       EqnPrint(stderr, lit, false, true);
@@ -619,7 +619,7 @@ bool eqn_list_rec_subsume(Eqn_p subsum_list, Eqn_p sub_cand_list,
          continue;
       }
 
-      cmpres = EqnSubsumeQOrderCompare(eqn, subsum_list);
+      cmpres = EqnSubsumeQOrderCompareIgnoreAppVar(eqn, subsum_list);
 
       if(cmpres < 0)
       {
