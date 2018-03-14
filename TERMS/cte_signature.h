@@ -211,7 +211,7 @@ void    SigSetPolymorphic(Sig_p sig, FunCode f_code, bool value);
 bool    SigQueryProp(Sig_p sig, FunCode f, FunctionProperties prop);
 
 #define SigIsFunConst(sig, f_code) (SigFindArity((sig), (f_code))==0&&\
-                                    SigIsPredicate((sig),(f_code)))
+                                    !SigIsPredicate((sig),(f_code)))
 #define SigIsSimpleAnswerPred(sig, f_code) \
         ((f_code)==(sig)->answer_code)
 

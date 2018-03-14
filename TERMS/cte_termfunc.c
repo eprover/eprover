@@ -1166,12 +1166,20 @@ long TermFsumWeight(Term_p term, long vweight, long flimit,
          {
             res += fweights[term->f_code];
          }
+         else
+         {
+            assert(ProblemIsHO == PROBLEM_IS_HO);
+         }
       }
       else
       {
          if (!TermIsAppliedVar(term))
          {
             res += default_fweight;   
+         }
+         else
+         {
+            assert(ProblemIsHO == PROBLEM_IS_HO);
          }
          
       }

@@ -108,13 +108,7 @@ long   VarBankCollectVars(VarBank_p bank, PStack_p stack);
 #define VarBankGetVCount(bank)      ((bank)->v_count)
 #define VarBankSetVCount(bank,count) ((bank)->v_count = (count))
 
-#ifdef NDEBUG
 #define VarBankResetVCount(bank) ((bank)->v_count = 0)
-#else
-#define VarBankResetVCount(bank) (/*(void)VarBankGetVCount(bank)*/ (bank)->v_count = 0)
-#endif
-
-//#define VarBankResetVCount(bank) ((bank)->v_count = 0)
 
 #define VarIsFreshVar(var) ((var)->f_code <= -FRESH_VAR_LIMIT)
 #define VarFCodeIsFresh(f_code) ((f_code) <= -FRESH_VAR_LIMIT)

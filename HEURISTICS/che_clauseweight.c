@@ -263,7 +263,7 @@ double LMaxWeightCompute(void* data, Clause_p clause)
       tmp = EqnMaxWeight(handle, local->vweight, local->fweight);
       if(EqnIsPositive(handle))
       {
-    tmp = tmp*local->pos_multiplier;
+         tmp = tmp*local->pos_multiplier;
       }
       res += tmp;
    }
