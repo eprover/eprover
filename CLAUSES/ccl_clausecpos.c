@@ -75,7 +75,7 @@ CompactPos PackTermPos(TermPos_p pos)
       assert(!TermIsVar(t));
       assert(p < t->arity);
 
-      res += !TermIsAppliedVar(t) ? DEFAULT_FWEIGHT : 0;
+      res += ((!TermIsAppliedVar(t)) ? DEFAULT_FWEIGHT : 0);
 
       for(i=0; i<p; i++)
       {

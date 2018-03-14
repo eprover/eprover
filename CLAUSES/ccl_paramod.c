@@ -305,17 +305,18 @@ Clause_p ClauseSimParamodConstruct(ParamodInfo_p ol_desc)
                           subst, ol_desc->freshvars);
    NormSubstEqnListExcept(ol_desc->from->literals, NULL,
                           subst, ol_desc->freshvars);
-   assert(ClausePosGetSide(ol_desc->from_pos)->type == ClausePosGetOtherSide(ol_desc->from_pos)->type);
+   assert(ClausePosGetSide(ol_desc->from_pos)->type 
+            == ClausePosGetOtherSide(ol_desc->from_pos)->type);
 
    Term_p tmp_rhs = MakeRewrittenTerm(TermDerefAlways(into_term),
                                       TermDerefAlways(ClausePosGetOtherSide(ol_desc->from_pos)),
                                       ol_desc->remaining_args);
 
-
    rhs_instance = TBInsertNoProps(ol_desc->bank, tmp_rhs, DEREF_ALWAYS);
 
    if (ol_desc->remaining_args)
    {
+      assert(ProblemIsHO == PROBLEM_IS_HO);
       TermTopFree(tmp_rhs);
       tmp_rhs = NULL;
    }
@@ -350,25 +351,7 @@ Clause_p ClauseSimParamodConstruct(ParamodInfo_p ol_desc)
       }
    }
    SubstDelete(subst);
-   //fprintf(stderr, "%s\n", res ? "success" : "not success");
 
-   /*if (res)
-   {
-      fprintf(stderr, "? Successful simulataneous paramodulation with result: \n"); 
-      ClausePrint(stderr, res, true);
-      fprintf(stderr, "\n");
-
-      fprintf(stderr, "Paramodulation from clause: "); 
-      ClausePrint(stderr, ol_desc->from_pos->clause, true);
-      fprintf(stderr, "(term : " );
-      TermPrint(stderr, ClausePosGetSubterm(ol_desc->from_pos), ol_desc->bank->sig, DEREF_ALWAYS);
-      fprintf(stderr, ", side %d).\nParamodulation into clause: ", ol_desc->from_pos->side); 
-      ClausePrint(stderr, ol_desc->into_pos->clause, true);
-      fprintf(stderr, "(term : " );
-      TermPrint(stderr, ClausePosGetSubterm(ol_desc->into_pos), ol_desc->bank->sig, DEREF_ALWAYS);
-      fprintf(stderr, ", side %d).\n",  ol_desc->into_pos->side);
-
-   }*/
    return res;
 }
 
@@ -402,8 +385,10 @@ Clause_p ClauseParamodConstruct(ParamodInfo_p ol_desc, bool sim_pm)
 
    assert(PackClausePos(ol_desc->from_pos) == ol_desc->from_cpos);
    assert(PackClausePos(ol_desc->into_pos) == ol_desc->into_cpos);
+   assert(ProblemIsHO == PROBLEM_IS_HO || ol_desc->remaining_args == 0);
 
-   if(sim_pm && ol_desc->remaining_args == 0)
+
+   if(sim_pm)
    {
       res = ClauseSimParamodConstruct(ol_desc);
    }

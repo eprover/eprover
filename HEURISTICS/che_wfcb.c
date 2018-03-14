@@ -118,6 +118,12 @@ void ClauseAddEvaluation(WFCB_p wfcb, Clause_p clause, int pos, bool empty)
    {
       clause->evaluations->evals[pos].priority  = wfcb->wfcb_priority(clause);
    }
+
+   /*fprintf(stderr, "# ");
+   ClausePrint(stderr, clause, true);
+   fprintf(stderr, ", p:%d;h:%g;p:%ld\n", pos, 
+                                          clause->evaluations->evals[pos].heuristic,
+                                          clause->evaluations->evals[pos].priority);*/
 }
 
 /*---------------------------------------------------------------------*/
