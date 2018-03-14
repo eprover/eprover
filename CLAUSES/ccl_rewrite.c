@@ -1013,8 +1013,7 @@ static long term_find_rw_clauses(Clause_p demod,
 
    BWRWMatchAttempts++;
    int remains = NOT_MATCHED;
-   if(rterm != eqn->bank->true_term && 
-       (remains = SubstMatchPossiblyPartial(lterm, term, subst, eqn->bank)) != NOT_MATCHED)
+   if((remains = SubstMatchPossiblyPartial(lterm, term, subst, eqn->bank)) != NOT_MATCHED)
    {
       BWRWMatchSuccesses++;
       if(oriented

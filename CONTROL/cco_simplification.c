@@ -64,7 +64,8 @@ void ClauseMoveSimplified(GlobalIndices_p gindices,
                           ClauseSet_p tmp_set,
                           ClauseSet_p archive)
 {
-   // printf("# Removing %p from %p: ", clause, clause->set);ClausePrint(stdout, clause, true);printf("\n");
+   //printf("# Removing %p from %p: ", clause, clause->set);ClausePrint(stdout, clause, true);printf("\n");
+   //fprintf(stdout, "# Removing because of simplification: ");ClausePrint(stdout, clause, true);fprintf(stdout, "\n");
    ClauseKillChildren(clause);
    ClauseSetExtractEntry(clause);
    GlobalIndicesDeleteClause(gindices, clause);

@@ -27,6 +27,8 @@ Changes
 #include "ccl_eqn.h"
 #include "cte_typecheck.h"
 
+#define PRINT_SELECTION
+
 
 /*---------------------------------------------------------------------*/
 /*                        Global Variables                             */
@@ -891,13 +893,19 @@ Term_p EqnTBTermParse(Scanner_p in, TB_p bank)
 //
 /----------------------------------------------------------------------*/
 
-/* #define MARK_MAX_EQNS  */
+/* #define MARK_MAX_EQNS */ 
 
 void EqnPrint(FILE* out, Eqn_p eq, bool negated,  bool fullterms)
 {
    bool positive = XOR(EqnIsPositive(eq), negated);
 
    /* TermPrintAllCPos(out, eq->bank, eq->lterm);*/
+
+#ifdef PRINT_SELECTION
+   EqnIsSelected(eq) ? fputc('*', out) : fputc('-', out);
+   EqnIsMaximal(eq)  ? fputc('^', out) : fputc('_', out);
+#endif
+
 #ifdef MARK_MAX_EQNS
    if(EqnIsMaximal(eq))
    {
@@ -1019,6 +1027,11 @@ void EqnFOFPrint(FILE* out, Eqn_p eq, bool negated,  bool fullterms, bool pcl)
    }
    if(infix)
    {
+#ifdef PRINT_SELECTION
+   EqnIsSelected(eq) ? fputc('*', out) : fputc('-', out);
+   EqnIsMaximal(eq)  ? fputc('^', out) : fputc('_', out);
+#endif
+
       if(EqnIsEquLit(eq))
       {
          TBPrintTerm(out, eq->bank, eq->lterm, fullterms);
@@ -1105,6 +1118,11 @@ void EqnAppEncode(FILE* out, Eqn_p eq, bool negated)
 
 void EqnTSTPPrint(FILE* out, Eqn_p eq, bool fullterms)
 {
+#ifdef PRINT_SELECTION
+   EqnIsSelected(eq) ? fputc('*', out) : fputc('-', out);
+   EqnIsMaximal(eq)  ? fputc('^', out) : fputc('_', out);
+#endif
+
    if(EqnIsPropFalse(eq))
    {
       fputs("$false", out);
@@ -1544,7 +1562,7 @@ int EqnSubsumeQOrderCompare(const void* lit1, const void* lit2)
       return res;
    }
 
-   if (!EqnIsEquLit(l1) && ProblemIsHO == PROBLEM_NOT_HO)
+   if (!EqnIsEquLit(l1))
    {
       // In HO case, we might have variables that we want to keep at the end
       // (comparing them by the weight) -- predicate variables (imagine ~X2)
@@ -1595,7 +1613,7 @@ int EqnSubsumeQOrderCompareIgnoreAppVar(const void* lit1, const void* lit2)
       return res;
    }
 
-   if (!EqnIsEquLit(l1) && ProblemIsHO == PROBLEM_NOT_HO)
+   if (!EqnIsEquLit(l1))
    {
       // In HO case, we might have variables that we want to keep at the end
       // (comparing them by the weight) -- predicate variables (imagine ~X2)

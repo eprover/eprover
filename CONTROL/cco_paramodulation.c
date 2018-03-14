@@ -244,6 +244,15 @@ static long compute_into_pm_pos_clause(ParamodInfo_p pminfo,
          clause = ClauseParamodConstruct(pminfo, sim_pm);
          if(clause)
          {
+            /*fprintf(stderr, "c(%ld) f(%ld) i(%ld)\n", 
+                    clause->ident, pminfo->from->ident, pminfo->into->ident);*/
+            /*ClausePrint(stderr, clause, true);
+            fputc('*', stderr);
+            ClausePrint(stderr, pminfo->from, true);
+            fputc('*', stderr);
+            ClausePrint(stderr, pminfo->into, true);
+            fputc('\n', stderr);*/
+
             ClauseSetInsert(store, clause);
             res++;
             update_clause_info(clause, pminfo->into, pminfo->new_orig);
@@ -486,6 +495,15 @@ static long compute_from_pm_pos_clause(ParamodInfo_p pminfo,
          clause = ClauseParamodConstruct(pminfo, sim_pm);
          if(clause)
          {
+            /*fprintf(stderr, "c(%ld) f(%ld) i(%ld)\n", 
+                    clause->ident, pminfo->from->ident, pminfo->into->ident);*/
+            /*ClausePrint(stderr, clause, true);
+            fputc('*', stderr);
+            ClausePrint(stderr, pminfo->from, true);
+            fputc('*', stderr);
+            ClausePrint(stderr, pminfo->into, true);
+            fputc('\n', stderr);*/
+
             ClauseSetInsert(store, clause);
             res++;
             update_clause_info(clause, pminfo->from, pminfo->new_orig);
