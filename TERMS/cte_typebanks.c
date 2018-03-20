@@ -850,6 +850,24 @@ void TypeBankFree(TypeBank_p bank)
    SizeFree(bank, sizeof(*bank));
 }
 
+void TypeBankPrintSimpleTypes(FILE* out, TypeBank_p tb)
+{
+   for(int i=0; i<TYPEBANK_SIZE; i++)
+   {
+      PStack_p iter = PTreeTraverseInit(tb->hash_table[i]);
+      PObjTree_p node;
+      while((node = (PObjTree_p)PTreeTraverseNext(iter)))
+      {
+         Type_p type = (Type_p) node->key;
+         if (!TypeIsArrow(type) && SortIsUserDefined(type->f_code))
+         {
+            fprintf(out, "%s : %ld\n", TypeBankFindTCName(tb, type->f_code), type->f_code);  
+         }
+      }
+      PTreeTraverseExit(iter);
+   }
+}
+
 // to be deleted
 void TypeBankAppEncodeTypes(FILE* out, TypeBank_p tb, bool print_type_comment)
 {

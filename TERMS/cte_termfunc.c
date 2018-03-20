@@ -191,11 +191,6 @@ static Term_p term_check_consistency_rek(Term_p term, PTree_p *branch,
 void VarPrint(FILE* out, FunCode var)
 {
    char id;
-
-   if (var >= 0)
-   {
-      fprintf(stderr, "%ld\n", var);
-   }
    assert(var<0);
 
    id = 'X';
