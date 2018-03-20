@@ -27,7 +27,7 @@ Changes
 #include "ccl_eqn.h"
 #include "cte_typecheck.h"
 
-#define PRINT_SELECTION
+#undef PRINT_SELECTION
 
 
 /*---------------------------------------------------------------------*/

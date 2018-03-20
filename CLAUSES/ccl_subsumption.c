@@ -718,9 +718,9 @@ static bool clause_subsumes_clause(Clause_p subsumer, Clause_p
       return UnitClauseSubsumesClause(subsumer, sub_candidate);
    }
    
-   /*printf("# sub_candidate %p: ", sub_candidate->set);ClausePrint(stdout, sub_candidate, true);
-   printf("\n# subsumer     %p: ", subsumer->set);ClausePrint(stdout, subsumer, true);
-   printf("\n");*/
+   /*fprintf(stderr, "# sub_candidate:");ClausePrint(stderr, sub_candidate, true);
+   fprintf(stderr, "\n# subsumer:");ClausePrint(stderr, subsumer, true);
+   fprintf(stderr, "\n");*/
 
    assert(sub_candidate->weight == ClauseStandardWeight(sub_candidate));
    assert(subsumer->weight == ClauseStandardWeight(subsumer));

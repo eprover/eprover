@@ -72,8 +72,11 @@ const char*  TypeBankFindTCName(TypeBank_p bank, TypeConsCode tc_code);
 Type_p       TypeBankParseType(Scanner_p in, TypeBank_p bank);
 void         TypePrintTSTP(FILE* out, TypeBank_p bank, Type_p type);
 Type_p       TypeChangeReturnType(TypeBank_p bank, Type_p type, Type_p new_ret);
+void         TypeBankPrintSimpleTypes(FILE* out, TypeBank_p bank);
+
 
 void         TypeBankAppEncodeTypes(FILE* out, TypeBank_p tb, bool print_type_comment);
+
 
 
 #endif
