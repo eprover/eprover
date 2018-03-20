@@ -794,7 +794,7 @@ static Term_p term_li_normalform(RWDesc_p desc, Term_p term,
       assert(!TermIsRewritten(term));
       return term;
    }
-   while(modified && term != desc->bank->true_term)
+   while(modified)
    {
       modified = term_subterm_rewrite(desc, &term);
 

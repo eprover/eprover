@@ -279,7 +279,7 @@ void EvalListPrint(FILE* out, Eval_p list)
 
 void EvalListPrintComment(FILE* out, Eval_p list)
 {
-   fprintf(out, "/*");
+   //fprintf(out, "/*");
    EvalListPrint(out, list);
    fprintf(out, "*/");
 }

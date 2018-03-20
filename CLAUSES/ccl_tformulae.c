@@ -1209,15 +1209,10 @@ void TFormulaCollectFreeVars(TB_p bank, TFormula_p form, PTree_p *vars)
 
    if(TFormulaIsQuantified(bank->sig, form))
    {
-      // I am so stupid. Quantifier arg will always be regular var.
-      // TODO: Revert this.
-      Term_p fst_arg = form->args[0];
-      Term_p var = TermIsAppliedVar(fst_arg) ? fst_arg->args[0] : fst_arg;
-
-      old_prop = TermCellGiveProps(var, TPIsFreeVar);
-      TermCellDelProp(var, TPIsFreeVar);
+      old_prop = TermCellGiveProps(form->args[0], TPIsFreeVar);
+      TermCellDelProp(form->args[0], TPIsFreeVar);
       TFormulaCollectFreeVars(bank, form->args[1], vars);
-      TermCellSetProp(var, old_prop);
+      TermCellSetProp(form->args[0], old_prop);
    }
    else if(TFormulaIsLiteral(bank->sig, form))
    {

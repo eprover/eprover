@@ -138,7 +138,6 @@ static void gather_feature_vec(FVCollect_p cspec, long* full_vec,
       }
       if(mod)
       {
-
          resindex = base+(offset+(findex/4))%mod;         
       }
    }
@@ -695,7 +694,6 @@ FreqVector_p FVCollectFreqVectorCompute(Clause_p clause, FVCollect_p cspec)
       while(!PStackEmpty(mod_stack))
       {
          findex = PStackPopInt(mod_stack);
-
          gather_feature_vec(cspec, full_vec, vec, findex);
          full_vec[findex] = 0;
          gather_feature_vec(cspec, full_vec, vec, findex+1);

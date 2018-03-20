@@ -170,19 +170,19 @@ SimplifyRes FindSignedTopSimplifyingUnit(ClauseSet_p units, Term_p t1,
 }
 
 
+
 /*-----------------------------------------------------------------------
 //
-// Function: FindSimplifyingUnit()
+// Function: RemainingArgsSame()
 //
-//   Return a unit clause with from set that can simplify or subsume
-//   t1=t2.
+//   Determines if the trailing arugments are the same in both of the
+//   terms. 
 //
 // Global Variables: -
 //
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
-
 __inline__ SimplifyRes RemainingArgsSame(Term_p t1, Term_p t2, SimplifyRes res)
 {
    int remains = res.remaining_args;
@@ -199,6 +199,19 @@ __inline__ SimplifyRes RemainingArgsSame(Term_p t1, Term_p t2, SimplifyRes res)
    return res;
 }
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: FindSimplifyingUnit()
+//
+//   Return a unit clause with from set that can simplify or subsume
+//   t1=t2.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
 SimplifyRes FindSimplifyingUnit(ClauseSet_p set, Term_p t1, Term_p t2,
             bool positive_only)
 {
