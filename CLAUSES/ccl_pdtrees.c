@@ -1335,6 +1335,8 @@ PDTNode_p PDTreeFindNextIndexedLeaf(PDTree_p tree, Subst_p subst)
 {
    while(tree->tree_pos)
    {
+      // if it is FOL problem, then if it has entries it is a leaf
+      assert(ProblemIsHO == PROBLEM_IS_HO || !tree->tree_pos->entries || tree->tree_pos->leaf);
       if(!pdtree_verify_node_constr(tree)||
          (tree->tree_pos->trav_count==PDT_NODE_CLOSED(tree,tree->tree_pos)))
       {
@@ -1342,6 +1344,7 @@ PDTNode_p PDTreeFindNextIndexedLeaf(PDTree_p tree, Subst_p subst)
       }
       else if(tree->tree_pos->leaf) /* Leaf node */
       {
+         assert(tree->tree_pos->entries);
          tree->tree_pos->trav_count = PDT_NODE_CLOSED(tree,tree->tree_pos);
          break;
       }
@@ -1473,27 +1476,6 @@ Term_p GetMatcher(MatchInfo_p mi)
   return mi ? ClausePosGetOtherSide(mi->matcher): NULL;
 }
 
-ClausePos_p GetMatcherClausePos(MatchInfo_p mi)
-{
-   return mi->matcher;
-}
-
-void   MatchInfoPrint(MatchInfo_p mi)
-{
-   if (mi)
-   {
-      Sig_p sig = mi->matcher->literal->bank->sig;
-      TermPrint(stderr, ClausePosGetSide(mi->matcher), sig, DEREF_NEVER);
-      fprintf(stderr, " -> ");
-      TermPrint(stderr, ClausePosGetOtherSide(mi->matcher), sig, DEREF_NEVER);
-      fprintf(stderr, ".\n");
-   }
-   else
-   {
-      fprintf(stderr, "(no match)\n");
-   }
-   
-}
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/

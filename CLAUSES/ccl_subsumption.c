@@ -369,16 +369,9 @@ static Eqn_p find_spec_literal(Eqn_p lit, Eqn_p list)
          continue;
       }
       if(EqnStandardWeight(lit) > EqnStandardWeight(list))
-      { 
-         if (!EqnHasTopLevelVar(lit))
-         {   
-            list = NULL;
-            break; 
-         }
-         else
-         {
-            continue;
-         }
+      {   
+         list = NULL;
+         break;  
       }
 
 

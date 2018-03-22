@@ -223,13 +223,14 @@ void SigInsertInternalCodes(Sig_p sig)
    sig->answer_code =  SigInsertId(sig, "$answer", 1, true);
    SigSetFuncProp(sig, sig->answer_code, FPInterpreted|FPPseudoPred);
 
-#ifndef NDEBUG
-   // surpressing compiler warning
-   FunCode app_var_code =  
+#ifdef ENABLE_LFHO
+   #ifndef NDEBUG
+      // surpressing compiler warning
+      FunCode app_var_code =  
+   #endif
+      SigInsertId(sig, "$@_var", 1, true);
+      assert(app_var_code == SIG_APP_VAR_CODE); //for future code changes
 #endif
-   SigInsertId(sig, "$@_var", 1, true);
-   assert(app_var_code == SIG_APP_VAR_CODE); //for future code changes
-
 
    Type_p* args = TypeArgArrayAlloc(2);
    args[1] = sig->type_bank->bool_type;

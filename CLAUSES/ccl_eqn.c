@@ -1310,17 +1310,8 @@ Eqn_p EqnCopyOpt(Eqn_p eq)
    Eqn_p  handle;
    Term_p lterm, rterm;
 
-   if (ProblemIsHO == PROBLEM_NOT_HO)
-   {
-      lterm = TBInsertOpt(eq->bank, eq->lterm, DEREF_ALWAYS);
-      rterm = TBInsertOpt(eq->bank, eq->rterm, DEREF_ALWAYS);
-   }
-   else
-   {
-      // even ground term might be unshared
-      lterm = TBInsert(eq->bank, eq->lterm, DEREF_ALWAYS);
-      rterm = TBInsert(eq->bank, eq->rterm, DEREF_ALWAYS);  
-   }
+   lterm = TBInsertOpt(eq->bank, eq->lterm, DEREF_ALWAYS);
+   rterm = TBInsertOpt(eq->bank, eq->rterm, DEREF_ALWAYS);
 
    handle = EqnAlloc(lterm, rterm, eq->bank, false); /* Properties will be
                       taken care of
@@ -2017,6 +2008,8 @@ bool LiteralSubsumeP(Eqn_p subsumer, Eqn_p subsumed)
 
 bool EqnUnifyDirected(Eqn_p eq1, Eqn_p eq2, Subst_p subst)
 {
+   assert(eq1->bank == eq2->bank);
+
    PStackPointer backtrack = PStackGetSP(subst);
    bool res;
 

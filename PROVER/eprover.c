@@ -495,8 +495,6 @@ int main(int argc, char* argv[])
                                             eqdef_maxclauses);
    }
 
-   TypeBankPrintSimpleTypes(stderr, proofstate->signature->type_bank);
-
    proofcontrol = ProofControlAlloc();
    ProofControlInit(proofstate, proofcontrol, h_parms,
                     fvi_parms, wfcb_definitions, hcb_definitions);

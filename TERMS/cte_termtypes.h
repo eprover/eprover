@@ -199,7 +199,11 @@ typedef uintptr_t DerefType, *DerefType_p;
 #define RewriteAdr(level) (assert(level),(level)-1)
 #define TermIsVar(t) ((t)->f_code < 0)
 #define TermIsConst(t)(!TermIsVar(t) && ((t)->arity==0))
+#ifdef ENABLE_LFHO
 #define TermIsAppliedVar(term) (term->f_code == SIG_APP_VAR_CODE)
+#else
+#define TermIsAppliedVar(term) (false)
+#endif
 #define TermIsTopLevelVar(term) (TermIsVar(term) || TermIsAppliedVar(term))
 
 #define TermCellSetProp(term, prop) SetProp((term), (prop))
