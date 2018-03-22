@@ -1697,7 +1697,9 @@ void TermAddSymbolFeaturesLimited(Term_p term, long depth,
 
       if(term->f_code < limit && !TermIsAppliedVar(term))
       {
+#ifdef ENABLE_LFHO
          assert(term->f_code != SIG_APP_VAR_CODE);
+#endif
          freq_array[term->f_code]++;
          depth_array[term->f_code] = MAX(depth, depth_array[term->f_code]);
       }
@@ -1745,7 +1747,9 @@ void TermAddSymbolFeatures(Term_p term, PStack_p mod_stack, long depth,
       if (!TermIsAppliedVar(term))
       {
          // ignore applied var f code.
+#ifdef ENABLE_LFHO
          assert(term->f_code != SIG_APP_VAR_CODE);
+#endif
          long findex = 4*term->f_code+offset;
 
          if(feature_array[findex] == 0)
@@ -1792,7 +1796,9 @@ void TermComputeFunctionRanks(Term_p term, long *rank_array, long *count)
    }
    if(!rank_array[term->f_code] && !TermIsAppliedVar(term))
    {
+#ifdef ENABLE_LFHO
       assert(term->f_code != SIG_APP_VAR_CODE);
+#endif
       rank_array[term->f_code] = (*count)++;
    }
 }

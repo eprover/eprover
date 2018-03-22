@@ -58,10 +58,10 @@ static bool sim_paramod_q(OCB_p ocb, ClausePos_p frompos, ParamodulationType pm_
    bool res;
    Term_p max_side, rep_side;
 
-   if (ProblemIsHO == PROBLEM_IS_HO)
+   /*if (ProblemIsHO == PROBLEM_IS_HO)
    {
       return false;
-   }
+   }*/
 
    switch(pm_type)
    {
@@ -344,8 +344,8 @@ long compute_pos_into_pm_term(ParamodInfo_p pminfo,
                  pminfo->from_pos->literal))
       {
          /* printf("compute_pos_into_pm_term() oc ok\n"); */
-         sim_pm = sim_paramod_q(pminfo->ocb, pminfo->from_pos, type)
-                    && unif_res.term_remaining == 0;
+         sim_pm = sim_paramod_q(pminfo->ocb, pminfo->from_pos, type);
+                    //&& unif_res.term_remaining == 0;
          /* Iterate over all the into-clauses   */
          iterstack = PTreeTraverseInit(into_clauses->pl.pos.clauses);
          while ((cell = PTreeTraverseNext(iterstack)))

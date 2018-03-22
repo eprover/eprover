@@ -130,6 +130,11 @@ static long remove_subsumed(GlobalIndices_p indices,
    while(!PStackEmpty(stack))
    {
       handle = PStackPopP(stack);
+
+      /*fprintf(stderr, "# backward subsumed: ");
+      ClausePrint(stderr, handle, true);
+      fprintf(stderr, "\n");*/
+
       // printf("# XXX Removing (remove_subumed()) %p from %p = %p\n", handle, set, handle->set);
       if(ClauseQueryProp(handle, CPWatchOnly))
       {
@@ -1348,6 +1353,8 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control,
       }
       return NULL;
    }
+
+   //FreqVectorPrint(stderr, pclause);
 
    if(ClauseIsSemFalse(pclause->clause))
    {

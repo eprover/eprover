@@ -22,6 +22,9 @@ Changes
 -----------------------------------------------------------------------*/
 
 #include "cte_replace.h"
+#include <ccl_clauses.h>
+
+extern TB_p bank;
 
 
 
@@ -60,7 +63,7 @@ Changes
 //
 /----------------------------------------------------------------------*/
 
-void TermAddRWLink(Term_p term, Term_p replace, struct clause_cell *demod, bool sos,
+void TermAddRWLink(Term_p term, Term_p replace, Clause_p demod, bool sos,
                    RWResultType type)
 {
    assert(term);

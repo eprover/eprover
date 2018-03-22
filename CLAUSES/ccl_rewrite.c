@@ -68,23 +68,6 @@ static bool instance_is_rule(OCB_p ocb, TB_p bank,
                              Term_p lside, Term_p rside, Subst_p subst)
 
 {
-   /*fprintf(stderr, "Checking if ");
-   TermPrint(stderr, lside, bank->sig, DEREF_NEVER);
-   fprintf(stderr, " = ");
-   TermPrint(stderr, rside, bank->sig, DEREF_NEVER);
-
-   fprintf(stderr, "{ instantiated ");
-   TermPrint(stderr, lside, bank->sig, DEREF_ONCE);
-   fprintf(stderr, " -> ");
-   TermPrint(stderr, rside, bank->sig, DEREF_ONCE);
-   fprintf(stderr, " } is a rewrite rule -- ");*/
-
-   if (rside == bank->true_term)
-   {
-     return false;
-   }
-
-
    if(RewriteStrongRHSInst)
    {
       SubstCompleteInstance(subst, rside,
@@ -622,6 +605,7 @@ MatchInfo_p indexed_find_demodulator(OCB_p ocb, Term_p term,
    if(mi)
    {
       RewriteSuccesses++;
+      assert(ProblemIsHO == PROBLEM_IS_HO || mi->trailing_args == 0);
 
       repl = TBInsertInstantiated(bank, ClausePosGetOtherSide(mi->matcher));
 

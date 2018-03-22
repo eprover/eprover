@@ -164,7 +164,7 @@ static Term_p tb_termtop_insert(TB_p bank, Term_p t)
       TermCellAssignProp(t,TPGarbageFlag, bank->garbage_state);
       TermCellSetProp(t, TPIsShared); /* Groundness may change below */
       t->v_count = 0;
-      t->f_count = t->f_code != SIG_APP_VAR_CODE ? 1 : 0;
+      t->f_count = !TermIsAppliedVar(t) ? 1 : 0;
       t->weight = DEFAULT_FWEIGHT*t->f_count;
       for(int i=0; i<t->arity; i++)
       {
@@ -925,7 +925,7 @@ Term_p TBInsertOpt(TB_p bank, Term_p term, DerefType deref)
 
    term = TermDeref(term, &deref);
 
-   if(TermIsGround(term) && ProblemIsHO == PROBLEM_NOT_HO)
+   if(TermIsGround(term))
    {
       assert(TermIsShared(term));
       return term;
