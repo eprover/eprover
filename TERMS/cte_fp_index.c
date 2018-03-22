@@ -1240,7 +1240,6 @@ long FPIndexFindUnifiable(FPIndex_p index, Term_p term, PStack_p collect)
 
    if(index->fp_fun == IndexDTCreate)
    {
-      fprintf(stderr, "IndexDTCreate unify.\n");
       res = dt_index_rek_find_unifiable(index->index,
                                         key,
                                         index->sig,
@@ -1285,7 +1284,6 @@ long FPIndexFindMatchable(FPIndex_p index, Term_p term, PStack_p collect)
       //printf("Query: ");
       //TermPrint(stdout, term, index->sig, DEREF_NEVER);
       //printf("\n");
-      fprintf(stderr, "INDEXDTCREATE!\n");
       res = dt_index_rek_find_matchable(index->index,
                                         key,
                                         index->sig,

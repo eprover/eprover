@@ -281,7 +281,6 @@ bool SubstIsRenaming(Subst_p subst)
       assert(TermIsVar(var));
       assert(var->binding);
       deref=DEREF_ONCE;
-      // TODO: TERM MIGHT BE UNSHARED
       inst = TermDeref(var, &deref);
 
       if(!TermIsVar(inst))
