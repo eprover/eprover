@@ -1561,11 +1561,11 @@ int EqnSubsumeQOrderCompare(const void* lit1, const void* lit2)
       {
          res = CMP(l1->lterm->f_code, l2->lterm->f_code);   
       }
-      else
+      /*else
       {
          return TermIsTopLevelVar(l1->lterm) ? (TermIsTopLevelVar(l2->lterm) ? 0 : -1)
                  : (TermIsTopLevelVar(l2->lterm) ? 1 : CMP(l1->lterm->f_code, l2->lterm->f_code));
-      }
+      }*/
       
    }
    return res;
@@ -1614,7 +1614,8 @@ int EqnSubsumeQOrderCompareIgnoreAppVar(const void* lit1, const void* lit2)
       }
       else
       {
-         return TermIsTopLevelVar(l1->lterm) ? 0 : CMP(l1->lterm->f_code, l2->lterm->f_code);
+         return (TermIsTopLevelVar(l1->lterm) || TermIsTopLevelVar(l2->lterm)) ? 
+                  0 : CMP(l1->lterm->f_code, l2->lterm->f_code);
       }
       
    }

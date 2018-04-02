@@ -642,6 +642,7 @@ Term_p TBInsert(TB_p bank, Term_p term, DerefType deref)
 {
    int    i;
    Term_p t;
+   const int limit = DEREF_LIMIT(term, deref);
 
    assert(term);
 
@@ -660,7 +661,8 @@ Term_p TBInsert(TB_p bank, Term_p term, DerefType deref)
 
       for(i=0; i<t->arity; i++)
       {
-         t->args[i] = TBInsert(bank, term->args[i], deref);
+         t->args[i] = TBInsert(bank, term->args[i], 
+                               CONVERT_DEREF(i, limit, deref));
       }
       t = tb_termtop_insert(bank, t);
    }
@@ -687,6 +689,7 @@ Term_p TBInsertNoProps(TB_p bank, Term_p term, DerefType deref)
 
    assert(term);
 
+   const int limit = DEREF_LIMIT(term, deref);
    term = TermDeref(term, &deref);
 
    if(TermIsVar(term))
@@ -704,7 +707,8 @@ Term_p TBInsertNoProps(TB_p bank, Term_p term, DerefType deref)
 
       for(i=0; i<t->arity; i++)
       {
-         t->args[i] = TBInsertNoProps(bank, term->args[i], deref);
+         t->args[i] = TBInsertNoProps(bank, term->args[i], 
+                                      CONVERT_DEREF(i, limit, deref));
       }
       t = tb_termtop_insert(bank, t);
    }
@@ -739,6 +743,7 @@ Term_p  TBInsertRepl(TB_p bank, Term_p term, DerefType deref, Term_p old, Term_p
       return repl;
    }
 
+   const int limit = DEREF_LIMIT(term, deref);
    term = TermDeref(term, &deref);
 
    if(TermIsVar(term))
@@ -755,7 +760,8 @@ Term_p  TBInsertRepl(TB_p bank, Term_p term, DerefType deref, Term_p old, Term_p
 
       for(i=0; i<t->arity; i++)
       {
-         t->args[i] = TBInsertRepl(bank, term->args[i], deref, old, repl);
+         t->args[i] = TBInsertRepl(bank, term->args[i], 
+                                   CONVERT_DEREF(i, limit, deref), old, repl);
       }
       t = tb_termtop_insert(bank, t);
    }
@@ -923,6 +929,7 @@ Term_p TBInsertOpt(TB_p bank, Term_p term, DerefType deref)
 
    assert(term);
 
+   const int limit = DEREF_LIMIT(term, deref);
    term = TermDeref(term, &deref);
 
    if(TermIsGround(term))
@@ -944,7 +951,7 @@ Term_p TBInsertOpt(TB_p bank, Term_p term, DerefType deref)
 
       for(i=0; i<t->arity; i++)
       {
-         t->args[i] = TBInsertOpt(bank, term->args[i], deref);
+         t->args[i] = TBInsertOpt(bank, term->args[i], CONVERT_DEREF(i, limit, deref));
       }
       t = tb_termtop_insert(bank, t);
    }
