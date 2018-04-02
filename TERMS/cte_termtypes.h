@@ -172,19 +172,27 @@ typedef uintptr_t DerefType, *DerefType_p;
 #endif
 
 
-#ifdef ENABLE_LFHO
-/* Sometimes we are not interested in the arity of the term, but the 
-   number of arguments the term has. Due to encoding of applied variables,
-   we have to discard argument 0, which is actually the head variable */ 
-#define ARG_NUM(term) (TermIsAppliedVar(term) ? term->arity-1 : term->arity) 
-#else
-#define ARG_NUM(term) (term->arity)
-#endif
-
 // checks if the binding is present and if it is the cache for the
 // right term
 #define BINDING_FRESH(t) ((t)->binding_cache && (t)->binding && \
                            (t)->binding == (t)->args[0]->binding)
+
+#ifdef ENABLE_LFHO
+/* Sometimes we are not interested in the arity of the term, but the 
+   number of arguments the term has. Due to encoding of applied variables,
+   we have to discard argument 0, which is actually the head variable */ 
+#define ARG_NUM(term)    (TermIsAppliedVar(term) ? term->arity-1 : term->arity)
+#define DEREF_LIMIT(t,d) ((TermIsAppliedVar(t) && (t)->args[0]->binding && d == DEREF_ONCE) ? \
+                          (t)->args[0]->binding->arity + ((TermIsVar((t)->args[0]->binding)) ? 1 : 0) : 0)
+#define CONVERT_DEREF(i, l, d) (((i) < (l) && (d) == DEREF_ONCE) ? DEREF_NEVER : (d)) 
+#else
+/* making sure no compiler warnings are produced */
+#define ARG_NUM(term)          (term->arity)
+#define DEREF_LIMIT(t,d)       (UNUSED(t),UNUSED(d),0)
+#define CONVERT_DEREF(i, l, d) (UNUSED(i),UNUSED(l),d)
+#endif
+
+
 
 
 /*---------------------------------------------------------------------*/

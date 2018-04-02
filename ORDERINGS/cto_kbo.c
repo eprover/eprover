@@ -115,7 +115,7 @@ static long gettermweight(OCB_p ocb, Term_p t, DerefType deref)
    int i;
    long weight;
 
-   t = TermDeref(t, &deref); // MIGHT NOT BE SHARED
+   t = TermDeref(t, &deref); 
 
    weight = getweight(ocb, t->f_code);
 
@@ -306,16 +306,19 @@ static CompareResult kbogtrnew(OCB_p ocb, Term_p s, Term_p t,
 //
 //   Its a variant of KBOCompare where the variable condition is
 //   tested in the end.
+//   NOTE: derefs have not been updated here because it is used only on
+//         FOL terms.
 //
 // Global Variables: -
 //
 // Side Effects    : -
 //
 -----------------------------------------------------------------------*/
-
 CompareResult KBOCompare(OCB_p ocb, Term_p s, Term_p t,
           DerefType deref_s, DerefType deref_t)
 {
+   assert(ProblemIsHO != PROBLEM_IS_HO);
+
    CompareResult topsymb_comp, res;
    int i;
    long sweight, tweight;

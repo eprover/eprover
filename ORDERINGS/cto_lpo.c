@@ -211,7 +211,6 @@ static CompareResult lpo_greater(OCB_p ocb, Term_p s, Term_p t,
    CompareResult res = to_notgteq, res2;
    static long   recursion_depth = 0;
 
-   //TODO: MIGHT NOT BE SHARED
    s = TermDeref(s, &deref_s);
    t = TermDeref(t, &deref_t);
 
@@ -629,6 +628,7 @@ static bool lpo4_copy_greater(OCB_p ocb, Term_p s, Term_p t)
 bool LPOGreater(OCB_p ocb, Term_p s, Term_p t,
       DerefType deref_s, DerefType deref_t)
 {
+   assert(ProblemIsHO != PROBLEM_IS_HO); // no need to change derefs
    return lpo_greater(ocb, s, t, deref_s, deref_t) == to_greater;
 }
 
@@ -653,6 +653,7 @@ bool LPOGreater(OCB_p ocb, Term_p s, Term_p t,
 CompareResult LPOCompare(OCB_p ocb, Term_p s, Term_p t,
           DerefType deref_s, DerefType deref_t)
 {
+   assert(ProblemIsHO != PROBLEM_IS_HO); // no need to change derefs
    CompareResult res;
 
    res = lpo_greater(ocb, s, t, deref_s, deref_t);
@@ -710,6 +711,7 @@ CompareResult LPOCompare(OCB_p ocb, Term_p s, Term_p t,
 bool LPO4Greater(OCB_p ocb, Term_p s, Term_p t,
       DerefType deref_s, DerefType deref_t)
 {
+   assert(ProblemIsHO != PROBLEM_IS_HO); // no need to change derefs
    bool res;
 
    /* printf("LPO4Greater()...\n"); */
@@ -735,6 +737,7 @@ bool LPO4Greater(OCB_p ocb, Term_p s, Term_p t,
 CompareResult LPO4Compare(OCB_p ocb, Term_p s, Term_p t,
                           DerefType deref_s, DerefType deref_t)
 {
+   assert(ProblemIsHO != PROBLEM_IS_HO); // no need to change derefs
    CompareResult res;
 
    /* printf("LPO4Compare()...\n"); */
@@ -777,6 +780,7 @@ bool LPO4GreaterCopy(OCB_p ocb, Term_p s, Term_p t,
                      DerefType deref_s, DerefType deref_t)
 {
    bool res;
+   assert(ProblemIsHO != PROBLEM_IS_HO); // no need to change derefs
    Term_p s1, t1;
 
    /* printf("LPO4GreaterCopy()...\n"); */
@@ -831,6 +835,7 @@ CompareResult LPO4CompareCopy(OCB_p ocb, Term_p s, Term_p t,
 {
    CompareResult res;
    Term_p s1, t1;
+   assert(ProblemIsHO != PROBLEM_IS_HO); // no need to change derefs
 
    /* printf("LPO4CompareCopy()...\n"); */
 
@@ -896,6 +901,7 @@ CompareResult LPO4CompareCopy(OCB_p ocb, Term_p s, Term_p t,
 bool LPOGreaterCopy(OCB_p ocb, Term_p s, Term_p t,
                     DerefType deref_s, DerefType deref_t)
 {
+   assert(ProblemIsHO != PROBLEM_IS_HO); // no need to change derefs
    bool res;
    Term_p s1, t1;
 
@@ -948,6 +954,7 @@ bool LPOGreaterCopy(OCB_p ocb, Term_p s, Term_p t,
 CompareResult LPOCompareCopy(OCB_p ocb, Term_p s, Term_p t,
                              DerefType deref_s, DerefType deref_t)
 {
+   assert(ProblemIsHO != PROBLEM_IS_HO); // no need to change derefs
    CompareResult res;
    Term_p s1, t1;
 

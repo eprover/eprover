@@ -257,6 +257,9 @@ long SubstPrint(FILE* out, Subst_p subst, Sig_p sig, DerefType deref)
 //   instantiated to different variables. Checks only for one level of
 //   instantiaton.
 //
+//    NB: Here there is no need to change derefs, since there is no 
+//    loop in which arguments are traversed
+//
 // Global Variables: -
 //
 // Side Effects    : Changes the TPOpFlag of terms
