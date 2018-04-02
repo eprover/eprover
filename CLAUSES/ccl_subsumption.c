@@ -350,8 +350,8 @@ static Eqn_p find_spec_literal(Eqn_p lit, Eqn_p list)
 
    for(;list;list = list->next)
    {
-      /*cmpres = EqnSubsumeQOrderCompare(lit, list);*/
-      cmpres = EqnSubsumeQOrderCompareIgnoreAppVar(lit, list);
+      cmpres = EqnSubsumeQOrderCompare(lit, list);
+      /*cmpres = EqnSubsumeQOrderCompareIgnoreAppVar(lit, list);*/
 
       /*fprintf(stderr, "cmp ");
       EqnPrint(stderr, lit, false, true);
@@ -396,6 +396,10 @@ static Eqn_p find_spec_literal(Eqn_p lit, Eqn_p list)
          break;
       }
       SubstBacktrack(subst);
+#ifndef NDEBUG
+      got_up_to = list->next;
+#endif 
+
    }
    SubstDelete(subst);
 
@@ -612,7 +616,7 @@ bool eqn_list_rec_subsume(Eqn_p subsum_list, Eqn_p sub_cand_list,
          continue;
       }
 
-      cmpres = EqnSubsumeQOrderCompareIgnoreAppVar(eqn, subsum_list);
+      cmpres = EqnSubsumeQOrderCompare(eqn, subsum_list);
 
       if(cmpres < 0)
       {
@@ -747,7 +751,7 @@ static bool clause_subsumes_clause(Clause_p subsumer, Clause_p
                sub_candidate->literals, subst,
                pick_list);
 #ifndef NDEBUG
-/*   Subst_p dbg_subst = SubstAlloc();
+   Subst_p dbg_subst = SubstAlloc();
    long*   dbg_pick_list = IntArrayAlloc(ClauseLiteralNumber(sub_candidate));
    bool res_old =eqn_list_rec_subsume_old(subsumer->literals,
                sub_candidate->literals, dbg_subst,
@@ -766,7 +770,6 @@ static bool clause_subsumes_clause(Clause_p subsumer, Clause_p
    SubstDelete(dbg_subst);
    IntArrayFree(dbg_pick_list, ClauseLiteralNumber(sub_candidate));
    assert(res_old == res);
-*/
 #endif
    IntArrayFree(pick_list, ClauseLiteralNumber(sub_candidate));
 

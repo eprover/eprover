@@ -153,6 +153,7 @@ static Term_p term_check_consistency_rek(Term_p term, PTree_p *branch,
    int      i;
    Term_p   res = NULL;
 
+   const int limit = DEREF_LIMIT(term, deref);
    term = TermDeref(term, &deref);
    putc('.', stdout);
 
@@ -162,7 +163,8 @@ static Term_p term_check_consistency_rek(Term_p term, PTree_p *branch,
    }
    for(i=0; i<term->arity; i++)
    {
-      if((res = term_check_consistency_rek(term->args[i], branch, deref)))
+      if((res = term_check_consistency_rek(term->args[i], branch, 
+                                           CONVERT_DEREF(i, limit, deref))))
       {
          break;
       }
@@ -217,6 +219,7 @@ void TermPrintFO(FILE* out, Term_p term, Sig_p sig, DerefType deref)
 {
    assert(term);
    assert(sig||TermIsVar(term));
+   // no need to change derefs here -- FOL
 
    term = TermDeref(term, &deref);
 
@@ -295,6 +298,7 @@ void TermPrintHO(FILE* out, Term_p term, Sig_p sig, DerefType deref)
    assert(term);
    assert(sig||TermIsVar(term));
 
+   const int limit = DEREF_LIMIT(term, deref);
    term = TermDeref(term, &deref);
    if (!TermIsTopLevelVar(term))
    {
@@ -312,16 +316,17 @@ void TermPrintHO(FILE* out, Term_p term, Sig_p sig, DerefType deref)
 #else 
       fputs(" ", out);
 #endif
+      DerefType c_deref = CONVERT_DEREF(i, limit, deref);
       if (term->args[i]->arity || 
-            (deref != DEREF_NEVER && term->args[i]->binding && term->args[i]->binding->arity))
+            (c_deref != DEREF_NEVER && term->args[i]->binding && term->args[i]->binding->arity))
       {
          fputs("(", out);
-         TermPrint(out, term->args[i], sig, deref);
+         TermPrint(out, term->args[i], sig, c_deref);
          fputs(")", out);
       }
       else
       {
-         TermPrint(out, term->args[i], sig, deref);
+         TermPrint(out, term->args[i], sig, c_deref);
       }
    }  
 }
@@ -634,6 +639,7 @@ Term_p TermCopy(Term_p source, VarBank_p vars, DerefType deref)
 
    assert(source);
 
+   const int limit = DEREF_LIMIT(source, deref);
    source = TermDeref(source, &deref);
 
    if(TermIsVar(source))
@@ -646,7 +652,8 @@ Term_p TermCopy(Term_p source, VarBank_p vars, DerefType deref)
 
       for(i=0; i<handle->arity; i++)
       {
-         handle->args[i] = TermCopy(source->args[i], vars, deref);
+         handle->args[i] = TermCopy(source->args[i], vars, 
+                                    CONVERT_DEREF(i, limit, deref));
       }
    }
 
@@ -677,6 +684,7 @@ Term_p TermCopyKeepVars(Term_p source, DerefType deref)
 
    assert(source);
 
+   const int limit = DEREF_LIMIT(source, deref);
    source = TermDeref(source, &deref);
 
    if(TermIsVar(source))
@@ -689,7 +697,8 @@ Term_p TermCopyKeepVars(Term_p source, DerefType deref)
    for(i=0; i<handle->arity; i++) /* Hack: Loop will not be entered if
                                      arity = 0 */
    {
-      handle->args[i] = TermCopyKeepVars(handle->args[i], deref);
+      handle->args[i] = TermCopyKeepVars(handle->args[i], 
+                                         CONVERT_DEREF(i, limit, deref));
    }
    return handle;
 }
@@ -816,6 +825,8 @@ bool TermStructEqualNoDeref(Term_p t1, Term_p t2)
 
 bool TermStructEqualDeref(Term_p t1, Term_p t2, DerefType deref_1, DerefType deref_2)
 {
+   const int limit_1 = DEREF_LIMIT(t1, deref_1);
+   const int limit_2 = DEREF_LIMIT(t2, deref_2);
 
    t1 = TermDeref(t1, &deref_1);
    t2 = TermDeref(t2, &deref_2);
@@ -845,7 +856,9 @@ bool TermStructEqualDeref(Term_p t1, Term_p t2, DerefType deref_1, DerefType der
    assert(ProblemIsHO == PROBLEM_IS_HO || t1->arity == t2->arity);
    for(int i=0; i<t1->arity; i++)
    {
-      if(!TermStructEqualDeref(t1->args[i], t2->args[i], deref_1, deref_2))
+      if(!TermStructEqualDeref(t1->args[i], t2->args[i], 
+                               CONVERT_DEREF(i, limit_1, deref_1), 
+                               CONVERT_DEREF(i, limit_2, deref_2)))
       {
          return false;
       }
@@ -875,6 +888,8 @@ bool TermStructPrefixEqual(Term_p l, Term_p r, DerefType d_l, DerefType d_r, int
    }
    else
    {
+      const int limit_l = DEREF_LIMIT(l, d_l);
+      const int limit_r = DEREF_LIMIT(r, d_r);
       l = TermDeref(l, &d_l);
       r = TermDeref(r, &d_r);
 
@@ -894,7 +909,9 @@ bool TermStructPrefixEqual(Term_p l, Term_p r, DerefType d_l, DerefType d_r, int
 
          for(int i=0; i<l->arity; i++)
          {
-            if (!TermStructEqualDeref(l->args[i], r->args[i], d_l, d_r))
+            if (!TermStructEqualDeref(l->args[i], r->args[i], 
+                                      CONVERT_DEREF(i, limit_l, d_l), 
+                                      CONVERT_DEREF(i, limit_r, d_r)))
             {
                res = false;
                break;
@@ -1046,6 +1063,7 @@ bool TermIsSubterm(Term_p super, Term_p test, DerefType deref)
 {
    int i;
 
+   const int limit = DEREF_LIMIT(super, deref);
    super = TermDeref(super, &deref);
 
    if(super == test)
@@ -1054,7 +1072,7 @@ bool TermIsSubterm(Term_p super, Term_p test, DerefType deref)
    }
    for(i=0; i<super->arity; i++)
    {
-      if(TermIsSubterm(super->args[i], test, deref))
+      if(TermIsSubterm(super->args[i], test, CONVERT_DEREF(i, limit, deref)))
       {
          return true;
       }
@@ -1069,6 +1087,8 @@ bool TermIsSubterm(Term_p super, Term_p test, DerefType deref)
 //
 //   Return true if test is a subterm to super. Uses
 //   TermStructEqualDeref() for equal test.
+//    NB: Deref is not changed since the function is not used.
+//
 //
 // Global Variables: -
 //

@@ -333,6 +333,8 @@ Term_p TermAllocNewSkolem(Sig_p sig, PStack_p variables, Type_p ret_type)
 // Function: TermSetProp()
 //
 //   Set the properties in all term cells belonging to term.
+//   NB: The function is never called with deref once -- no changes
+//       to DEREF_ONCE
 //
 // Global Variables: -
 //
@@ -342,6 +344,7 @@ Term_p TermAllocNewSkolem(Sig_p sig, PStack_p variables, Type_p ret_type)
 
 void TermSetProp(Term_p term, DerefType deref, TermProperties prop)
 {
+   assert(deref != DEREF_ONCE);
    PStack_p stack = PStackAlloc();
    int i;
 
@@ -370,6 +373,7 @@ void TermSetProp(Term_p term, DerefType deref, TermProperties prop)
 //
 //   If prop is set in any subterm of term, return true, otherwise
 //   false.
+//   NB: Deref not changed -- function never used.
 //
 // Global Variables: -
 //
@@ -413,6 +417,7 @@ bool TermSearchProp(Term_p term, DerefType deref, TermProperties prop)
 //
 //   If prop has the expected value in all subterms of term, return
 //   true.
+//   NB: Derefs not changed -- function never called with DEREF_ONCE.
 //
 // Global Variables: -
 //
@@ -423,6 +428,7 @@ bool TermSearchProp(Term_p term, DerefType deref, TermProperties prop)
 bool TermVerifyProp(Term_p term, DerefType deref, TermProperties prop,
                     TermProperties expected)
 {
+   assert(deref != DEREF_ONCE);
    PStack_p stack = PStackAlloc();
    int i;
    bool res = true;
@@ -456,6 +462,7 @@ bool TermVerifyProp(Term_p term, DerefType deref, TermProperties prop,
 // Function: TermDelProp()
 //
 //   Delete the properties in all term cells belonging to term.
+//    NB: Derefs not changed -- function never called with DEREF_ONCE
 //
 // Global Variables: -
 //
@@ -465,6 +472,7 @@ bool TermVerifyProp(Term_p term, DerefType deref, TermProperties prop,
 
 void TermDelProp(Term_p term, DerefType deref, TermProperties prop)
 {
+   assert(deref != DEREF_ONCE);
    PStack_p stack = PStackAlloc();
    int i;
 
@@ -526,6 +534,7 @@ void TermDelPropOpt(Term_p term, TermProperties prop)
 // Function: TermVarSetProp()
 //
 //   Set the properties in all variable cells belonging to term.
+//   NB: Derefs not changed -- function never called with DEREF_ONCE
 //
 // Global Variables: -
 //
@@ -535,6 +544,7 @@ void TermDelPropOpt(Term_p term, TermProperties prop)
 
 void TermVarSetProp(Term_p term, DerefType deref, TermProperties prop)
 {
+   assert(deref != DEREF_ONCE);
    PStack_p stack = PStackAlloc();
    int i;
 
@@ -608,6 +618,7 @@ bool TermHasInterpretedSymbol(Term_p term)
 //
 //   If prop is set in any variable cell in term, return true, otherwise
 //   false.
+//   NB: Derefs never changed -- function not called with DEREF_ONCE
 //
 // Global Variables: -
 //
@@ -617,6 +628,7 @@ bool TermHasInterpretedSymbol(Term_p term)
 
 bool TermVarSearchProp(Term_p term, DerefType deref, TermProperties prop)
 {
+   assert(deref != DEREF_ONCE);
    PStack_p stack = PStackAlloc();
    int i;
    bool res = false;
@@ -650,6 +662,7 @@ bool TermVarSearchProp(Term_p term, DerefType deref, TermProperties prop)
 // Function: TermVarDelProp()
 //
 //   Delete the properties in all variable cells belonging to term.
+//   NB: Derefs not changed -- function not called with DEREF_ONCE
 //
 // Global Variables: -
 //
@@ -659,6 +672,7 @@ bool TermVarSearchProp(Term_p term, DerefType deref, TermProperties prop)
 
 void TermVarDelProp(Term_p term, DerefType deref, TermProperties prop)
 {
+   assert(deref != DEREF_ONCE);
    PStack_p stack = PStackAlloc();
    int i;
 

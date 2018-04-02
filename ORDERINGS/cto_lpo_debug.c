@@ -475,6 +475,7 @@ static CompareResult lpogtrcheckarg(OCB_p ocb, Term_p s, Term_p t,
 CompareResult D_LPOCompare(OCB_p ocb, Term_p s, Term_p t,
           DerefType deref_s, DerefType deref_t)
 {
+   assert(ProblemIsHO != PROBLEM_IS_HO); // no need to change derefs
    CompareResult res, res_funs;
 
    s = TermDeref(s, &deref_s, NULL);
@@ -557,6 +558,7 @@ CompareResult D_LPOCompare(OCB_p ocb, Term_p s, Term_p t,
 bool D_LPOGreater(OCB_p ocb, Term_p s, Term_p t,
       DerefType deref_s, DerefType deref_t)
 {
+   assert(ProblemIsHO != PROBLEM_IS_HO); // no need to change derefs
    if (lpogtr(ocb, s, t, deref_s, deref_t) == to_greater)
    {
       return true;
@@ -585,9 +587,9 @@ CompareResult D_LPOCompareVars(Term_p s, Term_p t,
               DerefType deref_s,
               DerefType deref_t)
 {
-   // TODO: MIGHT NOT BE SHARED
-   s = TermDeref(s, &deref_s, NULL);
-   t = TermDeref(t, &deref_t, NULL);
+   assert(ProblemIsHO != PROBLEM_IS_HO); // no need to change derefs
+   s = TermDeref(s, &deref_s);
+   t = TermDeref(t, &deref_t);
 
    if (TermIsVar(s))
    {
