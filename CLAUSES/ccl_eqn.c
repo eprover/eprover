@@ -750,9 +750,9 @@ Eqn_p EqnHOFParse(Scanner_p in, TB_p bank, bool* continue_parsing)
    {
       rterm = TBTermParse(in, bank);
 
-      if (TypeIsPredicate(lterm->type) && TypeIsPredicate(rterm->type))
+      if (TypeIsBool(lterm->type) && TypeIsBool(rterm->type))
       {
-         AktTokenError(in, "Equations between predicate terms are disallowed.", false);
+         AktTokenError(in, "Equations between bools are disallowed.", false);
       }
 
       if (!TermIsTopLevelVar(lterm) && !SigIsFunction(bank->sig, lterm->f_code))
