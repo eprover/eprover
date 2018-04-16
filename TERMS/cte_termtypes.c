@@ -312,13 +312,13 @@ Term_p TermAllocNewSkolem(Sig_p sig, PStack_p variables, Type_p ret_type)
 
    type = TypeBankInsertTypeShared(sig->type_bank, FlattenType(type));
 
-   if(!TypeIsPredicate(type))
+   if(!TypeIsBool(type))
    {
-      handle->f_code = SigGetNewSkolemCode(sig, TypeGetSymbolArity(type));
+      handle->f_code = SigGetNewSkolemCode(sig, PStackGetSP(variables));
    }
    else
    {
-      handle->f_code = SigGetNewPredicateCode(sig, TypeGetSymbolArity(type));
+      handle->f_code = SigGetNewPredicateCode(sig, PStackGetSP(variables));
    }
 
    SigDeclareFinalType(sig, handle->f_code, type);
