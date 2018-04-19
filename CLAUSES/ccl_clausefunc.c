@@ -264,7 +264,10 @@ long ClauseSetRemoveSuperfluousLiterals(ClauseSet_p set)
    for(handle = set->anchor->succ; handle!=set->anchor; handle =
      handle->succ)
    {
+      
       res += ClauseRemoveSuperfluousLiterals(handle);
+
+
    }
    return res;
 }
@@ -478,7 +481,7 @@ void PStackClausePrint(FILE* out, PStack_p stack, char* extra)
    }
 }
 
-#ifndef NEDBUG
+#ifndef NDEBUG
 
 bool term_is_shared(Term_p t)
 {
