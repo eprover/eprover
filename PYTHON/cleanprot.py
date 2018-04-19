@@ -13,9 +13,9 @@ tested for a few well-behaved use-cases!
 import sys
 import re
 
-comment_re = re.compile("^#.*") 
+comment_re = re.compile("^#.*")
 sd_comment_re = re.compile("^# [0-9] ")
-spec_comment_re = re.compile("^# *eprover")
+spec_comment_re = re.compile("^#[ ./]*eprover")
 
 spec     = {}       # eprover ... goes first
 fields   = set([])  #  1 Field descriptions go second
@@ -35,7 +35,7 @@ for file in sys.argv[1:]:
     for line in fp:
         if comment_re.match(line):
             # print("Adding comment", line, end="")
-            if sd_comment_re.match(line): 
+            if sd_comment_re.match(line):
                 fields.add(fixcomment(line))
             elif spec_comment_re.match(line):
                 c_key = line[:10]
@@ -75,6 +75,6 @@ for i in sorted(results.keys()):
         padding = ["            -" * (maxfields - len(results[i][1]))]
         padstr  = " ".join(padding)
         results[i] = results[i][0].strip()+padstr+"\n",  results[i][1]+padding
-    
+
 for i in sorted(results.keys()):
     print(results[i][0], end="")
