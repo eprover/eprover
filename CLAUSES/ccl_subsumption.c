@@ -351,13 +351,6 @@ static Eqn_p find_spec_literal(Eqn_p lit, Eqn_p list)
    for(;list;list = list->next)
    {
       cmpres = EqnSubsumeQOrderCompare(lit, list);
-      /*cmpres = EqnSubsumeQOrderCompareIgnoreAppVar(lit, list);*/
-
-      /*fprintf(stderr, "cmp ");
-      EqnPrint(stderr, lit, false, true);
-      fprintf(stderr, "and ");
-      EqnPrint(stderr, list, false, true);
-      fprintf(stderr, "with result %d.\n", cmpres);*/
 
       if(cmpres > 0)
       {
