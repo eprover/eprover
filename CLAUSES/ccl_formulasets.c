@@ -352,6 +352,17 @@ void FormulaSetPrint(FILE* out, FormulaSet_p set, bool fullterms)
    }
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: FormulaSetAppEncode()
+//
+//   App encodes the set of formulas.
+//
+// Global Variables: OutputFormat
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
 void FormulaSetAppEncode(FILE* out, FormulaSet_p set)
 {
    WFormula_p handle;

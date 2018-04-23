@@ -1598,8 +1598,19 @@ void SigUpdateFeatureOffset(Sig_p sig, FunCode f)
    }
 }
 
-// TODO: Used for app encoder purposes only only.
-// Can be removed after testing.
+/*-----------------------------------------------------------------------
+//
+// Function: SigGetTypedApp()
+//
+//    Gets the symbol that corresponds to application of type of function
+//    (arg1 -> arg2) == ret. ret given as arg so that it does not have to
+//    be shared.
+//
+// Global Variables: -
+//
+// Side Effects    : As above
+//
+/----------------------------------------------------------------------*/
 FunCode SigGetTypedApp(Sig_p sig, Type_p arg1, Type_p arg2, Type_p ret)
 {
    DStr_p typed_app_name = DStrAlloc();
@@ -1631,7 +1642,17 @@ FunCode SigGetTypedApp(Sig_p sig, Type_p arg1, Type_p arg2, Type_p ret)
    return ret_fcode;
 }
 
-
+/*-----------------------------------------------------------------------
+//
+// Function: SigPrintAppEncodedDecls()
+//
+//    Prints type declarations that correspond to app-encoded terms.
+//
+// Global Variables: -
+//
+// Side Effects    : As above
+//
+/----------------------------------------------------------------------*/
 void SigPrintAppEncodedDecls(FILE* out, Sig_p sig)
 {
    for(FunCode i=sig->internal_symbols+1; i <= sig->f_count; i++)
