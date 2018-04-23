@@ -140,6 +140,7 @@ char   *outname = NULL;
 IOFormat parse_format = LOPFormat;
 bool   dimacs_format = false;
 int ProblemIsHO = PROBLEM_NOT_INIT;
+bool   app_encode = false;
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */

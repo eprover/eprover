@@ -128,7 +128,7 @@ long       time_limit  = 10;
 char       *executable = NULL;
 ProverType prover      = EProver;
 int ProblemIsHO = PROBLEM_NOT_INIT;
-
+bool app_encode = false;
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */

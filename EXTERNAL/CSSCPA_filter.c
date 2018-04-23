@@ -100,6 +100,7 @@ OptCell opts[] =
 };
 
 char   *outname   = NULL;
+bool   app_encode = false;
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */

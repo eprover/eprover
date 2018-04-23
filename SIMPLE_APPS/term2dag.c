@@ -73,6 +73,7 @@ OptCell opts[] =
 };
 
 char *outname = NULL;
+bool app_encode = false;
 int ProblemIsHO = PROBLEM_NOT_INIT;
 
 /*---------------------------------------------------------------------*/
