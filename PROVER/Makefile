@@ -214,12 +214,4 @@ TESTER = tester.o ../lib/CONTROL.a ../lib/HEURISTICS.a\
 tester: $(TESTER)
 	$(LD) -o tester $(TESTER) $(LIBS)
 
-APP_ENCODER = app_encoder.o ../lib/CONTROL.a ../lib/HEURISTICS.a\
-            ../lib/LEARN.a\
-            ../lib/CLAUSES.a ../lib/ORDERINGS.a ../lib/TERMS.a\
-            ../lib/INOUT.a ../lib/BASICS.a
-
-app_encoder: $(APP_ENCODER)
-	$(LD) -o app_encoder $(APP_ENCODER) $(LIBS)
-
 include Makefile.dependencies

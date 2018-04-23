@@ -97,6 +97,7 @@ char   *outname = NULL;
 double neg_proportion = 1;
 long   neg_examples = 200;
 int ProblemIsHO = PROBLEM_NOT_INIT;
+bool app_encode = false;
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
