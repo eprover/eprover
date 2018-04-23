@@ -19,7 +19,7 @@ PROJECT = eprover e_ltb_runner e_stratpar e_deduction_server e_axfilter \
 	      classify_problem termprops e_client e_server\
           direct_examples epclanalyse epclextract checkproof eground\
           enormalizer edpll epcllemma\
-          ekb_create ekb_insert ekb_ginsert ekb_delete tsm_classify tester app_encoder
+          ekb_create ekb_insert ekb_ginsert ekb_delete tsm_classify tester
 LIB     = $(PROJECT)
 all: $(LIB)
 

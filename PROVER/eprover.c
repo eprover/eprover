@@ -31,7 +31,6 @@
 #include <cte_simpletypes.h>
 #include <cco_scheduling.h>
 #include <e_version.h>
-#include <ccl_formulasets.h>
 
 
 /*---------------------------------------------------------------------*/
@@ -415,7 +414,8 @@ int main(int argc, char* argv[])
 
    if (app_encode)
    {
-      FormulaSetAppEncode(stdout, proofstate->f_axioms, true);
+      FormulaSetAppEncode(stdout, proofstate->f_axioms);
+      goto cleanup1;
    }
 
    relevancy_pruned += ProofStateSinE(proofstate, sine);
