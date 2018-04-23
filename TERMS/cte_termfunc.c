@@ -173,6 +173,25 @@ static Term_p term_check_consistency_rek(Term_p term, PTree_p *branch,
    return res;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: discard_last()
+//
+//   Returns the term where the last argument is left out.
+//   Assumes that there is at least one argument! 
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+Term_p discard_last(Term_p term)
+{
+   assert(ARG_NUM(term));
+   return TermCreatePrefix(term, ARG_NUM(term)-1);
+}
+
+
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
 /*---------------------------------------------------------------------*/
@@ -2045,25 +2064,17 @@ bool TermIsUntyped(Term_p term)
    return res;
 }
 
-// those two can safely be deleted after testing.
-Term_p discard_last(Term_p term)
-{
-   if (TermIsAppliedVar(term) && term->arity == 2)
-   {
-      return term->args[0];
-   }
-
-   Term_p res = TermTopAlloc(term->f_code, term->arity-1);
-   res->properties = term->properties;
-   for(int i=0; i<term->arity-1; i++)
-   {
-      res->args[i] = term->args[i];
-   }
-
-   res->type = NULL;
-   return res;
-}
-
+/*-----------------------------------------------------------------------
+//
+// Function: TermAppEncode
+//
+//   App-encodes the term. 
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
 Term_p TermAppEncode(Term_p orig, Sig_p sig)
 {
    if (orig->arity == 0)
