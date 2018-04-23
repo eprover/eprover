@@ -72,7 +72,7 @@ bool              print_sat = false,
    assume_inf_sys_complete = false,
    incomplete = false,
    conjectures_are_questions = false,
-   app_encode = true,
+   app_encode = false,
    strategy_scheduling = false;
 ProofOutput       print_derivation = PONone;
 long              proc_training_data;
