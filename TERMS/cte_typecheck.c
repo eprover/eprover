@@ -28,7 +28,7 @@ Changes
 /*---------------------------------------------------------------------*/
 /*                        Global Variables                             */
 /*---------------------------------------------------------------------*/
-
+extern bool app_encode;
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
@@ -54,7 +54,7 @@ Changes
 /----------------------------------------------------------------------*/
 Type_p term_determine_type(Term_p term, Type_p type, TypeBank_p bank)
 {
-   int term_arity = term->arity - (TermIsAppliedVar(term) ? 1 : 0);
+   int term_arity = ARG_NUM(term);
    if (type->arity-1 == term_arity)
    {
       return type->args[term_arity];
@@ -233,7 +233,8 @@ void TypeInferSort(Sig_p sig, Term_p term)
       {
          if (TypeIsArrow(type))
          {
-            if(ProblemIsHO == PROBLEM_NOT_HO && term->arity != type->arity-1)
+            /* app encoding does not work for FOL terms because of this check */
+            if(ProblemIsHO == PROBLEM_NOT_HO && !app_encode && term->arity != type->arity-1)
             {
                fprintf(stderr, "# arity mismatch for ");
                TermPrint(stderr, term, sig, DEREF_NEVER);
