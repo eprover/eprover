@@ -31,6 +31,7 @@
 #include <cte_simpletypes.h>
 #include <cco_scheduling.h>
 #include <e_version.h>
+#include <ccl_formulasets.h>
 
 
 /*---------------------------------------------------------------------*/
@@ -72,6 +73,7 @@ bool              print_sat = false,
    assume_inf_sys_complete = false,
    incomplete = false,
    conjectures_are_questions = false,
+   app_encode = true,
    strategy_scheduling = false;
 ProofOutput       print_derivation = PONone;
 long              proc_training_data;
@@ -409,6 +411,11 @@ int main(int argc, char* argv[])
    {
       VERBOUT2("Parsed specification.");
       FormulaSetPrint(stderr, proofstate->f_axioms, true);
+   }
+
+   if (app_encode)
+   {
+      FormulaSetAppEncode(stdout, proofstate->f_axioms, true);
    }
 
    relevancy_pruned += ProofStateSinE(proofstate, sine);
@@ -1568,6 +1575,9 @@ CLState_p process_options(int argc, char* argv[])
             break;
       case OPT_PRINT_TYPES:
             TermPrintTypes = true;
+            break;
+      case OPT_APP_ENCODE:
+            app_encode = true;
             break;
       default:
             assert(false && "Unknown option");
