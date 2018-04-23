@@ -322,7 +322,11 @@ void TypeInferSort(Sig_p sig, Term_p term)
             args[term->arity] = sort;
          }
 
-         type = term->arity ? AllocArrowType(term->arity+1, args) : sort;
+         type = term->arity ? 
+                     TypeBankInsertTypeShared(sig->type_bank,
+                                              AllocArrowType(term->arity+1, args)) 
+                     : sort;
+
 
          /* Declare the inferred type */
          SigDeclareType(sig, term->f_code, type);
