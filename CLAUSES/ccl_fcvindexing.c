@@ -510,6 +510,7 @@ FVPackedClause_p FVIndexPackClause(Clause_p clause, FVIAnchor_p anchor)
              anchor->cspec);
 }
 
+// TODO ADD DOC
 void FVIndexPrint(FILE* out, FVIndex_p index, bool fullterms)
 {
   fprintf(stderr, "* ROOT *\n");

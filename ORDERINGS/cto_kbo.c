@@ -115,7 +115,7 @@ static long gettermweight(OCB_p ocb, Term_p t, DerefType deref)
    int i;
    long weight;
 
-   t = TermDeref(t, &deref); 
+   t = TermDeref(t, &deref);
 
    weight = getweight(ocb, t->f_code);
 
@@ -203,7 +203,6 @@ static CompareResult kbogtrnew(OCB_p ocb, Term_p s, Term_p t,
    int i;
    long sweight, tweight;
 
-   // TODO: MIGHT NOT BE SHARED
    s = TermDeref(s, &deref_s);
    t = TermDeref(t, &deref_t);
 
@@ -323,7 +322,6 @@ CompareResult KBOCompare(OCB_p ocb, Term_p s, Term_p t,
    int i;
    long sweight, tweight;
 
-   // MIGHT NOT BE SHARED
    s = TermDeref(s, &deref_s);
    t = TermDeref(t, &deref_t);
 

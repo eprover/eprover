@@ -338,7 +338,6 @@ long ClauseSetPreprocess(ClauseSet_p set, ClauseSet_p passive,
    }
    /* No further ClauseSetCanonize() here - no changes since the one
       above. */
-
    return res;
 }
 
@@ -346,11 +345,3 @@ long ClauseSetPreprocess(ClauseSet_p set, ClauseSet_p passive,
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
-
-
-
-
-
-

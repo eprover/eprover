@@ -76,17 +76,13 @@ static bool instance_is_rule(OCB_p ocb, TB_p bank,
    else if(TermHasUnboundVariables(rside))
    {
       RewriteUnboundVarFails++;
-      //fprintf(stderr, " rhs has unbound vars -- fail.\n");
       return false;
    }
    if(SubstIsRenaming(subst)) /* Save comparisons */
    {
-      //fprintf(stderr, " subst is renaming -- fail.\n");
       return false;
    }
-   bool res =  TOGreater(ocb, lside, rside, DEREF_ONCE, DEREF_ONCE);
-   //fprintf(stderr, res ? " lhs > rhs -- OK.\n" : "lhs <?> rhs -- NOT OK.\n");
-   return res;
+   return TOGreater(ocb, lside, rside, DEREF_ONCE, DEREF_ONCE);
 }
 
 
@@ -104,31 +100,6 @@ static bool instance_is_rule(OCB_p ocb, TB_p bank,
 //
 /----------------------------------------------------------------------*/
 
-static 
-//__TEMP__DBG__
-void print_rewrite_rule(Clause_p demod, RWDesc_p desc, Term_p left, Term_p right)
-{
-   Term_p lhs = demod->literals->lterm;
-   Term_p rhs = demod->literals->rterm;
-   OCB_p ocb = desc->ocb;
-
-   fprintf(stderr, "Rewritten ");
-   TermPrint(stderr, left, ocb->sig, DEREF_NEVER);
-   fprintf(stderr, " to ");
-   TermPrint(stderr, right, ocb->sig, DEREF_NEVER);
-   fprintf(stderr, " KBO6= %s.\n", POCompareSymbol[TOCompare(ocb, left, right, DEREF_NEVER, DEREF_NEVER)]);
-
-   fprintf(stderr, " [ rewrite rule ");
-   TermPrint(stderr, lhs, demod->literals->bank->sig, DEREF_NEVER);
-   fprintf(stderr, " -> ");
-   TermPrint(stderr, rhs, demod->literals->bank->sig, DEREF_NEVER);
-
-   CompareResult cmp_res = TOCompare(ocb, lhs, rhs, DEREF_NEVER, DEREF_NEVER);
-   fprintf(stderr, ", KBO6 cmp %s, EqOritented %d) ].\n", POCompareSymbol[cmp_res],
-                                                          EqnIsOriented(demod->literals));
-}
-
-
 /* static */ Term_p term_follow_top_RW_chain(Term_p term, RWDesc_p desc,
                                              bool restricted_rw)
 {
@@ -143,13 +114,6 @@ void print_rewrite_rule(Clause_p demod, RWDesc_p desc, Term_p left, Term_p right
          desc->sos_rewritten = true;
       }
 
-#ifndef NDEBUG
-      if(!TOGreater(desc->ocb, term, TermRWReplaceField(term), DEREF_NEVER, DEREF_NEVER))
-      {
-         print_rewrite_rule(TermRWDemodField(term), desc, term, TermRWReplaceField(term));
-         assert(false);
-      }
-#endif
       term = TermRWReplaceField(term);
       assert(term);
    }
@@ -586,7 +550,7 @@ MatchInfo_p indexed_find_demodulator(OCB_p ocb, Term_p term,
 //
 /----------------------------------------------------------------------*/
 
-/*static*/ Term_p rewrite_with_clause_set(OCB_p ocb, TB_p bank, Term_p term,
+static Term_p rewrite_with_clause_set(OCB_p ocb, TB_p bank, Term_p term,
                   SysDate date, ClauseSet_p
                   demodulators, bool prefer_general,
                                       bool restricted_rw)
@@ -764,7 +728,6 @@ static Term_p term_li_normalform(RWDesc_p desc, Term_p term,
    {
       return term;
    }
-
    term = term_follow_top_RW_chain(term, desc, restricted_rw);
    assert(!TermIsTopRewritten(term)||restricted_rw);
 
@@ -819,7 +782,6 @@ static Term_p term_li_normalform(RWDesc_p desc, Term_p term,
          term->rw_data.nf_date[RewriteAdr(FullRewrite)] = desc->demod_date;
       }
    }
-
    return term;
 }
 

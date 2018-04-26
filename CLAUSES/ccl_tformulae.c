@@ -373,9 +373,8 @@ static TFormula_p quantified_tform_tstp_parse(Scanner_p in,
       }
    }
    res = TFormulaFCodeAlloc(terms, quantor, var, rest);
-   VarBankPopEnv(terms->vars);
 
-   assert(TermIsShared(res));
+   VarBankPopEnv(terms->vars);
    return res;
 }
 
@@ -495,7 +494,6 @@ static TFormula_p literal_tform_tstp_parse(Scanner_p in, TB_p terms)
       res = TFormulaLitAlloc(lit);
       EqnFree(lit);
    }
-   assert(TermIsShared(res));
    return res;
 }
 
@@ -1580,7 +1578,7 @@ Clause_p TFormulaCollectClause(TFormula_p form, TB_p terms,
    if(fresh_vars)
    {
       Subst_p  normsubst = SubstAlloc();
-      VarBankResetVCount(fresh_vars);
+      VarBankResetVCounts(fresh_vars);
       NormSubstEqnList(lit_list, normsubst, fresh_vars);
       tmp_list = EqnListCopy(lit_list, terms);
       res = ClauseAlloc(tmp_list);

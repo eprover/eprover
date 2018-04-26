@@ -1,14 +1,14 @@
 /*-----------------------------------------------------------------------
 
-File  : cco_proofproc.c
+  File  : cco_proofproc.c
 
-Author: Stephan Schulz
+  Author: Stephan Schulz
 
-Contents
+  Contents
 
   Functions realizing the proof procedure.
 
-  Copyright 1998--2016 by the author.
+  Copyright 1998--2018 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
@@ -130,22 +130,17 @@ static long remove_subsumed(GlobalIndices_p indices,
    while(!PStackEmpty(stack))
    {
       handle = PStackPopP(stack);
-
-      /*fprintf(stderr, "# backward subsumed: ");
-      ClausePrint(stderr, handle, true);
-      fprintf(stderr, "\n");*/
-
       // printf("# XXX Removing (remove_subumed()) %p from %p = %p\n", handle, set, handle->set);
       if(ClauseQueryProp(handle, CPWatchOnly))
       {
-        DocClauseQuote(GlobalOut, OutputLevel, 6, handle,
-             "extract_wl_subsumed", subsumer->clause);
+         DocClauseQuote(GlobalOut, OutputLevel, 6, handle,
+                        "extract_wl_subsumed", subsumer->clause);
 
       }
       else
       {
-        DocClauseQuote(GlobalOut, OutputLevel, 6, handle,
-             "subsumed", subsumer->clause);
+         DocClauseQuote(GlobalOut, OutputLevel, 6, handle,
+                        "subsumed", subsumer->clause);
       }
       ClauseKillChildren(handle);
       GlobalIndicesDeleteClause(indices, handle);
@@ -179,8 +174,8 @@ static long remove_subsumed(GlobalIndices_p indices,
 
 static bool
 eliminate_backward_rewritten_clauses(ProofState_p
-                 state, ProofControl_p control,
-                 Clause_p clause, SysDate *date)
+                                     state, ProofControl_p control,
+                                     Clause_p clause, SysDate *date)
 {
    long old_lit_count = state->tmp_store->literals,
       old_clause_count= state->tmp_store->members;
@@ -226,9 +221,9 @@ eliminate_backward_rewritten_clauses(ProofState_p
             ||min_rw;
       }
       state->backward_rewritten_lit_count+=
-    (state->tmp_store->literals-old_lit_count);
+         (state->tmp_store->literals-old_lit_count);
       state->backward_rewritten_count+=
-    (state->tmp_store->members-old_clause_count);
+         (state->tmp_store->members-old_clause_count);
 
       if(control->heuristic_parms.detsort_bw_rw)
       {
@@ -256,7 +251,7 @@ eliminate_backward_rewritten_clauses(ProofState_p
 /----------------------------------------------------------------------*/
 
 static long eliminate_backward_subsumed_clauses(ProofState_p state,
-                  FVPackedClause_p pclause)
+                                                FVPackedClause_p pclause)
 {
    long res = 0;
 
@@ -278,17 +273,17 @@ static long eliminate_backward_subsumed_clauses(ProofState_p state,
                                    state->archive);
          }
          res += remove_subsumed(&(state->gindices), pclause,
-                                     state->processed_non_units,
-                                        state->archive);
+                                state->processed_non_units,
+                                state->archive);
       }
       else
       {
          res += remove_subsumed(&(state->gindices), pclause,
-                                      state->processed_neg_units,
-                                      state->archive);
+                                state->processed_neg_units,
+                                state->archive);
          res += remove_subsumed(&(state->gindices), pclause,
-                                      state->processed_non_units,
-                                      state->archive);
+                                state->processed_non_units,
+                                state->archive);
       }
    }
    else
@@ -316,31 +311,31 @@ static long eliminate_backward_subsumed_clauses(ProofState_p state,
 /----------------------------------------------------------------------*/
 
 static void eliminate_unit_simplified_clauses(ProofState_p state,
-                     Clause_p clause)
+                                              Clause_p clause)
 {
    if(ClauseIsRWRule(clause)||!ClauseIsUnit(clause))
    {
       return;
    }
    ClauseSetUnitSimplify(state->processed_non_units, clause,
-          state->tmp_store,
+                         state->tmp_store,
                          state->archive,
                          &(state->gindices));
    if(ClauseIsPositive(clause))
    {
       ClauseSetUnitSimplify(state->processed_neg_units, clause,
-             state->tmp_store,
+                            state->tmp_store,
                             state->archive,
                             &(state->gindices));
    }
    else
    {
       ClauseSetUnitSimplify(state->processed_pos_rules, clause,
-             state->tmp_store,
+                            state->tmp_store,
                             state->archive,
                             &(state->gindices));
       ClauseSetUnitSimplify(state->processed_pos_eqns, clause,
-             state->tmp_store,
+                            state->tmp_store,
                             state->archive,
                             &(state->gindices));
    }
@@ -361,15 +356,15 @@ static void eliminate_unit_simplified_clauses(ProofState_p state,
 /----------------------------------------------------------------------*/
 
 static long eliminate_context_sr_clauses(ProofState_p state,
-                ProofControl_p control,
-                Clause_p clause)
+                                         ProofControl_p control,
+                                         Clause_p clause)
 {
    if(!control->heuristic_parms.backward_context_sr)
    {
       return 0;
    }
    return RemoveContextualSRClauses(state->processed_non_units,
-                state->tmp_store,
+                                    state->tmp_store,
                                     state->archive,
                                     clause,
                                     &(state->gindices));
@@ -389,7 +384,8 @@ static long eliminate_context_sr_clauses(ProofState_p state,
 /----------------------------------------------------------------------*/
 
 void check_watchlist(GlobalIndices_p indices, ClauseSet_p watchlist,
-                     Clause_p clause, ClauseSet_p archive)
+                     Clause_p clause, ClauseSet_p archive,
+                     bool static_watchlist)
 {
    FVPackedClause_p pclause = FVIndexPackClause(clause, watchlist->fvindex);
    long removed;
@@ -399,17 +395,31 @@ void check_watchlist(GlobalIndices_p indices, ClauseSet_p watchlist,
    // assert(ClauseIsSubsumeOrdered(clause));
 
    clause->weight = ClauseStandardWeight(clause);
-   if((removed = remove_subsumed(indices, pclause, watchlist, archive)))
+
+   if(static_watchlist)
    {
-      ClauseSetProp(clause, CPSubsumesWatch);
-      if(OutputLevel == 1)
+      Clause_p subsumed;
+
+      subsumed = ClauseSetFindFirstSubsumedClause(watchlist, clause);
+      if(subsumed)
       {
-    fprintf(GlobalOut,"# Watchlist reduced by %ld clause%s\n",
-       removed,removed==1?"":"s");
+         ClauseSetProp(clause, CPSubsumesWatch);
       }
-      // ClausePrint(GlobalOut, clause, true); printf("\n");
-      DocClauseQuote(GlobalOut, OutputLevel, 6, clause,
-           "extract_subsumed_watched", NULL);   }
+   }
+   else
+   {
+      if((removed = remove_subsumed(indices, pclause, watchlist, archive)))
+      {
+         ClauseSetProp(clause, CPSubsumesWatch);
+         if(OutputLevel == 1)
+         {
+            fprintf(GlobalOut,"# Watchlist reduced by %ld clause%s\n",
+                    removed,removed==1?"":"s");
+         }
+         // ClausePrint(GlobalOut, clause, true); printf("\n");
+         DocClauseQuote(GlobalOut, OutputLevel, 6, clause,
+                        "extract_subsumed_watched", NULL);   }
+   }
    FVUnpackClause(pclause);
    // printf("# ...check_watchlist()\n");
 }
@@ -431,7 +441,7 @@ void check_watchlist(GlobalIndices_p indices, ClauseSet_p watchlist,
 /----------------------------------------------------------------------*/
 
 void simplify_watchlist(ProofState_p state, ProofControl_p control,
-         Clause_p clause)
+                        Clause_p clause)
 {
    ClauseSet_p tmp_set;
    Clause_p handle;
@@ -465,19 +475,19 @@ void simplify_watchlist(ProofState_p state, ProofControl_p control,
       // printf("# WL simplify: "); ClausePrint(stdout, handle, true);
       // printf("\n");
       ClauseComputeLINormalform(control->ocb,
-            state->terms,
-            handle,
-            state->demods,
-            control->heuristic_parms.forward_demod,
-            control->heuristic_parms.prefer_general);
+                                state->terms,
+                                handle,
+                                state->demods,
+                                control->heuristic_parms.forward_demod,
+                                control->heuristic_parms.prefer_general);
       removed_lits = ClauseRemoveSuperfluousLiterals(handle);
       if(removed_lits)
       {
-    DocClauseModificationDefault(handle, inf_minimize, NULL);
+         DocClauseModificationDefault(handle, inf_minimize, NULL);
       }
       if(control->ac_handling_active)
       {
-    ClauseRemoveACResolved(handle);
+         ClauseRemoveACResolved(handle);
       }
       handle->weight = ClauseStandardWeight(handle);
       ClauseMarkMaximalTerms(control->ocb, handle);
@@ -504,7 +514,7 @@ void simplify_watchlist(ProofState_p state, ProofControl_p control,
 /----------------------------------------------------------------------*/
 
 static void generate_new_clauses(ProofState_p state, ProofControl_p
-             control, Clause_p clause, Clause_p tmp_copy)
+                                 control, Clause_p clause, Clause_p tmp_copy)
 {
    if(control->heuristic_parms.enable_eq_factoring)
    {
@@ -514,7 +524,7 @@ static void generate_new_clauses(ProofState_p state, ProofControl_p
    }
    state->resolv_count+=
       ComputeAllEqnResolvents(state->terms, clause, state->tmp_store,
-               state->freshvars);
+                              state->freshvars);
 
    if(control->heuristic_parms.enable_neg_unit_paramod
       ||!ClauseIsUnit(clause)
@@ -570,6 +580,36 @@ static void generate_new_clauses(ProofState_p state, ProofControl_p
    }
 }
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: eval_clause_set()
+//
+//   Add evaluations to all clauses in state->eval_set. Factored out
+//   so that batch-processing with e.g. neural networks can be easily
+//   integrated.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void eval_clause_set(ProofState_p state, ProofControl_p control)
+{
+   Clause_p handle;
+   assert(state);
+   assert(control);
+
+   for(handle = state->eval_store->anchor->succ;
+       handle != state->eval_store->anchor;
+       handle = handle->succ)
+   {
+      HCBClauseEvaluate(control->hcb, handle);
+   }
+}
+
+
 /*-----------------------------------------------------------------------
 //
 // Function: insert_new_clauses()
@@ -592,7 +632,10 @@ static Clause_p insert_new_clauses(ProofState_p state, ProofControl_p control)
    state->generated_count+=state->tmp_store->members;
    state->generated_lit_count+=state->tmp_store->literals;
    while((handle = ClauseSetExtractFirst(state->tmp_store)))
-   {       
+   {
+      /* printf("Inserting: ");
+         ClausePrint(stdout, handle, true);
+         printf("\n"); */
       if(ClauseQueryProp(handle,CPIsIRVictim))
       {
          assert(ClauseQueryProp(handle, CPLimitedRW));
@@ -622,7 +665,8 @@ static Clause_p insert_new_clauses(ProofState_p state, ProofControl_p control)
       if(state->watchlist)
       {
          check_watchlist(&(state->wlindices), state->watchlist,
-                         handle, state->archive);
+                         handle, state->archive,
+                         control->heuristic_parms.watchlist_is_static);
       }
       if(ClauseIsEmpty(handle))
       {
@@ -668,7 +712,14 @@ static Clause_p insert_new_clauses(ProofState_p state, ProofControl_p control)
       {
          ClausePushDerivation(handle, DCCnfEvalGC, NULL, NULL);
       }
-      HCBClauseEvaluate(control->hcb, handle);
+//      HCBClauseEvaluate(control->hcb, handle);
+
+      ClauseSetInsert(state->eval_store, handle);
+   }
+   eval_clause_set(state, control);
+
+   while((handle = ClauseSetExtractFirst(state->eval_store)))
+   {
       ClauseDelProp(handle, CPIsOriented);
       DocClauseQuoteDefault(6, handle, "eval");
 
@@ -715,9 +766,9 @@ Clause_p replacing_inferences(ProofState_p state, ProofControl_p
    }
    else if(ControlledClauseSplit(state->definition_store,
                                  pclause->clause, state->tmp_store,
-             control->heuristic_parms.split_clauses,
-             control->heuristic_parms.split_method,
-             control->heuristic_parms.split_fresh_defs))
+                                 control->heuristic_parms.split_clauses,
+                                 control->heuristic_parms.split_method,
+                                 control->heuristic_parms.split_fresh_defs))
    {
       pclause->clause = NULL;
    }
@@ -837,6 +888,57 @@ static Clause_p cleanup_unprocessed_clauses(ProofState_p state,
    return unsatisfiable;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: SATCheck()
+//
+//   Create ground (or pseudo-ground) instances of the clause set,
+//   hand them to a SAT solver, and check then for unsatisfiability.
+//
+// Global Variables:
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+
+Clause_p SATCheck(ProofState_p state, ProofControl_p control)
+{
+   Clause_p res = NULL;
+
+   if(control->heuristic_parms.sat_check_normalize)
+   {
+      //printf("# Cardinality of unprocessed: %ld\n",
+      //        ClauseSetCardinality(state->unprocessed));
+      res = ForwardContractSetReweight(state, control, state->unprocessed,
+                                       false, 2,
+                                       &(state->proc_trivial_count));
+      // printf("# ForwardContraction done\n");
+
+   }
+   if(!res)
+   {
+      SatClauseSet_p set = SatClauseSetAlloc();
+
+      //printf("# SatCheck() %ld, %ld..\n",
+      //       state->proc_non_trivial_count,
+      //       ProofStateCardinality(state));
+
+      SatClauseSetImportProofState(set, state,
+                                   control->heuristic_parms.sat_check_grounding,
+                                   control->heuristic_parms.sat_check_normconst);
+
+      // printf("# SatCheck()..imported\n");
+
+      res = SatClauseSetCheckUnsat(set);
+      state->satcheck_count++;
+      if(res)
+      {
+         state->satcheck_success++;
+      }
+      SatClauseSetFree(set);
+   }
+   return res;
+}
 
 #ifdef PRINT_SHARING
 
@@ -865,15 +967,15 @@ static void print_sharing_factor(ProofState_p state)
       ClauseSetGetTermNodes(state->unprocessed);
 
    fprintf(GlobalOut, "\n#        GClauses   NClauses    NShared  "
-      "NUnshared    TShared  TUnshared TSharinF   \n");
+           "NUnshared    TShared  TUnshared TSharinF   \n");
    fprintf(GlobalOut, "# grep %10ld %10ld %10ld %10ld %10ld %10ld %10.3f\n",
-      state->generated_count - state->backward_rewritten_count,
-      state->tmp_store->members,
-      ClauseSetGetSharedTermNodes(state->tmp_store),
-      ClauseSetGetTermNodes(state->tmp_store),
-      shared,
-      unshared,
-      (float)unshared/shared);
+           state->generated_count - state->backward_rewritten_count,
+           state->tmp_store->members,
+           ClauseSetGetSharedTermNodes(state->tmp_store),
+           ClauseSetGetTermNodes(state->tmp_store),
+           shared,
+           unshared,
+           (float)unshared/shared);
 }
 #endif
 
@@ -932,7 +1034,7 @@ void print_rw_state(ProofState_p state)
 /----------------------------------------------------------------------*/
 
 void ProofControlInit(ProofState_p state,ProofControl_p control,
-            HeuristicParms_p params, FVIndexParms_p fvi_params,
+                      HeuristicParms_p params, FVIndexParms_p fvi_params,
                       PStack_p wfcb_defs, PStack_p hcb_defs)
 {
    PStackPointer sp;
@@ -945,47 +1047,47 @@ void ProofControlInit(ProofState_p state,ProofControl_p control,
    assert(!control->hcb);
 
    SpecFeaturesCompute(&(control->problem_specs),
-             state->axioms,state->signature);
+                       state->axioms,state->signature);
 
    control->ocb = TOSelectOrdering(state, params,
-               &(control->problem_specs));
+                                   &(control->problem_specs));
 
    in = CreateScanner(StreamTypeInternalString,
-            DefaultWeightFunctions,
-            true, NULL);
+                      DefaultWeightFunctions,
+                      true, NULL);
    WeightFunDefListParse(control->wfcbs, in, control->ocb, state);
    DestroyScanner(in);
 
    for(sp = 0; sp < PStackGetSP(wfcb_defs); sp++)
    {
       in = CreateScanner(StreamTypeOptionString,
-          PStackElementP(wfcb_defs, sp) ,
-          true, NULL);
+                         PStackElementP(wfcb_defs, sp) ,
+                         true, NULL);
       WeightFunDefListParse(control->wfcbs, in, control->ocb, state);
       DestroyScanner(in);
    }
    in = CreateScanner(StreamTypeInternalString,
-            DefaultHeuristics,
-            true, NULL);
+                      DefaultHeuristics,
+                      true, NULL);
    HeuristicDefListParse(control->hcbs, in, control->wfcbs,
-          control->ocb, state);
+                         control->ocb, state);
    DestroyScanner(in);
    for(sp = 0; sp < PStackGetSP(hcb_defs); sp++)
    {
       in = CreateScanner(StreamTypeOptionString,
-          PStackElementP(hcb_defs, sp) ,
-          true, NULL);
+                         PStackElementP(hcb_defs, sp) ,
+                         true, NULL);
       HeuristicDefListParse(control->hcbs, in, control->wfcbs,
-             control->ocb, state);
+                            control->ocb, state);
       DestroyScanner(in);
    }
    control->heuristic_parms     = *params;
 
-   control->fvi_parms           = *fvi_params;
    control->hcb = GetHeuristic(params->heuristic_name,
-                state,
-                control,
-                params);
+                               state,
+                               control,
+                               params);
+   control->fvi_parms           = *fvi_params;
    if(!control->heuristic_parms.split_clauses)
    {
       control->fvi_parms.symbol_slack = 0;
@@ -1037,7 +1139,7 @@ void ProofStateResetProcessedSet(ProofState_p state,
 
       if(control->heuristic_parms.prefer_initial_clauses)
       {
-    EvalListChangePriority(handle->evaluations, -PrioLargestReasonable);
+         EvalListChangePriority(handle->evaluations, -PrioLargestReasonable);
       }
       ClauseSetInsert(state->unprocessed, handle);
    }
@@ -1067,13 +1169,14 @@ void ProofStateResetProcessed(ProofState_p state, ProofControl_p control)
 
 /*-----------------------------------------------------------------------
 //
-// Function:
+// Function: fvi_param_init()
 //
+//   Initialize the parameters for all feature vector indices in
+//   state.
 //
+// Global Variables: -
 //
-// Global Variables:
-//
-// Side Effects    :
+// Side Effects    : -
 //
 /----------------------------------------------------------------------*/
 
@@ -1089,6 +1192,7 @@ void fvi_param_init(ProofState_p state, ProofControl_p control)
    symbols = MIN(state->original_symbols+control->fvi_parms.symbol_slack,
                  control->fvi_parms.max_symbols);
 
+   // printf("### Symbols: %ld\n", symbols);
    switch(control->fvi_parms.cspec.features)
    {
    case FVIBillFeatures:
@@ -1098,6 +1202,7 @@ void fvi_param_init(ProofState_p state, ProofControl_p control)
          cspec = BillPlusFeaturesCollectAlloc(state->signature, symbols*2+4);
          break;
    case FVIACFold:
+         // printf("# FVIACFold\n");
          cspec = FVCollectAlloc(FVICollectFeatures,
                                 true,
                                 0,
@@ -1111,7 +1216,7 @@ void fvi_param_init(ProofState_p state, ProofControl_p control)
                                 0,0,0,
                                 0,0,0);
          break;
-    case FVIACStagger:
+   case FVIACStagger:
          cspec = FVCollectAlloc(FVICollectFeatures,
                                 true,
                                 0,
@@ -1153,9 +1258,9 @@ void fvi_param_init(ProofState_p state, ProofControl_p control)
                                 0, 0, 0,
                                 0, 0, 0,
                                 0, 0, 0);
-         cspec->max_symbols = symbols;
          break;
    }
+   cspec->max_symbols=symbols;
    state->fvi_cspec = cspec;
 
    perm = PermVectorCompute(state->axioms,
@@ -1225,6 +1330,12 @@ void ProofStateInit(ProofState_p state, ProofControl_p control)
    assert(ClauseSetEmpty(state->processed_neg_units));
    assert(ClauseSetEmpty(state->processed_non_units));
 
+   if(!state->fvi_initialized)
+   {
+      fvi_param_init(state, control);
+   }
+   ProofStateInitWatchlist(state, control->ocb);
+
    tmphcb = GetHeuristic("Uniq", state, control, &(control->heuristic_parms));
    assert(tmphcb);
    ClauseSetReweight(tmphcb, state->axioms);
@@ -1241,7 +1352,8 @@ void ProofStateInit(ProofState_p state, ProofControl_p control)
       if(state->watchlist)
       {
          check_watchlist(&(state->wlindices), state->watchlist,
-                         new, state->archive);
+                         new, state->archive,
+                         control->heuristic_parms.watchlist_is_static);
       }
       HCBClauseEvaluate(control->hcb, new);
       DocClauseQuoteDefault(6, new, "eval");
@@ -1252,7 +1364,7 @@ void ProofStateInit(ProofState_p state, ProofControl_p control)
       }
       if(control->heuristic_parms.prefer_initial_clauses)
       {
-    EvalListChangePriority(new->evaluations, -PrioLargestReasonable);
+         EvalListChangePriority(new->evaluations, -PrioLargestReasonable);
       }
       ClauseSetInsert(state->unprocessed, new);
    }
@@ -1264,17 +1376,17 @@ void ProofStateInit(ProofState_p state, ProofControl_p control)
    {
       if(OutputLevel)
       {
-    fprintf(GlobalOut, "# Scanning for AC axioms\n");
+         fprintf(GlobalOut, "# Scanning for AC axioms\n");
       }
       control->ac_handling_active = ClauseSetScanAC(state->signature,
-                      state->unprocessed);
+                                                    state->unprocessed);
       if(OutputLevel)
       {
-    SigPrintACStatus(GlobalOut, state->signature);
-    if(control->ac_handling_active)
-    {
-       fprintf(GlobalOut, "# AC handling enabled\n");
-    }
+         SigPrintACStatus(GlobalOut, state->signature);
+         if(control->ac_handling_active)
+         {
+            fprintf(GlobalOut, "# AC handling enabled\n");
+         }
       }
    }
 
@@ -1284,10 +1396,6 @@ void ProofStateInit(ProofState_p state, ProofControl_p control)
                      control->heuristic_parms.pm_from_index_type,
                      control->heuristic_parms.pm_into_index_type);
 
-   if(!state->fvi_initialized)
-   {
-      fvi_param_init(state, control);
-   }
 }
 
 
@@ -1314,11 +1422,7 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control,
 
    clause = control->hcb->hcb_select(control->hcb,
                                      state->unprocessed);
-
-   //fprintf(stderr, "/* this was picked ");
-   //ClausePrint(stderr, clause, true);
-   //fprintf(stderr, " */\n");
-   //EvalListPrintComment(stderr, clause->evaluations); fprintf(stderr, "\n");
+   //EvalListPrintComment(GlobalOut, clause->evaluations); printf("\n");
    if(OutputLevel==1)
    {
       putc('#', GlobalOut);
@@ -1331,8 +1435,6 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control,
    ClauseSetProp(clause, CPIsProcessed);
    ClauseDetachParents(clause);
    ClauseRemoveEvaluations(clause);
-
-   assert(ClauseAllTermsShared(clause));
 
    assert(!ClauseQueryProp(clause, CPIsIRVictim));
 
@@ -1353,8 +1455,6 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control,
       }
       return NULL;
    }
-
-   //FreqVectorPrint(stderr, pclause);
 
    if(ClauseIsSemFalse(pclause->clause))
    {
@@ -1388,7 +1488,8 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control,
    if(state->watchlist)
    {
       check_watchlist(&(state->wlindices), state->watchlist,
-                      pclause->clause, state->archive);
+                      pclause->clause, state->archive,
+                      control->heuristic_parms.watchlist_is_static);
    }
 
    /* Now on to backward simplification. */
@@ -1443,9 +1544,7 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control,
    }
    if(control->heuristic_parms.selection_strategy != SelectNoGeneration)
    {
-      /*fprintf(stderr, "? paramods before: %ld state->paramod_count.\n", state->paramod_count);*/
       generate_new_clauses(state, control, clause, tmp_copy);
-      /*fprintf(stderr, "? paramods after: %ld state->paramod_count.\n", state->paramod_count);*/
    }
    ClauseFree(tmp_copy);
    if(TermCellStoreNodes(&(state->tmp_terms->term_store))>TMPBANK_GC_LIMIT)
@@ -1491,23 +1590,19 @@ Clause_p Saturate(ProofState_p state, ProofControl_p control, long
                   long answer_limit)
 {
    Clause_p unsatisfiable = NULL;
-   long count = 0;
+   long
+      count = 0,
+      sat_check_size_limit = control->heuristic_parms.sat_check_size_limit,
+      sat_check_step_limit = control->heuristic_parms.sat_check_step_limit;
 
    while(!TimeIsUp &&
          !ClauseSetEmpty(state->unprocessed) &&
-         step_limit>count &&
-         proc_limit>(state->processed_pos_rules->members +
-                     state->processed_pos_eqns->members +
-                     state->processed_neg_units->members +
-                     state->processed_non_units->members) &&
-         unproc_limit>state->unprocessed->members &&
-         total_limit>(state->processed_pos_rules->members +
-                      state->processed_pos_eqns->members +
-                      state->processed_neg_units->members +
-                      state->processed_non_units->members+
-                      state->unprocessed->members)&&
+         step_limit   > count &&
+         proc_limit   > ProofStateProcCardinality(state) &&
+         unproc_limit > ProofStateUnprocCardinality(state) &&
+         total_limit  > ProofStateCardinality(state) &&
          generated_limit > (state->generated_count -
-                           state->backward_rewritten_count)&&
+                            state->backward_rewritten_count)&&
          tb_insert_limit > state->terms->insertions &&
          (!state->watchlist||!ClauseSetEmpty(state->watchlist)))
    {
@@ -1521,6 +1616,27 @@ Clause_p Saturate(ProofState_p state, ProofControl_p control, long
       if(unsatisfiable)
       {
          break;
+      }
+      if(control->heuristic_parms.sat_check_grounding != GMNoGrounding)
+      {
+         if(ProofStateCardinality(state) >= sat_check_size_limit)
+         {
+            unsatisfiable = SATCheck(state, control);
+            while(sat_check_size_limit <= ProofStateCardinality(state))
+            {
+               sat_check_size_limit += control->heuristic_parms.sat_check_size_limit;
+            }
+         }
+         else if(state->proc_non_trivial_count >= sat_check_step_limit)
+         {
+            unsatisfiable = SATCheck(state, control);
+            sat_check_step_limit += control->heuristic_parms.sat_check_step_limit;
+         }
+         if(unsatisfiable)
+         {
+            PStackPushP(state->extract_roots, unsatisfiable);
+            break;
+         }
       }
    }
    return unsatisfiable;

@@ -264,10 +264,7 @@ long ClauseSetRemoveSuperfluousLiterals(ClauseSet_p set)
    for(handle = set->anchor->succ; handle!=set->anchor; handle =
      handle->succ)
    {
-      
       res += ClauseRemoveSuperfluousLiterals(handle);
-
-
    }
    return res;
 }
@@ -481,49 +478,7 @@ void PStackClausePrint(FILE* out, PStack_p stack, char* extra)
    }
 }
 
-#ifndef NDEBUG
 
-bool term_is_shared(Term_p t)
-{
-   if (!TermIsShared(t))
-   {
-      return false;
-   }
-
-   for(int i=0; i<t->arity; i++)
-   {
-      if (!term_is_shared(t->args[i]))
-      {
-         return false;
-      }
-   }
-
-   return true;
-
-}
-
-bool eqn_is_shared(Eqn_p eqn)
-{
-   return term_is_shared(eqn->lterm) && term_is_shared(eqn->rterm);
-}
-
-bool ClauseAllTermsShared(Clause_p clause)
-{
-   Eqn_p handle;
-
-   for(handle=clause->literals;
-       handle;
-       handle=handle->next)
-   {
-      if (!eqn_is_shared(handle))
-      {
-         return false;
-      }
-   }
-
-   return true;
-}
-#endif
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */

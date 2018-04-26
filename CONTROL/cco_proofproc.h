@@ -34,6 +34,7 @@ Changes
 #include <cco_clausesplitting.h>
 #include <cco_forward_contraction.h>
 #include <cco_interpreted.h>
+#include <ccl_satinterface.h>
 
 
 /*---------------------------------------------------------------------*/

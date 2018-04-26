@@ -368,13 +368,6 @@ void TOSymbolWeightParse(Scanner_p in, OCB_p ocb)
 
    *OCBFunWeightPos(ocb, f) =
       weight*W_DEFAULT_WEIGHT;
-
-#ifdef ENABLE_LFHO
-    if (ProblemIsHO == PROBLEM_IS_HO && f == 0)
-    {
-       Error("In LFHO case 0 weights are not allowed", SYNTAX_ERROR);
-    }
-#endif
 }
 
 

@@ -212,16 +212,6 @@ void TermTopFree(Term_p junk)
    {
       assert(!junk->args);
    }
-
-   /*if (TermIsAppliedVar(junk))
-   {
-      if (junk->binding_cache)
-      {
-         TermTopFree(junk->binding_cache);
-      }
-      junk->binding_cache = NULL;
-   }*/
-
    TermCellFree(junk);
 }
 

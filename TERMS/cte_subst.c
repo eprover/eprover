@@ -1,10 +1,10 @@
 /*-----------------------------------------------------------------------
 
-File  : cte_subst.c
+  File  : cte_subst.c
 
-Author: Stephan Schulz
+  Author: Stephan Schulz
 
-Contents
+  Contents
 
   General functions for substitutions.
 
@@ -14,12 +14,12 @@ Contents
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
+  Changes
 
-<1> Thu Mar  5 00:22:28 MET 1998
-    New
+  <1> Thu Mar  5 00:22:28 MET 1998
+  New
 
------------------------------------------------------------------------*/
+  -----------------------------------------------------------------------*/
 
 #include "cte_subst.h"
 #include "clb_plocalstacks.h"
@@ -192,8 +192,7 @@ PStackPointer SubstNormTerm(Term_p term, Subst_p subst, VarBank_p vars, Sig_p si
 //
 /----------------------------------------------------------------------*/
 
-bool SubstBindingPrint(FILE* out, Term_p var, Sig_p sig, DerefType
-             deref)
+bool SubstBindingPrint(FILE* out, Term_p var, Sig_p sig, DerefType deref)
 {
    TermPrint(out, var, sig, DEREF_NEVER);
    fprintf(out, "<-");
@@ -234,12 +233,12 @@ long SubstPrint(FILE* out, Subst_p subst, Sig_p sig, DerefType deref)
    {
       SubstBindingPrint(out,  PStackElementP(subst,0), sig, deref);
       {
-    for(i=1; i<limit;i++)
-    {
-       fprintf(out, ", ");
-       SubstBindingPrint(out,  PStackElementP(subst,i), sig,
-               deref);
-    }
+         for(i=1; i<limit;i++)
+         {
+            fprintf(out, ", ");
+            SubstBindingPrint(out,  PStackElementP(subst,i), sig,
+                              deref);
+         }
       }
    }
    fprintf(out, "}");
@@ -257,10 +256,7 @@ long SubstPrint(FILE* out, Subst_p subst, Sig_p sig, DerefType deref)
 //   instantiated to different variables. Checks only for one level of
 //   instantiaton.
 //
-//    NB: Here there is no need to change derefs, since there is no 
-//    loop in which arguments are traversed
-//
-// Global Variables: -
+]// Global Variables: -
 //
 // Side Effects    : Changes the TPOpFlag of terms
 //
@@ -288,7 +284,7 @@ bool SubstIsRenaming(Subst_p subst)
 
       if(!TermIsVar(inst))
       {
-    return false;
+         return false;
       }
       TermCellDelProp(inst, TPOpFlag);
    }
@@ -304,7 +300,7 @@ bool SubstIsRenaming(Subst_p subst)
 
       if(TermCellQueryProp(inst, TPOpFlag))
       {
-    return false;
+         return false;
       }
       TermCellSetProp(inst, TPOpFlag);
    }
@@ -405,7 +401,7 @@ void SubstCompleteInstance(Subst_p subst, Term_p term,
    {
       for(i=0;i<term->arity;i++)
       {
-    SubstCompleteInstance(subst, term->args[i], default_binding);
+         SubstCompleteInstance(subst, term->args[i], default_binding);
       }
    }
 }

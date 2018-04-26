@@ -32,6 +32,7 @@ Changes
 #include <ccl_paramod.h>
 #include <ccl_splitting.h>
 #include <ccl_condensation.h>
+#include <ccl_satinterface.h>
 #include <che_to_weightgen.h>
 #include <che_to_precgen.h>
 #include <ccl_clausefunc.h>
@@ -121,6 +122,13 @@ typedef struct heuristic_parms_cell
    char                pm_from_index_type[MAX_PM_INDEX_NAME_LEN];
    char                pm_into_index_type[MAX_PM_INDEX_NAME_LEN];
 
+   /* SAT checking */
+   GroundingStrategy   sat_check_grounding;
+   long                sat_check_step_limit;
+   long                sat_check_size_limit;
+   bool                sat_check_normconst;
+   bool                sat_check_normalize;
+
    /* Various things */
    long                filter_limit;
    long                filter_copies_limit;
@@ -128,6 +136,7 @@ typedef struct heuristic_parms_cell
    long long           delete_bad_limit;
    rlim_t              mem_limit;
    bool                watchlist_simplify;
+   bool                watchlist_is_static;
    bool                use_tptp_sos;
    bool                presat_interreduction;
 

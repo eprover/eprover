@@ -194,7 +194,7 @@ Clause_p ClausePlainParamodConstruct(ParamodInfo_p ol_desc)
    assert(PStackEmpty(ol_desc->from_pos->pos));
 
 
-   VarBankResetVCount(ol_desc->freshvars);
+   VarBankResetVCounts(ol_desc->freshvars);
    NormSubstEqnList(ol_desc->into->literals,
                     subst, ol_desc->freshvars);
    NormSubstEqnList(ol_desc->from->literals,
@@ -244,26 +244,6 @@ Clause_p ClausePlainParamodConstruct(ParamodInfo_p ol_desc)
    }
    SubstDelete(subst);
 
-   /*if(res)
-   {
-      fprintf(stderr, "? Clause result \n");
-      ClausePrint(stderr, res, true);
-      fprintf(stderr, ".\n");
-
-
-      fprintf(stderr, "? paramodulation from ");
-      TermPrint(stderr, ClausePosGetSubterm(ol_desc->from_pos), ol_desc->bank->sig, DEREF_ALWAYS);
-      fprintf(stderr, "(clause ");
-      EqnListPrint(stderr, ol_desc->from_pos->clause->literals, "|", false, true);
-      fprintf(stderr, ") into  ");
-      TermPrint(stderr, ClausePosGetSubterm(ol_desc->into_pos), ol_desc->bank->sig, DEREF_ALWAYS);
-      fprintf(stderr, "(clause ");
-      EqnListPrint(stderr, ol_desc->into_pos->clause->literals, "|", false, true);
-      fprintf(stderr, ") (%d remaining).\n", ol_desc->remaining_args);   
-   }*/
-   
-   assert(!res || ClauseAllTermsShared(res));
-
    return res;
 }
 
@@ -295,7 +275,7 @@ Clause_p ClauseSimParamodConstruct(ParamodInfo_p ol_desc)
                                DEREF_ALWAYS,
                                ol_desc->remaining_args, ol_desc->bank->sig));
 
-   VarBankResetVCount(ol_desc->freshvars);
+   VarBankResetVCounts(ol_desc->freshvars);
    into_term = ClausePosGetSubterm(ol_desc->into_pos);
 
    /* All the checks are assumed to have been done and succeeded, we
@@ -386,7 +366,6 @@ Clause_p ClauseParamodConstruct(ParamodInfo_p ol_desc, bool sim_pm)
    assert(PackClausePos(ol_desc->from_pos) == ol_desc->from_cpos);
    assert(PackClausePos(ol_desc->into_pos) == ol_desc->into_cpos);
    assert(ProblemIsHO == PROBLEM_IS_HO || ol_desc->remaining_args == 0);
-
 
    if(sim_pm)
    {
@@ -596,7 +575,7 @@ Clause_p ClauseOrderedParamod(TB_p bank, OCB_p ocb, ClausePos_p from,
       }*/
 
    subst = SubstAlloc();
-   VarBankResetVCount(freshvars);
+   VarBankResetVCounts(freshvars);
    new_literals = EqnOrderedParamod(bank, ocb, from, into, subst,
                 freshvars);
    if(new_literals)
@@ -679,7 +658,7 @@ Clause_p ClauseOrderedSimParamod(TB_p bank, OCB_p ocb, ClausePos_p
    assert(!TermIsVar(ClausePosGetSide(from))||
      EqnIsEquLit(into->literal)||!TermPosIsTopPos(into->pos));
 
-   into_term = ClausePosGetSubterm(into);
+      into_term = ClausePosGetSubterm(into);
 
    if(!TermCellQueryProp(into_term, TPPotentialParamod))
    {
@@ -687,7 +666,7 @@ Clause_p ClauseOrderedSimParamod(TB_p bank, OCB_p ocb, ClausePos_p
    }
    from_term = ClausePosGetSide(from);
    subst = SubstAlloc();
-   VarBankResetVCount(freshvars);
+   VarBankResetVCounts(freshvars);
    unify_res = SubstMguPossiblyPartial(from_term, into_term, subst, bank);
    if((UnifFailed(unify_res) || !CheckHOUnificationConstraints(unify_res, RightTerm, from_term, into_term)) ||
       (!EqnIsOriented(from->literal) &&

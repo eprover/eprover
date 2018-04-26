@@ -69,9 +69,6 @@ FunCode   TermFPFlexSample(Term_p term, IntOrP* *seq);
 #define   TermFPFlexSample(term, seq)    (TermFPFlexSampleFO(term, seq))
 #endif
 
-
-
-
 IndexFP_p IndexFP0Create(Term_p t);
 IndexFP_p IndexFPfpCreate(Term_p t);
 IndexFP_p IndexFP1Create(Term_p t);

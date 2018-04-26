@@ -85,7 +85,6 @@ static __inline__ bool reorientation_needed(Term_p t1, Term_p t2)
 }
 
 
-
 /*-----------------------------------------------------------------------
 //
 // Function: occur_check()
@@ -630,7 +629,6 @@ bool SubstComputeMgu(Term_p t1, Term_p t2, Subst_p subst)
 
    while(!PQueueEmpty(jobs))
    {
-      // TODO: Terms might not be shared
       t2 =  TermDerefAlways(PQueueGetLastP(jobs));
       t1 =  TermDerefAlways(PQueueGetLastP(jobs));
 

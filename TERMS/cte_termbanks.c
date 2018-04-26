@@ -319,10 +319,9 @@ static Term_p tb_subterm_parse(Scanner_p in, TB_p bank)
 static int tb_term_parse_arglist(Scanner_p in, Term_p** arg_anchor,
                                  TB_p bank, bool check_symb_prop)
 {
-   Term_p *handle, tmp;
-   int    arity;
-   int    size;
-   int    i;
+   Term_p   tmp;
+   PStackPointer i, arity;
+   PStack_p args;
 
    AcceptInpTok(in, OpenBracket);
    if(TestInpTok(in, CloseBracket))
@@ -331,35 +330,29 @@ static int tb_term_parse_arglist(Scanner_p in, Term_p** arg_anchor,
       *arg_anchor = NULL;
       return 0;
    }
-   size = TERMS_INITIAL_ARGS;
-   handle = (Term_p*)SizeMalloc(size*sizeof(Term_p));
-   arity = 0;
+   args = PStackAlloc();
+
    tmp = check_symb_prop?
       tb_subterm_parse(in, bank):
       TBRawTermParse(in,bank);
+   PStackPushP(args, tmp);
 
-   handle[arity] = tmp;
-   arity++;
    while(TestInpTok(in, Comma))
    {
       NextToken(in);
-      if(arity==size)
-      {
-         size+=TERMS_INITIAL_ARGS;
-         handle = (Term_p*)SecureRealloc(handle, size*sizeof(Term_p));
-      }
-      handle[arity] = check_symb_prop?
+      tmp  = check_symb_prop?
          tb_subterm_parse(in, bank):
          TBRawTermParse(in,bank);
-      arity++;
+      PStackPushP(args, tmp);
    }
    AcceptInpTok(in, CloseBracket);
+   arity = PStackGetSP(args);
    *arg_anchor = TermArgArrayAlloc(arity);
    for(i=0;i<arity;i++)
    {
-      (*arg_anchor)[i] = handle[i];
+      (*arg_anchor)[i] = PStackElementP(args,i);
    }
-   SizeFree(handle, size*sizeof(Term_p));
+   PStackFree(args);
 
    return arity;
 }
@@ -619,7 +612,7 @@ long TBTermNodes(TB_p bank)
 {
    assert(TermCellStoreNodes(&(bank->term_store))==
           TermCellStoreCountNodes(&(bank->term_store)));
-   return TermCellStoreNodes(&(bank->term_store))+VarBankCardinal(bank->vars);
+   return TermCellStoreNodes(&(bank->term_store))+VarBankCardinality(bank->vars);
 }
 
 
@@ -638,6 +631,7 @@ long TBTermNodes(TB_p bank)
 // Side Effects    : Changes term bank
 //
 /----------------------------------------------------------------------*/
+
 Term_p TBInsert(TB_p bank, Term_p term, DerefType deref)
 {
    int    i;
@@ -699,7 +693,6 @@ Term_p TBInsertNoProps(TB_p bank, Term_p term, DerefType deref)
    else
    {
       t = TermTopCopyWithoutArgs(term); /* This is an unshared term cell at the moment */
-      
       t->properties = TPIgnoreProps;
 
       assert(SysDateIsCreationDate(t->rw_data.nf_date[0]));
@@ -907,7 +900,6 @@ __inline__ Term_p TBInsertInstantiated(TB_p bank, Term_p term)
 #endif
 
 
-
 /*-----------------------------------------------------------------------
 //
 // Function: TBInsertOpt()
@@ -1068,7 +1060,7 @@ Term_p TBFind(TB_p bank, Term_p term)
 {
    if(TermIsVar(term))
    {
-      return VarBankFCodeFind(bank->vars, term->f_code, term->type);
+      return VarBankFCodeFind(bank->vars, term->f_code);
    }
    return TermCellStoreFind(&(bank->term_store), term);
 }
@@ -1708,6 +1700,29 @@ long TBGCSweep(TB_p bank)
 
 /*-----------------------------------------------------------------------
 //
+// Function: TBCreateConstTerm()
+//
+//   Create constant term for a given symbol.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+Term_p TBCreateConstTerm(TB_p bank, FunCode fconst)
+{
+   Term_p res,
+      t = TermConstCellAlloc(fconst);
+
+   res = TBInsert(bank, t, DEREF_NEVER);
+   TermFree(t);
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: TBCreateMinTerm()
 //
 //   If bank->min_term exists, return it. Otherwise create and return
@@ -1723,9 +1738,7 @@ Term_p TBCreateMinTerm(TB_p bank, FunCode min_const)
 {
    if(!bank->min_term)
    {
-      Term_p t = TermConstCellAlloc(min_const);
-      bank->min_term = TBInsert(bank, t, DEREF_NEVER);
-      TermFree(t);
+      bank->min_term = TBCreateConstTerm(bank, min_const);
    }
    assert(bank->min_term->f_code == min_const);
    return bank->min_term;
@@ -1766,6 +1779,81 @@ long TBTermCollectSubterms(Term_p term, PStack_p collector)
    }
    return res;
 }
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: TBGetFirstConstTerm()
+//
+//    Return a constant term with the first constant of the proper
+//    sort in sig.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+Term_p TBGetFirstConstTerm(TB_p bank, Type_p type)
+{
+   PStack_p cand_stack = PStackAlloc();
+   Term_p   res = NULL;
+
+   SigCollectSortConsts(bank->sig, type, cand_stack);
+   if(!PStackEmpty(cand_stack))
+   {
+      res = TBCreateConstTerm(bank, PStackElementInt(cand_stack, 0));
+   }
+   PStackFree(cand_stack);
+   return res;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: TBGetFreqConstTerm()
+//
+//   Find the best (according to is_better) constant of the give sort,
+//   and return a shared term with this constant. If no suitable
+//   constant exists, returns NULL. conj_dist_array contains number of
+//   occurances for each symbol in conjecture clauses, dist_array the
+//   same for all clauses.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+Term_p TBGetFreqConstTerm(TB_p terms, Type_p type,
+                          long* conj_dist_array,
+                          long* dist_array, FunConstCmpFunType is_better)
+{
+   Term_p res = NULL;
+   long   cand_no;
+   PStackPointer i;
+   FunCode f = 0, cand;
+
+   PStack_p candidates = PStackAlloc();
+   cand_no = SigCollectSortConsts(terms->sig, type, candidates);
+
+   if(cand_no)
+   {
+      f = PStackElementInt(candidates, 0);
+      for(i=1; i<PStackGetSP(candidates); i++)
+      {
+         cand = PStackElementInt(candidates, i);
+
+         if(is_better(cand, f, conj_dist_array, dist_array))
+         {
+            f = cand;
+         }
+      }
+      res = TBCreateConstTerm(terms, f);
+   }
+   PStackFree(candidates);
+   return res;
+}
+
 
 
 /*---------------------------------------------------------------------*/

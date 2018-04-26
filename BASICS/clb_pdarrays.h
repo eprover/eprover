@@ -1,10 +1,10 @@
 /*-----------------------------------------------------------------------
 
-File  : clb_pdarrays.h
+  File  : clb_pdarrays.h
 
-Author: Stephan Schulz
+  Author: Stephan Schulz
 
-Contents
+  Contents
 
   Dynamic arrays of pointers and long integers. You can define the
   growth behaviour by specifying a value. If it is GROW_EXPONENTIAL,
@@ -19,14 +19,11 @@ Contents
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
+  Changes
 
-<1> Wed Jul 22 21:34:41 MET DST 1998
-    New
-<2> Tue Mar 23 00:30:16 CET 2004
-    Added comments about growth behaviour.
+  Created: Wed Jul 22 21:34:41 MET DST 1998
 
------------------------------------------------------------------------*/
+  -----------------------------------------------------------------------*/
 
 #ifndef CLB_PDARRAYS
 
@@ -77,19 +74,19 @@ void      PDArrayElementDeleteP(PDArray_p array, long idx);
 void      PDArrayElementDeleteInt(PDArray_p array, long idx);
 
 #define   PDArrayElementClear(arr, idx) ((arr)->array[(idx)].p_val = NULL)
-#define   PDArrayAssign(array, idx, value) \
-          *PDArrayElementRef((array), (idx)) = (value)
-#define   PDArrayAssignP(array, idx, value) \
-          PDArrayElementRef((array), (idx))->p_val = (value)
-#define   PDArrayAssignInt(array, idx, value) \
-          PDArrayElementRef((array), (idx))->i_val = (value)
+#define   PDArrayAssign(array, idx, value)              \
+   *PDArrayElementRef((array), (idx)) = (value)
+#define   PDArrayAssignP(array, idx, value)                     \
+   PDArrayElementRef((array), (idx))->p_val = (value)
+#define   PDArrayAssignInt(array, idx, value)                   \
+   PDArrayElementRef((array), (idx))->i_val = (value)
 
-#define   PDArrayElement(array, idx) \
-     *PDArrayElementRef((array), (idx))
-#define   PDArrayElementP(array, idx) \
-     (PDArrayElementRef((array), (idx))->p_val)
-#define   PDArrayElementInt(array, idx) \
-     (PDArrayElementRef((array), (idx))->i_val)
+#define   PDArrayElement(array, idx)            \
+   *PDArrayElementRef((array), (idx))
+#define   PDArrayElementP(array, idx)           \
+   (PDArrayElementRef((array), (idx))->p_val)
+#define   PDArrayElementInt(array, idx)         \
+   (PDArrayElementRef((array), (idx))->i_val)
 
 long      PDArrayMembers(PDArray_p array);
 long      PDArrayFirstUnused(PDArray_p array);
@@ -138,8 +135,3 @@ static __inline__ IntOrP* PDArrayElementRef(PDArray_p array, long idx)
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
-
-
-

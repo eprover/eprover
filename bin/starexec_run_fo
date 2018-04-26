@@ -1,0 +1,4 @@
+#!/bin/tcsh
+
+./eprover.fo $1 --auto-schedule --silent --detsort-rw --detsort-new --cpu-limit="$STAREXEC_CPU_LIMIT"
+

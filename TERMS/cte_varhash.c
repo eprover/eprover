@@ -252,8 +252,8 @@ void PDArrayAddVarDistrib(PDArray_p array, Term_p term, DerefType
 
       if(TermIsVar(term))
       {
-        tmp = PDArrayElementInt(array, (-(term->f_code)));
-        PDArrayAssignInt(array, (-(term->f_code)), tmp+add);
+    tmp = PDArrayElementInt(array, (-(term->f_code)));
+    PDArrayAssignInt(array, (-(term->f_code)), tmp+add);
       }
       else
       {

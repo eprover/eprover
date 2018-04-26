@@ -87,24 +87,6 @@ static void pdtree_default_cell_free(PDTNode_p junk)
 //
 /----------------------------------------------------------------------*/
 
-bool any_branch(PDTNode_p n)
-{
-   for(int i=0; i<PDArraySize(n->v_alternatives); i++)
-   {
-      if (PDArrayElementP(n->v_alternatives, i))
-      {
-         return true;
-      }
-   }
-
-   IntMapIter_p iter = IntMapIterAlloc(n->f_alternatives, 0, LONG_MAX);
-   long val;
-   bool res = IntMapIterNext(iter, &val) != NULL;
-   IntMapIterFree(iter);
-
-   return res;
-}
-
 static void* pdt_select_alt_ref(PDTree_p tree, PDTNode_p node, Term_p term)
 {
    void* res;
@@ -122,9 +104,6 @@ static void* pdt_select_alt_ref(PDTree_p tree, PDTNode_p node, Term_p term)
       res = IntMapGetRef(node->f_alternatives, term->f_code);
       tree->arr_storage_est += IntMapStorage(node->f_alternatives);
    }
-
-   // If there is a branch out -- it is not a leaf.
-   //assert(any_branch(node) || node->leaf);
    return res;
 }
 
@@ -1034,6 +1013,7 @@ Term_p TermLRTraversePrev(PStack_p stack, Term_p term)
    return term;
 }
 
+// TODO ADD DOC
 Term_p TermLRTraversePrevAppVar(PStack_p stack, Term_p original_term, Term_p var)
 {
    Term_p tmp;
@@ -1174,8 +1154,6 @@ long PDTreeDelete(PDTree_p tree, Term_p term, Clause_p clause)
    assert(term);
    assert(clause);
 
-
-   //fprintf(stderr, "# called remove!\n");
    /* printf("\nRemoving: ");
    ClausePrint(stdout, clause, true);
    if(clause->literals)
@@ -1272,13 +1250,6 @@ void PDTreeSearchInit(PDTree_p tree, Term_p term, SysDate age_constr,
             bool prefer_general)
 {
    assert(!tree->term);
-
-   /*fprintf(stderr, "*** Started matchig for term ");
-   TermPrint(stderr, term, tree->sig, DEREF_NEVER);
-   fprintf(stderr, ".\n");
-
-   fprintf(stderr, "*** Currently in the tree\n");
-   PDTreePrint(stderr, tree);*/
 
    TermLRTraverseInit(tree->term_stack, term);
    PStackReset(tree->term_proc);
@@ -1428,6 +1399,7 @@ void PDTreePrint(FILE* out, PDTree_p tree)
    pdt_node_print(out, tree->tree, 0);
 }
 
+// TODO : DELETE ALL OF THIS!
 // gets number of eaten args and put whatever is not eaten to stack 
 static __inline__ void add_unapplied_rest(PStack_p term_stack, int eaten_args, Term_p to_match)
 {

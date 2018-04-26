@@ -63,7 +63,7 @@ extern TB_p bank;
 //
 /----------------------------------------------------------------------*/
 
-void TermAddRWLink(Term_p term, Term_p replace, Clause_p demod, bool sos,
+void TermAddRWLink(Term_p term, Term_p replace, struct clause_cell *demod, bool sos,
                    RWResultType type)
 {
    assert(term);
@@ -169,16 +169,17 @@ Term_p TBTermPosReplace(TB_p bank, Term_p repl, TermPos_p pos,
    PStackPointer i;
    PStack_p      store = PStackAlloc();
 
+
    assert(bank);
    assert(repl);
    assert(pos);
 
    i = PStackGetSP(pos);
 
+
    /* Note that we start inside-out here - the first term handled is
       the actual subterm replaced, at the end repl is the complete
       term generated.*/
-
    while(i)
    {
       i--;
