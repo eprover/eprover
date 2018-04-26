@@ -146,7 +146,13 @@ typedef enum
    OPT_FORWARD_DEMOD,
    OPT_STRONG_RHS_INSTANCE,
    OPT_STRONGSUBSUMPTION,
+   OPT_SAT_STEP_INTERVAL,
+   OPT_SAT_SIZE_INTERVAL,
+   OPT_SATCHECK,
+   OPT_SAT_NORMCONST,
+   OPT_SAT_NORMALIZE,
    OPT_WATCHLIST,
+   OPT_STATIC_WATCHLIST,
    OPT_WATCHLIST_NO_SIMPLIFY,
    OPT_NO_INDEXED_SUBSUMPTION,
    OPT_FVINDEX_STYLE,
@@ -1078,7 +1084,7 @@ OptCell opts[] =
     " index is traversed."},
 
    {OPT_FORWARD_DEMOD,
-    'F', "forward_demod_level",
+    'F', "forward-demod-level",
     ReqArg, NULL,
     "Set the desired level for rewriting of unprocessed clauses. A "
     "value of 0 means no rewriting, 1 indicates to use rules "
@@ -1098,6 +1104,38 @@ OptCell opts[] =
     "equationally subsume a "
     "single new clause. Default is to search for a single position."},
 
+   {OPT_SAT_STEP_INTERVAL,
+    '\0', "satcheck-proc-interval",
+    OptArg, "5000",
+    "Enable periodic SAT checking at the given interval of main loop "
+    "non-trivial processed clauses."},
+
+   {OPT_SAT_SIZE_INTERVAL,
+    '\0', "satcheck-gen-interval",
+    OptArg, "10000",
+    "Enable periodic SAT checking whenever the total proof state size "
+    "increases by the given limit."},
+
+   {OPT_SATCHECK,
+    '\0', "satcheck",
+    OptArg, "FirstConst",
+    "Set the grounding strategy for periodic SAT checking. Note that to "
+    "enable SAT checking, it is also necessary to set the interval with "
+    "one of the previous two options."},
+
+   {OPT_SAT_NORMCONST,
+    '\0', "satcheck-normalize-const",
+    NoArg, NULL,
+    "Use the current normal form (as recorded in the termbank rewrite "
+    "cache) of the selected constant as the term for the grounding "
+    "substitution."},
+
+   {OPT_SAT_NORMALIZE,
+    '\0', "satcheck-normalize-unproc",
+    NoArg, NULL,
+    "Enable re-simplification (heuristic re-revaluation) of unprocessed "
+    "clauses before grounding for SAT checking."},
+
    {OPT_WATCHLIST,
     '\0', "watchlist",
     OptArg, WATCHLIST_INLINE_QSTRING,
@@ -1115,12 +1153,20 @@ OptCell opts[] =
     "'watchlist' if you want to put watchlist clauses into the normal input"
     " stream. This is only supported for TPTP input formats."},
 
+   {OPT_STATIC_WATCHLIST,
+    '\0', "static-watchlist",
+    OptArg, WATCHLIST_INLINE_QSTRING,
+    "This is identical to the previous option, but subsumed clauses will"
+    "not be removed from the watchlist (and hence the prover will not "
+    "terminate if all watchlist clauses have been subsumed. This may be "
+    "more useful for heuristic guidance."},
+
    {OPT_WATCHLIST_NO_SIMPLIFY,
     '\0', "no-watchlist-simplification",
     NoArg, NULL,
-    "Normally, that watchlist is brought into normal form with respect "
-    "to the current processed clause set and certain simplifications."
-    " This option disables this behaviour."},
+    "By default, the watchlist is brought into normal form with respect "
+    "to the current processed clause set and certain simplifications. "
+    "This option disables simplification for the watchlist."},
 
    {OPT_NO_INDEXED_SUBSUMPTION,
     '\0', "conventional-subsumption",

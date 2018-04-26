@@ -384,6 +384,7 @@ static long fp_index_rek_find_matchable(FPTree_p index, IndexFP_p key,
    return res;
 }
 
+
 /*-----------------------------------------------------------------------
 //
 // Function: fp_index_leaf_prt_size()

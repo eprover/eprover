@@ -238,6 +238,8 @@ int     SigCountAritySymbols(Sig_p sig, int arity, bool predicates);
 int     SigCountSymbols(Sig_p sig, bool predicates);
 int     SigAddSymbolArities(Sig_p sig, PDArray_p distrib, bool
              predicates, long selection[]);
+long    SigCollectSortConsts(Sig_p sig, Type_p type, PStack_p res);
+
 
 /* Special functions for dealing with special symbols */
 
@@ -252,7 +254,6 @@ FunCode SigGetNewPredicateCode(Sig_p sig, int arity);
 /* Types */
 #define SigDefaultSort(sig)  ((sig)->type_bank->default_type)
 #define SigGetType(sig, f)   ((sig)->f_info[(f)].type)
-
 void    SigDeclareType(Sig_p sig, FunCode f, Type_p type);
 void    SigDeclareFinalType(Sig_p sig, FunCode f, Type_p type);
 void    SigDeclareIsFunction(Sig_p sig, FunCode f);
@@ -263,6 +264,8 @@ void    SigParseTFFTypeDeclaration(Scanner_p in, Sig_p sig);
 bool    SigHasUnimplementedInterpretedSymbols(Sig_p sig);
 void    SigUpdateFeatureOffset(Sig_p sig, FunCode f);
 
+
+typedef bool (*FunConstCmpFunType)(FunCode,  FunCode, long*, long*);
 
 FunCode SigGetTypedApp(Sig_p sig, Type_p arg1, Type_p arg2, Type_p ret);
 void SigPrintAppEncodedDecls(FILE* out, Sig_p sig);

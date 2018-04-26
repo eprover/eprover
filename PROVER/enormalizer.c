@@ -450,7 +450,7 @@ int main(int argc, char* argv[])
    VarBank_p       freshvars;
    TypeBank_p      typebank;
    Sig_p           sig;
-   ClauseSet_p     clauses;
+   ClauseSet_p     clauses, dummy;
    FormulaSet_p    formulas, f_ax_archive;
    Scanner_p       in;
    int             i;
@@ -481,6 +481,7 @@ int main(int argc, char* argv[])
    terms        = TBAlloc(sig);
    collector    = GCAdminAlloc(terms);
    clauses      = ClauseSetAlloc();
+   dummy        = ClauseSetAlloc();
    formulas     = FormulaSetAlloc();
    f_ax_archive = FormulaSetAlloc();
 
@@ -493,11 +494,12 @@ int main(int argc, char* argv[])
       in = CreateScanner(StreamTypeFile, state->argv[i], true, NULL);
       ScannerSetFormat(in, parse_format);
       /* ClauseSetParseList(in, clauses, terms); */
-      FormulaAndClauseSetParse(in,clauses, formulas, terms,
+      FormulaAndClauseSetParse(in, formulas, dummy, terms,
                                NULL, &skip_includes);
       CheckInpTok(in, NoToken);
       DestroyScanner(in);
    }
+   ClauseSetFree(dummy);
    CLStateFree(state);
 
    if(FormulaSetPreprocConjectures(formulas, f_ax_archive, false, false))

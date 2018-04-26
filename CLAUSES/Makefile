@@ -49,10 +49,10 @@ CLAUSE_LIB = ccl_neweval.o ccl_eqn.o ccl_eqnlist.o \
              ccl_rewrite.o ccl_unit_simplify.o ccl_subsumption.o \
              ccl_condensation.o ccl_context_sr.o \
              ccl_def_handling.o ccl_splitting.o ccl_global_indices.o\
+             ccl_satinterface.o\
              ccl_proofstate.o
 
 $(LIB): $(CLAUSE_LIB)
 	$(AR) $(LIB) $(CLAUSE_LIB)
 
 include Makefile.dependencies
-

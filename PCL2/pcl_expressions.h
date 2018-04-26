@@ -25,7 +25,10 @@ Changes
 
 #define PCL_EXPRESSIONS
 
-#include <can_infstate.h>
+//#include <can_infstate.h>
+#include <ccl_inferencedoc.h>
+#include <ccl_clausesets.h>
+
 #include <pcl_idents.h>
 #include <pcl_positions.h>
 #include <ccl_clauseinfo.h>
@@ -137,8 +140,3 @@ bool      PCLStepExtract(char* extra);
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
-
-
-

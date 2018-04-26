@@ -1,8 +1,8 @@
 /*-----------------------------------------------------------------------
 
-File  : clb_memory.h
+  File  : clb_memory.h
 
-Author: Stephan Schulz
+  Author: Stephan Schulz
 
   This module implements simple general purpose memory management
   routines that is efficient for problems with a very regular memory
@@ -10,18 +10,17 @@ Author: Stephan Schulz
   groundwork it also implements secure versions of standard functions
   making use of memory allocation.
 
-  Copyright 1998, 1999 by the author.
+  Copyright 1998-2017 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
+  Changes
 
-<1> Wed Aug 13 21:56:20 MET DST 1997
-    New
+  Created: Wed Aug 13 21:56:20 MET DST 1997
 
------------------------------------------------------------------------*/
+  -----------------------------------------------------------------------*/
 
 #ifndef CLB_MEMORY
 
@@ -131,8 +130,8 @@ void MemFreeListPrint(FILE* out);
 
 #ifdef CLB_MEMORY_DEBUG2
 #undef FREE
-#define FREE(junk) assert(junk); clb_free_count++; printf("\nBlock %p F:\n", junk);\
-                   free(junk); junk=NULL
+#define FREE(junk) assert(junk); clb_free_count++; printf("\nBlock %p F:\n", junk); \
+   free(junk); junk=NULL
 #endif
 
 /*-------------------------------------------------------------------------
@@ -142,10 +141,10 @@ void MemFreeListPrint(FILE* out);
   need to write a function built on top of the macros if you want more
   functionality in you Allocator.
 
-#define DataCellAlloc() (DataCell*)SizeMalloc(sizeof(DataCell))
-#define DataCellFree(junk)         SizeFree(junk, sizeof(DataCell))
+  #define DataCellAlloc() (DataCell*)SizeMalloc(sizeof(DataCell))
+  #define DataCellFree(junk)         SizeFree(junk, sizeof(DataCell))
 
--------------------------------------------------------------------------*/
+  -------------------------------------------------------------------------*/
 
 /*-----------------------------------------------------------------------
 //
@@ -175,20 +174,20 @@ static __inline__ void* SizeMallocReal(size_t size)
    else
    {
       handle = SecureMalloc(size);
-      #ifndef NDEBUG
-         if(size>=MEM_ARR_MIN_INDEX && size<MEM_ARR_SIZE)
-         {
-            assert((handle->test = MEM_RSET_PATTERN, true));
-         }
-      #endif
+#ifndef NDEBUG
+      if(size>=MEM_ARR_MIN_INDEX && size<MEM_ARR_SIZE)
+      {
+         assert((handle->test = MEM_RSET_PATTERN, true));
+      }
+#endif
    }
-   #ifdef CLB_MEMORY_DEBUG
-      size_malloc_mem+=size;
-      size_malloc_count++;
-   #endif
-   #ifdef CLB_MEMORY_DEBUG2
-      printf("\nBlock %p A: size %zd\n", handle, size);
-   #endif
+#ifdef CLB_MEMORY_DEBUG
+   size_malloc_mem+=size;
+   size_malloc_count++;
+#endif
+#ifdef CLB_MEMORY_DEBUG2
+   printf("\nBlock %p A: size %zd\n", handle, size);
+#endif
    return handle;
 }
 
@@ -213,9 +212,9 @@ static __inline__ void SizeFreeReal(void* junk, size_t size)
 {
    assert(junk!=NULL);
 
-   #ifdef CLB_MEMORY_DEBUG2
-      printf("\nBlock %p D: size %zd\n", junk, size);
-   #endif
+#ifdef CLB_MEMORY_DEBUG2
+   printf("\nBlock %p D: size %zd\n", junk, size);
+#endif
 
    if(size>=MEM_ARR_MIN_INDEX && size<MEM_ARR_SIZE)
    {
@@ -229,10 +228,10 @@ static __inline__ void SizeFreeReal(void* junk, size_t size)
       FREE(junk);
    }
 
-   #ifdef CLB_MEMORY_DEBUG
-      size_free_mem+=size;
-      size_free_count++;
-   #endif
+#ifdef CLB_MEMORY_DEBUG
+   size_free_mem+=size;
+   size_free_count++;
+#endif
 }
 
 #endif
@@ -241,9 +240,3 @@ static __inline__ void SizeFreeReal(void* junk, size_t size)
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
-
-
-
-

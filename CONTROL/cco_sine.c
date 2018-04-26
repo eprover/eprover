@@ -475,7 +475,7 @@ long StructFOFSpecParseAxioms(StructFOFSpec_p ctrl, PStack_p axfiles,
          fprintf(GlobalOut, "# Parsing %s\n", iname);
          cset = ClauseSetAlloc();
          fset = FormulaSetAlloc();
-         res += FormulaAndClauseSetParse(in, cset, fset, ctrl->terms,
+         res += FormulaAndClauseSetParse(in, fset, cset, ctrl->terms,
                                          NULL,
                                          &(ctrl->parsed_includes));
          assert(ClauseSetCardinality(cset)==0);

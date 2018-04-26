@@ -185,7 +185,10 @@ def process_file(data, features, archivename, path, fileopener, info):
             entry["Version"] = eversion
         if entry["Problem"] in features:
             entry.update(features[entry["Problem"]])
-        data[configname][problemname] = entry
+        if not configname in data or \
+           not problemname in data[configname] \
+           or entry["Failure"]!=failuremap["unknown"]:
+            data[configname][problemname] = entry
 
 def swap(d,key1,key2):
     d[key1],d[key2] = d[key2],d[key1]
@@ -272,7 +275,7 @@ if __name__ == "__main__":
                 report.write("# {0[Command]} \n".format(firstvalue(problems)))
             except KeyError:
                 report.write("# Could not find command\n")
-            report.writelines("# {} {} \n".format(*pair)
+            report.writelines("# {:>2} {} \n".format(*pair)
                               for pair in enumerate(fieldnames, 1))
             if not args.header:
                 report.write("#")

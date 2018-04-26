@@ -124,7 +124,7 @@ char* run_command(InteractiveSpec_p interactive,
 {
 
    Scanner_p job_scanner;
-   ClauseSet_p cset;
+   ClauseSet_p dummy;
    FormulaSet_p fset;
    char* message;
    char buffer[256];
@@ -160,9 +160,9 @@ char* run_command(InteractiveSpec_p interactive,
                                   true,
                                   NULL);
       ScannerSetFormat(job_scanner, TSTPFormat);
-      cset = ClauseSetAlloc();
+      dummy = ClauseSetAlloc();
       fset = FormulaSetAlloc();
-      FormulaAndClauseSetParse(job_scanner, cset, fset, interactive->ctrl->terms,
+      FormulaAndClauseSetParse(job_scanner, fset, dummy, interactive->ctrl->terms,
                                NULL,
                                &(interactive->ctrl->parsed_includes));
 
@@ -172,7 +172,7 @@ char* run_command(InteractiveSpec_p interactive,
                                 wct_limit,
                                 interactive->ctrl,
                                 DStrView(jobname),
-                                cset,
+                                dummy,
                                 fset,
                                 interactive->fp,
                                 interactive->sock_fd);
@@ -204,7 +204,7 @@ char* add_command(InteractiveSpec_p interactive,
 {
 
    Scanner_p axioms_scanner;
-   ClauseSet_p cset;
+   ClauseSet_p dummy;
    FormulaSet_p fset;
    AxiomSet_p axiom_set;
    PStackPointer i;
@@ -222,16 +222,16 @@ char* add_command(InteractiveSpec_p interactive,
                                   true,
                                   NULL);
    ScannerSetFormat(axioms_scanner, TSTPFormat);
-   cset = ClauseSetAlloc();
+   dummy = ClauseSetAlloc();
    fset = FormulaSetAlloc();
-   FormulaAndClauseSetParse(axioms_scanner, cset, fset, interactive->ctrl->terms,
+   FormulaAndClauseSetParse(axioms_scanner, fset, dummy, interactive->ctrl->terms,
                             NULL,
                             &(interactive->ctrl->parsed_includes));
    DestroyScanner(axioms_scanner);
-   DStrAppendDStr(cset->identifier, axiomsname);
+   DStrAppendDStr(dummy->identifier, axiomsname);
    DStrAppendDStr(fset->identifier, axiomsname);
 
-   axiom_set = AxiomSetAlloc(cset, fset, input_axioms, 0);
+   axiom_set = AxiomSetAlloc(dummy, fset, input_axioms, 0);
 
    int name_taken = 0;
    for(i=0; i<PStackGetSP(interactive->axiom_sets); i++)

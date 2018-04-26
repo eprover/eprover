@@ -8,7 +8,7 @@
 
   Main program for the E equational theorem prover.
 
-  Copyright 1998-2017 by the authors.
+  Copyright 1998-2018 by the authors.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
@@ -159,8 +159,9 @@ ProofState_p parse_spec(CLState_p state,
          DocOutputFormat = pcl_format;
       }
 
-      FormulaAndClauseSetParse(in, proofstate->axioms,
+      FormulaAndClauseSetParse(in,
                                proofstate->f_axioms,
+                               proofstate->watchlist,
                                proofstate->terms,
                                NULL,
                                &skip_includes);
@@ -477,13 +478,11 @@ int main(int argc, char* argv[])
    if(cnf_size)
    {
       VERBOUT("CNFization done\n");
-      if (Verbose)
-      {
-         ClauseSetPrint(stderr, proofstate->axioms, true);
-      }
    }
 
    raw_clause_no = proofstate->axioms->members;
+   ProofStateLoadWatchlist(proofstate, watchlist_filename, parse_format);
+
    if(!no_preproc)
    {
       if(BuildProofObject)
@@ -513,9 +512,11 @@ int main(int argc, char* argv[])
                      proofcontrol->heuristic_parms.rw_bw_index_type,
                      "NoIndex",
                      "NoIndex");
+   //printf("Alive (1)!\n");
+
    ProofStateInit(proofstate, proofcontrol);
-   ProofStateInitWatchlist(proofstate, proofcontrol->ocb,
-                           watchlist_filename, parse_format);
+   //printf("Alive (2)!\n");
+   //ProofStateInitWatchlist(proofstate, proofcontrol->ocb);
 
    VERBOUT2("Prover state initialized\n");
    preproc_time = GetTotalCPUTime();
@@ -1429,6 +1430,37 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_STRONGSUBSUMPTION:
             StrongUnitForwardSubsumption = true;
             break;
+      case OPT_SAT_STEP_INTERVAL:
+            h_parms->sat_check_step_limit =
+               CLStateGetIntArgCheckRange(handle, arg, 1, LONG_MAX);
+            break;
+      case OPT_SAT_SIZE_INTERVAL:
+            h_parms->sat_check_size_limit =
+               CLStateGetIntArgCheckRange(handle, arg, 1, LONG_MAX);
+            break;
+      case OPT_SATCHECK:
+            tmp = StringIndex(arg, GroundingStratNames);
+            if(tmp <= 0)
+            {
+               DStr_p err = DStrAlloc();
+               DStrAppendStr(err,
+                             "Wrong argument to option --sat-check. Possible "
+                             "values: ");
+               DStrAppendStrArray(err, GroundingStratNames+1, ", ");
+               Error(DStrView(err), USAGE_ERROR);
+               DStrFree(err);
+            }
+            h_parms->sat_check_grounding = tmp;
+            break;
+      case OPT_SAT_NORMCONST:
+            h_parms->sat_check_normconst = true;
+            break;
+      case OPT_SAT_NORMALIZE:
+            h_parms->sat_check_normalize = true;
+            break;
+      case OPT_STATIC_WATCHLIST:
+            h_parms->watchlist_is_static = true;
+            //intentional fall-through
       case OPT_WATCHLIST:
             if(strcmp(WATCHLIST_INLINE_STRING, arg)==0 ||
                strcmp(WATCHLIST_INLINE_QSTRING, arg)==0  )
@@ -1507,7 +1539,8 @@ CLState_p process_options(int argc, char* argv[])
             else
             {
                Error("Option --fvindex-featuretypes requires "
-                     "'None', 'AC', 'SS', or 'All'.", USAGE_ERROR);
+                     "'None', 'AC', 'SS', 'All', 'Bill', 'BillPlus',"
+                     " 'ACFold', 'ACStagger'.", USAGE_ERROR);
             }
             break;
       case OPT_FVINDEX_MAXFEATURES:

@@ -164,19 +164,20 @@ ProofState_p ProofStateAlloc(FunctionProperties free_symb_prop)
    handle->processed_non_units  = ClauseSetAlloc();
    handle->unprocessed          = ClauseSetAlloc();
    handle->tmp_store            = ClauseSetAlloc();
+   handle->eval_store           = ClauseSetAlloc();
    handle->archive              = ClauseSetAlloc();
+   handle->watchlist            = ClauseSetAlloc();
    handle->f_archive            = FormulaSetAlloc();
    handle->extract_roots        = PStackAlloc();
    GlobalIndicesNull(&(handle->gindices));
-   handle->fvi_initialized     = false;
-   handle->fvi_cspec           = NULL;
-   handle->processed_pos_rules->demod_index = PDTreeAlloc(handle->terms);
-   handle->processed_pos_eqns->demod_index  = PDTreeAlloc(handle->terms);
-   handle->processed_neg_units->demod_index = PDTreeAlloc(handle->terms);
+   handle->fvi_initialized      = false;
+   handle->fvi_cspec            = NULL;
+   handle->processed_pos_rules->demod_index = PDTreeAlloc(bank);
+   handle->processed_pos_eqns->demod_index  = PDTreeAlloc(bank);
+   handle->processed_neg_units->demod_index = PDTreeAlloc(bank);
    handle->demods[0]            = handle->processed_pos_rules;
    handle->demods[1]            = handle->processed_pos_eqns;
    handle->demods[2]            = NULL;
-   handle->watchlist            = NULL;
    GlobalIndicesNull(&(handle->wlindices));
    handle->state_is_complete       = true;
    handle->has_interpreted_symbols = false;
@@ -194,7 +195,9 @@ ProofState_p ProofStateAlloc(FunctionProperties free_symb_prop)
    GCRegisterClauseSet(handle->gc_terms, handle->processed_non_units);
    GCRegisterClauseSet(handle->gc_terms, handle->unprocessed);
    GCRegisterClauseSet(handle->gc_terms, handle->tmp_store);
+   GCRegisterClauseSet(handle->gc_terms, handle->eval_store);
    GCRegisterClauseSet(handle->gc_terms, handle->archive);
+   GCRegisterClauseSet(handle->gc_terms, handle->watchlist);
    GCRegisterClauseSet(handle->gc_terms, handle->definition_store->def_clauses);
    GCRegisterFormulaSet(handle->gc_terms, handle->definition_store->def_archive);
    GCRegisterFormulaSet(handle->gc_terms, handle->f_archive);
@@ -218,6 +221,8 @@ ProofState_p ProofStateAlloc(FunctionProperties free_symb_prop)
    handle->paramod_count      = 0;
    handle->factor_count       = 0;
    handle->resolv_count       = 0;
+   handle->satcheck_count     = 0;
+   handle->satcheck_success   = 0;
    handle->gc_count           = 0;
    handle->gc_used_count      = 0;
 
@@ -228,13 +233,62 @@ ProofState_p ProofStateAlloc(FunctionProperties free_symb_prop)
 }
 
 
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: ProofStateLoadWatchlist()
+//
+//   Load the watchlist (if requested and not inline), remove it if
+//   not requested.
+//
+// Global Variables: -
+//
+// Side Effects    : IO, memory ops.
+//
+/----------------------------------------------------------------------*/
+
+void ProofStateLoadWatchlist(ProofState_p state,
+                             char* watchlist_filename,
+                             IOFormat parse_format)
+{
+   Scanner_p in;
+
+   assert(state->watchlist);
+
+   if(watchlist_filename)
+   {
+      if(watchlist_filename!=UseInlinedWatchList)
+      {
+         in = CreateScanner(StreamTypeFile, watchlist_filename, true, NULL);
+         ScannerSetFormat(in, parse_format);
+         ClauseSetParseList(in, state->watchlist,
+                            state->terms);
+         CheckInpTok(in, NoToken);
+         DestroyScanner(in);
+      }
+      ClauseSetSetTPTPType(state->watchlist, CPTypeWatchClause);
+      ClauseSetSetProp(state->watchlist, CPWatchOnly);
+      ClauseSetDefaultWeighClauses(state->watchlist);
+      ClauseSetSortLiterals(state->watchlist, EqnSubsumeInverseCompareRef);
+      ClauseSetDocInital(GlobalOut, OutputLevel, state->watchlist);
+   }
+   else if(!watchlist_filename)
+   {
+      GCDeregisterClauseSet(state->gc_terms, state->watchlist);
+      ClauseSetFree(state->watchlist);
+      state->watchlist = NULL;
+   }
+}
+
+
+
+
 /*-----------------------------------------------------------------------
 //
 // Function: ProofStateInitWatchlist()
 //
-//   Initialize the watchlist, either by parsing it from the provided
-//   file, or by collecting all clauses of type CPTypeWatchClause from
-//   state->axioms.
+//   Initialize the (preloaded) watchlist.
 //
 // Global Variables: -
 //
@@ -242,63 +296,26 @@ ProofState_p ProofStateAlloc(FunctionProperties free_symb_prop)
 //
 /----------------------------------------------------------------------*/
 
-void ProofStateInitWatchlist(ProofState_p state, OCB_p ocb,
-                             char* watchlist_filename,
-                             IOFormat parse_format)
+void ProofStateInitWatchlist(ProofState_p state, OCB_p ocb)
 {
-   Scanner_p in;
    ClauseSet_p tmpset;
+   Clause_p handle;
 
-   if(watchlist_filename)
+   if(state->watchlist)
    {
-      state->watchlist = ClauseSetAlloc();
-      GCRegisterClauseSet(state->gc_terms, state->watchlist);
+      tmpset = ClauseSetAlloc();
 
-      if(watchlist_filename != UseInlinedWatchList)
-      {
-         tmpset = ClauseSetAlloc();
-         in = CreateScanner(StreamTypeFile, watchlist_filename, true, NULL);
-         ScannerSetFormat(in, parse_format);
-         ClauseSetParseList(in, tmpset,
-                            state->terms);
-         CheckInpTok(in, NoToken);
-         DestroyScanner(in);
-         ClauseSetIndexedInsertClauseSet(state->watchlist, tmpset);
-         ClauseSetSetTPTPType(state->watchlist, CPTypeWatchClause);
-         ClauseSetFree(tmpset);
-      }
-      else
-      {
-         PStack_p stack = PStackAlloc();
-         Clause_p handle;
-
-         for(handle =  state->axioms->anchor->succ;
-             handle!= state->axioms->anchor;
-             handle = handle->succ)
-         {
-            if(ClauseQueryTPTPType(handle)==CPTypeWatchClause)
-            {
-               //printf("WL detected: ");ClausePrint(stdout, handle, true); printf("\n");
-               PStackPushP(stack, handle);
-            }
-         }
-         while(!PStackEmpty(stack))
-         {
-            handle = PStackPopP(stack);
-            ClauseSetExtractEntry(handle);
-            ClauseSetIndexedInsertClause(state->watchlist, handle);
-         }
-         PStackFree(stack);
-      }
-      ClauseSetSetProp(state->watchlist, CPWatchOnly);
-      ClauseSetDefaultWeighClauses(state->watchlist);
       ClauseSetMarkMaximalTerms(ocb, state->watchlist);
-      ClauseSetSortLiterals(state->watchlist, EqnSubsumeInverseCompareRef);
+      while(!ClauseSetEmpty(state->watchlist))
+      {
+         handle = ClauseSetExtractFirst(state->watchlist);
+         ClauseSetInsert(tmpset, handle);
+      }
+      ClauseSetIndexedInsertClauseSet(state->watchlist, tmpset);
+      ClauseSetFree(tmpset);
       GlobalIndicesInsertClauseSet(&(state->wlindices),state->watchlist);
-      ClauseSetDocInital(GlobalOut, OutputLevel, state->watchlist);
       // ClauseSetPrint(stdout, state->watchlist, true);
    }
-   //printf("# watchlist: %p\n", state->watchlist);
 }
 
 
@@ -328,6 +345,7 @@ void ProofStateResetClauseSets(ProofState_p state, bool term_gc)
    ClauseSetFreeClauses(state->processed_non_units);
    ClauseSetFreeClauses(state->unprocessed);
    ClauseSetFreeClauses(state->tmp_store);
+   ClauseSetFreeClauses(state->eval_store);
    ClauseSetFreeClauses(state->archive);
    ClauseSetFreeClauses(state->ax_archive);
    FormulaSetFreeFormulas(state->f_ax_archive);
@@ -369,6 +387,7 @@ void ProofStateFree(ProofState_p junk)
    ClauseSetFree(junk->processed_non_units);
    ClauseSetFree(junk->unprocessed);
    ClauseSetFree(junk->tmp_store);
+   ClauseSetFree(junk->eval_store);
    ClauseSetFree(junk->archive);
    ClauseSetFree(junk->ax_archive);
    FormulaSetFree(junk->f_archive);
@@ -582,6 +601,10 @@ void ProofStateStatisticsPrint(FILE* out, ProofState_p state)
       state->factor_count);
    fprintf(out, "# Equation resolutions                 : %ld\n",
       state->resolv_count);
+   fprintf(out, "# Propositional unsat checks           : %ld\n",
+      state->satcheck_count);
+   fprintf(out, "# Propositional unsat check successes  : %ld\n",
+      state->satcheck_success);
    fprintf(out,
       "# Current number of processed clauses  : %ld\n"
       "#    Positive orientable unit clauses  : %ld\n"
@@ -628,6 +651,7 @@ void ProofStateStatisticsPrint(FILE* out, ProofState_p state)
          "# ...corresponding unshared nodes      : %ld\n",
          TBTermNodes(state->terms),
          ClauseSetGetTermNodes(state->tmp_store)+
+         ClauseSetGetTermNodes(state->eval_store)+
          ClauseSetGetTermNodes(state->processed_pos_rules)+
          ClauseSetGetTermNodes(state->processed_pos_eqns)+
          ClauseSetGetTermNodes(state->processed_neg_units)+

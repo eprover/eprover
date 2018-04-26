@@ -55,10 +55,6 @@ void     ClauseSetArchive(ClauseSet_p archive, ClauseSet_p set);
 
 void PStackClausePrint(FILE* out, PStack_p stack, char* extra);
 
-#ifdef NDEBUG
-bool ClauseAllTermsShared(Clause_p clause);
-#endif
-
 
 #endif
 

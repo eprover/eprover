@@ -933,8 +933,7 @@ OCB_p  TOCreateOrdering(ProofState_p state, OrderParms_p params,
       params->ordertype = KBO6;    
    }
 #endif
-
-
+   
    /* printf("TOCreateOrdering(%d, %d, %d, %ld)\n", params->ordertype,
       params->to_weight_gen, params->to_prec_gen,
       params->to_const_weight); */
