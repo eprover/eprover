@@ -51,14 +51,3 @@ $(LIB): $(BASIC_LIB)
 	$(AR) $(LIB) $(BASIC_LIB)
 
 include Makefile.dependencies
-
-
-
-
-
-
-
-
-
-
-

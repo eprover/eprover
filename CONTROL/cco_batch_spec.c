@@ -741,7 +741,7 @@ bool BatchProcessFile(BatchSpec_p spec,
 {
    bool res = false;
    Scanner_p in;
-   ClauseSet_p cset;
+   ClauseSet_p dummy;
    FormulaSet_p fset;
    FILE* fp;
 
@@ -753,22 +753,22 @@ bool BatchProcessFile(BatchSpec_p spec,
    in = CreateScanner(StreamTypeFile, source, true, NULL);
    ScannerSetFormat(in, TSTPFormat);
 
-   cset = ClauseSetAlloc();
+   dummy = ClauseSetAlloc();
    fset = FormulaSetAlloc();
-   FormulaAndClauseSetParse(in, cset, fset, ctrl->terms,
+   FormulaAndClauseSetParse(in, fset, dummy, ctrl->terms,
                             NULL,
                             &(ctrl->parsed_includes));
    DestroyScanner(in);
 
    fp = SecureFOpen(dest, "w");
 
-   // cset and fset are handed over to BatchProcessProblem and are
+   // dummy and fset are handed over to BatchProcessProblem and are
    // freed there (via StructFOFSpecBacktrackToSpec()).
    res = BatchProcessProblem(spec,
                              wct_limit,
                              ctrl,
                              source,
-                             cset,
+                             dummy,
                              fset,
                              fp,
                              -1);
@@ -874,7 +874,7 @@ void BatchProcessInteractive(BatchSpec_p spec,
    DStr_p jobname = DStrAlloc();
    bool done = false;
    Scanner_p in;
-   ClauseSet_p cset;
+   ClauseSet_p dummy;
    FormulaSet_p fset;
    long         wct_limit=30;
 
@@ -931,9 +931,9 @@ void BatchProcessInteractive(BatchSpec_p spec,
          }
          fprintf(fp, "\n# Processing started for %s\n", DStrView(jobname));
 
-         cset = ClauseSetAlloc();
+         dummy = ClauseSetAlloc();
          fset = FormulaSetAlloc();
-         FormulaAndClauseSetParse(in, cset, fset, ctrl->terms,
+         FormulaAndClauseSetParse(in, fset, dummy, ctrl->terms,
                                   NULL,
                                   &(ctrl->parsed_includes));
 
@@ -943,7 +943,7 @@ void BatchProcessInteractive(BatchSpec_p spec,
                                    wct_limit,
                                    ctrl,
                                    DStrView(jobname),
-                                   cset,
+                                   dummy,
                                    fset,
                                    fp,
                                    -1);

@@ -1,25 +1,22 @@
 /*-----------------------------------------------------------------------
 
-File  : che_wfcb.c
+  File  : che_wfcb.c
 
-Author: Stephan Schulz
+  Author: Stephan Schulz (schulz@eprover.org)
 
-Contents
+  Contents
 
   Functions for evaluation function control blocks.
 
-  Copyright 1998, 1999 by the author.
+  Copyright 1998-2018 by the authors (see DOC/CONTRIBUTORS).
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
+  Created: Fri Jun  5 22:05:39 MET DST 1998
 
-<1> Fri Jun  5 22:05:39 MET DST 1998
-    New
-
------------------------------------------------------------------------*/
+  -----------------------------------------------------------------------*/
 
 #include "che_wfcb.h"
 
@@ -58,7 +55,7 @@ Changes
 /----------------------------------------------------------------------*/
 
 WFCB_p WFCBAlloc(ClauseEvalFun wfcb_eval, ClausePrioFun prio_fun,
-       GenericExitFun wfcb_exit, void* data)
+                 GenericExitFun wfcb_exit, void* data)
 {
    WFCB_p handle = WFCBCellAlloc();
 
@@ -118,16 +115,8 @@ void ClauseAddEvaluation(WFCB_p wfcb, Clause_p clause, int pos, bool empty)
    {
       clause->evaluations->evals[pos].priority  = wfcb->wfcb_priority(clause);
    }
-
-   /*fprintf(stderr, "# ");
-   ClausePrint(stderr, clause, true);
-   fprintf(stderr, ", p:%d;h:%g;p:%ld\n", pos, 
-                                          clause->evaluations->evals[pos].heuristic,
-                                          clause->evaluations->evals[pos].priority);*/
 }
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-

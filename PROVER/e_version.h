@@ -8,7 +8,7 @@ Contents
 
   Define global macro for version number and meta-information.
 
-  Copyright 2009-2017 by the authors (see DOC/CONTRIBUTORS).
+  Copyright 2009-2018 by the authors (see DOC/CONTRIBUTORS).
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
@@ -33,15 +33,23 @@ Contents
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-/* git tag E-2.1pre005 */
-#define VERSION      "2.1pre005"
+/* git tag E-2.1pre011 */
+
+
+#define PVERSION      "2.1pre011"
+
+#ifdef NDEBUG
+#define VERSION PVERSION
+#else
+#define VERSION PVERSION "-DEBUG"
+#endif
 
 #define E_NICKNAME     "Maharani Hills"
 
 #define E_URL "http://www.eprover.org"
 
 #define STS_MAIL "schulz@eprover.org"
-#define STS_COPYRIGHT "Copyright 1998-2017 by Stephan Schulz"
+#define STS_COPYRIGHT "Copyright 1998-2018 by Stephan Schulz"
 #define CTR_COPYRIGHT "and the E contributors (see DOC/CONTRIBUTORS)."
 #define STS_SNAIL "Stephan Schulz\nDHBW Stuttgart\nFakultaet Technik\nInformatik\nRotebuehlplatz 41\n70178 Stuttgart\nGermany\n"
 

@@ -427,7 +427,10 @@ WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms)
    else
    {
       type = (FormulaProperties)
-         ClauseTypeParse(in,
+         ClauseTypeParse(in,is_tcf?
+                         "axiom|hypothesis|definition|assumption|"
+                         "lemma|theorem|conjecture|question|negated_conjecture|"
+                         "plain|unknown|watchlist":
                          "axiom|hypothesis|definition|assumption|"
                          "lemma|theorem|conjecture|question|negated_conjecture|"
                          "plain|unknown");
@@ -543,7 +546,7 @@ void WFormulaTSTPPrint(FILE* out, WFormula_p form, bool fullterms,
    }
    else
    {
-      fprintf(out, "");
+      //fprintf(out, "");
       TFormulaTPTPPrint(out, form->terms, form->tformula,fullterms, false);
       fprintf(out, "");
       //fprintf(out, "<dummy %p in %p>", form->tformula, form->terms);
@@ -554,6 +557,7 @@ void WFormulaTSTPPrint(FILE* out, WFormula_p form, bool fullterms,
    }
 }
 
+// TODO add doc
 void WFormulaAppEncode(FILE* out, WFormula_p form)
 {
    char *typename = "plain", *formula_kind = "tff";

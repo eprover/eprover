@@ -146,8 +146,7 @@ void    TermAssertSameSort(Sig_p sig, Term_p t1, Term_p t2);
 bool    TermIsUntyped(Term_p t);
 
 Term_p TermCreatePrefix(Term_p orig, int up_to);
-
-Term_p  TermAppEncode(Term_p orig, Sig_p sig);
+Term_p TermAppEncode(Term_p orig, Sig_p sig);
 
 
 /*-----------------------------------------------------------------------

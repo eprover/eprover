@@ -1,10 +1,10 @@
 /*-----------------------------------------------------------------------
 
-File  : clb_pdarrays.c
+  File  : clb_pdarrays.c
 
-Author: Stephan Schulz
+  Author: Stephan Schulz
 
-Contents
+  Contents
 
   Funktions realising the dynamic array type.
 
@@ -14,12 +14,11 @@ Contents
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
+  Changes
 
-<1> Thu Jul 23 17:40:32 MEST 1998
-    New
+  Created: Thu Jul 23 17:40:32 MEST 1998
 
------------------------------------------------------------------------*/
+  -----------------------------------------------------------------------*/
 
 #include "clb_pdarrays.h"
 
@@ -159,7 +158,7 @@ void PDArrayEnlarge(PDArray_p array, long idx)
    {
       while(array->size <= idx)
       {
-    array->size = array->size*2;
+         array->size = array->size*2;
       }
    }
    array->array = SizeMalloc(array->size * sizeof(IntOrP));
@@ -169,11 +168,11 @@ void PDArrayEnlarge(PDArray_p array, long idx)
    {
       if(array->integer)
       {
-    array->array[i].i_val = 0;
+         array->array[i].i_val = 0;
       }
       else
       {
-    array->array[i].p_val = NULL;
+         array->array[i].p_val = NULL;
       }
    }
 }
@@ -270,7 +269,7 @@ long PDArrayMembers(PDArray_p array)
    {
       if(PDArrayElementP(array, i))
       {
-    res++;
+         res++;
       }
    }
    return res;
@@ -300,7 +299,7 @@ long PDArrayFirstUnused(PDArray_p array)
    {
       if(PDArrayElementP(array, i-1))
       {
-    break;
+         break;
       }
    }
    return i;
@@ -430,5 +429,3 @@ long PDArrayElementIncInt(PDArray_p array, long idx, long value)
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-

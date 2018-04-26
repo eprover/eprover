@@ -299,7 +299,7 @@ Term_p term_top_marked(Term_p term, VarBank_p freshvars, PStack_p
 Term_p TermTop(Term_p term, int depth, VarBank_p freshvars)
 {
    assert(TermIsShared(term));
-   VarBankSetVCount(freshvars, FRESH_VAR_LIMIT);
+   //VarBankSetVCounts(freshvars, FRESH_VAR_LIMIT);
 
    return rek_term_top(term, depth, freshvars);
 }
@@ -324,7 +324,7 @@ Term_p AltTermTop(Term_p term, int depth, VarBank_p freshvars)
    Term_p   handle, res;
 
    assert(TermIsShared(term));
-   VarBankSetVCount(freshvars, FRESH_VAR_LIMIT);
+   //VarBankSetVCount(freshvars, FRESH_VAR_LIMIT);
 
    res = alt_rek_term_top(term, depth, freshvars, bindings);
 
@@ -356,7 +356,7 @@ Term_p CSTermTop(Term_p term, int depth, VarBank_p freshvars)
    Term_p   handle, res;
 
    assert(TermIsShared(term));
-   VarBankSetVCount(freshvars, FRESH_VAR_LIMIT);
+   //VarBankSetVCount(freshvars, FRESH_VAR_LIMIT);
 
    term_del_prop_level(term, depth, TPOpFlag);
    term_set_prop_at_level(term, depth, TPOpFlag);
@@ -392,7 +392,7 @@ Term_p ESTermTop(Term_p term, int depth, VarBank_p freshvars)
    Term_p   handle, res;
 
    assert(TermIsShared(term));
-   VarBankSetVCount(freshvars, FRESH_VAR_LIMIT);
+   //VarBankSetVCount(freshvars, FRESH_VAR_LIMIT);
 
    term_set_prop_at_level(term, depth, TPOpFlag);
    term_del_prop_level(term, depth-1, TPOpFlag);
@@ -413,5 +413,3 @@ Term_p ESTermTop(Term_p term, int depth, VarBank_p freshvars)
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-

@@ -1,0 +1,24 @@
+#!/bin/tcsh
+echo -n "% Problem    : " ; head -2 $1 | tail -1 | sed -e "s/.*  : //"
+set ProblemSPC=`grep " SPC " $1 | sed -e "s/.* : //"`
+set defaultargs="--delete-bad-limit=2000000000 --definitional-cnf=24 -s --print-statistics -R --print-version --free-numbers"
+set flags=" --split-clauses=4 --split-reuse-defs --simul-paramod --forward-context-sr --destructive-er-aggressive --destructive-er --presat-simplify --prefer-initial-clauses -tKBO6 -wprecrank20 -c1 -Ginvfreq -F1 -WSelectNewComplexAHPExceptRRHorn "
+set heuristic=" -H(4.RelevanceLevelWeight2(SimulateSOS,0,2,1,2,100,100,100,400,1.5,1.5,1),3.ConjectureGeneralSymbolWeight(PreferNonGoals,200,100,200,50,50,1,100,1.5,1.5,1),1.Clauseweight(PreferProcessed,1,1,1),1.FIFOWeight(PreferProcessed)) "
+set final="--cpu-limit="$STAREXEC_CPU_LIMIT" "$1
+set ecmd="./eprover ""$defaultargs $flags $heuristic $final"
+
+if ( `expr "$ProblemSPC" : "FOF.*"` || `expr "$ProblemSPC" : "CNF.*"` ) then
+	echo "% Command    : " $ecmd
+	/home/starexec/bin/GetComputerInfo -p THIS Model CPUModel RAMPerCPU OS | \
+        sed -e "s/Computer     /% Computer   /" \
+            -e "s/Model        /% Model      /" \
+            -e "s/CPUModel     /% CPU        /" \
+            -e "s/RAMPerCPU    /% Memory     /" \
+            -e "s/OS           /% OS         /"
+	echo -n "% CPULimit   : " ; echo "$STAREXEC_CPU_LIMIT"
+	echo -n "% DateTime   : " ; date
+	echo "% CPUTime    : "
+	$ecmd
+else
+    echo "% SZS status Inappropriate"
+endif

@@ -16,10 +16,10 @@ include ../Makefile.vars
 # Project specific variables
 
 PROJECT = eprover e_ltb_runner e_stratpar e_deduction_server e_axfilter \
-	      classify_problem termprops e_client e_server\
+	  classify_problem termprops e_client e_server\
           direct_examples epclanalyse epclextract checkproof eground\
           enormalizer edpll epcllemma\
-          ekb_create ekb_insert ekb_ginsert ekb_delete tsm_classify tester
+          ekb_create ekb_insert ekb_ginsert ekb_delete tsm_classify
 LIB     = $(PROJECT)
 all: $(LIB)
 
@@ -166,7 +166,7 @@ checkproof: $(CHECKPROOF)
 	$(LD) -o checkproof $(CHECKPROOF) $(LIBS)
 
 EKB_CREATE = ekb_create.o \
-            ../lib/LEARN.a ../lib/ANALYSIS.a ../lib/CLAUSES.a \
+            ../lib/LEARN.a ../lib/CLAUSES.a \
             ../lib/ORDERINGS.a \
             ../lib/TERMS.a ../lib/INOUT.a ../lib/BASICS.a
 
@@ -174,7 +174,7 @@ ekb_create: $(EKB_CREATE)
 	$(LD) -o ekb_create $(EKB_CREATE) $(LIBS)
 
 EKB_INSERT = ekb_insert.o \
-            ../lib/LEARN.a ../lib/ANALYSIS.a ../lib/CLAUSES.a \
+            ../lib/LEARN.a ../lib/CLAUSES.a \
             ../lib/ORDERINGS.a \
             ../lib/TERMS.a ../lib/INOUT.a ../lib/BASICS.a
 
@@ -182,7 +182,7 @@ ekb_insert: $(EKB_INSERT)
 	$(LD) -o ekb_insert $(EKB_INSERT) $(LIBS)
 
 EKB_GINSERT = ekb_ginsert.o \
-	    ../lib/PCL2.a ../lib/LEARN.a ../lib/ANALYSIS.a ../lib/CLAUSES.a \
+	    ../lib/PCL2.a ../lib/LEARN.a ../lib/CLAUSES.a \
             ../lib/ORDERINGS.a \
             ../lib/TERMS.a ../lib/INOUT.a ../lib/BASICS.a
 
@@ -190,7 +190,7 @@ ekb_ginsert: $(EKB_GINSERT)
 	$(LD) -o ekb_ginsert $(EKB_GINSERT) $(LIBS)
 
 EKB_DELETE = ekb_delete.o \
-            ../lib/LEARN.a ../lib/ANALYSIS.a ../lib/CLAUSES.a \
+            ../lib/LEARN.a ../lib/CLAUSES.a \
             ../lib/ORDERINGS.a \
             ../lib/TERMS.a ../lib/INOUT.a ../lib/BASICS.a
 
@@ -198,20 +198,12 @@ ekb_delete: $(EKB_DELETE)
 	$(LD) -o ekb_delete $(EKB_DELETE) $(LIBS)
 
 TSM_CLASSIFY = tsm_classify.o \
-            ../lib/LEARN.a ../lib/ANALYSIS.a ../lib/CLAUSES.a \
+            ../lib/LEARN.a ../lib/CLAUSES.a \
             ../lib/ORDERINGS.a \
             ../lib/TERMS.a ../lib/INOUT.a ../lib/BASICS.a
 
 tsm_classify: $(TSM_CLASSIFY)
 	$(LD) -o tsm_classify $(TSM_CLASSIFY) $(LIBS)
 
-
-TESTER = tester.o ../lib/CONTROL.a ../lib/HEURISTICS.a\
-            ../lib/LEARN.a\
-            ../lib/CLAUSES.a ../lib/ORDERINGS.a ../lib/TERMS.a\
-            ../lib/INOUT.a ../lib/BASICS.a
-
-tester: $(TESTER)
-	$(LD) -o tester $(TESTER) $(LIBS)
 
 include Makefile.dependencies

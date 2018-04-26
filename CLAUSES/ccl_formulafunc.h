@@ -73,8 +73,8 @@ long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive,
                     ClauseSet_p clauseset, TB_p terms,
                     VarBank_p fresh_vars, GCAdmin_p gc,
                     long miniscope_limit);
-long FormulaAndClauseSetParse(Scanner_p in, ClauseSet_p cset,
-                              FormulaSet_p fset, TB_p terms,
+long FormulaAndClauseSetParse(Scanner_p in, FormulaSet_p fset,
+                              ClauseSet_p wlset, TB_p terms,
                               StrTree_p *name_selector,
                               StrTree_p *skip_includes);
 long FormulaToCNF(WFormula_p form, FormulaProperties type,

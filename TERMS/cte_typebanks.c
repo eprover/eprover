@@ -68,7 +68,7 @@ FuncSymbType TermParseOperator(Scanner_p in, DStr_p id);
 //
 // Function: bii_alloc()
 //
-//   Allocates one cell of bacl_idx_info based on construction arguments.
+//   Allocates one cell of back_idx_info based on construction arguments.
 //
 // Global Variables: -
 //

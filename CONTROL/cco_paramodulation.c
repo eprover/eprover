@@ -58,11 +58,6 @@ static bool sim_paramod_q(OCB_p ocb, ClausePos_p frompos, ParamodulationType pm_
    bool res;
    Term_p max_side, rep_side;
 
-   /*if (ProblemIsHO == PROBLEM_IS_HO)
-   {
-      return false;
-   }*/
-
    switch(pm_type)
    {
    case ParamodPlain:
@@ -203,8 +198,6 @@ static long compute_into_pm_pos_clause(ParamodInfo_p pminfo,
 
    pminfo->into = into_clause_pos->clause;
 
-   //fprintf(stderr, "construction into !\n");
-
    iterstack = NumTreeTraverseInit(into_clause_pos->pos);
    while ((cell = NumTreeTraverseNext(iterstack)))
    {
@@ -244,15 +237,6 @@ static long compute_into_pm_pos_clause(ParamodInfo_p pminfo,
          clause = ClauseParamodConstruct(pminfo, sim_pm);
          if(clause)
          {
-            /*fprintf(stderr, "c(%ld) f(%ld) i(%ld)\n", 
-                    clause->ident, pminfo->from->ident, pminfo->into->ident);*/
-            /*ClausePrint(stderr, clause, true);
-            fputc('*', stderr);
-            ClausePrint(stderr, pminfo->from, true);
-            fputc('*', stderr);
-            ClausePrint(stderr, pminfo->into, true);
-            fputc('\n', stderr);*/
-
             ClauseSetInsert(store, clause);
             res++;
             update_clause_info(clause, pminfo->into, pminfo->new_orig);
@@ -345,7 +329,6 @@ long compute_pos_into_pm_term(ParamodInfo_p pminfo,
       {
          /* printf("compute_pos_into_pm_term() oc ok\n"); */
          sim_pm = sim_paramod_q(pminfo->ocb, pminfo->from_pos, type);
-                    //&& unif_res.term_remaining == 0;
          /* Iterate over all the into-clauses   */
          iterstack = PTreeTraverseInit(into_clauses->pl.pos.clauses);
          while ((cell = PTreeTraverseNext(iterstack)))
@@ -495,15 +478,6 @@ static long compute_from_pm_pos_clause(ParamodInfo_p pminfo,
          clause = ClauseParamodConstruct(pminfo, sim_pm);
          if(clause)
          {
-            /*fprintf(stderr, "c(%ld) f(%ld) i(%ld)\n", 
-                    clause->ident, pminfo->from->ident, pminfo->into->ident);*/
-            /*ClausePrint(stderr, clause, true);
-            fputc('*', stderr);
-            ClausePrint(stderr, pminfo->from, true);
-            fputc('*', stderr);
-            ClausePrint(stderr, pminfo->into, true);
-            fputc('\n', stderr);*/
-
             ClauseSetInsert(store, clause);
             res++;
             update_clause_info(clause, pminfo->from, pminfo->new_orig);
@@ -565,17 +539,6 @@ long compute_pos_from_pm_term(ParamodInfo_p pminfo,
       /* printf("# Mgu from:\n");
       SubstPrint(stdout, subst, pminfo->bank->sig, DEREF_ALWAYS);
       printf("\n"); */
-
-#ifdef PRINT_PARTIAL_PARAMODULATION
-      if (unif_res.term_remaining > 0)
-      {
-         fprintf(stderr, "# paramodulation from ");
-         TermPrint(stderr, from_clauses->term, pminfo->bank->sig, DEREF_ALWAYS);
-         fprintf(stderr, " to prefix of term ");
-         TermPrint(stderr, olterm, pminfo->bank->sig, DEREF_ALWAYS);
-         fprintf(stderr, "(remaining args %d).compute_pos_from_pm_term\n", unif_res.term_remaining);
-      }
-#endif
 
       max_side = ClausePosGetSide(pminfo->into_pos);
       min_side = ClausePosGetOtherSide(pminfo->into_pos);
@@ -1051,7 +1014,6 @@ long ComputeAllParamodulantsIndexed(TB_p bank, OCB_p ocb,
    pminfo.freshvars = freshvars;
    pminfo.ocb       = ocb;
    pminfo.new_orig  = parent_alias;
-
 
    res += ComputeIntoParamodulants(&pminfo,
                                    pm_type,

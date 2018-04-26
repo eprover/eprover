@@ -99,7 +99,6 @@ Clause_p   TFormulaCollectClause(TFormula_p form, TB_p terms,
 void TFormulaAppEncode(FILE* out, TB_p bank, TFormula_p form);
 void PreloadTypes(TB_p bank, TFormula_p form);
 
-
 bool       TFormulaIsUntyped(TFormula_p form);
 
 #endif

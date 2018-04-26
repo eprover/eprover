@@ -512,7 +512,7 @@ Term_p TermParse(Scanner_p in, Sig_p sig, VarBank_p vars)
          if(TestInpTok(in, Colon))
          {
             AcceptInpTok(in, Colon);
-            type = TypeBankParseType(in, vars->type_bank);
+            type = TypeBankParseType(in, vars->sort_table);
             handle = VarBankExtNameAssertAllocSort(vars,
                                                    DStrView(id), type);
          }
@@ -596,10 +596,9 @@ Term_p TermParse(Scanner_p in, Sig_p sig, VarBank_p vars)
 int TermParseArgList(Scanner_p in, Term_p** arg_anchor, Sig_p sig,
                      VarBank_p vars)
 {
-   Term_p *handle;
-   int    arity;
-   int    size;
-   int    i;
+   Term_p   tmp;
+   PStackPointer i, arity;
+   PStack_p args;
 
    AcceptInpTok(in, OpenBracket);
    if(TestInpTok(in, CloseBracket))
@@ -608,29 +607,24 @@ int TermParseArgList(Scanner_p in, Term_p** arg_anchor, Sig_p sig,
       *arg_anchor = NULL;
       return 0;
    }
-   size = TERMS_INITIAL_ARGS;
-   handle = (Term_p*)SizeMalloc(size*sizeof(Term_p));
-   arity = 0;
-   handle[arity] = TermParse(in, sig, vars);
-   arity++;
+   args = PStackAlloc();
+   tmp = TermParse(in, sig, vars);
+   PStackPushP(args, tmp);
+
    while(TestInpTok(in, Comma))
    {
       NextToken(in);
-      if(arity==size)
-      {
-         size+=TERMS_INITIAL_ARGS;
-         handle = (Term_p*)SecureRealloc(handle, size*sizeof(Term_p));
-      }
-      handle[arity] = TermParse(in, sig, vars);
-      arity++;
+      tmp = TermParse(in, sig, vars);
+      PStackPushP(args, tmp);
    }
    AcceptInpTok(in, CloseBracket);
+   arity = PStackGetSP(args);
    *arg_anchor = TermArgArrayAlloc(arity);
    for(i=0;i<arity;i++)
    {
-      (*arg_anchor)[i] = handle[i];
+      (*arg_anchor)[i] = PStackElementP(args,i);
    }
-   SizeFree(handle, size*sizeof(Term_p));
+   PStackFree(args);
 
    return arity;
 }
@@ -939,15 +933,6 @@ bool TermStructPrefixEqual(Term_p l, Term_p r, DerefType d_l, DerefType d_r, int
       }
    }   
 
-   if (!res)
-   {
-      fprintf(stderr, "! failed for ");
-      TermPrint(stderr, l, sig, DEREF_NEVER);
-      fprintf(stderr, " and ");
-      TermPrint(stderr, r, sig, DEREF_NEVER);
-      fprintf(stderr, " (%d).\n", remaining);
-   }
-
    return res;
 }
 /*-----------------------------------------------------------------------
@@ -1004,6 +989,8 @@ long TermStructWeightCompare(Term_p t1, Term_p t2)
       return res;
    }
 
+   //This is a non-valid assert... check with Stephan
+   //  (reason: compares terms )
    //assert(t1->type == t2->type);
    assert(t1->arity == t2->arity);
    for(int i=0; i<t1->arity; i++)
@@ -1359,6 +1346,7 @@ long TermSymTypeWeight(Term_p term, long vweight, long fweight, long
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
+
 long TermDepth(Term_p term)
 {
    long maxdepth = 0, ldepth;
@@ -1383,6 +1371,7 @@ long TermDepth(Term_p term)
 // Side Effects    : Sets TPOpFlag
 //
 /----------------------------------------------------------------------*/
+
 bool TermIsDefTerm(Term_p term, int min_arity)
 {
    int i;
@@ -1428,6 +1417,7 @@ bool TermIsDefTerm(Term_p term, int min_arity)
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
+
 bool TermHasFCode(Term_p term, FunCode f)
 {
    int i;
@@ -1460,6 +1450,7 @@ bool TermHasFCode(Term_p term, FunCode f)
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
+
 bool TermHasUnboundVariables(Term_p term)
 {
    bool res = false;
@@ -1574,42 +1565,32 @@ FunCode TermFindMaxVarCode(Term_p term)
 FunCode VarBankCheckBindings(FILE* out, VarBank_p bank, Sig_p sig)
 {
    Term_p    term;
-   VarBankStack_p stack;
    long      res = 0;
-   int       i,j;
+   int       i;
 
    fprintf(out, "#  VarBankCheckBindings() started...\n");
-   for(i=0; i<PDArraySize(bank->stacks); i++)
+   for(i=1; i<PDArraySize(bank->variables); i++)
    {
-      stack = (VarBankStack_p) PDArrayElementP(bank->stacks, i);
-      if (!stack)
+      term = PDArrayElementP(bank->variables, i);
+      if(term)
       {
-         continue;
-      }
-
-      for(j=0; j < PDArraySize(stack); j++)
-      {
-         term = PDArrayElementP(stack, j);
-         if(term)
+         assert(TermIsVar(term));
+         if(term->binding)
          {
-            assert(TermIsVar(term));
-            if(term->binding)
+            res++;
+            if(sig)
             {
-               res++;
-               if(sig)
-               {
-                  fprintf(out, "# %ld: ", term->f_code);
-                  TermPrint(out, term, sig, DEREF_NEVER);
-                  fprintf(out, " <--- ");
-                  TermPrint(out, term, sig, DEREF_ONCE);
-                  fprintf(out, "\n");
-               }
-               else
-               {
-                  fprintf(out, "# Var%ld <---- %p\n",
-                          term->f_code,
-                          (void*)term->binding);
-               }
+               fprintf(out, "# %ld: ", term->f_code);
+               TermPrint(out, term, sig, DEREF_NEVER);
+               fprintf(out, " <--- ");
+               TermPrint(out, term, sig, DEREF_ONCE);
+               fprintf(out, "\n");
+            }
+            else
+            {
+               fprintf(out, "# Var%ld <---- %p\n",
+                       term->f_code,
+                       (void*)term->binding);
             }
          }
       }
@@ -1726,6 +1707,7 @@ void TermAddSymbolDistExist(Term_p term, long *dist_array,
 // Side Effects    : Changes the arrays.
 //
 /----------------------------------------------------------------------*/
+
 void TermAddSymbolFeaturesLimited(Term_p term, long depth,
                                   long *freq_array, long* depth_array,
                                   long limit)
@@ -1736,9 +1718,6 @@ void TermAddSymbolFeaturesLimited(Term_p term, long depth,
 
       if(term->f_code < limit && !TermIsAppliedVar(term))
       {
-#ifdef ENABLE_LFHO
-         assert(term->f_code != SIG_APP_VAR_CODE);
-#endif
          freq_array[term->f_code]++;
          depth_array[term->f_code] = MAX(depth, depth_array[term->f_code]);
       }
@@ -1777,6 +1756,7 @@ void TermAddSymbolFeaturesLimited(Term_p term, long depth,
 // Side Effects    : Changes the arrays.
 //
 /----------------------------------------------------------------------*/
+
 void TermAddSymbolFeatures(Term_p term, PStack_p mod_stack, long depth,
                            long *feature_array, long offset)
 {
@@ -1785,10 +1765,6 @@ void TermAddSymbolFeatures(Term_p term, PStack_p mod_stack, long depth,
       int i;
       if (!TermIsAppliedVar(term))
       {
-         // ignore applied var f code.
-#ifdef ENABLE_LFHO
-         assert(term->f_code != SIG_APP_VAR_CODE);
-#endif
          long findex = 4*term->f_code+offset;
 
          if(feature_array[findex] == 0)
@@ -1835,9 +1811,6 @@ void TermComputeFunctionRanks(Term_p term, long *rank_array, long *count)
    }
    if(!rank_array[term->f_code] && !TermIsAppliedVar(term))
    {
-#ifdef ENABLE_LFHO
-      assert(term->f_code != SIG_APP_VAR_CODE);
-#endif
       rank_array[term->f_code] = (*count)++;
    }
 }

@@ -436,7 +436,6 @@ static __inline__ Term_p TermDeref(Term_p term, DerefType_p deref)
 }
 
 
-
 /*-----------------------------------------------------------------------
 //
 // Function: TermTopCopyWithoutArgs()
@@ -579,9 +578,6 @@ static __inline__ Term_p TermTopAlloc(FunCode f_code, int arity)
 
    return handle;
 }
-
-// UP TO -- NOT INCLUDING!
-
 
 #endif
 

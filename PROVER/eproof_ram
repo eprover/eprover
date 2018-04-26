@@ -6,10 +6,10 @@
 # Author: Stephan Schulz
 #
 # Contents
-# 
+#
 #   Shell script for automatic proof generation with E. See the help
 #   text below for more information and copyright status.
-# 
+#
 # Changes
 #
 # <1> Distant past
@@ -116,11 +116,11 @@ for argument in  "$@"; do
 	head1=`echo "$argument"|cut -c1-2`
 	if [ "$head" = "--cpu-limit" ] ; then
 	    timelimit=`echo $argument|cut -d= -f2`
-	fi    
+	fi
 	if [ "$head1" = "-o" ] ; then
 	    echo "Short option -o not supported by eproof, use --output-file=<file>"
 	    exit 1
-	fi    
+	fi
 	if [ "$head" = "--output-file" ] ; then
 	    outfile=`echo $argument|cut -d= -f2`
 	    cat /dev/null > $outfile
@@ -143,11 +143,9 @@ for argument in  "$@"; do
 	    format="--tstp-out"
 	fi
     fi
-    if [ "$argument" ] ; then        
+    if [ "$argument" ] ; then
         newargs=$newargs" "$argument
     fi
 done
 
-"$EXECPATH"/eprover $newargs -l4 -o- --pcl-terms-compressed --pcl-compact|"$EXECPATH"/epclextract $format -f -C --competition-framing
-
-
+"$EXECPATH"/eprover $newargs -l4 -o- --pcl-out --pcl-terms-compressed --pcl-compact|"$EXECPATH"/epclextract $format -f -C --competition-framing

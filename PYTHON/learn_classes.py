@@ -97,22 +97,82 @@ def read_real_lines_from_file(name):
     return res
 
 
+def find_best_coverage(bvectors):
+    """
+    Given a set of equal lenght binary vectors (0 = Success, 1 =
+    Timeout), return the index where most of the vectors indicate
+    success and the number of successes for that index.
+    """
+    maxcov  = 0
+    bestidx = 0
+    for i in range(len(bvectors[0])):
+        cv = [1-pv[i] for pv in bvectors]
+        cov = sum(cv)
+        if cov > maxcov:
+            maxcov = cov
+            bestidx = i
+    return bestidx, maxcov
+
+
 class ClassCollection(object):
     def __init__(self):
+        self.probnames = list([])
         self.problems  = list([])
         self.labels    = list([])
         self.perf_vecs = list([])
+        self.stratmap  = None # Map class label to best strategy index
+        self.probmap   = {}   # Map problem to performance vector
+
 
     def add_line(self, line):
+        self.stratmap = None
         parts = line.split(":")
         #print( parts)
-        problem = parts[0]
+        probname = parts[0]
+        self.probnames.append(probname)
         perf_vec = eval(parts[1])
-        label   = int(parts[2])
+        label    = int(parts[2])
         features = list(map(float, parts[3].split(",")))
         self.problems.append(features)
         self.perf_vecs.append(perf_vec)
         self.labels.append(label)
+        self.probmap[probname] = perf_vec
+
+    def solves(self, problem, strat):
+        return self.probmap[problem][strat] == 0
+
+    def eval_model(self, model):
+        """
+        Given a trained model, return fraction of problems that would
+        be solved by the best strategy of the predicted class.
+        """
+        res = model.predict(self.problems)
+        succ = 0
+        for i in range(len(res)):
+            if self.solves(self.probnames[i], self.get_class_strat(res[i])):
+                succ += 1
+        print(succ, " out of ", len(res))
+        return succ/len(res)
+
+    def get_class_list(self):
+        res =  list(set(self.labels))
+        res.sort()
+        return res
+
+    def get_class_strat(self, cl):
+        """
+        Return best strategy for class cl.
+        """
+        if not self.stratmap:
+            self.stratmap = {}
+            classes = [list() for i in self.labels]
+            for label, vector in zip(self.labels, self.perf_vecs):
+                classes[label].append(vector)
+            for cl in self.get_class_list():
+                vectors = classes[cl]
+                strat, sols = find_best_coverage(vectors)
+                self.stratmap[cl] = strat
+        return self.stratmap[cl]
 
     def get_features(self):
         return np.array(self.problems)
@@ -175,8 +235,14 @@ if __name__ == '__main__':
 
     y = classcol.get_labels()
 
+    # print(classcol.get_class_list())
+
+    # for i in classcol.get_class_list():
+    #     print(i, classcol.get_class_strat(i))
+
     results = []
     results2 = []
+    results3 = []
 
     clf = DecisionTreeClassifier(max_depth=None, min_samples_split=2,
                                  random_state=0)
@@ -187,6 +253,7 @@ if __name__ == '__main__':
     clf.fit(X,y)
     print("FF:  ", clf.score(X,y))
     results2.append(clf.score(X,y))
+    results3.append(classcol.eval_model(clf))
 
     clf = RandomForestClassifier(n_estimators=10, max_depth=None,
                                  min_samples_split=2, random_state=0)
@@ -196,6 +263,7 @@ if __name__ == '__main__':
     clf.fit(X,y)
     print("FF:  ", clf.score(X,y))
     results2.append(clf.score(X,y))
+    results3.append(classcol.eval_model(clf))
 
     clf = ExtraTreesClassifier(n_estimators=10, max_depth=None,
                                min_samples_split=2, random_state=0)
@@ -205,6 +273,7 @@ if __name__ == '__main__':
     clf.fit(X,y)
     print("FF:  ", clf.score(X,y))
     results2.append(clf.score(X,y))
+    results3.append(classcol.eval_model(clf))
 
     clf = KNeighborsClassifier(n_neighbors=1)
     scores = cross_val_score(clf, X, y, cv=cv)
@@ -213,6 +282,7 @@ if __name__ == '__main__':
     clf.fit(X,y)
     print("FF:  ", clf.score(X,y))
     results2.append(clf.score(X,y))
+    results3.append(classcol.eval_model(clf))
 
     clf = KNeighborsClassifier(n_neighbors=2)
     scores = cross_val_score(clf, X, y, cv=cv)
@@ -221,6 +291,7 @@ if __name__ == '__main__':
     clf.fit(X,y)
     print("FF:  ", clf.score(X,y))
     results2.append(clf.score(X,y))
+    results3.append(classcol.eval_model(clf))
 
     clf = KNeighborsClassifier(n_neighbors=3)
     scores = cross_val_score(clf, X, y, cv=cv)
@@ -229,14 +300,16 @@ if __name__ == '__main__':
     clf.fit(X,y)
     print("FF:  ", clf.score(X,y))
     results2.append(clf.score(X,y))
+    results3.append(classcol.eval_model(clf))
 
-    # clf = SVC()
-    # scores = cross_val_score(clf, X, y, cv=cv)
-    # print("SVM: ", scores.mean(), "+/-", scores.std()*2)
-    # results.append(scores.mean())
-    # clf.fit(X,y)
-    # print("FF:  ", clf.score(X,y))
-    # results2.append(clf.score(X,y))
+    clf = SVC()
+    scores = cross_val_score(clf, X, y, cv=cv)
+    print("SVM: ", scores.mean(), "+/-", scores.std()*2)
+    results.append(scores.mean())
+    clf.fit(X,y)
+    print("FF:  ", clf.score(X,y))
+    results2.append(clf.score(X,y))
+    results3.append(classcol.eval_model(clf))
 
     print("Cross-Validation")
     for res in results:
@@ -244,4 +317,8 @@ if __name__ == '__main__':
 
     print("Memorization")
     for res in results2:
+        print("%2.1f%%"%(res*100,))
+
+    print("Solutions")
+    for res in results3:
         print("%2.1f%%"%(res*100,))

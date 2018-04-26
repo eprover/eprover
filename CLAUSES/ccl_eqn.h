@@ -1,26 +1,23 @@
 /*-----------------------------------------------------------------------
 
-File  : ccl_eqn.h
+  File  : ccl_eqn.h
 
-Author: Stephan Schulz
+  Author: Stephan Schulz
 
-Contents
+  Contents
 
   The termpair datatype: Rules, Equations, positive and negative
   literals.
 
-  Copyright 1998, 1999 by the author.
+  Copyright 1998-2017 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
+  Created: Fri Mar 13 17:09:13 MET 1998
 
-<1> Fri Mar 13 17:09:13 MET 1998
-    New
-
------------------------------------------------------------------------*/
+  -----------------------------------------------------------------------*/
 
 #ifndef CCL_EQN
 
@@ -47,18 +44,18 @@ typedef enum
    EPIsOriented        =    16, /* s=>t  or s=t ? */
    EPMaxIsUpToDate     =    32, /* Orientation status is up to date */
    EPHasEquiv          =    64, /* Literal has been used in
-               multiset-comparison (and found an
-               equivalent partner) */
+                                   multiset-comparison (and found an
+                                   equivalent partner) */
    EPIsDominated       =   128, /* Literal is dominated by another one */
    EPDominates         =   EPIsDominated, /* Double use of this property
-                    in potentially maximal or
-                    minimal clauses */
+                                             in potentially maximal or
+                                             minimal clauses */
    EPIsUsed            =   256, /* For non-injective subsumption and
-               pattern-generation */
+                                   pattern-generation */
    EPGONatural         =   512, /* Set if left side is bigger in the
-               special (total) ground ordering
-               treating variables as small
-               constants */
+                                   special (total) ground ordering
+                                   treating variables as small
+                                   constants */
    EPIsSelected        =  1024, /* For selective superpostion */
    EPIsPMIntoLit       =  2048, /* For inheriting selection */
    EPFromClauseLit     =  4096, /* This comes from the from clause in
@@ -69,7 +66,7 @@ typedef enum
    EPLPatMinimal       = 16384, /* Eqn l=r is Pattern-Minimal */
    EPRPatMinimal       = 32768, /* Eqn r=l is Pattern-Minimal */
    EPIsSplitLit        = 65636  /* This literal has been introduced by
-               splitting */
+                                   splitting */
 }EqnProperties;
 
 
@@ -116,8 +113,8 @@ typedef enum
 #define EQN_CELL_MEM 24
 #else
 #define EQN_CELL_MEM   (MEMSIZE(EqnCell)+8) /* Just a hack because
-                      SPARCs seem to work
-                      like that... */
+                                               SPARCs seem to work
+                                               like that... */
 #endif
 
 
@@ -219,6 +216,9 @@ Term_p  EqnTBTermParse(Scanner_p in, TB_p bank);
 void    EqnPrint(FILE* out, Eqn_p eq, bool negated, bool fullterms);
 #define EqnPrintOriginal(out, eq)               \
         EqnPrint((out), (eq), normal, true)
+
+void    EqnPrintDeref(FILE* out, Eqn_p eq, DerefType deref);
+
 void    EqnFOFPrint(FILE* out, Eqn_p eq, bool negated, bool fullterms, bool pcl);
 void    EqnTSTPPrint(FILE* out, Eqn_p eq, bool fullterms);
 

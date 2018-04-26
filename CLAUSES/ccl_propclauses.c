@@ -1,25 +1,24 @@
 /*-----------------------------------------------------------------------
 
-File  : ccl_propclauses.c
+  File  : ccl_propclauses.c
 
-Author: Stephan Schulz
+  Author: Stephan Schulz
 
-Contents
+  Contents
 
   Functions for handling propositional clauses.
 
-Copyright 1998-2011 by the author.
+  Copyright 1998-2011 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
+  Changes
 
-<1> Sun Dec 16 17:20:36 CET 2001
-    New
+  Created: Sun Dec 16 17:20:36 CET 2001
 
------------------------------------------------------------------------*/
+  -----------------------------------------------------------------------*/
 
 #include "ccl_propclauses.h"
 
@@ -72,7 +71,7 @@ PropClause_p PropClauseAlloc(Clause_p clause)
    if(clause->literals)
    {
       handle->literals = SizeMalloc(handle->lit_no
-                *sizeof(PropLitCell));
+                                    *sizeof(PropLitCell));
    }
    else
    {
@@ -274,7 +273,7 @@ void PropClauseSetFree(PropClauseSet_p set)
 /----------------------------------------------------------------------*/
 
 long PropClauseSetInsertPropClause(PropClauseSet_p set, PropClause_p
-               clause)
+                                   clause)
 {
    assert(set && clause && set->inspos);
 
@@ -372,19 +371,3 @@ long PropClauseSetMaxVar(PropClauseSet_p set)
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

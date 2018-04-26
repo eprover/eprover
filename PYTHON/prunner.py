@@ -38,7 +38,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program ; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston,
-MA  02111-1307 USA 
+MA  02111-1307 USA
 
 The original copyright holder can be contacted as
 
@@ -86,14 +86,14 @@ class runner(object):
         """
         """
         tmp = self.proc.stdout.read()
-        if tmp =="":            
+        if tmp =="":
             return self.res
 
         self.res = self.res+tmp
         return None
 
     def __repr__(self):
-        return "<running:"+self.cmd+">"
+        return "<running:"+self.cmd.strip()+">"
 
 
 class prunner(object):
@@ -118,7 +118,7 @@ class prunner(object):
                 self.running.append(job)
             print "Running:", self.running
             rd,wr,ev = select.select(self.running, [], [], 1)
-            print rd
+            print "Output ready for ", rd
             for i in rd:
                 print "Checking ", i
                 tmp = i.poll_res()
@@ -128,8 +128,8 @@ class prunner(object):
                     self.running.remove(i)
                     processed = processed+1
         return processed
-            
-            
+
+
 
 
 
@@ -154,7 +154,7 @@ if __name__ == '__main__':
         cpu = pylib_io.run_shell_command(
             'cat /proc/cpuinfo | grep "cpu MHz\|bogomips"|head -2')
         cpu = "".join(["# "+i for i in cpu])
-        
+
     jobs = sys.stdin.readlines()
 
     control = prunner(jobs, cpu)

@@ -30,8 +30,6 @@ Changes
 #include "ccl_clausecpos.h"
 #include <cte_replace.h>
 
-
-//#define PRINT_PARTIAL_PARAMODULATION 1
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
 /*---------------------------------------------------------------------*/

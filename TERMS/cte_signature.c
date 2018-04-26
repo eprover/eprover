@@ -1119,6 +1119,48 @@ int SigAddSymbolArities(Sig_p sig, PDArray_p distrib, bool predicates,
 
 /*-----------------------------------------------------------------------
 //
+// Function: SigCollectSortConsts()
+//
+//   Collect all constant symbols with the given sort onto
+//   res. Untyped symbols are assume to be type STIndividuals. Return
+//   number of constants found.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+long SigCollectSortConsts(Sig_p sig, Type_p sort, PStack_p res)
+{
+   FunCode   i;
+   long      rescount = 0;
+   Type_p    f_sort;
+
+   for(i = sig->internal_symbols+1; i<=sig->f_count; i++)
+   {
+      if(SigFindArity((sig), i) == 0)
+      {
+         f_sort = sig->type_bank->i_type;
+         if(sig->f_info[i].type)
+         {
+            f_sort = sig->f_info[i].type;
+         }
+         if(f_sort==sort)
+         {
+            /* printf("Collecting constant %ld (%s) for sort %d\n", */
+            /*        i, SigFindName(sig, i), sort); */
+            PStackPushInt(res, i);
+            rescount++;
+         }
+      }
+   }
+   return rescount;
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: SigGetOrNCode()
 //
 //   Return FunCode for $orn, create them if non-existant.

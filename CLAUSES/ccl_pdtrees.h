@@ -189,6 +189,7 @@ void      PDTreeSearchExit(PDTree_p tree);
 
 PDTNode_p PDTreeFindNextIndexedLeaf(PDTree_p tree, Subst_p subst);
 
+// TODO : TO BE DELETED
 MatchInfo_p PDTreeFindNextDemodulator(PDTree_p tree, Subst_p subst);
 
 Term_p MatchInfoMatchedPrefix(MatchInfo_p mi, Term_p to_match);

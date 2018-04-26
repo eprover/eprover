@@ -1,27 +1,24 @@
 /*-----------------------------------------------------------------------
 
-File  : eground.c
+  File  : eground.c
 
-Author: Stephan Schulz
+  Author: Stephan Schulz
 
-Contents
+  Contents
 
   Read a problem specification and test wether the problem has a
   finite Herbrand universe. If yes, create at least all ground
   instances of clauses necessary for a ground refutation.
 
-  Copyright 1998, 1999 by the author.
+  Copyright 1998-2017 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
+  Created: Sun May 27 23:35:28 CEST 2001
 
-<1> Sun May 27 23:35:28 CEST 2001
-    New
-
------------------------------------------------------------------------*/
+  -----------------------------------------------------------------------*/
 
 #include <cio_commandline.h>
 #include <cio_output.h>
@@ -104,7 +101,7 @@ OptCell opts[] =
    {OPT_OUTPUT,
     'o', "output-file",
     ReqArg, NULL,
-   "Redirect output into the named file."},
+    "Redirect output into the named file."},
 
    {OPT_SILENT,
     's', "silent",
@@ -384,7 +381,7 @@ int main(int argc, char* argv[])
    VarBank_p       freshvars;
    TypeBank_p      type_bank;
    Sig_p           sig;
-   ClauseSet_p     clauses;
+   ClauseSet_p     clauses, dummy;
    FormulaSet_p    formulas, f_ax_archive;
    GroundSet_p     groundset;
    Scanner_p       in;
@@ -422,6 +419,7 @@ int main(int argc, char* argv[])
    collector    = GCAdminAlloc(terms);
    def_store    = DefStoreAlloc(terms);
    clauses      = ClauseSetAlloc();
+   dummy        = ClauseSetAlloc();
    formulas     = FormulaSetAlloc();
    f_ax_archive = FormulaSetAlloc();
 
@@ -439,12 +437,13 @@ int main(int argc, char* argv[])
       }
 
       /* ClauseSetParseList(in, clauses, terms); */
-      FormulaAndClauseSetParse(in,clauses, formulas, terms,
-         NULL, &skip_includes);
+      FormulaAndClauseSetParse(in, formulas, dummy, terms,
+                               NULL, &skip_includes);
       CheckInpTok(in, NoToken);
       DestroyScanner(in);
    }
    CLStateFree(state);
+   ClauseSetFree(dummy);
 
    if(FormulaSetPreprocConjectures(formulas, f_ax_archive, false, false))
    {
@@ -483,22 +482,22 @@ int main(int argc, char* argv[])
 
    if(!SpecNoEq(&features))
    {
-     Warning("Recoding equational literals. Be sure to include"
-        " equality axioms!\n");
-     ClauseSetEqlitRecode(clauses);
+      Warning("Recoding equational literals. Be sure to include"
+              " equality axioms!\n");
+      ClauseSetEqlitRecode(clauses);
    }
    if(SigFindMaxFunctionArity(sig)&&!ClauseSetIsGround(clauses))
    {
       Error("Grounding not possible: Specification is "
-       "not near-propositional. There is an infinite Herbrand "
-       "universe and there are non-ground clauses in the "
-       "specification!", INPUT_SEMANTIC_ERROR);
+            "not near-propositional. There is an infinite Herbrand "
+            "universe and there are non-ground clauses in the "
+            "specification!", INPUT_SEMANTIC_ERROR);
    }
 
    if(add_single_instance)
    {
       selected_symbol = ClauseSetFindFreqSymbol(clauses, terms->sig,
-                  0, false);
+                                                0, false);
    }
 
    initial_clauses  = clauses->members;
@@ -521,35 +520,35 @@ int main(int argc, char* argv[])
    if(constraints)
    {
       ClauseSetCreateConstrGroundInstances(terms, clauses,
-                  groundset,
-                  unit_sub,
-                  unit_res,
-                  taut_check,
-                  give_up,
-                  0);
+                                           groundset,
+                                           unit_sub,
+                                           unit_res,
+                                           taut_check,
+                                           give_up,
+                                           0);
    }
    else
    {
       ClauseSetCreateGroundInstances(terms, clauses,
-                 groundset,
-                 unit_sub,
-                 unit_res,
-                 taut_check,
-                 give_up);
+                                     groundset,
+                                     unit_sub,
+                                     unit_res,
+                                     taut_check,
+                                     give_up);
    }
    if((groundset->complete!=cpl_complete) && add_single_instance)
    {
       GroundSetState gss_cache = groundset->complete;
       MemIsLow = false; /* Kind of optimistic, but otherwise
-            ClauseSetCreateConstrGroundInstances() will
-            fail immediately */
+                           ClauseSetCreateConstrGroundInstances() will
+                           fail immediately */
       ClauseSetCreateConstrGroundInstances(terms, clauses,
-                  groundset,
-                  unit_sub,
-                  unit_res,
-                  taut_check,
-                  give_up,
-                  selected_symbol);
+                                           groundset,
+                                           unit_sub,
+                                           unit_res,
+                                           taut_check,
+                                           give_up,
+                                           selected_symbol);
       groundset->complete = gss_cache;
    }
    if(OutputLevel == 1)
@@ -567,30 +566,30 @@ int main(int argc, char* argv[])
             max_lit = GroundSetMaxVar(groundset);
          }
 
-    PrintDimacsHeader(GlobalOut, max_lit,
-            GroundSetDimacsPrintMembers(groundset));
-    GroundSetPrintDimacs(GlobalOut, groundset);
+         PrintDimacsHeader(GlobalOut, max_lit,
+                           GroundSetDimacsPrintMembers(groundset));
+         GroundSetPrintDimacs(GlobalOut, groundset);
       }
       else
       {
-    GroundSetPrint(GlobalOut, groundset);
+         GroundSetPrint(GlobalOut, groundset);
       }
       switch(groundset->complete)
       {
       case cpl_complete:
-       fprintf(GlobalOut,
-          "# Full and complete proof state written!\n");
-       break;
+            fprintf(GlobalOut,
+                    "# Full and complete proof state written!\n");
+            break;
       case cpl_lowmem:
-       fprintf(GlobalOut,
-       "# Out of memory: Proof state incomplete!\n");
-       break;
+            fprintf(GlobalOut,
+                    "# Out of memory: Proof state incomplete!\n");
+            break;
       case cpl_timeout:
-       fprintf(GlobalOut,
-       "# Timeout: Proof state incomplete!\n");
-       break;
+            fprintf(GlobalOut,
+                    "# Timeout: Proof state incomplete!\n");
+            break;
       default:
-       assert(false && "Unknown incompleteness?!?");
+            assert(false && "Unknown incompleteness?!?");
       }
    }
    else
@@ -600,14 +599,14 @@ int main(int argc, char* argv[])
    if(print_statistics)
    {
       fprintf(GlobalOut,
-         "\n"
-         "# Initial clauses                      : %ld\n"
-         "# Initial literals                     : %ld\n"
-         "# Generated clauses                    : %ld\n"
-         "# Generated literals                   : %ld\n",
-         initial_clauses, initial_literals,
-         GroundSetMembers(groundset),
-         GroundSetLiterals(groundset));
+              "\n"
+              "# Initial clauses                      : %ld\n"
+              "# Initial literals                     : %ld\n"
+              "# Generated clauses                    : %ld\n"
+              "# Generated literals                   : %ld\n",
+              initial_clauses, initial_literals,
+              GroundSetMembers(groundset),
+              GroundSetLiterals(groundset));
    }
 #ifndef FAST_EXIT
    GroundSetFree(groundset);
@@ -735,15 +734,15 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_MINISCOPE_LIMIT:
             miniscope_limit =  CLStateGetIntArg(handle, arg);
             break;
-     case OPT_SPLIT_TRIES:
-           split_tries = CLStateGetIntArg(handle, arg);
-           if((split_tries < 0))
-           {
-              Error("Argument to option --split-tries "
+      case OPT_SPLIT_TRIES:
+            split_tries = CLStateGetIntArg(handle, arg);
+            if((split_tries < 0))
+            {
+               Error("Argument to option --split-tries "
                      "has to be value greater than or equal to 0 ",
-                    USAGE_ERROR);
-           }
-           break;
+                     USAGE_ERROR);
+            }
+            break;
       case OPT_DISABLE_UNIT_SUBSUMPTION:
             unit_sub = false;
             break;
@@ -778,29 +777,29 @@ CLState_p process_options(int argc, char* argv[])
             break;
       case OPT_CPU_LIMIT:
             HardTimeLimit = CLStateGetIntArg(handle, arg);
-       if(SoftTimeLimit != RLIM_INFINITY)
-       {
-          if(HardTimeLimit<=SoftTimeLimit)
-          {
-             Error("Hard time limit has to be larger than soft"
-                   "time limit", USAGE_ERROR);
-          }
-       }
-       break;
+            if(SoftTimeLimit != RLIM_INFINITY)
+            {
+               if(HardTimeLimit<=SoftTimeLimit)
+               {
+                  Error("Hard time limit has to be larger than soft"
+                        "time limit", USAGE_ERROR);
+               }
+            }
+            break;
       case OPT_SOFTCPU_LIMIT:
             SoftTimeLimit = CLStateGetIntArg(handle, arg);
             if(HardTimeLimit != RLIM_INFINITY)
-       {
-          if(HardTimeLimit<=SoftTimeLimit)
-          {
-             Error("Soft time limit has to be smaller than hard"
-                   "time limit", USAGE_ERROR);
-          }
-       }
+            {
+               if(HardTimeLimit<=SoftTimeLimit)
+               {
+                  Error("Soft time limit has to be smaller than hard"
+                        "time limit", USAGE_ERROR);
+               }
+            }
             break;
       case OPT_PART_COMPLETE:
             add_single_instance = true;
-       break;
+            break;
       case OPT_GIVE_UP:
             give_up = CLStateGetIntArg(handle, arg);
             break;
