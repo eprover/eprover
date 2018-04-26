@@ -13,12 +13,14 @@ def is_fof(file_name):
 def cmp_binaries(bin1, bin2, test_folder, limit=None, timeout=60):
   import os
 
+  print(" {0} <> {1} [{2}:{3}] ({4}s)".format(bin1, bin2, test_folder, limit, timeout))
+
   report = []
 
   file_names = []
 
   for root, dir, files in os.walk(test_folder):
-    for file in filter(is_fof, files):
+    for file in filter(lambda x: True, files):
       file_names.append(os.path.join(root, file))
 
   import random as rnd
