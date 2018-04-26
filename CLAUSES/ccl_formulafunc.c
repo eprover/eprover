@@ -756,6 +756,7 @@ long FormulaAndClauseSetParse(Scanner_p in, FormulaSet_p fset,
                else
                {
                   assert(TestInpId(in, "input_clause|cnf"));
+                  ProblemIsHO = PROBLEM_NOT_HO;
                   //clause = ClauseParse(in, terms);
                   //ClauseSetInsert(cset, clause);
                   form = WFormClauseParse(in, terms);
