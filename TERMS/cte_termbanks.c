@@ -749,7 +749,8 @@ Term_p  TBInsertDisjoint(TB_p bank, Term_p term)
 
    if(TermIsVar(term))
    {
-      t = VarBankVarAssertAlloc(bank->vars, term->f_code+1, term->sort);
+      t = VarBankGetAltVar(bank->vars, term);
+      // t = VarBankVarAssertAlloc(bank->vars, term->f_code+1, term->sort);
    }
    else
    {

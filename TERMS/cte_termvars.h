@@ -34,7 +34,8 @@
 /*                    Data type declarations                           */
 /*---------------------------------------------------------------------*/
 
-/* Associate FunCodes and cells */
+/* Type for storing variables - typically used for storing all
+ * variables of one sort in a defined order. */
 typedef PStack_p VarBankStack_p;
 
 /* Variable banks store information about variables. They contain two
@@ -44,17 +45,29 @@ typedef PStack_p VarBankStack_p;
    index is used for parsing and may be incomplete (i.e. not all
    variable cells will be indexed by a string), the second index
    should be complete (i.e. all variable cells have an entry in the
-   array). */
+   array).
+
+   "Normal variables" have even f_codes -2, -4, -6, ... and are
+   printed as X1, X2, X3. For each "normal" variable, there
+   potentially is a matching "alternative" variable of the same type,
+   but with even f_code (-1, -3, -5, ...). These are printed as Y1,
+   Y2, Y3. respectively. All long-term stored clauses use normal
+   variables. Alternative variables are used for the variable-disjoint
+   copy of the given clause, and (if I can make it work) for
+   term/clause patterns.
+
+*/
 
 typedef struct varbankcell
 {
    long        var_count;
    FunCode     fresh_count; /* FunCode counter for new variables */
    SortTable_p sort_table;  /* Sorts that are used for variables */
-   FunCode     max_var;       /* Largest variable ever created */
-   PDArray_p   varstacks;  /* Maps each sort to a bank of variables
-                            * of these sort available to represent
-                            * external variables. */
+   FunCode     max_var;     /* Largest variable ever created */
+   PDArray_p   varstacks;   /* Maps each sort to a bank of variables
+                             * of these sort (these are e.g. used
+                             * in-order to represent * external
+                             * variables. */
    PDArray_p   v_counts;   /* Number of fresh variables of a given
                             * sort already used. */
    PDArray_p   variables;  /* Array of all variables, indexed by
@@ -79,11 +92,6 @@ typedef struct varbanknamedcell
 
 #define INITIAL_SORT_STACK_SIZE  10
 #define DEFAULT_VARBANK_SIZE   30
-
-/* Variables greater than this are reserved for fresh variables. At
-   the moment this is only used for term pattern generation and term
-   top computing in the learning modules */
-#define FRESH_VAR_LIMIT      1024
 
 #define VarBankCellAlloc() (VarBankCell*)SizeMalloc(sizeof(VarBankCell))
 #define VarBankCellFree(junk)    SizeFree(junk, sizeof(VarBankCell))
@@ -115,8 +123,11 @@ void   VarBankPushEnv(VarBank_p bank);
 void   VarBankPopEnv(VarBank_p bank);
 long   VarBankCardinality(VarBank_p bank);    /* Number of existing variables */
 long   VarBankCollectVars(VarBank_p bank, PStack_p stack);
-#define VarIsFreshVar(var) ((var)->f_code <= -FRESH_VAR_LIMIT)
-#define VarFCodeIsFresh(f_code) ((f_code) <= -FRESH_VAR_LIMIT)
+#define VarFCodeIsAltCode(f_code) ((f_code)%2)
+#define VarIsAltVar(var) (VarFCodeIsAltCode((var)->f_code))
+
+#define VarBankGetAltFreshVar(bank, sort) VarBankGetAltVar((bank), VarBankGetFreshVar((bank), (sort)))
+
 
 
 /*---------------------------------------------------------------------*/
@@ -179,6 +190,30 @@ static __inline__ Term_p VarBankVarAssertAlloc(VarBank_p bank, FunCode f_code,
 
    return var;
 }
+
+/*-----------------------------------------------------------------------
+//
+// Function: VarBankGetAltVar()
+//
+//   Given variable X_n, return Y_n (i.e. the one with f_code
+//   increased by one - -1 goes to -2).
+//
+// Global Variables: -
+//
+// Side Effects    : May change variable bank
+//
+/----------------------------------------------------------------------*/
+
+static __inline__ Term_p VarBankGetAltVar(VarBank_p bank, Term_p term)
+{
+   Term_p var;
+
+   assert(term->f_code < 0);
+   assert(!VarIsAltVar(term));
+   var = VarBankVarAssertAlloc(bank, term->f_code+1, term->sort);
+   return var;
+}
+
 
 
 #endif

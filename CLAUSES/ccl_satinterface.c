@@ -132,7 +132,7 @@ static void litstate_add_satclause(int* state, SatClause_p clause)
    assert(state);
    assert(clause);
 
-   for(i = 0; i<clause->lit_no; i++)
+   for(i=0; i<clause->lit_no; i++)
    {
       lit = clause->literals[i];
       if(lit > 0)
@@ -464,11 +464,11 @@ SatClause_p SatClauseCreateAndStore(Clause_p clause, SatClauseSet_p set)
    assert(clause);
    assert(set);
 
-   /* printf("# PGClause: "); */
-   /* ClausePrint(stdout, clause, true); */
-   /* printf("\n=>"); */
-   /* EqnListPrintDeref(stdout, clause->literals, "|", DEREF_ONCE); */
-   /* printf("\n"); */
+   printf("# PGClause: ");
+   ClausePrint(stdout, clause, true);
+   printf("\n=>");
+   EqnListPrintDeref(stdout, clause->literals, "|", DEREF_ONCE);
+   printf("\n");
 
    handle = SatClauseAlloc(ClauseLiteralNumber(clause));
    handle->source = clause;
@@ -635,7 +635,7 @@ Subst_p SubstPseudoGroundVarBank(VarBank_p vars)
    {
       varstack = PDArrayElementP(vars->varstacks, i);
       // printf("# varstack: %p\n", varstack);
-      if (varstack)
+      if(varstack)
       {
          size = PStackGetSP(varstack);
          // printf("# varstack size: %ld\n", size);
@@ -643,7 +643,7 @@ Subst_p SubstPseudoGroundVarBank(VarBank_p vars)
          {
             norm = PStackElementP(varstack,0);
             // printf("# varstack[1]: %p\n", norm);
-            for(j=1; j< size; j++)
+            for(j=0; j< size; j++)
             {
                current = PStackElementP(varstack,j);
                // printf("# varstack[%ld]: %p\n", j, current);
@@ -690,25 +690,28 @@ Subst_p SubstGroundVarBankFirstConst(TB_p terms, bool norm_const)
       {
          size = PStackGetSP(varstack);
          // printf("# varstack size: %ld\n", size);
-         backup = PStackElementP(varstack,0);
+         if(size)
+         {
+            backup = PStackElementP(varstack,0);
 
-         norm = TBGetFirstConstTerm(terms, i);
-         if(!norm)
-         {
-            norm = backup;
-         }
-         else if(norm_const)
-         {
-            norm = TermFollowRWChain(norm);
-         }
-         // printf("# varstack[1]: %p\n", norm);
-         for(j=0; j< size; j++)
-         {
-            current = PStackElementP(varstack,j);
-            // printf("# varstack[%ld]: %p\n", j, current);
-            if(current)
+            norm = TBGetFirstConstTerm(terms, i);
+            if(!norm)
             {
-               SubstAddBinding(subst, current, norm);
+               norm = backup;
+            }
+            else if(norm_const)
+            {
+               norm = TermFollowRWChain(norm);
+            }
+            // printf("# varstack[1]: %p\n", norm);
+            for(j=0; j< size; j++)
+            {
+               current = PStackElementP(varstack,j);
+               // printf("# varstack[%ld]: %p\n", j, current);
+               if(current)
+               {
+                  SubstAddBinding(subst, current, norm);
+               }
             }
          }
       }
@@ -759,25 +762,28 @@ Subst_p SubstGroundFreqBased(TB_p terms, ClauseSet_p clauses,
       {
          size = PStackGetSP(varstack);
          // printf("# varstack size: %ld\n", size);
-         backup = PStackElementP(varstack,0);
+         if(size)
+         {
+            backup = PStackElementP(varstack,0);
 
-         norm = TBGetFreqConstTerm(terms, i, conj_dist_array, dist_array, is_better);
-         if(!norm)
-         {
-            norm = backup;
-         }
-         else if(norm_const)
-         {
-            norm = TermFollowRWChain(norm);
-         }
-         // printf("# varstack[1]: %p\n", norm);
-         for(j=1; j< size; j++)
-         {
-            current = PStackElementP(varstack,j);
-            // printf("# varstack[%ld]: %p\n", j, current);
-            if(current)
+            norm = TBGetFreqConstTerm(terms, i, conj_dist_array, dist_array, is_better);
+            if(!norm)
             {
-               SubstAddBinding(subst, current, norm);
+               norm = backup;
+            }
+            else if(norm_const)
+            {
+               norm = TermFollowRWChain(norm);
+            }
+            // printf("# varstack[1]: %p\n", norm);
+            for(j=0; j< size; j++)
+            {
+               current = PStackElementP(varstack,j);
+               // printf("# varstack[%ld]: %p\n", j, current);
+               if(current)
+               {
+                  SubstAddBinding(subst, current, norm);
+               }
             }
          }
       }
@@ -809,7 +815,7 @@ long SatClauseSetImportProofState(SatClauseSet_p satset, ProofState_p state,
    assert(satset);
    assert(state);
 
-   // printf("# SatClauseSetImportProofState()\n");
+   printf("# SatClauseSetImportProofState()\n");
 
    switch(strat)
    {
