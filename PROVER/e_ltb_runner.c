@@ -135,6 +135,7 @@ char              *outdir         = NULL;
 long              total_wtc_limit = 0;
 bool              interactive     = false;
 ProblemType problemType  = PROBLEM_NOT_INIT;
+bool        app_encode      = false;
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
