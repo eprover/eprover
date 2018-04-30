@@ -79,6 +79,8 @@ void         FormulaStackCondSetType(PStack_p stack, FormulaProperties type);
 long         FormulaSetCollectFCode(FormulaSet_p set, FunCode f_code,
                                     PStack_p result);
 
+void FormulaSetAppEncode(FILE* out, FormulaSet_p set);
+
 #endif
 
 /*---------------------------------------------------------------------*/

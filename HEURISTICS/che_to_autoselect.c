@@ -833,8 +833,7 @@ OCB_p TOSelectOrdering(ProofState_p state, HeuristicParms_p params,
 
    OrderParmsInitialize(params, &tmp);
 #ifdef ENABLE_LFHO
-
-   if (problemType == PROBLEM_HO)
+   if(problemType == PROBLEM_HO)
    {
       tmp.ordertype = KBO6;
    }
