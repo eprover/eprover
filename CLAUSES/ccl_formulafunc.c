@@ -702,7 +702,7 @@ long FormulaAndClauseSetParse(Scanner_p in, ClauseSet_p cset,
    {
    case LOPFormat:
          //* LOP does not at the moment support full FOF */
-         ProblemIsHO = PROBLEM_NOT_HO;
+         SetProblemType(PROBLEM_FO)
          while(ClauseStartsMaybe(in))
          {
             form = WFormClauseParse(in, terms);
@@ -758,7 +758,7 @@ long FormulaAndClauseSetParse(Scanner_p in, ClauseSet_p cset,
                   assert(TestInpId(in, "input_clause|cnf"));
                   //clause = ClauseParse(in, terms);
                   //ClauseSetInsert(cset, clause);
-                  ProblemIsHO = PROBLEM_NOT_HO;
+                  SetProblemType(PROBLEM_FO);
                   form = WFormClauseParse(in, terms);
                   FormulaSetInsert(fset, form);
                }
@@ -838,7 +838,6 @@ long TFormulaToCNF(WFormula_p form, FormulaProperties type, ClauseSet_p set,
       else
       {
          clause = TFormulaCollectClause(handle, terms, fresh_vars);
-
          ClauseSetTPTPType(clause, type);
          DocClauseFromForm(GlobalOut, OutputLevel, clause, form);
          ClausePushDerivation(clause, DCSplitConjunct, form, NULL);

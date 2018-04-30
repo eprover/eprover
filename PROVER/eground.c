@@ -363,7 +363,7 @@ long   give_up = 0,
        miniscope_limit  = 1000,
        initial_literals = 0,
        initial_clauses = 0;
-int ProblemIsHO = PROBLEM_NOT_INIT;
+ProblemType problemType  = PROBLEM_NOT_INIT;
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */

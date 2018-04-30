@@ -100,7 +100,7 @@ pid_t              pid = 0;
 
 FunctionProperties free_symb_prop = FPIgnoreProps;
 
-int ProblemIsHO = PROBLEM_NOT_INIT;
+ProblemType problemType  = PROBLEM_NOT_INIT;
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
@@ -543,7 +543,7 @@ int main(int argc, char* argv[])
 
 #ifdef ENABLE_LFHO
    // if the problem is HO -> we have to use KBO6
-   assert(ProblemIsHO != PROBLEM_IS_HO || proofcontrol->ocb->type == KBO6);
+   assert(problemType != PROBLEM_HO || proofcontrol->ocb->type == KBO6);
 #endif
 
    if(!success)

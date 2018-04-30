@@ -761,7 +761,7 @@ void TermStackDelProps(PStack_p stack, TermProperties prop)
 
 bool TermIsPrefix(Term_p needle, Term_p haystack)
 {
-   assert(ProblemIsHO == PROBLEM_IS_HO);
+   assert(problemType == PROBLEM_HO);
    bool res = false;
    int  i;
    if (needle)

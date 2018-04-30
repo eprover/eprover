@@ -76,17 +76,13 @@ static bool instance_is_rule(OCB_p ocb, TB_p bank,
    else if(TermHasUnboundVariables(rside))
    {
       RewriteUnboundVarFails++;
-      //fprintf(stderr, " rhs has unbound vars -- fail.\n");
       return false;
    }
    if(SubstIsRenaming(subst)) /* Save comparisons */
    {
-      //fprintf(stderr, " subst is renaming -- fail.\n");
       return false;
    }
-   bool res =  TOGreater(ocb, lside, rside, DEREF_ONCE, DEREF_ONCE);
-   //fprintf(stderr, res ? " lhs > rhs -- OK.\n" : "lhs <?> rhs -- NOT OK.\n");
-   return res;
+   return TOGreater(ocb, lside, rside, DEREF_ONCE, DEREF_ONCE);
 }
 
 
@@ -104,31 +100,6 @@ static bool instance_is_rule(OCB_p ocb, TB_p bank,
 //
 /----------------------------------------------------------------------*/
 
-static 
-//__TEMP__DBG__
-void print_rewrite_rule(Clause_p demod, RWDesc_p desc, Term_p left, Term_p right)
-{
-   Term_p lhs = demod->literals->lterm;
-   Term_p rhs = demod->literals->rterm;
-   OCB_p ocb = desc->ocb;
-
-   fprintf(stderr, "Rewritten ");
-   TermPrint(stderr, left, ocb->sig, DEREF_NEVER);
-   fprintf(stderr, " to ");
-   TermPrint(stderr, right, ocb->sig, DEREF_NEVER);
-   fprintf(stderr, " KBO6= %s.\n", POCompareSymbol[TOCompare(ocb, left, right, DEREF_NEVER, DEREF_NEVER)]);
-
-   fprintf(stderr, " [ rewrite rule ");
-   TermPrint(stderr, lhs, demod->literals->bank->sig, DEREF_NEVER);
-   fprintf(stderr, " -> ");
-   TermPrint(stderr, rhs, demod->literals->bank->sig, DEREF_NEVER);
-
-   CompareResult cmp_res = TOCompare(ocb, lhs, rhs, DEREF_NEVER, DEREF_NEVER);
-   fprintf(stderr, ", KBO6 cmp %s, EqOritented %d) ].\n", POCompareSymbol[cmp_res],
-                                                          EqnIsOriented(demod->literals));
-}
-
-
 /* static */ Term_p term_follow_top_RW_chain(Term_p term, RWDesc_p desc,
                                              bool restricted_rw)
 {
@@ -143,13 +114,9 @@ void print_rewrite_rule(Clause_p demod, RWDesc_p desc, Term_p left, Term_p right
          desc->sos_rewritten = true;
       }
 
-#ifndef NDEBUG
-      if(!TOGreater(desc->ocb, term, TermRWReplaceField(term), DEREF_NEVER, DEREF_NEVER))
-      {
-         print_rewrite_rule(TermRWDemodField(term), desc, term, TermRWReplaceField(term));
-         assert(false);
-      }
-#endif
+      assert(!TOGreater(desc->ocb, term, TermRWReplaceField(term), 
+                        DEREF_NEVER, DEREF_NEVER));
+
       term = TermRWReplaceField(term);
       assert(term);
    }
@@ -196,7 +163,7 @@ static RWResultType term_is_top_rewritable(TB_p bank, OCB_p ocb,
    if((remains = SubstMatchPossiblyPartial(eqn->lterm, term, subst, bank)) != NOT_MATCHED)
    {
       BWRWMatchSuccesses++;
-      assert(ProblemIsHO == PROBLEM_NOT_HO || !remains);
+      assert(problemType == PROBLEM_FO || !remains);
       if((EqnIsOriented(eqn)
             || instance_is_rule(ocb, eqn->bank, eqn->lterm, eqn->rterm, subst)))
       {
@@ -486,12 +453,11 @@ MatchInfo_p indexed_find_demodulator(OCB_p ocb, Term_p term,
    ClausePos_p pos, res = NULL;
    MatchInfo_p match_info;
 
-
    assert(term);
    assert(demodulators);
    assert(demodulators->demod_index);
-   assert(term->weight == TermWeight(term, DEFAULT_VWEIGHT,
-      DEFAULT_FWEIGHT));
+   assert(term->weight == 
+            TermWeight(term, DEFAULT_VWEIGHT, DEFAULT_FWEIGHT));
    assert(!TermIsTopRewritten(term));
 
    RewriteAttempts++;
@@ -545,7 +511,6 @@ MatchInfo_p indexed_find_demodulator(OCB_p ocb, Term_p term,
       }
       if(res)
       {
-         //fprintf(stderr, "breaking.\n");
          break;
       }
       MatchInfoFree(match_info);
@@ -605,11 +570,11 @@ MatchInfo_p indexed_find_demodulator(OCB_p ocb, Term_p term,
    if(mi)
    {
       RewriteSuccesses++;
-      assert(ProblemIsHO == PROBLEM_IS_HO || mi->trailing_args == 0);
+      assert(problemType == PROBLEM_HO || mi->trailing_args == 0);
 
       repl = TBInsertInstantiated(bank, ClausePosGetOtherSide(mi->matcher));
 
-      if (ProblemIsHO == PROBLEM_IS_HO)
+      if (problemType == PROBLEM_HO)
       {
          /* To make sure remaining arguments of the term to be rewritten
             are variable-disjoint from the demodulator */
@@ -620,26 +585,7 @@ MatchInfo_p indexed_find_demodulator(OCB_p ocb, Term_p term,
          }      
       } 
 
-      assert(mi->matcher->clause->ident);
-#ifndef NDEBUG
-      if(!TOGreater(ocb, term, repl, DEREF_NEVER, DEREF_NEVER))
-      {
-         fprintf(stderr, "lhs: ");
-         TermPrint(stderr, ClausePosGetSide(mi->matcher), bank->sig, DEREF_NEVER);
-         fprintf(stderr, " of type ");
-         TypePrintTSTP(stderr, bank->sig->type_bank, ClausePosGetSide(mi->matcher)->type);
-         fprintf(stderr, " ( instantiated ");
-         TermPrint(stderr, ClausePosGetSide(mi->matcher), bank->sig, DEREF_ONCE);
-         fprintf(stderr, " ) \n rhs: ");
-         TermPrint(stderr, ClausePosGetOtherSide(mi->matcher), bank->sig, DEREF_NEVER);
-         fprintf(stderr, " ( instantiated ");
-         TermPrint(stderr, ClausePosGetOtherSide(mi->matcher), bank->sig, DEREF_ONCE);
-         fprintf(stderr, " ). \n");
-         fprintf(stderr, "Query term: ");
-         TermPrint(stderr, term, bank->sig, DEREF_NEVER);
-      }
-#endif
-      
+      assert(mi->matcher->clause->ident);    
       TermAddRWLink(term, repl, mi->matcher->clause, ClauseIsSOS(mi->matcher->clause),
                     restricted_rw?RWAlwaysRewritable:RWLimitedRewritable);
       term = repl;
@@ -819,7 +765,6 @@ static Term_p term_li_normalform(RWDesc_p desc, Term_p term,
          term->rw_data.nf_date[RewriteAdr(FullRewrite)] = desc->demod_date;
       }
    }
-
    return term;
 }
 
@@ -1020,14 +965,12 @@ static long term_find_rw_clauses(Clause_p demod,
          if(!TermIsRewritten(term) || (rwres == RWAlwaysRewritable))
          {
             Term_p tmp_rewritten = MakeRewrittenTerm(term, rterm, remains);
-
             rterm = TBInsertInstantiated(eqn->bank, tmp_rewritten);
 
-            if (remains)
+            if(remains)
             {
                TermTopFree(tmp_rewritten);
             }
-
             TermAddRWLink(term, rterm, demod, ClauseIsSOS(demod), rwres);
             //TermDeleteRWLink(term);
          }

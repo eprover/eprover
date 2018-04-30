@@ -96,7 +96,7 @@ char              *outdesc = DEFAULT_OUTPUT_DESCRIPTOR,
 PStack_p          wfcb_definitions, hcb_definitions;
 char              *sine=NULL;
 pid_t              pid = 0;
-int               ProblemIsHO = PROBLEM_NOT_INIT;
+ProblemType problemType  = PROBLEM_NOT_INIT;
 
 FunctionProperties free_symb_prop = FPIgnoreProps;
 
