@@ -42,11 +42,33 @@ unsigned long PDTNodeCounter = 0;
 /*---------------------------------------------------------------------*/
 
 static long pdt_compute_size_constraint(PDTNode_p node);
-static __inline__ void add_unapplied_rest(PStack_p term_stack, int start_from, Term_p to_match);
 
 /*---------------------------------------------------------------------*/
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
+
+/*-----------------------------------------------------------------------
+//
+// Function: add_unapplied_rest()
+//
+//   Puts arguments that are trailing to the term stack. 
+//   Determines the number of trailing arguments based on eaten_args.
+//
+// Global Variables: -
+//
+// Side Effects    : - 
+//
+/----------------------------------------------------------------------*/
+
+static __inline__ void add_unapplied_rest(PStack_p term_stack, int eaten_args, Term_p to_match)
+{
+   // make up for app encoding
+   int limit = eaten_args + (TermIsAppliedVar(to_match) ? 1 : 0);
+   for(int i=to_match->arity-1; i >= limit; i--)
+   {
+      PStackPushP(term_stack, to_match->args[i]);
+   }
+}
 
 
 /*-----------------------------------------------------------------------
@@ -87,24 +109,6 @@ static void pdtree_default_cell_free(PDTNode_p junk)
 //
 /----------------------------------------------------------------------*/
 
-bool any_branch(PDTNode_p n)
-{
-   for(int i=0; i<PDArraySize(n->v_alternatives); i++)
-   {
-      if (PDArrayElementP(n->v_alternatives, i))
-      {
-         return true;
-      }
-   }
-
-   IntMapIter_p iter = IntMapIterAlloc(n->f_alternatives, 0, LONG_MAX);
-   long val;
-   bool res = IntMapIterNext(iter, &val) != NULL;
-   IntMapIterFree(iter);
-
-   return res;
-}
-
 static void* pdt_select_alt_ref(PDTree_p tree, PDTNode_p node, Term_p term)
 {
    void* res;
@@ -127,8 +131,6 @@ static void* pdt_select_alt_ref(PDTree_p tree, PDTNode_p node, Term_p term)
    //assert(any_branch(node) || node->leaf);
    return res;
 }
-
-
 
 
 /*-----------------------------------------------------------------------
@@ -515,31 +517,14 @@ static bool pdtree_verify_node_constr(PDTree_p tree)
 //
 /----------------------------------------------------------------------*/
 
-void print_term_stack(PStack_p stack, Sig_p sig)
-{
-   fprintf(stderr, "Term stack contents: \n");
-   for(int i=PStackGetSP(stack)-1; i>=0; i--)
-   {
-      fprintf(stderr, "Term at position %d: ", i);
-      TermPrint(stderr, PStackElementP(stack, i), sig, DEREF_NEVER);
-      fprintf(stderr, "\n");
-   }
-
-}
-
 static void pdtree_forward(PDTree_p tree, Subst_p subst)
 {
    PDTNode_p handle = tree->tree_pos, next = NULL;
    FunCode   i = tree->tree_pos->trav_count, limit;
    Term_p    term = PStackGetSP(tree->term_stack) ? PStackTopP(tree->term_stack) : NULL;
 
-   /*fprintf(stderr, "At the beginning of pdtree_forward\n");
-   print_term_stack(tree->term_stack, tree->sig);*/
-
-   // we might have term f g b to match but in the tree there is term f g b x y 
    if (!term)
    {
-      //fprintf(stderr, "#! left because term is empty\n");
       tree->tree_pos->trav_count = PDT_NODE_CLOSED(tree, handle);
    }
 
@@ -577,13 +562,13 @@ static void pdtree_forward(PDTree_p tree, Subst_p subst)
        {
           assert(next->variable);
           bool bound = false;
-          if((!next->variable->binding)&&(ProblemIsHO == PROBLEM_IS_HO || !TermCellQueryProp(term,TPPredPos)))
+          if((!next->variable->binding)&&(problemType == PROBLEM_HO || !TermCellQueryProp(term,TPPredPos)))
           {
-             if (ProblemIsHO == PROBLEM_NOT_HO)
+             if (problemType == PROBLEM_FO)
              {
-               // FIXME: this assertion might fail at the top level sometimes.
+               // FIXME: Note 2 Stephan -- this might fail at the top level. 
+               // It would be useful to run E on whole TPTP library and see if this happens
                assert(next->variable->type == term->type);
-               //fprintf(stderr, "Matched simple var\n");
                PStackDiscardTop(tree->term_stack);
                SubstAddBinding(subst, next->variable, term);  
                bound = true;
@@ -601,18 +586,6 @@ static void pdtree_forward(PDTree_p tree, Subst_p subst)
                   {
                     add_unapplied_rest(tree->term_stack, matched_up_to, term);  
                   }
-                  
-                  /*fprintf(stderr, "Matched variable ");
-                  TermPrint(stderr, next->variable, tree->sig, DEREF_NEVER);
-                  fprintf(stderr, " of type ");
-                  TypePrintTSTP(stderr, tree->sig->type_bank, next->variable->type);
-                  fprintf(stderr, " to term ( %d) ", matched_up_to);
-                  TermPrint(stderr, term, tree->sig, DEREF_NEVER);
-                  fprintf(stderr, " with binding ");
-                  TermPrint(stderr, next->variable->binding, tree->sig, DEREF_NEVER);
-                  fprintf(stderr, ". \n");
-                  fprintf(stderr, "After matching applied var\n");
-                  print_term_stack(tree->term_stack, tree->sig);*/
 
                   bound = true;
                }
@@ -634,11 +607,11 @@ static void pdtree_forward(PDTree_p tree, Subst_p subst)
           
          }
          else if(next->variable->binding == term || 
-                 (ProblemIsHO == PROBLEM_IS_HO && TermIsPrefix(next->variable->binding, term)))
+                 (problemType == PROBLEM_HO && TermIsPrefix(next->variable->binding, term)))
          {
             //fprintf(stderr, "Got into next->variable->binding prefix part.\n");
             PStackDiscardTop(tree->term_stack);
-            if (ProblemIsHO == PROBLEM_IS_HO)
+            if (problemType == PROBLEM_HO)
             {
                PStackPushP(tree->term_proc, term);
                int args_eaten = next->variable->binding->arity - 
@@ -683,7 +656,7 @@ static void pdtree_backtrack(PDTree_p tree, Subst_p subst)
    {
       tree->term_weight  += (TermStandardWeight(handle->variable->binding) -
                              TermStandardWeight(handle->variable));
-      if (ProblemIsHO == PROBLEM_NOT_HO)
+      if (problemType == PROBLEM_FO)
       {
          PStackPushP(tree->term_stack, handle->variable->binding);
          if(handle->bound)
@@ -696,28 +669,11 @@ static void pdtree_backtrack(PDTree_p tree, Subst_p subst)
       {
          Term_p original_term = PStackPopP(tree->term_proc);
 
-         /*fprintf(stderr, "Backtracking original term ");
-         TermPrint(stderr, original_term, tree->sig, DEREF_NEVER);
-         fprintf(stderr, " with applied variable ");
-         TermPrint(stderr, handle->variable, tree->sig, DEREF_NEVER);
-         fprintf(stderr, " that is bound to ");
-         TermPrint(stderr, handle->variable->binding, tree->sig, DEREF_NEVER);
-         fprintf(stderr, " with arities: orig(%d), binding(%d) and top of the stack ", 
-                 original_term->arity, handle->variable->binding->arity);
-         PStackGetSP(tree->term_stack) ? 
-          TermPrint(stderr, PStackTopP(tree->term_stack), tree->sig, DEREF_NEVER) : fprintf(stderr, "stack empty");
-         fprintf(stderr, ".\n");
-         fprintf(stderr, "Before backtracking applied var\n");
-         print_term_stack(tree->term_stack, tree->sig);*/
-
          TermLRTraversePrevAppVar(tree->term_stack, original_term, handle->variable);
          if (handle->bound)
          {
             SubstBacktrackSingle(subst);
          }
-
-         /*fprintf(stderr, "After backtracking applied var\n");
-         print_term_stack(tree->term_stack, tree->sig);*/
       }
       
    }
@@ -726,15 +682,7 @@ static void pdtree_backtrack(PDTree_p tree, Subst_p subst)
       Term_p t = PStackPopP(tree->term_proc);
 
       UNUSED(t); assert(t);
-
-      /*fprintf(stderr, "Before backtracking term\n");
-      print_term_stack(tree->term_stack, tree->sig);*/
-
       TermLRTraversePrev(tree->term_stack,t);
-      
-      /*fprintf(stderr, "After backtracking term\n");
-      print_term_stack(tree->term_stack, tree->sig);*/
-
    }
    tree->tree_pos = handle->parent;
 }
@@ -1034,6 +982,21 @@ Term_p TermLRTraversePrev(PStack_p stack, Term_p term)
    return term;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: TermLRTraversePrevAppVar()
+//
+//   Undoing binding applied variable. Differs from undoing binding
+//   normal variable since the term bound is not always the whole term
+//   on top of the stack -- applied variables can possibly match
+//   prefixes.
+//
+// Global Variables: -
+//
+// Side Effects    : Stack changes
+//
+/----------------------------------------------------------------------*/
+
 Term_p TermLRTraversePrevAppVar(PStack_p stack, Term_p original_term, Term_p var)
 {
    Term_p tmp;
@@ -1043,7 +1006,7 @@ Term_p TermLRTraversePrevAppVar(PStack_p stack, Term_p original_term, Term_p var
    assert(original_term->arity >= var->binding->arity);
 
    int to_backtrack_nr = original_term->arity - var->binding->arity;
-   if (TermIsAppliedVar(original_term) && TermIsVar(var->binding))
+   if(TermIsAppliedVar(original_term) && TermIsVar(var->binding))
    {
       to_backtrack_nr--;
    }
@@ -1052,7 +1015,6 @@ Term_p TermLRTraversePrevAppVar(PStack_p stack, Term_p original_term, Term_p var
    {
       tmp = PStackPopP(stack);
       UNUSED(tmp); 
-      // 0 based indexing
       assert(tmp == original_term->args[var->binding->arity + i + 
                                        (TermIsAppliedVar(original_term) && TermIsVar(var->binding))]); 
    }
@@ -1106,8 +1068,6 @@ void PDTreeInsert(PDTree_p tree, ClausePos_p demod_side)
    {
       if (TermIsAppliedVar(curr))
       {
-         // good place to check preservation of invariant
-         assert(curr->f_code == SIG_APP_VAR_CODE);
          curr = TermLRTraverseNext(tree->term_stack);
          continue; // skipping the symbol for applied var.
       }
@@ -1173,17 +1133,6 @@ long PDTreeDelete(PDTree_p tree, Term_p term, Clause_p clause)
    assert(tree->tree);
    assert(term);
    assert(clause);
-
-
-   //fprintf(stderr, "# called remove!\n");
-   /* printf("\nRemoving: ");
-   ClausePrint(stdout, clause, true);
-   if(clause->literals)
-   {
-      printf("-- term: ");
-      TBPrintTerm(stdout, clause->literals->bank, term, true);
-   }
-   printf("\n"); */
 
    TermLRTraverseInit(tree->term_stack, term);
    node = tree->tree;
@@ -1273,13 +1222,6 @@ void PDTreeSearchInit(PDTree_p tree, Term_p term, SysDate age_constr,
 {
    assert(!tree->term);
 
-   /*fprintf(stderr, "*** Started matchig for term ");
-   TermPrint(stderr, term, tree->sig, DEREF_NEVER);
-   fprintf(stderr, ".\n");
-
-   fprintf(stderr, "*** Currently in the tree\n");
-   PDTreePrint(stderr, tree);*/
-
    TermLRTraverseInit(tree->term_stack, term);
    PStackReset(tree->term_proc);
    tree->tree_pos         = tree->tree;
@@ -1336,7 +1278,7 @@ PDTNode_p PDTreeFindNextIndexedLeaf(PDTree_p tree, Subst_p subst)
    while(tree->tree_pos)
    {
       // if it is FOL problem, then if it has entries it is a leaf
-      assert(ProblemIsHO == PROBLEM_IS_HO || !tree->tree_pos->entries || tree->tree_pos->leaf);
+      assert(problemType == PROBLEM_HO || !tree->tree_pos->entries || tree->tree_pos->leaf);
       if(!pdtree_verify_node_constr(tree)||
          (tree->tree_pos->trav_count==PDT_NODE_CLOSED(tree,tree->tree_pos)))
       {
@@ -1384,7 +1326,6 @@ MatchInfo_p PDTreeFindNextDemodulator(PDTree_p tree, Subst_p subst)
    {
       if(tree->store_stack)
       {
-         //fprintf(stderr, "Returning from store stack.");
          res_cell = PTreeTraverseNext(tree->store_stack);
          if(res_cell)
          {
@@ -1428,53 +1369,6 @@ void PDTreePrint(FILE* out, PDTree_p tree)
    pdt_node_print(out, tree->tree, 0);
 }
 
-// gets number of eaten args and put whatever is not eaten to stack 
-static __inline__ void add_unapplied_rest(PStack_p term_stack, int eaten_args, Term_p to_match)
-{
-   // make up for app encoding
-   int limit = eaten_args + (TermIsAppliedVar(to_match) ? 1 : 0);
-   for(int i=to_match->arity-1; i >= limit; i--)
-   {
-      PStackPushP(term_stack, to_match->args[i]);
-   }
-}
-
-MatchInfo_p CreateMatchInfo(int remaining, ClausePos_p clause)
-{
-   MatchInfo_p match_info = MatchInfoAlloc();
-   match_info->trailing_args = remaining;
-   match_info->matcher = clause;
-   return match_info;
-}
-
-bool MatchInfoAllIsMatched(MatchInfo_p mi)
-{
-   return mi->trailing_args == 0;
-}
-
-int MatchInfoGetPrefixPosition(MatchInfo_p mi, Term_p t)
-{
-   return t->arity - mi->trailing_args;
-}
-
-Term_p MatchInfoMatchedPrefix(MatchInfo_p mi, Term_p to_match)
-{
-   if (!mi || MatchInfoAllIsMatched(mi))
-   {
-      return to_match;
-   }
-   else 
-   {
-      return mi ? TermCreatePrefix(to_match, MatchInfoGetPrefixPosition(mi, to_match)) : NULL;
-   }
-
-   
-}
-
-Term_p GetMatcher(MatchInfo_p mi)
-{
-  return mi ? ClausePosGetOtherSide(mi->matcher): NULL;
-}
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */

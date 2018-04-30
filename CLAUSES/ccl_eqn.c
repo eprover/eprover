@@ -313,7 +313,7 @@ static bool eqn_parse_infix(Scanner_p in, TB_p bank, Term_p *lref,
 
 
    bool in_parens = false;
-   if (ProblemIsHO == PROBLEM_IS_HO && TestInpTok(in, OpenBracket))
+   if (problemType == PROBLEM_HO && TestInpTok(in, OpenBracket))
    {
       AcceptInpTok(in, OpenBracket);
       in_parens = true;
@@ -323,15 +323,18 @@ static bool eqn_parse_infix(Scanner_p in, TB_p bank, Term_p *lref,
    
    BOOL_TERM_NORMALIZE(lterm);
 
-   // IN HO CASE EVERYTHING IS TYPED SO WE DON'T NEED THOSE SHORTCUTS.
-   if(ProblemIsHO == PROBLEM_NOT_HO && !TermIsVar(lterm) && SigIsPredicate(bank->sig,lterm->f_code) &&
+   /* Shortcut not to check for equality -- 
+         !TermIsVar guards calls to other funs */
+   if(problemType == PROBLEM_FO && !TermIsVar(lterm) && SigIsPredicate(bank->sig,lterm->f_code) &&
       SigIsFixedType(bank->sig, lterm->f_code))
    {
       rterm = bank->true_term; /* Non-Equational literal */
    }
    else
    {
+      /* If we have a predicate variable then = might not come */
       if((TermIsVar(lterm) && !TypeIsPredicate(lterm->type))
+              /* guarding SigIsFunction */
           || (!TermIsVar(lterm) && SigIsFunction(bank->sig, lterm->f_code)))
       {
          if (in_parens && TestInpTok(in, CloseBracket))
@@ -361,7 +364,7 @@ static bool eqn_parse_infix(Scanner_p in, TB_p bank, Term_p *lref,
             in_parens = false;
          }
 
-         if (!TermIsAppliedVar(lterm) && ProblemIsHO == PROBLEM_NOT_HO)
+         if (!TermIsAppliedVar(lterm) && problemType == PROBLEM_FO)
          {
             TypeDeclareIsNotPredicate(bank->sig, lterm);   
          }
@@ -372,12 +375,13 @@ static bool eqn_parse_infix(Scanner_p in, TB_p bank, Term_p *lref,
          AcceptInpTok(in, NegEqualSign|EqualSign);
 
          rterm = TBTermParse(in, bank);
-         // in ho everything is typed
-         if (!TermIsAppliedVar(lterm) && ProblemIsHO == PROBLEM_NOT_HO)
+         
+         // We have to make those declarations only for FO problems
+         if (!TermIsAppliedVar(lterm) && problemType == PROBLEM_FO)
          {
             TypeDeclareIsNotPredicate(bank->sig, lterm);
          }
-         if(!TermIsVar(rterm) && !TermIsAppliedVar(rterm) && ProblemIsHO == PROBLEM_NOT_HO)
+         if(!TermIsVar(rterm) && !TermIsAppliedVar(rterm) && problemType == PROBLEM_FO)
          {
             TypeDeclareIsNotPredicate(bank->sig, rterm);
          }
@@ -684,8 +688,6 @@ Eqn_p EqnParse(Scanner_p in, TB_p bank)
 }
 
 
-
-
 /*-----------------------------------------------------------------------
 //
 // Function: EqnFOFParse()
@@ -709,6 +711,21 @@ Eqn_p EqnFOFParse(Scanner_p in, TB_p bank)
 
    return handle;
 }
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: EqnHOFParse()
+//
+//   Parse a literal in THF format. Because of many peculiarities with 
+//   parentheses in THF, we might have to continue on parsing the formula
+//   from the point where the function has been called.  
+//
+// Global Variables: -
+//
+// Side Effects    : Input
+//
+/----------------------------------------------------------------------*/
 
 Eqn_p EqnHOFParse(Scanner_p in, TB_p bank, bool* continue_parsing)
 {
@@ -821,6 +838,7 @@ Term_p EqnTermsTBTermEncode(TB_p bank, Term_p lterm, Term_p rterm, bool
    return handle;
 }
 
+
 /*-----------------------------------------------------------------------
 //
 // Function: EqnTBTermDecode()
@@ -878,7 +896,6 @@ Term_p EqnTBTermParse(Scanner_p in, TB_p bank)
 }
 
 
-
 /*-----------------------------------------------------------------------
 //
 // Function: EqnPrint()
@@ -900,11 +917,6 @@ void EqnPrint(FILE* out, Eqn_p eq, bool negated,  bool fullterms)
    bool positive = XOR(EqnIsPositive(eq), negated);
 
    /* TermPrintAllCPos(out, eq->bank, eq->lterm);*/
-
-#ifdef PRINT_SELECTION
-   EqnIsSelected(eq) ? fputc('*', out) : fputc('-', out);
-   EqnIsMaximal(eq)  ? fputc('^', out) : fputc('_', out);
-#endif
 
 #ifdef MARK_MAX_EQNS
    if(EqnIsMaximal(eq))
@@ -1073,6 +1085,19 @@ void EqnFOFPrint(FILE* out, Eqn_p eq, bool negated,  bool fullterms, bool pcl)
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: EqnAppEncode()
+//
+//   Encodes both sides of the equation using applicative encoding.
+//   Does not change original equation.
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
 void EqnAppEncode(FILE* out, Eqn_p eq, bool negated)
 {
    bool positive = XOR(EqnIsPositive(eq), negated);
@@ -1118,11 +1143,6 @@ void EqnAppEncode(FILE* out, Eqn_p eq, bool negated)
 
 void EqnTSTPPrint(FILE* out, Eqn_p eq, bool fullterms)
 {
-#ifdef PRINT_SELECTION
-   EqnIsSelected(eq) ? fputc('*', out) : fputc('-', out);
-   EqnIsMaximal(eq)  ? fputc('^', out) : fputc('_', out);
-#endif
-
    if(EqnIsPropFalse(eq))
    {
       fputs("$false", out);
@@ -1291,6 +1311,7 @@ Eqn_p EqnCopyRepl(Eqn_p eq, TB_p bank, Term_p old, Term_p repl)
 
    return handle;
 }
+
 
 /*-----------------------------------------------------------------------
 //
@@ -1499,9 +1520,7 @@ bool EqnHasUnboundVars(Eqn_p eq, EqnSide domside)
 
 EqnSide EqnIsDefinition(Eqn_p eq, int min_arity)
 {
-   // Definition unfolding for applied variables is disabled.
-   if(EqnIsNegative(eq) || 
-         TermIsAppliedVar(eq->lterm) || TermIsAppliedVar(eq->rterm))
+   if(EqnIsNegative(eq))
    {
       return NoSide;
    }
@@ -1555,21 +1574,16 @@ int EqnSubsumeQOrderCompare(const void* lit1, const void* lit2)
 
    if (!EqnIsEquLit(l1))
    {
-      // In HO case, we might have variables that we want to keep at the end
-      // (comparing them by the weight) -- predicate variables (imagine ~X2)
-      if (ProblemIsHO == PROBLEM_NOT_HO)
+      // because variables might appear at predicate positions,
+      // all nonequational literals belong to the same class in HOL
+      if (problemType == PROBLEM_FO)
       {
          res = CMP(l1->lterm->f_code, l2->lterm->f_code);   
       }
-      /*else
-      {
-         return TermIsTopLevelVar(l1->lterm) ? (TermIsTopLevelVar(l2->lterm) ? 0 : -1)
-                 : (TermIsTopLevelVar(l2->lterm) ? 1 : CMP(l1->lterm->f_code, l2->lterm->f_code));
-      }*/
-      
    }
    return res;
 }
+
 
 /*-----------------------------------------------------------------------
 //

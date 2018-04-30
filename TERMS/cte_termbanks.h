@@ -182,26 +182,26 @@ long    TBTermCollectSubterms(Term_p term, PStack_p collector);
 
 Term_p __inline__ TBTermParse(Scanner_p in, TB_p bank)
 {
-   if (ProblemIsHO == PROBLEM_IS_HO)
+   if (problemType == PROBLEM_HO)
    {
       return TBTermParseRealHO(in, bank, true);
    }
    else
    {
-      assert(ProblemIsHO == PROBLEM_NOT_HO);
+      assert(problemType == PROBLEM_FO);
       return TBTermParseReal(in, bank, true);
    }
 }
 
 Term_p __inline__ TBRawTermParse(Scanner_p in, TB_p bank)
 {
-   if (ProblemIsHO == PROBLEM_IS_HO)
+   if (problemType == PROBLEM_HO)
    {      
       return TBTermParseRealHO(in, bank, false);
    }
    else
    {
-      assert(ProblemIsHO == PROBLEM_NOT_HO);
+      assert(problemType == PROBLEM_FO);
       return TBTermParseReal(in, bank, false);
    }
 }

@@ -271,7 +271,7 @@ static void set_maximal_0(OCB_p ocb)
 {
    assert(ocb->precedence||ocb->prec_weights);
 /*#ifdef ENABLE_LFHO
-   if (ProblemIsHO == PROBLEM_IS_HO)
+   if (problemType == PROBLEM_HO)
    {
       return;
    }
@@ -310,7 +310,7 @@ static void set_maximal_unary_0(OCB_p ocb)
 {
    assert(ocb->precedence||ocb->prec_weights);
 /*#ifdef ENABLE_LFHO
-   if (ProblemIsHO == PROBLEM_IS_HO)
+   if (problemType == PROBLEM_HO)
    {
       return;
    }

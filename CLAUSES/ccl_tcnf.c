@@ -1583,9 +1583,7 @@ TFormula_p TFormulaSkolemizeOutermost(TB_p terms, TFormula_p form)
       var = PTreeExtractRootKey(&free_vars);
       PStackPushP(var_stack, var);
    }
-
    res = tformula_rek_skolemize(terms, form, var_stack);
-     
    PStackFree(var_stack);
    return res;
 }

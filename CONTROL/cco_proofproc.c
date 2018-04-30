@@ -130,11 +130,6 @@ static long remove_subsumed(GlobalIndices_p indices,
    while(!PStackEmpty(stack))
    {
       handle = PStackPopP(stack);
-
-      /*fprintf(stderr, "# backward subsumed: ");
-      ClausePrint(stderr, handle, true);
-      fprintf(stderr, "\n");*/
-
       // printf("# XXX Removing (remove_subumed()) %p from %p = %p\n", handle, set, handle->set);
       if(ClauseQueryProp(handle, CPWatchOnly))
       {
@@ -1314,11 +1309,6 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control,
 
    clause = control->hcb->hcb_select(control->hcb,
                                      state->unprocessed);
-
-   //fprintf(stderr, "/* this was picked ");
-   //ClausePrint(stderr, clause, true);
-   //fprintf(stderr, " */\n");
-   //EvalListPrintComment(stderr, clause->evaluations); fprintf(stderr, "\n");
    if(OutputLevel==1)
    {
       putc('#', GlobalOut);
@@ -1331,9 +1321,7 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control,
    ClauseSetProp(clause, CPIsProcessed);
    ClauseDetachParents(clause);
    ClauseRemoveEvaluations(clause);
-
-   assert(ClauseAllTermsShared(clause));
-
+   
    assert(!ClauseQueryProp(clause, CPIsIRVictim));
 
    if(ProofObjectRecordsGCSelection)
@@ -1353,8 +1341,6 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control,
       }
       return NULL;
    }
-
-   //FreqVectorPrint(stderr, pclause);
 
    if(ClauseIsSemFalse(pclause->clause))
    {
@@ -1443,9 +1429,7 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control,
    }
    if(control->heuristic_parms.selection_strategy != SelectNoGeneration)
    {
-      /*fprintf(stderr, "? paramods before: %ld state->paramod_count.\n", state->paramod_count);*/
       generate_new_clauses(state, control, clause, tmp_copy);
-      /*fprintf(stderr, "? paramods after: %ld state->paramod_count.\n", state->paramod_count);*/
    }
    ClauseFree(tmp_copy);
    if(TermCellStoreNodes(&(state->tmp_terms->term_store))>TMPBANK_GC_LIMIT)

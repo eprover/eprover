@@ -317,7 +317,7 @@ static CompareResult kbogtrnew(OCB_p ocb, Term_p s, Term_p t,
 CompareResult KBOCompare(OCB_p ocb, Term_p s, Term_p t,
           DerefType deref_s, DerefType deref_t)
 {
-   assert(ProblemIsHO != PROBLEM_IS_HO);
+   assert(problemType != PROBLEM_HO);
 
    CompareResult topsymb_comp, res;
    int i;
