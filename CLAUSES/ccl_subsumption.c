@@ -103,7 +103,7 @@ SimplifyRes unit_clause_set_strongsubsumes_termpair(ClauseSet_p set,
          // matter here.
          int remains = res.remaining_args;
          // if the problem is FO -> everything is matched!
-         assert(!(ProblemIsHO == PROBLEM_NOT_HO) || !remains);
+         assert(!(problemType == PROBLEM_FO) || !remains);
          while(remains)
          {
             Term_p t1_arg = t1->args[t1->arity-remains];
@@ -600,7 +600,7 @@ bool eqn_list_rec_subsume(Eqn_p subsum_list, Eqn_p sub_cand_list,
          continue;
       }
 
-      cmpres = EqnSubsumeQOrderCompare(eqn,subsum_list);
+      cmpres = EqnSubsumeQOrderCompare(eqn, subsum_list);
       if(cmpres < 0)
       {
          return false;
@@ -1431,9 +1431,7 @@ bool ClauseNegativeSimplifyReflect(ClauseSet_p set, Clause_p clause)
                                             false);
       }
 
-      if(!SimplifyFailed(res) && 
-          /*!SimplifyFailed(RemainingArgsSame((*handle)->lterm, (*handle)->rterm, res))*/
-          res.remaining_args == 0)
+      if(!SimplifyFailed(res) && res.remaining_args == 0)
       {
          ClausePos_p pos = res.pos;
          ClauseRemoveLiteralRef(clause, handle);

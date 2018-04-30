@@ -138,7 +138,7 @@ bool       fast_extract = false,
            pass_comments = false,
            app_encode = false;
 OutputFormatType output_format = pcl_format;
-int ProblemIsHO = PROBLEM_NOT_INIT;
+ProblemType problemType  = PROBLEM_NOT_INIT;
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */

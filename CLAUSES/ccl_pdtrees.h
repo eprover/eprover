@@ -77,7 +77,8 @@ typedef struct pdt_node_cell
                   the (maximal one) function
                   symbol alternative, i is
                   variable i. */
-  bool                leaf; // for HO.. we can have prefixes.
+  bool                leaf;   /* In HO inner nodes can store clauses,
+                                 so we mark leaves explicitly */
 }PDTNodeCell, *PDTNode_p;
 
 /* A PDTreeCell is an object encapsulating a PDTree and the necessary
@@ -101,8 +102,8 @@ typedef struct pd_tree_cell
                searched? */
    unsigned  long visited_count; /* How many nodes in the index have
                been visited? */
-   TB_p      bank;            /* Used for determining head symbol types
-                                in HO case */
+   TB_p      bank;            /* When we make a prefix term, we want to 
+                                 insert it to bank */
 }PDTreeCell, *PDTree_p;
 
 

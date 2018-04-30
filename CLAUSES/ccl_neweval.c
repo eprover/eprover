@@ -238,7 +238,6 @@ void EvalPrintComment(FILE* out, Eval_p eval, int pos)
    fprintf(out, "/*");
    EvalPrint(out, eval, pos);
    fprintf(out, "*/");
-
 }
 
 

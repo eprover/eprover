@@ -371,7 +371,7 @@ static int tb_term_parse_arglist(Scanner_p in, Term_p** arg_anchor,
 /----------------------------------------------------------------------*/
 Term_p normalize_head(Term_p head, Term_p* rest_args, int rest_arity)
 {
-   assert(ProblemIsHO == PROBLEM_IS_HO);
+   assert(problemType == PROBLEM_HO);
    Term_p res;
    if (rest_arity == 0)
    {
@@ -466,7 +466,7 @@ static Term_p make_head(Sig_p sig, const char* f_name)
 /----------------------------------------------------------------------*/
 static Term_p __inline__  parse_one_ho(Scanner_p in, TB_p bank)
 {
-   assert(ProblemIsHO == PROBLEM_IS_HO);
+   assert(problemType == PROBLEM_HO);
 
    FuncSymbType   id_type;
    DStr_p id      = DStrAlloc();
@@ -888,7 +888,7 @@ Term_p TBInsertInstantiatedHO(TB_p bank, Term_p term, bool follow_bind)
 /----------------------------------------------------------------------*/
 __inline__ Term_p TBInsertInstantiated(TB_p bank, Term_p term)
 {
-   if (ProblemIsHO == PROBLEM_IS_HO)
+   if (problemType == PROBLEM_HO)
    {
       return TBInsertInstantiatedHO(bank, term, true);
    }

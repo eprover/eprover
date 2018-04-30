@@ -278,7 +278,7 @@ static void mfyvwb(OCB_p ocb, Term_p t, DerefType deref_t,
 static CompareResult kbo6cmplex(OCB_p ocb, Term_p s, Term_p t,
                                 DerefType deref_s, DerefType deref_t)
 {
-   assert(ProblemIsHO != PROBLEM_IS_HO);
+   assert(problemType != PROBLEM_HO);
    CompareResult res = to_equal;
 
    assert(s->arity == t->arity);
@@ -315,7 +315,7 @@ static CompareResult kbo6cmplex(OCB_p ocb, Term_p s, Term_p t,
 static CompareResult kbo6cmp(OCB_p ocb, Term_p s, Term_p t,
                              DerefType deref_s, DerefType deref_t)
 {
-   assert(ProblemIsHO != PROBLEM_IS_HO); // thus, no need to change derefs
+   assert(problemType != PROBLEM_HO); // thus, no need to change derefs
    CompareResult res, tmp;
 
    s = TermDeref(s, &deref_s);
@@ -505,7 +505,7 @@ static void mfyvwbrhs(OCB_p ocb, Term_p term, DerefType deref_t, int orig_limit)
 static CompareResult kbolincmp(OCB_p ocb, Term_p s, Term_p t,
                              DerefType deref_s, DerefType deref_t)
 {
-   assert(ProblemIsHO != PROBLEM_IS_HO); // no need to change derefs
+   assert(problemType != PROBLEM_HO); // no need to change derefs
    CompareResult res = to_equal;
 
    s = TermDeref(s, &deref_s);
@@ -632,7 +632,7 @@ static CompareResult cmp_arities(Term_p s, Term_p t)
 static CompareResult kbolincmp_ho(OCB_p ocb, Term_p s, Term_p t,
                              DerefType deref_s, DerefType deref_t)
 {
-   assert(ProblemIsHO == PROBLEM_IS_HO);
+   assert(problemType == PROBLEM_HO);
    CompareResult res = to_equal;
 
    const int limit_s = DEREF_LIMIT(s, deref_s);
@@ -823,7 +823,7 @@ CompareResult KBO6Compare(OCB_p ocb, Term_p s, Term_p t,
    fprintf(stderr, ".\n");*/
 
 #ifdef ENABLE_LFHO
-   res = ProblemIsHO == PROBLEM_IS_HO ? 
+   res = problemType == PROBLEM_HO ? 
             kbolincmp_ho(ocb, s, t, deref_s, deref_t)
             : kbolincmp(ocb, s, t, deref_s, deref_t);
    //res = kbolincmp(ocb, s, t, deref_s, deref_t);
@@ -873,7 +873,7 @@ bool KBO6Greater(OCB_p ocb, Term_p s, Term_p t,
 
    kbo6reset(ocb);
 #ifdef ENABLE_LFHO
-   res = ProblemIsHO == PROBLEM_IS_HO ? 
+   res = problemType == PROBLEM_HO ? 
             kbolincmp_ho(ocb, s, t, deref_s, deref_t)
             : kbolincmp(ocb, s, t, deref_s, deref_t);
 #else

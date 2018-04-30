@@ -114,6 +114,8 @@ static bool instance_is_rule(OCB_p ocb, TB_p bank,
          desc->sos_rewritten = true;
       }
 
+      assert(!TOGreater(desc->ocb, term, TermRWReplaceField(term), 
+                        DEREF_NEVER, DEREF_NEVER));
       term = TermRWReplaceField(term);
       assert(term);
    }
@@ -160,7 +162,7 @@ static RWResultType term_is_top_rewritable(TB_p bank, OCB_p ocb,
    if((remains = SubstMatchPossiblyPartial(eqn->lterm, term, subst, bank)) != NOT_MATCHED)
    {
       BWRWMatchSuccesses++;
-      assert(ProblemIsHO == PROBLEM_NOT_HO || !remains);
+      assert(problemType == PROBLEM_FO || !remains);
       if((EqnIsOriented(eqn)
             || instance_is_rule(ocb, eqn->bank, eqn->lterm, eqn->rterm, subst)))
       {
@@ -450,12 +452,11 @@ MatchInfo_p indexed_find_demodulator(OCB_p ocb, Term_p term,
    ClausePos_p pos, res = NULL;
    MatchInfo_p match_info;
 
-
    assert(term);
    assert(demodulators);
    assert(demodulators->demod_index);
-   assert(term->weight == TermWeight(term, DEFAULT_VWEIGHT,
-      DEFAULT_FWEIGHT));
+   assert(term->weight == 
+            TermWeight(term, DEFAULT_VWEIGHT, DEFAULT_FWEIGHT));
    assert(!TermIsTopRewritten(term));
 
    RewriteAttempts++;
@@ -509,7 +510,6 @@ MatchInfo_p indexed_find_demodulator(OCB_p ocb, Term_p term,
       }
       if(res)
       {
-         //fprintf(stderr, "breaking.\n");
          break;
       }
       MatchInfoFree(match_info);
@@ -569,11 +569,11 @@ static Term_p rewrite_with_clause_set(OCB_p ocb, TB_p bank, Term_p term,
    if(mi)
    {
       RewriteSuccesses++;
-      assert(ProblemIsHO == PROBLEM_IS_HO || mi->trailing_args == 0);
+      assert(problemType == PROBLEM_HO || mi->trailing_args == 0);
 
       repl = TBInsertInstantiated(bank, ClausePosGetOtherSide(mi->matcher));
 
-      if (ProblemIsHO == PROBLEM_IS_HO)
+      if (problemType == PROBLEM_HO)
       {
          /* To make sure remaining arguments of the term to be rewritten
             are variable-disjoint from the demodulator */
@@ -584,26 +584,7 @@ static Term_p rewrite_with_clause_set(OCB_p ocb, TB_p bank, Term_p term,
          }      
       } 
 
-      assert(mi->matcher->clause->ident);
-#ifndef NDEBUG
-      if(!TOGreater(ocb, term, repl, DEREF_NEVER, DEREF_NEVER))
-      {
-         fprintf(stderr, "lhs: ");
-         TermPrint(stderr, ClausePosGetSide(mi->matcher), bank->sig, DEREF_NEVER);
-         fprintf(stderr, " of type ");
-         TypePrintTSTP(stderr, bank->sig->type_bank, ClausePosGetSide(mi->matcher)->type);
-         fprintf(stderr, " ( instantiated ");
-         TermPrint(stderr, ClausePosGetSide(mi->matcher), bank->sig, DEREF_ONCE);
-         fprintf(stderr, " ) \n rhs: ");
-         TermPrint(stderr, ClausePosGetOtherSide(mi->matcher), bank->sig, DEREF_NEVER);
-         fprintf(stderr, " ( instantiated ");
-         TermPrint(stderr, ClausePosGetOtherSide(mi->matcher), bank->sig, DEREF_ONCE);
-         fprintf(stderr, " ). \n");
-         fprintf(stderr, "Query term: ");
-         TermPrint(stderr, term, bank->sig, DEREF_NEVER);
-      }
-#endif
-      
+      assert(mi->matcher->clause->ident);    
       TermAddRWLink(term, repl, mi->matcher->clause, ClauseIsSOS(mi->matcher->clause),
                     restricted_rw?RWAlwaysRewritable:RWLimitedRewritable);
       term = repl;
@@ -982,14 +963,12 @@ static long term_find_rw_clauses(Clause_p demod,
          if(!TermIsRewritten(term) || (rwres == RWAlwaysRewritable))
          {
             Term_p tmp_rewritten = MakeRewrittenTerm(term, rterm, remains);
-
             rterm = TBInsertInstantiated(eqn->bank, tmp_rewritten);
 
-            if (remains)
+            if(remains)
             {
                TermTopFree(tmp_rewritten);
             }
-
             TermAddRWLink(term, rterm, demod, ClauseIsSOS(demod), rwres);
             //TermDeleteRWLink(term);
          }

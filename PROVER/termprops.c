@@ -65,10 +65,8 @@ OptCell opts[] =
 };
 
 char *outname = NULL;
-int ProblemIsHO = PROBLEM_NOT_INIT;
 bool app_encode = false;
-
-
+ProblemType problemType  = PROBLEM_NOT_INIT;
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
 /*---------------------------------------------------------------------*/
