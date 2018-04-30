@@ -8,7 +8,7 @@
 
   Main program for the E equational theorem prover.
 
-  Copyright 1998-2018 by the authors.
+  Copyright 1998-2017 by the authors.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
@@ -72,7 +72,6 @@ bool              print_sat = false,
    assume_inf_sys_complete = false,
    incomplete = false,
    conjectures_are_questions = false,
-   app_encode = false,
    strategy_scheduling = false;
 ProofOutput       print_derivation = PONone;
 long              proc_training_data;
@@ -159,9 +158,8 @@ ProofState_p parse_spec(CLState_p state,
          DocOutputFormat = pcl_format;
       }
 
-      FormulaAndClauseSetParse(in,
+      FormulaAndClauseSetParse(in, proofstate->axioms,
                                proofstate->f_axioms,
-                               proofstate->watchlist,
                                proofstate->terms,
                                NULL,
                                &skip_includes);
@@ -407,393 +405,12 @@ int main(int argc, char* argv[])
                            error_on_empty, free_symb_prop,
                            &parsed_ax_no);
 
-   if (Verbose >= 1)
-   {
-      VERBOUT2("Parsed specification.");
-      FormulaSetPrint(stderr, proofstate->f_axioms, true);
-   }
 
-   if (app_encode)
-   {
-      FormulaSetAppEncode(stdout, proofstate->f_axioms);
-      goto cleanup1;
-   }
+   //VERBOUT2("Parsed specification.");
+   
+   FormulaSetAppEncode(stderr, proofstate->f_axioms, true);
 
-   relevancy_pruned += ProofStateSinE(proofstate, sine);
-   relevancy_pruned += ProofStatePreprocess(proofstate, relevance_prune_level);
-
-   if(strategy_scheduling)
-   {
-      ExecuteSchedule(StratSchedule, h_parms, print_rusage);
-   }
-
-   FormulaSetDocInital(GlobalOut, OutputLevel, proofstate->f_axioms);
-   ClauseSetDocInital(GlobalOut, OutputLevel, proofstate->axioms);
-
-   if(prune_only)
-   {
-      fprintf(GlobalOut, "\n# Pruning successful!\n");
-      TSTPOUT(GlobalOut, "Unknown");
-      goto cleanup1;
-   }
-
-   if(relevancy_pruned || incomplete)
-   {
-      proofstate->state_is_complete = false;
-   }
-   if(BuildProofObject)
-   {
-      FormulaSetArchive(proofstate->f_axioms, proofstate->f_ax_archive);
-   }
-   if((neg_conjectures =
-       FormulaSetPreprocConjectures(proofstate->f_axioms,
-                                    proofstate->f_ax_archive,
-                                    answer_limit>0,
-                                    conjectures_are_questions)))
-   {
-      VERBOUT("Negated conjectures.\n");
-   }
-
-   if(new_cnf)
-   {
-      cnf_size = FormulaSetCNF2(proofstate->f_axioms,
-                                proofstate->f_ax_archive,
-                                proofstate->axioms,
-                                proofstate->terms,
-                                proofstate->freshvars,
-                                proofstate->gc_terms,
-                                miniscope_limit);
-   }
-   else
-   {
-      cnf_size = FormulaSetCNF(proofstate->f_axioms,
-                               proofstate->f_ax_archive,
-                               proofstate->axioms,
-                               proofstate->terms,
-                               proofstate->freshvars,
-                               proofstate->gc_terms);
-   }
-
-
-   if(cnf_size)
-   {
-      VERBOUT("CNFization done\n");
-   }
-
-   raw_clause_no = proofstate->axioms->members;
-   ProofStateLoadWatchlist(proofstate, watchlist_filename, parse_format);
-
-   if(!no_preproc)
-   {
-      if(BuildProofObject)
-      {
-         ClauseSetArchive(proofstate->ax_archive, proofstate->axioms);
-         if(proofstate->watchlist)
-         {
-            ClauseSetArchive(proofstate->ax_archive, proofstate->watchlist);
-         }
-      }
-      preproc_removed = ClauseSetPreprocess(proofstate->axioms,
-                                            proofstate->watchlist,
-                                            proofstate->archive,
-                                            proofstate->tmp_terms,
-                                            eqdef_incrlimit,
-                                            eqdef_maxclauses);
-   }
-
-   proofcontrol = ProofControlAlloc();
-   ProofControlInit(proofstate, proofcontrol, h_parms,
-                    fvi_parms, wfcb_definitions, hcb_definitions);
-   PCLFullTerms = pcl_full_terms; /* Preprocessing always uses full
-                                     terms, so we set the flag for
-                                     the main proof search only now! */
-   GlobalIndicesInit(&(proofstate->wlindices),
-                     proofstate->signature,
-                     proofcontrol->heuristic_parms.rw_bw_index_type,
-                     "NoIndex",
-                     "NoIndex");
-   //printf("Alive (1)!\n");
-
-   ProofStateInit(proofstate, proofcontrol);
-   //printf("Alive (2)!\n");
-   //ProofStateInitWatchlist(proofstate, proofcontrol->ocb);
-
-   VERBOUT2("Prover state initialized\n");
-   preproc_time = GetTotalCPUTime();
-   if(print_rusage)
-   {
-      fprintf(GlobalOut, "# Preprocessing time       : %.3f s\n", preproc_time);
-   }
-   if(proofcontrol->heuristic_parms.presat_interreduction)
-   {
-      LiteralSelectionFun sel_strat =
-         proofcontrol->heuristic_parms.selection_strategy;
-
-      proofcontrol->heuristic_parms.selection_strategy = SelectNoGeneration;
-      success = Saturate(proofstate, proofcontrol, LONG_MAX,
-                         LONG_MAX, LONG_MAX, LONG_MAX, LONG_MAX,
-                         LLONG_MAX, LONG_MAX);
-      fprintf(GlobalOut, "# Presaturation interreduction done\n");
-      proofcontrol->heuristic_parms.selection_strategy = sel_strat;
-      if(!success)
-      {
-         ProofStateResetProcessed(proofstate, proofcontrol);
-      }
-   }
-   PERF_CTR_ENTRY(SatTimer);
-
-#ifdef ENABLE_LFHO
-   // if the problem is HO -> we have to use KBO6
-   assert(problemType != PROBLEM_HO || proofcontrol->ocb->type == KBO6);
-#endif
-
-   if(!success)
-   {
-      success = Saturate(proofstate, proofcontrol, step_limit,
-                         proc_limit, unproc_limit, total_limit,
-                         generated_limit, tb_insert_limit, answer_limit);
-   }
-   PERF_CTR_EXIT(SatTimer);
-
-   if(SigHasUnimplementedInterpretedSymbols(proofstate->signature))
-   {
-      inf_sys_complete = false;
-   }
-
-   out_of_clauses = ClauseSetEmpty(proofstate->unprocessed);
-   if(filter_sat)
-   {
-      filter_success = ProofStateFilterUnprocessed(proofstate,
-                                                   proofcontrol,
-                                                   filterdesc);
-      if(filter_success)
-      {
-         success = filter_success;
-         PStackPushP(proofstate->extract_roots, success);
-      }
-   }
-
-   if(success||proofstate->answer_count)
-   {
-      assert(!PStackEmpty(proofstate->extract_roots));
-      if(success)
-      {
-         DocClauseQuoteDefault(2, success, "proof");
-      }
-      fprintf(GlobalOut, "\n# Proof found!\n");
-      if(!proofstate->status_reported)
-      {
-         TSTPOUT(GlobalOut, neg_conjectures?"Theorem":"Unsatisfiable");
-         proofstate->status_reported = true;
-         retval = PROOF_FOUND;
-      }
-      if(BuildProofObject)
-      {
-         if(print_full_deriv)
-         {
-            ClauseSetPushClauses(proofstate->extract_roots,
-                                 proofstate->processed_pos_rules);
-            ClauseSetPushClauses(proofstate->extract_roots,
-                                 proofstate->processed_pos_eqns);
-            ClauseSetPushClauses(proofstate->extract_roots,
-                                 proofstate->processed_neg_units);
-            ClauseSetPushClauses(proofstate->extract_roots,
-                                 proofstate->processed_non_units);
-            ClauseSetPushClauses(proofstate->extract_roots,
-                                 proofstate->unprocessed);
-         }
-         DerivationComputeAndPrint(GlobalOut,
-                                   "CNFRefutation",
-                                   proofstate->extract_roots,
-                                   proofstate->signature,
-                                   print_derivation,
-                                   OutputLevel||print_statistics);
-         ProofStateAnalyseGC(proofstate);
-         ProofStateTrain(proofstate, proc_training_data&TSPrintPos,
-                         proc_training_data&TSPrintNeg);
-      }
-   }
-   else if(proofstate->watchlist && ClauseSetEmpty(proofstate->watchlist))
-   {
-      ProofStatePropDocQuote(GlobalOut, OutputLevel,
-                             CPSubsumesWatch, proofstate,
-                             "final_subsumes_wl");
-      fprintf(GlobalOut, "\n# Watchlist is empty!\n");
-      TSTPOUT(GlobalOut, "ResourceOut");
-      retval = RESOURCE_OUT;
-   }
-   else
-   {
-      if(out_of_clauses&&
-         proofstate->state_is_complete&&
-         (inf_sys_complete || assume_inf_sys_complete))
-      {
-         finals_state = "final";
-      }
-      ProofStatePropDocQuote(GlobalOut, OutputLevel, CPIgnoreProps,
-                             proofstate, finals_state);
-
-      if(cnf_only)
-      {
-         fprintf(GlobalOut, "\n# CNFization successful!\n");
-         TSTPOUT(GlobalOut, "Unknown");
-      }
-      else if(out_of_clauses)
-      {
-         if(!(inf_sys_complete || assume_inf_sys_complete))
-         {
-            fprintf(GlobalOut,
-                    "\n# Clause set closed under "
-                    "restricted calculus!\n");
-            if(!SilentTimeOut)
-            {
-               TSTPOUT(GlobalOut, "GaveUp");
-            }
-            retval = INCOMPLETE_PROOFSTATE;
-         }
-         else if(proofstate->state_is_complete &&
-                 inf_sys_complete &&
-                 proofstate->has_interpreted_symbols)
-         {
-            fprintf(GlobalOut,
-                    "\n# Clause set saturated up to interpreted theories!\n");
-            if(!SilentTimeOut)
-            {
-               TSTPOUT(GlobalOut, "GaveUp");
-            }
-            retval = INCOMPLETE_PROOFSTATE;
-         }
-         else if(proofstate->state_is_complete && inf_sys_complete)
-         {
-            fprintf(GlobalOut, "\n# No proof found!\n");
-            TSTPOUT(GlobalOut, neg_conjectures?"CounterSatisfiable":"Satisfiable");
-            sat_status = "Saturation";
-            retval = SATISFIABLE;
-         }
-         else
-         {
-            fprintf(GlobalOut, "\n# Failure: Out of unprocessed clauses!\n");
-            if(!SilentTimeOut)
-            {
-               TSTPOUT(GlobalOut, "GaveUp");
-            }
-            retval = INCOMPLETE_PROOFSTATE;
-         }
-      }
-      else
-      {
-         fprintf(GlobalOut, "\n# Failure: User resource limit exceeded!\n");
-         if(!SilentTimeOut)
-         {
-            TSTPOUT(GlobalOut, "ResourceOut");
-         }
-         retval = RESOURCE_OUT;
-      }
-      if(BuildProofObject &&
-         (((retval!=INCOMPLETE_PROOFSTATE)&&
-           (retval!=RESOURCE_OUT))
-          |force_deriv_output))
-      {
-         ClauseSetPushClauses(proofstate->extract_roots,
-                              proofstate->processed_pos_rules);
-         ClauseSetPushClauses(proofstate->extract_roots,
-                              proofstate->processed_pos_eqns);
-         ClauseSetPushClauses(proofstate->extract_roots,
-                              proofstate->processed_neg_units);
-         ClauseSetPushClauses(proofstate->extract_roots,
-                              proofstate->processed_non_units);
-         if(cnf_only|(force_deriv_output>=2))
-         {
-            ClauseSetPushClauses(proofstate->extract_roots,
-                                 proofstate->unprocessed);
-            print_sat = false;
-         }
-         DerivationComputeAndPrint(GlobalOut,
-                                   sat_status,
-                                   proofstate->extract_roots,
-                                   proofstate->signature,
-                                   print_derivation,
-                                   OutputLevel||print_statistics);
-      }
-
-   }
-   /* ClauseSetDerivationStackStatistics(proofstate->unprocessed); */
-   if(print_sat)
-   {
-      if(proofstate->non_redundant_deleted)
-      {
-         fprintf(GlobalOut, "\n# Saturated system is incomplete!\n");
-      }
-      if(success)
-      {
-         fprintf(GlobalOut, "# Saturated system contains the empty clause:\n");
-         ClausePrint(GlobalOut, success, true);
-         fputc('\n',GlobalOut);
-         fputc('\n',GlobalOut);
-      }
-      ProofStatePrintSelective(GlobalOut, proofstate, outdesc,
-                               outinfo);
-      fprintf(GlobalOut, "\n");
-   }
-
-   if(success)
-   {
-      ClauseFree(success);
-   }
-   fflush(GlobalOut);
-
-   print_proof_stats(proofstate,
-                     parsed_ax_no,
-                     relevancy_pruned,
-                     raw_clause_no,
-                     preproc_removed);
-#ifndef FAST_EXIT
-#ifdef FULL_MEM_STATS
-   fprintf(GlobalOut,
-           "# sizeof TermCell     : %ld\n"
-           "# sizeof EqnCell      : %ld\n"
-           "# sizeof ClauseCell   : %ld\n"
-           "# sizeof PTreeCell    : %ld\n"
-           "# sizeof PDTNodeCell  : %ld\n"
-           "# sizeof EvalCell     : %ld\n"
-           "# sizeof ClausePosCell: %ld\n"
-           "# sizeof PDArrayCell  : %ld\n",
-           sizeof(TermCell),
-           sizeof(EqnCell),
-           sizeof(ClauseCell),
-           sizeof(PTreeCell),
-           sizeof(PDTNodeCell),
-           sizeof(EvalCell),
-           sizeof(ClausePosCell),
-           sizeof(PDArrayCell));
-   fprintf(GlobalOut, "# Estimated memory usage: %ld\n",
-           ProofStateStorage(proofstate));
-   MemFreeListPrint(GlobalOut);
-#endif
-   ProofControlFree(proofcontrol);
-#endif
-cleanup1:
-#ifndef FAST_EXIT
-   ProofStateFree(proofstate);
-   CLStateFree(state);
-   PStackFree(hcb_definitions);
-   PStackFree(wfcb_definitions);
-   FVIndexParmsFree(fvi_parms);
-   HeuristicParmsFree(h_parms);
-#ifdef FULL_MEM_STATS
-   MemFreeListPrint(GlobalOut);
-#endif
-#endif
-   if(print_rusage && !SilentTimeOut)
-   {
-      PrintRusage(GlobalOut);
-   }
-#ifdef CLB_MEMORY_DEBUG
-   RegMemCleanUp();
-   MemFlushFreeList();
-   MemDebugPrintStats(stdout);
-#endif
-   OutClose(GlobalOut);
+   
    return retval;
 }
 
@@ -1430,37 +1047,6 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_STRONGSUBSUMPTION:
             StrongUnitForwardSubsumption = true;
             break;
-      case OPT_SAT_STEP_INTERVAL:
-            h_parms->sat_check_step_limit =
-               CLStateGetIntArgCheckRange(handle, arg, 1, LONG_MAX);
-            break;
-      case OPT_SAT_SIZE_INTERVAL:
-            h_parms->sat_check_size_limit =
-               CLStateGetIntArgCheckRange(handle, arg, 1, LONG_MAX);
-            break;
-      case OPT_SATCHECK:
-            tmp = StringIndex(arg, GroundingStratNames);
-            if(tmp <= 0)
-            {
-               DStr_p err = DStrAlloc();
-               DStrAppendStr(err,
-                             "Wrong argument to option --sat-check. Possible "
-                             "values: ");
-               DStrAppendStrArray(err, GroundingStratNames+1, ", ");
-               Error(DStrView(err), USAGE_ERROR);
-               DStrFree(err);
-            }
-            h_parms->sat_check_grounding = tmp;
-            break;
-      case OPT_SAT_NORMCONST:
-            h_parms->sat_check_normconst = true;
-            break;
-      case OPT_SAT_NORMALIZE:
-            h_parms->sat_check_normalize = true;
-            break;
-      case OPT_STATIC_WATCHLIST:
-            h_parms->watchlist_is_static = true;
-            //intentional fall-through
       case OPT_WATCHLIST:
             if(strcmp(WATCHLIST_INLINE_STRING, arg)==0 ||
                strcmp(WATCHLIST_INLINE_QSTRING, arg)==0  )
@@ -1539,8 +1125,7 @@ CLState_p process_options(int argc, char* argv[])
             else
             {
                Error("Option --fvindex-featuretypes requires "
-                     "'None', 'AC', 'SS', 'All', 'Bill', 'BillPlus',"
-                     " 'ACFold', 'ACStagger'.", USAGE_ERROR);
+                     "'None', 'AC', 'SS', or 'All'.", USAGE_ERROR);
             }
             break;
       case OPT_FVINDEX_MAXFEATURES:
@@ -1608,9 +1193,6 @@ CLState_p process_options(int argc, char* argv[])
             break;
       case OPT_PRINT_TYPES:
             TermPrintTypes = true;
-            break;
-      case OPT_APP_ENCODE:
-            app_encode = true;
             break;
       default:
             assert(false && "Unknown option");

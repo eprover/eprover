@@ -296,7 +296,7 @@ Clause_p ClauseSimParamodConstruct(ParamodInfo_p ol_desc)
 
    if (ol_desc->remaining_args)
    {
-      assert(ProblemIsHO == PROBLEM_IS_HO);
+      assert(problemType == PROBLEM_HO);
       TermTopFree(tmp_rhs);
       tmp_rhs = NULL;
    }
@@ -327,11 +327,9 @@ Clause_p ClauseSimParamodConstruct(ParamodInfo_p ol_desc)
          EqnListRemoveResolved(&into_copy);
          EqnListRemoveDuplicates(into_copy);
          res = ClauseAlloc(into_copy);
-
       }
    }
    SubstDelete(subst);
-
    return res;
 }
 
@@ -365,7 +363,7 @@ Clause_p ClauseParamodConstruct(ParamodInfo_p ol_desc, bool sim_pm)
 
    assert(PackClausePos(ol_desc->from_pos) == ol_desc->from_cpos);
    assert(PackClausePos(ol_desc->into_pos) == ol_desc->into_cpos);
-   assert(ProblemIsHO == PROBLEM_IS_HO || ol_desc->remaining_args == 0);
+   assert(problemType == PROBLEM_HO || ol_desc->remaining_args == 0);
 
    if(sim_pm)
    {
@@ -427,24 +425,6 @@ Term_p ComputeOverlap(TB_p bank, OCB_p ocb, ClausePos_p from, Term_p
    if(!UnifFailed(unify_res) 
          && CheckHOUnificationConstraints(unify_res, RightTerm, max_side, sub_into))
    {
-#ifdef PRINT_PARTIAL_PARAMODULATION
-      if (unify_res.term_remaining > 0)
-      {
-         fprintf(stderr, "# paramodulation from ");
-         TermPrint(stderr, max_side, bank->sig, DEREF_ALWAYS);
-         fprintf(stderr, " to prefix of term ");
-         TermPrint(stderr, sub_into, bank->sig, DEREF_ALWAYS);
-         fprintf(stderr, "(" );
-         TermPrint(stderr, TermCreatePrefix(sub_into, 
-                                            sub_into->arity - unify_res.term_remaining), 
-                           bank->sig, DEREF_ALWAYS);
-         fprintf(stderr, " - %d). ComputeOverlap\n", unify_res.term_remaining);
-
-      }
-#endif
-
-
-      // if we match from from to into -- into can be missing arguments
       if(!EqnIsOriented(from->literal)
           && TOGreater(ocb, rep_side, max_side, DEREF_ALWAYS,
                   DEREF_ALWAYS))
@@ -721,7 +701,6 @@ Clause_p ClauseOrderedSimParamod(TB_p bank, OCB_p ocb, ClausePos_p
       Term_p tmp_rhs = MakeRewrittenTerm(TermDerefAlways(into_term), 
                                          TermDerefAlways(ClausePosGetOtherSide(from)), 
                                          unify_res.term_remaining);
-
       rhs_instance = TBInsertNoProps(bank, tmp_rhs, DEREF_ALWAYS);
 
       if (unify_res.term_remaining)
@@ -1037,6 +1016,20 @@ Term_p ClausePosNextParamodPair(ClausePos_p from_pos, ClausePos_p
 
 
 #ifdef ENABLE_LFHO
+/*-----------------------------------------------------------------------
+//
+// Function:  CheckHOUnificationConstraints()
+//
+//   Checks whether arguments are trailing on the right side of the 
+//   equation (into term) and whether we are not paramodulating into 
+//   the variable head of applied variable term.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
 bool CheckHOUnificationConstraints(UnificationResult res, WhichTerm exp_side, Term_p from, Term_p to)
 {
    return

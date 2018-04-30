@@ -703,7 +703,8 @@ long FormulaAndClauseSetParse(Scanner_p in, FormulaSet_p fset,
    switch(ScannerGetFormat(in))
    {
    case LOPFormat:
-         //* LOP does not at the moment support full FOF, or inline watchlists */
+         //* LOP does not at the moment support full FOF */
+         SetProblemType(PROBLEM_FO)
          while(ClauseStartsMaybe(in))
          {
             form = WFormClauseParse(in, terms);
@@ -756,9 +757,9 @@ long FormulaAndClauseSetParse(Scanner_p in, FormulaSet_p fset,
                else
                {
                   assert(TestInpId(in, "input_clause|cnf"));
-                  ProblemIsHO = PROBLEM_NOT_HO;
                   //clause = ClauseParse(in, terms);
                   //ClauseSetInsert(cset, clause);
+                  SetProblemType(PROBLEM_FO);
                   form = WFormClauseParse(in, terms);
                }
                if(FormulaQueryType(form)==CPTypeWatchClause)

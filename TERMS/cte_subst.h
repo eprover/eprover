@@ -94,10 +94,10 @@ PStackPointer SubstAddBinding(Subst_p subst, Term_p var, Term_p bind)
    assert(bind);
    assert(TermIsVar(var));
    assert(!(var->binding));
-   assert(ProblemIsHO == PROBLEM_IS_HO || !TermCellQueryProp(bind, TPPredPos));
+   assert(problemType == PROBLEM_HO || !TermCellQueryProp(bind, TPPredPos));
    assert(var->type);
    assert(bind->type);
-   assert(ProblemIsHO || var->type == bind->type);
+   assert(problemType || var->type == bind->type);
 
    /* printf("# %ld <- %ld \n", var->f_code, bind->f_code); */
    var->binding = bind;

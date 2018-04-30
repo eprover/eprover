@@ -238,7 +238,7 @@ bool     seed_preds   = false,
 
 SubSampleMethod subsample   = SubSNone;
 long            sample_size = LONG_MAX;
-int ProblemIsHO = PROBLEM_NOT_INIT;
+ProblemType problemType  = PROBLEM_NOT_INIT;
 
 
 /*---------------------------------------------------------------------*/

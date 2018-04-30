@@ -524,7 +524,7 @@ Type_p TypeBankParseType(Scanner_p in, TypeBank_p bank)
    Type_p res        = NULL;
 
 
-   if (ProblemIsHO == PROBLEM_NOT_HO)
+   if (problemType == PROBLEM_FO)
    {
       // We support only (A1 * A2 * ... * An) > B
       // or C type (constructors)
@@ -604,7 +604,7 @@ Type_p TypeBankParseType(Scanner_p in, TypeBank_p bank)
    else 
    {
       // parsing HO types
-      assert(ProblemIsHO == PROBLEM_IS_HO);
+      assert(problemType == PROBLEM_HO);
       if (TestInpTok(in, OpenBracket))
       {
          AcceptInpTok(in, OpenBracket);
@@ -689,10 +689,10 @@ Type_p TypeBankParseType(Scanner_p in, TypeBank_p bank)
 //
 // Function: TypePrintTSTP()
 //
-//    Prints type in either FO or HO format, based on ProblemIsHO
+//    Prints type in either FO or HO format, based on problemType
 //    status. 
 //
-// Global Variables: ProblemIsHO
+// Global Variables: problemType
 //
 // Side Effects    : writing to output stream
 //
@@ -702,7 +702,7 @@ void TypePrintTSTP(FILE* out, TypeBank_p bank, Type_p type)
    assert(type);
    if (TypeIsArrow(type))
    {
-      if (ProblemIsHO == PROBLEM_NOT_HO)
+      if (problemType == PROBLEM_FO)
       {
          int nr_of_args = type->arity -1;
 
@@ -730,7 +730,7 @@ void TypePrintTSTP(FILE* out, TypeBank_p bank, Type_p type)
       {
          // todo at this point problem might not be HO.
          // check why
-         //assert(ProblemIsHO == PROBLEM_IS_HO);
+         //assert(problemType == PROBLEM_HO);
          for(int i=0; i<type->arity-1; i++)
          {
             if (TypeIsArrow(type->args[i]))
@@ -772,7 +772,7 @@ void TypePrintTSTP(FILE* out, TypeBank_p bank, Type_p type)
 //    Changes return type of the given type to new_ret.
 //    
 //
-// Global Variables: ProblemIsHO
+// Global Variables: problemType
 //
 // Side Effects    : writing to output stream
 //

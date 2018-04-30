@@ -142,7 +142,7 @@ int PartiallyMatchVar(Term_p var_matcher, Term_p to_match, Sig_p sig,
 {
    assert(TermIsVar(var_matcher) && !var_matcher->binding);
    assert(!TermIsAppliedVar(to_match) || to_match->f_code == SIG_APP_VAR_CODE);
-   assert(ProblemIsHO == PROBLEM_IS_HO || !TypeIsArrow(var_matcher->type));
+   assert(problemType == PROBLEM_HO || !TypeIsArrow(var_matcher->type));
    
 
    int args_to_eat = NOT_MATCHED;
@@ -217,7 +217,7 @@ int PartiallyMatchVar(Term_p var_matcher, Term_p to_match, Sig_p sig,
 
 bool SubstComputeMatch(Term_p matcher, Term_p to_match, Subst_p subst)
 {
-   assert(ProblemIsHO == PROBLEM_NOT_HO);
+   assert(problemType == PROBLEM_FO);
    long matcher_weight  = TermStandardWeight(matcher);
    long to_match_weight = TermStandardWeight(to_match);
 
@@ -313,7 +313,7 @@ bool SubstComputeMatch(Term_p matcher, Term_p to_match, Subst_p subst)
 /----------------------------------------------------------------------*/
 int SubstComputeMatchHO(Term_p matcher, Term_p to_match, Subst_p subst, TB_p bank)
 {
-   assert(ProblemIsHO == PROBLEM_IS_HO);
+   assert(problemType == PROBLEM_HO);
    long matcher_weight  = TermStandardWeight(matcher);
    long to_match_weight = TermStandardWeight(to_match);
 
@@ -450,7 +450,7 @@ UnificationResult SubstComputeMguHO(Term_p t1, Term_p t2, Subst_p subst, TB_p ba
       UnifAttempts++;
    #endif
    PERF_CTR_ENTRY(MguTimer);
-   assert(ProblemIsHO == PROBLEM_IS_HO);
+   assert(problemType == PROBLEM_HO);
    
    PStackPointer backtrack = PStackGetSP(subst);  //For backtracking 
 
@@ -605,7 +605,7 @@ UnificationResult SubstComputeMguHO(Term_p t1, Term_p t2, Subst_p subst, TB_p ba
 bool SubstComputeMgu(Term_p t1, Term_p t2, Subst_p subst)
 {
    //printf("Unify %lu %lu\n", t1->entry_no, t2->entry_no);
-   assert(ProblemIsHO == PROBLEM_NOT_HO);
+   assert(problemType == PROBLEM_FO);
    #ifdef MEASURE_UNIFICATION
       UnifAttempts++;
    #endif
@@ -722,7 +722,7 @@ bool SubstComputeMgu(Term_p t1, Term_p t2, Subst_p subst)
 __inline__ bool SubstMatchComplete(Term_p pattern, Term_p target, Subst_p subst, TB_p bank)
 {
    bool res;
-   if (ProblemIsHO == PROBLEM_NOT_HO)
+   if (problemType == PROBLEM_FO)
    {
       res = SubstComputeMatch(pattern, target, subst);
    }
@@ -759,7 +759,7 @@ __inline__ bool SubstMatchComplete(Term_p pattern, Term_p target, Subst_p subst,
 __inline__ bool SubstMguComplete(Term_p t, Term_p s, Subst_p subst, TB_p bank)
 {
    bool res;
-   if (ProblemIsHO == PROBLEM_NOT_HO)
+   if (problemType == PROBLEM_FO)
    {
       res = SubstComputeMgu(t, s, subst);
    }
@@ -798,7 +798,7 @@ __inline__ bool SubstMguComplete(Term_p t, Term_p s, Subst_p subst, TB_p bank)
 __inline__ int SubstMatchPossiblyPartial(Term_p pattern, Term_p target, Subst_p subst, TB_p bank)
 {
    int res;
-   if (ProblemIsHO == PROBLEM_NOT_HO)
+   if (problemType == PROBLEM_FO)
    {
       res = SubstComputeMatch(pattern, target, subst) ? 0 : NOT_MATCHED;
    }
@@ -829,7 +829,7 @@ __inline__ int SubstMatchPossiblyPartial(Term_p pattern, Term_p target, Subst_p 
 UnificationResult SubstMguPossiblyPartial(Term_p t, Term_p s, Subst_p subst, TB_p bank)
 {
    UnificationResult res;
-   if (ProblemIsHO == PROBLEM_NOT_HO)
+   if (problemType == PROBLEM_FO)
    {
       res = (UnificationResult) {SubstComputeMgu(t,s,subst) ? RightTerm : NoTerm, 0};
    }
