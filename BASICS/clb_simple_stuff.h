@@ -67,6 +67,8 @@ int    StringIndex(char* key, char* list[]);
 
 char*  IndentStr(int level);
 
+void   SetProblemType(ProblemType t);
+
 #endif
 
 /*---------------------------------------------------------------------*/

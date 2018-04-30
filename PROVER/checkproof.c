@@ -127,7 +127,7 @@ char       *outname    = NULL;
 long       time_limit  = 10;
 char       *executable = NULL;
 ProverType prover      = EProver;
-int ProblemIsHO = PROBLEM_NOT_INIT;
+ProblemType problemType  = PROBLEM_NOT_INIT;
 
 
 /*---------------------------------------------------------------------*/

@@ -502,7 +502,6 @@ FreqVector_p OptimizedVarFreqVectorCompute(Clause_p clause,
    /* printf("Symbols used: %ld\n", sig_symbols); */
    vec = VarFreqVectorCompute(clause, cspec);   
    /*FreqVectorPrint(GlobalOut, vec); */
-   
    if(perm)
    {
       long i;
@@ -702,8 +701,6 @@ FreqVector_p FVCollectFreqVectorCompute(Clause_p clause, FVCollect_p cspec)
 
       PStackFree(mod_stack);
    }
-
-   //FreqVectorPrint(stderr, vec);
    return vec;
 }
 

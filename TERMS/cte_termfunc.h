@@ -50,7 +50,7 @@ void   VarPrint(FILE* out, FunCode var);
 void TermPrintFO(FILE* out, Term_p term, Sig_p sig, DerefType deref);
 #ifdef ENABLE_LFHO
 void TermPrintHO(FILE* out, Term_p term, Sig_p sig, DerefType deref);
-#define TermPrint(out, term, sig, deref) (ProblemIsHO == PROBLEM_IS_HO ? \
+#define TermPrint(out, term, sig, deref) (problemType == PROBLEM_HO ? \
         TermPrintHO(out, term, sig, deref) : TermPrintFO(out, term, sig, deref))
 #else
 #define TermPrint(out, term, sig, deref) TermPrintFO(out, term, sig, deref)

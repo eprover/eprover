@@ -68,7 +68,7 @@ bool TOGreater(OCB_p ocb, Term_p s, Term_p t, DerefType deref_s,
    assert(ocb);
    assert(s);
    assert(t);
-   assert(ProblemIsHO != PROBLEM_IS_HO || ocb->type == KBO6);
+   assert(problemType != PROBLEM_HO || ocb->type == KBO6);
 
    /* OCBDebugPrint(stdout, ocb); */
    /* printf("TOGreater...\n");
@@ -370,7 +370,7 @@ void TOSymbolWeightParse(Scanner_p in, OCB_p ocb)
       weight*W_DEFAULT_WEIGHT;
 
 #ifdef ENABLE_LFHO
-    if (ProblemIsHO == PROBLEM_IS_HO && f == 0)
+    if (problemType == PROBLEM_HO && f == 0)
     {
        Error("In LFHO case 0 weights are not allowed", SYNTAX_ERROR);
     }

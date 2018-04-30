@@ -180,7 +180,7 @@ FunCode TermFPSampleFO(Term_p term, va_list ap)
 /----------------------------------------------------------------------*/
 FunCode TermFPSampleHO(Term_p term, va_list ap)
 {
-   assert(ProblemIsHO == PROBLEM_IS_HO);
+   assert(problemType == PROBLEM_HO);
    int pos = va_arg(ap, int);
    FunCode res = 0;
 
@@ -236,7 +236,7 @@ FunCode  TermFPSample(Term_p term, ...)
    
    FunCode res;
 #ifdef ENABLE_LFHO
-   if (ProblemIsHO == PROBLEM_IS_HO)
+   if (problemType == PROBLEM_HO)
    {
       res = TermFPSampleHO(term, args);
    }
@@ -379,7 +379,7 @@ FunCode TermFPFlexSampleHO(Term_p term, IntOrP* *seq)
 /----------------------------------------------------------------------*/
 __inline__ FunCode TermFPFlexSample(Term_p term, IntOrP* *seq)
 {
-   if (ProblemIsHO == PROBLEM_IS_HO)
+   if (problemType == PROBLEM_HO)
    {
       return TermFPFlexSampleHO(term, seq);
    }
