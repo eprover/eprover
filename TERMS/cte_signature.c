@@ -1497,7 +1497,7 @@ void SigPrintTypeDeclsTSTP(FILE* out, Sig_p sig)
 {
    FunCode i;
    Func_p fun;
-   const char* tag = ProblemIsHO == PROBLEM_IS_HO ? "thf" : "tff";
+   const char* tag = problemType == PROBLEM_HO ? "thf" : "tff";
 
    for(i=sig->internal_symbols+1; i <= sig->f_count; i++)
    {

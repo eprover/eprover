@@ -291,30 +291,6 @@ long compute_pos_into_pm_term(ParamodInfo_p pminfo,
    if(!UnifFailed((unif_res = SubstMguPossiblyPartial(olterm, into_clauses->term, subst, pminfo->bank)))
         && CheckHOUnificationConstraints(unif_res, RightTerm, olterm, into_clauses->term))
    {
-      // TERM FROM HAS TO MATCH FULLY... TERM INTO CAN MATCH PARTIALLY
-
-
-      /* Check from-clause ordering constraints */
-      /* printf("# Mgu into:\n");
-      SubstPrint(stdout, subst, pminfo->bank->sig, DEREF_ALWAYS);
-      printf("\n"); */
-
-/*#ifdef PRINT_PARTIAL_PARAMODULATION
-      if (unif_res.term_remaining > 0)
-      {
-         fprintf(stderr, "# paramodulation from ");
-         TermPrint(stderr, olterm, pminfo->bank->sig, DEREF_ALWAYS);
-         fprintf(stderr, " to prefix of term ");
-         TermPrint(stderr, into_clauses->term, pminfo->bank->sig, DEREF_ALWAYS);
-         fprintf(stderr, "(");
-         TermPrint(stderr, TermCreatePrefix(into_clauses->term, 
-                                            into_clauses->term->arity - unif_res.term_remaining), 
-                           pminfo->bank->sig, DEREF_ALWAYS);
-         fprintf(stderr, " - %d) compute_pos_into_pm_term.\n", unif_res.term_remaining);
-
-      }
-#endif*/
-
       max_side = ClausePosGetSide(pminfo->from_pos);
       rep_side = ClausePosGetOtherSide(pminfo->from_pos);
       pminfo->remaining_args = unif_res.term_remaining;
@@ -535,11 +511,6 @@ long compute_pos_from_pm_term(ParamodInfo_p pminfo,
    if(!UnifFailed(unif_res = SubstMguPossiblyPartial(olterm, from_clauses->term, subst, pminfo->bank))
        && (CheckHOUnificationConstraints(unif_res, LeftTerm, from_clauses->term, olterm)))
    {
-      /* Check into-clause ordering constraints */
-      /* printf("# Mgu from:\n");
-      SubstPrint(stdout, subst, pminfo->bank->sig, DEREF_ALWAYS);
-      printf("\n"); */
-
       max_side = ClausePosGetSide(pminfo->into_pos);
       min_side = ClausePosGetOtherSide(pminfo->into_pos);
       pminfo->remaining_args = unif_res.term_remaining;

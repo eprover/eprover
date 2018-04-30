@@ -190,7 +190,7 @@ long VarHashAddValue(VarHash_p hash, Term_p var, long value)
 void VarHashAddVarDistrib(VarHash_p hash, Term_p term, DerefType
            deref, long add)
 {
-   assert(ProblemIsHO != PROBLEM_IS_HO);
+   assert(problemType != PROBLEM_HO);
    PStack_p stack = PStackAlloc();
    int      i;
 
@@ -236,7 +236,7 @@ void VarHashAddVarDistrib(VarHash_p hash, Term_p term, DerefType
 void PDArrayAddVarDistrib(PDArray_p array, Term_p term, DerefType
            deref, long add)
 {
-   assert(ProblemIsHO != PROBLEM_IS_HO);
+   assert(problemType != PROBLEM_HO);
    PStack_p stack = PStackAlloc();
    int      i;
    long     tmp;

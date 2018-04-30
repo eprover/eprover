@@ -436,7 +436,7 @@ static TFormula_p literal_tform_tstp_parse(Scanner_p in, TB_p terms)
    }
    else if(TestInpTok(in, OpenBracket))
    {
-      if (ProblemIsHO == PROBLEM_NOT_HO)
+      if (problemType == PROBLEM_FO)
       {
          AcceptInpTok(in, OpenBracket);
          res = TFormulaTSTPParse(in, terms);
@@ -719,6 +719,19 @@ void tformula_print_or_chain(FILE* out, TB_p bank, TFormula_p form,
    }
 }
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: tformula_appencode_or_chain()
+//
+//   Appencodes TFormula for and prints the result to out.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
 void tformula_appencode_or_chain(FILE* out, TB_p bank, TFormula_p form)
 {
    if(form->f_code!=bank->sig->or_code)
@@ -732,7 +745,6 @@ void tformula_appencode_or_chain(FILE* out, TB_p bank, TFormula_p form)
       TFormulaAppEncode(out, bank, form->args[1]);
    }
 }  
-
 
 
 /*-----------------------------------------------------------------------
@@ -775,7 +787,7 @@ void TFormulaTPTPPrint(FILE* out, TB_p bank, TFormula_p form, bool fullterms, bo
          fputs("![", out);
       }
       TermPrint(out, form->args[0], bank->sig, DEREF_NEVER);
-      if(ProblemIsHO == PROBLEM_IS_HO || !TypeIsIndividual(form->args[0]->type))
+      if(problemType == PROBLEM_HO || !TypeIsIndividual(form->args[0]->type))
       {
          fputs(":", out);
          TypePrintTSTP(out, bank->sig->type_bank, form->args[0]->type);
@@ -785,7 +797,7 @@ void TFormulaTPTPPrint(FILE* out, TB_p bank, TFormula_p form, bool fullterms, bo
          form = form->args[1];
          fputs(", ", out);
          TermPrint(out, form->args[0], bank->sig, DEREF_NEVER);
-         if(ProblemIsHO == PROBLEM_IS_HO || !TypeIsIndividual(form->args[0]->type))
+         if(problemType == PROBLEM_HO || !TypeIsIndividual(form->args[0]->type))
          {
             fputs(":", out);
             TypePrintTSTP(out, bank->sig->type_bank, form->args[0]->type);
@@ -856,6 +868,19 @@ void TFormulaTPTPPrint(FILE* out, TB_p bank, TFormula_p form, bool fullterms, bo
       fputs(")", out);
    }
 }
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: TFormulaAppEncode()
+//
+//   Appencodes TFormula and prints result to out.
+//
+// Global Variables:
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
 
 void TFormulaAppEncode(FILE* out, TB_p bank, TFormula_p form)
 {
@@ -975,6 +1000,21 @@ void TFormulaAppEncode(FILE* out, TB_p bank, TFormula_p form)
    }
 }
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: PreloadTypes()
+//
+//   Make sure that all intermediate types needed for app-encoding of
+//   the formula are already inserted in the type bank. For example
+//   if type a > b > c > d appears in the type bank insert types 
+//   b > c > d and c > d to the type bank.
+//
+// Global Variables:
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
 
 void PreloadTypes(TB_p bank, TFormula_p form)
 {

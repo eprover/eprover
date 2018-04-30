@@ -352,6 +352,7 @@ void FormulaSetPrint(FILE* out, FormulaSet_p set, bool fullterms)
    }
 }
 
+
 /*-----------------------------------------------------------------------
 //
 // Function: FormulaSetAppEncode()
@@ -363,6 +364,7 @@ void FormulaSetPrint(FILE* out, FormulaSet_p set, bool fullterms)
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
+
 void FormulaSetAppEncode(FILE* out, FormulaSet_p set)
 {
    WFormula_p handle;

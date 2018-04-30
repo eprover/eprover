@@ -158,7 +158,7 @@ void    EqnFree(Eqn_p junk);
 #define EqnGetPredCodeHO(eq) (EqnIsEquLit(eq)?0:(TermIsTopLevelVar(eq->lterm) ? 0 : (eq)->lterm->f_code))
 
 #ifdef ENABLE_LFHO
-#define EqnGetPredCode(eq) (ProblemIsHO == PROBLEM_IS_HO ? EqnGetPredCodeHO(eq) : EqnGetPredCodeFO(eq))
+#define EqnGetPredCode(eq) (problemType == PROBLEM_HO ? EqnGetPredCodeHO(eq) : EqnGetPredCodeFO(eq))
 #else
 #define EqnGetPredCode(eq) (EqnGetPredCodeFO(eq))  
 #endif

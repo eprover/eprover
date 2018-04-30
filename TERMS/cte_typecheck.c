@@ -233,8 +233,8 @@ void TypeInferSort(Sig_p sig, Term_p term)
       {
          if (TypeIsArrow(type))
          {
-            /* app encoding does not work for FOL terms because of this check */
-            if(ProblemIsHO == PROBLEM_NOT_HO && !app_encode && term->arity != type->arity-1)
+            if(problemType == PROBLEM_FO && !app_encode 
+                  && term->arity != type->arity-1)
             {
                fprintf(stderr, "# arity mismatch for ");
                TermPrint(stderr, term, sig, DEREF_NEVER);

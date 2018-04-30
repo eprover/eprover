@@ -90,20 +90,14 @@ SimplifyRes FindTopSimplifyingUnit(ClauseSet_p units, Term_p t1,
       pos = mi->matcher;
       Sig_p sig = pos->literal->bank->sig;
 
-      /*fprintf(stderr, "? Found ");
-      TermPrint(stderr, ClausePosGetSide(pos), sig, DEREF_NEVER);
-      fprintf(stderr, " -> ");
-      TermPrint(stderr, ClausePosGetOtherSide(pos), sig, DEREF_NEVER);
-      fprintf(stderr, ".\n");*/
-
       if((remains = SubstMatchPossiblyPartial(ClausePosGetOtherSide(pos), t2, subst, units->demod_index->bank)) 
             != NOT_MATCHED)
       {
         // if the problem is not HO, we match completely.
-        assert(!(ProblemIsHO == PROBLEM_NOT_HO) || remains == true);
+        assert(!(problemType == PROBLEM_FO) || remains == 0);
         assert(pos->clause->set == units);
         assert(remains = mi->trailing_args);
-        remains = ProblemIsHO == PROBLEM_NOT_HO ? 0 : remains;
+        remains = problemType == PROBLEM_FO ? 0 : remains;
         res = (SimplifyRes){.pos = pos, .remaining_args = remains};
         MatchInfoFree(mi);
         break;
@@ -135,7 +129,6 @@ SimplifyRes FindSignedTopSimplifyingUnit(ClauseSet_p units, Term_p t1,
    ClausePos_p pos;
    SimplifyRes res = SIMPLIFY_FAILED;
 
-
    assert(TermStandardWeight(t1) == TermWeight(t1,DEFAULT_VWEIGHT,DEFAULT_FWEIGHT));
    assert(TermStandardWeight(t2) == TermWeight(t2,DEFAULT_VWEIGHT,DEFAULT_FWEIGHT));
    assert(units && units->demod_index);
@@ -148,16 +141,15 @@ SimplifyRes FindSignedTopSimplifyingUnit(ClauseSet_p units, Term_p t1,
       pos = mi->matcher;
       //Sig_p sig = pos->literal->bank->sig;
       TB_p bank = units->demod_index->bank;
-
       if(EQUIV(EqnIsPositive(pos->literal), sign)
           && (remains = 
                 SubstMatchPossiblyPartial(ClausePosGetOtherSide(pos), t2, subst, bank)) != NOT_MATCHED)
       {
         // if the problem is not HO, we match completely.
-        assert(!(ProblemIsHO == PROBLEM_NOT_HO) || remains == 0);
+        assert(!(problemType == PROBLEM_FO) || remains == 0);
         assert(pos->clause->set == units);
         assert(remains == mi->trailing_args);
-        remains = ProblemIsHO == PROBLEM_NOT_HO ? 0 : remains;
+        remains = problemType == PROBLEM_FO ? 0 : remains;
         res = (SimplifyRes){.pos = pos, .remaining_args = remains};
         MatchInfoFree(mi);
         break;
@@ -186,7 +178,7 @@ SimplifyRes FindSignedTopSimplifyingUnit(ClauseSet_p units, Term_p t1,
 __inline__ SimplifyRes RemainingArgsSame(Term_p t1, Term_p t2, SimplifyRes res)
 {
    int remains = res.remaining_args;
-   assert(ProblemIsHO != PROBLEM_NOT_HO || !remains);
+   assert(problemType != PROBLEM_FO || !remains);
    while(remains)
    {
       if (t1->args[t1->arity - remains] != t2->args[t2->arity - remains])
@@ -212,6 +204,7 @@ __inline__ SimplifyRes RemainingArgsSame(Term_p t1, Term_p t2, SimplifyRes res)
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
+
 SimplifyRes FindSimplifyingUnit(ClauseSet_p set, Term_p t1, Term_p t2,
             bool positive_only)
 {
@@ -228,11 +221,10 @@ SimplifyRes FindSimplifyingUnit(ClauseSet_p set, Term_p t1, Term_p t2,
       res = FindTopSimplifyingUnit(set, t1, t2);
    }
    
-   if (!SimplifyFailed(res))
+   if(!SimplifyFailed(res))
    {
       return RemainingArgsSame(t1, t2, res);
    }
-   
 
    while(SimplifyFailed(res))
    {
@@ -265,7 +257,7 @@ SimplifyRes FindSimplifyingUnit(ClauseSet_p set, Term_p t1, Term_p t2,
       t1 = tmp1;
       t2 = tmp2;
       res = FindSignedTopSimplifyingUnit(set, t1, t2, true);
-      if (ProblemIsHO == PROBLEM_IS_HO && !SimplifyFailed(res))
+      if (problemType == PROBLEM_HO && !SimplifyFailed(res))
       {
          return RemainingArgsSame(t1, t2, res);
       }

@@ -132,11 +132,13 @@ static __inline__ size_t WriteStr(int fd, const char* msg);
 #endif
 
 
-#define PROBLEM_NOT_HO     0
-#define PROBLEM_IS_HO      1
-#define PROBLEM_NOT_INIT  -1
+typedef enum {
+  PROBLEM_NOT_INIT = -1,
+  PROBLEM_FO,
+  PROBLEM_HO
+} ProblemType;
 
-extern int ProblemIsHO;
+extern ProblemType problemType ;
 /*-----------------------------------------------------------------------
 //
 // Function: WriteStr()

@@ -372,20 +372,16 @@ WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms)
    {
       is_tcf = true;
    }
-   if (TestInpId(in, "thf") && 
-         (ProblemIsHO == PROBLEM_NOT_INIT || ProblemIsHO == PROBLEM_IS_HO))
+   
+   if (TestInpId(in, "thf"))
    {
-      ProblemIsHO = PROBLEM_IS_HO;
+      SetProblemType(Problem_HO);
    }
-   else if (TestInpId(in, "fof|tff|tcf") && 
-      (ProblemIsHO == PROBLEM_NOT_INIT || ProblemIsHO == PROBLEM_NOT_HO))
+   else if (TestInpId(in, "fof|tff|tcf"))
    {
-      ProblemIsHO = PROBLEM_NOT_HO;
+      SetProblemType(Problem_FO);
    }
-   else
-   {
-      AktTokenError(in, "Mixing of FO and HO syntax is not allowed.", true);
-   }
+
    AcceptInpId(in, "fof|tff|thf|tcf");
    AcceptInpTok(in, OpenBracket);
    CheckInpTok(in, Name|PosInt|SQString);
@@ -549,7 +545,20 @@ void WFormulaTSTPPrint(FILE* out, WFormula_p form, bool fullterms,
    }
 }
 
-// TODO add doc
+
+/*-----------------------------------------------------------------------
+//
+// Function: WFormulaAppEncode()
+//
+//   Encodes terms in wrapped formula's literals using app encoding.
+//   Initial WFormula is not changed.
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
 void WFormulaAppEncode(FILE* out, WFormula_p form)
 {
    char *typename = "plain", *formula_kind = "tff";

@@ -124,7 +124,7 @@ char              *server_lib     = NULL;
 long              total_wtc_limit = 0;
 int               port            = -1;
 bool              app_encode      = false;
-int ProblemIsHO = PROBLEM_NOT_INIT;
+ProblemType problemType  = PROBLEM_NOT_INIT;
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */

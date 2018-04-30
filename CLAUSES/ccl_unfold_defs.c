@@ -61,7 +61,7 @@ static Term_p term_top_unfold_def(TB_p bank, Term_p term, ClausePos_p demod)
    assert(bank&&term&&demod);
 
    lside = ClausePosGetSide(demod);
-   assert(!TermIsVar(lside));
+   assert(!TermIsVar(lside) && !TermIsVar());
    if(lside->f_code != term->f_code
 #ifdef ENABLE_LFHO
       || lside->arity != term->arity || TermIsAppliedVar(term)
@@ -268,11 +268,6 @@ long ClauseSetUnfoldAllEqDefs(ClauseSet_p set, ClauseSet_p passive,
    ClausePos_p demod;
    long res = false;
    Clause_p start = NULL;
-
-   if (ProblemIsHO == PROBLEM_IS_HO)
-   {
-      return res;
-   }
 
    while((demod = ClauseSetFindEqDefinition(set, min_arity, start)))
    {

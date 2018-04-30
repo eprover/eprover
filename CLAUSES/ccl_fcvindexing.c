@@ -67,6 +67,19 @@ FVIndexParmsCell FVIDefaultParameters =
 /*---------------------------------------------------------------------*/
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
+
+/*-----------------------------------------------------------------------
+//
+// Function: print_lvl()
+//
+//   Prints enough dashes to indent a tree level.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
 void print_lvl(FILE* out, int level)
 {
    for(int i=0; i<level; i++)
@@ -74,6 +87,19 @@ void print_lvl(FILE* out, int level)
       fprintf(out, "--");
    }
 }
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: print_clauses()
+//
+//   Prints clauses stored in the leaf indented using level.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
 
 void print_clauses(FILE* out, PTree_p clauses, int level, bool fullterms)
 {
@@ -87,6 +113,20 @@ void print_clauses(FILE* out, PTree_p clauses, int level, bool fullterms)
       fprintf(stderr, " \n");
    }
 }
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: fv_index_print()
+//
+//   Driver function for printing fv index. To be initially called with 
+//   root for index and 0 for level.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
 
 void fv_index_print(FILE* out, FVIndex_p index, bool fullterms, int level)
 {  
@@ -510,7 +550,18 @@ FVPackedClause_p FVIndexPackClause(Clause_p clause, FVIAnchor_p anchor)
              anchor->cspec);
 }
 
-// TODO ADD DOC
+/*-----------------------------------------------------------------------
+//
+// Function: FVIndexPrint()
+//
+//   Pretty prints FVIndex.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
 void FVIndexPrint(FILE* out, FVIndex_p index, bool fullterms)
 {
   fprintf(stderr, "* ROOT *\n");
