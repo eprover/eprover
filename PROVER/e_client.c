@@ -117,6 +117,8 @@ char              *outname    = NULL;
 char              *server     = "localhost";
 int               port        = 3666;
 ProblemType problemType  = PROBLEM_NOT_INIT;
+bool app_encode = false;
+
 
 
 /*---------------------------------------------------------------------*/

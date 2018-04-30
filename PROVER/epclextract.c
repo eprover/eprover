@@ -135,7 +135,8 @@ char       *executable = NULL;
 bool       fast_extract = false,
            comp_frame = false,
            no_extract = false,
-           pass_comments = false;
+           pass_comments = false,
+           app_encode = false;
 OutputFormatType output_format = pcl_format;
 ProblemType problemType  = PROBLEM_NOT_INIT;
 

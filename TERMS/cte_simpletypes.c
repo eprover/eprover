@@ -92,6 +92,7 @@ static const char* get_builtin_name(Type_p t)
          return "$real";
       default:
          assert("Type not built-in " && false);
+         return "";
    }
 }
 
@@ -278,6 +279,7 @@ DStr_p TypeAppEncodedName(Type_p type)
    
    if (SortIsUserDefined(type->f_code) || TypeIsArrow(type))
    {
+      assert(type->type_uid != INVALID_TYPE_UID);
       DStrAppendStr(name, "type_");
       DStrAppendInt(name, type->type_uid);
    }
