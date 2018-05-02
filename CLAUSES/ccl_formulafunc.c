@@ -702,7 +702,7 @@ long FormulaAndClauseSetParse(Scanner_p in, ClauseSet_p cset,
    {
    case LOPFormat:
          //* LOP does not at the moment support full FOF */
-         SetProblemType(PROBLEM_FO)
+         SetProblemType(PROBLEM_FO);
          while(ClauseStartsMaybe(in))
          {
             form = WFormClauseParse(in, terms);
