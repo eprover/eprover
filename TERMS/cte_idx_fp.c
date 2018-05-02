@@ -182,35 +182,42 @@ FunCode TermFPSampleHO(Term_p term, va_list ap)
 {
    assert(problemType == PROBLEM_HO);
    int pos = va_arg(ap, int);
-   FunCode res = 0;
+   FunCode res;
 
-   if (!TermIsTopLevelVar(term) && pos != -1 && pos >= term->arity)
+   int arg_expansion_num = TypeGetSymbolArity(term->type);
+
+   if(pos != -1 && pos < arg_expansion_num)
    {
-      res = BELOW_VAR;
+      res = (va_arg(ap, int) == -1) ? ANY_VAR : BELOW_VAR;
    }
-   else
+   else if (pos != -1)
    {
-      for(; pos != -1;  pos = va_arg(ap, int))
+      pos -= arg_expansion_num;
+      for(; pos != -1; pos = va_arg(ap, int))
       {
-         if(TermIsTopLevelVar(term))
+         if(TermIsVar(term))
          {
             res = BELOW_VAR;
             break;
          }
-         if(pos >= term->arity)
+
+         if (pos < term->arity)
          {
-            res = NOT_IN_TERM;
+            int actual_pos = term->arity-1 - pos;
+            term = term->args[actual_pos];
+         }
+         else
+         {
+            res = TermIsAppliedVar(term) ? BELOW_VAR : NOT_IN_TERM;
             break;
          }
-         term = term->args[pos];
       }
-      if(pos == -1)
-      {
-         res = TermIsVar(term) ? ANY_VAR : 
-                  (TermIsAppliedVar(term) ? BELOW_VAR : term->f_code);
-      }  
    }
 
+   if(pos == -1)
+   {
+      res = TermIsVar(term)?ANY_VAR:term->f_code;
+   }
 
    va_end(ap);
 
