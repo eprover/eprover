@@ -22,6 +22,7 @@ Changes
 -----------------------------------------------------------------------*/
 
 #include "cte_fp_index.h"
+#include "cte_termfunc.h"
 
 
 

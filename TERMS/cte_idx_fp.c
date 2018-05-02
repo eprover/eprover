@@ -216,7 +216,7 @@ FunCode TermFPSampleHO(Term_p term, va_list ap)
 
    if(pos == -1)
    {
-      res = TermIsVar(term)?ANY_VAR:term->f_code;
+      res = TermIsTopLevelVar(term)?ANY_VAR:term->f_code;
    }
 
    va_end(ap);
@@ -973,16 +973,16 @@ void IndexFPPrint(FILE* out, IndexFP_p fp)
 
    if(limit>=2)
    {
-      fprintf(stdout, "<%ld", fp[1]);
+      fprintf(out, "<%ld", fp[1]);
       for(i=2; i<limit; i++)
       {
-         fprintf(stdout, ",%ld", fp[i]);
+         fprintf(out, ",%ld", fp[i]);
       }
-      fprintf(stdout, ">");
+      fprintf(out, ">");
    }
    else
    {
-      fprintf(stdout, "<>");
+      fprintf(out, "<>");
    }
 }
 

@@ -114,9 +114,6 @@ static bool instance_is_rule(OCB_p ocb, TB_p bank,
          desc->sos_rewritten = true;
       }
 
-      assert(!TOGreater(desc->ocb, term, TermRWReplaceField(term), 
-                        DEREF_NEVER, DEREF_NEVER));
-
       term = TermRWReplaceField(term);
       assert(term);
    }
