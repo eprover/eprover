@@ -73,10 +73,10 @@ static __inline__ bool reorientation_needed(Term_p t1, Term_p t2)
    if (TermIsTopLevelVar(t2))
    {
       return !TermIsTopLevelVar(t1) ||
-               TypeGetSymbolArity(GetHeadType(NULL, t2)) <
-               TypeGetSymbolArity(GetHeadType(NULL, t1)) ||
-               (TypeGetSymbolArity(GetHeadType(NULL, t2)) ==
-               TypeGetSymbolArity(GetHeadType(NULL, t1)) && t2->arity < t1->arity);
+               TypeGetArgNum(GetHeadType(NULL, t2)) <
+               TypeGetArgNum(GetHeadType(NULL, t1)) ||
+               (TypeGetArgNum(GetHeadType(NULL, t2)) ==
+               TypeGetArgNum(GetHeadType(NULL, t1)) && t2->arity < t1->arity);
    }
    else
    {

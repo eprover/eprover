@@ -347,7 +347,7 @@ void TermPrintHO(FILE* out, Term_p term, Sig_p sig, DerefType deref)
       {
          TermPrint(out, term->args[i], sig, c_deref);
       }
-   }  
+   }
 }
 #endif
 

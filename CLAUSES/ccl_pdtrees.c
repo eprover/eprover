@@ -537,7 +537,6 @@ static void pdtree_forward(PDTree_p tree, Subst_p subst)
        i++;
        if(next)
        {
-          //fprintf(stderr, "Just matched %s\n", SigFindName(tree->sig, term->f_code)); 
           PStackPushP(tree->term_proc, term);
           TermLRTraverseNext(tree->term_stack);
           next->trav_count = PDT_NODE_INIT_VAL(tree);
@@ -564,11 +563,8 @@ static void pdtree_forward(PDTree_p tree, Subst_p subst)
           bool bound = false;
           if((!next->variable->binding)&&(problemType == PROBLEM_HO || !TermCellQueryProp(term,TPPredPos)))
           {
-             if (problemType == PROBLEM_FO)
+             if (problemType == PROBLEM_FO && next->variable->type == term->type)
              {
-               // FIXME: Note 2 Stephan -- this might fail at the top level. 
-               // It would be useful to run E on whole TPTP library and see if this happens
-               assert(next->variable->type == term->type);
                PStackDiscardTop(tree->term_stack);
                SubstAddBinding(subst, next->variable, term);  
                bound = true;
