@@ -1239,6 +1239,14 @@ long FPIndexFindUnifiable(FPIndex_p index, Term_p term, PStack_p collect)
    PERF_CTR_ENTRY(IndexUnifTimer);
    key = index->fp_fun(term);
 
+   /*fprintf(stderr, "Term: ");
+   TermPrint(stderr, term, index->sig, DEREF_NEVER);
+   fprintf(stderr, ", (type: ");
+   TypePrintTSTP(stderr, index->sig->type_bank, term->type);
+   fprintf(stderr, "), key: ");
+   IndexFPPrint(stderr, key);
+   fprintf(stderr, ".\n");*/
+
    if(index->fp_fun == IndexDTCreate)
    {
       res = dt_index_rek_find_unifiable(index->index,
