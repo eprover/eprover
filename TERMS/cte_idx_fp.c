@@ -22,7 +22,7 @@ Changes
 -----------------------------------------------------------------------*/
 
 #include "cte_idx_fp.h"
-
+#include "cte_simpletypes.h"
 
 
 /*---------------------------------------------------------------------*/
@@ -172,6 +172,7 @@ FunCode TermFPSampleFO(Term_p term, va_list ap)
 //
 //  For details see TermFPSampleFO(). It differs by supporting
 //  prefix matching/unification, where terms can have trailing arguments.
+//  
 //
 // Global Variables:
 //
@@ -184,7 +185,7 @@ FunCode TermFPSampleHO(Term_p term, va_list ap)
    int pos = va_arg(ap, int);
    FunCode res;
 
-   int arg_expansion_num = TypeGetSymbolArity(term->type);
+   int arg_expansion_num = TypeGetArgNum(term->type);
 
    if(pos != -1 && pos < arg_expansion_num)
    {
