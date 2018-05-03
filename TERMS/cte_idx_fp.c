@@ -201,7 +201,7 @@ FunCode TermFPSampleHO(Term_p term, va_list ap)
             break;
          }
 
-         if (pos < term->arity)
+         if (pos < ARG_NUM(term))
          {
             int actual_pos = term->arity-1 - pos;
             term = term->args[actual_pos];
