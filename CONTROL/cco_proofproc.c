@@ -1590,7 +1590,9 @@ Clause_p Saturate(ProofState_p state, ProofControl_p control, long
    long
       count = 0,
       sat_check_size_limit = control->heuristic_parms.sat_check_size_limit,
-      sat_check_step_limit = control->heuristic_parms.sat_check_step_limit;
+      sat_check_step_limit = control->heuristic_parms.sat_check_step_limit,
+      sat_check_ttinsert_limit = control->heuristic_parms.sat_check_ttinsert_limit;
+
 
    while(!TimeIsUp &&
          !ClauseSetEmpty(state->unprocessed) &&
@@ -1628,6 +1630,11 @@ Clause_p Saturate(ProofState_p state, ProofControl_p control, long
          {
             unsatisfiable = SATCheck(state, control);
             sat_check_step_limit += control->heuristic_parms.sat_check_step_limit;
+         }
+         else if( state->terms->insertions >= sat_check_ttinsert_limit)
+         {
+            unsatisfiable = SATCheck(state, control);
+            sat_check_ttinsert_limit *=2;
          }
          if(unsatisfiable)
          {

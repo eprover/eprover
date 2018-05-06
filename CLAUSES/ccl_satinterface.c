@@ -464,11 +464,11 @@ SatClause_p SatClauseCreateAndStore(Clause_p clause, SatClauseSet_p set)
    assert(clause);
    assert(set);
 
-   printf("# PGClause: ");
-   ClausePrint(stdout, clause, true);
-   printf("\n=>");
-   EqnListPrintDeref(stdout, clause->literals, "|", DEREF_ONCE);
-   printf("\n");
+   //printf("# PGClause: ");
+   //ClausePrint(stdout, clause, true);
+   //printf("\n=>");
+   //EqnListPrintDeref(stdout, clause->literals, "|", DEREF_ONCE);
+   //printf("\n");
 
    handle = SatClauseAlloc(ClauseLiteralNumber(clause));
    handle->source = clause;
@@ -815,7 +815,7 @@ long SatClauseSetImportProofState(SatClauseSet_p satset, ProofState_p state,
    assert(satset);
    assert(state);
 
-   printf("# SatClauseSetImportProofState()\n");
+   //printf("# SatClauseSetImportProofState()\n");
 
    switch(strat)
    {
