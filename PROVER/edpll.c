@@ -141,6 +141,7 @@ IOFormat parse_format = LOPFormat;
 bool   dimacs_format = false;
 ProblemType problemType  = PROBLEM_NOT_INIT;
 bool   app_encode = false;
+ProblemType problemType  = PROBLEM_NOT_INIT;
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */

@@ -91,6 +91,7 @@ char* ex_name = NULL;
 char* kb_name = "E_KNOWLEDGE";
 ProblemType problemType  = PROBLEM_NOT_INIT;
 bool  app_encode = false;
+ProblemType problemType  = PROBLEM_NOT_INIT;
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
