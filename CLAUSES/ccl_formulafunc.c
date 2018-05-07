@@ -218,7 +218,7 @@ Clause_p TformulaCollectClause(TFormula_p form, TB_p terms,
    }
    PStackFree(lit_stack);
 
-   VarBankResetVCounts(fresh_vars);
+   VarBankResetVCount(fresh_vars);
    NormSubstEqnList(lit_list, normsubst, fresh_vars);
    tmp_list = EqnListCopy(lit_list, terms);
    res = ClauseAlloc(tmp_list);
@@ -704,7 +704,7 @@ long FormulaAndClauseSetParse(Scanner_p in, FormulaSet_p fset,
    {
    case LOPFormat:
          //* LOP does not at the moment support full FOF */
-         SetProblemType(PROBLEM_FO)
+         SetProblemType(PROBLEM_FO);
          while(ClauseStartsMaybe(in))
          {
             form = WFormClauseParse(in, terms);

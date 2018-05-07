@@ -194,7 +194,7 @@ Clause_p ClausePlainParamodConstruct(ParamodInfo_p ol_desc)
    assert(PStackEmpty(ol_desc->from_pos->pos));
 
 
-   VarBankResetVCounts(ol_desc->freshvars);
+   VarBankResetVCount(ol_desc->freshvars);
    NormSubstEqnList(ol_desc->into->literals,
                     subst, ol_desc->freshvars);
    NormSubstEqnList(ol_desc->from->literals,
@@ -275,7 +275,7 @@ Clause_p ClauseSimParamodConstruct(ParamodInfo_p ol_desc)
                                DEREF_ALWAYS,
                                ol_desc->remaining_args, ol_desc->bank->sig));
 
-   VarBankResetVCounts(ol_desc->freshvars);
+   VarBankResetVCount(ol_desc->freshvars);
    into_term = ClausePosGetSubterm(ol_desc->into_pos);
 
    /* All the checks are assumed to have been done and succeeded, we
@@ -555,7 +555,7 @@ Clause_p ClauseOrderedParamod(TB_p bank, OCB_p ocb, ClausePos_p from,
       }*/
 
    subst = SubstAlloc();
-   VarBankResetVCounts(freshvars);
+   VarBankResetVCount(freshvars);
    new_literals = EqnOrderedParamod(bank, ocb, from, into, subst,
                 freshvars);
    if(new_literals)
@@ -646,7 +646,7 @@ Clause_p ClauseOrderedSimParamod(TB_p bank, OCB_p ocb, ClausePos_p
    }
    from_term = ClausePosGetSide(from);
    subst = SubstAlloc();
-   VarBankResetVCounts(freshvars);
+   VarBankResetVCount(freshvars);
    unify_res = SubstMguPossiblyPartial(from_term, into_term, subst, bank);
    if((UnifFailed(unify_res) || !CheckHOUnificationConstraints(unify_res, RightTerm, from_term, into_term)) ||
       (!EqnIsOriented(from->literal) &&
