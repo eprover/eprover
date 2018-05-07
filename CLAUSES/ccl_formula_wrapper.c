@@ -22,7 +22,7 @@ Changes
 -----------------------------------------------------------------------*/
 
 #include "ccl_formula_wrapper.h"
-
+#include <clb_simple_stuff.h>
 
 
 /*---------------------------------------------------------------------*/
@@ -375,11 +375,11 @@ WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms)
    
    if (TestInpId(in, "thf"))
    {
-      SetProblemType(Problem_HO);
+      SetProblemType(PROBLEM_HO);
    }
    else if (TestInpId(in, "fof|tff|tcf"))
    {
-      SetProblemType(Problem_FO);
+      SetProblemType(PROBLEM_FO);
    }
 
    AcceptInpId(in, "fof|tff|thf|tcf");

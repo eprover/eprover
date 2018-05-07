@@ -129,13 +129,10 @@ VarBank_p VarBankAlloc(TypeBank_p type_bank)
    VarBank_p handle;
 
    handle = VarBankCellAlloc();
-   handle->var_count = 0;
-   handle->fresh_count = 0;
+   handle->v_count = 0;
    handle->sort_table = type_bank;
    handle->max_var = 0;
-   handle->varstacks = PDArrayAlloc(INITIAL_SORT_STACK_SIZE, 5);
-   handle->v_counts  = PDIntArrayAlloc(INITIAL_SORT_STACK_SIZE, 5);
-   handle->variables = PDArrayAlloc(DEFAULT_VARBANK_SIZE, GROW_EXPONENTIAL);
+   handle->stacks = PDArrayAlloc(INITIAL_SORT_STACK_SIZE, 5);
    handle->ext_index = NULL;
    handle->env = PStackAlloc();
    return handle;
@@ -155,33 +152,32 @@ VarBank_p VarBankAlloc(TypeBank_p type_bank)
 
 void VarBankFree(VarBank_p junk)
 {
-   int i;
+   int i, j;
    VarBankStack_p stack;
-   Term_p var;
 
    assert(junk);
    StrTreeFree(junk->ext_index);
    PStackFree(junk->env);
 
-   for(i=0; i<PDArraySize(junk->varstacks); i++)
+   for(i=0; i<PDArraySize(junk->stacks); i++)
    {
-      stack = (VarBankStack_p)PDArrayElementP(junk->varstacks, i);
-      if(stack)
+      stack = (VarBankStack_p) PDArrayElementP(junk->stacks, i);
+      if (! stack)
       {
-         PStackFree(stack);
+         continue;
       }
-   }
-   PDArrayFree(junk->varstacks);
-   PDArrayFree(junk->v_counts);
 
-   for(i=0; i<=junk->max_var; i++)
-   {
-      if((var = PDArrayElementP(junk->variables, i)))
+      // free stack
+      for(j=0; j<PDArraySize(stack); j++)
       {
-         TermTopFree(var);
+         if(PDArrayElementP(stack, j))
+         {
+            TermTopFree(PDArrayElementP(stack, j));
+         }
       }
+      PDArrayFree(stack);
    }
-   PDArrayFree(junk->variables);
+   PDArrayFree(junk->stacks);
 
    VarBankCellFree(junk);
 }
@@ -189,9 +185,9 @@ void VarBankFree(VarBank_p junk)
 
 /*-----------------------------------------------------------------------
 //
-// Function: VarBankCreateStack()
+// Function: VarBankCreateStack
 //
-//    Create a stack for variables of the given sort.
+//    Create a stack for the given sort
 //
 // Global Variables: -
 //
@@ -203,65 +199,15 @@ VarBankStack_p VarBankCreateStack(VarBank_p bank, TypeUniqueID sort)
 {
    VarBankStack_p res;
 
-   res = PStackAlloc();
-   PDArrayAssignP(bank->varstacks, sort, res);
+   if (sort >= PDArraySize(bank->stacks))
+   {
+      PDArrayEnlarge(bank->stacks, sort);
+   }
+
+   res = PDArrayAlloc(DEFAULT_VARBANK_SIZE, GROW_EXPONENTIAL);
+   PDArrayAssignP(bank->stacks, sort, res);
 
    return res;
-}
-
-/*-----------------------------------------------------------------------
-//
-// Function: VarBankResetVCounts()
-//
-//   Reset all the fresh variable counters for the different sorts.
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-void VarBankResetVCounts(VarBank_p bank)
-{
-   int i;
-
-   for(i=0; i<PDArraySize(bank->v_counts); i++)
-   {
-      PDArrayAssignInt(bank->v_counts, i, 0);
-   }
-}
-
-
-/*-----------------------------------------------------------------------
-//
-// Function: VarBankSetVCountsToUsed()
-//
-//   Set all the fresh variable counters for the different sorts to
-//   the maximum number of variables allocated for that sort.
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-void VarBankSetVCountsToUsed(VarBank_p bank)
-{
-   int i;
-   VarBankStack_p stack;
-
-   for(i=0; i<PDArraySize(bank->v_counts); i++)
-   {
-      stack = VarBankGetStack(bank,i);
-      if(stack)
-      {
-         PDArrayAssignInt(bank->v_counts, i, PStackGetSP(stack));
-      }
-      else
-      {
-         PDArrayAssignInt(bank->v_counts, i, 0);
-      }
-   }
 }
 
 
@@ -280,7 +226,7 @@ void VarBankSetVCountsToUsed(VarBank_p bank)
 void VarBankClearExtNames(VarBank_p vars)
 {
    VarBankClearExtNamesNoReset(vars);
-   VarBankResetVCounts(vars);
+   VarBankResetVCount(vars);
    clear_env_stack(vars);
 }
 
@@ -319,15 +265,25 @@ void VarBankClearExtNamesNoReset(VarBank_p vars)
 
 void VarBankVarsSetProp(VarBank_p bank, TermProperties prop)
 {
+   VarBankStack_p stack;
    Term_p handle;
-   int i;
+   int i, j;
 
-   for(i=0; i<PDArraySize(bank->variables); i++)
+   for(i=0; i<PDArraySize(bank->stacks); i++)
    {
-      handle = PDArrayElementP(bank->variables, i);
-      if(handle)
+      stack = PDArrayElementP(bank->stacks, i);
+      if (!stack)
       {
-         TermCellSetProp(handle, prop);
+         continue;
+      }
+
+      for(j=0; j < stack->size; j++)
+      {
+         handle = PDArrayElementP(stack, j);
+         if(handle)
+         {
+            TermCellSetProp(handle, prop);
+         }
       }
    }
 }
@@ -347,15 +303,25 @@ void VarBankVarsSetProp(VarBank_p bank, TermProperties prop)
 
 void VarBankVarsDelProp(VarBank_p bank, TermProperties prop)
 {
+   VarBankStack_p stack;
    Term_p handle;
-   int i;
+   int i, j;
 
-   for(i=0; i<PDArraySize(bank->variables); i++)
+   for(i=0; i<PDArraySize(bank->stacks); i++)
    {
-      handle = PDArrayElementP(bank->variables, i);
-      if(handle)
+      stack = PDArrayElementP(bank->stacks, i);
+      if (!stack)
       {
-         TermCellDelProp(handle, prop);
+         continue;
+      }
+
+      for(j=0; j < stack->size; j++)
+      {
+         handle = PDArrayElementP(stack, j);
+         if(handle)
+         {
+            TermCellDelProp(handle, prop);
+         }
       }
    }
 }
@@ -374,10 +340,13 @@ void VarBankVarsDelProp(VarBank_p bank, TermProperties prop)
 //
 /----------------------------------------------------------------------*/
 
-Term_p VarBankFCodeFind(VarBank_p bank, FunCode f_code)
+Term_p VarBankFCodeFind(VarBank_p bank, FunCode f_code, Type_p type)
 {
+   VarBankStack_p stack;
+
    assert(f_code<0);
-   return PDArrayElementP(bank->variables, -f_code);
+   stack = VarBankGetStack(bank, type->type_uid);
+   return PDArrayElementP(stack, -f_code);
 }
 
 
@@ -425,8 +394,6 @@ Term_p VarBankVarAlloc(VarBank_p bank, FunCode f_code, Type_p type)
 {
    Term_p var;
 
-   assert(!PDArrayElementP(bank->variables, -f_code));
-
    var = TermDefaultCellAlloc();
    TermCellSetProp(var, TPIsShared);
 
@@ -437,9 +404,8 @@ Term_p VarBankVarAlloc(VarBank_p bank, FunCode f_code, Type_p type)
    var->f_code = f_code;
    var->type = type;
 
-   PDArrayAssignP(bank->variables, -f_code, var);
+   PDArrayAssignP(VarBankGetStack(bank, type->type_uid), -f_code, var);
    bank->max_var = MAX(-f_code, bank->max_var);
-   bank->var_count++;
 
    return var;
 }
@@ -464,28 +430,11 @@ Term_p VarBankVarAlloc(VarBank_p bank, FunCode f_code, Type_p type)
 //
 /----------------------------------------------------------------------*/
 
-Term_p VarBankGetFreshVar(VarBank_p bank, Type_p type)
+Term_p  VarBankGetFreshVar(VarBank_p bank, Type_p t)
 {
-   Term_p res;
-   TypeUniqueID type_num = type->type_uid;
+   bank->v_count+=2;
 
-   int v_count = PDArrayElementInt(bank->v_counts, type_num);
-   VarBankStack_p stack = VarBankGetStack(bank, type_num);
-   if(UNLIKELY(PStackGetSP(stack)<=v_count))
-   {
-      bank->fresh_count+=2;
-      res = VarBankVarAssertAlloc(bank, -(bank->fresh_count), type);
-      PStackPushP(stack,res);
-      assert(PStackGetSP(stack)>v_count);
-   }
-   else
-   {
-      res = PStackElementP(stack, v_count);
-   }
-   v_count++;
-   PDArrayAssignInt(bank->v_counts, type_num, v_count);
-
-   return res;
+   return VarBankVarAssertAlloc(bank, -(bank->v_count), t);
 }
 
 
@@ -641,9 +590,8 @@ void VarBankPopEnv(VarBank_p bank)
 
 /*-----------------------------------------------------------------------
 //
-// Function: VarBankCardinality()
-//
-//   Returns the number of variables in the whole var bank
+// Function: VarBankCardinal
+// Returns the number of variables in the whole var bank
 //
 //
 // Global Variables: -
@@ -651,10 +599,22 @@ void VarBankPopEnv(VarBank_p bank)
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
-
-long VarBankCardinality(VarBank_p bank)
+long VarBankCardinal(VarBank_p bank)
 {
-   return bank->var_count;
+   VarBankStack_p stack;
+   long res = 0;
+   int i;
+
+   for (i=0; i < PDArraySize(bank->stacks); i++)
+   {
+      stack = PDArrayElementP(bank->stacks, i);
+      if (stack)
+      {
+         res += PDArrayMembers(stack);
+      }
+   }
+
+   return res;
 }
 
 
@@ -674,18 +634,25 @@ long VarBankCardinality(VarBank_p bank)
 long VarBankCollectVars(VarBank_p bank, PStack_p into)
 {
    long res = 0;
-   FunCode i;
-   Term_p t;
+   VarBankStack_p stack;
+   int i;
+   FunCode j;
+   Term_p current_term;
 
-   for (i=0; i < PDArraySize(bank->variables); i++)
+   for (i=0; i < PDArraySize(bank->stacks); i++)
    {
-      t = PDArrayElementP(bank->variables, i);
-      if(t)
+      stack = PDArrayElementP(bank->stacks, i);
+      if (stack)
       {
-         PStackPushP(into, t);
-         res ++;
+         for(j=0; j<PDArraySize(stack); j++)
+         {
+            current_term = PDArrayElementP(stack, j);
+            PStackPushP(into, current_term);
+            res ++;
+         }
       }
    }
+
    return res;
 }
 

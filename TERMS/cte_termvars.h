@@ -35,7 +35,7 @@
 /*---------------------------------------------------------------------*/
 
 /* Associate FunCodes and cells */
-typedef PStack_p VarBankStack_p;
+typedef PDArray_p VarBankStack_p;
 
 /* Variable banks store information about variables. They contain two
    indices, one associating an external variable name with an internal
@@ -48,17 +48,10 @@ typedef PStack_p VarBankStack_p;
 
 typedef struct varbankcell
 {
-   long        var_count;
-   FunCode     fresh_count; /* FunCode counter for new variables */
-   TypeBank_p  sort_table;  /* Sorts that are used for variables */
-   FunCode     max_var;       /* Largest variable ever created */
-   PDArray_p   varstacks;  /* Maps each sort to a bank of variables
-                            * of these sort available to represent
-                            * external variables. */
-   PDArray_p   v_counts;   /* Number of fresh variables of a given
-                            * sort already used. */
-   PDArray_p   variables;  /* Array of all variables, indexed by
-                              -f_code */
+   FunCode     v_count;    /* FunCode counter for new variables */
+   TypeBank_p sort_table; /* Sorts that are used for variables */
+   FunCode     max_var;    /* Largest variable ever created */
+   PDArray_p   stacks;     /* Maps each sort to a bank of variables */
    StrTree_p   ext_index;  /* Associate names and cells */
    PStack_p    env;        /* Scoping environment for quantified
                             * external variables */
@@ -96,15 +89,13 @@ static __inline__ VarBankStack_p  VarBankGetStack(VarBank_p bank, TypeUniqueID s
 
 VarBank_p  VarBankAlloc(TypeBank_p sort_table);
 void       VarBankFree(VarBank_p junk);
-void       VarBankResetVCounts(VarBank_p bank);
-void       VarBankSetVCountsToUsed(VarBank_p bank);
 void       VarBankClearExtNames(VarBank_p bank);
 void       VarBankClearExtNamesNoReset(VarBank_p bank);
 void       VarBankVarsSetProp(VarBank_p bank, TermProperties prop);
 void       VarBankVarsDelProp(VarBank_p bank, TermProperties prop);
 
 VarBankStack_p  VarBankCreateStack(VarBank_p bank, TypeUniqueID sort);
-Term_p VarBankFCodeFind(VarBank_p bank, FunCode f_code);
+Term_p VarBankFCodeFind(VarBank_p bank, FunCode f_code, Type_p t);
 Term_p VarBankExtNameFind(VarBank_p bank, char* name);
 static __inline__ Term_p VarBankVarAssertAlloc(VarBank_p bank, FunCode f_code, Type_p sort);
 Term_p VarBankVarAlloc(VarBank_p bank, FunCode f_code, Type_p sort);
@@ -113,8 +104,11 @@ Term_p VarBankExtNameAssertAlloc(VarBank_p bank, char* name);
 Term_p VarBankExtNameAssertAllocSort(VarBank_p bank, char* name, Type_p sort);
 void   VarBankPushEnv(VarBank_p bank);
 void   VarBankPopEnv(VarBank_p bank);
-long   VarBankCardinality(VarBank_p bank);    /* Number of existing variables */
+long   VarBankCardinal(VarBank_p bank);    /* Number of existing variables */
 long   VarBankCollectVars(VarBank_p bank, PStack_p stack);
+#define VarBankGetVCount(bank)      ((bank)->v_count)
+#define VarBankSetVCount(bank,count) ((bank)->v_count = (count))
+#define VarBankResetVCount(bank) ((bank)->v_count = 0)
 #define VarIsFreshVar(var) ((var)->f_code <= -FRESH_VAR_LIMIT)
 #define VarFCodeIsFresh(f_code) ((f_code) <= -FRESH_VAR_LIMIT)
 
@@ -125,10 +119,9 @@ long   VarBankCollectVars(VarBank_p bank, PStack_p stack);
 
 /*-----------------------------------------------------------------------
 //
-// Function: VarBankGetStack()
+// Function: VarBankGetStack
+// Obtain a pointer to the stack that stores variables of a given sort.
 //
-//   Obtain a pointer to the stack that stores variables of a given
-//   sort.
 //
 // Global Variables: -
 //
@@ -140,11 +133,19 @@ static __inline__ VarBankStack_p  VarBankGetStack(VarBank_p bank, TypeUniqueID s
 {
    VarBankStack_p res;
 
-   res = (VarBankStack_p) PDArrayElementP(bank->varstacks, sort);
-   if (!res)
+   if (sort >= PDArraySize(bank->stacks))
    {
       res = VarBankCreateStack(bank, sort);
    }
+   else
+   {
+      res = (VarBankStack_p) PDArrayElementP(bank->stacks, sort);
+      if (!res)
+      {
+         res = VarBankCreateStack(bank, sort);
+      }
+   }
+
    return res;
 }
 
@@ -167,7 +168,8 @@ static __inline__ Term_p VarBankVarAssertAlloc(VarBank_p bank, FunCode f_code,
    Term_p var;
 
    assert(f_code < 0);
-   var = PDArrayElementP(bank->variables, -f_code);
+
+   var = PDArrayElementP(VarBankGetStack(bank, type->type_uid), -f_code);
    if(UNLIKELY(!var))
    {
       var = VarBankVarAlloc(bank, f_code, type);

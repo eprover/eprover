@@ -612,7 +612,7 @@ long TBTermNodes(TB_p bank)
 {
    assert(TermCellStoreNodes(&(bank->term_store))==
           TermCellStoreCountNodes(&(bank->term_store)));
-   return TermCellStoreNodes(&(bank->term_store))+VarBankCardinality(bank->vars);
+   return TermCellStoreNodes(&(bank->term_store))+VarBankCardinal(bank->vars);
 }
 
 
@@ -1060,7 +1060,7 @@ Term_p TBFind(TB_p bank, Term_p term)
 {
    if(TermIsVar(term))
    {
-      return VarBankFCodeFind(bank->vars, term->f_code);
+      return VarBankFCodeFind(bank->vars, term->f_code, term->type);
    }
    return TermCellStoreFind(&(bank->term_store), term);
 }
