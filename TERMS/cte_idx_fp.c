@@ -22,7 +22,7 @@ Changes
 -----------------------------------------------------------------------*/
 
 #include "cte_idx_fp.h"
-
+#include "cte_simpletypes.h"
 
 
 /*---------------------------------------------------------------------*/
@@ -172,6 +172,7 @@ FunCode TermFPSampleFO(Term_p term, va_list ap)
 //
 //  For details see TermFPSampleFO(). It differs by supporting
 //  prefix matching/unification, where terms can have trailing arguments.
+//  
 //
 // Global Variables:
 //
@@ -182,35 +183,42 @@ FunCode TermFPSampleHO(Term_p term, va_list ap)
 {
    assert(problemType == PROBLEM_HO);
    int pos = va_arg(ap, int);
-   FunCode res = 0;
+   FunCode res;
 
-   if (!TermIsTopLevelVar(term) && pos != -1 && pos >= term->arity)
+   int arg_expansion_num = TypeGetArgNum(term->type);
+
+   if(pos != -1 && pos < arg_expansion_num)
    {
-      res = BELOW_VAR;
+      res = (va_arg(ap, int) == -1) ? ANY_VAR : BELOW_VAR;
    }
-   else
+   else if (pos != -1)
    {
-      for(; pos != -1;  pos = va_arg(ap, int))
+      pos -= arg_expansion_num;
+      for(; pos != -1; pos = va_arg(ap, int))
       {
-         if(TermIsTopLevelVar(term))
+         if(TermIsVar(term))
          {
             res = BELOW_VAR;
             break;
          }
-         if(pos >= term->arity)
+
+         if (pos < ARG_NUM(term))
          {
-            res = NOT_IN_TERM;
+            int actual_pos = term->arity-1 - pos;
+            term = term->args[actual_pos];
+         }
+         else
+         {
+            res = TermIsAppliedVar(term) ? BELOW_VAR : NOT_IN_TERM;
             break;
          }
-         term = term->args[pos];
       }
-      if(pos == -1)
-      {
-         res = TermIsVar(term) ? ANY_VAR : 
-                  (TermIsAppliedVar(term) ? BELOW_VAR : term->f_code);
-      }  
    }
 
+   if(pos == -1)
+   {
+      res = TermIsTopLevelVar(term)?ANY_VAR:term->f_code;
+   }
 
    va_end(ap);
 
@@ -966,16 +974,16 @@ void IndexFPPrint(FILE* out, IndexFP_p fp)
 
    if(limit>=2)
    {
-      fprintf(stdout, "<%ld", fp[1]);
+      fprintf(out, "<%ld", fp[1]);
       for(i=2; i<limit; i++)
       {
-         fprintf(stdout, ",%ld", fp[i]);
+         fprintf(out, ",%ld", fp[i]);
       }
-      fprintf(stdout, ">");
+      fprintf(out, ">");
    }
    else
    {
-      fprintf(stdout, "<>");
+      fprintf(out, "<>");
    }
 }
 

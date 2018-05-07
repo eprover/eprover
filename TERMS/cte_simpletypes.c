@@ -293,7 +293,7 @@ DStr_p TypeAppEncodedName(Type_p type)
 
 /*-----------------------------------------------------------------------
 //
-// Function: TypeGetSymbolArity()
+// Function: TypeGetArgNum()
 //
 //  Given a type, determine what is the maximal arity of a function
 //  symbol.
@@ -303,7 +303,7 @@ DStr_p TypeAppEncodedName(Type_p type)
 // Side Effects    : 
 //
 /----------------------------------------------------------------------*/
-__inline__ int TypeGetSymbolArity(Type_p t)
+__inline__ int TypeGetArgNum(Type_p t)
 {
   return (TypeIsArrow(t) ? (t)->arity -1 : 0);
 }
