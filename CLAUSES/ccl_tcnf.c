@@ -1780,7 +1780,7 @@ void WTFormulaConjunctiveNF(WFormula_p form, TB_p terms)
       WFormulaPushDerivation(form, DCShiftQuantors, NULL, NULL);
    }
    max_var = TFormulaFindMaxVarCode(form->tformula);
-   VarBankSetVCountsToUsed(terms->vars);
+   VarBankSetVCount(terms->vars, -max_var);
    handle = TFormulaVarRename(terms, form->tformula);
 
    if(handle!=form->tformula)
@@ -1857,7 +1857,7 @@ void WTFormulaConjunctiveNF2(WFormula_p form, TB_p terms,
    //printf("# NNFed\n");
 
    max_var = TFormulaFindMaxVarCode(form->tformula);
-   VarBankSetVCountsToUsed(terms->vars);
+   VarBankSetVCount(terms->vars, -max_var);
    handle = TFormulaVarRename(terms, form->tformula);
 
    if(handle!=form->tformula)
