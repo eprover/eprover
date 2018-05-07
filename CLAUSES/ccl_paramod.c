@@ -419,7 +419,15 @@ Term_p ComputeOverlap(TB_p bank, OCB_p ocb, ClausePos_p from, Term_p
 
    oldstate = PStackGetSP(subst);
 
+   fprintf(stderr, "From term: ");
+   TermPrint(stderr, max_side, bank->sig, true);
+   fprintf(stderr, ", term into: ");
+   TermPrint(stderr, sub_into, bank->sig, DEREF_NEVER);
+
    unify_res = SubstMguPossiblyPartial(max_side, sub_into, subst, bank);
+
+   fprintf(stderr, ", %s%d\n", GetSideStr(unify_res), unify_res.term_remaining);
+
 
    /* If unification succeeded and potentially prefix of into term has been unified */
    if(!UnifFailed(unify_res) 
@@ -635,7 +643,9 @@ Clause_p ClauseOrderedSimParamod(TB_p bank, OCB_p ocb, ClausePos_p
 
    assert(EqnIsMaximal(from->literal));
    assert(!EqnIsOriented(from->literal)||(from->side==LeftSide));
-   assert(!TermIsVar(ClausePosGetSide(from))||
+   // The guards against variable can match only equational literals
+   // is an optimization only in FO case.
+   assert(!TermIsVar(ClausePosGetSide(from))||problemType==PROBLEM_HO||
      EqnIsEquLit(into->literal)||!TermPosIsTopPos(into->pos));
 
       into_term = ClausePosGetSubterm(into);
@@ -648,6 +658,9 @@ Clause_p ClauseOrderedSimParamod(TB_p bank, OCB_p ocb, ClausePos_p
    subst = SubstAlloc();
    VarBankResetVCount(freshvars);
    unify_res = SubstMguPossiblyPartial(from_term, into_term, subst, bank);
+   
+   fprintf(stderr, ", %s%d\n", GetSideStr(unify_res), unify_res.term_remaining);
+
    if((UnifFailed(unify_res) || !CheckHOUnificationConstraints(unify_res, RightTerm, from_term, into_term)) ||
       (!EqnIsOriented(from->literal) &&
        TOGreater(ocb, ClausePosGetOtherSide(from), from_term,
@@ -761,7 +774,7 @@ Clause_p ClauseOrderedSimParamod(TB_p bank, OCB_p ocb, ClausePos_p
   (EqnIsPositive(pos->literal) && no_top && TermPosIsTopPos(pos->pos))||\
   /* Don't overlap variable into predicate position */\
     (TermIsVar(ClausePosGetSide(from_pos)) &&\
-     !EqnIsEquLit(pos->literal) &&\
+     problemType == PROBLEM_FO && !EqnIsEquLit(pos->literal) &&\
      TermPosIsTopPos(pos->pos)))
 
 /*-----------------------------------------------------------------------
@@ -790,7 +803,7 @@ Term_p ClausePosFirstParamodInto(Clause_p clause, ClausePos_p pos,
    pos->clause = clause;
    pos->literal = clause->literals;
 
-   if(EqnIsEquLit(from_pos->literal))
+   if(EqnIsEquLit(from_pos->literal) || problemType == PROBLEM_HO)
    {
       res = ClausePosFindFirstMaximalSubterm(pos);
    }
@@ -837,12 +850,12 @@ Term_p ClausePosNextParamodInto(ClausePos_p pos, ClausePos_p from_pos, bool
 {
    Term_p res;
 
-   if(EqnIsEquLit(from_pos->literal))
+   if(EqnIsEquLit(from_pos->literal) || problemType == PROBLEM_HO)
    {
       res = ClausePosFindNextMaximalSubterm(pos);
    }
    else
-   {  /* We don't need to try subterms, they won't unify anyways. We
+   {  /* We don't need to try subterms, they won't unify anyways -- not true in HO case. We
     also don't need positive literals, because at best we would
     get a tautology. */
       pos->literal = pos->literal->next;
@@ -850,12 +863,12 @@ Term_p ClausePosNextParamodInto(ClausePos_p pos, ClausePos_p from_pos, bool
    }
    while(res && (IS_NO_PARAMOD_POS))
    {
-      if(EqnIsEquLit(from_pos->literal))
+      if(EqnIsEquLit(from_pos->literal) || problemType == PROBLEM_HO)
       {
     res = ClausePosFindNextMaximalSubterm(pos);
       }
       else
-      {  /* See above - same reasoning */
+      {  /* See above - same reasoning -- also not true in HO  */
     pos->literal = pos->literal->next;
     res = clause_pos_find_first_neg_max_lside(pos);
       }
