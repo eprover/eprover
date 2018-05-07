@@ -45,8 +45,8 @@ typedef struct pstackcell
 
 
 #define PSTACK_DEFAULT_SIZE 128 /* Stacks grow exponentially (and never
-                                   shrink unless explicitly freed) -
-                                   take care */
+               shrink unless explicitly freed) -
+               take care */
 
 
 #define PStackCellAlloc() (PStackCell*)SizeMalloc(sizeof(PStackCell))
@@ -425,3 +425,8 @@ static __inline__ IntOrP *PStackElementRef(PStack_p stack, PStackPointer pos)
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
+
+
+
+
+
