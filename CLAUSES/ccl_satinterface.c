@@ -631,21 +631,21 @@ Subst_p SubstPseudoGroundVarBank(VarBank_p vars)
 
    assert(vars);
 
-   for (i=0; i < PDArraySize(vars->varstacks); i++)
+   for (i=0; i < PDArraySize(vars->stacks); i++)
    {
-      varstack = PDArrayElementP(vars->varstacks, i);
+      varstack = PDArrayElementP(vars->stacks, i);
       // printf("# varstack: %p\n", varstack);
       if (varstack)
       {
-         size = PStackGetSP(varstack);
+         size = PDArraySize(varstack);
          // printf("# varstack size: %ld\n", size);
-         if(size)
+         if(size > 1)
          {
-            norm = PStackElementP(varstack,0);
+            norm = PDArrayElementP(varstack,1);
             // printf("# varstack[1]: %p\n", norm);
-            for(j=1; j< size; j++)
+            for(j=2; j< size; j++)
             {
-               current = PStackElementP(varstack,j);
+               current = PDArrayElementP(varstack,j);
                // printf("# varstack[%ld]: %p\n", j, current);
                if(current)
                {
@@ -682,15 +682,15 @@ Subst_p SubstGroundVarBankFirstConst(TB_p terms, bool norm_const)
 
    assert(vars);
 
-   for (i=0; i < PDArraySize(vars->varstacks); i++)
+   for (i=0; i < PDArraySize(vars->stacks); i++)
    {
-      varstack = PDArrayElementP(vars->varstacks, i);
+      varstack = PDArrayElementP(vars->stacks, i);
       // printf("# varstack: %p\n", varstack);
       if (varstack)
       {
-         size = PStackGetSP(varstack);
+         size = PDArraySize(varstack);
          // printf("# varstack size: %ld\n", size);
-         backup = PStackElementP(varstack,0);
+         backup = PDArrayElementP(varstack,1);
 
          // TODO: CHECK IF THIS IS ENOUGH -- IF NOT INTRODUCE ID -> TYPE INDEX
          norm = TBGetFirstConstTerm(terms, backup ? backup->type : NULL);
@@ -703,9 +703,9 @@ Subst_p SubstGroundVarBankFirstConst(TB_p terms, bool norm_const)
             norm = TermFollowRWChain(norm);
          }
          // printf("# varstack[1]: %p\n", norm);
-         for(j=0; j< size; j++)
+         for(j=1; j< size; j++)
          {
-            current = PStackElementP(varstack,j);
+            current = PDArrayElementP(varstack,j);
             // printf("# varstack[%ld]: %p\n", j, current);
             if(current)
             {
@@ -752,15 +752,15 @@ Subst_p SubstGroundFreqBased(TB_p terms, ClauseSet_p clauses,
    ClauseSetAddSymbolDistribution(clauses, dist_array);
    ClauseSetAddConjSymbolDistribution(clauses, conj_dist_array);
 
-   for (i=0; i < PDArraySize(vars->varstacks); i++)
+   for (i=0; i < PDArraySize(vars->stacks); i++)
    {
-      varstack = PDArrayElementP(vars->varstacks, i);
+      varstack = PDArrayElementP(vars->stacks, i);
       // printf("# varstack: %p\n", varstack);
       if (varstack)
       {
-         size = PStackGetSP(varstack);
+         size = PDArraySize(varstack);
          // printf("# varstack size: %ld\n", size);
-         backup = PStackElementP(varstack,0);
+         backup = PDArrayElementP(varstack,1);
 
          norm = TBGetFreqConstTerm(terms, (backup ? backup->type : NULL), 
                                    conj_dist_array, dist_array, is_better);
@@ -775,7 +775,7 @@ Subst_p SubstGroundFreqBased(TB_p terms, ClauseSet_p clauses,
          // printf("# varstack[1]: %p\n", norm);
          for(j=1; j< size; j++)
          {
-            current = PStackElementP(varstack,j);
+            current = PDArrayElementP(varstack,j);
             // printf("# varstack[%ld]: %p\n", j, current);
             if(current)
             {

@@ -68,7 +68,7 @@ Clause_p ComputeEqRes(TB_p bank, ClausePos_p pos, VarBank_p freshvars)
 
    assert(!EqnIsPositive(pos->literal));
    subst = SubstAlloc();
-   VarBankResetVCounts(freshvars);
+   VarBankResetVCount(freshvars);
 
    unifies = SubstMguComplete(pos->literal->lterm, pos->literal->rterm,
               subst, bank);
@@ -152,3 +152,5 @@ Eqn_p ClausePosNextEqResLiteral(ClausePos_p pos)
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
+
+
