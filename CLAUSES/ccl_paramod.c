@@ -666,7 +666,7 @@ Clause_p ClauseOrderedSimParamod(TB_p bank, OCB_p ocb, ClausePos_p
        TOGreater(ocb, ClausePosGetOtherSide(from), from_term,
                  DEREF_ALWAYS, DEREF_ALWAYS)))
    {
-      /* Fail because of into-position invariant property of into-term
+      /* Fail because of into-position invariant property of into-term>
        * - either we don't unify, or the intantiated from-term is no
        longer maximal in its literal */
       TermCellDelProp(into_term, TPPotentialParamod);
