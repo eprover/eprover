@@ -343,8 +343,8 @@ void VarBankVarsDelProp(VarBank_p bank, TermProperties prop)
 Term_p VarBankFCodeFind(VarBank_p bank, FunCode f_code, Type_p type)
 {
    VarBankStack_p stack;
-
    assert(f_code<0);
+   
    stack = VarBankGetStack(bank, type->type_uid);
    return PDArrayElementP(stack, -f_code);
 }
