@@ -900,25 +900,26 @@ static Clause_p cleanup_unprocessed_clauses(ProofState_p state,
 
 Clause_p SATCheck(ProofState_p state, ProofControl_p control)
 {
-   Clause_p res = NULL;
+   Clause_p     empty = NULL;
+   ProverResult res;
 
    if(control->heuristic_parms.sat_check_normalize)
    {
       //printf("# Cardinality of unprocessed: %ld\n",
       //        ClauseSetCardinality(state->unprocessed));
-      res = ForwardContractSetReweight(state, control, state->unprocessed,
+      empty = ForwardContractSetReweight(state, control, state->unprocessed,
                                        false, 2,
                                        &(state->proc_trivial_count));
       // printf("# ForwardContraction done\n");
 
    }
-   if(!res)
+   if(!empty)
    {
       SatClauseSet_p set = SatClauseSetAlloc();
 
       //printf("# SatCheck() %ld, %ld..\n",
-      //       state->proc_non_trivial_count,
-      //       ProofStateCardinality(state));
+      //state->proc_non_trivial_count,
+      //ProofStateCardinality(state));
 
       SatClauseSetImportProofState(set, state,
                                    control->heuristic_parms.sat_check_grounding,
@@ -926,15 +927,19 @@ Clause_p SATCheck(ProofState_p state, ProofControl_p control)
 
       // printf("# SatCheck()..imported\n");
 
-      res = SatClauseSetCheckUnsat(set);
+      res = SatClauseSetCheckUnsat(set, &empty);
       state->satcheck_count++;
-      if(res)
+      if(res == PRUnsatisfiable)
       {
          state->satcheck_success++;
       }
+      else if(res == PRSatisfiable)
+      {
+         state->satcheck_satisfiable++;
+      }
       SatClauseSetFree(set);
    }
-   return res;
+   return empty;
 }
 
 #ifdef PRINT_SHARING

@@ -100,7 +100,7 @@ long        SatClauseSetImportClauseSet(SatClauseSet_p satset, ClauseSet_p set);
 long        SatClauseSetImportProofState(SatClauseSet_p satset, ProofState_p state,
                                          GroundingStrategy strat, bool norm_const);
 long        SatClauseSetMarkPure(SatClauseSet_p satset);
-Clause_p    SatClauseSetCheckUnsat(SatClauseSet_p satset);
+ProverResult SatClauseSetCheckUnsat(SatClauseSet_p satset, Clause_p *empty);
 
 
 

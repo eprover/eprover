@@ -26,9 +26,9 @@ Changes
 /*                    Data type declarations                           */
 /*---------------------------------------------------------------------*/
 
-#ifndef E_OPTIONS
+#ifndef E_OPTIONS_GUARD
 
-#define E_OPTIONS
+#define E_OPTIONS_GUARD
 
 
 typedef enum

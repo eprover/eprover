@@ -739,7 +739,7 @@ Subst_p SubstGroundFreqBased(TB_p terms, ClauseSet_p clauses,
    Subst_p subst = SubstAlloc();
    VarBank_p vars = terms->vars;
    VarBankStack_p varstack;
-   long i, j, size, dist_arr_size;
+   long sort, j, size, dist_arr_size;
    Term_p current, norm, backup;
    long *conj_dist_array, *dist_array;
 
@@ -754,9 +754,9 @@ Subst_p SubstGroundFreqBased(TB_p terms, ClauseSet_p clauses,
    ClauseSetAddSymbolDistribution(clauses, dist_array);
    ClauseSetAddConjSymbolDistribution(clauses, conj_dist_array);
 
-   for (i=0; i < PDArraySize(vars->varstacks); i++)
+   for (sort=0; sort < PDArraySize(vars->varstacks); sort++)
    {
-      varstack = PDArrayElementP(vars->varstacks, i);
+      varstack = PDArrayElementP(vars->varstacks, sort);
       // printf("# varstack: %p\n", varstack);
       if (varstack)
       {
@@ -766,7 +766,7 @@ Subst_p SubstGroundFreqBased(TB_p terms, ClauseSet_p clauses,
          {
             backup = PStackElementP(varstack,0);
 
-            norm = TBGetFreqConstTerm(terms, i, conj_dist_array, dist_array, is_better);
+            norm = TBGetFreqConstTerm(terms, sort, conj_dist_array, dist_array, is_better);
             if(!norm)
             {
                norm = backup;
@@ -943,12 +943,12 @@ long SatClauseSetMarkPure(SatClauseSet_p satset)
 //
 /----------------------------------------------------------------------*/
 
-Clause_p SatClauseSetCheckUnsat(SatClauseSet_p satset)
+ProverResult SatClauseSetCheckUnsat(SatClauseSet_p satset, Clause_p *empty)
 {
    static char buffer[PICOSAT_BUFSIZE];
 
    long pure = 0;
-   Clause_p res = NULL;
+   ProverResult res = PRNoResult;
    char *file, *data;
    FILE *fp, *picores;
    DStr_p cmd = DStrAlloc();
@@ -968,11 +968,18 @@ Clause_p SatClauseSetCheckUnsat(SatClauseSet_p satset)
 
    while((data = fgets(buffer, PICOSAT_BUFSIZE, picores)))
    {
-      //fprintf(GlobalOut, "# PICO: %s", data);
+      // fprintf(GlobalOut, "# PICO: %s", data);
       if(strcmp(data, "s UNSATISFIABLE\n") == 0)
       {
-         fprintf(GlobalOut, "# SatCheck found unsatisfiable ground set");
-         res = EmptyClauseAlloc();
+         //fprintf(GlobalOut, "# SatCheck found unsatisfiable ground set\n");
+         *empty = EmptyClauseAlloc();
+         res = PRUnsatisfiable;
+      }
+      else if(strcmp(data, "s SATISFIABLE\n") == 0)
+      {
+         //fprintf(GlobalOut, "# SatCheck found grounded set model\n");
+         res = PRSatisfiable;
+         break;
       }
    }
    pclose(picores);

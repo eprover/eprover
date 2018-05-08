@@ -213,14 +213,15 @@ ProofState_p ProofStateAlloc(FunctionProperties free_symb_prop)
    handle->generated_count              = 0;
    handle->generated_lit_count          = 0;
    handle->non_trivial_generated_count  = 0;
-   handle->context_sr_count   = 0;
-   handle->paramod_count      = 0;
-   handle->factor_count       = 0;
-   handle->resolv_count       = 0;
-   handle->satcheck_count     = 0;
-   handle->satcheck_success   = 0;
-   handle->gc_count           = 0;
-   handle->gc_used_count      = 0;
+   handle->context_sr_count     = 0;
+   handle->paramod_count        = 0;
+   handle->factor_count         = 0;
+   handle->resolv_count         = 0;
+   handle->satcheck_count       = 0;
+   handle->satcheck_success     = 0;
+   handle->satcheck_satisfiable = 0;
+   handle->gc_count             = 0;
+   handle->gc_used_count        = 0;
 
    handle->signature->distinct_props =
       handle->signature->distinct_props&(~free_symb_prop);
@@ -599,6 +600,8 @@ void ProofStateStatisticsPrint(FILE* out, ProofState_p state)
       state->resolv_count);
    fprintf(out, "# Propositional unsat checks           : %ld\n",
       state->satcheck_count);
+   fprintf(out, "# Propositional unsat check models     : %ld\n",
+      state->satcheck_satisfiable);
    fprintf(out, "# Propositional unsat check successes  : %ld\n",
       state->satcheck_success);
    fprintf(out,
