@@ -78,7 +78,7 @@ INVALID_HEADER:
 
   while (isspace (ch = next ()))
     ;
-    
+
   if (!isdigit (ch))
     goto INVALID_HEADER;
 
@@ -323,8 +323,8 @@ write_failed_assumptions (PicoSAT * picosat, FILE * file)
 }
 
 static void
-write_to_file (PicoSAT * picosat, 
-               const char *name, 
+write_to_file (PicoSAT * picosat,
+               const char *name,
                const char *type,
 	       void (*writer) (PicoSAT *, FILE *))
 {
@@ -342,8 +342,15 @@ write_to_file (PicoSAT * picosat,
     }
   else
     {
-      file = fopen (name, "w");
-      pclose_file = 0;
+       if(strcmp(name, "-")!=0)
+       {
+          file = fopen (name, "w");
+       }
+       else
+       {
+          file = stdout;
+       }
+       pclose_file = 0;
     }
 
   if (file)
@@ -1003,14 +1010,14 @@ picosat_main (int argc, char **argv)
 	  if (verbose)
 	    fprintf (output, "c propagation limit of %lld propagations\n",
 	             propagation_limit);
-	  picosat_set_propagation_limit (picosat, 
+	  picosat_set_propagation_limit (picosat,
 	    (unsigned long long) propagation_limit);
 	}
 
-      if (partial) 
+      if (partial)
 	{
 	  if (verbose)
-	    fprintf (output, 
+	    fprintf (output,
 	      "c saving original clauses for partial assignment\n");
 
 	  picosat_save_original_clauses (picosat);
@@ -1062,7 +1069,7 @@ NEXT_SOLUTION:
 	      picosat_set_seed (picosat, seed);
 	      if (verbose)
 		fprintf (output,
-			 "c\nc random number generator seed %u\n", 
+			 "c\nc random number generator seed %u\n",
 			 seed);
 
 	      res = picosat_sat (picosat, decision_limit);
@@ -1080,37 +1087,37 @@ NEXT_SOLUTION:
 		  if (compact_trace_name)
 		    write_to_file (picosat,
 		                   compact_trace_name,
-				   "compact trace", 
+				   "compact trace",
 				   picosat_write_compact_trace);
 
 		  if (extended_trace_name)
 		    write_to_file (picosat,
 		                   extended_trace_name,
-				   "extended trace", 
+				   "extended trace",
 				   picosat_write_extended_trace);
 
 		  if (!incremental_rup_file && rup_trace_name)
 		    write_to_file (picosat,
 		                   rup_trace_name,
-				   "rup trace", 
+				   "rup trace",
 				   picosat_write_rup_trace);
 
 		  if (clausal_core_name)
 		    write_to_file (picosat,
-		                   clausal_core_name, 
+		                   clausal_core_name,
 				   "clausal core",
 				   picosat_write_clausal_core);
 
 		  if (variable_core_name)
 		    write_to_file (picosat,
-		                   variable_core_name, 
+		                   variable_core_name,
 				   "variable core",
 				   write_core_variables);
 
 		  if (failed_assumptions_name)
 		    write_to_file (picosat,
 		                   failed_assumptions_name,
-		                   "failed assumptions", 
+		                   "failed assumptions",
 				   write_failed_assumptions);
 		}
 	      else if (res == PICOSAT_SATISFIABLE)

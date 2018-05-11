@@ -1392,7 +1392,7 @@ void ClausePrintLOPFormat(FILE* out, Clause_p clause, bool fullterms)
 //
 //   Print a clause in the most canonical representation.
 //
-// Global Variables: TPTPFormatPrint
+// Global Variables: OutputFormat
 //
 // Side Effects    : Output
 //
@@ -1437,7 +1437,7 @@ void ClausePrint(FILE* out, Clause_p clause, bool fullterms)
 //
 //   Print a clause in PCL format.
 //
-// Global Variables: TPTPFormatPrint
+// Global Variables: OutputFormat
 //
 // Side Effects    : Output
 //

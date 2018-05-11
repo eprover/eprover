@@ -44,9 +44,12 @@ typedef struct satclausecell
 
 typedef struct satclausesetcell
 {
-   PDRangeArr_p renumber_index;
+   PDRangeArr_p renumber_index; // Used to map term->id to [0...max_lit]
    int          max_lit;
-   PStack_p     set;
+   PStack_p     set;            // Actual set (clauses must be freed)
+   PStack_p     printset;       // Subset last printed, references
+                                // only
+   long         core_size;      // Size of the unsat core, if any
 }SatClauseSetCell, *SatClauseSet_p;
 
 
@@ -84,6 +87,11 @@ void        SatClauseFree(SatClause_p junk);
 
 SatClauseSet_p SatClauseSetAlloc(void);
 void           SatClauseSetFree(SatClauseSet_p junk);
+
+#define SatClauseSetCardinality(satset) PStackGetSP((satset)->set)
+#define SatClauseSetNonPureCardinality(satset) PStackGetSP((satset)->printset)
+#define SatClauseSetCoreSize(satset) (satset)->core_size
+
 
 SatClause_p SatClauseCreateAndStore(Clause_p clause, SatClauseSet_p set);
 void        SatClausePrint(FILE* out, SatClause_p satclause);

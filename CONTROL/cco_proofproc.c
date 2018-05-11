@@ -932,6 +932,9 @@ Clause_p SATCheck(ProofState_p state, ProofControl_p control)
       if(res == PRUnsatisfiable)
       {
          state->satcheck_success++;
+         state->satcheck_full_size = SatClauseSetCardinality(set);
+         state->satcheck_actual_size = SatClauseSetNonPureCardinality(set);
+         state->satcheck_core_size = SatClauseSetCoreSize(set);
       }
       else if(res == PRSatisfiable)
       {

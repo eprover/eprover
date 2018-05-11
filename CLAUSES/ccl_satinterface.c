@@ -406,8 +406,9 @@ SatClauseSet_p SatClauseSetAlloc(void)
    set->max_lit = 0;
    set->renumber_index = NULL; // We create this lazily when we know
                                // the first index!
-   set->set = PStackAlloc();
-
+   set->set      = PStackAlloc();
+   set->printset = PStackAlloc();
+   set->core_size = 0;
    return set;
 }
 
@@ -438,6 +439,7 @@ void SatClauseSetFree(SatClauseSet_p junk)
       SatClauseFree(clause);
    }
    PStackFree(junk->set);
+   PStackFree(junk->printset);
    SatClauseSetCellFree(junk);
 }
 
@@ -561,12 +563,14 @@ void SatClauseSetPrintNonPure(FILE* out, SatClauseSet_p set, long pure)
    fprintf(out, "c Skipping %ld pure clauses\n", pure);
    fprintf(out, "p cnf %d %ld\n", set->max_lit, PStackGetSP(set->set)-pure);
 
+   PStackReset(set->printset);
    for(i=0; i<PStackGetSP(set->set); i++)
    {
       clause = PStackElementP(set->set, i);
       if(!clause->has_pure_lit)
       {
          SatClausePrint(out, clause);
+         PStackPushP(set->printset, clause);
       }
    }
    //printf("0\n");
@@ -909,7 +913,6 @@ long SatClauseSetMarkPure(SatClauseSet_p satset)
    for(i=0; i< PStackGetSP(satset->set); i++)
    {
       clause = PStackElementP(satset->set, i);
-      clause->has_pure_lit = false;
       litstate_add_satclause(litstate, clause);
       clause->has_pure_lit = false;
    }
@@ -923,11 +926,74 @@ long SatClauseSetMarkPure(SatClauseSet_p satset)
          pure_clauses++;
       }
    }
-
    SizeFree(litstate, sizeof(int)*(satset->max_lit+1));
 
    return pure_clauses;
 }
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: sat_extract_core()
+//
+//   Given a file (pipe) pointer pointing to a PicoSAT output, extract
+//   the original clauses pointing to the unsatisfiable core and push
+//   them onto core.
+//
+// Global Variables: -
+//
+// Side Effects    : Reads input
+//
+/----------------------------------------------------------------------*/
+
+long sat_extract_core(SatClauseSet_p satset, PStack_p core, FILE* picofp)
+{
+   DStr_p line = DStrAlloc();
+   char* ptr;
+   long id, dummy, res = 0;
+   bool parents = false;
+   SatClause_p satclause;
+
+   while((ptr = DStrFGetS(line, picofp)))
+   {
+      id = strtol(ptr, &ptr, 10);
+      ptr ++;
+      // Skip literals
+      while((dummy = strtol(ptr, &ptr, 10))!=0)
+      {
+         ptr++;
+      }
+      // check for parents
+
+      while((dummy = strtol(ptr, &ptr, 10))!=0)
+      {
+         ptr++;
+         parents = true;
+      }
+      if(!parents)
+      {
+         printf("# %s", DStrView(line));
+         printf("# Clause %ld in core\n", id);
+         // PicoSAT id start at 1, Stack addresses at 0!
+         if(id <= PStackGetSP(satset->printset))
+         {
+            res++;
+            satclause = PStackElementP(satset->printset, id-1);
+            PStackPushP(core, satclause->source);
+            ClausePrint(stdout, satclause->source, true);printf("\n");
+         }
+         else
+         {
+            Error("PicoSat returns impossible clause number", INTERFACE_ERROR);
+         }
+      }
+   }
+
+   DStrFree(line);
+
+   return res;
+}
+
 
 
 /*-----------------------------------------------------------------------
@@ -962,7 +1028,8 @@ ProverResult SatClauseSetCheckUnsat(SatClauseSet_p satset, Clause_p *empty)
    SatClauseSetPrintNonPure(fp, satset, pure);
    SecureFClose(fp);
 
-   DStrAppendStr(cmd, "picosat -L 1 ");
+   DStrAppendStr(cmd, "picosat -L 2 -T -");
+   DStrAppendStr(cmd, " ");
    DStrAppendStr(cmd, file);
    picores = popen(DStrView(cmd), "r");
 
@@ -971,8 +1038,12 @@ ProverResult SatClauseSetCheckUnsat(SatClauseSet_p satset, Clause_p *empty)
       // fprintf(GlobalOut, "# PICO: %s", data);
       if(strcmp(data, "s UNSATISFIABLE\n") == 0)
       {
+         PStack_p unsat_core = PStackAlloc();
          //fprintf(GlobalOut, "# SatCheck found unsatisfiable ground set\n");
          *empty = EmptyClauseAlloc();
+         sat_extract_core(satset, unsat_core, picores);
+         satset->core_size = PStackGetSP(unsat_core);
+         PStackFree(unsat_core);
          res = PRUnsatisfiable;
       }
       else if(strcmp(data, "s SATISFIABLE\n") == 0)
