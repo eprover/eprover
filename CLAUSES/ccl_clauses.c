@@ -1027,7 +1027,7 @@ EqnSide ClauseIsEqDefinition(Clause_p clause, int min_arity)
 {
    assert(clause);
 
-   if(ClauseIsUnit(clause))
+   if(problemType == PROBLEM_FO && ClauseIsUnit(clause))
    {
       return EqnIsDefinition(clause->literals, min_arity);
    }

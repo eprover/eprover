@@ -499,6 +499,7 @@ int main(int argc, char* argv[])
                                             proofstate->tmp_terms,
                                             eqdef_incrlimit,
                                             eqdef_maxclauses);
+
    }
 
    proofcontrol = ProofControlAlloc();
