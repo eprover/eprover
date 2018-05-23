@@ -16,12 +16,9 @@ Contents
 
 Changes
 
-<<<<<<< HEAD
 <2> Somewhere at the end of 2017. Completely rewritten 
     by Petar Vukmirovic.
 
-=======
->>>>>>> eprover/master
 <1> Sat Jul  6 09:45:14 CEST 2013
     New
 

@@ -114,7 +114,7 @@ static bool instance_is_rule(OCB_p ocb, TB_p bank,
          desc->sos_rewritten = true;
       }
 
-      assert(!TOGreater(desc->ocb, term, TermRWReplaceField(term), 
+      assert(TOGreater(desc->ocb, term, TermRWReplaceField(term), 
                         DEREF_NEVER, DEREF_NEVER));
       term = TermRWReplaceField(term);
       assert(term);
@@ -529,7 +529,10 @@ MatchInfo_p indexed_find_demodulator(OCB_p ocb, Term_p term,
       TermPrint(stderr, term, ocb->sig, DEREF_NEVER);
       fprintf(stderr, ", subsitution is : ");
       SubstPrint(stderr, subst, ocb->sig, DEREF_NEVER);
-      fprintf(stderr, ".\n");
+      fprintf(stderr, ", trailing %d.\n", match_info->trailing_args);
+
+      fprintf(stderr, "current tree:\n");
+      PDTreePrint(stderr, demodulators->demod_index);
       assert(false);
    }
 #endif
