@@ -1699,7 +1699,7 @@ void SigPrintAppEncodedDecls(FILE* out, Sig_p sig)
 {
    for(FunCode i=sig->internal_symbols+1; i <= sig->f_count; i++)
    {
-      fprintf(stderr, "tff(symboltypedecl%ld, type, %s: ", 
+      fprintf(out, "tff(symboltypedecl%ld, type, %s: ", 
                       (i+1)-sig->internal_symbols, SigFindName(sig, i));
       if (SigQueryFuncProp(sig, i, FPTypedApplication))
       {
@@ -1709,7 +1709,7 @@ void SigPrintAppEncodedDecls(FILE* out, Sig_p sig)
          DStr_p ret = TypeAppEncodedName(t->args[2]);
 
 
-         fprintf(stderr, "(%s * %s) > %s",  
+         fprintf(out, "(%s * %s) > %s",  
                          DStrView(left), DStrView(right), DStrView(ret));
 
          DStrFree(left);
@@ -1721,9 +1721,9 @@ void SigPrintAppEncodedDecls(FILE* out, Sig_p sig)
          Type_p t = SigGetType(sig, i);
          DStr_p typename = TypeAppEncodedName(t);
 
-         fprintf(stderr, "%s", DStrView(typename));
+         fprintf(out, "%s", DStrView(typename));
       }
-      fprintf(stderr, ").\n");
+      fprintf(out, ").\n");
    }
 
 }
