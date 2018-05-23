@@ -61,7 +61,7 @@ static Term_p term_top_unfold_def(TB_p bank, Term_p term, ClausePos_p demod)
    assert(bank&&term&&demod);
 
    lside = ClausePosGetSide(demod);
-   assert(!TermIsVar(lside) && !TermIsVar());
+   assert(!TermIsVar(lside));
    if(lside->f_code != term->f_code
 #ifdef ENABLE_LFHO
       || lside->arity != term->arity || TermIsAppliedVar(term)

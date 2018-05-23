@@ -23,6 +23,7 @@
 #include "cte_termfunc.h"
 #include "cte_typecheck.h"
 #include "clb_plocalstacks.h"
+#include "cte_termbanks.h"
 
 
 /*---------------------------------------------------------------------*/
@@ -730,7 +731,7 @@ Term_p TermCopyKeepVars(Term_p source, DerefType deref)
 //
 /----------------------------------------------------------------------*/
 
-
+extern TB_p bank;
 bool TermStructEqual(Term_p t1, Term_p t2)
 {
    t1 = TermDerefAlways(t1);
@@ -861,6 +862,11 @@ bool TermStructEqualDeref(Term_p t1, Term_p t2, DerefType deref_1, DerefType der
       // in that case the type must be different.
       assert(problemType == PROBLEM_HO);
       assert(TermIsAppliedVar(t1) || t1->arity != t2->arity);
+      fprintf(stderr, "head type1 (term type1 %p): ", t1->type);
+      TypePrintTSTP(stderr, bank->sig->type_bank, GetHeadType(bank->sig, t1) );
+      fprintf(stderr, ", head type2 (term type2 %p): ", t2->type);
+      TypePrintTSTP(stderr, bank->sig->type_bank, GetHeadType(bank->sig, t2) );
+      fprintf(stderr, ".\n");
       return false;
    }
 
@@ -908,7 +914,7 @@ bool TermStructPrefixEqual(Term_p l, Term_p r, DerefType d_l, DerefType d_r, int
 
       if (TermIsAppliedVar(r) && (r->arity - remaining == 1))
       {
-         // f-code comparisons woudl fail without this hack.
+         // f-code comparisons would fail without this hack.
          r = r->args[0];
       }
 
