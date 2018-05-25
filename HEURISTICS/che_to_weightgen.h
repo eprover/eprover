@@ -74,6 +74,11 @@ typedef enum
                              between ranks is cardinality of set of
                              symbols in rank */
    WInvModFreqRankMax0,   /* As above, but first maximal unary is 0 */
+   WTypeFrequencyRank,    /* Similar to above, however, they work not by
+                             value of symbol, but by its type */
+   WTypeFrequencyCount,
+   WInvTypeFrequencyRank,
+   WInvTypeFrequencyCount,
    WConstantWeight,       /* All weights 1 */
    WMinMethod = WSelectMaximal,
    WMaxMethod = WConstantWeight /* Update as required! */

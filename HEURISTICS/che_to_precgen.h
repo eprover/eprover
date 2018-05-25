@@ -56,6 +56,9 @@ typedef enum
    PByInvFreqHack,      /* Make constants minimal, frequent unary
                            symbols maximal, otherwise as
                            PByInvFrequency */
+   PByTypeFreq,        /*  By frequency of type function symbol corresponds
+                           to */
+   PByInvTypeFreq,     /*  Same as prev, only inverse*/
    PArrayOpt,           /* Special hack for theory of array with
                            conceptually typed symbols recognized by
                            name. */
