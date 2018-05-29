@@ -522,7 +522,7 @@ static void pdtree_forward(PDTree_p tree, Subst_p subst)
 
    if (!term)
    {
-      tree->tree_pos->trav_count = PDT_NODE_CLOSED(tree, handle);
+      i = tree->tree_pos->trav_count = PDT_NODE_CLOSED(tree, handle);
    }
 
    limit = PDT_NODE_CLOSED(tree,handle);
@@ -1086,7 +1086,7 @@ void PDTreeInsert(PDTree_p tree, ClausePos_p demod_side)
          }
       }
       node = *next;
-      assert(!node->variable || (TermIsVar(curr) && node->variable->type == curr->type));
+      //assert(!node->variable || (TermIsVar(curr) && node->variable->type == curr->type));
       tmp = TermStandardWeight(term);
       node->size_constr = MIN(tmp, node->size_constr);
       if(!SysDateIsInvalid(node->age_constr))
