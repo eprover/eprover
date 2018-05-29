@@ -195,10 +195,18 @@ PStackPointer SubstNormTerm(Term_p term, Subst_p subst, VarBank_p vars, Sig_p si
 bool SubstBindingPrint(FILE* out, Term_p var, Sig_p sig, DerefType deref)
 {
    TermPrint(out, var, sig, DEREF_NEVER);
+
+   fprintf(stderr, "(");
+   TypePrintTSTP(stderr, sig->type_bank, var->type);
+   fprintf(stderr, ") ");
+
    fprintf(out, "<-");
    if(var->binding)
    {
       TermPrint(out, var->binding, sig, deref);
+      fprintf(stderr, "(");
+      TypePrintTSTP(stderr, sig->type_bank, var->binding->type);
+      fprintf(stderr, ") ");
       return true;
    }
    TermPrint(out, var, sig, DEREF_NEVER);

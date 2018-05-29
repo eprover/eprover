@@ -547,7 +547,10 @@ void ClauseSetPDTIndexedInsert(ClauseSet_p set, Clause_p newclause)
    pos->literal = newclause->literals;
    pos->side    = LeftSide;
    pos->pos     = NULL;
-   PDTreeInsert(set->demod_index, pos);
+   if(PDTreeInsert(set->demod_index, pos))
+   {
+      ClauseSetProp(newclause, CPIsLDIndexed);
+   }
    if(!EqnIsOriented(newclause->literals))
    {
       pos          = ClausePosCellAlloc();
@@ -555,9 +558,11 @@ void ClauseSetPDTIndexedInsert(ClauseSet_p set, Clause_p newclause)
       pos->literal = newclause->literals;
       pos->side    = RightSide;
       pos->pos     = NULL;
-      PDTreeInsert(set->demod_index, pos);
+      if(PDTreeInsert(set->demod_index, pos))
+      {
+         ClauseSetProp(newclause, CPIsRDIndexed);
+      }
    }
-   ClauseSetProp(newclause, CPIsDIndexed);
 }
 
 
@@ -660,7 +665,7 @@ Clause_p ClauseSetExtractEntry(Clause_p clause)
 
    /* ClausePCLPrint(stdout, clause, true); */
 
-   if(ClauseQueryProp(clause, CPIsDIndexed))
+   if(ClauseQueryProp(clause, CPIsLDIndexed))
    {
       assert(clause->set->demod_index);
       if(clause->set->demod_index)
@@ -668,14 +673,21 @@ Clause_p ClauseSetExtractEntry(Clause_p clause)
          assert(ClauseIsUnit(clause));
          PDTreeDelete(clause->set->demod_index, clause->literals->lterm,
                       clause);
-         if(!EqnIsOriented(clause->literals))
-         {
-            PDTreeDelete(clause->set->demod_index,
-                         clause->literals->rterm, clause);
-         }
-         ClauseDelProp(clause, CPIsDIndexed);
       }
+      ClauseDelProp(clause, CPIsLDIndexed);
    }
+   if(ClauseQueryProp(clause, CPIsRDIndexed))
+   {
+      assert(clause->set->demod_index);
+      if(clause->set->demod_index)
+      {
+         assert(ClauseIsUnit(clause));
+         PDTreeDelete(clause->set->demod_index,
+                      clause->literals->rterm, clause);
+      }
+      ClauseDelProp(clause, CPIsRDIndexed);
+   }
+   
    if(ClauseQueryProp(clause, CPIsSIndexed))
    {
       FVIndexDelete(clause->set->fvindex, clause);
