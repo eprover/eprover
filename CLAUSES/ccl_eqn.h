@@ -289,7 +289,7 @@ bool          LiteralGreater(OCB_p ocb, Eqn_p eq1, Eqn_p eq2);
 PStackPointer SubstNormEqn(Eqn_p eq, Subst_p subst, VarBank_p vars);
 
 double  EqnWeight(Eqn_p eq, double max_multiplier, long vweight, long
-                  fweight);
+                  fweight, double app_var_penalty);
 #define EqnStandardWeight(eqn)             \
    (TermStandardWeight((eqn)->lterm)+      \
     TermStandardWeight((eqn)->rterm))
@@ -301,15 +301,18 @@ double  EqnWeight(Eqn_p eq, double max_multiplier, long vweight, long
 
 
 double EqnFunWeight(Eqn_p eq, double max_multiplier, long vweight,
-                    long flimit, long *fweights, long default_fweight);
+                    long flimit, long *fweights, long default_fweight,
+                    double app_var_penalty);
 
 double  EqnNonLinearWeight(Eqn_p eq, double max_multiplier, long
-                           vlweight, long vweight, long fweight);
+                           vlweight, long vweight, long fweight, 
+                           double app_var_penalty);
 double  EqnSymTypeWeight(Eqn_p eq, double max_multiplier, long
                          vweight, long fweight, long cweight, long
-                         pweight);
+                         pweight, double app_var_penalty);
 
-double  EqnMaxWeight(Eqn_p eq, long vweight, long fweight);
+double  EqnMaxWeight(Eqn_p eq, long vweight, long fweight,
+                     double app_var_penalty);
 
 #define EqnStandardDiff(eqn)                    \
    (MAX(TermStandardWeight((eqn)->lterm),       \
@@ -322,7 +325,8 @@ long EqnInferencePositions(Eqn_p eqn);
 
 double  LiteralWeight(Eqn_p eq, double max_term_multiplier, double
                       max_literal_multiplier, double
-                      pos_multiplier, long vweight, long fweight, bool
+                      pos_multiplier, long vweight, long fweight, 
+                      double app_var_penalty, bool
                       count_eq_encoding);
 
 double  LiteralFunWeight(Eqn_p eq,
@@ -332,19 +336,21 @@ double  LiteralFunWeight(Eqn_p eq,
                          long vweight,
                          long flimit,
                          long *fweights,
-                         long default_fweight);
+                         long default_fweight,
+                         double app_var_penalty);
 
 
 
 double LiteralNonLinearWeight(Eqn_p eq, double max_term_multiplier,
                               double max_literal_multiplier, double
                               pos_multiplier, long vlweight, long
-                              vweight, long fweight, bool
+                              vweight, long fweight,double app_var_penalty,bool
                               count_eq_encoding);
 double LiteralSymTypeWeight(Eqn_p eq, double max_term_multiplier,
                             double max_literal_multiplier, double
                             pos_multiplier, long vweight, long
-                            fweight, long cweight, long pweight);
+                            fweight, long cweight, long pweight,
+                            double app_var_penalty);
 
 #define EqnCountMaximalLiterals(eqn) (EqnIsOriented(eqn)?1:2)
 
@@ -389,13 +395,16 @@ void    EqnAddSymbolFeatures(Eqn_p eq, PStack_p mod_stack, long *feature_array);
 
 long    EqnCollectSubterms(Eqn_p eqn, PStack_p collector);
 
-#define EqnHasAppVar(eqn) (TermIsAppliedVar((eqn)->lterm) \
-                            || TermIsAppliedVar((eqn)->rterm))
+
 #define EqnHasTopLevelVarL(eqn) (TermIsVar((eqn)->lterm) || TermIsAppliedVar((eqn)->lterm))
 #define EqnHasTopLevelVar(eqn)  (TermIsVar((eqn)->lterm) || TermIsAppliedVar((eqn)->lterm) || \
                                  TermIsVar((eqn)->rterm) || TermIsAppliedVar((eqn)->rterm))
 
 void EqnAppEncode(FILE* out, Eqn_p eq, bool negated);
+bool EqnHasAppVar(Eqn_p eq);
+
+#define EQN_APPLY_APP_VAR_PENALTY(w, eq, p) (w) * (TermIsAppliedVar((eq)->lterm) ? (p) : 1) \
+                                                * (TermIsAppliedVar((eq)->rterm) ? (p) : 1); 
 
 /*---------------------------------------------------------------------*/
 /*                        Inline Functions                             */

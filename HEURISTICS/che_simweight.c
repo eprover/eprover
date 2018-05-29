@@ -22,6 +22,18 @@ Changes
 -----------------------------------------------------------------------*/
 
 #include "che_simweight.h"
+#define APP_VAR_PENALTY_DEFAULT 1
+
+#ifdef ENABLE_LFHO
+#define PARSE_OPTIONAL_AV_PENALTY(in, var_name) \
+if(TestInpTok((in), Comma)) \
+{ \
+   AcceptInpTok((in), Comma); \
+   var_name = ParseFloat((in)); \
+}
+#else
+#define PARSE_OPTIONAL_AV_PENALTY(in, var_name) /* relax */
+#endif
 
 
 
@@ -131,7 +143,7 @@ double sim_weight(Clause_p clause, SimParam_p parms)
       res += sim_eqn_weight(handle, parms);
       handle = handle->next;
    }
-   return res*5+ClauseWeight(clause, 1, 1, 1, 1, 2, false);
+   return res*5+ClauseWeight(clause, 1, 1, 1, 1, 2, parms->app_var_penalty, false);
 }
 
 /*---------------------------------------------------------------------*/
@@ -153,7 +165,7 @@ double sim_weight(Clause_p clause, SimParam_p parms)
 
 WFCB_p SimWeightInit(ClausePrioFun prio_fun, double equal_weight, double
            var_var_clash, double var_term_clash, double
-           term_term_clash)
+           term_term_clash, double app_var_penalty)
 {
    SimParam_p data = SimParamCellAlloc();
 
@@ -162,6 +174,7 @@ WFCB_p SimWeightInit(ClausePrioFun prio_fun, double equal_weight, double
    data->var_var_clash   = var_var_clash;
    data->var_term_clash  = var_term_clash;
    data->term_term_clash = term_term_clash;
+   data->app_var_penalty = app_var_penalty;
 
    return WFCBAlloc(SimWeightCompute, prio_fun, SimWeightExit, data);
 }
@@ -184,7 +197,7 @@ WFCB_p SimWeightParse(Scanner_p in, OCB_p ocb, ProofState_p state)
 {
    ClausePrioFun prio_fun;
    double equal_weight, var_var_clash, var_term_clash,
-      term_term_clash;
+      term_term_clash, app_var_penalty = APP_VAR_PENALTY_DEFAULT;
 
    AcceptInpTok(in, OpenBracket);
    prio_fun = ParsePrioFun(in);
@@ -196,10 +209,11 @@ WFCB_p SimWeightParse(Scanner_p in, OCB_p ocb, ProofState_p state)
    var_term_clash = ParseFloat(in);
    AcceptInpTok(in, Comma);
    term_term_clash = ParseFloat(in);
+   PARSE_OPTIONAL_AV_PENALTY(in, app_var_penalty);
    AcceptInpTok(in, CloseBracket);
 
    return SimWeightInit(prio_fun, equal_weight, var_var_clash,
-         var_term_clash, term_term_clash);
+         var_term_clash, term_term_clash, app_var_penalty);
 }
 
 

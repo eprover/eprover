@@ -70,8 +70,8 @@ static WeightFunParseFun parse_fun_array[]=
    ClauseWeightParse,
    LMaxWeightParse,
    CMaxWeightParse,
-   UniqWeightParse,
-   DefaultWeightParse,
+   UniqWeightParse, /* NOTE2ME:  did not change it */
+   DefaultWeightParse, /* NOTE2ME:  did not change it */
    ClauseRefinedWeightParse,
    ClauseRefinedWeight2Parse,
    PNRefinedWeightParse,
@@ -85,12 +85,12 @@ static WeightFunParseFun parse_fun_array[]=
    ClauseOrientWeightParse,
    OrientLMaxWeightParse,
    SimWeightParse,
-   FIFOEvalParse,
-   LIFOEvalParse,
-   StaggeredWeightParse,
+   FIFOEvalParse,  /* NOTE2ME:  did not change it */
+   LIFOEvalParse, /* NOTE2ME:  did not change it */
+   StaggeredWeightParse, /* NOTE2ME:  did not change it */
    ClauseWeightAgeParse,
-   TSMWeightParse,
-   TSMRWeightParse,
+   TSMWeightParse /* NOTE2ME:  did not change it */,
+   TSMRWeightParse /* NOTE2ME:  did not change it */,
    ConjectureSimplifiedSymbolWeightParse,
    ConjectureSymbolWeightParse,
    ConjectureRelativeSymbolWeightParse,

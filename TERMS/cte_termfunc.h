@@ -148,6 +148,7 @@ bool    TermIsUntyped(Term_p t);
 Term_p TermCreatePrefix(Term_p orig, int up_to);
 Term_p TermAppEncode(Term_p orig, Sig_p sig);
 
+#define TERM_APPLY_APP_VAR_PENALTY(w, t, p) (TermIsAppliedVar(t) ? (w)*(p) : (w))
 
 /*-----------------------------------------------------------------------
 //

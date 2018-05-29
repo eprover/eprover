@@ -2367,7 +2367,7 @@ PStackPointer SubstNormEqn(Eqn_p eq, Subst_p subst, VarBank_p vars)
 /----------------------------------------------------------------------*/
 
 double EqnWeight(Eqn_p eq, double max_multiplier, long vweight, long
-                 fweight)
+                 fweight, double app_var_penalty)
 {
    double res;
 
@@ -2380,7 +2380,9 @@ double EqnWeight(Eqn_p eq, double max_multiplier, long vweight, long
       res = (double)TermWeight(eq->rterm, vweight, fweight) *
          max_multiplier;
    }
-   res += ((double)TermWeight(eq->lterm, vweight, fweight) * max_multiplier);
+   res = TERM_APPLY_APP_VAR_PENALTY(res, eq->rterm, app_var_penalty);
+   res += TERM_APPLY_APP_VAR_PENALTY((double)TermWeight(eq->lterm, vweight, fweight) * max_multiplier,
+                                     eq->lterm, app_var_penalty);
 
    return res;
 }
@@ -2400,18 +2402,21 @@ double EqnWeight(Eqn_p eq, double max_multiplier, long vweight, long
 /----------------------------------------------------------------------*/
 
 double EqnFunWeight(Eqn_p eq, double max_multiplier, long vweight,
-                    long flimit, long *fweights, long default_fweight)
+                    long flimit, long *fweights, long default_fweight,
+                    double app_var_penalty)
 {
    double res;
 
    res = (double)TermFsumWeight(eq->rterm, vweight, flimit, fweights, default_fweight);
+   res = TERM_APPLY_APP_VAR_PENALTY(res, eq->rterm, app_var_penalty);
 
    if(!EqnIsOriented(eq))
    {
       res *= max_multiplier;
    }
 
-   res += (double)TermFsumWeight(eq->lterm, vweight, flimit, fweights, default_fweight) * max_multiplier;
+   res += TERM_APPLY_APP_VAR_PENALTY((double)TermFsumWeight(eq->lterm, vweight, flimit, fweights, default_fweight) * max_multiplier,
+                                     eq->lterm, app_var_penalty);
 
    return res;
 }
@@ -2431,7 +2436,8 @@ double EqnFunWeight(Eqn_p eq, double max_multiplier, long vweight,
 /----------------------------------------------------------------------*/
 
 double EqnNonLinearWeight(Eqn_p eq, double max_multiplier, long
-                          vlweight, long vweight, long fweight)
+                          vlweight, long vweight, long fweight, 
+                          double app_var_penalty)
 {
    double res;
 
@@ -2444,8 +2450,11 @@ double EqnNonLinearWeight(Eqn_p eq, double max_multiplier, long
       res = (double)TermNonLinearWeight(eq->rterm, vlweight, vweight,
                                         fweight) * max_multiplier;
    }
-   res += ((double)TermNonLinearWeight(eq->lterm, vlweight, vweight,
-                                       fweight) * max_multiplier);
+   res = TERM_APPLY_APP_VAR_PENALTY(res, eq->rterm, app_var_penalty);
+   res += TERM_APPLY_APP_VAR_PENALTY(
+            (double)(TermNonLinearWeight(eq->lterm, vlweight, vweight,
+                                       fweight) * max_multiplier),
+            eq->lterm, app_var_penalty);
 
    return res;
 }
@@ -2465,7 +2474,7 @@ double EqnNonLinearWeight(Eqn_p eq, double max_multiplier, long
 
 double  EqnSymTypeWeight(Eqn_p eq, double max_multiplier, long
                          vweight, long fweight, long cweight, long
-                         pweight)
+                         pweight, double app_var_penalty)
 {
    double res;
 
@@ -2479,8 +2488,10 @@ double  EqnSymTypeWeight(Eqn_p eq, double max_multiplier, long
       res = (double)TermSymTypeWeight(eq->rterm, vweight, fweight,
                                       cweight, pweight) * max_multiplier;
    }
-   res += ((double)TermSymTypeWeight(eq->lterm, vweight, fweight,
-                                     cweight, pweight) * max_multiplier);
+   res = TERM_APPLY_APP_VAR_PENALTY(res, eq->rterm, app_var_penalty);
+   res += TERM_APPLY_APP_VAR_PENALTY((double)(TermSymTypeWeight(eq->lterm, vweight, fweight,
+                                      cweight, pweight) * max_multiplier),
+                                      eq->lterm, app_var_penalty);
 
    return res;
 }
@@ -2497,12 +2508,13 @@ double  EqnSymTypeWeight(Eqn_p eq, double max_multiplier, long
 //
 /----------------------------------------------------------------------*/
 
-double EqnMaxWeight(Eqn_p eq, long vweight, long fweight)
+double EqnMaxWeight(Eqn_p eq, long vweight, long fweight, double app_var_penalty)
 {
    double lweight = TermWeight(eq->lterm, vweight, fweight);
    double rweight = TermWeight(eq->rterm, vweight, fweight);
 
-   return MAX(lweight, rweight);
+   return MAX(TERM_APPLY_APP_VAR_PENALTY(lweight, eq->lterm, app_var_penalty), 
+              TERM_APPLY_APP_VAR_PENALTY(rweight, eq->rterm, app_var_penalty));
 }
 
 
@@ -2521,7 +2533,7 @@ double EqnMaxWeight(Eqn_p eq, long vweight, long fweight)
 /----------------------------------------------------------------------*/
 
 double EqnCorrectedWeight(Eqn_p eq, double max_multiplier, long
-                          vweight, long fweight)
+                          vweight, long fweight, double app_var_penalty)
 {
    double res;
 
@@ -2537,12 +2549,14 @@ double EqnCorrectedWeight(Eqn_p eq, double max_multiplier, long
             max_multiplier;
       }
       res += fweight; /* Count the equal-predicate */
+      res = TERM_APPLY_APP_VAR_PENALTY(res, eq->rterm, app_var_penalty);
    }
    else
    {
       res = 0;
    }
-   res += ((double)TermWeight(eq->lterm, vweight, fweight) * max_multiplier);
+   res += TERM_APPLY_APP_VAR_PENALTY((double)TermWeight(eq->lterm, vweight, fweight) * max_multiplier,
+                                     eq->lterm, app_var_penalty);
 
    return res;
 }
@@ -2564,7 +2578,7 @@ double EqnCorrectedWeight(Eqn_p eq, double max_multiplier, long
 
 double EqnCorrectedNonLinearWeight(Eqn_p eq, double max_multiplier,
                                    long vlweight, long vweight, long
-                                   fweight)
+                                   fweight, double app_var_penalty)
 {
    double res;
 
@@ -2581,14 +2595,15 @@ double EqnCorrectedNonLinearWeight(Eqn_p eq, double max_multiplier,
                                            vweight, fweight) *
             max_multiplier;
       }
+      res = TERM_APPLY_APP_VAR_PENALTY(res, eq->rterm, app_var_penalty);
       res += fweight; /* Count the equal-predicate */
    }
    else
    {
       res = 0;
    }
-   res += ((double)TermNonLinearWeight(eq->lterm, vlweight, vweight,
-                                       fweight) * max_multiplier);
+   res += TERM_APPLY_APP_VAR_PENALTY(((double)TermNonLinearWeight(eq->lterm, vlweight, vweight,
+                                       fweight) * max_multiplier), eq->lterm, app_var_penalty);
 
    return res;
 }
@@ -2651,7 +2666,9 @@ long EqnInferencePositions(Eqn_p eqn)
 //   sides, max_literal_multiplier to maxinal literals, pos_multiplier
 //   is applied to positive literals. If count_eq_encoding is true,
 //   count $true and ignore the equal-predicate, otherwise ignore
-//   $true and count the equal-predicate for equations only.
+//   $true and count the equal-predicate for equations only. New to
+//   Ehoh is possibility of applying penalty for applied variables
+//   by giving different app_var_penalty arguments;
 //
 // Global Variables: -
 //
@@ -2661,14 +2678,14 @@ long EqnInferencePositions(Eqn_p eqn)
 
 double  LiteralWeight(Eqn_p eq, double max_term_multiplier, double
                       max_literal_multiplier, double
-                      pos_multiplier, long vweight, long fweight, bool
-                      count_eq_encoding)
+                      pos_multiplier, long vweight, long fweight, 
+                      double app_var_penalty, bool count_eq_encoding)
 {
    double res;
 
    res = count_eq_encoding?
-      EqnWeight(eq, max_term_multiplier, vweight, fweight):
-      EqnCorrectedWeight(eq, max_term_multiplier, vweight, fweight);
+      EqnWeight(eq, max_term_multiplier, vweight, fweight, app_var_penalty):
+      EqnCorrectedWeight(eq, max_term_multiplier, vweight, fweight, app_var_penalty);
 
 
    if(EqnIsMaximal(eq))
@@ -2704,12 +2721,13 @@ double  LiteralFunWeight(Eqn_p eq,
                          long vweight,
                          long flimit,
                          long *fweights,
-                         long default_fweight)
+                         long default_fweight,
+                         double app_var_penalty)
 {
    double res;
 
    res = EqnFunWeight(eq, max_term_multiplier, vweight, flimit,
-                      fweights, default_fweight);
+                      fweights, default_fweight, app_var_penalty);
 
    if(EqnIsMaximal(eq))
    {
@@ -2719,6 +2737,7 @@ double  LiteralFunWeight(Eqn_p eq,
    {
       res = res*pos_multiplier;
    }
+   
    return res;
 }
 
@@ -2743,16 +2762,16 @@ double  LiteralFunWeight(Eqn_p eq,
 double  LiteralNonLinearWeight(Eqn_p eq, double max_term_multiplier,
                                double max_literal_multiplier, double
                                pos_multiplier, long vlweight, long
-                               vweight, long fweight, bool
+                               vweight, long fweight, double app_var_penalty, bool
                                count_eq_encoding)
 {
    double res;
 
    res = count_eq_encoding?
       EqnNonLinearWeight(eq, max_term_multiplier, vlweight, vweight,
-                         fweight):
+                         fweight, app_var_penalty):
       EqnCorrectedNonLinearWeight(eq, max_term_multiplier, vlweight,
-                                  vweight, fweight);
+                                  vweight, fweight, app_var_penalty);
 
 
    if(EqnIsMaximal(eq))
@@ -2786,12 +2805,13 @@ double  LiteralNonLinearWeight(Eqn_p eq, double max_term_multiplier,
 double LiteralSymTypeWeight(Eqn_p eq, double max_term_multiplier,
                             double max_literal_multiplier, double
                             pos_multiplier, long vweight, long
-                            fweight, long cweight, long pweight)
+                            fweight, long cweight, long pweight,
+                            double app_var_penalty)
 {
    double res;
 
    res = EqnSymTypeWeight(eq, max_term_multiplier, vweight, fweight,
-                          cweight, pweight);
+                          cweight, pweight, app_var_penalty);
 
 
    if(EqnIsMaximal(eq))
@@ -2892,6 +2912,23 @@ long EqnCollectSubterms(Eqn_p eqn, PStack_p collector)
    return res;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: EqnHasAppVar()
+//
+//   Does eq have an applied variable at any side?
+//
+// Global Variables: -
+//
+// Side Effects    : Sets the OpFlag of newly collected terms.
+//
+/----------------------------------------------------------------------*/
+
+bool EqnHasAppVar(Eqn_p eq)
+{
+   assert(eq && eq->lterm && eq->rterm);
+   return TermIsAppliedVar(eq->lterm) || TermIsAppliedVar(eq->rterm);
+}
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */

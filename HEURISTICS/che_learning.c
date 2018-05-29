@@ -315,7 +315,7 @@ double TSMWeightCompute(void* data, Clause_p clause)
    PStackFree(listrep);
    res = ((local->learnweight*factor)+1)*
       ClauseWeight(clause, 1, 1, 1, local->vweight,
-         local->fweight, false);
+         local->fweight, 1, false);
    /* printf(" Eval: %f\n", res); */
    return res;
 }
@@ -550,6 +550,7 @@ double TSMRWeightCompute(void* data, Clause_p clause)
          local->pos_multiplier,
          local->vweight,
          local->fweight,
+         1,
          false);
    /* printf(" Eval: %f\n", res); */
    return res;
