@@ -342,6 +342,7 @@ int SubstComputeMatchHO(Term_p matcher, Term_p to_match, Subst_p subst, TB_p ban
       to_match =  PLocalStackPop(jobs);
       matcher  =  PLocalStackPop(jobs);
 
+      
       if (TermIsTopLevelVar(matcher))
       {
          Term_p var = TermIsAppliedVar(matcher) ? matcher->args[0] : matcher;
@@ -409,7 +410,10 @@ int SubstComputeMatchHO(Term_p matcher, Term_p to_match, Subst_p subst, TB_p ban
 
       const int offset = start_idx + (TermIsAppliedVar(to_match) ? 1 : 0)
                                    - (TermIsAppliedVar(matcher) ? 1 : 0);
-      assert(matcher->arity + offset <= to_match->arity);
+      if(matcher->arity + offset > to_match->arity)
+      {
+         FAIL_AND_BREAK(res, NOT_MATCHED);
+      }
       
       PLocalStackEnsureSpace(jobs, 2*(matcher->arity));
       for(int i=TermIsAppliedVar(matcher) ? 1 : 0; i<matcher->arity; i++)
@@ -426,6 +430,8 @@ int SubstComputeMatchHO(Term_p matcher, Term_p to_match, Subst_p subst, TB_p ban
 
    PLocalStackFree(jobs);
    assert(res != MATCH_INIT);
+   assert(res == NOT_MATCHED || 
+            TermStructPrefixEqual(matcher, to_match, DEREF_ONCE, DEREF_NEVER, res, bank->sig));
    return res;
 
 }
