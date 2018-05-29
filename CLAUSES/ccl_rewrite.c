@@ -531,8 +531,6 @@ MatchInfo_p indexed_find_demodulator(OCB_p ocb, Term_p term,
       SubstPrint(stderr, subst, ocb->sig, DEREF_NEVER);
       fprintf(stderr, ", trailing %d.\n", match_info->trailing_args);
 
-      fprintf(stderr, "current tree:\n");
-      PDTreePrint(stderr, demodulators->demod_index);
       assert(false);
    }
 #endif

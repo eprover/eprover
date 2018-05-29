@@ -258,7 +258,8 @@ ACTerm_p ACTermNormalize(Sig_p sig, Term_p term)
     PTreeTraverseExit(stack);
     PTreeFree(args);
       }
-      else if(SigQueryFuncProp(sig, term->f_code, FPCommutative))
+      // in LFHOL symbol must not be fully applied
+      else if(SigQueryFuncProp(sig, term->f_code, FPCommutative) && term->arity == 2)
       {
     ACTerm_p t1, t2, tmp;
 
@@ -346,7 +347,8 @@ bool TermACEqual(Sig_p sig, Term_p t1, Term_p t2)
 {
    bool res = true;
 
-   if(TermStandardWeight(t1)!=TermStandardWeight(t2))
+   if(TermStandardWeight(t1)!=TermStandardWeight(t2)
+       || TermIsAppliedVar(t1) || TermIsAppliedVar(t2))
    {
       res = false;
    }

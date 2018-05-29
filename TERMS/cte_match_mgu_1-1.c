@@ -320,6 +320,11 @@ int SubstComputeMatchHO(Term_p matcher, Term_p to_match, Subst_p subst, TB_p ban
    assert(TermStandardWeight(matcher)  == TermWeight(matcher, DEFAULT_VWEIGHT, DEFAULT_FWEIGHT));
    assert(TermStandardWeight(to_match) == TermWeight(to_match, DEFAULT_VWEIGHT, DEFAULT_FWEIGHT));
 
+#ifndef NDEBUG
+   Term_p s = matcher;
+   Term_p t = to_match;
+#endif 
+
    int res = MATCH_INIT;
    if(matcher_weight > to_match_weight)
    {
@@ -341,7 +346,6 @@ int SubstComputeMatchHO(Term_p matcher, Term_p to_match, Subst_p subst, TB_p ban
    {
       to_match =  PLocalStackPop(jobs);
       matcher  =  PLocalStackPop(jobs);
-
       
       if (TermIsTopLevelVar(matcher))
       {
@@ -352,9 +356,6 @@ int SubstComputeMatchHO(Term_p matcher, Term_p to_match, Subst_p subst, TB_p ban
             if (TermIsPrefix(var->binding, to_match))
             {
                start_idx = ARG_NUM(var->binding);
-               assert(ARG_NUM(matcher) == 
-                        to_match->arity - start_idx - (TermIsAppliedVar(to_match) ? 1 :0));
-
                matcher_weight += TermStandardWeight(var->binding) - DEFAULT_VWEIGHT;
                if(matcher_weight > to_match_weight)
                {
@@ -431,7 +432,7 @@ int SubstComputeMatchHO(Term_p matcher, Term_p to_match, Subst_p subst, TB_p ban
    PLocalStackFree(jobs);
    assert(res != MATCH_INIT);
    assert(res == NOT_MATCHED || 
-            TermStructPrefixEqual(matcher, to_match, DEREF_ONCE, DEREF_NEVER, res, bank->sig));
+            TermStructPrefixEqual(s, t, DEREF_ONCE, DEREF_NEVER, res, bank->sig));
    return res;
 
 }

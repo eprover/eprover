@@ -861,7 +861,7 @@ bool TermStructEqualDeref(Term_p t1, Term_p t2, DerefType deref_1, DerefType der
       // to have same head but different arities.
       // in that case the type must be different.
       assert(problemType == PROBLEM_HO);
-      assert(TermIsAppliedVar(t1) || t1->arity != t2->arity);
+      //assert(TermIsAppliedVar(t1) || t1->arity != t2->arity);
       fprintf(stderr, "head type1 (term type1 %p): ", t1->type);
       TypePrintTSTP(stderr, bank->sig->type_bank, GetHeadType(bank->sig, t1) );
       fprintf(stderr, ", head type2 (term type2 %p): ", t2->type);
