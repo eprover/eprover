@@ -114,8 +114,8 @@ static int pcl_sc_compare(PCLStep_p step1, PCLStep_p step2)
       return 1;
    }
 
-   w1 = ClauseSymTypeWeight(step1->logic.clause, 1,1,1,1,1,1,1);
-   w2 = ClauseSymTypeWeight(step2->logic.clause, 1,1,1,1,1,1,1);
+   w1 = ClauseSymTypeWeight(step1->logic.clause, 1,1,1,1,1,1,1,1);
+   w2 = ClauseSymTypeWeight(step2->logic.clause, 1,1,1,1,1,1,1,1);
 
    if(w1 < w2)
    {
@@ -281,13 +281,13 @@ static void pcl_prot_global_count(PCLProt_p prot, PCLPropData_p data)
             data->pos_literals += clause->pos_lit_no;
             data->neg_literals += clause->neg_lit_no;
             data->const_count  += ClauseSymTypeWeight(clause,
-                                                      1,1,1,0,0,1,0);
+                                                      1,1,1,0,0,1,0,1);
             data->func_count   += ClauseSymTypeWeight(clause,
-                                                      1,1,1,0,1,0,0);
+                                                      1,1,1,0,1,0,0,1);
             data->pred_count   += ClauseSymTypeWeight(clause,
-                                                      1,1,1,0,0,0,1);
+                                                      1,1,1,0,0,0,1,1);
             data->var_count   += ClauseSymTypeWeight(clause,
-                                                     1,1,1,1,0,0,0);
+                                                     1,1,1,1,0,0,0,1);
          }
       }
    }

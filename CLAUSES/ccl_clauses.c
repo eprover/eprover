@@ -2048,8 +2048,8 @@ void ClauseRemoveEvaluations(Clause_p clause)
 
 double ClauseWeight(Clause_p clause, double max_term_multiplier,
                     double max_literal_multiplier, double
-                    pos_multiplier, long vweight, long fweight, bool
-                    count_eq_encoding)
+                    pos_multiplier, long vweight, long fweight,
+                    double app_var_penalty, bool count_eq_encoding)
 {
    Eqn_p  handle;
    double res = 0;
@@ -2058,7 +2058,7 @@ double ClauseWeight(Clause_p clause, double max_term_multiplier,
    {
       res += LiteralWeight(handle, max_term_multiplier,
                            max_literal_multiplier, pos_multiplier,
-                           vweight, fweight, count_eq_encoding);
+                           vweight, fweight, app_var_penalty, count_eq_encoding);
    }
    return res;
 }
@@ -2080,7 +2080,7 @@ double ClauseWeight(Clause_p clause, double max_term_multiplier,
 double ClauseFunWeight(Clause_p clause, double max_term_multiplier,
                        double max_literal_multiplier, double
                        pos_multiplier, long vweight, long flimit,
-                       long *fweights, long default_fweight)
+                       long *fweights, long default_fweight, double app_var_penalty)
 {
    Eqn_p  handle;
    double res = 0;
@@ -2090,7 +2090,7 @@ double ClauseFunWeight(Clause_p clause, double max_term_multiplier,
       res += LiteralFunWeight(handle, max_term_multiplier,
                               max_literal_multiplier, pos_multiplier,
                               vweight, flimit, fweights,
-                              default_fweight);
+                              default_fweight, app_var_penalty);
    }
    return res;
 }
@@ -2115,7 +2115,7 @@ double ClauseFunWeight(Clause_p clause, double max_term_multiplier,
 double ClauseNonLinearWeight(Clause_p clause, double max_term_multiplier,
                              double max_literal_multiplier, double
                              pos_multiplier, long vlweight, long
-                             vweight, long fweight, bool
+                             vweight, long fweight, double app_var_penalty, bool
                              count_eq_encoding)
 {
    Eqn_p  handle;
@@ -2125,7 +2125,7 @@ double ClauseNonLinearWeight(Clause_p clause, double max_term_multiplier,
    {
       res += LiteralNonLinearWeight(handle, max_term_multiplier,
                                     max_literal_multiplier, pos_multiplier,
-                                    vlweight, vweight, fweight,
+                                    vlweight, vweight, fweight, app_var_penalty,
                                     count_eq_encoding);
 
    }
@@ -2151,7 +2151,8 @@ double ClauseSymTypeWeight(Clause_p clause, double
                            max_term_multiplier, double
                            max_literal_multiplier, double
                            pos_multiplier, long vweight, long
-                           fweight, long cweight, long pweight)
+                           fweight, long cweight, long pweight,
+                           double app_var_penalty)
 {
    Eqn_p  handle;
    double res = 0;
@@ -2160,7 +2161,8 @@ double ClauseSymTypeWeight(Clause_p clause, double
    {
       res += LiteralSymTypeWeight(handle, max_term_multiplier,
                                   max_literal_multiplier, pos_multiplier,
-                                  vweight, fweight, cweight, pweight);
+                                  vweight, fweight, cweight, pweight,
+                                  app_var_penalty);
    }
    return res;
 }
@@ -2207,7 +2209,8 @@ double ClauseStandardWeight(Clause_p clause)
 double ClauseOrientWeight(Clause_p clause, double
                           unorientable_literal_multiplier,
                           double max_literal_multiplier, double
-                          pos_multiplier, long vweight, long fweight, bool
+                          pos_multiplier, long vweight, long fweight,
+                          double app_var_penalty, bool
                           count_eq_encoding)
 {
    Eqn_p  handle;
@@ -2217,6 +2220,7 @@ double ClauseOrientWeight(Clause_p clause, double
    {
       tmp = LiteralWeight(handle, 1, max_literal_multiplier,
                           pos_multiplier, vweight, fweight,
+                          app_var_penalty,
                           count_eq_encoding);
       if(!EqnIsOriented(handle))
       {
@@ -2651,6 +2655,30 @@ bool ClauseIsUntyped(Clause_p clause)
    return true;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseQueryLiteral 
+//
+//   Return true if there is a literal that satisfies query_fun 
+//   predicate on literal
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+bool ClauseQueryLiteral(Clause_p clause, bool (*query_fun)(Eqn_p))
+{
+   for(Eqn_p lit = clause->literals; lit; lit = lit->next)
+   {
+      if(query_fun(lit))
+      {
+         return true;
+      }
+   }
+   return false;
+}
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/

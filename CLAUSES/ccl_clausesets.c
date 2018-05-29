@@ -1132,7 +1132,7 @@ long ClauseSetGetTermNodes(ClauseSet_p set)
    for(handle = set->anchor->succ; handle != set->anchor; handle =
           handle->succ)
    {
-      res += ClauseWeight(handle, 1, 1, 1, 1, 1, true);
+      res += ClauseWeight(handle, 1, 1, 1, 1, 1, 1, true);
    }
    return res;
 }

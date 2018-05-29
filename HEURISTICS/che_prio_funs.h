@@ -75,6 +75,9 @@ EvalPriority PrioFunByCreationDate(Clause_p clause);
 EvalPriority PrioFunPreferWatchlist(Clause_p clause);
 EvalPriority PrioFunDeferWatchlist(Clause_p clause);
 
+EvalPriority PrioFunPreferAppVar(Clause_p clause);
+EvalPriority PrioFunPreferNonAppVar(Clause_p clause);
+
 #endif
 
 /*---------------------------------------------------------------------*/

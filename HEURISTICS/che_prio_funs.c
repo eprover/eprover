@@ -62,6 +62,8 @@ char* PrioFunNames[]=
    "ByCreationDate",
    "PreferWatchlist",
    "DeferWatchlist",
+   "PreferAppVar",
+   "PreferNonAppVar",
    NULL
 };
 
@@ -97,6 +99,8 @@ static ClausePrioFun prio_fun_array[]=
    PrioFunByCreationDate,
    PrioFunPreferWatchlist,
    PrioFunDeferWatchlist,
+   PrioFunPreferAppVar,
+   PrioFunPreferNonAppVar,
    NULL
 };
 
@@ -934,6 +938,52 @@ EvalPriority PrioFunDeferWatchlist(Clause_p clause)
    if(ClauseQueryProp(clause, CPSubsumesWatch))
    {
       return PrioDefer;
+   }
+   return PrioNormal;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: PrioFunPreferAppVar()
+//
+//   Prefer clauses that have applied variables.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+EvalPriority PrioFunPreferAppVar(Clause_p clause)
+{
+   assert(clause);
+
+   if(ClauseQueryLiteral(clause, EqnHasAppVar))
+   {
+      return PrioPrefer;
+   }
+   return PrioNormal;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: PrioFunPreferNonAppVar()
+//
+//   Prefer clauses that have no applied variables.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+EvalPriority PrioFunPreferNonAppVar(Clause_p clause)
+{
+   assert(clause);
+
+   if(!ClauseQueryLiteral(clause, EqnHasAppVar))
+   {
+      return PrioPrefer;
    }
    return PrioNormal;
 }
