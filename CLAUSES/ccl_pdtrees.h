@@ -181,7 +181,7 @@ Term_p    TermLRTraverseNext(PStack_p stack);
 Term_p    TermLRTraversePrev(PStack_p stack, Term_p term);
 Term_p    TermLRTraversePrevAppVar(PStack_p stack, Term_p original_term, Term_p var);
 
-void      PDTreeInsert(PDTree_p tree, ClausePos_p demod_side);
+bool      PDTreeInsert(PDTree_p tree, ClausePos_p demod_side);
 long      PDTreeDelete(PDTree_p tree, Term_p term, Clause_p clause);
 
 void      PDTreeSearchInit(PDTree_p tree, Term_p term, SysDate

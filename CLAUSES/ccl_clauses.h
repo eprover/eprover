@@ -111,9 +111,10 @@ typedef enum
                                            * and hence can only be
                                            * rewritten in limited
                                            * ways. */
-   CPIsRelevant     = 2*CPLimitedRW       /* Clause is selected as
+   CPIsRelevant     = 2*CPLimitedRW,      /* Clause is selected as
                                            * relevant for a proof
                                            * attempt (used by SInE). */
+   CPIsRDIndexed    = 2*CPIsRelevant
 }FormulaProperties;
 
 
@@ -159,6 +160,8 @@ typedef struct clause_cell
    struct clause_cell*   succ;        /* linked lists */
 }ClauseCell, *Clause_p;
 
+
+#define CPIsLDIndexed CPIsDIndexed
 
 /*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */

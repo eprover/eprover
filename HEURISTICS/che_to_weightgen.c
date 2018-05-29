@@ -90,7 +90,7 @@ typedef struct prec_rank_cell
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
 
-#define PRINT_FUNWEIGHTS
+/* #define PRINT_FUNWEIGHTS */
 
 #ifdef PRINT_FUNWEIGHTS
 
@@ -274,6 +274,10 @@ static PStack_p find_max_symbols(OCB_p ocb)
 static void set_maximal_0(OCB_p ocb)
 {
    assert(ocb->precedence||ocb->prec_weights);
+   if (problemType == PROBLEM_HO)
+   {
+     return; // no checks if it is unary -- our KBO works only then
+   }
 
    PStack_p maxsymbs = find_max_symbols(ocb);
    if(!PStackEmpty(maxsymbs))
@@ -369,7 +373,8 @@ static void generate_constant_weights(OCB_p ocb)
 static void generate_selmax_weights(OCB_p ocb)
 {
    generate_constant_weights(ocb);
-   set_maximal_0(ocb);
+   set_maximal_0(ocb);  //no checks it is unary
+   
 }
 
 
