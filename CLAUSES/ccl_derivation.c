@@ -521,7 +521,7 @@ void ClausePushDerivation(Clause_p clause, DerivationCodes op,
 
 /*-----------------------------------------------------------------------
 //
-// Function: ClausePushDerivation()
+// Function: ClausePushACResDerivation()
 //
 //   Push the derivation items (op-code and suitable number of
 //   arguments) onto the derivation stack.

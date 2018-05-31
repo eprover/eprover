@@ -95,6 +95,10 @@ typedef struct proofstatecell
    unsigned long resolv_count;
    unsigned long satcheck_count;
    unsigned long satcheck_success;
+   unsigned long satcheck_satisfiable;
+   unsigned long satcheck_full_size; // Number of prop. clauses
+   unsigned long satcheck_actual_size; // ...after purity reduction
+   unsigned long satcheck_core_size; // ...in unsat core (if any)
 
    /* The following are only set by ProofStateAnalyse() after
       DerivationCompute() at the end of the proof search. */

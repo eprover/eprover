@@ -1571,42 +1571,32 @@ FunCode TermFindMaxVarCode(Term_p term)
 FunCode VarBankCheckBindings(FILE* out, VarBank_p bank, Sig_p sig)
 {
    Term_p    term;
-   VarBankStack_p stack;
    long      res = 0;
-   int       i,j;
+   int       i;
 
    fprintf(out, "#  VarBankCheckBindings() started...\n");
-   for(i=0; i<PDArraySize(bank->stacks); i++)
+   for(i=1; i<PDArraySize(bank->variables); i++)
    {
-      stack = (VarBankStack_p) PDArrayElementP(bank->stacks, i);
-      if (!stack)
+      term = PDArrayElementP(bank->variables, i);
+      if(term)
       {
-         continue;
-      }
-
-      for(j=0; j < PDArraySize(stack); j++)
-      {
-         term = PDArrayElementP(stack, j);
-         if(term)
+         assert(TermIsVar(term));
+         if(term->binding)
          {
-            assert(TermIsVar(term));
-            if(term->binding)
+            res++;
+            if(sig)
             {
-               res++;
-               if(sig)
-               {
-                  fprintf(out, "# %ld: ", term->f_code);
-                  TermPrint(out, term, sig, DEREF_NEVER);
-                  fprintf(out, " <--- ");
-                  TermPrint(out, term, sig, DEREF_ONCE);
-                  fprintf(out, "\n");
-               }
-               else
-               {
-                  fprintf(out, "# Var%ld <---- %p\n",
-                          term->f_code,
-                          (void*)term->binding);
-               }
+               fprintf(out, "# %ld: ", term->f_code);
+               TermPrint(out, term, sig, DEREF_NEVER);
+               fprintf(out, " <--- ");
+               TermPrint(out, term, sig, DEREF_ONCE);
+               fprintf(out, "\n");
+            }
+            else
+            {
+               fprintf(out, "# Var%ld <---- %p\n",
+                       term->f_code,
+                       (void*)term->binding);
             }
          }
       }

@@ -132,7 +132,7 @@ static void litstate_add_satclause(int* state, SatClause_p clause)
    assert(state);
    assert(clause);
 
-   for(i = 0; i<clause->lit_no; i++)
+   for(i=0; i<clause->lit_no; i++)
    {
       lit = clause->literals[i];
       if(lit > 0)
@@ -406,8 +406,9 @@ SatClauseSet_p SatClauseSetAlloc(void)
    set->max_lit = 0;
    set->renumber_index = NULL; // We create this lazily when we know
                                // the first index!
-   set->set = PStackAlloc();
-
+   set->set      = PStackAlloc();
+   set->printset = PStackAlloc();
+   set->core_size = 0;
    return set;
 }
 
@@ -438,6 +439,7 @@ void SatClauseSetFree(SatClauseSet_p junk)
       SatClauseFree(clause);
    }
    PStackFree(junk->set);
+   PStackFree(junk->printset);
    SatClauseSetCellFree(junk);
 }
 
@@ -464,11 +466,11 @@ SatClause_p SatClauseCreateAndStore(Clause_p clause, SatClauseSet_p set)
    assert(clause);
    assert(set);
 
-   /* printf("# PGClause: "); */
-   /* ClausePrint(stdout, clause, true); */
-   /* printf("\n=>"); */
-   /* EqnListPrintDeref(stdout, clause->literals, "|", DEREF_ONCE); */
-   /* printf("\n"); */
+   //printf("# PGClause: ");
+   //ClausePrint(stdout, clause, true);
+   //printf("\n=>");
+   //EqnListPrintDeref(stdout, clause->literals, "|", DEREF_ONCE);
+   //printf("\n");
 
    handle = SatClauseAlloc(ClauseLiteralNumber(clause));
    handle->source = clause;
@@ -561,12 +563,14 @@ void SatClauseSetPrintNonPure(FILE* out, SatClauseSet_p set, long pure)
    fprintf(out, "c Skipping %ld pure clauses\n", pure);
    fprintf(out, "p cnf %d %ld\n", set->max_lit, PStackGetSP(set->set)-pure);
 
+   PStackReset(set->printset);
    for(i=0; i<PStackGetSP(set->set); i++)
    {
       clause = PStackElementP(set->set, i);
       if(!clause->has_pure_lit)
       {
          SatClausePrint(out, clause);
+         PStackPushP(set->printset, clause);
       }
    }
    //printf("0\n");
@@ -631,21 +635,21 @@ Subst_p SubstPseudoGroundVarBank(VarBank_p vars)
 
    assert(vars);
 
-   for (i=0; i < PDArraySize(vars->stacks); i++)
+   for (i=0; i < PDArraySize(vars->varstacks); i++)
    {
-      varstack = PDArrayElementP(vars->stacks, i);
+      varstack = PDArrayElementP(vars->varstacks, i);
       // printf("# varstack: %p\n", varstack);
-      if (varstack)
+      if(varstack)
       {
-         size = PDArraySize(varstack);
+         size = PStackGetSP(varstack);
          // printf("# varstack size: %ld\n", size);
-         if(size > 1)
+         if(size)
          {
-            norm = PDArrayElementP(varstack,1);
+            norm = PStackElementP(varstack,0);
             // printf("# varstack[1]: %p\n", norm);
-            for(j=2; j< size; j++)
+            for(j=0; j< size; j++)
             {
-               current = PDArrayElementP(varstack,j);
+               current = PStackElementP(varstack,j);
                // printf("# varstack[%ld]: %p\n", j, current);
                if(current)
                {
@@ -682,34 +686,37 @@ Subst_p SubstGroundVarBankFirstConst(TB_p terms, bool norm_const)
 
    assert(vars);
 
-   for (i=0; i < PDArraySize(vars->stacks); i++)
+   for (i=0; i < PDArraySize(vars->varstacks); i++)
    {
-      varstack = PDArrayElementP(vars->stacks, i);
+      varstack = PDArrayElementP(vars->varstacks, i);
       // printf("# varstack: %p\n", varstack);
       if (varstack)
       {
-         size = PDArraySize(varstack);
+         size = PStackGetSP(varstack);
          // printf("# varstack size: %ld\n", size);
-         backup = PDArrayElementP(varstack,1);
+         if(size)
+         {
+            backup = PStackElementP(varstack,0);
+            assert(backup->type->type_uid == i);
 
-         // TODO: CHECK IF THIS IS ENOUGH -- IF NOT INTRODUCE ID -> TYPE INDEX
-         norm = TBGetFirstConstTerm(terms, backup ? backup->type : NULL);
-         if(!norm)
-         {
-            norm = backup;
-         }
-         else if(norm_const)
-         {
-            norm = TermFollowRWChain(norm);
-         }
-         // printf("# varstack[1]: %p\n", norm);
-         for(j=1; j< size; j++)
-         {
-            current = PDArrayElementP(varstack,j);
-            // printf("# varstack[%ld]: %p\n", j, current);
-            if(current)
+            norm = TBGetFirstConstTerm(terms, backup->type);
+            if(!norm)
             {
-               SubstAddBinding(subst, current, norm);
+               norm = backup;
+            }
+            else if(norm_const)
+            {
+               norm = TermFollowRWChain(norm);
+            }
+            // printf("# varstack[1]: %p\n", norm);
+            for(j=0; j< size; j++)
+            {
+               current = PStackElementP(varstack,j);
+               // printf("# varstack[%ld]: %p\n", j, current);
+               if(current)
+               {
+                  SubstAddBinding(subst, current, norm);
+               }
             }
          }
       }
@@ -737,7 +744,7 @@ Subst_p SubstGroundFreqBased(TB_p terms, ClauseSet_p clauses,
    Subst_p subst = SubstAlloc();
    VarBank_p vars = terms->vars;
    VarBankStack_p varstack;
-   long i, j, size, dist_arr_size;
+   long sort, j, size, dist_arr_size;
    Term_p current, norm, backup;
    long *conj_dist_array, *dist_array;
 
@@ -752,34 +759,38 @@ Subst_p SubstGroundFreqBased(TB_p terms, ClauseSet_p clauses,
    ClauseSetAddSymbolDistribution(clauses, dist_array);
    ClauseSetAddConjSymbolDistribution(clauses, conj_dist_array);
 
-   for (i=0; i < PDArraySize(vars->stacks); i++)
+   for (sort=0; sort < PDArraySize(vars->varstacks); sort++)
    {
-      varstack = PDArrayElementP(vars->stacks, i);
+      varstack = PDArrayElementP(vars->varstacks, sort);
       // printf("# varstack: %p\n", varstack);
       if (varstack)
       {
          size = PDArraySize(varstack);
          // printf("# varstack size: %ld\n", size);
-         backup = PDArrayElementP(varstack,1);
+         if(size)
+         {
+            backup = PStackElementP(varstack,0);
+            assert(backup->type->type_uid == sort);
 
-         norm = TBGetFreqConstTerm(terms, (backup ? backup->type : NULL), 
-                                   conj_dist_array, dist_array, is_better);
-         if(!norm)
-         {
-            norm = backup;
-         }
-         else if(norm_const)
-         {
-            norm = TermFollowRWChain(norm);
-         }
-         // printf("# varstack[1]: %p\n", norm);
-         for(j=1; j< size; j++)
-         {
-            current = PDArrayElementP(varstack,j);
-            // printf("# varstack[%ld]: %p\n", j, current);
-            if(current)
+            norm = TBGetFreqConstTerm(terms, backup->type, 
+                                      conj_dist_array, dist_array, is_better);
+            if(!norm)
             {
-               SubstAddBinding(subst, current, norm);
+               norm = backup;
+            }
+            else if(norm_const)
+            {
+               norm = TermFollowRWChain(norm);
+            }
+            // printf("# varstack[1]: %p\n", norm);
+            for(j=0; j< size; j++)
+            {
+               current = PStackElementP(varstack,j);
+               // printf("# varstack[%ld]: %p\n", j, current);
+               if(current)
+               {
+                  SubstAddBinding(subst, current, norm);
+               }
             }
          }
       }
@@ -811,7 +822,7 @@ long SatClauseSetImportProofState(SatClauseSet_p satset, ProofState_p state,
    assert(satset);
    assert(state);
 
-   // printf("# SatClauseSetImportProofState()\n");
+   //printf("# SatClauseSetImportProofState()\n");
 
    switch(strat)
    {
@@ -905,7 +916,6 @@ long SatClauseSetMarkPure(SatClauseSet_p satset)
    for(i=0; i< PStackGetSP(satset->set); i++)
    {
       clause = PStackElementP(satset->set, i);
-      clause->has_pure_lit = false;
       litstate_add_satclause(litstate, clause);
       clause->has_pure_lit = false;
    }
@@ -919,11 +929,74 @@ long SatClauseSetMarkPure(SatClauseSet_p satset)
          pure_clauses++;
       }
    }
-
    SizeFree(litstate, sizeof(int)*(satset->max_lit+1));
 
    return pure_clauses;
 }
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: sat_extract_core()
+//
+//   Given a file (pipe) pointer pointing to a PicoSAT output, extract
+//   the original clauses pointing to the unsatisfiable core and push
+//   them onto core.
+//
+// Global Variables: -
+//
+// Side Effects    : Reads input
+//
+/----------------------------------------------------------------------*/
+
+long sat_extract_core(SatClauseSet_p satset, PStack_p core, FILE* picofp)
+{
+   DStr_p line = DStrAlloc();
+   char* ptr;
+   long id, dummy, res = 0;
+   bool parents = false;
+   SatClause_p satclause;
+
+   while((ptr = DStrFGetS(line, picofp)))
+   {
+      id = strtol(ptr, &ptr, 10);
+      ptr ++;
+      // Skip literals
+      while((dummy = strtol(ptr, &ptr, 10))!=0)
+      {
+         ptr++;
+      }
+      // check for parents
+
+      while((dummy = strtol(ptr, &ptr, 10))!=0)
+      {
+         ptr++;
+         parents = true;
+      }
+      if(!parents)
+      {
+         printf("# %s", DStrView(line));
+         printf("# Clause %ld in core\n", id);
+         // PicoSAT id start at 1, Stack addresses at 0!
+         if(id <= PStackGetSP(satset->printset))
+         {
+            res++;
+            satclause = PStackElementP(satset->printset, id-1);
+            PStackPushP(core, satclause->source);
+            ClausePrint(stdout, satclause->source, true);printf("\n");
+         }
+         else
+         {
+            Error("PicoSat returns impossible clause number", INTERFACE_ERROR);
+         }
+      }
+   }
+
+   DStrFree(line);
+
+   return res;
+}
+
 
 
 /*-----------------------------------------------------------------------
@@ -939,12 +1012,12 @@ long SatClauseSetMarkPure(SatClauseSet_p satset)
 //
 /----------------------------------------------------------------------*/
 
-Clause_p SatClauseSetCheckUnsat(SatClauseSet_p satset)
+ProverResult SatClauseSetCheckUnsat(SatClauseSet_p satset, Clause_p *empty)
 {
    static char buffer[PICOSAT_BUFSIZE];
 
    long pure = 0;
-   Clause_p res = NULL;
+   ProverResult res = PRNoResult;
    char *file, *data;
    FILE *fp, *picores;
    DStr_p cmd = DStrAlloc();
@@ -958,17 +1031,29 @@ Clause_p SatClauseSetCheckUnsat(SatClauseSet_p satset)
    SatClauseSetPrintNonPure(fp, satset, pure);
    SecureFClose(fp);
 
-   DStrAppendStr(cmd, "picosat -L 1 ");
+   DStrAppendStr(cmd, "picosat -L 2 -T -");
+   DStrAppendStr(cmd, " ");
    DStrAppendStr(cmd, file);
    picores = popen(DStrView(cmd), "r");
 
    while((data = fgets(buffer, PICOSAT_BUFSIZE, picores)))
    {
-      //fprintf(GlobalOut, "# PICO: %s", data);
+      // fprintf(GlobalOut, "# PICO: %s", data);
       if(strcmp(data, "s UNSATISFIABLE\n") == 0)
       {
-         fprintf(GlobalOut, "# SatCheck found unsatisfiable ground set");
-         res = EmptyClauseAlloc();
+         PStack_p unsat_core = PStackAlloc();
+         //fprintf(GlobalOut, "# SatCheck found unsatisfiable ground set\n");
+         *empty = EmptyClauseAlloc();
+         sat_extract_core(satset, unsat_core, picores);
+         satset->core_size = PStackGetSP(unsat_core);
+         PStackFree(unsat_core);
+         res = PRUnsatisfiable;
+      }
+      else if(strcmp(data, "s SATISFIABLE\n") == 0)
+      {
+         //fprintf(GlobalOut, "# SatCheck found grounded set model\n");
+         res = PRSatisfiable;
+         break;
       }
    }
    pclose(picores);

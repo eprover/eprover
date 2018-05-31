@@ -149,6 +149,7 @@ void HeuristicParmsInitialize(HeuristicParms_p handle)
    handle->sat_check_grounding           = GMNoGrounding;
    handle->sat_check_step_limit          = LONG_MAX;
    handle->sat_check_size_limit          = LONG_MAX;
+   handle->sat_check_ttinsert_limit      = LONG_MAX;
    handle->sat_check_normconst           = false;
    handle->sat_check_normalize           = false;
    handle->filter_limit                  = DEFAULT_FILTER_LIMIT;

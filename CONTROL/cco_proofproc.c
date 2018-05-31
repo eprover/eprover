@@ -903,25 +903,26 @@ static Clause_p cleanup_unprocessed_clauses(ProofState_p state,
 
 Clause_p SATCheck(ProofState_p state, ProofControl_p control)
 {
-   Clause_p res = NULL;
+   Clause_p     empty = NULL;
+   ProverResult res;
 
    if(control->heuristic_parms.sat_check_normalize)
    {
       //printf("# Cardinality of unprocessed: %ld\n",
       //        ClauseSetCardinality(state->unprocessed));
-      res = ForwardContractSetReweight(state, control, state->unprocessed,
+      empty = ForwardContractSetReweight(state, control, state->unprocessed,
                                        false, 2,
                                        &(state->proc_trivial_count));
       // printf("# ForwardContraction done\n");
 
    }
-   if(!res)
+   if(!empty)
    {
       SatClauseSet_p set = SatClauseSetAlloc();
 
       //printf("# SatCheck() %ld, %ld..\n",
-      //       state->proc_non_trivial_count,
-      //       ProofStateCardinality(state));
+      //state->proc_non_trivial_count,
+      //ProofStateCardinality(state));
 
       SatClauseSetImportProofState(set, state,
                                    control->heuristic_parms.sat_check_grounding,
@@ -929,15 +930,22 @@ Clause_p SATCheck(ProofState_p state, ProofControl_p control)
 
       // printf("# SatCheck()..imported\n");
 
-      res = SatClauseSetCheckUnsat(set);
+      res = SatClauseSetCheckUnsat(set, &empty);
       state->satcheck_count++;
-      if(res)
+      if(res == PRUnsatisfiable)
       {
          state->satcheck_success++;
+         state->satcheck_full_size = SatClauseSetCardinality(set);
+         state->satcheck_actual_size = SatClauseSetNonPureCardinality(set);
+         state->satcheck_core_size = SatClauseSetCoreSize(set);
+      }
+      else if(res == PRSatisfiable)
+      {
+         state->satcheck_satisfiable++;
       }
       SatClauseSetFree(set);
    }
-   return res;
+   return empty;
 }
 
 #ifdef PRINT_SHARING
@@ -1592,7 +1600,9 @@ Clause_p Saturate(ProofState_p state, ProofControl_p control, long
    long
       count = 0,
       sat_check_size_limit = control->heuristic_parms.sat_check_size_limit,
-      sat_check_step_limit = control->heuristic_parms.sat_check_step_limit;
+      sat_check_step_limit = control->heuristic_parms.sat_check_step_limit,
+      sat_check_ttinsert_limit = control->heuristic_parms.sat_check_ttinsert_limit;
+
 
    while(!TimeIsUp &&
          !ClauseSetEmpty(state->unprocessed) &&
@@ -1630,6 +1640,11 @@ Clause_p Saturate(ProofState_p state, ProofControl_p control, long
          {
             unsatisfiable = SATCheck(state, control);
             sat_check_step_limit += control->heuristic_parms.sat_check_step_limit;
+         }
+         else if( state->terms->insertions >= sat_check_ttinsert_limit)
+         {
+            unsatisfiable = SATCheck(state, control);
+            sat_check_ttinsert_limit *=2;
          }
          if(unsatisfiable)
          {

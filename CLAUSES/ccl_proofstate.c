@@ -154,6 +154,7 @@ ProofState_p ProofStateAlloc(FunctionProperties free_symb_prop)
 
    handle->tmp_terms            = TBAlloc(handle->signature);
    handle->freshvars            = VarBankAlloc(handle->type_bank);
+   VarBankPairShadow(handle->terms->vars, handle->freshvars);
    handle->f_axioms             = FormulaSetAlloc();
    handle->f_ax_archive         = FormulaSetAlloc();
    handle->ax_archive           = ClauseSetAlloc();
@@ -217,14 +218,18 @@ ProofState_p ProofStateAlloc(FunctionProperties free_symb_prop)
    handle->generated_count              = 0;
    handle->generated_lit_count          = 0;
    handle->non_trivial_generated_count  = 0;
-   handle->context_sr_count   = 0;
-   handle->paramod_count      = 0;
-   handle->factor_count       = 0;
-   handle->resolv_count       = 0;
-   handle->satcheck_count     = 0;
-   handle->satcheck_success   = 0;
-   handle->gc_count           = 0;
-   handle->gc_used_count      = 0;
+   handle->context_sr_count     = 0;
+   handle->paramod_count        = 0;
+   handle->factor_count         = 0;
+   handle->resolv_count         = 0;
+   handle->satcheck_count       = 0;
+   handle->satcheck_success     = 0;
+   handle->satcheck_satisfiable = 0;
+   handle->satcheck_full_size   = 0;
+   handle->satcheck_actual_size = 0;
+   handle->satcheck_core_size   = 0;
+   handle->gc_count             = 0;
+   handle->gc_used_count        = 0;
 
    handle->signature->distinct_props =
       handle->signature->distinct_props&(~free_symb_prop);
@@ -572,65 +577,73 @@ void ProofStateTrain(ProofState_p state, bool print_pos, bool print_neg)
 void ProofStateStatisticsPrint(FILE* out, ProofState_p state)
 {
    fprintf(out, "# Initial clauses in saturation        : %ld\n",
-      state->axioms->members);
+           state->axioms->members);
    fprintf(out, "# Processed clauses                    : %ld\n",
-      state->processed_count);
+           state->processed_count);
    fprintf(out, "# ...of these trivial                  : %ld\n",
-      state->proc_trivial_count);
+           state->proc_trivial_count);
    fprintf(out, "# ...subsumed                          : %ld\n",
-      state->proc_forward_subsumed_count);
+           state->proc_forward_subsumed_count);
    fprintf(out, "# ...remaining for further processing  : %ld\n",
-      state->proc_non_trivial_count);
+           state->proc_non_trivial_count);
    fprintf(out, "# Other redundant clauses eliminated   : %ld\n",
-      state->other_redundant_count);
+           state->other_redundant_count);
    fprintf(out, "# Clauses deleted for lack of memory   : %ld\n",
-      state->non_redundant_deleted);
+           state->non_redundant_deleted);
    fprintf(out, "# Backward-subsumed                    : %ld\n",
-      state->backward_subsumed_count);
+           state->backward_subsumed_count);
    fprintf(out, "# Backward-rewritten                   : %ld\n",
-      state->backward_rewritten_count);
+           state->backward_rewritten_count);
    fprintf(out, "# Generated clauses                    : %ld\n",
-      state->generated_count - state->backward_rewritten_count);
+           state->generated_count - state->backward_rewritten_count);
    fprintf(out, "# ...of the previous two non-trivial   : %ld\n",
-      state->non_trivial_generated_count);
+           state->non_trivial_generated_count);
    fprintf(out, "# Contextual simplify-reflections      : %ld\n",
-      state->context_sr_count);
+           state->context_sr_count);
    fprintf(out, "# Paramodulations                      : %ld\n",
-      state->paramod_count);
+           state->paramod_count);
    fprintf(out, "# Factorizations                       : %ld\n",
-      state->factor_count);
+           state->factor_count);
    fprintf(out, "# Equation resolutions                 : %ld\n",
-      state->resolv_count);
+           state->resolv_count);
    fprintf(out, "# Propositional unsat checks           : %ld\n",
-      state->satcheck_count);
-   fprintf(out, "# Propositional unsat check successes  : %ld\n",
-      state->satcheck_success);
+           state->satcheck_count);
+   fprintf(out, "#    Propositional check models        : %ld\n",
+           state->satcheck_satisfiable);
+   fprintf(out, "#    Propositional check unsatisfiable : %ld\n",
+           state->satcheck_success);
+   fprintf(out, "#    Propositional clauses             : %ld\n",
+           state->satcheck_full_size);
+   fprintf(out, "#    Propositional clauses after purity: %ld\n",
+           state->satcheck_actual_size);
+   fprintf(out, "#    Propositional unsat core size     : %ld\n",
+           state->satcheck_core_size);
    fprintf(out,
-      "# Current number of processed clauses  : %ld\n"
-      "#    Positive orientable unit clauses  : %ld\n"
-      "#    Positive unorientable unit clauses: %ld\n"
-      "#    Negative unit clauses             : %ld\n"
-      "#    Non-unit-clauses                  : %ld\n",
-      state->processed_pos_rules->members+
-      state->processed_pos_eqns->members+
-      state->processed_neg_units->members+
-      state->processed_non_units->members,
-      state->processed_pos_rules->members,
-      state->processed_pos_eqns->members,
-      state->processed_neg_units->members,
-      state->processed_non_units->members);
+           "# Current number of processed clauses  : %ld\n"
+           "#    Positive orientable unit clauses  : %ld\n"
+           "#    Positive unorientable unit clauses: %ld\n"
+           "#    Negative unit clauses             : %ld\n"
+           "#    Non-unit-clauses                  : %ld\n",
+           state->processed_pos_rules->members+
+           state->processed_pos_eqns->members+
+           state->processed_neg_units->members+
+           state->processed_non_units->members,
+           state->processed_pos_rules->members,
+           state->processed_pos_eqns->members,
+           state->processed_neg_units->members,
+           state->processed_non_units->members);
    fprintf(out,
-      "# Current number of unprocessed clauses: %ld\n",
-      state->unprocessed->members);
+           "# Current number of unprocessed clauses: %ld\n",
+           state->unprocessed->members);
    fprintf(out,
-      "# ...number of literals in the above   : %ld\n",
-      state->unprocessed->literals);
+           "# ...number of literals in the above   : %ld\n",
+           state->unprocessed->literals);
    fprintf(out,
-      "# Current number of archived formulas  : %ld\n",
-      state->f_archive->members);
+           "# Current number of archived formulas  : %ld\n",
+           state->f_archive->members);
    fprintf(out,
-      "# Current number of archived clauses   : %ld\n",
-      state->archive->members);
+           "# Current number of archived clauses   : %ld\n",
+           state->archive->members);
    if(ProofObjectRecordsGCSelection)
    {
       fprintf(out,
@@ -643,34 +656,34 @@ void ProofStateStatisticsPrint(FILE* out, ProofState_p state)
    if(TBPrintDetails)
    {
       fprintf(out,
-         "# Total literals in generated clauses  : %ld\n",
-         state->generated_lit_count -
-         state->backward_rewritten_lit_count);
+              "# Total literals in generated clauses  : %ld\n",
+              state->generated_lit_count -
+              state->backward_rewritten_lit_count);
       fprintf(out,
-         "# Shared term nodes                    : %ld\n"
-         "# ...corresponding unshared nodes      : %ld\n",
-         TBTermNodes(state->terms),
-         ClauseSetGetTermNodes(state->tmp_store)+
-         ClauseSetGetTermNodes(state->eval_store)+
-         ClauseSetGetTermNodes(state->processed_pos_rules)+
-         ClauseSetGetTermNodes(state->processed_pos_eqns)+
-         ClauseSetGetTermNodes(state->processed_neg_units)+
-         ClauseSetGetTermNodes(state->processed_non_units)+
-         ClauseSetGetTermNodes(state->unprocessed));
+              "# Shared term nodes                    : %ld\n"
+              "# ...corresponding unshared nodes      : %ld\n",
+              TBTermNodes(state->terms),
+              ClauseSetGetTermNodes(state->tmp_store)+
+              ClauseSetGetTermNodes(state->eval_store)+
+              ClauseSetGetTermNodes(state->processed_pos_rules)+
+              ClauseSetGetTermNodes(state->processed_pos_eqns)+
+              ClauseSetGetTermNodes(state->processed_neg_units)+
+              ClauseSetGetTermNodes(state->processed_non_units)+
+              ClauseSetGetTermNodes(state->unprocessed));
       fprintf(out,
          "# Shared rewrite steps                 : %lu\n",
-         state->terms->rewrite_steps);
+              state->terms->rewrite_steps);
       fprintf(out,
-         "# Match attempts with oriented units   : %lu\n"
-         "# Match attempts with unoriented units : %lu\n",
-         state->processed_pos_rules->demod_index->match_count,
-         state->processed_pos_eqns->demod_index->match_count);
+              "# Match attempts with oriented units   : %lu\n"
+              "# Match attempts with unoriented units : %lu\n",
+              state->processed_pos_rules->demod_index->match_count,
+              state->processed_pos_eqns->demod_index->match_count);
 #ifdef MEASURE_EXPENSIVE
       fprintf(out,
-         "# Oriented PDT nodes visited           : %lu\n"
-         "# Unoriented PDT nodes visited         : %lu\n",
-         state->processed_pos_rules->demod_index->visited_count,
-         state->processed_pos_eqns->demod_index->visited_count);
+              "# Oriented PDT nodes visited           : %lu\n"
+              "# Unoriented PDT nodes visited         : %lu\n",
+              state->processed_pos_rules->demod_index->visited_count,
+              state->processed_pos_eqns->demod_index->visited_count);
 #endif
    }
    /* TermCellStorePrintDistrib(out, &(state->terms->term_store)); */

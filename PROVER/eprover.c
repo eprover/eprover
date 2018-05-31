@@ -1439,6 +1439,10 @@ CLState_p process_options(int argc, char* argv[])
             h_parms->sat_check_size_limit =
                CLStateGetIntArgCheckRange(handle, arg, 1, LONG_MAX);
             break;
+      case OPT_SAT_TTINSERT_INTERVAL:
+            h_parms->sat_check_ttinsert_limit =
+               CLStateGetIntArgCheckRange(handle, arg, 1, LONG_MAX);
+            break;
       case OPT_SATCHECK:
             tmp = StringIndex(arg, GroundingStratNames);
             if(tmp <= 0)

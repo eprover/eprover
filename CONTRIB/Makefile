@@ -30,7 +30,7 @@ clean: $(PICOSAT)/Makefile
 include ../Makefile.services
 
 config:
-	cd $(PICOSAT); ./configure.sh
+	cd $(PICOSAT); ./configure.sh -t
 
 $(PICOSAT)/makefile:
 	make config
