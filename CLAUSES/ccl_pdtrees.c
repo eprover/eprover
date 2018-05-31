@@ -1034,7 +1034,7 @@ Term_p TermLRTraversePrevAppVar(PStack_p stack, Term_p original_term, Term_p var
 //
 /----------------------------------------------------------------------*/
 
-void __pdt_insert_fo(PDTree_p tree, ClausePos_p demod_side)
+void PDTreeInsert(PDTree_p tree, ClausePos_p demod_side)
 {
    Term_p    term, curr;
    PDTNode_p node, *next;
@@ -1104,122 +1104,6 @@ void __pdt_insert_fo(PDTree_p tree, ClausePos_p demod_side)
    UNUSED(res); assert(res);
    //printf("ISizeConstr %p: %ld\n", tree, pdt_verify_size_constraint(tree->tree));
    //printf("IDateConstr %p: %ld\n", tree, pdt_verify_age_constraint(tree->tree));
-}
-
-void print_app_var_warning_msg()
-{
-   static int count;
-
-   // Insert request ignored.
-   fprintf(stderr, "# warn (%i): IRI. \n", count++);
-}
-
-bool PDTreeInsert(PDTree_p tree, ClausePos_p demod_side)
-{
-   Term_p    term, curr;
-   PDTNode_p node, *next;
-   bool      res;
-   long      tmp;
-   bool      inserted = false;
-
-   assert(tree);
-   assert(tree->tree);
-   assert(demod_side);
-   assert(demod_side->clause->set);
-
-   term = ClausePosGetSide(demod_side);
-   TermLRTraverseInit(tree->term_stack, term);
-   node              = tree->tree;
-   tmp = TermStandardWeight(term);
-   curr = TermLRTraverseNext(tree->term_stack);
-
-   while(curr)
-   {
-      if (TermIsAppliedVar(curr))
-      {
-         curr = TermLRTraverseNext(tree->term_stack);
-         continue; // skipping the symbol for applied var.
-      }
-
-      next = pdt_select_alt_ref(tree, node, curr);
-
-      if(!(*next))
-      {
-         *next = PDTNodeAlloc();
-         node->leaf = false;
-         
-         tree->arr_storage_est+= (IntMapStorage((*next)->f_alternatives)+
-                                  PDArrayStorage((*next)->v_alternatives));
-         (*next)->parent = node;
-         tree->node_count++;
-         if(TermIsVar(curr))
-         {
-            (*next)->variable = curr;
-            node->max_var = MAX(node->max_var, -curr->f_code);
-         }
-      }
-      node = *next;
-      if(node->variable && (TermIsVar(curr) && node->variable->type != curr->type))
-      {
-         print_app_var_warning_msg();
-         break;
-      }
-      curr = TermLRTraverseNext(tree->term_stack);
-   }
-
-   if(!curr)
-   {
-      inserted = true;
-      // this means we succeeded and we have to set the constraints
-      term = ClausePosGetSide(demod_side);
-      TermLRTraverseInit(tree->term_stack, term);
-      node              = tree->tree;
-      tmp = TermStandardWeight(term);
-      curr = TermLRTraverseNext(tree->term_stack);
-
-      if(!SysDateIsInvalid(node->age_constr))
-      {
-         node->age_constr  = SysDateMaximum(demod_side->clause->date,
-                                            node->age_constr);
-      }
-      /* We need no guard here, since invalid = -1 will win out in either
-         case. */
-      node->size_constr = MIN(tmp, node->size_constr);
-      node->ref_count++;
-
-      while(curr)
-      {
-         if (TermIsAppliedVar(curr))
-         {
-            curr = TermLRTraverseNext(tree->term_stack);
-            continue; // skipping the symbol for applied var.
-         }
-
-         next = pdt_select_alt_ref(tree, node, curr);
-         assert(next);
-
-         node = *next;
-         node->size_constr = MIN(tmp, node->size_constr);
-         if(!SysDateIsInvalid(node->age_constr))
-         {
-            node->age_constr  = SysDateMaximum(demod_side->clause->date,
-                                               node->age_constr);
-         }
-         node->ref_count++;
-         assert(!node->variable || (TermIsVar(curr) && node->variable->type == curr->type));
-         curr = TermLRTraverseNext(tree->term_stack);
-      }
-
-      assert(node);
-      res = PTreeStore(&(node->entries), demod_side);
-      tree->clause_count++;
-      UNUSED(res); assert(res);
-   }
-
-   
-   //printf("ISizeConstr %p: %ld\n", tree, pdt_verify_size_constraint(tree->tree));
-   //printf("IDateConstr %p: %ld\n", tree, pdt_verify_age_constraint(tree->tree));
-   return inserted;
 }
 
 
