@@ -1,25 +1,22 @@
 /*-----------------------------------------------------------------------
 
-File  : cte_termvars.c
+  File  : cte_termvars.c
 
-Author: Stephan Schulz
+  Author: Stephan Schulz
 
-Contents
+  Contents
 
   Functions for the management of shared variables.
 
-  Copyright 1998, 1999 by the author.
+  Copyright 1998, 1999, 2008 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
+  Created: Wed Feb 25 00:48:17 MET 1998
 
-<1> Wed Feb 25 00:48:17 MET 1998
-    new
-
------------------------------------------------------------------------*/
+  -----------------------------------------------------------------------*/
 
 #include "cte_termvars.h"
 
@@ -42,15 +39,16 @@ Changes
 
 /*-----------------------------------------------------------------------
 //
-// Function: var_named_new
-//  create a new VarBankNamed_p
+// Function: var_named_new()
 //
+//  Create a new VarBankNamedCell associating name and variable.
 //
 // Global Variables: -
 //
 // Side Effects    : memory
 //
 /----------------------------------------------------------------------*/
+
 VarBankNamed_p var_named_new(Term_p var, char* name)
 {
    VarBankNamed_p res;
@@ -66,15 +64,16 @@ VarBankNamed_p var_named_new(Term_p var, char* name)
 
 /*-----------------------------------------------------------------------
 //
-// Function: var_named_free
-//  free a VarBankNamed_p
+// Function: var_named_free()
 //
+//  free a VarBankNamed structure.
 //
 // Global Variables: -
 //
 // Side Effects    : memory
 //
 /----------------------------------------------------------------------*/
+
 void var_named_free(VarBankNamed_p junk)
 {
    FREE(junk->name);
@@ -84,15 +83,16 @@ void var_named_free(VarBankNamed_p junk)
 
 /*-----------------------------------------------------------------------
 //
-// Function: clear_env_stack
-//  clear the env stack, removing all named cells
+// Function: clear_env_stack()
 //
+//  clear the env stack, removing all named cells
 //
 // Global Variables: -
 //
 // Side Effects    : Memory operations
 //
 /----------------------------------------------------------------------*/
+
 void clear_env_stack(VarBank_p bank)
 {
    VarBankNamed_p named;
@@ -128,16 +128,18 @@ VarBank_p VarBankAlloc(SortTable_p sort_table)
 {
    VarBank_p handle;
 
-   handle = VarBankCellAlloc();
-   handle->var_count = 0;
+   handle              = VarBankCellAlloc();
+   handle->id          = "Unpaired";
+   handle->var_count   = 0;
    handle->fresh_count = 0;
-   handle->sort_table = sort_table;
-   handle->max_var = 0;
-   handle->varstacks = PDArrayAlloc(INITIAL_SORT_STACK_SIZE, 5);
-   handle->v_counts  = PDIntArrayAlloc(INITIAL_SORT_STACK_SIZE, 5);
-   handle->variables = PDArrayAlloc(DEFAULT_VARBANK_SIZE, GROW_EXPONENTIAL);
-   handle->ext_index = NULL;
-   handle->env = PStackAlloc();
+   handle->sort_table  = sort_table;
+   handle->max_var     = 0;
+   handle->varstacks   = PDArrayAlloc(INITIAL_SORT_STACK_SIZE, 5);
+   handle->v_counts    = PDIntArrayAlloc(INITIAL_SORT_STACK_SIZE, 5);
+   handle->variables   = PDArrayAlloc(DEFAULT_VARBANK_SIZE, GROW_EXPONENTIAL);
+   handle->ext_index   = NULL;
+   handle->env         = PStackAlloc();
+   handle->shadow      = NULL;
    return handle;
 }
 
@@ -183,7 +185,59 @@ void VarBankFree(VarBank_p junk)
    }
    PDArrayFree(junk->variables);
 
+   if(junk->shadow)
+   {
+      junk->shadow->shadow = NULL;
+   }
    VarBankCellFree(junk);
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: VarBankPairShadow()
+//
+//   Pair two variable banks to ensure that they ave consistent
+//   id/variable mappings. Primary may contain variables, secondary
+//   should be empty.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void VarBankPairShadow(VarBank_p primary, VarBank_p secondary)
+{
+   long sort;
+   PStackPointer i;
+   PStack_p varstack;
+   Term_p var;
+
+   assert(primary);
+   assert(secondary);
+   assert(secondary->var_count == 0);
+
+   primary->shadow   = secondary;
+   secondary->shadow = primary;
+   primary->id       = "Primary";
+   secondary->id     = "Secondary";
+
+   // Create primary vars in secondary
+   for(sort=0; sort < PDArraySize(primary->varstacks); sort++)
+   {
+      varstack = PDArrayElementP(primary->varstacks, sort);
+      if(varstack)
+      {
+         for(i=0; i<PStackGetSP(varstack); i++)
+         {
+            var = PStackElementP(varstack, i);
+            assert(!VarIsAltVar(var));
+            assert(var->sort == sort);
+            VarBankVarAlloc(secondary, var->f_code, var->sort);
+         }
+      }
+   }
+   secondary->fresh_count = primary->fresh_count;
 }
 
 
@@ -410,7 +464,7 @@ Term_p VarBankExtNameFind(VarBank_p bank, char* name)
 
 /*-----------------------------------------------------------------------
 //
-// Function: VarBankVarAlloc()
+// Function:var_bank_var_alloc()
 //
 //   Return a pointer to the newly created variable
 //   with the given f_code and sort in the variable bank.
@@ -421,9 +475,10 @@ Term_p VarBankExtNameFind(VarBank_p bank, char* name)
 //
 /----------------------------------------------------------------------*/
 
-Term_p VarBankVarAlloc(VarBank_p bank, FunCode f_code, SortType sort)
+Term_p var_bank_var_alloc(VarBank_p bank, FunCode f_code, SortType sort)
 {
    Term_p var;
+   VarBankStack_p stack = VarBankGetStack(bank, sort);
 
    assert(!PDArrayElementP(bank->variables, -f_code));
 
@@ -438,11 +493,38 @@ Term_p VarBankVarAlloc(VarBank_p bank, FunCode f_code, SortType sort)
    var->sort = sort;
 
    PDArrayAssignP(bank->variables, -f_code, var);
+   if(!VarIsAltVar(var))
+   {
+      PStackPushP(stack, var);
+   }
    bank->max_var = MAX(-f_code, bank->max_var);
    bank->var_count++;
 
    assert(var->sort != STNoSort);
+   return var;
+}
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: VarBankVarAlloc()
+//
+//   Return a pointer to the newly created variable
+//   with the given f_code and sort in the variable bank.
+//
+// Global Variables: -
+//
+// Side Effects    : May change variable bank and its shadow
+//
+/----------------------------------------------------------------------*/
+
+Term_p VarBankVarAlloc(VarBank_p bank, FunCode f_code, SortType sort)
+{
+   Term_p var = var_bank_var_alloc(bank, f_code, sort);
+   if(bank->shadow)
+   {
+      var_bank_var_alloc(bank->shadow, f_code, sort);
+   }
    return var;
 }
 
@@ -472,12 +554,18 @@ Term_p VarBankGetFreshVar(VarBank_p bank, SortType sort)
 
    int v_count = PDArrayElementInt(bank->v_counts, sort);
    VarBankStack_p stack = VarBankGetStack(bank, sort);
+   assert(stack);
    if(UNLIKELY(PStackGetSP(stack)<=v_count))
    {
+      //printf("# XXX %s %ld %d  ", bank->id, PStackGetSP(stack), v_count);
       bank->fresh_count+=2;
       res = VarBankVarAssertAlloc(bank, -(bank->fresh_count), sort);
-      PStackPushP(stack,res);
+      //printf("=> %ld %d\n", PStackGetSP(stack), v_count);
       assert(PStackGetSP(stack)>v_count);
+      if(bank->shadow)
+      {
+         bank->shadow->fresh_count = bank->fresh_count;
+      }
    }
    else
    {

@@ -150,6 +150,7 @@ ProofState_p ProofStateAlloc(FunctionProperties free_symb_prop)
    handle->terms                = TBAlloc(handle->signature);
    handle->tmp_terms            = TBAlloc(handle->signature);
    handle->freshvars            = VarBankAlloc(handle->sort_table);
+   VarBankPairShadow(handle->terms->vars, handle->freshvars);
    handle->f_axioms             = FormulaSetAlloc();
    handle->f_ax_archive         = FormulaSetAlloc();
    handle->ax_archive           = ClauseSetAlloc();

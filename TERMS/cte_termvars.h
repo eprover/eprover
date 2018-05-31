@@ -8,7 +8,7 @@
 
   Functions for the management of shared variables.
 
-  Copyright 1998, 1999 by the author.
+  Copyright 1998, 1999, 2018 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
@@ -60,6 +60,7 @@ typedef PStack_p VarBankStack_p;
 
 typedef struct varbankcell
 {
+   char*       id;
    long        var_count;
    FunCode     fresh_count; /* FunCode counter for new variables */
    SortTable_p sort_table;  /* Sorts that are used for variables */
@@ -75,6 +76,8 @@ typedef struct varbankcell
    StrTree_p   ext_index;  /* Associate names and cells */
    PStack_p    env;        /* Scoping environment for quantified
                             * external variables */
+   struct varbankcell *shadow; /* Alternative varbank that needs the
+                                * same id/type associations */
 }VarBankCell, *VarBank_p;
 
 
@@ -104,6 +107,7 @@ static __inline__ VarBankStack_p  VarBankGetStack(VarBank_p bank, SortType sort)
 
 VarBank_p  VarBankAlloc(SortTable_p sort_table);
 void       VarBankFree(VarBank_p junk);
+void       VarBankPairShadow(VarBank_p primary, VarBank_p secondary);
 void       VarBankResetVCounts(VarBank_p bank);
 void       VarBankSetVCountsToUsed(VarBank_p bank);
 void       VarBankClearExtNames(VarBank_p bank);
@@ -183,7 +187,6 @@ static __inline__ Term_p VarBankVarAssertAlloc(VarBank_p bank, FunCode f_code,
    {
       var = VarBankVarAlloc(bank, f_code, sort);
    }
-
    assert(var->v_count==1);
    assert(var->sort != STNoSort);
    assert(var->sort == sort);
