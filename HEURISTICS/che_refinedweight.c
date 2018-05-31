@@ -121,8 +121,9 @@ WFCB_p ClauseRefinedWeightParse(Scanner_p in, OCB_p ocb, ProofState_p
    AcceptInpTok(in, Comma);
    max_literal_multiplier = ParseFloat(in);
    AcceptInpTok(in, Comma);
-   PARSE_OPTIONAL_AV_PENALTY(in, app_var_penalty);
    pos_multiplier = ParseFloat(in);
+   PARSE_OPTIONAL_AV_PENALTY(in, app_var_penalty);
+   
 
    AcceptInpTok(in, CloseBracket);
 

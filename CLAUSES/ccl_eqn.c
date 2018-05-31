@@ -24,6 +24,9 @@
 
 #undef PRINT_SELECTION
 
+#define PRINT_HO_PAREN(out, ch) ((problemType == PROBLEM_HO) ? \
+                                    (fputc((ch), (out))) : 0)
+
 
 /*---------------------------------------------------------------------*/
 /*                        Global Variables                             */
@@ -1061,13 +1064,17 @@ void EqnFOFPrint(FILE* out, Eqn_p eq, bool negated,  bool fullterms, bool pcl)
 
       if(EqnIsEquLit(eq))
       {
+         PRINT_HO_PAREN(out, '(');
          TBPrintTerm(out, eq->bank, eq->lterm, fullterms);
+         PRINT_HO_PAREN(out, ')');
          if(!positive)
          {
             fputc('!', out);
          }
          fputc('=', out);
+         PRINT_HO_PAREN(out, '(');
          TBPrintTerm(out, eq->bank, eq->rterm, fullterms);
+         PRINT_HO_PAREN(out, ')');
       }
       else
       {
