@@ -80,6 +80,7 @@ char*   DStrSet(DStr_p strdes, char* string);
 long    DStrLen(DStr_p strdes);
 void    DStrReset(DStr_p strdes);
 void    DStrMinimize(DStr_p strdes);
+char*   DStrFGetS(DStr_p strdes, FILE* fp);
 
 #define DStrGetRef(strdes)     (((strdes)?((strdes)->refs++):0),strdes)
 #define DStrReleaseRef(strdes) if(strdes){DStrFree(strdes);}

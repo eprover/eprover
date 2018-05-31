@@ -1392,7 +1392,7 @@ void ClausePrintLOPFormat(FILE* out, Clause_p clause, bool fullterms)
 //
 //   Print a clause in the most canonical representation.
 //
-// Global Variables: TPTPFormatPrint
+// Global Variables: OutputFormat
 //
 // Side Effects    : Output
 //
@@ -1437,7 +1437,7 @@ void ClausePrint(FILE* out, Clause_p clause, bool fullterms)
 //
 //   Print a clause in PCL format.
 //
-// Global Variables: TPTPFormatPrint
+// Global Variables: OutputFormat
 //
 // Side Effects    : Output
 //
@@ -2512,12 +2512,11 @@ Clause_p ClauseNormalizeVars(Clause_p clause, VarBank_p fresh_vars)
    Subst_p subst;
 
    assert(!ClauseQueryProp(clause,CPIsDIndexed));
-   assert(clause->literals->bank->vars != fresh_vars);
 
    if(!ClauseIsEmpty(clause))
    {
       subst = SubstAlloc();
-      VarBankResetVCount(fresh_vars);
+      VarBankResetVCounts(fresh_vars);
 
       NormSubstClause(clause, subst, fresh_vars);
 

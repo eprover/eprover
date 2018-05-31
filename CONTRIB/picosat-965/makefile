@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS= -Wall -Wextra -DNDEBUG -O3
+CFLAGS= -DTRACE -Wall -Wextra -DNDEBUG -O3
 
 all: picosat picomcs picomus picogcnf libpicosat.a
 

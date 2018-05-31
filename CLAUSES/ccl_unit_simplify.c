@@ -88,7 +88,6 @@ SimplifyRes FindTopSimplifyingUnit(ClauseSet_p units, Term_p t1,
    while((mi = PDTreeFindNextDemodulator(units->demod_index, subst)))
    {
       pos = mi->matcher;
-      Sig_p sig = pos->literal->bank->sig;
 
       if((remains = SubstMatchPossiblyPartial(ClausePosGetOtherSide(pos), t2, subst, units->demod_index->bank)) 
             != NOT_MATCHED)

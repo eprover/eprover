@@ -618,7 +618,7 @@ long TBTermNodes(TB_p bank)
 {
    assert(TermCellStoreNodes(&(bank->term_store))==
           TermCellStoreCountNodes(&(bank->term_store)));
-   return TermCellStoreNodes(&(bank->term_store))+VarBankCardinal(bank->vars);
+   return TermCellStoreNodes(&(bank->term_store))+VarBankCardinality(bank->vars);
 }
 
 
@@ -986,7 +986,8 @@ Term_p  TBInsertDisjoint(TB_p bank, Term_p term)
 
    if(TermIsVar(term))
    {
-      t = VarBankVarAssertAlloc(bank->vars, term->f_code+1, term->type);
+      t = VarBankGetAltVar(bank->vars, term);
+      // t = VarBankVarAssertAlloc(bank->vars, term->f_code+1, term->sort);
    }
    else
    {
@@ -1066,7 +1067,7 @@ Term_p TBFind(TB_p bank, Term_p term)
 {
    if(TermIsVar(term))
    {
-      return VarBankFCodeFind(bank->vars, term->f_code, term->type);
+      return VarBankFCodeFind(bank->vars, term->f_code);
    }
    return TermCellStoreFind(&(bank->term_store), term);
 }
