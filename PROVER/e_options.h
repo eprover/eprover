@@ -26,9 +26,9 @@ Changes
 /*                    Data type declarations                           */
 /*---------------------------------------------------------------------*/
 
-#ifndef E_OPTIONS
+#ifndef E_OPTIONS_GUARD
 
-#define E_OPTIONS
+#define E_OPTIONS_GUARD
 
 
 typedef enum
@@ -148,6 +148,7 @@ typedef enum
    OPT_STRONGSUBSUMPTION,
    OPT_SAT_STEP_INTERVAL,
    OPT_SAT_SIZE_INTERVAL,
+   OPT_SAT_TTINSERT_INTERVAL,
    OPT_SATCHECK,
    OPT_SAT_NORMCONST,
    OPT_SAT_NORMALIZE,
@@ -1115,6 +1116,12 @@ OptCell opts[] =
     OptArg, "10000",
     "Enable periodic SAT checking whenever the total proof state size "
     "increases by the given limit."},
+
+   {OPT_SAT_TTINSERT_INTERVAL,
+    '\0', "satcheck-ttinsert-interval",
+    OptArg, "5000000",
+    "Enable periodic SAT checking whenever the number of term tops "
+    "insertions matches the given limit (which grows exponentially)."},
 
    {OPT_SATCHECK,
     '\0', "satcheck",

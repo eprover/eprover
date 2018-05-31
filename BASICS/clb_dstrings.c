@@ -498,6 +498,45 @@ void DStrMinimize(DStr_p strdes)
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: DStrFGetS()
+//
+//   fgets() analog for arbitray lenght lines. strdes is reset first.
+//   Returns char* pointer to result or NULL if EOF is encountered
+//   before any characters are read.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory, input read from fp
+//
+/----------------------------------------------------------------------*/
+
+#define DSTRGETS_CHUNK 256
+
+char* DStrFGetS(DStr_p strdes, FILE* fp)
+{
+   char buffer[DSTRGETS_CHUNK];
+
+   DStrReset(strdes);
+
+   if(fgets(buffer, DSTRGETS_CHUNK, fp))
+   {
+      DStrAppendStr(strdes, buffer);
+      while(DStrLastChar(strdes)!='\n')
+      {
+         if(!fgets(buffer, DSTRGETS_CHUNK, fp))
+         {
+            break;
+         }
+         DStrAppendStr(strdes, buffer);
+      }
+      return DStrView(strdes);
+   }
+   return NULL;
+}
+
+
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/

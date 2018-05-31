@@ -246,7 +246,7 @@ if __name__ == '__main__':
     parse_data = None
     
     
-    opts, args = getopt.gnu_getopt(sys.argv[1:], "hvs:", ["Verbose"])    
+    opts, args = getopt.gnu_getopt(sys.argv[1:], "hvs:", ["verbose"])    
     
     for option, optarg in opts:
         if option == "-h":

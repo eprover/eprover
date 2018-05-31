@@ -1,5 +1,5 @@
 Think about orientation...these equations have something in common,
-but what? How about average term depth of subterms? 
+but what? How about average term depth of subterms?
 
 f(a, g(b,c))   =    g(f(a,b), f(a,c))
 1+2+2+3+3           1+2+2+3+3+3+3
@@ -20,3 +20,5 @@ Average term depth of terminal nodes / maximum term depth + 1
 Now I need an algorithm to generate an ordering for desired
 orientations -> Check Joachims LPO algorithm.
 
+
+Okayti Wonder

@@ -40,6 +40,19 @@ typedef struct
 }WeightedObjectCell, *WeightedObject_p;
 
 
+
+typedef enum
+{
+   PRNoResult = 0,
+   PRTheorem,
+   PRUnsatisfiable,
+   PRSatisfiable,
+   PRCounterSatisfiable,
+   PRFailure,
+   PRGaveUp
+}ProverResult;
+
+
 /*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/

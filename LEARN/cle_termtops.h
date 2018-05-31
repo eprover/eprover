@@ -1,10 +1,10 @@
 /*-----------------------------------------------------------------------
 
-File  : cle_termtops.h
+  File  : cle_termtops.h
 
-Author: Stephan Schulz
+  Author: Stephan Schulz
 
-Contents
+  Contents
 
   Compute the various term tops for given (shared!) terms.
 
@@ -14,12 +14,9 @@ Contents
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
+  Created: Tue Aug  3 17:14:11 MET DST 1999
 
-<1> Tue Aug  3 17:14:11 MET DST 1999
-    New
-
------------------------------------------------------------------------*/
+  -----------------------------------------------------------------------*/
 
 #ifndef CLE_TERMTOPS
 
@@ -49,8 +46,3 @@ Term_p ESTermTop(Term_p term, int depth, VarBank_p freshvars);
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
-
-
-

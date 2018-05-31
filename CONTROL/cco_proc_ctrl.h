@@ -30,23 +30,13 @@ Changes
 #include <sys/select.h>
 #include <signal.h>
 #include <clb_numtrees.h>
+#include <clb_simple_stuff.h>
 #include <cio_tempfile.h>
 
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
 /*---------------------------------------------------------------------*/
-
-typedef enum
-{
-   PRNoResult = 0,
-   PRTheorem,
-   PRUnsatisfiable,
-   PRSatisfiable,
-   PRCounterSatisfiable,
-   PRFailure,
-   PRGaveUp
-}ProverResult;
 
 
 typedef struct e_pctrl_cell

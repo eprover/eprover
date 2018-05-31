@@ -55,6 +55,7 @@ typedef int ErrorCodes;
 #define INCOMPLETE_PROOFSTATE 9
 #define OTHER_ERROR           10
 #define INPUT_SEMANTIC_ERROR  11
+#define INTERFACE_ERROR       12
 
 /*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */
