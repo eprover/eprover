@@ -377,19 +377,22 @@ void FormulaSetAppEncode(FILE* out, FormulaSet_p set)
    }
    
    handle = set->anchor->succ;
-   TypeBankAppEncodeTypes(out, handle->terms->sig->type_bank, true);
-
-   SigPrintAppEncodedDecls(out, handle->terms->sig);
-   
-   while(handle!=set->anchor)
+   if (handle->terms)
    {
-      if (!TFormulaIsPropTrue(handle->terms->sig, handle->tformula))
-      {
-         WFormulaAppEncode(out, handle);
-         fputc('\n', out);
-      }
+      TypeBankAppEncodeTypes(out, handle->terms->sig->type_bank, true);
 
-      handle = handle->succ;      
+      SigPrintAppEncodedDecls(out, handle->terms->sig);
+
+      while(handle!=set->anchor)
+      {
+         if (!TFormulaIsPropTrue(handle->terms->sig, handle->tformula))
+         {
+            WFormulaAppEncode(out, handle);
+            fputc('\n', out);
+         }
+
+         handle = handle->succ;      
+      }
    }
 }
 

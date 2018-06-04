@@ -488,7 +488,7 @@ static Term_p __inline__  parse_one_ho(Scanner_p in, TB_p bank)
       }
 
       assert(TermIsVar(head));
-      if (TypeIsBool(head->type))
+      if (TypeHasBool(head->type))
       {
         AktTokenError(in, "Quantification over type $o is not allowed.", false);
       }
