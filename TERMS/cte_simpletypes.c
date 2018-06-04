@@ -307,3 +307,29 @@ __inline__ int TypeGetArgNum(Type_p t)
 {
   return (TypeIsArrow(t) ? (t)->arity -1 : 0);
 }
+
+/*-----------------------------------------------------------------------
+//
+// Function: TypeHasBool()
+//
+//  Does type have bool as an argument? Recursively checks in arguments
+//
+// Global Variables: -
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+bool TypeHasBool(Type_p t)
+{
+   if(t->f_code == STBool)
+   {
+      return true;
+   }
+
+   bool ans = false;
+   for(int i=0; i<t->arity && !(ans = TypeHasBool(t->args[i])); i++)
+      ;
+
+   return ans;
+}

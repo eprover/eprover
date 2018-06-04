@@ -41,6 +41,32 @@ bool      SigSupportLists = false;
 
 /*-----------------------------------------------------------------------
 //
+// Function: validate_typedecl(Type_p t)
+//
+//   Make sure defined symbol has type that is supported by LFHOL.
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+static bool validate_typedecl(Type_p t)
+{
+   if (t->f_code == STBool)
+   {
+      return false;
+   }
+
+   bool supported = true;
+   for(int i=0; i<t->arity-1 && (supported = !TypeHasBool(t->args[i])); i++)
+      ; // I am a mental C programmer.
+
+   return supported;
+}
+
+/*-----------------------------------------------------------------------
+//
 // Function: sig_print_operator()
 //
 //   Print a single operator
@@ -1564,8 +1590,17 @@ void SigParseTFFTypeDeclaration(Scanner_p in, Sig_p sig)
    {
       int arity = TypeIsArrow(type) ? type->arity - 1 : 0;
       f = SigInsertId(sig, DStrView(id), arity, false);
-      SigDeclareType(sig, f, type);
-      SigFixType(sig, f);
+      if(validate_typedecl(type))
+      {
+         SigDeclareType(sig, f, type);
+         SigFixType(sig, f);
+      }
+      else
+      {
+        AktTokenError(in, "LFHOL does not support quantification over bool.", 
+                      SYNTAX_ERROR);
+      }
+      
    }
    else
    {

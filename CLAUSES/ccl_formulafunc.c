@@ -29,7 +29,7 @@ Changes
 /*---------------------------------------------------------------------*/
 /*                        Global Variables                             */
 /*---------------------------------------------------------------------*/
-
+extern bool app_encode;
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
@@ -40,6 +40,33 @@ Changes
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
 
+/*-----------------------------------------------------------------------
+//
+// Function: ignore_include()
+//
+//   Ignore includes and just print them out. Used only for app encoding.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations, changes the term bank.
+//
+/----------------------------------------------------------------------*/
+
+void ignore_include(Scanner_p in)
+{
+   assert(app_encode);
+
+   AcceptInpId(in, "include");
+   AcceptInpTok(in, OpenBracket);
+   CheckInpTok(in, SQString);
+   char* name = DStrCopyCore(AktToken(in)->literal);
+   NextToken(in);
+   AcceptInpTok(in, CloseBracket);
+   AcceptInpTok(in, Fullstop);
+
+   fprintf(stdout, "include('%s').\n", name);
+   FREE(name);
+}
 
 
 /*-----------------------------------------------------------------------
@@ -720,11 +747,16 @@ long FormulaAndClauseSetParse(Scanner_p in, FormulaSet_p fset,
          {
             if(TestInpId(in, "include"))
             {
+               if(app_encode)
+               {
+                   ignore_include(in);
+                   continue;
+               }
+
                StrTree_p new_limit = NULL;
                Scanner_p new_in;
                FormulaSet_p nfset = FormulaSetAlloc();
                ClauseSet_p  nwlset = ClauseSetAlloc();
-
                new_in = ScannerParseInclude(in, &new_limit, skip_includes);
 
                if(new_in)
