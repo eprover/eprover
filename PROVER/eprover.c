@@ -413,14 +413,14 @@ int main(int argc, char* argv[])
       FormulaSetPrint(stderr, proofstate->f_axioms, true);
    }
 
+   relevancy_pruned += ProofStateSinE(proofstate, sine);
+   relevancy_pruned += ProofStatePreprocess(proofstate, relevance_prune_level);
+
    if (app_encode)
    {
       FormulaSetAppEncode(stdout, proofstate->f_axioms);
       goto cleanup1;
    }
-
-   relevancy_pruned += ProofStateSinE(proofstate, sine);
-   relevancy_pruned += ProofStatePreprocess(proofstate, relevance_prune_level);
 
    if(strategy_scheduling)
    {
