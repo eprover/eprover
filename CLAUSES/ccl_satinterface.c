@@ -1018,6 +1018,7 @@ ProverResult SatClauseSetCheckUnsat(SatClauseSet_p satset, Clause_p *empty)
    char *file, *data;
    FILE *fp, *picores;
    DStr_p cmd = DStrAlloc();
+   Clause_p parent;
 
    pure = SatClauseSetMarkPure(satset);
 
@@ -1043,6 +1044,13 @@ ProverResult SatClauseSetCheckUnsat(SatClauseSet_p satset, Clause_p *empty)
          *empty = EmptyClauseAlloc();
          sat_extract_core(satset, unsat_core, picores);
          satset->core_size = PStackGetSP(unsat_core);
+         parent = PStackPopP(unsat_core);
+         ClausePushDerivation(*empty, DCSatGen, parent, NULL);
+         while(!PStackEmpty(unsat_core))
+         {
+            parent = PStackPopP(unsat_core);
+            ClausePushDerivation(*empty, DCCnfAddArg, parent, NULL);
+         }
          PStackFree(unsat_core);
          res = PRUnsatisfiable;
       }
