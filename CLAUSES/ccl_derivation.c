@@ -1027,6 +1027,7 @@ Derived_p DerivedAlloc(void)
 void DerivationStackPCLPrint(FILE* out, Sig_p sig, PStack_p derivation)
 {
    PStack_p subexpr_stack;
+   PStack_p arg_stack;
    PStackPointer i, j, sp, ac_limit;
    DerivationCodes op;
    Clause_p        ax;
@@ -1034,6 +1035,7 @@ void DerivationStackPCLPrint(FILE* out, Sig_p sig, PStack_p derivation)
    if(derivation)
    {
       subexpr_stack = PStackAlloc();
+      arg_stack     = PStackAlloc();
 
       /* Find the beginnings of the subexpressions */
       sp = PStackGetSP(derivation);
@@ -1067,6 +1069,9 @@ void DerivationStackPCLPrint(FILE* out, Sig_p sig, PStack_p derivation)
          case DCIntroDef:
                fprintf(out, "%s", "introduced");
                break;
+         case DCCnfAddArg:
+               PStackPushP(arg_stack, PStackElementP(derivation, i+1));
+               break;
          default:
                fprintf(out, "%s(", opids[DPOpGetOpCode(op)]);
                break;
@@ -1078,42 +1083,51 @@ void DerivationStackPCLPrint(FILE* out, Sig_p sig, PStack_p derivation)
       {
          i = PStackElementInt(subexpr_stack, sp);
          op = PStackElementInt(derivation, i);
-         if(DCOpHasParentArg1(op))
+         if(op != DCCnfAddArg)
          {
-            if(i!=0)
+            if(DCOpHasParentArg1(op))
             {
-               fprintf(out, ", ");
-            }
-            fprintf(out, "%ld",
-                    get_clauseform_id(op, 1, PStackElementP(derivation, i+1)));
-            if(DCOpHasParentArg2(op))
-            {
-               fprintf(out, ", %ld",
-                       get_clauseform_id(op, 2, PStackElementP(derivation, i+2)));
-            }
-         }
-         switch(op)
-         {
-         case DCCnfQuote:
-         case DCFofQuote:
-               break;
-         case DCIntroDef:
-               break;
-         case DCACRes:
-               ac_limit = PStackElementInt(derivation, i+1);
-               for(j=0; j<ac_limit; j++)
+               if(i!=0)
                {
-                  ax = PStackElementP(sig->ac_axioms, j);
-                  fprintf(out, ", %ld", ax->ident);
+                  fprintf(out, ", ");
                }
-               fprintf(out, ")");
+               fprintf(out, "%ld",
+                       get_clauseform_id(op, 1, PStackElementP(derivation, i+1)));
+               if(DCOpHasParentArg2(op))
+               {
+                  fprintf(out, ", %ld",
+                          get_clauseform_id(op, 2, PStackElementP(derivation, i+2)));
+               }
+            }
+            while(!PStackEmpty(arg_stack))
+            {
+               ax = PStackPopP(arg_stack);
+               fprintf(out, ", %ld", ax->ident);
+            }
+            switch(op)
+            {
+            case DCCnfQuote:
+            case DCFofQuote:
+                  break;
+            case DCIntroDef:
+                  break;
+            case DCACRes:
+                  ac_limit = PStackElementInt(derivation, i+1);
+                  for(j=0; j<ac_limit; j++)
+                  {
+                     ax = PStackElementP(sig->ac_axioms, j);
+                     fprintf(out, ", %ld", ax->ident);
+                  }
+                  fprintf(out, ")");
                break;
-         default:
-               fprintf(out, ")");
-               break;
+            default:
+                  fprintf(out, ")");
+                  break;
+            }
          }
       }
       /* Cleanup */
+      PStackFree(arg_stack);
       PStackFree(subexpr_stack);
    }
 }
@@ -1249,8 +1263,8 @@ void DerivationStackTSTPPrint(FILE* out, Sig_p sig, PStack_p derivation)
          }
       }
       /* Cleanup */
-      PStackFree(subexpr_stack);
       PStackFree(arg_stack);
+      PStackFree(subexpr_stack);
    }
 }
 
