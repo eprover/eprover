@@ -972,15 +972,15 @@ long sat_extract_core(SatClauseSet_p satset, PStack_p core, FILE* picofp)
       }
       if(!parents)
       {
-         printf("# %s", DStrView(line));
-         printf("# Clause %ld in core\n", id);
+         //printf("# %s", DStrView(line));
+         //printf("# Clause %ld in core\n", id);
          // PicoSAT id start at 1, Stack addresses at 0!
          if(id <= PStackGetSP(satset->printset))
          {
             res++;
             satclause = PStackElementP(satset->printset, id-1);
             PStackPushP(core, satclause->source);
-            ClausePrint(stdout, satclause->source, true);printf("\n");
+            //ClausePrint(stdout, satclause->source, true);printf("\n");
          }
          else
          {

@@ -1,25 +1,22 @@
 /*-----------------------------------------------------------------------
 
-File  : pcl_expressions.h
+  File  : pcl_expressions.h
 
-Author: Stephan Schulz
+  Author: Stephan Schulz
 
-Contents
+  Contents
 
   PCL2 expressions and uexpressions.
 
-Copyright 1998-2011 by the author.
+  Copyright 1998-2018 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
+  Created: Mon Mar 27 15:10:31 MET DST 2000
 
-<1> Mon Mar 27 15:10:31 MET DST 2000
-    New
-
------------------------------------------------------------------------*/
+  -----------------------------------------------------------------------*/
 
 #ifndef PCL_EXPRESSIONS
 
@@ -50,6 +47,7 @@ typedef enum
    PCLOpParamod,
    PCLOpSimParamod,
    PCLOpEResolution,
+   PCLOpSatCheck,
    PCLOpCondense,
    PCLOpEFactoring,
    PCLOpSimplifyReflect,
