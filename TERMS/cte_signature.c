@@ -53,11 +53,6 @@ bool      SigSupportLists = false;
 
 static bool validate_typedecl(Type_p t)
 {
-   if (t->f_code == STBool)
-   {
-      return false;
-   }
-
    bool supported = true;
    for(int i=0; i<t->arity-1 && (supported = !TypeHasBool(t->args[i])); i++)
       ; // I am a mental C programmer.
