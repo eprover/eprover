@@ -120,8 +120,9 @@ links: remove_links
 	done;
 
 tags:
-	etags */*.c */*.h
-	cd PYTHON; make ptags
+	ctags-exuberant -e -R .
+# etags */*.c */*.h
+# cd PYTHON; make ptags
 
 # Rebuilding from scratch
 rebuild:
