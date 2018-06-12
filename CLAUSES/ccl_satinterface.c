@@ -29,6 +29,7 @@
 
 #define PICOSAT_BUFSIZE 200
 
+
 char* GroundingStratNames[] =
 {
    "NoGrounding",
@@ -1008,6 +1009,8 @@ long sat_extract_core(SatClauseSet_p satset, PStack_p core, FILE* picofp)
 // Side Effects    : Runs external SAT solver, file operations, ...
 //
 /----------------------------------------------------------------------*/
+#define STR_EXPAND(tok) #tok
+#define STR(tok) STR_EXPAND(tok)
 
 ProverResult SatClauseSetCheckUnsat(SatClauseSet_p satset, Clause_p *empty)
 {
@@ -1029,7 +1032,7 @@ ProverResult SatClauseSetCheckUnsat(SatClauseSet_p satset, Clause_p *empty)
    SatClauseSetPrintNonPure(fp, satset, pure);
    SecureFClose(fp);
 
-   DStrAppendStr(cmd, "picosat -L 2 -T -");
+   DStrAppendStr(cmd, STR(EXECPATH) "/picosat -L 2 -T -");
    DStrAppendStr(cmd, " ");
    DStrAppendStr(cmd, file);
    picores = popen(DStrView(cmd), "r");
