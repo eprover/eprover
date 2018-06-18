@@ -186,7 +186,7 @@ Term_p  TBGetFreqConstTerm(TB_p terms, Type_p sort,
 
 Term_p __inline__ TBTermParse(Scanner_p in, TB_p bank)
 {
-   if (problemType == PROBLEM_HO)
+   if(problemType == PROBLEM_HO)
    {
       return TBTermParseRealHO(in, bank, true);
    }
@@ -199,7 +199,7 @@ Term_p __inline__ TBTermParse(Scanner_p in, TB_p bank)
 
 Term_p __inline__ TBRawTermParse(Scanner_p in, TB_p bank)
 {
-   if (problemType == PROBLEM_HO)
+   if(problemType == PROBLEM_HO)
    {      
       return TBTermParseRealHO(in, bank, false);
    }

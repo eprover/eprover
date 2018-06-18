@@ -1674,15 +1674,17 @@ void SigUpdateFeatureOffset(Sig_p sig, FunCode f)
 //
 // Function: SigGetTypedApp()
 //
-//    Gets the symbol that corresponds to application of type of function
-//    (arg1 -> arg2) == ret. ret given as arg so that it does not have to
-//    be shared.
+//    Gets the symbol that corresponds term application of type
+//    (arg1 * arg2) > ret. This roughly corresponds to higher-order
+//    type (t1 -> t2) -> t1 -> t2, so the invariant is arg1 == t1 -> t2,
+//    arg2 == t1, ret = t2.
 //
 // Global Variables: -
 //
 // Side Effects    : As above
 //
 /----------------------------------------------------------------------*/
+
 FunCode SigGetTypedApp(Sig_p sig, Type_p arg1, Type_p arg2, Type_p ret)
 {
    DStr_p typed_app_name = DStrAlloc();
@@ -1707,6 +1709,10 @@ FunCode SigGetTypedApp(Sig_p sig, Type_p arg1, Type_p arg2, Type_p ret)
    {
       sig->f_info[ret_fcode].type = app_type;
    }
+   else
+   {
+      TypeFree(app_type);
+   }
    SigSetFuncProp(sig, ret_fcode, FPTypedApplication);
 
    DStrFree(typed_app_name);
@@ -1725,6 +1731,7 @@ FunCode SigGetTypedApp(Sig_p sig, Type_p arg1, Type_p arg2, Type_p ret)
 // Side Effects    : As above
 //
 /----------------------------------------------------------------------*/
+
 void SigPrintAppEncodedDecls(FILE* out, Sig_p sig)
 {
    for(FunCode i=sig->internal_symbols+1; i <= sig->f_count; i++)

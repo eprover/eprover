@@ -16,6 +16,8 @@
 
   Changes
 
+  Redesigned ground up by Petar Vukmirovic in October 2017.
+
   Created: <1> Sat Jul  6 09:45:14 CEST 2013
 
   -----------------------------------------------------------------------*/
@@ -40,7 +42,7 @@
 // Function: arguments_flattened()
 //
 //  Checks if type t is represented using flattened representation --
-//  i.e. all arguments are flattened the last argument is not an
+//  i.e. all arguments are flattened and the last argument is not an
 //  arrow.
 //
 // Global Variables: -
@@ -52,8 +54,10 @@ bool arguments_flattened(Type_p t)
 {
    for(int i=0; i<t->arity-1; i++)
    {
-      if (FlattenType(t->args[i]) != t->args[i])
+      Type_p flattened = FlattenType(t->args[i]);
+      if(flattened != t->args[i])
       {
+         TypeFree(flattened);
          return false;
       }
    }
@@ -92,7 +96,7 @@ static const char* get_builtin_name(Type_p t)
          return "$real";
       default:
          assert("Type not built-in " && false);
-         return "";
+         return ""; // stiffle warning
    }
 }
 
@@ -150,7 +154,7 @@ void TypeTopFree(Type_p junk)
 /----------------------------------------------------------------------*/
 void TypeFree(Type_p junk)
 {
-   if (junk->arity)
+   if(junk->arity)
    {
       assert(junk->args);
       SizeFree(junk->args, junk->arity*sizeof(Type_p));
@@ -181,7 +185,7 @@ int TypesCmp(Type_p t1, Type_p t2)
    // if it is not arrow type cons -> same nr of args
    assert(!(t1->f_code == t2->f_code && t1->f_code != ArrowTypeCons) || t1->arity == t2->arity);
 
-   if (!res)
+   if(!res)
    {      
      res = t1->arity - t2->arity;
      for(int i=0; i<t1->arity && !res; i++)
@@ -213,7 +217,7 @@ Type_p FlattenType(Type_p type)
 
    Type_p res = type;
 
-   if (type->arity && type->args[type->arity-1]->f_code == ArrowTypeCons)
+   if(type->arity && type->args[type->arity-1]->f_code == ArrowTypeCons)
    {
       int total_args = type->arity-1 + type->args[type->arity-1]->arity;
       int i;
@@ -252,7 +256,7 @@ Type_p FlattenType(Type_p type)
 Type_p GetReturnSort(Type_p type)
 {
    assert(type);
-   if (TypeIsArrow(type))
+   if(TypeIsArrow(type))
    {
       return type->args[type->arity-1];
    }
@@ -277,7 +281,7 @@ DStr_p TypeAppEncodedName(Type_p type)
 {
    DStr_p name = DStrAlloc();
    
-   if (SortIsUserDefined(type->f_code) || TypeIsArrow(type))
+   if(SortIsUserDefined(type->f_code) || TypeIsArrow(type))
    {
       assert(type->type_uid != INVALID_TYPE_UID);
       DStrAppendStr(name, "type_");

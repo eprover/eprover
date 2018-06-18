@@ -52,14 +52,15 @@ extern bool app_encode;
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
+
 Type_p term_determine_type(Term_p term, Type_p type, TypeBank_p bank)
 {
    int term_arity = ARG_NUM(term);
-   if (type->arity-1 == term_arity)
+   if(type->arity-1 == term_arity)
    {
       return type->args[term_arity];
    }
-   else if (type->arity-1 < term_arity)
+   else if(type->arity-1 < term_arity)
    {
       return NULL;
    }
@@ -96,12 +97,12 @@ Type_p infer_return_sort(Sig_p sig, FunCode f_code)
    {
       res = sig->type_bank->integer_type;
    }
-   else if (SigQueryProp(sig, f_code, FPIsRational) &&
+   else if(SigQueryProp(sig, f_code, FPIsRational) &&
             (sig->distinct_props & FPIsRational))
    {
       res = sig->type_bank->rational_type;
    }
-   else if (SigQueryProp(sig, f_code, FPIsFloat) &&
+   else if(SigQueryProp(sig, f_code, FPIsFloat) &&
             (sig->distinct_props & FPIsFloat))
    {
       res = sig->type_bank->real_type;
@@ -153,7 +154,7 @@ bool TypeCheckConsistent(Sig_p sig, Term_p term)
 
             assert(type);
 
-            if (TypeIsArrow(type))
+            if(TypeIsArrow(type))
             {
                if((term->arity != type->arity-1)
                   || term->type != type->args[type->arity-1])
@@ -164,7 +165,7 @@ bool TypeCheckConsistent(Sig_p sig, Term_p term)
             }
             else
             {
-               if (term->arity != 0 || term->type != type)
+               if(term->arity != 0 || term->type != type)
                {
                   // other kind of type constructor
                   res = false;
@@ -175,7 +176,7 @@ bool TypeCheckConsistent(Sig_p sig, Term_p term)
             
 
             /* Check subterms recursively */
-            for (int i=0; i < type->arity; i++)
+            for(int i=0; i < type->arity; i++)
             {
                PStackPushP(stack, term->args[i]);
                if(term->args[i]->type != type->args[i])
@@ -231,7 +232,7 @@ void TypeInferSort(Sig_p sig, Term_p term)
       /* Use type */
       if(type)
       {
-         if (TypeIsArrow(type))
+         if(TypeIsArrow(type))
          {
             if(problemType == PROBLEM_FO && !app_encode 
                   && term->arity != type->arity-1)
@@ -244,7 +245,7 @@ void TypeInferSort(Sig_p sig, Term_p term)
                Error("Type error", SYNTAX_ERROR);
             }
 
-            if (!TermIsAppliedVar(term))
+            if(!TermIsAppliedVar(term))
             {
                for(i=0; SigIsFixedType(sig, term->f_code) && i < term->arity; i++)
                {
@@ -284,7 +285,7 @@ void TypeInferSort(Sig_p sig, Term_p term)
             
 
             term->type = term_determine_type(term, type, sig->type_bank);
-            if (term->type==NULL)
+            if(term->type==NULL)
             {
                fprintf(stderr, "# too many arguments supplied for %s\n", SigFindName(sig, term->f_code));
                Error("Type error", SYNTAX_ERROR);
@@ -292,7 +293,7 @@ void TypeInferSort(Sig_p sig, Term_p term)
          }
          else
          {
-            if (term->arity != 0)
+            if(term->arity != 0)
             {
                fprintf(stderr, "# Type mismatch for ");
                TermPrint(stderr, term, sig, DEREF_NEVER);
@@ -317,7 +318,7 @@ void TypeInferSort(Sig_p sig, Term_p term)
          {
             args[i] = term->args[i]->type;
          }
-         if (term->arity)
+         if(term->arity)
          {
             args[term->arity] = sort;
          }
@@ -326,7 +327,6 @@ void TypeInferSort(Sig_p sig, Term_p term)
                      TypeBankInsertTypeShared(sig->type_bank,
                                               AllocArrowType(term->arity+1, args)) 
                      : sort;
-
 
          /* Declare the inferred type */
          SigDeclareType(sig, term->f_code, type);

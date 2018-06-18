@@ -102,7 +102,6 @@ PTree_p PTreeCopy(PTree_p tree1);
 
 void    PTreeVisitInOrder(PTree_p t, void (*visitor)(void*));
 
-
 AVL_TRAVERSE_DECLARATION(PTree, PTree_p)
 #define PTreeTraverseExit(stack) PStackFree(stack)
 

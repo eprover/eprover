@@ -39,28 +39,6 @@ TB_p bank;
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
 
-
-/*-----------------------------------------------------------------------
-//
-// Function: ClearStaleCache()
-//
-//   Clears the cache if it is not up to date. Assumes that cache
-//   is stale (see BINDING_FRESH).
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-void ClearStaleCache(Term_p app_var)
-{
-   assert(TermIsAppliedVar(app_var));
-   assert(!BINDING_FRESH(app_var));
-
-   app_var->binding_cache = NULL;
-   app_var->binding = NULL;
-}
-
 /*-----------------------------------------------------------------------
 //
 // Function: register_new_cache()
@@ -81,12 +59,39 @@ static __inline__ void register_new_cache(Term_p app_var, Term_p bound_to)
    app_var->binding_cache = bound_to;
 
    TermCellSetProp(app_var->binding_cache, TPIsDerefedAppVar);
-   if (!TermIsShared(app_var))
+   if(!TermIsShared(app_var))
    {
       TermCellSetProp(app_var->binding_cache, TPFromNonShared);
    }
 }
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: insert_deref()
+//
+//   Makes sure that the dereferenced applied variable is shared.
+//   Due to term replacing it might be the case that some arguments
+//   are shared and some are not.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+Term_p insert_deref(Term_p deref_cache)
+{
+   for(int i=0; i<deref_cache->arity; i++)
+   {
+      if(!TermIsVar(deref_cache->args[i]) && !TermIsShared(deref_cache->args[i]))
+      {
+         deref_cache->args[i] = TBInsert(bank, deref_cache->args[i], DEREF_NEVER);
+      }
+   }
+
+   return TBTermTopInsert(bank, deref_cache);
+}
 
 /*-----------------------------------------------------------------------
 //
@@ -100,20 +105,6 @@ static __inline__ void register_new_cache(Term_p app_var, Term_p bound_to)
 //
 /----------------------------------------------------------------------*/
 
-Term_p insert_deref(Term_p deref_cache)
-{
-   for(int i=0; i<deref_cache->arity; i++)
-   {
-      if (!TermIsVar(deref_cache->args[i]) && !TermIsShared(deref_cache->args[i]))
-      {
-         deref_cache->args[i] = TBInsert(bank, deref_cache->args[i], DEREF_NEVER);
-      }
-   }
-
-   return TBTermTopInsert(bank, deref_cache);
-}
-
-
 __inline__ Term_p applied_var_deref(Term_p orig)
 {
    assert(TermIsAppliedVar(orig));
@@ -122,7 +113,7 @@ __inline__ Term_p applied_var_deref(Term_p orig)
 
    Term_p res;
 
-   if (BINDING_FRESH(orig))
+   if(BINDING_FRESH(orig))
    {
       assert(TermCellQueryProp(orig->binding_cache, TPIsDerefedAppVar));
       res = orig->binding_cache;
@@ -131,10 +122,9 @@ __inline__ Term_p applied_var_deref(Term_p orig)
    {
       ClearStaleCache(orig);
 
-
-      if (orig->args[0]->binding)
+      if(orig->args[0]->binding)
       {
-         if (TermIsVar(orig->args[0]->binding))
+         if(TermIsVar(orig->args[0]->binding))
          {
             res = TermTopAlloc(orig->f_code, orig->arity);
             res->properties = orig->properties & (TPPredPos);
@@ -168,7 +158,6 @@ __inline__ Term_p applied_var_deref(Term_p orig)
             }
          }
 
-
          register_new_cache(orig, (res = insert_deref(res)));
       }
       else
@@ -176,9 +165,6 @@ __inline__ Term_p applied_var_deref(Term_p orig)
          res = orig;
       }
    }
-
-   
-
    return res;
 }
 
@@ -186,6 +172,28 @@ __inline__ Term_p applied_var_deref(Term_p orig)
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
 /*---------------------------------------------------------------------*/
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClearStaleCache()
+//
+//   Clears the cache if it is not up to date. Assumes that cache
+//   is stale (see BINDING_FRESH).
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+void ClearStaleCache(Term_p app_var)
+{
+   assert(TermIsAppliedVar(app_var));
+   assert(!BINDING_FRESH(app_var));
+
+   app_var->binding_cache = NULL;
+   app_var->binding = NULL;
+}
 
 
 /*-----------------------------------------------------------------------
@@ -739,7 +747,7 @@ void TermStackDelProps(PStack_p stack, TermProperties prop)
 
 /*-----------------------------------------------------------------------
 //
-// Function: TermStackDelProps()
+// Function: TermIsPrefix()
 //
 //   Checks if needle is a prefix of haystack.
 //
@@ -754,32 +762,30 @@ bool TermIsPrefix(Term_p needle, Term_p haystack)
    assert(problemType == PROBLEM_HO);
    bool res = false;
    int  i;
-   if (needle)
+   if(needle)
    {
       /* needle can be null if it was binding field of non-bound var,
          which is common use case for this function 
        */
 
-      if (TermIsVar(needle))
+      if(TermIsVar(needle))
       {
          return TermIsVar(haystack) ? needle == haystack : 
                   (TermIsAppliedVar(haystack) ? needle == haystack->args[0] : false);
       }
 
-      if (needle->arity <= haystack->arity && needle->f_code == haystack->f_code) 
+      if(needle->arity <= haystack->arity && needle->f_code == haystack->f_code) 
       {
          for(i=0; i<needle->arity; i++)
          {
-            if (needle->args[i] != haystack->args[i])
+            if(needle->args[i] != haystack->args[i])
             {
                break;
             }
          }
-
          res = i == needle->arity;
       }
    }
-   
    return res;
 }
 
@@ -799,10 +805,10 @@ bool TermIsPrefix(Term_p needle, Term_p haystack)
 /----------------------------------------------------------------------*/
 __inline__ Term_p MakeRewrittenTerm(Term_p orig, Term_p new, int remaining_orig)
 {  
-   if (remaining_orig)
+   if(remaining_orig)
    {
       Term_p new_term;
-      if (TermIsVar(new))
+      if(TermIsVar(new))
       {
          new_term = TermTopAlloc(SIG_APP_VAR_CODE, remaining_orig+1);
          new_term->args[0] = new;
@@ -812,9 +818,7 @@ __inline__ Term_p MakeRewrittenTerm(Term_p orig, Term_p new, int remaining_orig)
          new_term = TermTopAlloc(new->f_code, new->arity + remaining_orig);
       }
 
-      
-
-      new_term->type = orig->type; // no inference after this step -- speedup.
+      new_term->type = orig->type; // no type inference after this step
       new_term->properties = orig->properties & (TPPredPos);
 
       for(int i=0; i < new->arity; i++)
@@ -830,7 +834,7 @@ __inline__ Term_p MakeRewrittenTerm(Term_p orig, Term_p new, int remaining_orig)
    }
    else
    {
-      return new;
+      return new; // If no args are remaining -- the situation is the same as in FO case
    }
 }
 #endif

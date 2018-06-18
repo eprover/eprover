@@ -322,7 +322,7 @@ static bool eqn_parse_infix(Scanner_p in, TB_p bank, Term_p *lref,
    BOOL_TERM_NORMALIZE(lterm);
 
    /* Shortcut not to check for equality -- 
-         !TermIsVar guards calls to other funs */
+         !TermIsVar guards calls against negative f_code */
    if(problemType == PROBLEM_FO && !TermIsVar(lterm) && SigIsPredicate(bank->sig,lterm->f_code) &&
       SigIsFixedType(bank->sig, lterm->f_code))
    {
@@ -449,12 +449,13 @@ static bool eqn_parse_prefix(Scanner_p in, TB_p bank, Term_p *lref,
    {
       if(TermIsVar(lterm))
       {
-    AktTokenError(in, "Individual variable "
-             "used at predicate position", false);
+         AktTokenError(in, "Individual variable "
+                     "used at predicate position", false);
 
       }
       SigDeclareIsPredicate(bank->sig, lterm->f_code);
    }
+   /* FIXME (@ Stephan:) Do we need to set IsNotPredicate here? */
    *lref = lterm;
    *rref = rterm;
 
@@ -597,9 +598,9 @@ Eqn_p EqnAlloc(Term_p lterm, Term_p rterm, TB_p bank,  bool positive)
    {
       assert(TermCellQueryProp(rterm,TPPredPos));
       /*printf("# lterm->f_code: %ld <%s>\n", lterm->f_code,
-   SigFindName(bank->sig,lterm->f_code));
-   SigPrint(stdout,bank->sig);
-   fflush(stdout); */
+               SigFindName(bank->sig,lterm->f_code));
+               SigPrint(stdout,bank->sig);
+               fflush(stdout); */
 #ifndef ENABLE_LFHO
       assert(!TermIsVar(lterm));
 #endif
@@ -655,8 +656,8 @@ void EqnFree(Eqn_p junk)
    TBDelete(junk->bank, junk->lterm);
    TermReleaseRef(&(junk->rterm));
    TBDelete(junk->bank, junk->rterm); */
-   assert(TermIsShared(junk->lterm));
-   assert(TermIsShared(junk->rterm));
+   assert(TermIsShared(junk->lterm)); // added assertions to check whether
+   assert(TermIsShared(junk->rterm)); // previous comment is true
    EqnCellFree(junk);
 }
 
@@ -740,7 +741,7 @@ Eqn_p EqnHOFParse(Scanner_p in, TB_p bank, bool* continue_parsing)
    if (TestInpTok(in, CloseBracket) && TestTok(LookToken(in,1), NegEqualSign|EqualSign))
    {
       AcceptInpTok(in, CloseBracket);
-      *continue_parsing = false;
+      *continue_parsing = false; // saw closing bracket.
    }
    
    if (TestInpTok(in, NegEqualSign|EqualSign))
@@ -754,12 +755,12 @@ Eqn_p EqnHOFParse(Scanner_p in, TB_p bank, bool* continue_parsing)
          AcceptInpTok(in, NegEqualSign);
          positive = !positive;
       }
-      pure_eq = true;
+      pure_eq = true; // saw equal
    }
    else if (TestInpTok(in, CloseBracket))
    {
       AcceptInpTok(in, CloseBracket);
-      *continue_parsing = false;
+      *continue_parsing = false; // saw closed bracket
    }
 
    if (pure_eq)
@@ -921,16 +922,16 @@ void EqnPrint(FILE* out, Eqn_p eq, bool negated,  bool fullterms)
    if(EqnIsMaximal(eq))
    {
       fprintf(out, "{");
-      }
+   }
 #endif
    /* if(EqnIsSelected(eq))
    {
       fprintf(out, "+");
-      } */
+   } */
    /* if(EqnIsXTypePred(eq))
    {
       fprintf(out, "*");
-      }*/
+   }*/
    if(OutputFormat == TPTPFormat)
    {
       if(positive)
@@ -1057,11 +1058,6 @@ void EqnFOFPrint(FILE* out, Eqn_p eq, bool negated,  bool fullterms, bool pcl)
    }
    if(infix)
    {
-#ifdef PRINT_SELECTION
-   EqnIsSelected(eq) ? fputc('*', out) : fputc('-', out);
-   EqnIsMaximal(eq)  ? fputc('^', out) : fputc('_', out);
-#endif
-
       if(EqnIsEquLit(eq))
       {
          PRINT_HO_PAREN(out, '(');
@@ -1334,7 +1330,6 @@ Eqn_p EqnCopyRepl(Eqn_p eq, TB_p bank, Term_p old, Term_p repl)
    return handle;
 }
 
-
 /*-----------------------------------------------------------------------
 //
 // Function: EqnCopyOpt()
@@ -1594,7 +1589,7 @@ int EqnSubsumeQOrderCompare(const void* lit1, const void* lit2)
       return res;
    }
 
-   if (!EqnIsEquLit(l1))
+   if(!EqnIsEquLit(l1))
    {
       // because variables might appear at predicate positions,
       // all nonequational literals belong to the same class in HOL
@@ -2003,7 +1998,7 @@ bool EqnUnifyDirected(Eqn_p eq1, Eqn_p eq2, Subst_p subst)
    if(res)
    {
       res = SubstMguComplete(eq1->rterm,
-               eq2->rterm, subst, eq1->bank);
+                             eq2->rterm, subst, eq1->bank);
    }
    if(!res)
    {

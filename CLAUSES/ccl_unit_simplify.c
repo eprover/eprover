@@ -180,7 +180,7 @@ __inline__ SimplifyRes RemainingArgsSame(Term_p t1, Term_p t2, SimplifyRes res)
    assert(problemType != PROBLEM_FO || !remains);
    while(remains)
    {
-      if (t1->args[t1->arity - remains] != t2->args[t2->arity - remains])
+      if(t1->args[t1->arity - remains] != t2->args[t2->arity - remains])
       {
          return SIMPLIFY_FAILED;
       }
@@ -256,7 +256,7 @@ SimplifyRes FindSimplifyingUnit(ClauseSet_p set, Term_p t1, Term_p t2,
       t1 = tmp1;
       t2 = tmp2;
       res = FindSignedTopSimplifyingUnit(set, t1, t2, true);
-      if (problemType == PROBLEM_HO && !SimplifyFailed(res))
+      if(problemType == PROBLEM_HO && !SimplifyFailed(res))
       {
          return RemainingArgsSame(t1, t2, res);
       }

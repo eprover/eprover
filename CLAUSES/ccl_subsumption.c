@@ -84,7 +84,7 @@ SimplifyRes unit_clause_set_strongsubsumes_termpair(ClauseSet_p set,
       {
          if(t1->f_code != t2->f_code || !t1->arity)
          {
-           break;
+            break;
          }
 
          assert(t1->type == t2->type);
@@ -109,7 +109,7 @@ SimplifyRes unit_clause_set_strongsubsumes_termpair(ClauseSet_p set,
             Term_p t1_arg = t1->args[t1->arity-remains];
             Term_p t2_arg = t2->args[t2->arity-remains];
 
-            if (t1_arg != t2_arg)
+            if(t1_arg != t2_arg)
             {
               PStackPushP(stack, t1_arg);
               PStackPushP(stack, t2_arg);  
@@ -244,7 +244,7 @@ static bool eqn_subsumes_termpair(Eqn_p eqn, Term_p t1, Term_p t2)
         break;
       }
 #ifdef ENABLE_LFHO
-      if (t1->arity != t2->arity)
+      if(t1->arity != t2->arity)
       {
         break; // do not try arguments if the number does not match
       }
@@ -269,7 +269,7 @@ static bool eqn_subsumes_termpair(Eqn_p eqn, Term_p t1, Term_p t2)
       }
       if(!tmp1)
       {
-        return true;
+         return true;
       }
       t1 = tmp1;
       t2 = tmp2;
@@ -386,10 +386,10 @@ static Eqn_p find_spec_literal(Eqn_p lit, Eqn_p list)
    SubstDelete(subst);
 
 #ifndef NDEBUG
-   if (list != old_res)
+   if(list != old_res)
    {
       fprintf(stderr, "! subsumption check error found. Old: ");
-      if (old_res)
+      if(old_res)
       {
          EqnPrint(stderr, old_res, false, true);   
       }
@@ -400,7 +400,7 @@ static Eqn_p find_spec_literal(Eqn_p lit, Eqn_p list)
       
       fprintf(stderr, ", new: ");
 
-      if (list)
+      if(list)
       {
          EqnPrint(stderr, list, false, true);
       }
@@ -411,7 +411,6 @@ static Eqn_p find_spec_literal(Eqn_p lit, Eqn_p list)
       
       fprintf(stderr, ".\n");
 
-
       fprintf(stderr, "! attempt was from ");
       EqnPrint(stderr, lit, false, true);
       fprintf(stderr, " to ");
@@ -419,7 +418,7 @@ static Eqn_p find_spec_literal(Eqn_p lit, Eqn_p list)
       fprintf(stderr, ".\n");
 
       fprintf(stderr, "! failed at ");
-      if (got_up_to)
+      if(got_up_to)
         EqnPrint(stderr, got_up_to, false, true);
       else
         fprintf(stderr, "-");

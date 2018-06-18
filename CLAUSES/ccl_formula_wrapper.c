@@ -373,11 +373,11 @@ WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms)
       is_tcf = true;
    }
    
-   if (TestInpId(in, "thf"))
+   if(TestInpId(in, "thf"))
    {
       SetProblemType(PROBLEM_HO);
    }
-   else if (TestInpId(in, "fof|tff|tcf"))
+   else if(TestInpId(in, "fof|tff|tcf"))
    {
       SetProblemType(PROBLEM_FO);
    }
@@ -536,7 +536,7 @@ void WFormulaTSTPPrint(FILE* out, WFormula_p form, bool fullterms,
    {
       //fprintf(out, "");
       TFormulaTPTPPrint(out, form->terms, form->tformula,fullterms, false);
-      fprintf(out, "");
+      //FIXME: Note 2 Stephan... This gives compiler warning. fprintf(out, "");
       //fprintf(out, "<dummy %p in %p>", form->tformula, form->terms);
    }
    if(complete)

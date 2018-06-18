@@ -182,7 +182,7 @@ static RWResultType term_is_top_rewritable(TB_p bank, OCB_p ocb,
             Term_p tmp_rewritten = MakeRewrittenTerm(term, eqn->rterm,  remains);
             rterm = TBInsertInstantiated(bank, tmp_rewritten);
 
-            if (remains)
+            if(remains)
             {
                TermTopFree(tmp_rewritten);
                tmp_rewritten = NULL;
@@ -213,7 +213,7 @@ static RWResultType term_is_top_rewritable(TB_p bank, OCB_p ocb,
 
                rterm = TBInsertInstantiated(bank, tmp_rewritten);
 
-               if (remains)
+               if(remains)
                {
                   TermTopFree(tmp_rewritten);
                }
@@ -574,7 +574,7 @@ static Term_p rewrite_with_clause_set(OCB_p ocb, TB_p bank, Term_p term,
 
       repl = TBInsertInstantiated(bank, ClausePosGetOtherSide(mi->matcher));
 
-      if (problemType == PROBLEM_HO)
+      if(problemType == PROBLEM_HO)
       {
          /* To make sure remaining arguments of the term to be rewritten
             are variable-disjoint from the demodulator */
