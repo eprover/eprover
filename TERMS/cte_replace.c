@@ -153,7 +153,9 @@ Term_p TermFollowRWChain(Term_p term)
 //   appear in the term...---> This has been fixed. Each term in repl
 //   and its superterms should now be dereferenced only once.
 //
-//   TODO: EXPLAIN WHY YOU NEED OLD_INTO
+//   New in E/HO: If we have to replace top-level term and some arguments
+//   are remaining in it, we need the pointer to the original term 
+//   since we are replacing a (prefix) subterm. 
 //
 // Global Variables: -
 //
@@ -191,7 +193,7 @@ Term_p TBTermPosReplace(TB_p bank, Term_p repl, TermPos_p pos,
       handle = TermTopCopy(old);
       assert(handle->arity > subscript);
 #ifdef ENABLE_LFHO
-      if (remains != -1)
+      if(remains != -1)
       {
          Term_p tmp_repl = MakeRewrittenTerm(TermDerefAlways(handle->args[subscript]), 
                                              TermDerefAlways(repl), remains);
@@ -212,16 +214,8 @@ Term_p TBTermPosReplace(TB_p bank, Term_p repl, TermPos_p pos,
       repl = handle;
    }
 
-   if (remains > 0)
+   if(remains > 0)
    {
-      /*fprintf(stderr, "original: ");
-      TermPrint(stderr, old_into, bank->sig, DEREF_ALWAYS);
-      fprintf(stderr, ", replace: ");
-      TermPrint(stderr, repl, bank->sig, DEREF_ALWAYS);
-      fprintf(stderr, ", rewritten: ");
-      TermPrint(stderr, MakeRewrittenTerm(old_into, repl, remains), bank->sig, DEREF_ALWAYS);
-      fprintf(stderr, ".\n");*/
-
       Term_p repl_tmp = MakeRewrittenTerm(TermDerefAlways(old_into), 
                                           TermDerefAlways(repl), remains);
       repl_tmp = TBTermTopInsert(bank, repl_tmp);
@@ -232,7 +226,6 @@ Term_p TBTermPosReplace(TB_p bank, Term_p repl, TermPos_p pos,
       repl  = TBInsertNoProps(bank, repl, deref);
    }
    
-
    while(!PStackEmpty(store))
    {
       handle = PStackPopP(store);

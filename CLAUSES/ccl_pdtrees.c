@@ -49,7 +49,7 @@ static long pdt_compute_size_constraint(PDTNode_p node);
 
 /*-----------------------------------------------------------------------
 //
-// Function: add_unapplied_rest()
+// Function: push_remaining_args()
 //
 //   Puts arguments that are trailing to the term stack. 
 //   Determines the number of trailing arguments based on eaten_args.
@@ -60,7 +60,7 @@ static long pdt_compute_size_constraint(PDTNode_p node);
 //
 /----------------------------------------------------------------------*/
 
-static __inline__ void add_unapplied_rest(PStack_p term_stack, int eaten_args, Term_p to_match)
+static __inline__ void push_remaining_args(PStack_p term_stack, int eaten_args, Term_p to_match)
 {
    // make up for app encoding
    int limit = eaten_args + (TermIsAppliedVar(to_match) ? 1 : 0);
@@ -520,7 +520,7 @@ static void pdtree_forward(PDTree_p tree, Subst_p subst)
    FunCode   i = tree->tree_pos->trav_count, limit;
    Term_p    term = PStackGetSP(tree->term_stack) ? PStackTopP(tree->term_stack) : NULL;
 
-   if (!term)
+   if(!term)
    {
       i = tree->tree_pos->trav_count = PDT_NODE_CLOSED(tree, handle);
    }
@@ -562,10 +562,8 @@ static void pdtree_forward(PDTree_p tree, Subst_p subst)
               (problemType == PROBLEM_HO || !TermCellQueryProp(term,TPPredPos))&&
               (problemType == PROBLEM_HO || next->variable->type == term->type))
           {
-             if (problemType == PROBLEM_FO)
+             if(problemType == PROBLEM_FO)
              {
-               // FIXME: Note 2 Stephan -- this might fail at the top level. 
-               // It would be useful to run E on whole TPTP library and see if this happens
                assert(next->variable->type == term->type);
                PStackDiscardTop(tree->term_stack);
                SubstAddBinding(subst, next->variable, term);  
@@ -574,22 +572,22 @@ static void pdtree_forward(PDTree_p tree, Subst_p subst)
              else
              {
                int matched_up_to = PartiallyMatchVar(next->variable, term, tree->bank->sig, false);
-               if (matched_up_to != NOT_MATCHED && matched_up_to <= ARG_NUM(term))
+               if(matched_up_to != NOT_MATCHED && matched_up_to <= ARG_NUM(term))
                {
                   SubstBindAppVar(subst, next->variable, term, matched_up_to, tree->bank);
                   PStackPushP(tree->term_proc, term);
                   PStackDiscardTop(tree->term_stack);
 
-                  if (matched_up_to != ARG_NUM(term))
+                  if(matched_up_to != ARG_NUM(term))
                   {
-                    add_unapplied_rest(tree->term_stack, matched_up_to, term);  
+                    push_remaining_args(tree->term_stack, matched_up_to, term);  
                   }
 
                   bound = true;
                }
              }
              
-             if (bound)
+             if(bound)
              {
                assert(next->variable->binding);
                next->trav_count   = PDT_NODE_INIT_VAL(tree);
@@ -614,7 +612,7 @@ static void pdtree_forward(PDTree_p tree, Subst_p subst)
                PStackPushP(tree->term_proc, term);
                int args_eaten = next->variable->binding->arity - 
                                  (TermIsAppliedVar(next->variable->binding) ? 1 : 0);
-               add_unapplied_rest(tree->term_stack, args_eaten, term);
+               push_remaining_args(tree->term_stack, args_eaten, term);
             }
             next->trav_count   = PDT_NODE_INIT_VAL(tree);
             next->bound        = false;
@@ -654,7 +652,7 @@ static void pdtree_backtrack(PDTree_p tree, Subst_p subst)
    {
       tree->term_weight  += (TermStandardWeight(handle->variable->binding) -
                              TermStandardWeight(handle->variable));
-      if (problemType == PROBLEM_FO)
+      if(problemType == PROBLEM_FO)
       {
          PStackPushP(tree->term_stack, handle->variable->binding);
          if(handle->bound)
@@ -663,7 +661,7 @@ static void pdtree_backtrack(PDTree_p tree, Subst_p subst)
             UNUSED(succ); assert(succ);
          }   
       }
-      else if (handle->variable->binding)
+      else if(handle->variable->binding)
       {
          Term_p original_term = PStackPopP(tree->term_proc);
 
@@ -719,7 +717,7 @@ void pdt_node_print(FILE* out, PDTNode_p node, int level)
       }
       PTreeTraverseExit(trav_stack);
    }
-   else if (!node->leaf)
+   else if(!node->leaf)
    {
       FunCode i = 0; /* Stiffle warning */
       PDTNode_p next;
@@ -1029,7 +1027,6 @@ Term_p TermLRTraversePrevAppVar(PStack_p stack, Term_p original_term, Term_p var
 //
 //   Insert a new demodulator into the tree.
 //
-//   TODO: REVERT AFTER VARIABLE BUG FIX
 // Global Variables: -
 //
 // Side Effects    : Changes index
@@ -1065,7 +1062,7 @@ void PDTreeInsert(PDTree_p tree, ClausePos_p demod_side)
 
    while(curr)
    {
-      if (TermIsAppliedVar(curr))
+      if(TermIsAppliedVar(curr))
       {
          curr = TermLRTraverseNext(tree->term_stack);
          continue; // skipping the symbol for applied var.
@@ -1141,7 +1138,7 @@ long PDTreeDelete(PDTree_p tree, Term_p term, Clause_p clause)
    while(curr)
    {
       // ignore applied var funcode again
-      if (TermIsAppliedVar(curr))
+      if(TermIsAppliedVar(curr))
       {
          curr = TermLRTraverseNext(tree->term_stack);
          continue;
@@ -1180,7 +1177,7 @@ long PDTreeDelete(PDTree_p tree, Term_p term, Clause_p clause)
     tree->node_count--;
     *del = NULL;
       }
-      else if (node->ref_count == PTreeNodes(node->entries))
+      else if(node->ref_count == PTreeNodes(node->entries))
       {
          node->leaf = true;
       }
@@ -1315,11 +1312,6 @@ PDTNode_p PDTreeFindNextIndexedLeaf(PDTree_p tree, Subst_p subst)
 // Side Effects    :
 //
 /----------------------------------------------------------------------*/
-void clause_pos_print_dbg_tmp(void* pos)
-{
-   EqnPrint(stderr, ((ClausePos_p)pos)->literal, false, true);
-   fprintf(stderr, ";\n");
-}
 
 MatchInfo_p PDTreeFindNextDemodulator(PDTree_p tree, Subst_p subst)
 {

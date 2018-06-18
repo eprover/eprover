@@ -485,19 +485,20 @@ def parse_ordering_info(line):
 #------------------------------------------------------------------
 
 class_int={
-    6: {"U": "AxiomsAreUnit", "H": "AxiomsAreNonUnitHorn", "G": "AxiomsAreGeneral"},
-    7: {"U": "GoalsAreUnit", "H": "GoalsAreHorn", "G": "GoalsAreGeneral"},
-    8: {"N": "NoEq", "S": "SomeEq", "P": "PureEq"},
-    9: {"F": "FewNGPosUnits", "S": "SomeNGPosUnits", "M": "ManyNGPosUnits"},
-    10:{"N": "GoalsHaveVars", "G": "GoalsAreGround"},
-    11:{"F": "FewAxioms", "S": "SomeAxioms", "M": "ManyAxioms"},
-    12:{"F": "FewLiterals", "S": "SomeLiterals", "M": "ManyLiterals"},
-    13:{"S": "SmallTerms", "M": "MediumTerms", "L": "LargeTerms"},
-    14:{"F": "FewGroundPos", "S": "SomeGroundPos", "M": "ManyGroundPos"},
-    15:{"0": "MaxFArity0", "1": "MaxFArity1", "2": "MaxFArity2","3": "MaxFArity3Plus"},
-    16:{"0": "AvgFArity0", "1": "AvgFArity1", "2": "AvgFArity2","3": "AvgFArity3Plus"},
-    17:{"S": "SmallFArSum", "M": "MediumFArSum", "L": "LargeFArSum"},
-    18:{"S": "ShallowMaxDepth", "M": "MediumMaxDepth", "D": "DeepMaxDepth"}
+    6: {"F": "IsFO", "H":"IsHO"},
+    7: {"U": "AxiomsAreUnit", "H": "AxiomsAreNonUnitHorn", "G": "AxiomsAreGeneral"},
+    8: {"U": "GoalsAreUnit", "H": "GoalsAreHorn", "G": "GoalsAreGeneral"},
+    9: {"N": "NoEq", "S": "SomeEq", "P": "PureEq"},
+    10: {"F": "FewNGPosUnits", "S": "SomeNGPosUnits", "M": "ManyNGPosUnits"},
+    11:{"N": "GoalsHaveVars", "G": "GoalsAreGround"},
+    12:{"F": "FewAxioms", "S": "SomeAxioms", "M": "ManyAxioms"},
+    13:{"F": "FewLiterals", "S": "SomeLiterals", "M": "ManyLiterals"},
+    14:{"S": "SmallTerms", "M": "MediumTerms", "L": "LargeTerms"},
+    15:{"F": "FewGroundPos", "S": "SomeGroundPos", "M": "ManyGroundPos"},
+    16:{"0": "MaxFArity0", "1": "MaxFArity1", "2": "MaxFArity2","3": "MaxFArity3Plus"},
+    17:{"0": "AvgFArity0", "1": "AvgFArity1", "2": "AvgFArity2","3": "AvgFArity3Plus"},
+    18:{"S": "SmallFArSum", "M": "MediumFArSum", "L": "LargeFArSum"},
+    19:{"S": "ShallowMaxDepth", "M": "MediumMaxDepth", "D": "DeepMaxDepth"}
 }
 
 selstrat={
@@ -699,7 +700,11 @@ weight_gen={
    "invfreqranksquare"  : "WInvFrequencyRankSq",
    "invmodfreqrank"     : "WInvModFreqRank",
    "invmodfreqrankmax0" : "WInvModFreqRankMax0",
-   "constant"           : "WConstantWeight"
+   "constant"           : "WConstantWeight",
+   "typefreqcount"      : "WTypeFrequencyCount",
+   "typefreqrank"       : "WTypeFrequencyRank",
+   "invtypefreqcount"   : "WTypeFrequencyCount",
+   "invtypefreqrank"    : "WTypeFrequencyRank"
 }
 
 prec_gen={
@@ -717,7 +722,9 @@ prec_gen={
    "invfreqconjmin"  : "PByInvFreqConjMin",
    "invfreqconstmin" : "PByInvFreqConstMin",
    "invfreqhack"     : "PByInvFreqHack",
-   "orient_axioms"   : "POrientAxioms"
+   "orient_axioms"   : "POrientAxioms",
+   "typefreq"        : "PByTypeFreq",
+   "invtypefreq"     : "PByInvTypeFreq"
 }
 
 unproc_simpl={

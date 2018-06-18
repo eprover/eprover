@@ -218,7 +218,7 @@ static long fp_index_rek_find_unif(FPTree_p index, IndexFP_p key,
                                     current+1,
                                     collect);
       if(problemType == PROBLEM_HO || !SigIsPredicate(sig, key[current]))
-      {  /* Predicates can never unify with variables */
+      {  /* Predicates can never unify with variables -- not true in HO case */
          res += fp_index_rek_find_unif(fpindex_alternative(index, ANY_VAR),
                                        key,
                                        sig,
@@ -1239,14 +1239,6 @@ long FPIndexFindUnifiable(FPIndex_p index, Term_p term, PStack_p collect)
 
    PERF_CTR_ENTRY(IndexUnifTimer);
    key = index->fp_fun(term);
-
-   /*fprintf(stderr, "Term: ");
-   TermPrint(stderr, term, index->sig, DEREF_NEVER);
-   fprintf(stderr, ", (type: ");
-   TypePrintTSTP(stderr, index->sig->type_bank, term->type);
-   fprintf(stderr, "), key: ");
-   IndexFPPrint(stderr, key);
-   fprintf(stderr, ".\n");*/
 
    if(index->fp_fun == IndexDTCreate)
    {

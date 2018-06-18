@@ -294,10 +294,10 @@ Clause_p ClauseSimParamodConstruct(ParamodInfo_p ol_desc)
 
    rhs_instance = TBInsertNoProps(ol_desc->bank, tmp_rhs, DEREF_ALWAYS);
 
-   if (ol_desc->remaining_args)
+   if(ol_desc->remaining_args)
    {
       assert(problemType == PROBLEM_HO);
-      TermTopFree(tmp_rhs);
+      TermTopFree(tmp_rhs); // MakeRewrittenTerm allocated new term
       tmp_rhs = NULL;
    }
 
@@ -419,15 +419,7 @@ Term_p ComputeOverlap(TB_p bank, OCB_p ocb, ClausePos_p from, Term_p
 
    oldstate = PStackGetSP(subst);
 
-   fprintf(stderr, "From term: ");
-   TermPrint(stderr, max_side, bank->sig, true);
-   fprintf(stderr, ", term into: ");
-   TermPrint(stderr, sub_into, bank->sig, DEREF_NEVER);
-
    unify_res = SubstMguPossiblyPartial(max_side, sub_into, subst, bank);
-
-   fprintf(stderr, ", %s%d\n", GetSideStr(unify_res), unify_res.term_remaining);
-
 
    /* If unification succeeded and potentially prefix of into term has been unified */
    if(!UnifFailed(unify_res) 
@@ -659,14 +651,12 @@ Clause_p ClauseOrderedSimParamod(TB_p bank, OCB_p ocb, ClausePos_p
    VarBankResetVCounts(freshvars);
    unify_res = SubstMguPossiblyPartial(from_term, into_term, subst, bank);
    
-   fprintf(stderr, ", %s%d\n", GetSideStr(unify_res), unify_res.term_remaining);
-
    if((UnifFailed(unify_res) || !CheckHOUnificationConstraints(unify_res, RightTerm, from_term, into_term)) ||
       (!EqnIsOriented(from->literal) &&
        TOGreater(ocb, ClausePosGetOtherSide(from), from_term,
                  DEREF_ALWAYS, DEREF_ALWAYS)))
    {
-      /* Fail because of into-position invariant property of into-term>
+      /* Fail because of into-position invariant property of into-term
        * - either we don't unify, or the intantiated from-term is no
        longer maximal in its literal */
       TermCellDelProp(into_term, TPPotentialParamod);

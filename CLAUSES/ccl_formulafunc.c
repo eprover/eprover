@@ -44,11 +44,12 @@ extern bool app_encode;
 //
 // Function: ignore_include()
 //
-//   Ignore includes and just print them out. Used only for app encoding.
+//   Ignore includes and echoes the ignored declaration. Used for
+//   app encoding only. 
 //
 // Global Variables: -
 //
-// Side Effects    : Memory operations, changes the term bank.
+// Side Effects    : 
 //
 /----------------------------------------------------------------------*/
 
@@ -730,7 +731,7 @@ long FormulaAndClauseSetParse(Scanner_p in, FormulaSet_p fset,
    switch(ScannerGetFormat(in))
    {
    case LOPFormat:
-         //* LOP does not at the moment support full FOF */
+         //* LOP does not at the moment support full FOF, or inline watchlists */
          SetProblemType(PROBLEM_FO);
          while(ClauseStartsMaybe(in))
          {

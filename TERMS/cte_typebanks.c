@@ -7,7 +7,7 @@ Author: Petar Vukmirovic
 Contents
 
   This module implements type sharing invariant: 
-   -Each two types that are structuraly the same,
+   -Each two types that are structurally the same,
     should be the same object in memory.
 
   Sharing is inspired by term sharing (hashing + splay trees).
@@ -51,6 +51,7 @@ Created: Tue Feb 24 01:23:24 MET 1998 - Ripped out of the now obsolete
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
 /*---------------------------------------------------------------------*/
+
 typedef struct back_idx_info
 {
    const char* name;
@@ -75,6 +76,7 @@ FuncSymbType TermParseOperator(Scanner_p in, DStr_p id);
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
+
 static __inline__ back_idx_info* bii_alloc(const char* name, int arity)
 {
    back_idx_info* ptr = SizeMalloc(sizeof(back_idx_info));
@@ -95,16 +97,16 @@ static __inline__ back_idx_info* bii_alloc(const char* name, int arity)
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
+
 int cmp_types(const void* el1, const void* el2)
 {
    assert(el1 && el2);
    Type_p t1 = (Type_p)el1;
    Type_p t2 = (Type_p)el2;
 
-   int res =  TypesCmp(t1 , t2);
-
-   return res;
+   return TypesCmp(t1 , t2);
 }
+
 
 /*-----------------------------------------------------------------------
 //
@@ -117,6 +119,7 @@ int cmp_types(const void* el1, const void* el2)
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
+
 static __inline__ void type_arg_realloc(Type_p** args, int current, int new)
 {
   Type_p* new_arr = SizeMalloc(new * sizeof(Type_p));
@@ -142,6 +145,7 @@ static __inline__ void type_arg_realloc(Type_p** args, int current, int new)
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
+
 void __inline__ handle_args(TypeBank_p bank, Type_p t)
 {
    assert(bank);
@@ -167,9 +171,10 @@ void __inline__ handle_args(TypeBank_p bank, Type_p t)
 // Side Effects    : Stops program execution on error.
 //
 /----------------------------------------------------------------------*/
+
 static void __inline__ ensure_not_kind(Type_p arg, Scanner_p in)
 {
-   if (TypeIsKind(arg))
+   if(TypeIsKind(arg))
    {
       AktTokenError(in, "Only ground types supported.", true);
    }
@@ -186,6 +191,7 @@ static void __inline__ ensure_not_kind(Type_p arg, Scanner_p in)
 // Side Effects    : input reading, memory management
 //
 /----------------------------------------------------------------------*/
+
 Type_p parse_single_type(Scanner_p in, TypeBank_p bank)
 {
    DStr_p         id;
@@ -197,12 +203,12 @@ Type_p parse_single_type(Scanner_p in, TypeBank_p bank)
    id = DStrAlloc();
 
    id_type = TermParseOperator(in, id);
-   if (id_type != FSIdentFreeFun && id_type != FSIdentInterpreted)
+   if(id_type != FSIdentFreeFun && id_type != FSIdentInterpreted)
    {
       AktTokenError(in, "Function identifier expected", true);
    }
 
-   if (TestInpTok(in, OpenBracket))
+   if(TestInpTok(in, OpenBracket))
    {
       AcceptInpTok(in, OpenBracket);
 
@@ -218,7 +224,7 @@ Type_p parse_single_type(Scanner_p in, TypeBank_p bank)
       {
          AcceptInpTok(in, Comma);
 
-         if (arity == allocated)
+         if(arity == allocated)
          {
             type_arg_realloc(&typeArgs, allocated, allocated + REALLOC_STEP);
             allocated += REALLOC_STEP;
@@ -233,11 +239,11 @@ Type_p parse_single_type(Scanner_p in, TypeBank_p bank)
 
       //If f_code did not exist previously, it is a type constructor
       TypeConsCode tc_code;
-      if ((tc_code = TypeBankFindTCCode(bank, DStrView(id))) == NAME_NOT_FOUND)
+      if((tc_code = TypeBankFindTCCode(bank, DStrView(id))) == NAME_NOT_FOUND)
       {
          tc_code = TypeBankDefineTypeConstructor(bank, DStrView(id), arity);
       }
-      else if (TypeBankFindTCArity(bank, tc_code) != arity)
+      else if(TypeBankFindTCArity(bank, tc_code) != arity)
       {
          DStr_p msg = DStrAlloc();
          DStrAppendStr(msg, "Redefition of type constructor ");
@@ -252,11 +258,11 @@ Type_p parse_single_type(Scanner_p in, TypeBank_p bank)
    else
    {
       TypeConsCode tc_code;
-      if ((tc_code = TypeBankFindTCCode(bank, DStrView(id))) == NAME_NOT_FOUND)
+      if((tc_code = TypeBankFindTCCode(bank, DStrView(id))) == NAME_NOT_FOUND)
       {
          tc_code = TypeBankDefineSimpleSort(bank, DStrView(id));
       }
-      else if (TypeBankFindTCArity(bank, tc_code) != 0)
+      else if(TypeBankFindTCArity(bank, tc_code) != 0)
       {
          DStr_p msg = DStrAlloc();
          DStrAppendStr(msg, "Type constructor ");
@@ -267,9 +273,25 @@ Type_p parse_single_type(Scanner_p in, TypeBank_p bank)
       type = AllocSimpleSort(tc_code);
    }
 
-
    DStrFree(id);
    return TypeBankInsertTypeShared(bank, type);
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: tree_free_fun()
+//
+//    Frees the type stored in the tree.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void tree_free_fun(void* a)
+{
+   TypeFree((Type_p) a);
 }
 
 /*---------------------------------------------------------------------*/
@@ -287,6 +309,7 @@ Type_p parse_single_type(Scanner_p in, TypeBank_p bank)
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
+
 TypeBank_p TypeBankAlloc()
 {
    TypeBank_p handle = TypeBankCellAlloc();
@@ -341,6 +364,7 @@ TypeBank_p TypeBankAlloc()
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
+
 Type_p TypeBankInsertTypeShared(TypeBank_p bank, Type_p t)
 {
    assert(bank);
@@ -348,11 +372,11 @@ Type_p TypeBankInsertTypeShared(TypeBank_p bank, Type_p t)
    Type_p res;
 
    handle_args(bank, t);
-   if (t->type_uid == INVALID_TYPE_UID)
+   if(t->type_uid == INVALID_TYPE_UID)
    {
       res = (Type_p) PTreeObjStore(&(bank->hash_table[hash_type(t)]), t, cmp_types);
 
-      if (res == NULL)
+      if(res == NULL)
       {
          res = t;
          res->type_uid = ++bank->types_count;
@@ -388,13 +412,14 @@ Type_p TypeBankInsertTypeShared(TypeBank_p bank, Type_p t)
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
+
 TypeConsCode TypeBankDefineTypeConstructor(TypeBank_p bank, const char* name, int arity)
 {
    assert(bank);
    StrTree_p node = StrTreeFind(&bank->name_idx, name);
-   if (node)
+   if(node)
    {
-      if (GetArity(node) == arity)
+      if(GetArity(node) == arity)
       {
          return GetNameId(node);
       }
@@ -517,6 +542,7 @@ const char* TypeBankFindTCName(TypeBank_p bank, TypeConsCode tc_code)
 // Side Effects    : input reading, memory management
 //
 /----------------------------------------------------------------------*/
+
 Type_p TypeBankParseType(Scanner_p in, TypeBank_p bank)
 {
    Type_p leftArg    = NULL;
@@ -524,15 +550,15 @@ Type_p TypeBankParseType(Scanner_p in, TypeBank_p bank)
    Type_p res        = NULL;
 
 
-   if (problemType == PROBLEM_FO)
+   if(problemType == PROBLEM_FO)
    {
       // We support only (A1 * A2 * ... * An) > B
       // or C type (constructors)
 
-      if (!TestInpTok(in, OpenBracket))
+      if(!TestInpTok(in, OpenBracket))
       {
          leftArg = parse_single_type(in, bank);
-         if (TestInpTok(in, GreaterSign))
+         if(TestInpTok(in, GreaterSign))
          {
             AcceptInpTok(in, GreaterSign);
 
@@ -567,7 +593,7 @@ Type_p TypeBankParseType(Scanner_p in, TypeBank_p bank)
 
          do
          {
-            if (TestInpTok(in, GreaterSign))
+            if(TestInpTok(in, GreaterSign))
             {
                AktTokenError(in,"Mixing of first order and higher "
                                 "order syntax is forbidden.", true );
@@ -588,7 +614,7 @@ Type_p TypeBankParseType(Scanner_p in, TypeBank_p bank)
          AcceptInpTok(in, GreaterSign);
 
          rightArg = parse_single_type(in, bank);
-         if (arity == allocated)
+         if(arity == allocated)
          {
             type_arg_realloc(&args, allocated, allocated + REALLOC_STEP);
             allocated += REALLOC_STEP;
@@ -605,7 +631,7 @@ Type_p TypeBankParseType(Scanner_p in, TypeBank_p bank)
    {
       // parsing HO types
       assert(problemType == PROBLEM_HO);
-      if (TestInpTok(in, OpenBracket))
+      if(TestInpTok(in, OpenBracket))
       {
          AcceptInpTok(in, OpenBracket);
          leftArg = TypeBankParseType(in, bank);
@@ -616,7 +642,7 @@ Type_p TypeBankParseType(Scanner_p in, TypeBank_p bank)
          leftArg = parse_single_type(in, bank);
       }
 
-      if (TestInpTok(in, CloseBracket | Fullstop | CloseSquare | Comma 
+      if(TestInpTok(in, CloseBracket | Fullstop | CloseSquare | Comma 
                          | EqualSign | NegEqualSign | FOFBinOp))
       {
          res = leftArg;
@@ -631,13 +657,13 @@ Type_p TypeBankParseType(Scanner_p in, TypeBank_p bank)
 
          do
          {
-            if (TestInpTok(in, Mult))
+            if(TestInpTok(in, Mult))
             {
                AktTokenError(in,"Mixing of first order and higher "
                                 "order syntax is forbidden", true);
             }
             AcceptInpTok(in, GreaterSign);
-            if (TestInpTok(in, OpenBracket))
+            if(TestInpTok(in, OpenBracket))
             {
                /* We can have nested arrow type */
                AcceptInpTok(in, OpenBracket);
@@ -650,7 +676,7 @@ Type_p TypeBankParseType(Scanner_p in, TypeBank_p bank)
             }
 
 
-            if (arity == allocated)
+            if(arity == allocated)
             {
                type_arg_realloc(&args, allocated, allocated + REALLOC_STEP);
                allocated += REALLOC_STEP;
@@ -659,7 +685,7 @@ Type_p TypeBankParseType(Scanner_p in, TypeBank_p bank)
             args[arity++] = rightArg;
          } while (!(TestInpTok(in, CloseBracket | Fullstop | CloseSquare | Comma)));
 
-         if (TypeIsArrow(rightArg))
+         if(TypeIsArrow(rightArg))
          {
             // we have to flatten out the rightArg
             args[arity-1] = rightArg->args[0];
@@ -667,7 +693,7 @@ Type_p TypeBankParseType(Scanner_p in, TypeBank_p bank)
             int i;
             for(i=0; i < rightArg->arity-1; i++)
             {
-               if (arity == allocated)
+               if(arity == allocated)
                {
                   type_arg_realloc(&args, allocated, allocated + REALLOC_STEP);
                   allocated += REALLOC_STEP;
@@ -700,13 +726,13 @@ Type_p TypeBankParseType(Scanner_p in, TypeBank_p bank)
 void TypePrintTSTP(FILE* out, TypeBank_p bank, Type_p type)
 {
    assert(type);
-   if (TypeIsArrow(type))
+   if(TypeIsArrow(type))
    {
-      if (problemType == PROBLEM_FO)
+      if(problemType == PROBLEM_FO)
       {
          int nr_of_args = type->arity -1;
 
-         if (nr_of_args == 1)
+         if(nr_of_args == 1)
          {
             TypePrintTSTP(out, bank, type->args[0]);
             fprintf(out, " > ");
@@ -733,12 +759,12 @@ void TypePrintTSTP(FILE* out, TypeBank_p bank, Type_p type)
          //assert(problemType == PROBLEM_HO);
          for(int i=0; i<type->arity-1; i++)
          {
-            if (TypeIsArrow(type->args[i]))
+            if(TypeIsArrow(type->args[i]))
             {
                fprintf(out, "(");   
             }
             TypePrintTSTP(out, bank, type->args[i]);
-            if (TypeIsArrow(type->args[i]))
+            if(TypeIsArrow(type->args[i]))
             {
                fprintf(out, ")");   
             }
@@ -750,7 +776,7 @@ void TypePrintTSTP(FILE* out, TypeBank_p bank, Type_p type)
    else
    {
       fprintf(out, "%s", TypeBankFindTCName(bank, type->f_code));
-      if (type->arity)
+      if(type->arity)
       {
          fprintf(out, "(");
          for(int i=0; i<type->arity-1; i++)
@@ -777,12 +803,13 @@ void TypePrintTSTP(FILE* out, TypeBank_p bank, Type_p type)
 // Side Effects    : writing to output stream
 //
 /----------------------------------------------------------------------*/
+
 Type_p TypeChangeReturnType(TypeBank_p bank, Type_p type, Type_p new_ret)
 {
    assert(TypeIsArrow(type) || type->f_code == STIndividuals);
    
    Type_p res;
-   if (TypeIsArrow(type))
+   if(TypeIsArrow(type))
    {
       Type_p copy = TypeCopy(type);
       copy->args[copy->arity-1] = new_ret;
@@ -797,35 +824,19 @@ Type_p TypeChangeReturnType(TypeBank_p bank, Type_p type, Type_p new_ret)
    
 }
 
-/*-----------------------------------------------------------------------
-//
-// Function: tree_free_fun()
-//
-//    Frees the type. Not yet implemented.
-//    
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-void tree_free_fun(void* a)
-{
-   TypeFree((Type_p) a);
-}
 
 /*-----------------------------------------------------------------------
 //
 // Function: TypeBankFree()
 //
 //    Frees the whole typebank.
-//    
 //
 // Global Variables: -
 //
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
+
 void TypeBankFree(TypeBank_p bank)
 {
    for(int i=0; i<PStackGetSP(bank->back_idx); i++)
@@ -850,25 +861,22 @@ void TypeBankFree(TypeBank_p bank)
    SizeFree(bank, sizeof(*bank));
 }
 
-void TypeBankPrintSimpleTypes(FILE* out, TypeBank_p tb)
-{
-   for(int i=0; i<TYPEBANK_SIZE; i++)
-   {
-      PStack_p iter = PTreeTraverseInit(tb->hash_table[i]);
-      PObjTree_p node;
-      while((node = (PObjTree_p)PTreeTraverseNext(iter)))
-      {
-         Type_p type = (Type_p) node->key;
-         if (!TypeIsArrow(type) && SortIsUserDefined(type->f_code))
-         {
-            fprintf(out, "%s : %ld\n", TypeBankFindTCName(tb, type->f_code), type->f_code);  
-         }
-      }
-      PTreeTraverseExit(iter);
-   }
-}
 
-// to be deleted
+/*-----------------------------------------------------------------------
+//
+// Function: TypeBankAppEncodeTypes()
+//
+//    For each term application symbol according to type a > b print 
+//    declaration app_ab_a_b : translation(a>b) * translation(a) > translation(b).
+//    If print_type_comment is true then the original, higher-order type
+//    will be printed as well.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
 void TypeBankAppEncodeTypes(FILE* out, TypeBank_p tb, bool print_type_comment)
 {
    int total_types = 0;
@@ -879,11 +887,11 @@ void TypeBankAppEncodeTypes(FILE* out, TypeBank_p tb, bool print_type_comment)
       while((node = (PObjTree_p)PTreeTraverseNext(iter)))
       {
          Type_p type = (Type_p) node->key;
-         if (TypeIsArrow(type) || SortIsUserDefined(type->f_code))
+         if(TypeIsArrow(type) || SortIsUserDefined(type->f_code))
          {
             total_types++;
             DStr_p type_name = TypeAppEncodedName(type);
-            if (print_type_comment)
+            if(print_type_comment)
             {
                fprintf(out, "%%-- ");
                TypePrintTSTP(out, tb, type);

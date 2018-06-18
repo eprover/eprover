@@ -61,10 +61,10 @@ void document_processing(Clause_p clause)
    {
       if(OutputLevel == 1)
       {
-        putc('\n', GlobalOut);
-        putc('#', GlobalOut);
-        ClausePrint(GlobalOut, clause, true);
-        putc('\n', GlobalOut);
+         putc('\n', GlobalOut);
+         putc('#', GlobalOut);
+         ClausePrint(GlobalOut, clause, true);
+         putc('\n', GlobalOut);
       }
       DocClauseQuoteDefault(6, clause, "new_given");
    }
@@ -92,12 +92,12 @@ static void check_ac_status(ProofState_p state, ProofControl_p
       res = ClauseScanAC(state->signature, clause);
       if(res && !control->ac_handling_active)
       {
-    control->ac_handling_active = true;
-    if(OutputLevel)
-    {
-       SigPrintACStatus(GlobalOut, state->signature);
-       fprintf(GlobalOut, "# AC handling enabled dynamically\n");
-    }
+         control->ac_handling_active = true;
+         if(OutputLevel)
+         {
+            SigPrintACStatus(GlobalOut, state->signature);
+            fprintf(GlobalOut, "# AC handling enabled dynamically\n");
+         }
       }
    }
 }

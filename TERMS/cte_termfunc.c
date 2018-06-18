@@ -275,14 +275,6 @@ void TermPrintFO(FILE* out, Term_p term, Sig_p sig, DerefType deref)
       else
       {
          fputs(SigFindName(sig, term->f_code), out);
-// TODO: TO BE REMOVED!
-#if defined(ENABLE_LFHO) && defined(PRINT_SIG_DBG)
-         fputc(':', out);
-         if (SigGetType(sig, term->f_code))
-            TypePrintTSTP(out, sig->type_bank, SigGetType(sig, term->f_code));
-         else
-            fprintf(out, "*");
-#endif
          if(!TermIsConst(term))
          {
             assert(term->args);
@@ -313,6 +305,7 @@ void TermPrintFO(FILE* out, Term_p term, Sig_p sig, DerefType deref)
 // Side Effects    : Output
 //
 /----------------------------------------------------------------------*/
+
 void TermPrintHO(FILE* out, Term_p term, Sig_p sig, DerefType deref)
 {
    assert(term);
@@ -320,7 +313,7 @@ void TermPrintHO(FILE* out, Term_p term, Sig_p sig, DerefType deref)
 
    const int limit = DEREF_LIMIT(term, deref);
    term = TermDeref(term, &deref);
-   if (!TermIsTopLevelVar(term))
+   if(!TermIsTopLevelVar(term))
    {
       fputs(SigFindName(sig, term->f_code), out);
    }
@@ -329,7 +322,7 @@ void TermPrintHO(FILE* out, Term_p term, Sig_p sig, DerefType deref)
       VarPrint(out, (TermIsVar(term) ? term : term->args[0])->f_code);
    }
 
-   for (int i = TermIsAppliedVar(term) ? 1 : 0; i < term->arity; ++i)
+   for(int i = TermIsAppliedVar(term) ? 1 : 0; i < term->arity; ++i)
    {
 #ifdef PRINT_AT
       fputs(" @ ", out);
@@ -337,7 +330,7 @@ void TermPrintHO(FILE* out, Term_p term, Sig_p sig, DerefType deref)
       fputs(" ", out);
 #endif
       DerefType c_deref = CONVERT_DEREF(i, limit, deref);
-      if (term->args[i]->arity || 
+      if(term->args[i]->arity || 
             (c_deref != DEREF_NEVER && term->args[i]->binding && term->args[i]->binding->arity))
       {
          fputs("(", out);
@@ -747,7 +740,7 @@ bool TermStructEqual(Term_p t1, Term_p t2)
       return false;
    }
 
-   if (t1->type != t2->type)
+   if(t1->type != t2->type)
    {
       // in HO case, it is posible for term
       // to have same head but different arities.
@@ -770,7 +763,6 @@ bool TermStructEqual(Term_p t1, Term_p t2)
    }
    return true;
 }
-
 
 
 /*-----------------------------------------------------------------------
@@ -799,7 +791,7 @@ bool TermStructEqualNoDeref(Term_p t1, Term_p t2)
       return false;
    }
 
-   if (t1->type != t2->type)
+   if(t1->type != t2->type)
    {
       // in HO case, it is posible for term
       // to have same head but different arities.
@@ -855,7 +847,7 @@ bool TermStructEqualDeref(Term_p t1, Term_p t2, DerefType deref_1, DerefType der
       return false;
    }
 
-   if (t1->type != t2->type)
+   if(t1->type != t2->type)
    {
       // in HO case, it is posible for term
       // to have same head but different arities.
@@ -901,7 +893,7 @@ bool TermStructEqualDeref(Term_p t1, Term_p t2, DerefType deref_1, DerefType der
 bool TermStructPrefixEqual(Term_p l, Term_p r, DerefType d_l, DerefType d_r, int remaining, Sig_p sig)
 {
    bool res = true;
-   if (remaining == 0)
+   if(remaining == 0)
    {
       res = TermStructEqualDeref(l, r, d_l, d_r);
    }
@@ -912,13 +904,13 @@ bool TermStructPrefixEqual(Term_p l, Term_p r, DerefType d_l, DerefType d_r, int
       l = TermDeref(l, &d_l);
       r = TermDeref(r, &d_r);
 
-      if (TermIsAppliedVar(r) && (r->arity - remaining == 1))
+      if(TermIsAppliedVar(r) && (r->arity - remaining == 1))
       {
          // f-code comparisons would fail without this hack.
          r = r->args[0];
       }
 
-      if (l->f_code != r->f_code || (!TermIsVar(r) && r->arity < remaining))
+      if(l->f_code != r->f_code || (!TermIsVar(r) && r->arity < remaining))
       {
          res = false;
       }
@@ -928,7 +920,7 @@ bool TermStructPrefixEqual(Term_p l, Term_p r, DerefType d_l, DerefType d_r, int
 
          for(int i=0; i<l->arity; i++)
          {
-            if (!TermStructEqualDeref(l->args[i], r->args[i], 
+            if(!TermStructEqualDeref(l->args[i], r->args[i], 
                                       CONVERT_DEREF(i, limit_l, d_l), 
                                       CONVERT_DEREF(i, limit_r, d_r)))
             {
@@ -996,7 +988,7 @@ long TermStructWeightCompare(Term_p t1, Term_p t2)
    }
 
    //This is a non-valid assert... check with Stephan
-   //  (reason: compares terms )
+   //  (reason: compares terms from different equations.)
    //assert(t1->type == t2->type);
    assert(t1->arity == t2->arity);
    for(int i=0; i<t1->arity; i++)
@@ -1034,7 +1026,7 @@ long TermLexCompare(Term_p t1, Term_p t2)
       return res;
    }
 
-   if (t1->type != t2->type)
+   if(t1->type != t2->type)
    {
       // in HO case, it is posible for term
       // to have same head but different arities.
@@ -1189,7 +1181,7 @@ long TermFsumWeight(Term_p term, long vweight, long flimit,
    {
       if(term->f_code < flimit)
       {
-         if (!TermIsAppliedVar(term))
+         if(!TermIsAppliedVar(term))
          {
             res += fweights[term->f_code];
          }
@@ -1200,7 +1192,7 @@ long TermFsumWeight(Term_p term, long vweight, long flimit,
       }
       else
       {
-         if (!TermIsAppliedVar(term))
+         if(!TermIsAppliedVar(term))
          {
             res += default_fweight;   
          }
@@ -1769,7 +1761,7 @@ void TermAddSymbolFeatures(Term_p term, PStack_p mod_stack, long depth,
    if(!TermIsVar(term))
    {
       int i;
-      if (!TermIsAppliedVar(term))
+      if(!TermIsAppliedVar(term))
       {
          long findex = 4*term->f_code+offset;
 
@@ -2059,7 +2051,7 @@ bool TermIsUntyped(Term_p term)
 
 Term_p TermAppEncode(Term_p orig, Sig_p sig)
 {
-   if (orig->arity == 0)
+   if(orig->arity == 0)
    {
       return TermCopyKeepVars(orig, DEREF_NEVER);
    }
@@ -2076,11 +2068,10 @@ Term_p TermAppEncode(Term_p orig, Sig_p sig)
    app_encoded->args[0] = TermAppEncode(orig_prefix, sig);
    app_encoded->args[1] = TermAppEncode(applied_to, sig);
 
-   if (!TermIsVar(orig_prefix))
+   if(!TermIsVar(orig_prefix))
    {
       TermTopFree(orig_prefix);   
    }
-   
 
    return app_encoded; 
 }
@@ -2108,11 +2099,11 @@ Term_p TermCreatePrefix(Term_p orig, int arg_num)
    
    Term_p prefix;
 
-   if (arg_num == ARG_NUM(orig))
+   if(arg_num == ARG_NUM(orig))
    {
       prefix = orig;
    }
-   else if (TermIsAppliedVar(orig) && arg_num == 0)
+   else if(TermIsAppliedVar(orig) && arg_num == 0)
    {
       // due to app-encoding of applied variables,
       // the term head is hidden in first argument
@@ -2131,7 +2122,6 @@ Term_p TermCreatePrefix(Term_p orig, int arg_num)
 
       assert(!TermIsShared(prefix));
    }
-
 
    return prefix;  
 }

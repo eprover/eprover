@@ -1348,7 +1348,7 @@ OptCell opts[] =
     '\0', "app-encode",
     NoArg, NULL,
     "Encodes terms in the proof state using applicative encoding, "
-    "prints input axioms and exists."},
+    "prints encoded input problem and exists."},
 
    {OPT_NOOPT,
     '\0', NULL,

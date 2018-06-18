@@ -373,7 +373,7 @@ Term_p normalize_head(Term_p head, Term_p* rest_args, int rest_arity)
 {
    assert(problemType == PROBLEM_HO);
    Term_p res;
-   if (rest_arity == 0)
+   if(rest_arity == 0)
    {
       res = head; // do not copy in case there is nothing to be copied
    }
@@ -382,7 +382,7 @@ Term_p normalize_head(Term_p head, Term_p* rest_args, int rest_arity)
       res = TermDefaultCellAlloc();
       int total_arity = head->arity + rest_arity;
 
-      if (TermIsVar(head))
+      if(TermIsVar(head))
       {
          total_arity++; // var is going to be the first argument
          res->args = TermArgArrayAlloc(total_arity);
@@ -394,7 +394,7 @@ Term_p normalize_head(Term_p head, Term_p* rest_args, int rest_arity)
             res->args[i] = rest_args[i-1];
          }
       }
-      else if (total_arity)
+      else if(total_arity)
       {
          res->f_code = head->f_code;
          res->args = TermArgArrayAlloc(total_arity);
@@ -488,7 +488,7 @@ static Term_p __inline__  parse_one_ho(Scanner_p in, TB_p bank)
       }
 
       assert(TermIsVar(head));
-      if (TypeHasBool(head->type))
+      if(TypeHasBool(head->type))
       {
         AktTokenError(in, "Quantification over type $o is not allowed.", false);
       }
@@ -892,9 +892,10 @@ Term_p TBInsertInstantiatedHO(TB_p bank, Term_p term, bool follow_bind)
 // Side Effects    : Changes term bank
 //
 /----------------------------------------------------------------------*/
+
 __inline__ Term_p TBInsertInstantiated(TB_p bank, Term_p term)
 {
-   if (problemType == PROBLEM_HO)
+   if(problemType == PROBLEM_HO)
    {
       return TBInsertInstantiatedHO(bank, term, true);
    }
@@ -1437,7 +1438,7 @@ Term_p  TBTermParseRealHO(Scanner_p in, TB_p bank, bool check_symb_prop)
    int     rest_arity   = 0;
    int     allocated    = 0;
 
-   if (TestInpTok(in, OpenBracket))
+   if(TestInpTok(in, OpenBracket))
    {
       AcceptInpTok(in, OpenBracket);
       head = TBTermParseRealHO(in, bank, check_symb_prop);
@@ -1448,10 +1449,10 @@ Term_p  TBTermParseRealHO(Scanner_p in, TB_p bank, bool check_symb_prop)
       head = parse_one_ho(in, bank);
    }
 
-   if (!TermIsVar(head) && !TermIsAppliedVar(head) && !SigGetType(bank->sig, head->f_code))
+   if(!TermIsVar(head) && !TermIsAppliedVar(head) && !SigGetType(bank->sig, head->f_code))
    {
       DStr_p msg = DStrAlloc();
-      if (head->f_code > 0) 
+      if(head->f_code > 0) 
       {
          DStrAppendStr(msg, SigFindName(bank->sig, head->f_code));
          DStrAppendStr(msg, " with id ");
@@ -1480,7 +1481,7 @@ Term_p  TBTermParseRealHO(Scanner_p in, TB_p bank, bool check_symb_prop)
          arg = parse_one_ho(in, bank);
       }
 
-      if (rest_arity == allocated)
+      if(rest_arity == allocated)
       {
          allocated += TERMS_INITIAL_ARGS;
          rest_args = (Term_p*)SecureRealloc(rest_args, allocated*sizeof(Term_p));
@@ -1491,7 +1492,7 @@ Term_p  TBTermParseRealHO(Scanner_p in, TB_p bank, bool check_symb_prop)
 
    res = normalize_head(head, rest_args, rest_arity);
 
-   if (!TermIsVar(res) && !TermIsShared(res))
+   if(!TermIsVar(res) && !TermIsShared(res))
    {
       res = tb_termtop_insert(bank, res);   
    }
@@ -1500,7 +1501,7 @@ Term_p  TBTermParseRealHO(Scanner_p in, TB_p bank, bool check_symb_prop)
       assert(TermIsVar(res) || TBFind(bank, res));
    }
 
-   if (allocated)
+   if(allocated)
    {
       FREE(rest_args);
    }
@@ -1647,7 +1648,7 @@ void TBGCMarkTerm(TB_p bank, Term_p term)
             PStackPushP(stack, TermRWReplaceField(term));
          }
 
-         if (TermIsAppliedVar(term) && term->binding_cache)
+         if(TermIsAppliedVar(term) && term->binding_cache)
          {
             assert(TermIsShared(term->binding_cache));
             PStackPushP(stack, term->binding_cache);

@@ -900,6 +900,9 @@ void SpecFeaturesCompute(SpecFeature_p features, ClauseSet_p set,
 {
    long tmp, count;
 
+   assert(problemType == PROBLEM_FO || problemType == PROBLEM_HO);
+   features->problem_logic    = problemType == PROBLEM_FO ? SpecFO : SpecHO;
+
    features->clauses          = set->members;
    features->goals            = ClauseSetCountGoals(set);
    features->axioms           = features->clauses-features->goals;
@@ -1410,15 +1413,16 @@ void SpecFeaturesParse(Scanner_p in, SpecFeature_p features)
 
 void SpecTypePrint(FILE* out, SpecFeature_p features, char* mask)
 {
-   const char encoding[]="UHGNSPFSMFSMFSMFSMSML0123SMLSMD";
-   char       result[14]; /* Big enough for the '\0'!!!*/
+   const char encoding[]="FHUHGNSPFSMFSMFSMFSMSML0123SMLSMD";
+   char       result[15]; /* Big enough for the '\0'!!!*/
    int        i, limit;
 
    assert(features);
-   assert(mask && (strlen(mask)==13));
+   assert(mask && (strlen(mask)==14));
    limit = strlen(mask);
 
-   sprintf(result, "%c%c%c%c%c%c%c%c%c%c%c%c%c",
+   sprintf(result, "%c%c%c%c%c%c%c%c%c%c%c%c%c%c",
+           encoding[features->problem_logic],
            encoding[features->axiomtypes],
            encoding[features->goaltypes],
            encoding[features->eq_content],

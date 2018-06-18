@@ -357,7 +357,8 @@ void FormulaSetPrint(FILE* out, FormulaSet_p set, bool fullterms)
 //
 // Function: FormulaSetAppEncode()
 //
-//   App encodes the set of formulas.
+//   App encodes the set of formulas and prints them to out. Initial
+//   set is not changed.
 //
 // Global Variables: OutputFormat
 //

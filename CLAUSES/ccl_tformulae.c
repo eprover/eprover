@@ -436,7 +436,7 @@ static TFormula_p literal_tform_tstp_parse(Scanner_p in, TB_p terms)
    }
    else if(TestInpTok(in, OpenBracket))
    {
-      if (problemType == PROBLEM_FO)
+      if(problemType == PROBLEM_FO)
       {
          AcceptInpTok(in, OpenBracket);
          res = TFormulaTSTPParse(in, terms);
@@ -448,7 +448,7 @@ static TFormula_p literal_tform_tstp_parse(Scanner_p in, TB_p terms)
          // -- not possible in FO case and breaks parsing in some 
          // cases.
 
-         if (TestTok(LookToken(in,1), OpenBracket|UnivQuantor|ExistQuantor|TildeSign))
+         if(TestTok(LookToken(in,1), OpenBracket|UnivQuantor|ExistQuantor|TildeSign))
          {
             AcceptInpTok(in, OpenBracket);
             res = TFormulaTSTPParse(in, terms);
@@ -478,8 +478,6 @@ static TFormula_p literal_tform_tstp_parse(Scanner_p in, TB_p terms)
             }
          }
       }
-
-      
    }
    else if(TestInpTok(in, TildeSign))
    {

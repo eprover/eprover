@@ -294,9 +294,7 @@ static __inline__ int SigFindArity(Sig_p sig, FunCode f_code)
    assert(f_code > 0);
    assert(f_code <= sig->f_count);
 
-
-   return (sig->f_info[f_code]).arity;   
-   
+   return (sig->f_info[f_code]).arity;
 }
 
 
