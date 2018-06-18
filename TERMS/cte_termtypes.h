@@ -192,9 +192,6 @@ typedef uintptr_t DerefType, *DerefType_p;
 #define CONVERT_DEREF(i, l, d) (UNUSED(i),UNUSED(l),d)
 #endif
 
-
-
-
 /*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
@@ -239,7 +236,7 @@ typedef uintptr_t DerefType, *DerefType_p;
 #ifdef ENABLE_LFHO
 Term_p  MakeRewrittenTerm(Term_p orig, Term_p new, int orig_remains);
 #else
-#define MakeRewrittenTerm(orig, new, remains) (new)
+#define MakeRewrittenTerm(orig, new, remains) (assert(!remains), new)
 #endif
 
 #define TermNFDate(term,i) (TermIsRewritten(term)?\
@@ -306,15 +303,16 @@ Term_p applied_var_deref(Term_p orig);
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
+
 static __inline__ Type_p GetHeadType(Sig_p sig, Term_p term)
 {
 #ifdef ENABLE_LFHO
-   if (TermIsAppliedVar(term))
+   if(TermIsAppliedVar(term))
    {
       assert(!sig || term->f_code == SIG_APP_VAR_CODE);
       return term->args[0]->type;
    }
-   else if (TermIsVar(term))
+   else if(TermIsVar(term))
    {
       assert(term->arity == 0);
       return term->type;
@@ -327,9 +325,7 @@ static __inline__ Type_p GetHeadType(Sig_p sig, Term_p term)
 #else
    return SigGetType(sig, term->f_code);
 #endif
-
 }
-
 
 /*-----------------------------------------------------------------------
 //
@@ -342,12 +338,13 @@ static __inline__ Type_p GetHeadType(Sig_p sig, Term_p term)
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
+
 static __inline__ Term_p deref_step(Term_p orig)
 {
    assert(TermIsTopLevelVar(orig));
    //assert(TermIsVar(orig) || TermIsShared(orig));
    // assert(bank != NULL || orig->arity == 0);
-   if (TermIsVar(orig))
+   if(TermIsVar(orig))
    {
       return orig->binding;
    }
@@ -369,6 +366,7 @@ static __inline__ Term_p deref_step(Term_p orig)
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
+
 static __inline__ Term_p TermDerefAlways(Term_p term)
 {
    assert(TermIsTopLevelVar(term) || !(term->binding));
@@ -396,6 +394,7 @@ static __inline__ Term_p TermDerefAlways(Term_p term)
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
+
 static __inline__ Term_p TermDeref(Term_p term, DerefType_p deref)
 {
    assert(TermIsTopLevelVar(term) || !(term->binding));
@@ -418,7 +417,7 @@ static __inline__ Term_p TermDeref(Term_p term, DerefType_p deref)
 #ifdef ENABLE_LFHO
       bool originally_app_var = TermIsAppliedVar(term);
       term = deref_step(term);
-      if ((*deref) == DEREF_ONCE && originally_app_var)
+      if((*deref) == DEREF_ONCE && originally_app_var)
       {
         break;
       }

@@ -106,7 +106,7 @@ static void push_fcodes(PStack_p stack, Term_p t)
    else
    {
       int i;
-      if (!TermIsAppliedVar(t))
+      if(!TermIsAppliedVar(t))
       {
          PStackPushInt(stack, t->f_code);
       }
@@ -191,7 +191,7 @@ FunCode TermFPSampleHO(Term_p term, va_list ap)
    {
       res = (va_arg(ap, int) == -1) ? ANY_VAR : BELOW_VAR;
    }
-   else if (pos != -1)
+   else if(pos != -1)
    {
       pos -= arg_expansion_num;
       for(; pos != -1; pos = va_arg(ap, int))
@@ -202,7 +202,7 @@ FunCode TermFPSampleHO(Term_p term, va_list ap)
             break;
          }
 
-         if (pos < ARG_NUM(term))
+         if(pos < ARG_NUM(term))
          {
             int actual_pos = term->arity-1 - pos;
             term = term->args[actual_pos];
@@ -244,7 +244,7 @@ FunCode  TermFPSample(Term_p term, ...)
    
    FunCode res;
 #ifdef ENABLE_LFHO
-   if (problemType == PROBLEM_HO)
+   if(problemType == PROBLEM_HO)
    {
       res = TermFPSampleHO(term, args);
    }
@@ -331,7 +331,7 @@ FunCode TermFPFlexSampleHO(Term_p term, IntOrP* *seq)
    FunCode res = 0;
    long pos = (*seq)->i_val;
 
-   if (pos != -1  && !TermIsTopLevelVar(term) && pos >= term->arity)
+   if(pos != -1  && !TermIsTopLevelVar(term) && pos >= term->arity)
    {
       res = BELOW_VAR;
    }
@@ -387,7 +387,7 @@ FunCode TermFPFlexSampleHO(Term_p term, IntOrP* *seq)
 /----------------------------------------------------------------------*/
 __inline__ FunCode TermFPFlexSample(Term_p term, IntOrP* *seq)
 {
-   if (problemType == PROBLEM_HO)
+   if(problemType == PROBLEM_HO)
    {
       return TermFPFlexSampleHO(term, seq);
    }

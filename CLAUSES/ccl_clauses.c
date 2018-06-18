@@ -2659,7 +2659,7 @@ bool ClauseIsUntyped(Clause_p clause)
 // Function: ClauseQueryLiteral 
 //
 //   Return true if there is a literal that satisfies query_fun 
-//   predicate on literal
+//   predicate
 //
 // Global Variables: -
 //

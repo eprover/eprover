@@ -1813,6 +1813,8 @@ void WTFormulaConjunctiveNF(WFormula_p form, TB_p terms)
       DocFormulaModificationDefault(form, inf_fof_distrib);
       WFormulaPushDerivation(form, DCDistDisjunctions, NULL, NULL);
    }
+   UNUSED(max_var); // FIXME: Note 2 Stephan -- this is obsolete with new
+                     // variable scheme
 }
 
 

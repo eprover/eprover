@@ -34,6 +34,8 @@ Changes
 
 typedef enum
 {
+   SpecFO,
+   SpecHO,
    SpecUnit,
    SpecHorn,
    SpecGeneral,
@@ -107,6 +109,7 @@ typedef struct spec_limits_cell
    to SpecFeaturesAddEval, the classifications */
 typedef struct spec_feature_cell
 {
+   SpecFeatures problem_logic;
    SpecFeatures axiomtypes;
    SpecFeatures goaltypes;
    SpecFeatures eq_content;
@@ -212,6 +215,10 @@ SpecLimits_p SpecLimitsAlloc(void);
         SizeFree(junk, sizeof(SpecFeatureCell))
 
 #define Spec(spec) (true) /* For auto-generated code */
+
+#define SpecIsFO(spec) ((spec)->problem_logic == SpecFO)
+#define SpecIsHO(spec) ((spec)->problem_logic == SpecHO)
+
 
 #define SpecAxiomsAreUnit(spec) ((spec)->axioms == (spec)->unitaxioms)
 #define SpecAxiomsAreHorn(spec) ((spec)->axioms == (spec)->hornaxioms)

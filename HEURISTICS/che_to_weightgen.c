@@ -274,7 +274,7 @@ static PStack_p find_max_symbols(OCB_p ocb)
 static void set_maximal_0(OCB_p ocb)
 {
    assert(ocb->precedence||ocb->prec_weights);
-   if (problemType == PROBLEM_HO)
+   if(problemType == PROBLEM_HO)
    {
      return; // no checks if it is unary -- our KBO works only then
    }
@@ -373,8 +373,7 @@ static void generate_constant_weights(OCB_p ocb)
 static void generate_selmax_weights(OCB_p ocb)
 {
    generate_constant_weights(ocb);
-   set_maximal_0(ocb);  //no checks it is unary
-   
+   set_maximal_0(ocb);  //no checks if symbol is unary
 }
 
 
@@ -1252,19 +1251,19 @@ void TOGenerateWeights(OCB_p ocb, ClauseSet_p axioms, char *pre_weights,
     generate_selmax_weights(ocb);
     break;
    case WTypeFrequencyRank:
-    assert(problemType = PROBLEM_HO);
+    assert(problemType == PROBLEM_HO);
     generate_type_freq_rank_weights(ocb, axioms);
     break;
    case WTypeFrequencyCount:
-    assert(problemType = PROBLEM_HO);
+    assert(problemType == PROBLEM_HO);
     generate_type_freq_weights(ocb, axioms);
     break;
    case WInvTypeFrequencyRank:
-    assert(problemType = PROBLEM_HO);
+    assert(problemType == PROBLEM_HO);
     generate_inv_type_freq_rank_weights(ocb, axioms);
     break;
    case WInvTypeFrequencyCount:
-    assert(problemType = PROBLEM_HO);
+    assert(problemType == PROBLEM_HO);
     generate_inv_type_freq_weights(ocb, axioms);
     break;
    default:
