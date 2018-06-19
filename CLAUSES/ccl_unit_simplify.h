@@ -28,6 +28,7 @@ Changes
 #define CCL_UNIT_SIMPLIFY
 
 #include <ccl_clausefunc.h>
+#include <ccl_clausepos.h>
 
 
 /*---------------------------------------------------------------------*/
@@ -42,11 +43,7 @@ typedef enum
    FullUnitSimplify      /* Go down (with positive units only) */
 }UnitSimplifyType;
 
-typedef struct {
-  ClausePos_p pos;
-  int         remaining_args;
-} SimplifyRes;
-
+typedef MatchResCell SimplifyRes;
 
 extern const SimplifyRes SIMPLIFY_FAILED; 
 
@@ -60,7 +57,7 @@ extern char* UnitSimplifyNames[];
 
 #define TransUnitSimplifyString(str) StringIndex((str), UnitSimplifyNames);
 
-SimplifyRes RemainingArgsSame(Term_p t1, Term_p t2, SimplifyRes res);
+bool RemainingArgsSame(Term_p t1, Term_p t2, SimplifyRes *res);
 SimplifyRes FindTopSimplifyingUnit(ClauseSet_p units, Term_p t1,
                Term_p t2);
 SimplifyRes FindSignedTopSimplifyingUnit(ClauseSet_p units, Term_p t1,

@@ -217,7 +217,7 @@ long term_collect_into_terms_pos2(Term_p t, CompactPos pos,
    PStackPushP(natoms, t);
    PStackPushInt(natoms, pos);
    res++;
-   pos += DEFAULT_FWEIGHT * (TermIsAppliedVar(t) ? 0 : 1);
+   pos += DEFAULT_FWEIGHT*(TermIsAppliedVar(t) ? 0 : 1);
    for(i=0; i<t->arity; i++)
    {
       /* It's term_collect_into_terms_pos() on purpose - subterm need

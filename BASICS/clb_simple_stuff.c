@@ -227,7 +227,7 @@ bool StringStartsWith(const char* pattern, const char* prefix)
 //   Changes problem type to t if the problem type was not initialized.
 //   If user tries to overried the problem type the error is reported.
 //
-// Global Variables: -
+// Global Variables: problemType
 //
 // Side Effects    : -
 //
@@ -241,7 +241,8 @@ void SetProblemType(ProblemType t)
   }
   else
   {
-     Error("Mixing of first order and higer order syntax is not allowed.", SYNTAX_ERROR);
+     Error("Mixing of first order and higer order syntax is not allowed.", 
+           SYNTAX_ERROR);
   }
 }
 /*---------------------------------------------------------------------*/

@@ -722,7 +722,8 @@ void tformula_print_or_chain(FILE* out, TB_p bank, TFormula_p form,
 //
 // Function: tformula_appencode_or_chain()
 //
-//   Appencodes TFormula for and prints the result to out.
+//   Prints app-encoded version of the formula form to standard out.
+//   Original formula is not chagned.
 //
 // Global Variables: -
 //

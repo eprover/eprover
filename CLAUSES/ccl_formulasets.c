@@ -360,9 +360,9 @@ void FormulaSetPrint(FILE* out, FormulaSet_p set, bool fullterms)
 //   App encodes the set of formulas and prints them to out. Initial
 //   set is not changed.
 //
-// Global Variables: OutputFormat
+// Global Variables: -
 //
-// Side Effects    : -
+// Side Effects    : Output
 //
 /----------------------------------------------------------------------*/
 
@@ -378,7 +378,7 @@ void FormulaSetAppEncode(FILE* out, FormulaSet_p set)
    }
    
    handle = set->anchor->succ;
-   if (handle->terms)
+   if(handle->terms)
    {
       TypeBankAppEncodeTypes(out, handle->terms->sig->type_bank, true);
 

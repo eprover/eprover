@@ -164,7 +164,7 @@ Clause_p unit_clause_set_subsumes_clause(ClauseSet_p set,
       }
       
       if(!SimplifyFailed(res) && 
-          !SimplifyFailed(RemainingArgsSame(handle->lterm, handle->rterm, res)))
+          RemainingArgsSame(handle->lterm, handle->rterm, &res))
       {
          break;
       }
@@ -540,7 +540,7 @@ bool eqn_list_rec_subsume_old(Eqn_p subsum_list, Eqn_p sub_cand_list,
        down the ordinary case */
       /* if(EqnIsMaximal(eqn) && !EqnIsMaximal(subsum_list))
       {
-    continue;
+         continue;
       }  */
       pick_list[lcount]++;
       state = PStackGetSP(subst);
@@ -564,11 +564,11 @@ bool eqn_list_rec_subsume_old(Eqn_p subsum_list, Eqn_p sub_cand_list,
       if(SubstMatchComplete(subsum_list->lterm, eqn->rterm, subst, eqn->bank)&&
          SubstMatchComplete(subsum_list->rterm, eqn->lterm, subst, eqn->bank))
       {
-          if(eqn_list_rec_subsume_old(subsum_list->next, sub_cand_list,
-                   subst, pick_list))
-          {
-             return true;
-          }
+         if(eqn_list_rec_subsume_old(subsum_list->next, sub_cand_list,
+                  subst, pick_list))
+         {
+            return true;
+         }
       }
       SubstBacktrackToPos(subst, state);
       pick_list[lcount]--;
@@ -705,7 +705,6 @@ static bool clause_subsumes_clause(Clause_p subsumer, Clause_p
       PERF_CTR_EXIT(SubsumeTimer);
       return UnitClauseSubsumesClause(subsumer, sub_candidate);
    }
-   
    /*fprintf(stderr, "# sub_candidate:");ClausePrint(stderr, sub_candidate, true);
    fprintf(stderr, "\n# subsumer:");ClausePrint(stderr, subsumer, true);
    fprintf(stderr, "\n");*/

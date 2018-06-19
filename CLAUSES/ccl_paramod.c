@@ -635,12 +635,11 @@ Clause_p ClauseOrderedSimParamod(TB_p bank, OCB_p ocb, ClausePos_p
 
    assert(EqnIsMaximal(from->literal));
    assert(!EqnIsOriented(from->literal)||(from->side==LeftSide));
-   // The guards against variable can match only equational literals
-   // is an optimization only in FO case.
+   // In HO case variables might paramodulate into predicate positions
    assert(!TermIsVar(ClausePosGetSide(from))||problemType==PROBLEM_HO||
      EqnIsEquLit(into->literal)||!TermPosIsTopPos(into->pos));
 
-      into_term = ClausePosGetSubterm(into);
+   into_term = ClausePosGetSubterm(into);
 
    if(!TermCellQueryProp(into_term, TPPotentialParamod))
    {
@@ -706,7 +705,7 @@ Clause_p ClauseOrderedSimParamod(TB_p bank, OCB_p ocb, ClausePos_p
                                          unify_res.term_remaining);
       rhs_instance = TBInsertNoProps(bank, tmp_rhs, DEREF_ALWAYS);
 
-      if (unify_res.term_remaining)
+      if(unify_res.term_remaining)
       {
          TermTopFree(tmp_rhs);
          tmp_rhs = NULL;
