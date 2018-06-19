@@ -607,7 +607,7 @@ static void pdtree_forward(PDTree_p tree, Subst_p subst)
          {
             //fprintf(stderr, "Got into next->variable->binding prefix part.\n");
             PStackDiscardTop(tree->term_stack);
-            if (problemType == PROBLEM_HO)
+            if(problemType == PROBLEM_HO)
             {
                PStackPushP(tree->term_proc, term);
                int args_eaten = next->variable->binding->arity - 
@@ -666,12 +666,11 @@ static void pdtree_backtrack(PDTree_p tree, Subst_p subst)
          Term_p original_term = PStackPopP(tree->term_proc);
 
          TermLRTraversePrevAppVar(tree->term_stack, original_term, handle->variable);
-         if (handle->bound)
+         if(handle->bound)
          {
             SubstBacktrackSingle(subst);
          }
       }
-      
    }
    else if(handle->parent)
    {
@@ -1290,7 +1289,7 @@ PDTNode_p PDTreeFindNextIndexedLeaf(PDTree_p tree, Subst_p subst)
       else
       {
          pdtree_forward(tree, subst);
-         if (tree->tree_pos && tree->tree_pos->entries)
+         if(tree->tree_pos && tree->tree_pos->entries)
          {
             // take clauses from this node
             break;
@@ -1313,10 +1312,10 @@ PDTNode_p PDTreeFindNextIndexedLeaf(PDTree_p tree, Subst_p subst)
 //
 /----------------------------------------------------------------------*/
 
-MatchInfo_p PDTreeFindNextDemodulator(PDTree_p tree, Subst_p subst)
+MatchRes_p PDTreeFindNextDemodulator(PDTree_p tree, Subst_p subst)
 {
    PTree_p res_cell = NULL;
-   MatchInfo_p mi = MatchInfoAlloc();
+   MatchRes_p mi = MatchResAlloc();
 
    assert(tree->tree_pos);
    while(tree->tree_pos)
@@ -1326,8 +1325,8 @@ MatchInfo_p PDTreeFindNextDemodulator(PDTree_p tree, Subst_p subst)
          res_cell = PTreeTraverseNext(tree->store_stack);
          if(res_cell)
          {
-            mi->trailing_args = PStackGetSP(tree->term_stack);
-            mi->matcher = res_cell->key;
+            mi->remaining_args = PStackGetSP(tree->term_stack);
+            mi->pos = res_cell->key;
             return mi;
          }
          else
@@ -1344,7 +1343,7 @@ MatchInfo_p PDTreeFindNextDemodulator(PDTree_p tree, Subst_p subst)
       }
    }
 
-   MatchInfoFree(mi);
+   MatchResFree(mi);
    return NULL;
 }
 

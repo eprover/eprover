@@ -93,7 +93,7 @@ void print_lvl(FILE* out, int level)
 //
 // Function: print_clauses()
 //
-//   Prints clauses stored in the leaf indented using level.
+//   Prints clauses stored in the leaf indented with level.
 //
 // Global Variables: -
 //
@@ -124,7 +124,7 @@ void print_clauses(FILE* out, PTree_p clauses, int level, bool fullterms)
 //
 // Global Variables: -
 //
-// Side Effects    : -
+// Side Effects    : Output
 //
 /----------------------------------------------------------------------*/
 
@@ -558,7 +558,7 @@ FVPackedClause_p FVIndexPackClause(Clause_p clause, FVIAnchor_p anchor)
 //
 // Global Variables: -
 //
-// Side Effects    : -
+// Side Effects    : Output
 //
 /----------------------------------------------------------------------*/
 

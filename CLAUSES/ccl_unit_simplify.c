@@ -84,10 +84,10 @@ SimplifyRes FindTopSimplifyingUnit(ClauseSet_p units, Term_p t1,
 
    PDTreeSearchInit(units->demod_index, t1, PDTREE_IGNORE_NF_DATE, false);
 
-   MatchInfo_p mi;
+   MatchRes_p mi;
    while((mi = PDTreeFindNextDemodulator(units->demod_index, subst)))
    {
-      pos = mi->matcher;
+      pos = mi->pos;
 
       if((remains = SubstMatchPossiblyPartial(ClausePosGetOtherSide(pos), t2, subst, units->demod_index->bank)) 
             != NOT_MATCHED)
@@ -95,10 +95,10 @@ SimplifyRes FindTopSimplifyingUnit(ClauseSet_p units, Term_p t1,
         // if the problem is not HO, we match completely.
         assert(!(problemType == PROBLEM_FO) || remains == 0);
         assert(pos->clause->set == units);
-        assert(remains = mi->trailing_args);
+        assert(remains = mi->remaining_args);
         remains = problemType == PROBLEM_FO ? 0 : remains;
         res = (SimplifyRes){.pos = pos, .remaining_args = remains};
-        MatchInfoFree(mi);
+        MatchResFree(mi);
         break;
       }
    }
@@ -134,10 +134,10 @@ SimplifyRes FindSignedTopSimplifyingUnit(ClauseSet_p units, Term_p t1,
 
    PDTreeSearchInit(units->demod_index, t1, PDTREE_IGNORE_NF_DATE, false);
 
-   MatchInfo_p mi;
+   MatchRes_p mi;
    while((mi = PDTreeFindNextDemodulator(units->demod_index, subst)))
    {
-      pos = mi->matcher;
+      pos = mi->pos;
       //Sig_p sig = pos->literal->bank->sig;
       TB_p bank = units->demod_index->bank;
       if(EQUIV(EqnIsPositive(pos->literal), sign)
@@ -147,13 +147,13 @@ SimplifyRes FindSignedTopSimplifyingUnit(ClauseSet_p units, Term_p t1,
         // if the problem is not HO, we match completely.
         assert(!(problemType == PROBLEM_FO) || remains == 0);
         assert(pos->clause->set == units);
-        assert(remains == mi->trailing_args);
+        assert(remains == mi->remaining_args);
         remains = problemType == PROBLEM_FO ? 0 : remains;
         res = (SimplifyRes){.pos = pos, .remaining_args = remains};
-        MatchInfoFree(mi);
+        MatchResFree(mi);
         break;
       }
-      MatchInfoFree(mi);
+      MatchResFree(mi);
    }
    PDTreeSearchExit(units->demod_index);
    SubstDelete(subst);
@@ -174,20 +174,20 @@ SimplifyRes FindSignedTopSimplifyingUnit(ClauseSet_p units, Term_p t1,
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
-__inline__ SimplifyRes RemainingArgsSame(Term_p t1, Term_p t2, SimplifyRes res)
+__inline__ bool RemainingArgsSame(Term_p t1, Term_p t2, SimplifyRes *res)
 {
-   int remains = res.remaining_args;
+   int remains = res->remaining_args;
    assert(problemType != PROBLEM_FO || !remains);
    while(remains)
    {
       if(t1->args[t1->arity - remains] != t2->args[t2->arity - remains])
       {
-         return SIMPLIFY_FAILED;
+         return false;
       }
       remains --;
    }
-   assert(!SimplifyFailed(res));
-   return res;
+   assert(!SimplifyFailed(*res));
+   return true;
 }
 
 
@@ -222,7 +222,7 @@ SimplifyRes FindSimplifyingUnit(ClauseSet_p set, Term_p t1, Term_p t2,
    
    if(!SimplifyFailed(res))
    {
-      return RemainingArgsSame(t1, t2, res);
+      return RemainingArgsSame(t1, t2, &res) ? res : SIMPLIFY_FAILED;
    }
 
    while(SimplifyFailed(res))
@@ -237,17 +237,17 @@ SimplifyRes FindSimplifyingUnit(ClauseSet_p set, Term_p t1, Term_p t2,
       assert(t1!=t2);
       for(i=0; i<t1->arity; i++)
       {
-        if(t1->args[i] != t2->args[i])
-        {
-           if(tmp1)
-           {
-              tmp2 = NULL; /* Signal that more than one conflict
-                    exists */
-              break;
-           }
-           tmp1 = t1->args[i];
-           tmp2 = t2->args[i];
-        }
+         if(t1->args[i] != t2->args[i])
+         {
+            if(tmp1)
+            {
+               tmp2 = NULL; /* Signal that more than one conflict
+                     exists */
+               break;
+            }
+            tmp1 = t1->args[i];
+            tmp2 = t2->args[i];
+         }
       }
       if(!tmp2)
       {
@@ -258,7 +258,7 @@ SimplifyRes FindSimplifyingUnit(ClauseSet_p set, Term_p t1, Term_p t2,
       res = FindSignedTopSimplifyingUnit(set, t1, t2, true);
       if(problemType == PROBLEM_HO && !SimplifyFailed(res))
       {
-         return RemainingArgsSame(t1, t2, res);
+         return RemainingArgsSame(t1, t2, &res) ? res : SIMPLIFY_FAILED;
       }
    }
    return res;

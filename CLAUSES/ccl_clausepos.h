@@ -43,7 +43,10 @@ typedef struct clauseposcell
    TermPos_p pos;
 }ClausePosCell, *ClausePos_p;
 
-
+typedef struct match_info_cell {
+  int remaining_args;
+  ClausePos_p pos;
+}MatchResCell, *MatchRes_p;
 
 /*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */
@@ -52,6 +55,9 @@ typedef struct clauseposcell
 
 #define ClausePosCellAlloc() (ClausePosCell*)SizeMalloc(sizeof(ClausePosCell))
 #define ClausePosCellFree(junk)         SizeFree(junk, sizeof(ClausePosCell))
+
+#define MatchResAlloc()      (MatchRes_p) SizeMalloc(sizeof(MatchResCell))
+#define MatchResFree(junk)   SizeFree(junk, sizeof(MatchResCell))
 
 #ifdef CONSTANT_MEM_ESTIMATE
 #define CLAUSEPOSCELL_MEM 20
