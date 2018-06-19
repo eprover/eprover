@@ -50,6 +50,7 @@ TB_p bank;
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
+
 static __inline__ void register_new_cache(Term_p app_var, Term_p bound_to)
 {
    assert(TermIsAppliedVar(app_var));
@@ -186,6 +187,7 @@ __inline__ Term_p applied_var_deref(Term_p orig)
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
+
 void ClearStaleCache(Term_p app_var)
 {
    assert(TermIsAppliedVar(app_var));
@@ -803,6 +805,7 @@ bool TermIsPrefix(Term_p needle, Term_p haystack)
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
+
 __inline__ Term_p MakeRewrittenTerm(Term_p orig, Term_p new, int remaining_orig)
 {  
    if(remaining_orig)

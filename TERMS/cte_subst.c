@@ -408,7 +408,7 @@ void SubstCompleteInstance(Subst_p subst, Term_p term,
 
 /*-----------------------------------------------------------------------
 //
-// Function: SubstCompleteInstance()
+// Function: SubstBindAppVar()
 //
 //   Bind variable var to prefix of term to_bind with up_to arguments
 //   eaten. Prefix will potentially be created (if it is a proper 

@@ -1599,7 +1599,7 @@ void SigParseTFFTypeDeclaration(Scanner_p in, Sig_p sig)
    }
    else
    {
-      if (TypeIsArrow(type))
+      if(TypeIsArrow(type))
       {
          TypeBankDefineTypeConstructor(sig->type_bank, DStrView(id), type->arity-1);
       }

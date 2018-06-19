@@ -347,7 +347,7 @@ int SubstComputeMatchHO(Term_p matcher, Term_p to_match, Subst_p subst, TB_p ban
       {
          Term_p var = TermIsAppliedVar(matcher) ? matcher->args[0] : matcher;
 
-         if (var->binding)
+         if(var->binding)
          {
             if(TermIsPrefix(var->binding, to_match))
             {

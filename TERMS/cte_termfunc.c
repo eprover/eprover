@@ -186,6 +186,7 @@ static Term_p term_check_consistency_rek(Term_p term, PTree_p *branch,
 // Side Effects    : Memory operations
 //
 /----------------------------------------------------------------------*/
+
 Term_p discard_last(Term_p term)
 {
    assert(ARG_NUM(term));
@@ -890,7 +891,9 @@ bool TermStructEqualDeref(Term_p t1, Term_p t2, DerefType deref_1, DerefType der
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
-bool TermStructPrefixEqual(Term_p l, Term_p r, DerefType d_l, DerefType d_r, int remaining, Sig_p sig)
+
+bool TermStructPrefixEqual(Term_p l, Term_p r, DerefType d_l, DerefType d_r,
+                           int remaining, Sig_p sig)
 {
    bool res = true;
    if(remaining == 0)
