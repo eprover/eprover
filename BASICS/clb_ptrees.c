@@ -835,7 +835,7 @@ AVL_TRAVERSE_DEFINITION(PTree, PTree_p)
 //
 // Global Variables: -
 //
-// Side Effects    : Memory operations.
+// Side Effects    : -
 //
 /----------------------------------------------------------------------*/
 

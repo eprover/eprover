@@ -2663,7 +2663,7 @@ bool ClauseIsUntyped(Clause_p clause)
 //
 // Global Variables: -
 //
-// Side Effects    : Memory operations
+// Side Effects    : -
 //
 /----------------------------------------------------------------------*/
 

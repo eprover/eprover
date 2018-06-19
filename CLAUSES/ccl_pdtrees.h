@@ -78,7 +78,7 @@ typedef struct pdt_node_cell
                   symbol alternative, i is
                   variable i. */
   bool                leaf;   /* In HO inner nodes can store clauses,
-                                 so we mark leaves explicitly */
+                                 so we mark leaves explicitly -- an optimization */
 }PDTNodeCell, *PDTNode_p;
 
 /* A PDTreeCell is an object encapsulating a PDTree and the necessary
@@ -103,14 +103,9 @@ typedef struct pd_tree_cell
    unsigned  long visited_count; /* How many nodes in the index have
                been visited? */
    TB_p      bank;            /* When we make a prefix term, we want to 
-                                 insert it to bank */
+                                 make it shared */
 }PDTreeCell, *PDTree_p;
 
-
-typedef struct match_info_cell {
-  int trailing_args;
-  ClausePos_p matcher;
-}MatchInfoCell, *MatchInfo_p;
 
 /*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */
@@ -138,8 +133,6 @@ extern unsigned long PDTNodeCounter;
 #define   PDTreeCellAlloc()    (PDTreeCell*)SizeMalloc(sizeof(PDTreeCell))
 #define   PDTreeCellFree(junk) SizeFree(junk, sizeof(PDTreeCell))
 
-#define MatchInfoAlloc()      (MatchInfo_p) SizeMalloc(sizeof(MatchInfoCell))
-#define MatchInfoFree(junk)   SizeFree(junk, sizeof(MatchInfoCell))
 
 #ifdef CONSTANT_MEM_ESTIMATE
 #define PDTREE_CELL_MEM 16
@@ -191,7 +184,7 @@ void      PDTreeSearchExit(PDTree_p tree);
 PDTNode_p PDTreeFindNextIndexedLeaf(PDTree_p tree, Subst_p subst);
 
 
-MatchInfo_p PDTreeFindNextDemodulator(PDTree_p tree, Subst_p subst);
+MatchRes_p PDTreeFindNextDemodulator(PDTree_p tree, Subst_p subst);
 
 void PDTreePrint(FILE* out, PDTree_p tree);
 
