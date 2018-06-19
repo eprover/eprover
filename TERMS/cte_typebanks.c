@@ -461,6 +461,7 @@ TypeConsCode TypeBankDefineTypeConstructor(TypeBank_p bank, const char* name, in
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
+
 TypeConsCode TypeBankDefineSimpleSort(TypeBank_p bank, const char* name)
 {
    assert(bank);
@@ -479,6 +480,7 @@ TypeConsCode TypeBankDefineSimpleSort(TypeBank_p bank, const char* name)
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
+
 TypeConsCode TypeBankFindTCCode(TypeBank_p bank, const char* name)
 {
    assert(bank);
@@ -500,6 +502,7 @@ TypeConsCode TypeBankFindTCCode(TypeBank_p bank, const char* name)
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
+
 int TypeBankFindTCArity(TypeBank_p bank, TypeConsCode tc_code)
 {
    assert(tc_code != INVALID_TYPE_UID && tc_code < PStackGetSP(bank->back_idx));
@@ -521,6 +524,7 @@ int TypeBankFindTCArity(TypeBank_p bank, TypeConsCode tc_code)
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
+
 const char* TypeBankFindTCName(TypeBank_p bank, TypeConsCode tc_code)
 {
    assert(tc_code != INVALID_TYPE_UID && tc_code < PStackGetSP(bank->back_idx));
@@ -723,6 +727,7 @@ Type_p TypeBankParseType(Scanner_p in, TypeBank_p bank)
 // Side Effects    : writing to output stream
 //
 /----------------------------------------------------------------------*/
+
 void TypePrintTSTP(FILE* out, TypeBank_p bank, Type_p type)
 {
    assert(type);
@@ -795,7 +800,8 @@ void TypePrintTSTP(FILE* out, TypeBank_p bank, Type_p type)
 //
 // Function: TypePrintTSTP()
 //
-//    Changes return type of the given type to new_ret.
+//    Changes return type of the given type to new_ret and returns newly
+//    generated type.
 //    
 //
 // Global Variables: problemType

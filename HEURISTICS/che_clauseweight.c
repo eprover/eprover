@@ -165,7 +165,9 @@ WFCB_p ClauseWeightParse(Scanner_p in, OCB_p ocb, ProofState_p state)
    vweight = ParseInt(in);
    AcceptInpTok(in, Comma);
    pos_multiplier = ParseFloat(in);
+   
    PARSE_OPTIONAL_AV_PENALTY(in, app_var_penalty);
+   
    AcceptInpTok(in, CloseBracket);
 
    return ClauseWeightInit(prio_fun, fweight, vweight,
@@ -251,7 +253,9 @@ WFCB_p LMaxWeightParse(Scanner_p in, OCB_p ocb, ProofState_p state)
    vweight = ParseInt(in);
    AcceptInpTok(in, Comma);
    pos_multiplier = ParseFloat(in);
+   
    PARSE_OPTIONAL_AV_PENALTY(in, app_var_penalty);
+   
    AcceptInpTok(in, CloseBracket);
 
    return LMaxWeightInit(prio_fun, fweight, vweight,
@@ -344,7 +348,9 @@ WFCB_p CMaxWeightParse(Scanner_p in, OCB_p ocb, ProofState_p state)
    vweight = ParseInt(in);
    AcceptInpTok(in, Comma);
    pos_multiplier = ParseFloat(in);
+   
    PARSE_OPTIONAL_AV_PENALTY(in, app_var_penalty);
+   
    AcceptInpTok(in, CloseBracket);
 
    return CMaxWeightInit(prio_fun, fweight, vweight,

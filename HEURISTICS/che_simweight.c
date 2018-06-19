@@ -209,7 +209,9 @@ WFCB_p SimWeightParse(Scanner_p in, OCB_p ocb, ProofState_p state)
    var_term_clash = ParseFloat(in);
    AcceptInpTok(in, Comma);
    term_term_clash = ParseFloat(in);
+   
    PARSE_OPTIONAL_AV_PENALTY(in, app_var_penalty);
+   
    AcceptInpTok(in, CloseBracket);
 
    return SimWeightInit(prio_fun, equal_weight, var_var_clash,
