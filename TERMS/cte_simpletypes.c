@@ -76,6 +76,7 @@ bool arguments_flattened(Type_p t)
 // Side Effects    : 
 //
 /----------------------------------------------------------------------*/
+
 static const char* get_builtin_name(Type_p t)
 {
    assert(!SortIsUserDefined(t->f_code) && !TypeIsArrow(t));
@@ -101,6 +102,11 @@ static const char* get_builtin_name(Type_p t)
 }
 
 
+/*---------------------------------------------------------------------*/
+/*                         Exported Functions                          */
+/*---------------------------------------------------------------------*/
+
+
 /*-----------------------------------------------------------------------
 //
 // Function: TypeCopy()
@@ -112,6 +118,7 @@ static const char* get_builtin_name(Type_p t)
 // Side Effects    : 
 //
 /----------------------------------------------------------------------*/
+
 Type_p  TypeCopy(Type_p orig)
 {
    Type_p handle = TypeAlloc(orig->f_code, orig->arity, TypeArgArrayAlloc(orig->arity));
@@ -135,6 +142,7 @@ Type_p  TypeCopy(Type_p orig)
 // Side Effects    : 
 //
 /----------------------------------------------------------------------*/
+
 void TypeTopFree(Type_p junk)
 {
    SizeFree(junk, sizeof(*junk)); 
@@ -152,6 +160,7 @@ void TypeTopFree(Type_p junk)
 // Side Effects    : 
 //
 /----------------------------------------------------------------------*/
+
 void TypeFree(Type_p junk)
 {
    if(junk->arity)
@@ -178,6 +187,7 @@ void TypeFree(Type_p junk)
 // Side Effects    : 
 //
 /----------------------------------------------------------------------*/
+
 int TypesCmp(Type_p t1, Type_p t2)
 {
    int res = t1->f_code - t2->f_code;
@@ -211,6 +221,7 @@ int TypesCmp(Type_p t1, Type_p t2)
 // Side Effects    : 
 //
 /----------------------------------------------------------------------*/
+
 Type_p FlattenType(Type_p type)
 {
    assert(arguments_flattened(type));
@@ -253,6 +264,7 @@ Type_p FlattenType(Type_p type)
 // Side Effects    : 
 //
 /----------------------------------------------------------------------*/
+
 Type_p GetReturnSort(Type_p type)
 {
    assert(type);
@@ -277,6 +289,7 @@ Type_p GetReturnSort(Type_p type)
 // Side Effects    : 
 //
 /----------------------------------------------------------------------*/
+
 DStr_p TypeAppEncodedName(Type_p type)
 {
    DStr_p name = DStrAlloc();
@@ -307,9 +320,10 @@ DStr_p TypeAppEncodedName(Type_p type)
 // Side Effects    : 
 //
 /----------------------------------------------------------------------*/
+
 __inline__ int TypeGetArgNum(Type_p t)
 {
-  return (TypeIsArrow(t) ? (t)->arity -1 : 0);
+  return (TypeIsArrow(t) ? (t)->arity-1 : 0);
 }
 
 /*-----------------------------------------------------------------------

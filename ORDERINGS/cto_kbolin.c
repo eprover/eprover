@@ -612,11 +612,13 @@ static CompareResult kbolincmp(OCB_p ocb, Term_p s, Term_p t,
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
+
 static CompareResult cmp_arities(Term_p s, Term_p t)
 {
    assert(s->arity != t->arity);
    return s->arity > t->arity ? to_greater : to_lesser;
 }
+
 
 /*-----------------------------------------------------------------------
 //
@@ -629,6 +631,7 @@ static CompareResult cmp_arities(Term_p s, Term_p t)
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
+
 static CompareResult kbolincmp_ho(OCB_p ocb, Term_p s, Term_p t,
                              DerefType deref_s, DerefType deref_t)
 {

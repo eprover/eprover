@@ -369,6 +369,7 @@ static int tb_term_parse_arglist(Scanner_p in, Term_p** arg_anchor,
 // Side Effects    :
 //
 /----------------------------------------------------------------------*/
+
 Term_p normalize_head(Term_p head, Term_p* rest_args, int rest_arity)
 {
    assert(problemType == PROBLEM_HO);
@@ -434,6 +435,7 @@ Term_p normalize_head(Term_p head, Term_p* rest_args, int rest_arity)
 // Side Effects    : Input, memory operations, changes term bank
 //
 /----------------------------------------------------------------------*/
+
 static Term_p make_head(Sig_p sig, const char* f_name)
 {
    Term_p head = TermDefaultCellAlloc();
@@ -464,6 +466,7 @@ static Term_p make_head(Sig_p sig, const char* f_name)
 // Side Effects    : Input, memory operations
 //
 /----------------------------------------------------------------------*/
+
 static Term_p __inline__  parse_one_ho(Scanner_p in, TB_p bank)
 {
    assert(problemType == PROBLEM_HO);
@@ -838,6 +841,7 @@ Term_p TBInsertInstantiatedFO(TB_p bank, Term_p term)
 // Side Effects    : Changes term bank
 //
 /----------------------------------------------------------------------*/
+
 Term_p TBInsertInstantiatedHO(TB_p bank, Term_p term, bool follow_bind)
 {
    int    i;
@@ -1429,6 +1433,7 @@ Term_p TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop)
 // Side Effects    : Input, memory operations, changes termbank.
 //
 /----------------------------------------------------------------------*/
+
 Term_p  TBTermParseRealHO(Scanner_p in, TB_p bank, bool check_symb_prop)
 {
    Term_p  head    = NULL;

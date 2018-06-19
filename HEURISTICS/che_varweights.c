@@ -134,7 +134,9 @@ WFCB_p TPTPTypeWeightParse(Scanner_p in, OCB_p ocb, ProofState_p
    conjecture_multiplier = ParseFloat(in);
    AcceptInpTok(in, Comma);
    hypothesis_multiplier = ParseFloat(in);
+   
    PARSE_OPTIONAL_AV_PENALTY(in, app_var_penalty);
+   
    AcceptInpTok(in, CloseBracket);
 
    return TPTPTypeWeightInit(prio_fun, fweight, vweight, ocb,
@@ -258,7 +260,9 @@ WFCB_p SigWeightParse(Scanner_p in, OCB_p ocb, ProofState_p
    pos_multiplier = ParseFloat(in);
    AcceptInpTok(in, Comma);
    sig_size_multiplier = ParseFloat(in);
+   
    PARSE_OPTIONAL_AV_PENALTY(in, app_var_penalty);
+   
    AcceptInpTok(in, CloseBracket);
 
    return SigWeightInit(prio_fun, fweight, vweight, ocb,
@@ -383,7 +387,9 @@ WFCB_p ProofWeightParse(Scanner_p in, OCB_p ocb, ProofState_p
    proof_size_multiplier = ParseFloat(in);
    AcceptInpTok(in, Comma);
    proof_depth_multiplier = ParseFloat(in);
+   
    PARSE_OPTIONAL_AV_PENALTY(in, app_var_penalty);
+   
    AcceptInpTok(in, CloseBracket);
 
    return ProofWeightInit(prio_fun, fweight, vweight, ocb,
@@ -499,7 +505,9 @@ WFCB_p DepthWeightParse(Scanner_p in, OCB_p ocb, ProofState_p
    pos_multiplier = ParseFloat(in);
    AcceptInpTok(in, Comma);
    term_weight_multiplier = ParseFloat(in);
+   
    PARSE_OPTIONAL_AV_PENALTY(in, app_var_penalty);
+   
    AcceptInpTok(in, CloseBracket);
 
    return DepthWeightInit(prio_fun, fweight, vweight, ocb,
@@ -629,7 +637,9 @@ WFCB_p WeightLessDepthParse(Scanner_p in, OCB_p ocb, ProofState_p
    pos_multiplier = ParseFloat(in);
    AcceptInpTok(in, Comma);
    term_depth_multiplier = ParseFloat(in);
+   
    PARSE_OPTIONAL_AV_PENALTY(in, app_var_penalty);
+   
    AcceptInpTok(in, CloseBracket);
 
    return WeightLessDepthInit(prio_fun, fweight, vweight, ocb,
@@ -756,7 +766,9 @@ WFCB_p NLWeightParse(Scanner_p in, OCB_p ocb, ProofState_p
    max_literal_multiplier = ParseFloat(in);
    AcceptInpTok(in, Comma);
    pos_multiplier = ParseFloat(in);
+   
    PARSE_OPTIONAL_AV_PENALTY(in, app_var_penalty);
+   
    AcceptInpTok(in, CloseBracket);
 
    return NLWeightInit(prio_fun, fweight, vlweight, vweight, ocb,
@@ -868,7 +880,9 @@ WFCB_p PNRefinedWeightParse(Scanner_p in, OCB_p ocb, ProofState_p
    max_literal_multiplier = ParseFloat(in);
    AcceptInpTok(in, Comma);
    pos_multiplier = ParseFloat(in);
+   
    PARSE_OPTIONAL_AV_PENALTY(in, app_var_penalty);
+   
    AcceptInpTok(in, CloseBracket);
 
    return PNRefinedWeightInit(prio_fun, fweight, vweight, nfweight,
@@ -992,7 +1006,9 @@ WFCB_p SymTypeWeightParse(Scanner_p in, OCB_p ocb, ProofState_p state)
    max_literal_multiplier = ParseFloat(in);
    AcceptInpTok(in, Comma);
    pos_multiplier = ParseFloat(in);
+   
    PARSE_OPTIONAL_AV_PENALTY(in, app_var_penalty);
+   
    AcceptInpTok(in, CloseBracket);
 
    return SymTypeWeightInit(prio_fun, fweight, vweight, cweight,
@@ -1091,7 +1107,9 @@ WFCB_p ClauseWeightAgeParse(Scanner_p in, OCB_p ocb, ProofState_p state)
    pos_multiplier = ParseFloat(in);
    AcceptInpTok(in, Comma);
    weight_multiplier = ParseFloat(in);
+   
    PARSE_OPTIONAL_AV_PENALTY(in, app_var_penalty);
+   
    AcceptInpTok(in, CloseBracket);
 
    return ClauseWeightAgeInit(prio_fun, fweight, vweight,
