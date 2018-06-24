@@ -28,7 +28,6 @@ Contents
 
 
 
-
 /*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
@@ -36,7 +35,7 @@ Contents
 /* git tag E-2.1pre016 */
 
 
-#define PVERSION      "2.1pre016"
+#define PVERSION      "2.1"
 
 #ifdef NDEBUG
 #define VERSION PVERSION
