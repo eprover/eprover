@@ -1607,19 +1607,15 @@ provers go). E has won the "overall best system" special award at
 CASC-J5 and the CNF category at CASC-23. It scored good placements at
 CASC-25 and CASC-J7 and is used a component in several other systems.
 
-E 2.0 features a number of improvements. The most significant change
-is support for many-sorted first-order logic, i.e. the TPTP-3 TFF
-(typed first-order form) syntax. Thanks to Simon Cruanes for making
-that possible.
+E 2.1 features a number of improvements. The most significant changes
+are more robust TFF support and an experimental integration of
+PicoSAT.
 
 Other changes include:
 
-- Improved clausification - the new algorithm can handle long and deep
-  quantifier prefixes more efficiently.
-- Input clauses and formulas keep their TPTP names in the proof
-  object.
-- More faithful modelling of Set-of-Support semantics for the
-  SimulateSOS priority function
+- Changed workflow for unprocessed clauses to enable
+  batch-evaluation
+- Improved automatic modes
 - Various internal improvements and cleanups.
 
 E is available as a source distribution for UNIX-variants.
