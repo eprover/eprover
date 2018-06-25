@@ -32,7 +32,7 @@ Contents
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-/* git tag E-2.1pre016 */
+/* git tag E-2.1 */
 
 
 #define PVERSION      "2.1"
