@@ -181,8 +181,6 @@ documentation:
 
 man: E
 	mkdir -p DOC/man
-	help2man -N -i DOC/bug_reporting PROVER/eproof       > DOC/man/eproof.1
-	help2man -N -i DOC/bug_reporting PROVER/eproof_ram   > DOC/man/eproof_ram.1
 	help2man -N -i DOC/bug_reporting PROVER/eprover      > DOC/man/eprover.1
 	help2man -N -i DOC/bug_reporting PROVER/e_stratpar   > DOC/man/e_stratpar.1
 	help2man -N -i DOC/bug_reporting PROVER/eground      > DOC/man/eground.1
