@@ -32,10 +32,10 @@ Contents
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-/* git tag E-2.1 */
+/* git tag E-2.2pre001 */
 
 
-#define PVERSION      "2.1"
+#define PVERSION      "2.2pre001"
 
 #ifdef NDEBUG
 #define VERSION PVERSION
@@ -43,7 +43,7 @@ Contents
 #define VERSION PVERSION "-DEBUG"
 #endif
 
-#define E_NICKNAME     "Maharani Hills"
+#define E_NICKNAME     "Thurbo Moonlight"
 
 #define E_URL "http://www.eprover.org"
 

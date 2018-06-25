@@ -175,7 +175,6 @@ def extract_opt_arg(line, mopt, opt):
 
     m = arg_term.search(l[1:])
     res = l[1:m.start()]
-    print res
     return res
 
 

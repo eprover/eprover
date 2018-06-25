@@ -31,14 +31,15 @@ def extract_arg(line, mopt):
 
 def extract_opt_arg(line, mopt, opt):
     l = line[mopt.end():]
+    # print "extract_opt_arg(", line, ") l=", l
     if len(l)==0:
         return opt
-    if l[0]=="=":
+    if l[0]!="=":
         return opt
 
     m = arg_term.search(l[1:])
-    res = l[1:m.start()]
-    print res
+    res = l[1:m.start()+1]
+    #print "extract_opt_arg(",line, opt, ") =>", res
     return res
 
 
@@ -289,7 +290,9 @@ def parse_control_info(line):
 
     m = match_satcheck.search(line)
     if m:
+        # print "XXXXX"
         arg = extract_opt_arg(line, m, "FirstConst")
+        # print "YYYY", arg
         res = res+ "      control->heuristic_parms.sat_check_grounding="+sat_trans[arg]+";\n"
     m = match_sat_norm_const.search(line)
     if m:

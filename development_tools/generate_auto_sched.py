@@ -138,6 +138,11 @@ class ClassPerf(object):
                 res = i.getName()
         return res, solutions
 
+    def getSortedStrats(self):
+        l = []
+        for x in self.strats.values():
+            l.append(x)
+        return sorted(l, key=lambda x: x.getPerf())
 
 
 def print_dict_lines(dict):
@@ -535,6 +540,14 @@ itercount = 0;
 
 defined_strats = set()
 
+global_class.computePerf(time_limit, succ_cases)
+best_strats = global_class.getSortedStrats()
+
+print "// best strats: ", best_strats[:5]
+for i in best_strats[:5]:
+    print i.getPerf()
+
+
 for time_limit in time_limits:
     print "# Auto-Schedule iteration %d with time limit %d"\
           %(itercount, time_limit)
@@ -552,6 +565,7 @@ for time_limit in time_limits:
     used    = set()
 
     used.add(global_best)
+
 
     for i in classlist:
         perf = classdata[i]

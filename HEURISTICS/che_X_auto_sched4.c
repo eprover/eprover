@@ -374,7 +374,7 @@
 /* CLASS_G-PS-FFMM32-M : protocol_G-E--_300_C18_F1_SE_CS_SP_PS_S0Y.csv 0    */
 /* CLASS_H-SM-FFMM21-D : protocol_G-E--_300_C18_F1_SE_CS_SP_PS_S0Y.csv 0    */
 /* CLASS_H-NS-FFMM32-M : protocol_G-E--_300_C18_F1_SE_CS_SP_PS_S0Y.csv 0    */
-/* CLASS_G-SM-FSLM33-D : protocol_G-E--_300_C18_F1_SE_CS_SP_PS_S0Y.csv 0    */
+/* CLASS_G-SM-FSLM33-D : protocol_G-E--_300_C18_F1_SE_CS_SP_PS_S0Y.csv 1    */
 /* CLASS_G-PS-FFMF22-S : protocol_G-E--_300_C18_F1_SE_CS_SP_PS_S0Y.csv 0    */
 /* CLASS_G-SS-FFSF22-S : protocol_G-E--_300_C18_F1_SE_CS_SP_PS_S0Y.csv 0    */
 /* CLASS_G-NS-FFSF22-S : protocol_G-E--_300_C18_F1_SE_CS_SP_PS_S0Y.csv 0    */
@@ -5411,7 +5411,7 @@
        SpecAvgFArity2(spec)&&
        SpecMediumMaxDepth(spec))
        ||
-      ( /* CLASS_G-SM-FSLM33-D Solved: 0 of 348 */
+      ( /* CLASS_G-SM-FSLM33-D Solved: 1 of 348 */
        SpecAxiomsAreGeneral(spec)&&
        SpecSomeEq(spec)&&
        SpecManyNGPosUnits(spec)&&
@@ -10358,7 +10358,7 @@
    }
 #endif
 
-/* Total solutions on test set: 16 */
+/* Total solutions on test set: 17 */
 /* -------------------------------------------------------*/
 /*     End of automatically generated code.               */
 /* -------------------------------------------------------*/
