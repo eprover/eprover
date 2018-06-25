@@ -183,6 +183,7 @@ bool ClauseUnfoldEqDef(Clause_p clause, ClausePos_p demod)
    bool res = false;
    PStack_p pos_stack = PStackAlloc();
    Eqn_p handle;
+   PStackPointer i;
 
    for(handle = clause->literals; handle; handle = handle->next)
    {
@@ -195,17 +196,13 @@ bool ClauseUnfoldEqDef(Clause_p clause, ClausePos_p demod)
 
       if(ClauseQueryTPTPType(demod->clause) == CPTypeConjecture)
       {
-    ClauseSetTPTPType(clause, CPTypeConjecture);
+         ClauseSetTPTPType(clause, CPTypeConjecture);
       }
       DocClauseEqUnfold(GlobalOut, OutputLevel, clause, demod,
-         pos_stack);
-      if(BuildProofObject)
+                        pos_stack);
+      for(i=0; i<PStackGetSP(pos_stack); i++)
       {
-         PStackPointer i;
-         for(i=0; i<PStackGetSP(pos_stack); i++)
-         {
-            ClausePushDerivation(clause, DCUnfold, demod->clause, NULL);
-         }
+         ClausePushDerivation(clause, DCUnfold, demod->clause, NULL);
       }
    }
    PStackFree(pos_stack);
@@ -277,14 +274,7 @@ long ClauseSetUnfoldAllEqDefs(ClauseSet_p set, ClauseSet_p passive,
          {
             ClauseSetUnfoldEqDef(passive, demod);
          }
-         if(BuildProofObject)
-         {
-            ClauseSetInsert(archive, demod->clause);
-         }
-         else
-         {
-            ClauseFree(demod->clause);
-         }
+         ClauseSetInsert(archive, demod->clause);
          res++;
       }
       ClausePosCellFree(demod);

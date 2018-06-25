@@ -569,18 +569,12 @@ long FormulaSetCNF(FormulaSet_p set, FormulaSet_p archive,
       handle = FormulaSetExtractFirst(set);
       // WFormulaPrint(stdout, handle, true);
       // fprintf(stdout, "\n");
-      if(BuildProofObject)
-      {
-         form = WFormulaFlatCopy(handle);
-         FormulaSetInsert(archive, handle);
-         WFormulaPushDerivation(form, DCFofQuote, handle, NULL);
-         handle = form;
-      }
+      form = WFormulaFlatCopy(handle);
+      FormulaSetInsert(archive, handle);
+      WFormulaPushDerivation(form, DCFofQuote, handle, NULL);
+      handle = form;
       res += WFormulaCNF(handle,clauseset, terms, fresh_vars);
-      if(BuildProofObject)
-      {
-         FormulaSetInsert(archive, handle);
-      }
+      FormulaSetInsert(archive, handle);
       if(handle->tformula &&
          (TBNonVarTermNodes(terms)>gc_threshold))
       {
@@ -588,10 +582,6 @@ long FormulaSetCNF(FormulaSet_p set, FormulaSet_p archive,
          GCCollect(gc);
          old_nodes = TBNonVarTermNodes(terms);
          gc_threshold = old_nodes*TFORMULA_GC_LIMIT;
-      }
-      if(!BuildProofObject)
-      {
-         WFormulaFree(handle);
       }
    }
    if(TBNonVarTermNodes(terms)!=old_nodes)
@@ -633,19 +623,13 @@ long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive,
       handle = FormulaSetExtractFirst(set);
       //WFormulaPrint(stdout, handle, true);
       //fprintf(stdout, "\n");
-      if(BuildProofObject)
-      {
-         form = WFormulaFlatCopy(handle);
-         FormulaSetInsert(archive, handle);
-         WFormulaPushDerivation(form, DCFofQuote, handle, NULL);
-         handle = form;
-      }
+      form = WFormulaFlatCopy(handle);
+      FormulaSetInsert(archive, handle);
+      WFormulaPushDerivation(form, DCFofQuote, handle, NULL);
+      handle = form;
       res += WFormulaCNF2(handle,clauseset, terms, fresh_vars,
                           miniscope_limit);
-      if(BuildProofObject)
-      {
-         FormulaSetInsert(archive, handle);
-      }
+      FormulaSetInsert(archive, handle);
       if(handle->tformula &&
          (TBNonVarTermNodes(terms)>gc_threshold))
       {
@@ -653,10 +637,6 @@ long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive,
          GCCollect(gc);
          old_nodes = TBNonVarTermNodes(terms);
          gc_threshold = old_nodes*TFORMULA_GC_LIMIT;
-      }
-      if(!BuildProofObject)
-      {
-         WFormulaFree(handle);
       }
    }
    if(TBNonVarTermNodes(terms)!=old_nodes)
@@ -983,8 +963,7 @@ long TFormulaApplyDefs(WFormula_p form, TB_p terms, NumXTree_p *defs)
 //    vals[1].p_val is a pointer to the defined predicate term.
 //    vals[2].i_val is the id of the real definition used to protect
 //                  the definition to be applied to itself.
-//    vals[3].p_val is a pointer to the polarity 0 definition (only if
-//                  BuildProofObject is true)
+//    vals[3].p_val is a pointer to the polarity 0 definition
 //
 // Global Variables: -
 //
@@ -1049,10 +1028,7 @@ long TFormulaSetIntroduceDefs(FormulaSet_p set, FormulaSet_p archive, TB_p terms
          cell->vals[2].i_val = c_def->ident; /* ..and this is the
                                                 blocking id of the actual
                                                 definition.*/
-         if(BuildProofObject)
-         {
-            WFormulaPushDerivation(c_def, DCSplitEquiv, arch_form, NULL);
-         }
+         WFormulaPushDerivation(c_def, DCSplitEquiv, arch_form, NULL);
          FormulaSetInsert(set, c_def);
          WFormulaFree(w_def);
       }

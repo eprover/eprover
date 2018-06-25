@@ -181,7 +181,7 @@ typedef struct derivation_cell
 /*---------------------------------------------------------------------*/
 
 
-extern ProofObjectType BuildProofObject;
+extern ProofObjectType PrintProofObject;
 extern bool            ProofObjectRecordsGCSelection;
 
 

@@ -87,7 +87,7 @@ fulldistrib: man documentation cleandist default_config
 	@cd ..; $(TAR) cf - $(PROJECT)|$(GZIP) - -c > $(PROJECT)_FULL.tgz
 
 # Build StarExec package. This is not supposed to be super-portable
-# StarExec runs all binaries from its local bin/, so we cheat+
+# StarExec runs all binaries from its local bin/, so we cheat
 
 starexec:
 	echo $(STAREXECPATH)

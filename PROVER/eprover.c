@@ -426,10 +426,7 @@ int main(int argc, char* argv[])
    {
       proofstate->state_is_complete = false;
    }
-   if(BuildProofObject)
-   {
-      FormulaSetArchive(proofstate->f_axioms, proofstate->f_ax_archive);
-   }
+   FormulaSetArchive(proofstate->f_axioms, proofstate->f_ax_archive);
    //printf("Alive (-2)!\n");
    if((neg_conjectures =
        FormulaSetPreprocConjectures(proofstate->f_axioms,
@@ -473,13 +470,10 @@ int main(int argc, char* argv[])
 
    if(!no_preproc)
    {
-      if(BuildProofObject)
+      ClauseSetArchive(proofstate->ax_archive, proofstate->axioms);
+      if(proofstate->watchlist)
       {
-         ClauseSetArchive(proofstate->ax_archive, proofstate->axioms);
-         if(proofstate->watchlist)
-         {
-            ClauseSetArchive(proofstate->ax_archive, proofstate->watchlist);
-         }
+         ClauseSetArchive(proofstate->ax_archive, proofstate->watchlist);
       }
       preproc_removed = ClauseSetPreprocess(proofstate->axioms,
                                             proofstate->watchlist,
@@ -570,7 +564,7 @@ int main(int argc, char* argv[])
          proofstate->status_reported = true;
          retval = PROOF_FOUND;
       }
-      if(BuildProofObject)
+      if(PrintProofObject)
       {
          if(print_full_deriv)
          {
@@ -672,7 +666,7 @@ int main(int argc, char* argv[])
          }
          retval = RESOURCE_OUT;
       }
-      if(BuildProofObject &&
+      if(PrintProofObject &&
          (((retval!=INCOMPLETE_PROOFSTATE)&&
            (retval!=RESOURCE_OUT))
           |force_deriv_output))
@@ -864,12 +858,12 @@ CLState_p process_options(int argc, char* argv[])
             OutputLevel = CLStateGetIntArg(handle, arg);
             break;
       case OPT_PROOF_OBJECT:
-            BuildProofObject = MAX(CLStateGetIntArgCheckRange(handle, arg, 0, 3),
-                                   BuildProofObject);
+            PrintProofObject = MAX(CLStateGetIntArgCheckRange(handle, arg, 0, 3),
+                                   PrintProofObject);
             print_derivation = POList;
             break;
       case OPT_PROOF_GRAPH:
-            BuildProofObject = MAX(1, BuildProofObject);
+            PrintProofObject = MAX(1, PrintProofObject);
             print_derivation = CLStateGetIntArg(handle, arg)+1;
             break;
       case OPT_FULL_DERIV:
@@ -877,14 +871,14 @@ CLState_p process_options(int argc, char* argv[])
             break;
       case OPT_FORCE_DERIV:
             force_deriv_output = CLStateGetIntArgCheckRange(handle, arg, 0, 2);
-            BuildProofObject = MAX(1, BuildProofObject);
+            PrintProofObject = MAX(1, PrintProofObject);
             break;
       case OPT_RECORD_GIVEN_CLAUSES:
-            BuildProofObject = MAX(1, BuildProofObject);
+            PrintProofObject = MAX(1, PrintProofObject);
             ProofObjectRecordsGCSelection = true;
             break;
       case OPT_TRAINING:
-            BuildProofObject = MAX(1, BuildProofObject);
+            PrintProofObject = MAX(1, PrintProofObject);
             ProofObjectRecordsGCSelection = true;
             proc_training_data = CLStateGetIntArg(handle, arg);
             break;

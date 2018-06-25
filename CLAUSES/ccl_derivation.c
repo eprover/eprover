@@ -29,7 +29,7 @@ Changes
 /*                        Global Variables                             */
 /*---------------------------------------------------------------------*/
 
-ProofObjectType BuildProofObject = 0;
+ProofObjectType PrintProofObject = 0;
 bool            ProofObjectRecordsGCSelection = false;
 
 char *opids[] =
@@ -494,7 +494,7 @@ void DerivedSetInProof(Derived_p derived, bool in_proof)
 //   Push the derivation items (op-code and suitable number of
 //   arguments) onto the derivation stack.
 //
-// Global Variables: BuildProofObject
+// Global Variables:
 //
 // Side Effects    : May allocate new derivation stack.
 //
@@ -503,24 +503,21 @@ void DerivedSetInProof(Derived_p derived, bool in_proof)
 void ClausePushDerivation(Clause_p clause, DerivationCodes op,
                           void* arg1, void* arg2)
 {
-   if(BuildProofObject)
+   assert(clause);
+   assert(op);
+
+   CLAUSE_ENSURE_DERIVATION(clause);
+   assert(DCOpHasCnfArg1(op)||DCOpHasFofArg1(op)||!arg1);
+   assert(DCOpHasCnfArg2(op)||DCOpHasFofArg2(op)||!arg2);
+   assert(DCOpHasCnfArg1(op)||!DCOpHasCnfArg2(op));
+
+   PStackPushInt(clause->derivation, op);
+   if(arg1)
    {
-      assert(clause);
-      assert(op);
-
-      CLAUSE_ENSURE_DERIVATION(clause);
-      assert(DCOpHasCnfArg1(op)||DCOpHasFofArg1(op)||!arg1);
-      assert(DCOpHasCnfArg2(op)||DCOpHasFofArg2(op)||!arg2);
-      assert(DCOpHasCnfArg1(op)||!DCOpHasCnfArg2(op));
-
-      PStackPushInt(clause->derivation, op);
-      if(arg1)
+      PStackPushP(clause->derivation, arg1);
+      if(arg2)
       {
-         PStackPushP(clause->derivation, arg1);
-         if(arg2)
-         {
-            PStackPushP(clause->derivation, arg2);
-         }
+         PStackPushP(clause->derivation, arg2);
       }
    }
 }
@@ -533,7 +530,7 @@ void ClausePushDerivation(Clause_p clause, DerivationCodes op,
 //   Push the derivation items (op-code and suitable number of
 //   arguments) onto the derivation stack.
 //
-// Global Variables: BuildProofObject
+// Global Variables:
 //
 // Side Effects    : May allocate new derivation stack.
 //
@@ -541,16 +538,13 @@ void ClausePushDerivation(Clause_p clause, DerivationCodes op,
 
 void ClausePushACResDerivation(Clause_p clause, Sig_p sig)
 {
-   if(BuildProofObject)
-   {
-      assert(clause);
+   assert(clause);
 
-      CLAUSE_ENSURE_DERIVATION(clause);
+   CLAUSE_ENSURE_DERIVATION(clause);
 
-      PStackPushInt(clause->derivation, DCACRes);
-      PStackPushInt(clause->derivation, PStackGetSP(sig->ac_axioms));
-      /* printf("Pushed: %d\n", PStackGetSP(sig->ac_axioms)); */
-   }
+   PStackPushInt(clause->derivation, DCACRes);
+   PStackPushInt(clause->derivation, PStackGetSP(sig->ac_axioms));
+   /* printf("Pushed: %d\n", PStackGetSP(sig->ac_axioms)); */
 }
 
 /*-----------------------------------------------------------------------
@@ -560,7 +554,7 @@ void ClausePushACResDerivation(Clause_p clause, Sig_p sig)
 //   Push the derivation items (op-code and suitable number of
 //   arguments) onto the derivation stack.
 //
-// Global Variables: BuildProofObject
+// Global Variables:
 //
 // Side Effects    : May allocate new derivation stack.
 //
@@ -569,27 +563,24 @@ void ClausePushACResDerivation(Clause_p clause, Sig_p sig)
 void WFormulaPushDerivation(WFormula_p form, DerivationCodes op,
                             void* arg1, void* arg2)
 {
-   if(BuildProofObject)
+   assert(form);
+   assert(op);
+
+   if(!form->derivation)
    {
-      assert(form);
-      assert(op);
+      form->derivation = PStackVarAlloc(3);
+   }
+   assert(DCOpHasCnfArg1(op)||DCOpHasFofArg1(op)||!arg1);
+   assert(DCOpHasCnfArg2(op)||DCOpHasFofArg2(op)||!arg2);
+   assert(DCOpHasCnfArg1(op)||!DCOpHasCnfArg2(op));
 
-      if(!form->derivation)
+   PStackPushInt(form->derivation, op);
+   if(arg1)
+   {
+      PStackPushP(form->derivation, arg1);
+      if(arg2)
       {
-         form->derivation = PStackVarAlloc(3);
-      }
-      assert(DCOpHasCnfArg1(op)||DCOpHasFofArg1(op)||!arg1);
-      assert(DCOpHasCnfArg2(op)||DCOpHasFofArg2(op)||!arg2);
-      assert(DCOpHasCnfArg1(op)||!DCOpHasCnfArg2(op));
-
-      PStackPushInt(form->derivation, op);
-      if(arg1)
-      {
-         PStackPushP(form->derivation, arg1);
-         if(arg2)
-         {
-            PStackPushP(form->derivation, arg2);
-         }
+         PStackPushP(form->derivation, arg2);
       }
    }
 }

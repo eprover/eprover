@@ -64,22 +64,17 @@ void ClauseMoveSimplified(GlobalIndices_p gindices,
                           ClauseSet_p tmp_set,
                           ClauseSet_p archive)
 {
+   Clause_p new_clause;
    // printf("# Removing %p from %p: ", clause, clause->set);ClausePrint(stdout, clause, true);printf("\n");
    ClauseKillChildren(clause);
    ClauseSetExtractEntry(clause);
    GlobalIndicesDeleteClause(gindices, clause);
    DocClauseQuoteDefault(6, clause, "simplifiable");
-   if(BuildProofObject||ClauseIsDemodulator(clause))
-   {
-      Clause_p new_clause = ClauseFlatCopy(clause);
-      ClauseSetInsert(archive, clause);
-      ClausePushDerivation(new_clause, DCCnfQuote, clause, NULL);
-      ClauseSetInsert(tmp_set, new_clause);
-   }
-   else
-   {
-      ClauseSetInsert(tmp_set, clause);
-   }
+
+   new_clause = ClauseFlatCopy(clause);
+   ClauseSetInsert(archive, clause);
+   ClausePushDerivation(new_clause, DCCnfQuote, clause, NULL);
+   ClauseSetInsert(tmp_set, new_clause);
 }
 
 
@@ -237,5 +232,3 @@ long RemoveContextualSRClauses(ClauseSet_p from,
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
