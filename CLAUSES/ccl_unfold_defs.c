@@ -226,7 +226,9 @@ bool ClauseUnfoldEqDef(Clause_p clause, ClausePos_p demod)
 bool ClauseSetUnfoldEqDef(ClauseSet_p set, ClausePos_p demod)
 {
    Clause_p handle;
-   bool res = false;
+   bool
+      res = false,
+      demod_is_conj = ClauseIsConjecture(demod->clause);
 
    for(handle = set->anchor->succ;
        handle!=set->anchor;
@@ -236,6 +238,13 @@ bool ClauseSetUnfoldEqDef(ClauseSet_p set, ClausePos_p demod)
       {
          res = true;
          ClauseRemoveSuperfluousLiterals(handle);
+         /* If a non-conjecture clause is rewritten here, we make the
+            result a conjecture - it's the right thing to do for
+            e.g. SoS. */
+         if(demod_is_conj)
+         {
+            ClauseSetTPTPType(handle,CPTypeNegConjecture);
+         }
       }
    }
    return res;
