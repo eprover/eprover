@@ -892,6 +892,7 @@ static Clause_p cleanup_unprocessed_clauses(ProofState_p state,
 /----------------------------------------------------------------------*/
 
 
+
 Clause_p SATCheck(ProofState_p state, ProofControl_p control)
 {
    Clause_p     empty = NULL;
