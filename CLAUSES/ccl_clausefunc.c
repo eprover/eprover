@@ -1,25 +1,24 @@
 /*-----------------------------------------------------------------------
 
-File  : ccl_clausefunc.c
+  File  : ccl_clausefunc.c
 
-Author: Stephan Schulz
+  Author: Stephan Schulz
 
-Contents
+  Contents
 
   Clause functions that need to know about sets.
 
-  Copyright 1998, 1999 by the author.
+  Copyright 1998-2018 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
+  Changes
 
-<1> Tue Aug  7 00:02:44 CEST 2001
-    New, partitioned ccl_clausesets.h
+  Created: New, partitioned ccl_clausesets.h
 
------------------------------------------------------------------------*/
+  -----------------------------------------------------------------------*/
 
 
 #include "ccl_clausefunc.h"
@@ -158,37 +157,6 @@ void ClauseFlipLiteralSign(Clause_p clause, Eqn_p lit)
 
 /*-----------------------------------------------------------------------
 //
-// Function: ClauseKillChildren()
-//
-//   Remove and delete children of a clause.
-//
-// Global Variables: -
-//
-// Side Effects    : Changes term sets
-//
-/----------------------------------------------------------------------*/
-
-void ClauseKillChildren(Clause_p clause)
-{
-   Clause_p current;
-
-   while(clause->children)
-   {
-      current = clause->children->key;
-      assert(clause == current->parent1 || clause == current->parent2);
-      /* printf("ClauseKillChildren(%d) -> %d\n",
-    (int)clause,(int)current); */
-      ClauseDetachParents(current);
-      if(!ClauseQueryProp(current, CPIsProtected))
-      {
-    ClauseSetDeleteEntry(current);
-      }
-   }
-}
-
-
-/*-----------------------------------------------------------------------
-//
 // Function: ClauseRemoveSuperfluousLiterals()
 //
 //   Remove duplicate and trivial negative literals from the
@@ -219,20 +187,20 @@ int ClauseRemoveSuperfluousLiterals(Clause_p clause)
 
       while(handle)
       {
-    if(EqnIsPositive(handle))
-    {
-       clause->pos_lit_no++;
-    }
-    else
-    {
-       clause->neg_lit_no++;
-    }
-    handle = handle->next;
+         if(EqnIsPositive(handle))
+         {
+            clause->pos_lit_no++;
+         }
+         else
+         {
+            clause->neg_lit_no++;
+         }
+         handle = handle->next;
       }
 
       if(clause->set)
       {
-    clause->set->literals-=removed;
+         clause->set->literals-=removed;
       }
    }
    if(removed)
@@ -262,7 +230,7 @@ long ClauseSetRemoveSuperfluousLiterals(ClauseSet_p set)
    long res = 0;
 
    for(handle = set->anchor->succ; handle!=set->anchor; handle =
-     handle->succ)
+          handle->succ)
    {
       res += ClauseRemoveSuperfluousLiterals(handle);
    }
@@ -328,7 +296,7 @@ int ClauseRemoveACResolved(Clause_p clause)
    {
       ClauseDelProp(clause, CPInitial|CPLimitedRW);
       DocClauseModification(GlobalOut, OutputLevel, clause,
-             inf_ac_resolution, NULL, sig, NULL);
+                            inf_ac_resolution, NULL, sig, NULL);
       ClausePushACResDerivation(clause, sig);
    }
    if(clause->set)
@@ -376,7 +344,7 @@ bool ClauseUnitSimplifyTest(Clause_p clause, Clause_p simplifier)
       tmp = EqnIsPositive(*handle);
       if(XOR(positive,tmp)&&EqnSubsumeP(simpl,*handle))
       {
-    return true;
+         return true;
       }
       handle = &((*handle)->next);
    }
@@ -406,9 +374,7 @@ Clause_p ClauseArchive(ClauseSet_p archive, Clause_p clause)
 
    newclause = ClauseFlatCopy(clause);
    ClausePushDerivation(newclause, DCCnfQuote, clause, NULL);
-   ClauseSetInsert(archive, clause);
 
-   ClauseSetProp(clause, CPIsArchived);
    ClauseSetInsert(archive, clause);
 
    return newclause;
@@ -444,7 +410,6 @@ Clause_p ClauseArchiveCopy(ClauseSet_p archive, Clause_p clause)
    clause->info       = NULL;
    clause->derivation = NULL;
    ClausePushDerivation(clause, DCCnfQuote, archclause, NULL);
-   ClauseSetProp(archclause, CPIsArchived);
    ClauseSetInsert(archive, archclause);
 
    return archclause;
@@ -477,6 +442,94 @@ void ClauseSetArchiveCopy(ClauseSet_p archive, ClauseSet_p set)
    {
       ClauseArchiveCopy(archive, handle);
    }
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function:ClauseIsOrphaned()
+//
+//
+//
+// Global Variables:
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+
+bool ClauseIsOrphaned(Clause_p clause)
+{
+   PStackPointer i = 1;
+   DerivationCode op;
+   Clause_p parent;
+
+   //return false;
+   if(!clause->derivation)
+   {
+      return false;
+   }
+   if(PStackEmpty(clause->derivation))
+   {
+      return false;
+   }
+   op = PStackElementInt(clause->derivation, 0);
+
+   if(op==DCCnfQuote)
+   {
+      parent = PStackElementP(clause->derivation, 1);
+      return ClauseIsOrphaned(parent);
+   }
+
+   if(!DCOpIsGenerating(op))
+   {
+      return false;
+   }
+
+   if(DCOpHasCnfArg1(op))
+   {
+      parent = PStackElementP(clause->derivation, 1);
+      if(ClauseQueryProp(parent,CPIsDead))
+      {
+         //printf("\nOrphan 1 %p: ", clause);ClauseTSTPPrint(stdout, clause, true, true); printf("\n");
+         //printf("Parent   %p: ", parent);ClauseTSTPPrint(stdout, parent, true, true); printf("\n");
+         //DerivationStackTSTPPrint(stdout, parent->literals->bank->sig, clause->derivation);
+         //printf("\n");
+         return true;
+      }
+   }
+   if(DCOpHasCnfArg2(op))
+   {
+      parent = PStackElementP(clause->derivation, 2);
+      if(ClauseQueryProp(parent,CPIsDead))
+      {
+         //printf("\nOrphan 2 %p: ", clause);ClauseTSTPPrint(stdout, clause, true, true); printf("\n");
+         //printf("Parent   %p: ", parent);ClauseTSTPPrint(stdout, parent, true, true); printf("\n");
+         //DerivationStackTSTPPrint(stdout, parent->literals->bank->sig, clause->derivation);
+         //printf("\n");
+         return true;
+      }
+   }
+   if(DCOpHasArg1(op))
+   {
+      i++;
+   }
+   if(DCOpHasArg2(op))
+   {
+      i++;
+   }
+   while(i<PStackGetSP(clause->derivation) &&
+         ((op = PStackElementInt(clause->derivation, i))==DCCnfAddArg))
+   {
+      i++;
+      parent = PStackElementP(clause->derivation, i);
+      if(ClauseQueryProp(parent,CPIsDead))
+      {
+         //printf("Orphan %ld: ",i);ClauseTSTPPrint(stdout, clause, true, true); printf("\n");
+         //printf("Parent  : ");ClauseTSTPPrint(stdout, parent, true, true); printf("\n");
+         return true;
+      }
+      i++;
+   }
+   return false;
 }
 
 

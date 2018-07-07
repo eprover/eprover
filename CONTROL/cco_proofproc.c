@@ -139,7 +139,6 @@ static long remove_subsumed(GlobalIndices_p indices,
          DocClauseQuote(GlobalOut, OutputLevel, 6, handle,
                         "subsumed", subsumer->clause);
       }
-      ClauseKillChildren(handle);
       GlobalIndicesDeleteClause(indices, handle);
       ClauseSetExtractEntry(handle);
       ClauseSetInsert(archive, handle);
@@ -647,8 +646,6 @@ static Clause_p insert_new_clauses(ProofState_p state, ProofControl_p control)
 
       if(ClauseIsTrivial(handle))
       {
-         assert(!handle->children);
-         ClauseDetachParents(handle);
          ClauseFree(handle);
          continue;
       }
@@ -1120,9 +1117,6 @@ void ProofStateResetProcessedSet(ProofState_p state,
       {
          GlobalIndicesDeleteClause(&(state->gindices), handle);
       }
-
-      ClauseKillChildren(handle); /* Should be none, but better be safe */
-
       if(ProofObjectRecordsGCSelection)
       {
          ClausePushDerivation(handle, DCCnfEvalGC, NULL, NULL);
@@ -1427,12 +1421,17 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control,
    }
    assert(clause);
 
-   state->processed_count++;
 
    ClauseSetExtractEntry(clause);
-   ClauseSetProp(clause, CPIsProcessed);
-   ClauseDetachParents(clause);
    ClauseRemoveEvaluations(clause);
+
+   if(ClauseIsOrphaned(clause))
+   {
+      ClauseFree(clause);
+      return NULL;
+   }
+   ClauseSetProp(clause, CPIsProcessed);
+   state->processed_count++;
 
    assert(!ClauseQueryProp(clause, CPIsIRVictim));
 

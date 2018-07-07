@@ -12,4 +12,5 @@ sed -e "s/Computer     /% Computer   /" \
 echo -n "% CPULimit   : " ; echo "$STAREXEC_CPU_LIMIT"
 echo -n "% DateTime   : " ; date
 echo "% CPUTime    : "
+export TPTP=/export/starexec/sandbox/benchmark/
 $ecmd

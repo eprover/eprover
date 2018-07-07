@@ -993,10 +993,10 @@ long ClauseSetMarkCopies(ClauseSet_p set)
       if((exists = PTreeObjStore(&store, handle,
                                  ClauseCompareFun)))
       {
-         if(!ClauseParentsAreSubset(exists, handle))
-         {
-            ClauseDetachParents(exists);
-         }
+         //if(!ClauseParentsAreSubset(exists, handle))
+         //{
+         //ClauseDetachParents(exists);
+         //}
          ClauseSetProp(handle, CPDeleteClause);
          res++;
       }
@@ -1038,8 +1038,6 @@ long ClauseSetDeleteMarkedEntries(ClauseSet_p set)
       if(ClauseQueryProp(clause, CPDeleteClause))
       {
          deleted++;
-         ClauseDetachParents(clause); /* If no parents, nothing should
-                                         happen! */
          ClauseSetDeleteEntry(clause);
       }
    }
@@ -1477,7 +1475,6 @@ long ClauseSetFilterTrivial(ClauseSet_p set)
 
       if(ClauseIsTrivial(handle))
       {
-         ClauseDetachParents(handle);
          ClauseSetDeleteEntry(handle);
          count++;
       }
@@ -1517,7 +1514,6 @@ long ClauseSetFilterTautologies(ClauseSet_p set, TB_p work_bank)
 
       if(ClauseIsTautology(work_bank, handle))
       {
-         ClauseDetachParents(handle);
          ClauseSetDeleteEntry(handle);
          count++;
       }

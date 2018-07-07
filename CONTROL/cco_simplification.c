@@ -14,8 +14,6 @@
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-  Changes
-
   Created: Mon Jun  8 14:49:49 MET DST 1998
 
   -----------------------------------------------------------------------*/
@@ -59,7 +57,6 @@
 //
 /----------------------------------------------------------------------*/
 
-
 void ClauseMoveSimplified(GlobalIndices_p gindices,
                           Clause_p clause,
                           ClauseSet_p tmp_set,
@@ -67,12 +64,13 @@ void ClauseMoveSimplified(GlobalIndices_p gindices,
 {
    Clause_p new_clause;
    // printf("# Removing %p from %p: ", clause, clause->set);ClausePrint(stdout, clause, true);printf("\n");
-   ClauseKillChildren(clause);
    GlobalIndicesDeleteClause(gindices, clause);
    DocClauseQuoteDefault(6, clause, "simplifiable");
 
    ClauseSetExtractEntry(clause);
-   new_clause = ClauseArchive(clause);
+   new_clause = ClauseArchive(archive, clause);
+   ClauseSetProp(clause, CPIsDead);
+
    ClauseSetInsert(tmp_set, new_clause);
 }
 
