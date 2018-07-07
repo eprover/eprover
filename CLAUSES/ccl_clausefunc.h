@@ -51,7 +51,8 @@ bool ClauseUnitSimplifyTest(Clause_p clause, Clause_p simplifier);
 int  ClauseCanonCompareRef(const void *clause1ref, const void* clause2ref);
 
 Clause_p ClauseArchive(ClauseSet_p archive, Clause_p clause);
-void     ClauseSetArchive(ClauseSet_p archive, ClauseSet_p set);
+Clause_p ClauseArchiveCopy(ClauseSet_p archive, Clause_p clause);
+void     ClauseSetArchiveCopy(ClauseSet_p archive, ClauseSet_p set);
 
 void PStackClausePrint(FILE* out, PStack_p stack, char* extra);
 
@@ -61,9 +62,3 @@ void PStackClausePrint(FILE* out, PStack_p stack, char* extra);
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
-
-
-
-

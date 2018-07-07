@@ -1438,7 +1438,7 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control,
 
    if(ProofObjectRecordsGCSelection)
    {
-      arch_copy = ClauseArchive(state->archive, clause);
+      arch_copy = ClauseArchiveCopy(state->archive, clause);
    }
 
    if(!(pclause = ForwardContractClause(state, control,

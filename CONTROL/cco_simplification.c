@@ -68,13 +68,11 @@ void ClauseMoveSimplified(GlobalIndices_p gindices,
    Clause_p new_clause;
    // printf("# Removing %p from %p: ", clause, clause->set);ClausePrint(stdout, clause, true);printf("\n");
    ClauseKillChildren(clause);
-   ClauseSetExtractEntry(clause);
    GlobalIndicesDeleteClause(gindices, clause);
    DocClauseQuoteDefault(6, clause, "simplifiable");
 
-   new_clause = ClauseFlatCopy(clause);
-   ClauseSetInsert(archive, clause);
-   ClausePushDerivation(new_clause, DCCnfQuote, clause, NULL);
+   ClauseSetExtractEntry(clause);
+   new_clause = ClauseArchive(clause);
    ClauseSetInsert(tmp_set, new_clause);
 }
 

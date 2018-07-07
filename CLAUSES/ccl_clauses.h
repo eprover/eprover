@@ -41,7 +41,8 @@ typedef enum
    CPInputFormula      = 2*CPInitial,     /* _Really_ initial
                                            * clause/formula in TSTP
                                            * sense */
-   CPIsProcessed       = 2*CPInputFormula, /* Clause has been processed
+   CPIsArchived        = 2*CPInputFormula,/* Clause is archived */
+   CPIsProcessed       = 2*CPIsArchived , /* Clause has been processed
                                             * previously */
    CPIsOriented        = 2*CPIsProcessed, /* Term and literal
                                              comparisons are up to

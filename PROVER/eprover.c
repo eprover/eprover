@@ -470,10 +470,10 @@ int main(int argc, char* argv[])
 
    if(!no_preproc)
    {
-      ClauseSetArchive(proofstate->ax_archive, proofstate->axioms);
+      ClauseSetArchiveCopy(proofstate->ax_archive, proofstate->axioms);
       if(proofstate->watchlist)
       {
-         ClauseSetArchive(proofstate->ax_archive, proofstate->watchlist);
+         ClauseSetArchiveCopy(proofstate->ax_archive, proofstate->watchlist);
       }
       preproc_removed = ClauseSetPreprocess(proofstate->axioms,
                                             proofstate->watchlist,

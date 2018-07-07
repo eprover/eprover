@@ -388,6 +388,37 @@ bool ClauseUnitSimplifyTest(Clause_p clause, Clause_p simplifier)
 //
 // Function: ClauseArchive()
 //
+//   Move clause into the archive. Create a fresh copy pointing to the
+//   old clause in its derivation and return it. Also set the
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+Clause_p ClauseArchive(ClauseSet_p archive, Clause_p clause)
+{
+   Clause_p newclause;
+
+   assert(archive);
+   assert(clause);
+
+   newclause = ClauseFlatCopy(clause);
+   ClausePushDerivation(newclause, DCCnfQuote, clause, NULL);
+   ClauseSetInsert(archive, clause);
+
+   ClauseSetProp(clause, CPIsArchived);
+   ClauseSetInsert(archive, clause);
+
+   return newclause;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseArchiveCopy()
+//
 //   Create an archive copy of clause in archive. The
 //   archive copy inherits info and derivation. The original loses
 //   info, and gets a new derivation that points to the archive
@@ -399,7 +430,7 @@ bool ClauseUnitSimplifyTest(Clause_p clause, Clause_p simplifier)
 //
 /----------------------------------------------------------------------*/
 
-Clause_p ClauseArchive(ClauseSet_p archive, Clause_p clause)
+Clause_p ClauseArchiveCopy(ClauseSet_p archive, Clause_p clause)
 {
    Clause_p archclause;
 
@@ -413,6 +444,7 @@ Clause_p ClauseArchive(ClauseSet_p archive, Clause_p clause)
    clause->info       = NULL;
    clause->derivation = NULL;
    ClausePushDerivation(clause, DCCnfQuote, archclause, NULL);
+   ClauseSetProp(archclause, CPIsArchived);
    ClauseSetInsert(archive, archclause);
 
    return archclause;
@@ -421,7 +453,7 @@ Clause_p ClauseArchive(ClauseSet_p archive, Clause_p clause)
 
 /*-----------------------------------------------------------------------
 //
-// Function: ClauseSetArchive()
+// Function: ClauseSetArchiveCopy()
 //
 //   Create an archive copy of each clause in set in archive. The
 //   archive copy inherits info and derivation. The original loses
@@ -433,7 +465,7 @@ Clause_p ClauseArchive(ClauseSet_p archive, Clause_p clause)
 //
 /----------------------------------------------------------------------*/
 
-void ClauseSetArchive(ClauseSet_p archive, ClauseSet_p set)
+void ClauseSetArchiveCopy(ClauseSet_p archive, ClauseSet_p set)
 {
    Clause_p handle;
 
@@ -443,7 +475,7 @@ void ClauseSetArchive(ClauseSet_p archive, ClauseSet_p set)
    for(handle = set->anchor->succ; handle!= set->anchor;
        handle = handle->succ)
    {
-      ClauseArchive(archive, handle);
+      ClauseArchiveCopy(archive, handle);
    }
 }
 
@@ -483,9 +515,3 @@ void PStackClausePrint(FILE* out, PStack_p stack, char* extra)
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
-
-
-
-
