@@ -122,7 +122,7 @@ links: remove_links
 	@cd PROVER; $(LN) ../CONTRIB/picosat-965/picosat
 
 tags:
-	etags.emacs25 `find . \( -name "*.[ch]" -or -name "*.py" \) -and -not -name "include/*" -and -not -name ".#*"`
+	etags.emacs25 `find . \( -name "*.[ch]" -or -name "*.py" \) -and \( -not -path "*include*" -and -not -name ".#*" \)`
 #ctags-exuberant -e -R .
 # etags */*.c */*.h
 # cd PYTHON; make ptags
