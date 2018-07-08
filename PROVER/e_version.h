@@ -32,10 +32,10 @@ Contents
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-/* git tag E-2.2pre003 */
+/* git tag E-2.2pre005lazyorphan */
 
 
-#define PVERSION      "2.2pre004lazyorphan"
+#define PVERSION      "2.2pre005lazyorphan"
 
 #ifdef NDEBUG
 #define VERSION PVERSION
