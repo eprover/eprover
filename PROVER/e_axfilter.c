@@ -788,7 +788,7 @@ int main(int argc, char* argv[])
    FREE(tname);
 
    ctrl = StructFOFSpecAlloc();
-   StructFOFSpecParseAxioms(ctrl, prob_names, parse_format);
+   StructFOFSpecParseAxioms(ctrl, prob_names, parse_format, NULL);
    StructFOFSpecInitDistrib(ctrl);
    StructFOFSpecResetShared(ctrl);
 

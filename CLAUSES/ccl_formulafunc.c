@@ -665,6 +665,7 @@ long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive,
 //
 /----------------------------------------------------------------------*/
 
+
 long FormulaAndClauseSetParse(Scanner_p in, FormulaSet_p fset,
                               ClauseSet_p wlset, TB_p terms,
                               StrTree_p *name_selector,

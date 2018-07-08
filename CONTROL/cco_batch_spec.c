@@ -469,11 +469,13 @@ BatchSpec_p BatchSpecParse(Scanner_p in, char* executable,
 //
 /----------------------------------------------------------------------*/
 
-long BatchStructFOFSpecInit(BatchSpec_p spec, StructFOFSpec_p ctrl)
+long BatchStructFOFSpecInit(BatchSpec_p spec,
+                            StructFOFSpec_p ctrl,
+                            char *default_dir)
 {
    long res;
 
-   res = StructFOFSpecParseAxioms(ctrl, spec->includes, spec->format);
+   res = StructFOFSpecParseAxioms(ctrl, spec->includes, spec->format, default_dir);
    StructFOFSpecInitDistrib(ctrl);
 
    return res;

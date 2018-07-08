@@ -208,7 +208,7 @@ int main(int argc, char* argv[])
       }
       /* BatchSpecPrint(stdout, spec); */
       ctrl = StructFOFSpecAlloc();
-      BatchStructFOFSpecInit(spec, ctrl);
+      BatchStructFOFSpecInit(spec, ctrl, ScannerGetDefaultDir(in));
       now = GetSecTime();
       res = BatchProcessProblems(spec, ctrl,
                                  MAX(0,total_wtc_limit-(now-start)),

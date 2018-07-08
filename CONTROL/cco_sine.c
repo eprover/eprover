@@ -453,7 +453,7 @@ long StructFOFSpecCollectFCode(StructFOFSpec_p ctrl,
 /----------------------------------------------------------------------*/
 
 long StructFOFSpecParseAxioms(StructFOFSpec_p ctrl, PStack_p axfiles,
-                             IOFormat parse_format)
+                              IOFormat parse_format, char* default_dir)
 {
    PStackPointer i;
    char*        iname;
@@ -469,7 +469,7 @@ long StructFOFSpecParseAxioms(StructFOFSpec_p ctrl, PStack_p axfiles,
       iname = PStackElementP(axfiles, i);
       if(!StrTreeFind(&(ctrl->parsed_includes), iname))
       {
-         in = CreateScanner(StreamTypeFile, iname, true, NULL);
+         in = CreateScanner(StreamTypeFile, iname, true, default_dir);
          ScannerSetFormat(in, parse_format);
 
          fprintf(GlobalOut, "# Parsing %s\n", iname);
