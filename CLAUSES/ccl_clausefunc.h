@@ -52,6 +52,8 @@ Clause_p ClauseArchive(ClauseSet_p archive, Clause_p clause);
 Clause_p ClauseArchiveCopy(ClauseSet_p archive, Clause_p clause);
 void     ClauseSetArchiveCopy(ClauseSet_p archive, ClauseSet_p set);
 bool     ClauseIsOrphaned(Clause_p clause);
+long     ClauseSetDeleteOrphans(ClauseSet_p set);
+
 
 void PStackClausePrint(FILE* out, PStack_p stack, char* extra);
 

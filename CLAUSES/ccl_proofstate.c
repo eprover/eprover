@@ -224,6 +224,10 @@ ProofState_p ProofStateAlloc(FunctionProperties free_symb_prop)
    handle->satcheck_full_size   = 0;
    handle->satcheck_actual_size = 0;
    handle->satcheck_core_size   = 0;
+
+   handle->filter_orphans_base   = 0;
+   handle->forward_contract_base = 0;
+
    handle->gc_count             = 0;
    handle->gc_used_count        = 0;
 

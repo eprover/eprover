@@ -533,6 +533,45 @@ bool ClauseIsOrphaned(Clause_p clause)
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseSetDeleteOrphans()
+//
+//   Remove all orphaned clauses, returning the number of clauses
+//   eliminated.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+long ClauseSetDeleteOrphans(ClauseSet_p set)
+{
+   Clause_p handle;
+
+   assert(set);
+   assert(!set->demod_index);
+
+   handle = set->anchor->succ;
+   while(handle != set->anchor)
+   {
+      if(ClauseIsOrphaned(handle))
+      {
+         ClauseSetProp(handle,CPDeleteClause);
+      }
+      else
+      {
+         ClauseDelProp(handle,CPDeleteClause);
+      }
+      handle = handle->succ;
+   }
+   return ClauseSetDeleteMarkedEntries(set);
+}
+
+
+
+
 
 /*-----------------------------------------------------------------------
 //

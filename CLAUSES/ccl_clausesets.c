@@ -1008,6 +1008,8 @@ long ClauseSetMarkCopies(ClauseSet_p set)
 
 
 
+
+
 /*-----------------------------------------------------------------------
 //
 // Function: ClauseSetDeleteMarkedEntries()
@@ -1107,6 +1109,8 @@ long ClauseSetDeleteNonUnits(ClauseSet_p set)
    }
    return ClauseSetDeleteMarkedEntries(set);
 }
+
+
 
 
 /*-----------------------------------------------------------------------
