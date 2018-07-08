@@ -35,7 +35,7 @@ Contents
 /* git tag E-2.2pre003 */
 
 
-#define PVERSION      "2.2pre003"
+#define PVERSION      "2.2pre004lazyorphan"
 
 #ifdef NDEBUG
 #define VERSION PVERSION

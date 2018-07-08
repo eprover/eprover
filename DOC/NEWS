@@ -1,7 +1,10 @@
 This history list describes the major differences between versions of
 the E equational theorem prover.
 
+Version 2.1 -> 2.2 Thurbo Moonlight
 
+- Moved to lazy orphan deletion
+- Fixed and simplified processing of unprocessed clauses
 
 Version 2.0 -> 2.1 Maharani Hills
 
