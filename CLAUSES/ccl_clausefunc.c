@@ -473,11 +473,25 @@ bool ClauseIsOrphaned(Clause_p clause)
    }
    op = PStackElementInt(clause->derivation, 0);
 
-   if(op==DCCnfQuote)
-   {
-      parent = PStackElementP(clause->derivation, 1);
-      return ClauseIsOrphaned(parent);
-   }
+   /* This is wrong - an interreduced clause will be considered an
+      orphan because it's parent is archived/dead. Maybe we need
+      to differentiate between active links and archive links? For the
+      normal case (no GC-recording), it should be fine without looking
+      at parents. */
+   /* if(op==DCCnfQuote) */
+   /* { */
+   /*    bool tmp; */
+   /*    parent = PStackElementP(clause->derivation, 1); */
+
+   /*    tmp =  ClauseIsOrphaned(parent); */
+   /*    if(tmp) */
+   /*    { */
+   /*       printf("\nXXX: "); ClauseTSTPPrint(stdout, clause, true, true); */
+   /*       printf("\nYYY: "); ClauseTSTPPrint(stdout, parent, true, true); */
+   /*       printf("\n"); */
+   /*    } */
+   /*    return tmp; */
+   /* } */
 
    if(!DCOpIsGenerating(op))
    {
