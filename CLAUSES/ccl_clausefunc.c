@@ -473,25 +473,25 @@ bool ClauseIsOrphaned(Clause_p clause)
    }
    op = PStackElementInt(clause->derivation, 0);
 
-   /* This is wrong - an interreduced clause will be considered an
-      orphan because it's parent is archived/dead. Maybe we need
-      to differentiate between active links and archive links? For the
-      normal case (no GC-recording), it should be fine without looking
-      at parents. */
-   /* if(op==DCCnfQuote) */
-   /* { */
-   /*    bool tmp; */
-   /*    parent = PStackElementP(clause->derivation, 1); */
+   /* Logically we should also be able to follow DCCnfQuote. In
+      practice this is wrong - an interreduced clause will be
+      considered orphaned because it's parent is archived/dead. And
+      this is (I think) the only way DCCnfQuote ever comes into the
+      active part of the search. */
+   if(op==DCCnfEvalGC)
+   {
+      bool tmp;
+      parent = PStackElementP(clause->derivation, 1);
 
-   /*    tmp =  ClauseIsOrphaned(parent); */
-   /*    if(tmp) */
-   /*    { */
-   /*       printf("\nXXX: "); ClauseTSTPPrint(stdout, clause, true, true); */
-   /*       printf("\nYYY: "); ClauseTSTPPrint(stdout, parent, true, true); */
-   /*       printf("\n"); */
-   /*    } */
-   /*    return tmp; */
-   /* } */
+      tmp =  ClauseIsOrphaned(parent);
+      //if(tmp)
+      //{
+      //  printf("\nXXX: "); ClauseTSTPPrint(stdout, clause, true, true);
+      //  printf("\nYYY: "); ClauseTSTPPrint(stdout, parent, true, true);
+      //  printf("\n");
+      //}
+      return tmp;
+   }
 
    if(!DCOpIsGenerating(op))
    {
