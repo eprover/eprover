@@ -28,15 +28,14 @@ Contents
 
 
 
-
 /*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-/* git tag E-2.1pre014 */
+/* git tag E-2.2pre005 */
 
 
-#define PVERSION      "2.1pre014"
+#define PVERSION      "2.2pre005"
 
 #ifdef NDEBUG
 #define VERSION PVERSION
@@ -44,7 +43,7 @@ Contents
 #define VERSION PVERSION "-DEBUG"
 #endif
 
-#define E_NICKNAME     "Maharani Hills"
+#define E_NICKNAME     "Thurbo Moonlight"
 
 #define E_URL "http://www.eprover.org"
 

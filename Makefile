@@ -46,11 +46,12 @@ depend:
 
 remove_links:
 	@if [ -d include ]; then\
-		cd include; touch does_exist.h; rm *.h;\
+		cd include; rm -f *.h;\
 	fi;
 	@if [ -d lib ]; then\
-		cd lib;     touch does_exist.a; rm *.a;\
+		cd lib;     rm -f *.a;\
 	fi;
+	@rm -f PROVER/picosat
 
 clean: remove_links
 	@for subdir in $(PARTS); do\
@@ -58,8 +59,7 @@ clean: remove_links
 	done;
 
 cleandist: clean
-	@touch dummy~ PROVER/dummy~
-	@rm *~ */*~
+	@rm -f *~ */*~
 
 default_config:
 	@cat Makefile.vars| \
@@ -87,14 +87,15 @@ fulldistrib: man documentation cleandist default_config
 	@cd ..; $(TAR) cf - $(PROJECT)|$(GZIP) - -c > $(PROJECT)_FULL.tgz
 
 # Build StarExec package. This is not supposed to be super-portable
-
+# StarExec runs all binaries from its local bin/, so we cheat
 
 starexec:
-	touch $(STAREXECPATH)
 	echo $(STAREXECPATH)
-	rm -r $(STAREXECPATH)
-	./configure --prefix=$(STAREXECPATH)
+	rm -rf $(STAREXECPATH)
+	./configure --bindir="."
+	touch CLAUSES/ccl_satinterface.c
 	make
+	./configure --prefix=$(STAREXECPATH)
 	make install
 
 	cp etc/STAREXEC2.0/starexec_run* $(STAREXECPATH)/bin
@@ -118,10 +119,13 @@ links: remove_links
 	for subdir in $(LIBS); do\
 		$(LN) ../$$subdir/$$subdir.a .;\
 	done;
+	@cd PROVER; $(LN) ../CONTRIB/picosat-965/picosat
 
 tags:
-	etags */*.c */*.h
-	cd PYTHON; make ptags
+	etags.emacs25 `find . \( -name "*.[ch]" -or -name "*.py" \) -and -not -name "include/*" -and -not -name ".#*"`
+#ctags-exuberant -e -R .
+# etags */*.c */*.h
+# cd PYTHON; make ptags
 
 # Rebuilding from scratch
 rebuild:
@@ -139,7 +143,7 @@ config:
 
 
 # Configure and copy executables to the installation directory
-install: top
+install:
 	-sh -c 'mkdir -p $(EXECPATH)'
 	-sh -c 'development_tools/e_install PROVER/eprover      $(EXECPATH)'
 	-sh -c 'development_tools/e_install PROVER/epclextract  $(EXECPATH)'
@@ -177,10 +181,8 @@ documentation:
 
 man: E
 	mkdir -p DOC/man
-	help2man -N -i DOC/bug_reporting PROVER/eproof       > DOC/man/eproof.1
-	help2man -N -i DOC/bug_reporting PROVER/eproof_ram   > DOC/man/eproof_ram.1
 	help2man -N -i DOC/bug_reporting PROVER/eprover      > DOC/man/eprover.1
-	help2man -N -i DOC/bug_reporting PROVER/e_stratpar   > DOC/man/_stratpar.1
+	help2man -N -i DOC/bug_reporting PROVER/e_stratpar   > DOC/man/e_stratpar.1
 	help2man -N -i DOC/bug_reporting PROVER/eground      > DOC/man/eground.1
 	help2man -N -i DOC/bug_reporting PROVER/epclextract  > DOC/man/epclextract.1
 	help2man -N -i DOC/bug_reporting PROVER/e_ltb_runner > DOC/man/e_ltb_runner.1

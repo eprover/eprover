@@ -790,7 +790,7 @@ int main(int argc, char* argv[])
    FREE(tname);
 
    ctrl = StructFOFSpecAlloc();
-   StructFOFSpecParseAxioms(ctrl, prob_names, parse_format);
+   StructFOFSpecParseAxioms(ctrl, prob_names, parse_format, NULL);
    StructFOFSpecInitDistrib(ctrl);
    StructFOFSpecResetShared(ctrl);
 
@@ -975,7 +975,7 @@ problem specifications that are easier to handle for a theorem prover,\n\
 but still are likely to contain all the axioms necessary for a proof\n\
 (if one exists).\n\
 \n\
-In dfault mode, the program reads a problem specification and an\n\
+In default mode, the program reads a problem specification and an\n\
 (optional) filter specification, and produces one reduced output file \n\
 for each filter given. Note that while all standard input formats (LOP,\n\
 TPTP-2 and TPTP-3 are supported, output is only and automatically in\n\

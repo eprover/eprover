@@ -77,7 +77,7 @@ typedef struct e_pctrl_set_cell
 --proof-object --cpu-limit="
 
 
-#define E_OPTIONS "-xAuto -tAuto --assume-incompleteness " E_OPTIONS_BASE
+#define E_OPTIONS "--satauto-schedule --assume-incompleteness " E_OPTIONS_BASE
 
 
 extern char* PRResultTable[];

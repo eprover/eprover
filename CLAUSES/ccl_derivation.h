@@ -47,8 +47,9 @@ typedef enum
 {
    DONop,
    DOQuote,
-   DOEvalGC,
+   DOAddCnfArg, /* Extra arguments for multi-argument inferences */
    /* For simplifying inferences, the main premise is implicit */
+   DOEvalGC,
    DORewrite,
    DOUnfold,
    DOApplyDef,
@@ -74,6 +75,7 @@ typedef enum
    DOOrderedFactor,
    DOEqFactor,
    DOEqRes,
+   DOSatGen,
    /* CNF conversion and similar */
    DOSplitEquiv,
    DOIntroDef,
@@ -97,6 +99,7 @@ typedef enum
    DCNop              = DONop,
    DCCnfQuote         = DOQuote|Arg1Cnf,
    DCFofQuote         = DOQuote|Arg1Fof,
+   DCCnfAddArg        = DOAddCnfArg|Arg1Cnf,
    /* For simplifying inferences, the main premise is implicit */
    DCCnfEvalGC        = DOEvalGC,
    DCRewrite          = DORewrite|Arg1Cnf,
@@ -124,6 +127,7 @@ typedef enum
    DCOrderedFactor    = DOOrderedFactor|Arg1Cnf,
    DCEqFactor         = DOEqFactor|Arg1Cnf,
    DCEqRes            = DOEqRes|Arg1Cnf,
+   DCSatGen           = DOSatGen|Arg1Cnf,
    /* CNF conversion and similar */
    DCSplitEquiv       = DOSplitEquiv|Arg1Fof,
    DCIntroDef         = DOIntroDef,
@@ -177,7 +181,7 @@ typedef struct derivation_cell
 /*---------------------------------------------------------------------*/
 
 
-extern ProofObjectType BuildProofObject;
+extern ProofObjectType PrintProofObject;
 extern bool            ProofObjectRecordsGCSelection;
 
 
@@ -279,8 +283,3 @@ void DerivationComputeAndPrint(FILE* out, char* status, PStack_p root_clauses,
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
-
-
-

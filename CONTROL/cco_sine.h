@@ -62,7 +62,8 @@ void           StructFOFSpecFree(StructFOFSpec_p ctrl);
 
 long           StructFOFSpecParseAxioms(StructFOFSpec_p ctrl,
                                        PStack_p axfiles,
-                                       IOFormat parse_format);
+                                        IOFormat parse_format,
+                                        char* default_dir);
 #define       StructFOFSpecResetShared(ctrl) (ctrl)->shared_ax_sp = 0
 
 void           StructFOFSpecInitDistrib(StructFOFSpec_p ctrl);

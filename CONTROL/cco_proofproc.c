@@ -144,15 +144,8 @@ static long remove_subsumed(GlobalIndices_p indices,
       }
       ClauseKillChildren(handle);
       GlobalIndicesDeleteClause(indices, handle);
-      if(BuildProofObject||ClauseIsDemodulator(handle))
-      {
-         ClauseSetExtractEntry(handle);
-         ClauseSetInsert(archive, handle);
-      }
-      else
-      {
-         ClauseSetDeleteEntry(handle);
-      }
+      ClauseSetExtractEntry(handle);
+      ClauseSetInsert(archive, handle);
    }
    PStackFree(stack);
    return res;
@@ -901,6 +894,8 @@ static Clause_p cleanup_unprocessed_clauses(ProofState_p state,
 //
 /----------------------------------------------------------------------*/
 
+
+
 Clause_p SATCheck(ProofState_p state, ProofControl_p control)
 {
    Clause_p     empty = NULL;
@@ -1120,6 +1115,7 @@ void ProofStateResetProcessedSet(ProofState_p state,
                                  ClauseSet_p set)
 {
    Clause_p handle;
+   Clause_p tmpclause;
 
    while((handle = ClauseSetExtractFirst(set)))
    {
@@ -1134,13 +1130,10 @@ void ProofStateResetProcessedSet(ProofState_p state,
       {
          ClausePushDerivation(handle, DCCnfEvalGC, NULL, NULL);
       }
-      if(BuildProofObject)
-      {
-         Clause_p tmpclause = ClauseFlatCopy(handle);
-         ClausePushDerivation(tmpclause, DCCnfQuote, handle, NULL);
-         ClauseSetInsert(state->archive, handle);
-         handle = tmpclause;
-      }
+      tmpclause = ClauseFlatCopy(handle);
+      ClausePushDerivation(tmpclause, DCCnfQuote, handle, NULL);
+      ClauseSetInsert(state->archive, handle);
+      handle = tmpclause;
       HCBClauseEvaluate(control->hcb, handle);
       ClauseDelProp(handle, CPIsOriented);
       DocClauseQuoteDefault(6, handle, "move_eval");

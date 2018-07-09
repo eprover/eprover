@@ -469,11 +469,13 @@ BatchSpec_p BatchSpecParse(Scanner_p in, char* executable,
 //
 /----------------------------------------------------------------------*/
 
-long BatchStructFOFSpecInit(BatchSpec_p spec, StructFOFSpec_p ctrl)
+long BatchStructFOFSpecInit(BatchSpec_p spec,
+                            StructFOFSpec_p ctrl,
+                            char *default_dir)
 {
    long res;
 
-   res = StructFOFSpecParseAxioms(ctrl, spec->includes, spec->format);
+   res = StructFOFSpecParseAxioms(ctrl, spec->includes, spec->format, default_dir);
    StructFOFSpecInitDistrib(ctrl);
 
    return res;
@@ -735,9 +737,10 @@ bool BatchProcessProblem(BatchSpec_p spec,
 /----------------------------------------------------------------------*/
 
 bool BatchProcessFile(BatchSpec_p spec,
-                         long wct_limit,
-                         StructFOFSpec_p ctrl,
-                         char* source, char* dest)
+                      long wct_limit,
+                      StructFOFSpec_p ctrl,
+                      char* default_dir,
+                      char* source, char* dest)
 {
    bool res = false;
    Scanner_p in;
@@ -750,7 +753,7 @@ bool BatchProcessFile(BatchSpec_p spec,
    fprintf(GlobalOut, "# SZS status Started for %s\n", source);
    fflush(GlobalOut);
 
-   in = CreateScanner(StreamTypeFile, source, true, NULL);
+   in = CreateScanner(StreamTypeFile, source, true, default_dir);
    ScannerSetFormat(in, TSTPFormat);
 
    dummy = ClauseSetAlloc();
@@ -795,7 +798,8 @@ bool BatchProcessFile(BatchSpec_p spec,
 /----------------------------------------------------------------------*/
 
 long BatchProcessProblems(BatchSpec_p spec, StructFOFSpec_p ctrl,
-                          long total_wtc_limit, char* dest_dir)
+                          long total_wtc_limit, char* default_dir,
+                          char* dest_dir)
 {
    long res = 0;
    PStackPointer i;
@@ -842,6 +846,7 @@ long BatchProcessProblems(BatchSpec_p spec, StructFOFSpec_p ctrl,
       if(BatchProcessFile(spec,
                           wct_limit,
                           ctrl,
+                          default_dir,
                           PStackElementP(spec->source_files, i),
                           DStrView(dest_name)))
       {

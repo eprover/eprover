@@ -1,25 +1,25 @@
 /*-----------------------------------------------------------------------
 
-File  : ccl_unfold_defs.c
+  File  : ccl_unfold_defs.c
 
-Author: Stephan Schulz
+  Author: Stephan Schulz
 
-Contents
+  Contents
 
   Functions for unfolding equational definitions.
 
-Copyright 1998-2011 by the author.
+  Copyright 1998-2018 by the author.
+
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
+  Changes
 
-<1> Wed Aug 14 20:00:53 CEST 2002
-    New
+  Created: Wed Aug 14 20:00:53 CEST 2002
 
------------------------------------------------------------------------*/
+  -----------------------------------------------------------------------*/
 
 #include "ccl_unfold_defs.h"
 
@@ -93,7 +93,7 @@ static Term_p term_top_unfold_def(TB_p bank, Term_p term, ClausePos_p demod)
 /----------------------------------------------------------------------*/
 
 static Term_p term_unfold_def(TB_p bank, Term_p term, PStack_p
-               pos_stack, ClausePos_p demod)
+                              pos_stack, ClausePos_p demod)
 {
    Term_p res, tmp;
    int i;
@@ -104,10 +104,10 @@ static Term_p term_unfold_def(TB_p bank, Term_p term, PStack_p
    for(i=0; i<res->arity; i++)
    {
       res->args[i] = term_unfold_def(bank, term->args[i], pos_stack,
-                 demod);
+                                     demod);
       if(res->args[i] != term->args[i])
       {
-    changed = true;
+         changed = true;
       }
    }
    if(changed)
@@ -183,6 +183,7 @@ bool ClauseUnfoldEqDef(Clause_p clause, ClausePos_p demod)
    bool res = false;
    PStack_p pos_stack = PStackAlloc();
    Eqn_p handle;
+   PStackPointer i;
 
    for(handle = clause->literals; handle; handle = handle->next)
    {
@@ -195,17 +196,13 @@ bool ClauseUnfoldEqDef(Clause_p clause, ClausePos_p demod)
 
       if(ClauseQueryTPTPType(demod->clause) == CPTypeConjecture)
       {
-        ClauseSetTPTPType(clause, CPTypeConjecture);
+         ClauseSetTPTPType(clause, CPTypeConjecture);
       }
       DocClauseEqUnfold(GlobalOut, OutputLevel, clause, demod,
-         pos_stack);
-      if(BuildProofObject)
+                        pos_stack);
+      for(i=0; i<PStackGetSP(pos_stack); i++)
       {
-         PStackPointer i;
-         for(i=0; i<PStackGetSP(pos_stack); i++)
-         {
-            ClausePushDerivation(clause, DCUnfold, demod->clause, NULL);
-         }
+         ClausePushDerivation(clause, DCUnfold, demod->clause, NULL);
       }
    }
    PStackFree(pos_stack);
@@ -225,10 +222,13 @@ bool ClauseUnfoldEqDef(Clause_p clause, ClausePos_p demod)
 //
 /----------------------------------------------------------------------*/
 
+
 bool ClauseSetUnfoldEqDef(ClauseSet_p set, ClausePos_p demod)
 {
    Clause_p handle;
-   bool res = false;
+   bool
+      res = false,
+      demod_is_conj = ClauseIsConjecture(demod->clause);
 
    for(handle = set->anchor->succ;
        handle!=set->anchor;
@@ -236,8 +236,15 @@ bool ClauseSetUnfoldEqDef(ClauseSet_p set, ClausePos_p demod)
    {
       if(ClauseUnfoldEqDef(handle, demod))
       {
-        res = true;
-        ClauseRemoveSuperfluousLiterals(handle);
+         res = true;
+         ClauseRemoveSuperfluousLiterals(handle);
+         /* If a non-conjecture clause is rewritten here, we make the
+            result a conjecture - it's the right thing to do for
+            e.g. SoS. */
+         if(demod_is_conj)
+         {
+            ClauseSetTPTPType(handle,CPTypeNegConjecture);
+         }
       }
    }
    return res;
@@ -256,6 +263,7 @@ bool ClauseSetUnfoldEqDef(ClauseSet_p set, ClausePos_p demod)
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
+
 
 long ClauseSetUnfoldAllEqDefs(ClauseSet_p set, ClauseSet_p passive,
                               ClauseSet_p archive,
@@ -278,14 +286,7 @@ long ClauseSetUnfoldAllEqDefs(ClauseSet_p set, ClauseSet_p passive,
          {
             ClauseSetUnfoldEqDef(passive, demod);
          }
-         if(BuildProofObject)
-         {
-            ClauseSetInsert(archive, demod->clause);
-         }
-         else
-         {
-            ClauseFree(demod->clause);
-         }
+         ClauseSetInsert(archive, demod->clause);
          res++;
       }
       ClausePosCellFree(demod);

@@ -536,7 +536,7 @@ void WFormulaTSTPPrint(FILE* out, WFormula_p form, bool fullterms,
    {
       //fprintf(out, "");
       TFormulaTPTPPrint(out, form->terms, form->tformula,fullterms, false);
-      //FIXME: Note 2 Stephan... This gives compiler warning. fprintf(out, "");
+      //fprintf(out, "");
       //fprintf(out, "<dummy %p in %p>", form->tformula, form->terms);
    }
    if(complete)

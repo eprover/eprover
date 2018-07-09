@@ -171,7 +171,7 @@ int main(int argc, char* argv[])
    spec->res_proof = BODesired;
 
    ctrl = StructFOFSpecAlloc();
-   BatchStructFOFSpecInit(spec, ctrl);
+   BatchStructFOFSpecInit(spec, ctrl, NULL);
 
    //Creating Socket Server
    if(port != -1)

@@ -29,6 +29,7 @@
 
 #define PICOSAT_BUFSIZE 200
 
+
 char* GroundingStratNames[] =
 {
    "NoGrounding",
@@ -975,15 +976,15 @@ long sat_extract_core(SatClauseSet_p satset, PStack_p core, FILE* picofp)
       }
       if(!parents)
       {
-         printf("# %s", DStrView(line));
-         printf("# Clause %ld in core\n", id);
+         //printf("# %s", DStrView(line));
+         //printf("# Clause %ld in core\n", id);
          // PicoSAT id start at 1, Stack addresses at 0!
          if(id <= PStackGetSP(satset->printset))
          {
             res++;
             satclause = PStackElementP(satset->printset, id-1);
             PStackPushP(core, satclause->source);
-            ClausePrint(stdout, satclause->source, true);printf("\n");
+            //ClausePrint(stdout, satclause->source, true);printf("\n");
          }
          else
          {
@@ -1011,6 +1012,8 @@ long sat_extract_core(SatClauseSet_p satset, PStack_p core, FILE* picofp)
 // Side Effects    : Runs external SAT solver, file operations, ...
 //
 /----------------------------------------------------------------------*/
+#define STR_EXPAND(tok) #tok
+#define STR(tok) STR_EXPAND(tok)
 
 ProverResult SatClauseSetCheckUnsat(SatClauseSet_p satset, Clause_p *empty)
 {
@@ -1021,6 +1024,7 @@ ProverResult SatClauseSetCheckUnsat(SatClauseSet_p satset, Clause_p *empty)
    char *file, *data;
    FILE *fp, *picores;
    DStr_p cmd = DStrAlloc();
+   Clause_p parent;
 
    pure = SatClauseSetMarkPure(satset);
 
@@ -1031,7 +1035,7 @@ ProverResult SatClauseSetCheckUnsat(SatClauseSet_p satset, Clause_p *empty)
    SatClauseSetPrintNonPure(fp, satset, pure);
    SecureFClose(fp);
 
-   DStrAppendStr(cmd, "picosat -L 2 -T -");
+   DStrAppendStr(cmd, STR(EXECPATH) "/picosat -L 2 -T -");
    DStrAppendStr(cmd, " ");
    DStrAppendStr(cmd, file);
    picores = popen(DStrView(cmd), "r");
@@ -1046,6 +1050,13 @@ ProverResult SatClauseSetCheckUnsat(SatClauseSet_p satset, Clause_p *empty)
          *empty = EmptyClauseAlloc();
          sat_extract_core(satset, unsat_core, picores);
          satset->core_size = PStackGetSP(unsat_core);
+         parent = PStackPopP(unsat_core);
+         ClausePushDerivation(*empty, DCSatGen, parent, NULL);
+         while(!PStackEmpty(unsat_core))
+         {
+            parent = PStackPopP(unsat_core);
+            ClausePushDerivation(*empty, DCCnfAddArg, parent, NULL);
+         }
          PStackFree(unsat_core);
          res = PRUnsatisfiable;
       }
