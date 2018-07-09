@@ -795,7 +795,8 @@ static Clause_p cleanup_unprocessed_clauses(ProofState_p state,
 {
    long long current_storage;
    unsigned long back_simplified;
-   long tmp;
+   long tmp, tmp2;
+   long target_size;
    Clause_p unsatisfiable = NULL;
 
    back_simplified = state->backward_subsumed_count
@@ -815,7 +816,6 @@ static Clause_p cleanup_unprocessed_clauses(ProofState_p state,
       state->filter_orphans_base = back_simplified;
    }
 
-   current_storage  = ProofStateStorage(state);
 
    if((state->processed_count-state->forward_contract_base)
       > control->heuristic_parms.forward_contract_limit)
@@ -845,21 +845,28 @@ static Clause_p cleanup_unprocessed_clauses(ProofState_p state,
       state->forward_contract_base = state->processed_count;
       OUTPRINT(1, "# Reweighting unprocessed clauses...\n");
       ClauseSetReweight(control->hcb,  state->unprocessed);
-      current_storage  = ProofStateStorage(state);
    }
+
+   current_storage  = ProofStateStorage(state);
    if(current_storage > control->heuristic_parms.delete_bad_limit)
    {
-      tmp = HCBClauseSetDeleteBadClauses(control->hcb,
-                                         state->unprocessed,
-                                         state->unprocessed->members/2);
+      target_size = state->unprocessed->members/2;
+      tmp = ClauseSetDeleteOrphans(state->unprocessed);
+      tmp2 = HCBClauseSetDeleteBadClauses(control->hcb,
+                                          state->unprocessed,
+                                          target_size);
       state->non_redundant_deleted += tmp;
       if(OutputLevel)
       {
          fprintf(GlobalOut,
-                 "# Deleted %ld bad clauses (prover may be"
-                 " incomplete now)\n", tmp);
+                 "# Deleted %ld orphaned clauses and %ld bad "
+                 "clauses (prover may be incomplete now)\n",
+                 tmp, tmp2);
       }
-      state->state_is_complete = false;
+      if(tmp2)
+      {
+         state->state_is_complete = false;
+      }
       GCCollect(state->terms->gc);
       current_storage = ProofStateStorage(state);
    }
