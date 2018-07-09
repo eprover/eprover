@@ -38,7 +38,7 @@ char* UnitSimplifyNames[]=
    NULL
 };
 
-const SimplifyRes SIMPLIFY_FAILED = {.pos = NULL, .remaining_args = NOT_MATCHED};
+const SimplifyRes SIMPLIFY_FAILED = {.pos = NULL, .remaining_args = MATCH_FAILED};
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
@@ -74,7 +74,7 @@ SimplifyRes FindTopSimplifyingUnit(ClauseSet_p units, Term_p t1,
                Term_p t2)
 {
    Subst_p     subst = SubstAlloc();
-   int remains = NOT_MATCHED;
+   int remains = MATCH_FAILED;
    ClausePos_p pos;
    SimplifyRes res = SIMPLIFY_FAILED;
 
@@ -90,7 +90,7 @@ SimplifyRes FindTopSimplifyingUnit(ClauseSet_p units, Term_p t1,
       pos = mi->pos;
 
       if((remains = SubstMatchPossiblyPartial(ClausePosGetOtherSide(pos), t2, subst, units->demod_index->bank)) 
-            != NOT_MATCHED)
+            != MATCH_FAILED)
       {
         // if the problem is not HO, we match completely.
         assert(!(problemType == PROBLEM_FO) || remains == 0);
@@ -124,7 +124,7 @@ SimplifyRes FindSignedTopSimplifyingUnit(ClauseSet_p units, Term_p t1,
                 Term_p t2, bool sign)
 {
    Subst_p     subst = SubstAlloc();
-   int remains = NOT_MATCHED;
+   int remains = MATCH_FAILED;
    ClausePos_p pos;
    SimplifyRes res = SIMPLIFY_FAILED;
 
@@ -142,7 +142,7 @@ SimplifyRes FindSignedTopSimplifyingUnit(ClauseSet_p units, Term_p t1,
       TB_p bank = units->demod_index->bank;
       if(EQUIV(EqnIsPositive(pos->literal), sign)
           && (remains = 
-                SubstMatchPossiblyPartial(ClausePosGetOtherSide(pos), t2, subst, bank)) != NOT_MATCHED)
+                SubstMatchPossiblyPartial(ClausePosGetOtherSide(pos), t2, subst, bank)) != MATCH_FAILED)
       {
         // if the problem is not HO, we match completely.
         assert(!(problemType == PROBLEM_FO) || remains == 0);

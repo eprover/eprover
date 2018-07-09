@@ -143,7 +143,7 @@ int PartiallyMatchVar(Term_p var_matcher, Term_p to_match, Sig_p sig,
    assert(TermIsVar(var_matcher) && !var_matcher->binding);
    assert(problemType == PROBLEM_HO || !TypeIsArrow(var_matcher->type));
    
-   int args_to_eat = NOT_MATCHED;
+   int args_to_eat = MATCH_FAILED;
    Type_p term_head_type = GetHeadType(sig, to_match);
    Type_p matcher_type   = var_matcher->type;
 
@@ -160,7 +160,7 @@ int PartiallyMatchVar(Term_p var_matcher, Term_p to_match, Sig_p sig,
       {
          if(matcher_type->args[i-start_idx] != term_head_type->args[i])
          {
-            return NOT_MATCHED;
+            return MATCH_FAILED;
          }
       }
 
@@ -173,7 +173,7 @@ int PartiallyMatchVar(Term_p var_matcher, Term_p to_match, Sig_p sig,
    /* The case where we could eat up arguments, but they are not there. */
    if(args_to_eat > ARG_NUM(to_match))
    {
-      return NOT_MATCHED;
+      return MATCH_FAILED;
    }
 
    if(perform_occur_check)
@@ -182,7 +182,7 @@ int PartiallyMatchVar(Term_p var_matcher, Term_p to_match, Sig_p sig,
       {
          if(occur_check(to_match->args[i], var_matcher))
          {
-            return NOT_MATCHED;
+            return MATCH_FAILED;
          }
       }
    }
@@ -324,7 +324,7 @@ int SubstComputeMatchHO(Term_p matcher, Term_p to_match, Subst_p subst, TB_p ban
    int res = MATCH_INIT;
    if(matcher_weight > to_match_weight)
    {
-      return NOT_MATCHED;
+      return MATCH_FAILED;
    }
 
    Sig_p sig = bank->sig;
@@ -355,7 +355,7 @@ int SubstComputeMatchHO(Term_p matcher, Term_p to_match, Subst_p subst, TB_p ban
                matcher_weight += TermStandardWeight(var->binding) - DEFAULT_VWEIGHT;
                if(matcher_weight > to_match_weight)
                {
-                  FAIL_AND_BREAK(res, NOT_MATCHED);
+                  FAIL_AND_BREAK(res, MATCH_FAILED);
                }
 
                assert(ARG_NUM(to_match) - start_idx - ARG_NUM(matcher) == 0 || res == MATCH_INIT);
@@ -363,15 +363,15 @@ int SubstComputeMatchHO(Term_p matcher, Term_p to_match, Subst_p subst, TB_p ban
             }
             else
             {
-               FAIL_AND_BREAK(res, NOT_MATCHED);
+               FAIL_AND_BREAK(res, MATCH_FAILED);
             }
          }
          else
          {
             int args_eaten = PartiallyMatchVar(var, to_match, sig, false);
-            if(args_eaten == NOT_MATCHED)
+            if(args_eaten == MATCH_FAILED)
             {
-               FAIL_AND_BREAK(res, NOT_MATCHED);
+               FAIL_AND_BREAK(res, MATCH_FAILED);
             }
             else
             {
@@ -381,7 +381,7 @@ int SubstComputeMatchHO(Term_p matcher, Term_p to_match, Subst_p subst, TB_p ban
                matcher_weight += TermStandardWeight(var->binding) - DEFAULT_VWEIGHT;
                if(matcher_weight > to_match_weight)
                {
-                  FAIL_AND_BREAK(res, NOT_MATCHED);
+                  FAIL_AND_BREAK(res, MATCH_FAILED);
                }
 
                assert(args_eaten + ARG_NUM(matcher) == ARG_NUM(to_match) || res == MATCH_INIT);
@@ -394,7 +394,7 @@ int SubstComputeMatchHO(Term_p matcher, Term_p to_match, Subst_p subst, TB_p ban
          if(matcher->f_code != to_match->f_code 
                || matcher->arity > to_match ->arity)
          {
-            FAIL_AND_BREAK(res, NOT_MATCHED);
+            FAIL_AND_BREAK(res, MATCH_FAILED);
          }
          else
          {
@@ -409,7 +409,7 @@ int SubstComputeMatchHO(Term_p matcher, Term_p to_match, Subst_p subst, TB_p ban
                                    - (TermIsAppliedVar(matcher) ? 1 : 0);
       if(matcher->arity + offset > to_match->arity)
       {
-         FAIL_AND_BREAK(res, NOT_MATCHED);
+         FAIL_AND_BREAK(res, MATCH_FAILED);
       }
       
       PLocalStackEnsureSpace(jobs, 2*(matcher->arity));
@@ -420,14 +420,14 @@ int SubstComputeMatchHO(Term_p matcher, Term_p to_match, Subst_p subst, TB_p ban
       }
    }
 
-   if(res == NOT_MATCHED)
+   if(res == MATCH_FAILED)
    {
       SubstBacktrackToPos(subst, backtrack);
    }
 
    PLocalStackFree(jobs);
    assert(res != MATCH_INIT);
-   assert(res == NOT_MATCHED || 
+   assert(res == MATCH_FAILED || 
             TermStructPrefixEqual(s, t, DEREF_ONCE, DEREF_NEVER, res, bank->sig));
    return res;
 }
@@ -606,7 +606,7 @@ UnificationResult SubstComputeMguHO(Term_p t1, Term_p t2, Subst_p subst, TB_p ba
          Term_p var = TermIsAppliedVar(t1) ? t1->args[0] : t1;
          
          int args_eaten = PartiallyMatchVar(var, t2, sig, true);
-         if(args_eaten == NOT_MATCHED)
+         if(args_eaten == MATCH_FAILED)
          {
             FAIL_AND_BREAK(res, UNIF_FAILED);
          }
@@ -788,7 +788,7 @@ __inline__ bool SubstMguComplete(Term_p t, Term_p s, Subst_p subst, TB_p bank)
 //
 //  Determines if pattern can match target so that n arguments are
 //  remaining in target (n <= ARG_NUM(target)). In that case, it adds
-//  bindings to subst and returns n. Otherwise returns NOT_MATCHED and
+//  bindings to subst and returns n. Otherwise returns MATCH_FAILED and
 //  leaves subst unchanged.
 //
 // Global Variables:
@@ -801,7 +801,7 @@ __inline__ int SubstMatchPossiblyPartial(Term_p pattern, Term_p target, Subst_p 
    int res;
    if(problemType == PROBLEM_FO)
    {
-      res = SubstComputeMatch(pattern, target, subst) ? 0 : NOT_MATCHED;
+      res = SubstComputeMatch(pattern, target, subst) ? 0 : MATCH_FAILED;
    }
    else
    {
@@ -809,7 +809,7 @@ __inline__ int SubstMatchPossiblyPartial(Term_p pattern, Term_p target, Subst_p 
    }
 
    // if matched -> number of remaining args is in good range
-   assert(res <= 0 || res < ARG_NUM(target)); 
+   assert(res == MATCH_FAILED|| res <= ARG_NUM(target)); 
    return res;
 }
 #endif
