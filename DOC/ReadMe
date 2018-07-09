@@ -3,18 +3,17 @@ This is the required ReadMe file for the CASC competitions.
 
 For installation, follow the instructions in the main README
 file. Make sure to do a proper install, so that e_ltb_runner can find
-the executables.
+the executables. If you need to rebuild a StarExec version
+from the sources, run "make starexec", which should take care of
+everything.
 
-Command line for single-problem categories:
+The strategies for the different divisions are:
 
-   eprover --auto-schedule --tstp-format -s --proof-object --memory-limit=3072 --cpu-limit=%d %s
+FOF:     starexec_run_E---autoschedule
+FNT EPR: starexec_run_E---satautoschedule
+LTB:     starexec_run_E---LTB
 
-For the LTB categories, run:
 
-   e_ltb_runner -w<total wall-clock time limit> <path_to_ltb_batch_file> <path_to_eprover>
-
-    -w<total wall-clock time limit> is optional if a per-problem limit
-     or a global time limit is given in the batch specification file.
 
 Distinguished strings for the results:
 
@@ -26,7 +25,7 @@ Problem is CNF and satisfiable:
 
 # SZS status Satisfiable
 
-Problem is FOF and a theorem: 
+Problem is FOF and a theorem:
 
 # SZS status Theorem
 

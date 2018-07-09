@@ -263,7 +263,7 @@ int main(int argc, char* argv[])
    }
 
    ctrl = StructFOFSpecAlloc();
-   StructFOFSpecParseAxioms(ctrl, prob_names, parse_format);
+   StructFOFSpecParseAxioms(ctrl, prob_names, parse_format, NULL);
    StructFOFSpecInitDistrib(ctrl);
    StructFOFSpecResetShared(ctrl);
 
@@ -484,5 +484,3 @@ STS_SNAIL
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-

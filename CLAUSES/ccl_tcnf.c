@@ -1750,7 +1750,6 @@ TFormula_p TFormulaDistributeDisjunctions(TB_p terms, TFormula_p form)
 void WTFormulaConjunctiveNF(WFormula_p form, TB_p terms)
 {
    TFormula_p handle;
-   FunCode   max_var;
 
    /*printf("Start: ");
    WFormulaPrint(GlobalOut, form, true);
@@ -1779,7 +1778,7 @@ void WTFormulaConjunctiveNF(WFormula_p form, TB_p terms)
       DocFormulaModificationDefault(form, inf_shift_quantors);
       WFormulaPushDerivation(form, DCShiftQuantors, NULL, NULL);
    }
-   max_var = TFormulaFindMaxVarCode(form->tformula);
+   TFormulaFindMaxVarCode(form->tformula);
    VarBankSetVCountsToUsed(terms->vars);
    handle = TFormulaVarRename(terms, form->tformula);
 
@@ -1813,8 +1812,6 @@ void WTFormulaConjunctiveNF(WFormula_p form, TB_p terms)
       DocFormulaModificationDefault(form, inf_fof_distrib);
       WFormulaPushDerivation(form, DCDistDisjunctions, NULL, NULL);
    }
-   UNUSED(max_var); // FIXME: Note 2 Stephan -- this is obsolete with new
-                     // variable scheme
 }
 
 
@@ -1835,7 +1832,6 @@ void WTFormulaConjunctiveNF2(WFormula_p form, TB_p terms,
                              long miniscope_limit)
 {
    TFormula_p handle;
-   FunCode   max_var;
 
    // printf("# Start: "); WFormulaPrint(GlobalOut, form, true); printf("\n");
 
@@ -1858,7 +1854,7 @@ void WTFormulaConjunctiveNF2(WFormula_p form, TB_p terms,
    }
    //printf("# NNFed\n");
 
-   max_var = TFormulaFindMaxVarCode(form->tformula);
+   TFormulaFindMaxVarCode(form->tformula);
    VarBankSetVCountsToUsed(terms->vars);
    handle = TFormulaVarRename(terms, form->tformula);
 
