@@ -27,6 +27,7 @@
 
 #include <ccl_proofstate.h>
 #include <cio_tempfile.h>
+#include <picosat.h>
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
@@ -37,8 +38,8 @@
 typedef struct satclausecell
 {
    bool       has_pure_lit;
-   int        lit_no;
-   int *      literals;
+   int        lit_no; // lit_no is actual number of literals
+   int *      literals; // null-terminated (PicoSAT requirement)
    Clause_p   source;
 }SatClauseCell, *SatClause_p;
 
@@ -47,8 +48,7 @@ typedef struct satclausesetcell
    PDRangeArr_p renumber_index; // Used to map term->id to [0...max_lit]
    int          max_lit;
    PStack_p     set;            // Actual set (clauses must be freed)
-   PStack_p     printset;       // Subset last printed, references
-                                // only
+   PStack_p     exported;       // Subset of clauses exported to the solver state
    long         core_size;      // Size of the unsat core, if any
 }SatClauseSetCell, *SatClauseSet_p;
 
@@ -65,6 +65,9 @@ typedef enum
    GMGlobalMax,
    GMGlobalMin
 }GroundingStrategy;
+
+typedef bool (*SatClauseFilter)(SatClause_p);
+typedef PicoSAT* SatSolver_p;
 
 
 
@@ -89,7 +92,7 @@ SatClauseSet_p SatClauseSetAlloc(void);
 void           SatClauseSetFree(SatClauseSet_p junk);
 
 #define SatClauseSetCardinality(satset) PStackGetSP((satset)->set)
-#define SatClauseSetNonPureCardinality(satset) PStackGetSP((satset)->printset)
+#define SatClauseSetNonPureCardinality(satset) PStackGetSP((satset)->exported)
 #define SatClauseSetCoreSize(satset) (satset)->core_size
 
 
@@ -97,7 +100,9 @@ SatClause_p SatClauseCreateAndStore(Clause_p clause, SatClauseSet_p set);
 void        SatClausePrint(FILE* out, SatClause_p satclause);
 
 void        SatClauseSetPrint(FILE* out, SatClauseSet_p set);
-void        SatClauseSetPrintNonPure(FILE* out, SatClauseSet_p set, long pure);
+
+void        SatClauseSetExportToSolver(SatSolver_p solver, SatClauseSet_p set);
+void        SatClauseSetExportToSolverNonPure(SatSolver_p solver, SatClauseSet_p set);
 
 Subst_p     SubstPseudoGroundVarBank(VarBank_p vars);
 Subst_p     SubstGroundVarBankFirstConst(TB_p terms, bool norm_const);
@@ -108,7 +113,12 @@ long        SatClauseSetImportClauseSet(SatClauseSet_p satset, ClauseSet_p set);
 long        SatClauseSetImportProofState(SatClauseSet_p satset, ProofState_p state,
                                          GroundingStrategy strat, bool norm_const);
 long        SatClauseSetMarkPure(SatClauseSet_p satset);
-ProverResult SatClauseSetCheckUnsat(SatClauseSet_p satset, Clause_p *empty);
+ProverResult SatClauseSetCheckUnsat(SatClauseSet_p satset, Clause_p *empty,
+                                    SatSolver_p solver);
+
+#define SAT_TO_E_RESULT(satres) ((satres) == PICOSAT_SATISFIABLE ?\
+                                  PRSatisfiable : assert(satres == PICOSAT_UNSATISFIABLE),\
+                                                  PRUnsatisfiable)
 
 
 
