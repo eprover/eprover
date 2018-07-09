@@ -35,7 +35,7 @@ include ../Makefile.services
 
 CSSCPA = CSSCPA_filter.o cex_csscpa.o \
             ../lib/CLAUSES.a ../lib/ORDERINGS.a ../lib/TERMS.a\
-            ../lib/INOUT.a ../lib/BASICS.a
+            ../lib/INOUT.a ../lib/BASICS.a ../lib/PICOSAT.a
 
 $(LIB): $(CSSCPA)
 	$(LD) -o CSSCPA_filter $(CSSCPA) $(LIBS)

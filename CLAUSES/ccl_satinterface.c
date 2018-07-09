@@ -690,11 +690,11 @@ Subst_p SubstGroundVarBankFirstConst(TB_p terms, bool norm_const)
    for (i=0; i < PDArraySize(vars->varstacks); i++)
    {
       varstack = PDArrayElementP(vars->varstacks, i);
-      printf("# varstack: %p\n", varstack);
+      //printf("# varstack: %p\n", varstack);
       if (varstack)
       {
          size = PStackGetSP(varstack);
-         printf("# varstack size: %ld\n", size);
+         //printf("# varstack size: %ld\n", size);
          if(size)
          {
             backup = PStackElementP(varstack,0);
