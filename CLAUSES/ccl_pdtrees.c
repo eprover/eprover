@@ -572,7 +572,7 @@ static void pdtree_forward(PDTree_p tree, Subst_p subst)
              else
              {
                int matched_up_to = PartiallyMatchVar(next->variable, term, tree->bank->sig, false);
-               if(matched_up_to != NOT_MATCHED && matched_up_to <= ARG_NUM(term))
+               if(matched_up_to != MATCH_FAILED && matched_up_to <= ARG_NUM(term))
                {
                   SubstBindAppVar(subst, next->variable, term, matched_up_to, tree->bank);
                   PStackPushP(tree->term_proc, term);

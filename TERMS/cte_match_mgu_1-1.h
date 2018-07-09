@@ -66,7 +66,7 @@ extern long UnifSuccesses;
 
 PERF_CTR_DECL(MguTimer);
 
-#define NOT_MATCHED -1
+#define MATCH_FAILED -1
 
 // FO matching and unification
 bool SubstComputeMatch(Term_p matcher, Term_p to_match, Subst_p subst);
@@ -91,13 +91,12 @@ int SubstMatchPossiblyPartial(Term_p t, Term_p s, Subst_p subst, TB_p bank);
 // If we are working in FOL mode, we revert to normal E behavior.
 #define SubstMatchComplete(t, s, subst, b) (SubstComputeMatch(t, s, subst))
 #define SubstMguComplete(t, s, subst, b)   (SubstComputeMgu(t, s, subst))
-#define SubstMatchPossiblyPartial(t, s, subst, b)  (SubstComputeMatch(t, s, subst) ? 0 : NOT_MATCHED)
+#define SubstMatchPossiblyPartial(t, s, subst, b)  (SubstComputeMatch(t, s, subst) ? 0 : MATCH_FAILED)
 
 #endif
 
 // the return result is considerably more complex, so we have to run wrapper
 UnificationResult SubstMguPossiblyPartial(Term_p t, Term_p s, Subst_p subst, TB_p sig);
-
 
 
 #define VerifyMatch(matcher, to_match) \
