@@ -23,6 +23,7 @@ Changes
 
 
 #include "ccl_clausefunc.h"
+#include <picosat.h>
 
 
 /*---------------------------------------------------------------------*/
@@ -57,6 +58,7 @@ int ClauseCanonCompareRef(const void *clause1ref, const void* clause2ref)
 {
    const Clause_p* c1 = clause1ref;
    const Clause_p* c2 = clause2ref;
+	 PicoSAT* handle =  picosat_init ();
 
    return CMP(ClauseStructWeightLexCompare(*c1, *c2),0);
 }

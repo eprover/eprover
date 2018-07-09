@@ -37,3 +37,12 @@ $(PICOSAT)/makefile:
 
 picosat: $(PICOSAT)/makefile
 	cd $(PICOSAT); $(MAKE); $(MAKE)
+	@if [ -f PICOSAT.a ]; then\
+		rm PICOSAT.a;\
+	fi;
+	$(LN) $(PICOSAT)/libpicosat.a PICOSAT.a;\
+
+	
+
+PICOSAT.a:
+	
