@@ -690,11 +690,11 @@ Subst_p SubstGroundVarBankFirstConst(TB_p terms, bool norm_const)
    for (i=0; i < PDArraySize(vars->varstacks); i++)
    {
       varstack = PDArrayElementP(vars->varstacks, i);
-      // printf("# varstack: %p\n", varstack);
+      printf("# varstack: %p\n", varstack);
       if (varstack)
       {
          size = PStackGetSP(varstack);
-         // printf("# varstack size: %ld\n", size);
+         printf("# varstack size: %ld\n", size);
          if(size)
          {
             backup = PStackElementP(varstack,0);
@@ -763,11 +763,11 @@ Subst_p SubstGroundFreqBased(TB_p terms, ClauseSet_p clauses,
    for (sort=0; sort < PDArraySize(vars->varstacks); sort++)
    {
       varstack = PDArrayElementP(vars->varstacks, sort);
-      // printf("# varstack: %p\n", varstack);
+      //printf("# varstack: %p\n", varstack);
       if (varstack)
       {
-         size = PDArraySize(varstack);
-         // printf("# varstack size: %ld\n", size);
+         size = PStackGetSP(varstack);
+         //printf("# varstack size: %ld\n", size);
          if(size)
          {
             backup = PStackElementP(varstack,0);
