@@ -212,6 +212,7 @@ int main(int argc, char* argv[])
       now = GetSecTime();
       res = BatchProcessProblems(spec, ctrl,
                                  MAX(0,total_wtc_limit-(now-start)),
+                                 ScannerGetDefaultDir(in),
                                  outdir);
       now = GetSecTime();
       fprintf(GlobalOut, "\n\n# == WCT: %4lds, Solved: %4ld/%4ld    ==\n",
