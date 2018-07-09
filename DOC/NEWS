@@ -3,12 +3,19 @@ the E equational theorem prover.
 
 
 
-Version 2.0 ->
+Version 2.0 -> 2.1 Maharani Hills
 
-- Add type output for CNFed TFFs
+- Added type output for CNFed TFFs
 - Added tcf sublanguage for clause-form TFFs
 - Combined consequtive applications of the same quantifier into a
   single quantifier
+- Improved stability and performance on TFF problems
+- Changed internal workflow of unprocessed clauses so that they can be
+- batch-evaluated (e.g. by a Deep Neural Network).
+- Added PicoSAT and the ability to use PicoSAT as a SAT terminator
+- Added support for flexible-arity derivation operations
+- Removed obsolete eproof-scripts. Use --proof-object to generate a
+  checkable proof.
 
 Version 1.9.1 -> 2.0 Turzum
 

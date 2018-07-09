@@ -203,17 +203,18 @@ int main(int argc, char* argv[])
       {
          spec->total_wtc_limit = total_wtc_limit;
       }
-      if(spec->per_prob_limit<=0 && total_wtc_limit<=0)
+      if(spec->per_prob_limit<=0 && spec->total_wtc_limit<=0)
       {
          Error("Either the per-problem time limit or the global "
                "time limit must be set to a value > 0", USAGE_ERROR);
       }
       /* BatchSpecPrint(stdout, spec); */
       ctrl = StructFOFSpecAlloc();
-      BatchStructFOFSpecInit(spec, ctrl);
+      BatchStructFOFSpecInit(spec, ctrl, ScannerGetDefaultDir(in));
       now = GetSecTime();
       res = BatchProcessProblems(spec, ctrl,
                                  MAX(0,total_wtc_limit-(now-start)),
+                                 ScannerGetDefaultDir(in),
                                  outdir);
       now = GetSecTime();
       fprintf(GlobalOut, "\n\n# == WCT: %4lds, Solved: %4ld/%4ld    ==\n",

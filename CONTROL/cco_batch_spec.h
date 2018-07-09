@@ -85,7 +85,9 @@ void        BatchSpecFree(BatchSpec_p spec);
 void        BatchSpecPrint(FILE* out, BatchSpec_p spec);
 
 
-long        BatchStructFOFSpecInit(BatchSpec_p spec, StructFOFSpec_p ctrl);
+long        BatchStructFOFSpecInit(BatchSpec_p spec,
+                                   StructFOFSpec_p ctrl,
+                                   char *default_dir);
 
 BatchSpec_p BatchSpecParse(Scanner_p in, char* executable,
                            char* category, char* train_dir,
@@ -106,11 +108,13 @@ bool BatchProcessProblem(BatchSpec_p spec,
 bool BatchProcessFile(BatchSpec_p spec,
                       long wct_limit,
                       StructFOFSpec_p ctrl,
+                      char* default_dir,
                       char* source, char* dest);
 
 long BatchProcessProblems(BatchSpec_p spec,
                           StructFOFSpec_p ctrl,
                           long total_wtc_limit,
+                          char* default_dir,
                           char* dest_dir);
 
 void BatchProcessInteractive(BatchSpec_p spec,
@@ -124,8 +128,3 @@ void BatchProcessInteractive(BatchSpec_p spec,
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
-
-
-

@@ -29,13 +29,14 @@ Changes
 /*                        Global Variables                             */
 /*---------------------------------------------------------------------*/
 
-ProofObjectType BuildProofObject = 0;
+ProofObjectType PrintProofObject = 0;
 bool            ProofObjectRecordsGCSelection = false;
 
 char *opids[] =
 {
    "NOP",
    "QUOTE",
+   "AddArg",
    /* Simplifying */
    PCL_EVALGC,
    PCL_RW,
@@ -63,6 +64,7 @@ char *opids[] =
    PCL_OF,
    PCL_EF,
    PCL_ER,
+   PCL_SAT,
    /* Others */
    PCL_SE,
    PCL_ID_DEF,
@@ -73,6 +75,7 @@ char *optheory [] =
 {
    NULL,
    NULL,
+   "NA",
    /* Simplifying */
    NULL,
    NULL,
@@ -100,6 +103,7 @@ char *optheory [] =
    NULL,
    NULL,
    NULL,
+   NULL,
    /* Others */
    NULL,
    NULL,
@@ -111,6 +115,7 @@ char *opstatus [] =
 {
    NULL,
    NULL,
+   "NA",
    /* Simplifying */
    "thm",
    "thm",
@@ -133,6 +138,7 @@ char *opstatus [] =
    "thm",
    "thm",
    /* Generating */
+   "thm",
    "thm",
    "thm",
    "thm",
@@ -314,6 +320,7 @@ long get_clauseform_id(DerivationCodes op, int select, void* clauseform)
 //
 /----------------------------------------------------------------------*/
 
+
 char* tstp_get_clauseform_id(DerivationCodes op, int select,
                              void* clauseform)
 {
@@ -487,7 +494,7 @@ void DerivedSetInProof(Derived_p derived, bool in_proof)
 //   Push the derivation items (op-code and suitable number of
 //   arguments) onto the derivation stack.
 //
-// Global Variables: BuildProofObject
+// Global Variables:
 //
 // Side Effects    : May allocate new derivation stack.
 //
@@ -496,24 +503,21 @@ void DerivedSetInProof(Derived_p derived, bool in_proof)
 void ClausePushDerivation(Clause_p clause, DerivationCodes op,
                           void* arg1, void* arg2)
 {
-   if(BuildProofObject)
+   assert(clause);
+   assert(op);
+
+   CLAUSE_ENSURE_DERIVATION(clause);
+   assert(DCOpHasCnfArg1(op)||DCOpHasFofArg1(op)||!arg1);
+   assert(DCOpHasCnfArg2(op)||DCOpHasFofArg2(op)||!arg2);
+   assert(DCOpHasCnfArg1(op)||!DCOpHasCnfArg2(op));
+
+   PStackPushInt(clause->derivation, op);
+   if(arg1)
    {
-      assert(clause);
-      assert(op);
-
-      CLAUSE_ENSURE_DERIVATION(clause);
-      assert(DCOpHasCnfArg1(op)||DCOpHasFofArg1(op)||!arg1);
-      assert(DCOpHasCnfArg2(op)||DCOpHasFofArg2(op)||!arg2);
-      assert(DCOpHasCnfArg1(op)||!DCOpHasCnfArg2(op));
-
-      PStackPushInt(clause->derivation, op);
-      if(arg1)
+      PStackPushP(clause->derivation, arg1);
+      if(arg2)
       {
-         PStackPushP(clause->derivation, arg1);
-         if(arg2)
-         {
-            PStackPushP(clause->derivation, arg2);
-         }
+         PStackPushP(clause->derivation, arg2);
       }
    }
 }
@@ -526,7 +530,7 @@ void ClausePushDerivation(Clause_p clause, DerivationCodes op,
 //   Push the derivation items (op-code and suitable number of
 //   arguments) onto the derivation stack.
 //
-// Global Variables: BuildProofObject
+// Global Variables:
 //
 // Side Effects    : May allocate new derivation stack.
 //
@@ -534,16 +538,13 @@ void ClausePushDerivation(Clause_p clause, DerivationCodes op,
 
 void ClausePushACResDerivation(Clause_p clause, Sig_p sig)
 {
-   if(BuildProofObject)
-   {
-      assert(clause);
+   assert(clause);
 
-      CLAUSE_ENSURE_DERIVATION(clause);
+   CLAUSE_ENSURE_DERIVATION(clause);
 
-      PStackPushInt(clause->derivation, DCACRes);
-      PStackPushInt(clause->derivation, PStackGetSP(sig->ac_axioms));
-      /* printf("Pushed: %d\n", PStackGetSP(sig->ac_axioms)); */
-   }
+   PStackPushInt(clause->derivation, DCACRes);
+   PStackPushInt(clause->derivation, PStackGetSP(sig->ac_axioms));
+   /* printf("Pushed: %d\n", PStackGetSP(sig->ac_axioms)); */
 }
 
 /*-----------------------------------------------------------------------
@@ -553,7 +554,7 @@ void ClausePushACResDerivation(Clause_p clause, Sig_p sig)
 //   Push the derivation items (op-code and suitable number of
 //   arguments) onto the derivation stack.
 //
-// Global Variables: BuildProofObject
+// Global Variables:
 //
 // Side Effects    : May allocate new derivation stack.
 //
@@ -562,27 +563,24 @@ void ClausePushACResDerivation(Clause_p clause, Sig_p sig)
 void WFormulaPushDerivation(WFormula_p form, DerivationCodes op,
                             void* arg1, void* arg2)
 {
-   if(BuildProofObject)
+   assert(form);
+   assert(op);
+
+   if(!form->derivation)
    {
-      assert(form);
-      assert(op);
+      form->derivation = PStackVarAlloc(3);
+   }
+   assert(DCOpHasCnfArg1(op)||DCOpHasFofArg1(op)||!arg1);
+   assert(DCOpHasCnfArg2(op)||DCOpHasFofArg2(op)||!arg2);
+   assert(DCOpHasCnfArg1(op)||!DCOpHasCnfArg2(op));
 
-      if(!form->derivation)
+   PStackPushInt(form->derivation, op);
+   if(arg1)
+   {
+      PStackPushP(form->derivation, arg1);
+      if(arg2)
       {
-         form->derivation = PStackVarAlloc(3);
-      }
-      assert(DCOpHasCnfArg1(op)||DCOpHasFofArg1(op)||!arg1);
-      assert(DCOpHasCnfArg2(op)||DCOpHasFofArg2(op)||!arg2);
-      assert(DCOpHasCnfArg1(op)||!DCOpHasCnfArg2(op));
-
-      PStackPushInt(form->derivation, op);
-      if(arg1)
-      {
-         PStackPushP(form->derivation, arg1);
-         if(arg2)
-         {
-            PStackPushP(form->derivation, arg2);
-         }
+         PStackPushP(form->derivation, arg2);
       }
    }
 }
@@ -1020,6 +1018,7 @@ Derived_p DerivedAlloc(void)
 void DerivationStackPCLPrint(FILE* out, Sig_p sig, PStack_p derivation)
 {
    PStack_p subexpr_stack;
+   PStack_p arg_stack;
    PStackPointer i, j, sp, ac_limit;
    DerivationCodes op;
    Clause_p        ax;
@@ -1027,6 +1026,7 @@ void DerivationStackPCLPrint(FILE* out, Sig_p sig, PStack_p derivation)
    if(derivation)
    {
       subexpr_stack = PStackAlloc();
+      arg_stack     = PStackAlloc();
 
       /* Find the beginnings of the subexpressions */
       sp = PStackGetSP(derivation);
@@ -1060,6 +1060,9 @@ void DerivationStackPCLPrint(FILE* out, Sig_p sig, PStack_p derivation)
          case DCIntroDef:
                fprintf(out, "%s", "introduced");
                break;
+         case DCCnfAddArg:
+               PStackPushP(arg_stack, PStackElementP(derivation, i+1));
+               break;
          default:
                fprintf(out, "%s(", opids[DPOpGetOpCode(op)]);
                break;
@@ -1071,42 +1074,51 @@ void DerivationStackPCLPrint(FILE* out, Sig_p sig, PStack_p derivation)
       {
          i = PStackElementInt(subexpr_stack, sp);
          op = PStackElementInt(derivation, i);
-         if(DCOpHasParentArg1(op))
+         if(op != DCCnfAddArg)
          {
-            if(i!=0)
+            if(DCOpHasParentArg1(op))
             {
-               fprintf(out, ", ");
-            }
-            fprintf(out, "%ld",
-                    get_clauseform_id(op, 1, PStackElementP(derivation, i+1)));
-            if(DCOpHasParentArg2(op))
-            {
-               fprintf(out, ", %ld",
-                       get_clauseform_id(op, 2, PStackElementP(derivation, i+2)));
-            }
-         }
-         switch(op)
-         {
-         case DCCnfQuote:
-         case DCFofQuote:
-               break;
-         case DCIntroDef:
-               break;
-         case DCACRes:
-               ac_limit = PStackElementInt(derivation, i+1);
-               for(j=0; j<ac_limit; j++)
+               if(i!=0)
                {
-                  ax = PStackElementP(sig->ac_axioms, j);
-                  fprintf(out, ", %ld", ax->ident);
+                  fprintf(out, ", ");
                }
-               fprintf(out, ")");
+               fprintf(out, "%ld",
+                       get_clauseform_id(op, 1, PStackElementP(derivation, i+1)));
+               if(DCOpHasParentArg2(op))
+               {
+                  fprintf(out, ", %ld",
+                          get_clauseform_id(op, 2, PStackElementP(derivation, i+2)));
+               }
+            }
+            while(!PStackEmpty(arg_stack))
+            {
+               ax = PStackPopP(arg_stack);
+               fprintf(out, ", %ld", ax->ident);
+            }
+            switch(op)
+            {
+            case DCCnfQuote:
+            case DCFofQuote:
+                  break;
+            case DCIntroDef:
+                  break;
+            case DCACRes:
+                  ac_limit = PStackElementInt(derivation, i+1);
+                  for(j=0; j<ac_limit; j++)
+                  {
+                     ax = PStackElementP(sig->ac_axioms, j);
+                     fprintf(out, ", %ld", ax->ident);
+                  }
+                  fprintf(out, ")");
                break;
-         default:
-               fprintf(out, ")");
-               break;
+            default:
+                  fprintf(out, ")");
+                  break;
+            }
          }
       }
       /* Cleanup */
+      PStackFree(arg_stack);
       PStackFree(subexpr_stack);
    }
 }
@@ -1130,6 +1142,7 @@ void DerivationStackPCLPrint(FILE* out, Sig_p sig, PStack_p derivation)
 void DerivationStackTSTPPrint(FILE* out, Sig_p sig, PStack_p derivation)
 {
    PStack_p subexpr_stack;
+   PStack_p arg_stack;
    PStackPointer i, j, sp, ac_limit;
    DerivationCodes op, opc;
    Clause_p        ax;
@@ -1137,6 +1150,7 @@ void DerivationStackTSTPPrint(FILE* out, Sig_p sig, PStack_p derivation)
    if(derivation)
    {
       subexpr_stack = PStackAlloc();
+      arg_stack     = PStackAlloc();
 
       /* Find the beginnings of the subexpressions */
       sp = PStackGetSP(derivation);
@@ -1171,6 +1185,9 @@ void DerivationStackTSTPPrint(FILE* out, Sig_p sig, PStack_p derivation)
          case DCIntroDef:
                fprintf(out, "%s", opids[DPOpGetOpCode(op)]);
                break;
+         case DCCnfAddArg:
+               PStackPushP(arg_stack, PStackElementP(derivation, i+1));
+               break;
          default:
                fprintf(out, "inference(%s,[status(%s)],[",
                        opids[opc],
@@ -1185,50 +1202,59 @@ void DerivationStackTSTPPrint(FILE* out, Sig_p sig, PStack_p derivation)
          i = PStackElementInt(subexpr_stack, sp);
          op  = PStackElementInt(derivation, i);
          opc = DPOpGetOpCode(op);
-         if(DCOpHasParentArg1(op))
+         if(op != DCCnfAddArg)
          {
-            if(i!=0)
+            if(DCOpHasParentArg1(op))
             {
-               fprintf(out, ", ");
+               if(i!=0)
+               {
+                  fprintf(out, ", ");
+               }
+               fprintf(out, "%s",
+                       tstp_get_clauseform_id(op, 1, PStackElementP(derivation, i+1)));
+               if(DCOpHasParentArg2(op))
+               {
+                  fprintf(out, ", %s",
+                          tstp_get_clauseform_id(op, 2, PStackElementP(derivation, i+2)));
+               }
             }
-            fprintf(out, "%s",
-                    tstp_get_clauseform_id(op, 1, PStackElementP(derivation, i+1)));
-            if(DCOpHasParentArg2(op))
+            while(!PStackEmpty(arg_stack))
             {
-               fprintf(out, ", %s",
-                       tstp_get_clauseform_id(op, 2, PStackElementP(derivation, i+2)));
+               ax = PStackPopP(arg_stack);
+               fprintf(out, ", c_0_%ld", ax->ident);
             }
-         }
-         switch(op)
-         {
-         case DCCnfQuote:
-         case DCFofQuote:
-               break;
-         case DCIntroDef:
-               break;
-         case DCACRes:
-               ac_limit = PStackElementInt(derivation, i+1);
-               for(j=0; j<ac_limit; j++)
+            switch(op)
+            {
+            case DCCnfQuote:
+            case DCFofQuote:
+                  break;
+            case DCIntroDef:
+                  break;
+            case DCACRes:
+                  ac_limit = PStackElementInt(derivation, i+1);
+                  for(j=0; j<ac_limit; j++)
                {
                   ax = PStackElementP(sig->ac_axioms, j);
                   fprintf(out, ", c_0_%ld", ax->ident);
                }
-               if(optheory[opc])
-               {
-                  fprintf(out, ", theory(%s)",optheory[opc]);
+                  if(optheory[opc])
+                  {
+                     fprintf(out, ", theory(%s)",optheory[opc]);
                }
-               fprintf(out, "])");
-               break;
-         default:
+                  fprintf(out, "])");
+                  break;
+            default:
               if(optheory[opc])
-               {
-                  fprintf(out, ", theory(%s)",optheory[opc]);
-               }
-               fprintf(out, "])");
-               break;
+              {
+                 fprintf(out, ", theory(%s)",optheory[opc]);
+              }
+              fprintf(out, "])");
+              break;
+            }
          }
       }
       /* Cleanup */
+      PStackFree(arg_stack);
       PStackFree(subexpr_stack);
    }
 }

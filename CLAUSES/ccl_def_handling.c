@@ -265,11 +265,8 @@ FunCode GetDefinitions(DefStore_p store, Eqn_p litlist,
       def_pred    = SigGetNewPredicateCode(store->terms->sig, 0);
       SigDeclareType(store->terms->sig, def_pred, store->terms->sig->type_bank->bool_type);
 
-      if(OutputLevel >= 2 || BuildProofObject)
-      {
-         *res_form = GetFormulaDefinition(litlist, def_pred);
-         FormulaSetInsert(store->def_archive, *res_form);
-      }
+      *res_form = GetFormulaDefinition(litlist, def_pred);
+      FormulaSetInsert(store->def_archive, *res_form);
       *res_clause = GetClauseDefinition(litlist, def_pred, *res_form);
    }
    else
@@ -288,10 +285,7 @@ FunCode GetDefinitions(DefStore_p store, Eqn_p litlist,
                                        variant->ident);
          assert(assoc);
          *res_clause = NULL; /* Clause already exists */
-         if(OutputLevel >= 2 || BuildProofObject)
-         {
-            *res_form = assoc->val2.p_val;
-         }
+         *res_form = assoc->val2.p_val;
          def_pred = assoc->val1.i_val;
          ClauseFree(def_clause);
          EqnListFree(litlist);
@@ -302,11 +296,8 @@ FunCode GetDefinitions(DefStore_p store, Eqn_p litlist,
 
          def_pred = SigGetNewPredicateCode(store->terms->sig, 0);
          SigDeclareType(store->terms->sig, def_pred, store->terms->sig->type_bank->bool_type);
-         if(OutputLevel >= 2 || BuildProofObject)
-         {
-            *res_form = GetFormulaDefinition(litlist, def_pred);
-            FormulaSetInsert(store->def_archive, *res_form);
-         }
+         *res_form = GetFormulaDefinition(litlist, def_pred);
+         FormulaSetInsert(store->def_archive, *res_form);
          *res_clause = GetClauseDefinition(litlist, def_pred, *res_form);
 
          def_pred_store.i_val = def_pred;
@@ -328,5 +319,3 @@ FunCode GetDefinitions(DefStore_p store, Eqn_p litlist,
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
