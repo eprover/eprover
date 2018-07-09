@@ -211,7 +211,7 @@ int main(int argc, char* argv[])
       BatchStructFOFSpecInit(spec, ctrl, ScannerGetDefaultDir(in));
       now = GetSecTime();
       res = BatchProcessProblems(spec, ctrl,
-                                 MAX(0,total_wtc_limit-(now-start)),
+                                 MAX(0,spec->total_wtc_limit-(now-start)),
                                  ScannerGetDefaultDir(in),
                                  outdir);
       now = GetSecTime();
