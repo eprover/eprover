@@ -29,6 +29,7 @@
 #include <ccl_def_handling.h>
 #include <ccl_garbage_coll.h>
 #include <ccl_global_indices.h>
+#include <picosat.h>
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
@@ -99,6 +100,7 @@ typedef struct proofstatecell
    unsigned long satcheck_full_size; // Number of prop. clauses
    unsigned long satcheck_actual_size; // ...after purity reduction
    unsigned long satcheck_core_size; // ...in unsat core (if any)
+   void*         solver;
 
    /* The following are only set by ProofStateAnalyse() after
       DerivationCompute() at the end of the proof search. */
@@ -176,6 +178,8 @@ void ProofStatePropDocQuote(FILE* out, int level,
 #define WATCHLIST_INLINE_STRING "Use inline watchlist type"
 #define WATCHLIST_INLINE_QSTRING "'" WATCHLIST_INLINE_STRING "'"
 extern char* UseInlinedWatchList;
+
+void ProofStateResetSATSolver(ProofState_p state);
 
 
 #endif
