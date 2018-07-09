@@ -228,6 +228,7 @@ ProofState_p ProofStateAlloc(FunctionProperties free_symb_prop)
    handle->satcheck_full_size   = 0;
    handle->satcheck_actual_size = 0;
    handle->satcheck_core_size   = 0;
+   handle->solver               = picosat_init();
    handle->gc_count             = 0;
    handle->gc_used_count        = 0;
 
@@ -745,6 +746,24 @@ void ProofStatePropDocQuote(FILE* out, int level,
           state->processed_non_units, comment);
    ClauseSetPropDocQuote(GlobalOut, level, prop,
           state->unprocessed, comment);
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: ProofStateResetSATSolver()
+//
+//   Resets SAT solver state to make it ready for the next attempt.
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+void ProofStateResetSATSolver(ProofState_p state)
+{
+   picosat_reset(state->solver);
+   state->solver = picosat_init();
 }
 
 /*---------------------------------------------------------------------*/

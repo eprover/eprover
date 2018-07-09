@@ -925,7 +925,7 @@ Clause_p SATCheck(ProofState_p state, ProofControl_p control)
 
       // printf("# SatCheck()..imported\n");
 
-      res = SatClauseSetCheckUnsat(set, &empty);
+      res = SatClauseSetCheckUnsat(set, &empty, state->solver);
       state->satcheck_count++;
       if(res == PRUnsatisfiable)
       {
@@ -940,6 +940,7 @@ Clause_p SATCheck(ProofState_p state, ProofControl_p control)
       }
       SatClauseSetFree(set);
    }
+   ProofStateResetSATSolver(state);
    return empty;
 }
 

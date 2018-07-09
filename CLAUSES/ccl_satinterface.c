@@ -333,6 +333,55 @@ bool prefer_global_min_freq(FunCode f1, FunCode f2, long* conj_dist_array,
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: sat_clause_not_pure()
+//
+//   Does the SAT clause have no pure literals?
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+bool sat_clause_not_pure(SatClause_p cl)
+{
+   return !cl->has_pure_lit;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: sat_clause_is_pure()
+//
+//   Adds the clauses that satisfy filter to the solver state. filter
+//   can be NULL in which case all the clauses are added. 
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void export_to_solver(SatSolver_p solver, SatClauseSet_p set, SatClauseFilter filter)
+{
+   PStackPointer i;
+   SatClause_p clause;
+
+   assert(set);
+
+   PStackReset(set->exported);
+   for(i=0; i<PStackGetSP(set->set); i++)
+   {
+      clause = PStackElementP(set->set, i);
+      if(filter == NULL || filter(clause))
+      {
+         picosat_add_lits(solver, clause->literals);
+         PStackPushP(set->exported, clause);
+      }
+   }
+}
+
 
 
 /*---------------------------------------------------------------------*/
@@ -343,9 +392,10 @@ bool prefer_global_min_freq(FunCode f1, FunCode f2, long* conj_dist_array,
 //
 // Function: SatClauseAlloc()
 //
-//   Allocate an empy, unlinked propositional clause with space for a
-//   given number of literals. Note that the literals are not
-//   initialized (not even to 0).
+//   Allocate an empty, unlinked propositional clause with space for a
+//   given number of literals. Allocates space for lit_no+1 literals,
+//   where the last literal is 0 (to support efficient integration with
+//   PicoSAT). Note that other literals are not initialized (not even to 0).
 //
 // Global Variables: -
 //
@@ -359,7 +409,9 @@ SatClause_p SatClauseAlloc(int lit_no)
 
    handle->has_pure_lit = false;
    handle->lit_no       = lit_no;
-   handle->literals     = SizeMalloc(handle->lit_no*sizeof(int));
+   // allocating space for terminating zero
+   handle->literals     = SizeMalloc((handle->lit_no+1)*sizeof(int));
+   handle->literals[handle->lit_no] = 0;
    handle->source       = NULL;
 
    return handle;
@@ -381,7 +433,7 @@ void SatClauseFree(SatClause_p junk)
 {
    assert(junk);
 
-   SizeFree(junk->literals, junk->lit_no*sizeof(int));
+   SizeFree(junk->literals, (junk->lit_no+1)*sizeof(int));
    SatClauseCellFree(junk);
 }
 
@@ -408,7 +460,7 @@ SatClauseSet_p SatClauseSetAlloc(void)
    set->renumber_index = NULL; // We create this lazily when we know
                                // the first index!
    set->set      = PStackAlloc();
-   set->printset = PStackAlloc();
+   set->exported = PStackAlloc();
    set->core_size = 0;
    return set;
 }
@@ -440,7 +492,7 @@ void SatClauseSetFree(SatClauseSet_p junk)
       SatClauseFree(clause);
    }
    PStackFree(junk->set);
-   PStackFree(junk->printset);
+   PStackFree(junk->exported);
    SatClauseSetCellFree(junk);
 }
 
@@ -513,11 +565,12 @@ void SatClausePrint(FILE* out, SatClause_p satclause)
 }
 
 
+
 /*-----------------------------------------------------------------------
 //
-// Function: SatClauseSetPrint()
+// Function: SatClauseSetExportToSolver()
 //
-//   Print a SatClauseSet.
+//   Exports all clauses to solver.
 //
 // Global Variables: -
 //
@@ -525,28 +578,17 @@ void SatClausePrint(FILE* out, SatClause_p satclause)
 //
 /----------------------------------------------------------------------*/
 
-void SatClauseSetPrint(FILE* out, SatClauseSet_p set)
+void SatClauseSetExportToSolver(SatSolver_p solver, SatClauseSet_p set)
 {
-   PStackPointer i;
-
-   assert(set);
-
-   fprintf(out, "p cnf %d %ld\n", set->max_lit, PStackGetSP(set->set));
-
-   for(i=0; i<PStackGetSP(set->set); i++)
-   {
-      SatClausePrint(out, PStackElementP(set->set, i));
-   }
-   //printf("0\n");
+   export_to_solver(solver, set, NULL);
 }
-
 
 
 /*-----------------------------------------------------------------------
 //
-// Function: SatClauseSetPrintNonPure()
+// Function: SatClauseSetExportToSolverNonPure()
 //
-//   Print a SatClauseSet.
+//   Exports non-pure clauses to solver.
 //
 // Global Variables: -
 //
@@ -554,30 +596,10 @@ void SatClauseSetPrint(FILE* out, SatClauseSet_p set)
 //
 /----------------------------------------------------------------------*/
 
-void SatClauseSetPrintNonPure(FILE* out, SatClauseSet_p set, long pure)
+void SatClauseSetExportToSolverNonPure(SatSolver_p solver, SatClauseSet_p set)
 {
-   PStackPointer i;
-   SatClause_p clause;
-
-   assert(set);
-
-   fprintf(out, "c Skipping %ld pure clauses\n", pure);
-   fprintf(out, "p cnf %d %ld\n", set->max_lit, PStackGetSP(set->set)-pure);
-
-   PStackReset(set->printset);
-   for(i=0; i<PStackGetSP(set->set); i++)
-   {
-      clause = PStackElementP(set->set, i);
-      if(!clause->has_pure_lit)
-      {
-         SatClausePrint(out, clause);
-         PStackPushP(set->printset, clause);
-      }
-   }
-   //printf("0\n");
+   export_to_solver(solver, set, sat_clause_not_pure);
 }
-
-
 
 
 /*-----------------------------------------------------------------------
@@ -607,7 +629,6 @@ long SatClauseSetImportClauseSet(SatClauseSet_p satset, ClauseSet_p set)
    }
    return ClauseSetCardinality(set);
 }
-
 
 
 
@@ -888,7 +909,6 @@ long SatClauseSetImportProofState(SatClauseSet_p satset, ProofState_p state,
 
 
 
-
 /*-----------------------------------------------------------------------
 //
 // Function: SatClauseSetMarkPure()
@@ -940,9 +960,8 @@ long SatClauseSetMarkPure(SatClauseSet_p satset)
 //
 // Function: sat_extract_core()
 //
-//   Given a file (pipe) pointer pointing to a PicoSAT output, extract
-//   the original clauses pointing to the unsatisfiable core and push
-//   them onto core.
+//   Extracts the original clauses pointing to the unsatisfiable core 
+//   and pushes them onto core.
 //
 // Global Variables: -
 //
@@ -950,55 +969,32 @@ long SatClauseSetMarkPure(SatClauseSet_p satset)
 //
 /----------------------------------------------------------------------*/
 
-long sat_extract_core(SatClauseSet_p satset, PStack_p core, FILE* picofp)
+long sat_extract_core(SatClauseSet_p satset, PStack_p core, SatSolver_p solver)
 {
-   DStr_p line = DStrAlloc();
-   char* ptr;
-   long id, dummy, res = 0;
-   bool parents = false;
    SatClause_p satclause;
+   long        nr_exported = PStackGetSP(core);
+   long        res = 0;
 
-   while((ptr = DStrFGetS(line, picofp)))
+   for(long id=0; id<nr_exported; id++)
    {
-      id = strtol(ptr, &ptr, 10);
-      ptr ++;
-      // Skip literals
-      while((dummy = strtol(ptr, &ptr, 10))!=0)
+      if(picosat_coreclause(solver, id))
       {
-         ptr++;
-      }
-      // check for parents
-
-      while((dummy = strtol(ptr, &ptr, 10))!=0)
-      {
-         ptr++;
-         parents = true;
-      }
-      if(!parents)
-      {
-         //printf("# %s", DStrView(line));
-         //printf("# Clause %ld in core\n", id);
-         // PicoSAT id start at 1, Stack addresses at 0!
-         if(id <= PStackGetSP(satset->printset))
+         if(id < PStackGetSP(satset->exported))
          {
             res++;
-            satclause = PStackElementP(satset->printset, id-1);
+            satclause = PStackElementP(satset->exported, id);
             PStackPushP(core, satclause->source);
-            //ClausePrint(stdout, satclause->source, true);printf("\n");
          }
          else
          {
-            Error("PicoSat returns impossible clause number", INTERFACE_ERROR);
+            Error("PicoSat returns impossible clause number",
+                  INTERFACE_ERROR);
          }
       }
    }
 
-   DStrFree(line);
-
    return res;
 }
-
-
 
 /*-----------------------------------------------------------------------
 //
@@ -1012,65 +1008,39 @@ long sat_extract_core(SatClauseSet_p satset, PStack_p core, FILE* picofp)
 // Side Effects    : Runs external SAT solver, file operations, ...
 //
 /----------------------------------------------------------------------*/
-#define STR_EXPAND(tok) #tok
-#define STR(tok) STR_EXPAND(tok)
 
-ProverResult SatClauseSetCheckUnsat(SatClauseSet_p satset, Clause_p *empty)
+ProverResult SatClauseSetCheckUnsat(SatClauseSet_p satset, Clause_p *empty, 
+                                    SatSolver_p solver)
 {
-   static char buffer[PICOSAT_BUFSIZE];
+   ProverResult res;
+   Clause_p     parent;
 
-   long pure = 0;
-   ProverResult res = PRNoResult;
-   char *file, *data;
-   FILE *fp, *picores;
-   DStr_p cmd = DStrAlloc();
-   Clause_p parent;
+   SatClauseSetMarkPure(satset);
+   SatClauseSetExportToSolverNonPure(solver, satset);
+   
+   res = SAT_TO_E_RESULT(picosat_sat(solver, -1));
 
-   pure = SatClauseSetMarkPure(satset);
-
-   // printf("# SatCheck()... %ld marked pure\n", pure);
-
-   file = TempFileName();
-   fp   = SecureFOpen(file, "w");
-   SatClauseSetPrintNonPure(fp, satset, pure);
-   SecureFClose(fp);
-
-   DStrAppendStr(cmd, STR(EXECPATH) "/picosat -L 2 -T -");
-   DStrAppendStr(cmd, " ");
-   DStrAppendStr(cmd, file);
-   picores = popen(DStrView(cmd), "r");
-
-   while((data = fgets(buffer, PICOSAT_BUFSIZE, picores)))
+   if(res == PRUnsatisfiable)
    {
-      // fprintf(GlobalOut, "# PICO: %s", data);
-      if(strcmp(data, "s UNSATISFIABLE\n") == 0)
+      PStack_p unsat_core = PStackAlloc();
+      //fprintf(GlobalOut, "# SatCheck found unsatisfiable ground set\n");
+      *empty = EmptyClauseAlloc();
+      sat_extract_core(satset, unsat_core, solver);
+      satset->core_size = PStackGetSP(unsat_core);
+      parent = PStackPopP(unsat_core);
+      ClausePushDerivation(*empty, DCSatGen, parent, NULL);
+      while(!PStackEmpty(unsat_core))
       {
-         PStack_p unsat_core = PStackAlloc();
-         //fprintf(GlobalOut, "# SatCheck found unsatisfiable ground set\n");
-         *empty = EmptyClauseAlloc();
-         sat_extract_core(satset, unsat_core, picores);
-         satset->core_size = PStackGetSP(unsat_core);
          parent = PStackPopP(unsat_core);
-         ClausePushDerivation(*empty, DCSatGen, parent, NULL);
-         while(!PStackEmpty(unsat_core))
-         {
-            parent = PStackPopP(unsat_core);
-            ClausePushDerivation(*empty, DCCnfAddArg, parent, NULL);
-         }
-         PStackFree(unsat_core);
-         res = PRUnsatisfiable;
+         ClausePushDerivation(*empty, DCCnfAddArg, parent, NULL);
       }
-      else if(strcmp(data, "s SATISFIABLE\n") == 0)
-      {
-         //fprintf(GlobalOut, "# SatCheck found grounded set model\n");
-         res = PRSatisfiable;
-         break;
-      }
+      PStackFree(unsat_core);
    }
-   pclose(picores);
-   TempFileRemove(file);
-   FREE(file);
-   DStrFree(cmd);
+   else
+   {
+      assert(res == PRSatisfiable);
+   }
+
    return res;
 }
 
