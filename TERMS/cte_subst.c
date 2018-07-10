@@ -468,8 +468,8 @@ bool SubstIsTrivial(Subst_p subst)
       {
          return false;
       }
-   }
-   
+   }   
+
    return true;
 }
 
