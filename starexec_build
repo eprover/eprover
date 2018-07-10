@@ -1,8 +1,12 @@
 #!/bin/tcsh
 
-./configure --bindir=bin/
-make
-make install
+make clean
+make rebuild
 
-mkdir bin/bin
-cp bin/picosat bin/bin/picosat
+cp PROVER/eprover bin/eprover.ho
+
+mv Makefile.vars.nolfhol Makefile.vars
+
+make rebuild
+
+cp PROVER/eprover bin/eprover.fo
