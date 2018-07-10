@@ -919,6 +919,15 @@ Clause_p SATCheck(ProofState_p state, ProofControl_p control)
       //state->proc_non_trivial_count,
       //ProofStateCardinality(state));
 
+      if(state->instance_encoding_limit != -1)
+      {
+         state->instance_encoding_remaining = state->instance_encoding_limit;
+      }
+      else
+      {
+         state->instance_encoding_remaining = 0;
+      }
+
       SatClauseSetImportProofState(set, state,
                                    control->heuristic_parms.sat_check_grounding,
                                    control->heuristic_parms.sat_check_normconst);

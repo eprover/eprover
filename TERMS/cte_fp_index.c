@@ -385,6 +385,96 @@ static long fp_index_rek_find_matchable(FPTree_p index, IndexFP_p key,
    return res;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: fp_index_rek_find_generalizations()
+//
+//   Find (and push) all payloads from terms that are possible 
+//   generalizations of the term with FP index key.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory managment.
+//
+/----------------------------------------------------------------------*/
+
+static long fp_index_rek_find_generalizations(FPTree_p index, IndexFP_p key,
+                                        Sig_p sig,
+                                        int current, PStack_p collect)
+{
+   long    res = 0;
+   
+   if(!index)
+   {
+      return 0;
+   }
+   if(current == key[0])
+   {
+      PStackPushP(collect, index->payload);
+      return 1;
+   }
+   if(key[current] > 0)
+   {
+      /* t|p is a function symbol, compatible with:
+         - the same symbol
+         - any variable
+         - below any variable  */
+      res += fp_index_rek_find_generalizations(fpindex_alternative(index, key[current]),
+                                               key,
+                                               sig,
+                                               current+1,
+                                               collect);
+
+      res += fp_index_rek_find_generalizations(fpindex_alternative(index, ANY_VAR),
+                                               key,
+                                               sig,
+                                               current+1,
+                                               collect);
+
+      res += fp_index_rek_find_generalizations(fpindex_alternative(index, BELOW_VAR),
+                                               key,
+                                               sig,
+                                               current+1,
+                                               collect);
+   }
+   else if(key[current] == NOT_IN_TERM)
+   {
+      /* Position does not exist in t or any instance:
+         - it cannot match an existing position
+         - It can match below-var, though, as instantiation can
+         introduce new excluded positions */
+      res += fp_index_rek_find_generalizations(fpindex_alternative(index, NOT_IN_TERM),
+                                               key,
+                                               sig,
+                                               current+1,
+                                               collect);
+      
+      res += fp_index_rek_find_generalizations(fpindex_alternative(index, BELOW_VAR),
+                                               key,
+                                               sig,
+                                               current+1,
+                                               collect);
+   }
+   else
+   {
+      assert(key[current] == ANY_VAR || key[current] == BELOW_VAR);
+      if(key[current] == ANY_VAR)
+      {
+         res += fp_index_rek_find_generalizations(fpindex_alternative(index, ANY_VAR),
+                                                  key,
+                                                  sig,
+                                                  current+1,
+                                                  collect);
+      }
+      res += fp_index_rek_find_generalizations(fpindex_alternative(index, BELOW_VAR),
+                                               key,
+                                               sig,
+                                               current+1,
+                                               collect);
+   }
+   return res;
+}
+
 
 /*-----------------------------------------------------------------------
 //
@@ -1107,6 +1197,31 @@ long FPTreeFindMatchable(FPTree_p root,
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: FPTreeFindGeneralizations()
+//
+//   Push all the payloads of nodes generalization-compatible with the
+//   given key onto the stack. Return number of payloads pushed.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+long FPTreeFindGeneralizations(FPTree_p root,
+                               IndexFP_p key,
+                               Sig_p sig,
+                               PStack_p collect)
+{
+   long count = 0;
+
+   count = fp_index_rek_find_generalizations(root, key, sig, 1, collect);
+
+   return count;
+}
+
 
 /*-----------------------------------------------------------------------
 //
@@ -1298,6 +1413,42 @@ long FPIndexFindMatchable(FPIndex_p index, Term_p term, PStack_p collect)
 
       res = FPTreeFindMatchable(index->index, key, index->sig, collect);
 
+   }
+   IndexFPFree(key);
+   PERF_CTR_EXIT(IndexMatchTimer);
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: FPIndexFindGeneralizations()
+//
+//   Return (via collect) all payloads of nodes representing
+//   terms that might generalize the query term.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+long FPIndexFindGeneralizations(FPIndex_p index, Term_p term, PStack_p collect)
+{
+   long res;
+   IndexFP_p key;
+
+   PERF_CTR_ENTRY(IndexMatchTimer);
+   key = index->fp_fun(term);
+
+   if(index->fp_fun == IndexDTCreate)
+   {
+      res = 0;
+      assert(false && "discrimination trees simulation not yet supported");
+   }
+   else
+   {
+      res = FPTreeFindGeneralizations(index->index, key, index->sig, collect);
    }
    IndexFPFree(key);
    PERF_CTR_EXIT(IndexMatchTimer);

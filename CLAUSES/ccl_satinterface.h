@@ -84,6 +84,9 @@ extern char* GroundingStratNames[];
 SatClause_p SatClauseAlloc(int lit_no);
 void        SatClauseFree(SatClause_p junk);
 
+SatClause_p SatClauseBinary(int lit1, int lit2);
+#define SatClauseImplication(a, b) (SatClauseBinary(-(a), (b)))
+
 #define SatClauseSetCellAlloc()    (SatClauseSetCell*)SizeMalloc(sizeof(SatClauseSetCell))
 #define SatClauseSetCellFree(junk) SizeFree(junk, sizeof(SatClauseSetCell))
 
@@ -96,7 +99,8 @@ void           SatClauseSetFree(SatClauseSet_p junk);
 #define SatClauseSetCoreSize(satset) (satset)->core_size
 
 
-SatClause_p SatClauseCreateAndStore(Clause_p clause, SatClauseSet_p set);
+SatClause_p SatClauseCreateAndStore(Clause_p clause, SatClauseSet_p set,
+                                    int* encode_ins, FPIndex_p from_idx);
 void        SatClausePrint(FILE* out, SatClause_p satclause);
 
 void        SatClauseSetPrint(FILE* out, SatClauseSet_p set);
@@ -109,7 +113,7 @@ Subst_p     SubstGroundVarBankFirstConst(TB_p terms, bool norm_const);
 Subst_p     SubstGroundFreqBased(TB_p terms, ClauseSet_p clauses,
                                  FunConstCmpFunType is_better, bool norm_const);
 
-long        SatClauseSetImportClauseSet(SatClauseSet_p satset, ClauseSet_p set);
+long        SatClauseSetImportClauseSet(SatClauseSet_p satset, ClauseSet_p set, ProofState_p state);
 long        SatClauseSetImportProofState(SatClauseSet_p satset, ProofState_p state,
                                          GroundingStrategy strat, bool norm_const);
 long        SatClauseSetMarkPure(SatClauseSet_p satset);
