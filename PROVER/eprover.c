@@ -86,7 +86,8 @@ long              step_limit = LONG_MAX,
    generated_limit = LONG_MAX,
    eqdef_maxclauses = DEFAULT_EQDEF_MAXCLAUSES,
    relevance_prune_level = 0,
-   miniscope_limit = 1000;
+   miniscope_limit = 1000,
+   gen_instances_limit = -1;
 long long tb_insert_limit = LLONG_MAX;
 
 int eqdef_incrlimit = DEFAULT_EQDEF_INCRLIMIT,
@@ -173,6 +174,7 @@ ProofState_p parse_spec(CLState_p state,
    proofstate->has_interpreted_symbols =
       FormulaSetHasInterpretedSymbol(proofstate->f_axioms);
    parsed_ax_no = ProofStateAxNo(proofstate);
+   proofstate->instance_encoding_limit = gen_instances_limit;
 
    if(error_on_empty_local && (parsed_ax_no == 0))
    {
@@ -1606,6 +1608,11 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_APP_ENCODE:
             app_encode = true;
             break;
+      case OPT_ENCODE_INSTANCES:
+            gen_instances_limit = 
+                CLStateGetIntArgCheckRange(handle, arg, 0, LONG_MAX);
+            break;
+
       default:
             assert(false && "Unknown option");
             break;
