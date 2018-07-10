@@ -229,6 +229,7 @@ ProofState_p ProofStateAlloc(FunctionProperties free_symb_prop)
    handle->satcheck_actual_size = 0;
    handle->satcheck_core_size   = 0;
    handle->solver               = picosat_init();
+   picosat_enable_trace_generation(handle->solver);
    handle->gc_count             = 0;
    handle->gc_used_count        = 0;
 
@@ -764,6 +765,7 @@ void ProofStateResetSATSolver(ProofState_p state)
 {
    picosat_reset(state->solver);
    state->solver = picosat_init();
+   picosat_enable_trace_generation(state->solver);
 }
 
 /*---------------------------------------------------------------------*/

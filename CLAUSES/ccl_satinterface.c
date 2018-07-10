@@ -565,6 +565,33 @@ void SatClausePrint(FILE* out, SatClause_p satclause)
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: SatClauseSetPrint()
+//
+//   Print a SatClauseSet.
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+void SatClauseSetPrint(FILE* out, SatClauseSet_p set)
+{
+   PStackPointer i;
+
+   assert(set);
+
+   fprintf(out, "p cnf %d %ld\n", set->max_lit, PStackGetSP(set->set));
+
+   for(i=0; i<PStackGetSP(set->set); i++)
+   {
+      SatClausePrint(out, PStackElementP(set->set, i));
+   }
+   //printf("0\n");
+}
+
 
 /*-----------------------------------------------------------------------
 //
@@ -972,7 +999,7 @@ long SatClauseSetMarkPure(SatClauseSet_p satset)
 long sat_extract_core(SatClauseSet_p satset, PStack_p core, SatSolver_p solver)
 {
    SatClause_p satclause;
-   long        nr_exported = PStackGetSP(core);
+   long        nr_exported = PStackGetSP(satset->exported);
    long        res = 0;
 
    for(long id=0; id<nr_exported; id++)
@@ -1017,7 +1044,7 @@ ProverResult SatClauseSetCheckUnsat(SatClauseSet_p satset, Clause_p *empty,
 
    SatClauseSetMarkPure(satset);
    SatClauseSetExportToSolverNonPure(solver, satset);
-   
+
    res = SAT_TO_E_RESULT(picosat_sat(solver, -1));
 
    if(res == PRUnsatisfiable)

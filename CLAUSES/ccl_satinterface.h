@@ -117,8 +117,8 @@ ProverResult SatClauseSetCheckUnsat(SatClauseSet_p satset, Clause_p *empty,
                                     SatSolver_p solver);
 
 #define SAT_TO_E_RESULT(satres) ((satres) == PICOSAT_SATISFIABLE ?\
-                                  PRSatisfiable : assert(satres == PICOSAT_UNSATISFIABLE),\
-                                                  PRUnsatisfiable)
+                                  PRSatisfiable : (assert((satres) == PICOSAT_UNSATISFIABLE),\
+                                                  PRUnsatisfiable))
 
 
 
