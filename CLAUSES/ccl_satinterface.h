@@ -63,7 +63,8 @@ typedef enum
    GMConjMinMaxFreq, /* Rarest in conjectures, most frequent overall */
    GMConjMaxMaxFreq,
    GMGlobalMax,
-   GMGlobalMin
+   GMGlobalMin,
+   GMGenInstances
 }GroundingStrategy;
 
 typedef bool (*SatClauseFilter)(SatClause_p);

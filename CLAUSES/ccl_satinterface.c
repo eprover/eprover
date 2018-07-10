@@ -417,21 +417,20 @@ void encode_instances(SatClauseSet_p set, Eqn_p lit, int lit_no,
          while((cell = PTreeTraverseNext(iter)) && *encode_ins > 0)
          {
             Term_p possible_gen = ((SubtermOcc_p)cell->key)->term;
-            assert(TermCellQueryProp(possible_gen, TPPredPos));
             assert(SubstIsEmpty(dummy_subst));
 
-            if(SubstMatchPossiblyPartial(possible_gen, query_term, dummy_subst, bank) 
-                  != MATCH_FAILED && !SubstIsTrivial(dummy_subst))
+            if((SubstMatchPossiblyPartial(possible_gen, query_term, dummy_subst, bank) 
+                  != MATCH_FAILED) && !SubstIsTrivial(dummy_subst))
             {
+               assert(TermCellQueryProp(possible_gen, TPPredPos));
+               SubstBacktrack(dummy_subst);
                Eqn_p gen_lit = EqnAlloc(possible_gen, bank->true_term, bank, true);
                int   gen_litno = sat_translate_literal(gen_lit, set);
                assert(ABS(gen_litno) != ABS(lit_no));
-
+               
                // encodes implication if general then instance
                PStackPushP(set->set, SatClauseImplication(gen_litno, ABS(lit_no)));
                (*encode_ins)--;
-
-               fprintf(stderr, "# encoded a generalization");
                
                EqnFree(gen_lit);
             }
@@ -439,9 +438,9 @@ void encode_instances(SatClauseSet_p set, Eqn_p lit, int lit_no,
          }
          PTreeTraverseExit(iter);
       }
-
       PStackFree(candidates);
    }
+   SubstDelete(dummy_subst);
 }
 
 
@@ -967,7 +966,7 @@ long SatClauseSetImportProofState(SatClauseSet_p satset, ProofState_p state,
 
    if(state->instance_encoding_limit != -1)
    {
-      strat = GMPseudoVar; // otherwise everything is ground
+      strat = GMGenInstances; // otherwise we cannot match
    }
 
    //printf("# SatClauseSetImportProofState()\n");
@@ -1017,6 +1016,8 @@ long SatClauseSetImportProofState(SatClauseSet_p satset, ProofState_p state,
                                                   prefer_global_min_freq,
                                                   norm_const);
          break;
+   case GMGenInstances:
+         break;
    default:
          assert(false && "Unimplemented grounding strategy");
          break;
@@ -1029,7 +1030,10 @@ long SatClauseSetImportProofState(SatClauseSet_p satset, ProofState_p state,
    res += SatClauseSetImportClauseSet(satset, state->processed_non_units, state);
    res += SatClauseSetImportClauseSet(satset, state->unprocessed, state);
 
-   SubstDelete(pseudogroundsubst);
+   if(strat != GMGenInstances)
+   {
+      SubstDelete(pseudogroundsubst);
+   }
    return res;
 }
 
@@ -1149,7 +1153,7 @@ ProverResult SatClauseSetCheckUnsat(SatClauseSet_p satset, Clause_p *empty,
    if(res == PRUnsatisfiable)
    {
       PStack_p unsat_core = PStackAlloc();
-      //fprintf(GlobalOut, "# SatCheck found unsatisfiable ground set\n");
+      fprintf(GlobalOut, "# SatCheck found unsatisfiable ground set\n");
       *empty = EmptyClauseAlloc();
       sat_extract_core(satset, unsat_core, solver);
       satset->core_size = PStackGetSP(unsat_core);
