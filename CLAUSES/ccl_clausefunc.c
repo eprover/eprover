@@ -446,9 +446,55 @@ void ClauseSetArchiveCopy(ClauseSet_p archive, ClauseSet_p set)
 
 /*-----------------------------------------------------------------------
 //
+// Function: ClauseGetOriginalGC()
+//
+//    If clause is a copy of a new clause archived at the time of
+//    evaluation, follow the link back to the original clause with the
+//    original inference that created it.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+Clause_p ClauseGetOriginalGC(Clause_p clause)
+{
+   DerivationCode op;
+
+   assert(clause);
+
+   if(!clause->derivation)
+   {
+      return clause;
+   }
+   if(PStackEmpty(clause->derivation))
+   {
+      return clause;
+   }
+   op = PStackElementInt(clause->derivation, 0);
+
+   /* Logically we should also be able to follow DCCnfQuote. In
+      practice this is wrong - an interreduced clause will be
+      considered orphaned because it's parent is archived/dead. And
+      this is (I think) the only way DCCnfQuote ever comes into the
+      active part of the search. */
+   if(op!=DCCnfEvalGC)
+   {
+      return clause;
+   }
+   return ClauseGetOriginalGC(PStackElementP(clause->derivation, 1));
+}
+
+
+
+/*-----------------------------------------------------------------------
+//
 // Function:ClauseIsOrphaned()
 //
-//
+//   Return true if the clause is orphaned, i.e. if one of the direct
+//   premises of the original generating inferences that generated it
+//   has been back-simplified.
 //
 // Global Variables:
 //
@@ -462,7 +508,8 @@ bool ClauseIsOrphaned(Clause_p clause)
    DerivationCode op;
    Clause_p parent;
 
-   //return false;
+   assert(clause);
+
    if(!clause->derivation)
    {
       return false;
@@ -471,63 +518,30 @@ bool ClauseIsOrphaned(Clause_p clause)
    {
       return false;
    }
+   clause = ClauseGetOriginalGC(clause);
+
    op = PStackElementInt(clause->derivation, 0);
-
-   /* Logically we should also be able to follow DCCnfQuote. In
-      practice this is wrong - an interreduced clause will be
-      considered orphaned because it's parent is archived/dead. And
-      this is (I think) the only way DCCnfQuote ever comes into the
-      active part of the search. */
-   if(op==DCCnfEvalGC)
-   {
-      bool tmp;
-      parent = PStackElementP(clause->derivation, 1);
-
-      tmp =  ClauseIsOrphaned(parent);
-      //if(tmp)
-      //{
-      //  printf("\nXXX: "); ClauseTSTPPrint(stdout, clause, true, true);
-      //  printf("\nYYY: "); ClauseTSTPPrint(stdout, parent, true, true);
-      //  printf("\n");
-      //}
-      return tmp;
-   }
 
    if(!DCOpIsGenerating(op))
    {
       return false;
    }
-
    if(DCOpHasCnfArg1(op))
    {
       parent = PStackElementP(clause->derivation, 1);
       if(ClauseQueryProp(parent,CPIsDead))
       {
-         //printf("\nOrphan 1 %p: ", clause);ClauseTSTPPrint(stdout, clause, true, true); printf("\n");
-         //printf("Parent   %p: ", parent);ClauseTSTPPrint(stdout, parent, true, true); printf("\n");
-         //DerivationStackTSTPPrint(stdout, parent->literals->bank->sig, clause->derivation);
-         //printf("\n");
          return true;
       }
+      i++;
    }
    if(DCOpHasCnfArg2(op))
    {
       parent = PStackElementP(clause->derivation, 2);
       if(ClauseQueryProp(parent,CPIsDead))
       {
-         //printf("\nOrphan 2 %p: ", clause);ClauseTSTPPrint(stdout, clause, true, true); printf("\n");
-         //printf("Parent   %p: ", parent);ClauseTSTPPrint(stdout, parent, true, true); printf("\n");
-         //DerivationStackTSTPPrint(stdout, parent->literals->bank->sig, clause->derivation);
-         //printf("\n");
          return true;
       }
-   }
-   if(DCOpHasArg1(op))
-   {
-      i++;
-   }
-   if(DCOpHasArg2(op))
-   {
       i++;
    }
    while(i<PStackGetSP(clause->derivation) &&
@@ -537,8 +551,6 @@ bool ClauseIsOrphaned(Clause_p clause)
       parent = PStackElementP(clause->derivation, i);
       if(ClauseQueryProp(parent,CPIsDead))
       {
-         //printf("Orphan %ld: ",i);ClauseTSTPPrint(stdout, clause, true, true); printf("\n");
-         //printf("Parent  : ");ClauseTSTPPrint(stdout, parent, true, true); printf("\n");
          return true;
       }
       i++;
