@@ -101,6 +101,8 @@ typedef struct proofstatecell
    unsigned long satcheck_actual_size; // ...after purity reduction
    unsigned long satcheck_core_size; // ...in unsat core (if any)
    void*         solver;
+   int          instance_encoding_limit;
+   int          instance_encoding_remaining;
 
    /* The following are only set by ProofStateAnalyse() after
       DerivationCompute() at the end of the proof search. */

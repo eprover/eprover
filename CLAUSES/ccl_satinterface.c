@@ -382,6 +382,68 @@ void export_to_solver(SatSolver_p solver, SatClauseSet_p set, SatClauseFilter fi
    }
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: encode_instances()
+//
+//   For given literal lit find all generaliations lit_gen. Then encode
+//   lit_gen and 
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void encode_instances(SatClauseSet_p set, Eqn_p lit, int lit_no, 
+                      int* encode_ins, FPIndex_p from_idx)
+{
+   assert(*encode_ins > 0);
+
+   Subst_p dummy_subst = SubstAlloc();
+   TB_p    bank        = lit->bank;
+
+   if(!EqnIsEquLit(lit))
+   {
+      PStack_p candidates = PStackAlloc();
+      Term_p   query_term = lit->lterm;
+      FPIndexFindGeneralizations(from_idx, query_term, candidates);
+
+      while(!PStackEmpty(candidates) && *encode_ins > 0)
+      {
+         PStack_p iter = PTreeTraverseInit(PStackPopP(candidates));
+         SubtermTree_p cell = NULL;
+
+         while((cell = PTreeTraverseNext(iter)) && *encode_ins > 0)
+         {
+            Term_p possible_gen = ((SubtermOcc_p)cell->key)->term;
+            assert(TermCellQueryProp(possible_gen, TPPredPos));
+            assert(SubstIsEmpty(dummy_subst));
+
+            if(SubstMatchPossiblyPartial(possible_gen, query_term, dummy_subst, bank) 
+                  != MATCH_FAILED && !SubstIsTrivial(dummy_subst))
+            {
+               Eqn_p gen_lit = EqnAlloc(possible_gen, bank->true_term, bank, true);
+               int   gen_litno = sat_translate_literal(gen_lit, set);
+               assert(ABS(gen_litno) != ABS(lit_no));
+
+               // encodes implication if general then instance
+               PStackPushP(set->set, SatClauseImplication(gen_litno, ABS(lit_no)));
+               (*encode_ins)--;
+
+               fprintf(stderr, "# encoded a generalization");
+               
+               EqnFree(gen_lit);
+            }
+            SubstBacktrack(dummy_subst);
+         }
+         PTreeTraverseExit(iter);
+      }
+
+      PStackFree(candidates);
+   }
+}
+
 
 
 /*---------------------------------------------------------------------*/
@@ -415,6 +477,26 @@ SatClause_p SatClauseAlloc(int lit_no)
    handle->source       = NULL;
 
    return handle;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: SatClauseBinary()
+//
+//   Allocate an binary clause with literals lit1 and lit2.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+SatClause_p SatClauseBinary(int lit1, int lit2)
+{
+   SatClause_p res = SatClauseAlloc(2);
+   res->literals[0] = lit1;
+   res->literals[1] = lit2;
+   return res;
 }
 
 /*-----------------------------------------------------------------------
@@ -502,7 +584,10 @@ void SatClauseSetFree(SatClauseSet_p junk)
 // Function: SatClauseCreateAndStore()
 //
 //    Encode the instantiated clause as a SatClause, store it in set,
-//    and return it.
+//    and return it. If encode_ins points to value > 0 it will encode
+//    instance constraints [P(x) => P(sigma(x)), where sigma is an arbitrary
+//    substitution and P predicate symbol] that are easy to compute (found 
+//    in from_idx fp index). Makes the value encode_gens points to smaller. 
 //
 // Global Variables:
 //
@@ -510,7 +595,8 @@ void SatClauseSetFree(SatClauseSet_p junk)
 //
 /----------------------------------------------------------------------*/
 
-SatClause_p SatClauseCreateAndStore(Clause_p clause, SatClauseSet_p set)
+SatClause_p SatClauseCreateAndStore(Clause_p clause, SatClauseSet_p set, 
+                                    int* encode_ins, FPIndex_p from_idx)
 {
    int i;
    Eqn_p lit;
@@ -533,6 +619,12 @@ SatClause_p SatClauseCreateAndStore(Clause_p clause, SatClauseSet_p set)
    {
       assert(i<handle->lit_no);
       handle->literals[i] = sat_translate_literal(lit, set);
+      
+      if(*encode_ins > 0)
+      {
+         encode_instances(set, lit, handle->literals[i], 
+                          encode_ins, from_idx);
+      }
    }
    PStackPushP(set->set, handle);
    return handle;
@@ -642,7 +734,8 @@ void SatClauseSetExportToSolverNonPure(SatSolver_p solver, SatClauseSet_p set)
 //
 /----------------------------------------------------------------------*/
 
-long SatClauseSetImportClauseSet(SatClauseSet_p satset, ClauseSet_p set)
+long SatClauseSetImportClauseSet(SatClauseSet_p satset, ClauseSet_p set,
+                                 ProofState_p state)
 {
    Clause_p handle;
    assert(satset);
@@ -652,7 +745,8 @@ long SatClauseSetImportClauseSet(SatClauseSet_p satset, ClauseSet_p set)
        handle != set->anchor;
        handle = handle->succ)
    {
-      SatClauseCreateAndStore(handle, satset);
+      SatClauseCreateAndStore(handle, satset, &(state->instance_encoding_remaining),
+                              state->gindices.pm_from_index);
    }
    return ClauseSetCardinality(set);
 }
@@ -871,6 +965,11 @@ long SatClauseSetImportProofState(SatClauseSet_p satset, ProofState_p state,
    assert(satset);
    assert(state);
 
+   if(state->instance_encoding_limit != -1)
+   {
+      strat = GMPseudoVar; // otherwise everything is ground
+   }
+
    //printf("# SatClauseSetImportProofState()\n");
 
    switch(strat)
@@ -919,16 +1018,16 @@ long SatClauseSetImportProofState(SatClauseSet_p satset, ProofState_p state,
                                                   norm_const);
          break;
    default:
-         assert(false && "Unimplmented grounding strategy");
+         assert(false && "Unimplemented grounding strategy");
          break;
    }
    // printf("# Pseudogrounded()\n");
 
-   res += SatClauseSetImportClauseSet(satset, state->processed_pos_rules);
-   res += SatClauseSetImportClauseSet(satset, state->processed_pos_eqns);
-   res += SatClauseSetImportClauseSet(satset, state->processed_neg_units);
-   res += SatClauseSetImportClauseSet(satset, state->processed_non_units);
-   res += SatClauseSetImportClauseSet(satset, state->unprocessed);
+   res += SatClauseSetImportClauseSet(satset, state->processed_pos_rules, state);
+   res += SatClauseSetImportClauseSet(satset, state->processed_pos_eqns, state);
+   res += SatClauseSetImportClauseSet(satset, state->processed_neg_units, state);
+   res += SatClauseSetImportClauseSet(satset, state->processed_non_units, state);
+   res += SatClauseSetImportClauseSet(satset, state->unprocessed, state);
 
    SubstDelete(pseudogroundsubst);
    return res;
