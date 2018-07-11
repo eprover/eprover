@@ -1353,12 +1353,12 @@ OptCell opts[] =
 
    {OPT_ENCODE_INSTANCES,
     '\0', "encode-instances",
-    OptArg, "1000",
+    OptArg, "100s",
     "When encoding clauses to SAT, find generalizations of the literal "
     "and add clauses that encode the dependency between generalization "
-    "and the literal. Forces the grounding to be pseudo variable. "
+    "and the literal. "
     "Argument limits the number of dependency clauses generated. "
-    "If no argument is given, the limit is set to 1000"},
+    "If no argument is given, the limit is set to 100"},
 
 
    {OPT_NOOPT,
