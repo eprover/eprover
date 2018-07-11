@@ -1353,7 +1353,7 @@ OptCell opts[] =
 
    {OPT_ENCODE_INSTANCES,
     '\0', "encode-instances",
-    OptArg, "100s",
+    OptArg, "100",
     "When encoding clauses to SAT, find generalizations of the literal "
     "and add clauses that encode the dependency between generalization "
     "and the literal. "
