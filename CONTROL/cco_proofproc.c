@@ -933,6 +933,7 @@ Clause_p SATCheck(ProofState_p state, ProofControl_p control)
                                    control->heuristic_parms.sat_check_normconst);
 
       // printf("# SatCheck()..imported\n");
+      fprintf(stderr, "# %d clauses left\n",  state->instance_encoding_remaining);
 
       res = SatClauseSetCheckUnsat(set, &empty, state->solver);
       state->satcheck_count++;
