@@ -382,6 +382,69 @@ void export_to_solver(SatSolver_p solver, SatClauseSet_p set, SatClauseFilter fi
    }
 }
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: terms_var_disjoint()
+//
+//    Checks whether terms s and t share no variables.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+bool terms_var_disjoint(Term_p s, Term_p t)
+{
+   IntMap_p vars_in_s = IntMapAlloc();
+   PStack_p term_stack = PStackAlloc();
+   bool     res;
+   PStackPushP(term_stack, s);
+
+   while(!PStackEmpty(term_stack))
+   {
+      Term_p subterm = PStackPopP(term_stack);
+      if(TermIsVar(subterm))
+      {
+         // assigning anything non-null
+         IntMapAssign(vars_in_s, -subterm->f_code, s);
+      }
+      else
+      {
+         for(int i=0; i<subterm->arity; i++)
+         {
+            PStackPushP(term_stack, subterm->args[i]);
+         }
+      }
+   }
+
+   assert(PStackEmpty(term_stack));
+   PStackPushP(term_stack, t);
+
+   while(!PStackEmpty(term_stack))
+   {
+      Term_p subterm = PStackPopP(term_stack);
+      if(TermIsVar(subterm) && IntMapGetVal(vars_in_s, -subterm->f_code))
+      {
+         break;
+      }
+      else
+      {
+         for(int i=0; i<subterm->arity; i++)
+         {
+            PStackPushP(term_stack, subterm->args[i]);
+         }
+      }
+   }
+
+   res = PStackEmpty(term_stack); // why did we exit the loop?
+   PStackFree(term_stack);
+   IntMapFree(vars_in_s);
+   return res;
+}
+
+
 /*-----------------------------------------------------------------------
 //
 // Function: encode_instances()
@@ -418,16 +481,23 @@ void encode_instances(SatClauseSet_p set, Eqn_p lit, int lit_no,
          {
             Term_p possible_gen = ((SubtermOcc_p)cell->key)->term;
             assert(SubstIsEmpty(dummy_subst));
+            
+            // assert that nothing is bound in the terms
+            assert(TermStructEqualDeref(possible_gen, possible_gen, DEREF_ONCE, DEREF_NEVER));
+            assert(TermStructEqualDeref(query_term, query_term, DEREF_ONCE, DEREF_NEVER));
 
-            if((SubstMatchPossiblyPartial(possible_gen, query_term, dummy_subst, bank) 
-                  != MATCH_FAILED) && !SubstIsTrivial(dummy_subst))
+            if(possible_gen != query_term &&
+               terms_var_disjoint(possible_gen, query_term) &&
+                (SubstMatchPossiblyPartial(possible_gen, query_term, dummy_subst, bank) 
+                      != MATCH_FAILED))
             {
                assert(TermCellQueryProp(possible_gen, TPPredPos));
+
                SubstBacktrack(dummy_subst);
                Eqn_p gen_lit = EqnAlloc(possible_gen, bank->true_term, bank, true);
                int   gen_litno = sat_translate_literal(gen_lit, set);
                assert(ABS(gen_litno) != ABS(lit_no));
-               
+
                // encodes implication if general then instance
                PStackPushP(set->set, SatClauseImplication(gen_litno, ABS(lit_no)));
                (*encode_ins)--;
@@ -442,7 +512,6 @@ void encode_instances(SatClauseSet_p set, Eqn_p lit, int lit_no,
    }
    SubstDelete(dummy_subst);
 }
-
 
 
 /*---------------------------------------------------------------------*/
@@ -1113,7 +1182,16 @@ long sat_extract_core(SatClauseSet_p satset, PStack_p core, SatSolver_p solver)
          {
             res++;
             satclause = PStackElementP(satset->exported, id);
-            PStackPushP(core, satclause->source);
+            if(satclause->source)
+            {
+               PStackPushP(core, satclause->source);
+            }
+            else
+            {
+               fprintf(stderr, "# warning: generated using instance generation: ");            
+            }
+            SatClausePrint(stderr, satclause);  
+            
          }
          else
          {
