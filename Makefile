@@ -98,7 +98,7 @@ starexec:
 	./configure --prefix=$(STAREXECPATH)
 	make install
 
-	cp etc/STAREXEC2.0/starexec_run* $(STAREXECPATH)/bin
+	cp etc/STAREXEC2.2/starexec_run* $(STAREXECPATH)/bin
 	$(eval E_VERSION=`$$(STAREXECPATH)/bin/eprover --version | cut -d' ' -f1-2| sed -e 's/ /-/'`)
 	cd $(STAREXECPATH); zip -r $(E_VERSION).zip bin man
 
