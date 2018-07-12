@@ -180,6 +180,7 @@ typedef enum
    OPT_PRINT_TYPES,
    OPT_APP_ENCODE,
    OPT_ENCODE_INSTANCES,
+   OPT_SAT_CLAUSES_LIMIT,
    OPT_DUMMY
 }OptionCodes;
 
@@ -1353,12 +1354,18 @@ OptCell opts[] =
 
    {OPT_ENCODE_INSTANCES,
     '\0', "encode-instances",
-    OptArg, "100",
+    OptArg, "50",
     "When encoding clauses to SAT, find generalizations of the literal "
     "and add clauses that encode the dependency between generalization "
     "and the literal. "
     "Argument limits the number of dependency clauses generated. "
-    "If no argument is given, the limit is set to 100"},
+    "If no argument is given, the limit is set to 50"},
+
+   {OPT_SAT_CLAUSES_LIMIT,
+    '\0', "sat-clauses-limit",
+    OptArg, "100000",
+    "If this option is on, it limits the maximal number of created clauses. "
+    "Optional arugment is the acutal limit, by default it is 100000."},
 
 
    {OPT_NOOPT,

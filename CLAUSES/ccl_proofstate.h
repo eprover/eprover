@@ -103,6 +103,7 @@ typedef struct proofstatecell
    void*         solver;
    int          instance_encoding_limit;
    int          instance_encoding_remaining;
+   int          max_sat_clauses;
 
    /* The following are only set by ProofStateAnalyse() after
       DerivationCompute() at the end of the proof search. */

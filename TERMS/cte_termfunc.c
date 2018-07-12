@@ -2081,6 +2081,42 @@ Term_p TermAppEncode(Term_p orig, Sig_p sig)
 
 /*-----------------------------------------------------------------------
 //
+// Function: TermHasBoundVar
+//
+//   Does the term have a bound variable?
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+bool TermHasBoundVar(Term_p t)
+{
+   PStack_p args = PStackAlloc();
+   bool     res  = false;
+   PStackPushP(args, t);
+
+   while(!PStackEmpty(args))
+   {
+      Term_p subterm = PStackPopP(args);
+      if(subterm->binding)
+      {
+         res = true;
+         break;
+      }
+      
+      for(int i=0; i<subterm->arity; i++)
+      {
+         PStackPushP(args, subterm->args[i]);
+      }
+   }
+   
+   PStackFree(args);
+   return res;
+}
+/*-----------------------------------------------------------------------
+//
 // Function: TermCreatePrefix()
 //
 //    Create a prefix containing arg_num arguments of original term orig.
