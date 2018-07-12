@@ -50,6 +50,8 @@ typedef struct satclausesetcell
    PStack_p     set;            // Actual set (clauses must be freed)
    PStack_p     exported;       // Subset of clauses exported to the solver state
    long         core_size;      // Size of the unsat core, if any
+   long         set_size_limit; // Limit after which insertions will fail
+                                // if -1 no limit is set.
 }SatClauseSetCell, *SatClauseSet_p;
 
 
@@ -90,6 +92,10 @@ SatClause_p SatClauseBinary(int lit1, int lit2);
 
 #define SatClauseSetCellAlloc()    (SatClauseSetCell*)SizeMalloc(sizeof(SatClauseSetCell))
 #define SatClauseSetCellFree(junk) SizeFree(junk, sizeof(SatClauseSetCell))
+
+#define SatClauseSetMaxClausesSet(set, l) ((set)->set_size_limit = (l))
+#define SatClauseSetLimitReached(s) ((s)->set_size_limit ==\
+                                       (PStackGetSP((s)->set))) 
 
 
 SatClauseSet_p SatClauseSetAlloc(void);
