@@ -914,6 +914,7 @@ Clause_p SATCheck(ProofState_p state, ProofControl_p control)
    if(!empty)
    {
       SatClauseSet_p set = SatClauseSetAlloc();
+      SatClauseSetMaxClausesSet(set, state->max_sat_clauses);
 
       //printf("# SatCheck() %ld, %ld..\n",
       //state->proc_non_trivial_count,
@@ -932,8 +933,7 @@ Clause_p SATCheck(ProofState_p state, ProofControl_p control)
                                    control->heuristic_parms.sat_check_grounding,
                                    control->heuristic_parms.sat_check_normconst);
 
-      // printf("# SatCheck()..imported\n");
-      fprintf(stderr, "# %d clauses left\n",  state->instance_encoding_remaining);
+      //printf("# SatCheck()..imported\n");
 
       res = SatClauseSetCheckUnsat(set, &empty, state->solver);
       state->satcheck_count++;
@@ -951,6 +951,8 @@ Clause_p SATCheck(ProofState_p state, ProofControl_p control)
       SatClauseSetFree(set);
    }
    ProofStateResetSATSolver(state);
+   //fprintf(stderr, "# SATCheck over.");
+
    return empty;
 }
 
