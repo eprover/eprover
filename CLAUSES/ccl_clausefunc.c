@@ -487,6 +487,31 @@ Clause_p ClauseGetOriginalGC(Clause_p clause)
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function:
+//
+//
+//
+// Global Variables:
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+
+Clause_p follow_quote_chain(Clause_p clause)
+{
+   PStack_p deriv;
+
+   while((deriv=clause->derivation)&&
+         !PStackEmpty(deriv)&&
+         PStackElementInt(deriv, 0)==DCCnfQuote)
+   {
+      clause = PStackElementP(deriv,1);
+   }
+   return clause;
+}
+
 
 /*-----------------------------------------------------------------------
 //
@@ -510,6 +535,8 @@ bool ClauseIsOrphaned(Clause_p clause)
 
    assert(clause);
 
+   clause = follow_quote_chain(clause);
+
    if(!clause->derivation)
    {
       return false;
@@ -518,7 +545,6 @@ bool ClauseIsOrphaned(Clause_p clause)
    {
       return false;
    }
-   clause = ClauseGetOriginalGC(clause);
 
    op = PStackElementInt(clause->derivation, 0);
 

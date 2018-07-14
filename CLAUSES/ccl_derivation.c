@@ -665,8 +665,6 @@ bool ClauseIsDummyFOFQuote(Clause_p clause)
 }
 
 
-
-
 /*-----------------------------------------------------------------------
 //
 // Function: ClauseDerivFindFirst()

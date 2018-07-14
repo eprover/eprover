@@ -1419,7 +1419,6 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control,
    }
    assert(clause);
 
-
    ClauseSetExtractEntry(clause);
    ClauseRemoveEvaluations(clause);
 

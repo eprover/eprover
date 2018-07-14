@@ -372,8 +372,8 @@ int clause_split_general(DefStore_p store, Clause_p clause,
          }
          /* Extend remainder clause (after application of definition) */
          tmp       = GenDefLit(bank, new_pred, false, split_vars);
-    tmp->next = join;
-    join = tmp;
+         tmp->next = join;
+         join = tmp;
       }
       clause->literals = join;
       ClauseRecomputeLitCounts(clause);
