@@ -372,45 +372,50 @@ static long eliminate_context_sr_clauses(ProofState_p state,
 //
 /----------------------------------------------------------------------*/
 
+
 void check_watchlist(GlobalIndices_p indices, ClauseSet_p watchlist,
                      Clause_p clause, ClauseSet_p archive,
                      bool static_watchlist)
 {
-   FVPackedClause_p pclause = FVIndexPackClause(clause, watchlist->fvindex);
+   FVPackedClause_p pclause;
    long removed;
 
-   // printf("# check_watchlist(%p)...\n", indices);
-   ClauseSubsumeOrderSortLits(clause);
-   // assert(ClauseIsSubsumeOrdered(clause));
-
-   clause->weight = ClauseStandardWeight(clause);
-
-   if(static_watchlist)
+   if(watchlist)
    {
-      Clause_p subsumed;
+      pclause = FVIndexPackClause(clause, watchlist->fvindex);
+      // printf("# check_watchlist(%p)...\n", indices);
+      ClauseSubsumeOrderSortLits(clause);
+      // assert(ClauseIsSubsumeOrdered(clause));
 
-      subsumed = ClauseSetFindFirstSubsumedClause(watchlist, clause);
-      if(subsumed)
+      clause->weight = ClauseStandardWeight(clause);
+
+      if(static_watchlist)
       {
-         ClauseSetProp(clause, CPSubsumesWatch);
-      }
-   }
-   else
-   {
-      if((removed = remove_subsumed(indices, pclause, watchlist, archive)))
-      {
-         ClauseSetProp(clause, CPSubsumesWatch);
-         if(OutputLevel == 1)
+         Clause_p subsumed;
+
+         subsumed = ClauseSetFindFirstSubsumedClause(watchlist, clause);
+         if(subsumed)
          {
-            fprintf(GlobalOut,"# Watchlist reduced by %ld clause%s\n",
-                    removed,removed==1?"":"s");
+            ClauseSetProp(clause, CPSubsumesWatch);
          }
-         // ClausePrint(GlobalOut, clause, true); printf("\n");
-         DocClauseQuote(GlobalOut, OutputLevel, 6, clause,
-                        "extract_subsumed_watched", NULL);   }
+      }
+      else
+      {
+         if((removed = remove_subsumed(indices, pclause, watchlist, archive)))
+         {
+            ClauseSetProp(clause, CPSubsumesWatch);
+            if(OutputLevel == 1)
+            {
+               fprintf(GlobalOut,"# Watchlist reduced by %ld clause%s\n",
+                       removed,removed==1?"":"s");
+            }
+            // ClausePrint(GlobalOut, clause, true); printf("\n");
+            DocClauseQuote(GlobalOut, OutputLevel, 6, clause,
+                           "extract_subsumed_watched", NULL);   }
+      }
+      FVUnpackClause(pclause);
+      // printf("# ...check_watchlist()\n");
    }
-   FVUnpackClause(pclause);
-   // printf("# ...check_watchlist()\n");
 }
 
 
@@ -649,12 +654,9 @@ static Clause_p insert_new_clauses(ProofState_p state, ProofControl_p control)
          ClauseFree(handle);
          continue;
       }
-      if(state->watchlist)
-      {
-         check_watchlist(&(state->wlindices), state->watchlist,
-                         handle, state->archive,
-                         control->heuristic_parms.watchlist_is_static);
-      }
+      check_watchlist(&(state->wlindices), state->watchlist,
+                      handle, state->archive,
+                      control->heuristic_parms.watchlist_is_static);
       if(ClauseIsEmpty(handle))
       {
          return handle;
@@ -1339,12 +1341,9 @@ void ProofStateInit(ProofState_p state, ProofControl_p control)
       new = ClauseCopy(handle, state->terms);
 
       ClauseSetProp(new, CPInitial);
-      if(state->watchlist)
-      {
-         check_watchlist(&(state->wlindices), state->watchlist,
-                         new, state->archive,
-                         control->heuristic_parms.watchlist_is_static);
-      }
+      check_watchlist(&(state->wlindices), state->watchlist,
+                      new, state->archive,
+                      control->heuristic_parms.watchlist_is_static);
       HCBClauseEvaluate(control->hcb, new);
       DocClauseQuoteDefault(6, new, "eval");
       ClausePushDerivation(new, DCCnfQuote, handle, NULL);
@@ -1479,12 +1478,9 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control,
       return resclause;
    }
 
-   if(state->watchlist)
-   {
-      check_watchlist(&(state->wlindices), state->watchlist,
+   check_watchlist(&(state->wlindices), state->watchlist,
                       pclause->clause, state->archive,
                       control->heuristic_parms.watchlist_is_static);
-   }
 
    /* Now on to backward simplification. */
    clausedate = ClauseSetListGetMaxDate(state->demods, FullRewrite);
