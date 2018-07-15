@@ -1067,7 +1067,6 @@ Clause_p ClauseCopy(Clause_p clause, TB_p bank)
 //
 /----------------------------------------------------------------------*/
 
-
 Clause_p ClauseFlatCopy(Clause_p clause)
 {
    Clause_p handle = clause_copy_meta(clause);

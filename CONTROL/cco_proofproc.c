@@ -141,6 +141,7 @@ static long remove_subsumed(GlobalIndices_p indices,
       }
       GlobalIndicesDeleteClause(indices, handle);
       ClauseSetExtractEntry(handle);
+      ClauseSetProp(handle, CPIsDead);
       ClauseSetInsert(archive, handle);
    }
    PStackFree(stack);
@@ -779,10 +780,11 @@ Clause_p replacing_inferences(ProofState_p state, ProofControl_p
 //
 //   Perform maintenenance operations on state->unprocessed, depending
 //   on parameters in control:
-//   - Remove copies
+//   - Remove orphaned clauses
 //   - Simplify all unprocessed clauses
 //   - Reweigh all unprocessed clauses
 //   - Delete "bad" clauses to avoid running out of memories.
+//
 //   Simplification can find the empty clause, which is then
 //   returned.
 //
@@ -887,8 +889,6 @@ static Clause_p cleanup_unprocessed_clauses(ProofState_p state,
 // Side Effects    :
 //
 /----------------------------------------------------------------------*/
-
-
 
 Clause_p SATCheck(ProofState_p state, ProofControl_p control)
 {
