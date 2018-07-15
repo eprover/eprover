@@ -535,7 +535,7 @@ bool ClauseIsOrphaned(Clause_p clause)
 
    assert(clause);
 
-   clause = follow_quote_chain(clause);
+   //clause = follow_quote_chain(clause);
 
    if(!clause->derivation)
    {

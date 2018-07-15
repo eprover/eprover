@@ -1423,6 +1423,7 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control,
 
    if(ClauseIsOrphaned(clause))
    {
+      //printf("\n# Orphaned:");ClauseTSTPPrint(stdout, clause, true, true);printf("\n");
       ClauseFree(clause);
       return NULL;
    }
