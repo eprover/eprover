@@ -170,11 +170,11 @@ long ClauseSetUnitSimplify(ClauseSet_p set, Clause_p simplifier,
    handle = set->anchor->succ;
    while(handle!=set->anchor)
    {
-      handle = handle->succ;
       tmp = ClauseUnitSimplifyTest(handle, simplifier);
+      move = handle;
+      handle = handle->succ;
       if(tmp)
       {
-         move = handle;
          ClauseMoveSimplified(gindices, move, tmp_set, archive);
          res++;
       }
