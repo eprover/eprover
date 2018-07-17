@@ -50,6 +50,7 @@
 // Side Effects    : 
 //
 /----------------------------------------------------------------------*/
+
 bool arguments_flattened(Type_p t)
 {
    for(int i=0; i<t->arity-1; i++)
@@ -190,6 +191,8 @@ void TypeFree(Type_p junk)
 
 int TypesCmp(Type_p t1, Type_p t2)
 {
+   //NOTE 2 STEPHAN:
+   // this is the source of some differences in clause sorting.
    int res = t1->f_code - t2->f_code;
 
    // if it is not arrow type cons -> same nr of args
