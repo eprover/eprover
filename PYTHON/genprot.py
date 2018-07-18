@@ -27,7 +27,8 @@ Options:
 --features   add feature columns with features of the problem taken from supplied feature file
 
 
-Copyright 2015 Martin Möhrmann, moehrmann@eprover.org
+Copyright 2015 Martin Möhrmann, moehrmann@eprover.org,
+          2018 Stephan Schulz, schulz@eprover.org
 
 This code is part of the support structure for the equational
 theorem prover E. Visit
@@ -148,6 +149,9 @@ def make_entry(lines):
         line = remove_timestamp(line)
         split = line.split(":", 1)
         key   = split[0].strip()
+        # Correct for TPTP errors causing E parse error mistaken for a result
+        if(key.startswith("Type mismatch")):
+            continue
         value = clean_value(split[1]) if len(split) == 2 else ""
         if key.startswith("SZS status"):
             entry["Status"] = statusmap[key]
@@ -198,7 +202,7 @@ def parse_args():
     parser.add_argument("infile", nargs="*",  help="input tar or zip files or directory structure")
     parser.add_argument("--header", help="add csv header", action="store_true")
     parser.add_argument("--default", help="default value", default="-")
-    parser.add_argument("--delimiter", help="csv delimiter", default=",")
+    parser.add_argument("--delimiter", help="csv delimiter", default=" ")
     parser.add_argument("--metadata", help="add information parsed from file paths", action="store_true")
     parser.add_argument("--compact", help="do not add alignment whitespace", action="store_true")
     parser.add_argument("--features", help="add feature columns with features of the problem")
