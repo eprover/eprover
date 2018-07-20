@@ -181,6 +181,7 @@ typedef enum
    OPT_APP_ENCODE,
    OPT_ENCODE_INSTANCES,
    OPT_SAT_CLAUSES_LIMIT,
+   OPT_REVERSE_GEN_INST,
    OPT_DUMMY
 }OptionCodes;
 
@@ -1366,6 +1367,11 @@ OptCell opts[] =
     OptArg, "100000",
     "If this option is on, it limits the maximal number of created clauses. "
     "Optional arugment is the acutal limit, by default it is 100000."},
+
+   {OPT_REVERSE_GEN_INST,
+    '\0', "reverse-gen-inst",
+    NoArg, NULL,
+    "Traverse the processed clauses in reverse order. "},
 
 
    {OPT_NOOPT,
