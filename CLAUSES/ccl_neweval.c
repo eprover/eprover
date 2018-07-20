@@ -607,6 +607,31 @@ PStack_p EvalTreeTraverseInit(Eval_p root, int pos)
    return stack;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: EvalTreeTraverseRevInit()
+//
+//   Return a stack containing the path to the largest element in the
+//   tree.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+//---------------------------------------------------------------------*/
+
+PStack_p EvalTreeTraverseRevInit(Eval_p root, int pos)
+{
+   PStack_p stack = PStackAlloc();
+
+   while(root)
+   {
+      PStackPushP(stack, root);
+      root = root->evals[pos].rson;
+   }
+   return stack;
+}
+
 /*---------------------------------------------------------------------
 //
 // Function: EvalTreeTraverseNext()
@@ -639,6 +664,36 @@ Eval_p EvalTreeTraverseNext(PStack_p state, int pos)
 }
 
 
+/*---------------------------------------------------------------------
+//
+// Function: EvalTreeTraverseRevNext()
+//
+//   Given a stack describing a reverse traversal state,
+//   return the next node and update the stack.
+//
+// Global Variables: -
+//
+// Side Effects    : Updates stack
+//
+/----------------------------------------------------------------------*/
+
+Eval_p EvalTreeTraverseRevNext(PStack_p state, int pos)
+{
+   Eval_p handle, res;
+
+   if(PStackEmpty(state))
+   {
+      return NULL;
+   }
+   res = PStackPopP(state);
+   handle = res->evals[pos].lson;
+   while(handle)
+   {
+      PStackPushP(state, handle);
+      handle = handle->evals[pos].rson;
+   }
+   return res;
+}
 
 /*-----------------------------------------------------------------------
 //
