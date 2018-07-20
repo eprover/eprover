@@ -73,7 +73,8 @@ bool              print_sat = false,
    incomplete = false,
    conjectures_are_questions = false,
    app_encode = false,
-   strategy_scheduling = false;
+   strategy_scheduling = false,
+   inst_gen_reverse = false;
 ProofOutput       print_derivation = PONone;
 long              proc_training_data;
 
@@ -177,6 +178,7 @@ ProofState_p parse_spec(CLState_p state,
    parsed_ax_no = ProofStateAxNo(proofstate);
    proofstate->instance_encoding_limit = gen_instances_limit;
    proofstate->max_sat_clauses         = max_sat_clauses;
+   proofstate->inst_gen_reverse        = inst_gen_reverse;
 
    if(error_on_empty_local && (parsed_ax_no == 0))
    {
@@ -1617,6 +1619,9 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_SAT_CLAUSES_LIMIT:
             max_sat_clauses = 
                CLStateGetIntArgCheckRange(handle, arg, 0, LONG_MAX);
+            break;
+      case OPT_REVERSE_GEN_INST:
+            inst_gen_reverse = true;
             break;
 
       default:

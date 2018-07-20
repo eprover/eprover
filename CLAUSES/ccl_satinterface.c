@@ -56,6 +56,76 @@ char* GroundingStratNames[] =
 
 /*-----------------------------------------------------------------------
 //
+// Function: sat_encode_lit()
+//
+//   If literal is a predicate atom, it returns the corresponding term.
+//   If literal is an equational atom s=t or s!=t, it returns =(s,t) 
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static Term_p sat_encode_lit(Eqn_p lit)
+{
+   Term_p s = lit->lterm;
+   Term_p t = lit->rterm;
+   Term_p res = s;
+
+   if(EqnIsEquLit(lit))
+   {   
+      res = EqnTermsTBTermEncode(lit->bank, s, t, true, 
+                                 PGreater(s, t) ? PENormal : PEReverse);
+      
+   }
+   
+   return res;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: ground()
+//
+//   Bind remaining variables to a constant. 
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static void sat_ground_term(Term_p t, Subst_p subst, TB_p bank)
+{
+   PStack_p subterms = PStackAlloc();
+   PStack_p empty = PStackAlloc();
+   PStackPushP(subterms, t);
+
+   while(!PStackEmpty(subterms))
+   {
+      t = TermDerefAlways(PStackPopP(subterms));
+      if(TermIsVar(t))
+      {
+         Term_p constant = TBGetFirstConstTerm(bank, t->type);
+         if(!constant)
+         {
+            constant = TBAllocNewSkolem(bank, empty, t->type);
+            assert(TBGetFirstConstTerm(bank, t->type));
+         }
+         SubstAddBinding(subst, t, constant);
+      }
+      for(int i=0; i<t->arity; i++)
+      {
+         PStackPushP(subterms, t->args[i]);
+      }
+   }
+
+   PStackFree(subterms);
+   PStackFree(empty);
+}
+
+/*-----------------------------------------------------------------------
+//
 // Function: sat_translate_literal()
 //
 //    Translate a full E literal into a propositional literal.
@@ -871,12 +941,11 @@ void add_to_inst(PStack_p ig_clauses, Clause_p handle, ClausePos_p cl_pos,
       //SubtermIndexInsertClause(positive_atom_idx, handle);
       for(Eqn_p eq = handle->literals; eq; eq = eq->next)
       {
-         //EqnTermsTBTermEncode for now not, equations later
-         if(!EqnIsEquLit(eq) && EqnIsPositive(eq))
+         if(EqnIsPositive(eq))
          {
             cl_pos->literal = eq;
             OverlapIndexInsertPos(positive_atom_idx, handle, 
-                                 PackClausePos(cl_pos), eq->lterm);
+                                 PackClausePos(cl_pos), sat_encode_lit(eq));
          }
       }
    }
@@ -884,8 +953,14 @@ void add_to_inst(PStack_p ig_clauses, Clause_p handle, ClausePos_p cl_pos,
 
 long SatClauseSetImportInstGen(SatClauseSet_p satset, ProofState_p state)
 {
-   const int CREATED_MAX       = 1000000;
-   const int SINGLE_SET_MAX    = 5000;
+   const int CREATED_MAX       = 15000000;
+   int SINGLE_SET_MAX    = state->instance_encoding_limit;
+   satset->set_size_limit = CREATED_MAX;
+   bool reverse = state->inst_gen_reverse;
+   PStack_p (*iter_init_fun)(Eval_p, int) = 
+      reverse ? EvalTreeTraverseRevInit : EvalTreeTraverseInit;
+   Eval_p   (*iter_next_fun)(PStack_p, int) = 
+      reverse ? EvalTreeTraverseRevNext : EvalTreeTraverseNext;
    //This can be fine-tuned -- we might not want to include equations
    ClauseSet_p all_sets[] = 
          { 
@@ -896,7 +971,7 @@ long SatClauseSetImportInstGen(SatClauseSet_p satset, ProofState_p state)
    FPIndex_p positive_atom_idx = FPIndexAlloc(IndexFP7Create, state->signature, 
                                               SubtermOLTreeFreeWrapper);
    
-   PStack_p ig_clauses =    PStackAlloc();
+   PStack_p ig_clauses = PStackAlloc();
    ClausePos_p cl_pos  = ClausePosAlloc();
    for(int i=0; i<sizeof(all_sets)/sizeof(ClauseSet_p); i++)
    {
@@ -905,8 +980,8 @@ long SatClauseSetImportInstGen(SatClauseSet_p satset, ProofState_p state)
       int         added_from_set = 0;
       if(root)
       {
-         PStack_p eval_iter = EvalTreeTraverseInit(root, 0);
-         while((root = EvalTreeTraverseNext(eval_iter, 0)) && added_from_set <= SINGLE_SET_MAX)
+         PStack_p eval_iter = iter_init_fun(root, 0);
+         while((root = iter_next_fun(eval_iter, 0)) && added_from_set <= SINGLE_SET_MAX)
          {
             add_to_inst(ig_clauses, root->object, cl_pos, positive_atom_idx, &added_from_set);  
          }
@@ -926,15 +1001,17 @@ long SatClauseSetImportInstGen(SatClauseSet_p satset, ProofState_p state)
 
    Subst_p     ground_subst = SubstAlloc();
 
+   fprintf(stdout, "# Found %ld good clauses.\n", PStackGetSP(ig_clauses));
    while(!PStackEmpty(ig_clauses))
    {
-      Clause_p cl =  ClauseCopyDisjoint(PStackPopP(ig_clauses));
+      Clause_p orig_cl = PStackPopP(ig_clauses);
+      Clause_p cl =  ClauseCopyDisjoint(orig_cl);
       for(Eqn_p lit = cl->literals; lit; lit = lit->next)
       {
-         if(!EqnIsEquLit(lit) && !EqnIsPositive(lit))
+         if(!EqnIsPositive(lit))
          {
             PStack_p candidates = PStackAlloc();
-            Term_p   query_term = lit->lterm;
+            Term_p   query_term = sat_encode_lit(lit);
             TB_p     bank       = lit->bank;
 
             FPIndexFindUnifiable(positive_atom_idx, query_term, candidates);
@@ -953,9 +1030,10 @@ long SatClauseSetImportInstGen(SatClauseSet_p satset, ProofState_p state)
                      (!UnifFailed(SubstMguPossiblyPartial(candidate, 
                                                           query_term, 
                                                           ground_subst, bank))))
-                  {
-                     assert(TermCellQueryProp(candidate, TPPredPos));
-                     
+                  {                     
+                     sat_ground_term(query_term, ground_subst, bank);
+                     sat_ground_term(candidate, ground_subst, bank);
+
                      PTree_p node;
                      PStack_p cl_iter = PTreeTraverseInit(clauses);
 
@@ -965,12 +1043,13 @@ long SatClauseSetImportInstGen(SatClauseSet_p satset, ProofState_p state)
                         SatClauseCreateAndStore(pos->clause, satset);
                      }
                      PTreeTraverseExit(cl_iter);
-                     SatClauseCreateAndStore(cl, satset);              
-                     if(SatClauseSetCardinality(satset) >= CREATED_MAX)
+                     SatClause_p res = SatClauseCreateAndStore(cl, satset);              
+                     if(!res)
                      {
                         break;
                      }
                      
+                     res->source = orig_cl;
                      SubstBacktrack(ground_subst);
                   }
                }
@@ -1200,8 +1279,6 @@ long SatClauseSetImportProofState(SatClauseSet_p satset, ProofState_p state,
    assert(satset);
    assert(state);
 
-   //fprintf(stderr, "** started importing proof state! **\n");
-
    if(state->instance_encoding_limit != -1)
    {
       strat = GMGenInstances; // make sure strategy is forced
@@ -1281,7 +1358,7 @@ long SatClauseSetImportProofState(SatClauseSet_p satset, ProofState_p state,
       res += SatClauseSetImportClauseSet(satset, state->unprocessed);
    }   
    
-   fprintf(stderr, "# SATCheck is checking %ld(%d) translated clauses.\n", 
+   fprintf(stdout, "# SATCheck is checking %ld(%d) translated clauses.\n", 
                    res, satset->max_lit);
    SubstDelete(pseudogroundsubst);
    return res;
