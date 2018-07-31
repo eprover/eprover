@@ -444,74 +444,6 @@ void ClauseSetArchiveCopy(ClauseSet_p archive, ClauseSet_p set)
    }
 }
 
-/*-----------------------------------------------------------------------
-//
-// Function: ClauseGetOriginalGC()
-//
-//    If clause is a copy of a new clause archived at the time of
-//    evaluation, follow the link back to the original clause with the
-//    original inference that created it.
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-Clause_p ClauseGetOriginalGC(Clause_p clause)
-{
-   DerivationCode op;
-
-   assert(clause);
-
-   if(!clause->derivation)
-   {
-      return clause;
-   }
-   if(PStackEmpty(clause->derivation))
-   {
-      return clause;
-   }
-   op = PStackElementInt(clause->derivation, 0);
-
-   /* Logically we should also be able to follow DCCnfQuote. In
-      practice this is wrong - an interreduced clause will be
-      considered orphaned because it's parent is archived/dead. And
-      this is (I think) the only way DCCnfQuote ever comes into the
-      active part of the search. */
-   if(op!=DCCnfEvalGC)
-   {
-      return clause;
-   }
-   return ClauseGetOriginalGC(PStackElementP(clause->derivation, 1));
-}
-
-
-/*-----------------------------------------------------------------------
-//
-// Function:
-//
-//
-//
-// Global Variables:
-//
-// Side Effects    :
-//
-/----------------------------------------------------------------------*/
-
-Clause_p follow_quote_chain(Clause_p clause)
-{
-   PStack_p deriv;
-
-   while((deriv=clause->derivation)&&
-         !PStackEmpty(deriv)&&
-         PStackElementInt(deriv, 0)==DCCnfQuote)
-   {
-      clause = PStackElementP(deriv,1);
-   }
-   return clause;
-}
-
 
 /*-----------------------------------------------------------------------
 //
@@ -521,9 +453,9 @@ Clause_p follow_quote_chain(Clause_p clause)
 //   premises of the original generating inferences that generated it
 //   has been back-simplified.
 //
-// Global Variables:
+// Global Variables: -
 //
-// Side Effects    :
+// Side Effects    : -
 //
 /----------------------------------------------------------------------*/
 
