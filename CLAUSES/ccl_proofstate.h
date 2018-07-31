@@ -100,6 +100,13 @@ typedef struct proofstatecell
    unsigned long satcheck_actual_size; // ...after purity reduction
    unsigned long satcheck_core_size; // ...in unsat core (if any)
 
+   unsigned long filter_orphans_base;  /* Number of back-simplified
+                                          clauses at last orphan
+                                          filtering */
+   unsigned long long forward_contract_base; /* Number of processed
+                                                clauses at last
+                                                forward-contraction */
+
    /* The following are only set by ProofStateAnalyse() after
       DerivationCompute() at the end of the proof search. */
    unsigned long gc_count;

@@ -41,7 +41,16 @@ typedef enum
    CPInputFormula      = 2*CPInitial,     /* _Really_ initial
                                            * clause/formula in TSTP
                                            * sense */
-   CPIsProcessed       = 2*CPInputFormula, /* Clause has been processed
+   CPIsDead            = 2*CPInputFormula,/* Clause is victim of
+                                           * back-simplification. This
+                                           * marks the actual
+                                           * archived clause object,
+                                           * while ClauseIsIRVictim
+                                           * blow marks the logical
+                                           * clause (i.e. it is
+                                           * inherited by the alive
+                                           * copy.  */
+   CPIsProcessed       = 2*CPIsDead ,     /* Clause has been processed
                                             * previously */
    CPIsOriented        = 2*CPIsProcessed, /* Term and literal
                                              comparisons are up to
@@ -150,10 +159,10 @@ typedef struct clause_cell
    long                  proof_size;  /* How many (generating)
                                          inferences were necessary to
                                          create this clause? */
-   PTree_p               children;    /* Which can be removed if this
-                                         clause changes significantly */
-   struct clause_cell*   parent1;     /* Parents need to be notified */
-   struct clause_cell*   parent2;     /* if their children are removed! */
+   //PTree_p               children;    /* Which can be removed if this
+   //clause changes significantly */
+   //struct clause_cell*   parent1;     /* Parents need to be notified */
+   //struct clause_cell*   parent2;     /* if their children are removed! */
    struct clausesetcell* set;         /* Is the clause in a set? */
    struct clause_cell*   pred;        /* For clause sets = doubly  */
    struct clause_cell*   succ;        /* linked lists */
@@ -324,9 +333,7 @@ void     ClauseMarkMaximalTerms(OCB_p ocb, Clause_p clause);
 #define  ClauseDeleteTermProperties(clause, props)              \
    EqnListDeleteTermProperties((clause)->literals, props)
 
-bool     ClauseParentsAreSubset(Clause_p clause1, Clause_p clause2);
-void     ClauseDetachParents(Clause_p clause);
-void     ClauseRegisterChild(Clause_p clause, Clause_p child);
+//bool     ClauseParentsAreSubset(Clause_p clause1, Clause_p clause2);
 
 void     ClauseAddEvalCell(Clause_p clause, Eval_p evaluation);
 

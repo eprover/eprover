@@ -174,9 +174,6 @@ Clause_p clause_copy_meta(Clause_p clause)
    handle->date        = clause->date;
    handle->proof_depth = clause->proof_depth;
    handle->proof_size  = clause->proof_size;
-   handle->children    = NULL;
-   handle->parent1     = NULL;
-   handle->parent2     = NULL;
    handle->pred        = NULL;
    handle->succ        = NULL;
 
@@ -283,9 +280,6 @@ Clause_p EmptyClauseAlloc(void)
    handle->date        = SysDateCreationTime();
    handle->proof_depth = 0;
    handle->proof_size  = 0;
-   handle->children    = NULL;
-   handle->parent1     = NULL;
-   handle->parent2     = NULL;
    handle->set         = NULL;
    handle->pred        = NULL;
    handle->succ        = NULL;
@@ -676,7 +670,6 @@ void ClauseFree(Clause_p junk)
    assert(!junk->set);
    EvalsFree(junk->evaluations);
    EqnListFree(junk->literals);
-   PTreeFree(junk->children);
    ClauseInfoFree(junk->info);
    if(junk->derivation)
    {
@@ -1907,89 +1900,36 @@ void ClauseMarkMaximalTerms(OCB_p ocb, Clause_p clause)
 //
 /----------------------------------------------------------------------*/
 
-bool ClauseParentsAreSubset(Clause_p clause1, Clause_p clause2)
-{
-   bool sub1 = false, sub2 = false;
+/* bool ClauseParentsAreSubset(Clause_p clause1, Clause_p clause2) */
+/* { */
+/*    bool sub1 = false, sub2 = false; */
 
-   if(clause1->parent1)
-   {
-      if((clause1->parent1==clause2->parent1)||
-         (clause1->parent1==clause2->parent2))
-      {
-         sub1=true;
-      }
-   }
-   else
-   {
-      sub1=true;
-   }
-   if(clause1->parent2)
-   {
-      if((clause1->parent2==clause2->parent1)||
-         (clause1->parent2==clause2->parent2))
-      {
-         sub2=true;
-      }
-   }
-   else
-   {
-      sub2=true;
-   }
-   return sub1&&sub2;
-}
-
-
-/*-----------------------------------------------------------------------
-//
-// Function: ClauseDetachParents()
-//
-//   Discouple a clause from its parents, i.e. make the parents
-//   forget the clause and vice versa.
-//
-// Global Variables: -
-//
-// Side Effects    : Changes parens children-tree.
-//
-/----------------------------------------------------------------------*/
-
-void ClauseDetachParents(Clause_p clause)
-{
-   bool result;
-
-   if(clause->parent1)
-   {
-      result = PTreeDeleteEntry(&(clause->parent1->children), clause);
-      UNUSED(result); assert(result);
-      clause->parent1 = NULL;
-   }
-   if(clause->parent2)
-   {
-      result = PTreeDeleteEntry(&(clause->parent2->children), clause);
-      UNUSED(result); assert(result);
-      clause->parent2 = NULL;
-   }
-}
-
-
-/*-----------------------------------------------------------------------
-//
-// Function: ClauseRegisterChild()
-//
-//   Make child a child of clause. Clause already should be a parent
-//   to child!
-//
-// Global Variables: -
-//
-// Side Effects    : Changes clause->children
-//
-/----------------------------------------------------------------------*/
-
-void ClauseRegisterChild(Clause_p clause, Clause_p child)
-{
-   assert(child->parent1==clause || child->parent2==clause);
-
-   PTreeStore(&(clause->children), child);
-}
+/*    if(clause1->parent1) */
+/*    { */
+/*       if((clause1->parent1==clause2->parent1)|| */
+/*          (clause1->parent1==clause2->parent2)) */
+/*       { */
+/*          sub1=true; */
+/*       } */
+/*    } */
+/*    else */
+/*    { */
+/*       sub1=true; */
+/*    } */
+/*    if(clause1->parent2) */
+/*    { */
+/*       if((clause1->parent2==clause2->parent1)|| */
+/*          (clause1->parent2==clause2->parent2)) */
+/*       { */
+/*          sub2=true; */
+/*       } */
+/*    } */
+/*    else */
+/*    { */
+/*       sub2=true; */
+/*    } */
+/*    return sub1&&sub2; */
+/* } */
 
 
 /*-----------------------------------------------------------------------

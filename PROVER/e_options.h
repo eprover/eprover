@@ -110,9 +110,8 @@ typedef enum
    OPT_ALL_LITSEL_MAX,
    OPT_WEIGHT_LITSEL_MIN,
    OPT_PREFER_INITIAL_CLAUSES,
-   OPT_FILTER_LIMIT,
-   OPT_FILTER_COPIES_LIMIT,
-   OPT_REWEIGHT_LIMIT,
+   OPT_FILTER_ORPHANS_LIMIT,
+   OPT_FORWARD_CONTRACT_LIMIT,
    OPT_DELETE_BAD_LIMIT,
    OPT_ASSUME_COMPLETENESS,
    OPT_ASSUME_INCOMPLETENESS,
@@ -801,25 +800,20 @@ OptCell opts[] =
     "very useful in most cases. You can define more heuristics using"
     " the option -H (see below)."},
 
-   {OPT_FILTER_LIMIT,
-    '\0', "filter-limit",
-    OptArg, "1000000",
-    "Set the limit on the number of 'storage units' in the proof "
-    "state, after which the set of unprocessed clauses will be "
-    "filtered against the processed clauses to eliminate redundant "
-    "clauses. As of E 0.7, a 'storage unit' is approximately one byte, "
-    "however, storage is estimated in an abstract way, independent of "
-    "hardware or memory allocation library, and the storage estimate "
-    "is only an approximation."},
+   {OPT_FILTER_ORPHANS_LIMIT,
+    '\0', "filter-orphans-limit",
+    OptArg, "100",
+    "Orphans are unprocessed clauses where one of the parents has been "
+    "removed by back-simolification. They are redundant and usually "
+    "removed lazily (i.e. only when they are selected for processing). "
+    "With this option you can select a limit on back-simplified clauses "
+    " after which orphans will be eagerly deleted."},
 
-   {OPT_FILTER_COPIES_LIMIT,
-    '\0', "filter-copies-limit",
-    OptArg, "800000",
-    "Set the number of storage units in new unprocessed clauses after"
-    " which the set of unprocessed clauses will be filtered for"
-    " equivalent copies of clauses (see above). As this operation is"
-    " cheaper, you may want to set this limit lower than"
-    " --filter-limit."},
+   {OPT_FORWARD_CONTRACT_LIMIT,
+    '\0', "forward-contract-limit",
+    OptArg, "80000",
+    "Set a limit on the number of processed clauses after which the "
+    "unprocessed clause set will be re-simplified and reweighted. "},
 
    {OPT_DELETE_BAD_LIMIT,
     '\0', "delete-bad-limit",
@@ -937,12 +931,6 @@ OptCell opts[] =
     '\0', "split-reuse-defs",
     NoArg, NULL,
     "If possible, reuse previous definitions for splitting."},
-
-   {OPT_REWEIGHT_LIMIT,
-    '\0', "reweight-limit",
-    OptArg, "30000",
-    "Set the number of new unprocessed clauses after which the set of"
-    " unprocessed clauses will be reevaluated."},
 
    {OPT_ORDERING,
     't', "term-ordering",

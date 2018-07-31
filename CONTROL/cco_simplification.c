@@ -1,25 +1,22 @@
 /*-----------------------------------------------------------------------
 
-File  : cco_simplification.c
+  File  : cco_simplification.c
 
-Author: Stephan Schulz
+  Author: Stephan Schulz
 
-Contents
+  Contents
 
   Control of simplified clauses
 
-  Copyright 1998, 1999 by the author.
+  Copyright 1998-2018 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
+  Created: Mon Jun  8 14:49:49 MET DST 1998
 
-<1> Mon Jun  8 14:49:49 MET DST 1998
-    New
-
------------------------------------------------------------------------*/
+  -----------------------------------------------------------------------*/
 
 #include "cco_simplification.h"
 
@@ -50,8 +47,9 @@ Changes
 //
 // Function: ClauseMoveSimplified()
 //
-//   Remove a processed simplifiable clause from its set and add it to
-//   a temporary set.
+//   Remove a processed simplifiable clause from its set, move it to
+//   the  archive set, and move a fresh copy pointing to the original
+//   as its source into tmp_set.
 //
 // Global Variables: -
 //
@@ -66,14 +64,13 @@ void ClauseMoveSimplified(GlobalIndices_p gindices,
 {
    Clause_p new_clause;
    // printf("# Removing %p from %p: ", clause, clause->set);ClausePrint(stdout, clause, true);printf("\n");
-   ClauseKillChildren(clause);
-   ClauseSetExtractEntry(clause);
    GlobalIndicesDeleteClause(gindices, clause);
    DocClauseQuoteDefault(6, clause, "simplifiable");
 
-   new_clause = ClauseFlatCopy(clause);
-   ClauseSetInsert(archive, clause);
-   ClausePushDerivation(new_clause, DCCnfQuote, clause, NULL);
+   ClauseSetExtractEntry(clause);
+   new_clause = ClauseArchive(archive, clause);
+   ClauseSetProp(clause, CPIsDead);
+
    ClauseSetInsert(tmp_set, new_clause);
 }
 
@@ -92,7 +89,7 @@ void ClauseMoveSimplified(GlobalIndices_p gindices,
 
 bool RemoveRewritableClauses(OCB_p ocb, ClauseSet_p from, ClauseSet_p into,
                              ClauseSet_p archive,
-              Clause_p new_demod, SysDate nf_date,
+                             Clause_p new_demod, SysDate nf_date,
                              GlobalIndices_p gindices)
 {
    PStack_p stack = PStackAlloc();
@@ -164,7 +161,7 @@ bool RemoveRewritableClausesIndexed(OCB_p ocb, ClauseSet_p into,
 /----------------------------------------------------------------------*/
 
 long ClauseSetUnitSimplify(ClauseSet_p set, Clause_p simplifier,
-            ClauseSet_p tmp_set, ClauseSet_p archive,
+                           ClauseSet_p tmp_set, ClauseSet_p archive,
                            GlobalIndices_p gindices)
 {
    Clause_p handle, move;
@@ -174,16 +171,12 @@ long ClauseSetUnitSimplify(ClauseSet_p set, Clause_p simplifier,
    while(handle!=set->anchor)
    {
       tmp = ClauseUnitSimplifyTest(handle, simplifier);
+      move = handle;
+      handle = handle->succ;
       if(tmp)
       {
-    move = handle;
-    handle = handle->succ;
-    ClauseMoveSimplified(gindices, move, tmp_set, archive);
-    res++;
-      }
-      else
-      {
-    handle = handle->succ;
+         ClauseMoveSimplified(gindices, move, tmp_set, archive);
+         res++;
       }
    }
    return res;
@@ -203,9 +196,9 @@ long ClauseSetUnitSimplify(ClauseSet_p set, Clause_p simplifier,
 /----------------------------------------------------------------------*/
 
 long RemoveContextualSRClauses(ClauseSet_p from,
-                ClauseSet_p into,
+                               ClauseSet_p into,
                                ClauseSet_p archive,
-                Clause_p simplifier,
+                               Clause_p simplifier,
                                GlobalIndices_p gindices)
 {
    PStack_p stack = PStackAlloc();
@@ -218,10 +211,10 @@ long RemoveContextualSRClauses(ClauseSet_p from,
    {
       handle = PStackPopP(stack);
       if(handle->set == from) /* Clauses may be found more than once
-             by ClauseSetFindContextSRClauses() */
+                                 by ClauseSetFindContextSRClauses() */
       {
-    ClauseMoveSimplified(gindices, handle, into, archive);
-    res++;
+         ClauseMoveSimplified(gindices, handle, into, archive);
+         res++;
       }
    }
    PStackFree(stack);

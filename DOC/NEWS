@@ -1,7 +1,12 @@
 This history list describes the major differences between versions of
 the E equational theorem prover.
 
+Version 2.1 -> 2.2 Thurbo Moonlight
 
+- Prover now always builds internal proof object (--proof-object only
+  controls output)
+- Moved to lazy orphan deletion
+- Fixed and simplified processing of unprocessed clauses
 
 Version 2.0 -> 2.1 Maharani Hills
 

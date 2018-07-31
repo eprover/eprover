@@ -1,25 +1,24 @@
 /*-----------------------------------------------------------------------
 
-File  : ccl_clausefunc.c
+  File  : ccl_clausefunc.c
 
-Author: Stephan Schulz
+  Author: Stephan Schulz
 
-Contents
+  Contents
 
   Clause functions that need to know about sets.
 
-  Copyright 1998, 1999 by the author.
+  Copyright 1998-2018 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
+  Changes
 
-<1> Tue Aug  7 00:02:44 CEST 2001
-    New, partitioned ccl_clausesets.h
+  Created: New, partitioned ccl_clausesets.h
 
------------------------------------------------------------------------*/
+  -----------------------------------------------------------------------*/
 
 
 #include "ccl_clausefunc.h"
@@ -158,37 +157,6 @@ void ClauseFlipLiteralSign(Clause_p clause, Eqn_p lit)
 
 /*-----------------------------------------------------------------------
 //
-// Function: ClauseKillChildren()
-//
-//   Remove and delete children of a clause.
-//
-// Global Variables: -
-//
-// Side Effects    : Changes term sets
-//
-/----------------------------------------------------------------------*/
-
-void ClauseKillChildren(Clause_p clause)
-{
-   Clause_p current;
-
-   while(clause->children)
-   {
-      current = clause->children->key;
-      assert(clause == current->parent1 || clause == current->parent2);
-      /* printf("ClauseKillChildren(%d) -> %d\n",
-    (int)clause,(int)current); */
-      ClauseDetachParents(current);
-      if(!ClauseQueryProp(current, CPIsProtected))
-      {
-    ClauseSetDeleteEntry(current);
-      }
-   }
-}
-
-
-/*-----------------------------------------------------------------------
-//
 // Function: ClauseRemoveSuperfluousLiterals()
 //
 //   Remove duplicate and trivial negative literals from the
@@ -219,20 +187,20 @@ int ClauseRemoveSuperfluousLiterals(Clause_p clause)
 
       while(handle)
       {
-    if(EqnIsPositive(handle))
-    {
-       clause->pos_lit_no++;
-    }
-    else
-    {
-       clause->neg_lit_no++;
-    }
-    handle = handle->next;
+         if(EqnIsPositive(handle))
+         {
+            clause->pos_lit_no++;
+         }
+         else
+         {
+            clause->neg_lit_no++;
+         }
+         handle = handle->next;
       }
 
       if(clause->set)
       {
-    clause->set->literals-=removed;
+         clause->set->literals-=removed;
       }
    }
    if(removed)
@@ -262,7 +230,7 @@ long ClauseSetRemoveSuperfluousLiterals(ClauseSet_p set)
    long res = 0;
 
    for(handle = set->anchor->succ; handle!=set->anchor; handle =
-     handle->succ)
+          handle->succ)
    {
       res += ClauseRemoveSuperfluousLiterals(handle);
    }
@@ -328,7 +296,7 @@ int ClauseRemoveACResolved(Clause_p clause)
    {
       ClauseDelProp(clause, CPInitial|CPLimitedRW);
       DocClauseModification(GlobalOut, OutputLevel, clause,
-             inf_ac_resolution, NULL, sig, NULL);
+                            inf_ac_resolution, NULL, sig, NULL);
       ClausePushACResDerivation(clause, sig);
    }
    if(clause->set)
@@ -376,7 +344,7 @@ bool ClauseUnitSimplifyTest(Clause_p clause, Clause_p simplifier)
       tmp = EqnIsPositive(*handle);
       if(XOR(positive,tmp)&&EqnSubsumeP(simpl,*handle))
       {
-    return true;
+         return true;
       }
       handle = &((*handle)->next);
    }
@@ -387,6 +355,35 @@ bool ClauseUnitSimplifyTest(Clause_p clause, Clause_p simplifier)
 /*-----------------------------------------------------------------------
 //
 // Function: ClauseArchive()
+//
+//   Move clause into the archive. Create a fresh copy pointing to the
+//   old clause in its derivation and return it. Also set the
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+Clause_p ClauseArchive(ClauseSet_p archive, Clause_p clause)
+{
+   Clause_p newclause;
+
+   assert(archive);
+   assert(clause);
+
+   newclause = ClauseFlatCopy(clause);
+   ClausePushDerivation(newclause, DCCnfQuote, clause, NULL);
+
+   ClauseSetInsert(archive, clause);
+
+   return newclause;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseArchiveCopy()
 //
 //   Create an archive copy of clause in archive. The
 //   archive copy inherits info and derivation. The original loses
@@ -399,7 +396,7 @@ bool ClauseUnitSimplifyTest(Clause_p clause, Clause_p simplifier)
 //
 /----------------------------------------------------------------------*/
 
-Clause_p ClauseArchive(ClauseSet_p archive, Clause_p clause)
+Clause_p ClauseArchiveCopy(ClauseSet_p archive, Clause_p clause)
 {
    Clause_p archclause;
 
@@ -421,7 +418,7 @@ Clause_p ClauseArchive(ClauseSet_p archive, Clause_p clause)
 
 /*-----------------------------------------------------------------------
 //
-// Function: ClauseSetArchive()
+// Function: ClauseSetArchiveCopy()
 //
 //   Create an archive copy of each clause in set in archive. The
 //   archive copy inherits info and derivation. The original loses
@@ -433,7 +430,7 @@ Clause_p ClauseArchive(ClauseSet_p archive, Clause_p clause)
 //
 /----------------------------------------------------------------------*/
 
-void ClauseSetArchive(ClauseSet_p archive, ClauseSet_p set)
+void ClauseSetArchiveCopy(ClauseSet_p archive, ClauseSet_p set)
 {
    Clause_p handle;
 
@@ -443,9 +440,188 @@ void ClauseSetArchive(ClauseSet_p archive, ClauseSet_p set)
    for(handle = set->anchor->succ; handle!= set->anchor;
        handle = handle->succ)
    {
-      ClauseArchive(archive, handle);
+      ClauseArchiveCopy(archive, handle);
    }
 }
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseGetOriginalGC()
+//
+//    If clause is a copy of a new clause archived at the time of
+//    evaluation, follow the link back to the original clause with the
+//    original inference that created it.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+Clause_p ClauseGetOriginalGC(Clause_p clause)
+{
+   DerivationCode op;
+
+   assert(clause);
+
+   if(!clause->derivation)
+   {
+      return clause;
+   }
+   if(PStackEmpty(clause->derivation))
+   {
+      return clause;
+   }
+   op = PStackElementInt(clause->derivation, 0);
+
+   /* Logically we should also be able to follow DCCnfQuote. In
+      practice this is wrong - an interreduced clause will be
+      considered orphaned because it's parent is archived/dead. And
+      this is (I think) the only way DCCnfQuote ever comes into the
+      active part of the search. */
+   if(op!=DCCnfEvalGC)
+   {
+      return clause;
+   }
+   return ClauseGetOriginalGC(PStackElementP(clause->derivation, 1));
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function:
+//
+//
+//
+// Global Variables:
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+
+Clause_p follow_quote_chain(Clause_p clause)
+{
+   PStack_p deriv;
+
+   while((deriv=clause->derivation)&&
+         !PStackEmpty(deriv)&&
+         PStackElementInt(deriv, 0)==DCCnfQuote)
+   {
+      clause = PStackElementP(deriv,1);
+   }
+   return clause;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function:ClauseIsOrphaned()
+//
+//   Return true if the clause is orphaned, i.e. if one of the direct
+//   premises of the original generating inferences that generated it
+//   has been back-simplified.
+//
+// Global Variables:
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+
+bool ClauseIsOrphaned(Clause_p clause)
+{
+   PStackPointer i = 1;
+   DerivationCode op;
+   Clause_p parent;
+
+   assert(clause);
+
+   //clause = follow_quote_chain(clause);
+
+   if(!clause->derivation)
+   {
+      return false;
+   }
+   if(PStackEmpty(clause->derivation))
+   {
+      return false;
+   }
+
+   op = PStackElementInt(clause->derivation, 0);
+
+   if(!DCOpIsGenerating(op))
+   {
+      return false;
+   }
+   if(DCOpHasCnfArg1(op))
+   {
+      parent = PStackElementP(clause->derivation, 1);
+      if(ClauseQueryProp(parent,CPIsDead))
+      {
+         return true;
+      }
+      i++;
+   }
+   if(DCOpHasCnfArg2(op))
+   {
+      parent = PStackElementP(clause->derivation, 2);
+      if(ClauseQueryProp(parent,CPIsDead))
+      {
+         return true;
+      }
+      i++;
+   }
+   while(i<PStackGetSP(clause->derivation) &&
+         ((op = PStackElementInt(clause->derivation, i))==DCCnfAddArg))
+   {
+      i++;
+      parent = PStackElementP(clause->derivation, i);
+      if(ClauseQueryProp(parent,CPIsDead))
+      {
+         return true;
+      }
+      i++;
+   }
+   return false;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseSetDeleteOrphans()
+//
+//   Remove all orphaned clauses, returning the number of clauses
+//   eliminated.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+long ClauseSetDeleteOrphans(ClauseSet_p set)
+{
+   Clause_p handle;
+
+   assert(set);
+   assert(!set->demod_index);
+
+   handle = set->anchor->succ;
+   while(handle != set->anchor)
+   {
+      if(ClauseIsOrphaned(handle))
+      {
+         ClauseSetProp(handle,CPDeleteClause);
+      }
+      else
+      {
+         ClauseDelProp(handle,CPDeleteClause);
+      }
+      handle = handle->succ;
+   }
+   return ClauseSetDeleteMarkedEntries(set);
+}
+
+
 
 
 
@@ -483,9 +659,3 @@ void PStackClausePrint(FILE* out, PStack_p stack, char* extra)
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
-
-
-
-

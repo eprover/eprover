@@ -81,12 +81,10 @@ long ComputeAllOrderedFactors(TB_p bank, OCB_p ocb,
     if(factor)
     {
        factor_count++;
-       factor->parent1 = clause;
        factor->proof_depth = clause->proof_depth+1;
        factor->proof_size  = clause->proof_size+1;
        ClauseSetTPTPType(factor, ClauseQueryTPTPType(clause));
        ClauseSetProp(factor, ClauseGiveProps(clause, CPIsSOS));
-       ClauseRegisterChild(clause, factor);
        DocClauseCreationDefault(factor, inf_factor,clause,NULL);
             ClausePushDerivation(factor, DCOrderedFactor, clause, NULL);
        ClauseSetInsert(store, factor);
@@ -135,14 +133,12 @@ long ComputeAllEqualityFactors(TB_p bank, OCB_p ocb,
     if(factor)
     {
        factor_count++;
-       factor->parent1 = clause;
        factor->proof_depth = clause->proof_depth+1;
        factor->proof_size  = clause->proof_size+1;
        ClauseSetTPTPType(factor, ClauseQueryTPTPType(clause));
        ClauseSetProp(factor, ClauseGiveProps(clause, CPIsSOS));
-       ClauseRegisterChild(clause, factor);
        DocClauseCreationDefault(factor, inf_efactor, clause, NULL);
-            ClausePushDerivation(factor, DCEqFactor, clause, NULL);
+       ClausePushDerivation(factor, DCEqFactor, clause, NULL);
        ClauseSetInsert(store, factor);
     }
     test = ClausePosNextEqualityFactorSides(pos1, pos2);
@@ -156,5 +152,3 @@ long ComputeAllEqualityFactors(TB_p bank, OCB_p ocb,
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-

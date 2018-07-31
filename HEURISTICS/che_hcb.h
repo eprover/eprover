@@ -131,9 +131,9 @@ typedef struct heuristic_parms_cell
    bool                sat_check_normalize;
 
    /* Various things */
-   long                filter_limit;
-   long                filter_copies_limit;
-   long                reweight_limit;
+   //long                filter_limit;
+   long                filter_orphans_limit;
+   long                forward_contract_limit;
    long long           delete_bad_limit;
    rlim_t              mem_limit;
    bool                watchlist_simplify;
@@ -186,10 +186,10 @@ typedef struct hcb_cell
 }HCBCell, *HCB_p;
 
 #define HCB_DEFAULT_HEURISTIC "Default"
-#define DEFAULT_FILTER_LIMIT LONG_MAX
-#define DEFAULT_FILTER_COPIES_LIMIT LONG_MAX
-#define DEFAULT_REWEIGHT_INTERVAL LONG_MAX
-#define DEFAULT_DELETE_BAD_LIMIT LONG_MAX
+
+#define DEFAULT_FILTER_ORPHANS_LIMIT LONG_MAX
+#define DEFAULT_FORWARD_CONTRACT_LIMIT LONG_MAX
+#define DEFAULT_DELETE_BAD_LIMIT LLONG_MAX
 
 #define DEFAULT_RW_BW_INDEX_NAME "FP7"
 #define DEFAULT_PM_FROM_INDEX_NAME "FP7"

@@ -141,9 +141,6 @@ static Clause_p variable_paramod(TB_p bank, OCB_p ocb, ClausePos_p from,
 static void update_clause_info(Clause_p child,
                                Clause_p parent1, Clause_p parent2)
 {
-   child->parent1 = parent1;
-   ClauseRegisterChild(parent1, child);
-
    child->proof_size  = parent1->proof_size+parent2->proof_size+1;
    child->proof_depth = MAX(parent1->proof_depth, parent2->proof_depth)+1;
    ClauseSetTPTPType(child, ClauseQueryTPTPType(parent1));
@@ -154,12 +151,10 @@ static void update_clause_info(Clause_p child,
 
    if(parent1!=parent2)
    {
-      child->parent2 = parent2;
       ClauseSetTPTPType(child,
                         TPTPTypesCombine(
                            ClauseQueryTPTPType(parent1),
                            ClauseQueryTPTPType(parent2)));
-      ClauseRegisterChild(parent2, child);
    }
 }
 
@@ -683,7 +678,6 @@ long ComputeClauseClauseParamodulants(TB_p bank, OCB_p ocb, Clause_p
       if(paramod)
       {
     paramod_count++;
-    paramod->parent1 = parent_alias;
     paramod->proof_size  =
        parent_alias->proof_size+with->proof_size+1;
     paramod->proof_depth = MAX(parent_alias->proof_depth,
@@ -693,17 +687,12 @@ long ComputeClauseClauseParamodulants(TB_p bank, OCB_p ocb, Clause_p
     ClauseSetProp(paramod,
              ClauseGiveProps(parent_alias, CPIsSOS)|
              ClauseGiveProps(with, CPIsSOS));
-    ClauseRegisterChild(parent_alias, paramod);
     if(parent_alias!=with)
     {
-       paramod->parent2 = with;
-
        ClauseSetTPTPType(paramod,
                TPTPTypesCombine(
              ClauseQueryTPTPType(paramod),
              ClauseQueryTPTPType(with)));
-
-       ClauseRegisterChild(with, paramod);
     }
     DocClauseCreationDefault(paramod, inf_type, with,
               parent_alias);
@@ -735,7 +724,6 @@ long ComputeClauseClauseParamodulants(TB_p bank, OCB_p ocb, Clause_p
     if(paramod)
     {
        paramod_count++;
-       paramod->parent1 = with;
        paramod->proof_size  =
           parent_alias->proof_size+with->proof_size+1;
        paramod->proof_depth = MAX(parent_alias->proof_depth,
@@ -745,15 +733,12 @@ long ComputeClauseClauseParamodulants(TB_p bank, OCB_p ocb, Clause_p
        ClauseSetProp(paramod,
            ClauseGiveProps(parent_alias, CPIsSOS)|
            ClauseGiveProps(with, CPIsSOS));
-       ClauseRegisterChild(with, paramod);
        if(parent_alias!=with)
        {
-          paramod->parent2 = parent_alias;
           ClauseSetTPTPType(paramod,
              TPTPTypesCombine(
                 ClauseQueryTPTPType(paramod),
                 ClauseQueryTPTPType(parent_alias)));
-          ClauseRegisterChild(parent_alias, paramod);
        }
        DocClauseCreationDefault(paramod, inf_type, parent_alias, with);
             ClausePushDerivation(clause,
