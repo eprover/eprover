@@ -174,6 +174,7 @@ typedef struct hcb_cell
 
    /* Selection function, this function is called to select an
       unprocessed clause from the set */
+
    Clause_p        (*hcb_select)(struct hcb_cell* hcb, ClauseSet_p
              set);
 
@@ -222,6 +223,7 @@ void     HCBFree(HCB_p junk);
 long     HCBAddWFCB(HCB_p hcb, WFCB_p wfcb, long steps);
 void     HCBClauseEvaluate(HCB_p hcb, Clause_p clause);
 Clause_p HCBStandardClauseSelect(HCB_p hcb, ClauseSet_p set);
+Clause_p HCBNonOrphanClauseSelect(HCB_p hcb, ClauseSet_p set);
 Clause_p HCBSingleWeightClauseSelect(HCB_p hcb, ClauseSet_p set);
 
 long     HCBClauseSetDelProp(HCB_p hcb, ClauseSet_p set, long number,

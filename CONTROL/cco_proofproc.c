@@ -1402,6 +1402,7 @@ void ProofStateInit(ProofState_p state, ProofControl_p control)
 //
 /----------------------------------------------------------------------*/
 
+
 Clause_p ProcessClause(ProofState_p state, ProofControl_p control,
                        long answer_limit)
 {
