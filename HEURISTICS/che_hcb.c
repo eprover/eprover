@@ -1,10 +1,10 @@
 /*-----------------------------------------------------------------------
 
-File  : che_hcb.c
+  File  : che_hcb.c
 
-Author: Stephan Schulz
+  Author: Stephan Schulz
 
-Contents
+  Contents
 
   Functions for the administration of HCBs.
 
@@ -14,12 +14,11 @@ Contents
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
+  Changes
 
-<1> Fri Oct 16 14:52:53 MET DST 1998
-    New
+  Created: Fri Oct 16 14:52:53 MET DST 1998
 
------------------------------------------------------------------------*/
+  -----------------------------------------------------------------------*/
 
 #include "che_hcb.h"
 
@@ -353,7 +352,7 @@ Clause_p HCBStandardClauseSelect(HCB_p hcb, ClauseSet_p set)
 
    hcb->select_count++;
    while(hcb->select_count ==
-    PDArrayElementInt(hcb->select_switch,hcb->current_eval))
+         PDArrayElementInt(hcb->select_switch,hcb->current_eval))
    {
       hcb->current_eval++;
    }
@@ -384,8 +383,9 @@ Clause_p HCBNonOrphanClauseSelect(HCB_p hcb, ClauseSet_p set)
    Clause_p clause;
 
    clause = ClauseSetFindBest(set, hcb->current_eval);
-   while(ClauseIsOrphaned(clause))
+   while(clause && ClauseIsOrphaned(clause))
    {
+      //printf("@\n");
       ClauseSetExtractEntry(clause);
       ClauseRemoveEvaluations(clause);
       ClauseFree(clause);
@@ -393,7 +393,7 @@ Clause_p HCBNonOrphanClauseSelect(HCB_p hcb, ClauseSet_p set)
    }
    hcb->select_count++;
    while(hcb->select_count ==
-    PDArrayElementInt(hcb->select_switch,hcb->current_eval))
+         PDArrayElementInt(hcb->select_switch,hcb->current_eval))
    {
       hcb->current_eval++;
    }
@@ -451,35 +451,35 @@ long HCBClauseSetDelProp(HCB_p hcb, ClauseSet_p set, long number,
    for(i=0; i< hcb->wfcb_no; i++)
    {
       stacks[i]=
-    EvalTreeTraverseInit(PDArrayElementP(set->eval_indices, i),i);
+         EvalTreeTraverseInit(PDArrayElementP(set->eval_indices, i),i);
    }
    while(number)
    {
       for(i=0; i < hcb->wfcb_no; i++)
       {
-    for(j=0; j < PDArrayElementInt(hcb->select_switch, j); j++)
-    {
-       while((clause =
-        get_next_clause(stacks,i)))
-       {
-          if(ClauseQueryProp(clause, prop))
-          {
-        ClauseDelProp(clause, prop);
-        prop_cleared++;
-        break;
-          }
-       }
-       number--; /* We did our best - this is an easy catch for
-          the stupid case number > set->members */
-       if(!number)
-       {
-          break;
-       }
-    }
-    if(!number)
-    {
-       break;
-    }
+         for(j=0; j < PDArrayElementInt(hcb->select_switch, j); j++)
+         {
+            while((clause =
+                   get_next_clause(stacks,i)))
+            {
+               if(ClauseQueryProp(clause, prop))
+               {
+                  ClauseDelProp(clause, prop);
+                  prop_cleared++;
+                  break;
+               }
+            }
+            number--; /* We did our best - this is an easy catch for
+                         the stupid case number > set->members */
+            if(!number)
+            {
+               break;
+            }
+         }
+         if(!number)
+         {
+            break;
+         }
       }
    }
    for(i=0; i< hcb->wfcb_no; i++)
@@ -505,7 +505,7 @@ long HCBClauseSetDelProp(HCB_p hcb, ClauseSet_p set, long number,
 /----------------------------------------------------------------------*/
 
 long HCBClauseSetDeleteBadClauses(HCB_p hcb, ClauseSet_p set, long
-              number)
+                                  number)
 {
    long res;
 

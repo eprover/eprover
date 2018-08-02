@@ -298,6 +298,7 @@ static long fp_index_rek_find_unif(FPTree_p index, IndexFP_p key,
 //
 /----------------------------------------------------------------------*/
 
+
 static long fp_index_rek_find_matchable(FPTree_p index, IndexFP_p key,
                                         Sig_p sig,
                                         int current, PStack_p collect)
@@ -331,18 +332,18 @@ static long fp_index_rek_find_matchable(FPTree_p index, IndexFP_p key,
    {
       /* Position does not exist in t or any instance:
          - it cannot match an existing position
-         - It can match below-var, though, as instantiation can
+         - It also cannot  match below-var (?), though, as instantiation can
          introduce new excluded positions */
       res += fp_index_rek_find_matchable(fpindex_alternative(index, NOT_IN_TERM),
                                          key,
                                          sig,
                                          current+1,
                                          collect);
-      res += fp_index_rek_find_matchable(fpindex_alternative(index, BELOW_VAR),
-                                         key,
-                                         sig,
-                                         current+1,
-                                         collect);
+      //res += fp_index_rek_find_matchable(fpindex_alternative(index, BELOW_VAR),
+      //key,
+      //sig,
+      //current+1,
+      //collect);
    }
    else if(key[current] == BELOW_VAR || key[current] == ANY_VAR)
    {
@@ -1482,5 +1483,3 @@ void FPIndexPrintDot(FILE* out, char* name, FPIndex_p index,
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
