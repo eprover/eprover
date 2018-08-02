@@ -95,7 +95,8 @@ statusmap = {"unknown"              :"F",
              "SZS status Satisfiable"       :"N",
              "SZS status CounterSatisfiable":"N",
              "SZS status Theorem"       :"T",
-             "SZS status Unsatisfiable"     :"T"}
+             "SZS status Unsatisfiable"     :"T",
+             "SZS status Error"     :"F"}
 
 def rjust(amount): return lambda s: s.rjust(amount)
 def ljust(amount): return lambda s: s.ljust(amount)
