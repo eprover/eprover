@@ -663,6 +663,7 @@ static void generate_inv_type_freq_weights(OCB_p ocb, ClauseSet_p axioms)
                        PDArrayElementInt(type_counts, sym_type_id) + sym_freq);
       max_aggregate = MAX(max_aggregate, PDArrayElementInt(type_counts, sym_type_id));
    }
+   max_aggregate++;
 
    for(i=SIG_TRUE_CODE+1; i<= ocb->sig->f_count; i++)
    {

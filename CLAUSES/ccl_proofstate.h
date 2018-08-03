@@ -105,6 +105,8 @@ typedef struct proofstatecell
    int          instance_encoding_remaining;
    int          max_sat_clauses;
 
+   PDTree_p     sat_model;
+
    /* The following are only set by ProofStateAnalyse() after
       DerivationCompute() at the end of the proof search. */
    unsigned long gc_count;

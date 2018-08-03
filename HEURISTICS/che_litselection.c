@@ -183,6 +183,9 @@ static LitSelNameFunAssocCell name_fun_assoc[] =
    {"SelectCQPrecWNTNp",                     SelectCQPrecWNTNp},
    {"SelectCQIPrecWNTNp",                    SelectCQIPrecWNTNp},
 
+   {"SelectMaxLComplexAvoidAppVar",          SelectMaxLComplexAvoidAppVar},
+   {"SelectMaxLComplexPreferSAT",            SelectMaxLComplexPreferSAT},
+
    {NULL, (LiteralSelectionFun)NULL}
 };
 
@@ -4611,6 +4614,112 @@ static void maxlcomplexavoidpred_weight(LitEval_p lit, Clause_p clause,
 
 /*-----------------------------------------------------------------------
 //
+// Function: maxlcomplexavoidappvar_weight()
+//
+//   Initialize weights to mimic SelectMaxLComplexWeight(), but defer
+//   literals with applied variables and which occur often in pred_dist.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static void maxlcomplexavoidappvar_weight(LitEval_p lit, Clause_p clause,
+                                        void *pred_dist)
+{
+   PDArray_p pd = pred_dist;
+
+   if(EqnIsNegative(lit->literal))
+   {
+      if(EqnIsMaximal(lit->literal))
+      {
+         lit->w1=0;
+      }
+      else
+      {
+         lit->w1=100;
+      }
+      if(!EqnIsPureVar(lit->literal))
+      {
+         lit->w1+=10;
+      }
+      if(!EqnIsGround(lit->literal))
+      {
+         lit->w1+=1;
+      }
+      if(EqnHasAppVar(lit->literal))
+      {
+         lit->w1+=200;
+      }
+      lit->w2 = -lit_sel_diff_weight(lit->literal);
+      if(EqnIsEquLit(lit->literal))
+      {
+         lit->w3 = PDArrayElementInt(pd, 0);
+      }
+      else
+      {
+         lit->w3 = PDArrayElementInt(pd, lit->literal->lterm->f_code);
+      }
+   }
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: maxlcomplexavoidappvar_weight()
+//
+//   Initialize weights to mimic SelectMaxLComplexWeight(), but prefer
+//   literals that are true in SAT model and defer ones
+//   which occur often in pred_dist.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static void maxlcomplexprefersat_weight(LitEval_p lit, Clause_p clause,
+                                        void *pred_dist)
+{
+   PDArray_p pd = pred_dist;
+
+   if(EqnIsNegative(lit->literal))
+   {
+      if(EqnIsMaximal(lit->literal))
+      {
+         lit->w1=0;
+      }
+      else
+      {
+         lit->w1=100;
+      }
+      if(!EqnQueryProp(lit->literal, EPIsSATTrue))
+      {
+         lit->w2+=200;
+      }
+      if(!EqnIsPureVar(lit->literal))
+      {
+         lit->w1+=10;
+      }
+      if(!EqnIsGround(lit->literal))
+      {
+         lit->w1+=1;
+      }
+      
+      lit->w2 = -lit_sel_diff_weight(lit->literal);
+      if(EqnIsEquLit(lit->literal))
+      {
+         lit->w3 = PDArrayElementInt(pd, 0);
+      }
+      else
+      {
+         lit->w3 = PDArrayElementInt(pd, lit->literal->lterm->f_code);
+      }
+   }
+}
+
+/*-----------------------------------------------------------------------
+//
 // Function: SelectMaxLComplexAvoidPosPred()
 //
 //   As SelectMaxLComplex, but preferably select literals that do not
@@ -4651,6 +4760,90 @@ void SelectMaxLComplexAvoidPosPred(OCB_p ocb, Clause_p clause)
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: SelectMaxLComplexAvoidAppVar()
+//
+//   As SelectMaxLComplex, but preferably select literals that do not
+//   have applied variables and the ones that do not
+//   share the predicate symbol with a positive literal.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+
+void SelectMaxLComplexAvoidAppVar(OCB_p ocb, Clause_p clause)
+{
+   long  lit_no;
+   PDArray_p pred_dist;
+
+   assert(ocb);
+   assert(clause);
+   assert(EqnListQueryPropNumber(clause->literals, EPIsSelected)==0);
+
+   if(clause->neg_lit_no==0)
+   {
+      return;
+   }
+   ClauseCondMarkMaximalTerms(ocb, clause);
+
+   lit_no = EqnListQueryPropNumber(clause->literals, EPIsMaximal);
+
+   if(lit_no <=1)
+   {
+      return;
+   }
+   pred_dist = pos_pred_dist_array_compute(clause);
+   generic_uniq_selection(ocb,clause,false, true,
+                          maxlcomplexavoidappvar_weight, pred_dist);
+   pred_dist_array_free(pred_dist);
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: SelectMaxLComplexAvoidAppVar()
+//
+//   As SelectMaxLComplex, but preferably select literals that are
+//   true in current SAT model and the ones that do not
+//   share the predicate symbol with a positive literal.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+
+void SelectMaxLComplexPreferSAT(OCB_p ocb, Clause_p clause)
+{
+   long  lit_no;
+   PDArray_p pred_dist;
+
+   assert(ocb);
+   assert(clause);
+   assert(EqnListQueryPropNumber(clause->literals, EPIsSelected)==0);
+
+   if(clause->neg_lit_no==0)
+   {
+      return;
+   }
+   ClauseCondMarkMaximalTerms(ocb, clause);
+
+   lit_no = EqnListQueryPropNumber(clause->literals, EPIsMaximal);
+
+   if(lit_no <=1)
+   {
+      return;
+   }
+   pred_dist = pos_pred_dist_array_compute(clause);
+   generic_uniq_selection(ocb,clause,false, true,
+                          maxlcomplexprefersat_weight, pred_dist);
+   pred_dist_array_free(pred_dist);
+}
 
 /*-----------------------------------------------------------------------
 //

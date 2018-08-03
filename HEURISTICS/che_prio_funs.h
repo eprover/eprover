@@ -74,6 +74,9 @@ EvalPriority PrioFunDeferNonUnitMaxPosEq(Clause_p clause);
 EvalPriority PrioFunByCreationDate(Clause_p clause);
 EvalPriority PrioFunPreferWatchlist(Clause_p clause);
 EvalPriority PrioFunDeferWatchlist(Clause_p clause);
+EvalPriority PrioFunBySATModel(Clause_p clause);
+EvalPriority PrioFunByAppVarNum(Clause_p clause);
+
 
 EvalPriority PrioFunPreferAppVar(Clause_p clause);
 EvalPriority PrioFunPreferNonAppVar(Clause_p clause);
