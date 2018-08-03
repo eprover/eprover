@@ -56,7 +56,7 @@ char* GroundingStratNames[] =
 
 /*-----------------------------------------------------------------------
 //
-// Function: sat_encode_lit()
+// Function: SATEncodeLit()
 //
 //   If literal is a predicate atom, it returns the corresponding term.
 //   If literal is an equational atom s=t or s!=t, it returns =(s,t) 
@@ -67,7 +67,7 @@ char* GroundingStratNames[] =
 //
 /----------------------------------------------------------------------*/
 
-static Term_p sat_encode_lit(Eqn_p lit)
+Term_p SATEncodeLit(Eqn_p lit)
 {
    Term_p s = lit->lterm;
    Term_p t = lit->rterm;
@@ -171,12 +171,17 @@ int sat_translate_literal(Eqn_p eqn, SatClauseSet_p set)
    {
       set->renumber_index = PDRangeArrAlloc(lit_code, 0);
    }
+   if(!set->back_index)
+   {
+      set->back_index = PDRangeArrAlloc(lit_code, 0);
+   }
    atom = PDRangeArrElementInt(set->renumber_index, lit_code);
    if(!atom)
    {
       atom = ++set->max_lit;
       PDRangeArrAssignInt(set->renumber_index, lit_code, atom);
    }
+   PDRangeArrAssignP(set->back_index, atom, eqn);
    if(EqnIsPositive(eqn))
    {
       return atom;
@@ -624,6 +629,8 @@ SatClauseSet_p SatClauseSetAlloc(void)
    set->max_lit = 0;
    set->renumber_index = NULL; // We create this lazily when we know
                                // the first index!
+   set->back_index     = NULL; // We create this lazily when we know
+                              // the first index!
    set->set      = PStackAlloc();
    set->exported = PStackAlloc();
    set->core_size = 0;
@@ -651,6 +658,10 @@ void SatClauseSetFree(SatClauseSet_p junk)
    if(junk->renumber_index)
    {
       PDRangeArrFree(junk->renumber_index);
+   }
+   if(junk->back_index)
+   {
+      PDRangeArrFree(junk->back_index);
    }
    while(!PStackEmpty(junk->set))
    {
@@ -945,7 +956,7 @@ void add_to_inst(PStack_p ig_clauses, Clause_p handle, ClausePos_p cl_pos,
          {
             cl_pos->literal = eq;
             OverlapIndexInsertPos(positive_atom_idx, handle, 
-                                 PackClausePos(cl_pos), sat_encode_lit(eq));
+                                 PackClausePos(cl_pos), SATEncodeLit(eq));
          }
       }
    }
@@ -1011,7 +1022,7 @@ long SatClauseSetImportInstGen(SatClauseSet_p satset, ProofState_p state)
          if(!EqnIsPositive(lit))
          {
             PStack_p candidates = PStackAlloc();
-            Term_p   query_term = sat_encode_lit(lit);
+            Term_p   query_term = SATEncodeLit(lit);
             TB_p     bank       = lit->bank;
 
             FPIndexFindUnifiable(positive_atom_idx, query_term, candidates);
