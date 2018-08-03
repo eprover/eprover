@@ -631,6 +631,97 @@ static void generate_type_freq_weights(OCB_p ocb, ClauseSet_p axioms)
 
 /*-----------------------------------------------------------------------
 //
+// Function: generate_comb_freq_weights()
+//
+//    Assign function symbols weights that are equal to 
+//    sum of occurrences of all function symbols that are of
+//    the same type + double the occurrence of the symbol itself.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+static void generate_comb_freq_weights(OCB_p ocb, ClauseSet_p axioms)
+{
+   FCodeFeatureArray_p array = FCodeFeatureArrayAlloc(ocb->sig, axioms);
+   FunCode       i;
+
+   long max_types = ocb->sig->type_bank->types_count+1;
+   PDArray_p type_counts = PDIntArrayAlloc(max_types,10);
+
+   for(i=SIG_TRUE_CODE+1; i <= ocb->sig->f_count; i++)
+   {
+      long sym_freq = array->array[i].freq;
+      long sym_type_id = SigGetType(ocb->sig, i) ? SigGetType(ocb->sig, i)->type_uid : 0;
+      PDArrayAssignInt(type_counts, sym_type_id, 
+                       PDArrayElementInt(type_counts, sym_type_id) + sym_freq);
+   }
+
+   for(i=SIG_TRUE_CODE+1; i<= ocb->sig->f_count; i++)
+   {
+      long sym_freq = array->array[i].freq;
+      long sym_type_id = SigGetType(ocb->sig, i) ? SigGetType(ocb->sig, i)->type_uid : 0;
+      *OCBFunWeightPos(ocb, i) = 
+         MAX(PDArrayElementInt(type_counts, sym_type_id)+2*sym_freq,1)
+         *W_DEFAULT_WEIGHT;
+   }
+   FCodeFeatureArrayFree(array);
+   PDArrayFree(type_counts);
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: generate_inv_comb_freq_weights()
+//
+//    Inverse version of generate_comb_freq_weights()
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+static void generate_inv_comb_freq_weights(OCB_p ocb, ClauseSet_p axioms)
+{
+   FCodeFeatureArray_p array = FCodeFeatureArrayAlloc(ocb->sig, axioms);
+   FunCode       i;
+
+   long max_types = ocb->sig->type_bank->types_count+1;
+   PDArray_p type_counts = PDIntArrayAlloc(max_types,10);
+   long max_comb = 0;
+
+   for(i=SIG_TRUE_CODE+1; i <= ocb->sig->f_count; i++)
+   {
+      long sym_freq = array->array[i].freq;
+      long sym_type_id = SigGetType(ocb->sig, i) ? SigGetType(ocb->sig, i)->type_uid : 0;
+      PDArrayAssignInt(type_counts, sym_type_id, 
+                       PDArrayElementInt(type_counts, sym_type_id) + sym_freq);
+   }
+
+   for(i=SIG_TRUE_CODE+1; i <= ocb->sig->f_count; i++)
+   {
+      long sym_freq = array->array[i].freq;
+      long sym_type_id = SigGetType(ocb->sig, i) ? SigGetType(ocb->sig, i)->type_uid : 0;
+      max_comb = MAX(max_comb, PDArrayElementInt(type_counts, sym_type_id) + 2*sym_freq);
+   }
+   max_comb++;
+
+   for(i=SIG_TRUE_CODE+1; i<= ocb->sig->f_count; i++)
+   {
+      long sym_freq = array->array[i].freq;
+      long sym_type_id = SigGetType(ocb->sig, i) ? SigGetType(ocb->sig, i)->type_uid : 0;
+      *OCBFunWeightPos(ocb, i) = 
+         (max_comb - MAX(PDArrayElementInt(type_counts, sym_type_id) + 2*sym_freq,1))
+         *W_DEFAULT_WEIGHT;
+   }
+   FCodeFeatureArrayFree(array);
+   PDArrayFree(type_counts);
+}
+
+/*-----------------------------------------------------------------------
+//
 // Function: generate_inv_typefreq_weights()
 //
 //    Assign function symbols weights that are equal to 
@@ -668,8 +759,9 @@ static void generate_inv_type_freq_weights(OCB_p ocb, ClauseSet_p axioms)
    for(i=SIG_TRUE_CODE+1; i<= ocb->sig->f_count; i++)
    {
       long sym_type_id = SigGetType(ocb->sig, i) ? SigGetType(ocb->sig, i)->type_uid : 0;
-      *OCBFunWeightPos(ocb, i) = MAX(max_aggregate - PDArrayElementInt(type_counts, sym_type_id),1)
-    *W_DEFAULT_WEIGHT;
+      *OCBFunWeightPos(ocb, i) = 
+       (max_aggregate - MAX(PDArrayElementInt(type_counts, sym_type_id),1))
+       *W_DEFAULT_WEIGHT;
    }
    FCodeFeatureArrayFree(array);
    PDArrayFree(type_counts);
@@ -796,6 +888,56 @@ static void generate_type_freq_rank_weights(OCB_p ocb, ClauseSet_p axioms)
    FCodeFeatureArrayFree(array);
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: generate_comb_freq_rank_weights()
+//
+//   Make the weight of a function symbol equal "frequency rank"
+//   of its type.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+static void generate_comb_freq_rank_weights(OCB_p ocb, ClauseSet_p axioms)
+{
+   FCodeFeatureArray_p array = FCodeFeatureArrayAlloc(ocb->sig, axioms);
+   FunCode       i;
+   long          weight = 0, freq;
+
+   long max_types = ocb->sig->type_bank->types_count+1;
+   PDArray_p type_counts = PDIntArrayAlloc(max_types,10);
+
+   for(i=SIG_TRUE_CODE+1; i <= ocb->sig->f_count; i++)
+   {
+      long sym_freq = array->array[i].freq;
+      long sym_type_id = SigGetType(ocb->sig, i) ? SigGetType(ocb->sig, i)->type_uid : 0;
+      PDArrayAssignInt(type_counts, sym_type_id, 
+                       PDArrayElementInt(type_counts, sym_type_id) + sym_freq);
+   }
+
+   for(i=SIG_TRUE_CODE+1; i<= ocb->sig->f_count; i++)
+   {
+      long sym_freq = array->array[i].freq;
+      long sym_type_id = SigGetType(ocb->sig, i) ? SigGetType(ocb->sig, i)->type_uid : 0;
+      array->array[i].key1 = PDArrayElementInt(type_counts, sym_type_id) + 2*sym_freq;
+   }
+   FCodeFeatureArraySort(array);
+   freq = -1;
+   for(i=SIG_TRUE_CODE+1; i<= ocb->sig->f_count; i++)
+   {
+      if(freq!=array->array[i].key1)
+      {
+    freq=array->array[i].key1;
+    weight++;
+      }
+      *OCBFunWeightPos(ocb, array->array[i].symbol) =
+    weight*W_DEFAULT_WEIGHT;
+   }
+   FCodeFeatureArrayFree(array);
+}
 
 /*-----------------------------------------------------------------------
 //
@@ -838,7 +980,7 @@ static void generate_invfreqrank_weights(OCB_p ocb, ClauseSet_p axioms)
 
 /*-----------------------------------------------------------------------
 //
-// Function: generate_type_freq_rank_weights()
+// Function: generate_inv_type_freq_rank_weights()
 //
 //   Make the weight of a function symbol equal to inverse of its type
 //   "frequency rank".
@@ -882,6 +1024,57 @@ static void generate_inv_type_freq_rank_weights(OCB_p ocb, ClauseSet_p axioms)
       }
       *OCBFunWeightPos(ocb, array->array[i].symbol) =
     weight*W_DEFAULT_WEIGHT;
+   }
+   FCodeFeatureArrayFree(array);
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: generate_inv_comb_freq_rank_weights()
+//
+//   Make the weight of a function symbol equal to inverse of its type
+//   "frequency rank".
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+static void generate_inv_comb_freq_rank_weights(OCB_p ocb, ClauseSet_p axioms)
+{
+   FCodeFeatureArray_p array = FCodeFeatureArrayAlloc(ocb->sig, axioms);
+   FunCode       i;
+   long          weight = 0, freq;
+
+   long max_types = ocb->sig->type_bank->types_count+1;
+   PDArray_p type_counts = PDIntArrayAlloc(max_types,10);
+
+   for(i=SIG_TRUE_CODE+1; i <= ocb->sig->f_count; i++)
+   {
+      long sym_freq = array->array[i].freq;
+      long sym_type_id = SigGetType(ocb->sig, i) ? SigGetType(ocb->sig, i)->type_uid : 0;
+      PDArrayAssignInt(type_counts, sym_type_id, 
+                       PDArrayElementInt(type_counts, sym_type_id) + sym_freq);
+   }
+
+   for(i=SIG_TRUE_CODE+1; i<= ocb->sig->f_count; i++)
+   {
+      long sym_freq = array->array[i].freq;
+      long sym_type_id = SigGetType(ocb->sig, i) ? SigGetType(ocb->sig, i)->type_uid : 0;
+      array->array[i].key1 = PDArrayElementInt(type_counts, sym_type_id) + 2*sym_freq;
+   }
+   FCodeFeatureArraySort(array);
+   freq = -1;
+   for(i=ocb->sig->f_count; i>=SIG_TRUE_CODE+1; i--)
+   {
+      if(freq!=array->array[i].key1)
+      {
+         freq=array->array[i].key1;
+         weight++;
+      }
+      *OCBFunWeightPos(ocb, array->array[i].symbol) =
+         weight*W_DEFAULT_WEIGHT;
    }
    FCodeFeatureArrayFree(array);
 }

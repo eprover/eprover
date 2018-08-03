@@ -996,9 +996,9 @@ Clause_p SATCheck(ProofState_p state, ProofControl_p control)
          for(int i=1; i<=set->max_lit; i++)
          {
             if(picosat_deref(state->solver, i) == 1)
-            {               
+            {           
                PDTreeInsertTerm(state->sat_model, 
-                                SATEncodeLit(PDRangeArrElementP(set->back_index, i)));  
+                                SATEncodeLit(PDRangeArrElementP(set->back_index, i)));
             }
          }
       }
