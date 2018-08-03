@@ -1,6 +1,0 @@
-#!/bin/sh
-
-
-./eprover --delete-bad-limit=2000000000 --definitional-cnf=24 -s --print-statistics -R --print-version\
-          --satauto-schedule --cpu-limit="$STAREXEC_CPU_LIMIT" $1
-

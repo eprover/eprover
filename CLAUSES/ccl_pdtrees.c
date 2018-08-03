@@ -1104,6 +1104,80 @@ void PDTreeInsert(PDTree_p tree, ClausePos_p demod_side)
    //printf("IDateConstr %p: %ld\n", tree, pdt_verify_age_constraint(tree->tree));
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: PDTreeInsert()
+//
+//   Insert a new demodulator into the tree.
+//
+// Global Variables: -
+//
+// Side Effects    : Changes index
+//
+/----------------------------------------------------------------------*/
+
+void PDTreeInsertTerm(PDTree_p tree, Term_p term)
+{
+   Term_p    curr;
+   PDTNode_p node, *next;
+   bool      res;
+   long      tmp;
+
+   assert(tree);
+   assert(tree->tree);
+
+   TermLRTraverseInit(tree->term_stack, term);
+   node              = tree->tree;
+   tmp = TermStandardWeight(term);
+   node->age_constr = SysDateInvalidTime();
+   /* We need no guard here, since invalid = -1 will win out in either
+      case. */
+   node->size_constr = MIN(tmp, node->size_constr);
+   node->ref_count++;
+
+   curr = TermLRTraverseNext(tree->term_stack);
+
+   while(curr)
+   {
+      if(TermIsAppliedVar(curr))
+      {
+         curr = TermLRTraverseNext(tree->term_stack);
+         continue; // skipping the symbol for applied var.
+      }
+
+      next = pdt_select_alt_ref(tree, node, curr);
+
+      if(!(*next))
+      {
+         *next = PDTNodeAlloc();
+         node->leaf = false;
+         
+         tree->arr_storage_est+= (IntMapStorage((*next)->f_alternatives)+
+                                  PDArrayStorage((*next)->v_alternatives));
+         (*next)->parent = node;
+         tree->node_count++;
+         if(TermIsVar(curr))
+         {
+            (*next)->variable = curr;
+            node->max_var = MAX(node->max_var, -curr->f_code);
+         }
+      }
+      node = *next;
+      //assert(!node->variable || (TermIsVar(curr) && node->variable->type == curr->type));
+      tmp = TermStandardWeight(term);
+      node->size_constr = MIN(tmp, node->size_constr);
+      node->age_constr  = SysDateInvalidTime();
+      node->ref_count++;
+      curr = TermLRTraverseNext(tree->term_stack);
+   }
+   assert(node);
+   res = PTreeStore(&(node->entries), ClausePosAlloc());
+   tree->clause_count++;
+   UNUSED(res); assert(res);
+   //printf("ISizeConstr %p: %ld\n", tree, pdt_verify_size_constraint(tree->tree));
+   //printf("IDateConstr %p: %ld\n", tree, pdt_verify_age_constraint(tree->tree));
+}
+
 
 /*-----------------------------------------------------------------------
 //

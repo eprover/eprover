@@ -65,8 +65,9 @@ typedef enum
                                    evaluation of the clause. */
    EPLPatMinimal       = 16384, /* Eqn l=r is Pattern-Minimal */
    EPRPatMinimal       = 32768, /* Eqn r=l is Pattern-Minimal */
-   EPIsSplitLit        = 65636  /* This literal has been introduced by
+   EPIsSplitLit        = 65636, /* This literal has been introduced by
                                    splitting */
+   EPIsSATTrue        = 131072, /*Is the literal true by propositional model */
 }EqnProperties;
 
 

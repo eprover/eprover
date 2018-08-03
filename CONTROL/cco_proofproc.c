@@ -602,6 +602,41 @@ void eval_clause_set(ProofState_p state, ProofControl_p control)
    }
 }
 
+/* FIXME: TODO: Move this to clauses */
+void ClauseMarkPropositionallyTrue(Clause_p handle, PDTree_p model)
+{
+   if(model)
+   {
+      Subst_p dummy = SubstAlloc();
+      for(Eqn_p l = handle->literals; l; l = l->next)
+      {
+         PDTreeUseAgeConstraints = false;
+         PDTreeSearchInit(model, SATEncodeLit(l), SysDateInvalidTime(), true);
+         MatchRes_p res = PDTreeFindNextDemodulator(model, dummy);
+         PDTreeUseAgeConstraints = true;
+         if(res)
+         {
+            if(EqnIsPositive(l))
+            {
+               // it is in the model and l is positive
+               EqnSetProp(l, EPIsSATTrue);
+            }
+            MatchResFree(res);
+         }
+         else
+         {
+            if(EqnIsNegative(l))
+            {
+               // it is not in the model and l is negative
+               EqnSetProp(l, EPIsSATTrue);
+            }
+         }
+         PDTreeSearchExit(model);
+         SubstBacktrack(dummy);
+      }
+      SubstFree(dummy);
+   }
+}
 
 /*-----------------------------------------------------------------------
 //
@@ -629,6 +664,7 @@ static Clause_p insert_new_clauses(ProofState_p state, ProofControl_p control)
       /* printf("Inserting: ");
          ClausePrint(stdout, handle, true);
          printf("\n"); */
+      ClauseMarkPropositionallyTrue(handle, state->sat_model);
       if(ClauseQueryProp(handle,CPIsIRVictim))
       {
          assert(ClauseQueryProp(handle, CPLimitedRW));
@@ -894,12 +930,17 @@ static Clause_p cleanup_unprocessed_clauses(ProofState_p state,
 //
 /----------------------------------------------------------------------*/
 
-
-
 Clause_p SATCheck(ProofState_p state, ProofControl_p control)
 {
    Clause_p     empty = NULL;
    ProverResult res;
+   
+   // resetting previous sat model
+   if(state->sat_model)
+   {
+      PDTreeFree(state->sat_model);
+      state->sat_model = NULL;
+   }
 
    if(control->heuristic_parms.sat_check_normalize)
    {
@@ -947,6 +988,19 @@ Clause_p SATCheck(ProofState_p state, ProofControl_p control)
       else if(res == PRSatisfiable)
       {
          state->satcheck_satisfiable++;
+
+         state->sat_model = PDTreeAlloc(state->terms);
+         state->sat_model->term_date = SysDateInvalidTime();
+
+         // get positive literals and store them in PDT
+         for(int i=1; i<=set->max_lit; i++)
+         {
+            if(picosat_deref(state->solver, i) == 1)
+            {               
+               PDTreeInsertTerm(state->sat_model, 
+                                SATEncodeLit(PDRangeArrElementP(set->back_index, i)));  
+            }
+         }
       }
       SatClauseSetFree(set);
    }
@@ -1661,7 +1715,6 @@ Clause_p Saturate(ProofState_p state, ProofControl_p control, long
    }
    return unsatisfiable;
 }
-
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */

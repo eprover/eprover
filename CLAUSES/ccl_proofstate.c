@@ -235,6 +235,8 @@ ProofState_p ProofStateAlloc(FunctionProperties free_symb_prop)
    handle->gc_count             = 0;
    handle->gc_used_count        = 0;
 
+   handle->sat_model            = NULL;
+
    handle->signature->distinct_props =
       handle->signature->distinct_props&(~free_symb_prop);
 
@@ -420,6 +422,11 @@ void ProofStateFree(ProofState_p junk)
    if(junk->def_store_cspec)
    {
       FVCollectFree(junk->def_store_cspec);
+   }
+
+   if(junk->sat_model)
+   {
+      PDTreeFree(junk->sat_model);
    }
 
    // junk->original_terms->sig = NULL;

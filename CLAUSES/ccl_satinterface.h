@@ -46,6 +46,7 @@ typedef struct satclausecell
 typedef struct satclausesetcell
 {
    PDRangeArr_p renumber_index; // Used to map term->id to [0...max_lit]
+   PDRangeArr_p back_index;     // Used to literal nr to term
    int          max_lit;
    PStack_p     set;            // Actual set (clauses must be freed)
    PStack_p     exported;       // Subset of clauses exported to the solver state
@@ -126,6 +127,8 @@ long        SatClauseSetImportProofState(SatClauseSet_p satset, ProofState_p sta
 long        SatClauseSetMarkPure(SatClauseSet_p satset);
 ProverResult SatClauseSetCheckUnsat(SatClauseSet_p satset, Clause_p *empty,
                                     SatSolver_p solver);
+
+Term_p SATEncodeLit(Eqn_p lit);
 
 #define SAT_TO_E_RESULT(satres) ((satres) == PICOSAT_SATISFIABLE ?\
                                   PRSatisfiable : (assert((satres) == PICOSAT_UNSATISFIABLE),\
