@@ -1425,13 +1425,8 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control,
 
    ClauseSetExtractEntry(clause);
    ClauseRemoveEvaluations(clause);
+   // Orphans have been excluded during selection now
 
-   if(ClauseIsOrphaned(clause))
-   {
-      //printf("\n# Orphaned:");ClauseTSTPPrint(stdout, clause, true, true);printf("\n");
-      ClauseFree(clause);
-      return NULL;
-   }
    ClauseSetProp(clause, CPIsProcessed);
    state->processed_count++;
 

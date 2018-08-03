@@ -231,7 +231,7 @@ HCB_p HCBAlloc(void)
    handle->current_eval  = 0;
    handle->select_switch = PDArrayAlloc(4,4);
    handle->select_count  = 0;
-   handle->hcb_select    = HCBNonOrphanClauseSelect;
+   handle->hcb_select    = HCBStandardClauseSelect;
    handle->hcb_exit      = default_exit_fun;
    handle->data          = NULL;
 
@@ -294,7 +294,7 @@ long HCBAddWFCB(HCB_p hcb, WFCB_p wfcb, long steps)
    hcb->wfcb_no++;
 
    hcb->hcb_select = (hcb->wfcb_no != 1) ?
-      HCBNonOrphanClauseSelect : HCBSingleWeightClauseSelect;
+      HCBStandardClauseSelect : HCBSingleWeightClauseSelect;
 
    return hcb->wfcb_no;
 }
@@ -330,7 +330,6 @@ void HCBClauseEvaluate(HCB_p hcb, Clause_p clause)
    PERF_CTR_EXIT(ClauseEvalTimer);
 }
 
-
 /*-----------------------------------------------------------------------
 //
 // Function: HCBStandardClauseSelect()
@@ -349,45 +348,9 @@ Clause_p HCBStandardClauseSelect(HCB_p hcb, ClauseSet_p set)
    Clause_p clause;
 
    clause = ClauseSetFindBest(set, hcb->current_eval);
-
-   hcb->select_count++;
-   while(hcb->select_count ==
-         PDArrayElementInt(hcb->select_switch,hcb->current_eval))
-   {
-      hcb->current_eval++;
-   }
-   if(hcb->current_eval == hcb->wfcb_no)
-   {
-      hcb->select_count = 0;
-      hcb->current_eval = 0;
-   }
-   return clause;
-}
-
-
-/*-----------------------------------------------------------------------
-//
-// Function: HCBNonOrphanClauseSelect()
-//
-//   Select a clause from set, based on the evaluations and the data
-//   in hcb. Discard orphans.
-//
-// Global Variables: -
-//
-// Side Effects    : Modifies HCB data
-//
-/----------------------------------------------------------------------*/
-
-Clause_p HCBNonOrphanClauseSelect(HCB_p hcb, ClauseSet_p set)
-{
-   Clause_p clause;
-
-   clause = ClauseSetFindBest(set, hcb->current_eval);
    while(clause && ClauseIsOrphaned(clause))
    {
-      //printf("@\n");
       ClauseSetExtractEntry(clause);
-      ClauseRemoveEvaluations(clause);
       ClauseFree(clause);
       clause = ClauseSetFindBest(set, hcb->current_eval);
    }
@@ -420,7 +383,16 @@ Clause_p HCBNonOrphanClauseSelect(HCB_p hcb, ClauseSet_p set)
 
 Clause_p HCBSingleWeightClauseSelect(HCB_p hcb, ClauseSet_p set)
 {
-   return ClauseSetFindBest(set, 0);
+   Clause_p clause;
+
+   clause = ClauseSetFindBest(set, hcb->current_eval);
+   while(clause && ClauseIsOrphaned(clause))
+   {
+      ClauseSetExtractEntry(clause);
+      ClauseFree(clause);
+      clause = ClauseSetFindBest(set, hcb->current_eval);
+   }
+   return clause;
 }
 
 
