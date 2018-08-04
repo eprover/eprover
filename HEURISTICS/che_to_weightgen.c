@@ -1481,7 +1481,7 @@ void TOGenerateWeights(OCB_p ocb, ClauseSet_p axioms, char *pre_weights,
     break;
    case WInvCombFrequencyCount:
     assert(problemType == PROBLEM_HO);
-    generate_inv_comb_freq_rank_weights(ocb, axioms);
+    generate_inv_comb_freq_weights(ocb, axioms);
     break;
    default:
     assert(false && "Weight generation method unimplemented");
