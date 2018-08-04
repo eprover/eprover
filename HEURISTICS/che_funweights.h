@@ -78,6 +78,8 @@ typedef struct funweightparamcell
    long   flimit;
    long   *fweights;
 
+   long   *type_freqs;
+
    /* Temporary store for function symbol counts, put here to avoid
     * multiple  (expensive for large signatures) initializations. */
    PDArray_p f_occur;
@@ -112,7 +114,8 @@ WFCB_p ConjectureSymbolWeightInit(ClausePrioFun prio_fun,
                                   long   conj_fweight,
                                   long   conj_cweight,
                                   long   conj_pweight,
-                                  double app_var_penalty);
+                                  double app_var_penalty,
+                                  void   (*init_fun)(struct funweightparamcell*));
 
 WFCB_p FunWeightInit(ClausePrioFun prio_fun,
                      OCB_p ocb,
@@ -141,6 +144,9 @@ WFCB_p ConjectureSimplifiedSymbolWeightParse(Scanner_p in, OCB_p ocb,
 
 WFCB_p ConjectureRelativeSymbolWeightParse(Scanner_p in, OCB_p ocb,
                                            ProofState_p state);
+
+WFCB_p ConjectureRelativeSymbolTypeWeightParse(Scanner_p in, OCB_p ocb,
+                                               ProofState_p state);
 
 WFCB_p RelevanceLevelWeightParse(Scanner_p in, OCB_p ocb,
                                  ProofState_p state);
