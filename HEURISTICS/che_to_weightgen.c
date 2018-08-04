@@ -65,6 +65,10 @@ char* TOWeightGenNames[]=
    "typefreqcount",      /* WTypeFrequencyCount */
    "invtypefreqrank",    /* WInvTypeFrequencyRank */
    "invtypefreqcount",   /* WInvTypeFrequencyCount */
+   "combfrequencyrank",
+   "combfrequencycount",
+   "invcombfrequencyrank",
+   "invcombfrequencycount",
    "constant",           /* WConstantWeight */
    NULL
 };
@@ -879,21 +883,22 @@ static void generate_type_freq_rank_weights(OCB_p ocb, ClauseSet_p axioms)
    {
       if(freq!=array->array[i].key1)
       {
-    freq=array->array[i].key1;
-    weight++;
+         freq=array->array[i].key1;
+         weight++;
       }
       *OCBFunWeightPos(ocb, array->array[i].symbol) =
-    weight*W_DEFAULT_WEIGHT;
+         weight*W_DEFAULT_WEIGHT;
    }
    FCodeFeatureArrayFree(array);
+   PDArrayFree(type_counts);
 }
 
 /*-----------------------------------------------------------------------
 //
 // Function: generate_comb_freq_rank_weights()
 //
-//   Make the weight of a function symbol equal "frequency rank"
-//   of its type.
+//   Make the weight of a function symbol equal to 
+//   rank of "frequency of type + 2*frequency of symbol"
 //
 // Global Variables: -
 //
@@ -930,13 +935,14 @@ static void generate_comb_freq_rank_weights(OCB_p ocb, ClauseSet_p axioms)
    {
       if(freq!=array->array[i].key1)
       {
-    freq=array->array[i].key1;
-    weight++;
+         freq=array->array[i].key1;
+         weight++;
       }
       *OCBFunWeightPos(ocb, array->array[i].symbol) =
-    weight*W_DEFAULT_WEIGHT;
+         weight*W_DEFAULT_WEIGHT;
    }
    FCodeFeatureArrayFree(array);
+   PDArrayFree(type_counts);
 }
 
 /*-----------------------------------------------------------------------
@@ -1459,6 +1465,22 @@ void TOGenerateWeights(OCB_p ocb, ClauseSet_p axioms, char *pre_weights,
    case WInvTypeFrequencyCount:
     assert(problemType == PROBLEM_HO);
     generate_inv_type_freq_weights(ocb, axioms);
+    break;
+   case WCombFrequencyRank:
+    assert(problemType == PROBLEM_HO);
+    generate_comb_freq_rank_weights(ocb, axioms);
+    break;
+   case WCombFrequencyCount:
+    assert(problemType == PROBLEM_HO);
+    generate_comb_freq_weights(ocb, axioms);
+    break;
+   case WInvCombFrequencyRank:
+    assert(problemType == PROBLEM_HO);
+    generate_inv_comb_freq_rank_weights(ocb, axioms);
+    break;
+   case WInvCombFrequencyCount:
+    assert(problemType == PROBLEM_HO);
+    generate_inv_comb_freq_rank_weights(ocb, axioms);
     break;
    default:
     assert(false && "Weight generation method unimplemented");

@@ -79,6 +79,10 @@ typedef enum
    WTypeFrequencyCount,
    WInvTypeFrequencyRank,
    WInvTypeFrequencyCount,
+   WCombFrequencyRank,
+   WCombFrequencyCount,
+   WInvCombFrequencyRank,
+   WInvCombFrequencyCount,
    WConstantWeight,       /* All weights 1 */
    WMinMethod = WSelectMaximal,
    WMaxMethod = WConstantWeight /* Update as required! */
