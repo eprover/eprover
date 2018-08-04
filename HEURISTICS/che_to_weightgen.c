@@ -1032,6 +1032,7 @@ static void generate_inv_type_freq_rank_weights(OCB_p ocb, ClauseSet_p axioms)
     weight*W_DEFAULT_WEIGHT;
    }
    FCodeFeatureArrayFree(array);
+   PDArrayFree(type_counts);
 }
 
 /*-----------------------------------------------------------------------
