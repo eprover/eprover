@@ -59,6 +59,8 @@ typedef enum
    PByTypeFreq,        /*  By frequency of type function symbol corresponds
                            to */
    PByInvTypeFreq,     /*  Same as prev, only inverse*/
+   PByCombFreq,        /*  Based on sybmol type frequency + symbol frequency */
+   PByInvCombFreq,     /*  Inverse of the previous */
    PArrayOpt,           /* Special hack for theory of array with
                            conceptually typed symbols recognized by
                            name. */
