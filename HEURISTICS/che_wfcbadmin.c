@@ -58,6 +58,7 @@ char* WeightFunParseFunNames[]=
    "ConjectureSymbolWeight",
    "ConjectureGeneralSymbolWeight",
    "ConjectureRelativeSymbolWeight",
+   "ConjectureRelativeTypeSymbolWeight"
    "RelevanceLevelWeight",
    "RelevanceLevelWeight2",
    "FunWeight",
@@ -94,6 +95,7 @@ static WeightFunParseFun parse_fun_array[]=
    ConjectureSimplifiedSymbolWeightParse,
    ConjectureSymbolWeightParse,
    ConjectureRelativeSymbolWeightParse,
+   ConjectureRelativeSymbolTypeWeightParse,
    RelevanceLevelWeightParse,
    RelevanceLevelWeightParse2,
    FunWeightParse,

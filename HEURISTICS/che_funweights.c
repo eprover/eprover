@@ -104,7 +104,78 @@ static void init_conj_vector(FunWeightParam_p data)
                (SigFindArity(data->ocb->sig,i)?data->conj_fweight:data->conj_cweight);
          }
       }
+   }
+}
 
+/*-----------------------------------------------------------------------
+//
+// Function: init_conj_t_vector()
+//
+//   Initialize the function weight vector based on the data in data
+//   ;-). Factored out so it can be called from the weight
+//   function(s). NB: Does not consider occurences of symbols themselves
+//   but the occurence of symbol's type.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+static void init_conj_t_vector(FunWeightParam_p data)
+{
+   if(!data->fweights)
+   {
+      FunCode i;
+      Clause_p handle;
+      Sig_p   sig = data->ocb->sig;
+
+      data->flimit   = data->ocb->sig->f_count+1;
+      data->fweights = SizeMalloc(data->flimit*sizeof(long));
+
+      bool* type_occurence  = SizeMalloc((sig->type_bank->types_count+1)
+                                         *sizeof(bool));
+
+      for(i=0;i<data->flimit; i++)
+      {
+         data->fweights[i] = 0;
+      }
+      for(i=0;i<data->ocb->sig->type_bank->types_count+1;i++)
+      {
+         type_occurence[i] = false;
+      }
+
+      for(handle=data->axioms->anchor->succ;
+          handle!=data->axioms->anchor;
+          handle = handle->succ)
+      {
+         if(ClauseQueryTPTPType(handle)==CPTypeNegConjecture)
+         {
+            ClauseAddSymbolDistribution(handle, data->fweights);
+         }
+      }
+
+      for(i=1;i<data->flimit; i++)
+      {
+         TypeUniqueID type_uid = SigGetType(sig, i) ? (SigGetType(sig, i))->type_uid : 0;
+         type_occurence[type_uid] = data->fweights[i] ? true : type_occurence[type_uid]; 
+      }
+
+      for(i=1;i<data->flimit; i++)
+      {
+         TypeUniqueID type_uid = SigGetType(sig, i) ? (SigGetType(sig, i))->type_uid : 0;
+         if(!type_occurence[type_uid])
+         {
+            data->fweights[i] = SigIsPredicate(data->ocb->sig, i)?data->pweight:
+               (SigFindArity(data->ocb->sig,i)?data->fweight:data->cweight);
+         }
+         else
+         {
+            data->fweights[i] = SigIsPredicate(data->ocb->sig, i)?data->conj_pweight:
+               (SigFindArity(data->ocb->sig,i)?data->conj_fweight:data->conj_cweight);
+         }
+      }
+      SizeFree(type_occurence, (sig->type_bank->types_count+1)*sizeof(bool));
    }
 }
 
@@ -346,6 +417,7 @@ FunWeightParam_p FunWeightParamAlloc(void)
    res->flimit       = 0;
    res->f_occur      = NULL;
    res->app_var_penalty = 0;
+   res->type_freqs   = NULL;
 
    return res;
 }
@@ -420,11 +492,12 @@ WFCB_p ConjectureSymbolWeightInit(ClausePrioFun prio_fun,
                                   long   conj_fweight,
                                   long   conj_cweight,
                                   long   conj_pweight,
-                                  double app_var_penalty)
+                                  double app_var_penalty,
+                                  void   (*init_fun)(struct funweightparamcell*))
 {
    FunWeightParam_p data = FunWeightParamAlloc();
 
-   data->init_fun               = init_conj_vector;
+   data->init_fun               = init_fun;
    data->ocb                    = ocb;
    data->axioms                 = axioms;
    data->pos_multiplier         = pos_multiplier;
@@ -639,7 +712,8 @@ WFCB_p ConjectureSymbolWeightParse(Scanner_p in, OCB_p ocb, ProofState_p
                                      conj_fweight,
                                      conj_cweight,
                                      conj_pweight,
-                                     app_var_penalty);
+                                     app_var_penalty,
+                                     init_conj_vector);
 }
 
 /*-----------------------------------------------------------------------
@@ -703,7 +777,8 @@ WFCB_p ConjectureSimplifiedSymbolWeightParse(Scanner_p in, OCB_p ocb,
                                      conj_fweight,
                                      conj_fweight,
                                      conj_pweight,
-                                     app_var_penalty);
+                                     app_var_penalty,
+                                     init_conj_vector);
 }
 
 
@@ -769,7 +844,74 @@ WFCB_p ConjectureRelativeSymbolWeightParse(Scanner_p in, OCB_p ocb,
                                      conj_multiplier*fweight,
                                      conj_multiplier*cweight,
                                      conj_multiplier*pweight,
-                                     app_var_penalty);
+                                     app_var_penalty,
+                                     init_conj_vector);
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: ConjectureRelativeSymbolTypeWeightParse()
+//
+//   As above, but give the weight of conjecture symbols as a
+//   multiple of non-conjecture symbols weight. Note that all weights
+//   are rounded down to the next integer!
+//
+// Global Variables:
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+
+WFCB_p ConjectureRelativeSymbolTypeWeightParse(Scanner_p in, OCB_p ocb,
+                                           ProofState_p state)
+{
+   ClausePrioFun prio_fun;
+   int fweight, pweight, cweight, vweight;
+   double conj_multiplier, pos_multiplier, max_term_multiplier, max_literal_multiplier,
+          app_var_penalty = APP_VAR_PENALTY_DEFAULT;
+
+   AcceptInpTok(in, OpenBracket);
+   prio_fun = ParsePrioFun(in);
+   AcceptInpTok(in, Comma);
+
+   conj_multiplier = ParseFloat(in);
+   AcceptInpTok(in, Comma);
+
+   fweight = ParseInt(in);
+   AcceptInpTok(in, Comma);
+   cweight = ParseInt(in);
+   AcceptInpTok(in, Comma);
+   pweight = ParseInt(in);
+   AcceptInpTok(in, Comma);
+
+   vweight = ParseInt(in);
+   AcceptInpTok(in, Comma);
+
+   max_term_multiplier = ParseFloat(in);
+   AcceptInpTok(in, Comma);
+   max_literal_multiplier = ParseFloat(in);
+   AcceptInpTok(in, Comma);
+   pos_multiplier = ParseFloat(in);
+
+   PARSE_OPTIONAL_AV_PENALTY(in, app_var_penalty);
+
+   AcceptInpTok(in, CloseBracket);
+
+   return ConjectureSymbolWeightInit(prio_fun,
+                                     ocb,
+                                     state->axioms,
+                                     max_term_multiplier,
+                                     max_literal_multiplier,
+                                     pos_multiplier,
+                                     vweight,
+                                     fweight,
+                                     cweight,
+                                     pweight,
+                                     conj_multiplier*fweight,
+                                     conj_multiplier*cweight,
+                                     conj_multiplier*pweight,
+                                     app_var_penalty,
+                                     init_conj_t_vector);
 }
 
 
