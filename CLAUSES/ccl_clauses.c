@@ -2080,7 +2080,8 @@ double ClauseWeight(Clause_p clause, double max_term_multiplier,
 double ClauseFunWeight(Clause_p clause, double max_term_multiplier,
                        double max_literal_multiplier, double
                        pos_multiplier, long vweight, long flimit,
-                       long *fweights, long default_fweight, double app_var_penalty)
+                       long *fweights, long default_fweight, double app_var_penalty,
+                       long *typefreqs)
 {
    Eqn_p  handle;
    double res = 0;
@@ -2090,7 +2091,8 @@ double ClauseFunWeight(Clause_p clause, double max_term_multiplier,
       res += LiteralFunWeight(handle, max_term_multiplier,
                               max_literal_multiplier, pos_multiplier,
                               vweight, flimit, fweights,
-                              default_fweight, app_var_penalty);
+                              default_fweight, app_var_penalty,
+                              typefreqs);
    }
    return res;
 }

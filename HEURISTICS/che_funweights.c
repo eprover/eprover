@@ -114,7 +114,7 @@ static void init_conj_vector(FunWeightParam_p data)
 //   Initialize the function weight vector based on the data in data
 //   ;-). Factored out so it can be called from the weight
 //   function(s). NB: Does not consider occurences of symbols themselves
-//   but the occurence of symbol's type.
+//   but the occurence of symbol's type. data->type_freqs stays NULL!
 //
 // Global Variables: -
 //
@@ -179,6 +179,90 @@ static void init_conj_t_vector(FunWeightParam_p data)
    }
 }
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: init_conj_typeweight_vector()
+//
+//   Initialize the function weight vector based on the data in data
+//   ;-). Factored out so it can be called from the weight
+//   function(s). Initializes function symbol weights to be equal
+//   to the inverse of occurence of symbol's type  + 
+//   2*occurence of symbol in the conjecture(s). 
+//   Leaves type data in the data->type_freqs.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+static void init_conj_typeweight_vector(FunWeightParam_p data)
+{
+   if(!data->fweights)
+   {
+      FunCode i;
+      Clause_p handle;
+      Sig_p   sig = data->ocb->sig;
+
+      data->flimit   = data->ocb->sig->f_count+1;
+      data->fweights = SizeMalloc(data->flimit*sizeof(long));
+
+      data->type_freqs  = SizeMalloc((sig->type_bank->types_count+1)
+                                     *sizeof(long));
+
+      for(i=0;i<data->flimit; i++)
+      {
+         data->fweights[i] = 0;
+      }
+      for(i=0;i<data->ocb->sig->type_bank->types_count+1;i++)
+      {
+         data->type_freqs[i] = 0;
+      }
+
+      for(handle=data->axioms->anchor->succ;
+          handle!=data->axioms->anchor;
+          handle = handle->succ)
+      {
+         if(ClauseQueryTPTPType(handle)==CPTypeNegConjecture)
+         {
+            ClauseAddSymbolDistribution(handle, data->fweights);
+         }
+      }
+
+      for(i=1;i<data->flimit; i++)
+      {
+         TypeUniqueID type_uid = SigGetType(sig, i) ? (SigGetType(sig, i))->type_uid : 0;
+         data->type_freqs[type_uid] += data->fweights[i]; 
+      }
+
+      long max_occurrence = 0;
+      for(i=1;i<data->flimit; i++)
+      {
+         TypeUniqueID type_uid = SigGetType(sig, i) ? (SigGetType(sig, i))->type_uid : 0;
+         max_occurrence = MAX(max_occurrence, data->type_freqs[type_uid] + 2*data->fweights[i]); 
+      }
+      max_occurrence++;
+
+      for(i=1;i<data->flimit; i++)
+      {
+         TypeUniqueID type_uid = SigGetType(sig, i) ? (SigGetType(sig, i))->type_uid : 0;
+         if(!data->type_freqs[type_uid])
+         {
+            data->fweights[i] = 5*max_occurrence;
+         }
+         else
+         {
+            data->fweights[i] = max_occurrence - (data->type_freqs[type_uid] + 2*data->fweights[i]);
+         }
+      }
+      for(i=0;i<data->ocb->sig->type_bank->types_count+1;i++)
+      {
+         // app vars are going to use this array 
+         data->type_freqs[i] = max_occurrence - data->type_freqs[i];
+      }
+   }
+}
 
 /*-----------------------------------------------------------------------
 //
@@ -459,6 +543,11 @@ void FunWeightParamFree(FunWeightParam_p junk)
    if(junk->f_occur)
    {
       PDArrayFree(junk->f_occur);
+   }
+   if(junk->type_freqs)
+   {
+      SizeFree(junk->type_freqs, 
+               (junk->ocb->sig->type_bank->types_count+1)*sizeof(long));
    }
    FunWeightParamCellFree(junk);
 }
@@ -847,6 +936,49 @@ WFCB_p ConjectureRelativeSymbolWeightParse(Scanner_p in, OCB_p ocb,
                                      app_var_penalty,
                                      init_conj_vector);
 }
+/*-----------------------------------------------------------------------
+//
+// Function: ConjectureTypeBasedWeightParse()
+//
+//   Assign each function symbol the weight equal to occurence of the
+//   symbol's type in conjecture + 2*symbols occurence in conjecture
+//
+// Global Variables:
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+
+WFCB_p ConjectureTypeBasedWeightParse(Scanner_p in, OCB_p ocb, ProofState_p
+                                      state)
+{
+   ClausePrioFun prio_fun;
+   int vweight;
+   double pos_multiplier, max_term_multiplier, max_literal_multiplier,
+          app_var_penalty = APP_VAR_PENALTY_DEFAULT;
+
+   AcceptInpTok(in, OpenBracket);
+   prio_fun = ParsePrioFun(in);
+   AcceptInpTok(in, Comma);
+
+   vweight = ParseInt(in);
+   AcceptInpTok(in, Comma);
+   
+   max_term_multiplier = ParseFloat(in);
+   AcceptInpTok(in, Comma);
+   max_literal_multiplier = ParseFloat(in);
+   AcceptInpTok(in, Comma);
+   pos_multiplier = ParseFloat(in);
+
+   PARSE_OPTIONAL_AV_PENALTY(in, app_var_penalty);
+
+   AcceptInpTok(in, CloseBracket);
+
+   return ConjectureSymbolWeightInit(prio_fun, ocb, state->axioms,
+                                     max_term_multiplier, max_literal_multiplier, pos_multiplier,
+                                     vweight, 0, 0, 0, 0, 0, 0, app_var_penalty, 
+                                     init_conj_typeweight_vector);
+}
 
 /*-----------------------------------------------------------------------
 //
@@ -854,7 +986,9 @@ WFCB_p ConjectureRelativeSymbolWeightParse(Scanner_p in, OCB_p ocb,
 //
 //   As above, but give the weight of conjecture symbols as a
 //   multiple of non-conjecture symbols weight. Note that all weights
-//   are rounded down to the next integer!
+//   are rounded down to the next integer! NOTE: Symbol is considered
+//   a conjecture symbol if a symbol of the same type appears in the 
+//   conjecture -- difference from above functions. 
 //
 // Global Variables:
 //
@@ -1344,7 +1478,8 @@ double GenericFunWeightCompute(void* data, Clause_p clause)
                           local->flimit,
                           local->fweights,
                           local->fweight,
-                          local->app_var_penalty);
+                          local->app_var_penalty,
+                          local->type_freqs);
 }
 
 

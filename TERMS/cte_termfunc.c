@@ -1172,7 +1172,8 @@ long TermWeightCompute(Term_p term, long vweight, long fweight)
 /----------------------------------------------------------------------*/
 
 long TermFsumWeight(Term_p term, long vweight, long flimit,
-                    long *fweights, long default_fweight)
+                    long *fweights, long default_fweight,
+                    long* typefreqs)
 {
    long res = 0;
 
@@ -1191,6 +1192,11 @@ long TermFsumWeight(Term_p term, long vweight, long flimit,
          else
          {
             assert(problemType == PROBLEM_HO);
+            if(typefreqs && typefreqs[term->args[0]->type->type_uid])
+            {
+               assert(typefreqs[term->args[0]->type->type_uid] > 0);
+               res += typefreqs[term->args[0]->type->type_uid];
+            }
          }
       }
       else
@@ -1208,7 +1214,8 @@ long TermFsumWeight(Term_p term, long vweight, long flimit,
 
       for(int i = 0; i < term->arity; i++)
       {
-         res += TermFsumWeight(term->args[i], vweight, flimit, fweights, default_fweight);
+         res += TermFsumWeight(term->args[i], vweight, flimit, fweights, default_fweight,
+                               typefreqs);
       }
    }
 
