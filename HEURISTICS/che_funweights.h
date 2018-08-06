@@ -78,6 +78,7 @@ typedef struct funweightparamcell
    long   flimit;
    long   *fweights;
 
+   /* array storing frequencies of types for certain symbols */
    long   *type_freqs;
 
    /* Temporary store for function symbol counts, put here to avoid
@@ -163,6 +164,9 @@ WFCB_p SymOffsetWeightParse(Scanner_p in, OCB_p ocb,
 double GenericFunWeightCompute(void* data, Clause_p clause);
 
 double SymOffsetWeightCompute(void* data, Clause_p clause);
+
+WFCB_p ConjectureTypeBasedWeightParse(Scanner_p in, OCB_p ocb, ProofState_p
+                                      state);
 
 
 void   GenericFunWeightExit(void* data);

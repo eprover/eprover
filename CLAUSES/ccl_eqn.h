@@ -302,7 +302,7 @@ double  EqnWeight(Eqn_p eq, double max_multiplier, long vweight, long
 
 double EqnFunWeight(Eqn_p eq, double max_multiplier, long vweight,
                     long flimit, long *fweights, long default_fweight,
-                    double app_var_penalty);
+                    double app_var_penalty, long* typefreqs);
 
 double  EqnNonLinearWeight(Eqn_p eq, double max_multiplier, long
                            vlweight, long vweight, long fweight, 
@@ -337,7 +337,8 @@ double  LiteralFunWeight(Eqn_p eq,
                          long flimit,
                          long *fweights,
                          long default_fweight,
-                         double app_var_penalty);
+                         double app_var_penalty,
+                         long* typefreqs);
 
 
 

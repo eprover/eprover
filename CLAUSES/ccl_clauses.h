@@ -341,7 +341,7 @@ double ClauseFunWeight(Clause_p clause, double max_term_multiplier,
                        double max_literal_multiplier, double
                        pos_multiplier, long vweight, long flimit,
                        long *fweights, long default_fweight,
-                       double app_var_penalty);
+                       double app_var_penalty, long* typefreqs);
 
 double ClauseNonLinearWeight(Clause_p clause, double
                              max_term_multiplier, double
