@@ -35,20 +35,20 @@ Changes
 
 char* TOWeightGenNames[]=
 {
-   "none",               /* WNoMethod */
-   "firstmaximal0",      /* WSelectMaximal */
-   "arity",              /* WArityWeight */
-   "aritymax0",          /* WArityMax0 */
-   "modarity",           /* WModArityWeight */
-   "modaritymax0",       /* WModArityMax0 */
-   "aritysquared",       /* WAritySqWeight */
-   "aritysquaredmax0",   /* WAritySqMax0 */
-   "invarity",           /* WInvArityWeight */
-   "invaritymax0",       /* WInvArityMax0 */
-   "invaritysquared",    /* WInvSqArityWeight */
-   "invaritysquaredmax0",/* WInvAritySqMax0 */
-   "precedence",         /* WPrecedence */
-   "invprecedence",      /* WPrecedenceInv */
+   "none",                   /* WNoMethod */
+   "firstmaximal0",          /* WSelectMaximal */
+   "arity",                  /* WArityWeight */
+   "aritymax0",              /* WArityMax0 */
+   "modarity",               /* WModArityWeight */
+   "modaritymax0",           /* WModArityMax0 */
+   "aritysquared",           /* WAritySqWeight */
+   "aritysquaredmax0",       /* WAritySqMax0 */
+   "invarity",               /* WInvArityWeight */
+   "invaritymax0",           /* WInvArityMax0 */
+   "invaritysquared",        /* WInvSqArityWeight */
+   "invaritysquaredmax0",    /* WInvAritySqMax0 */
+   "precedence",             /* WPrecedence */
+   "invprecedence",          /* WPrecedenceInv */
    "precrank5",
    "precrank10",
    "precrank20",
@@ -56,20 +56,20 @@ char* TOWeightGenNames[]=
    "invfreqcount",
    "freqrank",
    "invfreqrank",
-   "invconjfreqrank",    /* WInvConjFrequencyRank */
+   "invconjfreqrank",        /* WInvConjFrequencyRank */
    "freqranksquare",
    "invfreqranksquare",
-   "invmodfreqrank",     /* WModFreqRank */
-   "invmodfreqrankmax0", /* WModFreqRankMax0 */
-   "typefreqrank",       /* WTypeFrequencyRank */
-   "typefreqcount",      /* WTypeFrequencyCount */
-   "invtypefreqrank",    /* WInvTypeFrequencyRank */
-   "invtypefreqcount",   /* WInvTypeFrequencyCount */
-   "combfrequencyrank",
-   "combfrequencycount",
-   "invcombfrequencyrank",
-   "invcombfrequencycount",
-   "constant",           /* WConstantWeight */
+   "invmodfreqrank",         /* WModFreqRank */
+   "invmodfreqrankmax0",     /* WModFreqRankMax0 */
+   "typefreqrank",           /* WTypeFrequencyRank */
+   "typefreqcount",          /* WTypeFrequencyCount */
+   "invtypefreqrank",        /* WInvTypeFrequencyRank */
+   "invtypefreqcount",       /* WInvTypeFrequencyCount */
+   "combfrequencyrank",      /* WCombFrequencyRank */
+   "combfrequencycount",     /* WCombFrequencyCount */
+   "invcombfrequencyrank",   /* WInvCombFrequencyRank */
+   "invcombfrequencycount",  /* WInvCombFrequencyCount */
+   "constant",               /* WConstantWeight */
    NULL
 };
 
@@ -1084,6 +1084,7 @@ static void generate_inv_comb_freq_rank_weights(OCB_p ocb, ClauseSet_p axioms)
          weight*W_DEFAULT_WEIGHT;
    }
    FCodeFeatureArrayFree(array);
+   PDArrayFree(type_counts);
 }
 
 /*-----------------------------------------------------------------------
