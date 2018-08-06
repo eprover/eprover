@@ -240,8 +240,8 @@ WFCB_p WFCBAdminFindWFCB(WFCBAdmin_p set, char* name)
    {
       if(strcmp(name, PStackElementP(set->names, i))==0)
       {
-    res = PStackElementP(set->wfcb_set, i);
-    break;
+         res = PStackElementP(set->wfcb_set, i);
+         break;
       }
    }
    return res;

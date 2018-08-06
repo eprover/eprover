@@ -79,8 +79,9 @@ typedef enum
    WTypeFrequencyCount,
    WInvTypeFrequencyRank,
    WInvTypeFrequencyCount,
-   WCombFrequencyRank,
-   WCombFrequencyCount,
+   WCombFrequencyRank,    /* Similar to type frequency schemes, but
+                             combines type frequencies with symbol frequencies */
+   WCombFrequencyCount,  
    WInvCombFrequencyRank,
    WInvCombFrequencyCount,
    WConstantWeight,       /* All weights 1 */
