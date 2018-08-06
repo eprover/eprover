@@ -2406,11 +2406,12 @@ double EqnWeight(Eqn_p eq, double max_multiplier, long vweight, long
 
 double EqnFunWeight(Eqn_p eq, double max_multiplier, long vweight,
                     long flimit, long *fweights, long default_fweight,
-                    double app_var_penalty)
+                    double app_var_penalty, long* typefreqs)
 {
    double res;
 
-   res = (double)TermFsumWeight(eq->rterm, vweight, flimit, fweights, default_fweight);
+   res = (double)TermFsumWeight(eq->rterm, vweight, flimit, fweights, default_fweight,
+                                typefreqs);
    res = TERM_APPLY_APP_VAR_PENALTY(res, eq->rterm, app_var_penalty);
 
    if(!EqnIsOriented(eq))
@@ -2418,7 +2419,8 @@ double EqnFunWeight(Eqn_p eq, double max_multiplier, long vweight,
       res *= max_multiplier;
    }
 
-   res += TERM_APPLY_APP_VAR_PENALTY((double)TermFsumWeight(eq->lterm, vweight, flimit, fweights, default_fweight) * max_multiplier,
+   res += TERM_APPLY_APP_VAR_PENALTY((double)TermFsumWeight(eq->lterm, vweight, flimit, fweights, 
+                                                            default_fweight, typefreqs) * max_multiplier,
                                      eq->lterm, app_var_penalty);
 
    return res;
@@ -2731,12 +2733,14 @@ double  LiteralFunWeight(Eqn_p eq,
                          long flimit,
                          long *fweights,
                          long default_fweight,
-                         double app_var_penalty)
+                         double app_var_penalty,
+                         long* typefreqs)
 {
    double res;
 
    res = EqnFunWeight(eq, max_term_multiplier, vweight, flimit,
-                      fweights, default_fweight, app_var_penalty);
+                      fweights, default_fweight, app_var_penalty,
+                      typefreqs);
 
    if(EqnIsMaximal(eq))
    {

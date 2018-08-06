@@ -94,7 +94,7 @@ long    TermWeightCompute(Term_p term, long vweight, long fweight);
          TermDefaultWeight((term)))
 
 long    TermFsumWeight(Term_p term, long vweight, long flimit,
-                       long *fweights, long default_fweight);
+                       long *fweights, long default_fweight, long* typefreqs);
 
 long    TermNonLinearWeight(Term_p term, long vlweight, long vweight, long fweight);
 long    TermSymTypeWeight(Term_p term, long vweight, long fweight, long cweight, long pweight);
