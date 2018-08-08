@@ -1643,10 +1643,68 @@ void TermAddSymbolDistributionLimited(Term_p term, long *dist_array, long limit)
             dist_array[term->f_code]++;
          }
          for(i=0; i<term->arity; i++)
-         {
-            assert(term->args);
+         { assert(term->f_code > 0);
+      if(term->f_code < limit && !TermIsAppliedVar(term))
+      {
+         dist_array[term->f_code]++;
+      }
+      for(i=0; i<term->arity; i++)
+      {
+         assert(term->args);
+         PStackPushP(stack, term->args[i]);
+      }
+           assert(term->f_code > 0);
+      if(term->f_code < limit && !TermIsAppliedVar(term))
+      {
+         dist_array[term->f_code]++;
+      }
+      for(i=0; i<term->arity; i++)
+      {
+         assert(term->args);
+         PStackPushP(stack, term->args[i]);
+      };
             PStackPushP(stack, term->args[i]);
          }
+      }
+   }
+   PStackFree(stack);
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: TermAddTypeDistribution()
+//
+//   Count occurences of types of symbols in term and store them 
+//   in type_arr
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void  TermAddTypeDistribution(Term_p term, Sig_p sig, long* type_arr)
+{
+   PStack_p stack = PStackAlloc();
+   TypeUniqueID type_uid = INVALID_TYPE_UID;
+   assert(term);
+   assert(sig);
+
+   PStackPushP(stack, term);
+
+   while(!PStackEmpty(stack))
+   {
+      term = PStackPopP(stack);
+      assert(term);
+      assert(GetHeadType(sig, term));
+      
+      type_uid = GetHeadType(sig, term)->type_uid;
+      type_arr[type_uid]++;
+      
+      int i;
+      for(i=TermIsAppliedVar(term) ? 1 : 0; i<term->arity; i++)
+      {
+         PStackPushP(stack, term->args[i]);
       }
    }
    PStackFree(stack);
