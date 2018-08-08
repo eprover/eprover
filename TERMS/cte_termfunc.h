@@ -128,6 +128,7 @@ void    TermAddSymbolDistExist(Term_p term, long *dist_array,
 void    TermAddSymbolFeaturesLimited(Term_p term, long depth,
                                      long *freq_array, long* depth_array,
                                      long limit);
+void    TermAddTypeDistribution(Term_p term, Sig_p sig, long* type_arr);
 
 void    TermAddSymbolFeatures(Term_p term, PStack_p mod_stack,
                               long depth, long *feature_array, long offset);

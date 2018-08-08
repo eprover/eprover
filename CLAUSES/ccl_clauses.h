@@ -389,6 +389,8 @@ Clause_p ClauseNormalizeVars(Clause_p clause, VarBank_p fresh_vars);
 
 #define  ClauseAddSymbolDistribution(clause, dist_array)                \
    EqnListAddSymbolDistribution((clause)->literals, (dist_array))
+#define  ClauseAddTypeDistribution(clause, type_array)                \
+   EqnListAddTypeDistribution((clause)->literals, (type_array))
 #define  ClauseAddSymbolDistExist(clause, dist_array, exists)           \
    EqnListAddSymbolDistExist((clause)->literals, (dist_array), (exists))
 

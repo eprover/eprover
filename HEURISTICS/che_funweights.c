@@ -132,9 +132,8 @@ static void init_conj_t_vector(FunWeightParam_p data)
 
       data->flimit   = data->ocb->sig->f_count+1;
       data->fweights = SizeMalloc(data->flimit*sizeof(long));
-
-      bool* type_occurence  = SizeMalloc((sig->type_bank->types_count+1)
-                                         *sizeof(bool));
+      data->type_freqs = SizeMalloc((sig->type_bank->types_count+1)
+                                         *sizeof(long));
 
       for(i=0;i<data->flimit; i++)
       {
@@ -142,7 +141,7 @@ static void init_conj_t_vector(FunWeightParam_p data)
       }
       for(i=0;i<data->ocb->sig->type_bank->types_count+1;i++)
       {
-         type_occurence[i] = false;
+         data->type_freqs[i] = 0;
       }
 
       for(handle=data->axioms->anchor->succ;
@@ -151,20 +150,14 @@ static void init_conj_t_vector(FunWeightParam_p data)
       {
          if(ClauseQueryTPTPType(handle)==CPTypeNegConjecture)
          {
-            ClauseAddSymbolDistribution(handle, data->fweights);
+            ClauseAddTypeDistribution(handle, data->type_freqs);
          }
       }
 
       for(i=1;i<data->flimit; i++)
       {
          TypeUniqueID type_uid = SigGetType(sig, i) ? (SigGetType(sig, i))->type_uid : 0;
-         type_occurence[type_uid] = data->fweights[i] ? true : type_occurence[type_uid]; 
-      }
-
-      for(i=1;i<data->flimit; i++)
-      {
-         TypeUniqueID type_uid = SigGetType(sig, i) ? (SigGetType(sig, i))->type_uid : 0;
-         if(!type_occurence[type_uid])
+         if(!data->type_freqs[type_uid])
          {
             data->fweights[i] = SigIsPredicate(data->ocb->sig, i)?data->pweight:
                (SigFindArity(data->ocb->sig,i)?data->fweight:data->cweight);
@@ -175,7 +168,11 @@ static void init_conj_t_vector(FunWeightParam_p data)
                (SigFindArity(data->ocb->sig,i)?data->conj_fweight:data->conj_cweight);
          }
       }
-      SizeFree(type_occurence, (sig->type_bank->types_count+1)*sizeof(bool));
+
+      for(i=0;i<data->ocb->sig->type_bank->types_count+1;i++)
+      {
+         data->type_freqs[i] = data->type_freqs[i]>0 ? data->vweight : 2*data->vweight;
+      }
    }
 }
 
@@ -207,7 +204,6 @@ static void init_conj_typeweight_vector(FunWeightParam_p data)
 
       data->flimit   = data->ocb->sig->f_count+1;
       data->fweights = SizeMalloc(data->flimit*sizeof(long));
-
       data->type_freqs  = SizeMalloc((sig->type_bank->types_count+1)
                                      *sizeof(long));
 
@@ -226,14 +222,9 @@ static void init_conj_typeweight_vector(FunWeightParam_p data)
       {
          if(ClauseQueryTPTPType(handle)==CPTypeNegConjecture)
          {
+            ClauseAddTypeDistribution(handle, data->type_freqs);
             ClauseAddSymbolDistribution(handle, data->fweights);
          }
-      }
-
-      for(i=1;i<data->flimit; i++)
-      {
-         TypeUniqueID type_uid = SigGetType(sig, i) ? (SigGetType(sig, i))->type_uid : 0;
-         data->type_freqs[type_uid] += data->fweights[i]; 
       }
 
       long max_occurrence = 0;
