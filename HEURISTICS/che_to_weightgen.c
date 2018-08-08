@@ -65,10 +65,10 @@ char* TOWeightGenNames[]=
    "typefreqcount",          /* WTypeFrequencyCount */
    "invtypefreqrank",        /* WInvTypeFrequencyRank */
    "invtypefreqcount",       /* WInvTypeFrequencyCount */
-   "combfrequencyrank",      /* WCombFrequencyRank */
-   "combfrequencycount",     /* WCombFrequencyCount */
-   "invcombfrequencyrank",   /* WInvCombFrequencyRank */
-   "invcombfrequencycount",  /* WInvCombFrequencyCount */
+   "combfreqrank",           /* WCombFrequencyRank */
+   "combfreqcount",          /* WCombFrequencyCount */
+   "invcombfreqrank",        /* WInvCombFrequencyRank */
+   "invcombfreqcount",       /* WInvCombFrequencyCount */
    "constant",               /* WConstantWeight */
    NULL
 };
@@ -609,28 +609,23 @@ static void generate_freq_weights(OCB_p ocb, ClauseSet_p axioms)
 
 static void generate_type_freq_weights(OCB_p ocb, ClauseSet_p axioms)
 {
-   FCodeFeatureArray_p array = FCodeFeatureArrayAlloc(ocb->sig, axioms);
    FunCode       i;
 
    long max_types = ocb->sig->type_bank->types_count+1;
-   PDArray_p type_counts = PDIntArrayAlloc(max_types,10);
-
-   for(i=SIG_TRUE_CODE+1; i <= ocb->sig->f_count; i++)
+   long* type_counts = SizeMalloc(max_types*sizeof(long));
+   for(long i=0; i<max_types; i++)
    {
-      long sym_freq = array->array[i].freq;
-      long sym_type_id = SigGetType(ocb->sig, i) ? SigGetType(ocb->sig, i)->type_uid : 0;
-      PDArrayAssignInt(type_counts, sym_type_id, 
-                       PDArrayElementInt(type_counts, sym_type_id) + sym_freq);
+      type_counts[i] = 0;
    }
+
+   ClauseSetAddTypeDistribution(axioms, type_counts);
 
    for(i=SIG_TRUE_CODE+1; i<= ocb->sig->f_count; i++)
    {
       long sym_type_id = SigGetType(ocb->sig, i) ? SigGetType(ocb->sig, i)->type_uid : 0;
-      *OCBFunWeightPos(ocb, i) = MAX(PDArrayElementInt(type_counts, sym_type_id),1)
-    *W_DEFAULT_WEIGHT;
+      *OCBFunWeightPos(ocb, i) = MAX(type_counts[sym_type_id],1)*W_DEFAULT_WEIGHT;
    }
-   FCodeFeatureArrayFree(array);
-   PDArrayFree(type_counts);
+   SizeFree(type_counts, max_types*sizeof(long));
 }
 
 /*-----------------------------------------------------------------------
@@ -693,22 +688,20 @@ static void generate_inv_comb_freq_weights(OCB_p ocb, ClauseSet_p axioms)
    FunCode       i;
 
    long max_types = ocb->sig->type_bank->types_count+1;
-   PDArray_p type_counts = PDIntArrayAlloc(max_types,10);
+   long* type_counts = SizeMalloc(max_types*sizeof(long));
+   for(long i=0; i<max_types; i++)
+   {
+      type_counts[i] = 0;
+   }
    long max_comb = 0;
 
-   for(i=SIG_TRUE_CODE+1; i <= ocb->sig->f_count; i++)
-   {
-      long sym_freq = array->array[i].freq;
-      long sym_type_id = SigGetType(ocb->sig, i) ? SigGetType(ocb->sig, i)->type_uid : 0;
-      PDArrayAssignInt(type_counts, sym_type_id, 
-                       PDArrayElementInt(type_counts, sym_type_id) + sym_freq);
-   }
+   ClauseSetAddTypeDistribution(axioms, type_counts);
 
    for(i=SIG_TRUE_CODE+1; i <= ocb->sig->f_count; i++)
    {
       long sym_freq = array->array[i].freq;
       long sym_type_id = SigGetType(ocb->sig, i) ? SigGetType(ocb->sig, i)->type_uid : 0;
-      max_comb = MAX(max_comb, PDArrayElementInt(type_counts, sym_type_id) + 2*sym_freq);
+      max_comb = MAX(max_comb, type_counts[sym_type_id] + 2*sym_freq);
    }
    max_comb++;
 
@@ -717,11 +710,11 @@ static void generate_inv_comb_freq_weights(OCB_p ocb, ClauseSet_p axioms)
       long sym_freq = array->array[i].freq;
       long sym_type_id = SigGetType(ocb->sig, i) ? SigGetType(ocb->sig, i)->type_uid : 0;
       *OCBFunWeightPos(ocb, i) = 
-         (max_comb - MAX(PDArrayElementInt(type_counts, sym_type_id) + 2*sym_freq,1))
+         (max_comb - MAX(type_counts[sym_type_id] + 2*sym_freq,1))
          *W_DEFAULT_WEIGHT;
    }
    FCodeFeatureArrayFree(array);
-   PDArrayFree(type_counts);
+   SizeFree(type_counts, max_types*sizeof(long));
 }
 
 /*-----------------------------------------------------------------------
@@ -742,21 +735,22 @@ static void generate_inv_comb_freq_weights(OCB_p ocb, ClauseSet_p axioms)
 
 static void generate_inv_type_freq_weights(OCB_p ocb, ClauseSet_p axioms)
 {
-   FCodeFeatureArray_p array = FCodeFeatureArrayAlloc(ocb->sig, axioms);
    FunCode       i;
 
    long max_types = ocb->sig->type_bank->types_count+1;
-   PDArray_p type_counts = PDIntArrayAlloc(max_types,10);
+   long* type_counts = SizeMalloc(max_types*sizeof(long));
+   for(long i=0; i<max_types; i++)
+   {
+      type_counts[i] = 0;
+   }
 
    long max_aggregate = 0;
 
-   for(i=SIG_TRUE_CODE; i <= ocb->sig->f_count; i++)
+   ClauseSetAddTypeDistribution(axioms, type_counts);
+   
+   for(long i=0; i<max_types; i++)
    {
-      long sym_freq = array->array[i].freq;
-      long sym_type_id = SigGetType(ocb->sig, i) ? SigGetType(ocb->sig, i)->type_uid : 0;
-      PDArrayAssignInt(type_counts, sym_type_id, 
-                       PDArrayElementInt(type_counts, sym_type_id) + sym_freq);
-      max_aggregate = MAX(max_aggregate, PDArrayElementInt(type_counts, sym_type_id));
+      max_aggregate = MAX(max_aggregate, type_counts[i]);
    }
    max_aggregate++;
 
@@ -764,11 +758,10 @@ static void generate_inv_type_freq_weights(OCB_p ocb, ClauseSet_p axioms)
    {
       long sym_type_id = SigGetType(ocb->sig, i) ? SigGetType(ocb->sig, i)->type_uid : 0;
       *OCBFunWeightPos(ocb, i) = 
-       (max_aggregate - MAX(PDArrayElementInt(type_counts, sym_type_id),1))
+       (max_aggregate - MAX(type_counts[sym_type_id],1))
        *W_DEFAULT_WEIGHT;
    }
-   FCodeFeatureArrayFree(array);
-   PDArrayFree(type_counts);
+   SizeFree(type_counts, max_types*sizeof(long));
 }
 
 /*-----------------------------------------------------------------------
@@ -862,20 +855,18 @@ static void generate_type_freq_rank_weights(OCB_p ocb, ClauseSet_p axioms)
    long          weight = 0, freq;
 
    long max_types = ocb->sig->type_bank->types_count+1;
-   PDArray_p type_counts = PDIntArrayAlloc(max_types,10);
-
-   for(i=SIG_TRUE_CODE+1; i <= ocb->sig->f_count; i++)
+   long* type_counts = SizeMalloc(max_types*sizeof(long));
+   for(long i=0; i<max_types; i++)
    {
-      long sym_freq = array->array[i].freq;
-      long sym_type_id = SigGetType(ocb->sig, i) ? SigGetType(ocb->sig, i)->type_uid : 0;
-      PDArrayAssignInt(type_counts, sym_type_id, 
-                       PDArrayElementInt(type_counts, sym_type_id) + sym_freq);
+      type_counts[i] = 0;
    }
+
+   ClauseAddTypeDistribution(axioms, type_counts);
 
    for(i=SIG_TRUE_CODE+1; i<= ocb->sig->f_count; i++)
    {
       long sym_type_id = SigGetType(ocb->sig, i) ? SigGetType(ocb->sig, i)->type_uid : 0;
-      array->array[i].key1 = PDArrayElementInt(type_counts, sym_type_id);
+      array->array[i].key1 = type_counts[sym_type_id];
    }
    FCodeFeatureArraySort(array);
    freq = -1;
@@ -890,7 +881,7 @@ static void generate_type_freq_rank_weights(OCB_p ocb, ClauseSet_p axioms)
          weight*W_DEFAULT_WEIGHT;
    }
    FCodeFeatureArrayFree(array);
-   PDArrayFree(type_counts);
+   SizeFree(type_counts, max_types*sizeof(long));
 }
 
 /*-----------------------------------------------------------------------
@@ -913,21 +904,19 @@ static void generate_comb_freq_rank_weights(OCB_p ocb, ClauseSet_p axioms)
    long          weight = 0, freq;
 
    long max_types = ocb->sig->type_bank->types_count+1;
-   PDArray_p type_counts = PDIntArrayAlloc(max_types,10);
-
-   for(i=SIG_TRUE_CODE+1; i <= ocb->sig->f_count; i++)
+   long* type_counts = SizeMalloc(max_types*sizeof(long));
+   for(long i=0; i<max_types; i++)
    {
-      long sym_freq = array->array[i].freq;
-      long sym_type_id = SigGetType(ocb->sig, i) ? SigGetType(ocb->sig, i)->type_uid : 0;
-      PDArrayAssignInt(type_counts, sym_type_id, 
-                       PDArrayElementInt(type_counts, sym_type_id) + sym_freq);
+      type_counts[i] = 0;
    }
+
+   ClauseSetAddTypeDistribution(axioms, type_counts);
 
    for(i=SIG_TRUE_CODE+1; i<= ocb->sig->f_count; i++)
    {
       long sym_freq = array->array[i].freq;
       long sym_type_id = SigGetType(ocb->sig, i) ? SigGetType(ocb->sig, i)->type_uid : 0;
-      array->array[i].key1 = PDArrayElementInt(type_counts, sym_type_id) + 2*sym_freq;
+      array->array[i].key1 = type_counts[sym_type_id] + 2*sym_freq;
    }
    FCodeFeatureArraySort(array);
    freq = -1;
@@ -942,7 +931,7 @@ static void generate_comb_freq_rank_weights(OCB_p ocb, ClauseSet_p axioms)
          weight*W_DEFAULT_WEIGHT;
    }
    FCodeFeatureArrayFree(array);
-   PDArrayFree(type_counts);
+   SizeFree(type_counts, sizeof(max_types*sizeof(long)));
 }
 
 /*-----------------------------------------------------------------------
@@ -1004,20 +993,18 @@ static void generate_inv_type_freq_rank_weights(OCB_p ocb, ClauseSet_p axioms)
    long          weight = 0, freq;
 
    long max_types = ocb->sig->type_bank->types_count+1;
-   PDArray_p type_counts = PDIntArrayAlloc(max_types,10);
-
-   for(i=SIG_TRUE_CODE+1; i <= ocb->sig->f_count; i++)
+   long* type_counts = SizeMalloc(max_types*sizeof(long));
+   for(long i=0; i<max_types; i++)
    {
-      long sym_freq = array->array[i].freq;
-      long sym_type_id = SigGetType(ocb->sig, i) ? SigGetType(ocb->sig, i)->type_uid : 0;
-      PDArrayAssignInt(type_counts, sym_type_id, 
-                       PDArrayElementInt(type_counts, sym_type_id) + sym_freq);
+      type_counts[i] = 0;
    }
+
+   ClauseSetAddTypeDistribution(axioms, type_counts);
 
    for(i=SIG_TRUE_CODE+1; i<= ocb->sig->f_count; i++)
    {
       long sym_type_id = SigGetType(ocb->sig, i) ? SigGetType(ocb->sig, i)->type_uid : 0;
-      array->array[i].key1 = PDArrayElementInt(type_counts, sym_type_id);
+      array->array[i].key1 = type_counts[sym_type_id];
    }
    FCodeFeatureArraySort(array);
    freq = -1;
@@ -1032,7 +1019,7 @@ static void generate_inv_type_freq_rank_weights(OCB_p ocb, ClauseSet_p axioms)
     weight*W_DEFAULT_WEIGHT;
    }
    FCodeFeatureArrayFree(array);
-   PDArrayFree(type_counts);
+   SizeFree(type_counts, max_types*sizeof(long));
 }
 
 /*-----------------------------------------------------------------------
@@ -1055,21 +1042,19 @@ static void generate_inv_comb_freq_rank_weights(OCB_p ocb, ClauseSet_p axioms)
    long          weight = 0, freq;
 
    long max_types = ocb->sig->type_bank->types_count+1;
-   PDArray_p type_counts = PDIntArrayAlloc(max_types,10);
-
-   for(i=SIG_TRUE_CODE+1; i <= ocb->sig->f_count; i++)
+   long* type_counts = SizeMalloc(max_types*sizeof(long));
+   for(long i=0; i<max_types; i++)
    {
-      long sym_freq = array->array[i].freq;
-      long sym_type_id = SigGetType(ocb->sig, i) ? SigGetType(ocb->sig, i)->type_uid : 0;
-      PDArrayAssignInt(type_counts, sym_type_id, 
-                       PDArrayElementInt(type_counts, sym_type_id) + sym_freq);
+      type_counts[i] = 0;
    }
+
+   ClauseSetAddTypeDistribution(axioms, type_counts);
 
    for(i=SIG_TRUE_CODE+1; i<= ocb->sig->f_count; i++)
    {
       long sym_freq = array->array[i].freq;
       long sym_type_id = SigGetType(ocb->sig, i) ? SigGetType(ocb->sig, i)->type_uid : 0;
-      array->array[i].key1 = PDArrayElementInt(type_counts, sym_type_id) + 2*sym_freq;
+      array->array[i].key1 = type_counts[sym_type_id] + 2*sym_freq;
    }
    FCodeFeatureArraySort(array);
    freq = -1;
@@ -1084,7 +1069,7 @@ static void generate_inv_comb_freq_rank_weights(OCB_p ocb, ClauseSet_p axioms)
          weight*W_DEFAULT_WEIGHT;
    }
    FCodeFeatureArrayFree(array);
-   PDArrayFree(type_counts);
+   SizeFree(type_counts, max_types*sizeof(long)) ;
 }
 
 /*-----------------------------------------------------------------------

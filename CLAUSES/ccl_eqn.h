@@ -156,7 +156,7 @@ void    EqnFree(Eqn_p junk);
    EqnQueryProp((eq), EPIsStrictlyMaximal)
 
 #define EqnGetPredCodeFO(eq) (EqnIsEquLit(eq)?0:(eq)->lterm->f_code)
-#define EqnGetPredCodeHO(eq) (EqnIsEquLit(eq)?0:(TermIsTopLevelVar(eq->lterm) ? 0 : (eq)->lterm->f_code))
+#define EqnGetPredCodeHO(eq) (EqnIsEquLit(eq)?0:(TermIsTopLevelVar((eq)->lterm) ? 0 : (eq)->lterm->f_code))
 
 #ifdef ENABLE_LFHO
 #define EqnGetPredCode(eq) (problemType == PROBLEM_HO ? EqnGetPredCodeHO(eq) : EqnGetPredCodeFO(eq))
@@ -365,6 +365,10 @@ int     LiteralCompareFun(Eqn_p lit1, Eqn_p lit2);
 #define EqnAddSymbolDistExist(eqn, dist_array, exist)                   \
    TermAddSymbolDistExist((eqn)->lterm, (dist_array), (exist));         \
    TermAddSymbolDistExist((eqn)->rterm, (dist_array), (exist))
+
+#define EqnAddTypeDistribution(eqn, type_array) \
+   TermAddTypeDistribution((eqn)->lterm, (eqn)->bank->sig, type_array);\
+   TermAddTypeDistribution((eqn)->rterm, (eqn)->bank->sig, type_array)
 
 #define EqnAddSymbolDistributionLimited(eqn, dist_array, limit)         \
    TermAddSymbolDistributionLimited((eqn)->lterm, (dist_array), (limit)); \

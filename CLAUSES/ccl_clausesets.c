@@ -1886,6 +1886,29 @@ void ClauseSetAddSymbolDistribution(ClauseSet_p set, long *dist_array)
    }
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseSetAddTypeDistribution()
+//
+//   Count the occurrences of types of function symbols in set.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void ClauseSetAddTypeDistribution(ClauseSet_p set, long *type_array)
+{
+   Clause_p handle;
+
+   for(handle = set->anchor->succ; handle!=set->anchor; handle =
+          handle->succ)
+   {
+      ClauseAddTypeDistribution(handle, type_array);
+   }
+}
+
 
 /*-----------------------------------------------------------------------
 //

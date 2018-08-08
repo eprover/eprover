@@ -412,27 +412,25 @@ static void generate_type_freq_precedence(OCB_p ocb, ClauseSet_p axioms)
    FunCode       i;
 
    long max_types = ocb->sig->type_bank->types_count+1;
-   PDArray_p type_counts = PDIntArrayAlloc(max_types,10);
-
-   for(i=1; i <= ocb->sig->f_count; i++)
+   long* type_counts = SizeMalloc(max_types*sizeof(long));
+   for(long i=0; i<max_types; i++)
    {
-      long sym_freq = array->array[i].freq;
-      long sym_type_id = SigGetType(ocb->sig, i) ? SigGetType(ocb->sig, i)->type_uid : 0;
-      PDArrayAssignInt(type_counts, sym_type_id, 
-                       PDArrayElementInt(type_counts, sym_type_id) + sym_freq);
+      type_counts[i] = 0;
    }
+
+   ClauseSetAddTypeDistribution(axioms, type_counts);
 
    for(i=1; i<= ocb->sig->f_count; i++)
    {
       long sym_type_id = SigGetType(ocb->sig, i) ? SigGetType(ocb->sig, i)->type_uid : 0;
-      array->array[i].key1 = PDArrayElementInt(type_counts, sym_type_id);
+      array->array[i].key1 = type_counts[sym_type_id];
       array->array[i].key2 = array->array[i].freq;
    }
    FCodeFeatureArraySort(array);
    compute_precedence_from_array(ocb, array);
 
    FCodeFeatureArrayFree(array);
-   PDArrayFree(type_counts);
+   SizeFree(type_counts, max_types*sizeof(long));
 }
 
 
@@ -456,29 +454,26 @@ static void generate_comb_freq_precedence(OCB_p ocb, ClauseSet_p axioms)
    FCodeFeatureArray_p array = FCodeFeatureArrayAlloc(ocb->sig, axioms);
    FunCode       i;
 
-   long max_types = ocb->sig->type_bank->types_count+1;
-   PDArray_p type_counts = PDIntArrayAlloc(max_types,10);
-
-   for(i=1; i <= ocb->sig->f_count; i++)
+   long max_types =  ocb->sig->type_bank->types_count +1;
+   long* type_counts = SizeMalloc(max_types*sizeof(long));
+   for(long i=0; i<max_types; i++)
    {
-      long sym_freq = array->array[i].freq;
-      long sym_type_id = SigGetType(ocb->sig, i) ? SigGetType(ocb->sig, i)->type_uid : 0;
-      PDArrayAssignInt(type_counts, sym_type_id, 
-                       PDArrayElementInt(type_counts, sym_type_id) + sym_freq);
+      type_counts[i] = 0;
    }
+
+   ClauseSetAddTypeDistribution(axioms, type_counts);
 
    for(i=1; i<= ocb->sig->f_count; i++)
    {
       long sym_type_id = SigGetType(ocb->sig, i) ? SigGetType(ocb->sig, i)->type_uid : 0;
-      array->array[i].key1 = PDArrayElementInt(type_counts, sym_type_id) + 
-                             2*array->array[i].freq;
+      array->array[i].key1 = type_counts[sym_type_id] + 2*array->array[i].freq;
       array->array[i].key2 = array->array[i].freq;
    }
    FCodeFeatureArraySort(array);
    compute_precedence_from_array(ocb, array);
 
    FCodeFeatureArrayFree(array);
-   PDArrayFree(type_counts);
+   SizeFree(type_counts, max_types*sizeof(long));
 }
 
 
@@ -533,27 +528,26 @@ static void generate_inv_type_freq_precedence(OCB_p ocb, ClauseSet_p axioms)
    FunCode       i;
 
    long max_types = ocb->sig->type_bank->types_count+1;
-   PDArray_p type_counts = PDIntArrayAlloc(max_types,10);
-
-   for(i=1; i <= ocb->sig->f_count; i++)
+   
+   long* type_counts = SizeMalloc(max_types*sizeof(long));
+   for(long i=0; i<max_types; i++)
    {
-      long sym_freq = array->array[i].freq;
-      long sym_type_id = SigGetType(ocb->sig, i) ? SigGetType(ocb->sig, i)->type_uid : 0;
-      PDArrayAssignInt(type_counts, sym_type_id, 
-                       PDArrayElementInt(type_counts, sym_type_id) + sym_freq);
+      type_counts[i] = 0;
    }
+
+   ClauseSetAddTypeDistribution(axioms, type_counts);
 
    for(i=1; i<= ocb->sig->f_count; i++)
    {
       long sym_type_id = SigGetType(ocb->sig, i) ? SigGetType(ocb->sig, i)->type_uid : 0;
-      array->array[i].key1 = -PDArrayElementInt(type_counts, sym_type_id);
+      array->array[i].key1 = -type_counts[sym_type_id];
       array->array[i].key2 = array->array[i].freq;
    }
    FCodeFeatureArraySort(array);
    compute_precedence_from_array(ocb, array);
 
    FCodeFeatureArrayFree(array);
-   PDArrayFree(type_counts);
+   SizeFree(type_counts, max_types*sizeof(long));
 }
 
 /*-----------------------------------------------------------------------
@@ -576,29 +570,26 @@ static void generate_inv_comb_freq_precedence(OCB_p ocb, ClauseSet_p axioms)
    FCodeFeatureArray_p array = FCodeFeatureArrayAlloc(ocb->sig, axioms);
    FunCode       i;
 
-   long max_types = ocb->sig->type_bank->types_count+1;
-   PDArray_p type_counts = PDIntArrayAlloc(max_types,10);
-
-   for(i=1; i <= ocb->sig->f_count; i++)
+   long max_types =  ocb->sig->type_bank->types_count+1;
+   long* type_counts = SizeMalloc(max_types*sizeof(long));
+   for(long i=0; i<max_types; i++)
    {
-      long sym_freq = array->array[i].freq;
-      long sym_type_id = SigGetType(ocb->sig, i) ? SigGetType(ocb->sig, i)->type_uid : 0;
-      PDArrayAssignInt(type_counts, sym_type_id, 
-                       PDArrayElementInt(type_counts, sym_type_id) + sym_freq);
+      type_counts[i] = 0;
    }
+
+   ClauseSetAddTypeDistribution(axioms, type_counts);
 
    for(i=1; i<= ocb->sig->f_count; i++)
    {
       long sym_type_id = SigGetType(ocb->sig, i) ? SigGetType(ocb->sig, i)->type_uid : 0;
-      array->array[i].key1 = -(PDArrayElementInt(type_counts, sym_type_id) 
-                               + 2*array->array[i].freq);
+      array->array[i].key1 = -(type_counts[sym_type_id] + 2*array->array[i].freq);
       array->array[i].key2 = array->array[i].freq;
    }
    FCodeFeatureArraySort(array);
    compute_precedence_from_array(ocb, array);
 
    FCodeFeatureArrayFree(array);
-   PDArrayFree(type_counts);
+   SizeFree(type_counts, max_types*sizeof(long));
 }
 
 /*-----------------------------------------------------------------------
