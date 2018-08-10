@@ -338,6 +338,7 @@ double  LiteralFunWeight(Eqn_p eq,
                          long *fweights,
                          long default_fweight,
                          double app_var_penalty,
+                         double true_lit_mul,
                          long* typefreqs);
 
 

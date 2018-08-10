@@ -2734,6 +2734,7 @@ double  LiteralFunWeight(Eqn_p eq,
                          long *fweights,
                          long default_fweight,
                          double app_var_penalty,
+                         double true_lit_mul,
                          long* typefreqs)
 {
    double res;
@@ -2749,6 +2750,10 @@ double  LiteralFunWeight(Eqn_p eq,
    if(EqnIsPositive(eq))
    {
       res = res*pos_multiplier;
+   }
+   if(EqnQueryProp(eq, EPIsSATTrue))
+   {
+      res = res*true_lit_mul;
    }
    return res;
 }
