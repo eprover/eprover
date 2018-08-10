@@ -1416,7 +1416,7 @@ void EqnListAddSymbolDistribution(Eqn_p list, long *dist_array)
 
 /*-----------------------------------------------------------------------
 //
-// Function: EqnListAddSymbolDistribution()
+// Function: EqnListAddTypeDistribution()
 //
 //   Count the number of occurences of types if function symbols in list and
 //   add them to type_array, which has to be a pointer to an array of

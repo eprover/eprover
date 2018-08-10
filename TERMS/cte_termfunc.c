@@ -1638,31 +1638,13 @@ void TermAddSymbolDistributionLimited(Term_p term, long *dist_array, long limit)
          int i;
 
          assert(term->f_code > 0);
-         if(term->f_code < limit && !TermIsAppliedVar(term))
+         if(term->f_code < limit)
          {
             dist_array[term->f_code]++;
          }
          for(i=0; i<term->arity; i++)
-         { assert(term->f_code > 0);
-      if(term->f_code < limit && !TermIsAppliedVar(term))
-      {
-         dist_array[term->f_code]++;
-      }
-      for(i=0; i<term->arity; i++)
-      {
-         assert(term->args);
-         PStackPushP(stack, term->args[i]);
-      }
-           assert(term->f_code > 0);
-      if(term->f_code < limit && !TermIsAppliedVar(term))
-      {
-         dist_array[term->f_code]++;
-      }
-      for(i=0; i<term->arity; i++)
-      {
-         assert(term->args);
-         PStackPushP(stack, term->args[i]);
-      };
+         {
+            assert(term->args);
             PStackPushP(stack, term->args[i]);
          }
       }

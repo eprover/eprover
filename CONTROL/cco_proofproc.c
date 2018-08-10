@@ -1103,12 +1103,13 @@ void print_rw_state(ProofState_p state)
 //
 /----------------------------------------------------------------------*/
 
-void ProofControlInit(ProofState_p state,ProofControl_p control,
+void ProofControlInit(ProofState_p state, ProofControl_p control,
                       HeuristicParms_p params, FVIndexParms_p fvi_params,
                       PStack_p wfcb_defs, PStack_p hcb_defs)
 {
    PStackPointer sp;
    Scanner_p in;
+   bool do_sat_check = params->selection_strategy == SelectMaxLComplexPreferSAT;
 
    assert(control && control->wfcbs);
    assert(state && state->axioms && state->signature);
@@ -1127,6 +1128,27 @@ void ProofControlInit(ProofState_p state,ProofControl_p control,
                       true, NULL);
    WeightFunDefListParse(control->wfcbs, in, control->ocb, state);
    DestroyScanner(in);
+
+   // setting SAT model checking on if some of the heuristic options need it
+   for(sp = 0; !do_sat_check && sp < PStackGetSP(control->wfcbs->wfcb_set); sp++)
+   {
+      WFCB_p wfcb =  PStackElementP(control->wfcbs->wfcb_set, sp);
+      if(wfcb->wfcb_priority == PrioFunBySATModel)
+      {
+         do_sat_check = true;
+         fprintf(stderr, "# Forcing SAT check...");
+      }
+   }
+
+   if(do_sat_check)
+   {
+      if(params->sat_check_grounding == GMNoGrounding)
+      {
+         params->sat_check_grounding = GMConjMinMaxFreq;
+         params->sat_check_size_limit = 10000;
+      }
+      SATCheck(state, control);
+   }   
 
    for(sp = 0; sp < PStackGetSP(wfcb_defs); sp++)
    {
