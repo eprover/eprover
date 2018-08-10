@@ -47,6 +47,7 @@ typedef struct funweightparamcell
    double max_term_multiplier;
    double max_literal_multiplier;
    double pos_multiplier;
+   double true_literal_multiplier;
    long   vweight;
 
    /* Weights for non-conjecture symbols (by type) */
@@ -116,6 +117,7 @@ WFCB_p ConjectureSymbolWeightInit(ClausePrioFun prio_fun,
                                   long   conj_cweight,
                                   long   conj_pweight,
                                   double app_var_penalty,
+                                  double sat_lit_mul,
                                   void   (*init_fun)(struct funweightparamcell*));
 
 WFCB_p FunWeightInit(ClausePrioFun prio_fun,
@@ -148,6 +150,9 @@ WFCB_p ConjectureRelativeSymbolWeightParse(Scanner_p in, OCB_p ocb,
 
 WFCB_p ConjectureRelativeSymbolTypeWeightParse(Scanner_p in, OCB_p ocb,
                                                ProofState_p state);
+
+WFCB_p ConjectureRelativeSymbolSATWeightParse(Scanner_p in, OCB_p ocb,
+                                              ProofState_p state);
 
 WFCB_p RelevanceLevelWeightParse(Scanner_p in, OCB_p ocb,
                                  ProofState_p state);

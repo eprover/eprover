@@ -861,7 +861,7 @@ static void generate_type_freq_rank_weights(OCB_p ocb, ClauseSet_p axioms)
       type_counts[i] = 0;
    }
 
-   ClauseAddTypeDistribution(axioms, type_counts);
+   ClauseSetAddTypeDistribution(axioms, type_counts);
 
    for(i=SIG_TRUE_CODE+1; i<= ocb->sig->f_count; i++)
    {
