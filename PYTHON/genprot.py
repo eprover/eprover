@@ -86,17 +86,19 @@ failuremap = {"User resource limit exceeded"    :"maxres",
               "Resource limit exceeded (memory)":"maxmem",
               "Resource limit exceeded (time)"  :"maxtime",
               "exec failed"         :"starexec",
+              "Inappropriate"       :"problemtype",
               "unknown"             :"unknown"}
 
-statusmap = {"unknown"              :"F",
-             "exec failed"          :"F",
-             "SZS status GaveUp"        :"F",
+statusmap = {"unknown"                      :"F",
+             "exec failed"                  :"F",
+             "SZS status GaveUp"            :"F",
              "SZS status ResourceOut"       :"F",
              "SZS status Satisfiable"       :"N",
              "SZS status CounterSatisfiable":"N",
-             "SZS status Theorem"       :"T",
+             "SZS status Theorem"           :"T",
              "SZS status Unsatisfiable"     :"T",
-             "SZS status Error"     :"F"}
+             "SZS status Inappropriate"     :"F",
+             "SZS status Error"             :"F"}
 
 def rjust(amount): return lambda s: s.rjust(amount)
 def ljust(amount): return lambda s: s.ljust(amount)
@@ -154,6 +156,8 @@ def make_entry(lines):
         if(key.startswith("Type mismatch")):
             continue
         value = clean_value(split[1]) if len(split) == 2 else ""
+        if key.startswith("SZS status Inappropriate"):
+            return None
         if key.startswith("SZS status"):
             entry["Status"] = statusmap[key]
         elif key.startswith("exec failed"):
@@ -173,27 +177,32 @@ def process_file(data, features, archivename, path, fileopener, info):
     eversion      = basename(dirname(dirname(path))).split("_", 1)[0][2:]
     fileextension = splitext(path)[-1]
     filename      = basename(path)
-    if problemname and configname and fileextension == ".txt" and (("+" in problemname) or ("-" in problemname)):
+    if problemname and configname and fileextension == ".txt" \
+       and (("+" in problemname) or ("-" in problemname or ("_" in problemname))):
         entry = make_entry(fileopener(info).readlines())
-        entry.update({"Configname":configname, "Filename":filename, "Archivename":archivename})
-        if int(entry.get("Proof object given clauses", 0)) > int(entry.get("Proof search given clauses", 0)):
-            #fix output error in e version 1.9.1pre005
-            swap(entry, "Proof object given clauses", "Proof search given clauses")
-        if "Status" not in entry:
-            entry["Status"] = statusmap["unknown"]
-            if "Failure" not in entry:
-                entry["Failure"] = failuremap["unknown"]
-        if "Failure" not in entry:
-            entry["Failure"] = "success"
-        if entry["Failure"] == failuremap["exec failed"]:
-            entry["Problem"] = problemname
-            entry["Version"] = eversion
-        if entry["Problem"] in features:
-            entry.update(features[entry["Problem"]])
-        if not configname in data or \
-           not problemname in data[configname] \
-           or entry["Failure"]!=failuremap["unknown"]:
-            data[configname][problemname] = entry
+        if entry:
+           entry.update({"Configname":configname,
+                         "Filename":filename,
+                         "Archivename":archivename})
+           if int(entry.get("Proof object given clauses", 0)) > \
+              int(entry.get("Proof search given clauses", 0)):
+              #fix output error in e version 1.9.1pre005
+              swap(entry, "Proof object given clauses", "Proof search given clauses")
+           if "Status" not in entry:
+               entry["Status"] = statusmap["unknown"]
+               if "Failure" not in entry:
+                   entry["Failure"] = failuremap["unknown"]
+           if "Failure" not in entry:
+               entry["Failure"] = "success"
+           if entry["Failure"] == failuremap["exec failed"]:
+               entry["Problem"] = problemname
+               entry["Version"] = eversion
+           if entry["Problem"] in features:
+               entry.update(features[entry["Problem"]])
+           if not configname in data or \
+              not problemname in data[configname] \
+              or entry["Failure"]!=failuremap["unknown"]:
+               data[configname][problemname] = entry
 
 def swap(d,key1,key2):
     d[key1],d[key2] = d[key2],d[key1]
