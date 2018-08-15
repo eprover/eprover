@@ -536,6 +536,10 @@ int main(int argc, char* argv[])
       }
    }
    PERF_CTR_ENTRY(SatTimer);
+   if(proofcontrol->heuristic_parms.force_sat)
+   {
+      SATCheck(proofstate, proofcontrol);
+   }
 
 #ifdef ENABLE_LFHO
    // if the problem is HO -> we have to use KBO6
