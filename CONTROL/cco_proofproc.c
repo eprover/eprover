@@ -991,6 +991,8 @@ Clause_p SATCheck(ProofState_p state, ProofControl_p control)
 
          state->sat_model = PDTreeAlloc(state->terms);
          state->sat_model->term_date = SysDateInvalidTime();
+         
+         long pos = 0, neg =0 , undef =0;
 
          // get positive literals and store them in PDT
          for(int i=1; i<=set->max_lit; i++)
@@ -999,8 +1001,19 @@ Clause_p SATCheck(ProofState_p state, ProofControl_p control)
             {           
                PDTreeInsertTerm(state->sat_model, 
                                 SATEncodeLit(PDRangeArrElementP(set->back_index, i)));
+               pos++;
+            }
+            if(picosat_deref(state->solver, i) == -1)
+            {
+               neg++;
+            }
+            else if (!picosat_deref(state->solver, i))
+            {
+               undef++;
             }
          }
+
+         fprintf(stderr, "+(%ld) -(%ld) ?(%ld)\n", pos, neg, undef);
       }
       SatClauseSetFree(set);
    }
@@ -1109,7 +1122,7 @@ void ProofControlInit(ProofState_p state, ProofControl_p control,
 {
    PStackPointer sp;
    Scanner_p in;
-   bool do_sat_check = params->selection_strategy == SelectMaxLComplexPreferSAT;
+   bool do_sat_check;
 
    assert(control && control->wfcbs);
    assert(state && state->axioms && state->signature);
@@ -1127,28 +1140,7 @@ void ProofControlInit(ProofState_p state, ProofControl_p control,
                       DefaultWeightFunctions,
                       true, NULL);
    WeightFunDefListParse(control->wfcbs, in, control->ocb, state);
-   DestroyScanner(in);
-
-   // setting SAT model checking on if some of the heuristic options need it
-   for(sp = 0; !do_sat_check && sp < PStackGetSP(control->wfcbs->wfcb_set); sp++)
-   {
-      WFCB_p wfcb =  PStackElementP(control->wfcbs->wfcb_set, sp);
-      if(wfcb->wfcb_priority == PrioFunBySATModel)
-      {
-         do_sat_check = true;
-         fprintf(stderr, "# Forcing SAT check...");
-      }
-   }
-
-   if(do_sat_check)
-   {
-      if(params->sat_check_grounding == GMNoGrounding)
-      {
-         params->sat_check_grounding = GMConjMinMaxFreq;
-         params->sat_check_size_limit = 10000;
-      }
-      SATCheck(state, control);
-   }   
+   DestroyScanner(in);   
 
    for(sp = 0; sp < PStackGetSP(wfcb_defs); sp++)
    {
@@ -1184,6 +1176,30 @@ void ProofControlInit(ProofState_p state, ProofControl_p control,
    {
       control->fvi_parms.symbol_slack = 0;
    }
+   
+   // setting SAT model checking on if some of the heuristic options need it
+   do_sat_check = control->heuristic_parms.selection_strategy == SelectMaxLComplexPreferSAT;
+   for(int i = 0; !do_sat_check && i < control->hcb->wfcb_no; i++)
+   {
+      WFCB_p wfcb =  PDArrayElementP(control->hcb->wfcb_list, i);
+      if(wfcb->wfcb_priority == PrioFunBySATModel ||
+         (wfcb->wfcb_eval == GenericFunWeightCompute &&
+          ((FunWeightParam_p)wfcb->data)->true_literal_multiplier != 1))
+      {
+         do_sat_check = true;
+      }
+   }
+
+   if(do_sat_check)
+   {
+      if(control->heuristic_parms.sat_check_grounding == GMNoGrounding)
+      {
+         fprintf(stderr, "# Forcing SAT check...\n");
+         control->heuristic_parms.sat_check_grounding = GMConjMaxMaxFreq;
+         control->heuristic_parms.sat_check_size_limit = 20000;
+      }
+   }
+   control->heuristic_parms.force_sat = do_sat_check;
 }
 
 
