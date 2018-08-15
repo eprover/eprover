@@ -246,7 +246,7 @@ Type_p parse_single_type(Scanner_p in, TypeBank_p bank)
       else if(TypeBankFindTCArity(bank, tc_code) != arity)
       {
          DStr_p msg = DStrAlloc();
-         DStrAppendStr(msg, "Redefition of type constructor ");
+         DStrAppendStr(msg, "Redefinition of type constructor ");
          DStrAppendStr(msg, (char*)TypeBankFindTCName(bank, tc_code));
          DStrAppendStr(msg, ". Mismatch in number of arguments.");
          AktTokenError(in, DStrView(msg), true);
