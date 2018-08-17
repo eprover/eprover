@@ -1027,17 +1027,9 @@ long sat_extract_core(SatClauseSet_p satset, PStack_p core, SatSolver_p solver)
    {
       if(picosat_coreclause(solver, id))
       {
-         if(id < PStackGetSP(satset->printset))
-         {
-            res++;
-            satclause = PStackElementP(satset->printset, id);
-            PStackPushP(core, satclause->source);
-         }
-         else
-         {
-            Error("PicoSat returns impossible clause number",
-                  INTERFACE_ERROR);
-         }
+         res++;
+         satclause = PStackElementP(satset->printset, id);
+         PStackPushP(core, satclause->source);
       }
    }
 
@@ -1067,7 +1059,7 @@ ProverResult SatClauseSetCheckUnsat(SatClauseSet_p satset, Clause_p *empty,
    ProverResult res;
    Clause_p     parent;
 
-   long pure = SatClauseSetMarkPure(satset);
+   SatClauseSetMarkPure(satset);
    SatClauseSetExportToSolverNonPure(solver, satset);
 
    res = SAT_TO_E_RESULT(picosat_sat(solver, -1));
@@ -1077,7 +1069,6 @@ ProverResult SatClauseSetCheckUnsat(SatClauseSet_p satset, Clause_p *empty,
       PStack_p unsat_core = PStackAlloc();
       fprintf(GlobalOut, "# SatCheck found unsatisfiable ground set\n");
       *empty = EmptyClauseAlloc();
-      fprintf(GlobalOut, "# Extracting core... \n");
       sat_extract_core(satset, unsat_core, solver);
       satset->core_size = PStackGetSP(unsat_core);
       parent = PStackPopP(unsat_core);
