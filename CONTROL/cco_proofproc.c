@@ -19,6 +19,7 @@
   -----------------------------------------------------------------------*/
 
 #include "cco_proofproc.h"
+#include <picosat.h>
 
 
 
@@ -917,9 +918,9 @@ Clause_p SATCheck(ProofState_p state, ProofControl_p control)
                                    control->heuristic_parms.sat_check_grounding,
                                    control->heuristic_parms.sat_check_normconst);
 
-      // printf("# SatCheck()..imported\n");
+      //printf("# SatCheck()..imported\n");
 
-      res = SatClauseSetCheckUnsat(set, &empty);
+      res = SatClauseSetCheckUnsat(set, &empty, state->solver);
       state->satcheck_count++;
       if(res == PRUnsatisfiable)
       {
@@ -933,7 +934,9 @@ Clause_p SATCheck(ProofState_p state, ProofControl_p control)
          state->satcheck_satisfiable++;
       }
       SatClauseSetFree(set);
+      ProofStateResetSATSolver(state);
    }
+   
    return empty;
 }
 
@@ -1639,6 +1642,8 @@ Clause_p Saturate(ProofState_p state, ProofControl_p control, long
    }
    return unsatisfiable;
 }
+
+
 
 
 /*---------------------------------------------------------------------*/
