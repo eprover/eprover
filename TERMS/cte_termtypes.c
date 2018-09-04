@@ -304,13 +304,19 @@ Term_p TermAllocNewSkolem(Sig_p sig, PStack_p variables, Type_p ret_type)
       type_args[arity] = ret_type;
 
       type = AllocArrowType(arity+1, type_args);
+      Type_p flattened = FlattenType(type);
+      if(flattened != type)
+      {
+         TypeFree(type);
+      }
+      type = flattened;
    }
    else
    {
-      type = ret_type;
+      type = FlattenType(ret_type);
    }
 
-   type = TypeBankInsertTypeShared(sig->type_bank, FlattenType(type));
+   type = TypeBankInsertTypeShared(sig->type_bank, type);
 
    if(!TypeIsBool(type))
    {
