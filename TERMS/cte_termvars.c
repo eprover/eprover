@@ -723,6 +723,8 @@ void VarBankPopEnv(VarBank_p bank)
 
       if(test)
       {
+         // key is not freed!
+         FREE(handle->key);
          StrTreeCellFree(handle);  /* already present */
       }
    }
