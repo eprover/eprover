@@ -221,7 +221,7 @@ static __inline__ void SizeFreeReal(void* junk, size_t size)
       ((Mem_p)junk)->next = free_mem_list[size];
       free_mem_list[size] = (Mem_p)junk;
       assert(free_mem_list[size]->test != MEM_FREE_PATTERN);
-      assert(free_mem_list[size]->test = MEM_FREE_PATTERN);
+      assert((free_mem_list[size]->test = MEM_FREE_PATTERN));
    }
    else
    {

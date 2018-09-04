@@ -106,7 +106,7 @@ void TypeFree(Type_p junk);
 //
 // Global Variables: -
 //
-// Side Effects    : Changes bindings, adds to the substitution.
+// Side Effects    : -
 //
 /----------------------------------------------------------------------*/
 static __inline__ Type_p TypeAlloc(TypeConsCode c_code, int arity, Type_p* args)

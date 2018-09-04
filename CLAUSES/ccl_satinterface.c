@@ -164,6 +164,8 @@ int sat_translate_literal(Eqn_p eqn, SatClauseSet_p set)
    else
    {
       lit_term = TBInsertInstantiated(eqn->bank, eqn->lterm);
+      lterm = lit_term;
+      rterm = eqn->bank->true_term;
    }
    lit_code = lit_term->entry_no;
 
@@ -180,8 +182,8 @@ int sat_translate_literal(Eqn_p eqn, SatClauseSet_p set)
    {
       atom = ++set->max_lit;
       PDRangeArrAssignInt(set->renumber_index, lit_code, atom);
+      PDRangeArrAssignP(set->back_index, atom, EqnAlloc(lterm, rterm, eqn->bank, true));
    }
-   PDRangeArrAssignP(set->back_index, atom, eqn);
    if(EqnIsPositive(eqn))
    {
       return atom;
@@ -456,6 +458,10 @@ void export_to_solver(SatSolver_p solver, SatClauseSet_p set, SatClauseFilter fi
          PStackPushP(set->exported, clause);
       }
    }
+   if(PStackGetSP(set->exported) != picosat_added_original_clauses(solver))
+   {
+      Error("PicoSAT communication is broken.", INTERFACE_ERROR);
+   }
 }
 
 
@@ -635,6 +641,7 @@ SatClauseSet_p SatClauseSetAlloc(void)
    set->exported = PStackAlloc();
    set->core_size = 0;
    set->set_size_limit = -1;
+   set->unit_lit = PDRangeArrAlloc(10, 0);
    return set;
 }
 
@@ -659,8 +666,20 @@ void SatClauseSetFree(SatClauseSet_p junk)
    {
       PDRangeArrFree(junk->renumber_index);
    }
+   if(junk->unit_lit)
+   {
+      PDRangeArrFree(junk->unit_lit);
+   }
    if(junk->back_index)
    {
+      for(long i=0; i<=junk->max_lit; i++)
+      {
+         Eqn_p eq = PDRangeArrElementP(junk->back_index, i);
+         if(eq)
+         {
+            EqnFree(eq);
+         }
+      }
       PDRangeArrFree(junk->back_index);
    }
    while(!PStackEmpty(junk->set))
@@ -719,6 +738,11 @@ SatClause_p SatClauseCreateAndStore(Clause_p clause, SatClauseSet_p set)
    {
       assert(i<handle->lit_no);
       handle->literals[i] = sat_translate_literal(lit, set);
+   }
+
+   if(handle->lit_no == 1)
+   {
+      PDRangeArrAssignInt(set->unit_lit, handle->literals[0], 1);
    }
 
    //SatClausePrint(stderr, handle);
@@ -1369,8 +1393,8 @@ long SatClauseSetImportProofState(SatClauseSet_p satset, ProofState_p state,
       res += SatClauseSetImportClauseSet(satset, state->unprocessed);
    }   
    
-   fprintf(stdout, "# SATCheck is checking %ld(%d) translated clauses.\n", 
-                   res, satset->max_lit);
+   //fprintf(stdout, "# SATCheck is checking %ld(%d) translated clauses.\n", 
+   //                res, satset->max_lit);
    SubstDelete(pseudogroundsubst);
    return res;
 }
