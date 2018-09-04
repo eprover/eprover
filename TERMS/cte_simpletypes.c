@@ -146,7 +146,7 @@ Type_p  TypeCopy(Type_p orig)
 
 void TypeTopFree(Type_p junk)
 {
-   SizeFree(junk, sizeof(*junk)); 
+   TypeCellFree(junk); 
 }
 
 
@@ -164,6 +164,7 @@ void TypeTopFree(Type_p junk)
 
 void TypeFree(Type_p junk)
 {
+   assert(junk);
    if(junk->arity)
    {
       assert(junk->args);
