@@ -53,6 +53,7 @@ typedef struct satclausesetcell
    long         core_size;      // Size of the unsat core, if any
    long         set_size_limit; // Limit after which insertions will fail
                                 // if -1 no limit is set.
+   PDRangeArr_p unit_lit;
 }SatClauseSetCell, *SatClauseSet_p;
 
 

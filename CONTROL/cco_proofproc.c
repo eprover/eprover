@@ -664,7 +664,11 @@ static Clause_p insert_new_clauses(ProofState_p state, ProofControl_p control)
       /* printf("Inserting: ");
          ClausePrint(stdout, handle, true);
          printf("\n"); */
-      ClauseMarkPropositionallyTrue(handle, state->sat_model);
+      //ClauseMarkPropositionallyTrue(handle, state->sat_model);
+      if(ClauseQueryProp(handle, CPIsSatConstraint))
+      {
+         ClauseDelProp(handle, CPIsIRVictim);
+      }
       if(ClauseQueryProp(handle,CPIsIRVictim))
       {
          assert(ClauseQueryProp(handle, CPLimitedRW));
@@ -989,31 +993,27 @@ Clause_p SATCheck(ProofState_p state, ProofControl_p control)
       {
          state->satcheck_satisfiable++;
 
-         state->sat_model = PDTreeAlloc(state->terms);
-         state->sat_model->term_date = SysDateInvalidTime();
-         
-         long pos = 0, neg =0 , undef =0;
-
-         // get positive literals and store them in PDT
          for(int i=1; i<=set->max_lit; i++)
          {
-            if(picosat_deref(state->solver, i) == 1)
-            {           
-               PDTreeInsertTerm(state->sat_model, 
-                                SATEncodeLit(PDRangeArrElementP(set->back_index, i)));
-               pos++;
-            }
-            if(picosat_deref(state->solver, i) == -1)
+            int tl_val = picosat_deref_toplevel(state->solver, i);
+
+            if((tl_val == 1 || tl_val == -1) && !PDRangeArrElementInt(set->unit_lit, i))
             {
-               neg++;
-            }
-            else if (!picosat_deref(state->solver, i))
-            {
-               undef++;
+               Eqn_p eq = PDRangeArrElementP(set->back_index, i);
+               PDRangeArrAssignP(set->back_index, i, NULL);
+               assert(!eq->next);
+
+               if(tl_val == -1)
+               {
+                  EqnDelProp(eq, EPIsPositive);
+               }
+
+               Clause_p cl =  ClauseAlloc(eq);
+               ClauseSetProp(cl, CPIsSatConstraint);
+               ClauseSetInsert(state->tmp_store,cl);
+               assert(!ClauseQueryProp(cl, CPIsIRVictim));
             }
          }
-
-         fprintf(stderr, "+(%ld) -(%ld) ?(%ld)\n", pos, neg, undef);
       }
       SatClauseSetFree(set);
    }
