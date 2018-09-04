@@ -127,7 +127,7 @@ static __inline__ void type_arg_realloc(Type_p** args, int current, int new)
   int min_size = MIN(current, new);
   for(int i=0; i<min_size; i++)
   {
-    new_arr[i] = (*args)[i];
+     new_arr[i] = (*args)[i];
   }
 
   SizeFree(*args, current * sizeof(Type_p));
@@ -605,7 +605,7 @@ Type_p TypeBankParseType(Scanner_p in, TypeBank_p bank)
             AcceptInpTok(in, Mult);
 
             rightArg = parse_single_type(in, bank);
-            if (arity == allocated)
+            if(arity == allocated)
             {
                type_arg_realloc(&args, allocated, allocated + REALLOC_STEP);
                allocated += REALLOC_STEP;
@@ -687,7 +687,7 @@ Type_p TypeBankParseType(Scanner_p in, TypeBank_p bank)
             }
 
             args[arity++] = rightArg;
-         } while (!(TestInpTok(in, CloseBracket | Fullstop | CloseSquare | Comma)));
+         } while(!(TestInpTok(in, CloseBracket | Fullstop | CloseSquare | Comma)));
 
          if(TypeIsArrow(rightArg))
          {
@@ -759,9 +759,7 @@ void TypePrintTSTP(FILE* out, TypeBank_p bank, Type_p type)
       }
       else
       {
-         // todo at this point problem might not be HO.
-         // check why
-         //assert(problemType == PROBLEM_HO);
+         assert(problemType == PROBLEM_HO);
          for(int i=0; i<type->arity-1; i++)
          {
             if(TypeIsArrow(type->args[i]))
