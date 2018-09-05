@@ -143,8 +143,6 @@ typedef struct heuristic_parms_cell
 
    bool                detsort_bw_rw;
    bool                detsort_tmpset;
-
-   bool                force_sat;
 }HeuristicParmsCell, *HeuristicParms_p;
 
 

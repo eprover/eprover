@@ -939,12 +939,6 @@ Clause_p SATCheck(ProofState_p state, ProofControl_p control)
    Clause_p     empty = NULL;
    ProverResult res;
    
-   // resetting previous sat model
-   if(state->sat_model)
-   {
-      PDTreeFree(state->sat_model);
-      state->sat_model = NULL;
-   }
 
    if(control->heuristic_parms.sat_check_normalize)
    {
@@ -959,20 +953,10 @@ Clause_p SATCheck(ProofState_p state, ProofControl_p control)
    if(!empty)
    {
       SatClauseSet_p set = SatClauseSetAlloc();
-      SatClauseSetMaxClausesSet(set, state->max_sat_clauses);
 
       //printf("# SatCheck() %ld, %ld..\n",
       //state->proc_non_trivial_count,
       //ProofStateCardinality(state));
-
-      if(state->instance_encoding_limit != -1)
-      {
-         state->instance_encoding_remaining = state->instance_encoding_limit;
-      }
-      else
-      {
-         state->instance_encoding_remaining = 0;
-      }
 
       SatClauseSetImportProofState(set, state,
                                    control->heuristic_parms.sat_check_grounding,
@@ -992,28 +976,6 @@ Clause_p SATCheck(ProofState_p state, ProofControl_p control)
       else if(res == PRSatisfiable)
       {
          state->satcheck_satisfiable++;
-
-         for(int i=1; i<=set->max_lit; i++)
-         {
-            int tl_val = picosat_deref_toplevel(state->solver, i);
-
-            if((tl_val == 1 || tl_val == -1) && !PDRangeArrElementInt(set->unit_lit, i))
-            {
-               Eqn_p eq = PDRangeArrElementP(set->back_index, i);
-               PDRangeArrAssignP(set->back_index, i, NULL);
-               assert(!eq->next);
-
-               if(tl_val == -1)
-               {
-                  EqnDelProp(eq, EPIsPositive);
-               }
-
-               Clause_p cl =  ClauseAlloc(eq);
-               ClauseSetProp(cl, CPIsSatConstraint);
-               ClauseSetInsert(state->tmp_store,cl);
-               assert(!ClauseQueryProp(cl, CPIsIRVictim));
-            }
-         }
       }
       SatClauseSetFree(set);
    }
@@ -1122,7 +1084,6 @@ void ProofControlInit(ProofState_p state, ProofControl_p control,
 {
    PStackPointer sp;
    Scanner_p in;
-   bool do_sat_check;
 
    assert(control && control->wfcbs);
    assert(state && state->axioms && state->signature);
@@ -1176,30 +1137,6 @@ void ProofControlInit(ProofState_p state, ProofControl_p control,
    {
       control->fvi_parms.symbol_slack = 0;
    }
-   
-   // setting SAT model checking on if some of the heuristic options need it
-   do_sat_check = control->heuristic_parms.selection_strategy == SelectMaxLComplexPreferSAT;
-   for(int i = 0; !do_sat_check && i < control->hcb->wfcb_no; i++)
-   {
-      WFCB_p wfcb =  PDArrayElementP(control->hcb->wfcb_list, i);
-      if(wfcb->wfcb_priority == PrioFunBySATModel ||
-         (wfcb->wfcb_eval == GenericFunWeightCompute &&
-          ((FunWeightParam_p)wfcb->data)->true_literal_multiplier != 1))
-      {
-         do_sat_check = true;
-      }
-   }
-
-   if(do_sat_check)
-   {
-      if(control->heuristic_parms.sat_check_grounding == GMNoGrounding)
-      {
-         fprintf(stderr, "# Forcing SAT check...\n");
-         control->heuristic_parms.sat_check_grounding = GMConjMaxMaxFreq;
-         control->heuristic_parms.sat_check_size_limit = 20000;
-      }
-   }
-   control->heuristic_parms.force_sat = do_sat_check;
 }
 
 
