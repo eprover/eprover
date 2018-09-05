@@ -2416,7 +2416,7 @@ bool ClauseSetIsUntyped(ClauseSet_p set)
 
    for(handle = set->anchor->succ; handle!=set->anchor; handle = handle->succ)
    {
-      if(!ClauseIsUntyped(handle))
+      if (!ClauseIsUntyped(handle))
       {
          return false;
       }

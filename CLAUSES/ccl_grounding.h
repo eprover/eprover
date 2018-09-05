@@ -1,10 +1,10 @@
 /*-----------------------------------------------------------------------
 
-File  : ccl_grounding.h
+  File  : ccl_grounding.h
 
-Author: Stephan Schulz
+  Author: Stephan Schulz
 
-Contents
+  Contents
 
   Definitions for functions (and possibly later data types)
   implementing grounding of near-propositional clause sets.
@@ -15,12 +15,11 @@ Contents
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
+  Changes
 
-<1> Tue May 29 02:20:15 CEST 2001
-    New
+  Created: Tue May 29 02:20:15 CEST 2001
 
------------------------------------------------------------------------*/
+  -----------------------------------------------------------------------*/
 
 #ifndef CCL_GROUNDING
 

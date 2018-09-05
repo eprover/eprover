@@ -212,7 +212,7 @@ bool StringStartsWith(const char* pattern, const char* prefix)
 {
    while(*prefix)
    {
-      if (!*pattern || *prefix++ != *pattern++)
+      if(!*pattern || *prefix++ != *pattern++)
       {
          return false;
       }
@@ -235,7 +235,7 @@ bool StringStartsWith(const char* pattern, const char* prefix)
 
 void SetProblemType(ProblemType t)
 {
-  if (problemType == PROBLEM_NOT_INIT || problemType == t)
+  if(problemType == PROBLEM_NOT_INIT || problemType == t)
   {
      problemType = t;
   }

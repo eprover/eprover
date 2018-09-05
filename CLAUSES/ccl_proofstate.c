@@ -236,8 +236,6 @@ ProofState_p ProofStateAlloc(FunctionProperties free_symb_prop)
    handle->signature->distinct_props =
       handle->signature->distinct_props&(~free_symb_prop);
 
-   handle->inst_gen_reverse = false;
-
    return handle;
 }
 

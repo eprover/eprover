@@ -371,50 +371,6 @@ void SubstSkolemizeTerm(Term_p term, Subst_p subst, Sig_p sig)
    }
 }
 
-/*-----------------------------------------------------------------------
-//
-// Function: SubstSkolemize()
-//
-//   Instantiate all variables in term with new skolem symbols from
-//   sig and make sure skolem symbols are inserted in termbank;
-//
-// Global Variables: -
-//
-// Side Effects    : Changes sig, creates skolem terms.
-//
-/----------------------------------------------------------------------*/
-
-void SubstSkolemizeTermShared(Term_p term, Subst_p subst, TB_p bank)
-{
-   int i;
-   Sig_p sig = bank->sig;
-
-   assert(term && subst && sig);
-
-   if(TermIsVar(term))
-   {
-      if(!(term->binding))
-      {
-         term->binding =
-            TBTermTopInsert(bank,
-                            TermConstCellAlloc(SigGetNewSkolemCode(sig,0)));
-         PStackPushP(subst, term);
-         assert(TermIsShared(term->binding));
-      }
-      else
-      {
-        assert(TermIsShared(term->binding));
-      }
-   }
-   else
-   {
-      for(i=0;i<term->arity;i++)
-      {
-         SubstSkolemizeTermShared(term->args[i], subst, bank);
-      }
-   }
-}
-
 
 /*-----------------------------------------------------------------------
 //

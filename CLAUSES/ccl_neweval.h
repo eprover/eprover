@@ -116,9 +116,6 @@ Eval_p   EvalTreeFindSmallest(Eval_p root, int pos);
 PStack_p EvalTreeTraverseInit(Eval_p root, int pos);
 Eval_p   EvalTreeTraverseNext(PStack_p state, int pos);
 
-PStack_p EvalTreeTraverseRevInit(Eval_p root, int pos);
-Eval_p   EvalTreeTraverseRevNext(PStack_p state, int pos);
-
 void EvalTreePrintInOrder(FILE* out, Eval_p tree, int pos);
 
 #endif

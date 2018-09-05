@@ -106,8 +106,6 @@ typedef struct proofstatecell
       DerivationCompute() at the end of the proof search. */
    unsigned long gc_count;
    unsigned long gc_used_count;
-
-   bool          inst_gen_reverse;
 }ProofStateCell, *ProofState_p;
 
 typedef enum
