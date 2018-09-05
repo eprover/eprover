@@ -349,7 +349,7 @@ static bool eqn_parse_infix(Scanner_p in, TB_p bank, Term_p *lref,
        
          rterm = TBTermParse(in, bank);
          
-         if(!TermIsVar(rterm) && !TermIsAppliedVar(rterm))
+         if(!TermIsTopLevelVar(rterm))
          {
             TypeDeclareIsNotPredicate(bank->sig, rterm);
          }
@@ -387,7 +387,7 @@ static bool eqn_parse_infix(Scanner_p in, TB_p bank, Term_p *lref,
       else
       { /* It's a predicate */
          rterm = bank->true_term; /* Non-Equational literal */
-         if(!TermIsVar(lterm) && !TermIsAppliedVar(lterm))
+         if(!TermIsTopLevelVar(lterm))
          {
             TypeDeclareIsPredicate(bank->sig, lterm);
          }
@@ -837,7 +837,6 @@ Term_p EqnTermsTBTermEncode(TB_p bank, Term_p lterm, Term_p rterm, bool
 
    return handle;
 }
-
 
 /*-----------------------------------------------------------------------
 //

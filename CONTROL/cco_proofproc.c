@@ -602,41 +602,6 @@ void eval_clause_set(ProofState_p state, ProofControl_p control)
    }
 }
 
-/* FIXME: TODO: Move this to clauses */
-void ClauseMarkPropositionallyTrue(Clause_p handle, PDTree_p model)
-{
-   if(model)
-   {
-      Subst_p dummy = SubstAlloc();
-      for(Eqn_p l = handle->literals; l; l = l->next)
-      {
-         PDTreeUseAgeConstraints = false;
-         PDTreeSearchInit(model, SATEncodeLit(l), SysDateInvalidTime(), true);
-         MatchRes_p res = PDTreeFindNextDemodulator(model, dummy);
-         PDTreeUseAgeConstraints = true;
-         if(res)
-         {
-            if(EqnIsPositive(l))
-            {
-               // it is in the model and l is positive
-               EqnSetProp(l, EPIsSATTrue);
-            }
-            MatchResFree(res);
-         }
-         else
-         {
-            if(EqnIsNegative(l))
-            {
-               // it is not in the model and l is negative
-               EqnSetProp(l, EPIsSATTrue);
-            }
-         }
-         PDTreeSearchExit(model);
-         SubstBacktrack(dummy);
-      }
-      SubstFree(dummy);
-   }
-}
 
 /*-----------------------------------------------------------------------
 //
@@ -664,11 +629,6 @@ static Clause_p insert_new_clauses(ProofState_p state, ProofControl_p control)
       /* printf("Inserting: ");
          ClausePrint(stdout, handle, true);
          printf("\n"); */
-      //ClauseMarkPropositionallyTrue(handle, state->sat_model);
-      if(ClauseQueryProp(handle, CPIsSatConstraint))
-      {
-         ClauseDelProp(handle, CPIsIRVictim);
-      }
       if(ClauseQueryProp(handle,CPIsIRVictim))
       {
          assert(ClauseQueryProp(handle, CPLimitedRW));
@@ -938,7 +898,6 @@ Clause_p SATCheck(ProofState_p state, ProofControl_p control)
 {
    Clause_p     empty = NULL;
    ProverResult res;
-   
 
    if(control->heuristic_parms.sat_check_normalize)
    {

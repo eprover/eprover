@@ -111,10 +111,9 @@ typedef enum
                                            * and hence can only be
                                            * rewritten in limited
                                            * ways. */
-   CPIsRelevant     = 2*CPLimitedRW,      /* Clause is selected as
+   CPIsRelevant     = 2*CPLimitedRW       /* Clause is selected as
                                            * relevant for a proof
                                            * attempt (used by SInE). */
-   CPIsSatConstraint=2*CPIsRelevant       // Is clause SAT constraint clause?
 }FormulaProperties;
 
 

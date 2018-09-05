@@ -52,7 +52,6 @@ typedef struct satclausesetcell
    long         core_size;      // Size of the unsat core, if any
    long         set_size_limit; // Limit after which insertions will fail
                                 // if -1 no limit is set.
-   PDRangeArr_p unit_lit;
 }SatClauseSetCell, *SatClauseSet_p;
 
 
@@ -122,8 +121,6 @@ long        SatClauseSetImportProofState(SatClauseSet_p satset, ProofState_p sta
 long        SatClauseSetMarkPure(SatClauseSet_p satset);
 ProverResult SatClauseSetCheckUnsat(SatClauseSet_p satset, Clause_p *empty,
                                     SatSolver_p solver);
-
-Term_p SATEncodeLit(Eqn_p lit);
 
 #define SAT_TO_E_RESULT(satres) ((satres) == PICOSAT_SATISFIABLE ?\
                                   PRSatisfiable : (assert((satres) == PICOSAT_UNSATISFIABLE),\

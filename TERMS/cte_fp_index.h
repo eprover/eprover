@@ -103,10 +103,6 @@ long     FPTreeFindMatchable(FPTree_p root,
                              IndexFP_p key,
                              Sig_p sig,
                              PStack_p collect);
-long     FPTreeFindGeneralizations(FPTree_p root,
-                             IndexFP_p key,
-                             Sig_p sig,
-                             PStack_p collect);
 
 
 #define FPIndexCellAlloc() (FPIndexCell*)SizeMalloc(sizeof(FPIndexCell))
@@ -123,7 +119,6 @@ void      FPIndexDelete(FPIndex_p index, Term_p term);
 
 long      FPIndexFindUnifiable(FPIndex_p index, Term_p term, PStack_p collect);
 long      FPIndexFindMatchable(FPIndex_p index, Term_p term, PStack_p collect);
-long      FPIndexFindGeneralizations(FPIndex_p index, Term_p term, PStack_p collect);
 
 void      FPIndexDistribPrint(FILE* out, FPIndex_p index);
 void      FPIndexDistribDataPrint(FILE* out, FPIndex_p index);

@@ -23,20 +23,6 @@ Changes
 
 #include "che_varweights.h"
 
-#ifdef ENABLE_LFHO
-#define PARSE_OPTIONAL_AV_PENALTY(in, var_name) \
-if(TestInpTok((in), Comma)) \
-{ \
-   AcceptInpTok((in), Comma); \
-   var_name = ParseFloat((in)); \
-}
-#else
-#define PARSE_OPTIONAL_AV_PENALTY(in, var_name) /* relax */
-#endif
-
-#define APP_VAR_PENALTY_DEFAULT 1
-
-
 
 /*---------------------------------------------------------------------*/
 /*                        Global Variables                             */
@@ -548,8 +534,7 @@ double DepthWeightCompute(void* data, Clause_p clause)
                    local->fweight)*(TermIsAppliedVar(handle->rterm)?local->app_var_penalty:1);
       if(!EqnIsOriented(handle))
       {
-    rweight = rweight*local->max_term_multiplier
-                    ;
+    rweight = rweight*local->max_term_multiplier;
       }
       weight = lweight+rweight;
 

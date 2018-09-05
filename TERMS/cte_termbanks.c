@@ -804,12 +804,7 @@ Term_p TBInsertInstantiatedFO(TB_p bank, Term_p term)
 
    if(term->binding)
    {
-      if(!TBFind(bank, term->binding))
-      {
-         TermPrint(stderr, term->binding, bank->sig, DEREF_NEVER);
-         assert(TermIsShared(term->binding));
-         assert(false);
-      }
+      assert(TBFind(bank, term->binding));
       return term->binding;
    }
 

@@ -535,13 +535,13 @@ bool eqn_list_rec_subsume_old(Eqn_p subsum_list, Eqn_p sub_cand_list,
          continue;
       }
       /* This assumption is no longer valid with selection (selection
-       works by making arbitrary negative literals
-       maximal). Moreover, for some strange reason it also slowed
-       down the ordinary case */
+         works by making arbitrary negative literals
+         maximal). Moreover, for some strange reason it also slowed
+         down the ordinary case */
       /* if(EqnIsMaximal(eqn) && !EqnIsMaximal(subsum_list))
-      {
-         continue;
-      }  */
+         {
+            continue;
+         }  */
       pick_list[lcount]++;
       state = PStackGetSP(subst);
 

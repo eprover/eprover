@@ -68,7 +68,6 @@ PStackPointer SubstBindAppVar(Subst_p subst, Term_p var,
 
 void          SubstBacktrackSkolem(Subst_p subst);
 void          SubstSkolemizeTerm(Term_p term, Subst_p subst, Sig_p sig);
-void          SubstSkolemizeTermShared(Term_p term, Subst_p subst, TB_p bank);
 void          SubstCompleteInstance(Subst_p subst, Term_p term,
                                     Term_p default_binding);
 

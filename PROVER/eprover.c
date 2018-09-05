@@ -174,7 +174,6 @@ ProofState_p parse_spec(CLState_p state,
    proofstate->has_interpreted_symbols =
       FormulaSetHasInterpretedSymbol(proofstate->f_axioms);
    parsed_ax_no = ProofStateAxNo(proofstate);
-   proofstate->inst_gen_reverse        = inst_gen_reverse;
 
    if(error_on_empty_local && (parsed_ax_no == 0))
    {
