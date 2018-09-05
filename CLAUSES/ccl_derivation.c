@@ -1,25 +1,24 @@
 /*-----------------------------------------------------------------------
 
-File  : ccl_derivation.c
+  File  : ccl_derivation.c
 
-Author: Stephan Schulz (schulz@eprover.org)
+  Author: Stephan Schulz (schulz@eprover.org)
 
-Contents
+  Contents
 
   Functions related to the construction, manipulation, and printing of
   explicit proof objects in E.
 
-  Copyright 2013 by the author.
+  Copyright 2013-2018 by the author.
   This code is released under the GNU General Public Licence.
   See the file COPYING in the main E directory for details.
   Run "eprover -h" for contact information.
 
-Changes
+  Changes
 
-<1> Sat Apr  6 10:58:29 CEST 2013
-    New
+  Created Sat Apr  6 10:58:29 CEST 2013
 
------------------------------------------------------------------------*/
+  -----------------------------------------------------------------------*/
 
 #include "ccl_derivation.h"
 
@@ -260,7 +259,7 @@ PStack_p derived_get_derivation(Derived_p derived)
 //
 /----------------------------------------------------------------------*/
 
-long get_clauseform_id(DerivationCodes op, int select, void* clauseform)
+long get_clauseform_id(DerivationCode op, int select, void* clauseform)
 {
    long id = -1;
    Clause_p   clause;
@@ -321,7 +320,7 @@ long get_clauseform_id(DerivationCodes op, int select, void* clauseform)
 /----------------------------------------------------------------------*/
 
 
-char* tstp_get_clauseform_id(DerivationCodes op, int select,
+char* tstp_get_clauseform_id(DerivationCode op, int select,
                              void* clauseform)
 {
    static char result[30];
@@ -500,7 +499,7 @@ void DerivedSetInProof(Derived_p derived, bool in_proof)
 //
 /----------------------------------------------------------------------*/
 
-void ClausePushDerivation(Clause_p clause, DerivationCodes op,
+void ClausePushDerivation(Clause_p clause, DerivationCode op,
                           void* arg1, void* arg2)
 {
    assert(clause);
@@ -560,7 +559,7 @@ void ClausePushACResDerivation(Clause_p clause, Sig_p sig)
 //
 /----------------------------------------------------------------------*/
 
-void WFormulaPushDerivation(WFormula_p form, DerivationCodes op,
+void WFormulaPushDerivation(WFormula_p form, DerivationCode op,
                             void* arg1, void* arg2)
 {
    assert(form);
@@ -666,8 +665,6 @@ bool ClauseIsDummyFOFQuote(Clause_p clause)
 }
 
 
-
-
 /*-----------------------------------------------------------------------
 //
 // Function: ClauseDerivFindFirst()
@@ -754,7 +751,7 @@ long DerivStackExtractParents(PStack_p derivation,
    PStackPointer i, sp;
    long res = 0;
    long numarg1 = 0;
-   DerivationCodes op;
+   DerivationCode op;
 
    assert(res_clauses);
    assert(res_formulas);
@@ -839,7 +836,7 @@ long DerivStackExtractOptParents(PStack_p derivation,
    PStackPointer i, sp;
    long res = 0;
    long numarg1 = 0;
-   DerivationCodes op;
+   DerivationCode op;
    Clause_p   cparent;
    WFormula_p fparent;
 
@@ -927,7 +924,7 @@ void DerivStackCountSearchInferences(PStack_p derivation,
                                      unsigned long *simplifying_count)
 {
    PStackPointer i, sp;
-   DerivationCodes op;
+   DerivationCode op;
 
    if(derivation)
    {
@@ -1020,7 +1017,7 @@ void DerivationStackPCLPrint(FILE* out, Sig_p sig, PStack_p derivation)
    PStack_p subexpr_stack;
    PStack_p arg_stack;
    PStackPointer i, j, sp, ac_limit;
-   DerivationCodes op;
+   DerivationCode op;
    Clause_p        ax;
 
    if(derivation)
@@ -1110,7 +1107,7 @@ void DerivationStackPCLPrint(FILE* out, Sig_p sig, PStack_p derivation)
                      fprintf(out, ", %ld", ax->ident);
                   }
                   fprintf(out, ")");
-               break;
+                  break;
             default:
                   fprintf(out, ")");
                   break;
@@ -1144,7 +1141,7 @@ void DerivationStackTSTPPrint(FILE* out, Sig_p sig, PStack_p derivation)
    PStack_p subexpr_stack;
    PStack_p arg_stack;
    PStackPointer i, j, sp, ac_limit;
-   DerivationCodes op, opc;
+   DerivationCode op, opc;
    Clause_p        ax;
 
    if(derivation)
@@ -1233,23 +1230,23 @@ void DerivationStackTSTPPrint(FILE* out, Sig_p sig, PStack_p derivation)
             case DCACRes:
                   ac_limit = PStackElementInt(derivation, i+1);
                   for(j=0; j<ac_limit; j++)
-               {
-                  ax = PStackElementP(sig->ac_axioms, j);
-                  fprintf(out, ", c_0_%ld", ax->ident);
-               }
+                  {
+                     ax = PStackElementP(sig->ac_axioms, j);
+                     fprintf(out, ", c_0_%ld", ax->ident);
+                  }
                   if(optheory[opc])
                   {
                      fprintf(out, ", theory(%s)",optheory[opc]);
-               }
+                  }
                   fprintf(out, "])");
                   break;
             default:
-              if(optheory[opc])
-              {
-                 fprintf(out, ", theory(%s)",optheory[opc]);
-              }
-              fprintf(out, "])");
-              break;
+                  if(optheory[opc])
+                  {
+                     fprintf(out, ", theory(%s)",optheory[opc]);
+                  }
+                  fprintf(out, "])");
+                  break;
             }
          }
       }
@@ -1426,9 +1423,9 @@ char* DerivedDotNodeColour(Derived_p derived)
          {
          case CPTypeConjecture:
          case CPTypeNegConjecture:
-            return DerivedGetDerivstack(derived)?node_blue:node_axblue;
+               return DerivedGetDerivstack(derived)?node_blue:node_axblue;
          default:
-            return DerivedGetDerivstack(derived)?node_green:node_axgreen;
+               return DerivedGetDerivstack(derived)?node_green:node_axgreen;
          }
       }
    }
@@ -1661,7 +1658,7 @@ bool DerivedIsEvalGC(Derived_p derived)
 bool DerivStackIndicatesInitialClause(PStack_p deriv)
 {
    PStackPointer i, sp;
-   DerivationCodes op;
+   DerivationCode op;
 
    if(!deriv)
    {

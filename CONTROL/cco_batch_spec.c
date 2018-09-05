@@ -620,7 +620,7 @@ bool BatchProcessProblem(BatchSpec_p spec,
    long long start, secs, used, now, remaining;
    AxFilterSet_p filters = AxFilterSetCreateInternal(AxFilterDefaultSet);
    int i;
-   char* answers = spec->res_answer==BONone?"":"--conjectures-are-questions";
+   char* answers = spec->res_answer==BONone ?"" : "--conjectures-are-questions";
 
    start = GetSecTime();
 

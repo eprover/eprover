@@ -1,28 +1,25 @@
 /*-----------------------------------------------------------------------
 
-File  : che_hcb.h
+  File  : che_hcb.h
 
-Author: Stephan Schulz
+  Author: Stephan Schulz
 
-Contents
+  Contents
 
   Heuristic control blocks, describing heuristics for clause
   selection.
 
-  Copyright 1998, 1999 by the author.
+  Copyright 1998-2018 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
+  Changes
 
-<1> Fri Jun  5 22:25:02 MET DST 1998
-    New
-<2> Wed Dec 16 23:17:21 MET 1998
-    Integrate HeuristicParms stuff
+  Created: Fri Jun  5 22:25:02 MET DST 1998
 
------------------------------------------------------------------------*/
+  -----------------------------------------------------------------------*/
 
 #ifndef CHE_HCB
 
@@ -131,9 +128,9 @@ typedef struct heuristic_parms_cell
    bool                sat_check_normalize;
 
    /* Various things */
-   long                filter_limit;
-   long                filter_copies_limit;
-   long                reweight_limit;
+   //long                filter_limit;
+   long                filter_orphans_limit;
+   long                forward_contract_limit;
    long long           delete_bad_limit;
    rlim_t              mem_limit;
    bool                watchlist_simplify;
@@ -174,8 +171,9 @@ typedef struct hcb_cell
 
    /* Selection function, this function is called to select an
       unprocessed clause from the set */
+
    Clause_p        (*hcb_select)(struct hcb_cell* hcb, ClauseSet_p
-             set);
+                                 set);
 
    /* Some HCB selection or evaluation functions may need data of
       their own. If yes, their creation function can allocate data,
@@ -186,10 +184,10 @@ typedef struct hcb_cell
 }HCBCell, *HCB_p;
 
 #define HCB_DEFAULT_HEURISTIC "Default"
-#define DEFAULT_FILTER_LIMIT LONG_MAX
-#define DEFAULT_FILTER_COPIES_LIMIT LONG_MAX
-#define DEFAULT_REWEIGHT_INTERVAL LONG_MAX
-#define DEFAULT_DELETE_BAD_LIMIT LONG_MAX
+
+#define DEFAULT_FILTER_ORPHANS_LIMIT LONG_MAX
+#define DEFAULT_FORWARD_CONTRACT_LIMIT LONG_MAX
+#define DEFAULT_DELETE_BAD_LIMIT LLONG_MAX
 
 #define DEFAULT_RW_BW_INDEX_NAME "FP7"
 #define DEFAULT_PM_FROM_INDEX_NAME "FP7"
@@ -204,9 +202,9 @@ typedef Clause_p (*ClauseSelectFun)(HCB_p hcb, ClauseSet_p set);
 
 PERF_CTR_DECL(ClauseEvalTimer);
 
-#define HeuristicParmsCellAlloc() \
+#define HeuristicParmsCellAlloc()                               \
    (HeuristicParmsCell*)SizeMalloc(sizeof(HeuristicParmsCell))
-#define HeuristicParmsCellFree(junk) \
+#define HeuristicParmsCellFree(junk)            \
    SizeFree(junk, sizeof(HeuristicParmsCell))
 
 void             HeuristicParmsInitialize(HeuristicParms_p handle);
@@ -227,7 +225,7 @@ Clause_p HCBSingleWeightClauseSelect(HCB_p hcb, ClauseSet_p set);
 long     HCBClauseSetDelProp(HCB_p hcb, ClauseSet_p set, long number,
                              FormulaProperties prop);
 long HCBClauseSetDeleteBadClauses(HCB_p hcb, ClauseSet_p set, long
-              number);
+                                  number);
 
 #endif
 

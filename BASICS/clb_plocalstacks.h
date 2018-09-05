@@ -1,20 +1,26 @@
 /*-----------------------------------------------------------------------
 
-File  : clb_plocalstacks.h
+  File  : clb_plocalstacks.h
 
-Author: Martin Möhrmann
+  Author: Martin Möhrmann
 
-Contents
+  Contents
 
-  Stack implementation with macros that use local variables.
+  Stack implementation with macros that use local (automatic)
+  variables. The responsibility to ensurce space is delegeted to the
+  user for the simple push operation. There are macro-functions to
+  push all arguments of a term.
 
   Copyright 2016 by the author.
+
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
------------------------------------------------------------------------*/
+  Created: Sat Jun 4 20:30:20 2016
+
+  -----------------------------------------------------------------------*/
 
 #ifndef CLB_PLOCALSTACKS
 

@@ -80,12 +80,10 @@ long ComputeAllEqnResolvents(TB_p bank, Clause_p clause, ClauseSet_p
     if(resolvent)
     {
        resolv_count++;
-       resolvent->parent1 = clause;
        resolvent->proof_depth = clause->proof_depth+1;
        resolvent->proof_size  = clause->proof_size+1;
        ClauseSetTPTPType(resolvent, ClauseQueryTPTPType(clause));
        ClauseSetProp(resolvent, ClauseGiveProps(clause, CPIsSOS));
-       ClauseRegisterChild(clause, resolvent);
        DocClauseCreationDefault(resolvent, inf_eres, clause, NULL);
             ClausePushDerivation(resolvent, DCEqRes, clause, NULL);
        ClauseSetInsert(store, resolvent);
@@ -168,5 +166,3 @@ long ClauseERNormalizeVar(TB_p bank, Clause_p clause, ClauseSet_p
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
