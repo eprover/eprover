@@ -56,7 +56,7 @@ Eqn_p   EqnListExtractElement(EqnRef element);
 #define EqnListExtractFirst(list)\
         EqnListExtractElement(list)
 Eqn_p   EqnListExtractByProps(EqnRef list, EqnProperties props, bool
-               negate);
+                              negate);
 void    EqnListDeleteElement(EqnRef element);
 #define EqnListDeleteFirst(list)\
         EqnListDeleteElement(list)

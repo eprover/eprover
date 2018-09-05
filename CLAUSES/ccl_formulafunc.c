@@ -731,8 +731,8 @@ long FormulaAndClauseSetParse(Scanner_p in, FormulaSet_p fset,
             {
                if(app_encode)
                {
-                   ignore_include(in);
-                   continue;
+                  ignore_include(in);
+                  continue;
                }
 
                StrTree_p new_limit = NULL;

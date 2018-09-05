@@ -56,35 +56,6 @@ char* GroundingStratNames[] =
 
 /*-----------------------------------------------------------------------
 //
-// Function: SATEncodeLit()
-//
-//   If literal is a predicate atom, it returns the corresponding term.
-//   If literal is an equational atom s=t or s!=t, it returns =(s,t) 
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-Term_p SATEncodeLit(Eqn_p lit)
-{
-   Term_p s = lit->lterm;
-   Term_p t = lit->rterm;
-   Term_p res = s;
-
-   if(EqnIsEquLit(lit))
-   {   
-      res = EqnTermsTBTermEncode(lit->bank, s, t, true, 
-                                 PGreater(s, t) ? PENormal : PEReverse);
-      
-   }
-   
-   return res;
-}
-
-/*-----------------------------------------------------------------------
-//
 // Function: sat_translate_literal()
 //
 //    Translate a full E literal into a propositional literal.
@@ -451,25 +422,6 @@ SatClause_p SatClauseAlloc(int lit_no)
    return handle;
 }
 
-/*-----------------------------------------------------------------------
-//
-// Function: SatClauseBinary()
-//
-//   Allocate an binary clause with literals lit1 and lit2.
-//
-// Global Variables: -
-//
-// Side Effects    : Memory operations
-//
-/----------------------------------------------------------------------*/
-
-SatClause_p SatClauseBinary(int lit1, int lit2)
-{
-   SatClause_p res = SatClauseAlloc(2);
-   res->literals[0] = lit1;
-   res->literals[1] = lit2;
-   return res;
-}
 
 /*-----------------------------------------------------------------------
 //
@@ -517,7 +469,6 @@ SatClauseSet_p SatClauseSetAlloc(void)
    set->exported = PStackAlloc();
    set->core_size = 0;
    set->set_size_limit = -1;
-   set->unit_lit = PDRangeArrAlloc(10, 0);
    return set;
 }
 
@@ -542,10 +493,6 @@ void SatClauseSetFree(SatClauseSet_p junk)
    {
       PDRangeArrFree(junk->renumber_index);
    }
-   if(junk->unit_lit)
-   {
-      PDRangeArrFree(junk->unit_lit);
-   }
    while(!PStackEmpty(junk->set))
    {
       clause = PStackPopP(junk->set);
@@ -562,11 +509,7 @@ void SatClauseSetFree(SatClauseSet_p junk)
 // Function: SatClauseCreateAndStore()
 //
 //    Encode the instantiated clause as a SatClause, store it in set,
-//    and return it. If encode_ins points to value > 0 it will encode
-//    instance constraints [P(x) => P(sigma(x)], where sigma is an arbitrary
-//    substitution and P predicate symbol] that are easy to compute (found 
-//    in from_idx fp index). Makes the value encode_gens points to smaller. 
-//
+//    and return it. 
 // Global Variables:
 //
 // Side Effects    :
@@ -588,14 +531,9 @@ SatClause_p SatClauseCreateAndStore(Clause_p clause, SatClauseSet_p set)
       return NULL;
    }
 
-   /*fprintf(stderr,"# PGClause (%d): ", ClauseQueryProp(clause, CPIsSatConstraint));
-   ClausePrint(stderr, clause, true);
-   fprintf(stderr,"\n=>");
-   EqnListPrintDeref(stderr, clause->literals, "|", DEREF_ONCE);
-   fprintf(stderr,"\n");*/
 
    handle = SatClauseAlloc(ClauseLiteralNumber(clause));
-   handle->source = ClauseQueryProp(clause, CPIsSatConstraint) ? NULL : clause;
+   handle->source = clause;
    for(i=0, lit=clause->literals;
        lit;
        i++, lit=lit->next)
@@ -603,13 +541,6 @@ SatClause_p SatClauseCreateAndStore(Clause_p clause, SatClauseSet_p set)
       assert(i<handle->lit_no);
       handle->literals[i] = sat_translate_literal(lit, set);
    }
-
-   if(handle->lit_no == 1)
-   {
-      PDRangeArrAssignInt(set->unit_lit, handle->literals[0], 1);
-   }
-
-   //SatClausePrint(stderr, handle);
 
    PStackPushP(set->set, handle);
    return handle;

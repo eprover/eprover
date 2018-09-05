@@ -22,19 +22,6 @@ Changes
 -----------------------------------------------------------------------*/
 
 #include "che_simweight.h"
-#define APP_VAR_PENALTY_DEFAULT 1
-
-#ifdef ENABLE_LFHO
-#define PARSE_OPTIONAL_AV_PENALTY(in, var_name) \
-if(TestInpTok((in), Comma)) \
-{ \
-   AcceptInpTok((in), Comma); \
-   var_name = ParseFloat((in)); \
-}
-#else
-#define PARSE_OPTIONAL_AV_PENALTY(in, var_name) /* relax */
-#endif
-
 
 
 /*---------------------------------------------------------------------*/

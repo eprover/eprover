@@ -64,7 +64,6 @@ char* PrioFunNames[]=
    "DeferWatchlist",
    "PreferAppVar",
    "PreferNonAppVar",
-   "BySATModel",
    "ByAppVarNum",
    NULL
 };
@@ -103,7 +102,6 @@ static ClausePrioFun prio_fun_array[]=
    PrioFunDeferWatchlist,
    PrioFunPreferAppVar,
    PrioFunPreferNonAppVar,
-   PrioFunBySATModel,
    PrioFunByAppVarNum,
    NULL
 };
@@ -606,28 +604,6 @@ EvalPriority PrioFunConstPrio(Clause_p clause)
 EvalPriority PrioFunByLiteralNumber(Clause_p clause)
 {
    return ClauseLiteralNumber(clause);
-}
-
-/*-----------------------------------------------------------------------
-//
-// Function: PrioFunBySATModel()
-//
-//   Calculate the percentage of literals satisfied by the SAT model.
-//   Then bin the percentage in the bins from 0 - 10.
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-EvalPriority PrioFunBySATModel(Clause_p clause)
-{
-   double       perc_literals_satisfied = 
-    ((double)EqnListQueryPropNumber(clause->literals, EPIsSATTrue))/
-    (ClauseLiteralNumber(clause));
-   EvalPriority res = (EvalPriority)(perc_literals_satisfied * 10);
-   return res;
 }
 
 /*-----------------------------------------------------------------------

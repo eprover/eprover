@@ -130,7 +130,7 @@ void print_clauses(FILE* out, PTree_p clauses, int level, bool fullterms)
 
 void fv_index_print(FILE* out, FVIndex_p index, bool fullterms, int level)
 {  
-   if (index->final)
+   if(index->final)
    {
       print_clauses(out, index->u1.clauses, level+1, fullterms);
    }
@@ -564,8 +564,8 @@ FVPackedClause_p FVIndexPackClause(Clause_p clause, FVIAnchor_p anchor)
 
 void FVIndexPrint(FILE* out, FVIndex_p index, bool fullterms)
 {
-  fprintf(stderr, "* ROOT *\n");
-  fv_index_print(out, index, fullterms, 0);
+   fprintf(stderr, "* ROOT *\n");
+   fv_index_print(out, index, fullterms, 0);
 }
 
 /*---------------------------------------------------------------------*/
