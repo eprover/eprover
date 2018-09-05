@@ -46,7 +46,6 @@ typedef struct satclausecell
 typedef struct satclausesetcell
 {
    PDRangeArr_p renumber_index; // Used to map term->id to [0...max_lit]
-   PDRangeArr_p back_index;     // Used to literal nr to term
    int          max_lit;
    PStack_p     set;            // Actual set (clauses must be freed)
    PStack_p     exported;       // Subset of clauses exported to the solver state
@@ -67,8 +66,7 @@ typedef enum
    GMConjMinMaxFreq, /* Rarest in conjectures, most frequent overall */
    GMConjMaxMaxFreq,
    GMGlobalMax,
-   GMGlobalMin,
-   GMGenInstances
+   GMGlobalMin
 }GroundingStrategy;
 
 typedef bool (*SatClauseFilter)(SatClause_p);
@@ -88,9 +86,6 @@ extern char* GroundingStratNames[];
 
 SatClause_p SatClauseAlloc(int lit_no);
 void        SatClauseFree(SatClause_p junk);
-
-SatClause_p SatClauseBinary(int lit1, int lit2);
-#define SatClauseImplication(a, b) (SatClauseBinary(-(a), (b)))
 
 #define SatClauseSetCellAlloc()    (SatClauseSetCell*)SizeMalloc(sizeof(SatClauseSetCell))
 #define SatClauseSetCellFree(junk) SizeFree(junk, sizeof(SatClauseSetCell))
@@ -122,7 +117,6 @@ Subst_p     SubstGroundFreqBased(TB_p terms, ClauseSet_p clauses,
                                  FunConstCmpFunType is_better, bool norm_const);
 
 long        SatClauseSetImportClauseSet(SatClauseSet_p satset, ClauseSet_p set);
-long        SatClauseSetImportGenInstances(SatClauseSet_p satset, ProofState_p state);
 long        SatClauseSetImportProofState(SatClauseSet_p satset, ProofState_p state,
                                          GroundingStrategy strat, bool norm_const);
 long        SatClauseSetMarkPure(SatClauseSet_p satset);

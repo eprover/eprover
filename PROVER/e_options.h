@@ -179,9 +179,6 @@ typedef enum
    OPT_MINISCOPE_LIMIT,
    OPT_PRINT_TYPES,
    OPT_APP_ENCODE,
-   OPT_ENCODE_INSTANCES,
-   OPT_SAT_CLAUSES_LIMIT,
-   OPT_REVERSE_GEN_INST,
    OPT_DUMMY
 }OptionCodes;
 
@@ -1352,27 +1349,6 @@ OptCell opts[] =
     NoArg, NULL,
     "Encodes terms in the proof state using applicative encoding, "
     "prints encoded input problem and exists."},
-
-   {OPT_ENCODE_INSTANCES,
-    '\0', "encode-instances",
-    OptArg, "50",
-    "When encoding clauses to SAT, find generalizations of the literal "
-    "and add clauses that encode the dependency between generalization "
-    "and the literal. "
-    "Argument limits the number of dependency clauses generated. "
-    "If no argument is given, the limit is set to 50"},
-
-   {OPT_SAT_CLAUSES_LIMIT,
-    '\0', "sat-clauses-limit",
-    OptArg, "100000",
-    "If this option is on, it limits the maximal number of created clauses. "
-    "Optional arugment is the acutal limit, by default it is 100000."},
-
-   {OPT_REVERSE_GEN_INST,
-    '\0', "reverse-gen-inst",
-    NoArg, NULL,
-    "Traverse the processed clauses in reverse order. "},
-
 
    {OPT_NOOPT,
     '\0', NULL,

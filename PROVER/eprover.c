@@ -87,9 +87,7 @@ long              step_limit = LONG_MAX,
    generated_limit = LONG_MAX,
    eqdef_maxclauses = DEFAULT_EQDEF_MAXCLAUSES,
    relevance_prune_level = 0,
-   miniscope_limit = 1000,
-   gen_instances_limit = -1,
-   max_sat_clauses     = -1;
+   miniscope_limit = 1000;
 long long tb_insert_limit = LLONG_MAX;
 
 int eqdef_incrlimit = DEFAULT_EQDEF_INCRLIMIT,
@@ -176,8 +174,6 @@ ProofState_p parse_spec(CLState_p state,
    proofstate->has_interpreted_symbols =
       FormulaSetHasInterpretedSymbol(proofstate->f_axioms);
    parsed_ax_no = ProofStateAxNo(proofstate);
-   proofstate->instance_encoding_limit = gen_instances_limit;
-   proofstate->max_sat_clauses         = max_sat_clauses;
    proofstate->inst_gen_reverse        = inst_gen_reverse;
 
    if(error_on_empty_local && (parsed_ax_no == 0))
@@ -536,10 +532,6 @@ int main(int argc, char* argv[])
       }
    }
    PERF_CTR_ENTRY(SatTimer);
-   if(proofcontrol->heuristic_parms.force_sat)
-   {
-      SATCheck(proofstate, proofcontrol);
-   }
 
 #ifdef ENABLE_LFHO
    // if the problem is HO -> we have to use KBO6
@@ -1615,19 +1607,6 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_APP_ENCODE:
             app_encode = true;
             break;
-      case OPT_ENCODE_INSTANCES:
-            gen_instances_limit = 
-                CLStateGetIntArgCheckRange(handle, arg, 0, LONG_MAX);
-            max_sat_clauses = 5000000; // automatically limit number of clauses
-            break;
-      case OPT_SAT_CLAUSES_LIMIT:
-            max_sat_clauses = 
-               CLStateGetIntArgCheckRange(handle, arg, 0, LONG_MAX);
-            break;
-      case OPT_REVERSE_GEN_INST:
-            inst_gen_reverse = true;
-            break;
-
       default:
             assert(false && "Unknown option");
             break;
