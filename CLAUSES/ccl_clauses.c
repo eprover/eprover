@@ -2081,7 +2081,7 @@ double ClauseFunWeight(Clause_p clause, double max_term_multiplier,
                        double max_literal_multiplier, double
                        pos_multiplier, long vweight, long flimit,
                        long *fweights, long default_fweight, double app_var_penalty,
-                       double true_lit_mul, long *typefreqs)
+                       long *typefreqs)
 {
    Eqn_p  handle;
    double res = 0;
@@ -2092,7 +2092,7 @@ double ClauseFunWeight(Clause_p clause, double max_term_multiplier,
                               max_literal_multiplier, pos_multiplier,
                               vweight, flimit, fweights,
                               default_fweight, app_var_penalty,
-                              true_lit_mul, typefreqs);
+                              typefreqs);
    }
    return res;
 }
@@ -2647,7 +2647,7 @@ bool ClauseIsUntyped(Clause_p clause)
 
    while (lits)
    {
-      if (!EqnIsUntyped(lits))
+      if(!EqnIsUntyped(lits))
       {
          return false;
       }
