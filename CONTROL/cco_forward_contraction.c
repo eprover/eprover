@@ -326,7 +326,6 @@ Clause_p ForwardContractSet(ProofState_p state, ProofControl_p
       }
       else
       {
-         ClauseDetachParents(handle);
          ClauseSetDeleteEntry(handle);
       }
       handle = next;

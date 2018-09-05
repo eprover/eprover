@@ -1,25 +1,24 @@
 /*-----------------------------------------------------------------------
 
-File  : ccl_derivations.h
+  File  : ccl_derivations.h
 
-Author: Stephan Schulz (schulz@eprover.org)
+  Author: Stephan Schulz (schulz@eprover.org)
 
-Contents
+  Contents
 
   Datatypes and definitions for compact representation of derivations
   of a clause.
 
-  Copyright 2013 by the author.
+  Copyright 2013-2018 by the author.
   This code is released under the GNU General Public Licence.
   See the file COPYING in the main CLIB directory for details.
   Run "eprover -h" for contact information.
 
-Changes
+  Changes
 
-<1> Thu Feb 14 00:21:15 CET 2013
-    New
+  Created: Thu Feb 14 00:21:15 CET 2013
 
------------------------------------------------------------------------*/
+  -----------------------------------------------------------------------*/
 
 #ifndef CCL_DERIVATION
 
@@ -80,7 +79,7 @@ typedef enum
    DOSplitEquiv,
    DOIntroDef,
    DOSplitConjunct
-}OpCodes;
+}OpCode;
 
 
 typedef enum
@@ -132,7 +131,7 @@ typedef enum
    DCSplitEquiv       = DOSplitEquiv|Arg1Fof,
    DCIntroDef         = DOIntroDef,
    DCSplitConjunct    = DOSplitConjunct|Arg1Fof
-}DerivationCodes;
+}DerivationCode;
 
 
 typedef enum
@@ -198,15 +197,17 @@ extern bool            ProofObjectRecordsGCSelection;
 #define DCOpHasArg2(op)       ((op)&(Arg2Cnf|Arg2Fof|Arg2Num))
 
 #define DPOpGetOpCode(op)  ((op)&127)
+#define DCOpIsGenerating(op) ((DPOpGetOpCode(op) >= DOParamod)&&(DPOpGetOpCode(op) <= DOSatGen))
 
-void ClausePushDerivation(Clause_p clause, DerivationCodes op,
+
+void ClausePushDerivation(Clause_p clause, DerivationCode op,
                           void* arg1, void* arg2);
 
 void ClausePushACResDerivation(Clause_p clause, Sig_p sig);
 
 
-void WFormulaPushDerivation(WFormula_p form, DerivationCodes op,
-                           void* arg1, void* arg2);
+void WFormulaPushDerivation(WFormula_p form, DerivationCode op,
+                            void* arg1, void* arg2);
 
 bool ClauseIsEvalGC(Clause_p clause);
 
@@ -234,7 +235,7 @@ void DerivStackCountSearchInferences(PStack_p derivation,
 
 Derived_p DerivedAlloc(void);
 #define DerivedFree(junk) DerivedCellFree(junk)
-#define DerivedGetDerivstack(d) \
+#define DerivedGetDerivstack(d)                                         \
    ((d)->clause?(d)->clause->derivation:(d)->formula->derivation)
 
 bool DerivedInProof(Derived_p derived);

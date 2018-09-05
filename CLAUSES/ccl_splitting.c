@@ -280,7 +280,6 @@ int clause_split_general(DefStore_p store, Clause_p clause,
    FormulaProperties props;
 
    assert(clause);
-   assert(!clause->children);
    assert(!clause->set);
    assert(set);
 
@@ -309,8 +308,6 @@ int clause_split_general(DefStore_p store, Clause_p clause,
    }
    if(part>1)
    {
-      Clause_p parent1 = clause->parent1;
-      Clause_p parent2 = clause->parent2;
       PStack_p def_stack = PStackAlloc();
 
       /* Build split clauses from original literals */
@@ -365,16 +362,6 @@ int clause_split_general(DefStore_p store, Clause_p clause,
             /* Note: Potentially recycled definitions have no real
                parents, as they are conceptually introduced ad-hoc and
                can be reused for many other clauses. */
-            if(parent1 && fresh_defs)
-            {
-               new_clause->parent1 = parent1;
-               ClauseRegisterChild(parent1, new_clause);
-            }
-            if(parent2 && fresh_defs)
-            {
-               new_clause->parent2 = parent2;
-               ClauseRegisterChild(parent2, new_clause);
-            }
 
             /* Insert result clause */
             ClauseSetInsert(set, new_clause);
@@ -384,9 +371,9 @@ int clause_split_general(DefStore_p store, Clause_p clause,
                NULL); */
          }
          /* Extend remainder clause (after application of definition) */
-    tmp       = GenDefLit(bank, new_pred, false, split_vars);
-    tmp->next = join;
-    join = tmp;
+         tmp       = GenDefLit(bank, new_pred, false, split_vars);
+         tmp->next = join;
+         join = tmp;
       }
       clause->literals = join;
       ClauseRecomputeLitCounts(clause);

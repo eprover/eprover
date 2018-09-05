@@ -99,7 +99,7 @@ starexec:
 	./configure --prefix=$(STAREXECPATH)
 	make install
 
-	cp etc/STAREXEC2.0/starexec_run* $(STAREXECPATH)/bin
+	cp etc/STAREXEC2.2/starexec_run* $(STAREXECPATH)/bin
 	$(eval E_VERSION=`$$(STAREXECPATH)/bin/eprover --version | cut -d' ' -f1-2| sed -e 's/ /-/'`)
 	cd $(STAREXECPATH); zip -r $(E_VERSION).zip bin man
 
@@ -127,7 +127,7 @@ links: remove_links
 	
 
 tags:
-	etags.emacs25 `find . \( -name "*.[ch]" -or -name "*.py" \) -and -not -name "include/*" -and -not -name ".#*"`
+	etags.emacs25 `find . \( -name "*.[ch]" -or -name "*.py" \) -and \( -not -path "*include*" -and -not -name ".#*" \)`
 #ctags-exuberant -e -R .
 # etags */*.c */*.h
 # cd PYTHON; make ptags

@@ -230,6 +230,10 @@ ProofState_p ProofStateAlloc(FunctionProperties free_symb_prop)
    handle->satcheck_core_size   = 0;
    handle->solver               = picosat_init();
    picosat_enable_trace_generation(handle->solver);
+   
+   handle->filter_orphans_base   = 0;
+   handle->forward_contract_base = 0;
+
    handle->gc_count             = 0;
    handle->gc_used_count        = 0;
 

@@ -478,10 +478,10 @@ int main(int argc, char* argv[])
 
    if(!no_preproc)
    {
-      ClauseSetArchive(proofstate->ax_archive, proofstate->axioms);
+      ClauseSetArchiveCopy(proofstate->ax_archive, proofstate->axioms);
       if(proofstate->watchlist)
       {
-         ClauseSetArchive(proofstate->ax_archive, proofstate->watchlist);
+         ClauseSetArchiveCopy(proofstate->ax_archive, proofstate->watchlist);
       }
       preproc_removed = ClauseSetPreprocess(proofstate->axioms,
                                             proofstate->watchlist,
@@ -1190,11 +1190,11 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_HEURISTIC:
             h_parms->heuristic_name = arg;
             break;
-      case OPT_FILTER_LIMIT:
-            h_parms->filter_limit = CLStateGetIntArg(handle, arg);
+      case OPT_FILTER_ORPHANS_LIMIT:
+            h_parms->filter_orphans_limit = CLStateGetIntArg(handle, arg);
             break;
-      case OPT_FILTER_COPIES_LIMIT:
-            h_parms->filter_copies_limit = CLStateGetIntArg(handle, arg);
+      case OPT_FORWARD_CONTRACT_LIMIT:
+            h_parms->forward_contract_limit = CLStateGetIntArg(handle, arg);
             break;
       case OPT_DELETE_BAD_LIMIT:
             h_parms->delete_bad_limit = CLStateGetIntArg(handle, arg);
@@ -1240,9 +1240,6 @@ CLState_p process_options(int argc, char* argv[])
             break;
       case OPT_SPLIT_REUSE_DEFS:
             h_parms->split_fresh_defs = false;
-            break;
-      case OPT_REWEIGHT_LIMIT:
-            h_parms->reweight_limit = CLStateGetIntArg(handle, arg);
             break;
       case OPT_ORDERING:
             if(strcmp(arg, "Auto")==0)
