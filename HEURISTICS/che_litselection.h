@@ -188,7 +188,6 @@ void SelectMaxLComplexAvoidPosPred(OCB_p ocb, Clause_p clause);
 void SelectMaxLComplexAvoidAppVar(OCB_p ocb, Clause_p clause);
 void SelectMaxLComplexStronglyAvoidAppVar(OCB_p ocb, Clause_p clause);
 void SelectMaxLComplexPreferAppVar(OCB_p ocb, Clause_p clause);
-void SelectMaxLComplexPreferSAT(OCB_p ocb, Clause_p clause);
 void SelectMaxLComplexAPPNTNp(OCB_p ocb, Clause_p clause);
 void SelectMaxLComplexAPPNoType(OCB_p ocb, Clause_p clause);
 void SelectMaxLComplexAvoidPosUPred(OCB_p ocb, Clause_p clause);
