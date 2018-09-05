@@ -142,9 +142,9 @@ static long remove_subsumed(GlobalIndices_p indices,
          DocClauseQuote(GlobalOut, OutputLevel, 6, handle,
                         "subsumed", subsumer->clause);
       }
-      ClauseKillChildren(handle);
       GlobalIndicesDeleteClause(indices, handle);
       ClauseSetExtractEntry(handle);
+      ClauseSetProp(handle, CPIsDead);
       ClauseSetInsert(archive, handle);
    }
    PStackFree(stack);
@@ -376,45 +376,50 @@ static long eliminate_context_sr_clauses(ProofState_p state,
 //
 /----------------------------------------------------------------------*/
 
+
 void check_watchlist(GlobalIndices_p indices, ClauseSet_p watchlist,
                      Clause_p clause, ClauseSet_p archive,
                      bool static_watchlist)
 {
-   FVPackedClause_p pclause = FVIndexPackClause(clause, watchlist->fvindex);
+   FVPackedClause_p pclause;
    long removed;
 
-   // printf("# check_watchlist(%p)...\n", indices);
-   ClauseSubsumeOrderSortLits(clause);
-   // assert(ClauseIsSubsumeOrdered(clause));
-
-   clause->weight = ClauseStandardWeight(clause);
-
-   if(static_watchlist)
+   if(watchlist)
    {
-      Clause_p subsumed;
+      pclause = FVIndexPackClause(clause, watchlist->fvindex);
+      // printf("# check_watchlist(%p)...\n", indices);
+      ClauseSubsumeOrderSortLits(clause);
+      // assert(ClauseIsSubsumeOrdered(clause));
 
-      subsumed = ClauseSetFindFirstSubsumedClause(watchlist, clause);
-      if(subsumed)
+      clause->weight = ClauseStandardWeight(clause);
+
+      if(static_watchlist)
       {
-         ClauseSetProp(clause, CPSubsumesWatch);
-      }
-   }
-   else
-   {
-      if((removed = remove_subsumed(indices, pclause, watchlist, archive)))
-      {
-         ClauseSetProp(clause, CPSubsumesWatch);
-         if(OutputLevel == 1)
+         Clause_p subsumed;
+
+         subsumed = ClauseSetFindFirstSubsumedClause(watchlist, clause);
+         if(subsumed)
          {
-            fprintf(GlobalOut,"# Watchlist reduced by %ld clause%s\n",
-                    removed,removed==1?"":"s");
+            ClauseSetProp(clause, CPSubsumesWatch);
          }
-         // ClausePrint(GlobalOut, clause, true); printf("\n");
-         DocClauseQuote(GlobalOut, OutputLevel, 6, clause,
-                        "extract_subsumed_watched", NULL);   }
+      }
+      else
+      {
+         if((removed = remove_subsumed(indices, pclause, watchlist, archive)))
+         {
+            ClauseSetProp(clause, CPSubsumesWatch);
+            if(OutputLevel == 1)
+            {
+               fprintf(GlobalOut,"# Watchlist reduced by %ld clause%s\n",
+                       removed,removed==1?"":"s");
+            }
+            // ClausePrint(GlobalOut, clause, true); printf("\n");
+            DocClauseQuote(GlobalOut, OutputLevel, 6, clause,
+                           "extract_subsumed_watched", NULL);   }
+      }
+      FVUnpackClause(pclause);
+      // printf("# ...check_watchlist()\n");
    }
-   FVUnpackClause(pclause);
-   // printf("# ...check_watchlist()\n");
 }
 
 
@@ -650,17 +655,12 @@ static Clause_p insert_new_clauses(ProofState_p state, ProofControl_p control)
 
       if(ClauseIsTrivial(handle))
       {
-         assert(!handle->children);
-         ClauseDetachParents(handle);
          ClauseFree(handle);
          continue;
       }
-      if(state->watchlist)
-      {
-         check_watchlist(&(state->wlindices), state->watchlist,
-                         handle, state->archive,
-                         control->heuristic_parms.watchlist_is_static);
-      }
+      check_watchlist(&(state->wlindices), state->watchlist,
+                      handle, state->archive,
+                      control->heuristic_parms.watchlist_is_static);
       if(ClauseIsEmpty(handle))
       {
          return handle;
@@ -782,11 +782,12 @@ Clause_p replacing_inferences(ProofState_p state, ProofControl_p
 // Function: cleanup_unprocessed_clauses()
 //
 //   Perform maintenenance operations on state->unprocessed, depending
-//   on paramters in control:
-//   - Remove copies
+//   on parameters in control:
+//   - Remove orphaned clauses
 //   - Simplify all unprocessed clauses
 //   - Reweigh all unprocessed clauses
 //   - Delete "bad" clauses to avoid running out of memories.
+//
 //   Simplification can find the empty clause, which is then
 //   returned.
 //
@@ -799,30 +800,32 @@ Clause_p replacing_inferences(ProofState_p state, ProofControl_p
 static Clause_p cleanup_unprocessed_clauses(ProofState_p state,
                                             ProofControl_p control)
 {
-   long long current_storage    = ProofStateStorage(state);
-   long long filter_base        = current_storage;
-   long long filter_copies_base = current_storage;
-   long long reweight_base      = state->unprocessed->members;
-   long tmp;
+   long long current_storage;
+   unsigned long back_simplified;
+   long tmp, tmp2;
+   long target_size;
    Clause_p unsatisfiable = NULL;
 
-   filter_copies_base = MIN(filter_copies_base,current_storage);
-   if((current_storage - filter_copies_base) >
-      control->heuristic_parms.filter_copies_limit)
+   back_simplified = state->backward_subsumed_count
+      +state->backward_rewritten_count;
+
+   if((back_simplified-state->filter_orphans_base)
+      > control->heuristic_parms.filter_orphans_limit)
    {
-      tmp = ClauseSetDeleteCopies(state->unprocessed);
+      tmp = ClauseSetDeleteOrphans(state->unprocessed);
       if(OutputLevel)
       {
          fprintf(GlobalOut,
-                 "# Deleted %ld clause copies (remaining: %ld)\n",
+                 "# Deleted %ld orphaned clauses (remaining: %ld)\n",
                  tmp, state->unprocessed->members);
       }
       state->other_redundant_count += tmp;
-      current_storage  = ProofStateStorage(state);
-      filter_copies_base = current_storage;
+      state->filter_orphans_base = back_simplified;
    }
-   filter_base = MIN(filter_base,current_storage);
-   if((current_storage - filter_base) > control->heuristic_parms.filter_limit)
+
+
+   if((state->processed_count-state->forward_contract_base)
+      > control->heuristic_parms.forward_contract_limit)
    {
       tmp = state->unprocessed->members;
       unsatisfiable =
@@ -841,42 +844,38 @@ static Clause_p cleanup_unprocessed_clauses(ProofState_p state,
                  tmp - state->unprocessed->members,
                  state->unprocessed->members);
       }
-      current_storage  = ProofStateStorage(state);
-      filter_base = current_storage;
+
       if(unsatisfiable)
       {
          return unsatisfiable;
       }
-   }
-   reweight_base = MIN(state->unprocessed->members, reweight_base);
-   if((state->unprocessed->members - reweight_base)
-      > control->heuristic_parms.reweight_limit)
-   {
+      state->forward_contract_base = state->processed_count;
       OUTPRINT(1, "# Reweighting unprocessed clauses...\n");
       ClauseSetReweight(control->hcb,  state->unprocessed);
-      reweight_base = state->unprocessed->members;
    }
-   tmp = LONG_MAX;
 
+   current_storage  = ProofStateStorage(state);
    if(current_storage > control->heuristic_parms.delete_bad_limit)
    {
-      tmp = HCBClauseSetDeleteBadClauses(control->hcb,
-                                         state->unprocessed,
-                                         state->unprocessed->members/2);
+      target_size = state->unprocessed->members/2;
+      tmp = ClauseSetDeleteOrphans(state->unprocessed);
+      tmp2 = HCBClauseSetDeleteBadClauses(control->hcb,
+                                          state->unprocessed,
+                                          target_size);
       state->non_redundant_deleted += tmp;
       if(OutputLevel)
       {
          fprintf(GlobalOut,
-                 "# Deleted %ld bad clauses (prover may be"
-                 " incomplete now)\n", tmp);
+                 "# Deleted %ld orphaned clauses and %ld bad "
+                 "clauses (prover may be incomplete now)\n",
+                 tmp, tmp2);
       }
-      state->state_is_complete = false;
-//       ProofStateGCMarkTerms(state);
-//       ProofStateGCSweepTerms(state);
+      if(tmp2)
+      {
+         state->state_is_complete = false;
+      }
       GCCollect(state->terms->gc);
       current_storage = ProofStateStorage(state);
-      filter_base = MIN(filter_base, current_storage);
-      filter_copies_base = MIN(filter_copies_base, current_storage);
    }
    return unsatisfiable;
 }
@@ -1124,9 +1123,6 @@ void ProofStateResetProcessedSet(ProofState_p state,
       {
          GlobalIndicesDeleteClause(&(state->gindices), handle);
       }
-
-      ClauseKillChildren(handle); /* Should be none, but better be safe */
-
       if(ProofObjectRecordsGCSelection)
       {
          ClausePushDerivation(handle, DCCnfEvalGC, NULL, NULL);
@@ -1351,12 +1347,9 @@ void ProofStateInit(ProofState_p state, ProofControl_p control)
       new = ClauseCopy(handle, state->terms);
 
       ClauseSetProp(new, CPInitial);
-      if(state->watchlist)
-      {
-         check_watchlist(&(state->wlindices), state->watchlist,
-                         new, state->archive,
-                         control->heuristic_parms.watchlist_is_static);
-      }
+      check_watchlist(&(state->wlindices), state->watchlist,
+                      new, state->archive,
+                      control->heuristic_parms.watchlist_is_static);
       HCBClauseEvaluate(control->hcb, new);
       DocClauseQuoteDefault(6, new, "eval");
       ClausePushDerivation(new, DCCnfQuote, handle, NULL);
@@ -1415,6 +1408,7 @@ void ProofStateInit(ProofState_p state, ProofControl_p control)
 //
 /----------------------------------------------------------------------*/
 
+
 Clause_p ProcessClause(ProofState_p state, ProofControl_p control,
                        long answer_limit)
 {
@@ -1424,24 +1418,29 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control,
 
    clause = control->hcb->hcb_select(control->hcb,
                                      state->unprocessed);
+   if(!clause)
+   {
+      return NULL;
+   }
+   //EvalListPrintComment(GlobalOut, clause->evaluations); printf("\n");
    if(OutputLevel==1)
    {
       putc('#', GlobalOut);
    }
    assert(clause);
 
-   state->processed_count++;
-
    ClauseSetExtractEntry(clause);
-   ClauseSetProp(clause, CPIsProcessed);
-   ClauseDetachParents(clause);
    ClauseRemoveEvaluations(clause);
+   // Orphans have been excluded during selection now
+
+   ClauseSetProp(clause, CPIsProcessed);
+   state->processed_count++;
 
    assert(!ClauseQueryProp(clause, CPIsIRVictim));
 
    if(ProofObjectRecordsGCSelection)
    {
-      arch_copy = ClauseArchive(state->archive, clause);
+      arch_copy = ClauseArchiveCopy(state->archive, clause);
    }
 
    if(!(pclause = ForwardContractClause(state, control,
@@ -1486,12 +1485,9 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control,
       return resclause;
    }
 
-   if(state->watchlist)
-   {
-      check_watchlist(&(state->wlindices), state->watchlist,
+   check_watchlist(&(state->wlindices), state->watchlist,
                       pclause->clause, state->archive,
                       control->heuristic_parms.watchlist_is_static);
-   }
 
    /* Now on to backward simplification. */
    clausedate = ClauseSetListGetMaxDate(state->demods, FullRewrite);

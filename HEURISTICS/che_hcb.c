@@ -1,10 +1,10 @@
 /*-----------------------------------------------------------------------
 
-File  : che_hcb.c
+  File  : che_hcb.c
 
-Author: Stephan Schulz
+  Author: Stephan Schulz
 
-Contents
+  Contents
 
   Functions for the administration of HCBs.
 
@@ -14,12 +14,11 @@ Contents
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
+  Changes
 
-<1> Fri Oct 16 14:52:53 MET DST 1998
-    New
+  Created: Fri Oct 16 14:52:53 MET DST 1998
 
------------------------------------------------------------------------*/
+  -----------------------------------------------------------------------*/
 
 #include "che_hcb.h"
 
@@ -152,9 +151,8 @@ void HeuristicParmsInitialize(HeuristicParms_p handle)
    handle->sat_check_ttinsert_limit      = LONG_MAX;
    handle->sat_check_normconst           = false;
    handle->sat_check_normalize           = false;
-   handle->filter_limit                  = DEFAULT_FILTER_LIMIT;
-   handle->filter_copies_limit           = DEFAULT_FILTER_COPIES_LIMIT;
-   handle->reweight_limit                = DEFAULT_REWEIGHT_INTERVAL;
+   handle->filter_orphans_limit          = DEFAULT_FILTER_ORPHANS_LIMIT;
+   handle->forward_contract_limit        = DEFAULT_FORWARD_CONTRACT_LIMIT;
    handle->delete_bad_limit              = DEFAULT_DELETE_BAD_LIMIT;
    handle->mem_limit                     = 0;
    handle->watchlist_simplify            = true;
@@ -331,7 +329,6 @@ void HCBClauseEvaluate(HCB_p hcb, Clause_p clause)
    PERF_CTR_EXIT(ClauseEvalTimer);
 }
 
-
 /*-----------------------------------------------------------------------
 //
 // Function: HCBStandardClauseSelect()
@@ -350,10 +347,15 @@ Clause_p HCBStandardClauseSelect(HCB_p hcb, ClauseSet_p set)
    Clause_p clause;
 
    clause = ClauseSetFindBest(set, hcb->current_eval);
-
+   while(clause && ClauseIsOrphaned(clause))
+   {
+      ClauseSetExtractEntry(clause);
+      ClauseFree(clause);
+      clause = ClauseSetFindBest(set, hcb->current_eval);
+   }
    hcb->select_count++;
    while(hcb->select_count ==
-    PDArrayElementInt(hcb->select_switch,hcb->current_eval))
+         PDArrayElementInt(hcb->select_switch,hcb->current_eval))
    {
       hcb->current_eval++;
    }
@@ -380,7 +382,16 @@ Clause_p HCBStandardClauseSelect(HCB_p hcb, ClauseSet_p set)
 
 Clause_p HCBSingleWeightClauseSelect(HCB_p hcb, ClauseSet_p set)
 {
-   return ClauseSetFindBest(set, 0);
+   Clause_p clause;
+
+   clause = ClauseSetFindBest(set, hcb->current_eval);
+   while(clause && ClauseIsOrphaned(clause))
+   {
+      ClauseSetExtractEntry(clause);
+      ClauseFree(clause);
+      clause = ClauseSetFindBest(set, hcb->current_eval);
+   }
+   return clause;
 }
 
 
@@ -411,35 +422,35 @@ long HCBClauseSetDelProp(HCB_p hcb, ClauseSet_p set, long number,
    for(i=0; i< hcb->wfcb_no; i++)
    {
       stacks[i]=
-    EvalTreeTraverseInit(PDArrayElementP(set->eval_indices, i),i);
+         EvalTreeTraverseInit(PDArrayElementP(set->eval_indices, i),i);
    }
    while(number)
    {
       for(i=0; i < hcb->wfcb_no; i++)
       {
-    for(j=0; j < PDArrayElementInt(hcb->select_switch, j); j++)
-    {
-       while((clause =
-        get_next_clause(stacks,i)))
-       {
-          if(ClauseQueryProp(clause, prop))
-          {
-        ClauseDelProp(clause, prop);
-        prop_cleared++;
-        break;
-          }
-       }
-       number--; /* We did our best - this is an easy catch for
-          the stupid case number > set->members */
-       if(!number)
-       {
-          break;
-       }
-    }
-    if(!number)
-    {
-       break;
-    }
+         for(j=0; j < PDArrayElementInt(hcb->select_switch, j); j++)
+         {
+            while((clause =
+                   get_next_clause(stacks,i)))
+            {
+               if(ClauseQueryProp(clause, prop))
+               {
+                  ClauseDelProp(clause, prop);
+                  prop_cleared++;
+                  break;
+               }
+            }
+            number--; /* We did our best - this is an easy catch for
+                         the stupid case number > set->members */
+            if(!number)
+            {
+               break;
+            }
+         }
+         if(!number)
+         {
+            break;
+         }
       }
    }
    for(i=0; i< hcb->wfcb_no; i++)
@@ -465,7 +476,7 @@ long HCBClauseSetDelProp(HCB_p hcb, ClauseSet_p set, long number,
 /----------------------------------------------------------------------*/
 
 long HCBClauseSetDeleteBadClauses(HCB_p hcb, ClauseSet_p set, long
-              number)
+                                  number)
 {
    long res;
 

@@ -14,7 +14,9 @@ Contents
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
------------------------------------------------------------------------*/
+  Created: Sat Jun 4 20:30:20 2016
+
+  -----------------------------------------------------------------------*/
 
 #include <clb_memory.h>
 
