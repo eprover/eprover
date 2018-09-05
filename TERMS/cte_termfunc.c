@@ -2180,7 +2180,7 @@ bool TermHasBoundVar(Term_p t)
 
 Term_p TermCreatePrefix(Term_p orig, int arg_num)
 {
-   assert(orig && orig->arity >= arg_num && arg_num >= 0);
+   assert(orig && arg_num >= 0 && orig->arity >= arg_num);
    assert(!TermIsAppliedVar(orig) || orig->arity != arg_num);
    
    Term_p prefix;
