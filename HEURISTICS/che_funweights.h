@@ -69,7 +69,7 @@ typedef struct funweightparamcell
                               * where l is the effective level */
    void   (*init_fun)(struct funweightparamcell*);
 
-   double app_var_penalty;
+   double app_var_mult;
 
    /* Weight/Name association (if present).  */
    PStack_p weight_stack;
@@ -115,7 +115,7 @@ WFCB_p ConjectureSymbolWeightInit(ClausePrioFun prio_fun,
                                   long   conj_fweight,
                                   long   conj_cweight,
                                   long   conj_pweight,
-                                  double app_var_penalty,
+                                  double app_var_mult,
                                   void   (*init_fun)(struct funweightparamcell*));
 
 WFCB_p FunWeightInit(ClausePrioFun prio_fun,
@@ -126,7 +126,7 @@ WFCB_p FunWeightInit(ClausePrioFun prio_fun,
                      long vweight,
                      long fweight,
                      PStack_p fweights,
-                     double app_var_penalty);
+                     double app_var_mult);
 
 WFCB_p SymOffsetWeightInit(ClausePrioFun prio_fun,
                            OCB_p ocb,
@@ -136,7 +136,7 @@ WFCB_p SymOffsetWeightInit(ClausePrioFun prio_fun,
                            long vweight,
                            long fweight,
                            PStack_p fweights,
-                           double app_var_penalty);
+                           double app_var_mult);
 
 WFCB_p ConjectureSymbolWeightParse(Scanner_p in, OCB_p ocb, ProofState_p
                                    state);

@@ -60,7 +60,7 @@ WFCB_p ClauseRefinedWeightInit(ClausePrioFun prio_fun, int fweight,
                 int vweight, OCB_p ocb, double
                 max_term_multiplier, double
                 max_literal_multiplier, double
-                pos_multiplier, double app_var_penalty)
+                pos_multiplier, double app_var_mult)
 {
    RefinedWeightParam_p data = RefinedWeightParamCellAlloc();
 
@@ -70,7 +70,7 @@ WFCB_p ClauseRefinedWeightInit(ClausePrioFun prio_fun, int fweight,
    data->max_term_multiplier    = max_term_multiplier;
    data->max_literal_multiplier = max_literal_multiplier;
    data->ocb                    = ocb;
-   data->app_var_penalty        = app_var_penalty;
+   data->app_var_mult        = app_var_mult;
 
    return WFCBAlloc(ClauseRefinedWeightCompute, prio_fun,
           ClauseRefinedWeightExit, data);
@@ -95,7 +95,7 @@ WFCB_p ClauseRefinedWeightParse(Scanner_p in, OCB_p ocb, ProofState_p
    ClausePrioFun prio_fun;
    int fweight, vweight;
    double pos_multiplier, max_term_multiplier, max_literal_multiplier,
-          app_var_penalty = APP_VAR_PENALTY_DEFAULT;
+          app_var_mult = APP_VAR_MULT_DEFAULT;
 
    AcceptInpTok(in, OpenBracket);
    prio_fun = ParsePrioFun(in);
@@ -110,7 +110,7 @@ WFCB_p ClauseRefinedWeightParse(Scanner_p in, OCB_p ocb, ProofState_p
    AcceptInpTok(in, Comma);
    pos_multiplier = ParseFloat(in);
    
-   PARSE_OPTIONAL_AV_PENALTY(in, app_var_penalty);
+   PARSE_OPTIONAL_AV_PENALTY(in, app_var_mult);
    
    AcceptInpTok(in, CloseBracket);
 
@@ -118,7 +118,7 @@ WFCB_p ClauseRefinedWeightParse(Scanner_p in, OCB_p ocb, ProofState_p
               max_term_multiplier,
               max_literal_multiplier,
               pos_multiplier,
-              app_var_penalty);
+              app_var_mult);
 }
 
 /*-----------------------------------------------------------------------
@@ -145,7 +145,7 @@ double ClauseRefinedWeightCompute(void* data, Clause_p clause)
              local->pos_multiplier,
              local->vweight,
              local->fweight,
-             local->app_var_penalty,
+             local->app_var_mult,
              false);
    return res;
 }
@@ -197,7 +197,7 @@ double ClauseRefinedWeight2Compute(void* data, Clause_p clause)
              local->pos_multiplier,
              local->vweight,
              local->fweight,
-             local->app_var_penalty,
+             local->app_var_mult,
              true);
 }
 

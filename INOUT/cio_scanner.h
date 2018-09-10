@@ -238,7 +238,7 @@ if(TestInpTok((in), Comma)) \
 #define PARSE_OPTIONAL_AV_PENALTY(in, var_name) /* relax */
 #endif
 
-#define APP_VAR_PENALTY_DEFAULT 1
+#define APP_VAR_MULT_DEFAULT 1
 
 #endif
 

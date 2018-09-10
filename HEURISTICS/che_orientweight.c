@@ -23,7 +23,7 @@ Changes
 
 #include "che_orientweight.h"
 
-#define APP_VAR_PENALTY_DEFAULT 1
+#define APP_VAR_MULT_DEFAULT 1
 
 #ifdef ENABLE_LFHO
 #define PARSE_OPTIONAL_AV_PENALTY(in, var_name) \
@@ -74,7 +74,7 @@ WFCB_p ClauseOrientWeightInit(ClausePrioFun prio_fun, int fweight,
                 int vweight, OCB_p ocb, double
                 unorientable_literal_multiplier, double
                 max_literal_multiplier, double
-                pos_multiplier, double app_var_penalty)
+                pos_multiplier, double app_var_mult)
 {
    OrientWeightParam_p data = OrientWeightParamCellAlloc();
 
@@ -84,7 +84,7 @@ WFCB_p ClauseOrientWeightInit(ClausePrioFun prio_fun, int fweight,
    data->unorientable_literal_multiplier = unorientable_literal_multiplier;
    data->max_literal_multiplier = max_literal_multiplier;
    data->ocb                    = ocb;
-   data->app_var_penalty        = app_var_penalty;
+   data->app_var_mult        = app_var_mult;
 
    return WFCBAlloc(ClauseOrientWeightCompute, prio_fun,
           ClauseOrientWeightExit, data);
@@ -110,7 +110,7 @@ WFCB_p ClauseOrientWeightParse(Scanner_p in, OCB_p ocb, ProofState_p
    int fweight, vweight;
    double pos_multiplier, max_literal_multiplier,
       unorientable_literal_multiplier,
-      app_var_penalty = APP_VAR_PENALTY_DEFAULT;
+      app_var_mult = APP_VAR_MULT_DEFAULT;
 
    AcceptInpTok(in, OpenBracket);
    prio_fun = ParsePrioFun(in);
@@ -125,14 +125,14 @@ WFCB_p ClauseOrientWeightParse(Scanner_p in, OCB_p ocb, ProofState_p
    AcceptInpTok(in, Comma);
    pos_multiplier = ParseFloat(in);
    
-   PARSE_OPTIONAL_AV_PENALTY(in, app_var_penalty);
+   PARSE_OPTIONAL_AV_PENALTY(in, app_var_mult);
    
    AcceptInpTok(in, CloseBracket);
 
    return ClauseOrientWeightInit(prio_fun, fweight, vweight, ocb,
              unorientable_literal_multiplier,
              max_literal_multiplier,
-             pos_multiplier, app_var_penalty);
+             pos_multiplier, app_var_mult);
 }
 
 /*-----------------------------------------------------------------------
@@ -158,7 +158,7 @@ double ClauseOrientWeightCompute(void* data, Clause_p clause)
               local->pos_multiplier,
               local->vweight,
               local->fweight,
-              local->app_var_penalty,
+              local->app_var_mult,
               false);
 }
 
@@ -179,7 +179,7 @@ WFCB_p OrientLMaxWeightInit(ClausePrioFun prio_fun, int fweight,
                 int vweight, OCB_p ocb, double
                 unorientable_literal_multiplier, double
                 max_literal_multiplier, double
-                pos_multiplier, double app_var_penalty)
+                pos_multiplier, double app_var_mult)
 {
    OrientWeightParam_p data = OrientWeightParamCellAlloc();
 
@@ -189,7 +189,7 @@ WFCB_p OrientLMaxWeightInit(ClausePrioFun prio_fun, int fweight,
    data->unorientable_literal_multiplier = unorientable_literal_multiplier;
    data->max_literal_multiplier = max_literal_multiplier;
    data->ocb                    = ocb;
-   data->app_var_penalty        = app_var_penalty;
+   data->app_var_mult        = app_var_mult;
 
    return WFCBAlloc(OrientLMaxWeightCompute, prio_fun,
           ClauseOrientWeightExit, data);
@@ -215,7 +215,7 @@ WFCB_p OrientLMaxWeightParse(Scanner_p in, OCB_p ocb, ProofState_p
    int fweight, vweight;
    double pos_multiplier, max_literal_multiplier,
       unorientable_literal_multiplier,
-      app_var_penalty = APP_VAR_PENALTY_DEFAULT;
+      app_var_mult = APP_VAR_MULT_DEFAULT;
 
    AcceptInpTok(in, OpenBracket);
    prio_fun = ParsePrioFun(in);
@@ -230,14 +230,14 @@ WFCB_p OrientLMaxWeightParse(Scanner_p in, OCB_p ocb, ProofState_p
    AcceptInpTok(in, Comma);
    pos_multiplier = ParseFloat(in);
    
-   PARSE_OPTIONAL_AV_PENALTY(in, app_var_penalty);
+   PARSE_OPTIONAL_AV_PENALTY(in, app_var_mult);
    
    AcceptInpTok(in, CloseBracket);
 
    return OrientLMaxWeightInit(prio_fun, fweight, vweight, ocb,
                 unorientable_literal_multiplier,
                 max_literal_multiplier,
-                pos_multiplier, app_var_penalty);
+                pos_multiplier, app_var_mult);
 }
 
 /*-----------------------------------------------------------------------
@@ -261,7 +261,7 @@ double OrientLMaxWeightCompute(void* data, Clause_p clause)
    ClauseCondMarkMaximalTerms(local->ocb, clause);
    for(handle = clause->literals; handle; handle = handle->next)
    {
-      tmp = EqnMaxWeight(handle, local->vweight, local->fweight, local->app_var_penalty);
+      tmp = EqnMaxWeight(handle, local->vweight, local->fweight, local->app_var_mult);
       if(EqnIsPositive(handle))
       {
     tmp = tmp*local->pos_multiplier;
