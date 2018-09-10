@@ -288,7 +288,7 @@ bool          LiteralGreater(OCB_p ocb, Eqn_p eq1, Eqn_p eq2);
 PStackPointer SubstNormEqn(Eqn_p eq, Subst_p subst, VarBank_p vars);
 
 double  EqnWeight(Eqn_p eq, double max_multiplier, long vweight, long
-                  fweight, double app_var_penalty);
+                  fweight, double app_var_mult);
 #define EqnStandardWeight(eqn)             \
    (TermStandardWeight((eqn)->lterm)+      \
     TermStandardWeight((eqn)->rterm))
@@ -301,17 +301,17 @@ double  EqnWeight(Eqn_p eq, double max_multiplier, long vweight, long
 
 double EqnFunWeight(Eqn_p eq, double max_multiplier, long vweight,
                     long flimit, long *fweights, long default_fweight,
-                    double app_var_penalty, long* typefreqs);
+                    double app_var_mult, long* typefreqs);
 
 double  EqnNonLinearWeight(Eqn_p eq, double max_multiplier, long
                            vlweight, long vweight, long fweight, 
-                           double app_var_penalty);
+                           double app_var_mult);
 double  EqnSymTypeWeight(Eqn_p eq, double max_multiplier, long
                          vweight, long fweight, long cweight, long
-                         pweight, double app_var_penalty);
+                         pweight, double app_var_mult);
 
 double  EqnMaxWeight(Eqn_p eq, long vweight, long fweight,
-                     double app_var_penalty);
+                     double app_var_mult);
 
 #define EqnStandardDiff(eqn)                    \
    (MAX(TermStandardWeight((eqn)->lterm),       \
@@ -325,7 +325,7 @@ long EqnInferencePositions(Eqn_p eqn);
 double  LiteralWeight(Eqn_p eq, double max_term_multiplier, double
                       max_literal_multiplier, double
                       pos_multiplier, long vweight, long fweight, 
-                      double app_var_penalty, bool
+                      double app_var_mult, bool
                       count_eq_encoding);
 
 double  LiteralFunWeight(Eqn_p eq,
@@ -336,7 +336,7 @@ double  LiteralFunWeight(Eqn_p eq,
                          long flimit,
                          long *fweights,
                          long default_fweight,
-                         double app_var_penalty,
+                         double app_var_mult,
                          long* typefreqs);
 
 
@@ -344,13 +344,13 @@ double  LiteralFunWeight(Eqn_p eq,
 double LiteralNonLinearWeight(Eqn_p eq, double max_term_multiplier,
                               double max_literal_multiplier, double
                               pos_multiplier, long vlweight, long
-                              vweight, long fweight,double app_var_penalty,bool
+                              vweight, long fweight,double app_var_mult,bool
                               count_eq_encoding);
 double LiteralSymTypeWeight(Eqn_p eq, double max_term_multiplier,
                             double max_literal_multiplier, double
                             pos_multiplier, long vweight, long
                             fweight, long cweight, long pweight,
-                            double app_var_penalty);
+                            double app_var_mult);
 
 #define EqnCountMaximalLiterals(eqn) (EqnIsOriented(eqn)?1:2)
 
@@ -407,7 +407,7 @@ long    EqnCollectSubterms(Eqn_p eqn, PStack_p collector);
 void EqnAppEncode(FILE* out, Eqn_p eq, bool negated);
 bool EqnHasAppVar(Eqn_p eq);
 
-#define EQN_APPLY_APP_VAR_PENALTY(w, eq, p) (w) * (TermIsAppliedVar((eq)->lterm) ? (p) : 1) \
+#define EQN_APPLY_APP_VAR_MULT(w, eq, p) (w) * (TermIsAppliedVar((eq)->lterm) ? (p) : 1) \
                                                 * (TermIsAppliedVar((eq)->rterm) ? (p) : 1); 
 
 /*---------------------------------------------------------------------*/

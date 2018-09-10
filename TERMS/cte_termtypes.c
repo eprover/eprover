@@ -816,6 +816,7 @@ __inline__ Term_p MakeRewrittenTerm(Term_p orig, Term_p new, int remaining_orig)
 {  
    if(remaining_orig)
    {
+      assert(problem_type == PROBLEM_HO);
       Term_p new_term;
       if(TermIsVar(new))
       {
