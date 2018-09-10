@@ -39,7 +39,7 @@ typedef struct simparamcell
    double var_var_clash;
    double var_term_clash;
    double term_term_clash;
-   double app_var_penalty;
+   double app_var_mult;
 }SimParamCell, *SimParam_p;
 
 
@@ -55,7 +55,7 @@ typedef struct simparamcell
 
 WFCB_p SimWeightInit(ClausePrioFun prio_fun, double equal_weight,
            double var_var_clash, double var_term_clash,
-           double term_term_clash, double app_var_penalty);
+           double term_term_clash, double app_var_mult);
 
 WFCB_p SimWeightParse(Scanner_p in, OCB_p ocb, ProofState_p state);
 

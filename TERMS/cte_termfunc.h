@@ -151,7 +151,7 @@ Term_p TermAppEncode(Term_p orig, Sig_p sig);
 
 bool   TermHasBoundVar(Term_p t);
 
-#define TERM_APPLY_APP_VAR_PENALTY(w, t, p) (TermIsAppliedVar(t) ? (w)*(p) : (w))
+#define TERM_APPLY_APP_VAR_MULT(w, t, p) (TermIsAppliedVar(t) ? (w)*(p) : (w))
 
 /*-----------------------------------------------------------------------
 //

@@ -341,27 +341,27 @@ void     ClauseRemoveEvaluations(Clause_p clause);
 double   ClauseWeight(Clause_p clause, double max_term_multiplier,
                       double max_literal_multiplier, double
                       pos_multiplier, long vweight, long fweight,
-                      double app_var_penalty, bool count_eq_encoding);
+                      double app_var_mult, bool count_eq_encoding);
 
 double ClauseFunWeight(Clause_p clause, double max_term_multiplier,
                        double max_literal_multiplier, double
                        pos_multiplier, long vweight, long flimit,
                        long *fweights, long default_fweight,
-                       double app_var_penalty, long* typefreqs);
+                       double app_var_mult, long* typefreqs);
 
 double ClauseNonLinearWeight(Clause_p clause, double
                              max_term_multiplier, double
                              max_literal_multiplier, double
                              pos_multiplier, long vlweight, long
                              vweight, long fweight,
-                             double app_var_penalty, bool
+                             double app_var_mult, bool
                              count_eq_encoding);
 double ClauseSymTypeWeight(Clause_p clause, double
                            max_term_multiplier, double
                            max_literal_multiplier, double
                            pos_multiplier, long vweight, long
                            fweight, long cweight, long pweight,
-                           double app_var_penalty);
+                           double app_var_mult);
 
 
 double   ClauseStandardWeight(Clause_p clause);
@@ -370,7 +370,7 @@ double   ClauseOrientWeight(Clause_p clause, double
                             unorientable_literal_multiplier,
                             double max_literal_multiplier, double
                             pos_multiplier, long vweight, long
-                            fweight, double app_var_penalty, bool count_eq_encoding);
+                            fweight, double app_var_mult, bool count_eq_encoding);
 
 #define  ClauseDepth(clause) EqnListDepth((clause)->literals)
 

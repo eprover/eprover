@@ -94,8 +94,6 @@ int sat_translate_literal(Eqn_p eqn, SatClauseSet_p set)
    else
    {
       lit_term = TBInsertInstantiated(eqn->bank, eqn->lterm);
-      lterm = lit_term;
-      rterm = eqn->bank->true_term;
    }
    lit_code = lit_term->entry_no;
 

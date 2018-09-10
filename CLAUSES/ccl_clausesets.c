@@ -54,6 +54,7 @@ static void print_var_pattern(FILE* out, char* symbol, int arity, char*
 {
    int i;
    char* prefix = "";
+   alt_var = !alt_var ? "" : alt_var; // silence compiler warning
 
    fprintf(out, "%s(", symbol);
 
