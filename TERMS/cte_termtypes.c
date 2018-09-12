@@ -318,7 +318,7 @@ Term_p TermAllocNewSkolem(Sig_p sig, PStack_p variables, Type_p ret_type)
 
    type = TypeBankInsertTypeShared(sig->type_bank, type);
 
-   if(!TypeIsBool(type))
+   if(!TypeIsPredicate(type))
    {
       handle->f_code = SigGetNewSkolemCode(sig, PStackGetSP(variables));
    }
@@ -327,7 +327,7 @@ Term_p TermAllocNewSkolem(Sig_p sig, PStack_p variables, Type_p ret_type)
       handle->f_code = SigGetNewPredicateCode(sig, PStackGetSP(variables));
    }
 
-   SigDeclareFinalType(sig, handle->f_code, type);
+   SigDeclareType(sig, handle->f_code, type);
    handle->type = ret_type;
 
    return handle;
