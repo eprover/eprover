@@ -237,12 +237,12 @@ void SetProblemType(ProblemType t)
 {
   if(problemType == PROBLEM_NOT_INIT || problemType == t)
   {
-     problemType = t;
+      problemType = t;
   }
   else
   {
-     Error("Mixing of first order and higer order syntax is not allowed.", 
-           SYNTAX_ERROR);
+      Error("Mixing of first order and higher order syntax is not allowed.", 
+            SYNTAX_ERROR);
   }
 }
 /*---------------------------------------------------------------------*/
