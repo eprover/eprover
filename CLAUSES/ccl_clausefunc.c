@@ -1,23 +1,22 @@
 /*-----------------------------------------------------------------------
 
-File  : ccl_clausefunc.c
+  File  : ccl_clausefunc.c
 
-Author: Stephan Schulz
+  Author: Stephan Schulz
 
-Contents
+  Contents
 
   Clause functions that need to know about sets.
 
-  Copyright 1998, 1999 by the author.
+  Copyright 1998-2018 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
+  Changes
 
-<1> Tue Aug  7 00:02:44 CEST 2001
-    New, partitioned ccl_clausesets.h
+  Created: New, partitioned ccl_clausesets.h
 
   -----------------------------------------------------------------------*/
 
