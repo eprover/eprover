@@ -2,6 +2,7 @@
    "files.associations": {
       "type_traits": "c",
       "cmath": "c",
-      "ccl_unit_simplify.h": "c"
+      "ccl_unit_simplify.h": "c",
+      "array": "cpp"
    }
 }
