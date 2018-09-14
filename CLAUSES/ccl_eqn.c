@@ -22,8 +22,6 @@
 #include "ccl_eqn.h"
 #include "cte_typecheck.h"
 
-#undef PRINT_SELECTION
-
 #define PRINT_HO_PAREN(out, ch) ((problemType == PROBLEM_HO) ? \
                                     (fputc((ch), (out))) : 0)
 
@@ -719,7 +717,8 @@ Eqn_p EqnFOFParse(Scanner_p in, TB_p bank)
 //
 //   Parse a literal in THF format. Because of many peculiarities with 
 //   parentheses in THF, we might have to continue on parsing the formula
-//   from the point where the function has been called.  
+//   from the point where the function has been called and then read
+//   the closing bracket :(  
 //
 // Global Variables: -
 //
@@ -2359,7 +2358,7 @@ PStackPointer SubstNormEqn(Eqn_p eq, Subst_p subst, VarBank_p vars)
 //
 //   Compute the weight of an equation. Weights of potentially maximal
 //   sides are multiplied by max_multiplier.
-//   Applied variable terms are multiplied with app_var_mult.
+//   Weight of applied variables is multiplied with app_var_mult.
 //
 // Global Variables: -
 //
@@ -2395,7 +2394,7 @@ double EqnWeight(Eqn_p eq, double max_multiplier, long vweight, long
 //
 //   As EqnWeight(), but use weighted FSum instead of plain term
 //   weight.
-//   Applied variable terms are multiplied with app_var_mult.
+//   Weight of applied variables is multiplied with app_var_mult.
 //
 // Global Variables:
 //
@@ -2432,7 +2431,7 @@ double EqnFunWeight(Eqn_p eq, double max_multiplier, long vweight,
 //
 //   Compute the non-linear weight of an equation. Weights of
 //   potentially maximal sides are multiplied by max_multiplier.
-//   Applied variable terms are multiplied with app_var_mult.
+//   Weight of applied variables is multiplied with app_var_mult.
 //
 // Global Variables: -
 //
@@ -2470,7 +2469,7 @@ double EqnNonLinearWeight(Eqn_p eq, double max_multiplier, long
 // Function: EqnSymTypeWeight()
 //
 //   Compute the symbol type weight of an equation.
-//   Applied variable terms are multiplied with app_var_mult.
+//   Weight of applied variables is multiplied with app_var_mult.
 //
 // Global Variables: -
 //
@@ -2507,7 +2506,7 @@ double  EqnSymTypeWeight(Eqn_p eq, double max_multiplier, long
 // Function: EqnMaxWeight()
 //
 //   Compute the maximum of the weighs of the terms of an equation. 
-//   Applied variable terms are multiplied with app_var_mult.
+//   Weight of applied variables is multiplied with app_var_mult.
 //
 // Global Variables: -
 //
@@ -2576,8 +2575,8 @@ double EqnCorrectedWeight(Eqn_p eq, double max_multiplier, long
 //
 //   Compute the weight of an equation. Weights of potentially maximal
 //   sides are multiplied by max_multiplier. The equal-Predicate is
-//   counted with weight fweight, $true is not counted. Applied variable
-//   terms are multiplied with app_var_mult.
+//   counted with weight fweight, $true is not counted. Applied variable's
+//   weight is multiplied with app_var_mult.
 //
 // Global Variables: -
 //
@@ -2675,9 +2674,9 @@ long EqnInferencePositions(Eqn_p eqn)
 //   sides, max_literal_multiplier to maxinal literals, pos_multiplier
 //   is applied to positive literals. If count_eq_encoding is true,
 //   count $true and ignore the equal-predicate, otherwise ignore
-//   $true and count the equal-predicate for equations only. New to
-//   E/HO is possibility of applying penalty for applied variables
-//   by giving different app_var_mult arguments.
+//   $true and count the equal-predicate for equations only. 
+//   Applied variable's weights are multiplied by app_var_mult.
+//
 //
 // Global Variables: -
 //
@@ -2716,7 +2715,7 @@ double  LiteralWeight(Eqn_p eq, double max_term_multiplier, double
 //
 //   As LiteralWeight(), but use individual functgion symbol
 //   weights. The eq encoding is always counted.
-//   Applied variable terms are multiplied with app_var_mult.
+//   Weight of applied variables is multiplied with app_var_mult.
 //
 // Global Variables: -
 //
@@ -2763,7 +2762,7 @@ double  LiteralFunWeight(Eqn_p eq,
 //   is applied to positive literals. If count_eq_encoding is true,
 //   count $true and ignore the equal-predicate, otherwise ignore
 //   $true and count the equal-predicate for equations only.
-//   Applied variable terms are multiplied with app_var_mult.
+//   Weight of applied variables is multiplied with app_var_mult.
 //
 // Global Variables: -
 //
@@ -2807,7 +2806,7 @@ double  LiteralNonLinearWeight(Eqn_p eq, double max_term_multiplier,
 //   sides, max_literal_multiplier to maxinal literals, pos_multiplier
 //   is applied to positive literals. Different weights are used for
 //   predicate symbols, constants, function symbols and variables.
-//   Applied variable terms are multiplied with app_var_mult.
+//   Weight of applied variables is multiplied with app_var_mult.
 //
 // Global Variables: -
 //

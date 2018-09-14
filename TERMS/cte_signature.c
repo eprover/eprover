@@ -1331,10 +1331,10 @@ void SigDeclareType(Sig_p sig, FunCode f, Type_p type)
       {
          if(SigIsFixedType(sig, f))
          {
-            if(Verbose >=3)
+            if(Verbose>=3)
             {
                fprintf(stderr, "# Type conflict for %s between ",
-                     SigFindName(sig, f));
+                       SigFindName(sig, f));
                TypePrintTSTP(stderr, sig->type_bank, fun->type);
                fprintf(stderr, " and ");
                TypePrintTSTP(stderr, sig->type_bank, type);

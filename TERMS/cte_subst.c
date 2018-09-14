@@ -256,7 +256,7 @@ long SubstPrint(FILE* out, Subst_p subst, Sig_p sig, DerefType deref)
 //   instantiated to different variables. Checks only for one level of
 //   instantiaton.
 //
-]// Global Variables: -
+// Global Variables: -
 //
 // Side Effects    : Changes the TPOpFlag of terms
 //
@@ -434,49 +434,16 @@ PStackPointer SubstBindAppVar(Subst_p subst, Term_p var, Term_p to_bind, int up_
    assert(to_bind->type);
 
    Term_p to_bind_pref = TermCreatePrefix(to_bind, up_to);
-
    to_bind_pref->type = var->type;
 
-   var->binding = TermIsShared(to_bind_pref) ? to_bind_pref : TBTermTopInsert(bank, to_bind_pref);
+   // if term is not shared it is prefix
+   var->binding = TermIsShared(to_bind_pref) ? 
+                     to_bind_pref : TBTermTopInsert(bank, to_bind_pref);
    PStackPushP(subst, var);    
 
    return ret;
 }
 
-/*-----------------------------------------------------------------------
-//
-// Function: SubstIsTrivial()
-//
-//   Return true if the substitution is empty or maps variable to itself.
-//
-]// Global Variables: -
-//
-// Side Effects    : Changes the TPOpFlag of terms
-//
-/----------------------------------------------------------------------*/
-
-bool SubstIsTrivial(Subst_p subst)
-{
-   long size = PStackGetSP(subst);
-
-   for(long i=0; i< size; i++)
-   {
-      Term_p var = PStackElementP(subst,i);
-      assert(TermIsVar(var));
-      assert(var->binding);
-      if(var != var->binding)
-      {
-         return false;
-      }
-   }   
-
-   return true;
-}
-
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
-
-

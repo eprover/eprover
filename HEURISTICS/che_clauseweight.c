@@ -117,7 +117,7 @@ WFCB_p ClauseWeightInit(ClausePrioFun prio_fun, int fweight, int
    data->fweight                = fweight;
    data->vweight                = vweight;
    data->pos_multiplier         = pos_multiplier;
-   data->app_var_mult        = app_var_mult;
+   data->app_var_mult           = app_var_mult;
 
    return WFCBAlloc(ClauseWeightCompute, prio_fun,
           ClauseWeightExit, data);
@@ -205,7 +205,7 @@ WFCB_p LMaxWeightInit(ClausePrioFun prio_fun, int fweight, int
    data->fweight                = fweight;
    data->vweight                = vweight;
    data->pos_multiplier         = pos_multiplier;
-   data->app_var_mult        = app_var_mult;
+   data->app_var_mult           = app_var_mult;
 
    return WFCBAlloc(LMaxWeightCompute, prio_fun,
           ClauseWeightExit, data);
@@ -300,7 +300,7 @@ WFCB_p CMaxWeightInit(ClausePrioFun prio_fun, int fweight, int
    data->fweight                = fweight;
    data->vweight                = vweight;
    data->pos_multiplier         = pos_multiplier;
-   data->app_var_mult        = app_var_mult;
+   data->app_var_mult           = app_var_mult;
 
    return WFCBAlloc(CMaxWeightCompute, prio_fun,
           ClauseWeightExit, data);

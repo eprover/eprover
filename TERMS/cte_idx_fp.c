@@ -185,7 +185,7 @@ FunCode TermFPSampleHO(Term_p term, va_list ap)
    int pos = va_arg(ap, int);
    FunCode res;
 
-   int arg_expansion_num = TypeGetArgNum(term->type);
+   int arg_expansion_num = TypeGetMaxArity(term->type);
 
    if(pos != -1 && pos < arg_expansion_num)
    {

@@ -1477,11 +1477,11 @@ void TOGenerateWeights(OCB_p ocb, ClauseSet_p axioms, char *pre_weights,
    {
       if(SigFindArity(ocb->sig, i)==0)
       {
-        if(const_weight != WConstNoSpecialWeight)
-        {
-           *OCBFunWeightPos(ocb, i) = const_weight;
-        }
-        assert(OCBFunWeight(ocb,i)>0);
+         if(const_weight != WConstNoSpecialWeight)
+         {
+            *OCBFunWeightPos(ocb, i) = const_weight;
+         }
+         assert(OCBFunWeight(ocb,i)>0);
       }
    }
    *OCBFunWeightPos(ocb, SIG_TRUE_CODE) = ocb->var_weight;

@@ -1032,7 +1032,7 @@ Term_p ClausePosNextParamodPair(ClausePos_p from_pos, ClausePos_p
 //
 /----------------------------------------------------------------------*/
 
-bool CheckHOUnificationConstraints(UnificationResult res, WhichTerm exp_side, Term_p from, Term_p to)
+bool CheckHOUnificationConstraints(UnificationResult res, UnifTermSide exp_side, Term_p from, Term_p to)
 {
    return
       // if we have some args remaining, we have them on the right side 

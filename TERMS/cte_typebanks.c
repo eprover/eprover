@@ -136,7 +136,7 @@ static __inline__ void type_arg_realloc(Type_p** args, int current, int new)
 
 /*-----------------------------------------------------------------------
 //
-// Function: handle_args()
+// Function: force_arg_sharing()
 //
 //   Make sure that arguments are shared. 
 //
@@ -146,7 +146,7 @@ static __inline__ void type_arg_realloc(Type_p** args, int current, int new)
 //
 /----------------------------------------------------------------------*/
 
-void __inline__ handle_args(TypeBank_p bank, Type_p t)
+void __inline__ force_arg_sharing(TypeBank_p bank, Type_p t)
 {
    assert(bank);
    assert(t);
@@ -371,7 +371,7 @@ Type_p TypeBankInsertTypeShared(TypeBank_p bank, Type_p t)
    assert(t);
    Type_p res;
 
-   handle_args(bank, t);
+   force_arg_sharing(bank, t);
    if(t->type_uid == INVALID_TYPE_UID)
    {
       res = (Type_p) PTreeObjStore(&(bank->hash_table[hash_type(t)]), t, cmp_types);
@@ -382,9 +382,9 @@ Type_p TypeBankInsertTypeShared(TypeBank_p bank, Type_p t)
          res->type_uid = ++bank->types_count;
          if (Verbose > 1)
          {
-            fprintf(stderr, "# Had to insert type ");
+            fprintf(stderr, "# Type ");
             TypePrintTSTP(stderr, bank, t);
-            fprintf(stderr, ".\n");
+            fprintf(stderr, " is inserted.\n");
          }
       }
       else

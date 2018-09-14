@@ -2426,38 +2426,6 @@ bool ClauseSetIsUntyped(ClauseSet_p set)
 }
 
 
-#ifndef NDEBUG
-/*-----------------------------------------------------------------------
-//
-// Function: ClauseSetIsUntyped
-//
-//   Returns true iff all clauses in the clause set do not have 
-//   bound variables.
-//
-// Global Variables: -
-//
-// Side Effects    : Memory operations
-//
-/----------------------------------------------------------------------*/
-
-bool ClauseSetAllClausesNotBound(ClauseSet_p set)
-{
-   Clause_p handle;
-
-   for(handle = set->anchor->succ; handle!=set->anchor; handle = handle->succ)
-   {
-      for(Eqn_p lit = handle->literals; lit; lit = lit->next)
-      {
-         if(TermHasBoundVar(lit->lterm) || TermHasBoundVar(lit->rterm))
-         {
-            return false;
-         }
-      }
-   }
-   return true;
-}
-#endif
-
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/

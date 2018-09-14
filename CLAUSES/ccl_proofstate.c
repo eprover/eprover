@@ -712,14 +712,14 @@ void ProofStateStatisticsPrint(FILE* out, ProofState_p state)
 
 void ProofStatePrint(FILE* out, ProofState_p state)
 {
-   fprintf(out, "\n%%-- Processed positive unit clauses:\n");
+   fprintf(out, "\n# Processed positive unit clauses:\n");
    ClauseSetPrint(out, state->processed_pos_rules, true);
    ClauseSetPrint(out, state->processed_pos_eqns, true);
-   fprintf(out, "\n%%-- Processed negative unit clauses:\n");
+   fprintf(out, "\n# Processed negative unit clauses:\n");
    ClauseSetPrint(out, state->processed_neg_units, true);
-   fprintf(out, "\n%%-- Processed non-unit clauses:\n");
+   fprintf(out, "\n# Processed non-unit clauses:\n");
    ClauseSetPrint(out, state->processed_non_units, true);
-   fprintf(out, "\n%%-- Unprocessed clauses:\n");
+   fprintf(out, "\n# Unprocessed clauses:\n");
    ClauseSetPrint(out, state->unprocessed, true);
 }
 

@@ -43,7 +43,7 @@ TB_p bank;
 //
 // Function: register_new_cache()
 //
-//   Stores the new binding cache, bound_to pair for applied variable.
+//   Stores the new (binding cache, bound to) pair for applied variable.
 //
 // Global Variables: -
 //
@@ -60,10 +60,6 @@ static __inline__ void register_new_cache(Term_p app_var, Term_p bound_to)
    app_var->binding_cache = bound_to;
 
    TermCellSetProp(app_var->binding_cache, TPIsDerefedAppVar);
-   if(!TermIsShared(app_var))
-   {
-      TermCellSetProp(app_var->binding_cache, TPFromNonShared);
-   }
 }
 
 
@@ -98,7 +94,8 @@ Term_p insert_deref(Term_p deref_cache)
 //
 // Function: applied_var_deref()
 //
-//   Expands applied variable to a proper term.
+//   Expands applied variable to a proper term. For example, if X is bound
+//   to f a, term X b would get expanded to f a b.
 //
 // Global Variables: -
 //
@@ -121,7 +118,7 @@ __inline__ Term_p applied_var_deref(Term_p orig)
    }
    else
    {
-      ClearStaleCache(orig);
+      clear_stale_cache(orig);
 
       if(orig->args[0]->binding)
       {
@@ -170,14 +167,9 @@ __inline__ Term_p applied_var_deref(Term_p orig)
 }
 
 
-/*---------------------------------------------------------------------*/
-/*                         Exported Functions                          */
-/*---------------------------------------------------------------------*/
-
-
 /*-----------------------------------------------------------------------
 //
-// Function: ClearStaleCache()
+// Function: clear_stale_cache()
 //
 //   Clears the cache if it is not up to date. Assumes that cache
 //   is stale (see BINDING_FRESH).
@@ -188,7 +180,7 @@ __inline__ Term_p applied_var_deref(Term_p orig)
 //
 /----------------------------------------------------------------------*/
 
-void ClearStaleCache(Term_p app_var)
+void clear_stale_cache(Term_p app_var)
 {
    assert(TermIsAppliedVar(app_var));
    assert(!BINDING_FRESH(app_var));
@@ -196,6 +188,10 @@ void ClearStaleCache(Term_p app_var)
    app_var->binding_cache = NULL;
    app_var->binding = NULL;
 }
+
+/*---------------------------------------------------------------------*/
+/*                         Exported Functions                          */
+/*---------------------------------------------------------------------*/
 
 
 /*-----------------------------------------------------------------------
@@ -757,7 +753,7 @@ void TermStackDelProps(PStack_p stack, TermProperties prop)
 //
 // Function: TermIsPrefix()
 //
-//   Checks if needle is a prefix of haystack.
+//   Checks if candidate is a prefix of term.
 //
 // Global Variables: -
 //
@@ -765,33 +761,32 @@ void TermStackDelProps(PStack_p stack, TermProperties prop)
 //
 /----------------------------------------------------------------------*/
 
-bool TermIsPrefix(Term_p needle, Term_p haystack)
+bool TermIsPrefix(Term_p cand, Term_p term)
 {
    assert(problemType == PROBLEM_HO);
    bool res = false;
    int  i;
-   if(needle)
+   if(cand)
    {
-      /* needle can be null if it was binding field of non-bound var,
-         which is common use case for this function 
-       */
+      /* cand can be null if it was binding field of non-bound var,
+         which is common use case for this function  */
 
-      if(TermIsVar(needle))
+      if(TermIsVar(cand))
       {
-         return TermIsVar(haystack) ? needle == haystack : 
-                  (TermIsAppliedVar(haystack) ? needle == haystack->args[0] : false);
+         return TermIsVar(term) ? cand == term : 
+                  (TermIsAppliedVar(term) ? cand == term->args[0] : false);
       }
 
-      if(needle->arity <= haystack->arity && needle->f_code == haystack->f_code) 
+      if(cand->arity <= term->arity && cand->f_code == term->f_code) 
       {
-         for(i=0; i<needle->arity; i++)
+         for(i=0; i<cand->arity; i++)
          {
-            if(needle->args[i] != haystack->args[i])
+            if(cand->args[i] != term->args[i])
             {
                break;
             }
          }
-         res = i == needle->arity;
+         res = i == cand->arity;
       }
    }
    return res;

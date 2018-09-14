@@ -392,11 +392,11 @@ void ClauseSetReweight(HCB_p heuristic, ClauseSet_p set)
 /----------------------------------------------------------------------*/
 
 Clause_p ForwardContractSetReweight(ProofState_p state, ProofControl_p
-                control, ClauseSet_p set, bool
-                non_unit_subsumption, RewriteLevel
-                level, unsigned long* count_eliminated)
+                                    control, ClauseSet_p set, bool
+                                    non_unit_subsumption, RewriteLevel
+                                    level, unsigned long* count_eliminated)
 {
-   Clause_p    handle;
+   Clause_p handle = NULL;
 
    assert(state);
    assert(set);
