@@ -371,7 +371,7 @@ static int tb_term_parse_arglist(Scanner_p in, Term_p** arg_anchor,
 //
 /----------------------------------------------------------------------*/
 
-Term_p normalize_head(Term_p head, Term_p* rest_args, int rest_arity)
+static Term_p normalize_head(Term_p head, Term_p* rest_args, int rest_arity)
 {
    assert(problemType == PROBLEM_HO);
    Term_p res;

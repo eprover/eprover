@@ -386,7 +386,7 @@ void FormulaSetAppEncode(FILE* out, FormulaSet_p set)
 
       while(handle!=set->anchor)
       {
-         if (!TFormulaIsPropTrue(handle->terms->sig, handle->tformula))
+         if(!TFormulaIsPropTrue(handle->terms->sig, handle->tformula))
          {
             WFormulaAppEncode(out, handle);
             fputc('\n', out);

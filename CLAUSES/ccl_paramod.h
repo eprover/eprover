@@ -109,7 +109,7 @@ Term_p   ClausePosNextParamodPair(ClausePos_p from_pos, ClausePos_p
               into_pos, bool no_top, bool simu_paramod);
 
 #ifdef ENABLE_LFHO
-bool    CheckHOUnificationConstraints(UnificationResult res, WhichTerm exp_side, Term_p from, Term_p to);
+bool    CheckHOUnificationConstraints(UnificationResult res, UnifTermSide exp_side, Term_p from, Term_p to);
 #else
 #define CheckHOUnificationConstraints(a,b,c,d) (true)
 #endif

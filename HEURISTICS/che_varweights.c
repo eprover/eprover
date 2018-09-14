@@ -76,7 +76,7 @@ WFCB_p TPTPTypeWeightInit(ClausePrioFun prio_fun, int fweight,
    data->conjecture_multiplier  = conjecture_multiplier;
    data->hypothesis_multiplier  = hypothesis_multiplier;
    data->ocb                    = ocb;
-   data->app_var_mult        = app_var_mult;
+   data->app_var_mult           = app_var_mult;
 
    return WFCBAlloc(TPTPTypeWeightCompute, prio_fun,
                     VarWeightExit, data);
@@ -204,7 +204,7 @@ WFCB_p SigWeightInit(ClausePrioFun prio_fun, int fweight,
    data->max_literal_multiplier = max_literal_multiplier;
    data->sig_size_multiplier    = sig_size_multiplier;
    data->ocb                    = ocb;
-   data->app_var_mult        = app_var_mult;
+   data->app_var_mult           = app_var_mult;
 
    return WFCBAlloc(SigWeightCompute, prio_fun,
                     VarWeightExit, data);
@@ -328,7 +328,7 @@ WFCB_p ProofWeightInit(ClausePrioFun prio_fun, int fweight,
    data->proof_size_multiplier  = proof_size_multiplier;
    data->proof_depth_multiplier = proof_depth_multiplier;
    data->ocb                    = ocb;
-   data->app_var_mult        = app_var_mult;
+   data->app_var_mult           = app_var_mult;
 
    return WFCBAlloc(ProofWeightCompute, prio_fun,
                     VarWeightExit, data);
@@ -449,7 +449,7 @@ WFCB_p DepthWeightInit(ClausePrioFun prio_fun, int fweight,
    data->max_literal_multiplier = max_literal_multiplier;
    data->term_weight_multiplier = term_weight_multiplier;
    data->ocb                    = ocb;
-   data->app_var_mult        = app_var_mult;
+   data->app_var_mult           = app_var_mult;
 
    return WFCBAlloc(DepthWeightCompute, prio_fun,
                     VarWeightExit, data);
@@ -580,7 +580,7 @@ WFCB_p WeightLessDepthInit(ClausePrioFun prio_fun, int fweight,
    data->max_literal_multiplier = max_literal_multiplier;
    data->term_depth_multiplier  = term_depth_multiplier;
    data->ocb                    = ocb;
-   data->app_var_mult        = app_var_mult;
+   data->app_var_mult           = app_var_mult;
 
    return WFCBAlloc(WeightLessDepthCompute, prio_fun,
                     VarWeightExit, data);
@@ -711,7 +711,7 @@ WFCB_p NLWeightInit(ClausePrioFun prio_fun, int fweight,
    data->max_term_multiplier    = max_term_multiplier;
    data->max_literal_multiplier = max_literal_multiplier;
    data->ocb                    = ocb;
-   data->app_var_mult        = app_var_mult;
+   data->app_var_mult           = app_var_mult;
 
    return WFCBAlloc(NLWeightCompute, prio_fun,
                     VarWeightExit, data);
@@ -822,7 +822,7 @@ WFCB_p PNRefinedWeightInit(ClausePrioFun prio_fun, int fweight,
    data->max_term_multiplier    = max_term_multiplier;
    data->max_literal_multiplier = max_literal_multiplier;
    data->ocb                    = ocb;
-   data->app_var_mult        = app_var_mult;
+   data->app_var_mult           = app_var_mult;
 
    return WFCBAlloc(PNRefinedWeightCompute, prio_fun,
                     VarWeightExit, data);
@@ -950,7 +950,7 @@ WFCB_p SymTypeWeightInit(ClausePrioFun prio_fun, int fweight,
    data->max_term_multiplier    = max_term_multiplier;
    data->max_literal_multiplier = max_literal_multiplier;
    data->ocb                    = ocb;
-   data->app_var_mult        = app_var_mult;
+   data->app_var_mult           = app_var_mult;
 
    return WFCBAlloc(SymTypeWeightCompute, prio_fun,
                     VarWeightExit, data);
@@ -1056,7 +1056,7 @@ WFCB_p ClauseWeightAgeInit(ClausePrioFun prio_fun, int fweight, int
    data->vweight                = vweight;
    data->pos_multiplier         = pos_multiplier;
    data->weight_multiplier      = weight_multiplier;
-   data->app_var_mult        = app_var_mult;
+   data->app_var_mult           = app_var_mult;
 
    return WFCBAlloc(ClauseWeightAgeCompute, prio_fun,
           VarWeightExit, data);

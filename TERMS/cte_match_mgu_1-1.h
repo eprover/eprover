@@ -34,14 +34,14 @@ Changes
 /*                    Data type declarations                           */
 /*---------------------------------------------------------------------*/
 typedef enum which_term {
-   NoTerm = 0,
-   LeftTerm = 1,
+   NoTerm    = 0,
+   LeftTerm  = 1,
    RightTerm = 2
-} WhichTerm;
+} UnifTermSide;
 
 typedef struct unif_res{
-   WhichTerm term_side;
-   int       term_remaining;
+   UnifTermSide term_side;
+   int          term_remaining;
 } UnificationResult;
 
 extern const UnificationResult UNIF_FAILED;
@@ -74,14 +74,14 @@ bool SubstComputeMgu(Term_p t1, Term_p t2, Subst_p subst);
 
 // HO matching and unification
 int  PartiallyMatchVar(Term_p var_matcher, Term_p to_match, Sig_p sig, bool perform_occur_check);
-int SubstComputeMatchHO(Term_p matcher, Term_p to_match, Subst_p subst, TB_p bank);
+int  SubstComputeMatchHO(Term_p matcher, Term_p to_match, Subst_p subst, TB_p bank);
 UnificationResult SubstComputeMguHO(Term_p t1, Term_p t2, Subst_p subst, TB_p bank);
 
 
 #ifdef ENABLE_LFHO
 
 // If we're working in HOL mode, we choose run FO/HO unification/matching
-// based ont the problem type.
+// based on the problem type.
 bool SubstMatchComplete(Term_p t, Term_p s, Subst_p subst, TB_p bank);
 bool SubstMguComplete(Term_p t, Term_p s, Subst_p subst, TB_p bank);
 int SubstMatchPossiblyPartial(Term_p t, Term_p s, Subst_p subst, TB_p bank);

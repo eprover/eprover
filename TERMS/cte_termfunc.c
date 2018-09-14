@@ -878,7 +878,7 @@ bool TermStructEqualDeref(Term_p t1, Term_p t2, DerefType deref_1, DerefType der
 // Function: TermStructPrefixEqual()
 //
 //   Return true if the two terms have the same
-//   structures where there are trailing arguments in r. 
+//   structures except there are trailing arguments in r. 
 //   Dereference both terms as designated by deref_1, deref_2.
 //
 // Global Variables: -
@@ -1771,8 +1771,6 @@ void TermAddSymbolFeaturesLimited(Term_p term, long depth,
       }
       for(i=0; i<term->arity; i++)
       {
-         // ignore applied var f_code
-         //int depth_inc = TermIsAppliedVar(term) ? 0 : 1;
          TermAddSymbolFeaturesLimited(term->args[i], depth + 1,
                                       freq_array, depth_array,
                                       limit);
@@ -1820,7 +1818,6 @@ void TermAddSymbolFeatures(Term_p term, PStack_p mod_stack, long depth,
       }
       for(i=0; i<term->arity; i++)
       {
-         //int depth_inc = TermIsAppliedVar(term) ? 0 : 1;
          TermAddSymbolFeatures(term->args[i], mod_stack, depth + 1,
                                feature_array, offset);
       }
@@ -2084,7 +2081,7 @@ bool TermIsUntyped(Term_p term)
 
 /*-----------------------------------------------------------------------
 //
-// Function: TermAppEncode
+// Function: TermAppEncode()
 //
 //   App-encodes the term. 
 //
@@ -2121,42 +2118,6 @@ Term_p TermAppEncode(Term_p orig, Sig_p sig)
    return app_encoded; 
 }
 
-/*-----------------------------------------------------------------------
-//
-// Function: TermHasBoundVar
-//
-//   Does the term have a bound variable?
-//
-// Global Variables: -
-//
-// Side Effects    : Memory operations
-//
-/----------------------------------------------------------------------*/
-
-bool TermHasBoundVar(Term_p t)
-{
-   PStack_p args = PStackAlloc();
-   bool     res  = false;
-   PStackPushP(args, t);
-
-   while(!PStackEmpty(args))
-   {
-      Term_p subterm = PStackPopP(args);
-      if(subterm->binding)
-      {
-         res = true;
-         break;
-      }
-      
-      for(int i=0; i<subterm->arity; i++)
-      {
-         PStackPushP(args, subterm->args[i]);
-      }
-   }
-   
-   PStackFree(args);
-   return res;
-}
 /*-----------------------------------------------------------------------
 //
 // Function: TermCreatePrefix()

@@ -1524,7 +1524,7 @@ void ClauseTSTPPrint(FILE* out, Clause_p clause, bool fullterms, bool complete)
    {
       kind = "tcf";
    }
-   else if (problemType == PROBLEM_HO)
+   else if(problemType == PROBLEM_HO)
    {
       kind = "thf";
    }

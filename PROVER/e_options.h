@@ -1336,7 +1336,7 @@ OptCell opts[] =
     '\0', "app-encode",
     NoArg, NULL,
     "Encodes terms in the proof state using applicative encoding, "
-    "prints encoded input problem and exists."},
+    "prints encoded input problem and exits."},
 
    {OPT_NOOPT,
     '\0', NULL,

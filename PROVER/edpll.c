@@ -180,8 +180,8 @@ int main(int argc, char* argv[])
    }
 
    typebank = TypeBankAlloc();
-   sig     = SigAlloc(typebank);
-   form    = DPLLFormulaAlloc();
+   sig      = SigAlloc(typebank);
+   form     = DPLLFormulaAlloc();
    for(i=0; state->argv[i]; i++)
    {
       in = CreateScanner(StreamTypeFile, state->argv[i] , true, NULL);

@@ -44,8 +44,8 @@ Changes
 #define STReal        6     /* Reals */
 #define STPredefined  STReal
 
-typedef long  TypeUniqueID;
-typedef long  TypeConsCode;
+typedef long TypeUniqueID;
+typedef long TypeConsCode;
 
 typedef struct typecell {
    TypeConsCode      f_code; // Called the same as for terms.
@@ -87,7 +87,7 @@ Type_p  TypeCopy(Type_p orig);
 #define  TypeIsIndividual(t)  ((t)->f_code == STIndividuals)
 #define  TypeIsTypeConstructor(t) (TypeIsKind(t) || (TypeIsArrow(t) && TypeIsKind((t)->args[0])))
 
-int TypeGetArgNum(Type_p t); 
+int TypeGetMaxArity(Type_p t); 
 
 int TypesCmp(Type_p t1, Type_p t2);
 Type_p FlattenType(Type_p type);
@@ -122,3 +122,8 @@ static __inline__ Type_p TypeAlloc(TypeConsCode c_code, int arity, Type_p* args)
 }
 
 #endif
+
+
+/*---------------------------------------------------------------------*/
+/*                        End of File                                  */
+/*---------------------------------------------------------------------*/

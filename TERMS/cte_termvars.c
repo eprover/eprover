@@ -243,9 +243,9 @@ void VarBankPairShadow(VarBank_p primary, VarBank_p secondary)
 
 /*-----------------------------------------------------------------------
 //
-// Function: VarBankCreateStack
+// Function: VarBankCreateStack()
 //
-//    Create a stack for the given sort
+//    Create a stack for variables of the given sort.
 //
 // Global Variables: -
 //
@@ -731,8 +731,9 @@ void VarBankPopEnv(VarBank_p bank)
 
 /*-----------------------------------------------------------------------
 //
-// Function: VarBankCardinal
-// Returns the number of variables in the whole var bank
+// Function: VarBankCardinality()
+//
+//   Returns the number of variables in the whole var bank
 //
 //
 // Global Variables: -

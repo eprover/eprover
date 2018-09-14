@@ -70,7 +70,7 @@ WFCB_p ClauseRefinedWeightInit(ClausePrioFun prio_fun, int fweight,
    data->max_term_multiplier    = max_term_multiplier;
    data->max_literal_multiplier = max_literal_multiplier;
    data->ocb                    = ocb;
-   data->app_var_mult        = app_var_mult;
+   data->app_var_mult           = app_var_mult;
 
    return WFCBAlloc(ClauseRefinedWeightCompute, prio_fun,
           ClauseRefinedWeightExit, data);

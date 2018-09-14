@@ -185,10 +185,10 @@ FunCode TermAddVarDistribution(Term_p term, PDArray_p dist_array)
       }
       else
       {
-        count = PDArrayElementInt(dist_array, -(term->f_code));
-        count++;
-        max_var = MAX(max_var, -(term->f_code));
-        PDArrayAssignInt(dist_array, -(term->f_code), count);
+         count = PDArrayElementInt(dist_array, -(term->f_code));
+         count++;
+         max_var = MAX(max_var, -(term->f_code));
+         PDArrayAssignInt(dist_array, -(term->f_code), count);
       }
    }
    PStackFree(stack);
