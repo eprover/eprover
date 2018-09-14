@@ -43,7 +43,7 @@ const UnificationResult UNIF_FAILED = {NoTerm, -1};
 const UnificationResult UNIF_INIT = {NoTerm, -2};
 
 #define FAIL_AND_BREAK(res, val) { (res) = (val); break; }
-#define UPDATE_IF_INIT(res, new) (res) = ((res) == MATCH_INIT) ? (new) : (res)
+#define UPDATE_IF_INIT(res, new) ((res) = ((res) == MATCH_INIT) ? (new) : (res))
 
 //#undef ENABLE_MATCHING_OPTIMIZATION
 
@@ -73,10 +73,10 @@ static __inline__ bool reorientation_needed(Term_p t1, Term_p t2)
    if(TermIsTopLevelVar(t2))
    {
       return !TermIsTopLevelVar(t1) ||
-               TypeGetArgNum(GetHeadType(NULL, t2)) <
-               TypeGetArgNum(GetHeadType(NULL, t1)) ||
-               (TypeGetArgNum(GetHeadType(NULL, t2)) ==
-               TypeGetArgNum(GetHeadType(NULL, t1)) && t2->arity < t1->arity);
+               TypeGetMaxArity(GetHeadType(NULL, t2)) <
+               TypeGetMaxArity(GetHeadType(NULL, t1)) ||
+               (TypeGetMaxArity(GetHeadType(NULL, t2)) ==
+               TypeGetMaxArity(GetHeadType(NULL, t1)) && t2->arity < t1->arity);
    }
    else
    {
@@ -299,7 +299,8 @@ bool SubstComputeMatch(Term_p matcher, Term_p to_match, Subst_p subst)
 // Function: SubstComputeMatchHO()
 //
 //  Generalization of SubstComputeMatch(). Behaves exactly the same,
-//  except for the fact that it matches HO terms. For details, see
+//  except for the fact that it matches HO terms and can match prefix of
+//  to_match. For details, see
 //  SubstComputeMatch().
 //
 // Global Variables: -
@@ -556,7 +557,7 @@ bool SubstComputeMgu(Term_p t1, Term_p t2, Subst_p subst)
 // Function: SubstComputeMguHO()
 //
 //  Generalization of SubstComputeMgu(). Behaves exactly the same,
-//  except for the fact that it unifies HO terms and can unify a prefix
+//  except for the fact that it unifies HO terms and can unify a prefix of
 //  either t1 or t2. The number of (possible) remaining arguments is stored
 //  in UnificationResult.  For other details, see  SubstComputeMgu(). 
 //
@@ -652,7 +653,7 @@ UnificationResult SubstComputeMguHO(Term_p t1, Term_p t2, Subst_p subst, TB_p ba
          SWAP(offset_min, offset_max);
       }
 
-      offset_min += TermIsAppliedVar(min_term) ? 1 : 0;
+      offset_min += (TermIsAppliedVar(min_term) ? 1 : 0);
       offset_max += (TermIsAppliedVar(max_term) ? 1 : 0);
       
       assert(min_term->arity - offset_min <= max_term->arity - offset_max && min_term->arity >= offset_min &&

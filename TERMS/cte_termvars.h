@@ -140,9 +140,10 @@ long   VarBankCollectVars(VarBank_p bank, PStack_p stack);
 
 /*-----------------------------------------------------------------------
 //
-// Function: VarBankGetStack
-// Obtain a pointer to the stack that stores variables of a given sort.
+// Function: VarBankGetStack()
 //
+//   Obtain a pointer to the stack that stores variables of a given 
+//   sort.
 //
 // Global Variables: -
 //

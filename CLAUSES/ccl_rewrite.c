@@ -201,20 +201,20 @@ static RWResultType term_is_top_rewritable(TB_p bank, OCB_p ocb,
          if(instance_is_rule(ocb, eqn->bank, eqn->rterm, eqn->lterm, subst))
           /* If instance is rule -> subst is no renaming! */
          {
-               assert(!SubstIsRenaming(subst));
-               TermCellSetProp(term, TPIsRRewritable|TPIsRewritable);
-               res = RWAlwaysRewritable;
+            assert(!SubstIsRenaming(subst));
+            TermCellSetProp(term, TPIsRRewritable|TPIsRewritable);
+            res = RWAlwaysRewritable;
 
-               Term_p tmp_rewritten = MakeRewrittenTerm(term, eqn->lterm, remains);
+            Term_p tmp_rewritten = MakeRewrittenTerm(term, eqn->lterm, remains);
 
-               rterm = TBInsertInstantiated(bank, tmp_rewritten);
+            rterm = TBInsertInstantiated(bank, tmp_rewritten);
 
-               if(remains)
-               {
-                  TermTopFree(tmp_rewritten);
-               }
+            if(remains)
+            {
+               TermTopFree(tmp_rewritten);
+            }
 
-               TermAddRWLink(term, rterm, new_demod, ClauseIsSOS(new_demod), res);
+            TermAddRWLink(term, rterm, new_demod, ClauseIsSOS(new_demod), res);
          }
       }
    }

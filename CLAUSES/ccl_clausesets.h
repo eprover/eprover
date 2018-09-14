@@ -188,10 +188,6 @@ long         ClauseSetCountConjectures(ClauseSet_p set, long* hypos);
 
 bool         ClauseSetIsUntyped(ClauseSet_p set);
 
-#ifndef NDEBUG
-bool ClauseSetAllClausesNotBound(ClauseSet_p set);
-#endif
-
 #endif
 
 /*---------------------------------------------------------------------*/

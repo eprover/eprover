@@ -241,7 +241,7 @@ static bool eqn_subsumes_termpair(Eqn_p eqn, Term_p t1, Term_p t2)
    {
       if(t1->f_code != t2->f_code || !t1->arity)
       {
-        break;
+         break;
       }
 #ifdef ENABLE_LFHO
       if(t1->arity != t2->arity)
@@ -257,15 +257,15 @@ static bool eqn_subsumes_termpair(Eqn_p eqn, Term_p t1, Term_p t2)
 
       for(i=0; i<t1->arity; i++)
       {
-        if(t1->args[i] != t2->args[i])
-        {
-           if(tmp1)
-           {
-              return false;
-           }
-           tmp1 = t1->args[i];
-           tmp2 = t2->args[i];
-        }
+         if(t1->args[i] != t2->args[i])
+         {
+            if(tmp1)
+            {
+               return false;
+            }
+            tmp1 = t1->args[i];
+            tmp2 = t2->args[i];
+         }
       }
       if(!tmp1)
       {
@@ -548,24 +548,24 @@ bool eqn_list_rec_subsume_old(Eqn_p subsum_list, Eqn_p sub_cand_list,
       if(SubstMatchComplete(subsum_list->lterm, eqn->lterm, subst, eqn->bank)&&
          SubstMatchComplete(subsum_list->rterm, eqn->rterm, subst, eqn->bank))
       {
-          if(eqn_list_rec_subsume_old(subsum_list->next, sub_cand_list,
-                      subst, pick_list))
-          {
-             return true;
-          }
+         if(eqn_list_rec_subsume_old(subsum_list->next, sub_cand_list,
+                     subst, pick_list))
+         {
+            return true;
+         }
       }
       SubstBacktrackToPos(subst, state);
       if(EqnIsOriented(subsum_list))
       {
-          state = PStackGetSP(subst);
-          pick_list[lcount]--;
-          continue;
+         state = PStackGetSP(subst);
+         pick_list[lcount]--;
+         continue;
       }
       if(SubstMatchComplete(subsum_list->lterm, eqn->rterm, subst, eqn->bank)&&
          SubstMatchComplete(subsum_list->rterm, eqn->lterm, subst, eqn->bank))
       {
          if(eqn_list_rec_subsume_old(subsum_list->next, sub_cand_list,
-                  subst, pick_list))
+                                     subst, pick_list))
          {
             return true;
          }
@@ -579,7 +579,7 @@ bool eqn_list_rec_subsume_old(Eqn_p subsum_list, Eqn_p sub_cand_list,
 
 static
 bool eqn_list_rec_subsume(Eqn_p subsum_list, Eqn_p sub_cand_list,
-           Subst_p subst, long* pick_list)
+                          Subst_p subst, long* pick_list)
 {
    Eqn_p         eqn;
    PStackPointer state;
@@ -599,7 +599,7 @@ bool eqn_list_rec_subsume(Eqn_p subsum_list, Eqn_p sub_cand_list,
          continue;
       }
 
-      cmpres = EqnSubsumeQOrderCompare(eqn, subsum_list);
+      cmpres = EqnSubsumeQOrderCompare(eqn,subsum_list);
       if(cmpres < 0)
       {
          return false;

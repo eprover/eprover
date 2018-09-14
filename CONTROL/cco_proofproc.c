@@ -84,7 +84,7 @@ void document_processing(Clause_p clause)
 /----------------------------------------------------------------------*/
 
 static void check_ac_status(ProofState_p state, ProofControl_p
-              control, Clause_p clause)
+                            control, Clause_p clause)
 {
    if(control->heuristic_parms.ac_handling!=NoACHandling)
    {
@@ -912,7 +912,7 @@ Clause_p SATCheck(ProofState_p state, ProofControl_p control)
    {
       SatClauseSet_p set = SatClauseSetAlloc();
 
-      //printf("# SatCheck() %ld, %ld..\n",
+      // printf("# SatCheck() %ld, %ld..\n",
       //state->proc_non_trivial_count,
       //ProofStateCardinality(state));
 

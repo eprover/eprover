@@ -23,19 +23,6 @@ Changes
 
 #include "che_orientweight.h"
 
-#define APP_VAR_MULT_DEFAULT 1
-
-#ifdef ENABLE_LFHO
-#define PARSE_OPTIONAL_AV_PENALTY(in, var_name) \
-if(TestInpTok((in), Comma)) \
-{ \
-   AcceptInpTok((in), Comma); \
-   var_name = ParseFloat((in)); \
-}
-#else
-#define PARSE_OPTIONAL_AV_PENALTY(in, var_name) /* relax */
-#endif
-
 
 
 /*---------------------------------------------------------------------*/
@@ -84,7 +71,7 @@ WFCB_p ClauseOrientWeightInit(ClausePrioFun prio_fun, int fweight,
    data->unorientable_literal_multiplier = unorientable_literal_multiplier;
    data->max_literal_multiplier = max_literal_multiplier;
    data->ocb                    = ocb;
-   data->app_var_mult        = app_var_mult;
+   data->app_var_mult           = app_var_mult;
 
    return WFCBAlloc(ClauseOrientWeightCompute, prio_fun,
           ClauseOrientWeightExit, data);
@@ -189,7 +176,7 @@ WFCB_p OrientLMaxWeightInit(ClausePrioFun prio_fun, int fweight,
    data->unorientable_literal_multiplier = unorientable_literal_multiplier;
    data->max_literal_multiplier = max_literal_multiplier;
    data->ocb                    = ocb;
-   data->app_var_mult        = app_var_mult;
+   data->app_var_mult           = app_var_mult;
 
    return WFCBAlloc(OrientLMaxWeightCompute, prio_fun,
           ClauseOrientWeightExit, data);

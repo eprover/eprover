@@ -544,9 +544,8 @@ FunCode OCBTermMaxFunCode(OCB_p ocb, Term_p term)
 
    assert(ocb->precedence||ocb->prec_weights);
 
-   // since it is always deref once, 
-   // and we have to find the max fun code
-   // following the variable binding would not change anything
+   // it follows all bindings once, so there is no need
+   // to change anything -- normal deref behaves the same ways
    term = TermDeref(term, &deref);
 
    if(TermIsVar(term))

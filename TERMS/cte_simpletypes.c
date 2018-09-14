@@ -63,7 +63,7 @@ bool arguments_flattened(Type_p t)
       }
    }
    
-   return true;
+   return !(t->arity > 0)  || !TypeIsArrow(t->args[t->arity-1]);
 }
 
 /*-----------------------------------------------------------------------
@@ -122,7 +122,8 @@ static const char* get_builtin_name(Type_p t)
 
 Type_p  TypeCopy(Type_p orig)
 {
-   Type_p handle = TypeAlloc(orig->f_code, orig->arity, TypeArgArrayAlloc(orig->arity));
+   Type_p handle = TypeAlloc(orig->f_code, orig->arity, 
+                             TypeArgArrayAlloc(orig->arity));
 
    for(int i=0; i<orig->arity; i++)
    {
@@ -197,7 +198,8 @@ int TypesCmp(Type_p t1, Type_p t2)
    int res = t1->f_code - t2->f_code;
 
    // if it is not arrow type cons -> same nr of args
-   assert(!(t1->f_code == t2->f_code && t1->f_code != ArrowTypeCons) || t1->arity == t2->arity);
+   assert(!(t1->f_code == t2->f_code && t1->f_code != ArrowTypeCons) 
+            || t1->arity == t2->arity);
 
    if(!res)
    {      
@@ -216,7 +218,8 @@ int TypesCmp(Type_p t1, Type_p t2)
 //
 // Function: FlattenType()
 //
-//  Makes sure type is represented using flattened representation. 
+//  Makes sure type is represented using flattened representation, i.e.
+//  the one where the last argument is not not arrow.
 //  IMPORTANT: Assumes all arguments are flattened. 
 //             Return value is an unshared type.
 //
@@ -314,7 +317,7 @@ DStr_p TypeAppEncodedName(Type_p type)
 
 /*-----------------------------------------------------------------------
 //
-// Function: TypeGetArgNum()
+// Function: TypeGetMaxArity()
 //
 //  Given a type, determine what is the maximal arity of a function
 //  symbol.
@@ -325,7 +328,7 @@ DStr_p TypeAppEncodedName(Type_p type)
 //
 /----------------------------------------------------------------------*/
 
-__inline__ int TypeGetArgNum(Type_p t)
+__inline__ int TypeGetMaxArity(Type_p t)
 {
   return (TypeIsArrow(t) ? (t)->arity-1 : 0);
 }

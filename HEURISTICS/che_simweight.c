@@ -161,7 +161,7 @@ WFCB_p SimWeightInit(ClausePrioFun prio_fun, double equal_weight, double
    data->var_var_clash   = var_var_clash;
    data->var_term_clash  = var_term_clash;
    data->term_term_clash = term_term_clash;
-   data->app_var_mult = app_var_mult;
+   data->app_var_mult    = app_var_mult;
 
    return WFCBAlloc(SimWeightCompute, prio_fun, SimWeightExit, data);
 }

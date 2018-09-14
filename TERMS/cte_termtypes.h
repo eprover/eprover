@@ -85,8 +85,7 @@ typedef enum
    TPNegPolarity      = 1<<19,  /* In the term encoding of a formula,
                                    this occurs with negative polarity. */
    TPIsDerefedAppVar  = 1<<20,  /* Is the object obtained as a cache
-                                   for applied variables */
-   TPFromNonShared    = 1<<21,  /* for dbg */
+                                   for applied variables -- dbg purposes */
 }TermProperties;
 
 
@@ -165,8 +164,8 @@ typedef uintptr_t DerefType, *DerefType_p;
 #define TERMCELL_DYN_MEM (TERMCELL_MEM+4*TERMARG_MEM)
 
 #ifdef ENABLE_LFHO
-#define CAN_DEREF(term) ((TermIsVar(term) && (term)->binding) || (TermIsAppliedVar(term) && \
-                                (term->args[0]->binding)))
+#define CAN_DEREF(term) ((TermIsVar(term) && (term)->binding) || \
+                            (TermIsAppliedVar(term) && ((term)->args[0]->binding)))
 #else
 #define CAN_DEREF(term) (((term)->binding))
 #endif
@@ -181,13 +180,22 @@ typedef uintptr_t DerefType, *DerefType_p;
 /* Sometimes we are not interested in the arity of the term, but the 
    number of arguments the term has. Due to encoding of applied variables,
    we have to discard argument 0, which is actually the head variable */ 
-#define ARG_NUM(term)    (TermIsAppliedVar(term) ? term->arity-1 : term->arity)
-#define DEREF_LIMIT(t,d) ((TermIsAppliedVar(t) && (t)->args[0]->binding && d == DEREF_ONCE) ? \
-                          (t)->args[0]->binding->arity + ((TermIsVar((t)->args[0]->binding)) ? 1 : 0) : 0)
+#define ARG_NUM(term)    (TermIsAppliedVar(term) ? (term)->arity-1 : (term)->arity)
+/* If we have the term X a Y and bindings X -> f X Y and Y -> Z
+   when we deref once we want to get f X Y a Z. When dereferencing applied
+   var X a Y we can behave like with variables and decrease deref (see TermDeref) 
+   in which case we get term f X Y a Y as result. If we do not decrease deref
+   we get f (f X Y) a Z as result. Netiher are correct. Thus, there is 
+   a part of term (up to DEREF_LIMIT) for which we do not follow pointers and
+   then other part (after and including DEREF_LIMIT) for which we do follow pointers.  */
+#define DEREF_LIMIT(t,d) ((TermIsAppliedVar(t) && (t)->args[0]->binding && (d) == DEREF_ONCE) ? \
+                          (t)->args[0]->binding->arity + ((TermIsVar((t)->args[0]->binding)) ? 1 : 0)  : 0)
+/* Sets derefs according to the previous comment and expects i to be an index
+   into arugment array, l to be DEREF_LIMIT and d wanted deref mode*/
 #define CONVERT_DEREF(i, l, d) (((i) < (l) && (d) == DEREF_ONCE) ? DEREF_NEVER : (d)) 
 #else
 /* making sure no compiler warnings are produced */
-#define ARG_NUM(term)          (term->arity)
+#define ARG_NUM(term)          ((term)->arity)
 #define DEREF_LIMIT(t,d)       (UNUSED(t),UNUSED(d),0)
 #define CONVERT_DEREF(i, l, d) (UNUSED(i),UNUSED(l),d)
 #endif
@@ -205,7 +213,7 @@ typedef uintptr_t DerefType, *DerefType_p;
 #define TermIsVar(t) ((t)->f_code < 0)
 #define TermIsConst(t)(!TermIsVar(t) && ((t)->arity==0))
 #ifdef ENABLE_LFHO
-#define TermIsAppliedVar(term) (term->f_code == SIG_APP_VAR_CODE)
+#define TermIsAppliedVar(term) ((term)->f_code == SIG_APP_VAR_CODE)
 #else
 #define TermIsAppliedVar(term) (false)
 #endif
@@ -283,7 +291,7 @@ static __inline__ Term_p  TermTopCopy(Term_p source);
 void    TermStackSetProps(PStack_p stack, TermProperties prop);
 void    TermStackDelProps(PStack_p stack, TermProperties prop);
 
-void ClearStaleCache(Term_p app_var);
+void clear_stale_cache(Term_p app_var);
 
 /*---------------------------------------------------------------------*/
 /*                  Inline functions                                   */
@@ -342,15 +350,13 @@ static __inline__ Type_p GetHeadType(Sig_p sig, Term_p term)
 static __inline__ Term_p deref_step(Term_p orig)
 {
    assert(TermIsTopLevelVar(orig));
-   //assert(TermIsVar(orig) || TermIsShared(orig));
-   // assert(bank != NULL || orig->arity == 0);
+
    if(TermIsVar(orig))
    {
       return orig->binding;
    }
    else
    {
-      //fprintf(stderr, "Derefing app var\n");
       return applied_var_deref(orig);
    }
 }
@@ -388,6 +394,13 @@ static __inline__ Term_p TermDerefAlways(Term_p term)
 //
 //   Dereference a term. deref* tells us how many derefences to do
 //   at most, it will be decremented for each dereferenciation.
+//   Dereferencing applied variables creates new terms, which
+//   are cached in the original applied variable. Derefing applied
+//   variable will NOT decrease deref (just like it does not decrease
+//   deref for a normal term). Because of this, additional care 
+//   needs to be taken not to take into account substitution
+//   for the head of the applied variable (which is prefix of the
+//   expanded term) -- see macros DEREF_LIMIT and CONVERT_DEREF.
 //
 // Global Variables: -
 //
@@ -415,16 +428,16 @@ static __inline__ Term_p TermDeref(Term_p term, DerefType_p deref)
       while(*deref && CAN_DEREF(term))
       {
 #ifdef ENABLE_LFHO
-      bool originally_app_var = TermIsAppliedVar(term);
-      term = deref_step(term);
-      if((*deref) == DEREF_ONCE && originally_app_var)
-      {
-        break;
-      }
-      else
-      {
-        (*deref)--;
-      }
+         bool originally_app_var = TermIsAppliedVar(term);
+         term = deref_step(term);
+         if((*deref) == DEREF_ONCE && originally_app_var)
+         {
+            break;
+         }
+         else
+         {
+            (*deref)--;
+         }
 #else
       term = term->binding;
       (*deref)--;

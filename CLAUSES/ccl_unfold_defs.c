@@ -267,14 +267,14 @@ bool ClauseSetUnfoldEqDef(ClauseSet_p set, ClausePos_p demod)
 
 long ClauseSetUnfoldAllEqDefs(ClauseSet_p set, ClauseSet_p passive,
                               ClauseSet_p archive,
-               int min_arity, int eqdef_incrlimit)
+                              int min_arity, int eqdef_incrlimit)
 {
    ClausePos_p demod;
    long res = false;
    Clause_p start = NULL;
 
    while((demod = ClauseSetFindEqDefinition(set, min_arity, start))
-          && problemType == PROBLEM_FO) // to avoid adding extra condition 
+          && problemType == PROBLEM_FO) // disable unfoldings in HO for the moment 
    {
       start = demod->clause->succ;
       if((TermStandardWeight(ClausePosGetOtherSide(demod))-

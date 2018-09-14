@@ -38,8 +38,9 @@
 typedef struct satclausecell
 {
    bool       has_pure_lit;
-   int        lit_no; // lit_no is actual number of literals
-   int *      literals; // null-terminated (PicoSAT requirement)
+   int        lit_no;   // lit_no is actual number of literals
+   int *      literals; // null-terminated (PicoSAT requirement),
+                        // length(literals) = lit_no+1 !
    Clause_p   source;
 }SatClauseCell, *SatClause_p;
 
