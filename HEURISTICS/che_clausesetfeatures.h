@@ -109,7 +109,6 @@ typedef struct spec_limits_cell
    to SpecFeaturesAddEval, the classifications */
 typedef struct spec_feature_cell
 {
-   SpecFeatures problem_logic;
    SpecFeatures axiomtypes;
    SpecFeatures goaltypes;
    SpecFeatures eq_content;
