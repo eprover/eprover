@@ -7,6 +7,8 @@ Version 2.1 -> 2.2 Thurbo Moonlight
   controls output)
 - Moved to lazy orphan deletion
 - Fixed and simplified processing of unprocessed clauses
+- Refactored PicoSAT integration - PicoSAT is now linked into E
+  proper, and used via its API
 
 Version 2.0 -> 2.1 Maharani Hills
 
