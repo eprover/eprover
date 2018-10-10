@@ -1436,6 +1436,10 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_SAT_NORMALIZE:
             h_parms->sat_check_normalize = true;
             break;
+      case OPT_SAT_DEC_LIMIT:
+            h_parms->sat_check_decision_limit =
+               CLStateGetIntArgCheckRange(handle, arg, 1, INT_MAX);
+            break;
       case OPT_STATIC_WATCHLIST:
             h_parms->watchlist_is_static = true;
             //intentional fall-through

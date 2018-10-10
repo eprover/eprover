@@ -354,7 +354,7 @@ bool sat_clause_not_pure(SatClause_p cl)
 // Function: export_to_solver()
 //
 //   Adds the clauses that satisfy filter to the solver state. filter
-//   can be NULL in which case all the clauses are added. 
+//   can be NULL in which case all the clauses are added.
 //
 // Global Variables: -
 //
@@ -1054,15 +1054,29 @@ long sat_extract_core(SatClauseSet_p satset, PStack_p core, SatSolver_p solver)
 #define STR(tok) STR_EXPAND(tok)
 
 ProverResult SatClauseSetCheckUnsat(SatClauseSet_p satset, Clause_p *empty,
-                                    SatSolver_p solver)
+                                    SatSolver_p solver,
+                                    int sat_check_decision_limit)
 {
    ProverResult res;
+   int          solverres;
    Clause_p     parent;
 
    SatClauseSetMarkPure(satset);
    SatClauseSetExportToSolverNonPure(solver, satset);
 
-   res = SAT_TO_E_RESULT(picosat_sat(solver, -1));
+   solverres = picosat_sat(solver, sat_check_decision_limit);
+
+   switch(solverres)
+   {
+   case PICOSAT_SATISFIABLE:
+         res = PRSatisfiable;
+         break;
+   case PICOSAT_UNSATISFIABLE:
+         res = PRUnsatisfiable;
+         break;
+   default:
+         res = PRGaveUp;
+   }
 
    if(res == PRUnsatisfiable)
    {
@@ -1079,10 +1093,6 @@ ProverResult SatClauseSetCheckUnsat(SatClauseSet_p satset, Clause_p *empty,
          ClausePushDerivation(*empty, DCCnfAddArg, parent, NULL);
       }
       PStackFree(unsat_core);
-   }
-   else
-   {
-      assert(res == PRSatisfiable);
    }
 
    return res;

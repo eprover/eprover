@@ -115,7 +115,8 @@ long        SatClauseSetImportProofState(SatClauseSet_p satset, ProofState_p sta
                                          GroundingStrategy strat, bool norm_const);
 long        SatClauseSetMarkPure(SatClauseSet_p satset);
 ProverResult SatClauseSetCheckUnsat(SatClauseSet_p satset, Clause_p *empty,
-                                    SatSolver_p solver);
+                                    SatSolver_p solver,
+                                    int sat_check_decision_level);
 
 
 
