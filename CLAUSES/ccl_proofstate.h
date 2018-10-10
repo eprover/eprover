@@ -111,6 +111,8 @@ typedef struct proofstatecell
       DerivationCompute() at the end of the proof search. */
    unsigned long gc_count;
    unsigned long gc_used_count;
+
+   void* solver;
 }ProofStateCell, *ProofState_p;
 
 typedef enum
@@ -184,6 +186,7 @@ void ProofStatePropDocQuote(FILE* out, int level,
 #define WATCHLIST_INLINE_QSTRING "'" WATCHLIST_INLINE_STRING "'"
 extern char* UseInlinedWatchList;
 
+void ProofStateResetSATSolver(ProofState_p state);
 
 #endif
 

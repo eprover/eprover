@@ -109,6 +109,7 @@ top: E
 links: remove_links
 	@mkdir -p include;
 	@cd include;\
+	$(LN) ../$(PICOSAT)/picosat.h picosat.h;\
 	for subdir in $(HEADERS); do\
 		for file in ../$$subdir/*.h; do\
 			$(LN) $$file .;\
@@ -116,6 +117,7 @@ links: remove_links
 	done;
 	@mkdir -p lib;
 	@cd lib;\
+	$(LN) ../$(PICOSAT)/../PICOSAT.a PICOSAT.a;\
 	for subdir in $(LIBS); do\
 		$(LN) ../$$subdir/$$subdir.a .;\
 	done;

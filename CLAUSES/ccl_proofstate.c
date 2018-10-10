@@ -19,6 +19,7 @@
 -----------------------------------------------------------------------*/
 
 #include "ccl_proofstate.h"
+#include <picosat.h>
 
 
 
@@ -234,6 +235,15 @@ ProofState_p ProofStateAlloc(FunctionProperties free_symb_prop)
    handle->signature->distinct_props =
       handle->signature->distinct_props&(~free_symb_prop);
 
+   handle->solver               = picosat_init();
+   assert(picosat_added_original_clauses(handle->solver) == 0);
+#ifndef DNEBUG
+   int ans = 
+#endif
+   picosat_enable_trace_generation(handle->solver);
+
+   assert(ans);
+
    return handle;
 }
 
@@ -414,6 +424,10 @@ void ProofStateFree(ProofState_p junk)
    if(junk->def_store_cspec)
    {
       FVCollectFree(junk->def_store_cspec);
+   }
+   if(junk->solver)
+   {
+      picosat_reset(junk->solver);
    }
 
    // junk->original_terms->sig = NULL;
@@ -745,6 +759,29 @@ void ProofStatePropDocQuote(FILE* out, int level,
           state->processed_non_units, comment);
    ClauseSetPropDocQuote(GlobalOut, level, prop,
           state->unprocessed, comment);
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: ProofStateResetSATSolver()
+//
+//   Resets SAT solver state to make it ready for the next attempt.
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+void ProofStateResetSATSolver(ProofState_p state)
+{
+   picosat_reset(state->solver);
+   state->solver = picosat_init();
+#ifndef NDEBUG
+   int status =    
+#endif
+   picosat_enable_trace_generation(state->solver);
+   assert(status);
 }
 
 /*---------------------------------------------------------------------*/

@@ -27,6 +27,7 @@
 
 #include <ccl_proofstate.h>
 #include <cio_tempfile.h>
+#include <picosat.h>
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
@@ -67,7 +68,12 @@ typedef enum
 }GroundingStrategy;
 
 
+typedef PicoSAT* SatSolver_p;
 
+#define SAT_TO_E_RESULT(satres) ((satres) == PICOSAT_SATISFIABLE ?\
+                                  PRSatisfiable : (assert((satres) == PICOSAT_UNSATISFIABLE),\
+                                                  PRUnsatisfiable))
+typedef bool (*SatClauseFilter)(SatClause_p);
 
 /*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */
@@ -108,7 +114,8 @@ long        SatClauseSetImportClauseSet(SatClauseSet_p satset, ClauseSet_p set);
 long        SatClauseSetImportProofState(SatClauseSet_p satset, ProofState_p state,
                                          GroundingStrategy strat, bool norm_const);
 long        SatClauseSetMarkPure(SatClauseSet_p satset);
-ProverResult SatClauseSetCheckUnsat(SatClauseSet_p satset, Clause_p *empty);
+ProverResult SatClauseSetCheckUnsat(SatClauseSet_p satset, Clause_p *empty,
+                                    SatSolver_p solver);
 
 
 
