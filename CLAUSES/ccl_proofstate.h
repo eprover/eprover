@@ -102,6 +102,10 @@ typedef struct proofstatecell
    double        satcheck_preproc_time;
    double        satcheck_encoding_time;
    double        satcheck_solver_time;
+   /* Times for the final successful run (if any) */
+   double        satcheck_preproc_stime;
+   double        satcheck_encoding_stime;
+   double        satcheck_solver_stime;
    unsigned long filter_orphans_base;  /* Number of back-simplified
                                           clauses at last orphan
                                           filtering */

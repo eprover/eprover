@@ -895,7 +895,11 @@ Clause_p SATCheck(ProofState_p state, ProofControl_p control)
 {
    Clause_p     empty = NULL;
    ProverResult res;
-   double       base_time;
+   double
+      base_time,
+      preproc_time = 0.0,
+      enc_time     = 0.0,
+      solver_time  = 0.0;
 
    if(control->heuristic_parms.sat_check_normalize)
    {
@@ -906,7 +910,7 @@ Clause_p SATCheck(ProofState_p state, ProofControl_p control)
                                        false, 2,
                                        &(state->proc_trivial_count));
       // printf("# ForwardContraction done\n");
-      state->satcheck_preproc_time += (GetTotalCPUTime()-base_time);
+      preproc_time = (GetTotalCPUTime()-base_time);
    }
    if(!empty)
    {
@@ -921,28 +925,34 @@ Clause_p SATCheck(ProofState_p state, ProofControl_p control)
                                    control->heuristic_parms.sat_check_grounding,
                                    control->heuristic_parms.sat_check_normconst);
 
-      state->satcheck_encoding_time += (GetTotalCPUTime()-base_time);
+      enc_time = (GetTotalCPUTime()-base_time);
       //printf("# SatCheck()..imported\n");
 
       base_time = GetTotalCPUTime();
       res = SatClauseSetCheckUnsat(set, &empty, control->solver,
                                    control->heuristic_parms.sat_check_decision_limit);
-      state->satcheck_solver_time += (GetTotalCPUTime()-base_time);
+      solver_time = (GetTotalCPUTime()-base_time);
       state->satcheck_count++;
+
+      state->satcheck_preproc_time  += preproc_time;
+      state->satcheck_encoding_time += enc_time;
+      state->satcheck_solver_time   += solver_time;
       if(res == PRUnsatisfiable)
       {
          state->satcheck_success++;
          state->satcheck_full_size = SatClauseSetCardinality(set);
          state->satcheck_actual_size = SatClauseSetNonPureCardinality(set);
          state->satcheck_core_size = SatClauseSetCoreSize(set);
+
+         state->satcheck_preproc_stime  += preproc_time;
+         state->satcheck_encoding_stime += enc_time;
+         state->satcheck_solver_stime   += solver_time;
       }
       else if(res == PRSatisfiable)
       {
          state->satcheck_satisfiable++;
       }
-      base_time = GetTotalCPUTime();
       SatClauseSetFree(set);
-      state->satcheck_encoding_time += (GetTotalCPUTime()-base_time);
       ProofControlResetSATSolver(control);
    }
 

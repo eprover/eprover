@@ -228,6 +228,9 @@ ProofState_p ProofStateAlloc(FunctionProperties free_symb_prop)
    handle->satcheck_preproc_time  = 0.0;
    handle->satcheck_encoding_time = 0.0;
    handle->satcheck_solver_time   = 0.0;
+   handle->satcheck_preproc_stime  = 0.0;
+   handle->satcheck_encoding_stime = 0.0;
+   handle->satcheck_solver_stime   = 0.0;
 
    handle->filter_orphans_base   = 0;
    handle->forward_contract_base = 0;
@@ -627,6 +630,12 @@ void ProofStateStatisticsPrint(FILE* out, ProofState_p state)
            state->satcheck_encoding_time);
    fprintf(out, "#    Propositional solver time         : %.3f\n",
            state->satcheck_solver_time);
+   fprintf(out, "#    Success case prop preproc time    : %.3f\n",
+           state->satcheck_preproc_stime);
+   fprintf(out, "#    Success case prop encoding time   : %.3f\n",
+           state->satcheck_encoding_stime);
+   fprintf(out, "#    Success case prop solver time     : %.3f\n",
+           state->satcheck_solver_stime);
 
    fprintf(out,
            "# Current number of processed clauses  : %ld\n"
