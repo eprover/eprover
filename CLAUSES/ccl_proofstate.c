@@ -225,6 +225,9 @@ ProofState_p ProofStateAlloc(FunctionProperties free_symb_prop)
    handle->satcheck_full_size   = 0;
    handle->satcheck_actual_size = 0;
    handle->satcheck_core_size   = 0;
+   handle->satcheck_preproc_time  = 0.0;
+   handle->satcheck_encoding_time = 0.0;
+   handle->satcheck_solver_time   = 0.0;
 
    handle->filter_orphans_base   = 0;
    handle->forward_contract_base = 0;
@@ -618,6 +621,13 @@ void ProofStateStatisticsPrint(FILE* out, ProofState_p state)
            state->satcheck_actual_size);
    fprintf(out, "#    Propositional unsat core size     : %ld\n",
            state->satcheck_core_size);
+   fprintf(out, "#    Propositional preprocessing time  : %.3f\n",
+           state->satcheck_preproc_time);
+   fprintf(out, "#    Propositional encoding time       : %.3f\n",
+           state->satcheck_encoding_time);
+   fprintf(out, "#    Propositional solver time         : %.3f\n",
+           state->satcheck_solver_time);
+
    fprintf(out,
            "# Current number of processed clauses  : %ld\n"
            "#    Positive orientable unit clauses  : %ld\n"

@@ -99,7 +99,9 @@ typedef struct proofstatecell
    unsigned long satcheck_full_size; // Number of prop. clauses
    unsigned long satcheck_actual_size; // ...after purity reduction
    unsigned long satcheck_core_size; // ...in unsat core (if any)
-
+   double        satcheck_preproc_time;
+   double        satcheck_encoding_time;
+   double        satcheck_solver_time;
    unsigned long filter_orphans_base;  /* Number of back-simplified
                                           clauses at last orphan
                                           filtering */

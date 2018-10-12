@@ -895,16 +895,18 @@ Clause_p SATCheck(ProofState_p state, ProofControl_p control)
 {
    Clause_p     empty = NULL;
    ProverResult res;
+   double       base_time;
 
    if(control->heuristic_parms.sat_check_normalize)
    {
       //printf("# Cardinality of unprocessed: %ld\n",
       //        ClauseSetCardinality(state->unprocessed));
+      base_time = GetTotalCPUTime();
       empty = ForwardContractSetReweight(state, control, state->unprocessed,
                                        false, 2,
                                        &(state->proc_trivial_count));
       // printf("# ForwardContraction done\n");
-
+      state->satcheck_preproc_time += (GetTotalCPUTime()-base_time);
    }
    if(!empty)
    {
@@ -914,14 +916,18 @@ Clause_p SATCheck(ProofState_p state, ProofControl_p control)
       //state->proc_non_trivial_count,
       //ProofStateCardinality(state));
 
+      base_time = GetTotalCPUTime();
       SatClauseSetImportProofState(set, state,
                                    control->heuristic_parms.sat_check_grounding,
                                    control->heuristic_parms.sat_check_normconst);
 
+      state->satcheck_encoding_time += (GetTotalCPUTime()-base_time);
       //printf("# SatCheck()..imported\n");
 
+      base_time = GetTotalCPUTime();
       res = SatClauseSetCheckUnsat(set, &empty, control->solver,
                                    control->heuristic_parms.sat_check_decision_limit);
+      state->satcheck_solver_time += (GetTotalCPUTime()-base_time);
       state->satcheck_count++;
       if(res == PRUnsatisfiable)
       {
@@ -934,7 +940,9 @@ Clause_p SATCheck(ProofState_p state, ProofControl_p control)
       {
          state->satcheck_satisfiable++;
       }
+      base_time = GetTotalCPUTime();
       SatClauseSetFree(set);
+      state->satcheck_encoding_time += (GetTotalCPUTime()-base_time);
       ProofControlResetSATSolver(control);
    }
 
