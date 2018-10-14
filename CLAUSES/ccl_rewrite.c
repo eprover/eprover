@@ -175,7 +175,7 @@ static RWResultType term_is_top_rewritable(TB_p bank, OCB_p ocb,
          }
          if(!TermIsRewritten(term) || (res == RWAlwaysRewritable))
          {
-            Term_p tmp_rewritten = MakeRewrittenTerm(term, eqn->rterm,  remains);
+            Term_p tmp_rewritten = MakeRewrittenTerm(term, eqn->rterm, remains, bank);
             rterm = TBInsertInstantiated(bank, tmp_rewritten);
 
             if(remains)
@@ -205,7 +205,7 @@ static RWResultType term_is_top_rewritable(TB_p bank, OCB_p ocb,
             TermCellSetProp(term, TPIsRRewritable|TPIsRewritable);
             res = RWAlwaysRewritable;
 
-            Term_p tmp_rewritten = MakeRewrittenTerm(term, eqn->lterm, remains);
+            Term_p tmp_rewritten = MakeRewrittenTerm(term, eqn->lterm, remains, bank);
 
             rterm = TBInsertInstantiated(bank, tmp_rewritten);
 
@@ -574,7 +574,7 @@ static Term_p rewrite_with_clause_set(OCB_p ocb, TB_p bank, Term_p term,
       {
          /* To make sure remaining arguments of the term to be rewritten
             are variable-disjoint from the demodulator */
-         repl = MakeRewrittenTerm(term, repl, mi->remaining_args);
+         repl = MakeRewrittenTerm(term, repl, mi->remaining_args, bank);
          if(mi->remaining_args)
          {
             repl = TBTermTopInsert(bank, repl);
@@ -953,7 +953,7 @@ static long term_find_rw_clauses(Clause_p demod,
          }
          if(!TermIsRewritten(term) || (rwres == RWAlwaysRewritable))
          {
-            Term_p tmp_rewritten = MakeRewrittenTerm(term, rterm, remains);
+            Term_p tmp_rewritten = MakeRewrittenTerm(term, rterm, remains, eqn->bank);
             rterm = TBInsertInstantiated(eqn->bank, tmp_rewritten);
 
             if(remains)

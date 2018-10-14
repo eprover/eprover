@@ -138,7 +138,6 @@ SimplifyRes FindSignedTopSimplifyingUnit(ClauseSet_p units, Term_p t1,
    while((mi = PDTreeFindNextDemodulator(units->demod_index, subst)))
    {
       pos = mi->pos;
-      TB_p bank = units->demod_index->bank;
       if(EQUIV(EqnIsPositive(pos->literal), sign)
           && (remains = 
                 SubstMatchPossiblyPartial(ClausePosGetOtherSide(pos), t2, subst)) != MATCH_FAILED)
