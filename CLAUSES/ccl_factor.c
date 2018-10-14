@@ -284,7 +284,7 @@ Clause_p ComputeEqualityFactor(TB_p bank, OCB_p ocb, ClausePos_p pos1,
 
    if((!TermIsVar(max_term)||EqnIsEquLit(pos2->literal))&&
       (!TermIsVar(with_term)||EqnIsEquLit(pos1->literal))&&
-      SubstMguComplete(max_term, with_term, subst, bank))
+      SubstMguComplete(max_term, with_term, subst))
    {
       min_term = ClausePosGetOtherSide(pos1);
       if(!TOGreater(ocb, min_term, max_term, DEREF_ALWAYS, DEREF_ALWAYS)

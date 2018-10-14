@@ -419,7 +419,7 @@ Term_p ComputeOverlap(TB_p bank, OCB_p ocb, ClausePos_p from, Term_p
 
    oldstate = PStackGetSP(subst);
 
-   unify_res = SubstMguPossiblyPartial(max_side, sub_into, subst, bank);
+   unify_res = SubstMguPossiblyPartial(max_side, sub_into, subst);
 
    /* If unification succeeded and potentially prefix of into term has been unified */
    if(!UnifFailed(unify_res) 
@@ -648,7 +648,7 @@ Clause_p ClauseOrderedSimParamod(TB_p bank, OCB_p ocb, ClausePos_p
    from_term = ClausePosGetSide(from);
    subst = SubstAlloc();
    VarBankResetVCounts(freshvars);
-   unify_res = SubstMguPossiblyPartial(from_term, into_term, subst, bank);
+   unify_res = SubstMguPossiblyPartial(from_term, into_term, subst);
    
    if((UnifFailed(unify_res) || !CheckHOUnificationConstraints(unify_res, RightTerm, from_term, into_term)) ||
       (!EqnIsOriented(from->literal) &&
