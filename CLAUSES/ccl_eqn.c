@@ -1872,10 +1872,10 @@ bool EqnSubsumeDirected(Eqn_p subsumer, Eqn_p subsumed, Subst_p subst)
    PStackPointer backtrack = PStackGetSP(subst);
    bool res;
 
-   res = SubstMatchComplete(subsumer->lterm, subsumed->lterm, subst, subsumer->bank);
+   res = SubstMatchComplete(subsumer->lterm, subsumed->lterm, subst);
    if(res)
    {
-      res = SubstMatchComplete(subsumer->rterm, subsumed->rterm, subst, subsumer->bank);
+      res = SubstMatchComplete(subsumer->rterm, subsumed->rterm, subst);
    }
    if(!res)
    {
@@ -1991,11 +1991,10 @@ bool EqnUnifyDirected(Eqn_p eq1, Eqn_p eq2, Subst_p subst)
    PStackPointer backtrack = PStackGetSP(subst);
    bool res;
 
-   res = SubstMguComplete(eq1->lterm, eq2->lterm, subst, eq1->bank);
+   res = SubstMguComplete(eq1->lterm, eq2->lterm, subst);
    if(res)
    {
-      res = SubstMguComplete(eq1->rterm,
-                             eq2->rterm, subst, eq1->bank);
+      res = SubstMguComplete(eq1->rterm, eq2->rterm, subst);
    }
    if(!res)
    {
@@ -2088,11 +2087,10 @@ bool LiteralUnifyOneWay(Eqn_p eq1, Eqn_p eq2, Subst_p subst, bool swapped)
    {
       EqnSwapSides(eq2);
    }
-   res = SubstMguComplete(eq1->lterm, eq2->lterm, subst, eq1->bank);
+   res = SubstMguComplete(eq1->lterm, eq2->lterm, subst);
    if(res)
    {
-      res = SubstMguComplete(eq1->rterm,
-                             eq2->rterm, subst, eq1->bank);
+      res = SubstMguComplete(eq1->rterm, eq2->rterm, subst);
    }
    if(!res)
    {

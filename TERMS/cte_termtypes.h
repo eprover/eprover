@@ -111,6 +111,7 @@ typedef struct
    }rw_desc;
 }RewriteState;
 
+struct tbcell;
 
 typedef struct termcell
 {
@@ -125,8 +126,6 @@ typedef struct termcell
                                       rewrites - it might be possible
                                       to combine the previous two in a
                                       union. */
-   struct termcell* binding_cache; /* For caching the term applied variable
-                                      expands to. */
    long             entry_no;      /* Counter for terms in a given
                                       termbank - needed for
                                       administration and external
@@ -139,6 +138,13 @@ typedef struct termcell
    struct termcell* lson;          /* For storing shared term nodes in */
    struct termcell* rson;          /* a splay tree - see
                                       cte_termcellstore.[ch] */
+#ifdef ENABLE_LFHO
+   struct termcell* binding_cache; /* For caching the term applied variable
+                                      expands to. */
+   struct tbcell* owner_bank;                /* Bank that owns this term cell and that
+                                      is responsible for lifetime management 
+                                      of the term */
+#endif
 }TermCell, *Term_p, **TermRef;
 
 
@@ -173,8 +179,8 @@ typedef uintptr_t DerefType, *DerefType_p;
 
 // checks if the binding is present and if it is the cache for the
 // right term
-#define BINDING_FRESH(t) ((t)->binding_cache && (t)->binding && \
-                           (t)->binding == (t)->args[0]->binding)
+#define BINDING_FRESH(t) (TermGetCache(t) && (t)->binding && \
+                          (t)->binding == (t)->args[0]->binding)
 
 #ifdef ENABLE_LFHO
 /* Sometimes we are not interested in the arity of the term, but the 
@@ -291,14 +297,28 @@ static __inline__ Term_p  TermTopCopy(Term_p source);
 void    TermStackSetProps(PStack_p stack, TermProperties prop);
 void    TermStackDelProps(PStack_p stack, TermProperties prop);
 
+#ifdef ENABLE_LFHO
+#define TermGetCache(t)    ((t)->binding_cache)
+#define TermSetCache(t,c)  ((t)->binding_cache = (c))
+#define TermGetBank(t)     ((t)->owner_bank)
+#define TermSetBank(t,b)   ((t)->owner_bank = (b))
+#else
+#define TermGetCache(t)    (UNUSED(t), NULL)
+#define TermSetCache(t,c)  (UNUSED(t), UNUSED(c), UNUSED(NULL))
+#define TermGetBank(t)     (UNUSED(t), NULL)
+#define TermSetBank(t,b)   (UNUSED(t), UNUSED(b), UNUSED(NULL))
+#endif
+
 void clear_stale_cache(Term_p app_var);
 
 /*---------------------------------------------------------------------*/
 /*                  Inline functions                                   */
 /*---------------------------------------------------------------------*/
 
+#ifdef ENABLE_LFHO
 // forward declaration of function used in inline functions 
 Term_p applied_var_deref(Term_p orig);
+#endif
 
 /*-----------------------------------------------------------------------
 //
@@ -347,6 +367,7 @@ static __inline__ Type_p GetHeadType(Sig_p sig, Term_p term)
 //
 /----------------------------------------------------------------------*/
 
+#ifdef ENABLE_LFHO
 static __inline__ Term_p deref_step(Term_p orig)
 {
    assert(TermIsTopLevelVar(orig));
@@ -360,6 +381,9 @@ static __inline__ Term_p deref_step(Term_p orig)
       return applied_var_deref(orig);
    }
 }
+#else
+#define deref_step(orig) ((orig)->binding)
+#endif
 
 /*-----------------------------------------------------------------------
 //
@@ -533,12 +557,13 @@ static __inline__ Term_p TermDefaultCellAlloc(void)
    handle->arity      = 0;
    handle->type       = NULL;
    handle->binding    = NULL;
-   handle->binding_cache = NULL;
    handle->args       = NULL;
    handle->rw_data.nf_date[0] = SysDateCreationTime();
    handle->rw_data.nf_date[1] = SysDateCreationTime();
    handle->lson = NULL;
    handle->rson = NULL;
+   TermSetCache(handle, NULL);
+   TermSetBank(handle, NULL);
 
    return handle;
 }

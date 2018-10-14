@@ -308,11 +308,13 @@ bool SubstComputeMatch(Term_p matcher, Term_p to_match, Subst_p subst)
 // Side Effects    : Instantiates terms
 //
 /----------------------------------------------------------------------*/
-int SubstComputeMatchHO(Term_p matcher, Term_p to_match, Subst_p subst, TB_p bank)
+int SubstComputeMatchHO(Term_p matcher, Term_p to_match, Subst_p subst)
 {
    assert(problemType == PROBLEM_HO);
+   assert(TermGetBank(matcher) == TermGetBank(to_match));
    long matcher_weight  = TermStandardWeight(matcher);
    long to_match_weight = TermStandardWeight(to_match);
+   TB_p bank = TermGetBank(matcher);
 
    assert(TermStandardWeight(matcher)  == TermWeight(matcher, DEFAULT_VWEIGHT, DEFAULT_FWEIGHT));
    assert(TermStandardWeight(to_match) == TermWeight(to_match, DEFAULT_VWEIGHT, DEFAULT_FWEIGHT));
@@ -566,19 +568,21 @@ bool SubstComputeMgu(Term_p t1, Term_p t2, Subst_p subst)
 // Side Effects    :
 //
 /----------------------------------------------------------------------*/
-UnificationResult SubstComputeMguHO(Term_p t1, Term_p t2, Subst_p subst, TB_p bank)
+UnificationResult SubstComputeMguHO(Term_p t1, Term_p t2, Subst_p subst)
 {   
    #ifdef MEASURE_UNIFICATION
       UnifAttempts++;
    #endif
    PERF_CTR_ENTRY(MguTimer);
    assert(problemType == PROBLEM_HO);
-   
+   assert(TermGetBank(t1) == TermGetBank(t2));
+
    PStackPointer backtrack = PStackGetSP(subst);  //For backtracking 
 
    PQueue_p jobs = PQueueAlloc();
    UnificationResult res = UNIF_INIT;
    bool swapped = reorientation_needed(t1, t2);
+   TB_p bank = TermGetBank(t1);
    Sig_p sig = bank->sig;
 
    PQueueStoreP(jobs, t1);
@@ -723,7 +727,7 @@ UnificationResult SubstComputeMguHO(Term_p t1, Term_p t2, Subst_p subst, TB_p ba
 // Side Effects    :
 //
 /----------------------------------------------------------------------*/
-__inline__ bool SubstMatchComplete(Term_p pattern, Term_p target, Subst_p subst, TB_p bank)
+__inline__ bool SubstMatchComplete(Term_p pattern, Term_p target, Subst_p subst)
 {
    bool res;
    if(problemType == PROBLEM_FO)
@@ -734,7 +738,7 @@ __inline__ bool SubstMatchComplete(Term_p pattern, Term_p target, Subst_p subst,
    {
       PStackPointer backtrack = PStackGetSP(subst);
 
-      int res_i =  SubstComputeMatchHO(pattern, target, subst, bank);
+      int res_i =  SubstComputeMatchHO(pattern, target, subst);
 
       if(res_i != 0)
       {
@@ -759,7 +763,7 @@ __inline__ bool SubstMatchComplete(Term_p pattern, Term_p target, Subst_p subst,
 // Side Effects    :
 //
 /----------------------------------------------------------------------*/
-__inline__ bool SubstMguComplete(Term_p t, Term_p s, Subst_p subst, TB_p bank)
+__inline__ bool SubstMguComplete(Term_p t, Term_p s, Subst_p subst)
 {
    bool res;
    if(problemType == PROBLEM_FO)
@@ -770,7 +774,7 @@ __inline__ bool SubstMguComplete(Term_p t, Term_p s, Subst_p subst, TB_p bank)
    {
       // no arguments of s remaining after the match
       PStackPointer backtrack = PStackGetSP(subst);
-      UnificationResult u_res =  SubstComputeMguHO(t, s, subst, bank);
+      UnificationResult u_res =  SubstComputeMguHO(t, s, subst);
 
       if(UnifFailed(u_res) || u_res.term_remaining != 0)
       {
@@ -797,7 +801,7 @@ __inline__ bool SubstMguComplete(Term_p t, Term_p s, Subst_p subst, TB_p bank)
 // Side Effects    :
 //
 /----------------------------------------------------------------------*/
-__inline__ int SubstMatchPossiblyPartial(Term_p pattern, Term_p target, Subst_p subst, TB_p bank)
+__inline__ int SubstMatchPossiblyPartial(Term_p pattern, Term_p target, Subst_p subst)
 {
    int res;
    if(problemType == PROBLEM_FO)
@@ -806,7 +810,7 @@ __inline__ int SubstMatchPossiblyPartial(Term_p pattern, Term_p target, Subst_p 
    }
    else
    {
-      res = SubstComputeMatchHO(pattern, target, subst, bank);
+      res = SubstComputeMatchHO(pattern, target, subst);
    }
 
    // if matched -> number of remaining args is in good range
@@ -830,7 +834,7 @@ __inline__ int SubstMatchPossiblyPartial(Term_p pattern, Term_p target, Subst_p 
 // Side Effects    :
 //
 /----------------------------------------------------------------------*/
-UnificationResult SubstMguPossiblyPartial(Term_p t, Term_p s, Subst_p subst, TB_p bank)
+UnificationResult SubstMguPossiblyPartial(Term_p t, Term_p s, Subst_p subst)
 {
    UnificationResult res;
    if(problemType == PROBLEM_FO)
@@ -839,7 +843,7 @@ UnificationResult SubstMguPossiblyPartial(Term_p t, Term_p s, Subst_p subst, TB_
    }
    else
    {
-      res = SubstComputeMguHO(t,s,subst,bank);
+      res = SubstComputeMguHO(t,s,subst);
    }
 
    return res;

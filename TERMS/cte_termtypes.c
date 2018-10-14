@@ -28,7 +28,6 @@
 /*---------------------------------------------------------------------*/
 /*                        Global Variables                             */
 /*---------------------------------------------------------------------*/
-TB_p bank;
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
@@ -39,6 +38,7 @@ TB_p bank;
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
 
+#ifdef ENABLE_LFHO
 /*-----------------------------------------------------------------------
 //
 // Function: register_new_cache()
@@ -57,11 +57,10 @@ static __inline__ void register_new_cache(Term_p app_var, Term_p bound_to)
    assert(app_var->args[0]->binding);
 
    app_var->binding = app_var->args[0]->binding;
-   app_var->binding_cache = bound_to;
+   TermSetCache(app_var, bound_to);
 
-   TermCellSetProp(app_var->binding_cache, TPIsDerefedAppVar);
+   TermCellSetProp(TermGetCache(app_var), TPIsDerefedAppVar);
 }
-
 
 /*-----------------------------------------------------------------------
 //
@@ -77,7 +76,7 @@ static __inline__ void register_new_cache(Term_p app_var, Term_p bound_to)
 //
 /----------------------------------------------------------------------*/
 
-Term_p insert_deref(Term_p deref_cache)
+Term_p insert_deref(Term_p deref_cache, TB_p bank)
 {
    for(int i=0; i<deref_cache->arity; i++)
    {
@@ -107,14 +106,14 @@ __inline__ Term_p applied_var_deref(Term_p orig)
 {
    assert(TermIsAppliedVar(orig));
    assert(orig->arity > 1);
-   assert(orig->args[0]->binding || orig->binding_cache);
+   assert(orig->args[0]->binding || TermGetCache(orig));
 
    Term_p res;
 
    if(BINDING_FRESH(orig))
    {
-      assert(TermCellQueryProp(orig->binding_cache, TPIsDerefedAppVar));
-      res = orig->binding_cache;
+      assert(TermCellQueryProp(TermGetCache(orig), TPIsDerefedAppVar));
+      res = TermGetCache(orig);
    }
    else
    {
@@ -156,7 +155,7 @@ __inline__ Term_p applied_var_deref(Term_p orig)
             }
          }
 
-         register_new_cache(orig, (res = insert_deref(res)));
+         register_new_cache(orig, (res = insert_deref(res, TermGetBank(orig))));
       }
       else
       {
@@ -185,9 +184,12 @@ void clear_stale_cache(Term_p app_var)
    assert(TermIsAppliedVar(app_var));
    assert(!BINDING_FRESH(app_var));
 
-   app_var->binding_cache = NULL;
+   TermSetCache(app_var, NULL);
    app_var->binding = NULL;
 }
+
+#endif
+
 
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */

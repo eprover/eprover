@@ -156,7 +156,7 @@ static Term_p tb_termtop_insert(TB_p bank, Term_p t)
       assert(!TermIsShared(t));
       new->properties = (new->properties | t->properties)/*& bank->prop_mask*/;
       TermTopFree(t);
-      return new;
+      t = new;
    }
    else
    {
@@ -192,6 +192,8 @@ static Term_p tb_termtop_insert(TB_p bank, Term_p t)
       assert(TBFind(bank, t));
       //assert(TermIsGround(t) == TermIsGroundCompute(t));
    }
+
+   TermSetBank(t, bank);
    return t;
 }
 
@@ -1654,10 +1656,10 @@ void TBGCMarkTerm(TB_p bank, Term_p term)
             PStackPushP(stack, TermRWReplaceField(term));
          }
 
-         if(TermIsAppliedVar(term) && term->binding_cache)
+         if(TermIsAppliedVar(term) && TermGetCache(term))
          {
-            assert(TermIsShared(term->binding_cache));
-            PStackPushP(stack, term->binding_cache);
+            assert(TermIsShared(TermGetCache(term)));
+            PStackPushP(stack, TermGetCache(term));
          }
       }
    }
