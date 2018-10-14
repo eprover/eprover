@@ -155,7 +155,7 @@ static RWResultType term_is_top_rewritable(TB_p bank, OCB_p ocb,
       printf("\n");*/
    BWRWMatchAttempts++;
    int remains =  MATCH_FAILED;
-   if((remains = SubstMatchPossiblyPartial(eqn->lterm, term, subst, bank)) != MATCH_FAILED)
+   if((remains = SubstMatchPossiblyPartial(eqn->lterm, term, subst)) != MATCH_FAILED)
    {
       BWRWMatchSuccesses++;
       assert(problemType == PROBLEM_FO || !remains);
@@ -195,7 +195,7 @@ static RWResultType term_is_top_rewritable(TB_p bank, OCB_p ocb,
       !EqnIsOriented(eqn))
    {
       BWRWMatchAttempts++;
-      if((remains = SubstMatchPossiblyPartial(eqn->rterm, term, subst, bank)) != MATCH_FAILED)
+      if((remains = SubstMatchPossiblyPartial(eqn->rterm, term, subst)) != MATCH_FAILED)
       {
          BWRWMatchSuccesses++;
          if(instance_is_rule(ocb, eqn->bank, eqn->rterm, eqn->lterm, subst))
@@ -931,7 +931,7 @@ static long term_find_rw_clauses(Clause_p demod,
 
    BWRWMatchAttempts++;
    int remains = MATCH_FAILED;
-   if((remains = SubstMatchPossiblyPartial(lterm, term, subst, eqn->bank)) != MATCH_FAILED)
+   if((remains = SubstMatchPossiblyPartial(lterm, term, subst)) != MATCH_FAILED)
    {
       BWRWMatchSuccesses++;
       if(oriented
