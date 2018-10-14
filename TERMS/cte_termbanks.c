@@ -400,7 +400,7 @@ TB_p TBAlloc(Sig_p sig)
    handle->false_term = TBInsert(handle, term, DEREF_NEVER);
    TermFree(term);
    handle->min_term    = NULL;
-   handle->freevarsets = NULL;
+   //handle->freevarsets = NULL;
    return handle;
 }
 
@@ -428,7 +428,7 @@ void TBFree(TB_p junk)
    PDArrayFree(junk->ext_index);
    VarBankFree(junk->vars);
 
-   assert(!junk->freevarsets);
+   //assert(!junk->freevarsets);
    TBCellFree(junk);
 }
 
@@ -446,8 +446,8 @@ void TBFree(TB_p junk)
 
 void TBVarSetStoreFree(TB_p bank)
 {
-   VarSetStoreFree(bank->freevarsets);
-   bank->freevarsets = NULL;
+   // VarSetStoreFree(bank->freevarsets);
+   // bank->freevarsets = NULL;
 }
 
 

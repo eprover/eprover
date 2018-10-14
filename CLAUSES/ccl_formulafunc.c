@@ -409,7 +409,7 @@ bool WFormulaSimplify(WFormula_p form, TB_p terms)
    TFormula_p simplified;
    bool res = false;
 
-   assert(!terms->freevarsets);
+   //assert(!terms->freevarsets);
    simplified = TFormulaSimplify(terms, form->tformula, true);
    // TBVarSetStoreFree(terms);
 

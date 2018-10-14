@@ -1576,6 +1576,8 @@ TFormula_p TFormulaSkolemizeOutermost(TB_p terms, TFormula_p form)
    PStack_p  var_stack = PStackAlloc();
    Term_p    var;
 
+   /* The next line should now be unnecessary, since formulas need to
+      be closed. But let's be conservative for now... */
    TFormulaCollectFreeVars(terms, form, &free_vars);
    while(free_vars)
    {
@@ -1787,7 +1789,6 @@ void WTFormulaConjunctiveNF(WFormula_p form, TB_p terms)
       DocFormulaModificationDefault(form, inf_var_rename);
       WFormulaPushDerivation(form, DCVarRename, NULL, NULL);
    }
-   VarBankVarsSetProp(terms->vars, TPIsFreeVar);
    handle = TFormulaSkolemizeOutermost(terms, form->tformula);
    if(handle!=form->tformula)
    {
@@ -1895,7 +1896,6 @@ void WTFormulaConjunctiveNF2(WFormula_p form, TB_p terms,
       WFormulaPushDerivation(form, DCShiftQuantors, NULL, NULL);
    }
 
-   VarBankVarsSetProp(terms->vars, TPIsFreeVar);
    handle = TFormulaSkolemizeOutermost(terms, form->tformula);
    if(handle!=form->tformula)
    {

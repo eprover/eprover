@@ -9,6 +9,8 @@ Version 2.1 -> 2.2 Thurbo Moonlight
 - Fixed and simplified processing of unprocessed clauses
 - Refactored PicoSAT integration - PicoSAT is now linked into E
   proper, and used via its API
+- Added check enforcing that fof, tff and tcf formulas are closed (no
+  free variables allowed)
 
 Version 2.0 -> 2.1 Maharani Hills
 
