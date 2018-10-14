@@ -290,7 +290,8 @@ Clause_p ClauseSimParamodConstruct(ParamodInfo_p ol_desc)
 
    Term_p tmp_rhs = MakeRewrittenTerm(TermDerefAlways(into_term),
                                       TermDerefAlways(ClausePosGetOtherSide(ol_desc->from_pos)),
-                                      ol_desc->remaining_args);
+                                      ol_desc->remaining_args,
+                                      ol_desc->bank);
 
    rhs_instance = TBInsertNoProps(ol_desc->bank, tmp_rhs, DEREF_ALWAYS);
 
@@ -702,7 +703,8 @@ Clause_p ClauseOrderedSimParamod(TB_p bank, OCB_p ocb, ClausePos_p
 
       Term_p tmp_rhs = MakeRewrittenTerm(TermDerefAlways(into_term), 
                                          TermDerefAlways(ClausePosGetOtherSide(from)), 
-                                         unify_res.term_remaining);
+                                         unify_res.term_remaining,
+                                         bank);
       rhs_instance = TBInsertNoProps(bank, tmp_rhs, DEREF_ALWAYS);
 
       if(unify_res.term_remaining)

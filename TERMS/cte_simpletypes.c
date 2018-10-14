@@ -39,11 +39,38 @@
 
 /*-----------------------------------------------------------------------
 //
+// Function: is_flattened()
+//
+//  Checks if type t is represented as flattened 
+//  that is it is either a unit type or it is a type such that
+//  the last argument is not arrow and all arguments are flattened.
+//  
+//
+// Global Variables: -
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+bool is_flattened(Type_p t)
+{
+   for(int i=0; i<t->arity-1; i++)
+   {
+      if(!is_flattened(t->args[i]))
+      {
+         return false;
+      }
+   }
+   
+   return t->arity == 0 || !TypeIsArrow(t->args[t->arity-1]);
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: arguments_flattened()
 //
-//  Checks if type t is represented using flattened representation --
-//  i.e. all arguments are flattened and the last argument is not an
-//  arrow.
+//  Checks if arguments of type t are flattened -- see is_flattened
 //
 // Global Variables: -
 //
@@ -55,15 +82,13 @@ bool arguments_flattened(Type_p t)
 {
    for(int i=0; i<t->arity-1; i++)
    {
-      Type_p flattened = FlattenType(t->args[i]);
-      if(flattened != t->args[i])
+      if(!is_flattened(t->args[i]))
       {
-         TypeFree(flattened);
          return false;
       }
    }
    
-   return !(t->arity > 0)  || !TypeIsArrow(t->args[t->arity-1]);
+   return true;
 }
 
 /*-----------------------------------------------------------------------

@@ -196,7 +196,7 @@ Term_p TBTermPosReplace(TB_p bank, Term_p repl, TermPos_p pos,
       if(remains != -1)
       {
          Term_p tmp_repl = MakeRewrittenTerm(TermDerefAlways(handle->args[subscript]), 
-                                             TermDerefAlways(repl), remains);
+                                             TermDerefAlways(repl), remains, bank);
 
          handle->args[subscript] = remains ? TBTermTopInsert(bank, tmp_repl) : tmp_repl;
 
@@ -217,7 +217,7 @@ Term_p TBTermPosReplace(TB_p bank, Term_p repl, TermPos_p pos,
    if(remains > 0)
    {
       Term_p repl_tmp = MakeRewrittenTerm(TermDerefAlways(old_into), 
-                                          TermDerefAlways(repl), remains);
+                                          TermDerefAlways(repl), remains, bank);
       repl_tmp = TBTermTopInsert(bank, repl_tmp);
       repl = TBInsertNoProps(bank, repl_tmp, deref);
    }
