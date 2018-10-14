@@ -657,6 +657,7 @@ Term_p TBInsert(TB_p bank, Term_p term, DerefType deref)
    if(TermIsVar(term))
    {
       t = VarBankVarAssertAlloc(bank->vars, term->f_code, term->type);
+      TermSetBank(t, bank);
    }
    else
    {
@@ -701,6 +702,7 @@ Term_p TBInsertNoProps(TB_p bank, Term_p term, DerefType deref)
    if(TermIsVar(term))
    {
       t = VarBankVarAssertAlloc(bank->vars, term->f_code, term->type);
+      TermSetBank(t, bank);
    }
    else
    {
@@ -754,6 +756,7 @@ Term_p  TBInsertRepl(TB_p bank, Term_p term, DerefType deref, Term_p old, Term_p
    if(TermIsVar(term))
    {
       t = VarBankVarAssertAlloc(bank->vars, term->f_code, term->type);
+      TermSetBank(t, bank);
    }
    else
    {
@@ -813,6 +816,7 @@ Term_p TBInsertInstantiatedFO(TB_p bank, Term_p term)
    if(TermIsVar(term))
    {
       t = VarBankVarAssertAlloc(bank->vars, term->f_code, term->type);
+      TermSetBank(t, bank);
    }
    else
    {
@@ -854,7 +858,9 @@ Term_p TBInsertInstantiatedHO(TB_p bank, Term_p term, bool follow_bind)
 
    if(TermIsVar(term) && term->binding)
    {
-      return follow_bind ? TBInsert(bank, term->binding, DEREF_NEVER) : term;
+      t = follow_bind ? TBInsert(bank, term->binding, DEREF_NEVER) : term;
+      TermSetBank(t, bank);
+      return t;
    }
    
    int ignore_args = 0;
@@ -868,6 +874,7 @@ Term_p TBInsertInstantiatedHO(TB_p bank, Term_p term, bool follow_bind)
    if(TermIsVar(term))
    {
       t = VarBankVarAssertAlloc(bank->vars, term->f_code, term->type);
+      TermSetBank(t, bank);
    }
    else
    {
@@ -947,6 +954,7 @@ Term_p TBInsertOpt(TB_p bank, Term_p term, DerefType deref)
    if(TermIsVar(term))
    {
       t = VarBankVarAssertAlloc(bank->vars, term->f_code, term->type);
+      TermSetBank(t, bank);
    }
    else
    {
@@ -995,6 +1003,7 @@ Term_p  TBInsertDisjoint(TB_p bank, Term_p term)
    if(TermIsVar(term))
    {
       t = VarBankGetAltVar(bank->vars, term);
+      TermSetBank(t, bank);
       // t = VarBankVarAssertAlloc(bank->vars, term->f_code+1, term->sort);
    }
    else

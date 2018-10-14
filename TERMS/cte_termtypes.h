@@ -248,9 +248,9 @@ typedef uintptr_t DerefType, *DerefType_p;
 #define TermIsShared(term)       TermCellQueryProp((term), TPIsShared)
 
 #ifdef ENABLE_LFHO
-Term_p  MakeRewrittenTerm(Term_p orig, Term_p new, int orig_remains);
+Term_p  MakeRewrittenTerm(Term_p orig, Term_p new, int orig_remains, struct tbcell* bank);
 #else
-#define MakeRewrittenTerm(orig, new, remains) (assert(!remains), new)
+#define MakeRewrittenTerm(orig, new, remains, bank) (assert(!remains), new)
 #endif
 
 #define TermNFDate(term,i) (TermIsRewritten(term)?\
