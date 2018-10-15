@@ -137,6 +137,9 @@ static FVPackedClause_p forward_contract_keep(ProofState_p state, ProofControl_p
             ClauseContextualSimplifyReflect(state->processed_non_units,
                                             clause);
          ClauseSubsumeOrderSortLits(clause);
+         pclause = FVIndexPackClause(FVUnpackClause(pclause),
+                                state->processed_non_units->fvindex);
+
       }
    }
    else /* !control->enable_given_forward_simpl -- this is just a

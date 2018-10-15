@@ -240,7 +240,7 @@ void GlobalIndicesInsertClause(GlobalIndices_p indices, Clause_p clause)
 
 void GlobalIndicesDeleteClause(GlobalIndices_p indices, Clause_p clause)
 {
-   // printf("# XXX GlobalIndicesDeleteClause()... (set=%p): ", clause->set);ClausePrint(GlobalOut, clause, true);printf("\n");
+   //printf("# XXX GlobalIndicesDeleteClause()... (set=%p): ", clause->set);ClausePrint(GlobalOut, clause, true);printf("\n");
 
    assert(ClauseQueryProp(clause, CPIsGlobalIndexed));
 
@@ -306,5 +306,3 @@ void GlobalIndicesInsertClauseSet(GlobalIndices_p indices,
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
