@@ -46,6 +46,8 @@ typedef struct proofcontrolcell
    HeuristicParmsCell  heuristic_parms;
    FVIndexParmsCell    fvi_parms;
    SpecFeatureCell     problem_specs;
+   /* Sat solver object. */
+   SatSolver_p         solver;
 }ProofControlCell, *ProofControl_p;
 
 #define HCBARGUMENTS ProofState_p state, ProofControl_p control, \
@@ -68,6 +70,7 @@ extern  char* DefaultHeuristics;
 
 ProofControl_p ProofControlAlloc(void);
 void           ProofControlFree(ProofControl_p junk);
+void           ProofControlResetSATSolver(ProofControl_p ctrl);
 
 void           DoLiteralSelection(ProofControl_p control, Clause_p
               clause);
@@ -78,9 +81,3 @@ void           DoLiteralSelection(ProofControl_p control, Clause_p
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
-
-
-
-

@@ -100,8 +100,13 @@ typedef struct proofstatecell
    unsigned long satcheck_full_size; // Number of prop. clauses
    unsigned long satcheck_actual_size; // ...after purity reduction
    unsigned long satcheck_core_size; // ...in unsat core (if any)
-   void*         solver;
-
+   double        satcheck_preproc_time;
+   double        satcheck_encoding_time;
+   double        satcheck_solver_time;
+   /* Times for the final successful run (if any) */
+   double        satcheck_preproc_stime;
+   double        satcheck_encoding_stime;
+   double        satcheck_solver_stime;
    unsigned long filter_orphans_base;  /* Number of back-simplified
                                           clauses at last orphan
                                           filtering */
@@ -187,7 +192,6 @@ void ProofStatePropDocQuote(FILE* out, int level,
 extern char* UseInlinedWatchList;
 
 void ProofStateResetSATSolver(ProofState_p state);
-
 
 #endif
 

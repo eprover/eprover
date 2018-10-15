@@ -81,6 +81,7 @@ bool CondenseOnce(Clause_p clause)
                newlits = EqnListCopyExcept(clause->literals,l2, l1->bank);
                SubstBacktrack(subst);
                EqnListRemoveDuplicates(newlits);
+               EqnListRemoveResolved(&newlits);
                cand = ClauseAlloc(newlits);
                cand->weight = ClauseStandardWeight(cand);
                ClauseSubsumeOrderSortLits(cand);
@@ -152,5 +153,3 @@ bool Condense(Clause_p clause)
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-

@@ -73,7 +73,12 @@ typedef bool (*SatClauseFilter)(SatClause_p);
 typedef PicoSAT* SatSolver_p;
 
 
+typedef PicoSAT* SatSolver_p;
 
+#define SAT_TO_E_RESULT(satres) ((satres) == PICOSAT_SATISFIABLE ?\
+                                  PRSatisfiable : (assert((satres) == PICOSAT_UNSATISFIABLE),\
+                                                  PRUnsatisfiable))
+typedef bool (*SatClauseFilter)(SatClause_p);
 
 /*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */
@@ -121,11 +126,8 @@ long        SatClauseSetImportProofState(SatClauseSet_p satset, ProofState_p sta
                                          GroundingStrategy strat, bool norm_const);
 long        SatClauseSetMarkPure(SatClauseSet_p satset);
 ProverResult SatClauseSetCheckUnsat(SatClauseSet_p satset, Clause_p *empty,
-                                    SatSolver_p solver);
-
-#define SAT_TO_E_RESULT(satres) ((satres) == PICOSAT_SATISFIABLE ?\
-                                  PRSatisfiable : (assert((satres) == PICOSAT_UNSATISFIABLE),\
-                                                  PRUnsatisfiable))
+                                    SatSolver_p solver,
+                                    int sat_check_decision_level);
 
 
 

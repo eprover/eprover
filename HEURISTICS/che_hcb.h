@@ -126,6 +126,7 @@ typedef struct heuristic_parms_cell
    long                sat_check_ttinsert_limit;
    bool                sat_check_normconst;
    bool                sat_check_normalize;
+   int                 sat_check_decision_limit;
 
    /* Various things */
    //long                filter_limit;

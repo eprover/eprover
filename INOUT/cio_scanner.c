@@ -676,7 +676,7 @@ char* PosRep(StreamType type, DStr_p source, long line, long column)
       assert(strlen(DStrView(source))<=MAXPATHLEN);
 
       sprintf(buff, "%s:%ld:(Column %ld):",
-         DStrView(source), line, column);
+              DStrView(source), line, column);
    }
    else
    {
@@ -686,7 +686,7 @@ char* PosRep(StreamType type, DStr_p source, long line, long column)
       strncat(tmp_str, DStrView(source), MAXPATHLEN-4);
       if(strlen(DStrView(source))>MAXPATHLEN-4)
       {
-    strcat(tmp_str, "...");
+         strcat(tmp_str, "...");
       }
       strcat(tmp_str, "\"");
       sprintf(buff, "%s:%ld:(Column %ld):", tmp_str, line, column);
