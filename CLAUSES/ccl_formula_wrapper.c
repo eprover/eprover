@@ -363,6 +363,9 @@ WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms)
    WFormula_p        handle;
    ClauseInfo_p      info;
    bool              is_tcf = false;
+   DStr_p            source_name;
+   long              line, column;
+   StreamType        inptype;
 
    info = ClauseInfoAlloc(NULL, DStrView(AktToken(in)->source),
                           AktToken(in)->line,
@@ -426,6 +429,11 @@ WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms)
 
       // printf("# Formula Start!\n");
 
+      source_name = DStrGetRef(AktToken(in)->source);
+      inptype     = AktToken(in)->stream_type;
+      line        = AktToken(in)->line;
+      column      = AktToken(in)->column;
+
       if(is_tcf)
       {
          // printf("# Tcf Start!\n");
@@ -437,6 +445,16 @@ WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms)
          // printf("# TFormula Start!\n");
          tform = TFormulaTSTPParse(in, terms);
       }
+
+      if(TFormulaHasFreeVars(terms, tform))
+      {
+         Error("%s Formula has free variables (check parentheses "
+               "and quantifier precedence)",
+               SYNTAX_ERROR,
+               PosRep(inptype, source_name, line, column));
+      }
+      DStrReleaseRef(source_name);
+
       handle = WTFormulaAlloc(terms, tform);
    }
 

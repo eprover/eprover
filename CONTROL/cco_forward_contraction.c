@@ -131,6 +131,12 @@ static FVPackedClause_p forward_contract_keep(ProofState_p state, ProofControl_p
          ENSURE_NULL(pclause);
          return NULL;
       }
+      if(context_sr && ClauseLiteralNumber(clause) > 1)
+      {
+         state->context_sr_count +=
+            ClauseContextualSimplifyReflect(state->processed_non_units,
+                                            clause);
+      }
    }
    else /* !control->enable_given_forward_simpl -- this is just a
          * minimal subset of what is done above*/
@@ -179,6 +185,12 @@ bool ForwardModifyClause(ProofState_p state,
    bool limited_rw;
    bool condensed;
 
+   /* Despite the name, this is used in both forward- and backward
+      rewriting. In backward-rewriting, we may need to go over the
+      clause twice - with the weaker rewrite relation for processed
+      clauses, and if we succeed, with the full rewrite relation. In
+      other words, we are done, if limited_rw =
+      ClauseQueryProp(clause, CPLimitedRW) did not change any more. */
    while(!done)
    {
       ClauseComputeLINormalform(control->ocb,
@@ -224,12 +236,6 @@ bool ForwardModifyClause(ProofState_p state,
       if(clause->pos_lit_no)
       {
          ClauseNegativeSimplifyReflect(state->processed_neg_units, clause);
-      }
-      if(context_sr && ClauseLiteralNumber(clause) > 1)
-      {
-         state->context_sr_count +=
-            ClauseContextualSimplifyReflect(state->processed_non_units,
-                                            clause);
       }
       done = ClauseQueryProp(clause, CPLimitedRW)==limited_rw;
    }

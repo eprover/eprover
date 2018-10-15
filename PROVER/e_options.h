@@ -151,6 +151,7 @@ typedef enum
    OPT_SATCHECK,
    OPT_SAT_NORMCONST,
    OPT_SAT_NORMALIZE,
+   OPT_SAT_DEC_LIMIT,
    OPT_WATCHLIST,
    OPT_STATIC_WATCHLIST,
    OPT_WATCHLIST_NO_SIMPLIFY,
@@ -1117,6 +1118,13 @@ OptCell opts[] =
     "Set the grounding strategy for periodic SAT checking. Note that to "
     "enable SAT checking, it is also necessary to set the interval with "
     "one of the previous two options."},
+
+   {OPT_SAT_DEC_LIMIT,
+    '\0', "satcheck-decision-limit",
+    OptArg, "100",
+    "Set the number of decisions allowed for each run of the SAT solver. "
+    "By default, the SAT solver will run until it finds a result or the "
+    "prover times out."},
 
    {OPT_SAT_NORMCONST,
     '\0', "satcheck-normalize-const",

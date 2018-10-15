@@ -19,6 +19,7 @@
 -----------------------------------------------------------------------*/
 
 #include "ccl_proofstate.h"
+#include <picosat.h>
 
 
 
@@ -224,9 +225,13 @@ ProofState_p ProofStateAlloc(FunctionProperties free_symb_prop)
    handle->satcheck_full_size   = 0;
    handle->satcheck_actual_size = 0;
    handle->satcheck_core_size   = 0;
-   handle->solver               = picosat_init();
-   picosat_enable_trace_generation(handle->solver);
-   
+   handle->satcheck_preproc_time  = 0.0;
+   handle->satcheck_encoding_time = 0.0;
+   handle->satcheck_solver_time   = 0.0;
+   handle->satcheck_preproc_stime  = 0.0;
+   handle->satcheck_encoding_stime = 0.0;
+   handle->satcheck_solver_stime   = 0.0;
+
    handle->filter_orphans_base   = 0;
    handle->forward_contract_base = 0;
 
@@ -417,7 +422,6 @@ void ProofStateFree(ProofState_p junk)
    {
       FVCollectFree(junk->def_store_cspec);
    }
-
    // junk->original_terms->sig = NULL;
    junk->terms->sig = NULL;
    junk->tmp_terms->sig = NULL;
@@ -620,6 +624,19 @@ void ProofStateStatisticsPrint(FILE* out, ProofState_p state)
            state->satcheck_actual_size);
    fprintf(out, "#    Propositional unsat core size     : %ld\n",
            state->satcheck_core_size);
+   fprintf(out, "#    Propositional preprocessing time  : %.3f\n",
+           state->satcheck_preproc_time);
+   fprintf(out, "#    Propositional encoding time       : %.3f\n",
+           state->satcheck_encoding_time);
+   fprintf(out, "#    Propositional solver time         : %.3f\n",
+           state->satcheck_solver_time);
+   fprintf(out, "#    Success case prop preproc time    : %.3f\n",
+           state->satcheck_preproc_stime);
+   fprintf(out, "#    Success case prop encoding time   : %.3f\n",
+           state->satcheck_encoding_stime);
+   fprintf(out, "#    Success case prop solver time     : %.3f\n",
+           state->satcheck_solver_stime);
+
    fprintf(out,
            "# Current number of processed clauses  : %ld\n"
            "#    Positive orientable unit clauses  : %ld\n"
@@ -747,25 +764,6 @@ void ProofStatePropDocQuote(FILE* out, int level,
           state->processed_non_units, comment);
    ClauseSetPropDocQuote(GlobalOut, level, prop,
           state->unprocessed, comment);
-}
-
-/*-----------------------------------------------------------------------
-//
-// Function: ProofStateResetSATSolver()
-//
-//   Resets SAT solver state to make it ready for the next attempt.
-//
-// Global Variables: -
-//
-// Side Effects    : Output
-//
-/----------------------------------------------------------------------*/
-
-void ProofStateResetSATSolver(ProofState_p state)
-{
-   picosat_reset(state->solver);
-   state->solver = picosat_init();
-   picosat_enable_trace_generation(state->solver);
 }
 
 /*---------------------------------------------------------------------*/

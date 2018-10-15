@@ -333,7 +333,6 @@ bool prefer_global_min_freq(FunCode f1, FunCode f2, long* conj_dist_array,
    return (dist_array[f1] < dist_array[f2]);
 }
 
-
 /*-----------------------------------------------------------------------
 //
 // Function: sat_clause_not_pure()
@@ -356,7 +355,7 @@ bool sat_clause_not_pure(SatClause_p cl)
 // Function: export_to_solver()
 //
 //   Adds the clauses that satisfy filter to the solver state. filter
-//   can be NULL in which case all the clauses are added. 
+//   can be NULL in which case all the clauses are added.
 //
 // Global Variables: -
 //
@@ -412,8 +411,7 @@ SatClause_p SatClauseAlloc(int lit_no)
 
    handle->has_pure_lit = false;
    handle->lit_no       = lit_no;
-   // allocating space for terminating zero
-   handle->literals     = SizeMalloc((handle->lit_no+1)*sizeof(int));
+   handle->literals     = SizeMalloc((lit_no+1)*sizeof(int));
    handle->literals[handle->lit_no] = 0;
    handle->source       = NULL;
 
@@ -614,24 +612,6 @@ void SatClauseSetPrint(FILE* out, SatClauseSet_p set)
 void SatClauseSetExportToSolver(SatSolver_p solver, SatClauseSet_p set)
 {
    export_to_solver(solver, set, NULL);
-}
-
-
-/*-----------------------------------------------------------------------
-//
-// Function: SatClauseSetExportToSolverNonPure()
-//
-//   Exports non-pure clauses to solver.
-//
-// Global Variables: -
-//
-// Side Effects    : Output
-//
-/----------------------------------------------------------------------*/
-
-void SatClauseSetExportToSolverNonPure(SatSolver_p solver, SatClauseSet_p set)
-{
-   export_to_solver(solver, set, sat_clause_not_pure);
 }
 
 
@@ -862,6 +842,24 @@ Subst_p SubstGroundFreqBased(TB_p terms, ClauseSet_p clauses,
 
 /*-----------------------------------------------------------------------
 //
+// Function: SatClauseSetExportToSolverNonPure()
+//
+//   Exports non-pure clauses to solver.
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+void SatClauseSetExportToSolverNonPure(SatSolver_p solver, SatClauseSet_p set)
+{
+   export_to_solver(solver, set, sat_clause_not_pure);
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: SatClauseSetImportProofState()
 //
 //   Import the all pseudo-grounded clauses in the proof state into
@@ -1016,17 +1014,9 @@ long sat_extract_core(SatClauseSet_p satset, PStack_p core, SatSolver_p solver)
    {
       if(picosat_coreclause(solver, id))
       {
-         if(id < PStackGetSP(satset->exported))
-         {
-            res++;
-            satclause = PStackElementP(satset->exported, id);
-            PStackPushP(core, satclause->source);
-         }
-         else
-         {
-            Error("PicoSat returns impossible clause number",
-                  INTERFACE_ERROR);
-         }
+         res++;
+         satclause = PStackElementP(satset->exported, id);
+         PStackPushP(core, satclause->source);
       }
    }
 
@@ -1046,16 +1036,30 @@ long sat_extract_core(SatClauseSet_p satset, PStack_p core, SatSolver_p solver)
 //
 /----------------------------------------------------------------------*/
 
-ProverResult SatClauseSetCheckUnsat(SatClauseSet_p satset, Clause_p *empty, 
-                                    SatSolver_p solver)
+ProverResult SatClauseSetCheckUnsat(SatClauseSet_p satset, Clause_p *empty,
+                                    SatSolver_p solver,
+                                    int sat_check_decision_limit)
 {
    ProverResult res;
+   int          solverres;
    Clause_p     parent;
 
    SatClauseSetMarkPure(satset);
    SatClauseSetExportToSolverNonPure(solver, satset);
 
-   res = SAT_TO_E_RESULT(picosat_sat(solver, -1));
+   solverres = picosat_sat(solver, sat_check_decision_limit);
+
+   switch(solverres)
+   {
+   case PICOSAT_SATISFIABLE:
+         res = PRSatisfiable;
+         break;
+   case PICOSAT_UNSATISFIABLE:
+         res = PRUnsatisfiable;
+         break;
+   default:
+         res = PRGaveUp;
+   }
 
    if(res == PRUnsatisfiable)
    {
@@ -1072,10 +1076,6 @@ ProverResult SatClauseSetCheckUnsat(SatClauseSet_p satset, Clause_p *empty,
          ClausePushDerivation(*empty, DCCnfAddArg, parent, NULL);
       }
       PStackFree(unsat_core);
-   }
-   else
-   {
-      assert(res == PRSatisfiable);
    }
 
    return res;
