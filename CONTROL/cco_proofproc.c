@@ -128,7 +128,7 @@ static long remove_subsumed(GlobalIndices_p indices,
    while(!PStackEmpty(stack))
    {
       handle = PStackPopP(stack);
-      // printf("# XXX Removing (remove_subumed()) %p from %p = %p\n", handle, set, handle->set);
+      //printf("# XXX Removing (remove_subumed()) %p from %p = %p\n", handle, set, handle->set);
       if(ClauseQueryProp(handle, CPWatchOnly))
       {
          DocClauseQuote(GlobalOut, OutputLevel, 6, handle,
