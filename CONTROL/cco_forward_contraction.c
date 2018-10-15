@@ -136,6 +136,7 @@ static FVPackedClause_p forward_contract_keep(ProofState_p state, ProofControl_p
          state->context_sr_count +=
             ClauseContextualSimplifyReflect(state->processed_non_units,
                                             clause);
+         ClauseSubsumeOrderSortLits(clause);
       }
    }
    else /* !control->enable_given_forward_simpl -- this is just a
