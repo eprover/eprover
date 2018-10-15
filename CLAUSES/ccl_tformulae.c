@@ -509,41 +509,86 @@ static TFormula_p literal_tform_tstp_parse(Scanner_p in, TB_p terms)
 //
 /----------------------------------------------------------------------*/
 
-VarSet_p tform_compute_freevars(TB_p bank, TFormula_p form)
+/* VarSet_p tform_compute_freevars(TB_p bank, TFormula_p form) */
+/* { */
+/*    VarSet_p free_vars = VarSetStoreGetVarSet(&(bank->freevarsets), form); */
+/*    VarSet_p arg_vars; */
+
+/*    if(!free_vars->valid) */
+/*    { */
+/*       // printf("Computing for %p - ", form); */
+/*       if(TFormulaIsLiteral(bank->sig, form)) */
+/*       { */
+/*          // printf("literal\n"); */
+/*          VarSetCollectVars(free_vars); */
+/*       } */
+/*       else if((form->f_code == bank->sig->qex_code) || */
+/*               (form->f_code == bank->sig->qall_code)) */
+/*       { */
+/*          // printf("quantified\n"); */
+/*          arg_vars = tform_compute_freevars(bank, form->args[1]); */
+/*          VarSetInsertVarSet(free_vars, arg_vars); */
+/*          VarSetDeleteVar(free_vars, form->args[0]); */
+/*       } */
+/*       else */
+/*       { */
+/*          int i; */
+
+/*          // printf("composite\n"); */
+/*          for(i=0;  i<form->arity; i++) */
+/*          { */
+/*             arg_vars = tform_compute_freevars(bank, form->args[i]); */
+/*             VarSetInsertVarSet(free_vars, arg_vars); */
+/*          } */
+/*       } */
+/*       free_vars->valid = true; */
+/*    } */
+/*    return free_vars; */
+/* } */
+
+
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: tformula_collect_freevars()
+//
+//   Collect the _free_ variables in form in *vars. This is somewhat
+//   tricky. We require that initially all variables have TPIsFreeVar
+//   set.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations, changes TPIsFreeVar.
+//
+/----------------------------------------------------------------------*/
+
+static void tformula_collect_freevars(TB_p bank, TFormula_p form, PTree_p *vars)
 {
-   VarSet_p free_vars = VarSetStoreGetVarSet(&(bank->freevarsets), form);
-   VarSet_p arg_vars;
+   TermProperties old_prop;
 
-   if(!free_vars->valid)
+   if(TFormulaIsQuantified(bank->sig, form))
    {
-      // printf("Computing for %p - ", form);
-      if(TFormulaIsLiteral(bank->sig, form))
-      {
-         // printf("literal\n");
-         VarSetCollectVars(free_vars);
-      }
-      else if((form->f_code == bank->sig->qex_code) ||
-              (form->f_code == bank->sig->qall_code))
-      {
-         // printf("quantified\n");
-         arg_vars = tform_compute_freevars(bank, form->args[1]);
-         VarSetInsertVarSet(free_vars, arg_vars);
-         VarSetDeleteVar(free_vars, form->args[0]);
-      }
-      else
-      {
-         int i;
-
-         // printf("composite\n");
-         for(i=0;  i<form->arity; i++)
-         {
-            arg_vars = tform_compute_freevars(bank, form->args[i]);
-            VarSetInsertVarSet(free_vars, arg_vars);
-         }
-      }
-      free_vars->valid = true;
+      old_prop = TermCellGiveProps(form->args[0], TPIsFreeVar);
+      TermCellDelProp(form->args[0], TPIsFreeVar);
+      tformula_collect_freevars(bank, form->args[1], vars);
+      TermCellSetProp(form->args[0], old_prop);
    }
-   return free_vars;
+   else if(TFormulaIsLiteral(bank->sig, form))
+   {
+      TermCollectPropVariables(form, vars, TPIsFreeVar);
+   }
+   else
+   {
+      if(TFormulaHasSubForm1(bank->sig,form))
+      {
+         tformula_collect_freevars(bank, form->args[0], vars);
+      }
+      if(TFormulaHasSubForm2(bank->sig, form))
+      {
+         tformula_collect_freevars(bank, form->args[1], vars);
+      }
+   }
 }
 
 
@@ -554,15 +599,18 @@ VarSet_p tform_compute_freevars(TB_p bank, TFormula_p form)
 
 /*-----------------------------------------------------------------------
 //
-// Function:
+// Function: TFormulaIsPropConst()
 //
-//
+//   Return true iff the formula is the encoding of one of the
+//   propositional constants i.e. $eqn($true,$true)$ (if posive is
+//   true) or $neqn($true, $true).
 //
 // Global Variables:
 //
 // Side Effects    :
 //
 /----------------------------------------------------------------------*/
+
 bool TFormulaIsPropConst(Sig_p sig, TFormula_p form, bool positive)
 {
    FunCode f_code = SigGetEqnCode(sig, positive);
@@ -692,13 +740,14 @@ TFormula_p TFormulaQuantorAlloc(TB_p bank, FunCode quantor, Term_p var, TFormula
 
 /*-----------------------------------------------------------------------
 //
-// Function:
+// Function: tformula_print_or_chain()
 //
+//   Print a formula of |-connectect subformula as a flat list
+//   without parentheses.
 //
+// Global Variables: -
 //
-// Global Variables:
-//
-// Side Effects    :
+// Side Effects    : Output
 //
 /----------------------------------------------------------------------*/
 
@@ -754,7 +803,7 @@ void tformula_appencode_or_chain(FILE* out, TB_p bank, TFormula_p form)
 //
 // Global Variables:
 //
-// Side Effects    :
+// Side Effects    : Output
 //
 /----------------------------------------------------------------------*/
 
@@ -1222,60 +1271,60 @@ bool TFormulaVarIsFree(TB_p bank, TFormula_p form, Term_p var)
 //
 /----------------------------------------------------------------------*/
 
-bool TFormulaVarIsFreeCached(TB_p bank, TFormula_p form, Term_p var)
-{
-   VarSet_p free_vars = tform_compute_freevars(bank, form);
-   bool res;
+/* bool TFormulaVarIsFreeCached(TB_p bank, TFormula_p form, Term_p var) */
+/* { */
+/*    VarSet_p free_vars = tform_compute_freevars(bank, form); */
+/*    bool res; */
 
-   assert(free_vars->valid);
+/*    assert(free_vars->valid); */
 
-   res = VarSetContains(free_vars, var);
-   assert(res == TFormulaVarIsFree(bank, form, var));
+/*    res = VarSetContains(free_vars, var); */
+/*    assert(res == TFormulaVarIsFree(bank, form, var)); */
 
-   return res;
-}
+/*    return res; */
+/* } */
 
 
 /*-----------------------------------------------------------------------
 //
 // Function: TFormulaCollectFreeVars()
 //
-//   Collect the _free_ variables in form in *vars. This is somewhat
-//   tricky. We require that initially all variables have TPIsFreeVar
-//   set.
+//   Collect the _free_ variables in form in *vars.
 //
 // Global Variables: -
 //
-// Side Effects    : Memory operations.
+// Side Effects    : Memory operations, changes TPIsFreeVar.
 //
 /----------------------------------------------------------------------*/
 
 void TFormulaCollectFreeVars(TB_p bank, TFormula_p form, PTree_p *vars)
 {
-   TermProperties old_prop;
+   VarBankVarsSetProp(bank->vars, TPIsFreeVar);
+   tformula_collect_freevars(bank, form, vars);
+}
 
-   if(TFormulaIsQuantified(bank->sig, form))
-   {
-      old_prop = TermCellGiveProps(form->args[0], TPIsFreeVar);
-      TermCellDelProp(form->args[0], TPIsFreeVar);
-      TFormulaCollectFreeVars(bank, form->args[1], vars);
-      TermCellSetProp(form->args[0], old_prop);
-   }
-   else if(TFormulaIsLiteral(bank->sig, form))
-   {
-      TermCollectPropVariables(form, vars, TPIsFreeVar);
-   }
-   else
-   {
-      if(TFormulaHasSubForm1(bank->sig,form))
-      {
-         TFormulaCollectFreeVars(bank, form->args[0], vars);
-      }
-      if(TFormulaHasSubForm2(bank->sig, form))
-      {
-         TFormulaCollectFreeVars(bank, form->args[1], vars);
-      }
-   }
+
+/*-----------------------------------------------------------------------
+//
+// Function: TFormulaHasFreeVars()
+//
+//   Check if the formula has at least one free variable.
+//
+// Global Variables: -
+//
+// Side Effects    : Changes TPIsFreeVar in variable cells.
+//
+/----------------------------------------------------------------------*/
+
+bool TFormulaHasFreeVars(TB_p bank, TFormula_p form)
+{
+   bool res;
+   PTree_p dummy = NULL;
+
+   tformula_collect_freevars(bank, form, &dummy);
+   res = (dummy!=NULL);
+   PTreeFree(dummy);
+   return res;
 }
 
 /*-----------------------------------------------------------------------

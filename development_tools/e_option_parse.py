@@ -85,7 +85,7 @@ match_sat_tt_int      = re.compile(" --satcheck-ttinsert-interval")
 match_satcheck        = re.compile(" --satcheck(?=[^-])")
 match_sat_norm_const  = re.compile(" --satcheck-normalize-const")
 match_sat_norm_unproc = re.compile(" --satcheck-normalize-unproc")
-
+match_sat_dec_limit   = re.compile(" --satcheck-decision-limit")
 
 
 def parse_control_info(line):
@@ -301,6 +301,11 @@ def parse_control_info(line):
     m = match_sat_norm_unproc.search(line)
     if m:
         res = res+ "      control->heuristic_parms.sat_check_normalize=true;\n"
+
+    m = match_sat_dec_limit.search(line)
+    if m:
+        arg = extract_opt_arg(line, m, "100")
+        res = res+ "      control->heuristic_parms.sat_check_decision_limit="+arg+";\n"
 
     return res
 

@@ -22,6 +22,7 @@ Changes
 -----------------------------------------------------------------------*/
 
 #include "cco_proofproc.h"
+#include <picosat.h>
 
 
 
@@ -897,16 +898,22 @@ Clause_p SATCheck(ProofState_p state, ProofControl_p control)
 {
    Clause_p     empty = NULL;
    ProverResult res;
+   double
+      base_time,
+      preproc_time = 0.0,
+      enc_time     = 0.0,
+      solver_time  = 0.0;
 
    if(control->heuristic_parms.sat_check_normalize)
    {
       //printf("# Cardinality of unprocessed: %ld\n",
       //        ClauseSetCardinality(state->unprocessed));
+      base_time = GetTotalCPUTime();
       empty = ForwardContractSetReweight(state, control, state->unprocessed,
                                        false, 2,
                                        &(state->proc_trivial_count));
       // printf("# ForwardContraction done\n");
-
+      preproc_time = (GetTotalCPUTime()-base_time);
    }
    if(!empty)
    {
@@ -916,29 +923,41 @@ Clause_p SATCheck(ProofState_p state, ProofControl_p control)
       //state->proc_non_trivial_count,
       //ProofStateCardinality(state));
 
+      base_time = GetTotalCPUTime();
       SatClauseSetImportProofState(set, state,
                                    control->heuristic_parms.sat_check_grounding,
                                    control->heuristic_parms.sat_check_normconst);
 
+      enc_time = (GetTotalCPUTime()-base_time);
       //printf("# SatCheck()..imported\n");
 
-      res = SatClauseSetCheckUnsat(set, &empty, state->solver);
+      base_time = GetTotalCPUTime();
+      res = SatClauseSetCheckUnsat(set, &empty, control->solver,
+                                   control->heuristic_parms.sat_check_decision_limit);
+      solver_time = (GetTotalCPUTime()-base_time);
       state->satcheck_count++;
+
+      state->satcheck_preproc_time  += preproc_time;
+      state->satcheck_encoding_time += enc_time;
+      state->satcheck_solver_time   += solver_time;
       if(res == PRUnsatisfiable)
       {
          state->satcheck_success++;
          state->satcheck_full_size = SatClauseSetCardinality(set);
          state->satcheck_actual_size = SatClauseSetNonPureCardinality(set);
          state->satcheck_core_size = SatClauseSetCoreSize(set);
+
+         state->satcheck_preproc_stime  += preproc_time;
+         state->satcheck_encoding_stime += enc_time;
+         state->satcheck_solver_stime   += solver_time;
       }
       else if(res == PRSatisfiable)
       {
          state->satcheck_satisfiable++;
       }
       SatClauseSetFree(set);
+      ProofControlResetSATSolver(control);
    }
-   ProofStateResetSATSolver(state);
-   //fprintf(stderr, "# SATCheck over.");
 
    return empty;
 }
@@ -1408,7 +1427,6 @@ void ProofStateInit(ProofState_p state, ProofControl_p control)
 //
 /----------------------------------------------------------------------*/
 
-
 Clause_p ProcessClause(ProofState_p state, ProofControl_p control,
                        long answer_limit)
 {
@@ -1645,6 +1663,9 @@ Clause_p Saturate(ProofState_p state, ProofControl_p control, long
    }
    return unsatisfiable;
 }
+
+
+
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */

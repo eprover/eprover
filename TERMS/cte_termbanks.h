@@ -58,8 +58,8 @@ typedef struct tbcell
                                     possible) term, to be used for RHS
                                     instantiation. */
    unsigned long rewrite_steps;  /* How many calls to TBTermReplace? */
-   VarSetStore_p freevarsets;    /* Associates a term (or Tformula)
-                                  * with the set of its free
+   //VarSetStore_p freevarsets;    /* Associates a term (or Tformula)
+                                   /* with the set of its free
                                   * variables. Only initalized for
                                   * specific operations and then reset
                                   * again */

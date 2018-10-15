@@ -140,8 +140,8 @@ static bool select_inherited_literal(Clause_p clause)
    {
       if(EqnIsNegative(handle)&&EqnQueryProp(handle,EPIsPMIntoLit))
       {
-    found = true;
-    break;
+         found = true;
+         break;
       }
    }
    if(!found)
@@ -152,11 +152,34 @@ static bool select_inherited_literal(Clause_p clause)
    {
       if(EqnQueryProp(handle,EPIsPMIntoLit))
       {
-    EqnSetProp(handle, EPIsSelected);
+         EqnSetProp(handle, EPIsSelected);
       }
    }
    return true;
 }
+
+/*-----------------------------------------------------------------------
+//
+// Function: sat_solver_init()
+//
+//   Create and initialize the SAT solver in the ProofControl object.
+//
+// Global Variables: -
+//
+// Side Effects    : Via PicoSAT interface
+//
+/----------------------------------------------------------------------*/
+
+void sat_solver_init(ProofControl_p ctrl)
+{
+   ctrl->solver = picosat_init();
+#ifndef NDEBUG
+   int status =
+#endif
+   picosat_enable_trace_generation(ctrl->solver);
+   assert(status);
+}
+
 
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
@@ -184,6 +207,8 @@ ProofControl_p ProofControlAlloc(void)
    handle->ac_handling_active            = false;
    HeuristicParmsInitialize(&handle->heuristic_parms);
 
+   sat_solver_init(handle);
+
    return handle;
 }
 
@@ -210,8 +235,33 @@ void ProofControlFree(ProofControl_p junk)
    WFCBAdminFree(junk->wfcbs);
    HCBAdminFree(junk->hcbs);
    /* hcb is always freed in junk->hcbs */
+
+   if(junk->solver)
+   {
+      picosat_reset(junk->solver);
+   }
    ProofControlCellFree(junk);
 }
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: ProofContrlResetSATSolver()
+//
+//   Resets SAT solver state to make it ready for the next attempt.
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+void ProofControlResetSATSolver(ProofControl_p ctrl)
+{
+   picosat_reset(ctrl->solver);
+   sat_solver_init(ctrl);
+}
+
 
 
 /*-----------------------------------------------------------------------
@@ -269,10 +319,3 @@ void DoLiteralSelection(ProofControl_p control, Clause_p clause)
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
-
-
-
-
-
