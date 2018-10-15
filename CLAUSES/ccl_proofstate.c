@@ -241,6 +241,22 @@ ProofState_p ProofStateAlloc(FunctionProperties free_symb_prop)
    handle->signature->distinct_props =
       handle->signature->distinct_props&(~free_symb_prop);
 
+#ifdef NEVER_DEFINED
+   printf("# XXXf_axioms            = %p\n", handle->f_axioms);
+   printf("# XXXf_ax_archive        = %p\n", handle->f_ax_archive);
+   printf("# XXXax_archive          = %p\n", handle->ax_archive);
+   printf("# XXXaxioms              = %p\n", handle->axioms);
+   printf("# XXXprocessed_pos_rules = %p\n", handle->processed_pos_rules);
+   printf("# XXXprocessed_pos_eqns  = %p\n", handle->processed_pos_eqns);
+   printf("# XXXprocessed_neg_units = %p\n", handle->processed_neg_units);
+   printf("# XXXprocessed_non_units = %p\n", handle->processed_non_units);
+   printf("# XXXunprocessed         = %p\n", handle->unprocessed);
+   printf("# XXXtmp_store           = %p\n", handle->tmp_store);
+   printf("# XXXeval_store          = %p\n", handle->eval_store);
+   printf("# XXXarchive             = %p\n", handle->archive);
+   printf("# XXXwatchlist           = %p\n", handle->watchlist);
+   printf("# XXXf_archive           = %p\n", handle->f_archive);
+#endif
    return handle;
 }
 
