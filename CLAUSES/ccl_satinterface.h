@@ -72,14 +72,6 @@ typedef enum
 typedef bool (*SatClauseFilter)(SatClause_p);
 typedef PicoSAT* SatSolver_p;
 
-
-typedef PicoSAT* SatSolver_p;
-
-#define SAT_TO_E_RESULT(satres) ((satres) == PICOSAT_SATISFIABLE ?\
-                                  PRSatisfiable : (assert((satres) == PICOSAT_UNSATISFIABLE),\
-                                                  PRUnsatisfiable))
-typedef bool (*SatClauseFilter)(SatClause_p);
-
 /*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
