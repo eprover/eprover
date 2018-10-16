@@ -34,8 +34,6 @@ Changes
 
 typedef enum
 {
-   SpecFO,
-   SpecHO,
    SpecUnit,
    SpecHorn,
    SpecGeneral,
@@ -214,10 +212,6 @@ SpecLimits_p SpecLimitsAlloc(void);
         SizeFree(junk, sizeof(SpecFeatureCell))
 
 #define Spec(spec) (true) /* For auto-generated code */
-
-#define SpecIsFO(spec) ((spec)->problem_logic == SpecFO)
-#define SpecIsHO(spec) ((spec)->problem_logic == SpecHO)
-
 
 #define SpecAxiomsAreUnit(spec) ((spec)->axioms == (spec)->unitaxioms)
 #define SpecAxiomsAreHorn(spec) ((spec)->axioms == (spec)->hornaxioms)

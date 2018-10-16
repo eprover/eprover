@@ -96,7 +96,6 @@ SimplifyRes FindTopSimplifyingUnit(ClauseSet_p units, Term_p t1,
         assert(!(problemType == PROBLEM_FO) || remains == 0);
         assert(pos->clause->set == units);
         assert(remains == mi->remaining_args);
-        remains = problemType == PROBLEM_FO ? 0 : remains;
         res = (SimplifyRes){.pos = pos, .remaining_args = remains};
         MatchResFree(mi);
         break;
@@ -146,7 +145,6 @@ SimplifyRes FindSignedTopSimplifyingUnit(ClauseSet_p units, Term_p t1,
         assert(!(problemType == PROBLEM_FO) || remains == 0);
         assert(pos->clause->set == units);
         assert(remains == mi->remaining_args);
-        remains = problemType == PROBLEM_FO ? 0 : remains;
         res = (SimplifyRes){.pos = pos, .remaining_args = remains};
         MatchResFree(mi);
         break;

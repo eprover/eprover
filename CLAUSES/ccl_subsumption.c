@@ -384,49 +384,7 @@ static Eqn_p find_spec_literal(Eqn_p lit, Eqn_p list)
 
    }
    SubstDelete(subst);
-
-#ifndef NDEBUG
-   if(list != old_res)
-   {
-      fprintf(stderr, "! subsumption check error found. Old: ");
-      if(old_res)
-      {
-         EqnPrint(stderr, old_res, false, true);   
-      }
-      else
-      {
-         fprintf(stderr, "-");
-      }
-      
-      fprintf(stderr, ", new: ");
-
-      if(list)
-      {
-         EqnPrint(stderr, list, false, true);
-      }
-      else
-      {
-         fprintf(stderr, "-");
-      }
-      
-      fprintf(stderr, ".\n");
-
-      fprintf(stderr, "! attempt was from ");
-      EqnPrint(stderr, lit, false, true);
-      fprintf(stderr, " to ");
-      EqnListPrint(stderr, orig_list, "|", false, true);
-      fprintf(stderr, ".\n");
-
-      fprintf(stderr, "! failed at ");
-      if(got_up_to)
-        EqnPrint(stderr, got_up_to, false, true);
-      else
-        fprintf(stderr, "-");
-      fprintf(stderr, " with cmpres = %d.\n", cmpres);
-
-      assert(false);
-   }
-#endif
+   assert(list = old_res);
    return list;
 }
 

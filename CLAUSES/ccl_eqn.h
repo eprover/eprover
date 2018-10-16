@@ -399,16 +399,8 @@ void    EqnAddSymbolFeatures(Eqn_p eq, PStack_p mod_stack, long *feature_array);
 
 long    EqnCollectSubterms(Eqn_p eqn, PStack_p collector);
 
-
-#define EqnHasTopLevelVarL(eqn) (TermIsVar((eqn)->lterm) || TermIsAppliedVar((eqn)->lterm))
-#define EqnHasTopLevelVar(eqn)  (TermIsVar((eqn)->lterm) || TermIsAppliedVar((eqn)->lterm) || \
-                                 TermIsVar((eqn)->rterm) || TermIsAppliedVar((eqn)->rterm))
-
 void EqnAppEncode(FILE* out, Eqn_p eq, bool negated);
 bool EqnHasAppVar(Eqn_p eq);
-
-#define EQN_APPLY_APP_VAR_MULT(w, eq, p) (w) * (TermIsAppliedVar((eq)->lterm) ? (p) : 1) \
-                                                * (TermIsAppliedVar((eq)->rterm) ? (p) : 1); 
 
 /*---------------------------------------------------------------------*/
 /*                        Inline Functions                             */
