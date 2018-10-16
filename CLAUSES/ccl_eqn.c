@@ -1589,11 +1589,9 @@ int EqnSubsumeQOrderCompare(const void* lit1, const void* lit2)
    if(!EqnIsEquLit(l1))
    {
       // because variables might appear at predicate positions,
-      // all nonequational literals belong to the same class in HOL
-      if(problemType == PROBLEM_FO)
-      {
-         res = CMP(l1->lterm->f_code, l2->lterm->f_code);   
-      }
+      // all nonequational literals belong to the same class in full HOL
+      // ** for LFHOL this same comparison as for FOL holds **
+      res = CMP(l1->lterm->f_code, l2->lterm->f_code);   
    }
    return res;
 }
