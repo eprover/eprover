@@ -1,7 +1,0 @@
-{
-   "files.associations": {
-      "type_traits": "c",
-      "cmath": "c",
-      "ccl_unit_simplify.h": "c"
-   }
-}
