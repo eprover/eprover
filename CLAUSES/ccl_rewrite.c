@@ -572,8 +572,6 @@ static Term_p rewrite_with_clause_set(OCB_p ocb, TB_p bank, Term_p term,
 
       if(problemType == PROBLEM_HO)
       {
-         /* To make sure remaining arguments of the term to be rewritten
-            are variable-disjoint from the demodulator */
          repl = MakeRewrittenTerm(term, repl, mi->remaining_args, bank);
          if(mi->remaining_args)
          {
