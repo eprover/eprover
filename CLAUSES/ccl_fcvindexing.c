@@ -103,15 +103,19 @@ void print_lvl(FILE* out, int level)
 
 void print_clauses(FILE* out, PTree_p clauses, int level, bool fullterms)
 {
-   PStack_p stack      = PStackAlloc();
+   PStack_p stack = PTreeTraverseInit(clauses);
+   PTree_p  node  = NULL;
+   Clause_p cl_handle   = NULL;
 
-   while(!PStackEmpty(stack))
+   while((node = PTreeTraverseNext(stack)))
    {
-      Clause_p res = PStackPopP(stack);
+      cl_handle = node->key;
       print_lvl(out, level);
-      ClausePrint(out, res, fullterms);
+      ClausePrint(out, cl_handle, fullterms);
       fprintf(stderr, " \n");
    }
+
+   PTreeTraverseExit(stack);
 }
 
 
