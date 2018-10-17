@@ -448,6 +448,10 @@ static TFormula_p literal_tform_tstp_parse(Scanner_p in, TB_p terms)
          // -- not possible in FO case and breaks parsing in some 
          // cases.
 
+         // For example you might have ((f @ a) = c => ...)   -- continue parsing is false here
+         //                            (f @ a = c => ...)     -- continue parsing is true here
+         //                            ((f @ a = c) => ...)   -- continue parsing is false here
+
          if(TestTok(LookToken(in,1), OpenBracket|UnivQuantor|ExistQuantor|TildeSign))
          {
             AcceptInpTok(in, OpenBracket);
