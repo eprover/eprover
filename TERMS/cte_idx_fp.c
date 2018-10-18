@@ -1,23 +1,20 @@
 /*-----------------------------------------------------------------------
 
-File  : ctr_idx_fp.c
+  File  : ctr_idx_fp.c
 
-Author: Stephan Schulz (schulz@eprover.org)
+  Author: Stephan Schulz (schulz@eprover.org)
 
-Contents
+  Contents
 
   Compute and handle term fingerprints for indexing.
 
-  Copyright 2010 by the author.
+  Copyright 2010, 2018 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
-
-<1> Wed Feb 24 01:28:18 EET 2010
-    New
+  Created:  Wed Feb 24 01:28:18 EET 2010
 
 -----------------------------------------------------------------------*/
 
@@ -789,16 +786,16 @@ void IndexFPPrint(FILE* out, IndexFP_p fp)
 
    if(limit>=2)
    {
-      fprintf(stdout, "<%ld", fp[1]);
+      fprintf(out, "<%ld", fp[1]);
       for(i=2; i<limit; i++)
       {
-         fprintf(stdout, ",%ld", fp[i]);
+         fprintf(out, ",%ld", fp[i]);
       }
-      fprintf(stdout, ">");
+      fprintf(out, ">");
    }
    else
    {
-      fprintf(stdout, "<>");
+      fprintf(out, "<>");
    }
 }
 
@@ -806,5 +803,3 @@ void IndexFPPrint(FILE* out, IndexFP_p fp)
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
