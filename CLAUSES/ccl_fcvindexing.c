@@ -103,15 +103,19 @@ void print_lvl(FILE* out, int level)
 
 void print_clauses(FILE* out, PTree_p clauses, int level, bool fullterms)
 {
-   PStack_p stack      = PStackAlloc();
+   PStack_p stack = PTreeTraverseInit(clauses);
+   PTree_p  node  = NULL;
+   Clause_p cl_handle   = NULL;
 
-   while(!PStackEmpty(stack))
+   while((node = PTreeTraverseNext(stack)))
    {
-      Clause_p res = PStackPopP(stack);
+      cl_handle = node->key;
       print_lvl(out, level);
-      ClausePrint(out, res, fullterms);
+      ClausePrint(out, cl_handle, fullterms);
       fprintf(stderr, " \n");
    }
+
+   PTreeTraverseExit(stack);
 }
 
 
@@ -119,7 +123,7 @@ void print_clauses(FILE* out, PTree_p clauses, int level, bool fullterms)
 //
 // Function: fv_index_print()
 //
-//   Driver function for printing fv index. To be initially called with 
+//   Driver function for printing fv index. To be initially called with
 //   root for index and 0 for level.
 //
 // Global Variables: -
@@ -129,7 +133,7 @@ void print_clauses(FILE* out, PTree_p clauses, int level, bool fullterms)
 /----------------------------------------------------------------------*/
 
 void fv_index_print(FILE* out, FVIndex_p index, bool fullterms, int level)
-{  
+{
    if(index->final)
    {
       print_clauses(out, index->u1.clauses, level+1, fullterms);
@@ -142,7 +146,7 @@ void fv_index_print(FILE* out, FVIndex_p index, bool fullterms, int level)
       FVIndex_p succ;
       while((succ = IntMapIterNext(iterator, &key)))
       {
-         print_lvl(out, level);   
+         print_lvl(out, level);
          fprintf(stderr, "Alternative %ld: \n", key);
 
          fv_index_print(out, succ, fullterms, level+1);
@@ -571,5 +575,3 @@ void FVIndexPrint(FILE* out, FVIndex_p index, bool fullterms)
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-

@@ -79,7 +79,7 @@ SimplifyRes unit_clause_set_strongsubsumes_termpair(ClauseSet_p set,
       t2 = PStackPopP(stack);
       t1 = PStackPopP(stack);
       res = FindSignedTopSimplifyingUnit(set, t1, t2, positive);
-      
+
       if(SimplifyFailed(res))
       {
          if(t1->f_code != t2->f_code || !t1->arity)
@@ -97,7 +97,7 @@ SimplifyRes unit_clause_set_strongsubsumes_termpair(ClauseSet_p set,
             }
          }
       }
-      else 
+      else
       {
          // put the remaining args on stack, order does not
          // matter here.
@@ -112,7 +112,7 @@ SimplifyRes unit_clause_set_strongsubsumes_termpair(ClauseSet_p set,
             if(t1_arg != t2_arg)
             {
               PStackPushP(stack, t1_arg);
-              PStackPushP(stack, t2_arg);  
+              PStackPushP(stack, t2_arg);
             }
 
             remains--;
@@ -162,8 +162,8 @@ Clause_p unit_clause_set_subsumes_clause(ClauseSet_p set,
                                             handle->rterm,
                                             false);
       }
-      
-      if(!SimplifyFailed(res) && 
+
+      if(!SimplifyFailed(res) &&
           RemainingArgsSame(handle->lterm, handle->rterm, &res))
       {
          break;
@@ -334,11 +334,6 @@ static Eqn_p find_spec_literal(Eqn_p lit, Eqn_p list)
 {
    Subst_p subst = SubstAlloc();
    int cmpres;
-#ifndef NDEBUG
-   Eqn_p old_res = find_spec_literal_old(lit, list);
-   Eqn_p orig_list = list;
-   Eqn_p got_up_to = list;
-#endif
 
    for(;list;list = list->next)
    {
@@ -378,13 +373,8 @@ static Eqn_p find_spec_literal(Eqn_p lit, Eqn_p list)
          break;
       }
       SubstBacktrack(subst);
-#ifndef NDEBUG
-      got_up_to = list->next;
-#endif 
-
    }
    SubstDelete(subst);
-   assert(list = old_res);
    return list;
 }
 
