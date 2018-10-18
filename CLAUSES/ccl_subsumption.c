@@ -334,11 +334,6 @@ static Eqn_p find_spec_literal(Eqn_p lit, Eqn_p list)
 {
    Subst_p subst = SubstAlloc();
    int cmpres;
-#ifndef NDEBUG
-   Eqn_p old_res = find_spec_literal_old(lit, list);
-   Eqn_p orig_list = list;
-   Eqn_p got_up_to = list;
-#endif
 
    for(;list;list = list->next)
    {
@@ -378,13 +373,8 @@ static Eqn_p find_spec_literal(Eqn_p lit, Eqn_p list)
          break;
       }
       SubstBacktrack(subst);
-#ifndef NDEBUG
-      got_up_to = list->next;
-#endif 
-
    }
    SubstDelete(subst);
-   assert(list = old_res);
    return list;
 }
 
