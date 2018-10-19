@@ -1122,8 +1122,8 @@ OptCell opts[] =
     '\0', "satcheck-decision-limit",
     OptArg, "100",
     "Set the number of decisions allowed for each run of the SAT solver. "
-    "By default, the SAT solver will run until it finds a result or the "
-    "prover times out."},
+    "If the option is not given, the built-in value is 10000. Use -1 to "
+    "allow unlimited decision."},
 
    {OPT_SAT_NORMCONST,
     '\0', "satcheck-normalize-const",

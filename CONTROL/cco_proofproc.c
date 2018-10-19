@@ -931,6 +931,7 @@ Clause_p SATCheck(ProofState_p state, ProofControl_p control)
       base_time = GetTotalCPUTime();
       res = SatClauseSetCheckUnsat(set, &empty, control->solver,
                                    control->heuristic_parms.sat_check_decision_limit);
+      ProofControlResetSATSolver(control);
       solver_time = (GetTotalCPUTime()-base_time);
       state->satcheck_count++;
 
@@ -953,7 +954,6 @@ Clause_p SATCheck(ProofState_p state, ProofControl_p control)
          state->satcheck_satisfiable++;
       }
       SatClauseSetFree(set);
-      ProofControlResetSATSolver(control);
    }
 
    return empty;
