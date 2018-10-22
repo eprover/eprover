@@ -40,6 +40,57 @@ long CondensationSuccesses = 0;
 /*---------------------------------------------------------------------*/
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: try_condensation()
+//
+//   Try to condense literals l1 and l2 in clause. If successful,
+//   modify clause and return true, otherwise return false.
+//
+// Global Variables: -
+//
+// Side Effects    : Modification of clause
+//
+/----------------------------------------------------------------------*/
+
+static bool try_condensation(Clause_p clause, Eqn_p l1, Eqn_p l2, bool swap)
+{
+   Subst_p  subst = SubstAlloc();
+   Eqn_p    newlits;
+   Clause_p cand;
+   bool     res = false;
+
+   if(LiteralUnifyOneWay(l1, l2, subst, false))
+   {
+      newlits = EqnListCopyExcept(clause->literals,l2, l1->bank);
+      SubstBacktrack(subst);
+      EqnListRemoveDuplicates(newlits);
+      EqnListRemoveResolved(&newlits);
+      cand = ClauseAlloc(newlits);
+      cand->weight = ClauseStandardWeight(cand);
+      ClauseSubsumeOrderSortLits(cand);
+      if(ClauseSubsumesClause(cand, clause))
+      {
+         EqnListFree(clause->literals);
+         clause->literals = cand->literals;
+         ClauseRecomputeLitCounts(clause);
+         clause->weight = ClauseStandardWeight(clause);
+         cand->literals = NULL;
+         ClauseFree(cand);
+
+         res = true;
+      }
+      else
+      {
+         ClauseFree(cand);
+      }
+   }
+   SubstDelete(subst);
+
+   return res;
+}
+
+
 
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
@@ -62,10 +113,7 @@ long CondensationSuccesses = 0;
 
 bool CondenseOnce(Clause_p clause)
 {
-   Eqn_p    l1, l2, newlits;
-   Subst_p  subst = SubstAlloc();
-   Clause_p cand;
-   bool     swap;
+   Eqn_p    l1, l2;
 
    assert(ClauseIsSubsumeOrdered(clause));
 
@@ -74,38 +122,19 @@ bool CondenseOnce(Clause_p clause)
       assert(l1);
       for(l2=l1->next; l2; l2=l2->next)
       {
-         for(swap = false; !swap; swap = true)
+         if(try_condensation(clause, l1, l2, false))
          {
-            if(LiteralUnifyOneWay(l1, l2, subst, swap))
+            return true;
+         }
+         if((!EqnIsOriented(l1))||(!EqnIsOriented(l2)))
+         {
+            if(try_condensation(clause, l1, l2, true))
             {
-               newlits = EqnListCopyExcept(clause->literals,l2, l1->bank);
-               SubstBacktrack(subst);
-               EqnListRemoveDuplicates(newlits);
-               EqnListRemoveResolved(&newlits);
-               cand = ClauseAlloc(newlits);
-               cand->weight = ClauseStandardWeight(cand);
-               ClauseSubsumeOrderSortLits(cand);
-               if(ClauseSubsumesClause(cand, clause))
-               {
-                  EqnListFree(clause->literals);
-                  clause->literals = cand->literals;
-                  ClauseRecomputeLitCounts(clause);
-                  clause->weight = ClauseStandardWeight(clause);
-                  cand->literals = NULL;
-                  ClauseFree(cand);
-                  SubstFree(subst);
-
-                  return true;
-               }
-               else
-               {
-                  ClauseFree(cand);
-               }
+               return true;
             }
          }
       }
    }
-   SubstFree(subst);
    return false;
 }
 

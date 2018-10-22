@@ -89,16 +89,17 @@ failuremap = {"User resource limit exceeded"    :"maxres",
               "Inappropriate"       :"problemtype",
               "unknown"             :"unknown"}
 
-statusmap = {"unknown"                      :"F",
-             "exec failed"                  :"F",
-             "SZS status GaveUp"            :"F",
-             "SZS status ResourceOut"       :"F",
-             "SZS status Satisfiable"       :"N",
-             "SZS status CounterSatisfiable":"N",
-             "SZS status Theorem"           :"T",
-             "SZS status Unsatisfiable"     :"T",
-             "SZS status Inappropriate"     :"F",
-             "SZS status Error"             :"F"}
+statusmap = {"unknown"                        :"F",
+             "exec failed"                    :"F",
+             "SZS status GaveUp"              :"F",
+             "SZS status ResourceOut"         :"F",
+             "SZS status Satisfiable"         :"N",
+             "SZS status CounterSatisfiable"  :"N",
+             "SZS status Theorem"             :"T",
+             "SZS status ContradictoryAxioms" :"T",
+             "SZS status Unsatisfiable"       :"T",
+             "SZS status Inappropriate"       :"F",
+             "SZS status Error"               :"F"}
 
 def rjust(amount): return lambda s: s.rjust(amount)
 def ljust(amount): return lambda s: s.ljust(amount)
