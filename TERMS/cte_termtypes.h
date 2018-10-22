@@ -503,7 +503,6 @@ static __inline__ Term_p TermTopCopyWithoutArgs(restrict Term_p source)
       handle->args  = TermArgArrayAlloc(source->arity);
    }
 
-   //assert(problemType != PROBLEM_HO || TermGetBank(source));
    TermSetBank(handle, TermGetBank(source));
 
    return handle;
