@@ -578,7 +578,7 @@ int main(int argc, char* argv[])
 
       if(!proofstate->status_reported)
       {
-         if(derivation->has_conjectures)
+         if(deriv->has_conjecture)
          {
             TSTPOUT(GlobalOut, neg_conjectures?"Theorem":"Unsatisfiable");
          }
@@ -595,7 +595,7 @@ int main(int argc, char* argv[])
       {
          DerivationPrintConditional(GlobalOut,
                                    "CNFRefutation",
-                                    derivation,
+                                    deriv,
                                     proofstate->signature,
                                     print_derivation,
                                     OutputLevel||print_statistics);
