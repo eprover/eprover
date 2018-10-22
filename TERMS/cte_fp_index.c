@@ -217,8 +217,10 @@ static long fp_index_rek_find_unif(FPTree_p index, IndexFP_p key,
                                     sig,
                                     current+1,
                                     collect);
-      if(problemType == PROBLEM_HO || !SigIsPredicate(sig, key[current]))
-      {  /* Predicates can never unify with variables -- not true in HO case */
+      if(/*problemType == PROBLEM_HO ||*/ !SigIsPredicate(sig, key[current]))
+      {  /* Predicates can never unify with variables 
+               -- not true in full HO case
+               -- temproraily enabled  */
          res += fp_index_rek_find_unif(fpindex_alternative(index, ANY_VAR),
                                        key,
                                        sig,
@@ -272,7 +274,7 @@ static long fp_index_rek_find_unif(FPTree_p index, IndexFP_p key,
       {
          assert(child);
 
-         if(i<=0 || problemType == PROBLEM_HO || !SigIsPredicate(sig, i))
+         if(i<=0 || /*problemType == PROBLEM_HO ||*/ !SigIsPredicate(sig, i))
          {
             res += fp_index_rek_find_unif(child,
                                           key,
@@ -372,7 +374,7 @@ static long fp_index_rek_find_matchable(FPTree_p index, IndexFP_p key,
       {
          assert(child);
 
-         if(i<=0 || problemType == PROBLEM_HO || !SigIsPredicate(sig, i))
+         if(i<=0 /*|| problemType == PROBLEM_HO*/ || !SigIsPredicate(sig, i))
          {
             res += fp_index_rek_find_matchable(child,
                                                key,

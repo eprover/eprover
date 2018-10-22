@@ -5,7 +5,7 @@ make rebuild
 
 cp PROVER/eprover bin/eprover.ho
 
-mv Makefile.vars.nolfhol Makefile.vars
+mv Makefile.tmp  Makefile.vars
 
 make clean
 make
