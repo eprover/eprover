@@ -1047,7 +1047,9 @@ ProverResult SatClauseSetCheckUnsat(SatClauseSet_p satset, Clause_p *empty,
    SatClauseSetMarkPure(satset);
    SatClauseSetExportToSolverNonPure(solver, satset);
 
+   //printf("# XXXXX Decision level: %d\n", sat_check_decision_limit);
    solverres = picosat_sat(solver, sat_check_decision_limit);
+   //printf("# YYYYY Solver done\n");
 
    switch(solverres)
    {

@@ -18,7 +18,7 @@
 \usepackage{url}
 
 \author{Stephan Schulz}
-\title{E 2.1\\[1.5ex]User Manual\\[1.5ex]{\normalsize --preliminary
+\title{E 2.2\\[1.5ex]User Manual\\[1.5ex]{\normalsize --preliminary
     version--}}
 
 \makeindex{}
@@ -804,6 +804,24 @@ numerical rating to each clause.  Section~\ref{sec:options:heuristics}
 describes the user interface to this mechanism.
 
 
+\subsection{Propositional Reasoning}
+\label{sec:cdcl}
+
+As of E 2.1, and with a more refined implementation in E 2.2, the
+prover supports efficient \index{propositional reasoning} by
+integrating \index{PicoSAT}~\cite{Biere:JSBC-2008}. The prover
+periodically grounds all clauses in the proof state and encodes the
+set of ground clauses for the propositional prover. If the
+propositional prover finds a proof for unsatisfiability of the ground
+problem, Herbrand's theorem allow us to lift this to the first-order
+level. In the implementation, the prover extract the unsatisfiable
+core of the grounded clause set, retrieves the corresponding
+first-order clauses, and adds an suitable pseudo-inference to the
+first-order proof objects. A more detailed description is available
+in~\cite{Schulz:Vampire-2018}.
+
+See section~\ref{sec:cdclopt} for options controlling this feature.
+
 
 \chapter{Controlling the Proof Search}
 \label{sec:options}
@@ -1402,6 +1420,41 @@ all of the currently implemented functions in detail. If you need
 information about the set of implemented functions, run
 \texttt{eprover -W none}. The individual functions are implemented and
 somewhat described in \texttt{E/HEURISTICS/che\_litselection.h}.
+
+
+\section{Controling Propositional Reasoning}
+\label{sec:cdclopt}
+
+E now integrates the CDCL SAT solver \index{PicoSAT} (see
+section~\ref{sec:cdcl}.  Support for SAT checking is, so far, only
+marginally integrated into the automatic mode, but can be controlled
+by the user via the following command line options.
+
+\begin{tabular}{lp{0.8\linewidth}}
+  \multicolumn{2}{l}{\texttt{--satcheck-proc-interval[=<arg>]}} \\
+  & Enable periodic SAT checking at the given interval of main loop
+    non-trivial processed clauses.\\
+  \multicolumn{2}{l}{\texttt{--satcheck-gen-interval[=<arg>]}} \\
+  & Enable periodic SAT checking whenever the total proof state size
+    increases by the given limit. \\
+  \multicolumn{2}{l}{\texttt{--satcheck-ttinsert-interval[=<arg>]}}\\
+  & Enable periodic SAT checking whenever the number of term tops insertions
+    matches the given limit (which grows exponentially).\\
+  \multicolumn{2}{l}{\texttt{--satcheck[=<arg>]}}\\
+  & Set the grounding strategy for periodic SAT checking. Note that to enable
+    SAT checking, it is also necessary to set the interval with one of the
+    previous two options. \\
+  \multicolumn{2}{l}{\texttt{--satcheck-decision-limit[=<arg>]}}\\
+  & Set the number of decisions allowed for each run of the SAT solver. If
+    the option is not given, the built-in value is 10000. Use -1 to allow
+    unlimited decision. \\
+  \multicolumn{2}{l}{\texttt{--satcheck-normalize-const}}\\
+  & Use the current normal form (as recorded in the termbank rewrite cache)
+    of the selected constant as the term for the grounding substitution.\\
+  \multicolumn{2}{l}{\texttt{--satcheck-normalize-unproc}}\\
+  & Enable re-simplification (heuristic re-revaluation) of unprocessed
+    clauses before grounding for SAT checking.\\
+\end{tabular}
 
 
 \section{The Watchlist Feature}
@@ -2437,253 +2490,7 @@ The parameters have the following type and meaning:
   licenses.
 \end{appendix}
 
-%\bibliography{stsbib}
-\newcommand{\etalchar}[1]{$^{#1}$}
-\begin{thebibliography}{WAB{\etalchar{+}}99}
-
-\bibitem[Bac98]{Bachmair:personal-98}
-L.~Bachmair.
-\newblock {Personal communication at CADE-15, Lindau}.
-\newblock Unpublished, 1998.
-
-\bibitem[BDP89]{BDP89}
-L.~Bachmair, N.~Dershowitz, and D.A. Plaisted.
-\newblock {Completion Without Failure}.
-\newblock In H.~Ait-Kaci and M.~Nivat, editors, {\em Resolution of Equations in
-  Algebraic Structures}, volume~2, pages 1--30. Academic Press, 1989.
-
-\bibitem[BG94]{BG94}
-L.~Bachmair and H.~Ganzinger.
-\newblock {Rewrite-Based Equational Theorem Proving with Selection and
-  Simplification}.
-\newblock {\em Journal of Logic and Computation}, 3(4):217--247, 1994.
-
-\bibitem[CL73]{CL73}
-C.~Chang and R.C. Lee.
-\newblock {\em {Symbolic Logic and Mechanical Theorem Proving}}.
-\newblock Computer Science and Applied Mathematics. Academic Press, 1973.
-
-\bibitem[Der91]{Dershowitz:IJCAI-91}
-N.~Dershowitz.
-\newblock {Ordering-Based Strategies for Horn Clauses}.
-\newblock In J.~Mylopoulos, editor, {\em Proc. of the 12th IJCAI, Sydney},
-  volume~1, pages 118--124. Morgan Kaufmann, 1991.
-
-\bibitem[DKS97]{DKS97}
-J.~Denzinger, M.~Kronenburg, and S.~Schulz.
-\newblock {DISCOUNT: A Distributed and Learning Equational Prover}.
-\newblock {\em Journal of Automated Reasoning}, 18(2):189--198, 1997.
-\newblock Special Issue on the CADE 13 ATP System Competition.
-
-\bibitem[DS94a]{DS94a}
-J.~Denzinger and S.~Schulz.
-\newblock {Analysis and Representation of Equational Proofs Generated by a
-  Distributed Completion Based Proof System}.
-\newblock Seki-Report SR-94-05, Universit{\"a}t Kai\-sers\-lau\-tern, 1994.
-
-\bibitem[DS94b]{DS94b}
-J.~Denzinger and S.~Schulz.
-\newblock {Recording, Analyzing and Presenting Distributed Deduction
-  Processes}.
-\newblock In H.~Hong, editor, {\em Proc.\ 1st PASCO, Hagenberg/Linz}, volume~5
-  of {\em Lecture Notes Series in Computing}, pages 114--123, Singapore, 1994.
-  World Scientific Publishing.
-
-\bibitem[DS96]{DS96a}
-J.~Denzinger and S.~Schulz.
-\newblock {Recording and Analysing Knowledge-Based Distributed Deduction
-  Processes}.
-\newblock {\em Journal of Symbolic Computation}, 21(4/5):523--541, 1996.
-
-\bibitem[ES04]{ES:SAT-2004}
-Niklas E{\'e}n and Niklas S{\"o}rensson.
-\newblock {An extensible SAT-solver}.
-\newblock In Enrico Giunchiglia and Armando Tacchella, editors, {\em Proc.\ of
-  the Sixth International Conference onTheory and Applications of
-  Satisfiability Testing}, volume 2919 of {\em LNCS}, pages 502--518. Springer,
-  2004.
-
-\bibitem[HBF96]{BHF96}
-Th. Hillenbrand, A.~Buch, and R.~Fettig.
-\newblock {On Gaining Efficiency in Completion-Based Theorem Proving}.
-\newblock In H.~Ganzinger, editor, {\em Proc.\ of the 7th RTA, New Brunswick},
-  volume 1103 of {\em LNCS}, pages 432--435. Springer, 1996.
-
-\bibitem[HJL99]{HJL:CADE-99}
-Th. Hillenbrand, A.~Jaeger, and B.~L{\"o}chner.
-\newblock {System Abstract: Waldmeister -- Improvements in Performance and Ease
-  of Use}.
-\newblock In H.~Ganzinger, editor, {\em Proc.\ of the 16th CADE, Trento},
-  volume 1632 of {\em LNAI}, pages 232--236. Springer, 1999.
-
-\bibitem[HV11]{HV:CADE-2011}
-Kry\v{s}tof Hoder and Andrei Voronkov.
-\newblock {Sine Qua Non for Large Theory Reasoning}.
-\newblock In Nikolaj Bj{\o}rner and Viorica Sofronie-Stokkermans, editors, {\em
-  Proc.\ of the 23rd CADE, Wroclav}, volume 6803 of {\em LNAI}, pages 299--314.
-  Springer, 2011.
-
-\bibitem[McC94]{Mc94}
-W.W. McCune.
-\newblock {Otter 3.0 Reference Manual and Guide}.
-\newblock Technical Report ANL-94/6, Argonne National Laboratory, 1994.
-
-\bibitem[MIL{\etalchar{+}}97]{MILSGSM:JAR-97}
-M.~Moser, O.~Ibens, R.~Letz, J.~Steinbach, C.~Goller, J.~Schumann, and K.~Mayr.
-\newblock {SETHEO and E-SETHEO -- The CADE-13 Systems}.
-\newblock {\em Journal of Automated Reasoning}, 18(2):237--246, 1997.
-\newblock Special Issue on the CADE 13 ATP System Competition.
-
-\bibitem[MMZ{\etalchar{+}}01]{MMZZM:DAC-2001}
-M.~Moskewicz, C.~Madigan, Y.~Zhao, L.~Zhang, and S.~Malik.
-\newblock {Chaff: Engineering an Efficient SAT Solver}.
-\newblock In D.~Blaauw and L.~Lavagno, editors, {\em Proc.\ of the 38th Design
-  Automation Conference, Las Vegas}, pages 530--535, 2001.
-
-\bibitem[MW97]{MW:JAR-97}
-W.W. McCune and L.~Wos.
-\newblock {Otter: The CADE-13 Competition Incarnations}.
-\newblock {\em Journal of Automated Reasoning}, 18(2):211--220, 1997.
-\newblock Special Issue on the CADE 13 ATP System Competition.
-
-\bibitem[NN93]{NN:RTA-93}
-P.~Nivela and R.~Nieuwenhuis.
-\newblock {Saturation of First-Order (Constrained) Clauses with the Saturate
-  System}.
-\newblock In C.~Kirchner, editor, {\em Proc.\ of the 5th RTA, Montreal}, volume
-  690 of {\em LNCS}, pages 436--440. Springer, 1993.
-
-\bibitem[NW01]{NW:SmallCNF-2001}
-A.~Nonnengart and C.~Weidenbach.
-\newblock {Computing Small Clause Normal Forms}.
-\newblock In A.~Robinson and A.~Voronkov, editors, {\em Handbook of Automated
-  Reasoning}, volume~I, chapter~5, pages 335--367. Elsevier Science and MIT
-  Press, 2001.
-
-\bibitem[RV01]{RV:IJCAR-2001}
-A.~Riazanov and A.~Voronkov.
-\newblock {Vampire 1.1 (System Description)}.
-\newblock In R.~Gor{\'e}, A.~Leitsch, and T.~Nipkow, editors, {\em Proc.\ of
-  the 1st IJCAR, Siena}, volume 2083 of {\em LNAI}, pages 376--380. Springer,
-  2001.
-
-\bibitem[RV02]{RV:AICOM-2002}
-A.~Riazanov and A.~Voronkov.
-\newblock {The Design and Implementation of VAMPIRE}.
-\newblock {\em Journal of AI Communications}, 15(2/3):91--110, 2002.
-
-\bibitem[Sch00]{Schulz:Diss-2000}
-S.~Schulz.
-\newblock {\em {Learning Search Control Knowledge for Equational Deduction}}.
-\newblock Number 230 in DISKI. Akademische Verlagsgesellschaft Aka GmbH Berlin,
-  2000.
-\newblock Ph.D.~Thesis, Fakult{\"a}t f{\"u}r Informatik, Technische
-  Universit{\"a}t M{\"u}nchen.
-
-\bibitem[Sch01]{Schulz:KI-2001}
-S.~Schulz.
-\newblock {Learning Search Control Knowledge for Equational Theorem Proving}.
-\newblock In F.~Baader, G.~Brewka, and T.~Eiter, editors, {\em Proc.\ of the
-  Joint German/Austrian Conference on Artificial Intelligence (KI-2001)},
-  volume 2174 of {\em LNAI}, pages 320--334. Springer, 2001.
-
-\bibitem[Sch02a]{Schulz:FLAIRS-2002}
-S.~Schulz.
-\newblock {A Comparison of Different Techniques for Grounding
-  Near-Propositional CNF Formulae}.
-\newblock In S.~Haller and G.~Simmons, editors, {\em Proc.\ of the 15th FLAIRS,
-  Pensacola}, pages 72--76. AAAI Press, 2002.
-
-\bibitem[Sch02b]{Schulz:AICOM-2002}
-S.~Schulz.
-\newblock {E -- A Brainiac Theorem Prover}.
-\newblock {\em Journal of AI Communications}, 15(2/3):111--126, 2002.
-
-\bibitem[Sch04]{Schulz:IJCAR-2004}
-S.~Schulz.
-\newblock {System Description: E~0.81}.
-\newblock In D.~Basin and M.~Rusinowitch, editors, {\em Proc.\ of the 2nd
-  IJCAR, Cork, Ireland}, volume 3097 of {\em LNAI}, pages 223--228. Springer,
-  2004.
-
-\bibitem[Sch13]{Schulz:LPAR-2013}
-Stephan Schulz.
-\newblock {System Description: E~1.8}.
-\newblock In Ken McMillan, Aart Middeldorp, and Andrei Voronkov, editors, {\em
-  Proc.\ of the 19th LPAR, Stellenbosch}, volume 8312 of {\em LNCS}, pages
-  735--743. Springer, 2013.
-
-\bibitem[Sch16]{E:WWW-04}
-S.~Schulz.
-\newblock {The E Web Site}.
-\newblock \url{http://www.eprover.org}, 2004--2016.
-
-\bibitem[SS02]{SS:CADE-2002}
-S.~Schulz and G.~Sutcliffe.
-\newblock {System Description: GrAnDe 1.0}.
-\newblock In A.~Voronkov, editor, {\em Proc.\ of the 18th CADE, Copenhagen},
-  volume 2392 of {\em LNAI}, pages 280--284. Springer, 2002.
-
-\bibitem[SSCB12]{SSCB:LPAR-2012}
-Geoff Sutcliffe, Stephan Schulz, Koen Claessen, and Peter Baumgartner.
-\newblock {The TPTP Typed First-order Form with Arithmetic}.
-\newblock In Nikolaj Bj{\o}rner and Andrei Voronkov, editors, {\em Proc.\ of
-  the 18th LPAR, Merida}, volume 7180 of {\em LNAI}, pages 406--419. Springer,
-  2012.
-
-\bibitem[SSCG06]{SSCG:IJCAR-2006}
-Geoff Sutcliffe, Stephan Schulz, Koen Claessen, and Allen~Van Gelder.
-\newblock {Using the TPTP Language for Writing Derivations and Finite
-  Interpretations }.
-\newblock In Ulrich Fuhrbach and Natarajan Shankar, editors, {\em Proc.\ of the
-  3rd IJCAR, Seattle}, volume 4130 of {\em LNAI}, pages 67--81. Springer, 2006.
-
-\bibitem[SSSU]{SSSU:TPTP-ANS}
-Geoff Sutcliffe, Mark Stickel, Stephan Schulz, and Josef Urban.
-\newblock {Answer Extraction for TPTP}.
-\newblock
-  \url{http://www.cs.miami.edu/~tptp/TPTP/Proposals/AnswerExtraction.html}.
-\newblock (acccessed 2013-07-08).
-
-\bibitem[Sut09]{Sutcliffe:TPTP-WWW}
-G.~Sutcliffe.
-\newblock {The TPTP Web Site}.
-\newblock \url{http://www.tptp.org}, 2004--2009.
-\newblock (acccessed 2009-09-28).
-
-\bibitem[Tam97]{Tammet:JAR-97}
-T.~Tammet.
-\newblock {Gandalf}.
-\newblock {\em Journal of Automated Reasoning}, 18(2):199--204, 1997.
-\newblock Special Issue on the CADE 13 ATP System Competition.
-
-\bibitem[WAB{\etalchar{+}}99]{WABCEKTT:CADE-99}
-C.~Weidenbach, B.~Afshordel, U.~Brahm, C.~Cohrs, T.~Engel, G.~Jung, E.~Keen,
-  C.~Theobalt, and D.~Topic.
-\newblock {System Abstract: SPASS Version 1.0.0}.
-\newblock In H.~Ganzinger, editor, {\em Proc.\ of the 16th CADE, Trento},
-  volume 1632 of {\em LNAI}, pages 378--382. Springer, 1999.
-
-\bibitem[Wei99]{Weidenbach:personal-99}
-C.~Weidenbach.
-\newblock {Personal communication at CADE-16, Trento}.
-\newblock Unpublished, 1999.
-
-\bibitem[Wei01]{Weidenbach:SPASS-2001}
-C.~Weidenbach.
-\newblock {SPASS: Combining Superposition, Sorts and Splitting}.
-\newblock In A.~Robinson and A.~Voronkov, editors, {\em Handbook of Automated
-  Reasoning}, volume~II, chapter~27, pages 1965--2013. Elsevier Science and MIT
-  Press, 2001.
-
-\bibitem[WGR96]{WGR96}
-C.~Weidenbach, B.~Gaede, and G.~Rock.
-\newblock {SPASS \& FLOTTER Version 0.42}.
-\newblock In M.A. McRobbie and J.K. Slaney, editors, {\em Proc.\ of the 13th
-  CADE, New Brunswick}, volume 1104 of {\em LNAI}, pages 141--145. Springer,
-  1996.
-
-\end{thebibliography}
+\bibliography{stsbib}
 
 \printindex
 
