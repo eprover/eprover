@@ -36,11 +36,18 @@ Contents
 
 #define PVERSION      "2.2rc001"
 
-#ifdef NDEBUG
-#define VERSION PVERSION
+#ifdef ENABLE_LFHO
+#define LFH "-ho"
 #else
-#define VERSION PVERSION "-DEBUG"
+#define LFH ""
 #endif
+
+#ifdef NDEBUG
+#define VERSION PVERSION LFH
+#else
+#define VERSION PVERSION LFH "-DEBUG"
+#endif
+
 
 #define E_NICKNAME     "Thurbo Moonlight"
 

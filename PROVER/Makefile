@@ -19,7 +19,7 @@ PROJECT = eprover e_ltb_runner e_stratpar e_deduction_server e_axfilter \
 	  classify_problem termprops e_client e_server\
           direct_examples epclanalyse epclextract checkproof eground\
           enormalizer edpll epcllemma\
-          ekb_create ekb_insert ekb_ginsert ekb_delete tsm_classify
+          ekb_create ekb_insert ekb_ginsert ekb_delete tsm_classify $(EHOH)
 LIB     = $(PROJECT)
 all: $(LIB)
 
@@ -45,6 +45,9 @@ EPROVER = eprover.o ../lib/CONTROL.a ../lib/HEURISTICS.a\
 
 eprover: $(EPROVER)
 	$(LD) -o eprover $(EPROVER) $(LIBS)
+
+eprover-ho: eprover
+	mv eprover eprover-ho
 
 E_LTB_RUNNER = e_ltb_runner.o ../lib/CONTROL.a ../lib/HEURISTICS.a\
             ../lib/CLAUSES.a ../lib/ORDERINGS.a ../lib/TERMS.a\
