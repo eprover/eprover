@@ -842,6 +842,7 @@ __inline__ Term_p MakeRewrittenTerm(Term_p orig, Term_p new, int remaining_orig,
    }
    else
    {
+      TermSetBank(new, bank);
       return new; // If no args are remaining -- the situation is the same as in FO case
    }
 }
