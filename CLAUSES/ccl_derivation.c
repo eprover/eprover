@@ -1718,11 +1718,12 @@ Derivation_p DerivationAlloc(Sig_p sig)
 {
    Derivation_p handle = DerivationCellAlloc();
 
-   handle->sig           = sig;
-   handle->ordered       = false;
-   handle->deriv         = NULL;
-   handle->roots         = PStackAlloc();
-   handle->ordered_deriv = PStackAlloc();
+   handle->sig            = sig;
+   handle->ordered        = false;
+   handle->has_conjecture = false;
+   handle->deriv          = NULL;
+   handle->roots          = PStackAlloc();
+   handle->ordered_deriv  = PStackAlloc();
 
    handle->clause_step_count        = 0;
    handle->formula_step_count       = 0;
@@ -1889,7 +1890,8 @@ long DerivationExtract(Derivation_p derivation, PStack_p root_clauses)
 //
 //   Go through the derivation, marking all proof steps. Assumes that
 //   derivation->roots provides (direct or indirect) access to all
-//   proof steps.
+//   proof steps. Sets derivation->has_conjecture if a conjecture-type
+//   clause or formula is in the proof tree.
 //
 // Global Variables: -
 //
@@ -1935,6 +1937,10 @@ long DerivationMarkProofSteps(Derivation_p derivation)
          while(!PStackEmpty(parent_clauses))
          {
             clause = PStackPopP(parent_clauses);
+            if(ClauseIsConjecture(clause))
+            {
+               derivation->has_conjecture = true;
+            }
             newnode = DerivationGetDerived(derivation, clause, NULL);
             if(!DerivedInProof(newnode))
             {
@@ -1945,6 +1951,10 @@ long DerivationMarkProofSteps(Derivation_p derivation)
          while(!PStackEmpty(parent_formulas))
          {
             form = PStackPopP(parent_formulas);
+            if(FormulaIsConjecture(form))
+            {
+               derivation->has_conjecture = true;
+            }
             newnode = DerivationGetDerived(derivation, NULL, form);
             if(!DerivedInProof(newnode))
             {
@@ -1957,6 +1967,7 @@ long DerivationMarkProofSteps(Derivation_p derivation)
    PStackFree(parent_clauses);
    PStackFree(parent_formulas);
    PStackFree(stack);
+
 
    return proof_steps;
 }
@@ -2289,9 +2300,10 @@ void DerivationDotPrint(FILE* out, Derivation_p derivation,
 
 /*-----------------------------------------------------------------------
 //
-// Function: DerivationComputeAndPrint()
+// Function: DerivationPrintConditional()
 //
-//   Compute, print, and discard a derivation.
+//   Print a derivation and its statistics, based on the selected
+//   inputs.
 //
 // Global Variables: -
 //
@@ -2299,12 +2311,10 @@ void DerivationDotPrint(FILE* out, Derivation_p derivation,
 //
 /----------------------------------------------------------------------*/
 
-void DerivationComputeAndPrint(FILE* out, char* status, PStack_p root_clauses,
-                               Sig_p sig, ProofOutput print_derivation,
-                               bool print_analysis)
+void DerivationPrintConditional(FILE* out, char* status, Derivation_p derivation,
+                                Sig_p sig, ProofOutput print_derivation,
+                                bool print_analysis)
 {
-   Derivation_p derivation = DerivationCompute(root_clauses, sig);
-
    if(print_derivation == POList)
    {
       DerivationPrint(GlobalOut, derivation, status);
@@ -2337,8 +2347,33 @@ void DerivationComputeAndPrint(FILE* out, char* status, PStack_p root_clauses,
       fprintf(GlobalOut, "# Proof object simplifying inferences  : %lu\n",
               derivation->simplifying_inf_count);
    }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: DerivationComputeAndPrint()
+//
+//   Compute, print, and discard a derivation.
+//
+// Global Variables: -
+//
+// Side Effects    : Output, memory operations
+//
+/----------------------------------------------------------------------*/
+
+void DerivationComputeAndPrint(FILE* out, char* status, PStack_p root_clauses,
+                               Sig_p sig, ProofOutput print_derivation,
+                               bool print_analysis)
+{
+   Derivation_p derivation = DerivationCompute(root_clauses, sig);
+
+   DerivationPrintConditional(out, status, derivation, sig,
+                              print_derivation, print_analysis);
+
    DerivationFree(derivation);
 }
+
 
 
 
