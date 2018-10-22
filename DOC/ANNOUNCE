@@ -1693,6 +1693,11 @@ Other user-visible changes include:
 - E now detects "ContradictoryAxioms" as a special case.
 - The automatic modes have been updates once more.
 
+E 2.2 probably is the last version of the prover without support for
+some higher-order logic. We expect to release an experimental version
+of E 2.3 with optional support for lambda-free higher-order logic in
+the near future.
+
 E is available as a source distribution for UNIX-variants.
 Historically, it installed cleanly under all UNIX variants I could get
 my hands on: Various versions of GNU/Linux for Intel and XScale,
