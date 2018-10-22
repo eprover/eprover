@@ -5,12 +5,19 @@ Version 2.1 -> 2.2 Thurbo Moonlight
 
 - Prover now always builds internal proof object (--proof-object only
   controls output)
-- Moved to lazy orphan deletion
+- As a result, E can now detect ContradictoryAxioms if the proof state
+  is unsatisfiable even without the conjecture.
+- Moved from eager to lazy orphan deletion. If you don't know what
+  this means: It's much cooler and simpler.
 - Fixed and simplified processing of unprocessed clauses
 - Refactored PicoSAT integration - PicoSAT is now linked into E
-  proper, and used via its API
-- Added check enforcing that fof, tff and tcf formulas are closed (no
+  proper, and used via its API. We are back to a single binary
+  executable with no dependencies.
+- Prover now enforces that fof, tff and tcf formulas are closed (no
   free variables allowed)
+- Fixed condensation (somewhat).
+- New automatic modes (but with very few current test results)
+
 
 Version 2.0 -> 2.1 Maharani Hills
 

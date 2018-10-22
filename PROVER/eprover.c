@@ -375,6 +375,7 @@ int main(int argc, char* argv[])
       parsed_ax_no,
       relevancy_pruned = 0;
    double           preproc_time;
+   Derivation_p deriv;
 
    assert(argv[0]);
 
@@ -570,37 +571,51 @@ int main(int argc, char* argv[])
          DocClauseQuoteDefault(2, success, "proof");
       }
       fprintf(GlobalOut, "\n# Proof found!\n");
+
+      if(print_full_deriv)
+      {
+         ClauseSetPushClauses(proofstate->extract_roots,
+                              proofstate->processed_pos_rules);
+         ClauseSetPushClauses(proofstate->extract_roots,
+                              proofstate->processed_pos_eqns);
+         ClauseSetPushClauses(proofstate->extract_roots,
+                              proofstate->processed_neg_units);
+         ClauseSetPushClauses(proofstate->extract_roots,
+                              proofstate->processed_non_units);
+         ClauseSetPushClauses(proofstate->extract_roots,
+                              proofstate->unprocessed);
+      }
+      deriv = DerivationCompute(proofstate->extract_roots,
+                                proofstate->signature);
+
       if(!proofstate->status_reported)
       {
-         TSTPOUT(GlobalOut, neg_conjectures?"Theorem":"Unsatisfiable");
+         if(deriv->has_conjecture)
+         {
+            TSTPOUT(GlobalOut, neg_conjectures?"Theorem":"Unsatisfiable");
+         }
+         else
+         {
+            TSTPOUT(GlobalOut, "ContradictoryAxioms");
+         }
          proofstate->status_reported = true;
          retval = PROOF_FOUND;
       }
+
+
       if(PrintProofObject)
       {
-         if(print_full_deriv)
-         {
-            ClauseSetPushClauses(proofstate->extract_roots,
-                                 proofstate->processed_pos_rules);
-            ClauseSetPushClauses(proofstate->extract_roots,
-                                 proofstate->processed_pos_eqns);
-            ClauseSetPushClauses(proofstate->extract_roots,
-                                 proofstate->processed_neg_units);
-            ClauseSetPushClauses(proofstate->extract_roots,
-                                 proofstate->processed_non_units);
-            ClauseSetPushClauses(proofstate->extract_roots,
-                                 proofstate->unprocessed);
-         }
-         DerivationComputeAndPrint(GlobalOut,
+         DerivationPrintConditional(GlobalOut,
                                    "CNFRefutation",
-                                   proofstate->extract_roots,
-                                   proofstate->signature,
-                                   print_derivation,
-                                   OutputLevel||print_statistics);
+                                    deriv,
+                                    proofstate->signature,
+                                    print_derivation,
+                                    OutputLevel||print_statistics);
          ProofStateAnalyseGC(proofstate);
          ProofStateTrain(proofstate, proc_training_data&TSPrintPos,
                          proc_training_data&TSPrintNeg);
       }
+      DerivationFree(deriv);
    }
    else if(proofstate->watchlist && ClauseSetEmpty(proofstate->watchlist))
    {

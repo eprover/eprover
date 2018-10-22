@@ -158,6 +158,7 @@ typedef struct derived_cell
 typedef struct derivation_cell
 {
    bool       ordered;
+   bool       has_conjecture;
    Sig_p      sig;
    PObjTree_p deriv;
    PStack_p   roots;
@@ -273,6 +274,10 @@ void DerivationAnalyse(Derivation_p derivationt);
 void DerivationPrint(FILE* out, Derivation_p derivation, char* frame);
 void DerivationDotPrint(FILE* out, Derivation_p derivation,
                         ProofOutput print_derivation);
+
+void DerivationPrintConditional(FILE* out, char* status, Derivation_p derivation,
+                                Sig_p sig, ProofOutput print_derivation,
+                                bool print_analysis);
 
 void DerivationComputeAndPrint(FILE* out, char* status, PStack_p root_clauses,
                                Sig_p sig, ProofOutput print_derivation,
