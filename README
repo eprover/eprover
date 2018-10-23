@@ -22,7 +22,7 @@ Simplest installation (in-place):
 > ./configure
 > make
 > cd PROVER
-> eprover -h | more
+> ./eprover -h | more
 
 Read the rest of this file and the fine (if incomplete) manual if
 anything fails. There should be a copy of the manual in
@@ -54,31 +54,36 @@ equational theorem prover. This version of E is free software, see the
 file COPYING for details about the license and the fact that THERE IS
 NO WARRANTY!
 
-Release 2.1 contains mostly minor changes and improvements. In
-particular, the support for the many-sorted TFF logic should now be
-more robust. Search behaviour was improved with changes to the
-automatic and automatic-schedule mode. There also is an experimental
-integration of PicoSAT.
+Release 2.2 has a number of significant internal modifications, in
+particular for handling orphan clauses (clauses generated, but not
+processed before one of their parents was shown redundant) and proof
+objects.
+
+User-visible changes include stricter syntax checking (full
+quantification for all variables in tcf, tff and fof is now enforced),
+detection of cases where a proof is valid regardless of conjecture
+(i.e. where the axioms are shown to be contradictory), and much better
+integration of PicoSAT. The later change in particular means that the
+core "eprover" program is a single binary without external
+dependencies.
 
 
 What is E?
 ----------
 
 E is an equational theorem prover. That means it is a program that you
-can stuff a mathematical specification (in first-order logic with
-equality) and a hypothesis into, and which will then run forever,
-using up all of your machines resources. Very occasionally it will
-find a proof for the hypothesis and tell you so ;-).
+can stuff a mathematical specification (in many-sorted first-order
+logic with equality) and a hypothesisconjecture into, and which will
+then run forever, using up all of your machines resources. Very
+occasionally it will find a proof for the conjecture and tell you so
+;-).
 
 E has been created and is currently maintained by Stephan Schulz,
-<schulz@eprover.org>. It is developed and distributed under the GNU
-General Public License. However, you may possibly come around versions
-sold or given to you under a different license, probably by Safelogic
-A.B. in Gothenburg, Sweden. For some time, Safelogic paid for the
-right to distribute (and relicense) closed-source versions of E with
-proprietary modifications.
+<schulz@eprover.org>, now with the help of several contributors (see
+DOC/CONTRIBUTORS). It is developed and distributed under the GNU
+General Public License.
 
-The E homepage can be found at http://www.eprover.org
+The E homepage can be found at https://www.eprover.org
 
 
 Installation:
@@ -121,7 +126,7 @@ Then type
 
    make
 
-to compile the library and all included programs under the E
+to compile the libraries and all included programs under the E
 directory. If you want to install E in a particular EXECDIR, type
 
   make install
@@ -167,9 +172,9 @@ For impatient people who do not want to read anything:
 should give a reasonable performance on a large class of problems
 (unless your main memory is really small).
 
-The new auto mode will perform a heuristic pruning of the axiom set
-which may result in incompleteness for very large problems (many
-thousands of axioms). If you need completeness, use
+The auto mode will perform a heuristic pruning of the axiom set which
+may result in incompleteness for very large problems (many thousands
+of axioms). If you need completeness, use
 
   eprover --satauto --memory-limit=<80%_of_your_main_memory> <problem-file>
 
