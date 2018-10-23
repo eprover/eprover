@@ -78,6 +78,17 @@ A.B. in Gothenburg, Sweden. For some time, Safelogic paid for the
 right to distribute (and relicense) closed-source versions of E with
 proprietary modifications.
 
+E-ho
+----
+Since this verion, E supports a fragment of higher-order logic
+called lambda-free higher-order logic (LFHOL). For more details 
+about LFHOL, see manual. By default, E will compile in 
+mode that supports first-order logic only. To enable LFHOL support
+run ./configure --enable-ho. Compiling E in this mode
+will create a binary called eprover-ho. Note that LFHOL support
+is still experimental. Any issues you encounter with LFHOL 
+support should be reported to petar.vukmirovic2@gmail.com
+
 The E homepage can be found at http://www.eprover.org
 
 

@@ -1671,7 +1671,46 @@ In either TPTP format, clauses and formulas with TPTP type
 \texttt{question} (the last two in TPTP-3 only) are considered goal
 clauses for the \texttt{--sos-uses-input-types} option.
 
+\section{Lambda-free higher-order extension}
 
+As part of the ongoing Matryoshka project
+(\url{http://matryoshka.gforge.inria.fr/}), since version 2.3
+E has been extended to support a fragment of higher-order 
+logic called lambda-free higher-order logic (LFHOL). 
+In this section we will give basics needed to understand
+LFHOL syntax. Detailed description (which includes semantics) is given
+in paper by Bentkamp et al. 
+(\url{http://matryoshka.gforge.inria.fr/pubs/lfhosup_report.pdf}). 
+
+LFHOL extends FOL by allowing partial appliciation of function symbols
+as well as application of variables to other terms. Unlike other HOLs,
+there are no comprehension principles and boolean formulas can appear
+only as atoms (not as arguments to other symbols). Furthermore,
+quantification over booleans is not allowed. LFHOL is simply typed -- 
+each type is either atomic or function type.
+
+In E 2.3, LFHOL formulas are input using a subset of 
+TPTP THF syntax. More precisely, E 2.3 supports subset of THF syntax 
+that is monomorphic, without lambda abstractions, constants !! and ??
+and anything else that you get an error for :)
+
+For example, LFHOL is expressive enough to reason about higher-order
+combinators such as \textsf{map} (pointwise application of a function to list)
+or \textsf{power} (iterative oplication of a function). 
+Problem \texttt{list.p} in folder \texttt{EXAMPLE\_PROBLEMS/LFHOL} 
+shows all LFHOL features used to succintly
+express problem that has more verbose encodings in FOL. 
+
+To get a feeling for what is provable in LFHOL, consider the following
+example:
+
+$$  \exists h.\, \forall x \, y. \, h \, x \, y = \textsf{f}  \, y \, x $$
+
+In most HOLs, this formula is provable, and the witness is function
+$\lambda x \, y. \, \textsf{f} \, y \, x$. In LFHOL, without axiomatizing
+the function that permutes \textsf{f}'s arguments, the formula is not
+provable. This problem (both with and without appropriate axioms)
+is present in the folder \texttt{EXAMPLE\_PROBLEMS/LFHOL}.
 
 \chapter{Output\ldots or how to interpret what you see}
 \label{sec:output}
