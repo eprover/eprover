@@ -43,7 +43,50 @@ bool FormulasKeepInputNames = true;
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
 
+void report_def_error(Scanner_p in)
+{
+   AktTokenError(in, "E currently supports definitions of type <predicate "
+                     " symbol> = <closed LFHOL formula>",
+                 SYNTAX_ERROR);
+}
 
+TFormula_p handle_ho_def(Scanner_p in, TB_p bank)
+{
+   assert(problemType == PROBLEM_HO);
+
+   bool in_parens = false;
+
+   if(TestInpTok(in, OpenBracket))
+   {
+      AcceptInpTok(in, OpenBracket);
+      in_parens = true;
+   }
+
+   Term_p lside_term = TBTermParse(in, bank); 
+   if(TypeIsBool(lside_term->type))
+   {
+      TFormula_p lside = EqnTermsTBTermEncode(bank, lside_term, 
+                                              bank->true_term, true, PENormal);
+      if(!TestInpTok(in, EqualSign))
+      {
+         report_def_error(in);
+      }
+
+      AcceptInpTok(in, EqualSign);
+      TFormula_p res =  TFormulaFCodeAlloc(bank, bank->sig->equiv_code, 
+                                           lside, TFormulaTSTPParse(in, bank));
+      if(in_parens)
+      {
+         AcceptInpTok(in, CloseBracket);
+      }
+      return res;
+   }
+   else
+   {
+      report_def_error(in);
+   }
+   return NULL;
+}
 
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
@@ -417,6 +460,7 @@ WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms)
    }
    else
    {
+      bool is_def = TestInpId(in, "definition");
       type = (FormulaProperties)
          ClauseTypeParse(in,is_tcf?
                          "axiom|hypothesis|definition|assumption|"
@@ -434,7 +478,11 @@ WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms)
       line        = AktToken(in)->line;
       column      = AktToken(in)->column;
 
-      if(is_tcf)
+      if(problemType == PROBLEM_HO && is_def)
+      {
+         tform = handle_ho_def(in, terms);
+      }
+      else if(is_tcf)
       {
          // printf("# Tcf Start!\n");
          tform = TcfTSTPParse(in, terms);
