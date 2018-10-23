@@ -307,7 +307,6 @@ static bool eqn_parse_infix(Scanner_p in, TB_p bank, Term_p *lref,
    Term_p  rterm;
    bool    positive = true;
 
-
    bool in_parens = false;
    if(problemType == PROBLEM_HO && TestInpTok(in, OpenBracket))
    {
@@ -384,6 +383,15 @@ static bool eqn_parse_infix(Scanner_p in, TB_p bank, Term_p *lref,
       }
       else
       { /* It's a predicate */
+         if(problemType == PROBLEM_HO && !TermIsTopLevelVar(lterm) 
+            && SigIsFunction(bank->sig, lterm->f_code))
+         {
+            DStr_p err = DStrAlloc();
+            DStrAppendStr(err, "Symbol ");
+            DStrAppendStr(err, SigFindName(bank->sig, lterm->f_code));
+            DStrAppendStr(err, " interpreted both as function and predicate (check parentheses).");
+            AktTokenError(in, DStrView(err), SYNTAX_ERROR);
+         }
          rterm = bank->true_term; /* Non-Equational literal */
          if(!TermIsTopLevelVar(lterm))
          {
@@ -782,6 +790,14 @@ Eqn_p EqnHOFParse(Scanner_p in, TB_p bank, bool* continue_parsing)
    }
    else
    {
+      if(!TermIsTopLevelVar(lterm) && SigIsFunction(bank->sig, lterm->f_code))
+      {
+         DStr_p err = DStrAlloc();
+         DStrAppendStr(err, "Symbol ");
+         DStrAppendStr(err, SigFindName(bank->sig, lterm->f_code));
+         DStrAppendStr(err, " interpreted both as function and predicate (check parentheses).");
+         AktTokenError(in, DStrView(err), SYNTAX_ERROR);
+      }
       if(!TermIsTopLevelVar(lterm) && !SigIsPredicate(bank->sig, lterm->f_code))
       {
          TypeDeclareIsPredicate(bank->sig, lterm);
