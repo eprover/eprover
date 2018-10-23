@@ -1693,6 +1693,13 @@ Other user-visible changes include:
 - E now detects "ContradictoryAxioms" as a special case.
 - The automatic modes have been updates once more.
 
+E 2.2 is likely the last version of E not to include some support for
+higher-order logic. We will very shortly provide an experimental
+pre-release of E 2.3, which will include support for lambda-free
+higher order logic. If you are only interested in first-order logic,
+we recommend to upgrade to E 2.2 and wait until at least the full
+release before going to E 2.3.
+
 E is available as a source distribution for UNIX-variants.
 Historically, it installed cleanly under all UNIX variants I could get
 my hands on: Various versions of GNU/Linux for Intel and XScale,
@@ -1706,7 +1713,7 @@ the GNU Lesser General Public License.
 
 You can find the source distribution and additional information at
 the E website at
-               http://www.eprover.org
+               https://www.eprover.org
 
 If your prefer to live on the bleeding edge, or to contribute to E,
 the prover now also lives on GitHub at
