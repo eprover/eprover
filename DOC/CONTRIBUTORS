@@ -25,3 +25,8 @@ MohamedBassem <medoox240@gmail.com>
 
 Martin Moehrmann <moehrmann@eprover.org>
 - Cleanup, local optimisations
+
+Petar Vukmirovic <petar.vukmirovic2@gmail.com>
+- Improved PicoSAT integration
+- Various minor fixes
+- (Future: LFHO-E)
