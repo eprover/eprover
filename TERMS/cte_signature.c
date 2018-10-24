@@ -1592,7 +1592,7 @@ void SigParseTFFTypeDeclaration(Scanner_p in, Sig_p sig)
       }
       else
       {
-        AktTokenError(in, "LFHOL does not support quantification over bool.", 
+        AktTokenError(in, "LFHOL does not support boolean arguments.", 
                       SYNTAX_ERROR);
       }
       

@@ -43,12 +43,19 @@ bool FormulasKeepInputNames = true;
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
 
-void report_def_error(Scanner_p in)
-{
-   AktTokenError(in, "E currently supports definitions of type <predicate "
-                     " symbol> = <closed LFHOL formula>",
-                 SYNTAX_ERROR);
-}
+/*-----------------------------------------------------------------------
+//
+// Function: handle_ho_def()
+//
+//   Parse higher order definitions of form s = t where both s and t
+//   are non-formula terms or p = f where p is a predicate symbol
+//   and f is a formula.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
 
 TFormula_p handle_ho_def(Scanner_p in, TB_p bank)
 {
@@ -62,14 +69,16 @@ TFormula_p handle_ho_def(Scanner_p in, TB_p bank)
       in_parens = true;
    }
 
-   Term_p lside_term = TBTermParse(in, bank); 
+   Term_p lside_term = TBTermParse(in, bank);
    if(TypeIsBool(lside_term->type))
    {
       TFormula_p lside = EqnTermsTBTermEncode(bank, lside_term, 
                                               bank->true_term, true, PENormal);
       if(!TestInpTok(in, EqualSign))
       {
-         report_def_error(in);
+         AktTokenError(in, "E currently supports definitions of type <predicate "
+                           " symbol> = <closed LFHOL formula>",
+                       SYNTAX_ERROR);      
       }
 
       AcceptInpTok(in, EqualSign);
@@ -83,7 +92,20 @@ TFormula_p handle_ho_def(Scanner_p in, TB_p bank)
    }
    else
    {
-      report_def_error(in);
+      bool positive = true;
+      if(TestInpTok(in, NegEqualSign))
+      {
+         positive = false;
+      }
+      AcceptInpTok(in, EqualSign|NegEqualSign);
+      Term_p rside = TBTermParse(in, bank);
+      TFormula_p res = EqnTermsTBTermEncode(bank, lside_term, rside, 
+                                            positive, PENormal);
+      if(in_parens)
+      {
+         AcceptInpTok(in, CloseBracket);
+      }
+      return res;                                      
    }
    return NULL;
 }
