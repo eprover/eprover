@@ -218,7 +218,7 @@ static long fp_index_rek_find_unif(FPTree_p index, IndexFP_p key,
                                     current+1,
                                     collect);
       if(/*problemType == PROBLEM_HO ||*/ !SigIsPredicate(sig, key[current]))
-      {  /* Predicates can never unify with variables 
+      {  /* Predicates can never unify with variables
                -- not true in full HO case
                -- temproraily enabled  */
          res += fp_index_rek_find_unif(fpindex_alternative(index, ANY_VAR),
@@ -362,12 +362,14 @@ static long fp_index_rek_find_matchable(FPTree_p index, IndexFP_p key,
                                          sig,
                                          current+1,
                                          collect);
-      res += fp_index_rek_find_matchable(fpindex_alternative(index, BELOW_VAR),
-                                         key,
-                                         sig,
-                                         current+1,
-                                         collect);
-
+      if(key[current] == BELOW_VAR)
+      {
+         res += fp_index_rek_find_matchable(fpindex_alternative(index, BELOW_VAR),
+                                            key,
+                                            sig,
+                                            current+1,
+                                            collect);
+      }
       iter_start = key[current] == BELOW_VAR? 0:1;
       iter = IntMapIterAlloc(index->f_alternatives, iter_start, LONG_MAX);
       while((child=IntMapIterNext(iter, &i)))

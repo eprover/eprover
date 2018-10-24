@@ -139,7 +139,7 @@ static Term_p tb_termtop_insert(TB_p bank, Term_p t)
    {
       assert(TermIsShared(t->args[i]));
    }
-#endif   
+#endif
 
    /* Infer the sort of this term (may be temporary) */
    if(t->type == NULL)
@@ -417,7 +417,7 @@ static Term_p normalize_head(Term_p head, Term_p* rest_args, int rest_arity)
       {
          res->args = NULL;
       }
-      
+
       res->arity = total_arity;
    }
    assert(TermIsShared(head));
@@ -462,7 +462,7 @@ static Term_p make_head(Sig_p sig, const char* f_name)
 //
 // Function: parse_one_ho()
 //
-//    Parses one HO symbol. 
+//    Parses one HO symbol.
 //
 // Global Variables: -
 //
@@ -478,7 +478,7 @@ static Term_p __inline__  parse_one_ho(Scanner_p in, TB_p bank)
    DStr_p id      = DStrAlloc();
    Type_p type;
    Term_p head;
-   
+
    if((id_type=TermParseOperator(in, id))==FSIdentVar)
    {
       /* A variable may be annotated with a sort */
@@ -668,7 +668,7 @@ Term_p TBInsert(TB_p bank, Term_p term, DerefType deref)
 
       for(i=0; i<t->arity; i++)
       {
-         t->args[i] = TBInsert(bank, term->args[i], 
+         t->args[i] = TBInsert(bank, term->args[i],
                                CONVERT_DEREF(i, limit, deref));
       }
       t = tb_termtop_insert(bank, t);
@@ -714,7 +714,7 @@ Term_p TBInsertNoProps(TB_p bank, Term_p term, DerefType deref)
 
       for(i=0; i<t->arity; i++)
       {
-         t->args[i] = TBInsertNoProps(bank, term->args[i], 
+         t->args[i] = TBInsertNoProps(bank, term->args[i],
                                       CONVERT_DEREF(i, limit, deref));
       }
       t = tb_termtop_insert(bank, t);
@@ -768,7 +768,7 @@ Term_p  TBInsertRepl(TB_p bank, Term_p term, DerefType deref, Term_p old, Term_p
 
       for(i=0; i<t->arity; i++)
       {
-         t->args[i] = TBInsertRepl(bank, term->args[i], 
+         t->args[i] = TBInsertRepl(bank, term->args[i],
                                    CONVERT_DEREF(i, limit, deref), old, repl);
       }
       t = tb_termtop_insert(bank, t);
@@ -862,7 +862,7 @@ Term_p TBInsertInstantiatedHO(TB_p bank, Term_p term, bool follow_bind)
       TermSetBank(t, bank);
       return t;
    }
-   
+
    int ignore_args = 0;
    if(TermIsAppliedVar(term) && term->args[0]->binding && follow_bind)
    {
@@ -898,7 +898,7 @@ Term_p TBInsertInstantiatedHO(TB_p bank, Term_p term, bool follow_bind)
 //
 // Function: TBInsertInstantiated()
 //
-//    Wrapper that chooses which function to call based on the 
+//    Wrapper that chooses which function to call based on the
 //    problem type.
 //
 // Global Variables: TBSupportReplace
@@ -1275,154 +1275,97 @@ Term_p TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop)
    line = AktToken(in)->line;
    column = AktToken(in)->column;
 
-   /* Test for abbreviation */
-   if(TestInpTok(in, Mult))
+   /* Normal term stuff, bloated because of the nonsensical SETHEO
+      syntax */
+
+   if(SigSupportLists && TestInpTok(in, OpenSquare))
    {
-      long           abbrev;
-      TermProperties properties = TPIgnoreProps;
-
-      NextToken(in);
-      abbrev = ParseInt(in);
-
-      if(TestInpTok(in, Colon|Slash))
-      { /* This _defines_ the abbrev! */
-         if(PDArrayElementP(bank->ext_index, abbrev))
-         {
-            /* Error: Abbreviation defined twice */
-            errpos = DStrAlloc();
-            DStrAppendStr(errpos, PosRep(type_stream, source_name, line, column));
-            DStrAppendStr(errpos, "Abbreviation *");
-            DStrAppendInt(errpos, abbrev);
-            DStrAppendStr(errpos, " already defined");
-            Error(DStrView(errpos), SYNTAX_ERROR);
-            DStrFree(errpos);
-         }
-         if(TestInpTok(in, Slash))
-         {
-            NextToken(in);
-            properties = ParseInt(in);
-         }
-         NextToken(in);
-         handle = TBTermParseReal(in, bank, check_symb_prop); /* Elegant, aint it? */
-
-         if(properties)
-         {
-            TBRefSetProp(bank, &handle, properties);
-         }
-         /* printf("# Term %ld = %ld\n", abbrev, handle->entry_no); */
-         PDArrayAssignP(bank->ext_index, abbrev, handle);
-      }
-      else
-      { /* This references the abbrev */
-
-         handle = PDArrayElementP(bank->ext_index, abbrev);
-         if(!handle)
-         {
-            /* Error: Undefined abbrev */
-            errpos = DStrAlloc();
-            DStrAppendStr(errpos, PosRep(type_stream, source_name, line, column));
-            DStrAppendStr(errpos, "Abbreviation *");
-            DStrAppendInt(errpos, abbrev);
-            DStrAppendStr(errpos, " undefined");
-            Error(DStrView(errpos), SYNTAX_ERROR);
-            DStrFree(errpos);
-         }
-      }
+      handle =  tb_parse_cons_list(in, bank, check_symb_prop);
    }
    else
    {
-      /* Normal term stuff, bloated because of the nonsensical SETHEO
-         syntax */
+      id = DStrAlloc();
 
-      if(SigSupportLists && TestInpTok(in, OpenSquare))
+      if((id_type=TermParseOperator(in, id))==FSIdentVar)
       {
-         handle =  tb_parse_cons_list(in, bank, check_symb_prop);
-      }
-      else
-      {
-         id = DStrAlloc();
-
-         if((id_type=TermParseOperator(in, id))==FSIdentVar)
+         /* A variable may be annotated with a sort */
+         if(TestInpTok(in, Colon))
          {
-            /* A variable may be annotated with a sort */
-            if(TestInpTok(in, Colon))
-            {
-               AcceptInpTok(in, Colon);
-               type = TypeBankParseType(in, bank->sig->type_bank);
-               handle = VarBankExtNameAssertAllocSort(bank->vars,
-                                                      DStrView(id), type);
-            }
-            else
-            {
-               handle = VarBankExtNameAssertAlloc(bank->vars, DStrView(id));
-            }
+            AcceptInpTok(in, Colon);
+            type = TypeBankParseType(in, bank->sig->type_bank);
+            handle = VarBankExtNameAssertAllocSort(bank->vars,
+                                                   DStrView(id), type);
          }
          else
          {
-            handle = TermDefaultCellAlloc();
-
-            if(TestInpTok(in, OpenBracket))
-            {
-               if((id_type == FSIdentInt)
-                  &&(bank->sig->distinct_props & FPIsInteger))
-               {
-                  AktTokenError(in,
-                                "Number cannot have argument list "
-                                "(consider --free-numbers)",
-                                false);
-               }
-               if((id_type == FSIdentFloat)
-                  &&(bank->sig->distinct_props & FPIsFloat))
-               {
-                  AktTokenError(in,
-                                "Floating point number cannot have argument list "
-                                "(consider --free-numbers)",
-                                false);
-               }
-               if((id_type == FSIdentRational)
-                  &&(bank->sig->distinct_props & FPIsRational))
-               {
-                  AktTokenError(in,
-                                "Rational number cannot have argument list "
-                                "(consider --free-numbers)",
-                                false);
-               }
-               if((id_type == FSIdentObject)
-                  &&(bank->sig->distinct_props & FPIsObject))
-               {
-                  AktTokenError(in,
-                                "Object cannot have argument list "
-                                "(consider --free-objects)",
-                                false);
-               }
-
-               handle->arity = tb_term_parse_arglist(in, &(handle->args),
-                                                     bank, check_symb_prop);
-            }
-            else
-            {
-               handle->arity = 0;
-            }
-            handle->f_code = TermSigInsert(bank->sig, DStrView(id),
-                                           handle->arity, false, id_type);
-            if(!handle->f_code)
-            {
-               errpos = DStrAlloc();
-               DStrAppendStr(errpos, PosRep(type_stream, source_name, line, column));
-               DStrAppendStr(errpos, DStrView(id));
-               DStrAppendStr(errpos, " used with arity ");
-               DStrAppendInt(errpos, (long)handle->arity);
-               DStrAppendStr(errpos, ", but registered with arity ");
-               DStrAppendInt(errpos,
-                             (long)(bank->sig)->
-                             f_info[SigFindFCode(bank->sig, DStrView(id))].arity);
-               Error(DStrView(errpos), SYNTAX_ERROR);
-               DStrFree(errpos);
-            }
-            handle = tb_termtop_insert(bank, handle);
+            handle = VarBankExtNameAssertAlloc(bank->vars, DStrView(id));
          }
-         DStrFree(id);
       }
+      else
+      {
+         handle = TermDefaultCellAlloc();
+
+         if(TestInpTok(in, OpenBracket))
+         {
+            if((id_type == FSIdentInt)
+               &&(bank->sig->distinct_props & FPIsInteger))
+            {
+               AktTokenError(in,
+                             "Number cannot have argument list "
+                             "(consider --free-numbers)",
+                             false);
+            }
+            if((id_type == FSIdentFloat)
+               &&(bank->sig->distinct_props & FPIsFloat))
+            {
+               AktTokenError(in,
+                             "Floating point number cannot have argument list "
+                             "(consider --free-numbers)",
+                             false);
+            }
+            if((id_type == FSIdentRational)
+               &&(bank->sig->distinct_props & FPIsRational))
+            {
+               AktTokenError(in,
+                             "Rational number cannot have argument list "
+                             "(consider --free-numbers)",
+                             false);
+            }
+            if((id_type == FSIdentObject)
+               &&(bank->sig->distinct_props & FPIsObject))
+            {
+               AktTokenError(in,
+                             "Object cannot have argument list "
+                             "(consider --free-objects)",
+                             false);
+            }
+
+            handle->arity = tb_term_parse_arglist(in, &(handle->args),
+                                                  bank, check_symb_prop);
+         }
+         else
+         {
+            handle->arity = 0;
+         }
+         handle->f_code = TermSigInsert(bank->sig, DStrView(id),
+                                        handle->arity, false, id_type);
+         if(!handle->f_code)
+         {
+            errpos = DStrAlloc();
+            DStrAppendStr(errpos, PosRep(type_stream, source_name, line, column));
+            DStrAppendStr(errpos, DStrView(id));
+            DStrAppendStr(errpos, " used with arity ");
+            DStrAppendInt(errpos, (long)handle->arity);
+            DStrAppendStr(errpos, ", but registered with arity ");
+            DStrAppendInt(errpos,
+                          (long)(bank->sig)->
+                          f_info[SigFindFCode(bank->sig, DStrView(id))].arity);
+            Error(DStrView(errpos), SYNTAX_ERROR);
+            DStrFree(errpos);
+         }
+         handle = tb_termtop_insert(bank, handle);
+         }
+      DStrFree(id);
    }
    DStrReleaseRef(source_name);
 
@@ -1469,7 +1412,7 @@ Term_p  TBTermParseRealHO(Scanner_p in, TB_p bank, bool check_symb_prop)
    if(!TermIsVar(head) && !TermIsAppliedVar(head) && !SigGetType(bank->sig, head->f_code))
    {
       DStr_p msg = DStrAlloc();
-      if(head->f_code > 0) 
+      if(head->f_code > 0)
       {
          DStrAppendStr(msg, SigFindName(bank->sig, head->f_code));
          DStrAppendStr(msg, " with id ");
@@ -1482,7 +1425,7 @@ Term_p  TBTermParseRealHO(Scanner_p in, TB_p bank, bool check_symb_prop)
    allocated = TERMS_INITIAL_ARGS;
    rest_args = (Term_p*)SecureMalloc(allocated*sizeof(Term_p));
    rest_arity = 0;
-   
+
    while(TestInpTok(in, Application))
    {
       AcceptInpTok(in, Application);
@@ -1511,7 +1454,7 @@ Term_p  TBTermParseRealHO(Scanner_p in, TB_p bank, bool check_symb_prop)
 
    if(!TermIsVar(res) && !TermIsShared(res))
    {
-      res = tb_termtop_insert(bank, res);   
+      res = tb_termtop_insert(bank, res);
    }
    else
    {
