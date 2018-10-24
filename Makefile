@@ -63,6 +63,7 @@ cleandist: clean
 	@rm -f *~ */*~
 
 default_config:
+	./configure
 	@cat Makefile.vars| \
 	gawk '/^NODEBUG/{print "NODEBUG    = -DNDEBUG -DFAST_EXIT";next}/^MEMDEBUG/{print "MEMDEBUG   = # -DCLB_MEMORY_DEBUG # -DCLB_MEMORY_DEBUG2";next}/^DEBUGGER/{print "DEBUGGER   = # -g -ggdb";next}/^PROFFLAGS/{print "PROFFLAGS  = # -pg";next}{print}' > __tmpmake__;mv __tmpmake__ Makefile.vars
 
@@ -72,7 +73,7 @@ debug_config:
 	gawk '/^NODEBUG/{print "NODEBUG    = # -DNDEBUG -DFAST_EXIT";next}/^MEMDEBUG/{print "MEMDEBUG   = -DCLB_MEMORY_DEBUG # -DCLB_MEMORY_DEBUG2";next}{print}' > __tmpmake__;mv __tmpmake__ Makefile.vars
 
 # Build a distribution
-distrib: man documentation cleandist default_config
+distrib: default_config man documentation cleandist
 	@echo "Did you think about: "
 	@echo " - Changing the bibliographies to local version"
 	@echo " - increasing the dev version number and committing to git?"
@@ -123,8 +124,8 @@ links: remove_links
 		$(LN) ../$$subdir/$$subdir.a .;\
 	done;
 	@cd PROVER; $(LN) $(PICOSAT)/picosat
-	
-	
+
+
 
 tags:
 	etags.emacs25 `find . \( -name "*.[ch]" -or -name "*.py" \) -and \( -not -path "*include*" -and -not -name ".#*" \)`
