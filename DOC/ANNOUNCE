@@ -1752,9 +1752,9 @@ This is the announcement for the pre-release version of E 2.3
 From: schulz@eprover.org (Stephan Schulz)
 Subject: E Equational Theorem Prover 2.3 "Gielle" pre-release available
 
-E 2.3 "Gielle" is the first version of the successful theorem prover
-to include some support for higher-order logic. In particular, E 2.3
-can be build as a prover for lambda-free higher-order logic.
+E 2.3 "Gielle" is the first version of E to include some support for
+higher-order logic. In particular, E 2.3 can be build as a prover for
+lambda-free higher-order logic.
 
 E is an automated theorem prover for many-sorted first-order logic and
 limited higher-order logic with equality. It has successfully competed
