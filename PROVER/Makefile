@@ -31,6 +31,7 @@ depend: *.c
 clean:
 	@touch does_exist.o does_exist.dSYM $(PROJECT)
 	@rm -r *.o $(PROJECT) *.dSYM
+	@rm -f eprover-ho
 
 # Services (provided by the master Makefile)
 
