@@ -183,6 +183,10 @@ static LitSelNameFunAssocCell name_fun_assoc[] =
    {"SelectCQPrecWNTNp",                     SelectCQPrecWNTNp},
    {"SelectCQIPrecWNTNp",                    SelectCQIPrecWNTNp},
 
+   {"SelectMaxLComplexAvoidAppVar",          SelectMaxLComplexAvoidAppVar},
+   {"SelectMaxLComplexStronglyAvoidAppVar",  SelectMaxLComplexStronglyAvoidAppVar},
+   {"SelectMaxLComplexPreferAppVar",         SelectMaxLComplexPreferAppVar},
+
    {NULL, (LiteralSelectionFun)NULL}
 };
 
@@ -677,6 +681,46 @@ static PDArray_p pos_pred_dist_array_compute(Clause_p clause)
 }
 
 #define pred_dist_array_free(array) PDArrayFree(array)
+
+/*-----------------------------------------------------------------------
+//
+// Function: generic_app_var_sel()
+//
+//   Factors out computation needed for Avoid/PrefferAppVar family of
+//   functions.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+void generic_app_var_sel(OCB_p ocb, Clause_p clause, LitWeightFun* fun)
+{
+   long  lit_no;
+   PDArray_p pred_dist;
+
+   assert(ocb);
+   assert(clause);
+   assert(EqnListQueryPropNumber(clause->literals, EPIsSelected)==0);
+
+   if(clause->neg_lit_no==0)
+   {
+      return;
+   }
+   ClauseCondMarkMaximalTerms(ocb, clause);
+
+   lit_no = EqnListQueryPropNumber(clause->literals, EPIsMaximal);
+
+   if(lit_no <=1)
+   {
+      return;
+   }
+   pred_dist = pos_pred_dist_array_compute(clause);
+   generic_uniq_selection(ocb,clause,false, true,
+                           fun, pred_dist);
+   pred_dist_array_free(pred_dist);
+}
+
 
 
 /*---------------------------------------------------------------------*/
@@ -4611,6 +4655,166 @@ static void maxlcomplexavoidpred_weight(LitEval_p lit, Clause_p clause,
 
 /*-----------------------------------------------------------------------
 //
+// Function: maxlcomplexavoidappvar_weight()
+//
+//   Initialize weights to mimic SelectMaxLComplexWeight(), but defer
+//   literals with applied variables, and put them right after pure vars
+//   and defer literals which occur often in pred_dist.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static void maxlcomplexavoidappvar_weight(LitEval_p lit, Clause_p clause,
+                                        void *pred_dist)
+{
+   PDArray_p pd = pred_dist;
+
+   if(EqnIsNegative(lit->literal))
+   {
+      if(EqnIsMaximal(lit->literal))
+      {
+         lit->w1=0;
+      }
+      else
+      {
+         lit->w1=100;
+      }
+      if(!EqnIsPureVar(lit->literal))
+      {
+         lit->w1+=10;
+      }
+      if(!EqnIsGround(lit->literal))
+      {
+         lit->w1+=1;
+      }
+      if(EqnHasAppVar(lit->literal))
+      {
+         lit->w1+=20;
+      }
+      lit->w2 = -lit_sel_diff_weight(lit->literal);
+      if(EqnIsEquLit(lit->literal))
+      {
+         lit->w3 = PDArrayElementInt(pd, 0);
+      }
+      else
+      {
+         lit->w3 = PDArrayElementInt(pd, lit->literal->lterm->f_code);
+      }
+   }
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: maxlcomplexstronglyavoidappvar_weight()
+//
+//   Initialize weights to mimic SelectMaxLComplexWeight(), but defer
+//   literals with applied variables, and put them right after maximal lits
+//   and defer literals which occur often in pred_dist.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static void maxlcomplexstronglyavoidappvar_weight(LitEval_p lit, Clause_p clause,
+                                        void *pred_dist)
+{
+   PDArray_p pd = pred_dist;
+
+   if(EqnIsNegative(lit->literal))
+   {
+      if(EqnIsMaximal(lit->literal))
+      {
+         lit->w1=0;
+      }
+      else
+      {
+         lit->w1=100;
+      }
+      if(!EqnIsPureVar(lit->literal))
+      {
+         lit->w1+=10;
+      }
+      if(!EqnIsGround(lit->literal))
+      {
+         lit->w1+=1;
+      }
+      if(EqnHasAppVar(lit->literal))
+      {
+         lit->w1+=200;
+      }
+      lit->w2 = -lit_sel_diff_weight(lit->literal);
+      if(EqnIsEquLit(lit->literal))
+      {
+         lit->w3 = PDArrayElementInt(pd, 0);
+      }
+      else
+      {
+         lit->w3 = PDArrayElementInt(pd, lit->literal->lterm->f_code);
+      }
+   }
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: maxlcomplexstronglypreferappvar_weight()
+//
+//   Initialize weights to mimic SelectMaxLComplexWeight(), but prefer
+//   literals with applied variables and
+//    defer literals which occur often in pred_dist.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static void maxlcomplexstronglypreferappvar_weight(LitEval_p lit, Clause_p clause,
+                                                   void *pred_dist)
+{
+   PDArray_p pd = pred_dist;
+
+   if(EqnIsNegative(lit->literal))
+   {
+      if(EqnIsMaximal(lit->literal))
+      {
+         lit->w1=0;
+      }
+      else
+      {
+         lit->w1=100;
+      }
+      if(!EqnIsPureVar(lit->literal))
+      {
+         lit->w1+=10;
+      }
+      if(!EqnIsGround(lit->literal))
+      {
+         lit->w1+=1;
+      }
+      if(!EqnHasAppVar(lit->literal))
+      {
+         lit->w1+=200;
+      }
+      lit->w2 = -lit_sel_diff_weight(lit->literal);
+      if(EqnIsEquLit(lit->literal))
+      {
+         lit->w3 = PDArrayElementInt(pd, 0);
+      }
+      else
+      {
+         lit->w3 = PDArrayElementInt(pd, lit->literal->lterm->f_code);
+      }
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: SelectMaxLComplexAvoidPosPred()
 //
 //   As SelectMaxLComplex, but preferably select literals that do not
@@ -4650,6 +4854,60 @@ void SelectMaxLComplexAvoidPosPred(OCB_p ocb, Clause_p clause)
    pred_dist_array_free(pred_dist);
 }
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: SelectMaxLComplexAvoidAppVar()
+//
+//   As SelectMaxLComplex, but preferably select literals that do not
+//   have applied variables and the ones that do not
+//   share the predicate symbol with a positive literal.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void SelectMaxLComplexAvoidAppVar(OCB_p ocb, Clause_p clause)
+{
+   generic_app_var_sel(ocb, clause, maxlcomplexavoidappvar_weight);
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: SelectMaxLComplexStronglyAvoidAppVar()
+//
+//   As above, but avoids app vars stronger (considers them even before
+//   maximality of literals).
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void SelectMaxLComplexStronglyAvoidAppVar(OCB_p ocb, Clause_p clause)
+{
+   generic_app_var_sel(ocb, clause, maxlcomplexstronglyavoidappvar_weight);  
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: SelectMaxLComplexPreferAppVar()
+//
+//   As above, but prefers app vars (stronger than other conditions).
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void SelectMaxLComplexPreferAppVar(OCB_p ocb, Clause_p clause)
+{
+   generic_app_var_sel(ocb, clause, maxlcomplexstronglypreferappvar_weight);  
+}
 
 
 /*-----------------------------------------------------------------------

@@ -41,6 +41,27 @@ bool      SigSupportLists = false;
 
 /*-----------------------------------------------------------------------
 //
+// Function: validate_typedecl(Type_p t)
+//
+//   Make sure defined symbol has type that is supported by LFHOL.
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+static bool validate_typedecl(Type_p t)
+{
+   bool supported = true;
+   for(int i=0; i<t->arity-1 && (supported = !TypeHasBool(t->args[i])); i++)
+      ; // I am a mental C programmer.
+
+   return supported;
+}
+
+/*-----------------------------------------------------------------------
+//
 // Function: sig_print_operator()
 //
 //   Print a single operator
@@ -113,7 +134,7 @@ static void sig_compute_alpha_ranks(Sig_p sig)
 //
 /----------------------------------------------------------------------*/
 
-Sig_p SigAlloc(SortTable_p sort_table)
+Sig_p SigAlloc(TypeBank_p bank)
 {
    Sig_p handle;
 
@@ -127,17 +148,16 @@ Sig_p SigAlloc(SortTable_p sort_table)
    handle->f_index = NULL;
    handle->ac_axioms = PStackAlloc();
 
-   handle->sort_table = sort_table;
-   handle->type_table = TypeTableAlloc(sort_table);
+   handle->type_bank = bank;
 
    SigInsertId(handle, "$true", 0, true);
    assert(SigFindFCode(handle, "$true")==SIG_TRUE_CODE);
    SigSetFuncProp(handle, SIG_TRUE_CODE, FPInterpreted);
-   SigDeclareType(handle, SIG_TRUE_CODE, TypeNewConstant(handle->type_table, STBool));
+   SigDeclareType(handle, SIG_TRUE_CODE, handle->type_bank->bool_type);
    SigInsertId(handle, "$false", 0, true);
    assert(SigFindFCode(handle, "$false")==SIG_FALSE_CODE);
    SigSetFuncProp(handle, SIG_FALSE_CODE, FPInterpreted);
-   SigDeclareType(handle, SIG_FALSE_CODE, TypeNewConstant(handle->type_table, STBool));
+   SigDeclareType(handle, SIG_FALSE_CODE, handle->type_bank->bool_type);
 
    if(SigSupportLists)
    {
@@ -197,8 +217,6 @@ Sig_p SigAlloc(SortTable_p sort_table)
 
 void SigInsertInternalCodes(Sig_p sig)
 {
-   int i_sort = STIndividuals;
-
    assert((SigSupportLists && sig->internal_symbols == SIG_CONS_CODE) ||
           (!SigSupportLists && sig->internal_symbols == SIG_FALSE_CODE));
 
@@ -225,8 +243,24 @@ void SigInsertInternalCodes(Sig_p sig)
 
    sig->answer_code =  SigInsertId(sig, "$answer", 1, true);
    SigSetFuncProp(sig, sig->answer_code, FPInterpreted|FPPseudoPred);
-   SigDeclareFinalType(sig, sig->answer_code,
-                       TypeNewFunction(sig->type_table, STBool, 1, &i_sort));
+
+#ifdef ENABLE_LFHO
+   #ifndef NDEBUG
+      // surpressing compiler warning
+      FunCode app_var_code =  
+   #endif
+      SigInsertId(sig, "$@_var", 1, true);
+      assert(app_var_code == SIG_APP_VAR_CODE); //for future code changes
+#endif
+
+   Type_p* args = TypeArgArrayAlloc(2);
+   args[1] = sig->type_bank->bool_type;
+   args[0] = sig->type_bank->i_type;
+
+   Type_p answer_type = 
+      TypeBankInsertTypeShared(sig->type_bank, AllocArrowType(2, args));
+
+   SigDeclareFinalType(sig, sig->answer_code, answer_type);
 
    sig->internal_symbols = sig->f_count;
 }
@@ -259,7 +293,6 @@ void SigFree(Sig_p junk)
    {
       PDArrayFree(junk->orn_codes);
    }
-   TypeTableFree(junk->type_table);
 
    SigCellFree(junk);
 }
@@ -316,7 +349,7 @@ bool SigIsPredicate(Sig_p sig, FunCode f_code)
       return true;
    }
    type = SigGetType(sig, f_code);
-   return type && type->domain_sort == STBool;
+   return type && TypeIsPredicate(type);
 }
 
 
@@ -345,7 +378,7 @@ bool SigIsFunction(Sig_p sig, FunCode f_code)
    }
 
    type = SigGetType(sig, f_code);
-   return type && type->domain_sort != STBool;
+   return type && !TypeIsPredicate(type);
 }
 
 
@@ -402,7 +435,6 @@ void SigFixType(Sig_p sig, FunCode f_code)
 /----------------------------------------------------------------------*/
 bool SigIsPolymorphic(Sig_p sig, FunCode f_code)
 {
-   // printf("# =>>> %ld > %ld\n", sig->f_count, f_code);
    assert(f_code > 0);
    assert(f_code <= sig->f_count);
 
@@ -1120,20 +1152,20 @@ int SigAddSymbolArities(Sig_p sig, PDArray_p distrib, bool predicates,
 //
 /----------------------------------------------------------------------*/
 
-long SigCollectSortConsts(Sig_p sig, SortType sort, PStack_p res)
+long SigCollectSortConsts(Sig_p sig, Type_p sort, PStack_p res)
 {
    FunCode   i;
    long      rescount = 0;
-   SortType  f_sort;
+   Type_p    f_sort;
 
    for(i = sig->internal_symbols+1; i<=sig->f_count; i++)
    {
       if(SigFindArity((sig), i) == 0)
       {
-         f_sort = STIndividuals;
+         f_sort = sig->type_bank->i_type;
          if(sig->f_info[i].type)
          {
-            f_sort = sig->f_info[i].type->domain_sort;
+            f_sort = sig->f_info[i].type;
          }
          if(f_sort==sort)
          {
@@ -1295,7 +1327,7 @@ void SigDeclareType(Sig_p sig, FunCode f, Type_p type)
    if(fun->type)
    {
       /* type already declared, check it's the same */
-      if(!TypeEqual(fun->type, type))
+      if(fun->type != type)
       {
          if(SigIsFixedType(sig, f))
          {
@@ -1303,9 +1335,9 @@ void SigDeclareType(Sig_p sig, FunCode f, Type_p type)
             {
                fprintf(stderr, "# Type conflict for %s between ",
                        SigFindName(sig, f));
-               TypePrintTSTP(stderr, sig->type_table, fun->type);
+               TypePrintTSTP(stderr, sig->type_bank, fun->type);
                fprintf(stderr, " and ");
-               TypePrintTSTP(stderr, sig->type_table, type);
+               TypePrintTSTP(stderr, sig->type_bank, type);
                fprintf(stderr, "\n");
             }
             Error("type error", INPUT_SEMANTIC_ERROR);
@@ -1315,8 +1347,8 @@ void SigDeclareType(Sig_p sig, FunCode f, Type_p type)
             if(Verbose >= 2)
             {
                fprintf(stderr, "# type re-declaration %s: ", SigFindName(sig, f));
-               TypePrintTSTP(stderr, sig->type_table, type);
-               fprintf(stderr, "\n");
+               TypePrintTSTP(stderr, sig->type_bank, type);
+               fprintf(stderr, "\n");   
             }
             fun->type = type;
          }
@@ -1327,7 +1359,7 @@ void SigDeclareType(Sig_p sig, FunCode f, Type_p type)
       if(Verbose >= 2)
       {
          fprintf(stderr, "# type declaration %s: ", SigFindName(sig, f));
-         TypePrintTSTP(stderr, sig->type_table, type);
+         TypePrintTSTP(stderr, sig->type_bank, type);
          fprintf(stderr, "\n");
       }
       fun->type = type;
@@ -1377,12 +1409,14 @@ void SigDeclareIsFunction(Sig_p sig, FunCode f_code)
    }
 
    type = SigGetType(sig, f_code);
-   assert(type->domain_sort != STNoSort);
+   assert(type);
 
    /* must update type */
-   if(type->domain_sort == STBool)
+   if(TypeIsBool(type))
    {
-      new_type = TypeCopyWithReturn(sig->type_table, type, SigDefaultSort(sig));
+      new_type = TypeChangeReturnType(sig->type_bank, type, SigDefaultSort(sig));
+      assert(new_type->type_uid != INVALID_TYPE_UID);
+
       SigDeclareFinalType(sig, f_code, new_type);
    }
    else
@@ -1413,12 +1447,12 @@ void SigDeclareIsPredicate(Sig_p sig, FunCode f_code)
    }
 
    type = SigGetType(sig, f_code);
-   assert(type->domain_sort != STNoSort);
+   assert(type);
 
    /* must update type */
-   if(type->domain_sort != STBool)
+   if(!TypeIsBool(type))
    {
-      new_type = TypeCopyWithReturn(sig->type_table, type, STBool);
+      new_type = TypeChangeReturnType(sig->type_bank, type, sig->type_bank->bool_type);
       SigDeclareFinalType(sig, f_code, new_type);
    }
    else
@@ -1461,7 +1495,7 @@ void SigPrintTypes(FILE* out, Sig_p sig)
       }
       else
       {
-         TypePrintTSTP(out, sig->type_table, fun->type);
+         TypePrintTSTP(out, sig->type_bank, fun->type);
       }
    }
 }
@@ -1484,14 +1518,15 @@ void SigPrintTypeDeclsTSTP(FILE* out, Sig_p sig)
 {
    FunCode i;
    Func_p fun;
+   const char* tag = problemType == PROBLEM_HO ? "thf" : "tff";
 
    for(i=sig->internal_symbols+1; i <= sig->f_count; i++)
    {
       fun = &sig->f_info[i];
       if (fun->type)
       {
-         fprintf(out, "tff(decl_%ld, type, %s: ", i, fun->name);
-         TypePrintTSTP(out, sig->type_table, fun->type);
+         fprintf(out, "%s(decl_%ld, type, %s: ", tag, i, fun->name);
+         TypePrintTSTP(out, sig->type_bank, fun->type);
          fprintf(out, ").\n");
       }
    }
@@ -1538,7 +1573,7 @@ void SigParseTFFTypeDeclaration(Scanner_p in, Sig_p sig)
 
    /* parse type */
    AcceptInpTok(in, Colon);
-   type = TypeParseTSTP(in, sig->type_table);
+   type = TypeBankParseType(in, sig->type_bank);
 
    if(within_paren)
    {
@@ -1546,11 +1581,32 @@ void SigParseTFFTypeDeclaration(Scanner_p in, Sig_p sig)
    }
 
    /* we only keep declarations of symbols, not declaration of types */
-   if(type->domain_sort != STKind)
+   if(!TypeIsTypeConstructor(type))
    {
-      f = SigInsertId(sig, DStrView(id), type->arity, false);
-      SigDeclareType(sig, f, type);
-      SigFixType(sig, f);
+      int arity = TypeIsArrow(type) ? type->arity - 1 : 0;
+      f = SigInsertId(sig, DStrView(id), arity, false);
+      if(validate_typedecl(type))
+      {
+         SigDeclareType(sig, f, type);
+         SigFixType(sig, f);
+      }
+      else
+      {
+        AktTokenError(in, "LFHOL does not support boolean arguments.", 
+                      SYNTAX_ERROR);
+      }
+      
+   }
+   else
+   {
+      if(TypeIsArrow(type))
+      {
+         TypeBankDefineTypeConstructor(sig->type_bank, DStrView(id), type->arity-1);
+      }
+      else
+      {
+         TypeBankDefineSimpleSort(sig->type_bank, DStrView(id));
+      }
    }
 
    DStrFree(id);
@@ -1614,6 +1670,100 @@ void SigUpdateFeatureOffset(Sig_p sig, FunCode f)
    }
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: SigGetTypedApp()
+//
+//    Gets the symbol that corresponds term application of type
+//    (arg1 * arg2) > ret. This roughly corresponds to higher-order
+//    type (t1 -> t2) -> t1 -> t2, so the invariant is arg1 == t1 -> t2,
+//    arg2 == t1, ret = t2.
+//
+// Global Variables: -
+//
+// Side Effects    : As above
+//
+/----------------------------------------------------------------------*/
+
+FunCode SigGetTypedApp(Sig_p sig, Type_p arg1, Type_p arg2, Type_p ret)
+{
+   DStr_p typed_app_name = DStrAlloc();
+   
+   DStrAppendStr(typed_app_name, "app_");
+   DStrAppendInt(typed_app_name, arg1->type_uid);
+   DStrAppendChar(typed_app_name, '_');
+   DStrAppendInt(typed_app_name, arg2->type_uid);
+   DStrAppendChar(typed_app_name, '_');
+   DStrAppendInt(typed_app_name, ret->type_uid);
+
+
+   Type_p* arr = TypeArgArrayAlloc(3);
+   arr[0] = arg1;
+   arr[1] = arg2;
+   arr[2] = ret;
+
+   Type_p app_type = AllocArrowType(3, arr);
+
+   FunCode ret_fcode = SigInsertId(sig, DStrView(typed_app_name), 2, false);
+   if(!sig->f_info[ret_fcode].type)
+   {
+      sig->f_info[ret_fcode].type = app_type;
+   }
+   else
+   {
+      TypeFree(app_type);
+   }
+   SigSetFuncProp(sig, ret_fcode, FPTypedApplication);
+
+   DStrFree(typed_app_name);
+
+   return ret_fcode;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: SigPrintAppEncodedDecls()
+//
+//    Prints type declarations that correspond to app-encoded terms.
+//
+// Global Variables: -
+//
+// Side Effects    : As above
+//
+/----------------------------------------------------------------------*/
+
+void SigPrintAppEncodedDecls(FILE* out, Sig_p sig)
+{
+   for(FunCode i=sig->internal_symbols+1; i <= sig->f_count; i++)
+   {
+      fprintf(out, "tff(symboltypedecl%ld, type, %s: ", 
+                      (i+1)-sig->internal_symbols, SigFindName(sig, i));
+      if (SigQueryFuncProp(sig, i, FPTypedApplication))
+      {
+         Type_p t = SigGetType(sig, i);
+         DStr_p left = TypeAppEncodedName(t->args[0]);
+         DStr_p right = TypeAppEncodedName(t->args[1]);
+         DStr_p ret = TypeAppEncodedName(t->args[2]);
+
+
+         fprintf(out, "(%s * %s) > %s",  
+                         DStrView(left), DStrView(right), DStrView(ret));
+
+         DStrFree(left);
+         DStrFree(right);
+         DStrFree(ret);
+      }
+      else
+      {
+         Type_p t = SigGetType(sig, i);
+         DStr_p typename = TypeAppEncodedName(t);
+
+         fprintf(out, "%s", DStrView(typename));
+      }
+      fprintf(out, ").\n");
+   }
+
+}
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */

@@ -60,10 +60,10 @@ Changes
 PCLMiniProt_p PCLMiniProtAlloc(void)
 {
    PCLMiniProt_p handle = PCLMiniProtCellAlloc();
-   SortTable_p sort_table = DefaultSortTableAlloc();
+   TypeBank_p sort_table = TypeBankAlloc();
    Sig_p sig = SigAlloc(sort_table);
 
-  SigInsertInternalCodes(sig);
+   SigInsertInternalCodes(sig);
    handle->terms = TBAlloc(sig);
    handle->steps = PDArrayAlloc(1,500000);
    handle->max_ident = 0;
@@ -100,7 +100,7 @@ void PCLMiniProtFree(PCLMiniProt_p junk)
     PDArrayAssignP(junk->steps, i, NULL);
       }
    }
-   SortTableFree(junk->terms->sig->sort_table);
+   TypeBankFree(junk->terms->sig->type_bank);
    SigFree(junk->terms->sig);
    junk->terms->sig = NULL;
    TBFree(junk->terms);

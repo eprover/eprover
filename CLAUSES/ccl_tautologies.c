@@ -89,11 +89,19 @@ CompareResult TO_ground_compare(Term_p t1, Term_p t2)
       {
     res = to_greater;
       }
+      else if(t1->arity < t2->arity)
+      {
+         res = to_lesser;
+      }
+      else if(t1->arity > t2->arity)
+      {
+         res = to_greater;
+      }
       if(res!= to_equal)
       {
     break;
       }
-      assert(t1->arity == t2->arity);
+      assert(problemType == PROBLEM_HO || t1->arity == t2->arity);
       for(i = 0; i<t1->arity; i++)
       {
     PStackPushP(stack, t1->args[i]);

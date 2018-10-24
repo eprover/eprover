@@ -89,6 +89,8 @@ OptCell opts[] =
 char       *outname    = NULL;
 long       time_limit  = 10;
 char       *executable = NULL;
+bool       app_encode  = false;
+ProblemType problemType  = PROBLEM_NOT_INIT;
 
 
 /*---------------------------------------------------------------------*/

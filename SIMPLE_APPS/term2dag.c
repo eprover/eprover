@@ -73,6 +73,8 @@ OptCell opts[] =
 };
 
 char *outname = NULL;
+bool app_encode = false;
+ProblemType problemType  = PROBLEM_NOT_INIT;
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
@@ -106,7 +108,7 @@ int main(int argc, char* argv[])
 
    TBPrintInternalInfo = true;
    out = OutOpen(outname);
-   bank = TBAlloc(SigAlloc(DefaultSortTableAlloc()));
+   bank = TBAlloc(SigAlloc(TypeBankAlloc()));
 
    for(i=0; state->argv[i]; i++)
    {
@@ -120,7 +122,7 @@ int main(int argc, char* argv[])
    }
    SigPrint(out, bank->sig);
    TBPrintBankInOrder(out, bank);
-   SortTableFree(bank->sig->sort_table);
+   TypeBankFree(bank->sig->type_bank);
    SigFree(bank->sig);
    bank->sig = NULL;
    TBFree(bank);

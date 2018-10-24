@@ -6,7 +6,8 @@ Short Installation Instructions for the impatient
 
 This assumes that you have GNU tar, sh and gawk in your search path!
 
-Simple installation (will install executables):
+Simple installation of the first-order version (will install
+executables):
 
 > tar -xzf E.tgz
 > cd E
@@ -28,6 +29,14 @@ Read the rest of this file and the fine (if incomplete) manual if
 anything fails. There should be a copy of the manual in
 DOC/eprover.pdf.
 
+To build the higher-order version, user
+
+> ./configure --enable-ho
+> make
+> cd PROVER
+> eprover-ho -h
+
+
 The recommended command for running E on the file problem.p is
 
   eprover --auto --proof-object problem.p
@@ -36,6 +45,8 @@ If you want to try the usually stronger strategy scheduling mode, use
 
   eprover --auto-schedule --tptp3-in --proof-object problem.p
 
+Replace "eprover" by "eprover-ho" for the higher-order-enabled
+version.
 You can add a time limit of 300 seconds with the option
 --cpu-limit=300 and a memory limit of 2 GB with --memory-limit=2048
 for all "automatic" modes. You can reduce output with -s (or
@@ -49,23 +60,16 @@ input and output formats via commandline options.
              ===============================
 
 
-This is the README file for version 2.2 "Thurbo Moonlight" of the E
-equational theorem prover. This version of E is free software, see the
-file COPYING for details about the license and the fact that THERE IS
-NO WARRANTY!
+This is the README file for version 2.3 "Gielle" of the E equational
+theorem prover. This version of E is free software, see the file
+COPYING for details about the license and the fact that THERE IS NO
+WARRANTY!
 
-Release 2.2 has a number of significant internal modifications, in
-particular for handling orphan clauses (clauses generated, but not
-processed before one of their parents was shown redundant) and proof
-objects.
+This version of E is pre-released on an experimental basis. It
+supports a fragment of higher-order logic called lambda-free
+higher-order logic (LFHOL).  Any issues you encounter with LFHOL
+support should be reported by email to petar.vukmirovic2@gmail.com.
 
-User-visible changes include stricter syntax checking (full
-quantification for all variables in tcf, tff and fof is now enforced),
-detection of cases where a proof is valid regardless of conjecture
-(i.e. where the axioms are shown to be contradictory), and much better
-integration of PicoSAT. The later change in particular means that the
-core "eprover" program is a single binary without external
-dependencies.
 
 
 What is E?
@@ -83,14 +87,16 @@ E has been created and is currently maintained by Stephan Schulz,
 DOC/CONTRIBUTORS). It is developed and distributed under the GNU
 General Public License.
 
-The E homepage can be found at https://www.eprover.org
+The E homepage can be found at http://www.eprover.org
+
 
 
 Installation:
 -------------
 
 E can be installed anywhere in the file system, either by a normal
-user or by the system administrator.
+user or by the system administrator. By default, the prover will still
+be compiled as a version that supports first-order logic only.
 
 To install the package, unpack the distribution (if you are reading
 this, you probably already did):
@@ -122,6 +128,10 @@ or, if you also want to install the man-pages into MANDIR,
 
    ./configure --bindir=EXECDIR --man-prefix=MANDIR
 
+To enable higher-order-support, add the option --enable-ho, e,g,
+
+   ./configure --enable-ho
+
 Then type
 
    make
@@ -139,9 +149,10 @@ Type
 
   make documentation
 
-to translate the rudimentary LaTeX documentation (this requires
-LaTeX2e, pdflatex, and the packages theorem, amssymb and epsfig, which
-are included in most current LaTeX distributions).
+to translate the LaTeX documentation (this requires LaTeX2e, pdflatex,
+and the packages theorem, amssymb and epsfig, which are included in
+most current LaTeX distributions). The manual should also be included
+as a pre-compiled PDF.
 
 For some operating systems, especially if you do not have the GNU gcc
 compiler installed, you may need to edit Makefile.vars manually to
@@ -207,78 +218,3 @@ you all necessary information. Note that checkproof cannot yet deal
 with the full first order part, and will skip anything not
 clausal. Also, support for independent provers in checkproof can be
 subject to bit-rot, as other systems and interfaces change.
-
-
-Directory overview:
--------------------
-
-DOC:
-
-  - Documentation, including a very preliminary LaTeX manual for (at
-    the moment) parts of the library and the prover. You should be
-    looking there instead of reading this file ;-)
-
-    Also has the project NEWS file and some short notes on porting.
-
-include:
-
-  - Symbolic links to all user-relevant header files
-
-lib:
-
-  - Symbolic links to the individual library modules
-
-BASICS:
-INOUT:
-TERMS:
-ORDERINGS:
-CLAUSES:
-ANALYSIS:
-LEARN:
-HEURISTICS:
-PCL2:
-PROPOSITIONAL:
-CONTROL:
-
-  - Sources and object files for the individual library modules
-
-TEST:
-
-  - Test programs for development work
-
-SIMPLE_APPS:
-
-  - Small application programs for demonstration purposes as well as
-    for solving simple tasks.
-
-PROVER:
-
-  - The main program for the E prover, also contains some examples and
-    stuff, as well as all the major support programs for E.
-
-SKELETONS:
-
-  - Skeleton files for source files, make files, comment boxes,...
-
-
-EXAMPLE_PROBLEMS:
-
-  - Some example problems taken from the TPTP 6.4.0 library.
-
-EXTERNAL:
-
-  - Code that does not belong to the core prover but uses it or parts
-    of it. Not fully maintained by me, check the headers.
-
-CONTRIB:
-  - External code borrowed for (running with) E. Currently, this is
-    only a slightly modified version of PicoSAST.
-
-devopment_tools:
-  - Various tools for working with large scale experimental test runs,
-    mostly shell or awk scripts. Probably not useful for
-    non-developers, certainly not documented.
-
-PYTHON:
-  - More complex tools for large scale experimental evaluation. See
-    previous comment.

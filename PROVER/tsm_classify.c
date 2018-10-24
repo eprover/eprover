@@ -110,7 +110,8 @@ char      *outname = NULL;
 int       index_type = IndexArity;
 long      index_depth = 1;
 int       tsm_type = TSMTypeRecursive;
-
+bool app_encode = false;
+ProblemType problemType  = PROBLEM_NOT_INIT;
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
 /*---------------------------------------------------------------------*/
@@ -128,7 +129,7 @@ int main(int argc, char* argv[])
    CLState_p      state;
    Scanner_p      in;
    char*          infile;
-   SortTable_p    sort_table;
+   TypeBank_p     typebank;
    Sig_p          sig;
    TB_p           bank;
    AnnoSet_p      training_set, test_set;
@@ -156,8 +157,8 @@ int main(int argc, char* argv[])
 
    in = CreateScanner(StreamTypeFile, infile, true, NULL);
 
-   sort_table = DefaultSortTableAlloc();
-   sig = SigAlloc(sort_table);
+   typebank = TypeBankAlloc();
+   sig = SigAlloc(typebank);
    bank = TBAlloc(sig);
    AcceptInpId(in, "Training");
    AcceptInpTok(in, Colon);
@@ -212,7 +213,7 @@ int main(int argc, char* argv[])
    bank->sig = 0;
    TBFree(bank);
    SigFree(sig);
-   SortTableFree(sort_table);
+   TypeBankFree(typebank);
 
    CLStateFree(state);
    fflush(GlobalOut);

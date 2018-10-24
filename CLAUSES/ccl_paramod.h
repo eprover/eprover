@@ -59,6 +59,7 @@ typedef struct
    Clause_p    into;
    CompactPos  into_cpos;
    ClausePos_p into_pos;
+   int         remaining_args;
 }ParamodInfoCell, *ParamodInfo_p;
 
 
@@ -107,6 +108,11 @@ Term_p   ClausePosFirstParamodPair(Clause_p from, ClausePos_p
 Term_p   ClausePosNextParamodPair(ClausePos_p from_pos, ClausePos_p
               into_pos, bool no_top, bool simu_paramod);
 
+#ifdef ENABLE_LFHO
+bool    CheckHOUnificationConstraints(UnificationResult res, UnifTermSide exp_side, Term_p from, Term_p to);
+#else
+#define CheckHOUnificationConstraints(a,b,c,d) (true)
+#endif
 
 #endif
 

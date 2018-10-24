@@ -100,6 +100,7 @@ PTree_p PTreeIntersection(PTree_p tree1, PTree_p tree2);
 long    PTreeDestrIntersection(PTree_p *tree1, PTree_p tree2);
 PTree_p PTreeCopy(PTree_p tree1);
 
+void    PTreeVisitInOrder(PTree_p t, void (*visitor)(void*));
 
 AVL_TRAVERSE_DECLARATION(PTree, PTree_p)
 #define PTreeTraverseExit(stack) PStackFree(stack)

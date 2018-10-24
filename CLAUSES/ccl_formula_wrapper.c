@@ -22,7 +22,7 @@ Changes
 -----------------------------------------------------------------------*/
 
 #include "ccl_formula_wrapper.h"
-
+#include <clb_simple_stuff.h>
 
 
 /*---------------------------------------------------------------------*/
@@ -43,7 +43,72 @@ bool FormulasKeepInputNames = true;
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
 
+/*-----------------------------------------------------------------------
+//
+// Function: handle_ho_def()
+//
+//   Parse higher order definitions of form s = t where both s and t
+//   are non-formula terms or p = f where p is a predicate symbol
+//   and f is a formula.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
 
+TFormula_p handle_ho_def(Scanner_p in, TB_p bank)
+{
+   assert(problemType == PROBLEM_HO);
+
+   bool in_parens = false;
+
+   if(TestInpTok(in, OpenBracket))
+   {
+      AcceptInpTok(in, OpenBracket);
+      in_parens = true;
+   }
+
+   Term_p lside_term = TBTermParse(in, bank);
+   if(TypeIsBool(lside_term->type))
+   {
+      TFormula_p lside = EqnTermsTBTermEncode(bank, lside_term, 
+                                              bank->true_term, true, PENormal);
+      if(!TestInpTok(in, EqualSign))
+      {
+         AktTokenError(in, "E currently supports definitions of type <predicate "
+                           " symbol> = <closed LFHOL formula>",
+                       SYNTAX_ERROR);      
+      }
+
+      AcceptInpTok(in, EqualSign);
+      TFormula_p res =  TFormulaFCodeAlloc(bank, bank->sig->equiv_code, 
+                                           lside, TFormulaTSTPParse(in, bank));
+      if(in_parens)
+      {
+         AcceptInpTok(in, CloseBracket);
+      }
+      return res;
+   }
+   else
+   {
+      bool positive = true;
+      if(TestInpTok(in, NegEqualSign))
+      {
+         positive = false;
+      }
+      AcceptInpTok(in, EqualSign|NegEqualSign);
+      Term_p rside = TBTermParse(in, bank);
+      TFormula_p res = EqnTermsTBTermEncode(bank, lside_term, rside, 
+                                            positive, PENormal);
+      if(in_parens)
+      {
+         AcceptInpTok(in, CloseBracket);
+      }
+      return res;                                      
+   }
+   return NULL;
+}
 
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
@@ -375,7 +440,17 @@ WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms)
    {
       is_tcf = true;
    }
-   AcceptInpId(in, "fof|tff|tcf");
+   
+   if(TestInpId(in, "thf"))
+   {
+      SetProblemType(PROBLEM_HO);
+   }
+   else if(TestInpId(in, "fof|tff|tcf"))
+   {
+      SetProblemType(PROBLEM_FO);
+   }
+
+   AcceptInpId(in, "fof|tff|thf|tcf");
    AcceptInpTok(in, OpenBracket);
    CheckInpTok(in, Name|PosInt|SQString);
    info->name = DStrCopy(AktToken(in)->literal);
@@ -407,6 +482,7 @@ WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms)
    }
    else
    {
+      bool is_def = TestInpId(in, "definition");
       type = (FormulaProperties)
          ClauseTypeParse(in,is_tcf?
                          "axiom|hypothesis|definition|assumption|"
@@ -424,7 +500,11 @@ WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms)
       line        = AktToken(in)->line;
       column      = AktToken(in)->column;
 
-      if(is_tcf)
+      if(problemType == PROBLEM_HO && is_def)
+      {
+         tform = handle_ho_def(in, terms);
+      }
+      else if(is_tcf)
       {
          // printf("# Tcf Start!\n");
          tform = TcfTSTPParse(in, terms);
@@ -552,6 +632,59 @@ void WFormulaTSTPPrint(FILE* out, WFormula_p form, bool fullterms,
       fprintf(out, ").");
    }
 }
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: WFormulaAppEncode()
+//
+//   Encodes terms in wrapped formula's literals using app encoding.
+//   Initial WFormula is not changed.
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+void WFormulaAppEncode(FILE* out, WFormula_p form)
+{
+   char *typename = "plain", *formula_kind = "tff";
+
+   switch(FormulaQueryType(form))
+   {
+   case CPTypeAxiom:
+         if(FormulaQueryProp(form, CPInputFormula))
+         {
+            typename = "axiom";
+         }
+         break;
+   case CPTypeHypothesis:
+         typename = "hypothesis";
+         break;
+   case CPTypeConjecture:
+         typename = "conjecture";
+         break;
+   case CPTypeQuestion:
+         typename = "question";
+         break;
+   case CPTypeLemma:
+         typename = "lemma";
+         break;
+   case CPTypeNegConjecture:
+         typename = "negated_conjecture";
+         break;
+   default:
+    break;
+   }
+   fprintf(out, "%s(%s, %s", formula_kind, WFormulaGetId(form), typename);
+   fprintf(out, ", ");
+
+   assert(!form->is_clause);
+   TFormulaAppEncode(out, form->terms, form->tformula);
+   fprintf(out, ").");
+}
+
 
 
 /*-----------------------------------------------------------------------

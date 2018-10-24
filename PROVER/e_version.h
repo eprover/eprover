@@ -32,17 +32,24 @@ Contents
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-/* git tag E-2.2 */
+/* git tag E-2.3pre001 */
 
-#define PVERSION      "2.2"
+#define PVERSION      "2.3pre001"
 
-#ifdef NDEBUG
-#define VERSION PVERSION
+#ifdef ENABLE_LFHO
+#define LFH "-ho"
 #else
-#define VERSION PVERSION "-DEBUG"
+#define LFH ""
 #endif
 
-#define E_NICKNAME     "Thurbo Moonlight"
+#ifdef NDEBUG
+#define VERSION PVERSION LFH
+#else
+#define VERSION PVERSION LFH "-DEBUG"
+#endif
+
+
+#define E_NICKNAME     "Gielle"
 
 #define E_URL "http://www.eprover.org"
 

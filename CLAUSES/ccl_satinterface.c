@@ -20,6 +20,7 @@
   -----------------------------------------------------------------------*/
 
 #include "ccl_satinterface.h"
+#include <cte_idx_fp.h>
 
 
 
@@ -368,21 +369,22 @@ void export_to_solver(SatSolver_p solver, SatClauseSet_p set, SatClauseFilter fi
    SatClause_p clause;
 
    assert(set);
-   assert(picosat_added_original_clauses(solver) == 0);
 
-   PStackReset(set->printset);
+   PStackReset(set->exported);
    for(i=0; i<PStackGetSP(set->set); i++)
    {
       clause = PStackElementP(set->set, i);
       if(filter == NULL || filter(clause))
       {
          picosat_add_lits(solver, clause->literals);
-         PStackPushP(set->printset, clause);
+         PStackPushP(set->exported, clause);
       }
    }
-   assert(PStackGetSP(set->printset) == picosat_added_original_clauses(solver));
+   if(PStackGetSP(set->exported) != picosat_added_original_clauses(solver))
+   {
+      Error("PicoSAT communication is broken.", INTERFACE_ERROR);
+   }
 }
-
 
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
@@ -415,6 +417,7 @@ SatClause_p SatClauseAlloc(int lit_no)
 
    return handle;
 }
+
 
 /*-----------------------------------------------------------------------
 //
@@ -459,8 +462,9 @@ SatClauseSet_p SatClauseSetAlloc(void)
    set->renumber_index = NULL; // We create this lazily when we know
                                // the first index!
    set->set      = PStackAlloc();
-   set->printset = PStackAlloc();
+   set->exported = PStackAlloc();
    set->core_size = 0;
+   set->set_size_limit = -1;
    return set;
 }
 
@@ -491,7 +495,7 @@ void SatClauseSetFree(SatClauseSet_p junk)
       SatClauseFree(clause);
    }
    PStackFree(junk->set);
-   PStackFree(junk->printset);
+   PStackFree(junk->exported);
    SatClauseSetCellFree(junk);
 }
 
@@ -501,8 +505,7 @@ void SatClauseSetFree(SatClauseSet_p junk)
 // Function: SatClauseCreateAndStore()
 //
 //    Encode the instantiated clause as a SatClause, store it in set,
-//    and return it.
-//
+//    and return it. 
 // Global Variables:
 //
 // Side Effects    :
@@ -518,11 +521,12 @@ SatClause_p SatClauseCreateAndStore(Clause_p clause, SatClauseSet_p set)
    assert(clause);
    assert(set);
 
-   //printf("# PGClause: ");
-   //ClausePrint(stdout, clause, true);
-   //printf("\n=>");
-   //EqnListPrintDeref(stdout, clause->literals, "|", DEREF_ONCE);
-   //printf("\n");
+   if(set->set_size_limit != -1 && 
+         PStackGetSP(set->set) >= set->set_size_limit)
+   {
+      return NULL;
+   }
+
 
    handle = SatClauseAlloc(ClauseLiteralNumber(clause));
    handle->source = clause;
@@ -533,6 +537,7 @@ SatClause_p SatClauseCreateAndStore(Clause_p clause, SatClauseSet_p set)
       assert(i<handle->lit_no);
       handle->literals[i] = sat_translate_literal(lit, set);
    }
+
    PStackPushP(set->set, handle);
    return handle;
 }
@@ -592,12 +597,11 @@ void SatClauseSetPrint(FILE* out, SatClauseSet_p set)
 }
 
 
-
 /*-----------------------------------------------------------------------
 //
-// Function: SatClauseSetPrintNonPure()
+// Function: SatClauseSetExportToSolver()
 //
-//   Print a SatClauseSet.
+//   Exports all clauses to solver.
 //
 // Global Variables: -
 //
@@ -605,31 +609,10 @@ void SatClauseSetPrint(FILE* out, SatClauseSet_p set)
 //
 /----------------------------------------------------------------------*/
 
-void SatClauseSetPrintNonPure(FILE* out, SatClauseSet_p set, long pure)
+void SatClauseSetExportToSolver(SatSolver_p solver, SatClauseSet_p set)
 {
-   PStackPointer i;
-   SatClause_p clause;
-
-   assert(set);
-
-   fprintf(out, "c Skipping %ld pure clauses\n", pure);
-   fprintf(out, "p cnf %d %ld\n", set->max_lit, PStackGetSP(set->set)-pure);
-
-   PStackReset(set->printset);
-   for(i=0; i<PStackGetSP(set->set); i++)
-   {
-      clause = PStackElementP(set->set, i);
-      if(!clause->has_pure_lit)
-      {
-         SatClausePrint(out, clause);
-         PStackPushP(set->printset, clause);
-      }
-   }
-   assert(PStackGetSP(set->printset) == PStackGetSP(set->set)-pure);
-   //printf("0\n");
+   export_to_solver(solver, set, NULL);
 }
-
-
 
 
 /*-----------------------------------------------------------------------
@@ -650,17 +633,20 @@ long SatClauseSetImportClauseSet(SatClauseSet_p satset, ClauseSet_p set)
    Clause_p handle;
    assert(satset);
    assert(set);
+   int added = 0;
 
    for(handle = set->anchor->succ;
        handle != set->anchor;
-       handle = handle->succ)
+       handle = handle->succ, added++)
    {
-      SatClauseCreateAndStore(handle, satset);
+      if(!SatClauseCreateAndStore(handle, satset))
+      {
+         break;
+      }
    }
-   return ClauseSetCardinality(set);
+
+   return added;
 }
-
-
 
 
 /*-----------------------------------------------------------------------
@@ -704,7 +690,7 @@ Subst_p SubstPseudoGroundVarBank(VarBank_p vars)
             {
                current = PStackElementP(varstack,j);
                // printf("# varstack[%ld]: %p\n", j, current);
-               if(current)
+               if(current && !current->binding)
                {
                   SubstAddBinding(subst, current, norm);
                }
@@ -742,16 +728,17 @@ Subst_p SubstGroundVarBankFirstConst(TB_p terms, bool norm_const)
    for (i=0; i < PDArraySize(vars->varstacks); i++)
    {
       varstack = PDArrayElementP(vars->varstacks, i);
-      // printf("# varstack: %p\n", varstack);
+      //printf("# varstack: %p\n", varstack);
       if (varstack)
       {
          size = PStackGetSP(varstack);
-         // printf("# varstack size: %ld\n", size);
+         //printf("# varstack size: %ld\n", size);
          if(size)
          {
             backup = PStackElementP(varstack,0);
+            assert(backup->type->type_uid == i);
 
-            norm = TBGetFirstConstTerm(terms, i);
+            norm = TBGetFirstConstTerm(terms, backup->type);
             if(!norm)
             {
                norm = backup;
@@ -765,7 +752,7 @@ Subst_p SubstGroundVarBankFirstConst(TB_p terms, bool norm_const)
             {
                current = PStackElementP(varstack,j);
                // printf("# varstack[%ld]: %p\n", j, current);
-               if(current)
+               if(current && !current->binding)
                {
                   SubstAddBinding(subst, current, norm);
                }
@@ -814,16 +801,18 @@ Subst_p SubstGroundFreqBased(TB_p terms, ClauseSet_p clauses,
    for (sort=0; sort < PDArraySize(vars->varstacks); sort++)
    {
       varstack = PDArrayElementP(vars->varstacks, sort);
-      // printf("# varstack: %p\n", varstack);
+      //printf("# varstack: %p\n", varstack);
       if (varstack)
       {
          size = PStackGetSP(varstack);
-         // printf("# varstack size: %ld\n", size);
+         //printf("# varstack size: %ld\n", size);
          if(size)
          {
             backup = PStackElementP(varstack,0);
+            assert(backup->type->type_uid == sort);
 
-            norm = TBGetFreqConstTerm(terms, sort, conj_dist_array, dist_array, is_better);
+            norm = TBGetFreqConstTerm(terms, backup->type, 
+                                      conj_dist_array, dist_array, is_better);
             if(!norm)
             {
                norm = backup;
@@ -938,7 +927,7 @@ long SatClauseSetImportProofState(SatClauseSet_p satset, ProofState_p state,
                                                   norm_const);
          break;
    default:
-         assert(false && "Unimplmented grounding strategy");
+         assert(false && "Unimplemented grounding strategy");
          break;
    }
    // printf("# Pseudogrounded()\n");
@@ -952,7 +941,6 @@ long SatClauseSetImportProofState(SatClauseSet_p satset, ProofState_p state,
    SubstDelete(pseudogroundsubst);
    return res;
 }
-
 
 
 
@@ -1007,9 +995,8 @@ long SatClauseSetMarkPure(SatClauseSet_p satset)
 //
 // Function: sat_extract_core()
 //
-//   Given a file (pipe) pointer pointing to a PicoSAT output, extract
-//   the original clauses pointing to the unsatisfiable core and push
-//   them onto core.
+//   Extracts the original clauses pointing to the unsatisfiable core 
+//   and pushes them onto core.
 //
 // Global Variables: -
 //
@@ -1020,23 +1007,21 @@ long SatClauseSetMarkPure(SatClauseSet_p satset)
 long sat_extract_core(SatClauseSet_p satset, PStack_p core, SatSolver_p solver)
 {
    SatClause_p satclause;
-   long        nr_printset = PStackGetSP(satset->printset);
+   long        nr_exported = PStackGetSP(satset->exported);
    long        res = 0;
 
-   for(long id=0; id<nr_printset; id++)
+   for(long id=0; id<nr_exported; id++)
    {
       if(picosat_coreclause(solver, id))
       {
          res++;
-         satclause = PStackElementP(satset->printset, id);
+         satclause = PStackElementP(satset->exported, id);
          PStackPushP(core, satclause->source);
       }
    }
 
    return res;
 }
-
-
 
 /*-----------------------------------------------------------------------
 //
@@ -1050,8 +1035,6 @@ long sat_extract_core(SatClauseSet_p satset, PStack_p core, SatSolver_p solver)
 // Side Effects    : Runs external SAT solver, file operations, ...
 //
 /----------------------------------------------------------------------*/
-#define STR_EXPAND(tok) #tok
-#define STR(tok) STR_EXPAND(tok)
 
 ProverResult SatClauseSetCheckUnsat(SatClauseSet_p satset, Clause_p *empty,
                                     SatSolver_p solver,

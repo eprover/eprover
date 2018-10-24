@@ -350,10 +350,13 @@ LemmaParam_p      lp         = NULL;
 long       max_lemmas        = 0;
 float      max_lemmas_rel    = 0.001;
 bool       max_lemmas_rel_p  = true;
+bool       app_encode        = false;
 float      min_quality       = 100;
 float      min_quality_rel   = 0.3;
 bool       min_quality_rel_p = false;
 OutputFormatType outputformat = pcl_format;
+
+ProblemType problemType  = PROBLEM_NOT_INIT;;
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */

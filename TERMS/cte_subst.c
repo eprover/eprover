@@ -71,6 +71,8 @@ bool SubstBacktrackSingle(Subst_p subst)
       return false;
    }
    handle = PStackPopP(subst);
+
+   assert(TermIsVar(handle));
    handle->binding = NULL;
 
    return true;
@@ -148,7 +150,7 @@ int SubstBacktrack(Subst_p subst)
 //
 /----------------------------------------------------------------------*/
 
-PStackPointer SubstNormTerm(Term_p term, Subst_p subst, VarBank_p vars)
+PStackPointer SubstNormTerm(Term_p term, Subst_p subst, VarBank_p vars, Sig_p sig)
 {
    PStackPointer ret = PStackGetSP(subst);
    PLocalStackInit(stack);
@@ -161,7 +163,7 @@ PStackPointer SubstNormTerm(Term_p term, Subst_p subst, VarBank_p vars)
       {
          if(!TermCellQueryProp(term, TPSpecialFlag))
          {
-            Term_p newvar = VarBankGetFreshVar(vars, term->sort);
+            Term_p newvar = VarBankGetFreshVar(vars, term->type);
             TermCellSetProp(newvar, TPSpecialFlag);
             SubstAddBinding(subst, term, newvar);
          }
@@ -190,8 +192,7 @@ PStackPointer SubstNormTerm(Term_p term, Subst_p subst, VarBank_p vars)
 //
 /----------------------------------------------------------------------*/
 
-bool SubstBindingPrint(FILE* out, Term_p var, Sig_p sig, DerefType
-                       deref)
+bool SubstBindingPrint(FILE* out, Term_p var, Sig_p sig, DerefType deref)
 {
    TermPrint(out, var, sig, DEREF_NEVER);
    fprintf(out, "<-");
@@ -405,7 +406,43 @@ void SubstCompleteInstance(Subst_p subst, Term_p term,
    }
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: SubstBindAppVar()
+//
+//   Bind variable var to prefix of term to_bind with up_to arguments
+//   eaten. Prefix will potentially be created (if it is a proper 
+//   non-variable prefix). 
+//
+//    IMPORTANT: If prefix is created it will be shared.
+//
+// Global Variables: -
+//
+// Side Effects    : Changes subst.
+//
+/----------------------------------------------------------------------*/
 
+PStackPointer SubstBindAppVar(Subst_p subst, Term_p var, Term_p to_bind, int up_to, TB_p bank)
+{
+   PStackPointer ret = PStackGetSP(subst);
+   assert(var);
+   assert(to_bind);
+   assert(TermIsVar(var));
+   assert(!(var->binding));
+   assert(problemType == PROBLEM_HO || !TermCellQueryProp(to_bind, TPPredPos));
+   assert(var->type);
+   assert(to_bind->type);
+
+   Term_p to_bind_pref = TermCreatePrefix(to_bind, up_to);
+   to_bind_pref->type = var->type;
+
+   // if term is not shared it is prefix
+   var->binding = TermIsShared(to_bind_pref) ? 
+                     to_bind_pref : TBTermTopInsert(bank, to_bind_pref);
+   PStackPushP(subst, var);    
+
+   return ret;
+}
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */

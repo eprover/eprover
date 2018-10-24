@@ -70,6 +70,95 @@ FVIndexParmsCell FVIDefaultParameters =
 
 /*-----------------------------------------------------------------------
 //
+// Function: print_lvl()
+//
+//   Prints enough dashes to indent a tree level.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void print_lvl(FILE* out, int level)
+{
+   for(int i=0; i<level; i++)
+   {
+      fprintf(out, "--");
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: print_clauses()
+//
+//   Prints clauses stored in the leaf indented with level.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void print_clauses(FILE* out, PTree_p clauses, int level, bool fullterms)
+{
+   PStack_p stack = PTreeTraverseInit(clauses);
+   PTree_p  node  = NULL;
+   Clause_p cl_handle   = NULL;
+
+   while((node = PTreeTraverseNext(stack)))
+   {
+      cl_handle = node->key;
+      print_lvl(out, level);
+      ClausePrint(out, cl_handle, fullterms);
+      fprintf(stderr, " \n");
+   }
+
+   PTreeTraverseExit(stack);
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: fv_index_print()
+//
+//   Driver function for printing fv index. To be initially called with
+//   root for index and 0 for level.
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+void fv_index_print(FILE* out, FVIndex_p index, bool fullterms, int level)
+{
+   if(index->final)
+   {
+      print_clauses(out, index->u1.clauses, level+1, fullterms);
+   }
+   else
+   {
+      IntMapIter_p iterator = IntMapIterAlloc(index->u1.successors, 0, LONG_MAX);
+
+      long key;
+      FVIndex_p succ;
+      while((succ = IntMapIterNext(iterator, &key)))
+      {
+         print_lvl(out, level);
+         fprintf(stderr, "Alternative %ld: \n", key);
+
+         fv_index_print(out, succ, fullterms, level+1);
+      }
+
+      IntMapIterFree(iterator);
+   }
+
+}
+
+/*-----------------------------------------------------------------------
+//
 // Function: insert_empty_node()
 //
 //   Insert an empty node into FVIndex at node node and key key.
@@ -331,9 +420,9 @@ void FVIndexInsert(FVIAnchor_p index, FreqVector_p vec_clause)
       newnode = IntMapGetVal(handle->u1.successors, vec_clause->array[i]);
       if(!newnode)
       {
-    newnode = insert_empty_node(handle,
-                 index,
-                 vec_clause->array[i]);
+         newnode = insert_empty_node(handle,
+                                     index,
+                                     vec_clause->array[i]);
       }
       handle = newnode;
       handle->clause_count++;
@@ -465,9 +554,24 @@ FVPackedClause_p FVIndexPackClause(Clause_p clause, FVIAnchor_p anchor)
              anchor->cspec);
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: FVIndexPrint()
+//
+//   Pretty prints FVIndex.
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+void FVIndexPrint(FILE* out, FVIndex_p index, bool fullterms)
+{
+   fprintf(stderr, "* ROOT *\n");
+   fv_index_print(out, index, fullterms, 0);
+}
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-

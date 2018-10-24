@@ -139,6 +139,8 @@ OptCell opts[] =
 char   *outname = NULL;
 IOFormat parse_format = LOPFormat;
 bool   dimacs_format = false;
+ProblemType problemType  = PROBLEM_NOT_INIT;
+bool   app_encode = false;
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
@@ -153,7 +155,7 @@ void print_help(FILE* out);
 
 int main(int argc, char* argv[])
 {
-   SortTable_p     sort_table;
+   TypeBank_p      typebank;
    Sig_p           sig;
    Scanner_p       in;
    int             i;
@@ -177,9 +179,9 @@ int main(int argc, char* argv[])
       CLStateInsertArg(state, "-");
    }
 
-   sort_table = DefaultSortTableAlloc();
-   sig     = SigAlloc(sort_table);
-   form    = DPLLFormulaAlloc();
+   typebank = TypeBankAlloc();
+   sig      = SigAlloc(typebank);
+   form     = DPLLFormulaAlloc();
    for(i=0; state->argv[i]; i++)
    {
       in = CreateScanner(StreamTypeFile, state->argv[i] , true, NULL);
@@ -195,7 +197,7 @@ int main(int argc, char* argv[])
 #ifndef FAST_EXIT
    DPLLStateFree(dpllstate);
    SigFree(sig);
-   SortTableFree(sort_table);
+   TypeBankFree(typebank);
 #endif
    fflush(GlobalOut);
    OutClose(GlobalOut);

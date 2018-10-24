@@ -38,6 +38,7 @@ Changes
 typedef struct weightparamcell
 {
    double pos_multiplier;
+   double app_var_mult;
    long   vweight;
    long   fweight;
 }WeightParamCell, *WeightParam_p;
@@ -54,21 +55,21 @@ typedef struct weightparamcell
         SizeFree(junk, sizeof(WeightParamCell))
 
 WFCB_p ClauseWeightInit(ClausePrioFun prio_fun, int fweight, int
-         vweight, double pos_multiplier);
+         vweight, double pos_multiplier, double app_var_mult);
 
 WFCB_p ClauseWeightParse(Scanner_p in, OCB_p ocb, ProofState_p state);
 
 double ClauseWeightCompute(void* data, Clause_p clause);
 
 WFCB_p LMaxWeightInit(ClausePrioFun prio_fun, int fweight, int
-             vweight, double pos_multiplier);
+             vweight, double pos_multiplier, double app_var_mult);
 
 WFCB_p LMaxWeightParse(Scanner_p in, OCB_p ocb, ProofState_p state);
 
 double LMaxWeightCompute(void* data, Clause_p clause);
 
 WFCB_p CMaxWeightInit(ClausePrioFun prio_fun, int fweight, int
-             vweight, double pos_multiplier);
+             vweight, double pos_multiplier, double app_var_mult);
 
 WFCB_p CMaxWeightParse(Scanner_p in, OCB_p ocb, ProofState_p state);
 

@@ -22,6 +22,7 @@ Changes
 -----------------------------------------------------------------------*/
 
 #include "cte_fp_index.h"
+#include "cte_termfunc.h"
 
 
 
@@ -216,8 +217,10 @@ static long fp_index_rek_find_unif(FPTree_p index, IndexFP_p key,
                                     sig,
                                     current+1,
                                     collect);
-      if(!SigIsPredicate(sig, key[current]))
-      {  /* Predicates can never unify with variables */
+      if(/*problemType == PROBLEM_HO ||*/ !SigIsPredicate(sig, key[current]))
+      {  /* Predicates can never unify with variables 
+               -- not true in full HO case
+               -- temproraily enabled  */
          res += fp_index_rek_find_unif(fpindex_alternative(index, ANY_VAR),
                                        key,
                                        sig,
@@ -271,7 +274,7 @@ static long fp_index_rek_find_unif(FPTree_p index, IndexFP_p key,
       {
          assert(child);
 
-         if(i<=0 || !SigIsPredicate(sig, i))
+         if(i<=0 || /*problemType == PROBLEM_HO ||*/ !SigIsPredicate(sig, i))
          {
             res += fp_index_rek_find_unif(child,
                                           key,
@@ -371,7 +374,7 @@ static long fp_index_rek_find_matchable(FPTree_p index, IndexFP_p key,
       {
          assert(child);
 
-         if(i<=0 || !SigIsPredicate(sig, i))
+         if(i<=0 /*|| problemType == PROBLEM_HO*/ || !SigIsPredicate(sig, i))
          {
             res += fp_index_rek_find_matchable(child,
                                                key,
@@ -384,7 +387,6 @@ static long fp_index_rek_find_matchable(FPTree_p index, IndexFP_p key,
    }
    return res;
 }
-
 
 
 /*-----------------------------------------------------------------------
@@ -776,7 +778,7 @@ long dt_index_rek_find_matchable(FPTree_p index,
       iter = IntMapIterAlloc(index->f_alternatives, BELOW_VAR, LONG_MAX);
       while((child=IntMapIterNext(iter, &i)))
       {
-         if(i<=0 || !SigIsPredicate(sig, i))
+         if(i<=0 || (problemType == PROBLEM_HO || !SigIsPredicate(sig, i)))
          {
             //printf("Branch (%d) %s\n", skip_term,i>0?SigFindName(sig, i):"X");
             res += dt_index_rek_find_matchable(child,
@@ -870,7 +872,7 @@ static long dt_index_rek_find_unifiable(FPTree_p index,
       iter = IntMapIterAlloc(index->f_alternatives, BELOW_VAR, LONG_MAX);
       while((child=IntMapIterNext(iter, &i)))
       {
-         if(i<=0 || !SigIsPredicate(sig,i))
+         if(i<=0 || (problemType == PROBLEM_HO || !SigIsPredicate(sig,i)))
          {
             res += dt_index_rek_find_unifiable(child,
                                                key,
@@ -893,7 +895,7 @@ static long dt_index_rek_find_unifiable(FPTree_p index,
                                          0,
                                          0,
                                          collect);
-      if(key[current] <= 0 || !SigIsPredicate(sig,key[current]))
+      if(key[current] <= 0 || (problemType == PROBLEM_HO || !SigIsPredicate(sig,key[current])))
       {
          child = fpindex_alternative(index, ANY_VAR);
          res += dt_index_rek_find_unifiable(child,
@@ -1107,8 +1109,6 @@ long FPTreeFindMatchable(FPTree_p root,
    return count;
 }
 
-
-
 /*-----------------------------------------------------------------------
 //
 // Function: FPIndexAlloc()
@@ -1304,7 +1304,6 @@ long FPIndexFindMatchable(FPIndex_p index, Term_p term, PStack_p collect)
    PERF_CTR_EXIT(IndexMatchTimer);
    return res;
 }
-
 
 
 /*-----------------------------------------------------------------------

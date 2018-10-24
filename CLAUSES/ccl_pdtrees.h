@@ -77,6 +77,8 @@ typedef struct pdt_node_cell
                   the (maximal one) function
                   symbol alternative, i is
                   variable i. */
+  bool                leaf;   /* In HO inner nodes can store clauses,
+                                 so we mark leaves explicitly -- an optimization */
 }PDTNodeCell, *PDTNode_p;
 
 /* A PDTreeCell is an object encapsulating a PDTree and the necessary
@@ -100,7 +102,10 @@ typedef struct pd_tree_cell
                searched? */
    unsigned  long visited_count; /* How many nodes in the index have
                been visited? */
+   TB_p      bank;            /* When we make a prefix term, we want to 
+                                 make it shared */
 }PDTreeCell, *PDTree_p;
+
 
 /*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */
@@ -128,13 +133,14 @@ extern unsigned long PDTNodeCounter;
 #define   PDTreeCellAlloc()    (PDTreeCell*)SizeMalloc(sizeof(PDTreeCell))
 #define   PDTreeCellFree(junk) SizeFree(junk, sizeof(PDTreeCell))
 
+
 #ifdef CONSTANT_MEM_ESTIMATE
 #define PDTREE_CELL_MEM 16
 #else
 #define PDTREE_CELL_MEM MEMSIZE(PDTreeCell)
 #endif
 
-PDTree_p  PDTreeAlloc(void);
+PDTree_p  PDTreeAlloc(TB_p bank);
 void      PDTreeFree(PDTree_p tree);
 
 #ifdef CONSTANT_MEM_ESTIMATE
@@ -166,6 +172,7 @@ void      PDTNodeFree(PDTNode_p tree);
 void      TermLRTraverseInit(PStack_p stack, Term_p term);
 Term_p    TermLRTraverseNext(PStack_p stack);
 Term_p    TermLRTraversePrev(PStack_p stack, Term_p term);
+Term_p    TermLRTraversePrevAppVar(PStack_p stack, Term_p original_term, Term_p var);
 
 void      PDTreeInsert(PDTree_p tree, ClausePos_p demod_side);
 long      PDTreeDelete(PDTree_p tree, Term_p term, Clause_p clause);
@@ -176,7 +183,8 @@ void      PDTreeSearchExit(PDTree_p tree);
 
 PDTNode_p PDTreeFindNextIndexedLeaf(PDTree_p tree, Subst_p subst);
 
-ClausePos_p PDTreeFindNextDemodulator(PDTree_p tree, Subst_p subst);
+
+MatchRes_p PDTreeFindNextDemodulator(PDTree_p tree, Subst_p subst);
 
 void PDTreePrint(FILE* out, PDTree_p tree);
 

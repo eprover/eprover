@@ -19,7 +19,7 @@
 -----------------------------------------------------------------------*/
 
 #include "cte_idx_fp.h"
-
+#include "cte_simpletypes.h"
 
 
 /*---------------------------------------------------------------------*/
@@ -103,7 +103,11 @@ static void push_fcodes(PStack_p stack, Term_p t)
    else
    {
       int i;
-      PStackPushInt(stack, t->f_code);
+      if(!TermIsAppliedVar(t))
+      {
+         PStackPushInt(stack, t->f_code);
+      }
+
       for(i=0; i<t->arity; i++)
       {
          push_fcodes(stack, t->args[i]);
@@ -117,7 +121,7 @@ static void push_fcodes(PStack_p stack, Term_p t)
 
 /*-----------------------------------------------------------------------
 //
-// Function: TermFPSample()
+// Function: TermFPSampleFO()
 //
 //   Sample the term at the position described by the optional
 //   arguments (encoding a (-1)-terminated position.
@@ -128,10 +132,8 @@ static void push_fcodes(PStack_p stack, Term_p t)
 //
 /----------------------------------------------------------------------*/
 
-FunCode TermFPSample(Term_p term, ...)
+FunCode TermFPSampleFO(Term_p term, va_list ap)
 {
-  va_list ap;
-  va_start(ap, term);
   int pos = 0;
   FunCode res = 0;
 
@@ -158,6 +160,105 @@ FunCode TermFPSample(Term_p term, ...)
   return res;
 }
 
+#ifdef ENABLE_LFHO
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: TermFPSampleHO()
+//
+//  For details see TermFPSampleFO(). It differs by supporting
+//  prefix matching/unification, where terms can have trailing arguments.
+//  
+//
+// Global Variables:
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+FunCode TermFPSampleHO(Term_p term, va_list ap)
+{
+   assert(problemType == PROBLEM_HO);
+   int pos = va_arg(ap, int);
+   FunCode res;
+
+   int arg_expansion_num = TypeGetMaxArity(term->type);
+
+   if(pos != -1 && pos < arg_expansion_num)
+   {
+      res = (va_arg(ap, int) == -1) ? ANY_VAR : BELOW_VAR;
+   }
+   else if(pos != -1)
+   {
+      pos -= arg_expansion_num;
+      for(; pos != -1; pos = va_arg(ap, int))
+      {
+         if(TermIsVar(term))
+         {
+            res = BELOW_VAR;
+            break;
+         }
+
+         if(pos < ARG_NUM(term))
+         {
+            int actual_pos = term->arity-1 - pos;
+            term = term->args[actual_pos];
+         }
+         else
+         {
+            res = TermIsAppliedVar(term) ? BELOW_VAR : NOT_IN_TERM;
+            break;
+         }
+      }
+   }
+
+   if(pos == -1)
+   {
+      res = TermIsTopLevelVar(term)?ANY_VAR:term->f_code;
+   }
+
+   va_end(ap);
+
+   return res;
+}
+#endif
+
+/*-----------------------------------------------------------------------
+//
+// Function: TermFPSample()
+//
+//   Based on problem type, chooses appropriate fingerprinting function.
+//
+// Global Variables:
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+FunCode  TermFPSample(Term_p term, ...)
+{
+   va_list args;
+   va_start(args, term);
+   
+   FunCode res;
+#ifdef ENABLE_LFHO
+   if(problemType == PROBLEM_HO)
+   {
+      res = TermFPSampleHO(term, args);
+   }
+   else
+   {
+#endif
+      res = TermFPSampleFO(term, args);
+#ifdef ENABLE_LFHO
+   }
+#endif
+
+   va_end(args);
+
+   return res;
+}
+
+
 
 /*-----------------------------------------------------------------------
 //
@@ -173,7 +274,7 @@ FunCode TermFPSample(Term_p term, ...)
 //
 /----------------------------------------------------------------------*/
 
-FunCode TermFPFlexSample(Term_p term, IntOrP* *seq)
+FunCode TermFPFlexSampleFO(Term_p term, IntOrP* *seq)
 {
   FunCode res = 0;
   long pos;
@@ -210,6 +311,90 @@ FunCode TermFPFlexSample(Term_p term, IntOrP* *seq)
   return res;
 }
 
+#ifdef ENABLE_LFHO
+/*-----------------------------------------------------------------------
+//
+// Function: TermFPFlexSampleHO()
+//
+//   Similar to TermFPFlexSample(), but supports HO fingerprinting.
+//
+// Global Variables:
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+FunCode TermFPFlexSampleHO(Term_p term, IntOrP* *seq)
+{
+   FunCode res = 0;
+   long pos = (*seq)->i_val;
+
+   if(pos != -1  && !TermIsTopLevelVar(term) && pos >= term->arity)
+   {
+      res = BELOW_VAR;
+   }
+   else
+   {
+      while((pos=(*seq)->i_val)!=-1)
+      {
+         if(TermIsTopLevelVar(term))
+         {
+            res = BELOW_VAR;
+            break;
+         }
+         if(pos >= term->arity)
+         {
+            res = NOT_IN_TERM;
+            break;
+         }
+         term = term->args[pos];
+         (*seq)++;
+      }
+      
+      if(pos == -1)
+      {
+         res = TermIsVar(term) ? ANY_VAR : 
+                     (TermIsAppliedVar(term) ? BELOW_VAR : term->f_code);
+      }
+      else
+      {
+        /* Find the end of the position */
+        while((pos=(*seq)->i_val)!=-1)
+        {
+           (*seq)++;
+        }
+      }
+      /* We want to point beyond the end */
+      (*seq)++;   
+   }
+
+   
+   return res;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: TermFPFlexSample()
+//
+//   Based on problem type, chooses appropriate fingerprinting function.
+//
+// Global Variables:
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+__inline__ FunCode TermFPFlexSample(Term_p term, IntOrP* *seq)
+{
+   if(problemType == PROBLEM_HO)
+   {
+      return TermFPFlexSampleHO(term, seq);
+   }
+   else
+   {
+      return TermFPFlexSampleFO(term, seq);
+   }
+}
+
+#endif
 
 /*-----------------------------------------------------------------------
 //

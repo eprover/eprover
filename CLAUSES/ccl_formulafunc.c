@@ -29,7 +29,7 @@ Changes
 /*---------------------------------------------------------------------*/
 /*                        Global Variables                             */
 /*---------------------------------------------------------------------*/
-
+extern bool app_encode;
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
@@ -40,6 +40,34 @@ Changes
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
 
+/*-----------------------------------------------------------------------
+//
+// Function: ignore_include()
+//
+//   Ignore includes and echoes the ignored declaration. Used for
+//   app encoding only. 
+//
+// Global Variables: -
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+void ignore_include(Scanner_p in)
+{
+   assert(app_encode);
+
+   AcceptInpId(in, "include");
+   AcceptInpTok(in, OpenBracket);
+   CheckInpTok(in, SQString);
+   char* name = DStrCopyCore(AktToken(in)->literal);
+   NextToken(in);
+   AcceptInpTok(in, CloseBracket);
+   AcceptInpTok(in, Fullstop);
+
+   fprintf(stdout, "include('%s').\n", name);
+   FREE(name);
+}
 
 
 /*-----------------------------------------------------------------------
@@ -61,7 +89,7 @@ TFormula_p answer_lit_alloc(TB_p terms, PStack_p varstack)
    TFormula_p res;
    Term_p handle;
 
-   handle       = TBAllocNewSkolem(terms, varstack, STNoSort);
+   handle       = TBAllocNewSkolem(terms, varstack, NULL);
    res          = TermTopAlloc(terms->sig->answer_code, 1);
    res->args[0] = handle;
    res          = TBTermTopInsert(terms, res);
@@ -685,6 +713,7 @@ long FormulaAndClauseSetParse(Scanner_p in, FormulaSet_p fset,
    {
    case LOPFormat:
          //* LOP does not at the moment support full FOF, or inline watchlists */
+         SetProblemType(PROBLEM_FO);
          while(ClauseStartsMaybe(in))
          {
             form = WFormClauseParse(in, terms);
@@ -696,15 +725,20 @@ long FormulaAndClauseSetParse(Scanner_p in, FormulaSet_p fset,
          }
          break;
    default:
-         while(TestInpId(in, "input_formula|input_clause|fof|cnf|tff|tcf|include"))
+         while(TestInpId(in, "input_formula|input_clause|fof|cnf|tff|thf|tcf|include"))
          {
             if(TestInpId(in, "include"))
             {
+               if(app_encode)
+               {
+                  ignore_include(in);
+                  continue;
+               }
+
                StrTree_p new_limit = NULL;
                Scanner_p new_in;
                FormulaSet_p nfset = FormulaSetAlloc();
                ClauseSet_p  nwlset = ClauseSetAlloc();
-
                new_in = ScannerParseInclude(in, &new_limit, skip_includes);
 
                if(new_in)
@@ -727,7 +761,7 @@ long FormulaAndClauseSetParse(Scanner_p in, FormulaSet_p fset,
             }
             else
             {
-               if(TestInpId(in, "input_formula|fof|tff|tcf"))
+               if(TestInpId(in, "input_formula|fof|tff|thf|tcf"))
                {
                   form = WFormulaParse(in, terms);
                   // fprintf(stdout, "Parsed: ");
@@ -739,6 +773,7 @@ long FormulaAndClauseSetParse(Scanner_p in, FormulaSet_p fset,
                   assert(TestInpId(in, "input_clause|cnf"));
                   //clause = ClauseParse(in, terms);
                   //ClauseSetInsert(cset, clause);
+                  SetProblemType(PROBLEM_FO);
                   form = WFormClauseParse(in, terms);
                }
                if(FormulaQueryType(form)==CPTypeWatchClause)

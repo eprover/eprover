@@ -63,13 +63,13 @@ long UnitClauseClauseSubsumptionCalls = 0;
 /----------------------------------------------------------------------*/
 
 static
-ClausePos_p unit_clause_set_strongsubsumes_termpair(ClauseSet_p set,
-                                                    Term_p t1, Term_p t2,
-                                                    bool positive)
+SimplifyRes unit_clause_set_strongsubsumes_termpair(ClauseSet_p set,
+                      Term_p t1, Term_p t2,
+                      bool positive)
 {
    PStack_p stack = PStackAlloc();
    int      i;
-   ClausePos_p res = NULL;
+   SimplifyRes res = SIMPLIFY_FAILED;
 
    PStackPushP(stack, t1);
    PStackPushP(stack, t2);
@@ -79,12 +79,15 @@ ClausePos_p unit_clause_set_strongsubsumes_termpair(ClauseSet_p set,
       t2 = PStackPopP(stack);
       t1 = PStackPopP(stack);
       res = FindSignedTopSimplifyingUnit(set, t1, t2, positive);
-      if(!res)
+
+      if(SimplifyFailed(res))
       {
          if(t1->f_code != t2->f_code || !t1->arity)
          {
             break;
          }
+
+         assert(t1->type == t2->type);
          for(i=0; i<t1->arity; i++)
          {
             if(t1->args[i] != t2->args[i])
@@ -94,7 +97,27 @@ ClausePos_p unit_clause_set_strongsubsumes_termpair(ClauseSet_p set,
             }
          }
       }
+      else
+      {
+         // put the remaining args on stack, order does not
+         // matter here.
+         int remains = res.remaining_args;
+         // if the problem is FO -> everything is matched!
+         assert(!(problemType == PROBLEM_FO) || !remains);
+         while(remains)
+         {
+            Term_p t1_arg = t1->args[t1->arity-remains];
+            Term_p t2_arg = t2->args[t2->arity-remains];
 
+            if(t1_arg != t2_arg)
+            {
+              PStackPushP(stack, t1_arg);
+              PStackPushP(stack, t2_arg);
+            }
+
+            remains--;
+         }
+      }
    }
    PStackFree(stack);
    return res;
@@ -115,22 +138,22 @@ ClausePos_p unit_clause_set_strongsubsumes_termpair(ClauseSet_p set,
 
 static
 Clause_p unit_clause_set_subsumes_clause(ClauseSet_p set,
-                                         Clause_p clause)
+                Clause_p clause)
 {
    Eqn_p    handle = clause->literals;
-   ClausePos_p res = NULL;
+   SimplifyRes res = SIMPLIFY_FAILED;
 
    while(handle)
    {
       if(EqnIsPositive(handle))
       {
          res = StrongUnitForwardSubsumption?
-            unit_clause_set_strongsubsumes_termpair(set, handle->lterm,
-                                                    handle->rterm,
-                                                    true):
-            FindSimplifyingUnit(set, handle->lterm,
-                                handle->rterm,
-                                true);
+                  unit_clause_set_strongsubsumes_termpair(set, handle->lterm,
+                                                          handle->rterm,
+                                                          true):
+                  FindSimplifyingUnit(set, handle->lterm,
+                                      handle->rterm,
+                                      true);
       }
       else
       {
@@ -139,13 +162,15 @@ Clause_p unit_clause_set_subsumes_clause(ClauseSet_p set,
                                             handle->rterm,
                                             false);
       }
-      if(res)
+
+      if(!SimplifyFailed(res) &&
+          RemainingArgsSame(handle->lterm, handle->rterm, &res))
       {
          break;
       }
       handle = handle->next;
    }
-   return res?res->clause:NULL;
+   return res.pos ? res.pos->clause : NULL;
 }
 
 
@@ -170,19 +195,18 @@ static bool eqn_topsubsumes_termpair(Eqn_p eqn, Term_p t1, Term_p t2)
    assert(t1);
    assert(t2);
 
-   if(SubstComputeMatch(eqn->lterm, t1, subst))
+   if(SubstMatchComplete(eqn->lterm, t1, subst))
    {
-      if(SubstComputeMatch(eqn->rterm, t2, subst))
+      if(SubstMatchComplete(eqn->rterm, t2, subst))
       {
          res = true;
       }
    }
-   else if(SubstComputeMatch(eqn->lterm, t2, subst))
+   else if(SubstMatchComplete(eqn->lterm, t2, subst))
    {
-      if(SubstComputeMatch(eqn->rterm, t1, subst))
+      if(SubstMatchComplete(eqn->rterm, t1, subst))
       {
          res = true;
-
       }
    }
    SubstDelete(subst);
@@ -219,7 +243,14 @@ static bool eqn_subsumes_termpair(Eqn_p eqn, Term_p t1, Term_p t2)
       {
          break;
       }
+#ifdef ENABLE_LFHO
+      if(t1->arity != t2->arity)
+      {
+        break; // do not try arguments if the number does not match
+      }
+#else
       assert(t1->arity == t2->arity);
+#endif
 
       tmp1 = NULL;
       tmp2 = NULL;
@@ -276,8 +307,8 @@ static Eqn_p find_spec_literal_old(Eqn_p lit, Eqn_p list)
       {
          continue;
       }
-      if(SubstComputeMatch(lit->lterm, list->lterm, subst)&&
-         SubstComputeMatch(lit->rterm, list->rterm, subst))
+      if(SubstMatchComplete(lit->lterm, list->lterm, subst)&&
+         SubstMatchComplete(lit->rterm, list->rterm, subst))
       {
          break;
       }
@@ -286,8 +317,8 @@ static Eqn_p find_spec_literal_old(Eqn_p lit, Eqn_p list)
       {
          continue;
       }
-      if(SubstComputeMatch(lit->lterm, list->rterm, subst)&&
-         SubstComputeMatch(lit->rterm, list->lterm, subst))
+      if(SubstMatchComplete(lit->lterm, list->rterm, subst)&&
+         SubstMatchComplete(lit->rterm, list->lterm, subst))
       {
          break;
       }
@@ -303,9 +334,6 @@ static Eqn_p find_spec_literal(Eqn_p lit, Eqn_p list)
 {
    Subst_p subst = SubstAlloc();
    int cmpres;
-#ifndef NDEBUG
-   Eqn_p old_res = find_spec_literal_old(lit, list);
-#endif
 
    for(;list;list = list->next)
    {
@@ -329,8 +357,8 @@ static Eqn_p find_spec_literal(Eqn_p lit, Eqn_p list)
       {
          continue;
       }
-      if(SubstComputeMatch(lit->lterm, list->lterm, subst)&&
-         SubstComputeMatch(lit->rterm, list->rterm, subst))
+      if(SubstMatchComplete(lit->lterm, list->lterm, subst)&&
+         SubstMatchComplete(lit->rterm, list->rterm, subst))
       {
          break;
       }
@@ -339,16 +367,14 @@ static Eqn_p find_spec_literal(Eqn_p lit, Eqn_p list)
       {
          continue;
       }
-      if(SubstComputeMatch(lit->lterm, list->rterm, subst)&&
-         SubstComputeMatch(lit->rterm, list->lterm, subst))
+      if(SubstMatchComplete(lit->lterm, list->rterm, subst)&&
+         SubstMatchComplete(lit->rterm, list->lterm, subst))
       {
          break;
       }
       SubstBacktrack(subst);
    }
    SubstDelete(subst);
-
-   assert(list == old_res);
    return list;
 }
 
@@ -462,16 +488,16 @@ bool eqn_list_rec_subsume_old(Eqn_p subsum_list, Eqn_p sub_cand_list,
          down the ordinary case */
       /* if(EqnIsMaximal(eqn) && !EqnIsMaximal(subsum_list))
          {
-         continue;
+            continue;
          }  */
       pick_list[lcount]++;
       state = PStackGetSP(subst);
 
-      if(SubstComputeMatch(subsum_list->lterm, eqn->lterm, subst)&&
-         SubstComputeMatch(subsum_list->rterm, eqn->rterm, subst))
+      if(SubstMatchComplete(subsum_list->lterm, eqn->lterm, subst)&&
+         SubstMatchComplete(subsum_list->rterm, eqn->rterm, subst))
       {
          if(eqn_list_rec_subsume_old(subsum_list->next, sub_cand_list,
-                                     subst, pick_list))
+                     subst, pick_list))
          {
             return true;
          }
@@ -483,8 +509,8 @@ bool eqn_list_rec_subsume_old(Eqn_p subsum_list, Eqn_p sub_cand_list,
          pick_list[lcount]--;
          continue;
       }
-      if(SubstComputeMatch(subsum_list->lterm, eqn->rterm, subst)&&
-         SubstComputeMatch(subsum_list->rterm, eqn->lterm, subst))
+      if(SubstMatchComplete(subsum_list->lterm, eqn->rterm, subst)&&
+         SubstMatchComplete(subsum_list->rterm, eqn->lterm, subst))
       {
          if(eqn_list_rec_subsume_old(subsum_list->next, sub_cand_list,
                                      subst, pick_list))
@@ -498,7 +524,6 @@ bool eqn_list_rec_subsume_old(Eqn_p subsum_list, Eqn_p sub_cand_list,
    return false;
 }
 #endif
-
 
 static
 bool eqn_list_rec_subsume(Eqn_p subsum_list, Eqn_p sub_cand_list,
@@ -548,8 +573,8 @@ bool eqn_list_rec_subsume(Eqn_p subsum_list, Eqn_p sub_cand_list,
       pick_list[lcount]++;
       state = PStackGetSP(subst);
 
-      if(SubstComputeMatch(subsum_list->lterm, eqn->lterm, subst)&&
-         SubstComputeMatch(subsum_list->rterm, eqn->rterm, subst))
+      if(SubstMatchComplete(subsum_list->lterm, eqn->lterm, subst)&&
+         SubstMatchComplete(subsum_list->rterm, eqn->rterm, subst))
       {
          if(eqn_list_rec_subsume(subsum_list->next, sub_cand_list,
                                  subst, pick_list))
@@ -564,8 +589,8 @@ bool eqn_list_rec_subsume(Eqn_p subsum_list, Eqn_p sub_cand_list,
          pick_list[lcount]--;
          continue;
       }
-      if(SubstComputeMatch(subsum_list->lterm, eqn->rterm, subst)&&
-         SubstComputeMatch(subsum_list->rterm, eqn->lterm, subst))
+      if(SubstMatchComplete(subsum_list->lterm, eqn->rterm, subst)&&
+         SubstMatchComplete(subsum_list->rterm, eqn->lterm, subst))
       {
          if(eqn_list_rec_subsume(subsum_list->next, sub_cand_list,
                                  subst, pick_list))
@@ -628,9 +653,9 @@ static bool clause_subsumes_clause(Clause_p subsumer, Clause_p
       PERF_CTR_EXIT(SubsumeTimer);
       return UnitClauseSubsumesClause(subsumer, sub_candidate);
    }
-   //printf("# sub_candidate %p: ", sub_candidate->set);ClausePrint(stdout, sub_candidate, true);
-   //printf("\n# subsumer     %p: ", subsumer->set);ClausePrint(stdout, subsumer, true);
-   //printf("\n");
+   /*fprintf(stderr, "# sub_candidate:");ClausePrint(stderr, sub_candidate, true);
+   fprintf(stderr, "\n# subsumer:");ClausePrint(stderr, subsumer, true);
+   fprintf(stderr, "\n");*/
 
    assert(sub_candidate->weight == ClauseStandardWeight(sub_candidate));
    assert(subsumer->weight == ClauseStandardWeight(subsumer));
@@ -1282,34 +1307,35 @@ Clause_p ClauseSetFindUnitSubsumedClause(ClauseSet_p set, Clause_p
 bool ClausePositiveSimplifyReflect(ClauseSet_p set, Clause_p clause)
 {
    Eqn_p   *handle = &(clause->literals);
-   ClausePos_p res = NULL;
+   SimplifyRes res = SIMPLIFY_FAILED;
 
    while(*handle)
    {
-      res = NULL;
+      res = SIMPLIFY_FAILED;
       if(!EqnIsPositive(*handle))
       {
          res = StrongUnitForwardSubsumption?
-            unit_clause_set_strongsubsumes_termpair(set,
-                                                    (*handle)->lterm,
-                                                    (*handle)->rterm,
-                                                    true):
-            FindSimplifyingUnit(set,
-                                (*handle)->lterm,
-                                (*handle)->rterm,
-                                true);
+                  unit_clause_set_strongsubsumes_termpair(set,
+                                                          (*handle)->lterm,
+                                                          (*handle)->rterm,
+                                                          true):
+                  FindSimplifyingUnit(set,
+                                      (*handle)->lterm,
+                                      (*handle)->rterm,
+                                      true);
       }
-      if(res)
+      if(!SimplifyFailed(res))
       {
+         ClausePos_p pos = res.pos;
          ClauseRemoveLiteralRef(clause, handle);
-         if(ClauseQueryProp(res->clause, CPIsSOS))
+         if(ClauseQueryProp(pos->clause, CPIsSOS))
          {
             ClauseSetProp(clause, CPIsSOS);
          }
          ClauseDelProp(clause, CPInitial|CPLimitedRW);
          DocClauseModificationDefault(clause, inf_simplify_reflect,
-                                      res->clause);
-         ClausePushDerivation(clause, DCSR, res->clause, NULL);
+                                      pos->clause);
+         ClausePushDerivation(clause, DCSR, pos->clause, NULL);
       }
       else
       {
@@ -1338,11 +1364,11 @@ bool ClausePositiveSimplifyReflect(ClauseSet_p set, Clause_p clause)
 bool ClauseNegativeSimplifyReflect(ClauseSet_p set, Clause_p clause)
 {
    Eqn_p   *handle = &(clause->literals);
-   ClausePos_p res = NULL;
+   SimplifyRes res = SIMPLIFY_FAILED;
 
    while(*handle)
    {
-      res = NULL;
+      res = SIMPLIFY_FAILED;
       if(EqnIsPositive(*handle))
       {
          res = FindSignedTopSimplifyingUnit(set,
@@ -1350,17 +1376,19 @@ bool ClauseNegativeSimplifyReflect(ClauseSet_p set, Clause_p clause)
                                             (*handle)->rterm,
                                             false);
       }
-      if(res)
+
+      if(!SimplifyFailed(res) && res.remaining_args == 0)
       {
+         ClausePos_p pos = res.pos;
          ClauseRemoveLiteralRef(clause, handle);
-         if(ClauseQueryProp(res->clause, CPIsSOS))
+         if(ClauseQueryProp(pos->clause, CPIsSOS))
          {
             ClauseSetProp(clause, CPIsSOS);
          }
          ClauseDelProp(clause, CPInitial|CPLimitedRW);
          DocClauseModificationDefault(clause, inf_simplify_reflect,
-                                      res->clause);
-         ClausePushDerivation(clause, DCSR, res->clause, NULL);
+                                      pos->clause);
+         ClausePushDerivation(clause, DCSR, pos->clause, NULL);
       }
       else
       {

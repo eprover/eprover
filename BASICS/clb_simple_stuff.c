@@ -196,7 +196,55 @@ char* IndentStr(int level)
    return spaces;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: StringStartsWith()
+//
+//   Determines if string pattern starts with string prefix.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
 
+bool StringStartsWith(const char* pattern, const char* prefix)
+{
+   while(*prefix)
+   {
+      if(!*pattern || *prefix++ != *pattern++)
+      {
+         return false;
+      }
+   }
+   return true;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: SetProblemType()
+//
+//   Changes problem type to t if the problem type was not initialized.
+//   If user tries to overried the problem type the error is reported.
+//
+// Global Variables: problemType
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void SetProblemType(ProblemType t)
+{
+  if(problemType == PROBLEM_NOT_INIT || problemType == t)
+  {
+     problemType = t;
+  }
+  else
+  {
+     Error("Mixing of first order and higer order syntax is not allowed.", 
+           SYNTAX_ERROR);
+  }
+}
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/

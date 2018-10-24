@@ -47,9 +47,15 @@ extern bool      TermPrintTypes;
                         (FuncSymbStartToken|Mult))
 
 void   VarPrint(FILE* out, FunCode var);
-void   TermPrint(FILE* out, Term_p term, Sig_p sig, DerefType deref);
-void   TermPrintArgList(FILE* out, Term_p *args, int arity, Sig_p sig,
-         DerefType deref);
+void TermPrintFO(FILE* out, Term_p term, Sig_p sig, DerefType deref);
+#ifdef ENABLE_LFHO
+void TermPrintHO(FILE* out, Term_p term, Sig_p sig, DerefType deref);
+#define TermPrint(out, term, sig, deref) (problemType == PROBLEM_HO ? \
+        TermPrintHO(out, term, sig, deref) : TermPrintFO(out, term, sig, deref))
+#else
+#define TermPrint(out, term, sig, deref) TermPrintFO(out, term, sig, deref)
+#endif
+void   TermPrintArgList(FILE* out, Term_p *args, int arity, Sig_p sig, DerefType deref);
 FuncSymbType TermParseOperator(Scanner_p in, DStr_p id);
 FunCode       TermSigInsert(Sig_p sig, const char* name, int arity, bool
                             special_id, FuncSymbType type);
@@ -63,6 +69,7 @@ static __inline__ Term_p TermEquivCellAlloc(Term_p source, VarBank_p vars);
 bool   TermStructEqual(Term_p t1, Term_p t2);
 bool   TermStructEqualNoDeref(Term_p t1, Term_p t2);
 bool   TermStructEqualDeref(Term_p t1, Term_p t2, DerefType deref_1, DerefType deref_2);
+bool   TermStructPrefixEqual(Term_p l, Term_p r, DerefType d_l, DerefType d_r, int remaining, Sig_p sig);
 
 long   TermStructWeightCompare(Term_p t1, Term_p t2);
 
@@ -87,7 +94,7 @@ long    TermWeightCompute(Term_p term, long vweight, long fweight);
          TermDefaultWeight((term)))
 
 long    TermFsumWeight(Term_p term, long vweight, long flimit,
-                       long *fweights, long default_fweight);
+                       long *fweights, long default_fweight, long* typefreqs);
 
 long    TermNonLinearWeight(Term_p term, long vlweight, long vweight, long fweight);
 long    TermSymTypeWeight(Term_p term, long vweight, long fweight, long cweight, long pweight);
@@ -121,6 +128,7 @@ void    TermAddSymbolDistExist(Term_p term, long *dist_array,
 void    TermAddSymbolFeaturesLimited(Term_p term, long depth,
                                      long *freq_array, long* depth_array,
                                      long limit);
+void    TermAddTypeDistribution(Term_p term, Sig_p sig, long* type_arr);
 
 void    TermAddSymbolFeatures(Term_p term, PStack_p mod_stack,
                               long depth, long *feature_array, long offset);
@@ -138,6 +146,10 @@ Term_p  TermCheckConsistency(Term_p term, DerefType deref);
 void    TermAssertSameSort(Sig_p sig, Term_p t1, Term_p t2);
 bool    TermIsUntyped(Term_p t);
 
+Term_p TermCreatePrefix(Term_p orig, int up_to);
+Term_p TermAppEncode(Term_p orig, Sig_p sig);
+
+#define TERM_APPLY_APP_VAR_MULT(w, t, p) (TermIsAppliedVar(t) ? (w)*(p) : (w))
 
 /*-----------------------------------------------------------------------
 //
@@ -157,7 +169,7 @@ static __inline__ Term_p TermEquivCellAlloc(Term_p source, VarBank_p vars)
 {
    if(TermIsVar(source))
    {
-      return VarBankVarAssertAlloc(vars, source->f_code, source->sort);
+      return VarBankVarAssertAlloc(vars, source->f_code, source->type);
    }
    else
    {

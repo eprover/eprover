@@ -131,14 +131,23 @@ long    TBTermNodes(TB_p bank);
 Term_p  TBInsert(TB_p bank, Term_p term, DerefType deref);
 Term_p  TBInsertNoProps(TB_p bank, Term_p term, DerefType deref);
 Term_p  TBInsertRepl(TB_p bank, Term_p term, DerefType deref, Term_p old, Term_p repl);
+Term_p  TBInsertInstantiatedFO(TB_p bank, Term_p term);
+Term_p  TBInsertInstantiatedHO(TB_p bank, Term_p term, bool follow);
+
+#ifdef ENABLE_LFHO
 Term_p  TBInsertInstantiated(TB_p bank, Term_p term);
+#else
+#define TBInsertInstantiated(bank, term) (TBInsertInstantiatedFO(bank, term))
+#endif
+
+Term_p  TBTermParseRealHO(Scanner_p in, TB_p bank, bool check_symb_prop);
 
 Term_p  TBInsertOpt(TB_p bank, Term_p term, DerefType deref);
 Term_p  TBInsertDisjoint(TB_p bank, Term_p term);
 
 Term_p  TBTermTopInsert(TB_p bank, Term_p t);
 
-Term_p  TBAllocNewSkolem(TB_p bank, PStack_p variables, SortType sort);
+Term_p  TBAllocNewSkolem(TB_p bank, PStack_p variables, Type_p type);
 
 Term_p  TBFind(TB_p bank, Term_p term);
 
@@ -149,9 +158,6 @@ void    TBPrintTermCompact(FILE* out, TB_p bank, Term_p term);
 void    TBPrintTerm(FILE* out, TB_p bank, Term_p term, bool fullterms);
 void    TBPrintBankTerms(FILE* out, TB_p bank);
 Term_p  TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop);
-
-#define  TBTermParse(in, bank) TBTermParseReal((in),(bank), true)
-#define  TBRawTermParse(in, bank) TBTermParseReal((in),(bank), false)
 
 void    TBRefSetProp(TB_p bank, TermRef ref, TermProperties prop);
 void    TBRefDelProp(TB_p bank, TermRef ref, TermProperties prop);
@@ -166,8 +172,8 @@ Term_p  TBCreateConstTerm(TB_p bank, FunCode const);
 Term_p  TBCreateMinTerm(TB_p bank, FunCode min_const);
 
 long    TBTermCollectSubterms(Term_p term, PStack_p collector);
-Term_p  TBGetFirstConstTerm(TB_p bank, SortType sort);
-Term_p  TBGetFreqConstTerm(TB_p terms, SortType sort,
+Term_p  TBGetFirstConstTerm(TB_p bank, Type_p sort);
+Term_p  TBGetFreqConstTerm(TB_p terms, Type_p sort,
                            long* conj_dist_array,
                            long* dist_array, FunConstCmpFunType is_better);
 
@@ -176,6 +182,31 @@ Term_p  TBGetFreqConstTerm(TB_p terms, SortType sort,
 /*                Inline Functions                                     */
 /*---------------------------------------------------------------------*/
 
+Term_p __inline__ TBTermParse(Scanner_p in, TB_p bank)
+{
+   if(problemType == PROBLEM_HO)
+   {
+      return TBTermParseRealHO(in, bank, true);
+   }
+   else
+   {
+      assert(problemType == PROBLEM_FO);
+      return TBTermParseReal(in, bank, true);
+   }
+}
+
+Term_p __inline__ TBRawTermParse(Scanner_p in, TB_p bank)
+{
+   if(problemType == PROBLEM_HO)
+   {      
+      return TBTermParseRealHO(in, bank, false);
+   }
+   else
+   {
+      assert(problemType == PROBLEM_FO);
+      return TBTermParseReal(in, bank, false);
+   }
+}
 
 #endif
 

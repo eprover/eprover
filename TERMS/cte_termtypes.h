@@ -30,7 +30,7 @@ Created: Tue Feb 24 01:23:24 MET 1998 - Ripped out of the now obsolete
 #include <clb_sysdate.h>
 #include <clb_ptrees.h>
 #include <clb_properties.h>
-#include <cte_simplesorts.h>
+#include <cte_simpletypes.h>
 
 
 
@@ -84,6 +84,8 @@ typedef enum
                                    this occurs with positive polarity. */
    TPNegPolarity      = 1<<19,  /* In the term encoding of a formula,
                                    this occurs with negative polarity. */
+   TPIsDerefedAppVar  = 1<<20,  /* Is the object obtained as a cache
+                                   for applied variables -- dbg purposes */
 }TermProperties;
 
 
@@ -109,6 +111,7 @@ typedef struct
    }rw_desc;
 }RewriteState;
 
+struct tbcell;
 
 typedef struct termcell
 {
@@ -131,10 +134,17 @@ typedef struct termcell
    unsigned int     v_count;       /* Number of variables, if term is in term bank */
    unsigned int     f_count;       /* Number of function symbols, if term is in term bank */
    RewriteState     rw_data;       /* See above */
-   SortType         sort;          /* Sort of the term */
+   Type_p           type;          /* Sort of the term */
    struct termcell* lson;          /* For storing shared term nodes in */
    struct termcell* rson;          /* a splay tree - see
                                       cte_termcellstore.[ch] */
+#ifdef ENABLE_LFHO
+   struct termcell* binding_cache; /* For caching the term applied variable
+                                      expands to. */
+   struct tbcell* owner_bank;                /* Bank that owns this term cell and that
+                                      is responsible for lifetime management 
+                                      of the term */
+#endif
 }TermCell, *Term_p, **TermRef;
 
 
@@ -159,6 +169,42 @@ typedef uintptr_t DerefType, *DerefType_p;
 
 #define TERMCELL_DYN_MEM (TERMCELL_MEM+4*TERMARG_MEM)
 
+#ifdef ENABLE_LFHO
+#define CAN_DEREF(term) ((TermIsVar(term) && (term)->binding) || \
+                            (TermIsAppliedVar(term) && ((term)->args[0]->binding)))
+#else
+#define CAN_DEREF(term) (((term)->binding))
+#endif
+
+
+// checks if the binding is present and if it is the cache for the
+// right term
+#define BINDING_FRESH(t) (TermGetCache(t) && (t)->binding && \
+                          (t)->binding == (t)->args[0]->binding)
+
+#ifdef ENABLE_LFHO
+/* Sometimes we are not interested in the arity of the term, but the 
+   number of arguments the term has. Due to encoding of applied variables,
+   we have to discard argument 0, which is actually the head variable */ 
+#define ARG_NUM(term)    (TermIsAppliedVar(term) ? (term)->arity-1 : (term)->arity)
+/* If we have the term X a Y and bindings X -> f X Y and Y -> Z
+   when we deref once we want to get f X Y a Z. When dereferencing applied
+   var X a Y we can behave like with variables and decrease deref (see TermDeref) 
+   in which case we get term f X Y a Y as result. If we do not decrease deref
+   we get f (f X Y) a Z as result. Netiher are correct. Thus, there is 
+   a part of term (up to DEREF_LIMIT) for which we do not follow pointers and
+   then other part (after and including DEREF_LIMIT) for which we do follow pointers.  */
+#define DEREF_LIMIT(t,d) ((TermIsAppliedVar(t) && (t)->args[0]->binding && (d) == DEREF_ONCE) ? \
+                          (t)->args[0]->binding->arity + ((TermIsVar((t)->args[0]->binding)) ? 1 : 0)  : 0)
+/* Sets derefs according to the previous comment and expects i to be an index
+   into arugment array, l to be DEREF_LIMIT and d wanted deref mode*/
+#define CONVERT_DEREF(i, l, d) (((i) < (l) && (d) == DEREF_ONCE) ? DEREF_NEVER : (d)) 
+#else
+/* making sure no compiler warnings are produced */
+#define ARG_NUM(term)          ((term)->arity)
+#define DEREF_LIMIT(t,d)       (UNUSED(t),UNUSED(d),0)
+#define CONVERT_DEREF(i, l, d) (UNUSED(i),UNUSED(l),d)
+#endif
 
 /*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */
@@ -172,6 +218,12 @@ typedef uintptr_t DerefType, *DerefType_p;
 #define RewriteAdr(level) (assert(level),(level)-1)
 #define TermIsVar(t) ((t)->f_code < 0)
 #define TermIsConst(t)(!TermIsVar(t) && ((t)->arity==0))
+#ifdef ENABLE_LFHO
+#define TermIsAppliedVar(term) ((term)->f_code == SIG_APP_VAR_CODE)
+#else
+#define TermIsAppliedVar(term) (false)
+#endif
+#define TermIsTopLevelVar(term) (TermIsVar(term) || TermIsAppliedVar(term))
 
 #define TermCellSetProp(term, prop) SetProp((term), (prop))
 #define TermCellDelProp(term, prop) DelProp((term), (prop))
@@ -195,6 +247,12 @@ typedef uintptr_t DerefType, *DerefType_p;
 #define TermIsTopRewritten(term) (TermIsRewritten(term)&&TermRWDemodField(term))
 #define TermIsShared(term)       TermCellQueryProp((term), TPIsShared)
 
+#ifdef ENABLE_LFHO
+Term_p  MakeRewrittenTerm(Term_p orig, Term_p new, int orig_remains, struct tbcell* bank);
+#else
+#define MakeRewrittenTerm(orig, new, remains, bank) (assert(!remains), new)
+#endif
+
 #define TermNFDate(term,i) (TermIsRewritten(term)?\
                            SysDateCreationTime():(term)->rw_data.nf_date[i])
 
@@ -215,7 +273,7 @@ static __inline__ Term_p TermTopCopyWithoutArgs(Term_p source);
 
 void    TermTopFree(Term_p junk);
 void    TermFree(Term_p junk);
-Term_p  TermAllocNewSkolem(Sig_p sig, PStack_p variables, SortType sort);
+Term_p  TermAllocNewSkolem(Sig_p sig, PStack_p variables, Type_p type);
 
 void    TermSetProp(Term_p term, DerefType deref, TermProperties prop);
 bool    TermSearchProp(Term_p term, DerefType deref, TermProperties prop);
@@ -228,6 +286,9 @@ bool    TermVarSearchProp(Term_p term, DerefType deref, TermProperties prop);
 void    TermVarDelProp(Term_p term, DerefType deref, TermProperties prop);
 bool    TermHasInterpretedSymbol(Term_p term);
 
+bool    TermIsPrefix(Term_p needle, Term_p haystack);
+static __inline__ Type_p GetHeadType(Sig_p sig, Term_p term);
+
 static __inline__ Term_p  TermDerefAlways(Term_p term);
 static __inline__ Term_p  TermDeref(Term_p term, DerefType_p deref);
 
@@ -236,10 +297,93 @@ static __inline__ Term_p  TermTopCopy(Term_p source);
 void    TermStackSetProps(PStack_p stack, TermProperties prop);
 void    TermStackDelProps(PStack_p stack, TermProperties prop);
 
+#ifdef ENABLE_LFHO
+#define TermGetCache(t)    ((t)->binding_cache)
+#define TermSetCache(t,c)  ((t)->binding_cache = (c))
+#define TermGetBank(t)     ((t)->owner_bank)
+#define TermSetBank(t,b)   ((t)->owner_bank = (b))
+#else
+#define TermGetCache(t)    (UNUSED(t), NULL)
+#define TermSetCache(t,c)  (UNUSED(t), UNUSED(c), UNUSED(NULL))
+#define TermGetBank(t)     (UNUSED(t), NULL)
+#define TermSetBank(t,b)   (UNUSED(t), UNUSED(b), UNUSED(NULL))
+#endif
+
+void clear_stale_cache(Term_p app_var);
+
 /*---------------------------------------------------------------------*/
 /*                  Inline functions                                   */
 /*---------------------------------------------------------------------*/
 
+#ifdef ENABLE_LFHO
+// forward declaration of function used in inline functions 
+Term_p applied_var_deref(Term_p orig);
+#endif
+
+/*-----------------------------------------------------------------------
+//
+// Function: GetHeadType()
+//
+//   Returns the type of the head term symbol.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static __inline__ Type_p GetHeadType(Sig_p sig, Term_p term)
+{
+#ifdef ENABLE_LFHO
+   if(TermIsAppliedVar(term))
+   {
+      assert(!sig || term->f_code == SIG_APP_VAR_CODE);
+      return term->args[0]->type;
+   }
+   else if(TermIsVar(term))
+   {
+      assert(term->arity == 0);
+      return term->type;
+   }
+   else
+   {
+      assert(term->f_code != SIG_APP_VAR_CODE);
+      return SigGetType(sig, term->f_code);
+   }
+#else
+   return SigGetType(sig, term->f_code);
+#endif
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: deref_step()
+//
+//   Dereference term once
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+#ifdef ENABLE_LFHO
+static __inline__ Term_p deref_step(Term_p orig)
+{
+   assert(TermIsTopLevelVar(orig));
+
+   if(TermIsVar(orig))
+   {
+      return orig->binding;
+   }
+   else
+   {
+      return applied_var_deref(orig);
+   }
+}
+#else
+#define deref_step(orig) ((orig)->binding)
+#endif
 
 /*-----------------------------------------------------------------------
 //
@@ -255,11 +399,15 @@ void    TermStackDelProps(PStack_p stack, TermProperties prop);
 
 static __inline__ Term_p TermDerefAlways(Term_p term)
 {
-   assert(TermIsVar(term)||!(term->binding));
+   assert(TermIsTopLevelVar(term) || !(term->binding));
 
-   while(term->binding)
+   while(CAN_DEREF(term))
    {
+#ifdef ENABLE_LFHO
+      term = deref_step(term);
+#else
       term = term->binding;
+#endif
    }
    return term;
 }
@@ -270,6 +418,13 @@ static __inline__ Term_p TermDerefAlways(Term_p term)
 //
 //   Dereference a term. deref* tells us how many derefences to do
 //   at most, it will be decremented for each dereferenciation.
+//   Dereferencing applied variables creates new terms, which
+//   are cached in the original applied variable. Derefing applied
+//   variable will NOT decrease deref (just like it does not decrease
+//   deref for a normal term). Because of this, additional care 
+//   needs to be taken not to take into account substitution
+//   for the head of the applied variable (which is prefix of the
+//   expanded term) -- see macros DEREF_LIMIT and CONVERT_DEREF.
 //
 // Global Variables: -
 //
@@ -279,25 +434,38 @@ static __inline__ Term_p TermDerefAlways(Term_p term)
 
 static __inline__ Term_p TermDeref(Term_p term, DerefType_p deref)
 {
-   assert(TermIsVar(term)||!(term->binding));
+   assert(TermIsTopLevelVar(term) || !(term->binding));
 
    if(*deref == DEREF_ALWAYS)
    {
-      while(term->binding)
+      while(CAN_DEREF(term))
       {
-         term = term->binding;
+#ifdef ENABLE_LFHO
+      term = deref_step(term);
+#else
+      term = term->binding;
+#endif
       }
    }
    else
    {
-      while(*deref)
+      while(*deref && CAN_DEREF(term))
       {
-         if(!term->binding)
+#ifdef ENABLE_LFHO
+         bool originally_app_var = TermIsAppliedVar(term);
+         term = deref_step(term);
+         if((*deref) == DEREF_ONCE && originally_app_var)
          {
             break;
          }
-         term = term->binding;
-         (*deref)--;
+         else
+         {
+            (*deref)--;
+         }
+#else
+      term = term->binding;
+      (*deref)--;
+#endif
       }
    }
    return term;
@@ -323,17 +491,19 @@ static __inline__ Term_p TermTopCopyWithoutArgs(restrict Term_p source)
    Term_p handle = TermDefaultCellAlloc();
 
    /* All other properties are tied to the specific term! */
-   handle->properties = (source->properties&TPPredPos);
+   handle->properties = (source->properties&(TPPredPos));
    TermCellDelProp(handle, TPOutputFlag); /* As it gets a new id below */
 
    handle->f_code = source->f_code;
-   handle->sort   = source->sort;
+   handle->type   = source->type;
 
    if(source->arity)
    {
       handle->arity = source->arity;
       handle->args  = TermArgArrayAlloc(source->arity);
    }
+
+   TermSetBank(handle, TermGetBank(source));
 
    return handle;
 }
@@ -387,13 +557,15 @@ static __inline__ Term_p TermDefaultCellAlloc(void)
 
    handle->properties = TPIgnoreProps;
    handle->arity      = 0;
-   handle->sort       = STNoSort;
+   handle->type       = NULL;
    handle->binding    = NULL;
    handle->args       = NULL;
    handle->rw_data.nf_date[0] = SysDateCreationTime();
    handle->rw_data.nf_date[1] = SysDateCreationTime();
    handle->lson = NULL;
    handle->rson = NULL;
+   TermSetCache(handle, NULL);
+   TermSetBank(handle, NULL);
 
    return handle;
 }

@@ -31,6 +31,7 @@ Changes
 #include <clb_properties.h>
 #include <cte_functypes.h>
 #include <cte_simpletypes.h>
+#include <cte_typebanks.h>
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
@@ -58,9 +59,10 @@ typedef enum
                            * defintion off if not in use! */
    FPClSplitDef   = 4096, /* Predicate is a clause split defined
                            * symbol. */
-   FPPseudoPred   = 8192  /* Pseudo-predicate used for side effects
+   FPPseudoPred   = 8192, /* Pseudo-predicate used for side effects
                            * only, does not conceptually contribute to
                            * truth of clause */
+   FPTypedApplication = FPPseudoPred * 2
 }FunctionProperties;
 
 
@@ -130,10 +132,9 @@ typedef struct sigcell
    FunCode   xor_code;
    /* And here are codes for interpreted symbols */
    FunCode   answer_code;       /* For answer literals */
-
+   
    /* Sort and type banks (type => sort, but a shortcut is useful) */
-   SortTable_p sort_table;
-   TypeTable_p type_table;
+   TypeBank_p  type_bank;
 
    /* Counters for generating new symbols */
    long      skolem_count;
@@ -159,6 +160,7 @@ typedef struct sigcell
 #define SIG_FALSE_CODE 2
 #define SIG_NIL_CODE   3
 #define SIG_CONS_CODE  4
+#define SIG_APP_VAR_CODE 17
 
 /* Handle properties */
 
@@ -188,7 +190,7 @@ extern bool      SigSupportLists; /* Auto-Insert special symbols
 #define SigCellAlloc() (SigCell*)SizeMalloc(sizeof(SigCell))
 #define SigCellFree(junk)         SizeFree(junk, sizeof(SigCell))
 
-Sig_p   SigAlloc(SortTable_p sort_table);
+Sig_p   SigAlloc(TypeBank_p bank);
 void    SigInsertInternalCodes(Sig_p sig);
 void    SigFree(Sig_p junk);
 #define SigExternalSymbols(sig) \
@@ -236,7 +238,7 @@ int     SigCountAritySymbols(Sig_p sig, int arity, bool predicates);
 int     SigCountSymbols(Sig_p sig, bool predicates);
 int     SigAddSymbolArities(Sig_p sig, PDArray_p distrib, bool
              predicates, long selection[]);
-long    SigCollectSortConsts(Sig_p sig, SortType sort, PStack_p res);
+long    SigCollectSortConsts(Sig_p sig, Type_p type, PStack_p res);
 
 
 /* Special functions for dealing with special symbols */
@@ -250,7 +252,7 @@ FunCode SigGetNewSkolemCode(Sig_p sig, int arity);
 FunCode SigGetNewPredicateCode(Sig_p sig, int arity);
 
 /* Types */
-#define SigDefaultSort(sig)  ((sig)->sort_table->default_type)
+#define SigDefaultSort(sig)  ((sig)->type_bank->default_type)
 #define SigGetType(sig, f)   ((sig)->f_info[(f)].type)
 void    SigDeclareType(Sig_p sig, FunCode f, Type_p type);
 void    SigDeclareFinalType(Sig_p sig, FunCode f, Type_p type);
@@ -262,7 +264,12 @@ void    SigParseTFFTypeDeclaration(Scanner_p in, Sig_p sig);
 bool    SigHasUnimplementedInterpretedSymbols(Sig_p sig);
 void    SigUpdateFeatureOffset(Sig_p sig, FunCode f);
 
+
 typedef bool (*FunConstCmpFunType)(FunCode,  FunCode, long*, long*);
+
+FunCode SigGetTypedApp(Sig_p sig, Type_p arg1, Type_p arg2, Type_p ret);
+void SigPrintAppEncodedDecls(FILE* out, Sig_p sig);
+
 
 /*---------------------------------------------------------------------*/
 /*                        Inline functions                             */

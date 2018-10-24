@@ -16,6 +16,9 @@ Contents
 
 Changes
 
+<2> Somewhere at the end of 2017. Completely rewritten 
+    by Petar Vukmirovic.
+
 <1> Sat Jul  6 09:45:14 CEST 2013
     New
 
@@ -26,62 +29,101 @@ Changes
 #define CTE_SIMPLETYPES
 
 #include "cio_scanner.h"
-#include "cte_simplesorts.h"
+#include <clb_ptrees.h>
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
 /*---------------------------------------------------------------------*/
 
-/* Representation of a simple type. A simple type can be either a
- * constant type, or a function type whose arguments are constants
- * (no argument can be a function). */
-typedef struct typecell
-{
-    SortType            domain_sort; /* domain sort, ie the sort returned by a function */
-    int                 arity;       /* arity of the function type */
-    SortType*           args;        /* type of the function's arguments */
+#define ArrowTypeCons 0
+#define STBool        1     /* Boolean sort, will replace/extend the predicate bit */
+#define STIndividuals 2     /* Default sort, "individuums" */
+#define STKind        3     /* The "sort of sorts", $tType in TFF */
+#define STInteger     4     /* Integer numbers */
+#define STRational    5     /* Rational numbers */
+#define STReal        6     /* Reals */
+#define STPredefined  STReal
 
-    struct typecell*    lson;        /* for sharing types */
-    struct typecell*    rson;
-}TypeCell, *Type_p;
+typedef long TypeUniqueID;
+typedef long TypeConsCode;
 
-/* Table to store and share types */
-typedef struct
-{
-    SortTable_p  sort_table;             /* sorts */
-    unsigned int size;                   /* number of types */
-    Type_p       root;                   /* root of the tree of types */
-}TypeTableCell, *TypeTable_p;
+typedef struct typecell {
+   TypeConsCode      f_code; // Called the same as for terms.
+   int               arity;
+   struct typecell** args;
+   TypeUniqueID      type_uid;
+} TypeCell, *Type_p;
 
 /*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-#define TypeCellAlloc()    (TypeCell*)SizeMalloc(sizeof(TypeCell))
+#define SortIsUserDefined(sort) ((sort) > STPredefined)
+#define SortIsInterpreted(sort) (((sort)>=STInteger)&&((sort)<=STPredefined))
+
+Type_p  GetReturnSort(Type_p type);
+
+#define NO_TYPE                 NULL
+#define INVALID_TYPE_UID        -1
+
+#define TypeIsKind(t)   ((t)->f_code == STKind)
+#define TypeIsBool(t)   ((t)->f_code == STBool)
+#define TypeIsArrow(t)  ((t)->f_code == ArrowTypeCons)
+
+#define TypeIsPredicate(t) (TypeIsBool(t) || (TypeIsArrow(t) && TypeIsBool((t)->args[(t)->arity-1])))
+
+#define TypeCellAlloc()    (Type_p) SizeMalloc(sizeof(TypeCell))
 #define TypeCellFree(junk) SizeFree(junk, sizeof(TypeCell))
-#define TypeTableCellAlloc()    (TypeTableCell*)SizeMalloc(sizeof(TypeTableCell))
-#define TypeTableCellFree(junk) SizeFree(junk, sizeof(TypeTableCell))
-#define TypeArgumentAlloc(i) (SortType*) (SizeMalloc(i * sizeof(SortType)))
-#define TypeArgumentFree(junk, i)  SizeFree(junk, i*sizeof(SortType))
 
-#define TypeIsConstant(ty) (ty->arity == 0)
-#define TypeIsFunction(ty) (ty->arity > 0)
-#define TypeEqual(type1, type2) (TypeCompare((type1), (type2)) == 0)
+Type_p  TypeCopy(Type_p orig);
 
-TypeTable_p     TypeTableAlloc(SortTable_p sort_table);
-void            TypeTableFree(TypeTable_p junk);
-int             TypeCompare(Type_p t1, Type_p t2);
-Type_p          TypeNewConstant(TypeTable_p table, SortType sort);
-Type_p          TypeNewFunction(TypeTable_p table, SortType sort,
-                                int arity, SortType *args);
-Type_p          TypeCopyWithReturn(TypeTable_p table, Type_p source,
-                                   SortType new_domain);
-void            TypePrintTSTP(FILE *out, TypeTable_p table, Type_p type);
-void            TypeTreePrintTSTP(FILE *out, TypeTable_p table, Type_p tree);
-void            TypeTablePrintTSTP(FILE *out, TypeTable_p table);
-Type_p          TypeParseTSTP(Scanner_p in, TypeTable_p table);
+#define AllocSimpleSort(code)       TypeAlloc(code, 0, NULL)
+#define AllocArrowType(arity, args) TypeAlloc(ArrowTypeCons, arity, args)
 
-AVL_TRAVERSE_DECLARATION(Type, Type_p)
-#define TypeTraverseExit(stack) PStackFree(stack)
+#define TypeArgArrayAlloc(n) ((Type_p*) ((n) == 0 ? NULL : SizeMalloc((n)*sizeof(Type_p))))
+
+#define  TypeIsArrow(t)       ((t)->f_code == ArrowTypeCons)
+#define  TypeIsKind(t)        ((t)->f_code == STKind)
+#define  TypeIsIndividual(t)  ((t)->f_code == STIndividuals)
+#define  TypeIsTypeConstructor(t) (TypeIsKind(t) || (TypeIsArrow(t) && TypeIsKind((t)->args[0])))
+
+int TypeGetMaxArity(Type_p t); 
+
+int TypesCmp(Type_p t1, Type_p t2);
+Type_p FlattenType(Type_p type);
+DStr_p TypeAppEncodedName(Type_p type);
+
+bool TypeHasBool(Type_p t);
+
+void TypeFree(Type_p junk);
+
+/*-----------------------------------------------------------------------
+//
+// Function: TypeAlloc()
+//
+//   Allocates new type cell.
+//
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+static __inline__ Type_p TypeAlloc(TypeConsCode c_code, int arity, Type_p* args)
+{
+   Type_p handle = TypeCellAlloc();
+
+   handle->f_code = c_code;
+   handle->arity  = arity;
+   handle->args   = args;
+   handle->type_uid  = INVALID_TYPE_UID;
+
+   return handle;
+}
 
 #endif
+
+
+/*---------------------------------------------------------------------*/
+/*                        End of File                                  */
+/*---------------------------------------------------------------------*/

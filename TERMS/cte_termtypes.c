@@ -22,12 +22,12 @@
 -----------------------------------------------------------------------*/
 
 #include "cte_termtypes.h"
+#include "cte_termbanks.h"
 
 
 /*---------------------------------------------------------------------*/
 /*                        Global Variables                             */
 /*---------------------------------------------------------------------*/
-
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
@@ -37,6 +37,158 @@
 /*---------------------------------------------------------------------*/
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
+
+#ifdef ENABLE_LFHO
+/*-----------------------------------------------------------------------
+//
+// Function: register_new_cache()
+//
+//   Stores the new (binding cache, bound to) pair for applied variable.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static __inline__ void register_new_cache(Term_p app_var, Term_p bound_to)
+{
+   assert(TermIsAppliedVar(app_var));
+   assert(app_var->args[0]->binding);
+
+   app_var->binding = app_var->args[0]->binding;
+   TermSetCache(app_var, bound_to);
+
+   TermCellSetProp(TermGetCache(app_var), TPIsDerefedAppVar);
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: insert_deref()
+//
+//   Makes sure that the dereferenced applied variable is shared.
+//   Due to term replacing it might be the case that some arguments
+//   are shared and some are not.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+Term_p insert_deref(Term_p deref_cache, TB_p bank)
+{
+   for(int i=0; i<deref_cache->arity; i++)
+   {
+      if(!TermIsVar(deref_cache->args[i]) && !TermIsShared(deref_cache->args[i]))
+      {
+         deref_cache->args[i] = TBInsert(bank, deref_cache->args[i], DEREF_NEVER);
+      }
+   }
+
+   return TBTermTopInsert(bank, deref_cache);
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: applied_var_deref()
+//
+//   Expands applied variable to a proper term. For example, if X is bound
+//   to f a, term X b would get expanded to f a b.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+__inline__ Term_p applied_var_deref(Term_p orig)
+{
+   assert(TermIsAppliedVar(orig));
+   assert(orig->arity > 1);
+   assert(orig->args[0]->binding || TermGetCache(orig));
+
+   Term_p res;
+
+   if(BINDING_FRESH(orig))
+   {
+      assert(TermCellQueryProp(TermGetCache(orig), TPIsDerefedAppVar));
+      res = TermGetCache(orig);
+   }
+   else
+   {
+      clear_stale_cache(orig);
+
+      if(orig->args[0]->binding)
+      {
+         if(TermIsVar(orig->args[0]->binding))
+         {
+            res = TermTopAlloc(orig->f_code, orig->arity);
+            res->properties = orig->properties & (TPPredPos);
+            res->type = orig->type;
+            res->args[0] = orig->args[0]->binding;
+            for(int i=1; i<orig->arity; i++)
+            {
+               res->args[i] = orig->args[i];
+            }
+         }
+         else
+         {
+            Term_p bound = orig->args[0]->binding;
+            int arity = bound->arity + orig->arity-1;
+
+            res = TermTopAlloc(bound->f_code, arity);
+            
+            res->type = orig->type; // derefing keeps the types
+            res->properties = bound->properties & (TPPredPos);
+
+            assert(!res->binding || res->f_code < 0 /* if bound -> then variable */);
+
+            for(int i=0; i<bound->arity; i++)
+            {
+               res->args[i] = bound->args[i];
+            }
+
+            for(int i=0; i<orig->arity-1; i++)
+            {
+               res->args[bound->arity + i] = orig->args[i + 1];
+            }
+         }
+
+         register_new_cache(orig, (res = insert_deref(res, TermGetBank(orig))));
+      }
+      else
+      {
+         res = orig;
+      }
+   }
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: clear_stale_cache()
+//
+//   Clears the cache if it is not up to date. Assumes that cache
+//   is stale (see BINDING_FRESH).
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void clear_stale_cache(Term_p app_var)
+{
+   assert(TermIsAppliedVar(app_var));
+   assert(!BINDING_FRESH(app_var));
+
+   TermSetCache(app_var, NULL);
+   app_var->binding = NULL;
+}
+
+#endif
 
 
 /*---------------------------------------------------------------------*/
@@ -58,6 +210,7 @@
 
 void TermTopFree(Term_p junk)
 {
+   assert(junk);
    if(junk->arity)
    {
       assert(junk->args);
@@ -122,25 +275,16 @@ void TermFree(Term_p junk)
 //
 /----------------------------------------------------------------------*/
 
-Term_p TermAllocNewSkolem(Sig_p sig, PStack_p variables, SortType sort)
+Term_p TermAllocNewSkolem(Sig_p sig, PStack_p variables, Type_p ret_type)
 {
    Term_p handle = TermDefaultCellAlloc();
    PStackPointer arity = PStackGetSP(variables), i;
+   Type_p *type_args;
    Type_p type;
-   SortType *type_args;
 
-   if(sort == STNoSort)
+   if(!ret_type)
    {
-      sort = SigDefaultSort(sig);
-   }
-
-   if(sort != STBool)
-   {
-      handle->f_code = SigGetNewSkolemCode(sig, arity);
-   }
-   else
-   {
-      handle->f_code = SigGetNewPredicateCode(sig, arity);
+      ret_type = SigDefaultSort(sig);
    }
 
    // declare type
@@ -148,22 +292,41 @@ Term_p TermAllocNewSkolem(Sig_p sig, PStack_p variables, SortType sort)
    {
       handle->arity = arity;
       handle->args = TermArgArrayAlloc(arity);
-      type_args = TypeArgumentAlloc(arity);
+      type_args = TypeArgArrayAlloc(arity+1);
       for(i=0; i<arity; i++)
       {
          handle->args[i] = PStackElementP(variables, i);
-         type_args[i] = handle->args[i]->sort;
-         assert(type_args[i] != STNoSort);
+         type_args[i] = handle->args[i]->type;
+         assert(type_args[i]);
       }
-      type = TypeNewFunction(sig->type_table, sort, arity, type_args);
-      TypeArgumentFree(type_args, arity);
+      type_args[arity] = ret_type;
+
+      type = AllocArrowType(arity+1, type_args);
+      Type_p flattened = FlattenType(type);
+      if(flattened != type)
+      {
+         TypeFree(type);
+      }
+      type = flattened;
    }
    else
    {
-      type = TypeNewConstant(sig->type_table, sort);
+      type = FlattenType(ret_type);
    }
+
+   type = TypeBankInsertTypeShared(sig->type_bank, type);
+
+   if(!TypeIsPredicate(type))
+   {
+      handle->f_code = SigGetNewSkolemCode(sig, PStackGetSP(variables));
+   }
+   else
+   {
+      handle->f_code = SigGetNewPredicateCode(sig, PStackGetSP(variables));
+   }
+
    SigDeclareType(sig, handle->f_code, type);
-   handle->sort = sort;
+   handle->type = ret_type;
 
    return handle;
 }
@@ -174,6 +337,8 @@ Term_p TermAllocNewSkolem(Sig_p sig, PStack_p variables, SortType sort)
 // Function: TermSetProp()
 //
 //   Set the properties in all term cells belonging to term.
+//   NB: The function is never called with deref once -- no changes
+//       to DEREF_ONCE
 //
 // Global Variables: -
 //
@@ -183,6 +348,7 @@ Term_p TermAllocNewSkolem(Sig_p sig, PStack_p variables, SortType sort)
 
 void TermSetProp(Term_p term, DerefType deref, TermProperties prop)
 {
+   assert(deref != DEREF_ONCE);
    PStack_p stack = PStackAlloc();
    int i;
 
@@ -211,6 +377,7 @@ void TermSetProp(Term_p term, DerefType deref, TermProperties prop)
 //
 //   If prop is set in any subterm of term, return true, otherwise
 //   false.
+//   NB: Deref not changed -- function never used.
 //
 // Global Variables: -
 //
@@ -254,6 +421,7 @@ bool TermSearchProp(Term_p term, DerefType deref, TermProperties prop)
 //
 //   If prop has the expected value in all subterms of term, return
 //   true.
+//   NB: Derefs not changed -- function never called with DEREF_ONCE.
 //
 // Global Variables: -
 //
@@ -264,6 +432,7 @@ bool TermSearchProp(Term_p term, DerefType deref, TermProperties prop)
 bool TermVerifyProp(Term_p term, DerefType deref, TermProperties prop,
                     TermProperties expected)
 {
+   assert(deref != DEREF_ONCE);
    PStack_p stack = PStackAlloc();
    int i;
    bool res = true;
@@ -297,6 +466,7 @@ bool TermVerifyProp(Term_p term, DerefType deref, TermProperties prop,
 // Function: TermDelProp()
 //
 //   Delete the properties in all term cells belonging to term.
+//    NB: Derefs not changed -- function never called with DEREF_ONCE
 //
 // Global Variables: -
 //
@@ -306,6 +476,7 @@ bool TermVerifyProp(Term_p term, DerefType deref, TermProperties prop,
 
 void TermDelProp(Term_p term, DerefType deref, TermProperties prop)
 {
+   assert(deref != DEREF_ONCE);
    PStack_p stack = PStackAlloc();
    int i;
 
@@ -367,6 +538,7 @@ void TermDelPropOpt(Term_p term, TermProperties prop)
 // Function: TermVarSetProp()
 //
 //   Set the properties in all variable cells belonging to term.
+//   NB: Derefs not changed -- function never called with DEREF_ONCE
 //
 // Global Variables: -
 //
@@ -376,6 +548,7 @@ void TermDelPropOpt(Term_p term, TermProperties prop)
 
 void TermVarSetProp(Term_p term, DerefType deref, TermProperties prop)
 {
+   assert(deref != DEREF_ONCE);
    PStack_p stack = PStackAlloc();
    int i;
 
@@ -426,7 +599,7 @@ bool TermHasInterpretedSymbol(Term_p term)
    {
       term  = PStackPopP(stack);
       /* printf("#Fcode: %ld  Sort: %d\n", term->f_code, term->sort); */
-      if(SortIsInterpreted(term->sort))
+      if(SortIsInterpreted(term->type->f_code))
       {
          res = true;
          break;
@@ -449,6 +622,7 @@ bool TermHasInterpretedSymbol(Term_p term)
 //
 //   If prop is set in any variable cell in term, return true, otherwise
 //   false.
+//   NB: Derefs never changed -- function not called with DEREF_ONCE
 //
 // Global Variables: -
 //
@@ -458,6 +632,7 @@ bool TermHasInterpretedSymbol(Term_p term)
 
 bool TermVarSearchProp(Term_p term, DerefType deref, TermProperties prop)
 {
+   assert(deref != DEREF_ONCE);
    PStack_p stack = PStackAlloc();
    int i;
    bool res = false;
@@ -491,6 +666,7 @@ bool TermVarSearchProp(Term_p term, DerefType deref, TermProperties prop)
 // Function: TermVarDelProp()
 //
 //   Delete the properties in all variable cells belonging to term.
+//   NB: Derefs not changed -- function not called with DEREF_ONCE
 //
 // Global Variables: -
 //
@@ -500,6 +676,7 @@ bool TermVarSearchProp(Term_p term, DerefType deref, TermProperties prop)
 
 void TermVarDelProp(Term_p term, DerefType deref, TermProperties prop)
 {
+   assert(deref != DEREF_ONCE);
    PStack_p stack = PStackAlloc();
    int i;
 
@@ -574,7 +751,102 @@ void TermStackDelProps(PStack_p stack, TermProperties prop)
    }
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: TermIsPrefix()
+//
+//   Checks if candidate is a prefix of term.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
 
+bool TermIsPrefix(Term_p cand, Term_p term)
+{
+   assert(problemType == PROBLEM_HO);
+   bool res = false;
+   int  i;
+   if(cand)
+   {
+      /* cand can be null if it was binding field of non-bound var,
+         which is common use case for this function  */
+
+      if(TermIsVar(cand))
+      {
+         return TermIsVar(term) ? cand == term : 
+                  (TermIsAppliedVar(term) ? cand == term->args[0] : false);
+      }
+
+      if(cand->arity <= term->arity && cand->f_code == term->f_code) 
+      {
+         for(i=0; i<cand->arity; i++)
+         {
+            if(cand->args[i] != term->args[i])
+            {
+               break;
+            }
+         }
+         res = i == cand->arity;
+      }
+   }
+   return res;
+}
+
+
+#ifdef ENABLE_LFHO
+/*-----------------------------------------------------------------------
+//
+// Function: MakeRewrittenTerm()
+//
+//   Rewrite the prefix of orig using new, leaving remaining_orig
+//   arguments of orig intact.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+__inline__ Term_p MakeRewrittenTerm(Term_p orig, Term_p new, int remaining_orig, struct tbcell* bank)
+{  
+   if(remaining_orig)
+   {
+      assert(problemType == PROBLEM_HO);
+      Term_p new_term;
+      if(TermIsVar(new))
+      {
+         new_term = TermTopAlloc(SIG_APP_VAR_CODE, remaining_orig+1);
+         new_term->args[0] = new;
+      }
+      else
+      {
+         new_term = TermTopAlloc(new->f_code, new->arity + remaining_orig);
+      }
+
+      new_term->type = orig->type; // no type inference after this step
+      new_term->properties = orig->properties & (TPPredPos);
+
+      for(int i=0; i < new->arity; i++)
+      {
+         new_term->args[i] = new->args[i];
+      }
+      for(int i=orig->arity - remaining_orig, j=TermIsVar(new) ? 1 : 0; i < orig->arity; i++, j++)
+      {
+         new_term->args[j + new->arity] = orig->args[i];
+      }
+
+      TermSetBank(new_term, bank);
+      return new_term;
+   }
+   else
+   {
+      TermSetBank(new, bank);
+      return new; // If no args are remaining -- the situation is the same as in FO case
+   }
+}
+#endif
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */

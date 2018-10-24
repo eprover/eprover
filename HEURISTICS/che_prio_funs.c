@@ -62,6 +62,9 @@ char* PrioFunNames[]=
    "ByCreationDate",
    "PreferWatchlist",
    "DeferWatchlist",
+   "PreferAppVar",
+   "PreferNonAppVar",
+   "ByAppVarNum",
    NULL
 };
 
@@ -97,6 +100,9 @@ static ClausePrioFun prio_fun_array[]=
    PrioFunByCreationDate,
    PrioFunPreferWatchlist,
    PrioFunDeferWatchlist,
+   PrioFunPreferAppVar,
+   PrioFunPreferNonAppVar,
+   PrioFunByAppVarNum,
    NULL
 };
 
@@ -600,6 +606,29 @@ EvalPriority PrioFunByLiteralNumber(Clause_p clause)
    return ClauseLiteralNumber(clause);
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: PrioFunByAppVarNum()
+//
+//   Assign the priority to be equal to the number of top-level
+//   applied variables.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+EvalPriority PrioFunByAppVarNum(Clause_p clause)
+{
+   EvalPriority res = 0;
+   for(Eqn_p lit = clause->literals; lit; lit = lit->next)
+   {
+      res += TermIsAppliedVar(lit->lterm) ? 1 : 0;
+      res += TermIsAppliedVar(lit->rterm) ? 1 : 0;
+   }
+   return res;
+}
 
 /*-----------------------------------------------------------------------
 //
@@ -934,6 +963,52 @@ EvalPriority PrioFunDeferWatchlist(Clause_p clause)
    if(ClauseQueryProp(clause, CPSubsumesWatch))
    {
       return PrioDefer;
+   }
+   return PrioNormal;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: PrioFunPreferAppVar()
+//
+//   Prefer clauses that have applied variables.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+EvalPriority PrioFunPreferAppVar(Clause_p clause)
+{
+   assert(clause);
+
+   if(ClauseQueryLiteral(clause, EqnHasAppVar))
+   {
+      return PrioPrefer;
+   }
+   return PrioNormal;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: PrioFunPreferNonAppVar()
+//
+//   Prefer clauses that have no applied variables.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+EvalPriority PrioFunPreferNonAppVar(Clause_p clause)
+{
+   assert(clause);
+
+   if(!ClauseQueryLiteral(clause, EqnHasAppVar))
+   {
+      return PrioPrefer;
    }
    return PrioNormal;
 }

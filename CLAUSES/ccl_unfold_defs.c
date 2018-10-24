@@ -67,7 +67,7 @@ static Term_p term_top_unfold_def(TB_p bank, Term_p term, ClausePos_p demod)
       return term;
    }
    subst = SubstAlloc();
-   tmp = SubstComputeMatch(lside, term, subst);
+   tmp = SubstMatchComplete(lside, term, subst); 
    UNUSED(tmp); assert(tmp); /* Match must exist because demod is demod! */
    rside = ClausePosGetOtherSide(demod);
    res = TBInsertInstantiated(bank, rside);
@@ -273,7 +273,8 @@ long ClauseSetUnfoldAllEqDefs(ClauseSet_p set, ClauseSet_p passive,
    long res = false;
    Clause_p start = NULL;
 
-   while((demod = ClauseSetFindEqDefinition(set, min_arity, start)))
+   while((demod = ClauseSetFindEqDefinition(set, min_arity, start))
+          && problemType == PROBLEM_FO) // disable unfoldings in HO for the moment 
    {
       start = demod->clause->succ;
       if((TermStandardWeight(ClausePosGetOtherSide(demod))-

@@ -851,7 +851,7 @@ long ClauseSetTermCells(ClauseSet_p set)
    for(handle = set->anchor->succ; handle!=set->anchor; handle =
           handle->succ)
    {
-      res += ClauseWeight(handle, 1, 1, 1, 1, 1, false);
+      res += ClauseWeight(handle, 1, 1, 1, 1, 1, 1, false);
    }
    return res;
 }
@@ -1549,7 +1549,7 @@ void ProofStatePrintSelective(FILE* out, ProofState_p state, char*
       switch(*current)
       {
       case 't':
-            if(!ClauseSetIsUntyped(state->axioms))
+            if(problemType == PROBLEM_HO || !ClauseSetIsUntyped(state->axioms))
             {
                fprintf(out, "# Type declarations:\n");
                SigPrintTypeDeclsTSTP(out, state->terms->sig);

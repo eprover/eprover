@@ -110,6 +110,8 @@ long       WFormulaSymbolDiversity(WFormula_p form);
 
 WFormula_p WFormulaOfClause(Clause_p clause, TB_p terms);
 
+void WFormulaAppEncode(FILE* out, WFormula_p handle);
+
 #endif
 
 /*---------------------------------------------------------------------*/

@@ -55,8 +55,8 @@ typedef struct lit_occ_table
 #define LitOccTableCellAlloc()    (LitOccTableCell*)SizeMalloc(sizeof(LitOccTableCell))
 #define LitOccTableCellFree(junk) SizeFree(junk, sizeof(LitOccTableCell))
 
-#define LIT_OCC_TABLE_REF(table, pred, arity)                           \
-   (&((table)->matrix[(((table)->sig_size)*(arity)+(pred))]))
+#define LIT_OCC_TABLE_REF(table, pred, arity) \
+        (&((table)->matrix[(((table)->sig_size)*(arity)+(pred))]))
 
 #define LIT_OCC_TABLE_ENTRY(table, pred, arity) (*LIT_OCC_TABLE_REF(table,pred,arity))
 

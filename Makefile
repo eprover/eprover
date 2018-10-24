@@ -32,6 +32,7 @@ HEADERS  = $(LIBS) EXTERNAL PROVER
 CODE     = $(LIBS) SIMPLE_APPS EXTERNAL CONTRIB PROVER
 PARTS    = $(CODE) DOC
 
+
 all: E
 
 
@@ -121,7 +122,9 @@ links: remove_links
 	for subdir in $(LIBS); do\
 		$(LN) ../$$subdir/$$subdir.a .;\
 	done;
-	@cd PROVER; $(LN) ../CONTRIB/picosat-965/picosat
+	@cd PROVER; $(LN) $(PICOSAT)/picosat
+	
+	
 
 tags:
 	etags.emacs25 `find . \( -name "*.[ch]" -or -name "*.py" \) -and \( -not -path "*include*" -and -not -name ".#*" \)`

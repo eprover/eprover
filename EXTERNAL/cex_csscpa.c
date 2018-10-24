@@ -28,7 +28,7 @@ Changes
 /*---------------------------------------------------------------------*/
 /*                        Global Variables                             */
 /*---------------------------------------------------------------------*/
-
+ProblemType problemType  = PROBLEM_NOT_INIT;
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
@@ -210,14 +210,14 @@ CSSCPAState_p CSSCPAStateAlloc(void)
 {
    CSSCPAState_p handle = CSSCPAStateCellAlloc();
 
-   handle->sig       = SigAlloc(DefaultSortTableAlloc());
+   handle->sig       = SigAlloc(TypeBankAlloc());
    handle->terms     = TBAlloc(handle->sig);
    handle->tmp_terms = TBAlloc(handle->sig);
    handle->pos_units = ClauseSetAlloc();
    handle->neg_units = ClauseSetAlloc();
    handle->non_units = ClauseSetAlloc();
-   handle->pos_units->demod_index = PDTreeAlloc();
-   handle->neg_units->demod_index = PDTreeAlloc();
+   handle->pos_units->demod_index = PDTreeAlloc(handle->terms);
+   handle->neg_units->demod_index = PDTreeAlloc(handle->terms);
    handle->literals  = 0;
    handle->clauses   = 0;
    handle->weight    = 0;
@@ -247,7 +247,7 @@ void CSSCPAStateFree(CSSCPAState_p junk)
    TBFree(junk->terms);
    junk->tmp_terms->sig = NULL;
    TBFree(junk->tmp_terms);
-   SortTableFree(junk->sig->sort_table);
+   TypeBankFree(junk->sig->type_bank);
    SigFree(junk->sig);
    CSSCPAStateCellFree(junk);
 }

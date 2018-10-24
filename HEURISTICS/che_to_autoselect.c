@@ -832,6 +832,7 @@ OCB_p TOSelectOrdering(ProofState_p state, HeuristicParms_p params,
    OCB_p          result;
 
    OrderParmsInitialize(params, &tmp);
+
    if(tmp.ordertype == OPTIMIZE_AX)
    {
       OrderParmsCell local;
@@ -918,10 +919,17 @@ OCB_p  TOCreateOrdering(ProofState_p state, OrderParms_p params,
 {
    OCB_p handle;
    bool prec_by_weight = pre_precedence?false:true;
-
+   
    /* printf("TOCreateOrdering(%d, %d, %d, %ld)\n", params->ordertype,
       params->to_weight_gen, params->to_prec_gen,
       params->to_const_weight); */
+
+#ifdef ENABLE_LFHO
+   if(problemType == PROBLEM_HO)
+   {
+      params->ordertype = KBO6;
+   }
+#endif
 
    switch(params->ordertype)
    {

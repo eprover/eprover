@@ -1405,7 +1405,7 @@ Term_p PatternTranslateSig(Term_p term, PatternSubst_p subst, Sig_p
          f_code = PatSymbValue(subst, t->f_code);
          if(f_code)
          {
-            t->binding = VarBankVarAssertAlloc(new_vars, f_code-NORM_VAR_INIT, t->sort);
+            t->binding = VarBankVarAssertAlloc(new_vars, f_code-NORM_VAR_INIT, t->type);
          }
       }
       else

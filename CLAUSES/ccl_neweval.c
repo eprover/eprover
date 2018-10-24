@@ -607,6 +607,7 @@ PStack_p EvalTreeTraverseInit(Eval_p root, int pos)
    return stack;
 }
 
+
 /*---------------------------------------------------------------------
 //
 // Function: EvalTreeTraverseNext()
@@ -637,7 +638,6 @@ Eval_p EvalTreeTraverseNext(PStack_p state, int pos)
    }
    return res;
 }
-
 
 
 /*-----------------------------------------------------------------------

@@ -14,9 +14,12 @@
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-  Created: Mon Jun  8 11:47:44 MET DST 1998
+Changes
 
-  -----------------------------------------------------------------------*/
+<1> Mon Jun  8 11:47:44 MET DST 1998
+    New
+
+-----------------------------------------------------------------------*/
 
 #include "cco_proofproc.h"
 #include <picosat.h>
@@ -916,7 +919,7 @@ Clause_p SATCheck(ProofState_p state, ProofControl_p control)
    {
       SatClauseSet_p set = SatClauseSetAlloc();
 
-      //printf("# SatCheck() %ld, %ld..\n",
+      // printf("# SatCheck() %ld, %ld..\n",
       //state->proc_non_trivial_count,
       //ProofStateCardinality(state));
 
@@ -1052,7 +1055,7 @@ void print_rw_state(ProofState_p state)
 //
 /----------------------------------------------------------------------*/
 
-void ProofControlInit(ProofState_p state,ProofControl_p control,
+void ProofControlInit(ProofState_p state, ProofControl_p control,
                       HeuristicParms_p params, FVIndexParms_p fvi_params,
                       PStack_p wfcb_defs, PStack_p hcb_defs)
 {
@@ -1075,7 +1078,7 @@ void ProofControlInit(ProofState_p state,ProofControl_p control,
                       DefaultWeightFunctions,
                       true, NULL);
    WeightFunDefListParse(control->wfcbs, in, control->ocb, state);
-   DestroyScanner(in);
+   DestroyScanner(in);   
 
    for(sp = 0; sp < PStackGetSP(wfcb_defs); sp++)
    {

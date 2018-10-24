@@ -5,21 +5,21 @@
 #
 # Copyright 2008 Stephan Schulz, schulz@eprover.org
 #
-# Configuration script for the equational theorem prover E. 
+# Configuration script for the equational theorem prover E.
 #
-# Usage: 
+# Usage:
 #
 # Change directory to the top level directory of the E distribution
 # (where this file is located). Then run
 #
 # ./configure
-# 
+#
 # This will prepare E for compilation in place, i.e. it will compile
 # the system in place and configure programs and scripts to find the
 # execuable in the directory E/PROVER. Installation in this way will
 # not affect any files outside the E distribution directory.
 #
-# If you want to install E in a special place in the file system, run 
+# If you want to install E in a special place in the file system, run
 #
 # ./configure --bindir=/path/to/executables
 #
@@ -60,7 +60,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program ; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston,
-# MA  02111-1307 USA 
+# MA  02111-1307 USA
 #
 # The original copyright holder can be contacted as
 #
@@ -77,6 +77,9 @@
 EXECPATH=`pwd`/PROVER
 MANPATH=`pwd`/DOC/man
 
+enable_ho='             # -DENABLE_LFHO \\'
+build_ho="EHOH       ="
+
 for argument in  "$@"; do
     if [ "$argument" = "-h" -o "$argument" = "--help" ] ; then
         echo "Usage: ./configure [options]"
@@ -84,6 +87,8 @@ for argument in  "$@"; do
         echo "Supported options:"
         echo "--help"
         echo "  Print this help."
+        echo "--enable-ho"
+        echo "  Build E with support for (currently) lambda-free higher-order logic."
         echo "--bindir=<path>"
         echo "  Configure E for running from <path>".
         echo "--exec-prefix=<path>"
@@ -98,8 +103,11 @@ for argument in  "$@"; do
         arg=`echo "$argument"|cut -d= -f2-`
         if [ "$opt" = "--bindir" ] ; then
            EXECPATH=$arg
-        elif [ "$opt" = "--exec-prefix" ] ; then 
-           EXECPATH=$arg/bin 
+        elif [ "$argument" = "--enable-ho" ] ; then
+            enable_ho='             -DENABLE_LFHO \\'
+            build_ho='EHOH       = eprover-ho'
+        elif [ "$opt" = "--exec-prefix" ] ; then
+           EXECPATH=$arg/bin
         elif [ "$opt" = "--man-prefix" ] ; then
            MANPATH=$arg
         elif [ "$opt" = "--prefix" ] ; then
@@ -108,14 +116,19 @@ for argument in  "$@"; do
         else
            echo "Unknown option " $argument
            exit 1
-        fi        
+        fi
     fi
 done
 
 echo "Configuring with executable path "$EXECPATH
 
 echo $MANPATH
-sed -e "/^EXECPATH =.*/s|.*|EXECPATH = $EXECPATH|" -e "/^MANPATH =.*/s|.*|MANPATH = $MANPATH|"  Makefile.vars > tmpfile
+echo $enable_ho
+sed -e "/^EXECPATH =.*/s|.*|EXECPATH = $EXECPATH|" \
+    -e "/^MANPATH =.*/s|.*|MANPATH = $MANPATH|" \
+    -e "/^.*DENABLE_LFHO/s|.*|$enable_ho|"  \
+    -e "/^EHOH/s|.*|$build_ho|" \
+    Makefile.vars > tmpfile
 mv tmpfile Makefile.vars
 
 make config

@@ -233,10 +233,12 @@ bool     seed_preds   = false,
          seed_consts  = false,
          seed_large   = false,
          seed_diverse = false,
-         seed_all     = true;
+         seed_all     = true,
+         app_encode   = false;
 
 SubSampleMethod subsample   = SubSNone;
 long            sample_size = LONG_MAX;
+ProblemType problemType  = PROBLEM_NOT_INIT;
 
 
 /*---------------------------------------------------------------------*/

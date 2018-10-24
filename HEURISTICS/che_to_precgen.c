@@ -46,6 +46,10 @@ char* TOPrecGenNames[]=
    "invfreqconjmin",   /* PByInvFreqConjMin */
    "invfreqconstmin",  /* PByInvFreqConstMin */
    "invfreqhack",      /* PByInvFreqHack */
+   "typefreq",         /* PByTypeFreq */
+   "invtypefreq",      /* PByInvTypeFreq */
+   "combfreq",         /* PByCombFreq */
+   "invcombfreq",      /* PByInvCombFreq */
    "arrayopt",         /* PArrayOpt */
    "orient_axioms",    /* POrientAxioms */
    NULL
@@ -170,11 +174,11 @@ static void generate_unary_first_precedence(OCB_p ocb, ClauseSet_p axioms)
       arity = SigFindArity(ocb->sig, i);
       if(arity == 1)
       {
-    array->array[i].key1 = INT_MAX;
+        array->array[i].key1 = INT_MAX;
       }
       else
       {
-    array->array[i].key1 = arity;
+        array->array[i].key1 = arity;
       }
    }
    FCodeFeatureArraySort(array);
@@ -390,6 +394,91 @@ static void generate_freq_precedence(OCB_p ocb, ClauseSet_p axioms)
 
 /*-----------------------------------------------------------------------
 //
+// Function: generate_type_freq_precedence()
+//
+//   Generate a precedence in which symbols whose types occur more often in
+//   the specification are bigger. Occurrence of symbol is used as a tie-breaker,
+//   then order of occurence in the signature.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+static void generate_type_freq_precedence(OCB_p ocb, ClauseSet_p axioms)
+{
+   FCodeFeatureArray_p array = FCodeFeatureArrayAlloc(ocb->sig, axioms);
+   FunCode       i;
+
+   long max_types = ocb->sig->type_bank->types_count+1;
+   long* type_counts = SizeMalloc(max_types*sizeof(long));
+   for(long i=0; i<max_types; i++)
+   {
+      type_counts[i] = 0;
+   }
+
+   ClauseSetAddTypeDistribution(axioms, type_counts);
+
+   for(i=1; i<= ocb->sig->f_count; i++)
+   {
+      long sym_type_id = SigGetType(ocb->sig, i) ? SigGetType(ocb->sig, i)->type_uid : 0;
+      array->array[i].key1 = type_counts[sym_type_id];
+      array->array[i].key2 = array->array[i].freq;
+   }
+   FCodeFeatureArraySort(array);
+   compute_precedence_from_array(ocb, array);
+
+   FCodeFeatureArrayFree(array);
+   SizeFree(type_counts, max_types*sizeof(long));
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: generate_comb_freq_precedence()
+//
+//   Generate a precedence in which symbols whose types occur more often in
+//   the specification are bigger. Furthemore, add the occurence of symbol to 
+//   this value. Occurrence of symbol is used as a tie-breaker,
+//   then order of occurence in the signature.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+static void generate_comb_freq_precedence(OCB_p ocb, ClauseSet_p axioms)
+{
+   FCodeFeatureArray_p array = FCodeFeatureArrayAlloc(ocb->sig, axioms);
+   FunCode       i;
+
+   long max_types =  ocb->sig->type_bank->types_count +1;
+   long* type_counts = SizeMalloc(max_types*sizeof(long));
+   for(long i=0; i<max_types; i++)
+   {
+      type_counts[i] = 0;
+   }
+
+   ClauseSetAddTypeDistribution(axioms, type_counts);
+
+   for(i=1; i<= ocb->sig->f_count; i++)
+   {
+      long sym_type_id = SigGetType(ocb->sig, i) ? SigGetType(ocb->sig, i)->type_uid : 0;
+      array->array[i].key1 = type_counts[sym_type_id] + 2*array->array[i].freq;
+      array->array[i].key2 = array->array[i].freq;
+   }
+   FCodeFeatureArraySort(array);
+   compute_precedence_from_array(ocb, array);
+
+   FCodeFeatureArrayFree(array);
+   SizeFree(type_counts, max_types*sizeof(long));
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: generate_invfreq_precedence()
 //
 //   Generate a precedence in which symbols which occur more often in
@@ -418,6 +507,90 @@ static void generate_invfreq_precedence(OCB_p ocb, ClauseSet_p axioms)
    FCodeFeatureArrayFree(array);
 }
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: generate_inv_type_freq_precedence()
+//
+//   Generate a precedence in which symbols whose types occur more often in
+//   the specification are smaller. Occurrence of symbol is used as a tie-breaker,
+//   then order of occurence in the signature.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+static void generate_inv_type_freq_precedence(OCB_p ocb, ClauseSet_p axioms)
+{
+   FCodeFeatureArray_p array = FCodeFeatureArrayAlloc(ocb->sig, axioms);
+   FunCode       i;
+
+   long max_types = ocb->sig->type_bank->types_count+1;
+   
+   long* type_counts = SizeMalloc(max_types*sizeof(long));
+   for(long i=0; i<max_types; i++)
+   {
+      type_counts[i] = 0;
+   }
+
+   ClauseSetAddTypeDistribution(axioms, type_counts);
+
+   for(i=1; i<= ocb->sig->f_count; i++)
+   {
+      long sym_type_id = SigGetType(ocb->sig, i) ? SigGetType(ocb->sig, i)->type_uid : 0;
+      array->array[i].key1 = -type_counts[sym_type_id];
+      array->array[i].key2 = array->array[i].freq;
+   }
+   FCodeFeatureArraySort(array);
+   compute_precedence_from_array(ocb, array);
+
+   FCodeFeatureArrayFree(array);
+   SizeFree(type_counts, max_types*sizeof(long));
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: generate_inv_comb_freq_precedence()
+//
+//   Generate a precedence in which symbols whose types occur more often
+//   and that occur often themselves in
+//   the specification are smaller. Occurrence of symbol is used as a tie-breaker,
+//   then order of occurence in the signature.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+static void generate_inv_comb_freq_precedence(OCB_p ocb, ClauseSet_p axioms)
+{
+   FCodeFeatureArray_p array = FCodeFeatureArrayAlloc(ocb->sig, axioms);
+   FunCode       i;
+
+   long max_types =  ocb->sig->type_bank->types_count+1;
+   long* type_counts = SizeMalloc(max_types*sizeof(long));
+   for(long i=0; i<max_types; i++)
+   {
+      type_counts[i] = 0;
+   }
+
+   ClauseSetAddTypeDistribution(axioms, type_counts);
+
+   for(i=1; i<= ocb->sig->f_count; i++)
+   {
+      long sym_type_id = SigGetType(ocb->sig, i) ? SigGetType(ocb->sig, i)->type_uid : 0;
+      array->array[i].key1 = -(type_counts[sym_type_id] + 2*array->array[i].freq);
+      array->array[i].key2 = array->array[i].freq;
+   }
+   FCodeFeatureArraySort(array);
+   compute_precedence_from_array(ocb, array);
+
+   FCodeFeatureArrayFree(array);
+   SizeFree(type_counts, max_types*sizeof(long));
+}
 
 /*-----------------------------------------------------------------------
 //
@@ -807,6 +980,18 @@ void TOGeneratePrecedence(OCB_p ocb, ClauseSet_p axioms,
          break;
    case PByInvFreqHack:
          generate_invfreq_hack_precedence(ocb, axioms);
+         break;
+   case PByTypeFreq:
+         generate_type_freq_precedence(ocb, axioms);
+         break;
+   case PByInvTypeFreq:
+         generate_inv_type_freq_precedence(ocb, axioms);
+         break;
+   case PByCombFreq:
+         generate_comb_freq_precedence(ocb, axioms);
+         break;
+   case PByInvCombFreq:
+         generate_inv_comb_freq_precedence(ocb, axioms);
          break;
    case PArrayOpt:
          generate_arrayopt_precedence(ocb, axioms);

@@ -90,6 +90,8 @@ OptCell opts[] =
 
 char* ex_name = NULL;
 char* kb_name = "E_KNOWLEDGE";
+ProblemType problemType  = PROBLEM_NOT_INIT;
+bool app_encode = false;
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
@@ -111,7 +113,7 @@ int main(int argc, char* argv[])
    ExampleSet_p    proof_examples;
    AnnoSet_p       clause_examples;
    TB_p            annoterms;
-   SortTable_p     sort_table;
+   TypeBank_p      typebank;
    Sig_p           reserved_symbols;
    Scanner_p       in;
    char            defaultname[30];
@@ -136,8 +138,8 @@ int main(int argc, char* argv[])
    ExampleSetParse(in, proof_examples);
    DestroyScanner(in);
 
-   sort_table = DefaultSortTableAlloc();
-   reserved_symbols = SigAlloc(sort_table);
+   typebank = TypeBankAlloc();
+   reserved_symbols = SigAlloc(typebank);
 
    in = CreateScanner(StreamTypeFile,
             KBFileName(name, kb_name, "signature"),
@@ -228,7 +230,7 @@ int main(int argc, char* argv[])
    annoterms->sig = NULL;
    TBFree(annoterms);
    SigFree(reserved_symbols);
-   SortTableFree(sort_table);
+   TypeBankFree(typebank);
    ExampleSetFree(proof_examples);
    CLStateFree(state);
 

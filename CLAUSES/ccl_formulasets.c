@@ -352,6 +352,52 @@ void FormulaSetPrint(FILE* out, FormulaSet_p set, bool fullterms)
    }
 }
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: FormulaSetAppEncode()
+//
+//   App encodes the set of formulas and prints them to out. Initial
+//   set is not changed.
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+void FormulaSetAppEncode(FILE* out, FormulaSet_p set)
+{
+   WFormula_p handle;
+
+   handle = set->anchor->succ;
+   while(handle!=set->anchor)
+   {
+      PreloadTypes(handle->terms, handle->tformula);
+      handle = handle->succ;
+   }
+   
+   handle = set->anchor->succ;
+   if(handle->terms)
+   {
+      TypeBankAppEncodeTypes(out, handle->terms->sig->type_bank, true);
+
+      SigPrintAppEncodedDecls(out, handle->terms->sig);
+
+      while(handle!=set->anchor)
+      {
+         if(!TFormulaIsPropTrue(handle->terms->sig, handle->tformula))
+         {
+            WFormulaAppEncode(out, handle);
+            fputc('\n', out);
+         }
+
+         handle = handle->succ;      
+      }
+   }
+}
+
+
 /*-----------------------------------------------------------------------
 //
 // Function: FormulaSetHasInterpretedSymbol()

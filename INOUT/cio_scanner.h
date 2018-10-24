@@ -89,6 +89,7 @@ typedef unsigned long long TokenType;
 #define FOFXor        (2*FOFEquiv)
 #define FOFNand       (2*FOFXor)
 #define FOFNor        (2*FOFNand)
+#define Application   (2*FOFNor)
 
 
 #define SkipToken     (WhiteSpace | Comment)
@@ -225,6 +226,19 @@ void NextToken(Scanner_p in);
 
 Scanner_p ScannerParseInclude(Scanner_p in, StrTree_p *name_selector,
                               StrTree_p *skip_includes);
+
+#ifdef ENABLE_LFHO
+#define PARSE_OPTIONAL_AV_PENALTY(in, var_name) \
+if(TestInpTok((in), Comma)) \
+{ \
+   AcceptInpTok((in), Comma); \
+   var_name = ParseFloat((in)); \
+}
+#else
+#define PARSE_OPTIONAL_AV_PENALTY(in, var_name) /* relax */
+#endif
+
+#define APP_VAR_MULT_DEFAULT 1
 
 #endif
 

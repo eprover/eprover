@@ -162,7 +162,6 @@ void HeuristicParmsInitialize(HeuristicParms_p handle)
    handle->presat_interreduction         = false;
    handle->detsort_bw_rw                 = false;
    handle->detsort_tmpset                = false;
-
 }
 
 

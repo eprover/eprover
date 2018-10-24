@@ -124,7 +124,7 @@ void clear_env_stack(VarBank_p bank)
 //
 /----------------------------------------------------------------------*/
 
-VarBank_p VarBankAlloc(SortTable_p sort_table)
+VarBank_p VarBankAlloc(TypeBank_p type_bank)
 {
    VarBank_p handle;
 
@@ -132,7 +132,7 @@ VarBank_p VarBankAlloc(SortTable_p sort_table)
    handle->id          = "Unpaired";
    handle->var_count   = 0;
    handle->fresh_count = 0;
-   handle->sort_table  = sort_table;
+   handle->sort_table  = type_bank;
    handle->max_var     = 0;
    handle->varstacks   = PDArrayAlloc(INITIAL_SORT_STACK_SIZE, 5);
    handle->v_counts    = PDIntArrayAlloc(INITIAL_SORT_STACK_SIZE, 5);
@@ -188,7 +188,7 @@ void VarBankFree(VarBank_p junk)
    if(junk->shadow)
    {
       junk->shadow->shadow = NULL;
-   }
+   } 
    VarBankCellFree(junk);
 }
 
@@ -232,8 +232,8 @@ void VarBankPairShadow(VarBank_p primary, VarBank_p secondary)
          {
             var = PStackElementP(varstack, i);
             assert(!VarIsAltVar(var));
-            assert(var->sort == sort);
-            VarBankVarAlloc(secondary, var->f_code, var->sort);
+            assert(var->type->type_uid == sort);
+            VarBankVarAlloc(secondary, var->f_code, var->type);
          }
       }
    }
@@ -253,7 +253,7 @@ void VarBankPairShadow(VarBank_p primary, VarBank_p secondary)
 //
 /----------------------------------------------------------------------*/
 
-VarBankStack_p VarBankCreateStack(VarBank_p bank, SortType sort)
+VarBankStack_p VarBankCreateStack(VarBank_p bank, TypeUniqueID sort)
 {
    VarBankStack_p res;
 
@@ -317,7 +317,6 @@ void VarBankSetVCountsToUsed(VarBank_p bank)
       }
    }
 }
-
 
 /*-----------------------------------------------------------------------
 //
@@ -475,10 +474,10 @@ Term_p VarBankExtNameFind(VarBank_p bank, char* name)
 //
 /----------------------------------------------------------------------*/
 
-Term_p var_bank_var_alloc(VarBank_p bank, FunCode f_code, SortType sort)
+Term_p var_bank_var_alloc(VarBank_p bank, FunCode f_code, Type_p type)
 {
    Term_p var;
-   VarBankStack_p stack = VarBankGetStack(bank, sort);
+   VarBankStack_p stack = VarBankGetStack(bank, type->type_uid);
 
    assert(!PDArrayElementP(bank->variables, -f_code));
 
@@ -490,7 +489,7 @@ Term_p var_bank_var_alloc(VarBank_p bank, FunCode f_code, SortType sort)
    var->f_count = 0;
    var->entry_no = f_code;
    var->f_code = f_code;
-   var->sort = sort;
+   var->type = type;
 
    PDArrayAssignP(bank->variables, -f_code, var);
    if(!VarIsAltVar(var))
@@ -500,7 +499,7 @@ Term_p var_bank_var_alloc(VarBank_p bank, FunCode f_code, SortType sort)
    bank->max_var = MAX(-f_code, bank->max_var);
    bank->var_count++;
 
-   assert(var->sort != STNoSort);
+   assert(var->type);
    return var;
 }
 
@@ -518,12 +517,12 @@ Term_p var_bank_var_alloc(VarBank_p bank, FunCode f_code, SortType sort)
 //
 /----------------------------------------------------------------------*/
 
-Term_p VarBankVarAlloc(VarBank_p bank, FunCode f_code, SortType sort)
+Term_p VarBankVarAlloc(VarBank_p bank, FunCode f_code, Type_p type)
 {
-   Term_p var = var_bank_var_alloc(bank, f_code, sort);
+   Term_p var = var_bank_var_alloc(bank, f_code, type);
    if(bank->shadow)
    {
-      var_bank_var_alloc(bank->shadow, f_code, sort);
+      var_bank_var_alloc(bank->shadow, f_code, type);
    }
    return var;
 }
@@ -548,18 +547,18 @@ Term_p VarBankVarAlloc(VarBank_p bank, FunCode f_code, SortType sort)
 //
 /----------------------------------------------------------------------*/
 
-Term_p VarBankGetFreshVar(VarBank_p bank, SortType sort)
+Term_p  VarBankGetFreshVar(VarBank_p bank, Type_p t)
 {
    Term_p res;
 
-   int v_count = PDArrayElementInt(bank->v_counts, sort);
-   VarBankStack_p stack = VarBankGetStack(bank, sort);
+   int v_count = PDArrayElementInt(bank->v_counts, t->type_uid);
+   VarBankStack_p stack = VarBankGetStack(bank, t->type_uid);
    assert(stack);
    if(UNLIKELY(PStackGetSP(stack)<=v_count))
    {
       //printf("# XXX %s %ld %d  ", bank->id, PStackGetSP(stack), v_count);
       bank->fresh_count+=2;
-      res = VarBankVarAssertAlloc(bank, -(bank->fresh_count), sort);
+      res = VarBankVarAssertAlloc(bank, -(bank->fresh_count), t);
       //printf("=> %ld %d\n", PStackGetSP(stack), v_count);
       assert(PStackGetSP(stack)>v_count);
       if(bank->shadow)
@@ -572,7 +571,7 @@ Term_p VarBankGetFreshVar(VarBank_p bank, SortType sort)
       res = PStackElementP(stack, v_count);
    }
    v_count++;
-   PDArrayAssignInt(bank->v_counts, sort, v_count);
+   PDArrayAssignInt(bank->v_counts, t->type_uid, v_count);
 
    return res;
 }
@@ -632,7 +631,7 @@ Term_p VarBankExtNameAssertAlloc(VarBank_p bank, char* name)
 //
 /----------------------------------------------------------------------*/
 
-Term_p VarBankExtNameAssertAllocSort(VarBank_p bank, char* name, SortType sort)
+Term_p VarBankExtNameAssertAllocSort(VarBank_p bank, char* name, Type_p type)
 {
    Term_p    var;
    StrTree_p handle, test;
@@ -641,14 +640,14 @@ Term_p VarBankExtNameAssertAllocSort(VarBank_p bank, char* name, SortType sort)
    if(Verbose>=5)
    {
       fprintf(stderr, "# Alloc variable %s with sort ", name);
-      SortPrintTSTP(stderr, bank->sort_table, sort);
+      TypePrintTSTP(stderr, bank->sort_table, type);
       fputc('\n', stderr);
    }
 
    handle = StrTreeFind(&(bank->ext_index), name);
    if(!handle)
    {
-      var = VarBankGetFreshVar(bank, sort);
+      var = VarBankGetFreshVar(bank, type);
       handle = StrTreeCellAlloc();
       handle->key = SecureStrdup(name);
       handle->val1.p_val = var;
@@ -659,14 +658,14 @@ Term_p VarBankExtNameAssertAllocSort(VarBank_p bank, char* name, SortType sort)
    else
    {
       var = handle->val1.p_val;
-      if(var->sort != sort)
+      if(var->type != type)
       {
          /* save old var name */
          named = var_named_new(var, name);
          PStackPushP(bank->env, named);
 
          /* replace by new variable (of given sort) */
-         var = VarBankGetFreshVar(bank, sort);
+         var = VarBankGetFreshVar(bank, type);
          handle->val1.p_val = var;
          handle->val2.i_val = var->f_code;
       }
@@ -741,7 +740,6 @@ void VarBankPopEnv(VarBank_p bank)
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
-
 long VarBankCardinality(VarBank_p bank)
 {
    return bank->var_count;

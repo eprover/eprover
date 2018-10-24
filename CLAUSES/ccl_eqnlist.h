@@ -53,16 +53,16 @@ Eqn_p    EqnListFromArray(Eqn_p* array, int lenght);
 PStack_p EqnListToStack(Eqn_p list);
 
 Eqn_p   EqnListExtractElement(EqnRef element);
-#define EqnListExtractFirst(list)               \
-   EqnListExtractElement(list)
+#define EqnListExtractFirst(list)\
+        EqnListExtractElement(list)
 Eqn_p   EqnListExtractByProps(EqnRef list, EqnProperties props, bool
                               negate);
 void    EqnListDeleteElement(EqnRef element);
-#define EqnListDeleteFirst(list)                \
-   EqnListDeleteElement(list)
+#define EqnListDeleteFirst(list)\
+        EqnListDeleteElement(list)
 void    EqnListInsertElement(EqnRef pos, Eqn_p element);
-#define EqnListInsertFirst(list, element)       \
-   EqnListInsertElement((list), (element))
+#define EqnListInsertFirst(list, element)\
+        EqnListInsertElement((list), (element))
 Eqn_p   EqnListAppend(EqnRef list, Eqn_p newpart);
 Eqn_p   EqnListFlatCopy(Eqn_p list);
 Eqn_p   EqnListCopy(Eqn_p list, TB_p bank);
@@ -107,6 +107,7 @@ FunCode NormSubstEqnListExcept(Eqn_p list, Eqn_p except, Subst_p
 long    EqnListDepth(Eqn_p list);
 
 void    EqnListAddSymbolDistribution(Eqn_p list, long *dist_array);
+void    EqnListAddTypeDistribution(Eqn_p list, long *type_array);
 void    EqnListAddSymbolDistExist(Eqn_p list, long *dist_array, PStack_p exist);
 void    EqnListAddSymbolFeatures(Eqn_p list, PStack_p mod_stack, long *feature_array);
 void    EqnListComputeFunctionRanks(Eqn_p list, long *rank_array, long* count);

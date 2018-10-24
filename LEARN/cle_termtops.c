@@ -141,11 +141,11 @@ static Term_p rek_term_top(Term_p term, int depth, VarBank_p freshvars)
 
    if(depth==0)
    {
-      handle = VarBankGetAltFreshVar(freshvars, term->sort);
+      handle = VarBankGetAltFreshVar(freshvars, term->type);
    }
    else if(TermIsVar(term))
    {
-      handle = VarBankVarAssertAlloc(freshvars, term->f_code, term->sort);
+      handle = VarBankVarAssertAlloc(freshvars, term->f_code, term->type);
    }
    else
    {
@@ -189,7 +189,7 @@ static Term_p alt_rek_term_top(Term_p term, int depth, VarBank_p
    {
       if(!term->binding)
       {
-         handle = VarBankGetAltFreshVar(freshvars, term->sort);
+         handle = VarBankGetAltFreshVar(freshvars, term->type);
          term->binding = handle;
          PStackPushP(bindings, term);
       }
@@ -200,7 +200,7 @@ static Term_p alt_rek_term_top(Term_p term, int depth, VarBank_p
    }
    else if(TermIsVar(term))
    {
-      handle = VarBankVarAssertAlloc(freshvars, term->f_code, term->sort);
+      handle = VarBankVarAssertAlloc(freshvars, term->f_code, term->type);
    }
    else
    {
@@ -243,7 +243,7 @@ Term_p term_top_marked(Term_p term, VarBank_p freshvars, PStack_p
    {
       if(!term->binding)
       {
-         handle = VarBankGetAltFreshVar(freshvars, term->sort);
+         handle = VarBankGetAltFreshVar(freshvars, term->type);
          term->binding = handle;
          PStackPushP(bindings, term);
       }
@@ -254,7 +254,7 @@ Term_p term_top_marked(Term_p term, VarBank_p freshvars, PStack_p
    }
    else if(TermIsVar(term))
    {
-      handle = VarBankVarAssertAlloc(freshvars, term->f_code, term->sort);
+      handle = VarBankVarAssertAlloc(freshvars, term->f_code, term->type);
    }
    else
    {
@@ -411,3 +411,5 @@ Term_p ESTermTop(Term_p term, int depth, VarBank_p freshvars)
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
+
+

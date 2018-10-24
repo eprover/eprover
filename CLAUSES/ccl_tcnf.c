@@ -255,7 +255,7 @@ TFormula_p tformula_rek_skolemize(TB_p terms, TFormula_p form,
       var = form->args[0];
       assert(TermIsVar(var));
       assert(!var->binding);
-      sk_term = TBAllocNewSkolem(terms, free_vars, var->sort);
+      sk_term = TBAllocNewSkolem(terms, free_vars, var->type);
       var->binding = sk_term;
       form = tformula_rek_skolemize(terms, form->args[1],
                                     free_vars);
@@ -846,7 +846,7 @@ TFormula_p TFormulaDefRename(TB_p bank, TFormula_p form, int polarity,
       PTreeToPStack(var_stack, free_vars);
       /* printf("# Found %d free variables\n", PStackGetSP(var_stack)); */
 
-      rename_atom = TBAllocNewSkolem(bank, var_stack, STBool);
+      rename_atom = TBAllocNewSkolem(bank, var_stack, bank->sig->type_bank->bool_type);
       rename_atom = EqnTermsTBTermEncode(bank, rename_atom,
                                          bank->true_term, true, PENormal);
       PStackFree(var_stack);
@@ -1514,13 +1514,14 @@ TFormula_p TFormulaMiniScope2(TB_p terms, TFormula_p form,
 
 TFormula_p TFormulaVarRename(TB_p terms, TFormula_p form)
 {
+   assert(!TermIsAppliedVar(form));
    Term_p old_var = NULL, new_var = NULL;
    TFormula_p handle = NULL, arg1=NULL, arg2=NULL;
 
    if(TFormulaIsQuantified(terms->sig, form))
    {
       old_var = form->args[0]->binding;
-      new_var = VarBankGetFreshVar(terms->vars, form->args[0]->sort);
+      new_var = VarBankGetFreshVar(terms->vars, form->args[0]->type);
       assert(new_var != form->args[0]);
       form->args[0]->binding = new_var;
    }

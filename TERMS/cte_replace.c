@@ -22,6 +22,9 @@ Changes
 -----------------------------------------------------------------------*/
 
 #include "cte_replace.h"
+#include <ccl_clauses.h>
+
+extern TB_p bank;
 
 
 
@@ -150,14 +153,18 @@ Term_p TermFollowRWChain(Term_p term)
 //   appear in the term...---> This has been fixed. Each term in repl
 //   and its superterms should now be dereferenced only once.
 //
+//   New in E/HO: If we have to replace top-level term and some arguments
+//   are remaining in it, we need the pointer to the original term 
+//   since we are replacing a (prefix) subterm. 
+//
 // Global Variables: -
 //
 // Side Effects    : Memory management, changes term bank
 //
 /----------------------------------------------------------------------*/
 
-Term_p TBTermPosReplace(TB_p bank, Term_p repl, TermPos_p pos,
-         DerefType deref)
+Term_p TBTermPosReplace(TB_p bank, Term_p repl, TermPos_p pos, 
+         DerefType deref, int remains, Term_p old_into)
 {
    Term_p        handle, old;
    int           subscript;
@@ -185,12 +192,40 @@ Term_p TBTermPosReplace(TB_p bank, Term_p repl, TermPos_p pos,
       old = PStackElementP(pos, i);
       handle = TermTopCopy(old);
       assert(handle->arity > subscript);
+#ifdef ENABLE_LFHO
+      if(remains != -1)
+      {
+         Term_p tmp_repl = MakeRewrittenTerm(TermDerefAlways(handle->args[subscript]), 
+                                             TermDerefAlways(repl), remains, bank);
+
+         handle->args[subscript] = remains ? TBTermTopInsert(bank, tmp_repl) : tmp_repl;
+
+         remains = -1;
+      }
+      else
+      {
+         handle->args[subscript] = repl;
+      }
+#else
       handle->args[subscript] = repl;
+#endif
+      
       PStackPushP(store, handle);
       repl = handle;
    }
-   repl = TBInsertNoProps(bank, repl, deref);
 
+   if(remains > 0)
+   {
+      Term_p repl_tmp = MakeRewrittenTerm(TermDerefAlways(old_into), 
+                                          TermDerefAlways(repl), remains, bank);
+      repl_tmp = TBTermTopInsert(bank, repl_tmp);
+      repl = TBInsertNoProps(bank, repl_tmp, deref);
+   }
+   else
+   {
+      repl  = TBInsertNoProps(bank, repl, deref);
+   }
+   
    while(!PStackEmpty(store))
    {
       handle = PStackPopP(store);

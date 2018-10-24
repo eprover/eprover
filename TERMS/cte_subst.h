@@ -54,11 +54,15 @@ bool          SubstBacktrackSingle(Subst_p subst);
 int           SubstBacktrackToPos(Subst_p subst, PStackPointer pos);
 int           SubstBacktrack(Subst_p subst);
 
-PStackPointer SubstNormTerm(Term_p term, Subst_p subst, VarBank_p vars);
+PStackPointer SubstNormTerm(Term_p term, Subst_p subst, VarBank_p vars, Sig_p sig);
 
 bool          SubstBindingPrint(FILE* out, Term_p var, Sig_p sig, DerefType deref);
 long          SubstPrint(FILE* out, Subst_p subst, Sig_p sig, DerefType deref);
 bool          SubstIsRenaming(Subst_p subt);
+
+PStackPointer SubstBindAppVar(Subst_p subst, Term_p var, 
+                              Term_p term, int up_to,
+                              TB_p bank);
 
 void          SubstBacktrackSkolem(Subst_p subst);
 void          SubstSkolemizeTerm(Term_p term, Subst_p subst, Sig_p sig);
@@ -90,10 +94,10 @@ PStackPointer SubstAddBinding(Subst_p subst, Term_p var, Term_p bind)
    assert(bind);
    assert(TermIsVar(var));
    assert(!(var->binding));
-   assert(!TermCellQueryProp(bind, TPPredPos));
-   assert(var->sort != STNoSort);
-   assert(bind->sort != STNoSort);
-   assert(var->sort == bind->sort);
+   assert(problemType == PROBLEM_HO || !TermCellQueryProp(bind, TPPredPos));
+   assert(var->type);
+   assert(bind->type);
+   assert(problemType == PROBLEM_FO || var->type == bind->type);
 
    /* printf("# %ld <- %ld \n", var->f_code, bind->f_code); */
    var->binding = bind;

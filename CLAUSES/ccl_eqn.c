@@ -22,6 +22,9 @@
 #include "ccl_eqn.h"
 #include "cte_typecheck.h"
 
+#define PRINT_HO_PAREN(out, ch) ((problemType == PROBLEM_HO) ? \
+                                    (fputc((ch), (out))) : 0)
+
 
 /*---------------------------------------------------------------------*/
 /*                        Global Variables                             */
@@ -304,56 +307,107 @@ static bool eqn_parse_infix(Scanner_p in, TB_p bank, Term_p *lref,
    Term_p  rterm;
    bool    positive = true;
 
+   bool in_parens = false;
+   if(problemType == PROBLEM_HO && TestInpTok(in, OpenBracket))
+   {
+      AcceptInpTok(in, OpenBracket);
+      in_parens = true;
+   }
+
    lterm = TBTermParse(in, bank);
+   
    BOOL_TERM_NORMALIZE(lterm);
 
-   if(!TermIsVar(lterm) && SigIsPredicate(bank->sig,lterm->f_code) &&
+   /* Shortcut not to check for equality -- 
+         !TermIsVar guards calls against negative f_code */
+   if(problemType == PROBLEM_FO && !TermIsVar(lterm) && SigIsPredicate(bank->sig,lterm->f_code) &&
       SigIsFixedType(bank->sig, lterm->f_code))
    {
       rterm = bank->true_term; /* Non-Equational literal */
    }
    else
    {
-      if(TermIsVar(lterm) || SigIsFunction(bank->sig, lterm->f_code))
+      /* If we have a predicate variable then = might not come */
+      if((TermIsVar(lterm) && !TypeIsPredicate(lterm->type))
+              /* guarding SigIsFunction */
+          || (!TermIsVar(lterm) && SigIsFunction(bank->sig, lterm->f_code)))
       {
+         if(in_parens && TestInpTok(in, CloseBracket))
+         {
+            AcceptInpTok(in, CloseBracket);
+            in_parens = false;
+         }
+
          if(TestInpTok(in, NegEqualSign))
          {
             positive = !positive;
          }
          AcceptInpTok(in, NegEqualSign|EqualSign);
+       
          rterm = TBTermParse(in, bank);
-         if(!TermIsVar(rterm))
+         
+         if(!TermIsTopLevelVar(rterm))
          {
             TypeDeclareIsNotPredicate(bank->sig, rterm);
          }
       }
       else if(TestInpTok(in, NegEqualSign|EqualSign))
       { /* Now both sides must be terms */
-         TypeDeclareIsNotPredicate(bank->sig, lterm);
+         if(in_parens && TestInpTok(in, CloseBracket))
+         {
+            AcceptInpTok(in, CloseBracket);
+            in_parens = false;
+         }
+
+         if(!TermIsAppliedVar(lterm) && problemType == PROBLEM_FO)
+         {
+            TypeDeclareIsNotPredicate(bank->sig, lterm);   
+         }
          if(TestInpTok(in, NegEqualSign))
          {
             positive = !positive;
          }
          AcceptInpTok(in, NegEqualSign|EqualSign);
+
          rterm = TBTermParse(in, bank);
-         TypeDeclareIsNotPredicate(bank->sig, lterm);
-         if(!TermIsVar(rterm))
+         
+         // We have to make those declarations only for FO problems
+         if(!TermIsAppliedVar(lterm) && problemType == PROBLEM_FO)
+         {
+            TypeDeclareIsNotPredicate(bank->sig, lterm);
+         }
+         if(!TermIsVar(rterm) && !TermIsAppliedVar(rterm) && problemType == PROBLEM_FO)
          {
             TypeDeclareIsNotPredicate(bank->sig, rterm);
          }
       }
       else
       { /* It's a predicate */
+         if(problemType == PROBLEM_HO && !TermIsTopLevelVar(lterm) 
+            && SigIsFunction(bank->sig, lterm->f_code))
+         {
+            DStr_p err = DStrAlloc();
+            DStrAppendStr(err, "Symbol ");
+            DStrAppendStr(err, SigFindName(bank->sig, lterm->f_code));
+            DStrAppendStr(err, " interpreted both as function and predicate (check parentheses).");
+            AktTokenError(in, DStrView(err), SYNTAX_ERROR);
+         }
          rterm = bank->true_term; /* Non-Equational literal */
-         TypeDeclareIsPredicate(bank->sig, lterm);
+         if(!TermIsTopLevelVar(lterm))
+         {
+            TypeDeclareIsPredicate(bank->sig, lterm);
+         }
       }
    }
    *lref = lterm;
    *rref = rterm;
 
+   if(in_parens)
+   {
+      AcceptInpTok(in, CloseBracket);
+   }
    return positive;
 }
-
 
 
 /*-----------------------------------------------------------------------
@@ -401,17 +455,12 @@ static bool eqn_parse_prefix(Scanner_p in, TB_p bank, Term_p *lref,
       if(TermIsVar(lterm))
       {
          AktTokenError(in, "Individual variable "
-                       "used at predicate position", false);
+                     "used at predicate position", false);
 
       }
-      //SigDeclareIsPredicate(bank->sig, lterm->f_code);
-      TypeDeclareIsPredicate(bank->sig, lterm);
+      SigDeclareIsPredicate(bank->sig, lterm->f_code);
    }
-   else
-   {
-      TypeDeclareIsNotPredicate(bank->sig, lterm);
-      TypeDeclareIsNotPredicate(bank->sig, rterm);
-   }
+   /* FIXME (@ Stephan:) Do we need to set IsNotPredicate here? */
    *lref = lterm;
    *rref = rterm;
 
@@ -554,23 +603,30 @@ Eqn_p EqnAlloc(Term_p lterm, Term_p rterm, TB_p bank,  bool positive)
    {
       assert(TermCellQueryProp(rterm,TPPredPos));
       /*printf("# lterm->f_code: %ld <%s>\n", lterm->f_code,
-        SigFindName(bank->sig,lterm->f_code));
-        SigPrint(stdout,bank->sig);
-        fflush(stdout); */
+               SigFindName(bank->sig,lterm->f_code));
+               SigPrint(stdout,bank->sig);
+               fflush(stdout); */
+#ifndef ENABLE_LFHO
       assert(!TermIsVar(lterm));
-      /* TermPrint(stdout, lterm, bank->sig, DEREF_NEVER);
-         printf("===");
-         TermPrint(stdout, rterm, bank->sig, DEREF_NEVER);
-         printf("\n"); */
-      SigDeclareIsPredicate(bank->sig, lterm->f_code);
+#endif
+      if(!TermIsVar(lterm) && !TermIsAppliedVar(lterm))
+      {
+         SigDeclareIsPredicate(bank->sig, lterm->f_code);   
+      }
+      
       TermCellSetProp(lterm, TPPredPos);
-      if(SigQueryFuncProp(bank->sig, lterm->f_code, FPPseudoPred))
+      if(!TermIsVar(lterm) && SigQueryFuncProp(bank->sig, lterm->f_code, FPPseudoPred))
       {
          EqnSetProp(handle, EPPseudoLit);
       }
    }
 
-   TermAssertSameSort(bank->sig, lterm, rterm);
+   /* Allowing predicate variables to be stored in equation */
+   if(lterm->type != rterm->type && 
+         !(TypeIsPredicate(lterm->type) && rterm == bank->true_term))
+   {
+      TermAssertSameSort(bank->sig, lterm, rterm);
+   }
 
    handle->bank = bank;
    handle->next = NULL;
@@ -603,9 +659,11 @@ void EqnFree(Eqn_p junk)
    /* Note that terms are no longer freed at all (GC) and that
       references have vanished! */
    /* TermReleaseRef(&(junk->lterm));
-      TBDelete(junk->bank, junk->lterm);
-      TermReleaseRef(&(junk->rterm));
-      TBDelete(junk->bank, junk->rterm); */
+   TBDelete(junk->bank, junk->lterm);
+   TermReleaseRef(&(junk->rterm));
+   TBDelete(junk->bank, junk->rterm); */
+   assert(TermIsShared(junk->lterm)); // added assertions to check whether
+   assert(TermIsShared(junk->rterm)); // previous comment is true
    EqnCellFree(junk);
 }
 
@@ -631,12 +689,9 @@ Eqn_p EqnParse(Scanner_p in, TB_p bank)
 
    positive = eqn_parse_real(in, bank, &lterm, &rterm, false);
    handle = EqnAlloc(lterm, rterm, bank, positive);
-   // EqnPrint(stdout, handle, false, true);
 
    return handle;
 }
-
-
 
 
 /*-----------------------------------------------------------------------
@@ -666,6 +721,96 @@ Eqn_p EqnFOFParse(Scanner_p in, TB_p bank)
 
 /*-----------------------------------------------------------------------
 //
+// Function: EqnHOFParse()
+//
+//   Parse a literal in THF format. Because of many peculiarities with 
+//   parentheses in THF, we might have to continue on parsing the formula
+//   from the point where the function has been called and then read
+//   the closing bracket :(  
+//
+// Global Variables: -
+//
+// Side Effects    : Changes the value continue_parsing points to
+//
+/----------------------------------------------------------------------*/
+
+Eqn_p EqnHOFParse(Scanner_p in, TB_p bank, bool* continue_parsing)
+{
+   Term_p  lterm;
+   Term_p  rterm;
+   bool    positive = true;
+   bool    pure_eq  = false;
+
+   lterm = TBTermParse(in, bank);
+   BOOL_TERM_NORMALIZE(lterm);
+
+   *continue_parsing = true;
+   if(TestInpTok(in, CloseBracket) && TestTok(LookToken(in,1), NegEqualSign|EqualSign))
+   {
+      AcceptInpTok(in, CloseBracket);
+      *continue_parsing = false; // saw closing bracket.
+   }
+   
+   if(TestInpTok(in, NegEqualSign|EqualSign))
+   {
+      if(TestInpTok(in, EqualSign))
+      {
+         AcceptInpTok(in, EqualSign);
+      } 
+      else
+      {
+         AcceptInpTok(in, NegEqualSign);
+         positive = !positive;
+      }
+      pure_eq = true; // saw equal
+   }
+   else if(TestInpTok(in, CloseBracket))
+   {
+      AcceptInpTok(in, CloseBracket);
+      *continue_parsing = false; // saw closed bracket
+   }
+
+   if(pure_eq)
+   {
+      rterm = TBTermParse(in, bank);
+
+      if(TypeIsBool(lterm->type) && TypeIsBool(rterm->type))
+      {
+         AktTokenError(in, "Equations between bools are disallowed.", false);
+      }
+
+      if(!TermIsTopLevelVar(lterm) && !SigIsFunction(bank->sig, lterm->f_code))
+      {
+         TypeDeclareIsNotPredicate(bank->sig, lterm);
+      }
+      if(!TermIsTopLevelVar(rterm) && !SigIsFunction(bank->sig, rterm->f_code))
+      {
+         TypeDeclareIsNotPredicate(bank->sig, rterm);
+      }
+   }
+   else
+   {
+      if(!TermIsTopLevelVar(lterm) && SigIsFunction(bank->sig, lterm->f_code))
+      {
+         DStr_p err = DStrAlloc();
+         DStrAppendStr(err, "Symbol ");
+         DStrAppendStr(err, SigFindName(bank->sig, lterm->f_code));
+         DStrAppendStr(err, " interpreted both as function and predicate (check parentheses).");
+         AktTokenError(in, DStrView(err), SYNTAX_ERROR);
+      }
+      if(!TermIsTopLevelVar(lterm) && !SigIsPredicate(bank->sig, lterm->f_code))
+      {
+         TypeDeclareIsPredicate(bank->sig, lterm);
+      }
+      rterm = bank->true_term;
+   }
+
+   return EqnAlloc(lterm, rterm, bank, positive);
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: EqnTBTermEncode()
 //
 //   Take two terms (from bank) and a positive value and return a
@@ -690,7 +835,7 @@ Term_p EqnTermsTBTermEncode(TB_p bank, Term_p lterm, Term_p rterm, bool
    handle = TermDefaultCellAlloc();
    handle->arity = 2;
    handle->f_code = SigGetEqnCode(bank->sig, positive);
-   handle->sort = STBool;
+   handle->type = bank->sig->type_bank->bool_type;
    assert(handle->f_code);
    handle->args = TermArgArrayAlloc(2);
    if(dir == PENormal)
@@ -765,7 +910,6 @@ Term_p EqnTBTermParse(Scanner_p in, TB_p bank)
 }
 
 
-
 /*-----------------------------------------------------------------------
 //
 // Function: EqnPrint()
@@ -794,13 +938,13 @@ void EqnPrint(FILE* out, Eqn_p eq, bool negated,  bool fullterms)
    }
 #endif
    /* if(EqnIsSelected(eq))
-      {
+   {
       fprintf(out, "+");
-      } */
+   } */
    /* if(EqnIsXTypePred(eq))
-      {
+   {
       fprintf(out, "*");
-      }*/
+   }*/
    if(OutputFormat == TPTPFormat)
    {
       if(positive)
@@ -929,13 +1073,17 @@ void EqnFOFPrint(FILE* out, Eqn_p eq, bool negated,  bool fullterms, bool pcl)
    {
       if(EqnIsEquLit(eq))
       {
+         PRINT_HO_PAREN(out, '(');
          TBPrintTerm(out, eq->bank, eq->lterm, fullterms);
+         PRINT_HO_PAREN(out, ')');
          if(!positive)
          {
             fputc('!', out);
          }
          fputc('=', out);
+         PRINT_HO_PAREN(out, '(');
          TBPrintTerm(out, eq->bank, eq->rterm, fullterms);
+         PRINT_HO_PAREN(out, ')');
       }
       else
       {
@@ -967,6 +1115,49 @@ void EqnFOFPrint(FILE* out, Eqn_p eq, bool negated,  bool fullterms, bool pcl)
    }
 }
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: EqnAppEncode()
+//
+//   Encodes both sides of the equation using applicative encoding.
+//   Does not change original equation.
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+void EqnAppEncode(FILE* out, Eqn_p eq, bool negated)
+{
+   bool positive = XOR(EqnIsPositive(eq), negated);
+
+   Term_p l_app_enc = TermAppEncode(eq->lterm, eq->bank->sig);   
+   if(EqnIsEquLit(eq))
+   {
+      Term_p r_app_enc = TermAppEncode(eq->rterm, eq->bank->sig);
+
+      TermPrintFO(out, l_app_enc, eq->bank->sig, DEREF_NEVER);
+      if(!positive)
+      {
+         fputc('!', out);
+      }
+      fputc('=', out);
+      TermPrintFO(out, r_app_enc, eq->bank->sig, DEREF_NEVER);
+
+      TermFree(r_app_enc);
+   }
+   else
+   {
+      if(!positive)
+      {
+         fputc('~', out);
+      }
+      TermPrintFO(out, l_app_enc, eq->bank->sig, DEREF_NEVER);
+   }
+   TermFree(l_app_enc);
+}
 
 
 /*-----------------------------------------------------------------------
@@ -1410,9 +1601,13 @@ int EqnSubsumeQOrderCompare(const void* lit1, const void* lit2)
    {
       return res;
    }
+
    if(!EqnIsEquLit(l1))
    {
-      res = CMP(l1->lterm->f_code, l2->lterm->f_code);
+      // because variables might appear at predicate positions,
+      // all nonequational literals belong to the same class in full HOL
+      // ** for LFHOL this same comparison as for FOL holds **
+      res = CMP(l1->lterm->f_code, l2->lterm->f_code);   
    }
    return res;
 }
@@ -1691,10 +1886,10 @@ bool EqnSubsumeDirected(Eqn_p subsumer, Eqn_p subsumed, Subst_p subst)
    PStackPointer backtrack = PStackGetSP(subst);
    bool res;
 
-   res = SubstComputeMatch(subsumer->lterm, subsumed->lterm, subst);
+   res = SubstMatchComplete(subsumer->lterm, subsumed->lterm, subst);
    if(res)
    {
-      res = SubstComputeMatch(subsumer->rterm, subsumed->rterm, subst);
+      res = SubstMatchComplete(subsumer->rterm, subsumed->rterm, subst);
    }
    if(!res)
    {
@@ -1805,14 +2000,15 @@ bool LiteralSubsumeP(Eqn_p subsumer, Eqn_p subsumed)
 
 bool EqnUnifyDirected(Eqn_p eq1, Eqn_p eq2, Subst_p subst)
 {
+   assert(eq1->bank == eq2->bank);
+
    PStackPointer backtrack = PStackGetSP(subst);
    bool res;
 
-   res = SubstComputeMgu(eq1->lterm, eq2->lterm, subst);
+   res = SubstMguComplete(eq1->lterm, eq2->lterm, subst);
    if(res)
    {
-      res = SubstComputeMgu(eq1->rterm,
-                            eq2->rterm, subst);
+      res = SubstMguComplete(eq1->rterm, eq2->rterm, subst);
    }
    if(!res)
    {
@@ -1905,11 +2101,10 @@ bool LiteralUnifyOneWay(Eqn_p eq1, Eqn_p eq2, Subst_p subst, bool swapped)
    {
       EqnSwapSides(eq2);
    }
-   res = SubstComputeMgu(eq1->lterm, eq2->lterm, subst);
+   res = SubstMguComplete(eq1->lterm, eq2->lterm, subst);
    if(res)
    {
-      res = SubstComputeMgu(eq1->rterm,
-                            eq2->rterm, subst);
+      res = SubstMguComplete(eq1->rterm, eq2->rterm, subst);
    }
    if(!res)
    {
@@ -2162,8 +2357,8 @@ PStackPointer SubstNormEqn(Eqn_p eq, Subst_p subst, VarBank_p vars)
 {
    PStackPointer res;
 
-   res = SubstNormTerm(eq->lterm, subst, vars);
-   SubstNormTerm(eq->rterm, subst, vars);
+   res = SubstNormTerm(eq->lterm, subst, vars, eq->bank->sig);
+   SubstNormTerm(eq->rterm, subst, vars, eq->bank->sig);
 
    return res;
 }
@@ -2175,6 +2370,7 @@ PStackPointer SubstNormEqn(Eqn_p eq, Subst_p subst, VarBank_p vars)
 //
 //   Compute the weight of an equation. Weights of potentially maximal
 //   sides are multiplied by max_multiplier.
+//   Weight of applied variables is multiplied with app_var_mult.
 //
 // Global Variables: -
 //
@@ -2183,7 +2379,7 @@ PStackPointer SubstNormEqn(Eqn_p eq, Subst_p subst, VarBank_p vars)
 /----------------------------------------------------------------------*/
 
 double EqnWeight(Eqn_p eq, double max_multiplier, long vweight, long
-                 fweight)
+                 fweight, double app_var_mult)
 {
    double res;
 
@@ -2196,7 +2392,9 @@ double EqnWeight(Eqn_p eq, double max_multiplier, long vweight, long
       res = (double)TermWeight(eq->rterm, vweight, fweight) *
          max_multiplier;
    }
-   res += ((double)TermWeight(eq->lterm, vweight, fweight) * max_multiplier);
+   res = TERM_APPLY_APP_VAR_MULT(res, eq->rterm, app_var_mult);
+   res += TERM_APPLY_APP_VAR_MULT((double)TermWeight(eq->lterm, vweight, fweight) * max_multiplier,
+                                     eq->lterm, app_var_mult);
 
    return res;
 }
@@ -2208,6 +2406,7 @@ double EqnWeight(Eqn_p eq, double max_multiplier, long vweight, long
 //
 //   As EqnWeight(), but use weighted FSum instead of plain term
 //   weight.
+//   Weight of applied variables is multiplied with app_var_mult.
 //
 // Global Variables:
 //
@@ -2216,18 +2415,23 @@ double EqnWeight(Eqn_p eq, double max_multiplier, long vweight, long
 /----------------------------------------------------------------------*/
 
 double EqnFunWeight(Eqn_p eq, double max_multiplier, long vweight,
-                    long flimit, long *fweights, long default_fweight)
+                    long flimit, long *fweights, long default_fweight,
+                    double app_var_mult, long* typefreqs)
 {
    double res;
 
-   res = (double)TermFsumWeight(eq->rterm, vweight, flimit, fweights, default_fweight);
+   res = (double)TermFsumWeight(eq->rterm, vweight, flimit, fweights, default_fweight,
+                                typefreqs);
+   res = TERM_APPLY_APP_VAR_MULT(res, eq->rterm, app_var_mult);
 
    if(!EqnIsOriented(eq))
    {
       res *= max_multiplier;
    }
 
-   res += (double)TermFsumWeight(eq->lterm, vweight, flimit, fweights, default_fweight) * max_multiplier;
+   res += TERM_APPLY_APP_VAR_MULT((double)TermFsumWeight(eq->lterm, vweight, flimit, fweights, 
+                                                            default_fweight, typefreqs) * max_multiplier,
+                                     eq->lterm, app_var_mult);
 
    return res;
 }
@@ -2239,6 +2443,7 @@ double EqnFunWeight(Eqn_p eq, double max_multiplier, long vweight,
 //
 //   Compute the non-linear weight of an equation. Weights of
 //   potentially maximal sides are multiplied by max_multiplier.
+//   Weight of applied variables is multiplied with app_var_mult.
 //
 // Global Variables: -
 //
@@ -2247,7 +2452,8 @@ double EqnFunWeight(Eqn_p eq, double max_multiplier, long vweight,
 /----------------------------------------------------------------------*/
 
 double EqnNonLinearWeight(Eqn_p eq, double max_multiplier, long
-                          vlweight, long vweight, long fweight)
+                          vlweight, long vweight, long fweight, 
+                          double app_var_mult)
 {
    double res;
 
@@ -2260,8 +2466,11 @@ double EqnNonLinearWeight(Eqn_p eq, double max_multiplier, long
       res = (double)TermNonLinearWeight(eq->rterm, vlweight, vweight,
                                         fweight) * max_multiplier;
    }
-   res += ((double)TermNonLinearWeight(eq->lterm, vlweight, vweight,
-                                       fweight) * max_multiplier);
+   res = TERM_APPLY_APP_VAR_MULT(res, eq->rterm, app_var_mult);
+   res += TERM_APPLY_APP_VAR_MULT(
+            (double)(TermNonLinearWeight(eq->lterm, vlweight, vweight,
+                                       fweight) * max_multiplier),
+            eq->lterm, app_var_mult);
 
    return res;
 }
@@ -2272,6 +2481,7 @@ double EqnNonLinearWeight(Eqn_p eq, double max_multiplier, long
 // Function: EqnSymTypeWeight()
 //
 //   Compute the symbol type weight of an equation.
+//   Weight of applied variables is multiplied with app_var_mult.
 //
 // Global Variables: -
 //
@@ -2281,7 +2491,7 @@ double EqnNonLinearWeight(Eqn_p eq, double max_multiplier, long
 
 double  EqnSymTypeWeight(Eqn_p eq, double max_multiplier, long
                          vweight, long fweight, long cweight, long
-                         pweight)
+                         pweight, double app_var_mult)
 {
    double res;
 
@@ -2295,8 +2505,10 @@ double  EqnSymTypeWeight(Eqn_p eq, double max_multiplier, long
       res = (double)TermSymTypeWeight(eq->rterm, vweight, fweight,
                                       cweight, pweight) * max_multiplier;
    }
-   res += ((double)TermSymTypeWeight(eq->lterm, vweight, fweight,
-                                     cweight, pweight) * max_multiplier);
+   res = TERM_APPLY_APP_VAR_MULT(res, eq->rterm, app_var_mult);
+   res += TERM_APPLY_APP_VAR_MULT((double)(TermSymTypeWeight(eq->lterm, vweight, fweight,
+                                      cweight, pweight) * max_multiplier),
+                                      eq->lterm, app_var_mult);
 
    return res;
 }
@@ -2305,7 +2517,8 @@ double  EqnSymTypeWeight(Eqn_p eq, double max_multiplier, long
 //
 // Function: EqnMaxWeight()
 //
-//   Compute the maximum of the weighs of the terms of an equation/
+//   Compute the maximum of the weighs of the terms of an equation. 
+//   Weight of applied variables is multiplied with app_var_mult.
 //
 // Global Variables: -
 //
@@ -2313,12 +2526,13 @@ double  EqnSymTypeWeight(Eqn_p eq, double max_multiplier, long
 //
 /----------------------------------------------------------------------*/
 
-double EqnMaxWeight(Eqn_p eq, long vweight, long fweight)
+double EqnMaxWeight(Eqn_p eq, long vweight, long fweight, double app_var_mult)
 {
    double lweight = TermWeight(eq->lterm, vweight, fweight);
    double rweight = TermWeight(eq->rterm, vweight, fweight);
 
-   return MAX(lweight, rweight);
+   return MAX(TERM_APPLY_APP_VAR_MULT(lweight, eq->lterm, app_var_mult), 
+              TERM_APPLY_APP_VAR_MULT(rweight, eq->rterm, app_var_mult));
 }
 
 
@@ -2328,7 +2542,8 @@ double EqnMaxWeight(Eqn_p eq, long vweight, long fweight)
 //
 //   Compute the weight of an equation. Weights of potentially maximal
 //   sides are multiplied by max_multiplier. The equal-Predicate is
-//   counted with weight fweight, $true is not counted.
+//   counted with weight fweight, $true is not counted. Applied variable
+//   terms are multiplied with app_var_mult.
 //
 // Global Variables: -
 //
@@ -2337,7 +2552,7 @@ double EqnMaxWeight(Eqn_p eq, long vweight, long fweight)
 /----------------------------------------------------------------------*/
 
 double EqnCorrectedWeight(Eqn_p eq, double max_multiplier, long
-                          vweight, long fweight)
+                          vweight, long fweight, double app_var_mult)
 {
    double res;
 
@@ -2353,12 +2568,14 @@ double EqnCorrectedWeight(Eqn_p eq, double max_multiplier, long
             max_multiplier;
       }
       res += fweight; /* Count the equal-predicate */
+      res = TERM_APPLY_APP_VAR_MULT(res, eq->rterm, app_var_mult);
    }
    else
    {
       res = 0;
    }
-   res += ((double)TermWeight(eq->lterm, vweight, fweight) * max_multiplier);
+   res += TERM_APPLY_APP_VAR_MULT((double)TermWeight(eq->lterm, vweight, fweight) * max_multiplier,
+                                     eq->lterm, app_var_mult);
 
    return res;
 }
@@ -2370,7 +2587,8 @@ double EqnCorrectedWeight(Eqn_p eq, double max_multiplier, long
 //
 //   Compute the weight of an equation. Weights of potentially maximal
 //   sides are multiplied by max_multiplier. The equal-Predicate is
-//   counted with weight fweight, $true is not counted.
+//   counted with weight fweight, $true is not counted. Applied variable's
+//   weight is multiplied with app_var_mult.
 //
 // Global Variables: -
 //
@@ -2380,7 +2598,7 @@ double EqnCorrectedWeight(Eqn_p eq, double max_multiplier, long
 
 double EqnCorrectedNonLinearWeight(Eqn_p eq, double max_multiplier,
                                    long vlweight, long vweight, long
-                                   fweight)
+                                   fweight, double app_var_mult)
 {
    double res;
 
@@ -2397,14 +2615,15 @@ double EqnCorrectedNonLinearWeight(Eqn_p eq, double max_multiplier,
                                            vweight, fweight) *
             max_multiplier;
       }
+      res = TERM_APPLY_APP_VAR_MULT(res, eq->rterm, app_var_mult);
       res += fweight; /* Count the equal-predicate */
    }
    else
    {
       res = 0;
    }
-   res += ((double)TermNonLinearWeight(eq->lterm, vlweight, vweight,
-                                       fweight) * max_multiplier);
+   res += TERM_APPLY_APP_VAR_MULT(((double)TermNonLinearWeight(eq->lterm, vlweight, vweight,
+                                       fweight) * max_multiplier), eq->lterm, app_var_mult);
 
    return res;
 }
@@ -2467,7 +2686,9 @@ long EqnInferencePositions(Eqn_p eqn)
 //   sides, max_literal_multiplier to maxinal literals, pos_multiplier
 //   is applied to positive literals. If count_eq_encoding is true,
 //   count $true and ignore the equal-predicate, otherwise ignore
-//   $true and count the equal-predicate for equations only.
+//   $true and count the equal-predicate for equations only. 
+//   Applied variable's weights are multiplied by app_var_mult.
+//
 //
 // Global Variables: -
 //
@@ -2477,14 +2698,14 @@ long EqnInferencePositions(Eqn_p eqn)
 
 double  LiteralWeight(Eqn_p eq, double max_term_multiplier, double
                       max_literal_multiplier, double
-                      pos_multiplier, long vweight, long fweight, bool
-                      count_eq_encoding)
+                      pos_multiplier, long vweight, long fweight, 
+                      double app_var_mult, bool count_eq_encoding)
 {
    double res;
 
    res = count_eq_encoding?
-      EqnWeight(eq, max_term_multiplier, vweight, fweight):
-      EqnCorrectedWeight(eq, max_term_multiplier, vweight, fweight);
+      EqnWeight(eq, max_term_multiplier, vweight, fweight, app_var_mult):
+      EqnCorrectedWeight(eq, max_term_multiplier, vweight, fweight, app_var_mult);
 
 
    if(EqnIsMaximal(eq))
@@ -2506,6 +2727,7 @@ double  LiteralWeight(Eqn_p eq, double max_term_multiplier, double
 //
 //   As LiteralWeight(), but use individual functgion symbol
 //   weights. The eq encoding is always counted.
+//   Weight of applied variables is multiplied with app_var_mult.
 //
 // Global Variables: -
 //
@@ -2520,12 +2742,15 @@ double  LiteralFunWeight(Eqn_p eq,
                          long vweight,
                          long flimit,
                          long *fweights,
-                         long default_fweight)
+                         long default_fweight,
+                         double app_var_mult,
+                         long* typefreqs)
 {
    double res;
 
    res = EqnFunWeight(eq, max_term_multiplier, vweight, flimit,
-                      fweights, default_fweight);
+                      fweights, default_fweight, app_var_mult,
+                      typefreqs);
 
    if(EqnIsMaximal(eq))
    {
@@ -2549,6 +2774,7 @@ double  LiteralFunWeight(Eqn_p eq,
 //   is applied to positive literals. If count_eq_encoding is true,
 //   count $true and ignore the equal-predicate, otherwise ignore
 //   $true and count the equal-predicate for equations only.
+//   Weight of applied variables is multiplied with app_var_mult.
 //
 // Global Variables: -
 //
@@ -2559,16 +2785,16 @@ double  LiteralFunWeight(Eqn_p eq,
 double  LiteralNonLinearWeight(Eqn_p eq, double max_term_multiplier,
                                double max_literal_multiplier, double
                                pos_multiplier, long vlweight, long
-                               vweight, long fweight, bool
+                               vweight, long fweight, double app_var_mult, bool
                                count_eq_encoding)
 {
    double res;
 
    res = count_eq_encoding?
       EqnNonLinearWeight(eq, max_term_multiplier, vlweight, vweight,
-                         fweight):
+                         fweight, app_var_mult):
       EqnCorrectedNonLinearWeight(eq, max_term_multiplier, vlweight,
-                                  vweight, fweight);
+                                  vweight, fweight, app_var_mult);
 
 
    if(EqnIsMaximal(eq))
@@ -2592,6 +2818,7 @@ double  LiteralNonLinearWeight(Eqn_p eq, double max_term_multiplier,
 //   sides, max_literal_multiplier to maxinal literals, pos_multiplier
 //   is applied to positive literals. Different weights are used for
 //   predicate symbols, constants, function symbols and variables.
+//   Weight of applied variables is multiplied with app_var_mult.
 //
 // Global Variables: -
 //
@@ -2602,12 +2829,13 @@ double  LiteralNonLinearWeight(Eqn_p eq, double max_term_multiplier,
 double LiteralSymTypeWeight(Eqn_p eq, double max_term_multiplier,
                             double max_literal_multiplier, double
                             pos_multiplier, long vweight, long
-                            fweight, long cweight, long pweight)
+                            fweight, long cweight, long pweight,
+                            double app_var_mult)
 {
    double res;
 
    res = EqnSymTypeWeight(eq, max_term_multiplier, vweight, fweight,
-                          cweight, pweight);
+                          cweight, pweight, app_var_mult);
 
 
    if(EqnIsMaximal(eq))
@@ -2708,6 +2936,23 @@ long EqnCollectSubterms(Eqn_p eqn, PStack_p collector)
    return res;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: EqnHasAppVar()
+//
+//   Does eq have an applied variable at any side?
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+bool EqnHasAppVar(Eqn_p eq)
+{
+   assert(eq && eq->lterm && eq->rterm);
+   return TermIsAppliedVar(eq->lterm) || TermIsAppliedVar(eq->rterm);
+}
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */

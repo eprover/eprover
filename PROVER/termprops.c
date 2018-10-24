@@ -65,7 +65,8 @@ OptCell opts[] =
 };
 
 char *outname = NULL;
-
+bool app_encode = false;
+ProblemType problemType  = PROBLEM_NOT_INIT;
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
 /*---------------------------------------------------------------------*/
@@ -81,7 +82,7 @@ int main(int argc, char* argv[])
 {
    CLState_p   state;
    Scanner_p   in;
-   SortTable_p sort_table;
+   TypeBank_p  type_bank;
    Sig_p       sig;
    long        count, size, depth, size_sum, depth_sum, size_max,
                depth_max;
@@ -101,8 +102,8 @@ int main(int argc, char* argv[])
    }
    OpenGlobalOut(outname);
 
-   sort_table = DefaultSortTableAlloc();
-   sig = SigAlloc(sort_table);
+   type_bank = TypeBankAlloc();
+   sig = SigAlloc(type_bank);
    bank = TBAlloc(sig);
    size_sum = depth_sum = size_max = depth_max = count = 0;
 
@@ -150,7 +151,7 @@ int main(int argc, char* argv[])
    bank->sig = NULL;
    TBFree(bank);
    SigFree(sig);
-   SortTableFree(sort_table);
+   TypeBankFree(type_bank);
 
    CLStateFree(state);
 

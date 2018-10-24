@@ -200,22 +200,27 @@ long TermTopCompare(Term_p t1, Term_p t2)
       return res;
    }
 
-   assert(t1->sort != STNoSort);
-   assert(t2->sort != STNoSort);
+   assert(t1->type);
+   assert(t2->type);
    //if(t1->sort!=t2->sort)
    //{
    //      printf("# Sort clash (%ld): %d vs. %d\n", t1->f_code, t1->sort, t2->sort);
    //}
-   assert(t1->sort == t2->sort);
+   assert(problemType == PROBLEM_HO || t1->type == t2->type);
+   assert(TermIsAppliedVar(t1) || problemType == PROBLEM_HO  || t1->arity == t2->arity);
 
-   assert(t1->arity == t2->arity);
+   if(t1->arity != t2->arity)
+   {
+      return t1->arity - t2->arity;
+   }
+
    for(i=0; i<t1->arity; i++)
    {
       /* res = (t1->args[i]->entry_no) - (t2->args[i]->entry_no); */
       res = PCmp(t1->args[i], t2->args[i]);
       if(res)
       {
-    return res;
+         return res;
       }
    }
    return res;

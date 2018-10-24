@@ -69,12 +69,17 @@ typedef struct funweightparamcell
                               * where l is the effective level */
    void   (*init_fun)(struct funweightparamcell*);
 
+   double app_var_mult;
+
    /* Weight/Name association (if present).  */
    PStack_p weight_stack;
 
    /* Actual encoding for the weights */
    long   flimit;
    long   *fweights;
+
+   /* array storing frequencies of types for certain symbols */
+   long   *type_freqs;
 
    /* Temporary store for function symbol counts, put here to avoid
     * multiple  (expensive for large signatures) initializations. */
@@ -109,7 +114,9 @@ WFCB_p ConjectureSymbolWeightInit(ClausePrioFun prio_fun,
                                   long   pweight,
                                   long   conj_fweight,
                                   long   conj_cweight,
-                                  long   conj_pweight);
+                                  long   conj_pweight,
+                                  double app_var_mult,
+                                  void   (*init_fun)(struct funweightparamcell*));
 
 WFCB_p FunWeightInit(ClausePrioFun prio_fun,
                      OCB_p ocb,
@@ -118,7 +125,8 @@ WFCB_p FunWeightInit(ClausePrioFun prio_fun,
                      double pos_multiplier,
                      long vweight,
                      long fweight,
-                     PStack_p fweights);
+                     PStack_p fweights,
+                     double app_var_mult);
 
 WFCB_p SymOffsetWeightInit(ClausePrioFun prio_fun,
                            OCB_p ocb,
@@ -127,7 +135,8 @@ WFCB_p SymOffsetWeightInit(ClausePrioFun prio_fun,
                            double pos_multiplier,
                            long vweight,
                            long fweight,
-                           PStack_p fweights);
+                           PStack_p fweights,
+                           double app_var_mult);
 
 WFCB_p ConjectureSymbolWeightParse(Scanner_p in, OCB_p ocb, ProofState_p
                                    state);
@@ -136,6 +145,9 @@ WFCB_p ConjectureSimplifiedSymbolWeightParse(Scanner_p in, OCB_p ocb,
 
 WFCB_p ConjectureRelativeSymbolWeightParse(Scanner_p in, OCB_p ocb,
                                            ProofState_p state);
+
+WFCB_p ConjectureRelativeSymbolTypeWeightParse(Scanner_p in, OCB_p ocb,
+                                               ProofState_p state);
 
 WFCB_p RelevanceLevelWeightParse(Scanner_p in, OCB_p ocb,
                                  ProofState_p state);
@@ -152,6 +164,9 @@ WFCB_p SymOffsetWeightParse(Scanner_p in, OCB_p ocb,
 double GenericFunWeightCompute(void* data, Clause_p clause);
 
 double SymOffsetWeightCompute(void* data, Clause_p clause);
+
+WFCB_p ConjectureTypeBasedWeightParse(Scanner_p in, OCB_p ocb, ProofState_p
+                                      state);
 
 
 void   GenericFunWeightExit(void* data);

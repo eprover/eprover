@@ -1,0 +1,3 @@
+#!/bin/sh
+
+./eprover $1 --auto --silent --cpu-limit=300 

@@ -98,6 +98,7 @@ long     FPTreeFindUnifiable(FPTree_p root,
                              IndexFP_p key,
                              Sig_p sig,
                              PStack_p collect);
+// proposal -- maybe call this find instances?
 long     FPTreeFindMatchable(FPTree_p root,
                              IndexFP_p key,
                              Sig_p sig,

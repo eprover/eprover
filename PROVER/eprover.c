@@ -28,7 +28,7 @@
 #include <cio_signals.h>
 #include <ccl_unfold_defs.h>
 #include <ccl_formulafunc.h>
-#include <cte_simplesorts.h>
+#include <cte_simpletypes.h>
 #include <cco_scheduling.h>
 #include <e_version.h>
 
@@ -72,6 +72,7 @@ bool              print_sat = false,
    assume_inf_sys_complete = false,
    incomplete = false,
    conjectures_are_questions = false,
+   app_encode = false,
    strategy_scheduling = false;
 ProofOutput       print_derivation = PONone;
 long              proc_training_data;
@@ -97,6 +98,8 @@ char              *sine=NULL;
 pid_t              pid = 0;
 
 FunctionProperties free_symb_prop = FPIgnoreProps;
+
+ProblemType problemType  = PROBLEM_NOT_INIT;
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
@@ -408,6 +411,12 @@ int main(int argc, char* argv[])
    relevancy_pruned += ProofStateSinE(proofstate, sine);
    relevancy_pruned += ProofStatePreprocess(proofstate, relevance_prune_level);
 
+   if(app_encode)
+   {
+      FormulaSetAppEncode(stdout, proofstate->f_axioms);
+      goto cleanup1;
+   }
+
    if(strategy_scheduling)
    {
       ExecuteSchedule(StratSchedule, h_parms, print_rusage);
@@ -437,7 +446,6 @@ int main(int argc, char* argv[])
    {
       VERBOUT("Negated conjectures.\n");
    }
-   //printf("Alive (-1)!\n");
 
    if(new_cnf)
    {
@@ -459,7 +467,6 @@ int main(int argc, char* argv[])
                                proofstate->gc_terms);
    }
 
-   //printf("Alive (0)!\n");
 
    if(cnf_size)
    {
@@ -483,7 +490,7 @@ int main(int argc, char* argv[])
                                             eqdef_incrlimit,
                                             eqdef_maxclauses);
    }
-   //printf("Alive (0.5)!\n");
+
    proofcontrol = ProofControlAlloc();
    ProofControlInit(proofstate, proofcontrol, h_parms,
                     fvi_parms, wfcb_definitions, hcb_definitions);
@@ -524,6 +531,11 @@ int main(int argc, char* argv[])
       }
    }
    PERF_CTR_ENTRY(SatTimer);
+
+#ifdef ENABLE_LFHO
+   // if the problem is HO -> we have to use KBO6
+   assert(problemType != PROBLEM_HO || proofcontrol->ocb->type == KBO6);
+#endif
 
    if(!success)
    {
@@ -1605,6 +1617,9 @@ CLState_p process_options(int argc, char* argv[])
             break;
       case OPT_PRINT_TYPES:
             TermPrintTypes = true;
+            break;
+      case OPT_APP_ENCODE:
+            app_encode = true;
             break;
       default:
             assert(false && "Unknown option");

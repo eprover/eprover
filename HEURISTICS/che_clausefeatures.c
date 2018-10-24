@@ -185,10 +185,10 @@ FunCode TermAddVarDistribution(Term_p term, PDArray_p dist_array)
       }
       else
       {
-    count = PDArrayElementInt(dist_array, -(term->f_code));
-    count++;
-    max_var = MAX(max_var, -(term->f_code));
-    PDArrayAssignInt(dist_array, -(term->f_code), count);
+         count = PDArrayElementInt(dist_array, -(term->f_code));
+         count++;
+         max_var = MAX(max_var, -(term->f_code));
+         PDArrayAssignInt(dist_array, -(term->f_code), count);
       }
    }
    PStackFree(stack);
@@ -450,10 +450,10 @@ void ClauseInfoPrint(FILE* out, Clause_p clause)
       clause->ident,
       clause->proof_depth,
       clause->proof_size,
-      (long)ClauseWeight(clause, 1, 1, 1, 1, 1, false),
+      (long)ClauseWeight(clause, 1, 1, 1, 1, 1, 1, false),
       ClauseDepth(clause),
       ClauseLiteralNumber(clause),
-      (long)ClauseWeight(clause, 0, 1, 1, 1, 1, false),
+      (long)ClauseWeight(clause, 0, 1, 1, 1, 1, 1, false),
       ClauseCountVariableSet(clause));
 }
 
@@ -514,11 +514,11 @@ void ClausePropInfoPrint(FILE* out, Clause_p clause)
            "#    ...positive: %6d\n"
            "#    ...negative: %6d\n",
       (long)ClauseStandardWeight(clause),
-      (long)ClauseSymTypeWeight(clause, 1,1,1,1,1,1,1),
-      (long)ClauseSymTypeWeight(clause, 1,1,1,0,1,0,0),
-      (long)ClauseSymTypeWeight(clause, 1,1,1,1,0,0,0),
-      (long)ClauseSymTypeWeight(clause, 1,1,1,0,0,1,0),
-      (long)ClauseSymTypeWeight(clause, 1,1,1,0,0,0,1),
+      (long)ClauseSymTypeWeight(clause, 1,1,1,1,1,1,1,1),
+      (long)ClauseSymTypeWeight(clause, 1,1,1,0,1,0,0,1),
+      (long)ClauseSymTypeWeight(clause, 1,1,1,1,0,0,0,1),
+      (long)ClauseSymTypeWeight(clause, 1,1,1,0,0,1,0,1),
+      (long)ClauseSymTypeWeight(clause, 1,1,1,0,0,0,1,1),
       ClauseDepth(clause),
       ClauseLiteralNumber(clause),
       clause->pos_lit_no,

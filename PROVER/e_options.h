@@ -178,6 +178,7 @@ typedef enum
    OPT_DEF_CNF,
    OPT_MINISCOPE_LIMIT,
    OPT_PRINT_TYPES,
+   OPT_APP_ENCODE,
    OPT_DUMMY
 }OptionCodes;
 
@@ -1338,6 +1339,12 @@ OptCell opts[] =
     '\0', "print-types",
     NoArg, NULL,
     "Print the type of every term. Useful for debugging purposes."},
+
+   {OPT_APP_ENCODE,
+    '\0', "app-encode",
+    NoArg, NULL,
+    "Encodes terms in the proof state using applicative encoding, "
+    "prints encoded input problem and exits."},
 
    {OPT_NOOPT,
     '\0', NULL,

@@ -54,6 +54,7 @@ static void print_var_pattern(FILE* out, char* symbol, int arity, char*
 {
    int i;
    char* prefix = "";
+   alt_var = !alt_var ? "" : alt_var; // silence compiler warning
 
    fprintf(out, "%s(", symbol);
 
@@ -1134,7 +1135,7 @@ long ClauseSetGetTermNodes(ClauseSet_p set)
    for(handle = set->anchor->succ; handle != set->anchor; handle =
           handle->succ)
    {
-      res += ClauseWeight(handle, 1, 1, 1, 1, 1, true);
+      res += ClauseWeight(handle, 1, 1, 1, 1, 1, 1, true);
    }
    return res;
 }
@@ -1883,6 +1884,29 @@ void ClauseSetAddSymbolDistribution(ClauseSet_p set, long *dist_array)
           handle->succ)
    {
       ClauseAddSymbolDistribution(handle, dist_array);
+   }
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseSetAddTypeDistribution()
+//
+//   Count the occurrences of types of function symbols in set.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void ClauseSetAddTypeDistribution(ClauseSet_p set, long *type_array)
+{
+   Clause_p handle;
+
+   for(handle = set->anchor->succ; handle!=set->anchor; handle =
+          handle->succ)
+   {
+      ClauseAddTypeDistribution(handle, type_array);
    }
 }
 

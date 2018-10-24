@@ -58,6 +58,8 @@ char* WeightFunParseFunNames[]=
    "ConjectureSymbolWeight",
    "ConjectureGeneralSymbolWeight",
    "ConjectureRelativeSymbolWeight",
+   "ConjectureRelativeTypeSymbolWeight",
+   "ConjectureTypeBasedWeight",
    "RelevanceLevelWeight",
    "RelevanceLevelWeight2",
    "FunWeight",
@@ -70,8 +72,8 @@ static WeightFunParseFun parse_fun_array[]=
    ClauseWeightParse,
    LMaxWeightParse,
    CMaxWeightParse,
-   UniqWeightParse,
-   DefaultWeightParse,
+   UniqWeightParse, /* NOTE2ME:  did not change it */
+   DefaultWeightParse, /* NOTE2ME:  did not change it */
    ClauseRefinedWeightParse,
    ClauseRefinedWeight2Parse,
    PNRefinedWeightParse,
@@ -85,15 +87,17 @@ static WeightFunParseFun parse_fun_array[]=
    ClauseOrientWeightParse,
    OrientLMaxWeightParse,
    SimWeightParse,
-   FIFOEvalParse,
-   LIFOEvalParse,
-   StaggeredWeightParse,
+   FIFOEvalParse,  /* NOTE2ME:  did not change it */
+   LIFOEvalParse, /* NOTE2ME:  did not change it */
+   StaggeredWeightParse, /* NOTE2ME:  did not change it */
    ClauseWeightAgeParse,
-   TSMWeightParse,
-   TSMRWeightParse,
+   TSMWeightParse /* NOTE2ME:  did not change it */,
+   TSMRWeightParse /* NOTE2ME:  did not change it */,
    ConjectureSimplifiedSymbolWeightParse,
    ConjectureSymbolWeightParse,
    ConjectureRelativeSymbolWeightParse,
+   ConjectureRelativeSymbolTypeWeightParse,
+   ConjectureTypeBasedWeightParse,
    RelevanceLevelWeightParse,
    RelevanceLevelWeightParse2,
    FunWeightParse,
@@ -236,8 +240,8 @@ WFCB_p WFCBAdminFindWFCB(WFCBAdmin_p set, char* name)
    {
       if(strcmp(name, PStackElementP(set->names, i))==0)
       {
-    res = PStackElementP(set->wfcb_set, i);
-    break;
+         res = PStackElementP(set->wfcb_set, i);
+         break;
       }
    }
    return res;

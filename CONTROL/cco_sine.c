@@ -337,9 +337,9 @@ StructFOFSpec_p StructFOFSpecAlloc(void)
 {
    Sig_p sig;
    TB_p  terms;
-   SortTable_p sort_table;
+   TypeBank_p sort_table;
 
-   sort_table = DefaultSortTableAlloc();
+   sort_table = TypeBankAlloc();
    sig =   SigAlloc(sort_table);
    SigInsertInternalCodes(sig);
    /* We assume free numers for LTB to avoid problems with the
@@ -387,10 +387,10 @@ void StructFOFSpecFree(StructFOFSpec_p ctrl)
 
    if(ctrl->sig)
    {
-      if(ctrl->sig->sort_table)
+      if(ctrl->sig->type_bank)
       {
-         SortTableFree(ctrl->sig->sort_table);
-         ctrl->sig->sort_table = NULL;
+         TypeBankFree(ctrl->sig->type_bank);
+         ctrl->sig->type_bank = NULL;
       }
       SigFree(ctrl->sig);
       ctrl->terms->sig = NULL;
@@ -458,10 +458,10 @@ long StructFOFSpecParseAxioms(StructFOFSpec_p ctrl, PStack_p axfiles,
    PStackPointer i;
    char*        iname;
    FormulaSet_p fset;
-   ClauseSet_p  dummy;
+   ClauseSet_p  cset;
    Scanner_p    in;
    long         res = 0;
-   static IntOrP dummyVal = {0};
+   static IntOrP dummy = {0};
 
 
    for(i=0; i<PStackGetSP(axfiles); i++)
@@ -473,15 +473,15 @@ long StructFOFSpecParseAxioms(StructFOFSpec_p ctrl, PStack_p axfiles,
          ScannerSetFormat(in, parse_format);
 
          fprintf(GlobalOut, "# Parsing %s\n", iname);
-         dummy = ClauseSetAlloc();
+         cset = ClauseSetAlloc();
          fset = FormulaSetAlloc();
-         res += FormulaAndClauseSetParse(in, fset, dummy, ctrl->terms,
+         res += FormulaAndClauseSetParse(in, fset, cset, ctrl->terms,
                                          NULL,
                                          &(ctrl->parsed_includes));
-         assert(ClauseSetCardinality(dummy)==0);
-         PStackPushP(ctrl->clause_sets, dummy);
+         assert(ClauseSetCardinality(cset)==0);
+         PStackPushP(ctrl->clause_sets, cset);
          PStackPushP(ctrl->formula_sets, fset);
-         StrTreeStore(&(ctrl->parsed_includes), iname, dummyVal, dummyVal);
+         StrTreeStore(&(ctrl->parsed_includes), iname, dummy, dummy);
 
          DestroyScanner(in);
       }

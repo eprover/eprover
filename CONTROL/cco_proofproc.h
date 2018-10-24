@@ -74,6 +74,7 @@ Clause_p Saturate(ProofState_p state, ProofControl_p control, long
                   step_limit, long proc_limit, long unproc_limit, long
                   total_limit,  long generated_limit, long tb_insert_limit,
                   long answer_limit);
+Clause_p SATCheck(ProofState_p state, ProofControl_p control);
 
 
 

@@ -59,23 +59,27 @@ typedef enum
 
 #define MAXINDENTSPACES 72
 
-#define WeightedObjectArrayAlloc(number)                        \
-   SecureMalloc(number * sizeof(WeightedObjectCell))
+#define WeightedObjectArrayAlloc(number) \
+        SecureMalloc(number * sizeof(WeightedObjectCell))
 #define WeightedObjectArrayFree(array) FREE(array)
 
 int     WeightedObjectCompareFun(WeightedObject_p o1, WeightedObject_p o2);
 
-#define WeightedObjectArraySort(array, size)            \
-   qsort(array, size, sizeof(WeightedObjectCell),               \
+#define WeightedObjectArraySort(array, size) \
+        qsort(array, size, sizeof(WeightedObjectCell),\
          (ComparisonFunctionType)WeightedObjectCompareFun)
 
 void     JKISSSeed(int seed1, int seed2, int seed3);
 unsigned JKISSRand();
 double   JKISSRandDouble();
 
+bool    StringStartsWith(const char* pattern, const char* prefix);
+
 int    StringIndex(char* key, char* list[]);
 
 char*  IndentStr(int level);
+
+void   SetProblemType(ProblemType t);
 
 #endif
 

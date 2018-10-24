@@ -35,20 +35,20 @@ Changes
 
 char* TOWeightGenNames[]=
 {
-   "none",               /* WNoMethod */
-   "firstmaximal0",      /* WSelectMaximal */
-   "arity",              /* WArityWeight */
-   "aritymax0",          /* WArityMax0 */
-   "modarity",           /* WModArityWeight */
-   "modaritymax0",       /* WModArityMax0 */
-   "aritysquared",       /* WAritySqWeight */
-   "aritysquaredmax0",   /* WAritySqMax0 */
-   "invarity",           /* WInvArityWeight */
-   "invaritymax0",       /* WInvArityMax0 */
-   "invaritysquared",    /* WInvSqArityWeight */
-   "invaritysquaredmax0",/* WInvAritySqMax0 */
-   "precedence",         /* WPrecedence */
-   "invprecedence",      /* WPrecedenceInv */
+   "none",                   /* WNoMethod */
+   "firstmaximal0",          /* WSelectMaximal */
+   "arity",                  /* WArityWeight */
+   "aritymax0",              /* WArityMax0 */
+   "modarity",               /* WModArityWeight */
+   "modaritymax0",           /* WModArityMax0 */
+   "aritysquared",           /* WAritySqWeight */
+   "aritysquaredmax0",       /* WAritySqMax0 */
+   "invarity",               /* WInvArityWeight */
+   "invaritymax0",           /* WInvArityMax0 */
+   "invaritysquared",        /* WInvSqArityWeight */
+   "invaritysquaredmax0",    /* WInvAritySqMax0 */
+   "precedence",             /* WPrecedence */
+   "invprecedence",          /* WPrecedenceInv */
    "precrank5",
    "precrank10",
    "precrank20",
@@ -56,12 +56,20 @@ char* TOWeightGenNames[]=
    "invfreqcount",
    "freqrank",
    "invfreqrank",
-   "invconjfreqrank",    /* WInvConjFrequencyRank */
+   "invconjfreqrank",        /* WInvConjFrequencyRank */
    "freqranksquare",
    "invfreqranksquare",
-   "invmodfreqrank",     /* WModFreqRank */
-   "invmodfreqrankmax0", /* WModFreqRankMax0 */
-   "constant",           /* WConstantWeight */
+   "invmodfreqrank",         /* WModFreqRank */
+   "invmodfreqrankmax0",     /* WModFreqRankMax0 */
+   "typefreqrank",           /* WTypeFrequencyRank */
+   "typefreqcount",          /* WTypeFrequencyCount */
+   "invtypefreqrank",        /* WInvTypeFrequencyRank */
+   "invtypefreqcount",       /* WInvTypeFrequencyCount */
+   "combfreqrank",           /* WCombFrequencyRank */
+   "combfreqcount",          /* WCombFrequencyCount */
+   "invcombfreqrank",        /* WInvCombFrequencyRank */
+   "invcombfreqcount",       /* WInvCombFrequencyCount */
+   "constant",               /* WConstantWeight */
    NULL
 };
 
@@ -270,6 +278,10 @@ static PStack_p find_max_symbols(OCB_p ocb)
 static void set_maximal_0(OCB_p ocb)
 {
    assert(ocb->precedence||ocb->prec_weights);
+   if(problemType == PROBLEM_HO)
+   {
+     return; // no checks if it is unary -- our KBO works only then
+   }
 
    PStack_p maxsymbs = find_max_symbols(ocb);
    if(!PStackEmpty(maxsymbs))
@@ -365,7 +377,7 @@ static void generate_constant_weights(OCB_p ocb)
 static void generate_selmax_weights(OCB_p ocb)
 {
    generate_constant_weights(ocb);
-   set_maximal_0(ocb);
+   set_maximal_0(ocb);  //no checks if symbol is unary
 }
 
 
@@ -583,6 +595,177 @@ static void generate_freq_weights(OCB_p ocb, ClauseSet_p axioms)
 
 /*-----------------------------------------------------------------------
 //
+// Function: generate_type_freq_weights()
+//
+//    Assign function symbols weights that are equal to 
+//    sum of occurrences of all function symbols that are of
+//    the same type.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+static void generate_type_freq_weights(OCB_p ocb, ClauseSet_p axioms)
+{
+   FunCode       i;
+
+   long max_types = ocb->sig->type_bank->types_count+1;
+   long* type_counts = SizeMalloc(max_types*sizeof(long));
+   for(long i=0; i<max_types; i++)
+   {
+      type_counts[i] = 0;
+   }
+
+   ClauseSetAddTypeDistribution(axioms, type_counts);
+
+   for(i=SIG_TRUE_CODE+1; i<= ocb->sig->f_count; i++)
+   {
+      long sym_type_id = SigGetType(ocb->sig, i) ? SigGetType(ocb->sig, i)->type_uid : 0;
+      *OCBFunWeightPos(ocb, i) = MAX(type_counts[sym_type_id],1)*W_DEFAULT_WEIGHT;
+   }
+   SizeFree(type_counts, max_types*sizeof(long));
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: generate_comb_freq_weights()
+//
+//    Assign function symbols weights that are equal to 
+//    sum of occurrences of all function symbols that are of
+//    the same type + double the occurrence of the symbol itself.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+static void generate_comb_freq_weights(OCB_p ocb, ClauseSet_p axioms)
+{
+   FCodeFeatureArray_p array = FCodeFeatureArrayAlloc(ocb->sig, axioms);
+   FunCode       i;
+
+   long max_types = ocb->sig->type_bank->types_count+1;
+   PDArray_p type_counts = PDIntArrayAlloc(max_types,10);
+
+   for(i=SIG_TRUE_CODE+1; i <= ocb->sig->f_count; i++)
+   {
+      long sym_freq = array->array[i].freq;
+      long sym_type_id = SigGetType(ocb->sig, i) ? SigGetType(ocb->sig, i)->type_uid : 0;
+      PDArrayAssignInt(type_counts, sym_type_id, 
+                       PDArrayElementInt(type_counts, sym_type_id) + sym_freq);
+   }
+
+   for(i=SIG_TRUE_CODE+1; i<= ocb->sig->f_count; i++)
+   {
+      long sym_freq = array->array[i].freq;
+      long sym_type_id = SigGetType(ocb->sig, i) ? SigGetType(ocb->sig, i)->type_uid : 0;
+      *OCBFunWeightPos(ocb, i) = 
+         MAX(PDArrayElementInt(type_counts, sym_type_id)+2*sym_freq,1)
+         *W_DEFAULT_WEIGHT;
+   }
+   FCodeFeatureArrayFree(array);
+   PDArrayFree(type_counts);
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: generate_inv_comb_freq_weights()
+//
+//    Inverse version of generate_comb_freq_weights()
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+static void generate_inv_comb_freq_weights(OCB_p ocb, ClauseSet_p axioms)
+{
+   FCodeFeatureArray_p array = FCodeFeatureArrayAlloc(ocb->sig, axioms);
+   FunCode       i;
+
+   long max_types = ocb->sig->type_bank->types_count+1;
+   long* type_counts = SizeMalloc(max_types*sizeof(long));
+   for(long i=0; i<max_types; i++)
+   {
+      type_counts[i] = 0;
+   }
+   long max_comb = 0;
+
+   ClauseSetAddTypeDistribution(axioms, type_counts);
+
+   for(i=SIG_TRUE_CODE+1; i <= ocb->sig->f_count; i++)
+   {
+      long sym_freq = array->array[i].freq;
+      long sym_type_id = SigGetType(ocb->sig, i) ? SigGetType(ocb->sig, i)->type_uid : 0;
+      max_comb = MAX(max_comb, type_counts[sym_type_id] + 2*sym_freq);
+   }
+   max_comb++;
+
+   for(i=SIG_TRUE_CODE+1; i<= ocb->sig->f_count; i++)
+   {
+      long sym_freq = array->array[i].freq;
+      long sym_type_id = SigGetType(ocb->sig, i) ? SigGetType(ocb->sig, i)->type_uid : 0;
+      *OCBFunWeightPos(ocb, i) = 
+         (max_comb - MAX(type_counts[sym_type_id] + 2*sym_freq,1))
+         *W_DEFAULT_WEIGHT;
+   }
+   FCodeFeatureArrayFree(array);
+   SizeFree(type_counts, max_types*sizeof(long));
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: generate_inv_typefreq_weights()
+//
+//    Assign function symbols weights that are equal to 
+//    difference of maximal sum of occurences of symbols of one type
+//    and sum of occurrences of all function symbols that are of
+//    the same type.
+//
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+static void generate_inv_type_freq_weights(OCB_p ocb, ClauseSet_p axioms)
+{
+   FunCode       i;
+
+   long max_types = ocb->sig->type_bank->types_count+1;
+   long* type_counts = SizeMalloc(max_types*sizeof(long));
+   for(long i=0; i<max_types; i++)
+   {
+      type_counts[i] = 0;
+   }
+
+   long max_aggregate = 0;
+
+   ClauseSetAddTypeDistribution(axioms, type_counts);
+   
+   for(long i=0; i<max_types; i++)
+   {
+      max_aggregate = MAX(max_aggregate, type_counts[i]);
+   }
+   max_aggregate++;
+
+   for(i=SIG_TRUE_CODE+1; i<= ocb->sig->f_count; i++)
+   {
+      long sym_type_id = SigGetType(ocb->sig, i) ? SigGetType(ocb->sig, i)->type_uid : 0;
+      *OCBFunWeightPos(ocb, i) = 
+       (max_aggregate - MAX(type_counts[sym_type_id],1))
+       *W_DEFAULT_WEIGHT;
+   }
+   SizeFree(type_counts, max_types*sizeof(long));
+}
+
+/*-----------------------------------------------------------------------
+//
 // Function: generate_invfreq_weights()
 //
 //   Make the weight of a function symbol equal to the maximum
@@ -654,6 +837,105 @@ static void generate_freqrank_weights(OCB_p ocb, ClauseSet_p axioms)
 
 /*-----------------------------------------------------------------------
 //
+// Function: generate_type_freq_rank_weights()
+//
+//   Make the weight of a function symbol equal "frequency rank"
+//   of its type.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+static void generate_type_freq_rank_weights(OCB_p ocb, ClauseSet_p axioms)
+{
+   FCodeFeatureArray_p array = FCodeFeatureArrayAlloc(ocb->sig, axioms);
+   FunCode       i;
+   long          weight = 0, freq;
+
+   long max_types = ocb->sig->type_bank->types_count+1;
+   long* type_counts = SizeMalloc(max_types*sizeof(long));
+   for(long i=0; i<max_types; i++)
+   {
+      type_counts[i] = 0;
+   }
+
+   ClauseSetAddTypeDistribution(axioms, type_counts);
+
+   for(i=SIG_TRUE_CODE+1; i<= ocb->sig->f_count; i++)
+   {
+      long sym_type_id = SigGetType(ocb->sig, i) ? SigGetType(ocb->sig, i)->type_uid : 0;
+      array->array[i].key1 = type_counts[sym_type_id];
+   }
+   FCodeFeatureArraySort(array);
+   freq = -1;
+   for(i=SIG_TRUE_CODE+1; i<= ocb->sig->f_count; i++)
+   {
+      if(freq!=array->array[i].key1)
+      {
+         freq=array->array[i].key1;
+         weight++;
+      }
+      *OCBFunWeightPos(ocb, array->array[i].symbol) =
+         weight*W_DEFAULT_WEIGHT;
+   }
+   FCodeFeatureArrayFree(array);
+   SizeFree(type_counts, max_types*sizeof(long));
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: generate_comb_freq_rank_weights()
+//
+//   Make the weight of a function symbol equal to 
+//   rank of "frequency of type + 2*frequency of symbol"
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+static void generate_comb_freq_rank_weights(OCB_p ocb, ClauseSet_p axioms)
+{
+   FCodeFeatureArray_p array = FCodeFeatureArrayAlloc(ocb->sig, axioms);
+   FunCode       i;
+   long          weight = 0, freq;
+
+   long max_types = ocb->sig->type_bank->types_count+1;
+   long* type_counts = SizeMalloc(max_types*sizeof(long));
+   for(long i=0; i<max_types; i++)
+   {
+      type_counts[i] = 0;
+   }
+
+   ClauseSetAddTypeDistribution(axioms, type_counts);
+
+   for(i=SIG_TRUE_CODE+1; i<= ocb->sig->f_count; i++)
+   {
+      long sym_freq = array->array[i].freq;
+      long sym_type_id = SigGetType(ocb->sig, i) ? SigGetType(ocb->sig, i)->type_uid : 0;
+      array->array[i].key1 = type_counts[sym_type_id] + 2*sym_freq;
+   }
+   FCodeFeatureArraySort(array);
+   freq = -1;
+   for(i=SIG_TRUE_CODE+1; i<= ocb->sig->f_count; i++)
+   {
+      if(freq!=array->array[i].key1)
+      {
+         freq=array->array[i].key1;
+         weight++;
+      }
+      *OCBFunWeightPos(ocb, array->array[i].symbol) =
+         weight*W_DEFAULT_WEIGHT;
+   }
+   FCodeFeatureArrayFree(array);
+   SizeFree(type_counts, sizeof(max_types*sizeof(long)));
+}
+
+/*-----------------------------------------------------------------------
+//
 // Function: generate_invfreqrank_weights()
 //
 //   Make the weight of a function symbol equal to its inverse
@@ -691,6 +973,104 @@ static void generate_invfreqrank_weights(OCB_p ocb, ClauseSet_p axioms)
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: generate_inv_type_freq_rank_weights()
+//
+//   Make the weight of a function symbol equal to inverse of its type
+//   "frequency rank".
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+static void generate_inv_type_freq_rank_weights(OCB_p ocb, ClauseSet_p axioms)
+{
+   FCodeFeatureArray_p array = FCodeFeatureArrayAlloc(ocb->sig, axioms);
+   FunCode       i;
+   long          weight = 0, freq;
+
+   long max_types = ocb->sig->type_bank->types_count+1;
+   long* type_counts = SizeMalloc(max_types*sizeof(long));
+   for(long i=0; i<max_types; i++)
+   {
+      type_counts[i] = 0;
+   }
+
+   ClauseSetAddTypeDistribution(axioms, type_counts);
+
+   for(i=SIG_TRUE_CODE+1; i<= ocb->sig->f_count; i++)
+   {
+      long sym_type_id = SigGetType(ocb->sig, i) ? SigGetType(ocb->sig, i)->type_uid : 0;
+      array->array[i].key1 = type_counts[sym_type_id];
+   }
+   FCodeFeatureArraySort(array);
+   freq = -1;
+   for(i=ocb->sig->f_count; i>=SIG_TRUE_CODE+1; i--)
+   {
+      if(freq!=array->array[i].key1)
+      {
+    freq=array->array[i].key1;
+    weight++;
+      }
+      *OCBFunWeightPos(ocb, array->array[i].symbol) =
+    weight*W_DEFAULT_WEIGHT;
+   }
+   FCodeFeatureArrayFree(array);
+   SizeFree(type_counts, max_types*sizeof(long));
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: generate_inv_comb_freq_rank_weights()
+//
+//   Make the weight of a function symbol equal to inverse of its type
+//   "frequency rank".
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+static void generate_inv_comb_freq_rank_weights(OCB_p ocb, ClauseSet_p axioms)
+{
+   FCodeFeatureArray_p array = FCodeFeatureArrayAlloc(ocb->sig, axioms);
+   FunCode       i;
+   long          weight = 0, freq;
+
+   long max_types = ocb->sig->type_bank->types_count+1;
+   long* type_counts = SizeMalloc(max_types*sizeof(long));
+   for(long i=0; i<max_types; i++)
+   {
+      type_counts[i] = 0;
+   }
+
+   ClauseSetAddTypeDistribution(axioms, type_counts);
+
+   for(i=SIG_TRUE_CODE+1; i<= ocb->sig->f_count; i++)
+   {
+      long sym_freq = array->array[i].freq;
+      long sym_type_id = SigGetType(ocb->sig, i) ? SigGetType(ocb->sig, i)->type_uid : 0;
+      array->array[i].key1 = type_counts[sym_type_id] + 2*sym_freq;
+   }
+   FCodeFeatureArraySort(array);
+   freq = -1;
+   for(i=ocb->sig->f_count; i>=SIG_TRUE_CODE+1; i--)
+   {
+      if(freq!=array->array[i].key1)
+      {
+         freq=array->array[i].key1;
+         weight++;
+      }
+      *OCBFunWeightPos(ocb, array->array[i].symbol) =
+         weight*W_DEFAULT_WEIGHT;
+   }
+   FCodeFeatureArrayFree(array);
+   SizeFree(type_counts, max_types*sizeof(long)) ;
+}
 
 /*-----------------------------------------------------------------------
 //
@@ -979,6 +1359,8 @@ void TOGenerateWeights(OCB_p ocb, ClauseSet_p axioms, char *pre_weights,
    assert(ocb->sig);
 
    *OCBFunWeightPos(ocb, SIG_TRUE_CODE) = 1;
+   VERBOUTARG("Generating ordering weight with ",
+              TOWeightGenNames[method]);
 
    switch(method)
    {
@@ -1055,6 +1437,38 @@ void TOGenerateWeights(OCB_p ocb, ClauseSet_p axioms, char *pre_weights,
    case WNoMethod:
     generate_selmax_weights(ocb);
     break;
+   case WTypeFrequencyRank:
+    assert(problemType == PROBLEM_HO);
+    generate_type_freq_rank_weights(ocb, axioms);
+    break;
+   case WTypeFrequencyCount:
+    assert(problemType == PROBLEM_HO);
+    generate_type_freq_weights(ocb, axioms);
+    break;
+   case WInvTypeFrequencyRank:
+    assert(problemType == PROBLEM_HO);
+    generate_inv_type_freq_rank_weights(ocb, axioms);
+    break;
+   case WInvTypeFrequencyCount:
+    assert(problemType == PROBLEM_HO);
+    generate_inv_type_freq_weights(ocb, axioms);
+    break;
+   case WCombFrequencyRank:
+    assert(problemType == PROBLEM_HO);
+    generate_comb_freq_rank_weights(ocb, axioms);
+    break;
+   case WCombFrequencyCount:
+    assert(problemType == PROBLEM_HO);
+    generate_comb_freq_weights(ocb, axioms);
+    break;
+   case WInvCombFrequencyRank:
+    assert(problemType == PROBLEM_HO);
+    generate_inv_comb_freq_rank_weights(ocb, axioms);
+    break;
+   case WInvCombFrequencyCount:
+    assert(problemType == PROBLEM_HO);
+    generate_inv_comb_freq_weights(ocb, axioms);
+    break;
    default:
     assert(false && "Weight generation method unimplemented");
     break;
@@ -1063,17 +1477,20 @@ void TOGenerateWeights(OCB_p ocb, ClauseSet_p axioms, char *pre_weights,
    {
       if(SigFindArity(ocb->sig, i)==0)
       {
-    if(const_weight != WConstNoSpecialWeight)
-    {
-       *OCBFunWeightPos(ocb, i) = const_weight;
-    }
-    assert(OCBFunWeight(ocb,i)>0);
+         if(const_weight != WConstNoSpecialWeight)
+         {
+            *OCBFunWeightPos(ocb, i) = const_weight;
+         }
+         assert(OCBFunWeight(ocb,i)>0);
       }
    }
    *OCBFunWeightPos(ocb, SIG_TRUE_CODE) = ocb->var_weight;
-
+#ifdef ENABLE_LFHO
+   *OCBFunWeightPos(ocb, SIG_APP_VAR_CODE) = 0;
+#endif
    if(pre_weights)
    {
+      fprintf(stderr, "setting user weights\n");
       set_user_weights(ocb, pre_weights);
    }
 

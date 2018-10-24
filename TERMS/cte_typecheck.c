@@ -23,11 +23,12 @@ Changes
 
 #include "cte_typecheck.h"
 #include "cte_termfunc.h"
+#include <cte_typebanks.h>
 
 /*---------------------------------------------------------------------*/
 /*                        Global Variables                             */
 /*---------------------------------------------------------------------*/
-
+extern bool app_encode;
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
@@ -38,6 +39,43 @@ Changes
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
 
+/*-----------------------------------------------------------------------
+//
+// Function: term_determine_type
+//
+//   Given number of arguments and type, return the type of the term
+//   resulting from consuming the number of arguments. Returned type is
+//   shared.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+Type_p term_determine_type(Term_p term, Type_p type, TypeBank_p bank)
+{
+   int term_arity = ARG_NUM(term);
+   if(type->arity-1 == term_arity)
+   {
+      return type->args[term_arity];
+   }
+   else if(type->arity-1 < term_arity)
+   {
+      return NULL;
+   }
+   else 
+   {
+      int start = term_arity;
+      Type_p* args = TypeArgArrayAlloc(type->arity - start);
+      for(int i=0; i<type->arity-start; i++)
+      {
+         args[i] = type->args[i+start];
+      }
+      return TypeBankInsertTypeShared(bank, 
+                                      AllocArrowType(type->arity - start, args));
+   }
+}
 
 /*-----------------------------------------------------------------------
 //
@@ -50,24 +88,24 @@ Changes
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
-SortType infer_return_sort(Sig_p sig, FunCode f_code)
+Type_p infer_return_sort(Sig_p sig, FunCode f_code)
 {
-   SortType res;
+   Type_p res;
 
    if(SigQueryProp(sig, f_code, FPIsInteger) &&
       (sig->distinct_props & FPIsInteger))
    {
-      res = STInteger;
+      res = sig->type_bank->integer_type;
    }
-   else if (SigQueryProp(sig, f_code, FPIsRational) &&
+   else if(SigQueryProp(sig, f_code, FPIsRational) &&
             (sig->distinct_props & FPIsRational))
    {
-      res = STRational;
+      res = sig->type_bank->rational_type;
    }
-   else if (SigQueryProp(sig, f_code, FPIsFloat) &&
+   else if(SigQueryProp(sig, f_code, FPIsFloat) &&
             (sig->distinct_props & FPIsFloat))
    {
-      res = STReal;
+      res = sig->type_bank->real_type;
    }
    else
    {
@@ -116,18 +154,32 @@ bool TypeCheckConsistent(Sig_p sig, Term_p term)
 
             assert(type);
 
-            if((term->arity != type->arity)
-               || term->sort != type->domain_sort)
+            if(TypeIsArrow(type))
             {
-               res = false;
-               break;
+               if((term->arity != type->arity-1)
+                  || term->type != type->args[type->arity-1])
+               {
+                  res = false;
+                  break;
+               }
+            }
+            else
+            {
+               if(term->arity != 0 || term->type != type)
+               {
+                  // other kind of type constructor
+                  res = false;
+                  break;
+               }
             }
 
+            
+
             /* Check subterms recursively */
-            for (int i=0; i < type->arity; i++)
+            for(int i=0; i < type->arity; i++)
             {
                PStackPushP(stack, term->args[i]);
-               if(term->args[i]->sort != type->args[i])
+               if(term->args[i]->type != type->args[i])
                {
                   res = false;
                   break;
@@ -161,67 +213,124 @@ bool TypeCheckConsistent(Sig_p sig, Term_p term)
 void TypeInferSort(Sig_p sig, Term_p term)
 {
    Type_p type;
-   SortType sort, *args;
+   Type_p sort, *args;
    int i;
+
 
    if(TermIsVar(term))
    {
-      if(term->sort == STNoSort)
+      if(!term->type)
       {
-         term->sort = SigDefaultSort(sig);
+         term->type = SigDefaultSort(sig);
       }
    }
    else
    {
-      type = SigGetType(sig, term->f_code);
+      type = TermIsAppliedVar(term) ? 
+               term->args[0]->type : SigGetType(sig, term->f_code);
 
       /* Use type */
       if(type)
       {
-         if(term->arity != type->arity)
+         if(TypeIsArrow(type))
          {
-            fprintf(stderr, "# arity mismatch for ");
-            TermPrint(stderr, term, sig, DEREF_NEVER);
-            fprintf(stderr, " and type ");
-            TypePrintTSTP(stderr, sig->type_table, type);
-            fprintf(stderr, "\n");
-            Error("Type error", SYNTAX_ERROR);
-         }
-
-         assert(term->arity == type->arity);
-         for(i=0; SigIsFixedType(sig, term->f_code) && i < term->arity; i++)
-         {
-            if(term->args[i]->sort != type->args[i])
+            if(problemType == PROBLEM_FO && !app_encode 
+                  && term->arity != type->arity-1)
             {
-               fprintf(stderr, "# Type mismatch in argument #%d of ", i+1);
+               fprintf(stderr, "# arity mismatch for ");
                TermPrint(stderr, term, sig, DEREF_NEVER);
-               fprintf(stderr, ": expected ");
-               SortPrintTSTP(stderr, sig->sort_table, type->args[i]);
-               fprintf(stderr, " but got ");
-               SortPrintTSTP(stderr, sig->sort_table, term->args[i]->sort);
+               fprintf(stderr, " and type ");
+               TypePrintTSTP(stderr, sig->type_bank, type);
                fprintf(stderr, "\n");
                Error("Type error", SYNTAX_ERROR);
             }
-         }
 
-         term->sort = type->domain_sort;
+            if(!TermIsAppliedVar(term))
+            {
+               for(i=0; SigIsFixedType(sig, term->f_code) && i < term->arity; i++)
+               {
+                  if(term->args[i]->type != type->args[i])
+                  {
+                     fprintf(stderr, "# Type mismatch in argument #%d of ", i+1);
+                     TermPrint(stderr, term, sig, DEREF_NEVER);
+                     fprintf(stderr, ": expected ");
+                     TypePrintTSTP(stderr, sig->type_bank, type->args[i]);
+                     fprintf(stderr, " but got ");
+                     TypePrintTSTP(stderr, sig->type_bank, term->args[i]->type);
+                     fprintf(stderr, "\n");
+                     Error("Type error", SYNTAX_ERROR);
+                  }
+               }   
+            }
+            else
+            {
+               // probably can be unified with harder to understand code!
+               for(i=1; i < term->arity; i++)
+               {
+                  assert(term->arity-1 < type->arity);
+
+                  if(term->args[i]->type != type->args[i-1])
+                  {
+                     fprintf(stderr, "# Type mismatch in argument #%d of ", i+1);
+                     TermPrint(stderr, term, sig, DEREF_NEVER);
+                     fprintf(stderr, ": expected ");
+                     TypePrintTSTP(stderr, sig->type_bank, type->args[i]);
+                     fprintf(stderr, " but got ");
+                     TypePrintTSTP(stderr, sig->type_bank, term->args[i]->type);
+                     fprintf(stderr, "\n");
+                     Error("Type error", SYNTAX_ERROR);
+                  }
+               }
+            }
+            
+
+            term->type = term_determine_type(term, type, sig->type_bank);
+            if(term->type==NULL)
+            {
+               fprintf(stderr, "# too many arguments supplied for %s\n", SigFindName(sig, term->f_code));
+               Error("Type error", SYNTAX_ERROR);
+            }
+         }
+         else
+         {
+            if(term->arity != 0)
+            {
+               fprintf(stderr, "# Type mismatch for ");
+               TermPrint(stderr, term, sig, DEREF_NEVER);
+               fprintf(stderr, " and type ");
+               TypePrintTSTP(stderr, sig->type_bank, type);
+               fprintf(stderr, "\n");
+               assert(false);
+               Error("Type error", SYNTAX_ERROR);
+            }
+            else
+            {
+               term->type = type;
+            }
+         }
       }
       else
       {
          /* Infer type */
          sort = infer_return_sort(sig, term->f_code);
-         args = TypeArgumentAlloc(term->arity);
+         args = term->arity ? TypeArgArrayAlloc(term->arity+1) : NULL;
          for(i=0; i < term->arity; i++)
          {
-            args[i] = term->args[i]->sort;
+            args[i] = term->args[i]->type;
+         }
+         if(term->arity)
+         {
+            args[term->arity] = sort;
          }
 
-         type = TypeNewFunction(sig->type_table, sort, term->arity, args);
-         TypeArgumentFree(args, term->arity);
+         type = term->arity ? 
+                     TypeBankInsertTypeShared(sig->type_bank,
+                                              AllocArrowType(term->arity+1, args)) 
+                     : sort;
 
          /* Declare the inferred type */
          SigDeclareType(sig, term->f_code, type);
-         term->sort = sort;
+         term->type = sort;
       }
    }
 }
@@ -243,7 +352,7 @@ void TypeDeclareIsPredicate(Sig_p sig, Term_p term)
    assert(!TermIsVar(term));
 
    SigDeclareIsPredicate(sig, term->f_code);
-   term->sort = STBool;
+   term->type = sig->type_bank->bool_type;
 }
 
 

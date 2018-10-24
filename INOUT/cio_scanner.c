@@ -493,6 +493,9 @@ static Token_p scan_token(Scanner_p in)
       case '$':
        AktToken(in)->tok = Dollar;
        break;
+      case '@':
+       AktToken(in)->tok = Application;
+       break;
       default:
        DStrAppendChar(AktToken(in)->literal, CurrChar(in));
        AktTokenError(in, "Illegal character", false);
@@ -937,7 +940,7 @@ void ScannerSetFormat(Scanner_p scanner, IOFormat fmt)
 {
    if(fmt == AutoFormat)
    {
-      if(TestInpId(scanner, "fof|cnf|tff|tcf|include"))
+      if(TestInpId(scanner, "fof|cnf|tff|thf|tcf|include"))
       {
          //printf("# TSTP!\n");
          fmt = TSTPFormat;

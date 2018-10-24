@@ -18,7 +18,7 @@
 \usepackage{url}
 
 \author{Stephan Schulz}
-\title{E 2.2\\[1.5ex]User Manual\\[1.5ex]{\normalsize --preliminary
+\title{E 2.3\\[1.5ex]User Manual\\[1.5ex]{\normalsize --preliminary
     version--}}
 
 \makeindex{}
@@ -81,7 +81,8 @@ Vampire\index{Vampire}~\cite{RV:AICOM-2002,RV:IJCAR-2001}.
 Installation of E should be straightforward. The file \texttt{README}
 in the main directory of the distribution contains the necessary
 information. After building, you will find the stand-alone executable
-\texttt{E/PROVER/eprover}.
+\texttt{E/PROVER/eprover}, or \texttt{E/PROVER/eprover-ho} if you
+configured the system with support for lambda-free higher-order logic.
 
 E is controlled by a very wide range of parameters. However, if you do
 not want to bother with the details, you can leave configuration for a
@@ -1670,6 +1671,49 @@ In either TPTP format, clauses and formulas with TPTP type
 \texttt{question} (the last two in TPTP-3 only) are considered goal
 clauses for the \texttt{--sos-uses-input-types} option.
 
+\section{Lambda-free higher-order extension}
+
+As part of the ongoing Matryoshka project
+(\url{http://matryoshka.gforge.inria.fr/}) E has been extended to
+support lambda-free higher-order logic (LFHOL). In this section we
+give a very short introduction to LFHOL syntax and semantics. Detailed
+description (which includes semantics) can be found in a paper by
+Bentkamp, Blanchette, Cruanes, and Waldmann~\cite{BBCW:IJCAR-2018},
+available at
+\url{http://matryoshka.gforge.inria.fr/pubs/lfhosup_report.pdf}.  The
+implementation is described in~\cite{VBCS:LFHOReport-2018}.
+
+LFHOL extends FOL by allowing partial appliciation of function symbols
+as well as application of variables to other terms. Unlike other HOLs,
+there is no comprehension principle, and boolean formulae can only
+appear as atoms (not as arguments to other symbols). Quantification
+over booleans is not allowed. LFHOL is simply typed -- each type is
+either atomic or a function type.
+
+FOR E~2.3, LFHOL formulas are expressed using a subset of TPTP THF
+syntax. More precisely, E 2.3 supports subset of THF syntax that is
+monomorphic, without lambda abstractions, without the constants !! and
+??, and without anything else that will give you an error message. ;-)
+
+As an example, LFHOL is expressive enough to reason about higher-order
+combinators such as \textsf{map} (pointwise application of a function
+to a list) or \textsf{power} (iterative application of a function).
+
+The example [roblem \texttt{list.p} in the directory
+\texttt{EXAMPLE\_PROBLEMS/LFHOL} shows how LFHOL features can be used
+to succintly express problems that have more verbose encodings in FOL.
+
+To get a feeling for what is provable in LFHOL, consider the following
+example:
+
+$$  \exists h.\, \forall x \, y. \, h \, x \, y = \textsf{f}  \, y \, x $$
+
+In most HOLs, this formula is provable, and the witness is the
+function $\lambda x \, y. \, \textsf{f} \, y \, x$. In LFHOL, the
+function cannot be synthesized, so the proof can only be concluded if
+such a function is explicitly described in the axiomatization.  This
+proof problem is also provdied in \texttt{EXAMPLE\_PROBLEMS/LFHOL},
+both with and without the axiom providing the permuting function.
 
 
 \chapter{Output\ldots or how to interpret what you see}
@@ -2469,9 +2513,11 @@ The parameters have the following type and meaning:
 
   In addition to this moral support, Martin M\"ohrmann has done some
   cleanup and optimization of the code, Simon Cruanes has implemented
-  the extension to many-sorted logic, and Nick Sultana has overhauled
-  the manual, fixing many of my errors and thus making space for new
-  ones.
+  the extension to many-sorted logic, and Petar Vukmirovic has added
+  support for lambda-free higher order logic and other changes.
+
+  Nik Sultana has overhauled the manual, fixing many of my errors and
+  thus making space for new ones.
 
   \chapter{License}
 
@@ -2497,6 +2543,14 @@ The parameters have the following type and meaning:
 L.~Bachmair.
 \newblock {Personal communication at CADE-15, Lindau}.
 \newblock Unpublished, 1998.
+
+\bibitem[BBCW18]{BBCW:IJCAR-2018}
+Alexander Bentkamp, Jasmin~Christian Blanchette, Simon Cruanes, and Uwe
+  Waldmann.
+\newblock Superposition for lambda-free higher-order logic.
+\newblock In Didier Galmiche, Stephan Schulz, and Roberto Sebastiani, editors,
+  {\em Proc.\ of the 9st IJCAR, Oxford}, volume 10900 of {\em LNAI}, pages
+  28--46. Springer, 2018.
 
 \bibitem[BDP89]{BDP89}
 L.~Bachmair, N.~Dershowitz, and D.A. Plaisted.
@@ -2674,7 +2728,7 @@ Stephan Schulz.
 \bibitem[Sch16]{E:WWW-04}
 S.~Schulz.
 \newblock {The E Web Site}.
-\newblock \url{https://www.eprover.org}, 2004--2016.
+\newblock \url{http://www.eprover.org}, 2004--2016.
 
 \bibitem[Sch18]{Schulz:Vampire-2018}
 Stephan Schulz.
@@ -2722,6 +2776,12 @@ T.~Tammet.
 \newblock {Gandalf}.
 \newblock {\em Journal of Automated Reasoning}, 18(2):199--204, 1997.
 \newblock Special Issue on the CADE 13 ATP System Competition.
+
+\bibitem[VBCS18]{VBCS:LFHOReport-2018}
+Petar Vukmirovi{\'c}, Jasmin~Christian Blanchette, Simon Cruanes, and Stephan
+  Schulz.
+\newblock Extending a brainiac prover to lambda-free higher-order logic.
+\newblock Technical report, Matryoshka Project, 2018.
 
 \bibitem[WAB{\etalchar{+}}99]{WABCEKTT:CADE-99}
 C.~Weidenbach, B.~Afshordel, U.~Brahm, C.~Cohrs, T.~Engel, G.~Jung, E.~Keen,

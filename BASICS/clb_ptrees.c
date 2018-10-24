@@ -826,6 +826,32 @@ PTree_p PTreeCopy(PTree_p tree)
 
 AVL_TRAVERSE_DEFINITION(PTree, PTree_p)
 
+/*-----------------------------------------------------------------------
+//
+// Function: PTreeVisitInOrder()
+//
+//   Apply function visitor to every key stored in PTree t. Nodes will be
+//   visited as in inorder traversal.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void  PTreeVisitInOrder(PTree_p t, void (*visitor)(void*))
+{
+   PStack_p iter = PTreeTraverseInit(t);
+   PTree_p  handle = NULL;
+
+   while((handle = PTreeTraverseNext(iter)))
+   {
+      visitor(handle->key);
+   }
+
+   PTreeTraverseExit(iter);
+}
+
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/

@@ -284,27 +284,27 @@ Clause_p ComputeEqualityFactor(TB_p bank, OCB_p ocb, ClausePos_p pos1,
 
    if((!TermIsVar(max_term)||EqnIsEquLit(pos2->literal))&&
       (!TermIsVar(with_term)||EqnIsEquLit(pos1->literal))&&
-      SubstComputeMgu(max_term, with_term, subst))
+      SubstMguComplete(max_term, with_term, subst))
    {
       min_term = ClausePosGetOtherSide(pos1);
       if(!TOGreater(ocb, min_term, max_term, DEREF_ALWAYS, DEREF_ALWAYS)
-    &&
-    EqnListEqnIsMaximal(ocb, pos1->clause->literals,
-              pos1->literal))
+          &&
+          EqnListEqnIsMaximal(ocb, pos1->clause->literals,
+                    pos1->literal))
       {
-    NormSubstEqnListExcept(pos1->clause->literals, pos2->literal,
-            subst, freshvars);
-          new_lside = TBInsertNoProps(bank, min_term, DEREF_ALWAYS);
-    new_rside = TBInsertNoProps(bank,
-                 ClausePosGetOtherSide(pos2),
-                 DEREF_ALWAYS);
-    new_condition = EqnAlloc(new_lside, new_rside, bank, false);
-    new_literals = EqnListCopyOptExcept(pos1->clause->literals,
-                 pos1->literal);
-    EqnListInsertFirst(&new_literals, new_condition);
-    EqnListRemoveResolved(&new_literals);
-    EqnListRemoveDuplicates(new_literals);
-    new_clause = ClauseAlloc(new_literals);
+         NormSubstEqnListExcept(pos1->clause->literals, pos2->literal,
+                                subst, freshvars);
+         new_lside = TBInsertNoProps(bank, min_term, DEREF_ALWAYS);
+         new_rside = TBInsertNoProps(bank,
+                     ClausePosGetOtherSide(pos2),
+                     DEREF_ALWAYS);
+         new_condition = EqnAlloc(new_lside, new_rside, bank, false);
+         new_literals = EqnListCopyOptExcept(pos1->clause->literals,
+                     pos1->literal);
+         EqnListInsertFirst(&new_literals, new_condition);
+         EqnListRemoveResolved(&new_literals);
+         EqnListRemoveDuplicates(new_literals);
+         new_clause = ClauseAlloc(new_literals);
       }
    }
    SubstDelete(subst);

@@ -179,6 +179,7 @@ long VarHashAddValue(VarHash_p hash, Term_p var, long value)
 //
 //   Scans a term and adds the variable occurences to the hash, with
 //   each occurence being counted with the "add" value.
+//   NB: Derefs not changed, function called only with FOL arguments.
 //
 // Global Variables: -
 //
@@ -189,6 +190,7 @@ long VarHashAddValue(VarHash_p hash, Term_p var, long value)
 void VarHashAddVarDistrib(VarHash_p hash, Term_p term, DerefType
            deref, long add)
 {
+   assert(problemType != PROBLEM_HO);
    PStack_p stack = PStackAlloc();
    int      i;
 
@@ -223,6 +225,7 @@ void VarHashAddVarDistrib(VarHash_p hash, Term_p term, DerefType
 //
 //   Scans a term and adds the variable occurences to the array, with
 //   each occurence being counted with the "add" value.
+//   NB: Derefs not changed, function called only with FOL arguments.
 //
 // Global Variables: -
 //
@@ -233,6 +236,7 @@ void VarHashAddVarDistrib(VarHash_p hash, Term_p term, DerefType
 void PDArrayAddVarDistrib(PDArray_p array, Term_p term, DerefType
            deref, long add)
 {
+   assert(problemType != PROBLEM_HO);
    PStack_p stack = PStackAlloc();
    int      i;
    long     tmp;
