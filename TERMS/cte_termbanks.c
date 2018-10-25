@@ -1610,7 +1610,6 @@ void TBGCMarkTerm(TB_p bank, Term_p term)
 
          if(TermIsAppliedVar(term) && TermGetCache(term))
          {
-            assert(TermIsShared(TermGetCache(term)));
             PStackPushP(stack, TermGetCache(term));
          }
       }
