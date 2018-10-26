@@ -144,7 +144,7 @@ or, if you also want to install the man-pages into MANDIR,
 ./configure --bindir=EXECDIR --man-prefix=MANDIR
 ```
 
-To enable higher-order-support, add the option `--enable-ho`, e,g,
+To enable higher-order-support, add the option `--enable-ho`, e.g.
 
 ```sh
 ./configure --enable-ho
