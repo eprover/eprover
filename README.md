@@ -22,7 +22,7 @@ Simplest installation (in-place):
 tar -xzf E.tgz
 cd E
 ./configure
-make
+make rebuild
 cd PROVER
 ./eprover -h | more
 ```
@@ -31,11 +31,11 @@ Read the rest of this file and the fine (if incomplete) manual if
 anything fails. There should be a copy of the manual in
 `DOC/eprover.pdf`.
 
-To build the higher-order version, user
+To build and test the higher-order version, use
 
 ```sh
 ./configure --enable-ho
-make
+make rebuild
 cd PROVER
 eprover-ho -h
 ```
@@ -167,6 +167,16 @@ You must have write permission in the EXECDIR, so if you install E
 outside your own home directory, you may need to become root or use
 sudo.
 
+If you have changed the configuration, you need to rebuild all object
+and binary files. Run
+
+```sh
+make rebuild
+```
+
+instead of plain make.
+
+
 Type
 
 ```sh
@@ -273,6 +283,7 @@ information:
 - The full commandline that lead to the unexpected behaviour
 - The input file(s) that lead to the unexpected behaviour
 
-Most bug reports should be send to <schulz@eprover.org>. Bugs with the
-LFHO-version should be send to <petar.vukmirovic2@gmail.com>. Please
-remember that this is an unpaid volunteer service ;-).
+Most bug reports should be send to <schulz@eprover.org>. Bog reports
+with respect to the LFHO-version should be send to
+<petar.vukmirovic2@gmail.com>. Please remember that this is an unpaid
+volunteer service ;-).
