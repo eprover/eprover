@@ -283,7 +283,7 @@ information:
 - The full commandline that lead to the unexpected behaviour
 - The input file(s) that lead to the unexpected behaviour
 
-Most bug reports should be send to <schulz@eprover.org>. Bog reports
+Most bug reports should be send to <schulz@eprover.org>. Bug reports
 with respect to the LFHO-version should be send to
 <petar.vukmirovic2@gmail.com>. Please remember that this is an unpaid
 volunteer service ;-).
