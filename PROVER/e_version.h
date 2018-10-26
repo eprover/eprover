@@ -34,7 +34,7 @@ Contents
 
 /* git tag E-2.3pre002 */
 
-#define PVERSION      "2.3pre003"
+#define PVERSION      "2.3pre002"
 
 #ifdef ENABLE_LFHO
 #define LFH "-ho"
