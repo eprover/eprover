@@ -1,0 +1,9 @@
+#!/bin/tcsh
+set defaultargs=" --delete-bad-limit=2000000000 --definitional-cnf=24 -s --print-statistics -R --print-version --free-numbers"
+set flags=" --auto"
+set final="--cpu-limit="$2" "$1
+set ecmd="./eprover-fo ""$defaultargs $flags $final"
+
+echo "# Working on: " $1
+
+$ecmd

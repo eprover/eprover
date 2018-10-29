@@ -1,0 +1,81 @@
+EVALUATION MANUAL
+=================
+
+Installation
+------------
+
+1) Move to the eprover/ directory of the submitted archive.
+2) Run ./local_build
+
+As a result two binaries will be created in eprover/bin directory:
+  1) eprover-fo : this binary runs E 2.3 in FOL mode
+  2) eprover-ho : this binary runs E 2.3 in LFHOL mode
+
+
+Problems
+--------
+
+Directory problems/ contains the problems used in our experimentation.
+In the following we describe the structure of its subdirectories that
+contain different categories of the problems we evaluated our
+artifact on:
+
+      problems/      | all problems
+        | app/       |   applicatively encoded problems
+          | SH_HO/   |     Sledgehammer higher-order problems
+            | 512/   |       512 facts
+            | 32/    |       32 facts
+          | SH_FO/   |     Sledgehammer first-order problems
+            | 512/   |       512 facts
+            | 32/    |       32 facts
+          | TPTP_FO/ |     First order untyped TPTP problems
+            | tff/   |     First order typed TPTP problems
+          | LFHOL/   |     LFHOL TPTP problems
+        | fo/        |   first-order problems
+          | SH_FO    |     Sledgehammer first-order problems
+            | 512    |       512 facts
+            | 32     |       32 facts
+          | TPTP_FO  |     First order untyped TPTP problems
+            | tff    |     First order typed TPTP problems
+        | ho/        |   higher-order problems
+          | SH_HO    |     Sledgehammer higher-order problems
+            | 512    |       512 facts
+            | 32     |       32 facts
+          | LFHOL    |     Higher order untyped TPTP problems
+        
+
+Configurations
+--------------
+
+The archive contains 7 different configurations which we used
+to evaluate E 2.3:
+
+1) a_ho.sh: Auto mode, LFHOL version
+2) a_fo.sh: Auto mode, FOL version
+3) as_ho.sh: Auto-schedule mode, LFHOL version
+4) as_fo.sh: Auto-schedule mode, FOL version
+5) b_ho.sh: Best-of-manual, LFHOL version
+6) b_ho_ho.sh: Best-of-manual_ho, LFHOL version
+7) b_fo.sh: Best-of-manual, FOL version
+
+Running the experiments
+-----------------------
+
+To run the experiments automatically we have prepared the script
+run_configuration.py that runs selected configuration on
+all files in the selected folder. More precisely
+
+  "python3 run_configuration.py <configuration_file CF> <root_folder RF> <timeout T> <results_file RES_F>"
+
+will run E using configuration CF on all files in hierarchy RF with the CPU limtit T.
+The results will be saved in the file RES_F. Results will contain the path to the
+problem, answer (status) of the prover and  time the prover took to finish.
+When the script finishes, a small summary will be printed that contains the number
+of problems on which each prover reported a certain status.
+
+Important: You need to be positioned in eprover/bin/ directory to run configurations. 
+
+An example run is:
+
+  "python3 run_configuration.py ./a_ho.sh ./problems/ho/LFHOL 60 lfhol_res.csv"
+

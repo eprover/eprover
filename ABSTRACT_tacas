@@ -1,0 +1,11 @@
+The artifact we submit is E 2.3, the prover whose implementation
+we describe in the paper 'Extending a brainiac prover to lambda-free 
+higher-order logic'. It is written in C and has no external dependencies.
+E 2.3 is an extension of E 2.2 to a fragment
+of a higher logic that we describe in aforementioned paper. It outperforms
+encoding-based approaches to higher-order theorem proving.
+Furthermore, incurs almost no overhead when compared to its basis, E 2.2. 
+Our changes are integrated in the main line of
+E and the latest version can always be obtained from 
+https://www.github.com/eprover/eprover.
+
