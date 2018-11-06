@@ -1610,7 +1610,9 @@ void TBGCMarkTerm(TB_p bank, Term_p term)
 
          if(TermIsAppliedVar(term) && TermGetCache(term))
          {
+#ifdef ENABLE_LFHO
             assert(TermIsShared(TermGetCache(term)));
+#endif
             PStackPushP(stack, TermGetCache(term));
          }
       }

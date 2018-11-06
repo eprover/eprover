@@ -428,9 +428,16 @@ static void mfyvwblhs(OCB_p ocb, Term_p term, DerefType deref_t, int orig_limit)
    while(!PLocalTaggedStackEmpty(stack))
    {
       PLocalTaggedStackPop(stack, term, deref_t);
-      const int limit_t = term == orig_term && orig_limit != 0 ?
-                           orig_limit : DEREF_LIMIT(term, deref_t);
-      term = TermDeref(term, &deref_t);
+      int limit_t;
+      if(term == orig_term && orig_limit != 0)
+      {
+         limit_t = orig_limit;
+      }
+      else
+      {
+         limit_t = DEREF_LIMIT(term, deref_t);
+         term = TermDeref(term, &deref_t);
+      }
 
       if(TermIsVar(term))
       {
@@ -458,7 +465,7 @@ static void mfyvwblhs(OCB_p ocb, Term_p term, DerefType deref_t, int orig_limit)
 //
 // Side Effects    : -
 //
-/----------------------------------------------------------------------*/
+/----------------------------------------------ss------------------------*/
 
 static void mfyvwbrhs(OCB_p ocb, Term_p term, DerefType deref_t, int orig_limit)
 {
@@ -470,9 +477,16 @@ static void mfyvwbrhs(OCB_p ocb, Term_p term, DerefType deref_t, int orig_limit)
    while(!PLocalTaggedStackEmpty(stack))
    {
       PLocalTaggedStackPop(stack, term, deref_t);
-      const int limit_t = term == orig_term && orig_limit != 0 ?
-                           orig_limit : DEREF_LIMIT(term, deref_t);
-      term = TermDeref(term, &deref_t);
+      int limit_t;
+      if(term == orig_term && orig_limit != 0)
+      {
+         limit_t = orig_limit;
+      }
+      else
+      {
+         limit_t = DEREF_LIMIT(term, deref_t);
+         term = TermDeref(term, &deref_t);
+      }
 
       if(TermIsVar(term))
       {

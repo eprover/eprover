@@ -582,6 +582,8 @@ static Term_p rewrite_with_clause_set(OCB_p ocb, TB_p bank, Term_p term,
       assert(mi->pos->clause->ident);    
       TermAddRWLink(term, repl, mi->pos->clause, ClauseIsSOS(mi->pos->clause),
                     restricted_rw?RWAlwaysRewritable:RWLimitedRewritable);
+      assert(TOGreater(ocb, term, repl, DEREF_NEVER, DEREF_NEVER));
+
       term = repl;
       MatchResFree(mi);
    }
