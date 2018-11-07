@@ -91,6 +91,7 @@ static PStack_p compute_subterms_generalizations(
       PStackPushP(gens,copy);
       PStackPushP(all,copy);
       copy->properties = term->properties;
+      copy->type = term->type;
       return gens;
    }
 
@@ -122,6 +123,7 @@ static PStack_p compute_subterms_generalizations(
          copy->args[i] = PStackElementP(sgen,cur->array[i]);
       }
       copy->properties = term->properties;
+      copy->type = term->type;
       PStackPushP(gens,copy);
       PStackPushP(all,copy);
       iter_counter++;
@@ -216,7 +218,10 @@ PStack_p ComputeTopGeneralizations(Term_p term, VarBank_p vars, Sig_p sig)
       topgen = TermTopAlloc(code, sig->f_info[code].arity);
       for (i=0; i<sig->f_info[code].arity; i++)
       {
-         topgen->args[i] = VarBankVarAssertAlloc(vars, -2*(i+1), term->args[i]->type); // TODO: yan: ???
+         // we need the type of individuals as the argument type
+         //   (term might be a predicate but args[0] is ind.)
+         //   (since `code` occurs hence len(term->args) > 0)
+         topgen->args[i] = VarBankVarAssertAlloc(vars, -2*(i+1), term->args[0]->type); 
          //topgen->args[i] = VarBankVarAssertAlloc(vars, -2*(i+1), STIndividuals);
       }
       if (SigIsPredicate(sig,code)) {
