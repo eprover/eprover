@@ -154,7 +154,7 @@ static void termweight_update_conjecture_freqs(
          continue;
       }
       subnorm = TermCopyNormalizeVars(bank->vars,subterm,var_norm);
-      subrepr = TBFindRec(bank, subnorm);
+      subrepr = TBFindRepr(bank, subnorm);
       if (subrepr && (subrepr->freq>0)) {
          subterm->freq = subrepr->freq;
       }
