@@ -1033,12 +1033,25 @@ void PDTreeInsert(PDTree_p tree, ClausePos_p demod_side)
    
    assert(demod_side);
    term = ClausePosGetSide(demod_side);
-   PDTreeInsertTerm(tree,term,demod_side,true);
+   PDTreeInsertTerm(tree, term, demod_side, true);
 }
 
-void PDTreeInsertTerm(PDTree_p tree, Term_p term, ClausePos_p demod_side, bool store_data)
+/*-----------------------------------------------------------------------
+//
+// Function: PDTreeInsertTerm()
+//
+//   Insert a new term into the tree, possibly storing data in the leaf.
+//
+// Global Variables: -
+//
+// Side Effects    : Changes index
+//
+/----------------------------------------------------------------------*/
+
+void PDTreeInsertTerm(PDTree_p tree, Term_p term, ClausePos_p demod_side, 
+   bool store_data)
 {
-   Term_p    curr; // term;
+   Term_p    curr;
    PDTNode_p node, *next;
    bool      res;
    long      tmp;
@@ -1109,7 +1122,21 @@ void PDTreeInsertTerm(PDTree_p tree, Term_p term, ClausePos_p demod_side, bool s
    //printf("IDateConstr %p: %ld\n", tree, pdt_verify_age_constraint(tree->tree));
 }
 
-PDTNode_p PDTreeMatchPrefix(PDTree_p tree, Term_p term, long* matched, long* remains)
+/*-----------------------------------------------------------------------
+//
+// Function: PDTreeMatchPrefix()
+//
+//   Match the term against the tree and count matches/mismatches. Return
+//   the last matched node. The term is in the tree iff remains == 0.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+PDTNode_p PDTreeMatchPrefix(PDTree_p tree, Term_p term, 
+   long* matched, long* remains)
 {
    Term_p    curr;
    PDTNode_p node, last, *next;
@@ -1123,14 +1150,16 @@ PDTNode_p PDTreeMatchPrefix(PDTree_p tree, Term_p term, long* matched, long* rem
    node = tree->tree;
    last = node;
    curr = TermLRTraverseNext(tree->term_stack);
-   while(curr)
+   while (curr)
    {
-      if (!node) {
+      if (!node) 
+      {
          (*remains)++;
       }
-      else {
+      else 
+      {
          next = pdt_select_alt_ref(tree, node, curr);
-         if(!(*next))
+         if (!(*next))
          {
             (*remains)++;
             node = NULL;

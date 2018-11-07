@@ -2436,11 +2436,26 @@ double EqnFunWeight(Eqn_p eq, double max_multiplier, long vweight,
    return res;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: EqnTermExtWeight()
+//
+//   Compute the weight of a literal as an extension of an arbitrary term
+//   weight function. Modifiers are applied, several extensions are 
+//   supported (standard - sum literal/term weights, subterms - sum 
+//   weights of all subterms, or take the maximum subterm weight).
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
 double EqnTermExtWeight(Eqn_p eq, TermWeightExtension_p twe)
 {
    double res;
    
-   if(EqnIsOriented(eq))
+   if (EqnIsOriented(eq))
    {
       res = TermExtWeight(eq->rterm, twe);
    }
@@ -2779,19 +2794,34 @@ double  LiteralFunWeight(Eqn_p eq,
    return res;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: LiteralTermExtWeight()
+//
+//   Compute the weight of a literal as an extension of an arbitrary term
+//   weight function. Modifiers are applied, several extensions are 
+//   supported (standard - sum literal/term weights, subterms - sum 
+//   weights of all subterms, or take the maximum subterm weight).
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
 double  LiteralTermExtWeight(Eqn_p eq, TermWeightExtension_p twe)
 {
    double res;
 
    res = EqnTermExtWeight(eq, twe);
 
-   if(EqnIsMaximal(eq))
+   if (EqnIsMaximal(eq))
    {
-      res = res*(twe->max_literal_multiplier);
+      res *= twe->max_literal_multiplier;
    }
-   if(EqnIsPositive(eq))
+   if (EqnIsPositive(eq))
    {
-      res = res*(twe->pos_eq_multiplier);
+      res *= twe->pos_eq_multiplier;
    }
    return res;
 }

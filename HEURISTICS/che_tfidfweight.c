@@ -151,7 +151,7 @@ static double tfidf_term_weight(Term_p term, TfIdfWeightParam_p data)
    PDTNode_p node;
 
    norm = TermCopyNormalizeVars(data->eval_bank->vars,term,data->var_norm);
-   repr = TBFindRec(data->eval_bank,norm);
+   repr = TBFindRepr(data->eval_bank,norm);
    tf = repr?(repr->freq):0;
    tf = (data->tf_fact*(tf-1))+1; // make tf=1 when tf_fact=0 ("disable tf")
 

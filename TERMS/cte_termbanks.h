@@ -150,7 +150,7 @@ Term_p  TBTermTopInsert(TB_p bank, Term_p t);
 Term_p  TBAllocNewSkolem(TB_p bank, PStack_p variables, Type_p type);
 
 Term_p  TBFind(TB_p bank, Term_p term);
-Term_p  TBFindRec(TB_p bank, Term_p term);
+Term_p  TBFindRepr(TB_p bank, Term_p term);
 
 void    TBPrintBankInOrder(FILE* out, TB_p bank);
 void    TBPrintTermCompact(FILE* out, TB_p bank, Term_p term);
