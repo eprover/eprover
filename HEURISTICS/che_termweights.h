@@ -1,22 +1,20 @@
 /*-----------------------------------------------------------------------
 
-File  : che_termweights.h
+  File  : che_termweights.h
 
-Author: Jan Jakubuv
+  Author: Stephan Schulz, yan
 
-Contents
+  Contents
  
   Common functions for term-based clause evaluation heuristics.
 
-  Copyright 2016 by the author.
-  This code is released under the GNU General Public Licence.
-  See the file COPYING in the main directory for details.
+  Copyright 1998-2018 by the author.
+  This code is released under the GNU General Public Licence and
+  the GNU Lesser General Public License.
+  See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
-
-<1> Fri Mar 11 11:55:38 CET 2016
-    New
+  Created: Wed Nov  7 21:37:27 CET 2018
 
 -----------------------------------------------------------------------*/
 
@@ -31,12 +29,13 @@ Changes
 /*                    Data type declarations                           */
 /*---------------------------------------------------------------------*/
 
+/* Related terms set */
 typedef enum
 {
-   RTSConjectureTerms = 0,
-   RTSConjectureSubterms = 1,
-   RTSConjectureSubtermsTopGens = 2,
-   RTSConjectureSubtermsAllGens = 3
+   RTSConjectureTerms = 0,           /* conjecture terms only */
+   RTSConjectureSubterms = 1,        /* conjecture terms and subterms */
+   RTSConjectureSubtermsTopGens = 2, /* subterms and top-level gens */
+   RTSConjectureSubtermsAllGens = 3  /* all substerms generalizations */
 }RelatedTermSet;
 
 /*---------------------------------------------------------------------*/

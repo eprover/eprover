@@ -193,6 +193,59 @@ Term_p discard_last(Term_p term)
    return TermCreatePrefix(term, ARG_NUM(term)-1);
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: create_var_renaming_de_bruin()
+//
+// Traverse a term and create alpha-normalizing variable renaming.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+NumTree_p create_var_renaming_de_bruin(VarBank_p vars, Term_p term)
+{
+   int i;
+   NumTree_p node;
+   NumTree_p root;
+   PStack_p open;
+   long fresh_var_code;
+
+   open = PStackAlloc();
+   fresh_var_code = -2;
+   root = NULL;
+
+   PStackPushP(open, term);
+   while(!PStackEmpty(open))
+   {
+      term = PStackPopP(open);
+      if(TermIsVar(term))
+      {
+         if (!NumTreeFind(&root, term->f_code)) {
+            node = NumTreeCellAllocEmpty();
+            node->key = term->f_code;
+            node->val1.p_val = VarBankVarAssertAlloc(vars, fresh_var_code, term->type);
+            //node->val1.p_val = VarBankVarAssertAlloc(vars, fresh_var_code, STIndividuals);
+            fresh_var_code -= 2;
+
+            NumTreeInsert(&root, node);
+         }
+      }
+      else
+      {
+         for(i=0; i<term->arity; i++)
+         {
+            PStackPushP(open, term->args[term->arity-1-i]);
+         }
+      }
+   }
+   PStackFree(open);
+
+   return root;
+}
+
 
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
@@ -2168,75 +2221,17 @@ Term_p TermCreatePrefix(Term_p orig, int arg_num)
    return prefix;  
 }
 
-// TODO: remove
-void TermCellSetPropRec(Term_p term, TermProperties prop)
-{
-   PStack_p open = PStackAlloc();
-   assert(term);
-
-   PStackPushP(open, term);
-
-   while(!PStackEmpty(open))
-   {
-      term = PStackPopP(open);
-      assert(term);
-
-      TermCellSetProp(term, prop); 
-
-      if(!TermIsVar(term))
-      {
-         int i;
-
-         for(i=0; i<term->arity; i++)
-         {
-            assert(term->args);
-            PStackPushP(open, term->args[i]);
-         }
-      }
-   }
-   PStackFree(open);
-}
-
-NumTree_p create_var_renaming_de_bruin(VarBank_p vars, Term_p term)
-{
-   int i;
-   NumTree_p node;
-   NumTree_p root;
-   PStack_p open;
-   long fresh_var_code;
-
-   open = PStackAlloc();
-   fresh_var_code = -2;
-   root = NULL;
-
-   PStackPushP(open, term);
-   while(!PStackEmpty(open))
-   {
-      term = PStackPopP(open);
-      if(TermIsVar(term))
-      {
-         if (!NumTreeFind(&root, term->f_code)) {
-            node = NumTreeCellAllocEmpty();
-            node->key = term->f_code;
-            node->val1.p_val = VarBankVarAssertAlloc(vars, fresh_var_code, term->type);
-            //node->val1.p_val = VarBankVarAssertAlloc(vars, fresh_var_code, STIndividuals);
-            fresh_var_code -= 2;
-
-            NumTreeInsert(&root, node);
-         }
-      }
-      else
-      {
-         for(i=0; i<term->arity; i++)
-         {
-            PStackPushP(open, term->args[term->arity-1-i]);
-         }
-      }
-   }
-   PStackFree(open);
-
-   return root;
-}
+/*-----------------------------------------------------------------------
+//
+// Function: TermCopyRenameVars()
+//
+//   Create a term copy with variables renamed. 
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
 
 Term_p TermCopyRenameVars(NumTree_p* renaming, Term_p term) 
 {
@@ -2253,6 +2248,7 @@ Term_p TermCopyRenameVars(NumTree_p* renaming, Term_p term)
     else 
     {
         copy = TermTopCopy(term);
+        copy->type = term->type;
         for (i=0; i<term->arity; i++) 
         {
             copy->args[i] = TermCopyRenameVars(renaming, term->args[i]);
@@ -2263,17 +2259,17 @@ Term_p TermCopyRenameVars(NumTree_p* renaming, Term_p term)
     return copy;
 }
 
-Term_p TermCopyNormalizeVars(VarBank_p vars, Term_p term, VarNormStyle var_norm) 
-{
-   switch (var_norm) {
-   case NSUnivar:
-      return TermCopyUnifyVars(vars,term);
-   case NSAlpha:
-      return TermCopyNormalizeVarsAlpha(vars,term);
-   default:
-      return TermCopy(term,vars,DEREF_NEVER);
-   } 
-}
+/*-----------------------------------------------------------------------
+//
+// Function: TermCopyNormalizeVarsAlpha()
+//
+//   Create an alpha-normalized term copy.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
 
 Term_p TermCopyNormalizeVarsAlpha(VarBank_p vars, Term_p term) 
 {
@@ -2286,6 +2282,18 @@ Term_p TermCopyNormalizeVarsAlpha(VarBank_p vars, Term_p term)
 
     return copy;
 }
+
+/*-----------------------------------------------------------------------
+//
+// Function: TermCopyUnifyVars()
+//
+//   Create a term copy with all the variables unified (to X0).
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
 
 Term_p TermCopyUnifyVars(VarBank_p vars, Term_p term) 
 {
@@ -2304,6 +2312,31 @@ Term_p TermCopyUnifyVars(VarBank_p vars, Term_p term)
     }
 
     return new;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: TermCopyRenameVars()
+//
+//   Create a term copy using the specified variable normalization.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+Term_p TermCopyNormalizeVars(VarBank_p vars, Term_p term, 
+   VarNormStyle var_norm) 
+{
+   switch (var_norm) {
+   case NSUnivar:
+      return TermCopyUnifyVars(vars,term);
+   case NSAlpha:
+      return TermCopyNormalizeVarsAlpha(vars,term);
+   default:
+      return TermCopy(term,vars,DEREF_NEVER);
+   } 
 }
 
 /*---------------------------------------------------------------------*/

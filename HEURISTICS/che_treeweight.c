@@ -1,22 +1,50 @@
 /*-----------------------------------------------------------------------
 
-File  : che_treeweight.c
+  File  : che_treeweight.c
 
-Author: could be anyone
+  Author: Stephan Schulz, yan
 
-Contents
+  Contents
  
-  Auto generated. Your comment goes here ;-).
+  Iplementation of conjecture tree distance weight (Ted) from 
+  [CICM'16/Sec.3].
+  
+  Syntax
+   
+  ConjectureTreeDistanceWeight(
+   prio,      // priority function
+   varnorm,   // variable normalization:
+              // 0: universal variable, 
+              // 1: alhpa normalization
+   relterm,   // related terms: 
+              // 0: conjecture terms, 
+              // 1: conjecture subterms, 
+              // 2: conjecture subterms and top-level generalizations,
+              // 3: conjecture subterms and subterm generalizations. 
+   insert,    // insert cost (int)
+   delete,    // delete cost (int)
+   change,    // change cost (int)
+   ext_style, // term extension style:
+              // 0: apply to literals and sum
+              // 1: apply to all subterms and sum
+              // 2: take the max of all subterms
+   maxtm,     // maximal term multiplier (float)
+   maxlm,     // maximal literal multiplier (float)
+   poslm)     // positive literal multiplier (float)
 
-  Copyright 2016 by the author.
-  This code is released under the GNU General Public Licence.
-  See the file COPYING in the main directory for details.
+  References
+
+  [CICM'16]: Jan Jakubův and Josef Urban: "Extending E Prover with 
+    Similarity Based Clause Selection Strategies", CICM, 2016.
+    https://doi.org/10.1007/978-3-319-42547-4_11
+
+  Copyright 1998-2018 by the author.
+  This code is released under the GNU General Public Licence and
+  the GNU Lesser General Public License.
+  See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
-
-<1> Tue Mar  8 22:40:31 CET 2016
-    New
+  Created: Wed Nov  7 21:37:27 CET 2018
 
 -----------------------------------------------------------------------*/
 
@@ -357,6 +385,18 @@ static double ted_term_weight(Term_p term, TreeWeightParam_p data)
 /*                         Exported Functions                          */
 /*---------------------------------------------------------------------*/
 
+/*-----------------------------------------------------------------------
+//
+// Function: TreeWeightParamAlloc()
+//
+//   Allocate new parameter cell.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
 TreeWeightParam_p TreeWeightParamAlloc(void)
 {
    TreeWeightParam_p res = TreeWeightParamCellAlloc();
@@ -366,6 +406,18 @@ TreeWeightParam_p TreeWeightParamAlloc(void)
    
    return res;
 }
+
+/*-----------------------------------------------------------------------
+//
+// Function: TreeWeightParamFree()
+//
+//   Free the parameter cell.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
 
 void TreeWeightParamFree(TreeWeightParam_p junk)
 {
@@ -388,6 +440,18 @@ void TreeWeightParamFree(TreeWeightParam_p junk)
    TreeWeightParamCellFree(junk);
 }
  
+/*-----------------------------------------------------------------------
+//
+// Function: ConjectureTreeDistanceWeightParse()
+//
+//   Parse parameters from a scanner.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
 WFCB_p ConjectureTreeDistanceWeightParse(
    Scanner_p in,  
    OCB_p ocb, 
@@ -440,6 +504,18 @@ WFCB_p ConjectureTreeDistanceWeightParse(
       pos_multiplier);
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: ConjectureTreeDistanceWeightInit()
+//
+//   Initialize parameters cell and create WFCB.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
 WFCB_p ConjectureTreeDistanceWeightInit(
    ClausePrioFun prio_fun, 
    OCB_p ocb,
@@ -479,6 +555,18 @@ WFCB_p ConjectureTreeDistanceWeightInit(
       data);
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: ConjectureTreeDistanceWeightCompute()
+//
+//   Compute the clause weight.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
 double ConjectureTreeDistanceWeightCompute(void* data, Clause_p clause)
 {
    TreeWeightParam_p local;
@@ -489,6 +577,18 @@ double ConjectureTreeDistanceWeightCompute(void* data, Clause_p clause)
    ClauseCondMarkMaximalTerms(local->ocb, clause);
    return ClauseTermExtWeight(clause, local->twe);
 }
+
+/*-----------------------------------------------------------------------
+//
+// Function: ConjectureTreeDistanceWeightExit()
+//
+//   Clean up the parameter cell.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
 
 void ConjectureTreeDistanceWeightExit(void* data)
 {

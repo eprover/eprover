@@ -1,22 +1,52 @@
 /*-----------------------------------------------------------------------
 
-File  : che_strucweight.c
+  File  : che_strucweight.c
 
-Author: could be anyone
+  Author: Stephan Schulz, yan
 
-Contents
+  Contents
  
-  Auto generated. Your comment goes here ;-).
+  Iplementation of conjecture structural distance weight (Struc) 
+  from [CICM'16/Sec.3].
+  
+  Syntax
+   
+  ConjectureStrucDistanceWeight(
+   prio,      // priority function
+   varnorm,   // variable normalization:
+              // 0: universal variable, 
+              // 1: alhpa normalization
+   relterm,   // related terms: 
+              // 0: conjecture terms, 
+              // 1: conjecture subterms, 
+              // 2: conjecture subterms and top-level generalizations,
+              // 3: conjecture subterms and subterm generalizations. 
+   var_mis,   // upper bound on variable distance (float)
+   sym_mis,   // multiplicator of arguments distance on symbol 
+              // mismatch (float)
+   inst_fact, // instatiation multiplier/cost (float)
+   gen_fact,  // generalization multiplier/cost (float)
+   ext_style, // term extension style:
+              // 0: apply to literals and sum
+              // 1: apply to all subterms and sum
+              // 2: take the max of all subterms
+   maxtm,     // maximal term multiplier (float)
+   maxlm,     // maximal literal multiplier (float)
+   poslm)     // positive literal multiplier (float)
 
-  Copyright 2016 by the author.
-  This code is released under the GNU General Public Licence.
-  See the file COPYING in the main directory for details.
+  References
+
+  [CICM'16]: Jan Jakubův and Josef Urban: "Extending E Prover with 
+    Similarity Based Clause Selection Strategies", CICM, 2016.
+    https://doi.org/10.1007/978-3-319-42547-4_11
+
+  Copyright 1998-2018 by the author.
+  This code is released under the GNU General Public Licence and
+  the GNU Lesser General Public License.
+  See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
-
-<1> Tue Mar  8 22:40:31 CET 2016
-    New
+  Created: Wed Nov  7 21:37:27 CET 2018
 
 -----------------------------------------------------------------------*/
 
@@ -263,6 +293,18 @@ static double strc_term_weight(Term_p term, StrucWeightParam_p data)
 /*                         Exported Functions                          */
 /*---------------------------------------------------------------------*/
 
+/*-----------------------------------------------------------------------
+//
+// Function: StrucWeightParamAlloc()
+//
+//   Allocate new parameter cell.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
 StrucWeightParam_p StrucWeightParamAlloc(void)
 {
    StrucWeightParam_p res = StrucWeightParamCellAlloc();
@@ -272,6 +314,18 @@ StrucWeightParam_p StrucWeightParamAlloc(void)
    
    return res;
 }
+
+/*-----------------------------------------------------------------------
+//
+// Function: StrucWeightParamFree()
+//
+//   Free the parameter cell.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
 
 void StrucWeightParamFree(StrucWeightParam_p junk)
 {
@@ -295,6 +349,18 @@ void StrucWeightParamFree(StrucWeightParam_p junk)
    StrucWeightParamCellFree(junk);
 }
  
+/*-----------------------------------------------------------------------
+//
+// Function: ConjectureStrucDistanceWeightParse()
+//
+//   Parse parameters from a scanner.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
 WFCB_p ConjectureStrucDistanceWeightParse(
    Scanner_p in,  
    OCB_p ocb, 
@@ -350,6 +416,18 @@ WFCB_p ConjectureStrucDistanceWeightParse(
       pos_multiplier);
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: ConjectureStrucDistanceWeightInit()
+//
+//   Initialize parameters cell and create WFCB.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
 WFCB_p ConjectureStrucDistanceWeightInit(
    ClausePrioFun prio_fun, 
    OCB_p ocb,
@@ -393,6 +471,18 @@ WFCB_p ConjectureStrucDistanceWeightInit(
       data);
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: ConjectureStrucDistanceWeightCompute()
+//
+//   Compute the clause weight.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
 double ConjectureStrucDistanceWeightCompute(void* data, Clause_p clause)
 {
    double res;
@@ -412,6 +502,18 @@ double ConjectureStrucDistanceWeightCompute(void* data, Clause_p clause)
 
    return res;
 }
+
+/*-----------------------------------------------------------------------
+//
+// Function: ConjectureStrucDistanceWeightExit()
+//
+//   Clean up the parameter cell.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
 
 void ConjectureStrucDistanceWeightExit(void* data)
 {

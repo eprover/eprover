@@ -1,22 +1,20 @@
 /*-----------------------------------------------------------------------
 
-File  : che_termweights.c
+  File  : che_termweights.c
 
-Author: Jan Jakubuv
+  Author: Stephan Schulz, yan
 
-Contents
+  Contents
  
   Common functions for term-based clause evaluation heuristics.
 
-  Copyright 2016 by the author.
-  This code is released under the GNU General Public Licence.
-  See the file COPYING in the main directory for details.
+  Copyright 1998-2018 by the author.
+  This code is released under the GNU General Public Licence and
+  the GNU Lesser General Public License.
+  See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
-
-<1> Fri Mar 11 11:55:38 CET 2016
-    New
+  Created: Wed Nov  7 21:37:27 CET 2018
 
 -----------------------------------------------------------------------*/
 
@@ -145,6 +143,19 @@ static PStack_p compute_subterms_generalizations(
 /*                         Exported Functions                          */
 /*---------------------------------------------------------------------*/
 
+/*-----------------------------------------------------------------------
+//
+// Function: ComputeSubtermsGeneralizations()
+//
+//   Compute generalizations of all subterms. The number of gens per 
+//   term is limited by TERM_MAX_GENS.  
+//
+// Global Variables: -
+//
+// Side Effects    : allocates stack of terms
+//
+/----------------------------------------------------------------------*/
+
 PStack_p ComputeSubtermsGeneralizations(Term_p term, VarBank_p vars)
 {
    long fresh_var_code;
@@ -173,6 +184,19 @@ PStack_p ComputeSubtermsGeneralizations(Term_p term, VarBank_p vars)
 
    return all;
 }
+
+/*-----------------------------------------------------------------------
+//
+// Function: ComputeTopGeneralizations()
+//
+//   Compute top-level generalization "f(X1,..,Xn)" for each n-ary f 
+//   from the term.
+//
+// Global Variables: -
+//
+// Side Effects    : allocates stack of terms
+//
+/----------------------------------------------------------------------*/
 
 PStack_p ComputeTopGeneralizations(Term_p term, VarBank_p vars, Sig_p sig)
 {
@@ -236,6 +260,18 @@ PStack_p ComputeTopGeneralizations(Term_p term, VarBank_p vars, Sig_p sig)
    return topgens;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: FreeGeneralizations()
+//
+//   Free the stack of terms and their top symbols.
+//
+// Global Variables: -
+//
+// Side Effects    : free memory
+//
+/----------------------------------------------------------------------*/
+
 void FreeGeneralizations(PStack_p gens)
 {
    Term_p gen;
@@ -248,6 +284,19 @@ void FreeGeneralizations(PStack_p gens)
    PStackFree(gens);
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: TupleInit()
+//
+//   Used to traverse n-tupples from (0,0,...,0) to (n0,n1,...,nm) 
+//   lexicographically.  This sets the tupple to zeros.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
 int TupleInit(FixedDArray_p cur)
 {
    int i;
@@ -259,6 +308,20 @@ int TupleInit(FixedDArray_p cur)
 
    return (cur->size > 0); // should be always true
 }
+
+/*-----------------------------------------------------------------------
+//
+// Function: TupleNext()
+//
+//   Used to traverse n-tupples from (0,0,...,0) to (n0,n1,...,nm) 
+//   lexicographically.  This makes `cur` the next tupple.  Maximal
+//   values for each item (that is, those n's) is given in `max`.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
 
 int TupleNext(FixedDArray_p cur, FixedDArray_p max)
 {
@@ -285,6 +348,18 @@ int TupleNext(FixedDArray_p cur, FixedDArray_p max)
    return 1;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: TuplePrint()
+//
+//   Print a tuple.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
 void TuplePrint(FixedDArray_p t)
 {
    int i;
@@ -295,6 +370,19 @@ void TuplePrint(FixedDArray_p t)
    }
    fprintf(GlobalOut, ")\n");
 }
+
+/*-----------------------------------------------------------------------
+//
+// Function: TBIncSubtermsFreqs()
+//
+//   Increase the frequency of all subterms of `term` in `freqs` where
+//   `freqs` is a map from Term_p.entry_no to the frequency.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
 
 void TBIncSubtermsFreqs(Term_p term, NumTree_p* freqs)
 {
@@ -335,6 +423,20 @@ void TBIncSubtermsFreqs(Term_p term, NumTree_p* freqs)
 
    PStackFree(stack);
 }
+
+/*-----------------------------------------------------------------------
+//
+// Function: TBCountTermFreqs()
+//
+//   Iterates over a term bank and set the number of occurences 
+//   (frequencies) for each term. Only top positions are processed
+//   but other terms are also visited as all subterms are considered.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
 
 NumTree_p TBCountTermFreqs(TB_p bank)
 {
