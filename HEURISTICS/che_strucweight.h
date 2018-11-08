@@ -1,22 +1,21 @@
 /*-----------------------------------------------------------------------
 
-File  : che_strucweight.h
+  File  : che_strucweight.c
 
-Author: could be anyone
+  Author: Stephan Schulz, yan
 
-Contents
+  Contents
  
-  Auto generated. Your comment goes here ;-).
-
-  Copyright 2016 by the author.
-  This code is released under the GNU General Public Licence.
-  See the file COPYING in the main directory for details.
+  Iplementation of conjecture structural distance weight (Struc) 
+  from [CICM'16/Sec.3].
+  
+  Copyright 1998-2018 by the author.
+  This code is released under the GNU General Public Licence and
+  the GNU Lesser General Public License.
+  See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
-
-<1> Tue Mar  8 22:40:31 CET 2016
-    New
+  Created: Wed Nov  7 21:37:27 CET 2018
 
 -----------------------------------------------------------------------*/
 
