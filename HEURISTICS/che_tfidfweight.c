@@ -2,7 +2,7 @@
 
 File  : che_tfidfweight.c
 
-Author: could be anyone
+Author: Stephan Schulz, yan
 
 Contents
  
@@ -135,11 +135,8 @@ static void tfidf_init(TfIdfWeightParam_p data)
             data->var_norm,data->eval_bank->vars);
       }
    }
-   TBCountTermFreqs(data->eval_bank);
-#ifdef DEBUG_TERMWEIGHTS
-   TBDotBankFile("eval-init.dot",data->eval_bank);
-   PDTreeDotFile("documents.dot",data->documents,data->ocb->sig);
-#endif
+   
+   data->eval_freqs = TBCountTermFreqs(data->eval_bank);
 }
 
 static double tfidf_term_weight(Term_p term, TfIdfWeightParam_p data)
@@ -149,24 +146,19 @@ static double tfidf_term_weight(Term_p term, TfIdfWeightParam_p data)
    double idf, tfidf;
    Term_p norm, repr;
    PDTNode_p node;
+   NumTree_p cell;
 
    norm = TermCopyNormalizeVars(data->eval_bank->vars,term,data->var_norm);
    repr = TBFindRepr(data->eval_bank,norm);
-   tf = repr?(repr->freq):0;
+   cell = NumTreeFind(&data->eval_freqs, repr->entry_no);
+   tf = cell ? (cell->val1.i_val) : 0;
    tf = (data->tf_fact*(tf-1))+1; // make tf=1 when tf_fact=0 ("disable tf")
 
    node = PDTreeMatchPrefix(data->documents,norm,&matched,&remains);
    df = (remains==0)?node->ref_count:0;
 
    idf = log((1+data->documents->clause_count)/(1+df));
-   tfidf = tf*idf; // TODO: try idf only
-
-#ifdef DEBUG_TERMWEIGHTS
-   printf("   >>> ");
-   TermPrint(GlobalOut,norm,data->eval_bank->sig,DEREF_NEVER);
-   printf("   tf=%f df=%f idf=%f tfidf=%f count=%ld\n",tf,df,idf,tfidf,data->documents->clause_count);
-#endif
-
+   tfidf = tf*idf; 
    TermFree(norm);
 
    return 1/(1+tfidf);
@@ -266,6 +258,7 @@ WFCB_p ConjectureTermTfIdfWeightInit(
    data->var_norm    = var_norm;
    data->rel_terms   = rel_terms;
    data->update_docs = update_docs;
+   data->eval_freqs  = NULL;
    data->twe = TermWeightExtensionAlloc(
       max_term_multiplier,
       max_literal_multiplier,
@@ -283,25 +276,20 @@ WFCB_p ConjectureTermTfIdfWeightInit(
 
 double ConjectureTermTfIdfWeightCompute(void* data, Clause_p clause)
 {
+   double res;
    TfIdfWeightParam_p local;
-   double res = 1.0;
    
    local = data;
    local->init_fun(data);
-   return res;
 
-   //ClauseCondMarkMaximalTerms(local->ocb, clause);
-   //res = ClauseTermExtWeight(clause, local->twe);
-   //if (local->update_docs) {
-   //   tfidf_documents_add_clause(
-   //      local->documents,clause,local->var_norm,local->eval_bank->vars);
-   //}
+   ClauseCondMarkMaximalTerms(local->ocb, clause);
+   res = ClauseTermExtWeight(clause, local->twe);
+   if (local->update_docs) 
+   {
+      tfidf_documents_add_clause(
+         local->documents,clause,local->var_norm,local->eval_bank->vars);
+   }
 
-#ifdef DEBUG_TERMWEIGHTS
-   fprintf(GlobalOut, "=%.2f: ", res);
-   ClausePrint(GlobalOut, clause, true);
-   fprintf(GlobalOut, "\n");
-#endif
    return res;
 }
 

@@ -296,6 +296,76 @@ void TuplePrint(FixedDArray_p t)
    fprintf(GlobalOut, ")\n");
 }
 
+void TBIncSubtermsFreqs(Term_p term, NumTree_p* freqs)
+{
+   int i;
+   PStack_p stack;
+   Term_p subterm;
+   NumTree_p cell;
+
+   stack = PStackAlloc();
+
+   PStackPushP(stack, term);
+   while (!PStackEmpty(stack))
+   {
+      subterm = PStackPopP(stack);
+      if (TermIsVar(subterm))
+      {
+         continue;
+      }
+         
+      //subterm->freq++;
+      cell = NumTreeFind(freqs, subterm->entry_no);
+      if (cell)
+      {
+         cell->val1.i_val++;
+      }
+      else 
+      {
+         IntOrP val1;
+         val1.i_val = 1;
+         NumTreeStore(freqs, subterm->entry_no, val1, val1);
+      }
+      
+      for(i=0; i<subterm->arity; i++)
+      {
+         PStackPushP(stack, subterm->args[i]);
+      }
+   }
+
+   PStackFree(stack);
+}
+
+NumTree_p TBCountTermFreqs(TB_p bank)
+{
+   PStack_p stack = PStackAlloc();
+   Term_p term;
+   int i;
+   NumTree_p freqs = NULL;
+
+   for(i=0; i<TERM_STORE_HASH_SIZE; i++)
+   {      
+      PStackPushP(stack, bank->term_store.store[i]);
+      while(!PStackEmpty(stack))
+      {
+         term = PStackPopP(stack);
+         if ((!term) || (!TermCellQueryProp(term,TPTopPos)))
+         {
+            continue;
+         }
+         TBIncSubtermsFreqs(term, &freqs);
+         if(term)
+         {
+            PStackPushP(stack, term->lson);
+            PStackPushP(stack, term->rson);
+         }
+      }
+   }
+   PStackFree(stack);
+
+   return freqs;
+}
+
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/

@@ -127,21 +127,18 @@ static void termweight_init(TermWeightParam_p data)
          data->eval_bank,clause,data->var_norm,data->rel_terms);
    }
    
-   TBCountTermFreqs(data->eval_bank);
-
-#ifdef DEBUG_TERMWEIGHTS
-   TBDotBankFile("eval-init.dot", data->eval_bank);
-#endif
+   data->eval_freqs = TBCountTermFreqs(data->eval_bank);
 }
 
 static void termweight_update_conjecture_freqs(
-   TB_p bank, Term_p term, VarNormStyle var_norm)
+   TB_p bank, NumTree_p* freqs, Term_p term, VarNormStyle var_norm)
 {
    int i;
    PStack_p stack;
    Term_p subterm;
    Term_p subnorm;
    Term_p subrepr;
+   NumTree_p cell;
 
    stack = PStackAlloc();
 
@@ -149,18 +146,28 @@ static void termweight_update_conjecture_freqs(
    while (!PStackEmpty(stack))
    {
       subterm = PStackPopP(stack);
-      if(TermIsVar(subterm)) 
+      if (TermIsVar(subterm)) 
       {
          continue;
       }
-      subnorm = TermCopyNormalizeVars(bank->vars,subterm,var_norm);
+      subnorm = TermCopyNormalizeVars(bank->vars, subterm, var_norm);
       subrepr = TBFindRepr(bank, subnorm);
-      if (subrepr && (subrepr->freq>0)) {
-         subterm->freq = subrepr->freq;
+      if (subrepr) 
+      {
+         cell = NumTreeFind(freqs, subrepr->entry_no);
+         if (cell && cell->val1.i_val > 0)
+         {
+            NumTreeStore(freqs, subterm->entry_no, cell->val1, cell->val2);
+         }
       }
+
+      //if (subrepr && (subrepr->freq>0)) 
+      //{
+      //   subterm->freq = subrepr->freq;
+      //}
       TermFree(subnorm);
 
-      for(i=0; i<subterm->arity; i++)
+      for (i=0; i<subterm->arity; i++)
       {
          PStackPushP(stack, subterm->args[i]);
       }
@@ -172,31 +179,73 @@ static void termweight_update_conjecture_freqs(
 static double termweight_term_weight(Term_p term, TermWeightParam_p data)
 {
    Term_p repr;
+   long freq;
+   NumTree_p cell;
 
    repr = termweight_insert(data->eval_bank, term, data->var_norm);
-   termweight_update_conjecture_freqs(data->eval_bank, repr, data->var_norm);
+   termweight_update_conjecture_freqs(data->eval_bank, &data->eval_freqs, 
+      repr, data->var_norm);
 
    if (TermIsVar(repr))
    {
       return data->vweight;
    }
+
+   cell = NumTreeFind(&data->eval_freqs, repr->entry_no);
+   freq = cell ? (cell->val1.i_val) : 0;
    if (TermIsConst(repr)) 
    {
-      return (repr->freq>0)?data->conj_fweight:data->cweight;
+      return (freq>0) ? data->conj_cweight : data->cweight;
    }
-   if (TermCellQueryProp(repr,TPPredPos))
+   if (TermCellQueryProp(repr, TPPredPos))
    {
-      return (repr->freq>0)?data->conj_pweight:data->pweight;
+      return (freq>0) ? data->conj_pweight : data->pweight;
    }
    else
    {
-      return (repr->freq>0)?data->conj_fweight:data->fweight;
+      return (freq>0) ? data->conj_fweight : data->fweight;
    }
 }
 
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
 /*---------------------------------------------------------------------*/
+
+void TBInsertClauseTermsNormalized(
+   TB_p bank, 
+   Clause_p clause, 
+   VarNormStyle var_norm, 
+   RelatedTermSet rel_terms)
+{
+   Eqn_p lit;
+
+   for (lit=clause->literals; lit; lit=lit->next)
+   {
+      switch (rel_terms) {
+         case RTSConjectureTerms:
+            termweight_insert(bank,lit->lterm,var_norm);
+            termweight_insert(bank,lit->rterm,var_norm);
+            break;
+         case RTSConjectureSubterms:
+            termweight_insert_subterms(bank,lit->lterm,var_norm);
+            termweight_insert_subterms(bank,lit->rterm,var_norm);
+            break;
+         case RTSConjectureSubtermsTopGens:
+            termweight_insert_subterms(bank,lit->lterm,var_norm);
+            termweight_insert_subterms(bank,lit->rterm,var_norm);
+            termweight_insert_topgens(bank,lit->lterm,var_norm);
+            termweight_insert_topgens(bank,lit->rterm,var_norm);
+            break;
+         case RTSConjectureSubtermsAllGens:
+            termweight_insert_subgens(bank,lit->lterm,var_norm);
+            termweight_insert_subgens(bank,lit->rterm,var_norm);
+            break;
+         default:
+            Error("TBInsertClauseNormalized: Parameters syntax error (unsupported RelatedTermSet %d)", USAGE_ERROR, rel_terms);
+            break;
+      }
+   }
+}
 
 TermWeightParam_p TermWeightParamAlloc(void)
 {
@@ -303,6 +352,7 @@ WFCB_p ConjectureRelativeTermWeightInit(
    data->proofstate = proofstate;
    data->var_norm   = var_norm;
    data->rel_terms  = rel_terms;
+   data->eval_freqs = NULL;
    
    data->vweight      = vweight;
    data->fweight      = fweight;
@@ -357,97 +407,6 @@ void ConjectureRelativeTermWeightExit(void* data)
    TermWeightParam_p junk = data;
    
    TermWeightParamFree(junk);
-}
-
-void TBInsertClauseTermsNormalized(
-   TB_p bank, 
-   Clause_p clause, 
-   VarNormStyle var_norm, 
-   RelatedTermSet rel_terms)
-{
-   Eqn_p lit;
-
-   for (lit=clause->literals; lit; lit=lit->next)
-   {
-      switch (rel_terms) {
-         case RTSConjectureTerms:
-            termweight_insert(bank,lit->lterm,var_norm);
-            termweight_insert(bank,lit->rterm,var_norm);
-            break;
-         case RTSConjectureSubterms:
-            termweight_insert_subterms(bank,lit->lterm,var_norm);
-            termweight_insert_subterms(bank,lit->rterm,var_norm);
-            break;
-         case RTSConjectureSubtermsTopGens:
-            termweight_insert_subterms(bank,lit->lterm,var_norm);
-            termweight_insert_subterms(bank,lit->rterm,var_norm);
-            termweight_insert_topgens(bank,lit->lterm,var_norm);
-            termweight_insert_topgens(bank,lit->rterm,var_norm);
-            break;
-         case RTSConjectureSubtermsAllGens:
-            termweight_insert_subgens(bank,lit->lterm,var_norm);
-            termweight_insert_subgens(bank,lit->rterm,var_norm);
-            break;
-         default:
-            Error("TBInsertClauseNormalized: Parameters syntax error (unsupported RelatedTermSet %d)", USAGE_ERROR, rel_terms);
-            break;
-      }
-   }
-}
-
-void TBIncSubtermsFreqs(Term_p term)
-{
-   int i;
-   PStack_p stack;
-   Term_p subterm;
-
-   stack = PStackAlloc();
-
-   PStackPushP(stack, term);
-   while (!PStackEmpty(stack))
-   {
-      subterm = PStackPopP(stack);
-      if (TermIsVar(subterm))
-      {
-         continue;
-      }
-         
-      subterm->freq++;
-      
-      for(i=0; i<subterm->arity; i++)
-      {
-         PStackPushP(stack, subterm->args[i]);
-      }
-   }
-
-   PStackFree(stack);
-}
-
-void TBCountTermFreqs(TB_p bank)
-{
-   PStack_p stack = PStackAlloc();
-   Term_p term;
-   int i;
-
-   for(i=0; i<TERM_STORE_HASH_SIZE; i++)
-   {      
-      PStackPushP(stack, bank->term_store.store[i]);
-      while(!PStackEmpty(stack))
-      {
-         term = PStackPopP(stack);
-         if ((!term) || (!TermCellQueryProp(term,TPTopPos)))
-         {
-            continue;
-         }
-         TBIncSubtermsFreqs(term);
-         if(term)
-         {
-            PStackPushP(stack, term->lson);
-            PStackPushP(stack, term->rson);
-         }
-      }
-   }
-   PStackFree(stack);
 }
 
 /*---------------------------------------------------------------------*/
