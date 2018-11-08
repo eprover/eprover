@@ -39,6 +39,7 @@ typedef struct termweightparamcell
    RelatedTermSet rel_terms;
 
    TB_p   eval_bank;
+   NumTree_p eval_freqs;
    long   vweight;
    long   fweight;
    long   cweight;
@@ -96,9 +97,6 @@ void TBInsertClauseTermsNormalized(
    Clause_p clause, 
    VarNormStyle var_norm, 
    RelatedTermSet rel_terms);
-
-void TBIncSubtermsFreqs(Term_p term);
-void TBCountTermFreqs(TB_p bank);
 
 #endif
 

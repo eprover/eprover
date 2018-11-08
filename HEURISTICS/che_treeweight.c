@@ -28,8 +28,6 @@ Changes
 /*                        Global Variables                             */
 /*---------------------------------------------------------------------*/
 
-//static Sig_p SIG;
-
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
 /*---------------------------------------------------------------------*/
@@ -181,44 +179,6 @@ static void ted_init(TreeWeightParam_p data)
 }
 
 
-static void ted_lmld_kr(
-   Term_p term, 
-   long* l,
-   PStack_p kr,
-   FunCode* code,
-   long* fresh, 
-   bool isroot)
-{
-   int i;
-
-   if (TermIsVar(term)||TermIsConst(term)) 
-   {
-      term->freq = (*fresh)++;
-      l[term->freq] = term->freq;
-   }
-   else 
-   {
-      for (i=0; i<term->arity; i++)
-      {
-         ted_lmld_kr(term->args[i],l,kr,code,fresh,(i!=0));
-      }
-
-      term->freq = (*fresh)++;
-      l[term->freq] = l[term->args[0]->freq];
-   }
-
-   code[term->freq] = term->f_code;
-   if (isroot) 
-   {
-      PStackPushInt(kr,term->freq);
-      //printf(">>> key-root %ld\n", term->freq);
-   }
-
-   //printf(">>> id=%ld; left-leaf=%ld     ",term->freq,l[term->freq]);
-   //TermPrint(GlobalOut,term,SIG,DEREF_NEVER);
-   //printf("\n");
-}
-
 static void ted_forest_distance(
    long i, 
    long j, 
@@ -273,6 +233,48 @@ static void ted_forest_distance(
          }
       }
    }
+}
+
+static long ted_lmld_kr(
+   Term_p term, 
+   long* l,
+   PStack_p kr,
+   FunCode* code,
+   long* fresh, 
+   bool isroot)
+{
+   int i;
+   long idx, lidx;
+
+   if (TermIsVar(term)||TermIsConst(term)) 
+   {
+      idx = (*fresh)++;
+      l[idx] = idx;
+      lidx = idx;
+   }
+   else 
+   {
+      lidx = ted_lmld_kr(term->args[0],l,kr,code,fresh,false);
+      for (i=1; i<term->arity; i++)
+      {
+         ted_lmld_kr(term->args[i],l,kr,code,fresh,true);
+      }
+
+      idx = (*fresh)++;
+      l[idx] = l[lidx];
+   }
+
+   code[idx] = term->f_code;
+   if (isroot) 
+   {
+      PStackPushInt(kr, idx);
+      //printf(">>> key-root %ld\n", idx);
+   }
+
+   //printf(">>> id=%ld; left-leaf=%ld     ",idx,l[idx]);
+   //TermPrint(GlobalOut,term,SIG,DEREF_NEVER);
+   //printf("\n");
+   return lidx;
 }
 
 static double ted_term_distance(
