@@ -202,10 +202,6 @@ static void prfx_init(PrefixWeightParam_p data)
          }
       }
    }
-
-#ifdef DEBUG_TERMWEIGHTS
-   PDTreeDotFile("eval-tree.dot",data->terms,data->proofstate->signature);
-#endif
 }
 
 static double prfx_term_weight(Term_p term, PrefixWeightParam_p data)
@@ -397,12 +393,6 @@ double ConjectureTermPrefixWeightCompute(void* data, Clause_p clause)
 
    ClauseCondMarkMaximalTerms(local->ocb, clause);
    res = ClauseTermExtWeight(clause, local->twe);
-
-#ifdef DEBUG_TERMWEIGHTS
-   fprintf(GlobalOut, "=%.2f: ", res);
-   ClausePrint(GlobalOut, clause, true);
-   fprintf(GlobalOut, "\n");
-#endif
 
    return res;
 }
