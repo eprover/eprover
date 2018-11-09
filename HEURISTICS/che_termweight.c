@@ -491,17 +491,6 @@ double ConjectureRelativeTermWeightCompute(void* data, Clause_p clause)
    ClauseCondMarkMaximalTerms(local->ocb, clause);
    res = ClauseTermExtWeight(clause, local->twe);
 
-#ifdef DEBUG_TERMWEIGHTS
-   static long cnt = 0;
-   char dot[64];
-   sprintf(dot, "eval-tb-%06ld.dot", cnt++);
-   TBDotBankFile(dot, local->eval_bank);
-   
-   fprintf(GlobalOut, "=%.2f: ", res);
-   ClausePrint(GlobalOut, clause, true);
-   fprintf(GlobalOut, "\n");
-#endif
-
    return res;
 }
 

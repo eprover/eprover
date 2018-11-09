@@ -483,12 +483,6 @@ double ConjectureLevDistanceWeightCompute(void* data, Clause_p clause)
    ClauseCondMarkMaximalTerms(local->ocb, clause);
    res = ClauseTermExtWeight(clause, local->twe);
 
-#ifdef DEBUG_TERMWEIGHTS
-   fprintf(GlobalOut, "=%.2f: ", res);
-   ClausePrint(GlobalOut, clause, true);
-   fprintf(GlobalOut, "\n");
-#endif
-
    return res;
 }
 
