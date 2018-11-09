@@ -179,7 +179,7 @@ static double tfidf_term_weight(Term_p term, TfIdfWeightParam_p data)
 
    norm = TermCopyNormalizeVars(data->eval_bank->vars,term,data->var_norm);
    repr = TBFindRepr(data->eval_bank,norm);
-   cell = NumTreeFind(&data->eval_freqs, repr->entry_no);
+   cell = repr ? NumTreeFind(&data->eval_freqs, repr->entry_no) : NULL;
    tf = cell ? (cell->val1.i_val) : 0;
    tf = (data->tf_fact*(tf-1))+1; // make tf=1 when tf_fact=0 ("disable tf")
 
