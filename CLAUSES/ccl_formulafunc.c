@@ -725,6 +725,14 @@ long FormulaAndClauseSetParse(Scanner_p in, FormulaSet_p fset,
          }
          break;
    default:
+#ifndef ENABLE_LFHO
+         if(TestInpId(in, "thf"))
+         {
+            Error("To support LFHOL reasoning, recompile the E prover"
+                  " using \'./configure --enable-ho && make rebuild\' \n",
+                  SYNTAX_ERROR);
+         }
+#endif
          while(TestInpId(in, "input_formula|input_clause|fof|cnf|tff|thf|tcf|include"))
          {
             if(TestInpId(in, "include"))

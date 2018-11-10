@@ -1,9 +1,8 @@
-#!/bin/tcsh
-set defaultargs=" --delete-bad-limit=2000000000 --definitional-cnf=24 -s --print-statistics -R --print-version --free-numbers"
-set flags=" --auto"
-set final="--cpu-limit="$2" "$1
-set ecmd="./eprover-ho ""$defaultargs $flags $final"
-
-echo "# Working on: " $1
+#!/bin/sh
+DIR="`dirname $0`"
+defaultargs=" --delete-bad-limit=2000000000 --definitional-cnf=24 -s --print-statistics -R --print-version --free-numbers"
+flags=" --auto"
+final="--cpu-limit="$2" "$1
+ecmd="./$DIR/eprover-fo ""$defaultargs $flags $final"
 
 $ecmd

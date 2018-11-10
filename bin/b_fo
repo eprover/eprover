@@ -1,15 +1,14 @@
-#!/bin/tcsh
-set defaultargs=" --delete-bad-limit=2000000000 --definitional-cnf=24 -s --print-statistics -R --print-version --free-numbers"
-set flags=" --free-numbers --simul-paramod --forward-context-sr --strong-destructive-er --destructive-er-aggressive --destructive-er --presat-simplify"
-set order=" -tKBO6 -winvfreqrank -c1 -Ginvfreq -F1"
-set selection=" -WSelectMaxLComplexAvoidPosPred"
-set app = "1"
-set prio = "ConstPrio"
-set heuristic=" -H(1.ConjectureRelativeSymbolWeight(SimulateSOS,0.5,100,100,100,100,1.5,1.5,1,$app),4.ConjectureRelativeSymbolWeight($prio,0.1,100,100,100,100,1.5,1.5,1.5,$app),1.FIFOWeight(PreferProcessed),1.ConjectureRelativeSymbolWeight(PreferNonGoals,0.5,100,100,100,100,1.5,1.5,1,$app),4.Refinedweight(SimulateSOS,3,2,2,1.5,2,$app))"
-set final="--cpu-limit="$2" "$1
-set ecmd="./eprover-fo ""$defaultargs $flags $order $selection $heuristic $final"
-
-echo "# Working on: " $1
+#!/bin/sh
+DIR="`dirname $0`"
+defaultargs=" --delete-bad-limit=2000000000 --definitional-cnf=24 -s --print-statistics -R --print-version --free-numbers"
+flags=" --free-numbers --simul-paramod --forward-context-sr --strong-destructive-er --destructive-er-aggressive --destructive-er --presat-simplify"
+order=" -tKBO6 -winvfreqrank -c1 -Ginvfreq -F1"
+selection=" -WSelectMaxLComplexAvoidPosPred"
+app="1"
+prio="ConstPrio"
+heuristic=" -H(1.ConjectureRelativeSymbolWeight(SimulateSOS,0.5,100,100,100,100,1.5,1.5,1,$app),4.ConjectureRelativeSymbolWeight($prio,0.1,100,100,100,100,1.5,1.5,1.5,$app),1.FIFOWeight(PreferProcessed),1.ConjectureRelativeSymbolWeight(PreferNonGoals,0.5,100,100,100,100,1.5,1.5,1,$app),4.Refinedweight(SimulateSOS,3,2,2,1.5,2,$app))"
+final="--cpu-limit="$2" "$1
+ecmd="./$DIR/eprover-fo ""$defaultargs $flags $order $selection $heuristic $final"
 
 $ecmd
 
