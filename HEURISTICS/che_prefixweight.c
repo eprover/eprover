@@ -413,6 +413,7 @@ void ConjectureTermPrefixWeightExit(void* data)
 {
    PrefixWeightParam_p junk = data;
    
+   TermWeightExtensionFree(junk->twe);
    PrefixWeightParamFree(junk);
 }
 

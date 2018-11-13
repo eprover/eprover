@@ -1120,7 +1120,7 @@ void PDTreeInsertTerm(PDTree_p tree, Term_p term, ClausePos_p demod_side,
    if (store_data) 
    {
       res = PTreeStore(&(node->entries), demod_side);
-      UNUSED(res); assert(ret);
+      UNUSED(res); assert(res);
    }
    tree->clause_count++;
    //printf("ISizeConstr %p: %ld\n", tree, pdt_verify_size_constraint(tree->tree));

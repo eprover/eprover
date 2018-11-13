@@ -510,6 +510,7 @@ void ConjectureRelativeTermWeightExit(void* data)
 {
    TermWeightParam_p junk = data;
    
+   TermWeightExtensionFree(junk->twe);
    TermWeightParamFree(junk);
 }
 

@@ -78,6 +78,7 @@ static void tfidf_documents_add_term(
 
    copy = TermCopyNormalizeVars(vars,term,var_norm);
 
+   ClausePrint(GlobalOut, clause, true);fprintf(GlobalOut, "\n");
    pos          = ClausePosCellAlloc();
    pos->clause  = clause;
    pos->literal = lit;
@@ -232,10 +233,12 @@ void TfIdfWeightParamFree(TfIdfWeightParam_p junk)
 {
    if (junk->eval_bank) 
    {
-      TBFree(junk->eval_bank);
-      junk->eval_bank = NULL;
       PDTreeFree(junk->documents);
       junk->documents = NULL;
+      // hack to avoid assertion in TBFree: sig is freed later
+      junk->eval_bank->sig = NULL; 
+      TBFree(junk->eval_bank);
+      junk->eval_bank = NULL;
       NumTreeFree(junk->eval_freqs);
       junk->eval_freqs = NULL;
    }
@@ -373,6 +376,8 @@ double ConjectureTermTfIdfWeightCompute(void* data, Clause_p clause)
    local = data;
    local->init_fun(data);
 
+   return 1;
+
    ClauseCondMarkMaximalTerms(local->ocb, clause);
    res = ClauseTermExtWeight(clause, local->twe);
    if (local->update_docs) 
@@ -399,7 +404,8 @@ double ConjectureTermTfIdfWeightCompute(void* data, Clause_p clause)
 void ConjectureTermTfIdfWeightExit(void* data)
 {
    TfIdfWeightParam_p junk = data;
-   
+  
+   TermWeightExtensionFree(junk->twe);
    TfIdfWeightParamFree(junk);
 }
 
