@@ -594,6 +594,7 @@ void ConjectureTreeDistanceWeightExit(void* data)
 {
    TreeWeightParam_p junk = data;
    
+   TermWeightExtensionFree(junk->twe);
    TreeWeightParamFree(junk);
 }
 

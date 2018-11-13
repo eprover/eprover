@@ -513,6 +513,7 @@ void ConjectureStrucDistanceWeightExit(void* data)
 {
    StrucWeightParam_p junk = data;
    
+   TermWeightExtensionFree(junk->twe);
    StrucWeightParamFree(junk);
 }
 

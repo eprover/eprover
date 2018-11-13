@@ -502,6 +502,7 @@ void ConjectureLevDistanceWeightExit(void* data)
 {
    LevWeightParam_p junk = data;
    
+   TermWeightExtensionFree(junk->twe);
    LevWeightParamFree(junk);
 }
 
