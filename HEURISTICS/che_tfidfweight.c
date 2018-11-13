@@ -78,7 +78,6 @@ static void tfidf_documents_add_term(
 
    copy = TermCopyNormalizeVars(vars,term,var_norm);
 
-   ClausePrint(GlobalOut, clause, true);fprintf(GlobalOut, "\n");
    pos          = ClausePosCellAlloc();
    pos->clause  = clause;
    pos->literal = lit;
@@ -375,8 +374,6 @@ double ConjectureTermTfIdfWeightCompute(void* data, Clause_p clause)
    
    local = data;
    local->init_fun(data);
-
-   return 1;
 
    ClauseCondMarkMaximalTerms(local->ocb, clause);
    res = ClauseTermExtWeight(clause, local->twe);
