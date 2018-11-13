@@ -20,21 +20,23 @@ In the following we describe the structure of its subdirectories that
 contain different categories of the problems we evaluated our
 artifact on:
 
-ehoh_problems/			
-├── applicative				# applicatively encoded problems
-│   ├── app_sh_32_fo		# FOL Sledgehammer problems using 32 facts
-│   ├── app_sh_32_ho		# LFHOL Sledgehammer problems using 32 facts
-│   ├── app_sh_512_fo		# FOL Sledgehammer problems using 512 facts
-│   ├── app_sh_512_ho		# LFHOL Sledgehammer problems using 512 facts
-│   ├── app_tptp_fo			# TPTP FOL problems
-│   └── app_tptp_ho			# TPTP LFHOL problems
-└── original				# original, unprocessed problems
-    ├── sh_32_fo 			# FOL Sledgehammer problems using 32 facts
-    ├── sh_32_ho 			# LFHOL Sledgehammer problems using 32 facts	
-    ├── sh_512_fo 			# FOL Sledgehammer problems using 512 facts	
-    ├── sh_512_ho 			# LFHOL Sledgehammer problems using 512 facts	
-    ├── tptp_fo 			# TPTP FOL problems
-    └── tptp_ho 			# TPTP LFHOL problems 
+ehoh_problems/      
+├── applicative         # applicatively encoded problems
+│   ├── app_sh_32_fo    # FOL Sledgehammer problems using 32 facts
+│   ├── app_sh_32_ho    # LFHOL Sledgehammer problems using 32 facts
+│   ├── app_sh_512_fo   # FOL Sledgehammer problems using 512 facts
+│   ├── app_sh_512_ho   # LFHOL Sledgehammer problems using 512 facts
+│   ├── app_tptp_fo     # TPTP FOL problems
+│   └── app_tptp_ho     # TPTP LFHOL problems
+└── original            # original, unprocessed problems
+    ├── Axioms          # axiom files for TPTP categories 
+    ├── sh_32_fo        # FOL Sledgehammer problems using 32 facts
+    ├── sh_32_ho        # LFHOL Sledgehammer problems using 32 facts  
+    ├── sh_512_fo       # FOL Sledgehammer problems using 512 facts 
+    ├── sh_512_ho       # LFHOL Sledgehammer problems using 512 facts 
+    ├── tptp_fo         # TPTP FOL problems
+    └── tptp_ho         # TPTP LFHOL problems
+
         
 
 Configurations
@@ -43,12 +45,12 @@ Configurations
 The bin/ folder contains 7 different configurations which we used
 to evaluate E 2.3:
 
-1) a_ho: Auto mode, LFHOL version
-2) a_fo: Auto mode, FOL version
-3) as_ho: Auto-schedule mode, LFHOL version
-4) as_fo: Auto-schedule mode, FOL version
-5) b_ho: Best-of-manual, LFHOL version
-6) b_fo: Best-of-manual, FOL version
+1) a_fo: Auto mode, FOL version
+2) a_ho: Auto mode, LFHOL version
+3) as_fo: Auto-schedule mode, FOL version
+4) as_ho: Auto-schedule mode, LFHOL version
+5) b_fo: Best-of-manual, FOL version
+6) b_ho: Best-of-manual, LFHOL version
 7) hb_ho: Higher-order best-of-manual, LFHOL version
 
 
@@ -72,7 +74,7 @@ An example run is:
 
   "python3 run_configuration.py ./a_ho ./ehoh_problems/original/sh_32_ho 60 sh_32_fo_res.csv"
 
-which will run E 2.3 compiled in higher-order mode, using auto mode on original
-LFHOL Sledgehammer problems generated using 32 Isabelle facts. This result obtained using
-this example corresponds to the intersection of seventh row and fifth column of Table 1
-of our paper.
+which will run E 2.3 compiled in higher-order mode, using auto mode on
+original LFHOL Sledgehammer problems generated using 32 Isabelle facts. The
+result obtained using this example corresponds to the intersection of seventh
+row and fifth column of Table 1 of our paper.

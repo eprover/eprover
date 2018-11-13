@@ -30,7 +30,7 @@ def process_out(out, timeout, probpath, conf, f):
   if status != 'ResourceOut':
     time = REGEX_TIME.findall(out)[0]
   else:
-    time = "TIMEOUT/{0}".format(timeout)
+    time = "{0}".format(timeout)
 
   f.write('"{0}", "{1}", "{2}", "{3}"\n'.format(probpath, conf, status, time))
   return status
