@@ -326,6 +326,7 @@ void TermWeightParamFree(TermWeightParam_p junk)
 {
    if (junk->eval_bank) 
    {
+      junk->eval_bank->sig = NULL;
       TBFree(junk->eval_bank);
       junk->eval_bank = NULL;
       NumTreeFree(junk->eval_freqs);
