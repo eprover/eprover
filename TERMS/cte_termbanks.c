@@ -29,6 +29,7 @@
 #include "cte_termbanks.h"
 #include "cte_typecheck.h"
 #include <cte_typebanks.h>
+#include <ccl_tformulae.h>
 
 
 
@@ -49,6 +50,7 @@ bool TBPrintDetails = false;      /* Collect potentially expensive
 /*                      Forward Declarations                           */
 /*---------------------------------------------------------------------*/
 
+typedef Term_p (*TermParseFun)(Scanner_p in, TB_p bank);
 
 /*---------------------------------------------------------------------*/
 /*                         Internal Functions                          */
@@ -304,6 +306,22 @@ static Term_p tb_subterm_parse(Scanner_p in, TB_p bank)
    return res;
 }
 
+static Term_p choose_subterm_parse_fun(bool check_symb_prop, Type_p type, int arg, Scanner_p in, TB_p bank)
+{
+   Term_p res = NULL;
+   
+   if(type && arg < TypeGetMaxArity(type) && TypeIsBool(type->args[arg]))
+   {
+      res = TFormulaTSTPParse(in, bank);
+   }
+   else
+   {
+      res = check_symb_prop? tb_subterm_parse(in, bank) : TBRawTermParse(in,bank);
+   }
+
+   return res;
+}
+
 
 /*-----------------------------------------------------------------------
 //
@@ -320,10 +338,10 @@ static Term_p tb_subterm_parse(Scanner_p in, TB_p bank)
 /----------------------------------------------------------------------*/
 
 static int tb_term_parse_arglist(Scanner_p in, Term_p** arg_anchor,
-                                 TB_p bank, bool check_symb_prop)
+                                 TB_p bank, bool check_symb_prop, Type_p type)
 {
    Term_p   tmp;
-   PStackPointer i, arity;
+   PStackPointer i=0, arity;
    PStack_p args;
 
    AcceptInpTok(in, OpenBracket);
@@ -335,18 +353,16 @@ static int tb_term_parse_arglist(Scanner_p in, Term_p** arg_anchor,
    }
    args = PStackAlloc();
 
-   tmp = check_symb_prop?
-      tb_subterm_parse(in, bank):
-      TBRawTermParse(in,bank);
+   tmp = choose_subterm_parse_fun(check_symb_prop, type, i, in, bank);
    PStackPushP(args, tmp);
+   i++;
 
    while(TestInpTok(in, Comma))
    {
       NextToken(in);
-      tmp  = check_symb_prop?
-         tb_subterm_parse(in, bank):
-         TBRawTermParse(in,bank);
+      tmp  = choose_subterm_parse_fun(check_symb_prop, type, i, in, bank);
       PStackPushP(args, tmp);
+      i++;
    }
    AcceptInpTok(in, CloseBracket);
    arity = PStackGetSP(args);
@@ -1340,8 +1356,14 @@ Term_p TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop)
                              false);
             }
 
+            // in TFX all symbols must be declared beforehand
+            // thus, if we have a formula at the argument, symbol with name
+            // id already has a type declared with $o in appropriate places
+            FunCode sym_code = SigFindFCode(bank->sig, DStrView(id));
+            Type_p  sym_type = sym_code ? SigGetType(bank->sig, sym_code) : NULL;
+
             handle->arity = tb_term_parse_arglist(in, &(handle->args),
-                                                  bank, check_symb_prop);
+                                                  bank, check_symb_prop, sym_type);
          }
          else
          {

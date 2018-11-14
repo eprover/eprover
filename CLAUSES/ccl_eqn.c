@@ -320,7 +320,8 @@ static bool eqn_parse_infix(Scanner_p in, TB_p bank, Term_p *lref,
 
    /* Shortcut not to check for equality -- 
          !TermIsVar guards calls against negative f_code */
-   if(problemType == PROBLEM_FO && !TermIsVar(lterm) && SigIsPredicate(bank->sig,lterm->f_code) &&
+   if(problemType == PROBLEM_FO && !TermIsVar(lterm) && 
+      SigIsPredicate(bank->sig,lterm->f_code) &&
       SigIsFixedType(bank->sig, lterm->f_code))
    {
       rterm = bank->true_term; /* Non-Equational literal */
@@ -351,7 +352,7 @@ static bool eqn_parse_infix(Scanner_p in, TB_p bank, Term_p *lref,
             TypeDeclareIsNotPredicate(bank->sig, rterm);
          }
       }
-      else if(TestInpTok(in, NegEqualSign|EqualSign))
+      else if(TestInpTok(in, NegEqualSign|EqualSign) && !TypeIsPredicate(lterm->type))
       { /* Now both sides must be terms */
          if(in_parens && TestInpTok(in, CloseBracket))
          {
@@ -372,17 +373,17 @@ static bool eqn_parse_infix(Scanner_p in, TB_p bank, Term_p *lref,
          rterm = TBTermParse(in, bank);
          
          // We have to make those declarations only for FO problems
-         if(!TermIsAppliedVar(lterm) && problemType == PROBLEM_FO)
+         if(!TermIsTopLevelVar(lterm) && problemType == PROBLEM_FO)
          {
             TypeDeclareIsNotPredicate(bank->sig, lterm);
          }
-         if(!TermIsVar(rterm) && !TermIsAppliedVar(rterm) && problemType == PROBLEM_FO)
+         if(!TermIsTopLevelVar(rterm) && !TermIsAppliedVar(rterm) && problemType == PROBLEM_FO)
          {
             TypeDeclareIsNotPredicate(bank->sig, rterm);
          }
       }
       else
-      { /* It's a predicate */
+      {  /* It's a predicate */
          if(problemType == PROBLEM_HO && !TermIsTopLevelVar(lterm) 
             && SigIsFunction(bank->sig, lterm->f_code))
          {

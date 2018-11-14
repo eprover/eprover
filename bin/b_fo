@@ -6,7 +6,7 @@ order=" -tKBO6 -winvfreqrank -c1 -Ginvfreq -F1"
 selection=" -WSelectMaxLComplexAvoidPosPred"
 app="1"
 prio="ConstPrio"
-heuristic=" -H(1.ConjectureRelativeSymbolWeight(SimulateSOS,0.5,100,100,100,100,1.5,1.5,1,$app),4.ConjectureRelativeSymbolWeight($prio,0.1,100,100,100,100,1.5,1.5,1.5,$app),1.FIFOWeight(PreferProcessed),1.ConjectureRelativeSymbolWeight(PreferNonGoals,0.5,100,100,100,100,1.5,1.5,1,$app),4.Refinedweight(SimulateSOS,3,2,2,1.5,2,$app))"
+heuristic=" -H(1.ConjectureRelativeSymbolWeight(SimulateSOS,0.5,100,100,100,100,1.5,1.5,1),4.ConjectureRelativeSymbolWeight($prio,0.1,100,100,100,100,1.5,1.5,1.5),1.FIFOWeight(PreferProcessed),1.ConjectureRelativeSymbolWeight(PreferNonGoals,0.5,100,100,100,100,1.5,1.5,1),4.Refinedweight(SimulateSOS,3,2,2,1.5,2))"
 final="--cpu-limit="$2" "$1
 ecmd="./$DIR/eprover-fo ""$defaultargs $flags $order $selection $heuristic $final"
 

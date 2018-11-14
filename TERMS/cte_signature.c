@@ -1585,17 +1585,9 @@ void SigParseTFFTypeDeclaration(Scanner_p in, Sig_p sig)
    {
       int arity = TypeIsArrow(type) ? type->arity - 1 : 0;
       f = SigInsertId(sig, DStrView(id), arity, false);
-      if(validate_typedecl(type))
-      {
-         SigDeclareType(sig, f, type);
-         SigFixType(sig, f);
-      }
-      else
-      {
-        AktTokenError(in, "LFHOL does not support boolean arguments.", 
-                      SYNTAX_ERROR);
-      }
-      
+
+      SigDeclareType(sig, f, type);
+      SigFixType(sig, f);
    }
    else
    {

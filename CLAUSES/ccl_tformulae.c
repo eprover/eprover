@@ -46,7 +46,7 @@ static TFormula_p literal_tform_tstp_parse(Scanner_p in, TB_p terms);
 //
 // Function: tptp_operator_convert()
 //
-//   R eturn the f_code corresponding to a given token. Rather
+//   Return the f_code corresponding to a given token. Rather
 //   trivial ;-)
 //
 // Global Variables: -
@@ -74,9 +74,13 @@ static FunCode tptp_operator_convert(Sig_p sig, TokenType tok)
          res = sig->bimpl_code;
          break;
    case FOFEquiv:
+   // FOOL treats equality between formulas as <=>
+   case EqualSign:
          res = sig->equiv_code;
          break;
    case FOFXor:
+   // FOOL treats neg. equality between formulas as <~>
+   case NegEqualSign:
          res = sig->xor_code;
          break;
    case FOFNand:
@@ -451,6 +455,7 @@ static TFormula_p literal_tform_tstp_parse(Scanner_p in, TB_p terms)
          // For example you might have ((f @ a) = c => ...)   -- continue parsing is false here
          //                            (f @ a = c => ...)     -- continue parsing is true here
          //                            ((f @ a = c) => ...)   -- continue parsing is false here
+         // In those examples, our code parses the literal, up to =>
 
          if(TestTok(LookToken(in,1), OpenBracket|UnivQuantor|ExistQuantor|TildeSign))
          {

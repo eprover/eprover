@@ -408,6 +408,9 @@ int main(int argc, char* argv[])
                            error_on_empty, free_symb_prop,
                            &parsed_ax_no);
 
+   FormulaSetPrint(stdout, proofstate->f_axioms, true);
+   return -1;
+
    relevancy_pruned += ProofStateSinE(proofstate, sine);
    relevancy_pruned += ProofStatePreprocess(proofstate, relevance_prune_level);
 

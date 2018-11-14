@@ -74,7 +74,16 @@ An example run is:
 
   "python3 run_configuration.py ./a_ho ./ehoh_problems/original/sh_32_ho 60 sh_32_fo_res.csv"
 
+
 which will run E 2.3 compiled in higher-order mode, using auto mode on
 original LFHOL Sledgehammer problems generated using 32 Isabelle facts. The
 result obtained using this example corresponds to the intersection of seventh
 row and fifth column of Table 1 of our paper.
+
+
+Performed evaluation
+--------------------
+
+Evaluation that is reported in our paper has been performed on StarExec servers.
+These servers are equipped with Intel Xeon E5-2609 0 CPUs clocked at
+2.40 GHz. Our experiments were run with the 8192 MB RAM memory limit.
