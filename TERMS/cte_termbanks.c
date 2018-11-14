@@ -528,7 +528,7 @@ static Term_p make_head(Sig_p sig, const char* f_name)
 //
 /----------------------------------------------------------------------*/
 
-static Term_p __inline__  parse_one_ho(Scanner_p in, TB_p bank)
+static Term_p __inline__ parse_one_ho(Scanner_p in, TB_p bank)
 {
    assert(problemType == PROBLEM_HO);
 

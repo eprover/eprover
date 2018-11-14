@@ -24,7 +24,7 @@
 #include "cte_typecheck.h"
 #include "clb_plocalstacks.h"
 #include "cte_termbanks.h"
-
+#include <cte_termpos.h>
 
 /*---------------------------------------------------------------------*/
 /*                        Global Variables                             */
@@ -1548,6 +1548,59 @@ FunCode TermFindMaxVarCode(Term_p term)
       }
    }
    return res;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: TermFindFOOLSubterm()
+//
+//   Returns true if it finds a formula subterm in t. pos is the position
+//   corresponding to this subterm if it is found, empty otherwise.
+//
+// Global Variables:
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+
+bool TermFindFOOLSubterm(Term_p t, TermPos_p pos)
+{
+   int i;
+   PStackPushP(pos, t);
+
+   for(i=0; i<t->arity; i++)
+   {
+      PStackPushInt(pos, i);
+
+      if(TypeIsBool(t->args[i]->type))
+      {
+         if(!(TermIsVar(t->args[i]) || t->args[i]->f_code == SIG_TRUE_CODE 
+              || t->args[i]->f_code == SIG_FALSE_CODE))
+         {
+            break;
+         }
+      }
+      else
+      {
+         if(TermFindFOOLSubterm(t->args[i], pos))
+         {
+            break;
+         }
+      }
+
+      PStackPopInt(pos);
+   }
+
+   if(i==t->arity)
+   {
+      // did not find formula subterm
+      PStackPopP(pos);
+      return false;
+   }
+   else
+   {
+      return true;
+   }
 }
 
 

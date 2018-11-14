@@ -189,6 +189,84 @@ static void check_all_found(Scanner_p in, StrTree_p name_selector)
    PStackFree(err_stack);
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: do_fool_unroll()
+//
+//   Translate FOOL formula features for the formula represented as term.
+//   
+//
+// Global Variables: -
+//
+// Side Effects    : Changes enclosed formula
+//
+/----------------------------------------------------------------------*/
+
+TFormula_p do_fool_unroll(TFormula_p form, TB_p terms)
+{
+   TFormula_p unrolled1 = NULL;
+   TFormula_p unrolled2 = NULL;
+   TermPos_p  pos = PStackAlloc();
+   if(TFormulaIsLiteral(terms->sig, form))
+   {
+      if(TermFindFOOLSubterm(form, pos))
+      {
+         TFormula_p subform = 
+            ((Term_p)PStackBelowTopP(pos))->args[PStackTopInt(pos)];
+         assert(TypeIsBool(subform->type));
+
+         Term_p subform_t = TBTermPosReplace(terms, terms->true_term, pos, 
+                                             DEREF_NEVER, 0, subform);
+         Term_p subform_f = TBTermPosReplace(terms, terms->true_term, pos, 
+                                             DEREF_NEVER, 0, subform);
+
+         TFormula_p neg_subf = TFormulaFCodeAlloc(terms, terms->sig->not_code,
+                                                  subform, NULL);
+
+         TFormula_p fst_impl = TFormulaFCodeAlloc(terms, terms->sig->or_code,
+                                                  neg_subf, subform_t);
+         TFormula_p snd_impl = TFormulaFCodeAlloc(terms, terms->sig->or_code,
+                                                  subform, subform_f);
+
+         form = TFormulaFCodeAlloc(terms, terms->sig->and_code,
+                                   do_fool_unroll(fst_impl, terms), 
+                                   do_fool_unroll(snd_impl, terms));
+      }
+   }
+   else
+   {
+      if(TFormulaIsQuantified(terms->sig, form))
+      {
+         unrolled1 = do_fool_unroll(form->args[1], terms);
+         if(form->args[1] != unrolled1)
+         {
+            form = TFormulaQuantorAlloc(terms, form->f_code, 
+                                        form->args[0], unrolled1);
+         }
+      }
+      else
+      {
+         if(TFormulaHasSubForm1(terms->sig, form))
+         {
+            unrolled1 = do_fool_unroll(form->args[0], terms);
+         }
+         if(TFormulaHasSubForm2(terms->sig, form))
+         {
+            unrolled2 = do_fool_unroll(form->args[1], terms);
+         }
+
+         if((unrolled1 && unrolled1 != form->args[0]) ||
+            (unrolled2 && unrolled2 != form->args[1]))
+         {
+            form = TFormulaFCodeAlloc(terms, form->f_code, unrolled1, unrolled2);   
+         }
+      }
+   }
+
+   PStackFree(pos);
+   return form;
+}
+
 
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
@@ -642,7 +720,7 @@ long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive,
    long old_nodes = TBNonVarTermNodes(terms);
    long gc_threshold = old_nodes*TFORMULA_GC_LIMIT;
 
-   //TFormulaSetUnrollFOOL(set, archive, terms);
+   TFormulaSetUnrollFOOL(set, archive, terms);
 
    //printf("# Introducing definitions\n");
    TFormulaSetIntroduceDefs(set, archive, terms);
@@ -992,14 +1070,63 @@ long TFormulaApplyDefs(WFormula_p form, TB_p terms, NumXTree_p *defs)
    return res;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: TFormulaUnrollFOOL()
+//
+//   Translate FOOL features into FOL. Performs following translations:
+//      - Takes formulas as arguments out of the term, leaving
+//        only $true or $false as the argument of the term
+//      - TODO: Unfolds ite expressions used as terms
+//      - TODO: Unfolds ite expressions used as formulas 
+//
+// Global Variables: -
+//
+// Side Effects    : Changes enclosed formulas and proof objects
+//
+/----------------------------------------------------------------------*/
 
-// long TFormulaSetUnrollFOOL(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
-// {
-//    for(WFormula_p formula = set->anchor->succ; formula!=set->anchor; formula=formula->succ)
-//    {
-//       TFormulaUnroolFOOL(formula, )
-//    }
-// }
+bool TFormulaUnrollFOOL(WFormula_p form, TB_p terms)
+{
+   TFormula_p original = form->tformula;
+   bool       unrolled = false;
+   
+   form->tformula = do_fool_unroll(original, terms);
+   
+   if(form->tformula != original)
+   {
+      WFormulaPushDerivation(form, DCFoolUnrool, NULL, NULL);
+      unrolled = true;
+   }
+
+   return unrolled;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: TFormulaSetUnrollFOOL()
+//
+//   Unrolls FOOL features for the set of formulas.
+//
+// Global Variables: -
+//
+// Side Effects    : Simplifies set, may print simplification steps.
+//
+/----------------------------------------------------------------------*/
+
+long TFormulaSetUnrollFOOL(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
+{
+   long res = 0;
+   for(WFormula_p formula = set->anchor->succ; formula!=set->anchor; formula=formula->succ)
+   {
+      if(TFormulaUnrollFOOL(formula, terms))
+      {
+         res++;
+      }
+   }
+   return res;
+}
 
 
 /*-----------------------------------------------------------------------

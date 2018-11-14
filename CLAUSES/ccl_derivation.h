@@ -132,7 +132,7 @@ typedef enum
    DCSplitEquiv       = DOSplitEquiv|Arg1Fof,
    DCIntroDef         = DOIntroDef,
    DCSplitConjunct    = DOSplitConjunct|Arg1Fof,
-   DCFoolUnrool       = DOFOOLUnroll|Arg1Fof
+   DCFoolUnrool       = DOFOOLUnroll
 }DerivationCode;
 
 
