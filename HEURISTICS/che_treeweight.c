@@ -149,14 +149,13 @@ static void ted_init(TreeWeightParam_p data)
    Clause_p anchor;
    Eqn_p lit;
 
-   if (data->terms) {
+   if (data->terms) 
+   {
       return;
    }
 
-   //SIG = data->ocb->sig;
-
    data->terms = PStackAlloc();
-   data->vars = VarBankAlloc(TypeBankAlloc());
+   data->vars = VarBankAlloc(data->proofstate->signature->type_bank);
    
    // for each axiom ...
    anchor = data->proofstate->axioms->anchor;
@@ -205,7 +204,6 @@ static void ted_init(TreeWeightParam_p data)
       }
    }
 }
-
 
 static void ted_forest_distance(
    long i, 
@@ -425,7 +423,8 @@ void TreeWeightParamFree(TreeWeightParam_p junk)
 
    if (junk->terms) 
    {
-      while (!PStackEmpty(junk->terms)) {
+      while (!PStackEmpty(junk->terms)) 
+      {
          term = PStackPopP(junk->terms);
          TermFree(term);
       }

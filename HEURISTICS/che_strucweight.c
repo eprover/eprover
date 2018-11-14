@@ -152,25 +152,28 @@ static void strc_init(StrucWeightParam_p data)
    Clause_p anchor;
    Eqn_p lit;
 
-   if (data->terms) {
+   if (data->terms) 
+   {
       return;
    }
 
    data->terms = PStackAlloc();
-   data->vars = VarBankAlloc(TypeBankAlloc());
+   data->vars = VarBankAlloc(data->proofstate->signature->type_bank);
    
    // for each axiom ...
    anchor = data->proofstate->axioms->anchor;
    for (clause=anchor->succ; clause!=anchor; clause=clause->succ)
    {
-      if(ClauseQueryTPTPType(clause)!=CPTypeNegConjecture) {
+      if(ClauseQueryTPTPType(clause) != CPTypeNegConjecture) 
+      {
          continue;
       }
 
       // for each literal of a negated conjecture ...
       for (lit=clause->literals; lit; lit=lit->next)
       {
-         switch (data->rel_terms) {
+         switch (data->rel_terms) 
+         {
          case RTSConjectureTerms:
             strc_insert_term(
                data->terms,lit->lterm,data->vars,data->var_norm);
@@ -333,7 +336,8 @@ void StrucWeightParamFree(StrucWeightParam_p junk)
 
    if (junk->terms) 
    {
-      while (!PStackEmpty(junk->terms)) {
+      while (!PStackEmpty(junk->terms)) 
+      {
          term = PStackPopP(junk->terms);
          TermFree(term);
       }

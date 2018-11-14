@@ -170,25 +170,28 @@ static void lev_init(LevWeightParam_p data)
    Clause_p anchor;
    Eqn_p lit;
 
-   if (data->codes) {
+   if (data->codes) 
+   {
       return;
    }
 
    data->codes = PStackAlloc();
-   data->vars = VarBankAlloc(TypeBankAlloc());
+   data->vars = VarBankAlloc(data->proofstate->signature->type_bank);
    
    // for each axiom ...
    anchor = data->proofstate->axioms->anchor;
    for (clause=anchor->succ; clause!=anchor; clause=clause->succ)
    {
-      if(ClauseQueryTPTPType(clause)!=CPTypeNegConjecture) {
+      if(ClauseQueryTPTPType(clause) != CPTypeNegConjecture) 
+      {
          continue;
       }
       
       // for each literal of a negated conjecture ...
       for (lit=clause->literals; lit; lit=lit->next)
       {
-         switch (data->rel_terms) {
+         switch (data->rel_terms) 
+         {
          case RTSConjectureTerms:
             lev_insert_term(
                data->codes,lit->lterm,data->vars,data->var_norm);
@@ -330,7 +333,8 @@ void LevWeightParamFree(LevWeightParam_p junk)
 
    if (junk->codes) 
    {
-      while (!PStackEmpty(junk->codes)) {
+      while (!PStackEmpty(junk->codes)) 
+      {
          code = PStackPopP(junk->codes);
          PStackFree(code);
       }
@@ -476,7 +480,7 @@ double ConjectureLevDistanceWeightCompute(void* data, Clause_p clause)
 {
    double res;
    LevWeightParam_p local;
-   
+
    local = data;
    local->init_fun(data);
 

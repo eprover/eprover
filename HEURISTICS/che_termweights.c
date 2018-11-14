@@ -50,7 +50,7 @@ static PStack_p get_subterm_generalizing_vars(
    }
 
    gen_vars = entry->val1.p_val;
-   fresh_var = VarBankVarAssertAlloc(vars, *fresh_var_code, term->type);
+   fresh_var = VarBankVarAssertAlloc(vars, *fresh_var_code, vars->sort_table->i_type);
    (*fresh_var_code) -= 2;
    PStackPushP(gen_vars, fresh_var);
 
@@ -80,11 +80,13 @@ static PStack_p compute_subterms_generalizations(
       term,vars,term_vars,fresh_var_code);
    PStackPushStack(gens, gen_vars);
 
-   if (TermIsVar(term)) {
+   if (TermIsVar(term)) 
+   {
       return gens;
    }
  
-   if (TermIsConst(term)) {
+   if (TermIsConst(term)) 
+   {
       copy = TermTopAlloc(term->f_code,0);
       PStackPushP(gens,copy);
       PStackPushP(all,copy);
@@ -111,7 +113,8 @@ static PStack_p compute_subterms_generalizations(
    int iter_counter = 0;
    for (is_max=TupleInit(cur); is_max; is_max=TupleNext(cur,max)) 
    {
-      if (iter_counter > TERM_MAX_GENS) {
+      if (iter_counter > TERM_MAX_GENS) 
+      {
          break;
       }
       copy = TermTopAlloc(term->f_code,term->arity);
@@ -242,17 +245,17 @@ PStack_p ComputeTopGeneralizations(Term_p term, VarBank_p vars, Sig_p sig)
       topgen = TermTopAlloc(code, sig->f_info[code].arity);
       for (i=0; i<sig->f_info[code].arity; i++)
       {
-         // we need the type of individuals as the argument type
-         //   (term might be a predicate but args[0] is ind.)
-         //   (since `code` occurs hence len(term->args) > 0)
-         topgen->args[i] = VarBankVarAssertAlloc(vars, -2*(i+1), term->args[0]->type); 
-         //topgen->args[i] = VarBankVarAssertAlloc(vars, -2*(i+1), STIndividuals);
+         topgen->args[i] = VarBankVarAssertAlloc(vars, -2*(i+1), vars->sort_table->i_type); 
       }
-      if (SigIsPredicate(sig,code)) {
-         TermCellSetProp(topgen,TPPredPos);
+      if (SigIsPredicate(sig,code)) 
+      {
+         TermCellSetProp(topgen, TPPredPos);
+         topgen->type = vars->sort_table->bool_type;
       }
-
-      topgen->type = term->type;
+      else
+      {
+         topgen->type = vars->sort_table->i_type;
+      }
       PStackPushP(topgens, topgen);
    }
 

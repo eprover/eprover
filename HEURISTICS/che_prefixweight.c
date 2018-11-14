@@ -154,20 +154,22 @@ static void prfx_init(PrefixWeightParam_p data)
    }
 
    data->terms = PDTreeAlloc(data->proofstate->terms);
-   data->vars = VarBankAlloc(TypeBankAlloc()); 
+   data->vars = VarBankAlloc(data->proofstate->signature->type_bank);
 
    // for each axiom ...
    anchor = data->proofstate->axioms->anchor;
    for (clause=anchor->succ; clause!=anchor; clause=clause->succ)
    {
-      if(ClauseQueryTPTPType(clause)!=CPTypeNegConjecture) {
+      if(ClauseQueryTPTPType(clause) != CPTypeNegConjecture) 
+      {
          continue;
       }
 
       // for each literal of a negated conjecture ...
       for (lit=clause->literals; lit; lit=lit->next)
       {
-         switch (data->rel_terms) {
+         switch (data->rel_terms) 
+         {
          case RTSConjectureTerms:
             prfx_insert_term(data->terms,lit->lterm,
                data->vars,data->var_norm);
@@ -258,6 +260,16 @@ PrefixWeightParam_p PrefixWeightParamAlloc(void)
 
 void PrefixWeightParamFree(PrefixWeightParam_p junk)
 {
+   if (junk->terms)
+   {
+      PDTreeFree(junk->terms);
+      junk->terms = NULL;
+   }
+   if (junk->vars) 
+   {
+      VarBankFree(junk->vars);
+      junk->vars = NULL;
+   }
    PrefixWeightParamCellFree(junk);
 }
  
@@ -387,7 +399,7 @@ double ConjectureTermPrefixWeightCompute(void* data, Clause_p clause)
 {
    double res;
    PrefixWeightParam_p local;
-   
+
    local = data;
    local->init_fun(data);
 

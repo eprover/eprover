@@ -2301,8 +2301,7 @@ Term_p TermCopyUnifyVars(VarBank_p vars, Term_p term)
 
     if (TermIsVar(term))
     {
-        //return VarBankVarAssertAlloc(vars, -2, STIndividuals);
-        return VarBankVarAssertAlloc(vars, -2, term->type);
+        return VarBankVarAssertAlloc(vars, -2, vars->sort_table->i_type);
     }
 
     Term_p new = TermTopCopy(term);
