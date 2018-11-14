@@ -33,6 +33,12 @@ Changes
 #include <che_fifo.h>
 #include <che_lifo.h>
 #include <che_learning.h>
+#include <che_termweight.h>
+#include <che_tfidfweight.h>
+#include <che_levweight.h>
+#include <che_treeweight.h>
+#include <che_prefixweight.h>
+#include <che_strucweight.h>
 
 
 /*---------------------------------------------------------------------*/

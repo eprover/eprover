@@ -138,6 +138,7 @@ typedef struct termcell
    struct termcell* lson;          /* For storing shared term nodes in */
    struct termcell* rson;          /* a splay tree - see
                                       cte_termcellstore.[ch] */
+
 #ifdef ENABLE_LFHO
    struct termcell* binding_cache; /* For caching the term applied variable
                                       expands to. */
