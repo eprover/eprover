@@ -78,7 +78,8 @@ typedef enum
    /* CNF conversion and similar */
    DOSplitEquiv,
    DOIntroDef,
-   DOSplitConjunct
+   DOSplitConjunct,
+   DOFOOLUnroll
 }OpCode;
 
 
@@ -130,7 +131,8 @@ typedef enum
    /* CNF conversion and similar */
    DCSplitEquiv       = DOSplitEquiv|Arg1Fof,
    DCIntroDef         = DOIntroDef,
-   DCSplitConjunct    = DOSplitConjunct|Arg1Fof
+   DCSplitConjunct    = DOSplitConjunct|Arg1Fof,
+   DCFoolUnrool       = DOFOOLUnroll|Arg1Fof
 }DerivationCode;
 
 

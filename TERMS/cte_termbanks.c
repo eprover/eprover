@@ -306,22 +306,62 @@ static Term_p tb_subterm_parse(Scanner_p in, TB_p bank)
    return res;
 }
 
-static Term_p choose_subterm_parse_fun(bool check_symb_prop, Type_p type, int arg, Scanner_p in, TB_p bank)
+/*-----------------------------------------------------------------------
+//
+// Function: choose_subterm_parse_fun()
+//
+//   If the argument to be parsed should be of boolean type, parse 
+//   the argument as a formula. Otherwise, parse it as before.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static Term_p choose_subterm_parse_fun(bool check_symb_prop, 
+                                              Type_p type, int arg,
+                                              Scanner_p in, TB_p bank)
 {
    Term_p res = NULL;
    
    if(type && arg < TypeGetMaxArity(type) && TypeIsBool(type->args[arg]))
    {
-      res = TFormulaTSTPParse(in, bank);
+      res = TFormulaTSTPParse(in,bank);
    }
    else
    {
-      res = check_symb_prop? tb_subterm_parse(in, bank) : TBRawTermParse(in,bank);
+      res = check_symb_prop ? tb_subterm_parse(in, bank) : TBTermParse(in, bank);
    }
 
    return res;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: normalize_boolean_variables()
+//
+//   If term_ref points to an equation of type X=true that appears
+//   under context, replace this equation by X.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static void normalize_boolean_variables(Term_p* term_ref, Sig_p sig)
+{
+   assert(term_ref && *term_ref);
+   Term_p term = *term_ref;
+   if(term->f_code == sig->eqn_code)
+   {
+      if(TermIsVar(term->args[0]) && term->args[1]->f_code == SIG_TRUE_CODE)
+      {
+         *term_ref = term->args[0]; // garbage collection will deal with parent
+      }
+   }
+}
 
 /*-----------------------------------------------------------------------
 //
@@ -354,6 +394,7 @@ static int tb_term_parse_arglist(Scanner_p in, Term_p** arg_anchor,
    args = PStackAlloc();
 
    tmp = choose_subterm_parse_fun(check_symb_prop, type, i, in, bank);
+   normalize_boolean_variables(&tmp, bank->sig);
    PStackPushP(args, tmp);
    i++;
 
@@ -361,6 +402,7 @@ static int tb_term_parse_arglist(Scanner_p in, Term_p** arg_anchor,
    {
       NextToken(in);
       tmp  = choose_subterm_parse_fun(check_symb_prop, type, i, in, bank);
+      normalize_boolean_variables(&tmp, bank->sig);
       PStackPushP(args, tmp);
       i++;
    }

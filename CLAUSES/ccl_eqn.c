@@ -608,7 +608,7 @@ Eqn_p EqnAlloc(Term_p lterm, Term_p rterm, TB_p bank,  bool positive)
                SigPrint(stdout,bank->sig);
                fflush(stdout); */
 #ifndef ENABLE_LFHO
-      assert(!TermIsVar(lterm));
+      //assert(!TermIsVar(lterm));
 #endif
       if(!TermIsVar(lterm) && !TermIsAppliedVar(lterm))
       {

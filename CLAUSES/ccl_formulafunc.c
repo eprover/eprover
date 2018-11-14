@@ -642,6 +642,8 @@ long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive,
    long old_nodes = TBNonVarTermNodes(terms);
    long gc_threshold = old_nodes*TFORMULA_GC_LIMIT;
 
+   //TFormulaSetUnrollFOOL(set, archive, terms);
+
    //printf("# Introducing definitions\n");
    TFormulaSetIntroduceDefs(set, archive, terms);
    //printf("# Definitions introduced\n");
@@ -989,6 +991,15 @@ long TFormulaApplyDefs(WFormula_p form, TB_p terms, NumXTree_p *defs)
    PStackFree(defs_used);
    return res;
 }
+
+
+// long TFormulaSetUnrollFOOL(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
+// {
+//    for(WFormula_p formula = set->anchor->succ; formula!=set->anchor; formula=formula->succ)
+//    {
+//       TFormulaUnroolFOOL(formula, )
+//    }
+// }
 
 
 /*-----------------------------------------------------------------------
