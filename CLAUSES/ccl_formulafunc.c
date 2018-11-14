@@ -229,7 +229,7 @@ TFormula_p do_fool_unroll(TFormula_p form, TB_p terms)
 
          Term_p subform_t = TBTermPosReplace(terms, terms->true_term, pos, 
                                              DEREF_NEVER, 0, subform);
-         Term_p subform_f = TBTermPosReplace(terms, terms->true_term, pos, 
+         Term_p subform_f = TBTermPosReplace(terms, terms->false_term, pos, 
                                              DEREF_NEVER, 0, subform);
 
          TFormula_p neg_subf = TFormulaFCodeAlloc(terms, terms->sig->not_code,
@@ -733,6 +733,9 @@ long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive,
    long gc_threshold = old_nodes*TFORMULA_GC_LIMIT;
 
    TFormulaSetUnrollFOOL(set, archive, terms);
+
+   FormulaSetPrint(stdout, set, true);
+   Error("Done", SYS_ERROR);
 
    //printf("# Introducing definitions\n");
    TFormulaSetIntroduceDefs(set, archive, terms);
