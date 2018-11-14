@@ -1588,13 +1588,13 @@ bool TermFindFOOLSubterm(Term_p t, TermPos_p pos)
          }
       }
 
-      PStackPopInt(pos);
+      PStackDiscardTop(pos);
    }
 
    if(i==t->arity)
    {
       // did not find formula subterm
-      PStackPopP(pos);
+      PStackDiscardTop(pos);
       return false;
    }
    else

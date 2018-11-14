@@ -209,7 +209,19 @@ TFormula_p do_fool_unroll(TFormula_p form, TB_p terms)
    TermPos_p  pos = PStackAlloc();
    if(TFormulaIsLiteral(terms->sig, form))
    {
-      if(TermFindFOOLSubterm(form, pos))
+      PStackPushP(pos, form);
+      PStackPushInt(pos, 0);
+      if(!TermFindFOOLSubterm(form->args[0], pos))
+      {
+         PStackDiscardTop(pos);
+         PStackPushInt(pos, 1);
+         if(!TermFindFOOLSubterm(form->args[1], pos))
+         {
+            PStackReset(pos);
+         }
+      }
+
+      if(!PStackEmpty(pos))
       {
          TFormula_p subform = 
             ((Term_p)PStackBelowTopP(pos))->args[PStackTopInt(pos)];
@@ -221,16 +233,16 @@ TFormula_p do_fool_unroll(TFormula_p form, TB_p terms)
                                              DEREF_NEVER, 0, subform);
 
          TFormula_p neg_subf = TFormulaFCodeAlloc(terms, terms->sig->not_code,
-                                                  subform, NULL);
+                                                   subform, NULL);
 
          TFormula_p fst_impl = TFormulaFCodeAlloc(terms, terms->sig->or_code,
-                                                  neg_subf, subform_t);
+                                                   neg_subf, subform_t);
          TFormula_p snd_impl = TFormulaFCodeAlloc(terms, terms->sig->or_code,
-                                                  subform, subform_f);
+                                                   subform, subform_f);
 
          form = TFormulaFCodeAlloc(terms, terms->sig->and_code,
-                                   do_fool_unroll(fst_impl, terms), 
-                                   do_fool_unroll(snd_impl, terms));
+                                    do_fool_unroll(fst_impl, terms), 
+                                    do_fool_unroll(snd_impl, terms));
       }
    }
    else
