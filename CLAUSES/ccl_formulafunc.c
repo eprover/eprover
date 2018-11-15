@@ -735,9 +735,6 @@ long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive,
 
    TFormulaSetUnrollFOOL(set, archive, terms);
 
-   FormulaSetPrint(stdout, set, true);
-   Error("Done", SYS_ERROR);
-
    //printf("# Introducing definitions\n");
    TFormulaSetIntroduceDefs(set, archive, terms);
    //printf("# Definitions introduced\n");

@@ -612,6 +612,7 @@ bool ClauseEliminateNakedBooleanVariables(Clause_p clause)
    const Term_p true_term  = clause->literals->bank->true_term;
    const Term_p false_term = clause->literals->bank->false_term;
    Eqn_p    res            = NULL;
+   Subst_p  subst          = SubstAlloc();
 
    while(!PStackEmpty(all_lits))
    {
@@ -635,7 +636,10 @@ bool ClauseEliminateNakedBooleanVariables(Clause_p clause)
             }
             else
             {
-               var->binding = false_term;
+               if(!var->binding)
+               {
+                  SubstAddBinding(subst, var, false_term);
+               }
                EqnDelProp(lit, EPIsPositive);
                lit->lterm = true_term; // now lit becomes false and will be deleted 
                eliminated_var = true;
@@ -653,7 +657,10 @@ bool ClauseEliminateNakedBooleanVariables(Clause_p clause)
             }
             else
             {
-               var->binding = true_term;
+               if(!var->binding)
+               {
+                  SubstAddBinding(subst, var, true_term);
+               }
                lit->lterm = true_term;
                eliminated_var = true;
             }
@@ -670,6 +677,7 @@ bool ClauseEliminateNakedBooleanVariables(Clause_p clause)
    }
 
    PStackFree(all_lits);
+   SubstDelete(subst);
    return eliminated_var;
 }
 

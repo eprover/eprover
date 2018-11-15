@@ -35,7 +35,7 @@ include ../Makefile.services
 
 # Build the test programs
 
-TERM2DAG = term2dag.o ../lib/TERMS.a ../lib/INOUT.a ../lib/BASICS.a
+TERM2DAG = term2dag.o ../lib/CLAUSES.a ../lib/TERMS.a  ../lib/ORDERINGS.a ../lib/INOUT.a ../lib/BASICS.a
 
 term2dag: $(TERM2DAG)
 	$(LD) -o term2dag $(TERM2DAG) $(LIBS)
