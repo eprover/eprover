@@ -561,7 +561,6 @@ Type_p TypeBankParseType(Scanner_p in, TypeBank_p bank)
       // parentheses in [] are optional
 
       int open_parens = 0;
-      fprintf(stderr, "%d\n", open_parens);
       for(; open_parens<2 && TestInpTok(in, OpenBracket); open_parens++)
       {
          AcceptInpTok(in, OpenBracket);
