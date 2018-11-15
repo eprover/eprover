@@ -874,6 +874,7 @@ void TFormulaTPTPPrint(FILE* out, TB_p bank, TFormula_p form, bool fullterms, bo
    {
       char* oprep = "XXX";
 
+      assert(form->arity);
       assert(TFormulaIsBinary(form));
       fputs("(", out);
       if(form->f_code == bank->sig->or_code)
@@ -1648,9 +1649,9 @@ Clause_p TFormulaCollectClause(TFormula_p form, TB_p terms,
    PStack_p stack, lit_stack = PStackAlloc();
    PStackPointer i;
 
-   /*printf("tformula_collect_clause(): ");
-     TFormulaTPTPPrint(GlobalOut, terms, form, true);
-     printf("\n"); */
+   printf("tformula_collect_clause(): ");
+     TFormulaTPTPPrint(GlobalOut, terms, form, true, false);
+     printf("\n");
 
    stack = PStackAlloc();
    PStackPushP(stack, form);

@@ -1034,6 +1034,8 @@ void TFormulaSetFindDefs(FormulaSet_p set, TB_p terms, NumXTree_p *defs,
 
       if(handle->tformula && FormulaDefLimit)
       {
+         TFormulaTPTPPrint(stderr, terms, handle->tformula, true, false);
+         fprintf(stderr, "\n");
          TFormulaFindDefs(terms, handle->tformula, 1,
                           FormulaDefLimit, defs,  renamed_forms);
       }
