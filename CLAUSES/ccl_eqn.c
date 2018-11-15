@@ -461,7 +461,6 @@ static bool eqn_parse_prefix(Scanner_p in, TB_p bank, Term_p *lref,
       }
       SigDeclareIsPredicate(bank->sig, lterm->f_code);
    }
-   /* FIXME (@ Stephan:) Do we need to set IsNotPredicate here? */
    *lref = lterm;
    *rref = rterm;
 
@@ -803,7 +802,6 @@ Eqn_p EqnHOFParse(Scanner_p in, TB_p bank, bool* continue_parsing)
 
    return EqnAlloc(lterm, rterm, bank, positive);
 }
-
 
 /*-----------------------------------------------------------------------
 //

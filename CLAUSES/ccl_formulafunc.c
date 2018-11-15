@@ -23,6 +23,7 @@ Changes
 -----------------------------------------------------------------------*/
 
 #include "ccl_formulafunc.h"
+#include "ccl_clausefunc.h"
 
 
 
@@ -969,6 +970,12 @@ long TFormulaToCNF(WFormula_p form, FormulaProperties type, ClauseSet_p set,
          ClauseSetTPTPType(clause, type);
          DocClauseFromForm(GlobalOut, OutputLevel, clause, form);
          ClausePushDerivation(clause, DCSplitConjunct, form, NULL);
+
+         if(ClauseEliminateNakedBooleanVariables(clause))
+         {
+            ClausePushDerivation(clause, DCEliminateBVar, NULL, NULL);
+         }
+
          ClauseSetInsert(set, clause);
       }
    }

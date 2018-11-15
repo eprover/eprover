@@ -22,6 +22,7 @@ Changes
 -----------------------------------------------------------------------*/
 
 #include "ccl_tcnf.h"
+#include "ccl_formulafunc.h"
 
 
 
@@ -1904,6 +1905,11 @@ void WTFormulaConjunctiveNF2(WFormula_p form, TB_p terms,
       DocFormulaModificationDefault(form, inf_skolemize_out);
       WFormulaPushDerivation(form, DCSkolemize, NULL, NULL);
    }
+
+   // Skolemization might have introduced Skolem predicates, which
+   // we have to unroll again  -- unrolling keeps things in NNF
+   TFormulaUnrollFOOL(form,terms); // handles proof object internally
+
    handle = TFormulaShiftQuantors(terms, form->tformula);
    if(handle!=form->tformula)
    {

@@ -586,6 +586,92 @@ void PStackClausePrint(FILE* out, PStack_p stack, char* extra)
    }
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseEliminateNakedBooleanVariables()
+//
+//   If the clause containts boolean variables X and ~X, convert the
+//   clause to {$true}. If the clause C contains only X replace the
+//   clause with C[X |-> $false]. If the clause C contains only ~X replace
+//   C with C[X |-> $true].
+//
+// Global Variables: -
+//
+// Side Effects    : literals field may be changed
+//
+/----------------------------------------------------------------------*/
+
+bool ClauseEliminateNakedBooleanVariables(Clause_p clause)
+{
+   assert(!ClauseIsEmpty(clause));
+
+   PStack_p all_lits       = ClauseToStack(clause);
+   Eqn_p    lit            = NULL;
+   Term_p   var            = NULL;
+   bool     eliminated_var = false;
+   const Term_p true_term  = clause->literals->bank->true_term;
+   const Term_p false_term = clause->literals->bank->false_term;
+   Eqn_p    res            = NULL;
+
+   while(!PStackEmpty(all_lits))
+   {
+      lit = PStackPopP(all_lits);
+
+      if(EqnIsBoolVar(lit))
+      {
+         assert(TermIsVar(lit->lterm));
+         var = lit->lterm;
+
+         if(EqnIsPositive(lit))
+         {
+            if(var->binding && var->binding == true_term)
+            {
+               // there was a negative equation previously that bound
+               // this variable -- which means we have X and ~X.
+               EqnListFree(clause->literals);
+               clause->literals = EqnCreateTrueLit(clause->literals->bank);
+               assert(eliminated_var);
+               break;
+            }
+            else
+            {
+               var->binding = false_term;
+               EqnDelProp(lit, EPIsPositive);
+               lit->lterm = true_term; // now lit becomes false and will be deleted 
+               eliminated_var = true;
+            }
+         }
+         else
+         {
+            if(var->binding && var->binding == false_term)
+            {
+               // analogous to the previous case
+               EqnListFree(clause->literals);
+               clause->literals = EqnCreateTrueLit(clause->literals->bank);
+               assert(eliminated_var);
+               break;
+            }
+            else
+            {
+               var->binding = true_term;
+               lit->lterm = true_term;
+               eliminated_var = true;
+            }
+         }
+      }
+   }
+
+   if(eliminated_var)
+   {
+      EqnListRemoveResolved(&clause->literals);
+      res = EqnListCopyOpt(clause->literals);
+      EqnListFree(clause->literals);
+      clause->literals = res;
+   }
+
+   PStackFree(all_lits);
+   return eliminated_var;
+}
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
