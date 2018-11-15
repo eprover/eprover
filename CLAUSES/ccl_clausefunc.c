@@ -609,10 +609,15 @@ bool ClauseEliminateNakedBooleanVariables(Clause_p clause)
    Eqn_p    lit            = NULL;
    Term_p   var            = NULL;
    bool     eliminated_var = false;
-   const Term_p true_term  = clause->literals->bank->true_term;
-   const Term_p false_term = clause->literals->bank->false_term;
+   const TB_p   bank       = clause->literals->bank;
+   const Term_p true_term  = bank->true_term;
+   const Term_p false_term = bank->false_term;
    Eqn_p    res            = NULL;
    Subst_p  subst          = SubstAlloc();
+
+   /*fprintf(stderr, "# before: ");
+   ClausePrint(stderr, clause, true);
+   fprintf(stderr, "\n");*/
 
    while(!PStackEmpty(all_lits))
    {
@@ -630,7 +635,7 @@ bool ClauseEliminateNakedBooleanVariables(Clause_p clause)
                // there was a negative equation previously that bound
                // this variable -- which means we have X and ~X.
                EqnListFree(clause->literals);
-               clause->literals = EqnCreateTrueLit(clause->literals->bank);
+               clause->literals = EqnCreateTrueLit(bank);
                assert(eliminated_var);
                break;
             }
@@ -651,7 +656,7 @@ bool ClauseEliminateNakedBooleanVariables(Clause_p clause)
             {
                // analogous to the previous case
                EqnListFree(clause->literals);
-               clause->literals = EqnCreateTrueLit(clause->literals->bank);
+               clause->literals = EqnCreateTrueLit(bank);
                assert(eliminated_var);
                break;
             }
@@ -670,11 +675,15 @@ bool ClauseEliminateNakedBooleanVariables(Clause_p clause)
 
    if(eliminated_var)
    {
-      EqnListRemoveResolved(&clause->literals);
       res = EqnListCopyOpt(clause->literals);
       EqnListFree(clause->literals);
       clause->literals = res;
+      ClauseRemoveSuperfluousLiterals(clause);
    }
+
+   /*fprintf(stderr, "# after: ");
+   ClausePrint(stderr, clause, true);
+   fprintf(stderr, "\n");*/
 
    PStackFree(all_lits);
    SubstDelete(subst);
