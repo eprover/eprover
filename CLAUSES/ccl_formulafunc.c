@@ -228,13 +228,18 @@ TFormula_p do_fool_unroll(TFormula_p form, TB_p terms)
             ((Term_p)PStackBelowTopP(pos))->args[PStackTopInt(pos)];
          assert(TypeIsBool(subform->type));
 
+         if(subform->f_code > terms->sig->internal_symbols)
+         {
+            assert(PStackGetSP(pos) == 4); // this is a Skolem symbol
+            subform = EqnTermsTBTermEncode(terms, subform, terms->true_term, true, PENormal);
+         }
+
          Term_p subform_t = TBTermPosReplace(terms, terms->true_term, pos, 
                                              DEREF_NEVER, 0, subform);
          Term_p subform_f = TBTermPosReplace(terms, terms->false_term, pos, 
                                              DEREF_NEVER, 0, subform);
 
-         TFormula_p neg_subf = TFormulaFCodeAlloc(terms, terms->sig->not_code,
-                                                   subform, NULL);
+         TFormula_p neg_subf = TFormulaNegate(subform, terms);
 
          TFormula_p fst_impl = TFormulaFCodeAlloc(terms, terms->sig->or_code,
                                                    neg_subf, subform_t);
@@ -1034,8 +1039,6 @@ void TFormulaSetFindDefs(FormulaSet_p set, TB_p terms, NumXTree_p *defs,
 
       if(handle->tformula && FormulaDefLimit)
       {
-         TFormulaTPTPPrint(stderr, terms, handle->tformula, true, false);
-         fprintf(stderr, "\n");
          TFormulaFindDefs(terms, handle->tformula, 1,
                           FormulaDefLimit, defs,  renamed_forms);
       }

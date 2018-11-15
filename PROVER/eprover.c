@@ -467,9 +467,6 @@ int main(int argc, char* argv[])
                                proofstate->gc_terms);
    }
 
-   fprintf(stderr, "# CNF done!\n");
-
-
    if(cnf_size)
    {
       VERBOUT("CNFization done\n");

@@ -1689,6 +1689,11 @@ TFormula_p TFormulaDistributeDisjunctions(TB_p terms, TFormula_p form)
 {
    TFormula_p handle, narg1=NULL, narg2=NULL;
    bool change = false;
+   // formula is in NNF
+   assert((TFormulaIsQuantified(terms->sig, form) ||
+      form->f_code == terms->sig->or_code ||
+      form->f_code == terms->sig->and_code ||
+      TFormulaIsLiteral(terms->sig, form)));
 
    if(TFormulaHasSubForm1(terms->sig, form))
    {
@@ -1856,6 +1861,7 @@ void WTFormulaConjunctiveNF2(WFormula_p form, TB_p terms,
    }
    //printf("# NNFed\n");
 
+
    TFormulaFindMaxVarCode(form->tformula);
    VarBankSetVCountsToUsed(terms->vars);
    handle = TFormulaVarRename(terms, form->tformula);
@@ -1906,9 +1912,6 @@ void WTFormulaConjunctiveNF2(WFormula_p form, TB_p terms,
       WFormulaPushDerivation(form, DCSkolemize, NULL, NULL);
    }
 
-   // Skolemization might have introduced Skolem predicates, which
-   // we have to unroll again  -- unrolling keeps things in NNF
-   TFormulaUnrollFOOL(form,terms); // handles proof object internally
 
    handle = TFormulaShiftQuantors(terms, form->tformula);
    if(handle!=form->tformula)
@@ -1918,7 +1921,12 @@ void WTFormulaConjunctiveNF2(WFormula_p form, TB_p terms,
       WFormulaPushDerivation(form, DCShiftQuantors, NULL, NULL);
    }
 
+   // Skolemization might have introduced Skolem predicates, which
+   // we have to unroll again  -- unrolling keeps things in NNF
+   TFormulaUnrollFOOL(form,terms); // handles proof object internally
+
    handle = TFormulaDistributeDisjunctions(terms, form->tformula);
+
 
    if(handle!=form->tformula)
    {

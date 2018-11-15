@@ -615,10 +615,6 @@ bool ClauseEliminateNakedBooleanVariables(Clause_p clause)
    Eqn_p    res            = NULL;
    Subst_p  subst          = SubstAlloc();
 
-   /*fprintf(stderr, "# before: ");
-   ClausePrint(stderr, clause, true);
-   fprintf(stderr, "\n");*/
-
    while(!PStackEmpty(all_lits))
    {
       lit = PStackPopP(all_lits);
@@ -680,10 +676,6 @@ bool ClauseEliminateNakedBooleanVariables(Clause_p clause)
       clause->literals = res;
       ClauseRemoveSuperfluousLiterals(clause);
    }
-
-   /*fprintf(stderr, "# after: ");
-   ClausePrint(stderr, clause, true);
-   fprintf(stderr, "\n");*/
 
    PStackFree(all_lits);
    SubstDelete(subst);

@@ -1649,9 +1649,9 @@ Clause_p TFormulaCollectClause(TFormula_p form, TB_p terms,
    PStack_p stack, lit_stack = PStackAlloc();
    PStackPointer i;
 
-   printf("tformula_collect_clause(): ");
+   /*printf("tformula_collect_clause(): ");
      TFormulaTPTPPrint(GlobalOut, terms, form, true, false);
-     printf("\n");
+     printf("\n");*/
 
    stack = PStackAlloc();
    PStackPushP(stack, form);
@@ -1715,6 +1715,38 @@ Clause_p TFormulaCollectClause(TFormula_p form, TB_p terms,
 bool TFormulaIsUntyped(TFormula_p form)
 {
    return TermIsUntyped(form);
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: TFormulaNegate
+//
+//   If formula is literal, it negates the $(n)eq symbol. Otherwise,
+//   if formula is \alpha, it returns \neg alpha
+//
+// Global Variables: -
+//
+// Side Effects    : memory operations
+//
+/----------------------------------------------------------------------*/
+
+TFormula_p TFormulaNegate(TFormula_p form, TB_p terms)
+{
+   TFormula_p res = NULL;
+   if(TFormulaIsLiteral(terms->sig, form))
+   {
+      FunCode f_code = SigGetOtherEqnCode(terms->sig, form->f_code);
+      res = TFormulaFCodeAlloc(terms, f_code,
+                               form->args[0],
+                               form->args[1]);
+   }
+   else
+   {
+      res = TFormulaFCodeAlloc(terms, terms->sig->not_code,
+                               form, NULL);
+   }
+
+   return res;
 }
 
 
