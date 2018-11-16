@@ -1295,8 +1295,6 @@ long TFormulaSetIntroduceDefs(FormulaSet_p set, FormulaSet_p archive, TB_p terms
       newdef = TFormulaCreateDef(terms, def, form,
                                  0);
       w_def = WTFormulaAlloc(terms, newdef);
-      WFormulaPrint(stderr, w_def, true);
-      fprintf(stderr, "\n");
       DocFormulaCreationDefault(w_def, inf_fof_intro_def, NULL, NULL);
       cell->vals[0].i_val = w_def->ident; /* Replace polarity with
                                         * definition id */
