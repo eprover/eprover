@@ -559,7 +559,7 @@ static void pdtree_forward(PDTree_p tree, Subst_p subst)
           assert(next->variable);
           bool bound = false;
           if((!next->variable->binding)&&
-              (problemType == PROBLEM_HO || SigSymbolUnifesWithVar(tree->bank, term->f_code))&&
+              (problemType == PROBLEM_HO || SigSymbolUnifesWithVar(tree->bank->sig, term->f_code))&&
               (problemType == PROBLEM_HO || next->variable->type == term->type))
           {
              if(problemType == PROBLEM_FO)
