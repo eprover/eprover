@@ -286,6 +286,76 @@ TFormula_p do_fool_unroll(TFormula_p form, TB_p terms)
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: do_bool_eqn_replace ()
+//
+//   Translate FOOL formula features for the formula represented as term.
+//   
+//
+// Global Variables: -
+//
+// Side Effects    : Changes enclosed formula
+//
+/----------------------------------------------------------------------*/
+
+TFormula_p do_bool_eqn_replace(TFormula_p form, TB_p terms)
+{
+   TFormula_p arg1  = NULL;
+   TFormula_p arg2  = NULL;
+   bool arg_changed = false;
+   if(TFormulaIsLiteral(terms->sig, form))
+   {
+      arg1 = form->args[0];
+      arg2 = form->args[1];
+      if(TypeIsBool(arg1->type) && arg2->f_code != SIG_TRUE_CODE)
+      {
+         // in E, DAS predicate literal is encoded as $(n)eq(P,TRUE).
+         // if it is of some other form, we have to change it to 
+         // $equiv(F, Q).
+         assert(TypeIsBool(arg2->type));
+         form = TFormulaFCodeAlloc(terms,
+                                   arg1->f_code == terms->sig->eqn_code ? 
+                                     terms->sig->equiv_code : terms->sig->xor_code,
+                                   do_bool_eqn_replace(arg1, terms), 
+                                   do_bool_eqn_replace(arg2, terms));
+      }
+   }
+   else
+   {
+      if(TFormulaIsQuantified(terms->sig, form))
+      {
+         arg2 = do_bool_eqn_replace(form->args[1], terms);
+         if(form->args[1] != arg2)
+         {
+            form = TFormulaQuantorAlloc(terms, form->f_code, 
+                                        form->args[0], arg2);
+         }
+      }
+      else
+      {
+         if(TFormulaHasSubForm1(terms->sig, form))
+         {
+            arg1 = do_bool_eqn_replace(form->args[0], terms);
+            arg_changed = arg1 != form->args[0];
+         }
+         if(TFormulaHasSubForm2(terms->sig, form))
+         {
+            arg2 = do_bool_eqn_replace(form->args[1], terms);
+            arg_changed = arg2 || (arg2 != form->args[1]);
+         }
+
+         if(arg_changed)
+         {
+            form = TFormulaFCodeAlloc(terms, form->f_code, arg1, arg2);
+         }
+      }
+   }
+
+   return form;
+}
+
+
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
 /*---------------------------------------------------------------------*/
@@ -1126,6 +1196,43 @@ bool TFormulaUnrollFOOL(WFormula_p form, TB_p terms)
    return unrolled;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: TFormulaReplaceEqnWithEquiv()
+//
+//   If input formula contains subformulas of type \alpha = \beta,
+//   replace those subformulas with \alpha <=> \beta and alter
+//   proof object accordingly.
+//
+// Global Variables: -
+//
+// Side Effects    : Changes enclosed formulas and proof objects
+//
+/----------------------------------------------------------------------*/
+
+bool TFormulaReplaceEqnWithEquiv(WFormula_p form, TB_p terms)
+{
+   TFormula_p original = form->tformula;
+   bool       unrolled = false;
+   
+   fprintf(stderr, "# original: ");
+   TFormulaTPTPPrint(stderr, terms, original, true, true);
+   fprintf(stderr, "\n");
+
+   form->tformula = do_bool_eqn_replace(original, terms);
+   
+   if(form->tformula != original)
+   {
+      fprintf(stderr, "# replaced: ");
+      TFormulaTPTPPrint(stderr, terms, form->tformula, true, true);
+      fprintf(stderr, "\n");
+      WFormulaPushDerivation(form, DCFoolUnrool, NULL, NULL);
+      unrolled = true;
+   }
+
+   return unrolled;
+}
+
 
 /*-----------------------------------------------------------------------
 //
@@ -1144,6 +1251,7 @@ long TFormulaSetUnrollFOOL(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
    long res = 0;
    for(WFormula_p formula = set->anchor->succ; formula!=set->anchor; formula=formula->succ)
    {
+      TFormulaReplaceEqnWithEquiv(formula, terms);
       if(TFormulaUnrollFOOL(formula, terms))
       {
          res++;

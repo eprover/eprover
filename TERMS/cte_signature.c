@@ -1777,6 +1777,7 @@ bool SigSymbolUnifesWithVar(Sig_p sig, FunCode f_code)
 
    return problemType == PROBLEM_HO || 
           f_code == SIG_TRUE_CODE || f_code == SIG_FALSE_CODE ||
+          f_code <= 0 ||
           !SigIsPredicate(sig,f_code);
 }
 

@@ -74,14 +74,16 @@ static FunCode tptp_operator_convert(Sig_p sig, TokenType tok)
          res = sig->bimpl_code;
          break;
    case FOFEquiv:
-   // FOOL treats equality between formulas as <=>
-   case EqualSign:
          res = sig->equiv_code;
          break;
+   case EqualSign:
+         res = sig->eqn_code;
+         break;         
    case FOFXor:
-   // FOOL treats neg. equality between formulas as <~>
-   case NegEqualSign:
          res = sig->xor_code;
+         break;
+   case NegEqualSign:
+         res = sig->neqn_code;
          break;
    case FOFNand:
          res = sig->nand_code;
