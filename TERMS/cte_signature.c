@@ -1757,6 +1757,29 @@ void SigPrintAppEncodedDecls(FILE* out, Sig_p sig)
 
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: SigSymbolUnifesWithVar()
+//
+//   Checks whether f_code can be unified with a variable. In HO
+//   case variable unifies with any function code; in FOOL case
+//   variable unifies with $true, $false and non-predicate symbols.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+bool SigSymbolUnifesWithVar(Sig_p sig, FunCode f_code)
+{
+   assert(sig);
+
+   return problemType == PROBLEM_HO || 
+          f_code == SIG_TRUE_CODE || f_code == SIG_FALSE_CODE ||
+          !SigIsPredicate(sig,f_code);
+}
+
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/

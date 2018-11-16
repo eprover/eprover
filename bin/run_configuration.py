@@ -3,6 +3,7 @@ import re, shlex
 
 REGEX_SZS_STATUS =  re.compile(r"# SZS status (\S+)")
 REGEX_TIME = re.compile(r"# Total time\s+:\s+(\S+)")
+REGEX_EXPECTED   = re.compile(r"%\s+Status\s+[:]\s+?[.*]\b")
 
 def usage(script):
   import sys
