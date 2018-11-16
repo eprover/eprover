@@ -230,8 +230,9 @@ TFormula_p do_fool_unroll(TFormula_p form, TB_p terms)
 
          if(subform->f_code > terms->sig->internal_symbols)
          {
-            assert(PStackGetSP(pos) == 4); // this is a Skolem symbol
-            subform = EqnTermsTBTermEncode(terms, subform, terms->true_term, true, PENormal);
+            // This is a Skolem symbol
+            subform = EqnTermsTBTermEncode(terms, subform, terms->true_term,
+                                           true, PENormal);
          }
 
          Term_p subform_t = TBTermPosReplace(terms, terms->true_term, pos, 
