@@ -340,7 +340,7 @@ static Term_p choose_subterm_parse_fun(bool check_symb_prop,
 
 /*-----------------------------------------------------------------------
 //
-// Function: normalize_boolean_variables()
+// Function: normalize_boolean_terms()
 //
 //   If term_ref points to an equation of type X=true that appears
 //   under context, replace this equation by X.
@@ -351,16 +351,32 @@ static Term_p choose_subterm_parse_fun(bool check_symb_prop,
 //
 /----------------------------------------------------------------------*/
 
-static void normalize_boolean_variables(Term_p* term_ref, Sig_p sig)
+static void normalize_boolean_terms(Term_p* term_ref, TB_p bank)
 {
    assert(term_ref && *term_ref);
    Term_p term = *term_ref;
+   Sig_p  sig  = bank->sig;
    if(term->f_code == sig->eqn_code)
    {
       if(TermIsVar(term->args[0]) && term->args[1]->f_code == SIG_TRUE_CODE)
       {
          *term_ref = term->args[0]; // garbage collection will deal with parent
       }
+      else if(term->args[0]->f_code == SIG_TRUE_CODE)
+      {
+         assert(term->args[1]->f_code == SIG_TRUE_CODE);
+         assert(term->args[0] == bank->true_term);
+         assert(term->args[1] == bank->true_term);
+         *term_ref = term->args[0];
+      }
+   }
+   else if(term->f_code == sig->neqn_code 
+            && term->args[0]->f_code == SIG_TRUE_CODE)
+   {
+      assert(term->args[1]->f_code == SIG_TRUE_CODE);
+      assert(term->args[0] == bank->true_term);
+      assert(term->args[1] == bank->true_term);
+      *term_ref = bank->false_term;
    }
 }
 
@@ -395,7 +411,7 @@ static int tb_term_parse_arglist(Scanner_p in, Term_p** arg_anchor,
    args = PStackAlloc();
 
    tmp = choose_subterm_parse_fun(check_symb_prop, type, i, in, bank);
-   normalize_boolean_variables(&tmp, bank->sig);
+   normalize_boolean_terms(&tmp, bank);
    PStackPushP(args, tmp);
    i++;
 
@@ -403,7 +419,7 @@ static int tb_term_parse_arglist(Scanner_p in, Term_p** arg_anchor,
    {
       NextToken(in);
       tmp  = choose_subterm_parse_fun(check_symb_prop, type, i, in, bank);
-      normalize_boolean_variables(&tmp, bank->sig);
+      normalize_boolean_terms(&tmp, bank);
       PStackPushP(args, tmp);
       i++;
    }

@@ -334,6 +334,7 @@ TFormula_p do_fool_unroll(TFormula_p form, TB_p terms)
 TFormula_p do_bool_eqn_replace(TFormula_p form, TB_p terms)
 {
    const Sig_p sig = terms->sig;
+   bool  changed   = false;
    if(form->f_code == sig->eqn_code || form->f_code == sig->neqn_code)
    {
       assert(form->arity == 2);
@@ -347,10 +348,10 @@ TFormula_p do_bool_eqn_replace(TFormula_p form, TB_p terms)
                                      terms->sig->equiv_code : terms->sig->xor_code,
                                    do_bool_eqn_replace(form->args[0], terms), 
                                    do_bool_eqn_replace(form->args[1], terms));
+         changed = true;
       }
-
    }
-   else if(!TermIsVar(form))
+   if(!TermIsVar(form) && !changed)
    {
       TFormula_p tmp = TermTopAlloc(form->f_code, form->arity);
       for(int i=0; i<form->arity; i++)
