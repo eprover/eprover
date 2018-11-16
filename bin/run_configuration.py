@@ -3,7 +3,7 @@ import re, shlex
 
 REGEX_SZS_STATUS =  re.compile(r"# SZS status (\S+)")
 REGEX_TIME = re.compile(r"# Total time\s+:\s+(\S+)")
-REGEX_EXPECTED   = re.compile(r"%\s+Status\s+[:]\s+?[.*]\b")
+REGEX_EXPECTED   = re.compile(r"%\s+Status\s+[:]\s+?(.*)\b")
 
 def usage(script):
   import sys
@@ -27,13 +27,20 @@ def get_exitcode_stdout_stderr(cmd):
 
 
 def process_out(out, timeout, probpath, conf, f):
+  with open(probpath, 'r') as prob:
+  	contents = prob.read()
+  	match = REGEX_EXPECTED.findall(contents)
+  	expected = '?'
+  	if len(match):
+  	  expected = match[0]
+
   status = REGEX_SZS_STATUS.findall(out)[0]
   if status != 'ResourceOut':
     time = REGEX_TIME.findall(out)[0]
   else:
     time = "{0}".format(timeout)
 
-  f.write('"{0}", "{1}", "{2}", "{3}"\n'.format(probpath, conf, status, time))
+  f.write('"{0}", "{1}", "{2}", "{3}", "{4}"\n'.format(probpath, conf, status, time, expected))
   return status
 
 
@@ -60,7 +67,7 @@ def main():
     usage(sys.argv[0])
 
   with open(out_path, "w") as out_f:
-    out_f.write("problem, configuration, result, time\n")
+    out_f.write("problem, configuration, result, time, expected\n")
 
     all_probs = []
 
