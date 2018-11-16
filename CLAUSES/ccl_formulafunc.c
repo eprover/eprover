@@ -302,57 +302,32 @@ TFormula_p do_fool_unroll(TFormula_p form, TB_p terms)
 
 TFormula_p do_bool_eqn_replace(TFormula_p form, TB_p terms)
 {
-   TFormula_p arg1  = NULL;
-   TFormula_p arg2  = NULL;
-   bool arg_changed = false;
-   if(TFormulaIsLiteral(terms->sig, form))
+   const Sig_p sig = terms->sig;
+   if(form->f_code == sig->eqn_code || form->f_code == sig->neqn_code)
    {
-      arg1 = form->args[0];
-      arg2 = form->args[1];
-      if(TypeIsBool(arg1->type) && arg2->f_code != SIG_TRUE_CODE)
+      assert(form->arity == 2);
+      if(TypeIsBool(form->args[0]->type) && form->args[1]->f_code != SIG_TRUE_CODE)
       {
-         // in E, DAS predicate literal is encoded as $(n)eq(P,TRUE).
-         // if it is of some other form, we have to change it to 
-         // $equiv(F, Q).
-         assert(TypeIsBool(arg2->type));
+         // DAS literal is encoded as <predicate>=TRUE.
+         // Our boolean equalities are <formula> = <formula>
+         assert(TypeIsBool(form->args[1]));
          form = TFormulaFCodeAlloc(terms,
-                                   arg1->f_code == terms->sig->eqn_code ? 
+                                   form->f_code == terms->sig->eqn_code ? 
                                      terms->sig->equiv_code : terms->sig->xor_code,
-                                   do_bool_eqn_replace(arg1, terms), 
-                                   do_bool_eqn_replace(arg2, terms));
+                                   do_bool_eqn_replace(form->args[0], terms), 
+                                   do_bool_eqn_replace(form->args[1], terms));
       }
+
    }
-   else
+   else if(!TermIsVar(form))
    {
-      if(TFormulaIsQuantified(terms->sig, form))
+      TFormula_p tmp = TermTopAlloc(form->f_code, form->arity);
+      for(int i=0; i<form->arity; i++)
       {
-         arg2 = do_bool_eqn_replace(form->args[1], terms);
-         if(form->args[1] != arg2)
-         {
-            form = TFormulaQuantorAlloc(terms, form->f_code, 
-                                        form->args[0], arg2);
-         }
+         tmp->args[i] = do_bool_eqn_replace(form->args[i], terms);
       }
-      else
-      {
-         if(TFormulaHasSubForm1(terms->sig, form))
-         {
-            arg1 = do_bool_eqn_replace(form->args[0], terms);
-            arg_changed = arg1 != form->args[0];
-         }
-         if(TFormulaHasSubForm2(terms->sig, form))
-         {
-            arg2 = do_bool_eqn_replace(form->args[1], terms);
-            arg_changed = arg2 || (arg2 != form->args[1]);
-         }
-
-         if(arg_changed)
-         {
-            form = TFormulaFCodeAlloc(terms, form->f_code, arg1, arg2);
-         }
-      }
+      form = TBTermTopInsert(terms, tmp);
    }
-
    return form;
 }
 
