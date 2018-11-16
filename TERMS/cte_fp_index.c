@@ -46,6 +46,31 @@ PERF_CTR_DEFINE(IndexMatchTimer);
 
 /*-----------------------------------------------------------------------
 //
+// Function: plausible_alternative()
+//
+//   Checks whether f_code can be unified with a variable. In HO
+//   case variable unifies with any function code; in FOOL case
+//   variable unifies with $true, $false and non-predicate symbols.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static bool plausible_alternative(Sig_p sig, FunCode f_code)
+{
+   assert(sig);
+
+   return problemType == PROBLEM_HO || 
+          f_code == SIG_TRUE_CODE || f_code == SIG_FALSE_CODE ||
+          !SigIsPredicate(sig,f_code);
+}
+
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: fpindex_alternative()
 //
 //   Return the child indexed by key f_code in index if it exists,
@@ -217,7 +242,7 @@ static long fp_index_rek_find_unif(FPTree_p index, IndexFP_p key,
                                     sig,
                                     current+1,
                                     collect);
-      if(/*problemType == PROBLEM_HO || !SigIsPredicate(sig, key[current])*/true)
+      if(plausible_alternative(sig, key[current]))
       {  /* Predicates can never unify with variables
                -- not true in full HO case
                -- temproraily enabled  */
@@ -274,7 +299,7 @@ static long fp_index_rek_find_unif(FPTree_p index, IndexFP_p key,
       {
          assert(child);
 
-         if(i<=0 || /*problemType == PROBLEM_HO || !SigIsPredicate(sig, i)*/ true)
+         if(i<=0 || plausible_alternative(sig, i))
          {
             res += fp_index_rek_find_unif(child,
                                           key,
@@ -376,7 +401,7 @@ static long fp_index_rek_find_matchable(FPTree_p index, IndexFP_p key,
       {
          assert(child);
 
-         if(i<=0 || /*problemType == PROBLEM_HO || !SigIsPredicate(sig, i)*/ true)
+         if(i<=0 || plausible_alternative(sig, i))
          {
             res += fp_index_rek_find_matchable(child,
                                                key,
@@ -780,7 +805,7 @@ long dt_index_rek_find_matchable(FPTree_p index,
       iter = IntMapIterAlloc(index->f_alternatives, BELOW_VAR, LONG_MAX);
       while((child=IntMapIterNext(iter, &i)))
       {
-         if(i<=0 || /*(problemType == PROBLEM_HO || !SigIsPredicate(sig, i)*/ true)
+         if(i<=0 || plausible_alternative(sig, i))
          {
             //printf("Branch (%d) %s\n", skip_term,i>0?SigFindName(sig, i):"X");
             res += dt_index_rek_find_matchable(child,
@@ -874,7 +899,7 @@ static long dt_index_rek_find_unifiable(FPTree_p index,
       iter = IntMapIterAlloc(index->f_alternatives, BELOW_VAR, LONG_MAX);
       while((child=IntMapIterNext(iter, &i)))
       {
-         if(i<=0 || /*/*(problemType == PROBLEM_HO || !SigIsPredicate(sig,i))*/ true)
+         if(i<=0 || plausible_alternative(sig, i))
          {
             res += dt_index_rek_find_unifiable(child,
                                                key,
@@ -897,7 +922,7 @@ static long dt_index_rek_find_unifiable(FPTree_p index,
                                          0,
                                          0,
                                          collect);
-      if(key[current] <= 0 || /*(problemType == PROBLEM_HO || !SigIsPredicate(sig,key[current])*/ true)
+      if(key[current] <= 0 || plausible_alternative(sig, key[current]))
       {
          child = fpindex_alternative(index, ANY_VAR);
          res += dt_index_rek_find_unifiable(child,
