@@ -36,10 +36,41 @@ extern bool app_encode;
 /*                      Forward Declarations                           */
 /*---------------------------------------------------------------------*/
 
+typedef TFormula_p (*FOOLFormulaProcessor)(TFormula_p, TB_p);
 
 /*---------------------------------------------------------------------*/
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
+
+/*-----------------------------------------------------------------------
+//
+// Function: fool_process_formula()
+//
+//   Applies processor to form. If formula is changed it alters
+//   the proof object by saying FOOL processing has been applied.
+//
+// Global Variables: -
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
+bool fool_process_formula(WFormula_p form, TB_p terms, 
+                          FOOLFormulaProcessor processor)
+{
+   TFormula_p original = form->tformula;
+   bool       changed = false;
+
+   form->tformula = processor(original, terms);
+   
+   if(form->tformula != original)
+   {
+      WFormulaPushDerivation(form, DCFoolUnrool, NULL, NULL);
+      changed = true;
+   }
+
+   return changed;
+}
 
 /*-----------------------------------------------------------------------
 //
@@ -308,7 +339,7 @@ TFormula_p do_bool_eqn_replace(TFormula_p form, TB_p terms)
       assert(form->arity == 2);
       if(TypeIsBool(form->args[0]->type) && form->args[1]->f_code != SIG_TRUE_CODE)
       {
-         // DAS literal is encoded as <predicate>=TRUE.
+         // DAS literal is encoded as <predicate> = TRUE.
          // Our boolean equalities are <formula> = <formula>
          assert(TypeIsBool(form->args[1]));
          form = TFormulaFCodeAlloc(terms,
@@ -1158,18 +1189,7 @@ long TFormulaApplyDefs(WFormula_p form, TB_p terms, NumXTree_p *defs)
 
 bool TFormulaUnrollFOOL(WFormula_p form, TB_p terms)
 {
-   TFormula_p original = form->tformula;
-   bool       unrolled = false;
-   
-   form->tformula = do_fool_unroll(original, terms);
-   
-   if(form->tformula != original)
-   {
-      WFormulaPushDerivation(form, DCFoolUnrool, NULL, NULL);
-      unrolled = true;
-   }
-
-   return unrolled;
+   return fool_process_formula(form, terms, do_fool_unroll);
 }
 
 /*-----------------------------------------------------------------------
@@ -1188,25 +1208,7 @@ bool TFormulaUnrollFOOL(WFormula_p form, TB_p terms)
 
 bool TFormulaReplaceEqnWithEquiv(WFormula_p form, TB_p terms)
 {
-   TFormula_p original = form->tformula;
-   bool       unrolled = false;
-   
-   fprintf(stderr, "# original: ");
-   TFormulaTPTPPrint(stderr, terms, original, true, true);
-   fprintf(stderr, "\n");
-
-   form->tformula = do_bool_eqn_replace(original, terms);
-   
-   if(form->tformula != original)
-   {
-      fprintf(stderr, "# replaced: ");
-      TFormulaTPTPPrint(stderr, terms, form->tformula, true, true);
-      fprintf(stderr, "\n");
-      WFormulaPushDerivation(form, DCFoolUnrool, NULL, NULL);
-      unrolled = true;
-   }
-
-   return unrolled;
+   return fool_process_formula(form, terms, do_bool_eqn_replace);
 }
 
 
