@@ -59,10 +59,8 @@ Changes
 
 FixedDArray_p FixedDArrayAlloc(long size)
 {
-   FixedDArray_p handle = FixedDArrayCellAlloc();
-
+   FixedDArray_p handle = SizeMalloc(sizeof(FixedDArrayCell)+size*sizeof(long));
    handle->size = size;
-   handle->array = SizeMalloc(sizeof(long)*size);
 
    return handle;
 }
@@ -84,8 +82,7 @@ void FixedDArrayFree(FixedDArray_p junk)
 {
    if(junk)
    {
-      SizeFree(junk->array, sizeof(long)*junk->size);
-      FixedDArrayCellFree(junk);
+      SizeFree(junk, sizeof(FixedDArrayCell)+(junk->size*sizeof(long)));
    }
 }
 
@@ -115,7 +112,7 @@ FixedDArray_p FixedDArrayCopy(FixedDArray_p array)
 
       for(i=0; i<array->size; i++)
       {
-    handle->array[i] = array->array[i];
+         handle->array[i] = array->array[i];
       }
       return handle;
    }
@@ -150,5 +147,3 @@ void FixedDArrayPrint(FILE* out, FixedDArray_p array)
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-

@@ -35,8 +35,8 @@ Changes
 
 typedef struct fixd_array_cell
 {
-   long *array;
    long size;
+   long array[];
 }FixedDArrayCell, *FixedDArray_p;
 
 
@@ -44,8 +44,6 @@ typedef struct fixd_array_cell
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-#define FixedDArrayCellAlloc()    (FixedDArrayCell*)SizeMalloc(sizeof(FixedDArrayCell))
-#define FixedDArrayCellFree(junk) SizeFree(junk, sizeof(FixedDArrayCell))
 
 FixedDArray_p FixedDArrayAlloc(long size);
 void          FixedDArrayFree(FixedDArray_p junk);
@@ -62,8 +60,3 @@ void          FixedDArrayPrint(FILE* out, FixedDArray_p array);
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
-
-
-
