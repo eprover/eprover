@@ -1,26 +1,23 @@
 /*-----------------------------------------------------------------------
 
-File  : clb_fixdarrays.h
+  File  : clb_fixdarrays.h
 
-Author: Stephan Schulz
+  Author: Stephan Schulz
 
-Contents
+  Contents
 
   Rather trivial datatype for arrays of long integers with a known,
   fixed and and queryable size.
 
-  Copyright 2003 by the author.
+  Copyright 2003-2018 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
+  Created: Wed Jul  9 23:35:01 CEST 2003
 
-<1> Wed Jul  9 23:35:01 CEST 2003
-    New
-
------------------------------------------------------------------------*/
+  -----------------------------------------------------------------------*/
 
 #ifndef CLB_FIXDARRAYS
 

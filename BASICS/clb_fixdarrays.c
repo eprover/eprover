@@ -1,25 +1,22 @@
 /*-----------------------------------------------------------------------
 
-File  : clb_fixdarrays.c
+  File  : clb_fixdarrays.c
 
-Author: Stephan Schulz
+  Author: Stephan Schulz
 
-Contents
+  Contents
 
   Functions for handling fixed size arrays.
 
-Copyright 1998-2011 by the author.
+  Copyright 1998-2018 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
+  Created: Wed Jul  9 23:40:23 CEST 2003
 
-<1> Wed Jul  9 23:40:23 CEST 2003
-    New
-
------------------------------------------------------------------------*/
+  -----------------------------------------------------------------------*/
 
 #include "clb_fixdarrays.h"
 
@@ -108,12 +105,9 @@ FixedDArray_p FixedDArrayCopy(FixedDArray_p array)
    else
    {
       FixedDArray_p handle = FixedDArrayAlloc(array->size);
-      long i;
 
-      for(i=0; i<array->size; i++)
-      {
-         handle->array[i] = array->array[i];
-      }
+      memcpy(handle, array,
+             sizeof(FixedDArrayCell)+(array->size*sizeof(long)));
       return handle;
    }
 }
