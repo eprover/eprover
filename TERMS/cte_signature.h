@@ -271,7 +271,8 @@ FunCode SigGetTypedApp(Sig_p sig, Type_p arg1, Type_p arg2, Type_p ret);
 void SigPrintAppEncodedDecls(FILE* out, Sig_p sig);
 bool SigSymbolUnifesWithVar(Sig_p sig, FunCode f_code);
 
-#define SigIsLogicalSymbol(sig, f_code) (SigQueryFuncProp(sig, f_code, FPFOFOp) || \
+#define SigIsLogicalSymbol(sig, f_code) (assert(f_code > 0), \
+                                         SigQueryFuncProp(sig, f_code, FPFOFOp) || \
                                          f_code == SIG_TRUE_CODE || f_code == SIG_FALSE_CODE || \
                                          f_code == (sig)->eqn_code || f_code == (sig)->neqn_code || \
                                          f_code == (sig)->qex_code || f_code == (sig)->qall_code)  

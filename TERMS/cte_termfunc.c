@@ -244,8 +244,9 @@ void TermPrintFO(FILE* out, Term_p term, Sig_p sig, DerefType deref)
    // no need to change derefs here -- FOL
 
    term = TermDeref(term, &deref);
-
-   if(SigIsLogicalSymbol(sig, term->f_code) && 
+   
+   if(!TermIsVar(term) &&
+      SigIsLogicalSymbol(sig, term->f_code) && 
       term->f_code != SIG_TRUE_CODE &&
       term->f_code != SIG_FALSE_CODE)
    {
