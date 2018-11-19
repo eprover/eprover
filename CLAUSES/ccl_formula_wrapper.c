@@ -571,18 +571,24 @@ void WFormulaTSTPPrint(FILE* out, WFormula_p form, bool fullterms,
    char *typename = "plain", *formula_kind = "fof";
    bool is_untyped = TFormulaIsUntyped(form->tformula);
 
-
-   if(form->is_clause && is_untyped)
+   if(problemType == PROBLEM_FO)
    {
-      formula_kind = "cnf";
+      if(form->is_clause && is_untyped)
+      {
+         formula_kind = "cnf";
+      }
+      else if(form->is_clause)
+      {
+         formula_kind = "tcf";
+      }
+      else if(!is_untyped)
+      {
+         formula_kind = "tff";
+      }
    }
-   else if(form->is_clause)
+   else
    {
-      formula_kind = "tcf";
-   }
-   else if(!is_untyped)
-   {
-      formula_kind = "tff";
+      formula_kind = "thf";
    }
 
    switch(FormulaQueryType(form))

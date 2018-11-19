@@ -40,7 +40,7 @@ def process_out(out, timeout, probpath, conf, f):
   else:
     time = "{0}".format(timeout)
 
-  f.write('"{0}", "{1}", "{2}", "{3}", "{4}"\n'.format(probpath, conf, status, time, expected))
+  f.write('{0}, {1}, {2}, {3}, {4}\n'.format(probpath, conf, status, time, expected))
   return status
 
 
@@ -73,7 +73,7 @@ def main():
 
     import os
     for dirpath, _, filenames in os.walk(root):
-      for filename in filenames:
+      for filename in filter(lambda x: x.endswith(".p"), filenames):
         all_probs.append(os.path.join(dirpath, filename))
 
     prob_no = len(all_probs)

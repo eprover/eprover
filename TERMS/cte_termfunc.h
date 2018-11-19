@@ -56,6 +56,7 @@ void TermPrintHO(FILE* out, Term_p term, Sig_p sig, DerefType deref);
 #define TermPrint(out, term, sig, deref) TermPrintFO(out, term, sig, deref)
 #endif
 void   TermPrintArgList(FILE* out, Term_p *args, int arity, Sig_p sig, DerefType deref);
+void   TermFOOLPrint(FILE* out, Sig_p sig, Term_p form);
 FuncSymbType TermParseOperator(Scanner_p in, DStr_p id);
 FunCode       TermSigInsert(Sig_p sig, const char* name, int arity, bool
                             special_id, FuncSymbType type);
@@ -152,6 +153,9 @@ Term_p TermAppEncode(Term_p orig, Sig_p sig);
 bool TermFindFOOLSubterm(Term_p t, PStack_p pos);
 
 #define TERM_APPLY_APP_VAR_MULT(w, t, p) (TermIsAppliedVar(t) ? (w)*(p) : (w))
+
+#define PRINT_HO_PAREN(out, ch) ((problemType == PROBLEM_HO) ? \
+                                    (fputc((ch), (out))) : 0)
 
 /*-----------------------------------------------------------------------
 //

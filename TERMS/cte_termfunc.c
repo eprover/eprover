@@ -25,6 +25,7 @@
 #include "clb_plocalstacks.h"
 #include "cte_termbanks.h"
 #include <cte_termpos.h>
+#include <ccl_tformulae.h>
 
 /*---------------------------------------------------------------------*/
 /*                        Global Variables                             */
@@ -243,6 +244,14 @@ void TermPrintFO(FILE* out, Term_p term, Sig_p sig, DerefType deref)
    // no need to change derefs here -- FOL
 
    term = TermDeref(term, &deref);
+
+   if(SigIsLogicalSymbol(sig, term->f_code) && 
+      term->f_code != SIG_TRUE_CODE &&
+      term->f_code != SIG_FALSE_CODE)
+   {
+      TermFOOLPrint(out, sig, term);
+      return;
+   }
 
 #ifdef NEVER_DEFINED
    if(TermCellQueryProp(term, TPRestricted))
@@ -1580,12 +1589,9 @@ bool TermFindFOOLSubterm(Term_p t, TermPos_p pos)
             break;
          }
       }
-      else
+      else if(TermFindFOOLSubterm(t->args[i], pos))
       {
-         if(TermFindFOOLSubterm(t->args[i], pos))
-         {
-            break;
-         }
+         break;
       }
 
       PStackDiscardTop(pos);
@@ -2219,6 +2225,138 @@ Term_p TermCreatePrefix(Term_p orig, int arg_num)
    }
 
    return prefix;  
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: TermFOOLPrint()
+//
+//   Print a formula using only signature (not bank). Prints
+//   equations as infix.
+//
+// Global Variables:
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+void TermFOOLPrint(FILE* out, Sig_p sig, TFormula_p form)
+{
+   assert(form);
+
+   if(form->f_code == sig->eqn_code || form->f_code == sig->neqn_code)
+   {
+      if(form->args[1]->f_code == SIG_TRUE_CODE)
+      {
+         if(form->f_code == sig->neqn_code)
+         {
+           fputs("~", out);
+         }
+         TermPrint(out, form->args[0], sig, DEREF_NEVER);
+      }
+      else
+      {
+         PRINT_HO_PAREN(out, '(');
+         TermPrint(out, form->args[0], sig, DEREF_NEVER);
+         PRINT_HO_PAREN(out, ')');
+         if(form->f_code == sig->neqn_code)
+         {
+            fputc('!', out);
+         }
+         fputc('=', out);
+         PRINT_HO_PAREN(out, '(');
+         TermPrint(out, form->args[1], sig, DEREF_NEVER);
+         PRINT_HO_PAREN(out, ')');
+      }
+
+   }
+   else if(form->f_code == sig->qex_code || form->f_code == sig->qall_code)
+   {
+      FunCode quantifier = form->f_code;
+      if(form->f_code == sig->qex_code)
+      {
+         fputs("?[", out);
+      }
+      else
+      {
+         fputs("![", out);
+      }
+      TermPrint(out, form->args[0], sig, DEREF_NEVER);
+      if(problemType == PROBLEM_HO || !TypeIsIndividual(form->args[0]->type))
+      {
+         fputs(":", out);
+         TypePrintTSTP(out, sig->type_bank, form->args[0]->type);
+      }
+      while(form->args[1]->f_code == quantifier)
+      {
+         form = form->args[1];
+         fputs(", ", out);
+         TermPrint(out, form->args[0], sig, DEREF_NEVER);
+         if(problemType == PROBLEM_HO || !TypeIsIndividual(form->args[0]->type))
+         {
+            fputs(":", out);
+            TypePrintTSTP(out, sig->type_bank, form->args[0]->type);
+         }
+      }
+      fputs("]:", out);
+      TermFOOLPrint(out, sig, form->args[1]);
+   }
+   else if(form->f_code == sig->not_code)
+   {
+      assert(form->f_code == sig->not_code);
+      fputs("~(", out);
+      TermFOOLPrint(out, sig, form->args[0]);
+      fputs(")", out);
+   }
+   else
+   {
+      char* oprep = "XXX";
+      // does not print or chain now
+      if(SigQueryFuncProp(sig, form->f_code, FPFOFOp) && form->arity == 2)
+      {
+         fputs("(", out);
+         TermFOOLPrint(out, sig, form->args[0]);
+         if(form->f_code == sig->and_code)
+         {
+            oprep = "&";
+         }
+         else if(form->f_code == sig->or_code)
+         {
+            oprep = "|";
+         }
+         else if(form->f_code == sig->impl_code)
+         {
+            oprep = "=>";
+         }
+         else if(form->f_code == sig->equiv_code)
+         {
+            oprep = "<=>";
+         }
+         else if(form->f_code == sig->nand_code)
+         {
+            oprep = "~&";
+         }
+         else if(form->f_code == sig->nor_code)
+         {
+         oprep = "~|";
+         }
+         else if(form->f_code == sig->bimpl_code)
+         {
+            oprep = "<=";
+         }
+         else if(form->f_code == sig->xor_code)
+         {
+            oprep = "<~>";
+         }
+         fputs(oprep, out);
+         TermFOOLPrint(out, sig, form->args[1]);
+         fputs(")", out);
+      }
+      else
+      {
+         TermPrint(out, form, sig, DEREF_NEVER);
+      }
+   }
 }
 
 /*---------------------------------------------------------------------*/

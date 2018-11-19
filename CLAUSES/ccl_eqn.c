@@ -22,9 +22,6 @@
 #include "ccl_eqn.h"
 #include "cte_typecheck.h"
 
-#define PRINT_HO_PAREN(out, ch) ((problemType == PROBLEM_HO) ? \
-                                    (fputc((ch), (out))) : 0)
-
 
 /*---------------------------------------------------------------------*/
 /*                        Global Variables                             */

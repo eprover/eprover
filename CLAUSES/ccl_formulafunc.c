@@ -65,7 +65,7 @@ bool fool_process_formula(WFormula_p form, TB_p terms,
    
    if(form->tformula != original)
    {
-      WFormulaPushDerivation(form, DCFoolUnrool, NULL, NULL);
+      WFormulaPushDerivation(form, DCFoolUnroll, NULL, NULL);
       changed = true;
    }
 
@@ -225,8 +225,9 @@ static void check_all_found(Scanner_p in, StrTree_p name_selector)
 //
 // Function: do_fool_unroll()
 //
-//   Translate FOOL formula features for the formula represented as term.
-//   
+//   Unroll boolean arguments of terms. For example, subformula
+//   "f(a, p&q) = a" is replaced with "(~(p&q)|f(a,$true)=a) &
+//   (p&q)|f(a, $false)=a". 
 //
 // Global Variables: -
 //
@@ -261,7 +262,7 @@ TFormula_p do_fool_unroll(TFormula_p form, TB_p terms)
 
          if(subform->f_code > terms->sig->internal_symbols)
          {
-            // This is a Skolem symbol
+            // This is a Skolem symbol that is not yet encoded as literal
             subform = EqnTermsTBTermEncode(terms, subform, terms->true_term,
                                            true, PENormal);
          }
@@ -273,11 +274,14 @@ TFormula_p do_fool_unroll(TFormula_p form, TB_p terms)
 
          TFormula_p neg_subf = TFormulaNegate(subform, terms);
 
+         // ~(p&q)|f(a,$true)=a from the above example
          TFormula_p fst_impl = TFormulaFCodeAlloc(terms, terms->sig->or_code,
                                                    neg_subf, subform_t);
+         // (p&q)|f(a, $false)=a
          TFormula_p snd_impl = TFormulaFCodeAlloc(terms, terms->sig->or_code,
                                                    subform, subform_f);
 
+         // the whole formula
          form = TFormulaFCodeAlloc(terms, terms->sig->and_code,
                                     do_fool_unroll(fst_impl, terms), 
                                     do_fool_unroll(snd_impl, terms));
@@ -322,8 +326,9 @@ TFormula_p do_fool_unroll(TFormula_p form, TB_p terms)
 //
 // Function: do_bool_eqn_replace ()
 //
-//   Translate FOOL formula features for the formula represented as term.
-//   
+//   Replace boolean equations with equivalences. Goes inside literals
+//   as well. For example, "f(a, p = q) = b" will be translated to
+//   "f(a, p <=> q) = b".
 //
 // Global Variables: -
 //
@@ -338,11 +343,12 @@ TFormula_p do_bool_eqn_replace(TFormula_p form, TB_p terms)
    if(form->f_code == sig->eqn_code || form->f_code == sig->neqn_code)
    {
       assert(form->arity == 2);
-      if(TypeIsBool(form->args[0]->type) && form->args[1]->f_code != SIG_TRUE_CODE)
+      if(SigIsLogicalSymbol(terms->sig, form->args[0]->f_code) &&
+         SigIsLogicalSymbol(terms->sig, form->args[1]->f_code) &&
+         form->args[1] != terms->true_term)
       {
          // DAS literal is encoded as <predicate> = TRUE.
          // Our boolean equalities are <formula> = <formula>
-         assert(TypeIsBool(form->args[1]));
          form = TFormulaFCodeAlloc(terms,
                                    form->f_code == terms->sig->eqn_code ? 
                                      terms->sig->equiv_code : terms->sig->xor_code,
@@ -354,6 +360,7 @@ TFormula_p do_bool_eqn_replace(TFormula_p form, TB_p terms)
    if(!TermIsVar(form) && !changed)
    {
       TFormula_p tmp = TermTopAlloc(form->f_code, form->arity);
+      tmp->type = form->type;
       for(int i=0; i<form->arity; i++)
       {
          tmp->args[i] = do_bool_eqn_replace(form->args[i], terms);
@@ -1178,7 +1185,7 @@ long TFormulaApplyDefs(WFormula_p form, TB_p terms, NumXTree_p *defs)
 //
 //   Translate FOOL features into FOL. Performs following translations:
 //      - Takes formulas as arguments out of the term, leaving
-//        only $true or $false as the argument of the term
+//        only $true, $false and boolean vars as the argument of the term
 //      - TODO: Unfolds ite expressions used as terms
 //      - TODO: Unfolds ite expressions used as formulas 
 //

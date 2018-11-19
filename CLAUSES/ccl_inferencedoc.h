@@ -111,7 +111,7 @@ typedef enum
 #define PCL_EVANS  "eval_answer_literal"
 #define PCL_NC     "assume_negation"
 #define PCL_FU     "fool_unroll"
-#define PCL_EBV    "eliminate_bvar"
+#define PCL_EBV    "eliminate_boolean_vars"
 /*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
