@@ -54,6 +54,30 @@ def print_progress_bar (iteration, total, prefix = '', suffix = '', decimals = 2
     print()
 
 
+def process_problems(all_probs, conf, timeout, out_f):
+  import sys
+  statuses = {}
+  
+  prob_no = len(all_probs)
+  for i, probpath in enumerate(all_probs):
+    print_progress_bar(i+1, prob_no)
+    try:
+      e_code, out, err = \
+          get_exitcode_stdout_stderr(" ".join([conf, probpath, str(timeout)]))
+    except FileNotFoundError:
+      print('Configuration is not found. Try with "./{0}"'.format(conf))
+      sys.exit(-1)
+    if "# SZS" in out:
+      status = process_out(out, timeout, probpath, conf, out_f)
+      if status in statuses:
+          statuses[status] += 1
+      else:
+          statuses[status] = 1
+    else:
+      print("# Error at {0} :stderr: [{1}]; ec: [{2}]".\
+            format(probpath, err.strip(), e_code))
+
+  return statuses
 
 def main():
   import sys
@@ -72,30 +96,17 @@ def main():
     all_probs = []
 
     import os
-    for dirpath, _, filenames in os.walk(root):
-      for filename in filter(lambda x: x.endswith(".p"), filenames):
-        all_probs.append(os.path.join(dirpath, filename))
+    if os.path.isdir(root):
+      for dirpath, _, filenames in os.walk(root):
+        for filename in filter(lambda x: x.endswith(".p"), filenames):
+          all_probs.append(os.path.join(dirpath, filename))
+    elif os.path.isfile(root):
+      with open(root, 'r') as root_fd:
+        all_probs = list(map(str.strip, root_fd.read().split()))
+    else:
+      all_probs = []
 
-    prob_no = len(all_probs)
-    for i, probpath in enumerate(all_probs):
-      print_progress_bar(i+1, prob_no)
-
-      try:
-        e_code, out, err = \
-          get_exitcode_stdout_stderr(" ".join([conf, probpath, str(timeout)]))
-      except FileNotFoundError:
-        print('Configuration is not found. Try with "./{0}"'.format(conf))
-        sys.exit(-1)
-      if "# SZS" in out:
-        status = process_out(out, timeout, probpath, conf, out_f)
-        if status in statuses:
-          statuses[status] += 1
-        else:
-          statuses[status] = 1
-      else:
-        print("# Error at {0} :stderr: [{1}]; ec: [{2}]".\
-              format(probpath, err.strip(), e_code))
-
+    statuses = process_problems(all_probs, conf, timeout, out_f)
 
   print("# Summary for {0}: ".format(root))
   for key in statuses:

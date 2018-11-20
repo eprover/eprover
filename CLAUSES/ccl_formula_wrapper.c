@@ -482,7 +482,6 @@ WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms)
    }
    else
    {
-      bool is_def = TestInpId(in, "definition");
       type = (FormulaProperties)
          ClauseTypeParse(in,is_tcf?
                          "axiom|hypothesis|definition|assumption|"
@@ -500,11 +499,7 @@ WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms)
       line        = AktToken(in)->line;
       column      = AktToken(in)->column;
 
-      if(problemType == PROBLEM_HO && is_def)
-      {
-         tform = handle_ho_def(in, terms);
-      }
-      else if(is_tcf)
+      if(is_tcf)
       {
          // printf("# Tcf Start!\n");
          tform = TcfTSTPParse(in, terms);

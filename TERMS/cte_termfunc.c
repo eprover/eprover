@@ -324,6 +324,16 @@ void TermPrintHO(FILE* out, Term_p term, Sig_p sig, DerefType deref)
 
    const int limit = DEREF_LIMIT(term, deref);
    term = TermDeref(term, &deref);
+
+   if(!TermIsVar(term) &&
+      SigIsLogicalSymbol(sig, term->f_code) && 
+      term->f_code != SIG_TRUE_CODE &&
+      term->f_code != SIG_FALSE_CODE)
+   {
+      TermFOOLPrint(out, sig, term);
+      return;
+   }
+
    if(!TermIsTopLevelVar(term))
    {
       fputs(SigFindName(sig, term->f_code), out);
@@ -345,7 +355,14 @@ void TermPrintHO(FILE* out, Term_p term, Sig_p sig, DerefType deref)
             (c_deref != DEREF_NEVER && term->args[i]->binding && term->args[i]->binding->arity))
       {
          fputs("(", out);
-         TermPrint(out, term->args[i], sig, c_deref);
+         if(TypeIsBool(term->args[i]->type))
+         {
+            TermFOOLPrint(out, sig, term->args[i]);
+         }
+         else
+         {
+            TermPrint(out, term->args[i], sig, c_deref);
+         }
          fputs(")", out);
       }
       else

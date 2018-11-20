@@ -343,7 +343,8 @@ TFormula_p do_bool_eqn_replace(TFormula_p form, TB_p terms)
    if(form->f_code == sig->eqn_code || form->f_code == sig->neqn_code)
    {
       assert(form->arity == 2);
-      if(SigIsLogicalSymbol(terms->sig, form->args[0]->f_code) &&
+      if(!TermIsVar(form->args[0]) && !TermIsVar(form->args[1]) &&
+         SigIsLogicalSymbol(terms->sig, form->args[0]->f_code) &&
          SigIsLogicalSymbol(terms->sig, form->args[1]->f_code) &&
          form->args[1] != terms->true_term)
       {

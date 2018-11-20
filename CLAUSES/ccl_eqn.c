@@ -21,7 +21,7 @@
 
 #include "ccl_eqn.h"
 #include "cte_typecheck.h"
-
+#include "ccl_tformulae.h"
 
 /*---------------------------------------------------------------------*/
 /*                        Global Variables                             */
@@ -769,15 +769,11 @@ Eqn_p EqnHOFParse(Scanner_p in, TB_p bank, bool* continue_parsing)
 
    if(pure_eq)
    {
-      rterm = TBTermParse(in, bank);
+      rterm = TypeIsBool(lterm->type) ?  TFormulaTSTPParse(in, bank) : TBTermParse(in, bank);
 
-      if(!TermIsTopLevelVar(lterm) && !SigIsFunction(bank->sig, lterm->f_code))
+      if(TypeIsBool(lterm->type))
       {
-         TypeDeclareIsNotPredicate(bank->sig, lterm);
-      }
-      if(!TermIsTopLevelVar(rterm) && !SigIsFunction(bank->sig, rterm->f_code))
-      {
-         TypeDeclareIsNotPredicate(bank->sig, rterm);
+         lterm = EqnTermsTBTermEncode(bank, lterm, bank->true_term, true, PENormal);
       }
    }
    else
@@ -789,10 +785,6 @@ Eqn_p EqnHOFParse(Scanner_p in, TB_p bank, bool* continue_parsing)
          DStrAppendStr(err, SigFindName(bank->sig, lterm->f_code));
          DStrAppendStr(err, " interpreted both as function and predicate (check parentheses).");
          AktTokenError(in, DStrView(err), SYNTAX_ERROR);
-      }
-      if(!TermIsTopLevelVar(lterm) && !SigIsPredicate(bank->sig, lterm->f_code))
-      {
-         TypeDeclareIsPredicate(bank->sig, lterm);
       }
       rterm = bank->true_term;
    }
@@ -1593,11 +1585,10 @@ int EqnSubsumeQOrderCompare(const void* lit1, const void* lit2)
       return res;
    }
 
-   if(!EqnIsEquLit(l1))
+   if(problemType == PROBLEM_FO && !EqnIsEquLit(l1))
    {
       // because variables might appear at predicate positions,
       // all nonequational literals belong to the same class in full HOL
-      // ** for LFHOL this same comparison as for FOL holds **
       res = CMP(l1->lterm->f_code, l2->lterm->f_code);   
    }
    return res;

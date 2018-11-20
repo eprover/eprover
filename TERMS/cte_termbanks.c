@@ -569,10 +569,6 @@ static Term_p __inline__ parse_one_ho(Scanner_p in, TB_p bank)
       }
 
       assert(TermIsVar(head));
-      if(TypeHasBool(head->type))
-      {
-        AktTokenError(in, "Quantification over type $o is not allowed.", false);
-      }
    }
    else
    {
@@ -1478,6 +1474,7 @@ Term_p  TBTermParseRealHO(Scanner_p in, TB_p bank, bool check_symb_prop)
    Term_p  res     = NULL;
    int     rest_arity   = 0;
    int     allocated    = 0;
+   int     head_arity   = 0;
 
    if(TestInpTok(in, OpenBracket))
    {
@@ -1489,6 +1486,8 @@ Term_p  TBTermParseRealHO(Scanner_p in, TB_p bank, bool check_symb_prop)
    {
       head = parse_one_ho(in, bank);
    }
+
+   head_arity = head->arity;
 
    if(!TermIsVar(head) && !TermIsAppliedVar(head) && !SigGetType(bank->sig, head->f_code))
    {
@@ -1511,15 +1510,26 @@ Term_p  TBTermParseRealHO(Scanner_p in, TB_p bank, bool check_symb_prop)
    {
       AcceptInpTok(in, Application);
 
-      if(TestInpTok(in, OpenBracket))
+      if(head_arity + rest_arity >= TypeGetMaxArity(GetHeadType(bank->sig, head)))
       {
-         AcceptInpTok(in, OpenBracket);
-         arg = TBTermParseRealHO(in, bank, check_symb_prop);
-         AcceptInpTok(in, CloseBracket);
+         AktTokenError(in, "Too many arguments supplied to symbol.", false);
+      }
+      if(TypeIsBool(GetHeadType(bank->sig, head)->args[head_arity+rest_arity]))
+      {
+         arg = (TestInpTok(in, Name|SemIdent) ? parse_one_ho :  TFormulaTSTPParse)(in, bank);
       }
       else
       {
-         arg = parse_one_ho(in, bank);
+         if(TestInpTok(in, OpenBracket))
+         {
+            AcceptInpTok(in, OpenBracket);
+            arg = TBTermParseRealHO(in, bank, check_symb_prop);
+            AcceptInpTok(in, CloseBracket);
+         }
+         else
+         {
+            arg = parse_one_ho(in, bank);
+         }
       }
 
       if(rest_arity == allocated)

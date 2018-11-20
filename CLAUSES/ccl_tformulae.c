@@ -493,6 +493,10 @@ static TFormula_p literal_tform_tstp_parse(Scanner_p in, TB_p terms)
    else if(TestInpTok(in, TildeSign))
    {
       AcceptInpTok(in, TildeSign);
+      if(problemType == PROBLEM_HO && TestInpTok(in, Application))
+      {
+         AcceptInpTok(in, Application);
+      }
       tmp = literal_tform_tstp_parse(in, terms);
       res = TFormulaFCodeAlloc(terms, terms->sig->not_code, tmp, NULL);
    }
