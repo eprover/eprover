@@ -300,6 +300,10 @@ static Term_p tb_subterm_parse(Scanner_p in, TB_p bank)
             assert(res->type);
          }
       }
+      else
+      {
+         SigFixType(bank->sig, res->f_code);
+      }
    }
    return res;
 }
