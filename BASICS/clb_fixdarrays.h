@@ -47,9 +47,18 @@ void          FixedDArrayFree(FixedDArray_p junk);
 
 #define FixedDArraySize(array) ((array)->size)
 
-FixedDArray_p FixedDArrayCopy(FixedDArray_p array);
+void FixedDArrayInitialize(FixedDArray_p array, long value);
 
-void          FixedDArrayPrint(FILE* out, FixedDArray_p array);
+void FixedDArrayAdd(FixedDArray_p dest, FixedDArray_p s1, FixedDArray_p s2);
+void FixedDArrayMulAdd(FixedDArray_p dest, FixedDArray_p s1, long f1,
+                       FixedDArray_p s2, long f2);
+#define FixedDArraySub(dest, s1, s2) FixedDArrayMulAdd((dest),(s1), 1, (s2), -1)
+void FixedDArrayMax(FixedDArray_p dest, FixedDArray_p s1, FixedDArray_p s2);
+void FixedDArrayMin(FixedDArray_p dest, FixedDArray_p s1, FixedDArray_p s2);
+
+void FixedDArrayPrint(FILE* out, FixedDArray_p array);
+
+FixedDArray_p FixedDArrayCopy(FixedDArray_p array);
 
 
 #endif

@@ -293,7 +293,7 @@ static bool eqn_subsumes_termpair(Eqn_p eqn, Term_p t1, Term_p t2)
 
 #ifndef NDEBUG
 /* Old version used for comparison only */
-static Eqn_p find_spec_literal_old(Eqn_p lit, Eqn_p list)
+Eqn_p find_spec_literal_old(Eqn_p lit, Eqn_p list)
 {
    Subst_p subst = SubstAlloc();
 

@@ -1,26 +1,23 @@
 /*-----------------------------------------------------------------------
 
-File  : ccl_freqvectors.h
+  File  : ccl_freqvectors.h
 
-Author: Stephan Schulz
+  Author: Stephan Schulz
 
-Contents
+  Contents
 
   Functions for handling frequency count vectors and permutation
   vectors.
 
-  2003 by the author.
+  2003-2018 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
+  Created: Tue Jul  8 21:48:35 CEST 2003
 
-<1> Tue Jul  8 21:48:35 CEST 2003
-    New (separated FreqVector from fcvindexing.*)
-
------------------------------------------------------------------------*/
+  -----------------------------------------------------------------------*/
 
 #ifndef CCL_FREQVECTORS
 
@@ -117,9 +114,9 @@ PERF_CTR_DECL(FreqVecTimer);
 #define PermVectorPrint(out,vec) FixedDArrayPrint((out),(vec))
 
 PermVector_p PermVectorComputeInternal(FreqVector_p fmax, FreqVector_p fmin,
-                   FreqVector_p sums,
-                   long max_len,
-                   bool eliminate_uninformative);
+                                       FreqVector_p sums,
+                                       long max_len,
+                                       bool eliminate_uninformative);
 
 
 #define FreqVectorCellAlloc()    (FreqVectorCell*)SizeMalloc(sizeof(FreqVectorCell))
@@ -129,15 +126,13 @@ PermVector_p PermVectorComputeInternal(FreqVector_p fmax, FreqVector_p fmin,
 #define FVACCompatSize(size)    ((size+1)*2+FV_CLAUSE_FEATURES)
 #define FVSSCompatSize(size)    ((size+1)*2)
 #define FVFullSize(size)        ((size+1)*4+FV_CLAUSE_FEATURES)
-#define FVSize(size, features) (((features)==FVIACFeatures)?FVACCompatSize(size):\
-            (((features)==FVISSFeatures)?FVSSCompatSize(size):\
+#define FVSize(size, features) (((features)==FVIACFeatures)?FVACCompatSize(size): \
+                                (((features)==FVISSFeatures)?FVSSCompatSize(size): \
                                  FVFullSize(size)))
 
 
 #define FVCollectCellAlloc()    (FVCollectCell*)SizeMalloc(sizeof(FVCollectCell))
 #define FVCollectCellFree(junk) SizeFree(junk, sizeof(FVCollectCell))
-
-
 
 FreqVector_p FreqVectorAlloc(long size);
 
@@ -153,7 +148,7 @@ void         FreqVectorInitialize(FreqVector_p vec, long value);
 void         FreqVectorPrint(FILE* out, FreqVector_p vec);
 
 void VarFreqVectorAddVals(FreqVector_p vec, long symbols, FVIndexType features,
-           Clause_p clause);
+                          Clause_p clause);
 FreqVector_p VarFreqVectorCompute(Clause_p clause, FVCollect_p cspec);
 FreqVector_p OptimizedVarFreqVectorCompute(Clause_p clause,
                                            PermVector_p perm,
@@ -204,7 +199,7 @@ FVCollect_p BillPlusFeaturesCollectAlloc(Sig_p sig, long len);
 
 
 FVPackedClause_p FVPackClause(Clause_p clause, PermVector_p perm,
-               FVCollect_p cspec);
+                              FVCollect_p cspec);
 Clause_p         FVUnpackClause(FVPackedClause_p pack);
 
 void             FVPackedClauseFreeReal(FVPackedClause_p pack);
@@ -217,22 +212,11 @@ void             FVPackedClauseFreeReal(FVPackedClause_p pack);
 
 void FreqVectorAdd(FreqVector_p dest, FreqVector_p s1, FreqVector_p s2);
 void FreqVectorMulAdd(FreqVector_p dest, FreqVector_p s1, long f1,
-            FreqVector_p s2, long f2);
+                      FreqVector_p s2, long f2);
 #define FreqVectorSub(dest, s1, s2) FreqVectorMulAdd((dest),(s1), 1, (s2), -1)
 void FreqVectorMax(FreqVector_p dest, FreqVector_p s1, FreqVector_p s2);
 void FreqVectorMin(FreqVector_p dest, FreqVector_p s1, FreqVector_p s2);
 
-
-
-
-#ifdef NEVER_DEFINED
-void             StandardFreqVectorAddVals(FreqVector_p vec, long sig_symbols,
-                  Clause_p clause);
-FreqVector_p     StandardFreqVectorCompute(Clause_p clause, long sig_symbols);
-FreqVector_p     OptimizedFreqVectorCompute(Clause_p clause,
-                   PermVector_p perm,
-                   long sig_symbols);
-#endif
 
 
 #endif
@@ -240,8 +224,3 @@ FreqVector_p     OptimizedFreqVectorCompute(Clause_p clause,
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
-
-
-

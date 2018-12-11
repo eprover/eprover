@@ -86,29 +86,136 @@ void FixedDArrayFree(FixedDArray_p junk)
 
 /*-----------------------------------------------------------------------
 //
-// Function: FixedDArrayCopy()
+// Function: FixedDArrayInitialize()
 //
-//   Copy an array, return pointer to new copy.
+//   Set all values in the array to a given value.
 //
 // Global Variables: -
 //
-// Side Effects    : Memory operations
+// Side Effects    : -
 //
 /----------------------------------------------------------------------*/
 
-FixedDArray_p FixedDArrayCopy(FixedDArray_p array)
+void FixedDArrayInitialize(FixedDArray_p array, long value)
 {
-   if(!array)
-   {
-      return NULL;
-   }
-   else
-   {
-      FixedDArray_p handle = FixedDArrayAlloc(array->size);
+   long i;
 
-      memcpy(handle, array,
-             sizeof(FixedDArrayCell)+(array->size*sizeof(long)));
-      return handle;
+   for(i=0; i<array->size; i++)
+   {
+      array->array[i] = value;
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: FixedDArrayAdd()
+//
+//   Component-wise addition of both sources. Guaranteed to work if
+//   dest is a source (but not maximally efficient - who cares). Yes,
+//   it's worth mentioning it ;-)
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void FixedDArrayAdd(FixedDArray_p dest, FixedDArray_p s1, FixedDArray_p s2)
+{
+   long i;
+
+   assert(s1 && s2 && dest);
+   assert(s1->size == dest->size);
+   assert(s2->size == dest->size);
+
+   for(i=0; i<dest->size; i++)
+   {
+      dest->array[i] = s1->array[i]+s2->array[i];
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: FixedDArrayMulAdd()
+//
+//   Component-wise addition of both weighted sources. Guaranteed to
+//   work if dest is a source (but not maximally efficient - who
+//   cares). Yes, it's worth mentioning it ;-)
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void FixedDArrayMulAdd(FixedDArray_p dest, FixedDArray_p s1, long f1,
+                      FixedDArray_p s2, long f2)
+{
+   long i;
+
+   assert(s1 && s2 && dest);
+   assert(s1->size == dest->size);
+   assert(s2->size == dest->size);
+
+   for(i=0; i<dest->size; i++)
+   {
+      dest->array[i] = f1*s1->array[i]+f2*s2->array[i];
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: FixedDArrayMax()
+//
+//   Compute componentwise  max of vectors. See above.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void FixedDArrayMax(FixedDArray_p dest, FixedDArray_p s1, FixedDArray_p s2)
+{
+   long i;
+
+   assert(s1 && s2 && dest);
+   assert(s1->size == dest->size);
+   assert(s2->size == dest->size);
+
+   for(i=0; i<dest->size; i++)
+   {
+      dest->array[i] = MAX(s1->array[i],s2->array[i]);
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: FixedDArrayMin()
+//
+//   Compute componentwise  min of vectors. See above.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void FixedDArrayMin(FixedDArray_p dest, FixedDArray_p s1, FixedDArray_p s2)
+{
+   long i;
+
+   assert(s1 && s2 && dest);
+   assert(s1->size == dest->size);
+   assert(s2->size == dest->size);
+
+   for(i=0; i<dest->size; i++)
+   {
+      dest->array[i] = MIN(s1->array[i],s2->array[i]);
    }
 }
 
@@ -135,6 +242,36 @@ void FixedDArrayPrint(FILE* out, FixedDArray_p array)
       fprintf(out, " %4ld", array->array[i]);
    }
    fputc('\n', out);
+}
+
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: FixedDArrayCopy()
+//
+//   Copy an array, return pointer to new copy.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+FixedDArray_p FixedDArrayCopy(FixedDArray_p array)
+{
+   if(!array)
+   {
+      return NULL;
+   }
+   else
+   {
+      FixedDArray_p handle = FixedDArrayAlloc(array->size);
+
+      memcpy(handle, array,
+             sizeof(FixedDArrayCell)+(array->size*sizeof(long)));
+      return handle;
+   }
 }
 
 
