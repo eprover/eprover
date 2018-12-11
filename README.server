@@ -1,11 +1,11 @@
 Short Installation
 ------------------
 
-This assumes that you have GNU tar, sh and gawk in your search path! 
+This assumes that you have GNU tar, sh and gawk in your search path!
 
 Simplest installation:
 
-> tar -xzf E.tgz 
+> tar -xzf E.tgz
 > cd E
 > ./configure
 > make
@@ -53,7 +53,7 @@ fof(inp2,axiom,(subclass(b,c))).
 GO
 
 ADD axiom_set2
-fof(inp3,axiom,((subclass(X,Y) & subclass(Y,Z)) => subclass(X,Z))).
+fof(inp3,axiom,![X,Y,Z]:((subclass(X,Y) & subclass(Y,Z)) => subclass(X,Z))).
 GO
 
 STAGE axiom_set1
@@ -101,7 +101,7 @@ Note : Block commands that are in the form of "COMMAND <NAME> ... GO" should hav
 in between. Check the above examples.
 
 - ADD <NAME> ... GO : Uploads a new axiom set with the name <NAME>.
-- LOAD <NAME>       : Loads a server-side axiom set with the name <NAME>. 
+- LOAD <NAME>       : Loads a server-side axiom set with the name <NAME>.
 - STAGE <NAME>      : Stages the axiom set <NAME>.
 - UNSTAGE <NAME>    : Unstages the axiom set <NAME>.
 - REMOVE <NAME>     : Removes the axiom set <NAME> from the memory.
