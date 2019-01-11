@@ -590,13 +590,13 @@ int main(int argc, char* argv[])
 
       if(!proofstate->status_reported)
       {
-         if(deriv->has_conjecture)
+         if(neg_conjectures)
          {
-            TSTPOUT(GlobalOut, neg_conjectures?"Theorem":"Unsatisfiable");
+            TSTPOUT(GlobalOut, deriv->has_conjecture?"Theorem":"ContradictoryAxioms");
          }
          else
          {
-            TSTPOUT(GlobalOut, "ContradictoryAxioms");
+            TSTPOUT(GlobalOut, "Unsatisfiable");
          }
          proofstate->status_reported = true;
          retval = PROOF_FOUND;
