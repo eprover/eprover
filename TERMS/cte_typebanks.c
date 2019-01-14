@@ -6,7 +6,7 @@ Author: Petar Vukmirovic
 
 Contents
 
-  This module implements type sharing invariant: 
+  This module implements type sharing invariant:
    -Each two types that are structurally the same,
     should be the same object in memory.
 
@@ -138,7 +138,7 @@ static __inline__ void type_arg_realloc(Type_p** args, int current, int new)
 //
 // Function: force_arg_sharing()
 //
-//   Make sure that arguments are shared. 
+//   Make sure that arguments are shared.
 //
 // Global Variables: -
 //
@@ -356,7 +356,7 @@ TypeBank_p TypeBankAlloc()
 //
 // Function: TypeBankInsertTypeShared()
 //
-//  Insert type t to type bank to make it shared. If the term t was not 
+//  Insert type t to type bank to make it shared. If the term t was not
 //  present in the bank, return new type and free the original type.
 //
 // Global Variables: -
@@ -388,7 +388,7 @@ Type_p TypeBankInsertTypeShared(TypeBank_p bank, Type_p t)
          }
       }
       else
-      {         
+      {
          TypeFree(t);
       }
    }
@@ -438,7 +438,7 @@ TypeConsCode TypeBankDefineTypeConstructor(TypeBank_p bank, const char* name, in
          return -1; // stiff warning
       }
    }
-   else 
+   else
    {
       IntOrP id    = {.i_val = bank->names_count++};
       IntOrP arity_iop = {.i_val = (long)arity};
@@ -472,7 +472,7 @@ TypeConsCode TypeBankDefineSimpleSort(TypeBank_p bank, const char* name)
 //
 // Function: TypeBankFindTCCode()
 //
-//    Find type constructor code corresponding to given name. If 
+//    Find type constructor code corresponding to given name. If
 //    the name is not found NAME_NOT_FOUND is returned.
 //
 // Global Variables: -
@@ -485,7 +485,7 @@ TypeConsCode TypeBankFindTCCode(TypeBank_p bank, const char* name)
 {
    assert(bank);
    StrTree_p node = StrTreeFind(&bank->name_idx, name);
-   
+
    return node ? GetNameId(node) : NAME_NOT_FOUND;
 }
 
@@ -622,7 +622,7 @@ Type_p TypeBankParseType(Scanner_p in, TypeBank_p bank)
          res = AllocArrowType(arity, args);
       }
    }
-   else 
+   else
    {
       // parsing HO types
       assert(problemType == PROBLEM_HO);
@@ -630,14 +630,14 @@ Type_p TypeBankParseType(Scanner_p in, TypeBank_p bank)
       {
          AcceptInpTok(in, OpenBracket);
          leftArg = TypeBankParseType(in, bank);
-         AcceptInpTok(in, CloseBracket); 
+         AcceptInpTok(in, CloseBracket);
       }
       else
       {
          leftArg = parse_single_type(in, bank);
       }
 
-      if(TestInpTok(in, CloseBracket | Fullstop | CloseSquare | Comma 
+      if(TestInpTok(in, CloseBracket | Fullstop | CloseSquare | Comma
                          | EqualSign | NegEqualSign | FOFBinOp))
       {
          res = leftArg;
@@ -711,7 +711,7 @@ Type_p TypeBankParseType(Scanner_p in, TypeBank_p bank)
 // Function: TypePrintTSTP()
 //
 //    Prints type in either FO or HO format, based on problemType
-//    status. 
+//    status.
 //
 // Global Variables: problemType
 //
@@ -750,17 +750,16 @@ void TypePrintTSTP(FILE* out, TypeBank_p bank, Type_p type)
       }
       else
       {
-         assert(problemType == PROBLEM_HO);
          for(int i=0; i<type->arity-1; i++)
          {
             if(TypeIsArrow(type->args[i]))
             {
-               fprintf(out, "(");   
+               fprintf(out, "(");
             }
             TypePrintTSTP(out, bank, type->args[i]);
             if(TypeIsArrow(type->args[i]))
             {
-               fprintf(out, ")");   
+               fprintf(out, ")");
             }
             fprintf(out, " > ");
          }
@@ -791,7 +790,7 @@ void TypePrintTSTP(FILE* out, TypeBank_p bank, Type_p type)
 //
 //    Changes return type of the given type to new_ret and returns newly
 //    generated type.
-//    
+//
 //
 // Global Variables: problemType
 //
@@ -802,7 +801,7 @@ void TypePrintTSTP(FILE* out, TypeBank_p bank, Type_p type)
 Type_p TypeChangeReturnType(TypeBank_p bank, Type_p type, Type_p new_ret)
 {
    assert(TypeIsArrow(type) || type->f_code == STIndividuals);
-   
+
    Type_p res;
    if(TypeIsArrow(type))
    {
@@ -814,9 +813,9 @@ Type_p TypeChangeReturnType(TypeBank_p bank, Type_p type, Type_p new_ret)
    {
       res = bank->bool_type;
    }
-   
+
    return res;
-   
+
 }
 
 
@@ -861,7 +860,7 @@ void TypeBankFree(TypeBank_p bank)
 //
 // Function: TypeBankAppEncodeTypes()
 //
-//    For each term application symbol according to type a > b print 
+//    For each term application symbol according to type a > b print
 //    declaration app_ab_a_b : translation(a>b) * translation(a) > translation(b).
 //    If print_type_comment is true then the original, higher-order type
 //    will be printed as well.
@@ -893,10 +892,9 @@ void TypeBankAppEncodeTypes(FILE* out, TypeBank_p tb, bool print_type_comment)
                fprintf(out, ".\n");
             }
             fprintf(out, "tff(typedecl%d, type, %s: $tType).\n", total_types, DStrView(type_name));
-            DStrFree(type_name);   
+            DStrFree(type_name);
          }
       }
       PTreeTraverseExit(iter);
    }
 }
-

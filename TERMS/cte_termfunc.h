@@ -31,8 +31,13 @@
 /*                    Data type declarations                           */
 /*---------------------------------------------------------------------*/
 
-
-
+/* Variable normalization style */
+typedef enum 
+{
+   NSNone = -1,      /* none */
+   NSUnivar = 0,     /* unify all variables */
+   NSAlpha = 1       /* alpha-rename variables (DeBruin) */
+}VarNormStyle;
 
 /*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */
@@ -156,6 +161,11 @@ bool TermFindFOOLSubterm(Term_p t, PStack_p pos);
 
 #define PRINT_HO_PAREN(out, ch) ((problemType == PROBLEM_HO) ? \
                                     (fputc((ch), (out))) : 0)
+Term_p TermCopyUnifyVars(VarBank_p vars, Term_p term);
+Term_p TermCopyRenameVars(NumTree_p* renaming, Term_p term);
+Term_p TermCopyNormalizeVarsAlpha(VarBank_p vars, Term_p term);
+Term_p TermCopyNormalizeVars(VarBank_p vars, Term_p term, 
+                             VarNormStyle var_norm);
 
 /*-----------------------------------------------------------------------
 //

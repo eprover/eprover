@@ -1,10 +1,10 @@
 /*-----------------------------------------------------------------------
 
-File  : ccl_pdtrees.h
+  File  : ccl_pdtrees.h
 
-Author: Stephan Schulz
+  Author: Stephan Schulz
 
-Contents
+  Contents
 
   Perfect discrimination trees for optimized rewriting and
   subsumption. PDTrees are machines and have a state - each new search
@@ -17,14 +17,11 @@ Contents
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
+  Changes
 
-<1> Mon Jun 22 17:04:32 MET DST 1998
-    New
-<2> Fri Mar  2 16:06:12 CET 2001
-    Completely rewritten
+  Created: Mon Jun 22 17:04:32 MET DST 1998
 
------------------------------------------------------------------------*/
+  -----------------------------------------------------------------------*/
 
 #ifndef CCL_PDTREES
 
@@ -47,38 +44,38 @@ typedef struct pdt_node_cell
    PDArray_p          v_alternatives;   /* Variables */
    FunCode            max_var;          /* Largest variable... */
    long               size_constr;      /* Only terms that have at
-                  least this weight are
-                  indexed at or beyond this
-                  node */
+                                           least this weight are
+                                           indexed at or beyond this
+                                           node */
    SysDate            age_constr;       /* Only clauses that are older
-                  than this date are indexed
-                  at or beyond this node */
+                                           than this date are indexed
+                                           at or beyond this node */
    struct pdt_node_cell *parent;        /* Back-pointer to next node
-                  towards the root */
+                                           towards the root */
    long               ref_count;        /* How many entries share this
-                  node? */
+                                           node? */
    PTree_p            entries;          /* Clauses that are indexed
-                  - this should be NULL at
-                  all but leaf nodes. */
+                                           - this should be NULL at
+                                           all but leaf nodes. */
    Term_p             variable;         /* If this  node corresponds
-                  to a variable, point to it
-                  (so that we can bind it
-                  while searching for
-                  matches) */
+                                           to a variable, point to it
+                                           (so that we can bind it
+                                           while searching for
+                                           matches) */
    bool               bound;            /* Did we bind a variable (in
-                  fact, the one above...) to
-                  reach this node? I.e. do we
-                  need to backtrack this
-                  binding if we backtrack
-                  over this node? */
+                                           fact, the one above...) to
+                                           reach this node? I.e. do we
+                                           need to backtrack this
+                                           binding if we backtrack
+                                           over this node? */
    FunCode            trav_count;       /* For traversing during
-                  matching. Both 0 and
-                  node->max_var+1 represent
-                  the (maximal one) function
-                  symbol alternative, i is
-                  variable i. */
-  bool                leaf;   /* In HO inner nodes can store clauses,
-                                 so we mark leaves explicitly -- an optimization */
+                                           matching. Both 0 and
+                                           node->max_var+1 represent
+                                           the (maximal one) function
+                                           symbol alternative, i is
+                                           variable i. */
+   bool                leaf;   /* In HO inner nodes can store clauses,
+                                  so we mark leaves explicitly -- an optimization */
 }PDTNodeCell, *PDTNode_p;
 
 /* A PDTreeCell is an object encapsulating a PDTree and the necessary
@@ -99,10 +96,10 @@ typedef struct pd_tree_cell
    long      clause_count;   /* How many clauses? */
    long      arr_storage_est;/* How much memory used by arrays? */
    unsigned  long match_count;   /* How often has the index been
-               searched? */
+                                    searched? */
    unsigned  long visited_count; /* How many nodes in the index have
-               been visited? */
-   TB_p      bank;            /* When we make a prefix term, we want to 
+                                    been visited? */
+   TB_p      bank;            /* When we make a prefix term, we want to
                                  make it shared */
 }PDTreeCell, *PDTree_p;
 
@@ -127,8 +124,8 @@ extern unsigned long PDTNodeCounter;
 #define  PDTREE_IGNORE_TERM_WEIGHT LONG_MAX
 #define  PDTREE_IGNORE_NF_DATE     SysDateCreationTime()
 #define  PDT_NODE_INIT_VAL(tree)   ((tree)->prefer_general)
-#define  PDT_NODE_CLOSED(tree,node) ((tree)->prefer_general?\
-                                    (((node)->max_var)+2):(((node)->max_var)+1))
+#define  PDT_NODE_CLOSED(tree,node) ((tree)->prefer_general?            \
+                                     (((node)->max_var)+2):(((node)->max_var)+1))
 
 #define   PDTreeCellAlloc()    (PDTreeCell*)SizeMalloc(sizeof(PDTreeCell))
 #define   PDTreeCellFree(junk) SizeFree(junk, sizeof(PDTreeCell))
@@ -149,14 +146,14 @@ void      PDTreeFree(PDTree_p tree);
 #define PDTNODE_MEM MEMSIZE(PDTNodeCell)
 #endif
 
-#define   PDTreeStorage(tree) \
-          ((tree)\
-          ?\
-          ((tree)->node_count*PDTNODE_MEM\
-           +(tree)->arr_storage_est\
-           +(tree)->clause_count*(PDTREE_CELL_MEM+CLAUSEPOSCELL_MEM))\
-          :\
-           0)
+#define   PDTreeStorage(tree)                   \
+   ((tree)                                      \
+    ?                                           \
+    ((tree)->node_count*PDTNODE_MEM             \
+     +(tree)->arr_storage_est                                           \
+     +(tree)->clause_count*(PDTREE_CELL_MEM+CLAUSEPOSCELL_MEM))         \
+    :                                                                   \
+    0)
 
 extern bool PDTreeUseAgeConstraints;
 extern bool PDTreeUseSizeConstraints;
@@ -175,10 +172,14 @@ Term_p    TermLRTraversePrev(PStack_p stack, Term_p term);
 Term_p    TermLRTraversePrevAppVar(PStack_p stack, Term_p original_term, Term_p var);
 
 void      PDTreeInsert(PDTree_p tree, ClausePos_p demod_side);
+void      PDTreeInsertTerm(PDTree_p tree, Term_p term, 
+                           ClausePos_p demod_side, bool store_data);
 long      PDTreeDelete(PDTree_p tree, Term_p term, Clause_p clause);
+PDTNode_p PDTreeMatchPrefix(PDTree_p tree, Term_p term,  
+                            long* matched, long* remains);
 
 void      PDTreeSearchInit(PDTree_p tree, Term_p term, SysDate
-            age_constr, bool prefer_general);
+                           age_constr, bool prefer_general);
 void      PDTreeSearchExit(PDTree_p tree);
 
 PDTNode_p PDTreeFindNextIndexedLeaf(PDTree_p tree, Subst_p subst);
@@ -193,9 +194,3 @@ void PDTreePrint(FILE* out, PDTree_p tree);
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
-
-
-
-

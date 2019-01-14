@@ -1701,9 +1701,6 @@ void TBGCMarkTerm(TB_p bank, Term_p term)
 
          if(TermIsAppliedVar(term) && TermGetCache(term))
          {
-#ifdef ENABLE_LFHO
-            assert(TermIsShared(TermGetCache(term)));
-#endif
             PStackPushP(stack, TermGetCache(term));
          }
       }
@@ -1839,6 +1836,40 @@ long TBTermCollectSubterms(Term_p term, PStack_p collector)
       }
    }
    return res;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: TBFindRepr()
+//
+//   Find the representation of a term from another (or none) bank in 
+//   this bank.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+Term_p TBFindRepr(TB_p bank, Term_p term)
+{
+   int i;
+   Term_p work;
+   Term_p repr;
+   
+   if (TermIsVar(term) || TermIsConst(term)) 
+   {
+      return TBFind(bank, term);
+   }
+
+   work = TermTopCopy(term);
+   for (i=0; i<work->arity; i++) 
+   {
+      work->args[i] = TBFindRepr(bank, term->args[i]);
+   }
+   repr = TBFind(bank, work);
+   TermTopFree(work);
+   return repr;
 }
 
 

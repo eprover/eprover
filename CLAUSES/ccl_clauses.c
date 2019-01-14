@@ -2037,6 +2037,32 @@ double ClauseFunWeight(Clause_p clause, double max_term_multiplier,
    return res;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseTermExtWeight()
+//
+//   Compute the weight of a clause as an extension of an arbitrary term
+//   weight function. Modifiers are applied, several extensions are 
+//   supported (standard - sum literal/term weights, subterms - sum 
+//   weights of all subterms, or take the maximum subterm weight).
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+double ClauseTermExtWeight(Clause_p clause, TermWeightExtension_p twe)
+{
+   Eqn_p  lit;
+   double res = 0;
+
+   for (lit = clause->literals; lit; lit = lit->next)
+   {
+      res += LiteralTermExtWeight(lit, twe);
+   }
+   return res;
+}
 
 
 
