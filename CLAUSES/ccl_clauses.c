@@ -170,6 +170,7 @@ Clause_p clause_copy_meta(Clause_p clause)
    handle->properties  = clause->properties;
    handle->info        = NULL;
    handle->derivation  = NULL;
+   handle->feature_vec = NULL;
    handle->create_date = clause->create_date;
    handle->date        = clause->date;
    handle->proof_depth = clause->proof_depth;

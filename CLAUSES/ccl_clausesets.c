@@ -381,11 +381,11 @@ void ClauseSetFree(ClauseSet_p junk)
    assert(junk);
 
    ClauseSetFreeClauses(junk);
-
    if(junk->demod_index)
    {
       PDTreeFree(junk->demod_index);
    }
+
    if(junk->fvindex)
    {
       FVIAnchorFree(junk->fvindex);
