@@ -26,10 +26,10 @@ include Makefile.vars
 
 PROJECT  = E
 
-LIBS     = BASICS INOUT TERMS ORDERINGS CLAUSES PROPOSITIONAL LEARN \
+LIBS     = CONTRIB BASICS INOUT TERMS ORDERINGS CLAUSES PROPOSITIONAL LEARN \
            PCL2 HEURISTICS CONTROL
 HEADERS  = $(LIBS) EXTERNAL PROVER
-CODE     = $(LIBS) SIMPLE_APPS EXTERNAL CONTRIB PROVER
+CODE     = $(LIBS) SIMPLE_APPS EXTERNAL  PROVER
 PARTS    = $(CODE) DOC
 
 
@@ -94,6 +94,7 @@ fulldistrib: man documentation cleandist default_config
 starexec:
 	echo $(STAREXECPATH)
 	rm -rf $(STAREXECPATH)
+	find . -name ".#*"  -exec rm {} \;
 	./configure --bindir="."
 	touch CLAUSES/ccl_satinterface.c
 	make
