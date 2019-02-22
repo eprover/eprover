@@ -1228,6 +1228,10 @@ bool TFormulaVarIsFree(TB_p bank, TFormula_p form, Term_p var)
    bool res = false;
    int i;
 
+   if(!form->v_count)
+   {
+      return false;
+   }
    if(TFormulaIsLiteral(bank->sig, form))
    {
       res = TBTermIsSubterm(form, var);

@@ -1,25 +1,24 @@
 /*-----------------------------------------------------------------------
 
-File  : ccl_tcnf.c
+  File  : ccl_tcnf.c
 
-Author: Stephan Schulz
+  Author: Stephan Schulz
 
-Contents
+  Contents
 
   Functions for CNF conversion of a term-encoded FOF formula.
 
-  Copyright 2003,2005 by the author.
+  Copyright 2003-2019 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
+  Changes
 
-<1> Thu Feb 26 00:21:17 CET 2004
-    New (from ccl_cnf.c)
+  Created: Thu Feb 26 00:21:17 CET 2004
 
------------------------------------------------------------------------*/
+  -----------------------------------------------------------------------*/
 
 #include "ccl_tcnf.h"
 
@@ -646,6 +645,132 @@ static TFormula_p miniscope_qall(TB_p terms, TFormula_p form, Term_p var,
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: tform_find_miniscopeable()
+//
+//   Find all maximal miniscopable subformulas. A formula is
+//   miniscopable, if it has at most limit subformulae, starts with a
+//   universal quantifier, and contains an existential quantifier (we
+//   only miniscope with the goal of moving existential quantifier out
+//   of the scope of universal quantifiers - and that not at all
+//   costs ;-). Return value is the size, candidates are stored in the
+//   ptree at candidates, and the existance of an existential
+//   quantifier is returned via *exq. Sometime I'm longing for
+//   tuples...
+//
+// Global Variables:
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+
+long tform_find_miniscopeable(Sig_p sig, TFormula_p form, long limit,
+                              PTree_p *candidates, bool *exq)
+{
+   bool lexq = false;
+   long size;
+   PTree_p lcands = NULL;
+
+   assert(!TermIsVar(form));
+
+   if(!form->v_count)
+   {
+      return LONG_MAX;
+   }
+   if(TFormulaIsLiteral(sig, form))
+   {
+      return 1;
+   }
+   if(TFormulaIsQuantified(sig, form))
+   {
+      size = 1+tform_find_miniscopeable(sig, form->args[1], limit, &lcands,  &lexq);
+      if(form->f_code == sig->qex_code)
+      {
+         *exq = true;
+      }
+      else /* Universal quantifier */
+      {
+         if(size<=limit && lexq)
+         {
+            PTreeFree(lcands);
+            PTreeStore(candidates, form);
+         }
+         else
+         {
+            PTreeMerge(candidates, lcands);
+         }
+         *exq = lexq;
+      }
+   }
+   else
+   {
+      size = 1;
+      if(TFormulaHasSubForm1(sig, form))
+      {
+         size += size+tform_find_miniscopeable(sig, form->args[0],
+                                               limit, &lcands,  &lexq);
+         PTreeMerge(candidates, lcands);
+         lcands = NULL;
+         *exq |= lexq;
+      }
+      if(TFormulaHasSubForm2(sig, form))
+      {
+         size += size+tform_find_miniscopeable(sig, form->args[1],
+                                               limit, &lcands,  &lexq);
+         PTreeMerge(candidates, lcands);
+         *exq |= lexq;
+      }
+   }
+   return size;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: tform_copy_mod()
+//
+//   Copy a formula, following "binding" when it is set. Ground
+//   formumas, variables, and literals are returned as-is.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+TFormula_p tform_copy_mod(TB_p terms, TFormula_p form)
+{
+   TFormula_p arg1=NULL, arg2=NULL;
+   bool changed = false;
+
+   if(TFormulaIsLiteral(terms->sig, form)
+      ||!form->v_count
+      ||TermIsVar(form))
+   {
+      return form;
+   }
+   if(form->binding)
+   {
+      return form->binding;
+   }
+   if(TFormulaHasSubForm1(terms->sig, form))
+   {
+      arg1 = tform_copy_mod(terms, form->args[0]);
+      changed |= arg1!=form->args[0];
+   }
+   if(TFormulaHasSubForm2(terms->sig, form))
+   {
+      arg2 = tform_copy_mod(terms, form->args[1]);
+      changed |= arg2!=form->args[1];
+   }
+   if(changed)
+   {
+      form = TFormulaFCodeAlloc(terms, form->f_code, arg1, arg2);
+   }
+   return form;
+}
+
 
 
 /*---------------------------------------------------------------------*/
@@ -1076,13 +1201,16 @@ TFormula_p TFormulaNegAlloc(TB_p terms, TFormula_p form)
 //   P -> P => T   P -> T => T    P -> F => ~P
 //   ...
 //
+//   We only check for redundant quantifiers in "small" formulas
+//   (weight less than quopt_limit)
+//
 // Global Variables: -
 //
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
 
-TFormula_p TFormulaSimplify(TB_p terms, TFormula_p form, bool full_simpl)
+TFormula_p TFormulaSimplify(TB_p terms, TFormula_p form, long quopt_limit)
 {
    TFormula_p handle, arg1=NULL, arg2=NULL, newform;
    FunCode f_code;
@@ -1098,7 +1226,7 @@ TFormula_p TFormulaSimplify(TB_p terms, TFormula_p form, bool full_simpl)
    }
    if(TFormulaHasSubForm1(terms->sig,form))
    {
-      arg1 = TFormulaSimplify(terms, form->args[0], full_simpl);
+      arg1 = TFormulaSimplify(terms, form->args[0], quopt_limit);
       modified = arg1!=form->args[0];
    }
    else if(TFormulaIsQuantified(terms->sig, form))
@@ -1109,7 +1237,7 @@ TFormula_p TFormulaSimplify(TB_p terms, TFormula_p form, bool full_simpl)
    if(TFormulaHasSubForm2(terms->sig, form)||
       TFormulaIsQuantified(terms->sig, form))
    {
-      arg2 = TFormulaSimplify(terms, form->args[1], full_simpl);
+      arg2 = TFormulaSimplify(terms, form->args[1], quopt_limit);
       modified |= arg2!=form->args[1];
    }
    if(modified)
@@ -1220,13 +1348,13 @@ TFormula_p TFormulaSimplify(TB_p terms, TFormula_p form, bool full_simpl)
                                      form->args[0], form->args[1]);
          newform = TFormulaFCodeAlloc(terms, terms->sig->not_code,
                                       handle, NULL);
-         newform =  TFormulaSimplify(terms, newform, full_simpl);
+         newform =  TFormulaSimplify(terms, newform, quopt_limit);
       }
       else if(form->f_code == terms->sig->bimpl_code)
       {
          newform = TFormulaFCodeAlloc(terms, terms->sig->impl_code,
                                       form->args[1], form->args[0]);
-         newform = TFormulaSimplify(terms, newform, full_simpl);
+         newform = TFormulaSimplify(terms, newform, quopt_limit);
       }
       else if(form->f_code == terms->sig->nor_code)
       {
@@ -1234,7 +1362,7 @@ TFormula_p TFormulaSimplify(TB_p terms, TFormula_p form, bool full_simpl)
                                      form->args[0], form->args[1]);
          newform = TFormulaFCodeAlloc(terms, terms->sig->not_code,
                                       handle, NULL);
-         newform =  TFormulaSimplify(terms, newform, full_simpl);
+         newform =  TFormulaSimplify(terms, newform, quopt_limit);
       }
       else if(form->f_code == terms->sig->nand_code)
       {
@@ -1242,18 +1370,16 @@ TFormula_p TFormulaSimplify(TB_p terms, TFormula_p form, bool full_simpl)
                                      form->args[0], form->args[1]);
          newform = TFormulaFCodeAlloc(terms, terms->sig->not_code,
                                       handle, NULL);
-         newform =  TFormulaSimplify(terms, newform, full_simpl);
+         newform =  TFormulaSimplify(terms, newform, quopt_limit);
       }
-      if(full_simpl)
+      if((form->f_code == terms->sig->qex_code)||
+         (form->f_code == terms->sig->qall_code))
       {
-         // printf("Bad\n");
-         if((form->f_code == terms->sig->qex_code)||
-            (form->f_code == terms->sig->qall_code))
+         if(!form->v_count ||
+            ((form->weight<=quopt_limit) &&
+             !TFormulaVarIsFree(terms, form->args[1], form->args[0])))
          {
-            if(!TFormulaVarIsFree(terms, form->args[1], form->args[0]))
-            {
-               newform = form->args[1];
-            }
+            newform = form->args[1];
          }
       }
       if(newform!=form)
@@ -1335,6 +1461,9 @@ TFormula_p TFormulaNNF(TB_p terms, TFormula_p form, int polarity)
    assert(form);
    return form;
 }
+
+
+
 
 
 /*-----------------------------------------------------------------------
@@ -1435,7 +1564,7 @@ TFormula_p TFormulaMiniScope(TB_p terms, TFormula_p form)
 //
 //   Perform mini-scoping, i.e. move quantors inward as far as
 //   possible. Assumes that variables for each quantor are unique, and
-//   that the formula is in CNF.
+//   that the formula is in NNF.
 //
 // Global Variables: -
 //
@@ -1490,6 +1619,64 @@ TFormula_p TFormulaMiniScope2(TB_p terms, TFormula_p form,
       }
    }
    PStackFree(prenex);
+   return form;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: TFormulaMiniScope3()
+//
+//   Perform (conditional) mini-scoping, i.e. move quantors inward as
+//   far as possible if there are "small" subformulas that might
+//   profit from miniskoping. Assumes that variables for each quantor
+//   are unique, and that the formula is in NNF.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+TFormula_p TFormulaMiniScope3(TB_p terms, TFormula_p form,
+                              long miniscope_limit)
+{
+   PTree_p    ms_forms = NULL, entry;
+   bool       exq = false;
+   long       size;
+   TFormula_p cand;
+
+   size = tform_find_miniscopeable(terms->sig, form, miniscope_limit,
+                                   &ms_forms, &exq);
+
+   if(ms_forms)
+   {
+      assert(exq);
+      PStack_p iter;
+
+      // printf("# Found %ld positions\n", PTreeNodes(ms_forms));
+
+      iter = PTreeTraverseInit(ms_forms);
+      while((entry = PTreeTraverseNext(iter)))
+      {
+         cand = entry->key;
+         assert(!cand->binding);
+         cand->binding = TFormulaMiniScope(terms, cand);
+      }
+      PTreeTraverseExit(iter);
+
+      form = tform_copy_mod(terms, form);
+
+      iter = PTreeTraverseInit(ms_forms);
+      while((entry = PTreeTraverseNext(iter)))
+      {
+         cand = entry->key;
+         cand->binding = NULL;
+      }
+      PTreeTraverseExit(iter);
+   }
+   PTreeFree(ms_forms);
+
    return form;
 }
 
@@ -1680,7 +1867,7 @@ TFormula_p TFormulaShiftQuantors2(TB_p terms, TFormula_p form)
 //
 // Global Variables: -
 //
-// Side Effects    : May destroy formula
+// Side Effects    : Rebuilds formula
 //
 /----------------------------------------------------------------------*/
 
@@ -1757,7 +1944,7 @@ void WTFormulaConjunctiveNF(WFormula_p form, TB_p terms)
    WFormulaPrint(GlobalOut, form, true);
    printf("\n");*/
 
-   handle = TFormulaSimplify(terms, form->tformula, true);
+   handle = TFormulaSimplify(terms, form->tformula, 100);
 
    if(handle!=form->tformula)
    {
@@ -1836,7 +2023,7 @@ void WTFormulaConjunctiveNF2(WFormula_p form, TB_p terms,
 
    // printf("# Start: "); WFormulaPrint(GlobalOut, form, true); printf("\n");
 
-   handle = TFormulaSimplify(terms, form->tformula, false);
+   handle = TFormulaSimplify(terms, form->tformula, 0);
 
    if(handle!=form->tformula)
    {
@@ -1877,7 +2064,7 @@ void WTFormulaConjunctiveNF2(WFormula_p form, TB_p terms,
 
    //printf("# Prenexed\n");
 
-   handle = TFormulaSimplify(terms, form->tformula, false);
+   handle = TFormulaSimplify(terms, form->tformula, 100);
 
    if(handle!=form->tformula)
    {
@@ -1921,6 +2108,91 @@ void WTFormulaConjunctiveNF2(WFormula_p form, TB_p terms,
       WFormulaPushDerivation(form, DCDistDisjunctions, NULL, NULL);
    }
 }
+
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: WTFormulaConjunctiveNF3()
+//
+//   Transform a formula into Conjunctive Normal Form.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void WTFormulaConjunctiveNF3(WFormula_p form, TB_p terms,
+                             long miniscope_limit)
+{
+   TFormula_p handle;
+
+   /*printf("Start: ");
+   WFormulaPrint(GlobalOut, form, true);
+   printf("\n");*/
+
+   handle = TFormulaSimplify(terms, form->tformula, 1000);
+
+   if(handle!=form->tformula)
+   {
+      form->tformula = handle;
+      DocFormulaModificationDefault(form, inf_fof_simpl);
+      WFormulaPushDerivation(form, DCFofSimplify, NULL, NULL);
+   }
+
+   handle = TFormulaNNF(terms, form->tformula, 1);
+   if(handle!=form->tformula)
+   {
+      form->tformula = handle;
+      DocFormulaModificationDefault(form, inf_fof_nnf);
+      WFormulaPushDerivation(form, DCFNNF, NULL, NULL);
+   }
+
+   handle = TFormulaMiniScope3(terms, form->tformula, miniscope_limit);
+
+   if(handle!=form->tformula)
+   {
+      form->tformula = handle;
+      DocFormulaModificationDefault(form, inf_shift_quantors);
+      WFormulaPushDerivation(form, DCShiftQuantors, NULL, NULL);
+   }
+   TFormulaFindMaxVarCode(form->tformula);
+   VarBankSetVCountsToUsed(terms->vars);
+   handle = TFormulaVarRename(terms, form->tformula);
+
+   if(handle!=form->tformula)
+   {
+      form->tformula = handle;
+      DocFormulaModificationDefault(form, inf_var_rename);
+      WFormulaPushDerivation(form, DCVarRename, NULL, NULL);
+   }
+   handle = TFormulaSkolemizeOutermost(terms, form->tformula);
+   if(handle!=form->tformula)
+   {
+      form->tformula = handle;
+      DocFormulaModificationDefault(form, inf_skolemize_out);
+      WFormulaPushDerivation(form, DCSkolemize, NULL, NULL);
+   }
+   handle = TFormulaShiftQuantors(terms, form->tformula);
+   if(handle!=form->tformula)
+   {
+      form->tformula = handle;
+      DocFormulaModificationDefault(form, inf_shift_quantors);
+      WFormulaPushDerivation(form, DCShiftQuantors, NULL, NULL);
+   }
+
+   handle = TFormulaDistributeDisjunctions(terms, form->tformula);
+
+   if(handle!=form->tformula)
+   {
+      form->tformula = handle;
+      DocFormulaModificationDefault(form, inf_fof_distrib);
+      WFormulaPushDerivation(form, DCDistDisjunctions, NULL, NULL);
+   }
+}
+
+
 
 
 
