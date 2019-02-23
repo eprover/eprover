@@ -118,7 +118,7 @@ EDPLL = edpll.o ../lib/PROPOSITIONAL.a ../lib/CLAUSES.a\
 edpll: $(EDPLL)
 	$(LD) -o edpll $(EDPLL) $(LIBS)
 
-CLASSIFY = classify_problem.o ../lib/HEURISTICS.a\
+CLASSIFY = classify_problem.o ../lib/CONTROL.a ../lib/HEURISTICS.a\
             ../lib/CLAUSES.a ../lib/ORDERINGS.a ../lib/TERMS.a\
             ../lib/INOUT.a ../lib/BASICS.a ../lib/PICOSAT.a
 

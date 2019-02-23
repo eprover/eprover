@@ -30,6 +30,7 @@ Changes
 #include <che_clausesetfeatures.h>
 #include <che_specsigfeatures.h>
 #include <che_rawspecfeatures.h>
+#include <cco_sine.h>
 #include <e_version.h>
 
 /*---------------------------------------------------------------------*/
@@ -60,6 +61,7 @@ typedef enum
    OPT_EQ_UNFOLD_LIMIT,
    OPT_EQ_UNFOLD_MAXCLAUSES,
    OPT_NO_EQ_UNFOLD,
+   OPT_SINE,
    OPT_FREE_NUMBERS,
    OPT_FREE_OBJECTS,
    OPT_DEF_CNF_OLD,
@@ -242,6 +244,12 @@ OptCell opts[] =
     NoArg, NULL,
     "During preprocessing, abstain from unfolding (and removing) "
     "equational definitions."},
+
+   {OPT_SINE,
+    '\0', "sine",
+    OptArg, "Auto",
+    "Apply SInE to prune the unprocessed axioms with the specified"
+    " filter. 'Auto' will automatically pick a filter."},
 
    {OPT_FREE_NUMBERS,
     '\0', "free-numbers",
@@ -477,7 +485,7 @@ long eqdef_maxclauses = DEFAULT_EQDEF_MAXCLAUSES,
 int eqdef_incrlimit  = DEFAULT_EQDEF_INCRLIMIT;
 FunctionProperties free_symb_prop = FPIgnoreProps;
 ProblemType problemType  = PROBLEM_NOT_INIT;
-
+char *sine = NULL;
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
@@ -827,6 +835,8 @@ int main(int argc, char* argv[])
 
          FormulaAndClauseSetParse(in, fstate->f_axioms, fstate->watchlist,
                                   fstate->terms, NULL, &skip_includes);
+         ProofStateSinE(fstate, sine);
+
          if(raw_classify)
          {
             do_raw_classification(state->argv[i], fstate, limits);
@@ -1002,6 +1012,9 @@ CLState_p process_options(int argc, char* argv[], SpecLimits_p limits)
             break;
       case OPT_NO_EQ_UNFOLD:
             eqdef_incrlimit = INT_MIN;
+            break;
+      case OPT_SINE:
+            sine = arg;
             break;
       case OPT_FREE_NUMBERS:
             free_symb_prop = free_symb_prop|FPIsInteger|FPIsRational|FPIsFloat;
