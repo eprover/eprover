@@ -11,7 +11,7 @@ for file in `ls|grep [_+=-].*\.p`; do
     if  [ `expr "$ProblemSPC" : "TF0.*"` != 0 ]  || [ `expr "$ProblemSPC" : "FOF.*"` != 0 ] || [ `expr "$ProblemSPC" : "CNF.*"` != 0 ]  ; then
        # echo $file
        ulimit -t 5000
-       classify_problem --tstp-in $file>> ../problem_features_7.2.0_raw
+       classify_problem --sine=Auto $file>> ../problem_features_7.2.0_raw
     else
            echo "Skipping " $file
     fi

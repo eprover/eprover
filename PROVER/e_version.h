@@ -32,9 +32,9 @@ Contents
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-/* git tag E-2.3pre003 */
+/* git tag E-2.3pre003ims */
 
-#define PVERSION      "2.3pre003"
+#define PVERSION      "2.3pre004ims"
 
 #ifdef ENABLE_LFHO
 #define LFH "-ho"

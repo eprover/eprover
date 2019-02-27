@@ -86,7 +86,7 @@ long              step_limit = LONG_MAX,
    generated_limit = LONG_MAX,
    eqdef_maxclauses = DEFAULT_EQDEF_MAXCLAUSES,
    relevance_prune_level = 0,
-   miniscope_limit = 256;
+   miniscope_limit = 1048576;
 long long tb_insert_limit = LLONG_MAX;
 
 int eqdef_incrlimit = DEFAULT_EQDEF_INCRLIMIT,

@@ -1372,8 +1372,8 @@ TFormula_p TFormulaSimplify(TB_p terms, TFormula_p form, long quopt_limit)
                                       handle, NULL);
          newform =  TFormulaSimplify(terms, newform, quopt_limit);
       }
-      if((form->f_code == terms->sig->qex_code)||
-         (form->f_code == terms->sig->qall_code))
+      else if((form->f_code == terms->sig->qex_code)||
+              (form->f_code == terms->sig->qall_code))
       {
          if(!form->v_count ||
             ((form->weight<=quopt_limit) &&
@@ -1944,7 +1944,7 @@ void WTFormulaConjunctiveNF(WFormula_p form, TB_p terms)
    WFormulaPrint(GlobalOut, form, true);
    printf("\n");*/
 
-   handle = TFormulaSimplify(terms, form->tformula, 100);
+   handle = TFormulaSimplify(terms, form->tformula, 1000);
 
    if(handle!=form->tformula)
    {
@@ -2150,6 +2150,7 @@ void WTFormulaConjunctiveNF3(WFormula_p form, TB_p terms,
    }
 
    handle = TFormulaMiniScope3(terms, form->tformula, miniscope_limit);
+   //handle = TFormulaMiniScope(terms, form->tformula);
 
    if(handle!=form->tformula)
    {
