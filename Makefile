@@ -9,12 +9,7 @@
 #
 # Changes
 #
-# <1> Sun Jul  6 22:55:11 MET DST 1997
-#     New
-# <2> Mon Jan 12 14:05:24 MET 1998
-#     Extended for DOC directory
-# <3> Fri Mar 13 17:09:13 MET 1998
-#     Extended for CLAUSES directory
+# Created: Sun Jul  6 22:55:11 MET DST 1997
 #
 #------------------------------------------------------------------------
 
@@ -110,21 +105,15 @@ top: E
 
 # Create symbolic links
 links: remove_links
-	@mkdir -p include;
-	@cd include;\
-	$(LN) ../$(PICOSAT)/picosat.h picosat.h;\
-	for subdir in $(HEADERS); do\
-		for file in ../$$subdir/*.h; do\
-			$(LN) $$file .;\
-		done;\
-	done;
-	@mkdir -p lib;
+	@mkdir -p include
+	@cd include; find .. -not -path '../include/*' -name "[^.]*.h" -exec $(LN) {} \;
+	@mkdir -p lib
+#	@cd lib;find .. -not -path '../lib/*' -name "[^.]*.a" -exec $(LN) {} \;
 	@cd lib;\
-	$(LN) ../$(PICOSAT)/../PICOSAT.a PICOSAT.a;\
-	for subdir in $(LIBS); do\
-		$(LN) ../$$subdir/$$subdir.a .;\
-	done;
-	@cd PROVER; $(LN) $(PICOSAT)/picosat
+        for subdir in $(LIBS); do\
+                $(LN) ../$$subdir/$$subdir.a .;\
+        done;
+# @cd PROVER; $(LN) $(PICOSAT)/picosat
 
 
 
