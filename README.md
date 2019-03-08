@@ -31,7 +31,9 @@ Read the rest of this file and the fine (if incomplete) manual if
 anything fails. There should be a copy of the manual in
 `DOC/eprover.pdf`.
 
-To build and test the higher-order version, use
+This version or E supports a fragment of higher-order logic called
+lambda-free higher-order logic (LFHOL). To build and test the
+higher-order version, use
 
 ```sh
 ./configure --enable-ho
@@ -71,11 +73,6 @@ This is the README file for version 2.3 "Gielle" of the E equational
 theorem prover. This version of E is free software, see the file
 COPYING for details about the license and the fact that THERE IS NO
 WARRANTY!
-
-This version of E is pre-released on an experimental basis. It
-supports a fragment of higher-order logic called lambda-free
-higher-order logic (LFHOL).  Any issues you encounter with LFHOL
-support should be reported by email to <petar.vukmirovic2@gmail.com>.
 
 
 ## What is E?
