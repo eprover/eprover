@@ -52,7 +52,7 @@ eprover --auto --proof-object problem.p
 If you want to try the usually stronger strategy scheduling mode, use
 
 ```
-eprover --auto-schedule --tptp3-in --proof-object problem.p
+eprover --auto-schedule --proof-object problem.p
 ```
 
 Replace `eprover` by `eprover-ho` for the higher-order-enabled
