@@ -1,7 +1,6 @@
 This history list describes the major differences between versions of
 the E equational theorem prover.
 
-
 Version 2.3pre -> 2.3 Gielle
 
 - Made clausification more robust for extreme examples
