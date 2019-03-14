@@ -41,27 +41,6 @@ bool      SigSupportLists = false;
 
 /*-----------------------------------------------------------------------
 //
-// Function: validate_typedecl(Type_p t)
-//
-//   Make sure defined symbol has type that is supported by LFHOL.
-//
-// Global Variables: -
-//
-// Side Effects    : Output
-//
-/----------------------------------------------------------------------*/
-
-static bool validate_typedecl(Type_p t)
-{
-   bool supported = true;
-   for(int i=0; i<t->arity-1 && (supported = !TypeHasBool(t->args[i])); i++)
-      ; // I am a mental C programmer.
-
-   return supported;
-}
-
-/*-----------------------------------------------------------------------
-//
 // Function: sig_print_operator()
 //
 //   Print a single operator
@@ -247,7 +226,7 @@ void SigInsertInternalCodes(Sig_p sig)
 #ifdef ENABLE_LFHO
    #ifndef NDEBUG
       // surpressing compiler warning
-      FunCode app_var_code =  
+      FunCode app_var_code =
    #endif
       SigInsertId(sig, "$@_var", 1, true);
       assert(app_var_code == SIG_APP_VAR_CODE); //for future code changes
@@ -257,7 +236,7 @@ void SigInsertInternalCodes(Sig_p sig)
    args[1] = sig->type_bank->bool_type;
    args[0] = sig->type_bank->i_type;
 
-   Type_p answer_type = 
+   Type_p answer_type =
       TypeBankInsertTypeShared(sig->type_bank, AllocArrowType(2, args));
 
    SigDeclareFinalType(sig, sig->answer_code, answer_type);
@@ -1348,7 +1327,7 @@ void SigDeclareType(Sig_p sig, FunCode f, Type_p type)
             {
                fprintf(stderr, "# type re-declaration %s: ", SigFindName(sig, f));
                TypePrintTSTP(stderr, sig->type_bank, type);
-               fprintf(stderr, "\n");   
+               fprintf(stderr, "\n");
             }
             fun->type = type;
          }
@@ -1680,7 +1659,7 @@ void SigUpdateFeatureOffset(Sig_p sig, FunCode f)
 FunCode SigGetTypedApp(Sig_p sig, Type_p arg1, Type_p arg2, Type_p ret)
 {
    DStr_p typed_app_name = DStrAlloc();
-   
+
    DStrAppendStr(typed_app_name, "app_");
    DStrAppendInt(typed_app_name, arg1->type_uid);
    DStrAppendChar(typed_app_name, '_');
@@ -1728,7 +1707,7 @@ void SigPrintAppEncodedDecls(FILE* out, Sig_p sig)
 {
    for(FunCode i=sig->internal_symbols+1; i <= sig->f_count; i++)
    {
-      fprintf(out, "tff(symboltypedecl%ld, type, %s: ", 
+      fprintf(out, "tff(symboltypedecl%ld, type, %s: ",
                       (i+1)-sig->internal_symbols, SigFindName(sig, i));
       if (SigQueryFuncProp(sig, i, FPTypedApplication))
       {
@@ -1738,7 +1717,7 @@ void SigPrintAppEncodedDecls(FILE* out, Sig_p sig)
          DStr_p ret = TypeAppEncodedName(t->args[2]);
 
 
-         fprintf(out, "(%s * %s) > %s",  
+         fprintf(out, "(%s * %s) > %s",
                          DStrView(left), DStrView(right), DStrView(ret));
 
          DStrFree(left);
@@ -1776,7 +1755,7 @@ bool SigSymbolUnifiesWithVar(Sig_p sig, FunCode f_code)
    assert(sig);
    assert(f_code);
 
-   return problemType == PROBLEM_HO || 
+   return problemType == PROBLEM_HO ||
           f_code == SIG_TRUE_CODE || f_code == SIG_FALSE_CODE ||
           f_code <= 0 ||
           !SigIsPredicate(sig,f_code);

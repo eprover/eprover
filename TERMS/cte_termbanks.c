@@ -146,7 +146,7 @@ static Term_p tb_termtop_insert(TB_p bank, Term_p t)
    /* Infer the sort of this term (may be temporary) */
    if(t->type == NULL)
    {
-      TypeInferSort(bank->sig, t);
+      TypeInferSort(bank->sig, t, NULL);
       assert(t->type != NULL);
    }
    bank->insertions++;
@@ -293,12 +293,12 @@ static Term_p tb_subterm_parse(Scanner_p in, TB_p bank)
          {
             AktTokenError(in,
                           "Predicate used as function symbol in preceeding term",
-                          SYNTAX_ERROR);
+                          false);
          }
          else
          {
             SigDeclareIsFunction(bank->sig, res->f_code);
-            TypeInferSort(bank->sig, res);
+            TypeInferSort(bank->sig, res, in);
             assert(res->type);
          }
       }
@@ -314,7 +314,7 @@ static Term_p tb_subterm_parse(Scanner_p in, TB_p bank)
 //
 // Function: choose_subterm_parse_fun()
 //
-//   If the argument to be parsed should be of boolean type, parse 
+//   If the argument to be parsed should be of boolean type, parse
 //   the argument as a formula. Otherwise, parse it as before.
 //
 // Global Variables: -
@@ -323,12 +323,12 @@ static Term_p tb_subterm_parse(Scanner_p in, TB_p bank)
 //
 /----------------------------------------------------------------------*/
 
-static Term_p choose_subterm_parse_fun(bool check_symb_prop, 
+static Term_p choose_subterm_parse_fun(bool check_symb_prop,
                                               Type_p type, int arg,
                                               Scanner_p in, TB_p bank)
 {
    Term_p res = NULL;
-   
+
    if(type && arg < TypeGetMaxArity(type) && TypeIsBool(type->args[arg]))
    {
       res = TFormulaTSTPParse(in,bank);
@@ -373,7 +373,7 @@ static void normalize_boolean_terms(Term_p* term_ref, TB_p bank)
          *term_ref = term->args[0];
       }
    }
-   else if(term->f_code == sig->neqn_code 
+   else if(term->f_code == sig->neqn_code
             && term->args[0]->f_code == SIG_TRUE_CODE)
    {
       assert(term->args[1]->f_code == SIG_TRUE_CODE);
@@ -1502,7 +1502,7 @@ Term_p  TBTermParseRealHO(Scanner_p in, TB_p bank, bool check_symb_prop)
       }
       DStrAppendInt(msg, (int)head->f_code);
       DStrAppendStr(msg, " has not been declared previously. This needs to change.");
-      AktTokenError(in, DStrView(msg), SYNTAX_ERROR);
+      AktTokenError(in, DStrView(msg), false);
    }
 
    allocated = TERMS_INITIAL_ARGS;
@@ -1845,7 +1845,7 @@ long TBTermCollectSubterms(Term_p term, PStack_p collector)
 //
 // Function: TBFindRepr()
 //
-//   Find the representation of a term from another (or none) bank in 
+//   Find the representation of a term from another (or none) bank in
 //   this bank.
 //
 // Global Variables: -
@@ -1859,14 +1859,14 @@ Term_p TBFindRepr(TB_p bank, Term_p term)
    int i;
    Term_p work;
    Term_p repr;
-   
-   if (TermIsVar(term) || TermIsConst(term)) 
+
+   if (TermIsVar(term) || TermIsConst(term))
    {
       return TBFind(bank, term);
    }
 
    work = TermTopCopy(term);
-   for (i=0; i<work->arity; i++) 
+   for (i=0; i<work->arity; i++)
    {
       work->args[i] = TBFindRepr(bank, term->args[i]);
    }

@@ -317,7 +317,7 @@ static bool eqn_parse_infix(Scanner_p in, TB_p bank, Term_p *lref,
 
    /* Shortcut not to check for equality --
          !TermIsVar guards calls against negative f_code */
-   if(problemType == PROBLEM_FO && !TermIsVar(lterm) && 
+   if(problemType == PROBLEM_FO && !TermIsVar(lterm) &&
       SigIsPredicate(bank->sig,lterm->f_code) &&
       SigIsFixedType(bank->sig, lterm->f_code))
    {
@@ -346,7 +346,7 @@ static bool eqn_parse_infix(Scanner_p in, TB_p bank, Term_p *lref,
 
          if(!TermIsTopLevelVar(rterm))
          {
-            TypeDeclareIsNotPredicate(bank->sig, rterm);
+            TypeDeclareIsNotPredicate(bank->sig, rterm, in);
          }
       }
       else if(TestInpTok(in, NegEqualSign|EqualSign) && !TypeIsPredicate(lterm->type))
@@ -359,7 +359,7 @@ static bool eqn_parse_infix(Scanner_p in, TB_p bank, Term_p *lref,
 
          if(!TermIsAppliedVar(lterm) && problemType == PROBLEM_FO)
          {
-            TypeDeclareIsNotPredicate(bank->sig, lterm);
+            TypeDeclareIsNotPredicate(bank->sig, lterm, in);
          }
          if(TestInpTok(in, NegEqualSign))
          {
@@ -372,16 +372,16 @@ static bool eqn_parse_infix(Scanner_p in, TB_p bank, Term_p *lref,
          // We have to make those declarations only for FO problems
          if(!TermIsTopLevelVar(lterm) && problemType == PROBLEM_FO)
          {
-            TypeDeclareIsNotPredicate(bank->sig, lterm);
+            TypeDeclareIsNotPredicate(bank->sig, lterm, in);
          }
          if(!TermIsTopLevelVar(rterm) && !TermIsAppliedVar(rterm) && problemType == PROBLEM_FO)
          {
-            TypeDeclareIsNotPredicate(bank->sig, rterm);
+            TypeDeclareIsNotPredicate(bank->sig, rterm, in);
          }
       }
       else
       {  /* It's a predicate */
-         if(problemType == PROBLEM_HO && !TermIsTopLevelVar(lterm) 
+         if(problemType == PROBLEM_HO && !TermIsTopLevelVar(lterm)
             && SigIsFunction(bank->sig, lterm->f_code))
          {
             DStr_p err = DStrAlloc();
@@ -1589,7 +1589,7 @@ int EqnSubsumeQOrderCompare(const void* lit1, const void* lit2)
    {
       // because variables might appear at predicate positions,
       // all nonequational literals belong to the same class in full HOL
-      res = CMP(l1->lterm->f_code, l2->lterm->f_code);   
+      res = CMP(l1->lterm->f_code, l2->lterm->f_code);
    }
    return res;
 }

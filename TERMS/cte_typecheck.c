@@ -64,7 +64,7 @@ Type_p term_determine_type(Term_p term, Type_p type, TypeBank_p bank)
    {
       return NULL;
    }
-   else 
+   else
    {
       int start = term_arity;
       Type_p* args = TypeArgArrayAlloc(type->arity - start);
@@ -72,7 +72,7 @@ Type_p term_determine_type(Term_p term, Type_p type, TypeBank_p bank)
       {
          args[i] = type->args[i+start];
       }
-      return TypeBankInsertTypeShared(bank, 
+      return TypeBankInsertTypeShared(bank,
                                       AllocArrowType(type->arity - start, args));
    }
 }
@@ -173,7 +173,7 @@ bool TypeCheckConsistent(Sig_p sig, Term_p term)
                }
             }
 
-            
+
 
             /* Check subterms recursively */
             for(int i=0; i < type->arity; i++)
@@ -198,7 +198,7 @@ bool TypeCheckConsistent(Sig_p sig, Term_p term)
 
 /*-----------------------------------------------------------------------
 //
-// Function: TypeInferSort
+// Function: TypeInferSort()
 //
 //   Infer the sort of this term. It can either use the type of the
 //   function symbol, if already known, or guess a type and add it
@@ -210,7 +210,7 @@ bool TypeCheckConsistent(Sig_p sig, Term_p term)
 // Side Effects    : Modifies term and signature. May exit on type error.
 //
 /----------------------------------------------------------------------*/
-void TypeInferSort(Sig_p sig, Term_p term)
+void TypeInferSort(Sig_p sig, Term_p term, Scanner_p in)
 {
    Type_p type;
    Type_p sort, *args;
@@ -226,23 +226,23 @@ void TypeInferSort(Sig_p sig, Term_p term)
    }
    else
    {
-      type = TermIsAppliedVar(term) ? 
-               term->args[0]->type : SigGetType(sig, term->f_code);
+      type = TermIsAppliedVar(term) ?
+         term->args[0]->type : SigGetType(sig, term->f_code);
 
       /* Use type */
       if(type)
       {
          if(TypeIsArrow(type))
          {
-            if(problemType == PROBLEM_FO && !app_encode 
-                  && term->arity != type->arity-1)
+            if(problemType == PROBLEM_FO && !app_encode
+               && term->arity != type->arity-1)
             {
-               fprintf(stderr, "# arity mismatch for ");
+               fprintf(stderr, "Arity mismatch for ");
                TermPrint(stderr, term, sig, DEREF_NEVER);
                fprintf(stderr, " and type ");
                TypePrintTSTP(stderr, sig->type_bank, type);
                fprintf(stderr, "\n");
-               Error("Type error", SYNTAX_ERROR);
+               in?AktTokenError(in, "Type error", false):Error("Type error", SYNTAX_ERROR);
             }
 
             if(!TermIsAppliedVar(term))
@@ -258,9 +258,9 @@ void TypeInferSort(Sig_p sig, Term_p term)
                      fprintf(stderr, " but got ");
                      TypePrintTSTP(stderr, sig->type_bank, term->args[i]->type);
                      fprintf(stderr, "\n");
-                     Error("Type error", SYNTAX_ERROR);
+                     in?AktTokenError(in, "Type error", false):Error("Type error", SYNTAX_ERROR);
                   }
-               }   
+               }
             }
             else
             {
@@ -278,17 +278,18 @@ void TypeInferSort(Sig_p sig, Term_p term)
                      fprintf(stderr, " but got ");
                      TypePrintTSTP(stderr, sig->type_bank, term->args[i]->type);
                      fprintf(stderr, "\n");
-                     Error("Type error", SYNTAX_ERROR);
+                     in?AktTokenError(in, "Type error", false):Error("Type error", SYNTAX_ERROR);
                   }
                }
             }
-            
+
 
             term->type = term_determine_type(term, type, sig->type_bank);
             if(term->type==NULL)
             {
-               fprintf(stderr, "# too many arguments supplied for %s\n", SigFindName(sig, term->f_code));
-               Error("Type error", SYNTAX_ERROR);
+               fprintf(stderr, "# too many arguments supplied for %s\n",
+                       SigFindName(sig, term->f_code));
+               in?AktTokenError(in, "Type error", false):Error("Type error", SYNTAX_ERROR);
             }
          }
          else
@@ -301,7 +302,7 @@ void TypeInferSort(Sig_p sig, Term_p term)
                TypePrintTSTP(stderr, sig->type_bank, type);
                fprintf(stderr, "\n");
                assert(false);
-               Error("Type error", SYNTAX_ERROR);
+               in?AktTokenError(in, "Type error", false):Error("Type error", SYNTAX_ERROR);
             }
             else
             {
@@ -323,9 +324,9 @@ void TypeInferSort(Sig_p sig, Term_p term)
             args[term->arity] = sort;
          }
 
-         type = term->arity ? 
+         type = term->arity ?
                      TypeBankInsertTypeShared(sig->type_bank,
-                                              AllocArrowType(term->arity+1, args)) 
+                                              AllocArrowType(term->arity+1, args))
                      : sort;
 
          /* Declare the inferred type */
@@ -338,7 +339,7 @@ void TypeInferSort(Sig_p sig, Term_p term)
 
 /*-----------------------------------------------------------------------
 //
-// Function: TypeDeclareIsPredicate
+// Function: TypeDeclareIsPredicate()
 //
 //   declare that the term has a role of predicate (occurs as a boolean atom)
 //
@@ -358,7 +359,7 @@ void TypeDeclareIsPredicate(Sig_p sig, Term_p term)
 
 /*-----------------------------------------------------------------------
 //
-// Function: TypeDeclareIsNotPredicate
+// Function: TypeDeclareIsNotPredicate()
 //
 //   Declare that this term is not a boolean atom, because it ocurs in
 //   an equation or is a subterm of another term.
@@ -368,11 +369,11 @@ void TypeDeclareIsPredicate(Sig_p sig, Term_p term)
 // Side Effects    : Modifies signature, update term's sort
 //
 /----------------------------------------------------------------------*/
-void TypeDeclareIsNotPredicate(Sig_p sig, Term_p term)
+void TypeDeclareIsNotPredicate(Sig_p sig, Term_p term, Scanner_p in)
 {
    if(!TermIsVar(term))
    {
-      TypeInferSort(sig, term);
+      TypeInferSort(sig, term, in);
       SigDeclareIsFunction(sig, term->f_code);
    }
 }

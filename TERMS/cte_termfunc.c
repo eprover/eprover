@@ -165,7 +165,7 @@ static Term_p term_check_consistency_rek(Term_p term, PTree_p *branch,
    }
    for(i=0; i<term->arity; i++)
    {
-      if((res = term_check_consistency_rek(term->args[i], branch, 
+      if((res = term_check_consistency_rek(term->args[i], branch,
                                            CONVERT_DEREF(i, limit, deref))))
       {
          break;
@@ -180,7 +180,7 @@ static Term_p term_check_consistency_rek(Term_p term, PTree_p *branch,
 // Function: discard_last()
 //
 //   Returns the term where the last argument is left out.
-//   Assumes that there is at least one argument! 
+//   Assumes that there is at least one argument!
 //
 // Global Variables: -
 //
@@ -297,9 +297,9 @@ void TermPrintFO(FILE* out, Term_p term, Sig_p sig, DerefType deref)
    // no need to change derefs here -- FOL
 
    term = TermDeref(term, &deref);
-   
+
    if(!TermIsVar(term) &&
-      SigIsLogicalSymbol(sig, term->f_code) && 
+      SigIsLogicalSymbol(sig, term->f_code) &&
       term->f_code != SIG_TRUE_CODE &&
       term->f_code != SIG_FALSE_CODE)
    {
@@ -379,7 +379,7 @@ void TermPrintHO(FILE* out, Term_p term, Sig_p sig, DerefType deref)
    term = TermDeref(term, &deref);
 
    if(!TermIsVar(term) &&
-      SigIsLogicalSymbol(sig, term->f_code) && 
+      SigIsLogicalSymbol(sig, term->f_code) &&
       term->f_code != SIG_TRUE_CODE &&
       term->f_code != SIG_FALSE_CODE)
    {
@@ -400,11 +400,11 @@ void TermPrintHO(FILE* out, Term_p term, Sig_p sig, DerefType deref)
    {
 #ifdef PRINT_AT
       fputs(" @ ", out);
-#else 
+#else
       fputs(" ", out);
 #endif
       DerefType c_deref = CONVERT_DEREF(i, limit, deref);
-      if(term->args[i]->arity || 
+      if(term->args[i]->arity ||
             (c_deref != DEREF_NEVER && term->args[i]->binding && term->args[i]->binding->arity))
       {
          fputs("(", out);
@@ -740,7 +740,7 @@ Term_p TermCopy(Term_p source, VarBank_p vars, DerefType deref)
 
       for(i=0; i<handle->arity; i++)
       {
-         handle->args[i] = TermCopy(source->args[i], vars, 
+         handle->args[i] = TermCopy(source->args[i], vars,
                                     CONVERT_DEREF(i, limit, deref));
       }
    }
@@ -785,7 +785,7 @@ Term_p TermCopyKeepVars(Term_p source, DerefType deref)
    for(i=0; i<handle->arity; i++) /* Hack: Loop will not be entered if
                                      arity = 0 */
    {
-      handle->args[i] = TermCopyKeepVars(handle->args[i], 
+      handle->args[i] = TermCopyKeepVars(handle->args[i],
                                          CONVERT_DEREF(i, limit, deref));
    }
    return handle;
@@ -943,8 +943,8 @@ bool TermStructEqualDeref(Term_p t1, Term_p t2, DerefType deref_1, DerefType der
    assert(problemType == PROBLEM_HO || t1->arity == t2->arity);
    for(int i=0; i<t1->arity; i++)
    {
-      if(!TermStructEqualDeref(t1->args[i], t2->args[i], 
-                               CONVERT_DEREF(i, limit_1, deref_1), 
+      if(!TermStructEqualDeref(t1->args[i], t2->args[i],
+                               CONVERT_DEREF(i, limit_1, deref_1),
                                CONVERT_DEREF(i, limit_2, deref_2)))
       {
          return false;
@@ -958,7 +958,7 @@ bool TermStructEqualDeref(Term_p t1, Term_p t2, DerefType deref_1, DerefType der
 // Function: TermStructPrefixEqual()
 //
 //   Return true if the two terms have the same
-//   structures except there are trailing arguments in r. 
+//   structures except there are trailing arguments in r.
 //   Dereference both terms as designated by deref_1, deref_2.
 //
 // Global Variables: -
@@ -998,16 +998,16 @@ bool TermStructPrefixEqual(Term_p l, Term_p r, DerefType d_l, DerefType d_r,
 
          for(int i=0; i<l->arity; i++)
          {
-            if(!TermStructEqualDeref(l->args[i], r->args[i], 
-                                      CONVERT_DEREF(i, limit_l, d_l), 
+            if(!TermStructEqualDeref(l->args[i], r->args[i],
+                                      CONVERT_DEREF(i, limit_l, d_l),
                                       CONVERT_DEREF(i, limit_r, d_r)))
             {
                res = false;
                break;
             }
-         }   
+         }
       }
-   }   
+   }
 
    return res;
 }
@@ -1278,13 +1278,13 @@ long TermFsumWeight(Term_p term, long vweight, long flimit,
       {
          if(!TermIsAppliedVar(term))
          {
-            res += default_fweight;   
+            res += default_fweight;
          }
          else
          {
             assert(problemType == PROBLEM_HO);
          }
-         
+
       }
 
       for(int i = 0; i < term->arity; i++)
@@ -1654,7 +1654,7 @@ bool TermFindFOOLSubterm(Term_p t, TermPos_p pos)
 
       if(TypeIsBool(t->args[i]->type))
       {
-         if(!(TermIsVar(t->args[i]) || t->args[i]->f_code == SIG_TRUE_CODE 
+         if(!(TermIsVar(t->args[i]) || t->args[i]->f_code == SIG_TRUE_CODE
               || t->args[i]->f_code == SIG_FALSE_CODE))
          {
             break;
@@ -1781,7 +1781,7 @@ void TermAddSymbolDistributionLimited(Term_p term, long *dist_array, long limit)
 //
 // Function: TermAddTypeDistribution()
 //
-//   Count occurences of types of symbols in term and store them 
+//   Count occurences of types of symbols in term and store them
 //   in type_arr
 //
 // Global Variables: -
@@ -1804,10 +1804,10 @@ void  TermAddTypeDistribution(Term_p term, Sig_p sig, long* type_arr)
       term = PStackPopP(stack);
       assert(term);
       assert(GetHeadType(sig, term));
-      
+
       type_uid = GetHeadType(sig, term)->type_uid;
       type_arr[type_uid]++;
-      
+
       int i;
       for(i=TermIsAppliedVar(term) ? 1 : 0; i<term->arity; i++)
       {
@@ -2213,7 +2213,7 @@ bool TermIsUntyped(Term_p term)
 //
 // Function: TermAppEncode()
 //
-//   App-encodes the term. 
+//   App-encodes the term.
 //
 // Global Variables: -
 //
@@ -2231,9 +2231,9 @@ Term_p TermAppEncode(Term_p orig, Sig_p sig)
    assert(orig->arity > 0);
    Term_p orig_prefix = discard_last(orig);
    Term_p applied_to  = orig->args[orig->arity-1];
-   
+
    assert(TermIsVar(orig_prefix) || !orig_prefix->type);
-   TypeInferSort(sig, orig_prefix);
+   TypeInferSort(sig, orig_prefix, NULL);
    assert(orig_prefix->type);
 
    Term_p app_encoded = TermTopAlloc(SigGetTypedApp(sig, orig_prefix->type, applied_to->type, orig->type), 2);
@@ -2242,10 +2242,10 @@ Term_p TermAppEncode(Term_p orig, Sig_p sig)
 
    if(!TermIsVar(orig_prefix))
    {
-      TermTopFree(orig_prefix);   
+      TermTopFree(orig_prefix);
    }
 
-   return app_encoded; 
+   return app_encoded;
 }
 
 /*-----------------------------------------------------------------------
@@ -2254,7 +2254,7 @@ Term_p TermAppEncode(Term_p orig, Sig_p sig)
 //
 //    Create a prefix containing arg_num arguments of original term orig.
 //    If orig was an applied variable and arg_num is 0, return the shared
-//    variable that is the first argument. 
+//    variable that is the first argument.
 //
 //    NB: In case caller needs proper prefix, returned term will not be
 //    shared (unless it is a variable head of applied variable)!
@@ -2268,7 +2268,7 @@ Term_p TermCreatePrefix(Term_p orig, int arg_num)
 {
    assert(orig && arg_num >= 0 && orig->arity >= arg_num);
    assert(!TermIsAppliedVar(orig) || orig->arity != arg_num);
-   
+
    Term_p prefix;
 
    if(arg_num == ARG_NUM(orig))
@@ -2295,7 +2295,7 @@ Term_p TermCreatePrefix(Term_p orig, int arg_num)
       assert(!TermIsShared(prefix));
    }
 
-   return prefix;  
+   return prefix;
 }
 
 /*-----------------------------------------------------------------------
@@ -2434,7 +2434,7 @@ void TermFOOLPrint(FILE* out, Sig_p sig, TFormula_p form)
 //
 // Function: TermCopyRenameVars()
 //
-//   Create a term copy with variables renamed. 
+//   Create a term copy with variables renamed.
 //
 // Global Variables: -
 //
@@ -2442,7 +2442,7 @@ void TermFOOLPrint(FILE* out, Sig_p sig, TFormula_p form)
 //
 /*----------------------------------------------------------------------*/
 
-Term_p TermCopyRenameVars(NumTree_p* renaming, Term_p term) 
+Term_p TermCopyRenameVars(NumTree_p* renaming, Term_p term)
 {
     int i;
     Term_p copy;
@@ -2454,11 +2454,11 @@ Term_p TermCopyRenameVars(NumTree_p* renaming, Term_p term)
         assert(entry);
         copy = (Term_p)(entry->val1.p_val);
     }
-    else 
+    else
     {
         copy = TermTopCopy(term);
         copy->type = term->type;
-        for (i=0; i<term->arity; i++) 
+        for (i=0; i<term->arity; i++)
         {
             copy->args[i] = TermCopyRenameVars(renaming, term->args[i]);
         }
@@ -2480,7 +2480,7 @@ Term_p TermCopyRenameVars(NumTree_p* renaming, Term_p term)
 //
 /----------------------------------------------------------------------*/
 
-Term_p TermCopyNormalizeVarsAlpha(VarBank_p vars, Term_p term) 
+Term_p TermCopyNormalizeVarsAlpha(VarBank_p vars, Term_p term)
 {
     Term_p copy;
     NumTree_p renaming;
@@ -2504,7 +2504,7 @@ Term_p TermCopyNormalizeVarsAlpha(VarBank_p vars, Term_p term)
 //
 /----------------------------------------------------------------------*/
 
-Term_p TermCopyUnifyVars(VarBank_p vars, Term_p term) 
+Term_p TermCopyUnifyVars(VarBank_p vars, Term_p term)
 {
     int i;
 
@@ -2514,7 +2514,7 @@ Term_p TermCopyUnifyVars(VarBank_p vars, Term_p term)
     }
 
     Term_p new = TermTopCopy(term);
-    for (i=0; i<term->arity; i++) 
+    for (i=0; i<term->arity; i++)
     {
         new->args[i] = TermCopyUnifyVars(vars, term->args[i]);
     }
@@ -2534,8 +2534,8 @@ Term_p TermCopyUnifyVars(VarBank_p vars, Term_p term)
 //
 /----------------------------------------------------------------------*/
 
-Term_p TermCopyNormalizeVars(VarBank_p vars, Term_p term, 
-   VarNormStyle var_norm) 
+Term_p TermCopyNormalizeVars(VarBank_p vars, Term_p term,
+   VarNormStyle var_norm)
 {
    switch (var_norm) {
    case NSUnivar:
@@ -2544,7 +2544,7 @@ Term_p TermCopyNormalizeVars(VarBank_p vars, Term_p term,
       return TermCopyNormalizeVarsAlpha(vars,term);
    default:
       return TermCopy(term,vars,DEREF_NEVER);
-   } 
+   }
 }
 
 /*---------------------------------------------------------------------*/
