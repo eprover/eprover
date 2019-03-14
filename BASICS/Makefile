@@ -1,13 +1,11 @@
 #------------------------------------------------------------------------
 #
-# File  : Makefile for basic_lib of the CLIB library
+# File  : Makefile for BASICS.a library of generic data types and
+# algorithms.
 #
 # Author: Stephan Schulz
 #
-# Changes
-#
-# <1> Sun Jul  6 22:55:11 MET DST 1997
-#     New
+# Created: Sun Jul  6 22:55:11 MET DST 1997
 #
 #------------------------------------------------------------------------
 
@@ -26,7 +24,7 @@ depend: *.c *.h
 # Remove all automatically generated files
 
 clean:
-	@touch does_exist.o does_exist.a; rm *.o  *.a
+	@rm -f *.o  *.a
 
 # Services (provided by the master Makefile)
 

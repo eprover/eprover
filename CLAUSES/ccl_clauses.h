@@ -22,6 +22,7 @@
 
 #define CCL_CLAUSES
 
+#include <clb_fixdarrays.h>
 #include <ccl_neweval.h>
 #include <ccl_eqnlist.h>
 #include <ccl_clauseinfo.h>
@@ -48,7 +49,7 @@ typedef enum
                                            * while ClauseIsIRVictim
                                            * blow marks the logical
                                            * clause (i.e. it is
-                                           * inherited by the alive
+1                                           * inherited by the alive
                                            * copy.  */
    CPIsProcessed       = 2*CPIsDead ,     /* Clause has been processed
                                             * previously */
@@ -159,10 +160,7 @@ typedef struct clause_cell
    long                  proof_size;  /* How many (generating)
                                          inferences were necessary to
                                          create this clause? */
-   //PTree_p               children;    /* Which can be removed if this
-   //clause changes significantly */
-   //struct clause_cell*   parent1;     /* Parents need to be notified */
-   //struct clause_cell*   parent2;     /* if their children are removed! */
+   FixedDArray_p         feature_vec; /* For subsumption indexing */
    struct clausesetcell* set;         /* Is the clause in a set? */
    struct clause_cell*   pred;        /* For clause sets = doubly  */
    struct clause_cell*   succ;        /* linked lists */

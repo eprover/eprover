@@ -86,7 +86,7 @@ long              step_limit = LONG_MAX,
    generated_limit = LONG_MAX,
    eqdef_maxclauses = DEFAULT_EQDEF_MAXCLAUSES,
    relevance_prune_level = 0,
-   miniscope_limit = 1000;
+   miniscope_limit = 1048576;
 long long tb_insert_limit = LLONG_MAX;
 
 int eqdef_incrlimit = DEFAULT_EQDEF_INCRLIMIT,
@@ -590,13 +590,13 @@ int main(int argc, char* argv[])
 
       if(!proofstate->status_reported)
       {
-         if(deriv->has_conjecture)
+         if(neg_conjectures)
          {
-            TSTPOUT(GlobalOut, neg_conjectures?"Theorem":"Unsatisfiable");
+            TSTPOUT(GlobalOut, deriv->has_conjecture?"Theorem":"ContradictoryAxioms");
          }
          else
          {
-            TSTPOUT(GlobalOut, "ContradictoryAxioms");
+            TSTPOUT(GlobalOut, "Unsatisfiable");
          }
          proofstate->status_reported = true;
          retval = PROOF_FOUND;

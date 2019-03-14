@@ -446,12 +446,12 @@ static TFormula_p literal_tform_tstp_parse(Scanner_p in, TB_p terms)
       {
          AcceptInpTok(in, OpenBracket);
          res = TFormulaTSTPParse(in, terms);
-         AcceptInpTok(in, CloseBracket);   
+         AcceptInpTok(in, CloseBracket);
       }
       else
       {
          // In HO case, we might have parentheses around terms
-         // -- not possible in FO case and breaks parsing in some 
+         // -- not possible in FO case and breaks parsing in some
          // cases.
 
          // For example you might have ((f @ a) = c => ...)   -- continue parsing is false here
@@ -807,7 +807,7 @@ void tformula_appencode_or_chain(FILE* out, TB_p bank, TFormula_p form)
       fputs("|", out);
       TFormulaAppEncode(out, bank, form->args[1]);
    }
-}  
+}
 
 
 /*-----------------------------------------------------------------------
@@ -982,8 +982,8 @@ void TFormulaAppEncode(FILE* out, TB_p bank, TFormula_p form)
       fprintf(out, "%s", DStrView(type_name));
 
       DStrFree(type_name);
-      
-      
+
+
       while(form->args[1]->f_code == quantifier)
       {
          form = form->args[1];
@@ -1071,7 +1071,7 @@ void TFormulaAppEncode(FILE* out, TB_p bank, TFormula_p form)
 //
 //   Make sure that all intermediate types needed for app-encoding of
 //   the formula are already inserted in the type bank. For example
-//   if type a > b > c > d appears in the type bank insert types 
+//   if type a > b > c > d appears in the type bank insert types
 //   b > c > d and c > d to the type bank.
 //
 // Global Variables:
@@ -1240,6 +1240,10 @@ bool TFormulaVarIsFree(TB_p bank, TFormula_p form, Term_p var)
    bool res = false;
    int i;
 
+   if(!form->v_count)
+   {
+      return false;
+   }
    if(TFormulaIsLiteral(bank->sig, form))
    {
       res = TBTermIsSubterm(form, var);
@@ -1337,7 +1341,7 @@ bool TFormulaHasFreeVars(TB_p bank, TFormula_p form)
    bool res;
    PTree_p dummy = NULL;
 
-   tformula_collect_freevars(bank, form, &dummy);
+   TFormulaCollectFreeVars(bank, form, &dummy);
    res = (dummy!=NULL);
    PTreeFree(dummy);
    return res;

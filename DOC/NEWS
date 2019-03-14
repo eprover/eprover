@@ -1,10 +1,14 @@
 This history list describes the major differences between versions of
 the E equational theorem prover.
 
-Version 2.2 -> 2.3 Gielle
+Version 2.3pre -> 2.3 Gielle
+
+- Made clausification more robust for extreme examples
+
+Version 2.2 -> 2.3pre Gielle
 
 - Merged support for lambda-free higher-order logic.
-- Improved fingerprint indexin by excluding one more subcase for
+- Improved fingerprint indexing by excluding one more subcase for
   finging instances
 
 Version 2.1 -> 2.2 Thurbo Moonlight
@@ -33,7 +37,7 @@ Version 2.0 -> 2.1 Maharani Hills
   single quantifier
 - Improved stability and performance on TFF problems
 - Changed internal workflow of unprocessed clauses so that they can be
-- batch-evaluated (e.g. by a Deep Neural Network).
+  batch-evaluated (e.g. by a Deep Neural Network).
 - Added PicoSAT and the ability to use PicoSAT as a SAT terminator
 - Added support for flexible-arity derivation operations
 - Removed obsolete eproof-scripts. Use --proof-object to generate a
@@ -73,7 +77,7 @@ Version 1.9pre016 -> 1.9 Sourenee
 - Fixed Auto-SInE to never SInE if there is no seed to SInE on
 - Added output of proof graphs in GraphViz/dot format (coloured, too!)
 - Added derivation output for CNFization
-- Fiexed minor bug in proof output
+- Fixed minor bug in proof output
 
 
 Version 1.8 -> 1.9pre016

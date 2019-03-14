@@ -72,17 +72,17 @@ TFormula_p handle_ho_def(Scanner_p in, TB_p bank)
    Term_p lside_term = TBTermParse(in, bank);
    if(TypeIsBool(lside_term->type))
    {
-      TFormula_p lside = EqnTermsTBTermEncode(bank, lside_term, 
+      TFormula_p lside = EqnTermsTBTermEncode(bank, lside_term,
                                               bank->true_term, true, PENormal);
       if(!TestInpTok(in, EqualSign))
       {
          AktTokenError(in, "E currently supports definitions of type <predicate "
                            " symbol> = <closed LFHOL formula>",
-                       SYNTAX_ERROR);      
+                       SYNTAX_ERROR);
       }
 
       AcceptInpTok(in, EqualSign);
-      TFormula_p res =  TFormulaFCodeAlloc(bank, bank->sig->equiv_code, 
+      TFormula_p res =  TFormulaFCodeAlloc(bank, bank->sig->equiv_code,
                                            lside, TFormulaTSTPParse(in, bank));
       if(in_parens)
       {
@@ -99,13 +99,13 @@ TFormula_p handle_ho_def(Scanner_p in, TB_p bank)
       }
       AcceptInpTok(in, EqualSign|NegEqualSign);
       Term_p rside = TBTermParse(in, bank);
-      TFormula_p res = EqnTermsTBTermEncode(bank, lside_term, rside, 
+      TFormula_p res = EqnTermsTBTermEncode(bank, lside_term, rside,
                                             positive, PENormal);
       if(in_parens)
       {
          AcceptInpTok(in, CloseBracket);
       }
-      return res;                                      
+      return res;
    }
    return NULL;
 }
@@ -440,7 +440,7 @@ WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms)
    {
       is_tcf = true;
    }
-   
+
    if(TestInpId(in, "thf"))
    {
       SetProblemType(PROBLEM_HO);
@@ -507,9 +507,13 @@ WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms)
       }
       else
       {
-         // printf("# TFormula Start!\n");
+         //printf("# TFormula Start!\n");
          tform = TFormulaTSTPParse(in, terms);
+         //printf("# TFormula parsed!: ");
+         //TFormulaTPTPPrint(stdout, terms, tform, true, false);
+         //printf("\n");
       }
+
 
       if(TFormulaHasFreeVars(terms, tform))
       {

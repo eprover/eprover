@@ -77,11 +77,11 @@ bool fool_process_formula(WFormula_p form, TB_p terms,
 // Function: ignore_include()
 //
 //   Ignore includes and echoes the ignored declaration. Used for
-//   app encoding only. 
+//   app encoding only.
 //
 // Global Variables: -
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -685,7 +685,7 @@ long WFormulaCNF2(WFormula_p form, ClauseSet_p set,
       ClauseSetInsert(set, clause);
       return 1;
    }
-   WTFormulaConjunctiveNF2(form, terms, miniscope_limit);
+   WTFormulaConjunctiveNF3(form, terms, miniscope_limit);
    return TFormulaToCNF(form, FormulaQueryType(form),
                         set, terms, fresh_vars);
 }

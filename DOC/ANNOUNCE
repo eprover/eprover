@@ -1810,3 +1810,64 @@ Stephan
 -------------------------- It can be done! ---------------------------------
       Please email me as schulz@eprover.org (Stephan Schulz)
 ----------------------------------------------------------------------------
+
+This is the announcement for E 2.3
+----------------------------------
+
+
+From: schulz@eprover.org (Stephan Schulz)
+Subject: E Equational Theorem Prover 2.3 "Gielle" available
+
+E 2.3 "Gielle" is the first version of E to include some support for
+higher-order logic. In particular, E 2.3 can be build as a prover for
+lambda-free higher-order logic. After the preliminary release last
+fall, this is the definite (?) release.
+
+E is an automated theorem prover for many-sorted first-order logic and
+limited higher-order logic with equality. It has successfully competed
+in several CASC competitions and is generally considered a friendly
+and powerful system (as automated theorem provers go). E has won the
+"overall best system" special award at CASC-J5 and the CNF category at
+CASC-23. It scored good placements at CASC-26 and CASC-J9 and is used
+a component in several other systems.
+
+In addition to the integration of lambda-free higher-order logic
+already in the pre-release version, we have made clausification more
+robust for some corner cases.
+
+E is available as a source distribution for UNIX-variants.
+Historically, it installed cleanly under all UNIX variants I could get
+my hands on: Various versions of GNU/Linux for Intel and XScale,
+Solaris on SPARC, and MacOS-X (with both GNU gcc and LLVM). Current
+versions are tested under OS-X/macOS and Linux. Users have also
+reported successful builds on a large number of other operating
+systems, including Windows/Cygwin.
+
+You can find installation instructions in the README file. Building
+the prover with LFHO-support is as easy as
+
+    ./configure --enable-ho
+    make
+
+The system is dual-licensed under the GNU General Public License and
+the GNU Lesser General Public License.
+
+You can find the source distribution and additional information at
+the E website at
+               https://www.eprover.org
+
+If your prefer to live on the bleeding edge, or to contribute to E,
+the prover now also lives on GitHub at
+
+               https://github.com/eprover
+
+
+Have fun!
+
+
+Stephan
+
+--
+-------------------------- It can be done! ---------------------------------
+      Please email me as schulz@eprover.org (Stephan Schulz)
+----------------------------------------------------------------------------

@@ -312,10 +312,10 @@ static bool eqn_parse_infix(Scanner_p in, TB_p bank, Term_p *lref,
    }
 
    lterm = TBTermParse(in, bank);
-   
+
    BOOL_TERM_NORMALIZE(lterm);
 
-   /* Shortcut not to check for equality -- 
+   /* Shortcut not to check for equality --
          !TermIsVar guards calls against negative f_code */
    if(problemType == PROBLEM_FO && !TermIsVar(lterm) && 
       SigIsPredicate(bank->sig,lterm->f_code) &&
@@ -341,9 +341,9 @@ static bool eqn_parse_infix(Scanner_p in, TB_p bank, Term_p *lref,
             positive = !positive;
          }
          AcceptInpTok(in, NegEqualSign|EqualSign);
-       
+
          rterm = TBTermParse(in, bank);
-         
+
          if(!TermIsTopLevelVar(rterm))
          {
             TypeDeclareIsNotPredicate(bank->sig, rterm);
@@ -359,7 +359,7 @@ static bool eqn_parse_infix(Scanner_p in, TB_p bank, Term_p *lref,
 
          if(!TermIsAppliedVar(lterm) && problemType == PROBLEM_FO)
          {
-            TypeDeclareIsNotPredicate(bank->sig, lterm);   
+            TypeDeclareIsNotPredicate(bank->sig, lterm);
          }
          if(TestInpTok(in, NegEqualSign))
          {
@@ -368,7 +368,7 @@ static bool eqn_parse_infix(Scanner_p in, TB_p bank, Term_p *lref,
          AcceptInpTok(in, NegEqualSign|EqualSign);
 
          rterm = TBTermParse(in, bank);
-         
+
          // We have to make those declarations only for FO problems
          if(!TermIsTopLevelVar(lterm) && problemType == PROBLEM_FO)
          {
@@ -608,9 +608,9 @@ Eqn_p EqnAlloc(Term_p lterm, Term_p rterm, TB_p bank,  bool positive)
 #endif
       if(!TermIsVar(lterm) && !TermIsAppliedVar(lterm))
       {
-         SigDeclareIsPredicate(bank->sig, lterm->f_code);   
+         SigDeclareIsPredicate(bank->sig, lterm->f_code);
       }
-      
+
       TermCellSetProp(lterm, TPPredPos);
       if(!TermIsVar(lterm) && SigQueryFuncProp(bank->sig, lterm->f_code, FPPseudoPred))
       {
@@ -619,7 +619,7 @@ Eqn_p EqnAlloc(Term_p lterm, Term_p rterm, TB_p bank,  bool positive)
    }
 
    /* Allowing predicate variables to be stored in equation */
-   if(lterm->type != rterm->type && 
+   if(lterm->type != rterm->type &&
          !(TypeIsPredicate(lterm->type) && rterm == bank->true_term))
    {
       TermAssertSameSort(bank->sig, lterm, rterm);
@@ -720,10 +720,10 @@ Eqn_p EqnFOFParse(Scanner_p in, TB_p bank)
 //
 // Function: EqnHOFParse()
 //
-//   Parse a literal in THF format. Because of many peculiarities with 
+//   Parse a literal in THF format. Because of many peculiarities with
 //   parentheses in THF, we might have to continue on parsing the formula
 //   from the point where the function has been called and then read
-//   the closing bracket :(  
+//   the closing bracket :(
 //
 // Global Variables: -
 //
@@ -747,13 +747,13 @@ Eqn_p EqnHOFParse(Scanner_p in, TB_p bank, bool* continue_parsing)
       AcceptInpTok(in, CloseBracket);
       *continue_parsing = false; // saw closing bracket.
    }
-   
+
    if(TestInpTok(in, NegEqualSign|EqualSign))
    {
       if(TestInpTok(in, EqualSign))
       {
          AcceptInpTok(in, EqualSign);
-      } 
+      }
       else
       {
          AcceptInpTok(in, NegEqualSign);
@@ -1116,7 +1116,7 @@ void EqnAppEncode(FILE* out, Eqn_p eq, bool negated)
 {
    bool positive = XOR(EqnIsPositive(eq), negated);
 
-   Term_p l_app_enc = TermAppEncode(eq->lterm, eq->bank->sig);   
+   Term_p l_app_enc = TermAppEncode(eq->lterm, eq->bank->sig);
    if(EqnIsEquLit(eq))
    {
       Term_p r_app_enc = TermAppEncode(eq->rterm, eq->bank->sig);
@@ -2411,7 +2411,7 @@ double EqnFunWeight(Eqn_p eq, double max_multiplier, long vweight,
       res *= max_multiplier;
    }
 
-   res += TERM_APPLY_APP_VAR_MULT((double)TermFsumWeight(eq->lterm, vweight, flimit, fweights, 
+   res += TERM_APPLY_APP_VAR_MULT((double)TermFsumWeight(eq->lterm, vweight, flimit, fweights,
                                                             default_fweight, typefreqs) * max_multiplier,
                                      eq->lterm, app_var_mult);
 
@@ -2423,8 +2423,8 @@ double EqnFunWeight(Eqn_p eq, double max_multiplier, long vweight,
 // Function: EqnTermExtWeight()
 //
 //   Compute the weight of a literal as an extension of an arbitrary term
-//   weight function. Modifiers are applied, several extensions are 
-//   supported (standard - sum literal/term weights, subterms - sum 
+//   weight function. Modifiers are applied, several extensions are
+//   supported (standard - sum literal/term weights, subterms - sum
 //   weights of all subterms, or take the maximum subterm weight).
 //
 // Global Variables: -
@@ -2436,7 +2436,7 @@ double EqnFunWeight(Eqn_p eq, double max_multiplier, long vweight,
 double EqnTermExtWeight(Eqn_p eq, TermWeightExtension_p twe)
 {
    double res;
-   
+
    if (EqnIsOriented(eq))
    {
       res = TermExtWeight(eq->rterm, twe);
@@ -2446,7 +2446,7 @@ double EqnTermExtWeight(Eqn_p eq, TermWeightExtension_p twe)
       res = TermExtWeight(eq->rterm, twe) * twe->max_term_multiplier;
    }
    res += (TermExtWeight(eq->lterm, twe) * twe->max_term_multiplier);
-   
+
    return res;
 }
 
@@ -2465,7 +2465,7 @@ double EqnTermExtWeight(Eqn_p eq, TermWeightExtension_p twe)
 /----------------------------------------------------------------------*/
 
 double EqnNonLinearWeight(Eqn_p eq, double max_multiplier, long
-                          vlweight, long vweight, long fweight, 
+                          vlweight, long vweight, long fweight,
                           double app_var_mult)
 {
    double res;
@@ -2530,7 +2530,7 @@ double  EqnSymTypeWeight(Eqn_p eq, double max_multiplier, long
 //
 // Function: EqnMaxWeight()
 //
-//   Compute the maximum of the weighs of the terms of an equation. 
+//   Compute the maximum of the weighs of the terms of an equation.
 //   Weight of applied variables is multiplied with app_var_mult.
 //
 // Global Variables: -
@@ -2544,7 +2544,7 @@ double EqnMaxWeight(Eqn_p eq, long vweight, long fweight, double app_var_mult)
    double lweight = TermWeight(eq->lterm, vweight, fweight);
    double rweight = TermWeight(eq->rterm, vweight, fweight);
 
-   return MAX(TERM_APPLY_APP_VAR_MULT(lweight, eq->lterm, app_var_mult), 
+   return MAX(TERM_APPLY_APP_VAR_MULT(lweight, eq->lterm, app_var_mult),
               TERM_APPLY_APP_VAR_MULT(rweight, eq->rterm, app_var_mult));
 }
 
@@ -2699,7 +2699,7 @@ long EqnInferencePositions(Eqn_p eqn)
 //   sides, max_literal_multiplier to maxinal literals, pos_multiplier
 //   is applied to positive literals. If count_eq_encoding is true,
 //   count $true and ignore the equal-predicate, otherwise ignore
-//   $true and count the equal-predicate for equations only. 
+//   $true and count the equal-predicate for equations only.
 //   Applied variable's weights are multiplied by app_var_mult.
 //
 //
@@ -2711,7 +2711,7 @@ long EqnInferencePositions(Eqn_p eqn)
 
 double  LiteralWeight(Eqn_p eq, double max_term_multiplier, double
                       max_literal_multiplier, double
-                      pos_multiplier, long vweight, long fweight, 
+                      pos_multiplier, long vweight, long fweight,
                       double app_var_mult, bool count_eq_encoding)
 {
    double res;
@@ -2781,8 +2781,8 @@ double  LiteralFunWeight(Eqn_p eq,
 // Function: LiteralTermExtWeight()
 //
 //   Compute the weight of a literal as an extension of an arbitrary term
-//   weight function. Modifiers are applied, several extensions are 
-//   supported (standard - sum literal/term weights, subterms - sum 
+//   weight function. Modifiers are applied, several extensions are
+//   supported (standard - sum literal/term weights, subterms - sum
 //   weights of all subterms, or take the maximum subterm weight).
 //
 // Global Variables: -

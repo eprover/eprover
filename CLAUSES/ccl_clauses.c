@@ -170,6 +170,7 @@ Clause_p clause_copy_meta(Clause_p clause)
    handle->properties  = clause->properties;
    handle->info        = NULL;
    handle->derivation  = NULL;
+   handle->feature_vec = NULL;
    handle->create_date = clause->create_date;
    handle->date        = clause->date;
    handle->proof_depth = clause->proof_depth;
@@ -280,6 +281,7 @@ Clause_p EmptyClauseAlloc(void)
    handle->date        = SysDateCreationTime();
    handle->proof_depth = 0;
    handle->proof_size  = 0;
+   handle->feature_vec = NULL;
    handle->set         = NULL;
    handle->pred        = NULL;
    handle->succ        = NULL;
@@ -674,6 +676,10 @@ void ClauseFree(Clause_p junk)
    if(junk->derivation)
    {
       PStackFree(junk->derivation);
+   }
+   if(junk->feature_vec)
+   {
+      FixedDArrayFree(junk->feature_vec);
    }
    ClauseCellFree(junk);
 }
@@ -2042,8 +2048,8 @@ double ClauseFunWeight(Clause_p clause, double max_term_multiplier,
 // Function: ClauseTermExtWeight()
 //
 //   Compute the weight of a clause as an extension of an arbitrary term
-//   weight function. Modifiers are applied, several extensions are 
-//   supported (standard - sum literal/term weights, subterms - sum 
+//   weight function. Modifiers are applied, several extensions are
+//   supported (standard - sum literal/term weights, subterms - sum
 //   weights of all subterms, or take the maximum subterm weight).
 //
 // Global Variables: -
@@ -2624,9 +2630,9 @@ bool ClauseIsUntyped(Clause_p clause)
 
 /*-----------------------------------------------------------------------
 //
-// Function: ClauseQueryLiteral() 
+// Function: ClauseQueryLiteral()
 //
-//   Return true if there is a literal that satisfies query_fun 
+//   Return true if there is a literal that satisfies query_fun
 //   predicate
 //
 // Global Variables: -

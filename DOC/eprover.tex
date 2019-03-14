@@ -719,6 +719,10 @@ specifications.
       \quad\quad \= \quad\quad \= \quad\quad \=  \quad\quad \= \quad\quad \= \kill
       \# Input: Axioms in U, P is empty\\
       while U $\not= \emptyset{}$ begin\+\\
+         \# First check for propositional unsat (Section \ref{sec:cdcl})\\
+         if \text{prop\_trigger}(U,P)\+\\
+            if \text{prop\_unsat\_check}(U,P)\+\\
+                 SUCCESS, Proof found\-\-\\
         c := select(U)\\
         U := U $\backslash$ \{c\}\\
 
@@ -744,6 +748,7 @@ specifications.
           T := T $\cup$ e-resolvents(c)    \# (ER)\\
           T := T $\cup$ e-factors(c)       \# (EF)\\
           T := T $\cup$ paramodulants(c,P) \# (SN), (SP)\\
+          T' := \{\}\\
           foreach p $\in$ T do\+\\
             \# Apply efficiently implemented subset of (RN),\\
             \# (RP), (NS), (PS), (CLC), (DR), (DD), (DE)\\
@@ -752,9 +757,10 @@ specifications.
             if p is trivial\+\\
               \# Delete/ignore p\-\\
             else\+\\
-               U := U $\cup$ cheap\_simplify(p, P)\-\\
+               T' := T' $\cup$ cheap\_simplify(p, P)\-\\
             fi\-\\
-          end\-\\
+          end\\
+          U := U $\cup$ T' \-\\
         fi\-\\
       end\\
       \# Failure: Initial U is satisfiable, P describes model
@@ -770,14 +776,15 @@ sketch of the quite straightforward proof procedure of E. The set of
 all clauses is split into two sets, a set \texttt{P} of
 \emph{processed} clauses and a set \texttt{U} of \emph{unprocessed}
 clauses. Initially, all input clauses are in in \texttt{U}, and
-\texttt{P} is empty. The algorithm selects a new clause (sometimes
+\texttt{P} is empty. In its normal mode of operation, at each
+iteration of the look the algorithm selects a new clause (sometimes
 called the \emph{given clause}\index{given clause}) from \texttt{U},
 simplifies it w.r.t. to \texttt{P}, then uses it to back-simplify the
 clauses in \texttt{P} in turn. It then performs equality factoring,
 equality resolution and superposition between the selected clause and
-the set of processed clauses. The generated clauses are added to the
-set of unprocessed clauses. The process stops when the empty clause is
-derived or no further inferences are possible.
+the set of processed clauses. The generated clauses are simplified and
+added to the set of unprocessed clauses. The process stops when the
+empty clause is derived or no further inferences are possible.
 
 The proof search is controlled by three major parameters: The term
 ordering (described in section~\ref{sec:options:orderings}), the
@@ -809,16 +816,17 @@ describes the user interface to this mechanism.
 \label{sec:cdcl}
 
 As of E 2.1, and with a more refined implementation in E 2.2, the
-prover supports efficient \index{propositional reasoning} by
-integrating \index{PicoSAT}~\cite{Biere:JSBC-2008}. The prover
-periodically grounds all clauses in the proof state and encodes the
-set of ground clauses for the propositional prover. If the
-propositional prover finds a proof for unsatisfiability of the ground
-problem, Herbrand's theorem allow us to lift this to the first-order
-level. In the implementation, the prover extract the unsatisfiable
-core of the grounded clause set, retrieves the corresponding
-first-order clauses, and adds an suitable pseudo-inference to the
-first-order proof objects. A more detailed description is available
+prover supports efficient propositional reasoning\index{propositional
+  reasoning} by integrating
+PicoSAT\index{PicoSAT}~\cite{Biere:JSBC-2008}. The prover periodically
+grounds all clauses in the proof state and encodes the set of ground
+clauses for the propositional solver. If the propositional solver
+finds a proof for unsatisfiability of the ground problem, Herbrand's
+theorem allow us to lift this to the first-order level. In the
+implementation, the prover extract the unsatisfiable core of the
+grounded clause set, retrieves the corresponding first-order clauses,
+and adds an suitable pseudo-inference to the first-order proof
+objects. A more detailed description is available
 in~\cite{Schulz:Vampire-2018}.
 
 See section~\ref{sec:cdclopt} for options controlling this feature.
