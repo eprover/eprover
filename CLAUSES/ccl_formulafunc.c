@@ -239,9 +239,9 @@ TFormula_p do_fool_unroll(TFormula_p form, TB_p terms)
 {
    TFormula_p unrolled1 = NULL;
    TFormula_p unrolled2 = NULL;
-   TermPos_p  pos = PStackAlloc();
    if(TFormulaIsLiteral(terms->sig, form))
    {
+      TermPos_p pos = PStackAlloc();
       PStackPushP(pos, form);
       PStackPushInt(pos, 0);
       if(!TermFindFOOLSubterm(form->args[0], pos))
@@ -286,6 +286,7 @@ TFormula_p do_fool_unroll(TFormula_p form, TB_p terms)
                                     do_fool_unroll(fst_impl, terms), 
                                     do_fool_unroll(snd_impl, terms));
       }
+      PStackFree(pos);
    }
    else
    {
@@ -316,8 +317,6 @@ TFormula_p do_fool_unroll(TFormula_p form, TB_p terms)
          }
       }
    }
-
-   PStackFree(pos);
    return form;
 }
 

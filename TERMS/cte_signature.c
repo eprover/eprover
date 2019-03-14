@@ -1759,7 +1759,7 @@ void SigPrintAppEncodedDecls(FILE* out, Sig_p sig)
 
 /*-----------------------------------------------------------------------
 //
-// Function: SigSymbolUnifesWithVar()
+// Function: SigSymbolUnifiesWithVar()
 //
 //   Checks whether f_code can be unified with a variable. In HO
 //   case variable unifies with any function code; in FOOL case
@@ -1771,7 +1771,7 @@ void SigPrintAppEncodedDecls(FILE* out, Sig_p sig)
 //
 /----------------------------------------------------------------------*/
 
-bool SigSymbolUnifesWithVar(Sig_p sig, FunCode f_code)
+bool SigSymbolUnifiesWithVar(Sig_p sig, FunCode f_code)
 {
    assert(sig);
    assert(f_code);

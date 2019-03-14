@@ -269,7 +269,7 @@ typedef bool (*FunConstCmpFunType)(FunCode,  FunCode, long*, long*);
 
 FunCode SigGetTypedApp(Sig_p sig, Type_p arg1, Type_p arg2, Type_p ret);
 void SigPrintAppEncodedDecls(FILE* out, Sig_p sig);
-bool SigSymbolUnifesWithVar(Sig_p sig, FunCode f_code);
+bool SigSymbolUnifiesWithVar(Sig_p sig, FunCode f_code);
 
 #define SigIsLogicalSymbol(sig, f_code) (assert(f_code > 0), \
                                          SigQueryFuncProp(sig, f_code, FPFOFOp) || \
