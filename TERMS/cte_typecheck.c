@@ -41,7 +41,7 @@ extern bool app_encode;
 
 /*-----------------------------------------------------------------------
 //
-// Function: term_determine_type
+// Function: term_determine_type()
 //
 //   Given number of arguments and type, return the type of the term
 //   resulting from consuming the number of arguments. Returned type is

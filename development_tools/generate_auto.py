@@ -18,7 +18,7 @@ def print_result():
     for i in result.keys():
         cl  = result[i]
         res = opt_res[i]
-        print "/* %(i)-17s : %(cl)-30s %(res)-4d */" % vars()
+        print "/* %(i)-19s : %(cl)-45s %(res)-4d */" % vars()
 
 
 def print_list_lines(l):
@@ -124,7 +124,9 @@ def translate_class(cl):
     res = "      ( /* "+cl+" Solved: "+solved+ " of " +repr(classsize[cl]) + " */\n"
     pref = "       ";
     for i in xrange(6,len(cl)):
+        print "# YYY", cl
         if cl[i]!="-":
+            print "# ZZZ", i, cl[i]
             res = res+pref+"Spec"+class_int[i][cl[i]]+"(spec)"
             pref = "&&\n       "
     res = res+")"
