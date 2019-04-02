@@ -1777,6 +1777,7 @@ Term_p TBCreateConstTerm(TB_p bank, FunCode fconst)
 {
    Term_p res,
       t = TermConstCellAlloc(fconst);
+   t->type = SigGetType(bank->sig, fconst);
 
    res = TBInsert(bank, t, DEREF_NEVER);
    TermFree(t);
