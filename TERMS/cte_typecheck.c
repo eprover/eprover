@@ -299,9 +299,7 @@ void check_type(Sig_p sig, Type_p type, Term_p term, Scanner_p in)
 //
 // Function: infer_type()
 //
-//   Given term's head type, check if supplied arguments are of correct
-//   type. If so, consume the appropriate number of type's arguments.
-//   If not, report an error.
+//   Based on term's arguments, infers term's type. 
 //
 // Global Variables: 
 //
