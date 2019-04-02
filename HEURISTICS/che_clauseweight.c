@@ -109,8 +109,9 @@ double uniq_eqn_weight(Eqn_p handle)
 //
 /----------------------------------------------------------------------*/
 
-WFCB_p ClauseWeightInit(ClausePrioFun prio_fun, int fweight, int
-         vweight, double pos_multiplier, double app_var_mult)
+WFCB_p ClauseWeightInit(ClausePrioFun prio_fun, int fweight, 
+         int vweight, double pos_multiplier, 
+         double app_var_mult, double dif_var_mult)
 {
    WeightParam_p data = WeightParamCellAlloc();
 
@@ -118,6 +119,7 @@ WFCB_p ClauseWeightInit(ClausePrioFun prio_fun, int fweight, int
    data->vweight                = vweight;
    data->pos_multiplier         = pos_multiplier;
    data->app_var_mult           = app_var_mult;
+   data->dif_var_mult           = dif_var_mult;
 
    return WFCBAlloc(ClauseWeightCompute, prio_fun,
           ClauseWeightExit, data);
@@ -142,6 +144,7 @@ WFCB_p ClauseWeightParse(Scanner_p in, OCB_p ocb, ProofState_p state)
    int fweight, vweight;
    double pos_multiplier;
    double app_var_mult = APP_VAR_MULT_DEFAULT;
+   double dif_var_mult = DIF_VAR_MULT_DEFAULT;
 
    AcceptInpTok(in, OpenBracket);
    prio_fun = ParsePrioFun(in);
@@ -152,12 +155,14 @@ WFCB_p ClauseWeightParse(Scanner_p in, OCB_p ocb, ProofState_p state)
    AcceptInpTok(in, Comma);
    pos_multiplier = ParseFloat(in);
    
-   PARSE_OPTIONAL_AV_PENALTY(in, app_var_mult);
+   PARSE_OPT_ARG(in, dif_var_mult);
+   PARSE_OPT_ARG(in, app_var_mult);
+   
    
    AcceptInpTok(in, CloseBracket);
 
    return ClauseWeightInit(prio_fun, fweight, vweight,
-            pos_multiplier, app_var_mult);
+            pos_multiplier, app_var_mult, dif_var_mult);
 }
 
 
@@ -181,6 +186,7 @@ double ClauseWeightCompute(void* data, Clause_p clause)
              local->vweight,
              local->fweight,
              local->app_var_mult,
+             local->dif_var_mult,
              false);
 }
 
@@ -198,7 +204,8 @@ double ClauseWeightCompute(void* data, Clause_p clause)
 /----------------------------------------------------------------------*/
 
 WFCB_p LMaxWeightInit(ClausePrioFun prio_fun, int fweight, int
-         vweight, double pos_multiplier, double app_var_mult)
+         vweight, double pos_multiplier, double app_var_mult,
+         double dif_var_mult)
 {
    WeightParam_p data = WeightParamCellAlloc();
 
@@ -206,6 +213,7 @@ WFCB_p LMaxWeightInit(ClausePrioFun prio_fun, int fweight, int
    data->vweight                = vweight;
    data->pos_multiplier         = pos_multiplier;
    data->app_var_mult           = app_var_mult;
+   data->dif_var_mult           = dif_var_mult;
 
    return WFCBAlloc(LMaxWeightCompute, prio_fun,
           ClauseWeightExit, data);
@@ -230,6 +238,7 @@ WFCB_p LMaxWeightParse(Scanner_p in, OCB_p ocb, ProofState_p state)
    int fweight, vweight;
    double pos_multiplier;
    double app_var_mult = APP_VAR_MULT_DEFAULT;
+   double dif_var_mult = DIF_VAR_MULT_DEFAULT;
 
    AcceptInpTok(in, OpenBracket);
    prio_fun = ParsePrioFun(in);
@@ -240,12 +249,13 @@ WFCB_p LMaxWeightParse(Scanner_p in, OCB_p ocb, ProofState_p state)
    AcceptInpTok(in, Comma);
    pos_multiplier = ParseFloat(in);
    
-   PARSE_OPTIONAL_AV_PENALTY(in, app_var_mult);
+   PARSE_OPT_ARG(in, dif_var_mult);
+   PARSE_OPT_ARG(in, app_var_mult);
    
    AcceptInpTok(in, CloseBracket);
 
    return LMaxWeightInit(prio_fun, fweight, vweight,
-          pos_multiplier, app_var_mult);
+          pos_multiplier, app_var_mult, dif_var_mult);
 }
 
 
@@ -265,17 +275,23 @@ WFCB_p LMaxWeightParse(Scanner_p in, OCB_p ocb, ProofState_p state)
 double LMaxWeightCompute(void* data, Clause_p clause)
 {
    WeightParam_p local = data;
-   double res = 0, tmp;
+   double res = 0;
    Eqn_p handle;
 
    for(handle = clause->literals; handle; handle = handle->next)
    {
-      tmp = EqnMaxWeight(handle, local->vweight, local->fweight, local->app_var_mult);
+      res = EqnMaxWeight(handle, local->vweight, local->fweight, local->app_var_mult);
       if(EqnIsPositive(handle))
       {
-         tmp = tmp*local->pos_multiplier;
+         res = res*local->pos_multiplier;
       }
    }
+   
+   if (local->dif_var_mult != 1.0)
+   {
+      res = res * pow(local->dif_var_mult, ClauseDistinctVarNum(clause));
+   }
+   
    return res;
 }
 
@@ -293,7 +309,8 @@ double LMaxWeightCompute(void* data, Clause_p clause)
 /----------------------------------------------------------------------*/
 
 WFCB_p CMaxWeightInit(ClausePrioFun prio_fun, int fweight, int
-         vweight, double pos_multiplier, double app_var_mult)
+         vweight, double pos_multiplier, double app_var_mult,
+         double dif_var_mult)
 {
    WeightParam_p data = WeightParamCellAlloc();
 
@@ -301,6 +318,7 @@ WFCB_p CMaxWeightInit(ClausePrioFun prio_fun, int fweight, int
    data->vweight                = vweight;
    data->pos_multiplier         = pos_multiplier;
    data->app_var_mult           = app_var_mult;
+   data->dif_var_mult           = dif_var_mult;
 
    return WFCBAlloc(CMaxWeightCompute, prio_fun,
           ClauseWeightExit, data);
@@ -325,6 +343,8 @@ WFCB_p CMaxWeightParse(Scanner_p in, OCB_p ocb, ProofState_p state)
    int fweight, vweight;
    double pos_multiplier;
    double app_var_mult = APP_VAR_MULT_DEFAULT;
+   double dif_var_mult = APP_VAR_MULT_DEFAULT;
+
 
    AcceptInpTok(in, OpenBracket);
    prio_fun = ParsePrioFun(in);
@@ -335,12 +355,13 @@ WFCB_p CMaxWeightParse(Scanner_p in, OCB_p ocb, ProofState_p state)
    AcceptInpTok(in, Comma);
    pos_multiplier = ParseFloat(in);
    
-   PARSE_OPTIONAL_AV_PENALTY(in, app_var_mult);
+   PARSE_OPT_ARG(in, dif_var_mult);
+   PARSE_OPT_ARG(in, app_var_mult);
    
    AcceptInpTok(in, CloseBracket);
 
    return CMaxWeightInit(prio_fun, fweight, vweight,
-            pos_multiplier, app_var_mult);
+            pos_multiplier, app_var_mult, dif_var_mult);
 }
 
 
@@ -368,8 +389,15 @@ double CMaxWeightCompute(void* data, Clause_p clause)
       tmp = EqnMaxWeight(handle, local->vweight, local->fweight, local->app_var_mult);
       res = MAX(res,tmp);
    }
-   return clause->pos_lit_no*res*local->pos_multiplier +
-          clause->neg_lit_no*res;
+   res = clause->pos_lit_no*res*local->pos_multiplier +
+         clause->neg_lit_no*res;
+
+   if (local->dif_var_mult != 1.0)
+   {
+      res = res * pow(local->dif_var_mult, ClauseDistinctVarNum(clause));
+   }
+
+   return res;
 }
 
 

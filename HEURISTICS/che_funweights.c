@@ -479,7 +479,8 @@ FunWeightParam_p FunWeightParamAlloc(void)
    res->fweights     = NULL;
    res->flimit       = 0;
    res->f_occur      = NULL;
-   res->app_var_mult = 0;
+   res->app_var_mult = APP_VAR_MULT_DEFAULT;
+   res->dif_var_mult = DIF_VAR_MULT_DEFAULT;
    res->type_freqs   = NULL;
 
    return res;
@@ -561,6 +562,7 @@ WFCB_p ConjectureSymbolWeightInit(ClausePrioFun prio_fun,
                                   long   conj_cweight,
                                   long   conj_pweight,
                                   double app_var_mult,
+                                  double dif_var_mult,
                                   void   (*init_fun)(struct funweightparamcell*))
 {
    FunWeightParam_p data = FunWeightParamAlloc();
@@ -583,6 +585,7 @@ WFCB_p ConjectureSymbolWeightInit(ClausePrioFun prio_fun,
    data->conj_pweight           = conj_pweight;
 
    data->app_var_mult        = app_var_mult;
+   data->dif_var_mult        = dif_var_mult;
 
    /* Weight vector is computed on first call of weight function to
       avoid overhead is many funweigh-based functions are predefined
@@ -621,7 +624,8 @@ WFCB_p RelevanceLevelWeightInit(ClausePrioFun prio_fun,
                                 double level_poly_lin,
                                 double level_poly_square,
                                 long   default_level_penalty,
-                                double app_var_mult)
+                                double app_var_mult,
+                                double dif_var_mult)
 
 {
    FunWeightParam_p data = FunWeightParamAlloc();
@@ -645,6 +649,7 @@ WFCB_p RelevanceLevelWeightInit(ClausePrioFun prio_fun,
    data->default_level_penalty  = default_level_penalty;
 
    data->app_var_mult        = app_var_mult;
+   data->dif_var_mult        = dif_var_mult;
 
    /* Weight vector is computed on first call of weight function to
       avoid overhead is many funweigh-based functions are predefined
@@ -680,7 +685,8 @@ WFCB_p RelevanceLevelWeightInit2(ClausePrioFun prio_fun,
                                  double level_poly_lin,
                                  double level_poly_square,
                                  long   default_level_penalty,
-                                 double app_var_mult)
+                                 double app_var_mult,
+                                 double dif_var_mult)
 {
    FunWeightParam_p data = FunWeightParamAlloc();
 
@@ -703,6 +709,7 @@ WFCB_p RelevanceLevelWeightInit2(ClausePrioFun prio_fun,
    data->default_level_penalty  = default_level_penalty;
 
    data->app_var_mult        = app_var_mult;
+   data->dif_var_mult        = dif_var_mult;
    /* Weight vector is computed on first call of weight function to
       avoid overhead if many funweigh-based functions are predefined
       */
@@ -734,7 +741,8 @@ WFCB_p ConjectureSymbolWeightParse(Scanner_p in, OCB_p ocb, ProofState_p
    ClausePrioFun prio_fun;
    int vweight, fweight, pweight, cweight, conj_fweight, conj_pweight, conj_cweight;
    double pos_multiplier, max_term_multiplier, max_literal_multiplier,
-          app_var_mult = APP_VAR_MULT_DEFAULT;
+          app_var_mult = APP_VAR_MULT_DEFAULT,
+          dif_var_mult = DIF_VAR_MULT_DEFAULT;
 
    AcceptInpTok(in, OpenBracket);
    prio_fun = ParsePrioFun(in);
@@ -763,7 +771,8 @@ WFCB_p ConjectureSymbolWeightParse(Scanner_p in, OCB_p ocb, ProofState_p
    AcceptInpTok(in, Comma);
    pos_multiplier = ParseFloat(in);
 
-   PARSE_OPTIONAL_AV_PENALTY(in, app_var_mult);
+   PARSE_OPT_ARG(in, dif_var_mult);
+   PARSE_OPT_ARG(in, app_var_mult);
 
    AcceptInpTok(in, CloseBracket);
 
@@ -781,6 +790,7 @@ WFCB_p ConjectureSymbolWeightParse(Scanner_p in, OCB_p ocb, ProofState_p
                                      conj_cweight,
                                      conj_pweight,
                                      app_var_mult,
+                                     dif_var_mult,
                                      init_conj_vector);
 }
 
@@ -804,7 +814,8 @@ WFCB_p ConjectureSimplifiedSymbolWeightParse(Scanner_p in, OCB_p ocb,
    ClausePrioFun prio_fun;
    int vweight, fweight, pweight, conj_fweight, conj_pweight;
    double pos_multiplier, max_term_multiplier, max_literal_multiplier,
-          app_var_mult = APP_VAR_MULT_DEFAULT;
+          app_var_mult = APP_VAR_MULT_DEFAULT,
+          dif_var_mult = DIF_VAR_MULT_DEFAULT;
 
    AcceptInpTok(in, OpenBracket);
    prio_fun = ParsePrioFun(in);
@@ -828,7 +839,8 @@ WFCB_p ConjectureSimplifiedSymbolWeightParse(Scanner_p in, OCB_p ocb,
    AcceptInpTok(in, Comma);
    pos_multiplier = ParseFloat(in);
 
-   PARSE_OPTIONAL_AV_PENALTY(in, app_var_mult);
+   PARSE_OPT_ARG(in, dif_var_mult);
+   PARSE_OPT_ARG(in, app_var_mult);
 
    AcceptInpTok(in, CloseBracket);
 
@@ -846,6 +858,7 @@ WFCB_p ConjectureSimplifiedSymbolWeightParse(Scanner_p in, OCB_p ocb,
                                      conj_fweight,
                                      conj_pweight,
                                      app_var_mult,
+                                     dif_var_mult,
                                      init_conj_vector);
 }
 
@@ -870,7 +883,8 @@ WFCB_p ConjectureRelativeSymbolWeightParse(Scanner_p in, OCB_p ocb,
    ClausePrioFun prio_fun;
    int fweight, pweight, cweight, vweight;
    double conj_multiplier, pos_multiplier, max_term_multiplier, max_literal_multiplier,
-          app_var_mult = APP_VAR_MULT_DEFAULT;
+          app_var_mult = APP_VAR_MULT_DEFAULT,
+          dif_var_mult = DIF_VAR_MULT_DEFAULT;
 
    AcceptInpTok(in, OpenBracket);
    prio_fun = ParsePrioFun(in);
@@ -895,7 +909,8 @@ WFCB_p ConjectureRelativeSymbolWeightParse(Scanner_p in, OCB_p ocb,
    AcceptInpTok(in, Comma);
    pos_multiplier = ParseFloat(in);
 
-   PARSE_OPTIONAL_AV_PENALTY(in, app_var_mult);
+   PARSE_OPT_ARG(in, dif_var_mult);
+   PARSE_OPT_ARG(in, app_var_mult);
 
    AcceptInpTok(in, CloseBracket);
 
@@ -913,6 +928,7 @@ WFCB_p ConjectureRelativeSymbolWeightParse(Scanner_p in, OCB_p ocb,
                                      conj_multiplier*cweight,
                                      conj_multiplier*pweight,
                                      app_var_mult,
+                                     dif_var_mult,
                                      init_conj_vector);
 }
 
@@ -936,7 +952,8 @@ WFCB_p ConjectureTypeBasedWeightParse(Scanner_p in, OCB_p ocb, ProofState_p
    ClausePrioFun prio_fun;
    int vweight;
    double pos_multiplier, max_term_multiplier, max_literal_multiplier,
-          app_var_mult = APP_VAR_MULT_DEFAULT;
+          app_var_mult = APP_VAR_MULT_DEFAULT,
+          dif_var_mult = DIF_VAR_MULT_DEFAULT;
 
    AcceptInpTok(in, OpenBracket);
    prio_fun = ParsePrioFun(in);
@@ -951,13 +968,14 @@ WFCB_p ConjectureTypeBasedWeightParse(Scanner_p in, OCB_p ocb, ProofState_p
    AcceptInpTok(in, Comma);
    pos_multiplier = ParseFloat(in);
 
-   PARSE_OPTIONAL_AV_PENALTY(in, app_var_mult);
+   PARSE_OPT_ARG(in, dif_var_mult);
+   PARSE_OPT_ARG(in, app_var_mult);
 
    AcceptInpTok(in, CloseBracket);
 
    return ConjectureSymbolWeightInit(prio_fun, ocb, state->axioms,
                                      max_term_multiplier, max_literal_multiplier, pos_multiplier,
-                                     vweight, 0, 0, 0, 0, 0, 0, app_var_mult,
+                                     vweight, 0, 0, 0, 0, 0, 0, app_var_mult, dif_var_mult,
                                      init_conj_typeweight_vector);
 }
 
@@ -983,7 +1001,7 @@ WFCB_p ConjectureRelativeSymbolTypeWeightParse(Scanner_p in, OCB_p ocb,
    ClausePrioFun prio_fun;
    int fweight, pweight, cweight, vweight;
    double conj_multiplier, pos_multiplier, max_term_multiplier, max_literal_multiplier,
-          app_var_mult = APP_VAR_MULT_DEFAULT;
+          app_var_mult = APP_VAR_MULT_DEFAULT, dif_var_mult = DIF_VAR_MULT_DEFAULT;
 
    AcceptInpTok(in, OpenBracket);
    prio_fun = ParsePrioFun(in);
@@ -1008,7 +1026,8 @@ WFCB_p ConjectureRelativeSymbolTypeWeightParse(Scanner_p in, OCB_p ocb,
    AcceptInpTok(in, Comma);
    pos_multiplier = ParseFloat(in);
 
-   PARSE_OPTIONAL_AV_PENALTY(in, app_var_mult);
+   PARSE_OPT_ARG(in, dif_var_mult);
+   PARSE_OPT_ARG(in, app_var_mult);
 
    AcceptInpTok(in, CloseBracket);
 
@@ -1026,6 +1045,7 @@ WFCB_p ConjectureRelativeSymbolTypeWeightParse(Scanner_p in, OCB_p ocb,
                                      conj_multiplier*cweight,
                                      conj_multiplier*pweight,
                                      app_var_mult,
+                                     dif_var_mult,
                                      init_conj_t_vector);
 }
 
@@ -1065,7 +1085,8 @@ WFCB_p RelevanceLevelWeightParse(Scanner_p in, OCB_p ocb,
       level_poly_const,
       level_poly_lin,
       level_poly_square,
-      app_var_mult = APP_VAR_MULT_DEFAULT;
+      app_var_mult = APP_VAR_MULT_DEFAULT,
+      dif_var_mult = DIF_VAR_MULT_DEFAULT;
 
    AcceptInpTok(in, OpenBracket);
    prio_fun = ParsePrioFun(in);
@@ -1097,7 +1118,8 @@ WFCB_p RelevanceLevelWeightParse(Scanner_p in, OCB_p ocb,
    AcceptInpTok(in, Comma);
    pos_multiplier = ParseFloat(in);
 
-   PARSE_OPTIONAL_AV_PENALTY(in, app_var_mult);
+   PARSE_OPT_ARG(in, dif_var_mult);
+   PARSE_OPT_ARG(in, app_var_mult);
 
    AcceptInpTok(in, CloseBracket);
 
@@ -1115,7 +1137,8 @@ WFCB_p RelevanceLevelWeightParse(Scanner_p in, OCB_p ocb,
                                    level_poly_lin,
                                    level_poly_square,
                                    default_level_penalty,
-                                   app_var_mult);
+                                   app_var_mult,
+                                   dif_var_mult);
 }
 
 
@@ -1153,7 +1176,8 @@ WFCB_p RelevanceLevelWeightParse2(Scanner_p in, OCB_p ocb,
       level_poly_const,
       level_poly_lin,
       level_poly_square,
-      app_var_mult = APP_VAR_MULT_DEFAULT;
+      app_var_mult = APP_VAR_MULT_DEFAULT,
+      dif_var_mult = DIF_VAR_MULT_DEFAULT;
 
    AcceptInpTok(in, OpenBracket);
    prio_fun = ParsePrioFun(in);
@@ -1185,7 +1209,8 @@ WFCB_p RelevanceLevelWeightParse2(Scanner_p in, OCB_p ocb,
    AcceptInpTok(in, Comma);
    pos_multiplier = ParseFloat(in);
 
-   PARSE_OPTIONAL_AV_PENALTY(in, app_var_mult);
+   PARSE_OPT_ARG(in, dif_var_mult);
+   PARSE_OPT_ARG(in, app_var_mult);
 
    AcceptInpTok(in, CloseBracket);
 
@@ -1203,7 +1228,8 @@ WFCB_p RelevanceLevelWeightParse2(Scanner_p in, OCB_p ocb,
                                    level_poly_lin,
                                    level_poly_square,
                                    default_level_penalty,
-                                   app_var_mult);
+                                   app_var_mult,
+                                   dif_var_mult);
 }
 
 
@@ -1228,7 +1254,8 @@ WFCB_p FunWeightInit(ClausePrioFun prio_fun,
                      long vweight,
                      long fweight,
                      PStack_p fweights,
-                     double app_var_mult)
+                     double app_var_mult,
+                     double dif_var_mult)
 {
    FunWeightParam_p data = FunWeightParamAlloc();
 
@@ -1244,6 +1271,7 @@ WFCB_p FunWeightInit(ClausePrioFun prio_fun,
    data->weight_stack           = fweights;
 
    data->app_var_mult        = app_var_mult;
+   data->app_var_mult        = dif_var_mult;
 
    return WFCBAlloc(GenericFunWeightCompute, prio_fun,
                     GenericFunWeightExit, data);
@@ -1274,7 +1302,8 @@ WFCB_p FunWeightParse(Scanner_p in, OCB_p ocb,
       max_term_multiplier,
       max_literal_multiplier,
       pos_multiplier,
-      app_var_mult = APP_VAR_MULT_DEFAULT;
+      app_var_mult = APP_VAR_MULT_DEFAULT,
+      dif_var_mult = DIF_VAR_MULT_DEFAULT;
    PStack_p fweights;
 
    AcceptInpTok(in, OpenBracket);
@@ -1301,7 +1330,8 @@ WFCB_p FunWeightParse(Scanner_p in, OCB_p ocb,
       parse_op_weight(in, fweights);
    }
 
-   PARSE_OPTIONAL_AV_PENALTY(in, app_var_mult);
+   PARSE_OPT_ARG(in, dif_var_mult);
+   PARSE_OPT_ARG(in, app_var_mult);
 
    AcceptInpTok(in, CloseBracket);
 
@@ -1313,7 +1343,8 @@ WFCB_p FunWeightParse(Scanner_p in, OCB_p ocb,
                         vweight,
                         fweight,
                         fweights,
-                        app_var_mult);
+                        app_var_mult,
+                        dif_var_mult);
 }
 
 
@@ -1339,7 +1370,8 @@ WFCB_p SymOffsetWeightInit(ClausePrioFun prio_fun,
                            long vweight,
                            long fweight,
                            PStack_p fweights,
-                           double app_var_mult)
+                           double app_var_mult,
+                           double dif_var_mult)
 {
    FunWeightParam_p data = FunWeightParamAlloc();
 
@@ -1356,6 +1388,7 @@ WFCB_p SymOffsetWeightInit(ClausePrioFun prio_fun,
    data->f_occur                = PDIntArrayAlloc(8, 0);
 
    data->app_var_mult        = app_var_mult;
+   data->dif_var_mult        = dif_var_mult;
 
    return WFCBAlloc(SymOffsetWeightCompute, prio_fun,
                     GenericFunWeightExit, data);
@@ -1388,7 +1421,8 @@ WFCB_p SymOffsetWeightParse(Scanner_p in, OCB_p ocb,
       max_term_multiplier,
       max_literal_multiplier,
       pos_multiplier,
-      app_var_mult = APP_VAR_MULT_DEFAULT;
+      app_var_mult = APP_VAR_MULT_DEFAULT,
+      dif_var_mult = DIF_VAR_MULT_DEFAULT;
    PStack_p fweights;
 
    AcceptInpTok(in, OpenBracket);
@@ -1415,7 +1449,8 @@ WFCB_p SymOffsetWeightParse(Scanner_p in, OCB_p ocb,
       parse_op_signweight(in, fweights);
    }
 
-   PARSE_OPTIONAL_AV_PENALTY(in, app_var_mult);
+   PARSE_OPT_ARG(in, dif_var_mult);
+   PARSE_OPT_ARG(in, app_var_mult);
 
    AcceptInpTok(in, CloseBracket);
 
@@ -1427,7 +1462,8 @@ WFCB_p SymOffsetWeightParse(Scanner_p in, OCB_p ocb,
                               vweight,
                               fweight,
                               fweights,
-                              app_var_mult);
+                              app_var_mult,
+                              dif_var_mult);
 }
 
 
@@ -1460,6 +1496,7 @@ double GenericFunWeightCompute(void* data, Clause_p clause)
                           local->fweights,
                           local->fweight,
                           local->app_var_mult,
+                          local->dif_var_mult,
                           local->type_freqs);
 }
 
@@ -1495,6 +1532,7 @@ double SymOffsetWeightCompute(void* data, Clause_p clause)
                       local->vweight,
                       local->fweight,
                       local->app_var_mult,
+                      local->dif_var_mult,
                       false);
    res_stack = PStackAlloc();
    ClauseAddFunOccs(clause, local->f_occur, res_stack);

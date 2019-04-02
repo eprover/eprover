@@ -339,13 +339,13 @@ void     ClauseRemoveEvaluations(Clause_p clause);
 double   ClauseWeight(Clause_p clause, double max_term_multiplier,
                       double max_literal_multiplier, double
                       pos_multiplier, long vweight, long fweight,
-                      double app_var_mult, bool count_eq_encoding);
+                      double app_var_mult, double dif_var_mult, bool count_eq_encoding);
 
 double ClauseFunWeight(Clause_p clause, double max_term_multiplier,
                        double max_literal_multiplier, double
                        pos_multiplier, long vweight, long flimit,
                        long *fweights, long default_fweight,
-                       double app_var_mult, long* typefreqs);
+                       double app_var_mult, double dif_var_mult, long* typefreqs);
 
 double ClauseTermExtWeight(Clause_p clause, TermWeightExtension_p twe);
 
@@ -354,14 +354,14 @@ double ClauseNonLinearWeight(Clause_p clause, double
                              max_literal_multiplier, double
                              pos_multiplier, long vlweight, long
                              vweight, long fweight,
-                             double app_var_mult, bool
+                             double app_var_mult, double dif_var_mul, bool
                              count_eq_encoding);
 double ClauseSymTypeWeight(Clause_p clause, double
                            max_term_multiplier, double
                            max_literal_multiplier, double
                            pos_multiplier, long vweight, long
                            fweight, long cweight, long pweight,
-                           double app_var_mult);
+                           double app_var_mult, double dif_var_mult);
 
 
 double   ClauseStandardWeight(Clause_p clause);
@@ -370,7 +370,9 @@ double   ClauseOrientWeight(Clause_p clause, double
                             unorientable_literal_multiplier,
                             double max_literal_multiplier, double
                             pos_multiplier, long vweight, long
-                            fweight, double app_var_mult, bool count_eq_encoding);
+                            fweight, double app_var_mult, 
+                            double dif_var_mult,
+                            bool count_eq_encoding);
 
 #define  ClauseDepth(clause) EqnListDepth((clause)->literals)
 
@@ -407,6 +409,8 @@ Clause_p ClauseNormalizeVars(Clause_p clause, VarBank_p fresh_vars);
    EqnListComputeFunctionRanks((clause)->literals, (rank_array), (count))
 #define  ClauseCollectVariables(clause,tree)                    \
    EqnListCollectVariables((clause)->literals,(tree))
+
+long     ClauseDistinctVarNum(Clause_p clause);
 
 #define  ClauseAddFunOccs(clause, f_occur, res_stack)                   \
    EqnListAddFunOccs((clause)->literals, (f_occur), (res_stack))

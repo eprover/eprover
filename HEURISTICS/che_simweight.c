@@ -130,7 +130,8 @@ double sim_weight(Clause_p clause, SimParam_p parms)
       res += sim_eqn_weight(handle, parms);
       handle = handle->next;
    }
-   return res*5+ClauseWeight(clause, 1, 1, 1, 1, 2, parms->app_var_mult, false);
+   return res*5+ClauseWeight(clause, 1, 1, 1, 1, 2, parms->app_var_mult, 
+                             parms->dif_var_mult, false);
 }
 
 /*---------------------------------------------------------------------*/
@@ -152,7 +153,7 @@ double sim_weight(Clause_p clause, SimParam_p parms)
 
 WFCB_p SimWeightInit(ClausePrioFun prio_fun, double equal_weight, double
            var_var_clash, double var_term_clash, double
-           term_term_clash, double app_var_mult)
+           term_term_clash, double app_var_mult, double dif_var_mult)
 {
    SimParam_p data = SimParamCellAlloc();
 
@@ -162,6 +163,7 @@ WFCB_p SimWeightInit(ClausePrioFun prio_fun, double equal_weight, double
    data->var_term_clash  = var_term_clash;
    data->term_term_clash = term_term_clash;
    data->app_var_mult    = app_var_mult;
+   data->dif_var_mult    = dif_var_mult;
 
    return WFCBAlloc(SimWeightCompute, prio_fun, SimWeightExit, data);
 }
@@ -184,7 +186,8 @@ WFCB_p SimWeightParse(Scanner_p in, OCB_p ocb, ProofState_p state)
 {
    ClausePrioFun prio_fun;
    double equal_weight, var_var_clash, var_term_clash,
-      term_term_clash, app_var_mult = APP_VAR_MULT_DEFAULT;
+      term_term_clash, app_var_mult = APP_VAR_MULT_DEFAULT,
+      dif_var_mult = DIF_VAR_MULT_DEFAULT;
 
    AcceptInpTok(in, OpenBracket);
    prio_fun = ParsePrioFun(in);
@@ -196,13 +199,14 @@ WFCB_p SimWeightParse(Scanner_p in, OCB_p ocb, ProofState_p state)
    var_term_clash = ParseFloat(in);
    AcceptInpTok(in, Comma);
    term_term_clash = ParseFloat(in);
-   
-   PARSE_OPTIONAL_AV_PENALTY(in, app_var_mult);
+
+   PARSE_OPT_ARG(in, dif_var_mult);
+   PARSE_OPT_ARG(in, app_var_mult);
    
    AcceptInpTok(in, CloseBracket);
 
    return SimWeightInit(prio_fun, equal_weight, var_var_clash,
-         var_term_clash, term_term_clash, app_var_mult);
+         var_term_clash, term_term_clash, app_var_mult, dif_var_mult);
 }
 
 

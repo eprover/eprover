@@ -41,6 +41,7 @@ typedef struct refinedweightparamcell
    double max_literal_multiplier;
    double pos_multiplier;
    double app_var_mult;
+   double dif_var_mult;
    long   vweight;
    long   fweight;
 }RefinedWeightParamCell, *RefinedWeightParam_p;
@@ -60,7 +61,7 @@ WFCB_p ClauseRefinedWeightInit(ClausePrioFun prio_fun, int fweight,
                 int vweight, OCB_p ocb, double
                 max_term_multiplier, double
                 max_literal_multiplier, double
-                pos_multiplier, double app_var_mult);
+                pos_multiplier, double app_var_mult, double dif_var_mult);
 
 WFCB_p ClauseRefinedWeightParse(Scanner_p in, OCB_p ocb, ProofState_p
             state);

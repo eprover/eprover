@@ -1995,7 +1995,8 @@ void ClauseRemoveEvaluations(Clause_p clause)
 double ClauseWeight(Clause_p clause, double max_term_multiplier,
                     double max_literal_multiplier, double
                     pos_multiplier, long vweight, long fweight,
-                    double app_var_mult, bool count_eq_encoding)
+                    double app_var_mult, double dif_var_mult,
+                    bool count_eq_encoding)
 {
    Eqn_p  handle;
    double res = 0;
@@ -2006,6 +2007,12 @@ double ClauseWeight(Clause_p clause, double max_term_multiplier,
                            max_literal_multiplier, pos_multiplier,
                            vweight, fweight, app_var_mult, count_eq_encoding);
    }
+
+   if (dif_var_mult != 1.0)
+   {
+      res = res * pow(dif_var_mult, ClauseDistinctVarNum(clause));
+   }
+
    return res;
 }
 
@@ -2027,7 +2034,7 @@ double ClauseFunWeight(Clause_p clause, double max_term_multiplier,
                        double max_literal_multiplier, double
                        pos_multiplier, long vweight, long flimit,
                        long *fweights, long default_fweight, double app_var_mult,
-                       long *typefreqs)
+                       double dif_var_mult, long *typefreqs)
 {
    Eqn_p  handle;
    double res = 0;
@@ -2040,6 +2047,12 @@ double ClauseFunWeight(Clause_p clause, double max_term_multiplier,
                               default_fweight, app_var_mult,
                               typefreqs);
    }
+
+   if (dif_var_mult != 1.0)
+   {
+      res = res * pow(dif_var_mult, ClauseDistinctVarNum(clause));
+   }
+   
    return res;
 }
 
@@ -2089,8 +2102,8 @@ double ClauseTermExtWeight(Clause_p clause, TermWeightExtension_p twe)
 double ClauseNonLinearWeight(Clause_p clause, double max_term_multiplier,
                              double max_literal_multiplier, double
                              pos_multiplier, long vlweight, long
-                             vweight, long fweight, double app_var_mult, bool
-                             count_eq_encoding)
+                             vweight, long fweight, double app_var_mult,
+                             double dif_var_mult, bool count_eq_encoding)
 {
    Eqn_p  handle;
    double res = 0;
@@ -2103,6 +2116,12 @@ double ClauseNonLinearWeight(Clause_p clause, double max_term_multiplier,
                                     count_eq_encoding);
 
    }
+   
+   if (dif_var_mult != 1.0)
+   {
+      res = res * pow(dif_var_mult, ClauseDistinctVarNum(clause));
+   }
+
    return res;
 }
 
@@ -2126,7 +2145,7 @@ double ClauseSymTypeWeight(Clause_p clause, double
                            max_literal_multiplier, double
                            pos_multiplier, long vweight, long
                            fweight, long cweight, long pweight,
-                           double app_var_mult)
+                           double app_var_mult, double dif_var_mult)
 {
    Eqn_p  handle;
    double res = 0;
@@ -2137,6 +2156,10 @@ double ClauseSymTypeWeight(Clause_p clause, double
                                   max_literal_multiplier, pos_multiplier,
                                   vweight, fweight, cweight, pweight,
                                   app_var_mult);
+   }
+   if (dif_var_mult != 1.0)
+   {
+      res = res * pow(dif_var_mult, ClauseDistinctVarNum(clause));
    }
    return res;
 }
@@ -2184,8 +2207,8 @@ double ClauseOrientWeight(Clause_p clause, double
                           unorientable_literal_multiplier,
                           double max_literal_multiplier, double
                           pos_multiplier, long vweight, long fweight,
-                          double app_var_mult, bool
-                          count_eq_encoding)
+                          double app_var_mult, double dif_var_mult, 
+                          bool count_eq_encoding)
 {
    Eqn_p  handle;
    double res = 0 ,tmp;
@@ -2202,6 +2225,12 @@ double ClauseOrientWeight(Clause_p clause, double
       }
       res += tmp;
    }
+
+   if (dif_var_mult != 1.0)
+   {
+      res = res * pow(dif_var_mult, ClauseDistinctVarNum(clause));
+   }
+
    return res;
 
 
@@ -2503,6 +2532,15 @@ Clause_p ClauseNormalizeVars(Clause_p clause, VarBank_p fresh_vars)
       SubstDelete(subst);
    }
    return clause;
+}
+
+long ClauseDistinctVarNum(Clause_p clause)
+{
+   PTree_p tree = NULL;
+   long res = ClauseCollectVariables(clause, &tree);
+   PTreeFree(tree);
+   
+   return res;
 }
 
 
