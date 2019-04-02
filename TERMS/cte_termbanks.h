@@ -128,7 +128,10 @@ long    TBTermNodes(TB_p bank);
    (term->arity && ((term)->weight==(DEFAULT_FWEIGHT+(term)->arity*DEFAULT_VWEIGHT)))
 #define TBTermIsGround(t) TermCellQueryProp((t), TPIsGround)
 
-Term_p  TBInsert(TB_p bank, Term_p term, DerefType deref);
+Term_p  TBInsertParsetime(TB_p bank, Term_p term, DerefType deref, Scanner_p in);
+
+#define TBInsert(b, t, d) (TBInsertParsetime((b), (t), (d), NULL))
+
 Term_p  TBInsertNoProps(TB_p bank, Term_p term, DerefType deref);
 Term_p  TBInsertRepl(TB_p bank, Term_p term, DerefType deref, Term_p old, Term_p repl);
 Term_p  TBInsertInstantiatedFO(TB_p bank, Term_p term);

@@ -128,7 +128,7 @@ static void tb_print_dag(FILE *out, NumTree_p in_index, Sig_p sig)
 //
 /----------------------------------------------------------------------*/
 
-static Term_p tb_termtop_insert(TB_p bank, Term_p t)
+static Term_p tb_termtop_insert(TB_p bank, Term_p t, Scanner_p in)
 {
    Term_p new;
 
@@ -146,7 +146,8 @@ static Term_p tb_termtop_insert(TB_p bank, Term_p t)
    /* Infer the sort of this term (may be temporary) */
    if(t->type == NULL)
    {
-      TypeInferSort(bank->sig, t, NULL);
+      assert(in);
+      TypeInferSort(bank->sig, t, in);
       assert(t->type != NULL);
    }
    bank->insertions++;
@@ -254,13 +255,13 @@ static Term_p tb_parse_cons_list(Scanner_p in, TB_p bank, bool check_symb_prop)
    current->f_code = SIG_NIL_CODE;
 
    /* Now insert the list into the bank */
-   handle = TBInsert(bank, current, DEREF_NEVER);
+   handle = TBInsertParsetime(bank, current, DEREF_NEVER, in);
 
    while(!PStackEmpty(stack))
    {
       current = PStackPopP(stack);
       current->args[1] = handle;
-      handle = tb_termtop_insert(bank, current);
+      handle = tb_termtop_insert(bank, current, in);
    }
 
    PStackFree(stack);
@@ -575,7 +576,7 @@ static Term_p __inline__ parse_one_ho(Scanner_p in, TB_p bank)
    }
    else
    {
-      head = tb_termtop_insert(bank, make_head(bank->sig, DStrView(id)));
+      head = tb_termtop_insert(bank, make_head(bank->sig, DStrView(id)), in);
    }
 
    DStrFree(id);
@@ -704,11 +705,12 @@ long TBTermNodes(TB_p bank)
 
 /*-----------------------------------------------------------------------
 //
-// Function: TBInsert()
+// Function: TBInsertParsetime()
 //
 //  Insert the term into the termbank. The original term will remain
 //  untouched. The routine returns a pointer to a new, shared term of
-//  the same structure.
+//  the same structure. Scanner_p points to active scanner if insertion
+//  is done during parsetime, otherwise to NULL.
 //
 //  TermProperties are masked with bank->prop_mask.
 //
@@ -718,7 +720,7 @@ long TBTermNodes(TB_p bank)
 //
 /----------------------------------------------------------------------*/
 
-Term_p TBInsert(TB_p bank, Term_p term, DerefType deref)
+Term_p TBInsertParsetime(TB_p bank, Term_p term, DerefType deref, Scanner_p in)
 {
    int    i;
    Term_p t;
@@ -745,7 +747,7 @@ Term_p TBInsert(TB_p bank, Term_p term, DerefType deref)
          t->args[i] = TBInsert(bank, term->args[i],
                                CONVERT_DEREF(i, limit, deref));
       }
-      t = tb_termtop_insert(bank, t);
+      t = tb_termtop_insert(bank, t, in);
    }
    return t;
 }
@@ -791,7 +793,7 @@ Term_p TBInsertNoProps(TB_p bank, Term_p term, DerefType deref)
          t->args[i] = TBInsertNoProps(bank, term->args[i],
                                       CONVERT_DEREF(i, limit, deref));
       }
-      t = tb_termtop_insert(bank, t);
+      t = tb_termtop_insert(bank, t, NULL);
    }
    return t;
 }
@@ -845,7 +847,7 @@ Term_p  TBInsertRepl(TB_p bank, Term_p term, DerefType deref, Term_p old, Term_p
          t->args[i] = TBInsertRepl(bank, term->args[i],
                                    CONVERT_DEREF(i, limit, deref), old, repl);
       }
-      t = tb_termtop_insert(bank, t);
+      t = tb_termtop_insert(bank, t, NULL);
    }
    return t;
 }
@@ -904,7 +906,7 @@ Term_p TBInsertInstantiatedFO(TB_p bank, Term_p term)
       {
          t->args[i] = TBInsertInstantiatedFO(bank, term->args[i]);
       }
-      t = tb_termtop_insert(bank, t);
+      t = tb_termtop_insert(bank, t, NULL);
    }
    return t;
 }
@@ -962,7 +964,7 @@ Term_p TBInsertInstantiatedHO(TB_p bank, Term_p term, bool follow_bind)
       {
          t->args[i] = TBInsertInstantiatedHO(bank, term->args[i], follow_bind && (i >= ignore_args));
       }
-      t = tb_termtop_insert(bank, t);
+      t = tb_termtop_insert(bank, t, NULL);
    }
    return t;
 }
@@ -1041,7 +1043,7 @@ Term_p TBInsertOpt(TB_p bank, Term_p term, DerefType deref)
       {
          t->args[i] = TBInsertOpt(bank, term->args[i], CONVERT_DEREF(i, limit, deref));
       }
-      t = tb_termtop_insert(bank, t);
+      t = tb_termtop_insert(bank, t, NULL);
    }
    return t;
 }
@@ -1091,7 +1093,7 @@ Term_p  TBInsertDisjoint(TB_p bank, Term_p term)
       {
          t->args[i] = TBInsertDisjoint(bank, term->args[i]);
       }
-      t = tb_termtop_insert(bank, t);
+      t = tb_termtop_insert(bank, t, NULL);
    }
    return t;
 }
@@ -1113,7 +1115,7 @@ Term_p  TBInsertDisjoint(TB_p bank, Term_p term)
 
 Term_p TBTermTopInsert(TB_p bank, Term_p t)
 {
-   return tb_termtop_insert(bank,t);
+   return tb_termtop_insert(bank,t,NULL);
 }
 
 
@@ -1443,7 +1445,7 @@ Term_p TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop)
             Error(DStrView(errpos), SYNTAX_ERROR);
             DStrFree(errpos);
          }
-         handle = tb_termtop_insert(bank, handle);
+         handle = tb_termtop_insert(bank, handle, in);
          }
       DStrFree(id);
    }
@@ -1548,7 +1550,7 @@ Term_p  TBTermParseRealHO(Scanner_p in, TB_p bank, bool check_symb_prop)
 
    if(!TermIsVar(res) && !TermIsShared(res))
    {
-      res = tb_termtop_insert(bank, res);
+      res = tb_termtop_insert(bank, res, in);
    }
    else
    {
@@ -1591,7 +1593,7 @@ void TBRefSetProp(TB_p bank, TermRef ref, TermProperties prop)
 
    new = TermTopCopy(term);
    TermCellSetProp(new, prop);
-   new = tb_termtop_insert(bank, new);
+   new = tb_termtop_insert(bank, new, NULL);
    *ref = new;
    /* Old term will be garbage-collected eventually */
 }
@@ -1622,7 +1624,7 @@ void TBRefDelProp(TB_p bank, TermRef ref, TermProperties prop)
    }
    new = TermTopCopy(term);
    TermCellDelProp(new, prop);
-   new = tb_termtop_insert(bank, new);
+   new = tb_termtop_insert(bank, new, NULL);
    *ref = new;
 }
 
