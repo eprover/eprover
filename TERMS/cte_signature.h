@@ -130,6 +130,8 @@ typedef struct sigcell
    FunCode   nor_code;
    FunCode   bimpl_code;
    FunCode   xor_code;
+   FunCode   itef_code;
+   FunCode   itet_code;
    /* And here are codes for interpreted symbols */
    FunCode   answer_code;       /* For answer literals */
    
