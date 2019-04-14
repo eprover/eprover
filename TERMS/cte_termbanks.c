@@ -1278,6 +1278,7 @@ Term_p TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop)
    type_stream        = AktToken(in)->stream_type;
    line = AktToken(in)->line;
    column = AktToken(in)->column;
+   printf("\nJetzt bin ich vor dem ersten if in TBTermParseReal\n");
 
    /* Normal term stuff, bloated because of the nonsensical SETHEO
       syntax */
@@ -1286,10 +1287,15 @@ Term_p TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop)
    {
       handle =  tb_parse_cons_list(in, bank, check_symb_prop);
    }
+      
    else
    {
       id = DStrAlloc();
-
+      // des TermParseOperator akzeptiert ite und schaut dann was danach kommt
+      // als else if danach was für ite einbauen!Das Problem is, wenn ichs
+      // danach mach, dass dann ite nich mehr das aktuelle Token is...
+      // außer ich setz dann eine Flag oder so und mach damit ein else.
+      // da geht noch des mit if (aktuelles Token).... gleich ite
       if((id_type=TermParseOperator(in, id))==FSIdentVar)
       {
          /* A variable may be annotated with a sort */
@@ -1307,8 +1313,9 @@ Term_p TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop)
       }
       else
       {
+	 printf("\nHier is ma schon in dem else aber vorm handle = %s\n", AktToken(in)->literal->string);
          handle = TermDefaultCellAlloc();
-
+	 
          if(TestInpTok(in, OpenBracket))
          {
             if((id_type == FSIdentInt)
