@@ -306,7 +306,7 @@ long DDArrayParse(Scanner_p in, DDArray_p array, bool brackets)
 //
 /----------------------------------------------------------------------*/
 
-#define PLAIN_FILE_TOKENS String|Name|PosInt|Fullstop|Plus|Hyphen
+#define PLAIN_FILE_TOKENS String|Name|PosInt|Fullstop|Plus|Hyphen|EqualSign
 
 char* ParseFilename(Scanner_p in)
 {
@@ -532,5 +532,3 @@ void ParseSkipParenthesizedExpr(Scanner_p in)
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-

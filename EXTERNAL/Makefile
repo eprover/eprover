@@ -1,13 +1,12 @@
 #------------------------------------------------------------------------
 #
-# File  : Makefile for code outside the core CLIB/E hierarchy.
+# File  : Makefile for code outside the core E hierarchy.
 #
 # Author: Stephan Schulz
 #
 # Changes
 #
-# <1> Mon Apr 10 00:33:40 GMT 2000
-#     New
+# Created: Mon Apr 10 00:33:40 GMT 2000
 #
 #------------------------------------------------------------------------
 
@@ -35,10 +34,9 @@ include ../Makefile.services
 
 CSSCPA = CSSCPA_filter.o cex_csscpa.o \
             ../lib/CLAUSES.a ../lib/ORDERINGS.a ../lib/TERMS.a\
-            ../lib/INOUT.a ../lib/BASICS.a ../lib/PICOSAT.a
+            ../lib/INOUT.a ../lib/BASICS.a ../lib/CONTRIB.a
 
 $(LIB): $(CSSCPA)
 	$(LD) -o CSSCPA_filter $(CSSCPA) $(LIBS)
 
 include Makefile.dependencies
-

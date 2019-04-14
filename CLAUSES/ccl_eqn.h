@@ -134,6 +134,8 @@ extern IOFormat OutputFormat;
 Eqn_p   EqnAlloc(Term_p lterm, Term_p rterm, TB_p bank, bool positive);
 void    EqnFree(Eqn_p junk);
 
+#define EqnCreateTrueLit(bank) (EqnAlloc((bank)->true_term, (bank)->true_term, bank, true))
+
 #define EqnGCMarkTerms(eqn) TBGCMarkTerm((eqn)->bank,(eqn)->lterm);     \
    TBGCMarkTerm((eqn)->bank,(eqn)->rterm)
 
@@ -176,6 +178,8 @@ void    EqnFree(Eqn_p junk);
 
 #define EqnIsPropTrue(eq)  (((eq)->lterm == (eq)->rterm) && EqnIsPositive(eq))
 #define EqnIsPropFalse(eq) (((eq)->lterm == (eq)->rterm) && EqnIsNegative(eq))
+
+#define EqnIsBoolVar(eq) (TermIsVar((eq)->lterm) && ((eq)->rterm == (eq)->bank->true_term))
 
 #define EqnIsGround(eq)                                         \
    (TBTermIsGround((eq)->lterm) && TBTermIsGround((eq)->rterm))

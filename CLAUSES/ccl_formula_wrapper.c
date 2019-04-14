@@ -482,7 +482,6 @@ WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms)
    }
    else
    {
-      bool is_def = TestInpId(in, "definition");
       type = (FormulaProperties)
          ClauseTypeParse(in,is_tcf?
                          "axiom|hypothesis|definition|assumption|"
@@ -500,11 +499,7 @@ WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms)
       line        = AktToken(in)->line;
       column      = AktToken(in)->column;
 
-      if(problemType == PROBLEM_HO && is_def)
-      {
-         tform = handle_ho_def(in, terms);
-      }
-      else if(is_tcf)
+      if(is_tcf)
       {
          // printf("# Tcf Start!\n");
          tform = TcfTSTPParse(in, terms);
@@ -575,18 +570,24 @@ void WFormulaTSTPPrint(FILE* out, WFormula_p form, bool fullterms,
    char *typename = "plain", *formula_kind = "fof";
    bool is_untyped = TFormulaIsUntyped(form->tformula);
 
-
-   if(form->is_clause && is_untyped)
+   if(problemType == PROBLEM_FO)
    {
-      formula_kind = "cnf";
+      if(form->is_clause && is_untyped)
+      {
+         formula_kind = "cnf";
+      }
+      else if(form->is_clause)
+      {
+         formula_kind = "tcf";
+      }
+      else if(!is_untyped)
+      {
+         formula_kind = "tff";
+      }
    }
-   else if(form->is_clause)
+   else
    {
-      formula_kind = "tcf";
-   }
-   else if(!is_untyped)
-   {
-      formula_kind = "tff";
+      formula_kind = "thf";
    }
 
    switch(FormulaQueryType(form))

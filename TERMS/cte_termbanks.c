@@ -29,6 +29,7 @@
 #include "cte_termbanks.h"
 #include "cte_typecheck.h"
 #include <cte_typebanks.h>
+#include <ccl_tformulae.h>
 
 
 
@@ -49,6 +50,7 @@ bool TBPrintDetails = false;      /* Collect potentially expensive
 /*                      Forward Declarations                           */
 /*---------------------------------------------------------------------*/
 
+typedef Term_p (*TermParseFun)(Scanner_p in, TB_p bank);
 
 /*---------------------------------------------------------------------*/
 /*                         Internal Functions                          */
@@ -144,7 +146,7 @@ static Term_p tb_termtop_insert(TB_p bank, Term_p t)
    /* Infer the sort of this term (may be temporary) */
    if(t->type == NULL)
    {
-      TypeInferSort(bank->sig, t);
+      TypeInferSort(bank->sig, t, NULL);
       assert(t->type != NULL);
    }
    bank->insertions++;
@@ -291,12 +293,12 @@ static Term_p tb_subterm_parse(Scanner_p in, TB_p bank)
          {
             AktTokenError(in,
                           "Predicate used as function symbol in preceeding term",
-                          SYNTAX_ERROR);
+                          false);
          }
          else
          {
             SigDeclareIsFunction(bank->sig, res->f_code);
-            TypeInferSort(bank->sig, res);
+            TypeInferSort(bank->sig, res, in);
             assert(res->type);
          }
       }
@@ -308,6 +310,78 @@ static Term_p tb_subterm_parse(Scanner_p in, TB_p bank)
    return res;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: choose_subterm_parse_fun()
+//
+//   If the argument to be parsed should be of boolean type, parse
+//   the argument as a formula. Otherwise, parse it as before.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static Term_p choose_subterm_parse_fun(bool check_symb_prop,
+                                              Type_p type, int arg,
+                                              Scanner_p in, TB_p bank)
+{
+   Term_p res = NULL;
+
+   if(type && arg < TypeGetMaxArity(type) && TypeIsBool(type->args[arg]))
+   {
+      res = TFormulaTSTPParse(in,bank);
+   }
+   else
+   {
+      res = check_symb_prop ? tb_subterm_parse(in, bank) : TBTermParse(in, bank);
+   }
+
+   return res;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: normalize_boolean_terms()
+//
+//   If term_ref points to an equation of type X=true that appears
+//   under context, replace this equation by X.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static void normalize_boolean_terms(Term_p* term_ref, TB_p bank)
+{
+   assert(term_ref && *term_ref);
+   Term_p term = *term_ref;
+   Sig_p  sig  = bank->sig;
+   if(term->f_code == sig->eqn_code)
+   {
+      if(TermIsVar(term->args[0]) && term->args[1]->f_code == SIG_TRUE_CODE)
+      {
+         *term_ref = term->args[0]; // garbage collection will deal with parent
+      }
+      else if(term->args[0]->f_code == SIG_TRUE_CODE)
+      {
+         assert(term->args[1]->f_code == SIG_TRUE_CODE);
+         assert(term->args[0] == bank->true_term);
+         assert(term->args[1] == bank->true_term);
+         *term_ref = term->args[0];
+      }
+   }
+   else if(term->f_code == sig->neqn_code
+            && term->args[0]->f_code == SIG_TRUE_CODE)
+   {
+      assert(term->args[1]->f_code == SIG_TRUE_CODE);
+      assert(term->args[0] == bank->true_term);
+      assert(term->args[1] == bank->true_term);
+      *term_ref = bank->false_term;
+   }
+}
 
 /*-----------------------------------------------------------------------
 //
@@ -324,10 +398,10 @@ static Term_p tb_subterm_parse(Scanner_p in, TB_p bank)
 /----------------------------------------------------------------------*/
 
 static int tb_term_parse_arglist(Scanner_p in, Term_p** arg_anchor,
-                                 TB_p bank, bool check_symb_prop)
+                                 TB_p bank, bool check_symb_prop, Type_p type)
 {
    Term_p   tmp;
-   PStackPointer i, arity;
+   PStackPointer i=0, arity;
    PStack_p args;
 
    AcceptInpTok(in, OpenBracket);
@@ -339,18 +413,18 @@ static int tb_term_parse_arglist(Scanner_p in, Term_p** arg_anchor,
    }
    args = PStackAlloc();
 
-   tmp = check_symb_prop?
-      tb_subterm_parse(in, bank):
-      TBRawTermParse(in,bank);
+   tmp = choose_subterm_parse_fun(check_symb_prop, type, i, in, bank);
+   normalize_boolean_terms(&tmp, bank);
    PStackPushP(args, tmp);
+   i++;
 
    while(TestInpTok(in, Comma))
    {
       NextToken(in);
-      tmp  = check_symb_prop?
-         tb_subterm_parse(in, bank):
-         TBRawTermParse(in,bank);
+      tmp  = choose_subterm_parse_fun(check_symb_prop, type, i, in, bank);
+      normalize_boolean_terms(&tmp, bank);
       PStackPushP(args, tmp);
+      i++;
    }
    AcceptInpTok(in, CloseBracket);
    arity = PStackGetSP(args);
@@ -474,7 +548,7 @@ static Term_p make_head(Sig_p sig, const char* f_name)
 //
 /----------------------------------------------------------------------*/
 
-static Term_p __inline__  parse_one_ho(Scanner_p in, TB_p bank)
+static Term_p __inline__ parse_one_ho(Scanner_p in, TB_p bank)
 {
    assert(problemType == PROBLEM_HO);
 
@@ -498,10 +572,6 @@ static Term_p __inline__  parse_one_ho(Scanner_p in, TB_p bank)
       }
 
       assert(TermIsVar(head));
-      if(TypeHasBool(head->type))
-      {
-        AktTokenError(in, "Quantification over type $o is not allowed.", false);
-      }
    }
    else
    {
@@ -1351,8 +1421,14 @@ Term_p TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop)
                              false);
             }
 
+            // in TFX all symbols must be declared beforehand
+            // thus, if we have a formula at the argument, symbol with name
+            // id already has a type declared with $o in appropriate places
+            FunCode sym_code = SigFindFCode(bank->sig, DStrView(id));
+            Type_p  sym_type = sym_code ? SigGetType(bank->sig, sym_code) : NULL;
+
             handle->arity = tb_term_parse_arglist(in, &(handle->args),
-                                                  bank, check_symb_prop);
+                                                  bank, check_symb_prop, sym_type);
          }
          else
          {
@@ -1408,6 +1484,7 @@ Term_p  TBTermParseRealHO(Scanner_p in, TB_p bank, bool check_symb_prop)
    Term_p  res     = NULL;
    int     rest_arity   = 0;
    int     allocated    = 0;
+   int     head_arity   = 0;
 
    if(TestInpTok(in, OpenBracket))
    {
@@ -1420,6 +1497,8 @@ Term_p  TBTermParseRealHO(Scanner_p in, TB_p bank, bool check_symb_prop)
       head = parse_one_ho(in, bank);
    }
 
+   head_arity = head->arity;
+
    if(!TermIsVar(head) && !TermIsAppliedVar(head) && !SigGetType(bank->sig, head->f_code))
    {
       DStr_p msg = DStrAlloc();
@@ -1430,7 +1509,7 @@ Term_p  TBTermParseRealHO(Scanner_p in, TB_p bank, bool check_symb_prop)
       }
       DStrAppendInt(msg, (int)head->f_code);
       DStrAppendStr(msg, " has not been declared previously. This needs to change.");
-      AktTokenError(in, DStrView(msg), SYNTAX_ERROR);
+      AktTokenError(in, DStrView(msg), false);
    }
 
    allocated = TERMS_INITIAL_ARGS;
@@ -1441,15 +1520,26 @@ Term_p  TBTermParseRealHO(Scanner_p in, TB_p bank, bool check_symb_prop)
    {
       AcceptInpTok(in, Application);
 
-      if(TestInpTok(in, OpenBracket))
+      if(head_arity + rest_arity >= TypeGetMaxArity(GetHeadType(bank->sig, head)))
       {
-         AcceptInpTok(in, OpenBracket);
-         arg = TBTermParseRealHO(in, bank, check_symb_prop);
-         AcceptInpTok(in, CloseBracket);
+         AktTokenError(in, "Too many arguments supplied to symbol.", false);
+      }
+      if(TypeIsBool(GetHeadType(bank->sig, head)->args[head_arity+rest_arity]))
+      {
+         arg = (TestInpTok(in, Name|SemIdent) ? parse_one_ho :  TFormulaTSTPParse)(in, bank);
       }
       else
       {
-         arg = parse_one_ho(in, bank);
+         if(TestInpTok(in, OpenBracket))
+         {
+            AcceptInpTok(in, OpenBracket);
+            arg = TBTermParseRealHO(in, bank, check_symb_prop);
+            AcceptInpTok(in, CloseBracket);
+         }
+         else
+         {
+            arg = parse_one_ho(in, bank);
+         }
       }
 
       if(rest_arity == allocated)
@@ -1762,7 +1852,7 @@ long TBTermCollectSubterms(Term_p term, PStack_p collector)
 //
 // Function: TBFindRepr()
 //
-//   Find the representation of a term from another (or none) bank in 
+//   Find the representation of a term from another (or none) bank in
 //   this bank.
 //
 // Global Variables: -
@@ -1776,14 +1866,14 @@ Term_p TBFindRepr(TB_p bank, Term_p term)
    int i;
    Term_p work;
    Term_p repr;
-   
-   if (TermIsVar(term) || TermIsConst(term)) 
+
+   if (TermIsVar(term) || TermIsConst(term))
    {
       return TBFind(bank, term);
    }
 
    work = TermTopCopy(term);
-   for (i=0; i<work->arity; i++) 
+   for (i=0; i<work->arity; i++)
    {
       work->args[i] = TBFindRepr(bank, term->args[i]);
    }

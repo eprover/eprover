@@ -14,8 +14,6 @@
 
 include ../Makefile.vars
 
-# Project specific variables
-
 PICOSAT = picosat-965
 
 all: picosat
@@ -32,17 +30,11 @@ include ../Makefile.services
 config:
 	cd $(PICOSAT); ./configure.sh -t
 
-$(PICOSAT)/makefile:
+$(PICOSAT)/makefile: $(PICOSAT)/makefile.in
 	make config
 
 picosat: $(PICOSAT)/makefile
 	cd $(PICOSAT); $(MAKE); $(MAKE)
-	@if [ -f PICOSAT.a ]; then\
-		rm PICOSAT.a;\
+	@if [ ! -h CONTRIB.a ]; then\
+	   $(LN) $(PICOSAT)/libpicosat.a CONTRIB.a;\
 	fi;
-	$(LN) $(PICOSAT)/libpicosat.a PICOSAT.a;\
-
-	
-
-PICOSAT.a:
-	

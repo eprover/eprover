@@ -86,7 +86,7 @@ long              step_limit = LONG_MAX,
    generated_limit = LONG_MAX,
    eqdef_maxclauses = DEFAULT_EQDEF_MAXCLAUSES,
    relevance_prune_level = 0,
-   miniscope_limit = 1000;
+   miniscope_limit = 1048576;
 long long tb_insert_limit = LLONG_MAX;
 
 int eqdef_incrlimit = DEFAULT_EQDEF_INCRLIMIT,
@@ -467,7 +467,6 @@ int main(int argc, char* argv[])
                                proofstate->gc_terms);
    }
 
-
    if(cnf_size)
    {
       VERBOUT("CNFization done\n");
@@ -507,6 +506,7 @@ int main(int argc, char* argv[])
    ProofStateInit(proofstate, proofcontrol);
    //printf("Alive (2)!\n");
    //ProofStateInitWatchlist(proofstate, proofcontrol->ocb);
+
 
    VERBOUT2("Prover state initialized\n");
    preproc_time = GetTotalCPUTime();

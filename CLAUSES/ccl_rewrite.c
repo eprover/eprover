@@ -582,6 +582,8 @@ static Term_p rewrite_with_clause_set(OCB_p ocb, TB_p bank, Term_p term,
       assert(mi->pos->clause->ident);    
       TermAddRWLink(term, repl, mi->pos->clause, ClauseIsSOS(mi->pos->clause),
                     restricted_rw?RWAlwaysRewritable:RWLimitedRewritable);
+      assert(TOGreater(ocb, term, repl, DEREF_NEVER, DEREF_NEVER));
+
       term = repl;
       MatchResFree(mi);
    }
@@ -782,7 +784,7 @@ EqnSide eqn_li_normalform(RWDesc_p desc, ClausePos_p pos, bool interred_rw)
       EqnIsOriented(eqn) && interred_rw;
    EqnSide res = NoSide;
 
-   eqn->lterm = term_li_normalform(desc, eqn->lterm, restricted_rw);
+   eqn->lterm =  term_li_normalform(desc, eqn->lterm, restricted_rw);
    if(l_old!=eqn->lterm)
    {
       EqnDelProp(eqn, EPMaxIsUpToDate);

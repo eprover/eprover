@@ -1,24 +1,23 @@
 /*-----------------------------------------------------------------------
 
-File  : ccl_tcnf.h
+  File  : ccl_tcnf.h
 
-Author: Stephan Schulz
+  Author: Stephan Schulz
 
-Contents
+  Contents
 
-  Functions implementing (eventually) the CNF conversion of first
-  order formulae encoded as terms.
+  Functions implementing the CNF conversion of first order formulae
+  encoded as terms.
 
-  Copyright 2003,2005 by the author.
+  Copyright 2003-2019 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
+  Changes
 
-<1> Fri May 20 09:45:25 CEST 2005
-    New (taken some from ccl_cnf.h).
+  Created: Fri May 20 09:45:25 CEST 2005
 
 -----------------------------------------------------------------------*/
 
@@ -51,7 +50,7 @@ void TFormulaFindDefs(TB_p bank, TFormula_p form, int polarity,
                       PStack_p renamed_forms);
 TFormula_p TFormulaCopyDef(TB_p bank, TFormula_p form, long blocked,
                            NumXTree_p *defs, PStack_p defs_used);
-TFormula_p TFormulaSimplify(TB_p terms, TFormula_p form, bool full_simpl);
+TFormula_p TFormulaSimplify(TB_p terms, TFormula_p form, long quopt_limit);
 
 TFormula_p TFormulaNNF(TB_p terms, TFormula_p form, int polarity);
 
@@ -66,7 +65,8 @@ TFormula_p TFormulaDistributeDisjunctions(TB_p terms, TFormula_p form);
 void WTFormulaConjunctiveNF(WFormula_p form, TB_p terms);
 void WTFormulaConjunctiveNF2(WFormula_p form, TB_p terms,
                              long miniscope_limit);
-
+void WTFormulaConjunctiveNF3(WFormula_p form, TB_p terms,
+                             long miniscope_limit);
 
 
 #endif

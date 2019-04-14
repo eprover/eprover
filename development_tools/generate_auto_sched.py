@@ -543,9 +543,9 @@ defined_strats = set()
 global_class.computePerf(time_limit, succ_cases)
 best_strats = global_class.getSortedStrats()
 
-print "// best strats: ", best_strats[:5]
-for i in best_strats[:5]:
-    print i.getPerf()
+# print "// best strats: ", best_strats[:5]
+#for i in best_strats[:5]:
+#    print i.getPerf()
 
 
 for time_limit in time_limits:

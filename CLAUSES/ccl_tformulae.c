@@ -46,7 +46,7 @@ static TFormula_p literal_tform_tstp_parse(Scanner_p in, TB_p terms);
 //
 // Function: tptp_operator_convert()
 //
-//   R eturn the f_code corresponding to a given token. Rather
+//   Return the f_code corresponding to a given token. Rather
 //   trivial ;-)
 //
 // Global Variables: -
@@ -76,8 +76,14 @@ static FunCode tptp_operator_convert(Sig_p sig, TokenType tok)
    case FOFEquiv:
          res = sig->equiv_code;
          break;
+   case EqualSign:
+         res = sig->eqn_code;
+         break;         
    case FOFXor:
          res = sig->xor_code;
+         break;
+   case NegEqualSign:
+         res = sig->neqn_code;
          break;
    case FOFNand:
          res = sig->nand_code;
@@ -450,6 +456,7 @@ static TFormula_p literal_tform_tstp_parse(Scanner_p in, TB_p terms)
          // For example you might have ((f @ a) = c => ...)   -- continue parsing is false here
          //                            (f @ a = c => ...)     -- continue parsing is true here
          //                            ((f @ a = c) => ...)   -- continue parsing is false here
+         // In those examples, our code parses the literal, up to =>
 
          if(TestTok(LookToken(in,1), OpenBracket|UnivQuantor|ExistQuantor|TildeSign))
          {
@@ -485,6 +492,10 @@ static TFormula_p literal_tform_tstp_parse(Scanner_p in, TB_p terms)
    else if(TestInpTok(in, TildeSign))
    {
       AcceptInpTok(in, TildeSign);
+      if(problemType == PROBLEM_HO && TestInpTok(in, Application))
+      {
+         AcceptInpTok(in, Application);
+      }
       tmp = literal_tform_tstp_parse(in, terms);
       res = TFormulaFCodeAlloc(terms, terms->sig->not_code, tmp, NULL);
    }
@@ -909,6 +920,7 @@ void TFormulaTPTPPrint(FILE* out, TB_p bank, TFormula_p form, bool fullterms, bo
    {
       char* oprep = "XXX";
 
+      assert(form->arity);
       assert(TFormulaIsBinary(form));
       fputs("(", out);
       if(form->f_code == bank->sig->or_code)
@@ -1268,6 +1280,10 @@ bool TFormulaVarIsFree(TB_p bank, TFormula_p form, Term_p var)
    bool res = false;
    int i;
 
+   if(!form->v_count)
+   {
+      return false;
+   }
    if(TFormulaIsLiteral(bank->sig, form))
    {
       res = TBTermIsSubterm(form, var);
@@ -1684,8 +1700,8 @@ Clause_p TFormulaCollectClause(TFormula_p form, TB_p terms,
    PStackPointer i;
 
    /*printf("tformula_collect_clause(): ");
-     TFormulaTPTPPrint(GlobalOut, terms, form, true);
-     printf("\n"); */
+     TFormulaTPTPPrint(GlobalOut, terms, form, true, false);
+     printf("\n");*/
 
    stack = PStackAlloc();
    PStackPushP(stack, form);
@@ -1749,6 +1765,38 @@ Clause_p TFormulaCollectClause(TFormula_p form, TB_p terms,
 bool TFormulaIsUntyped(TFormula_p form)
 {
    return TermIsUntyped(form);
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: TFormulaNegate
+//
+//   If formula is literal, it negates the $(n)eq symbol. Otherwise,
+//   if formula is \alpha, it returns \neg alpha
+//
+// Global Variables: -
+//
+// Side Effects    : memory operations
+//
+/----------------------------------------------------------------------*/
+
+TFormula_p TFormulaNegate(TFormula_p form, TB_p terms)
+{
+   TFormula_p res = NULL;
+   if(TFormulaIsLiteral(terms->sig, form))
+   {
+      FunCode f_code = SigGetOtherEqnCode(terms->sig, form->f_code);
+      res = TFormulaFCodeAlloc(terms, f_code,
+                               form->args[0],
+                               form->args[1]);
+   }
+   else
+   {
+      res = TFormulaFCodeAlloc(terms, terms->sig->not_code,
+                               form, NULL);
+   }
+
+   return res;
 }
 
 

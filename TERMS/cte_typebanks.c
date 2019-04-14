@@ -556,66 +556,24 @@ Type_p TypeBankParseType(Scanner_p in, TypeBank_p bank)
 
    if(problemType == PROBLEM_FO)
    {
-      // We support only (A1 * A2 * ... * An) > B
+      // We support only [(][(]A1 * A2 * ... * An[])] > B [)]
       // or C type (constructors)
+      // parentheses in [] are optional
 
-      if(!TestInpTok(in, OpenBracket))
-      {
-         leftArg = parse_single_type(in, bank);
-         if(TestInpTok(in, GreaterSign))
-         {
-            AcceptInpTok(in, GreaterSign);
-
-            rightArg = parse_single_type(in, bank);
-
-            Type_p* args = TypeArgArrayAlloc(2);
-            args[0] = leftArg;
-            args[1] = rightArg;
-
-            res = AllocArrowType(2, args);
-
-            if (TestInpTok(in, GreaterSign))
-            {
-               AktTokenError(in,"Mixing of first order and higher "\
-                                "order syntax is forbidden.", true);
-            }
-         }
-         else
-         {
-            res = leftArg;
-         }
-      }
-      else
+      int open_parens = 0;
+      for(; open_parens<2 && TestInpTok(in, OpenBracket); open_parens++)
       {
          AcceptInpTok(in, OpenBracket);
+      }
+      
+      int allocated = REALLOC_STEP;
+      int arity = 1;
+      Type_p* args = TypeArgArrayAlloc(allocated);
+      args[0] = parse_single_type(in, bank);
 
-         int allocated = REALLOC_STEP;
-         Type_p* args = TypeArgArrayAlloc(allocated);
-         args[0] = parse_single_type(in, bank);
-
-         int arity = 1;
-
-         do
-         {
-            if(TestInpTok(in, GreaterSign))
-            {
-               AktTokenError(in,"Mixing of first order and higher "
-                                "order syntax is forbidden.", true );
-            }
-            AcceptInpTok(in, Mult);
-
-            rightArg = parse_single_type(in, bank);
-            if(arity == allocated)
-            {
-               type_arg_realloc(&args, allocated, allocated + REALLOC_STEP);
-               allocated += REALLOC_STEP;
-            }
-
-            args[arity++] = rightArg;
-         } while (!TestInpTok(in, CloseBracket));
-
-         AcceptInpTok(in, CloseBracket);
-         AcceptInpTok(in, GreaterSign);
+      while(TestInpTok(in, Mult))
+      {
+         AcceptInpTok(in, Mult);
 
          rightArg = parse_single_type(in, bank);
          if(arity == allocated)
@@ -625,9 +583,42 @@ Type_p TypeBankParseType(Scanner_p in, TypeBank_p bank)
          }
 
          args[arity++] = rightArg;
+      }
 
-         type_arg_realloc(&args, allocated, arity); // cut array to right size
+      if(open_parens && TestInpTok(in, CloseBracket))
+      {
+         AcceptInpTok(in, CloseBracket);
+         open_parens--;
+      }
+      
+      if(TestInpTok(in, GreaterSign))
+      {
+         AcceptInpTok(in, GreaterSign);
 
+         rightArg = parse_single_type(in, bank);
+         if(arity == allocated)
+         {
+            type_arg_realloc(&args, allocated, allocated + REALLOC_STEP);
+            allocated += REALLOC_STEP;
+         }
+         args[arity++] = rightArg;
+      }
+
+      if(open_parens)
+      {
+         AcceptInpTok(in, CloseBracket);
+         open_parens--;
+      }
+
+      type_arg_realloc(&args, allocated, arity); // cut array to right size
+
+      if(arity == 1)
+      {
+         res = args[0];
+         SizeFree(args, arity*sizeof(Type_p));
+      }
+      else
+      {
          res = AllocArrowType(arity, args);
       }
    }

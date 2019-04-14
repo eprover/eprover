@@ -21,10 +21,7 @@
 
 #include "ccl_eqn.h"
 #include "cte_typecheck.h"
-
-#define PRINT_HO_PAREN(out, ch) ((problemType == PROBLEM_HO) ? \
-                                    (fputc((ch), (out))) : 0)
-
+#include "ccl_tformulae.h"
 
 /*---------------------------------------------------------------------*/
 /*                        Global Variables                             */
@@ -320,8 +317,7 @@ static bool eqn_parse_infix(Scanner_p in, TB_p bank, Term_p *lref,
 
    /* Shortcut not to check for equality --
          !TermIsVar guards calls against negative f_code */
-   if(problemType == PROBLEM_FO &&
-      !TermIsVar(lterm) &&
+   if(problemType == PROBLEM_FO && !TermIsVar(lterm) &&
       SigIsPredicate(bank->sig,lterm->f_code) &&
       SigIsFixedType(bank->sig, lterm->f_code))
    {
@@ -350,10 +346,10 @@ static bool eqn_parse_infix(Scanner_p in, TB_p bank, Term_p *lref,
 
          if(!TermIsTopLevelVar(rterm))
          {
-            TypeDeclareIsNotPredicate(bank->sig, rterm);
+            TypeDeclareIsNotPredicate(bank->sig, rterm, in);
          }
       }
-      else if(TestInpTok(in, NegEqualSign|EqualSign))
+      else if(TestInpTok(in, NegEqualSign|EqualSign) && !TypeIsPredicate(lterm->type))
       { /* Now both sides must be terms */
          if(in_parens && TestInpTok(in, CloseBracket))
          {
@@ -363,7 +359,7 @@ static bool eqn_parse_infix(Scanner_p in, TB_p bank, Term_p *lref,
 
          if(!TermIsAppliedVar(lterm) && problemType == PROBLEM_FO)
          {
-            TypeDeclareIsNotPredicate(bank->sig, lterm);
+            TypeDeclareIsNotPredicate(bank->sig, lterm, in);
          }
          if(TestInpTok(in, NegEqualSign))
          {
@@ -374,17 +370,17 @@ static bool eqn_parse_infix(Scanner_p in, TB_p bank, Term_p *lref,
          rterm = TBTermParse(in, bank);
 
          // We have to make those declarations only for FO problems
-         if(!TermIsAppliedVar(lterm) && problemType == PROBLEM_FO)
+         if(!TermIsTopLevelVar(lterm) && problemType == PROBLEM_FO)
          {
-            TypeDeclareIsNotPredicate(bank->sig, lterm);
+            TypeDeclareIsNotPredicate(bank->sig, lterm, in);
          }
-         if(!TermIsVar(rterm) && !TermIsAppliedVar(rterm) && problemType == PROBLEM_FO)
+         if(!TermIsTopLevelVar(rterm) && !TermIsAppliedVar(rterm) && problemType == PROBLEM_FO)
          {
-            TypeDeclareIsNotPredicate(bank->sig, rterm);
+            TypeDeclareIsNotPredicate(bank->sig, rterm, in);
          }
       }
       else
-      { /* It's a predicate */
+      {  /* It's a predicate */
          if(problemType == PROBLEM_HO && !TermIsTopLevelVar(lterm)
             && SigIsFunction(bank->sig, lterm->f_code))
          {
@@ -462,7 +458,6 @@ static bool eqn_parse_prefix(Scanner_p in, TB_p bank, Term_p *lref,
       }
       SigDeclareIsPredicate(bank->sig, lterm->f_code);
    }
-   /* FIXME (@ Stephan:) Do we need to set IsNotPredicate here? */
    *lref = lterm;
    *rref = rterm;
 
@@ -609,7 +604,7 @@ Eqn_p EqnAlloc(Term_p lterm, Term_p rterm, TB_p bank,  bool positive)
                SigPrint(stdout,bank->sig);
                fflush(stdout); */
 #ifndef ENABLE_LFHO
-      assert(!TermIsVar(lterm));
+      //assert(!TermIsVar(lterm));
 #endif
       if(!TermIsVar(lterm) && !TermIsAppliedVar(lterm))
       {
@@ -773,20 +768,11 @@ Eqn_p EqnHOFParse(Scanner_p in, TB_p bank, bool* continue_parsing)
 
    if(pure_eq)
    {
-      rterm = TBTermParse(in, bank);
+      rterm = TypeIsBool(lterm->type) ?  TFormulaTSTPParse(in, bank) : TBTermParse(in, bank);
 
-      if(TypeIsBool(lterm->type) && TypeIsBool(rterm->type))
+      if(TypeIsBool(lterm->type))
       {
-         AktTokenError(in, "Equations between bools are disallowed.", false);
-      }
-
-      if(!TermIsTopLevelVar(lterm) && !SigIsFunction(bank->sig, lterm->f_code))
-      {
-         TypeDeclareIsNotPredicate(bank->sig, lterm);
-      }
-      if(!TermIsTopLevelVar(rterm) && !SigIsFunction(bank->sig, rterm->f_code))
-      {
-         TypeDeclareIsNotPredicate(bank->sig, rterm);
+         lterm = EqnTermsTBTermEncode(bank, lterm, bank->true_term, true, PENormal);
       }
    }
    else
@@ -799,16 +785,11 @@ Eqn_p EqnHOFParse(Scanner_p in, TB_p bank, bool* continue_parsing)
          DStrAppendStr(err, " interpreted both as function and predicate (check parentheses).");
          AktTokenError(in, DStrView(err), SYNTAX_ERROR);
       }
-      if(!TermIsTopLevelVar(lterm) && !SigIsPredicate(bank->sig, lterm->f_code))
-      {
-         TypeDeclareIsPredicate(bank->sig, lterm);
-      }
       rterm = bank->true_term;
    }
 
    return EqnAlloc(lterm, rterm, bank, positive);
 }
-
 
 /*-----------------------------------------------------------------------
 //
@@ -1603,11 +1584,10 @@ int EqnSubsumeQOrderCompare(const void* lit1, const void* lit2)
       return res;
    }
 
-   if(!EqnIsEquLit(l1))
+   if(problemType == PROBLEM_FO && !EqnIsEquLit(l1))
    {
       // because variables might appear at predicate positions,
       // all nonequational literals belong to the same class in full HOL
-      // ** for LFHOL this same comparison as for FOL holds **
       res = CMP(l1->lterm->f_code, l2->lterm->f_code);
    }
    return res;

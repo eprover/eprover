@@ -63,7 +63,8 @@ typedef enum
    inf_eval_answers,
    inf_var_rename,
    inf_skolemize_out,
-   inf_neg_conjecture
+   inf_neg_conjecture,
+   inf_unroll_fool
 }InfType;
 
 typedef enum
@@ -109,7 +110,8 @@ typedef enum
 #define PCL_ANNOQ  "add_answer_literal"
 #define PCL_EVANS  "eval_answer_literal"
 #define PCL_NC     "assume_negation"
-
+#define PCL_FU     "fool_unroll"
+#define PCL_EBV    "eliminate_boolean_vars"
 /*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/

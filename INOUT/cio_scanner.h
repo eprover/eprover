@@ -95,7 +95,8 @@ typedef unsigned long long TokenType;
 #define SkipToken     (WhiteSpace | Comment)
 #define Identifier    (Ident | Idnum)
 #define Name          (Identifier | String)
-#define FOFBinOp      (FOFAnd|FOFOr|FOFLRImpl|FOFRLImpl|FOFEquiv|FOFXor|FOFNand|FOFNor)
+//                                                                                     FOOL additions
+#define FOFBinOp      (FOFAnd|FOFOr|FOFLRImpl|FOFRLImpl|FOFEquiv|FOFXor|FOFNand|FOFNor|EqualSign|NegEqualSign)
 #define FOFAssocOp    (FOFAnd|FOFOr)
 
 

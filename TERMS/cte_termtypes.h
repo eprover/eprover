@@ -433,7 +433,7 @@ static __inline__ Term_p TermDerefAlways(Term_p term)
 //
 /----------------------------------------------------------------------*/
 
-static __inline__ Term_p TermDeref(Term_p term, DerefType_p deref)
+static Term_p __inline__ TermDeref(Term_p term, DerefType_p deref)
 {
    assert(TermIsTopLevelVar(term) || !(term->binding));
 

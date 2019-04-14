@@ -1331,8 +1331,8 @@ OptCell opts[] =
    {OPT_MINISCOPE_LIMIT,
     '\0', "miniscope-limit",
     OptArg, TFORM_MINISCOPE_LIMIT_STR,
-    "Set the limit of variables to miniscope per input formula. The build-in "
-    "default is 1000. Only applies to the new (default) clausification "
+    "Set the limit of sub-formula-size to miniscope. The build-in"
+    "default is 256. Only applies to the new (default) clausification "
     "algorithm"},
 
    {OPT_PRINT_TYPES,

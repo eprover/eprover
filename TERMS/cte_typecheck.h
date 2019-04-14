@@ -37,9 +37,9 @@ Changes
 /*---------------------------------------------------------------------*/
 
 bool     TypeCheckConsistent(Sig_p sig, Term_p term);
-void     TypeInferSort(Sig_p sig, Term_p term);
+void     TypeInferSort(Sig_p sig, Term_p term, Scanner_p in);
 void     TypeDeclareIsPredicate(Sig_p sig, Term_p term);
-void     TypeDeclareIsNotPredicate(Sig_p sig, Term_p term);
+void     TypeDeclareIsNotPredicate(Sig_p sig, Term_p term, Scanner_p in);
 
 #endif
 

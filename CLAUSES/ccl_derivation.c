@@ -67,7 +67,9 @@ char *opids[] =
    /* Others */
    PCL_SE,
    PCL_ID_DEF,
-   PCL_SC
+   PCL_SC,
+   PCL_FU,
+   PCL_EBV
 };
 
 char *optheory [] =
@@ -104,6 +106,8 @@ char *optheory [] =
    NULL,
    NULL,
    /* Others */
+   NULL,
+   NULL,
    NULL,
    NULL,
    NULL
@@ -146,6 +150,8 @@ char *opstatus [] =
    /* Others */
    "thm",
    NULL,
+   "thm",
+   "thm",
    "thm"
 };
 

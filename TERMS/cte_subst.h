@@ -94,7 +94,8 @@ PStackPointer SubstAddBinding(Subst_p subst, Term_p var, Term_p bind)
    assert(bind);
    assert(TermIsVar(var));
    assert(!(var->binding));
-   assert(problemType == PROBLEM_HO || !TermCellQueryProp(bind, TPPredPos));
+   //assert(problemType == PROBLEM_HO || !TermCellQueryProp(bind, TPPredPos)
+   //      || bind->f_code == SIG_TRUE_CODE || bind->f_code == SIG_FALSE_CODE); // Skolem symbols also
    assert(var->type);
    assert(bind->type);
    assert(problemType == PROBLEM_FO || var->type == bind->type);

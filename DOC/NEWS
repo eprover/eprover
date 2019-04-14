@@ -1,10 +1,14 @@
 This history list describes the major differences between versions of
 the E equational theorem prover.
 
-Version 2.2 -> 2.3 Gielle
+Version 2.3pre -> 2.3 Gielle
+
+- Made clausification more robust for extreme examples
+
+Version 2.2 -> 2.3pre Gielle
 
 - Merged support for lambda-free higher-order logic.
-- Improved fingerprint indexin by excluding one more subcase for
+- Improved fingerprint indexing by excluding one more subcase for
   finging instances
 
 Version 2.1 -> 2.2 Thurbo Moonlight
