@@ -713,7 +713,6 @@ Eqn_p EqnFOFParse(Scanner_p in, TB_p bank)
    bool positive;
    Term_p lterm, rterm;
    Eqn_p handle;
-
    positive = eqn_parse_real(in, bank, &lterm, &rterm, true);
    handle = EqnAlloc(lterm, rterm, bank, positive);
 

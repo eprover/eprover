@@ -188,7 +188,9 @@ Sig_p SigAlloc(TypeBank_p bank)
    handle->bimpl_code        = 0;
    handle->xor_code          = 0;
    handle->answer_code       = 0;
-
+   handle->itef_code         = 0;
+   handle->itet_code         = 0;
+   
    handle->skolem_count      = 0;
    handle->newpred_count     = 0;
 
@@ -240,6 +242,8 @@ void SigInsertInternalCodes(Sig_p sig)
    sig->nor_code   = SigInsertFOFOp(sig, "$nor",   2);
    sig->bimpl_code = SigInsertFOFOp(sig, "$bimpl", 2);
    sig->xor_code   = SigInsertFOFOp(sig, "$xor",   2);
+   sig->itef_code  = SigInsertFOFOp(sig, "$itef",  2);
+   sig->itet_code  = SigInsertFOFOp(sig, "$itet",  2);
 
    sig->answer_code =  SigInsertId(sig, "$answer", 1, true);
    SigSetFuncProp(sig, sig->answer_code, FPInterpreted|FPPseudoPred);

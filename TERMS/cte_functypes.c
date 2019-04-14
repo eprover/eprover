@@ -264,9 +264,12 @@ FuncSymbType FuncSymbParse(Scanner_p in, DStr_p id)
    StrNumType numtype;
 
    CheckInpTok(in, FuncSymbStartToken);
-
+   printf("In FuncSymbParse, ite?");
+   printf("\n%s\n", AktToken(in)->literal->string);
+   
    if(TestInpTok(in, FuncSymbToken))
    {
+      printf("Ergeht ins if");
       DStrAppendStr(id, DStrView(AktToken(in)->literal));
 
       if(TestInpTok(in, Identifier))
@@ -284,9 +287,11 @@ FuncSymbType FuncSymbParse(Scanner_p in, DStr_p id)
       }
       else
       {
+  	 printf("\ner geht ins else im if\n");
          switch(AktTokenType(in))
          {
          case SemIdent:
+ 	       printf("\nSemIdent\n");
                res = FSIdentInterpreted;
                break;
          case SQString:
@@ -301,6 +306,7 @@ FuncSymbType FuncSymbParse(Scanner_p in, DStr_p id)
          }
       }
       AcceptInpTok(in, FuncSymbToken);
+      printf("\n%s\n", AktToken(in)->literal->string);
    }
    else
    {
