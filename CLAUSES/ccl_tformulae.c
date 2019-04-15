@@ -501,43 +501,15 @@ static TFormula_p literal_tform_tstp_parse(Scanner_p in, TB_p terms)
    }
    else if(!strcmp(AktToken(in)->literal->string, "$ite"))
    {
-     TFormula_p cond, notcond, f1, f2, teil1, teil2;
-     TokenType myimpl, myand;
-     myimpl = terms->sig->impl_code;
-     myand = terms->sig->and_code;
-     
      /*******************************************/
-     printf("Jetzt bin ich sowas von beim ite");
+     printf("Jetzt bin ich beim ite");
      printf("\n%s\n", AktToken(in)->literal->string);
      /*******************************************/
      
      // Hier erstmal das ite akzeptieren
      AcceptInpTok(in, FuncSymbToken);
-     // dann alles im ite
-     AcceptInpTok(in, OpenBracket);
-     cond = TFormulaTPTPParse(in, terms); // Condition parsen
-     AcceptInpTok(in, Comma);
-     f1 = TFormulaTPTPParse(in, terms); // Ersten Teil parsen
-     AcceptInpTok(in, Comma);
-     f2 = TFormulaTPTPParse(in, terms); // Zweiten Teil parsen
-     AcceptInpTok(in, CloseBracket);
-
-     //Hier kann ich auch testen, ob danach ein = kommt. Dann ist es eine Formel
      
-     //Hier muss ich des jetzt noch zusammenfügen also als
-     //"cond impl(=>) f1 and (&) nicht cond impl(=>) f2"!
-     //Für des hier drunter eine extra Methode machen,
-     // dann kann ich es sowohl für Terme als auch für Formeln nutzen.
-     // In die Formel cond, f1, f2 übergeben.
-     
-     notcond = TFormulaFCodeAlloc(terms, terms->sig->not_code, cond, NULL);
-     teil1 = TFormulaFCodeAlloc(terms, myimpl, cond, f1);
-     teil2 = TFormulaFCodeAlloc(terms, myimpl, notcond, f2);
-     TFormulaTPTPPrint(stdout, terms, teil1, true, true); 
-     TFormulaTPTPPrint(stdout, terms, teil2, true, true);
-     
-     //Hier in des res muss des dann rein
-     res = TFormulaFCodeAlloc(terms, myand, teil1, teil2);
+     res = Expand_Ite(in, terms);
      TFormulaTPTPPrint(stdout, terms, res, true, true);
    }
    else
@@ -1797,6 +1769,78 @@ TFormula_p TFormulaNegate(TFormula_p form, TB_p terms)
    }
 
    return res;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: Expand_Ite()
+//
+//   Expand the ite-expressions to its subterms.
+//
+// Global Variables: -
+//
+// Side Effects    : I/O
+//
+/----------------------------------------------------------------------*/
+
+TFormula_p Expand_Ite(Scanner_p in, TB_p terms)
+{
+   TFormula_p res = NULL;
+   TFormula_p cond, f1, f2;
+
+   AcceptInpTok(in, OpenBracket);
+   cond = TFormulaTPTPParse(in, terms); // Condition parsen
+   AcceptInpTok(in, Comma);
+   f1 = TFormulaTPTPParse(in, terms); // Ersten Teil parsen
+   AcceptInpTok(in, Comma);
+   f2 = TFormulaTPTPParse(in, terms); // Zweiten Teil parsen
+   AcceptInpTok(in, CloseBracket);
+
+   //Hier kann ich auch testen, ob danach ein "=" kommt. Dann ist es eine Formel
+   if(TestInpTok(in, EqualSign))
+   {
+     printf("\nGleichzeichen erkannt -> Formel\n");
+     //Könnte ich hier sowas wie ein Flag true/ false setzen, je nachdem
+     //obs ne Formel oder nen Term ist?
+   }
+   
+   //In res kommt das Ergebnis
+   res = Clausificate_Ite(terms, cond, f1, f2);
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: Clausificate_Ite()
+//
+//   Form the clausification of the ite-expression.
+//
+// Global Variables: -
+//
+// Side Effects    : I/O
+//
+/----------------------------------------------------------------------*/
+
+TFormula_p Clausificate_Ite(TB_p terms, TFormula_p cond, TFormula_p f1, TFormula_p f2)
+{
+  TFormula_p res = NULL;
+  TFormula_p notcond, teil1, teil2;
+  TokenType myimpl, myand;
+  myimpl = terms->sig->impl_code;
+  myand = terms->sig->and_code;
+
+  //Hier muss ich des jetzt noch zusammenfügen also als
+  //"cond impl(=>) f1 and (&) nicht cond impl(=>) f2"! 
+  notcond = TFormulaFCodeAlloc(terms, terms->sig->not_code, cond, NULL);
+  teil1 = TFormulaFCodeAlloc(terms, myimpl, cond, f1);
+  teil2 = TFormulaFCodeAlloc(terms, myimpl, notcond, f2);
+  TFormulaTPTPPrint(stdout, terms, teil1, true, true);
+  TFormulaTPTPPrint(stdout, terms, teil2, true, true);
+
+  //In res kommt das Ergebnis                                                           
+  res = TFormulaFCodeAlloc(terms, myand, teil1, teil2);
+  return res;
 }
 
 

@@ -1361,12 +1361,22 @@ Term_p TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop)
    else
    {
       id = DStrAlloc();
-      // des TermParseOperator akzeptiert ite und schaut dann was danach kommt
-      // als else if danach was für ite einbauen!Das Problem is, wenn ichs
-      // danach mach, dass dann ite nich mehr das aktuelle Token is...
-      // außer ich setz dann eine Flag oder so und mach damit ein else.
-      // da geht noch des mit if (aktuelles Token).... gleich ite
-      if((id_type=TermParseOperator(in, id))==FSIdentVar)
+      //Hier das ite akzeptieren, falls es eins ist. Und dann
+      //!!!fürs erste!! wieder "Expand_Ite()" verwenden.
+      if(!strcmp(AktToken(in)->literal->string, "$ite"))
+      {
+         /*******************************************/
+         printf("Jetzt bin ich beim ite(Terme?)");
+         printf("\n%s\n", AktToken(in)->literal->string);
+         /*******************************************/
+     
+         // Hier erstmal das ite akzeptieren
+         AcceptInpTok(in, FuncSymbToken);
+     
+         handle = Expand_Ite(in, bank);
+         TFormulaTPTPPrint(stdout, bank, handle, true, true);
+      }
+      else if((id_type=TermParseOperator(in, id))==FSIdentVar)
       {
          /* A variable may be annotated with a sort */
          if(TestInpTok(in, Colon))
