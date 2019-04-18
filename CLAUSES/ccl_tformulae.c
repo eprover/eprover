@@ -505,12 +505,10 @@ static TFormula_p literal_tform_tstp_parse(Scanner_p in, TB_p terms)
      printf("Jetzt bin ich beim ite");
      printf("\n%s\n", AktToken(in)->literal->string);
      /*******************************************/
-     
-     // Hier erstmal das ite akzeptieren
+     // accept $ite
      AcceptInpTok(in, FuncSymbToken);
      
-     res = Expand_Ite(in, terms);
-     TFormulaTPTPPrint(stdout, terms, res, true, true);
+     res = Parse_Ite(in, terms);
    }
    else
    {
@@ -1773,9 +1771,9 @@ TFormula_p TFormulaNegate(TFormula_p form, TB_p terms)
 
 /*-----------------------------------------------------------------------
 //
-// Function: Expand_Ite()
+// Function: Parse_Ite()
 //
-//   Expand the ite-expressions to its subterms.
+//   Parse the ite-expressions to its subterms.
 //
 // Global Variables: -
 //
@@ -1783,38 +1781,48 @@ TFormula_p TFormulaNegate(TFormula_p form, TB_p terms)
 //
 /----------------------------------------------------------------------*/
 
-TFormula_p Expand_Ite(Scanner_p in, TB_p terms)
+TFormula_p Parse_Ite(Scanner_p in, TB_p terms)
 {
    TFormula_p res = NULL;
-   TFormula_p cond, f1, f2;
+   TFormula_p cond, f1, f2, equalpart;
 
    AcceptInpTok(in, OpenBracket);
    cond = TFormulaTPTPParse(in, terms); // Condition parsen
    AcceptInpTok(in, Comma);
+   printf("\n%s\n", AktToken(in)->literal->string);
+   //printf("\nType von f1: %s\n", SigGetType(terms->sig, AktToken(in)->numval));
    f1 = TFormulaTPTPParse(in, terms); // Ersten Teil parsen
+   //printf("\nType von f1: %s\n", GetHeadType(terms->sig, f1));
    AcceptInpTok(in, Comma);
    f2 = TFormulaTPTPParse(in, terms); // Zweiten Teil parsen
    AcceptInpTok(in, CloseBracket);
 
    //Hier kann ich auch testen, ob danach ein "=" kommt. Dann ist es eine Formel
+   //Wenn des mit den Types klappt:
+   //Erst testen ob Types unterschiedlich : Error
+   //Dann testen, ob =. Dann testen ob beide Formeln sind. Dann, ob beides Terme sind.
    if(TestInpTok(in, EqualSign))
    {
      printf("\nGleichzeichen erkannt -> Formel\n");
+     AcceptInpTok(in, EqualSign);
+     equalpart = TFormulaTPTPParse(in, terms);
+     res = Clausificate_IteTermEqual(terms, cond, f1, f2, equalpart);
      //Könnte ich hier sowas wie ein Flag true/ false setzen, je nachdem
      //obs ne Formel oder nen Term ist?
+   }else
+   {
+     //In res kommt das Ergebnis
+     res = Clausificate_IteFormula(terms, cond, f1, f2);
    }
-   
-   //In res kommt das Ergebnis
-   res = Clausificate_Ite(terms, cond, f1, f2);
    return res;
 }
 
 
 /*-----------------------------------------------------------------------
 //
-// Function: Clausificate_Ite()
+// Function: Clausificate_IteFormula()
 //
-//   Form the clausification of the ite-expression.
+//   Form the clausification of the ite-expression, if it is just a term.
 //
 // Global Variables: -
 //
@@ -1822,7 +1830,7 @@ TFormula_p Expand_Ite(Scanner_p in, TB_p terms)
 //
 /----------------------------------------------------------------------*/
 
-TFormula_p Clausificate_Ite(TB_p terms, TFormula_p cond, TFormula_p f1, TFormula_p f2)
+TFormula_p Clausificate_IteFormula(TB_p terms, TFormula_p cond, TFormula_p f1, TFormula_p f2)
 {
   TFormula_p res = NULL;
   TFormula_p notcond, teil1, teil2;
@@ -1831,15 +1839,48 @@ TFormula_p Clausificate_Ite(TB_p terms, TFormula_p cond, TFormula_p f1, TFormula
   myand = terms->sig->and_code;
 
   //Hier muss ich des jetzt noch zusammenfügen also als
-  //"cond impl(=>) f1 and (&) nicht cond impl(=>) f2"! 
+  //"cond impl(=>) f1 and (&) not cond impl(=>) f2"! 
   notcond = TFormulaFCodeAlloc(terms, terms->sig->not_code, cond, NULL);
   teil1 = TFormulaFCodeAlloc(terms, myimpl, cond, f1);
   teil2 = TFormulaFCodeAlloc(terms, myimpl, notcond, f2);
+  //Aussgabe zum testen:
+  printf("\n");
   TFormulaTPTPPrint(stdout, terms, teil1, true, true);
+  printf("\n");
   TFormulaTPTPPrint(stdout, terms, teil2, true, true);
+  printf("\n");
 
   //In res kommt das Ergebnis                                                           
   res = TFormulaFCodeAlloc(terms, myand, teil1, teil2);
+  return res;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: Clausificate_IteTermEqual()
+//
+//   Form the clausification of the ite-expression when it is followed
+//   by an EqualSign.
+//
+// Global Variables: -
+//
+// Side Effects    : I/O
+//
+/----------------------------------------------------------------------*/
+
+TFormula_p Clausificate_IteTermEqual(TB_p terms, TFormula_p cond, TFormula_p f1,
+				     TFormula_p f2, TFormula_p equalterm)
+{
+  TFormula_p res = NULL;
+  TFormula_p f1new, f2new;
+  TokenType myeqn;
+  myeqn = terms->sig->eqn_code;
+
+  f1new = TFormulaFCodeAlloc(terms, myeqn, f1, equalterm);
+  f2new = TFormulaFCodeAlloc(terms, myeqn, f2, equalterm);
+
+  //In res kommt das Ergebnis
+  res = Clausificate_IteFormula(terms, cond, f1new, f2new);
   return res;
 }
 

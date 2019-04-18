@@ -105,9 +105,10 @@ bool       TFormulaIsUntyped(TFormula_p form);
 
 TFormula_p TFormulaNegate(TFormula_p form, TB_p terms);
 
-TFormula_p Expand_Ite(Scanner_p in, TB_p terms);
-TFormula_p Clausificate_Ite(TB_p terms, TFormula_p cond, TFormula_p f1, TFormula_p f2);
-
+TFormula_p Parse_Ite(Scanner_p in, TB_p terms);
+TFormula_p Clausificate_IteFormula(TB_p terms, TFormula_p cond, TFormula_p f1, TFormula_p f2);
+TFormula_p Clausificate_IteTermEqual(TB_p terms, TFormula_p cond, TFormula_p f1,
+                                     TFormula_p f2, TFormula_p equalterm);
 #endif
 
 /*---------------------------------------------------------------------*/

@@ -283,6 +283,7 @@ static Term_p tb_parse_cons_list(Scanner_p in, TB_p bank, bool check_symb_prop)
 
 static Term_p tb_subterm_parse(Scanner_p in, TB_p bank)
 {
+   printf("\ntb_subterm_parse\n");
    Term_p res = TBTermParseReal(in, bank, true);
 
    if(!TermIsVar(res))
@@ -307,6 +308,7 @@ static Term_p tb_subterm_parse(Scanner_p in, TB_p bank)
          SigFixType(bank->sig, res->f_code);
       }
    }
+   printf("tb_subterm_parse lief einwandfrei durch\n");
    return res;
 }
 
@@ -412,7 +414,11 @@ static int tb_term_parse_arglist(Scanner_p in, Term_p** arg_anchor,
       return 0;
    }
    args = PStackAlloc();
-
+   //Hier sollte ich ansetzen
+   //Wenn hier ein $ite drin is, dann anders zusammensetzen
+   //Ich würde für den Anfang einfach ite bei Termen anders zurückgeben
+   // cond & f1 & f2 und dann hier wieder auseinanderziehen und dann richtig zusammenfügen
+   printf("\n%s\n", AktToken(in)->literal->string);
    tmp = choose_subterm_parse_fun(check_symb_prop, type, i, in, bank);
    normalize_boolean_terms(&tmp, bank);
    PStackPushP(args, tmp);
@@ -1348,7 +1354,6 @@ Term_p TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop)
    type_stream        = AktToken(in)->stream_type;
    line = AktToken(in)->line;
    column = AktToken(in)->column;
-   printf("\nJetzt bin ich vor dem ersten if in TBTermParseReal\n");
 
    /* Normal term stuff, bloated because of the nonsensical SETHEO
       syntax */
@@ -1362,7 +1367,7 @@ Term_p TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop)
    {
       id = DStrAlloc();
       //Hier das ite akzeptieren, falls es eins ist. Und dann
-      //!!!fürs erste!! wieder "Expand_Ite()" verwenden.
+      //!!!fürs erste!! wieder "Parse_Ite()" verwenden.
       if(!strcmp(AktToken(in)->literal->string, "$ite"))
       {
          /*******************************************/
@@ -1370,11 +1375,10 @@ Term_p TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop)
          printf("\n%s\n", AktToken(in)->literal->string);
          /*******************************************/
      
-         // Hier erstmal das ite akzeptieren
+         // accept $ite
          AcceptInpTok(in, FuncSymbToken);
      
-         handle = Expand_Ite(in, bank);
-         TFormulaTPTPPrint(stdout, bank, handle, true, true);
+         handle = Parse_Ite(in, bank);
       }
       else if((id_type=TermParseOperator(in, id))==FSIdentVar)
       {
@@ -1388,12 +1392,11 @@ Term_p TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop)
          }
          else
          {
-            handle = VarBankExtNameAssertAlloc(bank->vars, DStrView(id));
+	    handle = VarBankExtNameAssertAlloc(bank->vars, DStrView(id));
          }
       }
       else
       {
-	 printf("\nHier is ma schon in dem else aber vorm handle = %s\n", AktToken(in)->literal->string);
          handle = TermDefaultCellAlloc();
 	 
          if(TestInpTok(in, OpenBracket))
@@ -1434,6 +1437,7 @@ Term_p TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop)
             // in TFX all symbols must be declared beforehand
             // thus, if we have a formula at the argument, symbol with name
             // id already has a type declared with $o in appropriate places
+	    printf("\nHier geht er bei FSIdentFreeFun rein \n");
             FunCode sym_code = SigFindFCode(bank->sig, DStrView(id));
             Type_p  sym_type = sym_code ? SigGetType(bank->sig, sym_code) : NULL;
 
