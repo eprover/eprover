@@ -236,21 +236,26 @@ OptCell opts[] =
     'p', "proof-object",
     OptArg, "1",
     "Generate (and print, in case of success) an internal proof object. "
-    "Level 0 will not build a proof object, level 1 will build a "
+    "Level 0 will not print a proof object, level 1 will build a"
     "simple, compact proof object that only contains inference rules "
     "and dependencies, level 2 will build a proof object where "
     "inferences are unambiguously described by giving inference "
     "positions, and level 3 will expand this to a proof object where "
     "all intermediate results are explicit. This feature is under "
-    "development, so far only level 0 and 1 are operational."},
+    "development, so far only level 0 and 1 are operational. "
+    "By default The proof object will be provided in TPTP-3 or LOP "
+    "syntax, depending on input format and explicit settings. The "
+    "following option will suppress normal output of the proof "
+    "object in favour of a graphial representation."},
 
    {OPT_PROOF_GRAPH,
     '\0', "proof-graph",
     OptArg, "3",
     "Generate (and print, in case of success) an internal proof object "
     "in the form of a GraphViz dot graph. The optional argument can be 1 "
-    "(nodes are labelled with just name of the clause), 2 (nodes are "
-    "labelled with just the TPTP clause/formula) or 3  (nodes "
+    "(nodes are labelled with just the name of the clause/formula), "
+    "2 (nodes are "
+    "labelled with the TPTP clause/formula) or 3  (nodes "
     "also labelled with source/inference record."},
 
    {OPT_FULL_DERIV,

@@ -326,7 +326,7 @@ Clause_p ForwardContractSet(ProofState_p state, ProofControl_p
       if((phandle = forward_contract_keep(state, control, handle,
                                           count_eliminated, count_eliminated,
                                           non_unit_subsumption, false, false, level)))
-         {
+      {
          FVUnpackClause(phandle);
          if(terminate_on_empty&&ClauseIsEmpty(handle))
          {

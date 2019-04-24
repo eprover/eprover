@@ -887,7 +887,7 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_PROOF_OBJECT:
             PrintProofObject = MAX(CLStateGetIntArgCheckRange(handle, arg, 0, 3),
                                    PrintProofObject);
-            print_derivation = POList;
+            print_derivation = MAX(print_derivation, POList);
             break;
       case OPT_PROOF_GRAPH:
             PrintProofObject = MAX(1, PrintProofObject);
