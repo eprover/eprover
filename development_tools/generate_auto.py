@@ -124,7 +124,7 @@ def translate_class(cl):
     res = "      ( /* "+cl+" Solved: "+solved+ " of " +repr(classsize[cl]) + " */\n"
     pref = "       ";
     for i in xrange(6,len(cl)):
-        print "# YYY", cl
+        # print "# YYY", cl
         if cl[i]!="-":
             # print "# ZZZ", i, cl[i]
             res = res+pref+"Spec"+class_int[i][cl[i]]+"(spec)"
