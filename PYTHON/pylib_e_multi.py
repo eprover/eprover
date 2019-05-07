@@ -141,6 +141,9 @@ class job(object):
         self.problems = [p for p in problems if p != "" and p[0]!="#"]
         self.cardinality = len(self.problems)
         self.filecounter = 0
+        print("# Created job "+self.getId()+" with ",
+              self.cardinality," problems")
+
 
     def getId(self):
         return self.id
@@ -188,7 +191,7 @@ class job(object):
 class scheduler(object):
     ids = id("s")
 
-    def __init__(self, max_running=4):
+    def __init__(self, max_running=32):
         self.id = scheduler.ids.newId()
         self.queue    = []
         self.max_running = max_running
@@ -245,7 +248,7 @@ class scheduler(object):
                 else:
                     probfile = eRunDir+"/"+todo[0]
                     script   = todo[1]
-                    try:                        
+                    try:
                         fp = open(probfile, "r")
                         problist = fp.read()
                         fp.close()
@@ -300,12 +303,12 @@ if __name__ == '__main__':
     #t1 = etask("starexec_run_E---2.0_G-E--_208_C41_F1_AE_CS_SP_PS_S00", "BOO001-1.p")
     #t2 = etask("starexec_run_E---2.0_G-E--_208_C41_F1_AE_CS_SP_PS_S00", "GRP382-1.p")
 
-    testjob = job(
-        "starexec_run_E---2.0_G-E--_208_C41_F1_AE_CS_SP_PS_S00",
-        "BOO001-1.p\nGRP382-1.p\nALG002-1.p\nALG004-1.p\n"+
-        "ALG011-1.p\nALG024+1.p\nALG007-1.p\n")
+    #testjob = job(
+    #    "starexec_run_E---2.0_G-E--_208_C41_F1_AE_CS_SP_PS_S00",
+    #    "BOO001-1.p\nGRP382-1.p\nALG002-1.p\nALG004-1.p\n"+
+    #    "ALG011-1.p\nALG024+1.p\nALG007-1.p\n")
 
     worker = scheduler()
-    testjob.submitTasks(worker)
+    # testjob.submitTasks(worker)
 
     worker.schedule()
