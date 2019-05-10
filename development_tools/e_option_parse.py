@@ -610,6 +610,14 @@ weight_gen={
    "invfreqranksquare"  : "WInvFrequencyRankSq",
    "invmodfreqrank"     : "WInvModFreqRank",
    "invmodfreqrankmax0" : "WInvModFreqRankMax0",
+   "typefreqrank"       : "WTypeFrequencyRank",
+   "typefreqcount"      : "WTypeFrequencyCount",
+   "invtypefreqrank"    : "WInvTypeFrequencyRank",
+   "invtypefreqcount"   : "WInvTypeFrequencyCount",
+   "combfreqrank"       : "WCombFrequencyRank",
+   "combfreqcount"      : "WCombFrequencyCount",
+   "invcombfreqrank"    : "WInvCombFrequencyRank",
+   "invcombfreqcount"   : "WInvCombFrequencyCount",
    "constant"           : "WConstantWeight"
 }
 
@@ -628,6 +636,11 @@ prec_gen={
    "invfreqconjmin"  : "PByInvFreqConjMin",
    "invfreqconstmin" : "PByInvFreqConstMin",
    "invfreqhack"     : "PByInvFreqHack",
+   "typefreq"        : "PByTypeFreq",
+   "invtypefreq"     : "PByInvTypeFreq",
+   "combfreq"        : "PByCombFreq",
+   "invcombfreq"     : "PByInvCombFreq",
+   "arrayopt"        : "PArrayOpt",
    "orient_axioms"   : "POrientAxioms"
 }
 
