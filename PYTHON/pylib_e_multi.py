@@ -222,12 +222,15 @@ class scheduler(object):
         for l in conf:
             if l.startswith("#"):
                 print(l)
+            elif l.startswith("quit"):
+                print("Exit requested, terminating")
+                sys.exit(1)
             else:
                 todo = [p.strip() for p in l.split(":")]
                 if len(todo):
                     if todo[0] == "max_running":
                         try:
-                            print ("# Processing: "+l)
+                            print("# Processing: "+l)
                             self.max_running = int(todo[1])
                         except:
                             print("# Warning: Failed to process "+l)
@@ -275,7 +278,7 @@ class scheduler(object):
                     break
 
             print("# Jobs running: ", self.running)
-            print("# Queue:        ", len(self.queue))
+            print("# Queue:        ", len(self.queue), flush=True)
 
             if self.running == 0:
                 print("# ...ZZZ...")
