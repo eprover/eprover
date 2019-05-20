@@ -14,6 +14,7 @@ csv             = re.compile('.csv');
 slash           = re.compile('/')
 match_heuristic = re.compile("-H'?\([^#]*\)'?")
 match_class     = re.compile('CLASS_[a-zA-Z-0-9]*$')
+match_prot      = re.compile('protocol')
 eval_f_sep      = re.compile('\),')
 problem_ext     = re.compile('\.[a-z]*$')
 

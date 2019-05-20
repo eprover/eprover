@@ -1,6 +1,7 @@
 #!/usr/bin/env python2.7
 
 import sys
+import os
 import re
 import string
 from e_option_parse import *
@@ -518,6 +519,14 @@ for i in sys.argv[1:]:
     else:
         key = re.split(slash,i)[-1]
         stratset[key] = i
+
+if len(stratset.keys())==0:
+    for i in os.listdir("."):
+        res = match_prot.search(i)
+        if res:
+            key = i
+            stratset[key] = i
+
 
 global_class = ClassPerf("ALL")
 
