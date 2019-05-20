@@ -488,6 +488,7 @@ classdata  = {} # Associates class name with ClassPerf instance
 class_dir  = ""
 
 succ_cases = ["T", "N"]
+add_local_prots = False
 raw_class  = False
 time_limit = 864000.0
 
@@ -501,6 +502,8 @@ for i in sys.argv[1:]:
         raw_class = True
     elif i=="--local":
         pick_by_global_performace = False
+    elif i=="--lprots":
+        add_local_prots = True
     elif i.startswith("--time="):
         time_limit = float(i[7:])
     elif i[0:2] == "--":
@@ -520,7 +523,7 @@ for i in sys.argv[1:]:
         key = re.split(slash,i)[-1]
         stratset[key] = i
 
-if len(stratset.keys())==0:
+if add_local_prots:
     for i in os.listdir("."):
         res = match_prot.search(i)
         if res:

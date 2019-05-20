@@ -228,6 +228,7 @@ class_dir  = "";
 
 succ_cases = ["T", "N"]
 raw_class  = False
+add_local_prots = False
 
 
 for i in sys.argv[1:]:
@@ -239,6 +240,8 @@ for i in sys.argv[1:]:
         raw_class = True
     elif i=="--local":
         pick_by_global_performace = False
+    elif i=="--lprots":
+        add_local_prots = True
     elif i[0:2] == "--":
         raise RuntimeError, "Unknown option (probably typo)"
 
@@ -255,7 +258,7 @@ for i in sys.argv[1:]:
         key = re.split(slash,i)[-1]
         stratset[key] = i
 
-if len(stratset.keys())==0:
+if add_local_prots:
     for i in os.listdir("."):
         res = match_prot.search(i)
         if res:
