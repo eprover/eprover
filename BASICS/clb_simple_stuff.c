@@ -33,6 +33,11 @@ static unsigned int xstate = 123456789,
    zstate = 43219876,
    cstate = 6543217; /* State for KISS RNG*/
 
+
+static RandStateCell rand_state = {123456789,987654321,43219876,6543217};
+
+
+
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
 /*---------------------------------------------------------------------*/
@@ -88,11 +93,15 @@ int WeightedObjectCompareFun(WeightedObject_p o1, WeightedObject_p o2)
 //
 /----------------------------------------------------------------------*/
 
-void JKISSSeed(int seed1, int seed2, int seed3)
+void JKISSSeed(RandState_p state, int seed1, int seed2, int seed3)
 {
-   xstate = seed1;
-   ystate = seed2;
-   zstate = seed3;
+   if(!state)
+   {
+      state = &rand_state;
+   }
+   state->xstate = seed1;
+   state->ystate = seed2;
+   state->zstate = seed3;
 }
 
 
@@ -101,7 +110,7 @@ void JKISSSeed(int seed1, int seed2, int seed3)
 // Function: JKISSRand()
 //
 //   Improved "Keep It Simple, Stupid" RNG generator, adapted from the
-//   public domain version by David Jones (d.jones@cs.ucl.ac.uk).
+//   public domain version by Davida Jones (d.jones@cs.ucl.ac.uk).
 //
 // Global Variables: xstate, ystate, zstate, cstate
 //
@@ -109,9 +118,14 @@ void JKISSSeed(int seed1, int seed2, int seed3)
 //
 /----------------------------------------------------------------------*/
 
-unsigned JKISSRand()
+unsigned JKISSRand(RandState_p state)
 {
    unsigned long long t;
+
+   if(!state)
+   {
+      state = &rand_state;
+   }
    xstate = 314527869 * xstate + 1234567;
    ystate ^= ystate << 5;
    ystate ^= ystate >> 7;
@@ -134,9 +148,9 @@ unsigned JKISSRand()
 //
 /----------------------------------------------------------------------*/
 
-double JKISSRandDouble()
+double JKISSRandDouble(RandState_p state)
 {
-   return JKISSRand() / 4294967296.0;
+   return JKISSRand(state) / 4294967296.0;
 }
 
 
@@ -241,7 +255,7 @@ void SetProblemType(ProblemType t)
   }
   else
   {
-     Error("Mixing of first order and higer order syntax is not allowed.", 
+     Error("Mixing of first order and higer order syntax is not allowed.",
            SYNTAX_ERROR);
   }
 }

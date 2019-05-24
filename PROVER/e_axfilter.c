@@ -623,7 +623,7 @@ void subsample_seed_symbols(StructFOFSpec_p ctrl, PStack_p seed_symbols)
    case SubSRand:
          for(i=0; i<array_size; i++)
          {
-            weight_array[i].weight = JKISSRandDouble();
+            weight_array[i].weight = JKISSRandDouble(NULL);
             weight_array[i].object.i_val = PStackPopInt(seed_symbols);
          }
          assert(PStackEmpty(seed_symbols));

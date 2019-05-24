@@ -39,6 +39,13 @@ typedef struct
    IntOrP object;
 }WeightedObjectCell, *WeightedObject_p;
 
+typedef struct
+{
+   unsigned int xstate;
+   unsigned int ystate;
+   unsigned int zstate;
+   unsigned int cstate;
+}RandStateCell, *RandState_p;
 
 
 typedef enum
@@ -69,9 +76,9 @@ int     WeightedObjectCompareFun(WeightedObject_p o1, WeightedObject_p o2);
         qsort(array, size, sizeof(WeightedObjectCell),\
          (ComparisonFunctionType)WeightedObjectCompareFun)
 
-void     JKISSSeed(int seed1, int seed2, int seed3);
-unsigned JKISSRand();
-double   JKISSRandDouble();
+void     JKISSSeed(RandState_p state, int seed1, int seed2, int seed3);
+unsigned JKISSRand(RandState_p state);
+double   JKISSRandDouble(RandState_p state);
 
 bool    StringStartsWith(const char* pattern, const char* prefix);
 
