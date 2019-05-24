@@ -260,6 +260,13 @@ class scheduler(object):
                     except:
                         print("# Warning: Something wrong with "+p)
 
+    def checkCPURequest(self):
+        res = False
+        try:
+            res = os.path.isfile(os.path.expanduser("~it16072")+"/.bash_profile")
+        except:
+            pass
+        return res
 
     def schedule(self):
         sel_tasks = selectors.DefaultSelector()
@@ -267,7 +274,8 @@ class scheduler(object):
         while True:
             self.updateConfig()
             self.updateJobs()
-            while self.running < self.max_running:
+            donotschedule = self.checkCPURequest()
+            while not donotschedule and (self.running < self.max_running):
                 try:
                     job, source = self.queue.pop(0)
                     self.tasks[job] = source
