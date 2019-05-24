@@ -42,6 +42,7 @@ char* WeightFunParseFunNames[]=
    "TPTPTypeweight",
    "Sigweight",
    "NLweight",
+   "RandomWeight",
    "SymbolTypeweight",
    "Depthweight",
    "WLessDWeight",
@@ -86,6 +87,7 @@ static WeightFunParseFun parse_fun_array[]=
    TPTPTypeWeightParse,
    SigWeightParse,
    NLWeightParse,
+   RandWeightParse,
    SymTypeWeightParse,
    DepthWeightParse,
    WeightLessDepthParse,
@@ -396,9 +398,3 @@ long WeightFunDefListParse(WFCBAdmin_p set, Scanner_p in, OCB_p ocb,
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
-
-
-
-

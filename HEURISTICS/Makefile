@@ -55,13 +55,14 @@ HEURISTICS_LIB = che_wfcb.o che_wfcbadmin.o \
 		 che_to_weightgen.o che_to_precgen.o \
 		 che_to_autoselect.o \
                  che_axfilter.o \
-       che_strucweight.o \
-       che_prefixweight.o \
-       che_treeweight.o \
-       che_levweight.o \
-       che_tfidfweight.o \
-       che_termweights.o \
-		 che_termweight.o 
+		 che_strucweight.o \
+	         che_prefixweight.o \
+	         che_treeweight.o \
+		 che_levweight.o \
+	         che_tfidfweight.o \
+	         che_termweights.o \
+		 che_termweight.o \
+	         che_random.o
 
 
 $(LIB): $(HEURISTICS_LIB)

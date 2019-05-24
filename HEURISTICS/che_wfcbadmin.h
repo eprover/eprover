@@ -32,6 +32,7 @@ Changes
 #include <che_simweight.h>
 #include <che_fifo.h>
 #include <che_lifo.h>
+#include <che_random.h>
 #include <che_learning.h>
 #include <che_termweight.h>
 #include <che_tfidfweight.h>
@@ -82,8 +83,3 @@ long         WeightFunDefListParse(WFCBAdmin_p set, Scanner_p in,
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
-
-
-
