@@ -198,6 +198,11 @@ class scheduler(object):
         self.running  = 0
         self.tasks    = {}
         self.filecount = 0
+        self.blockfiles = [
+            os.path.expanduser("~it16072")+"/CPU_REQUEST",
+            os.path.expanduser("~sschulz")+"/CPU_REQUEST",
+            os.path.expanduser("~schulz")+"/CPU_REQUEST"
+            ]
 
     def addTask(self, job, source = None):
         self.queue.append((job, source))
@@ -261,36 +266,43 @@ class scheduler(object):
                         print("# Warning: Something wrong with "+p)
 
     def checkCPURequest(self):
-        res = False
-        try:
-            res = os.path.isfile(os.path.expanduser("~it16072")+"/.bash_profile")
-        except:
-            pass
-        return res
+        for file in self.blockfiles:
+            try:
+                res = os.path.isfile(file)
+            except:
+                pass
+            if res:
+                print("Stopped scheduling due to "+file)
+                return res
+        return False
 
     def schedule(self):
         sel_tasks = selectors.DefaultSelector()
+        sleeptime = 2
 
         while True:
             self.updateConfig()
             self.updateJobs()
-            donotschedule = self.checkCPURequest()
-            while not donotschedule and (self.running < self.max_running):
-                try:
-                    job, source = self.queue.pop(0)
-                    self.tasks[job] = source
-                    job.run()
-                    sel_tasks.register(job, selectors.EVENT_READ)
-                    self.running += 1
-                except IndexError:
-                    break
+            if self.checkCPURequest():
+                sleeptime = 10
+            else:
+                sleeptime = 2
+                while (self.running < self.max_running):
+                    try:
+                        job, source = self.queue.pop(0)
+                        self.tasks[job] = source
+                        job.run()
+                        sel_tasks.register(job, selectors.EVENT_READ)
+                        self.running += 1
+                    except IndexError:
+                        break
 
             print("# Jobs running: ", self.running)
             print("# Queue:        ", len(self.queue), flush=True)
 
             if self.running == 0:
                 print("# ...ZZZ...")
-                sleep(2)
+                sleep(sleeptime)
             else:
                 events = sel_tasks.select(timeout=2)
                 for task, mask in events:
