@@ -1366,19 +1366,14 @@ Term_p TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop)
    else
    {
       id = DStrAlloc();
-      //Hier das ite akzeptieren, falls es eins ist. Und dann
-      //!!!fürs erste!! wieder "Parse_Ite()" verwenden.
+      
       if(!strcmp(AktToken(in)->literal->string, "$ite"))
       {
-         /*******************************************/
-         printf("Jetzt bin ich beim ite(Terme?)");
-         printf("\n%s\n", AktToken(in)->literal->string);
-         /*******************************************/
-     
          // accept $ite
          AcceptInpTok(in, FuncSymbToken);
-     
-         handle = Parse_Ite(in, bank);
+
+	 //Hier merken, dass ein ite_t drin war mit sig oder so??
+         handle = Parse_Ite_TermContext(in, bank);
       }
       else if((id_type=TermParseOperator(in, id))==FSIdentVar)
       {
@@ -1437,7 +1432,6 @@ Term_p TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop)
             // in TFX all symbols must be declared beforehand
             // thus, if we have a formula at the argument, symbol with name
             // id already has a type declared with $o in appropriate places
-	    printf("\nHier geht er bei FSIdentFreeFun rein \n");
             FunCode sym_code = SigFindFCode(bank->sig, DStrView(id));
             Type_p  sym_type = sym_code ? SigGetType(bank->sig, sym_code) : NULL;
 
@@ -1970,7 +1964,128 @@ Term_p TBGetFreqConstTerm(TB_p terms, Type_p type,
    return res;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: Parse_Ite_TermContext()
+//
+//   Parse the ite-expressions and its subterms in a term-Context.
+//
+// Global Variables: -
+//
+// Side Effects    : I/O
+//
+/----------------------------------------------------------------------*/
 
+Term_p Parse_Ite_TermContext(Scanner_p in, TB_p terms)
+{
+   Term_p res = NULL;
+   Term_p cond, f1, f2;
+   Type_p meinbool = terms->sig->type_bank->bool_type;
+
+   AcceptInpTok(in, OpenBracket);
+   cond = TFormulaTPTPParse(in, terms); // Parsing the condition
+   AcceptInpTok(in, Comma);
+   
+   //Testing if the condition is a formulae
+   if(!(cond->type == meinbool))
+   {
+     fprintf(stderr, "# Type mismatch in argument cond");
+     fprintf(stderr, ": expected ");
+     TypePrintTSTP(stderr, terms->sig->type_bank, meinbool);
+     fprintf(stderr, " but got ");
+     TypePrintTSTP(stderr, terms->sig->type_bank, cond->type);
+     fprintf(stderr, ".\n");
+     in?AktTokenError(in, "Type error", false):Error("Type error", SYNTAX_ERROR);
+   }else
+   {
+     f1 = TFormulaTPTPParse(in, terms); // Parsing the first part
+     AcceptInpTok(in, Comma);
+     f2 = TFormulaTPTPParse(in, terms); // Parsing the second part
+     
+     //Testing if both - f1 and f2 are of the same sort
+     if(!(f1->type == f2->type))
+     {
+       fprintf(stderr, "# Type mismatch in arguments f1 and f2");
+       fprintf(stderr, ": expected ");
+       TypePrintTSTP(stderr, terms->sig->type_bank, f1->type);
+       fprintf(stderr, " but got ");
+       TypePrintTSTP(stderr, terms->sig->type_bank, f2->type);
+       fprintf(stderr, ".\n");
+       in?AktTokenError(in, "Type error", false):Error("Type error", SYNTAX_ERROR);
+     }else
+     {
+       //test if f1 and f2 both are terms
+       //only need to test one of them, beacuse beforehand it was testet if both are
+       //of the same sort
+       if(f1->type == meinbool)
+       {
+         fprintf(stderr, "# Type mismatch in arguments f1 and f2");
+         fprintf(stderr, ": expected a term");
+         fprintf(stderr, " but got ");
+         TypePrintTSTP(stderr, terms->sig->type_bank, f1->type);
+         fprintf(stderr, ".\n");
+	 in?AktTokenError(in, "Type error", false):Error("Type error", SYNTAX_ERROR);
+       }else
+       {
+         AcceptInpTok(in, CloseBracket);
+         if(TestInpTok(in, EqualSign))
+         {
+	   //In Term-Context an equal-sign is not possible
+	   fprintf(stderr, "Equalsign read, but not expected");
+	   in?AktTokenError(in, "Type error", false):Error("Type error", SYNTAX_ERROR);
+         }else
+         {
+           //res is for the resulting term
+           res = Clausificate_Ite(terms, cond, f1, f2);
+         }
+       }
+     }
+   }
+   return res;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: Clausificate_IteTermContext()
+//
+//   Form the clausification of the ite-expression, if it appears in
+//   a Term-Context.
+//
+// Global Variables: -
+//
+// Side Effects    : I/O
+//
+/----------------------------------------------------------------------*/
+
+Term_p Clausificate_IteTermContext(TB_p terms, Term_p cond, Term_p f1, Term_p f2)
+{
+  Term_p res = NULL;
+  Term_p notcond, teil1, teil2;
+  TokenType myor, myand;
+  myor = terms->sig->or_code;
+  myand = terms->sig->and_code;
+  
+  //Put everything together, so you get:
+  //"(notcond or f1) and (&) (cond or f2)"!
+  notcond = TFormulaFCodeAlloc(terms, terms->sig->not_code, cond, NULL);
+  //WFormulaPushDerivation(notcond, DCNop, cond, NULL);
+  teil1 = TFormulaFCodeAlloc(terms, myor, notcond, f1);
+  //WFormulaPushDerivation(teil1, DCApplyDef, cond, f1);
+  teil2 = TFormulaFCodeAlloc(terms, myor, cond, f2);
+  //WFormulaPushDerivation(teil2, DCApplyDef, cond, f1);
+  //Printing for testing:
+  printf("\n");
+  TFormulaTPTPPrint(stdout, terms, teil1, true, true);
+  printf("\n");
+  TFormulaTPTPPrint(stdout, terms, teil2, true, true);
+  printf("\n");
+
+  //res is for the resulting term
+  res = TFormulaFCodeAlloc(terms, myand, teil1, teil2);
+  return res;
+}
+
+   
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */

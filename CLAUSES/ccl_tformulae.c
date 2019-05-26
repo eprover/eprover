@@ -501,14 +501,17 @@ static TFormula_p literal_tform_tstp_parse(Scanner_p in, TB_p terms)
    }
    else if(!strcmp(AktToken(in)->literal->string, "$ite"))
    {
-     /*******************************************/
-     printf("Jetzt bin ich beim ite");
-     printf("\n%s\n", AktToken(in)->literal->string);
-     /*******************************************/
      // accept $ite
      AcceptInpTok(in, FuncSymbToken);
      
      res = Parse_Ite(in, terms);
+   }
+   else if(!strcmp(AktToken(in)->literal->string, "$let"))
+   {
+     // accept $let
+     AcceptInpTok(in, FuncSymbToken);
+
+     res = Parse_Let(in, terms);
    }
    else
    {
@@ -1773,46 +1776,70 @@ TFormula_p TFormulaNegate(TFormula_p form, TB_p terms)
 //
 // Function: Parse_Ite()
 //
-//   Parse the ite-expressions to its subterms.
+//   Parse the ite-expressions and its subterms (not in Term-Context).
 //
 // Global Variables: -
 //
 // Side Effects    : I/O
 //
 /----------------------------------------------------------------------*/
-
 TFormula_p Parse_Ite(Scanner_p in, TB_p terms)
 {
    TFormula_p res = NULL;
    TFormula_p cond, f1, f2, equalpart;
+   Type_p meinbool = terms->sig->type_bank->bool_type;
 
    AcceptInpTok(in, OpenBracket);
-   cond = TFormulaTPTPParse(in, terms); // Condition parsen
+   cond = TFormulaTPTPParse(in, terms); // Parsing the condition
    AcceptInpTok(in, Comma);
-   printf("\n%s\n", AktToken(in)->literal->string);
-   //printf("\nType von f1: %s\n", SigGetType(terms->sig, AktToken(in)->numval));
-   f1 = TFormulaTPTPParse(in, terms); // Ersten Teil parsen
-   //printf("\nType von f1: %s\n", GetHeadType(terms->sig, f1));
-   AcceptInpTok(in, Comma);
-   f2 = TFormulaTPTPParse(in, terms); // Zweiten Teil parsen
-   AcceptInpTok(in, CloseBracket);
-
-   //Hier kann ich auch testen, ob danach ein "=" kommt. Dann ist es eine Formel
-   //Wenn des mit den Types klappt:
-   //Erst testen ob Types unterschiedlich : Error
-   //Dann testen, ob =. Dann testen ob beide Formeln sind. Dann, ob beides Terme sind.
-   if(TestInpTok(in, EqualSign))
+   //Testing if the condition is a formulae
+   if(!(cond->type == meinbool))
    {
-     printf("\nGleichzeichen erkannt -> Formel\n");
-     AcceptInpTok(in, EqualSign);
-     equalpart = TFormulaTPTPParse(in, terms);
-     res = Clausificate_IteTermEqual(terms, cond, f1, f2, equalpart);
-     //Könnte ich hier sowas wie ein Flag true/ false setzen, je nachdem
-     //obs ne Formel oder nen Term ist?
+     fprintf(stderr, "# Type mismatch in argument cond");
+     fprintf(stderr, ": expected ");
+     TypePrintTSTP(stderr, terms->sig->type_bank, meinbool);
+     fprintf(stderr, " but got ");
+     TypePrintTSTP(stderr, terms->sig->type_bank, cond->type);
+     fprintf(stderr, ".\n");
+     in?AktTokenError(in, "Type error", false):Error("Type error", SYNTAX_ERROR);
    }else
    {
-     //In res kommt das Ergebnis
-     res = Clausificate_IteFormula(terms, cond, f1, f2);
+     f1 = TFormulaTPTPParse(in, terms); // Parsing the first part
+     printf("\nDer Typ von f1 ist: ");
+     TypePrintTSTP(stderr, terms->sig->type_bank, f1->type);
+     AcceptInpTok(in, Comma);
+     f2 = TFormulaTPTPParse(in, terms); // Parsing the second part
+     //Testing if both - f1 and f2 are of the same sort
+     if(!(f1->type == f2->type))
+     {
+       fprintf(stderr, "# Type mismatch in arguments f1 and f2");
+       fprintf(stderr, ": expected ");
+       TypePrintTSTP(stderr, terms->sig->type_bank, f1->type);
+       fprintf(stderr, " but got ");
+       TypePrintTSTP(stderr, terms->sig->type_bank, f2->type);
+       fprintf(stderr, ".\n");
+       in?AktTokenError(in, "Type error", false):Error("Type error", SYNTAX_ERROR);
+     }else
+     {
+       AcceptInpTok(in, CloseBracket);
+
+       if(f1->type == meinbool){//ite_t
+       }else{//ite_f
+       }
+       if(TestInpTok(in, EqualSign))
+       {
+	 if(!(f1->type == meinbool)){
+           printf("\nGleichzeichen erkannt");
+           AcceptInpTok(in, EqualSign);
+           equalpart = TFormulaTPTPParse(in, terms);
+           res = Clausificate_IteTermEqual(terms, cond, f1, f2, equalpart);
+	 }else{printf("Type Error - expected term, got formula");}
+       }else
+       {
+	 //res is for the resulting term
+         res = Clausificate_Ite(terms, cond, f1, f2);
+       }
+     }
    }
    return res;
 }
@@ -1820,9 +1847,10 @@ TFormula_p Parse_Ite(Scanner_p in, TB_p terms)
 
 /*-----------------------------------------------------------------------
 //
-// Function: Clausificate_IteFormula()
+// Function: Clausificate_Ite()
 //
-//   Form the clausification of the ite-expression, if it is just a term.
+//   Form the clausification of the ite-expression, if it appears not in
+//   a Term-Context.
 //
 // Global Variables: -
 //
@@ -1830,27 +1858,30 @@ TFormula_p Parse_Ite(Scanner_p in, TB_p terms)
 //
 /----------------------------------------------------------------------*/
 
-TFormula_p Clausificate_IteFormula(TB_p terms, TFormula_p cond, TFormula_p f1, TFormula_p f2)
+TFormula_p Clausificate_Ite(TB_p terms, TFormula_p cond, TFormula_p f1, TFormula_p f2)
 {
   TFormula_p res = NULL;
   TFormula_p notcond, teil1, teil2;
-  TokenType myimpl, myand;
-  myimpl = terms->sig->impl_code;
+  TokenType myor, myand;
+  myor = terms->sig->or_code;
   myand = terms->sig->and_code;
 
-  //Hier muss ich des jetzt noch zusammenfügen also als
-  //"cond impl(=>) f1 and (&) not cond impl(=>) f2"! 
+  //Put everything together, so you get:
+  //"(notcond or f1) and (&) (cond or f2)"! 
   notcond = TFormulaFCodeAlloc(terms, terms->sig->not_code, cond, NULL);
-  teil1 = TFormulaFCodeAlloc(terms, myimpl, cond, f1);
-  teil2 = TFormulaFCodeAlloc(terms, myimpl, notcond, f2);
-  //Aussgabe zum testen:
+  //WFormulaPushDerivation(notcond, DCNop, cond, NULL);
+  teil1 = TFormulaFCodeAlloc(terms, myor, notcond, f1);
+  //WFormulaPushDerivation(teil1, DCApplyDef, cond, f1);
+  teil2 = TFormulaFCodeAlloc(terms, myor, cond, f2);
+  //WFormulaPushDerivation(teil2, DCApplyDef, cond, f1);
+  //Printign for testing:
   printf("\n");
   TFormulaTPTPPrint(stdout, terms, teil1, true, true);
   printf("\n");
   TFormulaTPTPPrint(stdout, terms, teil2, true, true);
   printf("\n");
 
-  //In res kommt das Ergebnis                                                           
+  //res is for the resulting term                                                   
   res = TFormulaFCodeAlloc(terms, myand, teil1, teil2);
   return res;
 }
@@ -1877,10 +1908,146 @@ TFormula_p Clausificate_IteTermEqual(TB_p terms, TFormula_p cond, TFormula_p f1,
   myeqn = terms->sig->eqn_code;
 
   f1new = TFormulaFCodeAlloc(terms, myeqn, f1, equalterm);
+  //WFormulaPushDerivation(f1new, DCApplyDef, equalterm, f1);
   f2new = TFormulaFCodeAlloc(terms, myeqn, f2, equalterm);
+  //WFormulaPushDerivation(f2new, DCApplyDef, equalterm, f2);
 
-  //In res kommt das Ergebnis
-  res = Clausificate_IteFormula(terms, cond, f1new, f2new);
+  //res is for the resulting term
+  res = Clausificate_Ite(terms, cond, f1new, f2new);
+  return res;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: Parse_Let()
+//
+//   Parse the let-expression.
+//
+// Global Variables: -
+//
+// Side Effects    : I/O
+//
+/----------------------------------------------------------------------*/
+
+TFormula_p Parse_Let(Scanner_p in, TB_p terms)
+{
+  TFormula_p res = NULL;
+  TB_p localterms;
+
+  AcceptInpTok(in, OpenBracket);
+  res = ParseFirstPartLet(in, terms, localterms); // Parsing the first part
+  AcceptInpTok(in, Comma);
+  res = ParseSecondPartLet(in, terms, localterms); // Parsing the second part
+  AcceptInpTok(in, Comma);
+  res = ParseThirdPartLet(in, terms, localterms); // Parsing the third part
+  AcceptInpTok(in, CloseBracket);
+  return res;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: ParseFirstPartLet()
+//
+//   Parse the first part of the let-expression.
+//
+// Global Variables: -
+//
+// Side Effects    : I/O
+//
+/----------------------------------------------------------------------*/
+
+TFormula_p ParseFirstPartLet(Scanner_p in, TB_p terms, TB_p localterms)
+{
+  TFormula_p res = NULL;
+  if(TestInpTok(in, OpenSquare)){
+    AcceptInpTok(in, OpenSquare);
+    TBTermParseReal(in, terms, false);
+    if(TestInpTok(in, Comma)){
+      while(TestInpTok(in, Comma)){
+        AcceptInpTok(in, Comma);
+        TBTermParseReal(in,terms, false);
+      }	
+    }
+    AcceptInpTok(in, CloseSquare);
+  }else{
+    TBTermParseReal(in, terms, false);
+  }
+  return res;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: ParseSecondPartLet()
+//
+//   Parse the first part of the let-expression.                                                
+//
+// Global Variables: -
+//
+// Side Effects    : I/O
+//
+/----------------------------------------------------------------------*/
+
+TFormula_p ParseSecondPartLet(Scanner_p in, TB_p terms, TB_p localterms)
+{
+  TFormula_p first, second;
+  TFormula_p res = NULL;
+  if(TestInpTok(in, OpenSquare)){
+    TBTermParseReal(in, terms, false);
+    //Entweder dann ein "," oder ein ":="
+    if(TestInpTok(in, Comma)){
+      AcceptInpTok(in, Comma);
+      //Comma-Part
+    }else if(TestInpTok(in, Colon)){
+      AcceptInpTok(in, Colon);
+      if(TestInpTok(in, EqualSign)){
+        AcceptInpTok(in, EqualSign);
+        //:= Part
+      }else{
+        printf("\nExpected ':=' or ',' but received: ");
+	printf("%s.\n",AktToken(in)->literal->string);
+        in?AktTokenError(in, "Syntax error", false):Error("Syntax error", SYNTAX_ERROR);
+      }
+    }
+  }else{
+    //Thats the simplest form of let
+    first = TBTermParseReal(in, terms, false);
+    if(TestInpTok(in, Colon)){
+      AcceptInpTok(in, Colon);
+      if(TestInpTok(in, EqualSign)){
+	AcceptInpTok(in, EqualSign);
+	second = TBTermParseReal(in, terms, false);
+      }else{
+	printf("\nExpected '=' but received: ");
+        printf("%s.\n",AktToken(in)->literal->string);
+	in?AktTokenError(in, "Syntax error", false):Error("Syntax error", SYNTAX_ERROR);
+      }
+    }else{
+      printf("\nExpected ':' but received: ");
+      printf("%s.\n",AktToken(in)->literal->string);
+      in?AktTokenError(in, "Syntax error", false):Error("Syntax error", SYNTAX_ERROR);
+    }
+    //first->f_code_replace = second->f_code;
+  }
+  return res;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: ParseThirdPartLet()
+//
+//   Parse the first part of the let-expression.
+//
+// Global Variables: -
+//
+// Side Effects    : I/O
+//
+/----------------------------------------------------------------------*/
+
+TFormula_p ParseThirdPartLet(Scanner_p in, TB_p terms, TB_p localterms)
+{
+  TFormula_p res = NULL, nottest;
+  nottest = TFormulaTPTPParse(in, terms);
+  res = TFormulaFCodeAlloc(terms, terms->sig->not_code, nottest, NULL);
   return res;
 }
 
