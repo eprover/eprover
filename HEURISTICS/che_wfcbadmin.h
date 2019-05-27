@@ -40,6 +40,8 @@ Changes
 #include <che_treeweight.h>
 #include <che_prefixweight.h>
 #include <che_strucweight.h>
+#include <che_diversityweight.h>
+
 
 
 /*---------------------------------------------------------------------*/

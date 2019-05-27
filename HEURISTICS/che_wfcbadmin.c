@@ -38,6 +38,7 @@ char* WeightFunParseFunNames[]=
    "Defaultweight",
    "Refinedweight",
    "Refinedweight2",
+   "Diversityweight",
    "PNRefinedweight",
    "TPTPTypeweight",
    "Sigweight",
@@ -83,6 +84,7 @@ static WeightFunParseFun parse_fun_array[]=
    DefaultWeightParse, /* NOTE2ME:  did not change it */
    ClauseRefinedWeightParse,
    ClauseRefinedWeight2Parse,
+   DiversityWeightParse,
    PNRefinedWeightParse,
    TPTPTypeWeightParse,
    SigWeightParse,
