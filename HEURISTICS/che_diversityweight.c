@@ -61,10 +61,8 @@ WFCB_p DiversityWeightInit(ClausePrioFun prio_fun, int fweight,
                            double max_term_multiplier,
                            double max_literal_multiplier,
                            double pos_multiplier,
-                           double fdiff0weight,
                            double fdiff1weight,
                            double fdiff2weight,
-                           double vdiff0weight,
                            double vdiff1weight,
                            double vdiff2weight,
                            double app_var_mult)
@@ -77,10 +75,8 @@ WFCB_p DiversityWeightInit(ClausePrioFun prio_fun, int fweight,
    data->max_term_multiplier    = max_term_multiplier;
    data->max_literal_multiplier = max_literal_multiplier;
    data->ocb                    = ocb;
-   data->fdiff0weight           = fdiff0weight;
    data->fdiff1weight           = fdiff1weight;
    data->fdiff2weight           = fdiff2weight;
-   data->vdiff0weight           = vdiff0weight;
    data->vdiff1weight           = vdiff1weight;
    data->vdiff2weight           = vdiff2weight;
 
@@ -109,7 +105,7 @@ WFCB_p DiversityWeightParse(Scanner_p in, OCB_p ocb, ProofState_p
    ClausePrioFun prio_fun;
    int fweight, vweight;
    double pos_multiplier, max_term_multiplier, max_literal_multiplier,
-      fdiff0weight, fdiff1weight, fdiff2weight, vdiff0weight,
+      fdiff1weight, fdiff2weight,
       vdiff1weight, vdiff2weight, app_var_mult = APP_VAR_MULT_DEFAULT;
 
    AcceptInpTok(in, OpenBracket);
@@ -126,14 +122,10 @@ WFCB_p DiversityWeightParse(Scanner_p in, OCB_p ocb, ProofState_p
    pos_multiplier = ParseFloat(in);
 
    AcceptInpTok(in, Comma);
-   fdiff0weight = ParseFloat(in);
-   AcceptInpTok(in, Comma);
    fdiff1weight = ParseFloat(in);
    AcceptInpTok(in, Comma);
    fdiff2weight = ParseFloat(in);
 
-   AcceptInpTok(in, Comma);
-   vdiff0weight = ParseFloat(in);
    AcceptInpTok(in, Comma);
    vdiff1weight = ParseFloat(in);
    AcceptInpTok(in, Comma);
@@ -147,10 +139,8 @@ WFCB_p DiversityWeightParse(Scanner_p in, OCB_p ocb, ProofState_p
                               max_term_multiplier,
                               max_literal_multiplier,
                               pos_multiplier,
-                              fdiff0weight,
                               fdiff1weight,
                               fdiff2weight,
-                              vdiff0weight,
                               vdiff1weight,
                               vdiff2weight,
                               app_var_mult);
@@ -194,10 +184,8 @@ double DiversityWeightCompute(void* data, Clause_p clause)
    v_diversity = ClauseCollectVariables(clause, &tree);
    PTreeFree(tree);
 
-   res += f_diversity*(local->fdiff2weight*f_diversity+local->fdiff1weight)+
-      local->fdiff0weight;
-   res += v_diversity*(local->vdiff2weight*v_diversity+local->vdiff1weight)+
-      local->vdiff0weight;
+   res += f_diversity*(local->fdiff2weight*f_diversity+local->fdiff1weight);
+   res += v_diversity*(local->vdiff2weight*v_diversity+local->vdiff1weight);
 
    return res;
 }

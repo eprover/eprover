@@ -41,10 +41,8 @@ typedef struct diversityweightparamcell
    double app_var_mult;
    long   vweight;
    long   fweight;
-   double fdiff0weight;
    double fdiff1weight;
    double fdiff2weight;
-   double vdiff0weight;
    double vdiff1weight;
    double vdiff2weight;
 }DiversityWeightParamCell, *DiversityWeightParam_p;
@@ -65,10 +63,8 @@ WFCB_p DiversityWeightInit(ClausePrioFun prio_fun, int fweight,
                            double max_term_multiplier,
                            double max_literal_multiplier,
                            double pos_multiplier,
-                           double fdiff0weight,
                            double fdiff1weight,
                            double fdiff2weight,
-                           double vdiff0weight,
                            double vdiff1weight,
                            double vdiff2weight,
                            double app_var_mult);
