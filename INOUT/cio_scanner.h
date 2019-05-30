@@ -90,6 +90,7 @@ typedef unsigned long long TokenType;
 #define FOFNand       (2*FOFXor)
 #define FOFNor        (2*FOFNand)
 #define Application   (2*FOFNor)
+#define Assign        (2*Application)
 
 
 #define SkipToken     (WhiteSpace | Comment)

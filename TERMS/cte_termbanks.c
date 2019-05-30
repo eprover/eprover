@@ -283,10 +283,12 @@ static Term_p tb_parse_cons_list(Scanner_p in, TB_p bank, bool check_symb_prop)
 
 static Term_p tb_subterm_parse(Scanner_p in, TB_p bank)
 {
-   printf("\ntb_subterm_parse\n");
    Term_p res = TBTermParseReal(in, bank, true);
 
-   if(!TermIsVar(res))
+   if(res->f_code == bank->sig->itet_code){
+     //Passt scho fürs erste
+     printf("\nite als subterm\n");
+   }else if(!TermIsVar(res))
    {
       if(SigIsPredicate(bank->sig, res->f_code))
       {
@@ -308,7 +310,6 @@ static Term_p tb_subterm_parse(Scanner_p in, TB_p bank)
          SigFixType(bank->sig, res->f_code);
       }
    }
-   printf("tb_subterm_parse lief einwandfrei durch\n");
    return res;
 }
 
@@ -414,11 +415,6 @@ static int tb_term_parse_arglist(Scanner_p in, Term_p** arg_anchor,
       return 0;
    }
    args = PStackAlloc();
-   //Hier sollte ich ansetzen
-   //Wenn hier ein $ite drin is, dann anders zusammensetzen
-   //Ich würde für den Anfang einfach ite bei Termen anders zurückgeben
-   // cond & f1 & f2 und dann hier wieder auseinanderziehen und dann richtig zusammenfügen
-   printf("\n%s\n", AktToken(in)->literal->string);
    tmp = choose_subterm_parse_fun(check_symb_prop, type, i, in, bank);
    normalize_boolean_terms(&tmp, bank);
    PStackPushP(args, tmp);
@@ -1369,10 +1365,11 @@ Term_p TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop)
       
       if(!strcmp(AktToken(in)->literal->string, "$ite"))
       {
-         // accept $ite
+         //accept $ite
          AcceptInpTok(in, FuncSymbToken);
 
 	 //Hier merken, dass ein ite_t drin war mit sig oder so??
+	 
          handle = Parse_Ite_TermContext(in, bank);
       }
       else if((id_type=TermParseOperator(in, id))==FSIdentVar)
@@ -1442,8 +1439,12 @@ Term_p TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop)
          {
             handle->arity = 0;
          }
-         handle->f_code = TermSigInsert(bank->sig, DStrView(id),
+	 if(TestForIte(bank, &(handle->args), handle->arity)){
+	   handle->f_code = bank->sig->itet_code;
+	 }else{
+           handle->f_code = TermSigInsert(bank->sig, DStrView(id),
                                         handle->arity, false, id_type);
+	 }
          if(!handle->f_code)
          {
             errpos = DStrAlloc();
@@ -1983,7 +1984,7 @@ Term_p Parse_Ite_TermContext(Scanner_p in, TB_p terms)
    Type_p meinbool = terms->sig->type_bank->bool_type;
 
    AcceptInpTok(in, OpenBracket);
-   cond = TFormulaTPTPParse(in, terms); // Parsing the condition
+   cond = TFormulaTSTPParse(in, terms); // Parsing the condition
    AcceptInpTok(in, Comma);
    
    //Testing if the condition is a formulae
@@ -1998,9 +1999,9 @@ Term_p Parse_Ite_TermContext(Scanner_p in, TB_p terms)
      in?AktTokenError(in, "Type error", false):Error("Type error", SYNTAX_ERROR);
    }else
    {
-     f1 = TFormulaTPTPParse(in, terms); // Parsing the first part
+     f1 = TFormulaTSTPParse(in, terms); // Parsing the first part
      AcceptInpTok(in, Comma);
-     f2 = TFormulaTPTPParse(in, terms); // Parsing the second part
+     f2 = TFormulaTSTPParse(in, terms); // Parsing the second part
      
      //Testing if both - f1 and f2 are of the same sort
      if(!(f1->type == f2->type))
@@ -2015,9 +2016,9 @@ Term_p Parse_Ite_TermContext(Scanner_p in, TB_p terms)
      }else
      {
        //test if f1 and f2 both are terms
-       //only need to test one of them, beacuse beforehand it was testet if both are
+       //only need to test one of them, because beforehand it was tested if both are
        //of the same sort
-       if(f1->type == meinbool)
+       if(!(f1->type == meinbool))
        {
          fprintf(stderr, "# Type mismatch in arguments f1 and f2");
          fprintf(stderr, ": expected a term");
@@ -2036,7 +2037,8 @@ Term_p Parse_Ite_TermContext(Scanner_p in, TB_p terms)
          }else
          {
            //res is for the resulting term
-           res = Clausificate_Ite(terms, cond, f1, f2);
+           res = Expand_IteTermContext(terms, cond, f1, f2);
+	   res->f_code = terms->sig->itet_code;
          }
        }
      }
@@ -2046,7 +2048,7 @@ Term_p Parse_Ite_TermContext(Scanner_p in, TB_p terms)
 
 /*-----------------------------------------------------------------------
 //
-// Function: Clausificate_IteTermContext()
+// Function: Expand_IteTermContext()
 //
 //   Form the clausification of the ite-expression, if it appears in
 //   a Term-Context.
@@ -2057,7 +2059,7 @@ Term_p Parse_Ite_TermContext(Scanner_p in, TB_p terms)
 //
 /----------------------------------------------------------------------*/
 
-Term_p Clausificate_IteTermContext(TB_p terms, Term_p cond, Term_p f1, Term_p f2)
+Term_p Expand_IteTermContext(TB_p terms, Term_p cond, Term_p f1, Term_p f2)
 {
   Term_p res = NULL;
   Term_p notcond, teil1, teil2;
@@ -2068,11 +2070,9 @@ Term_p Clausificate_IteTermContext(TB_p terms, Term_p cond, Term_p f1, Term_p f2
   //Put everything together, so you get:
   //"(notcond or f1) and (&) (cond or f2)"!
   notcond = TFormulaFCodeAlloc(terms, terms->sig->not_code, cond, NULL);
-  //WFormulaPushDerivation(notcond, DCNop, cond, NULL);
   teil1 = TFormulaFCodeAlloc(terms, myor, notcond, f1);
-  //WFormulaPushDerivation(teil1, DCApplyDef, cond, f1);
   teil2 = TFormulaFCodeAlloc(terms, myor, cond, f2);
-  //WFormulaPushDerivation(teil2, DCApplyDef, cond, f1);
+  
   //Printing for testing:
   printf("\n");
   TFormulaTPTPPrint(stdout, terms, teil1, true, true);
@@ -2085,7 +2085,31 @@ Term_p Clausificate_IteTermContext(TB_p terms, Term_p cond, Term_p f1, Term_p f2
   return res;
 }
 
-   
+
+/*-----------------------------------------------------------------------
+//
+// Function: TestForIte()
+//
+//   Test if there is an ite inside the term.
+//
+// Global Variables: -
+//
+// Side Effects    : I/O
+//
+/----------------------------------------------------------------------*/
+
+bool TestForIte(TB_p terms, Term_p** arg_anchor, int arity){
+  bool isite = false;
+  int i;
+  for(i=0; i < arity; i++){
+    if((*arg_anchor)[i]->f_code == terms->sig->itet_code){
+	isite = true;
+    }
+  }
+  return isite;
+}
+
+
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */

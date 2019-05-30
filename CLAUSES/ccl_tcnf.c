@@ -1949,7 +1949,7 @@ void WTFormulaConjunctiveNF(WFormula_p form, TB_p terms)
    /*printf("Start: ");
    WFormulaPrint(GlobalOut, form, true);
    printf("\n");*/
-
+   
    handle = TFormulaSimplify(terms, form->tformula, 1000);
 
    if(handle!=form->tformula)

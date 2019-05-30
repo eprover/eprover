@@ -1788,9 +1788,9 @@ TFormula_p Parse_Ite(Scanner_p in, TB_p terms)
    TFormula_p res = NULL;
    TFormula_p cond, f1, f2, equalpart;
    Type_p meinbool = terms->sig->type_bank->bool_type;
-
+   
    AcceptInpTok(in, OpenBracket);
-   cond = TFormulaTPTPParse(in, terms); // Parsing the condition
+   cond = TFormulaTSTPParse(in, terms); // Parsing the condition
    AcceptInpTok(in, Comma);
    //Testing if the condition is a formulae
    if(!(cond->type == meinbool))
@@ -1804,11 +1804,9 @@ TFormula_p Parse_Ite(Scanner_p in, TB_p terms)
      in?AktTokenError(in, "Type error", false):Error("Type error", SYNTAX_ERROR);
    }else
    {
-     f1 = TFormulaTPTPParse(in, terms); // Parsing the first part
-     printf("\nDer Typ von f1 ist: ");
-     TypePrintTSTP(stderr, terms->sig->type_bank, f1->type);
+     f1 = TFormulaTSTPParse(in, terms); // Parsing the first part
      AcceptInpTok(in, Comma);
-     f2 = TFormulaTPTPParse(in, terms); // Parsing the second part
+     f2 = TFormulaTSTPParse(in, terms); // Parsing the second part
      //Testing if both - f1 and f2 are of the same sort
      if(!(f1->type == f2->type))
      {
@@ -1822,23 +1820,27 @@ TFormula_p Parse_Ite(Scanner_p in, TB_p terms)
      }else
      {
        AcceptInpTok(in, CloseBracket);
-
-       if(f1->type == meinbool){//ite_t
-       }else{//ite_f
-       }
+       
        if(TestInpTok(in, EqualSign))
        {
 	 if(!(f1->type == meinbool)){
            printf("\nGleichzeichen erkannt");
            AcceptInpTok(in, EqualSign);
-           equalpart = TFormulaTPTPParse(in, terms);
-           res = Clausificate_IteTermEqual(terms, cond, f1, f2, equalpart);
+           equalpart = TFormulaTSTPParse(in, terms);
+           res = Expand_IteTermEqual(terms, cond, f1, f2, equalpart);
 	 }else{printf("Type Error - expected term, got formula");}
        }else
        {
 	 //res is for the resulting term
-         res = Clausificate_Ite(terms, cond, f1, f2);
+         res = Expand_Ite(terms, cond, f1, f2);
        }
+     }
+     if(f1->type == meinbool){
+       //ite_t
+       res->f_code = terms->sig->itet_code;
+     }else{
+       //ite_f
+       res->f_code = terms->sig->itef_code;
      }
    }
    return res;
@@ -1847,7 +1849,7 @@ TFormula_p Parse_Ite(Scanner_p in, TB_p terms)
 
 /*-----------------------------------------------------------------------
 //
-// Function: Clausificate_Ite()
+// Function: Expand_Ite()
 //
 //   Form the clausification of the ite-expression, if it appears not in
 //   a Term-Context.
@@ -1858,7 +1860,7 @@ TFormula_p Parse_Ite(Scanner_p in, TB_p terms)
 //
 /----------------------------------------------------------------------*/
 
-TFormula_p Clausificate_Ite(TB_p terms, TFormula_p cond, TFormula_p f1, TFormula_p f2)
+TFormula_p Expand_Ite(TB_p terms, TFormula_p cond, TFormula_p f1, TFormula_p f2)
 {
   TFormula_p res = NULL;
   TFormula_p notcond, teil1, teil2;
@@ -1869,17 +1871,8 @@ TFormula_p Clausificate_Ite(TB_p terms, TFormula_p cond, TFormula_p f1, TFormula
   //Put everything together, so you get:
   //"(notcond or f1) and (&) (cond or f2)"! 
   notcond = TFormulaFCodeAlloc(terms, terms->sig->not_code, cond, NULL);
-  //WFormulaPushDerivation(notcond, DCNop, cond, NULL);
   teil1 = TFormulaFCodeAlloc(terms, myor, notcond, f1);
-  //WFormulaPushDerivation(teil1, DCApplyDef, cond, f1);
   teil2 = TFormulaFCodeAlloc(terms, myor, cond, f2);
-  //WFormulaPushDerivation(teil2, DCApplyDef, cond, f1);
-  //Printign for testing:
-  printf("\n");
-  TFormulaTPTPPrint(stdout, terms, teil1, true, true);
-  printf("\n");
-  TFormulaTPTPPrint(stdout, terms, teil2, true, true);
-  printf("\n");
 
   //res is for the resulting term                                                   
   res = TFormulaFCodeAlloc(terms, myand, teil1, teil2);
@@ -1888,7 +1881,7 @@ TFormula_p Clausificate_Ite(TB_p terms, TFormula_p cond, TFormula_p f1, TFormula
 
 /*-----------------------------------------------------------------------
 //
-// Function: Clausificate_IteTermEqual()
+// Function: Expand_IteTermEqual()
 //
 //   Form the clausification of the ite-expression when it is followed
 //   by an EqualSign.
@@ -1899,7 +1892,7 @@ TFormula_p Clausificate_Ite(TB_p terms, TFormula_p cond, TFormula_p f1, TFormula
 //
 /----------------------------------------------------------------------*/
 
-TFormula_p Clausificate_IteTermEqual(TB_p terms, TFormula_p cond, TFormula_p f1,
+TFormula_p Expand_IteTermEqual(TB_p terms, TFormula_p cond, TFormula_p f1,
 				     TFormula_p f2, TFormula_p equalterm)
 {
   TFormula_p res = NULL;
@@ -1908,12 +1901,10 @@ TFormula_p Clausificate_IteTermEqual(TB_p terms, TFormula_p cond, TFormula_p f1,
   myeqn = terms->sig->eqn_code;
 
   f1new = TFormulaFCodeAlloc(terms, myeqn, f1, equalterm);
-  //WFormulaPushDerivation(f1new, DCApplyDef, equalterm, f1);
   f2new = TFormulaFCodeAlloc(terms, myeqn, f2, equalterm);
-  //WFormulaPushDerivation(f2new, DCApplyDef, equalterm, f2);
 
   //res is for the resulting term
-  res = Clausificate_Ite(terms, cond, f1new, f2new);
+  res = Expand_Ite(terms, cond, f1new, f2new);
   return res;
 }
 
@@ -1932,14 +1923,13 @@ TFormula_p Clausificate_IteTermEqual(TB_p terms, TFormula_p cond, TFormula_p f1,
 TFormula_p Parse_Let(Scanner_p in, TB_p terms)
 {
   TFormula_p res = NULL;
-  TB_p localterms;
 
   AcceptInpTok(in, OpenBracket);
-  res = ParseFirstPartLet(in, terms, localterms); // Parsing the first part
+  res = ParseFirstPartLet(in, terms); // Parsing the first part
   AcceptInpTok(in, Comma);
-  res = ParseSecondPartLet(in, terms, localterms); // Parsing the second part
+  res = ParseSecondPartLet(in, terms); // Parsing the second part
   AcceptInpTok(in, Comma);
-  res = ParseThirdPartLet(in, terms, localterms); // Parsing the third part
+  res = ParseThirdPartLet(in, terms); // Parsing the third part
   AcceptInpTok(in, CloseBracket);
   return res;
 }
@@ -1956,7 +1946,7 @@ TFormula_p Parse_Let(Scanner_p in, TB_p terms)
 //
 /----------------------------------------------------------------------*/
 
-TFormula_p ParseFirstPartLet(Scanner_p in, TB_p terms, TB_p localterms)
+TFormula_p ParseFirstPartLet(Scanner_p in, TB_p terms)
 {
   TFormula_p res = NULL;
   if(TestInpTok(in, OpenSquare)){
@@ -1987,7 +1977,7 @@ TFormula_p ParseFirstPartLet(Scanner_p in, TB_p terms, TB_p localterms)
 //
 /----------------------------------------------------------------------*/
 
-TFormula_p ParseSecondPartLet(Scanner_p in, TB_p terms, TB_p localterms)
+TFormula_p ParseSecondPartLet(Scanner_p in, TB_p terms)
 {
   TFormula_p first, second;
   TFormula_p res = NULL;
@@ -1997,36 +1987,26 @@ TFormula_p ParseSecondPartLet(Scanner_p in, TB_p terms, TB_p localterms)
     if(TestInpTok(in, Comma)){
       AcceptInpTok(in, Comma);
       //Comma-Part
-    }else if(TestInpTok(in, Colon)){
-      AcceptInpTok(in, Colon);
-      if(TestInpTok(in, EqualSign)){
-        AcceptInpTok(in, EqualSign);
+    }else if(TestInpTok(in, Assign)){
+      AcceptInpTok(in, Assign);
         //:= Part
-      }else{
+    }else{
         printf("\nExpected ':=' or ',' but received: ");
 	printf("%s.\n",AktToken(in)->literal->string);
         in?AktTokenError(in, "Syntax error", false):Error("Syntax error", SYNTAX_ERROR);
-      }
     }
   }else{
     //Thats the simplest form of let
     first = TBTermParseReal(in, terms, false);
-    if(TestInpTok(in, Colon)){
-      AcceptInpTok(in, Colon);
-      if(TestInpTok(in, EqualSign)){
-	AcceptInpTok(in, EqualSign);
-	second = TBTermParseReal(in, terms, false);
-      }else{
-	printf("\nExpected '=' but received: ");
+    if(TestInpTok(in, Assign)){
+      AcceptInpTok(in, Assign);
+      second = TBTermParseReal(in, terms, false);
+    }else{
+	printf("\nExpected ':=' but received: ");
         printf("%s.\n",AktToken(in)->literal->string);
 	in?AktTokenError(in, "Syntax error", false):Error("Syntax error", SYNTAX_ERROR);
-      }
-    }else{
-      printf("\nExpected ':' but received: ");
-      printf("%s.\n",AktToken(in)->literal->string);
-      in?AktTokenError(in, "Syntax error", false):Error("Syntax error", SYNTAX_ERROR);
     }
-    //first->f_code_replace = second->f_code;
+    //Hier sollte jetzt was zur "Zuordnung" hin
   }
   return res;
 }
@@ -2043,13 +2023,40 @@ TFormula_p ParseSecondPartLet(Scanner_p in, TB_p terms, TB_p localterms)
 //
 /----------------------------------------------------------------------*/
 
-TFormula_p ParseThirdPartLet(Scanner_p in, TB_p terms, TB_p localterms)
+TFormula_p ParseThirdPartLet(Scanner_p in, TB_p terms)
 {
   TFormula_p res = NULL, nottest;
   nottest = TFormulaTPTPParse(in, terms);
+  //Ersetzung fehlt
   res = TFormulaFCodeAlloc(terms, terms->sig->not_code, nottest, NULL);
   return res;
 }
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: GenerateIdentifier()
+//
+//   Generate an unique Identifier.
+//
+// Global Variables: -
+//
+// Side Effects    : I/O
+//
+/----------------------------------------------------------------------*/
+
+char* GenerateIdentifier(DStr_p identifier, int number)
+{
+  DStr_p buf = DStrAlloc();
+  char* res;
+  DStrAppendStr(buf, "_");
+  DStrAppendStr(buf, identifier->string);
+  DStrAppendInt(buf, number);
+  res = buf->string;
+  DStrCellFree(buf);
+  return res;
+}
+
 
 
 /*---------------------------------------------------------------------*/

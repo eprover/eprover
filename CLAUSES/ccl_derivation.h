@@ -62,6 +62,7 @@ typedef enum
    /* Simplification/Modfication for FOF */
    DONegateConjecture,
    DOFofSimplify,
+   DOFofIte,
    DOFNNF,
    DOShiftQuantors,
    DOVarRename,
@@ -116,6 +117,7 @@ typedef enum
    /* Simplification/Modfication for FOF */
    DCNegateConjecture = DONegateConjecture,
    DCFofSimplify      = DOFofSimplify,
+   DCFofIte           = DOFofIte,
    DCFNNF             = DOFNNF,
    DCShiftQuantors    = DOShiftQuantors,
    DCVarRename        = DOVarRename,

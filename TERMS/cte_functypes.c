@@ -264,13 +264,9 @@ FuncSymbType FuncSymbParse(Scanner_p in, DStr_p id)
    StrNumType numtype;
 
    CheckInpTok(in, FuncSymbStartToken);
-   printf("\n*********In FuncSymbParse**********\n");
-   printf("%s\n", AktToken(in)->literal->string);
    
    if(TestInpTok(in, FuncSymbToken))
    {
-      printf("\nHier werden 'Termsymbole' erkannt\n");
-      //Hier sollte ich des ansetzen des ite zu finden und dann dementsprechen "handeln"
       DStrAppendStr(id, DStrView(AktToken(in)->literal));
 
       if(TestInpTok(in, Identifier))
@@ -279,12 +275,10 @@ FuncSymbType FuncSymbParse(Scanner_p in, DStr_p id)
              ||
              DStrView(AktToken(in)->literal)[0] == '_'))
          {
-	    printf("FSIdentVar\n");
             res = FSIdentVar;
          }
          else
          {
-	    printf("FSIdentFreeFun\n");
             res = FSIdentFreeFun;
          }
       }
@@ -293,7 +287,6 @@ FuncSymbType FuncSymbParse(Scanner_p in, DStr_p id)
          switch(AktTokenType(in))
          {
          case SemIdent:
- 	       printf("\nSemIdent\n");
                res = FSIdentInterpreted;
                break;
          case SQString:

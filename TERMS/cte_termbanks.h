@@ -179,7 +179,8 @@ Term_p  TBGetFreqConstTerm(TB_p terms, Type_p sort,
                            long* dist_array, FunConstCmpFunType is_better);
 
 Term_p Parse_Ite_TermContext(Scanner_p in, TB_p terms);
-Term_p Clausificate_IteTermContext(TB_p terms, Term_p cond, Term_p f1, Term_p f2);
+Term_p Expand_IteTermContext(TB_p terms, Term_p cond, Term_p f1, Term_p f2);
+bool TestForIte(TB_p terms, Term_p** arg_anchor, int arity);
 
 /*---------------------------------------------------------------------*/
 /*                Inline Functions                                     */

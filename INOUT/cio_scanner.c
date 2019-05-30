@@ -467,7 +467,16 @@ static Token_p scan_token(Scanner_p in)
             AktToken(in)->tok = Semicolon;
             break;
       case ':':
-            AktToken(in)->tok = Colon;
+	    if(LookChar(in,1) == '=')
+            {
+               DStrAppendChar(AktToken(in)->literal, CurrChar(in));
+               NextChar(in);
+               AktToken(in)->tok = Assign;
+            }
+            else
+            {
+               AktToken(in)->tok = Colon;
+            }
             break;
       case '-':
             AktToken(in)->tok = Hyphen;

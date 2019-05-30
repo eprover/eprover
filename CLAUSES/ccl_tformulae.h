@@ -106,14 +106,15 @@ bool       TFormulaIsUntyped(TFormula_p form);
 TFormula_p TFormulaNegate(TFormula_p form, TB_p terms);
 
 TFormula_p Parse_Ite(Scanner_p in, TB_p terms);
-TFormula_p Clausificate_Ite(TB_p terms, TFormula_p cond, TFormula_p f1, TFormula_p f2);
-TFormula_p Clausificate_IteTermEqual(TB_p terms, TFormula_p cond, TFormula_p f1,
+TFormula_p Expand_Ite(TB_p terms, TFormula_p cond, TFormula_p f1, TFormula_p f2);
+TFormula_p Expand_IteTermEqual(TB_p terms, TFormula_p cond, TFormula_p f1,
                                      TFormula_p f2, TFormula_p equalterm);
 
 TFormula_p Parse_Let(Scanner_p in, TB_p terms);
-TFormula_p ParseFirstPartLet(Scanner_p in, TB_p terms, TB_p localterms);
-TFormula_p ParseSecondPartLet(Scanner_p in, TB_p terms, TB_p localterms);
-TFormula_p ParseThirdPartLet(Scanner_p in, TB_p terms, TB_p localterms);
+TFormula_p ParseFirstPartLet(Scanner_p in, TB_p terms);
+TFormula_p ParseSecondPartLet(Scanner_p in, TB_p terms);
+TFormula_p ParseThirdPartLet(Scanner_p in, TB_p terms);
+char* GenerateIdentifier(DStr_p identifier, int number);
 
 #endif
 
