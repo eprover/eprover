@@ -1394,7 +1394,30 @@ CLState_p process_options(int argc, char* argv[])
                        "overflows and segmentation faults.");
             }
       case OPT_TO_RESTRICT_LIT_CMPS:
-            h_parms->no_lit_cmp = true;
+            h_parms->lit_cmp = LCNoCmp;
+            break;
+      case OPT_TO_LIT_CMP:
+            if(strcmp(arg, "None")==0)
+            {
+               h_parms->lit_cmp = LCNoCmp;
+            }
+            else if(strcmp(arg, "Normal")==0)
+            {
+               h_parms->lit_cmp = LCNormal;
+            }
+            else if(strcmp(arg, "TFOEqMax")==0)
+            {
+               h_parms->lit_cmp = LCTFOEqMax;
+            }
+            else if(strcmp(arg, "TFOEqMin")==0)
+            {
+               h_parms->lit_cmp = LCTFOEqMin;
+            }
+            else
+            {
+               Error("Wrong argument to --literal-comparison (valid: "
+                     "None, Normal, TFOEqMax, TFOEqMin).", USAGE_ERROR);
+            }
             break;
       case OPT_TPTP_SOS:
             h_parms->use_tptp_sos = true;

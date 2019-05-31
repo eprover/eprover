@@ -99,7 +99,7 @@ void HeuristicParmsInitialize(HeuristicParms_p handle)
    handle->to_pre_weights                = NULL;
    handle->to_const_weight               = WConstNoWeight;
    handle->to_defs_min                   = false;
-   handle->no_lit_cmp                    = false;
+   handle->lit_cmp                       = LCNormal;
 
    handle->selection_strategy            = SelectNoLiterals;
    handle->pos_lit_sel_min               = 0;

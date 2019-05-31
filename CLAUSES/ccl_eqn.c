@@ -2213,6 +2213,53 @@ bool EqnGreater(OCB_p ocb, Eqn_p eq1, Eqn_p eq2)
 
 /*-----------------------------------------------------------------------
 //
+// Function:
+//
+//
+//
+// Global Variables:
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+
+CompareResult tfo_literal_compare(OCB_p ocb, Eqn_p eq1, Eqn_p eq2)
+{
+   if(ocb->lit_cmp==LCTFOEqMax)
+   {
+      if(EqnIsEquLit(eq1) && !EqnIsEquLit(eq2))
+      {
+         return to_greater;
+      }
+      if(!EqnIsEquLit(eq1) && EqnIsEquLit(eq2))
+      {
+         return to_lesser;
+      }
+      if(!EqnIsEquLit(eq1)) /* both non-equational! */
+      {
+         return OCBFunCompare(ocb, eq1->lterm->f_code, eq2->lterm->f_code);
+      }
+   }
+   else if(ocb->lit_cmp==LCTFOEqMin)
+   {
+      if(EqnIsEquLit(eq1) && !EqnIsEquLit(eq2))
+      {
+         return to_lesser;
+      }
+      if(!EqnIsEquLit(eq1) && EqnIsEquLit(eq2))
+      {
+         return to_greater;
+      }
+      if(!EqnIsEquLit(eq1)) /* both non-equational! */
+      {
+         return OCBFunCompare(ocb, eq1->lterm->f_code, eq2->lterm->f_code);
+      }
+   }
+   return to_unknown;
+}
+
+/*-----------------------------------------------------------------------
+//
 // Function: LiteralCompare()
 //
 //   Compare two signed literals L1 and L2:
@@ -2245,6 +2292,8 @@ bool EqnGreater(OCB_p ocb, Eqn_p eq1, Eqn_p eq2)
 
 CompareResult LiteralCompare(OCB_p ocb, Eqn_p eq1, Eqn_p eq2)
 {
+   CompareResult res;
+
    if(EqnQueryProp(eq1, EPPseudoLit) &&
       !(EqnQueryProp(eq2, EPPseudoLit)))
    {
@@ -2277,10 +2326,17 @@ CompareResult LiteralCompare(OCB_p ocb, Eqn_p eq1, Eqn_p eq2)
          return to_uncomparable;
       }
    }
-   if(ocb->no_lit_cmp)
+   if(ocb->lit_cmp==LCNoCmp)
    {
       return to_uncomparable;
    }
+
+   res = tfo_literal_compare(ocb, eq1, eq2);
+   if(res == to_greater | res == to_lesser)
+   {
+      return res;
+   }
+
    if(PropsAreEquiv(eq1, eq2, EPIsPositive))
    {
       return compare_pos_eqns(ocb, eq1, eq2);

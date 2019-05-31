@@ -342,7 +342,7 @@ def parse_ordering_info(line):
 
     m = match_rlc_l.search(line)
     if m:
-        res = res+ "      oparms.no_lit_cmp=true;\n"
+        res = res+ "      oparms.lit_cmp=LCNoCmp;\n"
 
     m = match_to_s.search(line)
     if m:

@@ -134,6 +134,7 @@ typedef enum
    OPT_TO_PRECEDENCE,
    OPT_TO_LPO_RECLIMIT,
    OPT_TO_RESTRICT_LIT_CMPS,
+   OPT_TO_LIT_CMP,
    OPT_TPTP_SOS,
    OPT_ER_DESTRUCTIVE,
    OPT_ER_STRONG_DESTRUCTIVE,
@@ -1018,6 +1019,15 @@ OptCell opts[] =
     " to make Set-of-Support-strategies complete for the non-equational"
     " case (It still is incomplete for the equational case, but pretty"
     " useless anyways)."},
+
+   {OPT_TO_LIT_CMP,
+    '\0', "literal-comparison",
+    ReqArg, NULL,
+    "Modify how literal comparisons are done. 'None' is equivalent to the "
+    "previous option, 'Normal' uses the normal lifting of the term ordering, "
+    "'TFOEqMax' uses the equivalent of a transfinite ordering deciding on the "
+    "predicate symbol and making equational literals maximal, and 'TFOEqMin' "
+    "modifies this by making equational symbols minimal."},
 
    {OPT_TPTP_SOS,
     '\0', "sos-uses-input-types",

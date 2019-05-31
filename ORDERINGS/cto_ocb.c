@@ -177,7 +177,7 @@ OCB_p OCBAlloc(TermOrdering type, bool prec_by_weight, Sig_p sig)
    handle->sig_size = sig->f_count;
    handle->statestack = PStackAlloc();
    handle->var_weight = 1;
-   handle->no_lit_cmp = false;
+   handle->lit_cmp    = LCNormal;
    handle->wb      = 0;
    handle->pos_bal = 0;
    handle->neg_bal = 0;
@@ -606,5 +606,3 @@ CompareResult OCBFunCompareMatrix(OCB_p ocb, FunCode f1, FunCode f2)
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-

@@ -59,7 +59,7 @@ void init_oparms(OrderParms_p oparms)
    oparms->to_const_weight = WConstNoSpecialWeight;
    oparms->to_weight_gen   = WSelectMaximal;
    oparms->to_prec_gen     = PUnaryFirst;
-   oparms->no_lit_cmp      = false;
+   oparms->lit_cmp         = LCNormal;
 
 }
 
@@ -179,7 +179,7 @@ OCB_p generate_autocasc_ordering(ProofState_p state, SpecFeature_p spec)
    oparms.to_const_weight = WConstNoSpecialWeight;
    oparms.to_weight_gen   = WSelectMaximal;
    oparms.to_prec_gen     = PUnaryFirst;
-   oparms.no_lit_cmp      = false;
+   oparms.lit_cmp         = LCNormal;
    OUTPRINT(1, "\n# Auto-Ordering is analysing problem.\n");
 
 #include "che_auto_cases.c"
@@ -235,7 +235,7 @@ OCB_p generate_autodev_ordering(ProofState_p state, SpecFeature_p spec)
    oparms.to_const_weight = WConstNoSpecialWeight;
    oparms.to_weight_gen   = WSelectMaximal;
    oparms.to_prec_gen     = PUnaryFirst;
-   oparms.no_lit_cmp      = false;
+   oparms.lit_cmp         = LCNormal;
 
    OUTPRINT(1, "\n# Auto-Ordering is analysing problem.\n");
 #include "che_auto_cases.c"
@@ -492,7 +492,7 @@ void OrderParmsInitialize(HeuristicParms_p master, OrderParms_p slave)
    slave->to_weight_gen   = master->to_weight_gen;
    slave->to_prec_gen     = master->to_prec_gen;
    slave->to_const_weight = master->to_const_weight;
-   slave->no_lit_cmp      = master->no_lit_cmp;
+   slave->lit_cmp         = master->lit_cmp;
 }
 
 
@@ -919,7 +919,7 @@ OCB_p  TOCreateOrdering(ProofState_p state, OrderParms_p params,
 {
    OCB_p handle;
    bool prec_by_weight = pre_precedence?false:true;
-   
+
    /* printf("TOCreateOrdering(%d, %d, %d, %ld)\n", params->ordertype,
       params->to_weight_gen, params->to_prec_gen,
       params->to_const_weight); */
@@ -981,7 +981,7 @@ OCB_p  TOCreateOrdering(ProofState_p state, OrderParms_p params,
          handle = NULL;
          break;
    }
-   handle->no_lit_cmp = params->no_lit_cmp;
+   handle->lit_cmp = params->lit_cmp;
    return handle;
 }
 

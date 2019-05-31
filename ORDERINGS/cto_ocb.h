@@ -59,6 +59,14 @@ typedef enum
    EMPTY
 }TermOrdering;
 
+typedef enum
+{
+   LCNoCmp,
+   LCNormal,
+   LCTFOEqMax,
+   LCTFOEqMin
+}LiteralCmp;
+
 
 typedef struct ocb_cell
 {
@@ -77,16 +85,16 @@ typedef struct ocb_cell
    CompareResult *precedence;  /* The most general case, interpreted
                                   as two-dimensional array, indexed by
                                   two symbols */
-   bool           no_lit_cmp;  /* If true, all literals are
-                                  uncomparable (useful for SOS
-                                  strategy) */
-   PStack_p       statestack;  /* Contains backtrack information */
-   long            wb;
-   long            pos_bal;
-   long            neg_bal;
-   long            max_var;
-   long            vb_size;
-   int             *vb;
+   LiteralCmp    lit_cmp;      /* Incomparable, as terms, or with
+                                  fake transfinite KBO on predicate
+                                  symbols. */
+   PStack_p      statestack;   /* Contains backtrack information */
+   long          wb;
+   long          pos_bal;
+   long          neg_bal;
+   long          max_var;
+   long          vb_size;
+   int           *vb;
 }OCBCell, *OCB_p;
 
 #define OCB_FUN_DEFAULT_WEIGHT 1
