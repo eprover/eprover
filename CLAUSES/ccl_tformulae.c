@@ -1925,9 +1925,9 @@ TFormula_p Parse_Let(Scanner_p in, TB_p terms)
   TFormula_p res = NULL;
 
   AcceptInpTok(in, OpenBracket);
-  res = ParseFirstPartLet(in, terms); // Parsing the first part
+  ParseFirstPartLet(in, terms); // Parsing the first part
   AcceptInpTok(in, Comma);
-  res = ParseSecondPartLet(in, terms); // Parsing the second part
+  ParseSecondPartLet(in, terms); // Parsing the second part
   AcceptInpTok(in, Comma);
   res = ParseThirdPartLet(in, terms); // Parsing the third part
   AcceptInpTok(in, CloseBracket);
@@ -1946,9 +1946,8 @@ TFormula_p Parse_Let(Scanner_p in, TB_p terms)
 //
 /----------------------------------------------------------------------*/
 
-TFormula_p ParseFirstPartLet(Scanner_p in, TB_p terms)
+void ParseFirstPartLet(Scanner_p in, TB_p terms)
 {
-  TFormula_p res = NULL;
   if(TestInpTok(in, OpenSquare)){
     AcceptInpTok(in, OpenSquare);
     TBTermParseReal(in, terms, false);
@@ -1958,11 +1957,16 @@ TFormula_p ParseFirstPartLet(Scanner_p in, TB_p terms)
         TBTermParseReal(in,terms, false);
       }	
     }
-    AcceptInpTok(in, CloseSquare);
+    if(TestInpTok(in, CloseSquare)){
+      AcceptInpTok(in, CloseSquare);
+    }else{
+      printf("\nExpected ']' but received: ");
+      printf("%s.\n",AktToken(in)->literal->string);
+      in?AktTokenError(in, "Syntax error", false):Error("Syntax error", SYNTAX_ERROR);
+    }
   }else{
     TBTermParseReal(in, terms, false);
   }
-  return res;
 }
 
 /*-----------------------------------------------------------------------
@@ -1977,11 +1981,11 @@ TFormula_p ParseFirstPartLet(Scanner_p in, TB_p terms)
 //
 /----------------------------------------------------------------------*/
 
-TFormula_p ParseSecondPartLet(Scanner_p in, TB_p terms)
+void ParseSecondPartLet(Scanner_p in, TB_p terms)
 {
   TFormula_p first, second;
-  TFormula_p res = NULL;
   if(TestInpTok(in, OpenSquare)){
+    AcceptInpTok(in, OpenSquare);
     TBTermParseReal(in, terms, false);
     //Entweder dann ein "," oder ein ":="
     if(TestInpTok(in, Comma)){
@@ -1989,11 +1993,19 @@ TFormula_p ParseSecondPartLet(Scanner_p in, TB_p terms)
       //Comma-Part
     }else if(TestInpTok(in, Assign)){
       AcceptInpTok(in, Assign);
-        //:= Part
+      TBTermParseReal(in, terms, false);
+      //:= Part
     }else{
-        printf("\nExpected ':=' or ',' but received: ");
-	printf("%s.\n",AktToken(in)->literal->string);
-        in?AktTokenError(in, "Syntax error", false):Error("Syntax error", SYNTAX_ERROR);
+      printf("\nExpected ':=' or ',' but received: ");
+      printf("%s.\n",AktToken(in)->literal->string);
+      in?AktTokenError(in, "Syntax error", false):Error("Syntax error", SYNTAX_ERROR);
+    }
+    if(TestInpTok(in, CloseSquare)){
+      AcceptInpTok(in, CloseSquare);
+    }else{
+      printf("\nExpected ']' but received: ");
+      printf("%s.\n",AktToken(in)->literal->string);
+      in?AktTokenError(in, "Syntax error", false):Error("Syntax error", SYNTAX_ERROR);
     }
   }else{
     //Thats the simplest form of let
@@ -2006,9 +2018,8 @@ TFormula_p ParseSecondPartLet(Scanner_p in, TB_p terms)
         printf("%s.\n",AktToken(in)->literal->string);
 	in?AktTokenError(in, "Syntax error", false):Error("Syntax error", SYNTAX_ERROR);
     }
-    //Hier sollte jetzt was zur "Zuordnung" hin
+    //Hier sollte jetzt was zur "Zuordnung" des einfachsten Teils hin
   }
-  return res;
 }
 
 /*-----------------------------------------------------------------------
