@@ -327,6 +327,7 @@ def parse_sine(line):
 #
 
 match_rlc_l = re.compile(" --restrict-literal-comparisons")
+match_lc_l = re.compile(" --literal-comparison=")
 match_to_s  = re.compile(" -t *")
 match_to_l  = re.compile(" --term-ordering=")
 match_tow_s = re.compile(" -w *")
@@ -343,6 +344,10 @@ def parse_ordering_info(line):
     m = match_rlc_l.search(line)
     if m:
         res = res+ "      oparms.lit_cmp=LCNoCmp;\n"
+
+    m = match_lc_l.search(line)
+    if m:
+        res = res+ "      oparms.lit_cmp="+litcmp[arg]+";\n"
 
     m = match_to_s.search(line)
     if m:
@@ -583,6 +588,14 @@ ordering={
     "KBO6":"KBO6",
     "KBO1":"KBO"
 }
+
+litcmp={
+    "None"     : "LCNoCmp",
+    "Normal"   : "LCNormal",
+    "TFOEqMax" : "LCTFOEqMax",
+    "TFOEqMin" : "LCTFOEqMin"
+    }
+
 
 weight_gen={
    "none"               : "WNoMethod",
