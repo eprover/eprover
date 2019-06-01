@@ -1823,12 +1823,30 @@ TFormula_p Parse_Ite(Scanner_p in, TB_p terms)
        
        if(TestInpTok(in, EqualSign))
        {
-	 if(!(f1->type == meinbool)){
+	 if(f1->type == meinbool){
            printf("\nGleichzeichen erkannt");
            AcceptInpTok(in, EqualSign);
            equalpart = TFormulaTSTPParse(in, terms);
-           res = Expand_IteTermEqual(terms, cond, f1, f2, equalpart);
-	 }else{printf("Type Error - expected term, got formula");}
+	   if(equalpart->type == meinbool){ 
+             res = Expand_IteTermEqual(terms, cond, f1, f2, equalpart);
+	   }else{
+	     fprintf(stderr, "# Type mismatch in argument after EqualSign");
+             fprintf(stderr, ": expected ");
+             TypePrintTSTP(stderr, terms->sig->type_bank, meinbool);
+             fprintf(stderr, " but got ");
+             TypePrintTSTP(stderr, terms->sig->type_bank, f2->type);
+             fprintf(stderr, ".\n");
+             in?AktTokenError(in, "Type error", false):Error("Type error", SYNTAX_ERROR);
+	   }
+	 }else{
+	   fprintf(stderr, "# Type mismatch in arguments f1 and f2");
+           fprintf(stderr, ": expected ");
+           TypePrintTSTP(stderr, terms->sig->type_bank, meinbool);
+           fprintf(stderr, " but got ");
+           TypePrintTSTP(stderr, terms->sig->type_bank, f2->type);
+           fprintf(stderr, ".\n");
+           in?AktTokenError(in, "Type error", false):Error("Type error", SYNTAX_ERROR);
+	 }
        }else
        {
 	 //res is for the resulting term
