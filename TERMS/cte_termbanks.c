@@ -286,7 +286,7 @@ static Term_p tb_subterm_parse(Scanner_p in, TB_p bank)
    Term_p res = TBTermParseReal(in, bank, true);
 
    if(res->f_code == bank->sig->itet_code){
-     //Passt scho fürs erste
+     //Test, ob ich nen ite als subterm erkenn
      printf("\nite als subterm\n");
    }else if(!TermIsVar(res))
    {
@@ -1366,11 +1366,12 @@ Term_p TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop)
       if(!strcmp(AktToken(in)->literal->string, "$ite"))
       {
          //accept $ite
-         AcceptInpTok(in, FuncSymbToken);
-
-	 //Hier merken, dass ein ite_t drin war mit sig oder so??
-	 
+	 //DStrAppendStr(id, DStrView(AktToken(in)->literal));
+	 //id_type = FSIdentFreeFun;
+	 AcceptInpTok(in, FuncSymbToken);
          handle = Parse_Ite_TermContext(in, bank);
+	 handle = tb_termtop_insert(bank, handle);
+	 //fprintf(stderr, "\nDstr_p id: %s\n", id->string);
       }
       else if((id_type=TermParseOperator(in, id))==FSIdentVar)
       {
@@ -1439,12 +1440,10 @@ Term_p TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop)
          {
             handle->arity = 0;
          }
-	 if(TestForIte(bank, &(handle->args), handle->arity)){
-	   handle->f_code = bank->sig->itet_code;
-	 }else{
-           handle->f_code = TermSigInsert(bank->sig, DStrView(id),
+
+         handle->f_code = TermSigInsert(bank->sig, DStrView(id),
                                         handle->arity, false, id_type);
-	 }
+
          if(!handle->f_code)
          {
             errpos = DStrAlloc();
@@ -1984,7 +1983,7 @@ Term_p Parse_Ite_TermContext(Scanner_p in, TB_p terms)
    Type_p meinbool = terms->sig->type_bank->bool_type;
 
    AcceptInpTok(in, OpenBracket);
-   cond = TFormulaTSTPParse(in, terms); // Parsing the condition
+   cond = TFormulaTPTPParse(in, terms); // Parsing the condition
    AcceptInpTok(in, Comma);
    
    //Testing if the condition is a formulae
@@ -1999,9 +1998,9 @@ Term_p Parse_Ite_TermContext(Scanner_p in, TB_p terms)
      in?AktTokenError(in, "Type error", false):Error("Type error", SYNTAX_ERROR);
    }else
    {
-     f1 = TFormulaTSTPParse(in, terms); // Parsing the first part
+     f1 = TBTermParseReal(in, terms, true); // Parsing the first part
      AcceptInpTok(in, Comma);
-     f2 = TFormulaTSTPParse(in, terms); // Parsing the second part
+     f2 = TBTermParseReal(in, terms, true); // Parsing the second part
      
      //Testing if both - f1 and f2 are of the same sort
      if(!(f1->type == f2->type))
@@ -2018,7 +2017,7 @@ Term_p Parse_Ite_TermContext(Scanner_p in, TB_p terms)
        //test if f1 and f2 both are terms
        //only need to test one of them, because beforehand it was tested if both are
        //of the same sort
-       if(!(f1->type == meinbool))
+       if(f1->type == meinbool)
        {
          fprintf(stderr, "# Type mismatch in arguments f1 and f2");
          fprintf(stderr, ": expected a term");
@@ -2037,7 +2036,8 @@ Term_p Parse_Ite_TermContext(Scanner_p in, TB_p terms)
          }else
          {
            //res is for the resulting term
-           res = Expand_IteTermContext(terms, cond, f1, f2);
+	   res = TermDefaultCellAlloc();
+           res->arity = Expand_IteTermContext(terms, &(res->args), cond, f1, f2);
 	   res->f_code = terms->sig->itet_code;
          }
        }
@@ -2050,8 +2050,7 @@ Term_p Parse_Ite_TermContext(Scanner_p in, TB_p terms)
 //
 // Function: Expand_IteTermContext()
 //
-//   Form the clausification of the ite-expression, if it appears in
-//   a Term-Context.
+//   Expand an ite-expression, if it appears in a Term-Context.
 //
 // Global Variables: -
 //
@@ -2059,56 +2058,25 @@ Term_p Parse_Ite_TermContext(Scanner_p in, TB_p terms)
 //
 /----------------------------------------------------------------------*/
 
-Term_p Expand_IteTermContext(TB_p terms, Term_p cond, Term_p f1, Term_p f2)
+int Expand_IteTermContext(TB_p terms, Term_p** arg_anchor, Term_p cond, Term_p f1, Term_p f2)
 {
-  Term_p res = NULL;
-  Term_p notcond, teil1, teil2;
-  TokenType myor, myand;
-  myor = terms->sig->or_code;
-  myand = terms->sig->and_code;
-  
-  //Put everything together, so you get:
-  //"(notcond or f1) and (&) (cond or f2)"!
-  notcond = TFormulaFCodeAlloc(terms, terms->sig->not_code, cond, NULL);
-  teil1 = TFormulaFCodeAlloc(terms, myor, notcond, f1);
-  teil2 = TFormulaFCodeAlloc(terms, myor, cond, f2);
-  
-  //Printing for testing:
-  printf("\n");
-  TFormulaTPTPPrint(stdout, terms, teil1, true, true);
-  printf("\n");
-  TFormulaTPTPPrint(stdout, terms, teil2, true, true);
-  printf("\n");
+  int res, i;
+  PStack_p args;
 
-  //res is for the resulting term
-  res = TFormulaFCodeAlloc(terms, myand, teil1, teil2);
+  args = PStackAlloc();
+  
+  PStackPushP(args, cond);
+  PStackPushP(args, f1);
+  PStackPushP(args, f2);
+  
+  res = PStackGetSP(args);
+  *arg_anchor = TermArgArrayAlloc(res);
+  for(i = 0; i< res; i++){
+    (*arg_anchor)[i] = PStackElementP(args, i);
+  }
+  PStackFree(args);
   return res;
 }
-
-
-/*-----------------------------------------------------------------------
-//
-// Function: TestForIte()
-//
-//   Test if there is an ite inside the term.
-//
-// Global Variables: -
-//
-// Side Effects    : I/O
-//
-/----------------------------------------------------------------------*/
-
-bool TestForIte(TB_p terms, Term_p** arg_anchor, int arity){
-  bool isite = false;
-  int i;
-  for(i=0; i < arity; i++){
-    if((*arg_anchor)[i]->f_code == terms->sig->itet_code){
-	isite = true;
-    }
-  }
-  return isite;
-}
-
 
 
 /*---------------------------------------------------------------------*/

@@ -974,6 +974,39 @@ static void print_fof_split_equiv(FILE* out, WFormula_p form,
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: print_fof_ite()
+//
+//   Print a fof simplification step.
+//
+// Global Variables:
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+
+static void print_fof_ite(FILE* out, WFormula_p form,
+                            long old_id, char *comment)
+{
+   switch(DocOutputFormat)
+   {
+   case pcl_format:
+    pcl_formula_print_start(out, form, PCLShellLevel<1);
+         fprintf(out, PCL_FITE"(%ld)", old_id);
+    pcl_formula_print_end(out, comment);
+    break;
+   case tstp_format:
+    WFormulaTSTPPrint(out, form, PCLFullTerms, false);
+         fprintf(out, ",inference("PCL_FITE", [status(thm)],[c_0_%ld])", old_id);
+         tstp_formula_print_end(out, comment);
+    break;
+   default:
+    fprintf(out, "# Output format not implemented.\n");
+    break;
+   }
+}
+
 
 /*-----------------------------------------------------------------------
 //
@@ -1644,6 +1677,9 @@ void DocFormulaModification(FILE* out, long level, WFormula_p form,
       form->ident = ++ClauseIdentCounter;
       switch(op)
       {
+      case inf_fof_ite:
+            print_fof_ite(out, form, old_id, comment);
+            break;
       case inf_fof_simpl:
             print_fof_simpl(out, form, old_id, comment);
             break;

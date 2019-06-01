@@ -53,6 +53,7 @@ typedef enum
    inf_rewrite,
 
    inf_fof_simpl,
+   inf_fof_ite,
    inf_fof_split_equiv,
    inf_fof_nnf,
    inf_fof_intro_def,
@@ -98,6 +99,7 @@ typedef enum
 
 #define PCL_SC     "split_conjunct"
 #define PCL_SE     "split_equiv"
+#define PCL_FITE   "fof_itet"
 #define PCL_FS     "fof_simplification"
 #define PCL_NNF    "fof_nnf"
 #define PCL_ID     "introduced"

@@ -1186,6 +1186,73 @@ TFormula_p TFormulaNegAlloc(TB_p terms, TFormula_p form)
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: TFormulaIte()
+//
+//   Perform itet transformation.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+TFormula_p TFormulaIte(TB_p terms, TFormula_p form)
+{
+  TFormula_p res = NULL;
+  int i;
+
+  fprintf(stderr, "test0");
+  for(i = 0; i<form->arity; i++){
+    fprintf(stderr, "\nf_code vom arg: %ld\n", form->args[i]->f_code);
+    fprintf(stderr, "\nf_code vom form: %ld\n", form->f_code);
+    if(form->args[i]->f_code == terms->sig->itet_code){
+      fprintf(stderr, "test");
+      form = Clausificate_IteTermContext(terms, form->args[i], form);
+    }
+  }
+  return form;
+}
+
+/*----------------------------------------------------------------------*/
+//                                                                                 
+// Function: Clausificate_IteTermContext()                                         
+//                                                                                 
+//   Form the clausification of the ite-expression, if it appears in               
+//   a Term-Context.                                                               
+//                                                                                 
+// Global Variables: -                                                             
+//                                                                                 
+// Side Effects    : I/O                                                           
+//                                                                                 
+/*----------------------------------------------------------------------*/
+
+TFormula_p Clausificate_IteTermContext(TB_p terms, Term_p arg, Term_p form)
+{
+  TFormula_p res = NULL;
+  TFormula_p notcond, teil1, teil2, tmp1, tmp2;
+  TokenType myor, myand;
+  myor = terms->sig->or_code;
+  myand = terms->sig->and_code;
+  tmp1 = arg->args[1];
+  tmp2 = arg->args[2];
+  res = TFormulaCopy(terms, form);
+  
+  //Put everything together, so you get:
+  //"(notcond or form(f1)) and (&) (cond or form(f2))"!
+  //Instead of form(itet)
+  notcond = TFormulaFCodeAlloc(terms, terms->sig->not_code, arg->args[0], NULL);
+  res->args[0] = tmp1;
+  teil1 = TFormulaFCodeAlloc(terms, myor, notcond, res);
+  res->args[0] = tmp2;
+  teil2 = TFormulaFCodeAlloc(terms, myor, arg->args[0], res);
+
+  //res is for the resulting term                                                  
+  res = TFormulaFCodeAlloc(terms, myand, teil1, teil2);
+  return res;
+}
+
 
 /*-----------------------------------------------------------------------
 //
@@ -1949,9 +2016,18 @@ void WTFormulaConjunctiveNF(WFormula_p form, TB_p terms)
    /*printf("Start: ");
    WFormulaPrint(GlobalOut, form, true);
    printf("\n");*/
+   fprintf(stderr, "test9");
+
+   handle = TFormulaIte(terms, form->tformula);
+   fprintf(stderr, "test10");
+   if(handle!=form->tformula)
+   {
+      form->tformula = handle;
+      DocFormulaModificationDefault(form, inf_fof_ite);
+      WFormulaPushDerivation(form, DCFofIte, NULL, NULL);
+   }
    
    handle = TFormulaSimplify(terms, form->tformula, 1000);
-
    if(handle!=form->tformula)
    {
       form->tformula = handle;
@@ -2029,8 +2105,18 @@ void WTFormulaConjunctiveNF2(WFormula_p form, TB_p terms,
 
    // printf("# Start: "); WFormulaPrint(GlobalOut, form, true); printf("\n");
 
+   fprintf(stderr, "test7");
+   handle = TFormulaIte(terms, form->tformula);
+   fprintf(stderr, "test8");
+   if(handle!=form->tformula)
+   {
+      form->tformula = handle;
+      DocFormulaModificationDefault(form, inf_fof_ite);
+      WFormulaPushDerivation(form, DCFofIte, NULL, NULL);
+   }
+   // printf("# Iteified\n");
+   
    handle = TFormulaSimplify(terms, form->tformula, 0);
-
    if(handle!=form->tformula)
    {
       form->tformula = handle;
@@ -2146,8 +2232,17 @@ void WTFormulaConjunctiveNF3(WFormula_p form, TB_p terms,
    WFormulaPrint(GlobalOut, form, true);
    printf("\n");*/
 
-   handle = TFormulaSimplify(terms, form->tformula, 1000);
+   fprintf(stderr, "test5");
+   handle = TFormulaIte(terms, form->tformula);
+   fprintf(stderr, "test6");
+   if(handle!=form->tformula)
+   {
+      form->tformula = handle;
+      DocFormulaModificationDefault(form, inf_fof_ite);
+      WFormulaPushDerivation(form, DCFofIte, NULL, NULL);
+   }
 
+   handle = TFormulaSimplify(terms, form->tformula, 1000);
    if(handle!=form->tformula)
    {
       form->tformula = handle;
