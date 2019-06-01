@@ -5,7 +5,7 @@ Version 2.3 ->
 
 - Added random clause "evaluation"
 - Added Diversity-based clause evaluation
-
+- Added (simplified) transfinite orderings for literal comparision
 
 Version 2.3pre -> 2.3 Gielle
 
