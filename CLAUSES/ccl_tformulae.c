@@ -1788,78 +1788,91 @@ TFormula_p Parse_Ite(Scanner_p in, TB_p terms)
    TFormula_p res = NULL;
    TFormula_p cond, f1, f2, equalpart;
    Type_p meinbool = terms->sig->type_bank->bool_type;
-   
-   AcceptInpTok(in, OpenBracket);
-   cond = TFormulaTSTPParse(in, terms); // Parsing the condition
-   AcceptInpTok(in, Comma);
-   //Testing if the condition is a formulae
-   if(!(cond->type == meinbool))
-   {
-     fprintf(stderr, "# Type mismatch in argument cond");
-     fprintf(stderr, ": expected ");
-     TypePrintTSTP(stderr, terms->sig->type_bank, meinbool);
-     fprintf(stderr, " but got ");
-     TypePrintTSTP(stderr, terms->sig->type_bank, cond->type);
-     fprintf(stderr, ".\n");
-     in?AktTokenError(in, "Type error", false):Error("Type error", SYNTAX_ERROR);
-   }else
-   {
-     f1 = TFormulaTSTPParse(in, terms); // Parsing the first part
-     AcceptInpTok(in, Comma);
-     f2 = TFormulaTSTPParse(in, terms); // Parsing the second part
-     //Testing if both - f1 and f2 are of the same sort
-     if(!(f1->type == f2->type))
-     {
-       fprintf(stderr, "# Type mismatch in arguments f1 and f2");
-       fprintf(stderr, ": expected ");
-       TypePrintTSTP(stderr, terms->sig->type_bank, f1->type);
-       fprintf(stderr, " but got ");
-       TypePrintTSTP(stderr, terms->sig->type_bank, f2->type);
-       fprintf(stderr, ".\n");
-       in?AktTokenError(in, "Type error", false):Error("Type error", SYNTAX_ERROR);
-     }else
-     {
-       AcceptInpTok(in, CloseBracket);
-       
-       if(TestInpTok(in, EqualSign))
-       {
-	 if(f1->type == meinbool){
-           printf("\nGleichzeichen erkannt");
-           AcceptInpTok(in, EqualSign);
-           equalpart = TFormulaTSTPParse(in, terms);
-	   if(equalpart->type == meinbool){ 
-             res = Expand_IteTermEqual(terms, cond, f1, f2, equalpart);
-	   }else{
-	     fprintf(stderr, "# Type mismatch in argument after EqualSign");
+   if(TestInpTok(in, OpenBracket)){
+     AcceptInpTok(in, OpenBracket);
+     cond = TFormulaTSTPParse(in, terms); // Parsing the condition
+     if(TestInpTok(in, Comma)){
+       AcceptInpTok(in, Comma);
+       //Testing if the condition is a formulae
+       if(!(cond->type == meinbool)){
+         fprintf(stderr, "# Type mismatch in argument cond");
+         fprintf(stderr, ": expected ");
+         TypePrintTSTP(stderr, terms->sig->type_bank, meinbool);
+         fprintf(stderr, " but got ");
+         TypePrintTSTP(stderr, terms->sig->type_bank, cond->type);
+         fprintf(stderr, ".\n");
+         in?AktTokenError(in, "Type error", false):Error("Type error", SYNTAX_ERROR);
+       }else{
+         f1 = TFormulaTSTPParse(in, terms); // Parsing the first part
+	 if(TestInpTok(in, Comma)){
+           AcceptInpTok(in, Comma);
+           f2 = TFormulaTSTPParse(in, terms); // Parsing the second part
+           //Testing if both - f1 and f2 are of the same sort
+           if(!(f1->type == f2->type)){
+             fprintf(stderr, "# Type mismatch in arguments f1 and f2");
              fprintf(stderr, ": expected ");
-             TypePrintTSTP(stderr, terms->sig->type_bank, meinbool);
+             TypePrintTSTP(stderr, terms->sig->type_bank, f1->type);
              fprintf(stderr, " but got ");
              TypePrintTSTP(stderr, terms->sig->type_bank, f2->type);
              fprintf(stderr, ".\n");
-             in?AktTokenError(in, "Type error", false):Error("Type error", SYNTAX_ERROR);
+             in?AktTokenError(in, "Type error", false):
+	       Error("Type error", SYNTAX_ERROR);
+           }else{
+	     if(TestInpTok(in, CloseBracket)){
+               AcceptInpTok(in, CloseBracket);
+       
+               if(TestInpTok(in, EqualSign)){
+      	         if(f1->type == meinbool){
+                   printf("\nGleichzeichen erkannt");
+                   AcceptInpTok(in, EqualSign);
+                   equalpart = TFormulaTSTPParse(in, terms);
+                   if(equalpart->type == meinbool){ 
+                     res = Expand_IteTermEqual(terms, cond, f1, f2, equalpart);
+                   }else{
+	             fprintf(stderr, "# Type mismatch in argument after EqualSign");
+                     fprintf(stderr, ": expected ");
+                     TypePrintTSTP(stderr, terms->sig->type_bank, meinbool);
+                     fprintf(stderr, " but got ");
+                     TypePrintTSTP(stderr, terms->sig->type_bank, f2->type);
+                     fprintf(stderr, ".\n");
+                     in?AktTokenError(in, "Type error", false):
+		       Error("Type error", SYNTAX_ERROR);
+                   }
+    	         }else{
+	           fprintf(stderr, "# Type mismatch in arguments f1 and f2");
+                   fprintf(stderr, ": expected ");
+                   TypePrintTSTP(stderr, terms->sig->type_bank, meinbool);
+                   fprintf(stderr, " but got ");
+                   TypePrintTSTP(stderr, terms->sig->type_bank, f2->type);
+                   fprintf(stderr, ".\n");
+                   in?AktTokenError(in, "Type error", false):
+		     Error("Type error", SYNTAX_ERROR);
+     	         }
+               }else{
+	         //res is for the resulting term
+                 res = Expand_Ite(terms, cond, f1, f2);
+               }
+             }else{
+	       in?AktTokenError(in, "Synatx error", false):
+		 Error("Syntax error", SYNTAX_ERROR);
+	     }
+             if(f1->type == meinbool){
+               //ite_t
+               res->f_code = terms->sig->itef_code;
+             }else{
+               //ite_f
+               res->f_code = terms->sig->itef_code;
+             }
 	   }
 	 }else{
-	   fprintf(stderr, "# Type mismatch in arguments f1 and f2");
-           fprintf(stderr, ": expected ");
-           TypePrintTSTP(stderr, terms->sig->type_bank, meinbool);
-           fprintf(stderr, " but got ");
-           TypePrintTSTP(stderr, terms->sig->type_bank, f2->type);
-           fprintf(stderr, ".\n");
-           in?AktTokenError(in, "Type error", false):Error("Type error", SYNTAX_ERROR);
+	   in?AktTokenError(in, "Synatx error", false):Error("Syntax error", SYNTAX_ERROR);
 	 }
-       }else
-       {
-	 //res is for the resulting term
-         res = Expand_Ite(terms, cond, f1, f2);
        }
-     }
-     if(f1->type == meinbool){
-       //ite_t
-       res->f_code = terms->sig->itef_code;
      }else{
-       //ite_f
-       res->f_code = terms->sig->itef_code;
+       in?AktTokenError(in, "Synatx error", false):Error("Syntax error", SYNTAX_ERROR);
      }
+   }else{
+     in?AktTokenError(in, "Synatx error", false):Error("Syntax error", SYNTAX_ERROR);
    }
    return res;
 }

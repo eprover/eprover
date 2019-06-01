@@ -1982,66 +1982,79 @@ Term_p Parse_Ite_TermContext(Scanner_p in, TB_p terms)
    Term_p cond, f1, f2;
    Type_p meinbool = terms->sig->type_bank->bool_type;
 
-   AcceptInpTok(in, OpenBracket);
-   cond = TFormulaTPTPParse(in, terms); // Parsing the condition
-   AcceptInpTok(in, Comma);
+   if(TestInpTok(in, OpenBracket)){
+     AcceptInpTok(in, OpenBracket);
+     cond = TFormulaTPTPParse(in, terms); // Parsing the condition
+     if(TestInpTok(in, Comma)){
+       AcceptInpTok(in, Comma);
    
-   //Testing if the condition is a formulae
-   if(!(cond->type == meinbool))
-   {
-     fprintf(stderr, "# Type mismatch in argument cond");
-     fprintf(stderr, ": expected ");
-     TypePrintTSTP(stderr, terms->sig->type_bank, meinbool);
-     fprintf(stderr, " but got ");
-     TypePrintTSTP(stderr, terms->sig->type_bank, cond->type);
-     fprintf(stderr, ".\n");
-     in?AktTokenError(in, "Type error", false):Error("Type error", SYNTAX_ERROR);
-   }else
-   {
-     f1 = TBTermParseReal(in, terms, true); // Parsing the first part
-     AcceptInpTok(in, Comma);
-     f2 = TBTermParseReal(in, terms, true); // Parsing the second part
-     
-     //Testing if both - f1 and f2 are of the same sort
-     if(!(f1->type == f2->type))
-     {
-       fprintf(stderr, "# Type mismatch in arguments f1 and f2");
-       fprintf(stderr, ": expected ");
-       TypePrintTSTP(stderr, terms->sig->type_bank, f1->type);
-       fprintf(stderr, " but got ");
-       TypePrintTSTP(stderr, terms->sig->type_bank, f2->type);
-       fprintf(stderr, ".\n");
-       in?AktTokenError(in, "Type error", false):Error("Type error", SYNTAX_ERROR);
-     }else
-     {
-       //test if f1 and f2 both are terms
-       //only need to test one of them, because beforehand it was tested if both are
-       //of the same sort
-       if(f1->type == meinbool)
-       {
-         fprintf(stderr, "# Type mismatch in arguments f1 and f2");
-         fprintf(stderr, ": expected a term");
+       //Testing if the condition is a formulae
+       if(!(cond->type == meinbool)){
+         fprintf(stderr, "# Type mismatch in argument cond");
+         fprintf(stderr, ": expected ");
+         TypePrintTSTP(stderr, terms->sig->type_bank, meinbool);
          fprintf(stderr, " but got ");
-         TypePrintTSTP(stderr, terms->sig->type_bank, f1->type);
+         TypePrintTSTP(stderr, terms->sig->type_bank, cond->type);
          fprintf(stderr, ".\n");
-	 in?AktTokenError(in, "Type error", false):Error("Type error", SYNTAX_ERROR);
-       }else
-       {
-         AcceptInpTok(in, CloseBracket);
-         if(TestInpTok(in, EqualSign))
-         {
-	   //In Term-Context an equal-sign is not possible
-	   fprintf(stderr, "Equalsign read, but not expected");
-	   in?AktTokenError(in, "Type error", false):Error("Type error", SYNTAX_ERROR);
-         }else
-         {
-           //res is for the resulting term
-	   res = TermDefaultCellAlloc();
-           res->arity = Expand_IteTermContext(terms, &(res->args), cond, f1, f2);
-	   res->f_code = terms->sig->itet_code;
-         }
+         in?AktTokenError(in, "Type error", false):Error("Type error", SYNTAX_ERROR);
+       }else{
+         f1 = TBTermParseReal(in, terms, true); // Parsing the first part
+         if(TestInpTok(in, Comma)){
+           AcceptInpTok(in, Comma);
+           f2 = TBTermParseReal(in, terms, true); // Parsing the second part
+     
+           //Testing if both - f1 and f2 are of the same sort
+           if(!(f1->type == f2->type)){
+             fprintf(stderr, "# Type mismatch in arguments f1 and f2");
+             fprintf(stderr, ": expected ");
+             TypePrintTSTP(stderr, terms->sig->type_bank, f1->type);
+             fprintf(stderr, " but got ");
+             TypePrintTSTP(stderr, terms->sig->type_bank, f2->type);
+             fprintf(stderr, ".\n");
+             in?AktTokenError(in, "Type error", false):
+	       Error("Type error", SYNTAX_ERROR);
+           }else{
+             //test if f1 and f2 both are terms
+             //only need to test one of them, because
+	     //beforehand it was tested if both are
+             //of the same sort
+             if(f1->type == meinbool){
+		 fprintf(stderr, "# Type mismatch in arguments f1 and f2");
+		 fprintf(stderr, ": expected a term");
+		 fprintf(stderr, " but got ");
+		 TypePrintTSTP(stderr, terms->sig->type_bank, f1->type);
+		 fprintf(stderr, ".\n");
+		 in?AktTokenError(in, "Type error", false):
+		   Error("Type error", SYNTAX_ERROR);
+             }else{
+  	       if(TestInpTok(in, CloseBracket)){
+	         AcceptInpTok(in, CloseBracket);
+		 if(TestInpTok(in, EqualSign)){
+		   //In Term-Context an equal-sign is not possible
+		   fprintf(stderr, "Equalsign read, but not expected");
+		   in?AktTokenError(in, "Type error", false)
+		     :Error("Type error", SYNTAX_ERROR);
+		 }else{
+		   //res is for the resulting term
+		   res = TermDefaultCellAlloc();
+		   res->arity = Expand_IteTermContext(terms, &(res->args), cond, f1, f2);
+	           res->f_code = terms->sig->itet_code;
+		 }
+	       }else{
+		 in?AktTokenError(in, "Syntax error", false):
+		   Error("Syntax error", SYNTAX_ERROR);
+	       }
+	     }
+           }
+	 }else{
+	   in?AktTokenError(in, "Syntax error", false):Error("Syntax error", SYNTAX_ERROR);
+	 }
        }
+     }else{
+       in?AktTokenError(in, "Syntax error", false):Error("Syntax error", SYNTAX_ERROR);
      }
+   }else{
+     in?AktTokenError(in, "Syntax error", false):Error("Syntax error", SYNTAX_ERROR);
    }
    return res;
 }
