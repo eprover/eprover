@@ -2073,7 +2073,7 @@ Term_p Parse_Ite_TermContext(Scanner_p in, TB_p terms)
 
 int Expand_IteTermContext(TB_p terms, Term_p** arg_anchor, Term_p cond, Term_p f1, Term_p f2)
 {
-  int res, i;
+  int res = 3;
   PStack_p args;
 
   args = PStackAlloc();
@@ -2082,11 +2082,11 @@ int Expand_IteTermContext(TB_p terms, Term_p** arg_anchor, Term_p cond, Term_p f
   PStackPushP(args, f1);
   PStackPushP(args, f2);
   
-  res = PStackGetSP(args);
   *arg_anchor = TermArgArrayAlloc(res);
-  for(i = 0; i< res; i++){
-    (*arg_anchor)[i] = PStackElementP(args, i);
-  }
+  (*arg_anchor)[0] = PStackElementP(args, 0);
+  (*arg_anchor)[1] = PStackElementP(args, 1);
+  (*arg_anchor)[2] = PStackElementP(args, 2);
+
   PStackFree(args);
   return res;
 }

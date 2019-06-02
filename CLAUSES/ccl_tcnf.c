@@ -1202,18 +1202,48 @@ TFormula_p TFormulaIte(TB_p terms, TFormula_p form)
 {
   TFormula_p res = NULL;
   int i;
+  res = TFormulaCopy(terms, form);
 
-  fprintf(stderr, "test0");
-  for(i = 0; i<form->arity; i++){
-    fprintf(stderr, "\nf_code vom arg: %ld\n", form->args[i]->f_code);
-    fprintf(stderr, "\nf_code vom form: %ld\n", form->f_code);
-    if(form->args[i]->f_code == terms->sig->itet_code){
-      fprintf(stderr, "test");
-      form = Clausificate_IteTermContext(terms, form->args[i], form);
+  if(res->f_code == terms->sig->itet_code){
+    res = Clausificate_IteTermContext(terms, res, &(res));
+  }else{
+    for(i = 0; i<res->arity; i++){
+      res = TFormula_TransformIte(terms, res, &(res->args[i]));
     }
   }
-  return form;
+  return res;
 }
+
+/*-----------------------------------------------------------------------
+//
+// Function: TFormula_TransformIte()
+//
+//   Perform itet transformation.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+TFormula_p TFormula_TransformIte(TB_p terms, TFormula_p res, TFormula_p* arg){
+  int i;
+
+  //test if any argument is an ite-expression
+  for(i = 0; i<(*arg)->arity; i++){
+    if((*arg)->args[i]->f_code == terms->sig->itet_code){
+      //if yes, then clausificate it
+      //res = Clausificate_IteTermContext(terms, res, &((*arg)->args[i]));
+    }else{
+      //if not test each arguments arguments
+      res = TFormula_TransformIte(terms, res, &((*arg)->args[i]));
+    }
+  }
+  //this loop stops if there is no argument left or if the argument has
+  //arity 0 (no subterms).
+  return res;
+}
+
 
 /*----------------------------------------------------------------------*/
 //                                                                                 
@@ -1228,28 +1258,32 @@ TFormula_p TFormulaIte(TB_p terms, TFormula_p form)
 //                                                                                 
 /*----------------------------------------------------------------------*/
 
-TFormula_p Clausificate_IteTermContext(TB_p terms, Term_p arg, Term_p form)
+TFormula_p Clausificate_IteTermContext(TB_p terms, TFormula_p res, TFormula_p* arg)
 {
-  TFormula_p res = NULL;
-  TFormula_p notcond, teil1, teil2, tmp1, tmp2;
+  TFormula_p notcond, part1, part2, cond, f1, f2;
   TokenType myor, myand;
   myor = terms->sig->or_code;
   myand = terms->sig->and_code;
-  tmp1 = arg->args[1];
-  tmp2 = arg->args[2];
-  res = TFormulaCopy(terms, form);
+  cond = (*arg)->args[0];
+  f1 = (*arg)->args[1];
+  f2 = (*arg)->args[2];
   
   //Put everything together, so you get:
   //"(notcond or form(f1)) and (&) (cond or form(f2))"!
   //Instead of form(itet)
-  notcond = TFormulaFCodeAlloc(terms, terms->sig->not_code, arg->args[0], NULL);
-  res->args[0] = tmp1;
-  teil1 = TFormulaFCodeAlloc(terms, myor, notcond, res);
-  res->args[0] = tmp2;
-  teil2 = TFormulaFCodeAlloc(terms, myor, arg->args[0], res);
+  fprintf(stderr, "\n******teeeeeest****\n");
+  notcond = TFormulaFCodeAlloc(terms, terms->sig->not_code, cond, NULL);
+  (*arg) = f1;
+  part1 = TFormulaFCodeAlloc(terms, myor, notcond, res);
+  (*arg) = f2;
+  part2 = TFormulaFCodeAlloc(terms, myor, cond, res);
 
+  //now part1 and part2 have to be analysed if there is another ite-expression
+  TFormula_TransformIte(terms, res, &(part1));
+  TFormula_TransformIte(terms, res, &(part2));
+  
   //res is for the resulting term                                                  
-  res = TFormulaFCodeAlloc(terms, myand, teil1, teil2);
+  res = TFormulaFCodeAlloc(terms, myand, part1, part2);
   return res;
 }
 
@@ -2016,10 +2050,8 @@ void WTFormulaConjunctiveNF(WFormula_p form, TB_p terms)
    /*printf("Start: ");
    WFormulaPrint(GlobalOut, form, true);
    printf("\n");*/
-   fprintf(stderr, "test9");
 
    handle = TFormulaIte(terms, form->tformula);
-   fprintf(stderr, "test10");
    if(handle!=form->tformula)
    {
       form->tformula = handle;
@@ -2105,9 +2137,7 @@ void WTFormulaConjunctiveNF2(WFormula_p form, TB_p terms,
 
    // printf("# Start: "); WFormulaPrint(GlobalOut, form, true); printf("\n");
 
-   fprintf(stderr, "test7");
    handle = TFormulaIte(terms, form->tformula);
-   fprintf(stderr, "test8");
    if(handle!=form->tformula)
    {
       form->tformula = handle;
@@ -2232,9 +2262,7 @@ void WTFormulaConjunctiveNF3(WFormula_p form, TB_p terms,
    WFormulaPrint(GlobalOut, form, true);
    printf("\n");*/
 
-   fprintf(stderr, "test5");
    handle = TFormulaIte(terms, form->tformula);
-   fprintf(stderr, "test6");
    if(handle!=form->tformula)
    {
       form->tformula = handle;

@@ -71,7 +71,8 @@ void WTFormulaConjunctiveNF2(WFormula_p form, TB_p terms,
 void WTFormulaConjunctiveNF3(WFormula_p form, TB_p terms,
                              long miniscope_limit);
 
-TFormula_p Clausificate_IteTermContext(TB_p terms, Term_p arg, Term_p form);
+TFormula_p TFormula_TransformIte(TB_p terms, TFormula_p res, TFormula_p* arg);
+TFormula_p Clausificate_IteTermContext(TB_p terms, TFormula_p res, TFormula_p* arg);
 
 #endif
 
