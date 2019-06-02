@@ -67,8 +67,12 @@ debug_config:
 	@cat Makefile.vars| \
 	gawk '/^NODEBUG/{print "NODEBUG    = # -DNDEBUG -DFAST_EXIT";next}/^MEMDEBUG/{print "MEMDEBUG   = -DCLB_MEMORY_DEBUG # -DCLB_MEMORY_DEBUG2";next}{print}' > __tmpmake__;mv __tmpmake__ Makefile.vars
 
+commit_id:
+	echo '#define ECOMMITID "'`git rev-parse HEAD`'"' > PROVER/e_gitcommit.h
+
+
 # Build a distribution
-distrib: default_config man documentation cleandist
+distrib: default_config commit_id man documentation cleandist
 	@echo "Did you think about: "
 	@echo " - Changing the bibliographies to local version"
 	@echo " - increasing the dev version number and committing to git?"
@@ -118,7 +122,7 @@ links: remove_links
 
 
 tags:
-	etags.emacs25 `find . \( -name "*.[ch]" -or -name "*.py" \) -and \( -not -path "*include*" -and -not -name ".#*" \)`
+	etags `find . \( -name "*.[ch]" -or -name "*.py" \) -and \( -not -path "*include*" -and -not -name ".#*" \)`
 #ctags-exuberant -e -R .
 # etags */*.c */*.h
 # cd PYTHON; make ptags

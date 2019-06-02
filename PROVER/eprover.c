@@ -209,7 +209,7 @@ static void print_info(void)
    }
    if(print_version)
    {
-      fprintf(GlobalOut, "# Version: " VERSION "\n");
+      fprintf(GlobalOut, "# Version: %s\n", VERSION);
       fflush(GlobalOut);
    }
 }
@@ -873,7 +873,7 @@ CLState_p process_options(int argc, char* argv[])
             print_help(stdout);
             exit(NO_ERROR);
       case OPT_VERSION:
-            fprintf(stdout, "E " VERSION " " E_NICKNAME "\n");
+            fprintf(stdout, "E %s %s %s\n", VERSION, E_NICKNAME, ECOMMITID);
             exit(NO_ERROR);
       case OPT_OUTPUT:
             outname = arg;

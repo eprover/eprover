@@ -8,7 +8,7 @@ Contents
 
   Define global macro for version number and meta-information.
 
-  Copyright 2009-2018 by the authors (see DOC/CONTRIBUTORS).
+  Copyright 2009-2019 by the authors (see DOC/CONTRIBUTORS).
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
@@ -35,6 +35,8 @@ Contents
 /* git tag E-2.3_dev003 */
 
 #define PVERSION      "2.3_dev003"
+
+#include "e_gitcommit.h"
 
 #ifdef ENABLE_LFHO
 #define LFH "-ho"
