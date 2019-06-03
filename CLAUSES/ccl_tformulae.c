@@ -1858,7 +1858,7 @@ TFormula_p Parse_Ite(Scanner_p in, TB_p terms)
 	     }
              if(f1->type == meinbool){
                //ite_t
-               res->f_code = terms->sig->itef_code;
+               res->f_code = terms->sig->itet_code;
              }else{
                //ite_f
                res->f_code = terms->sig->itef_code;

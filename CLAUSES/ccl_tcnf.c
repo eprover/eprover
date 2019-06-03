@@ -1229,10 +1229,16 @@ TFormula_p TFormulaIte(TB_p terms, TFormula_p form)
 TFormula_p TFormula_TransformIte(TB_p terms, TFormula_p res, TFormula_p* arg){
   int i;
 
+  assert((*arg));
   //test if any argument is an ite-expression
   for(i = 0; i<(*arg)->arity; i++){
+    assert((*arg)->args[i]);
     if((*arg)->args[i]->f_code == terms->sig->itet_code){
       //if yes, then clausificate it
+      fprintf(stderr, "\nNow the Transformation");
+      fprintf(stderr, "should take place,  but there is a fault in");
+      fprintf(stderr, "function 'Clausificate_IteTermContext' or in");
+      fprintf(stderr, "function 'TFormula_TransformIte'.");
       //res = Clausificate_IteTermContext(terms, res, &((*arg)->args[i]));
     }else{
       //if not test each arguments arguments
@@ -1241,6 +1247,7 @@ TFormula_p TFormula_TransformIte(TB_p terms, TFormula_p res, TFormula_p* arg){
   }
   //this loop stops if there is no argument left or if the argument has
   //arity 0 (no subterms).
+  assert(res);
   return res;
 }
 
@@ -1267,21 +1274,28 @@ TFormula_p Clausificate_IteTermContext(TB_p terms, TFormula_p res, TFormula_p* a
   cond = (*arg)->args[0];
   f1 = (*arg)->args[1];
   f2 = (*arg)->args[2];
+  assert((*arg));
+  assert(res);
+
   
   //Put everything together, so you get:
   //"(notcond or form(f1)) and (&) (cond or form(f2))"!
   //Instead of form(itet)
   fprintf(stderr, "\n******teeeeeest****\n");
+  assert(cond);
   notcond = TFormulaFCodeAlloc(terms, terms->sig->not_code, cond, NULL);
   (*arg) = f1;
   part1 = TFormulaFCodeAlloc(terms, myor, notcond, res);
   (*arg) = f2;
   part2 = TFormulaFCodeAlloc(terms, myor, cond, res);
-
+  assert(part1);
+  assert(part2);
   //now part1 and part2 have to be analysed if there is another ite-expression
   TFormula_TransformIte(terms, res, &(part1));
   TFormula_TransformIte(terms, res, &(part2));
-  
+
+  assert(part1);
+  assert(part2);
   //res is for the resulting term                                                  
   res = TFormulaFCodeAlloc(terms, myand, part1, part2);
   return res;
