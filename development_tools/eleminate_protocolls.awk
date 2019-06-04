@@ -1,4 +1,4 @@
-#!/sw/bin/gawk -f
+#!/opt/local/bin/gawk -f
 
 # Usage: eliminate_protocolls.awk <input_file>
 #

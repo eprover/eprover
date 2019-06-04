@@ -37,7 +37,7 @@ char* TOPrecGenNames[]=
    "unary_freq",       /* PUnaryFristFreq */
    "arity",            /* PArity */
    "invarity",         /* PInvArity */
-   "const_max",        /* PConstFirst  */
+   "const_max",        /* PConstMax  */
    "const_min",        /* PInvArConstMin */
    "freq",             /* PByFrequency */
    "invfreq",          /* PByInvFrequency */
@@ -439,7 +439,7 @@ static void generate_type_freq_precedence(OCB_p ocb, ClauseSet_p axioms)
 // Function: generate_comb_freq_precedence()
 //
 //   Generate a precedence in which symbols whose types occur more often in
-//   the specification are bigger. Furthemore, add the occurence of symbol to 
+//   the specification are bigger. Furthemore, add the occurence of symbol to
 //   this value. Occurrence of symbol is used as a tie-breaker,
 //   then order of occurence in the signature.
 //
@@ -528,7 +528,7 @@ static void generate_inv_type_freq_precedence(OCB_p ocb, ClauseSet_p axioms)
    FunCode       i;
 
    long max_types = ocb->sig->type_bank->types_count+1;
-   
+
    long* type_counts = SizeMalloc(max_types*sizeof(long));
    for(long i=0; i<max_types; i++)
    {

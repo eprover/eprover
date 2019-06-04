@@ -1,4 +1,4 @@
-#!/sw/bin/gawk -f
+#!/opt/local/bin/gawk -f
 #
 # Compute average and standard deviation for a list of values.
 

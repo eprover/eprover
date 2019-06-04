@@ -213,6 +213,9 @@ SpecLimits_p SpecLimitsAlloc(void);
 
 #define Spec(spec) (true) /* For auto-generated code */
 
+#define SpecIsFO(spec) (true)
+
+
 #define SpecAxiomsAreUnit(spec) ((spec)->axioms == (spec)->unitaxioms)
 #define SpecAxiomsAreHorn(spec) ((spec)->axioms == (spec)->hornaxioms)
 #define SpecAxiomsAreNonUnitHorn(spec) (SpecAxiomsAreHorn(spec)&&\

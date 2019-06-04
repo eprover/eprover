@@ -642,7 +642,7 @@ prec_gen={
    "unary_freq"      : "PUnaryFirstFreq",
    "arity"           : "PArity",
    "invarity"        : "PInvArity",
-   "const_max"       : "PConstFirst ",
+   "const_max"       : "PConstMax ",
    "const_min"       : "PInvArConstMin",
    "freq"            : "PByFrequency",
    "invfreq"         : "PByInvFrequency",
