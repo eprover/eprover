@@ -347,6 +347,7 @@ def parse_ordering_info(line):
 
     m = match_lc_l.search(line)
     if m:
+        arg = extract_arg(line, m)
         res = res+ "      oparms.lit_cmp="+litcmp[arg]+";\n"
 
     m = match_to_s.search(line)
