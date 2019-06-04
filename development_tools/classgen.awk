@@ -1,4 +1,4 @@
-#!/opt/local/bin/gawk -f
+#!/sw/bin/gawk -f
 
 # Generate a set of classified terms
 

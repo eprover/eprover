@@ -1,4 +1,4 @@
-#!/opt/local/bin/gawk -f
+#!/sw/bin/gawk -f
 
 # Usage: adapt_testfile.awk <file>
 #

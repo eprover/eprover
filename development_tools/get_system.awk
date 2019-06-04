@@ -1,4 +1,4 @@
-#!/opt/local/bin/gawk -f
+#!/sw/bin/gawk -f
 
 # Usage: get_system.awk [--force]
 #
