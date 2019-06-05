@@ -1240,7 +1240,7 @@ FunCode SigGetOtherEqnCode(Sig_p sig, FunCode f_code)
 FunCode SigGetNewSkolemCode(Sig_p sig, int arity)
 {
    FunCode res;
-   char    new_symbol[24];
+   char    new_symbol[48];
 
    sig->skolem_count++;
    sprintf(new_symbol,"esk%ld_%d",sig->skolem_count,arity);
@@ -1270,7 +1270,7 @@ FunCode SigGetNewSkolemCode(Sig_p sig, int arity)
 FunCode SigGetNewPredicateCode(Sig_p sig, int arity)
 {
    FunCode res;
-   char    new_symbol[26];
+   char    new_symbol[48];
 
    sig->newpred_count++;
    sprintf(new_symbol,"epred%ld_%d",sig->newpred_count,arity);

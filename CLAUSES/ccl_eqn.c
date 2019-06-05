@@ -2332,7 +2332,7 @@ CompareResult LiteralCompare(OCB_p ocb, Eqn_p eq1, Eqn_p eq2)
    }
 
    res = tfo_literal_compare(ocb, eq1, eq2);
-   if(res == to_greater | res == to_lesser)
+   if((res == to_greater) || (res == to_lesser))
    {
       return res;
    }
