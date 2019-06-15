@@ -351,7 +351,7 @@ long    ClauseSetCountPositiveAxioms(ClauseSet_p set);
 long    ClauseSetCountGroundUnitAxioms(ClauseSet_p set);
 #define ClauseSetCountNonGroundUnitAxioms(set) \
         (ClauseSetCountUnitAxioms(set)-ClauseSetCountGroundUnitAxioms(set))
-long    ClauseSetCountTPTPRangeRestricted(ClauseSet_p set);
+long    ClauseSetCountRangeRestricted(ClauseSet_p set);
 double  ClauseSetNonGoundAxiomPart(ClauseSet_p set);
 
 long    ClauseSetCollectArityInformation(ClauseSet_p set,

@@ -481,7 +481,7 @@ long ClauseSetCountPositiveAxioms(ClauseSet_p set)
 
 /*-----------------------------------------------------------------------
 //
-// Function: ClauseSetCountTPTPRangeRestricted()
+// Function: ClauseSetCountRangeRestricted()
 //
 //   Count number of positive ground clauses.
 //
@@ -491,7 +491,7 @@ long ClauseSetCountPositiveAxioms(ClauseSet_p set)
 //
 /----------------------------------------------------------------------*/
 
-long ClauseSetCountTPTPRangeRestricted(ClauseSet_p set)
+long ClauseSetCountRangeRestricted(ClauseSet_p set)
 {
    long     res = 0;
    Clause_p handle;
@@ -499,7 +499,7 @@ long ClauseSetCountTPTPRangeRestricted(ClauseSet_p set)
    for(handle = set->anchor->succ; handle!=set->anchor; handle =
           handle->succ)
    {
-      if(ClauseIsTPTPRangeRestricted(handle))
+      if(ClauseIsRangeRestricted(handle))
       {
          res++;
       }

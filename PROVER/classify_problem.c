@@ -659,7 +659,7 @@ void print_tptp_header(ProofState_p    fstate,
            features.clauses,
            features.clauses-features.horn,
            features.unit,
-           ClauseSetCountTPTPRangeRestricted(fstate->axioms));
+           ClauseSetCountRangeRestricted(fstate->axioms));
    fprintf(GlobalOut,
            "%%            Number of literals   : %4ld "
            "(%4ld equality)\n",

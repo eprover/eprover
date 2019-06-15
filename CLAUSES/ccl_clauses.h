@@ -287,7 +287,7 @@ bool     ClauseIsACRedundant(Clause_p clause);
 
 bool     ClauseIsRangeRestricted(Clause_p clause);
 bool     ClauseIsAntiRangeRestricted(Clause_p clause);
-bool     ClauseIsTPTPRangeRestricted(Clause_p clause);
+
 bool     ClauseIsStronglyRangeRestricted(Clause_p clause);
 EqnSide  ClauseIsEqDefinition(Clause_p clause, int min_arity);
 

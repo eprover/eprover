@@ -4889,7 +4889,7 @@ void SelectMaxLComplexAvoidAppVar(OCB_p ocb, Clause_p clause)
 
 void SelectMaxLComplexStronglyAvoidAppVar(OCB_p ocb, Clause_p clause)
 {
-   generic_app_var_sel(ocb, clause, maxlcomplexstronglyavoidappvar_weight);  
+   generic_app_var_sel(ocb, clause, maxlcomplexstronglyavoidappvar_weight);
 }
 
 /*-----------------------------------------------------------------------
@@ -4906,7 +4906,7 @@ void SelectMaxLComplexStronglyAvoidAppVar(OCB_p ocb, Clause_p clause)
 
 void SelectMaxLComplexPreferAppVar(OCB_p ocb, Clause_p clause)
 {
-   generic_app_var_sel(ocb, clause, maxlcomplexstronglypreferappvar_weight);  
+   generic_app_var_sel(ocb, clause, maxlcomplexstronglypreferappvar_weight);
 }
 
 
@@ -7105,12 +7105,3 @@ void SelectCQIPrecWNTNp(OCB_p ocb, Clause_p clause)
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
-
-
-
-
-
-
-

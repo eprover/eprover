@@ -94,58 +94,6 @@ static bool foundEqLitLater(OCB_p ocb, Eqn_p lits1, Eqn_p lits2)
    return false;
 }
 
-
-/*-----------------------------------------------------------------------
-//
-// Function: term_query_var_prop()
-//
-//   For all subterms with todo set check all variables for query,
-//   return true if one is found, false otherwise.
-//
-
-// Global Variables: -
-//
-// Side Effects    : Changes TPOpFlag
-//
-/----------------------------------------------------------------------*/
-
-static bool term_query_var_prop(Term_p term, TermProperties query,
-                                TermProperties todo)
-{
-   PStack_p stack = PStackAlloc();
-   bool     res = false;
-   int      i;
-
-   PStackPushP(stack, term);
-
-   while(!PStackEmpty(stack))
-   {
-      term = PStackPopP(stack);
-      if(TermCellIsAnyPropSet(term, todo))
-      {
-         TermCellDelProp(term, todo);
-         if(TermIsVar(term))
-         {
-            if(TermCellQueryProp(term, query))
-            {
-               res = true;
-               break;
-            }
-         }
-         else
-         {
-            for(i=0; i<term->arity; i++)
-            {
-               PStackPushP(stack, term->args[i]);
-            }
-         }
-      }
-   }
-   PStackFree(stack);
-   return res;
-}
-
-
 /*-----------------------------------------------------------------------
 //
 // Function: clause_copy_meta()
@@ -180,6 +128,40 @@ Clause_p clause_copy_meta(Clause_p clause)
 
    return handle;
 }
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: clause_collect_posneg_vars()
+//
+//   Collect all the variables in positive literals of clause in
+//   pos_vars, the ones of negative literals in neg_vars.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static void clause_collect_posneg_vars(Clause_p clause,
+                                PTree_p *pos_vars,
+                                PTree_p *neg_vars)
+{
+   Eqn_p   handle;
+
+   for(handle=clause->literals; handle; handle = handle->next)
+   {
+      if(EqnIsPositive(handle))
+      {
+         EqnCollectVariables(handle, pos_vars);
+      }
+      else
+      {
+         EqnCollectVariables(handle, neg_vars);
+      }
+   }
+}
+
 
 
 /*---------------------------------------------------------------------*/
@@ -747,9 +729,6 @@ bool ClauseIsSemEmpty(Clause_p clause)
 //   Return true if clause is range-restricted, i.e. if all variables
 //   occuring in the tail also occur in the head.
 //
-//   Note that this is buggy for negative ground clauses at the
-//   moment!
-//
 // Global Variables: -
 //
 // Side Effects    : Changes TPOpFlag und TPCheckFlag in affected
@@ -759,9 +738,10 @@ bool ClauseIsSemEmpty(Clause_p clause)
 
 bool ClauseIsRangeRestricted(Clause_p clause)
 {
-   Eqn_p    handle;
+   PTree_p pos_vars = NULL, neg_vars = NULL;
+   bool    res;
 
-   if(ClauseIsPositive(clause))
+   if(ClauseIsPositive(clause) || ClauseIsGround(clause))
    {
       return true;
    }
@@ -769,39 +749,13 @@ bool ClauseIsRangeRestricted(Clause_p clause)
    {
       return false;
    }
-   for(handle=clause->literals; handle; handle = handle->next)
-   {
-      if(EqnIsNegative(handle))
-      {
-         TermSetProp(handle->lterm, DEREF_NEVER,
-                     TPOpFlag|TPCheckFlag);
-         TermSetProp(handle->rterm, DEREF_NEVER,
-                     TPOpFlag|TPCheckFlag);
-      }
-   }
-   for(handle=clause->literals; handle; handle = handle->next)
-   {
-      if(EqnIsPositive(handle))
-      {
-         TermDelProp(handle->lterm, DEREF_NEVER, TPCheckFlag);
-         TermDelProp(handle->rterm, DEREF_NEVER, TPCheckFlag);
-      }
-   }
-   for(handle=clause->literals; handle; handle = handle->next)
-   {
-      if(EqnIsNegative(handle))
-      {
-         if(term_query_var_prop(handle->lterm, TPOpFlag, TPCheckFlag))
-         {
-            return false;
-         }
-         if(term_query_var_prop(handle->rterm, TPOpFlag, TPCheckFlag))
-         {
-            return false;
-         }
-      }
-   }
-   return true;
+   clause_collect_posneg_vars(clause, &pos_vars, &neg_vars);
+   res = PTreeIsSubset(neg_vars, &pos_vars);
+
+   PTreeFree(pos_vars);
+   PTreeFree(neg_vars);
+
+   return res;
 }
 
 
@@ -810,8 +764,7 @@ bool ClauseIsRangeRestricted(Clause_p clause)
 // Function: ClauseIsAntiRangeRestricted()
 //
 //   Return true if clause is anti-range-restricted, i.e. if all
-//   variables occuring in the head also occur in the tail. This is
-//   buggy for positive ground clauses!
+//   variables occuring in the head also occur in the tail.
 //
 // Global Variables: -
 //
@@ -822,9 +775,10 @@ bool ClauseIsRangeRestricted(Clause_p clause)
 
 bool ClauseIsAntiRangeRestricted(Clause_p clause)
 {
-   Eqn_p    handle;
+   PTree_p pos_vars = NULL, neg_vars = NULL;
+   bool    res;
 
-   if(ClauseIsNegative(clause))
+   if(ClauseIsNegative(clause) || ClauseIsGround(clause))
    {
       return true;
    }
@@ -832,101 +786,15 @@ bool ClauseIsAntiRangeRestricted(Clause_p clause)
    {
       return false;
    }
-   for(handle=clause->literals; handle; handle = handle->next)
-   {
-      if(EqnIsPositive(handle))
-      {
-         TermSetProp(handle->lterm, DEREF_NEVER,
-                     TPOpFlag|TPCheckFlag);
-         TermSetProp(handle->rterm, DEREF_NEVER,
-                     TPOpFlag|TPCheckFlag);
-      }
-   }
-   for(handle=clause->literals; handle; handle = handle->next)
-   {
-      if(EqnIsNegative(handle))
-      {
-         TermDelProp(handle->lterm, DEREF_NEVER, TPCheckFlag);
-         TermDelProp(handle->rterm, DEREF_NEVER, TPCheckFlag);
-      }
-   }
-   for(handle=clause->literals; handle; handle = handle->next)
-   {
-      if(EqnIsPositive(handle))
-      {
-         if(term_query_var_prop(handle->lterm, TPOpFlag, TPCheckFlag))
-         {
-            return false;
-         }
-         if(term_query_var_prop(handle->rterm, TPOpFlag, TPCheckFlag))
-         {
-            return false;
-         }
-      }
-   }
-   return true;
+
+   clause_collect_posneg_vars(clause, &pos_vars, &neg_vars);
+   res = PTreeIsSubset(pos_vars, &neg_vars);
+
+   PTreeFree(pos_vars);
+   PTreeFree(neg_vars);
+
+   return res;
 }
-
-
-/*-----------------------------------------------------------------------
-//
-// Function: ClauseIsTPTPRangeRestricted()
-//
-//   Return true if clause is range-restricted in the sense of the
-//   TPTP headers, i.e. all variables occuring in the head also occur
-//   in the tail. This fixes a bug from above....positive ground
-//   clauses are range-restricted in this sense!
-//
-// Global Variables: -
-//
-// Side Effects    : Changes TPOpFlag und TPCheckFlag in affected
-//                   term cells
-//
-/----------------------------------------------------------------------*/
-
-bool ClauseIsTPTPRangeRestricted(Clause_p clause)
-{
-   Eqn_p    handle;
-
-   if(ClauseIsNegative(clause))
-   {
-      return true;
-   }
-   for(handle=clause->literals; handle; handle = handle->next)
-   {
-      if(EqnIsPositive(handle))
-      {
-         TermSetProp(handle->lterm, DEREF_NEVER,
-                     TPOpFlag|TPCheckFlag);
-         TermSetProp(handle->rterm, DEREF_NEVER,
-                     TPOpFlag|TPCheckFlag);
-      }
-   }
-   for(handle=clause->literals; handle; handle = handle->next)
-   {
-      if(EqnIsNegative(handle))
-      {
-         TermDelProp(handle->lterm, DEREF_NEVER, TPCheckFlag);
-         TermDelProp(handle->rterm, DEREF_NEVER, TPCheckFlag);
-      }
-   }
-   for(handle=clause->literals; handle; handle = handle->next)
-   {
-      if(EqnIsPositive(handle))
-      {
-         if(term_query_var_prop(handle->lterm, TPOpFlag, TPCheckFlag))
-         {
-            return false;
-         }
-         if(term_query_var_prop(handle->rterm, TPOpFlag, TPCheckFlag))
-         {
-            return false;
-         }
-      }
-   }
-   return true;
-}
-
 
 /*-----------------------------------------------------------------------
 //
@@ -934,9 +802,6 @@ bool ClauseIsTPTPRangeRestricted(Clause_p clause)
 //
 //   Return true if clause is strongly range-restricted, i.e. if
 //   exactly the same variables occur in the tail and in the head.
-//
-//   Note that this is buggy for positive and negative ground clauses
-//   at the moment!
 //
 // Global Variables: -
 //
@@ -947,13 +812,10 @@ bool ClauseIsTPTPRangeRestricted(Clause_p clause)
 
 bool ClauseIsStronglyRangeRestricted(Clause_p clause)
 {
-   Eqn_p     handle;
-   VarBank_p vars;
-   FunCode   i;
-   Term_p    current_var;
-   PStack_p  vars_stack;
+   PTree_p pos_vars = NULL, neg_vars = NULL;
+   bool res;
 
-   if(ClauseIsEmpty(clause))
+   if(ClauseIsEmpty(clause) || ClauseIsGround(clause))
    {
       return true;
    }
@@ -967,45 +829,14 @@ bool ClauseIsStronglyRangeRestricted(Clause_p clause)
    }
 
    assert(clause->literals);
-   vars = clause->literals->bank->vars;
 
-   VarBankVarsSetProp(vars, TPOpFlag|TPCheckFlag);
+   clause_collect_posneg_vars(clause, &pos_vars, &neg_vars);
+   res = PTreeEquiv(pos_vars, neg_vars);
 
-   for(handle=clause->literals; handle; handle = handle->next)
-   {
-      if(EqnIsPositive(handle))
-      {
-         TermDelProp(handle->lterm, DEREF_NEVER,
-                     TPCheckFlag);
-         TermDelProp(handle->rterm, DEREF_NEVER,
-                     TPCheckFlag);
-      }
-      if(EqnIsNegative(handle))
-      {
-         TermDelProp(handle->lterm, DEREF_NEVER,
-                     TPOpFlag);
-         TermDelProp(handle->rterm, DEREF_NEVER,
-                     TPOpFlag);
-      }
-   }
+   PTreeFree(pos_vars);
+   PTreeFree(neg_vars);
 
-   /* now check all variables of the clause */
-   vars_stack = PStackAlloc();
-   VarBankCollectVars(vars, vars_stack);
-
-   for(i=0; i < vars_stack->size; i++)
-   {
-      current_var = PStackElementP(vars_stack, i);
-      assert(current_var);
-      if(!EQUIV(TermCellQueryProp(current_var,TPOpFlag),
-                TermCellQueryProp(current_var,TPCheckFlag)))
-      {
-         PStackFree(vars_stack);
-         return false;
-      }
-   }
-   PStackFree(vars_stack);
-   return true;
+   return res;
 }
 
 

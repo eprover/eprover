@@ -188,7 +188,7 @@ void VarBankFree(VarBank_p junk)
    if(junk->shadow)
    {
       junk->shadow->shadow = NULL;
-   } 
+   }
    VarBankCellFree(junk);
 }
 
@@ -765,7 +765,9 @@ long VarBankCollectVars(VarBank_p bank, PStack_p into)
    FunCode i;
    Term_p t;
 
-   for (i=0; i < PDArraySize(bank->variables); i++)
+
+   printf("VarBankCollectVars()...\n");
+   for (i=0; i < bank->max_var; i++)
    {
       t = PDArrayElementP(bank->variables, i);
       if(t)
@@ -774,6 +776,7 @@ long VarBankCollectVars(VarBank_p bank, PStack_p into)
          res ++;
       }
    }
+   printf("...VarBankCollectVars()\n");
    return res;
 }
 
