@@ -16,7 +16,7 @@
 
   Created: Wed Dec 17 21:17:34 MET 1997
 
------------------------------------------------------------------------*/
+  -----------------------------------------------------------------------*/
 
 #include "clb_ptrees.h"
 
@@ -66,49 +66,49 @@ static PTree_p splay_ptree(PTree_p tree, void* key)
    {
       if(PLesser(key, tree->key))
       {
-    if(!tree->lson)
-    {
-       break;
-    }
-    if(PLesser(key, tree->lson->key))
-    {
-       tmp = tree->lson;
-       tree->lson = tmp->rson;
-       tmp->rson = tree;
-       tree = tmp;
-       if (!tree->lson)
-       {
-          break;
-       }
-    }
-    right->lson = tree;
-    right = tree;
-    tree = tree->lson;
+         if(!tree->lson)
+         {
+            break;
+         }
+         if(PLesser(key, tree->lson->key))
+         {
+            tmp = tree->lson;
+            tree->lson = tmp->rson;
+            tmp->rson = tree;
+            tree = tmp;
+            if (!tree->lson)
+            {
+               break;
+            }
+         }
+         right->lson = tree;
+         right = tree;
+         tree = tree->lson;
       }
       else if(PGreater(key, tree->key))
       {
-    if (!tree->rson)
-    {
-       break;
-    }
-    if(PGreater(key, tree->rson->key))
-    {
-       tmp = tree->rson;
-       tree->rson = tmp->lson;
-       tmp->lson = tree;
-       tree = tmp;
-       if (!tree->rson)
-       {
-          break;
-       }
-    }
-    left->rson = tree;
-    left = tree;
-    tree = tree->rson;
+         if (!tree->rson)
+         {
+            break;
+         }
+         if(PGreater(key, tree->rson->key))
+         {
+            tmp = tree->rson;
+            tree->rson = tmp->lson;
+            tmp->lson = tree;
+            tree = tmp;
+            if (!tree->rson)
+            {
+               break;
+            }
+         }
+         left->rson = tree;
+         left = tree;
+         tree = tree->rson;
       }
       else
       {
-    break;
+         break;
       }
    }
    left->rson = tree->lson;
@@ -175,16 +175,16 @@ void PTreeFree(PTree_p junk)
 
       while(!PStackEmpty(stack))
       {
-    junk = PStackPopP(stack);
-    if(junk->lson)
-    {
-       PStackPushP(stack, junk->lson);
-    }
-    if(junk->rson)
-    {
-       PStackPushP(stack, junk->rson);
-    }
-    PTreeCellFree(junk);
+         junk = PStackPopP(stack);
+         if(junk->lson)
+         {
+            PStackPushP(stack, junk->lson);
+         }
+         if(junk->rson)
+         {
+            PStackPushP(stack, junk->rson);
+         }
+         PTreeCellFree(junk);
       }
       PStackFree(stack);
    }
@@ -313,15 +313,15 @@ PTree_p PTreeFindBinary(PTree_p root, void* key)
    {
       if(PLesser(key, root->key))
       {
-    root = root->lson;
+         root = root->lson;
       }
       else if(PGreater(key, root->key))
       {
-    root = root->rson;
+         root = root->rson;
       }
       else
       {
-    break;
+         break;
       }
    }
    return root;
@@ -357,12 +357,12 @@ PTree_p PTreeExtractEntry(PTree_p *root, void* key)
    {
       if (!(*root)->lson)
       {
-    x = (*root)->rson;
+         x = (*root)->rson;
       }
       else
       {
-    x = splay_ptree((*root)->lson, key);
-    x->rson = (*root)->rson;
+         x = splay_ptree((*root)->lson, key);
+         x->rson = (*root)->rson;
       }
       cell = *root;
       cell->lson = cell->rson = NULL;
@@ -476,17 +476,17 @@ bool PTreeMerge(PTree_p *root, PTree_p add)
       add = PStackPopP(stack);
       if(add)
       {
-    PStackPushP(stack, add->lson);
-    PStackPushP(stack, add->rson);
-    tmp = PTreeInsert(root, add);
-    if(tmp)
-    {
-       PTreeCellFree(add);
-    }
-    else
-    {
-       res = true;
-    }
+         PStackPushP(stack, add->lson);
+         PStackPushP(stack, add->rson);
+         tmp = PTreeInsert(root, add);
+         if(tmp)
+         {
+            PTreeCellFree(add);
+         }
+         else
+         {
+            res = true;
+         }
       }
    }
    PStackFree(stack);
@@ -517,9 +517,9 @@ void PTreeInsertTree(PTree_p *root, PTree_p add)
       add = PStackPopP(stack);
       if(add)
       {
-    PStackPushP(stack, add->lson);
-    PStackPushP(stack, add->rson);
-    PTreeStore(root, add->key);
+         PStackPushP(stack, add->lson);
+         PStackPushP(stack, add->rson);
+         PTreeStore(root, add->key);
       }
    }
    PStackFree(stack);
@@ -550,9 +550,9 @@ long PTreeNodes(PTree_p root)
       root = PStackPopP(stack);
       if(root)
       {
-    PStackPushP(stack, root->lson);
-    PStackPushP(stack, root->rson);
-    res++;
+         PStackPushP(stack, root->lson);
+         PStackPushP(stack, root->rson);
+         res++;
       }
    }
    PStackFree(stack);
@@ -586,14 +586,14 @@ long PTreeDebugPrint(FILE* out, PTree_p root)
       root = PStackPopP(stack);
       if(root)
       {
-    if(res % 10 == 0)
-    {
-       fprintf(out, "\n#");
-    }
-    fprintf(out, " %7p", root->key);
-    PStackPushP(stack, root->lson);
-    PStackPushP(stack, root->rson);
-    res++;
+         if(res % 10 == 0)
+         {
+            fprintf(out, "\n#");
+         }
+         fprintf(out, " %7p", root->key);
+         PStackPushP(stack, root->lson);
+         PStackPushP(stack, root->rson);
+         res++;
       }
    }
    PStackFree(stack);
@@ -626,7 +626,7 @@ long PStackToPTree(PTree_p *root, PStack_p stack)
    {
       if(PTreeStore(root, PStackElementP(stack,i)))
       {
-    res++;
+         res++;
       }
    }
    return res;
@@ -659,10 +659,10 @@ long PTreeToPStack(PStack_p target_stack, PTree_p root)
       handle = PStackPopP(stack);
       if(handle)
       {
-    PStackPushP(target_stack, handle->key);
-    res++;
-    PStackPushP(stack,handle->lson);
-    PStackPushP(stack,handle->rson);
+         PStackPushP(target_stack, handle->key);
+         res++;
+         PStackPushP(stack,handle->lson);
+         PStackPushP(stack,handle->rson);
       }
    }
    PStackFree(stack);
@@ -699,14 +699,14 @@ void* PTreeSharedElement(PTree_p *tree1, PTree_p tree2)
       handle = PStackPopP(stack);
       if(handle)
       {
-    tmp = PTreeFind(tree1, handle->key);
-    if(tmp)
-    {
-       res = tmp->key;
-       break;
-    }
-    PStackPushP(stack,handle->lson);
-    PStackPushP(stack,handle->rson);
+         tmp = PTreeFind(tree1, handle->key);
+         if(tmp)
+         {
+            res = tmp->key;
+            break;
+         }
+         PStackPushP(stack,handle->lson);
+         PStackPushP(stack,handle->rson);
       }
    }
    PStackFree(stack);
@@ -738,13 +738,13 @@ PTree_p PTreeIntersection(PTree_p tree1, PTree_p tree2)
       handle = PStackPopP(stack);
       if(handle)
       {
-    tmp = PTreeFindBinary(tree1, handle->key);
-    if(tmp)
-    {
-       PTreeStore(&res, handle->key);
-    }
-    PStackPushP(stack,handle->lson);
-    PStackPushP(stack,handle->rson);
+         tmp = PTreeFindBinary(tree1, handle->key);
+         if(tmp)
+         {
+            PTreeStore(&res, handle->key);
+         }
+         PStackPushP(stack,handle->lson);
+         PStackPushP(stack,handle->rson);
       }
    }
    PStackFree(stack);
@@ -774,11 +774,11 @@ long PTreeDestrIntersection(PTree_p *tree1, PTree_p tree2)
    {
       if(PTreeFindBinary(tree2, key))
       {
-    PTreeStore(&tmp, key);
+         PTreeStore(&tmp, key);
       }
       else
       {
-    res++;
+         res++;
       }
    }
    assert(!(*tree1));
@@ -812,16 +812,15 @@ PTree_p PTreeCopy(PTree_p tree)
       handle = PStackPopP(stack);
       if(handle)
       {
-    PTreeStore(&res, handle->key);
-    PStackPushP(stack,handle->lson);
-    PStackPushP(stack,handle->rson);
+         PTreeStore(&res, handle->key);
+         PStackPushP(stack,handle->lson);
+         PStackPushP(stack,handle->rson);
       }
    }
    PStackFree(stack);
    return res;
 }
 
-AVL_TRAVERSE_DEFINITION(PTree, PTree_p)
 
 /*-----------------------------------------------------------------------
 //
@@ -845,8 +844,8 @@ bool PTreeEquiv(PTree_p t1, PTree_p t2)
 
    while((handle1 = PTreeTraverseNext(iter1)))
    {
-      handle2= PTreeTraverseNext(iter2);
-      if(handle1 != handle2)
+      handle2 = PTreeTraverseNext(iter2);
+      if(!handle2 || (handle1->key != handle2->key))
       {
          res = false;
          break;
@@ -887,7 +886,7 @@ bool PTreeIsSubset(PTree_p sub, PTree_p *super)
 
    while((handle = PTreeTraverseNext(iter)))
    {
-      if(!PTreeFind(super, handle))
+      if(!PTreeFind(super, handle->key))
       {
          res = false;
          break;
@@ -926,6 +925,7 @@ void  PTreeVisitInOrder(PTree_p t, void (*visitor)(void*))
 }
 
 
+AVL_TRAVERSE_DEFINITION(PTree, PTree_p)
 
 
 /*---------------------------------------------------------------------*/
