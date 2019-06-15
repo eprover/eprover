@@ -1,23 +1,20 @@
 /*-----------------------------------------------------------------------
 
-File  : clb_ptrees.c
+  File  : clb_ptrees.c
 
-Author: Stephan Schulz
+  Author: Stephan Schulz
 
-Contents
+  Contents
 
   Functions for pointer storing SPLAY trees.
 
-  Copyright 1998, 1999 by the author.
+  Copyright 1998-2019 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
-
-<1> Wed Dec 17 21:17:34 MET 1997
-    New
+  Created: Wed Dec 17 21:17:34 MET 1997
 
 -----------------------------------------------------------------------*/
 
@@ -828,6 +825,82 @@ AVL_TRAVERSE_DEFINITION(PTree, PTree_p)
 
 /*-----------------------------------------------------------------------
 //
+// Function: PTreeEquiv()
+//
+//   Determin if two PTrees contain the same pointers.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+bool PTreeEquiv(PTree_p t1, PTree_p t2)
+{
+   bool res =  true;
+   PStack_p iter1 = PTreeTraverseInit(t1);
+   PStack_p iter2 = PTreeTraverseInit(t2);
+
+   PTree_p  handle1, handle2;
+
+   while((handle1 = PTreeTraverseNext(iter1)))
+   {
+      handle2= PTreeTraverseNext(iter2);
+      if(handle1 != handle2)
+      {
+         res = false;
+         break;
+      }
+   }
+   if(!handle1)
+   {
+      handle2= PTreeTraverseNext(iter2);
+      if(handle2)
+      {
+         res = false;
+      }
+   }
+   PTreeTraverseExit(iter2);
+   PTreeTraverseExit(iter1);
+   return res;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: PTreeIsSubset()
+//
+//   Determine if pointers stored in sub are a subset of pointers
+//   stored in super.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+bool PTreeIsSubset(PTree_p sub, PTree_p *super)
+{
+   bool res =  true;
+   PStack_p iter = PTreeTraverseInit(sub);
+
+   PTree_p  handle;
+
+   while((handle = PTreeTraverseNext(iter)))
+   {
+      if(!PTreeFind(super, handle))
+      {
+         res = false;
+         break;
+      }
+   }
+   PTreeTraverseExit(iter);
+
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: PTreeVisitInOrder()
 //
 //   Apply function visitor to every key stored in PTree t. Nodes will be
@@ -852,10 +925,9 @@ void  PTreeVisitInOrder(PTree_p t, void (*visitor)(void*))
    PTreeTraverseExit(iter);
 }
 
+
+
+
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
-
-

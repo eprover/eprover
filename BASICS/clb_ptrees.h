@@ -1,10 +1,10 @@
 /*-----------------------------------------------------------------------
 
-File  : clb_ptrees.h
+  File  : clb_ptrees.h
 
-Author: Stephan Schulz
+  Author: Stephan Schulz
 
-Contents
+  Contents
 
   Data structures for the efficient management of pointer
   sets. I substituted this SPLAY tree version as it consumes less
@@ -18,13 +18,9 @@ Contents
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
+  Changes
 
-<1> Thu Sep 25 02:36:58 MET DST 1997
-    New
-<2> Wed Jan 27 17:05:13 MET 1999
-    Moved over to D. Sleators splay trees. You can find the old code
-    in clb_ptrees_avl.[ch] at the moment.
+  Created: Thu Sep 25 02:36:58 MET DST 1997
 
 -----------------------------------------------------------------------*/
 
@@ -99,6 +95,9 @@ void*   PTreeSharedElement(PTree_p *tree1, PTree_p tree2);
 PTree_p PTreeIntersection(PTree_p tree1, PTree_p tree2);
 long    PTreeDestrIntersection(PTree_p *tree1, PTree_p tree2);
 PTree_p PTreeCopy(PTree_p tree1);
+bool    PTreeEquiv(PTree_p t1, PTree_p t2);
+bool    PTreeIsSubset(PTree_p sub, PTree_p *super);
+
 
 void    PTreeVisitInOrder(PTree_p t, void (*visitor)(void*));
 
@@ -130,8 +129,3 @@ static __inline__ int PCmpFun(void* p1, void*p2)
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
-
-
-
