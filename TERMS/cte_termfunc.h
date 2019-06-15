@@ -32,7 +32,7 @@
 /*---------------------------------------------------------------------*/
 
 /* Variable normalization style */
-typedef enum 
+typedef enum
 {
    NSNone = -1,      /* none */
    NSUnivar = 0,     /* unify all variables */
@@ -142,8 +142,8 @@ void    TermAddSymbolFeatures(Term_p term, PStack_p mod_stack,
 void    TermComputeFunctionRanks(Term_p term, long *rank_array, long *count);
 long    TermCollectPropVariables(Term_p term, PTree_p *tree,
                                  TermProperties prop);
-#define TermCollectVariables(term,tree)                         \
-   TermCollectPropVariables((term), (tree), TPIgnoreProps)
+long    TermCollectVariables(Term_p term, PTree_p *tree);
+
 long    TermAddFunOcc(Term_p term, PDArray_p f_occur, PStack_p res_stack);
 
 long    TermLinearize(PStack_p stack, Term_p term);
@@ -164,7 +164,7 @@ bool TermFindFOOLSubterm(Term_p t, PStack_p pos);
 Term_p TermCopyUnifyVars(VarBank_p vars, Term_p term);
 Term_p TermCopyRenameVars(NumTree_p* renaming, Term_p term);
 Term_p TermCopyNormalizeVarsAlpha(VarBank_p vars, Term_p term);
-Term_p TermCopyNormalizeVars(VarBank_p vars, Term_p term, 
+Term_p TermCopyNormalizeVars(VarBank_p vars, Term_p term,
                              VarNormStyle var_norm);
 
 /*-----------------------------------------------------------------------

@@ -101,7 +101,7 @@ static bool foundEqLitLater(OCB_p ocb, Eqn_p lits1, Eqn_p lits2)
 //   Return a copy of the clause cell, but without literals.
 //
 // Global Variables: -
-//
+//w
 // Side Effects    : Memory operations
 //
 /----------------------------------------------------------------------*/
@@ -147,17 +147,18 @@ static void clause_collect_posneg_vars(Clause_p clause,
                                 PTree_p *pos_vars,
                                 PTree_p *neg_vars)
 {
-   Eqn_p   handle;
+   Eqn_p handle;
+   long collected = 0;
 
    for(handle=clause->literals; handle; handle = handle->next)
    {
       if(EqnIsPositive(handle))
       {
-         EqnCollectVariables(handle, pos_vars);
+         collected += EqnCollectVariables(handle, pos_vars);
       }
       else
       {
-         EqnCollectVariables(handle, neg_vars);
+         collected += EqnCollectVariables(handle, neg_vars);
       }
    }
 }
@@ -727,7 +728,8 @@ bool ClauseIsSemEmpty(Clause_p clause)
 // Function: ClauseIsRangeRestricted()
 //
 //   Return true if clause is range-restricted, i.e. if all variables
-//   occuring in the tail also occur in the head.
+//   occuring in the tail (negative literals) also occur in the head
+//   (positive literals).
 //
 // Global Variables: -
 //
@@ -741,20 +743,25 @@ bool ClauseIsRangeRestricted(Clause_p clause)
    PTree_p pos_vars = NULL, neg_vars = NULL;
    bool    res;
 
+   //printf("RR: "); ClausePrintAxiom(stdout, clause, true);
    if(ClauseIsPositive(clause) || ClauseIsGround(clause))
    {
+      //printf("=> Ttrue\n");
       return true;
    }
    else if(ClauseIsNegative(clause))
    {
+      //printf("=> Tfalse ");
       return false;
    }
    clause_collect_posneg_vars(clause, &pos_vars, &neg_vars);
+
    res = PTreeIsSubset(neg_vars, &pos_vars);
 
    PTreeFree(pos_vars);
    PTreeFree(neg_vars);
 
+   //printf("=> %s\n", res?"true":"false");
    return res;
 }
 
@@ -815,12 +822,15 @@ bool ClauseIsStronglyRangeRestricted(Clause_p clause)
    PTree_p pos_vars = NULL, neg_vars = NULL;
    bool res;
 
+   //printf("StrongRR: "); ClausePrintAxiom(stdout, clause, true);
    if(ClauseIsEmpty(clause) || ClauseIsGround(clause))
    {
+      //printf("=> Ttrue\n");
       return true;
    }
    else if(ClauseIsPositive(clause))
    {
+      //printf("=> Tfalse\n");
       return false;
    }
    else if(ClauseIsNegative(clause))
@@ -835,7 +845,7 @@ bool ClauseIsStronglyRangeRestricted(Clause_p clause)
 
    PTreeFree(pos_vars);
    PTreeFree(neg_vars);
-
+   //printf("=> %s\n", res?"true":"false");
    return res;
 }
 

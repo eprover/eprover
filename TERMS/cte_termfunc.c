@@ -2032,6 +2032,50 @@ long TermCollectPropVariables(Term_p term, PTree_p *tree,
    return res;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: TermCollectVariables()
+//
+//   Insert all variables in term into
+//   tree. Return number of new variables.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+long TermCollectVariables(Term_p term, PTree_p *tree)
+{
+   long res = 0;
+   PStack_p stack = PStackAlloc();
+   int      i;
+
+   PStackPushP(stack,term);
+
+   while(!PStackEmpty(stack))
+   {
+      term = PStackPopP(stack);
+      if(TermIsVar(term))
+      {
+         if(PTreeStore(tree, term))
+         {
+            res++;
+         }
+      }
+      else
+      {
+         for(i=0; i<term->arity; i++)
+         {
+            PStackPushP(stack,term->args[i]);
+         }
+      }
+   }
+   PStackFree(stack);
+
+   return res;
+}
+
 
 
 /*-----------------------------------------------------------------------
