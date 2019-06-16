@@ -145,6 +145,8 @@ def trans_heuristic_name(name):
     tmp = re.sub('p[^_]*_', "", name);
     tmp = re.sub(dash,"_", tmp)
     tmp = re.sub('[.]csv',"", tmp)
+    if not tmp[0] in string.ascii_letters:
+        tmp = "h"+tmp
     return tmp
 
 

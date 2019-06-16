@@ -18,7 +18,7 @@ include ../Makefile.vars
 PROJECT = eprover e_ltb_runner e_stratpar e_deduction_server e_axfilter \
 	  classify_problem e_client e_server\
           direct_examples epclanalyse epclextract checkproof eground\
-          enormalizer edpll epcllemma\
+          enormalizer edpll epcllemma \
           ekb_create ekb_insert ekb_ginsert ekb_delete $(EHOH)
 LIB     = $(PROJECT)
 all: $(LIB)
@@ -29,9 +29,8 @@ depend: *.c
 # Remove all automatically generated files
 
 clean:
-	@touch does_exist.o does_exist.dSYM $(PROJECT)
-	@rm -r *.o $(PROJECT) *.dSYM
-	@rm -f eprover-ho
+	@rm -rf *.o $(PROJECT) *.dSYM termprops tsm_classify
+	@rm -rf eprover-ho
 
 # Services (provided by the master Makefile)
 
@@ -201,13 +200,13 @@ EKB_DELETE = ekb_delete.o \
 ekb_delete: $(EKB_DELETE)
 	$(LD) -o ekb_delete $(EKB_DELETE) $(LIBS)
 
-TSM_CLASSIFY = tsm_classify.o \
-            ../lib/LEARN.a ../lib/CLAUSES.a \
-            ../lib/ORDERINGS.a \
-            ../lib/TERMS.a ../lib/INOUT.a ../lib/BASICS.a ../lib/CONTRIB.a
+#TSM_CLASSIFY = tsm_classify.o \
+#            ../lib/LEARN.a ../lib/CLAUSES.a \
+#            ../lib/ORDERINGS.a \
+#            ../lib/TERMS.a ../lib/INOUT.a ../lib/BASICS.a ../lib/CONTRIB.a
 
-tsm_classify: $(TSM_CLASSIFY)
-	$(LD) -o tsm_classify $(TSM_CLASSIFY) $(LIBS)
+#tsm_classify: $(TSM_CLASSIFY)
+#	$(LD) -o tsm_classify $(TSM_CLASSIFY) $(LIBS)
 
 
 include Makefile.dependencies
