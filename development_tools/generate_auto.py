@@ -73,7 +73,6 @@ def parse_prot(filename, stratname, matrix, succ_cases):
                     time   = float(tuple[2])
                 except ValueError:
                     time = 10000
-                time=float(tuple[2])
                 old = matrix[cl][stratname]
                 matrix[cl][stratname]=tuple_add2(old,(1,time))
                 old = stratperf[stratname];
