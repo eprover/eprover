@@ -69,6 +69,10 @@ def parse_prot(filename, stratname, matrix, succ_cases):
             prob = compute_problem_stem(tuple[0]);
             if (problems.has_key(prob)) and (tuple[1] in succ_cases):
                 cl=problems[prob]
+                try:
+                    time   = float(tuple[2])
+                except ValueError:
+                    time = 10000
                 time=float(tuple[2])
                 old = matrix[cl][stratname]
                 matrix[cl][stratname]=tuple_add2(old,(1,time))
