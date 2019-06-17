@@ -450,7 +450,7 @@ selstrat={
    "SelectMinOptimalNoRXTypePred"       : "SelectMinOptimalNoRXTypePred",
    "PSelectMinOptimalNoRXTypePred"      : "PSelectMinOptimalNoRXTypePred",
    "SelectCondOptimalLit"               : "SelectCondOptimalLiteral",
-   "PSelectCondOptimalLit"              : "PSelectCondOptimaslLiteral",
+   "PSelectCondOptimalLit"              : "PSelectCondOptimalLiteral",
    "SelectAllCondOptimalLit"            : "SelectAllCondOptimalLiteral",
    "PSelectAllCondOptimalLit"           : "PSelectAllCondOptimalLiteral",
    "SelectOptimalRestrDepth2"           : "SelectDepth2OptimalLiteral",
