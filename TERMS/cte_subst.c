@@ -377,7 +377,8 @@ void SubstSkolemizeTerm(Term_p term, Subst_p subst, Sig_p sig)
 // Function: SubstCompleteInstance()
 //
 //   Add bindings for all free variables in term subst, binding them
-//   to default_term.
+//   to default_term. Note that this function is likely obsolete for
+//   most cases with the introduction of many-sorted logic.
 //
 // Global Variables: -
 //
@@ -411,8 +412,8 @@ void SubstCompleteInstance(Subst_p subst, Term_p term,
 // Function: SubstBindAppVar()
 //
 //   Bind variable var to prefix of term to_bind with up_to arguments
-//   eaten. Prefix will potentially be created (if it is a proper 
-//   non-variable prefix). 
+//   eaten. Prefix will potentially be created (if it is a proper
+//   non-variable prefix).
 //
 //    IMPORTANT: If prefix is created it will be shared.
 //
@@ -437,9 +438,9 @@ PStackPointer SubstBindAppVar(Subst_p subst, Term_p var, Term_p to_bind, int up_
    to_bind_pref->type = var->type;
 
    // if term is not shared it is prefix
-   var->binding = TermIsShared(to_bind_pref) ? 
+   var->binding = TermIsShared(to_bind_pref) ?
                      to_bind_pref : TBTermTopInsert(bank, to_bind_pref);
-   PStackPushP(subst, var);    
+   PStackPushP(subst, var);
 
    return ret;
 }
