@@ -518,7 +518,7 @@ selstrat={
 
    "SelectMaxLComplexAvoidPosPred"      : "SelectMaxLComplexAvoidPosPred",
    "SelectMaxLComplexAPPNTNp"           : "SelectMaxLComplexAPPNTNp",
-   "SelectMaxLComplexAPPNoType",        : "SelectMaxLComplexAPPNoType",
+   "SelectMaxLComplexAPPNoType"         : "SelectMaxLComplexAPPNoType",
    "SelectMaxLComplexAvoidPosUPred"     : "SelectMaxLComplexAvoidPosUPred",
    "SelectComplexG"                     : "SelectComplexG",
 
