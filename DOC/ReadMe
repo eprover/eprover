@@ -28,6 +28,8 @@ Problem is CNF and satisfiable:
 Problem is FOF and a theorem:
 
 # SZS status Theorem
+or
+# SZS status ContradictoryAxioms
 
 Problem is FOF and not a theorem:
 
