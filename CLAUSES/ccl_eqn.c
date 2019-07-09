@@ -2714,7 +2714,7 @@ long EqnMaxTermPositions(Eqn_p eqn)
 {
    long res = TermWeight(eqn->lterm, 1, 1);
 
-   if(EqnIsOriented(eqn))
+   if(!EqnIsOriented(eqn))
    {
       res += TermWeight(eqn->rterm, 1, 1);
    }

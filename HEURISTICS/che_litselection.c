@@ -5175,7 +5175,7 @@ void SelectComplexG(OCB_p ocb, Clause_p clause)
 
 /*-----------------------------------------------------------------------
 //
-// Function: complex_weight_ahp
+// Function: complex_weight_ahp()
 //
 //   Implement a weight function mimicking the old SelectComplex, but,
 //   other things being equal, avoid head predicate symbols.
@@ -5282,7 +5282,7 @@ void PSelectComplexAHP(OCB_p ocb, Clause_p clause)
 
 /*-----------------------------------------------------------------------
 //
-// Function: new_complex_notp_ahp
+// Function: new_complex_notp_ahp()
 //
 //   Implement a weight function mimicking the old SelectNewComplex,
 //   but, other things being equal, avoid head predicate symbols.
@@ -5337,7 +5337,7 @@ static void new_complex_notp_ahp(LitEval_p lit, Clause_p clause,
 
 /*-----------------------------------------------------------------------
 //
-// Function: SelectNewComplexAHP
+// Function: SelectNewComplexAHP()
 //
 //   Mimic SelectNewComplex(),  but with the AHP property.
 //
