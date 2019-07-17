@@ -1,26 +1,23 @@
 /*-----------------------------------------------------------------------
 
-File  : ekb_ginsert.c
+  File  : ekb_ginsert.c
 
-Author: Stephan Schulz
+  Author: Stephan Schulz
 
-Contents
+  Contents
 
   Generate new training examples from protocols and insert them into a
   knowledge base.
 
-Copyright 1998-2011 by the author.
+  Copyright 1998-2011 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
+  Created: Wed Jul 28 16:21:33 MET DST 1999
 
-<1> Wed Jul 28 16:21:33 MET DST 1999
-    New
-
------------------------------------------------------------------------*/
+  -----------------------------------------------------------------------*/
 
 #include <cio_commandline.h>
 #include <cio_fileops.h>
@@ -116,7 +113,7 @@ int main(int argc, char* argv[])
    Sig_p           reserved_symbols;
    Scanner_p       in;
    KBDesc_p        kb_desc;
-   char            defaultname[30];
+   char            defaultname[40];
    int             i;
    PCLProt_p       prot;
    long            proof_steps, neg_steps;
@@ -153,14 +150,14 @@ int main(int argc, char* argv[])
 
    proof_examples = ExampleSetAlloc();
    in = CreateScanner(StreamTypeFile,
-            KBFileName(name, kb_name, "problems"),
-            true, NULL);
+                      KBFileName(name, kb_name, "problems"),
+                      true, NULL);
    ExampleSetParse(in, proof_examples);
    DestroyScanner(in);
 
    in = CreateScanner(StreamTypeFile,
-            KBFileName(name, kb_name, "description"),
-            true, NULL);
+                      KBFileName(name, kb_name, "description"),
+                      true, NULL);
    kb_desc = KBDescParse(in);
    DestroyScanner(in);
 
@@ -171,7 +168,7 @@ int main(int argc, char* argv[])
    if(!ex_name)
    {
       sprintf(defaultname, "__problem__%ld",
-         proof_examples->count+1);
+              proof_examples->count+1);
       ex_name = defaultname;
    }
    if(ExampleSetFindName(proof_examples, ex_name))
@@ -263,7 +260,7 @@ int main(int argc, char* argv[])
    in = CreateScanner(StreamTypeFile, DStrView(store_file), true, NULL);
 
    KBParseExampleFile(in, ex_name, proof_examples, clause_examples,
-            reserved_symbols);
+                      reserved_symbols);
    DestroyScanner(in);
    DStrFree(store_file);
 
@@ -327,23 +324,23 @@ CLState_p process_options(int argc, char* argv[])
       switch(handle->option_code)
       {
       case OPT_VERBOSE:
-       Verbose = CLStateGetIntArg(handle, arg);
-       break;
+            Verbose = CLStateGetIntArg(handle, arg);
+            break;
       case OPT_HELP:
-       print_help(stdout);
-       exit(NO_ERROR);
+            print_help(stdout);
+            exit(NO_ERROR);
       case OPT_VERSION:
-       printf("ekb_ginsert " VERSION "\n");
-       exit(NO_ERROR);
+            printf("ekb_ginsert " VERSION "\n");
+            exit(NO_ERROR);
       case OPT_KB:
-       kb_name = arg;
-       break;
+            kb_name = arg;
+            break;
       case OPT_NAME:
-       ex_name = arg;
-       break;
-     default:
-    assert(false);
-    break;
+            ex_name = arg;
+            break;
+      default:
+            assert(false);
+            break;
       }
    }
    return state;
@@ -352,46 +349,46 @@ CLState_p process_options(int argc, char* argv[])
 void print_help(FILE* out)
 {
    fprintf(out, "\n\
-\n\
-ekb_ginsert " VERSION "\n\
-\n\
-Usage: ekb_ginsert [options] [name]\n\
-\n\
-Generate a set of training examples from an E inference list (i.e. an\n\
+\n                                              \
+ekb_ginsert " VERSION "\n                       \
+\n                                              \
+Usage: ekb_ginsert [options] [name]\n           \
+\n                                                                      \
+Generate a set of training examples from an E inference list (i.e. an\n \
 EPCL trace of a proof run) and insert it into a knowledge base.\n\n");
    PrintOptions(stdout, opts, "Options\n\n");
    fprintf(out, "\n\
-Copyright (C) 1999-20012 by Stephan Schulz, " STS_MAIL "\n\
-\n\
-This program is a part of the support structure for the E equational\n\
-theorem prover. You can find the latest version of the E distribution\n\
-as well as additional information at\n\
-" E_URL "\
-\n\n\
-This program is free software; you can redistribute it and/or modify\n\
-it under the terms of the GNU General Public License as published by\n\
-the Free Software Foundation; either version 2 of the License, or\n\
-(at your option) any later version.\n\
-\n\
-This program is distributed in the hope that it will be useful,\n\
-but WITHOUT ANY WARRANTY; without even the implied warranty of\n\
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n\
-GNU General Public License for more details.\n\
-\n\
-You should have received a copy of the GNU General Public License\n\
-along with this program (it should be contained in the top level\n\
-directory of the distribution in the file COPYING); if not, write to\n\
-the Free Software Foundation, Inc., 59 Temple Place, Suite 330,\n\
-Boston, MA  02111-1307 USA\n\
-\n\
-The original copyright holder can be contacted as\n\
-\n\
-Stephan Schulz\n\
-Technische Universitaet Muenchen\n\
-Fakultaet fuer Informatik\n\
-Arcisstrasse 20\n\
-D-80290 Muenchen\n\
-Germany\n\
+Copyright (C) 1999-20012 by Stephan Schulz, " STS_MAIL "\n      \
+\n                                                                      \
+This program is a part of the support structure for the E equational\n  \
+theorem prover. You can find the latest version of the E distribution\n \
+as well as additional information at\n                                  \
+" E_URL "                                                               \
+\n\n                                                                    \
+This program is free software; you can redistribute it and/or modify\n  \
+it under the terms of the GNU General Public License as published by\n  \
+the Free Software Foundation; either version 2 of the License, or\n     \
+(at your option) any later version.\n                                   \
+\n                                                                      \
+This program is distributed in the hope that it will be useful,\n       \
+but WITHOUT ANY WARRANTY; without even the implied warranty of\n        \
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n         \
+GNU General Public License for more details.\n                          \
+\n                                                                      \
+You should have received a copy of the GNU General Public License\n     \
+along with this program (it should be contained in the top level\n      \
+directory of the distribution in the file COPYING); if not, write to\n  \
+the Free Software Foundation, Inc., 59 Temple Place, Suite 330,\n       \
+Boston, MA  02111-1307 USA\n                                            \
+\n                                                                      \
+The original copyright holder can be contacted as\n                     \
+\n                                                                      \
+Stephan Schulz\n                                                        \
+Technische Universitaet Muenchen\n                                      \
+Fakultaet fuer Informatik\n                                             \
+Arcisstrasse 20\n                                                       \
+D-80290 Muenchen\n                                                      \
+Germany\n                                                               \
 ");
 
 }
@@ -400,5 +397,3 @@ Germany\n\
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-

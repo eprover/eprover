@@ -1644,11 +1644,10 @@ TFormula_p TFormulaMiniScope3(TB_p terms, TFormula_p form,
 {
    PTree_p    ms_forms = NULL, entry;
    bool       exq = false;
-   long       size;
    TFormula_p cand;
 
-   size = tform_find_miniscopeable(terms->sig, form, miniscope_limit,
-                                   &ms_forms, &exq);
+   tform_find_miniscopeable(terms->sig, form, miniscope_limit,
+                            &ms_forms, &exq);
 
    if(ms_forms)
    {

@@ -1,10 +1,10 @@
 /*-----------------------------------------------------------------------
 
-File  : ekb_insert.c
+  File  : ekb_insert.c
 
-Author: Stephan Schulz
+  Author: Stephan Schulz
 
-Contents
+  Contents
 
   Insert an new training example file into a knowledge base.
 
@@ -14,15 +14,9 @@ Contents
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
+  Created: Jul 28 16:21:33 MET DST 1999
 
-<1> Wed Jul 28 16:21:33 MET DST 1999
-    New
-<2> Sun May  7 20:48:22 CEST 2006
-    Changed semantics for more efficiency (suggested and prototyped by
-    Josef Urban, <urban@ktilinux.ms.mff.cuni.cz>
-
------------------------------------------------------------------------*/
+  -----------------------------------------------------------------------*/
 
 #include <cio_commandline.h>
 #include <cio_output.h>
@@ -116,7 +110,7 @@ int main(int argc, char* argv[])
    TypeBank_p      typebank;
    Sig_p           reserved_symbols;
    Scanner_p       in;
-   char            defaultname[30];
+   char            defaultname[40];
    int             i;
 
    assert(argv[0]);
@@ -133,8 +127,8 @@ int main(int argc, char* argv[])
     */
    proof_examples = ExampleSetAlloc();
    in = CreateScanner(StreamTypeFile,
-            KBFileName(name, kb_name, "problems"),
-            true, NULL);
+                      KBFileName(name, kb_name, "problems"),
+                      true, NULL);
    ExampleSetParse(in, proof_examples);
    DestroyScanner(in);
 
@@ -142,14 +136,14 @@ int main(int argc, char* argv[])
    reserved_symbols = SigAlloc(typebank);
 
    in = CreateScanner(StreamTypeFile,
-            KBFileName(name, kb_name, "signature"),
-            true, NULL);
+                      KBFileName(name, kb_name, "signature"),
+                      true, NULL);
    SigParse(in, reserved_symbols, true);
    DestroyScanner(in);
 
    in = CreateScanner(StreamTypeFile,
-            KBFileName(name, kb_name, "clausepatterns"),
-            true, NULL);
+                      KBFileName(name, kb_name, "clausepatterns"),
+                      true, NULL);
    annoterms = TBAlloc(reserved_symbols);
    clause_examples = AnnoSetParse(in, annoterms, KB_ANNOTATION_NO);
    DestroyScanner(in);
@@ -170,26 +164,26 @@ int main(int argc, char* argv[])
 
       if(!ex_name && state->argv[i] && (strcmp(state->argv[i], "-")!= 0))
       {
-    ex_name = FileFindBaseName(state->argv[i]);
+         ex_name = FileFindBaseName(state->argv[i]);
       }
 
       if(!ex_name)
       {
-    sprintf(defaultname, "__problem__%ld",
-       proof_examples->count+1);
-    ex_name = defaultname;
+         sprintf(defaultname, "__problem__%ld",
+                 proof_examples->count+1);
+         ex_name = defaultname;
       }
 
       if(ExampleSetFindName(proof_examples, ex_name))
       {
-    DStr_p error = DStrAlloc();
+         DStr_p error = DStrAlloc();
 
-    DStrAppendStr(error, "Example name '");
-    DStrAppendStr(error, ex_name);
-    DStrAppendStr(error, "' already in use");
-    Error(DStrView(error), USAGE_ERROR);
+         DStrAppendStr(error, "Example name '");
+         DStrAppendStr(error, ex_name);
+         DStrAppendStr(error, "' already in use");
+         Error(DStrView(error), USAGE_ERROR);
 
-    DStrFree(error);
+         DStrFree(error);
       }
 
       VERBOUTARG("New example will use name ", ex_name);
@@ -207,7 +201,7 @@ int main(int argc, char* argv[])
       in = CreateScanner(StreamTypeFile, DStrView(store_file), true, NULL);
 
       KBParseExampleFile(in, ex_name, proof_examples, clause_examples,
-          reserved_symbols);
+                         reserved_symbols);
       DestroyScanner(in);
       DStrFree(store_file);
       ex_name = NULL;
@@ -271,23 +265,23 @@ CLState_p process_options(int argc, char* argv[])
       switch(handle->option_code)
       {
       case OPT_VERBOSE:
-       Verbose = CLStateGetIntArg(handle, arg);
-       break;
+            Verbose = CLStateGetIntArg(handle, arg);
+            break;
       case OPT_HELP:
-       print_help(stdout);
-       exit(NO_ERROR);
+            print_help(stdout);
+            exit(NO_ERROR);
       case OPT_VERSION:
-       printf(NAME " " VERSION "\n");
-       exit(NO_ERROR);
+            printf(NAME " " VERSION "\n");
+            exit(NO_ERROR);
       case OPT_KB:
-       kb_name = arg;
-       break;
+            kb_name = arg;
+            break;
       case OPT_NAME:
-       ex_name = arg;
-       break;
-     default:
-    assert(false);
-    break;
+            ex_name = arg;
+            break;
+      default:
+            assert(false);
+            break;
       }
    }
    return state;
@@ -297,46 +291,46 @@ void print_help(FILE* out)
 {
    fprintf(out, "\n\
 \n"
-NAME " " VERSION "\n\
-\n\
-Usage: ekb_insert [options] [names]\n\
-\n\
-Insert example files into an E knowledge base. Each non-option argument\n\
-is considered as one individual example file. For most applications\n\
+           NAME " " VERSION "\n\
+\n                                              \
+Usage: ekb_insert [options] [names]\n           \
+\n                                                                      \
+Insert example files into an E knowledge base. Each non-option argument\n \
+is considered as one individual example file. For most applications\n   \
 this is obsolete, use ekb_ginsert instead.\n\n");
    PrintOptions(stdout, opts, "Options\n\n");
    fprintf(out, "\n\
-Copyright (C) 1999-2012 by Stephan Schulz, " STS_MAIL "\n\
-\n\
-This program is a part of the support structure for the E equational\n\
-theorem prover. You can find the latest version of the E distribution\n\
-as well as additional information at\n\
-" E_URL "\
-\n\n\
-This program is free software; you can redistribute it and/or modify\n\
-it under the terms of the GNU General Public License as published by\n\
-the Free Software Foundation; either version 2 of the License, or\n\
-(at your option) any later version.\n\
-\n\
-This program is distributed in the hope that it will be useful,\n\
-but WITHOUT ANY WARRANTY; without even the implied warranty of\n\
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n\
-GNU General Public License for more details.\n\
-\n\
-You should have received a copy of the GNU General Public License\n\
-along with this program (it should be contained in the top level\n\
-directory of the distribution in the file COPYING); if not, write to\n\
-the Free Software Foundation, Inc., 59 Temple Place, Suite 330,\n\
-Boston, MA  02111-1307 USA\n\
-\n\
-The original copyright holder can be contacted as\n\
-\n\
-Stephan Schulz\n\
-Technische Universitaet Muenchen\n\
-Fakultaet fuer Informatik\n\
-Arcisstrasse 20\n\
-D-80290 Muenchen\n\
-Germany\n\
+Copyright (C) 1999-2012 by Stephan Schulz, " STS_MAIL "\n       \
+\n                                                                      \
+This program is a part of the support structure for the E equational\n  \
+theorem prover. You can find the latest version of the E distribution\n \
+as well as additional information at\n                                  \
+" E_URL "                                                               \
+\n\n                                                                    \
+This program is free software; you can redistribute it and/or modify\n  \
+it under the terms of the GNU General Public License as published by\n  \
+the Free Software Foundation; either version 2 of the License, or\n     \
+(at your option) any later version.\n                                   \
+\n                                                                      \
+This program is distributed in the hope that it will be useful,\n       \
+but WITHOUT ANY WARRANTY; without even the implied warranty of\n        \
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n         \
+GNU General Public License for more details.\n                          \
+\n                                                                      \
+You should have received a copy of the GNU General Public License\n     \
+along with this program (it should be contained in the top level\n      \
+directory of the distribution in the file COPYING); if not, write to\n  \
+the Free Software Foundation, Inc., 59 Temple Place, Suite 330,\n       \
+Boston, MA  02111-1307 USA\n                                            \
+\n                                                                      \
+The original copyright holder can be contacted as\n                     \
+\n                                                                      \
+Stephan Schulz\n                                                        \
+Technische Universitaet Muenchen\n                                      \
+Fakultaet fuer Informatik\n                                             \
+Arcisstrasse 20\n                                                       \
+D-80290 Muenchen\n                                                      \
+Germany\n                                                               \
 ");
 
 }
@@ -345,5 +339,3 @@ Germany\n\
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
