@@ -91,9 +91,13 @@ def tuple_is_better2(t1,t2):
     tmpres = t1[0]>t2[0] or (t1[0]==t2[0] and t1[1]<t2[1])
     return tmpres
 
-def find_optimal_heuristic(classes, exclude):
-    res  = ""
-    eval = (-1.0,0.0)
+def find_optimal_heuristic(classes, exclude, default=None):
+    if default:
+        res = default
+        eval = eval_heuristic(classes, res)
+    else:
+        res  = ""
+        eval = (-1.0,0.0)
     for i in stratset.keys():
         if not i in exclude:
             tmp = eval_heuristic(classes, i)
@@ -308,7 +312,7 @@ while class_list_iter:
     if pick_by_global_performance:
         h = ordered_strats.pop(0)
     else:
-        h = find_optimal_heuristic(class_list_iter, used)
+        h = find_optimal_heuristic(class_list_iter, used, None)
 
     covered =  find_covered(h, class_list_iter)
     for i in covered:
@@ -326,8 +330,8 @@ if optimize_large_class_limit > 0:
     while class_list_iter:
         cand = class_list_iter.pop()
         if classsize[cand] > optimize_large_class_limit:
-            h = find_optimal_heuristic([cand], [])
             tmp = result[cand]
+            h = find_optimal_heuristic([cand], [], tmp)
             result[cand] = h
             # print "Heuristic for "+cand+" changed from "+tmp+" to "+h
             if not h in myused:

@@ -257,9 +257,13 @@ def tuple_is_better2(t1,t2):
     tmpres = t1[0]>t2[0] or (t1[0]==t2[0] and t1[1]<t2[1])
     return tmpres
 
-def find_optimal_heuristic(classes, exclude):
-    res  = ""
-    eval = (-1.0,0.0)
+def find_optimal_heuristic(classes, exclude, default=None):
+    if default:
+        res = default
+        eval = eval_heuristic(classes, res)
+    else:
+        res  = ""
+        eval = (-1.0,0.0)
     for i in stratset.keys():
         if not i in exclude:
             tmp = eval_heuristic(classes, i)
