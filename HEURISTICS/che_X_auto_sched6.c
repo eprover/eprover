@@ -196,7 +196,7 @@
 /* CLASS_FG-SF-SMLS33-S : protocol_G-E--_207_C18_F1_AE_Q7_CS_SP_CO_PS_S00.csv 0    */
 /* CLASS_FH-SS-FFSF32-M : protocol_G-E--_207_C18_F1_AE_Q7_CS_SP_CO_PS_S00.csv 0    */
 /* CLASS_FG-PF-FFSF32-D : protocol_G-E--_207_C18_F1_AE_Q7_CS_SP_CO_PS_S00.csv 0    */
-/* CLASS_FG-SM-FSLM31-M : protocol_G-E--_208_C18_F1_SE_CS_SP_PS_S04FI.csv 1    */
+/* CLASS_FG-SM-FSLM31-M : protocol_G-E--_207_C18_F1_AE_Q7_CS_SP_CO_PS_S00.csv 0    */
 /* CLASS_FG-SF-FFMM22-S : protocol_G-E--_207_C18_F1_AE_Q7_CS_SP_CO_PS_S00.csv 0    */
 /* CLASS_FG-PF-FFSF32-M : protocol_G-E--_207_C18_F1_AE_Q7_CS_SP_CO_PS_S00.csv 0    */
 /* CLASS_FH-NF-FFSM32-M : protocol_G-E--_207_C18_F1_AE_Q7_CS_SP_CO_PS_S00.csv 0    */
@@ -271,7 +271,7 @@
 /* CLASS_FG-NM-FFMF11-D : protocol_G-E--_207_C18_F1_AE_Q7_CS_SP_CO_PS_S00.csv 0    */
 /* CLASS_FH-NF-FFSS31-D : protocol_G-E--_207_C18_F1_AE_Q7_CS_SP_CO_PS_S00.csv 0    */
 /* CLASS_FG-NM-FFMF11-M : protocol_G-E--_207_C18_F1_AE_Q7_CS_SP_CO_PS_S00.csv 0    */
-/* CLASS_FG-SM-FSLM32-M : protocol_G-E--_208_C18_F1_SE_CS_SP_PS_S024I.csv 1    */
+/* CLASS_FG-SM-FSLM32-M : protocol_G-E--_207_C18_F1_AE_CS_SP_PI_PS_S2S.csv 1    */
 /* CLASS_FH-NM-FFMM21-D : protocol_G-E--_207_C18_F1_AE_Q7_CS_SP_CO_PS_S00.csv 0    */
 /* CLASS_FH-SF-SMLM22-M : protocol_G-E--_207_C18_F1_AE_Q7_CS_SP_CO_PS_S00.csv 0    */
 /* CLASS_FG-SM-FSLM32-S : protocol_G-E--_207_C18_F1_AE_Q7_CS_SP_CO_PS_S00.csv 0    */
@@ -458,7 +458,7 @@
 /* CLASS_FH-NM-FFMS21-S : protocol_G-E--_207_C18_F1_AE_Q7_CS_SP_CO_PS_S00.csv 0    */
 /* CLASS_FG-SM-FFMM32-M : protocol_G-E--_207_C18_F1_AE_Q7_CS_SP_CO_PS_S00.csv 0    */
 /* CLASS_FG-SM-FFLM32-M : protocol_G-E--_207_C18_F1_AE_Q7_CS_SP_CO_PS_S00.csv 0    */
-/* CLASS_FG-SM-FFLM31-D : protocol_G-E--_208_C18_F1_SE_CS_SP_PS_S01EI.csv 2    */
+/* CLASS_FG-SM-FFLM31-D : protocol_G-E--_207_C18_F1_AE_CS_SP_PI_CO_S00.csv 2    */
 /* CLASS_FG-SF-FSLS31-S : protocol_G-E--_207_C18_F1_AE_Q7_CS_SP_CO_PS_S00.csv 0    */
 /* CLASS_FG-SM-FFMM31-M : protocol_G-E--_207_C18_F1_AE_Q7_CS_SP_CO_PS_S00.csv 0    */
 /* CLASS_FG-SM-SMLM00-S : protocol_G-E--_207_C18_F1_AE_Q7_CS_SP_CO_PS_S00.csv 0    */
@@ -846,17 +846,63 @@
 
 /* Strategies used:                                       */
 
-"G_E___208_C18_F1_SE_CS_SP_PS_S01EI = \n"
+"G_E___207_C18_F1_AE_CS_SP_PI_PS_S2S = \n"
 "(1.ConjectureRelativeSymbolWeight(SimulateSOS,0.5,100,100,100,100,1.5,1.5,1),"
 " 4.ConjectureRelativeSymbolWeight(ConstPrio,0.1,100,100,100,100,1.5,1.5,1.5),"
 " 1.FIFOWeight(PreferProcessed),"
 " 1.ConjectureRelativeSymbolWeight(PreferNonGoals,0.5,100,100,100,100,1.5,1.5,1),"
-" 4.Refinedweight(SimulateSOS,3,2,2,1.5,2))\n"
+" 4.Refinedweight(SimulateSOS,1,1,2,1.5,2))\n"
+"G_E___207_C18_F1_AE_Q7_CS_SP_CO_PS_S00 = \n"
+"(1.ConjectureRelativeSymbolWeight(SimulateSOS,0.5,100,100,100,100,1.5,1.5,1),"
+" 4.ConjectureRelativeSymbolWeight(ConstPrio,0.1,100,100,100,100,1.5,1.5,1.5),"
+" 1.FIFOWeight(PreferProcessed),"
+" 1.ConjectureRelativeSymbolWeight(PreferNonGoals,0.5,100,100,100,100,1.5,1.5,1),"
+" 4.Refinedweight(SimulateSOS,1,1,2,1.5,2))\n"
+"G_E___207_C18_F1_AE_CS_SP_PI_CO_S00 = \n"
+"(1.ConjectureRelativeSymbolWeight(SimulateSOS,0.5,100,100,100,100,1.5,1.5,1),"
+" 4.ConjectureRelativeSymbolWeight(ConstPrio,0.1,100,100,100,100,1.5,1.5,1.5),"
+" 1.FIFOWeight(PreferProcessed),"
+" 1.ConjectureRelativeSymbolWeight(PreferNonGoals,0.5,100,100,100,100,1.5,1.5,1),"
+" 4.Refinedweight(SimulateSOS,1,1,2,1.5,2))\n"
 /* Global best, protocol_G-E--_207_C18_F1_AE_Q7_CS_SP_CO_PS_S00.csv, already defined */
 #endif
 
 #if defined(CHE_HEURISTICS_INTERNAL) || defined(TO_ORDERING_INTERNAL)
 
+   else if(
+      ( /* CLASS_FG-SM-FSLM32-M Solved: 1 of 374 */
+       SpecIsFO(spec)&&
+       SpecAxiomsAreGeneral(spec)&&
+       SpecSomeEq(spec)&&
+       SpecManyNGPosUnits(spec)&&
+       SpecFewAxioms(spec)&&
+       SpecSomeLiterals(spec)&&
+       SpecLargeTerms(spec)&&
+       SpecManyGroundPos(spec)&&
+       SpecMaxFArity3Plus(spec)&&
+       SpecAvgFArity2(spec)&&
+       SpecMediumMaxDepth(spec)))
+   {
+#ifdef CHE_HEURISTICS_INTERNAL
+            res = "G_E___207_C18_F1_AE_CS_SP_PI_PS_S2S";
+      control->heuristic_parms.prefer_initial_clauses=true;
+      control->heuristic_parms.forward_context_sr = true;
+      control->heuristic_parms.selection_strategy=SelectNewComplexAHP;
+      control->heuristic_parms.er_varlit_destructive=true;
+      control->heuristic_parms.er_aggressive=true;
+      control->heuristic_parms.forward_demod=1;
+      control->heuristic_parms.pm_type=ParamodAlwaysSim;
+      control->heuristic_parms.presat_interreduction=true;
+
+#endif
+#ifdef TO_ORDERING_INTERNAL
+      oparms.ordertype=KBO6;
+      oparms.to_weight_gen=WInvFrequencyRank;
+      oparms.to_prec_gen=PByInvFrequency;
+      oparms.to_const_weight=1;
+
+#endif
+   }
    else if(
       ( /* CLASS_FG-SM-FSLM32-D Solved: 1 of 341 */
        SpecIsFO(spec)&&
@@ -885,41 +931,6 @@
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
-      oparms.ordertype=KBO6;
-      oparms.to_weight_gen=WInvFrequencyRank;
-      oparms.to_prec_gen=PByInvFrequency;
-      oparms.to_const_weight=1;
-
-#endif
-   }
-   else if(
-      ( /* CLASS_FG-SM-FFLM31-D Solved: 2 of 892 */
-       SpecIsFO(spec)&&
-       SpecAxiomsAreGeneral(spec)&&
-       SpecSomeEq(spec)&&
-       SpecManyNGPosUnits(spec)&&
-       SpecFewAxioms(spec)&&
-       SpecFewLiterals(spec)&&
-       SpecLargeTerms(spec)&&
-       SpecManyGroundPos(spec)&&
-       SpecMaxFArity3Plus(spec)&&
-       SpecAvgFArity1(spec)&&
-       SpecDeepMaxDepth(spec)))
-   {
-#ifdef CHE_HEURISTICS_INTERNAL
-            res = "G_E___208_C18_F1_SE_CS_SP_PS_S01EI";
-      control->heuristic_parms.forward_context_sr = true;
-      control->heuristic_parms.selection_strategy=SelectCondOptimalLiteral;
-      control->heuristic_parms.er_varlit_destructive=true;
-      control->heuristic_parms.er_strong_destructive=true;
-      control->heuristic_parms.er_varlit_destructive=true;
-      control->heuristic_parms.er_aggressive=true;
-      control->heuristic_parms.pm_type=ParamodAlwaysSim;
-      control->heuristic_parms.presat_interreduction=true;
-
-#endif
-#ifdef TO_ORDERING_INTERNAL
-      oparms.lit_cmp=LCTFOEqMin;
       oparms.ordertype=KBO6;
       oparms.to_weight_gen=WInvFrequencyRank;
       oparms.to_prec_gen=PByInvFrequency;
@@ -3371,6 +3382,19 @@
        SpecMaxFArity3Plus(spec)&&
        SpecAvgFArity2(spec)&&
        SpecDeepMaxDepth(spec))
+       ||
+      ( /* CLASS_FG-SM-FSLM31-M Solved: 0 of 206 */
+       SpecIsFO(spec)&&
+       SpecAxiomsAreGeneral(spec)&&
+       SpecSomeEq(spec)&&
+       SpecManyNGPosUnits(spec)&&
+       SpecFewAxioms(spec)&&
+       SpecSomeLiterals(spec)&&
+       SpecLargeTerms(spec)&&
+       SpecManyGroundPos(spec)&&
+       SpecMaxFArity3Plus(spec)&&
+       SpecAvgFArity1(spec)&&
+       SpecMediumMaxDepth(spec))
        ||
       ( /* CLASS_FG-SF-FFMM22-S Solved: 0 of 34 */
        SpecIsFO(spec)&&
@@ -11715,41 +11739,6 @@
 #endif
    }
    else if(
-      ( /* CLASS_FG-SM-FSLM31-M Solved: 1 of 206 */
-       SpecIsFO(spec)&&
-       SpecAxiomsAreGeneral(spec)&&
-       SpecSomeEq(spec)&&
-       SpecManyNGPosUnits(spec)&&
-       SpecFewAxioms(spec)&&
-       SpecSomeLiterals(spec)&&
-       SpecLargeTerms(spec)&&
-       SpecManyGroundPos(spec)&&
-       SpecMaxFArity3Plus(spec)&&
-       SpecAvgFArity1(spec)&&
-       SpecMediumMaxDepth(spec)))
-   {
-#ifdef CHE_HEURISTICS_INTERNAL
-            res = "G_E___208_C18_F1_SE_CS_SP_PS_S04FI";
-      control->heuristic_parms.forward_context_sr = true;
-      control->heuristic_parms.selection_strategy=SelectNewComplexExceptUniqMaxHorn;
-      control->heuristic_parms.er_varlit_destructive=true;
-      control->heuristic_parms.er_strong_destructive=true;
-      control->heuristic_parms.er_varlit_destructive=true;
-      control->heuristic_parms.er_aggressive=true;
-      control->heuristic_parms.pm_type=ParamodAlwaysSim;
-      control->heuristic_parms.presat_interreduction=true;
-
-#endif
-#ifdef TO_ORDERING_INTERNAL
-      oparms.lit_cmp=LCTFOEqMin;
-      oparms.ordertype=KBO6;
-      oparms.to_weight_gen=WInvFrequencyRank;
-      oparms.to_prec_gen=PByInvFrequency;
-      oparms.to_const_weight=1;
-
-#endif
-   }
-   else if(
       ( /* CLASS_FG-SM-FFMM31-S Solved: 1 of 122 */
        SpecIsFO(spec)&&
        SpecAxiomsAreGeneral(spec)&&
@@ -11823,41 +11812,6 @@
 #endif
    }
    else if(
-      ( /* CLASS_FG-SM-FSLM32-M Solved: 1 of 374 */
-       SpecIsFO(spec)&&
-       SpecAxiomsAreGeneral(spec)&&
-       SpecSomeEq(spec)&&
-       SpecManyNGPosUnits(spec)&&
-       SpecFewAxioms(spec)&&
-       SpecSomeLiterals(spec)&&
-       SpecLargeTerms(spec)&&
-       SpecManyGroundPos(spec)&&
-       SpecMaxFArity3Plus(spec)&&
-       SpecAvgFArity2(spec)&&
-       SpecMediumMaxDepth(spec)))
-   {
-#ifdef CHE_HEURISTICS_INTERNAL
-            res = "G_E___208_C18_F1_SE_CS_SP_PS_S024I";
-      control->heuristic_parms.forward_context_sr = true;
-      control->heuristic_parms.selection_strategy=SelectPDepth2OptimalLiteral;
-      control->heuristic_parms.er_varlit_destructive=true;
-      control->heuristic_parms.er_strong_destructive=true;
-      control->heuristic_parms.er_varlit_destructive=true;
-      control->heuristic_parms.er_aggressive=true;
-      control->heuristic_parms.pm_type=ParamodAlwaysSim;
-      control->heuristic_parms.presat_interreduction=true;
-
-#endif
-#ifdef TO_ORDERING_INTERNAL
-      oparms.lit_cmp=LCTFOEqMin;
-      oparms.ordertype=KBO6;
-      oparms.to_weight_gen=WInvFrequencyRank;
-      oparms.to_prec_gen=PByInvFrequency;
-      oparms.to_const_weight=1;
-
-#endif
-   }
-   else if(
       ( /* CLASS_FG-SM-SMLM32-D Solved: 1 of 399 */
        SpecIsFO(spec)&&
        SpecAxiomsAreGeneral(spec)&&
@@ -11893,6 +11847,40 @@
 
 #endif
    }
+   else if(
+      ( /* CLASS_FG-SM-FFLM31-D Solved: 2 of 892 */
+       SpecIsFO(spec)&&
+       SpecAxiomsAreGeneral(spec)&&
+       SpecSomeEq(spec)&&
+       SpecManyNGPosUnits(spec)&&
+       SpecFewAxioms(spec)&&
+       SpecFewLiterals(spec)&&
+       SpecLargeTerms(spec)&&
+       SpecManyGroundPos(spec)&&
+       SpecMaxFArity3Plus(spec)&&
+       SpecAvgFArity1(spec)&&
+       SpecDeepMaxDepth(spec)))
+   {
+#ifdef CHE_HEURISTICS_INTERNAL
+            res = "G_E___207_C18_F1_AE_CS_SP_PI_CO_S00";
+      control->heuristic_parms.prefer_initial_clauses=true;
+      control->heuristic_parms.forward_context_sr = true;
+      control->heuristic_parms.selection_strategy=SelectNoLiterals;
+      control->heuristic_parms.er_varlit_destructive=true;
+      control->heuristic_parms.er_aggressive=true;
+      control->heuristic_parms.forward_demod=1;
+      control->heuristic_parms.pm_type=ParamodAlwaysSim;
+      control->heuristic_parms.condensing=true;
+
+#endif
+#ifdef TO_ORDERING_INTERNAL
+      oparms.ordertype=KBO6;
+      oparms.to_weight_gen=WInvFrequencyRank;
+      oparms.to_prec_gen=PByInvFrequency;
+      oparms.to_const_weight=1;
+
+#endif
+   }
    else /* Default */
    {
 #ifdef CHE_HEURISTICS_INTERNAL
@@ -11919,7 +11907,7 @@
    }
 #endif
 
-/* Total solutions on test set: 10 */
+/* Total solutions on test set: 9 */
 /* -------------------------------------------------------*/
 /*     End of automatically generated code.               */
 /* -------------------------------------------------------*/
