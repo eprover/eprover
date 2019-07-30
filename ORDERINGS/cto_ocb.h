@@ -1,10 +1,10 @@
 /*-----------------------------------------------------------------------
 
-File  : cto_ocb.h
+  File  : cto_ocb.h
 
-Author: Stephan Schulz
+  Author: Stephan Schulz
 
-Contents
+  Contents
 
   Global definitions for orderings: Comparison results, precedences,
   order control blocks.
@@ -15,12 +15,11 @@ Contents
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
+  Changes
 
-<1> Wed Apr 29 02:51:28 MET DST 1998
-    New
+  Created: Wed Apr 29 02:51:28 MET DST 1998
 
------------------------------------------------------------------------*/
+  -----------------------------------------------------------------------*/
 
 #ifndef CTO_OCB
 
@@ -77,7 +76,7 @@ typedef struct ocb_cell
                                   stay)! Always free the OCB before
                                   the signature and the signature
                                   independently after the OCB. */
-   FunCode       min_constant;
+   PDArray_p     min_constants; /* Indexed by sort */
    long          *weights;     /* Array of weights */
    long          var_weight;   /* Variable Weight */
    long          *prec_weights;/* Precedence defined by weight - only
@@ -121,36 +120,35 @@ void          OCBFree(OCB_p junk);
 void          OCBDebugPrint(FILE* out, OCB_p ocb);
 
 PStackPointer OCBPrecedenceAddTuple(OCB_p ocb, FunCode f1, FunCode f2,
-                CompareResult relation);
+                                    CompareResult relation);
 
 bool          OCBPrecedenceBacktrack(OCB_p ocb, PStackPointer state);
-#define OCBPrecedenceGetState(ocb) \
-              PStackGetSP((ocb)->statestack)
+#define OCBPrecedenceGetState(ocb)              \
+   PStackGetSP((ocb)->statestack)
 
 /* Getting the addresses of OCB entries for modification */
 
 
 /*
-#define OCBFunWeightPos(ocb, f) \
-              (assert((f)>0), assert((f)<=(ocb)->sig_size), &((ocb)->weights[(f)]))
-#define OCBFunComparePos(ocb, f1, f2) \
-              (assert((f1)>0), assert((f2)>0), assert((f1)<=(ocb)->sig_size),\
-          assert((f2)<=(ocb)->sig_size),\
-              (&((ocb)->precedence[((f2)-1)*(ocb)->sig_size+((f1)-1)])))
+  #define OCBFunWeightPos(ocb, f)                                       \
+  (assert((f)>0), assert((f)<=(ocb)->sig_size), &((ocb)->weights[(f)]))
+  #define OCBFunComparePos(ocb, f1, f2)                                 \
+  (assert((f1)>0), assert((f2)>0), assert((f1)<=(ocb)->sig_size),       \
+  assert((f2)<=(ocb)->sig_size),                                        \
+  (&((ocb)->precedence[((f2)-1)*(ocb)->sig_size+((f1)-1)])))
 */
 
 #define OCBFunWeightPos(ocb, f) &((ocb)->weights[(f)])
 #define OCBFunComparePos(ocb, f1, f2) (&((ocb)->precedence[((f2)-1)*(ocb)->sig_size+((f1)-1)]))
 
 
-FunCode OCBFindMinConst(OCB_p ocb);
+void    OCBCondSetMinConst(OCB_p ocb, Type_p type, FunCode cand);
+FunCode OCBMinConst(OCB_p ocb, Type_p type);
+FunCode OCBFindMinConst(OCB_p ocb, Type_p type);
+void OCBSetMinConst(OCB_p ocb, Type_p type, FunCode cand);
 
-#define OCBDesignatedMinConst(ocb) ((ocb)->min_constant?\
-                                   (ocb)->min_constant:OCBFindMinConst(ocb))
-
-#define OCBDesignatedMinTerm(ocb, terms) ((terms)->min_term?\
-                                   (terms)->min_term:\
-                                   TBCreateMinTerm((terms),OCBDesignatedMinConst(ocb)))
+#define OCBDesignatedMinTerm(ocb, terms, type) \
+   TBCreateMinTerm((terms),OCBFindMinConst((ocb),(type)))
 
 /* Functions for Querying the OCB */
 
@@ -247,7 +245,7 @@ static __inline__ CompareResult OCBFunCompare(OCB_p ocb, FunCode f1, FunCode f2)
       return to_greater;
    }
    tmp = (long)SigIsAnyFuncPropSet(ocb->sig, f2, ocb->sig->distinct_props)-
-         (long)SigIsAnyFuncPropSet(ocb->sig, f1, ocb->sig->distinct_props);
+      (long)SigIsAnyFuncPropSet(ocb->sig, f1, ocb->sig->distinct_props);
    if(tmp)
    {
       /* printf("f1 = %ld, f2 = %ld, res = %ld\n", f1, f2, tmp); */
@@ -262,7 +260,6 @@ static __inline__ CompareResult OCBFunCompare(OCB_p ocb, FunCode f1, FunCode f2)
    }
    return OCBFunCompareMatrix(ocb, f1, f2);
 }
-
 
 
 #endif

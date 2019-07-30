@@ -629,7 +629,7 @@ TB_p TBAlloc(Sig_p sig)
    TermCellSetProp(term, TPPredPos);
    handle->false_term = TBInsert(handle, term, DEREF_NEVER);
    TermFree(term);
-   handle->min_term    = NULL;
+   handle->min_terms   = PDArrayAlloc(16, 0);
    //handle->freevarsets = NULL;
    return handle;
 }
@@ -657,7 +657,7 @@ void TBFree(TB_p junk)
    TermCellStoreExit(&(junk->term_store));
    PDArrayFree(junk->ext_index);
    VarBankFree(junk->vars);
-
+   PDArrayFree(junk->min_terms);
    //assert(!junk->freevarsets);
    TBCellFree(junk);
 }
@@ -1728,17 +1728,23 @@ void TBGCMarkTerm(TB_p bank, Term_p term)
 
 long TBGCSweep(TB_p bank)
 {
-   long recovered = 0;
+   long recovered = 0, i;
+   Term_p t;
 
    assert(bank);
    assert(!TermIsRewritten(bank->true_term));
    TBGCMarkTerm(bank, bank->true_term);
    TBGCMarkTerm(bank, bank->false_term);
-   if(bank->min_term)
-   {
-      TBGCMarkTerm(bank, bank->min_term);
-   }
 
+   for(i=0; i< bank->min_terms->size; i++)
+   {
+      t = PDArrayElementP(bank->min_terms, i);
+
+      if(t)
+      {
+         TBGCMarkTerm(bank, t);
+      }
+   }
    VERBOUT("Garbage collection started.\n");
    recovered = TermCellStoreGCSweep(&(bank->term_store),
                                     bank->garbage_state);
@@ -1797,12 +1803,16 @@ Term_p TBCreateConstTerm(TB_p bank, FunCode fconst)
 
 Term_p TBCreateMinTerm(TB_p bank, FunCode min_const)
 {
-   if(!bank->min_term)
+   Type_p type = SigGetType(bank->sig, min_const);
+   long sort = GetReturnSort(type)->type_uid;
+   Term_p t = PDArrayElementP(bank->min_terms, sort);
+
+   if(!t)
    {
-      bank->min_term = TBCreateConstTerm(bank, min_const);
+      t = TBCreateConstTerm(bank, min_const);
+      PDArrayAssignP(bank->min_terms, sort, t);
    }
-   assert(bank->min_term->f_code == min_const);
-   return bank->min_term;
+   return t;
 }
 
 

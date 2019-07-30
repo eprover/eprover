@@ -48,6 +48,42 @@ static Term_p term_li_normalform(RWDesc_p desc, Term_p term,
 
 /*-----------------------------------------------------------------------
 //
+// Function: subst_complete_min_instance()
+//
+//   Complete the substitution by binding any unbound variable to the
+//   minimum term of the appropriate type.
+//
+// Global Variables: -
+//
+// Side Effects    : May create minimal terms and constants
+//
+/----------------------------------------------------------------------*/
+
+static void subst_complete_min_instance(OCB_p ocb, TB_p bank,
+                                        Subst_p subst, Term_p term)
+{
+   int i;
+
+   if(TermIsVar(term))
+   {
+      if(!(term->binding))
+      {
+         SubstAddBinding(subst, term,
+                         OCBDesignatedMinTerm(ocb, bank, term->type));
+      }
+   }
+   else
+   {
+      for(i=0;i<term->arity;i++)
+      {
+         subst_complete_min_instance(ocb, bank, subst, term->args[i]);
+      }
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: instance_is_rule()
 //
 //   Return true if lside->rside is a rule, i.e. lside>rside (for the
@@ -67,8 +103,7 @@ static bool instance_is_rule(OCB_p ocb, TB_p bank,
 {
    if(RewriteStrongRHSInst)
    {
-      SubstCompleteInstance(subst, rside,
-                            OCBDesignatedMinTerm(ocb, bank));
+      subst_complete_min_instance(ocb, bank, subst, rside);
    }
    else if(TermHasUnboundVariables(rside))
    {
@@ -110,7 +145,7 @@ static bool instance_is_rule(OCB_p ocb, TB_p bank,
          desc->sos_rewritten = true;
       }
 
-      assert(TOGreater(desc->ocb, term, TermRWReplaceField(term), 
+      assert(TOGreater(desc->ocb, term, TermRWReplaceField(term),
                         DEREF_NEVER, DEREF_NEVER));
       term = TermRWReplaceField(term);
       assert(term);
@@ -451,7 +486,7 @@ MatchRes_p indexed_find_demodulator(OCB_p ocb, Term_p term,
    assert(term);
    assert(demodulators);
    assert(demodulators->demod_index);
-   assert(term->weight == 
+   assert(term->weight ==
             TermWeight(term, DEFAULT_VWEIGHT, DEFAULT_FWEIGHT));
    assert(!TermIsTopRewritten(term));
 
@@ -513,8 +548,8 @@ MatchRes_p indexed_find_demodulator(OCB_p ocb, Term_p term,
    PDTreeSearchExit(demodulators->demod_index);
 
 #ifndef NDEBUG
-   if(match_info 
-      && !TermStructPrefixEqual(ClausePosGetSide(match_info->pos), term, DEREF_ONCE, DEREF_NEVER, 
+   if(match_info
+      && !TermStructPrefixEqual(ClausePosGetSide(match_info->pos), term, DEREF_ONCE, DEREF_NEVER,
                                 match_info->remaining_args, ocb->sig))
    {
       fprintf(stderr, "Term ");
@@ -576,10 +611,10 @@ static Term_p rewrite_with_clause_set(OCB_p ocb, TB_p bank, Term_p term,
          if(mi->remaining_args)
          {
             repl = TBTermTopInsert(bank, repl);
-         }      
-      } 
+         }
+      }
 
-      assert(mi->pos->clause->ident);    
+      assert(mi->pos->clause->ident);
       TermAddRWLink(term, repl, mi->pos->clause, ClauseIsSOS(mi->pos->clause),
                     restricted_rw?RWAlwaysRewritable:RWLimitedRewritable);
       assert(TOGreater(ocb, term, repl, DEREF_NEVER, DEREF_NEVER));
@@ -622,7 +657,7 @@ static Term_p rewrite_with_clause_setlist(OCB_p ocb, TB_p bank, Term_p term,
 
    for(i=0; i<level; i++)
    {
-      assert(demodulators[i]);      
+      assert(demodulators[i]);
 
       if(SysDateIsEarlier(TermNFDate(term,level-1), demodulators[i]->date))
       {

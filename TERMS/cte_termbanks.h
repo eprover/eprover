@@ -54,9 +54,9 @@ typedef struct tbcell
                                     $true constant. */
    Term_p        false_term;     /* Pointer to the special term with the
                                     $false constant. */
-   Term_p        min_term;       /* A small (ideally the minimal
+   PDArray_p      min_terms;     /* A small (ideally the minimal
                                     possible) term, to be used for RHS
-                                    instantiation. */
+                                    instantiation for each sort. */
    unsigned long rewrite_steps;  /* How many calls to TBTermReplace? */
    //VarSetStore_p freevarsets;    /* Associates a term (or Tformula)
                                    /* with the set of its free
@@ -199,7 +199,7 @@ Term_p __inline__ TBTermParse(Scanner_p in, TB_p bank)
 Term_p __inline__ TBRawTermParse(Scanner_p in, TB_p bank)
 {
    if(problemType == PROBLEM_HO)
-   {      
+   {
       return TBTermParseRealHO(in, bank, false);
    }
    else
