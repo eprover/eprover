@@ -68,6 +68,7 @@ match_demod_l   = re.compile(" --forward_demod_level=")
 match_snm_l     = re.compile(" --selection-neg-min=")
 match_g_demod_s = re.compile(" --prefer-general-demodulators")
 match_g_demod_l = re.compile(" -g")
+match_srhs_l    = re.compile(" --strong-rw-inst")
 match_unproc_s  = re.compile(" --simplify-with-unprocessed-units=")
 match_unproc_sd = re.compile(" --simplify-with-unprocessed-units")
 match_fcsr      = re.compile(" --forward-context-sr")
@@ -233,6 +234,10 @@ def parse_control_info(line):
     m = match_g_demod_l.search(line)
     if m:
         res = res+ "      control->heuristic_parms.prefer_general=true;\n"
+
+    m = match_srhs_l.search(line)
+    if m:
+        res = res+ "      RewriteStrongRHSInst=true;\n"
 
     #
     # Paramodulation
