@@ -77,7 +77,7 @@ FuncSymbType TermParseOperator(Scanner_p in, DStr_p id);
 //
 /----------------------------------------------------------------------*/
 
-static __inline__ back_idx_info* bii_alloc(const char* name, int arity)
+static inline back_idx_info* bii_alloc(const char* name, int arity)
 {
    back_idx_info* ptr = SizeMalloc(sizeof(back_idx_info));
    ptr->name  = SecureStrdup(name);
@@ -120,7 +120,7 @@ int cmp_types(const void* el1, const void* el2)
 //
 /----------------------------------------------------------------------*/
 
-static __inline__ void type_arg_realloc(Type_p** args, int current, int new)
+static inline void type_arg_realloc(Type_p** args, int current, int new)
 {
   Type_p* new_arr = SizeMalloc(new * sizeof(Type_p));
 
@@ -146,7 +146,7 @@ static __inline__ void type_arg_realloc(Type_p** args, int current, int new)
 //
 /----------------------------------------------------------------------*/
 
-void __inline__ force_arg_sharing(TypeBank_p bank, Type_p t)
+static inline void force_arg_sharing(TypeBank_p bank, Type_p t)
 {
    assert(bank);
    assert(t);
@@ -172,7 +172,7 @@ void __inline__ force_arg_sharing(TypeBank_p bank, Type_p t)
 //
 /----------------------------------------------------------------------*/
 
-static void __inline__ ensure_not_kind(Type_p arg, Scanner_p in)
+static inline void ensure_not_kind(Type_p arg, Scanner_p in)
 {
    if(TypeIsKind(arg))
    {
@@ -565,7 +565,7 @@ Type_p TypeBankParseType(Scanner_p in, TypeBank_p bank)
       {
          AcceptInpTok(in, OpenBracket);
       }
-      
+
       int allocated = REALLOC_STEP;
       int arity = 1;
       Type_p* args = TypeArgArrayAlloc(allocated);
@@ -590,7 +590,7 @@ Type_p TypeBankParseType(Scanner_p in, TypeBank_p bank)
          AcceptInpTok(in, CloseBracket);
          open_parens--;
       }
-      
+
       if(TestInpTok(in, GreaterSign))
       {
          AcceptInpTok(in, GreaterSign);

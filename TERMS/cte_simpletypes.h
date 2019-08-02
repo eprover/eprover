@@ -109,7 +109,7 @@ void TypeFree(Type_p junk);
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
-static __inline__ Type_p TypeAlloc(TypeConsCode c_code, int arity, Type_p* args)
+static inline Type_p TypeAlloc(TypeConsCode c_code, int arity, Type_p* args)
 {
    Type_p handle = TypeCellAlloc();
 

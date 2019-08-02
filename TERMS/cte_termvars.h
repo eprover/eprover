@@ -103,7 +103,7 @@ typedef struct varbanknamedcell
 
 
 /* Access the stack corresponding to this sort */
-static __inline__ VarBankStack_p  VarBankGetStack(VarBank_p bank, TypeUniqueID sort);
+static inline VarBankStack_p  VarBankGetStack(VarBank_p bank, TypeUniqueID sort);
 
 VarBank_p  VarBankAlloc(TypeBank_p sort_table);
 void       VarBankFree(VarBank_p junk);
@@ -118,7 +118,7 @@ void       VarBankVarsDelProp(VarBank_p bank, TermProperties prop);
 VarBankStack_p  VarBankCreateStack(VarBank_p bank, TypeUniqueID sort);
 Term_p VarBankFCodeFind(VarBank_p bank, FunCode f_code);
 Term_p VarBankExtNameFind(VarBank_p bank, char* name);
-static __inline__ Term_p VarBankVarAssertAlloc(VarBank_p bank, FunCode f_code, Type_p sort);
+static inline Term_p VarBankVarAssertAlloc(VarBank_p bank, FunCode f_code, Type_p sort);
 Term_p VarBankVarAlloc(VarBank_p bank, FunCode f_code, Type_p sort);
 Term_p VarBankGetFreshVar(VarBank_p bank, Type_p sort);
 Term_p VarBankExtNameAssertAlloc(VarBank_p bank, char* name);
@@ -151,7 +151,7 @@ long   VarBankCollectVars(VarBank_p bank, PStack_p stack);
 //
 /----------------------------------------------------------------------*/
 
-static __inline__ VarBankStack_p  VarBankGetStack(VarBank_p bank, TypeUniqueID sort)
+static inline VarBankStack_p  VarBankGetStack(VarBank_p bank, TypeUniqueID sort)
 {
    VarBankStack_p res;
 
@@ -176,7 +176,7 @@ static __inline__ VarBankStack_p  VarBankGetStack(VarBank_p bank, TypeUniqueID s
 //
 /----------------------------------------------------------------------*/
 
-static __inline__ Term_p VarBankVarAssertAlloc(VarBank_p bank, FunCode f_code,
+static inline Term_p VarBankVarAssertAlloc(VarBank_p bank, FunCode f_code,
                                                Type_p type)
 {
    Term_p var;
@@ -207,7 +207,7 @@ static __inline__ Term_p VarBankVarAssertAlloc(VarBank_p bank, FunCode f_code,
 //
 /----------------------------------------------------------------------*/
 
-static __inline__ Term_p VarBankGetAltVar(VarBank_p bank, Term_p term)
+static inline Term_p VarBankGetAltVar(VarBank_p bank, Term_p term)
 {
    Term_p var;
 

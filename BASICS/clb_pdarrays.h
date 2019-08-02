@@ -68,7 +68,7 @@ void      PDArrayFree(PDArray_p junk);
 PDArray_p PDArrayCopy(PDArray_p array);
 
 void      PDArrayEnlarge(PDArray_p array, long idx);
-static __inline__ IntOrP*   PDArrayElementRef(PDArray_p array, long idx);
+static inline IntOrP*   PDArrayElementRef(PDArray_p array, long idx);
 
 void      PDArrayElementDeleteP(PDArray_p array, long idx);
 void      PDArrayElementDeleteInt(PDArray_p array, long idx);
@@ -118,7 +118,7 @@ long      PDArrayElementIncInt(PDArray_p array, long idx, long value);
 //
 /----------------------------------------------------------------------*/
 
-static __inline__ IntOrP* PDArrayElementRef(PDArray_p array, long idx)
+static inline IntOrP* PDArrayElementRef(PDArray_p array, long idx)
 {
    assert(array);
    assert(idx >= 0);

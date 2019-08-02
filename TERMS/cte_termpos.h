@@ -71,9 +71,9 @@ typedef PStack_p   TermPos_p;
 #define TermPosFree(junk) PStackFree(junk)
 
 #define TermPosIsTopPos(pos) PStackEmpty(pos)
-static __inline__ Term_p TermPosGetSubterm(Term_p term, TermPos_p pos);
+static inline Term_p TermPosGetSubterm(Term_p term, TermPos_p pos);
 
-static __inline__ Term_p TermPosFirstLIPosition(Term_p term, TermPos_p pos);
+static inline Term_p TermPosFirstLIPosition(Term_p term, TermPos_p pos);
 Term_p TermPosNextLIPosition(TermPos_p pos);
 
 void   TermPosPrint(FILE* out, TermPos_p pos);
@@ -96,7 +96,7 @@ void   TermPosDebugPrint(FILE* out, Sig_p sig, TermPos_p pos);
 //
 /----------------------------------------------------------------------*/
 
-static __inline__ Term_p TermPosGetSubterm(Term_p term, TermPos_p pos)
+static inline Term_p TermPosGetSubterm(Term_p term, TermPos_p pos)
 {
    Term_p super;
    int    idx;
@@ -131,7 +131,7 @@ static __inline__ Term_p TermPosGetSubterm(Term_p term, TermPos_p pos)
 //
 /----------------------------------------------------------------------*/
 
-static __inline__ Term_p TermPosFirstLIPosition(Term_p term, TermPos_p pos)
+static inline Term_p TermPosFirstLIPosition(Term_p term, TermPos_p pos)
 {
    PStackReset(pos);
 

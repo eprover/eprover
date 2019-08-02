@@ -183,7 +183,7 @@ Term_p  TBGetFreqConstTerm(TB_p terms, Type_p sort,
 /*                Inline Functions                                     */
 /*---------------------------------------------------------------------*/
 
-Term_p __inline__ TBTermParse(Scanner_p in, TB_p bank)
+static inline Term_p  TBTermParse(Scanner_p in, TB_p bank)
 {
    if(problemType == PROBLEM_HO)
    {
@@ -196,7 +196,7 @@ Term_p __inline__ TBTermParse(Scanner_p in, TB_p bank)
    }
 }
 
-Term_p __inline__ TBRawTermParse(Scanner_p in, TB_p bank)
+static inline Term_p TBRawTermParse(Scanner_p in, TB_p bank)
 {
    if(problemType == PROBLEM_HO)
    {

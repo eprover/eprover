@@ -70,7 +70,7 @@ void         PDRangeArrFree(PDRangeArr_p junk);
 void         PDRangeArrEnlarge(PDRangeArr_p array, long idx);
 PDRangeArr_p PDRangeArrCopy(PDRangeArr_p array);
 
-static __inline__ IntOrP*   PDRangeArrElementRef(PDRangeArr_p array, long idx);
+static inline IntOrP*   PDRangeArrElementRef(PDRangeArr_p array, long idx);
 
 void      PDRangeArrElementDeleteP(PDRangeArr_p array, long idx);
 void      PDRangeArrElementDeleteInt(PDRangeArr_p array, long idx);
@@ -118,7 +118,7 @@ long      PDRangeArrElementIncInt(PDRangeArr_p array, long idx, long value);
 //
 /----------------------------------------------------------------------*/
 
-static __inline__ IntOrP* PDRangeArrElementRef(PDRangeArr_p array, long idx)
+static inline IntOrP* PDRangeArrElementRef(PDRangeArr_p array, long idx)
 {
    assert(array);
 

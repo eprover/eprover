@@ -70,7 +70,7 @@ int    TermParseArgList(Scanner_p in, Term_p** arg_anchor, Sig_p sig,
                          VarBank_p vars);
 Term_p TermCopy(Term_p source, VarBank_p vars, DerefType deref);
 Term_p TermCopyKeepVars(Term_p source, DerefType deref);
-static __inline__ Term_p TermEquivCellAlloc(Term_p source, VarBank_p vars);
+static inline Term_p TermEquivCellAlloc(Term_p source, VarBank_p vars);
 
 bool   TermStructEqual(Term_p t1, Term_p t2);
 bool   TermStructEqualNoDeref(Term_p t1, Term_p t2);
@@ -181,7 +181,7 @@ Term_p TermCopyNormalizeVars(VarBank_p vars, Term_p term,
 //
 /----------------------------------------------------------------------*/
 
-static __inline__ Term_p TermEquivCellAlloc(Term_p source, VarBank_p vars)
+static inline Term_p TermEquivCellAlloc(Term_p source, VarBank_p vars)
 {
    if(TermIsVar(source))
    {

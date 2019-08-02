@@ -152,9 +152,9 @@ void OCBSetMinConst(OCB_p ocb, Type_p type, FunCode cand);
 
 /* Functions for Querying the OCB */
 
-static __inline__ long OCBFunWeight(OCB_p ocb, FunCode f);
-static __inline__ long OCBFunPrecWeight(OCB_p ocb, FunCode f);
-static __inline__ CompareResult OCBFunCompare(OCB_p ocb, FunCode f1, FunCode f2);
+static inline long OCBFunWeight(OCB_p ocb, FunCode f);
+static inline long OCBFunPrecWeight(OCB_p ocb, FunCode f);
+static inline CompareResult OCBFunCompare(OCB_p ocb, FunCode f1, FunCode f2);
 
 CompareResult OCBFunCompareMatrix(OCB_p ocb, FunCode f1, FunCode f2);
 FunCode       OCBTermMaxFunCode(OCB_p ocb, Term_p term);
@@ -178,7 +178,7 @@ FunCode       OCBTermMaxFunCode(OCB_p ocb, Term_p term);
 //
 /----------------------------------------------------------------------*/
 
-static __inline__ long OCBFunWeight(OCB_p ocb, FunCode f)
+static inline long OCBFunWeight(OCB_p ocb, FunCode f)
 {
    if(f<=ocb->sig_size)
    {
@@ -202,7 +202,7 @@ static __inline__ long OCBFunWeight(OCB_p ocb, FunCode f)
 //
 /----------------------------------------------------------------------*/
 
-static __inline__ long OCBFunPrecWeight(OCB_p ocb, FunCode f)
+static inline long OCBFunPrecWeight(OCB_p ocb, FunCode f)
 {
    if(ocb->prec_weights && f<=ocb->sig_size)
    {
@@ -226,7 +226,7 @@ static __inline__ long OCBFunPrecWeight(OCB_p ocb, FunCode f)
 //
 /----------------------------------------------------------------------*/
 
-static __inline__ CompareResult OCBFunCompare(OCB_p ocb, FunCode f1, FunCode f2)
+static inline CompareResult OCBFunCompare(OCB_p ocb, FunCode f1, FunCode f2)
 {
    long tmp;
 

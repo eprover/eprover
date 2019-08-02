@@ -74,7 +74,7 @@ typedef struct ptreecell
 #define PGreater(p1,p2) ((uintptr_t)(p1))> ((uintptr_t)(p2))
 #define PLesser(p1,p2)  ((uintptr_t)(p1))< ((uintptr_t)(p2))
 
-static  __inline__ int PCmpFun(void* p1, void*p2);
+static  inline int PCmpFun(void* p1, void*p2);
 PTree_p PTreeCellAllocEmpty(void);
 void    PTreeFree(PTree_p junk);
 PTree_p PTreeInsert(PTree_p *root, PTree_p newnode);
@@ -118,7 +118,7 @@ AVL_TRAVERSE_DECLARATION(PTree, PTree_p)
 //
 /----------------------------------------------------------------------*/
 
-static __inline__ int PCmpFun(void* p1, void*p2)
+static inline int PCmpFun(void* p1, void*p2)
 {
    return ((uintptr_t)p1 > (uintptr_t)p2) - ((uintptr_t)p1 < (uintptr_t)p2);
 }

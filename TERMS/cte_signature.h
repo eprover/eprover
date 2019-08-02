@@ -132,7 +132,7 @@ typedef struct sigcell
    FunCode   xor_code;
    /* And here are codes for interpreted symbols */
    FunCode   answer_code;       /* For answer literals */
-   
+
    /* Sort and type banks (type => sort, but a shortcut is useful) */
    TypeBank_p  type_bank;
 
@@ -199,9 +199,9 @@ void    SigFree(Sig_p junk);
 #define SigInterpreteNumbers(sig) ((sig)->null_code)
 
 FunCode SigFindFCode(Sig_p sig, const char* name);
-static __inline__ int     SigFindArity(Sig_p sig, FunCode f_code);
+static inline int     SigFindArity(Sig_p sig, FunCode f_code);
 
-static __inline__ char*   SigFindName(Sig_p sig, FunCode f_code);
+static inline char*   SigFindName(Sig_p sig, FunCode f_code);
 bool    SigIsPredicate(Sig_p sig, FunCode f_code);
 bool    SigIsFunction(Sig_p sig, FunCode f_code);
 bool    SigIsFixedType(Sig_p sig, FunCode f_code);
@@ -243,10 +243,10 @@ long    SigCollectSortConsts(Sig_p sig, Type_p type, PStack_p res);
 
 /* Special functions for dealing with special symbols */
 
-static __inline__ FunCode SigGetEqnCode(Sig_p sig, bool positive);
+static inline FunCode SigGetEqnCode(Sig_p sig, bool positive);
 FunCode SigGetOtherEqnCode(Sig_p sig, FunCode f_code);
-static __inline__ FunCode SigGetOrCode(Sig_p sig);
-static __inline__ FunCode SigGetCNilCode(Sig_p sig);
+static inline FunCode SigGetOrCode(Sig_p sig);
+static inline FunCode SigGetCNilCode(Sig_p sig);
 FunCode SigGetOrNCode(Sig_p sig, int arity);
 FunCode SigGetNewSkolemCode(Sig_p sig, int arity);
 FunCode SigGetNewPredicateCode(Sig_p sig, int arity);
@@ -275,7 +275,7 @@ bool SigSymbolUnifiesWithVar(Sig_p sig, FunCode f_code);
                                          SigQueryFuncProp(sig, f_code, FPFOFOp) || \
                                          f_code == SIG_TRUE_CODE || f_code == SIG_FALSE_CODE || \
                                          f_code == (sig)->eqn_code || f_code == (sig)->neqn_code || \
-                                         f_code == (sig)->qex_code || f_code == (sig)->qall_code)  
+                                         f_code == (sig)->qex_code || f_code == (sig)->qall_code)
 
 
 
@@ -297,7 +297,7 @@ bool SigSymbolUnifiesWithVar(Sig_p sig, FunCode f_code);
 //
 /----------------------------------------------------------------------*/
 
-static __inline__ int SigFindArity(Sig_p sig, FunCode f_code)
+static inline int SigFindArity(Sig_p sig, FunCode f_code)
 {
    assert(f_code > 0);
    assert(f_code <= sig->f_count);
@@ -320,7 +320,7 @@ static __inline__ int SigFindArity(Sig_p sig, FunCode f_code)
 //
 /----------------------------------------------------------------------*/
 
-static __inline__ char*  SigFindName(Sig_p sig, FunCode f_code)
+static inline char*  SigFindName(Sig_p sig, FunCode f_code)
 {
    assert(f_code > 0);
    assert(f_code <= sig->f_count);
@@ -341,7 +341,7 @@ static __inline__ char*  SigFindName(Sig_p sig, FunCode f_code)
 //
 /----------------------------------------------------------------------*/
 
-static __inline__ FunCode SigGetEqnCode(Sig_p sig, bool positive)
+static inline FunCode SigGetEqnCode(Sig_p sig, bool positive)
 {
    assert(sig);
 
@@ -382,7 +382,7 @@ static __inline__ FunCode SigGetEqnCode(Sig_p sig, bool positive)
 //
 /----------------------------------------------------------------------*/
 
-static __inline__ FunCode SigGetOrCode(Sig_p sig)
+static inline FunCode SigGetOrCode(Sig_p sig)
 {
    assert(sig);
 
@@ -408,7 +408,7 @@ static __inline__ FunCode SigGetOrCode(Sig_p sig)
 //
 /----------------------------------------------------------------------*/
 
-static __inline__ FunCode SigGetCNilCode(Sig_p sig)
+static inline FunCode SigGetCNilCode(Sig_p sig)
 {
    assert(sig);
 
@@ -436,7 +436,7 @@ static __inline__ FunCode SigGetCNilCode(Sig_p sig)
 //
 /----------------------------------------------------------------------*/
 
-static __inline__ int SigGetFeatureOffset(Sig_p sig, FunCode f)
+static inline int SigGetFeatureOffset(Sig_p sig, FunCode f)
 {
    if(sig->f_info[f].feature_offset == -1)
    {
