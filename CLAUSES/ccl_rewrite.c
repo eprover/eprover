@@ -205,7 +205,7 @@ static RWResultType term_is_top_rewritable(TB_p bank, OCB_p ocb,
             TermCellSetProp(term, TPIsRRewritable|TPIsRewritable);
             res = RWAlwaysRewritable;
 
-            Term_p repl = TBInsertInstantiated(bank, eqn->rterm);
+            Term_p repl = TBInsertInstantiated(bank, eqn->lterm);
             if(problemType == PROBLEM_HO)
             {
                repl = MakeRewrittenTerm(term, repl, remains, bank);
