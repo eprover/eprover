@@ -9,9 +9,9 @@ everything.
 
 The strategies for the different divisions are:
 
-FOF:     starexec_run_E---autoschedule
+FOF UEQ: starexec_run_E---autoschedule
 FNT EPR: starexec_run_E---satautoschedule
-LTB:     starexec_run_E---LTB
+LTB:     starexec_run_E---LTB27
 
 
 
@@ -47,8 +47,6 @@ The start of solution output for proofs:
 The end of solution output for proofs:
 
 # SZS output end CNFRefutation.
-
-
 
 
 The start of solution output for models/saturations:
