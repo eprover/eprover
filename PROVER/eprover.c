@@ -144,7 +144,7 @@ ProofState_p parse_spec(CLState_p state,
    proofstate = ProofStateAlloc(free_symb_prop_local);
    for(i=0; state->argv[i]; i++)
    {
-      in = CreateScanner(StreamTypeFile, state->argv[i], true, NULL);
+      in = CreateScanner(StreamTypeFile, state->argv[i], true, NULL, true);
       ScannerSetFormat(in, parse_format_local);
       if(parse_format_local == AutoFormat && in->format == TSTPFormat)
       {

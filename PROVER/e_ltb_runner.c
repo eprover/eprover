@@ -47,6 +47,7 @@ typedef enum
    OPT_VERBOSE,
    OPT_OUTPUT,
    OPT_OUTDIR,
+   OPT_VARIANTS,
    OPT_INTERACTIVE,
    OPT_PRINT_STATISTICS,
    OPT_SILENT,
@@ -94,6 +95,12 @@ OptCell opts[] =
    "Directory for individual problem output files. Default is the current"
     " working directory."},
 
+   {OPT_VARIANTS,
+    0, "variants27",
+    NoArg,  NULL,
+    "Handle different variants for each problem base name as required for "
+    "CASC-27. This is very specific hack."},
+
    {OPT_INTERACTIVE,
     'i', "interactive",
     NoArg, NULL,
@@ -135,7 +142,11 @@ char              *outdir         = NULL;
 long              total_wtc_limit = 0;
 bool              interactive     = false;
 bool              app_encode      = false;
+bool              use_variants    = false;
 ProblemType problemType  = PROBLEM_NOT_INIT;
+
+
+char* variants[] = {"+1", "+2", "_1", "_2", NULL};
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
@@ -179,7 +190,7 @@ int main(int argc, char* argv[])
       prover = state->argv[1];
    }
 
-   in = CreateScanner(StreamTypeFile, state->argv[0], true, NULL);
+   in = CreateScanner(StreamTypeFile, state->argv[0], true, NULL,true);
    ScannerSetFormat(in, TSTPFormat);
 
    AcceptDottedId(in, "division.category");
@@ -209,22 +220,30 @@ int main(int argc, char* argv[])
                "time limit must be set to a value > 0", USAGE_ERROR);
       }
       /* BatchSpecPrint(stdout, spec); */
-      ctrl = StructFOFSpecAlloc();
-      BatchStructFOFSpecInit(spec, ctrl, ScannerGetDefaultDir(in));
-      now = GetSecTime();
-      res = BatchProcessProblems(spec, ctrl,
-                                 MAX(0,spec->total_wtc_limit-(now-start)),
-                                 ScannerGetDefaultDir(in),
-                                 outdir);
-      now = GetSecTime();
-      fprintf(GlobalOut, "\n\n# == WCT: %4lds, Solved: %4ld/%4ld    ==\n",
-          now-start, res, BatchSpecProblemNo(spec));
-      fprintf(GlobalOut, "# =============== Batch done ===========\n\n");
-      if(interactive)
+      if(!use_variants)
       {
-        BatchProcessInteractive(spec, ctrl, stdout);
+         ctrl = StructFOFSpecAlloc();
+         BatchStructFOFSpecInit(spec, ctrl, ScannerGetDefaultDir(in));
+         now = GetSecTime();
+         res = BatchProcessProblems(spec, ctrl,
+                                    MAX(0,spec->total_wtc_limit-(now-start)),
+                                    ScannerGetDefaultDir(in),
+                                    outdir);
+         now = GetSecTime();
+         fprintf(GlobalOut, "\n\n# == WCT: %4lds, Solved: %4ld/%4ld    ==\n",
+                 now-start, res, BatchSpecProblemNo(spec));
+         fprintf(GlobalOut, "# =============== Batch done ===========\n\n");
+         if(interactive)
+         {
+            BatchProcessInteractive(spec, ctrl, stdout);
+         }
+         StructFOFSpecFree(ctrl);
       }
-      StructFOFSpecFree(ctrl);
+      else
+      {
+         BatchProcessVariants(spec, variants, start, ScannerGetDefaultDir(in), outdir);
+         fprintf(GlobalOut, "# =============== Variant batch done ===========\n\n");
+      }
       BatchSpecFree(spec);
    }
    DestroyScanner(in);
@@ -292,6 +311,8 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_OUTDIR:
             outdir = arg;
             break;
+      case OPT_VARIANTS:
+            use_variants = true;
       case OPT_INTERACTIVE:
             interactive = true;
             break;

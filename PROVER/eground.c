@@ -429,7 +429,7 @@ int main(int argc, char* argv[])
 
    for(i=0; state->argv[i]; i++)
    {
-      in = CreateScanner(StreamTypeFile, state->argv[i], true, NULL);
+      in = CreateScanner(StreamTypeFile, state->argv[i], true, NULL, true);
       ScannerSetFormat(in, parse_format);
       if(parse_format == AutoFormat && in->format == TSTPFormat)
       {

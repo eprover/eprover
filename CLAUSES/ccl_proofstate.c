@@ -288,7 +288,7 @@ void ProofStateLoadWatchlist(ProofState_p state,
    {
       if(watchlist_filename!=UseInlinedWatchList)
       {
-         in = CreateScanner(StreamTypeFile, watchlist_filename, true, NULL);
+         in = CreateScanner(StreamTypeFile, watchlist_filename, true, NULL, true);
          ScannerSetFormat(in, parse_format);
          ClauseSetParseList(in, state->watchlist,
                             state->terms);

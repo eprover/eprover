@@ -921,7 +921,7 @@ void TOGeneratePrecedence(OCB_p ocb, ClauseSet_p axioms,
    if(predefined)
    {
       Scanner_p in = CreateScanner(StreamTypeUserString, predefined,
-                                   true, NULL);
+                                   true, NULL, true);
 
       TOPrecedenceParse(in, ocb);
 

@@ -65,6 +65,7 @@ typedef struct e_pctrl_set_cell
 /*---------------------------------------------------------------------*/
 
 #define SZS_THEOREM_STR    "# SZS status Theorem"
+#define SZS_CONTRAAX_STR   "# SZS status ContradictoryAxioms"
 #define SZS_UNSAT_STR      "# SZS status Unsatisfiable"
 #define SZS_SATSTR_STR     "# SZS status Satisfiable"
 #define SZS_COUNTERSAT_STR "# SZS status CounterSatisfiable"

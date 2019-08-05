@@ -185,7 +185,7 @@ char*     DescribeToken(TokenType token);
 void      PrintToken(FILE* out, Token_p token);
 
 Scanner_p CreateScanner(StreamType type, char *name, bool
-         ignore_comments, char *default_dir);
+                        ignore_comments, char *default_dir, bool fail);
 void      DestroyScanner(Scanner_p  junk);
 
 void      ScannerSetFormat(Scanner_p scanner, IOFormat fmt);

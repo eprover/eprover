@@ -163,7 +163,7 @@ HCB_p GetHeuristic(char* source, HCBARGUMENTS)
    /* StreamTypeOptionString is a hack here...it will give wrong error
       messages for internal strings (but the function will not be
       called with internal strings anyways...) */
-   in=CreateScanner(StreamTypeOptionString, source, true, NULL);
+   in=CreateScanner(StreamTypeOptionString, source, true, NULL, true);
    if(TestInpTok(in, OpenBracket))
    {
       HeuristicDefParse(control->hcbs, in, control->wfcbs,
@@ -565,5 +565,3 @@ GCC_DIAGNOSTIC_POP
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-

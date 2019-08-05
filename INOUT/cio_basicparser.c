@@ -315,7 +315,7 @@ char* ParseFilename(Scanner_p in)
    DStrReset(in->accu);
 
    while((first_tok || TestInpNoSkip(in)) &&
-    TestInpTok(in, PLAIN_FILE_TOKENS|Slash))
+         TestInpTok(in, PLAIN_FILE_TOKENS|Slash|Mult))
    {
       DStrAppendDStr(in->accu, AktToken(in)->literal);
       NextToken(in);

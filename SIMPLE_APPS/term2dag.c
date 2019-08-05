@@ -112,7 +112,7 @@ int main(int argc, char* argv[])
 
    for(i=0; state->argv[i]; i++)
    {
-      in = CreateScanner(StreamTypeFile, state->argv[i] , true, NULL);
+      in = CreateScanner(StreamTypeFile, state->argv[i] , true, NULL, true);
       while(!TestInpTok(in, NoToken))
       {
     term  = TBTermParse(in, bank);
@@ -199,5 +199,3 @@ Read a set of terms and print a DAG representing it.\n\
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-

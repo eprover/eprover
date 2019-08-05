@@ -797,12 +797,11 @@ void PrintToken(FILE* out, Token_p token)
 /----------------------------------------------------------------------*/
 
 Scanner_p CreateScanner(StreamType type, char *name, bool
-         ignore_comments, char *default_dir)
+                        ignore_comments, char *default_dir, bool fail)
 {
    Scanner_p handle;
    Stream_p  stream;
    char      *tmp_name;
-
 
    handle = ScannerCellAlloc();
    handle->source = NULL;
@@ -823,11 +822,11 @@ Scanner_p CreateScanner(StreamType type, char *name, bool
       assert(type == StreamTypeFile);
       if(FileNameIsAbsolute(name))
       {
-         stream = OpenStackedInput(&handle->source, type, name, true);
+         stream = OpenStackedInput(&handle->source, type, name, fail);
          tmp_name = FileNameDirName(name);
          DStrAppendStr(handle->default_dir, tmp_name);
          FREE(tmp_name);
-         assert(stream);
+         //assert(stream);
       }
       else
       {
@@ -851,8 +850,8 @@ Scanner_p CreateScanner(StreamType type, char *name, bool
                        tmp_name);
          FREE(tmp_name);
          stream = OpenStackedInput(&handle->source, type,
-                                   DStrView(full_file_name), !TPTP_dir);
-         if(!stream)
+                                   DStrView(full_file_name), fail&&!TPTP_dir);
+         if(!stream&&TPTP_dir)
          {
             assert(TPTP_dir);
             DStrSet(handle->default_dir, TPTP_dir);
@@ -866,10 +865,17 @@ Scanner_p CreateScanner(StreamType type, char *name, bool
                           tmp_name);
             FREE(tmp_name);
             stream = OpenStackedInput(&handle->source, type,
-                                      DStrView(full_file_name), true);
+                                      DStrView(full_file_name), fail);
          }
          DStrFree(full_file_name);
       }
+   }
+   if(!stream)
+   {
+      DStrFree(handle->default_dir);
+      DStrFree(handle->accu);
+      ScannerCellFree(handle);
+      return NULL;
    }
 
    for(handle->current = 0; handle->current < MAXTOKENLOOKAHEAD;
@@ -1236,7 +1242,8 @@ Scanner_p ScannerParseInclude(Scanner_p in, StrTree_p *name_selector,
    {
       new_scanner = CreateScanner(StreamTypeFile, name,
                                   in->ignore_comments,
-                                  ScannerGetDefaultDir(in));
+                                  ScannerGetDefaultDir(in),
+                                  true);
       ScannerSetFormat(new_scanner, ScannerGetFormat(in));
       new_scanner->include_pos = pos_rep;
    }

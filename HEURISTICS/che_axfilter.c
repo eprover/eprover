@@ -551,7 +551,8 @@ long AxFilterSetParse(Scanner_p in, AxFilterSet_p set)
 AxFilterSet_p AxFilterSetCreateInternal(char* str)
 {
    AxFilterSet_p filters = AxFilterSetAlloc();
-   Scanner_p in = CreateScanner(StreamTypeInternalString, str, true, NULL);
+   Scanner_p in = CreateScanner(StreamTypeInternalString, str, true,
+                                NULL, true);
    AxFilterSetParse(in, filters);
    DestroyScanner(in);
    return filters;
@@ -644,5 +645,3 @@ void AxFilterSetAddNames(DStr_p res, AxFilterSet_p filters)
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-

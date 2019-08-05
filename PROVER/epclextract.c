@@ -198,7 +198,8 @@ int main(int argc, char* argv[])
    }
    for(i=0; state->argv[i]; i++)
    {
-      in = CreateScanner(StreamTypeFile, state->argv[i], !pass_comments, NULL);
+      in = CreateScanner(StreamTypeFile, state->argv[i], !pass_comments,
+                         NULL, true);
       ScannerSetFormat(in, TPTPFormat);
       if(fast_extract)
       {

@@ -144,6 +144,8 @@ EPCtrl_p batch_create_runner(StructFOFSpec_p ctrl,
 
    file = TempFileName();
    fp   = SecureFOpen(file, "w");
+
+   SigPrintTypeDeclsTSTP(fp, ctrl->sig);
    PStackClausePrintTSTP(fp, cspec);
    PStackFormulaPrintTSTP(fp, fspec);
    SecureFClose(fp);
@@ -698,7 +700,7 @@ bool BatchProcessProblem(BatchSpec_p spec,
       if(out!=GlobalOut)
       {
 
-        char buffer[256];
+        char buffer[512];
         sprintf(buffer, "# SZS status GaveUp for %s\n", jobname);
         if(sock_fd != -1)
         {
@@ -753,7 +755,7 @@ bool BatchProcessFile(BatchSpec_p spec,
    fprintf(GlobalOut, "# SZS status Started for %s\n", source);
    fflush(GlobalOut);
 
-   in = CreateScanner(StreamTypeFile, source, true, default_dir);
+   in = CreateScanner(StreamTypeFile, source, true, default_dir, true);
    ScannerSetFormat(in, TSTPFormat);
 
    dummy = ClauseSetAlloc();
@@ -903,7 +905,7 @@ void BatchProcessInteractive(BatchSpec_p spec,
       in = CreateScanner(StreamTypeUserString,
                          DStrView(input),
                          true,
-                         NULL);
+                         NULL, true);
       ScannerSetFormat(in, TSTPFormat);
       if(TestInpId(in, "quit"))
       {
@@ -958,6 +960,189 @@ void BatchProcessInteractive(BatchSpec_p spec,
    }
    DStrFree(jobname);
    DStrFree(input);
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: abstract_to_concrete()
+//
+//   Replace the * in an abstract name by the variant and append the
+//   ending. Ignores everything after * in name. The result is
+//   returned and must be freed by the caller.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations.
+//
+/----------------------------------------------------------------------*/
+
+char* abstract_to_concrete(char* name, char* variant, char* postfix)
+{
+   char *res;
+   DStr_p buffer = DStrAlloc();
+
+   for(; *name && *name!='*'; name++)
+   {
+      DStrAppendChar(buffer, *name);
+   }
+   DStrAppendStr(buffer, variant);
+   DStrAppendStr(buffer, postfix);
+
+   res = DStrCopy(buffer);
+   DStrFree(buffer);
+
+   return res;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function:
+//
+//
+//
+// Global Variables:
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+
+void conrete_batch_struct_FOF_spec_init(BatchSpec_p spec,
+                                        StructFOFSpec_p ctrl,
+                                        char *default_dir,
+                                        char *variant)
+{
+   PStack_p abstract_includes;
+   long i;
+
+   abstract_includes = spec->includes;
+   spec->includes = PStackAlloc();
+   for(i=0; i<PStackGetSP(abstract_includes); i++)
+   {
+      PStackPushP(spec->includes,
+                  abstract_to_concrete(PStackElementP(abstract_includes,i),
+                                       variant,
+                                       ".ax"));
+   }
+   //BatchSpecPrint(GlobalOut, spec);
+   BatchStructFOFSpecInit(spec, ctrl, default_dir);
+   for(i=0; i<PStackGetSP(spec->includes); i++)
+   {
+      char* tmp = PStackPopP(spec->includes);
+      FREE(tmp);
+   }
+   PStackFree(spec->includes);
+   spec->includes = abstract_includes;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: BatchProcessVariants()
+//
+//    Try to solve the abstract problems in spec by going through the
+//    concrete variants indicated by variants.
+//
+// Global Variables:
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+
+void BatchProcessVariants(BatchSpec_p spec, char* variants[], long start,
+                          char* default_dir, char* outdir)
+{
+   StructFOFSpec_p ctrl;
+   long variant,
+      solved_count,
+      var_count,
+      prob_count,
+      concrete_prob_count,
+      i,
+      now,
+      remaining,
+      per_prob_time;
+   PDArray_p solved = PDIntArrayAlloc(10,0);
+   char      *abstract_name, *concrete_name;
+   DStr_p dest_name = DStrAlloc();
+   bool success;
+
+   solved_count = 0;
+   prob_count   = PStackGetSP(spec->source_files);
+   var_count    = StringArrayCardinality(variants);
+
+   fprintf(GlobalOut,
+           "# Initial: %ld abstract problems, %ld variants, %ld concrete problems\n",
+           prob_count, var_count, prob_count*var_count);
+   concrete_prob_count = prob_count*var_count;
+   for(variant = 0; variants[variant]; variant++)
+   {
+      now = GetSecTime();
+      remaining = spec->total_wtc_limit-(now-start);
+      concrete_prob_count = (prob_count-solved_count)*(var_count-variant);
+
+      fprintf(GlobalOut, "# Round %ld, working on variant %s, remaining time %lds\n",
+              variant, variants[variant], remaining);
+
+      fprintf(GlobalOut, "# %ld unsolved abstract problems, %ld remaining variants,"
+              " %ld concrete problems\n",
+              prob_count-solved_count, var_count-variant, concrete_prob_count);
+
+      // Loading axioms here!
+      ctrl = StructFOFSpecAlloc();
+      conrete_batch_struct_FOF_spec_init(spec,
+                                         ctrl,
+                                         default_dir,
+                                         variants[variant]);
+
+      for(i=0; i<PStackGetSP(spec->source_files); i++)
+      {
+         abstract_name = PStackElementP(spec->source_files, i);
+         if(PDArrayElementInt(solved, i))
+         {
+            fprintf(GlobalOut, "# Abstract problem %s already solved\n",
+                    abstract_name);
+         }
+         else
+         {
+            now = GetSecTime();
+            remaining = spec->total_wtc_limit-(now-start);
+            per_prob_time = (remaining/concrete_prob_count)+1;
+
+            concrete_name = abstract_to_concrete(abstract_name, variants[variant], ".p");
+            fprintf(GlobalOut, "# Trying abstract problem %s via %s for %lds\n",
+                    abstract_name, concrete_name, per_prob_time);
+
+            DStrReset(dest_name);
+            if(outdir)
+            {
+               DStrSet(dest_name, outdir);
+               DStrAppendChar(dest_name, '/');
+            }
+            DStrAppendStr(dest_name, PStackElementP(spec->dest_files, i));
+
+            success = BatchProcessFile(spec, per_prob_time,
+                                       ctrl, default_dir,
+                                       concrete_name,
+                                       DStrView(dest_name));
+            if(success)
+            {
+               solved_count++;
+               PDArrayAssignInt(solved, i, 1);
+               concrete_prob_count -= (var_count-variant);
+            }
+            else
+            {
+               concrete_prob_count--;
+            }
+
+            FREE(concrete_name);
+         }
+      }
+      StructFOFSpecFree(ctrl);
+   }
+   DStrFree(dest_name);
+   PDArrayFree(solved);
 }
 
 

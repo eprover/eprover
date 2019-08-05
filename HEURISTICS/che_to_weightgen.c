@@ -597,7 +597,7 @@ static void generate_freq_weights(OCB_p ocb, ClauseSet_p axioms)
 //
 // Function: generate_type_freq_weights()
 //
-//    Assign function symbols weights that are equal to 
+//    Assign function symbols weights that are equal to
 //    sum of occurrences of all function symbols that are of
 //    the same type.
 //
@@ -632,7 +632,7 @@ static void generate_type_freq_weights(OCB_p ocb, ClauseSet_p axioms)
 //
 // Function: generate_comb_freq_weights()
 //
-//    Assign function symbols weights that are equal to 
+//    Assign function symbols weights that are equal to
 //    sum of occurrences of all function symbols that are of
 //    the same type + double the occurrence of the symbol itself.
 //
@@ -654,7 +654,7 @@ static void generate_comb_freq_weights(OCB_p ocb, ClauseSet_p axioms)
    {
       long sym_freq = array->array[i].freq;
       long sym_type_id = SigGetType(ocb->sig, i) ? SigGetType(ocb->sig, i)->type_uid : 0;
-      PDArrayAssignInt(type_counts, sym_type_id, 
+      PDArrayAssignInt(type_counts, sym_type_id,
                        PDArrayElementInt(type_counts, sym_type_id) + sym_freq);
    }
 
@@ -662,7 +662,7 @@ static void generate_comb_freq_weights(OCB_p ocb, ClauseSet_p axioms)
    {
       long sym_freq = array->array[i].freq;
       long sym_type_id = SigGetType(ocb->sig, i) ? SigGetType(ocb->sig, i)->type_uid : 0;
-      *OCBFunWeightPos(ocb, i) = 
+      *OCBFunWeightPos(ocb, i) =
          MAX(PDArrayElementInt(type_counts, sym_type_id)+2*sym_freq,1)
          *W_DEFAULT_WEIGHT;
    }
@@ -709,7 +709,7 @@ static void generate_inv_comb_freq_weights(OCB_p ocb, ClauseSet_p axioms)
    {
       long sym_freq = array->array[i].freq;
       long sym_type_id = SigGetType(ocb->sig, i) ? SigGetType(ocb->sig, i)->type_uid : 0;
-      *OCBFunWeightPos(ocb, i) = 
+      *OCBFunWeightPos(ocb, i) =
          (max_comb - MAX(type_counts[sym_type_id] + 2*sym_freq,1))
          *W_DEFAULT_WEIGHT;
    }
@@ -721,7 +721,7 @@ static void generate_inv_comb_freq_weights(OCB_p ocb, ClauseSet_p axioms)
 //
 // Function: generate_inv_typefreq_weights()
 //
-//    Assign function symbols weights that are equal to 
+//    Assign function symbols weights that are equal to
 //    difference of maximal sum of occurences of symbols of one type
 //    and sum of occurrences of all function symbols that are of
 //    the same type.
@@ -747,7 +747,7 @@ static void generate_inv_type_freq_weights(OCB_p ocb, ClauseSet_p axioms)
    long max_aggregate = 0;
 
    ClauseSetAddTypeDistribution(axioms, type_counts);
-   
+
    for(long i=0; i<max_types; i++)
    {
       max_aggregate = MAX(max_aggregate, type_counts[i]);
@@ -757,7 +757,7 @@ static void generate_inv_type_freq_weights(OCB_p ocb, ClauseSet_p axioms)
    for(i=SIG_TRUE_CODE+1; i<= ocb->sig->f_count; i++)
    {
       long sym_type_id = SigGetType(ocb->sig, i) ? SigGetType(ocb->sig, i)->type_uid : 0;
-      *OCBFunWeightPos(ocb, i) = 
+      *OCBFunWeightPos(ocb, i) =
        (max_aggregate - MAX(type_counts[sym_type_id],1))
        *W_DEFAULT_WEIGHT;
    }
@@ -888,7 +888,7 @@ static void generate_type_freq_rank_weights(OCB_p ocb, ClauseSet_p axioms)
 //
 // Function: generate_comb_freq_rank_weights()
 //
-//   Make the weight of a function symbol equal to 
+//   Make the weight of a function symbol equal to
 //   rank of "frequency of type + 2*frequency of symbol"
 //
 // Global Variables: -
@@ -1295,7 +1295,7 @@ static void generate_inv_modfreqrank_weights_max_0(OCB_p ocb, ClauseSet_p axioms
 void set_user_weights(OCB_p ocb, char* pre_weights)
 {
    Scanner_p in = CreateScanner(StreamTypeUserString, pre_weights,
-                                true, NULL);
+                                true, NULL, true);
 
    TOWeightsParse(in, ocb);
 
@@ -1503,5 +1503,3 @@ void TOGenerateWeights(OCB_p ocb, ClauseSet_p axioms, char *pre_weights,
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-

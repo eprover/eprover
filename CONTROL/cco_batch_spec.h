@@ -122,6 +122,8 @@ void BatchProcessInteractive(BatchSpec_p spec,
                              FILE* fp);
 
 
+void BatchProcessVariants(BatchSpec_p spec, char* variants[],
+                          long start, char* default_dir, char* outdir);
 
 #endif
 

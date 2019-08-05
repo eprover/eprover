@@ -140,7 +140,7 @@ int main(int argc, char* argv[])
 
    for(i=0; state->argv[i]; i++)
    {
-      in = CreateScanner(StreamTypeFile, state->argv[i], true, NULL);
+      in = CreateScanner(StreamTypeFile, state->argv[i], true, NULL,true);
       ScannerSetFormat(in, TSTPFormat);
       CSSCPALoop(in, procstate);
       DestroyScanner(in);

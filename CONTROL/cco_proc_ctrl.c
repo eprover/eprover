@@ -308,6 +308,10 @@ bool EPCtrlGetResult(EPCtrl_p ctrl, char* buffer, long buf_size)
       {
          ctrl->result = PRTheorem;
       }
+      else if(strstr(buffer, SZS_CONTRAAX_STR))
+      {
+         ctrl->result = PRTheorem;
+      }
       else if(strstr(buffer, SZS_UNSAT_STR))
       {
          ctrl->result = PRUnsatisfiable;

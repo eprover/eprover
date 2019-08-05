@@ -59,7 +59,7 @@ static AxFilter_p sine_get_filter(char* fname, AxFilterSet_p *filters)
    AxFilter_p    filter;
    Scanner_p     in;
 
-   in = CreateScanner(StreamTypeOptionString, fname, true, NULL);
+   in = CreateScanner(StreamTypeOptionString, fname, true, NULL, true);
    CheckInpTok(in, Name);
    if(TestTok(LookToken(in,1), NoToken))
    {
@@ -463,27 +463,37 @@ long StructFOFSpecParseAxioms(StructFOFSpec_p ctrl, PStack_p axfiles,
    long         res = 0;
    static IntOrP dummy = {0};
 
+   //printf("# XXX Called with %ld axiom files\n", PStackGetSP(axfiles));
 
    for(i=0; i<PStackGetSP(axfiles); i++)
    {
       iname = PStackElementP(axfiles, i);
       if(!StrTreeFind(&(ctrl->parsed_includes), iname))
       {
-         in = CreateScanner(StreamTypeFile, iname, true, default_dir);
-         ScannerSetFormat(in, parse_format);
+         //printf("Calling with %s\n", iname);
+         in = CreateScanner(StreamTypeFile, iname, true, default_dir, false);
+         //printf("Result: %p\n", in);
+         if(in)
+         {
+            ScannerSetFormat(in, parse_format);
 
-         fprintf(GlobalOut, "# Parsing %s\n", iname);
-         cset = ClauseSetAlloc();
-         fset = FormulaSetAlloc();
-         res += FormulaAndClauseSetParse(in, fset, cset, ctrl->terms,
-                                         NULL,
-                                         &(ctrl->parsed_includes));
-         assert(ClauseSetCardinality(cset)==0);
-         PStackPushP(ctrl->clause_sets, cset);
-         PStackPushP(ctrl->formula_sets, fset);
-         StrTreeStore(&(ctrl->parsed_includes), iname, dummy, dummy);
+            fprintf(GlobalOut, "# Parsing %s\n", iname);
+            cset = ClauseSetAlloc();
+            fset = FormulaSetAlloc();
+            res += FormulaAndClauseSetParse(in, fset, cset, ctrl->terms,
+                                            NULL,
+                                            &(ctrl->parsed_includes));
+            assert(ClauseSetCardinality(cset)==0);
+            PStackPushP(ctrl->clause_sets, cset);
+            PStackPushP(ctrl->formula_sets, fset);
+            StrTreeStore(&(ctrl->parsed_includes), iname, dummy, dummy);
 
-         DestroyScanner(in);
+            DestroyScanner(in);
+         }
+         else
+         {
+            fprintf(GlobalOut, "# Could not find %s\n", iname);
+         }
       }
    }
    ctrl->shared_ax_sp = PStackGetSP(ctrl->clause_sets);
