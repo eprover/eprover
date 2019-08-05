@@ -9,7 +9,7 @@ Contents
 Hack for the LTB category of CASC-2012 (rehacked for later versions) -
 parse an LTB spec file, and run E on the various problems.
 
-  Copyright 2010-2012 by the author.
+  Copyright 2010-2019 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
