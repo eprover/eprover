@@ -338,9 +338,9 @@ void print_help(FILE* out)
    fprintf(out, "\n"
 NAME " " VERSION " \"" E_NICKNAME "\"\n\
 \n\
-Usage: " NAME " [options] [files]\n\
+Usage: " NAME " [options] [Batchfile] [PATH_TO_EPROVER]\n\
 \n\
-Read a CASC 26 LTB batch specification file and process it.\n\
+Read a CASC LTB batch specification file and process it.\n\
 \n");
    PrintOptions(stdout, opts, "Options:\n\n");
    fprintf(out, "\n\n" E_FOOTER);

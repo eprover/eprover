@@ -692,7 +692,7 @@ bool BatchProcessProblem(BatchSpec_p spec,
          }
 
       }
-      fprintf(GlobalOut, "%s", DStrView(handle->output));
+      //fprintf(GlobalOut, "%s", DStrView(handle->output));
    }
    else
    {
