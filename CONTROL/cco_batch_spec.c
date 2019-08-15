@@ -1,25 +1,24 @@
 /*-----------------------------------------------------------------------
 
-File  : cco_batch_spec.c
+  File  : cco_batch_spec.c
 
-Author: Stephan Schulz (schulz@eprover.org)
+  Author: Stephan Schulz (schulz@eprover.org)
 
-Contents
+  Contents
 
-  CASC-J5 batch specification file.
+  CASC-J5 and up batch specification file processing.
 
-  Copyright 2010 by the author.
+  Copyright 2010-2019 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
+  Changes
 
-<1> Tue Jun 29 04:41:18 CEST 2010
-    New
+  Created: Tue Jun 29 04:41:18 CEST 2010
 
------------------------------------------------------------------------*/
+  -----------------------------------------------------------------------*/
 
 #include "cco_batch_spec.h"
 
@@ -499,8 +498,8 @@ long BatchStructFOFSpecInit(BatchSpec_p spec,
 /----------------------------------------------------------------------*/
 
 void StructFOFSpecAddProblem(StructFOFSpec_p ctrl,
-                            ClauseSet_p clauses,
-                            FormulaSet_p formulas)
+                             ClauseSet_p clauses,
+                             FormulaSet_p formulas)
 {
    GenDistribSizeAdjust(ctrl->f_distrib, ctrl->sig);
    PStackPushP(ctrl->clause_sets, clauses);
@@ -535,13 +534,13 @@ void StructFOFSpecBacktrackToSpec(StructFOFSpec_p ctrl)
    GenDistribBacktrackFormulaSets(ctrl->f_distrib,
                                   ctrl->formula_sets,
                                   ctrl->shared_ax_sp);
-    while(PStackGetSP(ctrl->clause_sets)>ctrl->shared_ax_sp)
-    {
-       clauses = PStackPopP(ctrl->clause_sets);
-       ClauseSetFree(clauses);
-       formulas = PStackPopP(ctrl->formula_sets);
-       FormulaSetFree(formulas);
-    }
+   while(PStackGetSP(ctrl->clause_sets)>ctrl->shared_ax_sp)
+   {
+      clauses = PStackPopP(ctrl->clause_sets);
+      ClauseSetFree(clauses);
+      formulas = PStackPopP(ctrl->formula_sets);
+      FormulaSetFree(formulas);
+   }
 }
 
 
@@ -627,8 +626,8 @@ bool BatchProcessProblem(BatchSpec_p spec,
    start = GetSecTime();
 
    StructFOFSpecAddProblem(ctrl,
-                          cset,
-                          fset);
+                           cset,
+                           fset);
 
    secs = GetSecTime();
    handle = batch_create_runner(ctrl, spec->executable,
@@ -683,12 +682,13 @@ bool BatchProcessProblem(BatchSpec_p spec,
       {
          if(sock_fd != -1)
          {
-           TCPStringSendX(sock_fd, DStrView(handle->output));
+            TCPStringSendX(sock_fd, DStrView(handle->output));
          }
          else
          {
-           fprintf(out, "%s", DStrView(handle->output));
-           fflush(out);
+            fprintf(out, "%s for %s\n", PRResultTable[handle->result], jobname);
+            fprintf(out, "%s", DStrView(handle->output));
+            fflush(out);
          }
 
       }
@@ -700,17 +700,17 @@ bool BatchProcessProblem(BatchSpec_p spec,
       if(out!=GlobalOut)
       {
 
-        char buffer[512];
-        sprintf(buffer, "# SZS status GaveUp for %s\n", jobname);
-        if(sock_fd != -1)
-        {
-          TCPStringSendX(sock_fd, buffer);
-        }
-        else
-        {
-          fprintf(out, "%s", buffer);
-          fflush(out);
-        }
+         char buffer[512];
+         sprintf(buffer, "# SZS status GaveUp for %s\n", jobname);
+         if(sock_fd != -1)
+         {
+            TCPStringSendX(sock_fd, buffer);
+         }
+         else
+         {
+            fprintf(out, "%s", buffer);
+            fflush(out);
+         }
       }
    }
 
@@ -914,12 +914,12 @@ void BatchProcessInteractive(BatchSpec_p spec,
       else if(TestInpId(in, "help"))
       {
          fprintf(fp, "\
-# Enter a job, 'help' or 'quit'. Finish any action with 'go.' on a line\n\
-# of its own. A job consists of an optional job name specifier of the\n\
-# form 'job <ident>.', followed by a specification of a first-order\n\
-# problem in TPTP-3 syntax (including any combination of 'cnf', 'fof' and\n\
-# 'include' statements. The system then tries to solve the specified\n\
-# problem (including the constant background theory) and prints the\n\
+# Enter a job, 'help' or 'quit'. Finish any action with 'go.' on a line\n \
+# of its own. A job consists of an optional job name specifier of the\n \
+# form 'job <ident>.', followed by a specification of a first-order\n   \
+# problem in TPTP-3 syntax (including any combination of 'cnf', 'fof' and\n \
+# 'include' statements. The system then tries to solve the specified\n  \
+# problem (including the constant background theory) and prints the\n   \
 # results of this attempt.\n");
       }
       else
