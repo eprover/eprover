@@ -362,8 +362,12 @@ variables.
      paramodulation, $\sigma(\neqn{u}{v})$ is eligible for resolution,
      and $u|_p \notin V$.}
 
-   This inference rule is an alternative to (SN) that performs better
-   in practice.
+   This inference rule is an alternative to (SN). Note that the
+   difference is that \emph{every} occurrence of the subterm unified
+   with the right-hand side of the rewriting clause is replaced by the
+   (instance of) the left hand side in the (instance of) the clause
+   tat is rewritten. This single rule usually performs better than a
+   sequence of conventional superpositions in practice.
 
 \item \emph{Simultaneous superposition into positive literals}
   \index{simultaneous superposition}
@@ -376,7 +380,7 @@ variables.
     and $u|_p \notin V$.}
 
   This inference rule is an alternative to (SP) that performs better
-  in practice.
+  in practice. See the note on the previous rule.
 
  \item \emph{Equality factoring}\index{equality factoring}:
 
