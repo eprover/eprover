@@ -105,7 +105,8 @@ static void normalize_int_rep(DStr_p int_rep)
 //    Take a string representation of an integer and turn it into a
 //    normal form. This is done by dropping optional leading +es and
 //    all leading zeros (except for the case of plain '0', of
-//    course), and moving any remaining '-' to the very front.
+//    course), and moving any remaining '-' to the very front. Return
+//    true on success and false if something weird happened.
 //
 // Global Variables: -
 //
@@ -113,79 +114,50 @@ static void normalize_int_rep(DStr_p int_rep)
 //
 /----------------------------------------------------------------------*/
 
-static void normalize_rational_rep(DStr_p int_rep)
+static bool normalize_rational_rep(DStr_p int_rep)
 {
-   char* work;
-   bool  negative = false;
-   DStr_p tmp = DStrAlloc();
+   char *work, *end;
+   int negative = 1;
+
+   long numerator, denominator, gcd;
 
    work = DStrView(int_rep);
 
-   if(*work=='+')
+   numerator = strtoll(work, &end, 10);
+   if(*end!='/')
    {
-      work++;
+      return false;
    }
-   else if(*work=='-')
+   work = end+1;
+   denominator = strtoll(work, &end, 10);
+   if(*end!='\0' || denominator == 0)
    {
-      negative = true;
-      work++;
+      return false;
    }
-   while(*work == '0')
+   if(numerator < 0)
    {
-      work++;
+      numerator = numerator*-1;
+      negative=negative*-1;
    }
-   /* Check if there is anything left */
-   if(*work!= '/')
+   assert(numerator >= 0);
+   if(denominator<0)
    {
-      while(*work != '/')
-      {
-         DStrAppendChar(tmp, *work);
-         work++;
-      }
+      denominator = denominator*-1;
+      negative=negative*-1;
    }
-   else
-   {
-      DStrSet(tmp, "0");
-   }
-   assert(*work == '/');
-   DStrAppendChar(tmp, '/');
-   work++;
+   assert(denominator > 0);
 
-   if(*work=='+')
-   {
-      work++;
-   }
-   else if(*work=='-')
-   {
-      negative = !negative;
-      work++;
-   }
-   while(*work == '0')
-   {
-      work++;
-   }
-   /* Check if there is anything left */
-   if(*work)
-   {
-      while(*work)
-      {
-         DStrAppendChar(tmp, *work);
-         work++;
-      }
-   }
-   else
-   {
-      DStrAppendChar(tmp, '0');
-   }
+   gcd = ComputeGCD(numerator, denominator);
+
+   numerator=numerator/gcd;
+   denominator=denominator/gcd;
 
    DStrReset(int_rep);
-   if(negative)
-   {
-      DStrAppendChar(int_rep, '-');
-   }
-   DStrAppendStr(int_rep, DStrView(tmp));
+   DStrAppendInt(int_rep, negative*numerator);
+   DStrAppendChar(int_rep, '/');
+   DStrAppendInt(int_rep, denominator);
 
-   DStrFree(tmp);
+   return true;
 }
 
 
@@ -336,5 +308,3 @@ FuncSymbType FuncSymbParse(Scanner_p in, DStr_p id)
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-

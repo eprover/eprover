@@ -86,6 +86,7 @@ bool   StringStartsWith(const char* pattern, const char* prefix);
 int    StringIndex(char* key, char* list[]);
 long   StringArrayCardinality(char *array[]);
 
+long   ComputeGCD(long a, long b);
 
 void   SetProblemType(ProblemType t);
 

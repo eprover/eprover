@@ -259,6 +259,48 @@ long StringArrayCardinality(char *array[])
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: ComputeGCD()
+//
+//   Compute the Greatest Common Divisor of two (positive)
+//   longs. Returns 0 if both are 0 or one is negative.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+long ComputeGCD(long a, long b)
+{
+   if((a<0) || (b<0))
+   {
+      return 0;
+   }
+   while(true)
+   {
+      if(a==0)
+      {
+         return b;
+      }
+      if(b==0)
+      {
+         return a;
+      }
+      if(a>b)
+      {
+         a = a%b;
+      }
+      else
+      {
+         b = b%a;
+      }
+   }
+   return a;
+}
+
+
 
 /*-----------------------------------------------------------------------
 //
