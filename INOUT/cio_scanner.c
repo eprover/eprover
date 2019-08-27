@@ -1055,7 +1055,8 @@ bool TestIdnum(Token_p akt, char* ids)
 // Function: AktTokenError()
 //
 //   Produce a syntax error at the current token with the given
-//   message.
+//   message. If syserror is true, this will also print the C library
+//   error message corresponding to the current value of errno.
 //
 // Global Variables: -
 //

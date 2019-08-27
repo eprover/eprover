@@ -287,7 +287,10 @@ FuncSymbType FuncSymbParse(Scanner_p in, DStr_p id)
             res = FSIdentInt;
             break;
       case SNRational:
-            normalize_rational_rep(in->accu);
+            if(!normalize_rational_rep(in->accu))
+            {
+
+            }
             DStrAppendStr(id, DStrView(in->accu));
             res = FSIdentRational;
             break;
