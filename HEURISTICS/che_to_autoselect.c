@@ -897,6 +897,7 @@ OCB_p TOSelectOrdering(ProofState_p state, HeuristicParms_p params,
       result = TOCreateOrdering(state, &tmp, params->to_pre_prec,
                                 params->to_pre_weights);
    }
+   result->rewrite_strong_rhs_inst = params->rewrite_strong_rhs_inst;
    return result;
 }
 

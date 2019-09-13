@@ -63,7 +63,6 @@ typedef struct rw_desc_cell
 extern long RewriteAttempts;
 extern long RewriteSuccesses;
 extern long RewriteUnboundVarFails;
-extern bool RewriteStrongRHSInst;
 extern long BWRWMatchAttempts;
 extern long BWRWMatchSuccesses;
 
@@ -97,8 +96,3 @@ long FindRewritableClausesIndexed(OCB_p ocb, SubtermIndex_p index,
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
-
-
-

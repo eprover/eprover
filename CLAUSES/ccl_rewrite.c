@@ -28,7 +28,6 @@
 long RewriteAttempts    = 0;
 long RewriteSuccesses   = 0;
 long RewriteUnboundVarFails = 0;
-bool RewriteStrongRHSInst = false;
 long BWRWMatchAttempts  = 0;
 long BWRWMatchSuccesses = 0;
 long BWRWRwSuccesses = 0;
@@ -101,7 +100,7 @@ static bool instance_is_rule(OCB_p ocb, TB_p bank,
                              Term_p lside, Term_p rside, Subst_p subst)
 
 {
-   if(RewriteStrongRHSInst)
+   if(ocb->rewrite_strong_rhs_inst)
    {
       subst_complete_min_instance(ocb, bank, subst, rside);
    }

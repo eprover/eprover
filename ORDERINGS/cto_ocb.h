@@ -87,6 +87,7 @@ typedef struct ocb_cell
    LiteralCmp    lit_cmp;      /* Incomparable, as terms, or with
                                   fake transfinite KBO on predicate
                                   symbols. */
+   bool          rewrite_strong_rhs_inst;
    PStack_p      statestack;   /* Contains backtrack information */
    long          wb;
    long          pos_bal;

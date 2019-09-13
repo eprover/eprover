@@ -1449,7 +1449,7 @@ CLState_p process_options(int argc, char* argv[])
             h_parms->forward_demod = CLStateGetIntArgCheckRange(handle, arg, 0, 2);
             break;
       case OPT_STRONG_RHS_INSTANCE:
-            RewriteStrongRHSInst = true;
+            h_parms->rewrite_strong_rhs_inst = true;
             break;
       case OPT_STRONGSUBSUMPTION:
             StrongUnitForwardSubsumption = true;

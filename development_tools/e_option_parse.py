@@ -237,7 +237,7 @@ def parse_control_info(line):
 
     m = match_srhs_l.search(line)
     if m:
-        res = res+ "      RewriteStrongRHSInst=true;\n"
+        res = res+ "      control->heuristic_parms.rewrite_strong_rhs_inst=true;\n"
 
     #
     # Paramodulation

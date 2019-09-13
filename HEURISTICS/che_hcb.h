@@ -65,6 +65,7 @@ typedef struct heuristic_parms_cell
    TermOrdering        ordertype;
    TOWeightGenMethod   to_weight_gen;
    TOPrecGenMethod     to_prec_gen;
+   bool                rewrite_strong_rhs_inst;
    char*               to_pre_prec;
    char*               to_pre_weights;
    long                to_const_weight;

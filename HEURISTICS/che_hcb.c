@@ -95,6 +95,7 @@ void HeuristicParmsInitialize(HeuristicParms_p handle)
    handle->ordertype                     = KBO6;
    handle->to_weight_gen                 = WNoMethod;
    handle->to_prec_gen                   = PNoMethod;
+   handle->rewrite_strong_rhs_inst       = false;
    handle->to_pre_prec                   = NULL;
    handle->to_pre_weights                = NULL;
    handle->to_const_weight               = WConstNoWeight;

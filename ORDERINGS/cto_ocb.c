@@ -175,6 +175,7 @@ OCB_p OCBAlloc(TermOrdering type, bool prec_by_weight, Sig_p sig)
    handle->statestack = PStackAlloc();
    handle->var_weight = 1;
    handle->lit_cmp    = LCNormal;
+   handle->rewrite_strong_rhs_inst = false;
    handle->wb      = 0;
    handle->pos_bal = 0;
    handle->neg_bal = 0;
