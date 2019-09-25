@@ -249,7 +249,7 @@ EPCtrl_p ECtrlCreateGeneric(char* prover, char* name,
    res->prob_time  = cpu_limit;
    res->start_time = GetSecTime();
    res->input_file = file;
-   printf("# Executing: %s\n", DStrView(cmd));
+   //printf("# Executing: %s\n", DStrView(cmd));
    res->pipe = popen(DStrView(cmd), "r");
    if(!res->pipe)
    {

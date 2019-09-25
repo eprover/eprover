@@ -47,6 +47,22 @@ char* BatchFilters[] =
 };
 
 
+char* BatchStrategies[] =
+{
+   "--satauto-schedule --assume-incompleteness",
+   "--satauto --assume-incompleteness",
+   "-xAutoSched0 -tAutAutoSched0 --assume-incompleteness",
+   "-xAutoSched1 -tAutAutoSched1 --assume-incompleteness",
+   "-xAutoSched2 -tAutAutoSched2 --assume-incompleteness",
+   "-xAutoSched3 -tAutAutoSched3 --assume-incompleteness",
+   "-xAutoSched4 -tAutAutoSched4 --assume-incompleteness",
+   "-xAutoSched5 -tAutAutoSched5 --assume-incompleteness",
+   "-xAutoSched6 -tAutAutoSched6 --assume-incompleteness",
+   "-xAutoSched7 -tAutAutoSched7 --assume-incompleteness",
+   NULL
+};
+
+
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
 /*---------------------------------------------------------------------*/
@@ -238,6 +254,83 @@ void print_op_line(FILE* out, BatchSpec_p spec, BOOutputType state)
       fprintf(out, " ListOfFOF");
    }
 }
+
+
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: abstract_to_concrete()
+//
+//   Replace the * in an abstract name by the variant and append the
+//   ending. Ignores everything after * in name. The result is
+//   returned and must be freed by the caller.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations.
+//
+/----------------------------------------------------------------------*/
+
+char* abstract_to_concrete(char* name, char* variant, char* postfix)
+{
+   char *res;
+   DStr_p buffer = DStrAlloc();
+
+   for(; *name && *name!='*'; name++)
+   {
+      DStrAppendChar(buffer, *name);
+   }
+   DStrAppendStr(buffer, variant);
+   DStrAppendStr(buffer, postfix);
+
+   res = DStrCopy(buffer);
+   DStrFree(buffer);
+
+   return res;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: concrete_batch_struct_FOF_spec_init()
+//
+//   Initialise a StructFOFSpecCell for the concrete problems encoded
+//   in *variant.
+//
+// Global Variables:
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+
+void concrete_batch_struct_FOF_spec_init(BatchSpec_p spec,
+                                        StructFOFSpec_p ctrl,
+                                        char *default_dir,
+                                        char *variant)
+{
+   PStack_p abstract_includes;
+   long i;
+
+   abstract_includes = spec->includes;
+   spec->includes = PStackAlloc();
+   for(i=0; i<PStackGetSP(abstract_includes); i++)
+   {
+      PStackPushP(spec->includes,
+                  abstract_to_concrete(PStackElementP(abstract_includes,i),
+                                       variant,
+                                       ".ax"));
+   }
+   //BatchSpecPrint(GlobalOut, spec);
+   BatchStructFOFSpecInit(spec, ctrl, default_dir);
+   for(i=0; i<PStackGetSP(spec->includes); i++)
+   {
+      char* tmp = PStackPopP(spec->includes);
+      FREE(tmp);
+   }
+   PStackFree(spec->includes);
+   spec->includes = abstract_includes;
+}
+
 
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
@@ -914,12 +1007,12 @@ void BatchProcessInteractive(BatchSpec_p spec,
       else if(TestInpId(in, "help"))
       {
          fprintf(fp, "\
-# Enter a job, 'help' or 'quit'. Finish any action with 'go.' on a line\n \
-# of its own. A job consists of an optional job name specifier of the\n \
-# form 'job <ident>.', followed by a specification of a first-order\n   \
-# problem in TPTP-3 syntax (including any combination of 'cnf', 'fof' and\n \
-# 'include' statements. The system then tries to solve the specified\n  \
-# problem (including the constant background theory) and prints the\n   \
+# Enter a job, 'help' or 'quit'. Finish any action with 'go.' on a line\n\
+# of its own. A job consists of an optional job name specifier of the\n\
+# form 'job <ident>.', followed by a specification of a first-order\n\
+# problem in TPTP-3 syntax (including any combination of 'cnf', 'fof' and\n\
+# 'include' statements. The system then tries to solve the specified\n\
+# problem (including the constant background theory) and prints the\n\
 # results of this attempt.\n");
       }
       else
@@ -961,80 +1054,6 @@ void BatchProcessInteractive(BatchSpec_p spec,
    DStrFree(jobname);
    DStrFree(input);
 }
-
-
-/*-----------------------------------------------------------------------
-//
-// Function: abstract_to_concrete()
-//
-//   Replace the * in an abstract name by the variant and append the
-//   ending. Ignores everything after * in name. The result is
-//   returned and must be freed by the caller.
-//
-// Global Variables: -
-//
-// Side Effects    : Memory operations.
-//
-/----------------------------------------------------------------------*/
-
-char* abstract_to_concrete(char* name, char* variant, char* postfix)
-{
-   char *res;
-   DStr_p buffer = DStrAlloc();
-
-   for(; *name && *name!='*'; name++)
-   {
-      DStrAppendChar(buffer, *name);
-   }
-   DStrAppendStr(buffer, variant);
-   DStrAppendStr(buffer, postfix);
-
-   res = DStrCopy(buffer);
-   DStrFree(buffer);
-
-   return res;
-}
-
-/*-----------------------------------------------------------------------
-//
-// Function:
-//
-//
-//
-// Global Variables:
-//
-// Side Effects    :
-//
-/----------------------------------------------------------------------*/
-
-void conrete_batch_struct_FOF_spec_init(BatchSpec_p spec,
-                                        StructFOFSpec_p ctrl,
-                                        char *default_dir,
-                                        char *variant)
-{
-   PStack_p abstract_includes;
-   long i;
-
-   abstract_includes = spec->includes;
-   spec->includes = PStackAlloc();
-   for(i=0; i<PStackGetSP(abstract_includes); i++)
-   {
-      PStackPushP(spec->includes,
-                  abstract_to_concrete(PStackElementP(abstract_includes,i),
-                                       variant,
-                                       ".ax"));
-   }
-   //BatchSpecPrint(GlobalOut, spec);
-   BatchStructFOFSpecInit(spec, ctrl, default_dir);
-   for(i=0; i<PStackGetSP(spec->includes); i++)
-   {
-      char* tmp = PStackPopP(spec->includes);
-      FREE(tmp);
-   }
-   PStackFree(spec->includes);
-   spec->includes = abstract_includes;
-}
-
 
 /*-----------------------------------------------------------------------
 //
@@ -1090,7 +1109,7 @@ void BatchProcessVariants(BatchSpec_p spec, char* variants[], long start,
 
       // Loading axioms here!
       ctrl = StructFOFSpecAlloc();
-      conrete_batch_struct_FOF_spec_init(spec,
+      concrete_batch_struct_FOF_spec_init(spec,
                                          ctrl,
                                          default_dir,
                                          variants[variant]);
