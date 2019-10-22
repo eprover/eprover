@@ -75,54 +75,6 @@ char* BatchStrategies[] =
 
 /*-----------------------------------------------------------------------
 //
-// Function: do_proof()
-//
-//   Re-run e as eproof and return the result.
-//
-// Global Variables:
-//
-// Side Effects    :
-//
-/----------------------------------------------------------------------*/
-
-void do_proof(DStr_p res, char *exec, char *pexec,
-              char* extra_options, long cpu_limit, char* file)
-{
-   DStr_p         cmd = DStrAlloc();
-   char           line[180];
-   char           *l;
-   FILE           *fp;
-
-   DStrAppendStr(cmd, exec);
-   DStrAppendStr(cmd, " ");
-   DStrAppendStr(cmd, extra_options);
-   DStrAppendStr(cmd, " ");
-   DStrAppendStr(cmd, E_OPTIONS);
-   DStrAppendInt(cmd, cpu_limit);
-   DStrAppendStr(cmd, " -l4 ");
-   DStrAppendStr(cmd, file);
-   DStrAppendStr(cmd, "|");
-   DStrAppendStr(cmd, pexec);
-   DStrAppendStr(cmd, " -f --competition-framing --tstp-out ");
-
-   /* fprintf(GlobalOut, "# Running %s\n", DStrView(cmd)); */
-   fp = popen(DStrView(cmd), "r");
-   if(!fp)
-   {
-      TmpErrno = errno;
-      SysError("Cannot start eproof subprocess", SYS_ERROR);
-   }
-   while((l=fgets(line, 180, fp)))
-   {
-      DStrAppendStr(res, l);
-   }
-   pclose(fp);
-   DStrFree(cmd);
-}
-
-
-/*-----------------------------------------------------------------------
-//
 // Function: batch_create_runner()
 //
 //   Create a EPCtrl block associated with a running instance of E.
