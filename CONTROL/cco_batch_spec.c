@@ -46,22 +46,60 @@ char* BatchFilters[] =
    NULL
 };
 
-
 char* BatchStrategies[] =
 {
    "--satauto-schedule --assume-incompleteness",
-   "--satauto --assume-incompleteness",
-   "-xAutoSched0 -tAutAutoSched0 --assume-incompleteness",
-   "-xAutoSched1 -tAutAutoSched1 --assume-incompleteness",
-   "-xAutoSched2 -tAutAutoSched2 --assume-incompleteness",
-   "-xAutoSched3 -tAutAutoSched3 --assume-incompleteness",
-   "-xAutoSched4 -tAutAutoSched4 --assume-incompleteness",
-   "-xAutoSched5 -tAutAutoSched5 --assume-incompleteness",
-   "-xAutoSched6 -tAutAutoSched6 --assume-incompleteness",
-   "-xAutoSched7 -tAutAutoSched7 --assume-incompleteness",
+   "--satauto-schedule --assume-incompleteness",
+   "--satauto-schedule --assume-incompleteness",
+   "--satauto-schedule --assume-incompleteness",
+   "--satauto-schedule --assume-incompleteness",
+   "--satauto-schedule --assume-incompleteness",
+   "--satauto-schedule --assume-incompleteness",
+   "--satauto-schedule --assume-incompleteness",
+   "--satauto-schedule --assume-incompleteness",
+   "--satauto-schedule --assume-incompleteness",
+   "--satauto-schedule --assume-incompleteness",
+   "--satauto-schedule --assume-incompleteness",
+   "--satauto-schedule --assume-incompleteness",
    NULL
 };
 
+char* BatchFiltersDiv[] =
+{
+   "threshold010000",
+   "gf600_h_gu_R05_F100_L20000"  ,   /* protokoll_X----_auto_sine17 */
+   "gf600_h_gu_R05_F100_L20000"  ,   /* protokoll_X----_auto_sine17 */
+   "gf600_h_gu_R05_F100_L20000"  ,   /* protokoll_X----_auto_sine17 */
+   "gf600_h_gu_R05_F100_L20000"  ,   /* protokoll_X----_auto_sine17 */
+   "gf120_h_gu_R02_F100_L20000"  ,   /* protokoll_X----_auto_sine13 */
+   "gf200_gu_RUU_F100_L20000"    ,   /* protokoll_X----_auto_sine08 */
+   "gf200_h_gu_R03_F100_L20000"  ,   /* protokoll_X----_auto_sine16 */
+   "gf120_h_gu_RUU_F100_L00100"  ,   /* protokoll_X----_auto_sine15 */
+   "gf500_h_gu_R04_F100_L20000"  ,   /* protokoll_X----_auto_sine11 */
+   "gf150_gu_RUU_F100_L20000"    ,   /* protokoll_X----_auto_sine04 */
+   "gf120_h_gu_RUU_F100_L00500"  ,   /* protokoll_X----_auto_sine12 */
+   "gf120_gu_RUU_F100_L01000"    ,   /* protokoll_X----_auto_sine21 */
+   NULL
+};
+
+
+char* BatchStrategiesDiv[] =
+{
+   "--auto-schedule --assume-incompleteness",
+   "-xAutoSched0 -tAutoSched0 --assume-incompleteness",
+   "-xAutoSched1 -tAutoSched1 --assume-incompleteness",
+   "-xAutoSched2 -tAutoSched2 --assume-incompleteness",
+   "-xAutoSched3 -tAutoSched3 --assume-incompleteness",
+   "--satauto-schedule --assume-incompleteness",
+   "--satauto-schedule --assume-incompleteness",
+   "--satauto-schedule --assume-incompleteness",
+   "--satauto --assume-incompleteness",
+   "--satauto --assume-incompleteness",
+   "--satauto --assume-incompleteness",
+   "--satauto --assume-incompleteness",
+   "--satauto --assume-incompleteness",
+   NULL
+};
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
@@ -87,6 +125,7 @@ char* BatchStrategies[] =
 
 EPCtrl_p batch_create_runner(StructFOFSpec_p ctrl,
                              char *executable,
+                             char* options,
                              char* extra_options,
                              long cpu_time,
                              AxFilter_p ax_filter)
@@ -121,7 +160,7 @@ EPCtrl_p batch_create_runner(StructFOFSpec_p ctrl,
     * GetSecTimeMod()); */
 
    AxFilterPrintBuf(name, 320, ax_filter);
-   pctrl = ECtrlCreate(executable, name, extra_options, cpu_time, file);
+   pctrl = ECtrlCreateGeneric(executable, name, options, extra_options, cpu_time, file);
 
    PStackFree(cspec);
    PStackFree(fspec);
@@ -675,25 +714,20 @@ bool BatchProcessProblem(BatchSpec_p spec,
                            fset);
 
    secs = GetSecTime();
-   handle = batch_create_runner(ctrl, spec->executable,
-                                answers,
-                                wct_limit,
-                                AxFilterSetFindFilter(filters,
-                                                      BatchFilters[0]));
 
-   EPCtrlSetAddProc(procs, handle);
-
-   i=1;
-   while(((used = (GetSecTime()-secs)) < (wct_limit/2)) &&
-         BatchFilters[i])
+   i=0;
+   for(i=0;
+       (!i||((used = (GetSecTime()-secs)) < (wct_limit/2))) &&
+          BatchFilters[i];
+       i++)
    {
       handle = batch_create_runner(ctrl, spec->executable,
+                                   BatchStrategiesDiv[i],
                                    answers,
                                    wct_limit,
                                    AxFilterSetFindFilter(filters,
-                                                         BatchFilters[i]));
+                                                         BatchFiltersDiv[i]));
       EPCtrlSetAddProc(procs, handle);
-      i++;
    }
    AxFilterSetFree(filters);
 

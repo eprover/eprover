@@ -117,7 +117,7 @@ int main(int argc, char* argv[])
    {
       sprintf(optbuffer, "-xAutoSched%d -tAutoSched%d --sine", i, i);
       sprintf(namebuffer, "AutoSched%d", i);
-      tmp = ECtrlCreateGeneric(prover, namebuffer, optbuffer,
+      tmp = ECtrlCreateGeneric(prover, namebuffer, optbuffer, "",
                                HardTimeLimit/2, SecureStrdup(state->argv[0]));
       EPCtrlSetAddProc(ctrl, tmp);
    }
