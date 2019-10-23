@@ -1,10 +1,10 @@
 /*-----------------------------------------------------------------------
 
-File  : clb_numtrees.h
+  File  : clb_numtrees.h
 
-Author: Stephan Schulz
+  Author: Stephan Schulz
 
-Contents
+  Contents
 
   Definitions for SPLAY trees with long integer keys and up to two
   long or pointer values. Copied from clb_stringtrees.h
@@ -15,12 +15,11 @@ Contents
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
+  Changes
 
-<1> Thu Sep 25 02:23:01 MET DST 1997
-    New
+  Created: Thu Sep 25 02:23:01 MET DST 1997
 
------------------------------------------------------------------------*/
+  -----------------------------------------------------------------------*/
 
 #ifndef CLB_NUMTREES
 
@@ -32,14 +31,6 @@ Changes
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
 /*---------------------------------------------------------------------*/
-
-
-
-
-/*---------------------------------------------------------------------*/
-/*                Exported Functions and Variables                     */
-/*---------------------------------------------------------------------*/
-
 
 
 /* General purpose data structure for indexing objects by a numerical
@@ -59,6 +50,10 @@ typedef struct numtreecell
 }NumTreeCell, *NumTree_p;
 
 
+/*---------------------------------------------------------------------*/
+/*                Exported Functions and Variables                     */
+/*---------------------------------------------------------------------*/
+
 #define NumTreeCellAlloc() (NumTreeCell*)SizeMalloc(sizeof(NumTreeCell))
 #define NumTreeCellFree(junk)        SizeFree(junk, sizeof(NumTreeCell))
 
@@ -73,7 +68,7 @@ void      NumTreeFree(NumTree_p junk);
 NumTree_p NumTreeInsert(NumTree_p *root, NumTree_p newnode);
 bool      NumTreeStore(NumTree_p *root, long key, IntOrP val1, IntOrP val2);
 long      NumTreeDebugPrint(FILE* out, NumTree_p tree,
-             bool keys_only);
+                            bool keys_only);
 NumTree_p NumTreeFind(NumTree_p *root, long key);
 NumTree_p NumTreeExtractEntry(NumTree_p *root, long key);
 NumTree_p NumTreeExtractRoot(NumTree_p *root);
@@ -93,8 +88,3 @@ AVL_TRAVERSE_DECLARATION(NumTree, NumTree_p)
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
-
-
-
