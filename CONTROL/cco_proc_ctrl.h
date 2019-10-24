@@ -53,6 +53,8 @@ typedef struct e_pctrl_cell
 }EPCtrlCell, *EPCtrl_p;
 
 #define EPCTRL_BUFSIZE 200
+#define MAX_CORES 8
+
 
 typedef struct e_pctrl_set_cell
 {
@@ -105,8 +107,10 @@ EPCtrlSet_p EPCtrlSetAlloc(void);
 void        EPCtrlSetFree(EPCtrlSet_p junk, bool delete_files);
 void        EPCtrlSetAddProc(EPCtrlSet_p set, EPCtrl_p proc);
 EPCtrl_p    EPCtrlSetFindProc(EPCtrlSet_p set, int fd);
-void EPCtrlSetDeleteProc(EPCtrlSet_p set, EPCtrl_p proc, bool delete_file);
+void        EPCtrlSetDeleteProc(EPCtrlSet_p set,
+                                EPCtrl_p proc, bool delete_file);
 #define     EPCtrlSetEmpty(set) ((set)->procs==NULL)
+#define     EPCtrlSetCardinality(set) NumTreeNodes((set)->procs)
 
 int         EPCtrlSetFDSet(EPCtrlSet_p set, fd_set *rd_fds);
 

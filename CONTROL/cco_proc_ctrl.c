@@ -193,9 +193,16 @@ EPCtrl_p ECtrlCreateGeneric(char* prover, char* name,
                             long cpu_limit, char* file)
 {
    DStr_p   cmd = DStrAlloc();
-   EPCtrl_p res = EPCtrlAlloc(name);
-   char           line[180];
-   char*          ret;
+   EPCtrl_p res;
+   char     line[180];
+   char*    ret;
+
+   DStr_p procname = DStrAlloc();
+   DStrAppendStr(procname, name);
+   DStrAppendStr(procname, " => ");
+   DStrAppendStr(procname, options);
+   res = EPCtrlAlloc(DStrView(procname));
+   DStrFree(procname);
 
    DStrAppendStr(cmd, prover);
    DStrAppendStr(cmd, E_OPTIONS_BASE);

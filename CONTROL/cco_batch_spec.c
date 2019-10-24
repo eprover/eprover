@@ -68,9 +68,6 @@ char* BatchFiltersDiv[] =
 {
    "threshold010000",
    "gf600_h_gu_R05_F100_L20000"  ,   /* protokoll_X----_auto_sine17 */
-   "gf600_h_gu_R05_F100_L20000"  ,   /* protokoll_X----_auto_sine17 */
-   "gf600_h_gu_R05_F100_L20000"  ,   /* protokoll_X----_auto_sine17 */
-   "gf600_h_gu_R05_F100_L20000"  ,   /* protokoll_X----_auto_sine17 */
    "gf120_h_gu_R02_F100_L20000"  ,   /* protokoll_X----_auto_sine13 */
    "gf200_gu_RUU_F100_L20000"    ,   /* protokoll_X----_auto_sine08 */
    "gf200_h_gu_R03_F100_L20000"  ,   /* protokoll_X----_auto_sine16 */
@@ -79,6 +76,13 @@ char* BatchFiltersDiv[] =
    "gf150_gu_RUU_F100_L20000"    ,   /* protokoll_X----_auto_sine04 */
    "gf120_h_gu_RUU_F100_L00500"  ,   /* protokoll_X----_auto_sine12 */
    "gf120_gu_RUU_F100_L01000"    ,   /* protokoll_X----_auto_sine21 */
+   "gf120_gu_R02_F100_L20000"    ,   /* protokoll_X----_auto_sine03 */
+   "gf500_gu_R04_F100_L20000"    ,   /* protokoll_X----_auto_sine01 */
+   "gf600_gu_R05_F100_L20000"    ,   /* protokoll_X----_auto_sine07 */
+   "gf600_h_gu_R05_F100_L20000"  ,   /* protokoll_X----_auto_sine17 */
+   "gf600_h_gu_R05_F100_L20000"  ,   /* protokoll_X----_auto_sine17 */
+   "gf600_h_gu_R05_F100_L20000"  ,   /* protokoll_X----_auto_sine17 */
+   "gf600_h_gu_R05_F100_L20000"  ,   /* protokoll_X----_auto_sine17 */
    NULL
 };
 
@@ -86,18 +90,22 @@ char* BatchFiltersDiv[] =
 char* BatchStrategiesDiv[] =
 {
    "--auto-schedule --assume-incompleteness",
-   "-xAutoSched0 -tAutoSched0 --assume-incompleteness",
-   "-xAutoSched1 -tAutoSched1 --assume-incompleteness",
+   "--satauto-schedule --assume-incompleteness",
+   "--satauto-schedule --assume-incompleteness",
+   "--satauto-schedule --assume-incompleteness",
+   "--satauto-schedule --assume-incompleteness",
+   "--satauto-schedule --assume-incompleteness",
+   "--satauto-schedule --assume-incompleteness",
+   "--satauto-schedule --assume-incompleteness",
+   "--satauto-schedule --assume-incompleteness",
+   "--satauto-schedule --assume-incompleteness",
+   "--satauto-schedule --assume-incompleteness",
+   "--satauto-schedule --assume-incompleteness",
+   "--satauto-schedule --assume-incompleteness",
    "-xAutoSched2 -tAutoSched2 --assume-incompleteness",
    "-xAutoSched3 -tAutoSched3 --assume-incompleteness",
-   "--satauto-schedule --assume-incompleteness",
-   "--satauto-schedule --assume-incompleteness",
-   "--satauto-schedule --assume-incompleteness",
-   "--satauto --assume-incompleteness",
-   "--satauto --assume-incompleteness",
-   "--satauto --assume-incompleteness",
-   "--satauto --assume-incompleteness",
-   "--satauto --assume-incompleteness",
+   "-xAutoSched4 -tAutoSched4 --assume-incompleteness",
+   "-xAutoSched5 -tAutoSched5 --assume-incompleteness",
    NULL
 };
 
@@ -702,7 +710,7 @@ bool BatchProcessProblem(BatchSpec_p spec,
    bool res = false;
    EPCtrl_p handle;
    EPCtrlSet_p procs = EPCtrlSetAlloc();
-   long long start, secs, used, now, remaining;
+   long long start, end, used, now, remaining;
    AxFilterSet_p filters = AxFilterSetCreateInternal(AxFilterDefaultSet);
    int i;
    char* answers = spec->res_answer==BONone ?"" : "--conjectures-are-questions";
@@ -713,40 +721,33 @@ bool BatchProcessProblem(BatchSpec_p spec,
                            cset,
                            fset);
 
-   secs = GetSecTime();
-
+   start = GetSecTime();
+   end   = start+wct_limit;
    i=0;
-   for(i=0;
-       (!i||((used = (GetSecTime()-secs)) < (wct_limit/2))) &&
-          BatchFilters[i];
-       i++)
-   {
-      handle = batch_create_runner(ctrl, spec->executable,
-                                   BatchStrategiesDiv[i],
-                                   answers,
-                                   wct_limit,
-                                   AxFilterSetFindFilter(filters,
-                                                         BatchFiltersDiv[i]));
-      EPCtrlSetAddProc(procs, handle);
-   }
-   AxFilterSetFree(filters);
 
-
-   handle = NULL;
-   while(!EPCtrlSetEmpty(procs))
+   while(!res && GetSecTime()<=end)
    {
+      while(BatchFilters[i] &&
+            (EPCtrlSetCardinality(procs)<MAX_CORES) &&
+            ((now=GetSecTime())<=end))
+      {
+         used = now-start;
+         handle = batch_create_runner(ctrl, spec->executable,
+                                      BatchStrategiesDiv[i],
+                                      answers,
+                                      MIN((wct_limit+1)/2, wct_limit-used),
+                                      AxFilterSetFindFilter(filters,
+                                                            BatchFiltersDiv[i]));
+         EPCtrlSetAddProc(procs, handle);
+         i++;
+      }
       handle = EPCtrlSetGetResult(procs, true);
       if(handle)
       {
          break;
       }
-      now = GetSecTime();
-      used = now - start;
-      if(!(used < wct_limit))
-      {
-         break;
-      }
    }
+
    if(handle)
    {
       fprintf(GlobalOut, "%s for %s\n", PRResultTable[handle->result], jobname);
@@ -795,7 +796,7 @@ bool BatchProcessProblem(BatchSpec_p spec,
 
    StructFOFSpecBacktrackToSpec(ctrl);
    /* cset and fset are freed in Backtrack */
-
+   AxFilterSetFree(filters);
    EPCtrlSetFree(procs, true);
 
    return res;
