@@ -18,7 +18,7 @@
 \usepackage{url}
 
 \author{Stephan Schulz}
-\title{E 2.3\\[1.5ex]User Manual\\[1.5ex]{\normalsize --preliminary
+\title{E 2.4\\[1.5ex]User Manual\\[1.5ex]{\normalsize --preliminary
     version--}}
 
 \makeindex{}
@@ -27,13 +27,14 @@
 \maketitle{}
 
 \begin{abstract}
-  E is an equational theorem prover for full first-order logic, based
-  on superposition and rewriting. In this preliminary manual we first
+  E is an equational theorem prover for full first-order logic (with
+  optional support for some higher-order features), based on
+  superposition and rewriting. In this preliminary manual we first
   give a short introduction for impatient new users, and then cover
-  calculus and proof procedure. The manual covers proof search control
-  and related options, followed by input and output formats. Finally,
-  it describes some additional tools that are part of the E
-  distribution.
+  calculus and proof procedure. The manual also covers proof search
+  control and related options, followed by input and output
+  formats. Finally, it describes some additional tools that are part
+  of the E distribution.
 \end{abstract}
 
 \tableofcontents{}
@@ -55,16 +56,24 @@ Even after 20 years, E is still a moving target. However, most recent
 releases have been quite stable, and the prover is being used
 productively by several independent groups of people. This manual
 should enable you to experiment with the prover and to use some of its
-more advanced features.
+more advanced features. Be aware that it often lags behind the
+implementation. The ultimate reference is the source code. Also, the
+help page (produced \texttt{eprover -h} and equivalent to the UNIX man
+page delivered with the prover) is always an up-to-date documentation
+of the available command line options.
 
 The manual assumes a working knowledge of refutational theorem
-proving, which can be gained from e.g.~\cite{CL73}. For a short
-description of E including performance data,
-see~\cite{Schulz:IJCAR-2004}. A more detailed description has been
-published as~\cite{Schulz:AICOM-2002}, while the most recent published
-description is~\cite{Schulz:LPAR-2013}. Most papers on E and much more
-information is available at or a few hops away from the E home page,
-\url{https://www.eprover.org}.
+proving, which can be gained from e.g.~\cite{CL73}. The calculus is
+(mostly) a specialisation of superposition as described by Bachmair
+and Ganzinger~\cite{BG94}.
+
+The primary description of E has been published
+as~\cite{Schulz:AICOM-2002}, while the most recent published
+descriptions are~\cite{Schulz:LPAR-2013} (including the extension to
+many-sorted logic) and~\cite{SCV:CADE-2019} (including optional
+extension to LFHO and integration of PicoSAT). Most papers on E and
+much more information is available at or a few hops away from the E
+home page, \url{https://www.eprover.org}.
 
 Some other provers have influenced the design of E and may be
 referenced in the course of this manual. These include
@@ -78,11 +87,14 @@ Vampire\index{Vampire}~\cite{RV:AICOM-2002,RV:IJCAR-2001}.
 \chapter{Getting Started}
 \label{sec:start}
 
-Installation of E should be straightforward. The file \texttt{README}
-in the main directory of the distribution contains the necessary
-information. After building, you will find the stand-alone executable
-\texttt{E/PROVER/eprover}, or \texttt{E/PROVER/eprover-ho} if you
-configured the system with support for lambda-free higher-order logic.
+Installation of E should be straightforward, but requires a standard
+UNIX/Linux build environment, including \texttt{/bin/sh}, \texttt{gcc}
+(or an equivalent compiler), and \texttt{make}. The file
+\texttt{README} in the main directory of the distribution contains the
+necessary information. After configuring and building the system, you
+will find the stand-alone executable \texttt{E/PROVER/eprover}, or
+\texttt{E/PROVER/eprover-ho} if you configured the system with support
+for lambda-free higher-order logic.
 
 E is controlled by a very wide range of parameters. However, if you do
 not want to bother with the details, you can leave configuration for a
@@ -92,17 +104,18 @@ line options:
 \bigskip
 \noindent
 \begin{tabular}{lp{7.5cm}}
-  \texttt{--autosat}
-  & Choose a literal selection strategy, a clause
-    evaluation heuristic, and a term ordering automagically\index{xyzzy} (based on
-    problem features).\\
+  \texttt{--satauto}
+  & Choose literal selection strategy,  clause
+    evaluation heuristic, term ordering and other search parameters
+    automagically\index{xyzzy}, based on problem features.\\
   \texttt{--auto}
-  & As \texttt{--autosat}, but add heuristic
+  & As \texttt{--satauto}, but add heuristic
     specification pruning using one of several instantiation of the SInE
-    algorithm~\cite{HV:CADE-2011} for large specifications.\\
+    algorithm~\cite{HV:CADE-2011} for large specifications. This makes
+    the prover potentially incomplete.\\
   \texttt{--auto-schedule}
   & As \texttt{--auto}, but try not one, but
-    up to 5 different strategies. \\
+    several different strategies. \\
   \texttt{--memory-limit=xx}
   & Tell the prover how much memory
     (measured in MB) to use at most. In automatic mode E will optimize
@@ -115,23 +128,18 @@ line options:
 \end{tabular}
 \footnotetext{Emphasis added for E~0.7 and up, which globally cache
   rewrite steps.}
+
 \begin{example}
   If you happen to have a workstation with 64 MB RAM\footnote{Yes,
     this is outdated. If it still applies to you, get a new
     computer! It will still work ok, though.}, the following command
-  is reasonable:
-\small
+  is reasonable:\nopagebreak
+\small\nopagebreak
 \begin{verbatim}
 eprover --auto --memory-limit=48 PUZ031-1+rm_eq_rstfp.lop
 \end{verbatim}
   \normalsize
 \end{example}
-
-
-This documentation will probably lag behind the development of the
-latest version of the prover for quite some time. To find out more
-about the options available, type \texttt{eprover --help} (or consult
-the source code included with the distribution).
 
 
 
@@ -1687,12 +1695,15 @@ clauses for the \texttt{--sos-uses-input-types} option.
 
 As part of the ongoing Matryoshka project
 (\url{http://matryoshka.gforge.inria.fr/}) E has been extended to
-support lambda-free higher-order logic (LFHOL). In this section we
-give a very short introduction to LFHOL syntax and semantics. Detailed
-description (which includes semantics) can be found in a paper by
-Bentkamp, Blanchette, Cruanes, and Waldmann~\cite{BBCW:IJCAR-2018},
-available at
-\url{http://matryoshka.gforge.inria.fr/pubs/lfhosup_report.pdf}.  The
+optionally support lambda-free higher-order logic (LFHOL). The option
+can be enabled at compile time by passing \texttt{--enable-ho} to the
+\texttt{configure} script.
+
+In this section we give a very short introduction to LFHOL syntax and
+semantics. Detailed description (which includes semantics) can be
+found in a paper by Bentkamp, Blanchette, Cruanes, and
+Waldmann~\cite{BBCW:IJCAR-2018}, available at
+\url{http://matryoshka.gforge.inria.fr/pubs/lfhosup_report.pdf}. The
 implementation is described in~\cite{VBCS:LFHOReport-2018}.
 
 LFHOL extends FOL by allowing partial appliciation of function symbols
@@ -1702,16 +1713,17 @@ appear as atoms (not as arguments to other symbols). Quantification
 over booleans is not allowed. LFHOL is simply typed -- each type is
 either atomic or a function type.
 
-FOR E~2.3, LFHOL formulas are expressed using a subset of TPTP THF
-syntax. More precisely, E 2.3 supports subset of THF syntax that is
-monomorphic, without lambda abstractions, without the constants !! and
-??, and without anything else that will give you an error message. ;-)
+For E~2.3 and up, LFHOL formulas are expressed using a subset of TPTP
+THF syntax. More precisely, E supports a subset of THF syntax that is
+monomorphic, without lambda abstractions, without the constants
+\texttt{!!}  and \texttt{??}, and without anything else that will give
+you an error message. ;-)
 
 As an example, LFHOL is expressive enough to reason about higher-order
 combinators such as \textsf{map} (pointwise application of a function
 to a list) or \textsf{power} (iterative application of a function).
 
-The example [roblem \texttt{list.p} in the directory
+The example problem \texttt{list.p} in the directory
 \texttt{EXAMPLE\_PROBLEMS/LFHOL} shows how LFHOL features can be used
 to succintly express problems that have more verbose encodings in FOL.
 
@@ -2084,7 +2096,6 @@ Table~\ref{tab:opts}.
 
 
 
-
 \section{Grounding: \texttt{eground}}
 \index{eground|texttt}
 
@@ -2183,18 +2194,18 @@ used on a multi-core machine with sufficient amounts of memory.
 \texttt{E\_ltb\_runner} relies on TPTP-3 include file syntax and
 semantics, and hence will only (and implicitly) work with the TPTP-3
 syntax. The main program runs several instances of \texttt{eprover} as
-sub-processes. Unless the executable is in the search path, the full
+sub-processes. Unless that executable is in the search path, the full
 path should be given as as the optional second argument to the
 program.
-
 
 A typical command line for starting \texttt{e\_ltb\_runner} is:
 
 \begin{verbatim}
-  e_ltb_runner <batchspec> [path_to_eprover path_to_epclextract]
+  e_ltb_runner <batchspec> [--output-dir=<dir>] [path_to_eprover]
 \end{verbatim}
 
-For interactive use, add the option \texttt{--interactive}.
+For interactive use, add the option \texttt{--interactive}, for
+multi-format support (see below) add \texttt{--variant27}.
 
 
 \subsection{Batch specification file}
@@ -2203,12 +2214,16 @@ For interactive use, add the option \texttt{--interactive}.
 The batch specification file format is defined for the \emph{CADE ATP
   System Competition} LTB division, and is typically updated every
 year. E tracks this development. The E~1.9 distribution implements
-support for the LTB format used in CASC-24/CASC0-25 and documented at
+support for the LTB format used in CASC-24/CASC-25 and documented at
 \url{http://www.cs.miami.edu/~tptp/CASC/24/Design.html#Problems},
 subsection \emph{Batch Specification Files}. It tries to maintain
 backwards-compatibility to for the LTB format used in CASC-J6 and
 documented at
-\url{http://www.cs.miami.edu/~tptp/CASC/J6/Design.html#Problems}.
+\url{http://www.cs.miami.edu/~tptp/CASC/J6/Design.html#Problems}. Later
+versions support later formats. In particular, E~2.4 adds support for
+the multi-format competition used in CASC-27 and described at
+\url{http://www.tptp.org/CASC/27/Design.html} with the option
+\texttt{--variants27}.
 
 A batch specification file consists of a number of defined comments,
 interleaved with parameter settings and \texttt{include} statements
@@ -2536,7 +2551,7 @@ The parameters have the following type and meaning:
   The standard distribution of E is free software. You can use, modify
   and copy it under the terms of the GNU General Public License
   (version 2.0 or later) or the GNU Lesser General Public License
-  (version 2.1 or later). You may also have bought a commercial
+  (version 2.1 or later). You may also have bought a proprietary
   version of E from Safelogic A.B. in Gothenburg, Sweden. In this
   case, you are bound by whatever license you agreed to. If you are in
   doubt about which version of E you have, run \texttt{eprover -V} or
@@ -2723,13 +2738,6 @@ Stephan Schulz.
 \newblock {E -- A Brainiac Theorem Prover}.
 \newblock {\em Journal of AI Communications}, 15(2/3):111--126, 2002.
 
-\bibitem[Sch04]{Schulz:IJCAR-2004}
-S.~Schulz.
-\newblock {System Description: E~0.81}.
-\newblock In D.~Basin and M.~Rusinowitch, editors, {\em Proc.\ of the 2nd
-  IJCAR, Cork, Ireland}, volume 3097 of {\em LNAI}, pages 223--228. Springer,
-  2004.
-
 \bibitem[Sch13]{Schulz:LPAR-2013}
 Stephan Schulz.
 \newblock {System Description: E~1.8}.
@@ -2749,6 +2757,12 @@ Stephan Schulz.
 \newblock In Laura Kov{\'a}cs and Andrei Voronkov, editors, {\em Vampire 2017.
   Proceedings of the 4th Vampire Workshop}, volume~53 of {\em EPiC Series in
   Computing}, pages 9--19. EasyChair, 2018.
+
+\bibitem[SCV19]{SCV:CADE-2019}
+Stephan Schulz, Simon Cruanes, and Petar Vukmirovi{\'c}.
+\newblock Faster, higher, stronger: {E} 2.3.
+\newblock In Pacal Fontaine, editor, {\em Proc.\ of the 27th CADE, Natal,
+  Brasil}, number 11716 in LNAI, pages 495--507. Springer, 2019.
 
 \bibitem[SS02]{SS:CADE-2002}
 S.~Schulz and G.~Sutcliffe.
@@ -2792,7 +2806,8 @@ T.~Tammet.
 \bibitem[VBCS18]{VBCS:LFHOReport-2018}
 Petar Vukmirovi{\'c}, Jasmin~Christian Blanchette, Simon Cruanes, and Stephan
   Schulz.
-\newblock Extending a brainiac prover to lambda-free higher-order logic.
+\newblock Extending a brainiac prover to lambda-free higher-order logic -
+  report version.
 \newblock Technical report, Matryoshka Project, 2018.
 
 \bibitem[WAB{\etalchar{+}}99]{WABCEKTT:CADE-99}
