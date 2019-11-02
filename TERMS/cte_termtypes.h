@@ -575,6 +575,41 @@ static inline Term_p TermDefaultCellAlloc(void)
    return handle;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: TermDefaultCellAlloc()
+//
+//   Allocate a term cell with default values.
+//   Furthermore allocates the arguments of the term using the given arity.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+static inline Term_p TermDefaultCellArityAlloc(int arity)
+{
+   Term_p handle = TermCellArityAlloc(arity);
+
+   handle->properties = TPIgnoreProps;
+   handle->arity      = arity;
+   handle->type       = NULL;
+   handle->binding    = NULL;
+
+   for(int i = 0; i < arity; ++i)
+      handle->args[i] = NULL;
+
+   handle->rw_data.nf_date[0] = SysDateCreationTime();
+   handle->rw_data.nf_date[1] = SysDateCreationTime();
+   handle->lson = NULL;
+   handle->rson = NULL;
+   TermSetCache(handle, NULL);
+   TermSetBank(handle, NULL);
+
+   return handle;
+}
+
 
 /*-----------------------------------------------------------------------
 //
