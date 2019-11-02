@@ -120,7 +120,6 @@ typedef struct termcell
    int              arity;         /* Redundant, but saves handing
                                       around the signature all the
                                       time */
-   struct termcell* *args;         /* Pointer to array of arguments */
    struct termcell* binding;       /* For variable bindings,
                                       potentially for temporary
                                       rewrites - it might be possible
@@ -146,6 +145,9 @@ typedef struct termcell
                                       is responsible for lifetime management 
                                       of the term */
 #endif
+
+   struct termcell* args[];         /* Flexible array member containing the arguments */
+
 }TermCell, *Term_p, **TermRef;
 
 
