@@ -565,7 +565,6 @@ static inline Term_p TermDefaultCellAlloc(void)
    handle->arity      = 0;
    handle->type       = NULL;
    handle->binding    = NULL;
-   handle->args       = NULL;
    handle->rw_data.nf_date[0] = SysDateCreationTime();
    handle->rw_data.nf_date[1] = SysDateCreationTime();
    handle->lson = NULL;
