@@ -130,13 +130,13 @@ Eqn_p GenDefLit(TB_p bank, FunCode pred, bool positive,
    {
       int arity = PStackGetSP(split_vars), i;
 
-      lside = TermDefaultCellAlloc();
+      lside = TermDefaultCellArityAlloc(arity);
       lside->f_code = pred;
       lside->arity = arity;
-      lside->args = TermArgArrayAlloc(arity);
-      for(i=0; i<arity; i++)
+
+      for(i = 0; i < arity; ++i)
       {
-    lside->args[i] = PStackElementP(split_vars, i);
+         lside->args[i] = PStackElementP(split_vars, i);
       }
    }
    lside->type = bank->sig->type_bank->bool_type;
