@@ -223,7 +223,7 @@ static Term_p tb_parse_cons_list(Scanner_p in, TB_p bank, bool check_symb_prop)
    stack = PStackAlloc();
    AcceptInpTok(in, OpenSquare);
 
-   handle = TermDefaultCellAlloc();
+   handle = TermDefaultCellArityAlloc(2);
    current = handle;
 
    if(!TestInpTok(in, CloseSquare))
@@ -231,12 +231,12 @@ static Term_p tb_parse_cons_list(Scanner_p in, TB_p bank, bool check_symb_prop)
 
       current->f_code = SIG_CONS_CODE;
       current->arity = 2;
-      current->args = TermArgArrayAlloc(2);
       current->args[0] = TBTermParseReal(in, bank, check_symb_prop);
       current->args[1] = TermDefaultCellAlloc();
       current = current->args[1];
       PStackPushP(stack, current);
 
+      // TODO: Cell is already allocated, cell must be copied
       while(TestInpTok(in, Comma))
       {
          NextToken(in);
@@ -461,13 +461,12 @@ static Term_p normalize_head(Term_p head, Term_p* rest_args, int rest_arity)
    }
    else
    {
-      res = TermDefaultCellAlloc();
       int total_arity = head->arity + rest_arity;
-
       if(TermIsVar(head))
       {
          total_arity++; // var is going to be the first argument
-         res->args = TermArgArrayAlloc(total_arity);
+
+         res = TermDefaultCellArityAlloc(total_arity);
          res->f_code = SIG_APP_VAR_CODE;
 
          res->args[0] = head;
@@ -478,8 +477,9 @@ static Term_p normalize_head(Term_p head, Term_p* rest_args, int rest_arity)
       }
       else if(total_arity)
       {
+         res = TermDefaultCellArityAlloc(total_arity);
          res->f_code = head->f_code;
-         res->args = TermArgArrayAlloc(total_arity);
+
          int i;
          for(i=0; i < head->arity; i++)
          {
@@ -530,7 +530,6 @@ static Term_p make_head(Sig_p sig, const char* f_name)
       Error(DStrView(msg), SYNTAX_ERROR);
    }
    head->arity = 0;
-   head->args = NULL;
    head->type = SigGetType(sig, head->f_code);
 
    return head;
