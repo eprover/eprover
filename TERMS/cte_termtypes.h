@@ -271,6 +271,7 @@ Term_p  MakeRewrittenTerm(Term_p orig, Term_p new, int orig_remains, struct tbce
 #define TermRWDemod(term) (TermIsRewritten(term)?TermRWDemodField(term):NULL)
 
 static inline Term_p TermDefaultCellAlloc(void);
+static inline Term_p TermDefaultCellArityAlloc(int arity);
 static inline Term_p TermConstCellAlloc(FunCode symbol);
 static inline Term_p TermTopAlloc(FunCode f_code, int arity);
 static inline Term_p TermTopCopy(Term_p source);
