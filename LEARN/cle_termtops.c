@@ -149,14 +149,13 @@ static Term_p rek_term_top(Term_p term, int depth, VarBank_p freshvars)
    }
    else
    {
-      handle = TermDefaultCellAlloc();
+      handle = TermDefaultCellArityAlloc(term->arity);
       handle->arity = term->arity;
       handle->f_code = term->f_code;
       if(handle->arity > 0)
       {
          int i;
 
-         handle->args = TermArgArrayAlloc(handle->arity);
          for(i=0; i<handle->arity; i++)
          {
             handle->args[i] = rek_term_top(term->args[i], depth-1,
@@ -204,14 +203,13 @@ static Term_p alt_rek_term_top(Term_p term, int depth, VarBank_p
    }
    else
    {
-      handle = TermDefaultCellAlloc();
+      handle = TermDefaultCellArityAlloc(term->arity);
       handle->arity = term->arity;
       handle->f_code = term->f_code;
       if(handle->arity > 0)
       {
          int i;
 
-         handle->args = TermArgArrayAlloc(handle->arity);
          for(i=0; i<handle->arity; i++)
          {
             handle->args[i] = alt_rek_term_top(term->args[i], depth-1,
@@ -258,14 +256,13 @@ Term_p term_top_marked(Term_p term, VarBank_p freshvars, PStack_p
    }
    else
    {
-      handle = TermDefaultCellAlloc();
+      handle = TermDefaultCellArityAlloc(term->arity);
       handle->arity = term->arity;
       handle->f_code = term->f_code;
       if(handle->arity > 0)
       {
          int i;
 
-         handle->args = TermArgArrayAlloc(handle->arity);
          for(i=0; i<handle->arity; i++)
          {
             handle->args[i] = term_top_marked(term->args[i],
