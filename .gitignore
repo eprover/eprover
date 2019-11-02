@@ -54,3 +54,16 @@ Thumbs.db
 ./vscode/*
 ./vscode*
 
+# Executable directory
+EXECDIR/
+
+# Prover
+PROVER/e_stratpar
+
+# Picosat files
+CONTRIB/picosat-965/*
+
+# Build and setup files
+setup.sh
+build.sh
+
