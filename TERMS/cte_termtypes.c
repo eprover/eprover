@@ -277,8 +277,9 @@ void TermFree(Term_p junk)
 
 Term_p TermAllocNewSkolem(Sig_p sig, PStack_p variables, Type_p ret_type)
 {
-   Term_p handle = TermDefaultCellAlloc();
    PStackPointer arity = PStackGetSP(variables), i;
+   Term_p handle = NULL;
+
    Type_p *type_args;
    Type_p type;
 
@@ -290,8 +291,8 @@ Term_p TermAllocNewSkolem(Sig_p sig, PStack_p variables, Type_p ret_type)
    // declare type
    if(arity)
    {
-      handle->arity = arity;
-      handle->args = TermArgArrayAlloc(arity);
+      handle = TermDefaultCellArityAlloc(arity);
+
       type_args = TypeArgArrayAlloc(arity+1);
       for(i=0; i<arity; i++)
       {
@@ -311,6 +312,7 @@ Term_p TermAllocNewSkolem(Sig_p sig, PStack_p variables, Type_p ret_type)
    }
    else
    {
+      handle = TermDefaultCellAlloc();
       type = FlattenType(ret_type);
    }
 
