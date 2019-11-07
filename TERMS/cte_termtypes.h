@@ -494,7 +494,16 @@ static Term_p inline TermDeref(Term_p term, DerefType_p deref)
 
 static inline Term_p TermTopCopyWithoutArgs(restrict Term_p source)
 {
-   Term_p handle = TermDefaultCellAlloc();
+   Term_p handle = NULL;
+
+   if(source->arity)
+   {
+      handle = TermDefaultCellArityAlloc(source->arity);
+   }
+   else
+   {
+      handle = TermDefaultCellAlloc();
+   }
 
    /* All other properties are tied to the specific term! */
    handle->properties = (source->properties&(TPPredPos));
@@ -506,7 +515,6 @@ static inline Term_p TermTopCopyWithoutArgs(restrict Term_p source)
    if(source->arity)
    {
       handle->arity = source->arity;
-      handle->args  = TermArgArrayAlloc(source->arity);
    }
 
    TermSetBank(handle, TermGetBank(source));
