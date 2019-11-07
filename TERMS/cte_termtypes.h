@@ -654,14 +654,8 @@ static inline Term_p TermConstCellAlloc(FunCode symbol)
 
 static inline Term_p TermTopAlloc(FunCode f_code, int arity)
 {
-   Term_p handle = TermDefaultCellAlloc();
-
+   Term_p handle = TermDefaultCellArityAlloc(arity);
    handle->f_code = f_code;
-   handle->arity  = arity;
-   if(arity)
-   {
-      handle->args = TermArgArrayAlloc(arity);
-   }
 
    return handle;
 }
