@@ -230,10 +230,10 @@ static Term_p tb_parse_cons_list(Scanner_p in, TB_p bank, bool check_symb_prop)
    {
 
       current->f_code = SIG_CONS_CODE;
-      current->arity = 2;
       current->args[0] = TBTermParseReal(in, bank, check_symb_prop);
-      current->args[1] = TermDefaultCellAlloc();
+      current->args[1] = TermDefaultCellArityAlloc(2);
       current = current->args[1];
+
       PStackPushP(stack, current);
 
       // TODO: Cell is already allocated, cell must be copied
@@ -241,10 +241,8 @@ static Term_p tb_parse_cons_list(Scanner_p in, TB_p bank, bool check_symb_prop)
       {
          NextToken(in);
          current->f_code = SIG_CONS_CODE;
-         current->arity = 2;
-         current->args = TermArgArrayAlloc(2);
          current->args[0] = TBTermParseReal(in, bank, check_symb_prop);
-         current->args[1] = TermDefaultCellAlloc();
+         current->args[1] = TermDefaultCellArityAlloc(2);
          current = current->args[1];
          PStackPushP(stack, current);
       }
