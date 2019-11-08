@@ -101,31 +101,26 @@ static Term_p parse_cons_list(Scanner_p in, Sig_p sig, VarBank_p vars)
 
    AcceptInpTok(in, OpenSquare);
 
-   handle = TermDefaultCellAlloc();
-
+   handle = TermDefaultCellArityAlloc(2);
    current = handle;
 
    if(!TestInpTok(in, CloseSquare))
    {
 
       current->f_code = SIG_CONS_CODE;
-      current->arity = 2;
       current->type = SigDefaultSort(sig);
-      current->args = TermArgArrayAlloc(2);
       current->args[0] = TermParse(in, sig, vars);
-      current->args[1] = TermDefaultCellAlloc();
+      current->args[1] = TermDefaultCellArityAlloc(2);
       current = current->args[1];
 
       while(TestInpTok(in, Comma))
       {
          NextToken(in);
          current->f_code = SIG_CONS_CODE;
-         current->arity = 2;
          current->type = SigDefaultSort(sig);
-         current->args = TermArgArrayAlloc(2);
          current->args[0] = TermParse(in, sig, vars);
          TermCellDelProp(current->args[0], TPTopPos);
-         current->args[1] = TermDefaultCellAlloc();
+         current->args[1] = TermDefaultCellArityAlloc(2);
          current = current->args[1];
       }
    }
