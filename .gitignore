@@ -44,7 +44,7 @@ out*
 *.csv
 cachegrind*
 callgrind*
-._*
+._*#
 .DS_Store
 .DS_Store?
 .Spotlight-V100
@@ -53,6 +53,7 @@ ehthumbs.db
 Thumbs.db
 ./vscode/*
 ./vscode*
+.vscode
 
 *.xcodeproj
 *.xcodeproj/

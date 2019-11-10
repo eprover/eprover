@@ -387,6 +387,7 @@ void check_watchlist(GlobalIndices_p indices, ClauseSet_p watchlist,
 
    if(watchlist)
    {
+      // TODO: If clause is of type unit consult the new PDTIndex as an index instead of the FVIndex.
       pclause = FVIndexPackClause(clause, watchlist->fvindex);
       // printf("# check_watchlist(%p)...\n", indices);
       ClauseSubsumeOrderSortLits(clause);
@@ -490,6 +491,7 @@ void simplify_watchlist(ProofState_p state, ProofControl_p control,
       }
       handle->weight = ClauseStandardWeight(handle);
       ClauseMarkMaximalTerms(control->ocb, handle);
+      // TODO: The FVIndex is used here again. Rethink this for the PDTIndex!
       ClauseSetIndexedInsertClause(state->watchlist, handle);
       // printf("# WL Inserting: "); ClausePrint(stdout, handle, true); printf("\n");
       GlobalIndicesInsertClause(&(state->wlindices), handle);

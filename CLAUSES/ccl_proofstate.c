@@ -339,6 +339,8 @@ void ProofStateInitWatchlist(ProofState_p state, OCB_p ocb)
          handle = ClauseSetExtractFirst(state->watchlist);
          ClauseSetInsert(tmpset, handle);
       }
+      // TODO: The PDTIndex for Unitclauses shall be constructed somwehere here.
+      // TODO: Determine how to identify unit clauses and how to handle them.
       ClauseSetIndexedInsertClauseSet(state->watchlist, tmpset);
       ClauseSetFree(tmpset);
       GlobalIndicesInsertClauseSet(&(state->wlindices),state->watchlist);
@@ -430,6 +432,7 @@ void ProofStateFree(ProofState_p junk)
    GlobalIndicesFreeIndices(&(junk->wlindices));
 
    DefStoreFree(junk->definition_store);
+   // TODO: The new PDTIndex should probably be deleted here.
    if(junk->fvi_cspec)
    {
       FVCollectFree(junk->fvi_cspec);
