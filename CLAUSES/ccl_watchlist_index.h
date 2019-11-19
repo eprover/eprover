@@ -21,6 +21,7 @@ Copyright 1998-2020 by the author.
 #define CCL_WATCHLIST_INDEX
 
 #include <ccl_fcvindexing.h>
+#include <ccl_pdtrees.h>
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
@@ -28,6 +29,7 @@ Copyright 1998-2020 by the author.
 
 typedef struct watchlist_index
 {
+   PDTree_p  demod_index; /* If used for demodulators */
    FVIAnchor_p fvindex; /* Used for non-unit subsumption */
 }WatchListIndex, *WatchListIndex_p;
 

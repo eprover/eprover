@@ -47,8 +47,7 @@ typedef struct clausesetcell
           rewriting. The special date SysCreationDate()
           is used to indicate ignoring of dates when
           checking for irreducability. */
-   PDTree_p  demod_index; /* If used for demodulators */
-   FVIAnchor_p fvindex; /* Used for non-unit subsumption */
+   WatchListIndex_p watchlist_index;
    PDArray_p eval_indices;
    long      eval_no;
    DStr_p     identifier;
