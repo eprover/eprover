@@ -40,6 +40,7 @@ CLAUSE_LIB = ccl_neweval.o ccl_eqn.o ccl_eqnlist.o \
              ccl_tautologies.o ccl_clausepos.o ccl_clausecpos.o \
              ccl_pdtrees.o ccl_freqvectors.o \
              ccl_fcvindexing.o ccl_clausesets.o ccl_unfold_defs.o\
+				 ccl_clauseset_indexes.o\
              ccl_clausefunc.o ccl_formulafunc.o ccl_groundconstr.o\
              ccl_grounding.o ccl_g_lithash.o ccl_axiomsorter.o \
 	     ccl_findex.o ccl_clausepos_tree.o ccl_subterm_tree.o \
@@ -50,7 +51,7 @@ CLAUSE_LIB = ccl_neweval.o ccl_eqn.o ccl_eqnlist.o \
              ccl_condensation.o ccl_context_sr.o \
              ccl_def_handling.o ccl_splitting.o ccl_global_indices.o\
              ccl_satinterface.o\
-             ccl_proofstate.o ccl_clauseset_indexes.o
+             ccl_proofstate.o
 
 $(LIB): $(CLAUSE_LIB)
 	$(AR) $(LIB) $(CLAUSE_LIB)

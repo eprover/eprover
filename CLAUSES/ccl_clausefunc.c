@@ -535,7 +535,7 @@ long ClauseSetDeleteOrphans(ClauseSet_p set)
    Clause_p handle;
 
    assert(set);
-   assert(!set->demod_index);
+   assert(!set->clauseset_indexes->demod_index);
 
    handle = set->anchor->succ;
    while(handle != set->anchor)

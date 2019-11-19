@@ -60,8 +60,13 @@ void ClausesetIndexesFree(ClausesetIndexes_p clauseset_indexes)
 {
    assert(clauseset_indexes);
 
-   FVIndexFree(clauseset_indexes->fvindex->index);
-   PDTreeFree(clauseset_indexes->demod_index);
+   if (clauseset_indexes->fvindex) {
+      FVIndexFree(clauseset_indexes->fvindex->index);
+   }
+   if (clauseset_indexes->demod_index) {
+      PDTreeFree(clauseset_indexes->demod_index);
+   }
+   
 
    // TODO: Do I need to free the struct itself?
 }
