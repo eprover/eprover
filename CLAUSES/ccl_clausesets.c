@@ -326,8 +326,7 @@ ClauseSet_p ClauseSetAlloc(void)
    handle->anchor->pred = handle->anchor->succ = handle->anchor;
    handle->date = SysDateCreationTime();
    SysDateInc(&handle->date);
-   handle->demod_index = NULL;
-   handle->fvindex = NULL;
+   handle->clauseset_indexes = ClausesetIndexesAlloc();
 
    handle->eval_indices = PDArrayAlloc(4,4);
    handle->eval_no = 0;
@@ -381,15 +380,11 @@ void ClauseSetFree(ClauseSet_p junk)
    assert(junk);
 
    ClauseSetFreeClauses(junk);
-   if(junk->demod_index)
+   if(junk->clauseset_indexes)
    {
-      PDTreeFree(junk->demod_index);
+      ClausesetIndexesFree(junk->clauseset_indexes);
    }
 
-   if(junk->fvindex)
-   {
-      FVIAnchorFree(junk->fvindex);
-   }
    PDArrayFree(junk->eval_indices);
    ClauseCellFree(junk->anchor);
    DStrFree(junk->identifier);
@@ -537,27 +532,11 @@ long ClauseSetInsertSet(ClauseSet_p set, ClauseSet_p from)
 
 void ClauseSetPDTIndexedInsert(ClauseSet_p set, Clause_p newclause)
 {
-   ClausePos_p pos;
-
-   assert(set->demod_index);
    assert(ClauseIsUnit(newclause));
 
    ClauseSetInsert(set, newclause);
-   pos          = ClausePosCellAlloc();
-   pos->clause  = newclause;
-   pos->literal = newclause->literals;
-   pos->side    = LeftSide;
-   pos->pos     = NULL;
-   PDTreeInsert(set->demod_index, pos);
-   if(!EqnIsOriented(newclause->literals))
-   {
-      pos          = ClausePosCellAlloc();
-      pos->clause  = newclause;
-      pos->literal = newclause->literals;
-      pos->side    = RightSide;
-      pos->pos     = NULL;
-      PDTreeInsert(set->demod_index, pos);
-   }
+   ClausesetIndexesPDTIndexedInsert(set->clauseset_indexes, newclause);
+   
    ClauseSetProp(newclause, CPIsDIndexed);
 }
 
@@ -578,7 +557,7 @@ void ClauseSetPDTIndexedInsert(ClauseSet_p set, Clause_p newclause)
 
 void ClauseSetIndexedInsert(ClauseSet_p set, FVPackedClause_p newclause)
 {
-   if(!set->demod_index)
+   if(!set->clauseset_indexes->demod_index)
    {
       ClauseSetInsert(set, newclause->clause);
    }
@@ -586,9 +565,9 @@ void ClauseSetIndexedInsert(ClauseSet_p set, FVPackedClause_p newclause)
    {
       ClauseSetPDTIndexedInsert(set, newclause->clause);
    }
-   if(set->fvindex)
+   if(set->clauseset_indexes->fvindex)
    {
-      FVIndexInsert(set->fvindex, newclause);
+      FVIndexInsert(set->clauseset_indexes->fvindex, newclause);
       ClauseSetProp(newclause->clause, CPIsSIndexed);
    }
 }
@@ -609,7 +588,7 @@ void ClauseSetIndexedInsert(ClauseSet_p set, FVPackedClause_p newclause)
 
 void ClauseSetIndexedInsertClause(ClauseSet_p set, Clause_p newclause)
 {
-   FVPackedClause_p pclause = FVIndexPackClause(newclause, set->fvindex);
+   FVPackedClause_p pclause = FVIndexPackClause(newclause, set->clauseset_indexes->fvindex);
    assert(newclause->weight == ClauseStandardWeight(newclause));
    ClauseSetIndexedInsert(set, pclause);
    FVUnpackClause(pclause);
@@ -658,20 +637,21 @@ Clause_p ClauseSetExtractEntry(Clause_p clause)
 {
    assert(clause);
    assert(clause->set);
+   assert(clause->set->clauseset_indexes);
 
    /* ClausePCLPrint(stdout, clause, true); */
 
    if(ClauseQueryProp(clause, CPIsDIndexed))
    {
-      assert(clause->set->demod_index);
-      if(clause->set->demod_index)
+      assert(clause->set->clauseset_indexes->demod_index);
+      if(clause->set->clauseset_indexes->demod_index)
       {
          assert(ClauseIsUnit(clause));
-         PDTreeDelete(clause->set->demod_index, clause->literals->lterm,
+         PDTreeDelete(clause->set->clauseset_indexes->demod_index, clause->literals->lterm,
                       clause);
          if(!EqnIsOriented(clause->literals))
          {
-            PDTreeDelete(clause->set->demod_index,
+            PDTreeDelete(clause->set->clauseset_indexes->demod_index,
                          clause->literals->rterm, clause);
          }
          ClauseDelProp(clause, CPIsDIndexed);
@@ -679,7 +659,7 @@ Clause_p ClauseSetExtractEntry(Clause_p clause)
    }
    if(ClauseQueryProp(clause, CPIsSIndexed))
    {
-      FVIndexDelete(clause->set->fvindex, clause);
+      FVIndexDelete(clause->set->clauseset_indexes->fvindex, clause);
       ClauseDelProp(clause, CPIsSIndexed);
    }
    clause_set_extract_entry(clause);
@@ -1093,7 +1073,7 @@ long ClauseSetDeleteNonUnits(ClauseSet_p set)
    Clause_p handle;
 
    assert(set);
-   assert(!set->demod_index);
+   assert(!set->clauseset_indexes->demod_index);
 
    handle = set->anchor->succ;
    while(handle != set->anchor)
@@ -1469,7 +1449,7 @@ long ClauseSetFilterTrivial(ClauseSet_p set)
    long count = 0;
 
    assert(set);
-   assert(!set->demod_index);
+   assert(!set->clauseset_indexes->demod_index);
 
    handle = set->anchor->succ;
    while(handle != set->anchor)
@@ -1508,7 +1488,7 @@ long ClauseSetFilterTautologies(ClauseSet_p set, TB_p work_bank)
    long count = 0;
 
    assert(set);
-   assert(!set->demod_index);
+   assert(!set->clauseset_indexes->demod_index);
 
    handle = set->anchor->succ;
    while(handle != set->anchor)
@@ -2181,7 +2161,7 @@ long ClauseSetFVIndexify(ClauseSet_p set)
    Clause_p clause;
 
    assert(set);
-   assert(set->fvindex);
+   assert(set->clauseset_indexes->fvindex);
 
    while((clause = ClauseSetExtractFirst(set)))
    {

@@ -50,7 +50,7 @@ CLAUSE_LIB = ccl_neweval.o ccl_eqn.o ccl_eqnlist.o \
              ccl_condensation.o ccl_context_sr.o \
              ccl_def_handling.o ccl_splitting.o ccl_global_indices.o\
              ccl_satinterface.o\
-             ccl_proofstate.o
+             ccl_proofstate.o ccl_clauseset_indexes.o
 
 $(LIB): $(CLAUSE_LIB)
 	$(AR) $(LIB) $(CLAUSE_LIB)

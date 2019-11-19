@@ -388,7 +388,7 @@ void check_watchlist(GlobalIndices_p indices, ClauseSet_p watchlist,
    if(watchlist)
    {
       // TODO: If clause is of type unit consult the new PDTIndex as an index instead of the FVIndex.
-      pclause = FVIndexPackClause(clause, watchlist->fvindex);
+      pclause = FVIndexPackClause(clause, watchlist->clauseset_indexes->fvindex);
       // printf("# check_watchlist(%p)...\n", indices);
       ClauseSubsumeOrderSortLits(clause);
       // assert(ClauseIsSubsumeOrdered(clause));
@@ -1287,17 +1287,17 @@ void fvi_param_init(ProofState_p state, ProofControl_p control)
                             control->fvi_parms.eliminate_uninformative);
    if(control->fvi_parms.cspec.features != FVINoFeatures)
    {
-      state->processed_non_units->fvindex =
+      state->processed_non_units->clauseset_indexes->fvindex =
          FVIAnchorAlloc(cspec, PermVectorCopy(perm));
-      state->processed_pos_rules->fvindex =
+      state->processed_pos_rules->clauseset_indexes->fvindex =
          FVIAnchorAlloc(cspec, PermVectorCopy(perm));
-      state->processed_pos_eqns->fvindex =
+      state->processed_pos_eqns->clauseset_indexes->fvindex =
          FVIAnchorAlloc(cspec, PermVectorCopy(perm));
-      state->processed_neg_units->fvindex =
+      state->processed_neg_units->clauseset_indexes->fvindex =
          FVIAnchorAlloc(cspec, PermVectorCopy(perm));
       if(state->watchlist)
       {
-         state->watchlist->fvindex =
+         state->watchlist->clauseset_indexes->fvindex =
             FVIAnchorAlloc(cspec, PermVectorCopy(perm));
          //ClauseSetNewTerms(state->watchlist, state->terms);
       }
@@ -1314,7 +1314,7 @@ void fvi_param_init(ProofState_p state, ProofControl_p control)
                                            symbols,
                                            0,0,0,
                                            0,0,0);
-   state->definition_store->def_clauses->fvindex =
+   state->definition_store->def_clauses->clauseset_indexes->fvindex =
       FVIAnchorAlloc(state->def_store_cspec, perm);
 }
 

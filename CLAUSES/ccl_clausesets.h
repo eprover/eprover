@@ -29,7 +29,7 @@
 #include <ccl_pdtrees.h>
 #include <clb_plist.h>
 #include <clb_objtrees.h>
-#include <ccl_watchlist_index.h>
+#include <ccl_clauseset_indexes.h>
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
@@ -47,7 +47,7 @@ typedef struct clausesetcell
           rewriting. The special date SysCreationDate()
           is used to indicate ignoring of dates when
           checking for irreducability. */
-   WatchListIndex_p watchlist_index;
+   ClausesetIndexes_p clauseset_indexes;
    PDArray_p eval_indices;
    long      eval_no;
    DStr_p     identifier;
@@ -67,8 +67,8 @@ typedef struct clausesetcell
 #define     ClauseSetStorage(set)\
             (((CLAUSECELL_DYN_MEM+EVAL_MEM((set)->eval_no))*(set)->members+\
             EQN_CELL_MEM*(set)->literals)+\
-            PDTreeStorage(set->demod_index)+\
-       FVIndexStorage(set->fvindex))
+            PDTreeStorage(set->clauseset_indexes->demod_index)+\
+       FVIndexStorage(set->clauseset_indexes->fvindex))
 
 ClauseSet_p ClauseSetAlloc(void);
 void        ClauseSetFreeClauses(ClauseSet_p set);

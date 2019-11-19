@@ -80,12 +80,13 @@ SimplifyRes FindTopSimplifyingUnit(ClauseSet_p units, Term_p t1,
 
    assert(TermStandardWeight(t1) == TermWeight(t1,DEFAULT_VWEIGHT,DEFAULT_FWEIGHT));
    assert(TermStandardWeight(t2) == TermWeight(t2,DEFAULT_VWEIGHT,DEFAULT_FWEIGHT));
-   assert(units && units->demod_index);
+   assert(units && units->clauseset_indexes);
+   assert(units->clauseset_indexes->demod_index);
 
-   PDTreeSearchInit(units->demod_index, t1, PDTREE_IGNORE_NF_DATE, false);
+   PDTreeSearchInit(units->clauseset_indexes->demod_index, t1, PDTREE_IGNORE_NF_DATE, false);
 
    MatchRes_p mi;
-   while((mi = PDTreeFindNextDemodulator(units->demod_index, subst)))
+   while((mi = PDTreeFindNextDemodulator(units->clauseset_indexes->demod_index, subst)))
    {
       pos = mi->pos;
 
@@ -101,7 +102,7 @@ SimplifyRes FindTopSimplifyingUnit(ClauseSet_p units, Term_p t1,
         break;
       }
    }
-   PDTreeSearchExit(units->demod_index);
+   PDTreeSearchExit(units->clauseset_indexes->demod_index);
    SubstDelete(subst);
    return res;
 }
@@ -129,12 +130,13 @@ SimplifyRes FindSignedTopSimplifyingUnit(ClauseSet_p units, Term_p t1,
 
    assert(TermStandardWeight(t1) == TermWeight(t1,DEFAULT_VWEIGHT,DEFAULT_FWEIGHT));
    assert(TermStandardWeight(t2) == TermWeight(t2,DEFAULT_VWEIGHT,DEFAULT_FWEIGHT));
-   assert(units && units->demod_index);
+   assert(units && units->clauseset_indexes);
+   assert(units->clauseset_indexes->demod_index);
 
-   PDTreeSearchInit(units->demod_index, t1, PDTREE_IGNORE_NF_DATE, false);
+   PDTreeSearchInit(units->clauseset_indexes->demod_index, t1, PDTREE_IGNORE_NF_DATE, false);
 
    MatchRes_p mi;
-   while((mi = PDTreeFindNextDemodulator(units->demod_index, subst)))
+   while((mi = PDTreeFindNextDemodulator(units->clauseset_indexes->demod_index, subst)))
    {
       pos = mi->pos;
       if(EQUIV(EqnIsPositive(pos->literal), sign)
@@ -151,7 +153,7 @@ SimplifyRes FindSignedTopSimplifyingUnit(ClauseSet_p units, Term_p t1,
       }
       MatchResFree(mi);
    }
-   PDTreeSearchExit(units->demod_index);
+   PDTreeSearchExit(units->clauseset_indexes->demod_index);
    SubstDelete(subst);
    return res;
 }
@@ -286,7 +288,7 @@ bool ClauseSimplifyWithUnitSet(Clause_p clause, ClauseSet_p unit_set,
    SimplifyRes res;
 
    assert(clause);
-   assert(unit_set && unit_set->demod_index);
+   assert(unit_set && unit_set->clauseset_indexes);
    assert(how);
 
    handle = &(clause->literals);

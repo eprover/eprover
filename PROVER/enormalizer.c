@@ -521,7 +521,7 @@ int main(int argc, char* argv[])
    FormulaSetFree(f_ax_archive);
 
    demodulators[0] = ClauseSetAlloc();
-   demodulators[0]->demod_index = PDTreeAlloc(terms);
+   demodulators[0]->clauseset_indexes->demod_index = PDTreeAlloc(terms);
    GCRegisterClauseSet(collector, demodulators[0]);
 
    build_rw_system(demodulators[0], clauses);

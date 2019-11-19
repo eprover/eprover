@@ -1,6 +1,6 @@
 /*-----------------------------------------------------------------------
 
-File  : ccl_watchlist_index.h
+File  : ccl_clauseset_indexes.h
 
 Author: Constantin Ruhdorfer
 
@@ -16,9 +16,9 @@ Copyright 1998-2020 by the author.
 
 -----------------------------------------------------------------------*/
 
-#ifndef CCL_WATCHLIST_INDEX
+#ifndef CCL_CLAUSESET_INDEXES
 
-#define CCL_WATCHLIST_INDEX
+#define CCL_CLAUSESET_INDEXES
 
 #include <ccl_fcvindexing.h>
 #include <ccl_pdtrees.h>
@@ -27,16 +27,27 @@ Copyright 1998-2020 by the author.
 /*                    Data type declarations                           */
 /*---------------------------------------------------------------------*/
 
-typedef struct watchlist_index
+typedef struct clauseset_indexes
 {
    PDTree_p  demod_index; /* If used for demodulators */
    FVIAnchor_p fvindex; /* Used for non-unit subsumption */
-}WatchListIndex, *WatchListIndex_p;
+}ClausesetIndexes, *ClausesetIndexes_p;
 
 
 /*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
+
+ClausesetIndexes_p ClausesetIndexesAlloc();
+void ClausesetIndexesFree(ClausesetIndexes_p clauseset_indexes);
+void ClausesetIndexesPDTIndexedInsert(ClausesetIndexes_p clauseset_indexes, Clause_p newclause);
+
+/*---------------------------------------------------------------------*/
+/*                         Internal Functions                          */
+/*---------------------------------------------------------------------*/
+
+
+ClausesetIndexes_p ClausesetIndexesAllocRaw();
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
