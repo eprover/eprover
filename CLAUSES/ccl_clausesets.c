@@ -327,8 +327,6 @@ ClauseSet_p ClauseSetAlloc(void)
    handle->date = SysDateCreationTime();
    SysDateInc(&handle->date);
    handle->clauseset_indexes = ClausesetIndexesAlloc();
-   handle->clauseset_indexes->demod_index = NULL;
-   handle->clauseset_indexes->fvindex = NULL;
 
    handle->eval_indices = PDArrayAlloc(4,4);
    handle->eval_no = 0;
