@@ -1,12 +1,12 @@
 /*-----------------------------------------------------------------------
 
-File  : ccl_clauseset_indexes.h
+File  : ccl_unitclause_index.h
 
 Author: Constantin Ruhdorfer
 
 Contents
 
-  Interface for indexing watchlist clauses.
+  A simple index for unitclauses.
 
 Copyright 2019-2020 by the author.
   This code is released under the GNU General Public Licence and
@@ -16,41 +16,28 @@ Copyright 2019-2020 by the author.
 
 -----------------------------------------------------------------------*/
 
-#ifndef CCL_CLAUSESET_INDEXES
+#ifndef CCL_UNITCLAUSESE_INDEXES
 
-#define CCL_CLAUSESET_INDEXES
+#define CCL_UNITCLAUSESE_INDEXES
 
-#include <ccl_fcvindexing.h>
-#include <ccl_pdtrees.h>
+#include <cte_fp_index.h>
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
 /*---------------------------------------------------------------------*/
 
-typedef struct clauseset_indexes
-{
-   PDTree_p  demod_index; /* If used for demodulators */
-   FVIAnchor_p fvindex; /* Used for non-unit subsumption */
-}ClausesetIndexes, *ClausesetIndexes_p;
-
+typedef FPIndex_p UnitclauseIndex_p;
 
 /*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-ClausesetIndexes_p ClausesetIndexesAlloc();
-void ClausesetIndexesFree(ClausesetIndexes_p clauseset_indexes);
-void ClausesetIndexesPDTIndexedInsert(ClausesetIndexes_p clauseset_indexes, Clause_p newclause);
-
 /*---------------------------------------------------------------------*/
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
 
-
-ClausesetIndexes_p ClausesetIndexesAllocRaw();
+#endif
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-#endif
