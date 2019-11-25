@@ -66,8 +66,7 @@ FuncSymbType TermParseOperator(Scanner_p in, DStr_p id);
 FunCode       TermSigInsert(Sig_p sig, const char* name, int arity, bool
                             special_id, FuncSymbType type);
 Term_p TermParse(Scanner_p in, Sig_p sig, VarBank_p vars);
-int    TermParseArgList(Scanner_p in, Term_p** arg_anchor, Sig_p sig,
-                         VarBank_p vars);
+Term_p TermParseArgList(Scanner_p in, Sig_p sig, VarBank_p vars);
 Term_p TermCopy(Term_p source, VarBank_p vars, DerefType deref);
 Term_p TermCopyKeepVars(Term_p source, DerefType deref);
 static inline Term_p TermEquivCellAlloc(Term_p source, VarBank_p vars);
