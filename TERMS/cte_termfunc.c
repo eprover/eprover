@@ -593,7 +593,7 @@ Term_p TermParse(Scanner_p in, Sig_p sig, VarBank_p vars)
       }
       else
       {
-         handle = TermDefaultCellAlloc();
+         handle = NULL;
 
          if(TestInpTok(in, OpenBracket))
          {
@@ -612,8 +612,7 @@ Term_p TermParse(Scanner_p in, Sig_p sig, VarBank_p vars)
                              false);
             }
 
-            handle->arity = TermParseArgList(in, &(handle->args), sig,
-                                             vars);
+            handle = TermParseArgList(in, sig, vars);
          }
          else
          {
@@ -649,13 +648,13 @@ Term_p TermParse(Scanner_p in, Sig_p sig, VarBank_p vars)
 // Function: TermParseArgList()
 //
 //   Parse a list of terms (comma-separated and enclosed in brackets)
-//   into an array of term pointers. Return the number of terms
-//   parsed, and make arg_anchor point to the array. Note: The array
-//   has to have exactly the right size, as it will be handled by
-//   Size[Malloc|Free] for efficiency reasons and may otherwise lead
-//   to a memory leak. This leads to some complexity...
-//   If the arglist is empty, return 0 and use the NULL pointer as
-//   anchor.
+//   into an array of term pointers. Return the actual term containing
+//   the terms parsed. Note: The array has to have exactly the right
+//   size, as it will be handled by Size[Malloc|Free] for efficiency
+//   reasons and may otherwise lead to a memory leak. 
+//   This leads to some complexity...
+//   If the arglist is empty, return a default term containing no
+//   arguments.
 //
 // Global Variables: -
 //
@@ -663,10 +662,10 @@ Term_p TermParse(Scanner_p in, Sig_p sig, VarBank_p vars)
 //
 /----------------------------------------------------------------------*/
 
-int TermParseArgList(Scanner_p in, Term_p** arg_anchor, Sig_p sig,
-                     VarBank_p vars)
+Term_p TermParseArgList(Scanner_p in, Sig_p sig, VarBank_p vars)
 {
    Term_p   tmp;
+   Term_p result;
    PStackPointer i, arity;
    PStack_p args;
 
@@ -674,8 +673,9 @@ int TermParseArgList(Scanner_p in, Term_p** arg_anchor, Sig_p sig,
    if(TestInpTok(in, CloseBracket))
    {
       NextToken(in);
-      *arg_anchor = NULL;
-      return 0;
+      result = TermDefaultCellAlloc();
+
+      return result;
    }
    args = PStackAlloc();
    tmp = TermParse(in, sig, vars);
@@ -689,14 +689,15 @@ int TermParseArgList(Scanner_p in, Term_p** arg_anchor, Sig_p sig,
    }
    AcceptInpTok(in, CloseBracket);
    arity = PStackGetSP(args);
-   *arg_anchor = TermArgArrayAlloc(arity);
+   result = TermDefaultCellArityAlloc(arity);
+
    for(i=0;i<arity;i++)
    {
-      (*arg_anchor)[i] = PStackElementP(args,i);
+      result->args[i] = PStackElementP(args,i);
    }
    PStackFree(args);
 
-   return arity;
+   return result;
 }
 
 
