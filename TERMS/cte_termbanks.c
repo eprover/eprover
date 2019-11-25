@@ -395,10 +395,11 @@ static void normalize_boolean_terms(Term_p* term_ref, TB_p bank)
 //
 /----------------------------------------------------------------------*/
 
-static int tb_term_parse_arglist(Scanner_p in, Term_p** arg_anchor,
-                                 TB_p bank, bool check_symb_prop, Type_p type)
+static Term_p tb_term_parse_arglist(Scanner_p in, TB_p bank,
+                                       bool check_symb_prop, Type_p type)
 {
    Term_p   tmp;
+   Term_p result;
    PStackPointer i=0, arity;
    PStack_p args;
 
@@ -406,8 +407,8 @@ static int tb_term_parse_arglist(Scanner_p in, Term_p** arg_anchor,
    if(TestInpTok(in, CloseBracket))
    {
       NextToken(in);
-      *arg_anchor = NULL;
-      return 0;
+      result = TermDefaultCellAlloc();
+      return result;
    }
    args = PStackAlloc();
 
@@ -424,16 +425,19 @@ static int tb_term_parse_arglist(Scanner_p in, Term_p** arg_anchor,
       PStackPushP(args, tmp);
       i++;
    }
+
    AcceptInpTok(in, CloseBracket);
    arity = PStackGetSP(args);
-   *arg_anchor = TermArgArrayAlloc(arity);
+   result = TermDefaultCellArityAlloc(arity);
+
    for(i=0;i<arity;i++)
    {
-      (*arg_anchor)[i] = PStackElementP(args,i);
+      result->args[i] = PStackElementP(args,i);
    }
+
    PStackFree(args);
 
-   return arity;
+   return result;
 }
 
 /*-----------------------------------------------------------------------
@@ -452,7 +456,8 @@ static int tb_term_parse_arglist(Scanner_p in, Term_p** arg_anchor,
 static Term_p normalize_head(Term_p head, Term_p* rest_args, int rest_arity)
 {
    assert(problemType == PROBLEM_HO);
-   Term_p res;
+   Term_p res = NULL;
+   
    if(rest_arity == 0)
    {
       res = head; // do not copy in case there is nothing to be copied
@@ -491,7 +496,12 @@ static Term_p normalize_head(Term_p head, Term_p* rest_args, int rest_arity)
       }
       else
       {
-         res->args = NULL;
+         int total_arity = head->arity + rest_arity;
+
+         for(unsigned int i = 0; i < total_arity; ++i)
+         {
+            res->args[i] = NULL;
+         }
       }
 
       res->arity = total_arity;
@@ -1374,7 +1384,7 @@ Term_p TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop)
       }
       else
       {
-         handle = TermDefaultCellAlloc();
+         handle = NULL;
 
          if(TestInpTok(in, OpenBracket))
          {
@@ -1416,9 +1426,9 @@ Term_p TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop)
             // id already has a type declared with $o in appropriate places
             FunCode sym_code = SigFindFCode(bank->sig, DStrView(id));
             Type_p  sym_type = sym_code ? SigGetType(bank->sig, sym_code) : NULL;
-
-            handle->arity = tb_term_parse_arglist(in, &(handle->args),
-                                                  bank, check_symb_prop, sym_type);
+            
+            handle = tb_term_parse_arglist(in, bank,
+                                             check_symb_prop, sym_type);
          }
          else
          {
