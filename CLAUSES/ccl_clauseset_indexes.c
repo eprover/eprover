@@ -48,7 +48,7 @@ ClausesetIndexes_p ClausesetIndexesAlloc() {
 //
 // Function: ClausesetIndexesFree()
 //
-//   Delete all index datastriuctures.
+//   Delete all index datastructures.
 //
 // Global Variables: -
 //
@@ -66,9 +66,8 @@ void ClausesetIndexesFree(ClausesetIndexes_p clauseset_indexes)
    if (clauseset_indexes->demod_index) {
       PDTreeFree(clauseset_indexes->demod_index);
    }
-   
 
-   // TODO: Do I need to free the struct itself?
+   SizeFree(clauseset_indexes, sizeof(clauseset_indexes));
 }
 
 /*-----------------------------------------------------------------------
