@@ -1819,13 +1819,13 @@ From: schulz@eprover.org (Stephan Schulz)
 Subject: E Equational Theorem Prover 2.4 "Sandakphu" available
 
 E 2.4 "Sandakphu" is an automated theorem prover for many-sorted
-first-order logic and limited higher-order logic with equality. It has
-successfully competed in several CASC competitions and is generally
-considered a friendly and powerful system (as automated theorem
-provers go). E has won the "overall best system" special award at
-CASC-J5 and the CNF category at CASC-23. It scored good placements at
-CASC-J9 and CASC-27, where it won the UEQ category. It also is used a
-component in several other winning and high-scoring systems.
+first-order logic (and limited higher-order extensions) with equality.
+It has successfully competed in several CASC competitions and is
+generally considered a friendly and powerful system (as automated
+theorem provers go). E has won the "overall best system" special award
+at CASC-J5 and the CNF category at CASC-23. It scored good placements
+at CASC-J9 and CASC-27, where it won the UEQ category. It also is used
+a component in several other winning and high-scoring systems.
 
 The main changes compared to the previous version relate to calculus
 refinements with respect to inference literal determination, new
