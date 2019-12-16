@@ -1,10 +1,10 @@
 /*-----------------------------------------------------------------------
 
-File  : cle_clauseenc.h
+  File  : cle_clauseenc.h
 
-Author: Stephan Schulz
+  Author: Stephan Schulz
 
-Contents
+  Contents
 
   Functions for dealing with term representations of clauses.
 
@@ -14,12 +14,9 @@ Contents
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
+  Created: Tue Jul 13 12:36:03 MET DST 1999
 
-<1> Tue Jul 13 12:36:03 MET DST 1999
-    New
-
------------------------------------------------------------------------*/
+  -----------------------------------------------------------------------*/
 
 #ifndef CLE_CLAUSEENC
 
@@ -48,8 +45,3 @@ Term_p   ParseClauseTermRep(Scanner_p in, TB_p bank, bool flat);
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
-
-
-

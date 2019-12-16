@@ -1,10 +1,10 @@
 /*-----------------------------------------------------------------------
 
-File  : cle_indexfunctions.h
+  File  : cle_indexfunctions.h
 
-Author: Stephan Schulz
+  Author: Stephan Schulz
 
-Contents
+  Contents
 
   Functions and data types realizing simple index functions.
 
@@ -14,12 +14,9 @@ Contents
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
+  Created: Wed Aug  4 15:36:51 MET DST 1999
 
-<1> Wed Aug  4 15:36:51 MET DST 1999
-    New
-
------------------------------------------------------------------------*/
+  -----------------------------------------------------------------------*/
 
 #ifndef CLE_INDEXFUNCTIONS
 
@@ -53,7 +50,7 @@ typedef struct indextermcell
 {
    Term_p   term;         /* Usually has reference if malloced() */
    PatternSubst_p subst;  /* Shared, necessary for object-tree
-              comparison */
+                             comparison */
    long           key;    /* The returned index number */
 }IndexTermCell, *IndexTerm_p;
 
@@ -65,7 +62,7 @@ typedef struct indextermcell
 
    All values should populate 0...max{values} somewhat densely
 
-   */
+*/
 
 
 typedef struct tsmindexcell
@@ -98,7 +95,7 @@ extern char* IndexFunNames[];
 int GetIndexType(char* name);
 
 IndexTerm_p IndexTermAlloc(Term_p term, PatternSubst_p subst, long
-            key);
+                           key);
 void         IndexTermFree(IndexTerm_p junk, TB_p bank);
 
 int          IndexTermCompareFun(const void* term1, const void* term2);
@@ -107,11 +104,11 @@ int          IndexTermCompareFun(const void* term1, const void* term2);
 #define TSMIndexCellFree(junk) SizeFree(junk, sizeof(TSMIndexCell))
 
 TSMIndex_p TSMIndexAlloc(IndexType type, int depth, TB_p bank,
-            PatternSubst_p subst);
+                         PatternSubst_p subst);
 void       TSMIndexFree(TSMIndex_p junk);
 
 long       TSMIndexFind(TSMIndex_p index, Term_p term, PatternSubst_p
-         subst);
+                        subst);
 long       TSMIndexInsert(TSMIndex_p index, Term_p term);
 
 void       TSMIndexPrint(FILE* out, TSMIndex_p index, int depth);
@@ -121,8 +118,3 @@ void       TSMIndexPrint(FILE* out, TSMIndex_p index, int depth);
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
-
-
-
