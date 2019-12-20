@@ -9,7 +9,7 @@
   Generate new training examples from protocols and insert them into a
   knowledge base.
 
-  Copyright 1998-2011 by the author.
+  Copyright 1998-2019 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
@@ -349,46 +349,46 @@ CLState_p process_options(int argc, char* argv[])
 void print_help(FILE* out)
 {
    fprintf(out, "\n\
-\n                                              \
-ekb_ginsert " VERSION "\n                       \
-\n                                              \
-Usage: ekb_ginsert [options] [name]\n           \
-\n                                                                      \
-Generate a set of training examples from an E inference list (i.e. an\n \
+\n\
+ekb_ginsert " VERSION "\n\
+\n\
+Usage: ekb_ginsert [options] [name]\n\
+\n\
+Generate a set of training examples from an E inference list (i.e. an\n\
 EPCL trace of a proof run) and insert it into a knowledge base.\n\n");
    PrintOptions(stdout, opts, "Options\n\n");
    fprintf(out, "\n\
-Copyright (C) 1999-20012 by Stephan Schulz, " STS_MAIL "\n      \
-\n                                                                      \
-This program is a part of the support structure for the E equational\n  \
-theorem prover. You can find the latest version of the E distribution\n \
-as well as additional information at\n                                  \
-" E_URL "                                                               \
-\n\n                                                                    \
-This program is free software; you can redistribute it and/or modify\n  \
-it under the terms of the GNU General Public License as published by\n  \
-the Free Software Foundation; either version 2 of the License, or\n     \
-(at your option) any later version.\n                                   \
-\n                                                                      \
-This program is distributed in the hope that it will be useful,\n       \
-but WITHOUT ANY WARRANTY; without even the implied warranty of\n        \
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n         \
-GNU General Public License for more details.\n                          \
-\n                                                                      \
-You should have received a copy of the GNU General Public License\n     \
-along with this program (it should be contained in the top level\n      \
-directory of the distribution in the file COPYING); if not, write to\n  \
-the Free Software Foundation, Inc., 59 Temple Place, Suite 330,\n       \
-Boston, MA  02111-1307 USA\n                                            \
-\n                                                                      \
-The original copyright holder can be contacted as\n                     \
-\n                                                                      \
-Stephan Schulz\n                                                        \
-Technische Universitaet Muenchen\n                                      \
-Fakultaet fuer Informatik\n                                             \
-Arcisstrasse 20\n                                                       \
-D-80290 Muenchen\n                                                      \
-Germany\n                                                               \
+Copyright (C) 1999-2019 by Stephan Schulz, " STS_MAIL "\n\
+\n\
+This program is a part of the support structure for the E equational\n\
+theorem prover. You can find the latest version of the E distribution\n\
+as well as additional information at\n\
+" E_URL "\
+\n\n\
+This program is free software; you can redistribute it and/or modify\n\
+it under the terms of the GNU General Public License as published by\n\
+the Free Software Foundation; either version 2 of the License, or\n\
+(at your option) any later version.\n\
+\n\
+This program is distributed in the hope that it will be useful,\n\
+but WITHOUT ANY WARRANTY; without even the implied warranty of\n\
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n\
+GNU General Public License for more details.\n\
+\n\
+You should have received a copy of the GNU General Public License\n\
+along with this program (it should be contained in the top level\n\
+directory of the distribution in the file COPYING); if not, write to\n\
+the Free Software Foundation, Inc., 59 Temple Place, Suite 330,\n\
+Boston, MA  02111-1307 USA\n\
+\n\
+The original copyright holder can be contacted as\n\
+\n\
+Stephan Schulz\n\
+Technische Universitaet Muenchen\n\
+Fakultaet fuer Informatik\n\
+Arcisstrasse 20\n\
+D-80290 Muenchen\n\
+Germany\n\
 ");
 
 }
