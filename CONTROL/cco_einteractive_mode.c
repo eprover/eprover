@@ -158,7 +158,7 @@ char* run_command(InteractiveSpec_p interactive,
       job_scanner = CreateScanner(StreamTypeUserString,
                                   DStrView(input_axioms),
                                   true,
-                                  NULL);
+                                  NULL, true);
       ScannerSetFormat(job_scanner, TSTPFormat);
       dummy = ClauseSetAlloc();
       fset = FormulaSetAlloc();
@@ -220,7 +220,7 @@ char* add_command(InteractiveSpec_p interactive,
    axioms_scanner = CreateScanner(StreamTypeFile,
                                   file,
                                   true,
-                                  NULL);
+                                  NULL, true);
    ScannerSetFormat(axioms_scanner, TSTPFormat);
    dummy = ClauseSetAlloc();
    fset = FormulaSetAlloc();
@@ -968,7 +968,7 @@ void StartDeductionServer(BatchSpec_p spec,
       in = CreateScanner(StreamTypeUserString,
                          DStrView(input),
                          true,
-                         NULL);
+                         NULL, true);
       ScannerSetFormat(in, TSTPFormat);
 
       if(TestInpId(in, STAGE_COMMAND))

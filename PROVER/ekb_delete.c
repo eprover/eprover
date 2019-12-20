@@ -127,7 +127,7 @@ int main(int argc, char* argv[])
    proof_examples = ExampleSetAlloc();
    in = CreateScanner(StreamTypeFile,
             KBFileName(name, kb_name, "problems"),
-            true, NULL);
+                      true, NULL, true);
    ExampleSetParse(in, proof_examples);
    DestroyScanner(in);
 
@@ -136,7 +136,7 @@ int main(int argc, char* argv[])
    annoterms = TBAlloc(sig);
    in = CreateScanner(StreamTypeFile,
             KBFileName(name, kb_name, "clausepatterns"),
-            true, NULL);
+                      true, NULL, true);
    clause_examples = AnnoSetParse(in, annoterms, KB_ANNOTATION_NO);
    DestroyScanner(in);
 
@@ -297,5 +297,3 @@ Germany\n\
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-

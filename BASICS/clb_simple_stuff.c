@@ -154,35 +154,6 @@ double JKISSRandDouble(RandState_p state)
 }
 
 
-
-/*-----------------------------------------------------------------------
-//
-// Function: StringIndex()
-//
-//   Given a NULL-Terminated array of strings, return the index of key
-//   (or -1 if key does not occur in the array).
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-int StringIndex(char* key, char* list[])
-{
-   int i;
-   {
-      for(i=0; list[i]; i++)
-      {
-         if(strcmp(key, list[i])==0)
-         {
-            return i;
-         }
-      }
-   }
-   return -1;
-}
-
 /*-----------------------------------------------------------------------
 //
 // Function: IndentStr()
@@ -233,6 +204,103 @@ bool StringStartsWith(const char* pattern, const char* prefix)
    }
    return true;
 }
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: StringIndex()
+//
+//   Given a NULL-Terminated array of strings, return the index of key
+//   (or -1 if key does not occur in the array).
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+int StringIndex(char* key, char* list[])
+{
+   int i;
+   {
+      for(i=0; list[i]; i++)
+      {
+         if(strcmp(key, list[i])==0)
+         {
+            return i;
+         }
+      }
+   }
+   return -1;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: StringArrayCardinality()
+//
+//   Return the number of initial non-NULL entries in a
+//   NULL-terminated string array.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+long StringArrayCardinality(char *array[])
+{
+   long i;
+
+   for(i=0; array[i]; i++)
+   {
+   }
+   return i;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: ComputeGCD()
+//
+//   Compute the Greatest Common Divisor of two (positive)
+//   longs. Returns 0 if both are 0 or one is negative.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+long ComputeGCD(long a, long b)
+{
+   if((a<0) || (b<0))
+   {
+      return 0;
+   }
+   while(true)
+   {
+      if(a==0)
+      {
+         return b;
+      }
+      if(b==0)
+      {
+         return a;
+      }
+      if(a>b)
+      {
+         a = a%b;
+      }
+      else
+      {
+         b = b%a;
+      }
+   }
+   return a;
+}
+
+
 
 /*-----------------------------------------------------------------------
 //

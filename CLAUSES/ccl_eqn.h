@@ -359,7 +359,7 @@ double LiteralSymTypeWeight(Eqn_p eq, double max_term_multiplier,
 
 #define EqnCountMaximalLiterals(eqn) (EqnIsOriented(eqn)?1:2)
 
-static __inline__ long EqnDepth(Eqn_p eqn);
+static inline long EqnDepth(Eqn_p eqn);
 
 int     LiteralCompareFun(Eqn_p lit1, Eqn_p lit2);
 
@@ -424,7 +424,7 @@ bool EqnHasAppVar(Eqn_p eq);
 //
 /----------------------------------------------------------------------*/
 
-static __inline__ long EqnDepth(Eqn_p eqn)
+static inline long EqnDepth(Eqn_p eqn)
 {
    long ldepth, rdepth;
 
@@ -447,7 +447,7 @@ static __inline__ long EqnDepth(Eqn_p eqn)
 //
 /----------------------------------------------------------------------*/
 
-static __inline__ bool EqnIsUntyped(Eqn_p eqn)
+static inline bool EqnIsUntyped(Eqn_p eqn)
 {
    return TermIsUntyped(eqn->lterm) && TermIsUntyped(eqn->rterm);
 }

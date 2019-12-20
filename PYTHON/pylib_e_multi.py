@@ -3,7 +3,7 @@
 """
 pylib_e_multi.py
 
-Usage: eserver.py <config_file>
+Usage: pylib_e_multi.py <config_file>
 
 Run a server process accepting and processing jobs for E. This is a
 fairly specific hack allowing us to run starexec scripts locally and

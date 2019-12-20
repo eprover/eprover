@@ -129,7 +129,7 @@ void*    IntMapDelKey(IntMap_p map, long key);
 
 IntMapIter_p IntMapIterAlloc(IntMap_p map, long lower_key, long upper_key);
 void         IntMapIterFree(IntMapIter_p junk);
-static __inline__ void* IntMapIterNext(IntMapIter_p iter, long *key);
+static inline void* IntMapIterNext(IntMapIter_p iter, long *key);
 
 void     IntMapDebugPrint(FILE* out, IntMap_p map);
 
@@ -155,7 +155,7 @@ void     IntMapDebugPrint(FILE* out, IntMap_p map);
 //
 /----------------------------------------------------------------------*/
 
-static __inline__ void* IntMapIterNext(IntMapIter_p iter, long *key)
+static inline void* IntMapIterNext(IntMapIter_p iter, long *key)
 {
    void* res = NULL;
    long  i;

@@ -69,10 +69,10 @@ input and output formats via commandline options.
 # The Equational Theorem Prover E
 
 
-This is the README file for version 2.3 "Gielle" of the E equational
-theorem prover. This version of E is free software, see the file
-COPYING for details about the license and the fact that THERE IS NO
-WARRANTY!
+This is the README file for version 2.4 "Sandakphu" of the E
+equational theorem prover. This version of E is free software, see the
+file COPYING for details about the license and the fact that THERE IS
+NO WARRANTY!
 
 
 ## What is E?

@@ -405,7 +405,31 @@ char* FileNameStrip(char* name)
    return res;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: FileExists()
+//
+//   Return true if file exists and can be opened for reading, false
+//   otherwise. This is not race-safe!
+//
+// Global Variables: -
+//
+// Side Effects    : Tries to open the file.
+//
+/----------------------------------------------------------------------*/
 
+bool FileExists(char* name)
+{
+   FILE* fp;
+
+   fp = fopen(name, "r");
+   if(fp)
+   {
+      fclose(fp);
+      return true;
+   }
+   return false;
+}
 
 
 

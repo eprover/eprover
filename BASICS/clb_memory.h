@@ -60,8 +60,8 @@ extern bool MemIsLow;
 extern Mem_p free_mem_list[]; /* Exported for use by inline
                                * functions/Macros */
 
-static __inline__ void* SizeMallocReal(size_t size);
-static __inline__ void  SizeFreeReal(void* junk, size_t size);
+static inline void* SizeMallocReal(size_t size);
+static inline void  SizeFreeReal(void* junk, size_t size);
 
 
 /* For estimating the real memory consumption of a data type - the
@@ -160,7 +160,7 @@ void MemFreeListPrint(FILE* out);
 //
 /----------------------------------------------------------------------*/
 
-static __inline__ void* SizeMallocReal(size_t size)
+static inline void* SizeMallocReal(size_t size)
 {
    Mem_p handle;
 
@@ -208,7 +208,7 @@ static __inline__ void* SizeMallocReal(size_t size)
 //
 /----------------------------------------------------------------------*/
 
-static __inline__ void SizeFreeReal(void* junk, size_t size)
+static inline void SizeFreeReal(void* junk, size_t size)
 {
    assert(junk!=NULL);
 

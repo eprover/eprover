@@ -124,12 +124,11 @@ static void compute_precedence_from_array(OCB_p ocb, FCodeFeatureArray_p
       {
          if((SigFindArity(ocb->sig, i)==0) &&
             !SigIsPredicate(ocb->sig, i) &&
-            !SigQueryFuncProp(ocb->sig, i, FPSpecial) &&
-            !ocb->min_constant)
+            !SigQueryFuncProp(ocb->sig, i, FPSpecial))
          {
-            ocb->min_constant = i;
+            OCBCondSetMinConst(ocb, SigGetType(ocb->sig, i), i);
          }
-    ocb->prec_weights[array->array[i].symbol] = i;
+         ocb->prec_weights[array->array[i].symbol] = i;
       }
       ocb->prec_weights[SIG_TRUE_CODE] = (LONG_MIN/2);
    }
@@ -138,8 +137,8 @@ static void compute_precedence_from_array(OCB_p ocb, FCodeFeatureArray_p
       last = SIG_TRUE_CODE;
       for(i = SIG_TRUE_CODE+1; i<=ocb->sig_size; i++)
       {
-    OCBPrecedenceAddTuple(ocb, last, array->array[i].symbol, to_lesser);
-    last = array->array[i].symbol;
+         OCBPrecedenceAddTuple(ocb, last, array->array[i].symbol, to_lesser);
+         last = array->array[i].symbol;
       }
    }
 #ifdef PRINT_PRECEDENCE
@@ -922,7 +921,7 @@ void TOGeneratePrecedence(OCB_p ocb, ClauseSet_p axioms,
    if(predefined)
    {
       Scanner_p in = CreateScanner(StreamTypeUserString, predefined,
-                                   true, NULL);
+                                   true, NULL, true);
 
       TOPrecedenceParse(in, ocb);
 

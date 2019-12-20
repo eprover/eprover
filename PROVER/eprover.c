@@ -144,7 +144,7 @@ ProofState_p parse_spec(CLState_p state,
    proofstate = ProofStateAlloc(free_symb_prop_local);
    for(i=0; state->argv[i]; i++)
    {
-      in = CreateScanner(StreamTypeFile, state->argv[i], true, NULL);
+      in = CreateScanner(StreamTypeFile, state->argv[i], true, NULL, true);
       ScannerSetFormat(in, parse_format_local);
       if(parse_format_local == AutoFormat && in->format == TSTPFormat)
       {
@@ -1449,7 +1449,7 @@ CLState_p process_options(int argc, char* argv[])
             h_parms->forward_demod = CLStateGetIntArgCheckRange(handle, arg, 0, 2);
             break;
       case OPT_STRONG_RHS_INSTANCE:
-            RewriteStrongRHSInst = true;
+            h_parms->rewrite_strong_rhs_inst = true;
             break;
       case OPT_STRONGSUBSUMPTION:
             StrongUnitForwardSubsumption = true;

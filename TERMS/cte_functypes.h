@@ -26,6 +26,7 @@ Changes
 
 #define CTE_FUNCTYPES
 
+#include <clb_simple_stuff.h>
 #include <cio_basicparser.h>
 
 
@@ -69,8 +70,3 @@ FuncSymbType FuncSymbParse(Scanner_p in, DStr_p id);
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
-
-
-

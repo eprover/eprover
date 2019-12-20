@@ -41,14 +41,14 @@
 //
 // Function: is_flattened()
 //
-//  Checks if type t is represented as flattened 
+//  Checks if type t is represented as flattened
 //  that is it is either a unit type or it is a type such that
 //  the last argument is not arrow and all arguments are flattened.
-//  
+//
 //
 // Global Variables: -
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -61,7 +61,7 @@ bool is_flattened(Type_p t)
          return false;
       }
    }
-   
+
    return t->arity == 0 || !TypeIsArrow(t->args[t->arity-1]);
 }
 
@@ -74,7 +74,7 @@ bool is_flattened(Type_p t)
 //
 // Global Variables: -
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -87,7 +87,7 @@ bool arguments_flattened(Type_p t)
          return false;
       }
    }
-   
+
    return true;
 }
 
@@ -99,7 +99,7 @@ bool arguments_flattened(Type_p t)
 //
 // Global Variables: -
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -141,13 +141,13 @@ static const char* get_builtin_name(Type_p t)
 //
 // Global Variables: -
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
 Type_p  TypeCopy(Type_p orig)
 {
-   Type_p handle = TypeAlloc(orig->f_code, orig->arity, 
+   Type_p handle = TypeAlloc(orig->f_code, orig->arity,
                              TypeArgArrayAlloc(orig->arity));
 
    for(int i=0; i<orig->arity; i++)
@@ -166,13 +166,13 @@ Type_p  TypeCopy(Type_p orig)
 //
 // Global Variables: -
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
 void TypeTopFree(Type_p junk)
 {
-   TypeCellFree(junk); 
+   TypeCellFree(junk);
 }
 
 
@@ -184,7 +184,7 @@ void TypeTopFree(Type_p junk)
 //
 // Global Variables: -
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -212,7 +212,7 @@ void TypeFree(Type_p junk)
 //
 // Global Variables: -
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -223,11 +223,11 @@ int TypesCmp(Type_p t1, Type_p t2)
    int res = t1->f_code - t2->f_code;
 
    // if it is not arrow type cons -> same nr of args
-   assert(!(t1->f_code == t2->f_code && t1->f_code != ArrowTypeCons) 
+   assert(!(t1->f_code == t2->f_code && t1->f_code != ArrowTypeCons)
             || t1->arity == t2->arity);
 
    if(!res)
-   {      
+   {
      res = t1->arity - t2->arity;
      for(int i=0; i<t1->arity && !res; i++)
      {
@@ -245,12 +245,12 @@ int TypesCmp(Type_p t1, Type_p t2)
 //
 //  Makes sure type is represented using flattened representation, i.e.
 //  the one where the last argument is not not arrow.
-//  IMPORTANT: Assumes all arguments are flattened. 
+//  IMPORTANT: Assumes all arguments are flattened.
 //             Return value is an unshared type.
 //
 // Global Variables: -
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -279,7 +279,7 @@ Type_p FlattenType(Type_p type)
 
       res = AllocArrowType(total_args, args);
    }
-   
+
    return res;
 
 }
@@ -289,11 +289,11 @@ Type_p FlattenType(Type_p type)
 //
 // Function: GetReturnSort()
 //
-//  Returns the return type of function with the given type. 
+//  Returns the return type of function with the given type.
 //
 // Global Variables: -
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
@@ -318,14 +318,14 @@ Type_p GetReturnSort(Type_p type)
 //
 // Global Variables: -
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
 DStr_p TypeAppEncodedName(Type_p type)
 {
    DStr_p name = DStrAlloc();
-   
+
    if(SortIsUserDefined(type->f_code) || TypeIsArrow(type))
    {
       assert(type->type_uid != INVALID_TYPE_UID);
@@ -336,7 +336,7 @@ DStr_p TypeAppEncodedName(Type_p type)
    {
       DStrAppendStr(name, (char*)get_builtin_name(type));
    }
-   
+
    return name;
 }
 
@@ -349,11 +349,11 @@ DStr_p TypeAppEncodedName(Type_p type)
 //
 // Global Variables: -
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
-__inline__ int TypeGetMaxArity(Type_p t)
+inline int TypeGetMaxArity(Type_p t)
 {
   return (TypeIsArrow(t) ? (t)->arity-1 : 0);
 }
@@ -366,7 +366,7 @@ __inline__ int TypeGetMaxArity(Type_p t)
 //
 // Global Variables: -
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 

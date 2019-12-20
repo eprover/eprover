@@ -142,7 +142,7 @@ void fv_index_print(FILE* out, FVIndex_p index, bool fullterms, int level)
    {
       IntMapIter_p iterator = IntMapIterAlloc(index->u1.successors, 0, LONG_MAX);
 
-      long key;
+      long key = 0;
       FVIndex_p succ;
       while((succ = IntMapIterNext(iterator, &key)))
       {

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 """
-genprot 0.1
+genprot 0.2
 
 Usage: genprot.py <archive_1> ... <archive_n>
 
@@ -28,7 +28,7 @@ Options:
 
 
 Copyright 2015 Martin Möhrmann, moehrmann@eprover.org,
-          2018 Stephan Schulz, schulz@eprover.org
+          2019 Stephan Schulz, schulz@eprover.org
 
 This code is part of the support structure for the equational
 theorem prover E. Visit
@@ -51,9 +51,9 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-The original copyright holder can be contacted as
+The original copyright holders can be contacted as
 
-Martin Möhrmann
+Stephan Schulz
 Duale Hochschule Baden-Württemberg Stuttgart
 Rotebühlplatz 41
 Raum: 0.01
@@ -69,6 +69,7 @@ import tarfile
 import zipfile
 import sys
 import os
+import re
 
 from itertools import chain
 from os.path import dirname, splitext, basename, isdir, isfile
@@ -80,6 +81,8 @@ firstkeys   = ["Problem", "Status", "User time", "Failure", "Version", "Preproce
 metakeys    = ["Filename", "Configname", "Archivename"]
 removekeys  = ["eprover", "Command", "Computer", "Model", "CPU", "Memory", "OS", "CPULimit", "DateTime", "CPUTime"]
 featurekeys = ["Type", "Equational"]
+
+version_re = re.compile("[0-9]+[.][0-9]+")
 
 failuremap = {"User resource limit exceeded"    :"maxres",
               "Out of unprocessed clauses!" :"incomplete",
@@ -175,7 +178,11 @@ def make_entry(lines):
 def process_file(data, features, archivename, path, fileopener, info):
     problemname   = basename(dirname(path))
     configname    = "_".join(basename(dirname(dirname(path))).split("_")[4:])
-    eversion      = basename(dirname(dirname(path))).split("_", 1)[0][2:]
+    mo            = version_re.search(basename(dirname(dirname(path))).split("_", 1)[0])
+    if mo:
+        eversion = mo.group()
+    else:
+        eversion = "unknownVersion"
     fileextension = splitext(path)[-1]
     filename      = basename(path)
     if problemname and configname and fileextension == ".txt" \
@@ -195,6 +202,8 @@ def process_file(data, features, archivename, path, fileopener, info):
                    entry["Failure"] = failuremap["unknown"]
            if "Failure" not in entry:
                entry["Failure"] = "success"
+           if "Version" not in entry:
+               entry["Version"] = eversion
            if entry["Failure"] == failuremap["exec failed"]:
                entry["Problem"] = problemname
                entry["Version"] = eversion

@@ -51,7 +51,7 @@ DDArray_p DDArrayAlloc(long init_size, long grow);
 void      DDArrayFree(DDArray_p junk);
 
 void      DDArayEnlarge(DDArray_p array, long idx);
-static __inline__ double* DDArrayElementRef(DDArray_p array, long idx);
+static inline double* DDArrayElementRef(DDArray_p array, long idx);
 
 
 #define   DDArrayAssign(array, idx, value) \
@@ -86,7 +86,7 @@ double    DDArraySelectPart(DDArray_p array, double part, long size);
 //
 /----------------------------------------------------------------------*/
 
-static __inline__ double* DDArrayElementRef(DDArray_p array, long idx)
+static inline double* DDArrayElementRef(DDArray_p array, long idx)
 {
    assert(array);
    assert(idx >= 0);

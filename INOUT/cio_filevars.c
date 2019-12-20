@@ -177,7 +177,7 @@ long FileVarsReadFromFile(char* file, FileVars_p vars)
    long res;
    Scanner_p in;
 
-   in = CreateScanner(StreamTypeFile, file, true, NULL);
+   in = CreateScanner(StreamTypeFile, file, true, NULL, true);
    res = FileVarsParse(in, vars);
    DestroyScanner(in);
 
@@ -342,7 +342,7 @@ bool FileVarsGetIdentifier(FileVars_p vars, char* name,  char **value)
    }
 
    in = CreateScanner(StreamTypeInternalString, cell->val1.p_val,
-            true, NULL);
+                      true, NULL, true);
    if(!TestInpTok(in, Identifier))
    {
       DStr_p errpos = DStrAlloc();
@@ -366,5 +366,3 @@ bool FileVarsGetIdentifier(FileVars_p vars, char* name,  char **value)
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-

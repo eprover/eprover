@@ -60,7 +60,7 @@ extern char*  POCompareSymbol[];
                        (((res)>0) ? to_greater:to_equal))
 
 
-static __inline__ CompareResult POInverseRelation(CompareResult
+static inline CompareResult POInverseRelation(CompareResult
                     relation);
 
 
@@ -81,7 +81,7 @@ static __inline__ CompareResult POInverseRelation(CompareResult
 //
 /----------------------------------------------------------------------*/
 
-static __inline__ CompareResult POInverseRelation(CompareResult
+static inline CompareResult POInverseRelation(CompareResult
                     relation)
 {
    CompareResult res = relation;

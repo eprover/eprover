@@ -65,12 +65,12 @@ typedef struct match_info_cell {
 #define CLAUSEPOSCELL_MEM MEMSIZE(ClausePosCell)
 #endif
 
-static __inline__ ClausePos_p ClausePosAlloc(void);
-static __inline__ void        ClausePosFree(ClausePos_p junk);
+static inline ClausePos_p ClausePosAlloc(void);
+static inline void        ClausePosFree(ClausePos_p junk);
 
-static __inline__ Term_p   ClausePosGetSide(ClausePos_p pos);
-static __inline__ Term_p   ClausePosGetOtherSide(ClausePos_p pos);
-static __inline__ Term_p   ClausePosGetSubterm(ClausePos_p pos);
+static inline Term_p   ClausePosGetSide(ClausePos_p pos);
+static inline Term_p   ClausePosGetOtherSide(ClausePos_p pos);
+static inline Term_p   ClausePosGetSubterm(ClausePos_p pos);
 #define ClausePosIsTop(position) ((PStackEmpty((position)->pos)))
 
 
@@ -103,7 +103,7 @@ bool     TermComputeRWSequence(PStack_p stack, Term_p from, Term_p to,
 //
 /----------------------------------------------------------------------*/
 
-static __inline__ ClausePos_p ClausePosAlloc(void)
+static inline ClausePos_p ClausePosAlloc(void)
 {
    ClausePos_p handle = ClausePosCellAlloc();
 
@@ -127,7 +127,7 @@ static __inline__ ClausePos_p ClausePosAlloc(void)
 //
 /----------------------------------------------------------------------*/
 
-static __inline__ void ClausePosFree(ClausePos_p junk)
+static inline void ClausePosFree(ClausePos_p junk)
 {
    assert(junk);
 
@@ -149,7 +149,7 @@ static __inline__ void ClausePosFree(ClausePos_p junk)
 //
 /----------------------------------------------------------------------*/
 
-static __inline__ Term_p ClausePosGetSide(ClausePos_p pos)
+static inline Term_p ClausePosGetSide(ClausePos_p pos)
 {
    if(pos->side == LeftSide)
    {
@@ -172,7 +172,7 @@ static __inline__ Term_p ClausePosGetSide(ClausePos_p pos)
 //
 /----------------------------------------------------------------------*/
 
-static __inline__ Term_p ClausePosGetOtherSide(ClausePos_p pos)
+static inline Term_p ClausePosGetOtherSide(ClausePos_p pos)
 {
    if(pos->side == LeftSide)
    {
@@ -196,7 +196,7 @@ static __inline__ Term_p ClausePosGetOtherSide(ClausePos_p pos)
 //
 /----------------------------------------------------------------------*/
 
-static __inline__ Term_p ClausePosGetSubterm(ClausePos_p pos)
+static inline Term_p ClausePosGetSubterm(ClausePos_p pos)
 {
    return TermPosGetSubterm(ClausePosGetSide(pos), pos->pos);
 }

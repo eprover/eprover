@@ -1811,37 +1811,35 @@ Stephan
       Please email me as schulz@eprover.org (Stephan Schulz)
 ----------------------------------------------------------------------------
 
-This is the announcement for E 2.3
+This is the announcement for E 2.4
 ----------------------------------
 
 
 From: schulz@eprover.org (Stephan Schulz)
-Subject: E Equational Theorem Prover 2.3 "Gielle" available
+Subject: E Equational Theorem Prover 2.4 "Sandakphu" available
 
-E 2.3 "Gielle" is the first version of E to include some support for
-higher-order logic. In particular, E 2.3 can be build as a prover for
-lambda-free higher-order logic. After the preliminary release last
-fall, this is the definite (?) release.
+E 2.4 "Sandakphu" is an automated theorem prover for many-sorted
+first-order logic (and limited higher-order extensions) with equality.
+It has successfully competed in several CASC competitions and is
+generally considered a friendly and powerful system (as automated
+theorem provers go). E has won the "overall best system" special award
+at CASC-J5 and the CNF category at CASC-23. It scored good placements
+at CASC-J9 and CASC-27, where it won the UEQ category. It also is used
+a component in several other winning and high-scoring systems.
 
-E is an automated theorem prover for many-sorted first-order logic and
-limited higher-order logic with equality. It has successfully competed
-in several CASC competitions and is generally considered a friendly
-and powerful system (as automated theorem provers go). E has won the
-"overall best system" special award at CASC-J5 and the CNF category at
-CASC-23. It scored good placements at CASC-26 and CASC-J9 and is used
-a component in several other systems.
+The main changes compared to the previous version relate to calculus
+refinements with respect to inference literal determination, new
+clause evaluation functions, and other options controlling search
+behaviour. All this resulted in significantly improved performance in
+the automatic modes.
 
-In addition to the integration of lambda-free higher-order logic
-already in the pre-release version, we have made clausification more
-robust for some corner cases.
-
-E is available as a source distribution for UNIX-variants.
+E is available as a source distribution for UNIX-like systems.
 Historically, it installed cleanly under all UNIX variants I could get
 my hands on: Various versions of GNU/Linux for Intel and XScale,
-Solaris on SPARC, and MacOS-X (with both GNU gcc and LLVM). Current
-versions are tested under OS-X/macOS and Linux. Users have also
-reported successful builds on a large number of other operating
-systems, including Windows/Cygwin.
+Solaris on SPARC, MacOS-X (with both GNU gcc and LLVM), and
+FreeBSD. Current versions are tested under OS-X/macOS and Linux. Users
+have also reported successful builds on a large number of other
+operating systems, including Windows/Cygwin.
 
 You can find installation instructions in the README file. Building
 the prover with LFHO-support is as easy as

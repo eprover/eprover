@@ -52,30 +52,30 @@ typedef struct pqueuecell
 #define PQueueCellAlloc() (PQueueCell*)SizeMalloc(sizeof(PQueueCell))
 #define PQueueCellFree(junk)         SizeFree(junk, sizeof(PQueueCell))
 
-static __inline__ PQueue_p PQueueAlloc(void);
-static __inline__ void     PQueueFree(PQueue_p junk);
+static inline PQueue_p PQueueAlloc(void);
+static inline void     PQueueFree(PQueue_p junk);
 void     PQueueGrow(PQueue_p queue);
 #define  PQueueEmpty(queue) ((queue)->head == (queue)->tail)
-static __inline__ void     PQueueReset(PQueue_p queue);
+static inline void     PQueueReset(PQueue_p queue);
 
-static __inline__ void     PQueueStoreInt(PQueue_p queue, long val);
-static __inline__ void     PQueueStoreP(PQueue_p queue, void* val);
+static inline void     PQueueStoreInt(PQueue_p queue, long val);
+static inline void     PQueueStoreP(PQueue_p queue, void* val);
 
-static __inline__ void     PQueueBuryInt(PQueue_p queue, long val);
-static __inline__ void     PQueueBuryP(PQueue_p queue, void* val);
+static inline void     PQueueBuryInt(PQueue_p queue, long val);
+static inline void     PQueueBuryP(PQueue_p queue, void* val);
 
-static __inline__ IntOrP   PQueueGetNext(PQueue_p queue);
+static inline IntOrP   PQueueGetNext(PQueue_p queue);
 #define  PQueueGetNextInt(Queue) (PQueueGetNext(Queue).i_val)
 #define  PQueueGetNextP(Queue)   (PQueueGetNext(Queue).p_val)
 
-static __inline__ IntOrP   PQueueGetLast(PQueue_p queue);
+static inline IntOrP   PQueueGetLast(PQueue_p queue);
 #define  PQueueGetLastInt(Queue) (PQueueGetLast(Queue).i_val)
 #define  PQueueGetLastP(Queue)   (PQueueGetLast(Queue).p_val)
 
-static __inline__ IntOrP   PQueueLook(PQueue_p queue);
+static inline IntOrP   PQueueLook(PQueue_p queue);
 #define  PQueueLookInt(Queue) (PQueueLook(Queue).i_val)
 #define  PQueueLookP(Queue)   (PQueueLook(Queue).p_val)
-static __inline__ IntOrP   PQueueLookLast(PQueue_p queue);
+static inline IntOrP   PQueueLookLast(PQueue_p queue);
 #define  PQueueLookLastInt(Queue) (PQueueLookLast(Queue).i_val)
 #define  PQueueLookLastP(Queue)   (PQueueLookLast(Queue).p_val)
 long     PQueueCardinality(PQueue_p queue);
@@ -104,7 +104,7 @@ long     PQueueIncIndex(PQueue_p queue, long index);
 //
 /----------------------------------------------------------------------*/
 
-static __inline__ void pqueue_store(PQueue_p queue, IntOrP val)
+static inline void pqueue_store(PQueue_p queue, IntOrP val)
 {
    queue->queue[queue->head] = val;
    queue->head++;
@@ -133,7 +133,7 @@ static __inline__ void pqueue_store(PQueue_p queue, IntOrP val)
 //
 /----------------------------------------------------------------------*/
 
-static __inline__ void pqueue_bury(PQueue_p queue, IntOrP val)
+static inline void pqueue_bury(PQueue_p queue, IntOrP val)
 {
    queue->tail = queue->tail? (queue->tail-1):queue->size-1;
    queue->queue[queue->tail] = val;
@@ -157,7 +157,7 @@ static __inline__ void pqueue_bury(PQueue_p queue, IntOrP val)
 //
 /----------------------------------------------------------------------*/
 
-static __inline__ PQueue_p PQueueAlloc(void)
+static inline PQueue_p PQueueAlloc(void)
 {
    PQueue_p handle = PQueueCellAlloc();
 
@@ -182,7 +182,7 @@ static __inline__ PQueue_p PQueueAlloc(void)
 //
 /----------------------------------------------------------------------*/
 
-static __inline__ void PQueueFree(PQueue_p junk)
+static inline void PQueueFree(PQueue_p junk)
 {
    SizeFree(junk->queue, junk->size*sizeof(IntOrP));
    PQueueCellFree(junk);
@@ -200,7 +200,7 @@ static __inline__ void PQueueFree(PQueue_p junk)
 //
 /----------------------------------------------------------------------*/
 
-static __inline__ void PQueueReset(PQueue_p queue)
+static inline void PQueueReset(PQueue_p queue)
 {
    queue->head = 0;
    queue->tail = 0;
@@ -219,7 +219,7 @@ static __inline__ void PQueueReset(PQueue_p queue)
 //
 /----------------------------------------------------------------------*/
 
-static __inline__ void PQueueStoreInt(PQueue_p queue, long val)
+static inline void PQueueStoreInt(PQueue_p queue, long val)
 {
    IntOrP handle;
 
@@ -239,7 +239,7 @@ static __inline__ void PQueueStoreInt(PQueue_p queue, long val)
 //
 /----------------------------------------------------------------------*/
 
-static __inline__ void PQueueStoreP(PQueue_p queue, void* val)
+static inline void PQueueStoreP(PQueue_p queue, void* val)
 {
    IntOrP handle;
 
@@ -259,7 +259,7 @@ static __inline__ void PQueueStoreP(PQueue_p queue, void* val)
 //
 /----------------------------------------------------------------------*/
 
-static __inline__ void PQueueBuryInt(PQueue_p queue, long val)
+static inline void PQueueBuryInt(PQueue_p queue, long val)
 {
    IntOrP handle;
 
@@ -279,7 +279,7 @@ static __inline__ void PQueueBuryInt(PQueue_p queue, long val)
 //
 /----------------------------------------------------------------------*/
 
-static __inline__ void PQueueBuryP(PQueue_p queue, void* val)
+static inline void PQueueBuryP(PQueue_p queue, void* val)
 {
    IntOrP handle;
 
@@ -300,7 +300,7 @@ static __inline__ void PQueueBuryP(PQueue_p queue, void* val)
 //
 /----------------------------------------------------------------------*/
 
-static __inline__ IntOrP PQueueGetNext(PQueue_p queue)
+static inline IntOrP PQueueGetNext(PQueue_p queue)
 {
    IntOrP res;
 
@@ -330,7 +330,7 @@ static __inline__ IntOrP PQueueGetNext(PQueue_p queue)
 //
 /----------------------------------------------------------------------*/
 
-static __inline__ IntOrP PQueueGetLast(PQueue_p queue)
+static inline IntOrP PQueueGetLast(PQueue_p queue)
 {
    IntOrP res;
 
@@ -356,7 +356,7 @@ static __inline__ IntOrP PQueueGetLast(PQueue_p queue)
 //
 /----------------------------------------------------------------------*/
 
-static __inline__ IntOrP PQueueLook(PQueue_p queue)
+static inline IntOrP PQueueLook(PQueue_p queue)
 {
    assert(!PQueueEmpty(queue));
 
@@ -378,7 +378,7 @@ static __inline__ IntOrP PQueueLook(PQueue_p queue)
 //
 /----------------------------------------------------------------------*/
 
-static __inline__ IntOrP PQueueLookLast(PQueue_p queue)
+static inline IntOrP PQueueLookLast(PQueue_p queue)
 {
    IntOrP res;
    long   index;

@@ -336,7 +336,7 @@ void process_terms(char* infile, TB_p terms, OCB_p ocb, ClauseSet_p *demodulator
 
    if(infile)
    {
-      in = CreateScanner(StreamTypeFile, infile, true, NULL);
+      in = CreateScanner(StreamTypeFile, infile, true, NULL, true);
       ScannerSetFormat(in, parse_format);
       while(!TestInpTok(in, NoToken))
       {
@@ -373,7 +373,7 @@ void process_clauses(char* infile, TB_p terms, OCB_p ocb, ClauseSet_p *demodulat
 
    if(infile)
    {
-      in = CreateScanner(StreamTypeFile, infile, true, NULL);
+      in = CreateScanner(StreamTypeFile, infile, true, NULL, true);
       ScannerSetFormat(in, parse_format);
       while(!TestInpTok(in, NoToken))
       {
@@ -411,7 +411,7 @@ void process_formulas(char* infile, TB_p terms, OCB_p ocb, ClauseSet_p *demodula
 
    if(infile)
    {
-      in = CreateScanner(StreamTypeFile, infile, true, NULL);
+      in = CreateScanner(StreamTypeFile, infile, true, NULL, true);
       ScannerSetFormat(in, parse_format);
       while(!TestInpTok(in, NoToken))
       {
@@ -491,7 +491,7 @@ int main(int argc, char* argv[])
 
    for(i=0; state->argv[i]; i++)
    {
-      in = CreateScanner(StreamTypeFile, state->argv[i], true, NULL);
+      in = CreateScanner(StreamTypeFile, state->argv[i], true, NULL, true);
       ScannerSetFormat(in, parse_format);
       /* ClauseSetParseList(in, clauses, terms); */
       FormulaAndClauseSetParse(in, formulas, dummy, terms,

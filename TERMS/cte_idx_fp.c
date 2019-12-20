@@ -169,7 +169,7 @@ FunCode TermFPSampleFO(Term_p term, va_list ap)
 //
 //  For details see TermFPSampleFO(). It differs by supporting
 //  prefix matching/unification, where terms can have trailing arguments.
-//  
+//
 //
 // Global Variables:
 //
@@ -238,7 +238,7 @@ FunCode  TermFPSample(Term_p term, ...)
 {
    va_list args;
    va_start(args, term);
-   
+
    FunCode res;
 #ifdef ENABLE_LFHO
    if(problemType == PROBLEM_HO)
@@ -349,10 +349,10 @@ FunCode TermFPFlexSampleHO(Term_p term, IntOrP* *seq)
          term = term->args[pos];
          (*seq)++;
       }
-      
+
       if(pos == -1)
       {
-         res = TermIsVar(term) ? ANY_VAR : 
+         res = TermIsVar(term) ? ANY_VAR :
                      (TermIsAppliedVar(term) ? BELOW_VAR : term->f_code);
       }
       else
@@ -364,10 +364,10 @@ FunCode TermFPFlexSampleHO(Term_p term, IntOrP* *seq)
         }
       }
       /* We want to point beyond the end */
-      (*seq)++;   
+      (*seq)++;
    }
 
-   
+
    return res;
 }
 
@@ -382,7 +382,7 @@ FunCode TermFPFlexSampleHO(Term_p term, IntOrP* *seq)
 // Side Effects    :
 //
 /----------------------------------------------------------------------*/
-__inline__ FunCode TermFPFlexSample(Term_p term, IntOrP* *seq)
+inline FunCode TermFPFlexSample(Term_p term, IntOrP* *seq)
 {
    if(problemType == PROBLEM_HO)
    {

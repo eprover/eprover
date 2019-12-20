@@ -1,26 +1,26 @@
 /*-----------------------------------------------------------------------
 
-File  : cco_batch_spec.h
+  File  : cco_batch_spec.h
 
-Author: Stephan Schulz (schulz@eprover.org)
+  Author: Stephan Schulz (schulz@eprover.org)
 
-Contents
+  Contents
 
-  Data types and code for dealing with CASC-2010 LTB batch
-  specifications. It's unclear if this will ever be useful...
+  Data types and code for dealing with CASC-2010-2019 LTB batch
+  specifications. It's unclear if this will ever be useful for other
+  applications...
 
-  Copyright 2010 by the author.
+  Copyright 2010-1019 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
+  Changes
 
-<1> Mon Jun 28 21:46:06 CEST 2010
-    New
+  Created: Mon Jun 28 21:46:06 CEST 2010
 
------------------------------------------------------------------------*/
+  -----------------------------------------------------------------------*/
 
 #ifndef CCO_BATCH_SPEC
 
@@ -122,6 +122,8 @@ void BatchProcessInteractive(BatchSpec_p spec,
                              FILE* fp);
 
 
+void BatchProcessVariants(BatchSpec_p spec, char* variants[],
+                          long start, char* default_dir, char* outdir);
 
 #endif
 

@@ -52,6 +52,8 @@ char* FileNameDirName(char* name);
 char* FileFindBaseName(char *file);
 char* FileNameBaseName(char* name);
 char* FileNameStrip(char* name);
+bool  FileExists(char* name);
+
 
 #endif
 

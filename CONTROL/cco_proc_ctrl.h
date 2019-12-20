@@ -53,6 +53,8 @@ typedef struct e_pctrl_cell
 }EPCtrlCell, *EPCtrl_p;
 
 #define EPCTRL_BUFSIZE 200
+#define MAX_CORES 8
+
 
 typedef struct e_pctrl_set_cell
 {
@@ -65,6 +67,7 @@ typedef struct e_pctrl_set_cell
 /*---------------------------------------------------------------------*/
 
 #define SZS_THEOREM_STR    "# SZS status Theorem"
+#define SZS_CONTRAAX_STR   "# SZS status ContradictoryAxioms"
 #define SZS_UNSAT_STR      "# SZS status Unsatisfiable"
 #define SZS_SATSTR_STR     "# SZS status Satisfiable"
 #define SZS_COUNTERSAT_STR "# SZS status CounterSatisfiable"
@@ -72,12 +75,8 @@ typedef struct e_pctrl_set_cell
 #define SZS_FAILURE_STR    "# Failure:"
 
 
-#define E_OPTIONS_BASE "--print-pid -s -R --answers=1 \
---memory-limit=2048 \
---proof-object --cpu-limit="
-
-
-#define E_OPTIONS "--satauto-schedule --assume-incompleteness " E_OPTIONS_BASE
+#define E_OPTIONS_BASE " --print-pid -s -R  --memory-limit=2048 --proof-object "
+#define E_OPTIONS "--satauto-schedule --assume-incompleteness"
 
 
 extern char* PRResultTable[];
@@ -93,8 +92,8 @@ EPCtrl_p ECtrlCreate(char* prover, char* name,
                      long cpu_limit, char* file);
 
 EPCtrl_p ECtrlCreateGeneric(char* prover, char* name,
-                            char* options, long cpu_limit,
-                            char* file);
+                            char* options, char* extra_options,
+                            long cpu_limit, char* file);
 void     EPCtrlCleanup(EPCtrl_p ctrl, bool delete_file1);
 
 bool EPCtrlGetResult(EPCtrl_p ctrl,
@@ -108,8 +107,10 @@ EPCtrlSet_p EPCtrlSetAlloc(void);
 void        EPCtrlSetFree(EPCtrlSet_p junk, bool delete_files);
 void        EPCtrlSetAddProc(EPCtrlSet_p set, EPCtrl_p proc);
 EPCtrl_p    EPCtrlSetFindProc(EPCtrlSet_p set, int fd);
-void EPCtrlSetDeleteProc(EPCtrlSet_p set, EPCtrl_p proc, bool delete_file);
+void        EPCtrlSetDeleteProc(EPCtrlSet_p set,
+                                EPCtrl_p proc, bool delete_file);
 #define     EPCtrlSetEmpty(set) ((set)->procs==NULL)
+#define     EPCtrlSetCardinality(set) NumTreeNodes((set)->procs)
 
 int         EPCtrlSetFDSet(EPCtrlSet_p set, fd_set *rd_fds);
 

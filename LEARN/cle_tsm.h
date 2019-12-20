@@ -1,10 +1,10 @@
 /*-----------------------------------------------------------------------
 
-File  : cle_tsm.h
+  File  : cle_tsm.h
 
-Author: Stephan Schulz
+  Author: Stephan Schulz
 
-Contents
+  Contents
 
   Finally, the term space map!
 
@@ -14,12 +14,9 @@ Contents
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
+  Created: Fri Aug  6 16:47:31 MET DST 1999
 
-<1> Fri Aug  6 16:47:31 MET DST 1999
-    New
-
------------------------------------------------------------------------*/
+  -----------------------------------------------------------------------*/
 
 #ifndef CLE_TSM
 
@@ -92,17 +89,17 @@ extern char* TSMTypeNames[];
 #define       TSMEvalNormalize(eval, limit) (((eval) < (limit))?-1:1)
 
 double        TSMRemainderEntropy(PDArray_p partition, long *parts,
-              double limit, long max_index);
+                                  double limit, long max_index);
 double        TSMFlatAnnoSetEntropy(FlatAnnoSet_p set, double limit);
 long          TSMPartitionSet(PDArray_p partition, TSMIndex_p index,
-               FlatAnnoSet_p set, PDArray_p cache);
+                              FlatAnnoSet_p set, PDArray_p cache);
 
 IndexType     TSMFindOptimalIndex(TSMAdmin_p admin, FlatAnnoSet_p set,
-              long *depth, IndexType indextype,
-              double limit);
+                                  long *depth, IndexType indextype,
+                                  double limit);
 
 long          TSMCreateSubtermSet(FlatAnnoSet_p set, FlatAnnoTerm_p
-              list, int sel);
+                                  list, int sel);
 double        TSMFindPartLimit(FlatAnnoSet_p set, double part);
 
 #define TSMAdminCellAlloc() (TSMAdminCell*)SizeMalloc(sizeof(TSMAdminCell))
@@ -115,7 +112,7 @@ void       TSMAdminFree(TSMAdmin_p junk);
 #define TSMCellFree(junk) SizeFree(junk, sizeof(TSMCell))
 
 void TSMAdminBuildTSM(TSMAdmin_p admin, FlatAnnoSet_p set, IndexType
-            type, int depth, PatternSubst_p subst);
+                      type, int depth, PatternSubst_p subst);
 TSM_p   TSMCreate(TSMAdmin_p admin, FlatAnnoSet_p set);
 void    TSMFree(TSM_p tsm);
 
@@ -126,9 +123,9 @@ TSA_p   TSACreate(TSMAdmin_p admin, FlatAnnoTerm_p list);
 void    TSAFree(TSA_p tsa);
 
 double  TSMEvalTerm(TSMAdmin_p admin, Term_p term, PatternSubst_p
-          subst);
+                    subst);
 double  TSMComputeClassificationLimit(TSMAdmin_p admin,  FlatAnnoSet_p
-                  set);
+                                      set);
 double TSMComputeAverageEval(TSMAdmin_p admin,  FlatAnnoSet_p set);
 
 void    TSMPrintFlat(FILE* out, TSM_p tsm);
@@ -139,8 +136,3 @@ void    TSMPrintRek(FILE* out, TSMAdmin_p admin, TSM_p tsm, int depth);
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
-
-
-

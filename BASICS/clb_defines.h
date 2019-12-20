@@ -107,7 +107,7 @@ typedef int (*ComparisonFunctionType)(const void*, const void*);
 
 
 /* Convenience function */
-static __inline__ size_t WriteStr(int fd, const char* msg);
+static inline size_t WriteStr(int fd, const char* msg);
 
 
 #ifdef PRINT_TSTP_STATUS
@@ -157,7 +157,7 @@ extern ProblemType problemType;
 //
 /----------------------------------------------------------------------*/
 
-static __inline__ size_t WriteStr(int fd, const char* msg){
+static inline size_t WriteStr(int fd, const char* msg){
    return write(fd, msg, strlen(msg));
 }
 

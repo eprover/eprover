@@ -1,25 +1,22 @@
 /*-----------------------------------------------------------------------
 
-File  : cto_ocb.c
+  File  : cto_ocb.c
 
-Author: Stephan Schulz
+  Author: Stephan Schulz
 
-Contents
+  Contents
 
   Functions for describing orderings, precedences and so on.
 
-  Copyright 1998, 1999 by the author.
+  Copyright 1998, 1999, 2019 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
+  Created: Thu Apr 30 03:11:31 MET DST 1998
 
-<1> Thu Apr 30 03:11:31 MET DST 1998
-    New
-
------------------------------------------------------------------------*/
+  -----------------------------------------------------------------------*/
 
 #include "cto_ocb.h"
 
@@ -89,28 +86,28 @@ bool ocb_trans_compute(OCB_p ocb, FunCode f1, FunCode f2, FunCode f3)
    switch(rel12)
    {
    case to_uncomparable:
-    break;
+         break;
    case to_equal:
-    if(rel23 != to_uncomparable)
-    {
-       res = OCBPrecedenceAddTuple(ocb, f1, f3, rel23);
-    }
-    break;
+         if(rel23 != to_uncomparable)
+         {
+            res = OCBPrecedenceAddTuple(ocb, f1, f3, rel23);
+         }
+         break;
    case to_greater:
-    if(rel23 == to_equal || rel23 == to_greater)
-    {
-       res = OCBPrecedenceAddTuple(ocb, f1, f3, to_greater);
-    }
-    break;
+         if(rel23 == to_equal || rel23 == to_greater)
+         {
+            res = OCBPrecedenceAddTuple(ocb, f1, f3, to_greater);
+         }
+         break;
    case to_lesser:
-    if(rel23 == to_equal || rel23 == to_lesser)
-    {
-       res = OCBPrecedenceAddTuple(ocb, f1, f3, to_lesser);
-    }
-    break;
+         if(rel23 == to_equal || rel23 == to_lesser)
+         {
+            res = OCBPrecedenceAddTuple(ocb, f1, f3, to_lesser);
+         }
+         break;
    default:
-    assert(false);
-    break;
+         assert(false);
+         break;
    }
    return res;
 }
@@ -134,13 +131,13 @@ static void alloc_precedence(OCB_p handle, bool prec_by_weight)
    {
       handle->precedence = NULL;
       handle->prec_weights =
-    SizeMalloc(sizeof(long)*(handle->sig_size+1));
+         SizeMalloc(sizeof(long)*(handle->sig_size+1));
    }
    else
    {
       handle->precedence = SizeMalloc(sizeof(CompareResult)
-                  *handle->sig_size
-                  *handle->sig_size);
+                                      *handle->sig_size
+                                      *handle->sig_size);
       handle->prec_weights = NULL;
    }
 }
@@ -172,12 +169,13 @@ OCB_p OCBAlloc(TermOrdering type, bool prec_by_weight, Sig_p sig)
 
    handle->type  = type;
    handle->sig   = sig;
-   handle->min_constant  = 0;
+   handle->min_constants  = PDIntArrayAlloc(16,0);
    handle->weights    = NULL;
    handle->sig_size = sig->f_count;
    handle->statestack = PStackAlloc();
    handle->var_weight = 1;
    handle->lit_cmp    = LCNormal;
+   handle->rewrite_strong_rhs_inst = false;
    handle->wb      = 0;
    handle->pos_bal = 0;
    handle->neg_bal = 0;
@@ -193,23 +191,23 @@ OCB_p OCBAlloc(TermOrdering type, bool prec_by_weight, Sig_p sig)
    {
    case KBO:
    case KBO6:
-    handle->weights = SizeMalloc(sizeof(long)*(handle->sig_size+1));
-    alloc_precedence(handle, prec_by_weight);
-    break;
+         handle->weights = SizeMalloc(sizeof(long)*(handle->sig_size+1));
+         alloc_precedence(handle, prec_by_weight);
+         break;
    case LPO:
    case LPOCopy:
    case LPO4:
    case LPO4Copy:
-    alloc_precedence(handle, prec_by_weight);
-    break;
+         alloc_precedence(handle, prec_by_weight);
+         break;
    case RPO:
-    alloc_precedence(handle, prec_by_weight);
-    break;
+         alloc_precedence(handle, prec_by_weight);
+         break;
    case EMPTY:
          break;
    default:
-    assert(false);
-    break;
+         assert(false);
+         break;
    }
 
    if(handle->weights)
@@ -224,11 +222,11 @@ OCB_p OCBAlloc(TermOrdering type, bool prec_by_weight, Sig_p sig)
    {
       for(i=1; i<=handle->sig_size; i++)
       {
-    for(j=1; j<=handle->sig_size; j++)
-    {
-       *OCBFunComparePos(handle, i,j) =
-          ((i==j) ? to_equal : to_uncomparable);
-    }
+         for(j=1; j<=handle->sig_size; j++)
+         {
+            *OCBFunComparePos(handle, i,j) =
+               ((i==j) ? to_equal : to_uncomparable);
+         }
       }
    }
 
@@ -270,7 +268,7 @@ void OCBFree(OCB_p junk)
              junk->type == LPO4Copy ||
              junk->type == RPO);
       SizeFree(junk->precedence, sizeof(CompareResult)
-          * junk->sig_size * junk->sig_size);
+               * junk->sig_size * junk->sig_size);
       junk->precedence = NULL;
    }
    if(junk->prec_weights)
@@ -286,6 +284,7 @@ void OCBFree(OCB_p junk)
       SizeFree(junk->prec_weights, sizeof(long)*(junk->sig_size+1));
       junk->prec_weights = NULL;
    }
+   PDArrayFree(junk->min_constants);
    assert(junk);
    assert(junk->vb_size > 0);
    assert(junk->vb);
@@ -328,10 +327,10 @@ void OCBDebugPrint(FILE* out, OCB_p ocb)
       fprintf(out, "# Weights:");
       for(i=1; i<=ocb->sig_size;i++)
       {
-    if(!((i-1)%8))
-    {
-       fprintf(out, "\n# ");
-    }
+         if(!((i-1)%8))
+         {
+            fprintf(out, "\n# ");
+         }
          if(ocb->sig)
          {
             fprintf(out, " (%s = %ld) ", SigFindName(ocb->sig,i), OCBFunWeight(ocb, i));
@@ -353,22 +352,22 @@ void OCBDebugPrint(FILE* out, OCB_p ocb)
       fprintf(out, "# Precedence Matrix:\n#       ");
       for(j=1; j<=ocb->sig_size; j++)
       {
-    fprintf(out, " %2ld ", j);
+         fprintf(out, " %2ld ", j);
       }
       fprintf(out, "\n");
       for(i=1; i<=ocb->sig_size; i++)
       {
-    fprintf(out, "# %2ld  | ", i);
-    fflush(stdout);
-    for(j=1; j<=ocb->sig_size; j++)
-    {
-       char* symb;
+         fprintf(out, "# %2ld  | ", i);
+         fflush(stdout);
+         for(j=1; j<=ocb->sig_size; j++)
+         {
+            char* symb;
 
-       symb = POCompareSymbol[OCBFunCompare(ocb, i, j)];
-       fprintf(out, " %s", symb);
-       fflush(stdout);
-    }
-    fprintf(out, "\n");
+            symb = POCompareSymbol[OCBFunCompare(ocb, i, j)];
+            fprintf(out, " %s", symb);
+            fflush(stdout);
+         }
+         fprintf(out, "\n");
       }
    }
    else
@@ -396,7 +395,7 @@ void OCBDebugPrint(FILE* out, OCB_p ocb)
 /----------------------------------------------------------------------*/
 
 PStackPointer OCBPrecedenceAddTuple(OCB_p ocb, FunCode f1, FunCode f2,
-            CompareResult relation)
+                                    CompareResult relation)
 {
    FunCode       i;
    PStackPointer res = 0, old;
@@ -426,23 +425,23 @@ PStackPointer OCBPrecedenceAddTuple(OCB_p ocb, FunCode f1, FunCode f2,
 
       for(i=1; i<=ocb->sig_size; i++)
       {
-    res = ocb_trans_compute(ocb, f1, f2, i);
-    if(!res)
-    {
-       break;
-    }
-    res = ocb_trans_compute(ocb, i, f1, f2);
-    if(!res)
-    {
-       break;
-    }
+         res = ocb_trans_compute(ocb, f1, f2, i);
+         if(!res)
+         {
+            break;
+         }
+         res = ocb_trans_compute(ocb, i, f1, f2);
+         if(!res)
+         {
+            break;
+         }
       }
       if(!res)
       { /* Error case, undo changes */
-    f2 = PStackPopInt(ocb->statestack);
-    f1 = PStackPopInt(ocb->statestack);
-    *OCBFunComparePos(ocb, f1, f2) = to_uncomparable;
-    *OCBFunComparePos(ocb, f2, f1) = to_uncomparable;
+         f2 = PStackPopInt(ocb->statestack);
+         f1 = PStackPopInt(ocb->statestack);
+         *OCBFunComparePos(ocb, f1, f2) = to_uncomparable;
+         *OCBFunComparePos(ocb, f2, f1) = to_uncomparable;
       }
    }
    return res;
@@ -481,6 +480,54 @@ bool OCBPrecedenceBacktrack(OCB_p ocb, PStackPointer state)
 }
 
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: OCBMinConst()
+//
+//   Return mininmal constant for type (if already fixed). Return 0
+//   otherwise.
+//
+// Global Variables:
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+
+FunCode OCBMinConst(OCB_p ocb, Type_p type)
+{
+   long sort = GetReturnSort(type)->type_uid;
+   FunCode cand;
+
+   cand = PDArrayElementInt(ocb->min_constants, sort);
+
+   return cand;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: OCBCondSetMinConst()
+//
+//   Set mininmal constant for type (if not already fixed).
+//
+// Global Variables:
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+
+void OCBCondSetMinConst(OCB_p ocb, Type_p type, FunCode cand)
+{
+   long sort = GetReturnSort(type)->type_uid;
+
+   if(!OCBMinConst(ocb, type))
+   {
+      PDArrayAssignInt(ocb->min_constants, sort, cand);
+   }
+}
+
+
+
 /*-----------------------------------------------------------------------
 //
 // Function: OCBFindMinConst()
@@ -495,30 +542,33 @@ bool OCBPrecedenceBacktrack(OCB_p ocb, PStackPointer state)
 //
 /----------------------------------------------------------------------*/
 
-FunCode OCBFindMinConst(OCB_p ocb)
+FunCode OCBFindMinConst(OCB_p ocb, Type_p type)
 {
    FunCode i, cand=0;
 
    assert(ocb && ocb->sig);
-   if(!ocb->min_constant)
+
+   cand = OCBMinConst(ocb, type);
+   if(!cand)
    {
       for(i=ocb->sig->internal_symbols+1; i<=ocb->sig->f_count; i++)
       {
          if(SigIsFunConst(ocb->sig, i) &&
             !SigIsSpecial(ocb->sig, i) &&
+            (SigGetType(ocb->sig,i) == type) &&
             (!cand || (OCBFunCompare(ocb, i, cand)==to_greater)))
          {
             cand = i;
          }
       }
-      if(cand)
+      if(!cand)
       {
          cand = SigGetNewSkolemCode(ocb->sig, 0);
+         SigDeclareFinalType(ocb->sig, cand, type);
       }
-      ocb->min_constant = cand;
+      OCBCondSetMinConst(ocb, type, cand);
    }
-   assert(ocb->min_constant);
-   return ocb->min_constant;
+   return cand;
 }
 
 
@@ -559,7 +609,7 @@ FunCode OCBTermMaxFunCode(OCB_p ocb, Term_p term)
       tmp = OCBTermMaxFunCode(ocb, term->args[i]);
       if(OCBFunCompare(ocb, tmp, res) == to_greater)
       {
-    res = tmp;
+         res = tmp;
       }
    }
    return res;
@@ -590,7 +640,7 @@ CompareResult OCBFunCompareMatrix(OCB_p ocb, FunCode f1, FunCode f2)
    {
       if(f2<=ocb->sig_size)
       {
-    return *(OCBFunComparePos(ocb, f1, f2));
+         return *(OCBFunComparePos(ocb, f1, f2));
       }
       return to_greater;
    }

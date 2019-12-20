@@ -168,47 +168,7 @@ EPCtrl_p ECtrlCreate(char* prover, char* name,
                      char* extra_options,
                      long cpu_limit, char* file)
 {
-   DStr_p   cmd = DStrAlloc();
-   EPCtrl_p res = EPCtrlAlloc(name);
-   char           line[180];
-   char*          ret;
-
-   DStrAppendStr(cmd, prover);
-   DStrAppendStr(cmd, " ");
-   DStrAppendStr(cmd, extra_options);
-   DStrAppendStr(cmd, " ");
-   DStrAppendStr(cmd, E_OPTIONS);
-   DStrAppendInt(cmd, cpu_limit);
-   DStrAppendStr(cmd, " ");
-   DStrAppendStr(cmd, file);
-
-   res->prob_time  = cpu_limit;
-   res->start_time = GetSecTime();
-   res->input_file = file;
-   /* printf("# Executing: %s\n", DStrView(cmd)); */
-   res->pipe = popen(DStrView(cmd), "r");
-   if(!res->pipe)
-   {
-      TmpErrno = errno;
-      SysError("Cannot start eprover subprocess", SYS_ERROR);
-   }
-   res->fileno = fileno(res->pipe);
-   ret = fgets(line, 180, res->pipe);
-   if(!ret || ferror(res->pipe))
-   {
-      printf("Error\n");
-   }
-
-   //fprintf(GlobalOut, "# Line = '%s'", l);
-   if(!strstr(line, "# Pid: "))
-   {
-      Error("Cannot get eprover PID", OTHER_ERROR);
-   }
-   res->pid = atoi(line+7);
-   DStrAppendStr(res->output, line);
-
-   DStrFree(cmd);
-   return res;
+   return ECtrlCreateGeneric(prover, name, E_OPTIONS, extra_options, cpu_limit, file);
 }
 
 
@@ -229,27 +189,36 @@ EPCtrl_p ECtrlCreate(char* prover, char* name,
 /----------------------------------------------------------------------*/
 
 EPCtrl_p ECtrlCreateGeneric(char* prover, char* name,
-                            char* options, long cpu_limit,
-                            char* file)
+                            char* options, char* extra_options,
+                            long cpu_limit, char* file)
 {
    DStr_p   cmd = DStrAlloc();
-   EPCtrl_p res = EPCtrlAlloc(name);
-   char           line[180];
-   char*          ret;
+   EPCtrl_p res;
+   char     line[180];
+   char*    ret;
+
+   DStr_p procname = DStrAlloc();
+   DStrAppendStr(procname, name);
+   DStrAppendStr(procname, " => ");
+   DStrAppendStr(procname, options);
+   res = EPCtrlAlloc(DStrView(procname));
+   DStrFree(procname);
 
    DStrAppendStr(cmd, prover);
-   DStrAppendStr(cmd, " ");
+   DStrAppendStr(cmd, E_OPTIONS_BASE);
    DStrAppendStr(cmd, options);
    DStrAppendStr(cmd, " ");
-   DStrAppendStr(cmd, E_OPTIONS_BASE);
+   DStrAppendStr(cmd, extra_options);
+   DStrAppendStr(cmd, " --cpu-limit=");
    DStrAppendInt(cmd, cpu_limit);
    DStrAppendStr(cmd, " ");
    DStrAppendStr(cmd, file);
+   //printf("Command: %s\n", DStrView(cmd));
 
    res->prob_time  = cpu_limit;
    res->start_time = GetSecTime();
    res->input_file = file;
-   printf("# Executing: %s\n", DStrView(cmd));
+   //printf("# Executing: %s\n", DStrView(cmd));
    res->pipe = popen(DStrView(cmd), "r");
    if(!res->pipe)
    {
@@ -305,6 +274,10 @@ bool EPCtrlGetResult(EPCtrl_p ctrl, char* buffer, long buf_size)
       DStrAppendStr(ctrl->output, l);
 
       if(strstr(buffer, SZS_THEOREM_STR))
+      {
+         ctrl->result = PRTheorem;
+      }
+      else if(strstr(buffer, SZS_CONTRAAX_STR))
       {
          ctrl->result = PRTheorem;
       }

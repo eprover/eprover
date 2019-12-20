@@ -26,6 +26,7 @@ Changes
 
 #define CHE_PROOFCONTROL
 
+#include <ccl_rewrite.h>
 #include <ccl_proofstate.h>
 #include <che_hcbadmin.h>
 #include <che_to_weightgen.h>

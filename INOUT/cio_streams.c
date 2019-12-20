@@ -1,10 +1,10 @@
 /*-----------------------------------------------------------------------
 
-File  : cio_streams.c
+  File  : cio_streams.c
 
-Author: Stephan Schulz
+  Author: Stephan Schulz
 
-Contents
+  Contents
 
   Implementation of the stream datatype for look-aheadable input.
 
@@ -14,12 +14,11 @@ Contents
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
+  Changes
 
-<1> Sat Jul  5 02:28:25 MET DST 1997
-    New
+  Created: Sat Jul  5 02:28:25 MET DST 1997
 
------------------------------------------------------------------------*/
+  -----------------------------------------------------------------------*/
 
 #include "cio_streams.h"
 
@@ -35,12 +34,12 @@ Changes
 
 const StreamType StreamTypeFile = NULL;
 const StreamType StreamTypeInternalString =
-"Internal (programmer-defined) string - if you see this, you"
-" encountered a bug";
+   "Internal (programmer-defined) string - if you see this, you"
+   " encountered a bug";
 const StreamType StreamTypeUserString =
-"Parsing a user provided string";
+   "Parsing a user provided string";
 const StreamType StreamTypeOptionString =
-"Parsing a user given option argument";
+   "Parsing a user given option argument";
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
@@ -77,24 +76,24 @@ static int read_char(Stream_p stream)
    {
       if(stream->stream_type!=StreamTypeFile)
       {
-    ch = (int)DStrView(stream->source)[stream->string_pos];
-    if(ch)
-    {
-       stream->string_pos++;
-    }
-    else
-    {
-       ch = EOF;
-       stream->eof_seen = true;
-    }
+         ch = (int)DStrView(stream->source)[stream->string_pos];
+         if(ch)
+         {
+            stream->string_pos++;
+         }
+         else
+         {
+            ch = EOF;
+            stream->eof_seen = true;
+         }
       }
       else
       {
-    ch = getc(stream->file);
-    if(ch == EOF)
-    {
-       stream->eof_seen = true;
-    }
+         ch = getc(stream->file);
+         if(ch == EOF)
+         {
+            stream->eof_seen = true;
+         }
       }
    }
    return ch;
@@ -134,14 +133,14 @@ Stream_p CreateStream(StreamType type, char* source, bool fail)
 
       if(!source || !strcmp(source,"-"))
       {
-    DStrSet(handle->source, "<stdin>");
-    handle->file = stdin;
+         DStrSet(handle->source, "<stdin>");
+         handle->file = stdin;
          /* handle->dir  == "" */
       }
       else
       {
-    DStrSet(handle->source, source);
-    handle->file = InputOpen(source, fail);
+         DStrSet(handle->source, source);
+         handle->file = InputOpen(source, fail);
          if(!handle->file)
          {
             DStrFree(handle->source);
@@ -192,12 +191,12 @@ void DestroyStream(Stream_p stream)
    {
       if(stream->file != stdin)
       {
-    if(fclose(stream->file) != 0)
-    {
-       TmpErrno = errno;
-       sprintf(ErrStr, "Cannot close file %s", DStrView(stream->source));
-       SysError(ErrStr, FILE_ERROR);
-    }
+         if(fclose(stream->file) != 0)
+         {
+            TmpErrno = errno;
+            sprintf(ErrStr, "Cannot close file %s", DStrView(stream->source));
+            SysError(ErrStr, FILE_ERROR);
+         }
       }
       VERBOUTARG("Closing ", DStrView(stream->source));
    }
@@ -293,5 +292,3 @@ void CloseStackedInput(Inpstack_p stack)
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-

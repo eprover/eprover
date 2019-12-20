@@ -1076,21 +1076,21 @@ void ProofControlInit(ProofState_p state, ProofControl_p control,
 
    in = CreateScanner(StreamTypeInternalString,
                       DefaultWeightFunctions,
-                      true, NULL);
+                      true, NULL, true);
    WeightFunDefListParse(control->wfcbs, in, control->ocb, state);
-   DestroyScanner(in);   
+   DestroyScanner(in);
 
    for(sp = 0; sp < PStackGetSP(wfcb_defs); sp++)
    {
       in = CreateScanner(StreamTypeOptionString,
                          PStackElementP(wfcb_defs, sp) ,
-                         true, NULL);
+                         true, NULL, true);
       WeightFunDefListParse(control->wfcbs, in, control->ocb, state);
       DestroyScanner(in);
    }
    in = CreateScanner(StreamTypeInternalString,
                       DefaultHeuristics,
-                      true, NULL);
+                      true, NULL, true);
    HeuristicDefListParse(control->hcbs, in, control->wfcbs,
                          control->ocb, state);
    DestroyScanner(in);
@@ -1098,7 +1098,7 @@ void ProofControlInit(ProofState_p state, ProofControl_p control,
    {
       in = CreateScanner(StreamTypeOptionString,
                          PStackElementP(hcb_defs, sp) ,
-                         true, NULL);
+                         true, NULL, true);
       HeuristicDefListParse(control->hcbs, in, control->wfcbs,
                             control->ocb, state);
       DestroyScanner(in);

@@ -69,7 +69,7 @@ typedef struct var_hash_cell
 #define VarHashEntryCellFree(junk) \
       SizeFree(junk, sizeof(VarHashEntryCell))
 
-static __inline__ VarHashEntry_p VarHashEntryAlloc(Term_p var, long value);
+static inline VarHashEntry_p VarHashEntryAlloc(Term_p var, long value);
 void           VarHashEntryListFree(VarHashEntry_p list);
 
 #define VarHashCellAlloc() \
@@ -77,7 +77,7 @@ void           VarHashEntryListFree(VarHashEntry_p list);
 #define VarHashCellFree(junk) \
       SizeFree(junk, sizeof(VarHashCell))
 
-static __inline__ VarHash_p VarHashAlloc(void);
+static inline VarHash_p VarHashAlloc(void);
 void           VarHashFree(VarHash_p junk);
 int            VarHashFunction(Term_p var);
 VarHashEntry_p VarHashListFind(VarHashEntry_p list, Term_p var);
@@ -85,7 +85,7 @@ long           VarHashAddValue(VarHash_p hash, Term_p var, long
                 value);
 void VarHashAddVarDistrib(VarHash_p hash, Term_p term, DerefType
            deref, long add);
-static __inline__ VarHashEntry_p VarHashFind(VarHash_p hash, Term_p
+static inline VarHashEntry_p VarHashFind(VarHash_p hash, Term_p
                     var);
 
 void PDArrayAddVarDistrib(PDArray_p array, Term_p term, DerefType
@@ -109,7 +109,7 @@ void PDArrayAddVarDistrib(PDArray_p array, Term_p term, DerefType
 //
 /----------------------------------------------------------------------*/
 
-static __inline__ VarHashEntry_p VarHashEntryAlloc(Term_p var, long
+static inline VarHashEntry_p VarHashEntryAlloc(Term_p var, long
                      value)
 {
    VarHashEntry_p handle = VarHashEntryCellAlloc();
@@ -134,7 +134,7 @@ static __inline__ VarHashEntry_p VarHashEntryAlloc(Term_p var, long
 //
 /----------------------------------------------------------------------*/
 
-static __inline__ VarHash_p VarHashAlloc(void)
+static inline VarHash_p VarHashAlloc(void)
 {
    VarHash_p handle;
    int       i;
@@ -160,7 +160,7 @@ static __inline__ VarHash_p VarHashAlloc(void)
 //
 /----------------------------------------------------------------------*/
 
-static __inline__ VarHashEntry_p VarHashFind(VarHash_p hash, Term_p
+static inline VarHashEntry_p VarHashFind(VarHash_p hash, Term_p
                     var)
 {
    int i = VarHashFunction(var);

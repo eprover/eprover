@@ -249,7 +249,7 @@ int main(int argc, char* argv[])
    if(filtername)
    {
       filters = AxFilterSetAlloc();
-      in = CreateScanner(StreamTypeFile, filtername, true, NULL);
+      in = CreateScanner(StreamTypeFile, filtername, true, NULL, true);
       AxFilterSetParse(in, filters);
       DestroyScanner(in);
    }

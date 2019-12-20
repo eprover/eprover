@@ -266,11 +266,11 @@ Term_p  MakeRewrittenTerm(Term_p orig, Term_p new, int orig_remains, struct tbce
 #define TermRWReplace(term) (TermIsRewritten(term)?TermRWTargetField(term):NULL)
 #define TermRWDemod(term) (TermIsRewritten(term)?TermRWDemodField(term):NULL)
 
-static __inline__ Term_p TermDefaultCellAlloc(void);
-static __inline__ Term_p TermConstCellAlloc(FunCode symbol);
-static __inline__ Term_p TermTopAlloc(FunCode f_code, int arity);
-static __inline__ Term_p TermTopCopy(Term_p source);
-static __inline__ Term_p TermTopCopyWithoutArgs(Term_p source);
+static inline Term_p TermDefaultCellAlloc(void);
+static inline Term_p TermConstCellAlloc(FunCode symbol);
+static inline Term_p TermTopAlloc(FunCode f_code, int arity);
+static inline Term_p TermTopCopy(Term_p source);
+static inline Term_p TermTopCopyWithoutArgs(Term_p source);
 
 void    TermTopFree(Term_p junk);
 void    TermFree(Term_p junk);
@@ -288,12 +288,12 @@ void    TermVarDelProp(Term_p term, DerefType deref, TermProperties prop);
 bool    TermHasInterpretedSymbol(Term_p term);
 
 bool    TermIsPrefix(Term_p needle, Term_p haystack);
-static __inline__ Type_p GetHeadType(Sig_p sig, Term_p term);
+static inline Type_p GetHeadType(Sig_p sig, Term_p term);
 
-static __inline__ Term_p  TermDerefAlways(Term_p term);
-static __inline__ Term_p  TermDeref(Term_p term, DerefType_p deref);
+static inline Term_p  TermDerefAlways(Term_p term);
+static inline Term_p  TermDeref(Term_p term, DerefType_p deref);
 
-static __inline__ Term_p  TermTopCopy(Term_p source);
+static inline Term_p  TermTopCopy(Term_p source);
 
 void    TermStackSetProps(PStack_p stack, TermProperties prop);
 void    TermStackDelProps(PStack_p stack, TermProperties prop);
@@ -333,7 +333,7 @@ Term_p applied_var_deref(Term_p orig);
 //
 /----------------------------------------------------------------------*/
 
-static __inline__ Type_p GetHeadType(Sig_p sig, Term_p term)
+static inline Type_p GetHeadType(Sig_p sig, Term_p term)
 {
 #ifdef ENABLE_LFHO
    if(TermIsAppliedVar(term))
@@ -369,7 +369,7 @@ static __inline__ Type_p GetHeadType(Sig_p sig, Term_p term)
 /----------------------------------------------------------------------*/
 
 #ifdef ENABLE_LFHO
-static __inline__ Term_p deref_step(Term_p orig)
+static inline Term_p deref_step(Term_p orig)
 {
    assert(TermIsTopLevelVar(orig));
 
@@ -398,7 +398,7 @@ static __inline__ Term_p deref_step(Term_p orig)
 //
 /----------------------------------------------------------------------*/
 
-static __inline__ Term_p TermDerefAlways(Term_p term)
+static inline Term_p TermDerefAlways(Term_p term)
 {
    assert(TermIsTopLevelVar(term) || !(term->binding));
 
@@ -433,7 +433,7 @@ static __inline__ Term_p TermDerefAlways(Term_p term)
 //
 /----------------------------------------------------------------------*/
 
-static Term_p __inline__ TermDeref(Term_p term, DerefType_p deref)
+static Term_p inline TermDeref(Term_p term, DerefType_p deref)
 {
    assert(TermIsTopLevelVar(term) || !(term->binding));
 
@@ -487,7 +487,7 @@ static Term_p __inline__ TermDeref(Term_p term, DerefType_p deref)
 //
 /----------------------------------------------------------------------*/
 
-static __inline__ Term_p TermTopCopyWithoutArgs(restrict Term_p source)
+static inline Term_p TermTopCopyWithoutArgs(restrict Term_p source)
 {
    Term_p handle = TermDefaultCellAlloc();
 
@@ -528,7 +528,7 @@ static __inline__ Term_p TermTopCopyWithoutArgs(restrict Term_p source)
 //
 /----------------------------------------------------------------------*/
 
-static __inline__ Term_p TermTopCopy(restrict Term_p source)
+static inline Term_p TermTopCopy(restrict Term_p source)
 {
    Term_p handle = TermTopCopyWithoutArgs(source);
 
@@ -552,7 +552,7 @@ static __inline__ Term_p TermTopCopy(restrict Term_p source)
 //
 /----------------------------------------------------------------------*/
 
-static __inline__ Term_p TermDefaultCellAlloc(void)
+static inline Term_p TermDefaultCellAlloc(void)
 {
    Term_p handle = TermCellAlloc();
 
@@ -584,7 +584,7 @@ static __inline__ Term_p TermDefaultCellAlloc(void)
 //
 /----------------------------------------------------------------------*/
 
-static __inline__ Term_p TermConstCellAlloc(FunCode symbol)
+static inline Term_p TermConstCellAlloc(FunCode symbol)
 {
    Term_p handle = TermDefaultCellAlloc();
    handle->f_code = symbol;
@@ -605,7 +605,7 @@ static __inline__ Term_p TermConstCellAlloc(FunCode symbol)
 //
 /----------------------------------------------------------------------*/
 
-static __inline__ Term_p TermTopAlloc(FunCode f_code, int arity)
+static inline Term_p TermTopAlloc(FunCode f_code, int arity)
 {
    Term_p handle = TermDefaultCellAlloc();
 

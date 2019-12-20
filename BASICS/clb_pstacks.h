@@ -59,38 +59,38 @@ typedef struct pstackcell
 #endif
 
 #define  PStackBaseAddress(stackarg) ((stackarg)->stack)
-static __inline__ PStack_p PStackAlloc(void);
-static __inline__ PStack_p PStackVarAlloc(long size);
-static __inline__ void     PStackFree(PStack_p junk);
-static __inline__ PStack_p PStackCopy(PStack_p stack);
+static inline PStack_p PStackAlloc(void);
+static inline PStack_p PStackVarAlloc(long size);
+static inline void     PStackFree(PStack_p junk);
+static inline PStack_p PStackCopy(PStack_p stack);
 #define  PStackEmpty(stack) ((stack)->current == 0)
-static __inline__ void     PStackReset(PStack_p stack);
+static inline void     PStackReset(PStack_p stack);
 
-static __inline__ void     PStackPushInt(PStack_p stack, long val);
-static __inline__ void     PStackPushP(PStack_p stack, void* val);
+static inline void     PStackPushInt(PStack_p stack, long val);
+static inline void     PStackPushP(PStack_p stack, void* val);
 #define  PStackGetSP(stack) ((stack)->current)
 #define  PStackGetTopSP(stack) ((stack)->current-1)
 
-static __inline__ IntOrP   PStackPop(PStack_p stack);
+static inline IntOrP   PStackPop(PStack_p stack);
 #define  PStackPopInt(stack) (PStackPop(stack).i_val)
 #define  PStackPopP(stack)   (PStackPop(stack).p_val)
-static __inline__ void     PStackDiscardTop(PStack_p stack);
+static inline void     PStackDiscardTop(PStack_p stack);
 
-static __inline__ IntOrP   PStackTop(PStack_p stack);
+static inline IntOrP   PStackTop(PStack_p stack);
 #define  PStackTopInt(stack) (PStackTop(stack).i_val)
 #define  PStackTopP(stack)   (PStackTop(stack).p_val)
 IntOrP*  PStackTopAddr(PStack_p stack);
 
-static __inline__ IntOrP   PStackBelowTop(PStack_p stack);
+static inline IntOrP   PStackBelowTop(PStack_p stack);
 #define  PStackBelowTopInt(stack) (PStackBelowTop(stack).i_val)
 #define  PStackBelowTopP(stack)   (PStackBelowTop(stack).p_val)
 
 
-static __inline__ IntOrP   PStackElement(PStack_p stack, PStackPointer pos);
+static inline IntOrP   PStackElement(PStack_p stack, PStackPointer pos);
 #define  PStackElementInt(stack,pos) (PStackElement(stack,pos).i_val)
 #define  PStackElementP(stack,pos) (PStackElement(stack,pos).p_val)
 
-static __inline__ IntOrP *PStackElementRef(PStack_p stack, PStackPointer pos);
+static inline IntOrP *PStackElementRef(PStack_p stack, PStackPointer pos);
 
 #define   PStackAssignP(stack, pos, value) \
           PStackElementRef((stack), (pos))->p_val = (value)
@@ -128,7 +128,7 @@ void     PStackGrow(PStack_p stack);
 //
 /----------------------------------------------------------------------*/
 
-static __inline__ void push(PStack_p stack, IntOrP val)
+static inline void push(PStack_p stack, IntOrP val)
 {
    if(UNLIKELY(stack->current == stack->size))
    {
@@ -150,7 +150,7 @@ static __inline__ void push(PStack_p stack, IntOrP val)
 //
 /----------------------------------------------------------------------*/
 
-static __inline__ PStack_p PStackAlloc(void)
+static inline PStack_p PStackAlloc(void)
 {
    PStack_p handle;
 
@@ -175,7 +175,7 @@ static __inline__ PStack_p PStackAlloc(void)
 //
 /----------------------------------------------------------------------*/
 
-static __inline__ PStack_p PStackVarAlloc(long size)
+static inline PStack_p PStackVarAlloc(long size)
 {
    PStack_p handle;
 
@@ -200,7 +200,7 @@ static __inline__ PStack_p PStackVarAlloc(long size)
 //
 /----------------------------------------------------------------------*/
 
-static __inline__ void  PStackFree(PStack_p junk)
+static inline void  PStackFree(PStack_p junk)
 {
    assert(junk);
    assert(junk->stack);
@@ -224,7 +224,7 @@ static __inline__ void  PStackFree(PStack_p junk)
 //
 /----------------------------------------------------------------------*/
 
-static __inline__ PStack_p PStackCopy(PStack_p stack)
+static inline PStack_p PStackCopy(PStack_p stack)
 {
    PStack_p handle = PStackAlloc();
    PStackPointer i;
@@ -249,7 +249,7 @@ static __inline__ PStack_p PStackCopy(PStack_p stack)
 //
 /----------------------------------------------------------------------*/
 
-static __inline__ void PStackReset(PStack_p stack)
+static inline void PStackReset(PStack_p stack)
 {
    stack->current = 0;
 }
@@ -266,7 +266,7 @@ static __inline__ void PStackReset(PStack_p stack)
 //
 /----------------------------------------------------------------------*/
 
-static __inline__ void PStackPushInt(PStack_p stack, long val)
+static inline void PStackPushInt(PStack_p stack, long val)
 {
    IntOrP help;
    help.i_val = val;
@@ -286,7 +286,7 @@ static __inline__ void PStackPushInt(PStack_p stack, long val)
 //
 /----------------------------------------------------------------------*/
 
-static __inline__ void PStackPushP(PStack_p stack, void* val)
+static inline void PStackPushP(PStack_p stack, void* val)
 {
    IntOrP help;
    help.p_val = val;
@@ -307,7 +307,7 @@ static __inline__ void PStackPushP(PStack_p stack, void* val)
 //
 /----------------------------------------------------------------------*/
 
-static __inline__ IntOrP PStackPop(PStack_p stack)
+static inline IntOrP PStackPop(PStack_p stack)
 {
    assert(stack->current);
 
@@ -328,7 +328,7 @@ static __inline__ IntOrP PStackPop(PStack_p stack)
 //
 /----------------------------------------------------------------------*/
 
-static __inline__ void PStackDiscardTop(PStack_p stack)
+static inline void PStackDiscardTop(PStack_p stack)
 {
    assert(stack->current);
 
@@ -348,7 +348,7 @@ static __inline__ void PStackDiscardTop(PStack_p stack)
 //
 /----------------------------------------------------------------------*/
 
-static __inline__ IntOrP PStackTop(PStack_p stack)
+static inline IntOrP PStackTop(PStack_p stack)
 {
    assert(stack->current);
 
@@ -370,7 +370,7 @@ static __inline__ IntOrP PStackTop(PStack_p stack)
 //
 /----------------------------------------------------------------------*/
 
-static __inline__ IntOrP PStackBelowTop(PStack_p stack)
+static inline IntOrP PStackBelowTop(PStack_p stack)
 {
    assert(stack->current>=2);
 
@@ -390,7 +390,7 @@ static __inline__ IntOrP PStackBelowTop(PStack_p stack)
 //
 /----------------------------------------------------------------------*/
 
-static __inline__ IntOrP PStackElement(PStack_p stack, PStackPointer pos)
+static inline IntOrP PStackElement(PStack_p stack, PStackPointer pos)
 {
    assert(pos<stack->current);
    assert(pos>=0);
@@ -411,7 +411,7 @@ static __inline__ IntOrP PStackElement(PStack_p stack, PStackPointer pos)
 //
 /----------------------------------------------------------------------*/
 
-static __inline__ IntOrP *PStackElementRef(PStack_p stack, PStackPointer pos)
+static inline IntOrP *PStackElementRef(PStack_p stack, PStackPointer pos)
 {
    assert(pos<stack->current);
    assert(pos>=0);

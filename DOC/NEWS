@@ -1,11 +1,16 @@
-This history list describes the major differences between versions of
-the E equational theorem prover.
+This history describes the major differences between versions of the E
+equational theorem prover.
 
-Version 2.3 ->
+Version 2.3 -> 2.4 Sandakphu
 
 - Added random clause "evaluation"
 - Added Diversity-based clause evaluation
 - Added (simplified) transfinite orderings for literal comparision
+- New automatic modes
+- Support for CASC-27 LTB (with various alternative formalisations per
+  problem)
+- Slightly finer classificarion of problems (for improved UEQ
+  performance)
 
 Version 2.3pre -> 2.3 Gielle
 

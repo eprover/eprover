@@ -290,14 +290,14 @@ double ExampleSetFromKB(AnnoSet_p annoset, FlatAnnoSet_p flatset, bool
    proofexamples = ExampleSetAlloc();
 
    in = CreateScanner(StreamTypeFile,
-            KBFileName(filename, kb, "signature"),
-            true, NULL);
+                      KBFileName(filename, kb, "signature"),
+                      true, NULL, true);
    SigParse(in, sig, true);
    DestroyScanner(in);
 
    in = CreateScanner(StreamTypeFile,
-            KBFileName(filename, kb, "problems"),
-            true, NULL);
+                      KBFileName(filename, kb, "problems"),
+                      true, NULL, true);
    ExampleSetParse(in, proofexamples);
    DestroyScanner(in);
    DStrFree(filename);
@@ -341,8 +341,8 @@ TSMAdmin_p TSMFromKB(bool flat_patterns, double evalweights[], char*
    double         eval_default;
 
    in = CreateScanner(StreamTypeFile,
-            KBFileName(filename, kb, "clausepatterns"),
-            true, NULL);
+                      KBFileName(filename, kb, "clausepatterns"),
+                      true, NULL, true);
    annoset = AnnoSetParse(in, bank, KB_ANNOTATION_NO);
    DestroyScanner(in);
    DStrFree(filename);
@@ -372,5 +372,3 @@ TSMAdmin_p TSMFromKB(bool flat_patterns, double evalweights[], char*
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-

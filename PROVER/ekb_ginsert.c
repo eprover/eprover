@@ -151,13 +151,13 @@ int main(int argc, char* argv[])
    proof_examples = ExampleSetAlloc();
    in = CreateScanner(StreamTypeFile,
                       KBFileName(name, kb_name, "problems"),
-                      true, NULL);
+                      true, NULL, true);
    ExampleSetParse(in, proof_examples);
    DestroyScanner(in);
 
    in = CreateScanner(StreamTypeFile,
                       KBFileName(name, kb_name, "description"),
-                      true, NULL);
+                      true, NULL, true);
    kb_desc = KBDescParse(in);
    DestroyScanner(in);
 
@@ -207,7 +207,7 @@ int main(int argc, char* argv[])
    prot = PCLProtAlloc();
    for(i=0; state->argv[i]; i++)
    {
-      in = CreateScanner(StreamTypeFile, state->argv[i], true, NULL);
+      in = CreateScanner(StreamTypeFile, state->argv[i], true, NULL, true);
       ScannerSetFormat(in, TPTPFormat);
       PCLProtParse(in, prot);
       CheckInpTok(in, NoToken);
@@ -240,13 +240,13 @@ int main(int argc, char* argv[])
 
    in = CreateScanner(StreamTypeFile,
                       KBFileName(name, kb_name, "signature"),
-                      true, NULL);
+                      true, NULL, true);
    SigParse(in, reserved_symbols, true);
    DestroyScanner(in);
 
    in = CreateScanner(StreamTypeFile,
                       KBFileName(name, kb_name, "clausepatterns"),
-                      true, NULL);
+                      true, NULL, true);
 
    annoterms = TBAlloc(reserved_symbols);
    clause_examples = AnnoSetParse(in, annoterms, KB_ANNOTATION_NO);
@@ -257,7 +257,7 @@ int main(int argc, char* argv[])
 
    VERBOUT("Integrating new examples\n");
 
-   in = CreateScanner(StreamTypeFile, DStrView(store_file), true, NULL);
+   in = CreateScanner(StreamTypeFile, DStrView(store_file), true, NULL, true);
 
    KBParseExampleFile(in, ex_name, proof_examples, clause_examples,
                       reserved_symbols);

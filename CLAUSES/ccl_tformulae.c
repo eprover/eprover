@@ -589,19 +589,19 @@ static void tformula_collect_freevars(TB_p bank, TFormula_p form, PTree_p *vars)
       tformula_collect_freevars(bank, form->args[1], vars);
       TermCellSetProp(form->args[0], old_prop);
    }
-   else if(TFormulaIsLiteral(bank->sig, form))
-   {
-      TermCollectPropVariables(form, vars, TPIsFreeVar);
-   }
    else
    {
-      if(TFormulaHasSubForm1(bank->sig,form))
+      for(int i=0; i<form->arity; i++)
       {
-         tformula_collect_freevars(bank, form->args[0], vars);
-      }
-      if(TFormulaHasSubForm2(bank->sig, form))
-      {
-         tformula_collect_freevars(bank, form->args[1], vars);
+         if(TermIsVar(form->args[i]) && 
+            TermCellQueryProp(form->args[i], TPIsFreeVar))
+         {
+            PTreeStore(vars, form->args[i]);
+         }
+         else 
+         {
+            tformula_collect_freevars(bank, form->args[i], vars);
+         }
       }
    }
 }

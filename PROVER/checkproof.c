@@ -176,7 +176,7 @@ int main(int argc, char* argv[])
    steps = 0;
    for(i=0; state->argv[i]; i++)
    {
-      in = CreateScanner(StreamTypeFile, state->argv[i], true, NULL);
+      in = CreateScanner(StreamTypeFile, state->argv[i], true, NULL, true);
       ScannerSetFormat(in, TPTPFormat);
       steps+=PCLProtParse(in, prot);
       CheckInpTok(in, NoToken);

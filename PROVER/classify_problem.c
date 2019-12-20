@@ -578,7 +578,7 @@ void process_raw_feature_files(char *argv[], SpecLimits_p limits)
 
    for(i=0; argv[i]; i++)
    {
-      in = CreateScanner(StreamTypeFile, argv[i], true, NULL);
+      in = CreateScanner(StreamTypeFile, argv[i], true, NULL, true);
       while(!TestInpTok(in, NoToken))
       {
          name = parse_raw_feature_line(in, &features);
@@ -616,7 +616,7 @@ void process_feature_files(char *argv[], SpecLimits_p limits)
 
    for(i=0; argv[i]; i++)
    {
-      in = CreateScanner(StreamTypeFile, argv[i], true, NULL);
+      in = CreateScanner(StreamTypeFile, argv[i], true, NULL, true);
       while(!TestInpTok(in, NoToken))
       {
          name = parse_feature_line(in, &features);
@@ -830,7 +830,7 @@ int main(int argc, char* argv[])
       for(i=0; state->argv[i]; i++)
       {
          fstate = ProofStateAlloc(free_symb_prop);
-         in    = CreateScanner(StreamTypeFile, state->argv[i], true, NULL);
+         in    = CreateScanner(StreamTypeFile, state->argv[i], true, NULL, true);
          ScannerSetFormat(in, parse_format);
 
          FormulaAndClauseSetParse(in, fstate->f_axioms, fstate->watchlist,

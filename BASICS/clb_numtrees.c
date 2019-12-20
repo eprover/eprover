@@ -1,29 +1,23 @@
 /*-----------------------------------------------------------------------
 
-File  : clb_numtrees.c
+  File  : clb_numtrees.c
 
-Author: Stephan Schulz
+  Author: Stephan Schulz
 
-Contents
+  Contents
 
   Functions for long-indexed splay trees.
 
-Copyright 1998-2011 by the author.
+  Copyright 1998-2011 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes (vastly incomplete, see CVS log)
+  Created:  Thu Sep 25 02:36:58 MET DST 1997
+  New
 
-<1> Thu Sep 25 02:36:58 MET DST 1997
-    New
-<2> Mon Mar  1 17:20:47 MET 1999
-    Changed AVL tp splay trees
-<3> Added MaxNode
-    Wed Dec 29 17:55:10 CET 2004
-
------------------------------------------------------------------------*/
+  -----------------------------------------------------------------------*/
 
 #include "clb_numtrees.h"
 
@@ -42,6 +36,7 @@ Changes (vastly incomplete, see CVS log)
 /*---------------------------------------------------------------------*/
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
+
 /*-----------------------------------------------------------------------
 //
 // Function: numtree_print()
@@ -182,9 +177,6 @@ static NumTree_p splay_tree(NumTree_p tree, long key)
 
    return tree;
 }
-
-
-
 
 
 /*---------------------------------------------------------------------*/
@@ -499,9 +491,9 @@ long NumTreeNodes(NumTree_p root)
       root = PStackPopP(stack);
       if(root)
       {
-    PStackPushP(stack, root->lson);
-    PStackPushP(stack, root->rson);
-    res++;
+         PStackPushP(stack, root->lson);
+         PStackPushP(stack, root->rson);
+         res++;
       }
    }
    PStackFree(stack);
@@ -577,13 +569,9 @@ PStack_p NumTreeLimitedTraverseInit(NumTree_p root, long limit)
 
 
 
-
 AVL_TRAVERSE_DEFINITION(NumTree, NumTree_p)
-
 
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-

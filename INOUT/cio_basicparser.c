@@ -206,6 +206,13 @@ StrNumType ParseNumString(Scanner_p in)
          DStrAppendDStr(accumulator, AktToken(in)->literal);
          NextToken(in);
       }
+      if(TestInpTok(in, PosInt))
+      {
+         if(atol(DStrView(AktToken(in)->literal)) == 0l)
+         {
+            AktTokenError(in, "Denominator in rational cannot be 0", false);
+         }
+      }
       DStrAppendDStr(accumulator,  AktToken(in)->literal);
       AcceptInpTokNoSkip(in, PosInt);
 
@@ -315,7 +322,7 @@ char* ParseFilename(Scanner_p in)
    DStrReset(in->accu);
 
    while((first_tok || TestInpNoSkip(in)) &&
-    TestInpTok(in, PLAIN_FILE_TOKENS|Slash))
+         TestInpTok(in, PLAIN_FILE_TOKENS|Slash|Mult))
    {
       DStrAppendDStr(in->accu, AktToken(in)->literal);
       NextToken(in);

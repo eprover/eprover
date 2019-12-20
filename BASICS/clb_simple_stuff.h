@@ -80,11 +80,13 @@ void     JKISSSeed(RandState_p state, int seed1, int seed2, int seed3);
 unsigned JKISSRand(RandState_p state);
 double   JKISSRandDouble(RandState_p state);
 
-bool    StringStartsWith(const char* pattern, const char* prefix);
+char*  IndentStr(int level);
+bool   StringStartsWith(const char* pattern, const char* prefix);
 
 int    StringIndex(char* key, char* list[]);
+long   StringArrayCardinality(char *array[]);
 
-char*  IndentStr(int level);
+long   ComputeGCD(long a, long b);
 
 void   SetProblemType(ProblemType t);
 
