@@ -55,7 +55,7 @@ bool UnitclauseIndexInsert(UnitclauseIndex_p index, Term_p lterm, Term_p rterm);
 /*---------------------------------------------------------------------*/
 
 UnitClauseIndexCell_p UnitClauseIndexAlloc(Term_p termL);
-void UnitClauseIndexFree(UnitClauseIndexCell_p junk);
+void UnitClauseIndexNodeFree(UnitClauseIndexCell_p junk);
 int CmpUnitClauseIndexCells(const void* cell1, const void* cell2);
 UnitClauseIndexCell_p UnitclauseInsert(PObjTree_p *root, Term_p lterm);
 

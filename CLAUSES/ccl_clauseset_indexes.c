@@ -42,6 +42,7 @@ ClausesetIndexes_p ClausesetIndexesAlloc()
    ClausesetIndexes_p clauseset_indexes = ClausesetIndexesAllocRaw();
    clauseset_indexes->fvindex = NULL;
    clauseset_indexes->demod_index = NULL;
+   clauseset_indexes->unitclasue_index = NULL;
    return clauseset_indexes;
 }
 
@@ -61,14 +62,38 @@ void ClausesetIndexesFree(ClausesetIndexes_p clauseset_indexes)
 {
    assert(clauseset_indexes);
 
-   if (clauseset_indexes->fvindex) {
+   if (clauseset_indexes->fvindex) 
+   {
       FVIndexFree(clauseset_indexes->fvindex->index);
    }
-   if (clauseset_indexes->demod_index) {
+   if (clauseset_indexes->demod_index) 
+   {
       PDTreeFree(clauseset_indexes->demod_index);
+   }
+   if (clauseset_indexes->unitclasue_index)
+   {
+      FPIndexFree(clauseset_indexes->unitclasue_index);
    }
 
    ClausesetIndexesFreeRaw(clauseset_indexes);
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClausesetIndexesUCIndexededInsert()
+//
+//   Insert a clause into the watchlists unit clause index.
+//   The index takes care of non-orientable clauses.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+void ClausesetIndexesUCIndexededInsert(ClausesetIndexes_p clauseset_indexes, Clause_p newclause)
+{
+   assert(clauseset_indexes->unitclasue_index);
+   UnitclauseIndexInsertClause(clauseset_indexes->unitclasue_index, newclause);
 }
 
 /*-----------------------------------------------------------------------

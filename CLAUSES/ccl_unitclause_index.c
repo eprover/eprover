@@ -62,7 +62,7 @@ UnitClauseIndexCell_p UnitClauseIndexAlloc(Term_p termL)
 // Side Effects    : Memory operatios
 //
 /----------------------------------------------------------------------*/
-void UnitClauseIndexFree(UnitClauseIndexCell_p junk) 
+void UnitClauseIndexNodeFree(UnitClauseIndexCell_p junk) 
 {
    PTreeFree(junk->right);
    UnitClauseIndexCellFree(junk);

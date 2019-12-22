@@ -22,6 +22,7 @@ Copyright 2019-2020 by the author.
 
 #include <ccl_fcvindexing.h>
 #include <ccl_pdtrees.h>
+#include <ccl_unitclause_index.h>
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
@@ -31,7 +32,8 @@ typedef struct clauseset_indexes
 {
    PDTree_p  demod_index; /* If used for demodulators */
    FVIAnchor_p fvindex; /* Used for non-unit subsumption */
-}ClausesetIndexes, *ClausesetIndexes_p;
+   UnitclauseIndex_p unitclasue_index; /* Used for unit clauses subsuption */
+} ClausesetIndexes, *ClausesetIndexes_p;
 
 
 /*---------------------------------------------------------------------*/
