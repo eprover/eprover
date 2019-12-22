@@ -37,7 +37,8 @@ Copyright 2019-2020 by the author.
 // Side Effects    : Memory management
 //
 /----------------------------------------------------------------------*/
-ClausesetIndexes_p ClausesetIndexesAlloc() {
+ClausesetIndexes_p ClausesetIndexesAlloc() 
+{
    ClausesetIndexes_p clauseset_indexes = ClausesetIndexesAllocRaw();
    clauseset_indexes->fvindex = NULL;
    clauseset_indexes->demod_index = NULL;
@@ -67,7 +68,7 @@ void ClausesetIndexesFree(ClausesetIndexes_p clauseset_indexes)
       PDTreeFree(clauseset_indexes->demod_index);
    }
 
-   SizeFree(clauseset_indexes, sizeof(clauseset_indexes));
+   ClausesetIndexesFreeRaw(clauseset_indexes);
 }
 
 /*-----------------------------------------------------------------------
@@ -81,7 +82,8 @@ void ClausesetIndexesFree(ClausesetIndexes_p clauseset_indexes)
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
-void ClausesetIndexesPDTIndexedInsert(ClausesetIndexes_p clauseset_indexes, Clause_p newclause) {
+void ClausesetIndexesPDTIndexedInsert(ClausesetIndexes_p clauseset_indexes, Clause_p newclause) 
+{
 
    ClausePos_p pos;
 
@@ -121,8 +123,25 @@ void ClausesetIndexesPDTIndexedInsert(ClausesetIndexes_p clauseset_indexes, Clau
 // Side Effects    : Memory management
 //
 /----------------------------------------------------------------------*/
-ClausesetIndexes_p ClausesetIndexesAllocRaw() {
+ClausesetIndexes_p ClausesetIndexesAllocRaw() 
+{
    return (ClausesetIndexes*)SizeMalloc(sizeof(ClausesetIndexes));
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClausesetIndexesFreeRaw()
+//
+//   Frees an ClausesetIndex struct after all the indexes were freed.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory management
+//
+/----------------------------------------------------------------------*/
+void ClausesetIndexesFreeRaw(ClausesetIndexes_p clauseset_indexes) 
+{
+   SizeFree(clauseset_indexes, sizeof(clauseset_indexes));
 }
 
 /*---------------------------------------------------------------------*/

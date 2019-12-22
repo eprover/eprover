@@ -46,8 +46,8 @@ void ClausesetIndexesPDTIndexedInsert(ClausesetIndexes_p clauseset_indexes, Clau
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
 
-
 ClausesetIndexes_p ClausesetIndexesAllocRaw();
+void ClausesetIndexesFreeRaw(ClausesetIndexes_p clauseset_indexes);
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
