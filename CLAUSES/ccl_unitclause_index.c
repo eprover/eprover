@@ -84,17 +84,40 @@ UnitClauseIndexCell_p UnitclauseInsert(PObjTree_p *root, Term_p lterm) {
 
 /*-----------------------------------------------------------------------
 //
-// PObjecttree einfach anstelle von Subtermtree hier nutzen.
+// Function: UnitclauseIndexDeleteClause()
+//
+//   Deletes the rterm to the lterm.
+//   And if not orientable the other way around.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operatios
 //
 /----------------------------------------------------------------------*/
+bool UnitclauseIndexDeleteClause(UnitclauseIndex_p index, Clause_p clause)
+{
+   assert(ClauseIsUnit(clause));
+   Eqn_p handle = clause->literals;
+   bool existed;
 
-/*-----------------------------------------------------------------------
+   existed = UnitclauseIndexDeleteRightTerm(index, clause->literals->lterm, 
+                                            clause->literals->rterm);
+   
+   if(!EqnIsOriented(handle) && existed)
+   {
+      UnitclauseIndexDeleteRightTerm(index, clause->literals->rterm, 
+                                     clause->literals->lterm);
+   }
+}
+
+/*------------------------------------ -----------------------------------
 //
 // Function: UnitclauseIndexInsert()
 //
 //   Inserts a unit clause into the Index. Return
 //   true if it was new, false if it already existed.
 //   Is a wrapper for UnitClauseIndexInsert.
+//   If the clause is not orientable both sides are indexed.
 //
 // Global Variables: -
 //
@@ -104,8 +127,18 @@ UnitClauseIndexCell_p UnitclauseInsert(PObjTree_p *root, Term_p lterm) {
 bool UnitclauseIndexInsertClause(UnitclauseIndex_p index, Clause_p clause)
 {
    assert(ClauseIsUnit(clause));
-   return UnitclauseIndexInsert(index, clause->literals->lterm, 
-                                clause->literals->rterm);
+
+   Eqn_p handle = clause->literals;
+   bool isNew;
+   
+   isNew = UnitclauseIndexInsert(index, clause->literals->lterm, 
+                                 clause->literals->rterm);
+
+   if(!EqnIsOriented(handle) && isNew)
+   {
+      return UnitclauseIndexInsert(index, clause->literals->lterm, 
+                                   clause->literals->rterm);
+   } 
 }
 
 /*-----------------------------------------------------------------------
