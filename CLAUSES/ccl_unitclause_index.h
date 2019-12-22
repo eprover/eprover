@@ -43,8 +43,8 @@ typedef FPIndex_p UnitclauseIndex_p;
 #define UnitClauseIndexCellFree(junk) SizeFree(junk, sizeof(UnitClauseIndexCell))
 
 bool UnitclauseIndexDeleteClause(UnitclauseIndex_p index, Clause_p clause);
-void UnitclauseIndexDeleteTerm(PObjTree_p root, Term_p lterm);
-bool UnitclauseIndexDeleteCellTerm(PObjTree_p root, Term_p lterm, Term_p rterm);
+void UnitclauseIndexDeleteTerm(PObjTree_p *root, Term_p lterm);
+bool UnitclauseIndexDeleteCellTerm(PObjTree_p *root, Term_p lterm, Term_p rterm);
 bool UnitclauseIndexDeleteRightTerm(UnitclauseIndex_p index, Term_p lterm, Term_p rterm);
 
 bool UnitclauseIndexInsertClause(UnitclauseIndex_p index, Clause_p clause);
