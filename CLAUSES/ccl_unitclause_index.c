@@ -30,6 +30,17 @@ Copyright 2019-2020 by the author.
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
 
+/*-----------------------------------------------------------------------
+//
+// Function: UnitClauseIndexAlloc()
+//
+//   Allocates a complete UnitClauseIndexCell.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operatios
+//
+/----------------------------------------------------------------------*/
 UnitClauseIndexCell_p UnitClauseIndexAlloc(Term_p termL) 
 {
    UnitClauseIndexCell_p handle = UnitClauseIndexCellAlloc();
@@ -40,12 +51,34 @@ UnitClauseIndexCell_p UnitClauseIndexAlloc(Term_p termL)
    return handle;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: UnitClauseIndexFree()
+//
+//   Frees a complete UnitClauseIndexCell.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operatios
+//
+/----------------------------------------------------------------------*/
 void UnitClauseIndexFree(UnitClauseIndexCell_p junk) 
 {
-   PTreeFree(junk->termL);
+   PTreeFree(junk->right);
    UnitClauseIndexCellFree(junk);
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: CmpUnitClauseIndexCells()
+//
+//   Compares two unitClauseIndexCells via their term pointer.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operatios
+//
+/----------------------------------------------------------------------*/
 int CmpUnitClauseIndexCells(const void* cell1, const void* cell2)
 {
    const UnitClauseIndexCell_p c1 = (const UnitClauseIndexCell_p) cell1;
@@ -58,14 +91,16 @@ int CmpUnitClauseIndexCells(const void* cell1, const void* cell2)
 //
 // Function: UnitclauseInsert()
 //
-//   ...
+//   Inserts a lterm as a UnitClauseIndexCell into the the PObjTree.
+//   If it already existed it returns the old cell.
 //
 // Global Variables: -
 //
 // Side Effects    : Memory operatios
 //
 /----------------------------------------------------------------------*/
-UnitClauseIndexCell_p UnitclauseInsert(PObjTree_p *root, Term_p lterm) {
+UnitClauseIndexCell_p UnitclauseInsert(PObjTree_p *root, Term_p lterm) 
+{
 
    UnitClauseIndexCell_p old, new = UnitClauseIndexAlloc(lterm);
 

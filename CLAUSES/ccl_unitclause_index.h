@@ -42,6 +42,10 @@ typedef FPIndex_p UnitclauseIndex_p;
 #define UnitClauseIndexCellAlloc() (UnitClauseIndexCell*)SizeMalloc(sizeof(UnitClauseIndexCell))
 #define UnitClauseIndexCellFree(junk) SizeFree(junk, sizeof(UnitClauseIndexCell))
 
+bool UnitclauseIndexDeleteClause(UnitclauseIndex_p index, Clause_p clause);
+void UnitclauseIndexDeleteTerm(PObjTree_p root, Term_p lterm);
+bool UnitclauseIndexDeleteCellTerm(PObjTree_p root, Term_p lterm, Term_p rterm);
+bool UnitclauseIndexDeleteRightTerm(UnitclauseIndex_p index, Term_p lterm, Term_p rterm);
 
 bool UnitclauseIndexInsertClause(UnitclauseIndex_p index, Clause_p clause);
 bool UnitclauseIndexInsert(UnitclauseIndex_p index, Term_p lterm, Term_p rterm);
@@ -49,6 +53,11 @@ bool UnitclauseIndexInsert(UnitclauseIndex_p index, Term_p lterm, Term_p rterm);
 /*---------------------------------------------------------------------*/
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
+
+UnitClauseIndexCell_p UnitClauseIndexAlloc(Term_p termL);
+void UnitClauseIndexFree(UnitClauseIndexCell_p junk);
+int CmpUnitClauseIndexCells(const void* cell1, const void* cell2);
+UnitClauseIndexCell_p UnitclauseInsert(PObjTree_p *root, Term_p lterm);
 
 #endif
 
