@@ -112,6 +112,8 @@ typedef enum
 #define PCL_NC     "assume_negation"
 #define PCL_FU     "fool_unroll"
 #define PCL_EBV    "eliminate_boolean_vars"
+#define PCL_NEG_EXT "negext"
+
 /*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/

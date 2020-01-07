@@ -69,7 +69,9 @@ char *opids[] =
    PCL_ID_DEF,
    PCL_SC,
    PCL_FU,
-   PCL_EBV
+   PCL_EBV,
+   /* HO inferences */
+   PCL_NEG_EXT
 };
 
 char *optheory [] =
@@ -110,6 +112,8 @@ char *optheory [] =
    NULL,
    NULL,
    NULL,
+   NULL,
+   /* HO inferences */
    NULL
 };
 

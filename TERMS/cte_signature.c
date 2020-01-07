@@ -1256,6 +1256,38 @@ FunCode SigGetNewSkolemCode(Sig_p sig, int arity)
 
 /*-----------------------------------------------------------------------
 //
+// Function: SigGetNewTypedSkolem ()
+//
+//   Return a new typed Skolem symbol based on the type of
+//   given free variables and return type.
+//
+// Global Variables: -
+//
+// Side Effects    : Extends signature
+//
+/----------------------------------------------------------------------*/
+
+FunCode SigGetNewTypedSkolem(Sig_p sig, Type_p* args, int num_args, Type_p ret_type)
+{
+   Type_p sk_type = 
+      TypeBankInsertTypeShared(sig->type_bank,
+                               ArrowTypeFlattened(args, num_args, ret_type));
+   int max_arity = TypeGetMaxArity(sk_type);
+   FunCode res = SigGetNewSkolemCode(sig, max_arity);
+   if (UNLIKELY(TypeIsPredicate(sk_type)))
+   {
+      SigDeclareIsPredicate(sig, res);
+   }
+   else 
+   {
+      SigDeclareIsFunction(sig, res);
+   }
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: SigGetNewPredicateCode()
 //
 //   Return a new predicate symbol with arity n. The symbol will be of

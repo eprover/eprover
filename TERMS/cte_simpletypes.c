@@ -383,3 +383,78 @@ bool TypeHasBool(Type_p t)
 
    return ans;
 }
+
+/*-----------------------------------------------------------------------
+//
+// Function: ArrowTypeFlattened()
+//
+//  Makes the flattened arrow type out of arguments and return type.
+//  Flattening refers to flattening out return type when arrow is 
+//  constructed. If args_num is 0, returns return_type.
+//
+// Global Variables: -
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+
+Type_p ArrowTypeFlattened(Type_p* args, int args_num, Type_p ret)
+{
+   if (args_num == 0) 
+   {
+      return ret;
+   }
+   else
+   {
+      Type_p* args_ret = TypeArgArrayAlloc(args_num+1);
+      for(int i=0; i<args_num; i++)
+      {
+         args_ret[i] = args[i];
+      }
+      args_ret[args_num] = ret;
+      Type_p args_ret_ty = AllocArrowType(args_num+1, args_ret);
+      Type_p res = FlattenType(args_ret_ty);
+
+      if (res != args_ret_ty)
+      {
+         TypeFree(args_ret_ty);
+      }
+      
+      return res;
+   }
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: TypeDropFirstArg()
+//
+//  Drop the first argument of a type, creating a new,
+//  possibly unshared type. Assumes that type is arrow.
+//
+// Global Variables: -
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+
+Type_p TypeDropFirstArg(Type_p ty)
+{
+   assert(TypeIsArrow(ty));
+
+   if (ty->arity == 2)
+   {
+      return ty->args[1];
+   }
+   else
+   {
+      assert(ty->arity >= 3);
+      Type_p* args = TypeArgArrayAlloc(ty->arity-1);
+      for(int i=0; i<ty->arity-1; i++)
+      {
+         args[i] = ty->args[i+1];
+      }
+      return AllocArrowType(ty->arity-1, args);
+
+   }
+
+}

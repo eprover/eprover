@@ -81,6 +81,8 @@ typedef enum
    DOSplitConjunct,
    DOFOOLUnroll,
    DOEliminateBVar,
+   /* HO inferences */
+   DONegExt
 }OpCode;
 
 
@@ -134,7 +136,9 @@ typedef enum
    DCIntroDef         = DOIntroDef,
    DCSplitConjunct    = DOSplitConjunct|Arg1Fof,
    DCFoolUnroll       = DOFOOLUnroll,
-   DCEliminateBVar    = DOEliminateBVar
+   DCEliminateBVar    = DOEliminateBVar,
+   /* HO inferences */
+   DCNegExt           = DONegExt|Arg1Cnf
 }DerivationCode;
 
 

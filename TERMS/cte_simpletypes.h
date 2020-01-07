@@ -87,11 +87,17 @@ Type_p  TypeCopy(Type_p orig);
 #define  TypeIsIndividual(t)  ((t)->f_code == STIndividuals)
 #define  TypeIsTypeConstructor(t) (TypeIsKind(t) || (TypeIsArrow(t) && TypeIsKind((t)->args[0])))
 
+#define  GetRetType(t)        (TypeIsArrow(t) ? (t)->args[(t)->arity-1] : (t))
+
 int TypeGetMaxArity(Type_p t); 
 
 int TypesCmp(Type_p t1, Type_p t2);
 Type_p FlattenType(Type_p type);
 DStr_p TypeAppEncodedName(Type_p type);
+
+Type_p ArrowTypeFlattened(Type_p* args, int args_num, Type_p ret);
+Type_p TypeDropFirstArg(Type_p ty);
+
 
 bool TypeHasBool(Type_p t);
 

@@ -248,6 +248,7 @@ FunCode SigGetOtherEqnCode(Sig_p sig, FunCode f_code);
 static inline FunCode SigGetOrCode(Sig_p sig);
 static inline FunCode SigGetCNilCode(Sig_p sig);
 FunCode SigGetOrNCode(Sig_p sig, int arity);
+FunCode SigGetNewTypedSkolem(Sig_p sig, Type_p *args, int num_args, Type_p ret_type);
 FunCode SigGetNewSkolemCode(Sig_p sig, int arity);
 FunCode SigGetNewPredicateCode(Sig_p sig, int arity);
 
