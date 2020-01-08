@@ -216,8 +216,8 @@ CSSCPAState_p CSSCPAStateAlloc(void)
    handle->pos_units = ClauseSetAlloc();
    handle->neg_units = ClauseSetAlloc();
    handle->non_units = ClauseSetAlloc();
-   handle->pos_units->clauseset_indexes->demod_index = PDTreeAlloc(handle->terms);
-   handle->neg_units->clauseset_indexes->demod_index = PDTreeAlloc(handle->terms);
+   handle->pos_units->demod_index = PDTreeAlloc(handle->terms);
+   handle->neg_units->demod_index = PDTreeAlloc(handle->terms);
    handle->literals  = 0;
    handle->clauses   = 0;
    handle->weight    = 0;

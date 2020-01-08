@@ -39,10 +39,13 @@ Copyright 2019-2020 by the author.
 /----------------------------------------------------------------------*/
 ClausesetIndexes_p ClausesetIndexesAlloc() 
 {
+   FPIndexFunction indexfunction;
    ClausesetIndexes_p clauseset_indexes = ClausesetIndexesAllocRaw();
    clauseset_indexes->fvindex = NULL;
-   clauseset_indexes->demod_index = NULL;
-   clauseset_indexes->unitclasue_index = NULL;
+   // demod_index = NULL;
+
+   // indexfunction = GetFPIndexFunction();
+   // clauseset_indexes->unitclasue_index = FPIndexAlloc(indexfunction, ,);
    return clauseset_indexes;
 }
 
@@ -66,10 +69,10 @@ void ClausesetIndexesFree(ClausesetIndexes_p clauseset_indexes)
    {
       FVIndexFree(clauseset_indexes->fvindex->index);
    }
-   if (clauseset_indexes->demod_index) 
-   {
-      PDTreeFree(clauseset_indexes->demod_index);
-   }
+   // if (demod_index) 
+   // {
+   //    PDTreeFree(demod_index);
+   // }
    if (clauseset_indexes->unitclasue_index)
    {
       FPIndexFree(clauseset_indexes->unitclasue_index);
@@ -80,9 +83,64 @@ void ClausesetIndexesFree(ClausesetIndexes_p clauseset_indexes)
 
 /*-----------------------------------------------------------------------
 //
+// Function: ClausesetIndexInsertNewClause()
+//
+//   Inserts a clause into the watchlists indexes.
+//   This function determines the appropiate indexes for the clause.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+void ClausesetIndexInsertNewClause(ClausesetIndexes_p clauseset_indexes, 
+                                   FVPackedClause_p newclause)
+{
+   if(ClauseIsUnit(newclause->clause))
+   {
+      ClausesetIndexesUCIndexededInsert(clauseset_indexes, newclause->clause);
+      // ClausesetIndexesPDTIndexedInsert(clauseset_indexes, newclause);
+   } else {
+      FVIndexInsert(clauseset_indexes->fvindex, newclause);
+      ClauseSetProp(newclause->clause, CPIsSIndexed);
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClausesetIndexExtractEntry()
+//
+//   Deletes a clause from the watchlists indexes inserted by 
+//   ClausesetIndexInsertNewClause; E.g. This function determines
+//   the appropiate indexes for the clause.
+//
+// Global Variables: -
+//
+// Side Effects    : Changes index
+//
+/----------------------------------------------------------------------*/
+Clause_p ClausesetIndexExtractEntry(ClausesetIndexes_p clauseset_indexes, 
+                                Clause_p junk)
+{
+   if(ClauseIsUnit(junk))
+   {
+      UnitclauseIndexDeleteClause(clauseset_indexes->unitclasue_index, 
+                                  junk);
+      // ClausesetIndexesPDTDelteClause(clauseset_indexes, junk);
+   } else {
+      FVIndexDelete(clauseset_indexes->fvindex, junk);
+      ClauseDelProp(junk, CPIsSIndexed);
+   }
+
+   return junk;
+}
+
+/*-----------------------------------------------------------------------
+//
 // Function: ClausesetIndexesUCIndexededInsert()
 //
-//   Insert a clause into the watchlists unit clause index.
+//   Inserts a clause into the watchlists unit clause index.
 //   The index takes care of non-orientable clauses.
 //
 // Global Variables: -
@@ -90,7 +148,8 @@ void ClausesetIndexesFree(ClausesetIndexes_p clauseset_indexes)
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
-void ClausesetIndexesUCIndexededInsert(ClausesetIndexes_p clauseset_indexes, Clause_p newclause)
+void ClausesetIndexesUCIndexededInsert(ClausesetIndexes_p clauseset_indexes, 
+                                       Clause_p newclause)
 {
    assert(clauseset_indexes->unitclasue_index);
    UnitclauseIndexInsertClause(clauseset_indexes->unitclasue_index, newclause);
@@ -107,35 +166,59 @@ void ClausesetIndexesUCIndexededInsert(ClausesetIndexes_p clauseset_indexes, Cla
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
-void ClausesetIndexesPDTIndexedInsert(ClausesetIndexes_p clauseset_indexes, Clause_p newclause) 
-{
+// void ClausesetIndexesPDTIndexedInsert(ClausesetIndexes_p clauseset_indexes, Clause_p newclause) 
+// {
 
-   ClausePos_p pos;
+//    ClausePos_p pos;
 
-   assert(clauseset_indexes->demod_index);
+//    assert(demod_index);
 
-   pos          = ClausePosCellAlloc();
-   pos->clause  = newclause;
-   pos->literal = newclause->literals;
-   pos->side    = LeftSide;
-   pos->pos     = NULL;
-   PDTreeInsert(clauseset_indexes->demod_index, pos);
+//    pos          = ClausePosCellAlloc();
+//    pos->clause  = newclause;
+//    pos->literal = newclause->literals;
+//    pos->side    = LeftSide;
+//    pos->pos     = NULL;
+//    PDTreeInsert(demod_index, pos);
 
-   if(!EqnIsOriented(newclause->literals))
-   {
-      pos          = ClausePosCellAlloc();
-      pos->clause  = newclause;
-      pos->literal = newclause->literals;
-      pos->side    = RightSide;
-      pos->pos     = NULL;
-      PDTreeInsert(clauseset_indexes->demod_index, pos);
-   }
+//    if(!EqnIsOriented(newclause->literals))
+//    {
+//       pos          = ClausePosCellAlloc();
+//       pos->clause  = newclause;
+//       pos->literal = newclause->literals;
+//       pos->side    = RightSide;
+//       pos->pos     = NULL;
+//       PDTreeInsert(demod_index, pos);
+//    }
 
-}
+// }
 
 /*---------------------------------------------------------------------*/
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClausesetIndexesPDTDelteClause()
+//
+//   Deletes an clause from the demod_index.
+//
+// Global Variables: -
+//
+// Side Effects    : Changes index
+//
+/----------------------------------------------------------------------*/
+// void ClausesetIndexesPDTDelteClause(ClausesetIndexes_p clauseset_indexes, 
+//                                     Clause_p junk)
+// {
+//    assert(ClauseIsUnit(junk));
+//    PDTreeDelete(demod_index, junk->literals->lterm, 
+//                 junk);
+//    if(!EqnIsOriented(junk->literals))
+//    {
+//       PDTreeDelete(demod_index, junk->literals->rterm, 
+//                    junk);
+//    }
+// } 
 
 /*-----------------------------------------------------------------------
 //

@@ -106,7 +106,7 @@ static FVPackedClause_p forward_contract_keep(ProofState_p state, ProofControl_p
       assert(!ClauseIsTrivial(clause));
 
       clause->weight = ClauseStandardWeight(clause);
-      pclause = FVIndexPackClause(clause, state->processed_non_units->clauseset_indexes->fvindex);
+      pclause = FVIndexPackClause(clause, state->processed_non_units->fvindex);
 
       if(clause->pos_lit_no)
       {
@@ -138,7 +138,7 @@ static FVPackedClause_p forward_contract_keep(ProofState_p state, ProofControl_p
                                             clause);
          ClauseSubsumeOrderSortLits(clause);
          pclause = FVIndexPackClause(FVUnpackClause(pclause),
-                                state->processed_non_units->clauseset_indexes->fvindex);
+                                state->processed_non_units->fvindex);
 
       }
    }
@@ -150,7 +150,7 @@ static FVPackedClause_p forward_contract_keep(ProofState_p state, ProofControl_p
          return FVIndexPackClause(clause, NULL);
       }
       clause->weight = ClauseStandardWeight(clause);
-      pclause = FVIndexPackClause(clause, state->processed_non_units->clauseset_indexes->fvindex);
+      pclause = FVIndexPackClause(clause, state->processed_non_units->fvindex);
    }
    ClauseDelProp(clause, CPIsOriented);
    DoLiteralSelection(control, clause);
@@ -314,7 +314,7 @@ Clause_p ForwardContractSet(ProofState_p state, ProofControl_p
 
    assert(state);
    assert(set);
-   assert(!set->clauseset_indexes->demod_index);
+   assert(!set->demod_index);
 
    handle = set->anchor->succ;
    while(handle != set->anchor)
@@ -363,7 +363,7 @@ void ClauseSetReweight(HCB_p heuristic, ClauseSet_p set)
 
    assert(heuristic);
    assert(set);
-   assert(!set->clauseset_indexes->demod_index);
+   assert(!set->demod_index);
 
 
    ClauseSetRemoveEvaluations(set);
@@ -410,7 +410,7 @@ Clause_p ForwardContractSetReweight(ProofState_p state, ProofControl_p
 
    assert(state);
    assert(set);
-   assert(!set->clauseset_indexes->demod_index);
+   assert(!set->demod_index);
 
    handle = ForwardContractSet(state, control, set,
                                non_unit_subsumption, level,

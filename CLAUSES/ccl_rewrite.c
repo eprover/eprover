@@ -484,16 +484,16 @@ MatchRes_p indexed_find_demodulator(OCB_p ocb, Term_p term,
 
    assert(term);
    assert(demodulators);
-   assert(demodulators->clauseset_indexes->demod_index);
+   assert(demodulators->demod_index);
    assert(term->weight ==
             TermWeight(term, DEFAULT_VWEIGHT, DEFAULT_FWEIGHT));
    assert(!TermIsTopRewritten(term));
 
    RewriteAttempts++;
 
-   PDTreeSearchInit(demodulators->clauseset_indexes->demod_index, term, date, prefer_general);
+   PDTreeSearchInit(demodulators->demod_index, term, date, prefer_general);
 
-   while((match_info = PDTreeFindNextDemodulator(demodulators->clauseset_indexes->demod_index, subst)))
+   while((match_info = PDTreeFindNextDemodulator(demodulators->demod_index, subst)))
    {
       pos = match_info->pos;
       eqn = pos->literal;
@@ -544,7 +544,7 @@ MatchRes_p indexed_find_demodulator(OCB_p ocb, Term_p term,
       }
       MatchResFree(match_info);
    }
-   PDTreeSearchExit(demodulators->clauseset_indexes->demod_index);
+   PDTreeSearchExit(demodulators->demod_index);
 
 #ifndef NDEBUG
    if(match_info
@@ -590,7 +590,7 @@ static Term_p rewrite_with_clause_set(OCB_p ocb, TB_p bank, Term_p term,
    MatchRes_p mi;
    Term_p      repl;
 
-   assert(demodulators->clauseset_indexes->demod_index);
+   assert(demodulators->demod_index);
    assert(term);
    assert(!TermIsVar(term));
    assert(!TermIsTopRewritten(term));

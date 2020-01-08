@@ -41,8 +41,12 @@ typedef struct clauseset_indexes
 /*---------------------------------------------------------------------*/
 
 ClausesetIndexes_p ClausesetIndexesAlloc();
+void ClausesetIndexInsertNewClause(ClausesetIndexes_p clauseset_indexes, FVPackedClause_p newclause);
+Clause_p ClausesetIndexExtractEntry(ClausesetIndexes_p clauseset_indexes, Clause_p junk);
 void ClausesetIndexesFree(ClausesetIndexes_p clauseset_indexes);
+void ClausesetIndexesUCIndexededInsert(ClausesetIndexes_p clauseset_indexes, Clause_p newclause);
 void ClausesetIndexesPDTIndexedInsert(ClausesetIndexes_p clauseset_indexes, Clause_p newclause);
+
 
 /*---------------------------------------------------------------------*/
 /*                         Internal Functions                          */
@@ -50,6 +54,8 @@ void ClausesetIndexesPDTIndexedInsert(ClausesetIndexes_p clauseset_indexes, Clau
 
 ClausesetIndexes_p ClausesetIndexesAllocRaw();
 void ClausesetIndexesFreeRaw(ClausesetIndexes_p clauseset_indexes);
+void ClausesetIndexesPDTDelteClause(ClausesetIndexes_p clauseset_indexes, 
+                                    Clause_p junk);
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */

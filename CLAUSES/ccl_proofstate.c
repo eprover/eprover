@@ -170,9 +170,9 @@ ProofState_p ProofStateAlloc(FunctionProperties free_symb_prop)
    GlobalIndicesNull(&(handle->gindices));
    handle->fvi_initialized      = false;
    handle->fvi_cspec            = NULL;
-   handle->processed_pos_rules->clauseset_indexes->demod_index = PDTreeAlloc(handle->terms);
-   handle->processed_pos_eqns->clauseset_indexes->demod_index  = PDTreeAlloc(handle->terms);
-   handle->processed_neg_units->clauseset_indexes->demod_index = PDTreeAlloc(handle->terms);
+   handle->processed_pos_rules->demod_index = PDTreeAlloc(handle->terms);
+   handle->processed_pos_eqns->demod_index  = PDTreeAlloc(handle->terms);
+   handle->processed_neg_units->demod_index = PDTreeAlloc(handle->terms);
    handle->demods[0]            = handle->processed_pos_rules;
    handle->demods[1]            = handle->processed_pos_eqns;
    handle->demods[2]            = NULL;
@@ -339,7 +339,6 @@ void ProofStateInitWatchlist(ProofState_p state, OCB_p ocb)
          handle = ClauseSetExtractFirst(state->watchlist);
          ClauseSetInsert(tmpset, handle);
       }
-      // TODO: The PDTIndex for Unitclauses shall be constructed somwehere here.
       // TODO: Determine how to identify unit clauses and how to handle them.
       ClauseSetIndexedInsertClauseSet(state->watchlist, tmpset);
       ClauseSetFree(tmpset);
@@ -714,8 +713,8 @@ void ProofStateStatisticsPrint(FILE* out, ProofState_p state)
       fprintf(out,
               "# Match attempts with oriented units   : %lu\n"
               "# Match attempts with unoriented units : %lu\n",
-              state->processed_pos_rules->clauseset_indexes->demod_index->match_count,
-              state->processed_pos_eqns->clauseset_indexes->demod_index->match_count);
+              state->processed_pos_rules->demod_index->match_count,
+              state->processed_pos_eqns->demod_index->match_count);
 #ifdef MEASURE_EXPENSIVE
       fprintf(out,
               "# Oriented PDT nodes visited           : %lu\n"
