@@ -237,8 +237,9 @@ void GlobalIndicesInsertClause(GlobalIndices_p indices, Clause_p clause)
    }
    if(indices->unitclause_index)
    {
-      // TODO: PERF_CTR_ENTRY
-      UnitclauseIndexInsertClause(indices->unitclause_index, clause);  
+      PERF_CTR_ENTRY(PMIndexTimer);
+      UnitclauseIndexInsertClause(indices->unitclause_index, clause);
+      PERF_CTR_EXIT(PMIndexTimer);
    }
 }
 
@@ -288,8 +289,9 @@ void GlobalIndicesDeleteClause(GlobalIndices_p indices, Clause_p clause)
    }
    if(indices->unitclause_index)
    {
-      // TODO: PERF_CTR_ENTRY
+      PERF_CTR_ENTRY(PMIndexTimer);
       UnitclauseIndexDeleteClause(indices->unitclause_index, clause);
+      PERF_CTR_EXIT(PMIndexTimer);
    }
    // printf("# ...GlobalIndicesDeleteClause()\n");
 }
