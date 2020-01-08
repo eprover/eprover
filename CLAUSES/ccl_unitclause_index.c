@@ -114,6 +114,23 @@ UnitClauseIndexCell_p UnitclauseInsert(PObjTree_p *root, Term_p lterm)
    return new;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: UnitClauseIndexCellFreeWrapper()
+//
+//   Wrapper for UnitClauseIndexCellFree so that the type matches with
+//   the type signature of ObjDelFun (void (*)(void *)).
+//
+// Global Variables: - 
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+void UnitClauseIndexCellFreeWrapper(void *junk)
+{
+   UnitClauseIndexCellFree(junk);
+}
+
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
 /*---------------------------------------------------------------------*/
@@ -319,7 +336,7 @@ bool UnitclauseIndexDeleteRightTerm(UnitclauseIndex_p index, Term_p lterm,
 /----------------------------------------------------------------------*/
 void UnitclauseIndexFreeWrapper(void *junk)
 {
-   PObjTreeFree(junk, UnitClauseIndexCellFree);
+   PObjTreeFree(junk, UnitClauseIndexCellFreeWrapper);
 }
 
 /*---------------------------------------------------------------------*/
