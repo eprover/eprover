@@ -41,19 +41,19 @@ Copyright 2019-2020 by the author.
 // Side Effects    : Memory operatios
 //
 /----------------------------------------------------------------------*/
-UnitClauseIndexCell_p UnitClauseIndexAlloc(Term_p termL) 
+UnitClauseIndexCell_p UnitClauseIndexAlloc() 
 {
    UnitClauseIndexCell_p handle = UnitClauseIndexCellAlloc();
 
-   handle->termL = termL;
-   handle->right = NULL;
+   handle->termL = NULL;
+   handle->right = PTreeCellAllocEmpty();
 
    return handle;
 }
 
 /*-----------------------------------------------------------------------
 //
-// Function: UnitClauseIndexFree()
+// Function: UnitClauseIndexCellFree()
 //
 //   Frees a complete UnitClauseIndexCell.
 //
@@ -62,10 +62,10 @@ UnitClauseIndexCell_p UnitClauseIndexAlloc(Term_p termL)
 // Side Effects    : Memory operatios
 //
 /----------------------------------------------------------------------*/
-void UnitClauseIndexNodeFree(UnitClauseIndexCell_p junk) 
+void UnitClauseIndexCellFree(UnitClauseIndexCell_p junk) 
 {
    PTreeFree(junk->right);
-   UnitClauseIndexCellFree(junk);
+   UnitClauseIndexCellFreeRaw(junk);
 }
 
 /*-----------------------------------------------------------------------
@@ -99,12 +99,13 @@ int CmpUnitClauseIndexCells(const void* cell1, const void* cell2)
 // Side Effects    : Memory operatios
 //
 /----------------------------------------------------------------------*/
-UnitClauseIndexCell_p UnitclauseInsert(PObjTree_p *root, Term_p lterm) 
+UnitClauseIndexCell_p UnitclauseInsert(PObjTree_p *root, Term_p lterm)
 {
-
-   UnitClauseIndexCell_p old, new = UnitClauseIndexAlloc(lterm);
-
-   old = PTreeObjStore(root, lterm, CmpUnitClauseIndexCells);
+   UnitClauseIndexCell_p old = UnitClauseIndexAlloc();
+   UnitClauseIndexCell_p new = UnitClauseIndexAlloc();
+   new->termL = lterm;
+   
+   old = PTreeObjStore(root, new, CmpUnitClauseIndexCells);
    if (old)
    {
       UnitClauseIndexCellFree(new);
@@ -131,20 +132,24 @@ UnitClauseIndexCell_p UnitclauseInsert(PObjTree_p *root, Term_p lterm)
 /----------------------------------------------------------------------*/
 bool UnitclauseIndexDeleteClause(UnitclauseIndex_p index, Clause_p clause)
 {
-   assert(ClauseIsUnit(clause));
-   Eqn_p handle = clause->literals;
-   bool existed;
-
-   existed = UnitclauseIndexDeleteRightTerm(index, clause->literals->lterm, 
-                                            clause->literals->rterm);
-   
-   if(!EqnIsOriented(handle) && existed)
+   if(ClauseIsUnit(clause))
    {
-      return UnitclauseIndexDeleteRightTerm(index, clause->literals->rterm, 
-                                            clause->literals->lterm);
-   }
+      Eqn_p handle = clause->literals;
+      bool existed;
 
-   return existed;
+      existed = UnitclauseIndexDeleteRightTerm(index, clause->literals->lterm, 
+                                               clause->literals->rterm);
+      
+      if(!EqnIsOriented(handle) && existed)
+      {
+         return UnitclauseIndexDeleteRightTerm(index, clause->literals->rterm, 
+                                               clause->literals->lterm);
+      }
+
+      return existed;
+   }
+   // Clause is not unit and therefore did not exist.
+   return false;
 }
 
 /*------------------------------------ -----------------------------------
@@ -153,31 +158,35 @@ bool UnitclauseIndexDeleteClause(UnitclauseIndex_p index, Clause_p clause)
 //
 //   Inserts a unit clause into the Index. Return
 //   true if it was new, false if it already existed.
+//   It also returns false if the clause was not unit!
 //   Is a wrapper for UnitClauseIndexInsert.
 //   If the clause is not orientable both sides are indexed.
 //
 // Global Variables: -
 //
 // Side Effects    : Memory operatios
-//
+/e
 /----------------------------------------------------------------------*/
 bool UnitclauseIndexInsertClause(UnitclauseIndex_p index, Clause_p clause)
 {
-   assert(ClauseIsUnit(clause));
-
-   Eqn_p handle = clause->literals;
-   bool isNew;
-   
-   isNew = UnitclauseIndexInsert(index, clause->literals->lterm, 
-                                 clause->literals->rterm);
-
-   if(!EqnIsOriented(handle) && isNew)
+   if(ClauseIsUnit(clause))
    {
-      return UnitclauseIndexInsert(index, clause->literals->lterm, 
-                                   clause->literals->rterm);
+      Eqn_p handle = clause->literals;
+      bool isNew;
+      
+      isNew = UnitclauseIndexInsert(index, clause->literals->lterm, 
+                                    clause->literals->rterm);
+
+      if(!EqnIsOriented(handle) && isNew)
+      {
+         return UnitclauseIndexInsert(index, clause->literals->lterm, 
+                                    clause->literals->rterm);
+      }
+      
+      return isNew;
    }
-   
-   return isNew;
+   // Clause was not unit.
+   return false;
 }
 
 /*-----------------------------------------------------------------------
@@ -199,9 +208,9 @@ bool UnitclauseIndexInsert(UnitclauseIndex_p index, Term_p lterm,
    UnitClauseIndexCell_p unitclause_node;
    PTree_p               *root;
 
-   fp_node         = FPIndexInsert(index, lterm);
-   unitclause_node = UnitclauseInsert((void*)&(fp_node->payload), lterm);
-   root            = &unitclause_node->right;
+   fp_node               = FPIndexInsert(index, lterm);
+   unitclause_node       = UnitclauseInsert((void*)&(fp_node->payload), lterm);
+   root                  = &unitclause_node->right;
 
    return PTreeStore(root, rterm);
 }
@@ -219,7 +228,8 @@ bool UnitclauseIndexInsert(UnitclauseIndex_p index, Term_p lterm,
 /----------------------------------------------------------------------*/
 void UnitclauseIndexDeleteTerm(PObjTree_p *root, Term_p lterm)
 {
-   UnitClauseIndexCell_p old, knode = UnitClauseIndexAlloc(lterm);
+   UnitClauseIndexCell_p old, knode = UnitClauseIndexAlloc();
+   knode->termL = lterm;
    old = PTreeObjExtractObject(root, knode, CmpUnitClauseIndexCells);
 
    UnitClauseIndexCellFree(old);
@@ -240,9 +250,10 @@ void UnitclauseIndexDeleteTerm(PObjTree_p *root, Term_p lterm)
 bool UnitclauseIndexDeleteCellTerm(PObjTree_p *root, Term_p lterm,
                                     Term_p rterm)
 {
-   UnitClauseIndexCell_p old, knode = UnitClauseIndexAlloc(lterm);
+   UnitClauseIndexCell_p old, knode = UnitClauseIndexAlloc();
    PObjTree_p oldnode;
    bool res = false;
+   knode->termL = lterm;
 
    oldnode = PTreeObjFind(root, knode, CmpUnitClauseIndexCells); 
    if(oldnode)
@@ -294,6 +305,22 @@ bool UnitclauseIndexDeleteRightTerm(UnitclauseIndex_p index, Term_p lterm,
    return res;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: UnitclauseIndexFreeWrapper()
+//
+//   Free a pointer tree in the unitclause index, 
+//   with proper signature for FPIndexFree().
+//
+// Global Variables: - 
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+void UnitclauseIndexFreeWrapper(void *junk)
+{
+   PObjTreeFree(junk, UnitClauseIndexCellFree);
+}
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */

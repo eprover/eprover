@@ -496,11 +496,14 @@ int main(int argc, char* argv[])
    PCLFullTerms = pcl_full_terms; /* Preprocessing always uses full
                                      terms, so we set the flag for
                                      the main proof search only now! */
+
+   // TODO: Determine wether no index holds here.
    GlobalIndicesInit(&(proofstate->wlindices),
                      proofstate->signature,
                      proofcontrol->heuristic_parms.rw_bw_index_type,
                      "NoIndex",
-                     "NoIndex");
+                     "NoIndex",
+                     "FP6M");
    //printf("Alive (1)!\n");
 
    ProofStateInit(proofstate, proofcontrol);

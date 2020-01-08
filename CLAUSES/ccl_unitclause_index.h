@@ -27,7 +27,7 @@ Copyright 2019-2020 by the author.
 /*                    Data type declarations                           */
 /*---------------------------------------------------------------------*/
 
-typedef struct unitterm_index_cell 
+typedef struct unitclause_index_cell 
 {
    Term_p termL;
    PTree_p right;
@@ -39,8 +39,10 @@ typedef FPIndex_p UnitclauseIndex_p;
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
+void UnitclauseIndexFreeWrapper(void *junk);
+
 #define UnitClauseIndexCellAlloc() (UnitClauseIndexCell*)SizeMalloc(sizeof(UnitClauseIndexCell))
-#define UnitClauseIndexCellFree(junk) SizeFree(junk, sizeof(UnitClauseIndexCell))
+#define UnitClauseIndexCellFreeRaw(junk) SizeFree(junk, sizeof(UnitClauseIndexCell))
 
 bool UnitclauseIndexDeleteClause(UnitclauseIndex_p index, Clause_p clause);
 void UnitclauseIndexDeleteTerm(PObjTree_p *root, Term_p lterm);
@@ -54,8 +56,7 @@ bool UnitclauseIndexInsert(UnitclauseIndex_p index, Term_p lterm, Term_p rterm);
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
 
-UnitClauseIndexCell_p UnitClauseIndexAlloc(Term_p termL);
-void UnitClauseIndexNodeFree(UnitClauseIndexCell_p junk);
+void UnitClauseIndexCellFree(UnitClauseIndexCell_p junk);
 int CmpUnitClauseIndexCells(const void* cell1, const void* cell2);
 UnitClauseIndexCell_p UnitclauseInsert(PObjTree_p *root, Term_p lterm);
 
