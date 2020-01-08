@@ -82,7 +82,8 @@ typedef enum
    DOFOOLUnroll,
    DOEliminateBVar,
    /* HO inferences */
-   DONegExt
+   DONegExt,
+   DOPosExt
 }OpCode;
 
 
@@ -138,7 +139,8 @@ typedef enum
    DCFoolUnroll       = DOFOOLUnroll,
    DCEliminateBVar    = DOEliminateBVar,
    /* HO inferences */
-   DCNegExt           = DONegExt|Arg1Cnf
+   DCNegExt           = DONegExt|Arg1Cnf,
+   DCPosExt           = DOPosExt|Arg1Cnf
 }DerivationCode;
 
 

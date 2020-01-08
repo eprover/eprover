@@ -46,7 +46,7 @@ Contents
 //
 /----------------------------------------------------------------------*/
 
-void store_result(Clause_p new_clause, Clause_p orig_clause, 
+void store_result(Clause_p new_clause, Clause_p orig_clause,
                   ClauseSet_p store, DerivationCode dc)
 {
    new_clause->proof_depth = orig_clause->proof_depth+1;
@@ -77,16 +77,80 @@ Term_p term_apply_arg(TypeBank_p tb, Term_p s, Term_p arg)
    assert(TypeIsArrow(s->type));
    assert(s->type->args[0] == arg->type);
    
-   Term_p s_arg = TermTopAlloc(s->f_code, s->arity+1);
-   s_arg->type = TypeBankInsertTypeShared(tb, TypeDropFirstArg(s->type));
-   for(int i=0; i<s->arity; i++)
+   Term_p s_arg = NULL;
+   if (UNLIKELY(!TermIsVar(s)))
    {
-      s_arg->args[i] = s->args[i]; 
+      s_arg = TermTopAlloc(s->f_code, s->arity+1);
+      for(int i=0; i<s->arity; i++)
+      {
+         s_arg->args[i] = s->args[i]; 
+      }
+      s_arg->args[s->arity] = arg;
    }
-   s_arg->args[s->arity] = arg;
+   else
+   {
+      s_arg = TermTopAlloc(SIG_APP_VAR_CODE, 2);
+      s_arg->args[0] = s;
+      s_arg->args[1] = arg;
+   }
+   
+   s_arg->type = TypeBankInsertTypeShared(tb, TypeDropFirstArg(s->type));
+   
    return s_arg;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: term_drop_last_arg()
+//
+//   Removes the last argument of a term. Assumes there is at least
+//   one argument.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+Term_p term_drop_last_arg(TypeBank_p tb, Term_p s) 
+{
+   assert(s->arity);
+   
+   int needed_args = TypeGetMaxArity(s->type);
+   Type_p* args = TypeArgArrayAlloc(needed_args + 2);
+   args[0] = s->args[s->arity-1]->type;
+   if (UNLIKELY(TypeIsArrow(s->type)))
+   {
+      for(int i=0; i<s->type->arity; i++)
+      {
+         args[i+1] = s->type->args[i];
+      }
+   }
+   else
+   {
+      args[1] = s->type;
+   }
+   
+   Type_p res_type = TypeBankInsertTypeShared(tb, AllocArrowType(needed_args+2, args));
+
+   if (TermIsAppliedVar(s) && s->arity==2)
+   {
+      Term_p t = s->args[0];
+      assert(t->type == res_type);
+      assert(TermIsVar(t));
+      return t;
+   }
+   else 
+   {
+      Term_p t = TermTopAlloc(s->f_code, s->arity-1);
+      t->type = res_type;
+      for(int i=0; i<s->arity-1; i++)
+      {
+         t->args[i] = s->args[i];
+      }
+      return t;
+   }
+}
 
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
@@ -118,7 +182,7 @@ void ComputeNegExt(ProofState_p state, ProofControl_p control, Clause_p clause)
       Type_p lit_type = lit->lterm->type;
       int needed_args = TypeGetMaxArity(lit_type);
 
-      if (EqnIsNegative(lit) && EqnIsMaximal(lit) && needed_args > 0)
+      if (EqnIsNegative(lit) && needed_args > 0)
       {
          PTree_p free_var_tree = NULL;
          UNUSED(EqnCollectVariables(lit, &free_var_tree));
@@ -156,14 +220,14 @@ void ComputeNegExt(ProofState_p state, ProofControl_p control, Clause_p clause)
 
             Eqn_p new_lit = EqnAlloc(new_lhs, new_rhs, state->terms, false);
             Eqn_p new_literals = EqnListCopyExcept(clause->literals, lit, state->terms);
-            EqnListInsertFirst(&new_lit, new_literals);
+            EqnListInsertFirst(&new_literals, new_lit);
 
             Clause_p new_clause = ClauseAlloc(new_literals);
             state->neg_ext_count++;
             store_result(new_clause, clause, state->tmp_store, DCNegExt);
          }
 
-         TermArgArrayFree(vars_types, num_vars);
+         TypeArgArrayFree(vars_types, num_vars);
          TermArgArrayFree(vars, num_vars);
          PStackFree(free_vars_stack);
          PTreeFree(free_var_tree);
@@ -173,10 +237,94 @@ void ComputeNegExt(ProofState_p state, ProofControl_p control, Clause_p clause)
 
 /*-----------------------------------------------------------------------
 //
+// Function: ComputePosExt()
+//
+//   Computes all possible PosExt inferences with the given clause. 
+//   PosExt is described by 
+//
+//      s X = t X  \/ C 
+//    ---------------------
+//        s = t  \/ C
+//
+//   where s = t is a maximal literal and X does not appear in
+//   s and t and C.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void ComputePosExt(ProofState_p state, ProofControl_p control, Clause_p clause)
+{
+   TypeBank_p tb = state->type_bank;
+   for(Eqn_p lit=clause->literals; lit; lit=lit->next)
+   {
+      if (EqnIsPositive(lit) && EqnIsEquLit(lit))
+      {
+         Term_p lhs = lit->lterm, rhs = lit->rterm;
+
+         while(lhs->arity && rhs->arity &&
+               lhs->args[lhs->arity-1] == rhs->args[rhs->arity-1] &&
+               TermIsVar(lhs->args[lhs->arity-1]))
+         {
+            Term_p var =  lhs->args[lhs->arity-1];
+
+            bool occurs = false;
+            /* Checking if var appears in any of the arguments */
+            for(int i=0; !occurs && i<lhs->arity-1; i++)
+            {
+               occurs = TermHasFCode(lhs->args[i], var->f_code); 
+            }
+            for(int i=0; !occurs && i<rhs->arity-1; i++)
+            {
+               occurs = TermHasFCode(rhs->args[i], var->f_code); 
+            }
+            /* Checking if var appears in other literals */
+            for(Eqn_p iter = clause->literals; !occurs && iter; iter = iter->next)
+            {
+               occurs = iter != lit && 
+                        (TermHasFCode(iter->lterm, var->f_code) || 
+                         TermHasFCode(iter->rterm, var->f_code));
+            }
+
+            if (!occurs)
+            {
+               // if occurs checked passed, we can construct PosExt inference result
+               lhs = term_drop_last_arg(tb, lhs);
+               rhs = term_drop_last_arg(tb, rhs);
+
+               if (!TermIsVar(lhs))
+               {
+                  lhs = TBTermTopInsert(state->terms, lhs);
+               }
+               if (!TermIsVar(rhs))
+               {
+                  rhs = TBTermTopInsert(state->terms, rhs);
+               }
+
+               Eqn_p new_lit = EqnAlloc(lhs, rhs, state->terms, true);
+               Eqn_p new_literals = EqnListCopyExcept(clause->literals, lit, state->terms);
+               EqnListInsertFirst(&new_literals, new_lit);
+
+               Clause_p new_clause = ClauseAlloc(new_literals);
+               store_result(new_clause, clause, state->tmp_store, DCPosExt);
+            }
+            else 
+            {
+               break;
+            }
+         }
+      }
+   }
+}
+
+/*-----------------------------------------------------------------------
+//
 // Function: ComputeHOInferences()
 //
 //   Computes all registered HO inferences. 
-//   Currently only NegExt is registered.
+//   Currently only NegExt and PosExt are registered.
 //
 // Global Variables: -
 //
@@ -189,5 +337,6 @@ void ComputeHOInferences(ProofState_p state, ProofControl_p control, Clause_p cl
    if (problemType == PROBLEM_HO)
    {
       ComputeNegExt(state,control,clause);
+      ComputePosExt(state,control,clause);
    }
 }

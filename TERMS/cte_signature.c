@@ -1274,6 +1274,7 @@ FunCode SigGetNewTypedSkolem(Sig_p sig, Type_p* args, int num_args, Type_p ret_t
                                ArrowTypeFlattened(args, num_args, ret_type));
    int max_arity = TypeGetMaxArity(sk_type);
    FunCode res = SigGetNewSkolemCode(sig, max_arity);
+   SigDeclareType(sig,res,sk_type);
    if (UNLIKELY(TypeIsPredicate(sk_type)))
    {
       SigDeclareIsPredicate(sig, res);

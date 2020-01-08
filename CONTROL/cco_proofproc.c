@@ -23,6 +23,7 @@ Changes
 
 #include "cco_proofproc.h"
 #include <picosat.h>
+#include <cco_ho_inferences.h>
 
 
 
@@ -515,6 +516,7 @@ void simplify_watchlist(ProofState_p state, ProofControl_p control,
 static void generate_new_clauses(ProofState_p state, ProofControl_p
                                  control, Clause_p clause, Clause_p tmp_copy)
 {
+   ComputeHOInferences(state,control,clause);
    if(control->heuristic_parms.enable_eq_factoring)
    {
       state->factor_count+=

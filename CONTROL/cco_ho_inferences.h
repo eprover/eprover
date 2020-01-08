@@ -19,4 +19,4 @@ Contents
 
 #include <che_proofcontrol.h>
 
-void ComputeHOInferences(ProofState_p state, ProofControl_p control, Clause_p clause)
+void ComputeHOInferences(ProofState_p state, ProofControl_p control, Clause_p clause);

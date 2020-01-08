@@ -32,7 +32,7 @@ New
 /*                    Data type declarations                           */
 /*---------------------------------------------------------------------*/
 
-
+typedef bool (*TermPredicateFun_p)(Term_p);
 
 
 /*---------------------------------------------------------------------*/
@@ -47,6 +47,9 @@ int     EqnListSetProp(Eqn_p list, EqnProperties prop);
 int     EqnListDelProp(Eqn_p list, EqnProperties prop);
 int     EqnListFlipProp(Eqn_p list, EqnProperties prop);
 int     EqnListQueryPropNumber(Eqn_p list, EqnProperties prop);
+
+bool    EqnListExistsTermExcept(Eqn_p list, Eqn_p except, TermPredicateFun_p predicate);
+#define EqnListExistsTerm(list, predicate) EqnListExistsTermExcept(list, NULL, predicate)
 
 int      EqnListLength(Eqn_p list);
 Eqn_p    EqnListFromArray(Eqn_p* array, int lenght);

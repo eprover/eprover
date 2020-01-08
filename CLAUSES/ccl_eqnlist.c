@@ -219,6 +219,31 @@ int EqnListQueryPropNumber(Eqn_p list, EqnProperties prop)
    return res;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: EqnListExistsTermExcept()
+//
+//   Return number of equations with props set.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+bool EqnListExistsTermExcept(Eqn_p list, Eqn_p except, TermPredicateFun_p predicate)
+{
+   for(Eqn_p lit = list; lit; lit = lit->next)
+   {
+      if (lit != except && (predicate(lit->lterm) || predicate(lit->rterm)))
+      {
+         return true;
+      }
+   }
+   return false;
+}
+
+
 
 
 /*-----------------------------------------------------------------------
