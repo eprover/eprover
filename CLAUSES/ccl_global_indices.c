@@ -66,7 +66,6 @@ void GlobalIndicesNull(GlobalIndices_p indices)
    indices->pm_into_index    = NULL;
    indices->pm_negp_index    = NULL;
    indices->pm_from_index    = NULL;
-   indices->unitclause_index = NULL;
 }
 
 
@@ -86,8 +85,7 @@ void GlobalIndicesInit(GlobalIndices_p indices,
                        Sig_p sig,
                        char* rw_bw_index_type,
                        char* pm_from_index_type,
-                       char* pm_into_index_type,
-                       char* unitclause_index_type)
+                       char* pm_into_index_type)
 {
    FPIndexFunction indexfun;
 
@@ -117,12 +115,6 @@ void GlobalIndicesInit(GlobalIndices_p indices,
    if(indexfun)
    {
       indices->pm_negp_index = FPIndexAlloc(indexfun, sig, SubtermOLTreeFreeWrapper);
-   }
-   indexfun = GetFPIndexFunction(unitclause_index_type);
-   strcpy(indices->unitclause_index_type, unitclause_index_type);
-   if (indexfun)
-   {
-      indices->unitclause_index = FPIndexAlloc(indexfun, sig, UnitclauseIndexFreeWrapper);
    }
 }
 
@@ -161,11 +153,6 @@ void GlobalIndicesFreeIndices(GlobalIndices_p indices)
       FPIndexFree(indices->pm_negp_index);
       indices->pm_negp_index = NULL;
    }
-   if(indices->unitclause_index)
-   {
-      FPIndexFree(indices->unitclause_index);
-      indices->unitclause_index = NULL;
-   }
 }
 
 
@@ -189,8 +176,7 @@ void GlobalIndicesReset(GlobalIndices_p indices)
                      indices->sig,
                      indices->rw_bw_index_type,
                      indices->pm_from_index_type,
-                     indices->pm_into_index_type,
-                     indices->unitclause_index_type);
+                     indices->pm_into_index_type);
 }
 
 
@@ -235,11 +221,6 @@ void GlobalIndicesInsertClause(GlobalIndices_p indices, Clause_p clause)
       PERF_CTR_ENTRY(PMIndexTimer);
       OverlapIndexInsertFromClause(indices->pm_from_index, clause);
       PERF_CTR_EXIT(PMIndexTimer);
-   }
-   if(indices->unitclause_index)
-   {
-      UnitclauseIndexInsertClause(indices->unitclause_index, clause);
-      UnitclauseIndexInsertClause(indices->unitclause_index, clause);
    }
 }
 
@@ -286,10 +267,6 @@ void GlobalIndicesDeleteClause(GlobalIndices_p indices, Clause_p clause)
       PERF_CTR_ENTRY(PMIndexTimer);
       OverlapIndexDeleteFromClause(indices->pm_from_index, clause);
       PERF_CTR_EXIT(PMIndexTimer);
-   }
-   if(indices->unitclause_index)
-   {
-      UnitclauseIndexDeleteClause(indices->unitclause_index, clause);
    }
    // printf("# ...GlobalIndicesDeleteClause()\n");
 }
