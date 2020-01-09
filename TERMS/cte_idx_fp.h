@@ -82,6 +82,7 @@ IndexFP_p IndexFP5MCreate(Term_p t);
 IndexFP_p IndexFP6MCreate(Term_p t);
 IndexFP_p IndexFP7Create(Term_p t);
 IndexFP_p IndexFP7MCreate(Term_p t);
+IndexFP_p IndexFPWatchlist6Create(Term_p t);
 IndexFP_p IndexFP4X2_2Create(Term_p t);
 IndexFP_p IndexFPFlexCreate(Term_p t, PStack_p pos, int len);
 IndexFP_p IndexFP3DFlexCreate(Term_p t);
