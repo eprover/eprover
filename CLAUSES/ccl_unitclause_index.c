@@ -229,6 +229,7 @@ UnitClauseIndexCell_p UnitClauseIndexCellAlloc()
 //
 //   Deletes an indexed clause taking care of the index.
 //   If the clause is not orientable both sides are deleted.
+//   Assumes clause is unit.
 //
 // Global Variables: -
 //
@@ -237,35 +238,31 @@ UnitClauseIndexCell_p UnitClauseIndexCellAlloc()
 /----------------------------------------------------------------------*/
 bool UnitclauseIndexDeleteClause(UnitclauseIndex_p index, Clause_p clause)
 {
-   if(ClauseIsUnit(clause))
+   assert(ClauseIsUnit(clause));
+   Eqn_p  handle = clause->literals;
+   bool   existed;
+   Term_p indexedTerm;
+
+   indexedTerm = EqnTermsTBTermEncode(handle->bank, 
+                                       handle->lterm, 
+                                       handle->rterm, 
+                                       true, // TODO: Are you sure that this is always okay?
+                                       PENormal);
+
+   existed = UnitclauseIndexDeleteIndexedClause(index, indexedTerm, clause);
+   
+   if(!EqnIsOriented(handle) && existed)
    {
-      Eqn_p  handle = clause->literals;
-      bool   existed;
-      Term_p indexedTerm;
-
       indexedTerm = EqnTermsTBTermEncode(handle->bank, 
-                                         handle->lterm, 
-                                         handle->rterm, 
-                                         true, // TODO: Are you sure that this is always okay?
-                                         PENormal);
+                                          handle->lterm, 
+                                          handle->rterm, 
+                                          true, // TODO: Are you sure that this is always okay?
+                                          PEReverse);
 
-      existed = UnitclauseIndexDeleteIndexedClause(index, indexedTerm, clause);
-      
-      if(!EqnIsOriented(handle) && existed)
-      {
-         indexedTerm = EqnTermsTBTermEncode(handle->bank, 
-                                            handle->lterm, 
-                                            handle->rterm, 
-                                            true, // TODO: Are you sure that this is always okay?
-                                            PEReverse);
-
-         return UnitclauseIndexDeleteIndexedClause(index, indexedTerm, clause);
-      }
-
-      return existed;
+      return UnitclauseIndexDeleteIndexedClause(index, indexedTerm, clause);
    }
-   // Clause is not unit and therefore did not exist.
-   return false;
+
+   return existed;
 }
 
 /*------------------------------------ -----------------------------------
@@ -274,9 +271,9 @@ bool UnitclauseIndexDeleteClause(UnitclauseIndex_p index, Clause_p clause)
 //
 //   Inserts a unit clause into the Index. Return
 //   true if it was new, false if it already existed.
-//   It also returns false if the clause was not unit!
 //   Is a wrapper for UnitClauseIndexInsert.
 //   If the clause is not orientable both sides are indexed.
+//   Assumes clause is unit.
 //
 // Global Variables: -
 //
@@ -285,33 +282,30 @@ bool UnitclauseIndexDeleteClause(UnitclauseIndex_p index, Clause_p clause)
 /----------------------------------------------------------------------*/
 bool UnitclauseIndexInsertClause(UnitclauseIndex_p index, Clause_p clause)
 {
-   if(ClauseIsUnit(clause))
+   assert(ClauseIsUnit(clause));
+
+   Eqn_p  handle = clause->literals;
+   bool   isNew;
+   Term_p indexedTerm;
+
+   indexedTerm = EqnTermsTBTermEncode(handle->bank, 
+                                       handle->lterm, 
+                                       handle->rterm, 
+                                       true, // TODO: Are you sure that this is always okay?
+                                       PENormal);
+   isNew = UnitclauseIndexInsert(index, indexedTerm, clause);
+
+   if(!EqnIsOriented(handle) && isNew)
    {
-      Eqn_p  handle = clause->literals;
-      bool   isNew;
-      Term_p indexedTerm;
-
       indexedTerm = EqnTermsTBTermEncode(handle->bank, 
-                                         handle->lterm, 
-                                         handle->rterm, 
-                                         true, // TODO: Are you sure that this is always okay?
-                                         PENormal);
+                                          handle->lterm, 
+                                          handle->rterm, 
+                                          true, // TODO: Are you sure that this is always okay?
+                                          PEReverse);
       isNew = UnitclauseIndexInsert(index, indexedTerm, clause);
-
-      if(!EqnIsOriented(handle) && isNew)
-      {
-         indexedTerm = EqnTermsTBTermEncode(handle->bank, 
-                                            handle->lterm, 
-                                            handle->rterm, 
-                                            true, // TODO: Are you sure that this is always okay?
-                                            PEReverse);
-         isNew = UnitclauseIndexInsert(index, indexedTerm, clause);
-      }
-      
-      return isNew;
    }
-   // Clause was not unit.
-   return false;
+   
+   return isNew;
 }
 
 /*-----------------------------------------------------------------------
