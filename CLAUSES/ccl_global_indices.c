@@ -62,10 +62,11 @@ PERF_CTR_DEFINE(BWRWIndexTimer);
 
 void GlobalIndicesNull(GlobalIndices_p indices)
 {
-   indices->bw_rw_index   = NULL;
-   indices->pm_into_index = NULL;
-   indices->pm_negp_index = NULL;
-   indices->pm_from_index = NULL;
+   indices->bw_rw_index      = NULL;
+   indices->pm_into_index    = NULL;
+   indices->pm_negp_index    = NULL;
+   indices->pm_from_index    = NULL;
+   indices->unitclause_index = NULL;
 }
 
 
@@ -237,9 +238,8 @@ void GlobalIndicesInsertClause(GlobalIndices_p indices, Clause_p clause)
    }
    if(indices->unitclause_index)
    {
-      PERF_CTR_ENTRY(PMIndexTimer);
       UnitclauseIndexInsertClause(indices->unitclause_index, clause);
-      PERF_CTR_EXIT(PMIndexTimer);
+      UnitclauseIndexInsertClause(indices->unitclause_index, clause);
    }
 }
 
@@ -289,9 +289,7 @@ void GlobalIndicesDeleteClause(GlobalIndices_p indices, Clause_p clause)
    }
    if(indices->unitclause_index)
    {
-      PERF_CTR_ENTRY(PMIndexTimer);
       UnitclauseIndexDeleteClause(indices->unitclause_index, clause);
-      PERF_CTR_EXIT(PMIndexTimer);
    }
    // printf("# ...GlobalIndicesDeleteClause()\n");
 }

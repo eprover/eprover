@@ -503,7 +503,7 @@ int main(int argc, char* argv[])
                      proofcontrol->heuristic_parms.rw_bw_index_type,
                      "NoIndex",
                      "NoIndex",
-                     "FP6M");
+                     "FPWatchlist6Create");
    //printf("Alive (1)!\n");
 
    ProofStateInit(proofstate, proofcontrol);
