@@ -1,12 +1,12 @@
 /*-----------------------------------------------------------------------
 
-File  : ccl_clauseset_indexes.h
+File  : ccl_efficent_subsumption_index.h
 
 Author: Constantin Ruhdorfer
 
 Contents
 
-  Interface for indexing watchlist clauses.
+  Interface for indexing clauses for subsumption.
 
 Copyright 2019-2020 by the author.
   This code is released under the GNU General Public Licence and
@@ -16,46 +16,41 @@ Copyright 2019-2020 by the author.
 
 -----------------------------------------------------------------------*/
 
-#ifndef CCL_CLAUSESET_INDEXES
-
-#define CCL_CLAUSESET_INDEXES
+#ifndef CCL_EFFICENT_SUBSUMPTION_INDEX
+#define CCL_EFFICENT_SUBSUMPTION_INDEX
 
 #include <ccl_fcvindexing.h>
-#include <ccl_pdtrees.h>
 #include <ccl_unitclause_index.h>
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
 /*---------------------------------------------------------------------*/
 
-typedef struct clauseset_indexes
+typedef struct efficent_subsumption_index
 {
-   PDTree_p  demod_index; /* If used for demodulators */
-   FVIAnchor_p fvindex; /* Used for non-unit subsumption */
+   FVIAnchor_p       fvindex;          /* Used for non-unit subsumption */
    UnitclauseIndex_p unitclasue_index; /* Used for unit clauses subsuption */
-} ClausesetIndexes, *ClausesetIndexes_p;
+} EfficentSubsumptionIndex, *EfficentSubsumptionIndex_p;
 
 
 /*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-ClausesetIndexes_p ClausesetIndexesAlloc();
-void ClausesetIndexInsertNewClause(ClausesetIndexes_p clauseset_indexes, FVPackedClause_p newclause);
-Clause_p ClausesetIndexExtractEntry(ClausesetIndexes_p clauseset_indexes, Clause_p junk);
-void ClausesetIndexesFree(ClausesetIndexes_p clauseset_indexes);
-void ClausesetIndexesUCIndexededInsert(ClausesetIndexes_p clauseset_indexes, Clause_p newclause);
-void ClausesetIndexesPDTIndexedInsert(ClausesetIndexes_p clauseset_indexes, Clause_p newclause);
+#define EfficentSubsumptionIndexAllocRaw() (EfficentSubsumptionIndex*)SizeMalloc(sizeof(EfficentSubsumptionIndex))
+#define EfficentSubsumptionIndexFreeRaw(junk) SizeFree(efficent_subsumption_index, sizeof(efficent_subsumption_index))
+
+EfficentSubsumptionIndex_p EfficentSubsumptionIndexAlloc();
+void ClausesetIndexInsertNewClause(EfficentSubsumptionIndex_p clauseset_indexes, FVPackedClause_p newclause);
+Clause_p ClausesetIndexExtractEntry(EfficentSubsumptionIndex_p clauseset_indexes, Clause_p junk);
+void EfficentSubsumptionIndexFree(EfficentSubsumptionIndex_p clauseset_indexes);
+void EfficentSubsumptionIndexUCIndexededInsert(EfficentSubsumptionIndex_p clauseset_indexes, Clause_p newclause);
+void EfficentSubsumptionIndexPDTIndexedInsert(EfficentSubsumptionIndex_p clauseset_indexes, Clause_p newclause);
 
 
 /*---------------------------------------------------------------------*/
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
-
-ClausesetIndexes_p ClausesetIndexesAllocRaw();
-void ClausesetIndexesFreeRaw(ClausesetIndexes_p clauseset_indexes);
-void ClausesetIndexesPDTDelteClause(ClausesetIndexes_p clauseset_indexes, 
-                                    Clause_p junk);
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
