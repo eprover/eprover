@@ -29,7 +29,7 @@
 #include <ccl_pdtrees.h>
 #include <clb_plist.h>
 #include <clb_objtrees.h>
-#include <ccl_clauseset_indexes.h>
+#include <ccl_efficent_subsumption_index.h>
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
