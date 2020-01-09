@@ -51,7 +51,7 @@ void UnitClauseIndexCellFree(UnitClauseIndexCell_p junk)
 //
 // Function: CmpUnitClauseIndexCells()
 //
-//   Compares two unitClauseIndexCells via their term pointer.
+//   Compares two unitClauseIndexCells via their clause pointer.
 //
 // Global Variables: -
 //
@@ -68,10 +68,12 @@ int CmpUnitClauseIndexCells(const void* cell1, const void* cell2)
 
 /*-----------------------------------------------------------------------
 //
-// Function: UnitclauseInsert()
+// Function: UnitclauseInsertCell()
 //
-//   Inserts a lterm as a UnitClauseIndexCell into the the PObjTree.
-//   If it already existed it returns the old cell.
+//   Inserts a clause into the index by inserting it into aleaf of 
+//   the FingerPrintIndex given the appropiate PObjTree.
+//   Returns the old cell it this clause already was part of the index.
+//   Otherwise returns the new cell. 
 //
 // Global Variables: -
 //
@@ -80,9 +82,8 @@ int CmpUnitClauseIndexCells(const void* cell1, const void* cell2)
 /----------------------------------------------------------------------*/
 UnitClauseIndexCell_p UnitclauseInsertCell(PObjTree_p *root, Clause_p clause)
 {
-   UnitClauseIndexCell_p old = UnitClauseIndexAlloc();
-   UnitClauseIndexCell_p new = UnitClauseIndexAlloc();
-   new->clause = clause;
+   UnitClauseIndexCell_p old, new = UnitClauseIndexCellAlloc();
+   new->clause                    = clause;
    
    old = PTreeObjStore(root, new, CmpUnitClauseIndexCells);
    if (old)
@@ -97,8 +98,8 @@ UnitClauseIndexCell_p UnitclauseInsertCell(PObjTree_p *root, Clause_p clause)
 //
 // Function: UnitclauseIndexInsert()
 //
-//   Inserts a rterm into the Index given lterm. Return
-//   true if it was new, false if it already existed.
+//   Inserts a clause into the index given the appropiate term 
+//   representation =(lterm, rterm).
 //
 // Global Variables: -
 //
@@ -121,8 +122,8 @@ bool UnitclauseIndexInsert(UnitclauseIndex_p index, Term_p indexterm,
 //
 // Function: UnitclauseIndexDeletClauseCell()
 //
-//   Delete an indexing of rterm via lterm.
-//   Returns true if the cell existed befor, false otherwise.
+//   Deletes an indexed clause from the leaf of the FingerPrintIndex 
+//   given the appropiate PObjTree.
 //
 // Global Variables:
 //
@@ -132,7 +133,7 @@ bool UnitclauseIndexInsert(UnitclauseIndex_p index, Term_p indexterm,
 bool UnitclauseIndexDeletClauseCell(PObjTree_p *root, Clause_p indexed)
 {
    PObjTree_p oldnode;
-   UnitClauseIndexCell_p knode = UnitClauseIndexAlloc();
+   UnitClauseIndexCell_p knode = UnitClauseIndexCellAlloc();
    bool res                    = false;
    knode->clause               = indexed;
 
@@ -151,8 +152,9 @@ bool UnitclauseIndexDeletClauseCell(PObjTree_p *root, Clause_p indexed)
 //
 // Function: UnitclauseIndexDeleteIndexedClause()
 //
-//   Delete a given right side of a unit clause from the index. 
-//   Return true if the clause existed, false otherwise.
+//   Delete a clause given the indexed term (of the shape =(lterm, rterm))
+//   also deletes the indexed term from the index if the leaf becomes empty
+//   aka if there is nothing left to index. 
 //
 // Global Variables: -
 //
@@ -205,7 +207,7 @@ void UnitClauseIndexCellFreeWrapper(void *junk)
 
 /*-----------------------------------------------------------------------
 //
-// Function: UnitClauseIndexAlloc()
+// Function: UnitClauseIndexCellAlloc()
 //
 //   Allocates a complete UnitClauseIndexCell.
 //
@@ -214,18 +216,19 @@ void UnitClauseIndexCellFreeWrapper(void *junk)
 // Side Effects    : Memory operatios
 //
 /----------------------------------------------------------------------*/
-UnitClauseIndexCell_p UnitClauseIndexAlloc() 
+UnitClauseIndexCell_p UnitClauseIndexCellAlloc() 
 {
-   UnitClauseIndexCell_p handle = UnitClauseIndexCellAlloc();
-   handle->clause = NULL;
+   UnitClauseIndexCell_p handle = UnitClauseIndexCellAllocRaw();
+   handle->clause               = NULL;
    return handle;
 }
 
 /*-----------------------------------------------------------------------
 //
-// Function: UnitclauseIndexDelete()
+// Function: UnitclauseIndexDeleteClause()
 //
 //   Deletes an indexed clause taking care of the index.
+//   If the clause is not orientable both sides are deleted.
 //
 // Global Variables: -
 //
@@ -267,7 +270,7 @@ bool UnitclauseIndexDeleteClause(UnitclauseIndex_p index, Clause_p clause)
 
 /*------------------------------------ -----------------------------------
 //
-// Function: UnitclauseIndexInsert()
+// Function: UnitclauseIndexInsertClause()
 //
 //   Inserts a unit clause into the Index. Return
 //   true if it was new, false if it already existed.
@@ -300,7 +303,7 @@ bool UnitclauseIndexInsertClause(UnitclauseIndex_p index, Clause_p clause)
          indexedTerm = EqnTermsTBTermEncode(handle->bank, 
                                             handle->lterm, 
                                             handle->rterm, 
-                                            true, 
+                                            true, // TODO: Are you sure that this is always okay?
                                             PEReverse);
          isNew = UnitclauseIndexInsert(index, indexedTerm, clause);
       }
@@ -311,33 +314,14 @@ bool UnitclauseIndexInsertClause(UnitclauseIndex_p index, Clause_p clause)
    return false;
 }
 
-// /*-----------------------------------------------------------------------
-// //
-// // Function: UnitclauseIndexDeleteTerm()
-// //
-// //   Delete an indexing of rterm via lterm.
-// //
-// // Global Variables:
-// //
-// // Side Effects    :
-// //
-// /----------------------------------------------------------------------*/
-// void UnitclauseIndexDeleteTerm(PObjTree_p *root, Term_p lterm)
-// {
-//    UnitClauseIndexCell_p old, knode = UnitClauseIndexAlloc();
-//    knode->termL = lterm;
-//    old = PTreeObjExtractObject(root, knode, CmpUnitClauseIndexCells);
-
-//    UnitClauseIndexCellFree(old);
-//    UnitClauseIndexCellFree(knode);
-// }
-
 /*-----------------------------------------------------------------------
 //
 // Function: UnitclauseIndexFreeWrapper()
 //
-//   Free a pointer tree in the unitclause index, 
-//   with proper signature for FPIndexFree().
+//   Frees the PObjTree assosiated with the leaf of th fp_index so 
+//   that the type matches with the type signature of FPFreeTreeFun:
+//
+//   void (*FPTreeFreeFun)(void*)
 //
 // Global Variables: - 
 //

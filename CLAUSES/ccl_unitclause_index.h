@@ -27,6 +27,13 @@ Copyright 2019-2020 by the author.
 /*                    Data type declarations                           */
 /*---------------------------------------------------------------------*/
 
+/*-----------------------------------------------------------------------
+Datastructure that indexes unit clauses by representing them as a single 
+equals term (e.g. =(lterm, rterm)). This indexing technique should use a
+special Fingerprintindexing function that ignores the first symbol as it 
+is always the same.
+The leaves store the indexed term.
+-----------------------------------------------------------------------*/
 typedef struct unitclause_index_cell 
 {
    Clause_p clause; // The indexed clause
@@ -38,10 +45,10 @@ typedef FPIndex_p UnitclauseIndex_p;
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-#define UnitClauseIndexCellAlloc() (UnitClauseIndexCell*)SizeMalloc(sizeof(UnitClauseIndexCell))
+#define UnitClauseIndexCellAllocRaw() (UnitClauseIndexCell*)SizeMalloc(sizeof(UnitClauseIndexCell))
 #define UnitClauseIndexCellFreeRaw(junk) SizeFree(junk, sizeof(UnitClauseIndexCell))
 
-UnitClauseIndexCell_p UnitClauseIndexAlloc();
+UnitClauseIndexCell_p UnitClauseIndexCellAlloc();
 bool UnitclauseIndexDeleteClause(UnitclauseIndex_p index, Clause_p clause);
 bool UnitclauseIndexInsertClause(UnitclauseIndex_p index, Clause_p clause);
 void UnitclauseIndexFreeWrapper(void *junk);
