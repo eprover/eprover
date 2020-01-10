@@ -39,20 +39,30 @@ typedef struct efficent_subsumption_index
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-#define EfficentSubsumptionIndexAllocRaw() (EfficentSubsumptionIndex*)SizeMalloc(sizeof(EfficentSubsumptionIndex))
+#define EfficentSubsumptionIndexAllocRaw()\
+        (EfficentSubsumptionIndex*)SizeMalloc(sizeof(EfficentSubsumptionIndex))
 #define EfficentSubsumptionIndexFreeRaw(junk) SizeFree(junk, sizeof(junk))
 
-EfficentSubsumptionIndex_p EfficentSubsumptionIndexAlloc();
-void ClausesetIndexInsertNewClause(EfficentSubsumptionIndex_p clauseset_indexes, FVPackedClause_p newclause);
-Clause_p ClausesetIndexExtractEntry(EfficentSubsumptionIndex_p clauseset_indexes, Clause_p junk);
-void EfficentSubsumptionIndexFree(EfficentSubsumptionIndex_p clauseset_indexes);
-void EfficentSubsumptionIndexUCIndexededInsert(EfficentSubsumptionIndex_p clauseset_indexes, Clause_p newclause);
-void EfficentSubsumptionIndexPDTIndexedInsert(EfficentSubsumptionIndex_p clauseset_indexes, Clause_p newclause);
+// TODO: FPIndexStorage?
+#define EfficentSubsumptionIndexStorgae(index)\
+        (FVIndexStorage(index->fvindex))
 
+EfficentSubsumptionIndex_p EfficentSubsumptionIndexAlloc();
+void EfficentSubsumptionIndexFree(EfficentSubsumptionIndex_p clauseset_indexes);
+void EfficentSubsumptionIndexUnitClauseIndexInit(EfficentSubsumptionIndex_p index,
+                                                 Sig_p sig, 
+                                                 char* unitclause_index_type);
+void EfficentSubsumptionIndexInsertClause(EfficentSubsumptionIndex_p index, 
+                                          Clause_p clause);
+Clause_p ClausesetIndexDeleteEntry(EfficentSubsumptionIndex_p index, 
+                                   Clause_p junk);
 
 /*---------------------------------------------------------------------*/
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
+
+void EfficentSubsumptionIndexInsert(EfficentSubsumptionIndex_p index, 
+                                    FVPackedClause_p newclause);
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */

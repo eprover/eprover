@@ -30,6 +30,30 @@ Copyright 2019-2020 by the author.
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
 
+/*-----------------------------------------------------------------------
+//
+// Function: EfficentSubsumptionIndexInsertClause()
+//
+//   Inserts a clause into the watchlists indexes.
+//   This function determines the appropiate indexes for the clause.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+void EfficentSubsumptionIndexInsert(EfficentSubsumptionIndex_p index, 
+                                    FVPackedClause_p newclause)
+{
+   if(index->unitclasue_index && ClauseIsUnit(newclause->clause))
+   {
+      // TODO: Maybe index unitclauses into both?
+      UnitclauseIndexInsertClause(index->unitclasue_index, newclause->clause);
+   } else {
+      FVIndexInsert(index->fvindex, newclause);
+   }
+}
+
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
 /*---------------------------------------------------------------------*/
@@ -109,8 +133,7 @@ void EfficentSubsumptionIndexUnitClauseIndexInit(EfficentSubsumptionIndex_p inde
 //
 // Function: EfficentSubsumptionIndexInsertClause()
 //
-//   Inserts a clause into the watchlists indexes.
-//   This function determines the appropiate indexes for the clause.
+//   Inserts a clause into the efficent subsumption indexes.
 //
 // Global Variables: -
 //
@@ -118,18 +141,13 @@ void EfficentSubsumptionIndexUnitClauseIndexInit(EfficentSubsumptionIndex_p inde
 //
 /----------------------------------------------------------------------*/
 void EfficentSubsumptionIndexInsertClause(EfficentSubsumptionIndex_p index, 
-                                          FVPackedClause_p newclause)
-{
-   // TODO: ClauseSetProp(newclause->clause, CPIsSIndexed);
-   if(index->unitclasue_index && ClauseIsUnit(newclause->clause))
-   {
-      // TODO: Maybe index unitclauses into both?
-      UnitclauseIndexInsertClause(index->unitclasue_index, newclause->clause);
-   } else {
-      FVIndexInsert(index->fvindex, newclause);
-   }
+                                          Clause_p clause)
+{ 
+   FVPackedClause_p pclause = FVIndexPackClause(clause, index->fvindex);
+   assert(clause->weight == ClauseStandardWeight(clause));
+   EfficentSubsumptionIndexInsert(index, pclause);
+   FVUnpackClause(pclause);
 }
-
 
 /*-----------------------------------------------------------------------
 //
@@ -147,7 +165,6 @@ void EfficentSubsumptionIndexInsertClause(EfficentSubsumptionIndex_p index,
 Clause_p ClausesetIndexDeleteEntry(EfficentSubsumptionIndex_p index, 
                                    Clause_p junk)
 {
-   // TODO: ClauseDelProp(junk, CPIsSIndexed);
    if(index->unitclasue_index && ClauseIsUnit(junk))
    {
       UnitclauseIndexDeleteClause(index->unitclasue_index, 

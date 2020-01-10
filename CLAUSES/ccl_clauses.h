@@ -58,7 +58,8 @@ typedef enum
                                              date */
    CPIsDIndexed        = 2*CPIsOriented,  /* Clause is in the
                                            * demod_index of its set */
-   CPIsSIndexed        = 2*CPIsDIndexed,  /* Clause is in the fvindex
+   CPIsSIndexed        = 2*CPIsDIndexed,  /* TODO: Its now efficent_subsumption_index
+                                           * Clause is in the fvindex
                                            * of its set */
    CPIsGlobalIndexed   = 2*CPIsSIndexed,  /* Clause is in the
                                              Subterm FPIndex  */
