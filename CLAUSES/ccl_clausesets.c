@@ -380,11 +380,10 @@ void ClauseSetFree(ClauseSet_p junk)
    assert(junk);
 
    ClauseSetFreeClauses(junk);
-   // if(junk->clauseset_indexes)
-   // {
-   //    ClausesetIndexesFree(junk->clauseset_indexes);
-   // }
-
+   if(junk->efficent_subsumption_index)
+   {
+      EfficentSubsumptionIndexFree(junk->efficent_subsumption_index);
+   }
    PDArrayFree(junk->eval_indices);
    ClauseCellFree(junk->anchor);
    DStrFree(junk->identifier);
@@ -588,7 +587,8 @@ void ClauseSetIndexedInsertClause(ClauseSet_p set, Clause_p newclause)
    }
    if(set->efficent_subsumption_index)
    {
-      // FVIndexInsert(set->fvindex, newclause);
+      // TODO: Clean this up.
+      // FVIndexInsert(set->efficent_subsumption_index->fvindex, newclause);
       EfficentSubsumptionIndexInsertClause(set->efficent_subsumption_index, 
                                            newclause);
       ClauseSetProp(newclause, CPIsSIndexed);
@@ -596,6 +596,7 @@ void ClauseSetIndexedInsertClause(ClauseSet_p set, Clause_p newclause)
 }
 
 
+// TODO: Clean this up.
 // /*-----------------------------------------------------------------------
 // //
 // // Function: ClauseSetIndexedInsertClause()
@@ -611,7 +612,7 @@ void ClauseSetIndexedInsertClause(ClauseSet_p set, Clause_p newclause)
 
 // void ClauseSetIndexedInsertClause(ClauseSet_p set, Clause_p newclause)
 // {
-//    FVPackedClause_p pclause = FVIndexPackClause(newclause, set->fvindex);
+//    FVPackedClause_p pclause = FVIndexPackClause(newclause, set->efficent_subsumption_index->fvindex);
 //    assert(newclause->weight == ClauseStandardWeight(newclause));
 //    ClauseSetIndexedInsert(set, pclause);
 //    FVUnpackClause(pclause);

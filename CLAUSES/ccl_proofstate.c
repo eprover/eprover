@@ -339,7 +339,6 @@ void ProofStateInitWatchlist(ProofState_p state, OCB_p ocb)
          handle = ClauseSetExtractFirst(state->watchlist);
          ClauseSetInsert(tmpset, handle);
       }
-      // TODO: Determine how to identify unit clauses and how to handle them.
       ClauseSetIndexedInsertClauseSet(state->watchlist, tmpset);
       ClauseSetFree(tmpset);
       GlobalIndicesInsertClauseSet(&(state->wlindices),state->watchlist);

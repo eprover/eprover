@@ -68,8 +68,8 @@ typedef struct clausesetcell
 #define     ClauseSetStorage(set)\
             (((CLAUSECELL_DYN_MEM+EVAL_MEM((set)->eval_no))*(set)->members+\
             EQN_CELL_MEM*(set)->literals)+\
-            PDTreeStorage(set->demod_index)+\
-           EfficentSubsumptionIndexStorgae(set->efficent_subsumption_index))
+            PDTreeStorage(set->demod_index))
+            // FVIndexStorage(set->efficent_subsumption_index->fvindex))
 
 ClauseSet_p ClauseSetAlloc(void);
 void        ClauseSetFreeClauses(ClauseSet_p set);
@@ -82,7 +82,7 @@ void        ClauseSetGCMarkTerms(ClauseSet_p set);
 void        ClauseSetInsert(ClauseSet_p set, Clause_p newclause);
 long        ClauseSetInsertSet(ClauseSet_p set, ClauseSet_p from);
 void        ClauseSetPDTIndexedInsert(ClauseSet_p set, Clause_p newclause);
-void        ClauseSetIndexedInsert(ClauseSet_p set, FVPackedClause_p newclause);
+// void        ClauseSetIndexedInsert(ClauseSet_p set, FVPackedClause_p newclause);
 void        ClauseSetIndexedInsertClause(ClauseSet_p set, Clause_p newclause);
 void        ClauseSetIndexedInsertClauseSet(ClauseSet_p set, ClauseSet_p source);
 Clause_p    ClauseSetExtractEntry(Clause_p clause);

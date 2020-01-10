@@ -44,8 +44,8 @@ typedef struct efficent_subsumption_index
 #define EfficentSubsumptionIndexFreeRaw(junk) SizeFree(junk, sizeof(junk))
 
 // TODO: FPIndexStorage?
-#define EfficentSubsumptionIndexStorgae(index)\
-        (FVIndexStorage(index->fvindex))
+// #define EfficentSubsumptionIndexStorgae(index)\
+//         (FVIndexStorage(index->fvindex))
 
 EfficentSubsumptionIndex_p EfficentSubsumptionIndexAlloc();
 void EfficentSubsumptionIndexFree(EfficentSubsumptionIndex_p clauseset_indexes);
