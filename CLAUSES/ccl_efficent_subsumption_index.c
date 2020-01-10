@@ -123,7 +123,6 @@ void EfficentSubsumptionIndexUnitClauseIndexInit(EfficentSubsumptionIndex_p inde
                                                  Sig_p sig, 
                                                  char* unitclause_index_type)
 {
-   assert(sig);
    FPIndexFunction indexfun;
    index->sig              = sig;
    indexfun                = GetFPIndexFunction(unitclause_index_type);
