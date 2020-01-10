@@ -47,7 +47,8 @@ typedef struct efficent_subsumption_index
 // #define EfficentSubsumptionIndexStorgae(index)\
 //         (FVIndexStorage(index->fvindex))
 
-EfficentSubsumptionIndex_p EfficentSubsumptionIndexAlloc();
+EfficentSubsumptionIndex_p EfficentSubsumptionIndexAlloc(FVCollect_p cspec,
+                                                         PermVector_p perm);
 void EfficentSubsumptionIndexFree(EfficentSubsumptionIndex_p clauseset_indexes);
 void EfficentSubsumptionIndexUnitClauseIndexInit(EfficentSubsumptionIndex_p index,
                                                  Sig_p sig, 

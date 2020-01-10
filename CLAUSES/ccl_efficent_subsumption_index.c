@@ -49,7 +49,9 @@ void EfficentSubsumptionIndexInsert(EfficentSubsumptionIndex_p index,
    {
       // TODO: Maybe index unitclauses into both?
       UnitclauseIndexInsertClause(index->unitclasue_index, newclause->clause);
-   } else {
+   } 
+   if (index->fvindex) 
+   {
       FVIndexInsert(index->fvindex, newclause);
    }
 }
@@ -121,6 +123,7 @@ void EfficentSubsumptionIndexUnitClauseIndexInit(EfficentSubsumptionIndex_p inde
                                                  Sig_p sig, 
                                                  char* unitclause_index_type)
 {
+   assert(sig);
    FPIndexFunction indexfun;
    index->sig              = sig;
    indexfun                = GetFPIndexFunction(unitclause_index_type);
@@ -169,7 +172,9 @@ Clause_p ClausesetIndexDeleteEntry(EfficentSubsumptionIndex_p index,
    {
       UnitclauseIndexDeleteClause(index->unitclasue_index, 
                                   junk);
-   } else {
+   }
+   if (index->fvindex) 
+   {
       FVIndexDelete(index->fvindex, junk);
    }
    return junk;
