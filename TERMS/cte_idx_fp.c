@@ -41,7 +41,7 @@ char* FPIndexNames[] =
    "FP6M",
    "FP7",
    "FP7M",
-   "FPWatchlist6Create",
+   "FPWatchlist6",
    "FP4X2_2",
    "FP3DFlex",
    "NPDT",
@@ -764,7 +764,7 @@ IndexFP_p IndexFP7MCreate(Term_p t)
 //
 // Function: IndexFPWatchlist6Create()
 //
-//   Create a fingerprint structure representing sampling at epsilon,
+//   Create a fingerprint structure representing sampling at
 //   0, 1, 0.0, 1.0, 0.0.0, 1.0.0
 //
 // Global Variables: -
