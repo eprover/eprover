@@ -45,11 +45,13 @@ Copyright 2019-2020 by the author.
 // Side Effects    : Memory management
 //
 /----------------------------------------------------------------------*/
-EfficentSubsumptionIndex_p EfficentSubsumptionIndexAlloc() 
+EfficentSubsumptionIndex_p EfficentSubsumptionIndexAlloc(FVCollect_p cspec, 
+                                                         PermVector_p perm)
 {
    EfficentSubsumptionIndex_p handle = EfficentSubsumptionIndexAllocRaw();
-   handle->fvindex                   = NULL;
+   handle->fvindex                   = FVIAnchorAlloc(cspec, PermVectorCopy(perm));
    handle->unitclasue_index          = NULL;
+   handle->sig                       = NULL;
    return handle;
 }
 
@@ -64,26 +66,48 @@ EfficentSubsumptionIndex_p EfficentSubsumptionIndexAlloc()
 // Side Effects    : Memory operations.
 //
 /----------------------------------------------------------------------*/
-
-void EfficentSubsumptionIndexFree(EfficentSubsumptionIndex_p efficent_subsumption_index)
+void EfficentSubsumptionIndexFree(EfficentSubsumptionIndex_p index)
 {
-   assert(efficent_subsumption_index);
-
-   if (efficent_subsumption_index->fvindex) 
+   if (index->fvindex) 
    {
-      FVIndexFree(efficent_subsumption_index->fvindex->index);
+      FVIAnchorFree(index->fvindex);
+      index->fvindex = NULL;
    }
-   if (efficent_subsumption_index->unitclasue_index)
+   if (index->unitclasue_index)
    {
-      FPIndexFree(efficent_subsumption_index->unitclasue_index);
+      FPIndexFree(index->unitclasue_index);
+      index->unitclasue_index = NULL;
+      index->sig              = NULL;
    }
-
-   EfficentSubsumptionIndexFreeRaw(efficent_subsumption_index);
+   EfficentSubsumptionIndexFreeRaw(index);
 }
 
 /*-----------------------------------------------------------------------
 //
-// Function: ClausesetIndexInsertNewClause()
+// Function: EfficentSubsumptionIndexUnitClauseIndexInit()
+//
+//   Initialize the unit clause index as required by the parameters.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory management
+//
+/----------------------------------------------------------------------*/
+void EfficentSubsumptionIndexUnitClauseIndexInit(EfficentSubsumptionIndex_p index,
+                                                 Sig_p sig, 
+                                                 char* unitclause_index_type)
+{
+   FPIndexFunction indexfun;
+   index->sig              = sig;
+   indexfun                = GetFPIndexFunction(unitclause_index_type);
+   assert(indexfun);
+   strcpy(index->unitclause_index_type, unitclause_index_type);
+   index->unitclasue_index = FPIndexAlloc(indexfun, sig, UnitclauseIndexFreeWrapper);
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: EfficentSubsumptionIndexInsertClause()
 //
 //   Inserts a clause into the watchlists indexes.
 //   This function determines the appropiate indexes for the clause.
@@ -93,22 +117,23 @@ void EfficentSubsumptionIndexFree(EfficentSubsumptionIndex_p efficent_subsumptio
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
-void ClausesetIndexInsertNewClause(EfficentSubsumptionIndex_p efficent_subsumption_index, 
-                                   FVPackedClause_p newclause)
+void EfficentSubsumptionIndexInsertClause(EfficentSubsumptionIndex_p index, 
+                                          FVPackedClause_p newclause)
 {
-   if(ClauseIsUnit(newclause->clause))
+   // TODO: ClauseSetProp(newclause->clause, CPIsSIndexed);
+   if(index->unitclasue_index && ClauseIsUnit(newclause->clause))
    {
-      EfficentSubsumptionIndexUCIndexededInsert(efficent_subsumption_index, newclause->clause);
+      // TODO: Maybe index unitclauses into both?
+      UnitclauseIndexInsertClause(index->unitclasue_index, newclause->clause);
    } else {
-      FVIndexInsert(efficent_subsumption_index->fvindex, newclause);
-      ClauseSetProp(newclause->clause, CPIsSIndexed);
+      FVIndexInsert(index->fvindex, newclause);
    }
 }
 
 
 /*-----------------------------------------------------------------------
 //
-// Function: ClausesetIndexExtractEntry()
+// Function: ClausesetIndexDeleteEntry()
 //
 //   Deletes a clause from the watchlists indexes inserted by 
 //   ClausesetIndexInsertNewClause; E.g. This function determines
@@ -119,36 +144,16 @@ void ClausesetIndexInsertNewClause(EfficentSubsumptionIndex_p efficent_subsumpti
 // Side Effects    : Changes index
 //
 /----------------------------------------------------------------------*/
-Clause_p ClausesetIndexExtractEntry(EfficentSubsumptionIndex_p efficent_subsumption_index, 
-                                Clause_p junk)
+Clause_p ClausesetIndexDeleteEntry(EfficentSubsumptionIndex_p index, 
+                                   Clause_p junk)
 {
-   if(ClauseIsUnit(junk))
+   // TODO: ClauseDelProp(junk, CPIsSIndexed);
+   if(index->unitclasue_index && ClauseIsUnit(junk))
    {
-      UnitclauseIndexDeleteClause(efficent_subsumption_index->unitclasue_index, 
+      UnitclauseIndexDeleteClause(index->unitclasue_index, 
                                   junk);
    } else {
-      FVIndexDelete(efficent_subsumption_index->fvindex, junk);
-      ClauseDelProp(junk, CPIsSIndexed);
+      FVIndexDelete(index->fvindex, junk);
    }
-
    return junk;
-}
-
-/*-----------------------------------------------------------------------
-//
-// Function: EfficentSubsumptionIndexUCIndexededInsert()
-//
-//   Inserts a clause into the watchlists unit clause index.
-//   The index takes care of non-orientable clauses.
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-void EfficentSubsumptionIndexUCIndexededInsert(EfficentSubsumptionIndex_p efficent_subsumption_index, 
-                                       Clause_p newclause)
-{
-   assert(efficent_subsumption_index->unitclasue_index);
-   UnitclauseIndexInsertClause(efficent_subsumption_index->unitclasue_index, newclause);
 }
