@@ -173,7 +173,6 @@ static RWResultType term_is_top_rewritable(TB_p bank, OCB_p ocb,
    Subst_p      subst = SubstAlloc();
    Eqn_p        eqn;
    RWResultType res   = RWNotRewritable;
-   Term_p       rterm;
 
    assert(new_demod->pos_lit_no == 1);
    assert(new_demod->neg_lit_no == 0);
