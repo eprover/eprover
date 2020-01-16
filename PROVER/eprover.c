@@ -667,7 +667,7 @@ int main(int argc, char* argv[])
             }
             retval = INCOMPLETE_PROOFSTATE;
          }
-         else if(proofstate->state_is_complete && inf_sys_complete)
+         else if(problemType == PROBLEM_FO && proofstate->state_is_complete && inf_sys_complete)
          {
             fprintf(GlobalOut, "\n# No proof found!\n");
             TSTPOUT(GlobalOut, neg_conjectures?"CounterSatisfiable":"Satisfiable");
