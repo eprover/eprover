@@ -754,7 +754,7 @@ long DerivStackExtractParents(PStack_p derivation,
                               PStack_p res_clauses,
                               PStack_p res_formulas)
 {
-   PStackPointer i, sp;
+   PStackPointer i, sp, j;
    long res = 0;
    long numarg1 = 0;
    DerivationCode op;
@@ -806,9 +806,9 @@ long DerivStackExtractParents(PStack_p derivation,
          }
          if(op==DCACRes)
          {
-            for(sp = 0; sp<numarg1; sp++)
+            for(j = 0; j<numarg1; j++)
             {
-               PStackPushP(res_clauses, PStackElementP(sig->ac_axioms,sp));
+               PStackPushP(res_clauses, PStackElementP(sig->ac_axioms, j));
             }
          }
       }
@@ -839,7 +839,7 @@ long DerivStackExtractOptParents(PStack_p derivation,
                                  PStack_p res_clauses,
                                  PStack_p res_formulas)
 {
-   PStackPointer i, sp;
+   PStackPointer i, sp, j;
    long res = 0;
    long numarg1 = 0;
    DerivationCode op;
@@ -857,6 +857,7 @@ long DerivStackExtractOptParents(PStack_p derivation,
       while(i<sp)
       {
          op = PStackElementInt(derivation, i);
+         //printf("i=%ld, sp=%ld, op=%u (%u), args=%X\n",i, sp,op%255,DOVarRename,op>>8);
          i++;
          if(DCOpHasCnfArg1(op))
          {
@@ -877,6 +878,7 @@ long DerivStackExtractOptParents(PStack_p derivation,
          else if(DCOpHasNumArg1(op))
          {
             numarg1 = PStackElementInt(derivation, i);
+            //printf("Numarg1: %ld\n", numarg1);
             i++;
          }
          if(DCOpHasCnfArg2(op))
@@ -901,9 +903,12 @@ long DerivStackExtractOptParents(PStack_p derivation,
          }
          if(op==DCACRes)
          {
-            for(sp = 0; sp<numarg1; sp++)
+            //printf("ACRes: Numarg1: %ld\n", numarg1);
+            for(j = 0; j<numarg1; j++)
             {
-               PStackPushP(res_clauses, PStackElementP(sig->ac_axioms,sp));
+               //printf("j=:%ld\n", j);
+               PStackPushP(res_clauses, PStackElementP(sig->ac_axioms, j));
+               //printf("OK\n");
             }
          }
       }
