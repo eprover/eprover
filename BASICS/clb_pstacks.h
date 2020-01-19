@@ -157,8 +157,9 @@ static inline PStack_p PStackAlloc(void)
    handle = PStackCellAlloc();
    handle->size = PSTACK_DEFAULT_SIZE;
    handle->current = 0;
-   handle->stack = SizeMalloc(handle->size * sizeof(IntOrP));
+   handle->stack = SizeMalloc(PSTACK_DEFAULT_SIZE * sizeof(IntOrP));
 
+   //printf("\nPStackAlloc: %p\n", handle);
    return handle;
 }
 

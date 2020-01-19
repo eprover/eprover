@@ -52,6 +52,7 @@ typedef struct ptreecell
    struct ptreecell *lson;
    struct ptreecell *rson;
    void*            key;
+   int dummy;
 }PTreeCell, *PTree_p;
 
 

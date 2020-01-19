@@ -51,18 +51,18 @@ typedef TFormula_p (*FOOLFormulaProcessor)(TFormula_p, TB_p);
 //
 // Global Variables: -
 //
-// Side Effects    : 
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
-bool fool_process_formula(WFormula_p form, TB_p terms, 
+bool fool_process_formula(WFormula_p form, TB_p terms,
                           FOOLFormulaProcessor processor)
 {
    TFormula_p original = form->tformula;
    bool       changed = false;
 
    form->tformula = processor(original, terms);
-   
+
    if(form->tformula != original)
    {
       WFormulaPushDerivation(form, DCFoolUnroll, NULL, NULL);
@@ -227,7 +227,7 @@ static void check_all_found(Scanner_p in, StrTree_p name_selector)
 //
 //   Unroll boolean arguments of terms. For example, subformula
 //   "f(a, p&q) = a" is replaced with "(~(p&q)|f(a,$true)=a) &
-//   (p&q)|f(a, $false)=a". 
+//   (p&q)|f(a, $false)=a".
 //
 // Global Variables: -
 //
@@ -256,7 +256,7 @@ TFormula_p do_fool_unroll(TFormula_p form, TB_p terms)
 
       if(!PStackEmpty(pos))
       {
-         TFormula_p subform = 
+         TFormula_p subform =
             ((Term_p)PStackBelowTopP(pos))->args[PStackTopInt(pos)];
          assert(TypeIsBool(subform->type));
 
@@ -267,9 +267,9 @@ TFormula_p do_fool_unroll(TFormula_p form, TB_p terms)
                                            true, PENormal);
          }
 
-         Term_p subform_t = TBTermPosReplace(terms, terms->true_term, pos, 
+         Term_p subform_t = TBTermPosReplace(terms, terms->true_term, pos,
                                              DEREF_NEVER, 0, subform);
-         Term_p subform_f = TBTermPosReplace(terms, terms->false_term, pos, 
+         Term_p subform_f = TBTermPosReplace(terms, terms->false_term, pos,
                                              DEREF_NEVER, 0, subform);
 
          TFormula_p neg_subf = TFormulaNegate(subform, terms);
@@ -283,7 +283,7 @@ TFormula_p do_fool_unroll(TFormula_p form, TB_p terms)
 
          // the whole formula
          form = TFormulaFCodeAlloc(terms, terms->sig->and_code,
-                                    do_fool_unroll(fst_impl, terms), 
+                                    do_fool_unroll(fst_impl, terms),
                                     do_fool_unroll(snd_impl, terms));
       }
       PStackFree(pos);
@@ -295,7 +295,7 @@ TFormula_p do_fool_unroll(TFormula_p form, TB_p terms)
          unrolled1 = do_fool_unroll(form->args[1], terms);
          if(form->args[1] != unrolled1)
          {
-            form = TFormulaQuantorAlloc(terms, form->f_code, 
+            form = TFormulaQuantorAlloc(terms, form->f_code,
                                         form->args[0], unrolled1);
          }
       }
@@ -313,7 +313,7 @@ TFormula_p do_fool_unroll(TFormula_p form, TB_p terms)
          if((unrolled1 && unrolled1 != form->args[0]) ||
             (unrolled2 && unrolled2 != form->args[1]))
          {
-            form = TFormulaFCodeAlloc(terms, form->f_code, unrolled1, unrolled2);   
+            form = TFormulaFCodeAlloc(terms, form->f_code, unrolled1, unrolled2);
          }
       }
    }
@@ -350,9 +350,9 @@ TFormula_p do_bool_eqn_replace(TFormula_p form, TB_p terms)
          // DAS literal is encoded as <predicate> = TRUE.
          // Our boolean equalities are <formula> = <formula>
          form = TFormulaFCodeAlloc(terms,
-                                   form->f_code == terms->sig->eqn_code ? 
+                                   form->f_code == terms->sig->eqn_code ?
                                      terms->sig->equiv_code : terms->sig->xor_code,
-                                   do_bool_eqn_replace(form->args[0], terms), 
+                                   do_bool_eqn_replace(form->args[0], terms),
                                    do_bool_eqn_replace(form->args[1], terms));
          changed = true;
       }
@@ -389,52 +389,54 @@ TFormula_p do_bool_eqn_replace(TFormula_p form, TB_p terms)
 //
 /----------------------------------------------------------------------*/
 
-Clause_p TformulaCollectClause(TFormula_p form, TB_p terms,
-                               VarBank_p fresh_vars)
-{
-   Clause_p res;
-   Eqn_p lit_list = NULL, tmp_list = NULL, lit;
-   PStack_p stack, lit_stack = PStackAlloc();
-   Subst_p  normsubst = SubstAlloc();
+/* Clause_p TformulaCollectClause(TFormula_p form, TB_p terms, */
+/*                                VarBank_p fresh_vars) */
+/* { */
+/*    Clause_p res; */
+/*    Eqn_p lit_list = NULL, tmp_list = NULL, lit; */
+/*    PStack_p stack, lit_stack; */
+/*    Subst_p  normsubst = SubstAlloc(); */
 
-   /*printf("tformula_collect_clause(): ");
-     TFormulaTPTPPrint(GlobalOut, terms, form, true);
-     printf("\n"); */
+/*    /\*printf("tformula_collect_clause(): "); */
+/*      TFormulaTPTPPrint(GlobalOut, terms, form, true); */
+/*      printf("\n"); *\/ */
 
-   stack = PStackAlloc();
-   PStackPushP(stack, form);
-   while(!PStackEmpty(stack))
-   {
-      form = PStackPopP(stack);
-      if(form->f_code == terms->sig->or_code)
-      {
-         PStackPushP(stack, form->args[0]);
-         PStackPushP(stack, form->args[1]);
-      }
-      else
-      {
-         assert(TFormulaIsLiteral(terms->sig, form));
-         lit = EqnTBTermDecode(terms, form);
-         PStackPushP(lit_stack, lit);
+/*    litstack = PStackAlloc(); */
+/*    stack = PStackAlloc(); */
 
-      }
-   }
-   PStackFree(stack);
-   while(!PStackEmpty(lit_stack))
-   {
-      lit = PStackPopP(lit_stack);
-      EqnListInsertFirst(&lit_list, lit);
-   }
-   PStackFree(lit_stack);
+/*    PStackPushP(stack, form); */
+/*    while(!PStackEmpty(stack)) */
+/*    { */
+/*       form = PStackPopP(stack); */
+/*       if(form->f_code == terms->sig->or_code) */
+/*       { */
+/*          PStackPushP(stack, form->args[0]); */
+/*          PStackPushP(stack, form->args[1]); */
+/*       } */
+/*       else */
+/*       { */
+/*          assert(TFormulaIsLiteral(terms->sig, form)); */
+/*          lit = EqnTBTermDecode(terms, form); */
+/*          PStackPushP(lit_stack, lit); */
 
-   VarBankResetVCounts(fresh_vars);
-   NormSubstEqnList(lit_list, normsubst, fresh_vars);
-   tmp_list = EqnListCopy(lit_list, terms);
-   res = ClauseAlloc(tmp_list);
-   EqnListFree(lit_list); /* Created just for this */
-   SubstDelete(normsubst);
-   return res;
-}
+/*       } */
+/*    } */
+/*    PStackFree(stack); */
+/*    while(!PStackEmpty(lit_stack)) */
+/*    { */
+/*       lit = PStackPopP(lit_stack); */
+/*       EqnListInsertFirst(&lit_list, lit); */
+/*    } */
+/*    PStackFree(lit_stack); */
+
+/*    VarBankResetVCounts(fresh_vars); */
+/*    NormSubstEqnList(lit_list, normsubst, fresh_vars); */
+/*    tmp_list = EqnListCopy(lit_list, terms); */
+/*    res = ClauseAlloc(tmp_list); */
+/*    EqnListFree(lit_list); /\* Created just for this *\/ */
+/*    SubstDelete(normsubst); */
+/*    return res; */
+/* } */
 
 
 
@@ -1187,7 +1189,7 @@ long TFormulaApplyDefs(WFormula_p form, TB_p terms, NumXTree_p *defs)
 //      - Takes formulas as arguments out of the term, leaving
 //        only $true, $false and boolean vars as the argument of the term
 //      - TODO: Unfolds ite expressions used as terms
-//      - TODO: Unfolds ite expressions used as formulas 
+//      - TODO: Unfolds ite expressions used as formulas
 //
 // Global Variables: -
 //

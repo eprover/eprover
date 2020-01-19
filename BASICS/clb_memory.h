@@ -65,7 +65,7 @@ static inline void  SizeFreeReal(void* junk, size_t size);
 
 
 /* For estimating the real memory consumption of a data type - the
-   default may be way of for some memory managers, but should be
+   default may be way off for some memory managers, but should be
    reasonably ok for many situations. If CONSTANT_MEM_ESTIMATE is on,
    a very rough but machine-independent estimate is used. */
 
