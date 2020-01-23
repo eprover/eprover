@@ -29,12 +29,12 @@
 \begin{abstract}
   E is an equational theorem prover for full first-order logic (with
   optional support for some higher-order features), based on
-  superposition and rewriting. In this preliminary manual we first
-  give a short introduction for impatient new users, and then cover
-  calculus and proof procedure. The manual also covers proof search
-  control and related options, followed by input and output
-  formats. Finally, it describes some additional tools that are part
-  of the E distribution.
+  superposition and rewriting. In this perpetually preliminary manual
+  we first give a short introduction and basic usage information for
+  new users, and then cover calculus and proof procedure. The manual
+  also covers proof search control and related options, followed by
+  input and output formats. Finally, it describes some additional
+  tools that are part of the E distribution.
 \end{abstract}
 
 \tableofcontents{}
@@ -81,7 +81,7 @@ SETHEO\index{SETHEO}~\cite{MILSGSM:JAR-97},
 Otter\index{Otter}~\cite{Mc94,MW:JAR-97},
 SPASS\index{SPASS}~\cite{WGR96,WABCEKTT:CADE-99},
 DISCOUNT~\cite{DKS97}, Waldmeister~\cite{BHF96,HJL:CADE-99} and
-Vampire\index{Vampire}~\cite{RV:AICOM-2002,RV:IJCAR-2001}.
+Vampire\index{Vampire}~\cite{RV:AICOM-2002,RV:IJCAR-2001,KV:CAV-2013}.
 
 
 \chapter{Getting Started}
@@ -871,8 +871,8 @@ an instance of a generic \emph{weight function}.
 
 Priority functions define a partition on the set of clauses.  A single
 clause evaluation consists of a priority (which is the first selection
-criteria) and an evaluation. Priorities are usually \emph{not} suitable
-to encode heuristical control knowledge, but rather are used to
+criteria) and an evaluation. Priorities are usually \emph{not}
+suitable to encode heuristic control knowledge, but rather are used to
 express certain elements of a search strategy, or to restrict the
 effect of heuristic evaluation functions to certain classes of
 clauses. It is quite trivial to add a new priority function to E, so
@@ -1267,7 +1267,7 @@ Options controlling the choice of term ordering:\\[1ex]
   favourite shell).\\
 \end{supertabular}
 
-\subsubsection{Precedence Generation Schemes}
+\subsection{Precedence Generation Schemes}
 
 Precedence generation schemes are based on syntactic features of the
 symbol and the input clause set, like symbol arity or number of
@@ -1304,7 +1304,7 @@ supported as argument to \texttt{--order-precedence-generation}:
 \end{description}
 
 
-\subsubsection{Weight Generation Schemes}
+\subsection{Weight Generation Schemes}
 
 Weight generation schemes are based on syntactic features of the
 symbol and the input clause set, or on the predefined
@@ -1371,6 +1371,46 @@ symbol and the input clause set, or on the predefined
   that the first maximal symbol is given weight 0.
 \item[\texttt{constant}:] Give the same arbitrary positive weight to
   all function symbols.
+\end{description}
+
+\subsection{Literal Comparison}
+\label{sec:options:litcmp}
+
+By default, literals are compared\index{literal!comparison} as
+multisets of terms, as described in~\cite{BG94}. However, E also
+supports other ways to identify maximal literals, both weaker and
+potentially stronger.
+
+The option \texttt{--restrict-literal-comparisons} makes all literals
+incomparable, i.e.\ all literals are potential inference literals
+(unless literal selection is activated -
+see~\ref{sec:options:strategies}. This will e.g.\ make the
+set-of-support strategy complete for the non-equational case. It may
+also make some proofs easier to find. On average, however, this can be
+expected to decrease performance.
+
+The option \texttt{--literal-comparison=<arg>} allow the user to
+select alternative literal comparison schemes. In particular, literals
+will be first compared by predicate symbol, and only then by full
+terms. This is a poor man's version of transfinite
+KBO~\cite{LW:LPAR-2007,KMV:CADE-2011}, applied to literals only, but
+also extended to LPO. The argument can currently be:
+
+\begin{description}
+\item[\texttt{None}:] This is equivalent to the older option
+  \texttt{--restrict-literal-comparisons} described above.
+\item[\texttt{Normal}:] This is the default, with literals being
+  compared as multi-sets of the two terms of the (in E always)
+  equational literal.
+\item[\texttt{TFOEqMax}:] This compares literals by predicate symbol
+  first, and only in the case of a tie by the multiset comparison of
+  the two terms. In E, literals are always encoded as equational, but
+  non-equational literals are marked accordingly. For
+  \texttt{TFOEqMax}, equational literals are always larger than
+  non-equational literals.
+\item[\texttt{TFOEqMin}:] See the previous option. The only difference
+  is that equational literals are always smaller than non-equational
+  literals.
 \end{description}
 
 
@@ -1704,7 +1744,8 @@ semantics. Detailed description (which includes semantics) can be
 found in a paper by Bentkamp, Blanchette, Cruanes, and
 Waldmann~\cite{BBCW:IJCAR-2018}, available at
 \url{http://matryoshka.gforge.inria.fr/pubs/lfhosup_report.pdf}. The
-implementation is described in~\cite{VBCS:LFHOReport-2018}.
+implementation is described
+in~\cite{VBCS:TACAS-2019,VBCS:LFHOReport-2018}.
 
 LFHOL extends FOL by allowing partial appliciation of function symbols
 as well as application of variables to other terms. Unlike other HOLs,
@@ -2530,33 +2571,35 @@ The parameters have the following type and meaning:
 \begin{appendix}
   \chapter{Acknowledgements}
 
-  Many people have helped shape E with discussions and requests. They
-  are to numerous to be listed here, but outstanding contributors
-  include Robert Nieuwenhuis (who introduced me to literal selection),
-  Geoff Sutcliffe (who always pushes for one more feature - or ten),
-  Andrei Voronkov (for playing the game of \emph{The Tortoise and the
-    Hare} -- in both roles), and Joseph Urban, who is a profligate
-  user, proselytizer and occasional hacker.
+  \index{Acknowledgements} Many people have helped shape E with
+  discussions and requests. They are to numerous to be listed here,
+  but outstanding contributors include Robert Nieuwenhuis (who
+  introduced me to literal selection), Geoff Sutcliffe (who always
+  pushes for one more feature - or ten), Andrei Voronkov (for playing
+  the game of \emph{The Tortoise and the Hare} -- in both roles), and
+  Joseph Urban, who is a profligate user, proselytizer and occasional
+  hacker.
 
   In addition to this moral support, Martin M\"ohrmann has done some
   cleanup and optimization of the code, Simon Cruanes has implemented
   the extension to many-sorted logic, and Petar Vukmirovic has added
-  support for lambda-free higher order logic and other changes.
+  support for lambda-free higher order logic and other improvements.
 
   Nik Sultana has overhauled the manual, fixing many of my errors and
   thus making space for new ones.
 
   \chapter{License}
 
-  The standard distribution of E is free software. You can use, modify
-  and copy it under the terms of the GNU General Public License
-  (version 2.0 or later) or the GNU Lesser General Public License
-  (version 2.1 or later). You may also have bought a proprietary
-  version of E from Safelogic A.B. in Gothenburg, Sweden. In this
-  case, you are bound by whatever license you agreed to. If you are in
-  doubt about which version of E you have, run \texttt{eprover -V} or
-  \texttt{eprover -h}\index{GPL}\index{GNU General Public
-    License}\index{LGPL}\index{GNU Lesser General Public License}.
+  \index{License} The standard distribution of E is free software. You
+  can use, modify and copy it under the terms of the GNU General
+  Public License (version 2.0 or later) or the GNU Lesser General
+  Public License (version 2.1 or later). You may also have bought a
+  proprietary version of E from Safelogic A.B. in Gothenburg,
+  Sweden. In this case, you are bound by whatever license you agreed
+  to. If you are in doubt about which version of E you have, run
+  \texttt{eprover -V} or \texttt{eprover -h}\index{GPL}\index{GNU
+    General Public License}\index{LGPL}\index{GNU Lesser General
+    Public License}.
 
   See the file COPYING in the main directory for the full text of the
   licenses.
@@ -2659,8 +2702,28 @@ Th. Hillenbrand, A.~Jaeger, and B.~L{\"o}chner.
 Kry\v{s}tof Hoder and Andrei Voronkov.
 \newblock {Sine Qua Non for Large Theory Reasoning}.
 \newblock In Nikolaj Bj{\o}rner and Viorica Sofronie-Stokkermans, editors, {\em
-  Proc.\ of the 23rd CADE, Wroclav}, volume 6803 of {\em LNAI}, pages 299--314.
-  Springer, 2011.
+  Proc.\ of the 23rd CADE, Wroclav, Poland}, volume 6803 of {\em LNAI}, pages
+  299--314. Springer, 2011.
+
+\bibitem[KMV11]{KMV:CADE-2011}
+Laura Kov{\'a}cs, Georg Moser, and Andrei Voronkov.
+\newblock {On Transfinite Knuth-Bendix Orders}.
+\newblock In Nikolaj Bj{\o}rner and Viorica Sofronie-Stokkermans, editors, {\em
+  Proc.\ of the 23rd CADE, Wroclav, Poland}, volume 6803 of {\em LNAI}, pages
+  384--399. Springer, 2011.
+
+\bibitem[KV13]{KV:CAV-2013}
+Laura Kov{\'a}cs and Andrei Voronkov.
+\newblock First-order theorem proving and {Vampire}.
+\newblock In Natasha Sharygina and Helmut Veith, editors, {\em Proc.\ of the
+  25th CAV}, volume 8044 of {\em LNCS}, pages 1--35. Springer, 2013.
+
+\bibitem[LW07]{LW:LPAR-2007}
+Michel Ludwig and Uwe Waldmann.
+\newblock {An Extension of the Knuth-Bendix Ordering with LPO-Like Properties}.
+\newblock In Nachum Dershowitz and Andei Voronkov, editors, {\em Proc.\ of the
+  14th LPAR, Yerevan, Armenia}, volume 4790 of {\em LNCS}, pages 348–--362.
+  Springer, 2007.
 
 \bibitem[McC94]{Mc94}
 W.W. McCune.
@@ -2809,6 +2872,14 @@ Petar Vukmirovi{\'c}, Jasmin~Christian Blanchette, Simon Cruanes, and Stephan
 \newblock Extending a brainiac prover to lambda-free higher-order logic -
   report version.
 \newblock Technical report, Matryoshka Project, 2018.
+
+\bibitem[VBCS19]{VBCS:TACAS-2019}
+Petar Vukmirovi{\'c}, Jasmin~Christian Blanchette, Simon Cruanes, and Stephan
+  Schulz.
+\newblock Extending a brainiac prover to lambda-free higher-order logic.
+\newblock In Tom{\'a}{\u s} Vojnar and Lijun Zhang, editors, {\em Proc.\ 25th
+  Conference on Tools and Algorithms for the Construction and Analysis of
+  Systems (TACAS'19)}, number 11427 in LNCS, pages 192--210. Springer, 2019.
 
 \bibitem[WAB{\etalchar{+}}99]{WABCEKTT:CADE-99}
 C.~Weidenbach, B.~Afshordel, U.~Brahm, C.~Cohrs, T.~Engel, G.~Jung, E.~Keen,

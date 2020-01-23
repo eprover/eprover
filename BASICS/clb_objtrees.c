@@ -205,6 +205,7 @@ void* PTreeObjStore(PObjTree_p *root, void* key,
    PObjTree_p handle, newnode;
 
    handle = PTreeCellAlloc();
+   //printf("\nPTreeObjStore: %p\n", handle);
    handle->key = key;
 
    newnode = PTreeObjInsert(root, handle, cmpfun);
@@ -506,5 +507,3 @@ long PObjTreeNodes(PObjTree_p root)
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-

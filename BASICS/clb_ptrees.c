@@ -207,7 +207,7 @@ void PTreeFree(PTree_p junk)
 
 PTree_p PTreeInsert(PTree_p *root, PTree_p newnode)
 {
-   if (!*root)
+   if(!*root)
    {
       newnode->lson = newnode->rson = NULL;
       *root = newnode;
@@ -255,9 +255,11 @@ bool PTreeStore(PTree_p *root, void* key)
    PTree_p handle, newnode;
 
    handle = PTreeCellAlloc();
+   //printf("\nPTreeStore: %p\n", handle);
    handle->key = key;
 
    newnode = PTreeInsert(root, handle);
+   //printf("\nNewnode, handle: %p, %p\n", newnode, handle);
 
    if(newnode)
    {
@@ -469,6 +471,7 @@ bool PTreeMerge(PTree_p *root, PTree_p add)
    PTree_p  tmp;
    bool     res = false;
 
+   //printf("Allocated %p\n", stack);
    PStackPushP(stack, add);
 
    while(!PStackEmpty(stack))
@@ -489,6 +492,7 @@ bool PTreeMerge(PTree_p *root, PTree_p add)
          }
       }
    }
+   //printf("Freeing %p\n", stack);
    PStackFree(stack);
    return res;
 }
@@ -498,7 +502,8 @@ bool PTreeMerge(PTree_p *root, PTree_p add)
 //
 // Function: PTreeInsertTree()
 //
-//   Insert the elements stored in add into *root.
+//   Insert the elements stored in add into *root. The tree at add
+//   remains unchanged.
 //
 // Global Variables: -
 //

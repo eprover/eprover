@@ -78,7 +78,7 @@ static FunCode tptp_operator_convert(Sig_p sig, TokenType tok)
          break;
    case EqualSign:
          res = sig->eqn_code;
-         break;         
+         break;
    case FOFXor:
          res = sig->xor_code;
          break;
@@ -593,12 +593,12 @@ static void tformula_collect_freevars(TB_p bank, TFormula_p form, PTree_p *vars)
    {
       for(int i=0; i<form->arity; i++)
       {
-         if(TermIsVar(form->args[i]) && 
+         if(TermIsVar(form->args[i]) &&
             TermCellQueryProp(form->args[i], TPIsFreeVar))
          {
             PTreeStore(vars, form->args[i]);
          }
-         else 
+         else
          {
             tformula_collect_freevars(bank, form->args[i], vars);
          }
@@ -1633,7 +1633,6 @@ TFormula_p TFormulaClauseClosedEncode(TB_p bank, Clause_p clause)
    res = TFormulaClosure(bank, res, true);
    return res;
 }
-
 
 
 
