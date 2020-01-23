@@ -83,7 +83,8 @@ typedef enum
    DOEliminateBVar,
    /* HO inferences */
    DONegExt,
-   DOPosExt
+   DOPosExt,
+   DOInvRec
 }OpCode;
 
 
@@ -140,7 +141,8 @@ typedef enum
    DCEliminateBVar    = DOEliminateBVar,
    /* HO inferences */
    DCNegExt           = DONegExt|Arg1Cnf,
-   DCPosExt           = DOPosExt|Arg1Cnf
+   DCPosExt           = DOPosExt|Arg1Cnf,
+   DCInvRec           = DOInvRec|Arg1Cnf
 }DerivationCode;
 
 
