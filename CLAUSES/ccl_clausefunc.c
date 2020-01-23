@@ -752,12 +752,15 @@ Clause_p ClauseRecognizeInjectivity(TB_p terms, Clause_p clause)
                         clause->literals : clause->literals->next;
       Eqn_p neg_lit = EqnIsNegative(clause->literals) ? 
                         clause->literals : clause->literals->next;
+      assert(EqnIsPositive(pos_lit));
+      assert(EqnIsNegative(neg_lit));
       
       if (EqnIsEquLit(pos_lit) && EqnIsEquLit(neg_lit) &&
           TermIsVar(pos_lit->lterm) && TermIsVar(pos_lit->rterm) && 
           pos_lit->lterm != pos_lit->rterm &&
           !TermIsTopLevelVar(neg_lit->lterm) && !TermIsTopLevelVar(neg_lit->rterm)
-          && neg_lit->lterm->f_code == neg_lit->rterm->f_code)
+          && neg_lit->lterm->f_code == neg_lit->rterm->f_code
+          && neg_lit->lterm->arity > 0)
       {
          assert(neg_lit->lterm->arity == neg_lit->rterm->arity);
 

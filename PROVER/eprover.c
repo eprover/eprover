@@ -1674,7 +1674,7 @@ CLState_p process_options(int argc, char* argv[])
             h_parms->inverse_recognition = true;
             break;
       case OPT_REPLACE_INV_DEFS:
-            h_parms->inverse_recognition = true;
+            h_parms->replace_inv_defs = true;
             break;
       default:
             assert(false && "Unknown option");
