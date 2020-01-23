@@ -181,8 +181,11 @@ void ComputeNegExt(ProofState_p state, ProofControl_p control, Clause_p clause)
    {
       Type_p lit_type = lit->lterm->type;
       int needed_args = TypeGetMaxArity(lit_type);
+      bool lit_filter = 
+         control->heuristic_parms.neg_ext == AllLits ||
+         (control->heuristic_parms.neg_ext == MaxLits && EqnIsMaximal(lit));
 
-      if (EqnIsNegative(lit) && needed_args > 0)
+      if (EqnIsNegative(lit) && lit_filter && needed_args > 0)
       {
          PTree_p free_var_tree = NULL;
          UNUSED(EqnCollectVariables(lit, &free_var_tree));
@@ -260,7 +263,10 @@ void ComputePosExt(ProofState_p state, ProofControl_p control, Clause_p clause)
    TypeBank_p tb = state->type_bank;
    for(Eqn_p lit=clause->literals; lit; lit=lit->next)
    {
-      if (EqnIsPositive(lit) && EqnIsEquLit(lit))
+      bool lit_filter = 
+         control->heuristic_parms.pos_ext == AllLits ||
+         (control->heuristic_parms.pos_ext == MaxLits && EqnIsMaximal(lit));
+      if (EqnIsPositive(lit) && EqnIsEquLit(lit) && lit_filter)
       {
          Term_p lhs = lit->lterm, rhs = lit->rterm;
 

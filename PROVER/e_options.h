@@ -180,6 +180,9 @@ typedef enum
    OPT_MINISCOPE_LIMIT,
    OPT_PRINT_TYPES,
    OPT_APP_ENCODE,
+   OPT_NEG_EXT,
+   OPT_POS_EXT,
+   OPT_INVERSE_RECOGNITION,
    OPT_DUMMY
 }OptionCodes;
 
@@ -1360,6 +1363,27 @@ OptCell opts[] =
     NoArg, NULL,
     "Encodes terms in the proof state using applicative encoding, "
     "prints encoded input problem and exits."},
+
+   {OPT_NEG_EXT,
+    '\0', "neg-ext",
+    ReqArg, NULL,
+    "Turns on NegExt inference rule. Excepts an argument \"all\" or \"max\" "
+    "that applies the rule to all or only literals that are eligible "
+    "for resolution."},
+
+   {OPT_POS_EXT,
+    '\0', "pos-ext",
+    ReqArg, NULL,
+    "Turns on PosExt inference rule. Excepts an argument \"all\" or \"max\" "
+    "that applies the rule to all or only literals that are eligible "
+    "for resolution."},
+
+   {OPT_INVERSE_RECOGNITION,
+    '\0', "inverse-recognition",
+    NoArg, NULL,
+    "Enables the recognition of injective function symbols. If such a symbol is "
+    "recognized, existence of the inverse function is asserted by adding a "
+    "corresponding axiom."},
 
    {OPT_NOOPT,
     '\0', NULL,
