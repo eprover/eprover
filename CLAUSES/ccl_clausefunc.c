@@ -733,7 +733,7 @@ bool ClauseEliminateNakedBooleanVariables(Clause_p clause)
 //   s1 =?= t1 ... sn =?= tn, and X,Y do not appear in any of the
 //   s1, ..., sn, t1, ..., tn.
 //   If sigma was a variable renaming, then resulting clause is tagged with
-//   CPPureInjectivity. If inference was unsucessful, NULL is returned.
+//   CPIsPureInjectivity. If inference was unsucessful, NULL is returned.
 //
 // Global Variables: -
 //
@@ -829,6 +829,10 @@ Clause_p ClauseRecognizeInjectivity(TB_p terms, Clause_p clause)
                res->proof_size  = clause->proof_size+1;
                ClauseSetTPTPType(res, ClauseQueryTPTPType(clause));
                ClauseSetProp(res, ClauseGiveProps(clause, CPIsSOS));
+               if SubstIsRenaming(subst)
+               {
+                  ClauseSetProp(res, CPIsPureInjectivity);
+               }
                // TODO: Clause documentation is not implemented at the moment.
                // DocClauseCreationDefault(clause, inf_efactor, clause, NULL);
                ClausePushDerivation(res, DCInvRec, clause, NULL);
@@ -873,7 +877,7 @@ long ClauseSetReplaceInjectivityDefs(ClauseSet_p set, ClauseSet_p archive, TB_p 
 
       Clause_p repl = ClauseRecognizeInjectivity(terms, handle);
 
-      if(repl)
+      if(repl && ClauseQueryProp(repl, CPIsPureInjectivity))
       {
          ClauseSetMoveClause(archive, handle);
          ClauseSetInsert(tmp, repl);

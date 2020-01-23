@@ -121,9 +121,11 @@ typedef enum
                                            * and hence can only be
                                            * rewritten in limited
                                            * ways. */
-   CPIsRelevant     = 2*CPLimitedRW       /* Clause is selected as
+   CPIsRelevant     = 2*CPLimitedRW,       /* Clause is selected as
                                            * relevant for a proof
                                            * attempt (used by SInE). */
+   CPIsPureInjectivity = 2*CPIsRelevant    /* Clause is non-instantiated
+                                              injectivity axiom */
 }FormulaProperties;
 
 
