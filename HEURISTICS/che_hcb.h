@@ -154,6 +154,7 @@ typedef struct heuristic_parms_cell
    ExtInferenceType    neg_ext;
    ExtInferenceType    pos_ext;
    bool                inverse_recognition;
+   bool                replace_inv_defs;
 }HeuristicParmsCell, *HeuristicParms_p;
 
 

@@ -183,6 +183,7 @@ typedef enum
    OPT_NEG_EXT,
    OPT_POS_EXT,
    OPT_INVERSE_RECOGNITION,
+   OPT_REPLACE_INV_DEFS,
    OPT_DUMMY
 }OptionCodes;
 
@@ -1384,6 +1385,12 @@ OptCell opts[] =
     "Enables the recognition of injective function symbols. If such a symbol is "
     "recognized, existence of the inverse function is asserted by adding a "
     "corresponding axiom."},
+
+   {OPT_REPLACE_INV_DEFS,
+    '\0', "replace-inv-defs",
+    NoArg, NULL,
+    "After CNF and before saturation, replaces all clauses that are definitions "
+    " of injectivity by axiomatization of inverse function."},
 
    {OPT_NOOPT,
     '\0', NULL,

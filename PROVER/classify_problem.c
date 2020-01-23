@@ -870,6 +870,8 @@ int main(int argc, char* argv[])
                                    fstate->watchlist,
                                    fstate->archive,
                                    fstate->tmp_terms,
+                                   fstate->terms,
+                                   false,
                                    eqdef_incrlimit,
                                    eqdef_maxclauses);
             }
