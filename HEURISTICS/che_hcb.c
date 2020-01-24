@@ -163,7 +163,14 @@ void HeuristicParmsInitialize(HeuristicParms_p handle)
    handle->presat_interreduction         = false;
    handle->detsort_bw_rw                 = false;
    handle->detsort_tmpset                = false;
+
+   handle->neg_ext                       = NoLits;
+   handle->pos_ext                       = NoLits;
+   handle->inverse_recognition           = false;
+   handle->replace_inv_defs              = false;
 }
+
+
 
 
 /*-----------------------------------------------------------------------

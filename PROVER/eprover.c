@@ -486,6 +486,8 @@ int main(int argc, char* argv[])
                                             proofstate->watchlist,
                                             proofstate->archive,
                                             proofstate->tmp_terms,
+                                            proofstate->terms,
+                                            h_parms->replace_inv_defs,
                                             eqdef_incrlimit,
                                             eqdef_maxclauses);
    }
@@ -1643,6 +1645,36 @@ CLState_p process_options(int argc, char* argv[])
             break;
       case OPT_APP_ENCODE:
             app_encode = true;
+            break;
+      case OPT_NEG_EXT:
+            if(!strcmp(arg, "all"))
+            {
+               h_parms->neg_ext = AllLits;
+            } else if (!strcmp(arg, "max"))
+            {
+               h_parms->neg_ext = MaxLits;
+            } else 
+            {
+               Error("neg-ext excepts either all or max", 0);
+            }
+            break;
+      case OPT_POS_EXT:
+            if(!strcmp(arg, "all"))
+            {
+               h_parms->pos_ext = AllLits;
+            } else if (!strcmp(arg, "max"))
+            {
+               h_parms->pos_ext = MaxLits;
+            } else 
+            {
+               Error("pos-ext excepts either all or max", 0);
+            }
+            break;
+      case OPT_INVERSE_RECOGNITION:
+            h_parms->inverse_recognition = true;
+            break;
+      case OPT_REPLACE_INV_DEFS:
+            h_parms->replace_inv_defs = true;
             break;
       default:
             assert(false && "Unknown option");

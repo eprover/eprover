@@ -689,6 +689,7 @@ long tform_find_miniscopeable(Sig_p sig, TFormula_p form, long limit,
       if(form->f_code == sig->qex_code)
       {
          *exq = true;
+         PTreeMerge(candidates, lcands);
       }
       else /* Universal quantifier */
       {

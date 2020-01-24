@@ -35,6 +35,31 @@ Contents
 
 /*-----------------------------------------------------------------------
 //
+// Function: set_proof_object()
+//
+//   Stores the computed inference with the given derivation code
+//   in the temporary store for the newly infered clauses.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void set_proof_object(Clause_p new_clause, Clause_p orig_clause,
+                       DerivationCode dc)
+{
+   new_clause->proof_depth = orig_clause->proof_depth+1;
+   new_clause->proof_size  = orig_clause->proof_size+1;
+   ClauseSetTPTPType(new_clause, ClauseQueryTPTPType(orig_clause));
+   ClauseSetProp(new_clause, ClauseGiveProps(orig_clause, CPIsSOS));
+   // TODO: Clause documentation is not implemented at the moment.
+   // DocClauseCreationDefault(clause, inf_efactor, clause, NULL);
+   ClausePushDerivation(new_clause, dc, orig_clause, NULL);
+}
+
+/*-----------------------------------------------------------------------
+//
 // Function: store_result()
 //
 //   Stores the computed inference with the given derivation code
@@ -49,13 +74,7 @@ Contents
 void store_result(Clause_p new_clause, Clause_p orig_clause,
                   ClauseSet_p store, DerivationCode dc)
 {
-   new_clause->proof_depth = orig_clause->proof_depth+1;
-   new_clause->proof_size  = orig_clause->proof_size+1;
-   ClauseSetTPTPType(new_clause, ClauseQueryTPTPType(orig_clause));
-   ClauseSetProp(new_clause, ClauseGiveProps(orig_clause, CPIsSOS));
-   // TODO: Clause documentation is not implemented at the moment.
-   // DocClauseCreationDefault(clause, inf_efactor, clause, NULL);
-   ClausePushDerivation(new_clause, dc, orig_clause, NULL);
+   set_proof_object(new_clause, orig_clause, dc);
    ClauseSetInsert(store, new_clause);
 }
 
@@ -181,8 +200,11 @@ void ComputeNegExt(ProofState_p state, ProofControl_p control, Clause_p clause)
    {
       Type_p lit_type = lit->lterm->type;
       int needed_args = TypeGetMaxArity(lit_type);
+      bool lit_filter = 
+         control->heuristic_parms.neg_ext == AllLits ||
+         (control->heuristic_parms.neg_ext == MaxLits && EqnIsMaximal(lit));
 
-      if (EqnIsNegative(lit) && needed_args > 0)
+      if (EqnIsNegative(lit) && lit_filter && needed_args > 0)
       {
          PTree_p free_var_tree = NULL;
          UNUSED(EqnCollectVariables(lit, &free_var_tree));
@@ -260,7 +282,10 @@ void ComputePosExt(ProofState_p state, ProofControl_p control, Clause_p clause)
    TypeBank_p tb = state->type_bank;
    for(Eqn_p lit=clause->literals; lit; lit=lit->next)
    {
-      if (EqnIsPositive(lit) && EqnIsEquLit(lit))
+      bool lit_filter = 
+         control->heuristic_parms.pos_ext == AllLits ||
+         (control->heuristic_parms.pos_ext == MaxLits && EqnIsStrictlyMaximal(lit));
+      if (EqnIsPositive(lit) && EqnIsEquLit(lit) && lit_filter)
       {
          Term_p lhs = lit->lterm, rhs = lit->rterm;
 
@@ -319,6 +344,30 @@ void ComputePosExt(ProofState_p state, ProofControl_p control, Clause_p clause)
    }
 }
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: InferInjectiveDefinition()
+//
+//   If clause postulates injectivity of some symbol, create
+//   the add the definition of inverse to the proof state.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+void InferInjectiveDefinition(ProofState_p state, ProofControl_p control, Clause_p clause)
+{
+   Clause_p res = ClauseRecognizeInjectivity(state->terms, clause);
+   if (res)
+   {
+      assert(ClauseIsUnit(res));
+      ClauseSetInsert(state->tmp_store, res);
+   }
+}
+
+
 /*-----------------------------------------------------------------------
 //
 // Function: ComputeHOInferences()
@@ -336,7 +385,17 @@ void ComputeHOInferences(ProofState_p state, ProofControl_p control, Clause_p cl
 {
    if (problemType == PROBLEM_HO)
    {
-      ComputeNegExt(state,control,clause);
-      ComputePosExt(state,control,clause);
+      if (control->heuristic_parms.neg_ext != NoLits)
+      {
+         ComputeNegExt(state,control,clause);
+      }
+      if (control->heuristic_parms.neg_ext != NoLits)
+      {
+         ComputePosExt(state,control,clause);
+      }
+      if (control->heuristic_parms.inverse_recognition)
+      {
+         InferInjectiveDefinition(state, control, clause);
+      }
    }
 }

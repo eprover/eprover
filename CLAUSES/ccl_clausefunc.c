@@ -38,6 +38,41 @@
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
 
+/*-----------------------------------------------------------------------
+//
+// Function: unif_all_pairs()
+//
+//   Assuming that stack contains [s1, t1, s2, t2, ..., sn, tn]
+//   computes simultaneous unifier of s1 =?= t1, ..., sn =?= tn
+//   and stores it in subst.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+bool unif_all_pairs(PStack_p pairs, Subst_p subst)
+{
+   assert(PStackGetSP(pairs) % 2 == 0);
+   PStackPointer pos = PStackGetSP(subst);
+   bool unifies = true;
+
+   while(unifies && !PStackEmpty(pairs))
+   {
+      Term_p s = PStackPopP(pairs);
+      Term_p t = PStackPopP(pairs);
+
+      unifies = SubstMguComplete(s, t, subst);
+   }
+
+   if (!unifies)
+   {
+      SubstBacktrackToPos(subst, pos);
+   }
+   return unifies;
+}
+
 
 /*-----------------------------------------------------------------------
 //
@@ -680,6 +715,182 @@ bool ClauseEliminateNakedBooleanVariables(Clause_p clause)
    PStackFree(all_lits);
    SubstDelete(subst);
    return eliminated_var;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseRecognizeInjectivity()
+//
+//   Create a clause that postulates existence of an inverse function
+//   for a given expression. In other words:
+//
+//           f s1 ... X ... sn != f t1 ... Y ... tn \/ X = Y
+//    --------------------------------------------------------------
+//            inv_f_i(f sigma(s1) ... X ... sigma(sn)) = X
+//
+//   where sigma is the **simultaneous** unifier of 
+//   s1 =?= t1 ... sn =?= tn, and X,Y do not appear in any of the
+//   s1, ..., sn, t1, ..., tn.
+//   If sigma was a variable renaming, then resulting clause is tagged with
+//   CPIsPureInjectivity. If inference was unsucessful, NULL is returned.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+Clause_p ClauseRecognizeInjectivity(TB_p terms, Clause_p clause)
+{
+   assert(clause);
+   Clause_p res = NULL;
+
+   if(clause->pos_lit_no == 1 && clause->neg_lit_no == 1)
+   {
+      Eqn_p pos_lit = EqnIsPositive(clause->literals) ? 
+                        clause->literals : clause->literals->next;
+      Eqn_p neg_lit = EqnIsNegative(clause->literals) ? 
+                        clause->literals : clause->literals->next;
+      assert(EqnIsPositive(pos_lit));
+      assert(EqnIsNegative(neg_lit));
+      
+      if (EqnIsEquLit(pos_lit) && EqnIsEquLit(neg_lit) &&
+          TermIsVar(pos_lit->lterm) && TermIsVar(pos_lit->rterm) && 
+          pos_lit->lterm != pos_lit->rterm &&
+          !TermIsTopLevelVar(neg_lit->lterm) && !TermIsTopLevelVar(neg_lit->rterm)
+          && neg_lit->lterm->f_code == neg_lit->rterm->f_code
+          && neg_lit->lterm->arity > 0)
+      {
+         assert(neg_lit->lterm->arity == neg_lit->rterm->arity);
+
+         int idx_var_occ = -1; // index where X or Y appears in f s1 ... X ... sn
+         for (int i=0; idx_var_occ == -1 && i<neg_lit->lterm->arity; i++)
+         {
+            if (neg_lit->lterm->args[i] == pos_lit->lterm && 
+                neg_lit->rterm->args[i] == pos_lit->rterm)
+            {
+               idx_var_occ = i;
+            } 
+            else if (neg_lit->lterm->args[i] == pos_lit->rterm &&
+                     neg_lit->rterm->args[i] == pos_lit->lterm)
+            {
+               idx_var_occ = i;
+            }
+         }
+         if (idx_var_occ != -1)
+         {
+            // collect pairs s_i =?= t_i on the stack.
+            PStack_p arg_pairs = PStackAlloc();
+            Subst_p subst = SubstAlloc();
+            bool no_occurs = true; 
+
+            for(int i=0; no_occurs && i<neg_lit->lterm->arity; i++)
+            {
+               if (i!=idx_var_occ)
+               {
+                  no_occurs = 
+                     !TermHasFCode(neg_lit->lterm->args[i], pos_lit->lterm->f_code) &&
+                     !TermHasFCode(neg_lit->rterm->args[i], pos_lit->lterm->f_code) &&
+                     !TermHasFCode(neg_lit->lterm->args[i], pos_lit->rterm->f_code) &&
+                     !TermHasFCode(neg_lit->rterm->args[i], pos_lit->rterm->f_code);
+                  if (no_occurs)
+                  {
+                     PStackPushP(arg_pairs, neg_lit->lterm->args[i]);
+                     PStackPushP(arg_pairs, neg_lit->rterm->args[i]);
+                  }
+               }
+            }
+
+            if (no_occurs && unif_all_pairs(arg_pairs, subst))
+            {
+               // substitution did not bind X or Y
+               assert(!pos_lit->lterm->binding);
+               assert(!pos_lit->rterm->binding);
+
+               // f (sigma s_1) ... X ... (sigma s_n)
+               Term_p inverse_arg = TBInsert(terms, neg_lit->lterm, DEREF_ALWAYS);
+               // X 
+               Term_p inverse_var = neg_lit->lterm->args[idx_var_occ];
+               assert(inverse_var == inverse_arg->args[idx_var_occ]);
+
+               Type_p args[1] = {neg_lit->lterm->type};
+
+               FunCode new_inv_skolem_sym = 
+                  SigGetNewTypedSkolem(terms->sig, args, 1, pos_lit->lterm->type);
+               Term_p inv_skolem_term = TermTopAlloc(new_inv_skolem_sym, 1);
+               inv_skolem_term->args[0] = inverse_arg;
+               inv_skolem_term->type = pos_lit->lterm->type;
+               inv_skolem_term = TBTermTopInsert(terms, inv_skolem_term);
+
+               Eqn_p eqn = EqnAlloc(inv_skolem_term, inverse_var, terms, true);
+               res = ClauseAlloc(eqn);
+               res->proof_depth = clause->proof_depth+1;
+               res->proof_size  = clause->proof_size+1;
+               ClauseSetTPTPType(res, ClauseQueryTPTPType(clause));
+               ClauseSetProp(res, ClauseGiveProps(clause, CPIsSOS));
+               if (SubstIsRenaming(subst))
+               {
+                  ClauseSetProp(res, CPIsPureInjectivity);
+               }
+               // TODO: Clause documentation is not implemented at the moment.
+               // DocClauseCreationDefault(clause, inf_efactor, clause, NULL);
+               ClausePushDerivation(res, DCInvRec, clause, NULL);
+            }
+
+            PStackFree(arg_pairs);
+            SubstDelete(subst);
+         }
+      }
+   }
+
+   return res;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: ReplaceInjectivityDefs()
+//
+//   Replaces defintions of injectivity by clauses that
+//   define inverse operators.
+//
+// Global Variables: -
+//
+// Side Effects    : Changes set and term bank.
+//
+/----------------------------------------------------------------------*/
+
+long ClauseSetReplaceInjectivityDefs(ClauseSet_p set, ClauseSet_p archive, TB_p terms)
+{
+   Clause_p handle, next;
+   ClauseSet_p tmp  = ClauseSetAlloc();
+   long count = 0;
+
+   assert(set);
+   assert(!set->demod_index);
+
+   handle = set->anchor->succ;
+   while(handle != set->anchor)
+   {
+      assert(handle);
+      next = handle->succ;
+
+      Clause_p repl = ClauseRecognizeInjectivity(terms, handle);
+
+      if(repl && ClauseQueryProp(repl, CPIsPureInjectivity))
+      {
+         ClauseSetMoveClause(archive, handle);
+         ClauseSetInsert(tmp, repl);
+         count++;
+      }
+      handle = next;
+   }
+
+   ClauseSetInsertSet(set, tmp);
+   assert(ClauseSetEmpty(tmp));
+   ClauseSetFree(tmp);
+
+   return count;
 }
 
 /*---------------------------------------------------------------------*/
