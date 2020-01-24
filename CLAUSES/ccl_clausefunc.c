@@ -829,7 +829,7 @@ Clause_p ClauseRecognizeInjectivity(TB_p terms, Clause_p clause)
                res->proof_size  = clause->proof_size+1;
                ClauseSetTPTPType(res, ClauseQueryTPTPType(clause));
                ClauseSetProp(res, ClauseGiveProps(clause, CPIsSOS));
-               if SubstIsRenaming(subst)
+               if (SubstIsRenaming(subst))
                {
                   ClauseSetProp(res, CPIsPureInjectivity);
                }

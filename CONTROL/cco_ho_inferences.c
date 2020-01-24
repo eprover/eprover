@@ -284,7 +284,7 @@ void ComputePosExt(ProofState_p state, ProofControl_p control, Clause_p clause)
    {
       bool lit_filter = 
          control->heuristic_parms.pos_ext == AllLits ||
-         (control->heuristic_parms.pos_ext == MaxLits && EqnIsMaximal(lit));
+         (control->heuristic_parms.pos_ext == MaxLits && EqnIsStrictlyMaximal(lit));
       if (EqnIsPositive(lit) && EqnIsEquLit(lit) && lit_filter)
       {
          Term_p lhs = lit->lterm, rhs = lit->rterm;
