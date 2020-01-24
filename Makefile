@@ -199,3 +199,10 @@ E: links
 	@for subdir in $(CODE); do\
 		cd $$subdir; touch Makefile.dependencies; $(MAKE); cd ..;\
 	done;
+
+J ?= 4
+benchpress-quick:
+	@echo "run provers on example problems..."
+	benchpress run -j $(J) -c benchpress.sexp --task eprover-quick-test --progress 
+
+.PHONY: benchpress
