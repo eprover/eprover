@@ -73,6 +73,33 @@ bool unif_all_pairs(PStack_p pairs, Subst_p subst)
    return unifies;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: collect_free_vars()
+//
+//   Returns free variables of term t, except in subterm t|idx_to_skip.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+PTree_p collect_free_vars(Term_p t, TB_p bank, int idx_to_skip)
+{
+   assert(idx_to_skip < t->arity);
+
+   PTree_p res = NULL;
+   TFormulaCollectFreeVars(bank, t, &res);
+   if (TermIsVar(t->args[idx_to_skip]))
+   {
+      bool removed = PTreeDeleteEntry(&res, t->args[idx_to_skip]);
+      UNUSED(removed); // stiffle the warning in non-debug version
+      assert(removed);
+   }
+   return res;
+}
+
 
 /*-----------------------------------------------------------------------
 //
@@ -814,17 +841,57 @@ Clause_p ClauseRecognizeInjectivity(TB_p terms, Clause_p clause)
                Term_p inverse_var = neg_lit->lterm->args[idx_var_occ];
                assert(inverse_var == inverse_arg->args[idx_var_occ]);
 
-               Type_p args[1] = {neg_lit->lterm->type};
+               PTree_p free_vars = collect_free_vars(inverse_arg, terms, idx_var_occ);
+               PStack_p free_vars_stack = PStackAlloc();
+               PTreeToPStack(free_vars_stack, free_vars);
+               int vars_num = PStackGetSP(free_vars_stack);
 
-               FunCode new_inv_skolem_sym = 
-                  SigGetNewTypedSkolem(terms->sig, args, 1, pos_lit->lterm->type);
-               Term_p inv_skolem_term = TermTopAlloc(new_inv_skolem_sym, 1);
-               inv_skolem_term->args[0] = inverse_arg;
-               inv_skolem_term->type = pos_lit->lterm->type;
-               inv_skolem_term = TBTermTopInsert(terms, inv_skolem_term);
+               Term_p inv_skolem_term; // let the compiler check if it is initialized
 
+               if (vars_num)
+               {
+                  Type_p* arg_tys = TypeArgArrayAlloc(vars_num+1);
+                  Term_p* args = TermArgArrayAlloc(vars_num+1);
+
+                  for(int i=0; i<vars_num; i++)
+                  {
+                     args[i] = PStackElementP(free_vars_stack, i);
+                     arg_tys[i] = args[i]->type;
+                  }
+                  args[vars_num] = inverse_arg;
+                  arg_tys[vars_num] = inverse_arg->type;
+
+                  FunCode new_inv_skolem_sym = 
+                     SigGetNewTypedSkolem(terms->sig, arg_tys, vars_num+1, pos_lit->lterm->type);
+
+                  inv_skolem_term = TermTopAlloc(new_inv_skolem_sym, vars_num+1);
+                  for(int i=0; i<vars_num+1; i++)
+                  {
+                     inv_skolem_term->args[i] = args[i];
+                  }
+                  inv_skolem_term->type = pos_lit->lterm->type;
+                  inv_skolem_term = TBTermTopInsert(terms, inv_skolem_term);
+
+                  TypeArgArrayFree(arg_tys, vars_num+1);
+                  TermArgArrayFree(args, vars_num+1);
+               }
+               else
+               {
+                  Type_p args[1] = {neg_lit->lterm->type};
+                  FunCode new_inv_skolem_sym = 
+                     SigGetNewTypedSkolem(terms->sig, args, 1, pos_lit->lterm->type);
+                  inv_skolem_term = TermTopAlloc(new_inv_skolem_sym, 1);
+                  inv_skolem_term->args[0] = inverse_arg;
+                  inv_skolem_term->type = pos_lit->lterm->type;
+                  inv_skolem_term = TBTermTopInsert(terms, inv_skolem_term);
+               }
+
+               PStackFree(free_vars_stack);
+               PTreeFree(free_vars);
+               
                Eqn_p eqn = EqnAlloc(inv_skolem_term, inverse_var, terms, true);
                res = ClauseAlloc(eqn);
+
                res->proof_depth = clause->proof_depth+1;
                res->proof_size  = clause->proof_size+1;
                ClauseSetTPTPType(res, ClauseQueryTPTPType(clause));
