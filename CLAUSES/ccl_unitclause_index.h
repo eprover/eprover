@@ -51,6 +51,8 @@ typedef FPIndex_p UnitclauseIndex_p;
 UnitClauseIndexCell_p UnitClauseIndexCellAlloc();
 bool UnitclauseIndexDeleteClause(UnitclauseIndex_p index, Clause_p clause);
 bool UnitclauseIndexInsertClause(UnitclauseIndex_p index, Clause_p clause);
+long UnitClauseIndexFindSubsumedCandidates(UnitclauseIndex_p index, 
+                                           Clause_p clause, PStack_p candidates);
 void UnitclauseIndexFreeWrapper(void *junk);
 
 /*---------------------------------------------------------------------*/

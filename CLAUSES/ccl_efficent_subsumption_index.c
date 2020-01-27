@@ -19,14 +19,6 @@ Copyright 2019-2020 by the author.
 #include <ccl_efficent_subsumption_index.h>
 
 /*---------------------------------------------------------------------*/
-/*                        Global Variables                             */
-/*---------------------------------------------------------------------*/
-
-/*---------------------------------------------------------------------*/
-/*                      Forward Declarations                           */
-/*---------------------------------------------------------------------*/
-
-/*---------------------------------------------------------------------*/
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
 
@@ -48,6 +40,7 @@ void EfficentSubsumptionIndexInsert(EfficentSubsumptionIndex_p index,
    if(index->unitclasue_index && ClauseIsUnit(newclause->clause))
    {
       // TODO: Maybe index unitclauses into both?
+      // Notice that this question is seperate from checking both indexes.
       UnitclauseIndexInsertClause(index->unitclasue_index, newclause->clause);
    } 
    if (index->fvindex) 
@@ -135,7 +128,7 @@ void EfficentSubsumptionIndexUnitClauseIndexInit(EfficentSubsumptionIndex_p inde
 //
 // Function: EfficentSubsumptionIndexInsertClause()
 //
-//   Inserts a clause into the efficent subsumption indexes.
+//   Inserts a clause into the efficent subsumption index.
 //
 // Global Variables: -
 //

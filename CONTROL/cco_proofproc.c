@@ -126,11 +126,16 @@ static long remove_subsumed(GlobalIndices_p indices,
    long     res;
    PStack_p stack = PStackAlloc();
 
-   res = ClauseSetFindFVSubsumedClauses(set, subsumer, stack);
+   res = ClauseSetFindESISubsumedClauses(set, subsumer, stack);
 
    while(!PStackEmpty(stack))
    {
+      // TODO: Überprüfen ob diese Query immer safe ist (Kurzes nachschauen sagt wahrscheinlich ja!)
       handle = PStackPopP(stack);
+      if(ClauseQueryProp(handle, CPIsDead)) {
+         // Skip when we already used the clause.
+         continue;
+      }
       //printf("# XXX Removing (remove_subumed()) %p from %p = %p\n", handle, set, handle->set);
       if(ClauseQueryProp(handle, CPWatchOnly))
       {
@@ -491,7 +496,6 @@ void simplify_watchlist(ProofState_p state, ProofControl_p control,
       }
       handle->weight = ClauseStandardWeight(handle);
       ClauseMarkMaximalTerms(control->ocb, handle);
-      // TODO: The FVIndex is used here again. Rethink this for the PDTIndex!
       ClauseSetIndexedInsertClause(state->watchlist, handle);
       // printf("# WL Inserting: "); ClausePrint(stdout, handle, true); printf("\n");
       GlobalIndicesInsertClause(&(state->wlindices), handle);

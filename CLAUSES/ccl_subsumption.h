@@ -69,11 +69,11 @@ Clause_p ClauseSetFindSubsumedClause(ClauseSet_p set, Clause_p
                                      set_position, Clause_p
                                      subsumer);
 
-long     ClauseSetFindFVSubsumedClauses(ClauseSet_p set,
-                                        FVPackedClause_p subsumer,
-                                        PStack_p res);
+long     ClauseSetFindESISubsumedClauses(ClauseSet_p set,
+                                         FVPackedClause_p subsumer,
+                                         PStack_p res);
 
-Clause_p ClauseSetFindFirstFVSubsumedClause(ClauseSet_p set,
+Clause_p ClauseSetFindFirstESISubsumedClauses(ClauseSet_p set,
                                             FVPackedClause_p subsumer);
 
 long     ClauseSetFindSubsumedClauses(ClauseSet_p set,

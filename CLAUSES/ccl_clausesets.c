@@ -561,7 +561,6 @@ void ClauseSetPDTIndexedInsert(ClauseSet_p set, Clause_p newclause)
 }
 
 
-
 /*-----------------------------------------------------------------------
 //
 // Function: ClauseSetIndexedInsertClause()
@@ -587,36 +586,11 @@ void ClauseSetIndexedInsertClause(ClauseSet_p set, Clause_p newclause)
    }
    if(set->efficent_subsumption_index)
    {
-      // TODO: Clean this up.
-      // FVIndexInsert(set->efficent_subsumption_index->fvindex, newclause);
       EfficentSubsumptionIndexInsertClause(set->efficent_subsumption_index, 
                                            newclause);
       ClauseSetProp(newclause, CPIsSIndexed);
    }
 }
-
-
-// TODO: Clean this up.
-// /*-----------------------------------------------------------------------
-// //
-// // Function: ClauseSetIndexedInsertClause()
-// //
-// //   Insert a plain clause into the set, taking care od of
-// //   all existing indexes.
-// //
-// // Global Variables: -
-// //
-// // Side Effects    : -
-// //
-// /----------------------------------------------------------------------*/
-
-// void ClauseSetIndexedInsertClause(ClauseSet_p set, Clause_p newclause)
-// {
-//    FVPackedClause_p pclause = FVIndexPackClause(newclause, set->efficent_subsumption_index->fvindex);
-//    assert(newclause->weight == ClauseStandardWeight(newclause));
-//    ClauseSetIndexedInsert(set, pclause);
-//    FVUnpackClause(pclause);
-// }
 
 
 /*-----------------------------------------------------------------------

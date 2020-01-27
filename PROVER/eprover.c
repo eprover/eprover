@@ -506,6 +506,7 @@ int main(int argc, char* argv[])
    //printf("Alive (1)!\n");
 
    ProofStateInit(proofstate, proofcontrol);
+   
    //printf("Alive (2)!\n");
    //ProofStateInitWatchlist(proofstate, proofcontrol->ocb);
 

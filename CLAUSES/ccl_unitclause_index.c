@@ -19,14 +19,6 @@ Copyright 2019-2020 by the author.
 #include <ccl_unitclause_index.h>
 
 /*---------------------------------------------------------------------*/
-/*                        Global Variables                             */
-/*---------------------------------------------------------------------*/
-
-/*---------------------------------------------------------------------*/
-/*                      Forward Declarations                           */
-/*---------------------------------------------------------------------*/
-
-/*---------------------------------------------------------------------*/
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
 
@@ -244,20 +236,20 @@ bool UnitclauseIndexDeleteClause(UnitclauseIndex_p index, Clause_p clause)
    Term_p indexedTerm;
 
    indexedTerm = EqnTermsTBTermEncode(handle->bank, 
-                                       handle->lterm, 
-                                       handle->rterm, 
-                                       true, // TODO: Are you sure that this is always okay?
-                                       PENormal);
+                                      handle->lterm, 
+                                      handle->rterm, 
+                                      true, // TODO: Are you sure that this is always okay?
+                                      PENormal);
 
    existed = UnitclauseIndexDeleteIndexedClause(index, indexedTerm, clause);
    
    if(!EqnIsOriented(handle) && existed)
    {
       indexedTerm = EqnTermsTBTermEncode(handle->bank, 
-                                          handle->lterm, 
-                                          handle->rterm, 
-                                          true, // TODO: Are you sure that this is always okay?
-                                          PEReverse);
+                                         handle->lterm, 
+                                         handle->rterm, 
+                                         true, // TODO: Are you sure that this is always okay?
+                                         PEReverse);
 
       return UnitclauseIndexDeleteIndexedClause(index, indexedTerm, clause);
    }
@@ -289,23 +281,63 @@ bool UnitclauseIndexInsertClause(UnitclauseIndex_p index, Clause_p clause)
    Term_p indexedTerm;
 
    indexedTerm = EqnTermsTBTermEncode(handle->bank, 
-                                       handle->lterm, 
-                                       handle->rterm, 
-                                       true, // TODO: Are you sure that this is always okay?
-                                       PENormal);
+                                      handle->lterm, 
+                                      handle->rterm, 
+                                      true, // TODO: Are you sure that this is always okay?
+                                      PENormal);
+
    isNew = UnitclauseIndexInsert(index, indexedTerm, clause);
 
    if(!EqnIsOriented(handle) && isNew)
    {
       indexedTerm = EqnTermsTBTermEncode(handle->bank, 
-                                          handle->lterm, 
-                                          handle->rterm, 
-                                          true, // TODO: Are you sure that this is always okay?
-                                          PEReverse);
+                                         handle->lterm, 
+                                         handle->rterm, 
+                                         true, // TODO: Are you sure that this is always okay?
+                                         PEReverse);
+
       isNew = UnitclauseIndexInsert(index, indexedTerm, clause);
    }
-   
    return isNew;
+}
+
+/*------------------------------------ -----------------------------------
+//
+// Function: UnitClauseIndexFindSubsumedCandidates()
+//
+//   Finds clauses that are candidates to be subsumed by the given clause.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+/
+/----------------------------------------------------------------------*/
+long UnitClauseIndexFindSubsumedCandidates(UnitclauseIndex_p index, 
+                                           Clause_p clause, PStack_p candidates)
+{
+   Term_p indexedTerm;
+   Eqn_p  handle           = clause->literals;
+   long   numberMatchables = 0;
+
+   indexedTerm = EqnTermsTBTermEncode(handle->bank, 
+                                      handle->lterm, 
+                                      handle->rterm, 
+                                      true, // TODO: Are you sure that this is always okay?
+                                      PENormal);
+
+   numberMatchables = FPIndexFindMatchable(index, indexedTerm, candidates);
+
+   if(!EqnIsOriented(handle))
+   {
+      indexedTerm = EqnTermsTBTermEncode(handle->bank, 
+                                         handle->lterm, 
+                                         handle->rterm, 
+                                         true, // TODO: Are you sure that this is always okay?
+                                         PEReverse);
+
+      numberMatchables += FPIndexFindMatchable(index, indexedTerm, candidates);
+   }
+   return numberMatchables;
 }
 
 /*-----------------------------------------------------------------------

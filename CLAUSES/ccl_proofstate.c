@@ -333,6 +333,10 @@ void ProofStateInitWatchlist(ProofState_p state, OCB_p ocb)
    {
       tmpset = ClauseSetAlloc();
 
+      EfficentSubsumptionIndexUnitClauseIndexInit(state->watchlist->efficent_subsumption_index,
+                                                  state->signature,
+                                                  "FPWatchlist6");
+
       ClauseSetMarkMaximalTerms(ocb, state->watchlist);
       while(!ClauseSetEmpty(state->watchlist))
       {
