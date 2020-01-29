@@ -319,19 +319,19 @@ ClauseSet_p ClauseSetAlloc(void)
 
    handle = ClauseSetCellAlloc();
 
-   handle->members = 0;
+   handle->members  = 0;
    handle->literals = 0;
-   handle->anchor = ClauseCellAlloc();
+   handle->anchor   = ClauseCellAlloc();
    handle->anchor->literals = NULL;
    handle->anchor->pred = handle->anchor->succ = handle->anchor;
    handle->date = SysDateCreationTime();
    SysDateInc(&handle->date);
+   handle->demod_index                = NULL;
    handle->efficent_subsumption_index = NULL;
 
    handle->eval_indices = PDArrayAlloc(4,4);
-   handle->eval_no = 0;
-
-   handle->identifier = DStrAlloc();
+   handle->eval_no      = 0;
+   handle->identifier   = DStrAlloc();
 
    return handle;
 }

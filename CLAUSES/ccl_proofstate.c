@@ -327,7 +327,7 @@ void ProofStateLoadWatchlist(ProofState_p state,
 void ProofStateInitWatchlist(ProofState_p state, OCB_p ocb)
 {
    ClauseSet_p tmpset;
-   Clause_p handle;
+   Clause_p    handle;
 
    if(state->watchlist)
    {
