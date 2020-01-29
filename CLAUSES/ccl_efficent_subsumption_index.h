@@ -30,8 +30,8 @@ typedef struct efficent_subsumption_index
 {
    FVIAnchor_p       fvindex;          /* Used for non-unit subsumption */
    UnitclauseIndex_p unitclasue_index; /* Used for unit clauses subsuption */
-   char              unitclause_index_type[MAX_PM_INDEX_NAME_LEN];
-   Sig_p             sig;
+   // char              unitclause_index_type[MAX_PM_INDEX_NAME_LEN];
+   // Sig_p             sig;
 } EfficentSubsumptionIndex, *EfficentSubsumptionIndex_p;
 
 

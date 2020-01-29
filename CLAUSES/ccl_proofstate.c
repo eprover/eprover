@@ -422,16 +422,16 @@ void ProofStateFree(ProofState_p junk)
    ClauseSetFree(junk->eval_store);
    ClauseSetFree(junk->archive);
    ClauseSetFree(junk->ax_archive);
-   FormulaSetFree(junk->f_archive);
-   PStackFree(junk->extract_roots);
-   GlobalIndicesFreeIndices(&(junk->gindices));
-   GCAdminFree(junk->gc_terms);
-   //GCAdminFree(junk->gc_original_terms);
    if(junk->watchlist)
    {
       ClauseSetFree(junk->watchlist);
    }
    GlobalIndicesFreeIndices(&(junk->wlindices));
+   FormulaSetFree(junk->f_archive);
+   PStackFree(junk->extract_roots);
+   GlobalIndicesFreeIndices(&(junk->gindices));
+   GCAdminFree(junk->gc_terms);
+   //GCAdminFree(junk->gc_original_terms);
 
    DefStoreFree(junk->definition_store);
    // TODO: The new PDTIndex should probably be deleted here.
