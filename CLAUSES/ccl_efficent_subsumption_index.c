@@ -88,8 +88,6 @@ void EfficentSubsumptionIndexFree(EfficentSubsumptionIndex_p index)
 {
    if (index->fvindex) 
    {
-      printf("Nice");
-      fflush(stdout);
       FVIAnchorFree(index->fvindex);
    }
    if (index->unitclasue_index)

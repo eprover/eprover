@@ -59,13 +59,15 @@ void UnitclauseIndexFreeWrapper(void *junk);
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
 
-void UnitClauseIndexCellFreeWrapper(void *junk);
+// void UnitClauseIndexCellFreeWrapper(void *junk);
 void UnitClauseIndexCellFree(UnitClauseIndexCell_p junk);
 int CmpUnitClauseIndexCells(const void* cell1, const void* cell2);
-UnitClauseIndexCell_p UnitclauseInsertCell(PObjTree_p *root, Clause_p clause);
-bool UnitclauseIndexDeleteIndexedClause(UnitclauseIndex_p index, 
-                                        Term_p indexedterm,
-                                        Clause_p indexed);
+// UnitClauseIndexCell_p UnitclauseInsertCell(PObjTree_p *root, Clause_p clause);
+bool UnitclauseInsertCell(PTree_p *root, Clause_p clause);
+// bool UnitclauseIndexDeleteIndexedClause(UnitclauseIndex_p index, 
+//                                         Term_p indexedterm,
+//                                         Clause_p indexed);
+bool UnitclauseIndexDeletClauseCell(PTree_p *root, Clause_p indexed);
 
 #endif
 

@@ -132,8 +132,8 @@ static long remove_subsumed(GlobalIndices_p indices,
    {
       // TODO: Überprüfen ob diese Query immer safe ist (Kurzes nachschauen sagt wahrscheinlich ja!)
       handle = PStackPopP(stack);
+      
       if(ClauseQueryProp(handle, CPIsDead)) {
-         // Skip when we already used the clause.
          continue;
       }
       //printf("# XXX Removing (remove_subumed()) %p from %p = %p\n", handle, set, handle->set);

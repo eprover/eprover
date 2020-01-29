@@ -1038,26 +1038,25 @@ void clauseset_find_subsumed_clauses_unitclause_indexed(UnitclauseIndex_p index,
                                                         PStack_p res)
 {
    PStack_p   iterstack;
-   PObjTree_p candidateTree;
-   PObjTree_p cell;
-   long       numberCandidates;
+   PTree_p    candidateTree;
+   PTree_p    current;
    long       numberSubsumedClauses = 0;
    PStack_p   candidates            = PStackAlloc();
    
-   numberCandidates = UnitClauseIndexFindSubsumedCandidates(index, clause, candidates);
+   UnitClauseIndexFindSubsumedCandidates(index, clause, candidates);
 
    while(!PStackEmpty(candidates))
    {
       candidateTree = PStackPopP(candidates);
       iterstack     = PTreeTraverseInit(candidateTree);
 
-      while((cell = PTreeTraverseNext(iterstack)))
+      while((current = PTreeTraverseNext(iterstack)))
       {
-         UnitClauseIndexCell_p content = (UnitClauseIndexCell_p) cell->key;
+         Clause_p candidate = current->key;
 
-         if(clause_subsumes_clause(clause, content->clause))
+         if(clause_subsumes_clause(clause, candidate))
          {
-            PStackPushP(res, content->clause);
+            PStackPushP(res, candidate);
             numberSubsumedClauses += 1;
             // TODO: Is this counting correct?
          }
@@ -1161,27 +1160,26 @@ Clause_p clauseset_find_first_subsumed_clauses_unitclause_indexed(UnitclauseInde
                                                                   Clause_p clause)
 {
    PStack_p   iterstack;
-   PObjTree_p candidateTree;
-   PObjTree_p cell;
-   long       numberCandidates;
-   PStack_p   candidates            = PStackAlloc();
+   PTree_p    candidateTree;
+   PTree_p    current;
+   PStack_p   candidates = PStackAlloc();
    
-   numberCandidates = UnitClauseIndexFindSubsumedCandidates(index, clause, candidates);
+   UnitClauseIndexFindSubsumedCandidates(index, clause, candidates);
 
    while(!PStackEmpty(candidates))
    {
       candidateTree = PStackPopP(candidates);
       iterstack     = PTreeTraverseInit(candidateTree);
 
-      while((cell = PTreeTraverseNext(iterstack)))
+      while((current = PTreeTraverseNext(iterstack)))
       {
-         UnitClauseIndexCell_p content = (UnitClauseIndexCell_p) cell->key;
+         Clause_p candidate = current->key;
 
-         if(clause_subsumes_clause(clause, content->clause))
+         if(clause_subsumes_clause(clause, candidate))
          {
             PTreeTraverseExit(iterstack);
             PStackFree(candidates);
-            return content->clause;
+            return candidate;
          }
       }
       PTreeTraverseExit(iterstack);
