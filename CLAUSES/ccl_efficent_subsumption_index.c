@@ -68,9 +68,8 @@ EfficentSubsumptionIndex_p EfficentSubsumptionIndexAlloc(FVCollect_p cspec,
                                                          PermVector_p perm)
 {
    EfficentSubsumptionIndex_p handle = EfficentSubsumptionIndexAllocRaw();
-   handle->fvindex                   = FVIAnchorAlloc(cspec, PermVectorCopy(perm));
+   handle->fvindex                   = FVIAnchorAlloc(cspec, perm);
    handle->unitclasue_index          = NULL;
-   // handle->sig                       = NULL;
    return handle;
 }
 
@@ -89,14 +88,13 @@ void EfficentSubsumptionIndexFree(EfficentSubsumptionIndex_p index)
 {
    if (index->fvindex) 
    {
+      printf("Nice");
+      fflush(stdout);
       FVIAnchorFree(index->fvindex);
-      index->fvindex = NULL;
    }
    if (index->unitclasue_index)
    {
       FPIndexFree(index->unitclasue_index);
-      // index->unitclasue_index = NULL;
-      // index->sig              = NULL;
    }
    EfficentSubsumptionIndexFreeRaw(index);
 }
@@ -117,10 +115,7 @@ void EfficentSubsumptionIndexUnitClauseIndexInit(EfficentSubsumptionIndex_p inde
                                                  char* unitclause_index_type)
 {
    FPIndexFunction indexfun;
-   // index->sig              = sig;
    indexfun                = GetFPIndexFunction(unitclause_index_type);
-   assert(indexfun);
-   // strcpy(index->unitclause_index_type, unitclause_index_type);
    index->unitclasue_index = FPIndexAlloc(indexfun, sig, UnitclauseIndexFreeWrapper);
 }
 
