@@ -24,41 +24,6 @@ Copyright 2019-2020 by the author.
 
 /*-----------------------------------------------------------------------
 //
-// Function: UnitClauseIndexCellFree()
-//
-//   Frees a complete UnitClauseIndexCell.
-//
-// Global Variables: -
-//
-// Side Effects    : Memory operatios
-//
-/----------------------------------------------------------------------*/
-void UnitClauseIndexCellFree(UnitClauseIndexCell_p junk) 
-{
-   UnitClauseIndexCellFreeRaw(junk);
-}
-
-/*-----------------------------------------------------------------------
-//
-// Function: CmpUnitClauseIndexCells()
-//
-//   Compares two unitClauseIndexCells via their clause pointer.
-//
-// Global Variables: -
-//
-// Side Effects    : Memory operatios
-//
-/----------------------------------------------------------------------*/
-// int CmpUnitClauseIndexCells(const void* cell1, const void* cell2)
-// {
-//    const UnitClauseIndexCell_p c1 = (const UnitClauseIndexCell_p) cell1;
-//    const UnitClauseIndexCell_p c2 = (const UnitClauseIndexCell_p) cell2;
-
-//    return PCmp(c1->clause, c2->clause);
-// }
-
-/*-----------------------------------------------------------------------
-//
 // Function: UnitclauseInsertCell()
 //
 //   Inserts a clause into the index by inserting it into a leaf of 
@@ -71,19 +36,8 @@ void UnitClauseIndexCellFree(UnitClauseIndexCell_p junk)
 // Side Effects    : Memory operatios
 //
 /----------------------------------------------------------------------*/
-// UnitClauseIndexCell_p UnitclauseInsertCell(PObjTree_p *root, Clause_p clause)
 bool UnitclauseInsertCell(PTree_p *root, Clause_p clause)
 {
-   // UnitClauseIndexCell_p old, new = UnitClauseIndexCellAlloc();
-   // new->clause                    = clause;
-   
-   // old = PTreeObjStore(root, new, CmpUnitClauseIndexCells);
-   // if (old)
-   // {
-   //    UnitClauseIndexCellFree(new);
-   //    new = old;
-   // }
-   // return new;
    return PTreeStore(root, clause);
 }
 
@@ -102,14 +56,9 @@ bool UnitclauseInsertCell(PTree_p *root, Clause_p clause)
 bool UnitclauseIndexInsert(UnitclauseIndex_p index, Term_p indexterm, 
                            Clause_p payload) 
 {
-   FPTree_p                fp_node;
-   // UnitClauseIndexCell_p   unitclause_node;
+   FPTree_p fp_node = FPIndexInsert(index, indexterm);
 
-   fp_node                 = FPIndexInsert(index, indexterm);
-   // unitclause_node         = UnitclauseInsertCell((void*)&(fp_node->payload), 
-   //                                                payload);
    return UnitclauseInsertCell((void*)&(fp_node->payload), payload);
-   // return (unitclause_node == NULL);
 }
 
 /*-----------------------------------------------------------------------
@@ -124,23 +73,8 @@ bool UnitclauseIndexInsert(UnitclauseIndex_p index, Term_p indexterm,
 // Side Effects    :
 //
 /----------------------------------------------------------------------*/
-// bool UnitclauseIndexDeletClauseCell(PObjTree_p *root, Clause_p indexed)
 bool UnitclauseIndexDeletClauseCell(PTree_p *root, Clause_p indexed)
 {
-   // PObjTree_p oldnode;
-   // UnitClauseIndexCell_p knode = UnitClauseIndexCellAlloc();
-   // bool res                    = false;
-   // knode->clause               = indexed;
-
-   // oldnode = PTreeObjExtractEntry(root, knode, CmpUnitClauseIndexCells); 
-   // if(oldnode)
-   // {
-   //    res = true;
-   // }
-
-   // UnitClauseIndexCellFree(knode);
-
-   // return res;
    return PTreeDeleteEntry(root, indexed);
 }
 
@@ -180,44 +114,9 @@ bool UnitclauseIndexDeleteIndexedClause(UnitclauseIndex_p index,
    return res;
 }
 
-/*-----------------------------------------------------------------------
-//
-// Function: UnitClauseIndexCellFreeWrapper()
-//
-//   Wrapper for UnitClauseIndexCellFree so that the type matches with
-//   the type signature of ObjDelFun (void (*)(void *)).
-//
-// Global Variables: - 
-//
-// Side Effects    : Memory operations
-//
-/----------------------------------------------------------------------*/
-// void UnitClauseIndexCellFreeWrapper(void *junk)
-// {
-//    UnitClauseIndexCellFree(junk);
-// }
-
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
 /*---------------------------------------------------------------------*/
-
-/*-----------------------------------------------------------------------
-//
-// Function: UnitClauseIndexCellAlloc()
-//
-//   Allocates a complete UnitClauseIndexCell.
-//
-// Global Variables: -
-//
-// Side Effects    : Memory operatios
-//
-/----------------------------------------------------------------------*/
-// UnitClauseIndexCell_p UnitClauseIndexCellAlloc() 
-// {
-//    UnitClauseIndexCell_p handle = UnitClauseIndexCellAllocRaw();
-//    handle->clause               = NULL;
-//    return handle;
-// }
 
 /*-----------------------------------------------------------------------
 //
