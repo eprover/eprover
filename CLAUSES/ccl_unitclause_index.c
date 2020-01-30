@@ -27,9 +27,8 @@ Copyright 2019-2020 by the author.
 // Function: UnitclauseInsertCell()
 //
 //   Inserts a clause into the index by inserting it into a leaf of 
-//   the FingerPrintIndex given the appropiate PObjTree.
-//   Returns the old cell if this clause already was part of the index.
-//   Otherwise returns the new cell. 
+//   the FingerPrintIndex given the appropiate PTree.
+//   Return false if an entry for this clause exists, true otherwise.
 //
 // Global Variables: -
 //
@@ -66,7 +65,7 @@ bool UnitclauseIndexInsert(UnitclauseIndex_p index, Term_p indexterm,
 // Function: UnitclauseIndexDeletClauseCell()
 //
 //   Deletes an indexed clause from the leaf of the FingerPrintIndex 
-//   given the appropiate PObjTree.
+//   given the appropiate PTree.
 //
 // Global Variables:
 //
@@ -248,7 +247,7 @@ long UnitClauseIndexFindSubsumedCandidates(UnitclauseIndex_p index,
 //
 // Function: UnitclauseIndexFreeWrapper()
 //
-//   Frees the PObjTree assosiated with the leaf of th fp_index so 
+//   Frees the PTree assosiated with the leaf of th fp_index so 
 //   that the type matches with the type signature of FPFreeTreeFun:
 //
 //   void (*FPTreeFreeFun)(void*)
