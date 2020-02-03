@@ -242,6 +242,7 @@ PrefixWeightParam_p PrefixWeightParamAlloc(void)
    PrefixWeightParam_p res = PrefixWeightParamCellAlloc();
 
    res->terms = NULL;
+   res->vars = NULL;
 
    return res;
 }
