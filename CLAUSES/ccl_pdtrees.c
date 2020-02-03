@@ -873,6 +873,7 @@ void PDTNodeFree(PDTNode_p tree)
    while((subtree = IntMapIterNext(iter, &i)))
    {
       assert(subtree);
+      PDTNodeFree(subtree);
    }
    IntMapIterFree(iter);
    for(i=1; i<=tree->max_var; i++)
