@@ -39,11 +39,9 @@ void EfficentSubsumptionIndexInsert(EfficentSubsumptionIndex_p index,
 {
    if(index->unitclasue_index && ClauseIsUnit(newclause->clause))
    {
-      // TODO: Maybe index unitclauses into both?
-      // Notice that this question is seperate from checking both indexes.
       UnitclauseIndexInsertClause(index->unitclasue_index, newclause->clause);
    } 
-   if (index->fvindex) 
+   else if (index->fvindex) 
    {
       FVIndexInsert(index->fvindex, newclause);
    }
