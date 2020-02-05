@@ -888,15 +888,14 @@ Clause_p ClauseRecognizeInjectivity(TB_p terms, Clause_p clause)
 
                PStackFree(free_vars_stack);
                PTreeFree(free_vars);
-               
+
                Eqn_p eqn = EqnAlloc(inv_skolem_term, inverse_var, terms, true);
                res = ClauseAlloc(eqn);
-
                res->proof_depth = clause->proof_depth+1;
                res->proof_size  = clause->proof_size+1;
                ClauseSetTPTPType(res, ClauseQueryTPTPType(clause));
                ClauseSetProp(res, ClauseGiveProps(clause, CPIsSOS));
-               if (SubstIsRenaming(subst))
+               if (SubstIsEmpty(subst))
                {
                   ClauseSetProp(res, CPIsPureInjectivity);
                }
