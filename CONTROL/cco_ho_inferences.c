@@ -373,7 +373,6 @@ void InferInjectiveDefinition(ProofState_p state, ProofControl_p control, Clause
 // Function: ComputeHOInferences()
 //
 //   Computes all registered HO inferences. 
-//   Currently only NegExt and PosExt are registered.
 //
 // Global Variables: -
 //
