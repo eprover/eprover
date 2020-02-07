@@ -18,65 +18,98 @@ Copyright 2019-2020 by the author.
 
 #include <ccl_efficient_subsumption_index.h>
 
-static REWRITE_CONSTANT rc = NULL;
+static REWRITE_CONSTANT rc = -1;
 
 /*---------------------------------------------------------------------*/
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
 
-void RewriteConstants(Clause_p clause) 
+/*-----------------------------------------------------------------------
+//
+// Function: RewriteConstantsOnTerm()
+//
+//   Recursively traves a term and rewrites its constants to rc.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+Term_p RewriteConstantsOnTerm(Term_p source, VarBank_p vars, DerefType deref)
 {
-   printf("Original:\n");
-   ClausePrint(stdout, clause, true);
-   printf("\n");
-   Eqn_p next;
-   Eqn_p literals = clause->literals;
-   while(literals)
+   Term_p handle;
+   int    i;
+
+   assert(source);
+
+   const int limit = DEREF_LIMIT(source, deref);
+   source          = TermDeref(source, &deref);
+
+   if(TermIsVar(source))
    {
-      next = literals->next;
-      RewriteConstantsOnTerm(literals->lterm);
-      RewriteConstantsOnTerm(literals->rterm);
-      literals = next;
+      handle = VarBankVarAssertAlloc(vars, source->f_code, source->type);
    }
-   printf("Rewritten:\n");
-   ClausePrint(stdout, clause, true);
-   printf("\n");
-}
-
-Term_p RewriteConstantsOnTerm(Term_p term)
-{
-   PStack_p stack = PStackAlloc();
-   Term_p   handle;
-
-   PStackPushP(stack, term);
-
-   while(!PStackEmpty(stack))
+   else
    {
-      handle = PStackPopP(stack);
-      int i;
+      handle = RewriteConstantsAndCopyTerm(source);
 
-      if(handle->arity==0 && !TermIsVar(handle))
-      {
-         if(rc == NULL)
-         {
-            rc = handle->f_code;
-            printf("REWRITE CONSTANT %ld\n", rc);
-         }
-         else 
-         {
-            printf("Rewriting %ld\n", handle->f_code);
-            handle->f_code = rc;
-         }
-      }
       for(i=0; i<handle->arity; i++)
       {
-         PStackPushP(stack, handle->args[i]);
+         handle->args[i] = RewriteConstantsOnTerm(source->args[i], vars,
+                                                  CONVERT_DEREF(i, limit, deref));
       }
    }
 
-   PStackFree(stack);
+   return handle;
+}
 
-   return term;
+/*-----------------------------------------------------------------------
+//
+// Function: RewriteConstantsOnTermCell()
+//
+//   Allocates a new Term that is either a copy of source or if term is
+//   a constant inserts rc when it exists.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+Term_p RewriteConstantsOnTermCell(Term_p source) 
+{
+   Term_p handle = TermDefaultCellAlloc();
+
+   handle->properties = (source->properties&(TPPredPos));
+   TermCellDelProp(handle, TPOutputFlag);
+
+   if(source->arity)
+   {
+      handle->arity = source->arity;
+      handle->args  = TermArgArrayAlloc(source->arity);
+   }
+
+   if(source->arity==0 && !TermIsVar(source))
+   {
+      if(rc == -1)
+      {
+         rc = source->f_code;
+         handle->f_code = source->f_code;
+      }
+      else 
+      {
+         handle->f_code = rc;
+      }
+   }
+   else
+   {
+      handle->f_code = source->f_code;
+   }
+
+   handle->type = source->type;
+
+   TermSetBank(handle, TermGetBank(source));
+
+   return handle;
 }
 
 /*-----------------------------------------------------------------------
@@ -185,8 +218,7 @@ void EfficientSubsumptionIndexUnitClauseIndexInit(EfficientSubsumptionIndex_p in
 /----------------------------------------------------------------------*/
 void EfficientSubsumptionIndexInsertClause(EfficientSubsumptionIndex_p index, 
                                           Clause_p clause)
-{ 
-   RewriteConstants(clause);
+{
    FVPackedClause_p pclause = FVIndexPackClause(clause, index->fvindex);
    assert(clause->weight == ClauseStandardWeight(clause));
    EfficientSubsumptionIndexInsert(index, pclause);
@@ -219,4 +251,37 @@ Clause_p ClausesetIndexDeleteEntry(EfficientSubsumptionIndex_p index,
       FVIndexDelete(index->fvindex, junk);
    }
    return junk;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: RewriteConstants()
+//
+//   Takes a clause and rewrites als constants to rc where rc is the
+//   first constant met during the proof.
+//
+// Global Variables: -
+//
+// Side Effects    : Changes clause ;-).
+//
+/----------------------------------------------------------------------*/
+void RewriteConstants(Clause_p clause) 
+{
+   // printf("Original: ");
+   // ClausePrint(stdout, clause, true);
+   // printf("\n");
+   Eqn_p next;
+   Eqn_p literals = clause->literals;
+   while(literals)
+   {
+      next = literals->next;
+      literals->lterm = RewriteConstantsOnTerm(literals->lterm, 
+                                               literals->bank->vars, false);
+      literals->rterm = RewriteConstantsOnTerm(literals->rterm, 
+                                               literals->bank->vars, false);
+      literals = next;
+   }
+   // printf("Rewritten: ");
+   // ClausePrint(stdout, clause, true);
+   // printf("\n");
 }

@@ -173,7 +173,7 @@ bool UnitclauseIndexDeleteClause(UnitclauseIndex_p index, Clause_p clause)
 // Global Variables: -
 //
 // Side Effects    : Memory operatios
-/e
+//
 /----------------------------------------------------------------------*/
 bool UnitclauseIndexInsertClause(UnitclauseIndex_p index, Clause_p clause)
 {

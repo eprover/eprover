@@ -44,6 +44,7 @@ typedef struct proofstatecell
    long          original_symbols;
    TB_p          terms;
    TB_p          tmp_terms;
+   TB_p          softsubsumption_rw;
    VarBank_p     freshvars;
    GCAdmin_p     gc_terms;
    FormulaSet_p  f_ax_archive;
@@ -157,9 +158,10 @@ void         ProofStateFree(ProofState_p junk);
     ClauseSetStorage((state)->processed_neg_units)+     \
     ClauseSetStorage((state)->processed_non_units)+     \
     ClauseSetStorage((state)->archive)+                 \
-    TBStorage((state)->terms))
+    TBStorage((state)->terms)+                         \
+    TBStorage((state)->softsubsumption_rw))
 
-#define      ProofStateProcCardinality(state)          \
+#define      ProofStateProcCardinality(state)             \
    (ClauseSetCardinality((state)->processed_pos_rules)+   \
     ClauseSetCardinality((state)->processed_pos_eqns)+    \
     ClauseSetCardinality((state)->processed_neg_units)+   \

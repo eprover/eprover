@@ -56,13 +56,15 @@ void EfficientSubsumptionIndexInsertClause(EfficientSubsumptionIndex_p index,
                                           Clause_p clause);
 Clause_p ClausesetIndexDeleteEntry(EfficientSubsumptionIndex_p index, 
                                    Clause_p junk);
+void RewriteConstants(Clause_p clause);
 
 /*---------------------------------------------------------------------*/
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
 
-void RewriteConstants(Clause_p clause);
-Term_p RewriteConstantsOnTerm(Term_p term);
+Term_p RewriteConstantsOnTerm(Term_p source, VarBank_p vars, 
+                              DerefType deref);
+Term_p RewriteConstantsOnTermCell(Term_p source);
 
 void EfficentSubsumptionIndexInsert(EfficentSubsumptionIndex_p index, 
                                     FVPackedClause_p newclause);

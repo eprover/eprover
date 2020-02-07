@@ -150,6 +150,7 @@ ProofState_p ProofStateAlloc(FunctionProperties free_symb_prop)
    handle->original_symbols     = 0;
    handle->terms                = TBAlloc(handle->signature);
    handle->tmp_terms            = TBAlloc(handle->signature);
+   handle->softsubsumption_rw   = TBAlloc(handle->signature);
    handle->freshvars            = VarBankAlloc(handle->type_bank);
    VarBankPairShadow(handle->terms->vars, handle->freshvars);
    handle->f_axioms             = FormulaSetAlloc();
@@ -341,6 +342,7 @@ void ProofStateInitWatchlist(ProofState_p state, OCB_p ocb)
       while(!ClauseSetEmpty(state->watchlist))
       {
          handle = ClauseSetExtractFirst(state->watchlist);
+         RewriteConstants(handle);
          ClauseSetInsert(tmpset, handle);
       }
       ClauseSetIndexedInsertClauseSet(state->watchlist, tmpset);
@@ -446,10 +448,12 @@ void ProofStateFree(ProofState_p junk)
    // junk->original_terms->sig = NULL;
    junk->terms->sig = NULL;
    junk->tmp_terms->sig = NULL;
+   junk->softsubsumption_rw->sig = NULL;
    SigFree(junk->signature);
    // TBFree(junk->original_terms);
    TBFree(junk->terms);
    TBFree(junk->tmp_terms);
+   TBFree(junk->softsubsumption_rw);
    VarBankFree(junk->freshvars);
    TypeBankFree(junk->type_bank);
 
