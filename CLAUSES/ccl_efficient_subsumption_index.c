@@ -18,9 +18,66 @@ Copyright 2019-2020 by the author.
 
 #include <ccl_efficient_subsumption_index.h>
 
+static REWRITE_CONSTANT rc = NULL;
+
 /*---------------------------------------------------------------------*/
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
+
+void RewriteConstants(Clause_p clause) 
+{
+   printf("Original:\n");
+   ClausePrint(stdout, clause, true);
+   printf("\n");
+   Eqn_p next;
+   Eqn_p literals = clause->literals;
+   while(literals)
+   {
+      next = literals->next;
+      RewriteConstantsOnTerm(literals->lterm);
+      RewriteConstantsOnTerm(literals->rterm);
+      literals = next;
+   }
+   printf("Rewritten:\n");
+   ClausePrint(stdout, clause, true);
+   printf("\n");
+}
+
+Term_p RewriteConstantsOnTerm(Term_p term)
+{
+   PStack_p stack = PStackAlloc();
+   Term_p   handle;
+
+   PStackPushP(stack, term);
+
+   while(!PStackEmpty(stack))
+   {
+      handle = PStackPopP(stack);
+      int i;
+
+      if(handle->arity==0 && !TermIsVar(handle))
+      {
+         if(rc == NULL)
+         {
+            rc = handle->f_code;
+            printf("REWRITE CONSTANT %ld\n", rc);
+         }
+         else 
+         {
+            printf("Rewriting %ld\n", handle->f_code);
+            handle->f_code = rc;
+         }
+      }
+      for(i=0; i<handle->arity; i++)
+      {
+         PStackPushP(stack, handle->args[i]);
+      }
+   }
+
+   PStackFree(stack);
+
+   return term;
+}
 
 /*-----------------------------------------------------------------------
 //
@@ -129,6 +186,7 @@ void EfficientSubsumptionIndexUnitClauseIndexInit(EfficientSubsumptionIndex_p in
 void EfficientSubsumptionIndexInsertClause(EfficientSubsumptionIndex_p index, 
                                           Clause_p clause)
 { 
+   RewriteConstants(clause);
    FVPackedClause_p pclause = FVIndexPackClause(clause, index->fvindex);
    assert(clause->weight == ClauseStandardWeight(clause));
    EfficientSubsumptionIndexInsert(index, pclause);

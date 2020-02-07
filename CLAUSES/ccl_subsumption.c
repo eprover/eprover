@@ -1208,10 +1208,11 @@ Clause_p clauseset_find_first_subsumed_clause_indexed(EfficientSubsumptionIndex_
 {
    Clause_p res = NULL;
 
+   // TODO: Can a unit clause subsume a non-unit-clause?
    if(index->fvindex)
    {
       res = clauseset_find_first_subsumed_clause_fv_indexed(index->fvindex->index,
-                                                         subsumer, 0);
+                                                            subsumer, 0);
    }
    if(index->unitclasue_index && res == NULL && ClauseIsUnit(subsumer->clause))
    {
