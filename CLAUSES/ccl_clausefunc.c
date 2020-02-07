@@ -752,16 +752,13 @@ bool ClauseEliminateNakedBooleanVariables(Clause_p clause)
 //   Create a clause that postulates existence of an inverse function
 //   for a given expression. In other words:
 //
-//           f s1 ... X ... sn != f t1 ... Y ... tn \/ X = Y
-//    --------------------------------------------------------------
-//            inv_f_i(f sigma(s1) ... X ... sigma(sn)) = X
+//           f X_1 ... X_n != f Y1 ... Y_n \/ X_i = Y_i
+//     -------------------------------------------------------
+//        inv_f_i(f sigma(X_1) ... X_i ... sigma(X_n)) = X_i
 //
-//   where sigma is the **simultaneous** unifier of 
-//   s1 =?= t1 ... sn =?= tn, and X,Y do not appear in any of the
-//   s1, ..., sn, t1, ..., tn.
-//   If sigma was a variable renaming, then resulting clause is tagged with
-//   CPIsPureInjectivity. If inference was unsucessful, NULL is returned.
-//
+//   where for some subset I of indexes from 1 to n, X_i = Y_i
+//   for each i in I, and for complementary set of indexes J
+//   there all X_j and Y_j (j \in J) and different from all X_i
 // Global Variables: -
 //
 // Side Effects    : -
@@ -787,6 +784,9 @@ Clause_p ClauseRecognizeInjectivity(TB_p terms, Clause_p clause)
           pos_lit->lterm != pos_lit->rterm &&
           !TermIsTopLevelVar(neg_lit->lterm) && !TermIsTopLevelVar(neg_lit->rterm)
           && neg_lit->lterm->f_code == neg_lit->rterm->f_code
+          && TermStandardWeight(neg_lit->lterm) == TermStandardWeight(neg_lit->rterm)
+          && TermStandardWeight(neg_lit->lterm) 
+               == (DEFAULT_FWEIGHT + neg_lit->lterm->arity*DEFAULT_VWEIGHT)
           && neg_lit->lterm->arity > 0)
       {
          assert(neg_lit->lterm->arity == neg_lit->rterm->arity);
@@ -805,46 +805,70 @@ Clause_p ClauseRecognizeInjectivity(TB_p terms, Clause_p clause)
                idx_var_occ = i;
             }
          }
+
          if (idx_var_occ != -1)
          {
-            // collect pairs s_i =?= t_i on the stack.
-            PStack_p arg_pairs = PStackAlloc();
-            Subst_p subst = SubstAlloc();
-            bool no_occurs = true; 
+            bool rule_applicable = true; 
 
-            for(int i=0; no_occurs && i<neg_lit->lterm->arity; i++)
+            // TPCheckFlag means that the variable appears as X_i = X_i
+            // TPOpFlag means that the varaible appears as X_i = Y_i
+            TermDelProp(neg_lit->lterm, DEREF_NEVER, TPOpFlag|TPCheckFlag);
+            TermDelProp(neg_lit->rterm, DEREF_NEVER, TPOpFlag|TPCheckFlag);
+            
+            PStack_p skolem_vars = PStackAlloc();
+
+            for(int i=0; rule_applicable && i<neg_lit->lterm->arity; i++)
             {
-               if (i!=idx_var_occ)
+               Term_p lvar = neg_lit->lterm->args[i], rvar = neg_lit->rterm->args[i];
+
+               assert(TermIsVar(lvar));
+               assert(TermIsVar(rvar));
+
+               if (lvar == rvar)
                {
-                  no_occurs = 
-                     !TermHasFCode(neg_lit->lterm->args[i], pos_lit->lterm->f_code) &&
-                     !TermHasFCode(neg_lit->rterm->args[i], pos_lit->lterm->f_code) &&
-                     !TermHasFCode(neg_lit->lterm->args[i], pos_lit->rterm->f_code) &&
-                     !TermHasFCode(neg_lit->rterm->args[i], pos_lit->rterm->f_code);
-                  if (no_occurs)
+                  if (TermCellQueryProp(lvar, TPCheckFlag) || 
+                      TermCellQueryProp(rvar, TPCheckFlag))
                   {
-                     PStackPushP(arg_pairs, neg_lit->lterm->args[i]);
-                     PStackPushP(arg_pairs, neg_lit->rterm->args[i]);
+                     /* Variable can appear again only if it is equal to its rhs-pair */
+                     rule_applicable = false;
+                  }
+                  else if (!TermCellQueryProp(lvar, TPOpFlag))
+                  {
+                     /* We are seeing the variable for the first time */
+                     TermCellSetProp(lvar, TPOpFlag);
+                     PStackPushP(skolem_vars, lvar);
+                  }
+               }
+               else
+               {
+                  if (TermCellIsAnyPropSet(lvar, TPCheckFlag|TPOpFlag) || 
+                      TermCellIsAnyPropSet(rvar, TPCheckFlag|TPOpFlag))
+                  {
+                     /* Variable that is different from tis rhs-pair cannot appear again  */
+                     rule_applicable = false;
+                  }
+                  else 
+                  {
+                     TermCellSetProp(lvar, TPCheckFlag);
+                     TermCellSetProp(rvar, TPCheckFlag);
                   }
                }
             }
 
-            if (no_occurs && unif_all_pairs(arg_pairs, subst))
+            // reset term properties again
+            TermDelProp(neg_lit->lterm, DEREF_NEVER, TPOpFlag|TPCheckFlag);
+            TermDelProp(neg_lit->rterm, DEREF_NEVER, TPOpFlag|TPCheckFlag);
+
+            if (rule_applicable)
             {
                // substitution did not bind X or Y
                assert(!pos_lit->lterm->binding);
                assert(!pos_lit->rterm->binding);
 
-               // f (sigma s_1) ... X ... (sigma s_n)
-               Term_p inverse_arg = TBInsert(terms, neg_lit->lterm, DEREF_ALWAYS);
-               // X 
+               Term_p inverse_arg = neg_lit->lterm;
                Term_p inverse_var = neg_lit->lterm->args[idx_var_occ];
-               assert(inverse_var == inverse_arg->args[idx_var_occ]);
 
-               PTree_p free_vars = collect_free_vars(inverse_arg, terms, idx_var_occ);
-               PStack_p free_vars_stack = PStackAlloc();
-               PTreeToPStack(free_vars_stack, free_vars);
-               int vars_num = PStackGetSP(free_vars_stack);
+               int vars_num = PStackGetSP(skolem_vars);
 
                Term_p inv_skolem_term; // let the compiler check if it is initialized
 
@@ -855,7 +879,7 @@ Clause_p ClauseRecognizeInjectivity(TB_p terms, Clause_p clause)
 
                   for(int i=0; i<vars_num; i++)
                   {
-                     args[i] = PStackElementP(free_vars_stack, i);
+                     args[i] = PStackElementP(skolem_vars, i);
                      arg_tys[i] = args[i]->type;
                   }
                   args[vars_num] = inverse_arg;
@@ -886,8 +910,6 @@ Clause_p ClauseRecognizeInjectivity(TB_p terms, Clause_p clause)
                   inv_skolem_term = TBTermTopInsert(terms, inv_skolem_term);
                }
 
-               PStackFree(free_vars_stack);
-               PTreeFree(free_vars);
 
                Eqn_p eqn = EqnAlloc(inv_skolem_term, inverse_var, terms, true);
                res = ClauseAlloc(eqn);
@@ -895,20 +917,77 @@ Clause_p ClauseRecognizeInjectivity(TB_p terms, Clause_p clause)
                res->proof_size  = clause->proof_size+1;
                ClauseSetTPTPType(res, ClauseQueryTPTPType(clause));
                ClauseSetProp(res, ClauseGiveProps(clause, CPIsSOS));
-               if (SubstIsEmpty(subst))
-               {
-                  ClauseSetProp(res, CPIsPureInjectivity);
-               }
+               ClauseSetProp(res, CPIsPureInjectivity);
                // TODO: Clause documentation is not implemented at the moment.
                // DocClauseCreationDefault(clause, inf_efactor, clause, NULL);
                ClausePushDerivation(res, DCInvRec, clause, NULL);
             }
 
-            PStackFree(arg_pairs);
-            SubstDelete(subst);
+            PStackFree(skolem_vars);
          }
       }
    }
+
+   return res;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseSetInjectivityIsDefined()
+//
+//   Finds definitions of skolem symbols standing for the renaming of
+//   the injectivity axiom.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+bool ClauseSetInjectivityIsDefined(ClauseSet_p all_defs, Clause_p inj_def)
+{
+   assert(inj_def->pos_lit_no == 1 && inj_def->neg_lit_no == 0);
+   assert(all_defs);
+   
+   bool res = false;
+
+   TB_p bank = inj_def->literals->bank;
+   Term_p lhs = TBInsertDisjoint(bank, inj_def->literals->lterm);
+   Term_p rhs = TBInsertDisjoint(bank, inj_def->literals->rterm);
+   
+   Clause_p iter = all_defs->anchor->succ;
+   while(!res && iter != all_defs->anchor)
+   {
+      assert(iter);
+      assert(iter->pos_lit_no == 1 && iter->neg_lit_no == 0);
+
+      Term_p cand_lhs = iter->literals->lterm, cand_rhs = iter->literals->rterm;
+      if (cand_lhs->arity == lhs->arity)
+      {
+         PStack_p unif_stack = PStackAlloc();
+         Subst_p subst = SubstAlloc();
+
+         PStackPushP(unif_stack, rhs);
+         PStackPushP(unif_stack, cand_rhs);
+
+         for(int i=0; i<cand_lhs->arity; i++)
+         {
+            PStackPushP(unif_stack, lhs->args[i]);
+            PStackPushP(unif_stack, cand_lhs->args[i]);
+         }
+
+         if (unif_all_pairs(unif_stack, subst) && SubstIsRenaming(subst))
+         {
+            res = true;
+         }
+
+         PStackFree(unif_stack);
+         SubstDelete(subst);
+      }      
+      
+      iter = iter->succ;
+   }
+
 
    return res;
 }
@@ -943,11 +1022,19 @@ long ClauseSetReplaceInjectivityDefs(ClauseSet_p set, ClauseSet_p archive, TB_p 
 
       Clause_p repl = ClauseRecognizeInjectivity(terms, handle);
 
-      if(repl && ClauseQueryProp(repl, CPIsPureInjectivity))
+      if(repl)
       {
-         ClauseSetMoveClause(archive, handle);
-         ClauseSetInsert(tmp, repl);
-         count++;
+         if (ClauseQueryProp(repl, CPIsPureInjectivity) && 
+            !ClauseSetInjectivityIsDefined(tmp, repl))
+         {
+            ClauseSetMoveClause(archive, handle);
+            ClauseSetInsert(tmp, repl);
+            count++;
+         }
+         else
+         {
+            ClauseFree(repl);
+         }
       }
       handle = next;
    }
