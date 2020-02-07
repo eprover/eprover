@@ -392,8 +392,8 @@ void check_watchlist(GlobalIndices_p indices, ClauseSet_p watchlist,
 
    if(watchlist)
    {
-      // TODO: Fix all ->efficent_subsumption_index->fvindex
-      pclause = FVIndexPackClause(clause, watchlist->efficent_subsumption_index->fvindex);
+      // TODO: Fix all ->efficient_subsumption_index->fvindex
+      pclause = FVIndexPackClause(clause, watchlist->efficient_subsumption_index->fvindex);
       // printf("# check_watchlist(%p)...\n", indices);
       ClauseSubsumeOrderSortLits(clause);
       // assert(ClauseIsSubsumeOrdered(clause));
@@ -1291,18 +1291,18 @@ void fvi_param_init(ProofState_p state, ProofControl_p control)
                             control->fvi_parms.eliminate_uninformative);
    if(control->fvi_parms.cspec.features != FVINoFeatures)
    {
-      state->processed_non_units->efficent_subsumption_index =
-         EfficentSubsumptionIndexAlloc(cspec, PermVectorCopy(perm));
-      state->processed_pos_rules->efficent_subsumption_index =
-         EfficentSubsumptionIndexAlloc(cspec, PermVectorCopy(perm));
-      state->processed_pos_eqns->efficent_subsumption_index =
-         EfficentSubsumptionIndexAlloc(cspec, PermVectorCopy(perm));
-      state->processed_neg_units->efficent_subsumption_index =
-         EfficentSubsumptionIndexAlloc(cspec, PermVectorCopy(perm));
+      state->processed_non_units->efficient_subsumption_index =
+         EfficientSubsumptionIndexAlloc(cspec, PermVectorCopy(perm));
+      state->processed_pos_rules->efficient_subsumption_index =
+         EfficientSubsumptionIndexAlloc(cspec, PermVectorCopy(perm));
+      state->processed_pos_eqns->efficient_subsumption_index =
+         EfficientSubsumptionIndexAlloc(cspec, PermVectorCopy(perm));
+      state->processed_neg_units->efficient_subsumption_index =
+         EfficientSubsumptionIndexAlloc(cspec, PermVectorCopy(perm));
       if(state->watchlist)
       {
-         state->watchlist->efficent_subsumption_index =
-            EfficentSubsumptionIndexAlloc(cspec, PermVectorCopy(perm));
+         state->watchlist->efficient_subsumption_index =
+            EfficientSubsumptionIndexAlloc(cspec, PermVectorCopy(perm));
          //ClauseSetNewTerms(state->watchlist, state->terms);
       }
    }
@@ -1318,8 +1318,8 @@ void fvi_param_init(ProofState_p state, ProofControl_p control)
                                            symbols,
                                            0,0,0,
                                            0,0,0);
-   state->definition_store->def_clauses->efficent_subsumption_index =
-      EfficentSubsumptionIndexAlloc(state->def_store_cspec, perm);
+   state->definition_store->def_clauses->efficient_subsumption_index =
+      EfficientSubsumptionIndexAlloc(state->def_store_cspec, perm);
 }
 
 

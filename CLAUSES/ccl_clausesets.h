@@ -29,7 +29,7 @@
 #include <ccl_pdtrees.h>
 #include <clb_plist.h>
 #include <clb_objtrees.h>
-#include <ccl_efficent_subsumption_index.h>
+#include <ccl_efficient_subsumption_index.h>
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
@@ -47,7 +47,7 @@ typedef struct clausesetcell
           rewriting. The special date SysCreationDate()
           is used to indicate ignoring of dates when
           checking for irreducability. */
-   EfficentSubsumptionIndex_p efficent_subsumption_index;
+   EfficientSubsumptionIndex_p efficient_subsumption_index;
    PDTree_p  demod_index; /* If used for demodulators */
    PDArray_p eval_indices;
    long      eval_no;
@@ -69,7 +69,7 @@ typedef struct clausesetcell
             (((CLAUSECELL_DYN_MEM+EVAL_MEM((set)->eval_no))*(set)->members+\
             EQN_CELL_MEM*(set)->literals)+\
             PDTreeStorage(set->demod_index))
-            // FVIndexStorage(set->efficent_subsumption_index->fvindex))
+            // FVIndexStorage(set->efficient_subsumption_index->fvindex))
 
 ClauseSet_p ClauseSetAlloc(void);
 void        ClauseSetFreeClauses(ClauseSet_p set);

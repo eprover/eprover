@@ -1,6 +1,6 @@
 /*-----------------------------------------------------------------------
 
-File  : ccl_efficent_subsumption_index.h
+File  : ccl_efficient_subsumption_index.h
 
 Author: Constantin Ruhdorfer
 
@@ -16,8 +16,8 @@ Copyright 2019-2020 by the author.
 
 -----------------------------------------------------------------------*/
 
-#ifndef CCL_EFFICENT_SUBSUMPTION_INDEX
-#define CCL_EFFICENT_SUBSUMPTION_INDEX
+#ifndef CCL_EFFICIENT_SUBSUMPTION_INDEX
+#define CCL_EFFICIENT_SUBSUMPTION_INDEX
 
 #include <ccl_fcvindexing.h>
 #include <ccl_unitclause_index.h>
@@ -26,41 +26,41 @@ Copyright 2019-2020 by the author.
 /*                    Data type declarations                           */
 /*---------------------------------------------------------------------*/
 
-typedef struct efficent_subsumption_index
+typedef struct efficient_subsumption_index
 {
    FVIAnchor_p       fvindex;          /* Used for non-unit subsumption */
    UnitclauseIndex_p unitclasue_index; /* Used for unit clauses subsuption */
-} EfficentSubsumptionIndex, *EfficentSubsumptionIndex_p;
+} EfficientSubsumptionIndex, *EfficientSubsumptionIndex_p;
 
 
 /*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-#define EfficentSubsumptionIndexAllocRaw()\
-        (EfficentSubsumptionIndex*)SizeMalloc(sizeof(EfficentSubsumptionIndex))
-#define EfficentSubsumptionIndexFreeRaw(junk) SizeFree(junk, sizeof(junk))
+#define EfficientSubsumptionIndexAllocRaw()\
+        (EfficientSubsumptionIndex*)SizeMalloc(sizeof(EfficientSubsumptionIndex))
+#define EfficientSubsumptionIndexFreeRaw(junk) SizeFree(junk, sizeof(junk))
 
 // TODO: FPIndexStorage?
-// #define EfficentSubsumptionIndexStorgae(index)
+// #define EfficientSubsumptionIndexStorage(index)
 //         (FVIndexStorage(index->fvindex))
 
-EfficentSubsumptionIndex_p EfficentSubsumptionIndexAlloc(FVCollect_p cspec,
+EfficientSubsumptionIndex_p EfficientSubsumptionIndexAlloc(FVCollect_p cspec,
                                                          PermVector_p perm);
-void EfficentSubsumptionIndexFree(EfficentSubsumptionIndex_p clauseset_indexes);
-void EfficentSubsumptionIndexUnitClauseIndexInit(EfficentSubsumptionIndex_p index,
+void EfficientSubsumptionIndexFree(EfficientSubsumptionIndex_p clauseset_indexes);
+void EfficientSubsumptionIndexUnitClauseIndexInit(EfficientSubsumptionIndex_p index,
                                                  Sig_p sig, 
                                                  char* unitclause_index_type);
-void EfficentSubsumptionIndexInsertClause(EfficentSubsumptionIndex_p index, 
+void EfficientSubsumptionIndexInsertClause(EfficientSubsumptionIndex_p index, 
                                           Clause_p clause);
-Clause_p ClausesetIndexDeleteEntry(EfficentSubsumptionIndex_p index, 
+Clause_p ClausesetIndexDeleteEntry(EfficientSubsumptionIndex_p index, 
                                    Clause_p junk);
 
 /*---------------------------------------------------------------------*/
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
 
-void EfficentSubsumptionIndexInsert(EfficentSubsumptionIndex_p index, 
+void EfficientSubsumptionIndexInsert(EfficientSubsumptionIndex_p index, 
                                     FVPackedClause_p newclause);
 
 /*---------------------------------------------------------------------*/

@@ -40,7 +40,7 @@ CLAUSE_LIB = ccl_neweval.o ccl_eqn.o ccl_eqnlist.o \
              ccl_tautologies.o ccl_clausepos.o ccl_clausecpos.o \
              ccl_pdtrees.o ccl_freqvectors.o \
              ccl_fcvindexing.o ccl_clausesets.o ccl_unfold_defs.o\
-				 ccl_efficent_subsumption_index.o\
+				 ccl_efficient_subsumption_index.o\
              ccl_clausefunc.o ccl_formulafunc.o ccl_groundconstr.o\
              ccl_grounding.o ccl_g_lithash.o ccl_axiomsorter.o \
 	     ccl_findex.o ccl_clausepos_tree.o ccl_subterm_tree.o \

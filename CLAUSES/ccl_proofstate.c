@@ -333,7 +333,7 @@ void ProofStateInitWatchlist(ProofState_p state, OCB_p ocb)
    {
       tmpset = ClauseSetAlloc();
 
-      EfficentSubsumptionIndexUnitClauseIndexInit(state->watchlist->efficent_subsumption_index,
+      EfficientSubsumptionIndexUnitClauseIndexInit(state->watchlist->efficient_subsumption_index,
                                                   state->signature,
                                                   "FPWatchlist6");
 

@@ -1070,7 +1070,7 @@ void clauseset_find_subsumed_clauses_unitclause_indexed(UnitclauseIndex_p index,
 //
 // Function: clauseset_find_subsumed_clauses_indexed()
 //
-//   Finds all clauses subsumed by subsumer in the efficent_subsumption_index.
+//   Finds all clauses subsumed by subsumer in the efficient_subsumption_index.
 //
 // Global Variables: -
 //
@@ -1078,7 +1078,7 @@ void clauseset_find_subsumed_clauses_unitclause_indexed(UnitclauseIndex_p index,
 //
 /----------------------------------------------------------------------*/
 static
-void clauseset_find_subsumed_clauses_indexed(EfficentSubsumptionIndex_p index,
+void clauseset_find_subsumed_clauses_indexed(EfficientSubsumptionIndex_p index,
                                              FVPackedClause_p subsumer,
                                              PStack_p res)
 {
@@ -1203,7 +1203,7 @@ Clause_p clauseset_find_first_subsumed_clauses_unitclause_indexed(UnitclauseInde
 /----------------------------------------------------------------------*/
 
 static
-Clause_p clauseset_find_first_subsumed_clause_indexed(EfficentSubsumptionIndex_p index,
+Clause_p clauseset_find_first_subsumed_clause_indexed(EfficientSubsumptionIndex_p index,
                                                       FVPackedClause_p subsumer)
 {
    Clause_p res = NULL;
@@ -1596,9 +1596,9 @@ Clause_p ClauseSetSubsumesFVPackedClause(ClauseSet_p set,
    PERF_CTR_ENTRY(SetSubsumeTimer);
    assert(sub_candidate->clause->weight == ClauseStandardWeight(sub_candidate->clause));
 
-   if(set->efficent_subsumption_index->fvindex && sub_candidate->array)
+   if(set->efficient_subsumption_index->fvindex && sub_candidate->array)
    {
-      res = clause_set_subsumes_clause_indexed(set->efficent_subsumption_index->fvindex->index,
+      res = clause_set_subsumes_clause_indexed(set->efficient_subsumption_index->fvindex->index,
                                                sub_candidate, 0);
       PERF_CTR_EXIT(SetSubsumeTimer);
       return res;
@@ -1628,12 +1628,12 @@ Clause_p ClauseSetSubsumesClause(ClauseSet_p set, Clause_p sub_candidate)
 
    PERF_CTR_ENTRY(SetSubsumeTimer);
    assert(sub_candidate->weight == ClauseStandardWeight(sub_candidate));
-   if(set->efficent_subsumption_index->fvindex)
+   if(set->efficient_subsumption_index->fvindex)
    {
       FreqVector_p vec = OptimizedVarFreqVectorCompute(sub_candidate,
-                                                       set->efficent_subsumption_index->fvindex->perm_vector,
-                                                       set->efficent_subsumption_index->fvindex->cspec);
-      res =  clause_set_subsumes_clause_indexed(set->efficent_subsumption_index->fvindex->index, vec, 0);
+                                                       set->efficient_subsumption_index->fvindex->perm_vector,
+                                                       set->efficient_subsumption_index->fvindex->cspec);
+      res =  clause_set_subsumes_clause_indexed(set->efficient_subsumption_index->fvindex->index, vec, 0);
       FreqVectorFree(vec);
       PERF_CTR_EXIT(SetSubsumeTimer);
       return res;
@@ -1702,9 +1702,9 @@ long ClauseSetFindESISubsumedClauses(ClauseSet_p set,
    PERF_CTR_ENTRY(SetSubsumeTimer);
    assert(subsumer->clause->weight == ClauseStandardWeight(subsumer->clause));
 
-   if(set->efficent_subsumption_index)
+   if(set->efficient_subsumption_index)
    {
-      clauseset_find_subsumed_clauses_indexed(set->efficent_subsumption_index,
+      clauseset_find_subsumed_clauses_indexed(set->efficient_subsumption_index,
                                               subsumer, res);
    }
    else
@@ -1738,9 +1738,9 @@ Clause_p ClauseSetFindFirstESISubsumedClauses(ClauseSet_p set,
    PERF_CTR_ENTRY(SetSubsumeTimer);
    assert(subsumer->clause->weight == ClauseStandardWeight(subsumer->clause));
 
-   if(set->efficent_subsumption_index->fvindex)
+   if(set->efficient_subsumption_index->fvindex)
    {
-      res = clauseset_find_first_subsumed_clause_indexed(set->efficent_subsumption_index,
+      res = clauseset_find_first_subsumed_clause_indexed(set->efficient_subsumption_index,
                                                          subsumer);
    }
    else
@@ -1775,7 +1775,7 @@ long ClauseSetFindSubsumedClauses(ClauseSet_p set,
 
    assert(subsumer->weight == ClauseStandardWeight(subsumer));
 
-   pclause = FVIndexPackClause(subsumer, set->efficent_subsumption_index->fvindex);
+   pclause = FVIndexPackClause(subsumer, set->efficient_subsumption_index->fvindex);
 
    found = ClauseSetFindESISubsumedClauses(set, pclause, res);
 
@@ -1807,7 +1807,7 @@ Clause_p ClauseSetFindFirstSubsumedClause(ClauseSet_p set,
 
    assert(subsumer->weight == ClauseStandardWeight(subsumer));
 
-   pclause = FVIndexPackClause(subsumer, set->efficent_subsumption_index->fvindex);
+   pclause = FVIndexPackClause(subsumer, set->efficient_subsumption_index->fvindex);
 
    res = ClauseSetFindFirstESISubsumedClauses(set, pclause);
 
@@ -1835,9 +1835,9 @@ Clause_p ClauseSetFindFirstSubsumedClause(ClauseSet_p set,
 Clause_p ClauseSetFindFVVariantClause(ClauseSet_p set,
                                       FVPackedClause_p clause)
 {
-   assert(set->efficent_subsumption_index->fvindex);
+   assert(set->efficient_subsumption_index->fvindex);
 
-   return clauseset_find_variant_clause_indexed(set->efficent_subsumption_index->fvindex->index,
+   return clauseset_find_variant_clause_indexed(set->efficient_subsumption_index->fvindex->index,
                                                 clause, 0);
 }
 
@@ -1863,7 +1863,7 @@ Clause_p ClauseSetFindVariantClause(ClauseSet_p set,
 
    assert(clause->weight == ClauseStandardWeight(clause));
 
-   pclause = FVIndexPackClause(clause, set->efficent_subsumption_index->fvindex);
+   pclause = FVIndexPackClause(clause, set->efficient_subsumption_index->fvindex);
 
    res = ClauseSetFindFVVariantClause(set, pclause);
 
