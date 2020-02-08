@@ -62,7 +62,9 @@ typedef enum
    FPPseudoPred   = 8192, /* Pseudo-predicate used for side effects
                            * only, does not conceptually contribute to
                            * truth of clause */
-   FPTypedApplication = FPPseudoPred * 2
+   FPTypedApplication = FPPseudoPred * 2, /* Symbol used to represtend typed
+                                             first-order binary application symbol */
+   FPIsInjDefSkolem = FPTypedApplication * 2 /* Symbol is Skolem for injective function */
 }FunctionProperties;
 
 

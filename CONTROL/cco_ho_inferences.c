@@ -349,8 +349,8 @@ void ComputePosExt(ProofState_p state, ProofControl_p control, Clause_p clause)
 //
 // Function: InferInjectiveDefinition()
 //
-//   If clause postulates injectivity of some symbol, create
-//   the add the definition of inverse to the proof state.
+//   If clause postulates injectivity of some symbol
+//   add the definition of inverse to the proof state.
 //
 // Global Variables: -
 //
@@ -362,6 +362,12 @@ void InferInjectiveDefinition(ProofState_p state, ProofControl_p control, Clause
    Clause_p res = ClauseRecognizeInjectivity(state->terms, clause);
    if (res)
    {
+      fprintf(stderr, "inj_def(");
+      ClausePrint(stderr, clause, true);
+      fprintf(stderr, ") = \n ");
+      ClausePrint(stderr, res, true);
+      fprintf(stderr, "\n");
+
       assert(ClauseIsUnit(res));
       ClauseSetInsert(state->tmp_store, res);
    }

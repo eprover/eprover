@@ -783,7 +783,9 @@ Clause_p ClauseRecognizeInjectivity(TB_p terms, Clause_p clause)
           TermIsVar(pos_lit->lterm) && TermIsVar(pos_lit->rterm) && 
           pos_lit->lterm != pos_lit->rterm &&
           !TermIsTopLevelVar(neg_lit->lterm) && !TermIsTopLevelVar(neg_lit->rterm)
-          && neg_lit->lterm->f_code == neg_lit->rterm->f_code
+          && neg_lit->lterm->f_code == neg_lit->rterm->f_code 
+          && !TypeIsArrow(neg_lit->lterm->type)
+          && !SigQueryFuncProp(neg_lit->bank->sig, neg_lit->lterm->f_code, FPIsInjDefSkolem)
           && TermStandardWeight(neg_lit->lterm) == TermStandardWeight(neg_lit->rterm)
           && TermStandardWeight(neg_lit->lterm) 
                == (DEFAULT_FWEIGHT + neg_lit->lterm->arity*DEFAULT_VWEIGHT)
@@ -887,6 +889,7 @@ Clause_p ClauseRecognizeInjectivity(TB_p terms, Clause_p clause)
 
                   FunCode new_inv_skolem_sym = 
                      SigGetNewTypedSkolem(terms->sig, arg_tys, vars_num+1, pos_lit->lterm->type);
+                  SigSetFuncProp(terms->sig, new_inv_skolem_sym, FPIsInjDefSkolem);
 
                   inv_skolem_term = TermTopAlloc(new_inv_skolem_sym, vars_num+1);
                   for(int i=0; i<vars_num+1; i++)
@@ -904,6 +907,7 @@ Clause_p ClauseRecognizeInjectivity(TB_p terms, Clause_p clause)
                   Type_p args[1] = {neg_lit->lterm->type};
                   FunCode new_inv_skolem_sym = 
                      SigGetNewTypedSkolem(terms->sig, args, 1, pos_lit->lterm->type);
+                  SigSetFuncProp(terms->sig, new_inv_skolem_sym, FPIsInjDefSkolem);
                   inv_skolem_term = TermTopAlloc(new_inv_skolem_sym, 1);
                   inv_skolem_term->args[0] = inverse_arg;
                   inv_skolem_term->type = pos_lit->lterm->type;
