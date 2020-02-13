@@ -141,10 +141,6 @@ void RewriteConstants(Clause_p clause)
                                                literals->bank->vars, false);
       literals = next;
    }
-
-   // printf("Rwrite:\n");
-   // ClausePrint(stdout, clause, true);
-   // printf("\n");
 }
 
 

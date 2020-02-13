@@ -112,7 +112,10 @@ void EfficientSubsumptionIndexUnitClauseIndexInit(EfficientSubsumptionIndex_p in
 {
    FPIndexFunction indexfun;
    indexfun                = GetFPIndexFunction(unitclause_index_type);
-   index->unitclasue_index = FPIndexAlloc(indexfun, sig, UnitclauseIndexFreeWrapper);
+   if(indexfun)
+   {
+      index->unitclasue_index = FPIndexAlloc(indexfun, sig, UnitclauseIndexFreeWrapper);
+   }
 }
 
 /*-----------------------------------------------------------------------
