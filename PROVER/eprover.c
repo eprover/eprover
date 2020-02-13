@@ -497,7 +497,6 @@ int main(int argc, char* argv[])
                                      terms, so we set the flag for
                                      the main proof search only now! */
 
-   // TODO: Determine wether no index holds here.
    GlobalIndicesInit(&(proofstate->wlindices),
                      proofstate->signature,
                      proofcontrol->heuristic_parms.rw_bw_index_type,
@@ -1530,6 +1529,26 @@ CLState_p process_options(int argc, char* argv[])
             break;
       case OPT_WATCHLIST_NO_SIMPLIFY:
             h_parms->watchlist_simplify = false;
+            break;
+      case OPT_WATCHLIST_CLAUSE_ABSTRACTION:
+            if (!strcmp("constants", arg))
+            {
+               h_parms->wl_abstract_skolem_sym = false;
+               h_parms->wl_abstract_constant_sym = true;
+            }
+            else if (!strcmp("skolem", arg))
+            {
+               h_parms->wl_abstract_skolem_sym = true;
+               h_parms->wl_abstract_constant_sym = false;
+            }
+            else
+            {
+               printf("Please either use constants or skolem.");
+            }
+            break;
+      case OPT_WATCHLIST_UNIT_CLAUSE_INDEX:
+            check_fp_index_arg(arg, "--watchlist-unit-clause-index");
+            strcpy(h_parms->watchlist_unit_clause_index_type, arg);
             break;
       case OPT_NO_INDEXED_SUBSUMPTION:
             fvi_parms->cspec.features = FVINoFeatures;

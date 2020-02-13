@@ -163,6 +163,8 @@ typedef enum
    OPT_WATCHLIST,
    OPT_STATIC_WATCHLIST,
    OPT_WATCHLIST_NO_SIMPLIFY,
+   OPT_WATCHLIST_CLAUSE_ABSTRACTION,
+   OPT_WATCHLIST_UNIT_CLAUSE_INDEX,
    OPT_NO_INDEXED_SUBSUMPTION,
    OPT_FVINDEX_STYLE,
    OPT_FVINDEX_FEATURETYPES,
@@ -1245,6 +1247,20 @@ OptCell opts[] =
     "By default, the watchlist is brought into normal form with respect "
     "to the current processed clause set and certain simplifications. "
     "This option disables simplification for the watchlist."},
+
+   {OPT_WATCHLIST_CLAUSE_ABSTRACTION,
+    '\0', "watchlist-clause-abstraction",
+    OptArg, NULL,
+    "Abstract a clause to the given argument."},
+
+   {OPT_WATCHLIST_UNIT_CLAUSE_INDEX,
+    '\0', "watchlist-unit-clause-index",
+    OptArg, NULL,
+    "Select fingerprint function for the unit clause watchlist index. "
+    "\"NoIndex\" will disable indexing. For a list of the other "
+    "values run '" NAME " --watchlist-unit-clause-index=none'. FPX functions "
+    "will use a fingerprint of X positions, the letters disambiguate "
+    "between different fingerprints with the same sample size."},
 
    {OPT_NO_INDEXED_SUBSUMPTION,
     '\0', "conventional-subsumption",

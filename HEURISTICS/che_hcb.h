@@ -112,6 +112,13 @@ typedef struct heuristic_parms_cell
    char                pm_from_index_type[MAX_PM_INDEX_NAME_LEN];
    char                pm_into_index_type[MAX_PM_INDEX_NAME_LEN];
 
+   /* Watchlist unit clause indexing */
+   char                watchlist_unit_clause_index_type[MAX_PM_INDEX_NAME_LEN];
+
+   /* Watchlist clause abstraction */
+   bool                wl_abstract_constant_sym;
+   bool                wl_abstract_skolem_sym;
+   
    /* SAT checking */
    GroundingStrategy   sat_check_grounding;
    long                sat_check_step_limit;
@@ -186,6 +193,7 @@ typedef struct hcb_cell
 #define DEFAULT_RW_BW_INDEX_NAME "FP7"
 #define DEFAULT_PM_FROM_INDEX_NAME "FP7"
 #define DEFAULT_PM_INTO_INDEX_NAME "FP7"
+#define DEFAULT_WATCHLIST_UNIT_CLAUSE_INDEX_NAME "FPWatchlist6"
 
 typedef Clause_p (*ClauseSelectFun)(HCB_p hcb, ClauseSet_p set);
 

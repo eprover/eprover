@@ -137,6 +137,10 @@ void HeuristicParmsInitialize(HeuristicParms_p handle)
    strcpy(handle->rw_bw_index_type, DEFAULT_RW_BW_INDEX_NAME);
    strcpy(handle->pm_from_index_type, DEFAULT_PM_FROM_INDEX_NAME);
    strcpy(handle->pm_into_index_type, DEFAULT_PM_INTO_INDEX_NAME);
+   strcpy(handle->watchlist_unit_clause_index_type, DEFAULT_WATCHLIST_UNIT_CLAUSE_INDEX_NAME);
+
+   handle->wl_abstract_constant_sym      = false;
+   handle->wl_abstract_skolem_sym        = false;
 
    handle->sat_check_grounding           = GMNoGrounding;
    handle->sat_check_step_limit          = LONG_MAX;

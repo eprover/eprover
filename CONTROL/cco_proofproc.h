@@ -35,6 +35,7 @@ Changes
 #include <cco_forward_contraction.h>
 #include <cco_interpreted.h>
 #include <ccl_satinterface.h>
+#include <ccl_clause_abstraction.h>
 
 
 /*---------------------------------------------------------------------*/

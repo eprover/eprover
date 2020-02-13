@@ -325,8 +325,12 @@ void ProofStateLoadWatchlist(ProofState_p state,
 //
 /----------------------------------------------------------------------*/
 
-void ProofStateInitWatchlist(ProofState_p state, OCB_p ocb)
+void ProofStateInitWatchlist(ProofState_p state, OCB_p ocb, 
+                             bool rewriteConstants, bool rewriteSkolemSym,
+                             char* watchlist_unit_clause_index_type)
 {
+   printf("%s", watchlist_unit_clause_index_type);
+
    ClauseSet_p tmpset;
    Clause_p    handle;
 
@@ -336,13 +340,21 @@ void ProofStateInitWatchlist(ProofState_p state, OCB_p ocb)
 
       EfficientSubsumptionIndexUnitClauseIndexInit(state->watchlist->efficient_subsumption_index,
                                                   state->signature,
-                                                  "FPWatchlist6");
+                                                  watchlist_unit_clause_index_type);
 
       ClauseSetMarkMaximalTerms(ocb, state->watchlist);
       while(!ClauseSetEmpty(state->watchlist))
       {
          handle = ClauseSetExtractFirst(state->watchlist);
-         RewriteConstants(handle);
+         if(rewriteConstants)
+         {
+            RewriteConstants(handle);
+         }
+         else if (rewriteSkolemSym)
+         {
+            // TODO: Skolem rewrite
+            printf("That should be rewrite skolems.\n");
+         }
          ClauseSetInsert(tmpset, handle);
       }
       ClauseSetIndexedInsertClauseSet(state->watchlist, tmpset);

@@ -30,6 +30,7 @@
 #include <ccl_garbage_coll.h>
 #include <ccl_global_indices.h>
 #include <picosat.h>
+#include <ccl_clause_abstraction.h>
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
@@ -145,7 +146,9 @@ void         ProofStateLoadWatchlist(ProofState_p state,
                                      IOFormat parse_format);
 
 
-void         ProofStateInitWatchlist(ProofState_p state, OCB_p ocb);
+void ProofStateInitWatchlist(ProofState_p state, OCB_p ocb, 
+                             bool rewriteConstants, bool rewriteSkolemSym,
+                             char* watchlist_unit_clause_index_type);
 void         ProofStateResetClauseSets(ProofState_p state, bool term_gc);
 void         ProofStateFree(ProofState_p junk);
 //void         ProofStateGCMarkTerms(ProofState_p state);
