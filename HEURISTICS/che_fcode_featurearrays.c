@@ -60,6 +60,10 @@ static int feature_compare_function(const void* e1,
 
    int res;
 
+   if((res = entry1->key0-entry2->key0))
+   {
+      return res;
+   }
    if((res = entry1->key1-entry2->key1))
    {
       return res;
@@ -101,10 +105,11 @@ FCodeFeatureArray_p FCodeFeatureArrayAlloc(Sig_p sig, ClauseSet_p axioms)
 {
    FCodeFeatureArray_p handle;
    FunCode i;
-   long  array_size = sizeof(long)*(sig->f_count+1);
-   long *rank_array= SizeMalloc(array_size);
-   long *dist_array= SizeMalloc(array_size);
-   long *conjdist_array= SizeMalloc(array_size);
+   long  array_size      = sizeof(long)*(sig->f_count+1);
+   long *rank_array      = SizeMalloc(array_size);
+   long *dist_array      = SizeMalloc(array_size);
+   long *conjdist_array  = SizeMalloc(array_size);
+   long *axiomdist_array = SizeMalloc(array_size);
    long  rank = 0;
 
    handle = FCodeFeatureArrayCellAlloc();
@@ -120,19 +125,23 @@ FCodeFeatureArray_p FCodeFeatureArrayAlloc(Sig_p sig, ClauseSet_p axioms)
    ClauseSetComputeFunctionRanks(axioms, rank_array, &rank);
    ClauseSetAddSymbolDistribution(axioms, dist_array);
    ClauseSetAddConjSymbolDistribution(axioms, conjdist_array);
+   ClauseSetAddAxiomSymbolDistribution(axioms, axiomdist_array);
    for(i=1; i<= sig->f_count; i++)
    {
-      handle->array[i].key1     = 0;
-      handle->array[i].key2     = 0;
-      handle->array[i].key3     = 0;
-      handle->array[i].freq     = dist_array[i];
-      handle->array[i].conjfreq = conjdist_array[i];
-      handle->array[i].pos_rank = rank_array[i];
-      handle->array[i].symbol   = i;
+      handle->array[i].key0      = 0;
+      handle->array[i].key1      = 0;
+      handle->array[i].key2      = 0;
+      handle->array[i].key3      = 0;
+      handle->array[i].freq      = dist_array[i];
+      handle->array[i].conjfreq  = conjdist_array[i];
+      handle->array[i].axiomfreq = axiomdist_array[i];
+      handle->array[i].pos_rank  = rank_array[i];
+      handle->array[i].symbol    = i;
    }
    SizeFree(rank_array, array_size);
    SizeFree(dist_array, array_size);
    SizeFree(conjdist_array, array_size);
+   SizeFree(axiomdist_array, array_size);
 
    return handle;
 }
@@ -180,5 +189,3 @@ void FCodeFeatureArraySort(FCodeFeatureArray_p array)
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-

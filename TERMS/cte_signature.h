@@ -62,7 +62,8 @@ typedef enum
    FPPseudoPred   = 8192, /* Pseudo-predicate used for side effects
                            * only, does not conceptually contribute to
                            * truth of clause */
-   FPTypedApplication = FPPseudoPred * 2
+   FPTypedApplication = FPPseudoPred * 2,
+   FPIsConjSymbol = FPTypedApplication * 2
 }FunctionProperties;
 
 

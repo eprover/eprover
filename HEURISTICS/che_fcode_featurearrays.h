@@ -37,11 +37,13 @@ Changes
 
 typedef struct fcode_feature_sort_cell
 {
+   int     key0;
    int     key1;
    int     key2;
    int     key3;
    int     freq;
    int     conjfreq;
+   int     axiomfreq;
    int     pos_rank;
    FunCode symbol;
 }FCodeFeatureSortCell, *FCodeFeatureSort_p;
@@ -75,8 +77,3 @@ void FCodeFeatureArraySort(FCodeFeatureArray_p array);
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
-
-
-

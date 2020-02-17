@@ -59,6 +59,10 @@ void init_oparms(OrderParms_p oparms)
    oparms->to_const_weight = WConstNoSpecialWeight;
    oparms->to_weight_gen   = WSelectMaximal;
    oparms->to_prec_gen     = PUnaryFirst;
+   oparms->conj_only_mod   = 0;
+   oparms->conj_mod        = 0;
+   oparms->axiom_only_mod  = 0;
+   oparms->axiom_mod       = 0;
    oparms->lit_cmp         = LCNormal;
 
 }
@@ -473,50 +477,6 @@ GCC_DIAGNOSTIC_POP
 /*---------------------------------------------------------------------*/
 
 
-/*-----------------------------------------------------------------------
-//
-// Function: OrderParmsInitialize()
-//
-//   Given a HeuristicParmsCell and an OrderParmsCell, initialize the
-//   OrderParmsCell with values from the HeuristicParmsCell.
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-void OrderParmsInitialize(HeuristicParms_p master, OrderParms_p slave)
-{
-   slave->ordertype       = master->ordertype;
-   slave->to_weight_gen   = master->to_weight_gen;
-   slave->to_prec_gen     = master->to_prec_gen;
-   slave->to_const_weight = master->to_const_weight;
-   slave->lit_cmp         = master->lit_cmp;
-}
-
-
-/*-----------------------------------------------------------------------
-//
-// Function: HeuristicParmsUpdate()
-//
-//   Given a HeuristicParmsCell and an OrderParmsCell, update the
-//   HeuristicParmsCell with values from the OrderParmsCell.
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-void HeuristicParmsUpdate(OrderParms_p master, HeuristicParms_p slave)
-{
-   slave->ordertype       = master->ordertype;
-   slave->to_weight_gen   = master->to_weight_gen;
-   slave->to_prec_gen     = master->to_prec_gen;
-   slave->to_const_weight = master->to_const_weight;
-}
-
 
 /*-----------------------------------------------------------------------
 //
@@ -831,12 +791,12 @@ OCB_p TOSelectOrdering(ProofState_p state, HeuristicParms_p params,
    OrderParmsCell tmp;
    OCB_p          result;
 
-   OrderParmsInitialize(params, &tmp);
+   tmp = params->order_params;
 
    if(tmp.ordertype == OPTIMIZE_AX)
    {
       OrderParmsCell local;
-      OrderParmsInitialize(params, &local);
+      local = params->order_params;
 
       result = OrderFindOptimal(&local, OrderEvaluate, state, params);
    }
@@ -894,10 +854,10 @@ OCB_p TOSelectOrdering(ProofState_p state, HeuristicParms_p params,
       {
          tmp.to_const_weight = WConstNoSpecialWeight;
       }
-      result = TOCreateOrdering(state, &tmp, params->to_pre_prec,
-                                params->to_pre_weights);
+      result = TOCreateOrdering(state, &tmp, params->order_params.to_pre_prec,
+                                params->order_params.to_pre_weights);
    }
-   result->rewrite_strong_rhs_inst = params->rewrite_strong_rhs_inst;
+   result->rewrite_strong_rhs_inst = params->order_params.rewrite_strong_rhs_inst;
    return result;
 }
 

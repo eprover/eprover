@@ -35,7 +35,7 @@
 #include <ccl_clausefunc.h>
 #include <che_wfcbadmin.h>
 #include <che_litselection.h>
-
+#include <che_to_params.h>
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
@@ -62,15 +62,7 @@ typedef struct heuristic_parms_cell
    bool                prefer_initial_clauses;
 
    /* Ordering elements */
-   TermOrdering        ordertype;
-   TOWeightGenMethod   to_weight_gen;
-   TOPrecGenMethod     to_prec_gen;
-   bool                rewrite_strong_rhs_inst;
-   char*               to_pre_prec;
-   char*               to_pre_weights;
-   long                to_const_weight;
-   bool                to_defs_min;
-   LiteralCmp          lit_cmp;
+   OrderParmsCell      order_params;
 
    /* Elements controling literal selection */
    LiteralSelectionFun selection_strategy;

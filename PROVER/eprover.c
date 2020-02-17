@@ -1072,21 +1072,21 @@ CLState_p process_options(int argc, char* argv[])
             break;
       case OPT_AUTO:
             h_parms->heuristic_name = "Auto";
-            h_parms->ordertype = AUTO;
+            h_parms->order_params.ordertype = AUTO;
             sine = "Auto";
             break;
       case OPT_SATAUTO:
             h_parms->heuristic_name = "Auto";
-            h_parms->ordertype = AUTO;
+            h_parms->order_params.ordertype = AUTO;
             break;
       case OPT_AUTODEV:
             h_parms->heuristic_name = "AutoDev";
-            h_parms->ordertype = AUTODEV;
+            h_parms->order_params.ordertype = AUTODEV;
             sine = "Auto";
             break;
       case OPT_SATAUTODEV:
             h_parms->heuristic_name = "AutoDev";
-            h_parms->ordertype = AUTODEV;
+            h_parms->order_params.ordertype = AUTODEV;
             break;
       case OPT_AUTO_SCHED:
             strategy_scheduling = true;
@@ -1258,75 +1258,75 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_ORDERING:
             if(strcmp(arg, "Auto")==0)
             {
-               h_parms->ordertype = AUTO;
+               h_parms->order_params.ordertype = AUTO;
             }
             else if(strcmp(arg, "AutoCASC")==0)
             {
-               h_parms->ordertype = AUTOCASC;
+               h_parms->order_params.ordertype = AUTOCASC;
             }
             else if(strcmp(arg, "AutoDev")==0)
             {
-               h_parms->ordertype = AUTODEV;
+               h_parms->order_params.ordertype = AUTODEV;
             }
             else if(strcmp(arg, "AutoSched0")==0)
             {
-               h_parms->ordertype = AUTOSCHED0;
+               h_parms->order_params.ordertype = AUTOSCHED0;
             }
             else if(strcmp(arg, "AutoSched1")==0)
             {
-               h_parms->ordertype = AUTOSCHED1;
+               h_parms->order_params.ordertype = AUTOSCHED1;
             }
             else if(strcmp(arg, "AutoSched2")==0)
             {
-               h_parms->ordertype = AUTOSCHED2;
+               h_parms->order_params.ordertype = AUTOSCHED2;
             }
             else if(strcmp(arg, "AutoSched3")==0)
             {
-               h_parms->ordertype = AUTOSCHED3;
+               h_parms->order_params.ordertype = AUTOSCHED3;
             }
             else if(strcmp(arg, "AutoSched4")==0)
             {
-               h_parms->ordertype = AUTOSCHED4;
+               h_parms->order_params.ordertype = AUTOSCHED4;
             }
             else if(strcmp(arg, "AutoSched5")==0)
             {
-               h_parms->ordertype = AUTOSCHED5;
+               h_parms->order_params.ordertype = AUTOSCHED5;
             }
             else if(strcmp(arg, "AutoSched6")==0)
             {
-               h_parms->ordertype = AUTOSCHED6;
+               h_parms->order_params.ordertype = AUTOSCHED6;
             }
             else if(strcmp(arg, "AutoSched7")==0)
             {
-               h_parms->ordertype = AUTOSCHED7;
+               h_parms->order_params.ordertype = AUTOSCHED7;
             }
             else if(strcmp(arg, "Optimize")==0)
             {
-               h_parms->ordertype = OPTIMIZE_AX;
+               h_parms->order_params.ordertype = OPTIMIZE_AX;
             }
             else if(strcmp(arg, "LPO")==0)
             {
-               h_parms->ordertype = LPO;
+               h_parms->order_params.ordertype = LPO;
             }
             else if(strcmp(arg, "LPOCopy")==0)
             {
-               h_parms->ordertype = LPOCopy;
+               h_parms->order_params.ordertype = LPOCopy;
             }
             else if(strcmp(arg, "LPO4")==0)
             {
-               h_parms->ordertype = LPO4;
+               h_parms->order_params.ordertype = LPO4;
             }
             else if(strcmp(arg, "LPO4Copy")==0)
             {
-               h_parms->ordertype = LPO4Copy;
+               h_parms->order_params.ordertype = LPO4Copy;
             }
             else if(strcmp(arg, "KBO")==0)
             {
-               h_parms->ordertype = KBO;
+               h_parms->order_params.ordertype = KBO;
             }
             else if(strcmp(arg, "KBO6")==0)
             {
-               h_parms->ordertype = KBO6;
+               h_parms->order_params.ordertype = KBO6;
             }
             else
             {
@@ -1339,8 +1339,8 @@ CLState_p process_options(int argc, char* argv[])
             }
             break;
       case OPT_TO_WEIGHTGEN:
-            h_parms->to_weight_gen = TOTranslateWeightGenMethod(arg);
-            if(!h_parms->to_weight_gen)
+            h_parms->order_params.to_weight_gen = TOTranslateWeightGenMethod(arg);
+            if(!h_parms->order_params.to_weight_gen)
             {
                DStr_p err = DStrAlloc();
                DStrAppendStr(err,
@@ -1353,11 +1353,11 @@ CLState_p process_options(int argc, char* argv[])
             }
             break;
       case OPT_TO_WEIGHTS:
-            h_parms->to_pre_weights = arg;
+            h_parms->order_params.to_pre_weights = arg;
             break;
       case OPT_TO_PRECGEN:
-            h_parms->to_prec_gen = TOTranslatePrecGenMethod(arg);
-            if(!h_parms->to_prec_gen)
+            h_parms->order_params.to_prec_gen = TOTranslatePrecGenMethod(arg);
+            if(!h_parms->order_params.to_prec_gen)
             {
                DStr_p err = DStrAlloc();
                DStrAppendStr(err,
@@ -1370,15 +1370,15 @@ CLState_p process_options(int argc, char* argv[])
             }
             break;
       case OPT_TO_CONSTWEIGHT:
-            h_parms->to_const_weight = CLStateGetIntArg(handle, arg);
-            if(h_parms->to_const_weight<=0)
+            h_parms->order_params.to_const_weight = CLStateGetIntArg(handle, arg);
+            if(h_parms->order_params.to_const_weight<=0)
             {
                Error("Argument to option -c (--order-constant-weight) "
                      "has to be > 0", USAGE_ERROR);
             }
             break;
       case OPT_TO_PRECEDENCE:
-            h_parms->to_pre_prec = arg;
+            h_parms->order_params.to_pre_prec = arg;
             break;
       case OPT_TO_LPO_RECLIMIT:
             LPORecursionDepthLimit = CLStateGetIntArg(handle, arg);
@@ -1394,24 +1394,24 @@ CLState_p process_options(int argc, char* argv[])
                        "overflows and segmentation faults.");
             }
       case OPT_TO_RESTRICT_LIT_CMPS:
-            h_parms->lit_cmp = LCNoCmp;
+            h_parms->order_params.lit_cmp = LCNoCmp;
             break;
       case OPT_TO_LIT_CMP:
             if(strcmp(arg, "None")==0)
             {
-               h_parms->lit_cmp = LCNoCmp;
+               h_parms->order_params.lit_cmp = LCNoCmp;
             }
             else if(strcmp(arg, "Normal")==0)
             {
-               h_parms->lit_cmp = LCNormal;
+               h_parms->order_params.lit_cmp = LCNormal;
             }
             else if(strcmp(arg, "TFOEqMax")==0)
             {
-               h_parms->lit_cmp = LCTFOEqMax;
+               h_parms->order_params.lit_cmp = LCTFOEqMax;
             }
             else if(strcmp(arg, "TFOEqMin")==0)
             {
-               h_parms->lit_cmp = LCTFOEqMin;
+               h_parms->order_params.lit_cmp = LCTFOEqMin;
             }
             else
             {
@@ -1449,7 +1449,7 @@ CLState_p process_options(int argc, char* argv[])
             h_parms->forward_demod = CLStateGetIntArgCheckRange(handle, arg, 0, 2);
             break;
       case OPT_STRONG_RHS_INSTANCE:
-            h_parms->rewrite_strong_rhs_inst = true;
+            h_parms->order_params.rewrite_strong_rhs_inst = true;
             break;
       case OPT_STRONGSUBSUMPTION:
             StrongUnitForwardSubsumption = true;

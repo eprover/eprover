@@ -33,46 +33,6 @@ Changes
 /*                        Global Variables                             */
 /*---------------------------------------------------------------------*/
 
-char* TOWeightGenNames[]=
-{
-   "none",                   /* WNoMethod */
-   "firstmaximal0",          /* WSelectMaximal */
-   "arity",                  /* WArityWeight */
-   "aritymax0",              /* WArityMax0 */
-   "modarity",               /* WModArityWeight */
-   "modaritymax0",           /* WModArityMax0 */
-   "aritysquared",           /* WAritySqWeight */
-   "aritysquaredmax0",       /* WAritySqMax0 */
-   "invarity",               /* WInvArityWeight */
-   "invaritymax0",           /* WInvArityMax0 */
-   "invaritysquared",        /* WInvSqArityWeight */
-   "invaritysquaredmax0",    /* WInvAritySqMax0 */
-   "precedence",             /* WPrecedence */
-   "invprecedence",          /* WPrecedenceInv */
-   "precrank5",
-   "precrank10",
-   "precrank20",
-   "freqcount",
-   "invfreqcount",
-   "freqrank",
-   "invfreqrank",
-   "invconjfreqrank",        /* WInvConjFrequencyRank */
-   "freqranksquare",
-   "invfreqranksquare",
-   "invmodfreqrank",         /* WModFreqRank */
-   "invmodfreqrankmax0",     /* WModFreqRankMax0 */
-   "typefreqrank",           /* WTypeFrequencyRank */
-   "typefreqcount",          /* WTypeFrequencyCount */
-   "invtypefreqrank",        /* WInvTypeFrequencyRank */
-   "invtypefreqcount",       /* WInvTypeFrequencyCount */
-   "combfreqrank",           /* WCombFrequencyRank */
-   "combfreqcount",          /* WCombFrequencyCount */
-   "invcombfreqrank",        /* WInvCombFrequencyRank */
-   "invcombfreqcount",       /* WInvCombFrequencyCount */
-   "constant",               /* WConstantWeight */
-   NULL
-};
-
 
 
 /* Cell for sorting by precedence */

@@ -33,20 +33,6 @@ Changes
 /*                    Data type declarations                           */
 /*---------------------------------------------------------------------*/
 
-/* This is kind of ugly, as I have most of the information already in
-   the HeuristicParmsCell. I just don't like to lug all the other
-   stuff around and confuse issues. There are functions for converting
-   the relevant parts of HeuristicParmsCell and OrderParmsCell. */
-
-typedef struct order_parms_cell
-{
-   TermOrdering      ordertype;
-   TOWeightGenMethod to_weight_gen;
-   TOPrecGenMethod   to_prec_gen;
-   LiteralCmp        lit_cmp;
-   long              to_const_weight;
-}OrderParmsCell, *OrderParms_p;
-
 typedef double (*OrderEvaluationFun)(OCB_p ocb, ProofState_p state,
                  HeuristicParms_p parms);
 
@@ -59,9 +45,6 @@ typedef double (*OrderEvaluationFun)(OCB_p ocb, ProofState_p state,
    (OrderParmsCell*)SizeMalloc(sizeof(OrderParmsCell))
 #define OrderParmsCellFree(junk) \
    SizeFree(junk, sizeof(OrderParmsCell))
-
-void OrderParmsInitialize(HeuristicParms_p master, OrderParms_p slave);
-void HeuristicParmsUpdate(OrderParms_p master, HeuristicParms_p slave);
 
 /* For now, we will fix the evaluation parameters by #defines's in the
    .c file....if somebody wants to tinker with it, he or she is

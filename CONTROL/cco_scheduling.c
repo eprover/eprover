@@ -132,8 +132,8 @@ pid_t ExecuteSchedule(ScheduleCell strats[],
 
    for(i=0; strats[i].heu_name; i++)
    {
-      h_parms->heuristic_name = strats[i].heu_name;
-      h_parms->ordertype      = strats[i].ordering;
+      h_parms->heuristic_name         = strats[i].heu_name;
+      h_parms->order_params.ordertype = strats[i].ordering;
       fprintf(GlobalOut, "# Trying %s for %ld seconds\n",
               strats[i].heu_name,
               (long)strats[i].time_absolute);

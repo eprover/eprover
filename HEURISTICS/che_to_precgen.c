@@ -1,26 +1,25 @@
 /*-----------------------------------------------------------------------
 
-File  : che_to_precgen.c
+  File  : che_to_precgen.c
 
-Author: Stephan Schulz
+  Author: Stephan Schulz
 
-Contents
+  Contents
 
   Functions implementing several precedence generation schemes for
   term orderings.
 
-  Copyright 1998, 1999 by the author.
+  Copyright 1998-2020 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
+  Changes
 
-<1> Fri Sep 25 02:49:11 MET DST 1998
-    New
+  Created: Fri Sep 25 02:49:11 MET DST 1998
 
------------------------------------------------------------------------*/
+  -----------------------------------------------------------------------*/
 
 #include "che_to_precgen.h"
 
@@ -29,32 +28,6 @@ Changes
 /*---------------------------------------------------------------------*/
 /*                        Global Variables                             */
 /*---------------------------------------------------------------------*/
-
-char* TOPrecGenNames[]=
-{
-   "none",             /* PNoMethod */
-   "unary_first",      /* PUnaryFirst */
-   "unary_freq",       /* PUnaryFristFreq */
-   "arity",            /* PArity */
-   "invarity",         /* PInvArity */
-   "const_max",        /* PConstMax  */
-   "const_min",        /* PInvArConstMin */
-   "freq",             /* PByFrequency */
-   "invfreq",          /* PByInvFrequency */
-   "invconjfreq",      /* PByInvConjFrequency */
-   "invfreqconjmax",   /* PByInvFreqConjMax */
-   "invfreqconjmin",   /* PByInvFreqConjMin */
-   "invfreqconstmin",  /* PByInvFreqConstMin */
-   "invfreqhack",      /* PByInvFreqHack */
-   "typefreq",         /* PByTypeFreq */
-   "invtypefreq",      /* PByInvTypeFreq */
-   "combfreq",         /* PByCombFreq */
-   "invcombfreq",      /* PByInvCombFreq */
-   "arrayopt",         /* PArrayOpt */
-   "orient_axioms",    /* POrientAxioms */
-   NULL
-};
-
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
@@ -90,8 +63,8 @@ void print_prec_array(FILE* out, Sig_p sig, FCodeFeatureArray_p array)
    {
       if(!SigIsSpecial(sig, array->array[i].symbol))
       {
-    fprintf(out, "%s%s", del, SigFindName(sig,array->array[i].symbol));
-    del = " > ";
+         fprintf(out, "%s%s", del, SigFindName(sig,array->array[i].symbol));
+         del = " > ";
       }
    }
    fprintf(out, "\n");
@@ -113,7 +86,7 @@ void print_prec_array(FILE* out, Sig_p sig, FCodeFeatureArray_p array)
 /----------------------------------------------------------------------*/
 
 static void compute_precedence_from_array(OCB_p ocb, FCodeFeatureArray_p
-                 array)
+                                          array)
 {
    FunCode i, last;
 
@@ -173,11 +146,11 @@ static void generate_unary_first_precedence(OCB_p ocb, ClauseSet_p axioms)
       arity = SigFindArity(ocb->sig, i);
       if(arity == 1)
       {
-        array->array[i].key1 = INT_MAX;
+         array->array[i].key1 = INT_MAX;
       }
       else
       {
-        array->array[i].key1 = arity;
+         array->array[i].key1 = arity;
       }
    }
    FCodeFeatureArraySort(array);
@@ -212,15 +185,15 @@ static void generate_unary_first_freq_precedence(OCB_p ocb, ClauseSet_p axioms)
       arity = SigFindArity(ocb->sig, i);
       if(arity == 1)
       {
-    array->array[i].key1 = 2;
+         array->array[i].key1 = 2;
       }
       else if(arity == 0)
       {
-    array->array[i].key1 = 0;
+         array->array[i].key1 = 0;
       }
       else
       {
-    array->array[i].key1 = 1;
+         array->array[i].key1 = 1;
       }
       array->array[i].key2 = array->array[i].freq;
    }
@@ -315,7 +288,7 @@ static void generate_const_max_precedence(OCB_p ocb, ClauseSet_p axioms)
       array->array[i].key1 = SigFindArity(ocb->sig, i);
       if(!array->array[i].key1)
       {
-    array->array[i].key1 = INT_MAX;
+         array->array[i].key1 = INT_MAX;
       }
    }
    FCodeFeatureArraySort(array);
@@ -349,7 +322,7 @@ static void generate_const_min_precedence(OCB_p ocb, ClauseSet_p axioms)
       array->array[i].key1 = -SigFindArity(ocb->sig, i);
       if(!array->array[i].key1)
       {
-    array->array[i].key1 = -FREQ_SEMI_INFTY;
+         array->array[i].key1 = -FREQ_SEMI_INFTY;
       }
    }
    FCodeFeatureArraySort(array);
@@ -716,13 +689,13 @@ static void generate_invfreq_constmin_precedence(OCB_p ocb, ClauseSet_p axioms)
       arity = SigFindArity(ocb->sig, i);
       if(arity == 0)
       {
-    array->array[i].key1 = -FREQ_SEMI_INFTY;
-    array->array[i].key2 = array->array[i].freq;
+         array->array[i].key1 = -FREQ_SEMI_INFTY;
+         array->array[i].key2 = array->array[i].freq;
       }
       else
       {
-    array->array[i].key1 = -array->array[i].freq;
-    array->array[i].key2 = SigFindArity(ocb->sig, i);
+         array->array[i].key1 = -array->array[i].freq;
+         array->array[i].key2 = SigFindArity(ocb->sig, i);
       }
    }
    FCodeFeatureArraySort(array);
@@ -759,7 +732,7 @@ static void generate_invfreq_hack_precedence(OCB_p ocb, ClauseSet_p axioms)
       arity = SigFindArity(ocb->sig, i);
       if(arity == 1)
       {
-    max_freq = MAX(max_freq, array->array[i].freq);
+         max_freq = MAX(max_freq, array->array[i].freq);
       }
    }
    for(i=1; i<= ocb->sig->f_count; i++)
@@ -767,18 +740,18 @@ static void generate_invfreq_hack_precedence(OCB_p ocb, ClauseSet_p axioms)
       arity = SigFindArity(ocb->sig, i);
       if(arity == 0)
       {
-    array->array[i].key1 = -FREQ_SEMI_INFTY;
-    array->array[i].key2 = -array->array[i].freq;
+         array->array[i].key1 = -FREQ_SEMI_INFTY;
+         array->array[i].key2 = -array->array[i].freq;
       }
       else if((arity == 1) && (array->array[i].freq == max_freq))
       {
-    array->array[i].key1 = FREQ_SEMI_INFTY;
-    array->array[i].key2 = 0;
+         array->array[i].key1 = FREQ_SEMI_INFTY;
+         array->array[i].key2 = 0;
       }
       else
       {
-    array->array[i].key1 = -array->array[i].freq;
-    array->array[i].key2 = SigFindArity(ocb->sig, i);
+         array->array[i].key1 = -array->array[i].freq;
+         array->array[i].key2 = SigFindArity(ocb->sig, i);
       }
    }
    FCodeFeatureArraySort(array);
