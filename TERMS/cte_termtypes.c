@@ -211,16 +211,7 @@ void clear_stale_cache(Term_p app_var)
 void TermTopFree(Term_p junk)
 {
    assert(junk);
-   if(junk->arity)
-   {
-      assert(junk->args);
-      TermArgArrayFree(junk->args, junk->arity);
-   }
-   else
-   {
-      assert(!junk->args);
-   }
-   TermCellFree(junk);
+   TermCellFree(junk, junk->arity);
 }
 
 /*-----------------------------------------------------------------------
@@ -246,16 +237,12 @@ void TermFree(Term_p junk)
       {
          int i;
 
-         assert(junk->args);
          for(i=0; i<junk->arity; i++)
          {
             TermFree(junk->args[i]);
          }
       }
-      else
-      {
-         assert(!junk->args);
-      }
+
       TermTopFree(junk);
    }
 }
