@@ -32,15 +32,15 @@ typedef long REWRITE_CONSTANT;
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-void RewriteConstants(Clause_p clause);
+void RewriteConstants(Clause_p clause, TB_p target, PDArray_p constant_sorts);
 
 /*---------------------------------------------------------------------*/
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
 
-Term_p RewriteConstantsOnTerm(Term_p source, VarBank_p vars, 
-                              DerefType deref);
-Term_p RewriteConstantsOnTermCell(Term_p source);
+Term_p RewriteConstantsOnTerm(Term_p source, VarBank_p vars, DerefType deref,
+                              PDArray_p constant_sorts);
+Term_p RewriteConstantsOnTermCell(Term_p source, PDArray_p constant_sorts);
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */

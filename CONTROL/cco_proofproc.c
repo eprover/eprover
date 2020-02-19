@@ -387,8 +387,7 @@ static long eliminate_context_sr_clauses(ProofState_p state,
 
 void check_watchlist(GlobalIndices_p indices, ClauseSet_p watchlist,
                      Clause_p clause, ClauseSet_p archive,
-                     bool static_watchlist, ProofState_p state, 
-                     ProofControl_p control)
+                     bool static_watchlist, ProofState_p state)
 {
    FVPackedClause_p pclause;
    Clause_p         rewrite;
@@ -396,10 +395,10 @@ void check_watchlist(GlobalIndices_p indices, ClauseSet_p watchlist,
 
    if(watchlist)
    {
-      if (control->heuristic_parms.wl_abstract_constant_sym)
+      if (watchlist->wl_constants_abstraction)
       {
          rewrite = ClauseCopy(clause, state->softsubsumption_rw);
-         RewriteConstants(rewrite);
+         RewriteConstants(rewrite, state->softsubsumption_rw, watchlist->wl_abstraction_symbols);
          // TODO: Fix all ->efficent_subsumption_index->fvindex
          pclause = FVIndexPackClause(rewrite, watchlist->efficent_subsumption_index->fvindex);
          // printf("# check_watchlist(%p)...\n", indices);
@@ -518,10 +517,10 @@ void simplify_watchlist(ProofState_p state, ProofControl_p control,
       }
       handle->weight = ClauseStandardWeight(handle);
       ClauseMarkMaximalTerms(control->ocb, handle);
-      if(control->heuristic_parms.wl_abstract_constant_sym)
+      if(state->watchlist->wl_constants_abstraction)
       {
          Clause_p rewrite = ClauseCopy(handle, state->softsubsumption_rw);
-         RewriteConstants(rewrite);
+         RewriteConstants(rewrite, state->softsubsumption_rw, state->watchlist->wl_abstraction_symbols);
          ClauseSetIndexedInsertClause(state->watchlist, rewrite);
          GlobalIndicesInsertClause(&(state->wlindices), rewrite);
       }
@@ -699,7 +698,7 @@ static Clause_p insert_new_clauses(ProofState_p state, ProofControl_p control)
       check_watchlist(&(state->wlindices), state->watchlist,
                       handle, state->archive,
                       control->heuristic_parms.watchlist_is_static,
-                      state, control);
+                      state);
       if(ClauseIsEmpty(handle))
       {
          return handle;
@@ -1410,7 +1409,7 @@ void ProofStateInit(ProofState_p state, ProofControl_p control)
       check_watchlist(&(state->wlindices), state->watchlist,
                       new, state->archive,
                       control->heuristic_parms.watchlist_is_static,
-                      state, control);
+                      state);
       HCBClauseEvaluate(control->hcb, new);
       DocClauseQuoteDefault(6, new, "eval");
       ClausePushDerivation(new, DCCnfQuote, handle, NULL);
@@ -1548,7 +1547,7 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control,
    check_watchlist(&(state->wlindices), state->watchlist,
                       pclause->clause, state->archive,
                       control->heuristic_parms.watchlist_is_static,
-                      state, control);
+                      state);
 
    /* Now on to backward simplification. */
    clausedate = ClauseSetListGetMaxDate(state->demods, FullRewrite);

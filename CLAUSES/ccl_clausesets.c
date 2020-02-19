@@ -319,15 +319,19 @@ ClauseSet_p ClauseSetAlloc(void)
 
    handle = ClauseSetCellAlloc();
 
-   handle->members  = 0;
-   handle->literals = 0;
-   handle->anchor   = ClauseCellAlloc();
+   handle->members          = 0;
+   handle->literals         = 0;
+   handle->anchor           = ClauseCellAlloc();
    handle->anchor->literals = NULL;
    handle->anchor->pred = handle->anchor->succ = handle->anchor;
    handle->date = SysDateCreationTime();
    SysDateInc(&handle->date);
-   handle->demod_index                = NULL;
+   handle->demod_index                 = NULL;
    handle->efficient_subsumption_index = NULL;
+
+   handle->wl_constants_abstraction    = false;
+   handle->wl_skolemsym_abstraction    = false;
+   handle->wl_abstraction_symbols      = NULL;
 
    handle->eval_indices = PDArrayAlloc(4,4);
    handle->eval_no      = 0;
@@ -387,6 +391,12 @@ void ClauseSetFree(ClauseSet_p junk)
    PDArrayFree(junk->eval_indices);
    ClauseCellFree(junk->anchor);
    DStrFree(junk->identifier);
+
+   if(junk->wl_constants_abstraction || junk->wl_skolemsym_abstraction)
+   {
+      PDArrayFree(junk->wl_abstraction_symbols);
+   }
+
    ClauseSetCellFree(junk);
 }
 
@@ -587,7 +597,7 @@ void ClauseSetIndexedInsertClause(ClauseSet_p set, Clause_p newclause)
    if(set->efficient_subsumption_index)
    {
       EfficientSubsumptionIndexInsertClause(set->efficient_subsumption_index, 
-                                           newclause);
+                                            newclause);
       ClauseSetProp(newclause, CPIsSIndexed);
    }
 }

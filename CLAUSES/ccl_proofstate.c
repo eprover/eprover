@@ -329,8 +329,6 @@ void ProofStateInitWatchlist(ProofState_p state, OCB_p ocb,
                              bool rewriteConstants, bool rewriteSkolemSym,
                              char* watchlist_unit_clause_index_type)
 {
-   printf("%s", watchlist_unit_clause_index_type);
-
    ClauseSet_p tmpset;
    Clause_p    handle;
 
@@ -339,23 +337,38 @@ void ProofStateInitWatchlist(ProofState_p state, OCB_p ocb,
       tmpset = ClauseSetAlloc();
 
       EfficientSubsumptionIndexUnitClauseIndexInit(state->watchlist->efficient_subsumption_index,
-                                                  state->signature,
-                                                  watchlist_unit_clause_index_type);
+                                                   state->signature,
+                                                   watchlist_unit_clause_index_type);
 
       ClauseSetMarkMaximalTerms(ocb, state->watchlist);
+      if(rewriteConstants)
+      {
+         state->watchlist->wl_constants_abstraction  = true;
+         state->watchlist->wl_abstraction_symbols    = PDIntArrayAllocWithDefault(10, 1, -1);
+      }
+      else if(rewriteSkolemSym)
+      {
+          state->watchlist->wl_constants_abstraction = true;
+      }
       while(!ClauseSetEmpty(state->watchlist))
       {
          handle = ClauseSetExtractFirst(state->watchlist);
          if(rewriteConstants)
          {
-            RewriteConstants(handle);
+            Clause_p rewrite = ClauseCopy(handle, state->softsubsumption_rw);
+            RewriteConstants(rewrite, state->softsubsumption_rw, state->watchlist->wl_abstraction_symbols);
+            ClauseSetInsert(tmpset, rewrite);
          }
          else if (rewriteSkolemSym)
          {
             // TODO: Skolem rewrite
             printf("That should be rewrite skolems.\n");
+            ClauseSetInsert(tmpset, handle);
          }
-         ClauseSetInsert(tmpset, handle);
+         else
+         {
+            ClauseSetInsert(tmpset, handle);
+         }
       }
       ClauseSetIndexedInsertClauseSet(state->watchlist, tmpset);
       ClauseSetFree(tmpset);
@@ -458,8 +471,8 @@ void ProofStateFree(ProofState_p junk)
       FVCollectFree(junk->def_store_cspec);
    }
    // junk->original_terms->sig = NULL;
-   junk->terms->sig = NULL;
-   junk->tmp_terms->sig = NULL;
+   junk->terms->sig              = NULL;
+   junk->tmp_terms->sig          = NULL;
    junk->softsubsumption_rw->sig = NULL;
    SigFree(junk->signature);
    // TBFree(junk->original_terms);

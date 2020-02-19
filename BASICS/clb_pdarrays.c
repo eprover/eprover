@@ -97,13 +97,47 @@ PDArray_p PDIntArrayAlloc(long init_size, long grow)
    assert(init_size > 0);
    assert(grow >= 0);
 
-   handle->integer = true;
-   handle->size  = init_size;
-   handle->grow  = grow;
+   handle->integer     = true;
+   handle->size        = init_size;
+   handle->grow        = grow;
+   handle->default_int = 0;
    handle->array = SizeMalloc(handle->size*sizeof(IntOrP));
    for(i=0; i<handle->size; i++)
    {
       handle->array[i].i_val = 0;
+   }
+   return handle;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: PDIntArrayAllocWithDefault()
+//
+//   Return an initialized dynamic array of size init_size where all
+//   elements are interpreted as (long) integers and initialized to default.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory Operations
+//
+/----------------------------------------------------------------------*/
+
+PDArray_p PDIntArrayAllocWithDefault(long init_size, long grow, long init_value)
+{
+   PDArray_p handle = PDArrayCellAlloc();
+   long i;
+
+   assert(init_size > 0);
+   assert(grow >= 0);
+
+   handle->integer     = true;
+   handle->size        = init_size;
+   handle->grow        = grow;
+   handle->default_int = init_value;
+   handle->array = SizeMalloc(handle->size*sizeof(IntOrP));
+   for(i=0; i<handle->size; i++)
+   {
+      handle->array[i].i_val = init_value;
    }
    return handle;
 }
@@ -168,7 +202,7 @@ void PDArrayEnlarge(PDArray_p array, long idx)
    {
       if(array->integer)
       {
-         array->array[i].i_val = 0;
+         array->array[i].i_val = array->default_int;
       }
       else
       {

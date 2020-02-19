@@ -46,12 +46,18 @@ typedef struct clausesetcell
    SysDate   date;    /* Age of the clause set, used for optimizing
           rewriting. The special date SysCreationDate()
           is used to indicate ignoring of dates when
-          checking for irreducability. */
+          checking for irreducibility. */
    EfficientSubsumptionIndex_p efficient_subsumption_index;
-   PDTree_p  demod_index; /* If used for demodulators */
-   PDArray_p eval_indices;
-   long      eval_no;
+
+   PDTree_p   demod_index; /* If used for demodulators */
+   PDArray_p  eval_indices;
+   long       eval_no;
    DStr_p     identifier;
+
+   /* Only used on the watchlist */
+   bool       wl_constants_abstraction;
+   bool       wl_skolemsym_abstraction;
+   PDArray_p  wl_abstraction_symbols;
 }ClauseSetCell, *ClauseSet_p;
 
 

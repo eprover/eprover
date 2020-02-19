@@ -18,8 +18,6 @@ Copyright 2019-2020 by the author.
 
 #include <ccl_clause_abstraction.h>
 
-static REWRITE_CONSTANT rc = -1;
-
 /*---------------------------------------------------------------------*/
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
@@ -35,7 +33,8 @@ static REWRITE_CONSTANT rc = -1;
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
-Term_p RewriteConstantsOnTerm(Term_p source, VarBank_p vars, DerefType deref)
+Term_p RewriteConstantsOnTerm(Term_p source, VarBank_p vars, DerefType deref,
+                              PDArray_p constant_sorts)
 {
    Term_p handle;
    int    i;
@@ -51,12 +50,13 @@ Term_p RewriteConstantsOnTerm(Term_p source, VarBank_p vars, DerefType deref)
    }
    else
    {
-      handle = RewriteConstantsOnTermCell(source);
+      handle = RewriteConstantsOnTermCell(source, constant_sorts);
 
       for(i=0; i<handle->arity; i++)
       {
          handle->args[i] = RewriteConstantsOnTerm(source->args[i], vars,
-                                                  CONVERT_DEREF(i, limit, deref));
+                                                  CONVERT_DEREF(i, limit, deref),
+                                                  constant_sorts);
       }
    }
 
@@ -75,9 +75,10 @@ Term_p RewriteConstantsOnTerm(Term_p source, VarBank_p vars, DerefType deref)
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
-Term_p RewriteConstantsOnTermCell(Term_p source) 
+Term_p RewriteConstantsOnTermCell(Term_p source, PDArray_p constant_sorts) 
 {
    Term_p handle = TermDefaultCellAlloc();
+   Type_p sort   = NULL;
 
    handle->properties = (source->properties&(TPPredPos));
    TermCellDelProp(handle, TPOutputFlag);
@@ -90,14 +91,17 @@ Term_p RewriteConstantsOnTermCell(Term_p source)
 
    if(source->arity==0 && !TermIsVar(source))
    {
-      if(rc == -1)
+      sort     = GetReturnSort(source->type);
+      long res = PDArrayElementInt(constant_sorts, sort->f_code);
+
+      if (res == constant_sorts->default_int)
       {
-         rc = source->f_code;
+         PDArrayAssignInt(constant_sorts, sort->f_code, source->f_code);
          handle->f_code = source->f_code;
       }
       else 
       {
-         handle->f_code = rc;
+         handle->f_code = res;
       }
    }
    else
@@ -125,10 +129,10 @@ Term_p RewriteConstantsOnTermCell(Term_p source)
 //
 // Global Variables: -
 //
-// Side Effects    : Changes clause ;-).
+// Side Effects    : Rewrites constants in clause ;-).
 //
 /----------------------------------------------------------------------*/
-void RewriteConstants(Clause_p clause) 
+void RewriteConstants(Clause_p clause, TB_p target, PDArray_p constant_sorts) 
 {
    Eqn_p next;
    Eqn_p literals = clause->literals;
@@ -136,10 +140,16 @@ void RewriteConstants(Clause_p clause)
    {
       next = literals->next;
       literals->lterm = RewriteConstantsOnTerm(literals->lterm, 
-                                               literals->bank->vars, false);
+                                               literals->bank->vars, 
+                                               false,
+                                               constant_sorts);
+      literals->lterm = TBInsert(target, literals->lterm, DEREF_ALWAYS);
       literals->rterm = RewriteConstantsOnTerm(literals->rterm, 
-                                               literals->bank->vars, false);
-      literals = next;
+                                               literals->bank->vars, 
+                                               false,
+                                               constant_sorts);
+      literals->rterm = TBInsert(target, literals->rterm, DEREF_ALWAYS);
+      literals       = next;
    }
 }
 
