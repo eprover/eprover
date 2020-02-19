@@ -1,25 +1,24 @@
 /*-----------------------------------------------------------------------
 
-File  : che_to_weightgen.h
+  File  : che_to_weightgen.h
 
-Author: Stephan Schulz
+  Author: Stephan Schulz
 
-Contents
+  Contents
 
   Routines for generating weights for term orderings
 
-  Copyright 1998, 1999 by the author.
+  Copyright 1998-2020 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
+  Changes
 
-<1> Fri Sep 25 02:49:11 MET DST 1998
-    New
+  Created: Fri Sep 25 02:49:11 MET DST 1998
 
------------------------------------------------------------------------*/
+  -----------------------------------------------------------------------*/
 
 #ifndef CHE_TO_WEIGHTGEN
 
@@ -47,12 +46,12 @@ Changes
 
 
 
-#define TOGenerateDefaultWeights(ocb) \
-        TOGenerateWeights((ocb), NULL, WSelectMaximal, \
-           W_DEFAULT_WEIGHT)
+#define TOGenerateDefaultWeights(ocb)                  \
+   TOGenerateWeights((ocb), NULL, WSelectMaximal,      \
+                     W_DEFAULT_WEIGHT)
 
 void TOGenerateWeights(OCB_p ocb, ClauseSet_p axioms, char *pre_weights,
-             TOWeightGenMethod method, long const_weight);
+                       OrderParms_p oparms);
 
 
 

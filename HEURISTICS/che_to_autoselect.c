@@ -60,9 +60,8 @@ void init_oparms(OrderParms_p oparms)
    oparms->to_weight_gen   = WSelectMaximal;
    oparms->to_prec_gen     = PUnaryFirst;
    oparms->conj_only_mod   = 0;
-   oparms->conj_mod        = 0;
+   oparms->conj_axiom_mod  = 0;
    oparms->axiom_only_mod  = 0;
-   oparms->axiom_mod       = 0;
    oparms->lit_cmp         = LCNormal;
 
 }
@@ -897,40 +896,38 @@ OCB_p  TOCreateOrdering(ProofState_p state, OrderParms_p params,
    case LPO:
          handle = OCBAlloc(LPO, prec_by_weight, state->signature);
          TOGeneratePrecedence(handle, state->axioms, pre_precedence,
-                              params->to_prec_gen);
+                              params);
          break;
    case LPOCopy:
          handle = OCBAlloc(LPOCopy, prec_by_weight, state->signature);
          TOGeneratePrecedence(handle, state->axioms, pre_precedence,
-                              params->to_prec_gen);
+                              params);
          break;
    case LPO4:
          handle = OCBAlloc(LPO4, prec_by_weight, state->signature);
          TOGeneratePrecedence(handle, state->axioms, pre_precedence,
-                              params->to_prec_gen);
+                              params);
          break;
    case LPO4Copy:
          handle = OCBAlloc(LPO4Copy, prec_by_weight, state->signature);
          TOGeneratePrecedence(handle, state->axioms, pre_precedence,
-                              params->to_prec_gen);
+                              params);
          break;
    case KBO:
          handle = OCBAlloc(KBO, prec_by_weight, state->signature);
          TOGeneratePrecedence(handle, state->axioms, pre_precedence,
-                              params->to_prec_gen);
+                              params);
          TOGenerateWeights(handle, state->axioms,
                            pre_weights,
-                           params->to_weight_gen,
-                           params->to_const_weight);
+                           params);
          break;
    case KBO6:
          handle = OCBAlloc(KBO6, prec_by_weight, state->signature);
          TOGeneratePrecedence(handle, state->axioms, pre_precedence,
-                              params->to_prec_gen);
+                              params);
          TOGenerateWeights(handle, state->axioms,
                            pre_weights,
-                           params->to_weight_gen,
-                           params->to_const_weight);
+                           params);
          break;
    case RPO:
          assert(false && "RPO not yet implemented!");

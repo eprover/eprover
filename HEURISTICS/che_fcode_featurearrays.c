@@ -1,23 +1,22 @@
 /*-----------------------------------------------------------------------
 
-File  : che_fcode_featurearrays.c
+  File  : che_fcode_featurearrays.c
 
-Author: Stephan Schulz
+  Author: Stephan Schulz
 
-Contents
+  Contents
 
   Implementation of arrays associating FunCodes and numeric features.
 
-Copyright 1998-2011 by the author.
+  Copyright 1998-2020 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
+  Changes
 
-<1> Thu Feb 20 21:57:25 CET 2003
-    New (partially adapted from che_to_precgen.c)
+  Created: Thu Feb 20 21:57:25 CET 2003
 
 -----------------------------------------------------------------------*/
 
@@ -144,6 +143,44 @@ FCodeFeatureArray_p FCodeFeatureArrayAlloc(Sig_p sig, ClauseSet_p axioms)
    SizeFree(axiomdist_array, array_size);
 
    return handle;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: FCodeFeatureArrayUpdateOccKey()
+//
+//    Update key0 based on the occurance of the symbols in axioms,
+//    conjectures, or both.
+//
+// Global Variables:
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+
+void FCodeFeatureArrayUpdateOccKey(FCodeFeatureArray_p array, OrderParms_p oparms)
+{
+   FunCode i;
+
+   for(i=1; i< array->size; i++)
+   {
+      if(array->array[i].conjfreq)
+      {
+         if(array->array[i].axiomfreq)
+         {
+            array->array[i].key0 = oparms->conj_axiom_mod;
+         }
+         else
+         {
+            array->array[i].key0 = oparms->conj_only_mod;
+         }
+      }
+      else if(array->array[i].axiomfreq)
+      {
+         array->array[i].key0 = oparms->axiom_only_mod;
+      }
+   }
 }
 
 

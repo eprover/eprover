@@ -136,12 +136,11 @@ typedef struct order_parms_cell
    TermOrdering      ordertype;
    TOWeightGenMethod to_weight_gen;
    TOPrecGenMethod   to_prec_gen;
-   /* When generating an ordering, the most significant key is the sum
-      of the following modifiers */
+   /* When generating an ordering, the most significant key is one of
+    * this modifiers */
    int               conj_only_mod;
-   int               conj_mod;
+   int               conj_axiom_mod;
    int               axiom_only_mod;
-   int               axiom_mod;
    /* Ground unbound RHS variables when rewriting */
    bool              rewrite_strong_rhs_inst;
    /* User-provided ordering parameters. Only pointers, not copies */

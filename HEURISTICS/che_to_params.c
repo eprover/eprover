@@ -130,9 +130,8 @@ void OrderParmsInitialize(OrderParms_p handle)
    handle->rewrite_strong_rhs_inst       = false;
    handle->to_pre_prec                   = NULL;
    handle->conj_only_mod                 = 0;
-   handle->conj_mod                      = 0;
+   handle->conj_axiom_mod                = 0;
    handle->axiom_only_mod                = 0;
-   handle->axiom_mod                     = 0;
    handle->to_pre_weights                = NULL;
    handle->to_const_weight               = WConstNoWeight;
    handle->to_defs_min                   = false;

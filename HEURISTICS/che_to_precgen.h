@@ -46,7 +46,7 @@
    TOGeneratePrecedence((ocb), (axioms),NULL, PUnaryFirst)
 
 void TOGeneratePrecedence(OCB_p ocb, ClauseSet_p axioms,
-                          char* predefined, TOPrecGenMethod method);
+                          char* predefined, OrderParms_p oparms);
 
 
 #endif

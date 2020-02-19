@@ -1,29 +1,25 @@
 /*-----------------------------------------------------------------------
 
-File  : che_to_weightgen.c
+  File  : che_to_weightgen.c
 
-Author: Stephan Schulz
+  Author: Stephan Schulz
 
-Contents
+  Contents
 
   Functions implementing several simple weight generation schemes for
   the KBO.
 
-  Copyright 1998, 1999 by the author.
+  Copyright 1998-2020 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
+  Changes
 
-<1> Fri Sep 25 02:49:11 MET DST 1998
-    New
-<2> Mon Jan 11 19:54:13 MET 1999
-    Eliminated all those weight generation schemes that did not result
-    in an reduction ordering. Hit my head on the desk 15 times, too!
+  <1> Created: Fri Sep 25 02:49:11 MET DST 1998
 
------------------------------------------------------------------------*/
+  -----------------------------------------------------------------------*/
 
 #include "che_to_weightgen.h"
 
@@ -79,8 +75,8 @@ static void print_weight_array(FILE* out,OCB_p ocb)
    {
       if(!SigIsSpecial(ocb->sig, i))
       {
-    fprintf(out, "%s:%ld ", SigFindName(ocb->sig,i),
-       OCBFunWeight(ocb,i));
+         fprintf(out, "%s:%ld ", SigFindName(ocb->sig,i),
+                 OCBFunWeight(ocb,i));
       }
    }
    fprintf(out, "\n");
@@ -240,7 +236,7 @@ static void set_maximal_0(OCB_p ocb)
    assert(ocb->precedence||ocb->prec_weights);
    if(problemType == PROBLEM_HO)
    {
-     return; // no checks if it is unary -- our KBO works only then
+      return; // no checks if it is unary -- our KBO works only then
    }
 
    PStack_p maxsymbs = find_max_symbols(ocb);
@@ -366,27 +362,27 @@ static void generate_arity_weights(OCB_p ocb, TOWeightGenMethod method)
       {
       case WArityWeight:
       case WArityMax0:
-       weight = arity+1;
-       break;
+            weight = arity+1;
+            break;
       case WModArityWeight:
       case WModArityMax0:
-       weight = arity+W_TO_BASEWEIGHT;
-       break;
+            weight = arity+W_TO_BASEWEIGHT;
+            break;
       case WAritySqWeight:
       case WAritySqMax0:
-       weight = arity*arity+1;
-       break;
+            weight = arity*arity+1;
+            break;
       case WInvArityWeight:
       case WInvArityMax0:
-       weight = maxarity-arity+1;
-       break;
+            weight = maxarity-arity+1;
+            break;
       case WInvAritySqWeight:
       case WInvAritySqMax0:
-       weight = (maxarity*maxarity)-(arity*arity)+1;
-       break;
+            weight = (maxarity*maxarity)-(arity*arity)+1;
+            break;
       default:
-       assert(false);
-       break;
+            assert(false);
+            break;
       }
       *OCBFunWeightPos(ocb, i) = weight*W_DEFAULT_WEIGHT;
    }
@@ -414,23 +410,23 @@ static void generate_arity_weights(OCB_p ocb, TOWeightGenMethod method)
 
 static void generate_precedence_weights(OCB_p ocb)
 {
-  FunCode i, j;
-  int     weight;
+   FunCode i, j;
+   int     weight;
 
-  assert(ocb->precedence||ocb->prec_weights);
+   assert(ocb->precedence||ocb->prec_weights);
 
-  for(i=SIG_TRUE_CODE+1; i<=ocb->sig_size; i++)
-  {
-     weight = 1;
-     for(j=SIG_TRUE_CODE+1; j<=ocb->sig_size; j++)
-     {
-   if(OCBFunCompare(ocb, i,j)== to_greater)
+   for(i=SIG_TRUE_CODE+1; i<=ocb->sig_size; i++)
    {
-      weight++;
+      weight = 1;
+      for(j=SIG_TRUE_CODE+1; j<=ocb->sig_size; j++)
+      {
+         if(OCBFunCompare(ocb, i,j)== to_greater)
+         {
+            weight++;
+         }
+      }
+      *OCBFunWeightPos(ocb, i) = weight*W_DEFAULT_WEIGHT;
    }
-     }
-     *OCBFunWeightPos(ocb, i) = weight*W_DEFAULT_WEIGHT;
-  }
 }
 
 
@@ -449,23 +445,23 @@ static void generate_precedence_weights(OCB_p ocb)
 
 static void generate_invprecedence_weights(OCB_p ocb)
 {
-  FunCode i, j;
-  int     weight;
+   FunCode i, j;
+   int     weight;
 
-  assert(ocb->precedence||ocb->prec_weights);
+   assert(ocb->precedence||ocb->prec_weights);
 
-  for(i=SIG_TRUE_CODE+1; i<=ocb->sig_size; i++)
-  {
-     weight = 1;
-     for(j=SIG_TRUE_CODE+1; j<=ocb->sig_size; j++)
-     {
-   if(OCBFunCompare(ocb, i,j)== to_lesser)
+   for(i=SIG_TRUE_CODE+1; i<=ocb->sig_size; i++)
    {
-      weight++;
+      weight = 1;
+      for(j=SIG_TRUE_CODE+1; j<=ocb->sig_size; j++)
+      {
+         if(OCBFunCompare(ocb, i,j)== to_lesser)
+         {
+            weight++;
+         }
+      }
+      *OCBFunWeightPos(ocb, i) = weight*W_DEFAULT_WEIGHT;
    }
-     }
-     *OCBFunWeightPos(ocb, i) = weight*W_DEFAULT_WEIGHT;
-  }
 }
 
 
@@ -548,7 +544,7 @@ static void generate_freq_weights(OCB_p ocb, ClauseSet_p axioms)
    for(i=SIG_TRUE_CODE+1; i<= ocb->sig->f_count; i++)
    {
       *OCBFunWeightPos(ocb, i) = MAX(array->array[i].freq,1)
-    *W_DEFAULT_WEIGHT;
+         *W_DEFAULT_WEIGHT;
    }
    FCodeFeatureArrayFree(array);
 }
@@ -718,8 +714,8 @@ static void generate_inv_type_freq_weights(OCB_p ocb, ClauseSet_p axioms)
    {
       long sym_type_id = SigGetType(ocb->sig, i) ? SigGetType(ocb->sig, i)->type_uid : 0;
       *OCBFunWeightPos(ocb, i) =
-       (max_aggregate - MAX(type_counts[sym_type_id],1))
-       *W_DEFAULT_WEIGHT;
+         (max_aggregate - MAX(type_counts[sym_type_id],1))
+         *W_DEFAULT_WEIGHT;
    }
    SizeFree(type_counts, max_types*sizeof(long));
 }
@@ -751,7 +747,7 @@ static void generate_invfreq_weights(OCB_p ocb, ClauseSet_p axioms)
    for(i=SIG_TRUE_CODE+1; i<= ocb->sig->f_count; i++)
    {
       *OCBFunWeightPos(ocb, i) =
-    (max_count-MAX(array->array[i].freq,1))*W_DEFAULT_WEIGHT;
+         (max_count-MAX(array->array[i].freq,1))*W_DEFAULT_WEIGHT;
    }
    FCodeFeatureArrayFree(array);
 }
@@ -786,11 +782,11 @@ static void generate_freqrank_weights(OCB_p ocb, ClauseSet_p axioms)
    {
       if(freq!=array->array[i].freq)
       {
-    freq=array->array[i].freq;
-    weight++;
+         freq=array->array[i].freq;
+         weight++;
       }
       *OCBFunWeightPos(ocb, array->array[i].symbol) =
-    weight*W_DEFAULT_WEIGHT;
+         weight*W_DEFAULT_WEIGHT;
    }
    FCodeFeatureArrayFree(array);
 }
@@ -923,11 +919,11 @@ static void generate_invfreqrank_weights(OCB_p ocb, ClauseSet_p axioms)
    {
       if(freq!=array->array[i].freq)
       {
-    freq=array->array[i].freq;
-    weight++;
+         freq=array->array[i].freq;
+         weight++;
       }
       *OCBFunWeightPos(ocb, array->array[i].symbol) =
-    weight*W_DEFAULT_WEIGHT;
+         weight*W_DEFAULT_WEIGHT;
    }
    FCodeFeatureArrayFree(array);
 }
@@ -972,11 +968,11 @@ static void generate_inv_type_freq_rank_weights(OCB_p ocb, ClauseSet_p axioms)
    {
       if(freq!=array->array[i].key1)
       {
-    freq=array->array[i].key1;
-    weight++;
+         freq=array->array[i].key1;
+         weight++;
       }
       *OCBFunWeightPos(ocb, array->array[i].symbol) =
-    weight*W_DEFAULT_WEIGHT;
+         weight*W_DEFAULT_WEIGHT;
    }
    FCodeFeatureArrayFree(array);
    SizeFree(type_counts, max_types*sizeof(long));
@@ -1065,12 +1061,12 @@ static void generate_invconjfreqrank_weights(OCB_p ocb, ClauseSet_p axioms)
       if((freq!=array->array[i].freq) ||
          (conjfreq!=array->array[i].conjfreq))
       {
-    freq=array->array[i].freq;
+         freq=array->array[i].freq;
          conjfreq=array->array[i].conjfreq;
-    weight++;
+         weight++;
       }
       *OCBFunWeightPos(ocb, array->array[i].symbol) =
-    weight*W_DEFAULT_WEIGHT;
+         weight*W_DEFAULT_WEIGHT;
    }
    FCodeFeatureArrayFree(array);
 }
@@ -1106,11 +1102,11 @@ static void generate_freqranksq_weights(OCB_p ocb, ClauseSet_p axioms)
    {
       if(freq!=array->array[i].freq)
       {
-    freq=array->array[i].freq;
-    weight++;
+         freq=array->array[i].freq;
+         weight++;
       }
       *OCBFunWeightPos(ocb, array->array[i].symbol) =
-    weight*weight*W_DEFAULT_WEIGHT;
+         weight*weight*W_DEFAULT_WEIGHT;
    }
    FCodeFeatureArrayFree(array);
 }
@@ -1145,11 +1141,11 @@ static void generate_invfreqranksq_weights(OCB_p ocb, ClauseSet_p axioms)
    {
       if(freq!=array->array[i].freq)
       {
-    freq=array->array[i].freq;
-    weight++;
+         freq=array->array[i].freq;
+         weight++;
       }
       *OCBFunWeightPos(ocb, array->array[i].symbol) =
-    weight*weight*W_DEFAULT_WEIGHT;
+         weight*weight*W_DEFAULT_WEIGHT;
    }
    FCodeFeatureArrayFree(array);
 }
@@ -1185,11 +1181,11 @@ static void generate_inv_modfreqrank_weights(OCB_p ocb, ClauseSet_p axioms)
       base++;
       if(freq!=array->array[i].freq)
       {
-    freq=array->array[i].freq;
-    weight=base;
+         freq=array->array[i].freq;
+         weight=base;
       }
       *OCBFunWeightPos(ocb, array->array[i].symbol) =
-    weight*W_DEFAULT_WEIGHT;
+         weight*W_DEFAULT_WEIGHT;
    }
    FCodeFeatureArrayFree(array);
 }
@@ -1226,11 +1222,11 @@ static void generate_inv_modfreqrank_weights_max_0(OCB_p ocb, ClauseSet_p axioms
       base++;
       if(freq!=array->array[i].freq)
       {
-    freq=array->array[i].freq;
-    weight=base;
+         freq=array->array[i].freq;
+         weight=base;
       }
       *OCBFunWeightPos(ocb, array->array[i].symbol) =
-    weight*W_DEFAULT_WEIGHT;
+         weight*W_DEFAULT_WEIGHT;
    }
    set_maximal_unary_0(ocb);
    FCodeFeatureArrayFree(array);
@@ -1310,7 +1306,7 @@ TOWeightGenMethod TOTranslateWeightGenMethod(char* name)
 /----------------------------------------------------------------------*/
 
 void TOGenerateWeights(OCB_p ocb, ClauseSet_p axioms, char *pre_weights,
-             TOWeightGenMethod method, long const_weight)
+                       OrderParms_p oparms)
 {
    FunCode i;
 
@@ -1320,28 +1316,28 @@ void TOGenerateWeights(OCB_p ocb, ClauseSet_p axioms, char *pre_weights,
 
    *OCBFunWeightPos(ocb, SIG_TRUE_CODE) = 1;
    VERBOUTARG("Generating ordering weight with ",
-              TOWeightGenNames[method]);
+              TOWeightGenNames[oparms->to_weight_gen]);
 
-   switch(method)
+   switch(oparms->to_weight_gen)
    {
    case WConstantWeight:
-    generate_constant_weights(ocb);
-    break;
+         generate_constant_weights(ocb);
+         break;
    case WSelectMaximal:
-    generate_selmax_weights(ocb);
-    break;
+         generate_selmax_weights(ocb);
+         break;
    case WModArityWeight:
    case WModArityMax0:
-    generate_arity_weights(ocb, method);
-    if(const_weight == WConstNoSpecialWeight)
-    {
-       ocb->var_weight = W_TO_BASEWEIGHT;
-    }
-    else
-    {
-       ocb->var_weight = const_weight;
-    }
-    break;
+         generate_arity_weights(ocb, oparms->to_weight_gen);
+         if(oparms->to_const_weight == WConstNoSpecialWeight)
+         {
+            ocb->var_weight = W_TO_BASEWEIGHT;
+         }
+         else
+         {
+            ocb->var_weight = oparms->to_const_weight;
+         }
+         break;
    case WArityWeight:
    case WArityMax0:
    case WAritySqWeight:
@@ -1350,14 +1346,14 @@ void TOGenerateWeights(OCB_p ocb, ClauseSet_p axioms, char *pre_weights,
    case WInvArityMax0:
    case WInvAritySqWeight:
    case WInvAritySqMax0:
-    generate_arity_weights(ocb, method);
-    break;
+         generate_arity_weights(ocb, oparms->to_weight_gen);
+         break;
    case WPrecedence:
-    generate_precedence_weights(ocb);
-    break;
+         generate_precedence_weights(ocb);
+         break;
    case WPrecedenceInv:
-    generate_invprecedence_weights(ocb);
-    break;
+         generate_invprecedence_weights(ocb);
+         break;
    case WPrecRank5:
          generate_precrank5_weights(ocb);
          break;
@@ -1368,78 +1364,78 @@ void TOGenerateWeights(OCB_p ocb, ClauseSet_p axioms, char *pre_weights,
          generate_precrank20_weights(ocb);
          break;
    case WFrequency:
-    generate_freq_weights(ocb, axioms);
-    break;
+         generate_freq_weights(ocb, axioms);
+         break;
    case WInvFrequency:
-    generate_invfreq_weights(ocb, axioms);
-    break;
+         generate_invfreq_weights(ocb, axioms);
+         break;
    case WFrequencyRank:
-    generate_freqrank_weights(ocb, axioms);
-    break;
+         generate_freqrank_weights(ocb, axioms);
+         break;
    case WInvFrequencyRank:
-    generate_invfreqrank_weights(ocb, axioms);
-    break;
+         generate_invfreqrank_weights(ocb, axioms);
+         break;
    case WInvConjFrequencyRank:
          generate_invconjfreqrank_weights(ocb, axioms);
          break;
    case WFrequencyRankSq:
-    generate_freqranksq_weights(ocb, axioms);
-    break;
+         generate_freqranksq_weights(ocb, axioms);
+         break;
    case WInvFrequencyRankSq:
-    generate_invfreqranksq_weights(ocb, axioms);
-    break;
+         generate_invfreqranksq_weights(ocb, axioms);
+         break;
    case WInvModFreqRank:
-    generate_inv_modfreqrank_weights(ocb, axioms);
-    break;
+         generate_inv_modfreqrank_weights(ocb, axioms);
+         break;
    case WInvModFreqRankMax0:
-    generate_inv_modfreqrank_weights_max_0(ocb, axioms);
-    break;
+         generate_inv_modfreqrank_weights_max_0(ocb, axioms);
+         break;
    case WNoMethod:
-    generate_selmax_weights(ocb);
-    break;
+         generate_selmax_weights(ocb);
+         break;
    case WTypeFrequencyRank:
-    assert(problemType == PROBLEM_HO);
-    generate_type_freq_rank_weights(ocb, axioms);
-    break;
+         assert(problemType == PROBLEM_HO);
+         generate_type_freq_rank_weights(ocb, axioms);
+         break;
    case WTypeFrequencyCount:
-    assert(problemType == PROBLEM_HO);
-    generate_type_freq_weights(ocb, axioms);
-    break;
+         assert(problemType == PROBLEM_HO);
+         generate_type_freq_weights(ocb, axioms);
+         break;
    case WInvTypeFrequencyRank:
-    assert(problemType == PROBLEM_HO);
-    generate_inv_type_freq_rank_weights(ocb, axioms);
-    break;
+         assert(problemType == PROBLEM_HO);
+         generate_inv_type_freq_rank_weights(ocb, axioms);
+         break;
    case WInvTypeFrequencyCount:
-    assert(problemType == PROBLEM_HO);
-    generate_inv_type_freq_weights(ocb, axioms);
-    break;
+         assert(problemType == PROBLEM_HO);
+         generate_inv_type_freq_weights(ocb, axioms);
+         break;
    case WCombFrequencyRank:
-    assert(problemType == PROBLEM_HO);
-    generate_comb_freq_rank_weights(ocb, axioms);
-    break;
+         assert(problemType == PROBLEM_HO);
+         generate_comb_freq_rank_weights(ocb, axioms);
+         break;
    case WCombFrequencyCount:
-    assert(problemType == PROBLEM_HO);
-    generate_comb_freq_weights(ocb, axioms);
-    break;
+         assert(problemType == PROBLEM_HO);
+         generate_comb_freq_weights(ocb, axioms);
+         break;
    case WInvCombFrequencyRank:
-    assert(problemType == PROBLEM_HO);
-    generate_inv_comb_freq_rank_weights(ocb, axioms);
-    break;
+         assert(problemType == PROBLEM_HO);
+         generate_inv_comb_freq_rank_weights(ocb, axioms);
+         break;
    case WInvCombFrequencyCount:
-    assert(problemType == PROBLEM_HO);
-    generate_inv_comb_freq_weights(ocb, axioms);
-    break;
+         assert(problemType == PROBLEM_HO);
+         generate_inv_comb_freq_weights(ocb, axioms);
+         break;
    default:
-    assert(false && "Weight generation method unimplemented");
-    break;
+         assert(false && "Weight generation method unimplemented");
+         break;
    }
    for(i=SIG_TRUE_CODE+1; i<=ocb->sig_size; i++)
    {
       if(SigFindArity(ocb->sig, i)==0)
       {
-         if(const_weight != WConstNoSpecialWeight)
+         if(oparms->to_const_weight != WConstNoSpecialWeight)
          {
-            *OCBFunWeightPos(ocb, i) = const_weight;
+            *OCBFunWeightPos(ocb, i) = oparms->to_const_weight;
          }
          assert(OCBFunWeight(ocb,i)>0);
       }
