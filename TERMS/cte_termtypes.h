@@ -242,10 +242,7 @@ typedef uintptr_t DerefType, *DerefType_p;
 
 #define TermCellAlloc() (TermCell*)SizeMalloc(sizeof(TermCell))
 #define TermCellArityAlloc(arity) (TermCell*)SizeMalloc(sizeof(TermCell) + arity * sizeof(Term_p))
-
-#define TermCellFree(junk)         SizeFree(junk, sizeof(TermCell))
-#define TermArgArrayAlloc(arity) ((Term_p*)SizeMalloc((arity)*sizeof(Term_p)))
-#define TermArgArrayFree(junk, arity) SizeFree((junk),(arity)*sizeof(Term_p))
+#define TermCellFree(junk, arity)         SizeFree(junk, sizeof(TermCell) + arity * sizeof(Term_p))
 
 #define TermIsRewritten(term) TermCellQueryProp((term), TPIsRewritten)
 #define TermIsRRewritten(term) TermCellQueryProp((term), TPIsRRewritten)
@@ -585,7 +582,7 @@ static inline Term_p TermDefaultCellAlloc(void)
 
 /*-----------------------------------------------------------------------
 //
-// Function: TermDefaultCellAlloc()
+// Function: TermDefaultCellArityAlloc()
 //
 //   Allocate a term cell with default values.
 //   Furthermore allocates the arguments of the term using the given arity.

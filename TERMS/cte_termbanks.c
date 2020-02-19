@@ -498,10 +498,12 @@ static Term_p normalize_head(Term_p head, Term_p* rest_args, int rest_arity)
       {
          int total_arity = head->arity + rest_arity;
 
+         /*
          for(unsigned int i = 0; i < total_arity; ++i)
          {
             res->args[i] = NULL;
          }
+         */
       }
 
       res->arity = total_arity;
@@ -1432,6 +1434,7 @@ Term_p TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop)
          }
          else
          {
+            handle = TermDefaultCellAlloc();
             handle->arity = 0;
          }
          handle->f_code = TermSigInsert(bank->sig, DStrView(id),
