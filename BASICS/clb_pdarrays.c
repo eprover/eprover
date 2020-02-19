@@ -91,22 +91,7 @@ PDArray_p PDArrayAlloc(long init_size, long grow)
 
 PDArray_p PDIntArrayAlloc(long init_size, long grow)
 {
-   PDArray_p handle = PDArrayCellAlloc();
-   long i;
-
-   assert(init_size > 0);
-   assert(grow >= 0);
-
-   handle->integer     = true;
-   handle->size        = init_size;
-   handle->grow        = grow;
-   handle->default_int = 0;
-   handle->array = SizeMalloc(handle->size*sizeof(IntOrP));
-   for(i=0; i<handle->size; i++)
-   {
-      handle->array[i].i_val = 0;
-   }
-   return handle;
+   return PDIntArrayAllocWithDefault(init_size, grow, 0);
 }
 
 /*-----------------------------------------------------------------------
