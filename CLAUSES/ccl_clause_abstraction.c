@@ -24,17 +24,18 @@ Copyright 2019-2020 by the author.
 
 /*-----------------------------------------------------------------------
 //
-// Function: RewriteConstantsOnTerm()
+// Function: RewriteSymbolsOnTerm()
 //
-//   Recursively traves a term and rewrites its constants to rc.
+//   Recursively traves a term and rewrites its constants to the appropiate
+//   constant symbol given its sort.
 //
 // Global Variables: -
 //
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
-Term_p RewriteConstantsOnTerm(Term_p source, VarBank_p vars, DerefType deref,
-                              PDArray_p constant_sorts)
+Term_p RewriteSymbolsOnTerm(Term_p source, VarBank_p vars, DerefType deref,
+                            PDArray_p look_up, AbstractionMode mode, Sig_p sig)
 {
    Term_p handle;
    int    i;
@@ -50,13 +51,23 @@ Term_p RewriteConstantsOnTerm(Term_p source, VarBank_p vars, DerefType deref,
    }
    else
    {
-      handle = RewriteConstantsOnTermCell(source, constant_sorts);
+      switch (mode)
+      {
+      case CONSTANT:
+         handle = RewriteConstantsOnTermCell(source, look_up);
+         break;
+      case SKOLEM:
+         handle = RewriteSkolemsOnTermCell(source, look_up, sig);
+         break;
+      default:
+         break;
+      }
 
       for(i=0; i<handle->arity; i++)
       {
-         handle->args[i] = RewriteConstantsOnTerm(source->args[i], vars,
-                                                  CONVERT_DEREF(i, limit, deref),
-                                                  constant_sorts);
+         handle->args[i] = RewriteSymbolsOnTerm(source->args[i], vars,
+                                                CONVERT_DEREF(i, limit, deref),
+                                                look_up, mode, sig);
       }
    }
 
@@ -68,7 +79,8 @@ Term_p RewriteConstantsOnTerm(Term_p source, VarBank_p vars, DerefType deref,
 // Function: RewriteConstantsOnTermCell()
 //
 //   Allocates a new Term that is either a copy of source or if term is
-//   a constant inserts rc when it exists.
+//   a constant inserts the appropiate constant symbol given its sort 
+//   if it exists.
 //
 // Global Variables: -
 //
@@ -112,7 +124,61 @@ Term_p RewriteConstantsOnTermCell(Term_p source, PDArray_p constant_sorts)
    handle->type = source->type;
 
    TermSetBank(handle, TermGetBank(source));
+   return handle;
+}
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: RewriteConstantsOnTermCell()
+//
+//   Allocates a new Term that is either a copy of source or if term is
+//   a skolem symbol inserts the appropiate symbol given its arity 
+//   if it exists.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+Term_p RewriteSkolemsOnTermCell(Term_p source, PDArray_p constant_sorts, 
+                                Sig_p sig)
+{
+   Term_p handle = TermDefaultCellAlloc();
+
+   handle->properties = (source->properties&(TPPredPos));
+   TermCellDelProp(handle, TPOutputFlag);
+
+   if(source->arity)
+   {
+      handle->arity = source->arity;
+      handle->args  = TermArgArrayAlloc(source->arity);
+   }
+
+   if(SigQueryFuncProp(sig, source->f_code, FPIsSkolemSymbol))
+   {
+      printf("Nasty skolem symb\n");
+      printf("\n\n\n\n\n");
+      long res = PDArrayElementInt(constant_sorts, source->arity);
+
+      if (res == constant_sorts->default_int)
+      {
+         PDArrayAssignInt(constant_sorts, source->arity, source->f_code);
+         handle->f_code = source->f_code;
+      }
+      else 
+      {
+         handle->f_code = res;
+      }
+   }
+   else
+   {
+      handle->f_code = source->f_code;
+   }
+
+   handle->type = source->type;
+
+   TermSetBank(handle, TermGetBank(source));
    return handle;
 }
 
@@ -124,7 +190,7 @@ Term_p RewriteConstantsOnTermCell(Term_p source, PDArray_p constant_sorts)
 //
 // Function: RewriteConstants()
 //
-//   Takes a clause and rewrites als constants to rc where rc is the
+//   Takes a clause and rewrites all constants to rc where rc is the
 //   first constant met during the proof.
 //
 // Global Variables: -
@@ -139,17 +205,60 @@ void RewriteConstants(Clause_p clause, TB_p target, PDArray_p constant_sorts)
    while(literals)
    {
       next = literals->next;
-      literals->lterm = RewriteConstantsOnTerm(literals->lterm, 
-                                               literals->bank->vars, 
-                                               false,
-                                               constant_sorts);
+      literals->lterm = RewriteSymbolsOnTerm(literals->lterm, 
+                                             literals->bank->vars, 
+                                             false,
+                                             constant_sorts,
+                                             CONSTANT,
+                                             NULL);
       literals->lterm = TBInsert(target, literals->lterm, DEREF_ALWAYS);
-      literals->rterm = RewriteConstantsOnTerm(literals->rterm, 
-                                               literals->bank->vars, 
-                                               false,
-                                               constant_sorts);
+      literals->rterm = RewriteSymbolsOnTerm(literals->rterm, 
+                                             literals->bank->vars, 
+                                             false,
+                                             constant_sorts,
+                                             CONSTANT,
+                                             NULL);
       literals->rterm = TBInsert(target, literals->rterm, DEREF_ALWAYS);
       literals       = next;
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: RewriteSkolemSymbols()
+//
+//   Takes a clause and rewrites all Skolem symbols to rc where rc is the
+//   first constant met during the proof.
+//
+// Global Variables: -
+//
+// Side Effects    : Rewrites skolem symbols in clause ;-).
+//
+/----------------------------------------------------------------------*/
+void RewriteSkolemSymbols(Clause_p clause, TB_p target,
+                          PDArray_p skolem_sym_lookup, Sig_p sig)
+{
+   Eqn_p next;
+   Eqn_p literals = clause->literals;
+   while(literals)
+   {
+      next = literals->next;
+      literals->lterm = RewriteSymbolsOnTerm(literals->lterm, 
+                                             literals->bank->vars, 
+                                             false,
+                                             skolem_sym_lookup,
+                                             SKOLEM,
+                                             sig);
+      literals->lterm = TBInsert(target, literals->lterm, DEREF_ALWAYS);
+      literals->rterm = RewriteSymbolsOnTerm(literals->rterm, 
+                                             literals->bank->vars, 
+                                             false,
+                                             skolem_sym_lookup,
+                                             SKOLEM,
+                                             sig);
+      literals->rterm = TBInsert(target, literals->rterm, DEREF_ALWAYS);
+      literals        = next;
    }
 }
 

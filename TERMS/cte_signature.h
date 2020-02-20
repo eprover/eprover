@@ -40,34 +40,35 @@ Changes
 
 typedef enum
 {
-   FPIgnoreProps  =    0, /* No properties, mask everything out */
-   FPTypeFixed    =    1, /* We are sure about the type of the symbol */
-   FPTypePoly     =    2, /* Ad-hoc polymorphic predicate type */
-   FPFOFOp        =    4, /* Symbol is encoded first order operator */
-   FPSpecial      =    8, /* Symbol is a special symbol introduced internally */
-   FPAssociative  =   16, /* Function symbol is binary and associative */
-   FPCommutative  =   32, /* Function symbol is binary and commutates */
-   FPIsAC         =   FPAssociative|FPCommutative,
-   FPInterpreted  =   64, /* Interpreted symbol $ident */
-   FPIsInteger    =  128, /* Sequence of digits, may be semi-interpreted */
-   FPIsRational   =  256, /* [-]a/b */
-   FPIsFloat      =  512, /* Floating point number */
-   FPIsObject     =  1024, /* ""-enclosed string, by definition denotes
-                            unique object." */
-   FPDistinctProp =  FPIsObject | FPIsInteger | FPIsRational | FPIsFloat,
-   FPOpFlag       = 2048, /* Used for temporary oerations, by
-                           * defintion off if not in use! */
-   FPClSplitDef   = 4096, /* Predicate is a clause split defined
-                           * symbol. */
-   FPPseudoPred   = 8192, /* Pseudo-predicate used for side effects
+   FPIgnoreProps      =    0, /* No properties, mask everything out */
+   FPTypeFixed        =    1, /* We are sure about the type of the symbol */
+   FPTypePoly         =    2, /* Ad-hoc polymorphic predicate type */
+   FPFOFOp            =    4, /* Symbol is encoded first order operator */
+   FPSpecial          =    8, /* Symbol is a special symbol introduced internally */
+   FPAssociative      =   16, /* Function symbol is binary and associative */
+   FPCommutative      =   32, /* Function symbol is binary and commutates */
+   FPIsAC             =   FPAssociative|FPCommutative,
+   FPInterpreted      =   64, /* Interpreted symbol $ident */
+   FPIsInteger        =  128, /* Sequence of digits, may be semi-interpreted */
+   FPIsRational       =  256, /* [-]a/b */
+   FPIsFloat          =  512, /* Floating point number */
+   FPIsObject         =  1024, /* ""-enclosed string, by definition denotes
+                                unique object." */
+   FPDistinctProp     =  FPIsObject | FPIsInteger | FPIsRational | FPIsFloat,
+   FPOpFlag           = 2048, /* Used for temporary oerations, by
+                               * defintion off if not in use! */
+   FPClSplitDef       = 4096, /* Predicate is a clause split defined
+                               * symbol. */
+   FPPseudoPred       = 8192, /* Pseudo-predicate used for side effects
                            * only, does not conceptually contribute to
                            * truth of clause */
    FPTypedApplication = FPPseudoPred * 2,
-   FPSkolemSymbol = FPTypedApplication * 2, /* Obvious ;-) */
-   FPDefPred      = FPSkolemSymbol * 2 /* Used for all new epred()s,
+   FPSkolemSymbol     = FPTypedApplication * 2, /* Obvious ;-) */
+   FPDefPred          = FPSkolemSymbol * 2, /* Used for all new epred()s,
                                         * but hopefully only for split
                                         * literals and Tseitin defined
                                         * predicates */
+   FPIsSkolemSymbol   = FPDefPred * 2
 }FunctionProperties;
 
 

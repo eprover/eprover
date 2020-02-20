@@ -21,26 +21,34 @@ Copyright 2019-2020 by the author.
 
 #include <ccl_fcvindexing.h>
 #include <ccl_unitclause_index.h>
+#include <cte_signature.h>
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
 /*---------------------------------------------------------------------*/
 
-typedef long REWRITE_CONSTANT;
+typedef enum {
+   CONSTANT,
+   SKOLEM
+} AbstractionMode;
 
 /*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
 void RewriteConstants(Clause_p clause, TB_p target, PDArray_p constant_sorts);
+void RewriteSkolemSymbols(Clause_p clause, TB_p target,
+                          PDArray_p skolem_sym_lookup, Sig_p sig);
 
 /*---------------------------------------------------------------------*/
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
 
-Term_p RewriteConstantsOnTerm(Term_p source, VarBank_p vars, DerefType deref,
-                              PDArray_p constant_sorts);
+Term_p RewriteSymbolsOnTerm(Term_p source, VarBank_p vars, DerefType deref,
+                            PDArray_p look_up, AbstractionMode mode, Sig_p sig);
 Term_p RewriteConstantsOnTermCell(Term_p source, PDArray_p constant_sorts);
+Term_p RewriteSkolemsOnTermCell(Term_p source, PDArray_p constant_sorts, 
+                                Sig_p sig);
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */

@@ -115,6 +115,12 @@ typedef struct proofstatecell
    unsigned long long forward_contract_base; /* Number of processed
                                                 clauses at last
                                                 forward-contraction */
+   /* watchlist stats */
+   unsigned long process_clause_loops;
+   unsigned long watchlist_checks;
+   unsigned long watchlist_unit_checks;
+   unsigned long wl_unit_clause;
+   unsigned long wl_non_unit_clause;
 
    /* The following are only set by ProofStateAnalyse() after
       DerivationCompute() at the end of the proof search. */

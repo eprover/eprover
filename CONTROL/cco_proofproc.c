@@ -395,21 +395,37 @@ void check_watchlist(GlobalIndices_p indices, ClauseSet_p watchlist,
 
    if(watchlist)
    {
+      state->watchlist_checks++;
+      if (ClauseIsUnit(clause))
+      {
+         state->watchlist_unit_checks++;
+      }
+
       if (watchlist->wl_constants_abstraction)
       {
          rewrite = ClauseCopy(clause, state->softsubsumption_rw);
          RewriteConstants(rewrite, state->softsubsumption_rw, watchlist->wl_abstraction_symbols);
          // TODO: Fix all ->efficent_subsumption_index->fvindex
-         pclause = FVIndexPackClause(rewrite, watchlist->efficent_subsumption_index->fvindex);
-         // printf("# check_watchlist(%p)...\n", indices);
+         pclause = FVIndexPackClause(rewrite, watchlist->efficient_subsumption_index->fvindex);
          ClauseSubsumeOrderSortLits(rewrite);
          rewrite->weight = ClauseStandardWeight(rewrite);
-         // assert(ClauseIsSubsumeOrdered(clause));
-      } else {
-         pclause = FVIndexPackClause(clause, watchlist->efficent_subsumption_index->fvindex);
+      } 
+      else if (watchlist->wl_skolemsym_abstraction)
+      {
+         rewrite = ClauseCopy(clause, state->softsubsumption_rw);
+         RewriteSkolemSymbols(rewrite, state->softsubsumption_rw, 
+                              state->watchlist->wl_abstraction_symbols, state->signature);
+         pclause = FVIndexPackClause(rewrite, watchlist->efficient_subsumption_index->fvindex);
+         ClauseSubsumeOrderSortLits(rewrite);
+         rewrite->weight = ClauseStandardWeight(rewrite);
+      } 
+      else 
+      {
+         pclause = FVIndexPackClause(clause, watchlist->efficient_subsumption_index->fvindex);
          // printf("# check_watchlist(%p)...\n", indices);
          ClauseSubsumeOrderSortLits(clause);
          clause->weight = ClauseStandardWeight(clause);
+         // assert(ClauseIsSubsumeOrdered(clause));
       }
 
       if(static_watchlist)
@@ -471,7 +487,9 @@ void simplify_watchlist(ProofState_p state, ProofControl_p control,
 {
    ClauseSet_p tmp_set;
    Clause_p    handle;
+   Clause_p    rewrite;
    long        removed_lits;
+
 
    if(!ClauseIsDemodulator(clause))
    {
@@ -519,8 +537,16 @@ void simplify_watchlist(ProofState_p state, ProofControl_p control,
       ClauseMarkMaximalTerms(control->ocb, handle);
       if(state->watchlist->wl_constants_abstraction)
       {
-         Clause_p rewrite = ClauseCopy(handle, state->softsubsumption_rw);
+         rewrite = ClauseCopy(handle, state->softsubsumption_rw);
          RewriteConstants(rewrite, state->softsubsumption_rw, state->watchlist->wl_abstraction_symbols);
+         ClauseSetIndexedInsertClause(state->watchlist, rewrite);
+         GlobalIndicesInsertClause(&(state->wlindices), rewrite);
+      }
+      else if(state->watchlist->wl_skolemsym_abstraction)
+      {
+         rewrite = ClauseCopy(clause, state->softsubsumption_rw);
+         RewriteSkolemSymbols(rewrite, state->softsubsumption_rw, 
+                              state->watchlist->wl_abstraction_symbols, state->signature);
          ClauseSetIndexedInsertClause(state->watchlist, rewrite);
          GlobalIndicesInsertClause(&(state->wlindices), rewrite);
       }
@@ -1475,6 +1501,8 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control,
    FVPackedClause_p pclause;
    SysDate          clausedate;
 
+   state->process_clause_loops++;
+
    clause = control->hcb->hcb_select(control->hcb,
                                      state->unprocessed);
    if(!clause)
@@ -1545,9 +1573,9 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control,
    }
 
    check_watchlist(&(state->wlindices), state->watchlist,
-                      pclause->clause, state->archive,
-                      control->heuristic_parms.watchlist_is_static,
-                      state);
+                   pclause->clause, state->archive,
+                   control->heuristic_parms.watchlist_is_static,
+                   state);
 
    /* Now on to backward simplification. */
    clausedate = ClauseSetListGetMaxDate(state->demods, FullRewrite);

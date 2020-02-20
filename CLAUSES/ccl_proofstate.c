@@ -233,6 +233,13 @@ ProofState_p ProofStateAlloc(FunctionProperties free_symb_prop)
    handle->satcheck_encoding_stime = 0.0;
    handle->satcheck_solver_stime   = 0.0;
 
+
+   handle->process_clause_loops  = 0;
+   handle->watchlist_checks      = 0;
+   handle->watchlist_unit_checks = 0;
+   handle->wl_unit_clause        = 0;
+   handle->wl_non_unit_clause    = 0;
+
    handle->filter_orphans_base   = 0;
    handle->forward_contract_base = 0;
 
@@ -349,10 +356,19 @@ void ProofStateInitWatchlist(ProofState_p state, OCB_p ocb,
       else if(rewriteSkolemSym)
       {
           state->watchlist->wl_constants_abstraction = true;
+          state->watchlist->wl_abstraction_symbols   = PDIntArrayAllocWithDefault(10, 1, -1);
       }
       while(!ClauseSetEmpty(state->watchlist))
       {
          handle = ClauseSetExtractFirst(state->watchlist);
+         if (ClauseIsUnit(handle))
+         {
+            state->wl_unit_clause++;
+         }
+         else
+         {
+            state->wl_non_unit_clause++;
+         }
          if(rewriteConstants)
          {
             Clause_p rewrite = ClauseCopy(handle, state->softsubsumption_rw);
@@ -361,8 +377,9 @@ void ProofStateInitWatchlist(ProofState_p state, OCB_p ocb,
          }
          else if (rewriteSkolemSym)
          {
-            // TODO: Skolem rewrite
-            printf("That should be rewrite skolems.\n");
+            Clause_p rewrite = ClauseCopy(handle, state->softsubsumption_rw);
+            RewriteSkolemSymbols(rewrite, state->softsubsumption_rw, 
+                                 state->watchlist->wl_abstraction_symbols, state->signature);
             ClauseSetInsert(tmpset, handle);
          }
          else
@@ -713,6 +730,21 @@ void ProofStateStatisticsPrint(FILE* out, ProofState_p state)
    fprintf(out,
            "# Current number of archived clauses   : %ld\n",
            state->archive->members);
+   fprintf(out,
+           "# Number of process clause loops       : %ld\n",
+           state->process_clause_loops);
+   fprintf(out,
+           "# Number of watchlist checks           : %ld\n",
+           state->watchlist_checks);
+   fprintf(out,
+           "# Number of wl unit clause checks      : %ld\n",
+           state->watchlist_checks);
+   fprintf(out,
+           "# Number of inserted watchlist unit clauses     : %ld\n",
+           state->wl_unit_clause);
+   fprintf(out,
+           "# Number of inserted watchlist non unit clauses : %ld\n",
+           state->wl_non_unit_clause);
    if(ProofObjectRecordsGCSelection)
    {
       fprintf(out,
