@@ -1,6 +1,6 @@
 /*-----------------------------------------------------------------------
 
-File  : ccl_efficent_subsumption_index.h
+File  : ccl_clause_abstraction.h
 
 Author: Constantin Ruhdorfer
 

@@ -389,8 +389,8 @@ void check_watchlist(GlobalIndices_p indices, ClauseSet_p watchlist,
                      Clause_p clause, ClauseSet_p archive,
                      bool static_watchlist, ProofState_p state)
 {
-   FVPackedClause_p pclause;
-   Clause_p         rewrite;
+   FVPackedClause_p pclause = NULL;
+   Clause_p         rewrite = NULL;
    long             removed;
 
    if(watchlist)
@@ -432,7 +432,7 @@ void check_watchlist(GlobalIndices_p indices, ClauseSet_p watchlist,
       {
          Clause_p subsumed;
 
-         if (rewrite != NULL)
+         if (rewrite != NULL && (watchlist->wl_constants_abstraction || watchlist->wl_skolemsym_abstraction))
          {
             subsumed = ClauseSetFindFirstSubsumedClause(watchlist, rewrite);
          }
