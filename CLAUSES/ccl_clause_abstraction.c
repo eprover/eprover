@@ -6,7 +6,7 @@ Author: Constantin Ruhdorfer
 
 Contents
 
-  Interface for indexing clauses for subsumption.
+  Functions for clause abstraction.
 
 Copyright 2019-2020 by the author.
   This code is released under the GNU General Public Licence and
@@ -141,10 +141,12 @@ Term_p RewriteConstantsOnTermCell(Term_p source, PDArray_p constant_sorts)
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
-Term_p RewriteSkolemsOnTermCell(Term_p source, PDArray_p constant_sorts, 
+Term_p RewriteSkolemsOnTermCell(Term_p source, PDArray_p skolem_types, 
                                 Sig_p sig)
 {
-   Term_p handle = TermDefaultCellAlloc();
+   long index_pos = 0;
+   long res       = 0;
+   Term_p handle  = TermDefaultCellAlloc();
 
    handle->properties = (source->properties&(TPPredPos));
    TermCellDelProp(handle, TPOutputFlag);
@@ -157,13 +159,12 @@ Term_p RewriteSkolemsOnTermCell(Term_p source, PDArray_p constant_sorts,
 
    if(SigQueryFuncProp(sig, source->f_code, FPIsSkolemSymbol))
    {
-      printf("Nasty skolem symb\n");
-      printf("\n\n\n\n\n");
-      long res = PDArrayElementInt(constant_sorts, source->arity);
+      index_pos = GetReturnSort(source->type)->type_uid;
+      res       = PDArrayElementInt(skolem_types, index_pos);
 
-      if (res == constant_sorts->default_int)
+      if (res == skolem_types->default_int)
       {
-         PDArrayAssignInt(constant_sorts, source->arity, source->f_code);
+         PDArrayAssignInt(skolem_types, index_pos, source->f_code);
          handle->f_code = source->f_code;
       }
       else 
