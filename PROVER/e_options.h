@@ -1013,7 +1013,7 @@ OptCell opts[] =
     "symbols with the same occurance modifier."},
 
    {OPT_TO_DEFPRED_PREC,
-    '\0', "prec-preddef",
+    '\0', "prec-defpred",
     OptArg, "2",
     "Set a weight for introduced predicate symbols (usually via definitional "
     "CNF or clause splitting) "
