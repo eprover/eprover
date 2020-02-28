@@ -122,7 +122,7 @@ links: remove_links
 
 
 tags:
-	etags-emacs `find . \( -name "*.[ch]" -or -name "*.py" \) -and \( -not -path "*include*" -and -not -name ".#*" \)`
+	etags `find . \( -name "*.[ch]" -or -name "*.py" \) -and \( -not -path "*include*" -and -not -name ".#*" \)`
 #ctags-exuberant -e -R .
 # etags */*.c */*.h
 # cd PYTHON; make ptags

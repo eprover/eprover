@@ -133,6 +133,8 @@ typedef enum
    OPT_TO_CONJONLY_PREC,
    OPT_TO_CONJAXIOM_PREC,
    OPT_TO_AXIOMONLY_PREC,
+   OPT_TO_SKOLEM_PREC,
+   OPT_TO_DEFPRED_PREC,
    OPT_TO_CONSTWEIGHT,
    OPT_TO_PRECEDENCE,
    OPT_TO_LPO_RECLIMIT,
@@ -998,6 +1000,23 @@ OptCell opts[] =
     '\0', "prec-pure-axiom",
     OptArg, "2",
     "Set a weight for symbols that occur in axioms only "
+    "to determine where to place it in the precedence. This value is "
+    "used for a rough pre-order, the normal schemes only sort within "
+    "symbols with the same occurance modifier."},
+
+   {OPT_TO_SKOLEM_PREC,
+    '\0', "prec-skolem",
+    OptArg, "2",
+    "Set a weight for Skolem symbols "
+    "to determine where to place it in the precedence. This value is "
+    "used for a rough pre-order, the normal schemes only sort within "
+    "symbols with the same occurance modifier."},
+
+   {OPT_TO_DEFPRED_PREC,
+    '\0', "prec-preddef",
+    OptArg, "2",
+    "Set a weight for introduced predicate symbols (usually via definitional "
+    "CNF or clause splitting) "
     "to determine where to place it in the precedence. This value is "
     "used for a rough pre-order, the normal schemes only sort within "
     "symbols with the same occurance modifier."},

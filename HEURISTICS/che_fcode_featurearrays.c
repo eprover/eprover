@@ -119,7 +119,7 @@ FCodeFeatureArray_p FCodeFeatureArrayAlloc(Sig_p sig, ClauseSet_p axioms)
    {
       rank_array[i]      = 0;
       dist_array[i]      = 0;
-      conjdist_array[i] = 0;
+      conjdist_array[i]  = 0;
    }
    ClauseSetComputeFunctionRanks(axioms, rank_array, &rank);
    ClauseSetAddSymbolDistribution(axioms, dist_array);
@@ -169,19 +169,52 @@ void FCodeFeatureArrayUpdateOccKey(FCodeFeatureArray_p array, OrderParms_p oparm
       {
          if(array->array[i].axiomfreq)
          {
-            array->array[i].key0 = oparms->conj_axiom_mod;
+            array->array[i].key0 += oparms->conj_axiom_mod;
          }
          else
          {
-            array->array[i].key0 = oparms->conj_only_mod;
+            array->array[i].key0 += oparms->conj_only_mod;
          }
       }
       else if(array->array[i].axiomfreq)
       {
-         array->array[i].key0 = oparms->axiom_only_mod;
+         array->array[i].key0 += oparms->axiom_only_mod;
       }
    }
 }
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: FCodeFeatureArrayUpdateSymbKey()
+//
+//    Update key0 based on the occurance of the symbols in axioms,
+//    conjectures, or both.
+//
+// Global Variables:
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+
+void FCodeFeatureArrayUpdateSymbKey(FCodeFeatureArray_p array, Sig_p sig,
+                                    OrderParms_p oparms)
+{
+   FunCode i;
+
+   for(i=1; i< array->size; i++)
+   {
+      if(SigQueryFuncProp(sig, i, FPSkolemSymbol))
+      {
+         array->array[i].key0 += oparms->skolem_mod;
+      }
+      if(SigQueryFuncProp(sig, i, FPDefPred))
+      {
+         array->array[i].key0 += oparms->defpred_mod;
+      }
+   }
+}
+
 
 
 /*-----------------------------------------------------------------------

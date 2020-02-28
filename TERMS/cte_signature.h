@@ -63,7 +63,11 @@ typedef enum
                            * only, does not conceptually contribute to
                            * truth of clause */
    FPTypedApplication = FPPseudoPred * 2,
-   FPIsConjSymbol = FPTypedApplication * 2
+   FPSkolemSymbol = FPTypedApplication * 2, /* Obvious ;-) */
+   FPDefPred      = FPSkolemSymbol * 2 /* Used for all new epred()s,
+                                        * but hopefully only for split
+                                        * literals and Tseitin defined
+                                        * predicates */
 }FunctionProperties;
 
 

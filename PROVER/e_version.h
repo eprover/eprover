@@ -32,9 +32,9 @@ Contents
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-/* git tag E-2.4dev001 */
+/* git tag E-2.4dev002 */
 
-#define PVERSION      "2.4dev001"
+#define PVERSION      "2.4dev002"
 
 #include "e_gitcommit.h"
 

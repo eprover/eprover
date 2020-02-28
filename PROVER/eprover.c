@@ -1378,6 +1378,12 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_TO_AXIOMONLY_PREC:
             h_parms->order_params.axiom_only_mod = CLStateGetIntArg(handle, arg);
             break;
+      case OPT_TO_SKOLEM_PREC:
+            h_parms->order_params.skolem_mod = CLStateGetIntArg(handle, arg);
+            break;
+      case OPT_TO_DEFPRED_PREC:
+            h_parms->order_params.defpred_mod = CLStateGetIntArg(handle, arg);
+            break;
       case OPT_TO_CONSTWEIGHT:
             h_parms->order_params.to_const_weight = CLStateGetIntArg(handle, arg);
             if(h_parms->order_params.to_const_weight<=0)

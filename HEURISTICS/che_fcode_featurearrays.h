@@ -68,6 +68,7 @@ typedef struct fcode_feature_array_cell
 FCodeFeatureArray_p FCodeFeatureArrayAlloc(Sig_p sig, ClauseSet_p axioms);
 
 void FCodeFeatureArrayUpdateOccKey(FCodeFeatureArray_p array, OrderParms_p oparms);
+void FCodeFeatureArrayUpdateSymbKey(FCodeFeatureArray_p array, Sig_p sig, OrderParms_p oparms);
 void FCodeFeatureArrayFree(FCodeFeatureArray_p junk);
 void FCodeFeatureArraySort(FCodeFeatureArray_p array);
 

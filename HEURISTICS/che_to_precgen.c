@@ -875,6 +875,7 @@ void TOGeneratePrecedence(OCB_p ocb, ClauseSet_p axioms,
 {
    FCodeFeatureArray_p array = FCodeFeatureArrayAlloc(ocb->sig, axioms);
    FCodeFeatureArrayUpdateOccKey(array, oparms);
+   FCodeFeatureArrayUpdateSymbKey(array, ocb->sig, oparms);
    assert(ocb);
    assert(ocb->precedence||ocb->prec_weights);
    assert(ocb->sig);

@@ -141,6 +141,8 @@ typedef struct order_parms_cell
    int               conj_only_mod;
    int               conj_axiom_mod;
    int               axiom_only_mod;
+   int               skolem_mod;
+   int               defpred_mod;
    /* Ground unbound RHS variables when rewriting */
    bool              rewrite_strong_rhs_inst;
    /* User-provided ordering parameters. Only pointers, not copies */
