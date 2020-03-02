@@ -343,6 +343,13 @@ match_ocw_l = re.compile(" --order-constant-weight=")
 match_ocw_s = re.compile(" -c *")
 match_prc_l = re.compile(" --precedence=")
 
+match_ppc_l = re.compile("--prec-pure-conj=")
+match_pca_l = re.compile("--prec-conj-axiom=")
+match_ppa_l = re.compile("--prec-pure-axiom=")
+match_psk_l = re.compile("--prec-skolem=")
+match_pdp_l = re.compile("--prec-defpred=")
+
+
 def parse_ordering_info(line):
     res = ""
 
@@ -391,13 +398,39 @@ def parse_ordering_info(line):
     m = match_top_l.search(line)
     if m:
         arg = extract_arg(line, m)
-        res = res+ "      oparms.to_const_weight"+arg+";\n"
+        res = res+ "      oparms.to_const_weight="+arg+";\n"
 #    m = match_prc_l.search(line)
 #    if m:
 #        arg = extract_arg(line, m)
 #        if arg != "":
 #            raise RuntimeError, "Can only handle empty precedence "+arg
 #       res = res+ "      oparms.to_prec_gen=";\n"
+
+
+    m = match_ppc_l.search(line)
+    if m:
+        arg = extract_arg(line, m)
+        res = res+ "      oparms.conj_only_mod="+arg+";\n"
+
+    m = match_pca_l.search(line)
+    if m:
+        arg = extract_arg(line, m)
+        res = res+ "      oparms.conj_axiom_mod="+arg+";\n"
+
+    m = match_ppa_l.search(line)
+    if m:
+        arg = extract_arg(line, m)
+        res = res+ "      oparms.axiom_only_mod="+arg+";\n"
+
+    m = match_psk_l.search(line)
+    if m:
+        arg = extract_arg(line, m)
+        res = res+ "      oparms.skolem_mod="+arg+";\n"
+
+    m = match_pdp_l.search(line)
+    if m:
+        arg = extract_arg(line, m)
+        res = res+ "      oparms.defpred_mod="+arg+";\n"
 
     return res
 
