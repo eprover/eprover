@@ -1250,12 +1250,12 @@ OptCell opts[] =
 
    {OPT_WATCHLIST_CLAUSE_ABSTRACTION,
     '\0', "watchlist-clause-abstraction",
-    OptArg, NULL,
+    ReqArg, NULL,
     "Abstract a clause to the given argument."},
 
    {OPT_WATCHLIST_UNIT_CLAUSE_INDEX,
     '\0', "watchlist-unit-clause-index",
-    OptArg, NULL,
+    ReqArg, NULL,
     "Select fingerprint function for the unit clause watchlist index. "
     "\"NoIndex\" will disable indexing. For a list of the other "
     "values run '" NAME " --watchlist-unit-clause-index=none'. FPX functions "
