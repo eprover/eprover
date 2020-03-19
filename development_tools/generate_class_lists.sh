@@ -1,6 +1,6 @@
-#! /bin/sh
+#!/bin/zsh
 #
-# Given a directory of LOP-files, classify them and create lists for
+# Given a directory of p-files, classify them and create lists for
 # each class in the current directory.
 #
 
