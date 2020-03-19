@@ -11,7 +11,7 @@ if [ "$1" ]; then
     dir="$1"
     cl="$*"
     shift
-    for file in $dir/*.tptp ; do
+    for file in $dir/*.p ; do
         base=`basename $file`
 	echo $base
 	echo $base >>  CLASS_`classify_problem $* $file |grep " : "| cut -d\( -f2-|cut -d: -f2-| sed -e's/ //'g `
