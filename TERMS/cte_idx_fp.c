@@ -43,14 +43,19 @@ char* FPIndexNames[] =
    "FP7M",
    "FPWatchlist2",
    "FPWatchlist2LL",
+   "FPWatchlist2L",
    "FPWatchlist4",
    "FPWatchlist4LL",
+   "FPWatchlist4L",
    "FPWatchlist6",
    "FPWatchlist6LL",
+   "FPWatchlist6L",
    "FPWatchlist8",
    "FPWatchlist8LL",
+   "FPWatchlist8L",
    "FPWatchlist10",
    "FPWatchlist10LL",
+   "FPWatchlist10L",
    "FP4X2_2",
    "FP3DFlex",
    "NPDT",
@@ -75,14 +80,19 @@ static FPIndexFunction fp_index_funs[] =
    IndexFP7MCreate,
    IndexFPWatchlist2Create,
    IndexFPWatchlist2LLCreate,
+   IndexFPWatchlist2LCreate,
    IndexFPWatchlist4Create,
    IndexFPWatchlist4LLCreate,
+   IndexFPWatchlist4LCreate,
    IndexFPWatchlist6Create,
    IndexFPWatchlist6LLCreate,
+   IndexFPWatchlist6LCreate,
    IndexFPWatchlist8Create,
    IndexFPWatchlist8LLCreate,
+   IndexFPWatchlist8LCreate,
    IndexFPWatchlist10Create,
    IndexFPWatchlist10LLCreate,
+   IndexFPWatchlist10LCreate,
    IndexFP4X2_2Create,
    IndexFP3DFlexCreate,
    IndexDTCreate,
@@ -826,6 +836,24 @@ IndexFP_p IndexFPWatchlist2LLCreate(Term_p t)
 
 /*-----------------------------------------------------------------------
 //
+// Function: IndexFPWatchlist2LCreate()
+//
+//   Create a left only fingerprint structure representing sampling at
+//   0, 0.0
+//   Here to provide a more consitent API.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+IndexFP_p IndexFPWatchlist2LCreate(Term_p t)
+{
+   return IndexFPWatchlist2LLCreate(t);
+}
+
+/*-----------------------------------------------------------------------
+//
 // Function: IndexFPWatchlist4Create()
 //
 //   Create a fingerprint structure representing sampling at
@@ -870,6 +898,31 @@ IndexFP_p IndexFPWatchlist4LLCreate(Term_p t)
    res[2] = TermFPSample(t, 1, -1);
    res[3] = TermFPSample(t, 0, 0, -1);
    res[4] = TermFPSample(t, 0, 1, -1);
+
+   return res;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: IndexFPWatchlist4LCreate()
+//
+//   Create a left leaning fingerprint structure representing sampling at
+//   0, 0.0, 0.1, 0.0.0
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+IndexFP_p IndexFPWatchlist4LCreate(Term_p t)
+{
+   IndexFP_p res = SizeMalloc(sizeof(FunCode)*5);
+
+   res[0] = 5;
+   res[1] = TermFPSample(t, 0, -1); // Skip the first symbol.
+   res[2] = TermFPSample(t, 0, 0, -1);
+   res[3] = TermFPSample(t, 0, 1, -1);
+   res[4] = TermFPSample(t, 0, 0, 0, -1);
 
    return res;
 }
@@ -924,6 +977,33 @@ IndexFP_p IndexFPWatchlist6LLCreate(Term_p t)
    res[4] = TermFPSample(t, 1, 0, -1);
    res[5] = TermFPSample(t, 0, 0, 0, -1);
    res[6] = TermFPSample(t, 0, 1, 0, -1);
+
+   return res;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: IndexFPWatchlist6LCreate()
+//
+//   Create a left leaning fingerprint structure representing sampling at
+//   0, 0.0, 0.1, 0.0.0, 0.1.0, 0.0.1
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+IndexFP_p IndexFPWatchlist6LCreate(Term_p t)
+{
+   IndexFP_p res = SizeMalloc(sizeof(FunCode)*7);
+
+   res[0] = 7;
+   res[1] = TermFPSample(t, 0, -1); // Skip the first symbol.
+   res[2] = TermFPSample(t, 0, 0, -1);
+   res[3] = TermFPSample(t, 0, 1, -1);
+   res[4] = TermFPSample(t, 0, 0, 0, -1);
+   res[5] = TermFPSample(t, 0, 1, 0, -1);
+   res[6] = TermFPSample(t, 0, 0, 1, -1);
 
    return res;
 }
@@ -988,6 +1068,35 @@ IndexFP_p IndexFPWatchlist8LLCreate(Term_p t)
 
 /*-----------------------------------------------------------------------
 //
+// Function: IndexFPWatchlist8LCreate()
+//
+//   Create a fingerprint structure representing sampling at
+//   0, 0.0, 0.1, 0.0.0, 0.1.0, 0.0.1, 0.0.0.0, 0.0.0.1
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+IndexFP_p IndexFPWatchlist8LCreate(Term_p t)
+{
+   IndexFP_p res = SizeMalloc(sizeof(FunCode)*9);
+
+   res[0] = 9;
+   res[1] = TermFPSample(t, 0, -1); // Skip the first symbol.
+   res[2] = TermFPSample(t, 0, 0, -1);
+   res[3] = TermFPSample(t, 0, 1, -1);
+   res[4] = TermFPSample(t, 0, 0, 0, -1);
+   res[5] = TermFPSample(t, 0, 1, 0, -1);
+   res[6] = TermFPSample(t, 0, 0, 1, -1);
+   res[7] = TermFPSample(t, 0, 0, 0, 0, -1);
+   res[8] = TermFPSample(t, 0, 0, 0, 1, -1);
+
+   return res;
+}
+
+/*-----------------------------------------------------------------------
+//
 // Function: IndexFPWatchlist10Create()
 //
 //   Create a fingerprint structure representing sampling at
@@ -1044,6 +1153,37 @@ IndexFP_p IndexFPWatchlist10LLCreate(Term_p t)
    res[ 8] = TermFPSample(t, 1, 0, 0, -1);
    res[ 9] = TermFPSample(t, 0, 0, 0, 0, -1);
    res[10] = TermFPSample(t, 1, 0, 0, 0, -1);
+
+   return res;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: IndexFPWatchlist10LCreate()
+//
+//   Create a fingerprint structure representing sampling at
+//   0, 0.0, 0.1, 0.0.0, 0.1.0, 0.0.1, 0.0.0.0, 0.1.0.0, 0.0.1.0, 0.0.0.1
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+IndexFP_p IndexFPWatchlist10LCreate(Term_p t)
+{
+   IndexFP_p res = SizeMalloc(sizeof(FunCode)*9);
+
+   res[ 0] = 11;
+   res[ 1] = TermFPSample(t, 0, -1); // Skip the first symbol.
+   res[ 2] = TermFPSample(t, 0, 0, -1);
+   res[ 3] = TermFPSample(t, 0, 1, -1);
+   res[ 4] = TermFPSample(t, 0, 0, 0, -1);
+   res[ 5] = TermFPSample(t, 0, 1, 0, -1);
+   res[ 6] = TermFPSample(t, 0, 0, 1, -1);
+   res[ 7] = TermFPSample(t, 0, 0, 0, 0, -1);
+   res[ 8] = TermFPSample(t, 0, 1, 0, 0, -1);
+   res[ 9] = TermFPSample(t, 0, 0, 1, 0, -1);
+   res[10] = TermFPSample(t, 0, 0, 0, 1, -1);
 
    return res;
 }
