@@ -372,7 +372,8 @@ void ProofStateInitWatchlist(ProofState_p state, OCB_p ocb,
          if(rewriteConstants)
          {
             Clause_p rewrite = ClauseCopy(handle, state->softsubsumption_rw);
-            RewriteConstants(rewrite, state->softsubsumption_rw, state->watchlist->wl_abstraction_symbols);
+            RewriteConstants(rewrite, state->softsubsumption_rw, 
+                             state->watchlist->wl_abstraction_symbols);
             ClauseSetInsert(tmpset, rewrite);
          }
          else if (rewriteSkolemSym)
@@ -389,7 +390,7 @@ void ProofStateInitWatchlist(ProofState_p state, OCB_p ocb,
       }
       ClauseSetIndexedInsertClauseSet(state->watchlist, tmpset);
       ClauseSetFree(tmpset);
-      GlobalIndicesInsertClauseSet(&(state->wlindices),state->watchlist);
+      GlobalIndicesInsertClauseSet(&(state->wlindices), state->watchlist);
       // ClauseSetPrint(stdout, state->watchlist, true);
    }
 }

@@ -1402,6 +1402,7 @@ void ProofStateInit(ProofState_p state, ProofControl_p control)
    HCB_p    tmphcb;
    PStack_p traverse;
    Eval_p   cell;
+   char*    watchlist_unit_clause_index_type = control->heuristic_parms.watchlist_unit_clause_index_type;
 
    OUTPRINT(1, "# Initializing proof state\n");
 
@@ -1414,10 +1415,32 @@ void ProofStateInit(ProofState_p state, ProofControl_p control)
    {
       fvi_param_init(state, control);
    }
+   if(strcmp(watchlist_unit_clause_index_type,"auto")==0)
+   {
+      printf("Auto!\n");
+      switch (control->problem_specs.eq_content)
+      {
+      case SpecNoEq:
+         printf("NoEQ!\n");
+         watchlist_unit_clause_index_type = "FPWatchlist6L";
+         break;
+      case SpecSomeEq:
+         printf("SomeEQ!\n");
+         watchlist_unit_clause_index_type = "FPWatchlist6LL";
+         break;
+      case SpecPureEq:
+         printf("SomeEQ!\n");
+         watchlist_unit_clause_index_type = "FPWatchlist6";
+         break;
+      default:
+         watchlist_unit_clause_index_type = "FPWatchlist6";
+         break;
+      }
+   }
    ProofStateInitWatchlist(state, control->ocb, 
                            control->heuristic_parms.wl_abstract_constant_sym,
                            control->heuristic_parms.wl_abstract_skolem_sym,
-                           control->heuristic_parms.watchlist_unit_clause_index_type);
+                           watchlist_unit_clause_index_type);
 
    tmphcb = GetHeuristic("Uniq", state, control, &(control->heuristic_parms));
    assert(tmphcb);
