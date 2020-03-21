@@ -64,6 +64,8 @@ void     ProofControlInit(ProofState_p state, ProofControl_p control,
                           PStack_p wfcb_defs,
                           PStack_p hcb_defs);
 void     ProofStateInit(ProofState_p state, ProofControl_p control);
+char*    DetermineWatchlistUCIndexType(char* watchlistUnitClauseIndexType,
+                                       SpecFeatures problem_eq_content);
 void     ProofStateResetProcessedSet(ProofState_p state,
                                      ProofControl_p control,
                                      ClauseSet_p set);
