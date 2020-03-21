@@ -1260,7 +1260,20 @@ OptCell opts[] =
     "\"NoIndex\" will disable indexing. For a list of the other "
     "values run '" NAME " --watchlist-unit-clause-index=none'. FPX functions "
     "will use a fingerprint of X positions, the letters disambiguate "
-    "between different fingerprints with the same sample size."},
+    "between different fingerprints with the same sample size. "
+    "Please note: There are some special designed finger print sampling "
+    "functions available for this index that you should use."
+    "These are marked with 'Watchlist'."
+    "For any of those there will be a left leaning variant "
+    "(marked LL) and a left only sampling (marked L) variant. "
+    "They are best used when problems contain some or many unit "
+    "clauses that are non-equational. "
+    "Still the index will work fine with all options available eventough "
+    "you might not reach the desired performance gain with the normal functions. "
+    "Lastly choosing --watchlist-unit-clause-index=auto will select a "
+    "fingerprint function for the unit clause watchlist index autmatically. "
+    "For that it takes a look at wether the problem contains no equality, "
+    "some equality or pure equality."},
 
    {OPT_NO_INDEXED_SUBSUMPTION,
     '\0', "conventional-subsumption",

@@ -810,6 +810,8 @@ cleanup1:
 //
 //   Check in arg is a valid term describing a FP-index function. If
 //   yes, return true. If no, print error (nominally return false).
+//   Since the watchlist unit clause index allows for an =auto argument
+//   this is also checked explicitly here.
 //
 // Global Variables: -
 //
@@ -825,6 +827,11 @@ bool check_fp_index_arg(char* arg, char* opt)
    {
       return true;
    }
+   else if((strcmp(opt, "--watchlist-unit-clause-index")==0)
+            &&(strcmp(arg, "auto")==0))
+   {
+      return true;
+   }
    err = DStrAlloc();
    DStrAppendStr(err,
                  "Wrong argument to option ");
@@ -833,6 +840,8 @@ bool check_fp_index_arg(char* arg, char* opt)
    DStrAppendStr(err,
                  ". Possible values: ");
    DStrAppendStrArray(err, FPIndexNames, ", ");
+   DStrAppendStr(err,
+                 ". The watchlist unit clause index also allows the option: auto.");
    Error(DStrView(err), USAGE_ERROR);
    DStrFree(err);
 
