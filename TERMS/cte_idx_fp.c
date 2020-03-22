@@ -1171,7 +1171,7 @@ IndexFP_p IndexFPWatchlist10LLCreate(Term_p t)
 /----------------------------------------------------------------------*/
 IndexFP_p IndexFPWatchlist10LCreate(Term_p t)
 {
-   IndexFP_p res = SizeMalloc(sizeof(FunCode)*9);
+   IndexFP_p res = SizeMalloc(sizeof(FunCode)*11);
 
    res[ 0] = 11;
    res[ 1] = TermFPSample(t, 0, -1); // Skip the first symbol.
