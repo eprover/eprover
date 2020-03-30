@@ -44,12 +44,14 @@ char* FPIndexNames[] =
    "FPWatchlist2",
    "FPWatchlist2LL",
    "FPWatchlist2L",
+   "FPWatchlist2Flex",
    "FPWatchlist4",
    "FPWatchlist4LL",
    "FPWatchlist4L",
    "FPWatchlist6",
    "FPWatchlist6LL",
    "FPWatchlist6L",
+   "FPWatchlist6Flex",
    "FPWatchlist8",
    "FPWatchlist8LL",
    "FPWatchlist8L",
@@ -81,12 +83,14 @@ static FPIndexFunction fp_index_funs[] =
    IndexFPWatchlist2Create,
    IndexFPWatchlist2LLCreate,
    IndexFPWatchlist2LCreate,
+   IndexFPWatchlist2FlexCreate,
    IndexFPWatchlist4Create,
    IndexFPWatchlist4LLCreate,
    IndexFPWatchlist4LCreate,
    IndexFPWatchlist6Create,
    IndexFPWatchlist6LLCreate,
    IndexFPWatchlist6LCreate,
+   IndexFPWatchlist6FlexCreate,
    IndexFPWatchlist8Create,
    IndexFPWatchlist8LLCreate,
    IndexFPWatchlist8LCreate,
@@ -854,6 +858,35 @@ IndexFP_p IndexFPWatchlist2LCreate(Term_p t)
 
 /*-----------------------------------------------------------------------
 //
+// Function: IndexFPWatchlist2FlexCreate()
+//
+//   Create a flex fingerprint structure representing sampling at 
+//   a position depending on some term property: 
+//   Here wether or not right term is true.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+IndexFP_p IndexFPWatchlist2FlexCreate(Term_p t)
+{
+   IndexFP_p res;
+
+   if(TermIsTrueTerm(t->args[1]))
+   {
+      res = IndexFPWatchlist2LCreate(t);
+   }
+   else
+   {
+      res = IndexFPWatchlist2Create(t);
+   }
+
+   return res;
+}
+
+/*-----------------------------------------------------------------------
+//
 // Function: IndexFPWatchlist4Create()
 //
 //   Create a fingerprint structure representing sampling at
@@ -1004,6 +1037,35 @@ IndexFP_p IndexFPWatchlist6LCreate(Term_p t)
    res[4] = TermFPSample(t, 0, 0, 0, -1);
    res[5] = TermFPSample(t, 0, 1, 0, -1);
    res[6] = TermFPSample(t, 0, 0, 1, -1);
+
+   return res;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: IndexFPWatchlist6LCreate()
+//
+//   Create a flex fingerprint structure representing sampling at 
+//   a position depending on some term property: 
+//   Here wether or not right term is true.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+IndexFP_p IndexFPWatchlist6FlexCreate(Term_p t)
+{
+   IndexFP_p res;
+
+   if(TermIsTrueTerm(t->args[1]))
+   {
+      res = IndexFPWatchlist6LCreate(t);
+   }
+   else
+   {
+      res = IndexFPWatchlist6Create(t);
+   }
 
    return res;
 }

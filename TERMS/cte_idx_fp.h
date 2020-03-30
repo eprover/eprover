@@ -30,6 +30,7 @@ Changes
 
 #include <stdarg.h>
 #include <cte_termtypes.h>
+#include <cte_termbanks.h>
 
 
 /*---------------------------------------------------------------------*/
@@ -86,6 +87,7 @@ IndexFP_p IndexFP7MCreate(Term_p t);
 IndexFP_p IndexFPWatchlist2Create(Term_p t);
 IndexFP_p IndexFPWatchlist2LLCreate(Term_p t);
 IndexFP_p IndexFPWatchlist2LCreate(Term_p t);
+IndexFP_p IndexFPWatchlist2FlexCreate(Term_p t);
 
 IndexFP_p IndexFPWatchlist4Create(Term_p t);
 IndexFP_p IndexFPWatchlist4LLCreate(Term_p t);
@@ -94,6 +96,7 @@ IndexFP_p IndexFPWatchlist4LCreate(Term_p t);
 IndexFP_p IndexFPWatchlist6Create(Term_p t);
 IndexFP_p IndexFPWatchlist6LLCreate(Term_p t);
 IndexFP_p IndexFPWatchlist6LCreate(Term_p t);
+IndexFP_p IndexFPWatchlist6FlexCreate(Term_p t);
 
 IndexFP_p IndexFPWatchlist8Create(Term_p t);
 IndexFP_p IndexFPWatchlist8LLCreate(Term_p t);
