@@ -329,10 +329,6 @@ ClauseSet_p ClauseSetAlloc(void)
    handle->demod_index                 = NULL;
    handle->efficient_subsumption_index = NULL;
 
-   handle->wl_constants_abstraction    = false;
-   handle->wl_skolemsym_abstraction    = false;
-   handle->wl_abstraction_symbols      = NULL;
-
    handle->eval_indices = PDArrayAlloc(4,4);
    handle->eval_no      = 0;
    handle->identifier   = DStrAlloc();
@@ -391,11 +387,6 @@ void ClauseSetFree(ClauseSet_p junk)
    PDArrayFree(junk->eval_indices);
    ClauseCellFree(junk->anchor);
    DStrFree(junk->identifier);
-
-   if(junk->wl_constants_abstraction || junk->wl_skolemsym_abstraction)
-   {
-      PDArrayFree(junk->wl_abstraction_symbols);
-   }
 
    ClauseSetCellFree(junk);
 }

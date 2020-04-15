@@ -35,7 +35,7 @@ Copyright 2019-2020 by the author.
 //
 /----------------------------------------------------------------------*/
 void EfficientSubsumptionIndexInsert(EfficientSubsumptionIndex_p index, 
-                                    FVPackedClause_p newclause)
+                                     FVPackedClause_p newclause)
 {
    if(index->unitclasue_index && ClauseIsUnit(newclause->clause))
    {
@@ -63,11 +63,16 @@ void EfficientSubsumptionIndexInsert(EfficientSubsumptionIndex_p index,
 //
 /----------------------------------------------------------------------*/
 EfficientSubsumptionIndex_p EfficientSubsumptionIndexAlloc(FVCollect_p cspec, 
-                                                         PermVector_p perm)
+                                                           PermVector_p perm)
 {
    EfficientSubsumptionIndex_p handle = EfficientSubsumptionIndexAllocRaw();
-   handle->fvindex                   = FVIAnchorAlloc(cspec, perm);
-   handle->unitclasue_index          = NULL;
+   handle->fvindex                    = FVIAnchorAlloc(cspec, perm);
+   handle->unitclasue_index           = NULL;
+
+   handle->wl_constants_abstraction   = false;
+   handle->wl_skolemsym_abstraction   = false;
+   handle->wl_abstraction_symbols     = NULL;
+   
    return handle;
 }
 
@@ -82,17 +87,23 @@ EfficientSubsumptionIndex_p EfficientSubsumptionIndexAlloc(FVCollect_p cspec,
 // Side Effects    : Memory operations.
 //
 /----------------------------------------------------------------------*/
-void EfficientSubsumptionIndexFree(EfficientSubsumptionIndex_p index)
+void EfficientSubsumptionIndexFree(EfficientSubsumptionIndex_p junk)
 {
-   if (index->fvindex) 
+   if (junk->fvindex) 
    {
-      FVIAnchorFree(index->fvindex);
+      FVIAnchorFree(junk->fvindex);
    }
-   if (index->unitclasue_index)
+   if (junk->unitclasue_index)
    {
-      FPIndexFree(index->unitclasue_index);
+      FPIndexFree(junk->unitclasue_index);
    }
-   EfficientSubsumptionIndexFreeRaw(index);
+
+   if(junk->wl_constants_abstraction || junk->wl_skolemsym_abstraction)
+   {
+      PDArrayFree(junk->wl_abstraction_symbols);
+   }
+
+   EfficientSubsumptionIndexFreeRaw(junk);
 }
 
 /*-----------------------------------------------------------------------
@@ -107,8 +118,8 @@ void EfficientSubsumptionIndexFree(EfficientSubsumptionIndex_p index)
 //
 /----------------------------------------------------------------------*/
 void EfficientSubsumptionIndexUnitClauseIndexInit(EfficientSubsumptionIndex_p index,
-                                                 Sig_p sig, 
-                                                 char* unitclause_index_type)
+                                                  Sig_p sig, 
+                                                  char* unitclause_index_type)
 {
    FPIndexFunction indexfun;
    indexfun = GetFPIndexFunction(unitclause_index_type);
@@ -130,7 +141,7 @@ void EfficientSubsumptionIndexUnitClauseIndexInit(EfficientSubsumptionIndex_p in
 //
 /----------------------------------------------------------------------*/
 void EfficientSubsumptionIndexInsertClause(EfficientSubsumptionIndex_p index, 
-                                          Clause_p clause)
+                                           Clause_p clause)
 {
    FVPackedClause_p pclause = FVIndexPackClause(clause, index->fvindex);
    assert(clause->weight == ClauseStandardWeight(clause));

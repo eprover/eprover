@@ -350,13 +350,14 @@ void ProofStateInitWatchlist(ProofState_p state, OCB_p ocb,
       ClauseSetMarkMaximalTerms(ocb, state->watchlist);
       if(rewriteConstants)
       {
-         state->watchlist->wl_constants_abstraction  = true;
-         state->watchlist->wl_abstraction_symbols    = PDIntArrayAllocWithDefault(10, 1, -1);
+         // TODO: Shorten
+         state->watchlist->efficient_subsumption_index->wl_constants_abstraction  = true;
+         state->watchlist->efficient_subsumption_index->wl_abstraction_symbols    = PDIntArrayAllocWithDefault(10, 1, -1);
       }
       else if(rewriteSkolemSym)
       {
-          state->watchlist->wl_constants_abstraction = true;
-          state->watchlist->wl_abstraction_symbols   = PDIntArrayAllocWithDefault(10, 1, -1);
+         state->watchlist->efficient_subsumption_index->wl_constants_abstraction = true;
+         state->watchlist->efficient_subsumption_index->wl_abstraction_symbols   = PDIntArrayAllocWithDefault(10, 1, -1);
       }
       while(!ClauseSetEmpty(state->watchlist))
       {
@@ -373,14 +374,14 @@ void ProofStateInitWatchlist(ProofState_p state, OCB_p ocb,
          {
             Clause_p rewrite = ClauseCopy(handle, state->softsubsumption_rw);
             RewriteConstants(rewrite, state->softsubsumption_rw, 
-                             state->watchlist->wl_abstraction_symbols);
+                             state->watchlist->efficient_subsumption_index->wl_abstraction_symbols);
             ClauseSetInsert(tmpset, rewrite);
          }
          else if (rewriteSkolemSym)
          {
             Clause_p rewrite = ClauseCopy(handle, state->softsubsumption_rw);
             RewriteSkolemSymbols(rewrite, state->softsubsumption_rw, 
-                                 state->watchlist->wl_abstraction_symbols, state->signature);
+                                 state->watchlist->efficient_subsumption_index->wl_abstraction_symbols, state->signature);
             ClauseSetInsert(tmpset, handle);
          }
          else

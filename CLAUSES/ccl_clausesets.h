@@ -53,11 +53,6 @@ typedef struct clausesetcell
    PDArray_p  eval_indices;
    long       eval_no;
    DStr_p     identifier;
-
-   /* Only used on the watchlist */
-   bool       wl_constants_abstraction;
-   bool       wl_skolemsym_abstraction;
-   PDArray_p  wl_abstraction_symbols;
 }ClauseSetCell, *ClauseSet_p;
 
 

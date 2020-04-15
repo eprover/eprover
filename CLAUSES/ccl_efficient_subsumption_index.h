@@ -30,6 +30,11 @@ typedef struct efficient_subsumption_index
 {
    FVIAnchor_p       fvindex;          /* Used for non-unit subsumption */
    UnitclauseIndex_p unitclasue_index; /* Used for unit clauses subsuption */
+
+   /* Clause abstraction */
+   bool              wl_constants_abstraction;
+   bool              wl_skolemsym_abstraction;
+   PDArray_p         wl_abstraction_symbols;
 } EfficientSubsumptionIndex, *EfficientSubsumptionIndex_p;
 
 /*---------------------------------------------------------------------*/

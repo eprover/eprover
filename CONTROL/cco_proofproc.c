@@ -401,20 +401,21 @@ void check_watchlist(GlobalIndices_p indices, ClauseSet_p watchlist,
          state->watchlist_unit_checks++;
       }
 
-      if (watchlist->wl_constants_abstraction)
+      // TODO: Shorten
+      if (watchlist->efficient_subsumption_index->wl_constants_abstraction)
       {
          rewrite = ClauseCopy(clause, state->softsubsumption_rw);
-         RewriteConstants(rewrite, state->softsubsumption_rw, watchlist->wl_abstraction_symbols);
+         RewriteConstants(rewrite, state->softsubsumption_rw, watchlist->efficient_subsumption_index->wl_abstraction_symbols);
          // TODO: Fix all ->efficent_subsumption_index->fvindex
          pclause = FVIndexPackClause(rewrite, watchlist->efficient_subsumption_index->fvindex);
          ClauseSubsumeOrderSortLits(rewrite);
          rewrite->weight = ClauseStandardWeight(rewrite);
       } 
-      else if (watchlist->wl_skolemsym_abstraction)
+      else if (watchlist->efficient_subsumption_index->wl_skolemsym_abstraction)
       {
          rewrite = ClauseCopy(clause, state->softsubsumption_rw);
          RewriteSkolemSymbols(rewrite, state->softsubsumption_rw, 
-                              state->watchlist->wl_abstraction_symbols, state->signature);
+                              state->watchlist->efficient_subsumption_index->wl_abstraction_symbols, state->signature);
          pclause = FVIndexPackClause(rewrite, watchlist->efficient_subsumption_index->fvindex);
          ClauseSubsumeOrderSortLits(rewrite);
          rewrite->weight = ClauseStandardWeight(rewrite);
@@ -432,7 +433,7 @@ void check_watchlist(GlobalIndices_p indices, ClauseSet_p watchlist,
       {
          Clause_p subsumed;
 
-         if (rewrite != NULL && (watchlist->wl_constants_abstraction || watchlist->wl_skolemsym_abstraction))
+         if (rewrite != NULL && (watchlist->efficient_subsumption_index->wl_constants_abstraction || watchlist->efficient_subsumption_index->wl_skolemsym_abstraction))
          {
             subsumed = ClauseSetFindFirstSubsumedClause(watchlist, rewrite);
          }
@@ -535,18 +536,18 @@ void simplify_watchlist(ProofState_p state, ProofControl_p control,
       }
       handle->weight = ClauseStandardWeight(handle);
       ClauseMarkMaximalTerms(control->ocb, handle);
-      if(state->watchlist->wl_constants_abstraction)
+      if(state->watchlist->efficient_subsumption_index->wl_constants_abstraction)
       {
          rewrite = ClauseCopy(handle, state->softsubsumption_rw);
-         RewriteConstants(rewrite, state->softsubsumption_rw, state->watchlist->wl_abstraction_symbols);
+         RewriteConstants(rewrite, state->softsubsumption_rw, state->watchlist->efficient_subsumption_index->wl_abstraction_symbols);
          ClauseSetIndexedInsertClause(state->watchlist, rewrite);
          GlobalIndicesInsertClause(&(state->wlindices), rewrite);
       }
-      else if(state->watchlist->wl_skolemsym_abstraction)
+      else if(state->watchlist->efficient_subsumption_index->wl_skolemsym_abstraction)
       {
          rewrite = ClauseCopy(clause, state->softsubsumption_rw);
          RewriteSkolemSymbols(rewrite, state->softsubsumption_rw, 
-                              state->watchlist->wl_abstraction_symbols, state->signature);
+                              state->watchlist->efficient_subsumption_index->wl_abstraction_symbols, state->signature);
          ClauseSetIndexedInsertClause(state->watchlist, rewrite);
          GlobalIndicesInsertClause(&(state->wlindices), rewrite);
       }

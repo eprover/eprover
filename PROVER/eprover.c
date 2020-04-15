@@ -1552,7 +1552,7 @@ CLState_p process_options(int argc, char* argv[])
             }
             else
             {
-               printf("Please either use constants or skolem.");
+               printf("Please either use constants or skolem as an argument.");
             }
             break;
       case OPT_WATCHLIST_UNIT_CLAUSE_INDEX:
