@@ -130,7 +130,6 @@ static long remove_subsumed(GlobalIndices_p indices,
 
    while(!PStackEmpty(stack))
    {
-      // TODO: Überprüfen ob diese Query immer safe ist (Kurzes nachschauen sagt wahrscheinlich ja!)
       handle = PStackPopP(stack);
       ClausePrint(stdout, handle, true);
       printf("\n");
@@ -401,12 +400,11 @@ void check_watchlist(GlobalIndices_p indices, ClauseSet_p watchlist,
          state->watchlist_unit_checks++;
       }
 
-      // TODO: Shorten
+      // TODO: @Schulz Shorten?
       if (watchlist->efficient_subsumption_index->wl_constants_abstraction)
       {
          rewrite = ClauseCopy(clause, state->softsubsumption_rw);
          RewriteConstants(rewrite, state->softsubsumption_rw, watchlist->efficient_subsumption_index->wl_abstraction_symbols);
-         // TODO: Fix all ->efficent_subsumption_index->fvindex
          pclause = FVIndexPackClause(rewrite, watchlist->efficient_subsumption_index->fvindex);
          ClauseSubsumeOrderSortLits(rewrite);
          rewrite->weight = ClauseStandardWeight(rewrite);
@@ -1505,7 +1503,6 @@ char* DetermineWatchlistUCIndexType(char* watchlistUnitClauseIndexType,
    {
       switch (problem_eq_content)
       {
-      // TODO: Refactor
       case SpecNoEq:
          watchlist_unit_clause_index_type = "FPWatchlist6L";
          break;

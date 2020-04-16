@@ -1024,7 +1024,6 @@ void clauseset_find_subsumed_clauses_fv_indexed(FVIndex_p index,
 //
 //   Find all clauses subsumed by clause in index and push them
 //   onto res.
-//   TODO: This should be more elegant.
 //
 // Global Variables: -
 //
@@ -1058,7 +1057,7 @@ void clauseset_find_subsumed_clauses_unitclause_indexed(UnitclauseIndex_p index,
          {
             PStackPushP(res, candidate);
             numberSubsumedClauses += 1;
-            // TODO: Is this counting correct?
+            // TODO: @Schulz Is this counting correct?
          }
       }
       PTreeTraverseExit(iterstack);
@@ -1147,7 +1146,6 @@ Clause_p clauseset_find_first_subsumed_clause_fv_indexed(FVIndex_p index,
 // Function: clauseset_find_first_subsumed_clauses_unitclause_indexed()
 //
 //   Find the first clause subsumed by clause in index and return it.
-//   TODO: This should be more elegant.
 //
 // Global Variables: -
 //

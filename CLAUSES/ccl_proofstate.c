@@ -480,7 +480,6 @@ void ProofStateFree(ProofState_p junk)
    //GCAdminFree(junk->gc_original_terms);
 
    DefStoreFree(junk->definition_store);
-   // TODO: The new PDTIndex should probably be deleted here.
    if(junk->fvi_cspec)
    {
       FVCollectFree(junk->fvi_cspec);

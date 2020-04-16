@@ -45,7 +45,7 @@ typedef struct efficient_subsumption_index
         (EfficientSubsumptionIndex*)SizeMalloc(sizeof(EfficientSubsumptionIndex))
 #define EfficientSubsumptionIndexFreeRaw(junk) SizeFree(junk, sizeof(junk))
 
-// TODO: FPIndexStorage?
+// TODO: @Schulz FPIndexStorage?
 // #define EfficientSubsumptionIndexStorage(index)
 //         (FVIndexStorage(index->fvindex))
 
