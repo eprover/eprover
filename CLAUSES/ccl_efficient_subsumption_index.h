@@ -64,7 +64,7 @@ Clause_p ClausesetIndexDeleteEntry(EfficientSubsumptionIndex_p index,
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
 
-void EfficentSubsumptionIndexInsert(EfficentSubsumptionIndex_p index, 
+void EfficentSubsumptionIndexInsert(EfficientSubsumptionIndex_p index, 
                                     FVPackedClause_p newclause);
 
 /*---------------------------------------------------------------------*/
