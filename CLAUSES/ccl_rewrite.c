@@ -1088,6 +1088,7 @@ static long find_rewritable_clauses_indexed(Clause_p demod,
                                   nf_date);
    }
    PStackFree(termtrees);
+   printf("RES: %ld\n", res);
    return res;
 }
 

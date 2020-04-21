@@ -541,6 +541,7 @@ void simplify_watchlist(ProofState_p state, ProofControl_p control,
          rewrite = ClauseCopy(handle, state->softsubsumption_rw);
          RewriteConstants(rewrite, state->softsubsumption_rw, 
                           state->watchlist->efficient_subsumption_index->wl_abstraction_symbols);
+         rewrite->weight = ClauseStandardWeight(rewrite);
          ClauseSetIndexedInsertClause(state->watchlist, rewrite);
          GlobalIndicesInsertClause(&(state->wlindices), rewrite);
       }
@@ -550,6 +551,7 @@ void simplify_watchlist(ProofState_p state, ProofControl_p control,
          RewriteSkolemSymbols(rewrite, state->softsubsumption_rw, 
                               state->watchlist->efficient_subsumption_index->wl_abstraction_symbols, 
                               state->signature);
+         rewrite->weight = ClauseStandardWeight(rewrite);
          ClauseSetIndexedInsertClause(state->watchlist, rewrite);
          GlobalIndicesInsertClause(&(state->wlindices), rewrite);
       }

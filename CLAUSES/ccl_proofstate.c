@@ -233,7 +233,6 @@ ProofState_p ProofStateAlloc(FunctionProperties free_symb_prop)
    handle->satcheck_encoding_stime = 0.0;
    handle->satcheck_solver_stime   = 0.0;
 
-
    handle->process_clause_loops  = 0;
    handle->watchlist_checks      = 0;
    handle->watchlist_unit_checks = 0;
