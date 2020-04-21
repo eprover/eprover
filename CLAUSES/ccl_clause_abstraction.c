@@ -201,26 +201,31 @@ Term_p RewriteSkolemsOnTermCell(Term_p source, PDArray_p skolem_types,
 /----------------------------------------------------------------------*/
 void RewriteConstants(Clause_p clause, TB_p target, PDArray_p constant_sorts) 
 {
-   Eqn_p next;
-   Eqn_p literals = clause->literals;
+   Eqn_p  next;
+   Eqn_p  literals = clause->literals;
+   Term_p newL;
+   Term_p newR;
+
    while(literals)
    {
       next = literals->next;
-      literals->lterm = RewriteSymbolsOnTerm(literals->lterm, 
-                                             literals->bank->vars, 
-                                             false,
-                                             constant_sorts,
-                                             CONSTANT,
-                                             NULL);
-      literals->lterm = TBInsert(target, literals->lterm, DEREF_ALWAYS);
-      literals->rterm = RewriteSymbolsOnTerm(literals->rterm, 
-                                             literals->bank->vars, 
-                                             false,
-                                             constant_sorts,
-                                             CONSTANT,
-                                             NULL);
-      literals->rterm = TBInsert(target, literals->rterm, DEREF_ALWAYS);
-      literals       = next;
+      newL = RewriteSymbolsOnTerm(literals->lterm, 
+                                  literals->bank->vars, 
+                                  false,
+                                  constant_sorts,
+                                  CONSTANT,
+                                  NULL);
+      literals->lterm = TBInsert(target, newL, DEREF_ALWAYS);
+      TermFree(newL);
+      newR = RewriteSymbolsOnTerm(literals->rterm, 
+                                  literals->bank->vars, 
+                                  false,
+                                  constant_sorts,
+                                  CONSTANT,
+                                  NULL);
+      literals->rterm = TBInsert(target, newR, DEREF_ALWAYS);
+      TermFree(newR);
+      literals        = next;
    }
 }
 
@@ -240,25 +245,30 @@ void RewriteConstants(Clause_p clause, TB_p target, PDArray_p constant_sorts)
 void RewriteSkolemSymbols(Clause_p clause, TB_p target,
                           PDArray_p skolem_sym_lookup, Sig_p sig)
 {
-   Eqn_p next;
-   Eqn_p literals = clause->literals;
+   Eqn_p  next;
+   Eqn_p  literals = clause->literals;
+   Term_p newL;
+   Term_p newR;
+
    while(literals)
    {
       next = literals->next;
-      literals->lterm = RewriteSymbolsOnTerm(literals->lterm, 
-                                             literals->bank->vars, 
-                                             false,
-                                             skolem_sym_lookup,
-                                             SKOLEM,
-                                             sig);
-      literals->lterm = TBInsert(target, literals->lterm, DEREF_ALWAYS);
-      literals->rterm = RewriteSymbolsOnTerm(literals->rterm, 
-                                             literals->bank->vars, 
-                                             false,
-                                             skolem_sym_lookup,
-                                             SKOLEM,
-                                             sig);
-      literals->rterm = TBInsert(target, literals->rterm, DEREF_ALWAYS);
+      newL = RewriteSymbolsOnTerm(literals->lterm, 
+                                  literals->bank->vars, 
+                                  false,
+                                  skolem_sym_lookup,
+                                  SKOLEM,
+                                  sig);
+      literals->lterm = TBInsert(target, newL, DEREF_ALWAYS);
+      TermFree(newL);
+      newR = RewriteSymbolsOnTerm(literals->rterm, 
+                                  literals->bank->vars, 
+                                  false,
+                                  skolem_sym_lookup,
+                                  SKOLEM,
+                                  sig);
+      literals->rterm = TBInsert(target, newR, DEREF_ALWAYS);
+      TermFree(newR);
       literals        = next;
    }
 }
