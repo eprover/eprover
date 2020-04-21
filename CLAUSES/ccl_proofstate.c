@@ -356,7 +356,7 @@ void ProofStateInitWatchlist(ProofState_p state, OCB_p ocb,
       }
       else if(rewriteSkolemSym)
       {
-         state->watchlist->efficient_subsumption_index->wl_constants_abstraction = true;
+         state->watchlist->efficient_subsumption_index->wl_skolemsym_abstraction = true;
          state->watchlist->efficient_subsumption_index->wl_abstraction_symbols   = PDIntArrayAllocWithDefault(10, 1, -1);
       }
       while(!ClauseSetEmpty(state->watchlist))
