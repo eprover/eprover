@@ -1552,7 +1552,12 @@ CLState_p process_options(int argc, char* argv[])
             }
             else
             {
-               printf("Please either use constant or skolem as an argument.");
+               DStr_p err = DStrAlloc();
+               DStrAppendStr(err,
+                             "Wrong argument to option --watchlist-clause-abstraction. "
+                             "Possible values: skolem, constant.");
+               Error(DStrView(err), USAGE_ERROR);
+               DStrFree(err);
             }
             break;
       case OPT_WATCHLIST_UNIT_CLAUSE_INDEX:
