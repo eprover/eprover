@@ -521,17 +521,16 @@ ClauseSet_p simplify_watchlist_rewriteables(ProofState_p state,
 /----------------------------------------------------------------------*/
 ClauseSet_p rewriteables_skolem_abstraction(ProofState_p state, 
                                             ProofControl_p control,
-                                            Clause_p clause, 
+                                            Clause_p rewrite, 
                                             ClauseSet_p tmp_set)
 {
-   Clause_p rewrite_given = ClauseCopy(clause, state->softsubsumption_rw);
-   RewriteSkolemSymbols(rewrite_given, state->softsubsumption_rw, 
+   RewriteSkolemSymbols(rewrite, state->softsubsumption_rw, 
                         state->watchlist->efficient_subsumption_index->wl_abstraction_symbols, 
                         state->signature);
-   rewrite_given->weight = ClauseStandardWeight(rewrite_given);
+   rewrite->weight = ClauseStandardWeight(rewrite);
 
    return simplify_watchlist_rewriteables(state, control, 
-                                          rewrite_given, tmp_set);
+                                          rewrite, tmp_set);
 }
 
 /*-----------------------------------------------------------------------
@@ -548,16 +547,15 @@ ClauseSet_p rewriteables_skolem_abstraction(ProofState_p state,
 /----------------------------------------------------------------------*/
 ClauseSet_p rewriteables_constant_abstraction(ProofState_p state, 
                                               ProofControl_p control,
-                                              Clause_p clause, 
+                                              Clause_p rewrite, 
                                               ClauseSet_p tmp_set)
 {
-   Clause_p rewrite_given = ClauseCopy(clause, state->softsubsumption_rw);
-   RewriteConstants(rewrite_given, state->softsubsumption_rw, 
+   RewriteConstants(rewrite, state->softsubsumption_rw, 
                     state->watchlist->efficient_subsumption_index->wl_abstraction_symbols);
-   rewrite_given->weight = ClauseStandardWeight(rewrite_given);
+   rewrite->weight = ClauseStandardWeight(rewrite);
 
    return simplify_watchlist_rewriteables(state, control, 
-                                          rewrite_given, tmp_set);
+                                          rewrite, tmp_set);
 }
 
 /*-----------------------------------------------------------------------
@@ -647,9 +645,7 @@ void simplify_watchlist(ProofState_p state, ProofControl_p control,
                         Clause_p clause)
 {
    ClauseSet_p tmp_set;
-   Clause_p    handle;
-   Clause_p    rewrite_handle;
-   long        removed_lits;
+   Clause_p    rewrite;
 
    if(!ClauseIsDemodulator(clause))
    {
@@ -660,13 +656,19 @@ void simplify_watchlist(ProofState_p state, ProofControl_p control,
 
    if (state->watchlist->efficient_subsumption_index->wl_skolemsym_abstraction) 
    {
-      tmp_set = rewriteables_skolem_abstraction(state, control, clause, tmp_set);
+      rewrite = ClauseCopy(clause, state->softsubsumption_rw);
+      tmp_set = rewriteables_skolem_abstraction(state, control, rewrite, tmp_set);
       simplify_watchlist_handle(state, control, tmp_set, 'skolem');
+
+      ClauseFree(rewrite);
    }
    else if (state->watchlist->efficient_subsumption_index->wl_constants_abstraction)
    {
-      tmp_set = rewriteables_constant_abstraction(state, control, clause, tmp_set);
+      rewrite = ClauseCopy(clause, state->softsubsumption_rw);
+      tmp_set = rewriteables_constant_abstraction(state, control, rewrite, tmp_set);
       simplify_watchlist_handle(state, control, tmp_set, 'constant');
+
+      ClauseFree(rewrite);
    }
    else
    {
