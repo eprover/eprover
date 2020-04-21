@@ -1540,7 +1540,7 @@ CLState_p process_options(int argc, char* argv[])
             h_parms->watchlist_simplify = false;
             break;
       case OPT_WATCHLIST_CLAUSE_ABSTRACTION:
-            if (!strcmp("constants", arg))
+            if (!strcmp("constant", arg))
             {
                h_parms->wl_abstract_skolem_sym = false;
                h_parms->wl_abstract_constant_sym = true;
@@ -1552,7 +1552,7 @@ CLState_p process_options(int argc, char* argv[])
             }
             else
             {
-               printf("Please either use constants or skolem as an argument.");
+               printf("Please either use constant or skolem as an argument.");
             }
             break;
       case OPT_WATCHLIST_UNIT_CLAUSE_INDEX:
