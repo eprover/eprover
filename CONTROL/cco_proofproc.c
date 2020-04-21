@@ -597,7 +597,7 @@ void simplify_watchlist_handle(ProofState_p state, ProofControl_p control,
       handle->weight = ClauseStandardWeight(handle);
       ClauseMarkMaximalTerms(control->ocb, handle);
 
-      if (!strcmp('constant', kind))
+      if (!strcmp("constant", kind))
       {
          rewrite_handle = ClauseCopy(handle, state->softsubsumption_rw);
          RewriteConstants(rewrite_handle, state->softsubsumption_rw, 
@@ -606,7 +606,7 @@ void simplify_watchlist_handle(ProofState_p state, ProofControl_p control,
          ClauseSetIndexedInsertClause(state->watchlist, rewrite_handle);
          GlobalIndicesInsertClause(&(state->wlindices), rewrite_handle);
       }
-      else if (!strcmp('skolem', kind))
+      else if (!strcmp("skolem", kind))
       {
          rewrite_handle = ClauseCopy(handle, state->softsubsumption_rw);
          RewriteSkolemSymbols(rewrite_handle, state->softsubsumption_rw, 
@@ -616,7 +616,7 @@ void simplify_watchlist_handle(ProofState_p state, ProofControl_p control,
          ClauseSetIndexedInsertClause(state->watchlist, rewrite_handle);
          GlobalIndicesInsertClause(&(state->wlindices), rewrite_handle);
       }
-      else if (!strcmp('default', kind))
+      else if (!strcmp("default", kind))
       {
          ClauseSetIndexedInsertClause(state->watchlist, handle);
          // printf("# WL Inserting: "); ClausePrint(stdout, handle, true); printf("\n");
@@ -658,7 +658,7 @@ void simplify_watchlist(ProofState_p state, ProofControl_p control,
    {
       rewrite = ClauseCopy(clause, state->softsubsumption_rw);
       tmp_set = rewriteables_skolem_abstraction(state, control, rewrite, tmp_set);
-      simplify_watchlist_handle(state, control, tmp_set, 'skolem');
+      simplify_watchlist_handle(state, control, tmp_set, "skolem");
 
       ClauseFree(rewrite);
    }
@@ -666,14 +666,14 @@ void simplify_watchlist(ProofState_p state, ProofControl_p control,
    {
       rewrite = ClauseCopy(clause, state->softsubsumption_rw);
       tmp_set = rewriteables_constant_abstraction(state, control, rewrite, tmp_set);
-      simplify_watchlist_handle(state, control, tmp_set, 'constant');
+      simplify_watchlist_handle(state, control, tmp_set, "constant");
 
       ClauseFree(rewrite);
    }
    else
    {
       tmp_set = simplify_watchlist_rewriteables(state, control, clause, tmp_set);
-      simplify_watchlist_handle(state, control, tmp_set, 'default');
+      simplify_watchlist_handle(state, control, tmp_set, "default");
    }
 
    ClauseSetFree(tmp_set);
