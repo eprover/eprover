@@ -485,10 +485,9 @@ void simplify_watchlist(ProofState_p state, ProofControl_p control,
                         Clause_p clause)
 {
    ClauseSet_p tmp_set;
-   Clause_p    handle;
-   Clause_p    rewrite;
-   long        removed_lits;
-
+   Clause_p handle;
+   Clause_p rewrite;
+   long     removed_lits;
 
    if(!ClauseIsDemodulator(clause))
    {
@@ -537,26 +536,30 @@ void simplify_watchlist(ProofState_p state, ProofControl_p control,
       if(state->watchlist->efficient_subsumption_index->wl_constants_abstraction)
       {
          rewrite = ClauseCopy(handle, state->softsubsumption_rw);
-         RewriteConstants(rewrite, state->softsubsumption_rw, state->watchlist->efficient_subsumption_index->wl_abstraction_symbols);
+         RewriteConstants(rewrite, state->softsubsumption_rw, 
+                          state->watchlist->efficient_subsumption_index->wl_abstraction_symbols);
          ClauseSetIndexedInsertClause(state->watchlist, rewrite);
          GlobalIndicesInsertClause(&(state->wlindices), rewrite);
+         ClauseFree(rewrite);
       }
       else if(state->watchlist->efficient_subsumption_index->wl_skolemsym_abstraction)
       {
          rewrite = ClauseCopy(clause, state->softsubsumption_rw);
          RewriteSkolemSymbols(rewrite, state->softsubsumption_rw, 
-                              state->watchlist->efficient_subsumption_index->wl_abstraction_symbols, state->signature);
+                              state->watchlist->efficient_subsumption_index->wl_abstraction_symbols, 
+                              state->signature);
          ClauseSetIndexedInsertClause(state->watchlist, rewrite);
          GlobalIndicesInsertClause(&(state->wlindices), rewrite);
+         ClauseFree(rewrite);
       }
       else
       {
+         ClauseSetIndexedInsertClause(state->watchlist, handle);
          // printf("# WL Inserting: "); ClausePrint(stdout, handle, true); printf("\n");
-         GlobalIndicesInsertClause(&(state->wlindices), clause);
+         GlobalIndicesInsertClause(&(state->wlindices), handle);
       }
    }
    ClauseSetFree(tmp_set);
-   // printf("# ...simplify_watchlist()\n");
 }
 
 
