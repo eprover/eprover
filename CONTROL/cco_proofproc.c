@@ -468,44 +468,29 @@ void check_watchlist(GlobalIndices_p indices, ClauseSet_p watchlist,
    }
 }
 
-
 /*-----------------------------------------------------------------------
 //
-// Function: simplify_watchlist()
+// Function: simplify_watchlist_rewriteables()
 //
-//   Simplify all clauses in state->watchlist with processed positive
-//   units from state. Assumes that all those clauses are in normal
-//   form with respect to all clauses but clause!
+//   Provides a set of rewriteables for simplifying the watchtlist.
 //
 // Global Variables: -
 //
-// Side Effects    : Changes watchlist, introduces new rewrite links
-//                   into the term bank!
+// Side Effects    : -
 //
 /----------------------------------------------------------------------*/
-
-void simplify_watchlist(ProofState_p state, ProofControl_p control,
-                        Clause_p clause)
+ClauseSet_p simplify_watchlist_rewriteables(ProofState_p state, 
+                                            ProofControl_p control,
+                                            Clause_p clause, 
+                                            ClauseSet_p tmp_set)
 {
-   ClauseSet_p tmp_set;
-   Clause_p handle;
-   Clause_p rewrite;
-   long     removed_lits;
-
-   if(!ClauseIsDemodulator(clause))
-   {
-      return;
-   }
-   // printf("# simplify_watchlist()...\n");
-   tmp_set = ClauseSetAlloc();
-
    if(state->wlindices.bw_rw_index)
    {
       // printf("# Simpclause: "); ClausePrint(stdout, clause, true); printf("\n");
       RemoveRewritableClausesIndexed(control->ocb,
-                                     tmp_set, state->archive,
-                                     clause, clause->date,
-                                     &(state->wlindices));
+                                    tmp_set, state->archive,
+                                    clause, clause->date,
+                                    &(state->wlindices));
       // printf("# Simpclause done\n");
    }
    else
@@ -515,53 +500,183 @@ void simplify_watchlist(ProofState_p state, ProofControl_p control,
                               clause, clause->date,
                               &(state->wlindices));
    }
-   while((handle = ClauseSetExtractFirst(tmp_set)))
+
+   return tmp_set;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: tmp_set_skolem_abstraction()
+//
+//   Provides a set of rewriteables for simplifying the watchtlist where
+//   all skolem symbols are abstracted first.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+ClauseSet_p rewriteables_skolem_abstraction(ProofState_p state, 
+                                       ProofControl_p control,
+                                       Clause_p clause, 
+                                       ClauseSet_p tmp_set)
+{
+   Clause_p rewrite_given = ClauseCopy(clause, state->softsubsumption_rw);
+   RewriteSkolemSymbols(rewrite_given, state->softsubsumption_rw, 
+                        state->watchlist->efficient_subsumption_index->wl_abstraction_symbols, 
+                        state->signature);
+   rewrite_given->weight = ClauseStandardWeight(rewrite_given);
+
+   return simplify_watchlist_rewriteables(state, control, 
+                                          rewrite_given, tmp_set);
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: rewriteables_constant_abstraction()
+//
+//   Provides a set of rewriteables for simplifying the watchtlist where 
+//   all constant symbols are abstracted first.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+ClauseSet_p rewriteables_constant_abstraction(ProofState_p state, 
+                                         ProofControl_p control,
+                                         Clause_p clause, 
+                                         ClauseSet_p tmp_set)
+{
+   Clause_p rewrite_given = ClauseCopy(clause, state->softsubsumption_rw);
+   RewriteConstants(rewrite_given, state->softsubsumption_rw, 
+                    state->watchlist->efficient_subsumption_index->wl_abstraction_symbols);
+   rewrite_given->weight = ClauseStandardWeight(rewrite_given);
+
+   return simplify_watchlist_rewriteables(state, control, 
+                                          rewrite_given, tmp_set);
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: simplify_watchlist()
+//
+//   Simplify all clauses in state->watchlist with processed positive
+//   units from state. Assumes that all those clauses are in normal
+//   form with respect to all clauses but clause!
+//   When clause abstraction is enabled this will use the abstracted 
+//   watchlist.
+//
+// Global Variables: -
+//
+// Side Effects    : Changes watchlist, introduces new rewrite links
+//                   into the term bank!
+//
+/----------------------------------------------------------------------*/
+void simplify_watchlist(ProofState_p state, ProofControl_p control,
+                        Clause_p clause)
+{
+   ClauseSet_p tmp_set;
+   Clause_p    handle;
+   Clause_p    rewrite_handle;
+   long        removed_lits;
+
+   if(!ClauseIsDemodulator(clause))
    {
-      // printf("# WL simplify: "); ClausePrint(stdout, handle, true);
-      // printf("\n");
-      ClauseComputeLINormalform(control->ocb,
-                                state->terms,
-                                handle,
-                                state->demods,
-                                control->heuristic_parms.forward_demod,
-                                control->heuristic_parms.prefer_general);
-      removed_lits = ClauseRemoveSuperfluousLiterals(handle);
-      if(removed_lits)
+      return;
+   }
+   // printf("# simplify_watchlist()...\n");
+   tmp_set = ClauseSetAlloc();
+
+   if (state->watchlist->efficient_subsumption_index->wl_skolemsym_abstraction) 
+   {
+      tmp_set = rewriteables_skolem_abstraction(state, control, clause, tmp_set);
+      while((handle = ClauseSetExtractFirst(tmp_set)))
       {
-         DocClauseModificationDefault(handle, inf_minimize, NULL);
-      }
-      if(control->ac_handling_active)
-      {
-         ClauseRemoveACResolved(handle);
-      }
-      handle->weight = ClauseStandardWeight(handle);
-      ClauseMarkMaximalTerms(control->ocb, handle);
-      if(state->watchlist->efficient_subsumption_index->wl_constants_abstraction)
-      {
-         rewrite = ClauseCopy(handle, state->softsubsumption_rw);
-         RewriteConstants(rewrite, state->softsubsumption_rw, 
-                          state->watchlist->efficient_subsumption_index->wl_abstraction_symbols);
-         rewrite->weight = ClauseStandardWeight(rewrite);
-         ClauseSetIndexedInsertClause(state->watchlist, rewrite);
-         GlobalIndicesInsertClause(&(state->wlindices), rewrite);
-      }
-      else if(state->watchlist->efficient_subsumption_index->wl_skolemsym_abstraction)
-      {
-         rewrite = ClauseCopy(clause, state->softsubsumption_rw);
-         RewriteSkolemSymbols(rewrite, state->softsubsumption_rw, 
+         ClauseComputeLINormalform(control->ocb,
+                                   state->terms,
+                                   handle,
+                                   state->demods,
+                                   control->heuristic_parms.forward_demod,
+                                   control->heuristic_parms.prefer_general);
+         removed_lits = ClauseRemoveSuperfluousLiterals(handle);
+         if(removed_lits)
+         {
+            DocClauseModificationDefault(handle, inf_minimize, NULL);
+         }
+         if(control->ac_handling_active)
+         {
+            ClauseRemoveACResolved(handle);
+         }
+         handle->weight = ClauseStandardWeight(handle);
+         ClauseMarkMaximalTerms(control->ocb, handle);
+         rewrite_handle = ClauseCopy(handle, state->softsubsumption_rw);
+         RewriteSkolemSymbols(rewrite_handle, state->softsubsumption_rw, 
                               state->watchlist->efficient_subsumption_index->wl_abstraction_symbols, 
                               state->signature);
-         rewrite->weight = ClauseStandardWeight(rewrite);
-         ClauseSetIndexedInsertClause(state->watchlist, rewrite);
-         GlobalIndicesInsertClause(&(state->wlindices), rewrite);
+         rewrite_handle->weight = ClauseStandardWeight(rewrite_handle);
+         ClauseSetIndexedInsertClause(state->watchlist, rewrite_handle);
+         GlobalIndicesInsertClause(&(state->wlindices), rewrite_handle);
       }
-      else
+   }
+   else if (state->watchlist->efficient_subsumption_index->wl_constants_abstraction)
+   {
+      tmp_set = rewriteables_constant_abstraction(state, control, clause, tmp_set);
+      while((handle = ClauseSetExtractFirst(tmp_set)))
       {
+         ClauseComputeLINormalform(control->ocb,
+                                   state->terms,
+                                   handle,
+                                   state->demods,
+                                   control->heuristic_parms.forward_demod,
+                                   control->heuristic_parms.prefer_general);
+         removed_lits = ClauseRemoveSuperfluousLiterals(handle);
+         if(removed_lits)
+         {
+            DocClauseModificationDefault(handle, inf_minimize, NULL);
+         }
+         if(control->ac_handling_active)
+         {
+            ClauseRemoveACResolved(handle);
+         }
+         handle->weight = ClauseStandardWeight(handle);
+         ClauseMarkMaximalTerms(control->ocb, handle);
+         rewrite_handle = ClauseCopy(handle, state->softsubsumption_rw);
+         RewriteConstants(rewrite_handle, state->softsubsumption_rw, 
+                          state->watchlist->efficient_subsumption_index->wl_abstraction_symbols);
+         rewrite_handle->weight = ClauseStandardWeight(rewrite_handle);
+         ClauseSetIndexedInsertClause(state->watchlist, rewrite_handle);
+         GlobalIndicesInsertClause(&(state->wlindices), rewrite_handle);
+      }
+   }
+   else
+   {
+      tmp_set = simplify_watchlist_rewriteables(state, control, clause, tmp_set);
+      while((handle = ClauseSetExtractFirst(tmp_set)))
+      {
+         ClauseComputeLINormalform(control->ocb,
+                                   state->terms,
+                                   handle,
+                                   state->demods,
+                                   control->heuristic_parms.forward_demod,
+                                   control->heuristic_parms.prefer_general);
+         removed_lits = ClauseRemoveSuperfluousLiterals(handle);
+         if(removed_lits)
+         {
+            DocClauseModificationDefault(handle, inf_minimize, NULL);
+         }
+         if(control->ac_handling_active)
+         {
+            ClauseRemoveACResolved(handle);
+         }
+         handle->weight = ClauseStandardWeight(handle);
+         ClauseMarkMaximalTerms(control->ocb, handle);
          ClauseSetIndexedInsertClause(state->watchlist, handle);
          // printf("# WL Inserting: "); ClausePrint(stdout, handle, true); printf("\n");
          GlobalIndicesInsertClause(&(state->wlindices), handle);
       }
    }
+
    ClauseSetFree(tmp_set);
 }
 
