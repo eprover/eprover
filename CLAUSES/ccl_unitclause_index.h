@@ -50,7 +50,7 @@ void UnitclauseIndexFreeWrapper(void *junk);
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
 bool UnitclauseInsertCell(PTree_p *root, Clause_p clause);
-bool UnitclauseIndexDeletClauseCell(PTree_p *root, Clause_p indexed);
+bool UnitclauseIndexDeleteClauseCell(PTree_p *root, Clause_p indexed);
 bool UnitclauseIndexDeleteIndexedClause(UnitclauseIndex_p index, 
                                         Term_p indexedterm,
                                         Clause_p indexed);
