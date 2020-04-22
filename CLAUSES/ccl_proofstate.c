@@ -742,7 +742,7 @@ void ProofStateStatisticsPrint(FILE* out, ProofState_p state)
            "# Watchlist checks                     : %ld\n",
            state->watchlist_checks);
    fprintf(out,
-           "# WL unit clause checks                : %ld\n",
+           "# Watchlist unit clause checks         : %ld\n",
            state->watchlist_unit_checks);
    fprintf(out,
            "# Inserted watchlist unit clauses      : %ld\n",
