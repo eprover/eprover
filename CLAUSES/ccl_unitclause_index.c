@@ -141,7 +141,7 @@ bool UnitclauseIndexDeleteClause(UnitclauseIndex_p index, Clause_p clause)
    indexedTerm = EqnTermsTBTermEncode(handle->bank, 
                                       handle->lterm, 
                                       handle->rterm, 
-                                      true, // TODO: Are you sure that this is always okay?
+                                      EqnIsPositive(handle),
                                       PENormal);
 
    existed = UnitclauseIndexDeleteIndexedClause(index, indexedTerm, clause);
@@ -151,7 +151,7 @@ bool UnitclauseIndexDeleteClause(UnitclauseIndex_p index, Clause_p clause)
       indexedTerm = EqnTermsTBTermEncode(handle->bank, 
                                          handle->lterm, 
                                          handle->rterm, 
-                                         true, // TODO: Are you sure that this is always okay?
+                                         EqnIsPositive(handle),
                                          PEReverse);
 
       return UnitclauseIndexDeleteIndexedClause(index, indexedTerm, clause);
@@ -186,7 +186,7 @@ bool UnitclauseIndexInsertClause(UnitclauseIndex_p index, Clause_p clause)
    indexedTerm = EqnTermsTBTermEncode(handle->bank, 
                                       handle->lterm, 
                                       handle->rterm, 
-                                      true, // TODO: Are you sure that this is always okay?
+                                      EqnIsPositive(handle),
                                       PENormal);
 
    isNew = UnitclauseIndexInsert(index, indexedTerm, clause);
@@ -196,7 +196,7 @@ bool UnitclauseIndexInsertClause(UnitclauseIndex_p index, Clause_p clause)
       indexedTerm = EqnTermsTBTermEncode(handle->bank, 
                                          handle->lterm, 
                                          handle->rterm, 
-                                         true, // TODO: Are you sure that this is always okay?
+                                         EqnIsPositive(handle),
                                          PEReverse);
 
       isNew = UnitclauseIndexInsert(index, indexedTerm, clause);
@@ -225,7 +225,7 @@ long UnitClauseIndexFindSubsumedCandidates(UnitclauseIndex_p index,
    indexedTerm = EqnTermsTBTermEncode(handle->bank, 
                                       handle->lterm, 
                                       handle->rterm, 
-                                      true, // TODO: Are you sure that this is always okay?
+                                      EqnIsPositive(handle),
                                       PENormal);
 
    numberMatchables = FPIndexFindMatchable(index, indexedTerm, candidates);
@@ -235,7 +235,7 @@ long UnitClauseIndexFindSubsumedCandidates(UnitclauseIndex_p index,
       indexedTerm = EqnTermsTBTermEncode(handle->bank, 
                                          handle->lterm, 
                                          handle->rterm, 
-                                         true, // TODO: Are you sure that this is always okay?
+                                         EqnIsPositive(handle),
                                          PEReverse);
 
       numberMatchables += FPIndexFindMatchable(index, indexedTerm, candidates);
