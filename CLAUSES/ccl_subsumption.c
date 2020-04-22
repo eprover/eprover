@@ -1032,7 +1032,7 @@ void clauseset_find_subsumed_clauses_fv_indexed(FVIndex_p index,
 /----------------------------------------------------------------------*/
 
 static
-void clauseset_find_subsumed_clauses_unitclause_indexed(UnitclauseIndex_p index,
+void clauseset_find_subsumed_clauses_unitclause_indexed(UCIndex_p index,
                                                         Clause_p clause,
                                                         PStack_p res)
 {
@@ -1042,7 +1042,7 @@ void clauseset_find_subsumed_clauses_unitclause_indexed(UnitclauseIndex_p index,
    long       numberSubsumedClauses = 0;
    PStack_p   candidates            = PStackAlloc();
    
-   UnitClauseIndexFindSubsumedCandidates(index, clause, candidates);
+   UCIndexFindSubsumedCandidates(index, clause, candidates);
 
    while(!PStackEmpty(candidates))
    {
@@ -1154,7 +1154,7 @@ Clause_p clauseset_find_first_subsumed_clause_fv_indexed(FVIndex_p index,
 /----------------------------------------------------------------------*/
 
 static
-Clause_p clauseset_find_first_subsumed_clauses_unitclause_indexed(UnitclauseIndex_p index,
+Clause_p clauseset_find_first_subsumed_clauses_unitclause_indexed(UCIndex_p index,
                                                                   Clause_p clause)
 {
    PStack_p   iterstack;
@@ -1162,7 +1162,7 @@ Clause_p clauseset_find_first_subsumed_clauses_unitclause_indexed(UnitclauseInde
    PTree_p    current;
    PStack_p   candidates = PStackAlloc();
    
-   UnitClauseIndexFindSubsumedCandidates(index, clause, candidates);
+   UCIndexFindSubsumedCandidates(index, clause, candidates);
 
    while(!PStackEmpty(candidates))
    {

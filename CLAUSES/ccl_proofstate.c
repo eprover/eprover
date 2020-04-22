@@ -343,9 +343,9 @@ void ProofStateInitWatchlist(ProofState_p state, OCB_p ocb,
    {
       tmpset = ClauseSetAlloc();
 
-      ESIndexUnitClauseIndexInit(state->watchlist->esindex,
-                                                   state->signature,
-                                                   watchlist_unit_clause_index_type);
+      ESIndexUCIndexInit(state->watchlist->esindex,
+                         state->signature,
+                         watchlist_unit_clause_index_type);
 
       ClauseSetMarkMaximalTerms(ocb, state->watchlist);
       if(rewriteConstants)

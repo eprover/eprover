@@ -34,29 +34,29 @@ special Fingerprintindexing function that ignores the first symbol as it
 is always the same.
 The leaves store the indexed term.
 -----------------------------------------------------------------------*/
-typedef FPIndex_p UnitclauseIndex_p;
+typedef FPIndex_p UCIndex_p;
 
 /*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
-bool UnitclauseIndexDeleteClause(UnitclauseIndex_p index, Clause_p clause);
-bool UnitclauseIndexInsertClause(UnitclauseIndex_p index, Clause_p clause);
-long UnitClauseIndexFindSubsumedCandidates(UnitclauseIndex_p index, 
-                                           Clause_p clause, 
-                                           PStack_p candidates);
-void UnitclauseIndexFreeWrapper(void *junk);
+bool UCIndexDeleteClause(UCIndex_p index, Clause_p clause);
+bool UCIndexInsertClause(UCIndex_p index, Clause_p clause);
+long UCIndexFindSubsumedCandidates(UCIndex_p index, 
+                                   Clause_p clause, 
+                                   PStack_p candidates);
+void UCIndexFreeWrapper(void *junk);
 
 /*---------------------------------------------------------------------*/
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
 bool UnitclauseInsertCell(PTree_p *root, Clause_p clause);
-bool UnitclauseIndexDeleteClauseCell(PTree_p *root, Clause_p indexed);
-bool UnitclauseIndexDeleteIndexedClause(UnitclauseIndex_p index, 
-                                        Term_p indexedterm,
-                                        Clause_p indexed);
-bool UnitclauseIndexInsert(UnitclauseIndex_p index, 
-                           Term_p indexterm, 
-                           Clause_p payload); 
+bool UCIndexDeleteClauseCell(PTree_p *root, Clause_p indexed);
+bool UCIndexDeleteIndexedClause(UCIndex_p index, 
+                                Term_p indexedterm,
+                                Clause_p indexed);
+bool UCIndexInsert(UCIndex_p index, 
+                   Term_p indexterm, 
+                   Clause_p payload); 
 #endif
 
 /*---------------------------------------------------------------------*/

@@ -42,7 +42,7 @@ bool UnitclauseInsertCell(PTree_p *root, Clause_p clause)
 
 /*-----------------------------------------------------------------------
 //
-// Function: UnitclauseIndexInsert()
+// Function: UCIndexInsert()
 //
 //   Inserts a clause into the index given the appropiate term 
 //   representation =(lterm, rterm).
@@ -52,8 +52,7 @@ bool UnitclauseInsertCell(PTree_p *root, Clause_p clause)
 // Side Effects    : Memory operatios
 //
 /----------------------------------------------------------------------*/
-bool UnitclauseIndexInsert(UnitclauseIndex_p index, Term_p indexterm, 
-                           Clause_p payload) 
+bool UCIndexInsert(UCIndex_p index, Term_p indexterm, Clause_p payload) 
 {
    FPTree_p fp_node = FPIndexInsert(index, indexterm);
 
@@ -62,7 +61,7 @@ bool UnitclauseIndexInsert(UnitclauseIndex_p index, Term_p indexterm,
 
 /*-----------------------------------------------------------------------
 //
-// Function: UnitclauseIndexDeleteClauseCell()
+// Function: UCIndexDeleteClauseCell()
 //
 //   Deletes an indexed clause from the leaf of the FingerPrintIndex 
 //   given the appropiate PTree.
@@ -72,14 +71,14 @@ bool UnitclauseIndexInsert(UnitclauseIndex_p index, Term_p indexterm,
 // Side Effects    :
 //
 /----------------------------------------------------------------------*/
-bool UnitclauseIndexDeleteClauseCell(PTree_p *root, Clause_p indexed)
+bool UCIndexDeleteClauseCell(PTree_p *root, Clause_p indexed)
 {
    return PTreeDeleteEntry(root, indexed);
 }
 
 /*-----------------------------------------------------------------------
 //
-// Function: UnitclauseIndexDeleteIndexedClause()
+// Function: UCIndexDeleteIndexedClause()
 //
 //   Delete a clause given the indexed term (of the shape =(lterm, rterm))
 //   also deletes the indexed term from the index if the leaf becomes empty
@@ -90,9 +89,8 @@ bool UnitclauseIndexDeleteClauseCell(PTree_p *root, Clause_p indexed)
 // Side Effects    : Memory operations.
 //
 /----------------------------------------------------------------------*/
-bool UnitclauseIndexDeleteIndexedClause(UnitclauseIndex_p index, 
-                                        Term_p indexedterm,
-                                        Clause_p indexed)
+bool UCIndexDeleteIndexedClause(UCIndex_p index, Term_p indexedterm,
+                                Clause_p indexed)
 {
    FPTree_p fp_node;
    bool     res;
@@ -103,7 +101,7 @@ bool UnitclauseIndexDeleteIndexedClause(UnitclauseIndex_p index,
       return false;
    }
 
-   res = UnitclauseIndexDeleteClauseCell((void*)&(fp_node->payload), indexed);
+   res = UCIndexDeleteClauseCell((void*)&(fp_node->payload), indexed);
    
    if (fp_node->payload == NULL)
    {
@@ -119,7 +117,7 @@ bool UnitclauseIndexDeleteIndexedClause(UnitclauseIndex_p index,
 
 /*-----------------------------------------------------------------------
 //
-// Function: UnitclauseIndexDeleteClause()
+// Function: UCIndexDeleteClause()
 //
 //   Deletes an indexed clause taking care of the index.
 //   If the clause is not orientable both sides are deleted.
@@ -130,7 +128,7 @@ bool UnitclauseIndexDeleteIndexedClause(UnitclauseIndex_p index,
 // Side Effects    : Memory operatios
 //
 /----------------------------------------------------------------------*/
-bool UnitclauseIndexDeleteClause(UnitclauseIndex_p index, Clause_p clause)
+bool UCIndexDeleteClause(UCIndex_p index, Clause_p clause)
 {
    assert(ClauseIsUnit(clause));
 
@@ -144,7 +142,7 @@ bool UnitclauseIndexDeleteClause(UnitclauseIndex_p index, Clause_p clause)
                                       EqnIsPositive(handle),
                                       PENormal);
 
-   existed = UnitclauseIndexDeleteIndexedClause(index, indexedTerm, clause);
+   existed = UCIndexDeleteIndexedClause(index, indexedTerm, clause);
    
    if(!EqnIsOriented(handle) && existed)
    {
@@ -154,7 +152,7 @@ bool UnitclauseIndexDeleteClause(UnitclauseIndex_p index, Clause_p clause)
                                          EqnIsPositive(handle),
                                          PEReverse);
 
-      return UnitclauseIndexDeleteIndexedClause(index, indexedTerm, clause);
+      return UCIndexDeleteIndexedClause(index, indexedTerm, clause);
    }
 
    return existed;
@@ -162,11 +160,11 @@ bool UnitclauseIndexDeleteClause(UnitclauseIndex_p index, Clause_p clause)
 
 /*------------------------------------ -----------------------------------
 //
-// Function: UnitclauseIndexInsertClause()
+// Function: UCIndexInsertClause()
 //
 //   Inserts a unit clause into the Index. Return
 //   true if it was new, false if it already existed.
-//   Is a wrapper for UnitClauseIndexInsert.
+//   Is a wrapper for UCIndexInsert.
 //   If the clause is not orientable both sides are indexed.
 //   Assumes clause is unit.
 //
@@ -175,7 +173,7 @@ bool UnitclauseIndexDeleteClause(UnitclauseIndex_p index, Clause_p clause)
 // Side Effects    : Memory operatios
 //
 /----------------------------------------------------------------------*/
-bool UnitclauseIndexInsertClause(UnitclauseIndex_p index, Clause_p clause)
+bool UCIndexInsertClause(UCIndex_p index, Clause_p clause)
 {
    assert(ClauseIsUnit(clause));
 
@@ -189,7 +187,7 @@ bool UnitclauseIndexInsertClause(UnitclauseIndex_p index, Clause_p clause)
                                       EqnIsPositive(handle),
                                       PENormal);
 
-   isNew = UnitclauseIndexInsert(index, indexedTerm, clause);
+   isNew = UCIndexInsert(index, indexedTerm, clause);
 
    if(!EqnIsOriented(handle) && isNew)
    {
@@ -199,14 +197,14 @@ bool UnitclauseIndexInsertClause(UnitclauseIndex_p index, Clause_p clause)
                                          EqnIsPositive(handle),
                                          PEReverse);
 
-      isNew = UnitclauseIndexInsert(index, indexedTerm, clause);
+      isNew = UCIndexInsert(index, indexedTerm, clause);
    }
    return isNew;
 }
 
 /*------------------------------------ -----------------------------------
 //
-// Function: UnitClauseIndexFindSubsumedCandidates()
+// Function: UCIndexFindSubsumedCandidates()
 //
 //   Finds clauses that are candidates to be subsumed by the given clause.
 //
@@ -215,8 +213,8 @@ bool UnitclauseIndexInsertClause(UnitclauseIndex_p index, Clause_p clause)
 // Side Effects    : -
 /
 /----------------------------------------------------------------------*/
-long UnitClauseIndexFindSubsumedCandidates(UnitclauseIndex_p index, 
-                                           Clause_p clause, PStack_p candidates)
+long UCIndexFindSubsumedCandidates(UCIndex_p index, Clause_p clause, 
+                                   PStack_p candidates)
 {
    Term_p indexedTerm;
    Eqn_p  handle           = clause->literals;
@@ -245,7 +243,7 @@ long UnitClauseIndexFindSubsumedCandidates(UnitclauseIndex_p index,
 
 /*-----------------------------------------------------------------------
 //
-// Function: UnitclauseIndexFreeWrapper()
+// Function: UCIndexFreeWrapper()
 //
 //   Frees the PTree assosiated with the leaf of th fp_index so 
 //   that the type matches with the type signature of FPFreeTreeFun:
@@ -257,7 +255,7 @@ long UnitClauseIndexFindSubsumedCandidates(UnitclauseIndex_p index,
 // Side Effects    : Memory operations
 //
 /----------------------------------------------------------------------*/
-void UnitclauseIndexFreeWrapper(void *junk)
+void UCIndexFreeWrapper(void *junk)
 {
    PTreeFree(junk);
 }

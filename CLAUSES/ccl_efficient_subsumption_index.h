@@ -29,7 +29,7 @@ Copyright 2019-2020 by the author.
 typedef struct efficient_subsumption_index
 {
    FVIAnchor_p       fvindex;          /* Used for non-unit subsumption */
-   UnitclauseIndex_p unitclasue_index; /* Used for unit clauses subsuption */
+   UCIndex_p         unitclasue_index; /* Used for unit clauses subsuption */
 
    /* Clause abstraction */
    bool              wl_constants_abstraction;
@@ -47,8 +47,8 @@ typedef struct efficient_subsumption_index
 
 ESIndex_p ESIndexAlloc(FVCollect_p cspec, PermVector_p perm);
 void ESIndexFree(ESIndex_p clauseset_indexes);
-void ESIndexUnitClauseIndexInit(ESIndex_p index, Sig_p sig, 
-                                char* unitclause_index_type);
+void ESIndexUCIndexInit(ESIndex_p index, Sig_p sig, 
+                        char* unitclause_index_type);
 void ESIndexInsertClause(ESIndex_p index, Clause_p clause);
                                           
 Clause_p ClausesetIndexDeleteEntry(ESIndex_p index, Clause_p junk);

@@ -38,7 +38,7 @@ void ESIndexInsert(ESIndex_p index, FVPackedClause_p newclause)
 {
    if(index->unitclasue_index && ClauseIsUnit(newclause->clause))
    {
-      UnitclauseIndexInsertClause(index->unitclasue_index, newclause->clause);
+      UCIndexInsertClause(index->unitclasue_index, newclause->clause);
    } 
    else if (index->fvindex) 
    {
@@ -106,7 +106,7 @@ void ESIndexFree(ESIndex_p junk)
 
 /*-----------------------------------------------------------------------
 //
-// Function: ESIndexUnitClauseIndexInit()
+// Function: ESIndexUCIndexInit()
 //
 //   Initialize the unit clause index as required by the parameters.
 //
@@ -115,15 +115,15 @@ void ESIndexFree(ESIndex_p junk)
 // Side Effects    : Memory management
 //
 /----------------------------------------------------------------------*/
-void ESIndexUnitClauseIndexInit(ESIndex_p index, Sig_p sig, 
-                                char* unitclause_index_type)
+void ESIndexUCIndexInit(ESIndex_p index, Sig_p sig, 
+                        char* unitclause_index_type)
 {
    FPIndexFunction indexfun;
    indexfun = GetFPIndexFunction(unitclause_index_type);
    if(indexfun)
    {
       index->unitclasue_index = FPIndexAlloc(indexfun, sig, 
-                                             UnitclauseIndexFreeWrapper);
+                                             UCIndexFreeWrapper);
    }
 }
 
@@ -165,7 +165,7 @@ Clause_p ClausesetIndexDeleteEntry(ESIndex_p index,
 {
    if(index->unitclasue_index && ClauseIsUnit(junk))
    {
-      UnitclauseIndexDeleteClause(index->unitclasue_index, 
+      UCIndexDeleteClause(index->unitclasue_index, 
                                   junk);
    }
    if (index->fvindex) 

@@ -1608,7 +1608,7 @@ void ProofStateInit(ProofState_p state, ProofControl_p control)
 // Function: DetermineWatchlistUCIndexType()
 //
 //   Determines which finger print function to use when 
-///  watchlistUnitClauseIndexType is auto.
+///  watchlistUCIndexType is auto.
 //   Otherwise it will just default to the provided string.
 //
 // Global Variables: - 
@@ -1616,12 +1616,12 @@ void ProofStateInit(ProofState_p state, ProofControl_p control)
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
-char* DetermineWatchlistUCIndexType(char* watchlistUnitClauseIndexType,
+char* DetermineWatchlistUCIndexType(char* watchlistUCIndexType,
                                     SpecFeatures problem_eq_content)
 {
-   char* watchlist_unit_clause_index_type = watchlistUnitClauseIndexType;
+   char* watchlist_unit_clause_index_type = watchlistUCIndexType;
 
-   if(strcmp(watchlistUnitClauseIndexType,"auto")==0)
+   if(strcmp(watchlistUCIndexType,"auto")==0)
    {
       switch (problem_eq_content)
       {
