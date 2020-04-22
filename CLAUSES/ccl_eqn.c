@@ -769,7 +769,8 @@ Eqn_p EqnHOFParse(Scanner_p in, TB_p bank, bool* continue_parsing)
 
    if(pure_eq)
    {
-      rterm = TypeIsBool(lterm->type) ?  TFormulaTSTPParse(in, bank) : TBTermParse(in, bank);
+      rterm = TypeIsBool(lterm->type) ?
+         TFormulaTSTPParse(in, bank) : TBTermParse(in, bank);
 
       if(TypeIsBool(lterm->type))
       {
@@ -783,7 +784,8 @@ Eqn_p EqnHOFParse(Scanner_p in, TB_p bank, bool* continue_parsing)
          DStr_p err = DStrAlloc();
          DStrAppendStr(err, "Symbol ");
          DStrAppendStr(err, SigFindName(bank->sig, lterm->f_code));
-         DStrAppendStr(err, " interpreted both as function and predicate (check parentheses).");
+         DStrAppendStr(err, " interpreted both as function and"
+                       " predicate (check parentheses).");
          AktTokenError(in, DStrView(err), SYNTAX_ERROR);
       }
       rterm = bank->true_term;
@@ -1345,8 +1347,8 @@ Eqn_p EqnCopyReplPlain(Eqn_p eq, TB_p bank, Term_p old, Term_p repl)
    Term_p lterm, rterm;
 
    /* This cam be optimize for uninstantiated terms */
-   lterm = TBInsertRepl(bank, eq->lterm, DEREF_NEVER, old, repl);
-   rterm = TBInsertRepl(bank, eq->rterm, DEREF_NEVER, old, repl);
+   lterm = TBInsertReplPlain(bank, eq->lterm, old, repl);
+   rterm = TBInsertReplPlain(bank, eq->rterm, old, repl);
 
    handle = EqnAlloc(lterm, rterm, bank, false); /* Properties will be
                                                     taken care of

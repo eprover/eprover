@@ -76,6 +76,8 @@ match_fcsra     = re.compile(" --forward-context-sr-aggressive")
 match_bcsr      = re.compile(" --backward-context-sr")
 match_simul_pm  = re.compile(" --simul-paramod");
 match_osimul_pm = re.compile(" --oriented-simul-paramod");
+match_ssimul_pm = re.compile(" --supersimul-paramod");
+match_ossimul_pm= re.compile(" --oriented-supersimul-paramod");
 match_presat_ir = re.compile(" --presat-simplify");
 match_sos_types = re.compile(" --sos-uses-input-types");
 match_condense  = re.compile(" --condense");
@@ -246,9 +248,17 @@ def parse_control_info(line):
     if m:
         res = res+ "      control->heuristic_parms.pm_type=ParamodSim;\n"
 
+    m = match_ssimul_pm.search(line)
+    if m:
+        res = res+ "      control->heuristic_parms.pm_type=ParamodSuperSim;\n"
+
     m = match_osimul_pm.search(line)
     if m:
         res = res+ "      control->heuristic_parms.pm_type=ParamodOrientedSim;\n"
+
+    m = match_ossimul_pm.search(line)
+    if m:
+        res = res+ "      control->heuristic_parms.pm_type=ParamodOrientedSuperSim;\n"
 
     #
     # Presaturation simplification

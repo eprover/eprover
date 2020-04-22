@@ -131,6 +131,7 @@ long    TBTermNodes(TB_p bank);
 Term_p  TBInsert(TB_p bank, Term_p term, DerefType deref);
 Term_p  TBInsertNoProps(TB_p bank, Term_p term, DerefType deref);
 Term_p  TBInsertRepl(TB_p bank, Term_p term, DerefType deref, Term_p old, Term_p repl);
+Term_p  TBInsertReplPlain(TB_p bank, Term_p term, Term_p old, Term_p repl);
 Term_p  TBInsertInstantiatedFO(TB_p bank, Term_p term);
 Term_p  TBInsertInstantiatedHO(TB_p bank, Term_p term, bool follow);
 
