@@ -62,7 +62,7 @@ bool UnitclauseIndexInsert(UnitclauseIndex_p index, Term_p indexterm,
 
 /*-----------------------------------------------------------------------
 //
-// Function: UnitclauseIndexDeletClauseCell()
+// Function: UnitclauseIndexDeleteClauseCell()
 //
 //   Deletes an indexed clause from the leaf of the FingerPrintIndex 
 //   given the appropiate PTree.
@@ -72,7 +72,7 @@ bool UnitclauseIndexInsert(UnitclauseIndex_p index, Term_p indexterm,
 // Side Effects    :
 //
 /----------------------------------------------------------------------*/
-bool UnitclauseIndexDeletClauseCell(PTree_p *root, Clause_p indexed)
+bool UnitclauseIndexDeleteClauseCell(PTree_p *root, Clause_p indexed)
 {
    return PTreeDeleteEntry(root, indexed);
 }
@@ -103,7 +103,7 @@ bool UnitclauseIndexDeleteIndexedClause(UnitclauseIndex_p index,
       return false;
    }
 
-   res = UnitclauseIndexDeletClauseCell((void*)&(fp_node->payload), indexed);
+   res = UnitclauseIndexDeleteClauseCell((void*)&(fp_node->payload), indexed);
    
    if (fp_node->payload == NULL)
    {
