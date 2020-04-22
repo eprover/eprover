@@ -343,7 +343,7 @@ void ProofStateInitWatchlist(ProofState_p state, OCB_p ocb,
    {
       tmpset = ClauseSetAlloc();
 
-      EfficientSubsumptionIndexUnitClauseIndexInit(state->watchlist->efficient_subsumption_index,
+      ESIndexUnitClauseIndexInit(state->watchlist->esindex,
                                                    state->signature,
                                                    watchlist_unit_clause_index_type);
 
@@ -351,13 +351,13 @@ void ProofStateInitWatchlist(ProofState_p state, OCB_p ocb,
       if(rewriteConstants)
       {
          // TODO: Shorten
-         state->watchlist->efficient_subsumption_index->wl_constants_abstraction  = true;
-         state->watchlist->efficient_subsumption_index->wl_abstraction_symbols    = PDIntArrayAllocWithDefault(10, 1, -1);
+         state->watchlist->esindex->wl_constants_abstraction  = true;
+         state->watchlist->esindex->wl_abstraction_symbols    = PDIntArrayAllocWithDefault(10, 1, -1);
       }
       else if(rewriteSkolemSym)
       {
-         state->watchlist->efficient_subsumption_index->wl_skolemsym_abstraction = true;
-         state->watchlist->efficient_subsumption_index->wl_abstraction_symbols   = PDIntArrayAllocWithDefault(10, 1, -1);
+         state->watchlist->esindex->wl_skolemsym_abstraction = true;
+         state->watchlist->esindex->wl_abstraction_symbols   = PDIntArrayAllocWithDefault(10, 1, -1);
       }
       while(!ClauseSetEmpty(state->watchlist))
       {
@@ -374,7 +374,7 @@ void ProofStateInitWatchlist(ProofState_p state, OCB_p ocb,
          {
             rewrite = ClauseCopy(handle, state->softsubsumption_rw);
             RewriteConstants(rewrite, state->softsubsumption_rw, 
-                             state->watchlist->efficient_subsumption_index->wl_abstraction_symbols);
+                             state->watchlist->esindex->wl_abstraction_symbols);
             ClauseSetInsert(tmpset, rewrite);
             ClauseFree(handle);
          }
@@ -382,7 +382,7 @@ void ProofStateInitWatchlist(ProofState_p state, OCB_p ocb,
          {
             rewrite = ClauseCopy(handle, state->softsubsumption_rw);
             RewriteSkolemSymbols(rewrite, state->softsubsumption_rw, 
-                                 state->watchlist->efficient_subsumption_index->wl_abstraction_symbols,
+                                 state->watchlist->esindex->wl_abstraction_symbols,
                                  state->signature);
             ClauseSetInsert(tmpset, rewrite);
             ClauseFree(handle);

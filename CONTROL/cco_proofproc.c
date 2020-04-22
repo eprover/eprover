@@ -401,28 +401,28 @@ void check_watchlist(GlobalIndices_p indices, ClauseSet_p watchlist,
       }
 
       // TODO: @Schulz Shorten?
-      if (watchlist->efficient_subsumption_index->wl_constants_abstraction)
+      if (watchlist->esindex->wl_constants_abstraction)
       {
          rewrite = ClauseCopy(clause, state->softsubsumption_rw);
          RewriteConstants(rewrite, state->softsubsumption_rw, 
-                          watchlist->efficient_subsumption_index->wl_abstraction_symbols);
-         pclause = FVIndexPackClause(rewrite, watchlist->efficient_subsumption_index->fvindex);
+                          watchlist->esindex->wl_abstraction_symbols);
+         pclause = FVIndexPackClause(rewrite, watchlist->esindex->fvindex);
          ClauseSubsumeOrderSortLits(rewrite);
          rewrite->weight = ClauseStandardWeight(rewrite);
       } 
-      else if (watchlist->efficient_subsumption_index->wl_skolemsym_abstraction)
+      else if (watchlist->esindex->wl_skolemsym_abstraction)
       {
          rewrite = ClauseCopy(clause, state->softsubsumption_rw);
          RewriteSkolemSymbols(rewrite, state->softsubsumption_rw, 
-                              state->watchlist->efficient_subsumption_index->wl_abstraction_symbols, 
+                              state->watchlist->esindex->wl_abstraction_symbols, 
                               state->signature);
-         pclause = FVIndexPackClause(rewrite, watchlist->efficient_subsumption_index->fvindex);
+         pclause = FVIndexPackClause(rewrite, watchlist->esindex->fvindex);
          ClauseSubsumeOrderSortLits(rewrite);
          rewrite->weight = ClauseStandardWeight(rewrite);
       } 
       else 
       {
-         pclause = FVIndexPackClause(clause, watchlist->efficient_subsumption_index->fvindex);
+         pclause = FVIndexPackClause(clause, watchlist->esindex->fvindex);
          // printf("# check_watchlist(%p)...\n", indices);
          ClauseSubsumeOrderSortLits(clause);
          clause->weight = ClauseStandardWeight(clause);
@@ -433,8 +433,8 @@ void check_watchlist(GlobalIndices_p indices, ClauseSet_p watchlist,
       {
          Clause_p subsumed;
 
-         if (rewrite != NULL && (watchlist->efficient_subsumption_index->wl_constants_abstraction 
-                                 || watchlist->efficient_subsumption_index->wl_skolemsym_abstraction))
+         if (rewrite != NULL && (watchlist->esindex->wl_constants_abstraction 
+                                 || watchlist->esindex->wl_skolemsym_abstraction))
          {
             subsumed = ClauseSetFindFirstSubsumedClause(watchlist, rewrite);
          }
@@ -525,7 +525,7 @@ ClauseSet_p rewriteables_skolem_abstraction(ProofState_p state,
                                             ClauseSet_p tmp_set)
 {
    RewriteSkolemSymbols(rewrite, state->softsubsumption_rw, 
-                        state->watchlist->efficient_subsumption_index->wl_abstraction_symbols, 
+                        state->watchlist->esindex->wl_abstraction_symbols, 
                         state->signature);
    rewrite->weight = ClauseStandardWeight(rewrite);
 
@@ -551,7 +551,7 @@ ClauseSet_p rewriteables_constant_abstraction(ProofState_p state,
                                               ClauseSet_p tmp_set)
 {
    RewriteConstants(rewrite, state->softsubsumption_rw, 
-                    state->watchlist->efficient_subsumption_index->wl_abstraction_symbols);
+                    state->watchlist->esindex->wl_abstraction_symbols);
    rewrite->weight = ClauseStandardWeight(rewrite);
 
    return simplify_watchlist_rewriteables(state, control, 
@@ -601,7 +601,7 @@ void simplify_watchlist_handle(ProofState_p state, ProofControl_p control,
       {
          rewrite_handle = ClauseCopy(handle, state->softsubsumption_rw);
          RewriteConstants(rewrite_handle, state->softsubsumption_rw, 
-                          state->watchlist->efficient_subsumption_index->wl_abstraction_symbols);
+                          state->watchlist->esindex->wl_abstraction_symbols);
          rewrite_handle->weight = ClauseStandardWeight(rewrite_handle);
          ClauseSetIndexedInsertClause(state->watchlist, rewrite_handle);
          GlobalIndicesInsertClause(&(state->wlindices), rewrite_handle);
@@ -610,7 +610,7 @@ void simplify_watchlist_handle(ProofState_p state, ProofControl_p control,
       {
          rewrite_handle = ClauseCopy(handle, state->softsubsumption_rw);
          RewriteSkolemSymbols(rewrite_handle, state->softsubsumption_rw, 
-                              state->watchlist->efficient_subsumption_index->wl_abstraction_symbols, 
+                              state->watchlist->esindex->wl_abstraction_symbols, 
                               state->signature);
          rewrite_handle->weight = ClauseStandardWeight(rewrite_handle);
          ClauseSetIndexedInsertClause(state->watchlist, rewrite_handle);
@@ -654,7 +654,7 @@ void simplify_watchlist(ProofState_p state, ProofControl_p control,
    // printf("# simplify_watchlist()...\n");
    tmp_set = ClauseSetAlloc();
 
-   if (state->watchlist->efficient_subsumption_index->wl_skolemsym_abstraction) 
+   if (state->watchlist->esindex->wl_skolemsym_abstraction) 
    {
       rewrite = ClauseCopy(clause, state->softsubsumption_rw);
       tmp_set = rewriteables_skolem_abstraction(state, control, rewrite, tmp_set);
@@ -662,7 +662,7 @@ void simplify_watchlist(ProofState_p state, ProofControl_p control,
 
       ClauseFree(rewrite);
    }
-   else if (state->watchlist->efficient_subsumption_index->wl_constants_abstraction)
+   else if (state->watchlist->esindex->wl_constants_abstraction)
    {
       rewrite = ClauseCopy(clause, state->softsubsumption_rw);
       tmp_set = rewriteables_constant_abstraction(state, control, rewrite, tmp_set);
@@ -1467,18 +1467,18 @@ void fvi_param_init(ProofState_p state, ProofControl_p control)
                             control->fvi_parms.eliminate_uninformative);
    if(control->fvi_parms.cspec.features != FVINoFeatures)
    {
-      state->processed_non_units->efficient_subsumption_index =
-         EfficientSubsumptionIndexAlloc(cspec, PermVectorCopy(perm));
-      state->processed_pos_rules->efficient_subsumption_index =
-         EfficientSubsumptionIndexAlloc(cspec, PermVectorCopy(perm));
-      state->processed_pos_eqns->efficient_subsumption_index =
-         EfficientSubsumptionIndexAlloc(cspec, PermVectorCopy(perm));
-      state->processed_neg_units->efficient_subsumption_index =
-         EfficientSubsumptionIndexAlloc(cspec, PermVectorCopy(perm));
+      state->processed_non_units->esindex =
+         ESIndexAlloc(cspec, PermVectorCopy(perm));
+      state->processed_pos_rules->esindex =
+         ESIndexAlloc(cspec, PermVectorCopy(perm));
+      state->processed_pos_eqns->esindex =
+         ESIndexAlloc(cspec, PermVectorCopy(perm));
+      state->processed_neg_units->esindex =
+         ESIndexAlloc(cspec, PermVectorCopy(perm));
       if(state->watchlist)
       {
-         state->watchlist->efficient_subsumption_index =
-            EfficientSubsumptionIndexAlloc(cspec, PermVectorCopy(perm));
+         state->watchlist->esindex =
+            ESIndexAlloc(cspec, PermVectorCopy(perm));
          //ClauseSetNewTerms(state->watchlist, state->terms);
       }
    }
@@ -1494,8 +1494,8 @@ void fvi_param_init(ProofState_p state, ProofControl_p control)
                                            symbols,
                                            0,0,0,
                                            0,0,0);
-   state->definition_store->def_clauses->efficient_subsumption_index =
-      EfficientSubsumptionIndexAlloc(state->def_store_cspec, perm);
+   state->definition_store->def_clauses->esindex =
+      ESIndexAlloc(state->def_store_cspec, perm);
 }
 
 

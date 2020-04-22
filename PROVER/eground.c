@@ -476,7 +476,7 @@ int main(int argc, char* argv[])
    perm = PermVectorCompute(clauses,
                             cspec,
                             false);
-   def_store->def_clauses->efficient_subsumption_index = EfficientSubsumptionIndexAlloc(cspec, perm);
+   def_store->def_clauses->esindex = ESIndexAlloc(cspec, perm);
 
    SpecFeaturesCompute(&features, clauses, sig);
 

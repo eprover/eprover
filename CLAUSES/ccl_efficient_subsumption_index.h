@@ -35,38 +35,29 @@ typedef struct efficient_subsumption_index
    bool              wl_constants_abstraction;
    bool              wl_skolemsym_abstraction;
    PDArray_p         wl_abstraction_symbols;
-} EfficientSubsumptionIndex, *EfficientSubsumptionIndex_p;
+} ESIndex, *ESIndex_p;
 
 /*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-#define EfficientSubsumptionIndexAllocRaw()\
-        (EfficientSubsumptionIndex*)SizeMalloc(sizeof(EfficientSubsumptionIndex))
-#define EfficientSubsumptionIndexFreeRaw(junk) SizeFree(junk, sizeof(junk))
+#define ESIndexAllocRaw()\
+        (ESIndex*)SizeMalloc(sizeof(ESIndex))
+#define ESIndexFreeRaw(junk) SizeFree(junk, sizeof(junk))
 
-// TODO: @Schulz FPIndexStorage?
-// #define EfficientSubsumptionIndexStorage(index)
-//         (FVIndexStorage(index->fvindex))
-
-EfficientSubsumptionIndex_p EfficientSubsumptionIndexAlloc(FVCollect_p cspec,
-                                                           PermVector_p perm);
-void EfficientSubsumptionIndexFree(EfficientSubsumptionIndex_p clauseset_indexes);
-void EfficientSubsumptionIndexUnitClauseIndexInit(EfficientSubsumptionIndex_p index,
-                                                  Sig_p sig, 
-                                                  char* unitclause_index_type);
-void EfficientSubsumptionIndexInsertClause(EfficientSubsumptionIndex_p index, 
-                                          Clause_p clause);
+ESIndex_p ESIndexAlloc(FVCollect_p cspec, PermVector_p perm);
+void ESIndexFree(ESIndex_p clauseset_indexes);
+void ESIndexUnitClauseIndexInit(ESIndex_p index, Sig_p sig, 
+                                char* unitclause_index_type);
+void ESIndexInsertClause(ESIndex_p index, Clause_p clause);
                                           
-Clause_p ClausesetIndexDeleteEntry(EfficientSubsumptionIndex_p index, 
-                                   Clause_p junk);
+Clause_p ClausesetIndexDeleteEntry(ESIndex_p index, Clause_p junk);
 
 /*---------------------------------------------------------------------*/
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
 
-void EfficentSubsumptionIndexInsert(EfficientSubsumptionIndex_p index, 
-                                    FVPackedClause_p newclause);
+void ESIndexInsert(ESIndex_p index, FVPackedClause_p newclause);
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */

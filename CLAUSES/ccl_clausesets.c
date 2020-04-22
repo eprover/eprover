@@ -327,7 +327,7 @@ ClauseSet_p ClauseSetAlloc(void)
    handle->date = SysDateCreationTime();
    SysDateInc(&handle->date);
    handle->demod_index                 = NULL;
-   handle->efficient_subsumption_index = NULL;
+   handle->esindex = NULL;
 
    handle->eval_indices = PDArrayAlloc(4,4);
    handle->eval_no      = 0;
@@ -380,9 +380,9 @@ void ClauseSetFree(ClauseSet_p junk)
    assert(junk);
 
    ClauseSetFreeClauses(junk);
-   if(junk->efficient_subsumption_index)
+   if(junk->esindex)
    {
-      EfficientSubsumptionIndexFree(junk->efficient_subsumption_index);
+      ESIndexFree(junk->esindex);
    }
    PDArrayFree(junk->eval_indices);
    ClauseCellFree(junk->anchor);
@@ -585,9 +585,9 @@ void ClauseSetIndexedInsertClause(ClauseSet_p set, Clause_p newclause)
    {
       ClauseSetPDTIndexedInsert(set, newclause);
    }
-   if(set->efficient_subsumption_index)
+   if(set->esindex)
    {
-      EfficientSubsumptionIndexInsertClause(set->efficient_subsumption_index, 
+      ESIndexInsertClause(set->esindex, 
                                             newclause);
       ClauseSetProp(newclause, CPIsSIndexed);
    }
@@ -658,7 +658,7 @@ Clause_p ClauseSetExtractEntry(Clause_p clause)
    if(ClauseQueryProp(clause, CPIsSIndexed))
    {
       // ClausesetIndexExtractEntry(clause->set->clauseset_indexes, clause);
-      ClausesetIndexDeleteEntry(clause->set->efficient_subsumption_index, clause);
+      ClausesetIndexDeleteEntry(clause->set->esindex, clause);
       ClauseDelProp(clause, CPIsSIndexed);
    }
    clause_set_extract_entry(clause);
@@ -2160,7 +2160,7 @@ long ClauseSetIndexify(ClauseSet_p set)
    Clause_p clause;
 
    assert(set);
-   assert(set->efficient_subsumption_index);
+   assert(set->esindex);
 
    while((clause = ClauseSetExtractFirst(set)))
    {

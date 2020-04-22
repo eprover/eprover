@@ -47,7 +47,7 @@ typedef struct clausesetcell
           rewriting. The special date SysCreationDate()
           is used to indicate ignoring of dates when
           checking for irreducibility. */
-   EfficientSubsumptionIndex_p efficient_subsumption_index;
+   ESIndex_p esindex;
 
    PDTree_p   demod_index; /* If used for demodulators */
    PDArray_p  eval_indices;
@@ -70,7 +70,7 @@ typedef struct clausesetcell
             (((CLAUSECELL_DYN_MEM+EVAL_MEM((set)->eval_no))*(set)->members+\
             EQN_CELL_MEM*(set)->literals)+\
             PDTreeStorage(set->demod_index))
-            // FVIndexStorage(set->efficient_subsumption_index->fvindex))
+            // FVIndexStorage(set->esindex->fvindex))
 
 ClauseSet_p ClauseSetAlloc(void);
 void        ClauseSetFreeClauses(ClauseSet_p set);

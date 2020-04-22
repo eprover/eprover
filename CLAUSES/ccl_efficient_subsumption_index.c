@@ -1,6 +1,6 @@
 /*-----------------------------------------------------------------------
 
-File  : ccl_efficient_subsumption_index.c
+File  : ccl_esindex.c
 
 Author: Constantin Ruhdorfer
 
@@ -24,7 +24,7 @@ Copyright 2019-2020 by the author.
 
 /*-----------------------------------------------------------------------
 //
-// Function: EfficentSubsumptionIndexInsertClause()
+// Function: ESIndexInsert()
 //
 //   Inserts a clause into the watchlists indexes.
 //   This function determines the appropiate indexes for the clause.
@@ -34,8 +34,7 @@ Copyright 2019-2020 by the author.
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
-void EfficientSubsumptionIndexInsert(EfficientSubsumptionIndex_p index, 
-                                     FVPackedClause_p newclause)
+void ESIndexInsert(ESIndex_p index, FVPackedClause_p newclause)
 {
    if(index->unitclasue_index && ClauseIsUnit(newclause->clause))
    {
@@ -53,19 +52,18 @@ void EfficientSubsumptionIndexInsert(EfficientSubsumptionIndex_p index,
 
 /*-----------------------------------------------------------------------
 //
-// Function: EfficientSubsumptionIndexAlloc()
+// Function: ESIndexAlloc()
 //
-//   Allocate an empty EfficientSubsumptionIndex.
+//   Allocate an empty ESIndex.
 //
 // Global Variables: -
 //
 // Side Effects    : Memory management
 //
 /----------------------------------------------------------------------*/
-EfficientSubsumptionIndex_p EfficientSubsumptionIndexAlloc(FVCollect_p cspec, 
-                                                           PermVector_p perm)
+ESIndex_p ESIndexAlloc(FVCollect_p cspec, PermVector_p perm)
 {
-   EfficientSubsumptionIndex_p handle = EfficientSubsumptionIndexAllocRaw();
+   ESIndex_p handle = ESIndexAllocRaw();
    handle->fvindex                    = FVIAnchorAlloc(cspec, perm);
    handle->unitclasue_index           = NULL;
 
@@ -78,7 +76,7 @@ EfficientSubsumptionIndex_p EfficientSubsumptionIndexAlloc(FVCollect_p cspec,
 
 /*-----------------------------------------------------------------------
 //
-// Function: EfficientSubsumptionIndexFree()
+// Function: ESIndexFree()
 //
 //   Delete all index datastructures.
 //
@@ -87,7 +85,7 @@ EfficientSubsumptionIndex_p EfficientSubsumptionIndexAlloc(FVCollect_p cspec,
 // Side Effects    : Memory operations.
 //
 /----------------------------------------------------------------------*/
-void EfficientSubsumptionIndexFree(EfficientSubsumptionIndex_p junk)
+void ESIndexFree(ESIndex_p junk)
 {
    if (junk->fvindex) 
    {
@@ -103,12 +101,12 @@ void EfficientSubsumptionIndexFree(EfficientSubsumptionIndex_p junk)
       PDArrayFree(junk->wl_abstraction_symbols);
    }
 
-   EfficientSubsumptionIndexFreeRaw(junk);
+   ESIndexFreeRaw(junk);
 }
 
 /*-----------------------------------------------------------------------
 //
-// Function: EfficientSubsumptionIndexUnitClauseIndexInit()
+// Function: ESIndexUnitClauseIndexInit()
 //
 //   Initialize the unit clause index as required by the parameters.
 //
@@ -117,21 +115,21 @@ void EfficientSubsumptionIndexFree(EfficientSubsumptionIndex_p junk)
 // Side Effects    : Memory management
 //
 /----------------------------------------------------------------------*/
-void EfficientSubsumptionIndexUnitClauseIndexInit(EfficientSubsumptionIndex_p index,
-                                                  Sig_p sig, 
-                                                  char* unitclause_index_type)
+void ESIndexUnitClauseIndexInit(ESIndex_p index, Sig_p sig, 
+                                char* unitclause_index_type)
 {
    FPIndexFunction indexfun;
    indexfun = GetFPIndexFunction(unitclause_index_type);
    if(indexfun)
    {
-      index->unitclasue_index = FPIndexAlloc(indexfun, sig, UnitclauseIndexFreeWrapper);
+      index->unitclasue_index = FPIndexAlloc(indexfun, sig, 
+                                             UnitclauseIndexFreeWrapper);
    }
 }
 
 /*-----------------------------------------------------------------------
 //
-// Function: EfficientSubsumptionIndexInsertClause()
+// Function: ESIndexInsertClause()
 //
 //   Inserts a clause into the efficient subsumption index.
 //
@@ -140,12 +138,12 @@ void EfficientSubsumptionIndexUnitClauseIndexInit(EfficientSubsumptionIndex_p in
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
-void EfficientSubsumptionIndexInsertClause(EfficientSubsumptionIndex_p index, 
+void ESIndexInsertClause(ESIndex_p index, 
                                            Clause_p clause)
 {
    FVPackedClause_p pclause = FVIndexPackClause(clause, index->fvindex);
    assert(clause->weight == ClauseStandardWeight(clause));
-   EfficientSubsumptionIndexInsert(index, pclause);
+   ESIndexInsert(index, pclause);
    FVUnpackClause(pclause);
 }
 
@@ -162,7 +160,7 @@ void EfficientSubsumptionIndexInsertClause(EfficientSubsumptionIndex_p index,
 // Side Effects    : Changes index
 //
 /----------------------------------------------------------------------*/
-Clause_p ClausesetIndexDeleteEntry(EfficientSubsumptionIndex_p index, 
+Clause_p ClausesetIndexDeleteEntry(ESIndex_p index, 
                                    Clause_p junk)
 {
    if(index->unitclasue_index && ClauseIsUnit(junk))
