@@ -103,7 +103,7 @@ Term_p RewriteConstantsOnTermCell(Term_p source, PDArray_p constant_sorts)
 
    if(source->arity==0 && !TermIsVar(source))
    {
-      sort     = GetReturnSort(source->type);
+      sort     = source->type;
       long res = PDArrayElementInt(constant_sorts, sort->f_code);
 
       if (res == constant_sorts->default_int)
@@ -122,15 +122,13 @@ Term_p RewriteConstantsOnTermCell(Term_p source, PDArray_p constant_sorts)
    }
 
    handle->type = source->type;
-
-   TermSetBank(handle, TermGetBank(source));
    return handle;
 }
 
 
 /*-----------------------------------------------------------------------
 //
-// Function: RewriteConstantsOnTermCell()
+// Function: RewriteSkolemsOnTermCell()
 //
 //   Allocates a new Term that is either a copy of source or if term is
 //   a skolem symbol inserts the appropiate symbol given its arity 
@@ -159,7 +157,7 @@ Term_p RewriteSkolemsOnTermCell(Term_p source, PDArray_p skolem_types,
 
    if(SigQueryFuncProp(sig, source->f_code, FPIsSkolemSymbol))
    {
-      index_pos = GetReturnSort(source->type)->type_uid;
+      index_pos = SigGetType(sig, source->f_code)->type_uid;
       res       = PDArrayElementInt(skolem_types, index_pos);
 
       if (res == skolem_types->default_int)
@@ -178,8 +176,6 @@ Term_p RewriteSkolemsOnTermCell(Term_p source, PDArray_p skolem_types,
    }
 
    handle->type = source->type;
-
-   TermSetBank(handle, TermGetBank(source));
    return handle;
 }
 
