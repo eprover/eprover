@@ -736,19 +736,19 @@ void ProofStateStatisticsPrint(FILE* out, ProofState_p state)
            "# Current number of archived clauses   : %ld\n",
            state->archive->members);
    fprintf(out,
-           "# Number of process clause loops       : %ld\n",
+           "# Given clause loop iterations         : %ld\n",
            state->process_clause_loops);
    fprintf(out,
-           "# Number of watchlist checks           : %ld\n",
+           "# Watchlist checks                     : %ld\n",
            state->watchlist_checks);
    fprintf(out,
-           "# Number of wl unit clause checks      : %ld\n",
+           "# WL unit clause checks                : %ld\n",
            state->watchlist_unit_checks);
    fprintf(out,
-           "# Number of inserted watchlist unit clauses     : %ld\n",
+           "# Inserted watchlist unit clauses      : %ld\n",
            state->wl_unit_clause);
    fprintf(out,
-           "# Number of inserted watchlist non unit clauses : %ld\n",
+           "# Inserted watchlist non unit clauses  : %ld\n",
            state->wl_non_unit_clause);
    if(ProofObjectRecordsGCSelection)
    {
