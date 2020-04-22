@@ -163,7 +163,7 @@ void    EqnFree(Eqn_p junk);
 #ifdef ENABLE_LFHO
 #define EqnGetPredCode(eq) (problemType == PROBLEM_HO ? EqnGetPredCodeHO(eq) : EqnGetPredCodeFO(eq))
 #else
-#define EqnGetPredCode(eq) (EqnGetPredCodeFO(eq))  
+#define EqnGetPredCode(eq) (EqnGetPredCodeFO(eq))
 #endif
 
 
@@ -233,6 +233,7 @@ void    EqnRecordTermDates(Eqn_p eq);
 Eqn_p   EqnCopy(Eqn_p eq, TB_p bank);
 Eqn_p   EqnFlatCopy(Eqn_p eq);
 Eqn_p   EqnCopyRepl(Eqn_p eq, TB_p bank, Term_p old, Term_p repl);
+Eqn_p   EqnCopyReplPlain(Eqn_p eq, TB_p bank, Term_p old, Term_p repl);
 #define EqnSkolemSubst(handle, subst, sig)                      \
    SubstSkolemizeTerm((handle)->lterm, (subst), (sig));         \
    SubstSkolemizeTerm((handle)->rterm, (subst), (sig))
@@ -309,7 +310,7 @@ double EqnFunWeight(Eqn_p eq, double max_multiplier, long vweight,
                     double app_var_mult, long* typefreqs);
 
 double  EqnNonLinearWeight(Eqn_p eq, double max_multiplier, long
-                           vlweight, long vweight, long fweight, 
+                           vlweight, long vweight, long fweight,
                            double app_var_mult);
 double  EqnSymTypeWeight(Eqn_p eq, double max_multiplier, long
                          vweight, long fweight, long cweight, long
@@ -329,7 +330,7 @@ long EqnInferencePositions(Eqn_p eqn);
 
 double  LiteralWeight(Eqn_p eq, double max_term_multiplier, double
                       max_literal_multiplier, double
-                      pos_multiplier, long vweight, long fweight, 
+                      pos_multiplier, long vweight, long fweight,
                       double app_var_mult, bool
                       count_eq_encoding);
 

@@ -122,6 +122,8 @@ typedef enum
    OPT_NO_GC_FORWARD_SIMPL,
    OPT_USE_SIM_PARAMOD,
    OPT_USE_ORIENTED_SIM_PARAMOD,
+   OPT_USE_SUPERSIM_PARAMOD,
+   OPT_USE_ORIENTED_SUPERSIM_PARAMOD,
    OPT_SPLIT_TYPES,
    OPT_SPLIT_HOW,
    OPT_SPLIT_AGGRESSIVE,
@@ -908,6 +910,18 @@ OptCell opts[] =
     '\0', "oriented-simul-paramod",
     NoArg, NULL,
     "Use simultaneous paramodulation for oriented from-literals. This "
+    "is an experimental feature."},
+
+   {OPT_USE_SUPERSIM_PARAMOD,
+    '\0', "supersimul-paramod",
+    NoArg, NULL,
+    "Use supersimultaneous paramodulation to implement superposition. Default"
+    " is to use plain paramodulation."},
+
+   {OPT_USE_ORIENTED_SUPERSIM_PARAMOD,
+    '\0', "oriented-supersimul-paramod",
+    NoArg, NULL,
+    "Use supersimultaneous paramodulation for oriented from-literals. This "
     "is an experimental feature."},
 
    {OPT_SPLIT_TYPES,

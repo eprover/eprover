@@ -1326,6 +1326,40 @@ Eqn_p EqnCopyRepl(Eqn_p eq, TB_p bank, Term_p old, Term_p repl)
    return handle;
 }
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: EqnCopyReplPlain()
+//
+//   As EqnCopyRepl(), but copy terms uninstantiated.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+Eqn_p EqnCopyReplPlain(Eqn_p eq, TB_p bank, Term_p old, Term_p repl)
+{
+   Eqn_p  handle;
+   Term_p lterm, rterm;
+
+   /* This cam be optimize for uninstantiated terms */
+   lterm = TBInsertRepl(bank, eq->lterm, DEREF_NEVER, old, repl);
+   rterm = TBInsertRepl(bank, eq->rterm, DEREF_NEVER, old, repl);
+
+   handle = EqnAlloc(lterm, rterm, bank, false); /* Properties will be
+                                                    taken care of
+                                                    later! */
+   handle->properties = eq->properties;
+   EqnDelProp(handle, EPMaxIsUpToDate);
+   EqnDelProp(handle, EPIsOriented);
+
+   return handle;
+}
+
+
+
 /*-----------------------------------------------------------------------
 //
 // Function: EqnCopyOpt()

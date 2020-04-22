@@ -762,7 +762,7 @@
       control->heuristic_parms.er_varlit_destructive=true;
       control->heuristic_parms.er_aggressive=true;
       control->heuristic_parms.forward_demod=1;
-      control->heuristic_parms.pm_type=ParamodAlwaysSim;
+      control->heuristic_parms.pm_type=ParamodSim;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -804,7 +804,7 @@
       control->heuristic_parms.er_varlit_destructive=true;
       control->heuristic_parms.er_aggressive=true;
       control->heuristic_parms.forward_demod=1;
-      control->heuristic_parms.pm_type=ParamodAlwaysSim;
+      control->heuristic_parms.pm_type=ParamodSim;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -968,7 +968,7 @@
       control->heuristic_parms.er_varlit_destructive=true;
       control->heuristic_parms.er_aggressive=true;
       control->heuristic_parms.forward_demod=1;
-      control->heuristic_parms.pm_type=ParamodAlwaysSim;
+      control->heuristic_parms.pm_type=ParamodSim;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -1073,7 +1073,7 @@
       control->heuristic_parms.er_varlit_destructive=true;
       control->heuristic_parms.er_aggressive=true;
       control->heuristic_parms.forward_demod=1;
-      control->heuristic_parms.pm_type=ParamodAlwaysSim;
+      control->heuristic_parms.pm_type=ParamodSim;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -1104,7 +1104,7 @@
       control->heuristic_parms.er_varlit_destructive=true;
       control->heuristic_parms.er_aggressive=true;
       control->heuristic_parms.forward_demod=1;
-      control->heuristic_parms.pm_type=ParamodAlwaysSim;
+      control->heuristic_parms.pm_type=ParamodSim;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -1158,7 +1158,7 @@
       control->heuristic_parms.er_varlit_destructive=true;
       control->heuristic_parms.er_aggressive=true;
       control->heuristic_parms.forward_demod=1;
-      control->heuristic_parms.pm_type=ParamodAlwaysSim;
+      control->heuristic_parms.pm_type=ParamodSim;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -1191,7 +1191,7 @@
       control->heuristic_parms.er_varlit_destructive=true;
       control->heuristic_parms.er_aggressive=true;
       control->heuristic_parms.forward_demod=1;
-      control->heuristic_parms.pm_type=ParamodAlwaysSim;
+      control->heuristic_parms.pm_type=ParamodSim;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -1271,7 +1271,7 @@
       control->heuristic_parms.er_varlit_destructive=true;
       control->heuristic_parms.er_aggressive=true;
       control->heuristic_parms.forward_demod=1;
-      control->heuristic_parms.pm_type=ParamodAlwaysSim;
+      control->heuristic_parms.pm_type=ParamodSim;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -1302,7 +1302,7 @@
       control->heuristic_parms.er_varlit_destructive=true;
       control->heuristic_parms.er_aggressive=true;
       control->heuristic_parms.forward_demod=1;
-      control->heuristic_parms.pm_type=ParamodAlwaysSim;
+      control->heuristic_parms.pm_type=ParamodSim;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -1359,7 +1359,7 @@
       control->heuristic_parms.er_varlit_destructive=true;
       control->heuristic_parms.er_aggressive=true;
       control->heuristic_parms.forward_demod=1;
-      control->heuristic_parms.pm_type=ParamodAlwaysSim;
+      control->heuristic_parms.pm_type=ParamodSim;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -1404,7 +1404,7 @@
       control->heuristic_parms.er_varlit_destructive=true;
       control->heuristic_parms.er_aggressive=true;
       control->heuristic_parms.forward_demod=1;
-      control->heuristic_parms.pm_type=ParamodAlwaysSim;
+      control->heuristic_parms.pm_type=ParamodSim;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -1460,7 +1460,7 @@
       control->heuristic_parms.er_varlit_destructive=true;
       control->heuristic_parms.er_aggressive=true;
       control->heuristic_parms.forward_demod=1;
-      control->heuristic_parms.pm_type=ParamodAlwaysSim;
+      control->heuristic_parms.pm_type=ParamodSim;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -1493,7 +1493,7 @@
       control->heuristic_parms.er_varlit_destructive=true;
       control->heuristic_parms.er_aggressive=true;
       control->heuristic_parms.forward_demod=1;
-      control->heuristic_parms.pm_type=ParamodAlwaysSim;
+      control->heuristic_parms.pm_type=ParamodSim;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -1525,7 +1525,7 @@
       control->heuristic_parms.er_varlit_destructive=true;
       control->heuristic_parms.er_aggressive=true;
       control->heuristic_parms.forward_demod=1;
-      control->heuristic_parms.pm_type=ParamodAlwaysSim;
+      control->heuristic_parms.pm_type=ParamodSim;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -1582,7 +1582,7 @@
       control->heuristic_parms.er_varlit_destructive=true;
       control->heuristic_parms.er_aggressive=true;
       control->heuristic_parms.forward_demod=1;
-      control->heuristic_parms.pm_type=ParamodAlwaysSim;
+      control->heuristic_parms.pm_type=ParamodSim;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -1615,7 +1615,7 @@
       control->heuristic_parms.er_varlit_destructive=true;
       control->heuristic_parms.er_aggressive=true;
       control->heuristic_parms.forward_demod=1;
-      control->heuristic_parms.pm_type=ParamodAlwaysSim;
+      control->heuristic_parms.pm_type=ParamodSim;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -1648,7 +1648,7 @@
       control->heuristic_parms.er_varlit_destructive=true;
       control->heuristic_parms.er_aggressive=true;
       control->heuristic_parms.forward_demod=1;
-      control->heuristic_parms.pm_type=ParamodAlwaysSim;
+      control->heuristic_parms.pm_type=ParamodSim;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -1765,7 +1765,7 @@
       control->heuristic_parms.er_varlit_destructive=true;
       control->heuristic_parms.er_aggressive=true;
       control->heuristic_parms.forward_demod=1;
-      control->heuristic_parms.pm_type=ParamodAlwaysSim;
+      control->heuristic_parms.pm_type=ParamodSim;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -1829,7 +1829,7 @@
       control->heuristic_parms.er_varlit_destructive=true;
       control->heuristic_parms.er_aggressive=true;
       control->heuristic_parms.forward_demod=1;
-      control->heuristic_parms.pm_type=ParamodAlwaysSim;
+      control->heuristic_parms.pm_type=ParamodSim;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -1898,7 +1898,7 @@
       control->heuristic_parms.er_varlit_destructive=true;
       control->heuristic_parms.er_aggressive=true;
       control->heuristic_parms.forward_demod=1;
-      control->heuristic_parms.pm_type=ParamodAlwaysSim;
+      control->heuristic_parms.pm_type=ParamodSim;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -1929,7 +1929,7 @@
       control->heuristic_parms.er_varlit_destructive=true;
       control->heuristic_parms.er_aggressive=true;
       control->heuristic_parms.forward_demod=1;
-      control->heuristic_parms.pm_type=ParamodAlwaysSim;
+      control->heuristic_parms.pm_type=ParamodSim;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -1994,7 +1994,7 @@
       control->heuristic_parms.er_varlit_destructive=true;
       control->heuristic_parms.er_aggressive=true;
       control->heuristic_parms.forward_demod=1;
-      control->heuristic_parms.pm_type=ParamodAlwaysSim;
+      control->heuristic_parms.pm_type=ParamodSim;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -2072,7 +2072,7 @@
       control->heuristic_parms.er_varlit_destructive=true;
       control->heuristic_parms.er_aggressive=true;
       control->heuristic_parms.forward_demod=2;
-      control->heuristic_parms.pm_type=ParamodAlwaysSim;
+      control->heuristic_parms.pm_type=ParamodSim;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -2201,7 +2201,7 @@
       control->heuristic_parms.er_varlit_destructive=true;
       control->heuristic_parms.er_aggressive=true;
       control->heuristic_parms.forward_demod=1;
-      control->heuristic_parms.pm_type=ParamodAlwaysSim;
+      control->heuristic_parms.pm_type=ParamodSim;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -2258,7 +2258,7 @@
       control->heuristic_parms.er_varlit_destructive=true;
       control->heuristic_parms.er_aggressive=true;
       control->heuristic_parms.forward_demod=1;
-      control->heuristic_parms.pm_type=ParamodAlwaysSim;
+      control->heuristic_parms.pm_type=ParamodSim;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -2303,7 +2303,7 @@
       control->heuristic_parms.er_varlit_destructive=true;
       control->heuristic_parms.er_aggressive=true;
       control->heuristic_parms.forward_demod=1;
-      control->heuristic_parms.pm_type=ParamodAlwaysSim;
+      control->heuristic_parms.pm_type=ParamodSim;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -2347,7 +2347,7 @@
       control->heuristic_parms.er_varlit_destructive=true;
       control->heuristic_parms.er_aggressive=true;
       control->heuristic_parms.forward_demod=1;
-      control->heuristic_parms.pm_type=ParamodAlwaysSim;
+      control->heuristic_parms.pm_type=ParamodSim;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -2390,7 +2390,7 @@
       control->heuristic_parms.er_varlit_destructive=true;
       control->heuristic_parms.er_aggressive=true;
       control->heuristic_parms.forward_demod=1;
-      control->heuristic_parms.pm_type=ParamodAlwaysSim;
+      control->heuristic_parms.pm_type=ParamodSim;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -2420,7 +2420,7 @@
       control->heuristic_parms.er_varlit_destructive=true;
       control->heuristic_parms.er_aggressive=true;
       control->heuristic_parms.forward_demod=1;
-      control->heuristic_parms.pm_type=ParamodAlwaysSim;
+      control->heuristic_parms.pm_type=ParamodSim;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -2569,7 +2569,7 @@
       control->heuristic_parms.er_varlit_destructive=true;
       control->heuristic_parms.er_aggressive=true;
       control->heuristic_parms.forward_demod=1;
-      control->heuristic_parms.pm_type=ParamodAlwaysSim;
+      control->heuristic_parms.pm_type=ParamodSim;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -2611,7 +2611,7 @@
       control->heuristic_parms.er_varlit_destructive=true;
       control->heuristic_parms.er_aggressive=true;
       control->heuristic_parms.forward_demod=1;
-      control->heuristic_parms.pm_type=ParamodAlwaysSim;
+      control->heuristic_parms.pm_type=ParamodSim;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -2643,7 +2643,7 @@
       control->heuristic_parms.er_varlit_destructive=true;
       control->heuristic_parms.er_aggressive=true;
       control->heuristic_parms.forward_demod=2;
-      control->heuristic_parms.pm_type=ParamodAlwaysSim;
+      control->heuristic_parms.pm_type=ParamodSim;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -2724,7 +2724,7 @@
       control->heuristic_parms.er_varlit_destructive=true;
       control->heuristic_parms.er_aggressive=true;
       control->heuristic_parms.forward_demod=1;
-      control->heuristic_parms.pm_type=ParamodAlwaysSim;
+      control->heuristic_parms.pm_type=ParamodSim;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -3293,7 +3293,7 @@
       control->heuristic_parms.er_varlit_destructive=true;
       control->heuristic_parms.er_aggressive=true;
       control->heuristic_parms.forward_demod=1;
-      control->heuristic_parms.pm_type=ParamodAlwaysSim;
+      control->heuristic_parms.pm_type=ParamodSim;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -3326,7 +3326,7 @@
       control->heuristic_parms.er_varlit_destructive=true;
       control->heuristic_parms.er_aggressive=true;
       control->heuristic_parms.forward_demod=1;
-      control->heuristic_parms.pm_type=ParamodAlwaysSim;
+      control->heuristic_parms.pm_type=ParamodSim;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -3356,7 +3356,7 @@
       control->heuristic_parms.er_varlit_destructive=true;
       control->heuristic_parms.er_aggressive=true;
       control->heuristic_parms.forward_demod=1;
-      control->heuristic_parms.pm_type=ParamodAlwaysSim;
+      control->heuristic_parms.pm_type=ParamodSim;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -3385,7 +3385,7 @@
       control->heuristic_parms.er_varlit_destructive=true;
       control->heuristic_parms.er_aggressive=true;
       control->heuristic_parms.forward_demod=1;
-      control->heuristic_parms.pm_type=ParamodAlwaysSim;
+      control->heuristic_parms.pm_type=ParamodSim;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -3417,7 +3417,7 @@
       control->heuristic_parms.er_varlit_destructive=true;
       control->heuristic_parms.er_aggressive=true;
       control->heuristic_parms.forward_demod=1;
-      control->heuristic_parms.pm_type=ParamodAlwaysSim;
+      control->heuristic_parms.pm_type=ParamodSim;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -3460,7 +3460,7 @@
       control->heuristic_parms.er_varlit_destructive=true;
       control->heuristic_parms.er_aggressive=true;
       control->heuristic_parms.forward_demod=1;
-      control->heuristic_parms.pm_type=ParamodAlwaysSim;
+      control->heuristic_parms.pm_type=ParamodSim;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -3504,7 +3504,7 @@
       control->heuristic_parms.er_varlit_destructive=true;
       control->heuristic_parms.er_aggressive=true;
       control->heuristic_parms.forward_demod=1;
-      control->heuristic_parms.pm_type=ParamodAlwaysSim;
+      control->heuristic_parms.pm_type=ParamodSim;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -3583,7 +3583,7 @@
       control->heuristic_parms.er_varlit_destructive=true;
       control->heuristic_parms.er_aggressive=true;
       control->heuristic_parms.forward_demod=1;
-      control->heuristic_parms.pm_type=ParamodAlwaysSim;
+      control->heuristic_parms.pm_type=ParamodSim;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -3627,7 +3627,7 @@
       control->heuristic_parms.er_varlit_destructive=true;
       control->heuristic_parms.er_aggressive=true;
       control->heuristic_parms.forward_demod=1;
-      control->heuristic_parms.pm_type=ParamodAlwaysSim;
+      control->heuristic_parms.pm_type=ParamodSim;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -6955,7 +6955,7 @@
       control->heuristic_parms.er_varlit_destructive=true;
       control->heuristic_parms.er_aggressive=true;
       control->heuristic_parms.forward_demod=1;
-      control->heuristic_parms.pm_type=ParamodAlwaysSim;
+      control->heuristic_parms.pm_type=ParamodSim;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -6986,7 +6986,7 @@
       control->heuristic_parms.split_aggressive=true;
       control->heuristic_parms.er_varlit_destructive=true;
       control->heuristic_parms.er_aggressive=true;
-      control->heuristic_parms.pm_type=ParamodAlwaysSim;
+      control->heuristic_parms.pm_type=ParamodSim;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -7079,7 +7079,7 @@
       control->heuristic_parms.er_varlit_destructive=true;
       control->heuristic_parms.er_aggressive=true;
       control->heuristic_parms.forward_demod=1;
-      control->heuristic_parms.pm_type=ParamodAlwaysSim;
+      control->heuristic_parms.pm_type=ParamodSim;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -7112,7 +7112,7 @@
       control->heuristic_parms.er_varlit_destructive=true;
       control->heuristic_parms.er_aggressive=true;
       control->heuristic_parms.forward_demod=1;
-      control->heuristic_parms.pm_type=ParamodAlwaysSim;
+      control->heuristic_parms.pm_type=ParamodSim;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -7156,7 +7156,7 @@
       control->heuristic_parms.er_varlit_destructive=true;
       control->heuristic_parms.er_aggressive=true;
       control->heuristic_parms.forward_demod=1;
-      control->heuristic_parms.pm_type=ParamodAlwaysSim;
+      control->heuristic_parms.pm_type=ParamodSim;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -7236,7 +7236,7 @@
       control->heuristic_parms.er_varlit_destructive=true;
       control->heuristic_parms.er_aggressive=true;
       control->heuristic_parms.forward_demod=1;
-      control->heuristic_parms.pm_type=ParamodAlwaysSim;
+      control->heuristic_parms.pm_type=ParamodSim;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -7258,7 +7258,7 @@
       control->heuristic_parms.er_varlit_destructive=true;
       control->heuristic_parms.er_aggressive=true;
       control->heuristic_parms.forward_demod=1;
-      control->heuristic_parms.pm_type=ParamodAlwaysSim;
+      control->heuristic_parms.pm_type=ParamodSim;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -7274,4 +7274,3 @@
 /* -------------------------------------------------------*/
 /*     End of automatically generated code.               */
 /* -------------------------------------------------------*/
-

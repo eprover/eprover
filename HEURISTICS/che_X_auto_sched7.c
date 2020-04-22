@@ -1125,7 +1125,7 @@
       control->heuristic_parms.er_varlit_destructive=true;
       control->heuristic_parms.er_aggressive=true;
       control->heuristic_parms.forward_demod=1;
-      control->heuristic_parms.pm_type=ParamodAlwaysSim;
+      control->heuristic_parms.pm_type=ParamodSim;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -16071,7 +16071,7 @@
       control->heuristic_parms.er_aggressive=true;
       control->heuristic_parms.forward_demod=1;
       control->heuristic_parms.order_params.rewrite_strong_rhs_inst=true;
-      control->heuristic_parms.pm_type=ParamodAlwaysSim;
+      control->heuristic_parms.pm_type=ParamodSim;
       control->heuristic_parms.sat_check_step_limit=5000;
       control->heuristic_parms.sat_check_grounding=GMConjMinMinFreq;
 
@@ -16108,7 +16108,7 @@
       control->heuristic_parms.er_strong_destructive=true;
       control->heuristic_parms.er_varlit_destructive=true;
       control->heuristic_parms.er_aggressive=true;
-      control->heuristic_parms.pm_type=ParamodAlwaysSim;
+      control->heuristic_parms.pm_type=ParamodSim;
       control->heuristic_parms.presat_interreduction=true;
 
 #endif
@@ -16144,7 +16144,7 @@
       control->heuristic_parms.er_strong_destructive=true;
       control->heuristic_parms.er_varlit_destructive=true;
       control->heuristic_parms.er_aggressive=true;
-      control->heuristic_parms.pm_type=ParamodAlwaysSim;
+      control->heuristic_parms.pm_type=ParamodSim;
       control->heuristic_parms.presat_interreduction=true;
 
 #endif
@@ -16180,7 +16180,7 @@
       control->heuristic_parms.er_strong_destructive=true;
       control->heuristic_parms.er_varlit_destructive=true;
       control->heuristic_parms.er_aggressive=true;
-      control->heuristic_parms.pm_type=ParamodAlwaysSim;
+      control->heuristic_parms.pm_type=ParamodSim;
       control->heuristic_parms.presat_interreduction=true;
 
 #endif
@@ -16216,7 +16216,7 @@
       control->heuristic_parms.er_strong_destructive=true;
       control->heuristic_parms.er_varlit_destructive=true;
       control->heuristic_parms.er_aggressive=true;
-      control->heuristic_parms.pm_type=ParamodAlwaysSim;
+      control->heuristic_parms.pm_type=ParamodSim;
       control->heuristic_parms.presat_interreduction=true;
 
 #endif
@@ -16252,7 +16252,7 @@
       control->heuristic_parms.er_varlit_destructive=true;
       control->heuristic_parms.er_aggressive=true;
       control->heuristic_parms.forward_demod=1;
-      control->heuristic_parms.pm_type=ParamodAlwaysSim;
+      control->heuristic_parms.pm_type=ParamodSim;
       control->heuristic_parms.condensing=true;
 
 #endif
@@ -16276,7 +16276,7 @@
       control->heuristic_parms.er_aggressive=true;
       control->heuristic_parms.forward_demod=1;
       control->heuristic_parms.order_params.rewrite_strong_rhs_inst=true;
-      control->heuristic_parms.pm_type=ParamodAlwaysSim;
+      control->heuristic_parms.pm_type=ParamodSim;
       control->heuristic_parms.sat_check_step_limit=5000;
       control->heuristic_parms.sat_check_grounding=GMConjMinMinFreq;
 

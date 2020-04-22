@@ -1238,10 +1238,16 @@ CLState_p process_options(int argc, char* argv[])
             h_parms->condensing_aggressive = true;
             break;
       case OPT_USE_SIM_PARAMOD:
-            h_parms->pm_type = ParamodAlwaysSim;
+            h_parms->pm_type = ParamodSim;
             break;
       case OPT_USE_ORIENTED_SIM_PARAMOD:
             h_parms->pm_type = ParamodOrientedSim;
+            break;
+      case OPT_USE_SUPERSIM_PARAMOD:
+            h_parms->pm_type = ParamodSuperSim;
+            break;
+      case OPT_USE_ORIENTED_SUPERSIM_PARAMOD:
+            h_parms->pm_type = ParamodOrientedSuperSim;
             break;
       case OPT_SPLIT_TYPES:
             h_parms->split_clauses = CLStateGetIntArg(handle, arg);

@@ -244,7 +244,7 @@ def parse_control_info(line):
     #
     m = match_simul_pm.search(line)
     if m:
-        res = res+ "      control->heuristic_parms.pm_type=ParamodAlwaysSim;\n"
+        res = res+ "      control->heuristic_parms.pm_type=ParamodSim;\n"
 
     m = match_osimul_pm.search(line)
     if m:
