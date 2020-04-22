@@ -50,13 +50,14 @@ typedef struct efficient_subsumption_index
 //         (FVIndexStorage(index->fvindex))
 
 EfficientSubsumptionIndex_p EfficientSubsumptionIndexAlloc(FVCollect_p cspec,
-                                                         PermVector_p perm);
+                                                           PermVector_p perm);
 void EfficientSubsumptionIndexFree(EfficientSubsumptionIndex_p clauseset_indexes);
 void EfficientSubsumptionIndexUnitClauseIndexInit(EfficientSubsumptionIndex_p index,
-                                                 Sig_p sig, 
-                                                 char* unitclause_index_type);
+                                                  Sig_p sig, 
+                                                  char* unitclause_index_type);
 void EfficientSubsumptionIndexInsertClause(EfficientSubsumptionIndex_p index, 
                                           Clause_p clause);
+                                          
 Clause_p ClausesetIndexDeleteEntry(EfficientSubsumptionIndex_p index, 
                                    Clause_p junk);
 
