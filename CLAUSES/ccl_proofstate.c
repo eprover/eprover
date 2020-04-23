@@ -114,8 +114,31 @@ static void clause_set_pick_training_examples(ClauseSet_p set,
    }
 }
 
-
-
+/*-----------------------------------------------------------------------
+//
+// Function: initialize_clause_abstraction()
+//
+//   Initializes the Clause abstraction in the esindex.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+void initialize_clause_abstraction(ESIndex_p esindex, bool rewriteConstants, 
+                                   bool rewriteSkolemSym)
+{
+   if(rewriteConstants)
+   {
+      esindex->wl_constants_abstraction = true;
+      esindex->wl_abstraction_symbols   = PDIntArrayAllocWithDefault(10, 1, -1);
+   }
+   else if(rewriteSkolemSym)
+   {
+      esindex->wl_skolemsym_abstraction = true;
+      esindex->wl_abstraction_symbols   = PDIntArrayAllocWithDefault(10, 1, -1);
+   }
+}
 
 
 /*---------------------------------------------------------------------*/
@@ -348,16 +371,8 @@ void ProofStateInitWatchlist(ProofState_p state, OCB_p ocb,
                          watchlist_unit_clause_index_type);
 
       ClauseSetMarkMaximalTerms(ocb, state->watchlist);
-      if(rewriteConstants)
-      {
-         state->watchlist->esindex->wl_constants_abstraction  = true;
-         state->watchlist->esindex->wl_abstraction_symbols    = PDIntArrayAllocWithDefault(10, 1, -1);
-      }
-      else if(rewriteSkolemSym)
-      {
-         state->watchlist->esindex->wl_skolemsym_abstraction = true;
-         state->watchlist->esindex->wl_abstraction_symbols   = PDIntArrayAllocWithDefault(10, 1, -1);
-      }
+      initialize_clause_abstraction(state->watchlist->esindex, rewriteConstants, 
+                                    rewriteSkolemSym);
       while(!ClauseSetEmpty(state->watchlist))
       {
          handle = ClauseSetExtractFirst(state->watchlist);
