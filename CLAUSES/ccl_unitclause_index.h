@@ -41,22 +41,18 @@ typedef FPIndex_p UCIndex_p;
 /*---------------------------------------------------------------------*/
 bool UCIndexDeleteClause(UCIndex_p index, Clause_p clause);
 bool UCIndexInsertClause(UCIndex_p index, Clause_p clause);
-long UCIndexFindSubsumedCandidates(UCIndex_p index, 
-                                   Clause_p clause, 
+long UCIndexFindSubsumedCandidates(UCIndex_p index, Clause_p clause, 
                                    PStack_p candidates);
 void UCIndexFreeWrapper(void *junk);
 
 /*---------------------------------------------------------------------*/
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
-bool UnitclauseInsertCell(PTree_p *root, Clause_p clause);
-bool UCIndexDeleteClauseCell(PTree_p *root, Clause_p indexed);
-bool UCIndexDeleteIndexedClause(UCIndex_p index, 
-                                Term_p indexedterm,
-                                Clause_p indexed);
-bool UCIndexInsert(UCIndex_p index, 
-                   Term_p indexterm, 
-                   Clause_p payload); 
+bool uc_index_insert_cell(PTree_p *root, Clause_p clause);
+bool uc_index_delete_clause_cell(PTree_p *root, Clause_p indexed);
+bool uc_index_delete_indexed_clause(UCIndex_p index, Term_p indexedterm,
+                                    Clause_p indexed);
+bool uc_index_insert(UCIndex_p index, Term_p indexterm, Clause_p payload); 
 #endif
 
 /*---------------------------------------------------------------------*/

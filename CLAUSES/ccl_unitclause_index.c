@@ -35,7 +35,7 @@ Copyright 2019-2020 by the author.
 // Side Effects    : Memory operatios
 //
 /----------------------------------------------------------------------*/
-bool UnitclauseInsertCell(PTree_p *root, Clause_p clause)
+bool uc_index_insert_cell(PTree_p *root, Clause_p clause)
 {
    return PTreeStore(root, clause);
 }
@@ -52,11 +52,11 @@ bool UnitclauseInsertCell(PTree_p *root, Clause_p clause)
 // Side Effects    : Memory operatios
 //
 /----------------------------------------------------------------------*/
-bool UCIndexInsert(UCIndex_p index, Term_p indexterm, Clause_p payload) 
+bool uc_index_insert(UCIndex_p index, Term_p indexterm, Clause_p payload) 
 {
    FPTree_p fp_node = FPIndexInsert(index, indexterm);
 
-   return UnitclauseInsertCell((void*)&(fp_node->payload), payload);
+   return uc_index_insert_cell((void*)&(fp_node->payload), payload);
 }
 
 /*-----------------------------------------------------------------------
@@ -71,7 +71,7 @@ bool UCIndexInsert(UCIndex_p index, Term_p indexterm, Clause_p payload)
 // Side Effects    :
 //
 /----------------------------------------------------------------------*/
-bool UCIndexDeleteClauseCell(PTree_p *root, Clause_p indexed)
+bool uc_index_delete_clause_cell(PTree_p *root, Clause_p indexed)
 {
    return PTreeDeleteEntry(root, indexed);
 }
@@ -89,8 +89,8 @@ bool UCIndexDeleteClauseCell(PTree_p *root, Clause_p indexed)
 // Side Effects    : Memory operations.
 //
 /----------------------------------------------------------------------*/
-bool UCIndexDeleteIndexedClause(UCIndex_p index, Term_p indexedterm,
-                                Clause_p indexed)
+bool uc_index_delete_indexed_clause(UCIndex_p index, Term_p indexedterm,
+                                    Clause_p indexed)
 {
    FPTree_p fp_node;
    bool     res;
@@ -101,7 +101,7 @@ bool UCIndexDeleteIndexedClause(UCIndex_p index, Term_p indexedterm,
       return false;
    }
 
-   res = UCIndexDeleteClauseCell((void*)&(fp_node->payload), indexed);
+   res = uc_index_delete_clause_cell((void*)&(fp_node->payload), indexed);
    
    if (fp_node->payload == NULL)
    {
@@ -142,7 +142,7 @@ bool UCIndexDeleteClause(UCIndex_p index, Clause_p clause)
                                       EqnIsPositive(handle),
                                       PENormal);
 
-   existed = UCIndexDeleteIndexedClause(index, indexedTerm, clause);
+   existed = uc_index_delete_indexed_clause(index, indexedTerm, clause);
    
    if(!EqnIsOriented(handle) && existed)
    {
@@ -152,7 +152,7 @@ bool UCIndexDeleteClause(UCIndex_p index, Clause_p clause)
                                          EqnIsPositive(handle),
                                          PEReverse);
 
-      return UCIndexDeleteIndexedClause(index, indexedTerm, clause);
+      return uc_index_delete_indexed_clause(index, indexedTerm, clause);
    }
 
    return existed;
@@ -187,7 +187,7 @@ bool UCIndexInsertClause(UCIndex_p index, Clause_p clause)
                                       EqnIsPositive(handle),
                                       PENormal);
 
-   isNew = UCIndexInsert(index, indexedTerm, clause);
+   isNew = uc_index_insert(index, indexedTerm, clause);
 
    if(!EqnIsOriented(handle) && isNew)
    {
@@ -197,7 +197,7 @@ bool UCIndexInsertClause(UCIndex_p index, Clause_p clause)
                                          EqnIsPositive(handle),
                                          PEReverse);
 
-      isNew = UCIndexInsert(index, indexedTerm, clause);
+      isNew = uc_index_insert(index, indexedTerm, clause);
    }
    return isNew;
 }

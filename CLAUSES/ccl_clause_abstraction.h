@@ -44,10 +44,10 @@ void RewriteSkolemSymbols(Clause_p clause, TB_p target,
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
 
-Term_p RewriteSymbolsOnTerm(Term_p source, VarBank_p vars, DerefType deref,
+Term_p rewrite_symbols_on_term(Term_p source, VarBank_p vars, DerefType deref,
                             PDArray_p look_up, AbstractionMode mode, Sig_p sig);
-Term_p RewriteConstantsOnTermCell(Term_p source, PDArray_p constant_sorts);
-Term_p RewriteSkolemsOnTermCell(Term_p source, PDArray_p constant_sorts, 
+Term_p rewrite_constants_on_term_cell(Term_p source, PDArray_p constant_sorts);
+Term_p rewrite_skolems_on_term_cell(Term_p source, PDArray_p constant_sorts, 
                                 Sig_p sig);
 
 /*---------------------------------------------------------------------*/

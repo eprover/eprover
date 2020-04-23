@@ -57,7 +57,7 @@ Clause_p ClausesetIndexDeleteEntry(ESIndex_p index, Clause_p junk);
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
 
-void ESIndexInsert(ESIndex_p index, FVPackedClause_p newclause);
+void esindex_insert(ESIndex_p index, FVPackedClause_p newclause);
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */

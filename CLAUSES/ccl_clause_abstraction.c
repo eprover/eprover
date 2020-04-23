@@ -24,7 +24,7 @@ Copyright 2019-2020 by the author.
 
 /*-----------------------------------------------------------------------
 //
-// Function: RewriteSymbolsOnTerm()
+// Function: rewrite_symbols_on_term()
 //
 //   Recursively traves a term and rewrites its constants to the appropiate
 //   constant symbol given its sort.
@@ -34,8 +34,8 @@ Copyright 2019-2020 by the author.
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
-Term_p RewriteSymbolsOnTerm(Term_p source, VarBank_p vars, DerefType deref,
-                            PDArray_p look_up, AbstractionMode mode, Sig_p sig)
+Term_p rewrite_symbols_on_term(Term_p source, VarBank_p vars, DerefType deref,
+                               PDArray_p look_up, AbstractionMode mode, Sig_p sig)
 {
    Term_p handle;
    int    i;
@@ -54,10 +54,10 @@ Term_p RewriteSymbolsOnTerm(Term_p source, VarBank_p vars, DerefType deref,
       switch (mode)
       {
       case CONSTANT:
-         handle = RewriteConstantsOnTermCell(source, look_up);
+         handle = rewrite_constants_on_term_cell(source, look_up);
          break;
       case SKOLEM:
-         handle = RewriteSkolemsOnTermCell(source, look_up, sig);
+         handle = rewrite_skolems_on_term_cell(source, look_up, sig);
          break;
       default:
          break;
@@ -65,7 +65,7 @@ Term_p RewriteSymbolsOnTerm(Term_p source, VarBank_p vars, DerefType deref,
 
       for(i=0; i<handle->arity; i++)
       {
-         handle->args[i] = RewriteSymbolsOnTerm(source->args[i], vars,
+         handle->args[i] = rewrite_symbols_on_term(source->args[i], vars,
                                                 CONVERT_DEREF(i, limit, deref),
                                                 look_up, mode, sig);
       }
@@ -76,7 +76,7 @@ Term_p RewriteSymbolsOnTerm(Term_p source, VarBank_p vars, DerefType deref,
 
 /*-----------------------------------------------------------------------
 //
-// Function: RewriteConstantsOnTermCell()
+// Function: rewrite_constants_on_term_cell()
 //
 //   Allocates a new Term that is either a copy of source or if term is
 //   a constant inserts the appropiate constant symbol given its sort 
@@ -87,7 +87,7 @@ Term_p RewriteSymbolsOnTerm(Term_p source, VarBank_p vars, DerefType deref,
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
-Term_p RewriteConstantsOnTermCell(Term_p source, PDArray_p constant_sorts) 
+Term_p rewrite_constants_on_term_cell(Term_p source, PDArray_p constant_sorts) 
 {
    Term_p handle = TermDefaultCellAlloc();
    Type_p sort   = NULL;
@@ -128,7 +128,7 @@ Term_p RewriteConstantsOnTermCell(Term_p source, PDArray_p constant_sorts)
 
 /*-----------------------------------------------------------------------
 //
-// Function: RewriteSkolemsOnTermCell()
+// Function: rewrite_skolems_on_term_cell()
 //
 //   Allocates a new Term that is either a copy of source or if term is
 //   a skolem symbol inserts the appropiate symbol given its arity 
@@ -139,8 +139,8 @@ Term_p RewriteConstantsOnTermCell(Term_p source, PDArray_p constant_sorts)
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
-Term_p RewriteSkolemsOnTermCell(Term_p source, PDArray_p skolem_types, 
-                                Sig_p sig)
+Term_p rewrite_skolems_on_term_cell(Term_p source, PDArray_p skolem_types, 
+                                    Sig_p sig)
 {
    long index_pos = 0;
    long res       = 0;
@@ -205,7 +205,7 @@ void RewriteConstants(Clause_p clause, TB_p target, PDArray_p constant_sorts)
    while(literals)
    {
       next = literals->next;
-      newL = RewriteSymbolsOnTerm(literals->lterm, 
+      newL = rewrite_symbols_on_term(literals->lterm, 
                                   literals->bank->vars, 
                                   false,
                                   constant_sorts,
@@ -213,7 +213,7 @@ void RewriteConstants(Clause_p clause, TB_p target, PDArray_p constant_sorts)
                                   NULL);
       literals->lterm = TBInsert(target, newL, DEREF_ALWAYS);
       TermFree(newL);
-      newR = RewriteSymbolsOnTerm(literals->rterm, 
+      newR = rewrite_symbols_on_term(literals->rterm, 
                                   literals->bank->vars, 
                                   false,
                                   constant_sorts,
@@ -249,7 +249,7 @@ void RewriteSkolemSymbols(Clause_p clause, TB_p target,
    while(literals)
    {
       next = literals->next;
-      newL = RewriteSymbolsOnTerm(literals->lterm, 
+      newL = rewrite_symbols_on_term(literals->lterm, 
                                   literals->bank->vars, 
                                   false,
                                   skolem_sym_lookup,
@@ -257,7 +257,7 @@ void RewriteSkolemSymbols(Clause_p clause, TB_p target,
                                   sig);
       literals->lterm = TBInsert(target, newL, DEREF_ALWAYS);
       TermFree(newL);
-      newR = RewriteSymbolsOnTerm(literals->rterm, 
+      newR = rewrite_symbols_on_term(literals->rterm, 
                                   literals->bank->vars, 
                                   false,
                                   skolem_sym_lookup,

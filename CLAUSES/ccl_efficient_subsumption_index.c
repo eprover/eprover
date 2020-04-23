@@ -34,7 +34,7 @@ Copyright 2019-2020 by the author.
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
-void ESIndexInsert(ESIndex_p index, FVPackedClause_p newclause)
+void esindex_insert(ESIndex_p index, FVPackedClause_p newclause)
 {
    if(index->unitclasue_index && ClauseIsUnit(newclause->clause))
    {
@@ -138,12 +138,11 @@ void ESIndexUCIndexInit(ESIndex_p index, Sig_p sig,
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
-void ESIndexInsertClause(ESIndex_p index, 
-                                           Clause_p clause)
+void ESIndexInsertClause(ESIndex_p index, Clause_p clause)
 {
    FVPackedClause_p pclause = FVIndexPackClause(clause, index->fvindex);
    assert(clause->weight == ClauseStandardWeight(clause));
-   ESIndexInsert(index, pclause);
+   esindex_insert(index, pclause);
    FVUnpackClause(pclause);
 }
 
@@ -160,8 +159,7 @@ void ESIndexInsertClause(ESIndex_p index,
 // Side Effects    : Changes index
 //
 /----------------------------------------------------------------------*/
-Clause_p ClausesetIndexDeleteEntry(ESIndex_p index, 
-                                   Clause_p junk)
+Clause_p ClausesetIndexDeleteEntry(ESIndex_p index, Clause_p junk)
 {
    if(index->unitclasue_index && ClauseIsUnit(junk))
    {
