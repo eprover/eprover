@@ -63,13 +63,13 @@ void ESIndexInsert(ESIndex_p index, FVPackedClause_p newclause)
 /----------------------------------------------------------------------*/
 ESIndex_p ESIndexAlloc(FVCollect_p cspec, PermVector_p perm)
 {
-   ESIndex_p handle = ESIndexAllocRaw();
-   handle->fvindex                    = FVIAnchorAlloc(cspec, perm);
-   handle->unitclasue_index           = NULL;
+   ESIndex_p handle                 = ESIndexAllocRaw();
+   handle->fvindex                  = FVIAnchorAlloc(cspec, perm);
+   handle->unitclasue_index         = NULL;
 
-   handle->wl_constants_abstraction   = false;
-   handle->wl_skolemsym_abstraction   = false;
-   handle->wl_abstraction_symbols     = NULL;
+   handle->wl_constants_abstraction = false;
+   handle->wl_skolemsym_abstraction = false;
+   handle->wl_abstraction_symbols   = NULL;
    
    return handle;
 }

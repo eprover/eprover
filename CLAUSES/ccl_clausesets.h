@@ -49,10 +49,10 @@ typedef struct clausesetcell
           checking for irreducibility. */
    ESIndex_p esindex;
 
-   PDTree_p   demod_index; /* If used for demodulators */
-   PDArray_p  eval_indices;
-   long       eval_no;
-   DStr_p     identifier;
+   PDTree_p  demod_index; /* If used for demodulators */
+   PDArray_p eval_indices;
+   long      eval_no;
+   DStr_p    identifier;
 }ClauseSetCell, *ClauseSet_p;
 
 

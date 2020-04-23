@@ -350,7 +350,6 @@ void ProofStateInitWatchlist(ProofState_p state, OCB_p ocb,
       ClauseSetMarkMaximalTerms(ocb, state->watchlist);
       if(rewriteConstants)
       {
-         // TODO: Shorten
          state->watchlist->esindex->wl_constants_abstraction  = true;
          state->watchlist->esindex->wl_abstraction_symbols    = PDIntArrayAllocWithDefault(10, 1, -1);
       }
@@ -378,7 +377,7 @@ void ProofStateInitWatchlist(ProofState_p state, OCB_p ocb,
             ClauseSetInsert(tmpset, rewrite);
             ClauseFree(handle);
          }
-         else if (rewriteSkolemSym)
+         else if(rewriteSkolemSym)
          {
             rewrite = ClauseCopy(handle, state->softsubsumption_rw);
             RewriteSkolemSymbols(rewrite, state->softsubsumption_rw, 

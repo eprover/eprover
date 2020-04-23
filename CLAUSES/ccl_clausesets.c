@@ -326,12 +326,13 @@ ClauseSet_p ClauseSetAlloc(void)
    handle->anchor->pred = handle->anchor->succ = handle->anchor;
    handle->date = SysDateCreationTime();
    SysDateInc(&handle->date);
-   handle->demod_index                 = NULL;
-   handle->esindex = NULL;
 
-   handle->eval_indices = PDArrayAlloc(4,4);
-   handle->eval_no      = 0;
-   handle->identifier   = DStrAlloc();
+   handle->demod_index      = NULL;
+   handle->esindex          = NULL;
+
+   handle->eval_indices     = PDArrayAlloc(4,4);
+   handle->eval_no          = 0;
+   handle->identifier       = DStrAlloc();
 
    return handle;
 }
@@ -587,8 +588,7 @@ void ClauseSetIndexedInsertClause(ClauseSet_p set, Clause_p newclause)
    }
    if(set->esindex)
    {
-      ESIndexInsertClause(set->esindex, 
-                                            newclause);
+      ESIndexInsertClause(set->esindex, newclause);
       ClauseSetProp(newclause, CPIsSIndexed);
    }
 }

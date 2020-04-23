@@ -400,7 +400,6 @@ void check_watchlist(GlobalIndices_p indices, ClauseSet_p watchlist,
          state->watchlist_unit_checks++;
       }
 
-      // TODO: @Schulz Shorten?
       if (watchlist->esindex->wl_constants_abstraction)
       {
          rewrite = ClauseCopy(clause, state->softsubsumption_rw);
