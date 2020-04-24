@@ -866,6 +866,7 @@ Term_p TBInsertReplPlain(TB_p bank, Term_p term, Term_p old, Term_p repl)
 {
    int    i;
    Term_p t;
+   bool   changed = false;
 
    assert(term);
 
@@ -894,8 +895,20 @@ Term_p TBInsertReplPlain(TB_p bank, Term_p term, Term_p old, Term_p repl)
       {
          t->args[i] = TBInsertReplPlain(bank, term->args[i],
                                         old, repl);
+         if(t->args[i]!=term->args[i])
+         {
+            changed = true;
+         }
       }
-      t = tb_termtop_insert(bank, t);
+      if(changed)
+      {
+         t = tb_termtop_insert(bank, t);
+      }
+      else
+      {
+         TermTopFree(t);
+         t = term;
+      }
    }
    return t;
 }

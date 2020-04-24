@@ -392,7 +392,7 @@ Clause_p ClauseSuperSimParamodConstruct(ParamodInfo_p ol_desc)
       tmp_rhs = NULL;
    }
 
-   tmp_copy = EqnListCopy(ol_desc->into->literals, ol_desc->bank);
+   tmp_copy = EqnListCopyOpt(ol_desc->into->literals);
 
    into_copy = EqnListCopyReplPlain(tmp_copy,
                                     ol_desc->bank, tmp_lhs, rhs_instance);
