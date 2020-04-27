@@ -402,8 +402,8 @@ void check_watchlist(GlobalIndices_p indices, ClauseSet_p watchlist,
 
       if (watchlist->esindex->wl_constants_abstraction)
       {
-         rewrite = ClauseCopy(clause, state->softsubsumption_rw);
-         RewriteConstants(rewrite, state->softsubsumption_rw, 
+         rewrite = ClauseCopy(clause, state->terms);
+         RewriteConstants(rewrite, state->terms, 
                           watchlist->esindex->wl_abstraction_symbols);
          pclause = FVIndexPackClause(rewrite, watchlist->esindex->fvindex);
          ClauseSubsumeOrderSortLits(rewrite);
@@ -411,8 +411,8 @@ void check_watchlist(GlobalIndices_p indices, ClauseSet_p watchlist,
       } 
       else if (watchlist->esindex->wl_skolemsym_abstraction)
       {
-         rewrite = ClauseCopy(clause, state->softsubsumption_rw);
-         RewriteSkolemSymbols(rewrite, state->softsubsumption_rw, 
+         rewrite = ClauseCopy(clause, state->terms);
+         RewriteSkolemSymbols(rewrite, state->terms, 
                               state->watchlist->esindex->wl_abstraction_symbols, 
                               state->signature);
          pclause = FVIndexPackClause(rewrite, watchlist->esindex->fvindex);
@@ -490,9 +490,9 @@ ClauseSet_p simplify_watchlist_rewriteables(ProofState_p state,
    {
       // printf("# Simpclause: "); ClausePrint(stdout, clause, true); printf("\n");
       RemoveRewritableClausesIndexed(control->ocb,
-                                    tmp_set, state->archive,
-                                    clause, clause->date,
-                                    &(state->wlindices));
+                                     tmp_set, state->archive,
+                                     clause, clause->date,
+                                     &(state->wlindices));
       // printf("# Simpclause done\n");
    }
    else
@@ -547,22 +547,24 @@ void simplify_watchlist_handle(ProofState_p state, ProofControl_p control,
 
       if (!strcmp("constant", kind))
       {
-         rewrite_handle = ClauseCopy(handle, state->softsubsumption_rw);
-         RewriteConstants(rewrite_handle, state->softsubsumption_rw, 
+         rewrite_handle = ClauseCopy(handle, state->terms);
+         RewriteConstants(rewrite_handle, state->terms, 
                           state->watchlist->esindex->wl_abstraction_symbols);
          rewrite_handle->weight = ClauseStandardWeight(rewrite_handle);
          ClauseSetIndexedInsertClause(state->watchlist, rewrite_handle);
          GlobalIndicesInsertClause(&(state->wlindices), rewrite_handle);
+         ClauseFree(handle);
       }
       else if (!strcmp("skolem", kind))
       {
-         rewrite_handle = ClauseCopy(handle, state->softsubsumption_rw);
-         RewriteSkolemSymbols(rewrite_handle, state->softsubsumption_rw, 
+         rewrite_handle = ClauseCopy(handle, state->terms);
+         RewriteSkolemSymbols(rewrite_handle, state->terms, 
                               state->watchlist->esindex->wl_abstraction_symbols, 
                               state->signature);
          rewrite_handle->weight = ClauseStandardWeight(rewrite_handle);
          ClauseSetIndexedInsertClause(state->watchlist, rewrite_handle);
          GlobalIndicesInsertClause(&(state->wlindices), rewrite_handle);
+         ClauseFree(handle);
       }
       else if (!strcmp("default", kind))
       {

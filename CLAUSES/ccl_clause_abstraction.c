@@ -206,19 +206,19 @@ void RewriteConstants(Clause_p clause, TB_p target, PDArray_p constant_sorts)
    {
       next = literals->next;
       newL = rewrite_symbols_on_term(literals->lterm, 
-                                  literals->bank->vars, 
-                                  false,
-                                  constant_sorts,
-                                  CONSTANT,
-                                  NULL);
+                                     literals->bank->vars, 
+                                     false,
+                                     constant_sorts,
+                                     CONSTANT,
+                                     NULL);
       literals->lterm = TBInsert(target, newL, DEREF_ALWAYS);
       TermFree(newL);
       newR = rewrite_symbols_on_term(literals->rterm, 
-                                  literals->bank->vars, 
-                                  false,
-                                  constant_sorts,
-                                  CONSTANT,
-                                  NULL);
+                                     literals->bank->vars, 
+                                     false,
+                                     constant_sorts,
+                                     CONSTANT,
+                                     NULL);
       literals->rterm = TBInsert(target, newR, DEREF_ALWAYS);
       TermFree(newR);
       literals        = next;
@@ -250,19 +250,19 @@ void RewriteSkolemSymbols(Clause_p clause, TB_p target,
    {
       next = literals->next;
       newL = rewrite_symbols_on_term(literals->lterm, 
-                                  literals->bank->vars, 
-                                  false,
-                                  skolem_sym_lookup,
-                                  SKOLEM,
-                                  sig);
+                                     literals->bank->vars, 
+                                     false,
+                                     skolem_sym_lookup,
+                                     SKOLEM,
+                                     sig);
       literals->lterm = TBInsert(target, newL, DEREF_ALWAYS);
       TermFree(newL);
       newR = rewrite_symbols_on_term(literals->rterm, 
-                                  literals->bank->vars, 
-                                  false,
-                                  skolem_sym_lookup,
-                                  SKOLEM,
-                                  sig);
+                                     literals->bank->vars, 
+                                     false,
+                                     skolem_sym_lookup,
+                                     SKOLEM,
+                                     sig);
       literals->rterm = TBInsert(target, newR, DEREF_ALWAYS);
       TermFree(newR);
       literals        = next;
