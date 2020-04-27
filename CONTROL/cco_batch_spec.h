@@ -103,7 +103,8 @@ bool BatchProcessProblem(BatchSpec_p spec,
                          ClauseSet_p cset,
                          FormulaSet_p fset,
                          FILE* out,
-                         int sock_fd);
+                         int sock_fd,
+                         bool interactive);
 
 bool BatchProcessFile(BatchSpec_p spec,
                       long wct_limit,

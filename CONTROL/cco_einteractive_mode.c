@@ -175,7 +175,8 @@ char* run_command(InteractiveSpec_p interactive,
                                 dummy,
                                 fset,
                                 interactive->fp,
-                                interactive->sock_fd);
+                                interactive->sock_fd,
+                                true);
       sprintf(buffer, "\n# Processing finished for %s\n\n", DStrView(jobname));
       message = buffer;
       print_to_outstream(message, interactive->fp, interactive->sock_fd);
