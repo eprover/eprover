@@ -152,8 +152,8 @@ OptCell opts[] =
    {OPT_TPTP_PARSE,
     '\0', "tptp-in",
     NoArg, NULL,
-    "Parse TPTP format instead of lop (does not understand includes, "
-    "as TPTP includes are a brain-dead design)."},
+    "Set TPTP-2 as the input format (but note that includes are "
+    "still handled according to TPTP-3 semantics)."},
 
    {OPT_TPTP_PRINT,
     '\0', "tptp-out",
