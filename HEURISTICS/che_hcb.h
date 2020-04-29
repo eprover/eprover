@@ -193,7 +193,7 @@ typedef struct hcb_cell
 #define DEFAULT_RW_BW_INDEX_NAME "FP7"
 #define DEFAULT_PM_FROM_INDEX_NAME "FP7"
 #define DEFAULT_PM_INTO_INDEX_NAME "FP7"
-#define DEFAULT_WATCHLIST_UNIT_CLAUSE_INDEX_NAME "FPWatchlist6"
+#define DEFAULT_WATCHLIST_UNIT_CLAUSE_INDEX_NAME "auto"
 
 typedef Clause_p (*ClauseSelectFun)(HCB_p hcb, ClauseSet_p set);
 

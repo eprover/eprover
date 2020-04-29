@@ -1464,8 +1464,8 @@ void ProofStateInit(ProofState_p state, ProofControl_p control)
    Eval_p   cell;
    
    char*    watchlist_unit_clause_index_type = DetermineWatchlistUCIndexType(
-      control->heuristic_parms.watchlist_unit_clause_index_type, 
-      control->problem_specs.eq_content);
+      state,
+      control->heuristic_parms.watchlist_unit_clause_index_type);
 
    OUTPRINT(1, "# Initializing proof state\n");
 
@@ -1556,14 +1556,18 @@ void ProofStateInit(ProofState_p state, ProofControl_p control)
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
-char* DetermineWatchlistUCIndexType(char* watchlistUCIndexType,
-                                    SpecFeatures problem_eq_content)
+char* DetermineWatchlistUCIndexType(ProofState_p state,
+                                    char* watchlistUCIndexType)
 {
-   char* watchlist_unit_clause_index_type = watchlistUCIndexType;
+   SpecFeatureCell watchlist_features;
+   char*           watchlist_unit_clause_index_type = watchlistUCIndexType;
 
    if(strcmp(watchlistUCIndexType,"auto")==0)
    {
-      switch (problem_eq_content)
+      SpecFeaturesCompute(&watchlist_features, state->watchlist, 
+                          state->signature);
+
+      switch (watchlist_features.eq_content)
       {
       case SpecNoEq:
          watchlist_unit_clause_index_type = "FPWatchlist6L";
