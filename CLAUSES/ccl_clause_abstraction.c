@@ -37,7 +37,7 @@ Copyright 2019-2020 by the author.
 Term_p rewrite_symbols_on_term(Term_p source, VarBank_p vars, DerefType deref,
                                PDArray_p look_up, AbstractionMode mode, Sig_p sig)
 {
-   Term_p handle;
+   Term_p handle = NULL;
    int    i;
 
    assert(source);
