@@ -1057,7 +1057,6 @@ void clauseset_find_subsumed_clauses_unitclause_indexed(UCIndex_p index,
          {
             PStackPushP(res, candidate);
             numberSubsumedClauses += 1;
-            // TODO: @Schulz Is this counting correct?
          }
       }
       PTreeTraverseExit(iterstack);
@@ -1206,7 +1205,6 @@ Clause_p clauseset_find_first_subsumed_clause_indexed(ESIndex_p index,
 {
    Clause_p res = NULL;
 
-   // TODO: Can a unit clause subsume a non-unit-clause?
    if(index->fvindex)
    {
       res = clauseset_find_first_subsumed_clause_fv_indexed(index->fvindex->index,
