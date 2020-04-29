@@ -1462,8 +1462,7 @@ void ProofStateInit(ProofState_p state, ProofControl_p control)
    HCB_p    tmphcb;
    PStack_p traverse;
    Eval_p   cell;
-   // TODO: @Schulz problem_specs.eq_content nicht für das Problem sondern für die Watchlist?
-   // ist vermutlich interessanter für den Auto Mode
+   
    char*    watchlist_unit_clause_index_type = DetermineWatchlistUCIndexType(
       control->heuristic_parms.watchlist_unit_clause_index_type, 
       control->problem_specs.eq_content);
