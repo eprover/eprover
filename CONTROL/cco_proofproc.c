@@ -1462,10 +1462,14 @@ void ProofStateInit(ProofState_p state, ProofControl_p control)
    HCB_p    tmphcb;
    PStack_p traverse;
    Eval_p   cell;
+   char*    watchlist_unit_clause_index_type;
    
-   char*    watchlist_unit_clause_index_type = DetermineWatchlistUCIndexType(
-      state,
-      control->heuristic_parms.watchlist_unit_clause_index_type);
+   if (state->watchlist)
+   {
+      watchlist_unit_clause_index_type = DetermineWatchlistUCIndexType(
+         state,
+         control->heuristic_parms.watchlist_unit_clause_index_type);
+   }   
 
    OUTPRINT(1, "# Initializing proof state\n");
 
