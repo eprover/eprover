@@ -60,7 +60,6 @@ typedef struct heuristic_parms_cell
 {
    /* Preprocessing */
    bool                no_preproc;
-   bool                no_eq_unfold;
    long                eqdef_maxclauses;
    long                eqdef_incrlimit;
 

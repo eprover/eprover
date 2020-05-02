@@ -91,6 +91,11 @@ match_sat_norm_const  = re.compile(" --satcheck-normalize-const")
 match_sat_norm_unproc = re.compile(" --satcheck-normalize-unproc")
 match_sat_dec_limit   = re.compile(" --satcheck-decision-limit")
 
+match_unfold_limit      = re.compile(" --eq-unfold-limit=")
+match_unfold_maxclauses = re.compile(" --eq-unfold-maxclauses=")
+match_no_unfold         = re.compile(" --no-eq-unfolding")
+
+
 
 def parse_control_info(line):
     res = ""
@@ -322,6 +327,21 @@ def parse_control_info(line):
     if m:
         arg = extract_opt_arg(line, m, "100")
         res = res+ "      control->heuristic_parms.sat_check_decision_limit="+arg+";\n"
+
+    # Eq unfolding
+    m = match_unfold_limit(line)
+    if m:
+        arg = extract_arg(line, m)
+        res = res+ "      control->heuristic_parms.eqdef_incrlimit="+arg+";\n"
+
+    m = match_unfoldmax_clauses(line)
+    if m:
+        arg = extract_arg(line, m)
+        res = res+ "      control->heuristic_parms.eqdef_maxclauses="+arg+";\n"
+
+    m = match_match_no_unfold(line)
+    if m:
+        res = res+ "      control->heuristic_parms.no_preproc=LONG_MIN;\n"
 
     return res
 
