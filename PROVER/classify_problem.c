@@ -482,7 +482,7 @@ bool tptp_header      = false,
    app_encode       = false;
 long eqdef_maxclauses = DEFAULT_EQDEF_MAXCLAUSES,
    miniscope_limit  = 1000;
-int eqdef_incrlimit  = DEFAULT_EQDEF_INCRLIMIT;
+long eqdef_incrlimit  = DEFAULT_EQDEF_INCRLIMIT;
 FunctionProperties free_symb_prop = FPIgnoreProps;
 ProblemType problemType  = PROBLEM_NOT_INIT;
 char *sine = NULL;
@@ -1011,7 +1011,7 @@ CLState_p process_options(int argc, char* argv[], SpecLimits_p limits)
             eqdef_incrlimit = CLStateGetIntArg(handle, arg);
             break;
       case OPT_NO_EQ_UNFOLD:
-            eqdef_incrlimit = INT_MIN;
+            eqdef_incrlimit = LONG_MIN;
             break;
       case OPT_SINE:
             sine = arg;

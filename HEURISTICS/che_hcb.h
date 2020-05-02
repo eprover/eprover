@@ -30,6 +30,7 @@
 #include <ccl_splitting.h>
 #include <ccl_condensation.h>
 #include <ccl_satinterface.h>
+#include <ccl_unfold_defs.h>
 #include <che_to_weightgen.h>
 #include <che_to_precgen.h>
 #include <ccl_clausefunc.h>
@@ -57,7 +58,13 @@ typedef enum
 
 typedef struct heuristic_parms_cell
 {
-   /* Clause selection elements */
+   /* Preprocessing */
+   bool                no_preproc;
+   bool                no_eq_unfold;
+   long                eqdef_maxclauses;
+   long                eqdef_incrlimit;
+
+/* Clause selection elements */
    char                *heuristic_name;
    bool                prefer_initial_clauses;
 

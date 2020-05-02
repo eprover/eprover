@@ -89,6 +89,11 @@ void default_exit_fun(void* data)
 
 void HeuristicParmsInitialize(HeuristicParms_p handle)
 {
+   handle->no_preproc                    = false;
+   handle->no_eq_unfold                  = false;
+   handle->eqdef_maxclauses              = DEFAULT_EQDEF_MAXCLAUSES;
+   handle->eqdef_incrlimit               = DEFAULT_EQDEF_INCRLIMIT;
+
    handle->heuristic_name                = HCB_DEFAULT_HEURISTIC;
    handle->prefer_initial_clauses        = false;
 

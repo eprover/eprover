@@ -61,8 +61,6 @@ bool              print_sat = false,
    print_version = false,
    outinfo = false,
    error_on_empty = false,
-   no_preproc = false,
-   no_eq_unfold = false,
    pcl_full_terms = true,
    indexed_subsumption = true,
    prune_only = false,
@@ -84,15 +82,13 @@ long              step_limit = LONG_MAX,
    unproc_limit = LONG_MAX,
    total_limit = LONG_MAX,
    generated_limit = LONG_MAX,
-   eqdef_maxclauses = DEFAULT_EQDEF_MAXCLAUSES,
    relevance_prune_level = 0,
    miniscope_limit = 1048576;
 long long tb_insert_limit = LLONG_MAX;
 
-int eqdef_incrlimit = DEFAULT_EQDEF_INCRLIMIT,
-   force_deriv_output = 0;
-char              *outdesc = DEFAULT_OUTPUT_DESCRIPTOR,
-   *filterdesc = DEFAULT_FILTER_DESCRIPTOR;
+int force_deriv_output = 0;
+char  *outdesc = DEFAULT_OUTPUT_DESCRIPTOR,
+      *filterdesc = DEFAULT_FILTER_DESCRIPTOR;
 PStack_p          wfcb_definitions, hcb_definitions;
 char              *sine=NULL;
 pid_t              pid = 0;
@@ -475,7 +471,7 @@ int main(int argc, char* argv[])
    raw_clause_no = proofstate->axioms->members;
    ProofStateLoadWatchlist(proofstate, watchlist_filename, parse_format);
 
-   if(!no_preproc)
+   if(!h_parms->no_preproc)
    {
       ClauseSetArchiveCopy(proofstate->ax_archive, proofstate->axioms);
       if(proofstate->watchlist)
@@ -486,8 +482,8 @@ int main(int argc, char* argv[])
                                             proofstate->watchlist,
                                             proofstate->archive,
                                             proofstate->tmp_terms,
-                                            eqdef_incrlimit,
-                                            eqdef_maxclauses);
+                                            h_parms->eqdef_incrlimit,
+                                            h_parms->eqdef_maxclauses);
    }
 
    proofcontrol = ProofControlAlloc();
@@ -1096,16 +1092,16 @@ CLState_p process_options(int argc, char* argv[])
             strategy_scheduling = true;
             break;
       case OPT_NO_PREPROCESSING:
-            no_preproc = true;
+            h_parms->no_preproc = true;
             break;
       case OPT_EQ_UNFOLD_LIMIT:
-            eqdef_incrlimit = CLStateGetIntArg(handle, arg);
+            h_parms->eqdef_incrlimit = CLStateGetIntArg(handle, arg);
             break;
       case OPT_EQ_UNFOLD_MAXCLAUSES:
-            eqdef_maxclauses = CLStateGetIntArg(handle, arg);
+            h_parms->eqdef_maxclauses = CLStateGetIntArg(handle, arg);
             break;
       case OPT_NO_EQ_UNFOLD:
-            eqdef_incrlimit = INT_MIN;
+            h_parms->eqdef_incrlimit = LONG_MIN;
             break;
       case OPT_SINE:
             sine = arg;
