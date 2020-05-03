@@ -1,24 +1,21 @@
 /*-----------------------------------------------------------------------
 
-File  : cio_basicparser.h
+  File  : cio_basicparser.h
 
-Author: Stephan Schulz
+  Author: Stephan Schulz
 
-Contents
+  Contents
 
   Parsing routines for useful C build-in ans some general CLIB
   datatypes not covered by the scanner.
 
-  Copyright 1998, 1999 by the author.
+  Copyright 1998-2020 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
-
-<1> Mon Sep  8 16:34:11 MET DST 1997
-    New
+  Create: Mon Sep  8 16:34:11 MET DST 1997
 
 -----------------------------------------------------------------------*/
 
@@ -47,7 +44,7 @@ typedef enum
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-
+bool       ParseBool(Scanner_p in);
 long       ParseInt(Scanner_p in);
 double     ParseFloat(Scanner_p in);
 StrNumType ParseNumString(Scanner_p in);
@@ -66,8 +63,3 @@ void       ParseSkipParenthesizedExpr(Scanner_p in);
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
-
-
-

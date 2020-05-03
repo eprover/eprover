@@ -49,6 +49,33 @@ Changes
 
 /*-----------------------------------------------------------------------
 //
+// Function: ParseBool()
+//
+//   Parse and return a Boolean value (true/false).
+//
+// Global Variables: -
+//
+// Side Effects    : Input
+//
+/----------------------------------------------------------------------*/
+
+bool ParseBool(Scanner_p in)
+{
+   bool res = false;
+
+   CheckInpId(in, "true|false");
+   if(TestInpId(in, "true"))
+   {
+      res = true;
+   }
+   NextToken(in);
+
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: ParseInt()
 //
 //   Parses a (possibly negative) Integer, defined as an optional "-",
