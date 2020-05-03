@@ -1,23 +1,20 @@
 /*-----------------------------------------------------------------------
 
-File  : clb_defines.h
+  File  : clb_defines.h
 
-Author: Stephan Schulz
+  Author: Stephan Schulz
 
-Contents
+  Contents
 
   Basic definition useful (very nearly) everywhere.
 
-  Copyright 1998, 1999 by the author.
+  Copyright 1998-2020 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
-
-<1> Sat Jul  5 02:28:25 MET DST 1997
-    New
+  Created: Sat Jul  5 02:28:25 MET DST 1997
 
 -----------------------------------------------------------------------*/
 
@@ -71,18 +68,18 @@ typedef int (*ComparisonFunctionType)(const void*, const void*);
 /*---------------------------------------------------------------------*/
 
 #undef MAX
-#define MAX(x,y) ({ __typeof__ (x) _x = (x);\
-                    __typeof__ (y) _y = (y);\
-                    _x > _y ? _x : _y; })
+#define MAX(x,y) ({ __typeof__ (x) _x = (x);    \
+         __typeof__ (y) _y = (y);               \
+         _x > _y ? _x : _y; })
 
 #undef MIN
-#define MIN(x,y) ({ __typeof__ (x) _x = (x);\
-                    __typeof__ (y) _y = (y);\
-                    _x < _y ? _x : _y; })
+#define MIN(x,y) ({ __typeof__ (x) _x = (x);    \
+         __typeof__ (y) _y = (y);               \
+         _x < _y ? _x : _y; })
 
-#define CMP(x,y) ({ __typeof__ (x) _x = (x);\
-                    __typeof__ (y) _y = (y);\
-                    (_x > _y) - (_x < _y); })
+#define CMP(x,y) ({ __typeof__ (x) _x = (x);    \
+         __typeof__ (y) _y = (y);               \
+         (_x > _y) - (_x < _y); })
 
 #undef ABS
 #define ABS(x) ((x)>0?(x):-(x))
@@ -112,11 +109,11 @@ static inline size_t WriteStr(int fd, const char* msg);
 
 #ifdef PRINT_TSTP_STATUS
 #define TSTPOUT(file,msg) fprintf(file, "# SZS status %s\n", msg)
-#define TSTPOUTFD(fd,msg) do{\
-                             WriteStr(fd, "# SZS status ");\
-                             WriteStr(fd, msg);\
-                             WriteStr(fd, "\n");\
-                          }while(0)
+#define TSTPOUTFD(fd,msg) do{                                   \
+      WriteStr(fd, "# SZS status ");                            \
+      WriteStr(fd, msg);                                        \
+      WriteStr(fd, "\n");                                       \
+   }while(0)
 #else
 #define TSTPOUT(file,msg)
 #define TSTPOUTFD(fd,msg)
@@ -132,10 +129,13 @@ static inline size_t WriteStr(int fd, const char* msg);
 #endif
 
 typedef enum {
-  PROBLEM_NOT_INIT = -1,
-  PROBLEM_FO,
-  PROBLEM_HO
+   PROBLEM_NOT_INIT = -1,
+   PROBLEM_FO,
+   PROBLEM_HO
 } ProblemType;
+
+#define BOOL2STR(val) (val)?"true":"false"
+
 
 extern ProblemType problemType;
 
