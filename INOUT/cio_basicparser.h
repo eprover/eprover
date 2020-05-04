@@ -15,9 +15,9 @@
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-  Create: Mon Sep  8 16:34:11 MET DST 1997
+  Created: Mon Sep  8 16:34:11 MET DST 1997
 
------------------------------------------------------------------------*/
+  -----------------------------------------------------------------------*/
 
 #ifndef CIO_BASICPARSER
 
@@ -46,6 +46,7 @@ typedef enum
 
 bool       ParseBool(Scanner_p in);
 long       ParseInt(Scanner_p in);
+long       ParseIntLimited(Scanner_p in, long lower, long upper);
 double     ParseFloat(Scanner_p in);
 StrNumType ParseNumString(Scanner_p in);
 long       DDArrayParse(Scanner_p in, DDArray_p array, bool brackets);
