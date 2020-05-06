@@ -34,7 +34,7 @@ Contents
 
 /* git tag E-2.4dev004 */
 
-#define PVERSION      "2.4dev004"
+#define PVERSION      "2.4devRuhdorfer002"
 
 #include "e_gitcommit.h"
 
