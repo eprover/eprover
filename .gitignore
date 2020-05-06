@@ -53,4 +53,7 @@ ehthumbs.db
 Thumbs.db
 ./vscode/*
 ./vscode*
+.vscode
 
+*.xcodeproj
+*.xcodeproj/

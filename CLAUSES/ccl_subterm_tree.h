@@ -41,7 +41,7 @@ typedef struct bw_rw_payload
    PTree_p rw_rest; /* Of clauses in which the subterm appears in a
                        privileged position with restricted rewriting
                        */
-   PTree_p rw_full; /* Of clauses in which it appeats unrestricted */
+   PTree_p rw_full; /* Of clauses in which it appears unrestricted */
 }BWRWPayload;
 
 

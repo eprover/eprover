@@ -29,6 +29,7 @@
 #include <ccl_pdtrees.h>
 #include <clb_plist.h>
 #include <clb_objtrees.h>
+#include <ccl_efficient_subsumption_index.h>
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
@@ -45,12 +46,13 @@ typedef struct clausesetcell
    SysDate   date;    /* Age of the clause set, used for optimizing
           rewriting. The special date SysCreationDate()
           is used to indicate ignoring of dates when
-          checking for irreducability. */
+          checking for irreducibility. */
+   ESIndex_p esindex;
+
    PDTree_p  demod_index; /* If used for demodulators */
-   FVIAnchor_p fvindex; /* Used for non-unit subsumption */
    PDArray_p eval_indices;
    long      eval_no;
-   DStr_p     identifier;
+   DStr_p    identifier;
 }ClauseSetCell, *ClauseSet_p;
 
 
@@ -67,8 +69,8 @@ typedef struct clausesetcell
 #define     ClauseSetStorage(set)\
             (((CLAUSECELL_DYN_MEM+EVAL_MEM((set)->eval_no))*(set)->members+\
             EQN_CELL_MEM*(set)->literals)+\
-            PDTreeStorage(set->demod_index)+\
-       FVIndexStorage(set->fvindex))
+            PDTreeStorage(set->demod_index))
+            // FVIndexStorage(set->esindex->fvindex))
 
 ClauseSet_p ClauseSetAlloc(void);
 void        ClauseSetFreeClauses(ClauseSet_p set);
@@ -81,7 +83,7 @@ void        ClauseSetGCMarkTerms(ClauseSet_p set);
 void        ClauseSetInsert(ClauseSet_p set, Clause_p newclause);
 long        ClauseSetInsertSet(ClauseSet_p set, ClauseSet_p from);
 void        ClauseSetPDTIndexedInsert(ClauseSet_p set, Clause_p newclause);
-void        ClauseSetIndexedInsert(ClauseSet_p set, FVPackedClause_p newclause);
+// void        ClauseSetIndexedInsert(ClauseSet_p set, FVPackedClause_p newclause);
 void        ClauseSetIndexedInsertClause(ClauseSet_p set, Clause_p newclause);
 void        ClauseSetIndexedInsertClauseSet(ClauseSet_p set, ClauseSet_p source);
 Clause_p    ClauseSetExtractEntry(Clause_p clause);
@@ -171,7 +173,7 @@ long        ClauseSetFindCharFreqVectors(ClauseSet_p set,
 PermVector_p PermVectorCompute(ClauseSet_p set, FVCollect_p cspec,
                                bool eliminate_uninformative);
 
-long         ClauseSetFVIndexify(ClauseSet_p set);
+long         ClauseSetIndexify(ClauseSet_p set);
 long         ClauseSetNewTerms(ClauseSet_p set, TB_p terms);
 
 long         ClauseSetSplitConjectures(ClauseSet_p set,

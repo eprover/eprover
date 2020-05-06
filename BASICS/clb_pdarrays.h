@@ -39,6 +39,7 @@
 typedef struct pdarraycell
 {
    bool   integer;
+   long   default_int;
    long   size;
    long   grow;
    IntOrP *array;
@@ -62,6 +63,7 @@ typedef struct pdarraycell
 
 PDArray_p PDArrayAlloc(long init_size, long grow);
 PDArray_p PDIntArrayAlloc(long init_size, long grow);
+PDArray_p PDIntArrayAllocWithDefault(long init_size, long grow, long init_value);
 void      PDArrayFree(PDArray_p junk);
 #define   PDArraySize(array) ((array)->size)
 

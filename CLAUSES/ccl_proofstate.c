@@ -114,8 +114,31 @@ static void clause_set_pick_training_examples(ClauseSet_p set,
    }
 }
 
-
-
+/*-----------------------------------------------------------------------
+//
+// Function: initialize_clause_abstraction()
+//
+//   Initializes the Clause abstraction in the esindex.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+void initialize_clause_abstraction(ESIndex_p esindex, bool rewriteConstants, 
+                                   bool rewriteSkolemSym)
+{
+   if(rewriteConstants)
+   {
+      esindex->wl_constants_abstraction = true;
+      esindex->wl_abstraction_symbols   = PDIntArrayAllocWithDefault(10, 1, -1);
+   }
+   else if(rewriteSkolemSym)
+   {
+      esindex->wl_skolemsym_abstraction = true;
+      esindex->wl_abstraction_symbols   = PDIntArrayAllocWithDefault(10, 1, -1);
+   }
+}
 
 
 /*---------------------------------------------------------------------*/
@@ -232,6 +255,12 @@ ProofState_p ProofStateAlloc(FunctionProperties free_symb_prop)
    handle->satcheck_encoding_stime = 0.0;
    handle->satcheck_solver_stime   = 0.0;
 
+   handle->process_clause_loops  = 0;
+   handle->watchlist_checks      = 0;
+   handle->watchlist_unit_checks = 0;
+   handle->wl_unit_clause        = 0;
+   handle->wl_non_unit_clause    = 0;
+
    handle->filter_orphans_base   = 0;
    handle->forward_contract_base = 0;
 
@@ -324,24 +353,62 @@ void ProofStateLoadWatchlist(ProofState_p state,
 //
 /----------------------------------------------------------------------*/
 
-void ProofStateInitWatchlist(ProofState_p state, OCB_p ocb)
+void ProofStateInitWatchlist(ProofState_p state, OCB_p ocb, 
+                             bool rewriteConstants, bool rewriteSkolemSym,
+                             char* watchlist_unit_clause_index_type)
 {
    ClauseSet_p tmpset;
-   Clause_p handle;
+   Clause_p    handle;
+   Clause_p    rewrite;
 
    if(state->watchlist)
    {
       tmpset = ClauseSetAlloc();
 
+      ESIndexUCIndexInit(state->watchlist->esindex,
+                         state->signature,
+                         watchlist_unit_clause_index_type);
+
       ClauseSetMarkMaximalTerms(ocb, state->watchlist);
+      initialize_clause_abstraction(state->watchlist->esindex, rewriteConstants, 
+                                    rewriteSkolemSym);
       while(!ClauseSetEmpty(state->watchlist))
       {
          handle = ClauseSetExtractFirst(state->watchlist);
-         ClauseSetInsert(tmpset, handle);
+         if (ClauseIsUnit(handle))
+         {
+            state->wl_unit_clause++;
+         }
+         else
+         {
+            state->wl_non_unit_clause++;
+         }
+         if(rewriteConstants)
+         {
+            rewrite = ClauseCopy(handle, state->terms);
+            RewriteConstants(rewrite, state->terms, 
+                             state->watchlist->esindex->wl_abstraction_symbols);
+            ClauseSetInsert(tmpset, rewrite);
+            ClauseFree(handle);
+         }
+         else if(rewriteSkolemSym)
+         {
+            rewrite = ClauseCopy(handle, state->terms);
+            RewriteSkolemSymbols(rewrite, state->terms, 
+                                 state->watchlist->esindex->wl_abstraction_symbols,
+                                 state->signature);
+            ClauseSetInsert(tmpset, rewrite);
+            ClauseFree(handle);
+         }
+         else
+         {
+            ClauseSetInsert(tmpset, handle);
+         }
       }
+
       ClauseSetIndexedInsertClauseSet(state->watchlist, tmpset);
       ClauseSetFree(tmpset);
-      GlobalIndicesInsertClauseSet(&(state->wlindices),state->watchlist);
+      GlobalIndicesInsertClauseSet(&(state->wlindices), state->watchlist);
       // ClauseSetPrint(stdout, state->watchlist, true);
    }
 }
@@ -418,16 +485,16 @@ void ProofStateFree(ProofState_p junk)
    ClauseSetFree(junk->eval_store);
    ClauseSetFree(junk->archive);
    ClauseSetFree(junk->ax_archive);
-   FormulaSetFree(junk->f_archive);
-   PStackFree(junk->extract_roots);
-   GlobalIndicesFreeIndices(&(junk->gindices));
-   GCAdminFree(junk->gc_terms);
-   //GCAdminFree(junk->gc_original_terms);
    if(junk->watchlist)
    {
       ClauseSetFree(junk->watchlist);
    }
    GlobalIndicesFreeIndices(&(junk->wlindices));
+   FormulaSetFree(junk->f_archive);
+   PStackFree(junk->extract_roots);
+   GlobalIndicesFreeIndices(&(junk->gindices));
+   GCAdminFree(junk->gc_terms);
+   //GCAdminFree(junk->gc_original_terms);
 
    DefStoreFree(junk->definition_store);
    if(junk->fvi_cspec)
@@ -439,8 +506,8 @@ void ProofStateFree(ProofState_p junk)
       FVCollectFree(junk->def_store_cspec);
    }
    // junk->original_terms->sig = NULL;
-   junk->terms->sig = NULL;
-   junk->tmp_terms->sig = NULL;
+   junk->terms->sig              = NULL;
+   junk->tmp_terms->sig          = NULL;
    SigFree(junk->signature);
    // TBFree(junk->original_terms);
    TBFree(junk->terms);
@@ -679,6 +746,21 @@ void ProofStateStatisticsPrint(FILE* out, ProofState_p state)
    fprintf(out,
            "# Current number of archived clauses   : %ld\n",
            state->archive->members);
+   fprintf(out,
+           "# Given clause loop iterations         : %ld\n",
+           state->process_clause_loops);
+   fprintf(out,
+           "# Watchlist checks                     : %ld\n",
+           state->watchlist_checks);
+   fprintf(out,
+           "# Watchlist unit clause checks         : %ld\n",
+           state->watchlist_unit_checks);
+   fprintf(out,
+           "# Inserted watchlist unit clauses      : %ld\n",
+           state->wl_unit_clause);
+   fprintf(out,
+           "# Inserted watchlist non unit clauses  : %ld\n",
+           state->wl_non_unit_clause);
    if(ProofObjectRecordsGCSelection)
    {
       fprintf(out,

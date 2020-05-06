@@ -330,7 +330,7 @@ FVIAnchor_p FVIAnchorAlloc(FVCollect_p cspec, PermVector_p perm)
 //
 // Function: FVIAnchorFree()
 //
-//   Free a FV incex.
+//   Free a FV index.
 //
 // Global Variables: -
 //

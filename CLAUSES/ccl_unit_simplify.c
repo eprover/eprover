@@ -80,7 +80,8 @@ SimplifyRes FindTopSimplifyingUnit(ClauseSet_p units, Term_p t1,
 
    assert(TermStandardWeight(t1) == TermWeight(t1,DEFAULT_VWEIGHT,DEFAULT_FWEIGHT));
    assert(TermStandardWeight(t2) == TermWeight(t2,DEFAULT_VWEIGHT,DEFAULT_FWEIGHT));
-   assert(units && units->demod_index);
+   assert(units);
+   assert(units->demod_index);
 
    PDTreeSearchInit(units->demod_index, t1, PDTREE_IGNORE_NF_DATE, false);
 
@@ -129,7 +130,8 @@ SimplifyRes FindSignedTopSimplifyingUnit(ClauseSet_p units, Term_p t1,
 
    assert(TermStandardWeight(t1) == TermWeight(t1,DEFAULT_VWEIGHT,DEFAULT_FWEIGHT));
    assert(TermStandardWeight(t2) == TermWeight(t2,DEFAULT_VWEIGHT,DEFAULT_FWEIGHT));
-   assert(units && units->demod_index);
+   assert(units);
+   assert(units->demod_index);
 
    PDTreeSearchInit(units->demod_index, t1, PDTREE_IGNORE_NF_DATE, false);
 
@@ -286,7 +288,7 @@ bool ClauseSimplifyWithUnitSet(Clause_p clause, ClauseSet_p unit_set,
    SimplifyRes res;
 
    assert(clause);
-   assert(unit_set && unit_set->demod_index);
+   assert(unit_set);
    assert(how);
 
    handle = &(clause->literals);

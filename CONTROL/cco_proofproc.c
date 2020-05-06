@@ -126,11 +126,17 @@ static long remove_subsumed(GlobalIndices_p indices,
    long     res;
    PStack_p stack = PStackAlloc();
 
-   res = ClauseSetFindFVSubsumedClauses(set, subsumer, stack);
+   res = ClauseSetFindESISubsumedClauses(set, subsumer, stack);
 
    while(!PStackEmpty(stack))
    {
       handle = PStackPopP(stack);
+      ClausePrint(stdout, handle, true);
+      printf("\n");
+      
+      if(ClauseQueryProp(handle, CPIsDead)) {
+         continue;
+      }
       //printf("# XXX Removing (remove_subumed()) %p from %p = %p\n", handle, set, handle->set);
       if(ClauseQueryProp(handle, CPWatchOnly))
       {
@@ -380,25 +386,62 @@ static long eliminate_context_sr_clauses(ProofState_p state,
 
 void check_watchlist(GlobalIndices_p indices, ClauseSet_p watchlist,
                      Clause_p clause, ClauseSet_p archive,
-                     bool static_watchlist)
+                     bool static_watchlist, ProofState_p state)
 {
-   FVPackedClause_p pclause;
-   long removed;
+   FVPackedClause_p pclause = NULL;
+   Clause_p         rewrite = NULL;
+   long             removed;
 
    if(watchlist)
    {
-      pclause = FVIndexPackClause(clause, watchlist->fvindex);
-      // printf("# check_watchlist(%p)...\n", indices);
-      ClauseSubsumeOrderSortLits(clause);
-      // assert(ClauseIsSubsumeOrdered(clause));
+      state->watchlist_checks++;
+      if (ClauseIsUnit(clause))
+      {
+         state->watchlist_unit_checks++;
+      }
 
-      clause->weight = ClauseStandardWeight(clause);
+      if (watchlist->esindex->wl_constants_abstraction)
+      {
+         rewrite = ClauseCopy(clause, state->terms);
+         RewriteConstants(rewrite, state->terms, 
+                          watchlist->esindex->wl_abstraction_symbols);
+         pclause = FVIndexPackClause(rewrite, watchlist->esindex->fvindex);
+         ClauseSubsumeOrderSortLits(rewrite);
+         rewrite->weight = ClauseStandardWeight(rewrite);
+      } 
+      else if (watchlist->esindex->wl_skolemsym_abstraction)
+      {
+         rewrite = ClauseCopy(clause, state->terms);
+         RewriteSkolemSymbols(rewrite, state->terms, 
+                              state->watchlist->esindex->wl_abstraction_symbols, 
+                              state->signature);
+         pclause = FVIndexPackClause(rewrite, watchlist->esindex->fvindex);
+         ClauseSubsumeOrderSortLits(rewrite);
+         rewrite->weight = ClauseStandardWeight(rewrite);
+      } 
+      else 
+      {
+         pclause = FVIndexPackClause(clause, watchlist->esindex->fvindex);
+         // printf("# check_watchlist(%p)...\n", indices);
+         ClauseSubsumeOrderSortLits(clause);
+         clause->weight = ClauseStandardWeight(clause);
+         // assert(ClauseIsSubsumeOrdered(clause));
+      }
 
       if(static_watchlist)
       {
          Clause_p subsumed;
 
-         subsumed = ClauseSetFindFirstSubsumedClause(watchlist, clause);
+         if (rewrite != NULL && (watchlist->esindex->wl_constants_abstraction 
+                                 || watchlist->esindex->wl_skolemsym_abstraction))
+         {
+            subsumed = ClauseSetFindFirstSubsumedClause(watchlist, rewrite);
+         }
+         else
+         {
+            subsumed = ClauseSetFindFirstSubsumedClause(watchlist, clause);
+         }
+         
          if(subsumed)
          {
             ClauseSetProp(clause, CPSubsumesWatch);
@@ -419,40 +462,30 @@ void check_watchlist(GlobalIndices_p indices, ClauseSet_p watchlist,
                            "extract_subsumed_watched", NULL);   }
       }
       FVUnpackClause(pclause);
+      if(rewrite)
+      {
+         ClauseFree(rewrite);
+      }
       // printf("# ...check_watchlist()\n");
    }
 }
 
-
 /*-----------------------------------------------------------------------
 //
-// Function: simplify_watchlist()
+// Function: simplify_watchlist_rewriteables()
 //
-//   Simplify all clauses in state->watchlist with processed positive
-//   units from state. Assumes that all those clauses are in normal
-//   form with respect to all clauses but clause!
+//   Provides a set of rewriteables for simplifying the watchtlist.
 //
 // Global Variables: -
 //
-// Side Effects    : Changes watchlist, introduces new rewrite links
-//                   into the term bank!
+// Side Effects    : -
 //
 /----------------------------------------------------------------------*/
-
-void simplify_watchlist(ProofState_p state, ProofControl_p control,
-                        Clause_p clause)
+ClauseSet_p simplify_watchlist_rewriteables(ProofState_p state, 
+                                            ProofControl_p control,
+                                            Clause_p clause, 
+                                            ClauseSet_p tmp_set)
 {
-   ClauseSet_p tmp_set;
-   Clause_p handle;
-   long     removed_lits;
-
-   if(!ClauseIsDemodulator(clause))
-   {
-      return;
-   }
-   // printf("# simplify_watchlist()...\n");
-   tmp_set = ClauseSetAlloc();
-
    if(state->wlindices.bw_rw_index)
    {
       // printf("# Simpclause: "); ClausePrint(stdout, clause, true); printf("\n");
@@ -469,10 +502,31 @@ void simplify_watchlist(ProofState_p state, ProofControl_p control,
                               clause, clause->date,
                               &(state->wlindices));
    }
+
+   return tmp_set;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: simplify_watchlist_handle()
+//
+//   Handles the set of rewriteables generated by 
+//   simplify_watchlist_rewriteables.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+void simplify_watchlist_handle(ProofState_p state, ProofControl_p control,
+                               ClauseSet_p tmp_set, char *kind)
+{
+   Clause_p    handle;
+   Clause_p    rewrite_handle;
+   long        removed_lits;
+
    while((handle = ClauseSetExtractFirst(tmp_set)))
    {
-      // printf("# WL simplify: "); ClausePrint(stdout, handle, true);
-      // printf("\n");
       ClauseComputeLINormalform(control->ocb,
                                 state->terms,
                                 handle,
@@ -490,12 +544,80 @@ void simplify_watchlist(ProofState_p state, ProofControl_p control,
       }
       handle->weight = ClauseStandardWeight(handle);
       ClauseMarkMaximalTerms(control->ocb, handle);
-      ClauseSetIndexedInsertClause(state->watchlist, handle);
-      // printf("# WL Inserting: "); ClausePrint(stdout, handle, true); printf("\n");
-      GlobalIndicesInsertClause(&(state->wlindices), handle);
+
+      if (!strcmp("constant", kind))
+      {
+         rewrite_handle = ClauseCopy(handle, state->terms);
+         RewriteConstants(rewrite_handle, state->terms, 
+                          state->watchlist->esindex->wl_abstraction_symbols);
+         rewrite_handle->weight = ClauseStandardWeight(rewrite_handle);
+         ClauseSetIndexedInsertClause(state->watchlist, rewrite_handle);
+         GlobalIndicesInsertClause(&(state->wlindices), rewrite_handle);
+         ClauseFree(handle);
+      }
+      else if (!strcmp("skolem", kind))
+      {
+         rewrite_handle = ClauseCopy(handle, state->terms);
+         RewriteSkolemSymbols(rewrite_handle, state->terms, 
+                              state->watchlist->esindex->wl_abstraction_symbols, 
+                              state->signature);
+         rewrite_handle->weight = ClauseStandardWeight(rewrite_handle);
+         ClauseSetIndexedInsertClause(state->watchlist, rewrite_handle);
+         GlobalIndicesInsertClause(&(state->wlindices), rewrite_handle);
+         ClauseFree(handle);
+      }
+      else if (!strcmp("default", kind))
+      {
+         ClauseSetIndexedInsertClause(state->watchlist, handle);
+         // printf("# WL Inserting: "); ClausePrint(stdout, handle, true); printf("\n");
+         GlobalIndicesInsertClause(&(state->wlindices), handle);
+      }
    }
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: simplify_watchlist()
+//
+//   Simplify all clauses in state->watchlist with processed positive
+//   units from state. Assumes that all those clauses are in normal
+//   form with respect to all clauses but clause!
+//   When clause abstraction is enabled this will use the abstracted 
+//   watchlist.
+//
+// Global Variables: -
+//
+// Side Effects    : Changes watchlist, introduces new rewrite links
+//                   into the term bank!
+//
+/----------------------------------------------------------------------*/
+void simplify_watchlist(ProofState_p state, ProofControl_p control,
+                        Clause_p clause)
+{
+   ClauseSet_p tmp_set;
+
+   if(!ClauseIsDemodulator(clause))
+   {
+      return;
+   }
+   // printf("# simplify_watchlist()...\n");
+   tmp_set = ClauseSetAlloc();
+   tmp_set = simplify_watchlist_rewriteables(state, control, clause, tmp_set);
+
+   if (state->watchlist->esindex->wl_skolemsym_abstraction) 
+   {
+      simplify_watchlist_handle(state, control, tmp_set, "skolem");
+   }
+   else if (state->watchlist->esindex->wl_constants_abstraction)
+   {
+      simplify_watchlist_handle(state, control, tmp_set, "constant");
+   }
+   else
+   {
+      simplify_watchlist_handle(state, control, tmp_set, "default");
+   }
+
    ClauseSetFree(tmp_set);
-   // printf("# ...simplify_watchlist()\n");
 }
 
 
@@ -661,7 +783,8 @@ static Clause_p insert_new_clauses(ProofState_p state, ProofControl_p control)
       }
       check_watchlist(&(state->wlindices), state->watchlist,
                       handle, state->archive,
-                      control->heuristic_parms.watchlist_is_static);
+                      control->heuristic_parms.watchlist_is_static,
+                      state);
       if(ClauseIsEmpty(handle))
       {
          return handle;
@@ -1285,18 +1408,18 @@ void fvi_param_init(ProofState_p state, ProofControl_p control)
                             control->fvi_parms.eliminate_uninformative);
    if(control->fvi_parms.cspec.features != FVINoFeatures)
    {
-      state->processed_non_units->fvindex =
-         FVIAnchorAlloc(cspec, PermVectorCopy(perm));
-      state->processed_pos_rules->fvindex =
-         FVIAnchorAlloc(cspec, PermVectorCopy(perm));
-      state->processed_pos_eqns->fvindex =
-         FVIAnchorAlloc(cspec, PermVectorCopy(perm));
-      state->processed_neg_units->fvindex =
-         FVIAnchorAlloc(cspec, PermVectorCopy(perm));
+      state->processed_non_units->esindex =
+         ESIndexAlloc(cspec, PermVectorCopy(perm));
+      state->processed_pos_rules->esindex =
+         ESIndexAlloc(cspec, PermVectorCopy(perm));
+      state->processed_pos_eqns->esindex =
+         ESIndexAlloc(cspec, PermVectorCopy(perm));
+      state->processed_neg_units->esindex =
+         ESIndexAlloc(cspec, PermVectorCopy(perm));
       if(state->watchlist)
       {
-         state->watchlist->fvindex =
-            FVIAnchorAlloc(cspec, PermVectorCopy(perm));
+         state->watchlist->esindex =
+            ESIndexAlloc(cspec, PermVectorCopy(perm));
          //ClauseSetNewTerms(state->watchlist, state->terms);
       }
    }
@@ -1312,8 +1435,8 @@ void fvi_param_init(ProofState_p state, ProofControl_p control)
                                            symbols,
                                            0,0,0,
                                            0,0,0);
-   state->definition_store->def_clauses->fvindex =
-      FVIAnchorAlloc(state->def_store_cspec, perm);
+   state->definition_store->def_clauses->esindex =
+      ESIndexAlloc(state->def_store_cspec, perm);
 }
 
 
@@ -1339,6 +1462,14 @@ void ProofStateInit(ProofState_p state, ProofControl_p control)
    HCB_p    tmphcb;
    PStack_p traverse;
    Eval_p   cell;
+   char*    watchlist_unit_clause_index_type;
+   
+   if (state->watchlist)
+   {
+      watchlist_unit_clause_index_type = DetermineWatchlistUCIndexType(
+         state,
+         control->heuristic_parms.watchlist_unit_clause_index_type);
+   }   
 
    OUTPRINT(1, "# Initializing proof state\n");
 
@@ -1351,7 +1482,10 @@ void ProofStateInit(ProofState_p state, ProofControl_p control)
    {
       fvi_param_init(state, control);
    }
-   ProofStateInitWatchlist(state, control->ocb);
+   ProofStateInitWatchlist(state, control->ocb, 
+                           control->heuristic_parms.wl_abstract_constant_sym,
+                           control->heuristic_parms.wl_abstract_skolem_sym,
+                           watchlist_unit_clause_index_type);
 
    tmphcb = GetHeuristic("Uniq", state, control, &(control->heuristic_parms));
    assert(tmphcb);
@@ -1368,7 +1502,8 @@ void ProofStateInit(ProofState_p state, ProofControl_p control)
       ClauseSetProp(new, CPInitial);
       check_watchlist(&(state->wlindices), state->watchlist,
                       new, state->archive,
-                      control->heuristic_parms.watchlist_is_static);
+                      control->heuristic_parms.watchlist_is_static,
+                      state);
       HCBClauseEvaluate(control->hcb, new);
       DocClauseQuoteDefault(6, new, "eval");
       ClausePushDerivation(new, DCCnfQuote, handle, NULL);
@@ -1412,6 +1547,50 @@ void ProofStateInit(ProofState_p state, ProofControl_p control)
 
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: DetermineWatchlistUCIndexType()
+//
+//   Determines which finger print function to use when 
+///  watchlistUCIndexType is auto.
+//   Otherwise it will just default to the provided string.
+//
+// Global Variables: - 
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+char* DetermineWatchlistUCIndexType(ProofState_p state,
+                                    char* watchlistUCIndexType)
+{
+   SpecFeatureCell watchlist_features;
+   char*           watchlist_unit_clause_index_type = watchlistUCIndexType;
+
+   if(strcmp(watchlistUCIndexType,"auto")==0)
+   {
+      SpecFeaturesCompute(&watchlist_features, state->watchlist, 
+                          state->signature);
+
+      switch (watchlist_features.eq_content)
+      {
+      case SpecNoEq:
+         watchlist_unit_clause_index_type = "FPWatchlist6L";
+         break;
+      case SpecSomeEq:
+         watchlist_unit_clause_index_type = "FPWatchlist6LL";
+         break;
+      case SpecPureEq:
+         watchlist_unit_clause_index_type = "FPWatchlist6";
+         break;
+      default:
+         watchlist_unit_clause_index_type = "FPWatchlist6";
+         break;
+      }
+   }
+
+   return watchlist_unit_clause_index_type;
+}
+
 
 /*-----------------------------------------------------------------------
 //
@@ -1433,6 +1612,8 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control,
    Clause_p         clause, resclause, tmp_copy, empty, arch_copy = NULL;
    FVPackedClause_p pclause;
    SysDate          clausedate;
+
+   state->process_clause_loops++;
 
    clause = control->hcb->hcb_select(control->hcb,
                                      state->unprocessed);
@@ -1504,8 +1685,9 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control,
    }
 
    check_watchlist(&(state->wlindices), state->watchlist,
-                      pclause->clause, state->archive,
-                      control->heuristic_parms.watchlist_is_static);
+                   pclause->clause, state->archive,
+                   control->heuristic_parms.watchlist_is_static,
+                   state);
 
    /* Now on to backward simplification. */
    clausedate = ClauseSetListGetMaxDate(state->demods, FullRewrite);
@@ -1532,22 +1714,26 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control,
       {
          TermCellSetProp(clause->literals->lterm, TPIsRewritable);
          state->processed_pos_rules->date = clausedate;
-         ClauseSetIndexedInsert(state->processed_pos_rules, pclause);
+         // ClauseSetIndexedInsert(state->processed_pos_rules, pclause);
+         ClauseSetIndexedInsertClause(state->processed_pos_rules, pclause->clause);
       }
       else
       {
          state->processed_pos_eqns->date = clausedate;
-         ClauseSetIndexedInsert(state->processed_pos_eqns, pclause);
+         // ClauseSetIndexedInsert(state->processed_pos_eqns, pclause);
+         ClauseSetIndexedInsertClause(state->processed_pos_eqns, pclause->clause);
       }
    }
    else if(ClauseLiteralNumber(clause) == 1)
    {
       assert(clause->neg_lit_no == 1);
-      ClauseSetIndexedInsert(state->processed_neg_units, pclause);
+      // ClauseSetIndexedInsert(state->processed_neg_units, pclause)
+      ClauseSetIndexedInsertClause(state->processed_neg_units, pclause->clause);
    }
    else
    {
-      ClauseSetIndexedInsert(state->processed_non_units, pclause);
+      // ClauseSetIndexedInsert(state->processed_non_units, pclause);
+      ClauseSetIndexedInsertClause(state->processed_non_units, pclause->clause);
    }
    GlobalIndicesInsertClause(&(state->gindices), clause);
 

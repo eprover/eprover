@@ -319,20 +319,20 @@ ClauseSet_p ClauseSetAlloc(void)
 
    handle = ClauseSetCellAlloc();
 
-   handle->members = 0;
-   handle->literals = 0;
-   handle->anchor = ClauseCellAlloc();
+   handle->members          = 0;
+   handle->literals         = 0;
+   handle->anchor           = ClauseCellAlloc();
    handle->anchor->literals = NULL;
    handle->anchor->pred = handle->anchor->succ = handle->anchor;
    handle->date = SysDateCreationTime();
    SysDateInc(&handle->date);
-   handle->demod_index = NULL;
-   handle->fvindex = NULL;
 
-   handle->eval_indices = PDArrayAlloc(4,4);
-   handle->eval_no = 0;
+   handle->demod_index      = NULL;
+   handle->esindex          = NULL;
 
-   handle->identifier = DStrAlloc();
+   handle->eval_indices     = PDArrayAlloc(4,4);
+   handle->eval_no          = 0;
+   handle->identifier       = DStrAlloc();
 
    return handle;
 }
@@ -381,18 +381,14 @@ void ClauseSetFree(ClauseSet_p junk)
    assert(junk);
 
    ClauseSetFreeClauses(junk);
-   if(junk->demod_index)
+   if(junk->esindex)
    {
-      PDTreeFree(junk->demod_index);
-   }
-
-   if(junk->fvindex)
-   {
-      FVIAnchorFree(junk->fvindex);
+      ESIndexFree(junk->esindex);
    }
    PDArrayFree(junk->eval_indices);
    ClauseCellFree(junk->anchor);
    DStrFree(junk->identifier);
+
    ClauseSetCellFree(junk);
 }
 
@@ -537,6 +533,10 @@ long ClauseSetInsertSet(ClauseSet_p set, ClauseSet_p from)
 
 void ClauseSetPDTIndexedInsert(ClauseSet_p set, Clause_p newclause)
 {
+   // assert(ClauseIsUnit(newclause));
+
+   // ClauseSetInsert(set, newclause);
+   // ClausesetIndexInsertNewClause(set->clauseset_indexes, newclause);
    ClausePos_p pos;
 
    assert(set->demod_index);
@@ -558,39 +558,8 @@ void ClauseSetPDTIndexedInsert(ClauseSet_p set, Clause_p newclause)
       pos->pos     = NULL;
       PDTreeInsert(set->demod_index, pos);
    }
+
    ClauseSetProp(newclause, CPIsDIndexed);
-}
-
-
-
-/*-----------------------------------------------------------------------
-//
-// Function: ClauseSetIndexedInsert()
-//
-//   Insert an FVPackedClause clause into the set, taking care od of
-//   all existing indexes.
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-void ClauseSetIndexedInsert(ClauseSet_p set, FVPackedClause_p newclause)
-{
-   if(!set->demod_index)
-   {
-      ClauseSetInsert(set, newclause->clause);
-   }
-   else
-   {
-      ClauseSetPDTIndexedInsert(set, newclause->clause);
-   }
-   if(set->fvindex)
-   {
-      FVIndexInsert(set->fvindex, newclause);
-      ClauseSetProp(newclause->clause, CPIsSIndexed);
-   }
 }
 
 
@@ -609,10 +578,19 @@ void ClauseSetIndexedInsert(ClauseSet_p set, FVPackedClause_p newclause)
 
 void ClauseSetIndexedInsertClause(ClauseSet_p set, Clause_p newclause)
 {
-   FVPackedClause_p pclause = FVIndexPackClause(newclause, set->fvindex);
-   assert(newclause->weight == ClauseStandardWeight(newclause));
-   ClauseSetIndexedInsert(set, pclause);
-   FVUnpackClause(pclause);
+   if(!set->demod_index)
+   {
+      ClauseSetInsert(set, newclause);
+   }
+   else
+   {
+      ClauseSetPDTIndexedInsert(set, newclause);
+   }
+   if(set->esindex)
+   {
+      ESIndexInsertClause(set->esindex, newclause);
+      ClauseSetProp(newclause, CPIsSIndexed);
+   }
 }
 
 
@@ -679,7 +657,8 @@ Clause_p ClauseSetExtractEntry(Clause_p clause)
    }
    if(ClauseQueryProp(clause, CPIsSIndexed))
    {
-      FVIndexDelete(clause->set->fvindex, clause);
+      // ClausesetIndexExtractEntry(clause->set->clauseset_indexes, clause);
+      ClausesetIndexDeleteEntry(clause->set->esindex, clause);
       ClauseDelProp(clause, CPIsSIndexed);
    }
    clause_set_extract_entry(clause);
@@ -2164,7 +2143,7 @@ PermVector_p PermVectorCompute(ClauseSet_p set, FVCollect_p cspec,
 
 /*-----------------------------------------------------------------------
 //
-// Function: ClauseSetFVIndexify()
+// Function: ClauseSetIndexify()
 //
 //   Remove all clauses from set and insert them again as indexed
 //   clauses. Return number of clauses in set.
@@ -2175,13 +2154,13 @@ PermVector_p PermVectorCompute(ClauseSet_p set, FVCollect_p cspec,
 //
 /----------------------------------------------------------------------*/
 
-long ClauseSetFVIndexify(ClauseSet_p set)
+long ClauseSetIndexify(ClauseSet_p set)
 {
    PStack_p stack = PStackAlloc();
    Clause_p clause;
 
    assert(set);
-   assert(set->fvindex);
+   assert(set->esindex);
 
    while((clause = ClauseSetExtractFirst(set)))
    {

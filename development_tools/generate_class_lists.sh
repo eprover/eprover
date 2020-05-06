@@ -1,6 +1,6 @@
-#! /bin/sh
+#!/bin/zsh
 #
-# Given a directory of LOP-files, classify them and create lists for
+# Given a directory of p-files, classify them and create lists for
 # each class in the current directory.
 #
 
@@ -11,7 +11,7 @@ if [ "$1" ]; then
     dir="$1"
     cl="$*"
     shift
-    for file in $dir/*.tptp ; do
+    for file in $dir/*.p ; do
         base=`basename $file`
 	echo $base
 	echo $base >>  CLASS_`classify_problem $* $file |grep " : "| cut -d\( -f2-|cut -d: -f2-| sed -e's/ //'g `

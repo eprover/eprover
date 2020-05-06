@@ -62,10 +62,10 @@ PERF_CTR_DEFINE(BWRWIndexTimer);
 
 void GlobalIndicesNull(GlobalIndices_p indices)
 {
-   indices->bw_rw_index   = NULL;
-   indices->pm_into_index = NULL;
-   indices->pm_negp_index = NULL;
-   indices->pm_from_index = NULL;
+   indices->bw_rw_index      = NULL;
+   indices->pm_into_index    = NULL;
+   indices->pm_negp_index    = NULL;
+   indices->pm_from_index    = NULL;
 }
 
 

@@ -27,6 +27,7 @@ Changes
 
 #include <ccl_subterm_index.h>
 #include <ccl_overlap_index.h>
+#include <ccl_unitclause_index.h>
 #include <ccl_clausesets.h>
 
 

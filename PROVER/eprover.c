@@ -496,6 +496,7 @@ int main(int argc, char* argv[])
    PCLFullTerms = pcl_full_terms; /* Preprocessing always uses full
                                      terms, so we set the flag for
                                      the main proof search only now! */
+
    GlobalIndicesInit(&(proofstate->wlindices),
                      proofstate->signature,
                      proofcontrol->heuristic_parms.rw_bw_index_type,
@@ -504,6 +505,7 @@ int main(int argc, char* argv[])
    //printf("Alive (1)!\n");
 
    ProofStateInit(proofstate, proofcontrol);
+   
    //printf("Alive (2)!\n");
    //ProofStateInitWatchlist(proofstate, proofcontrol->ocb);
 
@@ -808,6 +810,8 @@ cleanup1:
 //
 //   Check in arg is a valid term describing a FP-index function. If
 //   yes, return true. If no, print error (nominally return false).
+//   Since the watchlist unit clause index allows for an =auto argument
+//   this is also checked explicitly here.
 //
 // Global Variables: -
 //
@@ -823,6 +827,11 @@ bool check_fp_index_arg(char* arg, char* opt)
    {
       return true;
    }
+   else if((strcmp(opt, "--watchlist-unit-clause-index")==0)
+            &&(strcmp(arg, "auto")==0))
+   {
+      return true;
+   }
    err = DStrAlloc();
    DStrAppendStr(err,
                  "Wrong argument to option ");
@@ -831,6 +840,8 @@ bool check_fp_index_arg(char* arg, char* opt)
    DStrAppendStr(err,
                  ". Possible values: ");
    DStrAppendStrArray(err, FPIndexNames, ", ");
+   DStrAppendStr(err,
+                 ". The watchlist unit clause index also allows the option: auto.");
    Error(DStrView(err), USAGE_ERROR);
    DStrFree(err);
 
@@ -1527,6 +1538,31 @@ CLState_p process_options(int argc, char* argv[])
             break;
       case OPT_WATCHLIST_NO_SIMPLIFY:
             h_parms->watchlist_simplify = false;
+            break;
+      case OPT_WATCHLIST_CLAUSE_ABSTRACTION:
+            if (!strcmp("constant", arg))
+            {
+               h_parms->wl_abstract_skolem_sym = false;
+               h_parms->wl_abstract_constant_sym = true;
+            }
+            else if (!strcmp("skolem", arg))
+            {
+               h_parms->wl_abstract_skolem_sym = true;
+               h_parms->wl_abstract_constant_sym = false;
+            }
+            else
+            {
+               DStr_p err = DStrAlloc();
+               DStrAppendStr(err,
+                             "Wrong argument to option --watchlist-clause-abstraction. "
+                             "Possible values: skolem, constant.");
+               Error(DStrView(err), USAGE_ERROR);
+               DStrFree(err);
+            }
+            break;
+      case OPT_WATCHLIST_UNIT_CLAUSE_INDEX:
+            check_fp_index_arg(arg, "--watchlist-unit-clause-index");
+            strcpy(h_parms->watchlist_unit_clause_index_type, arg);
             break;
       case OPT_NO_INDEXED_SUBSUMPTION:
             fvi_parms->cspec.features = FVINoFeatures;

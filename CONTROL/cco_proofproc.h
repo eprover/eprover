@@ -35,6 +35,7 @@ Changes
 #include <cco_forward_contraction.h>
 #include <cco_interpreted.h>
 #include <ccl_satinterface.h>
+#include <ccl_clause_abstraction.h>
 
 
 /*---------------------------------------------------------------------*/
@@ -63,6 +64,8 @@ void     ProofControlInit(ProofState_p state, ProofControl_p control,
                           PStack_p wfcb_defs,
                           PStack_p hcb_defs);
 void     ProofStateInit(ProofState_p state, ProofControl_p control);
+char*    DetermineWatchlistUCIndexType(ProofState_p state,
+                                       char* watchlistUCIndexType);
 void     ProofStateResetProcessedSet(ProofState_p state,
                                      ProofControl_p control,
                                      ClauseSet_p set);

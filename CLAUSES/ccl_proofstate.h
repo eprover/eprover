@@ -30,6 +30,7 @@
 #include <ccl_garbage_coll.h>
 #include <ccl_global_indices.h>
 #include <picosat.h>
+#include <ccl_clause_abstraction.h>
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
@@ -113,6 +114,12 @@ typedef struct proofstatecell
    unsigned long long forward_contract_base; /* Number of processed
                                                 clauses at last
                                                 forward-contraction */
+   /* watchlist stats */
+   unsigned long process_clause_loops;
+   unsigned long watchlist_checks;
+   unsigned long watchlist_unit_checks;
+   unsigned long wl_unit_clause;
+   unsigned long wl_non_unit_clause;
 
    /* The following are only set by ProofStateAnalyse() after
       DerivationCompute() at the end of the proof search. */
@@ -144,9 +151,11 @@ void         ProofStateLoadWatchlist(ProofState_p state,
                                      IOFormat parse_format);
 
 
-void         ProofStateInitWatchlist(ProofState_p state, OCB_p ocb);
-void         ProofStateResetClauseSets(ProofState_p state, bool term_gc);
-void         ProofStateFree(ProofState_p junk);
+void ProofStateInitWatchlist(ProofState_p state, OCB_p ocb, 
+                             bool rewriteConstants, bool rewriteSkolemSym,
+                             char* watchlist_unit_clause_index_type);
+void ProofStateResetClauseSets(ProofState_p state, bool term_gc);
+void ProofStateFree(ProofState_p junk);
 //void         ProofStateGCMarkTerms(ProofState_p state);
 //long         ProofStateGCSweepTerms(ProofState_p state);
 
@@ -159,7 +168,7 @@ void         ProofStateFree(ProofState_p junk);
     ClauseSetStorage((state)->archive)+                 \
     TBStorage((state)->terms))
 
-#define      ProofStateProcCardinality(state)          \
+#define      ProofStateProcCardinality(state)             \
    (ClauseSetCardinality((state)->processed_pos_rules)+   \
     ClauseSetCardinality((state)->processed_pos_eqns)+    \
     ClauseSetCardinality((state)->processed_neg_units)+   \
