@@ -8,13 +8,11 @@
 
   Functions for the administration of HCBs.
 
-  Copyright 1998, 1999 by the author.
+  Copyright 1998-2020 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
-
-  Changes
 
   Created: Fri Oct 16 14:52:53 MET DST 1998
 
@@ -204,6 +202,114 @@ void HeuristicParmsFree(HeuristicParms_p junk)
 
    HeuristicParmsCellFree(junk);
 }
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: HeuristicParmsPrint()
+//
+//   Print a HeuristicParmsCell in human/computer-readable form.
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+void HeuristicParmsPrint(FILE* out, HeuristicParms_p handle)
+{
+   fprintf(out, "{\n");
+
+   fprintf(out, "   no_preproc:                    %s\n", BOOL2STR(handle->no_preproc));
+   fprintf(out, "   eqdef_maxclauses:              %ld\n", handle->eqdef_maxclauses);
+   fprintf(out, "   eqdef_incrlimit:               %ld\n", handle->eqdef_incrlimit);
+
+   fprintf(out, "   heuristic_name:                %s\n", handle->heuristic_name);
+   fprintf(out, "   prefer_initial_clauses:        %s\n",
+           BOOL2STR(handle->prefer_initial_clauses));
+
+   // OrderParmsPrint(out, &(handle->order_params);
+
+   fprintf(out, "   selection_strategy:            %s\n",
+           GetLitSelName(handle->selection_strategy));
+
+   fprintf(out, "   pos_lit_sel_min:               %ld\n", handle->pos_lit_sel_min);
+   fprintf(out, "   pos_lit_sel_max:               %ld\n", handle->pos_lit_sel_max);
+   fprintf(out, "   neg_lit_sel_min:               %ld\n", handle->neg_lit_sel_min);
+   fprintf(out, "   neg_lit_sel_max:               %ld\n", handle->neg_lit_sel_max);
+   fprintf(out, "   all_lit_sel_min:               %ld\n", handle->all_lit_sel_min);
+   fprintf(out, "   all_lit_sel_max:               %ld\n", handle->all_lit_sel_max);
+   fprintf(out, "   weight_sel_min:                %ld\n", handle->weight_sel_min);
+
+   fprintf(out, "   select_on_proc_only:           %s\n",
+           BOOL2STR(handle->select_on_proc_only));
+   fprintf(out, "   inherit_paramod_lit:           %s\n",
+           BOOL2STR(handle->inherit_paramod_lit));
+   fprintf(out, "   inherit_goal_pm_lit:           %s\n",
+           BOOL2STR(handle->inherit_goal_pm_lit));
+   fprintf(out, "   inherit_conj_pm_lit:           %s\n",
+           BOOL2STR(handle->inherit_conj_pm_lit));
+
+   fprintf(out, "   enable_eq_factoring:           %s\n",
+           BOOL2STR(handle->enable_eq_factoring));
+   fprintf(out, "   enable_neg_unit_paramod:       %s\n",
+           BOOL2STR(handle->enable_neg_unit_paramod));
+   fprintf(out, "   enable_given_forward_simpl:    %s\n",
+           BOOL2STR(handle->enable_given_forward_simpl));
+
+   fprintf(out, "   pm_type:                       %s\n", ParamodStr(handle->pm_type));
+
+   fprintf(out, "   ac_handling:                   %d\n", handle->ac_handling);
+   fprintf(out, "   ac_res_aggressive:             %s\n",
+           BOOL2STR(handle->ac_res_aggressive));
+   fprintf(out, "   forward_context_sr:            %s\n",
+           BOOL2STR(handle->forward_context_sr));
+   fprintf(out, "   forward_context_sr_aggressive: %s\n",
+           BOOL2STR(handle->forward_context_sr_aggressive));
+   fprintf(out, "   backward_context_sr:           %s\n",
+           BOOL2STR(handle->backward_context_sr));
+
+   fprintf(out, "   forward_demod:                 %d\n", handle->forward_demod);
+   fprintf(out, "   prefer_general:                %s\n",
+           BOOL2STR(handle->prefer_general));
+
+   fprintf(out, "   condensing:                    %s\n",
+           BOOL2STR(handle->condensing));
+   fprintf(out, "   condensing_aggressive:         %s\n",
+           BOOL2STR(handle->condensing_aggressive));
+
+   fprintf(out, "   er_varlit_destructive:         %s\n",
+           BOOL2STR(handle->er_varlit_destructive));
+   fprintf(out, "   er_strong_destructive:         %s\n",
+           BOOL2STR(handle->er_strong_destructive));
+   fprintf(out, "   er_aggressive:                 %s\n",
+           BOOL2STR(handle->er_aggressive));
+
+
+
+
+   fprintf(out, "}\n");
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: HeuristicParmsParseInto()
+//
+//   Parse the HeuristicParmsCell into/over the existing
+//   cell. Parameters are expected in-order, but may be missing.
+//
+// Global Variables:
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+
+void             HeuristicParmsParseInto(Scanner_p in,
+                                         HeuristicParms_p handle,
+                                         bool warn_missing);
+HeuristicParms_p HeuristicParmsParse(Scanner_p in);
+
 
 
 

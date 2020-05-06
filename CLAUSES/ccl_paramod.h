@@ -68,6 +68,9 @@ typedef struct
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
+char*              ParamodStr(ParamodulationType pm_type);
+ParamodulationType ParamodType(char *pm_str);
+
 
 void     ParamodInfoPrint(FILE* out, ParamodInfo_p info);
 

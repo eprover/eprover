@@ -9,13 +9,11 @@
   Heuristic control blocks, describing heuristics for clause
   selection.
 
-  Copyright 1998-2018 by the author.
+  Copyright 1998-2020 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
-
-  Changes
 
   Created: Fri Jun  5 22:25:02 MET DST 1998
 
@@ -54,7 +52,9 @@ typedef enum
 }ACHandlingType;
 
 
-/* External parameters for heuristics and proof control */
+/* External parameters for heuristics and proof control. When this is
+ * changed, remember to also adapt the Init, Print und
+ * Parse functions below. */
 
 typedef struct heuristic_parms_cell
 {
@@ -210,6 +210,11 @@ PERF_CTR_DECL(ClauseEvalTimer);
 void             HeuristicParmsInitialize(HeuristicParms_p handle);
 HeuristicParms_p HeuristicParmsAlloc(void);
 void             HeuristicParmsFree(HeuristicParms_p junk);
+
+void             HeuristicParmsPrint(FILE* out, HeuristicParms_p handle);
+void             HeuristicParmsParseInto(Scanner_p in, HeuristicParms_p handle,
+                                         bool warn_missing);
+HeuristicParms_p HeuristicParmsParse(Scanner_p in);
 
 
 #define HCBCellAlloc() (HCBCell*)SizeMalloc(sizeof(HCBCell))

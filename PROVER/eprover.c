@@ -463,6 +463,8 @@ int main(int argc, char* argv[])
                                proofstate->gc_terms);
    }
 
+   HeuristicParmsPrint(stdout, h_parms);
+
    if(cnf_size)
    {
       VERBOUT("CNFization done\n");

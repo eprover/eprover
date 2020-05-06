@@ -34,6 +34,20 @@
 bool ParamodOverlapNonEqLiterals = true;
 bool ParamodOverlapIntoNegativeLiterals = true;
 
+char* pm_names[] =
+{
+   "ParamodPlain",
+   "ParamodSim",
+   "ParamodOrientedSim",
+   "ParamodSuperSim",
+   "ParamodOrientedSuperSim",
+   "ParamodDecreasingSim",
+   "ParamodSizeDecreasingSim",
+   NULL
+};
+
+
+
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
 /*---------------------------------------------------------------------*/
@@ -137,6 +151,46 @@ static Term_p clause_pos_find_first_neg_max_lside(ClausePos_p pos)
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
 /*---------------------------------------------------------------------*/
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: ParamodStr()
+//
+//   Return a string representing the paramodulation type.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+char* ParamodStr(ParamodulationType pm_type)
+{
+   assert(pm_type <= ParamodSizeDecreasingSim);
+   return pm_names[pm_type];
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: ParamodType()
+//
+//    Given a string encoding, return paramodulation type (or -1 if
+//    none).
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+ParamodulationType ParamodType(char *pm_str)
+{
+   return StringIndex(pm_str, pm_names);
+}
+
+
 
 /*-----------------------------------------------------------------------
 //

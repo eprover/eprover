@@ -329,17 +329,17 @@ def parse_control_info(line):
         res = res+ "      control->heuristic_parms.sat_check_decision_limit="+arg+";\n"
 
     # Eq unfolding
-    m = match_unfold_limit(line)
+    m = match_unfold_limit.search(line)
     if m:
         arg = extract_arg(line, m)
         res = res+ "      control->heuristic_parms.eqdef_incrlimit="+arg+";\n"
 
-    m = match_unfoldmax_clauses(line)
+    m = match_unfold_maxclauses.search(line)
     if m:
         arg = extract_arg(line, m)
         res = res+ "      control->heuristic_parms.eqdef_maxclauses="+arg+";\n"
 
-    m = match_match_no_unfold(line)
+    m = match_no_unfold.search(line)
     if m:
         res = res+ "      control->heuristic_parms.no_preproc=LONG_MIN;\n"
 
