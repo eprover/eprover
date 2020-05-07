@@ -236,7 +236,6 @@ static Term_p tb_parse_cons_list(Scanner_p in, TB_p bank, bool check_symb_prop)
 
       PStackPushP(stack, current);
 
-      // TODO: Cell is already allocated, cell must be copied
       while(TestInpTok(in, Comma))
       {
          NextToken(in);
@@ -497,13 +496,10 @@ static Term_p normalize_head(Term_p head, Term_p* rest_args, int rest_arity)
       else
       {
          int total_arity = head->arity + rest_arity;
-
-         /*
-         for(unsigned int i = 0; i < total_arity; ++i)
-         {
-            res->args[i] = NULL;
-         }
-         */
+         //for(unsigned int i = 0; i < total_arity; ++i)
+         //{
+         //   res->args[i] = NULL;
+         //}
       }
 
       res->arity = total_arity;
