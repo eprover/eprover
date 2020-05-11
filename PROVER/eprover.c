@@ -483,14 +483,21 @@ int main(int argc, char* argv[])
       preproc_removed = ClauseSetPreprocess(proofstate->axioms,
                                             proofstate->watchlist,
                                             proofstate->archive,
-                                            proofstate->tmp_terms,
-                                            h_parms->eqdef_incrlimit,
-                                            h_parms->eqdef_maxclauses);
+                                            proofstate->tmp_terms);
    }
 
    proofcontrol = ProofControlAlloc();
    ProofControlInit(proofstate, proofcontrol, h_parms,
                     fvi_parms, wfcb_definitions, hcb_definitions);
+
+   // Unfold definitions and re-normalize
+   preproc_removed += ClauseSetUnfoldEqDefNormalize(proofstate->axioms,
+                                                    proofstate->watchlist,
+                                                    proofstate->archive,
+                                                    proofstate->tmp_terms,
+                                                    h_parms->eqdef_incrlimit,
+                                                    h_parms->eqdef_maxclauses);
+
    PCLFullTerms = pcl_full_terms; /* Preprocessing always uses full
                                      terms, so we set the flag for
                                      the main proof search only now! */
