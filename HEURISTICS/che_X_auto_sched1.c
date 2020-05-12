@@ -1045,7 +1045,7 @@
 /* CLASS_FGHSM-FFSF31-M : protocol_G-E--_207_C18_F1_SE_CS_SP_PI_PS_S5PRR_S2SI.csv 0    */
 /* CLASS_FGHSM-FFMM32-D : protocol_G-E--_207_C18_F1_SE_CS_SP_PI_PS_S5PRR_S2SI.csv 0    */
 /* CLASS_FGHNS-FFSF21-M : protocol_G-E--_207_C18_F1_SE_CS_SP_PI_PS_S5PRR_S2SI.csv 0    */
-/* CLASS_FGHSM-FFMM31-M : protocol_G-E--_208_C12_02_nc_F1_SE_CS_SP_PS_S5PRR_RG_S070I.csv 29   */
+/* CLASS_FGHSM-FFMM31-M : protocol_G-E--_208_C12_02_nc_F1_SE_CS_SP_PS_S5PRR_RG_S070I.csv 27   */
 /* CLASS_FGHSM-SMLM31-M : protocol_G-E--_207_C18_F1_SP_PI_S0Y.csv 1    */
 /* CLASS_FGHSM-FFMM32-M : protocol_G-E--_200_B02_F1_AE_CS_SP_PI_S0Y.csv 2    */
 /* CLASS_FGUNF-FSMF31-S : protocol_G-E--_207_C18_F1_SE_CS_SP_PI_PS_S5PRR_S2SI.csv 0    */
@@ -1454,7 +1454,7 @@
       control->heuristic_parms.forward_demod=1;
       control->heuristic_parms.pm_type=ParamodSim;
       control->heuristic_parms.presat_interreduction=true;
-      control->heuristic_parms.no_preproc=LONG_MIN;
+      control->heuristic_parms.eqdef_incrlimit=LONG_MIN;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -1728,7 +1728,7 @@
       control->heuristic_parms.forward_demod=1;
       control->heuristic_parms.pm_type=ParamodSim;
       control->heuristic_parms.presat_interreduction=true;
-      control->heuristic_parms.no_preproc=LONG_MIN;
+      control->heuristic_parms.eqdef_incrlimit=LONG_MIN;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -16775,7 +16775,7 @@
       control->heuristic_parms.forward_demod=1;
       control->heuristic_parms.pm_type=ParamodSim;
       control->heuristic_parms.presat_interreduction=true;
-      control->heuristic_parms.no_preproc=LONG_MIN;
+      control->heuristic_parms.eqdef_incrlimit=LONG_MIN;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -18189,7 +18189,7 @@
        SpecAvgFArity1(spec)&&
        SpecShallowMaxDepth(spec))
        ||
-      ( /* CLASS_FGHSM-FFMM31-M Solved: 29 of 674 */
+      ( /* CLASS_FGHSM-FFMM31-M Solved: 27 of 674 */
        SpecIsFO(spec)&&
        SpecAxiomsAreGeneral(spec)&&
        SpecGoalsAreHorn(spec)&&
@@ -18469,7 +18469,7 @@
       control->heuristic_parms.forward_demod=1;
       control->heuristic_parms.pm_type=ParamodSim;
       control->heuristic_parms.presat_interreduction=true;
-      control->heuristic_parms.no_preproc=LONG_MIN;
+      control->heuristic_parms.eqdef_incrlimit=LONG_MIN;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -18537,7 +18537,7 @@
       control->heuristic_parms.presat_interreduction=true;
       control->heuristic_parms.sat_check_step_limit=5000;
       control->heuristic_parms.sat_check_grounding=GMConjMinMinFreq;
-      control->heuristic_parms.no_preproc=LONG_MIN;
+      control->heuristic_parms.eqdef_incrlimit=LONG_MIN;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -18990,7 +18990,7 @@
    }
 #endif
 
-/* Total solutions on test set: 371 */
+/* Total solutions on test set: 369 */
 /* -------------------------------------------------------*/
 /*     End of automatically generated code.               */
 /* -------------------------------------------------------*/

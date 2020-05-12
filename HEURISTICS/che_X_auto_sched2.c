@@ -1045,7 +1045,7 @@
 /* CLASS_FGHSM-FFSF31-M : protocol_G-E--_208_B07_F1_SE_CS_SP_PS_S0Y.csv 0    */
 /* CLASS_FGHSM-FFMM32-D : protocol_G-E--_208_B07_F1_SE_CS_SP_PS_S0Y.csv 0    */
 /* CLASS_FGHNS-FFSF21-M : protocol_G-E--_208_B07_F1_SE_CS_SP_PS_S0Y.csv 0    */
-/* CLASS_FGHSM-FFMM31-M : protocol_G-E--_110_C45_F1_PI_AE_Q4_CS_SP_PS_S4S.csv 9    */
+/* CLASS_FGHSM-FFMM31-M : protocol_G-E--_208_B07_F1_AE_CS_SP_PS_S5PRR_S0Y.csv 7    */
 /* CLASS_FGHSM-SMLM31-M : protocol_G-E--_208_B07_F1_SE_CS_SP_PS_S0Y.csv 0    */
 /* CLASS_FGHSM-FFMM32-M : protocol_G-E--_208_B07_F1_SE_CS_SP_PS_S0Y.csv 0    */
 /* CLASS_FGUNF-FSMF31-S : protocol_G-E--_208_B07_F1_SE_CS_SP_PS_S0Y.csv 0    */
@@ -1136,11 +1136,6 @@
 
 /* Strategies used:                                       */
 
-"G_E___110_C45_F1_PI_AE_Q4_CS_SP_PS_S4S = \n"
-"(4.RelevanceLevelWeight2(PreferGoals,1,2,1,2,100,100,100,400,1.5,1.5,1),"
-" 3.RelevanceLevelWeight2(PreferNonGoals,0,2,1,2,100,100,100,400,1.5,1.5,1),"
-" 1.Clauseweight(PreferProcessed,1,1,1),"
-" 1.FIFOWeight(PreferProcessed))\n"
 "G_E___208_B08_00_F1_AE_CS_SP_S00 = \n"
 "(1.ConjectureRelativeSymbolWeight(SimulateSOS,0.5,100,100,100,100,1.5,1.5,1),"
 " 4.ConjectureRelativeSymbolWeight(ConstPrio,0.1,100,100,100,100,1.5,1.5,1.5),"
@@ -1390,20 +1385,6 @@
        SpecManyGroundPos(spec)&&
        SpecMaxFArity3Plus(spec)&&
        SpecAvgFArity1(spec)&&
-       SpecMediumMaxDepth(spec))
-       ||
-      ( /* CLASS_FGHSM-FFMM31-M Solved: 9 of 674 */
-       SpecIsFO(spec)&&
-       SpecAxiomsAreGeneral(spec)&&
-       SpecGoalsAreHorn(spec)&&
-       SpecSomeEq(spec)&&
-       SpecManyNGPosUnits(spec)&&
-       SpecFewAxioms(spec)&&
-       SpecFewLiterals(spec)&&
-       SpecMediumTerms(spec)&&
-       SpecManyGroundPos(spec)&&
-       SpecMaxFArity3Plus(spec)&&
-       SpecAvgFArity1(spec)&&
        SpecMediumMaxDepth(spec)))
    {
 #ifdef CHE_HEURISTICS_INTERNAL
@@ -1636,7 +1617,7 @@
       control->heuristic_parms.forward_demod=1;
       control->heuristic_parms.pm_type=ParamodSim;
       control->heuristic_parms.presat_interreduction=true;
-      control->heuristic_parms.no_preproc=LONG_MIN;
+      control->heuristic_parms.eqdef_incrlimit=LONG_MIN;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -2121,7 +2102,7 @@
       control->heuristic_parms.presat_interreduction=true;
       control->heuristic_parms.sat_check_step_limit=5000;
       control->heuristic_parms.sat_check_grounding=GMConjMinMinFreq;
-      control->heuristic_parms.no_preproc=LONG_MIN;
+      control->heuristic_parms.eqdef_incrlimit=LONG_MIN;
 
 #endif
 #ifdef TO_ORDERING_INTERNAL
@@ -2385,7 +2366,21 @@
        SpecManyGroundPos(spec)&&
        SpecMaxFArity3Plus(spec)&&
        SpecAvgFArity2(spec)&&
-       SpecDeepMaxDepth(spec)))
+       SpecDeepMaxDepth(spec))
+       ||
+      ( /* CLASS_FGHSM-FFMM31-M Solved: 7 of 674 */
+       SpecIsFO(spec)&&
+       SpecAxiomsAreGeneral(spec)&&
+       SpecGoalsAreHorn(spec)&&
+       SpecSomeEq(spec)&&
+       SpecManyNGPosUnits(spec)&&
+       SpecFewAxioms(spec)&&
+       SpecFewLiterals(spec)&&
+       SpecMediumTerms(spec)&&
+       SpecManyGroundPos(spec)&&
+       SpecMaxFArity3Plus(spec)&&
+       SpecAvgFArity1(spec)&&
+       SpecMediumMaxDepth(spec)))
    {
 #ifdef CHE_HEURISTICS_INTERNAL
             res = "G_E___208_B07_F1_AE_CS_SP_PS_S5PRR_S0Y";
@@ -17941,7 +17936,7 @@
    }
 #endif
 
-/* Total solutions on test set: 113 */
+/* Total solutions on test set: 111 */
 /* -------------------------------------------------------*/
 /*     End of automatically generated code.               */
 /* -------------------------------------------------------*/
