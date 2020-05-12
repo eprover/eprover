@@ -134,11 +134,11 @@ def clean_value(value):
 def remove_timestamp(line):
     # split prefixed timestamp X.XX/X.XX % or X.XX/X.XX #
     split = line.split("%", 1)
-    if len(split) == 2:
+    if len(split) == 2 and len(split[0])<25:
         return split[1].strip()
     else:
         split = line.split("#", 1)
-        if len(split) == 2:
+        if len(split) == 2 and len(split[0])<25:
             return split[1].strip()
         else:
             # might be: 0.00/0.00   exec failed: No such file or directory
