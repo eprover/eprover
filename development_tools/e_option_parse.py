@@ -336,7 +336,7 @@ def parse_control_info(line):
 
     m = match_no_unfold.search(line)
     if m:
-        res = res+ "      control->heuristic_parms.no_preproc=LONG_MIN;\n"
+        res = res+ "      control->heuristic_parms.eqdef_incrlimit=LONG_MIN;\n"
 
     return res
 
