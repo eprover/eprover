@@ -241,8 +241,8 @@ typedef uintptr_t DerefType, *DerefType_p;
 #define TermCellFlipProp(term, props) FlipProp((term),(props))
 
 #define TermCellAlloc() (TermCell*)SizeMalloc(sizeof(TermCell))
-#define TermCellArityAlloc(arity) (TermCell*)SizeMalloc(sizeof(TermCell) + arity * sizeof(Term_p))
-#define TermCellFree(junk, arity)         SizeFree(junk, sizeof(TermCell) + arity * sizeof(Term_p))
+#define TermCellArityAlloc(arity) (TermCell*)SizeMalloc(sizeof(TermCell) + (arity) * sizeof(Term_p))
+#define TermCellFree(junk, arity)         SizeFree(junk, sizeof(TermCell) + (arity) * sizeof(Term_p))
 
 #define TermIsRewritten(term) TermCellQueryProp((term), TPIsRewritten)
 #define TermIsRRewritten(term) TermCellQueryProp((term), TPIsRRewritten)
