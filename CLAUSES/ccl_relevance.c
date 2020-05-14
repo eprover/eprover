@@ -478,7 +478,7 @@ Relevance_p RelevanceDataCompute(ProofState_p state)
 
 /*-----------------------------------------------------------------------
 //
-// Function: ProofStatePreprocess()
+// Function: ProofStateRelevancyProcess()
 //
 //   Perform proof state preprocssing, in particular compute relevancy
 //   data and perform relevancy pruning.
@@ -489,7 +489,7 @@ Relevance_p RelevanceDataCompute(ProofState_p state)
 //
 /----------------------------------------------------------------------*/
 
-long ProofStatePreprocess(ProofState_p state, long level)
+long ProofStateRelevancyProcess(ProofState_p state, long level)
 {
    Relevance_p reldata;
    long old_axno, new_axno;
@@ -513,5 +513,3 @@ long ProofStatePreprocess(ProofState_p state, long level)
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-

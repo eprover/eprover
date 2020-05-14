@@ -74,7 +74,7 @@ void FormulaPListPrint(FILE* out, PList_p list);
 
 long        RelevanceDataInit(ProofState_p state, Relevance_p data);
 Relevance_p RelevanceDataCompute(ProofState_p state);
-long ProofStatePreprocess(ProofState_p state, long level);
+long        ProofStateRelevancyProcess(ProofState_p state, long level);
 
 
 
@@ -84,8 +84,3 @@ long ProofStatePreprocess(ProofState_p state, long level);
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
-
-
-

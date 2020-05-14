@@ -405,7 +405,8 @@ int main(int argc, char* argv[])
                            &parsed_ax_no);
 
    relevancy_pruned += ProofStateSinE(proofstate, sine);
-   relevancy_pruned += ProofStatePreprocess(proofstate, relevance_prune_level);
+   relevancy_pruned += ProofStateRelevancyProcess(proofstate,
+                                                  relevance_prune_level);
 
    if(app_encode)
    {
