@@ -495,11 +495,7 @@ static Term_p normalize_head(Term_p head, Term_p* rest_args, int rest_arity)
       }
       else
       {
-         int total_arity = head->arity + rest_arity;
-         //for(unsigned int i = 0; i < total_arity; ++i)
-         //{
-         //   res->args[i] = NULL;
-         //}
+         res = TermDefaultCellAlloc();
       }
 
       res->arity = total_arity;
