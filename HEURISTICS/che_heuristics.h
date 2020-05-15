@@ -1,25 +1,22 @@
 /*-----------------------------------------------------------------------
 
-File  : che_heuristics.h
+  File  : che_heuristics.h
 
-Author: Stephan Schulz
+  Author: Stephan Schulz
 
-Contents
+  Contents
 
   High-Level interface functions to the heuristics module.
 
-  Copyright 1998, 1999 by the author.
+  Copyright 1998-2020 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
+  Created: Mon Jun  8 02:14:51 MET DST 1998
 
-<1> Mon Jun  8 02:14:51 MET DST 1998
-    New
-
------------------------------------------------------------------------*/
+  -----------------------------------------------------------------------*/
 
 #ifndef CHE_HEURISTICS
 

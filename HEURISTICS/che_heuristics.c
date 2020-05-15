@@ -1,26 +1,22 @@
 /*-----------------------------------------------------------------------
 
-File  : che_heuristics.c
+  File  : che_heuristics.c
 
-Author: Stephan Schulz
+  Author: Stephan Schulz
 
-Contents
+  Contents
 
   High-Level interface functions to the heuristics module.
 
-
-  Copyright 1998, 1999 by the author.
+  Copyright 1998-2020 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
+  Created: Mon Jun  8 02:14:51 MET DST 1998
 
-<1> Mon Jun  8 02:14:51 MET DST 1998
-    New
-
------------------------------------------------------------------------*/
+  -----------------------------------------------------------------------*/
 
 #include "che_heuristics.h"
 
@@ -78,17 +74,17 @@ void finalize_auto_parms(char* modename, char* hname,
    if(OutputLevel+1)
    {
       fprintf(GlobalOut,
-         "# %s selected heuristic %s\n"
-         "# and selection function %s.\n#\n",
+              "# %s selected heuristic %s\n"
+              "# and selection function %s.\n#\n",
               modename,
               hname,
-         GetLitSelName(control->heuristic_parms.selection_strategy));
+              GetLitSelName(control->heuristic_parms.selection_strategy));
    }
    if(parms->mem_limit>2 && (parms->delete_bad_limit ==
-              DEFAULT_DELETE_BAD_LIMIT))
+                             DEFAULT_DELETE_BAD_LIMIT))
    {
       control->heuristic_parms.delete_bad_limit =
-    (float)(parms->mem_limit-2)*0.7;
+         (float)(parms->mem_limit-2)*0.7;
    }
    if(SpecNoEq(spec))
    {
@@ -127,7 +123,7 @@ HCB_p HCBCreate(char* name, HCBARGUMENTS)
    {
       if(strcmp(HeuristicsTable[i].name, name)==0)
       {
-    return HeuristicsTable[i].heuristic_create(state,control,parms);
+         return HeuristicsTable[i].heuristic_create(state,control,parms);
       }
    }
    err = DStrAlloc();
@@ -167,7 +163,7 @@ HCB_p GetHeuristic(char* source, HCBARGUMENTS)
    if(TestInpTok(in, OpenBracket))
    {
       HeuristicDefParse(control->hcbs, in, control->wfcbs,
-         control->ocb, state);
+                        control->ocb, state);
       name = SecureStrdup("Default");
    }
    else
@@ -207,9 +203,9 @@ HCB_p GetHeuristic(char* source, HCBARGUMENTS)
 
 GCC_DIAGNOSTIC_PUSH
 #ifndef COMPILE_HEURISTICS_OPTIMIZED
-   #pragma GCC diagnostic ignored "-Wattributes"
-   __attribute__((optnone))
-   __attribute__((optimize(0)))
+#pragma GCC diagnostic ignored "-Wattributes"
+__attribute__((optnone))
+__attribute__((optimize(0)))
 #endif
 HCB_p HCBAutoModeCreate(HCBARGUMENTS)
 {
@@ -247,9 +243,9 @@ GCC_DIAGNOSTIC_POP
 
 GCC_DIAGNOSTIC_PUSH
 #ifndef COMPILE_HEURISTICS_OPTIMIZED
-   #pragma GCC diagnostic ignored "-Wattributes"
-   __attribute__((optnone))
-   __attribute__((optimize(0)))
+#pragma GCC diagnostic ignored "-Wattributes"
+__attribute__((optnone))
+__attribute__((optimize(0)))
 #endif
 HCB_p HCBCASCAutoModeCreate(HCBARGUMENTS)
 {
@@ -305,9 +301,9 @@ GCC_DIAGNOSTIC_POP
 
 GCC_DIAGNOSTIC_PUSH
 #ifndef COMPILE_HEURISTICS_OPTIMIZED
-   #pragma GCC diagnostic ignored "-Wattributes"
-   __attribute__((optnone))
-   __attribute__((optimize(0)))
+#pragma GCC diagnostic ignored "-Wattributes"
+__attribute__((optnone))
+__attribute__((optimize(0)))
 #endif
 HCB_p HCBDevAutoModeCreate(HCBARGUMENTS)
 {
@@ -348,9 +344,9 @@ GCC_DIAGNOSTIC_POP
 
 GCC_DIAGNOSTIC_PUSH
 #ifndef COMPILE_HEURISTICS_OPTIMIZED
-   #pragma GCC diagnostic ignored "-Wattributes"
-   __attribute__((optnone))
-   __attribute__((optimize(0)))
+#pragma GCC diagnostic ignored "-Wattributes"
+__attribute__((optnone))
+__attribute__((optimize(0)))
 #endif
 HCB_p HCBAutoSched0Create(HCBARGUMENTS)
 {
@@ -374,9 +370,9 @@ GCC_DIAGNOSTIC_POP
 
 GCC_DIAGNOSTIC_PUSH
 #ifndef COMPILE_HEURISTICS_OPTIMIZED
-   #pragma GCC diagnostic ignored "-Wattributes"
-   __attribute__((optnone))
-   __attribute__((optimize(0)))
+#pragma GCC diagnostic ignored "-Wattributes"
+__attribute__((optnone))
+__attribute__((optimize(0)))
 #endif
 HCB_p HCBAutoSched1Create(HCBARGUMENTS)
 {
@@ -400,9 +396,9 @@ GCC_DIAGNOSTIC_POP
 
 GCC_DIAGNOSTIC_PUSH
 #ifndef COMPILE_HEURISTICS_OPTIMIZED
-   #pragma GCC diagnostic ignored "-Wattributes"
-   __attribute__((optnone))
-   __attribute__((optimize(0)))
+#pragma GCC diagnostic ignored "-Wattributes"
+__attribute__((optnone))
+__attribute__((optimize(0)))
 #endif
 HCB_p HCBAutoSched2Create(HCBARGUMENTS)
 {
@@ -426,9 +422,9 @@ GCC_DIAGNOSTIC_POP
 
 GCC_DIAGNOSTIC_PUSH
 #ifndef COMPILE_HEURISTICS_OPTIMIZED
-   #pragma GCC diagnostic ignored "-Wattributes"
-   __attribute__((optnone))
-   __attribute__((optimize(0)))
+#pragma GCC diagnostic ignored "-Wattributes"
+__attribute__((optnone))
+__attribute__((optimize(0)))
 #endif
 HCB_p HCBAutoSched3Create(HCBARGUMENTS)
 {
@@ -453,9 +449,9 @@ GCC_DIAGNOSTIC_POP
 
 GCC_DIAGNOSTIC_PUSH
 #ifndef COMPILE_HEURISTICS_OPTIMIZED
-   #pragma GCC diagnostic ignored "-Wattributes"
-   __attribute__((optnone))
-   __attribute__((optimize(0)))
+#pragma GCC diagnostic ignored "-Wattributes"
+__attribute__((optnone))
+__attribute__((optimize(0)))
 #endif
 HCB_p HCBAutoSched4Create(HCBARGUMENTS)
 {
@@ -480,9 +476,9 @@ GCC_DIAGNOSTIC_POP
 
 GCC_DIAGNOSTIC_PUSH
 #ifndef COMPILE_HEURISTICS_OPTIMIZED
-   #pragma GCC diagnostic ignored "-Wattributes"
-   __attribute__((optnone))
-   __attribute__((optimize(0)))
+#pragma GCC diagnostic ignored "-Wattributes"
+__attribute__((optnone))
+__attribute__((optimize(0)))
 #endif
 HCB_p HCBAutoSched5Create(HCBARGUMENTS)
 {
@@ -507,9 +503,9 @@ GCC_DIAGNOSTIC_POP
 
 GCC_DIAGNOSTIC_PUSH
 #ifndef COMPILE_HEURISTICS_OPTIMIZED
-   #pragma GCC diagnostic ignored "-Wattributes"
-   __attribute__((optnone))
-   __attribute__((optimize(0)))
+#pragma GCC diagnostic ignored "-Wattributes"
+__attribute__((optnone))
+__attribute__((optimize(0)))
 #endif
 HCB_p HCBAutoSched6Create(HCBARGUMENTS)
 {
@@ -534,9 +530,9 @@ GCC_DIAGNOSTIC_POP
 
 GCC_DIAGNOSTIC_PUSH
 #ifndef COMPILE_HEURISTICS_OPTIMIZED
-   #pragma GCC diagnostic ignored "-Wattributes"
-   __attribute__((optnone))
-   __attribute__((optimize(0)))
+#pragma GCC diagnostic ignored "-Wattributes"
+__attribute__((optnone))
+__attribute__((optimize(0)))
 #endif
 HCB_p HCBAutoSched7Create(HCBARGUMENTS)
 {

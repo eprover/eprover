@@ -1114,6 +1114,7 @@ void ProofControlInit(ProofState_p state, ProofControl_p control,
    {
       control->fvi_parms.symbol_slack = 0;
    }
+   *params = control->heuristic_parms;
 }
 
 

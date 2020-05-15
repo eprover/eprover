@@ -464,23 +464,22 @@ int main(int argc, char* argv[])
                                proofstate->gc_terms);
    }
 
-   //HeuristicParmsPrint(stdout, h_parms);
-
    if(cnf_size)
    {
       VERBOUT("CNFization done\n");
    }
+   //HeuristicParmsPrint(stdout, h_parms);
 
    raw_clause_no = proofstate->axioms->members;
    ProofStateLoadWatchlist(proofstate, watchlist_filename, parse_format);
 
+   ClauseSetArchiveCopy(proofstate->ax_archive, proofstate->axioms);
    if(!h_parms->no_preproc)
    {
-      ClauseSetArchiveCopy(proofstate->ax_archive, proofstate->axioms);
-      if(proofstate->watchlist)
-      {
-         ClauseSetArchiveCopy(proofstate->ax_archive, proofstate->watchlist);
-      }
+      //if(proofstate->watchlist)
+      //{
+      //   ClauseSetArchiveCopy(proofstate->ax_archive, proofstate->watchlist);
+      //}
       preproc_removed = ClauseSetPreprocess(proofstate->axioms,
                                             proofstate->watchlist,
                                             proofstate->archive,
@@ -490,6 +489,8 @@ int main(int argc, char* argv[])
    proofcontrol = ProofControlAlloc();
    ProofControlInit(proofstate, proofcontrol, h_parms,
                     fvi_parms, wfcb_definitions, hcb_definitions);
+   //HeuristicParmsPrint(stdout, h_parms);
+   //HeuristicParmsPrint(stdout, &proofcontrol->heuristic_parms);
 
    // Unfold definitions and re-normalize
    preproc_removed += ClauseSetUnfoldEqDefNormalize(proofstate->axioms,
