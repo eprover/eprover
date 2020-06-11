@@ -92,6 +92,7 @@ void HeuristicParmsInitialize(HeuristicParms_p handle)
    handle->eqdef_incrlimit               = DEFAULT_EQDEF_INCRLIMIT;
 
    handle->heuristic_name                = HCB_DEFAULT_HEURISTIC;
+   handle->heuristic_def                 = NULL;
    handle->prefer_initial_clauses        = false;
 
    OrderParmsInitialize(&(handle->order_params));
@@ -197,6 +198,11 @@ void HeuristicParmsFree(HeuristicParms_p junk)
    assert(junk);
 
    junk->heuristic_name = NULL;
+   if(junk->heuristic_def)
+   {
+      FREE(junk->heuristic_def);
+      junk->heuristic_def = NULL;
+   }
    /* PStackFree(junk->wfcb_definitions);
       PStackFree(junk->hcb_definitions);*/
 
@@ -225,6 +231,8 @@ void HeuristicParmsPrint(FILE* out, HeuristicParms_p handle)
    fprintf(out, "   eqdef_incrlimit:               %ld\n", handle->eqdef_incrlimit);
 
    fprintf(out, "   heuristic_name:                %s\n", handle->heuristic_name);
+   fprintf(out, "   heuristic_def:                 %s\n",
+           handle->heuristic_def?handle->heuristic_def:"");
    fprintf(out, "   prefer_initial_clauses:        %s\n",
            BOOL2STR(handle->prefer_initial_clauses));
 
@@ -285,8 +293,49 @@ void HeuristicParmsPrint(FILE* out, HeuristicParms_p handle)
    fprintf(out, "   er_aggressive:                 %s\n",
            BOOL2STR(handle->er_aggressive));
 
+   fprintf(out, "   split_clauses                  %d\n", handle->split_clauses);
+   fprintf(out, "   split_method                   %d\n", handle->split_method);
+   fprintf(out, "   split_aggressive:              %s\n",
+           BOOL2STR(handle->split_aggressive));
+   fprintf(out, "   split_fresh_defs:              %s\n",
+           BOOL2STR(handle->split_fresh_defs));
+
+   fprintf(out, "   rw_bw_index_types:             %s\n", handle->rw_bw_index_type);
+   fprintf(out, "   pm_from_index_type:            %s\n", handle->pm_from_index_type);
+   fprintf(out, "   pm_into_index_type:            %s\n", handle->pm_into_index_type);
+
+   fprintf(out, "   sat_check_grounding:           %s\n",
+           GroundingStratNames[handle->sat_check_grounding]);
+   fprintf(out, "   sat_check_step_limit           %ld\n", handle->sat_check_step_limit);
+   fprintf(out, "   sat_check_size_limit           %ld\n", handle->sat_check_size_limit);
+   fprintf(out, "   sat_check_ttinsert_limit       %ld\n",
+           handle->sat_check_ttinsert_limit);
+   fprintf(out, "   sat_check_normconst:           %s\n",
+           BOOL2STR(handle->sat_check_normconst));
+   fprintf(out, "   sat_check_normalize:           %s\n",
+           BOOL2STR(handle->sat_check_normalize));
+   fprintf(out, "   sat_check_decision_limit       %d\n",
+           handle->sat_check_decision_limit);
+
+   fprintf(out, "   filter_orphans_limit:          %ld\n", handle->filter_orphans_limit);
+   fprintf(out, "   forward_contract_limit:        %ld\n", handle->forward_contract_limit);
+   fprintf(out, "   delete_bad_limit:              %lld\n", handle->delete_bad_limit);
+   fprintf(out, "   mem_limit:                     %" PRIuMAX "\n",
+           (uintmax_t)handle->mem_limit);
 
 
+   fprintf(out, "   watchlist_simplify:            %s\n",
+           BOOL2STR(handle->watchlist_simplify));
+   fprintf(out, "   watchlist_is_static:           %s\n",
+           BOOL2STR(handle->watchlist_is_static));
+   fprintf(out, "   use_tptp_sos:                  %s\n",
+           BOOL2STR(handle->use_tptp_sos));
+   fprintf(out, "   presat_interreduction:         %s\n",
+           BOOL2STR(handle->presat_interreduction));
+   fprintf(out, "   detsort_bw_rw:                 %s\n",
+           BOOL2STR(handle->detsort_bw_rw));
+   fprintf(out, "   detsort_tmpset:                %s\n",
+           BOOL2STR(handle->detsort_tmpset));
 
    fprintf(out, "}\n");
 }

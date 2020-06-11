@@ -1438,6 +1438,10 @@ void TOGenerateWeights(OCB_p ocb, ClauseSet_p axioms, char *pre_weights,
             *OCBFunWeightPos(ocb, i) = oparms->to_const_weight;
          }
          assert(OCBFunWeight(ocb,i)>0);
+         if(oparms->force_kbo_var_weight)
+         {
+            ocb->var_weight = MIN(ocb->var_weight, OCBFunWeight(ocb, i));
+         }
       }
    }
    *OCBFunWeightPos(ocb, SIG_TRUE_CODE) = ocb->var_weight;

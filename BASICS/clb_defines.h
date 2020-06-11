@@ -32,6 +32,8 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdbool.h>
+#include <inttypes.h>
+
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */

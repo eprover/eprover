@@ -134,6 +134,7 @@ void OrderParmsInitialize(OrderParms_p handle)
    handle->axiom_only_mod                = 0;
    handle->skolem_mod                    = 0;
    handle->defpred_mod                   = 0;
+   handle->force_kbo_var_weight          = false;
    handle->to_pre_weights                = NULL;
    handle->to_const_weight               = WConstNoWeight;
    handle->to_defs_min                   = false;

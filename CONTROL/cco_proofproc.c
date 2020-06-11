@@ -1094,6 +1094,10 @@ void ProofControlInit(ProofState_p state, ProofControl_p control,
    HeuristicDefListParse(control->hcbs, in, control->wfcbs,
                          control->ocb, state);
    DestroyScanner(in);
+   if(!PStackEmpty(hcb_defs))
+   {
+      params->heuristic_def = SecureStrdup(PStackTopP(hcb_defs));
+   }
    for(sp = 0; sp < PStackGetSP(hcb_defs); sp++)
    {
       in = CreateScanner(StreamTypeOptionString,

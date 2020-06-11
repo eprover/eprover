@@ -1,25 +1,24 @@
 /*-----------------------------------------------------------------------
 
-File  : che_hcbadmin.c
+  File  : che_hcbadmin.c
 
-Author: Stephan Schulz
+  Author: Stephan Schulz
 
-Contents
+  Contents
 
   Functions for administrating sets of predefined HCBs.
 
-  Copyright 1998, 1999 by the author.
+  Copyright 1998-2020 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
+  Changes
 
-<1> Wed Dec  9 02:44:26 MET 1998
-    New
+  Created: Wed Dec  9 02:44:26 MET 1998
 
------------------------------------------------------------------------*/
+  -----------------------------------------------------------------------*/
 
 #include "che_hcbadmin.h"
 
@@ -55,8 +54,8 @@ Changes
 /----------------------------------------------------------------------*/
 
 static void parse_single_wfcb_item(HCB_p hcb, Scanner_p in,
-               WFCBAdmin_p wfcbs, OCB_p ocb,
-               ProofState_p state)
+                                   WFCBAdmin_p wfcbs, OCB_p ocb,
+                                   ProofState_p state)
 {
    WFCB_p wfcb;
    long   steps;
@@ -66,9 +65,9 @@ static void parse_single_wfcb_item(HCB_p hcb, Scanner_p in,
    if(steps<=0)
    {
       AktTokenError(in,
-          "Value >0 expected in heuristic evaluation"
-          " function description",
-          false);
+                    "Value >0 expected in heuristic evaluation"
+                    " function description",
+                    false);
    }
    AcceptInpTok(in, PosInt);
    AcceptInpTok(in, Mult|Fullstop);
@@ -89,7 +88,7 @@ static void parse_single_wfcb_item(HCB_p hcb, Scanner_p in,
    if(!wfcb)
    {
       AktTokenError(in, "Not a valid evaluation function specifier",
-          false);
+                    false);
    }
    HCBAddWFCB(hcb, wfcb, steps);
 }
@@ -180,7 +179,7 @@ long HCBAdminAddHCB(HCBAdmin_p set, char* name, HCB_p hcb)
    assert(hcb);
 
    VERBOSE2(fprintf(stderr, "%s: Adding heuristic '%s'.\n",
-         ProgName, name););
+                    ProgName, name););
    PStackPushP(set->names, SecureStrdup(name));
    PStackPushP(set->hcb_set, hcb);
 
@@ -217,8 +216,8 @@ HCB_p HCBAdminFindHCB(HCBAdmin_p set, char* name)
    {
       if(strcmp(name, PStackElementP(set->names, i))==0)
       {
-    res = PStackElementP(set->hcb_set, i);
-    break;
+         res = PStackElementP(set->hcb_set, i);
+         break;
       }
    }
    return res;
@@ -238,7 +237,7 @@ HCB_p HCBAdminFindHCB(HCBAdmin_p set, char* name)
 /----------------------------------------------------------------------*/
 
 HCB_p HeuristicParse(Scanner_p in, WFCBAdmin_p wfcbs, OCB_p ocb,
-           ProofState_p state)
+                     ProofState_p state)
 {
    HCB_p  hcb = HCBAlloc();
 
@@ -269,7 +268,7 @@ HCB_p HeuristicParse(Scanner_p in, WFCBAdmin_p wfcbs, OCB_p ocb,
 /----------------------------------------------------------------------*/
 
 long HeuristicDefParse(HCBAdmin_p set, Scanner_p in, WFCBAdmin_p
-             wfcbs, OCB_p ocb, ProofState_p state)
+                       wfcbs, OCB_p ocb, ProofState_p state)
 {
    char* name;
    HCB_p hcb;
@@ -308,12 +307,12 @@ long HeuristicDefParse(HCBAdmin_p set, Scanner_p in, WFCBAdmin_p
 /----------------------------------------------------------------------*/
 
 long HeuristicDefListParse(HCBAdmin_p set, Scanner_p in, WFCBAdmin_p
-            wfcbs, OCB_p ocb, ProofState_p state)
+                           wfcbs, OCB_p ocb, ProofState_p state)
 {
    long res = PStackGetSP(set->names);
 
    while((TestInpTok(in, Identifier)&&TestTok(LookToken(in,1), EqualSign))
-    ||TestInpTok(in, OpenBracket))
+         ||TestInpTok(in, OpenBracket))
    {
       res = HeuristicDefParse(set, in, wfcbs, ocb, state);
    }
@@ -326,9 +325,3 @@ long HeuristicDefListParse(HCBAdmin_p set, Scanner_p in, WFCBAdmin_p
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
-
-
-
-

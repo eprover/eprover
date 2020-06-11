@@ -183,16 +183,15 @@ static void scan_int(Scanner_p in)
    }
    errno = 0;
    AktToken(in)->numval =
-      strtol(DStrView(AktToken(in)->literal), NULL, 10);
-   /* strtoul is not available on all systems....*/
+      strtoumax(DStrView(AktToken(in)->literal), NULL, 10);
 
    if(errno)
    {
-      static char buff[10];
-      char* term=strncpy(buff, DStrView(AktToken(in)->literal), 9);
-      *term = '\0';
-      strtol(buff, NULL, 10);
-      Warning("Number truncated while reading %s. If this happens on 32 bit systems while parsing internal strings, it is harmless an can be ignored",  DStrView(AktToken(in)->literal));
+      //static char buff[30];
+      //char* term=strncpy(buff, DStrView(AktToken(in)->literal), 29);
+      //*term = '\0';
+      //strtol(buff, NULL, 10);
+      Warning("Number truncated while reading %s. If this happens on 32 bit systems while parsing internal strings, it is harmless and can be ignored",  DStrView(AktToken(in)->literal));
    }
 }
 
@@ -741,9 +740,9 @@ char* DescribeToken(TokenType tok)
    {
       if(tok & token_print_rep[i].key)
       {
-    DStrAppendStr(res, found ? " or " : "");
-    DStrAppendStr(res, token_print_rep[i].rep);
-    found = true;
+         DStrAppendStr(res, found ? " or " : "");
+         DStrAppendStr(res, token_print_rep[i].rep);
+         found = true;
       }
    }
    if(!found)
@@ -777,7 +776,7 @@ void PrintToken(FILE* out, Token_p token)
    FREE(handle);
    fprintf(out, "Position: %s   ", TokenPosRep(token));
    fprintf(out, "Literal:  %s\n", token->literal?DStrView(token->literal):"");
-   fprintf(out, "Numval:   %6lu   Skipped:  %s\n", token->numval,
+   fprintf(out, "Numval:   %6" PRIuMAX "   Skipped:  %s\n", token->numval,
       token->skipped ? "true" : "false");
    fprintf(out, "Comment:  %s\n", DStrView(token->comment));
 }

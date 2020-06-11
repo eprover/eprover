@@ -121,9 +121,9 @@ long ParseIntLimited(Scanner_p in, long lower, long upper)
 //
 // Function: ParseInt()
 //
-//   Parses a (possibly negative) Integer, defined as an optional "-",
-//   followed by a sequence of digits. Returns the value or gives an
-//   error on overflow.
+//   Parses a (possibly negative) (long) Integer, defined as an
+//   optional "-", //   followed by a sequence of digits. Returns the
+//   value or gives an error on overflow.
 //
 // Global Variables: -
 //
@@ -134,6 +134,32 @@ long ParseIntLimited(Scanner_p in, long lower, long upper)
 long ParseInt(Scanner_p in)
 {
    return ParseIntLimited(in, LONG_MIN, LONG_MAX);
+}
+
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: ParseUIntMax()
+//
+//   Parses an uintmax-Integer, a sequence of digits. Returns the
+//   value or gives an error on overflow.
+//
+// Global Variables:
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+
+uintmax_t ParseUIntMax(Scanner_p in)
+{
+   uintmax_t value;
+
+   CheckInpTok(in, PosInt);
+   value = AktToken(in)->numval;
+   NextToken(in);
+
+   return value;
 }
 
 

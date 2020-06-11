@@ -65,6 +65,7 @@ typedef struct heuristic_parms_cell
 
 /* Clause selection elements */
    char                *heuristic_name;
+   char                *heuristic_def;
    bool                prefer_initial_clauses;
 
    /* Ordering elements */
@@ -128,7 +129,6 @@ typedef struct heuristic_parms_cell
    int                 sat_check_decision_limit;
 
    /* Various things */
-   //long                filter_limit;
    long                filter_orphans_limit;
    long                forward_contract_limit;
    long long           delete_bad_limit;

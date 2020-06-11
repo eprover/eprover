@@ -47,6 +47,7 @@ typedef enum
 bool       ParseBool(Scanner_p in);
 long       ParseInt(Scanner_p in);
 long       ParseIntLimited(Scanner_p in, long lower, long upper);
+uintmax_t  ParseUIntMax(Scanner_p in);
 double     ParseFloat(Scanner_p in);
 StrNumType ParseNumString(Scanner_p in);
 long       DDArrayParse(Scanner_p in, DDArray_p array, bool brackets);

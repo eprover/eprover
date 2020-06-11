@@ -143,6 +143,8 @@ typedef struct order_parms_cell
    int               axiom_only_mod;
    int               skolem_mod;
    int               defpred_mod;
+   /* Set KBO varweight to minimal constant weight (if not already so) */
+   bool              force_kbo_var_weight;
    /* Ground unbound RHS variables when rewriting */
    bool              rewrite_strong_rhs_inst;
    /* User-provided ordering parameters. Only pointers, not copies */

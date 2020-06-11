@@ -124,7 +124,7 @@ typedef struct tokencell
 {
    TokenType     tok;         /* Type for AcceptTok(), TestTok() ...   */
    DStr_p        literal;     /* Verbatim copy of input for the token  */
-   unsigned long numval;      /* Numerical value (if any) of the token */
+   uintmax_t     numval;      /* Numerical value (if any) of the token */
    DStr_p        comment;     /* Accumulated preceding comments        */
    bool          skipped;     /* Was this token preceded by SkipSpace? */
    DStr_p        source;      /* Ref. to the input stream source       */
