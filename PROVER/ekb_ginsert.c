@@ -146,7 +146,7 @@ int main(int argc, char* argv[])
    name = DStrAlloc();
 
    /* Step 1: Read existing files: problems and kb_description to find
-      out name ane parameters. */
+      out name and parameters. */
 
    proof_examples = ExampleSetAlloc();
    in = CreateScanner(StreamTypeFile,

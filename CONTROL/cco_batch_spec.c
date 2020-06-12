@@ -14,8 +14,6 @@
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-  Changes
-
   Created: Tue Jun 29 04:41:18 CEST 2010
 
   -----------------------------------------------------------------------*/
