@@ -69,6 +69,15 @@ if(false)
 #ifdef CHE_HEURISTICS_AUTO_SCHED7
 #include "che_X_auto_sched7.c"
 #endif
+#ifdef CHE_HEURISTICS_AUTO_SCHED8
+#include "che_X_auto_sched8.c"
+#endif
+#ifdef CHE_HEURISTICS_AUTO_SCHED9
+#include "che_X_auto_sched9.c"
+#endif
+#ifdef CHE_HEURISTICS_AUTO_SCHED10
+#include "che_X_auto_sched10.c"
+#endif
 
 
 
@@ -77,4 +86,3 @@ if(false)
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
