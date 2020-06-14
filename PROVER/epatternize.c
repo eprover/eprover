@@ -584,8 +584,10 @@ int main(int argc, char* argv[])
             listrep = PStackAlloc();
             if(PatternClauseCompute(clause, &pat_subst, &listrep))
             {
+               // ClauseTSTPPrint(GlobalOut, clause, true, true);
+               // fprintf(GlobalOut, "\n");
                clauserep = FlatEncodeClauseListRep(fstate->terms, listrep);
-               TermPrint(GlobalOut, clauserep, fstate->terms->sig, DEREF_NEVER);
+               PatternTermPrint(GlobalOut, pat_subst, clauserep, fstate->terms->sig);
                fprintf(GlobalOut, "\n");
             }
             PStackFree(listrep);

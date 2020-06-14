@@ -26,7 +26,7 @@ depend: *.c *.h
 # Remove all automatically generated files
 
 clean:
-	@touch does_exist.o does_exist.a; rm *.o  *.a
+	@rm -f *.o  *.a
 
 # Services (provided by the master Makefile)
 
@@ -48,4 +48,3 @@ $(LIB): $(TERM_LIB)
 	$(AR) $(LIB) $(TERM_LIB)
 
 include Makefile.dependencies
-

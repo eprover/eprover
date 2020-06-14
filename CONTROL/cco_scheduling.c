@@ -29,16 +29,22 @@ Changes
 
 ScheduleCell StratSchedule[] =
 {
-   {"AutoSched0", AUTOSCHED0, "Auto", 0.5066, 0},
-   {"AutoSched1", AUTOSCHED1, "Auto", 0.2466, 0},
-   {"AutoSched2", AUTOSCHED2, "Auto", 0.08  , 0},
-   {"AutoSched3", AUTOSCHED3, "Auto", 0.06  , 0},
-   {"AutoSched4", AUTOSCHED4, "Auto", 0.0433, 0},
-   {"AutoSched5", AUTOSCHED5, "Auto", 0.03  , 0},
-   {"AutoSched6", AUTOSCHED6, "Auto", 0.0166, 0},
-   {"AutoSched7", AUTOSCHED7, "Auto", 0.0166, 0},
-   {NULL        , NoOrdering, NULL  , 0.0   , 0}
+   {"AutoSched0",  AUTOSCHED0,  "Auto", 0.5   , 0},
+   {"AutoSched1",  AUTOSCHED1,  "Auto", 0.22  , 0},
+   {"AutoSched2",  AUTOSCHED2,  "Auto", 0.0733, 0},
+   {"AutoSched3",  AUTOSCHED3,  "Auto", 0.06  , 0},
+   {"AutoSched4",  AUTOSCHED4,  "Auto", 0.0433, 0},
+   {"AutoSched5",  AUTOSCHED5,  "Auto", 0.03  , 0},
+   {"AutoSched6",  AUTOSCHED6,  "Auto", 0.0166, 0},
+   {"AutoSched7",  AUTOSCHED7,  "Auto", 0.0167, 0},
+   {"AutoSched8",  AUTOSCHED8,  "Auto", 0.0167, 0},
+   {"AutoSched9",  AUTOSCHED9,  "Auto", 0.0167, 0},
+   {"AutoSched10", AUTOSCHED10, "Auto", 0.0133, 0},
+   {NULL,          NoOrdering,  NULL  , 0.0   , 0}
 };
+
+
+// [0.5, 0.23, 0.0733, 0.06, 0.0433, 0.03, 0.0167, 0.0167, 0.0167, 0.0133]
 
 
 /*---------------------------------------------------------------------*/
