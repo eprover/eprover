@@ -604,6 +604,30 @@ static Token_p scan_real_token(Scanner_p in)
 }
 
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: compose_errmsg()
+//
+//    Compose position of current token and message into a DStr for
+//    futher processing.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static void compose_errmsg(DStr_p err, Scanner_p in, char* msg)
+{
+   DStrAppendStr(err, TokenPosRep(AktToken(in)));
+   DStrAppendStr(err, "(just read '");
+   DStrAppendDStr(err, AktToken(in)->literal);
+   DStrAppendStr(err, "'): ");
+   DStrAppendStr(err, msg);
+}
+
+
 /*-----------------------------------------------------------------------
 //
 // Function: str_n_element()
@@ -1048,7 +1072,6 @@ bool TestIdnum(Token_p akt, char* ids)
 }
 
 
-
 /*-----------------------------------------------------------------------
 //
 // Function: AktTokenError()
@@ -1067,11 +1090,7 @@ void AktTokenError(Scanner_p in, char* msg, bool syserr)
 {
    DStr_p err = DStrAlloc();
 
-   DStrAppendStr(err, TokenPosRep(AktToken(in)));
-   DStrAppendStr(err, "(just read '");
-   DStrAppendDStr(err, AktToken(in)->literal);
-   DStrAppendStr(err, "'): ");
-   DStrAppendStr(err, msg);
+   compose_errmsg(err, in, msg);
    if(syserr)
    {
       SysError(DStrView(err), SYNTAX_ERROR);
@@ -1081,6 +1100,28 @@ void AktTokenError(Scanner_p in, char* msg, bool syserr)
       Error(DStrView(err), SYNTAX_ERROR);
    }
    DStrFree(err); /* Just for symmetry reasons */
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: AktTokenWarning()
+//
+//   Produce a warning at the current token with the given
+//   message.
+//
+// Global Variables: -
+//
+// Side Effects    : Terminates programm
+//
+/----------------------------------------------------------------------*/
+
+void AktTokenWarning(Scanner_p in, char* msg)
+{
+   DStr_p err = DStrAlloc();
+
+   compose_errmsg(err, in, msg);
+   Warning(DStrView(err));
 }
 
 

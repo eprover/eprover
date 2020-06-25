@@ -354,9 +354,31 @@ void HeuristicParmsPrint(FILE* out, HeuristicParms_p handle)
 //
 /----------------------------------------------------------------------*/
 
-void             HeuristicParmsParseInto(Scanner_p in,
-                                         HeuristicParms_p handle,
-                                         bool warn_missing);
+void HeuristicParmsParseInto(Scanner_p in,
+                             HeuristicParms_p handle,
+                             bool warn_missing)
+{
+   bool res = true;
+
+   AcceptInpTok(in, OpenCurly);
+   if(TestInpId(in, "no_preproc"))
+   {
+      NextToken(in);
+      AcceptInpTok(in, Colon);
+      handle->no_preproc = ParseBool(in);
+   }
+   else
+   {
+      res = false;
+      if(warn_missing)
+      {
+
+      }
+   }
+
+   AcceptInpTok(in, CloseCurly);
+}
+
 HeuristicParms_p HeuristicParmsParse(Scanner_p in);
 
 
