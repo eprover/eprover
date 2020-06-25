@@ -408,10 +408,10 @@ def generate_output(fp, result, stratdesc, class_dir, raw_class, opt_res,
 /* Strategies used:                                       */
 
 """)
-        for i in by_heuristic.keys():
+        for i in used:
             print_strat_once(fp, i, defined_strats)
 
-        if global_best in by_heuristic.keys():
+        if global_best in used:
             fp.write("/* Global best, "+global_best+", already defined */\n")
         else:
             fp.write( "/* Global best (used as a default): */\n")
