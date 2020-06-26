@@ -39,12 +39,8 @@ ScheduleCell StratSchedule[] =
    {"AutoSched7",  AUTOSCHED7,  "Auto", 0.0167, 0},
    {"AutoSched8",  AUTOSCHED8,  "Auto", 0.0167, 0},
    {"AutoSched9",  AUTOSCHED9,  "Auto", 0.0167, 0},
-   {"AutoSched10", AUTOSCHED10, "Auto", 0.0133, 0},
    {NULL,          NoOrdering,  NULL  , 0.0   , 0}
 };
-
-
-// [0.5, 0.23, 0.0733, 0.06, 0.0433, 0.03, 0.0167, 0.0167, 0.0167, 0.0133]
 
 
 /*---------------------------------------------------------------------*/

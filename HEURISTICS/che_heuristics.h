@@ -45,7 +45,9 @@ typedef enum
    HEU_AUTO_SCHED4,
    HEU_AUTO_SCHED5,
    HEU_AUTO_SCHED6,
-   HEU_AUTO_SCHED7
+   HEU_AUTO_SCHED7,
+   HEU_AUTO_SCHED8,
+   HEU_AUTO_SCHED9
 }Heuristic;
 
 typedef struct heuristic_assoc_cell
@@ -78,6 +80,8 @@ HCB_p HCBAutoSched4Create(HCBARGUMENTS);
 HCB_p HCBAutoSched5Create(HCBARGUMENTS);
 HCB_p HCBAutoSched6Create(HCBARGUMENTS);
 HCB_p HCBAutoSched7Create(HCBARGUMENTS);
+HCB_p HCBAutoSched8Create(HCBARGUMENTS);
+HCB_p HCBAutoSched9Create(HCBARGUMENTS);
 
 #endif
 

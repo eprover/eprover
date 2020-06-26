@@ -29,17 +29,19 @@
 
 HeuristicAssocCell HeuristicsTable[]=
 {
-   {HEU_AUTO_MODE,      "Auto",       HCBAutoModeCreate},
-   {HEU_AUTO_MODE_CASC, "AutoCASC",   HCBCASCAutoModeCreate},
-   {HEU_AUTO_MODE_DEV,  "AutoDev",    HCBDevAutoModeCreate},
-   {HEU_AUTO_SCHED0,    "AutoSched0", HCBAutoSched0Create},
-   {HEU_AUTO_SCHED1,    "AutoSched1", HCBAutoSched1Create},
-   {HEU_AUTO_SCHED2,    "AutoSched2", HCBAutoSched2Create},
-   {HEU_AUTO_SCHED3,    "AutoSched3", HCBAutoSched3Create},
-   {HEU_AUTO_SCHED4,    "AutoSched4", HCBAutoSched4Create},
-   {HEU_AUTO_SCHED5,    "AutoSched5", HCBAutoSched5Create},
-   {HEU_AUTO_SCHED6,    "AutoSched6", HCBAutoSched6Create},
-   {HEU_AUTO_SCHED7,    "AutoSched7", HCBAutoSched7Create},
+   {HEU_AUTO_MODE,      "Auto",        HCBAutoModeCreate},
+   {HEU_AUTO_MODE_CASC, "AutoCASC",    HCBCASCAutoModeCreate},
+   {HEU_AUTO_MODE_DEV,  "AutoDev",     HCBDevAutoModeCreate},
+   {HEU_AUTO_SCHED0,    "AutoSched0",  HCBAutoSched0Create},
+   {HEU_AUTO_SCHED1,    "AutoSched1",  HCBAutoSched1Create},
+   {HEU_AUTO_SCHED2,    "AutoSched2",  HCBAutoSched2Create},
+   {HEU_AUTO_SCHED3,    "AutoSched3",  HCBAutoSched3Create},
+   {HEU_AUTO_SCHED4,    "AutoSched4",  HCBAutoSched4Create},
+   {HEU_AUTO_SCHED5,    "AutoSched5",  HCBAutoSched5Create},
+   {HEU_AUTO_SCHED6,    "AutoSched6",  HCBAutoSched6Create},
+   {HEU_AUTO_SCHED7,    "AutoSched7",  HCBAutoSched7Create},
+   {HEU_AUTO_SCHED8,    "AutoSched8",  HCBAutoSched8Create},
+   {HEU_AUTO_SCHED9,    "AutoSched9",  HCBAutoSched9Create},
    {HEU_NO_HEURISTIC, NULL,           (HCBCreateFun)NULL}
 };
 
@@ -553,6 +555,59 @@ GCC_DIAGNOSTIC_POP
 #undef CHE_HEURISTICS_AUTO_SCHED7
 
 
+#define CHE_HEURISTICS_AUTO_SCHED8
+
+GCC_DIAGNOSTIC_PUSH
+#ifndef COMPILE_HEURISTICS_OPTIMIZED
+#pragma GCC diagnostic ignored "-Wattributes"
+__attribute__((optnone))
+__attribute__((optimize(0)))
+#endif
+
+HCB_p HCBAutoSched8Create(HCBARGUMENTS)
+{
+   char *res = "Default";
+   SpecFeature_p spec = &(control->problem_specs);
+   SpecLimits_p limits = CreateDefaultSpecLimits();
+
+   control->heuristic_parms.selection_strategy = SelectNoLiterals;
+   OUTPRINT(1, "# Auto-Heuristic is analysing problem.\n");
+#include "che_auto_cases.c"
+   SpecLimitsCellFree(limits);
+
+   finalize_auto_parms("AutoSched8-Mode", res, control, parms, spec);
+
+   return GetHeuristic(res, state, control, parms);
+}
+GCC_DIAGNOSTIC_POP
+#undef CHE_HEURISTICS_AUTO_SCHED8
+
+#define CHE_HEURISTICS_AUTO_SCHED9
+
+GCC_DIAGNOSTIC_PUSH
+#ifndef COMPILE_HEURISTICS_OPTIMIZED
+#pragma GCC diagnostic ignored "-Wattributes"
+__attribute__((optnone))
+__attribute__((optimize(0)))
+#endif
+
+HCB_p HCBAutoSched9Create(HCBARGUMENTS)
+{
+   char *res = "Default";
+   SpecFeature_p spec = &(control->problem_specs);
+   SpecLimits_p limits = CreateDefaultSpecLimits();
+
+   control->heuristic_parms.selection_strategy = SelectNoLiterals;
+   OUTPRINT(1, "# Auto-Heuristic is analysing problem.\n");
+#include "che_auto_cases.c"
+   SpecLimitsCellFree(limits);
+
+   finalize_auto_parms("AutoSched9-Mode", res, control, parms, spec);
+
+   return GetHeuristic(res, state, control, parms);
+}
+GCC_DIAGNOSTIC_POP
+#undef CHE_HEURISTICS_AUTO_SCHED9
 
 
 #undef CHE_HEURISTICS_INTERNAL

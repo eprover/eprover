@@ -466,7 +466,54 @@ OCB_p generate_autosched7_ordering(ProofState_p state, SpecFeature_p spec)
    return TOCreateOrdering(state, &oparms, NULL, NULL);
 }
 GCC_DIAGNOSTIC_POP
-#undef CHE_HEURISTICS_AUTO_SCHED67
+#undef CHE_HEURISTICS_AUTO_SCHED7
+
+
+#define CHE_HEURISTICS_AUTO_SCHED8
+
+GCC_DIAGNOSTIC_PUSH
+#ifndef COMPILE_HEURISTICS_OPTIMIZED
+#pragma GCC diagnostic ignored "-Wattributes"
+__attribute__((optnone))
+__attribute__((optimize(0)))
+#endif
+OCB_p generate_autosched8_ordering(ProofState_p state, SpecFeature_p spec)
+{
+   OrderParmsCell  oparms;
+   SpecLimits_p    limits = CreateDefaultSpecLimits();
+
+   init_oparms(&oparms);
+   OUTPRINT(1, "\n# AutoSched8-Ordering is analysing problem.\n");
+#include "che_auto_cases.c"
+   print_oparms(&oparms);
+   SpecLimitsCellFree(limits);
+   return TOCreateOrdering(state, &oparms, NULL, NULL);
+}
+GCC_DIAGNOSTIC_POP
+#undef CHE_HEURISTICS_AUTO_SCHED8
+
+#define CHE_HEURISTICS_AUTO_SCHED9
+
+GCC_DIAGNOSTIC_PUSH
+#ifndef COMPILE_HEURISTICS_OPTIMIZED
+#pragma GCC diagnostic ignored "-Wattributes"
+__attribute__((optnone))
+__attribute__((optimize(0)))
+#endif
+OCB_p generate_autosched9_ordering(ProofState_p state, SpecFeature_p spec)
+{
+   OrderParmsCell  oparms;
+   SpecLimits_p    limits = CreateDefaultSpecLimits();
+
+   init_oparms(&oparms);
+   OUTPRINT(1, "\n# AutoSched9-Ordering is analysing problem.\n");
+#include "che_auto_cases.c"
+   print_oparms(&oparms);
+   SpecLimitsCellFree(limits);
+   return TOCreateOrdering(state, &oparms, NULL, NULL);
+}
+GCC_DIAGNOSTIC_POP
+#undef CHE_HEURISTICS_AUTO_SCHED9
 
 
 
@@ -842,6 +889,14 @@ OCB_p TOSelectOrdering(ProofState_p state, HeuristicParms_p params,
    else if(tmp.ordertype == AUTOSCHED7)
    {
       result = generate_autosched7_ordering(state, specs);
+   }
+   else if(tmp.ordertype == AUTOSCHED8)
+   {
+      result = generate_autosched8_ordering(state, specs);
+   }
+   else if(tmp.ordertype == AUTOSCHED9)
+   {
+      result = generate_autosched9_ordering(state, specs);
    }
    else
    {

@@ -1093,6 +1093,7 @@ void ProofControlInit(ProofState_p state, ProofControl_p control,
                       true, NULL, true);
    HeuristicDefListParse(control->hcbs, in, control->wfcbs,
                          control->ocb, state);
+   AcceptInpTok(in, Fullstop);
    DestroyScanner(in);
    if(!PStackEmpty(hcb_defs))
    {

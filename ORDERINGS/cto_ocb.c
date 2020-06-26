@@ -42,7 +42,6 @@ char* TONames[]=
    "AutoSched7",
    "AutoSched8",
    "AutoSched9",
-   "AutoSched10",
    "Optimize",
    "KBO",
    "KBO6",
