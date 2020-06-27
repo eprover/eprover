@@ -1,25 +1,22 @@
 /*-----------------------------------------------------------------------
 
-File  : cio_scanner.c
+  File  : cio_scanner.c
 
-Author: Stephan Schulz
+  Author: Stephan Schulz
 
-Contents
+  Contents
 
   Implementation of the scanner.
 
-  Copyright 1998, 1999 by the author.
+  Copyright 1998-2020 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details.
   Run "eprover -h" for contact information.
 
-Changes
+  Created: Sun Aug 31 13:31:42 MET DST 1997
 
-<1> Sun Aug 31 13:31:42 MET DST 1997
-    New
-
------------------------------------------------------------------------*/
+  -----------------------------------------------------------------------*/
 
 #include "cio_scanner.h"
 
@@ -40,7 +37,7 @@ static TokenRepCell token_print_rep[] =
    {String,       "String enclosed in double quotes (\"\")"},
    {SQString,     "String enclosed in single quote ('')"},
    {PosInt,       "Integer (sequence of decimal digits) "
-                  "convertable to an 'unsigned long'"},
+    "convertable to an 'unsigned long'"},
    /* May need LargePosInt here... */
    {OpenBracket,  "Opening bracket ('(')"},
    {CloseBracket, "Closing bracket (')')"},
@@ -126,17 +123,17 @@ static void scan_white(Scanner_p in)
 static void scan_ident(Scanner_p in)
 {
    long numstart = 0,
-        i;
+      i;
 
    for(i=0; isidchar(CurrChar(in)); i++)
    {
       if(!numstart && isdigit(CurrChar(in)))
       {
-    numstart = i;
+         numstart = i;
       }
       else if(!isdigit(CurrChar(in)))
       {
-    numstart = 0;
+         numstart = 0;
       }
       DStrAppendChar(AktToken(in)->literal, CurrChar(in));
       NextChar(in);
@@ -145,9 +142,9 @@ static void scan_ident(Scanner_p in)
    {
       AktToken(in)->tok = Idnum;
       AktToken(in)->numval =
-    strtol(DStrView(AktToken(in)->literal)+numstart, NULL, 10);
+         strtol(DStrView(AktToken(in)->literal)+numstart, NULL, 10);
       /* Errors are intentionally ignored to allow arbitrary
-    identifiers */
+         identifiers */
    }
    else
    {
@@ -275,9 +272,9 @@ static void scan_string(Scanner_p in, char delim)
    {
       if(!isprint(CurrChar(in)))
       {
-    AktTokenError(in,
-             "Non-printable character in string constant",
-             false);
+         AktTokenError(in,
+                       "Non-printable character in string constant",
+                       false);
       }
       if(CurrChar(in)=='\\')
       {
@@ -433,7 +430,7 @@ static Token_p scan_token(Scanner_p in)
                   NextChar(in);
                   AktToken(in)->tok = FOFNor;
                   break;
-             case '&':
+            case '&':
                   DStrAppendChar(AktToken(in)->literal, CurrChar(in));
                   NextChar(in);
                   AktToken(in)->tok = FOFNand;
@@ -481,24 +478,24 @@ static Token_p scan_token(Scanner_p in)
             AktToken(in)->tok = Fullstop;
             break;
       case '|':
-       AktToken(in)->tok = Pipe;
-       break;
+            AktToken(in)->tok = Pipe;
+            break;
       case '/':
-       AktToken(in)->tok = Slash;
-       break;
+            AktToken(in)->tok = Slash;
+            break;
       case '&':
-       AktToken(in)->tok = Ampersand;
-       break;
+            AktToken(in)->tok = Ampersand;
+            break;
       case '$':
-       AktToken(in)->tok = Dollar;
-       break;
+            AktToken(in)->tok = Dollar;
+            break;
       case '@':
-       AktToken(in)->tok = Application;
-       break;
+            AktToken(in)->tok = Application;
+            break;
       default:
-       DStrAppendChar(AktToken(in)->literal, CurrChar(in));
-       AktTokenError(in, "Illegal character", false);
-       break;
+            DStrAppendChar(AktToken(in)->literal, CurrChar(in));
+            AktTokenError(in, "Illegal character", false);
+            break;
       }
       DStrAppendChar(AktToken(in)->literal, CurrChar(in));
       NextChar(in);
@@ -552,7 +549,7 @@ Token_p scan_token_follow_includes(Scanner_p in)
          DStrDeleteLastChar(name);
       }
       OpenStackedInput(&(in->source), StreamTypeFile,
-             DStrView(name), true);
+                       DStrView(name), true);
       DStrFree(name);
       scan_token_follow_includes(in);
    }
@@ -560,12 +557,12 @@ Token_p scan_token_follow_includes(Scanner_p in)
    {
       if((in->source)->next)
       {
-    CloseStackedInput(&(in->source));
+         CloseStackedInput(&(in->source));
          scan_token(in);
          CheckInpTok(in, CloseBracket);
          scan_token(in);
          CheckInpTok(in, Fullstop);
-    scan_token_follow_includes(in);
+         scan_token_follow_includes(in);
       }
    }
    return AktToken(in);
@@ -596,7 +593,7 @@ static Token_p scan_real_token(Scanner_p in)
       AktToken(in)->skipped = true;
       if(!in->ignore_comments && TestInpTok(in, Comment))
       {
-    DStrAppendDStr(AktToken(in)->comment, AktToken(in)->literal);
+         DStrAppendDStr(AktToken(in)->comment, AktToken(in)->literal);
       }
       scan_token_follow_includes(in);
    }
@@ -735,8 +732,8 @@ char* PosRep(StreamType type, DStr_p source, long line, long column)
 
 char* TokenPosRep(Token_p token)
 {
-  return PosRep(token->stream_type, token->source, token->line,
-      token->column);
+   return PosRep(token->stream_type, token->source, token->line,
+                 token->column);
 }
 
 
@@ -801,7 +798,7 @@ void PrintToken(FILE* out, Token_p token)
    fprintf(out, "Position: %s   ", TokenPosRep(token));
    fprintf(out, "Literal:  %s\n", token->literal?DStrView(token->literal):"");
    fprintf(out, "Numval:   %6" PRIuMAX "   Skipped:  %s\n", token->numval,
-      token->skipped ? "true" : "false");
+           token->skipped ? "true" : "false");
    fprintf(out, "Comment:  %s\n", DStrView(token->comment));
 }
 
@@ -902,7 +899,7 @@ Scanner_p CreateScanner(StreamType type, char *name, bool
    }
 
    for(handle->current = 0; handle->current < MAXTOKENLOOKAHEAD;
-     handle->current++)
+       handle->current++)
    {
       handle->tok_sequence[handle->current].tok = NoToken;
       handle->tok_sequence[handle->current].literal = DStrAlloc();
@@ -934,7 +931,7 @@ void DestroyScanner(Scanner_p  junk)
 {
    assert(junk);
    for(junk->current = 0; junk->current < MAXTOKENLOOKAHEAD;
-     junk->current++)
+       junk->current++)
    {
       DStrFree(junk->tok_sequence[junk->current].literal);
       DStrFree(junk->tok_sequence[junk->current].comment);
@@ -1032,7 +1029,7 @@ bool TestId(Token_p akt, char* ids)
       return false;
    }
    return str_n_element(DStrView(akt->literal), ids,
-         DStrLen(akt->literal));
+                        DStrLen(akt->literal));
 }
 
 
@@ -1061,11 +1058,11 @@ bool TestIdnum(Token_p akt, char* ids)
    {
       if(!len && isdigit(DStrView(akt->literal)[i]))
       {
-    len = i;
+         len = i;
       }
       else if(!isdigit(DStrView(akt->literal)[i]))
       {
-    len = 0;
+         len = 0;
       }
    }
    return str_n_element(DStrView(akt->literal), ids, len);
@@ -1241,13 +1238,13 @@ void NextToken(Scanner_p in)
    scan_real_token(in);
    in->current = TOKENREALPOS(in->current+1);
    /*
-   printf("Current token:\n");
-   PrintToken(stdout, AktToken(in));
-   printf("Next token:\n");
-   PrintToken(stdout, LookToken(in,1));
-   printf("SuperNext token:\n");
-   PrintToken(stdout, LookToken(in,2));
-   printf("\n");*/
+     printf("Current token:\n");
+     PrintToken(stdout, AktToken(in));
+     printf("Next token:\n");
+     PrintToken(stdout, LookToken(in,1));
+     printf("SuperNext token:\n");
+     PrintToken(stdout, LookToken(in,2));
+     printf("\n");*/
 }
 
 

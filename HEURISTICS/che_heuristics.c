@@ -166,6 +166,10 @@ HCB_p GetHeuristic(char* source, HCBARGUMENTS)
    {
       HeuristicDefParse(control->hcbs, in, control->wfcbs,
                         control->ocb, state);
+      CheckInpTok(in, NoToken); /* Make sure there is no trailing
+                                   material - I've been bitten by an
+                                   extra ')' cutting of a heuristic
+                                   early. */
       name = SecureStrdup("Default");
    }
    else
