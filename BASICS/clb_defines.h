@@ -104,6 +104,11 @@ typedef int (*ComparisonFunctionType)(const void*, const void*);
 #define KILO 1024
 #define MEGA (1024*1024)
 
+#ifdef ENABLE_LFHO
+#define LFHO(x) x
+#else
+#define LFHO(x)
+#endif
 
 /* Convenience function */
 static inline size_t WriteStr(int fd, const char* msg);

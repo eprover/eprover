@@ -236,7 +236,7 @@ void HeuristicParmsPrint(FILE* out, HeuristicParms_p handle)
    fprintf(out, "   prefer_initial_clauses:        %s\n",
            BOOL2STR(handle->prefer_initial_clauses));
 
-   // OrderParmsPrint(out, &(handle->order_params);
+   OrderParmsPrint(out, &(handle->order_params));
 
    fprintf(out, "   selection_strategy:            %s\n",
            GetLitSelName(handle->selection_strategy));

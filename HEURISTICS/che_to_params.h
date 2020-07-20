@@ -60,11 +60,13 @@ typedef enum
    PByInvFreqHack,      /* Make constants minimal, frequent unary
                            symbols maximal, otherwise as
                            PByInvFrequency */
+#ifdef ENABLE_LFHO
    PByTypeFreq,        /*  By frequency of type function symbol corresponds
                            to */
    PByInvTypeFreq,     /*  Same as prev, only inverse*/
    PByCombFreq,        /*  Based on sybmol type frequency + symbol frequency */
    PByInvCombFreq,     /*  Inverse of the previous */
+#endif
    PArrayOpt,           /* Special hack for theory of array with
                            conceptually typed symbols recognized by
                            name. */
@@ -192,6 +194,7 @@ TOWeightGenMethod TOTranslateWeightGenMethod(char* name);
    SizeFree(junk, sizeof(OrderParmsCell))
 
 void OrderParmsInitialize(OrderParms_p handle);
+void OrderParmsPrint(FILE* out, OrderParms_p handle);
 
 
 #endif

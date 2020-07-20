@@ -357,6 +357,8 @@ static void generate_freq_precedence(OCB_p ocb,
 }
 
 
+#ifdef ENABLE_LFHO
+
 /*-----------------------------------------------------------------------
 //
 // Function: generate_type_freq_precedence()
@@ -440,7 +442,7 @@ static void generate_comb_freq_precedence(OCB_p ocb,
 
    SizeFree(type_counts, max_types*sizeof(long));
 }
-
+#endif
 
 /*-----------------------------------------------------------------------
 //
@@ -471,6 +473,8 @@ static void generate_invfreq_precedence(OCB_p ocb,
    compute_precedence_from_array(ocb, array);
 }
 
+
+#ifdef ENABLE_LFHO
 
 /*-----------------------------------------------------------------------
 //
@@ -555,6 +559,8 @@ static void generate_inv_comb_freq_precedence(OCB_p ocb,
 
    SizeFree(type_counts, max_types*sizeof(long));
 }
+
+#endif
 
 /*-----------------------------------------------------------------------
 //
@@ -942,6 +948,7 @@ void TOGeneratePrecedence(OCB_p ocb, ClauseSet_p axioms,
    case PByInvFreqHack:
          generate_invfreq_hack_precedence(ocb, array, axioms);
          break;
+#ifdef ENABLE_LFHO
    case PByTypeFreq:
          generate_type_freq_precedence(ocb, array, axioms);
          break;
@@ -954,6 +961,8 @@ void TOGeneratePrecedence(OCB_p ocb, ClauseSet_p axioms,
    case PByInvCombFreq:
          generate_inv_comb_freq_precedence(ocb, array, axioms);
          break;
+
+#endif
    case PArrayOpt:
          generate_arrayopt_precedence(ocb, array, axioms);
          break;

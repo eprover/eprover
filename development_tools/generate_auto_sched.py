@@ -240,7 +240,8 @@ def parse_prot_new(filename, stratname, prob_assoc, global_class, classdata):
                 classdata[prob_assoc[prob]].addProblem(stratname, prob, status, time)
                 global_class.addProblem(stratname, prob, status, time)
             except KeyError:
-                print "Unclassified problem ", prob
+                # print "Unclassified problem ", prob
+                pass
     p.close()
     return desc
 

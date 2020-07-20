@@ -176,7 +176,10 @@ install:
 # Also remake documentation
 remake: config rebuild documentation
 
-documentation:
+README: README.md
+	grep -v '```' README.md > README
+
+documentation: README
 	cd DOC; $(MAKE)
 
 man: E

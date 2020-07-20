@@ -42,10 +42,12 @@ char* TOPrecGenNames[]=
    "invfreqconjmin",   /* PByInvFreqConjMin */
    "invfreqconstmin",  /* PByInvFreqConstMin */
    "invfreqhack",      /* PByInvFreqHack */
+#ifdef ENABLE_LFHO
    "typefreq",         /* PByTypeFreq */
    "invtypefreq",      /* PByInvTypeFreq */
    "combfreq",         /* PByCombFreq */
    "invcombfreq",      /* PByInvCombFreq */
+#endif
    "arrayopt",         /* PArrayOpt */
    "orient_axioms",    /* POrientAxioms */
    NULL
@@ -140,6 +142,55 @@ void OrderParmsInitialize(OrderParms_p handle)
    handle->to_defs_min                   = false;
    handle->lit_cmp                       = LCNormal;
 }
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: OrderParmsPrint()
+//
+//    Print the ordering parameters in Human/Machine-readable form.
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+void OrderParmsPrint(FILE* out, OrderParms_p handle)
+{
+   fprintf(out, "   {\n");
+   fprintf(out, "      ordertype:               %s\n",
+           TONames[handle->ordertype]);
+   fprintf(out, "      to_weight_gen:           %s\n",
+           TOWeightGenNames[handle->to_weight_gen]);
+   fprintf(out, "      to_prec_gen:             %s\n",
+           TOPrecGenNames[handle->to_prec_gen]);
+   fprintf(out, "      rewrite_strong_rhs_inst: %s\n",
+           BOOL2STR(handle->rewrite_strong_rhs_inst));
+
+   if(handle->to_pre_prec)
+   {
+      fprintf(out, "      to_pre_prec:   %s\n", handle->to_pre_prec);
+   }
+   fprintf(out, "      conj_only_mod:           %d\n", handle->conj_only_mod);
+   fprintf(out, "      conj_axiom_mod:          %d\n", handle->conj_axiom_mod);
+   fprintf(out, "      axiom_only_mod:          %d\n", handle->axiom_only_mod);
+   fprintf(out, "      skolem_mod:              %d\n", handle->skolem_mod);
+   fprintf(out, "      defpred_mod:             %d\n", handle->defpred_mod);
+   fprintf(out, "      force_kbo_var_weight     %s\n",
+           BOOL2STR(handle->force_kbo_var_weight));
+   if(handle->to_pre_weights)
+   {
+      fprintf(out, "      to_pre_weights: %s\n", handle->to_pre_weights);
+   }
+   fprintf(out, "      to_const_weight:         %ld\n", handle->to_const_weight);
+   fprintf(out, "      to_defs_min:             %s\n",
+           BOOL2STR(handle->to_defs_min));
+   fprintf(out, "      handle->lit_cmp:         %d\n", handle->lit_cmp);
+
+   fprintf(out, "   }\n");
+}
+
 
 
 

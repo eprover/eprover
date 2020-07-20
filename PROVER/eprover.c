@@ -468,7 +468,7 @@ int main(int argc, char* argv[])
    {
       VERBOUT("CNFization done\n");
    }
-   HeuristicParmsPrint(stdout, h_parms);
+   //HeuristicParmsPrint(stdout, h_parms);
 
    raw_clause_no = proofstate->axioms->members;
    ProofStateLoadWatchlist(proofstate, watchlist_filename, parse_format);
