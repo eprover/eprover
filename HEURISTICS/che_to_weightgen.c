@@ -549,6 +549,8 @@ static void generate_freq_weights(OCB_p ocb, ClauseSet_p axioms)
    FCodeFeatureArrayFree(array);
 }
 
+#ifdef ENABLE_LFHO
+
 /*-----------------------------------------------------------------------
 //
 // Function: generate_type_freq_weights()
@@ -673,6 +675,7 @@ static void generate_inv_comb_freq_weights(OCB_p ocb, ClauseSet_p axioms)
    SizeFree(type_counts, max_types*sizeof(long));
 }
 
+
 /*-----------------------------------------------------------------------
 //
 // Function: generate_inv_typefreq_weights()
@@ -719,6 +722,8 @@ static void generate_inv_type_freq_weights(OCB_p ocb, ClauseSet_p axioms)
    }
    SizeFree(type_counts, max_types*sizeof(long));
 }
+
+#endif
 
 /*-----------------------------------------------------------------------
 //
@@ -790,6 +795,8 @@ static void generate_freqrank_weights(OCB_p ocb, ClauseSet_p axioms)
    }
    FCodeFeatureArrayFree(array);
 }
+
+#ifdef ENABLE_LFHO
 
 /*-----------------------------------------------------------------------
 //
@@ -890,6 +897,8 @@ static void generate_comb_freq_rank_weights(OCB_p ocb, ClauseSet_p axioms)
    SizeFree(type_counts, sizeof(max_types*sizeof(long)));
 }
 
+#endif
+
 /*-----------------------------------------------------------------------
 //
 // Function: generate_invfreqrank_weights()
@@ -928,6 +937,7 @@ static void generate_invfreqrank_weights(OCB_p ocb, ClauseSet_p axioms)
    FCodeFeatureArrayFree(array);
 }
 
+#ifdef ENABLE_LFHO
 
 /*-----------------------------------------------------------------------
 //
@@ -1027,6 +1037,8 @@ static void generate_inv_comb_freq_rank_weights(OCB_p ocb, ClauseSet_p axioms)
    FCodeFeatureArrayFree(array);
    SizeFree(type_counts, max_types*sizeof(long)) ;
 }
+
+#endif
 
 /*-----------------------------------------------------------------------
 //
@@ -1393,6 +1405,7 @@ void TOGenerateWeights(OCB_p ocb, ClauseSet_p axioms, char *pre_weights,
    case WNoMethod:
          generate_selmax_weights(ocb);
          break;
+#ifdef ENABLE_LFHO
    case WTypeFrequencyRank:
          assert(problemType == PROBLEM_HO);
          generate_type_freq_rank_weights(ocb, axioms);
@@ -1425,6 +1438,7 @@ void TOGenerateWeights(OCB_p ocb, ClauseSet_p axioms, char *pre_weights,
          assert(problemType == PROBLEM_HO);
          generate_inv_comb_freq_weights(ocb, axioms);
          break;
+#endif
    default:
          assert(false && "Weight generation method unimplemented");
          break;

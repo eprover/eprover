@@ -1869,3 +1869,64 @@ Stephan
 -------------------------- It can be done! ---------------------------------
       Please email me as schulz@eprover.org (Stephan Schulz)
 ----------------------------------------------------------------------------
+
+
+This is the announcement for E 2.5
+----------------------------------
+
+
+From: schulz@eprover.org (Stephan Schulz)
+Subject: E Equational Theorem Prover 2.5 "Avongrove" available
+
+E 2.5 "Avongrove" is an automated theorem prover for many-sorted
+first-order logic (and limited higher-order extensions) with equality.
+It has successfully competed in several CASC competitions and is
+generally considered a friendly and powerful system (as automated
+theorem provers go). E has won the "overall best system" special award
+at CASC-J5 and the CNF category at CASC-23. It won the UEQ at CASC-27,
+and both UEQ and LTB at CASC-J10 in 2020. It also is used a component
+in several other winning and high-scoring systems.
+
+The main changes compared to the previous version are incorporation of
+a stronger rewriting relations (binding free variables in the
+non-matching sides of unorientable equalities to small constants
+before checking ordering constraints), more flexible ordering
+precedence generation (primarily) for predicate symbols, an improved
+strategy scheduler, and, as always, new automatic modes.
+
+E is available as a source distribution for UNIX-like systems.
+Historically, it installed cleanly under all UNIX variants I could get
+my hands on: Various versions of GNU/Linux for Intel and XScale,
+Solaris on SPARC, MacOS-X (with both GNU gcc and LLVM), and
+FreeBSD. Current versions are tested under OS-X/macOS and Linux. Users
+have also reported successful builds on a large number of other
+operating systems, including Windows/Cygwin.
+
+You can find installation instructions in the README file. Building
+the prover with LFHO-support is as easy as
+
+    ./configure --enable-ho
+    make
+
+The system is dual-licensed under the GNU General Public License and
+the GNU Lesser General Public License.
+
+You can find the source distribution and additional information at
+the E website at
+               https://www.eprover.org
+
+If your prefer to live on the bleeding edge, or to contribute to E,
+the prover now also lives on GitHub at
+
+               https://github.com/eprover
+
+
+Have fun!
+
+
+Stephan
+
+--
+-------------------------- It can be done! ---------------------------------
+      Please email me as schulz@eprover.org (Stephan Schulz)
+----------------------------------------------------------------------------

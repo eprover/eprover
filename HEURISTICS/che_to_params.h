@@ -118,6 +118,7 @@ typedef enum
    WInvModFreqRankMax0,   /* As above, but first maximal unary is 0 */
    WTypeFrequencyRank,    /* Similar to above, however, they work not by
                              value of symbol, but by its type */
+#ifdef ENABLE_LFHO
    WTypeFrequencyCount,
    WInvTypeFrequencyRank,
    WInvTypeFrequencyCount,
@@ -126,6 +127,7 @@ typedef enum
    WCombFrequencyCount,
    WInvCombFrequencyRank,
    WInvCombFrequencyCount,
+#endif
    WConstantWeight,       /* All weights 1 */
    WMinMethod = WSelectMaximal,
    WMaxMethod = WConstantWeight /* Update as required! */

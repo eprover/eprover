@@ -83,6 +83,7 @@ char* TOWeightGenNames[]=
    "invfreqranksquare",
    "invmodfreqrank",         /* WModFreqRank */
    "invmodfreqrankmax0",     /* WModFreqRankMax0 */
+#ifdef ENABLE_LFHO
    "typefreqrank",           /* WTypeFrequencyRank */
    "typefreqcount",          /* WTypeFrequencyCount */
    "invtypefreqrank",        /* WInvTypeFrequencyRank */
@@ -91,6 +92,7 @@ char* TOWeightGenNames[]=
    "combfreqcount",          /* WCombFrequencyCount */
    "invcombfreqrank",        /* WInvCombFrequencyRank */
    "invcombfreqcount",       /* WInvCombFrequencyCount */
+#endif
    "constant",               /* WConstantWeight */
    NULL
 };
