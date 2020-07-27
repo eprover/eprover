@@ -263,7 +263,7 @@ class scheduler(object):
                         newjob = job(script, problist)
                         newjob.submitTasks(self)
                     except:
-                        print("# Warning: Something wrong with "+p)
+                        print("# Warning: Something wrong with "+l)
 
     def checkCPURequest(self):
         for file in self.blockfiles:
