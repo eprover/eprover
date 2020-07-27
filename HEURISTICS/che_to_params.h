@@ -116,9 +116,9 @@ typedef enum
                              between ranks is cardinality of set of
                              symbols in rank */
    WInvModFreqRankMax0,   /* As above, but first maximal unary is 0 */
+#ifdef ENABLE_LFHO
    WTypeFrequencyRank,    /* Similar to above, however, they work not by
                              value of symbol, but by its type */
-#ifdef ENABLE_LFHO
    WTypeFrequencyCount,
    WInvTypeFrequencyRank,
    WInvTypeFrequencyCount,
