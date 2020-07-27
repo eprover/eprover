@@ -61,7 +61,7 @@ char* PrioFunNames[]=
    "DeferNonUnitMaxEq",
    "ByCreationDate",
    "ByPosLitNo",
-   "HornDist",
+   "ByHornDist",
    "PreferWatchlist",
    "DeferWatchlist",
    "PreferAppVar",
