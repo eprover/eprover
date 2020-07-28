@@ -62,7 +62,7 @@ more advanced features. Be aware that it often lags behind the
 implementation. The ultimate reference is the source code. Also, the
 help page (produced \texttt{eprover -h} and equivalent to the UNIX man
 page delivered with the prover) is always an up-to-date documentation
-of the available command line options.
+of the available command line options
 
 The manual assumes a working knowledge of refutational theorem
 proving, which can be gained from e.g.~\cite{CL73}. The calculus is
@@ -92,11 +92,12 @@ Vampire\index{Vampire}~\cite{RV:AICOM-2002,RV:IJCAR-2001,KV:CAV-2013}.
 Installation of E should be straightforward, but requires a standard
 UNIX/Linux build environment, including \texttt{/bin/sh}, \texttt{gcc}
 (or an equivalent compiler), and \texttt{make}. The file
-\texttt{README} (or \texttt{README.md}) in the main directory of the
-distribution contains the necessary information. After configuring and
-building the system, you will find the stand-alone executable
-\texttt{E/PROVER/eprover}, or \texttt{E/PROVER/eprover-ho} if you
-configured the system with support for lambda-free higher-order logic.
+\texttt{README} (or, somewhat nicer, \texttt{README.md}) in the main
+directory of the distribution contains the necessary
+information. After configuring and building the system, you will find
+the stand-alone executable \texttt{E/PROVER/eprover}, or
+\texttt{E/PROVER/eprover-ho} if you configured the system with support
+for lambda-free higher-order logic.
 
 E is controlled by a very wide range of parameters. However, if you do
 not want to bother with the details, you can leave configuration for a
@@ -630,7 +631,7 @@ conjecture, and then recursively apply this process again.
     in more formulas. The second counts the number of subterms which
     contain the symbol as the top symbol.
   \item \texttt{hypos} or \texttt{nohypos} determines if clauses and
-    formulas of type \texttt{hypothesis} are used as additional seeds
+    formulas of type \texttt{hy\-po\-the\-sis} are used as additional seeds
     for the analysis.
   \item \texttt{<benevolence>} is a floating point value that determines
     how much more general a function symbol in a clause or formula is
@@ -1926,7 +1927,7 @@ detailed proof output described in the previous section, and proof
 objects can typically be processed with the same tools as full
 inference protocols.
 
-Proof-object generation and output are activated by the option
+Proof-object generation and output are activated by
 \texttt{--proof-object}.
 
 
@@ -2182,7 +2183,7 @@ terms, clauses and formulas with respect to that set of rewrite rules.
 The rule set can be specified as a set of positive unit clauses and/or
 formulas that clausify into unit clauses. Literals are taken as
 rewrite rules with the orientation they are specified in the input. In
-particular, no term ordering is applies, and neither termination nor
+particular, no term ordering is applied, and neither termination nor
 confluence are ensured or verified. The rewrite rules are applied
 exhaustively, but in an unspecified order. Subterms are normalized in
 strict leftmost/innermost manner. In particular, all subterms are
@@ -2581,7 +2582,7 @@ The parameters have the following type and meaning:
   introduced me to literal selection), Geoff Sutcliffe (who always
   pushes for one more feature - or ten), Andrei Voronkov (for playing
   the game of \emph{The Tortoise and the Hare} -- in both roles), and
-  Joseph Urban, who is a profligate user, proselytizer and occasional
+  Josef Urban, who is a profligate user, proselytizer and occasional
   hacker.
 
   In addition to this moral support, Martin M\"ohrmann has done some
@@ -2600,10 +2601,11 @@ The parameters have the following type and meaning:
   Public License (version 2.1 or later). You may also have bought a
   proprietary version of E from Safelogic A.B. in Gothenburg,
   Sweden. In this case, you are bound by whatever license you agreed
-  to. If you are in doubt about which version of E you have, run
-  \texttt{eprover -V} or \texttt{eprover -h}\index{GPL}\index{GNU
-    General Public License}\index{LGPL}\index{GNU Lesser General
-    Public License}.
+  to. Also, your version of E is severely outdated, and you should
+  probably update to the current free version. If you are in doubt
+  about which version of E you have, run \texttt{eprover -V} or
+  \texttt{eprover -h}\index{GPL}\index{GNU General Public
+    License}\index{LGPL}\index{GNU Lesser General Public License}.
 
   See the file COPYING in the main directory for the full text of the
   licenses.
