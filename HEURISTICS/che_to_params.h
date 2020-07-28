@@ -53,7 +53,7 @@ typedef enum
                          * conjecture symbols large */
    PByInvFreqConjMax,   /* Make conjecture symbols maximal, otherwise
                            use invfreq */
-   PByInvFreqConjMin,   /* Make conjecture symbols mminimal, otherwise
+   PByInvFreqConjMin,   /* Make conjecture symbols minimal, otherwise
                            use invfreq */
    PByInvFreqConstMin,  /* Make rarely occuring symbols small, except for
                            constants */
