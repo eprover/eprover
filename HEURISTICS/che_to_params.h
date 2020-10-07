@@ -167,6 +167,89 @@ typedef struct order_parms_cell
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
+/*-----------------------------------------------------------------------
+//
+// Function: PARSE_BOOL/PARSE_INT()
+//
+//   Macros for parsing individual parameters.
+//
+// Global Variables: -
+//
+// Side Effects    : Reading input, manipulating "res" in the local
+//                   environment, assigning the parameter.
+//
+/----------------------------------------------------------------------*/
+
+
+#define PARSE_BOOL(name)\
+   if(TestInpId(in, #name))\
+   {\
+      NextToken(in);\
+      AcceptInpTok(in, Colon);\
+      handle->name = ParseBool(in);\
+   }\
+   else\
+   {\
+      res = false;\
+      if(warn_missing)\
+      {\
+         Warning("Config misses %s\n", #name);\
+      }\
+   }
+
+#define PARSE_INT(name)\
+   if(TestInpId(in, #name))\
+   {\
+      NextToken(in);\
+      AcceptInpTok(in, Colon);\
+      handle->name = ParseInt(in);\
+   }\
+   else\
+   {\
+      res = false;\
+      if(warn_missing)\
+      {\
+         Warning("Config misses %s\n", #name);\
+      }\
+   }
+
+#define PARSE_IDENTIFIER(name)\
+   if(TestInpId(in, #name))\
+   {\
+      NextToken(in);\
+      AcceptInpTok(in, Colon);\
+      CheckInpTok(in, Identifier);\
+      handle->name = DStrCopy(AktToken(in)->literal);     \
+      NextToken(in);\
+   }\
+   else\
+   {\
+      res = false;\
+      if(warn_missing)\
+      {\
+         Warning("Config misses %s\n", #name);\
+      }\
+   }
+
+#define PARSE_STRING(name)\
+   if(TestInpId(in, #name))\
+   {\
+   NextToken(in);                               \
+      AcceptInpTok(in, Colon);\
+      CheckInpTok(in, String);                            \
+      handle->name = DStrCopy(AktToken(in)->literal);     \
+      NextToken(in);\
+   }\
+   else\
+   {\
+      res = false;\
+      if(warn_missing)\
+      {\
+         Warning("Config misses %s\n", #name);\
+      }\
+   }
+
+
 
 extern char* TOPrecGenNames[];
 
@@ -197,6 +280,9 @@ TOWeightGenMethod TOTranslateWeightGenMethod(char* name);
 
 void OrderParmsInitialize(OrderParms_p handle);
 void OrderParmsPrint(FILE* out, OrderParms_p handle);
+bool OrderParmsParseInto(Scanner_p in,
+                         OrderParms_p handle,
+                         bool warn_missing);
 
 
 #endif

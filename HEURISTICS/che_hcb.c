@@ -231,7 +231,7 @@ void HeuristicParmsPrint(FILE* out, HeuristicParms_p handle)
    fprintf(out, "   eqdef_incrlimit:               %ld\n", handle->eqdef_incrlimit);
 
    fprintf(out, "   heuristic_name:                %s\n", handle->heuristic_name);
-   fprintf(out, "   heuristic_def:                 %s\n",
+   fprintf(out, "   heuristic_def:                 \"%s\"\n",
            handle->heuristic_def?handle->heuristic_def:"");
    fprintf(out, "   prefer_initial_clauses:        %s\n",
            BOOL2STR(handle->prefer_initial_clauses));
@@ -341,26 +341,47 @@ void HeuristicParmsPrint(FILE* out, HeuristicParms_p handle)
 }
 
 
+
+
+
+
 /*-----------------------------------------------------------------------
 //
 // Function: HeuristicParmsParseInto()
 //
 //   Parse the HeuristicParmsCell into/over the existing
-//   cell. Parameters are expected in-order, but may be missing.
+//   cell. Parameters are expected in-order, but may be
+//   missing. Returns true if all parameters have been found, false
+//   otherwise.
 //
-// Global Variables:
+//   The PARSE_-macros are in che_to_params.h (because they are also
+//   used to parse the ordering parameters).
 //
-// Side Effects    :
+// Global Variables: -
+//
+// Side Effects    : Read input, may print warnings.
 //
 /----------------------------------------------------------------------*/
 
-void HeuristicParmsParseInto(Scanner_p in,
+bool HeuristicParmsParseInto(Scanner_p in,
                              HeuristicParms_p handle,
                              bool warn_missing)
 {
    bool res = true;
 
    AcceptInpTok(in, OpenCurly);
+
+   PARSE_BOOL(no_preproc);
+   PARSE_INT(eqdef_maxclauses);
+   PARSE_INT(eqdef_incrlimit);
+   PARSE_IDENTIFIER(heuristic_name);
+   PARSE_STRING(heuristic_def);
+   PARSE_BOOL(prefer_initial_clauses);
+
+   res = res && OrderParmsParseInto(in, &(handle->order_params), warn_missing);
+
+
+
    if(TestInpId(in, "no_preproc"))
    {
       NextToken(in);
@@ -372,11 +393,12 @@ void HeuristicParmsParseInto(Scanner_p in,
       res = false;
       if(warn_missing)
       {
-
+         Warning("Config misses %s\n", "no_preproc");
       }
    }
 
    AcceptInpTok(in, CloseCurly);
+   return res;
 }
 
 HeuristicParms_p HeuristicParmsParse(Scanner_p in);

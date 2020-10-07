@@ -193,6 +193,56 @@ void OrderParmsPrint(FILE* out, OrderParms_p handle)
    fprintf(out, "   }\n");
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: OrderParmsParseInto()
+//
+//   Parse the OrderParram-Cell into/over the existing
+//   cell. Parameters are expected in-order, but may be
+//   missing. Returns true if all parameters have been found, false
+//   otherwise.
+//
+// Global Variables:
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+
+bool OrderParmsParseInto(Scanner_p in,
+                         OrderParms_p handle,
+                         bool warn_missing)
+{
+   bool res = true;
+
+   AcceptInpTok(in, OpenCurly);
+
+   if(TestInpId(in, "ordertype"))
+   {
+      NextToken(in);
+      AcceptInpTok(in, Colon);
+      CheckInpTok(in, Ident);
+      handle->ordertype = StringIndex(DStrView(AktToken(in)->literal), TONames);
+      if(handle->ordertype == -1)
+      {
+         CheckInpId(in, "Auto|KBO6|LPO4|...");
+      }
+      NextToken(in);
+   }
+   else
+   {
+      res = false;
+      if(warn_missing)
+      {
+         Warning("Config misses %s\n", "ordertype");
+      }
+   }
+
+
+   AcceptInpTok(in, CloseCurly);
+
+   return res;
+}
+
 
 
 

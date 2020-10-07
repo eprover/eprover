@@ -212,9 +212,7 @@ HeuristicParms_p HeuristicParmsAlloc(void);
 void             HeuristicParmsFree(HeuristicParms_p junk);
 
 void             HeuristicParmsPrint(FILE* out, HeuristicParms_p handle);
-void             HeuristicParmsParseInto(Scanner_p in, HeuristicParms_p handle,
-                                         bool warn_missing);
-void             HeuristicParmsParseInto(Scanner_p in, HeuristicParms_p handle,
+bool             HeuristicParmsParseInto(Scanner_p in, HeuristicParms_p handle,
                                          bool warn_missing);
 HeuristicParms_p HeuristicParmsParse(Scanner_p in);
 

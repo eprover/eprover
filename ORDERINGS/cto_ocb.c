@@ -50,7 +50,8 @@ char* TONames[]=
    "LPO4",
    "LPO4Copy",
    "RPO",
-   "Empty"
+   "Empty",
+   NULL
 };
 
 

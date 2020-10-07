@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------
 #
 # File  : Makefile for simple applications build on top of (parts of)
-#         CLIB. 
+#         CLIB.
 #
 # Author: Stephan Schulz
 #
@@ -16,7 +16,7 @@ include ../Makefile.vars
 
 # Project specific variables
 
-PROJECT = ex_commandline term2dag 
+PROJECT = ex_commandline term2dag
 LIB     = $(PROJECT)
 all: $(LIB)
 
@@ -46,5 +46,3 @@ ex_commandline: $(EX_COMMANDLINE)
 	$(LD) -o ex_commandline $(EX_COMMANDLINE) $(LIBS)
 
 include Makefile.dependencies
-
-
