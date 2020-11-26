@@ -287,10 +287,8 @@ FuncSymbType FuncSymbParse(Scanner_p in, DStr_p id)
             res = FSIdentInt;
             break;
       case SNRational:
-            if(!normalize_rational_rep(in->accu))
-            {
-
-            }
+            /* Division by zero is caught in ParseNumString() */
+            normalize_rational_rep(in->accu);
             DStrAppendStr(id, DStrView(in->accu));
             res = FSIdentRational;
             break;

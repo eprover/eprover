@@ -284,7 +284,7 @@ StrNumType ParseNumString(Scanner_p in)
       {
          if(atol(DStrView(AktToken(in)->literal)) == 0l)
          {
-            AktTokenError(in, "Denominator in rational cannot be 0", false);
+            AktTokenError(in, "Denominator in rational number cannot be 0", false);
          }
       }
       DStrAppendDStr(accumulator,  AktToken(in)->literal);
