@@ -211,16 +211,7 @@ void clear_stale_cache(Term_p app_var)
 void TermTopFree(Term_p junk)
 {
    assert(junk);
-   if(junk->arity)
-   {
-      assert(junk->args);
-      TermArgArrayFree(junk->args, junk->arity);
-   }
-   else
-   {
-      assert(!junk->args);
-   }
-   TermCellFree(junk);
+   TermCellFree(junk, junk->arity);
 }
 
 /*-----------------------------------------------------------------------
@@ -246,16 +237,12 @@ void TermFree(Term_p junk)
       {
          int i;
 
-         assert(junk->args);
          for(i=0; i<junk->arity; i++)
          {
             TermFree(junk->args[i]);
          }
       }
-      else
-      {
-         assert(!junk->args);
-      }
+
       TermTopFree(junk);
    }
 }
@@ -277,8 +264,9 @@ void TermFree(Term_p junk)
 
 Term_p TermAllocNewSkolem(Sig_p sig, PStack_p variables, Type_p ret_type)
 {
-   Term_p handle = TermDefaultCellAlloc();
    PStackPointer arity = PStackGetSP(variables), i;
+   Term_p handle = NULL;
+
    Type_p *type_args;
    Type_p type;
 
@@ -290,8 +278,8 @@ Term_p TermAllocNewSkolem(Sig_p sig, PStack_p variables, Type_p ret_type)
    // declare type
    if(arity)
    {
-      handle->arity = arity;
-      handle->args = TermArgArrayAlloc(arity);
+      handle = TermDefaultCellArityAlloc(arity);
+
       type_args = TypeArgArrayAlloc(arity+1);
       for(i=0; i<arity; i++)
       {
@@ -311,6 +299,7 @@ Term_p TermAllocNewSkolem(Sig_p sig, PStack_p variables, Type_p ret_type)
    }
    else
    {
+      handle = TermDefaultCellAlloc();
       type = FlattenType(ret_type);
    }
 

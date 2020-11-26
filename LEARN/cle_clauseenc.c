@@ -65,13 +65,12 @@ Term_p FlatEncodeClauseListRep(TB_p bank, PStack_p list)
 
    arity = PStackGetSP(list)/2;
 
-   handle = TermDefaultCellAlloc();
+   handle = TermDefaultCellArityAlloc(arity);
    handle->arity = arity;
    handle->f_code = SigGetOrNCode(bank->sig, arity);
    assert(handle->f_code);
    if(arity)
    {
-      handle->args = TermArgArrayAlloc(arity);
       for(i=0; i<2*arity; i+=2)
       {
          current = PStackElementP(list, i);
@@ -122,10 +121,9 @@ Term_p   RecEncodeClauseListRep(TB_p bank, PStack_p list)
       i = 2* arity;
       current = PStackElementP(list, i);
       dir     = PStackElementInt(list, i+1);
-      handle = TermDefaultCellAlloc();
+      handle = TermDefaultCellArityAlloc(2);
       handle->arity = 2;
       handle->f_code = SigGetOrCode(bank->sig);
-      handle->args = TermArgArrayAlloc(2);
       handle->args[1] = rest;
       handle->args[0] = EqnTBTermEncode(current,dir);
       rest = TBTermTopInsert(bank, handle);

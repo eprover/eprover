@@ -120,7 +120,6 @@ typedef struct termcell
    int              arity;         /* Redundant, but saves handing
                                       around the signature all the
                                       time */
-   struct termcell* *args;         /* Pointer to array of arguments */
    struct termcell* binding;       /* For variable bindings,
                                       potentially for temporary
                                       rewrites - it might be possible
@@ -146,6 +145,9 @@ typedef struct termcell
                                       is responsible for lifetime management 
                                       of the term */
 #endif
+
+   struct termcell* args[];         /* Flexible array member containing the arguments */
+
 }TermCell, *Term_p, **TermRef;
 
 
@@ -239,9 +241,8 @@ typedef uintptr_t DerefType, *DerefType_p;
 #define TermCellFlipProp(term, props) FlipProp((term),(props))
 
 #define TermCellAlloc() (TermCell*)SizeMalloc(sizeof(TermCell))
-#define TermCellFree(junk)         SizeFree(junk, sizeof(TermCell))
-#define TermArgArrayAlloc(arity) ((Term_p*)SizeMalloc((arity)*sizeof(Term_p)))
-#define TermArgArrayFree(junk, arity) SizeFree((junk),(arity)*sizeof(Term_p))
+#define TermCellArityAlloc(arity) (TermCell*)SizeMalloc(sizeof(TermCell) + (arity) * sizeof(Term_p))
+#define TermCellFree(junk, arity)         SizeFree(junk, sizeof(TermCell) + (arity) * sizeof(Term_p))
 
 #define TermIsRewritten(term) TermCellQueryProp((term), TPIsRewritten)
 #define TermIsRRewritten(term) TermCellQueryProp((term), TPIsRRewritten)
@@ -267,6 +268,7 @@ Term_p  MakeRewrittenTerm(Term_p orig, Term_p new, int orig_remains, struct tbce
 #define TermRWDemod(term) (TermIsRewritten(term)?TermRWDemodField(term):NULL)
 
 static inline Term_p TermDefaultCellAlloc(void);
+static inline Term_p TermDefaultCellArityAlloc(int arity);
 static inline Term_p TermConstCellAlloc(FunCode symbol);
 static inline Term_p TermTopAlloc(FunCode f_code, int arity);
 static inline Term_p TermTopCopy(Term_p source);
@@ -489,7 +491,16 @@ static Term_p inline TermDeref(Term_p term, DerefType_p deref)
 
 static inline Term_p TermTopCopyWithoutArgs(restrict Term_p source)
 {
-   Term_p handle = TermDefaultCellAlloc();
+   Term_p handle = NULL;
+
+   if(source->arity)
+   {
+      handle = TermDefaultCellArityAlloc(source->arity);
+   }
+   else
+   {
+      handle = TermDefaultCellAlloc();
+   }
 
    /* All other properties are tied to the specific term! */
    handle->properties = (source->properties&(TPPredPos));
@@ -501,7 +512,6 @@ static inline Term_p TermTopCopyWithoutArgs(restrict Term_p source)
    if(source->arity)
    {
       handle->arity = source->arity;
-      handle->args  = TermArgArrayAlloc(source->arity);
    }
 
    TermSetBank(handle, TermGetBank(source));
@@ -560,7 +570,41 @@ static inline Term_p TermDefaultCellAlloc(void)
    handle->arity      = 0;
    handle->type       = NULL;
    handle->binding    = NULL;
-   handle->args       = NULL;
+   handle->rw_data.nf_date[0] = SysDateCreationTime();
+   handle->rw_data.nf_date[1] = SysDateCreationTime();
+   handle->lson = NULL;
+   handle->rson = NULL;
+   TermSetCache(handle, NULL);
+   TermSetBank(handle, NULL);
+
+   return handle;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: TermDefaultCellArityAlloc()
+//
+//   Allocate a term cell with default values.
+//   Furthermore allocates the arguments of the term using the given arity.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+static inline Term_p TermDefaultCellArityAlloc(int arity)
+{
+   Term_p handle = TermCellArityAlloc(arity);
+
+   handle->properties = TPIgnoreProps;
+   handle->arity      = arity;
+   handle->type       = NULL;
+   handle->binding    = NULL;
+
+   for(int i = 0; i < arity; ++i)
+      handle->args[i] = NULL;
+
    handle->rw_data.nf_date[0] = SysDateCreationTime();
    handle->rw_data.nf_date[1] = SysDateCreationTime();
    handle->lson = NULL;
@@ -607,14 +651,8 @@ static inline Term_p TermConstCellAlloc(FunCode symbol)
 
 static inline Term_p TermTopAlloc(FunCode f_code, int arity)
 {
-   Term_p handle = TermDefaultCellAlloc();
-
+   Term_p handle = TermDefaultCellArityAlloc(arity);
    handle->f_code = f_code;
-   handle->arity  = arity;
-   if(arity)
-   {
-      handle->args = TermArgArrayAlloc(arity);
-   }
 
    return handle;
 }

@@ -282,11 +282,10 @@ bool EqnEqlitRecode(Eqn_p lit)
 {
    if(EqnIsEquLit(lit))
    {
-      Term_p t = TermDefaultCellAlloc();
+      Term_p t = TermDefaultCellArityAlloc(2);
 
       t->type = lit->bank->sig->type_bank->bool_type;
       t->f_code = SigGetEqnCode(lit->bank->sig, true);
-      t->args = TermArgArrayAlloc(2);
       t->arity = 2;
       t->args[0] = lit->lterm;
       t->args[1] = lit->rterm;

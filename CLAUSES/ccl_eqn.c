@@ -817,12 +817,11 @@ Term_p EqnTermsTBTermEncode(TB_p bank, Term_p lterm, Term_p rterm, bool
    assert(TBFind(bank, lterm));
    assert(TBFind(bank, rterm));
 
-   handle = TermDefaultCellAlloc();
+   handle = TermDefaultCellArityAlloc(2);
    handle->arity = 2;
    handle->f_code = SigGetEqnCode(bank->sig, positive);
    handle->type = bank->sig->type_bank->bool_type;
    assert(handle->f_code);
-   handle->args = TermArgArrayAlloc(2);
    if(dir == PENormal)
    {
       handle->args[0] = lterm;
