@@ -70,6 +70,44 @@ bool ParseBool(Scanner_p in)
    return res;
 }
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: ParseIntMax()
+//
+//   Parses a (possibly negative) Integer, defined as an optional "-",
+//   followed by a sequence of digits. Returns the value or gives an
+//   error on overflow.
+//
+// Global Variables:
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+
+intmax_t ParseIntMax(Scanner_p in)
+{
+   intmax_t value;
+
+   if(TestInpTok(in, Hyphen))
+   {
+      NextToken(in);
+      CheckInpTokNoSkip(in, PosInt);
+      value = - strtoimax(DStrView(AktToken(in)->literal), NULL, 10);
+   }
+   else
+   {
+      CheckInpTok(in, PosInt);
+      value = - strtoimax(DStrView(AktToken(in)->literal), NULL, 10);
+   }
+   NextToken(in);
+
+   return value;
+}
+
+
+
+
 /*-----------------------------------------------------------------------
 //
 // Function: ParseIntLimited()
@@ -115,6 +153,7 @@ long ParseIntLimited(Scanner_p in, long lower, long upper)
 
    return value;
 }
+
 
 
 /*-----------------------------------------------------------------------

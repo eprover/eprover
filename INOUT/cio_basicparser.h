@@ -45,6 +45,7 @@ typedef enum
 /*---------------------------------------------------------------------*/
 
 bool       ParseBool(Scanner_p in);
+intmax_t   ParseIntMax(Scanner_p in);
 long       ParseInt(Scanner_p in);
 long       ParseIntLimited(Scanner_p in, long lower, long upper);
 uintmax_t  ParseUIntMax(Scanner_p in);

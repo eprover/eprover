@@ -197,6 +197,23 @@ typedef struct order_parms_cell
       }\
    }
 
+#define PARSE_INTMAX(name)\
+   if(TestInpId(in, #name))\
+   {\
+      NextToken(in);\
+      AcceptInpTok(in, Colon);\
+      handle->name = ParseIntMax(in);\
+   }\
+   else\
+   {\
+      res = false;\
+      if(warn_missing)\
+      {\
+         Warning("Config misses %s\n", #name);\
+      }\
+   }
+
+
 #define PARSE_INT(name)\
    if(TestInpId(in, #name))\
    {\
@@ -212,6 +229,23 @@ typedef struct order_parms_cell
          Warning("Config misses %s\n", #name);\
       }\
    }
+
+#define PARSE_INT_LIMITED(name, low, high) \
+   if(TestInpId(in, #name))\
+   {\
+      NextToken(in);\
+      AcceptInpTok(in, Colon);\
+      handle->name = ParseIntLimited(in, low, high); \
+   }\
+   else\
+   {\
+      res = false;\
+      if(warn_missing)\
+      {\
+         Warning("Config misses %s\n", #name);\
+      }\
+   }
+
 
 #define PARSE_IDENTIFIER(name)\
    if(TestInpId(in, #name))\
@@ -231,13 +265,60 @@ typedef struct order_parms_cell
       }\
    }
 
+#define PARSE_IDENT_INTO(name, maxlen)                 \
+   if(TestInpId(in, #name))\
+   {\
+      NextToken(in);\
+      AcceptInpTok(in, Colon);\
+      CheckInpTok(in, Identifier);\
+      strncpy(handle->name, DStrView(AktToken(in)->literal), maxlen-1); \
+      handle->name[maxlen-1] = '\0'; \
+      NextToken(in);\
+   }\
+   else\
+   {\
+      res = false;\
+      if(warn_missing)\
+      {\
+         Warning("Config misses %s\n", #name);\
+      }\
+   }
+
+
+#define PARSE_IDENT_NO(name, ids)                 \
+   if(TestInpId(in, #name))\
+   {\
+      NextToken(in);\
+      AcceptInpTok(in, Colon);\
+      CheckInpTok(in, Identifier);\
+      handle->name = StringIndex(DStrView(AktToken(in)->literal), ids);\
+      if(handle->name==-1)\
+      {\
+         DStr_p errstr = DStrAlloc();           \
+         DStrAppendStrArray(errstr, ids, "|");  \
+         CheckInpId(in, DStrView(errstr));      \
+         DStrFree(errstr);                      \
+      }                                         \
+      NextToken(in);                            \
+   }\
+   else\
+   {\
+      res = false;\
+      if(warn_missing)\
+      {\
+         Warning("Config misses %s\n", #name);\
+      }\
+   }
+
+
+
 #define PARSE_STRING(name)\
    if(TestInpId(in, #name))\
    {\
-   NextToken(in);                               \
+      NextToken(in);                            \
       AcceptInpTok(in, Colon);\
       CheckInpTok(in, String);                            \
-      handle->name = DStrCopy(AktToken(in)->literal);     \
+      handle->name = DStrCopyCore(AktToken(in)->literal);     \
       NextToken(in);\
    }\
    else\

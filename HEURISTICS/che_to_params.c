@@ -170,25 +170,22 @@ void OrderParmsPrint(FILE* out, OrderParms_p handle)
    fprintf(out, "      rewrite_strong_rhs_inst: %s\n",
            BOOL2STR(handle->rewrite_strong_rhs_inst));
 
-   if(handle->to_pre_prec)
-   {
-      fprintf(out, "      to_pre_prec:   %s\n", handle->to_pre_prec);
-   }
+   fprintf(out, "      to_pre_prec:             \"%s\"\n",
+           handle->to_pre_prec?handle->to_pre_prec:"");
    fprintf(out, "      conj_only_mod:           %d\n", handle->conj_only_mod);
    fprintf(out, "      conj_axiom_mod:          %d\n", handle->conj_axiom_mod);
    fprintf(out, "      axiom_only_mod:          %d\n", handle->axiom_only_mod);
    fprintf(out, "      skolem_mod:              %d\n", handle->skolem_mod);
    fprintf(out, "      defpred_mod:             %d\n", handle->defpred_mod);
-   fprintf(out, "      force_kbo_var_weight     %s\n",
+   fprintf(out, "      force_kbo_var_weight:    %s\n",
            BOOL2STR(handle->force_kbo_var_weight));
-   if(handle->to_pre_weights)
-   {
-      fprintf(out, "      to_pre_weights: %s\n", handle->to_pre_weights);
-   }
+   fprintf(out, "      to_pre_weights:          \"%s\"\n",
+           handle->to_pre_weights?handle->to_pre_weights:"");
+
    fprintf(out, "      to_const_weight:         %ld\n", handle->to_const_weight);
    fprintf(out, "      to_defs_min:             %s\n",
            BOOL2STR(handle->to_defs_min));
-   fprintf(out, "      handle->lit_cmp:         %d\n", handle->lit_cmp);
+   fprintf(out, "      lit_cmp:                 %d\n", handle->lit_cmp);
 
    fprintf(out, "   }\n");
 }
@@ -216,27 +213,31 @@ bool OrderParmsParseInto(Scanner_p in,
 
    AcceptInpTok(in, OpenCurly);
 
-   if(TestInpId(in, "ordertype"))
+   PARSE_IDENT_NO(ordertype, TONames);
+   PARSE_IDENT_NO(to_weight_gen, TOWeightGenNames);
+   PARSE_IDENT_NO(to_prec_gen, TOPrecGenNames);
+   PARSE_BOOL(rewrite_strong_rhs_inst);
+   PARSE_STRING(to_pre_prec);
+   if(strcmp(handle->to_pre_prec, "")==0)
    {
-      NextToken(in);
-      AcceptInpTok(in, Colon);
-      CheckInpTok(in, Ident);
-      handle->ordertype = StringIndex(DStrView(AktToken(in)->literal), TONames);
-      if(handle->ordertype == -1)
-      {
-         CheckInpId(in, "Auto|KBO6|LPO4|...");
-      }
-      NextToken(in);
+      FREE(handle->to_pre_prec);
+      handle->to_pre_prec = NULL;
    }
-   else
+   PARSE_INT(conj_only_mod);
+   PARSE_INT(conj_axiom_mod);
+   PARSE_INT(axiom_only_mod);
+   PARSE_INT(skolem_mod);
+   PARSE_INT(defpred_mod);
+   PARSE_BOOL(force_kbo_var_weight);
+   PARSE_STRING(to_pre_weights);
+   if(strcmp(handle->to_pre_weights, "")==0)
    {
-      res = false;
-      if(warn_missing)
-      {
-         Warning("Config misses %s\n", "ordertype");
-      }
+      FREE(handle->to_pre_weights);
+      handle->to_pre_weights = NULL;
    }
-
+   PARSE_INT(to_const_weight);
+   PARSE_BOOL(to_defs_min);
+   PARSE_INT(lit_cmp);
 
    AcceptInpTok(in, CloseCurly);
 

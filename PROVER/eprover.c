@@ -489,7 +489,13 @@ int main(int argc, char* argv[])
    proofcontrol = ProofControlAlloc();
    ProofControlInit(proofstate, proofcontrol, h_parms,
                     fvi_parms, wfcb_definitions, hcb_definitions);
-   // HeuristicParmsPrint(stdout, h_parms);
+   /* HeuristicParmsPrint(stdout, h_parms); */
+   /* Scanner_p hin = CreateScanner(StreamTypeFile, "bla.txt", true, NULL, true); */
+   /* HeuristicParms_p parms = HeuristicParmsParse(hin, true); */
+   /* DestroyScanner(hin); */
+   /* HeuristicParmsPrint(stdout, parms); */
+   /* HeuristicParmsFree(parms); */
+
 
    // Unfold definitions and re-normalize
    preproc_removed += ClauseSetUnfoldEqDefNormalize(proofstate->axioms,
