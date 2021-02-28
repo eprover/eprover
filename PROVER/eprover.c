@@ -763,6 +763,8 @@ int main(int argc, char* argv[])
                      relevancy_pruned,
                      raw_clause_no,
                      preproc_removed);
+
+	SigPrint(GlobalOut, proofstate->signature);
 #ifndef FAST_EXIT
 #ifdef FULL_MEM_STATS
    fprintf(GlobalOut,
