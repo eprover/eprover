@@ -1487,7 +1487,7 @@ Term_p TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop)
             Type_p  sym_type = sym_code ? SigGetType(bank->sig, sym_code) : NULL;
             handle = tb_term_parse_arglist(in, bank,
                                              check_symb_prop, sym_type);
-		 }
+		   }
          else
          {
             handle = TermDefaultCellAlloc();
@@ -1496,23 +1496,6 @@ Term_p TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop)
          handle->f_code = TermSigInsert(bank->sig, DStrView(id),
                                         handle->arity, false, id_type);
          
-		 	if(id_type == FSIdentInterpreted)
-         /* &&(bank->sig->distinct_props & FPInterpreted)) */
-			{
-		   	if(handle->f_code == bank->sig->less_code)
-				{
-					int less_code = handle->args[0]->f_code;
-					FuncCell less_cell = bank->sig->f_info[less_code];
-					
-					printf(">Name:%s,TypeProperties:%d<\n",
-							less_cell.name, less_cell.properties);
-					
-					printf("OK\n");
-					/* printf("Type:%d\n",handle->type->f_code);
-			      */
-				}
-		 	}
-
          if(!handle->f_code)
        	{
             errpos = DStrAlloc();
@@ -1528,7 +1511,34 @@ Term_p TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop)
             DStrFree(errpos);
          }
          handle = tb_termtop_insert(bank, handle);
-         }
+		 	if(id_type == FSIdentInterpreted)
+          /*&&(bank->sig->distinct_props & FPInterpreted))*/
+			{
+				printf("f_code:%d\n",handle->f_code);
+		      if(handle->f_code == bank->sig->less_code)
+			   {
+			      Type_p  arg1 = handle->args[0]->type;
+			      Type_p  arg2 = handle->args[1]->type;
+				  
+				   if(((arg1 == bank->sig->type_bank->integer_type) ||
+                  (arg1== bank->sig->type_bank->rational_type) ||
+                  (arg1== bank->sig->type_bank->real_type)) &&
+                  arg1==arg2) 
+				   {
+
+				   }
+				   else 
+				   {
+                  printf("ERROR: less arg1 != arg2, or not \n");
+					   /* Error handling */
+				   }
+				   handle->type = bank->sig->type_bank->bool_type;
+				}
+			}
+		 	
+			printf(">Type:%d,F_code:%d\n",handle->type, handle->type->f_code);
+
+      }
       DStrFree(id);
    }
    DStrReleaseRef(source_name);
