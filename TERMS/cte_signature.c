@@ -166,6 +166,10 @@ Sig_p SigAlloc(TypeBank_p bank)
    handle->nor_code          = 0;
    handle->bimpl_code        = 0;
    handle->xor_code          = 0;
+   
+   /*Florian, Lukas */
+   handle->less_code = 0;
+   
    handle->answer_code       = 0;
 
    handle->skolem_count      = 0;
@@ -180,7 +184,7 @@ Sig_p SigAlloc(TypeBank_p bank)
 
 /*-----------------------------------------------------------------------
 //
-// Function: SigInitInternalCodes()
+// Function: SigInsertInternalCodes()
 //
 //   Put all the FOF operators as function symbols into sig. Sig
 //   should be empty, so that sig->internal symbols can be properly
@@ -219,6 +223,10 @@ void SigInsertInternalCodes(Sig_p sig)
    sig->nor_code   = SigInsertFOFOp(sig, "$nor",   2);
    sig->bimpl_code = SigInsertFOFOp(sig, "$bimpl", 2);
    sig->xor_code   = SigInsertFOFOp(sig, "$xor",   2);
+
+   /*Florian, Lukas*/
+   sig->less_code = SigInsertFOFOp(sig, "$less", 2);
+   SigSetPolymorphic(sig, sig->less_code, true);
 
    sig->answer_code =  SigInsertId(sig, "$answer", 1, true);
    SigSetFuncProp(sig, sig->answer_code, FPInterpreted|FPPseudoPred);

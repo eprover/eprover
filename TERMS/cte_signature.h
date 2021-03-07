@@ -135,6 +135,10 @@ typedef struct sigcell
    FunCode   nor_code;
    FunCode   bimpl_code;
    FunCode   xor_code;
+   
+   /* Florian, Lukas */
+   FunCode   less_code;
+   
    /* And here are codes for interpreted symbols */
    FunCode   answer_code;       /* For answer literals */
 

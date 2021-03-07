@@ -18,6 +18,7 @@ PROVER/ekb_ginsert
 PROVER/ekb_insert
 PROVER/enormalizer
 PROVER/epclanalyse
+PROVER/epatternize
 PROVER/epclextract
 PROVER/epcllemma
 PROVER/eprover
@@ -67,3 +68,5 @@ CONTRIB/picosat-965/*
 setup.sh
 build.sh
 
+#vim tagfile
+tags

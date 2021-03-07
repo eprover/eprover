@@ -1414,7 +1414,7 @@ Term_p TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop)
    type_stream        = AktToken(in)->stream_type;
    line = AktToken(in)->line;
    column = AktToken(in)->column;
-
+	
    /* Normal term stuff, bloated because of the nonsensical SETHEO
       syntax */
 
@@ -1479,16 +1479,15 @@ Term_p TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop)
                              "(consider --free-objects)",
                              false);
             }
-
-            // in TFX all symbols must be declared beforehand
+            
+			   // in TFX all symbols must be declared beforehand
             // thus, if we have a formula at the argument, symbol with name
             // id already has a type declared with $o in appropriate places
             FunCode sym_code = SigFindFCode(bank->sig, DStrView(id));
             Type_p  sym_type = sym_code ? SigGetType(bank->sig, sym_code) : NULL;
-            
             handle = tb_term_parse_arglist(in, bank,
                                              check_symb_prop, sym_type);
-         }
+		 }
          else
          {
             handle = TermDefaultCellAlloc();
@@ -1496,8 +1495,26 @@ Term_p TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop)
          }
          handle->f_code = TermSigInsert(bank->sig, DStrView(id),
                                         handle->arity, false, id_type);
+         
+		 	if(id_type == FSIdentInterpreted)
+         /* &&(bank->sig->distinct_props & FPInterpreted)) */
+			{
+		   	if(handle->f_code == bank->sig->less_code)
+				{
+					int less_code = handle->args[0]->f_code;
+					FuncCell less_cell = bank->sig->f_info[less_code];
+					
+					printf(">Name:%s,TypeProperties:%d<\n",
+							less_cell.name, less_cell.properties);
+					
+					printf("OK\n");
+					/* printf("Type:%d\n",handle->type->f_code);
+			      */
+				}
+		 	}
+
          if(!handle->f_code)
-         {
+       	{
             errpos = DStrAlloc();
             DStrAppendStr(errpos, PosRep(type_stream, source_name, line, column));
             DStrAppendStr(errpos, DStrView(id));
