@@ -1510,34 +1510,34 @@ Term_p TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop)
             Error(DStrView(errpos), SYNTAX_ERROR);
             DStrFree(errpos);
          }
+
 		 // Implementation of Arithmetic symbols
          handle = tb_termtop_insert(bank, handle);
-		 	if(id_type == FSIdentInterpreted)
-          /*&&(bank->sig->distinct_props & FPInterpreted))*/
-			{
-				printf("f_code:%d\n",handle->f_code);
-		      if(handle->f_code == bank->sig->less_code)
-			   {
-			      Type_p  arg1 = handle->args[0]->type;
-			      Type_p  arg2 = handle->args[1]->type;
-				  
-				   if(((arg1 == bank->sig->type_bank->integer_type) ||
-                  (arg1== bank->sig->type_bank->rational_type) ||
-                  (arg1== bank->sig->type_bank->real_type)) &&
-                  arg1==arg2) 
-				   {
+         if(id_type == FSIdentInterpreted)
+         /*&&(bank->sig->distinct_props & FPInterpreted))*/
+         {
+            printf("f_code:%d\n",handle->f_code);
+            if(handle->f_code == bank->sig->less_code)
+            {
+               Type_p  arg1 = handle->args[0]->type;
+               Type_p  arg2 = handle->args[1]->type;
 
-				   }
-				   else 
-				   {
+               if(((arg1 == bank->sig->type_bank->integer_type) ||
+                   (arg1== bank->sig->type_bank->rational_type) ||
+                   (arg1== bank->sig->type_bank->real_type)) &&
+                   arg1==arg)
+               {
+
+               }
+               else 
+               {
                   printf("ERROR: less arg1 != arg2, or not \n");
-					   /* Error handling */
-				   }
-				   handle->type = bank->sig->type_bank->bool_type;
-				}
-			}
-		 	
-			printf(">Type:%d,F_code:%d\n",handle->type, handle->type->f_code);
+                  /* Error handling */
+               }
+               handle->type = bank->sig->type_bank->bool_type;
+            }
+         }
+      printf(">Type:%d,F_code:%d\n",handle->type, handle->type->f_code);
 
       }
       DStrFree(id);
