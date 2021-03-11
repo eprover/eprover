@@ -136,9 +136,16 @@ typedef struct sigcell
    FunCode   bimpl_code;
    FunCode   xor_code;
    
-   /* Florian, Lukas */
+   /* Functions used by arithmetic*/
    FunCode   less_code;
-   
+   FunCode   uminus_code;
+   FunCode   sum_code;
+   FunCode   floor_code;
+   FunCode   is_int_code;
+   FunCode   to_int_code;
+   FunCode   to_rat_code;
+   FunCode   to_real_code;
+
    /* And here are codes for interpreted symbols */
    FunCode   answer_code;       /* For answer literals */
 

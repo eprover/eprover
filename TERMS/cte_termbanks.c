@@ -1510,6 +1510,7 @@ Term_p TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop)
             Error(DStrView(errpos), SYNTAX_ERROR);
             DStrFree(errpos);
          }
+		 // Implementation of Arithmetic symbols
          handle = tb_termtop_insert(bank, handle);
 		 	if(id_type == FSIdentInterpreted)
           /*&&(bank->sig->distinct_props & FPInterpreted))*/

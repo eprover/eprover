@@ -167,8 +167,15 @@ Sig_p SigAlloc(TypeBank_p bank)
    handle->bimpl_code        = 0;
    handle->xor_code          = 0;
    
-   /*Florian, Lukas */
+   /* Functions used by arithmetic */
    handle->less_code = 0;
+   handle->uminus_code = 0;
+   handle->sum_code = 0;
+   handle->floor_code = 0;
+   handle->is_int_code = 0;
+   handle->to_int_code = 0;
+   handle->to_rat_code = 0;
+   handle->to_real_code = 0;
    
    handle->answer_code       = 0;
 
@@ -224,9 +231,23 @@ void SigInsertInternalCodes(Sig_p sig)
    sig->bimpl_code = SigInsertFOFOp(sig, "$bimpl", 2);
    sig->xor_code   = SigInsertFOFOp(sig, "$xor",   2);
 
-   /*Florian, Lukas*/
+   /*Functions used by arithmetic */
    sig->less_code = SigInsertFOFOp(sig, "$less", 2);
    SigSetPolymorphic(sig, sig->less_code, true);
+   sig->uminus_code = SigInsertFOFOp(sig, "$uminus", 1);
+   SigSetPolymorphic(sig, sig->uminus_code, true);
+   sig->sum_code = SigInsertFOFOp(sig, "$sum", 2);
+   SigSetPolymorphic(sig, sig->sum_code, true);
+   sig->floor_code = SigInsertFOFOp(sig, "$floor", 1);
+   SigSetPolymorphic(sig, sig->floor_code, true);
+   sig->is_int_code = SigInsertFOFOp(sig, "$is_int", 1);
+   SigSetPolymorphic(sig, sig->is_int_code, true);
+   sig->to_int_code = SigInsertFOFOp(sig, "$to_int", 1);
+   SigSetPolymorphic(sig, sig->to_int_code, true);
+   sig->to_rat_code = SigInsertFOFOp(sig, "$to_rat", 1);
+   SigSetPolymorphic(sig, sig->to_rat_code, true);
+   sig->to_real_code = SigInsertFOFOp(sig, "$to_real", 1);
+   SigSetPolymorphic(sig, sig->to_real_code, true);
 
    sig->answer_code =  SigInsertId(sig, "$answer", 1, true);
    SigSetFuncProp(sig, sig->answer_code, FPInterpreted|FPPseudoPred);
