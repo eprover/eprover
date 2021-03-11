@@ -94,10 +94,8 @@ OptCell opts[] =
    {OPT_VERBOSE,
     'v', "verbose",
     OptArg, "1",
-    "Verbose comments on the progress of the program. This differs "
-    "from the output level (below) in that technical information is "
-    "printed to stderr, while the output level determines which "
-    "logical manipulations of the clauses are printed to stdout."},
+    "Verbose comments on the progress of the program. This technical "
+    "information is printed to stderr."},
 
    {OPT_OUTPUT,
     'o', "output-file",

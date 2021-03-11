@@ -1,10 +1,10 @@
 /*-----------------------------------------------------------------------
 
-File  : cte_acterms.c
+  File  : cte_acterms.c
 
-Author: Stephan Schulz
+  Author: Stephan Schulz
 
-Contents
+  Contents
 
   Funktions for dealing with AC-normalized terms
 
@@ -14,12 +14,9 @@ Contents
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
+  Created: Wed Nov 22 00:31:03 CET 2000
 
-<1> Wed Nov 22 00:31:03 CET 2000
-    New
-
------------------------------------------------------------------------*/
+  -----------------------------------------------------------------------*/
 
 #include "cte_acterms.h"
 
@@ -81,7 +78,7 @@ static int acterm_uniq_compare(const void* term1, const void* term2)
 /----------------------------------------------------------------------*/
 
 static void ac_collect_args(PTree_p* root, Sig_p sig, FunCode f,
-             Term_p term)
+                            Term_p term)
 {
 
    if(term->f_code != f)
@@ -99,7 +96,7 @@ static void ac_collect_args(PTree_p* root, Sig_p sig, FunCode f,
 
       for(i=0; i < term->arity; i++)
       {
-    ac_collect_args(root, sig, f, term->args[i]);
+         ac_collect_args(root, sig, f, term->args[i]);
       }
    }
 }
@@ -161,7 +158,7 @@ void ACTermFree(ACTerm_p term)
 
       for(i=0; (t=PDArrayElementP(term->args, i)); i++)
       {
-    ACTermFree(t);
+         ACTermFree(t);
       }
       PDArrayFree(term->args);
    }
@@ -199,23 +196,23 @@ int ACTermCompare(ACTerm_p t1, ACTerm_p t2)
 
       for(i=0; !res; i++)
       {
-    arg1 = PDArrayElementP(t1->args, i);
-    arg2 = PDArrayElementP(t2->args, i);
-    if(!arg1 && !arg2)
-    {
-       break;
-    }
-    else if(!arg1)
-    {
-       res = -1;
-       break;
-    }
-    else if(!arg2)
-    {
-       res = 1;
-       break;
-    }
-    res = ACTermCompare(arg1, arg2);
+         arg1 = PDArrayElementP(t1->args, i);
+         arg2 = PDArrayElementP(t2->args, i);
+         if(!arg1 && !arg2)
+         {
+            break;
+         }
+         else if(!arg1)
+         {
+            res = -1;
+            break;
+         }
+         else if(!arg2)
+         {
+            res = 1;
+            break;
+         }
+         res = ACTermCompare(arg1, arg2);
       }
    }
    return res;
@@ -244,44 +241,44 @@ ACTerm_p ACTermNormalize(Sig_p sig, Term_p term)
 
       if(SigQueryFuncProp(sig, term->f_code, FPIsAC))
       {
-    PTree_p args = NULL, cell;
-    PStack_p stack;
+         PTree_p args = NULL, cell;
+         PStack_p stack;
 
-    ac_collect_args(&args, sig, term->f_code, term);
+         ac_collect_args(&args, sig, term->f_code, term);
 
-    i=0;
-    stack = PTreeTraverseInit(args);
-    while((cell = PTreeTraverseNext(stack)))
-    {
-       PDArrayAssignP(handle->args,i++, cell->key);
-    }
-    PTreeTraverseExit(stack);
-    PTreeFree(args);
+         i=0;
+         stack = PTreeTraverseInit(args);
+         while((cell = PTreeTraverseNext(stack)))
+         {
+            PDArrayAssignP(handle->args,i++, cell->key);
+         }
+         PTreeTraverseExit(stack);
+         PTreeFree(args);
       }
       // in LFHOL symbol must not be fully applied
       else if(SigQueryFuncProp(sig, term->f_code, FPCommutative) && term->arity == 2)
       {
-    ACTerm_p t1, t2, tmp;
+         ACTerm_p t1, t2, tmp;
 
-    t1 = ACTermNormalize(sig,term->args[0]);
-    t2 = ACTermNormalize(sig,term->args[1]);
+         t1 = ACTermNormalize(sig,term->args[0]);
+         t2 = ACTermNormalize(sig,term->args[1]);
 
-    if(ACTermCompare(t1, t2) > 0)
-    {
-       tmp = t1;
-       t1 = t2;
-       t2 = tmp;
-    }
-    PDArrayAssignP(handle->args,0,t1);
-    PDArrayAssignP(handle->args,1,t2);
+         if(ACTermCompare(t1, t2) > 0)
+         {
+            tmp = t1;
+            t1 = t2;
+            t2 = tmp;
+         }
+         PDArrayAssignP(handle->args,0,t1);
+         PDArrayAssignP(handle->args,1,t2);
       }
       else
       {
-    for(i=0; i<term->arity; i++)
-    {
-       PDArrayAssignP(handle->args,i,
-            ACTermNormalize(sig,term->args[i]));
-    }
+         for(i=0; i<term->arity; i++)
+         {
+            PDArrayAssignP(handle->args,i,
+                           ACTermNormalize(sig,term->args[i]));
+         }
       }
    }
    return handle;
@@ -317,14 +314,14 @@ void ACTermPrint(FILE* out, ACTerm_p term, Sig_p sig)
 
       if(arg)
       {
-    putc('(', out);
-    ACTermPrint(out, arg, sig);
-    for(i=1; (arg = PDArrayElementP(term->args, i)); i++)
-    {
-       putc(',', out);
-       ACTermPrint(out, arg, sig);
-    }
-    putc(')', out);
+         putc('(', out);
+         ACTermPrint(out, arg, sig);
+         for(i=1; (arg = PDArrayElementP(term->args, i)); i++)
+         {
+            putc(',', out);
+            ACTermPrint(out, arg, sig);
+         }
+         putc(')', out);
       }
    }
 }
@@ -348,7 +345,7 @@ bool TermACEqual(Sig_p sig, Term_p t1, Term_p t2)
    bool res = true;
 
    if(TermStandardWeight(t1)!=TermStandardWeight(t2)
-       || TermIsAppliedVar(t1) || TermIsAppliedVar(t2))
+      || TermIsAppliedVar(t1) || TermIsAppliedVar(t2))
    {
       res = false;
    }
@@ -360,17 +357,17 @@ bool TermACEqual(Sig_p sig, Term_p t1, Term_p t2)
       nt2 = ACTermNormalize(sig, t2);
 
       /* printf("\n# T-1: ");
-    TermPrint(stdout, t1, sig, DEREF_NEVER);
-    printf("\n# T-2: ");
-    TermPrint(stdout, t2, sig, DEREF_NEVER);
+         TermPrint(stdout, t1, sig, DEREF_NEVER);
+         printf("\n# T-2: ");
+         TermPrint(stdout, t2, sig, DEREF_NEVER);
 
-    printf("\n# AC1: ");
-    ACTermPrint(stdout, nt1, sig);
-    printf("\n# AC2: ");
-    ACTermPrint(stdout, nt2, sig);*/
+         printf("\n# AC1: ");
+         ACTermPrint(stdout, nt1, sig);
+         printf("\n# AC2: ");
+         ACTermPrint(stdout, nt2, sig);*/
       if(ACTermCompare(nt1, nt2)!=0)
       {
-    res = false;
+         res = false;
       }
       /* printf("\n# RES: %d\n", res); */
       ACTermFree(nt2);
@@ -383,5 +380,3 @@ bool TermACEqual(Sig_p sig, Term_p t1, Term_p t2)
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-

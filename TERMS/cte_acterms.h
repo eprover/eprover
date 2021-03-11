@@ -1,24 +1,23 @@
 /*-----------------------------------------------------------------------
 
-File  : cte_acterms.h
+  File  : cte_acterms.h
 
-Author: Stephan Schulz
+  Author: Stephan Schulz
 
-Contents
+  Contents
 
   Functions and data types for terms in AC normal form (flattened,
   subterms sorted alphabetically).
 
-  Copyright 1998, 1999 by the author.
+  Copyright 2000, 2021 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
+  Changes
 
-<1> Fri Nov 17 20:02:15 MET 2000
-    New
+  Created: Fri Nov 17 20:02:15 MET 2000
 
 -----------------------------------------------------------------------*/
 
@@ -63,8 +62,3 @@ bool     TermACEqual(Sig_p sig, Term_p t1, Term_p t2);
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
-
-
-
