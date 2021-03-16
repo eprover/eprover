@@ -234,6 +234,8 @@ void SigInsertInternalCodes(Sig_p sig)
    /*Functions used by arithmetic */
    sig->less_code = SigInsertFOFOp(sig, "$less", 2);
    SigSetPolymorphic(sig, sig->less_code, true);
+   SigSetArithTypeCheck(sig, sig->less_code, TypeCheckArithPred);
+	
    sig->uminus_code = SigInsertFOFOp(sig, "$uminus", 1);
    SigSetPolymorphic(sig, sig->uminus_code, true);
    sig->sum_code = SigInsertFOFOp(sig, "$sum", 2);
@@ -449,6 +451,28 @@ bool SigIsPolymorphic(Sig_p sig, FunCode f_code)
    return FuncQueryProp(&(sig->f_info[f_code]), FPTypePoly);
 }
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: SigSetArithTypeCheck
+//
+//	  Adds an argument type check function.
+//
+// Global Variables: -
+//
+// Side Effects    : modifies the signature
+//
+/----------------------------------------------------------------------*/
+void SigSetArithTypeCheck(Sig_p sig, FunCode f_code, TypeCheck2Fun checkFun)
+{
+   assert(f_code > 0);
+   assert(f_code <= sig->f_count);
+	assert(checkFun != NULL);
+
+	sig->f_info[f_code].arithTypeCheck = checkFun;
+}
+
+
 /*-----------------------------------------------------------------------
 //
 // Function: SigSetPolymorphic
@@ -639,6 +663,8 @@ FunCode SigInsertId(Sig_p sig, const char* name, int arity, bool special_id)
    sig->f_info[sig->f_count].properties = FPIgnoreProps;
    sig->f_info[sig->f_count].type = NULL;
    sig->f_info[sig->f_count].feature_offset = -1;
+	sig->f_info[sig->f_count].arithTypeCheck = NULL;
+		
    new = StrTreeCellAllocEmpty();
    new->key = sig->f_info[sig->f_count].name;
    new->val1.i_val = sig->f_count;

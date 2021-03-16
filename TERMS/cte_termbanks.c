@@ -1504,42 +1504,37 @@ Term_p TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop)
             DStrAppendStr(errpos, " used with arity ");
             DStrAppendInt(errpos, (long)handle->arity);
             DStrAppendStr(errpos, ", but registered with arity ");
-            DStrAppendInt(errpos,
+		     	DStrAppendInt(errpos,
                           (long)(bank->sig)->
                           f_info[SigFindFCode(bank->sig, DStrView(id))].arity);
             Error(DStrView(errpos), SYNTAX_ERROR);
             DStrFree(errpos);
-         }
+			}
 
-		 // Implementation of Arithmetic symbols
-         handle = tb_termtop_insert(bank, handle);
-         if(id_type == FSIdentInterpreted)
-         /*&&(bank->sig->distinct_props & FPInterpreted))*/
-         {
-            printf("f_code:%d\n",handle->f_code);
-            if(handle->f_code == bank->sig->less_code)
-            {
-               Type_p  arg1 = handle->args[0]->type;
-               Type_p  arg2 = handle->args[1]->type;
+			// Implementation of Arithmetic symbols
+			handle = tb_termtop_insert(bank, handle);
+		 	
+			if(id_type == FSIdentInterpreted)
+       	/*&&(bank->sig->distinct_props & FPInterpreted))*/
+       	{
+				TypeCheck2Fun checkFun = bank->sig->f_info[handle->f_code].arithTypeCheck;
+				assert( checkFun != NULL);
 
-               if(((arg1 == bank->sig->type_bank->integer_type) ||
-                   (arg1== bank->sig->type_bank->rational_type) ||
-                   (arg1== bank->sig->type_bank->real_type)) &&
-                   arg1==arg)
-               {
-
-               }
-               else 
-               {
-                  printf("ERROR: less arg1 != arg2, or not \n");
-                  /* Error handling */
-               }
-               handle->type = bank->sig->type_bank->bool_type;
-            }
-         }
-      printf(">Type:%d,F_code:%d\n",handle->type, handle->type->f_code);
-
-      }
+		   	Type_p  arg1 = handle->args[0]->type;
+			 	Type_p  arg2 = handle->args[1]->type;
+          	
+				handle->type = checkFun(bank->sig->type_bank, arg1, arg2);
+				if(handle->type == NULL) {
+			 		Error("%s %s argument types invalid (arg1: %d, arg2: %d)",
+							INPUT_SEMANTIC_ERROR,
+							PosRep(type_stream, source_name, line, column),
+							DStrView(id),
+							arg1->f_code,
+							arg2->f_code
+						);
+				}
+      	}
+		}
       DStrFree(id);
    }
    DStrReleaseRef(source_name);

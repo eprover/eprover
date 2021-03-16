@@ -32,6 +32,7 @@ Changes
 #include <cte_functypes.h>
 #include <cte_simpletypes.h>
 #include <cte_typebanks.h>
+#include <cte_polymorphictypes.h>
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
@@ -75,6 +76,8 @@ typedef enum
    arity (and possibly additional information at a later time) by
    internal numerical code for function symbol. */
 
+typedef Type_p (*TypeCheck2Fun)(TypeBank_p types, Type_p arg1, Type_p arg2);
+
 typedef struct funccell
 {
    /* f_code is implicit by position in the array */
@@ -85,6 +88,9 @@ typedef struct funccell
    int    feature_offset; /* For use with (heuristic) term features,
                              based on arity and function/predicate
                              distinction. */
+	
+	TypeCheck2Fun arithTypeCheck; /* for arithmetic type checking */
+
    Type_p type;       /* Simple type of the symbol */
    FunctionProperties properties;
 }FuncCell, *Func_p;
@@ -223,6 +229,8 @@ bool    SigIsFunction(Sig_p sig, FunCode f_code);
 bool    SigIsFixedType(Sig_p sig, FunCode f_code);
 void    SigFixType(Sig_p sig, FunCode f_code);
 bool    SigIsPolymorphic(Sig_p sig, FunCode f_code);
+void    SigSetArithTypeCheck(Sig_p, FunCode f_code, 
+		                       TypeCheck2Fun checkFun);
 void    SigSetPolymorphic(Sig_p sig, FunCode f_code, bool value);
 bool    SigQueryProp(Sig_p sig, FunCode f, FunctionProperties prop);
 
