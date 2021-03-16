@@ -143,14 +143,31 @@ typedef struct sigcell
    FunCode   xor_code;
    
    /* Functions used by arithmetic*/
-   FunCode   less_code;
-   FunCode   uminus_code;
-   FunCode   sum_code;
-   FunCode   floor_code;
-   FunCode   is_int_code;
-   FunCode   to_int_code;
-   FunCode   to_rat_code;
-   FunCode   to_real_code;
+   FunCode less_code;
+   FunCode lesseq_code;
+   FunCode greater_code;
+   FunCode greatereq_code;
+   FunCode uminus_code;
+   FunCode sum_code;
+   FunCode difference_code;
+   FunCode product_code;
+   FunCode quotient_code;
+   FunCode quotient_e_code;
+   FunCode quotient_t_code;
+   FunCode quotient_f_code;
+   FunCode remainder_e_code;
+   FunCode remainder_t_code;
+   FunCode remainder_f_code;
+   FunCode floor_code;
+   FunCode ceiling_code;
+   FunCode truncate_code;
+   FunCode round_code;
+   FunCode is_int_code;
+   FunCode is_rat_code;
+   FunCode to_int_code;
+   FunCode to_rat_code;
+   FunCode to_real_code;
+   
 
    /* And here are codes for interpreted symbols */
    FunCode   answer_code;       /* For answer literals */

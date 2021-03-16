@@ -1518,19 +1518,34 @@ Term_p TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop)
        	/*&&(bank->sig->distinct_props & FPInterpreted))*/
        	{
 				TypeCheck2Fun checkFun = bank->sig->f_info[handle->f_code].arithTypeCheck;
-				assert( checkFun != NULL);
+				
+				assert(checkFun != NULL);
 
 		   	Type_p  arg1 = handle->args[0]->type;
-			 	Type_p  arg2 = handle->args[1]->type;
-          	
+				Type_p  arg2 = NULL;
+			 	if(handle->args[1] != NULL) {
+
+					arg2 = handle->args[1]->type;
+				}
+
 				handle->type = checkFun(bank->sig->type_bank, arg1, arg2);
+
+				printf("Col %d: %s(%d) wird Typ %d mit den Argumenten (%d) %d und (%d) %d\n", column, DStrView(id),
+						handle->f_code, handle->type==NULL?0:handle->type->f_code, 
+						handle->args[0]->f_code, arg1->f_code,
+						handle->args[1]?handle->args[1]->f_code:0, arg2==NULL?0:arg2->f_code);
+				
+				if(handle->type == NULL) handle->type = bank->sig->type_bank->integer_type;
+				printf("Der Handle %d erstes Argument:%d, zweites Argument:%d\n",
+						handle, handle->args[0], handle->args[1]);
+
 				if(handle->type == NULL) {
 			 		Error("%s %s argument types invalid (arg1: %d, arg2: %d)",
 							INPUT_SEMANTIC_ERROR,
 							PosRep(type_stream, source_name, line, column),
 							DStrView(id),
 							arg1->f_code,
-							arg2->f_code
+							arg2?arg2->f_code:0
 						);
 				}
       	}
