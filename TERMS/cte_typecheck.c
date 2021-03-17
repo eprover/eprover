@@ -282,10 +282,13 @@ void TypeInferSort(Sig_p sig, Term_p term, Scanner_p in)
                   }
                }
             }
-
-
-            term->type = term_determine_type(term, type, sig->type_bank);
-            if(term->type==NULL)
+			
+			// i dont think, thats ok ...
+			if(term->type != sig->type_bank->integer_type && term->type != sig->type_bank->real_type && term->type != sig->type_bank->rational_type) {
+				term->type = term_determine_type(term, type, sig->type_bank);
+			}
+			
+			if(term->type==NULL)
             {
                fprintf(stderr, "# too many arguments supplied for %s\n",
                        SigFindName(sig, term->f_code));

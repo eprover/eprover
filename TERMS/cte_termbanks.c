@@ -1534,10 +1534,6 @@ Term_p TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop)
 						handle->f_code, handle->type==NULL?0:handle->type->f_code, 
 						handle->args[0]->f_code, arg1->f_code,
 						handle->args[1]?handle->args[1]->f_code:0, arg2==NULL?0:arg2->f_code);
-				
-				if(handle->type == NULL) handle->type = bank->sig->type_bank->integer_type;
-				printf("Der Handle %d erstes Argument:%d, zweites Argument:%d\n",
-						handle, handle->args[0], handle->args[1]);
 
 				if(handle->type == NULL) {
 			 		Error("%s %s argument types invalid (arg1: %d, arg2: %d)",
