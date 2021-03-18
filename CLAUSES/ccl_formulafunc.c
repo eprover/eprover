@@ -607,11 +607,11 @@ long FormulaSetPreprocConjectures(FormulaSet_p set,
 // Function: WFormulaSimplify()
 //
 //   Apply standard simplifications to the wrapped formula. Return
-//   true if the formula has changed. Outputs inferences!
+//   true if the formula has changed.
 //
 // Global Variables: -
 //
-// Side Effects    : Output, memory operations.
+// Side Effects    : Memory operations.
 //
 /----------------------------------------------------------------------*/
 
@@ -621,7 +621,7 @@ bool WFormulaSimplify(WFormula_p form, TB_p terms)
    bool res = false;
 
    //assert(!terms->freevarsets);
-   simplified = TFormulaSimplify(terms, form->tformula, true);
+   simplified = TFormulaSimplify(terms, form->tformula, 0);
    // TBVarSetStoreFree(terms);
 
    if(simplified!=form->tformula)
@@ -826,6 +826,7 @@ long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive,
    long gc_threshold = old_nodes*TFORMULA_GC_LIMIT;
 
    TFormulaSetUnrollFOOL(set, archive, terms);
+   FormulaSetSimplify(set, terms);
 
    //printf("# Introducing definitions\n");
    TFormulaSetIntroduceDefs(set, archive, terms);

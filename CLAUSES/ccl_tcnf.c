@@ -299,8 +299,8 @@ TFormula_p tformula_rek_skolemize(TB_p terms, TFormula_p form,
 //
 // Function: tformula_rename_test()
 //
-//   Return true if formula|i should be renamed, false
-//   otherwise. Polarity is the polarity of root, not
+//   Return true if the formula at argument position i should be
+//   renamed, false otherwise. Polarity is the polarity of root, not
 //   root|i. def_limit determines how often a subformula can be
 //   replicated before it is renamed.
 //
