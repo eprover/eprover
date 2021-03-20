@@ -1530,7 +1530,7 @@ Term_p TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop)
 
 				handle->type = checkFun(bank->sig->type_bank, arg1, arg2);
 
-				printf("Col %d: %s(%d) wird Typ %d mit den Argumenten (%d) %d und (%d) %d\n", column, DStrView(id),
+				printf("Col %d: %s(%d) becomes type %d with the arguments (%d) %d and (%d) %d\n", column, DStrView(id),
 						handle->f_code, handle->type==NULL?0:handle->type->f_code, 
 						handle->args[0]->f_code, arg1->f_code,
 						handle->args[1]?handle->args[1]->f_code:0, arg2==NULL?0:arg2->f_code);
