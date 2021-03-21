@@ -456,7 +456,7 @@ static Term_p normalize_head(Term_p head, Term_p* rest_args, int rest_arity)
 {
    assert(problemType == PROBLEM_HO);
    Term_p res = NULL;
-   
+
    if(rest_arity == 0)
    {
       res = head; // do not copy in case there is nothing to be copied
@@ -1485,7 +1485,7 @@ Term_p TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop)
             // id already has a type declared with $o in appropriate places
             FunCode sym_code = SigFindFCode(bank->sig, DStrView(id));
             Type_p  sym_type = sym_code ? SigGetType(bank->sig, sym_code) : NULL;
-            
+
             handle = tb_term_parse_arglist(in, bank,
                                              check_symb_prop, sym_type);
          }
@@ -2023,6 +2023,70 @@ Term_p TBGetFreqConstTerm(TB_p terms, Type_p type,
       res = TBCreateConstTerm(terms, f);
    }
    PStackFree(candidates);
+   return res;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: TermDAGWeight()
+//
+//    Compute the DAG weight of a term. More concretely: For each
+//    occurance of an already considered subterm, count
+//    dup_weigth. For all new termcells count fweight for function
+//    sybmbols and vweight for variables. The new_term parameter
+//    indicates if the term shall be considered individually, or if
+//    this is a continuation of a previous computation which already
+//    might have seen some subterms.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations, manipulates TPPOpFlag in term
+//                   cells.
+//
+/----------------------------------------------------------------------*/
+
+long TermDAGWeight(Term_p term, long fweight, long vweight,
+                   long dup_weight, bool new_term)
+{
+   PStack_p stack;
+   long res = 0;
+   int i;
+
+   assert(term);
+
+   if(new_term)
+   {
+      TermDelPropOpt(term, TPOpFlag);
+   }
+   stack = PStackAlloc();
+   PStackPushP(stack, term);
+
+   while(!PStackEmpty(stack))
+   {
+      term = PStackPopP(stack);
+      assert(term);
+      if(TermCellQueryProp(term, TPOpFlag))
+      {
+         res += dup_weight;
+      }
+      else
+      {
+         TermCellSetProp(term, TPOpFlag);
+         if(TermIsVar(term))
+         {
+            res += vweight;
+         }
+         else
+         {
+            res += fweight;
+            for(i=0; i< term->arity; i++)
+            {
+               PStackPushP(stack, term);
+            }
+         }
+      }
+   }
+   PStackFree(stack);
    return res;
 }
 

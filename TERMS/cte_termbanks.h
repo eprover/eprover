@@ -178,6 +178,9 @@ Term_p  TBGetFirstConstTerm(TB_p bank, Type_p sort);
 Term_p  TBGetFreqConstTerm(TB_p terms, Type_p sort,
                            long* conj_dist_array,
                            long* dist_array, FunConstCmpFunType is_better);
+long    TermDAGWeight(Term_p term, long fweight, long vweight,
+                      long dup_weight, bool new_term);
+
 
 
 /*---------------------------------------------------------------------*/

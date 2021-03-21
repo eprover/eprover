@@ -66,7 +66,7 @@ double uniq_term_weight(Term_p term)
       weight = pow(5,term->arity);
       for(i=0; i< term->arity; i++)
       {
-    weight+= 2*uniq_term_weight(term->args[i]);
+         weight+= 2*uniq_term_weight(term->args[i]);
       }
    }
    return weight;
@@ -89,7 +89,7 @@ double uniq_eqn_weight(Eqn_p handle)
    double multiplier = EqnIsPositive(handle)?7:11;
 
    return multiplier*(uniq_term_weight(handle->lterm)
-      + uniq_term_weight(handle->rterm));
+                      + uniq_term_weight(handle->rterm));
 }
 
 /*---------------------------------------------------------------------*/
@@ -151,9 +151,9 @@ WFCB_p ClauseWeightParse(Scanner_p in, OCB_p ocb, ProofState_p state)
    vweight = ParseInt(in);
    AcceptInpTok(in, Comma);
    pos_multiplier = ParseFloat(in);
-   
+
    PARSE_OPTIONAL_AV_PENALTY(in, app_var_mult);
-   
+
    AcceptInpTok(in, CloseBracket);
 
    return ClauseWeightInit(prio_fun, fweight, vweight,
@@ -239,9 +239,9 @@ WFCB_p LMaxWeightParse(Scanner_p in, OCB_p ocb, ProofState_p state)
    vweight = ParseInt(in);
    AcceptInpTok(in, Comma);
    pos_multiplier = ParseFloat(in);
-   
+
    PARSE_OPTIONAL_AV_PENALTY(in, app_var_mult);
-   
+
    AcceptInpTok(in, CloseBracket);
 
    return LMaxWeightInit(prio_fun, fweight, vweight,
@@ -334,9 +334,9 @@ WFCB_p CMaxWeightParse(Scanner_p in, OCB_p ocb, ProofState_p state)
    vweight = ParseInt(in);
    AcceptInpTok(in, Comma);
    pos_multiplier = ParseFloat(in);
-   
+
    PARSE_OPTIONAL_AV_PENALTY(in, app_var_mult);
-   
+
    AcceptInpTok(in, CloseBracket);
 
    return CMaxWeightInit(prio_fun, fweight, vweight,
@@ -542,5 +542,3 @@ void TrivialWeightExit(void* data)
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
