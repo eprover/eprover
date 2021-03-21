@@ -89,6 +89,30 @@ Term_p insert_deref(Term_p deref_cache, TB_p bank)
    return TBTermTopInsert(bank, deref_cache);
 }
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: clear_stale_cache()
+//
+//   Clears the cache if it is not up to date. Assumes that cache
+//   is stale (see BINDING_FRESH).
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void clear_stale_cache(Term_p app_var)
+{
+   assert(TermIsAppliedVar(app_var));
+   assert(!BINDING_FRESH(app_var));
+
+   TermSetCache(app_var, NULL);
+   app_var->binding = NULL;
+}
+
+
 /*-----------------------------------------------------------------------
 //
 // Function: applied_var_deref()
@@ -138,7 +162,7 @@ __inline__ Term_p applied_var_deref(Term_p orig)
             int arity = bound->arity + orig->arity-1;
 
             res = TermTopAlloc(bound->f_code, arity);
-            
+
             res->type = orig->type; // derefing keeps the types
             res->properties = bound->properties & (TPPredPos);
 
@@ -165,28 +189,6 @@ __inline__ Term_p applied_var_deref(Term_p orig)
    return res;
 }
 
-
-/*-----------------------------------------------------------------------
-//
-// Function: clear_stale_cache()
-//
-//   Clears the cache if it is not up to date. Assumes that cache
-//   is stale (see BINDING_FRESH).
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-void clear_stale_cache(Term_p app_var)
-{
-   assert(TermIsAppliedVar(app_var));
-   assert(!BINDING_FRESH(app_var));
-
-   TermSetCache(app_var, NULL);
-   app_var->binding = NULL;
-}
 
 #endif
 
@@ -764,11 +766,11 @@ bool TermIsPrefix(Term_p cand, Term_p term)
 
       if(TermIsVar(cand))
       {
-         return TermIsVar(term) ? cand == term : 
+         return TermIsVar(term) ? cand == term :
                   (TermIsAppliedVar(term) ? cand == term->args[0] : false);
       }
 
-      if(cand->arity <= term->arity && cand->f_code == term->f_code) 
+      if(cand->arity <= term->arity && cand->f_code == term->f_code)
       {
          for(i=0; i<cand->arity; i++)
          {
@@ -799,7 +801,7 @@ bool TermIsPrefix(Term_p cand, Term_p term)
 /----------------------------------------------------------------------*/
 
 __inline__ Term_p MakeRewrittenTerm(Term_p orig, Term_p new, int remaining_orig, struct tbcell* bank)
-{  
+{
    if(remaining_orig)
    {
       assert(problemType == PROBLEM_HO);

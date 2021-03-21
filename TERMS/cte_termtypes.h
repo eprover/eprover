@@ -142,7 +142,7 @@ typedef struct termcell
    struct termcell* binding_cache; /* For caching the term applied variable
                                       expands to. */
    struct tbcell* owner_bank;                /* Bank that owns this term cell and that
-                                      is responsible for lifetime management 
+                                      is responsible for lifetime management
                                       of the term */
 #endif
 
@@ -186,22 +186,22 @@ typedef uintptr_t DerefType, *DerefType_p;
                           (t)->binding == (t)->args[0]->binding)
 
 #ifdef ENABLE_LFHO
-/* Sometimes we are not interested in the arity of the term, but the 
+/* Sometimes we are not interested in the arity of the term, but the
    number of arguments the term has. Due to encoding of applied variables,
-   we have to discard argument 0, which is actually the head variable */ 
+   we have to discard argument 0, which is actually the head variable */
 #define ARG_NUM(term)    (TermIsAppliedVar(term) ? (term)->arity-1 : (term)->arity)
 /* If we have the term X a Y and bindings X -> f X Y and Y -> Z
    when we deref once we want to get f X Y a Z. When dereferencing applied
-   var X a Y we can behave like with variables and decrease deref (see TermDeref) 
+   var X a Y we can behave like with variables and decrease deref (see TermDeref)
    in which case we get term f X Y a Y as result. If we do not decrease deref
-   we get f (f X Y) a Z as result. Netiher are correct. Thus, there is 
+   we get f (f X Y) a Z as result. Netiher are correct. Thus, there is
    a part of term (up to DEREF_LIMIT) for which we do not follow pointers and
    then other part (after and including DEREF_LIMIT) for which we do follow pointers.  */
 #define DEREF_LIMIT(t,d) ((TermIsAppliedVar(t) && (t)->args[0]->binding && (d) == DEREF_ONCE) ? \
                           (t)->args[0]->binding->arity + ((TermIsVar((t)->args[0]->binding)) ? 1 : 0)  : 0)
 /* Sets derefs according to the previous comment and expects i to be an index
    into arugment array, l to be DEREF_LIMIT and d wanted deref mode*/
-#define CONVERT_DEREF(i, l, d) (((i) < (l) && (d) == DEREF_ONCE) ? DEREF_NEVER : (d)) 
+#define CONVERT_DEREF(i, l, d) (((i) < (l) && (d) == DEREF_ONCE) ? DEREF_NEVER : (d))
 #else
 /* making sure no compiler warnings are produced */
 #define ARG_NUM(term)          ((term)->arity)
@@ -312,14 +312,13 @@ void    TermStackDelProps(PStack_p stack, TermProperties prop);
 #define TermSetBank(t,b)   (UNUSED(t), UNUSED(b), UNUSED(NULL))
 #endif
 
-void clear_stale_cache(Term_p app_var);
 
 /*---------------------------------------------------------------------*/
 /*                  Inline functions                                   */
 /*---------------------------------------------------------------------*/
 
 #ifdef ENABLE_LFHO
-// forward declaration of function used in inline functions 
+// forward declaration of function used in inline functions
 Term_p applied_var_deref(Term_p orig);
 #endif
 
@@ -424,7 +423,7 @@ static inline Term_p TermDerefAlways(Term_p term)
 //   Dereferencing applied variables creates new terms, which
 //   are cached in the original applied variable. Derefing applied
 //   variable will NOT decrease deref (just like it does not decrease
-//   deref for a normal term). Because of this, additional care 
+//   deref for a normal term). Because of this, additional care
 //   needs to be taken not to take into account substitution
 //   for the head of the applied variable (which is prefix of the
 //   expanded term) -- see macros DEREF_LIMIT and CONVERT_DEREF.
