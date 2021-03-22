@@ -218,6 +218,7 @@ ProofState_p ProofStateAlloc(FunctionProperties free_symb_prop)
    handle->context_sr_count     = 0;
    handle->paramod_count        = 0;
    handle->factor_count         = 0;
+   handle->neg_ext_count        = 0;
    handle->resolv_count         = 0;
    handle->satcheck_count       = 0;
    handle->satcheck_success     = 0;
@@ -626,6 +627,8 @@ void ProofStateStatisticsPrint(FILE* out, ProofState_p state)
            state->paramod_count);
    fprintf(out, "# Factorizations                       : %ld\n",
            state->factor_count);
+   fprintf(out, "# NegExts                              : %ld\n",
+           state->neg_ext_count);
    fprintf(out, "# Equation resolutions                 : %ld\n",
            state->resolv_count);
    fprintf(out, "# Propositional unsat checks           : %ld\n",

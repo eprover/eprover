@@ -869,7 +869,11 @@ int main(int argc, char* argv[])
                ClauseSetPreprocess(fstate->axioms,
                                    fstate->watchlist,
                                    fstate->archive,
-                                   fstate->tmp_terms);
+                                   fstate->tmp_terms,
+                                   fstate->terms,
+                                   false,
+                                   eqdef_incrlimit,
+                                   eqdef_maxclauses);
             }
             if(!specsig_classify)
             {

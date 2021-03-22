@@ -51,6 +51,13 @@ typedef enum
    ACKeepOrientable
 }ACHandlingType;
 
+typedef enum 
+{
+   AllLits,
+   MaxLits,
+   NoLits
+}ExtInferenceType;
+
 
 /* External parameters for heuristics and proof control. When this is
  * changed, remember to also adapt the Init, Print und
@@ -140,6 +147,12 @@ typedef struct heuristic_parms_cell
 
    bool                detsort_bw_rw;
    bool                detsort_tmpset;
+
+   /* Higher-order settings */
+   ExtInferenceType    neg_ext;
+   ExtInferenceType    pos_ext;
+   bool                inverse_recognition;
+   bool                replace_inj_defs;
 }HeuristicParmsCell, *HeuristicParms_p;
 
 

@@ -69,7 +69,11 @@ char *opids[] =
    PCL_ID_DEF,
    PCL_SC,
    PCL_FU,
-   PCL_EBV
+   PCL_EBV,
+   /* HO inferences */
+   PCL_NEG_EXT,
+   PCL_POS_EXT,
+   PCL_INV_REC
 };
 
 char *optheory [] =
@@ -108,6 +112,10 @@ char *optheory [] =
    /* Others */
    NULL,
    NULL,
+   NULL,
+   NULL,
+   NULL,
+   /* HO inferences */
    NULL,
    NULL,
    NULL
@@ -150,6 +158,10 @@ char *opstatus [] =
    /* Others */
    "thm",
    NULL,
+   "thm",
+   "thm",
+   "thm",
+   /* HO */
    "thm",
    "thm",
    "thm"
@@ -2377,6 +2389,9 @@ void DerivationComputeAndPrint(FILE* out, char* status, PStack_p root_clauses,
                                Sig_p sig, ProofOutput print_derivation,
                                bool print_analysis)
 {
+   assert(sizeof(opids) / sizeof(char*) == sizeof(optheory) / sizeof(char*));
+   assert(sizeof(opids) / sizeof(char*) == sizeof(opstatus) / sizeof(char*));
+
    Derivation_p derivation = DerivationCompute(root_clauses, sig);
 
    DerivationPrintConditional(out, status, derivation, sig,

@@ -57,7 +57,9 @@ long ClauseSetUnfoldAllEqDefs(ClauseSet_p set, ClauseSet_p passive,
                               int min_arity, long eqdef_incrlimit);
 
 long ClauseSetPreprocess(ClauseSet_p set, ClauseSet_p passive,
-                         ClauseSet_p archive, TB_p tmp_terms);
+                         ClauseSet_p archive, TB_p tmp_terms, TB_p terms,
+                         bool replace_inj_defs,
+                         int eqdef_incrlimit, long eqdef_maxclauses);
 
 long ClauseSetUnfoldEqDefNormalize(ClauseSet_p set, ClauseSet_p passive,
                                    ClauseSet_p archive, TB_p tmp_terms,

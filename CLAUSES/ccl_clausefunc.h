@@ -54,6 +54,9 @@ void     ClauseSetArchiveCopy(ClauseSet_p archive, ClauseSet_p set);
 bool     ClauseIsOrphaned(Clause_p clause);
 long     ClauseSetDeleteOrphans(ClauseSet_p set);
 bool     ClauseEliminateNakedBooleanVariables(Clause_p clause);
+Clause_p ClauseRecognizeInjectivity(TB_p terms, Clause_p clause);
+long ClauseSetReplaceInjectivityDefs(ClauseSet_p set, ClauseSet_p archive, TB_p terms);
+
 
 void PStackClausePrint(FILE* out, PStack_p stack, char* extra);
 

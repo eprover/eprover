@@ -62,8 +62,10 @@ typedef enum
    FPPseudoPred   = 8192, /* Pseudo-predicate used for side effects
                            * only, does not conceptually contribute to
                            * truth of clause */
-   FPTypedApplication = FPPseudoPred * 2,
-   FPSkolemSymbol = FPTypedApplication * 2, /* Obvious ;-) */
+   FPTypedApplication = FPPseudoPred * 2, /* Symbol used to represtend typed
+                                             first-order binary application symbol */
+   FPIsInjDefSkolem = FPTypedApplication * 2, /* Symbol is Skolem for injective function */
+   FPSkolemSymbol = FPIsInjDefSkolem * 2, /* Obvious ;-) */
    FPDefPred      = FPSkolemSymbol * 2 /* Used for all new epred()s,
                                         * but hopefully only for split
                                         * literals and Tseitin defined
@@ -253,6 +255,7 @@ FunCode SigGetOtherEqnCode(Sig_p sig, FunCode f_code);
 static inline FunCode SigGetOrCode(Sig_p sig);
 static inline FunCode SigGetCNilCode(Sig_p sig);
 FunCode SigGetOrNCode(Sig_p sig, int arity);
+FunCode SigGetNewTypedSkolem(Sig_p sig, Type_p *args, int num_args, Type_p ret_type);
 FunCode SigGetNewSkolemCode(Sig_p sig, int arity);
 FunCode SigGetNewPredicateCode(Sig_p sig, int arity);
 

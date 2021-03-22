@@ -687,8 +687,8 @@ bool str_n_element(char* str, char* ids, int len)
 
 char* PosRep(StreamType type, DStr_p source, long line, long column)
 {
-   static char buff[MAX_ERRMSG_LEN];
    char        tmp_str[MAX_ERRMSG_LEN];
+   static char buff[MAX_ERRMSG_LEN+128]; // make place for numbers
 
 
    if(type == StreamTypeFile)

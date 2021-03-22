@@ -311,12 +311,18 @@ long ClauseSetUnfoldAllEqDefs(ClauseSet_p set, ClauseSet_p passive,
 /----------------------------------------------------------------------*/
 
 long ClauseSetPreprocess(ClauseSet_p set, ClauseSet_p passive,
-                         ClauseSet_p archive, TB_p tmp_terms)
+                         ClauseSet_p archive, TB_p tmp_terms, TB_p terms,
+                         bool replace_injectivity_defs,
+                         int eqdef_incrlimit, long eqdef_maxclauses)
 {
    long res;
 
    ClauseSetRemoveSuperfluousLiterals(set);
    res = ClauseSetFilterTautologies(set, tmp_terms);
+   if (replace_injectivity_defs)
+   {
+      ClauseSetReplaceInjectivityDefs(set,archive,terms);
+   }
    ClauseSetCanonize(set);
 
    return res;
@@ -352,9 +358,6 @@ long ClauseSetUnfoldEqDefNormalize(ClauseSet_p set, ClauseSet_p passive,
    }
    return res;
 }
-
-
-
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */

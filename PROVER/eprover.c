@@ -483,7 +483,11 @@ int main(int argc, char* argv[])
       preproc_removed = ClauseSetPreprocess(proofstate->axioms,
                                             proofstate->watchlist,
                                             proofstate->archive,
-                                            proofstate->tmp_terms);
+                                            proofstate->tmp_terms,
+                                            proofstate->terms,
+                                            h_parms->replace_inj_defs,
+                                            h_parms->eqdef_incrlimit,
+                                            h_parms->eqdef_maxclauses);
    }
 
    proofcontrol = ProofControlAlloc();
@@ -679,7 +683,7 @@ int main(int argc, char* argv[])
             }
             retval = INCOMPLETE_PROOFSTATE;
          }
-         else if(proofstate->state_is_complete && inf_sys_complete)
+         else if(problemType == PROBLEM_FO && proofstate->state_is_complete && inf_sys_complete)
          {
             fprintf(GlobalOut, "\n# No proof found!\n");
             TSTPOUT(GlobalOut, neg_conjectures?"CounterSatisfiable":"Satisfiable");
@@ -1676,6 +1680,36 @@ CLState_p process_options(int argc, char* argv[])
             break;
       case OPT_APP_ENCODE:
             app_encode = true;
+            break;
+      case OPT_NEG_EXT:
+            if(!strcmp(arg, "all"))
+            {
+               h_parms->neg_ext = AllLits;
+            } else if (!strcmp(arg, "max"))
+            {
+               h_parms->neg_ext = MaxLits;
+            } else 
+            {
+               Error("neg-ext excepts either all or max", 0);
+            }
+            break;
+      case OPT_POS_EXT:
+            if(!strcmp(arg, "all"))
+            {
+               h_parms->pos_ext = AllLits;
+            } else if (!strcmp(arg, "max"))
+            {
+               h_parms->pos_ext = MaxLits;
+            } else 
+            {
+               Error("pos-ext excepts either all or max", 0);
+            }
+            break;
+      case OPT_INVERSE_RECOGNITION:
+            h_parms->inverse_recognition = true;
+            break;
+      case OPT_REPLACE_INJ_DEFS:
+            h_parms->replace_inj_defs = true;
             break;
       default:
             assert(false && "Unknown option");

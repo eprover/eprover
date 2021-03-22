@@ -1419,7 +1419,7 @@ void ClauseTSTPPrint(FILE* out, Clause_p clause, bool fullterms, bool complete)
    }
    fprintf(out, "%s, ", typename);
 
-   if(is_untyped)
+   if(ClauseIsEmpty(clause) || (is_untyped && problemType != PROBLEM_HO))
    {
       ClauseTSTPCorePrint(out, clause, fullterms);
    }
