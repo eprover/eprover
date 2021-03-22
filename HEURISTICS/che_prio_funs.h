@@ -72,11 +72,13 @@ EvalPriority PrioFunPreferNonHorn(Clause_p clause);
 EvalPriority PrioFunPreferUnitAndNonEq(Clause_p clause);
 EvalPriority PrioFunDeferNonUnitMaxPosEq(Clause_p clause);
 EvalPriority PrioFunByCreationDate(Clause_p clause);
+EvalPriority PrioFunByPosLitNo(Clause_p clause);
+EvalPriority PrioFunByHornDist(Clause_p clause);
 EvalPriority PrioFunPreferWatchlist(Clause_p clause);
 EvalPriority PrioFunDeferWatchlist(Clause_p clause);
+
+
 EvalPriority PrioFunByAppVarNum(Clause_p clause);
-
-
 EvalPriority PrioFunPreferAppVar(Clause_p clause);
 EvalPriority PrioFunPreferNonAppVar(Clause_p clause);
 
@@ -85,8 +87,3 @@ EvalPriority PrioFunPreferNonAppVar(Clause_p clause);
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
-
-
-

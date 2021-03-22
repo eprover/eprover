@@ -29,15 +29,17 @@ Changes
 
 ScheduleCell StratSchedule[] =
 {
-   {"AutoSched0", AUTOSCHED0, "Auto", 0.5066, 0},
-   {"AutoSched1", AUTOSCHED1, "Auto", 0.2466, 0},
-   {"AutoSched2", AUTOSCHED2, "Auto", 0.08  , 0},
-   {"AutoSched3", AUTOSCHED3, "Auto", 0.06  , 0},
-   {"AutoSched4", AUTOSCHED4, "Auto", 0.0433, 0},
-   {"AutoSched5", AUTOSCHED5, "Auto", 0.03  , 0},
-   {"AutoSched6", AUTOSCHED6, "Auto", 0.0166, 0},
-   {"AutoSched7", AUTOSCHED7, "Auto", 0.0166, 0},
-   {NULL        , NoOrdering, NULL  , 0.0   , 0}
+   {"AutoSched0",  AUTOSCHED0,  "Auto", 0.5   , 0},
+   {"AutoSched1",  AUTOSCHED1,  "Auto", 0.22  , 0},
+   {"AutoSched2",  AUTOSCHED2,  "Auto", 0.0733, 0},
+   {"AutoSched3",  AUTOSCHED3,  "Auto", 0.06  , 0},
+   {"AutoSched4",  AUTOSCHED4,  "Auto", 0.0433, 0},
+   {"AutoSched5",  AUTOSCHED5,  "Auto", 0.03  , 0},
+   {"AutoSched6",  AUTOSCHED6,  "Auto", 0.0166, 0},
+   {"AutoSched7",  AUTOSCHED7,  "Auto", 0.0167, 0},
+   {"AutoSched8",  AUTOSCHED8,  "Auto", 0.0167, 0},
+   {"AutoSched9",  AUTOSCHED9,  "Auto", 0.0167, 0},
+   {NULL,          NoOrdering,  NULL  , 0.0   , 0}
 };
 
 
@@ -132,8 +134,8 @@ pid_t ExecuteSchedule(ScheduleCell strats[],
 
    for(i=0; strats[i].heu_name; i++)
    {
-      h_parms->heuristic_name = strats[i].heu_name;
-      h_parms->ordertype      = strats[i].ordering;
+      h_parms->heuristic_name         = strats[i].heu_name;
+      h_parms->order_params.ordertype = strats[i].ordering;
       fprintf(GlobalOut, "# Trying %s for %ld seconds\n",
               strats[i].heu_name,
               (long)strats[i].time_absolute);

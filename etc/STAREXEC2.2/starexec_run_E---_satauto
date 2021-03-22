@@ -4,7 +4,7 @@ set ProblemSPC=`grep " SPC " $1 | sed -e "s/.* : //"`
 set defaultargs="--delete-bad-limit=2000000000 --definitional-cnf=24 -s --print-statistics -R --print-version --free-numbers"
 set flags=" --proof-object "
 set heuristic=" --satauto"
-set final=" --cpu-limit="$STAREXEC_CPU_LIMIT" "$1
+set final=" --cpu-limit="$STAREXEC_WALLCLOCK_LIMIT" "$1
 set ecmd="./eprover ""$defaultargs $flags $heuristic $final"
 
 if ( `expr "$ProblemSPC" : "FOF.*"` || `expr "$ProblemSPC" : "CNF.*"` ) then

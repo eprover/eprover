@@ -37,9 +37,9 @@
    bigger than 32768
    NORM_ARITY_LIMIT*NORM_SYMBOL_LIMIT <= LONG_MAX */
 
-#define NORM_ARITY_LIMIT  16384  /* Largest Arity allowed */
-#define NORM_SYMBOL_LIMIT 65536  /* Maximum number of different
-                                    symbols of an arity allowed */
+#define NORM_ARITY_LIMIT  (16384/8)  /* Largest Arity allowed */
+#define NORM_SYMBOL_LIMIT (65536*8)  /* Maximum number of different
+                                        symbols of an arity allowed */
 #define NORM_VAR_INIT     -536870912
 
 typedef struct patternsubstcell

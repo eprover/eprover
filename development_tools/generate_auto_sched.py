@@ -240,7 +240,8 @@ def parse_prot_new(filename, stratname, prob_assoc, global_class, classdata):
                 classdata[prob_assoc[prob]].addProblem(stratname, prob, status, time)
                 global_class.addProblem(stratname, prob, status, time)
             except KeyError:
-                print "Unclassified problem ", prob
+                # print "Unclassified problem ", prob
+                pass
     p.close()
     return desc
 
@@ -408,10 +409,10 @@ def generate_output(fp, result, stratdesc, class_dir, raw_class, opt_res,
 /* Strategies used:                                       */
 
 """)
-        for i in by_heuristic.keys():
+        for i in used:
             print_strat_once(fp, i, defined_strats)
 
-        if global_best in by_heuristic.keys():
+        if global_best in used:
             fp.write("/* Global best, "+global_best+", already defined */\n")
         else:
             fp.write( "/* Global best (used as a default): */\n")
@@ -463,6 +464,36 @@ def generate_output(fp, result, stratdesc, class_dir, raw_class, opt_res,
 
 """)
 
+
+
+# These are from CASC-J10 tuning - 11 strategies that complement each
+# other
+
+backup_strats = [
+    "protocol_G-E--_208_C18_F1_SE_CS_SP_PS_S5PRR_RG_S04BN.csv",
+    "protocol_G-E--_208_C18_F1_SE_CS_SP_PS_S08CI.csv",
+    "protocol_G-E--_302_C18_F1_URBAN_S5PRR_RG_S0Y.csv",
+    "protocol_H----_047_B31_F1_PI_AE_R4_CS_SP_S2S.csv",
+    "protocol_G-E--_300_C18_F1_SE_CS_SP_PS_S0Y.csv",
+    "protocol_G-N--_023_B07_F1_SP_PI_Q7_CS_SP_CO_S5PRR_S0Y.csv",
+    "protocol_G-E--_208_B07----S_F1_SE_CS_SP_PS_S5PRR_RG_S04AN.csv",
+    "protocol_G-E--_107_C41_F1_PI_AE_Q4_CS_SP_PS_S4S.csv",
+    "protocol_G-E--_300_C01_S00.csv",
+    "protocol_G-E--_107_B42_F1_PI_SE_Q4_CS_SP_PS_S0YI.csv",
+    "protocol_G-E--_208_B00_00_F1_SE_CS_SP_PS_S064A.csv",
+    "protocol_H----_011_C07_F1_PI_SE_SP_S0V.csv"
+]
+
+
+def findBestBackupStrat(stratset, used_names, global_best):
+    #print used_names, global_best
+    cand = global_best
+
+    for c in backup_strats:
+        if not c in used_names and c in stratset.keys():
+            cand = c
+            break
+    return cand
 
 
 
@@ -552,7 +583,11 @@ for i in stratset.keys():
 
 sys.stderr.write("Parsing done, running optimizer\n")
 
-time_limits = [152, 74, 24, 18, 13, 9, 5, 5]
+time_limits = [150, 69, 22, 18, 13, 9, 5, 5, 5, 4]
+
+# Temporary version to get a ranking of the "best others"
+# time_limits = [5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5]
+
 
 itercount = 0;
 
@@ -564,6 +599,11 @@ best_strats = global_class.getSortedStrats()
 # print "// best strats: ", best_strats[:5]
 #for i in best_strats[:5]:
 #    print i.getPerf()
+
+used_strats = {}
+for i in classlist:
+    used_strats[i] = set()
+
 
 
 for time_limit in time_limits:
@@ -590,10 +630,11 @@ for time_limit in time_limits:
         perf.computePerf(time_limit, succ_cases)
         best, solns = perf.getBestStrat()
         if solns == 0:
-            best = global_best
+            best = findBestBackupStrat(stratset, used_strats[i], global_best)
         result[i] = best
         opt_res[i] = solns
         used.add(best)
+        used_strats[i].add(best)
 
     # And now we print the results
 

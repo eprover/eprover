@@ -47,6 +47,8 @@ typedef enum
    AUTOSCHED5,
    AUTOSCHED6,
    AUTOSCHED7,
+   AUTOSCHED8,
+   AUTOSCHED9,
    OPTIMIZE_AX,
    KBO,
    KBO6,

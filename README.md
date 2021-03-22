@@ -1,6 +1,7 @@
 **NOTE**: The CASC ReadMe file is in `DOC/Readme`.
 
-## Short Installation Instructions for the impatient
+Short Installation Instructions for the impatient
+=================================================
 
 This assumes that you have GNU tar, sh and gawk in your search path!
 
@@ -8,23 +9,23 @@ Simple installation of the first-order version (will install
 executables):
 
 ```sh
-tar -xzf E.tgz
-cd E
-./configure --bindir=/path/to/EXECDIR
-make
-make install
-/path/to/EXECDIR/eprover -h | more
+  tar -xzf E.tgz
+  cd E
+  ./configure --bindir=/path/to/EXECDIR
+  make
+  make install
+  /path/to/EXECDIR/eprover -h | more
 ```
 
 Simplest installation (in-place):
 
 ```sh
-tar -xzf E.tgz
-cd E
-./configure
-make rebuild
-cd PROVER
-./eprover -h | more
+  tar -xzf E.tgz
+  cd E
+  ./configure
+  make rebuild
+  cd PROVER
+  ./eprover -h | more
 ```
 
 Read the rest of this file and the fine (if incomplete) manual if
@@ -36,23 +37,23 @@ lambda-free higher-order logic (LFHOL). To build and test the
 higher-order version, use
 
 ```sh
-./configure --enable-ho
-make rebuild
-cd PROVER
-eprover-ho -h
+  ./configure --enable-ho
+  make rebuild
+  cd PROVER
+  eprover-ho -h
 ```
 
 
 The recommended command for running E on the file problem.p is
 
 ```
-eprover --auto --proof-object problem.p
+  eprover --auto --proof-object problem.p
 ```
 
 If you want to try the usually stronger strategy scheduling mode, use
 
 ```
-eprover --auto-schedule --proof-object problem.p
+  eprover --auto-schedule --proof-object problem.p
 ```
 
 Replace `eprover` by `eprover-ho` for the higher-order-enabled
@@ -66,8 +67,8 @@ input and output formats via commandline options.
 
 
 
-# The Equational Theorem Prover E
-
+The Equational Theorem Prover E
+===============================
 
 This is the README file for version 2.4 "Sandakphu" of the E
 equational theorem prover. This version of E is free software, see the
@@ -75,7 +76,8 @@ file COPYING for details about the license and the fact that THERE IS
 NO WARRANTY!
 
 
-## What is E?
+What is E?
+----------
 
 E is an equational theorem prover. That means it is a program that you
 can stuff a mathematical specification (in many-sorted first-order
@@ -92,7 +94,8 @@ General Public License.
 The E homepage can be found at <http://www.eprover.org>
 
 
-## Installation:
+Installation
+------------
 
 E can be installed anywhere in the file system, either by a normal
 user or by the system administrator. By default, the prover will still
@@ -102,13 +105,13 @@ To install the package, unpack the distribution (if you are reading
 this, you probably already did):
 
 ```sh
-gunzip -c E.tgz|tar -xvf -
+   gunzip -c E.tgz|tar -xvf -
 ```
 
 or
 
 ```sh
-(g)tar -xzf E.tgz
+   (g)tar -xzf E.tgz
 ```
 (if you have GNU tar)
 
@@ -118,7 +121,7 @@ HPUX, comment out the suitable CFLAGS definition (for most systems,
 the default definition should be ok). Then change to the E directory:
 
 ```sh
-cd E
+   cd E
 ```
 
 Determine if you want to run E from its own build directory or wether
@@ -126,38 +129,38 @@ you want to install the executables in some other directory
 EXECDIR. In the first case, run
 
 ```sh
-./configure
+   ./configure
 ```
 
 otherwise
 
 ```sh
-./configure --bindir=EXECDIR
+   ./configure --bindir=EXECDIR
 ```
 
 or, if you also want to install the man-pages into MANDIR,
 
 ```sh
-./configure --bindir=EXECDIR --man-prefix=MANDIR
+   ./configure --bindir=EXECDIR --man-prefix=MANDIR
 ```
 
 To enable higher-order-support, add the option `--enable-ho`, e.g.
 
 ```sh
-./configure --enable-ho
+   ./configure --enable-ho
 ```
 
 Then type
 
 ```sh
-make
+   make
 ```
 
 to compile the libraries and all included programs under the E
 directory. If you want to install E in a particular EXECDIR, type
 
 ```sh
-make install
+   make install
 ```
 
 You must have write permission in the EXECDIR, so if you install E
@@ -168,7 +171,7 @@ If you have changed the configuration, you need to rebuild all object
 and binary files. Run
 
 ```sh
-make rebuild
+   make rebuild
 ```
 
 instead of plain make.
@@ -177,7 +180,7 @@ instead of plain make.
 Type
 
 ```sh
-make documentation
+   make documentation
 ```
 
 to translate the LaTeX documentation (this requires LaTeX2e, pdflatex,
@@ -193,7 +196,7 @@ E/DOC/PORTING.
 If you get into trouble,
 
 ```sh
-make rebuild
+   make rebuild
 ```
 
 will rebuild E completely to your current configuration.
@@ -201,13 +204,13 @@ will rebuild E completely to your current configuration.
 After installation, go to E/PROVER and type
 
 ```sh
-./eprover BOO001-1+rm_eq_rstfp.lop
+   ./eprover BOO001-1+rm_eq_rstfp.lop
 ```
 
 to see the prover in action. Type
 
 ```sh
-./eprover LUSK6.lop
+   ./eprover LUSK6.lop
 ```
 
 for a harder example. `./eprover -h` will give you some information and
@@ -216,7 +219,7 @@ a list of options.
 For impatient people who do not want to read anything:
 
 ```sh
-eprover --auto --memory-limit=<80%_of_your_main_memory> <problem-file>
+   eprover --auto --memory-limit=<80%_of_your_main_memory> <problem-file>
 ```
 
 should give a reasonable performance on a large class of problems
@@ -227,20 +230,20 @@ may result in incompleteness for very large problems (many thousands
 of axioms). If you need completeness, use
 
 ```sh
-eprover --satauto --memory-limit=<80%_of_your_main_memory> <problem-file>
+  eprover --satauto --memory-limit=<80%_of_your_main_memory> <problem-file>
 ```
 
 In general, different proof problems are easy for different
 strategies. If you run
 
 ```sh
-eprover --auto-schedule --memory-limit=<80%_of_your_main_memory> <problem-file>
+  eprover --auto-schedule --memory-limit=<80%_of_your_main_memory> <problem-file>
 ```
 
 or
 
 ```sh
-eprover --satauto-schedule --memory-limit=<80%_of_your_main_memory> <problem-file>
+  eprover --satauto-schedule --memory-limit=<80%_of_your_main_memory> <problem-file>
 ```
 
 the prover will try a series of strategies on the problem. It assumes
@@ -252,7 +255,7 @@ One of the features of E is the ability to produce semi-readable
 proofs. To use this, type
 
 ```sh
-eprover --proof-object <other-stuff>
+  eprover --proof-object <other-stuff>
 ```
 
 By default, E will now automatically detect the input format (LOP,
@@ -268,7 +271,8 @@ subject to bit-rot, as other systems and interfaces change.
 
 
 
-## Bug reports and questions
+Bug reports and questions
+=========================
 
 We welcome bug reports and even reasonable questions. If the prover
 behaves in an unexpected way, please include the following

@@ -40,6 +40,8 @@ char* TONames[]=
    "AutoSched5",
    "AutoSched6",
    "AutoSched7",
+   "AutoSched8",
+   "AutoSched9",
    "Optimize",
    "KBO",
    "KBO6",
@@ -48,7 +50,8 @@ char* TONames[]=
    "LPO4",
    "LPO4Copy",
    "RPO",
-   "Empty"
+   "Empty",
+   NULL
 };
 
 

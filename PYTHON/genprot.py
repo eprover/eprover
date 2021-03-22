@@ -25,7 +25,7 @@ Options:
 --metadata   add metadata from directory structure - file and config and jobarchive name
 --compact    do not add alignment whitespace
 --features   add feature columns with features of the problem taken from supplied feature file
-
+--verbose    print processed file names
 
 Copyright 2015 Martin Möhrmann, moehrmann@eprover.org,
           2019 Stephan Schulz, schulz@eprover.org
@@ -74,6 +74,7 @@ import re
 from itertools import chain
 from os.path import dirname, splitext, basename, isdir, isfile
 from collections import defaultdict
+
 
 protfile = (lambda name: "protocol_" + name + ".csv")
 
@@ -134,11 +135,11 @@ def clean_value(value):
 def remove_timestamp(line):
     # split prefixed timestamp X.XX/X.XX % or X.XX/X.XX #
     split = line.split("%", 1)
-    if len(split) == 2:
+    if len(split) == 2 and len(split[0])<25:
         return split[1].strip()
     else:
         split = line.split("#", 1)
-        if len(split) == 2:
+        if len(split) == 2 and len(split[0])<25:
             return split[1].strip()
         else:
             # might be: 0.00/0.00   exec failed: No such file or directory
@@ -176,6 +177,8 @@ def make_entry(lines):
     return entry
 
 def process_file(data, features, archivename, path, fileopener, info):
+    if verbose:
+        print("Processing: ", path)
     problemname   = basename(dirname(path))
     configname    = "_".join(basename(dirname(dirname(path))).split("_")[4:])
     mo            = version_re.search(basename(dirname(dirname(path))).split("_", 1)[0])
@@ -226,6 +229,7 @@ def parse_args():
     parser.add_argument("--metadata", help="add information parsed from file paths", action="store_true")
     parser.add_argument("--compact", help="do not add alignment whitespace", action="store_true")
     parser.add_argument("--features", help="add feature columns with features of the problem")
+    parser.add_argument("--verbose", help="be verbose", action="store_true")
     return parser.parse_args()
 
 def read_features(path):
@@ -252,8 +256,14 @@ def read_features(path):
     return features
 
 if __name__ == "__main__":
+    global verbose
+
+    verbose = False
+
     data = defaultdict(dict)
     args = parse_args()
+    if args.verbose:
+        verbose = True
 
     features = read_features(args.features) if args.features else defaultdict(dict)
 

@@ -60,6 +60,8 @@ char* PrioFunNames[]=
    "PreferUnitAndNonEq",
    "DeferNonUnitMaxEq",
    "ByCreationDate",
+   "ByPosLitNo",
+   "ByHornDist",
    "PreferWatchlist",
    "DeferWatchlist",
    "PreferAppVar",
@@ -67,6 +69,7 @@ char* PrioFunNames[]=
    "ByAppVarNum",
    NULL
 };
+
 
 static ClausePrioFun prio_fun_array[]=
 {
@@ -98,6 +101,8 @@ static ClausePrioFun prio_fun_array[]=
    PrioFunPreferUnitAndNonEq,
    PrioFunDeferNonUnitMaxPosEq,
    PrioFunByCreationDate,
+   PrioFunByPosLitNo,
+   PrioFunByHornDist,
    PrioFunPreferWatchlist,
    PrioFunDeferWatchlist,
    PrioFunPreferAppVar,
@@ -967,6 +972,47 @@ EvalPriority PrioFunDeferWatchlist(Clause_p clause)
    return PrioNormal;
 }
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: PrioFunByPosLitNo()
+//
+//   Class clauses by number of positive literals (more is worse).
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+EvalPriority PrioFunByPosLitNo(Clause_p clause)
+{
+   assert(clause);
+
+   return clause->pos_lit_no;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: PrioFunByPosLitNo()
+//
+//   Class clauses by number of positive literals above one (more is
+//   worse), but all horn clauses are cool.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+EvalPriority PrioFunByHornDist(Clause_p clause)
+{
+   return MAX(0, clause->pos_lit_no-1);
+}
+
+
+
 /*-----------------------------------------------------------------------
 //
 // Function: PrioFunPreferAppVar()
@@ -1019,5 +1065,3 @@ EvalPriority PrioFunPreferNonAppVar(Clause_p clause)
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-

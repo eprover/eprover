@@ -1,26 +1,23 @@
 /*-----------------------------------------------------------------------
 
-File  : cio_basicparser.c
+  File  : cio_basicparser.c
 
-Author: Stephan Schulz
+  Author: Stephan Schulz
 
-Contents
+  Contents
 
   Parsing routines for useful C build-in Datatypes not covered by the
   scanner.
 
-  Copyright 1998, 1999 by the author.
+  Copyright 1998-2020 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
+  Created: Sat Jul  5 02:28:25 MET DST 1997
 
-<1> Sat Jul  5 02:28:25 MET DST 1997
-    New
-
------------------------------------------------------------------------*/
+  -----------------------------------------------------------------------*/
 
 
 #include <stdlib.h>
@@ -49,19 +46,45 @@ Changes
 
 /*-----------------------------------------------------------------------
 //
-// Function: ParseInt()
+// Function: ParseBool()
+//
+//   Parse and return a Boolean value (true/false).
+//
+// Global Variables: -
+//
+// Side Effects    : Input
+//
+/----------------------------------------------------------------------*/
+
+bool ParseBool(Scanner_p in)
+{
+   bool res = false;
+
+   CheckInpId(in, "true|false");
+   if(TestInpId(in, "true"))
+   {
+      res = true;
+   }
+   NextToken(in);
+
+   return res;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: ParseIntLimited()
 //
 //   Parses a (possibly negative) Integer, defined as an optional "-",
 //   followed by a sequence of digits. Returns the value or gives an
 //   error on overflow.
 //
-// Global Variables: -
+// Global Variables:
 //
-// Side Effects    : Input is read (and checked)
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
-long ParseInt(Scanner_p in)
+long ParseIntLimited(Scanner_p in, long lower, long upper)
 {
    long value;
 
@@ -71,23 +94,74 @@ long ParseInt(Scanner_p in)
       CheckInpTokNoSkip(in, PosInt);
       if((AktToken(in)->numval-1) > LONG_MAX)
       {
-    AktTokenError(in, "Long integer underflow", false);
+         AktTokenError(in, "Long integer underflow", false);
       }
       value = -AktToken(in)->numval;
-      NextToken(in);
    }
    else
    {
       CheckInpTok(in, PosInt);
       if(AktToken(in)->numval > LONG_MAX)
       {
-    AktTokenError(in, "Long integer overflow", false);
+         AktTokenError(in, "Long integer overflow", false);
       }
       value = AktToken(in)->numval;
-      NextToken(in);
    }
+   if(!((value >= lower) && (value <= upper)))
+   {
+      AktTokenError(in, "Long integer out of expected range", false);
+   }
+   NextToken(in);
+
    return value;
 }
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: ParseInt()
+//
+//   Parses a (possibly negative) (long) Integer, defined as an
+//   optional "-", //   followed by a sequence of digits. Returns the
+//   value or gives an error on overflow.
+//
+// Global Variables: -
+//
+// Side Effects    : Input is read (and checked)
+//
+/----------------------------------------------------------------------*/
+
+long ParseInt(Scanner_p in)
+{
+   return ParseIntLimited(in, LONG_MIN, LONG_MAX);
+}
+
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: ParseUIntMax()
+//
+//   Parses an uintmax-Integer, a sequence of digits. Returns the
+//   value or gives an error on overflow.
+//
+// Global Variables:
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+
+uintmax_t ParseUIntMax(Scanner_p in)
+{
+   uintmax_t value;
+
+   CheckInpTok(in, PosInt);
+   value = AktToken(in)->numval;
+   NextToken(in);
+
+   return value;
+}
+
 
 
 /*-----------------------------------------------------------------------
@@ -284,9 +358,9 @@ long DDArrayParse(Scanner_p in, DDArray_p array, bool brackets)
 
       while(TestInpTok(in, Comma))
       {
-    NextToken(in); /* We know it's a comma */
-    DDArrayAssign(array, i, ParseFloat(in));
-    i++;
+         NextToken(in); /* We know it's a comma */
+         DDArrayAssign(array, i, ParseFloat(in));
+         i++;
       }
    }
    if(brackets)
@@ -351,7 +425,7 @@ char* ParsePlainFilename(Scanner_p in)
    DStrReset(in->accu);
 
    while((first_tok || TestInpNoSkip(in)) &&
-    TestInpTok(in, PLAIN_FILE_TOKENS|Slash))
+         TestInpTok(in, PLAIN_FILE_TOKENS|Slash))
    {
       DStrAppendDStr(in->accu, AktToken(in)->literal);
       NextToken(in);

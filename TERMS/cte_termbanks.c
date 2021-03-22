@@ -850,6 +850,71 @@ Term_p  TBInsertRepl(TB_p bank, Term_p term, DerefType deref, Term_p old, Term_p
    return t;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: TBInsertReplPlain()
+//
+//   As TBInsertReplPlain, but terms are not instantiated.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+Term_p TBInsertReplPlain(TB_p bank, Term_p term, Term_p old, Term_p repl)
+{
+   int    i;
+   Term_p t;
+   bool   changed = false;
+
+   assert(term);
+
+   if(term == old)
+   {
+      assert(TBFind(bank, repl));
+      return repl;
+   }
+   if(TermStandardWeight(term) <= TermStandardWeight(old))
+   {
+      return term;
+   }
+   if(TermIsVar(term))
+   {
+      return term;
+   }
+   else
+   {
+      t = TermTopCopyWithoutArgs(term); /* This is an unshared term cell at the moment */
+      t->properties = TPIgnoreProps;
+
+      assert(SysDateIsCreationDate(t->rw_data.nf_date[0]));
+      assert(SysDateIsCreationDate(t->rw_data.nf_date[1]));
+
+      for(i=0; i<t->arity; i++)
+      {
+         t->args[i] = TBInsertReplPlain(bank, term->args[i],
+                                        old, repl);
+         if(t->args[i]!=term->args[i])
+         {
+            changed = true;
+         }
+      }
+      if(changed)
+      {
+         t = tb_termtop_insert(bank, t);
+      }
+      else
+      {
+         TermTopFree(t);
+         t = term;
+      }
+   }
+   return t;
+}
+
+
+
 
 /*-----------------------------------------------------------------------
 //

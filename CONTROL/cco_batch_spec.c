@@ -14,8 +14,6 @@
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-  Changes
-
   Created: Tue Jun 29 04:41:18 CEST 2010
 
   -----------------------------------------------------------------------*/
@@ -705,7 +703,8 @@ bool BatchProcessProblem(BatchSpec_p spec,
                          ClauseSet_p cset,
                          FormulaSet_p fset,
                          FILE* out,
-                         int sock_fd)
+                         int sock_fd,
+                         bool interactive)
 {
    bool res = false;
    EPCtrl_p handle;
@@ -772,7 +771,10 @@ bool BatchProcessProblem(BatchSpec_p spec,
          }
 
       }
-      //fprintf(GlobalOut, "%s", DStrView(handle->output));
+      if(interactive)
+      {
+         fprintf(GlobalOut, "%s", DStrView(handle->output));
+      }
    }
    else
    {
@@ -856,7 +858,8 @@ bool BatchProcessFile(BatchSpec_p spec,
                              dummy,
                              fset,
                              fp,
-                             -1);
+                             -1,
+                             false);
    SecureFClose(fp);
 
    fprintf(GlobalOut, "# SZS status Ended for %s\n\n", source);
@@ -1033,7 +1036,8 @@ void BatchProcessInteractive(BatchSpec_p spec,
                                    dummy,
                                    fset,
                                    fp,
-                                   -1);
+                                   -1,
+                                   true);
          fprintf(fp, "\n# Processing finished for %s\n\n", DStrView(jobname));
       }
       DestroyScanner(in);

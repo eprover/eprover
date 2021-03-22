@@ -9,13 +9,11 @@
   Heuristic control blocks, describing heuristics for clause
   selection.
 
-  Copyright 1998-2018 by the author.
+  Copyright 1998-2020 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
-
-  Changes
 
   Created: Fri Jun  5 22:25:02 MET DST 1998
 
@@ -30,12 +28,13 @@
 #include <ccl_splitting.h>
 #include <ccl_condensation.h>
 #include <ccl_satinterface.h>
+#include <ccl_unfold_defs.h>
 #include <che_to_weightgen.h>
 #include <che_to_precgen.h>
 #include <ccl_clausefunc.h>
 #include <che_wfcbadmin.h>
 #include <che_litselection.h>
-
+#include <che_to_params.h>
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
@@ -60,24 +59,24 @@ typedef enum
 }ExtInferenceType;
 
 
-/* External parameters for heuristics and proof control */
+/* External parameters for heuristics and proof control. When this is
+ * changed, remember to also adapt the Init, Print und
+ * Parse functions below. */
 
 typedef struct heuristic_parms_cell
 {
-   /* Clause selection elements */
+   /* Preprocessing */
+   bool                no_preproc;
+   long                eqdef_maxclauses;
+   long                eqdef_incrlimit;
+
+/* Clause selection elements */
    char                *heuristic_name;
+   char                *heuristic_def;
    bool                prefer_initial_clauses;
 
    /* Ordering elements */
-   TermOrdering        ordertype;
-   TOWeightGenMethod   to_weight_gen;
-   TOPrecGenMethod     to_prec_gen;
-   bool                rewrite_strong_rhs_inst;
-   char*               to_pre_prec;
-   char*               to_pre_weights;
-   long                to_const_weight;
-   bool                to_defs_min;
-   LiteralCmp          lit_cmp;
+   OrderParmsCell      order_params;
 
    /* Elements controling literal selection */
    LiteralSelectionFun selection_strategy;
@@ -137,7 +136,6 @@ typedef struct heuristic_parms_cell
    int                 sat_check_decision_limit;
 
    /* Various things */
-   //long                filter_limit;
    long                filter_orphans_limit;
    long                forward_contract_limit;
    long long           delete_bad_limit;
@@ -154,7 +152,7 @@ typedef struct heuristic_parms_cell
    ExtInferenceType    neg_ext;
    ExtInferenceType    pos_ext;
    bool                inverse_recognition;
-   bool                replace_inv_defs;
+   bool                replace_inj_defs;
 }HeuristicParmsCell, *HeuristicParms_p;
 
 
@@ -225,6 +223,11 @@ PERF_CTR_DECL(ClauseEvalTimer);
 void             HeuristicParmsInitialize(HeuristicParms_p handle);
 HeuristicParms_p HeuristicParmsAlloc(void);
 void             HeuristicParmsFree(HeuristicParms_p junk);
+
+void             HeuristicParmsPrint(FILE* out, HeuristicParms_p handle);
+bool             HeuristicParmsParseInto(Scanner_p in, HeuristicParms_p handle,
+                                         bool warn_missing);
+HeuristicParms_p HeuristicParmsParse(Scanner_p in);
 
 
 #define HCBCellAlloc() (HCBCell*)SizeMalloc(sizeof(HCBCell))

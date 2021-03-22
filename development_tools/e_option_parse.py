@@ -68,7 +68,6 @@ match_demod_l   = re.compile(" --forward_demod_level=")
 match_snm_l     = re.compile(" --selection-neg-min=")
 match_g_demod_s = re.compile(" --prefer-general-demodulators")
 match_g_demod_l = re.compile(" -g")
-match_srhs_l    = re.compile(" --strong-rw-inst")
 match_unproc_s  = re.compile(" --simplify-with-unprocessed-units=")
 match_unproc_sd = re.compile(" --simplify-with-unprocessed-units")
 match_fcsr      = re.compile(" --forward-context-sr")
@@ -76,6 +75,8 @@ match_fcsra     = re.compile(" --forward-context-sr-aggressive")
 match_bcsr      = re.compile(" --backward-context-sr")
 match_simul_pm  = re.compile(" --simul-paramod");
 match_osimul_pm = re.compile(" --oriented-simul-paramod");
+match_ssimul_pm = re.compile(" --supersimul-paramod");
+match_ossimul_pm= re.compile(" --oriented-supersimul-paramod");
 match_presat_ir = re.compile(" --presat-simplify");
 match_sos_types = re.compile(" --sos-uses-input-types");
 match_condense  = re.compile(" --condense");
@@ -88,6 +89,11 @@ match_satcheck        = re.compile(" --satcheck(?=[^-])")
 match_sat_norm_const  = re.compile(" --satcheck-normalize-const")
 match_sat_norm_unproc = re.compile(" --satcheck-normalize-unproc")
 match_sat_dec_limit   = re.compile(" --satcheck-decision-limit")
+
+match_unfold_limit      = re.compile(" --eq-unfold-limit=")
+match_unfold_maxclauses = re.compile(" --eq-unfold-maxclauses=")
+match_no_unfold         = re.compile(" --no-eq-unfolding")
+
 
 
 def parse_control_info(line):
@@ -235,20 +241,24 @@ def parse_control_info(line):
     if m:
         res = res+ "      control->heuristic_parms.prefer_general=true;\n"
 
-    m = match_srhs_l.search(line)
-    if m:
-        res = res+ "      control->heuristic_parms.rewrite_strong_rhs_inst=true;\n"
-
     #
     # Paramodulation
     #
     m = match_simul_pm.search(line)
     if m:
-        res = res+ "      control->heuristic_parms.pm_type=ParamodAlwaysSim;\n"
+        res = res+ "      control->heuristic_parms.pm_type=ParamodSim;\n"
+
+    m = match_ssimul_pm.search(line)
+    if m:
+        res = res+ "      control->heuristic_parms.pm_type=ParamodSuperSim;\n"
 
     m = match_osimul_pm.search(line)
     if m:
         res = res+ "      control->heuristic_parms.pm_type=ParamodOrientedSim;\n"
+
+    m = match_ossimul_pm.search(line)
+    if m:
+        res = res+ "      control->heuristic_parms.pm_type=ParamodOrientedSuperSim;\n"
 
     #
     # Presaturation simplification
@@ -313,6 +323,21 @@ def parse_control_info(line):
         arg = extract_opt_arg(line, m, "100")
         res = res+ "      control->heuristic_parms.sat_check_decision_limit="+arg+";\n"
 
+    # Eq unfolding
+    m = match_unfold_limit.search(line)
+    if m:
+        arg = extract_arg(line, m)
+        res = res+ "      control->heuristic_parms.eqdef_incrlimit="+arg+";\n"
+
+    m = match_unfold_maxclauses.search(line)
+    if m:
+        arg = extract_arg(line, m)
+        res = res+ "      control->heuristic_parms.eqdef_maxclauses="+arg+";\n"
+
+    m = match_no_unfold.search(line)
+    if m:
+        res = res+ "      control->heuristic_parms.eqdef_incrlimit=LONG_MIN;\n"
+
     return res
 
 
@@ -331,17 +356,27 @@ def parse_sine(line):
 # Regular expressions for ordering related stuff.
 #
 
-match_rlc_l = re.compile(" --restrict-literal-comparisons")
-match_lc_l = re.compile(" --literal-comparison=")
-match_to_s  = re.compile(" -t *")
-match_to_l  = re.compile(" --term-ordering=")
-match_tow_s = re.compile(" -w *")
-match_tow_l = re.compile(" --order-weight-generation=")
-match_top_s = re.compile(" -G *")
-match_top_l = re.compile(" --order-precedence-generation=")
-match_ocw_l = re.compile(" --order-constant-weight=")
-match_ocw_s = re.compile(" -c *")
-match_prc_l = re.compile(" --precedence=")
+match_rlc_l  = re.compile(" --restrict-literal-comparisons")
+match_lc_l   = re.compile(" --literal-comparison=")
+match_to_s   = re.compile(" -t *")
+match_to_l   = re.compile(" --term-ordering=")
+match_tow_s  = re.compile(" -w *")
+match_tow_l  = re.compile(" --order-weight-generation=")
+match_top_s  = re.compile(" -G *")
+match_top_l  = re.compile(" --order-precedence-generation=")
+match_ocw_l  = re.compile(" --order-constant-weight=")
+match_ocw_s  = re.compile(" -c *")
+match_prc_l  = re.compile(" --precedence=")
+match_srhs_l = re.compile(" --strong-rw-inst")
+
+
+
+match_ppc_l = re.compile("--prec-pure-conj=")
+match_pca_l = re.compile("--prec-conj-axiom=")
+match_ppa_l = re.compile("--prec-pure-axiom=")
+match_psk_l = re.compile("--prec-skolem=")
+match_pdp_l = re.compile("--prec-defpred=")
+
 
 def parse_ordering_info(line):
     res = ""
@@ -391,13 +426,44 @@ def parse_ordering_info(line):
     m = match_top_l.search(line)
     if m:
         arg = extract_arg(line, m)
-        res = res+ "      oparms.to_const_weight"+arg+";\n"
+        res = res+ "      oparms.to_const_weight="+arg+";\n"
 #    m = match_prc_l.search(line)
 #    if m:
 #        arg = extract_arg(line, m)
 #        if arg != "":
 #            raise RuntimeError, "Can only handle empty precedence "+arg
 #       res = res+ "      oparms.to_prec_gen=";\n"
+
+    m = match_srhs_l.search(line)
+    if m:
+        res = res+ "      oparms.rewrite_strong_rhs_inst=true;\n"
+
+
+
+    m = match_ppc_l.search(line)
+    if m:
+        arg = extract_arg(line, m)
+        res = res+ "      oparms.conj_only_mod="+arg+";\n"
+
+    m = match_pca_l.search(line)
+    if m:
+        arg = extract_arg(line, m)
+        res = res+ "      oparms.conj_axiom_mod="+arg+";\n"
+
+    m = match_ppa_l.search(line)
+    if m:
+        arg = extract_arg(line, m)
+        res = res+ "      oparms.axiom_only_mod="+arg+";\n"
+
+    m = match_psk_l.search(line)
+    if m:
+        arg = extract_arg(line, m)
+        res = res+ "      oparms.skolem_mod="+arg+";\n"
+
+    m = match_pdp_l.search(line)
+    if m:
+        arg = extract_arg(line, m)
+        res = res+ "      oparms.defpred_mod="+arg+";\n"
 
     return res
 

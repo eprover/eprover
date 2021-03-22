@@ -100,7 +100,9 @@ char* DefaultHeuristics=
 #include "che_X_auto_sched5.c"
 #include "che_X_auto_sched6.c"
 #include "che_X_auto_sched7.c"
-
+#include "che_X_auto_sched8.c"
+#include "che_X_auto_sched9.c"
+   "."  /* End marker to warn against incomplete parsing */
 ;
 
 

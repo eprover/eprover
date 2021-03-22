@@ -1,10 +1,10 @@
 /*-----------------------------------------------------------------------
 
-File  : cle_annoterms.h
+  File  : cle_annoterms.h
 
-Author: Stephan Schulz
+  Author: Stephan Schulz
 
-Contents
+  Contents
 
   Terms and term sets with annotation lists.
 
@@ -14,12 +14,11 @@ Contents
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
+  Changes
 
-<1> Tue Jul 20 17:22:38 MET DST 1999
-    New
+  Create: Tue Jul 20 17:22:38 MET DST 1999
 
------------------------------------------------------------------------*/
+  -----------------------------------------------------------------------*/
 
 #ifndef CLE_ANNOTERMS
 
@@ -60,7 +59,7 @@ void       AnnoTermFree(TB_p bank, AnnoTerm_p junk);
 #define    AnnoTermFreeNoRef(junk) AnnoTermCellFree(junk)
 AnnoTerm_p AnnoTermParse(Scanner_p in, TB_p bank, long expected);
 void       AnnoTermPrint(FILE* out, TB_p bank, AnnoTerm_p term, bool
-          fullterms);
+                         fullterms);
 void       AnnoTermRecToFlatEnc(TB_p bank, AnnoTerm_p term);
 
 
@@ -74,10 +73,10 @@ bool       AnnoSetAddTerm(AnnoSet_p set, AnnoTerm_p term);
 AnnoSet_p  AnnoSetParse(Scanner_p in, TB_p bank, long expected);
 void       AnnoSetPrint(FILE* out, AnnoSet_p set);
 bool       AnnoSetComputePatternSubst(PatternSubst_p subst, AnnoSet_p
-                   set);
+                                      set);
 long       AnnoSetRemoveByIdent(AnnoSet_p set, long set_ident);
 long       AnnoSetRemoveExceptIdentList(AnnoSet_p set, PStack_p
-               set_idents);
+                                        set_idents);
 long       AnnoSetFlatten(AnnoSet_p set, PStack_p set_idents);
 void       AnnoSetNormalizeFlatAnnos(AnnoSet_p set);
 
@@ -88,8 +87,3 @@ long       AnnoSetRecToFlatEnc(TB_p bank, AnnoSet_p set);
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
-
-
-

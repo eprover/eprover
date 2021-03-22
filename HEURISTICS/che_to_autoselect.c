@@ -59,6 +59,9 @@ void init_oparms(OrderParms_p oparms)
    oparms->to_const_weight = WConstNoSpecialWeight;
    oparms->to_weight_gen   = WSelectMaximal;
    oparms->to_prec_gen     = PUnaryFirst;
+   oparms->conj_only_mod   = 0;
+   oparms->conj_axiom_mod  = 0;
+   oparms->axiom_only_mod  = 0;
    oparms->lit_cmp         = LCNormal;
 
 }
@@ -463,7 +466,54 @@ OCB_p generate_autosched7_ordering(ProofState_p state, SpecFeature_p spec)
    return TOCreateOrdering(state, &oparms, NULL, NULL);
 }
 GCC_DIAGNOSTIC_POP
-#undef CHE_HEURISTICS_AUTO_SCHED67
+#undef CHE_HEURISTICS_AUTO_SCHED7
+
+
+#define CHE_HEURISTICS_AUTO_SCHED8
+
+GCC_DIAGNOSTIC_PUSH
+#ifndef COMPILE_HEURISTICS_OPTIMIZED
+#pragma GCC diagnostic ignored "-Wattributes"
+__attribute__((optnone))
+__attribute__((optimize(0)))
+#endif
+OCB_p generate_autosched8_ordering(ProofState_p state, SpecFeature_p spec)
+{
+   OrderParmsCell  oparms;
+   SpecLimits_p    limits = CreateDefaultSpecLimits();
+
+   init_oparms(&oparms);
+   OUTPRINT(1, "\n# AutoSched8-Ordering is analysing problem.\n");
+#include "che_auto_cases.c"
+   print_oparms(&oparms);
+   SpecLimitsCellFree(limits);
+   return TOCreateOrdering(state, &oparms, NULL, NULL);
+}
+GCC_DIAGNOSTIC_POP
+#undef CHE_HEURISTICS_AUTO_SCHED8
+
+#define CHE_HEURISTICS_AUTO_SCHED9
+
+GCC_DIAGNOSTIC_PUSH
+#ifndef COMPILE_HEURISTICS_OPTIMIZED
+#pragma GCC diagnostic ignored "-Wattributes"
+__attribute__((optnone))
+__attribute__((optimize(0)))
+#endif
+OCB_p generate_autosched9_ordering(ProofState_p state, SpecFeature_p spec)
+{
+   OrderParmsCell  oparms;
+   SpecLimits_p    limits = CreateDefaultSpecLimits();
+
+   init_oparms(&oparms);
+   OUTPRINT(1, "\n# AutoSched9-Ordering is analysing problem.\n");
+#include "che_auto_cases.c"
+   print_oparms(&oparms);
+   SpecLimitsCellFree(limits);
+   return TOCreateOrdering(state, &oparms, NULL, NULL);
+}
+GCC_DIAGNOSTIC_POP
+#undef CHE_HEURISTICS_AUTO_SCHED9
 
 
 
@@ -472,50 +522,6 @@ GCC_DIAGNOSTIC_POP
 /*                         Exported Functions                          */
 /*---------------------------------------------------------------------*/
 
-
-/*-----------------------------------------------------------------------
-//
-// Function: OrderParmsInitialize()
-//
-//   Given a HeuristicParmsCell and an OrderParmsCell, initialize the
-//   OrderParmsCell with values from the HeuristicParmsCell.
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-void OrderParmsInitialize(HeuristicParms_p master, OrderParms_p slave)
-{
-   slave->ordertype       = master->ordertype;
-   slave->to_weight_gen   = master->to_weight_gen;
-   slave->to_prec_gen     = master->to_prec_gen;
-   slave->to_const_weight = master->to_const_weight;
-   slave->lit_cmp         = master->lit_cmp;
-}
-
-
-/*-----------------------------------------------------------------------
-//
-// Function: HeuristicParmsUpdate()
-//
-//   Given a HeuristicParmsCell and an OrderParmsCell, update the
-//   HeuristicParmsCell with values from the OrderParmsCell.
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-void HeuristicParmsUpdate(OrderParms_p master, HeuristicParms_p slave)
-{
-   slave->ordertype       = master->ordertype;
-   slave->to_weight_gen   = master->to_weight_gen;
-   slave->to_prec_gen     = master->to_prec_gen;
-   slave->to_const_weight = master->to_const_weight;
-}
 
 
 /*-----------------------------------------------------------------------
@@ -831,12 +837,12 @@ OCB_p TOSelectOrdering(ProofState_p state, HeuristicParms_p params,
    OrderParmsCell tmp;
    OCB_p          result;
 
-   OrderParmsInitialize(params, &tmp);
+   tmp = params->order_params;
 
    if(tmp.ordertype == OPTIMIZE_AX)
    {
       OrderParmsCell local;
-      OrderParmsInitialize(params, &local);
+      local = params->order_params;
 
       result = OrderFindOptimal(&local, OrderEvaluate, state, params);
    }
@@ -884,6 +890,14 @@ OCB_p TOSelectOrdering(ProofState_p state, HeuristicParms_p params,
    {
       result = generate_autosched7_ordering(state, specs);
    }
+   else if(tmp.ordertype == AUTOSCHED8)
+   {
+      result = generate_autosched8_ordering(state, specs);
+   }
+   else if(tmp.ordertype == AUTOSCHED9)
+   {
+      result = generate_autosched9_ordering(state, specs);
+   }
    else
    {
       if(tmp.ordertype == NoOrdering)
@@ -894,10 +908,10 @@ OCB_p TOSelectOrdering(ProofState_p state, HeuristicParms_p params,
       {
          tmp.to_const_weight = WConstNoSpecialWeight;
       }
-      result = TOCreateOrdering(state, &tmp, params->to_pre_prec,
-                                params->to_pre_weights);
+      result = TOCreateOrdering(state, &tmp, params->order_params.to_pre_prec,
+                                params->order_params.to_pre_weights);
    }
-   result->rewrite_strong_rhs_inst = params->rewrite_strong_rhs_inst;
+   result->rewrite_strong_rhs_inst = params->order_params.rewrite_strong_rhs_inst;
    return result;
 }
 
@@ -937,40 +951,38 @@ OCB_p  TOCreateOrdering(ProofState_p state, OrderParms_p params,
    case LPO:
          handle = OCBAlloc(LPO, prec_by_weight, state->signature);
          TOGeneratePrecedence(handle, state->axioms, pre_precedence,
-                              params->to_prec_gen);
+                              params);
          break;
    case LPOCopy:
          handle = OCBAlloc(LPOCopy, prec_by_weight, state->signature);
          TOGeneratePrecedence(handle, state->axioms, pre_precedence,
-                              params->to_prec_gen);
+                              params);
          break;
    case LPO4:
          handle = OCBAlloc(LPO4, prec_by_weight, state->signature);
          TOGeneratePrecedence(handle, state->axioms, pre_precedence,
-                              params->to_prec_gen);
+                              params);
          break;
    case LPO4Copy:
          handle = OCBAlloc(LPO4Copy, prec_by_weight, state->signature);
          TOGeneratePrecedence(handle, state->axioms, pre_precedence,
-                              params->to_prec_gen);
+                              params);
          break;
    case KBO:
          handle = OCBAlloc(KBO, prec_by_weight, state->signature);
          TOGeneratePrecedence(handle, state->axioms, pre_precedence,
-                              params->to_prec_gen);
+                              params);
          TOGenerateWeights(handle, state->axioms,
                            pre_weights,
-                           params->to_weight_gen,
-                           params->to_const_weight);
+                           params);
          break;
    case KBO6:
          handle = OCBAlloc(KBO6, prec_by_weight, state->signature);
          TOGeneratePrecedence(handle, state->axioms, pre_precedence,
-                              params->to_prec_gen);
+                              params);
          TOGenerateWeights(handle, state->axioms,
                            pre_weights,
-                           params->to_weight_gen,
-                           params->to_const_weight);
+                           params);
          break;
    case RPO:
          assert(false && "RPO not yet implemented!");

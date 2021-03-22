@@ -32,9 +32,9 @@ Contents
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-/* git tag E-2.4 */
+/* git tag E-2.5 */
 
-#define PVERSION      "2.4"
+#define PVERSION      "2.5"
 
 #include "e_gitcommit.h"
 
@@ -50,12 +50,12 @@ Contents
 #define VERSION PVERSION LFH "-DEBUG"
 #endif
 
-#define E_NICKNAME     "Sandakphu"
+#define E_NICKNAME     "Avongrove"
 
 #define E_URL "http://www.eprover.org"
 
 #define STS_MAIL "schulz@eprover.org"
-#define STS_COPYRIGHT "Copyright 1998-2019 by Stephan Schulz"
+#define STS_COPYRIGHT "Copyright 1998-2020 by Stephan Schulz"
 #define CTR_COPYRIGHT "and the E contributors (see DOC/CONTRIBUTORS)."
 #define STS_SNAIL "Stephan Schulz\nDHBW Stuttgart\nFakultaet Technik\nInformatik\nRotebuehlplatz 41\n70178 Stuttgart\nGermany\n"
 

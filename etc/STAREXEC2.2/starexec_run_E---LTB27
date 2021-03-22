@@ -9,6 +9,7 @@ sed -e "s/Computer     /% Computer   /" \
     -e "s/RAMPerCPU    /% Memory     /" \
     -e "s/OS           /% OS         /"
 echo -n "% CPULimit   : " ; echo "$STAREXEC_CPU_LIMIT"
+echo -n "% WCLimit    : " ; echo "$STAREXEC_WALLCLOCK_LIMIT"
 echo -n "% DateTime   : " ; date
 echo "% CPUTime    : "
 $ecmd

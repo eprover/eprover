@@ -1,25 +1,22 @@
 /*-----------------------------------------------------------------------
 
-File  : che_heuristics.h
+  File  : che_heuristics.h
 
-Author: Stephan Schulz
+  Author: Stephan Schulz
 
-Contents
+  Contents
 
   High-Level interface functions to the heuristics module.
 
-  Copyright 1998, 1999 by the author.
+  Copyright 1998-2020 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
+  Created: Mon Jun  8 02:14:51 MET DST 1998
 
-<1> Mon Jun  8 02:14:51 MET DST 1998
-    New
-
------------------------------------------------------------------------*/
+  -----------------------------------------------------------------------*/
 
 #ifndef CHE_HEURISTICS
 
@@ -48,7 +45,9 @@ typedef enum
    HEU_AUTO_SCHED4,
    HEU_AUTO_SCHED5,
    HEU_AUTO_SCHED6,
-   HEU_AUTO_SCHED7
+   HEU_AUTO_SCHED7,
+   HEU_AUTO_SCHED8,
+   HEU_AUTO_SCHED9
 }Heuristic;
 
 typedef struct heuristic_assoc_cell
@@ -81,14 +80,11 @@ HCB_p HCBAutoSched4Create(HCBARGUMENTS);
 HCB_p HCBAutoSched5Create(HCBARGUMENTS);
 HCB_p HCBAutoSched6Create(HCBARGUMENTS);
 HCB_p HCBAutoSched7Create(HCBARGUMENTS);
+HCB_p HCBAutoSched8Create(HCBARGUMENTS);
+HCB_p HCBAutoSched9Create(HCBARGUMENTS);
 
 #endif
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
-
-
-

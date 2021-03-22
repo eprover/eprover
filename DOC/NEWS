@@ -1,6 +1,22 @@
 This history describes the major differences between versions of the E
 equational theorem prover.
 
+Versopm 2.4 -> 2.5 Avongrove
+
+- Clausal problems are now classified before equational definitions
+  expansion, which moves equational definition expansion under control
+  auf the automatic modes)
+- Strong rewrite (optionally instantiating unbound variables of the
+  right hand side of equations considered for rewriting) has neem
+  fixed and updeted to the sorted case.
+- An improvement in strategy scheduling will now aovid repetition of
+  the same strategy in cases where the data does not change from one
+  level to the next, allowing for meaningful deeper schedules.
+- New automatic modes
+- Added variants to symbol precedence schemes (prefer/defer
+  skolems/defined symbols/axiom-symbols/conjecture symbols).
+
+
 Version 2.3 -> 2.4 Sandakphu
 
 - Added random clause "evaluation"

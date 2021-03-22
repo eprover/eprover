@@ -152,6 +152,8 @@ void        ClauseSetAddSymbolDistribution(ClauseSet_p set, long
 void        ClauseSetAddTypeDistribution(ClauseSet_p set, long *type_array);
 void        ClauseSetAddConjSymbolDistribution(ClauseSet_p set,
                                                long *dist_array);
+void        ClauseSetAddAxiomSymbolDistribution(ClauseSet_p set,
+                                                long *dist_array);
 
 void        ClauseSetComputeFunctionRanks(ClauseSet_p set, long
                  *rank_array, long* count);

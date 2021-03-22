@@ -1940,6 +1940,33 @@ void ClauseSetAddConjSymbolDistribution(ClauseSet_p set, long *dist_array)
 
 /*-----------------------------------------------------------------------
 //
+// Function: ClauseSetAddAxiomSymbolDistribution()
+//
+//   Count the occurrences of function symbols in non-conjectures in set.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void ClauseSetAddAxiomSymbolDistribution(ClauseSet_p set, long *dist_array)
+{
+   Clause_p handle;
+
+   for(handle = set->anchor->succ; handle!=set->anchor; handle =
+          handle->succ)
+   {
+      if(!ClauseIsConjecture(handle))
+      {
+         ClauseAddSymbolDistribution(handle, dist_array);
+      }
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: ClauseSetComputeFunctionRanks()
 //
 //   Assign to each function symbol a uniq number based on its

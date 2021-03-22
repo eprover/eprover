@@ -205,7 +205,7 @@ void KBParseExampleFile(Scanner_p in, char* name, ExampleSet_p set,
       handle = ParseExampleClause(in, terms, examples->terms, ident);
       if(handle)
       {
-    AnnoSetAddTerm(examples, handle);
+         AnnoSetAddTerm(examples, handle);
       }
    }
    terms->sig = NULL;
@@ -218,5 +218,3 @@ void KBParseExampleFile(Scanner_p in, char* name, ExampleSet_p set,
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-

@@ -1095,7 +1095,12 @@ void ProofControlInit(ProofState_p state, ProofControl_p control,
                       true, NULL, true);
    HeuristicDefListParse(control->hcbs, in, control->wfcbs,
                          control->ocb, state);
+   AcceptInpTok(in, Fullstop);
    DestroyScanner(in);
+   if(!PStackEmpty(hcb_defs))
+   {
+      params->heuristic_def = SecureStrdup(PStackTopP(hcb_defs));
+   }
    for(sp = 0; sp < PStackGetSP(hcb_defs); sp++)
    {
       in = CreateScanner(StreamTypeOptionString,
@@ -1116,6 +1121,7 @@ void ProofControlInit(ProofState_p state, ProofControl_p control,
    {
       control->fvi_parms.symbol_slack = 0;
    }
+   *params = control->heuristic_parms;
 }
 
 

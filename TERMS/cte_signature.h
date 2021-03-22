@@ -64,7 +64,12 @@ typedef enum
                            * truth of clause */
    FPTypedApplication = FPPseudoPred * 2, /* Symbol used to represtend typed
                                              first-order binary application symbol */
-   FPIsInjDefSkolem = FPTypedApplication * 2 /* Symbol is Skolem for injective function */
+   FPIsInjDefSkolem = FPTypedApplication * 2, /* Symbol is Skolem for injective function */
+   FPSkolemSymbol = FPIsInjDefSkolem * 2, /* Obvious ;-) */
+   FPDefPred      = FPSkolemSymbol * 2 /* Used for all new epred()s,
+                                        * but hopefully only for split
+                                        * literals and Tseitin defined
+                                        * predicates */
 }FunctionProperties;
 
 

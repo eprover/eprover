@@ -22,6 +22,8 @@ all: picosat
 
 clean: $(PICOSAT)/Makefile
 	cd $(PICOSAT); $(MAKE) clean
+	@rm  -f *.a
+
 
 # Services (provided by the master Makefile)
 

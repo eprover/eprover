@@ -147,7 +147,7 @@ bool              use_variants    = false;
 ProblemType problemType  = PROBLEM_NOT_INIT;
 
 
-char* variants[] = {"+1", "+2", "_1", "_2", NULL};
+char* variants[] = {"+4", "+5", "_4", "_5", NULL};
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */

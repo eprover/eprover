@@ -45,7 +45,7 @@ Changes
 // Function: sim_paramod_q()
 //
 //   Given frompos (instantiated) and pm_type, determine wether to use
-//   normal or simultaneous paramodulation.
+//   normal, simultaneous or super-simultaneois paramodulation.
 //
 // Global Variables: -
 //
@@ -53,36 +53,41 @@ Changes
 //
 /----------------------------------------------------------------------*/
 
-static bool sim_paramod_q(OCB_p ocb, ClausePos_p frompos, ParamodulationType pm_type)
+static ParamodulationType sim_paramod_q(OCB_p ocb, ClausePos_p frompos,
+                                        ParamodulationType pm_type)
 {
-   bool res;
+   ParamodulationType res = ParamodPlain;
    Term_p max_side, rep_side;
 
    switch(pm_type)
    {
    case ParamodPlain:
-         res = false;
          break;
-   case ParamodAlwaysSim:
-         res = true;
+   case ParamodSim:
+   case ParamodSuperSim:
+         res = pm_type;
          break;
    case ParamodOrientedSim:
-         res = EqnIsOriented(frompos->literal);
+         res = EqnIsOriented(frompos->literal)?ParamodSim:ParamodPlain;
+         break;
+   case ParamodOrientedSuperSim:
+         res = EqnIsOriented(frompos->literal)?ParamodSuperSim:ParamodPlain;
          break;
    case ParamodDecreasingSim:
          max_side = ClausePosGetSide(frompos);
          rep_side = ClausePosGetOtherSide(frompos);
-         res = TOGreater(ocb, max_side, rep_side, DEREF_ALWAYS, DEREF_ALWAYS);
+         res = TOGreater(ocb, max_side, rep_side, DEREF_ALWAYS, DEREF_ALWAYS)?
+            ParamodSim:ParamodPlain;
          break;
    case ParamodSizeDecreasingSim:
          max_side = ClausePosGetSide(frompos);
          rep_side = ClausePosGetOtherSide(frompos);
          /* This should probably be instantiated weight... */
-         res = (TermStandardWeight(max_side)>TermStandardWeight(rep_side));
+         res = (TermStandardWeight(max_side)>TermStandardWeight(rep_side))?
+            ParamodSim:ParamodPlain;
          break;
    default:
          assert(false && "Unknown paramodulation type");
-         res = true;
          break;
    }
    return res;
@@ -107,18 +112,26 @@ static Clause_p variable_paramod(TB_p bank, OCB_p ocb, ClausePos_p from,
 {
    Clause_p paramod = NULL;
 
-   if(sim_paramod_q(ocb, from, pm_type))
+   switch(sim_paramod_q(ocb, from, pm_type))
    {
-      paramod = ClauseOrderedSimParamod(bank, ocb, from, into,
+   case ParamodSim:
+         paramod = ClauseOrderedSimParamod(bank, ocb, from, into,
+                                           freshvars);
+         *inf = inf_sim_paramod;
+         break;
+   case ParamodSuperSim:
+         paramod = ClauseOrderedSuperSimParamod(bank, ocb, from, into,
+                                                freshvars);
+         *inf = inf_sim_paramod;
+         break;
+   case ParamodPlain:
+         paramod = ClauseOrderedParamod(bank, ocb, from, into,
                                         freshvars);
-      *inf = inf_sim_paramod;
-
-   }
-   else
-   {
-      paramod = ClauseOrderedParamod(bank, ocb, from, into,
-                                     freshvars);
-      *inf = inf_paramod;
+         *inf = inf_paramod;
+         break;
+   default:
+         assert(false && "Unexpected paramodulation type");
+         break;
 
    }
    return paramod;
@@ -183,7 +196,7 @@ static void update_clause_info(Clause_p child,
 static long compute_into_pm_pos_clause(ParamodInfo_p pminfo,
                                        ClauseTPos_p into_clause_pos,
                                        ClauseSet_p store,
-                                       bool sim_pm)
+                                       ParamodulationType pm_type)
 {
    long res = 0;
    PStack_p iterstack;
@@ -229,22 +242,22 @@ static long compute_into_pm_pos_clause(ParamodInfo_p pminfo,
                                pminfo->into_pos->literal))))
       {
          /* printf("# compute_into_pm_pos_clause\n");  */
-         clause = ClauseParamodConstruct(pminfo, sim_pm);
+         clause = ClauseParamodConstruct(pminfo, pm_type);
          if(clause)
          {
             ClauseSetInsert(store, clause);
             res++;
             update_clause_info(clause, pminfo->into, pminfo->new_orig);
             DocClauseCreationDefault(clause,
-                                     sim_pm?inf_sim_paramod:inf_paramod,
+                                     pm_type==ParamodPlain?inf_paramod:inf_sim_paramod,
                                      pminfo->into,
                                      pminfo->new_orig);
-            ClausePushDerivation(clause,  sim_pm?DCSimParamod:DCParamod,
+            ClausePushDerivation(clause,  pm_type==ParamodPlain?DCParamod:DCSimParamod,
                                  pminfo->into, pminfo->new_orig);
          }
       }
       ClausePosFree(pminfo->into_pos);
-      if(clause && sim_pm)
+      if(clause && pm_type!=ParamodPlain)
       {
          break;
       }
@@ -274,13 +287,13 @@ long compute_pos_into_pm_term(ParamodInfo_p pminfo,
                               SubtermOcc_p into_clauses,
                               ClauseSet_p store)
 {
-   long             res = 0;
-   PStack_p         iterstack;
-   PObjTree_p       cell;
-   Subst_p          subst = SubstAlloc();
-   Term_p           max_side, rep_side;
-   bool             sim_pm;
-   UnificationResult unif_res;
+   long               res = 0;
+   PStack_p           iterstack;
+   PObjTree_p         cell;
+   Subst_p            subst = SubstAlloc();
+   Term_p             max_side, rep_side;
+   ParamodulationType sim_pm;
+   UnificationResult  unif_res;
 
    /*printf("\n@i %ld\n", DebugCount); */
    if(!UnifFailed((unif_res = SubstMguPossiblyPartial(olterm, into_clauses->term, subst)))
@@ -418,7 +431,7 @@ static long compute_from_pm_pos_clause(ParamodInfo_p pminfo,
    NumTree_p cell;
    Term_p    lside, rside;
    Clause_p  clause;
-   bool      sim_pm;
+   ParamodulationType pm_type;
 
    pminfo->from = from_clause_pos->clause;
 
@@ -434,7 +447,7 @@ static long compute_from_pm_pos_clause(ParamodInfo_p pminfo,
          break;
       }
       pminfo->from_pos  = UnpackClausePos(cell->key, pminfo->from);
-      sim_pm = sim_paramod_q(pminfo->ocb, pminfo->from_pos, type);
+      pm_type = sim_paramod_q(pminfo->ocb, pminfo->from_pos, type);
       lside = ClausePosGetSide(pminfo->from_pos);
       rside = ClausePosGetOtherSide(pminfo->from_pos);
 
@@ -446,17 +459,17 @@ static long compute_from_pm_pos_clause(ParamodInfo_p pminfo,
                                       pminfo->from_pos->literal)))
       {
          /* printf("# compute_from_pm_pos_clause\n");  */
-         clause = ClauseParamodConstruct(pminfo, sim_pm);
+         clause = ClauseParamodConstruct(pminfo, pm_type);
          if(clause)
          {
             ClauseSetInsert(store, clause);
             res++;
             update_clause_info(clause, pminfo->from, pminfo->new_orig);
             DocClauseCreationDefault(clause,
-                                     sim_pm?inf_sim_paramod:inf_paramod,
+                                     pm_type?inf_sim_paramod:inf_paramod,
                                      pminfo->new_orig,
                                      pminfo->from);
-            ClausePushDerivation(clause,  sim_pm?DCSimParamod:DCParamod,
+            ClausePushDerivation(clause,  pm_type?DCSimParamod:DCParamod,
                                     pminfo->new_orig, pminfo->from);
          }
       }
@@ -983,7 +996,7 @@ long ComputeAllParamodulantsIndexed(TB_p bank, OCB_p ocb,
                                    clause,
                                    from_index,
                                    store);
-   
+
    return res;
 }
 

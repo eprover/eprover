@@ -122,7 +122,7 @@ links: remove_links
 
 
 tags:
-	etags `find . \( -name "*.[ch]" -or -name "*.py" \) -and \( -not -path "*include*" -and -not -name ".#*" \)`
+	etags-emacs `find . \( -name "*.[ch]" -or -name "*.py" \) -and \( -not -path "*include*" -and -not -name ".#*" \)`
 #ctags-exuberant -e -R .
 # etags */*.c */*.h
 # cd PYTHON; make ptags
@@ -176,7 +176,10 @@ install:
 # Also remake documentation
 remake: config rebuild documentation
 
-documentation:
+README: README.md
+	grep -v '```' README.md > README
+
+documentation: README
 	cd DOC; $(MAKE)
 
 man: E
@@ -203,6 +206,6 @@ E: links
 J ?= 4
 benchpress-quick:
 	@echo "run provers on example problems..."
-	benchpress run -j $(J) -c benchpress.sexp --task eprover-quick-test --progress 
+	benchpress run -j $(J) -c benchpress.sexp --task eprover-quick-test --progress
 
 .PHONY: benchpress

@@ -46,13 +46,16 @@ HEURISTICS_LIB = che_wfcb.o che_wfcbadmin.o \
 		 che_orientweight.o \
 		 che_fifo.o che_lifo.o \
                  che_learning.o \
-                 che_simweight.o che_hcb.o \
+                 che_simweight.o \
+		 che_to_params.o \
+	         che_hcb.o \
                  che_litselection.o \
 	         che_proofcontrol.o \
 		 che_hcbadmin.o \
 		 che_heuristics.o \
                  che_fcode_featurearrays.o\
-		 che_to_weightgen.o che_to_precgen.o \
+		 che_to_weightgen.o \
+		 che_to_precgen.o \
 		 che_to_autoselect.o \
                  che_axfilter.o \
 		 che_strucweight.o \
