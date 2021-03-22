@@ -722,8 +722,13 @@ void VarBankPopEnv(VarBank_p bank)
 
       if(test)
       {
+         // StrTree insert compares only by the key:
+         // if varable with the same name but with the different
+         // type exists, then type will not be overwritten.
+         test->val1.p_val = handle->val1.p_val;
+         test->val2.i_val = handle->val2.i_val;
          FREE(handle->key);
-         StrTreeCellFree(handle);  /* already present */
+         StrTreeCellFree(handle);
       }
    }
 }

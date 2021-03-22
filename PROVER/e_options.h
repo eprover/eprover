@@ -1447,7 +1447,7 @@ OptCell opts[] =
     "corresponding axiom."},
 
    {OPT_REPLACE_INJ_DEFS,
-    '\0', "replace-inv-defs",
+    '\0', "replace-inj-defs",
     NoArg, NULL,
     "After CNF and before saturation, replaces all clauses that are definitions "
     " of injectivity by axiomatization of inverse function."},
