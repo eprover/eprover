@@ -877,7 +877,7 @@ Clause_p ClauseRecognizeInjectivity(TB_p terms, Clause_p clause)
                if (vars_num)
                {
                   Type_p* arg_tys = TypeArgArrayAlloc(vars_num+1);
-                  Term_p* args = TermArgArrayAlloc(vars_num+1);
+                  Term_p* args = TermArgTmpArrayAlloc(vars_num+1);
 
                   for(int i=0; i<vars_num; i++)
                   {
@@ -900,7 +900,7 @@ Clause_p ClauseRecognizeInjectivity(TB_p terms, Clause_p clause)
                   inv_skolem_term = TBTermTopInsert(terms, inv_skolem_term);
 
                   TypeArgArrayFree(arg_tys, vars_num+1);
-                  TermArgArrayFree(args, vars_num+1);
+                  TermArgTmpArrayFree(args, vars_num+1);
                }
                else
                {

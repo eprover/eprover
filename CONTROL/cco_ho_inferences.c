@@ -213,7 +213,7 @@ void ComputeNegExt(ProofState_p state, ProofControl_p control, Clause_p clause)
          PTreeToPStack(free_vars_stack, free_var_tree);
 
          int num_vars = PStackGetSP(free_vars_stack);
-         Term_p* vars = TermArgArrayAlloc(num_vars);
+         Term_p* vars = TermArgTmpArrayAlloc(num_vars);
          Type_p* vars_types = TypeArgArrayAlloc(num_vars);
          for(int i=0; i<num_vars; i++)
          {
@@ -250,7 +250,7 @@ void ComputeNegExt(ProofState_p state, ProofControl_p control, Clause_p clause)
          }
 
          TypeArgArrayFree(vars_types, num_vars);
-         TermArgArrayFree(vars, num_vars);
+         TermArgTmpArrayFree(vars, num_vars);
          PStackFree(free_vars_stack);
          PTreeFree(free_var_tree);
       }

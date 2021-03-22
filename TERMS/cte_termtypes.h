@@ -244,6 +244,11 @@ typedef uintptr_t DerefType, *DerefType_p;
 #define TermCellArityAlloc(arity) (TermCell*)SizeMalloc(sizeof(TermCell) + (arity) * sizeof(Term_p))
 #define TermCellFree(junk, arity)         SizeFree(junk, sizeof(TermCell) + (arity) * sizeof(Term_p))
 
+/* ACHTUNG: To be used only when allocating/deallocating arrays that are of temporary nature
+   and will *not* be directly assigned to flexibly crated array */
+#define TermArgTmpArrayAlloc(n) ((TermCell**) ((n) == 0 ? NULL : SizeMalloc((n)*sizeof(Term_p))))
+#define TermArgTmpArrayFree(junk, n) (((n)==0) ? NULL : ( SizeFreeReal((junk), (n)*sizeof(Term_p)) ))
+
 #define TermIsRewritten(term) TermCellQueryProp((term), TPIsRewritten)
 #define TermIsRRewritten(term) TermCellQueryProp((term), TPIsRRewritten)
 #define TermIsTopRewritten(term) (TermIsRewritten(term)&&TermRWDemodField(term))
