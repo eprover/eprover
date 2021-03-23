@@ -203,9 +203,9 @@ void SigInsertInternalCodes(Sig_p sig)
    Type_p bool3[3] = {sig->type_bank->bool_type, sig->type_bank->bool_type,
                       sig->type_bank->bool_type};
    Type_p unary_log_op_type =
-      TypeBankInsertTypeShared(sig->type_bank, AllocArrowType(2, bool2));
+      TypeBankInsertTypeShared(sig->type_bank, AllocArrowTypeCopyArgs(2, bool2));
    Type_p binary_log_op_type =
-      TypeBankInsertTypeShared(sig->type_bank, AllocArrowType(3, bool3));
+      TypeBankInsertTypeShared(sig->type_bank, AllocArrowTypeCopyArgs(3, bool3));
 
    sig->eqn_code    = SigInsertId(sig, "$eq",   2, true);
    SigSetPolymorphic(sig, sig->eqn_code, true);
@@ -256,7 +256,7 @@ void SigInsertInternalCodes(Sig_p sig)
       f_code =
    #endif
       SigInsertId(sig, "$db_lam", 2, true);
-      assert(f_code == SIG_NAMED_LAMBDA_CODE); //for future code changes
+      assert(f_code == SIG_DB_LAMBDA_CODE); //for future code changes
 #endif
 
    Type_p* args = TypeArgArrayAlloc(2);
@@ -1530,6 +1530,7 @@ void SigPrintTypes(FILE* out, Sig_p sig)
 
       fun = &sig->f_info[i];
       fprintf(out, "%s:", fun->name);
+      fflush(out);
       if (!fun->type)
       {
          fputs("<no type>", out);

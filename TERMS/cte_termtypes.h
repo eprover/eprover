@@ -352,7 +352,7 @@ static inline Type_p GetHeadType(Sig_p sig, Term_p term)
    }
    else if(TermIsVar(term) || TermIsLambda(term))
    {
-      assert(term->arity == 0);
+      assert(!TermIsVar(term) || term->arity == 0);
       return term->type;
    }
    else

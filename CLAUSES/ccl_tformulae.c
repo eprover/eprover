@@ -41,6 +41,31 @@ static TFormula_p literal_tform_tstp_parse(Scanner_p in, TB_p terms);
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
 
+/*-----------------------------------------------------------------------
+//
+// Function: predicate_to_eqn()
+//
+//   If a term is of the from p(s) where p is an uninterpreted predicate
+//   symbol it will be converted to equation p(s) = T, to maintain
+//   E's interal invariants
+//
+// Global Variables: -
+//
+// Side Effects    : Input, memory operations, changes term bank
+//
+/----------------------------------------------------------------------*/
+
+static Term_p predicate_to_eqn(TB_p bank, Term_p f)
+{
+   if(problemType == PROBLEM_HO &&
+      f->f_code > bank->sig->internal_symbols &&
+      f->type == bank->sig->type_bank->bool_type)
+   {
+      f = EqnTermsTBTermEncode(bank, f, bank->true_term, true, PENormal);
+   }
+   return f;
+}
+
 
 /*-----------------------------------------------------------------------
 //
@@ -118,6 +143,7 @@ static Term_p __inline__ parse_ho_atom(Scanner_p in, TB_p bank)
 
    DStrFree(id);
    assert(TermIsShared(head));
+   assert(head->type);
    return head;
 }
 
@@ -587,22 +613,29 @@ static TFormula_p applied_tform_tstp_parse(Scanner_p in, TB_p terms, TFormula_p 
 {
    assert(TestInpTok(in, Application));
    
-   const int max_args = TypeGetMaxArity(GetHeadType(terms->sig, head));
-   int i = max_args;
+   const Type_p hd_type = GetHeadType(terms->sig, head);
+   if(!hd_type)
+   {
+      AktTokenError(in, "\nCannot determine type", SYNTAX_ERROR);
+   }
+   assert(hd_type);
+   const int max_args = TypeGetMaxArity(hd_type);
+   int i = 0;
    const TermRef args = TermArgTmpArrayAlloc(max_args);
 
    while(TestInpTok(in, Application))
    {
-      if(i <= 0)
+      if(i >= max_args)
       {
          AktTokenError(in, " Too many arguments applied to the symbol",
                        SYNTAX_ERROR);
       }
       AcceptInpTok(in, Application);
-      args[i--] = literal_tform_tstp_parse(in, terms);
+      args[i++] = literal_tform_tstp_parse(in, terms);
    }
    
-   TFormula_p res = normalize_head(head, args, max_args-i, terms);
+   TFormula_p res = 
+      predicate_to_eqn(terms, normalize_head(head, args, i, terms));
    TermArgTmpArrayFree(args, max_args);
    return res;
 }
@@ -659,7 +692,7 @@ static TFormula_p literal_tform_tstp_parse(Scanner_p in, TB_p terms)
    }
    else
    {
-      if (problemType == PROBLEM_FO)
+      if(problemType == PROBLEM_FO)
       {
          Eqn_p lit;
          lit = EqnFOFParse(in, terms);
@@ -671,7 +704,7 @@ static TFormula_p literal_tform_tstp_parse(Scanner_p in, TB_p terms)
          res = parse_ho_atom(in, terms);
       }
    }
-   return res;
+   return predicate_to_eqn(terms, res);
 }
 
 
@@ -1320,10 +1353,9 @@ TFormula_p TFormulaTPTPParse(Scanner_p in, TB_p terms)
 TFormula_p TFormulaTSTPParse(Scanner_p in, TB_p terms)
 {
    TFormula_p      f1, f2, res;
-   FunCode op;
+   FunCode op;   
 
    f1 = literal_tform_tstp_parse(in, terms);
-
    if(TestInpTok(in, FOFAssocOp))
    {
       res = assoc_tform_tstp_parse(in, terms, f1);

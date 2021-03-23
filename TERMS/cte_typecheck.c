@@ -240,6 +240,18 @@ void TypeInferSort(Sig_p sig, Term_p term, Scanner_p in)
                                          ArrowTypeFlattened(&(term->args[0]->type), 1, 
                                                             term->args[1]->type));
       }
+      else if(term->f_code == sig->eqn_code || term->f_code == sig->neqn_code)
+      {
+         if(term->arity == 0)
+         {
+            AktTokenError(in, "Equality must have at least one argument", 
+                          SYNTAX_ERROR);
+         }
+         Type_p arg_type = term->args[0]->type;
+         Type_p eq_type_args[3] = {arg_type, arg_type, sig->type_bank->bool_type};
+         type = TypeBankInsertTypeShared(sig->type_bank, 
+                                         AllocArrowTypeCopyArgs(2, eq_type_args));
+      }
       else
       {
          type = SigGetType(sig, term->f_code);
