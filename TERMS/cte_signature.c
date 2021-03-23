@@ -199,6 +199,14 @@ void SigInsertInternalCodes(Sig_p sig)
    assert((SigSupportLists && sig->internal_symbols == SIG_CONS_CODE) ||
           (!SigSupportLists && sig->internal_symbols == SIG_FALSE_CODE));
 
+   Type_p bool2[2] = {sig->type_bank->bool_type, sig->type_bank->bool_type};
+   Type_p bool3[3] = {sig->type_bank->bool_type, sig->type_bank->bool_type,
+                      sig->type_bank->bool_type};
+   Type_p unary_log_op_type =
+      TypeBankInsertTypeShared(sig->type_bank, AllocArrowType(2, bool2));
+   Type_p binary_log_op_type =
+      TypeBankInsertTypeShared(sig->type_bank, AllocArrowType(3, bool3));
+
    sig->eqn_code    = SigInsertId(sig, "$eq",   2, true);
    SigSetPolymorphic(sig, sig->eqn_code, true);
 
@@ -211,14 +219,23 @@ void SigInsertInternalCodes(Sig_p sig)
    SigSetPolymorphic(sig, sig->qall_code, true);
 
    sig->not_code   = SigInsertFOFOp(sig, "$not",   1);
+   SigDeclareFinalType(sig, sig->not_code, unary_log_op_type);
    sig->and_code   = SigInsertFOFOp(sig, "$and",   2);
+   SigDeclareFinalType(sig, sig->and_code, binary_log_op_type);
    sig->or_code    = SigInsertFOFOp(sig, "$or",    2);
+   SigDeclareFinalType(sig, sig->or_code, binary_log_op_type);
    sig->impl_code  = SigInsertFOFOp(sig, "$impl",  2);
+   SigDeclareFinalType(sig, sig->impl_code, binary_log_op_type);
    sig->equiv_code = SigInsertFOFOp(sig, "$equiv", 2);
+   SigDeclareFinalType(sig, sig->equiv_code, binary_log_op_type);
    sig->nand_code  = SigInsertFOFOp(sig, "$nand",  2);
+   SigDeclareFinalType(sig, sig->nand_code, binary_log_op_type);
    sig->nor_code   = SigInsertFOFOp(sig, "$nor",   2);
+   SigDeclareFinalType(sig, sig->nor_code, binary_log_op_type);
    sig->bimpl_code = SigInsertFOFOp(sig, "$bimpl", 2);
+   SigDeclareFinalType(sig, sig->bimpl_code, binary_log_op_type);
    sig->xor_code   = SigInsertFOFOp(sig, "$xor",   2);
+   SigDeclareFinalType(sig, sig->xor_code, binary_log_op_type);
 
    sig->answer_code =  SigInsertId(sig, "$answer", 1, true);
    SigSetFuncProp(sig, sig->answer_code, FPInterpreted|FPPseudoPred);
