@@ -398,7 +398,7 @@ bool TypeHasBool(Type_p t)
 //
 /----------------------------------------------------------------------*/
 
-Type_p ArrowTypeFlattened(Type_p* args, int args_num, Type_p ret)
+Type_p ArrowTypeFlattened(Type_p const* args, int args_num, Type_p ret)
 {
    if (args_num == 0) 
    {

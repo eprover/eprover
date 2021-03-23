@@ -223,8 +223,11 @@ typedef uintptr_t DerefType, *DerefType_p;
 #define TermIsConst(t)(!TermIsVar(t) && ((t)->arity==0))
 #ifdef ENABLE_LFHO
 #define TermIsAppliedVar(term) ((term)->f_code == SIG_APP_VAR_CODE)
+#define TermIsLambda(term) ((term)->f_code == SIG_NAMED_LAMBDA_CODE || \
+                            (term)->f_code == SIG_DB_LAMBDA_CODE)
 #else
 #define TermIsAppliedVar(term) (false)
+#define TermIsLambda(term) (false)
 #endif
 #define TermIsTopLevelVar(term) (TermIsVar(term) || TermIsAppliedVar(term))
 
@@ -347,7 +350,7 @@ static inline Type_p GetHeadType(Sig_p sig, Term_p term)
       assert(!sig || term->f_code == SIG_APP_VAR_CODE);
       return term->args[0]->type;
    }
-   else if(TermIsVar(term))
+   else if(TermIsVar(term) || TermIsLambda(term))
    {
       assert(term->arity == 0);
       return term->type;

@@ -492,6 +492,9 @@ static Token_p scan_token(Scanner_p in)
       case '@':
             AktToken(in)->tok = Application;
             break;
+      case '^':
+            AktToken(in)->tok = Carret;
+            break;
       default:
             DStrAppendChar(AktToken(in)->literal, CurrChar(in));
             AktTokenError(in, "Illegal character", false);

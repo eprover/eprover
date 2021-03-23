@@ -175,7 +175,7 @@ typedef struct sigcell
 // used for encoding lambdas represented using DB indices
 // ACHTUNG: appears only during saturation
 // %x. f (g x) is encoded as DB_LAMBDA(F(G(0)))
-#define SIG_DB_LAMBDA_CODE    SIG_NAMED_LAMBDA+1
+#define SIG_DB_LAMBDA_CODE SIG_NAMED_LAMBDA_CODE+1
 
 /* Handle properties */
 

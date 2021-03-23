@@ -226,8 +226,24 @@ void TypeInferSort(Sig_p sig, Term_p term, Scanner_p in)
    }
    else
    {
-      type = TermIsAppliedVar(term) ?
-         term->args[0]->type : SigGetType(sig, term->f_code);
+      if(TermIsAppliedVar(term))
+      {
+         type = term->args[0]->type;
+      }
+      else if(TermIsLambda(term))
+      {
+         // types have to be inferred only during parsing
+         assert(term->f_code == SIG_NAMED_LAMBDA_CODE);
+         assert(term->arity == 2);
+         // type of lambda is 'type of variable' -> 'type of body'
+         type = TypeBankInsertTypeShared(sig->type_bank,
+                                         ArrowTypeFlattened(&(term->args[0]->type), 1, 
+                                                            term->args[1]->type));
+      }
+      else
+      {
+         type = SigGetType(sig, term->f_code);
+      }
 
       /* Use type */
       if(type)

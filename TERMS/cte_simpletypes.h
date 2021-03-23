@@ -96,7 +96,7 @@ int TypesCmp(Type_p t1, Type_p t2);
 Type_p FlattenType(Type_p type);
 DStr_p TypeAppEncodedName(Type_p type);
 
-Type_p ArrowTypeFlattened(Type_p* args, int args_num, Type_p ret);
+Type_p ArrowTypeFlattened(Type_p const* args, int args_num, Type_p ret);
 Type_p TypeDropFirstArg(Type_p ty);
 
 

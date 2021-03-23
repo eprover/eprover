@@ -141,8 +141,6 @@ Term_p  TBInsertInstantiated(TB_p bank, Term_p term);
 #define TBInsertInstantiated(bank, term) (TBInsertInstantiatedFO(bank, term))
 #endif
 
-Term_p  TBTermParseRealHO(Scanner_p in, TB_p bank, bool check_symb_prop);
-
 Term_p  TBInsertOpt(TB_p bank, Term_p term, DerefType deref);
 Term_p  TBInsertDisjoint(TB_p bank, Term_p term);
 
@@ -189,28 +187,13 @@ long    TermDAGWeight(Term_p term, long fweight, long vweight,
 
 static inline Term_p  TBTermParse(Scanner_p in, TB_p bank)
 {
-   if(problemType == PROBLEM_HO)
-   {
-      return TBTermParseRealHO(in, bank, true);
-   }
-   else
-   {
-      assert(problemType == PROBLEM_FO);
-      return TBTermParseReal(in, bank, true);
-   }
+   return TBTermParseReal(in, bank, true);
 }
 
 static inline Term_p TBRawTermParse(Scanner_p in, TB_p bank)
 {
-   if(problemType == PROBLEM_HO)
-   {
-      return TBTermParseRealHO(in, bank, false);
-   }
-   else
-   {
-      assert(problemType == PROBLEM_FO);
-      return TBTermParseReal(in, bank, false);
-   }
+   return TBTermParseReal(in, bank, false);
+   
 }
 
 #endif
