@@ -226,10 +226,20 @@ void SigInsertInternalCodes(Sig_p sig)
 #ifdef ENABLE_LFHO
    #ifndef NDEBUG
       // surpressing compiler warning
-      FunCode app_var_code =
+      FunCode f_code =
    #endif
       SigInsertId(sig, "$@_var", 1, true);
-      assert(app_var_code == SIG_APP_VAR_CODE); //for future code changes
+      assert(f_code == SIG_APP_VAR_CODE); //for future code changes
+   #ifndef NDEBUG
+      f_code =
+   #endif
+      SigInsertId(sig, "$named_lam", 2, true);
+      assert(f_code == SIG_NAMED_LAMBDA_CODE); //for future code changes
+   #ifndef NDEBUG
+      f_code =
+   #endif
+      SigInsertId(sig, "$db_lam", 2, true);
+      assert(f_code == SIG_NAMED_LAMBDA_CODE); //for future code changes
 #endif
 
    Type_p* args = TypeArgArrayAlloc(2);
