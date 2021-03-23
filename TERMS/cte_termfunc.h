@@ -165,6 +165,10 @@ Term_p TermCopyRenameVars(NumTree_p* renaming, Term_p term);
 Term_p TermCopyNormalizeVarsAlpha(VarBank_p vars, Term_p term);
 Term_p TermCopyNormalizeVars(VarBank_p vars, Term_p term,
                              VarNormStyle var_norm);
+long    TermDAGWeight(Term_p term, long fweight, long vweight,
+                      long dup_weight, bool new_term);
+
+
 
 /*-----------------------------------------------------------------------
 //

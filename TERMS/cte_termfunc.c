@@ -651,7 +651,7 @@ Term_p TermParse(Scanner_p in, Sig_p sig, VarBank_p vars)
 //   into an array of term pointers. Return the actual term containing
 //   the terms parsed. Note: The array has to have exactly the right
 //   size, as it will be handled by Size[Malloc|Free] for efficiency
-//   reasons and may otherwise lead to a memory leak. 
+//   reasons and may otherwise lead to a memory leak.
 //   This leads to some complexity...
 //   If the arglist is empty, return a default term containing no
 //   arguments.
@@ -2586,6 +2586,73 @@ Term_p TermCopyNormalizeVars(VarBank_p vars, Term_p term,
       return TermCopy(term,vars,DEREF_NEVER);
    }
 }
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: TermDAGWeight()
+//
+//    Compute the DAG weight of a term. More concretely: For each
+//    occurance of an already considered subterm, count
+//    dup_weigth. For all new termcells count fweight for function
+//    sybmbols and vweight for variables. The new_term parameter
+//    indicates if the term shall be considered individually, or if
+//    this is a continuation of a previous computation which already
+//    might have seen some subterms.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations, manipulates TPPOpFlag in term
+//                   cells.
+//
+/----------------------------------------------------------------------*/
+
+long TermDAGWeight(Term_p term, long fweight, long vweight,
+                   long dup_weight, bool new_term)
+{
+   PStack_p stack;
+   long res = 0;
+   int i;
+
+   assert(term);
+
+   if(new_term)
+   {
+      TermDelPropOpt(term, TPOpFlag);
+   }
+   stack = PStackAlloc();
+   PStackPushP(stack, term);
+
+   while(!PStackEmpty(stack))
+   {
+      term = PStackPopP(stack);
+      assert(term);
+      if(TermCellQueryProp(term, TPOpFlag))
+      {
+         res += dup_weight;
+      }
+      else
+      {
+         TermCellSetProp(term, TPOpFlag);
+         if(TermIsVar(term))
+         {
+            res += vweight;
+         }
+         else
+         {
+            res += fweight;
+            for(i=0; i< term->arity; i++)
+            {
+               PStackPushP(stack, term);
+            }
+         }
+      }
+   }
+   PStackFree(stack);
+   return res;
+}
+
+
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
