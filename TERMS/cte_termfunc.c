@@ -419,6 +419,57 @@ void TermPrintHO(FILE* out, Term_p term, Sig_p sig, DerefType deref)
       }
    }
 }
+
+/*-----------------------------------------------------------------------
+//
+// Function: TermPrintDbgHO()
+//
+//   Prints the term as is, with no pretty printing of interpreted symbols.
+//
+// Global Variables: TermPrintLists
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+void TermPrintDbgHO(FILE* out, Term_p term, Sig_p sig, DerefType deref)
+{
+   assert(term);
+   assert(sig||TermIsVar(term));
+
+   const int limit = DEREF_LIMIT(term, deref);
+   term = TermDeref(term, &deref);
+
+   if(!TermIsTopLevelVar(term))
+   {
+      fputs(SigFindName(sig, term->f_code), out);
+   }
+   else
+   {
+      VarPrint(out, (TermIsVar(term) ? term : term->args[0])->f_code);
+   }
+
+   for(int i = TermIsAppliedVar(term) ? 1 : 0; i < term->arity; ++i)
+   {
+#ifdef PRINT_AT
+      fputs(" @ ", out);
+#else
+      fputs(" ", out);
+#endif
+      DerefType c_deref = CONVERT_DEREF(i, limit, deref);
+      if(term->args[i]->arity ||
+            (c_deref != DEREF_NEVER && term->args[i]->binding && term->args[i]->binding->arity))
+      {
+         fputs("(", out);
+         TermPrintDbgHO(out, term->args[i], sig, c_deref);
+         fputs(")", out);
+      }
+      else
+      {
+         TermPrintDbgHO(out, term->args[i], sig, c_deref);
+      }
+   }
+}
 #endif
 
 

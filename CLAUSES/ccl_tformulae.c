@@ -55,13 +55,20 @@ static TFormula_p literal_tform_tstp_parse(Scanner_p in, TB_p terms);
 //
 /----------------------------------------------------------------------*/
 
-static Term_p predicate_to_eqn(TB_p bank, Term_p f)
+static Term_p predicate_to_eqn(TB_p bank, TFormula_p f)
 {
+   Sig_p sig = bank->sig;
    if(problemType == PROBLEM_HO &&
-      f->f_code > bank->sig->internal_symbols &&
-      f->type == bank->sig->type_bank->bool_type)
+      (f->f_code > sig->internal_symbols ||
+       f->f_code == SIG_TRUE_CODE ||
+       f->f_code == SIG_FALSE_CODE ||
+       TermIsTopLevelVar(f)) &&
+      f->type == sig->type_bank->bool_type)
    {
-      f = EqnTermsTBTermEncode(bank, f, bank->true_term, true, PENormal);
+      // making sure we encode $false as $true!=$true
+      bool positive = f->f_code != SIG_FALSE_CODE;
+      f = EqnTermsTBTermEncode(bank, (f->f_code == SIG_FALSE_CODE ? bank->true_term : f),
+                               bank->true_term, positive, PENormal);
    }
    return f;
 }
@@ -850,7 +857,8 @@ bool TFormulaIsPropConst(Sig_p sig, TFormula_p form, bool positive)
 
 TFormula_p TFormulaFCodeAlloc(TB_p bank, FunCode op, TFormula_p arg1, TFormula_p arg2)
 {
-   int arity = SigFindArity(bank->sig, op);
+   Sig_p sig = bank->sig;
+   int arity = SigFindArity(sig, op);
    TFormula_p res;
 
    assert(bank);
@@ -858,8 +866,8 @@ TFormula_p TFormulaFCodeAlloc(TB_p bank, FunCode op, TFormula_p arg1, TFormula_p
    assert(EQUIV((arity==2), arg2));
 
    res = TermTopAlloc(op,arity);
-   res->type = bank->sig->type_bank->bool_type;
-   if(SigIsPredicate(bank->sig, op))
+   res->type = sig->type_bank->bool_type;
+   if(SigIsPredicate(sig, op))
    {
       TermCellSetProp(res, TPPredPos);
    }
@@ -1353,7 +1361,8 @@ TFormula_p TFormulaTPTPParse(Scanner_p in, TB_p terms)
 TFormula_p TFormulaTSTPParse(Scanner_p in, TB_p terms)
 {
    TFormula_p      f1, f2, res;
-   FunCode op;   
+   FunCode op;
+   Sig_p   sig = terms->sig;
 
    f1 = literal_tform_tstp_parse(in, terms);
    if(TestInpTok(in, FOFAssocOp))
@@ -1368,6 +1377,19 @@ TFormula_p TFormulaTSTPParse(Scanner_p in, TB_p terms)
    {
       op = tptp_operator_parse(terms->sig, in);
       f2 = literal_tform_tstp_parse(in, terms);
+      
+      if(f1->type == sig->type_bank->bool_type &&
+        (op == sig->eqn_code || op == sig->neqn_code))
+      {
+         assert(f2->type == sig->type_bank->bool_type);
+         // if it is bool it is either a literal ((dis)equation) or a formula
+         assert(SigIsLogicalSymbol(sig, f1->f_code));
+         assert(SigIsLogicalSymbol(sig, f2->f_code));
+
+         op = (op == sig->eqn_code) ? sig->equiv_code : sig->xor_code;
+      }
+
+
       res = TFormulaFCodeAlloc(terms, op, f1, f2);
    }
    else
