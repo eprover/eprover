@@ -48,7 +48,7 @@ typedef TFormula_p (*FormulaMapper)(TFormula_p, TB_p);
 // Function: map_formula()
 //
 //   Applies processor to form. If formula is changed it alters
-//   the proof object by saying FOOL processing has been applied.
+//   the proof object by applying the correct derivation code.
 //
 // Global Variables: -
 //
