@@ -52,7 +52,8 @@ typedef Term_p TFormula_p;
 #define   TFormulaIsBinary(form)     ((form)->arity==2)
 #define   TFormulaIsUnary(form)      ((form)->arity==1)
 #define   TFormulaIsQuantified(sig,form)                                \
-   ((form)->f_code == sig->qex_code || (form)->f_code == sig->qall_code )
+   ((form)->f_code == sig->qex_code || (form)->f_code == sig->qall_code || \
+    (form)->f_code == SIG_NAMED_LAMBDA_CODE)
 #define   TFormulaIsLiteral(sig,form)                                   \
    ((form)->f_code == (sig)->eqn_code || (form)->f_code == (sig)->neqn_code)
 

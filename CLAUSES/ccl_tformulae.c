@@ -866,7 +866,10 @@ TFormula_p TFormulaFCodeAlloc(TB_p bank, FunCode op, TFormula_p arg1, TFormula_p
    assert(EQUIV((arity==2), arg2));
 
    res = TermTopAlloc(op,arity);
-   res->type = sig->type_bank->bool_type;
+   if(op != SIG_NAMED_LAMBDA_CODE)
+   {
+      res->type = sig->type_bank->bool_type;
+   }
    if(SigIsPredicate(sig, op))
    {
       TermCellSetProp(res, TPPredPos);

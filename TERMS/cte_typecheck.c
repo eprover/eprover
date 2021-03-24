@@ -212,7 +212,7 @@ bool TypeCheckConsistent(Sig_p sig, Term_p term)
 /----------------------------------------------------------------------*/
 void TypeInferSort(Sig_p sig, Term_p term, Scanner_p in)
 {
-   Type_p type;
+   Type_p type = NULL;
    Type_p sort, *args;
    int i;
 
@@ -236,9 +236,10 @@ void TypeInferSort(Sig_p sig, Term_p term, Scanner_p in)
          assert(term->f_code == SIG_NAMED_LAMBDA_CODE);
          assert(term->arity == 2);
          // type of lambda is 'type of variable' -> 'type of body'
-         type = TypeBankInsertTypeShared(sig->type_bank,
-                                         ArrowTypeFlattened(&(term->args[0]->type), 1, 
-                                                            term->args[1]->type));
+         term->type = 
+            TypeBankInsertTypeShared(sig->type_bank,
+                                     ArrowTypeFlattened(&(term->args[0]->type), 1, 
+                                     term->args[1]->type));
       }
       else if(term->f_code == sig->eqn_code || term->f_code == sig->neqn_code)
       {
@@ -302,7 +303,7 @@ void TypeInferSort(Sig_p sig, Term_p term, Scanner_p in)
                      fprintf(stderr, "# Type mismatch in argument #%d of ", i+1);
                      TermPrint(stderr, term, sig, DEREF_NEVER);
                      fprintf(stderr, ": expected ");
-                     TypePrintTSTP(stderr, sig->type_bank, type->args[i]);
+                     TypePrintTSTP(stderr, sig->type_bank, type->args[i-1]);
                      fprintf(stderr, " but got ");
                      TypePrintTSTP(stderr, sig->type_bank, term->args[i]->type);
                      fprintf(stderr, "\n");
@@ -338,7 +339,7 @@ void TypeInferSort(Sig_p sig, Term_p term, Scanner_p in)
             }
          }
       }
-      else
+      else if(!TermIsLambda(term))
       {
          /* Infer type */
          sort = infer_return_sort(sig, term->f_code);

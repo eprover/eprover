@@ -2245,14 +2245,15 @@ void TermAssertSameSort(Sig_p sig, Term_p t1, Term_p t2)
    if(t1->type != t2->type)
    {
       fprintf(stderr, "# Error: terms ");
-      TermPrint(stderr, t1, sig, DEREF_NEVER);
+      TermPrintDbgHO(stderr, t1, sig, DEREF_NEVER);
       fprintf(stderr, ": ");
       TypePrintTSTP(stderr, sig->type_bank, t1->type);
       fprintf(stderr, " and ");
-      TermPrint(stderr, t2, sig, DEREF_NEVER);
+      TermPrintDbgHO(stderr, t2, sig, DEREF_NEVER);
       fprintf(stderr, ": ");
       TypePrintTSTP(stderr, sig->type_bank, t2->type);
-      fprintf(stderr, " should have same sort\n");
+      fprintf(stderr, " should have the same sort\n");
+      assert(false);
       Error("Type error", SYNTAX_ERROR);
    }
 }
