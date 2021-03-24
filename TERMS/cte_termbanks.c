@@ -165,12 +165,17 @@ static Term_p tb_termtop_insert(TB_p bank, Term_p t)
       t->entry_no     = ++(bank->in_count);
       TermCellAssignProp(t,TPGarbageFlag, bank->garbage_state);
       TermCellSetProp(t, TPIsShared); /* Groundness may change below */
+      if(TermIsPhonyApp(t) && TermIsLambda(t->args[0]))
+      {
+         TermCellSetProp(t, TPIsBetaReducible);
+      }
       t->v_count = 0;
       t->f_count = !TermIsAppliedVar(t) ? 1 : 0;
       t->weight = DEFAULT_FWEIGHT*t->f_count;
       for(int i=0; i<t->arity; i++)
       {
          assert(TermIsShared(t->args[i])||TermIsVar(t->args[i]));
+         TermCellSetProp(t, TermCellGiveProps(t, TPIsBetaReducible));
          if(TermIsVar(t->args[i]))
          {
             t->v_count += 1;

@@ -1460,7 +1460,7 @@ void TOGenerateWeights(OCB_p ocb, ClauseSet_p axioms, char *pre_weights,
    }
    *OCBFunWeightPos(ocb, SIG_TRUE_CODE) = ocb->var_weight;
 #ifdef ENABLE_LFHO
-   *OCBFunWeightPos(ocb, SIG_APP_VAR_CODE) = 0;
+   *OCBFunWeightPos(ocb, SIG_PHONY_APP_CODE) = 0;
 #endif
    if(pre_weights)
    {

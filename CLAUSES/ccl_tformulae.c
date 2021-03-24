@@ -184,7 +184,7 @@ static Term_p normalize_head(Term_p head, Term_p* rest_args, int rest_arity, TB_
          total_arity++; // head is going to be the first argument
 
          res = TermDefaultCellArityAlloc(total_arity);
-         res->f_code = SIG_APP_VAR_CODE;
+         res->f_code = SIG_PHONY_APP_CODE;
 
          res->args[0] = head;
          for(int i=1; i<total_arity; i++)
@@ -608,7 +608,7 @@ static TFormula_p assoc_tform_tstp_parse(Scanner_p in, TB_p terms, TFormula_p he
 //   Parse a sequence of formulas connected by application operator
 //   and normalize the term according to the invariant maintained by @:
 //   If the head is a single constant F then simply apply F to arguments.
-//   Otherwise, apply the head using SIG_APP_VAR_CODE
+//   Otherwise, apply the head using SIG_PHONY_APP_CODE
 //
 // Global Variables:
 //
@@ -621,10 +621,6 @@ static TFormula_p applied_tform_tstp_parse(Scanner_p in, TB_p terms, TFormula_p 
    assert(TestInpTok(in, Application));
    
    const Type_p hd_type = GetHeadType(terms->sig, head);
-   if(!hd_type)
-   {
-      AktTokenError(in, "\nCannot determine type", SYNTAX_ERROR);
-   }
    assert(hd_type);
    const int max_args = TypeGetMaxArity(hd_type);
    int i = 0;

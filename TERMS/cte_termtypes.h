@@ -86,6 +86,11 @@ typedef enum
                                    this occurs with negative polarity. */
    TPIsDerefedAppVar  = 1<<20,  /* Is the object obtained as a cache
                                    for applied variables -- dbg purposes */
+   TPIsBetaReducible  = 1<<21,  /* Does the term have at least one subterm with 
+                                   lambda abstraction as term head */
+   TPIsEtaReducible   = 1<<22,  /* Does the term have at least one subterm which is
+                                   lambda abstraction and the last argument of body is
+                                   the abstracted variable */
 }TermProperties;
 
 
@@ -222,10 +227,13 @@ typedef uintptr_t DerefType, *DerefType_p;
 #define TermIsVar(t) ((t)->f_code < 0)
 #define TermIsConst(t)(!TermIsVar(t) && ((t)->arity==0))
 #ifdef ENABLE_LFHO
-#define TermIsAppliedVar(term) ((term)->f_code == SIG_APP_VAR_CODE)
+#define TermIsPhonyApp(term) ((term)->f_code == SIG_PHONY_APP_CODE)
+#define TermIsAppliedVar(term) ((term)->f_code == SIG_PHONY_APP_CODE && \
+                                TermIsVar((term)->args[0]))
 #define TermIsLambda(term) ((term)->f_code == SIG_NAMED_LAMBDA_CODE || \
                             (term)->f_code == SIG_DB_LAMBDA_CODE)
 #else
+#define TermIsPhonyApp(term) (false)
 #define TermIsAppliedVar(term) (false)
 #define TermIsLambda(term) (false)
 #endif
@@ -313,6 +321,9 @@ void    TermStackDelProps(PStack_p stack, TermProperties prop);
 #define TermSetCache(t,c)  ((t)->binding_cache = (c))
 #define TermGetBank(t)     ((t)->owner_bank)
 #define TermSetBank(t,b)   ((t)->owner_bank = (b))
+
+#define TermIsBetaReducible(t) TermCellQueryProp((t), TPIsBetaReducible)
+#define TermIsEtaReducible(t)  TermCellQueryProp((t), TPIsEtaReducible)
 #else
 #define TermGetCache(t)    (UNUSED(t), NULL)
 #define TermSetCache(t,c)  (UNUSED(t), UNUSED(c), UNUSED(NULL))
@@ -347,7 +358,7 @@ static inline Type_p GetHeadType(Sig_p sig, Term_p term)
 #ifdef ENABLE_LFHO
    if(TermIsAppliedVar(term))
    {
-      assert(!sig || term->f_code == SIG_APP_VAR_CODE);
+      assert(!sig || term->f_code == SIG_PHONY_APP_CODE);
       return term->args[0]->type;
    }
    else if(TermIsVar(term) || TermIsLambda(term))
@@ -357,7 +368,7 @@ static inline Type_p GetHeadType(Sig_p sig, Term_p term)
    }
    else
    {
-      assert(term->f_code != SIG_APP_VAR_CODE);
+      assert(term->f_code != SIG_PHONY_APP_CODE);
       return SigGetType(sig, term->f_code);
    }
 #else

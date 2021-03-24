@@ -108,7 +108,7 @@ Term_p term_apply_arg(TypeBank_p tb, Term_p s, Term_p arg)
    }
    else
    {
-      s_arg = TermTopAlloc(SIG_APP_VAR_CODE, 2);
+      s_arg = TermTopAlloc(SIG_PHONY_APP_CODE, 2);
       s_arg->args[0] = s;
       s_arg->args[1] = arg;
    }

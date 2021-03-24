@@ -808,7 +808,7 @@ __inline__ Term_p MakeRewrittenTerm(Term_p orig, Term_p new, int remaining_orig,
       Term_p new_term;
       if(TermIsVar(new))
       {
-         new_term = TermTopAlloc(SIG_APP_VAR_CODE, remaining_orig+1);
+         new_term = TermTopAlloc(SIG_PHONY_APP_CODE, remaining_orig+1);
          new_term->args[0] = new;
       }
       else

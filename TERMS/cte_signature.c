@@ -246,7 +246,7 @@ void SigInsertInternalCodes(Sig_p sig)
       FunCode f_code =
    #endif
       SigInsertId(sig, "$@_var", 1, true);
-      assert(f_code == SIG_APP_VAR_CODE); //for future code changes
+      assert(f_code == SIG_PHONY_APP_CODE); //for future code changes
    #ifndef NDEBUG
       f_code =
    #endif

@@ -167,11 +167,11 @@ typedef struct sigcell
 #define SIG_FALSE_CODE   2
 #define SIG_NIL_CODE     3
 #define SIG_CONS_CODE    4
-#define SIG_APP_VAR_CODE 17
+#define SIG_PHONY_APP_CODE 17
 // used for encoding lambdas with named variables,
 // ACHTUNG: appears only during parsing phase
 // %x. f (g x) is encoded as NAMED_LAMBDA(X, F(G(X)))
-#define SIG_NAMED_LAMBDA_CODE SIG_APP_VAR_CODE+1
+#define SIG_NAMED_LAMBDA_CODE SIG_PHONY_APP_CODE+1
 // used for encoding lambdas represented using DB indices
 // ACHTUNG: appears only during saturation
 // %x. f (g x) is encoded as DB_LAMBDA(F(G(0)))
