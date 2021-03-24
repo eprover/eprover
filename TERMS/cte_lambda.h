@@ -29,7 +29,7 @@
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-void NamedLambdaSNF(Term_p t);
+Term_p NamedLambdaSNF(Term_p t);
 
 
 #endif

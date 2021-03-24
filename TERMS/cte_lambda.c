@@ -20,6 +20,8 @@
 
 
 #include "cte_lambda.h"
+#include "cte_termbanks.h"
+#include "cte_subst.h"
 
 /*---------------------------------------------------------------------*/
 /*                        Global Variables                             */
@@ -33,14 +35,83 @@
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
 
+/*-----------------------------------------------------------------------
+//
+// Function: reduce_head()
+//
+//   Reduces all heading reducible lambda binders
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static inline Term_p reduce_head (Term_p t)
+{
+   assert(TermIsPhonyApp(t) && TermIsLambda(t->args[0]));
+
+   Term_p body = t->args[0];
+   Subst_p subst = SubstAlloc();
+   int     i = 1;
+
+   while(TermIsLambda(body) && i < t->arity)
+   {
+      SubstAddBinding(subst, body->args[0], t->args[i++]);
+      body = body->args[1];
+   }
+
+   t = TBInsertInstantiated(TermGetBank(t), t);
+
+   SubstDelete(subst);
+   return t;
+}
+
 
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
 /*---------------------------------------------------------------------*/
 
-void NamedLambdaSNF(Term_p t)
+/*-----------------------------------------------------------------------
+//
+// Function: NamedLambdaSNF()
+//
+//   Computes strong normal form for the lambda term in named notation
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+Term_p NamedLambdaSNF(Term_p t)
 {
-   Error("Not yet implemented", SYS_ERROR);
+   if(TermIsBetaReducible(t))
+   {
+      if(TermIsPhonyApp(t) && TermIsLambda(t->args[0]))
+      {
+         t = NamedLambdaSNF(reduce_head(t));
+      }
+      else
+      {
+         Term_p new_t = TermTopCopyWithoutArgs(t);
+         new_t->properties = t->properties;
+
+#ifndef NDEBUG
+         bool diff=false;
+#endif
+         for(int i=0; i<t->arity; i++)
+         {
+            new_t->args[i] = NamedLambdaSNF(t->args[i]);
+#ifndef NDEBUG
+            diff = diff || (new_t->args[i] != t->args[i]);
+#endif
+         }
+         assert(diff);
+         t = TBTermTopInsert(TermGetBank(t), new_t);
+      }
+   }
+   return t;
 }
 
 /*---------------------------------------------------------------------*/
