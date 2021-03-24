@@ -226,7 +226,7 @@ void TypeInferSort(Sig_p sig, Term_p term, Scanner_p in)
    }
    else
    {
-      if(TermIsAppliedVar(term))
+      if(TermIsPhonyApp(term))
       {
          type = term->args[0]->type;
       }
@@ -274,7 +274,7 @@ void TypeInferSort(Sig_p sig, Term_p term, Scanner_p in)
                in?AktTokenError(in, "Type error", false):Error("Type error", SYNTAX_ERROR);
             }
 
-            if(!TermIsAppliedVar(term))
+            if(!TermIsPhonyApp(term))
             {
                for(i=0; SigIsFixedType(sig, term->f_code) && i < term->arity; i++)
                {

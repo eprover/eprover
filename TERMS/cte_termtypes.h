@@ -194,7 +194,7 @@ typedef uintptr_t DerefType, *DerefType_p;
 /* Sometimes we are not interested in the arity of the term, but the
    number of arguments the term has. Due to encoding of applied variables,
    we have to discard argument 0, which is actually the head variable */
-#define ARG_NUM(term)    (TermIsAppliedVar(term) ? (term)->arity-1 : (term)->arity)
+#define ARG_NUM(term)    (TermIsPhonyApp(term) ? (term)->arity-1 : (term)->arity)
 /* If we have the term X a Y and bindings X -> f X Y and Y -> Z
    when we deref once we want to get f X Y a Z. When dereferencing applied
    var X a Y we can behave like with variables and decrease deref (see TermDeref)

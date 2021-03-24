@@ -62,7 +62,7 @@ static Term_p predicate_to_eqn(TB_p bank, TFormula_p f)
       (f->f_code > sig->internal_symbols ||
        f->f_code == SIG_TRUE_CODE ||
        f->f_code == SIG_FALSE_CODE ||
-       TermIsTopLevelVar(f)) &&
+       TermIsPhonyApp(f)) &&
       f->type == sig->type_bank->bool_type)
    {
       // making sure we encode $false as $true!=$true
@@ -1049,9 +1049,13 @@ void TFormulaTPTPPrint(FILE* out, TB_p bank, TFormula_p form, bool fullterms, bo
       {
          fputs("?[", out);
       }
-      else
+      else if(form->f_code == bank->sig->qall_code)
       {
          fputs("![", out);
+      }
+      else
+      {
+         fputs("^[", out);
       }
       TermPrint(out, form->args[0], bank->sig, DEREF_NEVER);
       if(problemType == PROBLEM_HO || !TypeIsIndividual(form->args[0]->type))

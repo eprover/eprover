@@ -24,6 +24,7 @@ Changes
 
 #include "ccl_formulafunc.h"
 #include "ccl_clausefunc.h"
+#include "cte_lambda.h"
 
 
 
@@ -36,7 +37,7 @@ extern bool app_encode;
 /*                      Forward Declarations                           */
 /*---------------------------------------------------------------------*/
 
-typedef TFormula_p (*FOOLFormulaProcessor)(TFormula_p, TB_p);
+typedef TFormula_p (*FormulaMapper)(TFormula_p, TB_p);
 
 /*---------------------------------------------------------------------*/
 /*                         Internal Functions                          */
@@ -44,7 +45,7 @@ typedef TFormula_p (*FOOLFormulaProcessor)(TFormula_p, TB_p);
 
 /*-----------------------------------------------------------------------
 //
-// Function: fool_process_formula()
+// Function: map_formula()
 //
 //   Applies processor to form. If formula is changed it alters
 //   the proof object by saying FOOL processing has been applied.
@@ -55,8 +56,7 @@ typedef TFormula_p (*FOOLFormulaProcessor)(TFormula_p, TB_p);
 //
 /----------------------------------------------------------------------*/
 
-bool fool_process_formula(WFormula_p form, TB_p terms,
-                          FOOLFormulaProcessor processor)
+bool map_formula(WFormula_p form, TB_p terms, FormulaMapper processor, DerivationCode dc)
 {
    TFormula_p original = form->tformula;
    bool       changed = false;
@@ -65,7 +65,7 @@ bool fool_process_formula(WFormula_p form, TB_p terms,
 
    if(form->tformula != original)
    {
-      WFormulaPushDerivation(form, DCFoolUnroll, NULL, NULL);
+      WFormulaPushDerivation(form, dc, NULL, NULL);
       changed = true;
    }
 
@@ -825,6 +825,7 @@ long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive,
    long old_nodes = TBNonVarTermNodes(terms);
    long gc_threshold = old_nodes*TFORMULA_GC_LIMIT;
 
+   TFormulaSetBetaNormalize(set, archive, terms);
    TFormulaSetUnrollFOOL(set, archive, terms);
    FormulaSetSimplify(set, terms);
 
@@ -1200,7 +1201,7 @@ long TFormulaApplyDefs(WFormula_p form, TB_p terms, NumXTree_p *defs)
 
 bool TFormulaUnrollFOOL(WFormula_p form, TB_p terms)
 {
-   return fool_process_formula(form, terms, do_fool_unroll);
+   return map_formula(form, terms, do_fool_unroll, DCFoolUnroll);
 }
 
 /*-----------------------------------------------------------------------
@@ -1219,7 +1220,7 @@ bool TFormulaUnrollFOOL(WFormula_p form, TB_p terms)
 
 bool TFormulaReplaceEqnWithEquiv(WFormula_p form, TB_p terms)
 {
-   return fool_process_formula(form, terms, do_bool_eqn_replace);
+   return map_formula(form, terms, do_bool_eqn_replace, DCFoolUnroll);
 }
 
 
@@ -1249,7 +1250,48 @@ long TFormulaSetUnrollFOOL(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
    return res;
 }
 
+#ifdef ENABLE_LFHO
+/*-----------------------------------------------------------------------
+//
+// Function: TFormulaSetBetaNormalize()
+//
+//   Beta normalizes the input problem
+//
+// Global Variables: -
+//
+// Side Effects    : Simplifies set, may print simplification steps.
+//
+/----------------------------------------------------------------------*/
 
+long TFormulaSetBetaNormalize(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
+{
+   long res = 0;
+   if(problemType == PROBLEM_HO)
+   {
+      for(WFormula_p form = set->anchor->succ; form!=set->anchor; form=form->succ)
+      {       
+         TFormula_p handle = NamedLambdaSNF(form->tformula);
+      
+         if(handle!=form->tformula)
+         {
+            form->tformula = handle;
+            DocFormulaModificationDefault(form, inf_fof_simpl);
+            WFormulaPushDerivation(form, DCFofSimplify, NULL, NULL);
+         }
+      }
+      return res;
+   }
+   else
+   {
+      return 0;
+   }
+}
+#else
+long TFormulaSetBetaNormalize(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
+{
+   return 0
+}
+#endif
 /*-----------------------------------------------------------------------
 //
 // Function: TFormulaSetIntroduceDefs()

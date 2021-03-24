@@ -175,7 +175,7 @@ static Term_p tb_termtop_insert(TB_p bank, Term_p t)
       for(int i=0; i<t->arity; i++)
       {
          assert(TermIsShared(t->args[i])||TermIsVar(t->args[i]));
-         TermCellSetProp(t, TermCellGiveProps(t, TPIsBetaReducible));
+         TermCellSetProp(t, TermCellGiveProps(t->args[i], TPIsBetaReducible));
          if(TermIsVar(t->args[i]))
          {
             t->v_count += 1;

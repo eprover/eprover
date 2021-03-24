@@ -35,6 +35,7 @@
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
 
+
 /*-----------------------------------------------------------------------
 //
 // Function: reduce_head()
@@ -61,9 +62,49 @@ static inline Term_p reduce_head (Term_p t)
       body = body->args[1];
    }
 
-   t = TBInsertInstantiated(TermGetBank(t), t);
+   t = TBInsertInstantiated(TermGetBank(t), body);
 
    SubstDelete(subst);
+   return t;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: do_named_snf()
+//
+//   Do the actual work in SNF
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static Term_p do_named_snf(Term_p t)
+{
+   if(TermIsBetaReducible(t))
+   {
+      if(TermIsPhonyApp(t) && TermIsLambda(t->args[0]))
+      {
+         t = NamedLambdaSNF(reduce_head(t));
+      }
+      else
+      {
+         Term_p new_t = TermTopCopyWithoutArgs(t);
+#ifndef NDEBUG
+         bool diff=false;
+#endif
+         for(int i=0; i<t->arity; i++)
+         {
+            new_t->args[i] = NamedLambdaSNF(t->args[i]);
+#ifndef NDEBUG
+            diff = diff || (new_t->args[i] != t->args[i]);
+#endif
+         }
+         assert(diff);
+         t = TBTermTopInsert(TermGetBank(t), new_t);
+      }
+   }
    return t;
 }
 
@@ -86,33 +127,17 @@ static inline Term_p reduce_head (Term_p t)
 
 Term_p NamedLambdaSNF(Term_p t)
 {
-   if(TermIsBetaReducible(t))
+   t = do_named_snf(t);
+   TB_p bank = TermGetBank(t);
+   // undoing the encoding of literals under lambdas
+   if(t->f_code == bank->sig->eqn_code &&
+      t->args[1] == bank->true_term &&
+      t->args[0] != bank->true_term &&
+      SigIsLogicalSymbol(bank->sig, t->args[0]->f_code))
    {
-      if(TermIsPhonyApp(t) && TermIsLambda(t->args[0]))
-      {
-         t = NamedLambdaSNF(reduce_head(t));
-      }
-      else
-      {
-         Term_p new_t = TermTopCopyWithoutArgs(t);
-         new_t->properties = t->properties;
-
-#ifndef NDEBUG
-         bool diff=false;
-#endif
-         for(int i=0; i<t->arity; i++)
-         {
-            new_t->args[i] = NamedLambdaSNF(t->args[i]);
-#ifndef NDEBUG
-            diff = diff || (new_t->args[i] != t->args[i]);
-#endif
-         }
-         assert(diff);
-         t = TBTermTopInsert(TermGetBank(t), new_t);
-      }
+      t = t->args[0];  
    }
-   return t;
-}
+   return t;}
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */

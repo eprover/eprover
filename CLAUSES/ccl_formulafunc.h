@@ -94,6 +94,7 @@ void FormulaSetArchive(FormulaSet_p set, FormulaSet_p archive);
 void FormulaSetDocInital(FILE* out, long level, FormulaSet_p set);
 
 long TFormulaSetUnrollFOOL(FormulaSet_p set, FormulaSet_p archive, TB_p terms);
+long TFormulaSetBetaNormalize(FormulaSet_p set, FormulaSet_p archive, TB_p terms);
 bool TFormulaUnrollFOOL(WFormula_p form, TB_p terms);
 
 
