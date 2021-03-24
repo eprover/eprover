@@ -58,6 +58,8 @@ static inline Term_p reduce_head (Term_p t)
 
    while(TermIsLambda(body) && i < t->arity)
    {
+      // cancelling old bindings -- for name clashes (e.g. ^[X,X]:...)
+      body->args[0]->binding = NULL; 
       SubstAddBinding(subst, body->args[0], t->args[i++]);
       body = body->args[1];
    }
