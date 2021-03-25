@@ -825,7 +825,7 @@ long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive,
    long old_nodes = TBNonVarTermNodes(terms);
    long gc_threshold = old_nodes*TFORMULA_GC_LIMIT;
 
-   TFormulaSetBetaNormalize(set, archive, terms);
+   TFormulaSetLambdaNormalize(set, archive, terms);
    TFormulaSetUnrollFOOL(set, archive, terms);
    FormulaSetSimplify(set, terms);
 
@@ -1253,9 +1253,10 @@ long TFormulaSetUnrollFOOL(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
 #ifdef ENABLE_LFHO
 /*-----------------------------------------------------------------------
 //
-// Function: TFormulaSetBetaNormalize()
+// Function: TFormulaSetLambdaNormalize()
 //
-//   Beta normalizes the input problem
+//   Beta normalizes the input problem and turns every equation 
+//   (^[X]:s) = t into ![X]: (s = (t @ X))
 //
 // Global Variables: -
 //
@@ -1263,14 +1264,14 @@ long TFormulaSetUnrollFOOL(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
 //
 /----------------------------------------------------------------------*/
 
-long TFormulaSetBetaNormalize(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
+long TFormulaSetLambdaNormalize(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
 {
    long res = 0;
    if(problemType == PROBLEM_HO)
    {
       for(WFormula_p form = set->anchor->succ; form!=set->anchor; form=form->succ)
       {       
-         TFormula_p handle = NamedLambdaSNF(form->tformula);
+         TFormula_p handle = LambdaToForall(terms, NamedLambdaSNF(form->tformula));
       
          if(handle!=form->tformula)
          {
@@ -1287,9 +1288,9 @@ long TFormulaSetBetaNormalize(FormulaSet_p set, FormulaSet_p archive, TB_p terms
    }
 }
 #else
-long TFormulaSetBetaNormalize(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
+long TFormulaSetLambdaNormalize(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
 {
-   return 0
+   return 0;
 }
 #endif
 /*-----------------------------------------------------------------------

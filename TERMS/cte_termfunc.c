@@ -23,7 +23,6 @@
 #include "cte_termfunc.h"
 #include "cte_typecheck.h"
 #include "clb_plocalstacks.h"
-#include "cte_termbanks.h"
 #include <cte_termpos.h>
 #include <ccl_tformulae.h>
 
@@ -852,7 +851,7 @@ Term_p TermCopyKeepVars(Term_p source, DerefType deref)
 //
 /----------------------------------------------------------------------*/
 
-extern TB_p bank;
+// extern TB_p bank;
 bool TermStructEqual(Term_p t1, Term_p t2)
 {
    t1 = TermDerefAlways(t1);

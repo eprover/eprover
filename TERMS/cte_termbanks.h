@@ -90,6 +90,9 @@ typedef struct tbcell
    TermCellStoreCell term_store; /* Here are the terms */
 }TBCell, *TB_p;
 
+// functions from a term to a **SHARED** term
+typedef Term_p (*TermMapper)(TB_p, Term_p);
+
 
 
 /*---------------------------------------------------------------------*/
@@ -178,6 +181,7 @@ Term_p  TBGetFreqConstTerm(TB_p terms, Type_p sort,
                            long* dist_array, FunConstCmpFunType is_better);
 long    TermDAGWeight(Term_p term, long fweight, long vweight,
                       long dup_weight, bool new_term);
+Term_p  TermMap(TB_p bank, Term_p t, TermMapper f);
 
 
 

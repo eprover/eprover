@@ -1850,6 +1850,54 @@ long TermDAGWeight(Term_p term, long fweight, long vweight,
    return res;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: TermMap()
+//
+//   Applies the function f to term t to obtain t'. If t' != t,
+//   it continues mapping t'. Else, it recursively applies f to 
+//   arguments of t. Result term is guaranteed to be shared.
+//   Term mapper must also return shared term of the same type
+//   as the original one.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+Term_p TermMap(TB_p bank, Term_p t, TermMapper f)
+{
+   Term_p s = f(bank, t);
+   assert(TermIsShared(s) && s->type == t->type);
+
+   if(s!=t)
+   {
+      s = TermMap(bank, s, f);
+   }
+   else
+   {
+      bool changed = false;
+      s = TermTopCopyWithoutArgs(t);
+      for(int i=0; i > t->arity; i++)
+      {
+         s->args[i] = f(bank, t->args[i]);
+         assert(TermIsShared(s->args[i]) && s->args[i]->type == t->args[i]->type);
+         changed = changed || (s->args[i] != t->args[i]);
+      }
+      
+      if(changed)
+      {
+         s = TBTermTopInsert(bank, s);
+      }
+      else
+      {
+         TermTopFree(s);
+         s = t;
+      }
+   }
+   return s;
+}
 
 
 /*---------------------------------------------------------------------*/

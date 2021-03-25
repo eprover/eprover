@@ -22,14 +22,16 @@
 
 #define CTE_LAMBDA
 
-#include "cte_termtypes.h"
+#include <ccl_tformulae.h>
+
 
 
 /*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-Term_p NamedLambdaSNF(Term_p t);
+TFormula_p NamedLambdaSNF(TFormula_p t);
+TFormula_p LambdaToForall(TB_p terms, TFormula_p t);
 
 
 #endif
