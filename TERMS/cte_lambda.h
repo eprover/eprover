@@ -32,6 +32,7 @@
 
 TFormula_p NamedLambdaSNF(TFormula_p t);
 TFormula_p LambdaToForall(TB_p terms, TFormula_p t);
+TFormula_p LiftLambdas(TB_p terms, TFormula_p t, PStack_p definitions);
 
 
 #endif

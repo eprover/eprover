@@ -833,6 +833,8 @@ long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive,
    TFormulaSetIntroduceDefs(set, archive, terms);
    //printf("# Definitions introduced\n");
 
+   TFormulaSetLiftLambdas(set, archive, terms);
+
    while(!FormulaSetEmpty(set))
    {
       handle = FormulaSetExtractFirst(set);
@@ -1287,8 +1289,54 @@ long TFormulaSetLambdaNormalize(FormulaSet_p set, FormulaSet_p archive, TB_p ter
       return 0;
    }
 }
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: TFormulaSetLiftLambdas()
+//
+//    Lifts lambdas from the formula set. Inserts new definitons into set.
+//    
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+long TFormulaSetLiftLambdas(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
+{
+   long res = 0;
+   if(problemType == PROBLEM_HO)
+   {
+      PStack_p defs = PStackAlloc();
+      for(WFormula_p form = set->anchor->succ; form!=set->anchor; form=form->succ)
+      {       
+         TFormula_p handle = LiftLambdas(terms, form->tformula, defs);
+         if(handle!=form->tformula)
+         {
+            form->tformula = handle;
+            while(!(PStackEmpty(defs)))
+            {
+               WFormulaPushDerivation(form, DCApplyDef, PStackPopP(defs), NULL);
+               res++;
+            }
+         }
+      }
+      PStackFree(defs);
+      return res;
+   }
+   else
+   {
+      return 0;
+   }
+}
 #else
 long TFormulaSetLambdaNormalize(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
+{
+   return 0;
+}
+long TFormulaSetLiftLambdas(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
 {
    return 0;
 }

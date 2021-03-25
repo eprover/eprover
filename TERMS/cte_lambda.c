@@ -22,6 +22,9 @@
 #include "cte_lambda.h"
 #include "cte_termbanks.h"
 #include "cte_subst.h"
+#include <ccl_formula_wrapper.h>
+#include <ccl_inferencedoc.h>
+#include <ccl_derivation.h>
 
 /*---------------------------------------------------------------------*/
 /*                        Global Variables                             */
@@ -250,6 +253,74 @@ static Term_p do_named_snf(Term_p t)
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: lift_lambda()
+//
+//   Convert lambda term: ^[...bound vars...]:s[...free vars...]
+//   into a definiton f ..free vars.. ..bound vars.. = s
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+Term_p lift_lambda(TB_p terms, PStack_p bound_vars, Term_p body, 
+                   PStack_p definitions)
+{
+   PTree_p free_vars_tree = NULL;
+   PStack_p free_vars = PStackAlloc();
+   PStack_p all_vars = PStackAlloc();
+   TFormulaCollectFreeVars(terms, body, &free_vars_tree);
+
+   for(int i=0; i<PStackGetSP(bound_vars); i++)
+   {
+      PTreeDeleteEntry(&free_vars_tree, PStackElementP(bound_vars, i));
+   }
+
+   PTreeToPStack(free_vars, free_vars_tree);
+   PTreeFree(free_vars_tree);
+   for(int i=0; i<PStackGetSP(free_vars); i++)
+   {
+      PStackPushP(all_vars, PStackElementP(free_vars, i));
+   }
+   for(int i=0; i<PStackGetSP(bound_vars); i++)
+   {
+      PStackPushP(all_vars, PStackElementP(bound_vars, i));
+   }
+
+   Term_p def_head =  TermAllocNewSkolem(terms->sig, all_vars, body->type);
+   Term_p res = TermTopAlloc(def_head->f_code, PStackGetSP(free_vars));
+   for(int i=0; i < PStackGetSP(free_vars); i++)
+   {
+      res->args[i] = PStackElementP(free_vars, i);
+   }
+   res = TBTermTopInsert(terms, res);
+   assert(def_head->type == body->type);
+
+   TFormula_p def_f;
+   if(body->type == terms->sig->type_bank->bool_type)
+   {
+      def_f = TFormulaFCodeAlloc(terms, terms->sig->equiv_code, 
+                               EncodePredicateAsEqn(terms, def_head),
+                               EncodePredicateAsEqn(terms, body));
+   }
+   else
+   {
+      def_f = TFormulaFCodeAlloc(terms, terms->sig->eqn_code, def_head, body);
+   }
+   WFormula_p def = WTFormulaAlloc(terms, def_f);
+   DocFormulaCreationDefault(def, inf_fof_intro_def, NULL, NULL);
+   WFormulaPushDerivation(def, DCIntroDef, NULL, NULL);
+
+   PStackPushP(definitions, def);
+
+   PStackFree(free_vars);
+   PStackFree(all_vars);
+   return res;
+}
+
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
 /*---------------------------------------------------------------------*/
@@ -258,7 +329,8 @@ static Term_p do_named_snf(Term_p t)
 //
 // Function: NamedLambdaSNF()
 //
-//   Computes strong normal form for the lambda term in named notation
+//   Computes strong normal form for the lambda term in named notation.
+//   Not using TermMap for efficiency.
 //
 // Global Variables: -
 //
@@ -297,6 +369,57 @@ TFormula_p NamedLambdaSNF(TFormula_p t)
 TFormula_p LambdaToForall(TB_p terms, TFormula_p t)
 {
    return TermMap(terms, t, lambda_eq_to_forall);
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: LiftLambdas()
+//
+//   Turns equation (^[X]:s)=t into ![X]:(s = (t @ X))
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+TFormula_p LiftLambdas(TB_p terms, TFormula_p t, PStack_p definitions)
+{
+   Term_p res;
+   PStack_p vars = NULL;
+   bool changed = false;
+   if(TermIsLambda(t))
+   {
+      vars = PStackAlloc();
+      t = unfold_lambda(t, vars);
+   }
+
+   res = TermTopCopyWithoutArgs(t);
+   for(int i=0; i<t->arity; i++)
+   {
+      res->args[i] = LiftLambdas(terms, t->args[i], definitions);
+      changed = changed || (res->args[i] != t->args[i]);
+   }
+
+   if(changed)
+   {
+      res = TBTermTopInsert(terms, res);
+   }
+   else
+   {
+      TermTopFree(res);
+      res = t;
+   }
+
+   
+   if(vars)
+   {
+      res = lift_lambda(terms, vars, res, definitions);
+      PStackFree(vars);
+   }
+
+   return res;
 }
 
 /*---------------------------------------------------------------------*/
