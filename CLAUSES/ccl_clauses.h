@@ -49,7 +49,7 @@ typedef enum
                                            * while ClauseIsIRVictim
                                            * blow marks the logical
                                            * clause (i.e. it is
-1                                           * inherited by the alive
+                                           * inherited by the alive
                                            * copy.  */
    CPIsProcessed       = 2*CPIsDead ,     /* Clause has been processed
                                             * previously */

@@ -1,25 +1,21 @@
 /*-----------------------------------------------------------------------
 
-File  : cte_typecheck.c
+  File  : cte_typecheck.c
 
-Author: Simon Cruanes
+  Author: Simon Cruanes, Petar Vucmirovic, Stephan Schulz
 
-Contents
+  Contents
 
   Type checking and inference for Simple types
 
-
-  Copyright 2011 by the author.
+  Copyright 2011-2020 by the author.
   This code is released under the GNU General Public Licence.
   See the file COPYING in the main CLIB directory for details.
   Run "eprover -h" for contact information.
 
-Changes
+  Created: Mon Jul  8 17:15:05 CEST 2013
 
-<1>   Mon Jul  8 17:15:05 CEST 2013
-      New
-
------------------------------------------------------------------------*/
+  -----------------------------------------------------------------------*/
 
 #include "cte_typecheck.h"
 #include "cte_termfunc.h"
@@ -88,6 +84,9 @@ Type_p term_determine_type(Term_p term, Type_p type, TypeBank_p bank)
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
+
+
+
 Type_p infer_return_sort(Sig_p sig, FunCode f_code)
 {
    Type_p res;
@@ -133,6 +132,7 @@ Type_p infer_return_sort(Sig_p sig, FunCode f_code)
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
+
 bool TypeCheckConsistent(Sig_p sig, Term_p term)
 {
    bool res = true;
@@ -172,9 +172,6 @@ bool TypeCheckConsistent(Sig_p sig, Term_p term)
                   break;
                }
             }
-
-
-
             /* Check subterms recursively */
             for(int i=0; i < type->arity; i++)
             {
@@ -188,13 +185,10 @@ bool TypeCheckConsistent(Sig_p sig, Term_p term)
          }
       }
    }
-
    PStackFree(stack);
 
    return res;
 }
-
-
 
 /*-----------------------------------------------------------------------
 //
@@ -210,6 +204,18 @@ bool TypeCheckConsistent(Sig_p sig, Term_p term)
 // Side Effects    : Modifies term and signature. May exit on type error.
 //
 /----------------------------------------------------------------------*/
+
+#define TI_ERROR(msg) do{ \
+   if(in)                                       \
+   {\
+      AktTokenError(in, msg, false);\
+   }\
+   else\
+   {\
+      Error(msg, SYNTAX_ERROR);\
+   }}while(false)
+
+
 void TypeInferSort(Sig_p sig, Term_p term, Scanner_p in)
 {
    Type_p type;
@@ -242,7 +248,7 @@ void TypeInferSort(Sig_p sig, Term_p term, Scanner_p in)
                fprintf(stderr, " and type ");
                TypePrintTSTP(stderr, sig->type_bank, type);
                fprintf(stderr, "\n");
-               in?AktTokenError(in, "Type error", false):Error("Type error", SYNTAX_ERROR);
+               TI_ERROR("Type error");
             }
 
             if(!TermIsAppliedVar(term))
@@ -258,7 +264,7 @@ void TypeInferSort(Sig_p sig, Term_p term, Scanner_p in)
                      fprintf(stderr, " but got ");
                      TypePrintTSTP(stderr, sig->type_bank, term->args[i]->type);
                      fprintf(stderr, "\n");
-                     in?AktTokenError(in, "Type error", false):Error("Type error", SYNTAX_ERROR);
+                     TI_ERROR("Type error");
                   }
                }
             }
@@ -278,12 +284,10 @@ void TypeInferSort(Sig_p sig, Term_p term, Scanner_p in)
                      fprintf(stderr, " but got ");
                      TypePrintTSTP(stderr, sig->type_bank, term->args[i]->type);
                      fprintf(stderr, "\n");
-                     in?AktTokenError(in, "Type error", false):Error("Type error", SYNTAX_ERROR);
+                     TI_ERROR("Type error");
                   }
                }
             }
-
-
             term->type = term_determine_type(term, type, sig->type_bank);
             if(term->type==NULL)
             {
@@ -302,7 +306,7 @@ void TypeInferSort(Sig_p sig, Term_p term, Scanner_p in)
                TypePrintTSTP(stderr, sig->type_bank, type);
                fprintf(stderr, "\n");
                assert(false);
-               in?AktTokenError(in, "Type error", false):Error("Type error", SYNTAX_ERROR);
+               TI_ERROR("Type error");
             }
             else
             {
@@ -325,9 +329,9 @@ void TypeInferSort(Sig_p sig, Term_p term, Scanner_p in)
          }
 
          type = term->arity ?
-                     TypeBankInsertTypeShared(sig->type_bank,
-                                              AllocArrowType(term->arity+1, args))
-                     : sort;
+            TypeBankInsertTypeShared(sig->type_bank,
+                                     AllocArrowType(term->arity+1, args))
+            : sort;
 
          /* Declare the inferred type */
          SigDeclareType(sig, term->f_code, type);
@@ -335,7 +339,6 @@ void TypeInferSort(Sig_p sig, Term_p term, Scanner_p in)
       }
    }
 }
-
 
 /*-----------------------------------------------------------------------
 //
@@ -348,6 +351,7 @@ void TypeInferSort(Sig_p sig, Term_p term, Scanner_p in)
 // Side Effects    : Modifies sig, modifies term's sort
 //
 /----------------------------------------------------------------------*/
+
 void TypeDeclareIsPredicate(Sig_p sig, Term_p term)
 {
    assert(!TermIsVar(term));
@@ -369,6 +373,7 @@ void TypeDeclareIsPredicate(Sig_p sig, Term_p term)
 // Side Effects    : Modifies signature, update term's sort
 //
 /----------------------------------------------------------------------*/
+
 void TypeDeclareIsNotPredicate(Sig_p sig, Term_p term, Scanner_p in)
 {
    if(!TermIsVar(term))

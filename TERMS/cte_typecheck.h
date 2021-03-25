@@ -1,24 +1,21 @@
 /*-----------------------------------------------------------------------
 
-File  : cte_typecheck.h
+  File  : cte_typecheck.h
 
-Author: Simon Cruanes
+  Author: Simon Cruanes, Petar Vucmirovic, Stephan Schulz
 
-Contents
+  Contents
 
   Type checking and inference for Simple types
 
-  Copyright 2011 by the author.
+  Copyright 2011-2020 by the author.
   This code is released under the GNU General Public Licence.
   See the file COPYING in the main CLIB directory for details.
   Run "eprover -h" for contact information.
 
-Changes
+  Created: Mon Jul  8 17:15:05 CEST 2013
 
-<1>   Mon Jul  8 17:15:05 CEST 2013
-      New
-
------------------------------------------------------------------------*/
+  -----------------------------------------------------------------------*/
 
 #ifndef CTE_TYPECHECK
 
