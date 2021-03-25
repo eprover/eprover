@@ -350,8 +350,8 @@ TFormula_p do_bool_eqn_replace(TFormula_p form, TB_p terms)
          // DAS literal is encoded as <predicate> = TRUE.
          // Our boolean equalities are <formula> = <formula>
          form = TFormulaFCodeAlloc(terms,
-                                   form->f_code == terms->sig->eqn_code ?
-                                     terms->sig->equiv_code : terms->sig->xor_code,
+                                   (form->f_code == terms->sig->eqn_code ?
+                                     terms->sig->equiv_code : terms->sig->xor_code),
                                    do_bool_eqn_replace(form->args[0], terms),
                                    do_bool_eqn_replace(form->args[1], terms));
          changed = true;

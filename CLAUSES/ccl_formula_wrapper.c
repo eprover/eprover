@@ -509,11 +509,11 @@ WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms)
       {
          //fprintf(stderr, "# TFormula Start!\n");
          tform = TFormulaTSTPParse(in, terms);
-         //fprintf(stderr, "# TFormula parsed!: ");
+         // fprintf(stderr, "# TFormula parsed!: ");
          //TFormulaTPTPPrint(stderr, terms, tform, true, false);
          //fprintf(stderr, " : ");
          // TermPrintDbgHO(stderr, tform, terms->sig, DEREF_NEVER);
-         //fprintf(stderr, "\n");
+         // fprintf(stderr, "\n");
       }
 
 

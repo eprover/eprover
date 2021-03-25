@@ -41,38 +41,6 @@ static TFormula_p literal_tform_tstp_parse(Scanner_p in, TB_p terms);
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
 
-/*-----------------------------------------------------------------------
-//
-// Function: predicate_to_eqn()
-//
-//   If a term is of the from p(s) where p is an uninterpreted predicate
-//   symbol it will be converted to equation p(s) = T, to maintain
-//   E's interal invariants
-//
-// Global Variables: -
-//
-// Side Effects    : Input, memory operations, changes term bank
-//
-/----------------------------------------------------------------------*/
-
-static Term_p predicate_to_eqn(TB_p bank, TFormula_p f)
-{
-   Sig_p sig = bank->sig;
-   if(problemType == PROBLEM_HO &&
-      (f->f_code > sig->internal_symbols ||
-       f->f_code == SIG_TRUE_CODE ||
-       f->f_code == SIG_FALSE_CODE ||
-       TermIsPhonyApp(f)) &&
-      f->type == sig->type_bank->bool_type)
-   {
-      // making sure we encode $false as $true!=$true
-      bool positive = f->f_code != SIG_FALSE_CODE;
-      f = EqnTermsTBTermEncode(bank, (f->f_code == SIG_FALSE_CODE ? bank->true_term : f),
-                               bank->true_term, positive, PENormal);
-   }
-   return f;
-}
-
 
 /*-----------------------------------------------------------------------
 //
@@ -638,7 +606,7 @@ static TFormula_p applied_tform_tstp_parse(Scanner_p in, TB_p terms, TFormula_p 
    }
    
    TFormula_p res = 
-      predicate_to_eqn(terms, normalize_head(head, args, i, terms));
+      EncodePredicateAsEqn(terms, normalize_head(head, args, i, terms));
    TermArgTmpArrayFree(args, max_args);
    return res;
 }
@@ -707,7 +675,7 @@ static TFormula_p literal_tform_tstp_parse(Scanner_p in, TB_p terms)
          res = parse_ho_atom(in, terms);
       }
    }
-   return predicate_to_eqn(terms, res);
+   return EncodePredicateAsEqn(terms, res);
 }
 
 
@@ -810,6 +778,38 @@ static void tformula_collect_freevars(TB_p bank, TFormula_p form, PTree_p *vars)
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
 /*---------------------------------------------------------------------*/
+
+/*-----------------------------------------------------------------------
+//
+// Function: EncodePredicateAsEqn()
+//
+//   If a term is of the from p(s) where p is an uninterpreted predicate
+//   symbol it will be converted to equation p(s) = T, to maintain
+//   E's interal invariants
+//
+// Global Variables: -
+//
+// Side Effects    : Input, memory operations, changes term bank
+//
+/----------------------------------------------------------------------*/
+
+Term_p EncodePredicateAsEqn(TB_p bank, TFormula_p f)
+{
+   Sig_p sig = bank->sig;
+   if(problemType == PROBLEM_HO &&
+      (f->f_code > sig->internal_symbols ||
+       f->f_code == SIG_TRUE_CODE ||
+       f->f_code == SIG_FALSE_CODE ||
+       TermIsPhonyApp(f)) &&
+      f->type == sig->type_bank->bool_type)
+   {
+      // making sure we encode $false as $true!=$true
+      bool positive = f->f_code != SIG_FALSE_CODE;
+      f = EqnTermsTBTermEncode(bank, (f->f_code == SIG_FALSE_CODE ? bank->true_term : f),
+                               bank->true_term, positive, PENormal);
+   }
+   return f;
+}
 
 
 /*-----------------------------------------------------------------------

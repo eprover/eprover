@@ -105,6 +105,7 @@ void PreloadTypes(TB_p bank, TFormula_p form);
 bool       TFormulaIsUntyped(TFormula_p form);
 
 TFormula_p TFormulaNegate(TFormula_p form, TB_p terms);
+Term_p EncodePredicateAsEqn(TB_p bank, TFormula_p f);
 
 #endif
 

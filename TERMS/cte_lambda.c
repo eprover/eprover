@@ -183,17 +183,20 @@ static Term_p lambda_eq_to_forall(TB_p terms, Term_p t)
          Term_p rhs = NamedLambdaSNF(apply_terms(terms, t->args[1], more_vars));
          if(lhs->type == sig->type_bank->bool_type)
          {
+            
             t = TFormulaFCodeAlloc(terms,
                                    t->f_code == sig->eqn_code 
                                         ? sig->equiv_code : sig->xor_code,
-                                   lhs, rhs);
+                                   EncodePredicateAsEqn(terms, lhs), 
+                                   EncodePredicateAsEqn(terms, rhs));
          }
          else
          {
             t = TFormulaFCodeAlloc(terms, t->f_code, lhs, rhs);
          }
 
-         bool universal = t->f_code == sig->eqn_code;
+         bool universal = t->f_code == sig->eqn_code 
+                           || t->f_code == sig->equiv_code;
          while(!PStackEmpty(more_vars))
          {
             t = TFormulaAddQuantor(terms, t, universal, PStackPopP(more_vars));
@@ -276,11 +279,6 @@ TFormula_p NamedLambdaSNF(TFormula_p t)
    {
       t = t->args[0];  
    }
-   // fprintf(stderr, "snf(");
-   // TermPrintDbgHO(stderr, orig, TermGetBank(t)->sig, DEREF_NEVER);
-   // fprintf(stderr, ") = ");
-   // TermPrintDbgHO(stderr, t, TermGetBank(t)->sig, DEREF_NEVER);
-   // fprintf(stderr, "\n");
    return t;
 }
 
