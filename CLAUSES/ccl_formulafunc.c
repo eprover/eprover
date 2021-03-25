@@ -1310,6 +1310,7 @@ long TFormulaSetLiftLambdas(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
    if(problemType == PROBLEM_HO)
    {
       PStack_p defs = PStackAlloc();
+      PStack_p all_defs = PStackAlloc();
       for(WFormula_p form = set->anchor->succ; form!=set->anchor; form=form->succ)
       {       
          TFormula_p handle = LiftLambdas(terms, form->tformula, defs);
@@ -1318,12 +1319,21 @@ long TFormulaSetLiftLambdas(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
             form->tformula = handle;
             while(!(PStackEmpty(defs)))
             {
-               WFormulaPushDerivation(form, DCApplyDef, PStackPopP(defs), NULL);
+               WFormula_p def = PStackPopP(defs);
+               WFormulaPushDerivation(form, DCApplyDef, def, NULL);
+               PStackPushP(all_defs, def);
                res++;
             }
          }
       }
+
+      while(!(PStackEmpty(all_defs)))
+      {
+         FormulaSetInsert(set, PStackPopP(all_defs));
+      }
+
       PStackFree(defs);
+      PStackFree(all_defs);
       return res;
    }
    else

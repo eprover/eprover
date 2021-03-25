@@ -291,6 +291,7 @@ Term_p lift_lambda(TB_p terms, PStack_p bound_vars, Term_p body,
    }
 
    Term_p def_head =  TermAllocNewSkolem(terms->sig, all_vars, body->type);
+   def_head = TBTermTopInsert(terms, def_head);
    Term_p res = TermTopAlloc(def_head->f_code, PStackGetSP(free_vars));
    for(int i=0; i < PStackGetSP(free_vars); i++)
    {
