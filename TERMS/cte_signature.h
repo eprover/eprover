@@ -264,6 +264,7 @@ int     SigGetAlphaRank(Sig_p sig, FunCode f_code);
 FunCode SigInsertId(Sig_p sig, const char* name, int arity, bool
           special_id);
 FunCode SigInsertFOFOp(Sig_p sig, const char* name, int arity);
+FunCode SigInsertArithOp(Sig_p sig, const char* name, int arity, TypeCheck2Fun checkFun);
 void    SigPrint(FILE* out, Sig_p sig);
 void    SigPrintSpecial(FILE* out, Sig_p sig);
 void    SigPrintACStatus(FILE* out, Sig_p sig);

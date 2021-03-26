@@ -1497,7 +1497,7 @@ Term_p TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop)
                                         handle->arity, false, id_type);
          
          if(!handle->f_code)
-       	{
+       	 {
             errpos = DStrAlloc();
             DStrAppendStr(errpos, PosRep(type_stream, source_name, line, column));
             DStrAppendStr(errpos, DStrView(id));
@@ -1509,43 +1509,40 @@ Term_p TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop)
                           f_info[SigFindFCode(bank->sig, DStrView(id))].arity);
             Error(DStrView(errpos), SYNTAX_ERROR);
             DStrFree(errpos);
-			}
+         }
 
-			// Implementation of Arithmetic symbols
-			handle = tb_termtop_insert(bank, handle);
-		 	
-			if(id_type == FSIdentInterpreted)
-       	/*&&(bank->sig->distinct_props & FPInterpreted))*/
-       	{
-				TypeCheck2Fun checkFun = bank->sig->f_info[handle->f_code].arithTypeCheck;
-				
-				assert(checkFun != NULL);
+         // Implementation of Arithmetic symbols
+         handle = tb_termtop_insert(bank, handle);
+         
+         TypeCheck2Fun checkFun = bank->sig->f_info[handle->f_code].arithTypeCheck;
+         
+         if(checkFun != NULL)
+         {
+            Type_p *args = SizeMalloc(handle->arity * sizeof(Type_p));
+            for(int i = 0; i < handle->arity; i++) {
+               args[i] = handle->args[i]->type;
+            }
 
-		   	Type_p  arg1 = handle->args[0]->type;
-				Type_p  arg2 = NULL;
-			 	if(handle->args[1] != NULL) {
+            handle->type = checkFun(bank->sig->type_bank, args[0], args[1]);
 
-					arg2 = handle->args[1]->type;
-				}
-
-				handle->type = checkFun(bank->sig->type_bank, arg1, arg2);
-
-				printf("Col %d: %s(%d) becomes type %d with the arguments (%d) %d and (%d) %d\n", column, DStrView(id),
-						handle->f_code, handle->type==NULL?0:handle->type->f_code, 
-						handle->args[0]->f_code, arg1->f_code,
-						handle->args[1]?handle->args[1]->f_code:0, arg2==NULL?0:arg2->f_code);
-
-				if(handle->type == NULL) {
-			 		Error("%s %s argument types invalid (arg1: %d, arg2: %d)",
-							INPUT_SEMANTIC_ERROR,
-							PosRep(type_stream, source_name, line, column),
-							DStrView(id),
-							arg1->f_code,
-							arg2?arg2->f_code:0
-						);
-				}
-      	}
-		}
+            if(handle->type == NULL) {
+                Error("%s %s argument types invalid (arg1: %d, arg2: %d)",
+                     INPUT_SEMANTIC_ERROR,
+                     PosRep(type_stream, source_name, line, column),
+                     DStrView(id),
+                     args[0]?args[0]->f_code:0,
+                     args[1]?args[1]->f_code:0
+                  );
+            }
+			
+            /*
+             * printf("Col %d: %s(%d) becomes type %d with the arguments (%d) %d and (%d) %d\n", column, DStrView(id),
+             *      handle->f_code, handle->type==NULL?0:handle->type->f_code, 
+             *      handle->args[0]->f_code, args[0]->f_code,
+             *      handle->args[1]?handle->args[1]->f_code:0, args[1]=NULL?0:args[1]->f_code);
+            */
+         }
+	  }
       DStrFree(id);
    }
    DStrReleaseRef(source_name);

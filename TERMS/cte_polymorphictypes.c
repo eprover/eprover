@@ -135,35 +135,6 @@ Type_p TypeCheckArithIntOp(TypeBank_p types, Type_p arg1, Type_p arg2)
 	return NULL;
 }
 
-/*-----------------------------------------------------------------------
-//
-// Function: TypeCheckArithToInt()
-//   
-//   Checks if the argument of an arithmetic operator
-//   is of type int, rat, real
-//   Useful for following operators:
-//   $floor/1, $ceiling/1, $truncate/1, $round/1, $toint/1
-//
-//   return: integer_type
-//
-// Global Variables: -
-//
-// Side Effects    : memory operations.
-//
-/----------------------------------------------------------------------*/
-
-Type_p TypeCheckArithToInt(TypeBank_p types, Type_p arg1, Type_p arg2)
-{
-	if(((arg1 == types->integer_type) ||
-		(arg1== types->rational_type) ||
-		(arg1== types->real_type)) &&
-		arg2 == NULL)
-	{
-		return types->integer_type;
-	}
-	return NULL;
-}
-
 
 /*-----------------------------------------------------------------------
 //
@@ -172,7 +143,7 @@ Type_p TypeCheckArithToInt(TypeBank_p types, Type_p arg1, Type_p arg2)
 //   Checks if the argument of an arithmetic operator 
 //   is of type int, rat, real
 //   Useful for following operators:
-//   $uminus/1
+//   $uminus/1, $floor/1, $ceiling/1, $truncate/1, $round/1, 
 //   
 //   return: type of arg1
 //
@@ -219,6 +190,35 @@ Type_p TypeCheckArithIsDomain(TypeBank_p types, Type_p arg1, Type_p arg2)
 		arg2 == NULL)
 	{
 		return types->bool_type;
+	}
+	return NULL;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: TypeCheckArithToInt()
+//   
+//   Checks if the argument of an arithmetic operator
+//   is of type int, rat, real
+//   Useful for following operators:
+//   $to_int/1
+//
+//   return: integer_type
+//
+// Global Variables: -
+//
+// Side Effects    : memory operations.
+//
+/----------------------------------------------------------------------*/
+
+Type_p TypeCheckArithToInt(TypeBank_p types, Type_p arg1, Type_p arg2)
+{
+	if(((arg1 == types->integer_type) ||
+		(arg1== types->rational_type) ||
+		(arg1== types->real_type)) &&
+		arg2 == NULL)
+	{
+		return types->integer_type;
 	}
 	return NULL;
 }

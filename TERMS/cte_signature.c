@@ -246,81 +246,31 @@ void SigInsertInternalCodes(Sig_p sig)
    sig->xor_code   = SigInsertFOFOp(sig, "$xor",   2);
 
    /*Functions used by arithmetic */
-   sig->less_code = SigInsertFOFOp(sig, "$less", 2);
-   sig->lesseq_code = SigInsertFOFOp(sig, "$lesseq", 2);
-   sig->greater_code = SigInsertFOFOp(sig, "$greater", 2);
-   sig->greatereq_code = SigInsertFOFOp(sig, "$greatereq", 2);
-   sig->uminus_code = SigInsertFOFOp(sig, "$uminus", 1);
-   sig->sum_code = SigInsertFOFOp(sig, "$sum", 2);
-   sig->difference_code = SigInsertFOFOp(sig, "$difference", 2);
-   sig->product_code = SigInsertFOFOp(sig, "$product", 2);
-   sig->quotient_code = SigInsertFOFOp(sig, "$quotient", 2);
-   sig->quotient_e_code = SigInsertFOFOp(sig, "$quotient_e", 2);
-   sig->quotient_t_code = SigInsertFOFOp(sig, "$quotient_t", 2);
-   sig->quotient_f_code = SigInsertFOFOp(sig, "$quotient_f", 2);
-   sig->remainder_e_code = SigInsertFOFOp(sig, "$remainder_e", 2);
-   sig->remainder_t_code = SigInsertFOFOp(sig, "$remainder_t", 2);
-   sig->remainder_f_code = SigInsertFOFOp(sig, "$remainder_f", 2);
-   sig->floor_code = SigInsertFOFOp(sig, "$floor", 1);
-   sig->ceiling_code = SigInsertFOFOp(sig, "$ceiling", 1);
-   sig->truncate_code = SigInsertFOFOp(sig, "$truncate", 1);
-   sig->round_code = SigInsertFOFOp(sig, "$round", 1);
-   sig->is_int_code = SigInsertFOFOp(sig, "$is_int", 1);
-   sig->is_rat_code = SigInsertFOFOp(sig, "$is_rat", 1);
-   sig->to_int_code = SigInsertFOFOp(sig, "$to_int", 1);
-   sig->to_rat_code = SigInsertFOFOp(sig, "$to_rat", 1);
-   sig->to_real_code = SigInsertFOFOp(sig, "$to_real", 1);
+   sig->less_code = SigInsertArithOp(sig, "$less", 2, TypeCheckArithPred);
+   sig->lesseq_code = SigInsertArithOp(sig, "$lesseq", 2, TypeCheckArithPred);
+   sig->greater_code = SigInsertArithOp(sig, "$greater", 2, TypeCheckArithPred);
+   sig->greatereq_code = SigInsertArithOp(sig, "$greatereq", 2, TypeCheckArithPred);
+   sig->uminus_code = SigInsertArithOp(sig, "$uminus", 1, TypeCheckArithUnaryOp);
+   sig->sum_code = SigInsertArithOp(sig, "$sum", 2, TypeCheckArithOp);
+   sig->difference_code = SigInsertArithOp(sig, "$difference", 2, TypeCheckArithOp);
+   sig->product_code = SigInsertArithOp(sig, "$product", 2, TypeCheckArithOp);
+   sig->quotient_code = SigInsertArithOp(sig, "$quotient", 2, TypeCheckArithNonIntOp);
+   sig->quotient_e_code = SigInsertArithOp(sig, "$quotient_e", 2, TypeCheckArithIntOp);
+   sig->quotient_t_code = SigInsertArithOp(sig, "$quotient_t", 2, TypeCheckArithIntOp);
+   sig->quotient_f_code = SigInsertArithOp(sig, "$quotient_f", 2, TypeCheckArithIntOp);
+   sig->remainder_e_code = SigInsertArithOp(sig, "$remainder_e", 2, TypeCheckArithIntOp);
+   sig->remainder_t_code = SigInsertArithOp(sig, "$remainder_t", 2, TypeCheckArithIntOp);
+   sig->remainder_f_code = SigInsertArithOp(sig, "$remainder_f", 2, TypeCheckArithIntOp);
+   sig->floor_code = SigInsertArithOp(sig, "$floor", 1, TypeCheckArithUnaryOp);
+   sig->ceiling_code = SigInsertArithOp(sig, "$ceiling", 1, TypeCheckArithUnaryOp);
+   sig->truncate_code = SigInsertArithOp(sig, "$truncate", 1, TypeCheckArithUnaryOp);
+   sig->round_code = SigInsertArithOp(sig, "$round", 1, TypeCheckArithUnaryOp);
+   sig->is_int_code = SigInsertArithOp(sig, "$is_int", 1, TypeCheckArithIsDomain);
+   sig->is_rat_code = SigInsertArithOp(sig, "$is_rat", 1, TypeCheckArithIsDomain);
+   sig->to_int_code = SigInsertArithOp(sig, "$to_int", 1, TypeCheckArithToInt);
+   sig->to_rat_code = SigInsertArithOp(sig, "$to_rat", 1, TypeCheckArithToRat);
+   sig->to_real_code = SigInsertArithOp(sig, "$to_real", 1, TypeCheckArithToReal);
    
-   SigSetPolymorphic(sig, sig->less_code, true);
-   SigSetPolymorphic(sig, sig->lesseq_code, true);
-   SigSetPolymorphic(sig, sig->greater_code, true);
-   SigSetPolymorphic(sig, sig->greatereq_code, true);
-   SigSetPolymorphic(sig, sig->uminus_code, true);
-   SigSetPolymorphic(sig, sig->sum_code, true);
-   SigSetPolymorphic(sig, sig->difference_code, true);
-   SigSetPolymorphic(sig, sig->product_code, true);
-   SigSetPolymorphic(sig, sig->quotient_code, true);
-   SigSetPolymorphic(sig, sig->quotient_e_code, true);
-   SigSetPolymorphic(sig, sig->quotient_t_code, true);
-   SigSetPolymorphic(sig, sig->quotient_f_code, true);
-   SigSetPolymorphic(sig, sig->remainder_e_code, true);
-   SigSetPolymorphic(sig, sig->remainder_t_code, true);
-   SigSetPolymorphic(sig, sig->remainder_f_code, true);
-   SigSetPolymorphic(sig, sig->floor_code, true);
-   SigSetPolymorphic(sig, sig->ceiling_code, true);
-   SigSetPolymorphic(sig, sig->truncate_code, true);
-   SigSetPolymorphic(sig, sig->round_code, true);
-   SigSetPolymorphic(sig, sig->is_int_code, true);
-   SigSetPolymorphic(sig, sig->is_rat_code, true);
-   SigSetPolymorphic(sig, sig->to_int_code, true);
-   SigSetPolymorphic(sig, sig->to_rat_code, true);
-   SigSetPolymorphic(sig, sig->to_real_code, true);
-   
-   SigSetArithTypeCheck(sig, sig->less_code, TypeCheckArithPred);
-   SigSetArithTypeCheck(sig, sig->lesseq_code, TypeCheckArithPred);
-   SigSetArithTypeCheck(sig, sig->greater_code, TypeCheckArithPred);
-   SigSetArithTypeCheck(sig, sig->greatereq_code, TypeCheckArithPred);
-   SigSetArithTypeCheck(sig, sig->uminus_code, TypeCheckArithUnaryOp);
-   SigSetArithTypeCheck(sig, sig->sum_code, TypeCheckArithOp);
-   SigSetArithTypeCheck(sig, sig->difference_code, TypeCheckArithOp);
-   SigSetArithTypeCheck(sig, sig->product_code, TypeCheckArithOp);
-   SigSetArithTypeCheck(sig, sig->quotient_code, TypeCheckArithNonIntOp);
-   SigSetArithTypeCheck(sig, sig->quotient_e_code, TypeCheckArithIntOp);
-   SigSetArithTypeCheck(sig, sig->quotient_t_code, TypeCheckArithIntOp);
-   SigSetArithTypeCheck(sig, sig->quotient_f_code, TypeCheckArithIntOp);
-   SigSetArithTypeCheck(sig, sig->remainder_e_code, TypeCheckArithIntOp);
-   SigSetArithTypeCheck(sig, sig->remainder_t_code, TypeCheckArithIntOp);
-   SigSetArithTypeCheck(sig, sig->remainder_f_code, TypeCheckArithIntOp);
-   SigSetArithTypeCheck(sig, sig->floor_code, TypeCheckArithToInt);
-   SigSetArithTypeCheck(sig, sig->ceiling_code, TypeCheckArithToInt);
-   SigSetArithTypeCheck(sig, sig->truncate_code, TypeCheckArithToInt);
-   SigSetArithTypeCheck(sig, sig->round_code, TypeCheckArithToInt);
-   SigSetArithTypeCheck(sig, sig->is_int_code, TypeCheckArithIsDomain);
-   SigSetArithTypeCheck(sig, sig->is_rat_code, TypeCheckArithIsDomain);
-   SigSetArithTypeCheck(sig, sig->to_int_code, TypeCheckArithToInt);
-   SigSetArithTypeCheck(sig, sig->to_rat_code, TypeCheckArithToRat);
-   SigSetArithTypeCheck(sig, sig->to_real_code, TypeCheckArithToReal);
-
 
    sig->answer_code =  SigInsertId(sig, "$answer", 1, true);
    SigSetFuncProp(sig, sig->answer_code, FPInterpreted|FPPseudoPred);
@@ -538,9 +488,9 @@ void SigSetArithTypeCheck(Sig_p sig, FunCode f_code, TypeCheck2Fun checkFun)
 {
    assert(f_code > 0);
    assert(f_code <= sig->f_count);
-	assert(checkFun != NULL);
+   assert(checkFun != NULL);
 
-	sig->f_info[f_code].arithTypeCheck = checkFun;
+   sig->f_info[f_code].arithTypeCheck = checkFun;
 }
 
 
@@ -766,6 +716,27 @@ FunCode SigInsertFOFOp(Sig_p sig, const char* name, int arity)
    FunCode res = SigInsertId(sig, name, arity, true);
 
    SigSetFuncProp(sig, res, FPFOFOp);
+   return res;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: SigInsertArithOp()
+//
+//   Insert a arithmetic function symbol.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+FunCode SigInsertArithOp(Sig_p sig, const char* name, int arity, TypeCheck2Fun checkFun)
+{
+   FunCode res = SigInsertId(sig, name, arity, true);
+   SigSetPolymorphic(sig, res, true);
+   SigSetArithTypeCheck(sig, res, checkFun);
+
    return res;
 }
 
