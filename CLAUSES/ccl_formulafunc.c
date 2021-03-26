@@ -835,6 +835,10 @@ long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive,
 
    TFormulaSetLiftLambdas(set, archive, terms);
 
+   
+
+
+
    while(!FormulaSetEmpty(set))
    {
       handle = FormulaSetExtractFirst(set);

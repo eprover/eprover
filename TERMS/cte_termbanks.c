@@ -1379,6 +1379,7 @@ Term_p TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop)
             DStrAppendInt(errpos,
                           (long)(bank->sig)->
                           f_info[SigFindFCode(bank->sig, DStrView(id))].arity);
+            assert(false);
             Error(DStrView(errpos), SYNTAX_ERROR);
             DStrFree(errpos);
          }

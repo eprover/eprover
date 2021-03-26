@@ -377,7 +377,7 @@ void TermPrintHO(FILE* out, Term_p term, Sig_p sig, DerefType deref)
       term->f_code != SIG_TRUE_CODE &&
       term->f_code != SIG_FALSE_CODE)
    {
-      TermFOOLPrint(out, sig, term);
+      TermPrintDbgHO(out, term, sig, DEREF_NEVER);
       return;
    }
 
@@ -404,7 +404,7 @@ void TermPrintHO(FILE* out, Term_p term, Sig_p sig, DerefType deref)
          fputs("(", out);
          if(TypeIsBool(term->args[i]->type))
          {
-            TermFOOLPrint(out, sig, term->args[i]);
+            TermPrintDbgHO(out, term->args[i], sig, DEREF_NEVER);
          }
          else
          {

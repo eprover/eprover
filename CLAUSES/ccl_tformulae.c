@@ -593,6 +593,8 @@ static TFormula_p applied_tform_tstp_parse(Scanner_p in, TB_p terms, TFormula_p 
    const int max_args = TypeGetMaxArity(hd_type);
    int i = 0;
    const TermRef args = TermArgTmpArrayAlloc(max_args);
+   bool head_is_logical = SigQueryFuncProp(terms->sig, head->f_code, FPFOFOp);
+   Term_p arg;
 
    while(TestInpTok(in, Application))
    {
@@ -602,7 +604,8 @@ static TFormula_p applied_tform_tstp_parse(Scanner_p in, TB_p terms, TFormula_p 
                        SYNTAX_ERROR);
       }
       AcceptInpTok(in, Application);
-      args[i++] = literal_tform_tstp_parse(in, terms);
+      arg = literal_tform_tstp_parse(in, terms);
+      args[i++] = head_is_logical ? EncodePredicateAsEqn(terms, arg) : arg;
    }
    
    TFormula_p res = 
@@ -644,16 +647,32 @@ static TFormula_p literal_tform_tstp_parse(Scanner_p in, TB_p terms)
    else if(TestInpTok(in, OpenBracket))
    {
       AcceptInpTok(in, OpenBracket);
-      res = TFormulaTSTPParse(in, terms);
+
+      FunCode log_op = -1;
+      // cases where in HO syntax we can have logical symbol at the top
+      if(TestInpTok(in, FOFBinOp) && TestTok(LookToken(in, 1), CloseBracket))
+      {
+         log_op = tptp_operator_parse(terms->sig, in);
+      }
+      else if (TestInpTok(in, TildeSign) && TestTok(LookToken(in, 1), CloseBracket))
+      {
+         AcceptInpTok(in, TildeSign);
+         log_op = terms->sig->not_code;
+      }
+
+      if(log_op != -1)
+      {
+         res = TBTermTopInsert(terms, TermTopAlloc(log_op, 0));
+      }
+      else
+      {
+         res = TFormulaTSTPParse(in, terms);
+      }
       AcceptInpTok(in, CloseBracket);
    }
    else if(TestInpTok(in, TildeSign))
    {
       AcceptInpTok(in, TildeSign);
-      if (TestInpTok(in, CloseBracket))
-      {
-         Error("DEALING WITH NOT AT THE HEAD NOT YET IMPLEMENTED!", SYNTAX_ERROR);
-      }
       if (TestInpTok(in, Application))
       {
          AcceptInpTok(in, Application);
@@ -757,6 +776,13 @@ static void tformula_collect_freevars(TB_p bank, TFormula_p form, PTree_p *vars)
       tformula_collect_freevars(bank, form->args[1], vars);
       TermCellSetProp(form->args[0], old_prop);
    }
+   else if(TermIsVar(form))
+   {
+      if(TermCellQueryProp(form, TPIsFreeVar))
+      {
+         PTreeStore(vars, form);
+      }
+   }
    else
    {
       for(int i=0; i<form->arity; i++)
@@ -800,6 +826,7 @@ Term_p EncodePredicateAsEqn(TB_p bank, TFormula_p f)
       (f->f_code > sig->internal_symbols ||
        f->f_code == SIG_TRUE_CODE ||
        f->f_code == SIG_FALSE_CODE ||
+       TermIsVar(f) ||
        TermIsPhonyApp(f)) &&
       f->type == sig->type_bank->bool_type)
    {
