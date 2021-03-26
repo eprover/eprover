@@ -2466,9 +2466,57 @@ double EqnWeight(Eqn_p eq, double max_multiplier, long vweight, long
          max_multiplier;
    }
    res = TERM_APPLY_APP_VAR_MULT(res, eq->rterm, app_var_mult);
-   res += TERM_APPLY_APP_VAR_MULT((double)TermWeight(eq->lterm, vweight, fweight) * max_multiplier,
-                                     eq->lterm, app_var_mult);
+   res += TERM_APPLY_APP_VAR_MULT((double)TermWeight(eq->lterm, vweight, fweight)
+                                  * max_multiplier,
+                                  eq->lterm, app_var_mult);
 
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: EqnDAGWeight()
+//
+//   Compute the DAG weight of an equation. Weights of potentially
+//   maximal sides are cpmputed first, and are multiplied by
+//   max_multiplier. If new_eqn is set, the equation is treated as a
+//   stand-alone structure. If new_terms is set, the two terms are
+//   treated as stand-alone structures.
+//
+// Global Variables: -
+//
+// Side Effects    : Sets TPOpFlag
+//
+/----------------------------------------------------------------------*/
+
+double  EqnDAGWeight(Eqn_p eq, double max_multiplier, long vweight, long
+                     fweight, long dup_weight, bool new_eqn, bool new_terms)
+{
+   double res;
+   long lweight, rweight;
+
+   if(new_eqn)
+   {
+      EqnTermSetProp(eq, TPOpFlag);
+   }
+   else if(new_terms)
+   {
+      TermDelPropOpt(eq->lterm, TPOpFlag);
+   }
+   lweight = TermDAGWeight(eq->lterm, vweight, fweight, dup_weight, false);
+   rweight = TermDAGWeight(eq->rterm, vweight, fweight, dup_weight, new_terms);
+
+
+   if(EqnIsOriented(eq))
+   {
+      res = (double)rweight*max_multiplier;
+   }
+   else
+   {
+      res = (double)rweight;
+   }
+   res += (double)lweight*max_multiplier;
    return res;
 }
 
