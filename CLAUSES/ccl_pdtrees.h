@@ -166,7 +166,7 @@ extern bool PDTreeUseSizeConstraints;
 #define   PDTNodeCellAlloc()    (PDTNodeCell*)SizeMalloc(sizeof(PDTNodeCell))
 #define   PDTNodeCellFree(junk) SizeFree(junk, sizeof(PDTNodeCell))
 PDTNode_p PDTNodeAlloc(void);
-void      PDTNodeFree(PDTNode_p tree);
+void      PDTNodeFree(PDTNode_p tree, Deleter deleter);
 
 void      TermLRTraverseInit(PStack_p stack, Term_p term);
 Term_p    TermLRTraverseNext(PStack_p stack);

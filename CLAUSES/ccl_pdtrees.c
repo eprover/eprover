@@ -489,6 +489,7 @@ static bool pdtree_verify_node_constr(PDTree_p tree)
       query terms normal form date ? */
 
    if(PDTreeUseAgeConstraints &&
+      tree->term_date != PDTREE_IGNORE_NF_DATE &&
       !SysDateIsEarlier(tree->term_date,PDTNodeGetAgeConstraint(tree->tree_pos)))
    {
       return false;
@@ -807,7 +808,7 @@ PDTree_p PDTreeAllocWDeleter(TB_p bank, Deleter deleter)
 void PDTreeFree(PDTree_p tree)
 {
    assert(tree);
-   PDTNodeFree(tree->tree);
+   PDTNodeFree(tree->tree, tree->deleter);
    PStackFree(tree->term_stack);
    PStackFree(tree->term_proc);
    assert(!tree->store_stack);
@@ -863,7 +864,7 @@ PDTNode_p PDTNodeAlloc(void)
 //
 /----------------------------------------------------------------------*/
 
-void PDTNodeFree(PDTNode_p tree)
+void PDTNodeFree(PDTNode_p tree, Deleter deleter)
 {
    FunCode      i;
    IntMapIter_p iter;
@@ -874,7 +875,7 @@ void PDTNodeFree(PDTNode_p tree)
    while((subtree = IntMapIterNext(iter, &i)))
    {
       assert(subtree);
-      PDTNodeFree(subtree);
+      PDTNodeFree(subtree, deleter);
    }
    IntMapIterFree(iter);
    for(i=1; i<=tree->max_var; i++)
@@ -882,13 +883,13 @@ void PDTNodeFree(PDTNode_p tree)
       subtree = PDArrayElementP(tree->v_alternatives, i);
       if(subtree)
       {
-         PDTNodeFree(subtree);
+         PDTNodeFree(subtree, deleter);
       }
    }
    while(tree->entries)
    {
       tmp = PTreeExtractRootKey(&tree->entries);
-      ClausePosCellFree(tmp);
+      ClausePosCellFreeWDeleter(tmp, deleter);
    }
    pdtree_default_cell_free(tree);
 
@@ -1105,7 +1106,7 @@ void PDTreeInsertTerm(PDTree_p tree, Term_p term, ClausePos_p demod_side,
       //assert(!node->variable || (TermIsVar(curr) && node->variable->type == curr->type));
       tmp = TermStandardWeight(term);
       node->size_constr = MIN(tmp, node->size_constr);
-      if(demod_side&&(!SysDateIsInvalid(node->age_constr)))
+      if(demod_side&&demod_side->clause&&(!SysDateIsInvalid(node->age_constr)))
       {
          node->age_constr  = SysDateMaximum(demod_side->clause->date,
                                             node->age_constr);

@@ -585,19 +585,6 @@ Eqn_p EqnAlloc(Term_p lterm, Term_p rterm, TB_p bank,  bool positive)
    Eqn_p handle = EqnCellAlloc();
 
    /* printf("Handle = %p\n", handle); */
-   if(lterm->f_code == bank->sig->eqn_code || 
-      rterm->f_code == bank->sig->eqn_code)
-   {
-      fprintf(stderr, "error ");
-      TermPrintDbgHO(stderr, lterm, bank->sig, DEREF_NEVER);
-      fprintf(stderr, " %s= ", positive ? "" : "~");
-      TermPrintDbgHO(stderr, rterm, bank->sig, DEREF_NEVER);
-      fprintf(stderr, ".\n");
-      fflush(stderr);
-
-      assert(false);  
-   }
-
    handle->properties = EPNoProps;
    if(positive)
    {

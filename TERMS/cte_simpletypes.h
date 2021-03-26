@@ -81,7 +81,7 @@ Type_p  TypeCopy(Type_p orig);
 #define AllocArrowType(arity, args) TypeAlloc(ArrowTypeCons, (arity), (args))
 
 #define TypeArgArrayAlloc(n) ((Type_p*) ((n) == 0 ? NULL : SizeMalloc((n)*sizeof(Type_p))))
-#define TypeArgArrayFree(junk, n) (((n)==0) ? NULL : ( SizeFreeReal((junk), (n)*sizeof(Type_p)) ))
+#define TypeArgArrayFree(junk, n) (((n)==0) ? NULL : ( SizeFreeReal((junk),((n)*sizeof(Type_p))) ))
 
 #define  TypeIsArrow(t)       ((t)->f_code == ArrowTypeCons)
 #define  TypeIsKind(t)        ((t)->f_code == STKind)

@@ -308,12 +308,9 @@ WFormula_p find_generalization(PDTree_p liftings, Term_p query, TermRef name)
          *name = TBInsertInstantiated(liftings->bank, mi->pos->literal->rterm);
          res = mi->pos->data;
       }
-   }
-   PDTreeSearchExit(liftings);
-   if(mi)
-   {
       MatchResFree(mi);
    }
+   PDTreeSearchExit(liftings);
    SubstDelete(subst);
    return res;
 }
@@ -335,11 +332,11 @@ void store_lifting(PDTree_p liftings, Term_p def_head, Term_p body, WFormula_p d
 {
    Eqn_p eqn = EqnAlloc(body, def_head, liftings->bank, true);
    ClausePos_p pos = ClausePosCellAlloc();
-   pos->clause = NULL;
    pos->literal = eqn;
    pos->data = def;
    pos->side = LeftSide;
    pos->pos = NULL;
+   pos->clause = NULL;
    PDTreeInsert(liftings, pos);
 }
 
@@ -416,7 +413,7 @@ Term_p lift_lambda(TB_p terms, PStack_p bound_vars, Term_p body,
       WFormula_p def = WTFormulaAlloc(terms, def_f);
       DocFormulaCreationDefault(def, inf_fof_intro_def, NULL, NULL);
       WFormulaPushDerivation(def, DCIntroDef, NULL, NULL);
-      store_lifting(liftings, def_head, body, def);
+      store_lifting(liftings, res, abstract_vars(terms, body, bound_vars), def);
 
       PStackPushP(definitions, def);
 
