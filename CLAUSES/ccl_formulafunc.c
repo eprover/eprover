@@ -1310,14 +1310,25 @@ long TFormulaSetLambdaNormalize(FormulaSet_p set, FormulaSet_p archive, TB_p ter
 
 long TFormulaSetLiftLambdas(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
 {
+   void deleter(void* to_delete)
+   {
+      EqnFree(((ClausePos_p)to_delete)->literal);
+   }
+
+   void insert_to_set(void* def)
+   {
+      FormulaSetInsert(set, def);  
+   }
+
    long res = 0;
    if(problemType == PROBLEM_HO)
    {
       PStack_p defs = PStackAlloc();
-      PStack_p all_defs = PStackAlloc();
+      PTree_p all_defs = NULL;
+      PDTree_p liftings = PDTreeAllocWDeleter(terms, deleter);
       for(WFormula_p form = set->anchor->succ; form!=set->anchor; form=form->succ)
       {       
-         TFormula_p handle = LiftLambdas(terms, form->tformula, defs);
+         TFormula_p handle = LiftLambdas(terms, form->tformula, defs, liftings);
          if(handle!=form->tformula)
          {
             form->tformula = handle;
@@ -1325,19 +1336,17 @@ long TFormulaSetLiftLambdas(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
             {
                WFormula_p def = PStackPopP(defs);
                WFormulaPushDerivation(form, DCApplyDef, def, NULL);
-               PStackPushP(all_defs, def);
+               PTreeStore(&all_defs, def);
                res++;
             }
          }
       }
 
-      while(!(PStackEmpty(all_defs)))
-      {
-         FormulaSetInsert(set, PStackPopP(all_defs));
-      }
+      PTreeVisitInOrder(all_defs, insert_to_set);
 
       PStackFree(defs);
-      PStackFree(all_defs);
+      PTreeFree(all_defs);
+      PDTreeFree(liftings);
       return res;
    }
    else

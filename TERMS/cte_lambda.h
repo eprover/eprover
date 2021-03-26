@@ -23,6 +23,7 @@
 #define CTE_LAMBDA
 
 #include <ccl_tformulae.h>
+#include <ccl_pdtrees.h>
 
 
 
@@ -32,7 +33,8 @@
 
 TFormula_p NamedLambdaSNF(TFormula_p t);
 TFormula_p LambdaToForall(TB_p terms, TFormula_p t);
-TFormula_p LiftLambdas(TB_p terms, TFormula_p t, PStack_p definitions);
+TFormula_p LiftLambdas(TB_p terms, TFormula_p t, PStack_p definitions, 
+                       PDTree_p liftings);
 
 
 #endif
