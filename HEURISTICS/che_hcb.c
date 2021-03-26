@@ -343,13 +343,14 @@ void HeuristicParmsPrint(FILE* out, HeuristicParms_p handle)
            BOOL2STR(handle->detsort_bw_rw));
    fprintf(out, "   detsort_tmpset:                %s\n",
            BOOL2STR(handle->detsort_tmpset));
+   fprintf(out, "   inverse_recognition:           %s\n",
+           BOOL2STR(handle->inverse_recognition));
+   fprintf(out, "   replace_inj_defs:              %s\n",
+           BOOL2STR(handle->replace_inj_defs));
 
 
    fprintf(out, "}\n");
 }
-
-
-
 
 
 
@@ -490,6 +491,8 @@ bool HeuristicParmsParseInto(Scanner_p in,
    PARSE_BOOL(presat_interreduction);
    PARSE_BOOL(detsort_bw_rw);
    PARSE_BOOL(detsort_tmpset);
+   PARSE_BOOL(inverse_recognition);
+   PARSE_BOOL(replace_inj_defs);
 
    AcceptInpTok(in, CloseCurly);
    return res;
