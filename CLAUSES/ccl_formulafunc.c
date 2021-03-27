@@ -290,7 +290,8 @@ TFormula_p do_fool_unroll(TFormula_p form, TB_p terms)
    }
    else
    {
-      if(TFormulaIsQuantified(terms->sig, form))
+      if(TFormulaIsQuantified(terms->sig, form) 
+         && form->f_code != SIG_NAMED_LAMBDA_CODE)
       {
          unrolled1 = do_fool_unroll(form->args[1], terms);
          if(form->args[1] != unrolled1)
@@ -299,7 +300,7 @@ TFormula_p do_fool_unroll(TFormula_p form, TB_p terms)
                                         form->args[0], unrolled1);
          }
       }
-      else
+      else if(form->f_code != SIG_NAMED_LAMBDA_CODE)
       {
          if(TFormulaHasSubForm1(terms->sig, form))
          {
@@ -339,6 +340,11 @@ TFormula_p do_bool_eqn_replace(TFormula_p form, TB_p terms)
 {
    const Sig_p sig = terms->sig;
    bool  changed   = false;
+   if(form->f_code == SIG_NAMED_LAMBDA_CODE)
+   {
+      return form;
+   }
+
    if(form->f_code == sig->eqn_code || form->f_code == sig->neqn_code)
    {
       assert(form->arity == 2);
@@ -826,6 +832,7 @@ long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive,
    long gc_threshold = old_nodes*TFORMULA_GC_LIMIT;
 
    TFormulaSetLambdaNormalize(set, archive, terms);
+   TFormulaSetLiftLambdas(set, archive, terms);
    TFormulaSetUnrollFOOL(set, archive, terms);
    FormulaSetSimplify(set, terms);
 
@@ -833,7 +840,7 @@ long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive,
    TFormulaSetIntroduceDefs(set, archive, terms);
    //printf("# Definitions introduced\n");
 
-   TFormulaSetLiftLambdas(set, archive, terms);
+   
 
    
 

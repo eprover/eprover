@@ -301,7 +301,7 @@ WFormula_p find_generalization(PDTree_p liftings, Term_p query, TermRef name)
    WFormula_p res = NULL;
 
    PDTreeSearchInit(liftings, query, PDTREE_IGNORE_NF_DATE, false);
-   while((mi = PDTreeFindNextDemodulator(liftings, subst)) && !res)
+   while(!res && (mi = PDTreeFindNextDemodulator(liftings, subst)))
    {
       if(mi->remaining_args == 0)
       {

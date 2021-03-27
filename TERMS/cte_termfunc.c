@@ -1693,8 +1693,9 @@ bool TermFindFOOLSubterm(Term_p t, TermPos_p pos)
 {
    int i;
    PStackPushP(pos, t);
+   bool found = false;
 
-   for(i=0; i<t->arity; i++)
+   for(i=0; !TermIsLambda(t) && i<t->arity; i++)
    {
       PStackPushInt(pos, i);
 
@@ -1703,18 +1704,20 @@ bool TermFindFOOLSubterm(Term_p t, TermPos_p pos)
          if(!(TermIsVar(t->args[i]) || t->args[i]->f_code == SIG_TRUE_CODE
               || t->args[i]->f_code == SIG_FALSE_CODE))
          {
+            found = true;
             break;
          }
       }
       else if(TermFindFOOLSubterm(t->args[i], pos))
       {
+         found = true;
          break;
       }
 
       PStackDiscardTop(pos);
    }
 
-   if(i==t->arity)
+   if(!found)
    {
       // did not find formula subterm
       PStackDiscardTop(pos);
