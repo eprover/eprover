@@ -28,7 +28,7 @@ Changes
 
 #include <ccl_garbage_coll.h>
 #include <ccl_tcnf.h>
-
+#include <ccl_arithnorm.h>
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */

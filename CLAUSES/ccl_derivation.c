@@ -69,7 +69,9 @@ char *opids[] =
    PCL_ID_DEF,
    PCL_SC,
    PCL_FU,
-   PCL_EBV
+   PCL_EBV,
+   /* Arithmetic Normalisation */
+   PCL_AN
 };
 
 char *optheory [] =
@@ -110,7 +112,9 @@ char *optheory [] =
    NULL,
    NULL,
    NULL,
-   NULL
+   NULL,
+   /* Arithmetic Normalisation */
+   "arithmetic"
 };
 
 
@@ -152,6 +156,8 @@ char *opstatus [] =
    NULL,
    "thm",
    "thm",
+   "thm",
+   /* Arithmetic Normalisation */
    "thm"
 };
 

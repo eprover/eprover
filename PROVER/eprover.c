@@ -32,7 +32,6 @@
 #include <cco_scheduling.h>
 #include <e_version.h>
 
-
 /*---------------------------------------------------------------------*/
 /*                  Data types                                         */
 /*---------------------------------------------------------------------*/
@@ -443,6 +442,10 @@ int main(int argc, char* argv[])
    {
       VERBOUT("Negated conjectures.\n");
    }
+	
+   /* Arithmetic Normalisation */
+   FormulaSetArithNorm(proofstate->f_axioms,
+                       proofstate->terms);
 
    if(new_cnf)
    {

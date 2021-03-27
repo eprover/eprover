@@ -81,6 +81,8 @@ typedef enum
    DOSplitConjunct,
    DOFOOLUnroll,
    DOEliminateBVar,
+   /* Arithmetic Normalisation */
+   DOArithNormalize
 }OpCode;
 
 
@@ -134,7 +136,9 @@ typedef enum
    DCIntroDef         = DOIntroDef,
    DCSplitConjunct    = DOSplitConjunct|Arg1Fof,
    DCFoolUnroll       = DOFOOLUnroll,
-   DCEliminateBVar    = DOEliminateBVar
+   DCEliminateBVar    = DOEliminateBVar,
+   /* Arithmetic Normalisation */
+   DCArithNormalize   = DOArithNormalize|Arg1Num|Arg2Num,
 }DerivationCode;
 
 
