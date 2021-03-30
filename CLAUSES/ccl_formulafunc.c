@@ -1283,8 +1283,8 @@ long TFormulaSetLambdaNormalize(FormulaSet_p set, FormulaSet_p archive, TB_p ter
    if(problemType == PROBLEM_HO)
    {
       for(WFormula_p form = set->anchor->succ; form!=set->anchor; form=form->succ)
-      {       
-         TFormula_p handle = LambdaToForall(terms, NamedLambdaSNF(form->tformula));
+      {
+         TFormula_p handle = LambdaToForall(terms, NamedLambdaSNF(form->tformula));    
       
          if(handle!=form->tformula)
          {

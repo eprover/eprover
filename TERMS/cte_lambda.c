@@ -283,6 +283,74 @@ static Term_p do_named_snf(Term_p t)
 
 /*-----------------------------------------------------------------------
 //
+// Function: test_leaks()
+//
+//   Check if substitution applied to the equation leaked some of the bound
+//   variables and if the bound variables are only renamed by substitution.
+//   Assumes the argument is the definition of the form 
+//   \xyz. body = def X' Y' Z' where x,y,z are bound and X' Y' Z' are free
+//   for body.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+bool test_leaks(Term_p target, Eqn_p def)
+{
+   Term_p head   = def->rterm;
+   Term_p lambda = def->lterm;
+   bool   ans    = true;
+
+   PStack_p bound = PStackAlloc();
+   UNUSED(unfold_lambda(lambda, bound));
+
+   //assert bound variables are only renamed in the matcher
+   for(PStackPointer i=0; ans && i<PStackGetSP(bound); i++)
+   {
+      Term_p binding = ((Term_p)PStackElementP(bound, i))->binding;
+      if(binding && (!TermIsVar(binding) || TermCellQueryProp(binding, TPIsSpecialVar)))
+      {
+         ans = false;
+      }
+      else if(binding)
+      {
+         TermCellSetProp(binding, TPIsSpecialVar);
+      }
+   }
+
+   // if everything is OK, delete properties and empty the stack
+   while(!PStackEmpty(bound))
+   {
+      Term_p binding = ((Term_p) PStackPopP(bound))->binding;
+      if(binding)
+      {
+         TermCellDelProp(binding, TPIsSpecialVar);
+      }
+   }
+
+   // check if the bound variables of the target appear in
+   // substition(free variables) -- i.e., if they leaked
+   UNUSED(unfold_lambda(target, bound));
+   
+   for(int i=0; ans && i<head->arity; i++)
+   {
+      Term_p binding = head->args[i]->binding;
+      for(PStackPointer j=0; binding && ans && j < PStackGetSP(bound); j++)
+      {
+         ans = ans && 
+               !TermIsSubterm(binding, PStackElementP(bound, j), DEREF_NEVER);
+      }
+   }
+
+   PStackFree(bound);
+   return ans;
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: find_generalization()
 //
 //   Check if there is already a name for lambda term query. If so,
@@ -303,7 +371,7 @@ WFormula_p find_generalization(PDTree_p liftings, Term_p query, TermRef name)
    PDTreeSearchInit(liftings, query, PDTREE_IGNORE_NF_DATE, false);
    while(!res && (mi = PDTreeFindNextDemodulator(liftings, subst)))
    {
-      if(mi->remaining_args == 0)
+      if(mi->remaining_args == 0 && test_leaks(query, mi->pos->literal))
       {
          *name = TBInsertInstantiated(liftings->bank, mi->pos->literal->rterm);
          res = mi->pos->data;

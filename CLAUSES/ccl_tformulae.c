@@ -593,7 +593,7 @@ static TFormula_p applied_tform_tstp_parse(Scanner_p in, TB_p terms, TFormula_p 
    const int max_args = TypeGetMaxArity(hd_type);
    int i = 0;
    const TermRef args = TermArgTmpArrayAlloc(max_args);
-   bool head_is_logical = SigQueryFuncProp(terms->sig, head->f_code, FPFOFOp);
+   bool head_is_logical = !TermIsVar(head) && SigQueryFuncProp(terms->sig, head->f_code, FPFOFOp);
    Term_p arg;
 
    while(TestInpTok(in, Application))
@@ -635,7 +635,7 @@ static TFormula_p applied_tform_tstp_parse(Scanner_p in, TB_p terms, TFormula_p 
 
 static TFormula_p literal_tform_tstp_parse(Scanner_p in, TB_p terms)
 {
-   TFormula_p res, tmp;
+   TFormula_p res=NULL, tmp=NULL;
 
    if(TestInpTok(in, UnivQuantor|ExistQuantor|LambdaQuantor))
    {

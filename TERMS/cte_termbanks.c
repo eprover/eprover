@@ -1880,9 +1880,9 @@ Term_p TermMap(TB_p bank, Term_p t, TermMapper f)
    {
       bool changed = false;
       s = TermTopCopyWithoutArgs(t);
-      for(int i=0; i > t->arity; i++)
+      for(int i=0; i < t->arity; i++)
       {
-         s->args[i] = f(bank, t->args[i]);
+         s->args[i] = TermMap(bank, t->args[i], f);
          assert(TermIsShared(s->args[i]) && s->args[i]->type == t->args[i]->type);
          changed = changed || (s->args[i] != t->args[i]);
       }
