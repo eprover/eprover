@@ -149,7 +149,6 @@ TFormula_p TFormulaArithNormalize(TB_p terms, TFormula_p form)
    else {
       newform = TFormulaArithFCodeAlloc(terms, form->f_code, form->type, arg1, arg2);
    }
-   TermCellSetProp(newform, TPCheckFlag);
 
    return newform;
 }
