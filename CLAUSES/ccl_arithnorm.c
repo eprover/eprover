@@ -1,25 +1,39 @@
 #include "ccl_arithnorm.h"
 
-void FormulaSetArithNorm(FormulaSet_p set, TB_p terms) {
+void FormulaSetArithNorm(FormulaSet_p set, TB_p terms, GCAdmin_p gc) {
    WFormula_p handle, anchor, form;
    TFormula_p normalized;
-
    anchor = set->anchor;
    handle = anchor;
    while((handle = handle->succ) != anchor)
    {
-
-      form = WFormulaFlatCopy(handle);
-      form->tformula = TFormulaArithNormalize(terms, form->tformula);
+      handle->tformula = TFormulaArithNormalize(terms, handle->tformula);
       // Derivations maybe push to much, since the formula might not get rewritten 
-      WFormulaPushDerivation(form, DCArithNormalize, handle, NULL);
+      DocFormulaModificationDefault(handle, inf_minimize);
+      WFormulaPushDerivation(handle, DCArithNormalize, NULL, NULL);
+   }
+   for(handle = anchor->succ; handle != anchor; handle = handle->succ) {
+      printf("------\n");
+      PrintTermsDebug(handle->tformula, terms, 0);
    }
 }
 
+void PrintTermsDebug(TFormula_p form, TB_p terms, int depth)
+{
+   for(int i = 0; i < depth; i++) printf("\t");
+   printf("fcode:%d\n", form->f_code);
+   for( int i = 0; i < form->arity; i++) PrintTermsDebug(form->args[i], terms, depth +1);
+
+}
 
 TFormula_p TFormulaArithNormalize(TB_p terms, TFormula_p form)
 {
    TFormula_p newform=NULL, arg1=NULL, arg2=NULL;
+   
+   if(form->arity == 0) {
+      
+      return form;
+   }
    if(form->arity >= 1)
    {
       form->args[0] = TFormulaArithNormalize(terms, form->args[0]);
@@ -31,6 +45,7 @@ TFormula_p TFormulaArithNormalize(TB_p terms, TFormula_p form)
    }
    arg1 = form->args[0];
    arg2 = form->args[1];
+   
 
    if(form->f_code == terms->sig->greater_code) { 
       // $less(Y,X)
@@ -40,7 +55,7 @@ TFormula_p TFormulaArithNormalize(TB_p terms, TFormula_p form)
    else if(form->f_code == terms->sig->lesseq_code) { 
       // ~ $less(Y,X)
       TFormula_p tmp = TFormulaArithFCodeAlloc(terms, terms->sig->less_code,
-                                               form->type, arg2, arg1);
+                                               form->type, arg2, arg1); 
       newform = TFormulaArithFCodeAlloc(terms, terms->sig->not_code,
                                         form->type, tmp, NULL);
    }
@@ -131,11 +146,12 @@ TFormula_p TFormulaArithNormalize(TB_p terms, TFormula_p form)
       newform = TFormulaArithFCodeAlloc(terms, terms->sig->eqn_code,
                                         form->type, arg1, tmp);
    }
-  
-   if(newform != NULL) {
-      return newform;
+   else {
+      newform = TFormulaArithFCodeAlloc(terms, form->f_code, form->type, arg1, arg2);
    }
-   return form;
+   TermCellSetProp(newform, TPCheckFlag);
+
+   return newform;
 }
 
 TFormula_p TFormulaArithFCodeAlloc(TB_p bank, FunCode op, Type_p FunType, TFormula_p arg1, TFormula_p arg2)

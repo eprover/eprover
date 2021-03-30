@@ -1155,7 +1155,6 @@ long TFormulaApplyDefs(WFormula_p form, TB_p terms, NumXTree_p *defs)
    long       res = 0;
    PStack_p   defs_used = PStackAlloc();
    PStackPointer i;
-
    reduced = TFormulaCopyDef(terms, form->tformula, form->ident,
                              defs, defs_used);
    if(!PStackEmpty(defs_used))
@@ -1291,7 +1290,7 @@ long TFormulaSetIntroduceDefs(FormulaSet_p set, FormulaSet_p archive, TB_p terms
 
    //printf("About to find defs\n");
    TFormulaSetFindDefs(set, terms, &defs, renamed_forms);
-
+   
    res = PStackGetSP(renamed_forms);
    //printf("About to Create defs\n");
 
