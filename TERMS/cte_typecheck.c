@@ -251,7 +251,7 @@ void TypeInferSort(Sig_p sig, Term_p term, Scanner_p in)
          Type_p arg_type = term->args[0]->type;
          Type_p eq_type_args[3] = {arg_type, arg_type, sig->type_bank->bool_type};
          type = TypeBankInsertTypeShared(sig->type_bank, 
-                                         AllocArrowTypeCopyArgs(2, eq_type_args));
+                                         AllocArrowTypeCopyArgs(3, eq_type_args));
       }
       else
       {
@@ -318,6 +318,7 @@ void TypeInferSort(Sig_p sig, Term_p term, Scanner_p in)
             {
                fprintf(stderr, "# too many arguments supplied for %s\n",
                        SigFindName(sig, term->f_code));
+               assert(false);
                in?AktTokenError(in, "Type error", false):Error("Type error", SYNTAX_ERROR);
             }
          }

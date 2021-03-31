@@ -46,6 +46,30 @@ typedef TFormula_p (*FormulaMapper)(TFormula_p, TB_p);
 
 /*-----------------------------------------------------------------------
 //
+// Function: unencode_eqns()
+//
+//   Undo encoding of the form **formula** = $true to **formula**
+//
+// Global Variables: -
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+
+TFormula_p unencode_eqns(TB_p terms, TFormula_p t)
+{
+   Term_p res = t;
+   if(t->f_code == terms->sig->eqn_code && t->arity == 2
+      && t->args[1] == terms->true_term
+      && SigQueryFuncProp(terms->sig, t->args[0]->f_code, FPFOFOp))
+   {
+      res = t->args[0];
+   }
+   return res;
+}
+
+/*-----------------------------------------------------------------------
+//
 // Function: do_rw_with_defs()
 //
 //   Actually performs rewriting on a term using definition map.
@@ -88,13 +112,14 @@ Term_p do_rw_with_defs(TB_p terms, Term_p t, IntMap_p def_map,
    {
       Term_p rhs = wform->tformula->args[1];
       PStack_p args = PStackAlloc();
-      for(long i=0; i<rhs->arity; i++)
+      for(long i=0; i<new->arity; i++)
       {
-         PStackPushP(args, rhs->args[i]);
+         PStackPushP(args, new->args[i]);
       }
       new = NamedLambdaSNF(ApplyTerms(terms, rhs, args));
       PTreeStore(used_defs, wform);
-      new = do_rw_with_defs(terms, new, def_map, used_defs, depth+1);
+      new = do_rw_with_defs(terms, new, 
+                            def_map, used_defs, depth+1);      
       PStackFree(args);
    }
    
@@ -122,19 +147,29 @@ PTree_p create_sym_map(FormulaSet_p set, IntMap_p sym_def_map)
       TB_p bank = form->terms;
       Sig_p sig = form->terms->sig;
       Term_p lhs = NULL, rhs = NULL;
-      if(form->tformula->f_code == sig->eqn_code)
+      Term_p tform = form->tformula;
+
+
+      while(tform->f_code == sig->qall_code && tform->arity == 2)
       {
-         lhs = form->tformula->args[0];
-         rhs = form->tformula->args[0];
+         tform = tform->args[1];
       }
-      else if(form->tformula->f_code == sig->equiv_code &&
-              form->tformula->args[0]->f_code == sig->eqn_code &&
-              form->tformula->args[0]->args[1] == bank->true_term &&
-              form->tformula->args[1]->f_code == sig->eqn_code &&
-              form->tformula->args[1]->args[1] == bank->true_term)
+
+      if(tform->f_code == sig->eqn_code)
       {
-         lhs = form->tformula->args[0]->args[0];
-         rhs = form->tformula->args[1]->args[0];
+         lhs = tform->args[0];
+         rhs = tform->args[1];
+      }
+      else if(tform->f_code == sig->equiv_code &&
+              tform->args[0]->f_code == sig->eqn_code &&
+              tform->args[0]->args[1] == bank->true_term)
+      {
+         lhs = tform->args[0]->args[0];
+         rhs = tform->args[1];
+      }
+      else
+      {
+         continue;
       }
 
       PStack_p bvars = PStackAlloc();
@@ -144,10 +179,17 @@ PTree_p create_sym_map(FormulaSet_p set, IntMap_p sym_def_map)
       // now the definition is of the form f @ ..terms.. = \xyz. body
       // and we need to check if terms are distinct variables
       // and if \terms\xyz.body has no free variables (and if )
-      bool is_def = TypeIsPredicate(lhs->type);
+      bool is_def = TypeIsPredicate(lhs->type) &&
+                    lhs->f_code > sig->internal_symbols && rhs != bank->true_term;
+      PStackReset(bvars);
       for(long i=0; is_def && i<lhs_body->arity; i++)
       {
          Term_p arg = lhs_body->args[i];
+         if(arg->f_code == sig->eqn_code && arg->arity == 2 
+            && arg->args[1] == bank->true_term)
+         {
+            arg = arg->args[0];
+         }
          if(!TermIsVar(arg) || TermCellQueryProp(arg, TPIsSpecialVar))
          {
             is_def = false;
@@ -155,18 +197,12 @@ PTree_p create_sym_map(FormulaSet_p set, IntMap_p sym_def_map)
          else
          {
             TermCellSetProp(arg, TPIsSpecialVar);
+            PStackPushP(bvars, arg);
          }
       }
 
       if(is_def)
       {
-         PStackReset(bvars);
-         for(long i=0; i<lhs_body->arity; i++)
-         {
-            Term_p arg = lhs_body->args[i];
-            TermCellDelProp(arg, TPIsSpecialVar);
-            PStackPushP(bvars, arg);
-         }
          rhs = AbstractVars(bank, rhs_applied, bvars);
          PTree_p free_vars = NULL;
          TFormulaCollectFreeVars(bank, rhs, &free_vars);
@@ -185,13 +221,16 @@ PTree_p create_sym_map(FormulaSet_p set, IntMap_p sym_def_map)
             def_wform->tformula = def;
             WFormulaPushDerivation(def_wform, DCFofQuote, form, NULL);
             IntMapAssign(sym_def_map, lhs->f_code, def_wform);
-
+ 
             PTreeStore(&recognized_definitions, form);
          }
          PTreeFree(free_vars);
       }
-      
 
+      for(PStackPointer i=0; i<PStackGetSP(bvars); i++)
+      {
+         TermCellDelProp(((Term_p)PStackElementP(bvars, i)), TPIsSpecialVar);
+      }
       PStackFree(bvars);
    }
 
@@ -1530,7 +1569,7 @@ long TFormulaSetUnfoldLogSymbols(FormulaSet_p set, FormulaSet_p archive, TB_p te
          
             if(handle!=form->tformula)
             {
-               form->tformula = handle;
+               form->tformula = TermMap(terms, handle, unencode_eqns);
                DocFormulaModificationDefault(form, inf_fof_simpl);
                PStack_p ptiter = PTreeTraverseInit(used_defs);
                PTree_p node=NULL;
@@ -1542,6 +1581,10 @@ long TFormulaSetUnfoldLogSymbols(FormulaSet_p set, FormulaSet_p archive, TB_p te
                res++;
             }
             PTreeFree(used_defs);  
+         }
+         else
+         {
+            FormulaSetProp(form, CPIsLambdaDef);
          }
       }
 
@@ -1598,7 +1641,7 @@ long TFormulaSetLiftLambdas(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
       PTree_p all_defs = NULL;
       PDTree_p liftings = PDTreeAllocWDeleter(terms, deleter);
       for(WFormula_p form = set->anchor->succ; form!=set->anchor; form=form->succ)
-      {       
+      {  
          TFormula_p handle = LiftLambdas(terms, form->tformula, defs, liftings);
          if(handle!=form->tformula)
          {

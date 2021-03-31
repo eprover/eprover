@@ -124,8 +124,10 @@ typedef enum
    CPIsRelevant     = 2*CPLimitedRW,       /* Clause is selected as
                                            * relevant for a proof
                                            * attempt (used by SInE). */
-   CPIsPureInjectivity = 2*CPIsRelevant    /* Clause is non-instantiated
+   CPIsPureInjectivity = 2*CPIsRelevant,    /* Clause is non-instantiated
                                               injectivity axiom */
+   CPIsLambdaDef = 2*CPIsPureInjectivity  /* Formula is recognized as a
+                                             lambda definition */
 }FormulaProperties;
 
 

@@ -55,31 +55,34 @@ TFormula_p LiftLambdas(TB_p terms, TFormula_p t, PStack_p definitions,
 
 static inline Term_p ApplyTerms(TB_p terms, Term_p head, PStack_p args)
 {
-   Term_p res;
+   Term_p res = head;
    long   len = PStackGetSP(args);
-   if(TermIsVar(head) || TermIsLambda(head))
+   if(!PStackEmpty(args))
    {
-      res = TermTopAlloc(SIG_PHONY_APP_CODE, len+1);
-      res->args[0] = head;
-      for(long i=1; i<=len; i++)
+      if(TermIsVar(head) || TermIsLambda(head))
       {
-         res->args[i] = PStackElementP(args, i-1);
+         res = TermTopAlloc(SIG_PHONY_APP_CODE, len+1);
+         res->args[0] = head;
+         for(long i=1; i<=len; i++)
+         {
+            res->args[i] = PStackElementP(args, i-1);
+         }
+      }
+      else
+      {
+         res = TermTopAlloc(head->f_code, head->arity + len);
+         for(int i=0; i<head->arity; i++)
+         {
+            res->args[i] = head->args[i];
+         }
+         for(int i=0; i < len; i++)
+         {
+            res->args[head->arity + i] = PStackElementP(args, i);
+         }
       }
    }
-   else
-   {
-      res = TermTopAlloc(head->f_code, head->arity + len);
-      for(int i=0; i<head->arity; i++)
-      {
-         res->args[i] = head->args[i];
-      }
-      for(int i=0; i < len; i++)
-      {
-         res->args[head->arity + i] = PStackElementP(args, i);
-      }
-   }
-   assert(res->type == NULL); // type will be inferred and checked
-   return TBTermTopInsert(terms, res);
+   assert(PStackEmpty(args) || res->type == NULL); // type will be inferred and checked
+   return PStackEmpty(args) ? res : TBTermTopInsert(terms, res);
 }
 
 
