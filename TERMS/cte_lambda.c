@@ -478,6 +478,12 @@ Term_p lift_lambda(TB_p terms, PStack_p bound_vars, Term_p body,
       {
          def_f = TFormulaFCodeAlloc(terms, terms->sig->eqn_code, def_head, body);
       }
+      for(PStackPointer i=0; i<PStackGetSP(free_vars); i++)
+      {
+         Term_p var = PStackElementP(free_vars, i);
+         def_f = TFormulaAddQuantor(terms, def_f, true, var);
+      }
+      
       WFormula_p def = WTFormulaAlloc(terms, def_f);
       DocFormulaCreationDefault(def, inf_fof_intro_def, NULL, NULL);
       WFormulaPushDerivation(def, DCIntroDef, NULL, NULL);
