@@ -26,6 +26,7 @@ Changes
 #include "ccl_clausefunc.h"
 #include "cte_lambda.h"
 
+#define  MAX_RW_DEPTH 10
 
 
 /*---------------------------------------------------------------------*/
@@ -42,6 +43,198 @@ typedef TFormula_p (*FormulaMapper)(TFormula_p, TB_p);
 /*---------------------------------------------------------------------*/
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
+
+/*-----------------------------------------------------------------------
+//
+// Function: do_rw_with_defs()
+//
+//   Actually performs rewriting on a term using definition map.
+//   Stores used formulas in used_defs.
+//
+// Global Variables: -
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+
+Term_p do_rw_with_defs(TB_p terms, Term_p t, IntMap_p def_map,
+                       PTree_p* used_defs, int depth)
+{
+   if(depth >= MAX_RW_DEPTH)
+   {
+      return t;
+   }
+
+   bool changed=false;
+   Term_p new = TermTopAlloc(t->f_code, t->arity);
+   for(long i=0; i<t->arity; i++)
+   {
+      new->args[i] = do_rw_with_defs(terms, t->args[i], def_map, used_defs, depth);
+      changed = changed || new->args[i] != t->args[i];
+   }
+
+   if(!changed)
+   {
+      TermTopFree(new);
+      new = t;
+   }
+   else
+   {
+      new = TBTermTopInsert(terms, new);
+   }
+
+   WFormula_p wform = IntMapGetVal(def_map, new->f_code);
+   if(wform)
+   {
+      Term_p rhs = wform->tformula->args[1];
+      PStack_p args = PStackAlloc();
+      for(long i=0; i<rhs->arity; i++)
+      {
+         PStackPushP(args, rhs->args[i]);
+      }
+      new = NamedLambdaSNF(ApplyTerms(terms, rhs, args));
+      PTreeStore(used_defs, wform);
+      new = do_rw_with_defs(terms, new, def_map, used_defs, depth+1);
+      PStackFree(args);
+   }
+   
+   return new;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: create_sym_map()
+//
+//   Creates a map from symbol to WFormula describing the simplified
+//   definition f = \xyz. body
+//
+// Global Variables: -
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+
+PTree_p create_sym_map(FormulaSet_p set, IntMap_p sym_def_map)
+{
+   PTree_p recognized_definitions = NULL;
+   for(WFormula_p form = set->anchor->succ; form!=set->anchor; form=form->succ)
+   {
+      TB_p bank = form->terms;
+      Sig_p sig = form->terms->sig;
+      Term_p lhs = NULL, rhs = NULL;
+      if(form->tformula->f_code == sig->eqn_code)
+      {
+         lhs = form->tformula->args[0];
+         rhs = form->tformula->args[0];
+      }
+      else if(form->tformula->f_code == sig->equiv_code &&
+              form->tformula->args[0]->f_code == sig->eqn_code &&
+              form->tformula->args[0]->args[1] == bank->true_term &&
+              form->tformula->args[1]->f_code == sig->eqn_code &&
+              form->tformula->args[1]->args[1] == bank->true_term)
+      {
+         lhs = form->tformula->args[0]->args[0];
+         rhs = form->tformula->args[1]->args[0];
+      }
+
+      PStack_p bvars = PStackAlloc();
+      Term_p lhs_body = UnfoldLambda(lhs,bvars);
+      Term_p rhs_applied = NamedLambdaSNF(ApplyTerms(bank, rhs, bvars));
+
+      // now the definition is of the form f @ ..terms.. = \xyz. body
+      // and we need to check if terms are distinct variables
+      // and if \terms\xyz.body has no free variables (and if )
+      bool is_def = TypeIsPredicate(lhs->type);
+      for(long i=0; is_def && i<lhs_body->arity; i++)
+      {
+         Term_p arg = lhs_body->args[i];
+         if(!TermIsVar(arg) || TermCellQueryProp(arg, TPIsSpecialVar))
+         {
+            is_def = false;
+         }
+         else
+         {
+            TermCellSetProp(arg, TPIsSpecialVar);
+         }
+      }
+
+      if(is_def)
+      {
+         PStackReset(bvars);
+         for(long i=0; i<lhs_body->arity; i++)
+         {
+            Term_p arg = lhs_body->args[i];
+            TermCellDelProp(arg, TPIsSpecialVar);
+            PStackPushP(bvars, arg);
+         }
+         rhs = AbstractVars(bank, rhs_applied, bvars);
+         PTree_p free_vars = NULL;
+         TFormulaCollectFreeVars(bank, rhs, &free_vars);
+         if(!TermHasFCode(rhs_applied, lhs_body->f_code) &&
+            PTreeNodes(free_vars) == 0)
+         {
+            lhs = TermTopAlloc(lhs_body->f_code, 0);
+#ifdef NDEBUG
+            // optimization
+            lhs->type = SigGetType(sig, lhs_body->f_code);
+#endif
+            lhs = TBTermTopInsert(bank, lhs);
+
+            TFormula_p def = TFormulaFCodeAlloc(bank, sig->eqn_code, lhs, rhs);
+            WFormula_p def_wform = WFormulaFlatCopy(form);
+            def_wform->tformula = def;
+            WFormulaPushDerivation(def_wform, DCFofQuote, form, NULL);
+            IntMapAssign(sym_def_map, lhs->f_code, def_wform);
+
+            PTreeStore(&recognized_definitions, form);
+         }
+         PTreeFree(free_vars);
+      }
+      
+
+      PStackFree(bvars);
+   }
+
+   return recognized_definitions;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: intersimplify_definitions()
+//
+//   Make sure that the definitions themselves are rewritten using
+//   terms in sym_def_map.
+//
+// Global Variables: -
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+void intersimplify_definitions(TB_p terms, IntMap_p sym_def_map)
+{
+   IntMapIter_p iter = IntMapIterAlloc(sym_def_map, 0, LONG_MAX);
+   long i;
+   WFormula_p next = NULL;
+   while((next=IntMapIterNext(iter, &i)))
+   {
+      PTree_p used_defs = NULL;
+      Term_p new_rhs = do_rw_with_defs(terms, next->tformula->args[1],
+                                       sym_def_map, &used_defs, 0);
+      if(new_rhs!=next->tformula->args[1])
+      {
+         assert(used_defs);
+         next->tformula->args[1] = new_rhs;
+         PStack_p ptiter = PTreeTraverseInit(used_defs);
+         PTree_p node = NULL;
+         while((node=PTreeTraverseNext(ptiter)))
+         {
+            WFormulaPushDerivation(next, DCApplyDef, node->key, NULL);
+         }
+         PTreeTraverseExit(ptiter);
+      }
+   }
+   IntMapIterFree(iter);
+}
 
 /*-----------------------------------------------------------------------
 //
@@ -832,6 +1025,7 @@ long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive,
    long gc_threshold = old_nodes*TFORMULA_GC_LIMIT;
 
    TFormulaSetLambdaNormalize(set, archive, terms);
+   TFormulaSetUnfoldLogSymbols(set, archive, terms);
    TFormulaSetLiftLambdas(set, archive, terms);
    TFormulaSetUnrollFOOL(set, archive, terms);
    FormulaSetSimplify(set, terms);
@@ -1291,8 +1485,78 @@ long TFormulaSetLambdaNormalize(FormulaSet_p set, FormulaSet_p archive, TB_p ter
             form->tformula = handle;
             DocFormulaModificationDefault(form, inf_fof_simpl);
             WFormulaPushDerivation(form, DCFofSimplify, NULL, NULL);
+            res++;
          }
       }
+      return res;
+   }
+   else
+   {
+      return 0;
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: TFormulaSetUnfoldLogSymbols()
+//
+//    Rewrites all formulas using defined symbols of the form
+//    sym = \vars. body where return type of sym is Bool
+//    
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+long TFormulaSetUnfoldLogSymbols(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
+{
+   long res = 0;
+   if(problemType == PROBLEM_HO)
+   {
+      IntMap_p sym_def_map = IntMapAlloc();
+      PTree_p def_wforms = create_sym_map(set, sym_def_map);
+      intersimplify_definitions(terms, sym_def_map);
+
+      for(WFormula_p form = set->anchor->succ; form!=set->anchor; form=form->succ)
+      {
+         if(!PTreeFind(&def_wforms, form))
+         {
+            PTree_p used_defs = NULL;
+            TFormula_p handle = do_rw_with_defs(terms, form->tformula, 
+                                                sym_def_map, &used_defs, 0);
+         
+            if(handle!=form->tformula)
+            {
+               form->tformula = handle;
+               DocFormulaModificationDefault(form, inf_fof_simpl);
+               PStack_p ptiter = PTreeTraverseInit(used_defs);
+               PTree_p node=NULL;
+               while((node=PTreeTraverseNext(ptiter)))
+               {
+                  WFormulaPushDerivation(form, DCApplyDef, node->key, NULL);
+               }
+               PTreeTraverseExit(ptiter);
+               res++;
+            }
+            PTreeFree(used_defs);  
+         }
+      }
+
+      IntMapIter_p iter = IntMapIterAlloc(sym_def_map, 0, LONG_MAX);
+      WFormula_p next;
+      long i;
+      while((next=IntMapIterNext(iter, &i)))
+      {
+         FormulaSetInsert(archive, next);
+      }
+      IntMapIterFree(iter);
+
+      IntMapFree(sym_def_map);
+      PTreeFree(def_wforms);
+
       return res;
    }
    else
@@ -1367,6 +1631,10 @@ long TFormulaSetLambdaNormalize(FormulaSet_p set, FormulaSet_p archive, TB_p ter
    return 0;
 }
 long TFormulaSetLiftLambdas(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
+{
+   return 0;
+}
+long TFormulaSetUnfoldLogSymbols(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
 {
    return 0;
 }

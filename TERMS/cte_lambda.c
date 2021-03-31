@@ -20,8 +20,6 @@
 
 
 #include "cte_lambda.h"
-#include "cte_termbanks.h"
-#include "cte_subst.h"
 #include <ccl_formula_wrapper.h>
 #include <ccl_inferencedoc.h>
 #include <ccl_derivation.h>
@@ -37,49 +35,6 @@
 /*---------------------------------------------------------------------*/
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
-
-/*-----------------------------------------------------------------------
-//
-// Function: apply_terms()
-//
-//   Fills var_stack with abstracted variables and returns the body of lambda
-//   For example, given ^[X]:(^[Y]:s), varstack = [Y, X] and s is returned
-//
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-static inline Term_p apply_terms(TB_p terms, Term_p head, PStack_p args)
-{
-   Term_p res;
-   long   len = PStackGetSP(args);
-   if(TermIsVar(head) || TermIsLambda(head))
-   {
-      res = TermTopAlloc(SIG_PHONY_APP_CODE, len+1);
-      res->args[0] = head;
-      for(long i=1; i<=len; i++)
-      {
-         res->args[i] = PStackElementP(args, i-1);
-      }
-   }
-   else
-   {
-      res = TermTopAlloc(head->f_code, head->arity + len);
-      for(int i=0; i<head->arity; i++)
-      {
-         res->args[i] = head->args[i];
-      }
-      for(int i=0; i < len; i++)
-      {
-         res->args[head->arity + i] = PStackElementP(args, i);
-      }
-   }
-   assert(res->type == NULL); // type will be inferred and checked
-   return TBTermTopInsert(terms, res);
-}
 
 
 /*-----------------------------------------------------------------------
@@ -120,7 +75,7 @@ static inline Term_p reduce_head (Term_p t)
       {
          PStackPushP(args, t->args[i]);
       }
-      res = apply_terms(TermGetBank(res), res, args);
+      res = ApplyTerms(TermGetBank(res), res, args);
       PStackFree(args);
    }
 
@@ -128,57 +83,7 @@ static inline Term_p reduce_head (Term_p t)
    return res;
 }
 
-/*-----------------------------------------------------------------------
-//
-// Function: abstract_vars()
-//
-//   Abstract var_prefix over matrix. Variable at the top of the stack
-//   is the first one to abstract. Does not change the stack.
-//
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
 
-static inline Term_p abstract_vars(TB_p terms, Term_p matrix, PStack_p var_prefix)
-{
-   int num_vars = PStackGetSP(var_prefix);
-   Term_p res = matrix;
-   while(num_vars)
-   {
-      Term_p lambda = TermTopAlloc(SIG_NAMED_LAMBDA_CODE, 2);
-      lambda->args[0] = PStackElementP(var_prefix, --num_vars);
-      lambda->args[1] = res;
-      res = TBTermTopInsert(terms, lambda);
-   }
-   return res;
-}
-
-/*-----------------------------------------------------------------------
-//
-// Function: unfold_lambda()
-//
-//   Fills var_stack with abstracted variables and returns the body of lambda
-//   For example, given ^[X]:(^[Y]:s), varstack = [Y, X] and s is returned
-//
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-static inline Term_p unfold_lambda(Term_p lambda, PStack_p var_stack)
-{
-   while(TermIsLambda(lambda))
-   {
-      PStackPushP(var_stack, lambda->args[0]);
-      lambda = lambda->args[1];
-   }
-   return lambda;
-}
 
 /*-----------------------------------------------------------------------
 //
@@ -200,18 +105,19 @@ static Term_p lambda_eq_to_forall(TB_p terms, Term_p t)
        || t->f_code == sig->neqn_code) 
       && t->arity == 2)
    {
-      if(TermIsLambda(t->args[0]) || TermIsLambda(t->args[1]))
+      if((TermIsLambda(t->args[0]) || TermIsLambda(t->args[1]))
+         && (!TypeIsPredicate(t->args[0]->type)))
       {
          PStack_p lhs_vars = PStackAlloc();
          PStack_p rhs_vars = PStackAlloc();
-         UNUSED(unfold_lambda(t->args[0], lhs_vars));
-         UNUSED(unfold_lambda(t->args[1], rhs_vars));
+         UNUSED(UnfoldLambda(t->args[0], lhs_vars));
+         UNUSED(UnfoldLambda(t->args[1], rhs_vars));
          assert(!PStackEmpty(lhs_vars) || !PStackEmpty(rhs_vars));
 
          PStack_p more_vars = PStackGetSP(lhs_vars) > PStackGetSP(rhs_vars) ?
                               lhs_vars : rhs_vars;
-         Term_p lhs = NamedLambdaSNF(apply_terms(terms, t->args[0], more_vars));
-         Term_p rhs = NamedLambdaSNF(apply_terms(terms, t->args[1], more_vars));
+         Term_p lhs = NamedLambdaSNF(ApplyTerms(terms, t->args[0], more_vars));
+         Term_p rhs = NamedLambdaSNF(ApplyTerms(terms, t->args[1], more_vars));
          if(lhs->type == sig->type_bank->bool_type)
          {
             
@@ -304,7 +210,7 @@ bool test_leaks(Term_p target, Eqn_p def)
    bool   ans    = true;
 
    PStack_p bound = PStackAlloc();
-   UNUSED(unfold_lambda(lambda, bound));
+   UNUSED(UnfoldLambda(lambda, bound));
 
    //assert bound variables are only renamed in the matcher
    for(PStackPointer i=0; ans && i<PStackGetSP(bound); i++)
@@ -332,7 +238,7 @@ bool test_leaks(Term_p target, Eqn_p def)
 
    // check if the bound variables of the target appear in
    // substition(free variables) -- i.e., if they leaked
-   UNUSED(unfold_lambda(target, bound));
+   UNUSED(UnfoldLambda(target, bound));
    
    for(int i=0; ans && i<head->arity; i++)
    {
@@ -428,7 +334,7 @@ Term_p lift_lambda(TB_p terms, PStack_p bound_vars, Term_p body,
    Term_p res;
    WFormula_p generalization = 
       find_generalization(liftings,
-                          abstract_vars(terms, body, bound_vars),
+                          AbstractVars(terms, body, bound_vars),
                           &res);
    if(generalization)
    {
@@ -478,16 +384,17 @@ Term_p lift_lambda(TB_p terms, PStack_p bound_vars, Term_p body,
       {
          def_f = TFormulaFCodeAlloc(terms, terms->sig->eqn_code, def_head, body);
       }
-      for(PStackPointer i=0; i<PStackGetSP(free_vars); i++)
-      {
-         Term_p var = PStackElementP(free_vars, i);
-         def_f = TFormulaAddQuantor(terms, def_f, true, var);
-      }
       
+      for(PStackPointer i=0; i<PStackGetSP(all_vars); i++)
+      {
+         def_f = TFormulaAddQuantor(terms, def_f, true,
+                                    PStackElementP(all_vars, i));
+      }
+
       WFormula_p def = WTFormulaAlloc(terms, def_f);
       DocFormulaCreationDefault(def, inf_fof_intro_def, NULL, NULL);
       WFormulaPushDerivation(def, DCIntroDef, NULL, NULL);
-      store_lifting(liftings, res, abstract_vars(terms, body, bound_vars), def);
+      store_lifting(liftings, res, AbstractVars(terms, body, bound_vars), def);
 
       PStackPushP(definitions, def);
 
@@ -568,7 +475,7 @@ TFormula_p LiftLambdas(TB_p terms, TFormula_p t, PStack_p definitions, PDTree_p 
    if(TermIsLambda(t))
    {
       vars = PStackAlloc();
-      t = unfold_lambda(t, vars);
+      t = UnfoldLambda(t, vars);
    }
 
    res = TermTopCopyWithoutArgs(t);
