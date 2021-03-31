@@ -61,7 +61,9 @@ TFormula_p unencode_eqns(TB_p terms, TFormula_p t)
    Term_p res = t;
    if(t->f_code == terms->sig->eqn_code && t->arity == 2
       && t->args[1] == terms->true_term
-      && SigQueryFuncProp(terms->sig, t->args[0]->f_code, FPFOFOp))
+      && (SigQueryFuncProp(terms->sig, t->args[0]->f_code, FPFOFOp)
+          || t->args[0]->f_code == terms->sig->qex_code
+          || t->args[0]->f_code == terms->sig->qall_code))
    {
       res = t->args[0];
    }
@@ -1569,7 +1571,14 @@ long TFormulaSetUnfoldLogSymbols(FormulaSet_p set, FormulaSet_p archive, TB_p te
          
             if(handle!=form->tformula)
             {
+               TermPrintDbgHO(stderr, form->tformula, terms->sig, DEREF_NEVER);
                form->tformula = TermMap(terms, handle, unencode_eqns);
+               fprintf(stderr, "\n-->\n");
+               TermPrintDbgHO(stderr, form->tformula, terms->sig, DEREF_NEVER);
+               fprintf(stderr,".\n");
+
+
+
                DocFormulaModificationDefault(form, inf_fof_simpl);
                PStack_p ptiter = PTreeTraverseInit(used_defs);
                PTree_p node=NULL;

@@ -253,6 +253,19 @@ void TypeInferSort(Sig_p sig, Term_p term, Scanner_p in)
          type = TypeBankInsertTypeShared(sig->type_bank, 
                                          AllocArrowTypeCopyArgs(3, eq_type_args));
       }
+      else if(term->f_code == sig->qex_code || term->f_code == sig->qall_code)
+      {
+         if(term->arity == 0)
+         {
+            AktTokenError(in, "Equality must have at least one argument", 
+                          SYNTAX_ERROR);
+         }
+         assert(TermIsVar(term->args[0]));
+         Type_p arg_type = term->args[0]->type;
+         Type_p quant_type_args[3] = {arg_type, sig->type_bank->bool_type, sig->type_bank->bool_type};
+         type = TypeBankInsertTypeShared(sig->type_bank, 
+                                         AllocArrowTypeCopyArgs(3, quant_type_args));
+      }
       else
       {
          type = SigGetType(sig, term->f_code);
