@@ -1,3 +1,26 @@
+/*-----------------------------------------------------------------------
+
+File  : clb_pstacks.h
+
+Author: Florian Knoch and Lukas Naatz
+
+Contents
+
+  Soemwhat efficient unlimited growth stacks for pointers/long ints.
+
+  Copyright 1998, 1999 by the author.
+  This code is released under the GNU General Public Licence and
+  the GNU Lesser General Public License.
+  See the file COPYING in the main E directory for details..
+  Run "eprover -h" for contact information.
+
+Changes
+
+<1> Wed Dec  3 16:22:48 MET 1997
+    New
+
+-----------------------------------------------------------------------*/
+
 #include "ccl_arithnorm.h"
 
 void FormulaSetArithNorm(FormulaSet_p set, TB_p terms, GCAdmin_p gc) {
@@ -21,7 +44,7 @@ void FormulaSetArithNorm(FormulaSet_p set, TB_p terms, GCAdmin_p gc) {
 void PrintTermsDebug(TFormula_p form, TB_p terms, int depth)
 {
    for(int i = 0; i < depth; i++) printf("\t");
-   printf("fcode:%d\n", form->f_code);
+   printf("fcode:%d, properties:%x\n", form->f_code, form->properties);
    for( int i = 0; i < form->arity; i++) PrintTermsDebug(form->args[i], terms, depth +1);
 
 }
@@ -36,16 +59,20 @@ TFormula_p TFormulaArithNormalize(TB_p terms, TFormula_p form)
    }
    if(form->arity >= 1)
    {
-      form->args[0] = TFormulaArithNormalize(terms, form->args[0]);
+      arg1 = TFormulaArithNormalize(terms, form->args[0]);
    }
    if(form->arity == 2)
    {
-      form->args[1] = TFormulaArithNormalize(terms, form->args[1]);
+      arg2 = TFormulaArithNormalize(terms, form->args[1]);
 
    }
-   arg1 = form->args[0];
-   arg2 = form->args[1];
-   
+	if(form->f_code == 3) // eqn
+   {
+      TFormula_p tmp1,tmp2;
+      tmp1 = TFormulaArithFCodeAlloc(terms, terms->sig->eqn_code, form->type, arg1->args[0],arg2); // new eqn
+      tmp2 = TFormulaArithFCodeAlloc(terms, terms->sig->not_code, form->type, tmp1, NULL);
+      return tmp2;
+   }
 
    if(form->f_code == terms->sig->greater_code) { 
       // $less(Y,X)
@@ -139,13 +166,6 @@ TFormula_p TFormulaArithNormalize(TB_p terms, TFormula_p form)
       newform = TFormulaArithFCodeAlloc(terms, terms->sig->uminus_code,
                                         form->type, tmp2, NULL);
    }
-   else if(form->f_code == terms->sig->is_int_code) { 
-      // $floor(X) = X
-      TFormula_p tmp = TFormulaArithFCodeAlloc(terms, terms->sig->floor_code,
-                                               form->type, arg1, NULL);
-      newform = TFormulaArithFCodeAlloc(terms, terms->sig->eqn_code,
-                                        form->type, arg1, tmp);
-   }
    else {
       newform = TFormulaArithFCodeAlloc(terms, form->f_code, form->type, arg1, arg2);
    }
@@ -184,3 +204,7 @@ TFormula_p TFormulaArithFCodeAlloc(TB_p bank, FunCode op, Type_p FunType, TFormu
 
    return res;
 }
+
+/*---------------------------------------------------------------------*/
+/*                        End of File                                  */
+/*---------------------------------------------------------------------*/
