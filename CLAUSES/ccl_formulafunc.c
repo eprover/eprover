@@ -61,9 +61,12 @@ TFormula_p unencode_eqns(TB_p terms, TFormula_p t)
    Term_p res = t;
    if(t->f_code == terms->sig->eqn_code && t->arity == 2
       && t->args[1] == terms->true_term
+      && !TermIsVar(t->args[0]) 
       && (SigQueryFuncProp(terms->sig, t->args[0]->f_code, FPFOFOp)
           || t->args[0]->f_code == terms->sig->qex_code
-          || t->args[0]->f_code == terms->sig->qall_code))
+          || t->args[0]->f_code == terms->sig->qall_code
+          || t->args[0]->f_code == terms->sig->eqn_code
+          || t->args[0]->f_code == terms->sig->neqn_code))
    {
       res = t->args[0];
    }
@@ -118,7 +121,7 @@ Term_p do_rw_with_defs(TB_p terms, Term_p t, IntMap_p def_map,
       {
          PStackPushP(args, new->args[i]);
       }
-      new = NamedLambdaSNF(ApplyTerms(terms, rhs, args));
+      new = NamedLambdaSNF(terms, ApplyTerms(terms, rhs, args));
       PTreeStore(used_defs, wform);
       new = do_rw_with_defs(terms, new, 
                             def_map, used_defs, depth+1);      
@@ -146,6 +149,11 @@ PTree_p create_sym_map(FormulaSet_p set, IntMap_p sym_def_map)
    PTree_p recognized_definitions = NULL;
    for(WFormula_p form = set->anchor->succ; form!=set->anchor; form=form->succ)
    {
+      if(!(FormulaQueryProp(form, CPIsLambdaDef)))
+      {
+         continue;
+      }
+
       TB_p bank = form->terms;
       Sig_p sig = form->terms->sig;
       Term_p lhs = NULL, rhs = NULL;
@@ -176,7 +184,7 @@ PTree_p create_sym_map(FormulaSet_p set, IntMap_p sym_def_map)
 
       PStack_p bvars = PStackAlloc();
       Term_p lhs_body = UnfoldLambda(lhs,bvars);
-      Term_p rhs_applied = NamedLambdaSNF(ApplyTerms(bank, rhs, bvars));
+      Term_p rhs_applied = NamedLambdaSNF(bank, ApplyTerms(bank, rhs, bvars));
 
       // now the definition is of the form f @ ..terms.. = \xyz. body
       // and we need to check if terms are distinct variables
@@ -273,6 +281,7 @@ void intersimplify_definitions(TB_p terms, IntMap_p sym_def_map)
          }
          PTreeTraverseExit(ptiter);
       }
+      PTreeFree(used_defs);
    }
    IntMapIterFree(iter);
 }
@@ -1065,8 +1074,8 @@ long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive,
    long old_nodes = TBNonVarTermNodes(terms);
    long gc_threshold = old_nodes*TFORMULA_GC_LIMIT;
 
-   TFormulaSetLambdaNormalize(set, archive, terms);
    TFormulaSetUnfoldLogSymbols(set, archive, terms);
+   TFormulaSetLambdaNormalize(set, archive, terms);
    TFormulaSetLiftLambdas(set, archive, terms);
    TFormulaSetUnrollFOOL(set, archive, terms);
    FormulaSetSimplify(set, terms);
@@ -1519,7 +1528,7 @@ long TFormulaSetLambdaNormalize(FormulaSet_p set, FormulaSet_p archive, TB_p ter
    {
       for(WFormula_p form = set->anchor->succ; form!=set->anchor; form=form->succ)
       {
-         TFormula_p handle = LambdaToForall(terms, NamedLambdaSNF(form->tformula));    
+         TFormula_p handle = LambdaToForall(terms, NamedLambdaSNF(terms, form->tformula));    
       
          if(handle!=form->tformula)
          {
@@ -1571,13 +1580,12 @@ long TFormulaSetUnfoldLogSymbols(FormulaSet_p set, FormulaSet_p archive, TB_p te
          
             if(handle!=form->tformula)
             {
-               TermPrintDbgHO(stderr, form->tformula, terms->sig, DEREF_NEVER);
+               // TermPrintDbgHO(stderr, form->tformula, terms->sig, DEREF_NEVER);
                form->tformula = TermMap(terms, handle, unencode_eqns);
-               fprintf(stderr, "\n-->\n");
-               TermPrintDbgHO(stderr, form->tformula, terms->sig, DEREF_NEVER);
-               fprintf(stderr,".\n");
-
-
+               
+               // fprintf(stderr, "\n-->\n");
+               // TermPrintDbgHO(stderr, form->tformula, terms->sig, DEREF_NEVER);
+               // fprintf(stderr,".\n");
 
                DocFormulaModificationDefault(form, inf_fof_simpl);
                PStack_p ptiter = PTreeTraverseInit(used_defs);
@@ -1591,10 +1599,6 @@ long TFormulaSetUnfoldLogSymbols(FormulaSet_p set, FormulaSet_p archive, TB_p te
             }
             PTreeFree(used_defs);  
          }
-         else
-         {
-            FormulaSetProp(form, CPIsLambdaDef);
-         }
       }
 
       IntMapIter_p iter = IntMapIterAlloc(sym_def_map, 0, LONG_MAX);
@@ -1605,6 +1609,16 @@ long TFormulaSetUnfoldLogSymbols(FormulaSet_p set, FormulaSet_p archive, TB_p te
          FormulaSetInsert(archive, next);
       }
       IntMapIterFree(iter);
+
+      PStack_p titer = PTreeTraverseInit(def_wforms);
+      PTree_p node;
+      while((node = PTreeTraverseNext(titer)))
+      {
+         next = node->key;
+         FormulaSetExtractEntry(next);
+         FormulaSetInsert(archive, next);
+      }
+      PTreeTraverseExit(titer);
 
       IntMapFree(sym_def_map);
       PTreeFree(def_wforms);

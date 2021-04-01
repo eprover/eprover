@@ -105,8 +105,7 @@ static Term_p lambda_eq_to_forall(TB_p terms, Term_p t)
        || t->f_code == sig->neqn_code) 
       && t->arity == 2)
    {
-      if((TermIsLambda(t->args[0]) || TermIsLambda(t->args[1]))
-         && (!TypeIsPredicate(t->args[0]->type)))
+      if((TermIsLambda(t->args[0]) || TermIsLambda(t->args[1])))
       {
          PStack_p lhs_vars = PStackAlloc();
          PStack_p rhs_vars = PStackAlloc();
@@ -116,8 +115,8 @@ static Term_p lambda_eq_to_forall(TB_p terms, Term_p t)
 
          PStack_p more_vars = PStackGetSP(lhs_vars) > PStackGetSP(rhs_vars) ?
                               lhs_vars : rhs_vars;
-         Term_p lhs = NamedLambdaSNF(ApplyTerms(terms, t->args[0], more_vars));
-         Term_p rhs = NamedLambdaSNF(ApplyTerms(terms, t->args[1], more_vars));
+         Term_p lhs = NamedLambdaSNF(terms, ApplyTerms(terms, t->args[0], more_vars));
+         Term_p rhs = NamedLambdaSNF(terms, ApplyTerms(terms, t->args[1], more_vars));
          if(lhs->type == sig->type_bank->bool_type)
          {
             
@@ -421,11 +420,10 @@ Term_p lift_lambda(TB_p terms, PStack_p bound_vars, Term_p body,
 //
 /----------------------------------------------------------------------*/
 
-TFormula_p NamedLambdaSNF(TFormula_p t)
+TFormula_p NamedLambdaSNF(TB_p bank, TFormula_p t)
 {
    // Term_p orig = t;
    t = do_named_snf(t);
-   TB_p bank = TermGetBank(t);
    // undoing the encoding of literals under lambdas
    if(t->f_code == bank->sig->eqn_code &&
       t->args[1] == bank->true_term &&
