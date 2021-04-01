@@ -865,7 +865,9 @@ Term_p TBInsertInstantiatedHO(TB_p bank, Term_p term, bool follow_bind)
    int ignore_args = 0;
    if(TermIsAppliedVar(term) && term->args[0]->binding && follow_bind)
    {
-      ignore_args = term->args[0]->binding->arity + (TermIsVar(term->args[0]->binding) ? 1 : 0);
+      Term_p binding = term->args[0]->binding;
+      ignore_args = 
+         TermIsLambda(binding) ? 1 : (binding->arity + (TermIsPhonyApp(binding) ? 1 : 0));
       DerefType d = DEREF_ONCE;
       term = TermDeref(term, &d);
    }
