@@ -80,6 +80,7 @@ bool       TFormulaVarIsFreeCached(TB_p bank, TFormula_p form, Term_p var);
 #define    TFormulaCopy(bank, form) TBInsertNoProps(bank, form, DEREF_ALWAYS)
 
 void       TFormulaCollectFreeVars(TB_p bank, TFormula_p form, PTree_p *vars);
+bool       TFormulaIsClosed(TB_p bank, TFormula_p form);
 bool       TFormulaHasFreeVars(TB_p bank, TFormula_p form);
 
 TFormula_p TFormulaAddQuantor(TB_p bank, TFormula_p form, bool universal, Term_p var);

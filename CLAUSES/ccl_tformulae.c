@@ -1575,6 +1575,27 @@ void TFormulaCollectFreeVars(TB_p bank, TFormula_p form, PTree_p *vars)
    tformula_collect_freevars(bank, form, vars);
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: TFormulaIsClosed()
+//
+//   Returns true if forula has no free vars.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations, changes TPIsFreeVar.
+//
+/----------------------------------------------------------------------*/
+
+bool TFormulaIsClosed(TB_p bank, TFormula_p form)
+{
+   PTree_p vars = NULL;
+   TFormulaCollectFreeVars(bank, form, &vars);
+   bool ans  = vars == NULL;
+   PTreeFree(vars);
+   return ans;
+}
+
 
 /*-----------------------------------------------------------------------
 //
