@@ -423,6 +423,7 @@ Term_p lift_lambda(TB_p terms, PStack_p bound_vars, Term_p body,
 TFormula_p NamedLambdaSNF(TB_p bank, TFormula_p t)
 {
    // Term_p orig = t;
+   VarBankSetVCountsToUsed(bank->vars);
    t = do_named_snf(t);
    // undoing the encoding of literals under lambdas
    if(t->f_code == bank->sig->eqn_code &&

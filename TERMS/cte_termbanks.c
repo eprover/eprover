@@ -878,11 +878,20 @@ Term_p TBInsertInstantiatedHO(TB_p bank, Term_p term, bool follow_bind)
    else
    {
       Term_p binding_copy = NULL;
-      if(term->f_code == SIG_NAMED_LAMBDA_CODE)
+      if(TFormulaIsQuantified(bank->sig, term))
       {
-         // making sure to avoid capture
-         binding_copy = term->args[0]->binding;
-         term->args[0]->binding = NULL;
+         if(term->args[0]->binding)
+         {
+            // making sure to avoid capture
+            binding_copy = term->args[0]->binding;
+            term->args[0]->binding = NULL;
+         }
+         else
+         {
+            term->args[0]->binding = VarBankGetFreshVar(bank->vars,
+                                                        term->args[0]->type);
+         }
+         
       }
 
       t = TermTopCopyWithoutArgs(term); /* This is an unshared term cell at the moment */
@@ -897,7 +906,7 @@ Term_p TBInsertInstantiatedHO(TB_p bank, Term_p term, bool follow_bind)
       }
       t = tb_termtop_insert(bank, t);
       
-      if(term->f_code == SIG_NAMED_LAMBDA_CODE)
+      if(TFormulaIsQuantified(bank->sig, term))
       {
          term->args[0]->binding = binding_copy;
       }
