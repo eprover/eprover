@@ -163,7 +163,7 @@ bool find_disagreements(Term_p t, Term_p s, PStack_p stack)
 /----------------------------------------------------------------------*/
 
 void do_ext_sup(ClausePos_p from_pos, ClausePos_p into_pos, ClauseSet_p store,
-                TB_p terms, VarBank_p freshvars)
+                TB_p terms, VarBank_p freshvars, Clause_p orig_cl)
 {
    PStack_p disagreements = PStackAlloc();
    Term_p from_t = ClausePosGetSubterm(from_pos);
@@ -208,7 +208,16 @@ void do_ext_sup(ClausePos_p from_pos, ClausePos_p into_pos, ClauseSet_p store,
 
       ClauseSetProp(res, (ClauseGiveProps(into_pos->clause, CPIsSOS)|
                           ClauseGiveProps(from_pos->clause, CPIsSOS)));
-      ClausePushDerivation(res, DCExtSup, into_pos->clause, from_pos->clause);
+      if(!into_pos->clause->derivation)
+      {
+         assert(from_pos->clause->derivation);
+         ClausePushDerivation(res, DCExtSup, orig_cl, from_pos->clause);
+      }
+      else
+      {
+         assert(!from_pos->clause->derivation);
+         ClausePushDerivation(res, DCExtSup, into_pos->clause, orig_cl);
+      }
       ClauseSetInsert(store, res);
       
       
@@ -230,10 +239,10 @@ void do_ext_sup(ClausePos_p from_pos, ClausePos_p into_pos, ClauseSet_p store,
 //
 /----------------------------------------------------------------------*/
 
-void do_ext_sup_from(Clause_p clause, ProofState_p state)
+void do_ext_sup_from(Clause_p renamed_cl, Clause_p orig_cl, ProofState_p state)
 {
    PStack_p from_pos_stack = PStackAlloc();
-   CollectExtSupFromPos(clause, from_pos_stack);
+   CollectExtSupFromPos(renamed_cl, from_pos_stack);
    ClausePos_p from_pos = ClausePosAlloc(), into_pos = ClausePosAlloc();
 #ifdef ENABLE_LFHO
    ExtIndex_p into_idx = state->gindices.ext_sup_into_index;
@@ -244,7 +253,7 @@ void do_ext_sup_from(Clause_p clause, ProofState_p state)
    while(!PStackEmpty(from_pos_stack))
    {
       CompactPos cpos_from = PStackPopInt(from_pos_stack);
-      UnpackClausePosInto(cpos_from, clause, from_pos);
+      UnpackClausePosInto(cpos_from, renamed_cl, from_pos);
 
       FunCode fc = PStackPopInt(from_pos_stack);
       ClauseTPosTree_p into_partners = IntMapGetVal(into_idx, fc);
@@ -261,7 +270,7 @@ void do_ext_sup_from(Clause_p clause, ProofState_p state)
          {
             UnpackClausePosInto(node->key, cl_cpos->clause, into_pos);
             do_ext_sup(from_pos, into_pos, state->tmp_store, 
-                       state->terms, state->freshvars);
+                       state->terms, state->freshvars, orig_cl);
          }
          NumXTreeTraverseExit(niter);
       }
@@ -287,10 +296,10 @@ void do_ext_sup_from(Clause_p clause, ProofState_p state)
 //
 /----------------------------------------------------------------------*/
 
-void do_ext_sup_into(Clause_p clause, ProofState_p state)
+void do_ext_sup_into(Clause_p renamed_cl, Clause_p orig_cl, ProofState_p state)
 {
    PStack_p into_pos_stack = PStackAlloc();
-   CollectExtSupIntoPos(clause, into_pos_stack);
+   CollectExtSupIntoPos(renamed_cl, into_pos_stack);
    ClausePos_p from_pos = ClausePosAlloc(), into_pos = ClausePosAlloc();
 #ifdef ENABLE_LFHO
    ExtIndex_p from_idx = state->gindices.ext_sup_from_index;
@@ -301,9 +310,10 @@ void do_ext_sup_into(Clause_p clause, ProofState_p state)
    while(!PStackEmpty(into_pos_stack))
    {
       CompactPos cpos_into = PStackPopInt(into_pos_stack);
-      UnpackClausePosInto(cpos_into, clause, into_pos);
+      UnpackClausePosInto(cpos_into, renamed_cl, into_pos);
 
       FunCode fc = PStackPopInt(into_pos_stack);
+      assert(fc > state->signature->internal_symbols);
       ClauseTPosTree_p from_partners = IntMapGetVal(from_idx, fc);
 
 
@@ -316,9 +326,10 @@ void do_ext_sup_into(Clause_p clause, ProofState_p state)
          NumTree_p node;
          while((node = NumTreeTraverseNext(niter)))
          {
+
             UnpackClausePosInto(node->key, cl_cpos->clause, from_pos);
             do_ext_sup(from_pos, into_pos, state->tmp_store, 
-                       state->terms, state->freshvars);
+                       state->terms, state->freshvars, orig_cl);
          }
          NumXTreeTraverseExit(niter);
       }
@@ -639,12 +650,13 @@ void InferInjectiveDefinition(ProofState_p state, ProofControl_p control, Clause
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
-void ComputeExtSup(ProofState_p state, ProofControl_p control, Clause_p clause)
+void ComputeExtSup(ProofState_p state, ProofControl_p control, 
+                   Clause_p renamed_cl, Clause_p orig_clause)
 {
-   if (clause->proof_depth <= control->heuristic_parms.ext_sup_max_depth)
+   if (orig_clause->proof_depth <= control->heuristic_parms.ext_sup_max_depth)
    {
-      do_ext_sup_from(clause, state);
-      do_ext_sup_into(clause, state);
+      do_ext_sup_from(renamed_cl, orig_clause, state);
+      do_ext_sup_into(renamed_cl, orig_clause, state);
    }
 }
 
@@ -661,25 +673,26 @@ void ComputeExtSup(ProofState_p state, ProofControl_p control, Clause_p clause)
 //
 /----------------------------------------------------------------------*/
 
-void ComputeHOInferences(ProofState_p state, ProofControl_p control, Clause_p clause)
+void ComputeHOInferences(ProofState_p state, ProofControl_p control, 
+                         Clause_p renamed_cl, Clause_p orig_clause)
 {
    if (problemType == PROBLEM_HO)
    {
       if (control->heuristic_parms.neg_ext != NoLits)
       {
-         ComputeNegExt(state,control,clause);
+         ComputeNegExt(state,control,orig_clause);
       }
       if (control->heuristic_parms.neg_ext != NoLits)
       {
-         ComputePosExt(state,control,clause);
+         ComputePosExt(state,control,orig_clause);
       }
       if (control->heuristic_parms.inverse_recognition)
       {
-         InferInjectiveDefinition(state, control, clause);
+         InferInjectiveDefinition(state, control, orig_clause);
       }
       if (control->heuristic_parms.ext_sup_max_depth >= 0)
       {
-         ComputeExtSup(state, control, clause);
+         ComputeExtSup(state, control, renamed_cl, orig_clause);
       }
    }
 }

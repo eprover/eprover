@@ -114,9 +114,11 @@ void collect_into_pos_term(Term_p t, CompactPos pos, PStack_p stack)
    {
       Term_p arg = t->args[i];
       collect_into_pos_term(arg, new_pos, stack);
-      has_func_subterm = has_func_subterm || TYPE_EXT_ELIGIBLE(arg->type);
+      has_func_subterm = has_func_subterm || 
+                        (TYPE_EXT_ELIGIBLE(arg->type) && !TermIsTopLevelVar(arg));
+      new_pos += TermStandardWeight(arg);
    }
-   if(!(TypeIsArrow(t->type)))
+   if(!TypeIsArrow(t->type) && !TermIsTopLevelVar(t))
    {
       if(has_func_subterm || PStackGetSP(stack) != old_top)
       {
@@ -144,7 +146,8 @@ bool term_has_ho_subterm(Term_p t)
    bool ans = false;
    for(int i=0; !ans && i < t->arity; i++)
    {
-      ans = ans || TYPE_EXT_ELIGIBLE(t->args[i]->type) 
+      ans = ans || (TYPE_EXT_ELIGIBLE(t->args[i]->type)
+                   && !TermIsTopLevelVar(t->args[i]))
                 || term_has_ho_subterm(t->args[i]);
    }
    return ans;
@@ -334,18 +337,18 @@ void CollectExtSupFromPos(Clause_p cl, PStack_p pos_stack)
    {
       if(!TypeIsArrow(handle->lterm) && EqnIsPositive(handle))
       {
-         if(term_has_ho_subterm(handle->lterm))
+         if(!TermIsTopLevelVar(handle->lterm) && term_has_ho_subterm(handle->lterm))
          {
             PStackPushInt(pos_stack, handle->lterm->f_code);
             PStackPushInt(pos_stack, pos);
          }
          pos += TermStandardWeight(handle->lterm);
-         if(term_has_ho_subterm(handle->rterm))
+         if(!TermIsTopLevelVar(handle->rterm) && term_has_ho_subterm(handle->rterm))
          {
             PStackPushInt(pos_stack, handle->rterm->f_code);
             PStackPushInt(pos_stack, pos);
          }
-         pos += TermStandardWeight(handle->lterm);
+         pos += TermStandardWeight(handle->rterm);
       }
       else
       {
