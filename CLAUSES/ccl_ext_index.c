@@ -311,6 +311,7 @@ void ExtIndexFree(ExtIndex_p into_index)
       ClauseTPosTreeFree(value);
    }
    IntMapIterFree(i);
+   IntMapFree(into_index);
 }
 
 /*-----------------------------------------------------------------------
