@@ -29,13 +29,24 @@ Changes
 /*---------------------------------------------------------------------*/
 
 typedef IntMap_p ExtIndex_p;
+#define TYPE_EXT_ELIGIBLE(t) (TypeIsArrow((t)) && !TypeIsPredicate((t)))
+
 
 
 /*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-#define ExtDecAlloc()   IntMapAlloc()
+#define ExtIdxAlloc()   IntMapAlloc()
+
+void CollectExtSupFromPos(Clause_p cl, PStack_p pos_stack);
+void CollectExtSupIntoPos(Clause_p cl, PStack_p pos_stack);
+
+void ExtIndexInsertIntoClause(ExtIndex_p into_index, Clause_p cl);
+void ExtIndexDeleteIntoClause(ExtIndex_p into_index, Clause_p cl);
+void ExtIndexInsertFromClause(ExtIndex_p into_index, Clause_p cl);
+void ExtIndexDeleteFromClause(ExtIndex_p into_index, Clause_p cl);
+void ExtIndexFree(ExtIndex_p into_index);
 
 
 

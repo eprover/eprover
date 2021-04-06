@@ -22,8 +22,6 @@ Contents
 #include <ccl_clausecpos.h>
 #include <ccl_clausepos_tree.h>
 
-#define TYPE_EXT_ELIGIBLE(t) (TypeIsArrow((t)) && !TypeIsPredicate((t)))
-
 typedef void (*IdxOperator)(ExtIndex_p, Clause_p, PStack_p);
 
 
@@ -186,16 +184,9 @@ void build_into_pos_stack(Eqn_p lit, CompactPos pos, PStack_p collected_pos)
 
 void handle_into_idx(ExtIndex_p into_index, Clause_p cl, IdxOperator op)
 {
-   CompactPos pos = 0;
    PStack_p collected_pos = PStackAlloc();
-   for(Eqn_p handle = cl->literals; handle; handle = handle->next)
-   {
-      build_into_pos_stack(handle, pos, collected_pos);
-      pos += EqnStandardWeight(handle);
-   }
-
+   CollectExtSupIntoPos(cl, collected_pos);
    op(into_index, cl, collected_pos);
-
    PStackFree(collected_pos);
 }
 
@@ -214,33 +205,9 @@ void handle_into_idx(ExtIndex_p into_index, Clause_p cl, IdxOperator op)
 
 void handle_from_idx(ExtIndex_p into_index, Clause_p cl, IdxOperator op)
 {
-   CompactPos pos = 0;
    PStack_p collected_pos = PStackAlloc();
-   for(Eqn_p handle = cl->literals; handle; handle = handle->next)
-   {
-      if(!TypeIsArrow(handle->lterm))
-      {
-         if(term_has_ho_subterm(handle->lterm))
-         {
-            PStackPushInt(collected_pos, handle->lterm->f_code);
-            PStackPushInt(collected_pos, pos);
-         }
-         pos += TermStandardWeight(handle->lterm);
-         if(term_has_ho_subterm(handle->rterm))
-         {
-            PStackPushInt(collected_pos, handle->rterm->f_code);
-            PStackPushInt(collected_pos, pos);
-         }
-         pos += TermStandardWeight(handle->lterm);
-      }
-      else
-      {
-         pos += EqnStandardWeight(handle);
-      }
-   }
-
+   CollectExtSupFromPos(cl, collected_pos);
    op(into_index, cl, collected_pos);
-
    PStackFree(collected_pos);
 }
 
@@ -346,6 +313,68 @@ void ExtIndexFree(ExtIndex_p into_index)
    IntMapIterFree(i);
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: CollectExtSupFromPos()
+//
+//   Put pairs (f_code, compact_pos) on pos_stack for all eligible from
+//   positions
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void CollectExtSupFromPos(Clause_p cl, PStack_p pos_stack)
+{
+   CompactPos pos = 0;
+   for(Eqn_p handle = cl->literals; handle; handle = handle->next)
+   {
+      if(!TypeIsArrow(handle->lterm))
+      {
+         if(term_has_ho_subterm(handle->lterm))
+         {
+            PStackPushInt(pos_stack, handle->lterm->f_code);
+            PStackPushInt(pos_stack, pos);
+         }
+         pos += TermStandardWeight(handle->lterm);
+         if(term_has_ho_subterm(handle->rterm))
+         {
+            PStackPushInt(pos_stack, handle->rterm->f_code);
+            PStackPushInt(pos_stack, pos);
+         }
+         pos += TermStandardWeight(handle->lterm);
+      }
+      else
+      {
+         pos += EqnStandardWeight(handle);
+      }
+   }
+
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: CollectExtSupIntoPos()
+//
+//   Put pairs (f_code, compact_pos) on pos_stack for all eligible into
+//   positions
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+void CollectExtSupIntoPos(Clause_p cl, PStack_p pos_stack)
+{
+   CompactPos pos = 0;
+   for(Eqn_p handle = cl->literals; handle; handle = handle->next)
+   {
+      build_into_pos_stack(handle, pos, pos_stack);
+      pos += EqnStandardWeight(handle);
+   }
+}
 
 
 /*---------------------------------------------------------------------*/

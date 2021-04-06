@@ -58,6 +58,8 @@ typedef enum
    NoLits
 }ExtInferenceType;
 
+#define NO_EXT_SUP (-1)
+
 
 /* External parameters for heuristics and proof control. When this is
  * changed, remember to also adapt the Init, Print und
@@ -151,6 +153,7 @@ typedef struct heuristic_parms_cell
    /* Higher-order settings */
    ExtInferenceType    neg_ext;
    ExtInferenceType    pos_ext;
+   int                 ext_sup_max_depth;
    bool                inverse_recognition;
    bool                replace_inj_defs;
 }HeuristicParmsCell, *HeuristicParms_p;

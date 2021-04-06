@@ -47,7 +47,7 @@ Contents
 /----------------------------------------------------------------------*/
 
 void set_proof_object(Clause_p new_clause, Clause_p orig_clause,
-                       DerivationCode dc)
+                      DerivationCode dc)
 {
    new_clause->proof_depth = orig_clause->proof_depth+1;
    new_clause->proof_size  = orig_clause->proof_size+1;
@@ -77,6 +77,253 @@ void store_result(Clause_p new_clause, Clause_p orig_clause,
    set_proof_object(new_clause, orig_clause, dc);
    ClauseSetInsert(store, new_clause);
 }
+
+/*-----------------------------------------------------------------------
+//
+// Function: find_disagreements()
+//
+//   Stores the computed inference with the given derivation code
+//   in the temporary store for the newly infered clauses.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+bool find_disagreements(Term_p t, Term_p s, PStack_p stack)
+{
+   if(t->type != s->type)
+   {
+      return false;
+   }
+
+   while(t->f_code == s->f_code)
+   {
+      Term_p new_s=NULL, new_t=NULL;
+      for(int i=0; i < t->arity; i++)
+      {
+         if(t->args[i] != s->args[i])
+         {
+            if(new_t)
+            {
+               break;
+            }
+            else
+            {
+               new_t = t->args[i];
+               new_s = s->args[i];
+            }
+         }
+      }
+      if(new_t)
+      {
+         t = new_t;
+         s = new_s;
+      }
+      else
+      {
+         break;
+      }
+   }
+
+   bool exists_functional = false;
+   for(int i=0; !exists_functional && i<t->arity; i++)
+   {
+      exists_functional = exists_functional ||
+                          TYPE_EXT_ELIGIBLE(t->args[i]->type);
+   }
+
+   if(exists_functional)
+   {
+      for(int i=0; i<t->arity; i++)
+      {
+         PStackPushP(stack, t->args[i]);
+         PStackPushP(stack, s->args[i]);
+      }
+   }
+
+   return exists_functional;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: do_ext_sup()
+//
+//   Performs ExtSup inference.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void do_ext_sup(ClausePos_p from_pos, ClausePos_p into_pos, ClauseSet_p store,
+                TB_p terms, VarBank_p freshvars)
+{
+   PStack_p disagreements = PStackAlloc();
+   Term_p from_t = ClausePosGetSubterm(from_pos);
+   Term_p into_t = ClausePosGetSubterm(into_pos);
+   if(find_disagreements(from_t, into_t, disagreements))
+   {
+      Subst_p subst = SubstAlloc();
+      VarBankResetVCounts(freshvars);
+      NormSubstEqnList(from_pos->clause->literals, subst, freshvars);
+      NormSubstEqnList(into_pos->clause->literals, subst, freshvars);
+
+      Eqn_p condition = NULL;
+      while(!PStackEmpty(disagreements))
+      {
+         Eqn_p cond = EqnAlloc(TBInsertInstantiated(terms, PStackPopP(disagreements)),
+                               TBInsertInstantiated(terms, PStackPopP(disagreements)), 
+                               terms, false);
+         cond->next = condition;
+         condition = cond;
+      }
+
+      Term_p from_rhs = ClausePosGetOtherSide(from_pos);
+      Term_p into_rhs = ClausePosGetOtherSide(into_pos);
+      Term_p new_lhs = TBTermPosReplace(terms, from_rhs, into_pos->pos, 
+                                        DEREF_ALWAYS, 0,
+                                        ClausePosGetSubterm(into_pos));
+
+      Term_p new_rhs = TBInsertOpt(terms, into_rhs, DEREF_ALWAYS);
+
+      Eqn_p into_copy = EqnListCopyOptExcept(into_pos->clause->literals, into_pos->literal);
+      Eqn_p from_copy = EqnListCopyOptExcept(from_pos->clause->literals, from_pos->literal);
+      EqnListAppend(&condition, into_copy);
+      EqnListAppend(&condition, from_copy);
+      Eqn_p new_lit = EqnAlloc(new_lhs, new_rhs, terms, EqnIsPositive(into_pos->literal));
+      EqnListAppend(&condition, new_lit);
+      
+      Clause_p res = ClauseAlloc(condition);
+      res->proof_size  = into_pos->clause->proof_size+from_pos->clause->proof_size+1;
+      res->proof_depth = MAX(into_pos->clause->proof_depth, from_pos->clause->proof_depth)+1;
+
+      ClauseSetProp(res, (ClauseGiveProps(into_pos->clause, CPIsSOS)|
+                          ClauseGiveProps(from_pos->clause, CPIsSOS)));
+      ClausePushDerivation(res, DCExtSup, into_pos->clause, from_pos->clause);
+      
+      
+      SubstDelete(subst);
+   }
+   PStackFree(disagreements);
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: do_ext_sup_from()
+//
+//   Performs ExtSup inferences with the given clause used as 'from' partner
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void do_ext_sup_from(Clause_p clause, ProofState_p state)
+{
+   PStack_p from_pos_stack = PStackAlloc();
+   CollectExtSupFromPos(clause, from_pos_stack);
+   ClausePos_p from_pos = ClausePosAlloc(), into_pos = ClausePosAlloc();
+#ifdef ENABLE_LFHO
+   ExtIndex_p into_idx = state->gindices.ext_sup_into_index;
+#else
+   ExtIndex_p into_idx = NULL;
+#endif
+
+   while(!PStackEmpty(from_pos_stack))
+   {
+      CompactPos cpos_from = PStackPopInt(from_pos_stack);
+      UnpackClausePosInto(cpos_from, clause, from_pos);
+
+      FunCode fc = PStackPopInt(from_pos_stack);
+      ClauseTPosTree_p into_partners = IntMapGetVal(into_idx, fc);
+
+
+      PStack_p iter = PTreeTraverseInit(into_partners);
+      PTree_p node = NULL;
+      while((node = PTreeTraverseNext(iter)))
+      {
+         ClauseTPos_p cl_cpos = node->key;
+         PStack_p niter = NumTreeTraverseInit(cl_cpos->pos);
+         NumTree_p node;
+         while((node = NumTreeTraverseNext(niter)))
+         {
+            UnpackClausePosInto(node->key, cl_cpos->clause, into_pos);
+            do_ext_sup(from_pos, into_pos, state->tmp_store, 
+                       state->terms, state->freshvars);
+         }
+         NumXTreeTraverseExit(niter);
+      }
+      PTreeTraverseExit(iter);
+
+   }
+
+   ClausePosFree(from_pos);
+   ClausePosFree(into_pos);
+   PStackFree(from_pos_stack);
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: do_ext_sup_into()
+//
+//   Performs ExtSup inferences with the given clause used as 'intos' partner
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void do_ext_sup_into(Clause_p clause, ProofState_p state)
+{
+   PStack_p into_pos_stack = PStackAlloc();
+   CollectExtSupIntoPos(clause, into_pos_stack);
+   ClausePos_p from_pos = ClausePosAlloc(), into_pos = ClausePosAlloc();
+#ifdef ENABLE_LFHO
+   ExtIndex_p from_idx = state->gindices.ext_sup_from_index;
+#else
+   ExtIndex_p from_idx = NULL;
+#endif
+
+   while(!PStackEmpty(into_pos_stack))
+   {
+      CompactPos cpos_into = PStackPopInt(into_pos_stack);
+      UnpackClausePosInto(cpos_into, clause, into_pos);
+
+      FunCode fc = PStackPopInt(into_pos_stack);
+      ClauseTPosTree_p from_partners = IntMapGetVal(from_idx, fc);
+
+
+      PStack_p iter = PTreeTraverseInit(from_partners);
+      PTree_p node = NULL;
+      while((node = PTreeTraverseNext(iter)))
+      {
+         ClauseTPos_p cl_cpos = node->key;
+         PStack_p niter = NumTreeTraverseInit(cl_cpos->pos);
+         NumTree_p node;
+         while((node = NumTreeTraverseNext(niter)))
+         {
+            UnpackClausePosInto(node->key, cl_cpos->clause, from_pos);
+            do_ext_sup(from_pos, into_pos, state->tmp_store, 
+                       state->terms, state->freshvars);
+         }
+         NumXTreeTraverseExit(niter);
+      }
+      PTreeTraverseExit(iter);
+
+   }
+
+   ClausePosFree(from_pos);
+   ClausePosFree(into_pos);
+   PStackFree(into_pos_stack);
+}
+
 
 /*-----------------------------------------------------------------------
 //
@@ -373,6 +620,27 @@ void InferInjectiveDefinition(ProofState_p state, ProofControl_p control, Clause
    }
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: InferInjectiveDefinition()
+//
+//   If clause postulates injectivity of some symbol
+//   add the definition of inverse to the proof state.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+void ComputeExtSup(ProofState_p state, ProofControl_p control, Clause_p clause)
+{
+   if (clause->proof_depth <= control->heuristic_parms.ext_sup_max_depth)
+   {
+      do_ext_sup_from(clause, state);
+      do_ext_sup_into(clause, state);
+   }
+}
+
 
 /*-----------------------------------------------------------------------
 //
@@ -401,6 +669,10 @@ void ComputeHOInferences(ProofState_p state, ProofControl_p control, Clause_p cl
       if (control->heuristic_parms.inverse_recognition)
       {
          InferInjectiveDefinition(state, control, clause);
+      }
+      if (control->heuristic_parms.ext_sup_max_depth >= 0)
+      {
+         ComputeExtSup(state, control, clause);
       }
    }
 }

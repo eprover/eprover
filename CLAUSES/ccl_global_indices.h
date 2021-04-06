@@ -27,6 +27,7 @@ Changes
 
 #include <ccl_subterm_index.h>
 #include <ccl_overlap_index.h>
+#include <ccl_ext_index.h>
 #include <ccl_clausesets.h>
 
 
@@ -46,6 +47,11 @@ typedef struct global_indices_cell
    OverlapIndex_p    pm_from_index;
    OverlapIndex_p    pm_into_index;
    OverlapIndex_p    pm_negp_index;
+#ifdef ENABLE_LFHO
+   ExtIndex_p        ext_sup_into_index;
+   ExtIndex_p        ext_sup_from_index;
+   int               ext_sup_max_depth;
+#endif
 }GlobalIndices, *GlobalIndices_p;
 
 
@@ -56,13 +62,26 @@ typedef struct global_indices_cell
 PERF_CTR_DECL(PMIndexTimer);
 PERF_CTR_DECL(BWRWIndexTimer);
 
+#ifdef ENABLE_LFHO
+#define GetExtIntoIdx(g)    (g)->ext_sup_into_index
+#define GetExtFromIdx(g)    (g)->ext_sup_from_index
+#define SetExtIntoIdx(g, v) (g)->ext_sup_into_index = (v)
+#define SetExtFromIdx(g, v) (g)->ext_sup_from_index = (v)
+#else
+#define GetExtIntoIdx(g)   NULL
+#define GetExtFromIdx(g)   NULL
+#define SetExtIntoIdx(g)   /* */
+#define SetExtFromIdx(g)   /* */
+#endif
+
 
 void GlobalIndicesNull(GlobalIndices_p indices);
 void GlobalIndicesInit(GlobalIndices_p indices,
                        Sig_p sig,
                        char* rw_bw_index_type,
                        char* pm_from_index_type,
-                       char* pm_into_index_type);
+                       char* pm_into_index_type,
+                       int   ext_sup_max_depth);
 
 void GlobalIndicesFreeIndices(GlobalIndices_p indices);
 void GlobalIndicesReset(GlobalIndices_p indices);

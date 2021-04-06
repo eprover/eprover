@@ -516,7 +516,8 @@ int main(int argc, char* argv[])
                      proofstate->signature,
                      proofcontrol->heuristic_parms.rw_bw_index_type,
                      "NoIndex",
-                     "NoIndex");
+                     "NoIndex",
+                     proofcontrol->heuristic_parms.ext_sup_max_depth);
    //printf("Alive (1)!\n");
 
    ProofStateInit(proofstate, proofcontrol);
@@ -1704,6 +1705,10 @@ CLState_p process_options(int argc, char* argv[])
             {
                Error("pos-ext excepts either all or max", 0);
             }
+            break;
+      case OPT_EXT_SUP:
+            h_parms->ext_sup_max_depth =
+               CLStateGetIntArgCheckRange(handle, arg, -1, INT_MAX);
             break;
       case OPT_INVERSE_RECOGNITION:
             h_parms->inverse_recognition = true;

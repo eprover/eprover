@@ -84,6 +84,7 @@ typedef enum
    /* HO inferences */
    DONegExt,
    DOPosExt,
+   DOExtSup,
    DOInvRec
 }OpCode;
 
@@ -142,6 +143,7 @@ typedef enum
    /* HO inferences */
    DCNegExt           = DONegExt|Arg1Cnf,
    DCPosExt           = DOPosExt|Arg1Cnf,
+   DCExtSup           = DOExtSup|Arg1Cnf|Arg2Cnf,
    DCInvRec           = DOInvRec|Arg1Cnf
 }DerivationCode;
 

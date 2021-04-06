@@ -189,6 +189,7 @@ typedef enum
    OPT_APP_ENCODE,
    OPT_NEG_EXT,
    OPT_POS_EXT,
+   OPT_EXT_SUP,
    OPT_INVERSE_RECOGNITION,
    OPT_REPLACE_INJ_DEFS,
    OPT_DUMMY
@@ -1438,6 +1439,12 @@ OptCell opts[] =
     "Turns on PosExt inference rule. Excepts an argument \"all\" or \"max\" "
     "that applies the rule to all or only literals that are eligible "
     "for resolution."},
+   
+   {OPT_EXT_SUP,
+    '\0', "ext-sup-max-depth",
+    ReqArg, NULL,
+    "Sets the maximal proof depth of the clause which will be considered for "
+    " ExtSup inferences. Negative value disables the rule."},
 
    {OPT_INVERSE_RECOGNITION,
     '\0', "inverse-recognition",
