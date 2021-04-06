@@ -107,6 +107,7 @@ bool find_disagreements(Term_p t, Term_p s, PStack_p stack)
          {
             if(new_t)
             {
+               new_t = NULL;
                break;
             }
             else
@@ -116,7 +117,8 @@ bool find_disagreements(Term_p t, Term_p s, PStack_p stack)
             }
          }
       }
-      if(new_t)
+      if(new_t && new_t->f_code == new_s->f_code 
+         && !(TYPE_EXT_ELIGIBLE(new_t->type)))
       {
          t = new_t;
          s = new_s;
@@ -138,11 +140,13 @@ bool find_disagreements(Term_p t, Term_p s, PStack_p stack)
    {
       for(int i=0; i<t->arity; i++)
       {
-         PStackPushP(stack, t->args[i]);
-         PStackPushP(stack, s->args[i]);
+         if(t->args[i] != s->args[i])
+         {
+            PStackPushP(stack, t->args[i]);
+            PStackPushP(stack, s->args[i]);
+         }
       }
    }
-
    return exists_functional;
 }
 
@@ -195,6 +199,8 @@ void do_ext_sup(ClausePos_p from_pos, ClausePos_p into_pos, ClauseSet_p store,
       EqnListAppend(&condition, from_copy);
       Eqn_p new_lit = EqnAlloc(new_lhs, new_rhs, terms, EqnIsPositive(into_pos->literal));
       EqnListAppend(&condition, new_lit);
+      EqnListRemoveResolved(&condition);
+      EqnListRemoveDuplicates(condition);
       
       Clause_p res = ClauseAlloc(condition);
       res->proof_size  = into_pos->clause->proof_size+from_pos->clause->proof_size+1;
@@ -203,6 +209,7 @@ void do_ext_sup(ClausePos_p from_pos, ClausePos_p into_pos, ClauseSet_p store,
       ClauseSetProp(res, (ClauseGiveProps(into_pos->clause, CPIsSOS)|
                           ClauseGiveProps(from_pos->clause, CPIsSOS)));
       ClausePushDerivation(res, DCExtSup, into_pos->clause, from_pos->clause);
+      ClauseSetInsert(store, res);
       
       
       SubstDelete(subst);

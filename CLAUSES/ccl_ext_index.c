@@ -331,7 +331,7 @@ void CollectExtSupFromPos(Clause_p cl, PStack_p pos_stack)
    CompactPos pos = 0;
    for(Eqn_p handle = cl->literals; handle; handle = handle->next)
    {
-      if(!TypeIsArrow(handle->lterm))
+      if(!TypeIsArrow(handle->lterm) && EqnIsPositive(handle))
       {
          if(term_has_ho_subterm(handle->lterm))
          {
