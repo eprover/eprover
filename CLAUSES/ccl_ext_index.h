@@ -39,6 +39,9 @@ typedef IntMap_p ExtIndex_p;
 
 #define ExtIdxAlloc()   IntMapAlloc()
 
+bool TermHasExtEligSubterm(Term_p t);
+
+
 void CollectExtSupFromPos(Clause_p cl, PStack_p pos_stack);
 void CollectExtSupIntoPos(Clause_p cl, PStack_p pos_stack);
 

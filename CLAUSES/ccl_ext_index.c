@@ -131,31 +131,6 @@ void collect_into_pos_term(Term_p t, CompactPos pos, PStack_p stack)
 
 /*-----------------------------------------------------------------------
 //
-// Function: term_has_ho_subterm()
-//
-//   Check if a term actually has an eligible subterm for ExtSup
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-bool term_has_ho_subterm(Term_p t)
-{
-   bool ans = false;
-   for(int i=0; !ans && i < t->arity; i++)
-   {
-      ans = ans || (TYPE_EXT_ELIGIBLE(t->args[i]->type)
-                   && !TermIsTopLevelVar(t->args[i]))
-                || term_has_ho_subterm(t->args[i]);
-   }
-   return ans;
-}
-
-
-/*-----------------------------------------------------------------------
-//
 // Function: build_into_pos_stack()
 //
 //   Insert all positions that are into-targets of ExtSup inference to index.
@@ -219,6 +194,30 @@ void handle_from_idx(ExtIndex_p into_index, Clause_p cl, IdxOperator op)
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
 /*---------------------------------------------------------------------*/
+
+/*-----------------------------------------------------------------------
+//
+// Function: TermHasExtEligSubterm()
+//
+//   Check if a term actually has an eligible subterm for ExtSup
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+bool TermHasExtEligSubterm(Term_p t)
+{
+   bool ans = false;
+   for(int i=0; !ans && i < t->arity; i++)
+   {
+      ans = ans || (TYPE_EXT_ELIGIBLE(t->args[i]->type)
+                   && !TermIsTopLevelVar(t->args[i]))
+                || TermHasExtEligSubterm(t->args[i]);
+   }
+   return ans;
+}
 
 /*-----------------------------------------------------------------------
 //
@@ -337,13 +336,13 @@ void CollectExtSupFromPos(Clause_p cl, PStack_p pos_stack)
    {
       if(!TypeIsArrow(handle->lterm) && EqnIsPositive(handle))
       {
-         if(!TermIsTopLevelVar(handle->lterm) && term_has_ho_subterm(handle->lterm))
+         if(!TermIsTopLevelVar(handle->lterm) && TermHasExtEligSubterm(handle->lterm))
          {
             PStackPushInt(pos_stack, handle->lterm->f_code);
             PStackPushInt(pos_stack, pos);
          }
          pos += TermStandardWeight(handle->lterm);
-         if(!TermIsTopLevelVar(handle->rterm) && term_has_ho_subterm(handle->rterm))
+         if(!TermIsTopLevelVar(handle->rterm) && TermHasExtEligSubterm(handle->rterm))
          {
             PStackPushInt(pos_stack, handle->rterm->f_code);
             PStackPushInt(pos_stack, pos);

@@ -147,7 +147,47 @@ bool find_disagreements(Term_p t, Term_p s, PStack_p stack)
          }
       }
    }
-   return exists_functional;
+   return exists_functional && !PStackEmpty(stack);
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: do_ext_sup()
+//
+//   Performs ExtEqRes inference.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void do_ext_eqres(Clause_p cl, Eqn_p lit, ClauseSet_p store)
+{
+   PStack_p disagreements = PStackAlloc();
+   Term_p lhs = lit->lterm, rhs = lit->rterm;
+   TB_p terms = lit->bank;
+   if(find_disagreements(lhs, rhs, disagreements))
+   {
+      Eqn_p condition = NULL;
+      while(!PStackEmpty(disagreements))
+      {
+         Eqn_p cond = EqnAlloc(PStackPopP(disagreements),
+                               PStackPopP(disagreements), terms, false);
+         cond->next = condition;
+         condition = cond;
+      }
+      Eqn_p rest = EqnListCopyOptExcept(cl->literals, lit);
+      EqnListAppend(&condition, rest);
+      EqnListRemoveResolved(&condition);
+      EqnListRemoveDuplicates(condition);
+      Clause_p res = ClauseAlloc(condition);
+      store_result(res, cl, store, DCExtEqRes);
+   }
+
+
+   PStackFree(disagreements);
 }
 
 /*-----------------------------------------------------------------------
@@ -663,6 +703,38 @@ void ComputeExtSup(ProofState_p state, ProofControl_p control,
 
 /*-----------------------------------------------------------------------
 //
+// Function: InferInjectiveDefinition()
+//
+//   If clause postulates injectivity of some symbol
+//   add the definition of inverse to the proof state.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void ComputeExtEqRes(ProofState_p state, ProofControl_p control, Clause_p cl)
+{
+   if (cl->proof_depth <= control->heuristic_parms.ext_sup_max_depth)
+   {
+      for(Eqn_p lit=cl->literals; lit; lit=lit->next)
+      {
+         if(EqnIsNegative(lit) && EqnIsEquLit(lit) &&
+            !TypeIsArrow(lit->lterm) &&
+            lit->lterm->f_code == lit->rterm->f_code &&
+            TermHasExtEligSubterm(lit->lterm) &&
+            TermHasExtEligSubterm(lit->rterm))
+         {
+            do_ext_eqres(cl, lit, state->tmp_store);
+         }
+      }
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: ComputeHOInferences()
 //
 //   Computes all registered HO inferences. 
@@ -693,6 +765,7 @@ void ComputeHOInferences(ProofState_p state, ProofControl_p control,
       if (control->heuristic_parms.ext_sup_max_depth >= 0)
       {
          ComputeExtSup(state, control, renamed_cl, orig_clause);
+         ComputeExtEqRes(state, control, orig_clause);
       }
    }
 }

@@ -115,6 +115,7 @@ typedef enum
 #define PCL_NEG_EXT "neg ext"
 #define PCL_POS_EXT "pos ext"
 #define PCL_EXT_SUP "ext sup"
+#define PCL_EXT_EQRES "ext eqres"
 #define PCL_INV_REC "recongize injectivity"
 
 

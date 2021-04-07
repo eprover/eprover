@@ -85,6 +85,7 @@ typedef enum
    DONegExt,
    DOPosExt,
    DOExtSup,
+   DOExtEqRes,
    DOInvRec
 }OpCode;
 
@@ -144,6 +145,7 @@ typedef enum
    DCNegExt           = DONegExt|Arg1Cnf,
    DCPosExt           = DOPosExt|Arg1Cnf,
    DCExtSup           = DOExtSup|Arg1Cnf|Arg2Cnf,
+   DCExtEqRes         = DOExtEqRes|Arg1Cnf,
    DCInvRec           = DOInvRec|Arg1Cnf
 }DerivationCode;
 
