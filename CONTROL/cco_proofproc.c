@@ -748,11 +748,12 @@ Clause_p replacing_inferences(ProofState_p state, ProofControl_p
    long     clause_count;
    Clause_p res = pclause->clause;
 
-   if(problemType == PROBLEM_HO && DestructEquivalences(res, state->tmp_store))
+   if(problemType == PROBLEM_HO && DestructEquivalences(res, state->tmp_store, state->archive))
    {
       pclause->clause = NULL;
    }
-   else if(control->heuristic_parms.er_varlit_destructive &&
+   else 
+   if(control->heuristic_parms.er_varlit_destructive &&
       (clause_count =
        ClauseERNormalizeVar(state->terms,
                             pclause->clause,

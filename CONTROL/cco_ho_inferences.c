@@ -167,69 +167,59 @@ bool do_equiv_destruct(Clause_p cl, PStack_p tasks)
 //
 /----------------------------------------------------------------------*/
 
-bool find_disagreements(Sig_p sig, Term_p t, Term_p s, PStack_p stack)
+bool find_disagreements(Sig_p sig, Term_p t, Term_p s, PStack_p diss_stack)
 {
-   if(t->type != s->type)
+   if(t->type != s->type || t == s)
    {
       return false;
    }
 
-   while(t->f_code == s->f_code)
-   {
-      Term_p new_s=NULL, new_t=NULL;
-      for(int i=0; i < t->arity; i++)
-      {
-         if(t->args[i] != s->args[i])
-         {
-            if(new_t)
-            {
-               new_t = NULL;
-               break;
-            }
-            else
-            {
-               new_t = t->args[i];
-               new_s = s->args[i];
-            }
-         }
-      }
-      if(new_t && new_t->f_code == new_s->f_code 
-         && !(TYPE_EXT_ELIGIBLE(new_t->type)))
-      {
-         t = new_t;
-         s = new_s;
-      }
-      else
-      {
-         break;
-      }
-   }
+   PStackPointer begin = PStackGetSP(diss_stack);
+
+   PStack_p tasks = PStackAlloc();
+   PStackPushP(tasks, t);
+   PStackPushP(tasks, s);
 
    bool exists_elig = false;
-   for(int i=0; !exists_elig && i<t->arity; i++)
+   
+   while(!PStackEmpty(tasks))
    {
-      exists_elig = exists_elig ||
-                          TYPE_EXT_ELIGIBLE(t->args[i]->type);
-   }
+      s = PStackPopP(tasks);
+      t = PStackPopP(tasks);
 
-   if(exists_elig)
-   {
-      for(int i=0; exists_elig && i<t->arity; i++)
+      if(s!=t)
       {
-         if(SigQueryFuncProp(sig, t->args[i]->f_code, FPFOFOp) ||
-            SigQueryFuncProp(sig, s->args[i]->f_code, FPFOFOp))
+         if(!TermIsTopLevelVar(s) && !TermIsTopLevelVar(t) &&
+            s->f_code == t->f_code)
          {
-            exists_elig = false; // found a term that cannot be lifted up
+            assert(s->arity == t->arity);
+            for(int i=0; i < t->arity; i++)
+            {
+               PStackPushP(tasks, t->args[i]);
+               PStackPushP(tasks, s->args[i]);
+            }
          }
-
-         if(t->args[i] != s->args[i])
+         else
          {
-            PStackPushP(stack, t->args[i]);
-            PStackPushP(stack, s->args[i]);
+            PStackPushP(diss_stack, t);
+            PStackPushP(diss_stack, s);
+            exists_elig = exists_elig ||
+                          (TYPE_EXT_ELIGIBLE(s->type)
+                           && !SigQueryFuncProp(sig, s->f_code, FPFOFOp)
+                           && !SigQueryFuncProp(sig, t->f_code, FPFOFOp));
          }
       }
    }
-   return exists_elig && !PStackEmpty(stack);
+
+   if(!exists_elig)
+   {
+      while(PStackGetSP(diss_stack) != begin)
+      {
+         PStackDiscardTop(diss_stack);
+      }
+   }
+   PStackFree(tasks);
+   return exists_elig;
 }
 
 
@@ -817,9 +807,9 @@ void ComputeExtEqRes(ProofState_p state, ProofControl_p control, Clause_p cl)
 
 /*-----------------------------------------------------------------------
 //
-// Function: ComputeHOInferences()
+// Function: DestructEquivalences()
 //
-//   Computes all registered HO inferences. 
+//   Performs dynamic clausfication of equivalences.
 //
 // Global Variables: -
 //
@@ -827,7 +817,7 @@ void ComputeExtEqRes(ProofState_p state, ProofControl_p control, Clause_p cl)
 //
 /----------------------------------------------------------------------*/
 
-bool DestructEquivalences(Clause_p cl, ClauseSet_p store)
+bool DestructEquivalences(Clause_p cl, ClauseSet_p store, ClauseSet_p archive)
 {
    PStack_p tasks = PStackAlloc();
    PStackPushP(tasks, cl);
@@ -853,8 +843,75 @@ bool DestructEquivalences(Clause_p cl, ClauseSet_p store)
    }
    
    PStackFree(tasks);
+   if(destructed_one)
+   {
+      ClauseSetInsert(archive, cl);
+   }
    return destructed_one;
 }
+
+/*-----------------------------------------------------------------------
+//
+// Function: ResolveFlexClause()
+//
+//   If a clause contains only negative disequations of the form 
+//   X @ s_n != Y @ t_n, derive the empty clause
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+bool ResolveFlexClause(Clause_p cl)
+{
+   bool pos = true, neg = false;
+   IntMap_p ids_to_sign = IntMapAlloc();
+   bool is_resolvable = true;
+
+   for(Eqn_p lit = cl->literals; is_resolvable && lit; lit = lit->next)
+   {
+      if(EqnIsEquLit(lit))
+      {
+         is_resolvable = is_resolvable && EqnIsNegative(lit)
+                         && TermIsTopLevelVar(lit->lterm)
+                         && TermIsTopLevelVar(lit->rterm);
+      }
+      else
+      {
+         if(!TermIsTopLevelVar(lit->lterm))
+         {
+            is_resolvable = false;
+         }
+         else
+         {
+            Term_p var = (TermIsVar(lit->lterm) ? lit->lterm : lit->lterm->args[0]);
+            bool* prev_val = IntMapGetVal(ids_to_sign, var->f_code);
+            if(!prev_val)
+            {
+               *IntMapGetRef(ids_to_sign, var->f_code) = 
+                  EqnIsPositive(lit) ? &pos : &neg;
+            }
+            else
+            {
+               is_resolvable = is_resolvable && (*prev_val == EqnIsPositive(lit));
+            }
+         }
+      }
+   }
+
+   if(is_resolvable)
+   {
+      EqnListFree(cl->literals);
+      cl->literals = NULL;
+      ClauseRecomputeLitCounts(cl);
+      ClausePushDerivation(cl, DCCondense, NULL, NULL);
+   }
+
+   IntMapFree(ids_to_sign);
+   return is_resolvable;
+}
+
 
 /*-----------------------------------------------------------------------
 //
