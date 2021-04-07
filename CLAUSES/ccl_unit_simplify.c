@@ -74,7 +74,6 @@ SimplifyRes FindTopSimplifyingUnit(ClauseSet_p units, Term_p t1,
                Term_p t2)
 {
    Subst_p     subst = SubstAlloc();
-   int remains = MATCH_FAILED;
    ClausePos_p pos;
    SimplifyRes res = SIMPLIFY_FAILED;
 
@@ -89,13 +88,11 @@ SimplifyRes FindTopSimplifyingUnit(ClauseSet_p units, Term_p t1,
    {
       pos = mi->pos;
 
-      if(SubstMatchComplete(ClausePosGetOtherSide(pos), t2, subst))
+      if(mi->remaining_args == 0 && SubstMatchComplete(ClausePosGetOtherSide(pos), t2, subst))
       {
         // if the problem is not HO, we match completely.
-        assert(!(problemType == PROBLEM_FO) || remains == 0);
         assert(pos->clause->set == units);
-        assert(remains == mi->remaining_args);
-        res = (SimplifyRes){.pos = pos, .remaining_args = remains};
+        res = (SimplifyRes){.pos = pos, .remaining_args = 0};
         MatchResFree(mi);
         break;
       }
@@ -122,7 +119,6 @@ SimplifyRes FindSignedTopSimplifyingUnit(ClauseSet_p units, Term_p t1,
                 Term_p t2, bool sign)
 {
    Subst_p     subst = SubstAlloc();
-   int remains = MATCH_FAILED;
    ClausePos_p pos;
    SimplifyRes res = SIMPLIFY_FAILED;
 
@@ -136,14 +132,13 @@ SimplifyRes FindSignedTopSimplifyingUnit(ClauseSet_p units, Term_p t1,
    while((mi = PDTreeFindNextDemodulator(units->demod_index, subst)))
    {
       pos = mi->pos;
-      if(EQUIV(EqnIsPositive(pos->literal), sign)
+      if( mi->remaining_args == 0
+          && EQUIV(EqnIsPositive(pos->literal), sign)
           && (SubstMatchComplete(ClausePosGetOtherSide(pos), t2, subst)))
       {
         // if the problem is not HO, we match completely.
-        assert(!(problemType == PROBLEM_FO) || remains == 0);
         assert(pos->clause->set == units);
-        assert(remains == mi->remaining_args);
-        res = (SimplifyRes){.pos = pos, .remaining_args = remains};
+        res = (SimplifyRes){.pos = pos, .remaining_args = 0};
         MatchResFree(mi);
         break;
       }

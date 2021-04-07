@@ -130,7 +130,7 @@ bool do_equiv_destruct(Clause_p cl, PStack_p tasks)
       if(TypeIsBool(lit->lterm->type) && 
          lit->rterm != terms->true_term &&
          (TermIsVar(lit->lterm) ||
-          !SigQueryProp(terms->sig, lit->rterm->f_code, FPFOFOp)) &&
+          !SigQueryProp(terms->sig, lit->lterm->f_code, FPFOFOp)) &&
          (TermIsVar(lit->rterm) ||
           !SigQueryProp(terms->sig, lit->rterm->f_code, FPFOFOp)))
       {
@@ -167,7 +167,7 @@ bool do_equiv_destruct(Clause_p cl, PStack_p tasks)
 //
 /----------------------------------------------------------------------*/
 
-bool find_disagreements(Term_p t, Term_p s, PStack_p stack)
+bool find_disagreements(Sig_p sig, Term_p t, Term_p s, PStack_p stack)
 {
    if(t->type != s->type)
    {
@@ -205,17 +205,23 @@ bool find_disagreements(Term_p t, Term_p s, PStack_p stack)
       }
    }
 
-   bool exists_functional = false;
-   for(int i=0; !exists_functional && i<t->arity; i++)
+   bool exists_elig = false;
+   for(int i=0; !exists_elig && i<t->arity; i++)
    {
-      exists_functional = exists_functional ||
+      exists_elig = exists_elig ||
                           TYPE_EXT_ELIGIBLE(t->args[i]->type);
    }
 
-   if(exists_functional)
+   if(exists_elig)
    {
-      for(int i=0; i<t->arity; i++)
+      for(int i=0; exists_elig && i<t->arity; i++)
       {
+         if(SigQueryFuncProp(sig, t->args[i]->f_code, FPFOFOp) ||
+            SigQueryFuncProp(sig, s->args[i]->f_code, FPFOFOp))
+         {
+            exists_elig = false; // found a term that cannot be lifted up
+         }
+
          if(t->args[i] != s->args[i])
          {
             PStackPushP(stack, t->args[i]);
@@ -223,7 +229,7 @@ bool find_disagreements(Term_p t, Term_p s, PStack_p stack)
          }
       }
    }
-   return exists_functional && !PStackEmpty(stack);
+   return exists_elig && !PStackEmpty(stack);
 }
 
 
@@ -244,7 +250,7 @@ void do_ext_eqres(Clause_p cl, Eqn_p lit, ClauseSet_p store)
    PStack_p disagreements = PStackAlloc();
    Term_p lhs = lit->lterm, rhs = lit->rterm;
    TB_p terms = lit->bank;
-   if(find_disagreements(lhs, rhs, disagreements))
+   if(find_disagreements(terms->sig, lhs, rhs, disagreements))
    {
       Eqn_p condition = NULL;
       while(!PStackEmpty(disagreements))
@@ -284,7 +290,7 @@ void do_ext_sup(ClausePos_p from_pos, ClausePos_p into_pos, ClauseSet_p store,
    PStack_p disagreements = PStackAlloc();
    Term_p from_t = ClausePosGetSubterm(from_pos);
    Term_p into_t = ClausePosGetSubterm(into_pos);
-   if(find_disagreements(from_t, into_t, disagreements))
+   if(find_disagreements(terms->sig, from_t, into_t, disagreements))
    {
       Subst_p subst = SubstAlloc();
       VarBankResetVCounts(freshvars);
@@ -839,7 +845,7 @@ bool DestructEquivalences(Clause_p cl, ClauseSet_p store)
             destructed_one = true;
          }
       }
-      else if(!ClauseQueryProp(task, CPIsGlobalIndexed))
+      else if(task != cl)
       {
          // removing an intermediary clause created above
          ClauseFree(task);

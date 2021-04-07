@@ -213,7 +213,7 @@ bool TermHasExtEligSubterm(Term_p t)
    for(int i=0; !ans && i < t->arity; i++)
    {
       ans = ans || (TYPE_EXT_ELIGIBLE(t->args[i]->type)
-                   && !TermIsTopLevelVar(t->args[i]))
+                    && !TermIsTopLevelVar(t->args[i]))
                 || TermHasExtEligSubterm(t->args[i]);
    }
    return ans;
