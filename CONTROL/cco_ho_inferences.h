@@ -19,5 +19,6 @@ Contents
 
 #include <che_proofcontrol.h>
 
+bool DestructEquivalences(Clause_p cl, ClauseSet_p store);
 void ComputeHOInferences(ProofState_p state, ProofControl_p control, 
                          Clause_p renamed_clause, Clause_p orig_clause);

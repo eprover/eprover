@@ -82,6 +82,7 @@ typedef enum
    DOFOOLUnroll,
    DOEliminateBVar,
    /* HO inferences */
+   DODynamicCNF,
    DONegExt,
    DOPosExt,
    DOExtSup,
@@ -142,6 +143,7 @@ typedef enum
    DCFoolUnroll       = DOFOOLUnroll,
    DCEliminateBVar    = DOEliminateBVar,
    /* HO inferences */
+   DCDynamicCNF       = DODynamicCNF|Arg1Cnf,
    DCNegExt           = DONegExt|Arg1Cnf,
    DCPosExt           = DOPosExt|Arg1Cnf,
    DCExtSup           = DOExtSup|Arg1Cnf|Arg2Cnf,

@@ -112,11 +112,12 @@ typedef enum
 #define PCL_NC     "assume_negation"
 #define PCL_FU     "fool_unroll"
 #define PCL_EBV    "eliminate_boolean_vars"
-#define PCL_NEG_EXT "neg ext"
-#define PCL_POS_EXT "pos ext"
-#define PCL_EXT_SUP "ext sup"
-#define PCL_EXT_EQRES "ext eqres"
-#define PCL_INV_REC "recongize injectivity"
+#define PCL_DYN_CNF "dynamic cnf"
+#define PCL_NEG_EXT "neg_ext"
+#define PCL_POS_EXT "pos_ext"
+#define PCL_EXT_SUP "ext_sup"
+#define PCL_EXT_EQRES "ext_eqres"
+#define PCL_INV_REC "recongize_injectivity"
 
 
 /*---------------------------------------------------------------------*/
