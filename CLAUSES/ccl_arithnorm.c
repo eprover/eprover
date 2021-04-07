@@ -5,29 +5,45 @@ File  : clb_pstacks.h
 Author: Florian Knoch and Lukas Naatz
 
 Contents
+  rewriting functions for arithmetic functions
 
-  Soemwhat efficient unlimited growth stacks for pointers/long ints.
-
-  Copyright 1998, 1999 by the author.
+  Copyright 2021 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
 Changes
-
-<1> Wed Dec  3 16:22:48 MET 1997
+<1> Tue Mar 23 09:14:36 MET 2021
     New
 
 -----------------------------------------------------------------------*/
 
 #include "ccl_arithnorm.h"
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: FormulaSetArithNorm()
+//     Normalizes all Terms in the formulaset and handles documentation.
+//   
+//
+// Global Variables: 
+//
+// Side Effects    : 
+//
+/----------------------------------------------------------------------*/
+
 void FormulaSetArithNorm(FormulaSet_p set, TB_p terms, GCAdmin_p gc) {
-   WFormula_p handle, anchor, form;
-   TFormula_p normalized;
+   WFormula_p handle, anchor;
    anchor = set->anchor;
    handle = anchor;
+   
+   for(handle = anchor->succ; handle != anchor; handle = handle->succ) {
+      printf("------\n");
+      PrintTermsDebug(handle->tformula, terms, 0);
+   }
+   
    while((handle = handle->succ) != anchor)
    {
       handle->tformula = TFormulaArithNormalize(terms, handle->tformula);
@@ -35,11 +51,34 @@ void FormulaSetArithNorm(FormulaSet_p set, TB_p terms, GCAdmin_p gc) {
       DocFormulaModificationDefault(handle, inf_minimize);
       WFormulaPushDerivation(handle, DCArithNormalize, NULL, NULL);
    }
+
+   printf("okok\n");
+   while((handle = handle->succ) != anchor)
+   {
+      ACNormalize(handle->tformula, terms);
+	  // Derivations maybe push to much, since the formula might not get rewritten 
+      DocFormulaModificationDefault(handle, inf_minimize);
+      WFormulaPushDerivation(handle, DCArithNormalize, NULL, NULL);
+   }
+   printf("okok\n");
    for(handle = anchor->succ; handle != anchor; handle = handle->succ) {
       printf("------\n");
       PrintTermsDebug(handle->tformula, terms, 0);
    }
 }
+
+/*-----------------------------------------------------------------------
+//
+// Function: PrintTermsDebug()
+//     Prints the termstructure with f_code.
+//
+//   
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
 
 void PrintTermsDebug(TFormula_p form, TB_p terms, int depth)
 {
@@ -49,10 +88,21 @@ void PrintTermsDebug(TFormula_p form, TB_p terms, int depth)
 
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: TFomulaArithNormalize()
+//     Rewrites certain arithmetic functions so we dont have to deal with
+//     them later. 
+//
+// Global Variables: -
+//
+// Side Effects    : Memory Operations 
+//
+/----------------------------------------------------------------------*/
+
 TFormula_p TFormulaArithNormalize(TB_p terms, TFormula_p form)
 {
    TFormula_p newform=NULL, arg1=NULL, arg2=NULL;
-   
    if(form->arity == 0) {
       
       return form;
@@ -66,7 +116,7 @@ TFormula_p TFormulaArithNormalize(TB_p terms, TFormula_p form)
       arg2 = TFormulaArithNormalize(terms, form->args[1]);
 
    }
-	if(form->f_code == 3) // eqn
+	if(form->f_code == 3 && 1==2) // eqn hack should be changed
    {
       TFormula_p tmp1,tmp2;
       tmp1 = TFormulaArithFCodeAlloc(terms, terms->sig->eqn_code, form->type, arg1->args[0],arg2); // new eqn
@@ -173,6 +223,20 @@ TFormula_p TFormulaArithNormalize(TB_p terms, TFormula_p form)
    return newform;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: TFormulaArithFCodeAlloc() 
+//    Pretty similar to TFormulaFCodeAlloc() but for arithmetic 
+//    functions (type).
+//    Creates a new Termcell and inserts into the termbank.
+//   
+//
+// Global Variables: -
+//
+// Side Effects    : Memory Operations
+//
+/----------------------------------------------------------------------*/
+
 TFormula_p TFormulaArithFCodeAlloc(TB_p bank, FunCode op, Type_p FunType, TFormula_p arg1, TFormula_p arg2)
 {   
    int arity = SigFindArity(bank->sig, op);
@@ -200,9 +264,114 @@ TFormula_p TFormulaArithFCodeAlloc(TB_p bank, FunCode op, Type_p FunType, TFormu
       }
    }
    assert(bank);
+   printf("hä?\n");
    res = TBTermTopInsert(bank, res);
 
    return res;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: ACNormalize() 
+//	         
+//
+// Global Variables: -
+//
+// Side Effects    : Memory Operations
+//
+/----------------------------------------------------------------------*/
+
+bool ACNormalize(TFormula_p acterm, TB_p bank) 
+{
+   bool is_ground = true;
+
+   if(acterm->arity == 0) {
+      // check if Element is Variable or constant
+      return TermCellQueryProp(acterm, TPIsGround);
+   }
+   
+   if((acterm->f_code != bank->sig->product_code) &&
+      (acterm->f_code != bank->sig->sum_code)) 
+   {
+      for(int i = 0; i < acterm->arity; i++) {
+         is_ground &= ACNormalize(acterm->args[i], bank);
+      }
+      return is_ground;
+   }
+   
+   ACStruct_p head = AllocNormalizeStruct();
+   collect_ac_leafes(acterm, bank, acterm->f_code, head);
+   ACNorm_p children = head->groundterms;
+   
+   if(children == NULL) {
+      children = head->nongroundterms;
+   }
+   ACCellAppend(children, head->nongroundterms);
+   while(children->succ->succ != NULL)
+   {
+      ACNorm_p arg1 = children;
+      ACNorm_p arg2 = children->succ;
+      
+      TFormula_p new = TFormulaArithFCodeAlloc(bank, acterm->f_code, acterm->type, arg1->acterm, arg2->acterm);
+      ACNorm_p newcell = AllocNormalizeCell(new, arg1->isground & arg2->isground);
+      newcell->succ = arg2->succ;
+      children = newcell;
+   }
+   ACNorm_p arg1 = children;
+   ACNorm_p arg2 = children->succ;
+   acterm->args[0] = arg1->acterm;
+   acterm->args[1] = arg2->acterm;
+   return arg1->isground & arg2->isground;
+}
+
+void collect_ac_leafes(TFormula_p acterm, TB_p bank, FunCode rootcode, ACStruct_p head) { 
+   if(acterm->f_code != rootcode) {
+      bool isground = ACNormalize(acterm, bank);
+      ACNorm_p leaf = AllocNormalizeCell(acterm, isground);
+      
+      if(isground){
+         if(head->groundterms == NULL) {
+            head->groundterms = leaf;
+         } else {
+            leaf->succ = head->groundterms;
+            head->groundterms = leaf;
+         }
+      } else {
+         if(head->nongroundterms == NULL) {
+            head->nongroundterms = leaf;
+         } else {
+            leaf->succ = head->nongroundterms;
+            head->nongroundterms = leaf;
+         }
+      }
+   } else {
+      for(int i = 0; i < acterm->arity; i++) {
+         collect_ac_leafes(acterm->args[i], bank, rootcode, head);
+      }
+   }
+}
+
+
+void ACCellAppend(ACNorm_p head, ACNorm_p tail) {
+   ACNorm_p current;
+   for(current = head; current->succ != NULL; current = current->succ);
+   current->succ = tail;
+}
+
+ACStruct_p AllocNormalizeStruct() {
+   ACStruct_p newstruct = SizeMalloc(sizeof(ACNormalizeStruct));
+   newstruct->groundterms = NULL;
+   newstruct->nongroundterms = NULL;
+   return newstruct;
+}
+
+ACNorm_p AllocNormalizeCell(TFormula_p leaf, bool isground) {
+   ACNorm_p newcell = SizeMalloc(sizeof(ACNormalizeCell));
+   newcell->acterm = leaf;
+   newcell->isground = isground;
+   newcell->succ = NULL;
+
+   return newcell;
 }
 
 /*---------------------------------------------------------------------*/
