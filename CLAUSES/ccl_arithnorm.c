@@ -52,7 +52,6 @@ void FormulaSetArithNorm(FormulaSet_p set, TB_p terms, GCAdmin_p gc) {
       WFormulaPushDerivation(handle, DCArithNormalize, NULL, NULL);
    }
 
-   printf("okok\n");
    while((handle = handle->succ) != anchor)
    {
       ACNormalize(handle->tformula, terms);
@@ -60,7 +59,7 @@ void FormulaSetArithNorm(FormulaSet_p set, TB_p terms, GCAdmin_p gc) {
       DocFormulaModificationDefault(handle, inf_minimize);
       WFormulaPushDerivation(handle, DCArithNormalize, NULL, NULL);
    }
-   printf("okok\n");
+
    for(handle = anchor->succ; handle != anchor; handle = handle->succ) {
       printf("------\n");
       PrintTermsDebug(handle->tformula, terms, 0);
@@ -264,7 +263,6 @@ TFormula_p TFormulaArithFCodeAlloc(TB_p bank, FunCode op, Type_p FunType, TFormu
       }
    }
    assert(bank);
-   printf("hä?\n");
    res = TBTermTopInsert(bank, res);
 
    return res;
@@ -272,8 +270,9 @@ TFormula_p TFormulaArithFCodeAlloc(TB_p bank, FunCode op, Type_p FunType, TFormu
 
 /*-----------------------------------------------------------------------
 //
-// Function: ACNormalize() 
-//	         
+// Function: ACNormalize()
+//    Finds AC Subterms ( $sum / $product) and rewrites the termtree so
+//    groundterms are on the left.
 //
 // Global Variables: -
 //
@@ -316,13 +315,33 @@ bool ACNormalize(TFormula_p acterm, TB_p bank)
       ACNorm_p newcell = AllocNormalizeCell(new, arg1->isground & arg2->isground);
       newcell->succ = arg2->succ;
       children = newcell;
+
+      free(arg1);
+      free(arg2);
    }
    ACNorm_p arg1 = children;
    ACNorm_p arg2 = children->succ;
    acterm->args[0] = arg1->acterm;
    acterm->args[1] = arg2->acterm;
-   return arg1->isground & arg2->isground;
+   is_ground = arg1->isground & arg2->isground;
+   
+   free(arg1);
+   free(arg2);
+   free(head);
+
+   return is_ground;
 }
+
+/*-----------------------------------------------------------------------
+//
+// Function: collect_ac_leafes() 
+//    collects all nodes, that are the arguments of the current AC Subterm
+//
+// Global Variables: -
+//
+// Side Effects    : Memory Operations
+//
+/----------------------------------------------------------------------*/
 
 void collect_ac_leafes(TFormula_p acterm, TB_p bank, FunCode rootcode, ACStruct_p head) { 
    if(acterm->f_code != rootcode) {
@@ -351,6 +370,16 @@ void collect_ac_leafes(TFormula_p acterm, TB_p bank, FunCode rootcode, ACStruct_
    }
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: ACCellAppend() 
+//    Appends a listelement at the end of a list
+//
+// Global Variables: -
+//
+// Side Effects    : Memory Operations
+//
+/----------------------------------------------------------------------*/
 
 void ACCellAppend(ACNorm_p head, ACNorm_p tail) {
    ACNorm_p current;
@@ -358,12 +387,34 @@ void ACCellAppend(ACNorm_p head, ACNorm_p tail) {
    current->succ = tail;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: AllocNormalizeStruct() 
+//    Creates the headstruct for ground- and nongroundterm lists
+//
+// Global Variables: -
+//
+// Side Effects    : Memory Operations
+//
+/----------------------------------------------------------------------*/
+
 ACStruct_p AllocNormalizeStruct() {
    ACStruct_p newstruct = SizeMalloc(sizeof(ACNormalizeStruct));
    newstruct->groundterms = NULL;
    newstruct->nongroundterms = NULL;
    return newstruct;
 }
+
+/*-----------------------------------------------------------------------
+//
+// Function: AllocNormalizeCell() 
+//    Creates a Normalisation Cell, which holds a leaf of the termtree	         
+//
+// Global Variables: -
+//
+// Side Effects    : Memory Operations
+//
+/----------------------------------------------------------------------*/
 
 ACNorm_p AllocNormalizeCell(TFormula_p leaf, bool isground) {
    ACNorm_p newcell = SizeMalloc(sizeof(ACNormalizeCell));
