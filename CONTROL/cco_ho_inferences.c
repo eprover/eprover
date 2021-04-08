@@ -865,7 +865,7 @@ bool DestructEquivalences(Clause_p cl, ClauseSet_p store, ClauseSet_p archive)
 
 bool ResolveFlexClause(Clause_p cl)
 {
-   bool pos = true, neg = false;
+   int pos = 1, neg = 0, in_eq = -1;
    IntMap_p ids_to_sign = IntMapAlloc();
    bool is_resolvable = true;
 
@@ -873,12 +873,31 @@ bool ResolveFlexClause(Clause_p cl)
    {
       if(EqnIsEquLit(lit))
       {
-         is_resolvable = is_resolvable && EqnIsNegative(lit)
+         is_resolvable = is_resolvable 
+                         && EqnIsNegative(lit)
                          && TermIsTopLevelVar(lit->lterm)
                          && TermIsTopLevelVar(lit->rterm);
+         if(is_resolvable && TypeIsPredicate(lit->lterm->type))
+         {
+            Term_p lvar = (TermIsVar(lit->lterm) ? lit->lterm : lit->lterm->args[0]);
+            Term_p rvar = (TermIsVar(lit->rterm) ? lit->rterm : lit->rterm->args[0]);
+            int* prev_l = IntMapGetVal(ids_to_sign, lvar->f_code);
+            int* prev_r = IntMapGetVal(ids_to_sign, rvar->f_code);
+            if(prev_l || prev_r)
+            {
+               // if variable occurrs both in predicate and eq lit --> cannot resolve 
+               is_resolvable = false;
+            }
+            else
+            {
+               *IntMapGetRef(ids_to_sign, lvar->f_code) = &in_eq;
+               *IntMapGetRef(ids_to_sign, rvar->f_code) = &in_eq;
+            }
+         }
       }
       else
       {
+         assert(lit->lterm != lit->bank->true_term);
          if(!TermIsTopLevelVar(lit->lterm))
          {
             is_resolvable = false;
@@ -886,7 +905,7 @@ bool ResolveFlexClause(Clause_p cl)
          else
          {
             Term_p var = (TermIsVar(lit->lterm) ? lit->lterm : lit->lterm->args[0]);
-            bool* prev_val = IntMapGetVal(ids_to_sign, var->f_code);
+            int* prev_val = IntMapGetVal(ids_to_sign, var->f_code);
             if(!prev_val)
             {
                *IntMapGetRef(ids_to_sign, var->f_code) = 
@@ -894,7 +913,7 @@ bool ResolveFlexClause(Clause_p cl)
             }
             else
             {
-               is_resolvable = is_resolvable && (*prev_val == EqnIsPositive(lit));
+               is_resolvable = is_resolvable && (*prev_val == (EqnIsPositive(lit) ? 1 : 0));
             }
          }
       }
