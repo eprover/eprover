@@ -373,11 +373,12 @@ void TermPrintHO(FILE* out, Term_p term, Sig_p sig, DerefType deref)
    term = TermDeref(term, &deref);
 
    if(!TermIsVar(term) &&
-      SigIsLogicalSymbol(sig, term->f_code) &&
+      (SigIsLogicalSymbol(sig, term->f_code) ||
+      TermIsLambda(term)) &&
       term->f_code != SIG_TRUE_CODE &&
       term->f_code != SIG_FALSE_CODE)
    {
-      TermPrintDbgHO(out, term, sig, DEREF_NEVER);
+      TermFOOLPrint(out, sig, term);
       return;
    }
 
@@ -404,7 +405,7 @@ void TermPrintHO(FILE* out, Term_p term, Sig_p sig, DerefType deref)
          fputs("(", out);
          if(TypeIsBool(term->args[i]->type))
          {
-            TermPrintDbgHO(out, term->args[i], sig, DEREF_NEVER);
+            TermFOOLPrint(out, sig, term->args[i]);
          }
          else
          {
@@ -2435,16 +2436,21 @@ void TermFOOLPrint(FILE* out, Sig_p sig, TFormula_p form)
       }
 
    }
-   else if(form->f_code == sig->qex_code || form->f_code == sig->qall_code)
+   else if(form->f_code == sig->qex_code || form->f_code == sig->qall_code ||
+           form->f_code == SIG_NAMED_LAMBDA_CODE)
    {
       FunCode quantifier = form->f_code;
       if(form->f_code == sig->qex_code)
       {
          fputs("?[", out);
       }
-      else
+      else if (form->f_code == sig->qall_code)
       {
          fputs("![", out);
+      }
+      else
+      {
+         fputs("^[", out);
       }
       TermPrint(out, form->args[0], sig, DEREF_NEVER);
       if(problemType == PROBLEM_HO || !TypeIsIndividual(form->args[0]->type))

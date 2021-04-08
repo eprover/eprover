@@ -205,8 +205,8 @@ bool find_disagreements(Sig_p sig, Term_p t, Term_p s, PStack_p diss_stack)
             PStackPushP(diss_stack, s);
             exists_elig = exists_elig ||
                           (TYPE_EXT_ELIGIBLE(s->type)
-                           && !SigQueryFuncProp(sig, s->f_code, FPFOFOp)
-                           && !SigQueryFuncProp(sig, t->f_code, FPFOFOp));
+                           && (TermIsVar(s) || !SigQueryFuncProp(sig, s->f_code, FPFOFOp))
+                           && (TermIsVar(t) || !SigQueryFuncProp(sig, t->f_code, FPFOFOp)));
          }
       }
    }

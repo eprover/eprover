@@ -189,7 +189,7 @@ PTree_p create_sym_map(FormulaSet_p set, IntMap_p sym_def_map)
       // now the definition is of the form f @ ..terms.. = \xyz. body
       // and we need to check if terms are distinct variables
       // and if \terms\xyz.body has no free variables (and if )
-      bool is_def = TypeIsPredicate(lhs->type) &&
+      bool is_def = // TypeIsPredicate(lhs->type) &&
                     lhs->f_code > sig->internal_symbols && rhs != bank->true_term;
       PStackReset(bvars);
       for(long i=0; is_def && i<lhs_body->arity; i++)
@@ -1610,15 +1610,15 @@ long TFormulaSetUnfoldLogSymbols(FormulaSet_p set, FormulaSet_p archive, TB_p te
       }
       IntMapIterFree(iter);
 
-      PStack_p titer = PTreeTraverseInit(def_wforms);
-      PTree_p node;
-      while((node = PTreeTraverseNext(titer)))
-      {
-         next = node->key;
-         FormulaSetExtractEntry(next);
-         FormulaSetInsert(archive, next);
-      }
-      PTreeTraverseExit(titer);
+      // PStack_p titer = PTreeTraverseInit(def_wforms);
+      // PTree_p node;
+      // while((node = PTreeTraverseNext(titer)))
+      // {
+      //    next = node->key;
+      //    FormulaSetExtractEntry(next);
+      //    FormulaSetInsert(archive, next);
+      // }
+      // PTreeTraverseExit(titer);
 
       IntMapFree(sym_def_map);
       PTreeFree(def_wforms);
