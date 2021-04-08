@@ -1689,9 +1689,12 @@ CLState_p process_options(int argc, char* argv[])
             } else if (!strcmp(arg, "max"))
             {
                h_parms->arg_cong = MaxLits;
+            } else if (!strcmp(arg, "off"))
+            {
+               h_parms->arg_cong = NoLits;
             } else 
             {
-               Error("neg-ext excepts either all or max", 0);
+               Error("neg-ext excepts either all, max or off", 0);
             }
             break;
       case OPT_NEG_EXT:
