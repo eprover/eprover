@@ -1682,6 +1682,18 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_APP_ENCODE:
             app_encode = true;
             break;
+      case OPT_ARG_CONG:
+            if(!strcmp(arg, "all"))
+            {
+               h_parms->arg_cong = AllLits;
+            } else if (!strcmp(arg, "max"))
+            {
+               h_parms->arg_cong = MaxLits;
+            } else 
+            {
+               Error("neg-ext excepts either all or max", 0);
+            }
+            break;
       case OPT_NEG_EXT:
             if(!strcmp(arg, "all"))
             {

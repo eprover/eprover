@@ -26,7 +26,7 @@ Changes
 #include "ccl_clausefunc.h"
 #include "cte_lambda.h"
 
-#define  MAX_RW_DEPTH 10
+#define  MAX_RW_STEPS 500
 
 
 /*---------------------------------------------------------------------*/
@@ -87,9 +87,9 @@ TFormula_p unencode_eqns(TB_p terms, TFormula_p t)
 /----------------------------------------------------------------------*/
 
 Term_p do_rw_with_defs(TB_p terms, Term_p t, IntMap_p def_map,
-                       PTree_p* used_defs, int depth)
+                       PTree_p* used_defs, int* steps)
 {
-   if(depth >= MAX_RW_DEPTH)
+   if(*steps <= 0)
    {
       return t;
    }
@@ -98,7 +98,7 @@ Term_p do_rw_with_defs(TB_p terms, Term_p t, IntMap_p def_map,
    Term_p new = TermTopAlloc(t->f_code, t->arity);
    for(long i=0; i<t->arity; i++)
    {
-      new->args[i] = do_rw_with_defs(terms, t->args[i], def_map, used_defs, depth);
+      new->args[i] = do_rw_with_defs(terms, t->args[i], def_map, used_defs, steps);
       changed = changed || new->args[i] != t->args[i];
    }
 
@@ -124,7 +124,8 @@ Term_p do_rw_with_defs(TB_p terms, Term_p t, IntMap_p def_map,
       new = NamedLambdaSNF(terms, ApplyTerms(terms, rhs, args));
       PTreeStore(used_defs, wform);
       new = do_rw_with_defs(terms, new, 
-                            def_map, used_defs, depth+1);      
+                            def_map, used_defs, steps);  
+      *steps = *steps - 1; //forgot the precedence :)
       PStackFree(args);
    }
    
@@ -189,7 +190,7 @@ PTree_p create_sym_map(FormulaSet_p set, IntMap_p sym_def_map)
       // now the definition is of the form f @ ..terms.. = \xyz. body
       // and we need to check if terms are distinct variables
       // and if \terms\xyz.body has no free variables (and if )
-      bool is_def = // TypeIsPredicate(lhs->type) &&
+      bool is_def = TypeIsPredicate(lhs->type) &&
                     lhs->f_code > sig->internal_symbols && rhs != bank->true_term;
       PStackReset(bvars);
       for(long i=0; is_def && i<lhs_body->arity; i++)
@@ -267,8 +268,9 @@ void intersimplify_definitions(TB_p terms, IntMap_p sym_def_map)
    while((next=IntMapIterNext(iter, &i)))
    {
       PTree_p used_defs = NULL;
+      int max_steps = MAX_RW_STEPS;
       Term_p new_rhs = do_rw_with_defs(terms, next->tformula->args[1],
-                                       sym_def_map, &used_defs, 0);
+                                       sym_def_map, &used_defs, &max_steps);
       if(new_rhs!=next->tformula->args[1])
       {
          assert(used_defs);
@@ -1575,17 +1577,14 @@ long TFormulaSetUnfoldLogSymbols(FormulaSet_p set, FormulaSet_p archive, TB_p te
          if(!PTreeFind(&def_wforms, form))
          {
             PTree_p used_defs = NULL;
+            int max_steps = MAX_RW_STEPS;
             TFormula_p handle = do_rw_with_defs(terms, form->tformula, 
-                                                sym_def_map, &used_defs, 0);
+                                                sym_def_map, &used_defs, &max_steps);
          
             if(handle!=form->tformula)
             {
-               // TermPrintDbgHO(stderr, form->tformula, terms->sig, DEREF_NEVER);
                form->tformula = TermMap(terms, handle, unencode_eqns);
                
-               // fprintf(stderr, "\n-->\n");
-               // TermPrintDbgHO(stderr, form->tformula, terms->sig, DEREF_NEVER);
-               // fprintf(stderr,".\n");
 
                DocFormulaModificationDefault(form, inf_fof_simpl);
                PStack_p ptiter = PTreeTraverseInit(used_defs);
@@ -1610,15 +1609,15 @@ long TFormulaSetUnfoldLogSymbols(FormulaSet_p set, FormulaSet_p archive, TB_p te
       }
       IntMapIterFree(iter);
 
-      // PStack_p titer = PTreeTraverseInit(def_wforms);
-      // PTree_p node;
-      // while((node = PTreeTraverseNext(titer)))
-      // {
-      //    next = node->key;
-      //    FormulaSetExtractEntry(next);
-      //    FormulaSetInsert(archive, next);
-      // }
-      // PTreeTraverseExit(titer);
+      PStack_p titer = PTreeTraverseInit(def_wforms);
+      PTree_p node;
+      while((node = PTreeTraverseNext(titer)))
+      {
+         next = node->key;
+         FormulaSetExtractEntry(next);
+         FormulaSetInsert(archive, next);
+      }
+      PTreeTraverseExit(titer);
 
       IntMapFree(sym_def_map);
       PTreeFree(def_wforms);

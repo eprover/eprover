@@ -83,6 +83,8 @@ typedef enum
    DOEliminateBVar,
    /* HO inferences */
    DODynamicCNF,
+   DOFlexResolve,
+   DOArgCong,
    DONegExt,
    DOPosExt,
    DOExtSup,
@@ -144,6 +146,8 @@ typedef enum
    DCEliminateBVar    = DOEliminateBVar,
    /* HO inferences */
    DCDynamicCNF       = DODynamicCNF|Arg1Cnf,
+   DCFlexResolve      = DOFlexResolve,
+   DCArgCong          = DOArgCong|Arg1Cnf,
    DCNegExt           = DONegExt|Arg1Cnf,
    DCPosExt           = DOPosExt|Arg1Cnf,
    DCExtSup           = DOExtSup|Arg1Cnf|Arg2Cnf,

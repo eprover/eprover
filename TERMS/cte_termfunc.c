@@ -2483,7 +2483,7 @@ void TermFOOLPrint(FILE* out, Sig_p sig, TFormula_p form)
    {
       char* oprep = "XXX";
       // does not print or chain now
-      if(SigQueryFuncProp(sig, form->f_code, FPFOFOp) && form->arity == 2)
+      if(!TermIsVar(form) && SigQueryFuncProp(sig, form->f_code, FPFOFOp) && form->arity == 2)
       {
          fputs("(", out);
          TermFOOLPrint(out, sig, form->args[0]);

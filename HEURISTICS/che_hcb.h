@@ -151,6 +151,7 @@ typedef struct heuristic_parms_cell
    bool                detsort_tmpset;
 
    /* Higher-order settings */
+   ExtInferenceType    arg_cong;
    ExtInferenceType    neg_ext;
    ExtInferenceType    pos_ext;
    int                 ext_sup_max_depth;

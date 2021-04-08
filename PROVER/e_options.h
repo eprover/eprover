@@ -187,6 +187,7 @@ typedef enum
    OPT_MINISCOPE_LIMIT,
    OPT_PRINT_TYPES,
    OPT_APP_ENCODE,
+   OPT_ARG_CONG,
    OPT_NEG_EXT,
    OPT_POS_EXT,
    OPT_EXT_SUP,
@@ -1425,6 +1426,14 @@ OptCell opts[] =
     NoArg, NULL,
     "Encodes terms in the proof state using applicative encoding, "
     "prints encoded input problem and exits."},
+
+   {OPT_ARG_CONG,
+    '\0', "arg-cong",
+    ReqArg, NULL,
+    "Turns on ArgCong inference rule. Excepts an argument \"all\" or \"max\" "
+    "that applies the rule to all or only literals that are eligible "
+    "for resolution."},
+
 
    {OPT_NEG_EXT,
     '\0', "neg-ext",

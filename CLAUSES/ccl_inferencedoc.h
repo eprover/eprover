@@ -113,6 +113,8 @@ typedef enum
 #define PCL_FU     "fool_unroll"
 #define PCL_EBV    "eliminate_boolean_vars"
 #define PCL_DYN_CNF "dynamic cnf"
+#define PCL_FLEX_RESOLVE "flex_resolve"
+#define PCL_ARG_CONG "arg_cong"
 #define PCL_NEG_EXT "neg_ext"
 #define PCL_POS_EXT "pos_ext"
 #define PCL_EXT_SUP "ext_sup"

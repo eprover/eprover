@@ -855,6 +855,11 @@ Term_p TBInsertInstantiatedHO(TB_p bank, Term_p term, bool follow_bind)
 
    assert(term);
 
+   if(TermIsGround(term) && TermIsShared(term))
+   {
+      return term;
+   }
+
    if(TermIsVar(term) && term->binding)
    {
       t = follow_bind ? TBInsert(bank, term->binding, DEREF_NEVER) : term;

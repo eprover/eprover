@@ -18,6 +18,7 @@ Contents
 -----------------------------------------------------------------------*/
 
 #include "cco_ho_inferences.h"
+#include <cte_lambda.h>
 
 /*---------------------------------------------------------------------*/
 /*                        Global Variables                             */
@@ -636,6 +637,60 @@ void ComputeNegExt(ProofState_p state, ProofControl_p control, Clause_p clause)
 
 /*-----------------------------------------------------------------------
 //
+// Function: ComputeArgCong()
+//
+//   Computes all possible ArgCong inferences with the given clause. 
+//   ArgCong is described by 
+//
+//                         s = t  \/ C 
+//    -----------------------------------------------------------
+//               s FRESH_VAR = t FRESH_VAR \/ C
+//
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void ComputeArgCong(ProofState_p state, ProofControl_p control, Clause_p clause)
+{
+   TB_p bank = state->terms;
+   VarBank_p varbank = bank->vars;
+   VarBankSetVCountsToUsed(varbank); 
+   for(Eqn_p lit = clause->literals; lit; lit = lit->next)
+   {
+      Type_p lit_type = lit->lterm->type;
+      int needed_args = TypeGetMaxArity(lit_type);
+      bool lit_filter =
+         EqnIsPositive(lit) && needed_args > 0 &&
+         (control->heuristic_parms.arg_cong == AllLits ||
+         (control->heuristic_parms.arg_cong == MaxLits && EqnIsMaximal(lit)));
+
+      if (lit_filter)
+      {
+         PStack_p fresh_vars = PStackAlloc();
+         Term_p lhs=lit->lterm, rhs=lit->rterm;
+         for(int i=0; i<needed_args; i++)
+         {
+            PStackPushP(fresh_vars, VarBankGetFreshVar(varbank, lhs->type->args[i]));
+
+            Term_p new_lhs = ApplyTerms(bank, lhs, fresh_vars),
+                   new_rhs = ApplyTerms(bank, rhs, fresh_vars);
+            Eqn_p new_lit = EqnAlloc(new_lhs, new_rhs, bank, true);
+            Eqn_p new_literals = EqnListCopyExcept(clause->literals, lit, bank);
+            EqnListInsertFirst(&new_literals, new_lit);
+
+            Clause_p new_clause = ClauseAlloc(new_literals);
+            store_result(new_clause, clause, state->tmp_store, DCArgCong);
+         }
+         PStackFree(fresh_vars);
+      }
+   }
+}
+
+/*-----------------------------------------------------------------------
+//
 // Function: ComputePosExt()
 //
 //   Computes all possible PosExt inferences with the given clause. 
@@ -924,7 +979,7 @@ bool ResolveFlexClause(Clause_p cl)
       EqnListFree(cl->literals);
       cl->literals = NULL;
       ClauseRecomputeLitCounts(cl);
-      ClausePushDerivation(cl, DCCondense, NULL, NULL);
+      ClausePushDerivation(cl, DCFlexResolve, NULL, NULL);
    }
 
    IntMapFree(ids_to_sign);
@@ -949,6 +1004,10 @@ void ComputeHOInferences(ProofState_p state, ProofControl_p control,
 {
    if (problemType == PROBLEM_HO)
    {
+      if (control->heuristic_parms.arg_cong != NoLits)
+      {
+         ComputeArgCong(state,control,orig_clause);
+      }
       if (control->heuristic_parms.neg_ext != NoLits)
       {
          ComputeNegExt(state,control,orig_clause);
