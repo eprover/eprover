@@ -92,7 +92,7 @@ SimplifyRes FindTopSimplifyingUnit(ClauseSet_p units, Term_p t1,
       {
         // if the problem is not HO, we match completely.
         assert(pos->clause->set == units);
-        res = (SimplifyRes){.pos = pos, .remaining_args = 0};
+        res = (SimplifyRes){.pos = pos, .remaining_args = mi->remaining_args};
         MatchResFree(mi);
         break;
       }
@@ -138,7 +138,7 @@ SimplifyRes FindSignedTopSimplifyingUnit(ClauseSet_p units, Term_p t1,
       {
         // if the problem is not HO, we match completely.
         assert(pos->clause->set == units);
-        res = (SimplifyRes){.pos = pos, .remaining_args = 0};
+        res = (SimplifyRes){.pos = pos, .remaining_args = mi->remaining_args};
         MatchResFree(mi);
         break;
       }
@@ -216,7 +216,8 @@ SimplifyRes FindSimplifyingUnit(ClauseSet_p set, Term_p t1, Term_p t2,
 
    while(SimplifyFailed(res))
    {
-      if(t1->f_code != t2->f_code || !t1->arity)
+      if(TermIsTopLevelVar(t1) || TermIsTopLevelVar(t2) || 
+         t1->f_code != t2->f_code || !t1->arity)
       {
         break;
       }

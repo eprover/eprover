@@ -82,7 +82,8 @@ SimplifyRes unit_clause_set_strongsubsumes_termpair(ClauseSet_p set,
 
       if(SimplifyFailed(res))
       {
-         if(t1->f_code != t2->f_code || !t1->arity)
+         if(TermIsAppliedVar(t1) || TermIsAppliedVar(t2) ||
+            t1->f_code != t2->f_code || !t1->arity)
          {
             break;
          }
@@ -239,7 +240,8 @@ static bool eqn_subsumes_termpair(Eqn_p eqn, Term_p t1, Term_p t2)
 
    while(!(res = eqn_topsubsumes_termpair(eqn, t1, t2)))
    {
-      if(t1->f_code != t2->f_code || !t1->arity)
+      if(TermIsPhonyApp(t1) || TermIsPhonyApp(t2) || 
+         t1->f_code != t2->f_code || !t1->arity)
       {
          break;
       }
