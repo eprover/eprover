@@ -302,7 +302,7 @@ bool TermComputeRWSequence(PStack_p stack, Term_p from, Term_p to,
       {
     int i;
     assert(from->f_code == tmp->f_code);
-    assert(from->arity&&from->args&&tmp->args);
+    assert(from->arity);
 
     for(i=0; i<from->arity; i++)
     {
@@ -333,5 +333,3 @@ bool TermComputeRWSequence(PStack_p stack, Term_p from, Term_p to,
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-

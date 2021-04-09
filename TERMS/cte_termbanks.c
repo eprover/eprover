@@ -1303,7 +1303,7 @@ void TBPrintTermCompact(FILE* out, TB_p bank, Term_p term)
          if(!TermIsConst(term))
          {
             fputc('(',out);
-            assert(term->args && (term->arity>0));
+            assert(term->arity>0);
             TBPrintTermCompact(out, bank, term->args[0]);
             for(i=1;i<term->arity;i++)
             {
