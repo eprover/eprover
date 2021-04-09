@@ -845,6 +845,8 @@ __inline__ int SubstMatchPossiblyPartial(Term_p pattern, Term_p target, Subst_p 
 UnificationResult SubstMguPossiblyPartial(Term_p t, Term_p s, Subst_p subst)
 {
    UnificationResult res;
+   PStackPointer backtrack = PStackGetSP(subst);
+   
    if(problemType == PROBLEM_FO)
    {
       res = (UnificationResult) {SubstComputeMgu(t,s,subst) ? RightTerm : NoTerm, 0};
@@ -852,6 +854,11 @@ UnificationResult SubstMguPossiblyPartial(Term_p t, Term_p s, Subst_p subst)
    else
    {
       res = SubstComputeMguHO(t,s,subst);
+      if(res.term_remaining != 0)
+      {
+         res = UNIF_FAILED;
+         SubstBacktrackToPos(subst, backtrack);
+      }
    }
 
    return res;

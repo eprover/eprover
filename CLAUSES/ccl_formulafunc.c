@@ -1584,7 +1584,6 @@ long TFormulaSetUnfoldLogSymbols(FormulaSet_p set, FormulaSet_p archive, TB_p te
             if(handle!=form->tformula)
             {
                form->tformula = TermMap(terms, handle, unencode_eqns);
-               
 
                DocFormulaModificationDefault(form, inf_fof_simpl);
                PStack_p ptiter = PTreeTraverseInit(used_defs);
