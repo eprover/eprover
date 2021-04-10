@@ -1623,9 +1623,10 @@ long EqnListAddFunOccs(Eqn_p list,
 
 /*-----------------------------------------------------------------------
 //
-// Function: EqnListTermSetProp()
+// Function: EqnListSignedTermSetProp()
 //
-//   Set prop in all terms in list.
+//   Set prop in all terms in the literals in list selected via the
+//   pos/neg parameters.
 //
 // Global Variables: -
 //
@@ -1633,11 +1634,19 @@ long EqnListAddFunOccs(Eqn_p list,
 //
 /----------------------------------------------------------------------*/
 
-void EqnListTermSetProp(Eqn_p list, TermProperties props)
+void EqnListSignedTermSetProp(Eqn_p list, TermProperties props, bool pos, bool neg)
 {
    while(list)
    {
-      EqnTermSetProp(list, props);
+      if(pos && EqnIsPositive(list))
+      {
+         EqnTermSetProp(list, props);
+      }
+      if(neg && EqnIsNegative(list))
+      if(pos && EqnIsPositive(list))
+      {
+         EqnTermSetProp(list, props);
+      }
       list = list->next;
    }
 }
