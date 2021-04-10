@@ -329,9 +329,6 @@ void     ClauseMarkMaximalTerms(OCB_p ocb, Clause_p clause);
 #define  ClauseMarkMaximalLiterals(ocb, clause)                 \
    EqnListMaximalLiterals((ocb), (clause)->literals)
 
-#define  ClauseDeleteTermProperties(clause, props)              \
-   EqnListDeleteTermProperties((clause)->literals, props)
-
 //bool     ClauseParentsAreSubset(Clause_p clause1, Clause_p clause2);
 
 void     ClauseAddEvalCell(Clause_p clause, Eval_p evaluation);

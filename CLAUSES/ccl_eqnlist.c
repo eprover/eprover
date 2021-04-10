@@ -1643,13 +1643,43 @@ void EqnListSignedTermSetProp(Eqn_p list, TermProperties props, bool pos, bool n
          EqnTermSetProp(list, props);
       }
       if(neg && EqnIsNegative(list))
-      if(pos && EqnIsPositive(list))
       {
          EqnTermSetProp(list, props);
       }
       list = list->next;
    }
 }
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: EqnListSignedTermDelProp()
+//
+//   Delete prop in all terms in the literals in list selected via the
+//   pos/neg parameters.
+//
+// Global Variables: -
+//
+// Side Effects    : None beyond the purpose
+//
+/----------------------------------------------------------------------*/
+
+void EqnListSignedTermDelProp(Eqn_p list, TermProperties props, bool pos, bool neg)
+{
+   while(list)
+   {
+      if(pos && EqnIsPositive(list))
+      {
+         EqnTermDelProp(list, props);
+      }
+      if(neg && EqnIsNegative(list))
+      {
+         EqnTermDelProp(list, props);
+      }
+      list = list->next;
+   }
+}
+
 
 
 /*-----------------------------------------------------------------------
@@ -1672,32 +1702,6 @@ long EqnListTBTermDelPropCount(Eqn_p list, TermProperties props)
    while(list)
    {
       count += EqnTBTermDelPropCount(list, props);
-      list = list->next;
-   }
-   return count;
-}
-
-
-/*-----------------------------------------------------------------------
-//
-// Function: EqnListTermDelProp()
-//
-//   Delete prop in all terms in list, return number of termcells in
-//   which prop was set.
-//
-// Global Variables: -
-//
-// Side Effects    : As above
-//
-/----------------------------------------------------------------------*/
-
-long EqnListTermDelProp(Eqn_p list, TermProperties props)
-{
-   long count = 0;
-
-   while(list)
-   {
-      EqnTermDelProp(list, props);
       list = list->next;
    }
    return count;

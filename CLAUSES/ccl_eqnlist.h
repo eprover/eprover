@@ -94,7 +94,6 @@ int     EqnListOrient(OCB_p ocb, Eqn_p list);
 int     EqnListMaximalLiterals(OCB_p ocb, Eqn_p list);
 bool    EqnListEqnIsMaximal(OCB_p ocb, Eqn_p list, Eqn_p eqn);
 bool    EqnListEqnIsStrictlyMaximal(OCB_p ocb, Eqn_p list, Eqn_p eqn);
-void    EqnListDeleteTermProperties(Eqn_p list, TermProperties props);
 
 void    EqnListPrint(FILE* out, Eqn_p list, char* sep,
                      bool negated,  bool fullterms);
@@ -118,11 +117,15 @@ void    EqnListComputeFunctionRanks(Eqn_p list, long *rank_array, long* count);
 long    EqnListCollectVariables(Eqn_p list, PTree_p *tree);
 long    EqnListAddFunOccs(Eqn_p list, PDArray_p f_occur, PStack_p res_stack);
 
+void    EqnListSignedTermSetProp(Eqn_p list, TermProperties props, bool pos, bool neg);
 #define EqnListTermSetProp(list, props) \
         EqnListSignedTermSetProp((list),(props), true,true)
-void    EqnListSignedTermSetProp(Eqn_p list, TermProperties props, bool pos, bool neg);
+
+void    EqnListSignedTermDelProp(Eqn_p list, TermProperties props, bool pos, bool neg);
+#define EqnListTermDelProp(list, props) \
+        EqnListSignedTermDelProp((list),(props), true,true)
+
 long    EqnListTBTermDelPropCount(Eqn_p list, TermProperties props);
-long    EqnListTermDelProp(Eqn_p list, TermProperties props);
 
 long    EqnListCollectSubterms(Eqn_p list, PStack_p collector);
 
