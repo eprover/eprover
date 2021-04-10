@@ -325,6 +325,7 @@ WFormula_p WFormulaTPTPParse(Scanner_p in, TB_p terms)
                           AktToken(in)->line,
                           AktToken(in)->column);
    AcceptInpId(in, "input_formula");
+   SetProblemType(PROBLEM_FO);
    AcceptInpTok(in, OpenBracket);
    CheckInpTok(in, Name|PosInt);
    info->name = DStrCopy(AktToken(in)->literal);

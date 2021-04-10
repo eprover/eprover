@@ -1270,7 +1270,7 @@ FunCode SigGetNewSkolemCode(Sig_p sig, int arity)
 
 FunCode SigGetNewTypedSkolem(Sig_p sig, Type_p* args, int num_args, Type_p ret_type)
 {
-   Type_p sk_type = 
+   Type_p sk_type =
       TypeBankInsertTypeShared(sig->type_bank,
                                ArrowTypeFlattened(args, num_args, ret_type));
    int max_arity = TypeGetMaxArity(sk_type);
@@ -1280,7 +1280,7 @@ FunCode SigGetNewTypedSkolem(Sig_p sig, Type_p* args, int num_args, Type_p ret_t
    {
       SigDeclareIsPredicate(sig, res);
    }
-   else 
+   else
    {
       SigDeclareIsFunction(sig, res);
    }

@@ -445,6 +445,7 @@ static bool eqn_parse_prefix(Scanner_p in, TB_p bank, Term_p *lref,
    else
    {
       lterm = TBTermParse(in, bank);
+      TypeDeclareIsPredicate(bank->sig, lterm);
       BOOL_TERM_NORMALIZE(lterm);
       rterm = bank->true_term; /* Non-Equational literal */
    }
