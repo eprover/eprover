@@ -187,6 +187,23 @@ double ClauseWeightCompute(void* data, Clause_p clause)
 
 /*-----------------------------------------------------------------------
 //
+// Function: ClauseWeightExit()
+//
+//   Free the data entry in a clauseweight WFCB.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+void ClauseWeightExit(void* data)
+{
+   WeightParamCellFree(data);
+}
+
+/*-----------------------------------------------------------------------
+//
 // Function: LMaxWeightInit()
 //
 //   Return an initialized WFCB for LMaxWeight evaluation.
@@ -370,24 +387,6 @@ double CMaxWeightCompute(void* data, Clause_p clause)
    }
    return clause->pos_lit_no*res*local->pos_multiplier +
           clause->neg_lit_no*res;
-}
-
-
-/*-----------------------------------------------------------------------
-//
-// Function: ClauseWeightExit()
-//
-//   Free the data entry in a clauseweight WFCB.
-//
-// Global Variables: -
-//
-// Side Effects    : Memory operations
-//
-/----------------------------------------------------------------------*/
-
-void ClauseWeightExit(void* data)
-{
-   WeightParamCellFree(data);
 }
 
 

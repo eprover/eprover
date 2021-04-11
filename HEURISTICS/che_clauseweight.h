@@ -61,6 +61,8 @@ WFCB_p ClauseWeightParse(Scanner_p in, OCB_p ocb, ProofState_p state);
 
 double ClauseWeightCompute(void* data, Clause_p clause);
 
+void   ClauseWeightExit(void* data);
+
 WFCB_p LMaxWeightInit(ClausePrioFun prio_fun, int fweight, int
              vweight, double pos_multiplier, double app_var_mult);
 
@@ -74,8 +76,6 @@ WFCB_p CMaxWeightInit(ClausePrioFun prio_fun, int fweight, int
 WFCB_p CMaxWeightParse(Scanner_p in, OCB_p ocb, ProofState_p state);
 
 double CMaxWeightCompute(void* data, Clause_p clause);
-
-void   ClauseWeightExit(void* data);
 
 WFCB_p UniqWeightInit(ClausePrioFun prio_fun);
 
@@ -99,8 +99,3 @@ void TrivialWeightExit(void* data);
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
-
-
-
