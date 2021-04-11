@@ -36,6 +36,7 @@ char* WeightFunParseFunNames[]=
    "ClauseCMaxWeight",
    "Uniqweight",
    "Defaultweight",
+   "DAGweight",
    "Refinedweight",
    "Refinedweight2",
    "Diversityweight",
@@ -82,6 +83,7 @@ static WeightFunParseFun parse_fun_array[]=
    CMaxWeightParse,
    UniqWeightParse, /* NOTE2ME:  did not change it */
    DefaultWeightParse, /* NOTE2ME:  did not change it */
+   DAGWeightParse,
    ClauseRefinedWeightParse,
    ClauseRefinedWeight2Parse,
    DiversityWeightParse,
