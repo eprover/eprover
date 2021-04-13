@@ -194,6 +194,9 @@ double DAGWeightCompute(void* data, Clause_p clause)
          }
       }
    }
+   // printf("\n# Eval: %6.2f: ", res);
+   // ClauseTSTPPrint(stdout, clause, true,true);
+   // printf("\n");
    return res;
 }
 

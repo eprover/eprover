@@ -2623,6 +2623,8 @@ long TermDAGWeight(Term_p term, long fweight, long vweight,
    stack = PStackAlloc();
    PStackPushP(stack, term);
 
+   // printf("(F%ld/V%ld)\n", fweight, vweight);
+
    while(!PStackEmpty(stack))
    {
       term = PStackPopP(stack);
@@ -2643,7 +2645,7 @@ long TermDAGWeight(Term_p term, long fweight, long vweight,
             res += fweight;
             for(i=0; i< term->arity; i++)
             {
-               PStackPushP(stack, term);
+               PStackPushP(stack, term->args[i]);
             }
          }
       }

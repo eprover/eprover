@@ -2499,23 +2499,23 @@ double  EqnDAGWeight(Eqn_p eq, double max_multiplier, long vweight, long
 
    if(new_eqn)
    {
-      EqnTermSetProp(eq, TPOpFlag);
+      EqnTermDelProp(eq, TPOpFlag);
    }
    else if(new_terms)
    {
       TermDelPropOpt(eq->lterm, TPOpFlag);
    }
-   lweight = TermDAGWeight(eq->lterm, vweight, fweight, dup_weight, false);
-   rweight = TermDAGWeight(eq->rterm, vweight, fweight, dup_weight, new_terms);
-
+   lweight = TermDAGWeight(eq->lterm, fweight, vweight, dup_weight, false);
+   rweight = TermDAGWeight(eq->rterm, fweight, vweight, dup_weight, new_terms);
+   //printf("(%ld/%ld)\n", lweight, rweight);
 
    if(EqnIsOriented(eq))
    {
-      res = (double)rweight*max_multiplier;
+      res = (double)rweight;
    }
    else
    {
-      res = (double)rweight;
+      res = (double)rweight*max_multiplier;
    }
    res += (double)lweight*max_multiplier;
    return res;
@@ -2551,9 +2551,10 @@ double EqnFunWeight(Eqn_p eq, double max_multiplier, long vweight,
       res *= max_multiplier;
    }
 
-   res += TERM_APPLY_APP_VAR_MULT((double)TermFsumWeight(eq->lterm, vweight, flimit, fweights,
-                                                            default_fweight, typefreqs) * max_multiplier,
-                                     eq->lterm, app_var_mult);
+   res += TERM_APPLY_APP_VAR_MULT(
+      (double)TermFsumWeight(eq->lterm, vweight, flimit, fweights,
+                             default_fweight, typefreqs) * max_multiplier,
+      eq->lterm, app_var_mult);
 
    return res;
 }
