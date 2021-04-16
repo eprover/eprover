@@ -446,6 +446,7 @@ int main(int argc, char* argv[])
    FormulaSetArithNorm(proofstate->f_axioms,
                        proofstate->terms,
                        proofstate->gc_terms);
+   
    if(new_cnf)
    {
       cnf_size = FormulaSetCNF2(proofstate->f_axioms,

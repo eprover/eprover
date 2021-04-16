@@ -457,6 +457,7 @@ int SubstComputeMatchHO(Term_p matcher, Term_p to_match, Subst_p subst)
 bool SubstComputeMgu(Term_p t1, Term_p t2, Subst_p subst)
 {
    //printf("Unify %lu %lu\n", t1->entry_no, t2->entry_no);
+
    assert(problemType == PROBLEM_FO);
    #ifdef MEASURE_UNIFICATION
       UnifAttempts++;

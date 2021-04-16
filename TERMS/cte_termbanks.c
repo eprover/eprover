@@ -188,7 +188,7 @@ static Term_p tb_termtop_insert(TB_p bank, Term_p t)
       {
          TermCellSetProp(t, TPIsGround);
       }
-
+      
       assert(TermWeight(t, DEFAULT_VWEIGHT, DEFAULT_FWEIGHT) == TermWeightCompute(t, DEFAULT_VWEIGHT, DEFAULT_FWEIGHT));
       assert((t->v_count == 0) == TermIsGround(t));
       assert(TBFind(bank, t));

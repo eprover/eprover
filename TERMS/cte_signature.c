@@ -374,6 +374,21 @@ bool SigIsPredicate(Sig_p sig, FunCode f_code)
 
    assert(f_code > 0);
    assert(f_code <= sig->f_count);
+   
+   // since all arith-Types are TypePoly -> Predicates, which is wrong,
+   // we test by excluding all arithmetic nonpredicates
+   if(sig->f_info[f_code].arithTypeCheck)
+   {
+      if(f_code == sig->less_code ||
+         f_code == sig->greater_code ||
+         f_code == sig->greatereq_code ||
+         f_code == sig->lesseq_code)
+      {
+         return true;
+      }
+      return false;
+
+   }
 
    if(FuncQueryProp(&(sig->f_info[f_code]), FPTypePoly))
    {

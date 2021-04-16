@@ -88,11 +88,15 @@ Type_p term_determine_type(Term_p term, Type_p type, TypeBank_p bank)
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
-Type_p infer_return_sort(Sig_p sig, FunCode f_code)
+Type_p infer_return_sort(Sig_p sig, Term_p term, FunCode f_code)
 {
    Type_p res;
 
-   if(SigQueryProp(sig, f_code, FPIsInteger) &&
+	TypeCheck2Fun checkfun = sig->f_info[f_code].arithTypeCheck;
+   
+   if(checkfun != NULL) {
+      res = checkfun(sig->type_bank, term->args[0]->type, term->arity==2?term->args[1]->type:NULL);
+   } else if(SigQueryProp(sig, f_code, FPIsInteger) &&
       (sig->distinct_props & FPIsInteger))
    {
       res = sig->type_bank->integer_type;
@@ -215,8 +219,7 @@ void TypeInferSort(Sig_p sig, Term_p term, Scanner_p in)
    Type_p type;
    Type_p sort, *args;
    int i;
-
-
+   
    if(TermIsVar(term))
    {
       if(!term->type)
@@ -282,13 +285,10 @@ void TypeInferSort(Sig_p sig, Term_p term, Scanner_p in)
                   }
                }
             }
+            term->type = term_determine_type(term, type, sig->type_bank);
+            
 			
-			// i dont think, thats ok ...
-			if(term->type != sig->type_bank->integer_type && term->type != sig->type_bank->real_type && term->type != sig->type_bank->rational_type) {
-				term->type = term_determine_type(term, type, sig->type_bank);
-			}
-			
-			if(term->type==NULL)
+            if(term->type==NULL)
             {
                fprintf(stderr, "# too many arguments supplied for %s\n",
                        SigFindName(sig, term->f_code));
@@ -316,7 +316,7 @@ void TypeInferSort(Sig_p sig, Term_p term, Scanner_p in)
       else
       {
          /* Infer type */
-         sort = infer_return_sort(sig, term->f_code);
+         sort = infer_return_sort(sig, term, term->f_code);
          args = term->arity ? TypeArgArrayAlloc(term->arity+1) : NULL;
          for(i=0; i < term->arity; i++)
          {
@@ -333,7 +333,11 @@ void TypeInferSort(Sig_p sig, Term_p term, Scanner_p in)
                      : sort;
 
          /* Declare the inferred type */
-         SigDeclareType(sig, term->f_code, type);
+         // Ugly hack i guess, maybe?
+         if(!sig->f_info[term->f_code].arithTypeCheck) SigDeclareType(sig, term->f_code, type);
+         
+         //printf("term->fcode: %d, arity:%d gets signature %d, fcode %d, arity %d (was %d, %d)\n",
+         //      term->f_code, term->arity, sort, sort->f_code, sort->arity, term->type, term->type?term->type->arity:0);
          term->type = sort;
       }
    }

@@ -702,7 +702,6 @@ Type_p TypeBankParseType(Scanner_p in, TypeBank_p bank)
          res = AllocArrowType(arity, args);
       }
    }
-
    return TypeBankInsertTypeShared(bank, res);
 }
 
