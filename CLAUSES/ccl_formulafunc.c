@@ -46,6 +46,153 @@ typedef TFormula_p (*FormulaMapper)(TFormula_p, TB_p);
 
 /*-----------------------------------------------------------------------
 //
+// Function: close_let_def()
+//
+//   For each defined symbol f(bound vars) = s, finds what are free variables
+//   in s and creates a fresh symbol f_fresh(free_vars, bound_vars)
+//
+// Global Variables: -
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+
+static void close_let_def(TB_p bank, NumTree_p* closed_defs, Term_p def)
+{
+   assert(def->f_code == bank->sig->eqn_code);
+   PTree_p free_vars = NULL;
+   Term_p lhs = def->args[0], rhs = def->args[1];
+   TFormulaCollectFreeVars(bank, rhs, &free_vars);
+
+   for(int i=0; i<lhs->arity; i++)
+   {
+      Term_p arg = lhs->args[i];
+      assert(TermIsVar(arg));
+      PTreeDeleteEntry(free_vars, arg);
+   }
+   
+   PStack_p all_vars = PStackAlloc();
+   PTreeToPStack(all_vars, free_vars);
+   for(int i=0; i<lhs->arity; i++)
+   {
+      PStackPushP(all_vars, lhs->args[i]);
+   }
+   Term_p fresh_sym = TermAllocNewSkolem(bank->sig, all_vars, lhs->type);
+
+   IntOrP orig_def = {.p_val = lhs}, new_def = {.p_val = fresh_sym};
+   NumTreeStore(closed_defs, lhs->f_code, orig_def, new_def);
+
+   PTreeFree(free_vars);
+   PStackFree(all_vars);
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: close_let_def()
+//
+//   Replace all occurences of old symbols with new definitions.
+//
+// Global Variables: -
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+
+static Term_p replace_body(TB_p bank, NumTree_p* closed_defs, Term_p t)
+{
+   NumTree_p node = NumTreeFind(closed_defs, t->f_code);
+   Term_p new = TermTopCopy(t);
+   bool changed = false;
+   for(long i=0; i<t->arity; i++)
+   {
+      new->args[i] = replace_body(bank, closed_defs, t->args[i]);
+      changed = changed || new->args[i] != t->args[i];
+   }
+
+   if(!changed)
+   {
+      TermTopFree(new);
+      new = t;
+   }
+   else
+   {
+      new = TBTermTopInsert(bank, new);
+   }
+
+   if(node)
+   {
+      Term_p old_def = node->val1.p_val;
+      Term_p new_def = node->val2.p_val;
+
+      Subst_p subst = SubstAlloc();
+      for(long i=0; i<new->arity; i++)
+      {
+         SubstAddBinding(subst, old_def->args[i], new->args[i]);
+      }
+
+      new = TBInsertInstantiated(bank, new_def);
+      SubstDelete(subst);
+   }
+
+   return new;
+}
+
+void make_fresh_defs(TB_p banks, NumTree_p closed, PStack_p fresh)
+{
+   // not implemented
+   return; 
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: lift_lets()
+//
+//   Does the actual lifting of let terms
+//
+// Global Variables: -
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+
+TFormula_p lift_lets(TB_p terms, TFormula_p t, PStack_p fresh_defs)
+{
+   Term_p new = TermTopCopyWithoutArgs(t);
+   PStackPointer prev = PStackGetSP(fresh_defs);
+   for(int i=0; i<new->arity; i++)
+   {
+      new->args[i] = lift_lets(terms, t->args[i], fresh_defs);
+   }
+
+   if(PStackGetSP(fresh_defs) == prev)
+   {
+      TermTopFree(new);
+      new = t;
+   }
+   else
+   {
+      new = TBTermTopInsert(terms, new);
+   }
+
+   if(new->f_code == SIG_LET_CODE)
+   {
+      NumTree_p closed_defs = NULL;
+      long num_defs = new->arity - 1;
+      for(long i=0; i < num_defs; i++)
+      {
+         close_let_def(terms, closed_defs, new->args[i]);
+      }
+      new = replace_body(terms, closed_defs, new->args[num_defs]);
+      make_fresh_defs(terms, closed_defs, fresh_defs);
+      NumTreeFree(closed_defs);
+   }
+
+   return new;   
+}
+
+/*-----------------------------------------------------------------------
+//
 // Function: unencode_eqns()
 //
 //   Undo encoding of the form **formula** = $true to **formula**
@@ -1218,9 +1365,9 @@ long FormulaAndClauseSetParse(Scanner_p in, FormulaSet_p fset,
                if(TestInpId(in, "input_formula|fof|tff|thf|tcf"))
                {
                   form = WFormulaParse(in, terms);
-                  // fprintf(stdout, "Parsed: ");
-                  // WFormulaPrint(stdout, form, true);
-                  // fprintf(stdout, "\n");
+                  fprintf(stdout, "Parsed: ");
+                  WFormulaPrint(stdout, form, true);
+                  fprintf(stdout, "\n");
                }
                else
                {

@@ -507,7 +507,7 @@ WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms)
       }
       else
       {
-         //fprintf(stderr, "# TFormula Start!\n");
+         // fprintf(stderr, "# TFormula Start!\n");
          tform = TFormulaTSTPParse(in, terms);
          // fprintf(stderr, "# TFormula parsed!: ");
          // TFormulaTPTPPrint(stderr, terms, tform, true, false);
