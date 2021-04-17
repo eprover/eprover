@@ -66,7 +66,7 @@ typedef enum
                                              first-order binary application symbol */
    FPIsInjDefSkolem = FPTypedApplication * 2, /* Symbol is Skolem for injective function */
    FPSkolemSymbol = FPIsInjDefSkolem * 2, /* Obvious ;-) */
-   FPDefPred      = FPSkolemSymbol * 2 /* Used for all new epred()s,
+   FPDefPred      = FPSkolemSymbol * 2, /* Used for all new epred()s,
                                         * but hopefully only for split
                                         * literals and Tseitin defined
                                         * predicates */
@@ -148,6 +148,8 @@ typedef struct sigcell
    long      newpred_count;
    /* Which properties are used for recognizing implicit distinctness?*/
    FunctionProperties distinct_props;
+   PStack_p let_scopes;
+   PStack_p let_names; // collects all the temp names ever allocated
 }SigCell, *Sig_p;
 
 
@@ -176,6 +178,9 @@ typedef struct sigcell
 // ACHTUNG: appears only during saturation
 // %x. f (g x) is encoded as DB_LAMBDA(F(G(0)))
 #define SIG_DB_LAMBDA_CODE SIG_NAMED_LAMBDA_CODE+1
+
+#define SIG_ITE_CODE SIG_DB_LAMBDA_CODE+1
+#define SIG_LET_CODE SIG_ITE_CODE+1
 
 /* Handle properties */
 
@@ -237,6 +242,7 @@ int     SigGetAlphaRank(Sig_p sig, FunCode f_code);
 
 FunCode SigInsertId(Sig_p sig, const char* name, int arity, bool
           special_id);
+FunCode SigInsertLetId(Sig_p sig, const char* name, Type_p type);
 FunCode SigInsertFOFOp(Sig_p sig, const char* name, int arity);
 void    SigPrint(FILE* out, Sig_p sig);
 void    SigPrintSpecial(FILE* out, Sig_p sig);
@@ -279,6 +285,8 @@ void    SigPrintTypeDeclsTSTP(FILE* out, Sig_p sig);
 void    SigParseTFFTypeDeclaration(Scanner_p in, Sig_p sig);
 bool    SigHasUnimplementedInterpretedSymbols(Sig_p sig);
 void    SigUpdateFeatureOffset(Sig_p sig, FunCode f);
+void    SigEnterLetScope(Sig_p sig, PStack_p type_decls);
+void    SigExitLetScope(Sig_p sig);
 
 
 typedef bool (*FunConstCmpFunType)(FunCode,  FunCode, long*, long*);

@@ -161,6 +161,7 @@ void    TBPrintTermCompact(FILE* out, TB_p bank, Term_p term);
 void    TBPrintTerm(FILE* out, TB_p bank, Term_p term, bool fullterms);
 void    TBPrintBankTerms(FILE* out, TB_p bank);
 Term_p  TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop);
+Term_p  ParseLet(Scanner_p in, TB_p bank, bool top_level);
 
 void    TBRefSetProp(TB_p bank, TermRef ref, TermProperties prop);
 void    TBRefDelProp(TB_p bank, TermRef ref, TermProperties prop);

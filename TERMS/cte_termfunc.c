@@ -241,6 +241,69 @@ NumTree_p create_var_renaming_de_bruin(VarBank_p vars, Term_p term)
    return root;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: print_let()
+//
+//    Prints let term
+//
+// Global Variables: TermPrintLists
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+void print_let(FILE* out, Term_p term, Sig_p sig, DerefType deref)
+{
+   fputs("$let(", out);
+   long n_decls = term->arity - 1;
+   
+   if(n_decls > 1)
+   {
+      fputs("[", out);
+   }
+   for(int i=0; i<n_decls; i++)
+   {
+      assert(term->args[i]->f_code == sig->eqn_code);
+      FunCode id = term->args[i]->args[0]->f_code;
+      fputs(SigFindName(sig, id), out);
+      fputs( " : ", out);
+      TypePrintTSTP(out, sig->type_bank, SigGetType(sig, id));
+      if(i!=n_decls-1)
+      {
+         fputs( ", ", out);
+      }
+   }
+
+   if(n_decls > 1)
+   {
+      fputs("]", out);
+   }
+   fputs(", ", out);
+
+   if(n_decls > 1)
+   {
+      fputs("[", out);
+   }
+   for(int i=0; i<n_decls; i++)
+   {
+      TermPrintFO(out, term->args[i]->args[0], sig, deref);
+      fputs(" := ", out);
+      TermPrintFO(out, term->args[i]->args[1], sig, deref);
+      if(i!=n_decls-1)
+      {
+         fputs( ", ", out);
+      }
+   }
+   if(n_decls > 1)
+   {
+      fputs("]", out);
+   }
+
+   fputs(", ", out);
+   TermPrintFO(out, term->args[n_decls], sig, deref);
+   fputs(")", out);
+}
+
 
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
@@ -291,7 +354,12 @@ void TermPrintFO(FILE* out, Term_p term, Sig_p sig, DerefType deref)
    // no need to change derefs here -- FOL
 
    term = TermDeref(term, &deref);
-
+   
+   if(term->f_code == SIG_LET_CODE)
+   {
+      print_let(out, term, sig, deref);
+      return;
+   }
    if(!TermIsVar(term) &&
       SigIsLogicalSymbol(sig, term->f_code) &&
       term->f_code != SIG_TRUE_CODE &&

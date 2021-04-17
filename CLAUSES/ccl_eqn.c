@@ -605,7 +605,7 @@ Eqn_p EqnAlloc(Term_p lterm, Term_p rterm, TB_p bank,  bool positive)
 #ifndef ENABLE_LFHO
       //assert(!TermIsVar(lterm));
 #endif
-      if(!TermIsVar(lterm) && !TermIsPhonyApp(lterm))
+      if(lterm->f_code > bank->sig->internal_symbols)
       {
          SigDeclareIsPredicate(bank->sig, lterm->f_code);
       }
@@ -708,8 +708,17 @@ Eqn_p EqnFOFParse(Scanner_p in, TB_p bank)
    Term_p lterm, rterm;
    Eqn_p handle;
 
-   positive = eqn_parse_real(in, bank, &lterm, &rterm, true);
-   handle = EqnAlloc(lterm, rterm, bank, positive);
+   if(TestInpTok(in, LetToken))
+   {
+      Term_p lhs = ParseLet(in, bank, true);
+      assert(TypeIsBool(lhs->type));
+      handle = EqnAlloc(lhs, bank->true_term, bank, true);
+   }
+   else
+   {
+      positive = eqn_parse_real(in, bank, &lterm, &rterm, true);
+      handle = EqnAlloc(lterm, rterm, bank, positive);
+   }
 
    return handle;
 }

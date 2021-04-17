@@ -269,6 +269,159 @@ static Term_p tb_parse_cons_list(Scanner_p in, TB_p bank, bool check_symb_prop)
    return handle;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: parse_let_typedecl()
+//
+//   Parses a single type declaration that constitutes of the first 
+//   part of a let term. For each parsed symbol, on type_decl it stores
+//   symbol name (DStr), fresh symbol ID (regardless of whether
+//   the symbol is already in the signature), and symbol type
+//   ACHTUNG: Dynamically allocated DStr is put on the stack.
+//
+// Global Variables: -
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+
+static void parse_let_typedecl(Scanner_p in, TB_p bank, PStack_p type_decls)
+{
+   DStr_p name = DStrAlloc();
+   FuncSymbType sym_type = FuncSymbParse(in, name);
+   if (sym_type == FSIdentFreeFun)
+   {
+      AcceptInpTok(in, Colon);
+      Type_p type = TypeBankParseType(in, bank->sig->type_bank);
+      
+      PStackPushP(type_decls, name);
+      PStackPushInt(type_decls, SigInsertLetId(bank->sig, DStrView(name), type));
+   }
+   else
+   {
+      AktTokenError(in, "let declaration expects a function symbol", 
+                    true);
+   }
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: parse_let_definition()
+//
+//   Parses a single type declaration that constitutes of the first 
+//   part of a let term. For each parsed symbol, on type_decl it stores
+//   symbol name (DStr), fresh symbol ID (regardless of whether
+//   the symbol is already in the signature), and symbol type
+//   ACHTUNG: Dynamically allocated DStr is put on the stack.
+//
+// Global Variables: -
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+
+static Term_p parse_let_sym_def(Scanner_p in, TB_p bank, PStack_p type_decls)
+{
+   DStr_p name = DStrAlloc();
+   FuncSymbType sym_type = FuncSymbParse(in, name);
+   FunCode id = 0;
+   for(PStackPointer i = 0; !id && i<PStackGetSP(type_decls); i += 2)
+   {
+      if(!strcmp(DStrView(name), DStrView(PStackElementP(type_decls, i))))
+      {
+         id = PStackElementInt(type_decls, i+1);
+      }
+   }
+
+   if(id)
+   {
+      Type_p type = SigGetType(bank->sig, id);
+      int arity = TypeGetMaxArity(type);
+      Term_p vars[arity]; // Variable length array
+      IntOrP dummy = {0};
+      if(arity)
+      {
+         AcceptInpTok(in, OpenBracket);
+         StrTree_p prev_vars = NULL;
+
+         for(int i=0; i<arity; i++)
+         {
+            DStrReset(name);
+            sym_type = FuncSymbParse(in, name);
+            if(StrTreeFind(&prev_vars, DStrView(name)))
+            {
+               AktTokenError(in, "variables must be distinct", true);
+            }
+
+            StrTreeStore(&prev_vars, DStrView(name), dummy, dummy);
+            if(sym_type != FSIdentVar)
+            {
+               AktTokenError(in, "variable is expected", true);
+            }
+
+            Type_p arg_type = type->args[i];
+
+            VarBankPushEnv(bank->vars);
+            vars[i] = VarBankExtNameAssertAllocSort(bank->vars,
+                                                    DStrView(name), arg_type);
+            if(i!=arity-1)
+            {
+               AcceptInpTok(in, Comma);
+            }
+         }
+         AcceptInpTok(in, CloseBracket);
+         StrTreeFree(prev_vars);
+      }
+
+      AcceptInpTok(in, Colon);
+      AcceptInpTok(in, EqualSign);
+
+      Term_p rhs = TypeIsPredicate(type) ? 
+                     TFormulaTSTPParse(in, bank) : TBTermParse(in, bank);
+      Term_p lhs = TermTopAlloc(id, arity);
+      lhs->type = type;
+      for(int i=0; i<arity; i++)
+      {
+         lhs->args[i] = vars[i];
+         VarBankPopEnv(bank->vars);
+      }
+      lhs = TBTermTopInsert(bank, lhs);
+      
+      DStrFree(name);
+      return EqnTermsTBTermEncode(bank, lhs, rhs, true, PENormal);
+   }
+   else
+   {
+      AktTokenError(in, "symbol not in let declaration list", true);
+      return NULL;
+   }
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: make_let()
+//
+//   Bulids the variable-arity let term.
+//
+// Global Variables: -
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+
+static Term_p make_let(TB_p bank, PStack_p definitions, Term_p body)
+{
+   Term_p let_t = TermTopAlloc(SIG_LET_CODE, PStackGetSP(definitions) + 1);
+   for(PStackPointer i=0; i<PStackGetSP(definitions); i++)
+   {
+      let_t->args[i] = PStackElementP(definitions, i);
+   }
+   let_t->args[PStackGetSP(definitions)] = body;
+   let_t->type = body->type;
+   return TBTermTopInsert(bank, let_t);
+}
+
+
 
 /*-----------------------------------------------------------------------
 //
@@ -1314,7 +1467,11 @@ Term_p TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop)
    {
       id = DStrAlloc();
 
-      if((id_type=TermParseOperator(in, id))==FSIdentVar)
+      if(TestInpTok(in, LetToken))
+      {
+         handle = ParseLet(in, bank, false);
+      }
+      else if((id_type=TermParseOperator(in, id))==FSIdentVar)
       {
          /* A variable may be annotated with a sort */
          if(TestInpTok(in, Colon))
@@ -1915,6 +2072,86 @@ Term_p TermMap(TB_p bank, Term_p t, TermMapper f)
    }
    return s;
 }
+
+/*-----------------------------------------------------------------------
+//
+// Function: ParseLet()
+//
+//   Parses let according to the TPTP description: 
+//    http://ceur-ws.org/Vol-2162/paper-07.pdf. If top_level is true,
+//   let appears at the formula level and its body must be Bool.
+//   Otherwise, its body is parsed as a non-Bool.
+//
+// Global Variables: -
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+
+Term_p ParseLet(Scanner_p in, TB_p bank, bool top_level)
+{
+   AcceptInpTok(in, LetToken);
+   AcceptInpTok(in, OpenBracket);
+   
+   PStack_p type_decls = PStackAlloc();
+   /* parsing type declarations */
+   if(TestInpTok(in, OpenSquare))
+   {
+      AcceptInpTok(in, OpenSquare);
+      parse_let_typedecl(in, bank, type_decls);
+      while(TestInpTok(in, Comma))
+      {
+         AcceptInpTok(in, Comma);
+         parse_let_typedecl(in, bank, type_decls);
+      }
+      AcceptInpTok(in, CloseSquare);
+   }
+   else
+   {
+      parse_let_typedecl(in, bank, type_decls);
+   }
+
+   AcceptInpTok(in, Comma);
+
+   /* parsing symbol definitions */
+   PStack_p definitions = PStackAlloc();
+   if(TestInpTok(in, OpenSquare))
+   {
+      AcceptInpTok(in, OpenSquare);
+      PStackPushP(definitions, parse_let_sym_def(in, bank, type_decls));
+      while(TestInpTok(in, Comma))
+      {
+         AcceptInpTok(in, Comma);
+         PStackPushP(definitions, parse_let_sym_def(in, bank, type_decls));
+      }
+      AcceptInpTok(in, CloseSquare);
+   }
+   else
+   {
+      PStackPushP(definitions, parse_let_sym_def(in, bank, type_decls));
+   }
+
+   AcceptInpTok(in, Comma);
+
+   SigEnterLetScope(bank->sig, type_decls);
+   Term_p body = top_level ?  TFormulaTPTPParse(in, bank) : TBTermParse(in, bank);
+   SigExitLetScope(bank->sig);
+
+   Term_p let_term = make_let(bank, definitions, body);
+
+   while(!(PStackEmpty(type_decls)))
+   {
+      UNUSED(PStackPopP(type_decls));
+      DStrFree(PStackPopP(type_decls));
+   }
+   AcceptInpTok(in, CloseBracket);
+   
+   PStackFree(type_decls);
+   PStackFree(definitions);
+
+   return let_term;
+}
+
 
 
 /*---------------------------------------------------------------------*/

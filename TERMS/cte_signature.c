@@ -172,6 +172,8 @@ Sig_p SigAlloc(TypeBank_p bank)
    handle->newpred_count     = 0;
 
    handle->distinct_props = FPDistinctProp;
+   handle->let_scopes = PStackAlloc();
+   handle->let_names = PStackAlloc();
    return handle;
 }
 
@@ -257,6 +259,16 @@ void SigInsertInternalCodes(Sig_p sig)
    #endif
       SigInsertId(sig, "$db_lam", 2, true);
       assert(f_code == SIG_DB_LAMBDA_CODE); //for future code changes
+   #ifndef NDEBUG
+      f_code =
+   #endif
+      SigInsertId(sig, "$ite", 3, true);
+      assert(f_code == SIG_ITE_CODE); //for future code changes
+   #ifndef NDEBUG
+      f_code =
+   #endif
+      SigInsertId(sig, "$let", 3, true);
+      assert(f_code == SIG_LET_CODE); //for future code changes
 #endif
 
    Type_p* args = TypeArgArrayAlloc(2);
@@ -299,6 +311,16 @@ void SigFree(Sig_p junk)
    {
       PDArrayFree(junk->orn_codes);
    }
+   // if everything is OK let scopes are closed at the end
+   assert(PStackEmpty(junk->let_scopes));
+   PStackFree(junk->let_scopes);
+
+   while(!PStackEmpty(junk->let_names))
+   {
+      char* name = PStackPopP(junk->let_names);
+      FREE(name);
+   }
+   PStackFree(junk->let_names);
 
    SigCellFree(junk);
 }
@@ -644,6 +666,47 @@ FunCode SigInsertId(Sig_p sig, const char* name, int arity, bool special_id)
    test = StrTreeInsert(&(sig->f_index), new);
    UNUSED(test); assert(test == NULL);
    SigSetSpecial(sig,sig->f_count,special_id);
+   sig->alpha_ranks_valid = false;
+
+   return sig->f_count;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: SigInsertLetId()
+//
+//   Insert symbol with the given name and type whose name is of local
+//   character -- it will not be stored in f_index, and it will not be
+//   checked if the symbol already exists.
+//
+// Global Variables: -
+//
+// Side Effects    : Potential memory operations.
+//
+/----------------------------------------------------------------------*/
+
+FunCode SigInsertLetId(Sig_p sig, const char* name, Type_p type)
+{
+   assert(type);
+   if(sig->f_count == sig->size-1)
+   {
+      /* sig->size+= DEFAULT_SIGNATURE_SIZE; */
+      sig->size *= DEFAULT_SIGNATURE_GROW;
+      sig->f_info  = SecureRealloc(sig->f_info,
+                                   sizeof(FuncCell)*sig->size);
+   }
+
+   /* Insert the element in f_index and f_info */
+   sig->f_count++;
+   sig->f_info[sig->f_count].name
+      = SecureStrdup(name);
+   PStackPushP(sig->let_names, sig->f_info[sig->f_count].name);
+   sig->f_info[sig->f_count].arity = TypeGetMaxArity(type);
+   sig->f_info[sig->f_count].properties = FPIgnoreProps;
+   sig->f_info[sig->f_count].type = type;
+   sig->f_info[sig->f_count].feature_offset = -1;
+   FuncSetProp(&(sig->f_info[sig->f_count]), FPTypeFixed);
+   
    sig->alpha_ranks_valid = false;
 
    return sig->f_count;
@@ -1823,6 +1886,71 @@ bool SigSymbolUnifiesWithVar(Sig_p sig, FunCode f_code)
           f_code <= 0 ||
           !SigIsPredicate(sig,f_code);
 }
+
+/*-----------------------------------------------------------------------
+//
+// Function: SigEnterLetScope()
+//
+//   Enters a new scope in which the symbols from type decls will
+//   override the ones already present in the signature
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void  SigEnterLetScope(Sig_p sig, PStack_p type_decls)
+{
+   PStack_p scope = PStackAlloc();
+   PStackPushP(sig->let_scopes, scope);
+
+   for(PStackPointer i=1; i<PStackGetSP(type_decls); i += 2)
+   {
+      FunCode id = PStackElementInt(type_decls, i);
+      char* name = SigFindName(sig, id);
+
+      FunCode old_id = SigFindFCode(sig, name);
+      if(old_id)
+      {
+         PStackPushInt(scope, old_id);
+         PStackPushP(scope, name);
+
+         StrTree_p node = StrTreeFind(&(sig->f_index), name);
+         node->val1.i_val = id;
+      }
+   }
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: SigExitLetScope()
+//
+//   Enters a new scope in which the symbols from type decls will
+//   override the ones already present in the signature
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void  SigExitLetScope(Sig_p sig)
+{
+   PStack_p scope = PStackPopP(sig->let_scopes);
+
+   while(!PStackEmpty(scope))
+   {
+      char* name = PStackPopP(scope);
+      FunCode id = PStackPopInt(scope);
+
+      StrTree_p node = StrTreeFind(&(sig->f_index), name);
+      node->val1.i_val = id;
+   }
+
+   PStackFree(scope);
+}
+
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */

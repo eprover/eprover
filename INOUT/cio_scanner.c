@@ -353,7 +353,18 @@ static Token_p scan_token(Scanner_p in)
       DStrAppendChar(AktToken(in)->literal, CurrChar(in));
       NextChar(in);
       scan_ident(in);
-      AktToken(in)->tok = SemIdent;
+      if(!strcmp(DStrView(AktToken(in)->literal), "$let"))
+      {
+         AktToken(in)->tok = LetToken;
+      }
+      else if(!strcmp(DStrView(AktToken(in)->literal), "$ite"))
+      {
+         AktToken(in)->tok = IteToken;
+      }
+      else
+      {
+         AktToken(in)->tok = SemIdent;
+      }
    }
    else
    {
