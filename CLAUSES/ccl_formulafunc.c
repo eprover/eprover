@@ -68,7 +68,7 @@ static void close_let_def(TB_p bank, NumTree_p* closed_defs, Term_p def)
    {
       Term_p arg = lhs->args[i];
       assert(TermIsVar(arg));
-      PTreeDeleteEntry(free_vars, arg);
+      PTreeDeleteEntry(&free_vars, arg);
    }
    
    PStack_p all_vars = PStackAlloc();
@@ -181,9 +181,9 @@ TFormula_p lift_lets(TB_p terms, TFormula_p t, PStack_p fresh_defs)
       long num_defs = new->arity - 1;
       for(long i=0; i < num_defs; i++)
       {
-         close_let_def(terms, closed_defs, new->args[i]);
+         close_let_def(terms, &closed_defs, new->args[i]);
       }
-      new = replace_body(terms, closed_defs, new->args[num_defs]);
+      new = replace_body(terms, &closed_defs, new->args[num_defs]);
       make_fresh_defs(terms, closed_defs, fresh_defs);
       NumTreeFree(closed_defs);
    }
