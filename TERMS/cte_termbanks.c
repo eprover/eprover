@@ -1511,9 +1511,9 @@ Term_p TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop)
             DStrFree(errpos);
          }
 
-         // Implementation of Arithmetic symbols
          handle = tb_termtop_insert(bank, handle);
          
+         // Implementation of arithmetic symbols
          TypeCheck2Fun checkFun = bank->sig->f_info[handle->f_code].arithTypeCheck;
          
          if(checkFun != NULL)
@@ -1534,13 +1534,14 @@ Term_p TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop)
                      args[1]?args[1]->f_code:0
                   );
             }
-			
             /*
              * printf("Col %d: %s(%d) becomes type %d with the arguments (%d) %d and (%d) %d\n", column, DStrView(id),
              *      handle->f_code, handle->type==NULL?0:handle->type->f_code, 
              *      handle->args[0]->f_code, args[0]->f_code,
              *      handle->args[1]?handle->args[1]->f_code:0, args[1]=NULL?0:args[1]->f_code);
             */
+			free(args);
+
          }
 	  }
       DStrFree(id);

@@ -64,6 +64,7 @@ void FormulaSetArithNorm(FormulaSet_p set, TB_p terms, GCAdmin_p gc) {
       printf("------\n");
       PrintTermsDebug(handle->tformula, terms, 0);
    }
+   GCCollect(gc);	  
 }
 
 /*-----------------------------------------------------------------------
