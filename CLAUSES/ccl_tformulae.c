@@ -402,6 +402,10 @@ static TFormula_p elem_tform_tptp_parse(Scanner_p in, TB_p terms)
       tmp = elem_tform_tptp_parse(in, terms);
       res = TFormulaFCodeAlloc(terms, terms->sig->not_code, tmp, NULL);
    }
+   else if(TestInpTok(in, LetToken))
+   {
+      res = ParseLet(in, terms, true);
+   }
    else
    {
       Eqn_p lit;
@@ -516,6 +520,10 @@ static TFormula_p quantified_tform_tstp_parse(Scanner_p in,
             AcceptInpTok(in, OpenBracket);
             rest = clause_tform_tstp_parse(in, terms);
             AcceptInpTok(in, CloseBracket);
+         }
+         else if(TestInpTok(in, LetToken))
+         {
+            rest = ParseLet(in, terms, true);
          }
          else
          {
@@ -679,6 +687,10 @@ static TFormula_p literal_tform_tstp_parse(Scanner_p in, TB_p terms)
       }
       tmp = literal_tform_tstp_parse(in, terms);
       res = TFormulaFCodeAlloc(terms, terms->sig->not_code, tmp, NULL);
+   }
+   else if(TestInpTok(in, LetToken))
+   {
+      res = ParseLet(in, terms, true);
    }
    else
    {
@@ -1120,9 +1132,13 @@ void TFormulaTPTPPrint(FILE* out, TB_p bank, TFormula_p form, bool fullterms, bo
       char* oprep = "XXX";
 
       assert(form->arity);
-      assert(TFormulaIsBinary(form));
+      assert(form->f_code == SIG_LET_CODE || TFormulaIsBinary(form));
       fputs("(", out);
-      if(form->f_code == bank->sig->or_code)
+      if(form->f_code == SIG_LET_CODE)
+      {
+         TermPrint(out, form, bank->sig, DEREF_NEVER);
+      }
+      else if(form->f_code == bank->sig->or_code)
       {
          tformula_print_or_chain(out, bank, form, fullterms, pcl);
       }

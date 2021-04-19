@@ -1716,7 +1716,16 @@ TFormula_p TFormulaVarRename(TB_p terms, TFormula_p form)
       assert(new_var != form->args[0]);
       form->args[0]->binding = new_var;
    }
-   if(TFormulaIsLiteral(terms->sig, form))
+   if(form->f_code == SIG_LET_CODE)
+   {
+      TFormula_p newform = TermTopCopyWithoutArgs(form);
+      for(long i=0; i < newform->arity; i++)
+      {
+         newform->args[i] = TFormulaVarRename(terms, form->args[i]);
+      }
+      handle = TBTermTopInsert(terms, newform);
+   }
+   else if(TFormulaIsLiteral(terms->sig, form))
    {
       handle = TFormulaCopy(terms, form);
    }

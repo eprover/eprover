@@ -180,22 +180,6 @@ void make_fresh_defs(TB_p bank, Term_p let_t, NumTree_p* defs, PStack_p res)
    }
 }
 
-void print_tree(Sig_p sig, NumTree_p tree)
-{
-   PStack_p iter = NumTreeTraverseInit(tree);
-   NumTree_p node = NULL;
-   fprintf(stderr, "definitions:\n");
-   while((node = NumTreeTraverseNext(iter)))
-   {
-      fprintf(stderr, "%s(%ld): ", SigFindName(sig, node->key), node->key);
-      TermPrintDbgHO(stderr, node->val1.p_val, sig, DEREF_NEVER);
-      fprintf(stderr, " ~=~ ");
-      TermPrintDbgHO(stderr, node->val2.p_val, sig, DEREF_NEVER);
-      fprintf(stderr, ".\n");
-   }
-   NumTreeTraverseExit(iter);
-}
-
 /*-----------------------------------------------------------------------
 //
 // Function: lift_lets()
@@ -226,7 +210,6 @@ TFormula_p lift_lets(TB_p terms, TFormula_p t, PStack_p fresh_defs)
       }
       make_fresh_defs(terms, new, &closed_defs, fresh_defs);
       TermTopFree(new);
-      print_tree(terms->sig, closed_defs);
       Term_p res = replace_body(terms, &closed_defs, t->args[num_defs]);
       NumTreeFree(closed_defs);
       return lift_lets(terms, res, fresh_defs);
@@ -1747,12 +1730,6 @@ long TFormulaSetLiftLets(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
       if(i != PStackGetSP(lifted_lets))
       {
          res++;         
-
-         fprintf(stderr, "original: ");
-         TermPrintDbgHO(stderr, form->tformula, terms->sig, DEREF_NEVER);
-         fprintf(stderr, ", lifted: ");
-         TermPrintDbgHO(stderr, tform, terms->sig, DEREF_NEVER);
-         fprintf(stderr, ".\n");
 
          form->tformula = unencode_eqns(terms, tform);
          for(; i < PStackGetSP(lifted_lets); i++)

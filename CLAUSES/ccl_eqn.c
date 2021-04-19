@@ -708,17 +708,9 @@ Eqn_p EqnFOFParse(Scanner_p in, TB_p bank)
    Term_p lterm, rterm;
    Eqn_p handle;
 
-   if(TestInpTok(in, LetToken))
-   {
-      Term_p lhs = ParseLet(in, bank, true);
-      assert(TypeIsBool(lhs->type));
-      handle = EqnAlloc(lhs, bank->true_term, bank, true);
-   }
-   else
-   {
-      positive = eqn_parse_real(in, bank, &lterm, &rterm, true);
-      handle = EqnAlloc(lterm, rterm, bank, positive);
-   }
+   
+   positive = eqn_parse_real(in, bank, &lterm, &rterm, true);
+   handle = EqnAlloc(lterm, rterm, bank, positive);
 
    return handle;
 }
