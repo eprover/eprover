@@ -78,6 +78,7 @@ static void close_let_def(TB_p bank, NumTree_p* closed_defs, Term_p def)
       PStackPushP(all_vars, lhs->args[i]);
    }
    Term_p fresh_sym = TermAllocNewSkolem(bank->sig, all_vars, lhs->type);
+   fresh_sym = TBTermTopInsert(bank, fresh_sym);
 
    IntOrP orig_def = {.p_val = lhs}, new_def = {.p_val = fresh_sym};
    NumTreeStore(closed_defs, lhs->f_code, orig_def, new_def);
@@ -219,8 +220,9 @@ TFormula_p lift_lets(TB_p terms, TFormula_p t, PStack_p fresh_defs)
       {
          close_let_def(terms, &closed_defs, new->args[i]);
       }
-      new = replace_body(terms, &closed_defs, new->args[num_defs]);
+      new->args[num_defs] = replace_body(terms, &closed_defs, new->args[num_defs]);
       make_fresh_defs(terms, new, &closed_defs, fresh_defs);
+      new = new->args[num_defs];
       NumTreeFree(closed_defs);
    }
 
@@ -1396,9 +1398,9 @@ long FormulaAndClauseSetParse(Scanner_p in, FormulaSet_p fset,
                if(TestInpId(in, "input_formula|fof|tff|thf|tcf"))
                {
                   form = WFormulaParse(in, terms);
-                  fprintf(stdout, "Parsed: ");
-                  WFormulaPrint(stdout, form, true);
-                  fprintf(stdout, "\n");
+                  // fprintf(stdout, "Parsed: ");
+                  // WFormulaPrint(stdout, form, true);
+                  // fprintf(stdout, "\n");
                }
                else
                {
@@ -1717,8 +1719,8 @@ long TFormulaSetLiftLets(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
       tform = lift_lets(terms, tform, lifted_lets);
       if(i != PStackGetSP(lifted_lets))
       {
-         res++;
-         form->tformula = tform;
+         res++;         
+         form->tformula = unencode_eqns(terms, tform);
          for(; i < PStackGetSP(lifted_lets); i++)
          {
             TFormula_p def = PStackElementP(lifted_lets, i);
