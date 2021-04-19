@@ -137,10 +137,46 @@ static Term_p replace_body(TB_p bank, NumTree_p* closed_defs, Term_p t)
    return new;
 }
 
-void make_fresh_defs(TB_p banks, NumTree_p closed, PStack_p fresh)
+/*-----------------------------------------------------------------------
+//
+// Function: make_fresh_defs()
+//
+//   Make a formula introducing a new name for a local let definition
+//
+// Global Variables: -
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+
+void make_fresh_defs(TB_p bank, Term_p let_t, NumTree_p* defs, PStack_p res)
 {
-   // not implemented
-   return; 
+   assert(let_t->f_code == SIG_LET_CODE);
+   long num_def = let_t->arity - 1;
+   Sig_p sig = bank->sig;
+   for(long i=0; i<num_def; i++)
+   {
+      assert(let_t->args[i]->f_code == bank->sig->eqn_code);
+      FunCode old_lhs_fc = let_t->args[i]->args[0]->f_code;
+      Term_p rhs = let_t->args[i]->args[1];
+      NumTree_p node = NumTreeFind(defs, old_lhs_fc);
+      assert(node);
+      Term_p new_lhs = node->val2.p_val;
+      TFormula_p matrix;
+      
+      if(TypeIsBool(rhs->type))
+      {
+         matrix = TFormulaFCodeAlloc(bank, sig->equiv_code, 
+                                     EncodePredicateAsEqn(bank, new_lhs),
+                                     EncodePredicateAsEqn(bank, rhs));
+      }
+      else
+      {
+         matrix = TFormulaFCodeAlloc(bank, sig->eqn_code, new_lhs, rhs);
+      }
+
+      PStackPushP(res, TFormulaClosure(bank, matrix, true));
+   }
 }
 
 
@@ -184,7 +220,7 @@ TFormula_p lift_lets(TB_p terms, TFormula_p t, PStack_p fresh_defs)
          close_let_def(terms, &closed_defs, new->args[i]);
       }
       new = replace_body(terms, &closed_defs, new->args[num_defs]);
-      make_fresh_defs(terms, closed_defs, fresh_defs);
+      make_fresh_defs(terms, new, &closed_defs, fresh_defs);
       NumTreeFree(closed_defs);
    }
 
@@ -1232,12 +1268,6 @@ long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive,
    //printf("# Introducing definitions\n");
    TFormulaSetIntroduceDefs(set, archive, terms);
    //printf("# Definitions introduced\n");
-
-   
-
-   
-
-
 
    while(!FormulaSetEmpty(set))
    {
