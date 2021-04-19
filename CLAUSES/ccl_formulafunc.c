@@ -195,38 +195,41 @@ void make_fresh_defs(TB_p bank, Term_p let_t, NumTree_p* defs, PStack_p res)
 
 TFormula_p lift_lets(TB_p terms, TFormula_p t, PStack_p fresh_defs)
 {
-   Term_p new = TermTopCopyWithoutArgs(t);
-   PStackPointer prev = PStackGetSP(fresh_defs);
-   for(int i=0; i<new->arity; i++)
+   if(!TermIsVar(t))
    {
-      new->args[i] = lift_lets(terms, t->args[i], fresh_defs);
-   }
+      Term_p new = TermTopCopyWithoutArgs(t);
+      for(int i=0; i<new->arity; i++)
+      {
+         new->args[i] = lift_lets(terms, t->args[i], fresh_defs);
+      }
 
-   if(PStackGetSP(fresh_defs) == prev)
-   {
-      TermTopFree(new);
-      new = t;
+      if(new->f_code == SIG_LET_CODE)
+      {
+         NumTree_p closed_defs = NULL;
+         long num_defs = new->arity - 1;
+         for(long i=0; i < num_defs; i++)
+         {
+            close_let_def(terms, &closed_defs, new->args[i]);
+         }
+         new->args[num_defs] = replace_body(terms, &closed_defs, new->args[num_defs]);
+         make_fresh_defs(terms, new, &closed_defs, fresh_defs);
+         TermTopFree(new);
+         new = new->args[num_defs];
+         NumTreeFree(closed_defs);
+      }
+      else
+      {
+         new = TBTermTopInsert(terms, new);
+      }
+
+      return new;   
    }
    else
    {
-      new = TBTermTopInsert(terms, new);
+      return t;
    }
 
-   if(new->f_code == SIG_LET_CODE)
-   {
-      NumTree_p closed_defs = NULL;
-      long num_defs = new->arity - 1;
-      for(long i=0; i < num_defs; i++)
-      {
-         close_let_def(terms, &closed_defs, new->args[i]);
-      }
-      new->args[num_defs] = replace_body(terms, &closed_defs, new->args[num_defs]);
-      make_fresh_defs(terms, new, &closed_defs, fresh_defs);
-      new = new->args[num_defs];
-      NumTreeFree(closed_defs);
-   }
-
-   return new;   
+   
 }
 
 /*-----------------------------------------------------------------------
@@ -1720,6 +1723,7 @@ long TFormulaSetLiftLets(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
       if(i != PStackGetSP(lifted_lets))
       {
          res++;         
+
          form->tformula = unencode_eqns(terms, tform);
          for(; i < PStackGetSP(lifted_lets); i++)
          {
