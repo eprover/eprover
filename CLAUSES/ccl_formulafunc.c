@@ -1259,6 +1259,7 @@ long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive,
    long old_nodes = TBNonVarTermNodes(terms);
    long gc_threshold = old_nodes*TFORMULA_GC_LIMIT;
 
+   TFormulaSetLiftLets(set, archive, terms);
    TFormulaSetUnfoldLogSymbols(set, archive, terms);
    TFormulaSetLambdaNormalize(set, archive, terms);
    TFormulaSetLiftLambdas(set, archive, terms);
@@ -1683,6 +1684,59 @@ long TFormulaSetUnrollFOOL(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
          res++;
       }
    }
+   return res;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: TFormulaSetLiftLets()
+//
+//    Rewrites all formulas so that all occurrences of the let symbols
+//    are replaced by global definitions.
+//    
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+long TFormulaSetLiftLets(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
+{
+   long res = 0;
+
+   PStack_p lifted_lets = PStackAlloc();
+   
+   for(WFormula_p form = set->anchor->succ; form!=set->anchor; form=form->succ)
+   {
+      TFormula_p tform = form->tformula;
+      VarBankSetVCountsToUsed(terms->vars);
+      tform = TFormulaVarRename(terms, tform);
+      PStackPointer i = PStackGetSP(lifted_lets);
+
+      tform = lift_lets(terms, tform, lifted_lets);
+      if(i != PStackGetSP(lifted_lets))
+      {
+         res++;
+         form->tformula = tform;
+         for(; i < PStackGetSP(lifted_lets); i++)
+         {
+            TFormula_p def = PStackElementP(lifted_lets, i);
+            WFormula_p wdef = WTFormulaAlloc(terms, def);
+            WFormulaPushDerivation(wdef, DCIntroDef, NULL, NULL);
+            WFormulaPushDerivation(form, DCApplyDef, wdef, NULL);
+            PStackAssignP(lifted_lets, i, wdef);
+         }
+      }
+   }
+
+   while(!PStackEmpty(lifted_lets))
+   {
+      FormulaSetInsert(set, PStackPopP(lifted_lets));
+   }
+
+   PStackFree(lifted_lets);
+
    return res;
 }
 
