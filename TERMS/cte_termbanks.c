@@ -379,7 +379,6 @@ static Term_p parse_let_sym_def(Scanner_p in, TB_p bank, PStack_p type_decls)
       Term_p rhs = TypeIsPredicate(type) ? 
                      TFormulaTSTPParse(in, bank) : TBTermParse(in, bank);
       Term_p lhs = TermTopAlloc(id, arity);
-      lhs->type = type;
       for(int i=0; i<arity; i++)
       {
          lhs->args[i] = vars[i];

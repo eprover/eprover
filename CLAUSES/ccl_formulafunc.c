@@ -180,6 +180,21 @@ void make_fresh_defs(TB_p bank, Term_p let_t, NumTree_p* defs, PStack_p res)
    }
 }
 
+void print_tree(Sig_p sig, NumTree_p tree)
+{
+   PStack_p iter = NumTreeTraverseInit(tree);
+   NumTree_p node = NULL;
+   fprintf(stderr, "definitions:\n");
+   while((node = NumTreeTraverseNext(iter)))
+   {
+      fprintf(stderr, "%s(%ld): ", SigFindName(sig, node->key), node->key);
+      TermPrintDbgHO(stderr, node->val1.p_val, sig, DEREF_NEVER);
+      fprintf(stderr, " ~=~ ");
+      TermPrintDbgHO(stderr, node->val2.p_val, sig, DEREF_NEVER);
+      fprintf(stderr, ".\n");
+   }
+   NumTreeTraverseExit(iter);
+}
 
 /*-----------------------------------------------------------------------
 //
@@ -195,38 +210,47 @@ void make_fresh_defs(TB_p bank, Term_p let_t, NumTree_p* defs, PStack_p res)
 
 TFormula_p lift_lets(TB_p terms, TFormula_p t, PStack_p fresh_defs)
 {
-   if(!TermIsVar(t))
+   if(TermIsVar(t))
+   {
+      return t;
+   }
+   else if(t->f_code == SIG_LET_CODE)
    {
       Term_p new = TermTopCopyWithoutArgs(t);
-      for(int i=0; i<new->arity; i++)
+      NumTree_p closed_defs = NULL;
+      long num_defs = t->arity - 1;
+      for(long i=0; i < num_defs; i++)
       {
          new->args[i] = lift_lets(terms, t->args[i], fresh_defs);
+         close_let_def(terms, &closed_defs, new->args[i]);
       }
-
-      if(new->f_code == SIG_LET_CODE)
-      {
-         NumTree_p closed_defs = NULL;
-         long num_defs = new->arity - 1;
-         for(long i=0; i < num_defs; i++)
-         {
-            close_let_def(terms, &closed_defs, new->args[i]);
-         }
-         new->args[num_defs] = replace_body(terms, &closed_defs, new->args[num_defs]);
-         make_fresh_defs(terms, new, &closed_defs, fresh_defs);
-         TermTopFree(new);
-         new = new->args[num_defs];
-         NumTreeFree(closed_defs);
-      }
-      else
-      {
-         new = TBTermTopInsert(terms, new);
-      }
-
-      return new;   
+      make_fresh_defs(terms, new, &closed_defs, fresh_defs);
+      TermTopFree(new);
+      print_tree(terms->sig, closed_defs);
+      Term_p res = replace_body(terms, &closed_defs, t->args[num_defs]);
+      NumTreeFree(closed_defs);
+      return lift_lets(terms, res, fresh_defs);
    }
    else
    {
-      return t;
+      Term_p new = TermTopCopyWithoutArgs(t);
+      bool changed = false;
+      for(int i=0; i<new->arity; i++)
+      {
+         new->args[i] = lift_lets(terms, t->args[i], fresh_defs);
+         changed = changed || new->args[i] != t->args[i];
+      }
+      
+      if(changed)
+      {
+         new = TBTermTopInsert(terms, new);
+      }
+      else
+      {
+         TermTopFree(new);
+         new = t;
+      }
+      return new;
    }
 
    
@@ -1723,6 +1747,12 @@ long TFormulaSetLiftLets(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
       if(i != PStackGetSP(lifted_lets))
       {
          res++;         
+
+         fprintf(stderr, "original: ");
+         TermPrintDbgHO(stderr, form->tformula, terms->sig, DEREF_NEVER);
+         fprintf(stderr, ", lifted: ");
+         TermPrintDbgHO(stderr, tform, terms->sig, DEREF_NEVER);
+         fprintf(stderr, ".\n");
 
          form->tformula = unencode_eqns(terms, tform);
          for(; i < PStackGetSP(lifted_lets); i++)

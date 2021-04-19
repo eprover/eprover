@@ -1887,6 +1887,8 @@ bool SigSymbolUnifiesWithVar(Sig_p sig, FunCode f_code)
           !SigIsPredicate(sig,f_code);
 }
 
+#define TMP_LET_ID (-1)
+
 /*-----------------------------------------------------------------------
 //
 // Function: SigEnterLetScope()
@@ -1919,6 +1921,15 @@ void  SigEnterLetScope(Sig_p sig, PStack_p type_decls)
          StrTree_p node = StrTreeFind(&(sig->f_index), name);
          node->val1.i_val = id;
       }
+      else
+      {
+         PStackPushInt(scope, TMP_LET_ID);
+         PStackPushP(scope, name);
+
+         IntOrP id_tree = {.i_val = id}, dummy;
+
+         StrTreeStore(&(sig->f_index), name, id_tree, dummy);
+      }
    }
 }
 
@@ -1944,8 +1955,16 @@ void  SigExitLetScope(Sig_p sig)
       char* name = PStackPopP(scope);
       FunCode id = PStackPopInt(scope);
 
-      StrTree_p node = StrTreeFind(&(sig->f_index), name);
-      node->val1.i_val = id;
+      if(id != TMP_LET_ID)
+      {
+         StrTree_p node = StrTreeFind(&(sig->f_index), name);
+         node->val1.i_val = id;
+      }
+      else
+      {
+         StrTreeDeleteEntry(&(sig->f_index), name);
+      }
+      
    }
 
    PStackFree(scope);

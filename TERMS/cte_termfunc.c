@@ -511,6 +511,7 @@ void TermPrintDbgHO(FILE* out, Term_p term, Sig_p sig, DerefType deref)
    if(!TermIsTopLevelVar(term))
    {
       fputs(SigFindName(sig, term->f_code), out);
+      fprintf(out, "(%ld)", term->f_code);
    }
    else
    {
