@@ -329,6 +329,8 @@ void    TermStackDelProps(PStack_p stack, TermProperties prop);
 #define TermSetCache(t,c)  (UNUSED(t), UNUSED(c), UNUSED(NULL))
 #define TermGetBank(t)     (UNUSED(t), NULL)
 #define TermSetBank(t,b)   (UNUSED(t), UNUSED(b), UNUSED(NULL))
+#define TermIsBetaReducible(t) false
+#define TermIsEtaReducible(t)  false
 #endif
 
 

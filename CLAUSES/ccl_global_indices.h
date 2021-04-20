@@ -65,13 +65,17 @@ PERF_CTR_DECL(BWRWIndexTimer);
 #ifdef ENABLE_LFHO
 #define GetExtIntoIdx(g)    (g)->ext_sup_into_index
 #define GetExtFromIdx(g)    (g)->ext_sup_from_index
+#define GetExtMaxDepth(g)   (g)->ext_sup_max_depth
 #define SetExtIntoIdx(g, v) (g)->ext_sup_into_index = (v)
 #define SetExtFromIdx(g, v) (g)->ext_sup_from_index = (v)
+#define SetExtMaxDepth(g, v)   (g)->ext_sup_max_depth = (v)
 #else
 #define GetExtIntoIdx(g)   NULL
 #define GetExtFromIdx(g)   NULL
-#define SetExtIntoIdx(g)   /* */
-#define SetExtFromIdx(g)   /* */
+#define GetExtMaxDepth(g)  0
+#define SetExtIntoIdx(g, v)   /* */
+#define SetExtFromIdx(g, v)   /* */
+#define SetExtMaxDepth(g, v)  /* */
 #endif
 
 

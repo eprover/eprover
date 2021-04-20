@@ -125,7 +125,7 @@ void GlobalIndicesInit(GlobalIndices_p indices,
    {
       SetExtIntoIdx(indices, ExtIdxAlloc());
       SetExtFromIdx(indices, ExtIdxAlloc());
-      indices->ext_sup_max_depth = ext_sup_max_depth;
+      SetExtMaxDepth(indices, ext_sup_max_depth);
    }
 }
 
@@ -197,7 +197,7 @@ void GlobalIndicesReset(GlobalIndices_p indices)
                      indices->rw_bw_index_type,
                      indices->pm_from_index_type,
                      indices->pm_into_index_type,
-                     indices->ext_sup_max_depth);
+                     GetExtMaxDepth(indices));
 }
 
 
