@@ -1716,7 +1716,7 @@ TFormula_p TFormulaVarRename(TB_p terms, TFormula_p form)
       assert(new_var != form->args[0]);
       form->args[0]->binding = new_var;
    }
-   if(form->f_code == SIG_LET_CODE)
+   if(form->f_code == SIG_LET_CODE || form->f_code == SIG_ITE_CODE)
    {
       TFormula_p newform = TermTopCopyWithoutArgs(form);
       for(long i=0; i < newform->arity; i++)

@@ -1144,9 +1144,10 @@ void TFormulaTPTPPrint(FILE* out, TB_p bank, TFormula_p form, bool fullterms, bo
       char* oprep = "XXX";
 
       assert(form->arity);
-      assert(form->f_code == SIG_LET_CODE || TFormulaIsBinary(form));
+      assert(form->f_code == SIG_LET_CODE || form->f_code == SIG_ITE_CODE ||
+             TFormulaIsBinary(form));
       fputs("(", out);
-      if(form->f_code == SIG_LET_CODE)
+      if(form->f_code == SIG_LET_CODE || form->f_code == SIG_ITE_CODE)
       {
          TermPrint(out, form, bank->sig, DEREF_NEVER);
       }
