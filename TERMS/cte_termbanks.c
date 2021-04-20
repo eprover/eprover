@@ -2151,6 +2151,41 @@ Term_p ParseLet(Scanner_p in, TB_p bank, bool top_level)
    return let_term;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: ParseLet()
+//
+//   Parses let according to the TPTP description: 
+//    http://ceur-ws.org/Vol-2162/paper-07.pdf. If top_level is true,
+//   let appears at the formula level and its body must be Bool.
+//   Otherwise, its body is parsed as a non-Bool.
+//
+// Global Variables: -
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+
+Term_p ParseIte(Scanner_p in, TB_p bank, bool top_level)
+{
+   typedef Term_p (*parser_func)(Scanner_p, TB_p);
+   
+   AcceptInpTok(in, IteToken);
+   AcceptInpTok(in, OpenBracket);
+   
+   Term_p cond = TFormulaTPTPParse(in, bank);
+   parser_func parser = top_level ? TFormulaTPTPParse : TBTermParse;
+   Term_p if_true = parser(in, bank);
+   Term_p if_false = parser(in, bank);
+
+   Term_p res = TermTopAlloc(SIG_ITE_CODE, 3);
+   res->args[0] = cond;
+   res->args[1] = if_true;
+   res->args[2] = if_false;
+
+   return TBTermTopInsert(bank, res);
+}
+
 
 
 /*---------------------------------------------------------------------*/
