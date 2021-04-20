@@ -1748,6 +1748,48 @@ FunCode TermFindMaxVarCode(Term_p term)
 
 /*-----------------------------------------------------------------------
 //
+// Function: TermFindIteSubterm()
+//
+//   Returns true if it finds an $ite subterm in t. pos is the position
+//   corresponding to this subterm if it is found, empty otherwise.
+//
+// Global Variables:
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+
+bool TermFindIteSubterm(Term_p t, TermPos_p pos)
+{
+   PStackPushP(pos, t);
+   bool found = false;
+
+   for(long i=0; !TermIsLambda(t) && !found && i<t->arity; i++)
+   {
+      PStackPushInt(pos, i);
+      found = found ||
+              (t->args[i]->f_code == SIG_ITE_CODE) || 
+              TermFindIteSubterm(t->args[i], pos);
+      if(!found)
+      {
+         PStackDiscardTop(pos);
+      }
+   }
+
+   if(!found)
+   {
+      // did not find formula subterm
+      PStackDiscardTop(pos);
+      return false;
+   }
+   else
+   {
+      return true;
+   }
+}
+
+/*-----------------------------------------------------------------------
+//
 // Function: TermFindFOOLSubterm()
 //
 //   Returns true if it finds a formula subterm in t. pos is the position

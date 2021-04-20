@@ -406,6 +406,10 @@ static TFormula_p elem_tform_tptp_parse(Scanner_p in, TB_p terms)
    {
       res = ParseLet(in, terms, true);
    }
+   else if(TestInpTok(in, IteToken))
+   {
+      res = ParseIte(in, terms, true);
+   }
    else
    {
       Eqn_p lit;
@@ -524,6 +528,10 @@ static TFormula_p quantified_tform_tstp_parse(Scanner_p in,
          else if(TestInpTok(in, LetToken))
          {
             rest = ParseLet(in, terms, true);
+         }
+         else if(TestInpTok(in, IteToken))
+         {
+            rest = ParseIte(in, terms, true);
          }
          else
          {
@@ -691,6 +699,10 @@ static TFormula_p literal_tform_tstp_parse(Scanner_p in, TB_p terms)
    else if(TestInpTok(in, LetToken))
    {
       res = ParseLet(in, terms, true);
+   }
+   else if(TestInpTok(in, IteToken))
+   {
+      res = ParseIte(in, terms, true);
    }
    else
    {

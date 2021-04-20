@@ -1470,6 +1470,10 @@ Term_p TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop)
       {
          handle = ParseLet(in, bank, false);
       }
+      else if(TestInpTok(in, IteToken))
+      {
+         handle = ParseIte(in, bank, false);
+      }
       else if((id_type=TermParseOperator(in, id))==FSIdentVar)
       {
          /* A variable may be annotated with a sort */
@@ -2153,11 +2157,11 @@ Term_p ParseLet(Scanner_p in, TB_p bank, bool top_level)
 
 /*-----------------------------------------------------------------------
 //
-// Function: ParseLet()
+// Function: ParseIte()
 //
-//   Parses let according to the TPTP description: 
+//   Parses ite according to the TPTP description: 
 //    http://ceur-ws.org/Vol-2162/paper-07.pdf. If top_level is true,
-//   let appears at the formula level and its body must be Bool.
+//   ite appears at the formula level and its body must be Bool.
 //   Otherwise, its body is parsed as a non-Bool.
 //
 // Global Variables: -
@@ -2183,6 +2187,10 @@ Term_p ParseIte(Scanner_p in, TB_p bank, bool top_level)
    res->args[1] = if_true;
    res->args[2] = if_false;
 
+   TermAssertSameSort(bank->sig, cond, bank->true_term);
+   TermAssertSameSort(bank->sig, if_false, if_true);
+   
+   res->type = if_true->type;
    return TBTermTopInsert(bank, res);
 }
 

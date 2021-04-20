@@ -156,6 +156,8 @@ Term_p TermCreatePrefix(Term_p orig, int up_to);
 Term_p TermAppEncode(Term_p orig, Sig_p sig);
 
 bool TermFindFOOLSubterm(Term_p t, PStack_p pos);
+bool TermFindIteSubterm(Term_p t, PStack_p pos);
+
 
 #define TERM_APPLY_APP_VAR_MULT(w, t, p) (TermIsAppliedVar(t) ? (w)*(p) : (w))
 

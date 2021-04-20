@@ -761,6 +761,109 @@ TFormula_p do_fool_unroll(TFormula_p form, TB_p terms)
    return form;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: do_ite_unroll()
+//
+//   If $ite(c, it, if) occurs at formula position p, replace f|_p 
+//   with f[c -> it /\ ~c -> if]_p. If it occurs at subterm position p,
+//   find the first above formula position q and do the replacement
+//   f[c -> f[it]_p /\ ~c -> f[if]_p]_q.
+//
+// Global Variables: -
+//
+// Side Effects    : Changes enclosed formula
+//
+/----------------------------------------------------------------------*/
+
+TFormula_p do_ite_unroll(TFormula_p form, TB_p terms)
+{
+   if(form->f_code == SIG_ITE_CODE)
+   {
+      TFormula_p cond = form->args[0];
+      TFormula_p not_cond = TFormulaNegate(cond, terms);
+      
+      TFormula_p true_part = TermTopAlloc(terms->sig->or_code, 2);
+      true_part->args[0] = not_cond;
+      true_part->args[1] = form->args[1];
+
+      TFormula_p false_part = TermTopAlloc(terms->sig->or_code, 2);
+      true_part->args[0] = cond;
+      true_part->args[1] = form->args[2];
+
+      TFormula_p unrolled =
+         TFormulaFCodeAlloc(terms, terms->sig->and_code,
+                            TBTermTopInsert(terms, true_part),
+                            TBTermTopInsert(terms, false_part));
+      
+      form = do_ite_unroll(unrolled, terms);
+   }
+   else if(TFormulaIsLiteral(terms->sig, form))
+   {
+      TermPos_p pos = PStackAlloc();
+      PStackPushP(pos, form);
+      PStackPushInt(pos, 0);
+      if(!TermFindIteSubterm(form->args[0], pos))
+      {
+         PStackDiscardTop(pos);
+         PStackPushInt(pos, 1);
+         if(!TermFindIteSubterm(form->args[1], pos))
+         {
+            PStackReset(pos);
+         }
+      }
+
+      if(!PStackEmpty(pos))
+      {
+         TFormula_p ite_term =
+            ((Term_p)PStackBelowTopP(pos))->args[PStackTopInt(pos)];
+         assert(ite_term->f_code == SIG_ITE_CODE);
+
+         Term_p repl_t = TBTermPosReplace(terms, ite_term->args[1], pos,
+                                          DEREF_NEVER, 0, ite_term);
+         Term_p repl_f = TBTermPosReplace(terms, ite_term->args[2], pos,
+                                          DEREF_NEVER, 0, ite_term);
+
+         TFormula_p cond = ite_term->args[0];
+         TFormula_p neg_cond = TFormulaNegate(cond, terms);
+
+         TFormula_p if_true_impl =
+            TFormulaFCodeAlloc(terms, terms->sig->or_code,
+                               neg_cond, repl_t);
+         TFormula_p if_false_impl =
+            TFormulaFCodeAlloc(terms, terms->sig->or_code,
+                               cond, repl_f);
+
+         // the whole formula
+         form = TFormulaFCodeAlloc(terms, terms->sig->and_code,
+                                    do_ite_unroll(if_true_impl, terms),
+                                    do_ite_unroll(if_false_impl, terms));
+      }
+      PStackFree(pos);
+   }
+   else
+   {
+      Term_p new = TermTopCopyWithoutArgs(form);
+      bool changed = false;
+      for(long i=0; i<new->arity; i++)
+      {
+         new->args[i] = do_ite_unroll(form->args[i], terms);
+         changed = changed || new->args[i] != form->args[i];
+      }
+
+      if(changed)
+      {
+         form = TBTermTopInsert(terms, new);
+      }
+      else
+      {
+         TermTopFree(new);
+      }
+   }
+
+   return form;
+}
+
 
 /*-----------------------------------------------------------------------
 //
@@ -1750,6 +1853,34 @@ long TFormulaSetLiftLets(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
 
    PStackFree(lifted_lets);
 
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: TFormulaSetLiftItes()
+//
+//    Rewrites all formulas so that all occurrences of the ite symbols
+//    are replaced by appropriate implications
+//    
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+long TFormulaSetLiftItes(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
+{
+   long res = 0;
+   for(WFormula_p formula = set->anchor->succ; formula!=set->anchor; formula=formula->succ)
+   {
+      if(map_formula(formula, terms, do_ite_unroll, DCFoolUnroll))
+      {
+         res++;
+      }
+   }
    return res;
 }
 
