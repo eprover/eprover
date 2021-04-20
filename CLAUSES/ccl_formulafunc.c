@@ -780,6 +780,7 @@ TFormula_p do_ite_unroll(TFormula_p form, TB_p terms)
 {
    if(form->f_code == SIG_ITE_CODE)
    {
+      assert(form->arity == 3);
       TFormula_p cond = form->args[0];
       TFormula_p not_cond = TFormulaNegate(cond, terms);
       
@@ -788,8 +789,8 @@ TFormula_p do_ite_unroll(TFormula_p form, TB_p terms)
       true_part->args[1] = form->args[1];
 
       TFormula_p false_part = TermTopAlloc(terms->sig->or_code, 2);
-      true_part->args[0] = cond;
-      true_part->args[1] = form->args[2];
+      false_part->args[0] = cond;
+      false_part->args[1] = form->args[2];
 
       TFormula_p unrolled =
          TFormulaFCodeAlloc(terms, terms->sig->and_code,
@@ -803,11 +804,11 @@ TFormula_p do_ite_unroll(TFormula_p form, TB_p terms)
       TermPos_p pos = PStackAlloc();
       PStackPushP(pos, form);
       PStackPushInt(pos, 0);
-      if(!TermFindIteSubterm(form->args[0], pos))
+      if(form->args[0]->f_code != SIG_ITE_CODE && !TermFindIteSubterm(form->args[0], pos))
       {
          PStackDiscardTop(pos);
          PStackPushInt(pos, 1);
-         if(!TermFindIteSubterm(form->args[1], pos))
+         if(form->args[1]->f_code != SIG_ITE_CODE && !TermFindIteSubterm(form->args[1], pos))
          {
             PStackReset(pos);
          }
@@ -1374,6 +1375,7 @@ long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive,
    long old_nodes = TBNonVarTermNodes(terms);
    long gc_threshold = old_nodes*TFORMULA_GC_LIMIT;
 
+   TFormulaSetLiftItes(set, archive, terms);
    TFormulaSetLiftLets(set, archive, terms);
    TFormulaSetUnfoldLogSymbols(set, archive, terms);
    TFormulaSetLambdaNormalize(set, archive, terms);

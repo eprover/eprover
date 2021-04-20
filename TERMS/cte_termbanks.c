@@ -1468,11 +1468,11 @@ Term_p TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop)
 
       if(TestInpTok(in, LetToken))
       {
-         handle = ParseLet(in, bank, false);
+         handle = ParseLet(in, bank);
       }
       else if(TestInpTok(in, IteToken))
       {
-         handle = ParseIte(in, bank, false);
+         handle = ParseIte(in, bank);
       }
       else if((id_type=TermParseOperator(in, id))==FSIdentVar)
       {
@@ -2091,7 +2091,7 @@ Term_p TermMap(TB_p bank, Term_p t, TermMapper f)
 //
 /----------------------------------------------------------------------*/
 
-Term_p ParseLet(Scanner_p in, TB_p bank, bool top_level)
+Term_p ParseLet(Scanner_p in, TB_p bank)
 {
    AcceptInpTok(in, LetToken);
    AcceptInpTok(in, OpenBracket);
@@ -2137,7 +2137,7 @@ Term_p ParseLet(Scanner_p in, TB_p bank, bool top_level)
    AcceptInpTok(in, Comma);
 
    SigEnterLetScope(bank->sig, type_decls);
-   Term_p body = top_level ?  TFormulaTPTPParse(in, bank) : TBTermParse(in, bank);
+   Term_p body = TFormulaTPTPParse(in, bank);
    SigExitLetScope(bank->sig);
 
    Term_p let_term = make_let(bank, definitions, body);
@@ -2170,17 +2170,16 @@ Term_p ParseLet(Scanner_p in, TB_p bank, bool top_level)
 //
 /----------------------------------------------------------------------*/
 
-Term_p ParseIte(Scanner_p in, TB_p bank, bool top_level)
-{
-   typedef Term_p (*parser_func)(Scanner_p, TB_p);
-   
+Term_p ParseIte(Scanner_p in, TB_p bank)
+{   
    AcceptInpTok(in, IteToken);
    AcceptInpTok(in, OpenBracket);
-   
    Term_p cond = TFormulaTPTPParse(in, bank);
-   parser_func parser = top_level ? TFormulaTPTPParse : TBTermParse;
-   Term_p if_true = parser(in, bank);
-   Term_p if_false = parser(in, bank);
+   AcceptInpTok(in, Comma);
+   Term_p if_true = TFormulaTPTPParse(in, bank);
+   AcceptInpTok(in, Comma);
+   Term_p if_false = TFormulaTPTPParse(in, bank);
+   AcceptInpTok(in, CloseBracket);
 
    Term_p res = TermTopAlloc(SIG_ITE_CODE, 3);
    res->args[0] = cond;

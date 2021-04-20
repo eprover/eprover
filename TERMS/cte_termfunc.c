@@ -401,6 +401,7 @@ void TermPrintFO(FILE* out, Term_p term, Sig_p sig, DerefType deref)
       else
       {
          fputs(SigFindName(sig, term->f_code), out);
+         fprintf(out, "(%ld)", term->f_code);
          if(!TermIsConst(term))
          {
             assert(term->args);
@@ -1761,6 +1762,7 @@ FunCode TermFindMaxVarCode(Term_p term)
 
 bool TermFindIteSubterm(Term_p t, TermPos_p pos)
 {
+   assert(t);
    PStackPushP(pos, t);
    bool found = false;
 

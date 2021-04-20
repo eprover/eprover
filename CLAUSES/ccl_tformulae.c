@@ -369,6 +369,35 @@ static TFormula_p quantified_tform_tptp_parse(Scanner_p in,
 
 /*-----------------------------------------------------------------------
 //
+// Function: parse_atom()
+//
+//   Parse an elementary formula in TPTP/TSTP format. New: takes care
+//   of complicated forms such as $let and $ite
+//
+// Global Variables: -
+//
+// Side Effects    : I/O
+//
+/----------------------------------------------------------------------*/
+
+static TFormula_p parse_atom(Scanner_p in, TB_p terms)
+{
+   Term_p lhs, rhs;
+   bool positive = EqnParseInfix(in, terms, &lhs, &rhs);
+   Term_p res;
+   if(rhs == NULL)
+   {
+      res = lhs;
+   }
+   else
+   {
+      res = EqnTermsTBTermEncode(terms, lhs, rhs, positive, PENormal);  
+   }
+   return res;
+}
+
+/*-----------------------------------------------------------------------
+//
 // Function: elem_tform_tptp_parse()
 //
 //   Parse an elementary formula in TPTP/TSTP format.
@@ -402,20 +431,9 @@ static TFormula_p elem_tform_tptp_parse(Scanner_p in, TB_p terms)
       tmp = elem_tform_tptp_parse(in, terms);
       res = TFormulaFCodeAlloc(terms, terms->sig->not_code, tmp, NULL);
    }
-   else if(TestInpTok(in, LetToken))
-   {
-      res = ParseLet(in, terms, true);
-   }
-   else if(TestInpTok(in, IteToken))
-   {
-      res = ParseIte(in, terms, true);
-   }
    else
    {
-      Eqn_p lit;
-      lit = EqnFOFParse(in, terms);
-      res = TFormulaLitAlloc(lit);
-      EqnFree(lit);
+      res = parse_atom(in, terms);
    }
    return res;
 }
@@ -525,20 +543,9 @@ static TFormula_p quantified_tform_tstp_parse(Scanner_p in,
             rest = clause_tform_tstp_parse(in, terms);
             AcceptInpTok(in, CloseBracket);
          }
-         else if(TestInpTok(in, LetToken))
-         {
-            rest = ParseLet(in, terms, true);
-         }
-         else if(TestInpTok(in, IteToken))
-         {
-            rest = ParseIte(in, terms, true);
-         }
          else
          {
-            Eqn_p lit;
-            lit = EqnFOFParse(in, terms);
-            rest = TFormulaLitAlloc(lit);
-            EqnFree(lit);
+            rest = parse_atom(in, terms);
          }
       }
       else
@@ -696,22 +703,11 @@ static TFormula_p literal_tform_tstp_parse(Scanner_p in, TB_p terms)
       tmp = literal_tform_tstp_parse(in, terms);
       res = TFormulaFCodeAlloc(terms, terms->sig->not_code, tmp, NULL);
    }
-   else if(TestInpTok(in, LetToken))
-   {
-      res = ParseLet(in, terms, true);
-   }
-   else if(TestInpTok(in, IteToken))
-   {
-      res = ParseIte(in, terms, true);
-   }
    else
    {
       if(problemType == PROBLEM_FO)
       {
-         Eqn_p lit;
-         lit = EqnFOFParse(in, terms);
-         res = TFormulaLitAlloc(lit);
-         EqnFree(lit);
+         res = parse_atom(in, terms);
       }
       else
       {

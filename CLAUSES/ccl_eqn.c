@@ -285,131 +285,6 @@ static CompareResult compare_poseqn_negeqn(OCB_p ocb, Eqn_p eq1, Eqn_p eq2)
 
 /*-----------------------------------------------------------------------
 //
-// Function: eqn_parse_infix()
-//
-//   Parse a literal without external sign assuming that _all_
-//   equational literals are infix. Return sign. This is for TSTP
-//   syntax and E-LOP style.
-//
-// Global Variables: -
-//
-// Side Effects    : Input, memory management.
-//
-/----------------------------------------------------------------------*/
-
-static bool eqn_parse_infix(Scanner_p in, TB_p bank, Term_p *lref,
-                            Term_p *rref)
-{
-   Term_p  lterm;
-   Term_p  rterm;
-   bool    positive = true;
-
-   bool in_parens = false;
-   if(problemType == PROBLEM_HO && TestInpTok(in, OpenBracket))
-   {
-      AcceptInpTok(in, OpenBracket);
-      in_parens = true;
-   }
-
-   lterm = TBTermParse(in, bank);
-
-   BOOL_TERM_NORMALIZE(lterm);
-
-   /* Shortcut not to check for equality --
-         !TermIsVar guards calls against negative f_code */
-   if(problemType == PROBLEM_FO && !TermIsVar(lterm) &&
-      SigIsPredicate(bank->sig,lterm->f_code) &&
-      SigIsFixedType(bank->sig, lterm->f_code))
-   {
-      rterm = bank->true_term; /* Non-Equational literal */
-   }
-   else
-   {
-      /* If we have a predicate variable then = might not come */
-      if((TermIsVar(lterm) && !TypeIsPredicate(lterm->type))
-              /* guarding SigIsFunction */
-          || (!TermIsVar(lterm) && SigIsFunction(bank->sig, lterm->f_code)))
-      {
-         if(in_parens && TestInpTok(in, CloseBracket))
-         {
-            AcceptInpTok(in, CloseBracket);
-            in_parens = false;
-         }
-
-         if(TestInpTok(in, NegEqualSign))
-         {
-            positive = !positive;
-         }
-         AcceptInpTok(in, NegEqualSign|EqualSign);
-
-         rterm = TBTermParse(in, bank);
-
-         if(!TermIsTopLevelVar(rterm))
-         {
-            TypeDeclareIsNotPredicate(bank->sig, rterm, in);
-         }
-      }
-      else if(TestInpTok(in, NegEqualSign|EqualSign) && !TypeIsPredicate(lterm->type))
-      { /* Now both sides must be terms */
-         if(in_parens && TestInpTok(in, CloseBracket))
-         {
-            AcceptInpTok(in, CloseBracket);
-            in_parens = false;
-         }
-
-         if(!TermIsAppliedVar(lterm) && problemType == PROBLEM_FO)
-         {
-            TypeDeclareIsNotPredicate(bank->sig, lterm, in);
-         }
-         if(TestInpTok(in, NegEqualSign))
-         {
-            positive = !positive;
-         }
-         AcceptInpTok(in, NegEqualSign|EqualSign);
-
-         rterm = TBTermParse(in, bank);
-
-         // We have to make those declarations only for FO problems
-         if(!TermIsTopLevelVar(lterm) && problemType == PROBLEM_FO)
-         {
-            TypeDeclareIsNotPredicate(bank->sig, lterm, in);
-         }
-         if(!TermIsTopLevelVar(rterm) && !TermIsAppliedVar(rterm) && problemType == PROBLEM_FO)
-         {
-            TypeDeclareIsNotPredicate(bank->sig, rterm, in);
-         }
-      }
-      else
-      {  /* It's a predicate */
-         if(problemType == PROBLEM_HO && !TermIsTopLevelVar(lterm)
-            && SigIsFunction(bank->sig, lterm->f_code))
-         {
-            DStr_p err = DStrAlloc();
-            DStrAppendStr(err, "Symbol ");
-            DStrAppendStr(err, SigFindName(bank->sig, lterm->f_code));
-            DStrAppendStr(err, " interpreted both as function and predicate (check parentheses).");
-            AktTokenError(in, DStrView(err), SYNTAX_ERROR);
-         }
-         rterm = bank->true_term; /* Non-Equational literal */
-         if(!TermIsTopLevelVar(lterm))
-         {
-            TypeDeclareIsPredicate(bank->sig, lterm);
-         }
-      }
-   }
-   *lref = lterm;
-   *rref = rterm;
-
-   if(in_parens)
-   {
-      AcceptInpTok(in, CloseBracket);
-   }
-   return positive;
-}
-
-
-/*-----------------------------------------------------------------------
-//
 // Function: eqn_parse_prefix()
 //
 //   Parse a literal without external sign assuming that _all_
@@ -485,7 +360,7 @@ static bool eqn_parse_mixfix(Scanner_p in, TB_p bank, Term_p *lref,
    {
       return eqn_parse_prefix(in, bank, lref, rref);
    }
-   return eqn_parse_infix(in, bank, lref, rref);
+   return EqnParseInfix(in, bank, lref, rref);
 }
 
 /*-----------------------------------------------------------------------
@@ -550,7 +425,7 @@ bool eqn_parse_real(Scanner_p in, TB_p bank, Term_p *lref,
             negate = true;
             NextToken(in);
          }
-         positive = eqn_parse_infix(in, bank,  lref, rref);
+         positive = EqnParseInfix(in, bank,  lref, rref);
          break;
    default:
          assert(false && "Format not supported");
@@ -565,6 +440,138 @@ bool eqn_parse_real(Scanner_p in, TB_p bank, Term_p *lref,
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
 /*---------------------------------------------------------------------*/
+
+/*-----------------------------------------------------------------------
+//
+// Function: EqnParseInfix()
+//
+//   Parse a literal without external sign assuming that _all_
+//   equational literals are infix. Return sign. This is for TSTP
+//   syntax and E-LOP style.
+//
+// Global Variables: -
+//
+// Side Effects    : Input, memory management.
+//
+/----------------------------------------------------------------------*/
+
+bool EqnParseInfix(Scanner_p in, TB_p bank, Term_p *lref, Term_p *rref)
+{
+   Term_p  lterm;
+   Term_p  rterm;
+   bool    positive = true;
+
+   bool in_parens = false;
+   if(problemType == PROBLEM_HO && TestInpTok(in, OpenBracket))
+   {
+      AcceptInpTok(in, OpenBracket);
+      in_parens = true;
+   }
+
+   lterm = TBTermParse(in, bank);
+
+   BOOL_TERM_NORMALIZE(lterm);
+
+   /* Shortcut not to check for equality --
+         !TermIsVar guards calls against negative f_code */
+   if(problemType == PROBLEM_FO && !TermIsVar(lterm) &&
+      SigIsPredicate(bank->sig,lterm->f_code) &&
+      SigIsFixedType(bank->sig, lterm->f_code))
+   {
+      rterm = bank->true_term; /* Non-Equational literal */
+   }
+   else
+   {
+      /* If we have a predicate variable then = might not come */
+      if((TermIsVar(lterm) && !TypeIsPredicate(lterm->type))
+              /* guarding SigIsFunction */
+          || (!TermIsVar(lterm) && SigIsFunction(bank->sig, lterm->f_code)))
+      {
+         if(in_parens && TestInpTok(in, CloseBracket))
+         {
+            AcceptInpTok(in, CloseBracket);
+            in_parens = false;
+         }
+
+         if(!TestInpTok(in, NegEqualSign|EqualSign))
+         {
+            // type is known but it is inside $let
+            // or $ite and is not in an equation
+            rterm = NULL;
+         }
+         else
+         {
+            if(TestInpTok(in, NegEqualSign))
+            {
+               positive = !positive;
+            }
+            AcceptInpTok(in, NegEqualSign|EqualSign);
+
+            rterm = TBTermParse(in, bank);
+
+            if(!TermIsTopLevelVar(rterm))
+            {
+               TypeDeclareIsNotPredicate(bank->sig, rterm, in);
+            }
+         }
+      }
+      else if(TestInpTok(in, NegEqualSign|EqualSign) && !TypeIsPredicate(lterm->type))
+      { /* Now both sides must be terms */
+         if(in_parens && TestInpTok(in, CloseBracket))
+         {
+            AcceptInpTok(in, CloseBracket);
+            in_parens = false;
+         }
+
+         if(!TermIsAppliedVar(lterm) && problemType == PROBLEM_FO)
+         {
+            TypeDeclareIsNotPredicate(bank->sig, lterm, in);
+         }
+         if(TestInpTok(in, NegEqualSign))
+         {
+            positive = !positive;
+         }
+         AcceptInpTok(in, NegEqualSign|EqualSign);
+
+         rterm = TBTermParse(in, bank);
+
+         // We have to make those declarations only for FO problems
+         if(!TermIsTopLevelVar(lterm) && problemType == PROBLEM_FO)
+         {
+            TypeDeclareIsNotPredicate(bank->sig, lterm, in);
+         }
+         if(!TermIsTopLevelVar(rterm) && !TermIsAppliedVar(rterm) && problemType == PROBLEM_FO)
+         {
+            TypeDeclareIsNotPredicate(bank->sig, rterm, in);
+         }
+      }
+      else
+      {  /* It's a predicate */
+         if(problemType == PROBLEM_HO && !TermIsTopLevelVar(lterm)
+            && SigIsFunction(bank->sig, lterm->f_code))
+         {
+            DStr_p err = DStrAlloc();
+            DStrAppendStr(err, "Symbol ");
+            DStrAppendStr(err, SigFindName(bank->sig, lterm->f_code));
+            DStrAppendStr(err, " interpreted both as function and predicate (check parentheses).");
+            AktTokenError(in, DStrView(err), SYNTAX_ERROR);
+         }
+         rterm = bank->true_term; /* Non-Equational literal */
+         if(lterm->f_code > bank->sig->internal_symbols)
+         {
+            TypeDeclareIsPredicate(bank->sig, lterm);
+         }
+      }
+   }
+   *lref = lterm;
+   *rref = rterm;
+
+   if(in_parens)
+   {
+      AcceptInpTok(in, CloseBracket);
+   }
+   return positive;
+}
 
 
 /*-----------------------------------------------------------------------

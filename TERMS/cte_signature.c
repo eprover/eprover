@@ -1902,7 +1902,7 @@ bool SigSymbolUnifiesWithVar(Sig_p sig, FunCode f_code)
 //
 /----------------------------------------------------------------------*/
 
-void  SigEnterLetScope(Sig_p sig, PStack_p type_decls)
+void SigEnterLetScope(Sig_p sig, PStack_p type_decls)
 {
    PStack_p scope = PStackAlloc();
    PStackPushP(sig->let_scopes, scope);
