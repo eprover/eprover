@@ -523,7 +523,7 @@ bool EqnParseInfix(Scanner_p in, TB_p bank, Term_p *lref, Term_p *rref)
             in_parens = false;
          }
 
-         if(!TermIsAppliedVar(lterm) && problemType == PROBLEM_FO)
+         if(lterm->f_code > bank->sig->internal_symbols && problemType == PROBLEM_FO)
          {
             TypeDeclareIsNotPredicate(bank->sig, lterm, in);
          }
@@ -536,11 +536,11 @@ bool EqnParseInfix(Scanner_p in, TB_p bank, Term_p *lref, Term_p *rref)
          rterm = TBTermParse(in, bank);
 
          // We have to make those declarations only for FO problems
-         if(!TermIsTopLevelVar(lterm) && problemType == PROBLEM_FO)
+         if(lterm->f_code > bank->sig->internal_symbols && problemType == PROBLEM_FO)
          {
             TypeDeclareIsNotPredicate(bank->sig, lterm, in);
          }
-         if(!TermIsTopLevelVar(rterm) && !TermIsAppliedVar(rterm) && problemType == PROBLEM_FO)
+         if(rterm->f_code > bank->sig->internal_symbols && problemType == PROBLEM_FO)
          {
             TypeDeclareIsNotPredicate(bank->sig, rterm, in);
          }

@@ -513,7 +513,7 @@ WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms)
          // TFormulaTPTPPrint(stderr, terms, tform, true, false);
          // fprintf(stderr, " : ");
          // TermPrintDbgHO(stderr, tform, terms->sig, DEREF_NEVER);
-         // fprintf(stderr, "\n");
+         // fprintf(stderr, ";\n");
       }
 
 

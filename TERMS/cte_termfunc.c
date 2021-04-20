@@ -489,6 +489,8 @@ void TermPrintHO(FILE* out, Term_p term, Sig_p sig, DerefType deref)
    }
 }
 
+#endif
+
 /*-----------------------------------------------------------------------
 //
 // Function: TermPrintDbgHO()
@@ -540,7 +542,6 @@ void TermPrintDbgHO(FILE* out, Term_p term, Sig_p sig, DerefType deref)
       }
    }
 }
-#endif
 
 
 /*--------------------------------------------------------------------

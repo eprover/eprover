@@ -242,34 +242,32 @@ void SigInsertInternalCodes(Sig_p sig)
    sig->answer_code =  SigInsertId(sig, "$answer", 1, true);
    SigSetFuncProp(sig, sig->answer_code, FPInterpreted|FPPseudoPred);
 
-#ifdef ENABLE_LFHO
-   #ifndef NDEBUG
-      // surpressing compiler warning
-      FunCode f_code =
-   #endif
-      SigInsertId(sig, "$@_var", 1, true);
-      assert(f_code == SIG_PHONY_APP_CODE); //for future code changes
-   #ifndef NDEBUG
-      f_code =
-   #endif
-      SigInsertId(sig, "$named_lam", 2, true);
-      assert(f_code == SIG_NAMED_LAMBDA_CODE); //for future code changes
-   #ifndef NDEBUG
-      f_code =
-   #endif
-      SigInsertId(sig, "$db_lam", 2, true);
-      assert(f_code == SIG_DB_LAMBDA_CODE); //for future code changes
-   #ifndef NDEBUG
-      f_code =
-   #endif
-      SigInsertId(sig, "$ite", 3, true);
-      assert(f_code == SIG_ITE_CODE); //for future code changes
-   #ifndef NDEBUG
-      f_code =
-   #endif
-      SigInsertId(sig, "$let", 3, true);
-      assert(f_code == SIG_LET_CODE); //for future code changes
+#ifndef NDEBUG
+   // surpressing compiler warning
+   FunCode f_code =
 #endif
+   SigInsertId(sig, "$@_var", 1, true);
+   assert(f_code == SIG_PHONY_APP_CODE); //for future code changes
+#ifndef NDEBUG
+   f_code =
+#endif
+   SigInsertId(sig, "$named_lam", 2, true);
+   assert(f_code == SIG_NAMED_LAMBDA_CODE); //for future code changes
+#ifndef NDEBUG
+   f_code =
+#endif
+   SigInsertId(sig, "$db_lam", 2, true);
+   assert(f_code == SIG_DB_LAMBDA_CODE); //for future code changes
+#ifndef NDEBUG
+   f_code =
+#endif
+   SigInsertId(sig, "$ite", 3, true);
+   assert(f_code == SIG_ITE_CODE); //for future code changes
+#ifndef NDEBUG
+   f_code =
+#endif
+   SigInsertId(sig, "$let", 3, true);
+   assert(f_code == SIG_LET_CODE); //for future code changes
 
    Type_p* args = TypeArgArrayAlloc(2);
    args[1] = sig->type_bank->bool_type;
