@@ -2197,6 +2197,7 @@ void WTFormulaConjunctiveNF3(WFormula_p form, TB_p terms,
       WFormulaPushDerivation(form, DCShiftQuantors, NULL, NULL);
    }
 
+   TFormulaUnrollFOOL(form,terms); // handles proof object internally
    handle = TFormulaDistributeDisjunctions(terms, form->tformula);
 
    if(handle!=form->tformula)
