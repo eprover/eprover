@@ -218,7 +218,7 @@ bool TypeCheckConsistent(Sig_p sig, Term_p term)
 
 void TypeInferSort(Sig_p sig, Term_p term, Scanner_p in)
 {
-   Type_p type;
+   Type_p type = NULL;
    Type_p sort, *args;
    int i;
 
@@ -232,8 +232,50 @@ void TypeInferSort(Sig_p sig, Term_p term, Scanner_p in)
    }
    else
    {
-      type = TermIsAppliedVar(term) ?
-         term->args[0]->type : SigGetType(sig, term->f_code);
+      if(TermIsPhonyApp(term))
+      {
+         type = term->args[0]->type;
+      }
+      else if(TermIsLambda(term))
+      {
+         // types have to be inferred only during parsing
+         assert(term->f_code == SIG_NAMED_LAMBDA_CODE);
+         assert(term->arity == 2);
+         // type of lambda is 'type of variable' -> 'type of body'
+         term->type = 
+            TypeBankInsertTypeShared(sig->type_bank,
+                                     ArrowTypeFlattened(&(term->args[0]->type), 1, 
+                                     term->args[1]->type));
+      }
+      else if(term->f_code == sig->eqn_code || term->f_code == sig->neqn_code)
+      {
+         if(term->arity == 0)
+         {
+            AktTokenError(in, "Equality must have at least one argument", 
+                          SYNTAX_ERROR);
+         }
+         Type_p arg_type = term->args[0]->type;
+         Type_p eq_type_args[3] = {arg_type, arg_type, sig->type_bank->bool_type};
+         type = TypeBankInsertTypeShared(sig->type_bank, 
+                                         AllocArrowTypeCopyArgs(3, eq_type_args));
+      }
+      else if(term->f_code == sig->qex_code || term->f_code == sig->qall_code)
+      {
+         if(term->arity == 0)
+         {
+            AktTokenError(in, "Equality must have at least one argument", 
+                          SYNTAX_ERROR);
+         }
+         assert(TermIsVar(term->args[0]));
+         Type_p arg_type = term->args[0]->type;
+         Type_p quant_type_args[3] = {arg_type, sig->type_bank->bool_type, sig->type_bank->bool_type};
+         type = TypeBankInsertTypeShared(sig->type_bank, 
+                                         AllocArrowTypeCopyArgs(3, quant_type_args));
+      }
+      else
+      {
+         type = SigGetType(sig, term->f_code);
+      }
 
       /* Use type */
       if(type)
@@ -251,7 +293,7 @@ void TypeInferSort(Sig_p sig, Term_p term, Scanner_p in)
                TI_ERROR("Type error");
             }
 
-            if(!TermIsAppliedVar(term))
+            if(!TermIsPhonyApp(term))
             {
                for(i=0; SigIsFixedType(sig, term->f_code) && i < term->arity; i++)
                {
@@ -280,7 +322,7 @@ void TypeInferSort(Sig_p sig, Term_p term, Scanner_p in)
                      fprintf(stderr, "# Type mismatch in argument #%d of ", i+1);
                      TermPrint(stderr, term, sig, DEREF_NEVER);
                      fprintf(stderr, ": expected ");
-                     TypePrintTSTP(stderr, sig->type_bank, type->args[i]);
+                     TypePrintTSTP(stderr, sig->type_bank, type->args[i-1]);
                      fprintf(stderr, " but got ");
                      TypePrintTSTP(stderr, sig->type_bank, term->args[i]->type);
                      fprintf(stderr, "\n");
@@ -293,6 +335,7 @@ void TypeInferSort(Sig_p sig, Term_p term, Scanner_p in)
             {
                fprintf(stderr, "# too many arguments supplied for %s\n",
                        SigFindName(sig, term->f_code));
+               assert(false);
                in?AktTokenError(in, "Type error", false):Error("Type error", SYNTAX_ERROR);
             }
          }
@@ -314,7 +357,7 @@ void TypeInferSort(Sig_p sig, Term_p term, Scanner_p in)
             }
          }
       }
-      else
+      else if(!TermIsLambda(term))
       {
          /* Infer type */
          sort = infer_return_sort(sig, term->f_code);

@@ -145,7 +145,7 @@ __inline__ Term_p applied_var_deref(Term_p orig)
 
       if(orig->args[0]->binding)
       {
-         if(TermIsVar(orig->args[0]->binding))
+         if(TermIsVar(orig->args[0]->binding) || TermIsLambda(orig->args[0]->binding))
          {
             res = TermTopAlloc(orig->f_code, orig->arity);
             res->properties = orig->properties & (TPPredPos);
@@ -808,7 +808,7 @@ __inline__ Term_p MakeRewrittenTerm(Term_p orig, Term_p new, int remaining_orig,
       Term_p new_term;
       if(TermIsVar(new))
       {
-         new_term = TermTopAlloc(SIG_APP_VAR_CODE, remaining_orig+1);
+         new_term = TermTopAlloc(SIG_PHONY_APP_CODE, remaining_orig+1);
          new_term->args[0] = new;
       }
       else

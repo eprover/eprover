@@ -187,8 +187,8 @@ static RWResultType term_is_top_rewritable(TB_p bank, OCB_p ocb,
       ClausePrint(stdout, new_demod, true);
       printf("\n");*/
    BWRWMatchAttempts++;
-   int remains =  MATCH_FAILED;
-   if((remains = SubstMatchPossiblyPartial(eqn->lterm, term, subst)) != MATCH_FAILED)
+   int remains =  0;
+   if(SubstMatchComplete(eqn->lterm, term, subst))
    {
       BWRWMatchSuccesses++;
       assert(problemType == PROBLEM_FO || !remains);
@@ -228,7 +228,7 @@ static RWResultType term_is_top_rewritable(TB_p bank, OCB_p ocb,
       !EqnIsOriented(eqn))
    {
       BWRWMatchAttempts++;
-      if((remains = SubstMatchPossiblyPartial(eqn->rterm, term, subst)) != MATCH_FAILED)
+      if(SubstMatchComplete(eqn->rterm, term, subst))
       {
          BWRWMatchSuccesses++;
          if(instance_is_rule(ocb, eqn->bank, eqn->rterm, eqn->lterm, subst))
@@ -498,13 +498,14 @@ MatchRes_p indexed_find_demodulator(OCB_p ocb, Term_p term,
       pos = match_info->pos;
       eqn = pos->literal;
 
-      if((EqnIsOriented(eqn)&&
+      if(match_info->remaining_args != 0 ||
+         ((EqnIsOriented(eqn)&&
           !SysDateIsEarlier(TermNFDate(term,RewriteAdr(RuleRewrite)),
                             pos->clause->date))
          ||
          (!EqnIsOriented(eqn)&&
           !SysDateIsEarlier(TermNFDate(term,RewriteAdr(FullRewrite)),
-                            pos->clause->date)))
+                            pos->clause->date))))
       {
          MatchResFree(match_info); // avoid memory leak -- it was alloc'd in PDTreeFindNextDemodulator
          continue;
@@ -964,8 +965,8 @@ static long term_find_rw_clauses(Clause_p demod,
    assert(!TermIsVar(term));
 
    BWRWMatchAttempts++;
-   int remains = MATCH_FAILED;
-   if((remains = SubstMatchPossiblyPartial(lterm, term, subst)) != MATCH_FAILED)
+   int remains = 0;
+   if(SubstMatchComplete(lterm, term, subst))
    {
       BWRWMatchSuccesses++;
       if(oriented

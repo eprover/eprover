@@ -44,6 +44,153 @@ static TFormula_p literal_tform_tstp_parse(Scanner_p in, TB_p terms);
 
 /*-----------------------------------------------------------------------
 //
+// Function: make_head()
+//
+//   Makes term that has function code that corresponds to f_name
+//   and no arguments.
+//    NB:  Term is unshared at this point!
+//
+// Global Variables: -
+//
+// Side Effects    : Input, memory operations, changes term bank
+//
+/----------------------------------------------------------------------*/
+
+static Term_p make_head(Sig_p sig, const char* f_name)
+{
+   Term_p head = TermDefaultCellAlloc();
+   head->f_code = SigFindFCode(sig, f_name);
+   if(!head->f_code)
+   {
+      DStr_p msg = DStrAlloc();
+      DStrAppendStr(msg, "Function symbol ");
+      DStrAppendStr(msg, (char*)f_name);
+      DStrAppendStr(msg, " has not been defined previously.");
+      Error(DStrView(msg), SYNTAX_ERROR);
+   }
+   head->arity = 0;
+   head->type = SigGetType(sig, head->f_code);
+
+   return head;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: parse_ho_atom()
+//
+//    Parses one HO symbol.
+//
+// Global Variables: -
+//
+// Side Effects    : Input, memory operations
+//
+/----------------------------------------------------------------------*/
+
+static Term_p __inline__ parse_ho_atom(Scanner_p in, TB_p bank)
+{
+   assert(problemType == PROBLEM_HO);
+
+   FuncSymbType   id_type;
+   DStr_p id      = DStrAlloc();
+   Type_p type;
+   Term_p head;
+
+   if((id_type=TermParseOperator(in, id))==FSIdentVar)
+   {
+      /* A variable may be annotated with a sort */
+      if(TestInpTok(in, Colon))
+      {
+         AcceptInpTok(in, Colon);
+         type = TypeBankParseType(in, bank->sig->type_bank);
+         head = VarBankExtNameAssertAllocSort(bank->vars, DStrView(id), type);
+      }
+      else
+      {
+         head = VarBankExtNameAssertAlloc(bank->vars, DStrView(id));
+      }
+
+      assert(TermIsVar(head));
+   }
+   else
+   {
+      head = TBTermTopInsert(bank, make_head(bank->sig, DStrView(id)));
+   }
+
+   DStrFree(id);
+   assert(TermIsShared(head));
+   assert(head->type);
+   return head;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: normalize_head()
+//
+//   Makes sure that term is represented in a flattened representation.
+//
+// Global Variables: -
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+
+static Term_p normalize_head(Term_p head, Term_p* rest_args, int rest_arity, TB_p bank)
+{
+   assert(problemType == PROBLEM_HO);
+   assert(TermIsVar(head) || TermIsShared(head));
+   Term_p res = NULL;
+
+   if(rest_arity == 0)
+   {
+      res = head; // nothing is being applied
+   }
+   else
+   {
+      int total_arity = (TermIsLambda(head) ? 0 : head->arity) + rest_arity;
+      if(TermIsVar(head) || TermIsLambda(head))
+      {
+         total_arity++; // head is going to be the first argument
+
+         res = TermDefaultCellArityAlloc(total_arity);
+         res->f_code = SIG_PHONY_APP_CODE;
+
+         res->args[0] = head;
+         for(int i=1; i<total_arity; i++)
+         {
+            res->args[i] = rest_args[i-1];
+         }
+      }
+      else
+      {
+         assert(total_arity != 0);
+         res = TermDefaultCellArityAlloc(total_arity);
+         res->f_code = head->f_code;
+
+         int i;
+         for(i=0; i < head->arity; i++)
+         {
+            res->args[i] = head->args[i];
+         }
+
+         for(i=0; i < rest_arity; i++)
+         {
+            res->args[head->arity + i] = rest_args[i];
+         }
+      }
+   }
+   
+   if(!TermIsVar(res) && !TermIsShared(res))
+   {
+      res = TBTermTopInsert(bank, res);
+   }
+
+   assert(TermIsShared(res));
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: tptp_operator_convert()
 //
 //   Return the f_code corresponding to a given token. Rather
@@ -139,14 +286,19 @@ static FunCode tptp_quantor_parse(Sig_p sig, Scanner_p in)
 {
    FunCode res;
 
-   CheckInpTok(in, UnivQuantor|ExistQuantor);
+   CheckInpTok(in, UnivQuantor|ExistQuantor|LambdaQuantor);
    if(TestInpTok(in, ExistQuantor))
    {
       res = sig->qex_code;
    }
-   else
+   else if (TestInpTok(in, UnivQuantor))
    {
       res = sig->qall_code;
+   } 
+   else
+   {
+      assert (TestInpTok(in, LambdaQuantor));
+      res = SIG_NAMED_LAMBDA_CODE;
    }
    NextToken(in);
 
@@ -217,6 +369,35 @@ static TFormula_p quantified_tform_tptp_parse(Scanner_p in,
 
 /*-----------------------------------------------------------------------
 //
+// Function: parse_atom()
+//
+//   Parse an elementary formula in TPTP/TSTP format. New: takes care
+//   of complicated forms such as $let and $ite
+//
+// Global Variables: -
+//
+// Side Effects    : I/O
+//
+/----------------------------------------------------------------------*/
+
+static TFormula_p parse_atom(Scanner_p in, TB_p terms)
+{
+   Term_p lhs, rhs;
+   bool positive = EqnParseInfix(in, terms, &lhs, &rhs);
+   Term_p res;
+   if(rhs == NULL)
+   {
+      res = lhs;
+   }
+   else
+   {
+      res = EqnTermsTBTermEncode(terms, lhs, rhs, positive, PENormal);  
+   }
+   return res;
+}
+
+/*-----------------------------------------------------------------------
+//
 // Function: elem_tform_tptp_parse()
 //
 //   Parse an elementary formula in TPTP/TSTP format.
@@ -252,10 +433,7 @@ static TFormula_p elem_tform_tptp_parse(Scanner_p in, TB_p terms)
    }
    else
    {
-      Eqn_p lit;
-      lit = EqnFOFParse(in, terms);
-      res = TFormulaLitAlloc(lit);
-      EqnFree(lit);
+      res = parse_atom(in, terms);
    }
    return res;
 }
@@ -367,10 +545,7 @@ static TFormula_p quantified_tform_tstp_parse(Scanner_p in,
          }
          else
          {
-            Eqn_p lit;
-            lit = EqnFOFParse(in, terms);
-            rest = TFormulaLitAlloc(lit);
-            EqnFree(lit);
+            rest = parse_atom(in, terms);
          }
       }
       else
@@ -419,9 +594,61 @@ static TFormula_p assoc_tform_tstp_parse(Scanner_p in, TB_p terms, TFormula_p he
 
 /*-----------------------------------------------------------------------
 //
+// Function: applied_tform_tstp_parse()
+//
+//   Parse a sequence of formulas connected by application operator
+//   and normalize the term according to the invariant maintained by @:
+//   If the head is a single constant F then simply apply F to arguments.
+//   Otherwise, apply the head using SIG_PHONY_APP_CODE
+//
+// Global Variables:
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+
+static TFormula_p applied_tform_tstp_parse(Scanner_p in, TB_p terms, TFormula_p head)
+{
+   assert(TestInpTok(in, Application));
+   
+   const Type_p hd_type = GetHeadType(terms->sig, head);
+   assert(hd_type);
+   const int max_args = TypeGetMaxArity(hd_type);
+   int i = 0;
+   const TermRef args = TermArgTmpArrayAlloc(max_args);
+   bool head_is_logical = !TermIsVar(head) && SigQueryFuncProp(terms->sig, head->f_code, FPFOFOp);
+   Term_p arg;
+
+   while(TestInpTok(in, Application))
+   {
+      if(i >= max_args)
+      {
+         AktTokenError(in, " Too many arguments applied to the symbol",
+                       SYNTAX_ERROR);
+      }
+      AcceptInpTok(in, Application);
+      arg = literal_tform_tstp_parse(in, terms);
+      args[i++] = head_is_logical ? EncodePredicateAsEqn(terms, arg) : arg;
+   }
+   
+   TFormula_p res = 
+      EncodePredicateAsEqn(terms, normalize_head(head, args, i, terms));
+   TermArgTmpArrayFree(args, max_args);
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: literal_tform_tstp_parse()
 //
 //   Parse an elementary formula in TSTP format.
+//   Parses:
+//   (1) quantified formulas (includes lambda in HO)
+//   (2) '(' full formula ')'
+//   (3) ~ full formula
+//   FO: (4) equation / predicate term
+//   HO: (4) variable or constant
 //
 // Global Variables: -
 //
@@ -431,9 +658,9 @@ static TFormula_p assoc_tform_tstp_parse(Scanner_p in, TB_p terms, TFormula_p he
 
 static TFormula_p literal_tform_tstp_parse(Scanner_p in, TB_p terms)
 {
-   TFormula_p res, tmp;
+   TFormula_p res=NULL, tmp=NULL;
 
-   if(TestInpTok(in, UnivQuantor|ExistQuantor))
+   if(TestInpTok(in, UnivQuantor|ExistQuantor|LambdaQuantor))
    {
       FunCode quantor;
       quantor = tptp_quantor_parse(terms->sig,in);
@@ -442,58 +669,34 @@ static TFormula_p literal_tform_tstp_parse(Scanner_p in, TB_p terms)
    }
    else if(TestInpTok(in, OpenBracket))
    {
-      if(problemType == PROBLEM_FO)
+      AcceptInpTok(in, OpenBracket);
+
+      FunCode log_op = -1;
+      // cases where in HO syntax we can have logical symbol at the top
+      if(TestInpTok(in, FOFBinOp) && TestTok(LookToken(in, 1), CloseBracket))
       {
-         AcceptInpTok(in, OpenBracket);
-         res = TFormulaTSTPParse(in, terms);
-         AcceptInpTok(in, CloseBracket);
+         log_op = tptp_operator_parse(terms->sig, in);
+      }
+      else if (TestInpTok(in, TildeSign) && TestTok(LookToken(in, 1), CloseBracket))
+      {
+         AcceptInpTok(in, TildeSign);
+         log_op = terms->sig->not_code;
+      }
+
+      if(log_op != -1)
+      {
+         res = TBTermTopInsert(terms, TermTopAlloc(log_op, 0));
       }
       else
       {
-         // In HO case, we might have parentheses around terms
-         // -- not possible in FO case and breaks parsing in some
-         // cases.
-
-         // For example you might have ((f @ a) = c => ...)   -- continue parsing is false here
-         //                            (f @ a = c => ...)     -- continue parsing is true here
-         //                            ((f @ a = c) => ...)   -- continue parsing is false here
-         // In those examples, our code parses the literal, up to =>
-
-         if(TestTok(LookToken(in,1), OpenBracket|UnivQuantor|ExistQuantor|TildeSign))
-         {
-            AcceptInpTok(in, OpenBracket);
-            res = TFormulaTSTPParse(in, terms);
-            AcceptInpTok(in, CloseBracket);
-         }
-         else
-         {
-            AcceptInpTok(in, OpenBracket);
-            bool continue_parsing = true;
-            Eqn_p lit = EqnHOFParse(in, terms, &continue_parsing);
-            res = TFormulaLitAlloc(lit);
-            EqnFree(lit);
-
-            if(continue_parsing)
-            {
-               if(TestInpTok(in, FOFAssocOp))
-               {
-                  res = assoc_tform_tstp_parse(in, terms, res);
-               }
-               else if(TestInpTok(in, FOFBinOp))
-               {
-                  FunCode op = tptp_operator_parse(terms->sig, in);
-                  TFormula_p f2 = literal_tform_tstp_parse(in, terms);
-                  res = TFormulaFCodeAlloc(terms, op, res, f2);
-               }
-               AcceptInpTok(in, CloseBracket);
-            }
-         }
+         res = TFormulaTSTPParse(in, terms);
       }
+      AcceptInpTok(in, CloseBracket);
    }
    else if(TestInpTok(in, TildeSign))
    {
       AcceptInpTok(in, TildeSign);
-      if(problemType == PROBLEM_HO && TestInpTok(in, Application))
+      if (TestInpTok(in, Application))
       {
          AcceptInpTok(in, Application);
       }
@@ -502,12 +705,16 @@ static TFormula_p literal_tform_tstp_parse(Scanner_p in, TB_p terms)
    }
    else
    {
-      Eqn_p lit;
-      lit = EqnFOFParse(in, terms);
-      res = TFormulaLitAlloc(lit);
-      EqnFree(lit);
+      if(problemType == PROBLEM_FO)
+      {
+         res = parse_atom(in, terms);
+      }
+      else
+      {
+         res = parse_ho_atom(in, terms);
+      }
    }
-   return res;
+   return EncodePredicateAsEqn(terms, res);
 }
 
 
@@ -582,12 +789,23 @@ static void tformula_collect_freevars(TB_p bank, TFormula_p form, PTree_p *vars)
 {
    TermProperties old_prop;
 
-   if(TFormulaIsQuantified(bank->sig, form))
+   if(form->f_code == SIG_LET_CODE)
+   {
+      tformula_collect_freevars(bank, form->args[form->arity-1], vars);
+   }
+   else if(TFormulaIsQuantified(bank->sig, form))
    {
       old_prop = TermCellGiveProps(form->args[0], TPIsFreeVar);
       TermCellDelProp(form->args[0], TPIsFreeVar);
       tformula_collect_freevars(bank, form->args[1], vars);
       TermCellSetProp(form->args[0], old_prop);
+   }
+   else if(TermIsVar(form))
+   {
+      if(TermCellQueryProp(form, TPIsFreeVar))
+      {
+         PTreeStore(vars, form);
+      }
    }
    else
    {
@@ -610,6 +828,39 @@ static void tformula_collect_freevars(TB_p bank, TFormula_p form, PTree_p *vars)
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
 /*---------------------------------------------------------------------*/
+
+/*-----------------------------------------------------------------------
+//
+// Function: EncodePredicateAsEqn()
+//
+//   If a term is of the from p(s) where p is an uninterpreted predicate
+//   symbol it will be converted to equation p(s) = T, to maintain
+//   E's interal invariants
+//
+// Global Variables: -
+//
+// Side Effects    : Input, memory operations, changes term bank
+//
+/----------------------------------------------------------------------*/
+
+Term_p EncodePredicateAsEqn(TB_p bank, TFormula_p f)
+{
+   Sig_p sig = bank->sig;
+   if(problemType == PROBLEM_HO &&
+      (f->f_code > sig->internal_symbols ||
+       f->f_code == SIG_TRUE_CODE ||
+       f->f_code == SIG_FALSE_CODE ||
+       TermIsVar(f) ||
+       TermIsPhonyApp(f)) &&
+      f->type == sig->type_bank->bool_type)
+   {
+      // making sure we encode $false as $true!=$true
+      bool positive = f->f_code != SIG_FALSE_CODE;
+      f = EqnTermsTBTermEncode(bank, (f->f_code == SIG_FALSE_CODE ? bank->true_term : f),
+                               bank->true_term, positive, PENormal);
+   }
+   return f;
+}
 
 
 /*-----------------------------------------------------------------------
@@ -653,7 +904,8 @@ bool TFormulaIsPropConst(Sig_p sig, TFormula_p form, bool positive)
 
 TFormula_p TFormulaFCodeAlloc(TB_p bank, FunCode op, TFormula_p arg1, TFormula_p arg2)
 {
-   int arity = SigFindArity(bank->sig, op);
+   Sig_p sig = bank->sig;
+   int arity = SigFindArity(sig, op);
    TFormula_p res;
 
    assert(bank);
@@ -661,8 +913,11 @@ TFormula_p TFormulaFCodeAlloc(TB_p bank, FunCode op, TFormula_p arg1, TFormula_p
    assert(EQUIV((arity==2), arg2));
 
    res = TermTopAlloc(op,arity);
-   res->type = bank->sig->type_bank->bool_type;
-   if(SigIsPredicate(bank->sig, op))
+   if(op != SIG_NAMED_LAMBDA_CODE)
+   {
+      res->type = sig->type_bank->bool_type;
+   }
+   if(SigIsPredicate(sig, op))
    {
       TermCellSetProp(res, TPPredPos);
    }
@@ -845,9 +1100,13 @@ void TFormulaTPTPPrint(FILE* out, TB_p bank, TFormula_p form, bool fullterms, bo
       {
          fputs("?[", out);
       }
-      else
+      else if(form->f_code == bank->sig->qall_code)
       {
          fputs("![", out);
+      }
+      else
+      {
+         fputs("^[", out);
       }
       TermPrint(out, form->args[0], bank->sig, DEREF_NEVER);
       if(problemType == PROBLEM_HO || !TypeIsIndividual(form->args[0]->type))
@@ -881,9 +1140,14 @@ void TFormulaTPTPPrint(FILE* out, TB_p bank, TFormula_p form, bool fullterms, bo
       char* oprep = "XXX";
 
       assert(form->arity);
-      assert(TFormulaIsBinary(form));
+      assert(form->f_code == SIG_LET_CODE || form->f_code == SIG_ITE_CODE ||
+             TFormulaIsBinary(form));
       fputs("(", out);
-      if(form->f_code == bank->sig->or_code)
+      if(form->f_code == SIG_LET_CODE || form->f_code == SIG_ITE_CODE)
+      {
+         TermPrint(out, form, bank->sig, DEREF_NEVER);
+      }
+      else if(form->f_code == bank->sig->or_code)
       {
          tformula_print_or_chain(out, bank, form, fullterms, pcl);
       }
@@ -1157,17 +1421,34 @@ TFormula_p TFormulaTSTPParse(Scanner_p in, TB_p terms)
 {
    TFormula_p      f1, f2, res;
    FunCode op;
+   Sig_p   sig = terms->sig;
 
    f1 = literal_tform_tstp_parse(in, terms);
-
    if(TestInpTok(in, FOFAssocOp))
    {
       res = assoc_tform_tstp_parse(in, terms, f1);
+   }
+   else if(TestInpTok(in, Application))
+   {
+      res = applied_tform_tstp_parse(in, terms, f1);
    }
    else if(TestInpTok(in, FOFBinOp))
    {
       op = tptp_operator_parse(terms->sig, in);
       f2 = literal_tform_tstp_parse(in, terms);
+      
+      if(f1->type == sig->type_bank->bool_type &&
+        (op == sig->eqn_code || op == sig->neqn_code))
+      {
+         assert(f2->type == sig->type_bank->bool_type);
+         // if it is bool it is either a literal ((dis)equation) or a formula
+         assert(SigIsLogicalSymbol(sig, f1->f_code));
+         assert(SigIsLogicalSymbol(sig, f2->f_code));
+
+         op = (op == sig->eqn_code) ? sig->equiv_code : sig->xor_code;
+      }
+
+
       res = TFormulaFCodeAlloc(terms, op, f1, f2);
    }
    else
@@ -1321,6 +1602,27 @@ void TFormulaCollectFreeVars(TB_p bank, TFormula_p form, PTree_p *vars)
 {
    VarBankVarsSetProp(bank->vars, TPIsFreeVar);
    tformula_collect_freevars(bank, form, vars);
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: TFormulaIsClosed()
+//
+//   Returns true if forula has no free vars.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations, changes TPIsFreeVar.
+//
+/----------------------------------------------------------------------*/
+
+bool TFormulaIsClosed(TB_p bank, TFormula_p form)
+{
+   PTree_p vars = NULL;
+   TFormulaCollectFreeVars(bank, form, &vars);
+   bool ans  = vars == NULL;
+   PTreeFree(vars);
+   return ans;
 }
 
 

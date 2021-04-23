@@ -21,6 +21,7 @@
   -----------------------------------------------------------------------*/
 
 #include "cco_forward_contraction.h"
+#include "cco_ho_inferences.h"
 
 
 
@@ -80,7 +81,8 @@ static FVPackedClause_p forward_contract_keep(ProofState_p state, ProofControl_p
          return NULL;
       }
 
-      if(ClauseIsEmpty(clause))
+      if(ClauseIsEmpty(clause) || 
+         (problemType == PROBLEM_HO && ResolveFlexClause(clause)))
       {
          return FVIndexPackClause(clause, NULL);
       }

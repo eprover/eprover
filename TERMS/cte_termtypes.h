@@ -86,6 +86,11 @@ typedef enum
                                    this occurs with negative polarity. */
    TPIsDerefedAppVar  = 1<<20,  /* Is the object obtained as a cache
                                    for applied variables -- dbg purposes */
+   TPIsBetaReducible  = 1<<21,  /* Does the term have at least one subterm with 
+                                   lambda abstraction as term head */
+   TPIsEtaReducible   = 1<<22,  /* Does the term have at least one subterm which is
+                                   lambda abstraction and the last argument of body is
+                                   the abstracted variable */
 }TermProperties;
 
 
@@ -189,7 +194,7 @@ typedef uintptr_t DerefType, *DerefType_p;
 /* Sometimes we are not interested in the arity of the term, but the
    number of arguments the term has. Due to encoding of applied variables,
    we have to discard argument 0, which is actually the head variable */
-#define ARG_NUM(term)    (TermIsAppliedVar(term) ? (term)->arity-1 : (term)->arity)
+#define ARG_NUM(term)    (TermIsPhonyApp(term) ? (term)->arity-1 : (term)->arity)
 /* If we have the term X a Y and bindings X -> f X Y and Y -> Z
    when we deref once we want to get f X Y a Z. When dereferencing applied
    var X a Y we can behave like with variables and decrease deref (see TermDeref)
@@ -222,9 +227,15 @@ typedef uintptr_t DerefType, *DerefType_p;
 #define TermIsVar(t) ((t)->f_code < 0)
 #define TermIsConst(t)(!TermIsVar(t) && ((t)->arity==0))
 #ifdef ENABLE_LFHO
-#define TermIsAppliedVar(term) ((term)->f_code == SIG_APP_VAR_CODE)
+#define TermIsPhonyApp(term) ((term)->f_code == SIG_PHONY_APP_CODE)
+#define TermIsAppliedVar(term) ((term)->f_code == SIG_PHONY_APP_CODE && \
+                                TermIsVar((term)->args[0]))
+#define TermIsLambda(term) ((term)->f_code == SIG_NAMED_LAMBDA_CODE || \
+                            (term)->f_code == SIG_DB_LAMBDA_CODE)
 #else
+#define TermIsPhonyApp(term) (false)
 #define TermIsAppliedVar(term) (false)
+#define TermIsLambda(term) (false)
 #endif
 #define TermIsTopLevelVar(term) (TermIsVar(term) || TermIsAppliedVar(term))
 
@@ -310,11 +321,16 @@ void    TermStackDelProps(PStack_p stack, TermProperties prop);
 #define TermSetCache(t,c)  ((t)->binding_cache = (c))
 #define TermGetBank(t)     ((t)->owner_bank)
 #define TermSetBank(t,b)   ((t)->owner_bank = (b))
+
+#define TermIsBetaReducible(t) TermCellQueryProp((t), TPIsBetaReducible)
+#define TermIsEtaReducible(t)  TermCellQueryProp((t), TPIsEtaReducible)
 #else
 #define TermGetCache(t)    (UNUSED(t), NULL)
 #define TermSetCache(t,c)  (UNUSED(t), UNUSED(c), UNUSED(NULL))
 #define TermGetBank(t)     (UNUSED(t), NULL)
 #define TermSetBank(t,b)   (UNUSED(t), UNUSED(b), UNUSED(NULL))
+#define TermIsBetaReducible(t) false
+#define TermIsEtaReducible(t)  false
 #endif
 
 
@@ -344,17 +360,17 @@ static inline Type_p GetHeadType(Sig_p sig, Term_p term)
 #ifdef ENABLE_LFHO
    if(TermIsAppliedVar(term))
    {
-      assert(!sig || term->f_code == SIG_APP_VAR_CODE);
+      assert(!sig || term->f_code == SIG_PHONY_APP_CODE);
       return term->args[0]->type;
    }
-   else if(TermIsVar(term))
+   else if(TermIsVar(term) || TermIsLambda(term))
    {
-      assert(term->arity == 0);
+      assert(!TermIsVar(term) || term->arity == 0);
       return term->type;
    }
    else
    {
-      assert(term->f_code != SIG_APP_VAR_CODE);
+      assert(term->f_code != SIG_PHONY_APP_CODE);
       return SigGetType(sig, term->f_code);
    }
 #else

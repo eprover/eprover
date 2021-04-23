@@ -165,12 +165,17 @@ static Term_p tb_termtop_insert(TB_p bank, Term_p t)
       t->entry_no     = ++(bank->in_count);
       TermCellAssignProp(t,TPGarbageFlag, bank->garbage_state);
       TermCellSetProp(t, TPIsShared); /* Groundness may change below */
+      if(TermIsPhonyApp(t) && TermIsLambda(t->args[0]))
+      {
+         TermCellSetProp(t, TPIsBetaReducible);
+      }
       t->v_count = 0;
       t->f_count = !TermIsAppliedVar(t) ? 1 : 0;
       t->weight = DEFAULT_FWEIGHT*t->f_count;
       for(int i=0; i<t->arity; i++)
       {
          assert(TermIsShared(t->args[i])||TermIsVar(t->args[i]));
+         TermCellSetProp(t, TermCellGiveProps(t->args[i], TPIsBetaReducible));
          if(TermIsVar(t->args[i]))
          {
             t->v_count += 1;
@@ -263,6 +268,158 @@ static Term_p tb_parse_cons_list(Scanner_p in, TB_p bank, bool check_symb_prop)
    PStackFree(stack);
    return handle;
 }
+
+/*-----------------------------------------------------------------------
+//
+// Function: parse_let_typedecl()
+//
+//   Parses a single type declaration that constitutes of the first 
+//   part of a let term. For each parsed symbol, on type_decl it stores
+//   symbol name (DStr), fresh symbol ID (regardless of whether
+//   the symbol is already in the signature), and symbol type
+//   ACHTUNG: Dynamically allocated DStr is put on the stack.
+//
+// Global Variables: -
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+
+static void parse_let_typedecl(Scanner_p in, TB_p bank, PStack_p type_decls)
+{
+   DStr_p name = DStrAlloc();
+   FuncSymbType sym_type = FuncSymbParse(in, name);
+   if (sym_type == FSIdentFreeFun)
+   {
+      AcceptInpTok(in, Colon);
+      Type_p type = TypeBankParseType(in, bank->sig->type_bank);
+      
+      PStackPushP(type_decls, name);
+      PStackPushInt(type_decls, SigInsertLetId(bank->sig, DStrView(name), type));
+   }
+   else
+   {
+      AktTokenError(in, "let declaration expects a function symbol", 
+                    true);
+   }
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: parse_let_definition()
+//
+//   Parses a single type declaration that constitutes of the first 
+//   part of a let term. For each parsed symbol, on type_decl it stores
+//   symbol name (DStr), fresh symbol ID (regardless of whether
+//   the symbol is already in the signature), and symbol type
+//   ACHTUNG: Dynamically allocated DStr is put on the stack.
+//
+// Global Variables: -
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+
+static Term_p parse_let_sym_def(Scanner_p in, TB_p bank, PStack_p type_decls)
+{
+   DStr_p name = DStrAlloc();
+   FuncSymbType sym_type = FuncSymbParse(in, name);
+   FunCode id = 0;
+   for(PStackPointer i = 0; !id && i<PStackGetSP(type_decls); i += 2)
+   {
+      if(!strcmp(DStrView(name), DStrView(PStackElementP(type_decls, i))))
+      {
+         id = PStackElementInt(type_decls, i+1);
+      }
+   }
+
+   if(id)
+   {
+      Type_p type = SigGetType(bank->sig, id);
+      int arity = TypeGetMaxArity(type);
+      Term_p vars[arity]; // Variable length array
+      IntOrP dummy = {0};
+      if(arity)
+      {
+         AcceptInpTok(in, OpenBracket);
+         StrTree_p prev_vars = NULL;
+
+         for(int i=0; i<arity; i++)
+         {
+            DStrReset(name);
+            sym_type = FuncSymbParse(in, name);
+            if(StrTreeFind(&prev_vars, DStrView(name)))
+            {
+               AktTokenError(in, "variables must be distinct", true);
+            }
+
+            StrTreeStore(&prev_vars, DStrView(name), dummy, dummy);
+            if(sym_type != FSIdentVar)
+            {
+               AktTokenError(in, "variable is expected", true);
+            }
+
+            Type_p arg_type = type->args[i];
+
+            VarBankPushEnv(bank->vars);
+            vars[i] = VarBankExtNameAssertAllocSort(bank->vars,
+                                                    DStrView(name), arg_type);
+            if(i!=arity-1)
+            {
+               AcceptInpTok(in, Comma);
+            }
+         }
+         AcceptInpTok(in, CloseBracket);
+         StrTreeFree(prev_vars);
+      }
+
+      AcceptInpTok(in, Colon);
+      AcceptInpTok(in, EqualSign);
+
+      Term_p rhs = TypeIsPredicate(type) ? 
+                     TFormulaTSTPParse(in, bank) : TBTermParse(in, bank);
+      Term_p lhs = TermTopAlloc(id, arity);
+      for(int i=0; i<arity; i++)
+      {
+         lhs->args[i] = vars[i];
+         VarBankPopEnv(bank->vars);
+      }
+      lhs = TBTermTopInsert(bank, lhs);
+      
+      DStrFree(name);
+      return EqnTermsTBTermEncode(bank, lhs, rhs, true, PENormal);
+   }
+   else
+   {
+      AktTokenError(in, "symbol not in let declaration list", true);
+      return NULL;
+   }
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: make_let()
+//
+//   Bulids the variable-arity let term.
+//
+// Global Variables: -
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+
+static Term_p make_let(TB_p bank, PStack_p definitions, Term_p body)
+{
+   Term_p let_t = TermTopAlloc(SIG_LET_CODE, PStackGetSP(definitions) + 1);
+   for(PStackPointer i=0; i<PStackGetSP(definitions); i++)
+   {
+      let_t->args[i] = PStackElementP(definitions, i);
+   }
+   let_t->args[PStackGetSP(definitions)] = body;
+   let_t->type = body->type;
+   return TBTermTopInsert(bank, let_t);
+}
+
 
 
 /*-----------------------------------------------------------------------
@@ -438,152 +595,6 @@ static Term_p tb_term_parse_arglist(Scanner_p in, TB_p bank,
 
    return result;
 }
-
-/*-----------------------------------------------------------------------
-//
-// Function: normalize_head()
-//
-//   Makes sure that term is represented in a flattened representation.
-//    NB: Term is unshared at this point!
-//
-// Global Variables: -
-//
-// Side Effects    :
-//
-/----------------------------------------------------------------------*/
-
-static Term_p normalize_head(Term_p head, Term_p* rest_args, int rest_arity)
-{
-   assert(problemType == PROBLEM_HO);
-   Term_p res = NULL;
-
-   if(rest_arity == 0)
-   {
-      res = head; // do not copy in case there is nothing to be copied
-   }
-   else
-   {
-      int total_arity = head->arity + rest_arity;
-      if(TermIsVar(head))
-      {
-         total_arity++; // var is going to be the first argument
-
-         res = TermDefaultCellArityAlloc(total_arity);
-         res->f_code = SIG_APP_VAR_CODE;
-
-         res->args[0] = head;
-         for(int i=1; i<total_arity; i++)
-         {
-            res->args[i] = rest_args[i-1];
-         }
-      }
-      else if(total_arity)
-      {
-         res = TermDefaultCellArityAlloc(total_arity);
-         res->f_code = head->f_code;
-
-         int i;
-         for(i=0; i < head->arity; i++)
-         {
-            res->args[i] = head->args[i];
-         }
-
-         for(i=0; i < rest_arity; i++)
-         {
-            res->args[head->arity + i] = rest_args[i];
-         }
-      }
-      else
-      {
-         res = TermDefaultCellAlloc();
-      }
-
-      res->arity = total_arity;
-   }
-   assert(TermIsShared(head));
-   return res;
-}
-
-
-/*-----------------------------------------------------------------------
-//
-// Function: make_head()
-//
-//   Makes term that has function code that corresponds to f_name
-//   and no arguments.
-//    NB:  Term is unshared at this point!
-//
-// Global Variables: -
-//
-// Side Effects    : Input, memory operations, changes term bank
-//
-/----------------------------------------------------------------------*/
-
-static Term_p make_head(Sig_p sig, const char* f_name)
-{
-   Term_p head = TermDefaultCellAlloc();
-   head->f_code = SigFindFCode(sig, f_name);
-   if(!head->f_code)
-   {
-      DStr_p msg = DStrAlloc();
-      DStrAppendStr(msg, "Function symbol ");
-      DStrAppendStr(msg, (char*)f_name);
-      DStrAppendStr(msg, " has not been defined previously.");
-      Error(DStrView(msg), SYNTAX_ERROR);
-   }
-   head->arity = 0;
-   head->type = SigGetType(sig, head->f_code);
-
-   return head;
-}
-
-/*-----------------------------------------------------------------------
-//
-// Function: parse_one_ho()
-//
-//    Parses one HO symbol.
-//
-// Global Variables: -
-//
-// Side Effects    : Input, memory operations
-//
-/----------------------------------------------------------------------*/
-
-static Term_p __inline__ parse_one_ho(Scanner_p in, TB_p bank)
-{
-   assert(problemType == PROBLEM_HO);
-
-   FuncSymbType   id_type;
-   DStr_p id      = DStrAlloc();
-   Type_p type;
-   Term_p head;
-
-   if((id_type=TermParseOperator(in, id))==FSIdentVar)
-   {
-      /* A variable may be annotated with a sort */
-      if(TestInpTok(in, Colon))
-      {
-         AcceptInpTok(in, Colon);
-         type = TypeBankParseType(in, bank->sig->type_bank);
-         head = VarBankExtNameAssertAllocSort(bank->vars, DStrView(id), type);
-      }
-      else
-      {
-         head = VarBankExtNameAssertAlloc(bank->vars, DStrView(id));
-      }
-
-      assert(TermIsVar(head));
-   }
-   else
-   {
-      head = tb_termtop_insert(bank, make_head(bank->sig, DStrView(id)));
-   }
-
-   DStrFree(id);
-   assert(TermIsShared(head));
-   return head;
-}
-
 
 
 /*---------------------------------------------------------------------*/
@@ -996,6 +1007,11 @@ Term_p TBInsertInstantiatedHO(TB_p bank, Term_p term, bool follow_bind)
 
    assert(term);
 
+   if(TermIsGround(term) && TermIsShared(term))
+   {
+      return term;
+   }
+
    if(TermIsVar(term) && term->binding)
    {
       t = follow_bind ? TBInsert(bank, term->binding, DEREF_NEVER) : term;
@@ -1006,7 +1022,9 @@ Term_p TBInsertInstantiatedHO(TB_p bank, Term_p term, bool follow_bind)
    int ignore_args = 0;
    if(TermIsAppliedVar(term) && term->args[0]->binding && follow_bind)
    {
-      ignore_args = term->args[0]->binding->arity + (TermIsVar(term->args[0]->binding) ? 1 : 0);
+      Term_p binding = term->args[0]->binding;
+      ignore_args = 
+         TermIsLambda(binding) ? 1 : (binding->arity + (TermIsVar(binding) ? 1 : 0));
       DerefType d = DEREF_ONCE;
       term = TermDeref(term, &d);
    }
@@ -1018,6 +1036,23 @@ Term_p TBInsertInstantiatedHO(TB_p bank, Term_p term, bool follow_bind)
    }
    else
    {
+      Term_p binding_copy = NULL;
+      if(TFormulaIsQuantified(bank->sig, term))
+      {
+         if(term->args[0]->binding)
+         {
+            // making sure to avoid capture
+            binding_copy = term->args[0]->binding;
+            term->args[0]->binding = NULL;
+         }
+         else
+         {
+            term->args[0]->binding = VarBankGetFreshVar(bank->vars,
+                                                        term->args[0]->type);
+         }
+         
+      }
+
       t = TermTopCopyWithoutArgs(term); /* This is an unshared term cell at the moment */
       t->properties    = TPIgnoreProps;
 
@@ -1029,6 +1064,11 @@ Term_p TBInsertInstantiatedHO(TB_p bank, Term_p term, bool follow_bind)
          t->args[i] = TBInsertInstantiatedHO(bank, term->args[i], follow_bind && (i >= ignore_args));
       }
       t = tb_termtop_insert(bank, t);
+      
+      if(TFormulaIsQuantified(bank->sig, term))
+      {
+         term->args[0]->binding = binding_copy;
+      }
    }
    return t;
 }
@@ -1426,7 +1466,15 @@ Term_p TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop)
    {
       id = DStrAlloc();
 
-      if((id_type=TermParseOperator(in, id))==FSIdentVar)
+      if(TestInpTok(in, LetToken))
+      {
+         handle = ParseLet(in, bank);
+      }
+      else if(TestInpTok(in, IteToken))
+      {
+         handle = ParseIte(in, bank);
+      }
+      else if((id_type=TermParseOperator(in, id))==FSIdentVar)
       {
          /* A variable may be annotated with a sort */
          if(TestInpTok(in, Colon))
@@ -1507,6 +1555,7 @@ Term_p TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop)
             DStrAppendInt(errpos,
                           (long)(bank->sig)->
                           f_info[SigFindFCode(bank->sig, DStrView(id))].arity);
+            assert(false);
             Error(DStrView(errpos), SYNTAX_ERROR);
             DStrFree(errpos);
          }
@@ -1518,118 +1567,6 @@ Term_p TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop)
 
    return handle;
 }
-
-/*-----------------------------------------------------------------------
-//
-// Function: TBTermParseRealHO()
-//
-//   Parse a term from the given scanner object directly into the
-//   termbank. Supports TPTP thf syntax except for:
-//       - lambdas
-//       - formulas as arguments to predicates
-//       - !! and ~ @ syntax (or in general @ with no lhs argument)
-//       - ... anything else for what you get error message :)
-//
-// Global Variables: -
-//
-// Side Effects    : Input, memory operations, changes termbank.
-//
-/----------------------------------------------------------------------*/
-
-Term_p  TBTermParseRealHO(Scanner_p in, TB_p bank, bool check_symb_prop)
-{
-   Term_p  head    = NULL;
-   Term_p  arg     = NULL;
-   Term_p* rest_args    = NULL;
-   Term_p  res     = NULL;
-   int     rest_arity   = 0;
-   int     allocated    = 0;
-   int     head_arity   = 0;
-
-   if(TestInpTok(in, OpenBracket))
-   {
-      AcceptInpTok(in, OpenBracket);
-      head = TBTermParseRealHO(in, bank, check_symb_prop);
-      AcceptInpTok(in, CloseBracket);
-   }
-   else
-   {
-      head = parse_one_ho(in, bank);
-   }
-
-   head_arity = head->arity;
-
-   if(!TermIsVar(head) && !TermIsAppliedVar(head) && !SigGetType(bank->sig, head->f_code))
-   {
-      DStr_p msg = DStrAlloc();
-      if(head->f_code > 0)
-      {
-         DStrAppendStr(msg, SigFindName(bank->sig, head->f_code));
-         DStrAppendStr(msg, " with id ");
-      }
-      DStrAppendInt(msg, (int)head->f_code);
-      DStrAppendStr(msg, " has not been declared previously. This needs to change.");
-      AktTokenError(in, DStrView(msg), false);
-   }
-
-   allocated = TERMS_INITIAL_ARGS;
-   rest_args = (Term_p*)SecureMalloc(allocated*sizeof(Term_p));
-   rest_arity = 0;
-
-   while(TestInpTok(in, Application))
-   {
-      AcceptInpTok(in, Application);
-
-      if(head_arity + rest_arity >= TypeGetMaxArity(GetHeadType(bank->sig, head)))
-      {
-         AktTokenError(in, "Too many arguments supplied to symbol.", false);
-      }
-      if(TypeIsBool(GetHeadType(bank->sig, head)->args[head_arity+rest_arity]))
-      {
-         arg = (TestInpTok(in, Name|SemIdent) ? parse_one_ho :  TFormulaTSTPParse)(in, bank);
-      }
-      else
-      {
-         if(TestInpTok(in, OpenBracket))
-         {
-            AcceptInpTok(in, OpenBracket);
-            arg = TBTermParseRealHO(in, bank, check_symb_prop);
-            AcceptInpTok(in, CloseBracket);
-         }
-         else
-         {
-            arg = parse_one_ho(in, bank);
-         }
-      }
-
-      if(rest_arity == allocated)
-      {
-         allocated += TERMS_INITIAL_ARGS;
-         rest_args = (Term_p*)SecureRealloc(rest_args, allocated*sizeof(Term_p));
-      }
-
-      rest_args[rest_arity++] = arg;
-   }
-
-   res = normalize_head(head, rest_args, rest_arity);
-
-   if(!TermIsVar(res) && !TermIsShared(res))
-   {
-      res = tb_termtop_insert(bank, res);
-   }
-   else
-   {
-      assert(TermIsVar(res) || TBFind(bank, res));
-   }
-
-   if(allocated)
-   {
-      FREE(rest_args);
-   }
-   assert(TermIsShared(res));
-   return res;
-}
-
 
 /*-----------------------------------------------------------------------
 //
@@ -2025,6 +1962,172 @@ Term_p TBGetFreqConstTerm(TB_p terms, Type_p type,
    PStackFree(candidates);
    return res;
 }
+/*-----------------------------------------------------------------------
+//
+// Function: TermMap()
+//
+//   Applies the function f to term t to obtain t'. If t' != t,
+//   it continues mapping t'. Else, it recursively applies f to 
+//   arguments of t. Result term is guaranteed to be shared.
+//   Term mapper must also return shared term of the same type
+//   as the original one.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+Term_p TermMap(TB_p bank, Term_p t, TermMapper f)
+{
+   Term_p s = f(bank, t);
+   assert(TermIsShared(s) && s->type == t->type);
+
+   if(s!=t)
+   {
+      s = TermMap(bank, s, f);
+   }
+   else
+   {
+      bool changed = false;
+      s = TermTopCopyWithoutArgs(t);
+      for(int i=0; i < t->arity; i++)
+      {
+         s->args[i] = TermMap(bank, t->args[i], f);
+         assert(TermIsShared(s->args[i]) && s->args[i]->type == t->args[i]->type);
+         changed = changed || (s->args[i] != t->args[i]);
+      }
+      
+      if(changed)
+      {
+         s = TBTermTopInsert(bank, s);
+      }
+      else
+      {
+         TermTopFree(s);
+         s = t;
+      }
+   }
+   return s;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: ParseLet()
+//
+//   Parses let according to the TPTP description: 
+//    http://ceur-ws.org/Vol-2162/paper-07.pdf. If top_level is true,
+//   let appears at the formula level and its body must be Bool.
+//   Otherwise, its body is parsed as a non-Bool.
+//
+// Global Variables: -
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+
+Term_p ParseLet(Scanner_p in, TB_p bank)
+{
+   AcceptInpTok(in, LetToken);
+   AcceptInpTok(in, OpenBracket);
+   
+   PStack_p type_decls = PStackAlloc();
+   /* parsing type declarations */
+   if(TestInpTok(in, OpenSquare))
+   {
+      AcceptInpTok(in, OpenSquare);
+      parse_let_typedecl(in, bank, type_decls);
+      while(TestInpTok(in, Comma))
+      {
+         AcceptInpTok(in, Comma);
+         parse_let_typedecl(in, bank, type_decls);
+      }
+      AcceptInpTok(in, CloseSquare);
+   }
+   else
+   {
+      parse_let_typedecl(in, bank, type_decls);
+   }
+
+   AcceptInpTok(in, Comma);
+
+   /* parsing symbol definitions */
+   PStack_p definitions = PStackAlloc();
+   if(TestInpTok(in, OpenSquare))
+   {
+      AcceptInpTok(in, OpenSquare);
+      PStackPushP(definitions, parse_let_sym_def(in, bank, type_decls));
+      while(TestInpTok(in, Comma))
+      {
+         AcceptInpTok(in, Comma);
+         PStackPushP(definitions, parse_let_sym_def(in, bank, type_decls));
+      }
+      AcceptInpTok(in, CloseSquare);
+   }
+   else
+   {
+      PStackPushP(definitions, parse_let_sym_def(in, bank, type_decls));
+   }
+
+   AcceptInpTok(in, Comma);
+
+   SigEnterLetScope(bank->sig, type_decls);
+   Term_p body = TFormulaTPTPParse(in, bank);
+   SigExitLetScope(bank->sig);
+
+   Term_p let_term = make_let(bank, definitions, body);
+
+   while(!(PStackEmpty(type_decls)))
+   {
+      UNUSED(PStackPopP(type_decls));
+      DStrFree(PStackPopP(type_decls));
+   }
+   AcceptInpTok(in, CloseBracket);
+   
+   PStackFree(type_decls);
+   PStackFree(definitions);
+
+   return let_term;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: ParseIte()
+//
+//   Parses ite according to the TPTP description: 
+//    http://ceur-ws.org/Vol-2162/paper-07.pdf. If top_level is true,
+//   ite appears at the formula level and its body must be Bool.
+//   Otherwise, its body is parsed as a non-Bool.
+//
+// Global Variables: -
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+
+Term_p ParseIte(Scanner_p in, TB_p bank)
+{   
+   AcceptInpTok(in, IteToken);
+   AcceptInpTok(in, OpenBracket);
+   Term_p cond = TFormulaTPTPParse(in, bank);
+   AcceptInpTok(in, Comma);
+   Term_p if_true = TFormulaTPTPParse(in, bank);
+   AcceptInpTok(in, Comma);
+   Term_p if_false = TFormulaTPTPParse(in, bank);
+   AcceptInpTok(in, CloseBracket);
+
+   Term_p res = TermTopAlloc(SIG_ITE_CODE, 3);
+   res->args[0] = cond;
+   res->args[1] = if_true;
+   res->args[2] = if_false;
+
+   TermAssertSameSort(bank->sig, cond, bank->true_term);
+   TermAssertSameSort(bank->sig, if_false, if_true);
+   
+   res->type = if_true->type;
+   return TBTermTopInsert(bank, res);
+}
+
 
 
 /*---------------------------------------------------------------------*/

@@ -24,7 +24,9 @@ Changes
 
 #include "ccl_formulafunc.h"
 #include "ccl_clausefunc.h"
+#include "cte_lambda.h"
 
+#define  MAX_RW_STEPS 500
 
 
 /*---------------------------------------------------------------------*/
@@ -36,7 +38,7 @@ extern bool app_encode;
 /*                      Forward Declarations                           */
 /*---------------------------------------------------------------------*/
 
-typedef TFormula_p (*FOOLFormulaProcessor)(TFormula_p, TB_p);
+typedef TFormula_p (*FormulaMapper)(TFormula_p, TB_p);
 
 /*---------------------------------------------------------------------*/
 /*                         Internal Functions                          */
@@ -44,10 +46,10 @@ typedef TFormula_p (*FOOLFormulaProcessor)(TFormula_p, TB_p);
 
 /*-----------------------------------------------------------------------
 //
-// Function: fool_process_formula()
+// Function: close_let_def()
 //
-//   Applies processor to form. If formula is changed it alters
-//   the proof object by saying FOOL processing has been applied.
+//   For each defined symbol f(bound vars) = s, finds what are free variables
+//   in s and creates a fresh symbol f_fresh(free_vars, bound_vars)
 //
 // Global Variables: -
 //
@@ -55,8 +57,446 @@ typedef TFormula_p (*FOOLFormulaProcessor)(TFormula_p, TB_p);
 //
 /----------------------------------------------------------------------*/
 
-bool fool_process_formula(WFormula_p form, TB_p terms,
-                          FOOLFormulaProcessor processor)
+static void close_let_def(TB_p bank, NumTree_p* closed_defs, Term_p def)
+{
+   assert(def->f_code == bank->sig->eqn_code);
+   PTree_p free_vars = NULL;
+   Term_p lhs = def->args[0], rhs = def->args[1];
+   TFormulaCollectFreeVars(bank, rhs, &free_vars);
+
+   for(int i=0; i<lhs->arity; i++)
+   {
+      Term_p arg = lhs->args[i];
+      assert(TermIsVar(arg));
+      PTreeDeleteEntry(&free_vars, arg);
+   }
+   
+   PStack_p all_vars = PStackAlloc();
+   PTreeToPStack(all_vars, free_vars);
+   for(int i=0; i<lhs->arity; i++)
+   {
+      PStackPushP(all_vars, lhs->args[i]);
+   }
+   Term_p fresh_sym = TermAllocNewSkolem(bank->sig, all_vars, lhs->type);
+   fresh_sym = TBTermTopInsert(bank, fresh_sym);
+
+   IntOrP orig_def = {.p_val = lhs}, new_def = {.p_val = fresh_sym};
+   NumTreeStore(closed_defs, lhs->f_code, orig_def, new_def);
+
+   PTreeFree(free_vars);
+   PStackFree(all_vars);
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: close_let_def()
+//
+//   Replace all occurences of old symbols with new definitions.
+//
+// Global Variables: -
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+
+static Term_p replace_body(TB_p bank, NumTree_p* closed_defs, Term_p t)
+{
+   NumTree_p node = NumTreeFind(closed_defs, t->f_code);
+   Term_p new = TermTopCopy(t);
+   bool changed = false;
+   for(long i=0; i<t->arity; i++)
+   {
+      new->args[i] = replace_body(bank, closed_defs, t->args[i]);
+      changed = changed || new->args[i] != t->args[i];
+   }
+
+   if(!changed)
+   {
+      TermTopFree(new);
+      new = t;
+   }
+   else
+   {
+      new = TBTermTopInsert(bank, new);
+   }
+
+   if(node)
+   {
+      Term_p old_def = node->val1.p_val;
+      Term_p new_def = node->val2.p_val;
+
+      Subst_p subst = SubstAlloc();
+      for(long i=0; i<new->arity; i++)
+      {
+         SubstAddBinding(subst, old_def->args[i], new->args[i]);
+      }
+
+      new = TBInsertInstantiated(bank, new_def);
+      SubstDelete(subst);
+   }
+
+   return new;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: make_fresh_defs()
+//
+//   Make a formula introducing a new name for a local let definition
+//
+// Global Variables: -
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+
+void make_fresh_defs(TB_p bank, Term_p let_t, NumTree_p* defs, PStack_p res)
+{
+   assert(let_t->f_code == SIG_LET_CODE);
+   long num_def = let_t->arity - 1;
+   Sig_p sig = bank->sig;
+   for(long i=0; i<num_def; i++)
+   {
+      assert(let_t->args[i]->f_code == bank->sig->eqn_code);
+      FunCode old_lhs_fc = let_t->args[i]->args[0]->f_code;
+      Term_p rhs = let_t->args[i]->args[1];
+      NumTree_p node = NumTreeFind(defs, old_lhs_fc);
+      assert(node);
+      Term_p new_lhs = node->val2.p_val;
+      TFormula_p matrix;
+      
+      if(TypeIsBool(rhs->type))
+      {
+         matrix = TFormulaFCodeAlloc(bank, sig->equiv_code, 
+                                     EncodePredicateAsEqn(bank, new_lhs),
+                                     EncodePredicateAsEqn(bank, rhs));
+      }
+      else
+      {
+         matrix = TFormulaFCodeAlloc(bank, sig->eqn_code, new_lhs, rhs);
+      }
+
+      PStackPushP(res, TFormulaClosure(bank, matrix, true));
+   }
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: lift_lets()
+//
+//   Does the actual lifting of let terms
+//
+// Global Variables: -
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+
+TFormula_p lift_lets(TB_p terms, TFormula_p t, PStack_p fresh_defs)
+{
+   if(TermIsVar(t))
+   {
+      return t;
+   }
+   else if(t->f_code == SIG_LET_CODE)
+   {
+      Term_p new = TermTopCopyWithoutArgs(t);
+      NumTree_p closed_defs = NULL;
+      long num_defs = t->arity - 1;
+      for(long i=0; i < num_defs; i++)
+      {
+         new->args[i] = lift_lets(terms, t->args[i], fresh_defs);
+         close_let_def(terms, &closed_defs, new->args[i]);
+      }
+      make_fresh_defs(terms, new, &closed_defs, fresh_defs);
+      TermTopFree(new);
+      Term_p res = replace_body(terms, &closed_defs, t->args[num_defs]);
+      NumTreeFree(closed_defs);
+      return lift_lets(terms, res, fresh_defs);
+   }
+   else
+   {
+      Term_p new = TermTopCopyWithoutArgs(t);
+      bool changed = false;
+      for(int i=0; i<new->arity; i++)
+      {
+         new->args[i] = lift_lets(terms, t->args[i], fresh_defs);
+         changed = changed || new->args[i] != t->args[i];
+      }
+      
+      if(changed)
+      {
+         new = TBTermTopInsert(terms, new);
+      }
+      else
+      {
+         TermTopFree(new);
+         new = t;
+      }
+      return new;
+   }
+
+   
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: unencode_eqns()
+//
+//   Undo encoding of the form **formula** = $true to **formula**
+//
+// Global Variables: -
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+
+TFormula_p unencode_eqns(TB_p terms, TFormula_p t)
+{
+   Term_p res = t;
+   if(t->f_code == terms->sig->eqn_code && t->arity == 2
+      && t->args[1] == terms->true_term
+      && !TermIsVar(t->args[0]) 
+      && (SigQueryFuncProp(terms->sig, t->args[0]->f_code, FPFOFOp)
+          || t->args[0]->f_code == terms->sig->qex_code
+          || t->args[0]->f_code == terms->sig->qall_code
+          || t->args[0]->f_code == terms->sig->eqn_code
+          || t->args[0]->f_code == terms->sig->neqn_code))
+   {
+      res = t->args[0];
+   }
+   return res;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: do_rw_with_defs()
+//
+//   Actually performs rewriting on a term using definition map.
+//   Stores used formulas in used_defs.
+//
+// Global Variables: -
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+
+Term_p do_rw_with_defs(TB_p terms, Term_p t, IntMap_p def_map,
+                       PTree_p* used_defs, int* steps)
+{
+   if(*steps <= 0)
+   {
+      return t;
+   }
+
+   bool changed=false;
+   Term_p new = TermTopAlloc(t->f_code, t->arity);
+   for(long i=0; i<t->arity; i++)
+   {
+      new->args[i] = do_rw_with_defs(terms, t->args[i], def_map, used_defs, steps);
+      changed = changed || new->args[i] != t->args[i];
+   }
+
+   if(!changed)
+   {
+      TermTopFree(new);
+      new = t;
+   }
+   else
+   {
+      new = TBTermTopInsert(terms, new);
+   }
+
+   WFormula_p wform = IntMapGetVal(def_map, new->f_code);
+   if(wform)
+   {
+      Term_p rhs = wform->tformula->args[1];
+      PStack_p args = PStackAlloc();
+      for(long i=0; i<new->arity; i++)
+      {
+         PStackPushP(args, new->args[i]);
+      }
+      new = NamedLambdaSNF(terms, ApplyTerms(terms, rhs, args));
+      PTreeStore(used_defs, wform);
+      new = do_rw_with_defs(terms, new, 
+                            def_map, used_defs, steps);  
+      *steps = *steps - 1; //forgot the precedence :)
+      PStackFree(args);
+   }
+   
+   return new;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: create_sym_map()
+//
+//   Creates a map from symbol to WFormula describing the simplified
+//   definition f = \xyz. body
+//
+// Global Variables: -
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+
+PTree_p create_sym_map(FormulaSet_p set, IntMap_p sym_def_map)
+{
+   PTree_p recognized_definitions = NULL;
+   for(WFormula_p form = set->anchor->succ; form!=set->anchor; form=form->succ)
+   {
+      if(!(FormulaQueryProp(form, CPIsLambdaDef)))
+      {
+         continue;
+      }
+
+      TB_p bank = form->terms;
+      Sig_p sig = form->terms->sig;
+      Term_p lhs = NULL, rhs = NULL;
+      Term_p tform = form->tformula;
+
+
+      while(tform->f_code == sig->qall_code && tform->arity == 2)
+      {
+         tform = tform->args[1];
+      }
+
+      if(tform->f_code == sig->eqn_code)
+      {
+         lhs = tform->args[0];
+         rhs = tform->args[1];
+      }
+      else if(tform->f_code == sig->equiv_code &&
+              tform->args[0]->f_code == sig->eqn_code &&
+              tform->args[0]->args[1] == bank->true_term)
+      {
+         lhs = tform->args[0]->args[0];
+         rhs = tform->args[1];
+      }
+      else
+      {
+         continue;
+      }
+
+      PStack_p bvars = PStackAlloc();
+      Term_p lhs_body = UnfoldLambda(lhs,bvars);
+      Term_p rhs_applied = NamedLambdaSNF(bank, ApplyTerms(bank, rhs, bvars));
+
+      // now the definition is of the form f @ ..terms.. = \xyz. body
+      // and we need to check if terms are distinct variables
+      // and if \terms\xyz.body has no free variables (and if )
+      bool is_def = TypeIsPredicate(lhs->type) &&
+                    lhs->f_code > sig->internal_symbols && rhs != bank->true_term;
+      PStackReset(bvars);
+      for(long i=0; is_def && i<lhs_body->arity; i++)
+      {
+         Term_p arg = lhs_body->args[i];
+         if(arg->f_code == sig->eqn_code && arg->arity == 2 
+            && arg->args[1] == bank->true_term)
+         {
+            arg = arg->args[0];
+         }
+         if(!TermIsVar(arg) || TermCellQueryProp(arg, TPIsSpecialVar))
+         {
+            is_def = false;
+         }
+         else
+         {
+            TermCellSetProp(arg, TPIsSpecialVar);
+            PStackPushP(bvars, arg);
+         }
+      }
+
+      if(is_def)
+      {
+         rhs = AbstractVars(bank, rhs_applied, bvars);
+         PTree_p free_vars = NULL;
+         TFormulaCollectFreeVars(bank, rhs, &free_vars);
+         if(!TermHasFCode(rhs_applied, lhs_body->f_code) &&
+            PTreeNodes(free_vars) == 0)
+         {
+            lhs = TermTopAlloc(lhs_body->f_code, 0);
+#ifdef NDEBUG
+            // optimization
+            lhs->type = SigGetType(sig, lhs_body->f_code);
+#endif
+            lhs = TBTermTopInsert(bank, lhs);
+
+            TFormula_p def = TFormulaFCodeAlloc(bank, sig->eqn_code, lhs, rhs);
+            WFormula_p def_wform = WFormulaFlatCopy(form);
+            def_wform->tformula = def;
+            WFormulaPushDerivation(def_wform, DCFofQuote, form, NULL);
+            IntMapAssign(sym_def_map, lhs->f_code, def_wform);
+ 
+            PTreeStore(&recognized_definitions, form);
+         }
+         PTreeFree(free_vars);
+      }
+
+      for(PStackPointer i=0; i<PStackGetSP(bvars); i++)
+      {
+         TermCellDelProp(((Term_p)PStackElementP(bvars, i)), TPIsSpecialVar);
+      }
+      PStackFree(bvars);
+   }
+
+   return recognized_definitions;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: intersimplify_definitions()
+//
+//   Make sure that the definitions themselves are rewritten using
+//   terms in sym_def_map.
+//
+// Global Variables: -
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+void intersimplify_definitions(TB_p terms, IntMap_p sym_def_map)
+{
+   IntMapIter_p iter = IntMapIterAlloc(sym_def_map, 0, LONG_MAX);
+   long i;
+   WFormula_p next = NULL;
+   while((next=IntMapIterNext(iter, &i)))
+   {
+      PTree_p used_defs = NULL;
+      int max_steps = MAX_RW_STEPS;
+      Term_p new_rhs = do_rw_with_defs(terms, next->tformula->args[1],
+                                       sym_def_map, &used_defs, &max_steps);
+      if(new_rhs!=next->tformula->args[1])
+      {
+         assert(used_defs);
+         next->tformula->args[1] = new_rhs;
+         PStack_p ptiter = PTreeTraverseInit(used_defs);
+         PTree_p node = NULL;
+         while((node=PTreeTraverseNext(ptiter)))
+         {
+            WFormulaPushDerivation(next, DCApplyDef, node->key, NULL);
+         }
+         PTreeTraverseExit(ptiter);
+      }
+      PTreeFree(used_defs);
+   }
+   IntMapIterFree(iter);
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: map_formula()
+//
+//   Applies processor to form. If formula is changed it alters
+//   the proof object by applying the correct derivation code.
+//
+// Global Variables: -
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+
+bool map_formula(WFormula_p form, TB_p terms, FormulaMapper processor, DerivationCode dc)
 {
    TFormula_p original = form->tformula;
    bool       changed = false;
@@ -65,7 +505,7 @@ bool fool_process_formula(WFormula_p form, TB_p terms,
 
    if(form->tformula != original)
    {
-      WFormulaPushDerivation(form, DCFoolUnroll, NULL, NULL);
+      WFormulaPushDerivation(form, dc, NULL, NULL);
       changed = true;
    }
 
@@ -290,7 +730,8 @@ TFormula_p do_fool_unroll(TFormula_p form, TB_p terms)
    }
    else
    {
-      if(TFormulaIsQuantified(terms->sig, form))
+      if(TFormulaIsQuantified(terms->sig, form) 
+         && form->f_code != SIG_NAMED_LAMBDA_CODE)
       {
          unrolled1 = do_fool_unroll(form->args[1], terms);
          if(form->args[1] != unrolled1)
@@ -299,7 +740,7 @@ TFormula_p do_fool_unroll(TFormula_p form, TB_p terms)
                                         form->args[0], unrolled1);
          }
       }
-      else
+      else if(form->f_code != SIG_NAMED_LAMBDA_CODE)
       {
          if(TFormulaHasSubForm1(terms->sig, form))
          {
@@ -317,6 +758,110 @@ TFormula_p do_fool_unroll(TFormula_p form, TB_p terms)
          }
       }
    }
+   return form;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: do_ite_unroll()
+//
+//   If $ite(c, it, if) occurs at formula position p, replace f|_p 
+//   with f[c -> it /\ ~c -> if]_p. If it occurs at subterm position p,
+//   find the first above formula position q and do the replacement
+//   f[c -> f[it]_p /\ ~c -> f[if]_p]_q.
+//
+// Global Variables: -
+//
+// Side Effects    : Changes enclosed formula
+//
+/----------------------------------------------------------------------*/
+
+TFormula_p do_ite_unroll(TFormula_p form, TB_p terms)
+{
+   if(form->f_code == SIG_ITE_CODE)
+   {
+      assert(form->arity == 3);
+      TFormula_p cond = form->args[0];
+      TFormula_p not_cond = TFormulaNegate(cond, terms);
+      
+      TFormula_p true_part = TermTopAlloc(terms->sig->or_code, 2);
+      true_part->args[0] = not_cond;
+      true_part->args[1] = form->args[1];
+
+      TFormula_p false_part = TermTopAlloc(terms->sig->or_code, 2);
+      false_part->args[0] = cond;
+      false_part->args[1] = form->args[2];
+
+      TFormula_p unrolled =
+         TFormulaFCodeAlloc(terms, terms->sig->and_code,
+                            TBTermTopInsert(terms, true_part),
+                            TBTermTopInsert(terms, false_part));
+      
+      form = do_ite_unroll(unrolled, terms);
+   }
+   else if(TFormulaIsLiteral(terms->sig, form))
+   {
+      TermPos_p pos = PStackAlloc();
+      PStackPushP(pos, form);
+      PStackPushInt(pos, 0);
+      if(form->args[0]->f_code != SIG_ITE_CODE && !TermFindIteSubterm(form->args[0], pos))
+      {
+         PStackDiscardTop(pos);
+         PStackPushInt(pos, 1);
+         if(form->args[1]->f_code != SIG_ITE_CODE && !TermFindIteSubterm(form->args[1], pos))
+         {
+            PStackReset(pos);
+         }
+      }
+
+      if(!PStackEmpty(pos))
+      {
+         TFormula_p ite_term =
+            ((Term_p)PStackBelowTopP(pos))->args[PStackTopInt(pos)];
+         assert(ite_term->f_code == SIG_ITE_CODE);
+
+         Term_p repl_t = TBTermPosReplace(terms, ite_term->args[1], pos,
+                                          DEREF_NEVER, 0, ite_term);
+         Term_p repl_f = TBTermPosReplace(terms, ite_term->args[2], pos,
+                                          DEREF_NEVER, 0, ite_term);
+
+         TFormula_p cond = ite_term->args[0];
+         TFormula_p neg_cond = TFormulaNegate(cond, terms);
+
+         TFormula_p if_true_impl =
+            TFormulaFCodeAlloc(terms, terms->sig->or_code,
+                               neg_cond, repl_t);
+         TFormula_p if_false_impl =
+            TFormulaFCodeAlloc(terms, terms->sig->or_code,
+                               cond, repl_f);
+
+         // the whole formula
+         form = TFormulaFCodeAlloc(terms, terms->sig->and_code,
+                                    do_ite_unroll(if_true_impl, terms),
+                                    do_ite_unroll(if_false_impl, terms));
+      }
+      PStackFree(pos);
+   }
+   else
+   {
+      Term_p new = TermTopCopyWithoutArgs(form);
+      bool changed = false;
+      for(long i=0; i<new->arity; i++)
+      {
+         new->args[i] = do_ite_unroll(form->args[i], terms);
+         changed = changed || new->args[i] != form->args[i];
+      }
+
+      if(changed)
+      {
+         form = TBTermTopInsert(terms, new);
+      }
+      else
+      {
+         TermTopFree(new);
+      }
+   }
+
    return form;
 }
 
@@ -339,6 +884,11 @@ TFormula_p do_bool_eqn_replace(TFormula_p form, TB_p terms)
 {
    const Sig_p sig = terms->sig;
    bool  changed   = false;
+   if(form->f_code == SIG_NAMED_LAMBDA_CODE)
+   {
+      return form;
+   }
+
    if(form->f_code == sig->eqn_code || form->f_code == sig->neqn_code)
    {
       assert(form->arity == 2);
@@ -350,8 +900,8 @@ TFormula_p do_bool_eqn_replace(TFormula_p form, TB_p terms)
          // DAS literal is encoded as <predicate> = TRUE.
          // Our boolean equalities are <formula> = <formula>
          form = TFormulaFCodeAlloc(terms,
-                                   form->f_code == terms->sig->eqn_code ?
-                                     terms->sig->equiv_code : terms->sig->xor_code,
+                                   (form->f_code == terms->sig->eqn_code ?
+                                     terms->sig->equiv_code : terms->sig->xor_code),
                                    do_bool_eqn_replace(form->args[0], terms),
                                    do_bool_eqn_replace(form->args[1], terms));
          changed = true;
@@ -825,6 +1375,11 @@ long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive,
    long old_nodes = TBNonVarTermNodes(terms);
    long gc_threshold = old_nodes*TFORMULA_GC_LIMIT;
 
+   TFormulaSetLiftItes(set, archive, terms);
+   TFormulaSetLiftLets(set, archive, terms);
+   TFormulaSetUnfoldLogSymbols(set, archive, terms);
+   TFormulaSetLambdaNormalize(set, archive, terms);
+   TFormulaSetLiftLambdas(set, archive, terms);
    TFormulaSetUnrollFOOL(set, archive, terms);
    FormulaSetSimplify(set, terms);
 
@@ -1200,7 +1755,7 @@ long TFormulaApplyDefs(WFormula_p form, TB_p terms, NumXTree_p *defs)
 
 bool TFormulaUnrollFOOL(WFormula_p form, TB_p terms)
 {
-   return fool_process_formula(form, terms, do_fool_unroll);
+   return map_formula(form, terms, do_fool_unroll, DCFoolUnroll);
 }
 
 /*-----------------------------------------------------------------------
@@ -1219,7 +1774,7 @@ bool TFormulaUnrollFOOL(WFormula_p form, TB_p terms)
 
 bool TFormulaReplaceEqnWithEquiv(WFormula_p form, TB_p terms)
 {
-   return fool_process_formula(form, terms, do_bool_eqn_replace);
+   return map_formula(form, terms, do_bool_eqn_replace, DCFoolUnroll);
 }
 
 
@@ -1249,7 +1804,282 @@ long TFormulaSetUnrollFOOL(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
    return res;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: TFormulaSetLiftLets()
+//
+//    Rewrites all formulas so that all occurrences of the let symbols
+//    are replaced by global definitions.
+//    
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
 
+long TFormulaSetLiftLets(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
+{
+   long res = 0;
+
+   PStack_p lifted_lets = PStackAlloc();
+   
+   for(WFormula_p form = set->anchor->succ; form!=set->anchor; form=form->succ)
+   {
+      TFormula_p tform = form->tformula;
+      VarBankSetVCountsToUsed(terms->vars);
+      tform = TFormulaVarRename(terms, tform);
+      PStackPointer i = PStackGetSP(lifted_lets);
+
+      tform = lift_lets(terms, tform, lifted_lets);
+      if(i != PStackGetSP(lifted_lets))
+      {
+         res++;         
+
+         form->tformula = unencode_eqns(terms, tform);
+         for(; i < PStackGetSP(lifted_lets); i++)
+         {
+            TFormula_p def = PStackElementP(lifted_lets, i);
+            WFormula_p wdef = WTFormulaAlloc(terms, def);
+            WFormulaPushDerivation(wdef, DCIntroDef, NULL, NULL);
+            WFormulaPushDerivation(form, DCApplyDef, wdef, NULL);
+            PStackAssignP(lifted_lets, i, wdef);
+         }
+      }
+   }
+
+   while(!PStackEmpty(lifted_lets))
+   {
+      FormulaSetInsert(set, PStackPopP(lifted_lets));
+   }
+
+   PStackFree(lifted_lets);
+
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: TFormulaSetLiftItes()
+//
+//    Rewrites all formulas so that all occurrences of the ite symbols
+//    are replaced by appropriate implications
+//    
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+long TFormulaSetLiftItes(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
+{
+   long res = 0;
+   for(WFormula_p formula = set->anchor->succ; formula!=set->anchor; formula=formula->succ)
+   {
+      if(map_formula(formula, terms, do_ite_unroll, DCFoolUnroll))
+      {
+         res++;
+      }
+   }
+   return res;
+}
+
+#ifdef ENABLE_LFHO
+/*-----------------------------------------------------------------------
+//
+// Function: TFormulaSetLambdaNormalize()
+//
+//   Beta normalizes the input problem and turns every equation 
+//   (^[X]:s) = t into ![X]: (s = (t @ X))
+//
+// Global Variables: -
+//
+// Side Effects    : Simplifies set, may print simplification steps.
+//
+/----------------------------------------------------------------------*/
+
+long TFormulaSetLambdaNormalize(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
+{
+   long res = 0;
+   if(problemType == PROBLEM_HO)
+   {
+      for(WFormula_p form = set->anchor->succ; form!=set->anchor; form=form->succ)
+      {
+         TFormula_p handle = LambdaToForall(terms, NamedLambdaSNF(terms, form->tformula));    
+      
+         if(handle!=form->tformula)
+         {
+            form->tformula = handle;
+            DocFormulaModificationDefault(form, inf_fof_simpl);
+            WFormulaPushDerivation(form, DCFofSimplify, NULL, NULL);
+            res++;
+         }
+      }
+      return res;
+   }
+   else
+   {
+      return 0;
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: TFormulaSetUnfoldLogSymbols()
+//
+//    Rewrites all formulas using defined symbols of the form
+//    sym = \vars. body where return type of sym is Bool
+//    
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+long TFormulaSetUnfoldLogSymbols(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
+{
+   long res = 0;
+   if(problemType == PROBLEM_HO)
+   {
+      IntMap_p sym_def_map = IntMapAlloc();
+      PTree_p def_wforms = create_sym_map(set, sym_def_map);
+      intersimplify_definitions(terms, sym_def_map);
+
+      for(WFormula_p form = set->anchor->succ; form!=set->anchor; form=form->succ)
+      {
+         if(!PTreeFind(&def_wforms, form))
+         {
+            PTree_p used_defs = NULL;
+            int max_steps = MAX_RW_STEPS;
+            TFormula_p handle = do_rw_with_defs(terms, form->tformula, 
+                                                sym_def_map, &used_defs, &max_steps);
+         
+            if(handle!=form->tformula)
+            {
+               form->tformula = TermMap(terms, handle, unencode_eqns);
+
+               DocFormulaModificationDefault(form, inf_fof_simpl);
+               PStack_p ptiter = PTreeTraverseInit(used_defs);
+               PTree_p node=NULL;
+               while((node=PTreeTraverseNext(ptiter)))
+               {
+                  WFormulaPushDerivation(form, DCApplyDef, node->key, NULL);
+               }
+               PTreeTraverseExit(ptiter);
+               res++;
+            }
+            PTreeFree(used_defs);  
+         }
+      }
+
+      IntMapIter_p iter = IntMapIterAlloc(sym_def_map, 0, LONG_MAX);
+      WFormula_p next;
+      long i;
+      while((next=IntMapIterNext(iter, &i)))
+      {
+         FormulaSetInsert(archive, next);
+      }
+      IntMapIterFree(iter);
+
+      PStack_p titer = PTreeTraverseInit(def_wforms);
+      PTree_p node;
+      while((node = PTreeTraverseNext(titer)))
+      {
+         next = node->key;
+         FormulaSetExtractEntry(next);
+         FormulaSetInsert(archive, next);
+      }
+      PTreeTraverseExit(titer);
+
+      IntMapFree(sym_def_map);
+      PTreeFree(def_wforms);
+
+      return res;
+   }
+   else
+   {
+      return 0;
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: TFormulaSetLiftLambdas()
+//
+//    Lifts lambdas from the formula set. Inserts new definitons into set.
+//    
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+long TFormulaSetLiftLambdas(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
+{
+   void deleter(void* to_delete)
+   {
+      EqnFree(((ClausePos_p)to_delete)->literal);
+   }
+
+   void insert_to_set(void* def)
+   {
+      FormulaSetInsert(set, def);  
+   }
+
+   long res = 0;
+   if(problemType == PROBLEM_HO)
+   {
+      PStack_p defs = PStackAlloc();
+      PTree_p all_defs = NULL;
+      PDTree_p liftings = PDTreeAllocWDeleter(terms, deleter);
+      for(WFormula_p form = set->anchor->succ; form!=set->anchor; form=form->succ)
+      {  
+         TFormula_p handle = LiftLambdas(terms, form->tformula, defs, liftings);
+         if(handle!=form->tformula)
+         {
+            form->tformula = handle;
+            while(!(PStackEmpty(defs)))
+            {
+               WFormula_p def = PStackPopP(defs);
+               WFormulaPushDerivation(form, DCApplyDef, def, NULL);
+               PTreeStore(&all_defs, def);
+               res++;
+            }
+         }
+      }
+
+      PTreeVisitInOrder(all_defs, insert_to_set);
+
+      PStackFree(defs);
+      PTreeFree(all_defs);
+      PDTreeFree(liftings);
+      return res;
+   }
+   else
+   {
+      return 0;
+   }
+}
+#else
+long TFormulaSetLambdaNormalize(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
+{
+   return 0;
+}
+long TFormulaSetLiftLambdas(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
+{
+   return 0;
+}
+long TFormulaSetUnfoldLogSymbols(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
+{
+   return 0;
+}
+#endif
 /*-----------------------------------------------------------------------
 //
 // Function: TFormulaSetIntroduceDefs()

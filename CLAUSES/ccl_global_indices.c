@@ -66,6 +66,8 @@ void GlobalIndicesNull(GlobalIndices_p indices)
    indices->pm_into_index = NULL;
    indices->pm_negp_index = NULL;
    indices->pm_from_index = NULL;
+   SetExtIntoIdx(indices, NULL);
+   SetExtFromIdx(indices, NULL);
 }
 
 
@@ -85,7 +87,8 @@ void GlobalIndicesInit(GlobalIndices_p indices,
                        Sig_p sig,
                        char* rw_bw_index_type,
                        char* pm_from_index_type,
-                       char* pm_into_index_type)
+                       char* pm_into_index_type,
+                       int   ext_sup_max_depth)
 {
    FPIndexFunction indexfun;
 
@@ -115,6 +118,14 @@ void GlobalIndicesInit(GlobalIndices_p indices,
    if(indexfun)
    {
       indices->pm_negp_index = FPIndexAlloc(indexfun, sig, SubtermOLTreeFreeWrapper);
+   }
+   
+   assert(problemType != PROBLEM_NOT_INIT);
+   if(problemType == PROBLEM_HO)
+   {
+      SetExtIntoIdx(indices, ExtIdxAlloc());
+      SetExtFromIdx(indices, ExtIdxAlloc());
+      SetExtMaxDepth(indices, ext_sup_max_depth);
    }
 }
 
@@ -153,6 +164,15 @@ void GlobalIndicesFreeIndices(GlobalIndices_p indices)
       FPIndexFree(indices->pm_negp_index);
       indices->pm_negp_index = NULL;
    }
+   if(GetExtIntoIdx(indices))
+   {
+      ExtIndexFree(GetExtIntoIdx(indices));
+      SetExtIntoIdx(indices, NULL);
+      
+      assert(GetExtFromIdx(indices));
+      ExtIndexFree(GetExtFromIdx(indices));
+      SetExtFromIdx(indices, NULL);
+   }
 }
 
 
@@ -176,7 +196,8 @@ void GlobalIndicesReset(GlobalIndices_p indices)
                      indices->sig,
                      indices->rw_bw_index_type,
                      indices->pm_from_index_type,
-                     indices->pm_into_index_type);
+                     indices->pm_into_index_type,
+                     GetExtMaxDepth(indices));
 }
 
 
@@ -221,6 +242,12 @@ void GlobalIndicesInsertClause(GlobalIndices_p indices, Clause_p clause)
       PERF_CTR_ENTRY(PMIndexTimer);
       OverlapIndexInsertFromClause(indices->pm_from_index, clause);
       PERF_CTR_EXIT(PMIndexTimer);
+   }
+   if(GetExtIntoIdx(indices))
+   {
+      ExtIndexInsertIntoClause(GetExtIntoIdx(indices), clause);
+      assert(GetExtFromIdx(indices));
+      ExtIndexInsertFromClause(GetExtFromIdx(indices), clause);
    }
 }
 
@@ -267,6 +294,12 @@ void GlobalIndicesDeleteClause(GlobalIndices_p indices, Clause_p clause)
       PERF_CTR_ENTRY(PMIndexTimer);
       OverlapIndexDeleteFromClause(indices->pm_from_index, clause);
       PERF_CTR_EXIT(PMIndexTimer);
+   }
+   if(GetExtIntoIdx(indices))
+   {
+      assert(GetExtFromIdx(indices));
+      ExtIndexDeleteIntoClause(GetExtIntoIdx(indices), clause);
+      ExtIndexDeleteFromClause(GetExtFromIdx(indices), clause);
    }
    // printf("# ...GlobalIndicesDeleteClause()\n");
 }

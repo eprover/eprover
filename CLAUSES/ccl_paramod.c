@@ -275,7 +275,7 @@ Clause_p ClausePlainParamodConstruct(ParamodInfo_p ol_desc)
       else
       {
          from_copy = EqnListCopyOptExcept(ol_desc->from->literals,
-                                    ol_desc->from_pos->literal);
+                                          ol_desc->from_pos->literal);
 
          if(EqnListFindTrue(from_copy))
          {

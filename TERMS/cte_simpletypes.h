@@ -77,11 +77,11 @@ Type_p  GetReturnSort(Type_p type);
 
 Type_p  TypeCopy(Type_p orig);
 
-#define AllocSimpleSort(code)       TypeAlloc(code, 0, NULL)
-#define AllocArrowType(arity, args) TypeAlloc(ArrowTypeCons, arity, args)
+#define AllocSimpleSort(code)       TypeAlloc((code), 0, NULL)
+#define AllocArrowType(arity, args) TypeAlloc(ArrowTypeCons, (arity), (args))
 
 #define TypeArgArrayAlloc(n) ((Type_p*) ((n) == 0 ? NULL : SizeMalloc((n)*sizeof(Type_p))))
-#define TypeArgArrayFree(junk, n) (((n)==0) ? NULL : ( SizeFreeReal((junk), (n)*sizeof(Type_p)) ))
+#define TypeArgArrayFree(junk, n) (((n)==0) ? NULL : ( SizeFreeReal((junk),((n)*sizeof(Type_p))) ))
 
 #define  TypeIsArrow(t)       ((t)->f_code == ArrowTypeCons)
 #define  TypeIsKind(t)        ((t)->f_code == STKind)
@@ -96,7 +96,7 @@ int TypesCmp(Type_p t1, Type_p t2);
 Type_p FlattenType(Type_p type);
 DStr_p TypeAppEncodedName(Type_p type);
 
-Type_p ArrowTypeFlattened(Type_p* args, int args_num, Type_p ret);
+Type_p ArrowTypeFlattened(Type_p const* args, int args_num, Type_p ret);
 Type_p TypeDropFirstArg(Type_p ty);
 
 
@@ -126,6 +126,31 @@ static inline Type_p TypeAlloc(TypeConsCode c_code, int arity, Type_p* args)
    handle->type_uid  = INVALID_TYPE_UID;
 
    return handle;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: AllocArrowTypeCopyArgs()
+//
+//   Allocates an arrow type where arguments of arrow are represented
+//   in a statically allocated array -- thus we need to dynamically
+//   allocate them and copy them in the dynamic array.
+//
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+static inline Type_p AllocArrowTypeCopyArgs(int arity, Type_p const* args)
+{
+   assert(arity > 0);
+   Type_p* args_copy = TypeArgArrayAlloc(arity);
+   for(int i=0; i<arity; i++)
+   {
+      args_copy[i] = args[i];
+   }
+   return AllocArrowType(arity, args_copy); //casting away the cons
 }
 
 #endif

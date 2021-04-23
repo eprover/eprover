@@ -77,6 +77,7 @@ typedef enum
    CPTypeMask          = CPType1|CPType2|CPType3,
    CPTypeUnknown       = 0,               /* Also used as wildcard */
    CPTypeAxiom         = CPType1,         /* Clause is Axiom */
+   // CPTypeHoDefinition  = CPType1|CPType4, /* Clause is a higher-order definition */
    CPTypeHypothesis    = CPType2,         /* Clause is Hypothesis */
    CPTypeConjecture    = CPType1|CPType2, /* Clause is Conjecture */
    CPTypeLemma         = CPType3,         /* Clause is Lemma */
@@ -124,8 +125,10 @@ typedef enum
    CPIsRelevant     = 2*CPLimitedRW,       /* Clause is selected as
                                            * relevant for a proof
                                            * attempt (used by SInE). */
-   CPIsPureInjectivity = 2*CPIsRelevant    /* Clause is non-instantiated
+   CPIsPureInjectivity = 2*CPIsRelevant,    /* Clause is non-instantiated
                                               injectivity axiom */
+   CPIsLambdaDef = 2*CPIsPureInjectivity  /* Formula is recognized as a
+                                             lambda definition */
 }FormulaProperties;
 
 

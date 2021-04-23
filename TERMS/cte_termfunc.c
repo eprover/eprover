@@ -23,7 +23,6 @@
 #include "cte_termfunc.h"
 #include "cte_typecheck.h"
 #include "clb_plocalstacks.h"
-#include "cte_termbanks.h"
 #include <cte_termpos.h>
 #include <ccl_tformulae.h>
 
@@ -242,6 +241,69 @@ NumTree_p create_var_renaming_de_bruin(VarBank_p vars, Term_p term)
    return root;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: print_let()
+//
+//    Prints let term
+//
+// Global Variables: TermPrintLists
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+void print_let(FILE* out, Term_p term, Sig_p sig, DerefType deref)
+{
+   fputs("$let(", out);
+   long n_decls = term->arity - 1;
+   
+   if(n_decls > 1)
+   {
+      fputs("[", out);
+   }
+   for(int i=0; i<n_decls; i++)
+   {
+      assert(term->args[i]->f_code == sig->eqn_code);
+      FunCode id = term->args[i]->args[0]->f_code;
+      fputs(SigFindName(sig, id), out);
+      fputs( " : ", out);
+      TypePrintTSTP(out, sig->type_bank, SigGetType(sig, id));
+      if(i!=n_decls-1)
+      {
+         fputs( ", ", out);
+      }
+   }
+
+   if(n_decls > 1)
+   {
+      fputs("]", out);
+   }
+   fputs(", ", out);
+
+   if(n_decls > 1)
+   {
+      fputs("[", out);
+   }
+   for(int i=0; i<n_decls; i++)
+   {
+      TermPrintFO(out, term->args[i]->args[0], sig, deref);
+      fputs(" := ", out);
+      TermPrintFO(out, term->args[i]->args[1], sig, deref);
+      if(i!=n_decls-1)
+      {
+         fputs( ", ", out);
+      }
+   }
+   if(n_decls > 1)
+   {
+      fputs("]", out);
+   }
+
+   fputs(", ", out);
+   TermPrintFO(out, term->args[n_decls], sig, deref);
+   fputs(")", out);
+}
+
 
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
@@ -292,7 +354,12 @@ void TermPrintFO(FILE* out, Term_p term, Sig_p sig, DerefType deref)
    // no need to change derefs here -- FOL
 
    term = TermDeref(term, &deref);
-
+   
+   if(term->f_code == SIG_LET_CODE)
+   {
+      print_let(out, term, sig, deref);
+      return;
+   }
    if(!TermIsVar(term) &&
       SigIsLogicalSymbol(sig, term->f_code) &&
       term->f_code != SIG_TRUE_CODE &&
@@ -334,6 +401,7 @@ void TermPrintFO(FILE* out, Term_p term, Sig_p sig, DerefType deref)
       else
       {
          fputs(SigFindName(sig, term->f_code), out);
+         // fprintf(out, "(%ld)", term->f_code);
          if(!TermIsConst(term))
          {
             assert(term->args);
@@ -374,7 +442,8 @@ void TermPrintHO(FILE* out, Term_p term, Sig_p sig, DerefType deref)
    term = TermDeref(term, &deref);
 
    if(!TermIsVar(term) &&
-      SigIsLogicalSymbol(sig, term->f_code) &&
+      (SigIsLogicalSymbol(sig, term->f_code) ||
+      TermIsLambda(term)) &&
       term->f_code != SIG_TRUE_CODE &&
       term->f_code != SIG_FALSE_CODE)
    {
@@ -419,7 +488,60 @@ void TermPrintHO(FILE* out, Term_p term, Sig_p sig, DerefType deref)
       }
    }
 }
+
 #endif
+
+/*-----------------------------------------------------------------------
+//
+// Function: TermPrintDbgHO()
+//
+//   Prints the term as is, with no pretty printing of interpreted symbols.
+//
+// Global Variables: TermPrintLists
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+void TermPrintDbgHO(FILE* out, Term_p term, Sig_p sig, DerefType deref)
+{
+   assert(term);
+   assert(sig||TermIsVar(term));
+
+   const int limit = DEREF_LIMIT(term, deref);
+   term = TermDeref(term, &deref);
+
+   if(!TermIsTopLevelVar(term))
+   {
+      fputs(SigFindName(sig, term->f_code), out);
+      fprintf(out, "(%ld)", term->f_code);
+   }
+   else
+   {
+      VarPrint(out, (TermIsVar(term) ? term : term->args[0])->f_code);
+   }
+
+   for(int i = TermIsAppliedVar(term) ? 1 : 0; i < term->arity; ++i)
+   {
+#ifdef PRINT_AT
+      fputs(" @ ", out);
+#else
+      fputs(" ", out);
+#endif
+      DerefType c_deref = CONVERT_DEREF(i, limit, deref);
+      if(term->args[i]->arity ||
+            (c_deref != DEREF_NEVER && term->args[i]->binding && term->args[i]->binding->arity))
+      {
+         fputs("(", out);
+         TermPrintDbgHO(out, term->args[i], sig, c_deref);
+         fputs(")", out);
+      }
+      else
+      {
+         TermPrintDbgHO(out, term->args[i], sig, c_deref);
+      }
+   }
+}
 
 
 /*--------------------------------------------------------------------
@@ -801,7 +923,7 @@ Term_p TermCopyKeepVars(Term_p source, DerefType deref)
 //
 /----------------------------------------------------------------------*/
 
-extern TB_p bank;
+// extern TB_p bank;
 bool TermStructEqual(Term_p t1, Term_p t2)
 {
    t1 = TermDerefAlways(t1);
@@ -1628,6 +1750,49 @@ FunCode TermFindMaxVarCode(Term_p term)
 
 /*-----------------------------------------------------------------------
 //
+// Function: TermFindIteSubterm()
+//
+//   Returns true if it finds an $ite subterm in t. pos is the position
+//   corresponding to this subterm if it is found, empty otherwise.
+//
+// Global Variables:
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+
+bool TermFindIteSubterm(Term_p t, TermPos_p pos)
+{
+   assert(t);
+   PStackPushP(pos, t);
+   bool found = false;
+
+   for(long i=0; !TermIsLambda(t) && !found && i<t->arity; i++)
+   {
+      PStackPushInt(pos, i);
+      found = found ||
+              (t->args[i]->f_code == SIG_ITE_CODE) || 
+              TermFindIteSubterm(t->args[i], pos);
+      if(!found)
+      {
+         PStackDiscardTop(pos);
+      }
+   }
+
+   if(!found)
+   {
+      // did not find formula subterm
+      PStackDiscardTop(pos);
+      return false;
+   }
+   else
+   {
+      return true;
+   }
+}
+
+/*-----------------------------------------------------------------------
+//
 // Function: TermFindFOOLSubterm()
 //
 //   Returns true if it finds a formula subterm in t. pos is the position
@@ -1643,8 +1808,9 @@ bool TermFindFOOLSubterm(Term_p t, TermPos_p pos)
 {
    int i;
    PStackPushP(pos, t);
+   bool found = false;
 
-   for(i=0; i<t->arity; i++)
+   for(i=0; !TermIsLambda(t) && i<t->arity; i++)
    {
       PStackPushInt(pos, i);
 
@@ -1653,18 +1819,20 @@ bool TermFindFOOLSubterm(Term_p t, TermPos_p pos)
          if(!(TermIsVar(t->args[i]) || t->args[i]->f_code == SIG_TRUE_CODE
               || t->args[i]->f_code == SIG_FALSE_CODE))
          {
+            found = true;
             break;
          }
       }
       else if(TermFindFOOLSubterm(t->args[i], pos))
       {
+         found = true;
          break;
       }
 
       PStackDiscardTop(pos);
    }
 
-   if(i==t->arity)
+   if(!found)
    {
       // did not find formula subterm
       PStackDiscardTop(pos);
@@ -2194,14 +2362,15 @@ void TermAssertSameSort(Sig_p sig, Term_p t1, Term_p t2)
    if(t1->type != t2->type)
    {
       fprintf(stderr, "# Error: terms ");
-      TermPrint(stderr, t1, sig, DEREF_NEVER);
+      TermPrintDbgHO(stderr, t1, sig, DEREF_NEVER);
       fprintf(stderr, ": ");
       TypePrintTSTP(stderr, sig->type_bank, t1->type);
       fprintf(stderr, " and ");
-      TermPrint(stderr, t2, sig, DEREF_NEVER);
+      TermPrintDbgHO(stderr, t2, sig, DEREF_NEVER);
       fprintf(stderr, ": ");
       TypePrintTSTP(stderr, sig->type_bank, t2->type);
-      fprintf(stderr, " should have same sort\n");
+      fprintf(stderr, " should have the same sort\n");
+      assert(false);
       Error("Type error", SYNTAX_ERROR);
    }
 }
@@ -2381,16 +2550,21 @@ void TermFOOLPrint(FILE* out, Sig_p sig, TFormula_p form)
       }
 
    }
-   else if(form->f_code == sig->qex_code || form->f_code == sig->qall_code)
+   else if(form->f_code == sig->qex_code || form->f_code == sig->qall_code ||
+           form->f_code == SIG_NAMED_LAMBDA_CODE)
    {
       FunCode quantifier = form->f_code;
       if(form->f_code == sig->qex_code)
       {
          fputs("?[", out);
       }
-      else
+      else if (form->f_code == sig->qall_code)
       {
          fputs("![", out);
+      }
+      else
+      {
+         fputs("^[", out);
       }
       TermPrint(out, form->args[0], sig, DEREF_NEVER);
       if(problemType == PROBLEM_HO || !TypeIsIndividual(form->args[0]->type))
@@ -2423,7 +2597,7 @@ void TermFOOLPrint(FILE* out, Sig_p sig, TFormula_p form)
    {
       char* oprep = "XXX";
       // does not print or chain now
-      if(SigQueryFuncProp(sig, form->f_code, FPFOFOp) && form->arity == 2)
+      if(!TermIsVar(form) && SigQueryFuncProp(sig, form->f_code, FPFOFOp) && form->arity == 2)
       {
          fputs("(", out);
          TermFOOLPrint(out, sig, form->args[0]);
