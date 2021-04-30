@@ -55,7 +55,8 @@ TFormula_p TFormulaArithFCodeAlloc(TB_p bank,
 
 void PrintTermsDebug(TFormula_p form, TB_p terms, int depth);
 
-bool ACNormalize(TFormula_p acterm, TB_p bank);
+TFormula_p ACNormalizeHead(TFormula_p acterm, TB_p bank);
+ACNorm_p ACNormalize(TFormula_p acterm, TB_p bank);
 void collect_ac_leafes(TFormula_p acterm, TB_p bank, FunCode rootcode, ACStruct_p head);
 
 void ACCellAppend(ACNorm_p head, ACNorm_p tail);

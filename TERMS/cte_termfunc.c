@@ -27,6 +27,7 @@
 #include <cte_termpos.h>
 #include <ccl_tformulae.h>
 
+
 /*---------------------------------------------------------------------*/
 /*                        Global Variables                             */
 /*---------------------------------------------------------------------*/
@@ -1220,10 +1221,6 @@ long TermWeightCompute(Term_p term, long vweight, long fweight)
       res += fweight*(TermIsAppliedVar(term) ? 0 : 1);
       for(int i=0; i<term->arity; i++)
       {
-         if(TermIsShared(term->args[i]) && term->args[i]->v_count*vweight + term->args[i]->f_count*fweight != TermWeightCompute(term->args[i],vweight,fweight)) {
-            printf("fcode:%ld (entry %d) for arg %d of [%ld,%ld] assert since: %d * %d + %d * %d != %d\n", 
-                  term->f_code, term->entry_no, i+1, term->args[0]->f_code, term->args[1]->f_code, term->v_count, vweight, term->f_count, fweight, TermWeightCompute(term->args[i],vweight,fweight));
-         }
          res += TermWeight(term->args[i], vweight, fweight);
       }
    }

@@ -39,11 +39,12 @@ void FormulaSetArithNorm(FormulaSet_p set, TB_p terms, GCAdmin_p gc) {
    anchor = set->anchor;
    handle = anchor;
 
-   for(handle = anchor->succ; handle != anchor; handle = handle->succ) {
+   for(handle = anchor->succ; handle != anchor; handle = handle->succ) 
+   {
       printf("------\n");
       PrintTermsDebug(handle->tformula, terms, 0);
    }
-   printf("======\n");
+   printf("Starting arithmetic normalisation\n");
    while((handle = handle->succ) != anchor)
    {
       handle->tformula = TFormulaArithNormalize(terms, handle->tformula);
@@ -54,7 +55,7 @@ void FormulaSetArithNorm(FormulaSet_p set, TB_p terms, GCAdmin_p gc) {
    
    while((handle = handle->succ) != anchor)
    {
-      ACNormalize(handle->tformula, terms);
+      handle->tformula = ACNormalizeHead(handle->tformula, terms);
       // Derivations maybe push to much, since the formula might not get rewritten
       DocFormulaModificationDefault(handle, inf_minimize);
       WFormulaPushDerivation(handle, DCArithNormalize, NULL, NULL);
@@ -64,6 +65,7 @@ void FormulaSetArithNorm(FormulaSet_p set, TB_p terms, GCAdmin_p gc) {
       printf("------\n");
       PrintTermsDebug(handle->tformula, terms, 0);
    }
+   printf("Arithmetic normalisation finished\n");
    GCCollect(gc);	  
 }
 
@@ -83,8 +85,8 @@ void FormulaSetArithNorm(FormulaSet_p set, TB_p terms, GCAdmin_p gc) {
 void PrintTermsDebug(TFormula_p form, TB_p terms, int depth)
 {
    for(int i = 0; i < depth; i++) printf("\t");
-   printf("fcode:%d, properties:%x, type = %d, arity=%d)", form->f_code, form->properties, form->type->f_code, form->arity);
-   for ( int i = 0; i < form->type->arity; i++) printf(" arg%d:%d",i,form->args[i]->f_code);
+   printf("fcode:%ld, properties:%x, type = %ld, arity=%d)", form->f_code, form->properties, form->type->f_code, form->arity);
+   for ( int i = 0; i < form->type->arity; i++) printf(" arg%d:%ld",i,form->args[i]->f_code);
    printf("\n");
    for( int i = 0; i < form->arity; i++) PrintTermsDebug(form->args[i], terms, depth +1);
 
@@ -282,8 +284,25 @@ TFormula_p TFormulaArithFCodeAlloc(TB_p bank, FunCode op, Type_p FunType, TFormu
 
 /*-----------------------------------------------------------------------
 //
+// Function: ACNormalizeHead()
+//    
+// Global Variables: -
+//
+// Side Effects    : Memory Operations
+//
+/----------------------------------------------------------------------*/
+TFormula_p ACNormalizeHead(TFormula_p acterm, TB_p bank)
+{
+   ACNorm_p res = ACNormalize(acterm, bank);
+   TFormula_p new = res->acterm;
+   SizeFree(res, sizeof(ACNormalizeCell));
+   return new;
+}
+
+/*-----------------------------------------------------------------------
+//
 // Function: ACNormalize()
-//    Finds AC Subterms ( $sum / $product) and rewrites the termtree so
+//    Finds AC Subterms ( $sum / $product) and rewrites (creates a new) the termtree so
 //    groundterms are on the left.
 //
 // Global Variables: -
@@ -292,25 +311,34 @@ TFormula_p TFormulaArithFCodeAlloc(TB_p bank, FunCode op, Type_p FunType, TFormu
 //
 /----------------------------------------------------------------------*/
 
-bool ACNormalize(TFormula_p acterm, TB_p bank)
+ACNorm_p ACNormalize(TFormula_p acterm, TB_p bank )
 {
    assert(acterm);
    assert(bank);
   
-   
    bool is_ground = true;
    if(acterm->arity == 0) {
       // check if Element is Variable or constant
-      return TermCellQueryProp(acterm, TPIsGround);
+      ACNorm_p res = AllocNormalizeCell(acterm, 
+            TermCellQueryProp(acterm, TPIsGround));
+      return res;
    }
 
    if((acterm->f_code != bank->sig->product_code) &&
       (acterm->f_code != bank->sig->sum_code))
    {
+      TFormula_p *args = SizeMalloc(sizeof(TFormula_p) * acterm->arity);
+
       for(int i = 0; i < acterm->arity; i++) {
-         is_ground &= ACNormalize(acterm->args[i], bank);
+         ACNorm_p arg = ACNormalize(acterm->args[i], bank);
+         is_ground &= arg->isground;
+         args[i] =  arg->acterm;
+         SizeFree(arg, sizeof(ACNormalizeCell));
       }
-      return is_ground;
+      TFormula_p new = TFormulaArithFCodeAlloc(bank, acterm->f_code, acterm->type, args[0], acterm->arity==2?args[1]:NULL);
+
+      SizeFree(args, sizeof(TFormula_p) * acterm->arity);
+      return AllocNormalizeCell(new, is_ground);
    }
    
    ACStruct_p head = AllocNormalizeStruct();
@@ -335,28 +363,28 @@ bool ACNormalize(TFormula_p acterm, TB_p bank)
       newcell->succ = arg2->succ;
       children = newcell;
 
-      free(arg1);
-      free(arg2);
+      SizeFree(arg1, sizeof(ACNormalizeCell));
+      SizeFree(arg2, sizeof(ACNormalizeCell));
    }
    ACNorm_p arg1 = children;
    ACNorm_p arg2 = children->succ;
-   acterm->args[0] = arg1->acterm;
-   acterm->args[1] = arg2->acterm;
-   is_ground = arg1->isground & arg2->isground;
 
-   free(arg1);
-   free(arg2);
-   free(head);
-   assert(acterm->args[0] && acterm->args[1]);
-         
-   return is_ground;
+   TFormula_p new = TFormulaArithFCodeAlloc(bank, acterm->f_code, acterm->type, arg1->acterm, arg2->acterm);
+   is_ground = arg1->isground & arg2->isground;
+   SizeFree(arg1, sizeof(ACNormalizeCell));
+   SizeFree(arg2, sizeof(ACNormalizeCell));
+   SizeFree(head, sizeof(ACNormalizeStruct));
+   
+   assert(new->args[0] && new->args[1]);
+
+   return AllocNormalizeCell(new, is_ground);       
 }
 
 /*-----------------------------------------------------------------------
 //
 // Function: collect_ac_leafes()
 //    collects all nodes, that are the arguments of the current AC Subterm
-//
+//    The corresponding termcells will get discarded.
 // Global Variables: -
 //
 // Side Effects    : Memory Operations
@@ -366,10 +394,9 @@ bool ACNormalize(TFormula_p acterm, TB_p bank)
 void collect_ac_leafes(TFormula_p acterm, TB_p bank, FunCode rootcode, ACStruct_p head) {
    
    if(acterm->f_code != rootcode) {
-      bool isground = ACNormalize(acterm, bank);
-      ACNorm_p leaf = AllocNormalizeCell(acterm, isground);
+      ACNorm_p leaf = ACNormalize(acterm, bank);
 
-      if(isground){
+      if(leaf->isground){
          if(head->groundterms == NULL) {
             head->groundterms = leaf;
          } else {

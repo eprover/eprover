@@ -1526,7 +1526,7 @@ Term_p TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop)
             handle->type = checkFun(bank->sig->type_bank, args[0], args[1]);
 
             if(handle->type == NULL) {
-                Error("%s %s argument types invalid (arg1: %d, arg2: %d)",
+                Error("%s %s argument types invalid (arg1: %ld, arg2: %ld)",
                      INPUT_SEMANTIC_ERROR,
                      PosRep(type_stream, source_name, line, column),
                      DStrView(id),
@@ -1540,7 +1540,7 @@ Term_p TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop)
              *      handle->args[0]->f_code, args[0]->f_code,
              *      handle->args[1]?handle->args[1]->f_code:0, args[1]=NULL?0:args[1]->f_code);
             */
-			free(args);
+			SizeFree(args, handle->arity * sizeof(Type_p));
 
          }
 	  }
