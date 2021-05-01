@@ -317,6 +317,18 @@ void TypeInferSort(Sig_p sig, Term_p term, Scanner_p in)
       {
          /* Infer type */
          sort = infer_return_sort(sig, term, term->f_code);
+         
+         if(sort == NULL)
+         {
+            //Error("%s %s argument types invalid (arg1: %ld, arg2: %ld)",
+            //   INPUT_SEMANTIC_ERROR,
+            //   PosRep(type_stream, source_name, line, column),
+            //   DStrView(in),
+            //   args[0]?args[0]->f_code:0,
+            //   args[1]?args[1]->f_code:0
+            //);
+         }
+
          args = term->arity ? TypeArgArrayAlloc(term->arity+1) : NULL;
          for(i=0; i < term->arity; i++)
          {

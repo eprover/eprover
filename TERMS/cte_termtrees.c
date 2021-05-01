@@ -206,7 +206,9 @@ long TermTopCompare(Term_p t1, Term_p t2)
    //{
    //      printf("# Sort clash (%ld): %d vs. %d\n", t1->f_code, t1->sort, t2->sort);
    //}
-   assert(problemType == PROBLEM_HO || t1->type == t2->type);
+   
+   // not true anymore since arithmetic polymorphy
+   //assert(problemType == PROBLEM_HO || t1->type == t2->type);
    assert(TermIsAppliedVar(t1) || problemType == PROBLEM_HO  || t1->arity == t2->arity);
 
    if(t1->arity != t2->arity)

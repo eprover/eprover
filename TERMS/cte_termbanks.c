@@ -1414,7 +1414,7 @@ Term_p TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop)
    type_stream        = AktToken(in)->stream_type;
    line = AktToken(in)->line;
    column = AktToken(in)->column;
-	
+   
    /* Normal term stuff, bloated because of the nonsensical SETHEO
       syntax */
 
@@ -1446,7 +1446,7 @@ Term_p TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop)
          handle = NULL;
 
          if(TestInpTok(in, OpenBracket))
-         {
+            {
             if((id_type == FSIdentInt)
                &&(bank->sig->distinct_props & FPIsInteger))
             {
@@ -1480,14 +1480,14 @@ Term_p TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop)
                              false);
             }
             
-			   // in TFX all symbols must be declared beforehand
+            // in TFX all symbols must be declared beforehand
             // thus, if we have a formula at the argument, symbol with name
             // id already has a type declared with $o in appropriate places
             FunCode sym_code = SigFindFCode(bank->sig, DStrView(id));
             Type_p  sym_type = sym_code ? SigGetType(bank->sig, sym_code) : NULL;
             handle = tb_term_parse_arglist(in, bank,
                                              check_symb_prop, sym_type);
-		   }
+         }
          else
          {
             handle = TermDefaultCellAlloc();
@@ -1497,16 +1497,16 @@ Term_p TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop)
                                         handle->arity, false, id_type);
          
          if(!handle->f_code)
-       	 {
+           {
             errpos = DStrAlloc();
             DStrAppendStr(errpos, PosRep(type_stream, source_name, line, column));
             DStrAppendStr(errpos, DStrView(id));
             DStrAppendStr(errpos, " used with arity ");
             DStrAppendInt(errpos, (long)handle->arity);
             DStrAppendStr(errpos, ", but registered with arity ");
-		     	DStrAppendInt(errpos,
-                          (long)(bank->sig)->
-                          f_info[SigFindFCode(bank->sig, DStrView(id))].arity);
+            DStrAppendInt(errpos,
+                  (long)(bank->sig)->
+                  f_info[SigFindFCode(bank->sig, DStrView(id))].arity);
             Error(DStrView(errpos), SYNTAX_ERROR);
             DStrFree(errpos);
          }
@@ -1526,24 +1526,23 @@ Term_p TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop)
             handle->type = checkFun(bank->sig->type_bank, args[0], args[1]);
 
             if(handle->type == NULL) {
-                Error("%s %s argument types invalid (arg1: %ld, arg2: %ld)",
-                     INPUT_SEMANTIC_ERROR,
-                     PosRep(type_stream, source_name, line, column),
-                     DStrView(id),
-                     args[0]?args[0]->f_code:0,
-                     args[1]?args[1]->f_code:0
-                  );
+               Error("%s %s argument types invalid (arg1: %ld, arg2: %ld)",
+                  INPUT_SEMANTIC_ERROR,
+                  PosRep(type_stream, source_name, line, column),
+                  DStrView(id),
+                  args[0]?args[0]->f_code:0,
+                  args[1]?args[1]->f_code:0
+               );
             }
-            /*
-             * printf("Col %d: %s(%d) becomes type %d with the arguments (%d) %d and (%d) %d\n", column, DStrView(id),
+            /*printf("Col %d: %s(%d) becomes type %d with the arguments (%d) %d and (%d) %d\n", column, DStrView(id),
              *      handle->f_code, handle->type==NULL?0:handle->type->f_code, 
              *      handle->args[0]->f_code, args[0]->f_code,
              *      handle->args[1]?handle->args[1]->f_code:0, args[1]=NULL?0:args[1]->f_code);
             */
-			SizeFree(args, handle->arity * sizeof(Type_p));
+            SizeFree(args, handle->arity * sizeof(Type_p));
 
          }
-	  }
+      }
       DStrFree(id);
    }
    DStrReleaseRef(source_name);

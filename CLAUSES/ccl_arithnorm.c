@@ -109,80 +109,88 @@ TFormula_p TFormulaArithNormalize(TB_p terms, TFormula_p form)
    assert(terms);
    assert(form);
 
-   TFormula_p newform=NULL, arg1=NULL, arg2=NULL;
-   if(form->arity == 0 || form->arity > 2) {
+   if(form->arity == 0) 
+   {
+      // nothing to do
       return form;
    }
-
-   if(form->arity >= 1)
+   
+   TFormula_p newform=NULL;
+   TFormula_p *args = SizeMalloc(sizeof(TFormula_p)*form->arity);
+   
+   for(int i = 0; i < form->arity; i++)
    {
-      arg1 = TFormulaArithNormalize(terms, form->args[0]);
-      //form->args[0] = arg1;
+      args[i] = TFormulaArithNormalize(terms, form->args[i]);
    }
-   if(form->arity == 2)
-   {
-      arg2 = TFormulaArithNormalize(terms, form->args[1]);
-      //form->args[1] = arg2;
-
-   }
+   //if(form->arity >= 1)
+   //{
+   //   arg1 = TFormulaArithNormalize(terms, form->args[0]);
+   //   //form->args[0] = arg1;
+   //}
+   //if(form->arity == 2)
+   //{
+   //   arg2 = TFormulaArithNormalize(terms, form->args[1]);
+   //   //form->args[1] = arg2;
+   //}
    
    if(form->f_code == terms->sig->eqn_code && 
-         (form->args[0]->f_code == terms->sig->lesseq_code || form->args[0]->f_code == terms->sig->greatereq_code) )
+         (form->args[0]->f_code == terms->sig->lesseq_code || 
+          form->args[0]->f_code == terms->sig->greatereq_code) )
       // for $lesseq and $greatereq we need to add a ~ which needs to be outside of the
       // equationblock (the fool-normalization would otherwise remove the $eqn, which breaks the definition search)
       // ~a=b ---> (~a | ~b) & (a | b)
       // ~(less(1,2)) = $true
       // (~less(1,2) | ~($true)) & (less(1,2) | $true)
    {
-      TFormula_p tmp1 = TFormulaArithFCodeAlloc(terms, terms->sig->eqn_code, form->type, arg1,arg2); // new eqn
+      TFormula_p tmp1 = TFormulaArithFCodeAlloc(terms, terms->sig->eqn_code, form->type, args[0],args[1]); // new eqn
       newform = TFormulaArithFCodeAlloc(terms, terms->sig->not_code, form->type, tmp1, NULL);
    
    } else if(form->f_code == terms->sig->greater_code) {
       // $less(Y,X)
       newform = TFormulaArithFCodeAlloc(terms, terms->sig->less_code,
-                                        form->type, arg2, arg1);
+                                        form->type, args[1], args[0]);
    }
    else if(form->f_code == terms->sig->lesseq_code) {
       // ~ $less(Y,X)
       // since we cant add the ~ here, the parent node (always $eqn) will add it
       newform = TFormulaArithFCodeAlloc(terms, terms->sig->less_code,
-                                               form->type, arg2, arg1);
+                                               form->type, args[1], args[0]);
    }
    else if(form->f_code == terms->sig->greatereq_code) {
       // ~ $less(X,Y)
       // since we cant add the ~ here, the parent node (always $eqn) will add it
       newform = TFormulaArithFCodeAlloc(terms, terms->sig->less_code,
-                                               form->type, arg1, arg2);
+                                               form->type, args[0], args[1]);
    }
    else if(form->f_code == terms->sig->difference_code) {
       // $sum(X, $uminus(Y))
       TFormula_p tmp = TFormulaArithFCodeAlloc(terms, terms->sig->uminus_code,
-                                               form->type, arg2, NULL);
+                                               form->type, args[1], NULL);
       newform = TFormulaArithFCodeAlloc(terms, terms->sig->sum_code,
-                                        form->type, arg1, tmp);
+                                        form->type, args[0], tmp);
    }
    else if(form->f_code == terms->sig->quotient_t_code) {
       // $truncate($quotient(X,Y))
       TFormula_p tmp = TFormulaArithFCodeAlloc(terms, terms->sig->quotient_code,
-                                               form->type, arg1, arg2);
+                                               form->type, args[0], args[1]);
       newform = TFormulaArithFCodeAlloc(terms, terms->sig->truncate_code,
                                         form->type, tmp, NULL);
    }
    else if(form->f_code == terms->sig->quotient_f_code ) {
       // $floor($quotient(X,Y))
       TFormula_p tmp = TFormulaArithFCodeAlloc(terms, terms->sig->quotient_code,
-                                               form->type, arg1, arg2);
+                                               form->type, args[0], args[1]);
       newform = TFormulaArithFCodeAlloc(terms, terms->sig->floor_code,
                                         form->type, tmp, NULL);
    }
    else if(form->f_code == terms->sig->remainder_e_code) {
       // $product(X, Y) - product(quotient_e(X, Y), Y)
       TFormula_p tmp1 = TFormulaArithFCodeAlloc(terms, terms->sig->product_code,
-                                                form->type, arg1, arg2);
+                                                form->type, args[0], args[1]);
       TFormula_p tmp2 = TFormulaArithFCodeAlloc(terms, terms->sig->quotient_e_code,
-                                                form->type, arg1, arg2);
+                                                form->type, args[0], args[1]);
       TFormula_p tmp3 = TFormulaArithFCodeAlloc(terms, terms->sig->product_code,
-                                                form->type, tmp2, arg2);
+                                                form->type, tmp2, args[1]);
       TFormula_p tmp4 = TFormulaArithFCodeAlloc(terms, terms->sig->uminus_code,
                                                 form->type, tmp3, NULL);
       newform = TFormulaArithFCodeAlloc(terms, terms->sig->sum_code,
@@ -191,13 +199,13 @@ TFormula_p TFormulaArithNormalize(TB_p terms, TFormula_p form)
    else if(form->f_code == terms->sig->remainder_t_code) {
       // $product(X, Y) - product($truncate($quotient(X, Y)), Y)
       TFormula_p tmp1 = TFormulaArithFCodeAlloc(terms, terms->sig->product_code,
-                                                form->type, arg1, arg2);
+                                                form->type, args[0], args[1]);
       TFormula_p tmp2 = TFormulaArithFCodeAlloc(terms, terms->sig->quotient_code,
-                                                form->type, arg1, arg2);
+                                                form->type, args[0], args[1]);
       TFormula_p tmp3 = TFormulaArithFCodeAlloc(terms, terms->sig->truncate_code,
                                                 form->type, tmp2, NULL);
       TFormula_p tmp4 = TFormulaArithFCodeAlloc(terms, terms->sig->product_code,
-                                                form->type, tmp3, arg2);
+                                                form->type, tmp3, args[1]);
       TFormula_p tmp5 = TFormulaArithFCodeAlloc(terms, terms->sig->uminus_code,
                                                 form->type, tmp4, NULL);
       newform = TFormulaArithFCodeAlloc(terms, terms->sig->sum_code,
@@ -206,13 +214,13 @@ TFormula_p TFormulaArithNormalize(TB_p terms, TFormula_p form)
    else if(form->f_code == terms->sig->remainder_f_code) {
       // $product(X, Y) - product($floor($quotient(X, Y)), Y)
       TFormula_p tmp1 = TFormulaArithFCodeAlloc(terms, terms->sig->product_code,
-                                                form->type, arg1, arg2);
+                                                form->type, args[0], args[1]);
       TFormula_p tmp2 = TFormulaArithFCodeAlloc(terms, terms->sig->quotient_code,
-                                                form->type, arg1, arg2);
+                                                form->type, args[0], args[1]);
       TFormula_p tmp3 = TFormulaArithFCodeAlloc(terms, terms->sig->floor_code,
                                                 form->type, tmp2, NULL);
       TFormula_p tmp4 = TFormulaArithFCodeAlloc(terms, terms->sig->product_code,
-                                                form->type, tmp3, arg2);
+                                                form->type, tmp3, args[1]);
       TFormula_p tmp5 = TFormulaArithFCodeAlloc(terms, terms->sig->uminus_code,
                                                 form->type, tmp4, NULL);
       newform = TFormulaArithFCodeAlloc(terms, terms->sig->sum_code,
@@ -221,14 +229,14 @@ TFormula_p TFormulaArithNormalize(TB_p terms, TFormula_p form)
    else if(form->f_code == terms->sig->ceiling_code) {
       // $uminus($floor($uminus(X)))
       TFormula_p tmp1 = TFormulaArithFCodeAlloc(terms, terms->sig->uminus_code,
-                                                form->type, arg1, NULL);
+                                                form->type, args[0], NULL);
       TFormula_p tmp2 = TFormulaArithFCodeAlloc(terms, terms->sig->floor_code,
                                                 form->type, tmp1, NULL);
       newform = TFormulaArithFCodeAlloc(terms, terms->sig->uminus_code,
                                         form->type, tmp2, NULL);
    }
    else {
-      newform = TFormulaArithFCodeAlloc(terms, form->f_code, form->type, arg1, arg2);
+      newform = TFormulaUnivFCodeAlloc(terms, form->f_code, form->type, args);
    }
    assert(newform);
    return newform;
@@ -237,10 +245,8 @@ TFormula_p TFormulaArithNormalize(TB_p terms, TFormula_p form)
 /*-----------------------------------------------------------------------
 //
 // Function: TFormulaArithFCodeAlloc()
-//    Pretty similar to TFormulaFCodeAlloc() but for arithmetic
-//    functions (type).
-//    Creates a new Termcell and inserts into the termbank.
-//
+//    Wrapper for TFormulaUnivFCodeAlloc
+//    transforms both arguments into an argument array
 //
 // Global Variables: -
 //
@@ -250,29 +256,55 @@ TFormula_p TFormulaArithNormalize(TB_p terms, TFormula_p form)
 
 TFormula_p TFormulaArithFCodeAlloc(TB_p bank, FunCode op, Type_p FunType, TFormula_p arg1, TFormula_p arg2)
 {
+   TFormula_p res;
+   if(arg2 == NULL) 
+   {
+      TFormula_p args[1] = {arg1};
+      res = TFormulaUnivFCodeAlloc(bank, op, FunType, args);
+   }
+   else 
+   {
+      TFormula_p args[2] = {arg1, arg2};
+      res = TFormulaUnivFCodeAlloc(bank, op, FunType, args);
+   }
+   return res;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: TFormulaArithFCodeAlloc()
+//    Pretty similar to TFormulaFCodeAlloc() but for all function arities and
+//    types are already known
+//    Creates a new Termcell and inserts into the termbank.
+//
+//
+// Global Variables: -
+//
+// Side Effects    : Memory Operations
+//
+/----------------------------------------------------------------------*/
+
+TFormula_p TFormulaUnivFCodeAlloc(TB_p bank, FunCode op, Type_p FunType, TFormula_p *args)
+{
    int arity = SigFindArity(bank->sig, op);
    TFormula_p res;
-
+   
    assert(bank);
-   assert((arity == 1) || (arity == 2));
-   assert(EQUIV((arity==2), arg2));
+   //assert(EQUIV((arity==2), args[1]));
+   // is this ok?
+   assert(args[arity-1]);
 
    res = TermTopAlloc(op,arity);
 
    if(SigIsPredicate(bank->sig, op))
    {
-      // I dont think SigIsPredicate does the right job, $sum would be a predicate
       TermCellSetProp(res, TPPredPos);
    }
-   if(arity > 0)
+   for( int i = 0; i < arity; i++) 
    {
-      res->args[0] = arg1;
-      if(arity > 1)
-      {
-         res->args[1] = arg2;
-      }
+      res->args[i] = args[i];
    }
-   
+
    res->type = FunType;
    
    assert(bank);
@@ -335,7 +367,7 @@ ACNorm_p ACNormalize(TFormula_p acterm, TB_p bank )
          args[i] =  arg->acterm;
          SizeFree(arg, sizeof(ACNormalizeCell));
       }
-      TFormula_p new = TFormulaArithFCodeAlloc(bank, acterm->f_code, acterm->type, args[0], acterm->arity==2?args[1]:NULL);
+      TFormula_p new = TFormulaUnivFCodeAlloc(bank, acterm->f_code, acterm->type, args);
 
       SizeFree(args, sizeof(TFormula_p) * acterm->arity);
       return AllocNormalizeCell(new, is_ground);

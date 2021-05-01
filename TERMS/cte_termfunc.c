@@ -823,13 +823,17 @@ bool TermStructEqual(Term_p t1, Term_p t2)
       // in HO case, it is posible for term
       // to have same head but different arities.
       // in that case the type must be different.
-      assert(problemType == PROBLEM_HO);
-      assert(TermIsAppliedVar(t1) || t1->arity != t2->arity);
+      
+      // not true anymore since arithmetic polymorphy
+      //assert(problemType == PROBLEM_HO);
+      //assert(TermIsAppliedVar(t1) || t1->arity != t2->arity);
       return false;
    }
 
    //old asserts
-   assert(problemType == PROBLEM_HO || t1->type == t2->type);
+   
+   // not true anymore since arithmetic polymorphy
+   //assert(problemType == PROBLEM_HO || t1->type == t2->type);
    assert(problemType == PROBLEM_HO || t1->arity == t2->arity);
 
    for(int i=0; i<t1->arity; i++)
@@ -874,13 +878,17 @@ bool TermStructEqualNoDeref(Term_p t1, Term_p t2)
       // in HO case, it is posible for term
       // to have same head but different arities.
       // in that case the type must be different.
-      assert(problemType == PROBLEM_HO);
-      assert(TermIsAppliedVar(t1) || t1->arity != t2->arity);
+      
+      // not true anymore since arithmetic polymorphy
+      //assert(problemType == PROBLEM_HO);
+      //assert(TermIsAppliedVar(t1) || t1->arity != t2->arity);
       return false;
    }
 
    //old asserts
-   assert(problemType == PROBLEM_HO || t1->type == t2->type);
+   
+   // not true anymore since arithmetic polymorphy
+   //assert(problemType == PROBLEM_HO || t1->type == t2->type);
    assert(problemType == PROBLEM_HO || t1->arity == t2->arity);
 
    for(int i=0; i<t1->arity; i++)
@@ -930,13 +938,17 @@ bool TermStructEqualDeref(Term_p t1, Term_p t2, DerefType deref_1, DerefType der
       // in HO case, it is posible for term
       // to have same head but different arities.
       // in that case the type must be different.
-      assert(problemType == PROBLEM_HO);
+      
+      // not true anymore since arithmetic polymorphy
+      //assert(problemType == PROBLEM_HO);
       assert(TermIsAppliedVar(t1) || t1->arity != t2->arity);
       return false;
    }
 
    //old asserts
-   assert(problemType == PROBLEM_HO || t1->type == t2->type);
+   
+   // not true anymore since arithmetic polymorphy
+   //assert(problemType == PROBLEM_HO || t1->type == t2->type);
    assert(problemType == PROBLEM_HO || t1->arity == t2->arity);
    for(int i=0; i<t1->arity; i++)
    {

@@ -52,6 +52,8 @@ void FormulaSetArithNorm(FormulaSet_p set, TB_p terms, GCAdmin_p gc);
 TFormula_p TFormulaArithNormalize(TB_p term, TFormula_p form);
 TFormula_p TFormulaArithFCodeAlloc(TB_p bank, 
       FunCode op, Type_p FunType, TFormula_p arg1, TFormula_p arg2);
+TFormula_p TFormulaUnivFCodeAlloc(TB_p bank, 
+      FunCode op, Type_p FunType, TFormula_p *args);
 
 void PrintTermsDebug(TFormula_p form, TB_p terms, int depth);
 
