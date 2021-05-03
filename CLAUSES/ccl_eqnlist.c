@@ -739,7 +739,7 @@ Eqn_p EqnListNegateEqns(Eqn_p list)
 //
 /----------------------------------------------------------------------*/
 
-int EqnListRemoveDuplicates(Eqn_p list)
+int EqnListRemoveDuplicates1(Eqn_p list)
 {
    EqnRef handle;
    int    removed = 0;
@@ -763,6 +763,36 @@ int EqnListRemoveDuplicates(Eqn_p list)
    }
    return removed;
 }
+
+int EqnListRemoveDuplicates(Eqn_p list)
+{
+   EqnRef handle;
+   int    removed = 0;
+   PObjTree_p litstore = NULL;
+
+   if(list)
+   {
+      PTreeObjStore(&litstore, list, LiteralSyntaxCompare);
+
+      handle = &(list->next);
+      while(*handle)
+      {
+         if(PTreeObjFind(&litstore, *handle, LiteralSyntaxCompare))
+         {
+            EqnListDeleteElement(handle);
+            removed++;
+         }
+         else
+         {
+            PTreeObjStore(&litstore, *handle, LiteralSyntaxCompare);
+            handle = &((*handle)->next);
+         }
+      }
+      PObjTreeFree(litstore, DummyObjDelFun);
+   }
+   return removed;
+}
+
 
 
 /*-----------------------------------------------------------------------

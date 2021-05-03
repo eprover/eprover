@@ -68,8 +68,8 @@ match_demod_l   = re.compile(" --forward_demod_level=")
 match_snm_l     = re.compile(" --selection-neg-min=")
 match_g_demod_s = re.compile(" --prefer-general-demodulators")
 match_g_demod_l = re.compile(" -g")
-match_unproc_s  = re.compile(" --simplify-with-unprocessed-units=")
-match_unproc_sd = re.compile(" --simplify-with-unprocessed-units")
+#match_unproc_s  = re.compile(" --simplify-with-unprocessed-units=")
+#match_unproc_sd = re.compile(" --simplify-with-unprocessed-units")
 match_fcsr      = re.compile(" --forward-context-sr")
 match_fcsra     = re.compile(" --forward-context-sr-aggressive")
 match_bcsr      = re.compile(" --backward-context-sr")
@@ -96,6 +96,250 @@ match_no_unfold         = re.compile(" --no-eq-unfolding")
 
 
 
+def parse_control_info2(line, res={}):
+
+    #
+    # AC handling and misc. stuff
+    #
+    m = match_ac_l.search(line)
+    if m:
+        arg = extract_arg(line, m)
+        res["ac_handling"] = ac_handling[arg]
+
+    m = match_acnag_l.search(line)
+    if m:
+        res["ac_res_aggressive"] = "false"
+
+    m = match_pic_l.search(line)
+    if m:
+        res["prefer_initial_clauses"] ="true"
+
+#    m = match_unproc_s.search(line)
+#    if m:
+#        arg = extract_arg(line, m)
+#        res["unproc_simplify"] = unproc_simpl[arg]
+#    else:
+#        m = match_unproc_sd.search(line)
+#        if m:
+#            res["unproc_simplify"] ="TopLevelUnitSimplify"
+
+    #
+    # Contextual simplify-reflect
+    #
+
+    m = match_fcsr.search(line)
+    if m:
+        res["forward_context_sr"] = "true"
+
+    m = match_fcsra.search(line)
+    if m:
+        res["forward_context_sr"] = "true"
+        res["forward_context_sr_aggressive"] = "true"
+
+    m = match_bcsr.search(line)
+    if m:
+        res["backward_context_sr"] = "true"
+
+    #
+    # Literal selection parameters
+    #
+    m = match_litsel_s.search(line)
+    if m:
+        arg = extract_arg(line, m)
+        res["selection_strategy"] = selstrat[arg]
+
+    m = match_litsel_l.search(line)
+    if m:
+        arg = extract_arg(line, m)
+        res["selection_strategy"] = selstrat[arg]
+
+    m = match_op_l.search(line)
+    if m:
+        res["select_on_proc_only"] = "true"
+
+    m = match_ipl_s.search(line)
+    if m:
+        res["inherit_paramod_lit"] = "true"
+
+    m = match_ipl_l.search(line)
+    if m:
+        res["inherit_paramod_lit"] = "true"
+
+    m = match_ipg_s.search(line)
+    if m:
+        res["inherit_goal_pm_lit"] = "true"
+
+    m = match_ipg_l.search(line)
+    if m:
+        res["inherit_goal_pm_lit"] = "true"
+
+    m = match_ipc_l.search(line)
+    if m:
+        res["inherit_conj_pm_lit"] = "true"
+
+    m = match_snm_l.search(line)
+    if m:
+        arg = extract_arg(line, m)
+        res["neg_lit_sel_min"] = arg
+
+    #
+    # Splitting parameters
+    #
+    m = match_split_l.search(line)
+    if m:
+        arg = extract_arg(line, m)
+        res["split_clauses"] = arg
+
+    m = match_splitm_l.search(line)
+    if m:
+        arg = extract_arg(line, m)
+        res["split_method"] = arg
+
+    m = match_splita_l.search(line)
+    if m:
+        res["split_aggressive"] = "true"
+
+    m = match_splitr_l.search(line)
+    if m:
+        res["split_fresh_defs"] = "false"
+
+    #
+    # Destructive equality resolution parameters
+    #
+    m = match_der_l.search(line)
+    if m:
+        res = res+ "      control->heuristic_parms.er_varlit_destructive=true;\n"
+
+    m = match_sder_l.search(line)
+    if m:
+        res = res+ "      control->heuristic_parms.er_strong_destructive=true;\n"
+        res = res+ "      control->heuristic_parms.er_varlit_destructive=true;\n"
+
+    m = match_dera_l.search(line)
+    if m:
+        res = res+ "      control->heuristic_parms.er_aggressive=true;\n"
+
+    #
+    # Rewriting parameters
+    #
+    m = match_demod_s.search(line)
+    if m:
+        arg = extract_arg(line, m)
+        res = res+ "      control->heuristic_parms.forward_demod="+arg+";\n"
+
+    m = match_demod_l.search(line)
+    if m:
+        arg = extract_arg(line, m)
+        res = res+ "      control->heuristic_parms.forward_demod="+arg+";\n"
+
+    m = match_g_demod_s.search(line)
+    if m:
+        res = res+ "      control->heuristic_parms.prefer_general=true;\n"
+
+    m = match_g_demod_l.search(line)
+    if m:
+        res = res+ "      control->heuristic_parms.prefer_general=true;\n"
+
+    #
+    # Paramodulation
+    #
+    m = match_simul_pm.search(line)
+    if m:
+        res = res+ "      control->heuristic_parms.pm_type=ParamodSim;\n"
+
+    m = match_ssimul_pm.search(line)
+    if m:
+        res = res+ "      control->heuristic_parms.pm_type=ParamodSuperSim;\n"
+
+    m = match_osimul_pm.search(line)
+    if m:
+        res = res+ "      control->heuristic_parms.pm_type=ParamodOrientedSim;\n"
+
+    m = match_ossimul_pm.search(line)
+    if m:
+        res = res+ "      control->heuristic_parms.pm_type=ParamodOrientedSuperSim;\n"
+
+    #
+    # Presaturation simplification
+    #
+    m = match_presat_ir.search(line)
+    if m:
+        res = res+ "      control->heuristic_parms.presat_interreduction=true;\n"
+
+    #
+    # Set of Support determination
+    #
+    m = match_sos_types.search(line)
+    if m:
+        res = res+ "      control->heuristic_parms.use_tptp_sos=true;\n"
+
+    #
+    # Condensation
+    #
+    m = match_condense.search(line)
+    if m:
+        res = res+ "      control->heuristic_parms.condensing=true;\n"
+
+    m = match_condag.search(line)
+    if m:
+        res = res+ "      control->heuristic_parms.condensing_aggressive=true;\n"
+
+    #
+    # SAT
+    #
+
+    m = match_sat_proc_int.search(line)
+    if m:
+        arg = extract_opt_arg(line, m, "5000")
+        res = res+ "      control->heuristic_parms.sat_check_step_limit="+arg+";\n"
+
+    m = match_sat_gen_int.search(line)
+    if m:
+        arg = extract_opt_arg(line, m, "10000")
+        res = res+ "      control->heuristic_parms.sat_check_size_limit="+arg+";\n"
+
+    m = match_sat_tt_int.search(line)
+    if m:
+        arg = extract_opt_arg(line, m, "5000000")
+        res = res+ "      control->heuristic_parms.sat_check_ttinsert_limit="+arg+";\n"
+
+    m = match_satcheck.search(line)
+    if m:
+        # print "XXXXX"
+        arg = extract_opt_arg(line, m, "FirstConst")
+        # print "YYYY", arg
+        res = res+ "      control->heuristic_parms.sat_check_grounding="+sat_trans[arg]+";\n"
+    m = match_sat_norm_const.search(line)
+    if m:
+        res = res+ "      control->heuristic_parms.sat_check_normconst=true;\n"
+
+    m = match_sat_norm_unproc.search(line)
+    if m:
+        res = res+ "      control->heuristic_parms.sat_check_normalize=true;\n"
+
+    m = match_sat_dec_limit.search(line)
+    if m:
+        arg = extract_opt_arg(line, m, "100")
+        res = res+ "      control->heuristic_parms.sat_check_decision_limit="+arg+";\n"
+
+    # Eq unfolding
+    m = match_unfold_limit.search(line)
+    if m:
+        arg = extract_arg(line, m)
+        res = res+ "      control->heuristic_parms.eqdef_incrlimit="+arg+";\n"
+
+    m = match_unfold_maxclauses.search(line)
+    if m:
+        arg = extract_arg(line, m)
+        res = res+ "      control->heuristic_parms.eqdef_maxclauses="+arg+";\n"
+
+    m = match_no_unfold.search(line)
+    if m:
+        res = res+ "      control->heuristic_parms.eqdef_incrlimit=LONG_MIN;\n"
+
+    return res
+
+
 def parse_control_info(line):
     res = ""
 
@@ -115,14 +359,14 @@ def parse_control_info(line):
     if m:
         res = res+ "      control->heuristic_parms.prefer_initial_clauses=true;\n"
 
-    m = match_unproc_s.search(line)
-    if m:
-        arg = extract_arg(line, m)
-        res = res+ "      control->heuristic_parms.unproc_simplify="+unproc_simpl[arg]+";\n"
-    else:
-        m = match_unproc_sd.search(line)
-        if m:
-            res = res+ "      control->heuristic_parms.unproc_simplify=TopLevelUnitSimplify;\n"
+    # m = match_unproc_s.search(line)
+    # if m:
+    #     arg = extract_arg(line, m)
+    #     res = res+ "      control->heuristic_parms.unproc_simplify="+unproc_simpl[arg]+";\n"
+    # else:
+    #     m = match_unproc_sd.search(line)
+    #     if m:
+    #         res = res+ "      control->heuristic_parms.unproc_simplify=TopLevelUnitSimplify;\n"
 
     #
     # Contextual simplify-reflect
@@ -339,6 +583,7 @@ def parse_control_info(line):
         res = res+ "      control->heuristic_parms.eqdef_incrlimit=LONG_MIN;\n"
 
     return res
+
 
 
 match_sine = re.compile(" --sine=")

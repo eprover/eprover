@@ -2135,6 +2135,67 @@ bool LiteralUnifyOneWay(Eqn_p eq1, Eqn_p eq2, Subst_p subst, bool swapped)
    return res;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: LiteralSyntaxCompare()
+//
+//   Induce a total ordering on literals (modulo
+//   commutativity). Assumes that terms are perfectly shared. Negative
+//   literals are bigger than positive ones, equality literals are
+//   smaller than non-equational literals, the rest is done by
+//   comparing term bank entry_no.
+//
+// Global Variables:
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+
+int LiteralSyntaxCompare(const void* l1, const void* l2)
+{
+   const Eqn_p eq1 = (const Eqn_p) l1;
+   const Eqn_p eq2 = (const Eqn_p) l2;
+   long e1, e2;
+
+   if(EqnIsPositive(eq1) && !EqnIsPositive(eq2))
+   {
+      return -1;
+   }
+   if(EqnIsPositive(eq2) && !EqnIsPositive(eq1))
+   {
+      return 1;
+   }
+   if(EqnIsEquLit(eq1) && !EqnIsEquLit(eq2))
+   {
+      return -1;
+   }
+   if(EqnIsEquLit(eq2) &&  !EqnIsEquLit(eq1))
+   {
+      return 1;
+   }
+   e1 = MAX(eq1->lterm->entry_no,eq1->rterm->entry_no);
+   e2 = MAX(eq2->lterm->entry_no,eq2->rterm->entry_no);
+   if(e1<e2)
+   {
+      return -1;
+   }
+   if(e1>e2)
+   {
+      return 1;
+   }
+   e1 = MIN(eq1->lterm->entry_no,eq1->rterm->entry_no);
+   e2 = MIN(eq2->lterm->entry_no,eq2->rterm->entry_no);
+   if(e1<e2)
+   {
+      return -1;
+   }
+   if(e1>e2)
+   {
+      return 1;
+   }
+   return 0;
+}
+
 
 
 /*-----------------------------------------------------------------------

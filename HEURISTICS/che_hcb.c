@@ -87,6 +87,8 @@ void default_exit_fun(void* data)
 
 void HeuristicParmsInitialize(HeuristicParms_p handle)
 {
+   OrderParmsInitialize(&(handle->order_params));
+
    handle->no_preproc                    = false;
    handle->eqdef_maxclauses              = DEFAULT_EQDEF_MAXCLAUSES;
    handle->eqdef_incrlimit               = DEFAULT_EQDEF_INCRLIMIT;
@@ -94,8 +96,6 @@ void HeuristicParmsInitialize(HeuristicParms_p handle)
    handle->heuristic_name                = HCB_DEFAULT_HEURISTIC;
    handle->heuristic_def                 = NULL;
    handle->prefer_initial_clauses        = false;
-
-   OrderParmsInitialize(&(handle->order_params));
 
    handle->selection_strategy            = SelectNoLiterals;
    handle->pos_lit_sel_min               = 0;
@@ -233,6 +233,8 @@ void HeuristicParmsPrint(FILE* out, HeuristicParms_p handle)
 {
    fprintf(out, "{\n");
 
+   OrderParmsPrint(out, &(handle->order_params));
+
    fprintf(out, "   no_preproc:                    %s\n", BOOL2STR(handle->no_preproc));
    fprintf(out, "   eqdef_maxclauses:              %ld\n", handle->eqdef_maxclauses);
    fprintf(out, "   eqdef_incrlimit:               %ld\n", handle->eqdef_incrlimit);
@@ -242,8 +244,6 @@ void HeuristicParmsPrint(FILE* out, HeuristicParms_p handle)
            handle->heuristic_def?handle->heuristic_def:"");
    fprintf(out, "   prefer_initial_clauses:        %s\n",
            BOOL2STR(handle->prefer_initial_clauses));
-
-   OrderParmsPrint(out, &(handle->order_params));
 
    fprintf(out, "   selection_strategy:            %s\n",
            GetLitSelName(handle->selection_strategy));
@@ -380,14 +380,14 @@ bool HeuristicParmsParseInto(Scanner_p in,
 
    AcceptInpTok(in, OpenCurly);
 
+   res = OrderParmsParseInto(in, &(handle->order_params), warn_missing);
+
    PARSE_BOOL(no_preproc);
    PARSE_INT(eqdef_maxclauses);
    PARSE_INT(eqdef_incrlimit);
    PARSE_IDENTIFIER(heuristic_name);
    PARSE_STRING(heuristic_def);
    PARSE_BOOL(prefer_initial_clauses);
-
-   res = res && OrderParmsParseInto(in, &(handle->order_params), warn_missing);
 
    if(TestInpId(in, "selection_strategy"))
    {

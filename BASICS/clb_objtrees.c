@@ -503,6 +503,22 @@ long PObjTreeNodes(PObjTree_p root)
    return res;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: DummyObjDelFun()
+//
+//   Do nothing, with a pointer ;-)
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void DummyObjDelFun(void* Junk)
+{
+}
+
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */

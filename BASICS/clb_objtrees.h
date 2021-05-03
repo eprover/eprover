@@ -66,13 +66,11 @@ void       PObjTreeFree(PObjTree_p root, ObjDelFun del_fun);
 
 long       PObjTreeNodes(PObjTree_p root);
 
+void       DummyObjDelFun(void* Junk);
+
+
 #endif
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
-
-
-
