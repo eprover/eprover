@@ -34,16 +34,16 @@ Changes
 //
 /----------------------------------------------------------------------*/
 
-void FormulaSetArithNorm(FormulaSet_p set, TB_p terms, GCAdmin_p gc) {
+void FormulaSetArithNorm(FormulaSet_p set, TB_p terms) {
    WFormula_p handle, anchor;
    anchor = set->anchor;
    handle = anchor;
 
-   for(handle = anchor->succ; handle != anchor; handle = handle->succ) 
-   {
-      printf("------\n");
-      PrintTermsDebug(handle->tformula, terms, 0);
-   }
+   //for(handle = anchor->succ; handle != anchor; handle = handle->succ) 
+   //{
+   //   printf("------\n");
+   //   PrintTermsDebug(handle->tformula, 0);
+   //}
    printf("Starting arithmetic normalisation\n");
    while((handle = handle->succ) != anchor)
    {
@@ -61,12 +61,11 @@ void FormulaSetArithNorm(FormulaSet_p set, TB_p terms, GCAdmin_p gc) {
       WFormulaPushDerivation(handle, DCArithNormalize, NULL, NULL);
    }
 
-   for(handle = anchor->succ; handle != anchor; handle = handle->succ) {
-      printf("------\n");
-      PrintTermsDebug(handle->tformula, terms, 0);
-   }
+   //for(handle = anchor->succ; handle != anchor; handle = handle->succ) {
+   //   printf("------\n");
+   //   PrintTermsDebug(handle->tformula, 0);
+   //}
    printf("Arithmetic normalisation finished\n");
-   GCCollect(gc);	  
 }
 
 /*-----------------------------------------------------------------------
@@ -74,21 +73,19 @@ void FormulaSetArithNorm(FormulaSet_p set, TB_p terms, GCAdmin_p gc) {
 // Function: PrintTermsDebug()
 //     Prints the termstructure with f_code.
 //
-//
-//
 // Global Variables: -
 //
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
 
-void PrintTermsDebug(TFormula_p form, TB_p terms, int depth)
+void PrintTermsDebug(TFormula_p form, int depth)
 {
    for(int i = 0; i < depth; i++) printf("\t");
    printf("fcode:%ld, properties:%x, type = %ld, arity=%d)", form->f_code, form->properties, form->type->f_code, form->arity);
    for ( int i = 0; i < form->type->arity; i++) printf(" arg%d:%ld",i,form->args[i]->f_code);
    printf("\n");
-   for( int i = 0; i < form->arity; i++) PrintTermsDebug(form->args[i], terms, depth +1);
+   for( int i = 0; i < form->arity; i++) PrintTermsDebug(form->args[i], depth +1);
 
 }
 
@@ -122,16 +119,6 @@ TFormula_p TFormulaArithNormalize(TB_p terms, TFormula_p form)
    {
       args[i] = TFormulaArithNormalize(terms, form->args[i]);
    }
-   //if(form->arity >= 1)
-   //{
-   //   arg1 = TFormulaArithNormalize(terms, form->args[0]);
-   //   //form->args[0] = arg1;
-   //}
-   //if(form->arity == 2)
-   //{
-   //   arg2 = TFormulaArithNormalize(terms, form->args[1]);
-   //   //form->args[1] = arg2;
-   //}
    
    if(form->f_code == terms->sig->eqn_code && 
          (form->args[0]->f_code == terms->sig->lesseq_code || 
@@ -238,97 +225,9 @@ TFormula_p TFormulaArithNormalize(TB_p terms, TFormula_p form)
    else {
       newform = TFormulaUnivFCodeAlloc(terms, form->f_code, form->type, args);
    }
+   SizeFree(args, sizeof(TFormula_p)*form->arity);
    assert(newform);
    return newform;
-}
-
-/*-----------------------------------------------------------------------
-//
-// Function: TFormulaArithFCodeAlloc()
-//    Wrapper for TFormulaUnivFCodeAlloc
-//    transforms both arguments into an argument array
-//
-// Global Variables: -
-//
-// Side Effects    : Memory Operations
-//
-/----------------------------------------------------------------------*/
-
-TFormula_p TFormulaArithFCodeAlloc(TB_p bank, FunCode op, Type_p FunType, TFormula_p arg1, TFormula_p arg2)
-{
-   TFormula_p res;
-   if(arg2 == NULL) 
-   {
-      TFormula_p args[1] = {arg1};
-      res = TFormulaUnivFCodeAlloc(bank, op, FunType, args);
-   }
-   else 
-   {
-      TFormula_p args[2] = {arg1, arg2};
-      res = TFormulaUnivFCodeAlloc(bank, op, FunType, args);
-   }
-   return res;
-}
-
-/*-----------------------------------------------------------------------
-//
-// Function: TFormulaArithFCodeAlloc()
-//    Pretty similar to TFormulaFCodeAlloc() but for all function arities and
-//    types are already known
-//    Creates a new Termcell and inserts into the termbank.
-//
-//
-// Global Variables: -
-//
-// Side Effects    : Memory Operations
-//
-/----------------------------------------------------------------------*/
-
-TFormula_p TFormulaUnivFCodeAlloc(TB_p bank, FunCode op, Type_p FunType, TFormula_p *args)
-{
-   int arity = SigFindArity(bank->sig, op);
-   TFormula_p res;
-   
-   assert(bank);
-   //assert(EQUIV((arity==2), args[1]));
-   // is this ok?
-   assert(args[arity-1]);
-
-   res = TermTopAlloc(op,arity);
-
-   if(SigIsPredicate(bank->sig, op))
-   {
-      TermCellSetProp(res, TPPredPos);
-   }
-   for( int i = 0; i < arity; i++) 
-   {
-      res->args[i] = args[i];
-   }
-
-   res->type = FunType;
-   
-   assert(bank);
-   
-   res = TBTermTopInsert(bank, res);
-
-   return res;
-}
-
-/*-----------------------------------------------------------------------
-//
-// Function: ACNormalizeHead()
-//    
-// Global Variables: -
-//
-// Side Effects    : Memory Operations
-//
-/----------------------------------------------------------------------*/
-TFormula_p ACNormalizeHead(TFormula_p acterm, TB_p bank)
-{
-   ACNorm_p res = ACNormalize(acterm, bank);
-   TFormula_p new = res->acterm;
-   SizeFree(res, sizeof(ACNormalizeCell));
-   return new;
 }
 
 /*-----------------------------------------------------------------------
@@ -367,6 +266,13 @@ ACNorm_p ACNormalize(TFormula_p acterm, TB_p bank )
          args[i] =  arg->acterm;
          SizeFree(arg, sizeof(ACNormalizeCell));
       }
+
+      // only interpreted functions propagate is_ground
+      if(!SigQueryFuncProp(bank->sig, acterm->f_code, FPInterpreted))
+      {
+         is_ground = false;
+      }
+      
       TFormula_p new = TFormulaUnivFCodeAlloc(bank, acterm->f_code, acterm->type, args);
 
       SizeFree(args, sizeof(TFormula_p) * acterm->arity);
@@ -448,6 +354,121 @@ void collect_ac_leafes(TFormula_p acterm, TB_p bank, FunCode rootcode, ACStruct_
          collect_ac_leafes(acterm->args[i], bank, rootcode, head);
       }
    }
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: TFormulaArithFCodeAlloc()
+//    Wrapper for TFormulaUnivFCodeAlloc
+//    transforms both arguments into an argument array
+//
+// Global Variables: -
+//
+// Side Effects    : Memory Operations
+//
+/----------------------------------------------------------------------*/
+
+TFormula_p TFormulaArithFCodeAlloc(TB_p bank, FunCode op, Type_p FunType, TFormula_p arg1, TFormula_p arg2)
+{
+   TFormula_p res;
+   if(arg2 == NULL) 
+   {
+      TFormula_p args[1] = {arg1};
+      res = TFormulaUnivFCodeAlloc(bank, op, FunType, args);
+   }
+   else 
+   {
+      TFormula_p args[2] = {arg1, arg2};
+      res = TFormulaUnivFCodeAlloc(bank, op, FunType, args);
+   }
+   return res;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: TFormulaArithFCodeAlloc()
+//    Pretty similar to TFormulaFCodeAlloc() but for all function arities and
+//    types are already known
+//    Creates a new Termcell and inserts into the termbank.
+//
+//
+// Global Variables: -
+//
+// Side Effects    : Memory Operations
+//
+/----------------------------------------------------------------------*/
+
+TFormula_p TFormulaUnivFCodeAlloc(TB_p bank, FunCode op, Type_p FunType, TFormula_p *args)
+{
+   int arity = SigFindArity(bank->sig, op);
+   TFormula_p res;
+   
+   assert(bank);
+   //assert(EQUIV((arity==2), args[1]));
+   assert(args[arity-1]);
+
+   res = TermTopAlloc(op,arity);
+
+   if(SigIsPredicate(bank->sig, op))
+   {
+      TermCellSetProp(res, TPPredPos);
+   }
+   for( int i = 0; i < arity; i++) 
+   {
+      res->args[i] = args[i];
+   }
+
+   res->type = FunType;
+   
+   assert(bank);
+   
+   res = TBTermTopInsert(bank, res);
+
+   return res;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: ACNormalizeHead()
+//    Wrapper, so only the uppermost Term (and nothing else) gets returned
+// Global Variables: -
+//
+// Side Effects    : Memory Operations
+//
+/----------------------------------------------------------------------*/
+TFormula_p ACNormalizeHead(TFormula_p acterm, TB_p bank)
+{
+   ACNorm_p res = ACNormalize(acterm, bank);
+   TFormula_p new = res->acterm;
+   SizeFree(res, sizeof(ACNormalizeCell));
+   return new;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseNormalizeAC()
+//    Wrapper for AC-normalisation while proofing
+//
+// Global Variables: -
+//
+// Side Effects    : Memory Operations
+//
+/----------------------------------------------------------------------*/
+
+void ClauseNormalizeAC(Clause_p clause, TB_p bank)
+{
+   Eqn_p list = clause->literals;
+   do
+   {
+      if(list == NULL) 
+      {
+         // i don't know, why this has to stay here?
+         return;
+      }
+      list->lterm = ACNormalizeHead(list->lterm, bank);
+      list->rterm = ACNormalizeHead(list->rterm, bank);
+
+   } while( (list = list->next) != NULL);
 }
 
 /*-----------------------------------------------------------------------

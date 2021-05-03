@@ -1511,10 +1511,8 @@ Term_p TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop)
             DStrFree(errpos);
          }
 
-         handle = tb_termtop_insert(bank, handle);
-         
          // Implementation of arithmetic symbols
-         TypeCheck2Fun checkFun = bank->sig->f_info[handle->f_code].arithTypeCheck;
+		 TypeCheck2Fun checkFun = bank->sig->f_info[handle->f_code].arithTypeCheck;
          
          if(checkFun != NULL)
          {
@@ -1523,7 +1521,8 @@ Term_p TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop)
                args[i] = handle->args[i]->type;
             }
 
-            handle->type = checkFun(bank->sig->type_bank, args[0], args[1]);
+            handle->type = checkFun(bank->sig->type_bank, args[0], 
+					handle->arity==2?args[1]:NULL);
 
             if(handle->type == NULL) {
                Error("%s %s argument types invalid (arg1: %ld, arg2: %ld)",
@@ -1540,8 +1539,10 @@ Term_p TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop)
              *      handle->args[1]?handle->args[1]->f_code:0, args[1]=NULL?0:args[1]->f_code);
             */
             SizeFree(args, handle->arity * sizeof(Type_p));
-
          }
+
+         handle = tb_termtop_insert(bank, handle);
+         
       }
       DStrFree(id);
    }

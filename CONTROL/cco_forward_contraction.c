@@ -197,10 +197,19 @@ bool ForwardModifyClause(ProofState_p state,
       ClauseQueryProp(clause, CPLimitedRW) did not change any more. */
    while(!done)
    {
-      ClauseComputeLINormalform(control->ocb,
-                                state->terms, clause,
-                                state->demods, level,
-                                control->heuristic_parms.prefer_general);
+      bool normalisation = true;
+      while(normalisation)
+      {
+         // arith normalisation here
+         // we only need to check, if there are changes in ClauseComputeLINormalform
+         // since if there are no changes, ClauseNormalizeAC() cant change anything else too.
+
+         ClauseNormalizeAC(clause, state->terms);
+       	normalisation = ClauseComputeLINormalform(control->ocb,
+                                   state->terms, clause,
+                                   state->demods, level,
+                                   control->heuristic_parms.prefer_general);
+      }
 
       limited_rw = ClauseQueryProp(clause, CPLimitedRW);
       removed_lits = ClauseRemoveSuperfluousLiterals(clause);

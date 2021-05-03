@@ -94,7 +94,8 @@ Type_p infer_return_sort(Sig_p sig, Term_p term, FunCode f_code)
 
 	TypeCheck2Fun checkfun = sig->f_info[f_code].arithTypeCheck;
    
-   if(checkfun != NULL) {
+   if(checkfun != NULL)
+   {
       res = checkfun(sig->type_bank, term->args[0]->type, term->arity==2?term->args[1]->type:NULL);
    } else if(SigQueryProp(sig, f_code, FPIsInteger) &&
       (sig->distinct_props & FPIsInteger))

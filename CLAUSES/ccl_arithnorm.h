@@ -25,7 +25,8 @@
 #include <cte_functypes.h>
 #include <cte_simpletypes.h>
 #include <ccl_derivation.h>
-#include <ccl_garbage_coll.h>
+#include <ccl_clauses.h>
+#include <ccl_eqn.h>
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
@@ -48,16 +49,17 @@ typedef struct acstruct_cell {
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-void FormulaSetArithNorm(FormulaSet_p set, TB_p terms, GCAdmin_p gc);
+void FormulaSetArithNorm(FormulaSet_p set, TB_p terms);
 TFormula_p TFormulaArithNormalize(TB_p term, TFormula_p form);
 TFormula_p TFormulaArithFCodeAlloc(TB_p bank, 
       FunCode op, Type_p FunType, TFormula_p arg1, TFormula_p arg2);
 TFormula_p TFormulaUnivFCodeAlloc(TB_p bank, 
       FunCode op, Type_p FunType, TFormula_p *args);
 
-void PrintTermsDebug(TFormula_p form, TB_p terms, int depth);
+void PrintTermsDebug(TFormula_p form, int depth);
 
 TFormula_p ACNormalizeHead(TFormula_p acterm, TB_p bank);
+void ClauseNormalizeAC(Clause_p clause, TB_p bank);
 ACNorm_p ACNormalize(TFormula_p acterm, TB_p bank);
 void collect_ac_leafes(TFormula_p acterm, TB_p bank, FunCode rootcode, ACStruct_p head);
 
