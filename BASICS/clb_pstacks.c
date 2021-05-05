@@ -160,8 +160,8 @@ double PStackComputeAverage(PStack_p stack, double *deviation)
    {
       for(i=0; i<PStackGetSP(stack); i++)
       {
-    variance+= (PStackElementInt(stack,i)-average)
-    *(PStackElementInt(stack,i)-average);
+         variance+= (PStackElementInt(stack,i)-average)
+       *(PStackElementInt(stack,i)-average);
       }
       variance = variance / (double)count;
    }
@@ -195,6 +195,52 @@ void PStackSort(PStack_p stack, ComparisonFunctionType cmpfun)
 
 /*-----------------------------------------------------------------------
 //
+// Function: PStackBinSearch()
+//
+//   Perform a binar search on the (ordered) stack between indices
+//   lower (inclusive) and upper (exclusive). Return index of key,
+//   when found, or index of the next bigger element if not.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+PStackPointer PStackBinSearch(PStack_p stack, void* key, PStackPointer lower,
+                              PStackPointer upper, ComparisonFunctionType cmpfun)
+{
+   PStackPointer i;
+   int cmpres;
+
+   while(lower < upper)
+   {
+      //printf("Upper: %ld Lower: %ld\n", upper, lower);
+      i = (lower+upper)/2;
+      //printf("Pip %ld\n",i);
+      cmpres = cmpfun(key, PStackElementP(stack, i));
+      //printf("Pup %d\n",cmpres);
+      if(cmpres < 0)
+      {
+         upper = i-1;
+      }
+      else if(cmpres > 0)
+      {
+         lower = i+1;
+      }
+      else
+      {
+         return i;
+      }
+   }
+   //printf("Regular exit\n");
+   return lower+1;
+}
+
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: PStackMerge()
 //
 //   Merge two sorted stacks onto a third. Discards duplicates.
@@ -206,7 +252,7 @@ void PStackSort(PStack_p stack, ComparisonFunctionType cmpfun)
 /----------------------------------------------------------------------*/
 
 void PStackMerge(PStack_p st1, PStack_p st2, PStack_p res,
-                     ComparisonFunctionType cmpfun)
+                 ComparisonFunctionType cmpfun)
 {
    IntOrP tmp;
    int cmpres;
@@ -292,5 +338,3 @@ void PStackPrintInt(FILE* out, char* format, PStack_p stack)
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-

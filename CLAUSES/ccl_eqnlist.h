@@ -52,6 +52,7 @@ bool    EqnListExistsTermExcept(Eqn_p list, Eqn_p except, TermPredicateFun_p pre
 int      EqnListLength(Eqn_p list);
 Eqn_p    EqnListFromArray(Eqn_p* array, int lenght);
 PStack_p EqnListToStack(Eqn_p list);
+Eqn_p    EqnListFromStack(PStack_p stack);
 
 Eqn_p   EqnListExtractElement(EqnRef element);
 #define EqnListExtractFirst(list)\

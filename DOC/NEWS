@@ -1,7 +1,21 @@
 This history describes the major differences between versions of the E
 equational theorem prover.
 
-Versopm 2.4 -> 2.5 Avongrove
+Version 2.5 ->
+
+- Much improved algorithm for finding maximal literals in long clauses
+- Much improved algorithm for identifying dual (conflicting) literals
+  in long clauses
+- Added max literal limit for full equational tautology check (we
+  should now really replace that with a congruence closure based
+  approach!)
+- Added DAGWeight() evaluation function (symbol-counts shared terms
+  only once, with different options for sharing regions (terms,
+  literals, clauses)
+- Improved support for thf and tfx.
+
+
+Version 2.4 -> 2.5 Avongrove
 
 - Clausal problems are now classified before equational definitions
   expansion, which moves equational definition expansion under control

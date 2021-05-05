@@ -1733,6 +1733,7 @@ Clause_p ClausePCLParse(Scanner_p in, TB_p bank)
 void ClauseMarkMaximalTerms(OCB_p ocb, Clause_p clause)
 {
    EqnListOrient(ocb, clause->literals);
+   // printf("Litno: %d\n", ClauseLiteralNumber(clause));
    EqnListMaximalLiterals(ocb, clause->literals);
    ClauseSetProp(clause, CPIsOriented);
 }

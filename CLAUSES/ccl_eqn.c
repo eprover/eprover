@@ -2135,15 +2135,16 @@ bool LiteralUnifyOneWay(Eqn_p eq1, Eqn_p eq2, Subst_p subst, bool swapped)
    return res;
 }
 
+
 /*-----------------------------------------------------------------------
 //
-// Function: LiteralSyntaxCompare()
+// Function: EqnSyntaxCompare()
 //
-//   Induce a total ordering on literals (modulo
-//   commutativity). Assumes that terms are perfectly shared. Negative
-//   literals are bigger than positive ones, equality literals are
-//   smaller than non-equational literals, the rest is done by
-//   comparing term bank entry_no.
+//   Induce a total ordering on equations (modulo  commutativity, but
+//   ignoring properties, including polarity). Assumes that terms are
+//   perfectly shared. Equality literals are smaller than
+//   non-equational literals, the rest is done by comparing term bank
+//   entry_no.
 //
 // Global Variables:
 //
@@ -2151,20 +2152,18 @@ bool LiteralUnifyOneWay(Eqn_p eq1, Eqn_p eq2, Subst_p subst, bool swapped)
 //
 /----------------------------------------------------------------------*/
 
-int LiteralSyntaxCompare(const void* l1, const void* l2)
+int EqnSyntaxCompare(const void* l1, const void* l2)
 {
    const Eqn_p eq1 = (const Eqn_p) l1;
    const Eqn_p eq2 = (const Eqn_p) l2;
    long e1, e2;
 
-   if(EqnIsPositive(eq1) && !EqnIsPositive(eq2))
-   {
-      return -1;
-   }
-   if(EqnIsPositive(eq2) && !EqnIsPositive(eq1))
-   {
-      return 1;
-   }
+   //printf("EqnSyntaxCompare()\n");
+   //EqnPrint(stdout, eq1, false, true);
+   //printf("\n");
+   //EqnPrint(stdout, eq2, false, true);
+   //printf("\n");
+
    if(EqnIsEquLit(eq1) && !EqnIsEquLit(eq2))
    {
       return -1;
@@ -2195,6 +2194,42 @@ int LiteralSyntaxCompare(const void* l1, const void* l2)
    }
    return 0;
 }
+
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: LiteralSyntaxCompare()
+//
+//   Induce a total ordering on literals (modulo
+//   commutativity). Assumes that terms are perfectly shared. Negative
+//   literals are bigger than positive ones, equality literals are
+//   smaller than non-equational literals, the rest is done by
+//   comparing term bank entry_no.
+//
+// Global Variables:
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+
+int LiteralSyntaxCompare(const void* l1, const void* l2)
+{
+   const Eqn_p eq1 = (const Eqn_p) l1;
+   const Eqn_p eq2 = (const Eqn_p) l2;
+
+   if(EqnIsPositive(eq1) && !EqnIsPositive(eq2))
+   {
+      return -1;
+   }
+   if(EqnIsPositive(eq2) && !EqnIsPositive(eq1))
+   {
+      return 1;
+   }
+   return EqnSyntaxCompare(l1, l2);
+}
+
+
 
 
 

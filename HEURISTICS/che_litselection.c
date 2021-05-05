@@ -2994,8 +2994,8 @@ void PSelectComplex(OCB_p ocb, Clause_p clause)
             weight = EqnStandardWeight(handle);
             if(weight < select_weight)
             {
-        select_weight = weight;
-        selected = handle;
+               select_weight = weight;
+               selected = handle;
             }
          }
          handle = handle->next;
@@ -3835,7 +3835,7 @@ void PSelectComplexExceptUniqMaxHorn(OCB_p ocb, Clause_p clause)
       ClauseCondMarkMaximalTerms(ocb, clause);
       if(EqnListQueryPropNumber(clause->literals, EPIsMaximal)==1)
       {
-    return;
+         return;
       }
    }
    PSelectComplex(ocb,clause);

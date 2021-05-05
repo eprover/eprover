@@ -97,12 +97,15 @@ static FVPackedClause_p forward_contract_keep(ProofState_p state, ProofControl_p
          }
          ClauseSetProp(clause, CPNoGeneration);
       }
-
       if(ClauseIsTautology(state->tmp_terms, clause))
       {
          (*trivial_count)++;
          return NULL;
       }
+      //printf("Weirdo: ");
+      //ClauseTSTPPrint(stdout, clause, true, true);
+      //printf("\n");
+
       assert(!ClauseIsTrivial(clause));
 
       clause->weight = ClauseStandardWeight(clause);
