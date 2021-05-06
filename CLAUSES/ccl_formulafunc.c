@@ -1381,11 +1381,12 @@ long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive,
    TFormulaSetLambdaNormalize(set, archive, terms);
    TFormulaSetLiftLambdas(set, archive, terms);
    TFormulaSetUnrollFOOL(set, archive, terms);
+   // printf("# Simplify\n");
    FormulaSetSimplify(set, terms);
 
-   //printf("# Introducing definitions\n");
+   // printf("# Introducing definitions\n");
    TFormulaSetIntroduceDefs(set, archive, terms);
-   //printf("# Definitions introduced\n");
+   // printf("# Definitions introduced\n");
 
    while(!FormulaSetEmpty(set))
    {
@@ -1680,7 +1681,7 @@ void TFormulaSetFindDefs(FormulaSet_p set, TB_p terms, NumXTree_p *defs,
    {
       assert(handle->tformula);
 
-      if(handle->tformula && FormulaDefLimit)
+      if(handle->tformula && !handle->is_clause && FormulaDefLimit)
       {
          TFormulaFindDefs(terms, handle->tformula, 1,
                           FormulaDefLimit, defs,  renamed_forms);

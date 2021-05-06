@@ -1395,6 +1395,7 @@ void ProofStateInit(ProofState_p state, ProofControl_p control)
       }
       ClauseSetInsert(state->unprocessed, new);
    }
+   OUTPRINT(1, "# Initializing proof state (3)\n");
    ClauseSetMarkSOS(state->unprocessed, control->heuristic_parms.use_tptp_sos);
    // printf("Before EvalTreeTraverseExit\n");
    EvalTreeTraverseExit(traverse);

@@ -2143,6 +2143,102 @@ bool LiteralUnifyOneWay(Eqn_p eq1, Eqn_p eq2, Subst_p subst, bool swapped)
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: EqnSyntaxCompare()
+//
+//   Induce a total ordering on equations (modulo  commutativity, but
+//   ignoring properties, including polarity). Assumes that terms are
+//   perfectly shared. Equality literals are smaller than
+//   non-equational literals, the rest is done by comparing term bank
+//   entry_no.
+//
+// Global Variables:
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+
+int EqnSyntaxCompare(const void* l1, const void* l2)
+{
+   const Eqn_p eq1 = (const Eqn_p) l1;
+   const Eqn_p eq2 = (const Eqn_p) l2;
+   long e1, e2;
+
+   //printf("EqnSyntaxCompare()\n");
+   //EqnPrint(stdout, eq1, false, true);
+   //printf("\n");
+   //EqnPrint(stdout, eq2, false, true);
+   //printf("\n");
+
+   if(EqnIsEquLit(eq1) && !EqnIsEquLit(eq2))
+   {
+      return -1;
+   }
+   if(EqnIsEquLit(eq2) &&  !EqnIsEquLit(eq1))
+   {
+      return 1;
+   }
+   e1 = MAX(eq1->lterm->entry_no,eq1->rterm->entry_no);
+   e2 = MAX(eq2->lterm->entry_no,eq2->rterm->entry_no);
+   if(e1<e2)
+   {
+      return -1;
+   }
+   if(e1>e2)
+   {
+      return 1;
+   }
+   e1 = MIN(eq1->lterm->entry_no,eq1->rterm->entry_no);
+   e2 = MIN(eq2->lterm->entry_no,eq2->rterm->entry_no);
+   if(e1<e2)
+   {
+      return -1;
+   }
+   if(e1>e2)
+   {
+      return 1;
+   }
+   return 0;
+}
+
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: LiteralSyntaxCompare()
+//
+//   Induce a total ordering on literals (modulo
+//   commutativity). Assumes that terms are perfectly shared. Negative
+//   literals are bigger than positive ones, equality literals are
+//   smaller than non-equational literals, the rest is done by
+//   comparing term bank entry_no.
+//
+// Global Variables:
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+
+int LiteralSyntaxCompare(const void* l1, const void* l2)
+{
+   const Eqn_p eq1 = (const Eqn_p) l1;
+   const Eqn_p eq2 = (const Eqn_p) l2;
+
+   if(EqnIsPositive(eq1) && !EqnIsPositive(eq2))
+   {
+      return -1;
+   }
+   if(EqnIsPositive(eq2) && !EqnIsPositive(eq1))
+   {
+      return 1;
+   }
+   return EqnSyntaxCompare(l1, l2);
+}
+
+
+
+
 
 /*-----------------------------------------------------------------------
 //
@@ -2506,23 +2602,23 @@ double  EqnDAGWeight(Eqn_p eq, double max_multiplier, long vweight, long
 
    if(new_eqn)
    {
-      EqnTermSetProp(eq, TPOpFlag);
+      EqnTermDelProp(eq, TPOpFlag);
    }
    else if(new_terms)
    {
       TermDelPropOpt(eq->lterm, TPOpFlag);
    }
-   lweight = TermDAGWeight(eq->lterm, vweight, fweight, dup_weight, false);
-   rweight = TermDAGWeight(eq->rterm, vweight, fweight, dup_weight, new_terms);
-
+   lweight = TermDAGWeight(eq->lterm, fweight, vweight, dup_weight, false);
+   rweight = TermDAGWeight(eq->rterm, fweight, vweight, dup_weight, new_terms);
+   //printf("(%ld/%ld)\n", lweight, rweight);
 
    if(EqnIsOriented(eq))
    {
-      res = (double)rweight*max_multiplier;
+      res = (double)rweight;
    }
    else
    {
-      res = (double)rweight;
+      res = (double)rweight*max_multiplier;
    }
    res += (double)lweight*max_multiplier;
    return res;
@@ -2558,9 +2654,10 @@ double EqnFunWeight(Eqn_p eq, double max_multiplier, long vweight,
       res *= max_multiplier;
    }
 
-   res += TERM_APPLY_APP_VAR_MULT((double)TermFsumWeight(eq->lterm, vweight, flimit, fweights,
-                                                            default_fweight, typefreqs) * max_multiplier,
-                                     eq->lterm, app_var_mult);
+   res += TERM_APPLY_APP_VAR_MULT(
+      (double)TermFsumWeight(eq->lterm, vweight, flimit, fweights,
+                             default_fweight, typefreqs) * max_multiplier,
+      eq->lterm, app_var_mult);
 
    return res;
 }

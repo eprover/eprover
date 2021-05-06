@@ -1,10 +1,10 @@
 /*-----------------------------------------------------------------------
 
-File  : ccl_tautologies.c
+  File  : ccl_tautologies.c
 
-Author: Stephan Schulz
+  Author: Stephan Schulz
 
-Contents
+  Contents
 
   Functions for detecting tautologies using the algorithm suggested by
   Roberto Nieuwenhuis: Do ground completion on negative literals, see
@@ -16,10 +16,7 @@ Contents
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
-
-<1> Tue May  4 17:41:06 MEST 1999
-    New
+  Created:  Tue May  4 17:41:06 MEST 1999
 
 -----------------------------------------------------------------------*/
 
@@ -75,19 +72,19 @@ CompareResult TO_ground_compare(Term_p t1, Term_p t2)
 
       if(w1<w2)
       {
-    res = to_lesser;
+         res = to_lesser;
       }
       else if(w1>w2)
       {
-    res = to_greater;
+         res = to_greater;
       }
       else if(t1->f_code < t2->f_code)
       {
-    res = to_lesser;
+         res = to_lesser;
       }
       else if(t1->f_code > t2->f_code)
       {
-    res = to_greater;
+         res = to_greater;
       }
       else if(t1->arity < t2->arity)
       {
@@ -99,13 +96,13 @@ CompareResult TO_ground_compare(Term_p t1, Term_p t2)
       }
       if(res!= to_equal)
       {
-    break;
+         break;
       }
       assert(problemType == PROBLEM_HO || t1->arity == t2->arity);
       for(i = 0; i<t1->arity; i++)
       {
-    PStackPushP(stack, t1->args[i]);
-    PStackPushP(stack, t2->args[i]);
+         PStackPushP(stack, t1->args[i]);
+         PStackPushP(stack, t2->args[i]);
       }
    }
    PStackFree(stack);
@@ -166,19 +163,19 @@ static bool term_compute_top_nf(TermRef ref, Eqn_p eqns)
    {
       if(EqnQueryProp(handle, EPGONatural))
       {
-    lside = handle->lterm;
-    rside = handle->rterm;
+         lside = handle->lterm;
+         rside = handle->rterm;
       }
       else
       {
-    lside = handle->rterm;
-    rside = handle->lterm;
+         lside = handle->rterm;
+         rside = handle->lterm;
       }
       if(TermStructEqualNoDeref(lside, *ref))
       {
-    TermFree(*ref);
-    *ref = TermCopy(rside, handle->bank->vars, false);
-    return true;
+         TermFree(*ref);
+         *ref = TermCopy(rside, handle->bank->vars, false);
+         return true;
       }
       handle = handle->next;
    }
@@ -283,12 +280,12 @@ static void ground_backward_contract(EqnRef from, Eqn_p eqns, EqnRef to)
       res = ground_normalize_eqn(*from, eqns);
       if(res)
       {
-    handle = EqnListExtractFirst(from);
-    EqnListInsertFirst(to, handle);
+         handle = EqnListExtractFirst(from);
+         EqnListInsertFirst(to, handle);
       }
       else
       {
-    from = &((*from)->next);
+         from = &((*from)->next);
       }
    }
 }
@@ -321,8 +318,8 @@ static void ground_complete_neg_eqns(EqnRef list)
       ground_normalize_eqn(handle, proc);
       if(handle->lterm==handle->rterm)
       {
-    EqnFree(handle);
-    continue;
+         EqnFree(handle);
+         continue;
       }
       cmp = ground_orient_eqn(handle);
       UNUSED(cmp); assert(cmp);
@@ -357,18 +354,19 @@ bool ClauseIsTautology(TB_p work_bank, Clause_p clause)
    Clause_p work_copy;
    bool     res = false;
 
-   for(handle = clause->literals; handle; handle = handle->next)
+   if(EqnListFindTrue(clause->literals))
    {
-      if(EqnIsTrue(handle))
-      {
-         return true;
-      }
+      return true;
    }
    if((clause->pos_lit_no==0) || (clause->neg_lit_no==0))
    {
       return false;
    }
-
+   if(clause->neg_lit_no > MAX_EQ_TAUTOLOGY_CHECK_LITNO)
+   { /* Emergency exit for large clauses! */
+      //printf("# ClauseIsTautology() - neg_lit_no: %d\n", clause->neg_lit_no);
+      return ClauseIsTrivial(clause);
+   }
    work_copy = ClauseCopy(clause, work_bank);
    rw_system = EqnListExtractByProps(&(work_copy->literals),
                                      EPIsPositive, true);
@@ -397,12 +395,10 @@ bool ClauseIsTautology(TB_p work_bank, Clause_p clause)
    ClauseFree(work_copy);
 
    return res;
-   }
+}
 
 
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-

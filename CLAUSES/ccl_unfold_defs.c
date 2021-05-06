@@ -324,7 +324,6 @@ long ClauseSetPreprocess(ClauseSet_p set, ClauseSet_p passive,
       ClauseSetReplaceInjectivityDefs(set,archive,terms);
    }
    ClauseSetCanonize(set);
-
    return res;
 }
 

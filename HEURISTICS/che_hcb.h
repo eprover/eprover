@@ -51,7 +51,7 @@ typedef enum
    ACKeepOrientable
 }ACHandlingType;
 
-typedef enum 
+typedef enum
 {
    AllLits,
    MaxLits,
@@ -67,6 +67,9 @@ typedef enum
 
 typedef struct heuristic_parms_cell
 {
+   /* Ordering elements */
+   OrderParmsCell      order_params;
+
    /* Preprocessing */
    bool                no_preproc;
    long                eqdef_maxclauses;
@@ -76,9 +79,6 @@ typedef struct heuristic_parms_cell
    char                *heuristic_name;
    char                *heuristic_def;
    bool                prefer_initial_clauses;
-
-   /* Ordering elements */
-   OrderParmsCell      order_params;
 
    /* Elements controling literal selection */
    LiteralSelectionFun selection_strategy;

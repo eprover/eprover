@@ -144,8 +144,8 @@ typedef struct clause_cell
    SysDate               date;        /* ...at which this clause
                                          became a demodulator */
    Eqn_p                 literals;    /* List of literals */
-   short                 neg_lit_no;  /* Negative literals */
-   short                 pos_lit_no;  /* Positive literals */
+   int                   neg_lit_no;  /* Negative literals */
+   int                   pos_lit_no;  /* Positive literals */
    FormulaProperties     properties;  /* Anything we want to note at
                                          the clause? */
    long                  weight;      /* ClauseStandardWeight()

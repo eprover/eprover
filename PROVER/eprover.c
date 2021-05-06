@@ -445,6 +445,7 @@ int main(int argc, char* argv[])
       VERBOUT("Negated conjectures.\n");
    }
 
+   VERBOUT("Clausification started.\n");
    if(new_cnf)
    {
       cnf_size = FormulaSetCNF2(proofstate->f_axioms,
@@ -464,6 +465,7 @@ int main(int argc, char* argv[])
                                proofstate->freshvars,
                                proofstate->gc_terms);
    }
+   VERBOUT("Clausification done.\n");
 
    if(cnf_size)
    {
@@ -481,6 +483,7 @@ int main(int argc, char* argv[])
       //{
       //   ClauseSetArchiveCopy(proofstate->ax_archive, proofstate->watchlist);
       //}
+      VERBOUT("Clausal preprocessing started.\n");
       preproc_removed = ClauseSetPreprocess(proofstate->axioms,
                                             proofstate->watchlist,
                                             proofstate->archive,
@@ -489,18 +492,20 @@ int main(int argc, char* argv[])
                                             h_parms->replace_inj_defs,
                                             h_parms->eqdef_incrlimit,
                                             h_parms->eqdef_maxclauses);
+      VERBOUT("Clausal preprocessing complete.\n");
    }
+   //HeuristicParmsPrint(stdout, h_parms);
 
    proofcontrol = ProofControlAlloc();
    ProofControlInit(proofstate, proofcontrol, h_parms,
                     fvi_parms, wfcb_definitions, hcb_definitions);
-   /* HeuristicParmsPrint(stdout, h_parms); */
+
    /* Scanner_p hin = CreateScanner(StreamTypeFile, "bla.txt", true, NULL, true); */
    /* HeuristicParms_p parms = HeuristicParmsParse(hin, true); */
    /* DestroyScanner(hin); */
+   /* printf("# Parsed\n"); */
    /* HeuristicParmsPrint(stdout, parms); */
    /* HeuristicParmsFree(parms); */
-
 
    // Unfold definitions and re-normalize
    preproc_removed += ClauseSetUnfoldEqDefNormalize(proofstate->axioms,
@@ -1705,7 +1710,7 @@ CLState_p process_options(int argc, char* argv[])
             } else if (!strcmp(arg, "max"))
             {
                h_parms->neg_ext = MaxLits;
-            } else 
+            } else
             {
                Error("neg-ext excepts either all or max", 0);
             }
@@ -1717,7 +1722,7 @@ CLState_p process_options(int argc, char* argv[])
             } else if (!strcmp(arg, "max"))
             {
                h_parms->pos_ext = MaxLits;
-            } else 
+            } else
             {
                Error("pos-ext excepts either all or max", 0);
             }

@@ -1,24 +1,21 @@
 /*-----------------------------------------------------------------------
 
-File  : ccl_eqnlist.h
+  File  : ccl_eqnlist.h
 
-Author: Stephan Schulz
+  Author: Stephan Schulz
 
-Contents
+  Contents
 
-   Functions for dealing with (singly linked) lists of equations as
-   used in clauses.
+  Functions for dealing with (singly linked) lists of equations as
+  used in clauses.
 
-  Copyright 1998, 1999 by the author.
+  Copyright 1998, 1999, 2021 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
-
-Created: Fri Apr 10 16:46:17 MET DST 1998
-New
+  Created: Fri Apr 10 16:46:17 MET DST 1998
 
 -----------------------------------------------------------------------*/
 
@@ -27,6 +24,7 @@ New
 #define CCL_EQNLIST
 
 #include <ccl_eqn.h>
+#include <clb_objtrees.h>
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
@@ -54,6 +52,7 @@ bool    EqnListExistsTermExcept(Eqn_p list, Eqn_p except, TermPredicateFun_p pre
 int      EqnListLength(Eqn_p list);
 Eqn_p    EqnListFromArray(Eqn_p* array, int lenght);
 PStack_p EqnListToStack(Eqn_p list);
+Eqn_p    EqnListFromStack(PStack_p stack);
 
 Eqn_p   EqnListExtractElement(EqnRef element);
 #define EqnListExtractFirst(list)\

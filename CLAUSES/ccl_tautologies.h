@@ -40,6 +40,8 @@ Changes
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
+#define MAX_EQ_TAUTOLOGY_CHECK_LITNO 1000
+
 bool ClauseIsTautology(TB_p work_bank, Clause_p clause);
 
 #endif
@@ -47,10 +49,3 @@ bool ClauseIsTautology(TB_p work_bank, Clause_p clause);
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
-
-
-
-
-

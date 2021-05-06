@@ -498,6 +498,7 @@ long ProofStateRelevancyProcess(ProofState_p state, long level)
    {
       return 0;
    }
+   VERBOUT("Relevance extraction started.\n");
    reldata = RelevanceDataCompute(state);
 
    old_axno = ProofStateAxNo(state);
@@ -505,6 +506,7 @@ long ProofStateRelevancyProcess(ProofState_p state, long level)
    new_axno = ProofStateAxNo(state);
 
    RelevanceFree(reldata);
+   VERBOUT("Relevance extraction done.\n");
 
   return old_axno-new_axno;
 }

@@ -100,6 +100,9 @@ static inline IntOrP *PStackElementRef(PStack_p stack, PStackPointer pos);
 void     PStackDiscardElement(PStack_p stack, PStackPointer i);
 
 void     PStackSort(PStack_p stack, ComparisonFunctionType cmpfun);
+PStackPointer PStackBinSearch(PStack_p stack, void* key, PStackPointer lower,
+                              PStackPointer upper, ComparisonFunctionType cmpfun);
+
 void     PStackMerge(PStack_p st1, PStack_p st2, PStack_p res,
                      ComparisonFunctionType cmpfun);
 
