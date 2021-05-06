@@ -908,7 +908,8 @@ bool PTreeIsSubset(PTree_p sub, PTree_p *super)
 // Function: PTreeVisitInOrder()
 //
 //   Apply function visitor to every key stored in PTree t. Nodes will be
-//   visited as in inorder traversal.
+//   visited as in inorder traversal. "arg" is an additional (first)
+//   arg to the visitor function.
 //
 // Global Variables: -
 //
@@ -916,14 +917,14 @@ bool PTreeIsSubset(PTree_p sub, PTree_p *super)
 //
 /----------------------------------------------------------------------*/
 
-void  PTreeVisitInOrder(PTree_p t, void (*visitor)(void*))
+void  PTreeVisitInOrder(PTree_p t, void (*visitor)(void*, void*), void* arg)
 {
    PStack_p iter = PTreeTraverseInit(t);
    PTree_p  handle = NULL;
 
    while((handle = PTreeTraverseNext(iter)))
    {
-      visitor(handle->key);
+      visitor(arg, handle->key);
    }
 
    PTreeTraverseExit(iter);

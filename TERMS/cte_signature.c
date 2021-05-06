@@ -704,7 +704,7 @@ FunCode SigInsertLetId(Sig_p sig, const char* name, Type_p type)
    sig->f_info[sig->f_count].type = type;
    sig->f_info[sig->f_count].feature_offset = -1;
    FuncSetProp(&(sig->f_info[sig->f_count]), FPTypeFixed);
-   
+
    sig->alpha_ranks_valid = false;
 
    return sig->f_count;
@@ -1924,7 +1924,7 @@ void SigEnterLetScope(Sig_p sig, PStack_p type_decls)
          PStackPushInt(scope, TMP_LET_ID);
          PStackPushP(scope, name);
 
-         IntOrP id_tree = {.i_val = id}, dummy;
+         IntOrP id_tree = {.i_val = id}, dummy = {.i_val = 0};
 
          StrTreeStore(&(sig->f_index), name, id_tree, dummy);
       }
@@ -1962,7 +1962,7 @@ void  SigExitLetScope(Sig_p sig)
       {
          StrTreeDeleteEntry(&(sig->f_index), name);
       }
-      
+
    }
 
    PStackFree(scope);

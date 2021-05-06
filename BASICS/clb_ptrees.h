@@ -98,8 +98,7 @@ PTree_p PTreeCopy(PTree_p tree1);
 bool    PTreeEquiv(PTree_p t1, PTree_p t2);
 bool    PTreeIsSubset(PTree_p sub, PTree_p *super);
 
-
-void    PTreeVisitInOrder(PTree_p t, void (*visitor)(void*));
+void    PTreeVisitInOrder(PTree_p t, void (*visitor)(void*, void*), void* arg);
 
 AVL_TRAVERSE_DECLARATION(PTree, PTree_p)
 #define PTreeTraverseExit(stack) PStackFree(stack)
