@@ -41,6 +41,7 @@ typedef struct clauseposcell
    Eqn_p     literal;
    EqnSide   side;
    TermPos_p pos;
+   void*     data;
 }ClausePosCell, *ClausePos_p;
 
 typedef struct match_info_cell {
@@ -52,9 +53,12 @@ typedef struct match_info_cell {
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
+typedef void (*Deleter)(void*);
+
 
 #define ClausePosCellAlloc() (ClausePosCell*)SizeMalloc(sizeof(ClausePosCell))
 #define ClausePosCellFree(junk)         SizeFree(junk, sizeof(ClausePosCell))
+static inline void    ClausePosCellFreeWDeleter(ClausePos_p junk, Deleter del);
 
 #define MatchResAlloc()      (MatchRes_p) SizeMalloc(sizeof(MatchResCell))
 #define MatchResFree(junk)   SizeFree(junk, sizeof(MatchResCell))
@@ -66,7 +70,8 @@ typedef struct match_info_cell {
 #endif
 
 static inline ClausePos_p ClausePosAlloc(void);
-static inline void        ClausePosFree(ClausePos_p junk);
+static inline void        ClausePosFreeWDeleter(ClausePos_p junk, Deleter deleter);
+#define ClausePosFree(junk) ClausePosFreeWDeleter(junk, NULL)
 
 static inline Term_p   ClausePosGetSide(ClausePos_p pos);
 static inline Term_p   ClausePosGetOtherSide(ClausePos_p pos);
@@ -117,6 +122,29 @@ static inline ClausePos_p ClausePosAlloc(void)
 
 /*-----------------------------------------------------------------------
 //
+// Function:  ClausePosCellFreeWDeleter()
+//
+//   Free a clause pos cell and use deleter on junk->data
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+static inline void ClausePosCellFreeWDeleter(ClausePos_p junk, Deleter deleter)
+{
+   assert(junk);
+
+   if(deleter)
+   {
+      deleter(junk);
+   }
+   ClausePosCellFree(junk);
+}
+
+/*-----------------------------------------------------------------------
+//
 // Function:  ClausePosFree()
 //
 //   Free a clausepos.
@@ -127,12 +155,16 @@ static inline ClausePos_p ClausePosAlloc(void)
 //
 /----------------------------------------------------------------------*/
 
-static inline void ClausePosFree(ClausePos_p junk)
+static inline void ClausePosFreeWDeleter(ClausePos_p junk, Deleter deleter)
 {
    assert(junk);
 
    TermPosFree(junk->pos);
    ClausePosCellFree(junk);
+   if(deleter)
+   {
+      deleter(junk->data);
+   }
 }
 
 

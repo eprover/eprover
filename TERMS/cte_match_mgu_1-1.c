@@ -147,6 +147,14 @@ int PartiallyMatchVar(Term_p var_matcher, Term_p to_match, Sig_p sig,
    Type_p term_head_type = GetHeadType(sig, to_match);
    Type_p matcher_type   = var_matcher->type;
 
+   if(!term_head_type || TermIsLambda(to_match))
+   {
+      // ad-hoc polymorphic type -- at the moment we cannot
+      // determine these types :(
+      return MATCH_FAILED;
+   }
+
+
    if(matcher_type == to_match->type)
    {
       args_to_eat = ARG_NUM(to_match);
@@ -837,6 +845,8 @@ __inline__ int SubstMatchPossiblyPartial(Term_p pattern, Term_p target, Subst_p 
 UnificationResult SubstMguPossiblyPartial(Term_p t, Term_p s, Subst_p subst)
 {
    UnificationResult res;
+   PStackPointer backtrack = PStackGetSP(subst);
+   
    if(problemType == PROBLEM_FO)
    {
       res = (UnificationResult) {SubstComputeMgu(t,s,subst) ? RightTerm : NoTerm, 0};
@@ -844,6 +854,11 @@ UnificationResult SubstMguPossiblyPartial(Term_p t, Term_p s, Subst_p subst)
    else
    {
       res = SubstComputeMguHO(t,s,subst);
+      if(res.term_remaining != 0)
+      {
+         res = UNIF_FAILED;
+         SubstBacktrackToPos(subst, backtrack);
+      }
    }
 
    return res;

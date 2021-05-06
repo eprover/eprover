@@ -71,8 +71,13 @@ char *opids[] =
    PCL_FU,
    PCL_EBV,
    /* HO inferences */
+   PCL_DYN_CNF,
+   PCL_FLEX_RESOLVE,
+   PCL_ARG_CONG,
    PCL_NEG_EXT,
    PCL_POS_EXT,
+   PCL_EXT_SUP,
+   PCL_EXT_EQRES,
    PCL_INV_REC
 };
 
@@ -116,6 +121,11 @@ char *optheory [] =
    NULL,
    NULL,
    /* HO inferences */
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
    NULL,
    NULL,
    NULL
@@ -162,6 +172,11 @@ char *opstatus [] =
    "thm",
    "thm",
    /* HO */
+   "thm",
+   "thm",
+   "thm",
+   "thm",
+   "thm",
    "thm",
    "thm",
    "thm"

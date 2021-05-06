@@ -101,6 +101,7 @@ typedef struct pd_tree_cell
                                     been visited? */
    TB_p      bank;            /* When we make a prefix term, we want to
                                  make it shared */
+   Deleter   deleter;         /* frees the extra data stored in ClausePos_p */
 }PDTreeCell, *PDTree_p;
 
 
@@ -137,7 +138,8 @@ extern unsigned long PDTNodeCounter;
 #define PDTREE_CELL_MEM MEMSIZE(PDTreeCell)
 #endif
 
-PDTree_p  PDTreeAlloc(TB_p bank);
+PDTree_p  PDTreeAllocWDeleter(TB_p bank, Deleter deleter);
+#define   PDTreeAlloc(bank) (PDTreeAllocWDeleter(bank, NULL))
 void      PDTreeFree(PDTree_p tree);
 
 #ifdef CONSTANT_MEM_ESTIMATE
@@ -164,7 +166,7 @@ extern bool PDTreeUseSizeConstraints;
 #define   PDTNodeCellAlloc()    (PDTNodeCell*)SizeMalloc(sizeof(PDTNodeCell))
 #define   PDTNodeCellFree(junk) SizeFree(junk, sizeof(PDTNodeCell))
 PDTNode_p PDTNodeAlloc(void);
-void      PDTNodeFree(PDTNode_p tree);
+void      PDTNodeFree(PDTNode_p tree, Deleter deleter);
 
 void      TermLRTraverseInit(PStack_p stack, Term_p term);
 Term_p    TermLRTraverseNext(PStack_p stack);

@@ -1493,6 +1493,10 @@ FormulaProperties ClauseTypeParse(Scanner_p in, char *legal_types)
                 "axiom|definition|theorem"))
    {
       res = CPTypeAxiom;
+      if(problemType == PROBLEM_HO && TestInpId(in, "definition"))
+      {
+         res = res | CPIsLambdaDef;
+      }
    }
    else if(TestInpId(in, "question"))
    {

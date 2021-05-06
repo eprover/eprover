@@ -90,6 +90,9 @@ typedef struct tbcell
    TermCellStoreCell term_store; /* Here are the terms */
 }TBCell, *TB_p;
 
+// functions from a term to a **SHARED** term
+typedef Term_p (*TermMapper)(TB_p, Term_p);
+
 
 
 /*---------------------------------------------------------------------*/
@@ -141,8 +144,6 @@ Term_p  TBInsertInstantiated(TB_p bank, Term_p term);
 #define TBInsertInstantiated(bank, term) (TBInsertInstantiatedFO(bank, term))
 #endif
 
-Term_p  TBTermParseRealHO(Scanner_p in, TB_p bank, bool check_symb_prop);
-
 Term_p  TBInsertOpt(TB_p bank, Term_p term, DerefType deref);
 Term_p  TBInsertDisjoint(TB_p bank, Term_p term);
 
@@ -160,6 +161,9 @@ void    TBPrintTermCompact(FILE* out, TB_p bank, Term_p term);
 void    TBPrintTerm(FILE* out, TB_p bank, Term_p term, bool fullterms);
 void    TBPrintBankTerms(FILE* out, TB_p bank);
 Term_p  TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop);
+Term_p  ParseLet(Scanner_p in, TB_p bank);
+Term_p  ParseIte(Scanner_p in, TB_p bank);
+
 
 void    TBRefSetProp(TB_p bank, TermRef ref, TermProperties prop);
 void    TBRefDelProp(TB_p bank, TermRef ref, TermProperties prop);
@@ -178,6 +182,7 @@ Term_p  TBGetFirstConstTerm(TB_p bank, Type_p sort);
 Term_p  TBGetFreqConstTerm(TB_p terms, Type_p sort,
                            long* conj_dist_array,
                            long* dist_array, FunConstCmpFunType is_better);
+Term_p  TermMap(TB_p bank, Term_p t, TermMapper f);
 
 
 
@@ -187,28 +192,13 @@ Term_p  TBGetFreqConstTerm(TB_p terms, Type_p sort,
 
 static inline Term_p  TBTermParse(Scanner_p in, TB_p bank)
 {
-   if(problemType == PROBLEM_HO)
-   {
-      return TBTermParseRealHO(in, bank, true);
-   }
-   else
-   {
-      assert(problemType == PROBLEM_FO);
-      return TBTermParseReal(in, bank, true);
-   }
+   return TBTermParseReal(in, bank, true);
 }
 
 static inline Term_p TBRawTermParse(Scanner_p in, TB_p bank)
 {
-   if(problemType == PROBLEM_HO)
-   {
-      return TBTermParseRealHO(in, bank, false);
-   }
-   else
-   {
-      assert(problemType == PROBLEM_FO);
-      return TBTermParseReal(in, bank, false);
-   }
+   return TBTermParseReal(in, bank, false);
+   
 }
 
 #endif

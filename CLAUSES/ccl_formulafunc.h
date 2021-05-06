@@ -93,8 +93,13 @@ long TFormulaSetIntroduceDefs(FormulaSet_p set,
 void FormulaSetArchive(FormulaSet_p set, FormulaSet_p archive);
 void FormulaSetDocInital(FILE* out, long level, FormulaSet_p set);
 
+long TFormulaSetLiftItes(FormulaSet_p set, FormulaSet_p archive, TB_p terms);
+long TFormulaSetLiftLets(FormulaSet_p set, FormulaSet_p archive, TB_p terms);
 long TFormulaSetUnrollFOOL(FormulaSet_p set, FormulaSet_p archive, TB_p terms);
+long TFormulaSetLambdaNormalize(FormulaSet_p set, FormulaSet_p archive, TB_p terms);
+long TFormulaSetUnfoldLogSymbols(FormulaSet_p set, FormulaSet_p archive, TB_p terms);
 bool TFormulaUnrollFOOL(WFormula_p form, TB_p terms);
+long TFormulaSetLiftLambdas(FormulaSet_p set, FormulaSet_p archive, TB_p terms);
 
 
 #endif

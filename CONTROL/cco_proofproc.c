@@ -516,7 +516,7 @@ void simplify_watchlist(ProofState_p state, ProofControl_p control,
 static void generate_new_clauses(ProofState_p state, ProofControl_p
                                  control, Clause_p clause, Clause_p tmp_copy)
 {
-   ComputeHOInferences(state,control,clause);
+   ComputeHOInferences(state,control,tmp_copy,clause);
    if(control->heuristic_parms.enable_eq_factoring)
    {
       state->factor_count+=
@@ -748,6 +748,11 @@ Clause_p replacing_inferences(ProofState_p state, ProofControl_p
    long     clause_count;
    Clause_p res = pclause->clause;
 
+   if(problemType == PROBLEM_HO && DestructEquivalences(res, state->tmp_store, state->archive))
+   {
+      pclause->clause = NULL;
+   }
+   else 
    if(control->heuristic_parms.er_varlit_destructive &&
       (clause_count =
        ClauseERNormalizeVar(state->terms,
@@ -1417,7 +1422,8 @@ void ProofStateInit(ProofState_p state, ProofControl_p control)
                      state->signature,
                      control->heuristic_parms.rw_bw_index_type,
                      control->heuristic_parms.pm_from_index_type,
-                     control->heuristic_parms.pm_into_index_type);
+                     control->heuristic_parms.pm_into_index_type,
+                     control->heuristic_parms.ext_sup_max_depth);
 
 }
 

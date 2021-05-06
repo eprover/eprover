@@ -508,11 +508,13 @@ WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms)
       }
       else
       {
-         //printf("# TFormula Start!\n");
+         // fprintf(stderr, "# TFormula Start!\n");
          tform = TFormulaTSTPParse(in, terms);
-         //printf("# TFormula parsed!: ");
-         //TFormulaTPTPPrint(stdout, terms, tform, true, false);
-         //printf("\n");
+         // fprintf(stderr, "# TFormula parsed!: ");
+         // TFormulaTPTPPrint(stderr, terms, tform, true, false);
+         // fprintf(stderr, " : ");
+         // TermPrintDbgHO(stderr, tform, terms->sig, DEREF_NEVER);
+         // fprintf(stderr, ";\n");
       }
 
 
@@ -628,7 +630,6 @@ void WFormulaTSTPPrint(FILE* out, WFormula_p form, bool fullterms,
    }
    else
    {
-      //fprintf(out, "");
       TFormulaTPTPPrint(out, form->terms, form->tformula,fullterms, false);
       //fprintf(out, "");
       //fprintf(out, "<dummy %p in %p>", form->tformula, form->terms);

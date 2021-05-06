@@ -161,6 +161,7 @@ ProofState_p parse_spec(CLState_p state,
                                proofstate->terms,
                                NULL,
                                &skip_includes);
+      // exit(-1);
       CheckInpTok(in, NoToken);
       DestroyScanner(in);
    }
@@ -521,7 +522,8 @@ int main(int argc, char* argv[])
                      proofstate->signature,
                      proofcontrol->heuristic_parms.rw_bw_index_type,
                      "NoIndex",
-                     "NoIndex");
+                     "NoIndex",
+                     proofcontrol->heuristic_parms.ext_sup_max_depth);
    //printf("Alive (1)!\n");
 
    ProofStateInit(proofstate, proofcontrol);
@@ -1686,6 +1688,21 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_APP_ENCODE:
             app_encode = true;
             break;
+      case OPT_ARG_CONG:
+            if(!strcmp(arg, "all"))
+            {
+               h_parms->arg_cong = AllLits;
+            } else if (!strcmp(arg, "max"))
+            {
+               h_parms->arg_cong = MaxLits;
+            } else if (!strcmp(arg, "off"))
+            {
+               h_parms->arg_cong = NoLits;
+            } else 
+            {
+               Error("neg-ext excepts either all, max or off", 0);
+            }
+            break;
       case OPT_NEG_EXT:
             if(!strcmp(arg, "all"))
             {
@@ -1709,6 +1726,10 @@ CLState_p process_options(int argc, char* argv[])
             {
                Error("pos-ext excepts either all or max", 0);
             }
+            break;
+      case OPT_EXT_SUP:
+            h_parms->ext_sup_max_depth =
+               CLStateGetIntArgCheckRange(handle, arg, -1, INT_MAX);
             break;
       case OPT_INVERSE_RECOGNITION:
             h_parms->inverse_recognition = true;

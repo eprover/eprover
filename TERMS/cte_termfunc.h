@@ -55,6 +55,7 @@ void   VarPrint(FILE* out, FunCode var);
 void TermPrintFO(FILE* out, Term_p term, Sig_p sig, DerefType deref);
 #ifdef ENABLE_LFHO
 void TermPrintHO(FILE* out, Term_p term, Sig_p sig, DerefType deref);
+void TermPrintDbgHO(FILE* out, Term_p term, Sig_p sig, DerefType deref);
 #define TermPrint(out, term, sig, deref) (problemType == PROBLEM_HO ? \
         TermPrintHO(out, term, sig, deref) : TermPrintFO(out, term, sig, deref))
 #else
@@ -155,6 +156,8 @@ Term_p TermCreatePrefix(Term_p orig, int up_to);
 Term_p TermAppEncode(Term_p orig, Sig_p sig);
 
 bool TermFindFOOLSubterm(Term_p t, PStack_p pos);
+bool TermFindIteSubterm(Term_p t, PStack_p pos);
+
 
 #define TERM_APPLY_APP_VAR_MULT(w, t, p) (TermIsAppliedVar(t) ? (w)*(p) : (w))
 

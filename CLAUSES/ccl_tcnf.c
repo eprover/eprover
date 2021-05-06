@@ -919,6 +919,9 @@ long TFormulaEstimateClauses(TB_p bank, TFormula_p form, bool pos)
       }
       else
       {
+         fprintf(stderr, "error in ");
+         TermPrintDbgHO(stderr, form, bank->sig, DEREF_NEVER);
+         fprintf(stderr, ".\n");
          assert(false && "Formula not in correct simplified form");
       }
    }
@@ -1713,7 +1716,16 @@ TFormula_p TFormulaVarRename(TB_p terms, TFormula_p form)
       assert(new_var != form->args[0]);
       form->args[0]->binding = new_var;
    }
-   if(TFormulaIsLiteral(terms->sig, form))
+   if(form->f_code == SIG_LET_CODE || form->f_code == SIG_ITE_CODE)
+   {
+      TFormula_p newform = TermTopCopyWithoutArgs(form);
+      for(long i=0; i < newform->arity; i++)
+      {
+         newform->args[i] = TFormulaVarRename(terms, form->args[i]);
+      }
+      handle = TBTermTopInsert(terms, newform);
+   }
+   else if(TFormulaIsLiteral(terms->sig, form))
    {
       handle = TFormulaCopy(terms, form);
    }
@@ -2197,6 +2209,7 @@ void WTFormulaConjunctiveNF3(WFormula_p form, TB_p terms,
       WFormulaPushDerivation(form, DCShiftQuantors, NULL, NULL);
    }
 
+   TFormulaUnrollFOOL(form,terms); // handles proof object internally
    handle = TFormulaDistributeDisjunctions(terms, form->tformula);
 
    if(handle!=form->tformula)

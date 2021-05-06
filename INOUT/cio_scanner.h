@@ -90,6 +90,10 @@ typedef unsigned long long TokenType;
 #define FOFNand       (2*FOFXor)
 #define FOFNor        (2*FOFNand)
 #define Application   (2*FOFNor)
+#define Carret        (2*Application)
+#define LambdaQuantor (Carret)
+#define LetToken      (2*LambdaQuantor)
+#define IteToken      (2*LetToken)
 
 
 #define SkipToken     (WhiteSpace | Comment)
