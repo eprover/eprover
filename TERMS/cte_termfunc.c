@@ -256,7 +256,7 @@ void print_let(FILE* out, Term_p term, Sig_p sig, DerefType deref)
 {
    fputs("$let(", out);
    long n_decls = term->arity - 1;
-   
+
    if(n_decls > 1)
    {
       fputs("[", out);
@@ -354,7 +354,7 @@ void TermPrintFO(FILE* out, Term_p term, Sig_p sig, DerefType deref)
    // no need to change derefs here -- FOL
 
    term = TermDeref(term, &deref);
-   
+
    if(term->f_code == SIG_LET_CODE)
    {
       print_let(out, term, sig, deref);
@@ -420,6 +420,7 @@ void TermPrintFO(FILE* out, Term_p term, Sig_p sig, DerefType deref)
 #define PRINT_AT
 
 #ifdef ENABLE_LFHO
+
 /*-----------------------------------------------------------------------
 //
 // Function: TermPrintHO()
@@ -469,7 +470,8 @@ void TermPrintHO(FILE* out, Term_p term, Sig_p sig, DerefType deref)
 #endif
       DerefType c_deref = CONVERT_DEREF(i, limit, deref);
       if(term->args[i]->arity ||
-            (c_deref != DEREF_NEVER && term->args[i]->binding && term->args[i]->binding->arity))
+         (c_deref != DEREF_NEVER &&
+          term->args[i]->binding && term->args[i]->binding->arity))
       {
          fputs("(", out);
          if(TypeIsBool(term->args[i]->type))
@@ -489,13 +491,13 @@ void TermPrintHO(FILE* out, Term_p term, Sig_p sig, DerefType deref)
    }
 }
 
-#endif
 
 /*-----------------------------------------------------------------------
 //
 // Function: TermPrintDbgHO()
 //
-//   Prints the term as is, with no pretty printing of interpreted symbols.
+//   Prints the term as is, with no pretty printing of interpreted
+//   symbols.
 //
 // Global Variables: TermPrintLists
 //
@@ -530,7 +532,7 @@ void TermPrintDbgHO(FILE* out, Term_p term, Sig_p sig, DerefType deref)
 #endif
       DerefType c_deref = CONVERT_DEREF(i, limit, deref);
       if(term->args[i]->arity ||
-            (c_deref != DEREF_NEVER && term->args[i]->binding && term->args[i]->binding->arity))
+         (c_deref != DEREF_NEVER && term->args[i]->binding && term->args[i]->binding->arity))
       {
          fputs("(", out);
          TermPrintDbgHO(out, term->args[i], sig, c_deref);
@@ -542,6 +544,8 @@ void TermPrintDbgHO(FILE* out, Term_p term, Sig_p sig, DerefType deref)
       }
    }
 }
+
+#endif
 
 
 /*--------------------------------------------------------------------
@@ -1771,7 +1775,7 @@ bool TermFindIteSubterm(Term_p t, TermPos_p pos)
    {
       PStackPushInt(pos, i);
       found = found ||
-              (t->args[i]->f_code == SIG_ITE_CODE) || 
+              (t->args[i]->f_code == SIG_ITE_CODE) ||
               TermFindIteSubterm(t->args[i], pos);
       if(!found)
       {
@@ -2362,11 +2366,11 @@ void TermAssertSameSort(Sig_p sig, Term_p t1, Term_p t2)
    if(t1->type != t2->type)
    {
       fprintf(stderr, "# Error: terms ");
-      TermPrintDbgHO(stderr, t1, sig, DEREF_NEVER);
+      TermPrintDbg(stderr, t1, sig, DEREF_NEVER);
       fprintf(stderr, ": ");
       TypePrintTSTP(stderr, sig->type_bank, t1->type);
       fprintf(stderr, " and ");
-      TermPrintDbgHO(stderr, t2, sig, DEREF_NEVER);
+      TermPrintDbg(stderr, t2, sig, DEREF_NEVER);
       fprintf(stderr, ": ");
       TypePrintTSTP(stderr, sig->type_bank, t2->type);
       fprintf(stderr, " should have the same sort\n");
