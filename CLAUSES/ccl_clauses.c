@@ -356,6 +356,37 @@ void ClauseRecomputeLitCounts(Clause_p clause)
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseIsTrivial()
+//
+//   Return true if the clause is trivial (because it has a trivial
+//   true literal or propositionally conflicting literals).
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+bool ClauseIsTrivial(Clause_p clause)
+{
+   if(EqnListFindTrue(clause->literals))
+   {
+      return true;
+   }
+   if(clause->pos_lit_no && clause->neg_lit_no)
+   {
+      if(ClauseLiteralNumber(clause) > EQN_LIST_LONG_LIMIT)
+      {
+         return EqnLongListIsTrivial(clause->literals);
+      }
+      return EqnListIsTrivial(clause->literals);
+   }
+   return false;
+}
+
+
 
 /*-----------------------------------------------------------------------
 //

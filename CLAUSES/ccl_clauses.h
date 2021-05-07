@@ -254,8 +254,7 @@ bool     ClauseIsSemEmpty(Clause_p clause);
 
 #define  ClauseFindNegPureVarLit(clause)                \
    EqnListFindNegPureVarLit((clause)->literals)
-#define  ClauseIsTrivial(clause)                \
-   EqnListIsTrivial(clause->literals)
+bool     ClauseIsTrivial(Clause_p clause);
 
 bool     ClauseHasMaxPosEqLit(Clause_p clause);
 

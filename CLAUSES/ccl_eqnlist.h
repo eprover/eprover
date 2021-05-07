@@ -37,6 +37,7 @@ typedef bool (*TermPredicateFun_p)(Term_p);
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
+#define EQN_LIST_LONG_LIMIT 15
 
 void    EqnListFree(Eqn_p list);
 void    EqnListGCMarkTerms(Eqn_p list);
@@ -84,6 +85,7 @@ Eqn_p   EqnListFindNegPureVarLit(Eqn_p list);
 
 Eqn_p   EqnListFindTrue(Eqn_p list);
 bool    EqnListIsTrivial(Eqn_p list);
+bool    EqnLongListIsTrivial(Eqn_p list);
 bool    EqnListIsACTrivial(Eqn_p list);
 bool    EqnListIsGround(Eqn_p list);
 bool    EqnListIsEquational(Eqn_p list);

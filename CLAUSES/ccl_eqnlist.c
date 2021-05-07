@@ -831,21 +831,20 @@ int EqnListRemoveDuplicates(Eqn_p list)
    int    removed = 0;
    PObjTree_p litstore = NULL;
 
-   if(list)
+   if(list && list->next) // Nothing to do for very short clause.
    {
       PTreeObjStore(&litstore, list, LiteralSyntaxCompare);
 
       handle = &(list->next);
       while(*handle)
       {
-         if(PTreeObjFind(&litstore, *handle, LiteralSyntaxCompare))
+         if(PTreeObjStore(&litstore, *handle, LiteralSyntaxCompare))
          {
             EqnListDeleteElement(handle);
             removed++;
          }
          else
          {
-            PTreeObjStore(&litstore, *handle, LiteralSyntaxCompare);
             handle = &((*handle)->next);
          }
       }
@@ -1013,7 +1012,7 @@ Eqn_p EqnListFindTrue(Eqn_p list)
 // Function: EqnListIsTrivial()
 //
 //   Return true if the list contains two equal literals with
-//   opposing signs or a literal that always evaluates to true.
+//   opposing signs.
 //
 // Global Variables: -
 //
@@ -1021,7 +1020,7 @@ Eqn_p EqnListFindTrue(Eqn_p list)
 //
 /----------------------------------------------------------------------*/
 
-bool EqnListIsTrivial1(Eqn_p list)
+bool EqnListIsTrivial(Eqn_p list)
 {
    Eqn_p handle;
 
@@ -1029,11 +1028,6 @@ bool EqnListIsTrivial1(Eqn_p list)
 
    while(list)
    {
-      if(EqnIsTrue(list))
-      {
-         return true;
-         printf("# Done\n");
-      }
       for(handle = list->next; handle; handle = handle->next)
       {
          if(!PropsAreEquiv(handle, list, EPIsPositive))
@@ -1041,7 +1035,6 @@ bool EqnListIsTrivial1(Eqn_p list)
             if(EqnEqual(handle, list))
             {
                return true;
-               printf("# Done\n");
             }
          }
       }
@@ -1052,7 +1045,21 @@ bool EqnListIsTrivial1(Eqn_p list)
 }
 
 
-int comp_stack_eqns(const void* v1, const void* v2)
+
+/*-----------------------------------------------------------------------
+//
+// Function: EqnLongListIsTrivial()
+//
+//   As EqnListIsTrivial(), but with an algorithm optimised for long
+//   lists.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+static int comp_stack_eqns(const void* v1, const void* v2)
 {
    const IntOrP* e1 = (const IntOrP*) v1;
    const IntOrP* e2 = (const IntOrP*) v2;
@@ -1060,8 +1067,7 @@ int comp_stack_eqns(const void* v1, const void* v2)
    return EqnSyntaxCompare(e1->p_val, e2->p_val);
 }
 
-
-bool EqnListIsTrivial(Eqn_p list)
+bool EqnLongListIsTrivial(Eqn_p list)
 {
    PStack_p pos_lits;
    PStack_p neg_lits;
@@ -1070,35 +1076,22 @@ bool EqnListIsTrivial(Eqn_p list)
    Eqn_p key, key2;
    int cmpres;
 
-   //printf("# EqnListIsTrivial2(%d)\n", EqnListLength(list));
-   if(EqnListFindTrue(list))
-   {
-      return true;
-   }
-
    pos_lits = PStackAlloc();
    neg_lits = PStackAlloc();
 
 
-   //printf("Schick 1\n");
    EqnListSplitToStacks(list, pos_lits, neg_lits, EPIsPositive);
-   //printf("Schick pos_sp=%ld  neg_sp=%ld\n", PStackGetSP(pos_lits), PStackGetSP(neg_lits));
    PStackSort(pos_lits, comp_stack_eqns);
-   //printf("Schick 3\n");
    PStackSort(neg_lits, comp_stack_eqns);
-   //printf("Schick\n");
 
    pp = 0;
    np = 0;
    while(pp < PStackGetSP(pos_lits))
    {
-      // printf("# pp=%ld, np=%ld\n", pp, np);
-
       key = PStackElementP(pos_lits, pp);
       np = PStackBinSearch(neg_lits, key, np,
                            PStackGetSP(neg_lits),
                            EqnSyntaxCompare);
-      // printf("# (2) pp=%ld, np=%ld\n", pp, np);
       if(np >= PStackGetSP(neg_lits))
       {
          break;
@@ -1124,19 +1117,6 @@ bool EqnListIsTrivial(Eqn_p list)
    PStackFree(pos_lits);
    PStackFree(neg_lits);
 
-   /* if(PStackGetSP(pos_lits)+PStackGetSP(neg_lits) > 200) */
-   /* { */
-   /*    printf("# Done %d\n", res); */
-   /* } */
-   /* else */
-   /* { */
-   /*    int res2= EqnListIsTrivial1(list); */
-   /*    printf("# Done %d = %d\n", res, res2); */
-   /*    if(res2!=res) */
-   /*    { */
-   /*       EqnListTSTPPrint(stdout, list, ", ", true); */
-   /*    } */
-   /* } */
    return res;
 }
 
