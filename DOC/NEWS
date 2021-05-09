@@ -1,7 +1,7 @@
 This history describes the major differences between versions of the E
 equational theorem prover.
 
-Version 2.5 ->
+Version 2.5 -> Floral Guranse
 
 - Much improved algorithm for finding maximal literals in long clauses
 - Much improved algorithm for identifying dual (conflicting) literals
@@ -18,7 +18,7 @@ Version 2.5 ->
   advanced lambda reasoning, as lambdas are simply lifted and after
   parsing E is not aware of them.
 - Improved support for TFX: E now supports $let and $ite expressions.
-  
+
 
 
 Version 2.4 -> 2.5 Avongrove

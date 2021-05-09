@@ -89,19 +89,19 @@ char* DefaultHeuristics=
 
 
 "/* Here start the auto-mode-heuristics*/            \n"
-#include "che_X_____auto.c"
+//#include "che_X_____auto.c"
 #include "che_X_____auto_casc.c"
 #include "che_X_____auto_dev.c"
 #include "che_X_auto_sched0.c"
-#include "che_X_auto_sched1.c"
-#include "che_X_auto_sched2.c"
-#include "che_X_auto_sched3.c"
-#include "che_X_auto_sched4.c"
-#include "che_X_auto_sched5.c"
-#include "che_X_auto_sched6.c"
-#include "che_X_auto_sched7.c"
-#include "che_X_auto_sched8.c"
-#include "che_X_auto_sched9.c"
+//#include "che_X_auto_sched1.c"
+//#include "che_X_auto_sched2.c"
+//#include "che_X_auto_sched3.c"
+//#include "che_X_auto_sched4.c"
+//#include "che_X_auto_sched5.c"
+//#include "che_X_auto_sched6.c"
+//#include "che_X_auto_sched7.c"
+//#include "che_X_auto_sched8.c"
+//#include "che_X_auto_sched9.c"
    "."  /* End marker to warn against incomplete parsing */
 ;
 

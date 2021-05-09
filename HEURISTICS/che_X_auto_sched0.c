@@ -1738,8 +1738,6 @@
 "(10.Clauseweight(PreferGoals,1,1,1),"
 " 20.Diversityweight(ConstPrio,1,1,1.5,1,1,-1.000000,0.000000,1.000000,1.000000),"
 " 5.OrientLMaxWeight(ConstPrio,2,1,2,1,1),"
-" 1.FIFOWeight(ConstPrio)),"
-" 10.Refinedweight(PreferNonGoals,1,1,2,1,1),"
 " 1.FIFOWeight(ConstPrio))\n"
 "G_____405_C05_02_F1_SE_CS_SP_PS_RG_S04AN = \n"
 "(5.Clauseweight(PreferGoals,1,1,1),"
@@ -32935,4 +32933,3 @@
 /* -------------------------------------------------------*/
 /*     End of automatically generated code.               */
 /* -------------------------------------------------------*/
-
