@@ -43,6 +43,41 @@ def extract_opt_arg(line, mopt, opt):
     #print "extract_opt_arg(",line, opt, ") =>", res
     return res
 
+def trans_heuristic_name(name):
+    tmp = re.sub('p[^_]*_', "", name);
+    tmp = re.sub(dash,"_", tmp)
+    tmp = re.sub('[.]csv',"", tmp)
+    if not tmp[0] in string.ascii_letters:
+        tmp = "h"+tmp
+    return tmp
+
+def clean_heuristic(heuristic_string):
+    """
+    Remove traling gunk ;-)
+    """
+    count = 1
+    for i in range(1, len(heuristic_string)):
+        if heuristic_string[i] == "(":
+            count += 1
+        if heuristic_string[i] == ")":
+            count -= 1
+        if count == 0:
+            heuristic_string = heuristic_string[0:i+1]
+            break
+    return heuristic_string
+
+
+def heuristic_define(name, stratdesc):
+    mr = match_heuristic.search(stratdesc[name])
+    if not mr:
+        raise RuntimeError, "No heuristic defined in " + name;
+    res= '"' + trans_heuristic_name(name) + ' = \\n"\n"'
+    tmp = stratdesc[name][mr.start()+2:mr.end()]
+    tmp = re.sub("'", "", tmp)
+    tmp = clean_heuristic(tmp)
+    res=res+ re.sub(eval_f_sep,'),"\n" ',tmp) +'\\n"'
+
+    return res
 
 
 match_ac_l      = re.compile(" --ac-handling=")

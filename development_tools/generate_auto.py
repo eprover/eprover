@@ -148,46 +148,7 @@ def translate_class_list(cl):
         pref = "       ||\n"
     return res[0:-1];
 
-def trans_heuristic_name(name):
-    tmp = re.sub('p[^_]*_', "", name);
-    tmp = re.sub(dash,"_", tmp)
-    tmp = re.sub('[.]csv',"", tmp)
-    if not tmp[0] in string.ascii_letters:
-        tmp = "h"+tmp
-    return tmp
 
-
-def heuristic_define(name):
-    mr = match_heuristic.search(stratdesc[name])
-    if not mr:
-        raise RuntimeError, "No heuristic defined in " + name;
-    res= '"' + trans_heuristic_name(name) + ' = \\n"\n"'
-    tmp = stratdesc[name][mr.start()+2:mr.end()]
-    tmp = re.sub("'", "", tmp);
-    res=res+ re.sub(eval_f_sep,'),"\n" ',tmp) +'\\n"'
-
-    return res
-
-def extract_arg(line, mopt):
-    l = line[mopt.end():]
-    m = arg_term.search(l)
-    res = l[0:m.start()]
-
-    if res == "":
-        raise RuntimeError, "Argument to option in command line missing: "+line[mopt.start():]
-
-    return res
-
-def extract_opt_arg(line, mopt, opt):
-    l = line[mopt.end():]
-    if len(l)==0:
-        return opt
-    if l[0]=="=":
-        return opt
-
-    m = arg_term.search(l[1:])
-    res = l[1:m.start()]
-    return res
 
 
 def print_raw():
@@ -369,13 +330,13 @@ else:
 """
 
     for i in by_heuristic.keys():
-        print heuristic_define(i)
+        print heuristic_define(i, stratdesc)
 
     if used[0] in by_heuristic.keys():
         print "/* Global best, "+used[0]+", already defined */"
     else:
         print "/* Global best (used as a default): */"
-        print heuristic_define(used[0])
+        print heuristic_define(used[0],stratdesc)
 
     print """#endif
 

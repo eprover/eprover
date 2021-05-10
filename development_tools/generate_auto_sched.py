@@ -313,35 +313,6 @@ def translate_class_list(cl, opt_res):
         pref = "       ||\n"
     return res[0:-1];
 
-def trans_heuristic_name(name):
-    tmp = re.sub('p[^_]*_', "", name);
-    tmp = re.sub(dash,"_", tmp)
-    tmp = re.sub('[.]csv',"", tmp)
-    if not tmp[0] in string.ascii_letters:
-        tmp = "h"+tmp
-    return tmp
-
-
-def heuristic_define(name):
-    mr = match_heuristic.search(stratdesc[name])
-    if not mr:
-        raise RuntimeError, "No heuristic defined in " + name;
-    res= '"' + trans_heuristic_name(name) + ' = \\n"\n"'
-    tmp = stratdesc[name][mr.start()+2:mr.end()]
-    tmp = re.sub("'", "", tmp);
-    res=res+ re.sub(eval_f_sep,'),"\n" ',tmp) +'\\n"'
-
-    return res
-
-def extract_arg(line, mopt):
-    l = line[mopt.end():]
-    m = arg_term.search(l)
-    res = l[0:m.start()]
-
-    if res == "":
-        raise RuntimeError, "Argument to option in command line missing: "+line[mopt.start():]
-
-    return res
 
 def print_raw(fp, result, opt_res):
     fp.write("/* Raw association */\n")
@@ -363,7 +334,7 @@ def print_strat_once(fp, strat, defined_strats):
     defined_strats.
     """
     if not strat in defined_strats:
-        fp.write(heuristic_define(strat)+"\n")
+        fp.write(heuristic_define(strat, stratdesc)+"\n")
         defined_strats.add(strat)
 
 def generate_output(fp, result, stratdesc, class_dir, raw_class, opt_res,
