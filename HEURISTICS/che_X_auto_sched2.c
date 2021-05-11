@@ -1233,8 +1233,6 @@
 "(10.Clauseweight(PreferGoals,1,1,1),"
 " 10.Diversityweight(ConstPrio,2,1,1.5,1,1,-1.000000,0.000000,1.000000,1.000000),"
 " 5.OrientLMaxWeight(ConstPrio,2,1,2,1,1),"
-" 1.FIFOWeight(ConstPrio)),"
-" 10.Refinedweight(PreferNonGoals,1,1,2,1,1),"
 " 1.FIFOWeight(ConstPrio))\n"
 "G_E___100_C18_F1_PI_AE_Q4_CS_SP_S0Y = \n"
 "(10.RelevanceLevelWeight2(SimulateSOS,1,2,1,2,100,100,100,400,1.5,1.5,1),"

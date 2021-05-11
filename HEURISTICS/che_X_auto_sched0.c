@@ -2986,8 +2986,7 @@
 "(5.PNRefinedweight(PreferGoals,1,1,1,2,2,2,0.5),"
 " 10.PNRefinedweight(PreferNonGoals,2,1,1,1,2,2,2),"
 " 5.OrientLMaxWeight(ConstPrio,2,1,2,1,1),"
-" 4.Diversityweight(ConstPrio,1,1,1.5,1,1,-1.000000,0.000000,1.000000,1.000000)),"
-" 1.FIFOWeight(ConstPrio))\n"
+" 4.Diversityweight(ConstPrio,1,1,1.5,1,1,-1.000000,0.000000,1.000000,1.000000))\n"
 "G_E___208_C18_F1_SE_CS_SP_PS_S050I = \n"
 "(1.ConjectureRelativeSymbolWeight(SimulateSOS,0.5,100,100,100,100,1.5,1.5,1),"
 " 4.ConjectureRelativeSymbolWeight(ConstPrio,0.1,100,100,100,100,1.5,1.5,1.5),"
@@ -32933,3 +32932,4 @@
 /* -------------------------------------------------------*/
 /*     End of automatically generated code.               */
 /* -------------------------------------------------------*/
+
