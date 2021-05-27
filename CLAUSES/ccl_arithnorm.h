@@ -50,7 +50,7 @@ typedef struct acstruct_cell {
 /*---------------------------------------------------------------------*/
 
 void FormulaSetArithNorm(FormulaSet_p set, TB_p terms);
-TFormula_p TFormulaArithNormalize(TB_p term, TFormula_p form);
+TFormula_p TFormulaArithNormalize(TB_p term, TFormula_p form, int *changes);
 TFormula_p TFormulaArithFCodeAlloc(TB_p bank, 
       FunCode op, Type_p FunType, TFormula_p arg1, TFormula_p arg2);
 TFormula_p TFormulaUnivFCodeAlloc(TB_p bank, 
@@ -58,14 +58,16 @@ TFormula_p TFormulaUnivFCodeAlloc(TB_p bank,
 
 void PrintTermsDebug(TFormula_p form, int depth);
 
-TFormula_p ACNormalizeHead(TFormula_p acterm, TB_p bank);
-void ClauseNormalizeAC(Clause_p clause, TB_p bank);
-ACNorm_p ACNormalize(TFormula_p acterm, TB_p bank);
-void collect_ac_leafes(TFormula_p acterm, TB_p bank, FunCode rootcode, ACStruct_p head);
+TFormula_p ACNormalizeHead(TFormula_p acterm, TB_p bank, int *changes);
+bool ClauseNormalizeAC(Clause_p clause, TB_p bank);
+ACNorm_p ACNormalize(TFormula_p acterm, TB_p bank, int *changes);
+void CollectACLeafes(TFormula_p acterm, TB_p bank, FunCode rootcode, ACStruct_p head, int *changes);
 
 void ACCellAppend(ACNorm_p head, ACNorm_p tail);
 ACNorm_p AllocNormalizeCell(TFormula_p leaf, bool isground);
 ACStruct_p AllocNormalizeStruct();
+
+bool ACSubTermsChanged(TFormula_p old, TFormula_p new, FunCode f_code);
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */

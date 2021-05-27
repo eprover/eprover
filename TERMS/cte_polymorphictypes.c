@@ -81,7 +81,7 @@ Type_p TypeCheckArithOp(TypeBank_p types, Type_p arg1, Type_p arg2)
 
 /*-----------------------------------------------------------------------
 //
-// Function: TypeCheckArithNonOp()
+// Function: TypeCheckArithNonIntOp()
 //   
 //   Checks if both arguments of an arithmetic operator are 
 //   the same and of type int, rat, real
