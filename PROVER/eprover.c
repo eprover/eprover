@@ -1698,7 +1698,7 @@ CLState_p process_options(int argc, char* argv[])
             } else if (!strcmp(arg, "off"))
             {
                h_parms->arg_cong = NoLits;
-            } else 
+            } else
             {
                Error("neg-ext excepts either all, max or off", 0);
             }
@@ -1707,10 +1707,12 @@ CLState_p process_options(int argc, char* argv[])
             if(!strcmp(arg, "all"))
             {
                h_parms->neg_ext = AllLits;
-            } else if (!strcmp(arg, "max"))
+            }
+            else if (!strcmp(arg, "max"))
             {
                h_parms->neg_ext = MaxLits;
-            } else
+            }
+            else
             {
                Error("neg-ext excepts either all or max", 0);
             }
@@ -1719,7 +1721,8 @@ CLState_p process_options(int argc, char* argv[])
             if(!strcmp(arg, "all"))
             {
                h_parms->pos_ext = AllLits;
-            } else if (!strcmp(arg, "max"))
+            }
+            else if (!strcmp(arg, "max"))
             {
                h_parms->pos_ext = MaxLits;
             } else

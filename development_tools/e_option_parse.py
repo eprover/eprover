@@ -243,16 +243,16 @@ def parse_control_info2(line, res={}):
     #
     m = match_der_l.search(line)
     if m:
-        res = res+ "      control->heuristic_parms.er_varlit_destructive=true;\n"
+        res["er_varlit_destructive"] = "true"
 
     m = match_sder_l.search(line)
     if m:
-        res = res+ "      control->heuristic_parms.er_strong_destructive=true;\n"
-        res = res+ "      control->heuristic_parms.er_varlit_destructive=true;\n"
+        res["er_strong_destructive"] = "true"
+        res["er_varlit_destructive"] = "true"
 
     m = match_dera_l.search(line)
     if m:
-        res = res+ "      control->heuristic_parms.er_aggressive=true;\n"
+        res["er_aggressive"] = "true"
 
     #
     # Rewriting parameters
@@ -260,64 +260,64 @@ def parse_control_info2(line, res={}):
     m = match_demod_s.search(line)
     if m:
         arg = extract_arg(line, m)
-        res = res+ "      control->heuristic_parms.forward_demod="+arg+";\n"
+        res["forward_demod"] = arg
 
     m = match_demod_l.search(line)
     if m:
         arg = extract_arg(line, m)
-        res = res+ "      control->heuristic_parms.forward_demod="+arg+";\n"
+        res["forward_demod"] = arg
 
     m = match_g_demod_s.search(line)
     if m:
-        res = res+ "      control->heuristic_parms.prefer_general=true;\n"
+        res["prefer_general"] = "true"
 
     m = match_g_demod_l.search(line)
     if m:
-        res = res+ "      control->heuristic_parms.prefer_general=true;\n"
+        res["prefer_general"] = "true"
 
     #
     # Paramodulation
     #
     m = match_simul_pm.search(line)
     if m:
-        res = res+ "      control->heuristic_parms.pm_type=ParamodSim;\n"
+        res["pm_type"] = "ParamodSim"
 
     m = match_ssimul_pm.search(line)
     if m:
-        res = res+ "      control->heuristic_parms.pm_type=ParamodSuperSim;\n"
+        res["pm_type"] = "ParamodSuperSim"
 
     m = match_osimul_pm.search(line)
     if m:
-        res = res+ "      control->heuristic_parms.pm_type=ParamodOrientedSim;\n"
+        res["pm_type"] = "ParamodOrientedSim"
 
     m = match_ossimul_pm.search(line)
     if m:
-        res = res+ "      control->heuristic_parms.pm_type=ParamodOrientedSuperSim;\n"
+        res["pm_type"] = "ParamodOrientedSuperSim"
 
     #
     # Presaturation simplification
     #
     m = match_presat_ir.search(line)
     if m:
-        res = res+ "      control->heuristic_parms.presat_interreduction=true;\n"
+        res["presat_interreduction"] = "true"
 
     #
     # Set of Support determination
     #
     m = match_sos_types.search(line)
     if m:
-        res = res+ "      control->heuristic_parms.use_tptp_sos=true;\n"
+        res["use_tptp_sos"] = "true"
 
     #
     # Condensation
     #
     m = match_condense.search(line)
     if m:
-        res = res+ "      control->heuristic_parms.condensing=true;\n"
+        res["condensing"] = "true"
 
     m = match_condag.search(line)
     if m:
-        res = res+ "      control->heuristic_parms.condensing_aggressive=true;\n"
+        res["condensing_aggressive"] = "true"
 
     #
     # SAT
@@ -326,52 +326,54 @@ def parse_control_info2(line, res={}):
     m = match_sat_proc_int.search(line)
     if m:
         arg = extract_opt_arg(line, m, "5000")
-        res = res+ "      control->heuristic_parms.sat_check_step_limit="+arg+";\n"
+        res["sat_check_step_limit"] = arg
 
     m = match_sat_gen_int.search(line)
     if m:
         arg = extract_opt_arg(line, m, "10000")
-        res = res+ "      control->heuristic_parms.sat_check_size_limit="+arg+";\n"
+        res["sat_check_size_limit"] = arg
 
     m = match_sat_tt_int.search(line)
     if m:
         arg = extract_opt_arg(line, m, "5000000")
-        res = res+ "      control->heuristic_parms.sat_check_ttinsert_limit="+arg+";\n"
+        res["sat_check_ttinsert_limit"] = arg
 
     m = match_satcheck.search(line)
     if m:
         # print "XXXXX"
         arg = extract_opt_arg(line, m, "FirstConst")
         # print "YYYY", arg
-        res = res+ "      control->heuristic_parms.sat_check_grounding="+sat_trans[arg]+";\n"
+        res["sat_check_grounding"] = sat_trans[arg]
+
     m = match_sat_norm_const.search(line)
     if m:
-        res = res+ "      control->heuristic_parms.sat_check_normconst=true;\n"
+        res["sat_check_normconst"] = "true"
 
     m = match_sat_norm_unproc.search(line)
     if m:
-        res = res+ "      control->heuristic_parms.sat_check_normalize=true;\n"
+        res["sat_check_normalize"] = "true"
 
     m = match_sat_dec_limit.search(line)
     if m:
         arg = extract_opt_arg(line, m, "100")
-        res = res+ "      control->heuristic_parms.sat_check_decision_limit="+arg+";\n"
+        res["sat_check_decision_limit"] = arg
 
     # Eq unfolding
     m = match_unfold_limit.search(line)
     if m:
         arg = extract_arg(line, m)
-        res = res+ "      control->heuristic_parms.eqdef_incrlimit="+arg+";\n"
+        res["eqdef_incrlimit"] = arg
 
     m = match_unfold_maxclauses.search(line)
     if m:
         arg = extract_arg(line, m)
-        res = res+ "      control->heuristic_parms.eqdef_maxclauses="+arg+";\n"
+        res["eqdef_maxclauses"] = arg
 
     m = match_no_unfold.search(line)
     if m:
-        res = res+ "      control->heuristic_parms.eqdef_incrlimit=LONG_MIN;\n"
+        res["eqdef_incrlimit"] = "-9223372036854775808"
 
+    print(res)
     return res
 
 

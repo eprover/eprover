@@ -273,7 +273,7 @@ static Term_p tb_parse_cons_list(Scanner_p in, TB_p bank, bool check_symb_prop)
 //
 // Function: parse_let_typedecl()
 //
-//   Parses a single type declaration that constitutes of the first 
+//   Parses a single type declaration that constitutes of the first
 //   part of a let term. For each parsed symbol, on type_decl it stores
 //   symbol name (DStr), fresh symbol ID (regardless of whether
 //   the symbol is already in the signature), and symbol type
@@ -293,13 +293,13 @@ static void parse_let_typedecl(Scanner_p in, TB_p bank, PStack_p type_decls)
    {
       AcceptInpTok(in, Colon);
       Type_p type = TypeBankParseType(in, bank->sig->type_bank);
-      
+
       PStackPushP(type_decls, name);
       PStackPushInt(type_decls, SigInsertLetId(bank->sig, DStrView(name), type));
    }
    else
    {
-      AktTokenError(in, "let declaration expects a function symbol", 
+      AktTokenError(in, "let declaration expects a function symbol",
                     true);
    }
 }
@@ -308,7 +308,7 @@ static void parse_let_typedecl(Scanner_p in, TB_p bank, PStack_p type_decls)
 //
 // Function: parse_let_definition()
 //
-//   Parses a single type declaration that constitutes of the first 
+//   Parses a single type declaration that constitutes of the first
 //   part of a let term. For each parsed symbol, on type_decl it stores
 //   symbol name (DStr), fresh symbol ID (regardless of whether
 //   the symbol is already in the signature), and symbol type
@@ -376,7 +376,7 @@ static Term_p parse_let_sym_def(Scanner_p in, TB_p bank, PStack_p type_decls)
       AcceptInpTok(in, Colon);
       AcceptInpTok(in, EqualSign);
 
-      Term_p rhs = TypeIsPredicate(type) ? 
+      Term_p rhs = TypeIsPredicate(type) ?
                      TFormulaTSTPParse(in, bank) : TBTermParse(in, bank);
       Term_p lhs = TermTopAlloc(id, arity);
       for(int i=0; i<arity; i++)
@@ -385,7 +385,7 @@ static Term_p parse_let_sym_def(Scanner_p in, TB_p bank, PStack_p type_decls)
          VarBankPopEnv(bank->vars);
       }
       lhs = TBTermTopInsert(bank, lhs);
-      
+
       DStrFree(name);
       return EqnTermsTBTermEncode(bank, lhs, rhs, true, PENormal);
    }
@@ -1023,7 +1023,7 @@ Term_p TBInsertInstantiatedHO(TB_p bank, Term_p term, bool follow_bind)
    if(TermIsAppliedVar(term) && term->args[0]->binding && follow_bind)
    {
       Term_p binding = term->args[0]->binding;
-      ignore_args = 
+      ignore_args =
          TermIsLambda(binding) ? 1 : (binding->arity + (TermIsVar(binding) ? 1 : 0));
       DerefType d = DEREF_ONCE;
       term = TermDeref(term, &d);
@@ -1050,7 +1050,7 @@ Term_p TBInsertInstantiatedHO(TB_p bank, Term_p term, bool follow_bind)
             term->args[0]->binding = VarBankGetFreshVar(bank->vars,
                                                         term->args[0]->type);
          }
-         
+
       }
 
       t = TermTopCopyWithoutArgs(term); /* This is an unshared term cell at the moment */
@@ -1064,7 +1064,7 @@ Term_p TBInsertInstantiatedHO(TB_p bank, Term_p term, bool follow_bind)
          t->args[i] = TBInsertInstantiatedHO(bank, term->args[i], follow_bind && (i >= ignore_args));
       }
       t = tb_termtop_insert(bank, t);
-      
+
       if(TFormulaIsQuantified(bank->sig, term))
       {
          term->args[0]->binding = binding_copy;
@@ -1555,7 +1555,6 @@ Term_p TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop)
             DStrAppendInt(errpos,
                           (long)(bank->sig)->
                           f_info[SigFindFCode(bank->sig, DStrView(id))].arity);
-            assert(false);
             Error(DStrView(errpos), SYNTAX_ERROR);
             DStrFree(errpos);
          }
@@ -1967,7 +1966,7 @@ Term_p TBGetFreqConstTerm(TB_p terms, Type_p type,
 // Function: TermMap()
 //
 //   Applies the function f to term t to obtain t'. If t' != t,
-//   it continues mapping t'. Else, it recursively applies f to 
+//   it continues mapping t'. Else, it recursively applies f to
 //   arguments of t. Result term is guaranteed to be shared.
 //   Term mapper must also return shared term of the same type
 //   as the original one.
@@ -1997,7 +1996,7 @@ Term_p TermMap(TB_p bank, Term_p t, TermMapper f)
          assert(TermIsShared(s->args[i]) && s->args[i]->type == t->args[i]->type);
          changed = changed || (s->args[i] != t->args[i]);
       }
-      
+
       if(changed)
       {
          s = TBTermTopInsert(bank, s);
@@ -2015,7 +2014,7 @@ Term_p TermMap(TB_p bank, Term_p t, TermMapper f)
 //
 // Function: ParseLet()
 //
-//   Parses let according to the TPTP description: 
+//   Parses let according to the TPTP description:
 //    http://ceur-ws.org/Vol-2162/paper-07.pdf. If top_level is true,
 //   let appears at the formula level and its body must be Bool.
 //   Otherwise, its body is parsed as a non-Bool.
@@ -2030,7 +2029,7 @@ Term_p ParseLet(Scanner_p in, TB_p bank)
 {
    AcceptInpTok(in, LetToken);
    AcceptInpTok(in, OpenBracket);
-   
+
    PStack_p type_decls = PStackAlloc();
    /* parsing type declarations */
    if(TestInpTok(in, OpenSquare))
@@ -2083,7 +2082,7 @@ Term_p ParseLet(Scanner_p in, TB_p bank)
       DStrFree(PStackPopP(type_decls));
    }
    AcceptInpTok(in, CloseBracket);
-   
+
    PStackFree(type_decls);
    PStackFree(definitions);
 
@@ -2094,7 +2093,7 @@ Term_p ParseLet(Scanner_p in, TB_p bank)
 //
 // Function: ParseIte()
 //
-//   Parses ite according to the TPTP description: 
+//   Parses ite according to the TPTP description:
 //    http://ceur-ws.org/Vol-2162/paper-07.pdf. If top_level is true,
 //   ite appears at the formula level and its body must be Bool.
 //   Otherwise, its body is parsed as a non-Bool.
@@ -2106,7 +2105,7 @@ Term_p ParseLet(Scanner_p in, TB_p bank)
 /----------------------------------------------------------------------*/
 
 Term_p ParseIte(Scanner_p in, TB_p bank)
-{   
+{
    AcceptInpTok(in, IteToken);
    AcceptInpTok(in, OpenBracket);
    Term_p cond = TFormulaTPTPParse(in, bank);
@@ -2123,7 +2122,7 @@ Term_p ParseIte(Scanner_p in, TB_p bank)
 
    TermAssertSameSort(bank->sig, cond, bank->true_term);
    TermAssertSameSort(bank->sig, if_false, if_true);
-   
+
    res->type = if_true->type;
    return TBTermTopInsert(bank, res);
 }
