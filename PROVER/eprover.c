@@ -417,7 +417,7 @@ int main(int argc, char* argv[])
 
    if(strategy_scheduling)
    {
-      ExecuteSchedule(StratSchedule, h_parms, print_rusage);
+      ExecuteSchedule(chosen_schedule, h_parms, print_rusage);
    }
 
    FormulaSetDocInital(GlobalOut, OutputLevel, proofstate->f_axioms);
@@ -1115,6 +1115,20 @@ CLState_p process_options(int argc, char* argv[])
             break;
       case OPT_SATAUTO_SCHED:
             strategy_scheduling = true;
+            break;
+      case OPT_AUTOSCHEDULE_KIND:
+            if(strcmp(arg, "SH")==0)
+            {
+               chosen_schedule = (ScheduleCell*)CASC_SH_SCHEDULE;
+            }
+            else if(strcmp(arg, "CASC")==0)
+            {
+               chosen_schedule = (ScheduleCell*)CASC_SCHEDULE;
+            }
+            else
+            {
+               Error("There are only two schedules available: SH and CASC", USAGE_ERROR);
+            }
             break;
       case OPT_NO_PREPROCESSING:
             h_parms->no_preproc = true;
