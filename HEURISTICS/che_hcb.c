@@ -50,17 +50,17 @@ PERF_CTR_DEFINE(ClauseEvalTimer);
 //
 /----------------------------------------------------------------------*/
 
-inline ExtInferenceType str2eit(char* x) 
+inline ExtInferenceType str2eit(char* value) 
 {
-   if(!strcmp(x, "all"))
+   if(!strcmp(value, "all"))
    {
       return AllLits;
    }
-   if(!strcmp(x, "max"))
+   if(!strcmp(value, "max"))
    {
       return MaxLits;
    }
-   if(!strcmp(x, "off"))
+   if(!strcmp(value, "off"))
    {
       return NoLits;
    }
