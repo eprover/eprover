@@ -44,7 +44,7 @@ ScheduleCell _CASC_SCHEDULE[] =
 
 ScheduleCell _CASC_SH_SCHEDULE[] =
 {
-   {"AutoSched0",  AUTOSCHED0,  "Auto", 0.33   , 0},
+   {"AutoSched0",  AUTOSCHED0,  "Auto", 0.34   , 0},
    {"AutoSched1",  AUTOSCHED1,  "Auto", 0.09  , 0},
    {"AutoSched2",  AUTOSCHED2,  "Auto", 0.09, 0},
    {"AutoSched3",  AUTOSCHED3,  "Auto", 0.09  , 0},
