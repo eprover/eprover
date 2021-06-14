@@ -100,6 +100,11 @@ starexec:
 	./configure --prefix=$(STAREXECPATH)
 	make install
 
+	make clean
+	./configure --prefix=$(STAREXECPATH) --enable-ho
+	make
+	make install
+
 	cp etc/STAREXEC2.2/starexec_run* $(STAREXECPATH)/bin
 	$(eval E_VERSION=`$$(STAREXECPATH)/bin/eprover --version | cut -d' ' -f1-2| sed -e 's/ /-/'`)
 	cd $(STAREXECPATH); zip -r $(E_VERSION).zip bin man
@@ -146,6 +151,7 @@ config:
 install:
 	-sh -c 'mkdir -p $(EXECPATH)'
 	-sh -c 'development_tools/e_install PROVER/eprover      $(EXECPATH)'
+	-sh -c 'development_tools/e_install PROVER/eprover-ho   $(EXECPATH)'
 	-sh -c 'development_tools/e_install PROVER/epclextract  $(EXECPATH)'
 	-sh -c 'development_tools/e_install PROVER/e_stratpar   $(EXECPATH)'
 	-sh -c 'development_tools/e_install PROVER/eground      $(EXECPATH)'
