@@ -330,6 +330,25 @@ typedef struct order_parms_cell
       }\
    }
 
+// Does not assign to handle
+#define PARSE_STRING_AND_CONVERT(name, converter)\
+   if(TestInpId(in, #name))\
+   {\
+      NextToken(in);                            \
+      AcceptInpTok(in, Colon);\
+      CheckInpTok(in, String);                            \
+      handle->name = converter(DStrView(AktToken(in)->literal));     \
+      NextToken(in);\
+   }\
+   else\
+   {\
+      res = false;\
+      if(warn_missing)\
+      {\
+         Warning("Config misses %s\n", #name);\
+      }\
+   }
+
 
 
 extern char* TOPrecGenNames[];
