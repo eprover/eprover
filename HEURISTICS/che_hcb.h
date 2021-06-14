@@ -58,6 +58,7 @@ typedef enum
    NoLits
 }ExtInferenceType;
 
+#define EIT2STR(x) (((x) == AllLits) ? ("all") : (((x) == MaxLits) ? "max" : "off"))
 #define NO_EXT_SUP (-1)
 
 
@@ -211,7 +212,6 @@ typedef struct hcb_cell
 #define DEFAULT_PM_INTO_INDEX_NAME "FP7"
 
 typedef Clause_p (*ClauseSelectFun)(HCB_p hcb, ClauseSet_p set);
-
 
 /*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */

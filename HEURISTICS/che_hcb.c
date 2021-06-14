@@ -40,6 +40,35 @@ PERF_CTR_DEFINE(ClauseEvalTimer);
 
 /*-----------------------------------------------------------------------
 //
+// Function: str2eit()
+//
+//    Parse the value of ExtInferenceType parameter.
+//
+// Global Variables:
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+inline ExtInferenceType str2eit(char* x) 
+{
+   if(!strcmp(x, "all"))
+   {
+      return AllLits;
+   }
+   if(!strcmp(x, "max"))
+   {
+      return MaxLits;
+   }
+   if(!strcmp(x, "off"))
+   {
+      return NoLits;
+   }
+   Error("Unknown ExtInferenceType identifier. Expected all, max or off.", USAGE_ERROR);
+   return NoLits; //will not return, stiffles compiler warning
+}
+
+/*-----------------------------------------------------------------------
+//
 // Function: get_next_clause()
 //
 //   Return the next clause from the selected EvalTreeTraverse-Stack,
@@ -350,6 +379,14 @@ void HeuristicParmsPrint(FILE* out, HeuristicParms_p handle)
    fprintf(out, "   replace_inj_defs:              %s\n",
            BOOL2STR(handle->replace_inj_defs));
 
+   fprintf(out, "   arg_cong:                      %s\n",
+           EIT2STR(handle->arg_cong));
+   fprintf(out, "   neg_ext:                       %s\n",
+           EIT2STR(handle->neg_ext));
+   fprintf(out, "   pos_ext:                       %s\n",
+           EIT2STR(handle->pos_ext));
+   fprintf(out, "   ext_sup_max_depth:             %d\n",
+           handle->ext_sup_max_depth);
 
    fprintf(out, "}\n");
 }
@@ -495,6 +532,13 @@ bool HeuristicParmsParseInto(Scanner_p in,
    PARSE_BOOL(detsort_tmpset);
    PARSE_BOOL(inverse_recognition);
    PARSE_BOOL(replace_inj_defs);
+   PARSE_STRING_AND_CONVERT(arg_cong, str2eit);
+   PARSE_STRING_AND_CONVERT(neg_ext, str2eit);
+   PARSE_STRING_AND_CONVERT(pos_ext, str2eit);
+   PARSE_INT(ext_sup_max_depth);
+
+
+
 
    AcceptInpTok(in, CloseCurly);
    return res;
