@@ -49,6 +49,7 @@ PERF_CTR_DEFINE(ClauseEvalTimer);
 // Side Effects    :
 //
 /----------------------------------------------------------------------*/
+
 inline ExtInferenceType str2eit(char* x) 
 {
    if(!strcmp(x, "all"))
