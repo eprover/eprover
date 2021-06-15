@@ -82,7 +82,7 @@ Term_p insert_deref(Term_p deref_cache, TB_p bank)
    {
       if(!TermIsVar(deref_cache->args[i]) && !TermIsShared(deref_cache->args[i]))
       {
-         deref_cache->args[i] = TBInsert(bank, deref_cache->args[i], DEREF_NEVER);
+         deref_cache->args[i] = TBInsertIgnoreVar(bank, deref_cache->args[i], DEREF_NEVER);
       }
    }
 

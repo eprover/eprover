@@ -764,6 +764,53 @@ Term_p TBInsert(TB_p bank, Term_p term, DerefType deref)
 
 /*-----------------------------------------------------------------------
 //
+// Function: TBInsertIgnoreVar()
+//
+//  As TBInsert, but does instead of using variables from the term bank,
+//  uses the ones already present in the temr. 
+//
+//  TermProperties are masked with bank->prop_mask.
+//
+// Global Variables: -
+//
+// Side Effects    : Changes term bank
+//
+/----------------------------------------------------------------------*/
+
+Term_p TBInsertIgnoreVar(TB_p bank, Term_p term, DerefType deref)
+{
+   int    i;
+   Term_p t;
+   const int limit = DEREF_LIMIT(term, deref);
+
+   assert(term);
+
+   term = TermDeref(term, &deref);
+
+   if(TermIsVar(term))
+   {
+      return term;
+   }
+   else
+   {
+      t = TermTopCopyWithoutArgs(term); /* This is an unshared term cell at the moment */
+
+      assert(SysDateIsCreationDate(t->rw_data.nf_date[0]));
+      assert(SysDateIsCreationDate(t->rw_data.nf_date[1]));
+
+      for(i=0; i<t->arity; i++)
+      {
+         t->args[i] = TBInsertIgnoreVar(bank, term->args[i],
+                               CONVERT_DEREF(i, limit, deref));
+      }
+      t = tb_termtop_insert(bank, t);
+   }
+   return t;
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: TBInsertNoProps()
 //
 //   As TBInsert, but will set all properties of the new term to 0
