@@ -1950,7 +1950,7 @@ in several other winning and high-scoring systems.
 
 The main changes compared to the previous version are (nearly)
 complete support for the TFX (FOOL) language, including $let and $ite,
-new, DAG-bases clause evaluation heuristics, improved algorithms for
+new, DAG-based clause evaluation heuristics, improved algorithms for
 extremely long clauses, and, as always, new automatic modes. The
 optional higher-order build (thanks to Petar Vukmirovic) now supports
 parsing of nearly all of the TF0 language (including lambdas), and
@@ -1992,4 +1992,3 @@ Stephan
 -------------------------- It can be done! ---------------------------------
       Please email me as schulz@eprover.org (Stephan Schulz)
 ----------------------------------------------------------------------------
-
