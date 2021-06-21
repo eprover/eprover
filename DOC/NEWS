@@ -1,7 +1,7 @@
 This history describes the major differences between versions of the E
 equational theorem prover.
 
-Version 2.5 -> Floral Guranse
+Version 2.5 -> 2/6 Floral Guranse
 
 - Much improved algorithm for finding maximal literals in long clauses
 - Much improved algorithm for identifying dual (conflicting) literals
@@ -12,8 +12,8 @@ Version 2.5 -> Floral Guranse
 - Added DAGWeight() evaluation function (symbol-counts shared terms
   only once, with different options for sharing regions (terms,
   literals, clauses)
-- Improved support for THF: E can now parse most of TH0 syntax (
-  notable exceptions are symbols !!, ?? and @+), including lambdas.
+- Improved support for THF: E can now parse most of TH0 syntax
+- (notable exceptions are symbols !!, ?? and @+), including lambdas.
   Note that on the reasoning side, E still does not support any
   advanced lambda reasoning, as lambdas are simply lifted and after
   parsing E is not aware of them.

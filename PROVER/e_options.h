@@ -63,6 +63,7 @@ typedef enum
    OPT_CPU_LIMIT,
    OPT_SOFTCPU_LIMIT,
    OPT_RUSAGE_INFO,
+   OPT_PRINT_STRATEGY,
    OPT_STEP_LIMIT,
    OPT_PROC_LIMIT,
    OPT_UNPROC_LIMIT,
@@ -462,6 +463,12 @@ OptCell opts[] =
     "You will usually get CPU time information. On systems returning "
     "more information with the rusage() system call, you will also "
     "get information about memory consumption."},
+
+   {OPT_PRINT_STRATEGY,
+    '\0', "print-strategy",
+    NoArg, NULL,
+    "Print a representation of all search parameters and their setting. "
+    "Then terminate."},
 
    {OPT_STEP_LIMIT,
     'C', "processed-clauses-limit",
@@ -1448,7 +1455,7 @@ OptCell opts[] =
     "Turns on PosExt inference rule. Excepts an argument \"all\" or \"max\" "
     "that applies the rule to all or only literals that are eligible "
     "for resolution."},
-   
+
    {OPT_EXT_SUP,
     '\0', "ext-sup-max-depth",
     ReqArg, NULL,

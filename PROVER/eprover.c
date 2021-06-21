@@ -8,13 +8,13 @@
 
   Main program for the E equational theorem prover.
 
-  Copyright 1998-2018 by the authors.
+  Copyright 1998-2021 by the authors.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-  Created: Tue Jun  9 01:32:15 MET DST 1998 - New.
+  Created: Tue Jun  9 01:32:15 MET DST 1998
 
 -----------------------------------------------------------------------*/
 
@@ -57,6 +57,7 @@ bool              print_sat = false,
    print_statistics = false,
    filter_sat = false,
    print_rusage = false,
+   print_strategy = false,
    print_pid = false,
    print_version = false,
    outinfo = false,
@@ -394,7 +395,11 @@ int main(int argc, char* argv[])
 
    OpenGlobalOut(outname);
    print_info();
-
+   if(print_strategy)
+   {
+      HeuristicParmsPrint(stdout, h_parms);
+      exit(NO_ERROR);
+   }
 
    if(state->argc ==  0)
    {
@@ -471,7 +476,6 @@ int main(int argc, char* argv[])
    {
       VERBOUT("CNFization done\n");
    }
-   //HeuristicParmsPrint(stdout, h_parms);
 
    raw_clause_no = proofstate->axioms->members;
    ProofStateLoadWatchlist(proofstate, watchlist_filename, parse_format);
@@ -1029,6 +1033,9 @@ CLState_p process_options(int argc, char* argv[])
             break;
       case OPT_RUSAGE_INFO:
             print_rusage = true;
+            break;
+      case OPT_PRINT_STRATEGY:
+            print_strategy = true;
             break;
       case OPT_STEP_LIMIT:
             step_limit = CLStateGetIntArg(handle, arg);
@@ -1663,6 +1670,7 @@ CLState_p process_options(int argc, char* argv[])
             PStackPushP(wfcb_definitions, arg);
             break;
       case OPT_DEFINE_HEURISTIC:
+            /* Note that we postprocess this at the end */
             PStackPushP(hcb_definitions, arg);
             break;
       case OPT_FREE_NUMBERS:
@@ -1743,6 +1751,12 @@ CLState_p process_options(int argc, char* argv[])
             break;
       }
    }
+   if(!PStackEmpty(hcb_definitions))
+   {
+      h_parms->heuristic_def = SecureStrdup(PStackTopP(hcb_definitions));
+   }
+
+
    if((HardTimeLimit!=RLIM_INFINITY)||(SoftTimeLimit!=RLIM_INFINITY))
    {
       if(SoftTimeLimit!=RLIM_INFINITY)
