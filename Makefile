@@ -94,15 +94,16 @@ starexec:
 	echo $(STAREXECPATH)
 	rm -rf $(STAREXECPATH)
 	find . -name ".#*"  -exec rm {} \;
-	./configure --bindir="."
-	touch CLAUSES/ccl_satinterface.c
+	make clean
+	./configure --bindir="." --enable-ho
 	make
-	./configure --prefix=$(STAREXECPATH)
+	./configure --prefix=$(STAREXECPATH) --enable-ho
 	make install
 
 	make clean
-	./configure --prefix=$(STAREXECPATH) --enable-ho
+	./configure --bindir="."
 	make
+	./configure --prefix=$(STAREXECPATH)
 	make install
 
 	cp etc/STAREXEC2.2/starexec_run* $(STAREXECPATH)/bin
