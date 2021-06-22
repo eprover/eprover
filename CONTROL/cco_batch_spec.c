@@ -301,9 +301,9 @@ char* abstract_to_concrete(char* name, char* variant, char* postfix)
 /----------------------------------------------------------------------*/
 
 void concrete_batch_struct_FOF_spec_init(BatchSpec_p spec,
-                                        StructFOFSpec_p ctrl,
-                                        char *default_dir,
-                                        char *variant)
+                                         StructFOFSpec_p ctrl,
+                                         char *default_dir,
+                                         char *variant)
 {
    PStack_p abstract_includes;
    long i;
@@ -1059,8 +1059,8 @@ void BatchProcessInteractive(BatchSpec_p spec,
 //
 /----------------------------------------------------------------------*/
 
-void BatchProcessVariants(BatchSpec_p spec, char* variants[], long start,
-                          char* default_dir, char* outdir)
+void BatchProcessVariants(BatchSpec_p spec, char* variants[], char* provers[],
+                          long start, char* default_dir, char* outdir)
 {
    StructFOFSpec_p ctrl;
    long variant,
@@ -1076,18 +1076,21 @@ void BatchProcessVariants(BatchSpec_p spec, char* variants[], long start,
    char      *abstract_name, *concrete_name;
    DStr_p dest_name = DStrAlloc();
    bool success;
+   char* save_exec;
 
    solved_count = 0;
    prob_count   = PStackGetSP(spec->source_files);
    var_count    = StringArrayCardinality(variants);
 
+   concrete_prob_count = prob_count*var_count;
    fprintf(GlobalOut,
            "# Initial: %ld abstract problems, %ld variants, %ld concrete problems\n",
-           prob_count, var_count, prob_count*var_count);
-   concrete_prob_count = prob_count*var_count;
+           prob_count, var_count, concrete_prob_count);
    for(variant = 0; variants[variant]; variant++)
    {
       now = GetSecTime();
+      save_exec = spec->executable;
+      spec->executable = provers[variant];
       remaining = spec->total_wtc_limit-(now-start);
       concrete_prob_count = (prob_count-solved_count)*(var_count-variant);
 
@@ -1149,6 +1152,7 @@ void BatchProcessVariants(BatchSpec_p spec, char* variants[], long start,
             FREE(concrete_name);
          }
       }
+      spec->executable = save_exec;
       StructFOFSpecFree(ctrl);
    }
    DStrFree(dest_name);

@@ -32,9 +32,9 @@ Contents
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-/* git tag E-2.6 */
+/* git tag E-2.7pre001 */
 
-#define PVERSION      "2.6"
+#define PVERSION      "2.7pre007"
 
 #include "e_gitcommit.h"
 
@@ -50,7 +50,7 @@ Contents
 #define VERSION PVERSION LFH "-DEBUG"
 #endif
 
-#define E_NICKNAME     "Floral Guranse"
+#define E_NICKNAME     "Seeyok"
 
 #define E_URL "http://www.eprover.org"
 

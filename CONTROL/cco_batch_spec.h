@@ -123,7 +123,7 @@ void BatchProcessInteractive(BatchSpec_p spec,
                              FILE* fp);
 
 
-void BatchProcessVariants(BatchSpec_p spec, char* variants[],
+void BatchProcessVariants(BatchSpec_p spec, char* variants[], char* provers[],
                           long start, char* default_dir, char* outdir);
 
 #endif
