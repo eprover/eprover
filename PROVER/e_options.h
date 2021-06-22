@@ -88,6 +88,7 @@ typedef enum
    OPT_SATAUTODEV,
    OPT_AUTO_SCHED,
    OPT_SATAUTO_SCHED,
+   OPT_AUTOSCHEDULE_KIND,
    OPT_NO_PREPROCESSING,
    OPT_EQ_UNFOLD_LIMIT,
    OPT_EQ_UNFOLD_MAXCLAUSES,
@@ -652,6 +653,14 @@ OptCell opts[] =
     NoArg, NULL,
     "Use the (experimental) strategy scheduling without SInE, thus "
     "maintaining completeness."},
+
+   {OPT_AUTOSCHEDULE_KIND,
+    '\0', "schedule-kind",
+    ReqArg, NULL,
+    "Choose a schedule kind that is more optimized for different purposes: "
+    "CASC is optimized for general-purpose theorem proving, while SH "
+    "is optimized for theorem low-timeout theorem proving."
+    },
 
    {OPT_NO_PREPROCESSING,
     '\0', "no-preprocessing",
