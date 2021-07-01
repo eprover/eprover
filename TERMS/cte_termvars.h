@@ -50,7 +50,7 @@ typedef PStack_p VarBankStack_p;
    "Normal variables" have even f_codes -2, -4, -6, ... and are
    printed as X1, X2, X3. For each "normal" variable, there
    potentially is a matching "alternative" variable of the same type,
-   but with even f_code (-1, -3, -5, ...). These are printed as Y1,
+   but with odd f_code (-1, -3, -5, ...). These are printed as Y1,
    Y2, Y3. respectively. All long-term stored clauses use normal
    variables. Alternative variables are used for the variable-disjoint
    copy of the given clause, and (if I can make it work) for
@@ -142,7 +142,7 @@ long   VarBankCollectVars(VarBank_p bank, PStack_p stack);
 //
 // Function: VarBankGetStack()
 //
-//   Obtain a pointer to the stack that stores variables of a given 
+//   Obtain a pointer to the stack that stores variables of a given
 //   sort.
 //
 // Global Variables: -
