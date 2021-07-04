@@ -12,10 +12,13 @@ distribution.
 
 The strategies for the different divisions are:
 
-FOF UEQ: starexec_run_E---_autoschedule
-FNT EPR: starexec_run_E---_satautoschedule
-LTB:     starexec_run_E---LTB28
+FOF UEQ:     starexec_run_E---_autoschedule
+FNT EPR:     starexec_run_E---_satautoschedule
+LTB:         starexec_run_E---LTB28
+LTB (E 2.5): starexec_run_E---LTB28_25
 
+Note that the last version requires installation of eprover-25
+in the bin directory of the StarExec package.
 
 
 Distinguished strings for the results:
