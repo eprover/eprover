@@ -497,6 +497,7 @@ long StructFOFSpecParseAxioms(StructFOFSpec_p ctrl, PStack_p axfiles,
       }
    }
    ctrl->shared_ax_sp = PStackGetSP(ctrl->clause_sets);
+   ctrl->shared_ax_f_count = SigGetFCount(ctrl->terms->sig);
 
    return res;
 }

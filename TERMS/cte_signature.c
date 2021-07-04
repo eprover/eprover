@@ -669,6 +669,65 @@ FunCode SigInsertId(Sig_p sig, const char* name, int arity, bool special_id)
    return sig->f_count;
 }
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: SigPopId()
+//
+//   Remove the last symbol from the signature. This should only be
+//   done when no structures use it - otherwise the behaviour is
+//   undefined. This also ignores the Let-Id-Stack. The function
+//   returns the old sig->f_count (equivalent to the removed
+//   identifier), or 0 if the signature is empty.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+FunCode SigPopId(Sig_p sig)
+{
+   FunCode res = 0;
+
+   if(sig->f_count)
+   {
+      res = sig->f_count;
+      StrTreeDeleteEntry(&(sig->f_index), sig->f_info[sig->f_count].name);
+      // Identifier is freed (unexpectedly?) in StrTreeDeleteEntry()
+      //FREE(sig->f_info[sig->f_count].name);
+      sig->f_count--;
+   }
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: SigBacktrack()
+//
+//    Remove all symbols with f_codes > f_count from the signature. See
+//    SigPopId() for caveats. Returns the number of symbols popped.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+long SigBacktrack(Sig_p sig, FunCode f_count)
+{
+   long res = 0;
+
+   while(sig->f_count > f_count)
+   {
+      res++;
+      SigPopId(sig);
+   }
+   return res;
+}
+
+
 /*-----------------------------------------------------------------------
 //
 // Function: SigInsertLetId()
@@ -1527,7 +1586,6 @@ void SigDeclareIsFunction(Sig_p sig, FunCode f_code)
    }
 }
 
-
 /*-----------------------------------------------------------------------
 //
 // Function: SigDeclareIsPredicate()
@@ -1562,7 +1620,6 @@ void SigDeclareIsPredicate(Sig_p sig, FunCode f_code)
       SigFixType(sig, f_code);
    }
 }
-
 
 /*-----------------------------------------------------------------------
 //
@@ -1603,7 +1660,6 @@ void SigPrintTypes(FILE* out, Sig_p sig)
    }
 }
 
-
 /*-----------------------------------------------------------------------
 //
 // Function: SigPrintTypeDeclsTSTP()
@@ -1634,9 +1690,6 @@ void SigPrintTypeDeclsTSTP(FILE* out, Sig_p sig)
       }
    }
 }
-
-
-
 
 /*-----------------------------------------------------------------------
 //
@@ -1944,7 +1997,7 @@ void SigEnterLetScope(Sig_p sig, PStack_p type_decls)
 //
 /----------------------------------------------------------------------*/
 
-void  SigExitLetScope(Sig_p sig)
+void SigExitLetScope(Sig_p sig)
 {
    PStack_p scope = PStackPopP(sig->let_scopes);
 
@@ -1964,7 +2017,6 @@ void  SigExitLetScope(Sig_p sig)
       }
 
    }
-
    PStackFree(scope);
 }
 

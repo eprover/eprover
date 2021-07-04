@@ -318,6 +318,7 @@ typedef struct order_parms_cell
       NextToken(in);                            \
       AcceptInpTok(in, Colon);\
       CheckInpTok(in, String);                            \
+      if(handle->name){FREE(handle->name);} \
       handle->name = DStrCopyCore(AktToken(in)->literal);     \
       NextToken(in);\
    }\

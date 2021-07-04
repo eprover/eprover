@@ -213,7 +213,9 @@ extern bool      SigSupportLists; /* Auto-Insert special symbols
 Sig_p   SigAlloc(TypeBank_p bank);
 void    SigInsertInternalCodes(Sig_p sig);
 void    SigFree(Sig_p junk);
-#define SigExternalSymbols(sig) \
+
+#define SigGetFCount(sig) ((sig)->f_count)
+#define SigExternalSymbols(sig)                         \
         ((sig)->f_count-(sig)->internal_symbols)
 
 #define SigInterpreteNumbers(sig) ((sig)->null_code)
@@ -242,6 +244,9 @@ int     SigGetAlphaRank(Sig_p sig, FunCode f_code);
 
 FunCode SigInsertId(Sig_p sig, const char* name, int arity, bool
           special_id);
+FunCode SigPopId(Sig_p sig);
+long    SigBacktrack(Sig_p sig, FunCode f_count);
+
 FunCode SigInsertLetId(Sig_p sig, const char* name, Type_p type);
 FunCode SigInsertFOFOp(Sig_p sig, const char* name, int arity);
 void    SigPrint(FILE* out, Sig_p sig);

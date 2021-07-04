@@ -95,6 +95,12 @@ starexec:
 	rm -rf $(STAREXECPATH)
 	find . -name ".#*"  -exec rm {} \;
 	make clean
+	./configure --bindir="."
+	make
+	./configure --prefix=$(STAREXECPATH)
+	make install
+
+	make clean
 	./configure --bindir="." --enable-ho
 	make
 	./configure --prefix=$(STAREXECPATH) --enable-ho

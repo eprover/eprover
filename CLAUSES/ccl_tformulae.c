@@ -178,7 +178,7 @@ static Term_p normalize_head(Term_p head, Term_p* rest_args, int rest_arity, TB_
          }
       }
    }
-   
+
    if(!TermIsVar(res) && !TermIsShared(res))
    {
       res = TBTermTopInsert(bank, res);
@@ -294,7 +294,7 @@ static FunCode tptp_quantor_parse(Sig_p sig, Scanner_p in)
    else if (TestInpTok(in, UnivQuantor))
    {
       res = sig->qall_code;
-   } 
+   }
    else
    {
       assert (TestInpTok(in, LambdaQuantor));
@@ -391,7 +391,7 @@ static TFormula_p parse_atom(Scanner_p in, TB_p terms)
    }
    else
    {
-      res = EqnTermsTBTermEncode(terms, lhs, rhs, positive, PENormal);  
+      res = EqnTermsTBTermEncode(terms, lhs, rhs, positive, PENormal);
    }
    return res;
 }
@@ -610,7 +610,7 @@ static TFormula_p assoc_tform_tstp_parse(Scanner_p in, TB_p terms, TFormula_p he
 static TFormula_p applied_tform_tstp_parse(Scanner_p in, TB_p terms, TFormula_p head)
 {
    assert(TestInpTok(in, Application));
-   
+
    const Type_p hd_type = GetHeadType(terms->sig, head);
    assert(hd_type);
    const int max_args = TypeGetMaxArity(hd_type);
@@ -630,8 +630,8 @@ static TFormula_p applied_tform_tstp_parse(Scanner_p in, TB_p terms, TFormula_p 
       arg = literal_tform_tstp_parse(in, terms);
       args[i++] = head_is_logical ? EncodePredicateAsEqn(terms, arg) : arg;
    }
-   
-   TFormula_p res = 
+
+   TFormula_p res =
       EncodePredicateAsEqn(terms, normalize_head(head, args, i, terms));
    TermArgTmpArrayFree(args, max_args);
    return res;
@@ -1436,7 +1436,7 @@ TFormula_p TFormulaTSTPParse(Scanner_p in, TB_p terms)
    {
       op = tptp_operator_parse(terms->sig, in);
       f2 = literal_tform_tstp_parse(in, terms);
-      
+
       if(f1->type == sig->type_bank->bool_type &&
         (op == sig->eqn_code || op == sig->neqn_code))
       {

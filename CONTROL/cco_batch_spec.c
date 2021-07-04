@@ -161,7 +161,9 @@ EPCtrl_p batch_create_runner(StructFOFSpec_p ctrl,
    PStackClausePrintTSTP(fp, cspec);
    PStackFormulaPrintTSTP(fp, fspec);
    SecureFClose(fp);
-
+   //printf("=======================================\n");
+   //FilePrint(stdout, file);
+   //printf("=======================================\n");
    /* fprintf(GlobalOut, "# Written new problem (%lld)\n",
     * GetSecTimeMod()); */
 
@@ -605,7 +607,8 @@ void StructFOFSpecAddProblem(StructFOFSpec_p ctrl,
 // Function: StructFOFSpecBacktrackToSpec()
 //
 //   Backtrack the state to the spec state, i.e. backtrack the
-//   frequency count and free the extra clause sets.
+//   frequency count and free the extra clause sets. Also backtracks
+//   the signature to forget all new symbols.
 //
 // Global Variables: -
 //
@@ -631,6 +634,8 @@ void StructFOFSpecBacktrackToSpec(StructFOFSpec_p ctrl)
       formulas = PStackPopP(ctrl->formula_sets);
       FormulaSetFree(formulas);
    }
+   SigBacktrack(ctrl->terms->sig, ctrl->shared_ax_f_count);
+   problemType = PROBLEM_NOT_INIT;
 }
 
 
@@ -831,7 +836,6 @@ bool BatchProcessFile(BatchSpec_p spec,
    ClauseSet_p dummy;
    FormulaSet_p fset;
    FILE* fp;
-
 
    fprintf(GlobalOut, "\n# Processing %s -> %s\n", source, dest);
    fprintf(GlobalOut, "# SZS status Started for %s\n", source);

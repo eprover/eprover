@@ -46,6 +46,7 @@ typedef struct strtuctured_FOF_spec_cell
    PStack_p      formula_sets;
    StrTree_p     parsed_includes;
    PStackPointer shared_ax_sp;
+   FunCode       shared_ax_f_count;
    GenDistrib_p  f_distrib;
 }StructFOFSpecCell, *StructFOFSpec_p;
 
