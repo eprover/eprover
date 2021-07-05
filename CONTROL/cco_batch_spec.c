@@ -594,7 +594,9 @@ void StructFOFSpecAddProblem(StructFOFSpec_p ctrl,
                              FormulaSet_p formulas)
 {
    GenDistribSizeAdjust(ctrl->f_distrib, ctrl->sig);
+   GCRegisterClauseSet(ctrl->gc_terms, clauses);
    PStackPushP(ctrl->clause_sets, clauses);
+   GCRegisterFormulaSet(ctrl->gc_terms, formulas);
    PStackPushP(ctrl->formula_sets, formulas);
 
    GenDistribAddClauseSet(ctrl->f_distrib, clauses, 1);
@@ -630,11 +632,15 @@ void StructFOFSpecBacktrackToSpec(StructFOFSpec_p ctrl)
    while(PStackGetSP(ctrl->clause_sets)>ctrl->shared_ax_sp)
    {
       clauses = PStackPopP(ctrl->clause_sets);
+      GCDeregisterClauseSet(ctrl->gc_terms, clauses);
       ClauseSetFree(clauses);
       formulas = PStackPopP(ctrl->formula_sets);
+      GCDeregisterFormulaSet(ctrl->gc_terms, formulas);
       FormulaSetFree(formulas);
    }
+   GCCollect(ctrl->gc_terms);
    SigBacktrack(ctrl->terms->sig, ctrl->shared_ax_f_count);
+
    problemType = PROBLEM_NOT_INIT;
 }
 
@@ -803,6 +809,7 @@ bool BatchProcessProblem(BatchSpec_p spec,
 
    StructFOFSpecBacktrackToSpec(ctrl);
    /* cset and fset are freed in Backtrack */
+
    AxFilterSetFree(filters);
    EPCtrlSetFree(procs, true);
 
@@ -1106,14 +1113,22 @@ void BatchProcessVariants(BatchSpec_p spec, char* variants[], char* provers[],
               prob_count-solved_count, var_count-variant, concrete_prob_count);
 
       // Loading axioms here!
-      ctrl = StructFOFSpecAlloc();
-      concrete_batch_struct_FOF_spec_init(spec,
-                                         ctrl,
-                                         default_dir,
-                                         variants[variant]);
+      // DISABLED FOR CASC-28 - no shared axioms. inconsisten spec!
+      //ctrl = StructFOFSpecAlloc();
+      //concrete_batch_struct_FOF_spec_init(spec,
+      //                                   ctrl,
+      //                                   default_dir,
+      //                                  variants[variant]);
 
       for(i=0; i<PStackGetSP(spec->source_files); i++)
       {
+         // CASC-28-Hack
+         ctrl = StructFOFSpecAlloc();
+         concrete_batch_struct_FOF_spec_init(spec,
+                                             ctrl,
+                                             default_dir,
+                                             variants[variant]);
+         // CASC-28-Hack ends
          abstract_name = PStackElementP(spec->source_files, i);
          if(PDArrayElementInt(solved, i))
          {
@@ -1155,9 +1170,13 @@ void BatchProcessVariants(BatchSpec_p spec, char* variants[], char* provers[],
 
             FREE(concrete_name);
          }
+         // CASC-28-Hack
+         StructFOFSpecFree(ctrl);
+         spec->executable = save_exec;
       }
       spec->executable = save_exec;
-      StructFOFSpecFree(ctrl);
+      // See above - disabled for CASC-28
+      //StructFOFSpecFree(ctrl);
    }
    DStrFree(dest_name);
    PDArrayFree(solved);

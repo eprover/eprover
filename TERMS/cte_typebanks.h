@@ -40,7 +40,7 @@ typedef struct typebank_cell {
    long           names_count;                // Counter for different names inserted
    TypeUniqueID   types_count;                // Counter for different types inserted -- Each type will
                                               // have unique ID.
-   PObjTree_p     hash_table[TYPEBANK_SIZE];  // Hash table for sharng
+   PObjTree_p     hash_table[TYPEBANK_SIZE];  // Hash table for sharing
 
    // some types that are accessed frequently.
    Type_p bool_type;

@@ -724,6 +724,7 @@ long SigBacktrack(Sig_p sig, FunCode f_count)
       res++;
       SigPopId(sig);
    }
+   printf("Signature backtracked to %ld\n", f_count);
    return res;
 }
 

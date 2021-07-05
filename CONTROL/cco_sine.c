@@ -310,6 +310,7 @@ StructFOFSpec_p StructFOFSpecCreate(TB_p terms)
 
    handle->sig             = terms->sig;
    handle->terms           = terms;
+   handle->gc_terms        = GCAdminAlloc(handle->terms);
    handle->clause_sets     = PStackAlloc();
    handle->formula_sets    = PStackAlloc();
    handle->parsed_includes = NULL;
@@ -384,7 +385,7 @@ void StructFOFSpecFree(StructFOFSpec_p ctrl)
       FormulaSetFree(fset);
    }
    PStackFree(ctrl->formula_sets);
-
+   GCAdminFree(ctrl->gc_terms);
    if(ctrl->sig)
    {
       if(ctrl->sig->type_bank)
@@ -480,6 +481,8 @@ long StructFOFSpecParseAxioms(StructFOFSpec_p ctrl, PStack_p axfiles,
             fprintf(GlobalOut, "# Parsing %s\n", iname);
             cset = ClauseSetAlloc();
             fset = FormulaSetAlloc();
+            GCRegisterFormulaSet(ctrl->gc_terms, fset);
+            GCRegisterClauseSet(ctrl->gc_terms, cset);
             res += FormulaAndClauseSetParse(in, fset, cset, ctrl->terms,
                                             NULL,
                                             &(ctrl->parsed_includes));
