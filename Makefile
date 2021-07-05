@@ -106,11 +106,6 @@ starexec:
 	./configure --prefix=$(STAREXECPATH) --enable-ho
 	make install
 
-	make clean
-	./configure --bindir="."
-	make
-	./configure --prefix=$(STAREXECPATH)
-	make install
 	# Special hack for CASC-28
 	-cp ../E-2.5/PROVER/eprover $(STAREXECPATH)/bin/eprover-25
 	cp etc/STAREXEC2.2/starexec_run* $(STAREXECPATH)/bin
