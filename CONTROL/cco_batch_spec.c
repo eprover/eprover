@@ -1172,7 +1172,6 @@ void BatchProcessVariants(BatchSpec_p spec, char* variants[], char* provers[],
          }
          // CASC-28-Hack
          StructFOFSpecFree(ctrl);
-         spec->executable = save_exec;
       }
       spec->executable = save_exec;
       // See above - disabled for CASC-28
