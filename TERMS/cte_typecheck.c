@@ -242,34 +242,37 @@ void TypeInferSort(Sig_p sig, Term_p term, Scanner_p in)
          assert(term->f_code == SIG_NAMED_LAMBDA_CODE);
          assert(term->arity == 2);
          // type of lambda is 'type of variable' -> 'type of body'
-         term->type = 
+         term->type =
             TypeBankInsertTypeShared(sig->type_bank,
-                                     ArrowTypeFlattened(&(term->args[0]->type), 1, 
+                                     ArrowTypeFlattened(&(term->args[0]->type), 1,
                                      term->args[1]->type));
       }
       else if(term->f_code == sig->eqn_code || term->f_code == sig->neqn_code)
       {
          if(term->arity == 0)
          {
-            AktTokenError(in, "Equality must have at least one argument", 
+            AktTokenError(in, "Equality must have at least one argument",
                           SYNTAX_ERROR);
          }
          Type_p arg_type = term->args[0]->type;
          Type_p eq_type_args[3] = {arg_type, arg_type, sig->type_bank->bool_type};
-         type = TypeBankInsertTypeShared(sig->type_bank, 
+         type = TypeBankInsertTypeShared(sig->type_bank,
                                          AllocArrowTypeCopyArgs(3, eq_type_args));
       }
       else if(term->f_code == sig->qex_code || term->f_code == sig->qall_code)
       {
          if(term->arity == 0)
          {
-            AktTokenError(in, "Equality must have at least one argument", 
+            AktTokenError(in, "Equality must have at least one argument",
                           SYNTAX_ERROR);
          }
          assert(TermIsVar(term->args[0]));
          Type_p arg_type = term->args[0]->type;
-         Type_p quant_type_args[3] = {arg_type, sig->type_bank->bool_type, sig->type_bank->bool_type};
-         type = TypeBankInsertTypeShared(sig->type_bank, 
+         Type_p quant_type_args[3] =
+            {arg_type,
+            sig->type_bank->bool_type,
+            sig->type_bank->bool_type};
+         type = TypeBankInsertTypeShared(sig->type_bank,
                                          AllocArrowTypeCopyArgs(3, quant_type_args));
       }
       else
@@ -300,7 +303,11 @@ void TypeInferSort(Sig_p sig, Term_p term, Scanner_p in)
                   if(term->args[i]->type != type->args[i])
                   {
                      fprintf(stderr, "# Type mismatch in argument #%d of ", i+1);
+#ifdef ENABLE_LFHO
                      TermPrintDbgHO(stderr, term, sig, DEREF_NEVER);
+#else
+                     TermPrintFO(stderr, term, sig, DEREF_NEVER);
+#endif
                      fprintf(stderr, ": expected ");
                      TypePrintTSTP(stderr, sig->type_bank, type->args[i]);
                      fprintf(stderr, " but got ");
