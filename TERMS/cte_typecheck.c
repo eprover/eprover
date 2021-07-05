@@ -300,12 +300,13 @@ void TypeInferSort(Sig_p sig, Term_p term, Scanner_p in)
                   if(term->args[i]->type != type->args[i])
                   {
                      fprintf(stderr, "# Type mismatch in argument #%d of ", i+1);
-                     TermPrint(stderr, term, sig, DEREF_NEVER);
+                     TermPrintDbgHO(stderr, term, sig, DEREF_NEVER);
                      fprintf(stderr, ": expected ");
                      TypePrintTSTP(stderr, sig->type_bank, type->args[i]);
                      fprintf(stderr, " but got ");
                      TypePrintTSTP(stderr, sig->type_bank, term->args[i]->type);
                      fprintf(stderr, "\n");
+                     assert(false);
                      TI_ERROR("Type error");
                   }
                }
@@ -326,6 +327,7 @@ void TypeInferSort(Sig_p sig, Term_p term, Scanner_p in)
                      fprintf(stderr, " but got ");
                      TypePrintTSTP(stderr, sig->type_bank, term->args[i]->type);
                      fprintf(stderr, "\n");
+                     assert(false);
                      TI_ERROR("Type error");
                   }
                }

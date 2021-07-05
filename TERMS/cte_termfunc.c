@@ -2536,10 +2536,13 @@ void TermFOOLPrint(FILE* out, Sig_p sig, TFormula_p form)
          {
            fputs("~", out);
          }
+         PRINT_HO_PAREN(out, '(');
          TermPrint(out, form->args[0], sig, DEREF_NEVER);
+         PRINT_HO_PAREN(out, ')');
       }
       else
       {
+         PRINT_HO_PAREN(out, '(');
          PRINT_HO_PAREN(out, '(');
          TermPrint(out, form->args[0], sig, DEREF_NEVER);
          PRINT_HO_PAREN(out, ')');
@@ -2550,6 +2553,7 @@ void TermFOOLPrint(FILE* out, Sig_p sig, TFormula_p form)
          fputc('=', out);
          PRINT_HO_PAREN(out, '(');
          TermPrint(out, form->args[1], sig, DEREF_NEVER);
+         PRINT_HO_PAREN(out, ')');
          PRINT_HO_PAREN(out, ')');
       }
 
@@ -2587,8 +2591,9 @@ void TermFOOLPrint(FILE* out, Sig_p sig, TFormula_p form)
             TypePrintTSTP(out, sig->type_bank, form->args[0]->type);
          }
       }
-      fputs("]:", out);
+      fputs("]:(", out);
       TermFOOLPrint(out, sig, form->args[1]);
+      fputs(")", out);
    }
    else if(form->f_code == sig->not_code)
    {
