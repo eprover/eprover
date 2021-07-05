@@ -1125,8 +1125,9 @@ void TFormulaTPTPPrint(FILE* out, TB_p bank, TFormula_p form, bool fullterms, bo
             TypePrintTSTP(out, bank->sig->type_bank, form->args[0]->type);
          }
       }
-      fputs("]:", out);
+      fputs("]:(", out);
       TFormulaTPTPPrint(out, bank, form->args[1], fullterms, pcl);
+      fputs(")", out);
    }
    else if(TFormulaIsUnary(form))
    {
