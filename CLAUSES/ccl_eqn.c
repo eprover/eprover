@@ -968,6 +968,7 @@ void EqnPrint(FILE* out, Eqn_p eq, bool negated,  bool fullterms)
           /* || eq->lterm==eq->bank->true_term*/
             ))
       {
+         fputc('(', out);
          TBPrintTerm(out, eq->bank, eq->lterm, fullterms);
 
          if(!positive)
@@ -977,6 +978,7 @@ void EqnPrint(FILE* out, Eqn_p eq, bool negated,  bool fullterms)
          /* fprintf(out, EqnIsOriented(eq)?"=>":"="); */
          fprintf(out, "=");
          TBPrintTerm(out, eq->bank, eq->rterm, fullterms);
+         fputc(')', out);
       }
       else
       {
@@ -996,7 +998,9 @@ void EqnPrint(FILE* out, Eqn_p eq, bool negated,  bool fullterms)
          }
          else
          {
+            fputc('(', out);
             TBPrintTerm(out, eq->bank, eq->lterm, fullterms);
+            fputc(')', out);
          }
       }
    }
