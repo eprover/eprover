@@ -298,6 +298,7 @@ void filter_problem(StructFOFSpec_p ctrl,
    {
       fprintf(fp, "%s", desc);
    }
+   SigPrintTypeDeclsTSTP(fp, ctrl->sig);
    PStackClausePrintTSTP(fp, clauses);
    PStackFormulaPrintTSTP(fp, formulas);
    fclose(fp);
