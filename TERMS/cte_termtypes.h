@@ -180,8 +180,8 @@ typedef uintptr_t DerefType, *DerefType_p;
 #define TERMCELL_DYN_MEM (TERMCELL_MEM+4*TERMARG_MEM)
 
 #ifdef ENABLE_LFHO
-#define CAN_DEREF(term) ((TermIsVar(term) && (term)->binding) || \
-                            (TermIsAppliedVar(term) && ((term)->args[0]->binding)))
+#define CAN_DEREF(term) ((TermIsFreeVar(term) && (term)->binding) || \
+                            (TermIsAppliedFreeVar(term) && ((term)->args[0]->binding)))
 #else
 #define CAN_DEREF(term) (((term)->binding))
 #endif
@@ -204,8 +204,8 @@ typedef uintptr_t DerefType, *DerefType_p;
    we get f (f X Y) a Z as result. Netiher are correct. Thus, there is
    a part of term (up to DEREF_LIMIT) for which we do not follow pointers and
    then other part (after and including DEREF_LIMIT) for which we do follow pointers.  */
-#define DEREF_LIMIT(t,d) ((TermIsAppliedVar(t) && (t)->args[0]->binding && (d) == DEREF_ONCE) ? \
-                          (t)->args[0]->binding->arity + ((TermIsVar((t)->args[0]->binding)) ? 1 : 0)  : 0)
+#define DEREF_LIMIT(t,d) ((TermIsAppliedFreeVar(t) && (t)->args[0]->binding && (d) == DEREF_ONCE) ? \
+                          (t)->args[0]->binding->arity + ((TermIsFreeVar((t)->args[0]->binding)) ? 1 : 0)  : 0)
 /* Sets derefs according to the previous comment and expects i to be an index
    into arugment array, l to be DEREF_LIMIT and d wanted deref mode*/
 #define CONVERT_DEREF(i, l, d) (((i) < (l) && (d) == DEREF_ONCE) ? DEREF_NEVER : (d))
@@ -226,20 +226,28 @@ typedef uintptr_t DerefType, *DerefType_p;
 #define TERMS_INITIAL_ARGS 10
 
 #define RewriteAdr(level) (assert(level),(level)-1)
-#define TermIsVar(t) ((t)->f_code < 0)
-#define TermIsConst(t)(!TermIsVar(t) && ((t)->arity==0))
+#define TermIsFreeVar(t) ((t)->f_code < 0)
+#define TermIsConst(t)(!TermIsAnyVar(t) && ((t)->arity==0))
 #ifdef ENABLE_LFHO
 #define TermIsPhonyApp(term) ((term)->f_code == SIG_PHONY_APP_CODE)
-#define TermIsAppliedVar(term) ((term)->f_code == SIG_PHONY_APP_CODE && \
-                                TermIsVar((term)->args[0]))
+#define TermIsAppliedFreeVar(term) ((term)->f_code == SIG_PHONY_APP_CODE && \
+                                TermIsFreeVar((term)->args[0]))
+#define TermIsAppliedAnyVar(term) ((term)->f_code == SIG_PHONY_APP_CODE && \
+                                   TermIsAnyVar((term)->args[0]))
 #define TermIsLambda(term) ((term)->f_code == SIG_NAMED_LAMBDA_CODE || \
                             (term)->f_code == SIG_DB_LAMBDA_CODE)
+#define TermIsDBVar(term) (QueryProp((term), (TPIsDBVar)))
+#define TermIsAnyVar(term) (TermIsFreeVar(term) || TermIsDBVar(term))
 #else
 #define TermIsPhonyApp(term) (false)
-#define TermIsAppliedVar(term) (false)
+#define TermIsAppliedFreeVar(term) (false)
+#define TermIsAppliedAnyVar(term) (false)
 #define TermIsLambda(term) (false)
+#define TermIsDBVar(term) (false)
+#define TermIsAnyVar(term) (TermIsFreeVar(term))
 #endif
-#define TermIsTopLevelVar(term) (TermIsVar(term) || TermIsAppliedVar(term))
+#define TermIsTopLevelFreeVar(term) (TermIsFreeVar(term) || TermIsAppliedFreeVar(term))
+#define TermIsTopLevelAnyVar(term)  (TermIsAnyVar(term) || TermIsAppliedAnyVar(term))
 
 #define TermCellSetProp(term, prop) SetProp((term), (prop))
 #define TermCellDelProp(term, prop) DelProp((term), (prop))
@@ -360,14 +368,14 @@ Term_p applied_var_deref(Term_p orig);
 static inline Type_p GetHeadType(Sig_p sig, Term_p term)
 {
 #ifdef ENABLE_LFHO
-   if(TermIsAppliedVar(term))
+   if(TermIsAppliedFreeVar(term))
    {
       assert(!sig || term->f_code == SIG_PHONY_APP_CODE);
       return term->args[0]->type;
    }
-   else if(TermIsVar(term) || TermIsLambda(term))
+   else if(TermIsFreeVar(term) || TermIsLambda(term))
    {
-      assert(!TermIsVar(term) || term->arity == 0);
+      assert(!TermIsFreeVar(term) || term->arity == 0);
       return term->type;
    }
    else
@@ -395,9 +403,9 @@ static inline Type_p GetHeadType(Sig_p sig, Term_p term)
 #ifdef ENABLE_LFHO
 static inline Term_p deref_step(Term_p orig)
 {
-   assert(TermIsTopLevelVar(orig));
+   assert(TermIsTopLevelFreeVar(orig));
 
-   if(TermIsVar(orig))
+   if(TermIsFreeVar(orig))
    {
       return orig->binding;
    }
@@ -424,7 +432,7 @@ static inline Term_p deref_step(Term_p orig)
 
 static inline Term_p TermDerefAlways(Term_p term)
 {
-   assert(TermIsTopLevelVar(term) || !(term->binding));
+   assert(TermIsTopLevelFreeVar(term) || !(term->binding));
 
    while(CAN_DEREF(term))
    {
@@ -459,7 +467,7 @@ static inline Term_p TermDerefAlways(Term_p term)
 
 static Term_p inline TermDeref(Term_p term, DerefType_p deref)
 {
-   assert(TermIsTopLevelVar(term) || !(term->binding));
+   assert(TermIsTopLevelFreeVar(term) || !(term->binding));
 
    if(*deref == DEREF_ALWAYS)
    {
@@ -477,7 +485,7 @@ static Term_p inline TermDeref(Term_p term, DerefType_p deref)
       while(*deref && CAN_DEREF(term))
       {
 #ifdef ENABLE_LFHO
-         bool originally_app_var = TermIsAppliedVar(term);
+         bool originally_app_var = TermIsAppliedFreeVar(term);
          term = deref_step(term);
          if((*deref) == DEREF_ONCE && originally_app_var)
          {

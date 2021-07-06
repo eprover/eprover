@@ -215,7 +215,7 @@ bool test_leaks(Term_p target, Eqn_p def)
    for(PStackPointer i=0; ans && i<PStackGetSP(bound); i++)
    {
       Term_p binding = ((Term_p)PStackElementP(bound, i))->binding;
-      if(binding && (!TermIsVar(binding) || TermCellQueryProp(binding, TPIsSpecialVar)))
+      if(binding && (!TermIsFreeVar(binding) || TermCellQueryProp(binding, TPIsSpecialVar)))
       {
          ans = false;
       }

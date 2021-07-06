@@ -91,7 +91,7 @@ static void prfx_insert_subterms(
    while (!PStackEmpty(stack))
    {
       subterm = PStackPopP(stack);
-      if(TermIsVar(subterm)) {
+      if(TermIsFreeVar(subterm)) {
          continue;
       }
       prfx_insert_term(tree,subterm,vars,var_norm);

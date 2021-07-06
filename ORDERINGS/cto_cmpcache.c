@@ -96,7 +96,7 @@ CompareResult CmpCacheFind(CmpCache_p *cache, Term_p t1, DerefType d1,
    CompareResult res = to_unknown;
    bool nat_order;
 
-   if(TermIsVar(t1)||TermIsVar(t2))
+   if(TermIsFreeVar(t1)||TermIsFreeVar(t2))
    {
       return to_unknown;
    }
@@ -145,7 +145,7 @@ bool CmpCacheInsert(CmpCache_p *cache, Term_p t1, DerefType d1, Term_p
    assert(insert!=to_unknown);
    /* printf("%p:%d:%p:%d:%d\n", t1,d1,t2,d2,insert); */
 
-   if(TermIsVar(t1)||TermIsVar(t2))
+   if(TermIsFreeVar(t1)||TermIsFreeVar(t2))
    {
       return false;
    }

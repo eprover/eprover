@@ -90,8 +90,8 @@ void varsetinstapply(VarSetInst_p varinst)
                          varinst->cells[i].position);
       /* printf("varsetinstapply: i=%ld, position = %ld\n",i,
          varinst->cells[i].position); */
-      assert(!TermIsVar(t));
-      assert(TermIsVar(varinst->cells[i].variable));
+      assert(!TermIsFreeVar(t));
+      assert(TermIsFreeVar(varinst->cells[i].variable));
       varinst->cells[i].variable->binding = t;
    }
 }
@@ -468,7 +468,7 @@ VarSetInst_p VarSetConstrInstAlloc(LitOccTable_p p_table,
 
          var = PTreeExtractRootKey(&tree);
          assert(var);
-         assert(TermIsVar(var));
+         assert(TermIsFreeVar(var));
          tmp = PTreeCopy(ground_terms);
          PDArrayAssignP(var_constr, -var->f_code, tmp);
 

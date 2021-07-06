@@ -61,7 +61,7 @@ static long term_collect_idx_subterms(Term_p term, PTree_p *rest,
    int i;
    PTree_p *tree;
 
-   if(TermIsVar(term))
+   if(TermIsFreeVar(term))
    {
       return 0;
    }

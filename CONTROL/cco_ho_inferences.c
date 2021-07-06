@@ -130,9 +130,9 @@ bool do_equiv_destruct(Clause_p cl, PStack_p tasks)
       TB_p terms = lit->bank;
       if(TypeIsBool(lit->lterm->type) && 
          lit->rterm != terms->true_term &&
-         (TermIsVar(lit->lterm) ||
+         (TermIsAnyVar(lit->lterm) ||
           !SigQueryProp(terms->sig, lit->lterm->f_code, FPFOFOp)) &&
-         (TermIsVar(lit->rterm) ||
+         (TermIsAnyVar(lit->rterm) ||
           !SigQueryProp(terms->sig, lit->rterm->f_code, FPFOFOp)))
       {
          Clause_p child1, child2;
@@ -190,7 +190,7 @@ bool find_disagreements(Sig_p sig, Term_p t, Term_p s, PStack_p diss_stack)
 
       if(s!=t)
       {
-         if(!TermIsTopLevelVar(s) && !TermIsTopLevelVar(t) &&
+         if(!TermIsPhonyApp(s) && !TermIsPhonyApp(t) &&
             s->f_code == t->f_code)
          {
             assert(s->arity == t->arity);
@@ -206,8 +206,10 @@ bool find_disagreements(Sig_p sig, Term_p t, Term_p s, PStack_p diss_stack)
             PStackPushP(diss_stack, s);
             exists_elig = exists_elig ||
                           (TYPE_EXT_ELIGIBLE(s->type)
-                           && (TermIsVar(s) || !SigQueryFuncProp(sig, s->f_code, FPFOFOp))
-                           && (TermIsVar(t) || !SigQueryFuncProp(sig, t->f_code, FPFOFOp)));
+                           && (TermIsFreeVar(s) || 
+                                 (!TermIsDBVar(s) && !SigQueryFuncProp(sig, s->f_code, FPFOFOp)))
+                           && (TermIsFreeVar(t) || 
+                                 (!TermIsDBVar(t) && !SigQueryFuncProp(sig, t->f_code, FPFOFOp))));
          }
       }
    }
@@ -475,7 +477,7 @@ Term_p term_apply_arg(TypeBank_p tb, Term_p s, Term_p arg)
    assert(s->type->args[0] == arg->type);
    
    Term_p s_arg = NULL;
-   if (UNLIKELY(!TermIsVar(s)))
+   if (UNLIKELY(!TermIsAnyVar(s)))
    {
       s_arg = TermTopAlloc(s->f_code, s->arity+1);
       for(int i=0; i<s->arity; i++)
@@ -530,11 +532,11 @@ Term_p term_drop_last_arg(TypeBank_p tb, Term_p s)
    
    Type_p res_type = TypeBankInsertTypeShared(tb, AllocArrowType(needed_args+2, args));
 
-   if (TermIsAppliedVar(s) && s->arity==2)
+   if (TermIsPhonyApp(s) && s->arity==2)
    {
       Term_p t = s->args[0];
       assert(t->type == res_type);
-      assert(TermIsVar(t));
+      assert(TermIsFreeVar(t));
       return t;
    }
    else 
@@ -723,7 +725,7 @@ void ComputePosExt(ProofState_p state, ProofControl_p control, Clause_p clause)
 
          while(lhs->arity && rhs->arity &&
                lhs->args[lhs->arity-1] == rhs->args[rhs->arity-1] &&
-               TermIsVar(lhs->args[lhs->arity-1]))
+               TermIsFreeVar(lhs->args[lhs->arity-1]))
          {
             Term_p var =  lhs->args[lhs->arity-1];
 
@@ -751,11 +753,11 @@ void ComputePosExt(ProofState_p state, ProofControl_p control, Clause_p clause)
                lhs = term_drop_last_arg(tb, lhs);
                rhs = term_drop_last_arg(tb, rhs);
 
-               if (!TermIsVar(lhs))
+               if (!TermIsFreeVar(lhs))
                {
                   lhs = TBTermTopInsert(state->terms, lhs);
                }
-               if (!TermIsVar(rhs))
+               if (!TermIsFreeVar(rhs))
                {
                   rhs = TBTermTopInsert(state->terms, rhs);
                }
@@ -850,6 +852,8 @@ void ComputeExtEqRes(ProofState_p state, ProofControl_p control, Clause_p cl)
          if(EqnIsNegative(lit) && EqnIsEquLit(lit) &&
             !TypeIsArrow(lit->lterm) &&
             lit->lterm->f_code == lit->rterm->f_code &&
+            !TermIsPhonyApp(lit->lterm) &&
+            !TermIsDBVar(lit->lterm) && !TermIsDBVar(lit->rterm) &&
             TermHasExtEligSubterm(lit->lterm) &&
             TermHasExtEligSubterm(lit->rterm))
          {
@@ -930,12 +934,12 @@ bool ResolveFlexClause(Clause_p cl)
       {
          is_resolvable = is_resolvable 
                          && EqnIsNegative(lit)
-                         && TermIsTopLevelVar(lit->lterm)
-                         && TermIsTopLevelVar(lit->rterm);
+                         && TermIsTopLevelFreeVar(lit->lterm)
+                         && TermIsTopLevelFreeVar(lit->rterm);
          if(is_resolvable && TypeIsPredicate(lit->lterm->type))
          {
-            Term_p lvar = (TermIsVar(lit->lterm) ? lit->lterm : lit->lterm->args[0]);
-            Term_p rvar = (TermIsVar(lit->rterm) ? lit->rterm : lit->rterm->args[0]);
+            Term_p lvar = (TermIsFreeVar(lit->lterm) ? lit->lterm : lit->lterm->args[0]);
+            Term_p rvar = (TermIsFreeVar(lit->rterm) ? lit->rterm : lit->rterm->args[0]);
             int* prev_l = IntMapGetVal(ids_to_sign, lvar->f_code);
             int* prev_r = IntMapGetVal(ids_to_sign, rvar->f_code);
             if(prev_l || prev_r)
@@ -953,13 +957,13 @@ bool ResolveFlexClause(Clause_p cl)
       else
       {
          assert(lit->lterm != lit->bank->true_term);
-         if(!TermIsTopLevelVar(lit->lterm))
+         if(!TermIsTopLevelFreeVar(lit->lterm))
          {
             is_resolvable = false;
          }
          else
          {
-            Term_p var = (TermIsVar(lit->lterm) ? lit->lterm : lit->lterm->args[0]);
+            Term_p var = (TermIsFreeVar(lit->lterm) ? lit->lterm : lit->lterm->args[0]);
             int* prev_val = IntMapGetVal(ids_to_sign, var->f_code);
             if(!prev_val)
             {

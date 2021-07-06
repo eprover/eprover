@@ -629,8 +629,8 @@ EvalPriority PrioFunByAppVarNum(Clause_p clause)
    EvalPriority res = 0;
    for(Eqn_p lit = clause->literals; lit; lit = lit->next)
    {
-      res += TermIsAppliedVar(lit->lterm) ? 1 : 0;
-      res += TermIsAppliedVar(lit->rterm) ? 1 : 0;
+      res += TermIsAppliedFreeVar(lit->lterm) ? 1 : 0;
+      res += TermIsAppliedFreeVar(lit->rterm) ? 1 : 0;
    }
    return res;
 }

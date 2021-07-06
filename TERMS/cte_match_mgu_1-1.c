@@ -70,9 +70,9 @@ const UnificationResult UNIF_INIT = {NoTerm, -2};
 /----------------------------------------------------------------------*/
 static __inline__ bool reorientation_needed(Term_p t1, Term_p t2)
 {
-   if(TermIsTopLevelVar(t2))
+   if(TermIsTopLevelFreeVar(t2))
    {
-      return !TermIsTopLevelVar(t1) ||
+      return !TermIsTopLevelFreeVar(t1) ||
                TypeGetMaxArity(GetHeadType(NULL, t2)) <
                TypeGetMaxArity(GetHeadType(NULL, t1)) ||
                (TypeGetMaxArity(GetHeadType(NULL, t2)) ==
@@ -140,7 +140,7 @@ static bool occur_check(restrict Term_p term, restrict Term_p var)
 int PartiallyMatchVar(Term_p var_matcher, Term_p to_match, Sig_p sig, 
                       bool perform_occur_check)
 {
-   assert(TermIsVar(var_matcher) && !var_matcher->binding);
+   assert(TermIsFreeVar(var_matcher) && !var_matcher->binding);
    assert(problemType == PROBLEM_HO || !TypeIsArrow(var_matcher->type));
    
    int args_to_eat = MATCH_FAILED;
@@ -186,7 +186,7 @@ int PartiallyMatchVar(Term_p var_matcher, Term_p to_match, Sig_p sig,
 
    if(perform_occur_check)
    {
-      for(int i=0; i<args_to_eat + TermIsAppliedVar(to_match) ? 1 : 0; i++)
+      for(int i=0; i<args_to_eat + TermIsAppliedFreeVar(to_match) ? 1 : 0; i++)
       {
          if(occur_check(to_match->args[i], var_matcher))
          {
@@ -228,7 +228,7 @@ bool SubstComputeMatch(Term_p matcher, Term_p to_match, Subst_p subst)
    assert(TermStandardWeight(matcher)  == TermWeight(matcher, DEFAULT_VWEIGHT, DEFAULT_FWEIGHT));
    assert(TermStandardWeight(to_match) == TermWeight(to_match, DEFAULT_VWEIGHT, DEFAULT_FWEIGHT));
 
-   if((matcher_weight > to_match_weight) || (TermCellQueryProp(to_match, TPPredPos) && TermIsVar(matcher)))
+   if((matcher_weight > to_match_weight) || (TermCellQueryProp(to_match, TPPredPos) && TermIsFreeVar(matcher)))
    {
       return false;
    }
@@ -245,7 +245,7 @@ bool SubstComputeMatch(Term_p matcher, Term_p to_match, Subst_p subst)
       to_match =  PLocalStackPop(jobs);
       matcher  =  PLocalStackPop(jobs);
 
-      if(TermIsVar(matcher))
+      if(TermIsFreeVar(matcher))
       {
          assert(matcher->type);
          assert(to_match->type);
@@ -354,9 +354,9 @@ int SubstComputeMatchHO(Term_p matcher, Term_p to_match, Subst_p subst)
       to_match =  PLocalStackPop(jobs);
       matcher  =  PLocalStackPop(jobs);
       
-      if(TermIsTopLevelVar(matcher))
+      if(TermIsTopLevelFreeVar(matcher))
       {
-         Term_p var = TermIsAppliedVar(matcher) ? matcher->args[0] : matcher;
+         Term_p var = TermIsAppliedFreeVar(matcher) ? matcher->args[0] : matcher;
 
          if(var->binding)
          {
@@ -416,15 +416,15 @@ int SubstComputeMatchHO(Term_p matcher, Term_p to_match, Subst_p subst)
          }
       }
 
-      const int offset = start_idx + (TermIsAppliedVar(to_match) ? 1 : 0)
-                                   - (TermIsAppliedVar(matcher) ? 1 : 0);
+      const int offset = start_idx + (TermIsAppliedFreeVar(to_match) ? 1 : 0)
+                                   - (TermIsAppliedFreeVar(matcher) ? 1 : 0);
       if(matcher->arity + offset > to_match->arity)
       {
          FAIL_AND_BREAK(res, MATCH_FAILED);
       }
       
       PLocalStackEnsureSpace(jobs, 2*(matcher->arity));
-      for(int i=TermIsAppliedVar(matcher) ? 1 : 0; i<matcher->arity; i++)
+      for(int i=TermIsAppliedFreeVar(matcher) ? 1 : 0; i<matcher->arity; i++)
       {
          PLocalStackPush(jobs, matcher->args[i]);
          PLocalStackPush(jobs, to_match->args[i+offset]);
@@ -472,8 +472,8 @@ bool SubstComputeMgu(Term_p t1, Term_p t2, Subst_p subst)
 
    PERF_CTR_ENTRY(MguTimer);
 
-   if((TermCellQueryProp(t1, TPPredPos) && TermIsVar(t2))||
-      (TermCellQueryProp(t2, TPPredPos) && TermIsVar(t1)))
+   if((TermCellQueryProp(t1, TPPredPos) && TermIsFreeVar(t2))||
+      (TermCellQueryProp(t2, TPPredPos) && TermIsFreeVar(t1)))
    {
       PERF_CTR_EXIT(MguTimer);
       return false;
@@ -492,12 +492,12 @@ bool SubstComputeMgu(Term_p t1, Term_p t2, Subst_p subst)
       t2 =  TermDerefAlways(PQueueGetLastP(jobs));
       t1 =  TermDerefAlways(PQueueGetLastP(jobs));
 
-      if(TermIsVar(t2))
+      if(TermIsFreeVar(t2))
       {
          SWAP(t1, t2);
       }
 
-      if(TermIsVar(t1))
+      if(TermIsFreeVar(t1))
       {
          if(t1 != t2)
          {
@@ -530,7 +530,7 @@ bool SubstComputeMgu(Term_p t1, Term_p t2, Subst_p subst)
             for(int i=t1->arity-1; i>=0; i--)
             {
                /* Delay variable bindings */
-               if(TermIsVar(t1->args[i]) || TermIsVar(t2->args[i]))
+               if(TermIsFreeVar(t1->args[i]) || TermIsFreeVar(t2->args[i]))
                {
                   PQueueBuryP(jobs, t2->args[i]);
                   PQueueBuryP(jobs, t1->args[i]);
@@ -614,9 +614,9 @@ UnificationResult SubstComputeMguHO(Term_p t1, Term_p t2, Subst_p subst)
          SWAP(t1, t2);
       }
 
-      if(TermIsTopLevelVar(t1))
+      if(TermIsTopLevelFreeVar(t1))
       {
-         Term_p var = TermIsAppliedVar(t1) ? t1->args[0] : t1;
+         Term_p var = TermIsAppliedFreeVar(t1) ? t1->args[0] : t1;
          
          int args_eaten = PartiallyMatchVar(var, t2, sig, true);
          if(args_eaten == MATCH_FAILED)
@@ -641,7 +641,7 @@ UnificationResult SubstComputeMguHO(Term_p t1, Term_p t2, Subst_p subst)
       }
       else
       {
-         assert(!TermIsTopLevelVar(t1) && !TermIsTopLevelVar(t2));
+         assert(!TermIsTopLevelFreeVar(t1) && !TermIsTopLevelFreeVar(t2));
 
          if(t1->f_code != t2->f_code)
          {
@@ -665,8 +665,8 @@ UnificationResult SubstComputeMguHO(Term_p t1, Term_p t2, Subst_p subst)
          SWAP(offset_min, offset_max);
       }
 
-      offset_min += (TermIsAppliedVar(min_term) ? 1 : 0);
-      offset_max += (TermIsAppliedVar(max_term) ? 1 : 0);
+      offset_min += (TermIsAppliedFreeVar(min_term) ? 1 : 0);
+      offset_max += (TermIsAppliedFreeVar(max_term) ? 1 : 0);
       
       assert(min_term->arity - offset_min <= max_term->arity - offset_max && min_term->arity >= offset_min &&
                max_term->arity >= offset_max);
@@ -682,7 +682,7 @@ UnificationResult SubstComputeMguHO(Term_p t1, Term_p t2, Subst_p subst)
       {
          Term_p min_arg = min_term->args[i + offset_min];
          Term_p max_arg = max_term->args[i + offset_max];
-         if(TermIsTopLevelVar(min_arg) || TermIsTopLevelVar(max_arg))
+         if(TermIsTopLevelFreeVar(min_arg) || TermIsTopLevelFreeVar(max_arg))
          {
             PQueueBuryP(jobs, max_arg);
             PQueueBuryP(jobs, min_arg);

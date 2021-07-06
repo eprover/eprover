@@ -108,17 +108,17 @@ void insert_idx(ExtIndex_p idx, Clause_p cl, PStack_p collected_pos)
 void collect_into_pos_term(Term_p t, CompactPos pos, PStack_p stack)
 {
    PStackPointer old_top = PStackGetSP(stack);
-   CompactPos new_pos = pos + DEFAULT_FWEIGHT*(TermIsAppliedVar(t) ? 0 : 1);
+   CompactPos new_pos = pos + DEFAULT_FWEIGHT*(TermIsPhonyApp(t) ? 0 : 1);
    bool has_func_subterm = false;
    for(int i=0; i < t->arity; i++)
    {
       Term_p arg = t->args[i];
       collect_into_pos_term(arg, new_pos, stack);
       has_func_subterm = has_func_subterm || 
-                        (TYPE_EXT_ELIGIBLE(arg->type) && !TermIsTopLevelVar(arg));
+                        (TYPE_EXT_ELIGIBLE(arg->type) && !TermIsTopLevelAnyVar(arg));
       new_pos += TermStandardWeight(arg);
    }
-   if(!TypeIsArrow(t->type) && !TermIsTopLevelVar(t))
+   if(!TypeIsArrow(t->type) && !TermIsTopLevelAnyVar(t))
    {
       if(has_func_subterm || PStackGetSP(stack) != old_top)
       {
@@ -213,7 +213,7 @@ bool TermHasExtEligSubterm(Term_p t)
    for(int i=0; !ans && i < t->arity; i++)
    {
       ans = ans || (TYPE_EXT_ELIGIBLE(t->args[i]->type)
-                    && !TermIsTopLevelVar(t->args[i]))
+                    && !TermIsTopLevelFreeVar(t->args[i]))
                 || TermHasExtEligSubterm(t->args[i]);
    }
    return ans;
@@ -336,13 +336,13 @@ void CollectExtSupFromPos(Clause_p cl, PStack_p pos_stack)
    {
       if(!TypeIsArrow(handle->lterm) && EqnIsPositive(handle))
       {
-         if(!TermIsTopLevelVar(handle->lterm) && TermHasExtEligSubterm(handle->lterm))
+         if(!TermIsTopLevelFreeVar(handle->lterm) && TermHasExtEligSubterm(handle->lterm))
          {
             PStackPushInt(pos_stack, handle->lterm->f_code);
             PStackPushInt(pos_stack, pos);
          }
          pos += TermStandardWeight(handle->lterm);
-         if(!TermIsTopLevelVar(handle->rterm) && TermHasExtEligSubterm(handle->rterm))
+         if(!TermIsTopLevelFreeVar(handle->rterm) && TermHasExtEligSubterm(handle->rterm))
          {
             PStackPushInt(pos_stack, handle->rterm->f_code);
             PStackPushInt(pos_stack, pos);

@@ -35,6 +35,7 @@
 #include <clb_numtrees.h>
 #include <cio_basicparser.h>
 #include <cte_varsets.h>
+#include <cte_dbvars.h>
 #include <cte_termcellstore.h>
 
 /*---------------------------------------------------------------------*/
@@ -50,6 +51,9 @@ typedef struct tbcell
                                     (as a measure of work done. */
    Sig_p         sig;            /* Store sig info */
    VarBank_p     vars;           /* Information about (shared) variables */
+   DBVarBank_p   db_vars;        /* de Bruijn (shared) variable bank
+                                    All the de Bruijn variables 
+                                    are requested from here. */
    Term_p        true_term;      /* Pointer to the special term with the
                                     $true constant. */
    Term_p        false_term;     /* Pointer to the special term with the
@@ -119,7 +123,7 @@ long    TBTermNodes(TB_p bank);
    (TERMCELL_DYN_MEM*(bank)->term_store.entries         \
     +(bank)->term_store.arg_count*TERMP_MEM)
 
-#define TBCellIdent(term) (TermIsVar(term)?(term)->f_code:term->entry_no)
+#define TBCellIdent(term) (TermIsFreeVar(term)?(term)->f_code:term->entry_no)
 
 #define TermIsTrueTerm(term) ((term)->f_code==SIG_TRUE_CODE)
 

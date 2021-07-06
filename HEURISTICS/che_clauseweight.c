@@ -55,7 +55,7 @@ double uniq_term_weight(Term_p term)
 {
    double weight;
 
-   if(TermIsVar(term))
+   if(TermIsFreeVar(term))
    {
       weight = 3.0;
    }

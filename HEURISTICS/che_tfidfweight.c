@@ -108,7 +108,7 @@ static void tfidf_documents_add_subterms(
    while (!PStackEmpty(stack))
    {
       subterm = PStackPopP(stack);
-      if(TermIsVar(subterm)) {
+      if(TermIsFreeVar(subterm)) {
          continue;
       }
       tfidf_documents_add_term(

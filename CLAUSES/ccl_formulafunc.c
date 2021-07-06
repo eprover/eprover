@@ -67,7 +67,7 @@ static void close_let_def(TB_p bank, NumTree_p* closed_defs, Term_p def)
    for(int i=0; i<lhs->arity; i++)
    {
       Term_p arg = lhs->args[i];
-      assert(TermIsVar(arg));
+      assert(TermIsFreeVar(arg));
       PTreeDeleteEntry(&free_vars, arg);
    }
 
@@ -194,7 +194,7 @@ void make_fresh_defs(TB_p bank, Term_p let_t, NumTree_p* defs, PStack_p res)
 
 TFormula_p lift_lets(TB_p terms, TFormula_p t, PStack_p fresh_defs)
 {
-   if(TermIsVar(t))
+   if(TermIsFreeVar(t))
    {
       return t;
    }
@@ -256,7 +256,7 @@ TFormula_p unencode_eqns(TB_p terms, TFormula_p t)
    Term_p res = t;
    if(t->f_code == terms->sig->eqn_code && t->arity == 2
       && t->args[1] == terms->true_term
-      && !TermIsVar(t->args[0])
+      && !TermIsFreeVar(t->args[0])
       && (SigQueryFuncProp(terms->sig, t->args[0]->f_code, FPFOFOp)
           || t->args[0]->f_code == terms->sig->qex_code
           || t->args[0]->f_code == terms->sig->qall_code
@@ -396,7 +396,7 @@ PTree_p create_sym_map(FormulaSet_p set, IntMap_p sym_def_map)
          {
             arg = arg->args[0];
          }
-         if(!TermIsVar(arg) || TermCellQueryProp(arg, TPIsSpecialVar))
+         if(!TermIsFreeVar(arg) || TermCellQueryProp(arg, TPIsSpecialVar))
          {
             is_def = false;
          }
@@ -892,7 +892,7 @@ TFormula_p do_bool_eqn_replace(TFormula_p form, TB_p terms)
    if(form->f_code == sig->eqn_code || form->f_code == sig->neqn_code)
    {
       assert(form->arity == 2);
-      if(!TermIsVar(form->args[0]) && !TermIsVar(form->args[1]) &&
+      if(!TermIsFreeVar(form->args[0]) && !TermIsFreeVar(form->args[1]) &&
          SigIsLogicalSymbol(terms->sig, form->args[0]->f_code) &&
          SigIsLogicalSymbol(terms->sig, form->args[1]->f_code) &&
          form->args[1] != terms->true_term)
@@ -907,7 +907,7 @@ TFormula_p do_bool_eqn_replace(TFormula_p form, TB_p terms)
          changed = true;
       }
    }
-   if(!TermIsVar(form) && !changed)
+   if(!TermIsFreeVar(form) && !changed)
    {
       TFormula_p tmp = TermTopAlloc(form->f_code, form->arity);
       tmp->type = form->type;

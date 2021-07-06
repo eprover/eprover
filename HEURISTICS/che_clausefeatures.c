@@ -171,7 +171,7 @@ FunCode TermAddVarDistribution(Term_p term, PDArray_p dist_array)
    {
       term = PStackPopP(stack);
 
-      if(!TermIsVar(term))
+      if(!TermIsFreeVar(term))
       {
          int i;
 
@@ -183,7 +183,7 @@ FunCode TermAddVarDistribution(Term_p term, PDArray_p dist_array)
             PStackPushP(stack, term->args[i]);
          }
       }
-      else
+      else if (!TermIsDBVar(term))
       {
          count = PDArrayElementInt(dist_array, -(term->f_code));
          count++;

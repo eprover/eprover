@@ -53,7 +53,7 @@
 
 static __inline__ void register_new_cache(Term_p app_var, Term_p bound_to)
 {
-   assert(TermIsAppliedVar(app_var));
+   assert(TermIsAppliedFreeVar(app_var));
    assert(app_var->args[0]->binding);
 
    app_var->binding = app_var->args[0]->binding;
@@ -80,7 +80,7 @@ Term_p insert_deref(Term_p deref_cache, TB_p bank)
 {
    for(int i=0; i<deref_cache->arity; i++)
    {
-      if(!TermIsVar(deref_cache->args[i]) && !TermIsShared(deref_cache->args[i]))
+      if(!TermIsFreeVar(deref_cache->args[i]) && !TermIsShared(deref_cache->args[i]))
       {
          deref_cache->args[i] = TBInsertIgnoreVar(bank, deref_cache->args[i], DEREF_NEVER);
       }
@@ -105,7 +105,7 @@ Term_p insert_deref(Term_p deref_cache, TB_p bank)
 
 void clear_stale_cache(Term_p app_var)
 {
-   assert(TermIsAppliedVar(app_var));
+   assert(TermIsAppliedFreeVar(app_var));
    assert(!BINDING_FRESH(app_var));
 
    TermSetCache(app_var, NULL);
@@ -128,7 +128,7 @@ void clear_stale_cache(Term_p app_var)
 
 __inline__ Term_p applied_var_deref(Term_p orig)
 {
-   assert(TermIsAppliedVar(orig));
+   assert(TermIsAppliedFreeVar(orig));
    assert(orig->arity > 1);
    assert(orig->args[0]->binding || TermGetCache(orig));
 
@@ -145,7 +145,7 @@ __inline__ Term_p applied_var_deref(Term_p orig)
 
       if(orig->args[0]->binding)
       {
-         if(TermIsVar(orig->args[0]->binding) || TermIsLambda(orig->args[0]->binding))
+         if(TermIsFreeVar(orig->args[0]->binding) || TermIsLambda(orig->args[0]->binding))
          {
             res = TermTopAlloc(orig->f_code, orig->arity);
             res->properties = orig->properties & (TPPredPos);
@@ -232,7 +232,7 @@ void TermTopFree(Term_p junk)
 void TermFree(Term_p junk)
 {
    assert(junk);
-   if(!TermIsVar(junk))
+   if(!TermIsFreeVar(junk))
    {
       assert(!TermCellQueryProp(junk, TPIsShared));
       if(junk->arity)
@@ -551,7 +551,7 @@ void TermVarSetProp(Term_p term, DerefType deref, TermProperties prop)
       deref = PStackPopInt(stack);
       term  = PStackPopP(stack);
       term  = TermDeref(term, &deref);
-      if(TermIsVar(term))
+      if(TermIsFreeVar(term))
       {
          TermCellSetProp(term, prop);
       }
@@ -636,7 +636,7 @@ bool TermVarSearchProp(Term_p term, DerefType deref, TermProperties prop)
       deref = PStackPopInt(stack);
       term  = PStackPopP(stack);
       term  = TermDeref(term, &deref);
-      if(TermIsVar(term) && TermCellQueryProp(term, prop))
+      if(TermIsFreeVar(term) && TermCellQueryProp(term, prop))
       {
          res = true;
          break;
@@ -679,7 +679,7 @@ void TermVarDelProp(Term_p term, DerefType deref, TermProperties prop)
       deref = PStackPopInt(stack);
       term  = PStackPopP(stack);
       term  = TermDeref(term, &deref);
-      if(TermIsVar(term))
+      if(TermIsFreeVar(term))
       {
          TermCellDelProp(term, prop);
       }
@@ -764,10 +764,10 @@ bool TermIsPrefix(Term_p cand, Term_p term)
       /* cand can be null if it was binding field of non-bound var,
          which is common use case for this function  */
 
-      if(TermIsVar(cand))
+      if(TermIsFreeVar(cand))
       {
-         return TermIsVar(term) ? cand == term :
-                  (TermIsAppliedVar(term) ? cand == term->args[0] : false);
+         return TermIsFreeVar(term) ? cand == term :
+                  (TermIsPhonyApp(term) ? cand == term->args[0] : false);
       }
 
       if(cand->arity <= term->arity && cand->f_code == term->f_code)
@@ -806,7 +806,7 @@ __inline__ Term_p MakeRewrittenTerm(Term_p orig, Term_p new, int remaining_orig,
    {
       assert(problemType == PROBLEM_HO);
       Term_p new_term;
-      if(TermIsVar(new))
+      if(TermIsFreeVar(new))
       {
          new_term = TermTopAlloc(SIG_PHONY_APP_CODE, remaining_orig+1);
          new_term->args[0] = new;
@@ -823,7 +823,7 @@ __inline__ Term_p MakeRewrittenTerm(Term_p orig, Term_p new, int remaining_orig,
       {
          new_term->args[i] = new->args[i];
       }
-      for(int i=orig->arity - remaining_orig, j=TermIsVar(new) ? 1 : 0; i < orig->arity; i++, j++)
+      for(int i=orig->arity - remaining_orig, j=TermIsFreeVar(new) ? 1 : 0; i < orig->arity; i++, j++)
       {
          new_term->args[j + new->arity] = orig->args[i];
       }

@@ -161,7 +161,7 @@ bool TermFindFOOLSubterm(Term_p t, PStack_p pos);
 bool TermFindIteSubterm(Term_p t, PStack_p pos);
 
 
-#define TERM_APPLY_APP_VAR_MULT(w, t, p) (TermIsAppliedVar(t) ? (w)*(p) : (w))
+#define TERM_APPLY_APP_VAR_MULT(w, t, p) (TermIsAppliedFreeVar(t) ? (w)*(p) : (w))
 
 #define PRINT_HO_PAREN(out, ch) ((problemType == PROBLEM_HO) ? \
                                     (fputc((ch), (out))) : 0)
@@ -191,7 +191,7 @@ long    TermDAGWeight(Term_p term, long fweight, long vweight,
 
 static inline Term_p TermEquivCellAlloc(Term_p source, VarBank_p vars)
 {
-   if(TermIsVar(source))
+   if(TermIsFreeVar(source))
    {
       return VarBankVarAssertAlloc(vars, source->f_code, source->type);
    }

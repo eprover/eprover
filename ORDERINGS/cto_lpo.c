@@ -221,18 +221,18 @@ static CompareResult lpo_greater(OCB_p ocb, Term_p s, Term_p t,
    }
    recursion_depth++;
 
-   if(TermIsVar(s))
+   if(TermIsFreeVar(s))
    {
       if(s == t)
       {
     res = to_equal;
       }
-      else if(TermIsVar(t))
+      else if(TermIsFreeVar(t))
       {
     res = to_uncomparable;
       }
    }
-   else if(TermIsVar(t))
+   else if(TermIsFreeVar(t))
    {
       if(TermIsSubterm(s, t, deref_s))
       {
@@ -437,11 +437,11 @@ static bool lpo4_greater(OCB_p ocb, Term_p s, Term_p t,
    s = TermDeref(s, &deref_s);
    t = TermDeref(t, &deref_t);
 
-   if(TermIsVar(s))
+   if(TermIsFreeVar(s))
    {
       res = false;
    }
-   else if(TermIsVar(t))
+   else if(TermIsFreeVar(t))
    {
       res = TermIsSubterm(s, t, deref_s);
    }
@@ -583,11 +583,11 @@ static bool lpo4_copy_greater(OCB_p ocb, Term_p s, Term_p t)
 {
    CompareResult f_code_res;
 
-   if(TermIsVar(s))
+   if(TermIsFreeVar(s))
    {
       return false;
    }
-   if(TermIsVar(t))
+   if(TermIsFreeVar(t))
    {
       return TBTermIsSubterm(s, t);
    }

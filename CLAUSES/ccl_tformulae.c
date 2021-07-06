@@ -109,7 +109,7 @@ static Term_p __inline__ parse_ho_atom(Scanner_p in, TB_p bank)
          head = VarBankExtNameAssertAlloc(bank->vars, DStrView(id));
       }
 
-      assert(TermIsVar(head));
+      assert(TermIsFreeVar(head));
    }
    else
    {
@@ -137,7 +137,7 @@ static Term_p __inline__ parse_ho_atom(Scanner_p in, TB_p bank)
 static Term_p normalize_head(Term_p head, Term_p* rest_args, int rest_arity, TB_p bank)
 {
    assert(problemType == PROBLEM_HO);
-   assert(TermIsVar(head) || TermIsShared(head));
+   assert(TermIsFreeVar(head) || TermIsShared(head));
    Term_p res = NULL;
 
    if(rest_arity == 0)
@@ -147,7 +147,7 @@ static Term_p normalize_head(Term_p head, Term_p* rest_args, int rest_arity, TB_
    else
    {
       int total_arity = (TermIsLambda(head) ? 0 : head->arity) + rest_arity;
-      if(TermIsVar(head) || TermIsLambda(head))
+      if(TermIsFreeVar(head) || TermIsLambda(head))
       {
          total_arity++; // head is going to be the first argument
 
@@ -179,7 +179,7 @@ static Term_p normalize_head(Term_p head, Term_p* rest_args, int rest_arity, TB_
       }
    }
 
-   if(!TermIsVar(res) && !TermIsShared(res))
+   if(!TermIsFreeVar(res) && !TermIsShared(res))
    {
       res = TBTermTopInsert(bank, res);
    }
@@ -339,7 +339,7 @@ static TFormula_p quantified_tform_tptp_parse(Scanner_p in,
    VarBankPushEnv(terms->vars);
 
    var = TBTermParse(in, terms);
-   if(!TermIsVar(var))
+   if(!TermIsFreeVar(var))
    {
       errpos = DStrAlloc();
 
@@ -516,7 +516,7 @@ static TFormula_p quantified_tform_tstp_parse(Scanner_p in,
    VarBankPushEnv(terms->vars);
 
    var = TBTermParse(in, terms);
-   if(!TermIsVar(var))
+   if(!TermIsFreeVar(var))
    {
       errpos = DStrAlloc();
 
@@ -616,7 +616,7 @@ static TFormula_p applied_tform_tstp_parse(Scanner_p in, TB_p terms, TFormula_p 
    const int max_args = TypeGetMaxArity(hd_type);
    int i = 0;
    const TermRef args = TermArgTmpArrayAlloc(max_args);
-   bool head_is_logical = !TermIsVar(head) && SigQueryFuncProp(terms->sig, head->f_code, FPFOFOp);
+   bool head_is_logical = !TermIsFreeVar(head) && SigQueryFuncProp(terms->sig, head->f_code, FPFOFOp);
    Term_p arg;
 
    while(TestInpTok(in, Application))
@@ -800,7 +800,7 @@ static void tformula_collect_freevars(TB_p bank, TFormula_p form, PTree_p *vars)
       tformula_collect_freevars(bank, form->args[1], vars);
       TermCellSetProp(form->args[0], old_prop);
    }
-   else if(TermIsVar(form))
+   else if(TermIsFreeVar(form))
    {
       if(TermCellQueryProp(form, TPIsFreeVar))
       {
@@ -811,7 +811,7 @@ static void tformula_collect_freevars(TB_p bank, TFormula_p form, PTree_p *vars)
    {
       for(int i=0; i<form->arity; i++)
       {
-         if(TermIsVar(form->args[i]) &&
+         if(TermIsFreeVar(form->args[i]) &&
             TermCellQueryProp(form->args[i], TPIsFreeVar))
          {
             PTreeStore(vars, form->args[i]);
@@ -850,7 +850,7 @@ Term_p EncodePredicateAsEqn(TB_p bank, TFormula_p f)
       (f->f_code > sig->internal_symbols ||
        f->f_code == SIG_TRUE_CODE ||
        f->f_code == SIG_FALSE_CODE ||
-       TermIsVar(f) ||
+       TermIsFreeVar(f) ||
        TermIsPhonyApp(f)) &&
       f->type == sig->type_bank->bool_type)
    {
@@ -1001,7 +1001,7 @@ TFormula_p TFormulaPropConstantAlloc(TB_p terms, bool positive)
 TFormula_p TFormulaQuantorAlloc(TB_p bank, FunCode quantor, Term_p var, TFormula_p arg)
 {
    assert(var);
-   assert(TermIsVar(var));
+   assert(TermIsFreeVar(var));
    assert(arg);
 
    return TFormulaFCodeAlloc(bank, quantor, var, arg);
@@ -1238,7 +1238,7 @@ void TFormulaAppEncode(FILE* out, TB_p bank, TFormula_p form)
       {
          fputs("![", out);
       }
-      assert(TermIsVar(form->args[0]));
+      assert(TermIsFreeVar(form->args[0]));
       VarPrint(out, form->args[0]->f_code);
       fputs(":", out);
 
@@ -1254,7 +1254,7 @@ void TFormulaAppEncode(FILE* out, TB_p bank, TFormula_p form)
          form = form->args[1];
          fputs(", ", out);
 
-         assert(TermIsVar(form->args[0]));
+         assert(TermIsFreeVar(form->args[0]));
          VarPrint(out, form->args[0]->f_code);
          fputs(":", out);
          type_name = TypeAppEncodedName(form->args[0]->type);

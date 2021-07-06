@@ -80,7 +80,7 @@ static PStack_p compute_subterms_generalizations(
       term,vars,term_vars,fresh_var_code);
    PStackPushStack(gens, gen_vars);
 
-   if (TermIsVar(term)) 
+   if (TermIsFreeVar(term)) 
    {
       return gens;
    }
@@ -220,7 +220,7 @@ PStack_p ComputeTopGeneralizations(Term_p term, VarBank_p vars, Sig_p sig)
    while (!PStackEmpty(stack))
    {
       subterm = PStackPopP(stack);
-      if (TermIsVar(subterm) || TermIsConst(subterm))
+      if (TermIsFreeVar(subterm) || TermIsConst(subterm))
       {
          continue;
       }
@@ -400,7 +400,7 @@ void TBIncSubtermsFreqs(Term_p term, NumTree_p* freqs)
    while (!PStackEmpty(stack))
    {
       subterm = PStackPopP(stack);
-      if (TermIsVar(subterm))
+      if (TermIsFreeVar(subterm))
       {
          continue;
       }

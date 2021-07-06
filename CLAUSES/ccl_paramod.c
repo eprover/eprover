@@ -565,7 +565,7 @@ Term_p ComputeOverlap(TB_p bank, OCB_p ocb, ClausePos_p from, Term_p
 
    sub_into = TermPosGetSubterm(into, pos);
 
-   assert(!TermIsVar(sub_into));
+   assert(!TermIsFreeVar(sub_into));
 
    max_side = ClausePosGetSide(from);
    rep_side = ClausePosGetOtherSide(from);
@@ -679,7 +679,7 @@ Clause_p ClauseOrderedParamod(TB_p bank, OCB_p ocb, ClausePos_p from,
 
    assert(EqnIsMaximal(from->literal));
    assert(!EqnIsOriented(from->literal)||(from->side==LeftSide));
-   assert(!TermIsVar(ClausePosGetSide(from))||
+   assert(!TermIsFreeVar(ClausePosGetSide(from))||
      EqnIsEquLit(into->literal)||!TermPosIsTopPos(into->pos));
 
    /*{
@@ -789,7 +789,7 @@ Clause_p ClauseOrderedSimParamod(TB_p bank, OCB_p ocb, ClausePos_p
    assert(EqnIsMaximal(from->literal));
    assert(!EqnIsOriented(from->literal)||(from->side==LeftSide));
    // In HO case variables might paramodulate into predicate positions
-   assert(!TermIsVar(ClausePosGetSide(from))||problemType==PROBLEM_HO||
+   assert(!TermIsFreeVar(ClausePosGetSide(from))||problemType==PROBLEM_HO||
      EqnIsEquLit(into->literal)||!TermPosIsTopPos(into->pos));
 
    into_term = ClausePosGetSubterm(into);
@@ -927,7 +927,7 @@ Clause_p ClauseOrderedSuperSimParamod(TB_p bank, OCB_p ocb, ClausePos_p
    assert(EqnIsMaximal(from->literal));
    assert(!EqnIsOriented(from->literal)||(from->side==LeftSide));
    // In HO case variables might paramodulate into predicate positions
-   assert(!TermIsVar(ClausePosGetSide(from))||problemType==PROBLEM_HO||
+   assert(!TermIsFreeVar(ClausePosGetSide(from))||problemType==PROBLEM_HO||
      EqnIsEquLit(into->literal)||!TermPosIsTopPos(into->pos));
 
    into_term = ClausePosGetSubterm(into);
@@ -1056,11 +1056,11 @@ Clause_p ClauseOrderedSuperSimParamod(TB_p bank, OCB_p ocb, ClausePos_p
 /----------------------------------------------------------------------*/
 
 #define IS_NO_PARAMOD_POS \
-   (TermIsVar(res)|| /* No paramod into variables */ \
+   (TermIsFreeVar(res)|| /* No paramod into variables */ \
   /* Only overlap positive root positions once */\
   (EqnIsPositive(pos->literal) && no_top && TermPosIsTopPos(pos->pos))||\
   /* Don't overlap variable into predicate position */\
-    (TermIsVar(ClausePosGetSide(from_pos)) &&\
+    (TermIsFreeVar(ClausePosGetSide(from_pos)) &&\
      problemType == PROBLEM_FO && !EqnIsEquLit(pos->literal) &&\
      TermPosIsTopPos(pos->pos)))
 
@@ -1336,7 +1336,7 @@ bool CheckHOUnificationConstraints(UnificationResult res, UnifTermSide exp_side,
       // if we have some args remaining, we have them on the right side
       (res.term_remaining == 0 || res.term_side == exp_side) &&
             // and we do not paramodulate at the variable head.
-            !(TermIsAppliedVar(to) && ARG_NUM(to) == res.term_remaining);
+            !(TermIsAppliedFreeVar(to) && ARG_NUM(to) == res.term_remaining);
 }
 #endif
 

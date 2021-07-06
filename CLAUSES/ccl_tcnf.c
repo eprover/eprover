@@ -253,7 +253,7 @@ TFormula_p tformula_rek_skolemize(TB_p terms, TFormula_p form,
    else if(form->f_code == terms->sig->qex_code)
    {
       var = form->args[0];
-      assert(TermIsVar(var));
+      assert(TermIsFreeVar(var));
       assert(!var->binding);
       sk_term = TBAllocNewSkolem(terms, free_vars, var->type);
       var->binding = sk_term;
@@ -264,7 +264,7 @@ TFormula_p tformula_rek_skolemize(TB_p terms, TFormula_p form,
    else if(form->f_code == terms->sig->qall_code)
    {
       var = form->args[0];
-      assert(TermIsVar(var));
+      assert(TermIsFreeVar(var));
       assert(!var->binding);
       PStackPushP(free_vars, var);
       handle = tformula_rek_skolemize(terms, form->args[1],
@@ -673,7 +673,7 @@ long tform_find_miniscopeable(Sig_p sig, TFormula_p form, long limit,
    long size;
    PTree_p lcands = NULL;
 
-   assert(!TermIsVar(form));
+   assert(!TermIsFreeVar(form));
 
    if(!form->v_count)
    {
@@ -748,7 +748,7 @@ TFormula_p tform_copy_mod(TB_p terms, TFormula_p form)
 
    if(TFormulaIsLiteral(terms->sig, form)
       ||!form->v_count
-      ||TermIsVar(form))
+      ||TermIsFreeVar(form))
    {
       return form;
    }
@@ -1705,7 +1705,7 @@ TFormula_p TFormulaMiniScope3(TB_p terms, TFormula_p form,
 
 TFormula_p TFormulaVarRename(TB_p terms, TFormula_p form)
 {
-   assert(!TermIsAppliedVar(form));
+   assert(!TermIsAppliedFreeVar(form));
    Term_p old_var = NULL, new_var = NULL;
    TFormula_p handle = NULL, arg1=NULL, arg2=NULL;
 

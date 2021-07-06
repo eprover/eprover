@@ -227,8 +227,8 @@ static Eqn_p find_maxlcomplex_literal(Clause_p clause)
    {
       if(EqnIsNegative(handle)&&
     EqnIsMaximal(handle) &&
-    TermIsVar(handle->lterm) &&
-    TermIsVar(handle->rterm))
+    TermIsFreeVar(handle->lterm) &&
+    TermIsFreeVar(handle->rterm))
       {
     selected = handle;
     break;
@@ -302,8 +302,8 @@ static Eqn_p find_lcomplex_literal(Clause_p clause)
    {
       if(EqnIsNegative(handle)&&
     !EqnIsMaximal(handle) &&
-    TermIsVar(handle->lterm) &&
-    TermIsVar(handle->rterm))
+    TermIsFreeVar(handle->lterm) &&
+    TermIsFreeVar(handle->rterm))
       {
     selected = handle;
     break;
@@ -5326,7 +5326,7 @@ static void new_complex_notp_ahp(LitEval_p lit, Clause_p clause,
       }
    }
    lit->w3 = 0;
-   if(!TermIsVar(lit->literal->lterm))
+   if(!TermIsFreeVar(lit->literal->lterm))
    {
       lit->w3 = PDArrayElementInt(pd, lit->literal->lterm->f_code);
    }
@@ -5593,7 +5593,7 @@ static void new_complex_notp_ahp_ns(LitEval_p lit, Clause_p clause,
       }
    }
    lit->w3 = 0;
-   if(!TermIsVar(lit->literal->lterm))
+   if(!TermIsFreeVar(lit->literal->lterm))
    {
       lit->w3 = PDArrayElementInt(pd, lit->literal->lterm->f_code);
    }
@@ -6917,7 +6917,7 @@ static void select_cq_precw_weight(LitEval_p lit, Clause_p clause,
    OCB_p ocb = (OCB_p)vocb;
    Eqn_p l   = lit->literal;
 
-   if(TermIsVar(l->lterm))
+   if(TermIsFreeVar(l->lterm))
    {
       lit->w1 = 0;
       lit->w2 = 0;
@@ -6963,7 +6963,7 @@ static void select_cq_iprecw_weight(LitEval_p lit, Clause_p clause,
    OCB_p ocb = (OCB_p)vocb;
    Eqn_p l   = lit->literal;
 
-   if(TermIsVar(l->lterm))
+   if(TermIsFreeVar(l->lterm))
    {
       lit->w1 = 0;
       lit->w2 = 0;
@@ -7010,7 +7010,7 @@ static void select_cq_precwntnp_weight(LitEval_p lit, Clause_p clause,
    OCB_p ocb = (OCB_p)vocb;
    Eqn_p l   = lit->literal;
 
-   if(TermIsVar(l->lterm))
+   if(TermIsFreeVar(l->lterm))
    {
       lit->w1 = 0;
       lit->w2 = 0;
@@ -7065,7 +7065,7 @@ static void select_cq_iprecwntnp_weight(LitEval_p lit, Clause_p clause,
    OCB_p ocb = (OCB_p)vocb;
    Eqn_p l   = lit->literal;
 
-   if(TermIsVar(l->lterm))
+   if(TermIsFreeVar(l->lterm))
    {
       lit->w1 = 0;
       lit->w2 = 0;

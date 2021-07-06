@@ -145,7 +145,7 @@ bool TypeCheckConsistent(Sig_p sig, Term_p term)
    {
       term = PStackPopP(stack);
 
-      if (!TermIsVar(term))
+      if (!TermIsFreeVar(term))
       {
          /* check: same arity, same return sort, sort of arguments (pairwise)*/
          if(!SigIsPolymorphic(sig, term->f_code))
@@ -223,7 +223,7 @@ void TypeInferSort(Sig_p sig, Term_p term, Scanner_p in)
    int i;
 
 
-   if(TermIsVar(term))
+   if(TermIsFreeVar(term))
    {
       if(!term->type)
       {
@@ -266,7 +266,7 @@ void TypeInferSort(Sig_p sig, Term_p term, Scanner_p in)
             AktTokenError(in, "Equality must have at least one argument",
                           SYNTAX_ERROR);
          }
-         assert(TermIsVar(term->args[0]));
+         assert(TermIsFreeVar(term->args[0]));
          Type_p arg_type = term->args[0]->type;
          Type_p quant_type_args[3] =
             {arg_type,
@@ -406,7 +406,7 @@ void TypeInferSort(Sig_p sig, Term_p term, Scanner_p in)
 
 void TypeDeclareIsPredicate(Sig_p sig, Term_p term)
 {
-   assert(!TermIsVar(term));
+   assert(!TermIsFreeVar(term));
 
    SigDeclareIsPredicate(sig, term->f_code);
    term->type = sig->type_bank->bool_type;
@@ -428,7 +428,7 @@ void TypeDeclareIsPredicate(Sig_p sig, Term_p term)
 
 void TypeDeclareIsNotPredicate(Sig_p sig, Term_p term, Scanner_p in)
 {
-   if(!TermIsVar(term))
+   if(!TermIsAnyVar(term))
    {
       TypeInferSort(sig, term, in);
       SigDeclareIsFunction(sig, term->f_code);

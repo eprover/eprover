@@ -71,7 +71,7 @@ FunCode DetectCommutativity(Clause_p clause)
 
    assert(lit);
    FAIL_ON(!EqnIsPositive(lit));
-   FAIL_ON(TermIsAppliedVar(lit->lterm) || TermIsAppliedVar(lit->rterm));
+   FAIL_ON(TermIsPhonyApp(lit->lterm) || TermIsPhonyApp(lit->rterm));
    FAIL_ON((TermStandardWeight(lit->lterm)!=
        DEFAULT_FWEIGHT+(2*DEFAULT_VWEIGHT))||
       (TermStandardWeight(lit->rterm)!=
@@ -80,11 +80,11 @@ FunCode DetectCommutativity(Clause_p clause)
    FAIL_ON((lit->lterm->arity!=2)||
       (lit->lterm->f_code!=lit->rterm->f_code));
    assert(lit->lterm->args);
-   assert(TermIsVar(lit->lterm->args[0])); /* Otherwise default weight */
-   assert(TermIsVar(lit->lterm->args[1])); /* is borked */
+   assert(TermIsFreeVar(lit->lterm->args[0])); /* Otherwise default weight */
+   assert(TermIsFreeVar(lit->lterm->args[1])); /* is borked */
    assert(lit->rterm->args);
-   assert(TermIsVar(lit->rterm->args[0]));
-   assert(TermIsVar(lit->rterm->args[1]));
+   assert(TermIsFreeVar(lit->rterm->args[0]));
+   assert(TermIsFreeVar(lit->rterm->args[1]));
 
    FAIL_ON(lit->lterm->args[0] == lit->lterm->args[1]);
    FAIL_ON((lit->lterm->args[0] != lit->rterm->args[1])||(lit->lterm->args[1] != lit->rterm->args[0]));
@@ -127,7 +127,7 @@ FunCode DetectAssociativity(Clause_p clause)
    FAIL_ON(lit->lterm->f_code!=lit->rterm->f_code);
    FAIL_ON((lit->lterm->arity!=2));
 
-   if(TermIsVar(lit->lterm->args[0]))
+   if(TermIsFreeVar(lit->lterm->args[0]))
    {
       rterm=lit->lterm;
       lterm=lit->rterm;
@@ -139,9 +139,9 @@ FunCode DetectAssociativity(Clause_p clause)
    }
    f = lterm->f_code;
    FAIL_ON(f!=lterm->args[0]->f_code);
-   FAIL_ON(!TermIsVar(lterm->args[0]->args[0]));
-   FAIL_ON(!TermIsVar(lterm->args[0]->args[1]));
-   FAIL_ON(!TermIsVar(lterm->args[1]));
+   FAIL_ON(!TermIsFreeVar(lterm->args[0]->args[0]));
+   FAIL_ON(!TermIsFreeVar(lterm->args[0]->args[1]));
+   FAIL_ON(!TermIsFreeVar(lterm->args[1]));
    v1 = lterm->args[0]->args[0]->f_code;
    v2 = lterm->args[0]->args[1]->f_code;
    v3 = lterm->args[1]->f_code;

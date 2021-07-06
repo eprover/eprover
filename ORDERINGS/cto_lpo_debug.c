@@ -250,7 +250,7 @@ static CompareResult lpogtr(OCB_p ocb, Term_p s, Term_p t,
    s = TermDeref(s, &deref_s);  t = TermDeref(t, &deref_t);
 
    /* The cases s=x v t=x are checked separately. */
-   if(TermIsVar(s) || TermIsVar(t))
+   if(TermIsFreeVar(s) || TermIsFreeVar(t))
    {
       res = lpogtrcompvars(ocb, s, t, deref_s, deref_t);
       return res;
@@ -334,7 +334,7 @@ static CompareResult lpogtrcompvars(OCB_p ocb, Term_p s, Term_p t,
    s = TermDeref(s, &deref_s);
    t = TermDeref(t, &deref_t);
 
-   if (TermIsVar(s))
+   if (TermIsFreeVar(s))
    {
       if(s == t)
       {
@@ -347,7 +347,7 @@ static CompareResult lpogtrcompvars(OCB_p ocb, Term_p s, Term_p t,
    }
    else
    {
-      assert(TermIsVar(t));
+      assert(TermIsFreeVar(t));
       if(TermIsSubterm(s, t, deref_s))
       {
     return to_greater;
@@ -482,7 +482,7 @@ CompareResult D_LPOCompare(OCB_p ocb, Term_p s, Term_p t,
    t = TermDeref(t, &deref_t);
 
                      /* The cases s=x v t=x are checked separately. */
-   if (TermIsVar(s) || TermIsVar(t))
+   if (TermIsFreeVar(s) || TermIsFreeVar(t))
    {
       res = D_LPOCompareVars(s, t, deref_s, deref_t);
       return res;
@@ -591,7 +591,7 @@ CompareResult D_LPOCompareVars(Term_p s, Term_p t,
    s = TermDeref(s, &deref_s);
    t = TermDeref(t, &deref_t);
 
-   if (TermIsVar(s))
+   if (TermIsFreeVar(s))
    {
       if(s == t)
       {

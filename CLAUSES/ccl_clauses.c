@@ -2456,7 +2456,7 @@ long ClauseReturnFCodes(Clause_p clause, PStack_p f_codes)
    for(i=0; i<PStackGetSP(stack);i++)
    {
       t = PStackElementP(stack,i);
-      if(!TermIsVar(t))
+      if(!TermIsAnyVar(t))
       {
          if(!SigQueryFuncProp(sig, t->f_code, FPOpFlag))
          {

@@ -78,9 +78,9 @@ double sim_eqn_weight(Eqn_p eqn, SimParam_p parms)
       }
       else
       {
-    if(TermIsVar(lside))
+    if(TermIsFreeVar(lside))
     {
-       if(TermIsVar(rside))
+       if(TermIsFreeVar(rside))
        {
           clash_weight += parms->var_var_clash;
        }
@@ -91,7 +91,7 @@ double sim_eqn_weight(Eqn_p eqn, SimParam_p parms)
     }
     else
     {
-       if(TermIsVar(rside))
+       if(TermIsFreeVar(rside))
        {
           clash_weight += parms->var_term_clash;
        }

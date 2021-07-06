@@ -872,7 +872,7 @@ long WFormulaReturnFCodes(WFormula_p form, PStack_p f_codes)
    {
       t = PStackElementP(stack,i);
       TermCellDelProp(t, TPOpFlag);
-      if(!TermIsVar(t))
+      if(!TermIsFreeVar(t))
       {
          if(!SigQueryFuncProp(sig, t->f_code, FPOpFlag))
          {

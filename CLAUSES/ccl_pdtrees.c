@@ -60,7 +60,7 @@ static long pdt_compute_size_constraint(PDTNode_p node);
 static __inline__ void push_remaining_args(PStack_p term_stack, int eaten_args, Term_p to_match)
 {
    // make up for app encoding
-   int limit = eaten_args + (TermIsAppliedVar(to_match) ? 1 : 0);
+   int limit = eaten_args + (TermIsAppliedFreeVar(to_match) ? 1 : 0);
    for(int i=to_match->arity-1; i >= limit; i--)
    {
       PStackPushP(term_stack, to_match->args[i]);
@@ -110,7 +110,7 @@ static void* pdt_select_alt_ref(PDTree_p tree, PDTNode_p node, Term_p term)
 {
    void* res;
 
-   if(TermIsVar(term))
+   if(TermIsFreeVar(term))
    {
       tree->arr_storage_est -= PDArrayStorage(node->v_alternatives);
       res = &(PDArrayElementP(node->v_alternatives,
@@ -526,7 +526,7 @@ static void pdtree_forward(PDTree_p tree, Subst_p subst)
    limit = PDT_NODE_CLOSED(tree,handle);
    while(i<limit)
    {
-      if(((i==0)||(i>handle->max_var))&&!TermIsVar(term))
+      if(((i==0)||(i>handle->max_var))&&!TermIsFreeVar(term))
       {
          next = IntMapGetVal(handle->f_alternatives,term->f_code);
          i++;
@@ -557,7 +557,7 @@ static void pdtree_forward(PDTree_p tree, Subst_p subst)
             assert(next->variable);
             bool bound = false;
             if((!next->variable->binding)&&
-               (problemType == PROBLEM_HO || TermIsVar(term) ||
+               (problemType == PROBLEM_HO || TermIsFreeVar(term) ||
                 SigSymbolUnifiesWithVar(tree->bank->sig, term->f_code)) &&
                (problemType == PROBLEM_HO || next->variable->type == term->type))
             {
@@ -610,7 +610,7 @@ static void pdtree_forward(PDTree_p tree, Subst_p subst)
                {
                   PStackPushP(tree->term_proc, term);
                   int args_eaten = next->variable->binding->arity -
-                     (TermIsAppliedVar(next->variable->binding) ? 1 : 0);
+                     (TermIsAppliedFreeVar(next->variable->binding) ? 1 : 0);
                   push_remaining_args(tree->term_stack, args_eaten, term);
                }
                next->trav_count   = PDT_NODE_INIT_VAL(tree);
@@ -999,7 +999,7 @@ Term_p TermLRTraversePrevAppVar(PStack_p stack, Term_p original_term, Term_p var
    assert(original_term->arity >= var->binding->arity);
 
    int to_backtrack_nr = original_term->arity - var->binding->arity;
-   if(TermIsAppliedVar(original_term) && TermIsVar(var->binding))
+   if(TermIsAppliedFreeVar(original_term) && TermIsFreeVar(var->binding))
    {
       to_backtrack_nr--;
    }
@@ -1009,7 +1009,7 @@ Term_p TermLRTraversePrevAppVar(PStack_p stack, Term_p original_term, Term_p var
       tmp = PStackPopP(stack);
       UNUSED(tmp);
       assert(tmp == original_term->args[var->binding->arity + i +
-                                        (TermIsAppliedVar(original_term) && TermIsVar(var->binding))]);
+                                        (TermIsAppliedFreeVar(original_term) && TermIsFreeVar(var->binding))]);
    }
    PStackPushP(stack, original_term);
 
@@ -1079,7 +1079,7 @@ void PDTreeInsertTerm(PDTree_p tree, Term_p term, ClausePos_p demod_side,
 
    while(curr)
    {
-      if(TermIsAppliedVar(curr))
+      if(TermIsAppliedFreeVar(curr))
       {
          curr = TermLRTraverseNext(tree->term_stack);
          continue; // skipping the symbol for applied var.
@@ -1096,14 +1096,14 @@ void PDTreeInsertTerm(PDTree_p tree, Term_p term, ClausePos_p demod_side,
                                   PDArrayStorage((*next)->v_alternatives));
          (*next)->parent = node;
          tree->node_count++;
-         if(TermIsVar(curr))
+         if(TermIsFreeVar(curr))
          {
             (*next)->variable = curr;
             node->max_var = MAX(node->max_var, -curr->f_code);
          }
       }
       node = *next;
-      //assert(!node->variable || (TermIsVar(curr) && node->variable->type == curr->type));
+      //assert(!node->variable || (TermIsFreeVar(curr) && node->variable->type == curr->type));
       tmp = TermStandardWeight(term);
       node->size_constr = MIN(tmp, node->size_constr);
       if(demod_side&&demod_side->clause&&(!SysDateIsInvalid(node->age_constr)))
@@ -1211,7 +1211,7 @@ long PDTreeDelete(PDTree_p tree, Term_p term, Clause_p clause)
    while(curr)
    {
       // ignore applied var funcode again
-      if(TermIsAppliedVar(curr))
+      if(TermIsAppliedFreeVar(curr))
       {
          curr = TermLRTraverseNext(tree->term_stack);
          continue;

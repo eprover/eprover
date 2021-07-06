@@ -72,10 +72,10 @@ CompactPos PackTermPos(TermPos_p pos)
       t = PStackElementP(pos, sp);
       p = PStackElementInt(pos, sp+1);
 
-      assert(!TermIsVar(t));
+      assert(!TermIsFreeVar(t));
       assert(p < t->arity);
 
-      res += ((!TermIsAppliedVar(t)) ? DEFAULT_FWEIGHT : 0);
+      res += ((!TermIsPhonyApp(t)) ? DEFAULT_FWEIGHT : 0);
 
       for(i=0; i<p; i++)
       {
@@ -144,8 +144,8 @@ void UnpackTermPos(TermPos_p pos, Term_p t, CompactPos cpos)
 
    while(cpos > 0)
    {
-      assert(!TermIsVar(t));
-      cpos -= DEFAULT_FWEIGHT*(TermIsAppliedVar(t) ? 0 : 1);
+      assert(!TermIsFreeVar(t));
+      cpos -= DEFAULT_FWEIGHT*(TermIsPhonyApp(t) ? 0 : 1);
       assert(cpos>=0);
 
       PStackPushP(pos, t);

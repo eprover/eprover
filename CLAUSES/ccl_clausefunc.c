@@ -91,7 +91,7 @@ PTree_p collect_free_vars(Term_p t, TB_p bank, int idx_to_skip)
 
    PTree_p res = NULL;
    TFormulaCollectFreeVars(bank, t, &res);
-   if (TermIsVar(t->args[idx_to_skip]))
+   if (TermIsFreeVar(t->args[idx_to_skip]))
    {
       bool removed = PTreeDeleteEntry(&res, t->args[idx_to_skip]);
       UNUSED(removed); // stiffle the warning in non-debug version
@@ -683,7 +683,7 @@ bool ClauseEliminateNakedBooleanVariables(Clause_p clause)
 
       if(EqnIsBoolVar(lit))
       {
-         assert(TermIsVar(lit->lterm));
+         assert(TermIsFreeVar(lit->lterm));
          var = lit->lterm;
 
          if(EqnIsPositive(lit))
@@ -780,9 +780,9 @@ Clause_p ClauseRecognizeInjectivity(TB_p terms, Clause_p clause)
       assert(EqnIsNegative(neg_lit));
       
       if (EqnIsEquLit(pos_lit) && EqnIsEquLit(neg_lit) &&
-          TermIsVar(pos_lit->lterm) && TermIsVar(pos_lit->rterm) && 
+          TermIsFreeVar(pos_lit->lterm) && TermIsFreeVar(pos_lit->rterm) && 
           pos_lit->lterm != pos_lit->rterm &&
-          !TermIsTopLevelVar(neg_lit->lterm) && !TermIsTopLevelVar(neg_lit->rterm)
+          !TermIsTopLevelFreeVar(neg_lit->lterm) && !TermIsTopLevelFreeVar(neg_lit->rterm)
           && neg_lit->lterm->f_code == neg_lit->rterm->f_code 
           && !TypeIsArrow(neg_lit->lterm->type)
           && !SigQueryFuncProp(neg_lit->bank->sig, neg_lit->lterm->f_code, FPIsInjDefSkolem)
@@ -823,8 +823,8 @@ Clause_p ClauseRecognizeInjectivity(TB_p terms, Clause_p clause)
             {
                Term_p lvar = neg_lit->lterm->args[i], rvar = neg_lit->rterm->args[i];
 
-               assert(TermIsVar(lvar));
-               assert(TermIsVar(rvar));
+               assert(TermIsFreeVar(lvar));
+               assert(TermIsFreeVar(rvar));
 
                if (lvar == rvar)
                {

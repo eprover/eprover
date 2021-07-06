@@ -326,12 +326,13 @@ static bool eqn_parse_prefix(Scanner_p in, TB_p bank, Term_p *lref,
    }
    if(rterm == bank->true_term)
    {
-      if(TermIsVar(lterm))
+      if(TermIsFreeVar(lterm))
       {
          AktTokenError(in, "Individual variable "
                      "used at predicate position", false);
 
       }
+      assert(!(TermIsDBVar(lterm)));
       SigDeclareIsPredicate(bank->sig, lterm->f_code);
    }
    *lref = lterm;
@@ -474,9 +475,9 @@ bool EqnParseInfix(Scanner_p in, TB_p bank, Term_p *lref, Term_p *rref)
    BOOL_TERM_NORMALIZE(lterm);
 
    /* Shortcut not to check for equality --
-         !TermIsVar guards calls against negative f_code */
-   if(problemType == PROBLEM_FO && !TermIsVar(lterm) &&
-      SigIsPredicate(bank->sig,lterm->f_code) &&
+         !TermIsFreeVar guards calls against negative f_code */
+   if(problemType == PROBLEM_FO && !TermIsFreeVar(lterm) &&
+      SigIsPredicate(bank->sig, lterm->f_code) &&
       SigIsFixedType(bank->sig, lterm->f_code))
    {
       rterm = bank->true_term; /* Non-Equational literal */
@@ -484,9 +485,9 @@ bool EqnParseInfix(Scanner_p in, TB_p bank, Term_p *lref, Term_p *rref)
    else
    {
       /* If we have a predicate variable then = might not come */
-      if((TermIsVar(lterm) && !TypeIsPredicate(lterm->type))
+      if((TermIsAnyVar(lterm) && !TypeIsPredicate(lterm->type))
               /* guarding SigIsFunction */
-          || (!TermIsVar(lterm) && SigIsFunction(bank->sig, lterm->f_code)))
+          || (!TermIsAnyVar(lterm) && SigIsFunction(bank->sig, lterm->f_code)))
       {
          if(in_parens && TestInpTok(in, CloseBracket))
          {
@@ -510,7 +511,7 @@ bool EqnParseInfix(Scanner_p in, TB_p bank, Term_p *lref, Term_p *rref)
 
             rterm = TBTermParse(in, bank);
 
-            if(!TermIsTopLevelVar(rterm))
+            if(!TermIsTopLevelFreeVar(rterm))
             {
                TypeDeclareIsNotPredicate(bank->sig, rterm, in);
             }
@@ -548,7 +549,7 @@ bool EqnParseInfix(Scanner_p in, TB_p bank, Term_p *lref, Term_p *rref)
       }
       else
       {  /* It's a predicate */
-         if(problemType == PROBLEM_HO && !TermIsTopLevelVar(lterm)
+         if(problemType == PROBLEM_HO && !TermIsTopLevelFreeVar(lterm)
             && SigIsFunction(bank->sig, lterm->f_code))
          {
             DStr_p err = DStrAlloc();
@@ -611,15 +612,16 @@ Eqn_p EqnAlloc(Term_p lterm, Term_p rterm, TB_p bank,  bool positive)
                SigPrint(stdout,bank->sig);
                fflush(stdout); */
 #ifndef ENABLE_LFHO
-      //assert(!TermIsVar(lterm));
+      //assert(!TermIsFreeVar(lterm));
 #endif
-      if(lterm->f_code > bank->sig->internal_symbols)
+      if(lterm->f_code > bank->sig->internal_symbols
+         && !(TermIsDBVar(lterm)))
       {
          SigDeclareIsPredicate(bank->sig, lterm->f_code);
       }
 
       TermCellSetProp(lterm, TPPredPos);
-      if(!TermIsVar(lterm) && SigQueryFuncProp(bank->sig, lterm->f_code, FPPseudoPred))
+      if(!TermIsAnyVar(lterm) && SigQueryFuncProp(bank->sig, lterm->f_code, FPPseudoPred))
       {
          EqnSetProp(handle, EPPseudoLit);
       }
@@ -787,7 +789,7 @@ Eqn_p EqnHOFParse(Scanner_p in, TB_p bank, bool* continue_parsing)
    }
    else
    {
-      if(!TermIsTopLevelVar(lterm) && SigIsFunction(bank->sig, lterm->f_code))
+      if(!TermIsTopLevelFreeVar(lterm) && SigIsFunction(bank->sig, lterm->f_code))
       {
          DStr_p err = DStrAlloc();
          DStrAppendStr(err, "Symbol ");
@@ -3247,7 +3249,7 @@ long EqnCollectSubterms(Eqn_p eqn, PStack_p collector)
 bool EqnHasAppVar(Eqn_p eq)
 {
    assert(eq && eq->lterm && eq->rterm);
-   return TermIsAppliedVar(eq->lterm) || TermIsAppliedVar(eq->rterm);
+   return TermIsAppliedFreeVar(eq->lterm) || TermIsAppliedFreeVar(eq->rterm);
 }
 
 /*---------------------------------------------------------------------*/

@@ -96,14 +96,14 @@ static FPIndexFunction fp_index_funs[] =
 
 static void push_fcodes(PStack_p stack, Term_p t)
 {
-   if(TermIsVar(t))
+   if(TermIsFreeVar(t))
    {
       PStackPushInt(stack, ANY_VAR);
    }
    else
    {
       int i;
-      if(!TermIsAppliedVar(t))
+      if(!TermIsPhonyApp(t))
       {
          PStackPushInt(stack, t->f_code);
       }
@@ -139,7 +139,7 @@ FunCode TermFPSampleFO(Term_p term, va_list ap)
 
   for(pos = va_arg(ap, int); pos != -1;  pos = va_arg(ap, int))
   {
-     if(TermIsVar(term))
+     if(TermIsFreeVar(term))
      {
         res = BELOW_VAR;
         break;
@@ -153,7 +153,7 @@ FunCode TermFPSampleFO(Term_p term, va_list ap)
   }
   if(pos == -1)
   {
-     res = TermIsVar(term)?ANY_VAR:term->f_code;
+     res = TermIsFreeVar(term)?ANY_VAR:term->f_code;
   }
   va_end(ap);
 
@@ -193,7 +193,7 @@ FunCode TermFPSampleHO(Term_p term, va_list ap)
       pos -= arg_expansion_num;
       for(; pos != -1; pos = va_arg(ap, int))
       {
-         if(TermIsVar(term))
+         if(TermIsFreeVar(term))
          {
             res = BELOW_VAR;
             break;
@@ -206,7 +206,7 @@ FunCode TermFPSampleHO(Term_p term, va_list ap)
          }
          else
          {
-            res = TermIsAppliedVar(term) ? BELOW_VAR : NOT_IN_TERM;
+            res = TermIsAppliedFreeVar(term) ? BELOW_VAR : NOT_IN_TERM;
             break;
          }
       }
@@ -214,7 +214,7 @@ FunCode TermFPSampleHO(Term_p term, va_list ap)
 
    if(pos == -1)
    {
-      res = TermIsTopLevelVar(term)?ANY_VAR:term->f_code;
+      res = TermIsTopLevelFreeVar(term)?ANY_VAR:term->f_code;
    }
 
    va_end(ap);
@@ -281,7 +281,7 @@ FunCode TermFPFlexSampleFO(Term_p term, IntOrP* *seq)
 
   while((pos=(*seq)->i_val)!=-1)
   {
-     if(TermIsVar(term))
+     if(TermIsFreeVar(term))
      {
         res = BELOW_VAR;
         break;
@@ -296,7 +296,7 @@ FunCode TermFPFlexSampleFO(Term_p term, IntOrP* *seq)
   }
   if(pos == -1)
   {
-     res = TermIsVar(term)?ANY_VAR:term->f_code;
+     res = TermIsFreeVar(term)?ANY_VAR:term->f_code;
   }
   else
   {
@@ -328,7 +328,7 @@ FunCode TermFPFlexSampleHO(Term_p term, IntOrP* *seq)
    FunCode res = 0;
    long pos = (*seq)->i_val;
 
-   if(pos != -1  && !TermIsTopLevelVar(term) && pos >= term->arity)
+   if(pos != -1  && !TermIsTopLevelFreeVar(term) && pos >= term->arity)
    {
       res = BELOW_VAR;
    }
@@ -336,7 +336,7 @@ FunCode TermFPFlexSampleHO(Term_p term, IntOrP* *seq)
    {
       while((pos=(*seq)->i_val)!=-1)
       {
-         if(TermIsTopLevelVar(term))
+         if(TermIsTopLevelFreeVar(term))
          {
             res = BELOW_VAR;
             break;
@@ -352,8 +352,8 @@ FunCode TermFPFlexSampleHO(Term_p term, IntOrP* *seq)
 
       if(pos == -1)
       {
-         res = TermIsVar(term) ? ANY_VAR :
-                     (TermIsAppliedVar(term) ? BELOW_VAR : term->f_code);
+         res = TermIsFreeVar(term) ? ANY_VAR :
+                     (TermIsAppliedFreeVar(term) ? BELOW_VAR : term->f_code);
       }
       else
       {

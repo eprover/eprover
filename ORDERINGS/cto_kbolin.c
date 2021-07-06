@@ -175,7 +175,7 @@ static void local_vb_update(OCB_p ocb, Term_p t, bool lhs)
 {
    if(lhs)
    {
-      if(TermIsVar(t))
+      if(TermIsFreeVar(t))
       {
          inc_vb(ocb, t);
       }
@@ -186,7 +186,7 @@ static void local_vb_update(OCB_p ocb, Term_p t, bool lhs)
    }
    else
    {
-      if(TermIsVar(t))
+      if(TermIsFreeVar(t))
       {
          dec_vb(ocb, t);
       }
@@ -329,9 +329,9 @@ static CompareResult kbo6cmp(OCB_p ocb, Term_p s, Term_p t,
       s = TermDeref(s, &deref_s);
       t = TermDeref(t, &deref_t);
    }
-   if(TermIsVar(s))
+   if(TermIsFreeVar(s))
    {
-      if(TermIsVar(t))
+      if(TermIsFreeVar(t))
       {  /* X, Y */
          inc_vb(ocb, s);
          dec_vb(ocb, t);
@@ -344,7 +344,7 @@ static CompareResult kbo6cmp(OCB_p ocb, Term_p s, Term_p t,
          res = ctn?to_lesser:to_uncomparable;
       }
    }
-   else if(TermIsVar(t))
+   else if(TermIsFreeVar(t))
    { /* s, Y */
       bool ctn = mfyvwbc(ocb, s, deref_s, t, true, 0);
       dec_vb(ocb, t);
@@ -439,7 +439,7 @@ static void mfyvwblhs(OCB_p ocb, Term_p term, DerefType deref_t, int orig_limit)
          term = TermDeref(term, &deref_t);
       }
 
-      if(TermIsVar(term))
+      if(TermIsFreeVar(term))
       {
          inc_vb(ocb, term);
       }
@@ -488,7 +488,7 @@ static void mfyvwbrhs(OCB_p ocb, Term_p term, DerefType deref_t, int orig_limit)
          term = TermDeref(term, &deref_t);
       }
 
-      if(TermIsVar(term))
+      if(TermIsFreeVar(term))
       {
          dec_vb(ocb, term);
       }
@@ -564,9 +564,9 @@ static CompareResult kbolincmp(OCB_p ocb, Term_p s, Term_p t,
          }
       }
    }
-   else if(TermIsVar(s))
+   else if(TermIsFreeVar(s))
    {
-      if(TermIsVar(t))
+      if(TermIsFreeVar(t))
       {  /* X, Y */
          inc_vb(ocb, s);
          dec_vb(ocb, t);
@@ -579,7 +579,7 @@ static CompareResult kbolincmp(OCB_p ocb, Term_p s, Term_p t,
          res = ocb->pos_bal?to_uncomparable:to_lesser;
       }
    }
-   else if(TermIsVar(t))
+   else if(TermIsFreeVar(t))
    { /* s, Y */
       dec_vb(ocb, t);
       mfyvwblhs(ocb, s, deref_s, 0);
@@ -719,9 +719,9 @@ static CompareResult kbolincmp_ho(OCB_p ocb, Term_p s, Term_p t,
          }
       }
    }
-   else if(TermIsVar(s))
+   else if(TermIsFreeVar(s))
    {
-      if(TermIsVar(t))
+      if(TermIsFreeVar(t))
       {  /* X, Y */
          inc_vb(ocb, s);
          dec_vb(ocb, t);
@@ -734,7 +734,7 @@ static CompareResult kbolincmp_ho(OCB_p ocb, Term_p s, Term_p t,
          res = ocb->pos_bal?to_uncomparable:to_lesser;
       }
    }
-   else if(TermIsVar(t))
+   else if(TermIsFreeVar(t))
    { /* s, Y */
       dec_vb(ocb, t);
       mfyvwblhs(ocb, s, deref_s, limit_s);
@@ -757,8 +757,8 @@ static CompareResult kbolincmp_ho(OCB_p ocb, Term_p s, Term_p t,
       }
       else
       {
-         assert(!TermIsAppliedVar(s) || !TermIsAppliedVar(t));
-         CompareResult tmp = (TermIsAppliedVar(s) || TermIsAppliedVar(t)) ?
+         assert(!TermIsAppliedFreeVar(s) || !TermIsAppliedFreeVar(t));
+         CompareResult tmp = (TermIsAppliedFreeVar(s) || TermIsAppliedFreeVar(t)) ?
                                to_uncomparable : OCBFunCompare(ocb, s->f_code, t->f_code);
          if(tmp == to_greater)
          {

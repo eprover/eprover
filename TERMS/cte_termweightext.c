@@ -50,7 +50,7 @@ static double term_ext_weight_sum(Term_p term, TermWeightExtension_p twe)
       subterm = PStackPopP(stack);
       res += twe->term_weight_fun(subterm, twe->data);
 
-      if (!TermIsVar(subterm))
+      if (!TermIsFreeVar(subterm))
       {
          for (i=0; i<subterm->arity; i++)
          {
@@ -79,7 +79,7 @@ static double term_ext_weight_max(Term_p term, TermWeightExtension_p twe)
       subterm = PStackPopP(stack);
       res = MAX(res, twe->term_weight_fun(subterm, twe->data));
 
-      if (!TermIsVar(subterm))
+      if (!TermIsFreeVar(subterm))
       {
          for (i=0; i<subterm->arity; i++)
          {

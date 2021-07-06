@@ -158,7 +158,7 @@ void    EqnFree(Eqn_p junk);
    EqnQueryProp((eq), EPIsStrictlyMaximal)
 
 #define EqnGetPredCodeFO(eq) (EqnIsEquLit(eq)?0:(eq)->lterm->f_code)
-#define EqnGetPredCodeHO(eq) (EqnIsEquLit(eq)?0:(TermIsTopLevelVar((eq)->lterm) ? 0 : (eq)->lterm->f_code))
+#define EqnGetPredCodeHO(eq) (EqnIsEquLit(eq)?0:(TermIsTopLevelFreeVar((eq)->lterm) ? 0 : (eq)->lterm->f_code))
 
 #ifdef ENABLE_LFHO
 #define EqnGetPredCode(eq) (problemType == PROBLEM_HO ? EqnGetPredCodeHO(eq) : EqnGetPredCodeFO(eq))
@@ -179,14 +179,14 @@ void    EqnFree(Eqn_p junk);
 #define EqnIsPropTrue(eq)  (((eq)->lterm == (eq)->rterm) && EqnIsPositive(eq))
 #define EqnIsPropFalse(eq) (((eq)->lterm == (eq)->rterm) && EqnIsNegative(eq))
 
-#define EqnIsBoolVar(eq) (TermIsVar((eq)->lterm) && ((eq)->rterm == (eq)->bank->true_term))
+#define EqnIsBoolVar(eq) (TermIsFreeVar((eq)->lterm) && ((eq)->rterm == (eq)->bank->true_term))
 
 #define EqnIsGround(eq)                                         \
    (TBTermIsGround((eq)->lterm) && TBTermIsGround((eq)->rterm))
 #define EqnIsPureVar(eq)                                \
-   (TermIsVar((eq)->lterm) && TermIsVar((eq)->rterm))
+   (TermIsFreeVar((eq)->lterm) && TermIsFreeVar((eq)->rterm))
 #define EqnIsPartVar(eq)                                \
-   (TermIsVar((eq)->lterm) || TermIsVar((eq)->rterm))
+   (TermIsFreeVar((eq)->lterm) || TermIsFreeVar((eq)->rterm))
 #define EqnIsPropositional(eq)                          \
    ((!EqnIsEquLit(eq)) && TermIsConst((eq)->lterm))
 #define EqnIsTypePred(eq)                               \
@@ -196,7 +196,7 @@ void    EqnFree(Eqn_p junk);
 #define EqnIsRealXTypePred(eq)                          \
    ((!EqnIsEquLit(eq))&&TermIsDefTerm((eq)->lterm,1))
 #define EqnIsSimpleAnswer(eq)                                   \
-   SigIsSimpleAnswerPred((eq)->bank->sig, (eq)->lterm->f_code)
+   ((!TermIsDBVar((eq)->lterm)) && SigIsSimpleAnswerPred((eq)->bank->sig, (eq)->lterm->f_code))
 
 #define EqnTermSetProp(eq,prop) TermSetProp((eq)->lterm, DEREF_NEVER, (prop));\
    TermSetProp((eq)->rterm, DEREF_NEVER, (prop))

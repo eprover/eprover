@@ -56,7 +56,7 @@ long term_collect_into_terms(Term_p t, PTree_p *terms)
    long res = 0;
    int  i;
 
-   if(TermIsVar(t))
+   if(TermIsFreeVar(t))
    {
       return res;
    }
@@ -87,7 +87,7 @@ long term_collect_into_terms2(Term_p t, PTree_p *terms, PTree_p *natoms)
    long res = 0;
    int  i;
 
-   if(TermIsVar(t))
+   if(TermIsFreeVar(t))
    {
       return res;
    }
@@ -174,14 +174,14 @@ long term_collect_into_terms_pos(Term_p t, CompactPos pos, PStack_p terms)
    long res = 0;
    int  i;
 
-   if(TermIsVar(t))
+   if(TermIsFreeVar(t))
    {
       return res;
    }
    PStackPushP(terms, t);
    PStackPushInt(terms, pos);
    res++;
-   pos += DEFAULT_FWEIGHT*(TermIsAppliedVar(t) ? 0 : 1);
+   pos += DEFAULT_FWEIGHT*(TermIsPhonyApp(t) ? 0 : 1);
    for(i=0; i<t->arity; i++)
    {
       res += term_collect_into_terms_pos(t->args[i], pos, terms);
@@ -210,14 +210,14 @@ long term_collect_into_terms_pos2(Term_p t, CompactPos pos,
    long res = 0;
    int  i;
 
-   if(TermIsVar(t))
+   if(TermIsFreeVar(t))
    {
       return res;
    }
    PStackPushP(natoms, t);
    PStackPushInt(natoms, pos);
    res++;
-   pos += DEFAULT_FWEIGHT*(TermIsAppliedVar(t) ? 0 : 1);
+   pos += DEFAULT_FWEIGHT*(TermIsPhonyApp(t) ? 0 : 1);
    for(i=0; i<t->arity; i++)
    {
       /* It's term_collect_into_terms_pos() on purpose - subterm need

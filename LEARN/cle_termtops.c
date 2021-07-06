@@ -68,7 +68,7 @@ static void term_del_prop_level(Term_p term, int depth, TermProperties prop)
          {
             for(i=0; i<term->arity; i++)
             {
-               assert(!TermIsVar(term));
+               assert(!TermIsFreeVar(term));
                PStackPushP(stack, term->args[i]);
                PStackPushInt(stack, depth-1);
             }
@@ -109,7 +109,7 @@ static void term_set_prop_at_level(Term_p term, int depth,
       {
          for(i=0; i<term->arity; i++)
          {
-            assert(!TermIsVar(term));
+            assert(!TermIsFreeVar(term));
             PStackPushP(stack, term->args[i]);
             PStackPushInt(stack, depth-1);
          }
@@ -143,7 +143,7 @@ static Term_p rek_term_top(Term_p term, int depth, VarBank_p freshvars)
    {
       handle = VarBankGetAltFreshVar(freshvars, term->type);
    }
-   else if(TermIsVar(term))
+   else if(TermIsFreeVar(term))
    {
       handle = VarBankVarAssertAlloc(freshvars, term->f_code, term->type);
    }
@@ -197,7 +197,7 @@ static Term_p alt_rek_term_top(Term_p term, int depth, VarBank_p
          handle = term->binding;
       }
    }
-   else if(TermIsVar(term))
+   else if(TermIsFreeVar(term))
    {
       handle = VarBankVarAssertAlloc(freshvars, term->f_code, term->type);
    }
@@ -250,7 +250,7 @@ Term_p term_top_marked(Term_p term, VarBank_p freshvars, PStack_p
          handle = term->binding;
       }
    }
-   else if(TermIsVar(term))
+   else if(TermIsFreeVar(term))
    {
       handle = VarBankVarAssertAlloc(freshvars, term->f_code, term->type);
    }

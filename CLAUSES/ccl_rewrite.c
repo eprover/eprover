@@ -63,7 +63,7 @@ static void subst_complete_min_instance(OCB_p ocb, TB_p bank,
 {
    int i;
 
-   if(TermIsVar(term))
+   if(TermIsFreeVar(term))
    {
       if(!(term->binding))
       {
@@ -176,7 +176,7 @@ static RWResultType term_is_top_rewritable(TB_p bank, OCB_p ocb,
 
    assert(new_demod->pos_lit_no == 1);
    assert(new_demod->neg_lit_no == 0);
-   assert(!TermIsVar(term));
+   assert(!TermIsFreeVar(term));
 
    eqn = new_demod->literals;
 
@@ -293,7 +293,7 @@ static bool term_is_rewritable(TB_p bank, OCB_p ocb, Term_p term, Clause_p
      TermPrint(stdout, term, ocb->sig, DEREF_NEVER);
      printf(")...\n"); */
 
-   if(TermIsVar(term))
+   if(TermIsFreeVar(term))
    {
       return false;
    }
@@ -593,7 +593,7 @@ static Term_p rewrite_with_clause_set(OCB_p ocb, TB_p bank, Term_p term,
 
    assert(demodulators->demod_index);
    assert(term);
-   assert(!TermIsVar(term));
+   assert(!TermIsFreeVar(term));
    assert(!TermIsTopRewritten(term));
 
    mi = indexed_find_demodulator(ocb, term, date, demodulators,
@@ -652,7 +652,7 @@ static Term_p rewrite_with_clause_setlist(OCB_p ocb, TB_p bank, Term_p term,
    Term_p res = term;
 
    assert(level);
-   assert(!TermIsVar(term));
+   assert(!TermIsFreeVar(term));
    assert(!TermIsTopRewritten(term));
 
    for(i=0; i<level; i++)
@@ -749,7 +749,7 @@ static Term_p term_li_normalform(RWDesc_p desc, Term_p term,
    {
       return term;
    }
-   if(TermIsVar(term))
+   if(TermIsFreeVar(term))
    {
       assert(!TermIsRewritten(term));
       return term;
@@ -758,7 +758,7 @@ static Term_p term_li_normalform(RWDesc_p desc, Term_p term,
    {
       modified = term_subterm_rewrite(desc, &term);
 
-      if(!TermIsVar(term))
+      if(!TermIsFreeVar(term))
       {
          if(TermIsTopRewritten(term))
          {
@@ -962,7 +962,7 @@ static long term_find_rw_clauses(Clause_p demod,
    Subst_p subst = SubstAlloc();
    Term_p  term = termocc->term;
 
-   assert(!TermIsVar(term));
+   assert(!TermIsFreeVar(term));
 
    BWRWMatchAttempts++;
    int remains = 0;

@@ -235,7 +235,7 @@ ACTerm_p ACTermNormalize(Sig_p sig, Term_p term)
 {
    ACTerm_p handle = ACTermAlloc(term->f_code);
 
-   if(!TermIsVar(term) && (term->arity != 0))
+   if(!TermIsAnyVar(term) && (term->arity != 0))
    {
       int i;
 
@@ -345,7 +345,7 @@ bool TermACEqual(Sig_p sig, Term_p t1, Term_p t2)
    bool res = true;
 
    if(TermStandardWeight(t1)!=TermStandardWeight(t2)
-      || TermIsAppliedVar(t1) || TermIsAppliedVar(t2))
+      || TermIsPhonyApp(t1) || TermIsPhonyApp(t2))
    {
       res = false;
    }

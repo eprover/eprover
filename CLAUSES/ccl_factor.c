@@ -282,8 +282,8 @@ Clause_p ComputeEqualityFactor(TB_p bank, OCB_p ocb, ClausePos_p pos1,
    max_term  = ClausePosGetSide(pos1);
    with_term = ClausePosGetSide(pos2);
 
-   if((!TermIsVar(max_term)||EqnIsEquLit(pos2->literal))&&
-      (!TermIsVar(with_term)||EqnIsEquLit(pos1->literal))&&
+   if((!TermIsFreeVar(max_term)||EqnIsEquLit(pos2->literal))&&
+      (!TermIsFreeVar(with_term)||EqnIsEquLit(pos1->literal))&&
       SubstMguComplete(max_term, with_term, subst))
    {
       min_term = ClausePosGetOtherSide(pos1);
