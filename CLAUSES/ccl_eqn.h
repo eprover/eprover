@@ -158,7 +158,8 @@ void    EqnFree(Eqn_p junk);
    EqnQueryProp((eq), EPIsStrictlyMaximal)
 
 #define EqnGetPredCodeFO(eq) (EqnIsEquLit(eq)?0:(eq)->lterm->f_code)
-#define EqnGetPredCodeHO(eq) (EqnIsEquLit(eq)?0:(TermIsTopLevelFreeVar((eq)->lterm) ? 0 : (eq)->lterm->f_code))
+#define EqnGetPredCodeHO(eq) (EqnIsEquLit(eq)?0:((TermIsAnyVar((eq)->lterm) || TermIsPhonyApp((eq)->lterm)) ? \
+                                                  0 : (eq)->lterm->f_code))
 
 #ifdef ENABLE_LFHO
 #define EqnGetPredCode(eq) (problemType == PROBLEM_HO ? EqnGetPredCodeHO(eq) : EqnGetPredCodeFO(eq))

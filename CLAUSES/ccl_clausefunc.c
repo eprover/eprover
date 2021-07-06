@@ -782,8 +782,9 @@ Clause_p ClauseRecognizeInjectivity(TB_p terms, Clause_p clause)
       if (EqnIsEquLit(pos_lit) && EqnIsEquLit(neg_lit) &&
           TermIsFreeVar(pos_lit->lterm) && TermIsFreeVar(pos_lit->rterm) && 
           pos_lit->lterm != pos_lit->rterm &&
-          !TermIsTopLevelFreeVar(neg_lit->lterm) && !TermIsTopLevelFreeVar(neg_lit->rterm)
-          && neg_lit->lterm->f_code == neg_lit->rterm->f_code 
+          !TermIsTopLevelAnyVar(neg_lit->lterm) && !TermIsTopLevelAnyVar(neg_lit->rterm)
+          && neg_lit->lterm->f_code == neg_lit->rterm->f_code
+          && neg_lit->lterm->f_code > terms->sig->internal_symbols
           && !TypeIsArrow(neg_lit->lterm->type)
           && !SigQueryFuncProp(neg_lit->bank->sig, neg_lit->lterm->f_code, FPIsInjDefSkolem)
           && TermStandardWeight(neg_lit->lterm) == TermStandardWeight(neg_lit->rterm)

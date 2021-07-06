@@ -59,7 +59,7 @@ static inline Term_p ApplyTerms(TB_p terms, Term_p head, PStack_p args)
    long   len = PStackGetSP(args);
    if(!PStackEmpty(args))
    {
-      if(TermIsFreeVar(head) || TermIsLambda(head))
+      if(TermIsAnyVar(head) || TermIsLambda(head))
       {
          res = TermTopAlloc(SIG_PHONY_APP_CODE, len+1);
          res->args[0] = head;

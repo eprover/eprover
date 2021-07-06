@@ -368,14 +368,14 @@ Term_p applied_var_deref(Term_p orig);
 static inline Type_p GetHeadType(Sig_p sig, Term_p term)
 {
 #ifdef ENABLE_LFHO
-   if(TermIsAppliedFreeVar(term))
+   if(TermIsPhonyApp(term))
    {
       assert(!sig || term->f_code == SIG_PHONY_APP_CODE);
       return term->args[0]->type;
    }
-   else if(TermIsFreeVar(term) || TermIsLambda(term))
+   else if(TermIsAnyVar(term) || TermIsLambda(term))
    {
-      assert(!TermIsFreeVar(term) || term->arity == 0);
+      assert(!TermIsAnyVar(term) || term->arity == 0);
       return term->type;
    }
    else

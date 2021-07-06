@@ -856,7 +856,10 @@ Term_p TermCopy(Term_p source, VarBank_p vars, DerefType deref)
    {
       handle = VarBankVarAssertAlloc(vars, source->f_code, source->type);
    }
-   else
+   else if (TermIsDBVar(source))
+   {
+      handle = RequestDBVar(dbvars, source->type, source->f_code);
+   }
    {
       handle = TermTopCopyWithoutArgs(source);
 
@@ -897,7 +900,7 @@ Term_p TermCopyKeepVars(Term_p source, DerefType deref)
    const int limit = DEREF_LIMIT(source, deref);
    source = TermDeref(source, &deref);
 
-   if(TermIsFreeVar(source))
+   if(TermIsAnyVar(source))
    {
       return source;
    }
@@ -1104,19 +1107,19 @@ bool TermStructPrefixEqual(Term_p l, Term_p r, DerefType d_l, DerefType d_r,
       l = TermDeref(l, &d_l);
       r = TermDeref(r, &d_r);
 
-      if(TermIsAppliedFreeVar(r) && (r->arity - remaining == 1))
+      if(TermIsAppliedAnyVar(r) && (r->arity - remaining == 1))
       {
          // f-code comparisons would fail without this hack.
          r = r->args[0];
       }
 
-      if(l->f_code != r->f_code || (!TermIsFreeVar(r) && r->arity < remaining))
+      if(l->f_code != r->f_code || (!TermIsAnyVar(r) && r->arity < remaining))
       {
          res = false;
       }
       else
       {
-         assert((TermIsFreeVar(l) && TermIsFreeVar(r)) || l->arity == r->arity-remaining);
+         assert((TermIsAnyVar(l) && TermIsAnyVar(r)) || l->arity == r->arity-remaining);
 
          for(int i=0; i<l->arity; i++)
          {
@@ -1180,6 +1183,20 @@ long TermStructWeightCompare(Term_p t1, Term_p t2)
       assert(TermIsFreeVar(t2));
       return TypesCmp(t1->type, t2->type);
    }
+
+   // DB var is smaller than fcode
+   res = CMP(!TermIsDBVar(t1), !TermIsDBVar(t2));
+   if(res)
+   {
+      return res;
+   }
+
+   if(TermIsDBVar(t1))
+   {
+      assert(TermIsDBVar(t2));
+      return TypesCmp(t1->type, t2->type);
+   }
+
 
    res = t1->arity - t2->arity;
    if(res)
@@ -1384,7 +1401,7 @@ long TermFsumWeight(Term_p term, long vweight, long flimit,
       {
          if(!TermIsPhonyApp(term))
          {
-            res += fweights[term->f_code];
+            res += TermIsDBVar(term) ? default_fweight : fweights[term->f_code];
          }
          else
          {
@@ -2011,7 +2028,7 @@ void TermAddSymbolDistExist(Term_p term, long *dist_array,
       term = PStackPopP(stack);
       assert(term);
 
-      if(!TermIsFreeVar(term))
+      if(!TermIsAnyVar(term))
       {
          int i;
 
@@ -2053,7 +2070,7 @@ void TermAddSymbolFeaturesLimited(Term_p term, long depth,
                                   long *freq_array, long* depth_array,
                                   long limit)
 {
-   if(!TermIsFreeVar(term))
+   if(!TermIsAnyVar(term))
    {
       int i;
 
@@ -2677,6 +2694,10 @@ Term_p TermCopyRenameVars(NumTree_p* renaming, Term_p term)
         assert(entry);
         copy = (Term_p)(entry->val1.p_val);
     }
+    else if (TermIsDBVar(term))
+    {
+        copy = term;
+    }
     else
     {
         copy = TermTopCopy(term);
@@ -2734,6 +2755,10 @@ Term_p TermCopyUnifyVars(VarBank_p vars, Term_p term)
     if (TermIsFreeVar(term))
     {
         return VarBankVarAssertAlloc(vars, -2, vars->sort_table->i_type);
+    }
+    else if (TermIsDBVar(term))
+    {
+        return term;
     }
 
     Term_p new = TermTopCopy(term);

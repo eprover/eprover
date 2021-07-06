@@ -165,10 +165,10 @@ void TermTreeFree(Term_p junk)
          {
             PStackPushP(stack, junk->rson);
          }
-    if(!TermIsFreeVar(junk))
-    {
-       TermTopFree(junk);
-    }
+         if(!TermIsAnyVar(junk))
+         {
+            TermTopFree(junk);
+         }
       }
       PStackFree(stack);
    }

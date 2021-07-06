@@ -511,7 +511,7 @@ bool EqnParseInfix(Scanner_p in, TB_p bank, Term_p *lref, Term_p *rref)
 
             rterm = TBTermParse(in, bank);
 
-            if(!TermIsTopLevelFreeVar(rterm))
+            if(!TermIsTopLevelAnyVar(rterm))
             {
                TypeDeclareIsNotPredicate(bank->sig, rterm, in);
             }
@@ -549,7 +549,9 @@ bool EqnParseInfix(Scanner_p in, TB_p bank, Term_p *lref, Term_p *rref)
       }
       else
       {  /* It's a predicate */
-         if(problemType == PROBLEM_HO && !TermIsTopLevelFreeVar(lterm)
+         if(problemType == PROBLEM_HO 
+            && !TermIsAnyVar(lterm)
+            && !TermIsPhonyApp(lterm)
             && SigIsFunction(bank->sig, lterm->f_code))
          {
             DStr_p err = DStrAlloc();
@@ -789,7 +791,8 @@ Eqn_p EqnHOFParse(Scanner_p in, TB_p bank, bool* continue_parsing)
    }
    else
    {
-      if(!TermIsTopLevelFreeVar(lterm) && SigIsFunction(bank->sig, lterm->f_code))
+      if(!TermIsAnyVar(lterm) && !TermIsPhonyApp(lterm)
+         && SigIsFunction(bank->sig, lterm->f_code))
       {
          DStr_p err = DStrAlloc();
          DStrAppendStr(err, "Symbol ");

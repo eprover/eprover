@@ -232,7 +232,7 @@ void TermTopFree(Term_p junk)
 void TermFree(Term_p junk)
 {
    assert(junk);
-   if(!TermIsFreeVar(junk))
+   if(!TermIsAnyVar(junk))
    {
       assert(!TermCellQueryProp(junk, TPIsShared));
       if(junk->arity)
@@ -764,9 +764,9 @@ bool TermIsPrefix(Term_p cand, Term_p term)
       /* cand can be null if it was binding field of non-bound var,
          which is common use case for this function  */
 
-      if(TermIsFreeVar(cand))
+      if(TermIsAnyVar(cand))
       {
-         return TermIsFreeVar(term) ? cand == term :
+         return TermIsAnyVar(term) ? cand == term :
                   (TermIsPhonyApp(term) ? cand == term->args[0] : false);
       }
 

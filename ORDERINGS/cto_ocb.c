@@ -601,7 +601,7 @@ FunCode OCBTermMaxFunCode(OCB_p ocb, Term_p term)
    // to change anything -- normal deref behaves the same ways
    term = TermDeref(term, &deref);
 
-   if(TermIsFreeVar(term))
+   if(TermIsAnyVar(term))
    {
       return res;
    }

@@ -536,7 +536,7 @@ Term_p term_drop_last_arg(TypeBank_p tb, Term_p s)
    {
       Term_p t = s->args[0];
       assert(t->type == res_type);
-      assert(TermIsFreeVar(t));
+      // assert(TermIsFreeVar(t));
       return t;
    }
    else 
