@@ -1417,7 +1417,7 @@ Term_p PatternTranslateSig(Term_p term, PatternSubst_p subst, Sig_p
       }
    }
 
-   new = TermCopy(term, new_vars, DEREF_ONCE);
+   new = TermCopy(term, new_vars, NULL,  DEREF_ONCE);
    /* Reset variables */
    PStackPushP(stack, term);
    while(!PStackEmpty(stack))

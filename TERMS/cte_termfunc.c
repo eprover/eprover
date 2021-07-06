@@ -842,7 +842,7 @@ Term_p TermParseArgList(Scanner_p in, Sig_p sig, VarBank_p vars)
 //
 /----------------------------------------------------------------------*/
 
-Term_p TermCopy(Term_p source, VarBank_p vars, DerefType deref)
+Term_p TermCopy(Term_p source, VarBank_p vars, DBVarBank_p dbvars, DerefType deref)
 {
    Term_p handle;
    int i;
@@ -858,14 +858,21 @@ Term_p TermCopy(Term_p source, VarBank_p vars, DerefType deref)
    }
    else if (TermIsDBVar(source))
    {
-      handle = RequestDBVar(dbvars, source->type, source->f_code);
+      if(!dbvars)
+      {
+         handle = source;
+      }
+      else
+      {
+         handle = RequestDBVar(dbvars, source->type, source->f_code);
+      }
    }
    {
       handle = TermTopCopyWithoutArgs(source);
 
       for(i=0; i<handle->arity; i++)
       {
-         handle->args[i] = TermCopy(source->args[i], vars,
+         handle->args[i] = TermCopy(source->args[i], vars, dbvars,
                                     CONVERT_DEREF(i, limit, deref));
       }
    }
@@ -2791,7 +2798,7 @@ Term_p TermCopyNormalizeVars(VarBank_p vars, Term_p term,
    case NSAlpha:
       return TermCopyNormalizeVarsAlpha(vars,term);
    default:
-      return TermCopy(term,vars,DEREF_NEVER);
+      return TermCopy(term,vars,NULL,DEREF_NEVER);
    }
 }
 
