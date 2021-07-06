@@ -645,8 +645,11 @@ int main(int argc, char* argv[])
                                     print_derivation,
                                     OutputLevel||print_statistics);
          ProofStateAnalyseGC(proofstate);
-         ProofStateTrain(proofstate, proc_training_data&TSPrintPos,
-                         proc_training_data&TSPrintNeg);
+         if(proc_training_data)
+         {
+            ProofStateTrain(proofstate, proc_training_data&TSPrintPos,
+                            proc_training_data&TSPrintNeg);
+         }
       }
       DerivationFree(deriv);
    }
