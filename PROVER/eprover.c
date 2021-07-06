@@ -64,6 +64,7 @@ bool              print_sat = false,
    error_on_empty = false,
    pcl_full_terms = true,
    indexed_subsumption = true,
+   syntax_only = false,
    prune_only = false,
    new_cnf = true,
    cnf_only = false,
@@ -409,6 +410,13 @@ int main(int argc, char* argv[])
    proofstate = parse_spec(state, parse_format,
                            error_on_empty, free_symb_prop,
                            &parsed_ax_no);
+
+   if(syntax_only)
+   {
+      fprintf(GlobalOut, "\n# Parsing successful!\n");
+      TSTPOUT(GlobalOut, "Unknown");
+      goto cleanup1;
+   }
 
    relevancy_pruned += ProofStateSinE(proofstate, sine);
    relevancy_pruned += ProofStateRelevancyProcess(proofstate,
@@ -962,9 +970,12 @@ CLState_p process_options(int argc, char* argv[])
             CheckOptionLetterString(filterdesc, "eigEIGaA", "--filter-saturated");
             filter_sat = true;
             break;
+      case OPT_SYNTAX_ONLY:
+            syntax_only = true;
+            break;
       case OPT_PRUNE_ONLY:
             OutputLevel = 4;
-            prune_only   = true;
+            prune_only  = true;
             break;
       case OPT_CNF_ONLY:
             outdesc    = "teigEIG";

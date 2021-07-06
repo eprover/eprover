@@ -43,6 +43,7 @@ typedef enum
    OPT_PRINT_SATURATED,
    OPT_PRINT_SAT_INFO,
    OPT_FILTER_SATURATED,
+   OPT_SYNTAX_ONLY,
    OPT_PRUNE_ONLY,
    OPT_CNF_ONLY,
    OPT_PRINT_PID,
@@ -371,6 +372,12 @@ OptCell opts[] =
     " full rewriting, respectively), and 'N', 'R' and 'F' (as their"
     " lower case counterparts, but with non-unit-subsumption enabled"
     " as well)."},
+
+   {OPT_SYNTAX_ONLY,
+    '\0', "syntax-only",
+    NoArg, NULL,
+    "Stop after parsing, i.e. only check if the input can be parsed "
+    "correcly."},
 
    {OPT_PRUNE_ONLY,
     '\0', "prune",
