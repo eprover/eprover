@@ -620,10 +620,13 @@ void SigSetAllSpecial(Sig_p sig, bool value)
 //
 /----------------------------------------------------------------------*/
 
+#define MULTI_ARITY_HACK
+
 FunCode SigInsertId(Sig_p sig, const char* name, int arity, bool special_id)
 {
    long      pos;
    StrTree_p new, test;
+   DStr_p    fix_name = NULL;
 
    pos = SigFindFCode(sig, name);
 
@@ -631,8 +634,26 @@ FunCode SigInsertId(Sig_p sig, const char* name, int arity, bool special_id)
    {
       if(sig->f_info[pos].arity != arity)
       {
-         printf("Problem: %s %d != %d\n", name, arity, sig->f_info[pos].arity);
+         //printf("Problem: %s %d != %d\n", name, arity, sig->f_info[pos].arity);
+#ifdef MULTI_ARITY_HACK
+         fix_name = DStrAlloc();
+         DStrAppendStr(fix_name, name);
+         DStrAppendStr(fix_name, "_ARITYFIX");
+         DStrAppendInt(fix_name, arity);
+         DStrAppendStr(fix_name, " ");  /* Trailing space should ensure that it
+                               * cannot come from the real parser */
+         name = DStrView(fix_name);
+         pos = SigFindFCode(sig, name);
+#else
          return 0; /* ...but incompatible */
+#endif
+      }
+   }
+   if(pos)
+   {
+      if(fix_name)
+      {
+         DStrFree(fix_name);
       }
       if(special_id)
       {
@@ -666,6 +687,10 @@ FunCode SigInsertId(Sig_p sig, const char* name, int arity, bool special_id)
    SigSetSpecial(sig,sig->f_count,special_id);
    sig->alpha_ranks_valid = false;
 
+   if(fix_name)
+   {
+      DStrFree(fix_name);
+   }
    return sig->f_count;
 }
 

@@ -108,7 +108,7 @@ void DStrFree(DStr_p junk)
 //
 /----------------------------------------------------------------------*/
 
-char* DStrAppendStr(DStr_p strdes, char* newpart)
+char* DStrAppendStr(DStr_p strdes, const char* newpart)
 {
    long newlen,
       newmem;

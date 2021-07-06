@@ -62,7 +62,7 @@ extern char NullStr[];
 DStr_p DStrAlloc(void);
 void   DStrFree(DStr_p junk);
 
-char*   DStrAppendStr(DStr_p strdes, char* newpart);
+char*   DStrAppendStr(DStr_p strdes, const char* newpart);
 char*   DStrAppendChar(DStr_p strdes, char newch);
 char*   DStrAppendBuffer(DStr_p strdes, char* buf, int len);
 char*   DStrAppendInt(DStr_p strdes, long newpart);
