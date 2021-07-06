@@ -91,6 +91,8 @@ typedef enum
    TPIsEtaReducible   = 1<<22,  /* Does the term have at least one subterm which is
                                    lambda abstraction and the last argument of body is
                                    the abstracted variable */
+   TPIsDBVar          = 1<<23,   /* Term is a DB variable when it has positive f-code
+                                    and this tag. Also, the term *must* have no arguments */
 }TermProperties;
 
 
