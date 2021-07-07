@@ -194,6 +194,7 @@ void HeuristicParmsInitialize(HeuristicParms_p handle)
    handle->pos_ext                       = NoLits;
    handle->inverse_recognition           = false;
    handle->replace_inj_defs              = false;
+   handle->lift_lambdas                  = true;
    handle->ext_sup_max_depth             = NO_EXT_SUP;
 }
 
@@ -379,6 +380,8 @@ void HeuristicParmsPrint(FILE* out, HeuristicParms_p handle)
            BOOL2STR(handle->inverse_recognition));
    fprintf(out, "   replace_inj_defs:              %s\n",
            BOOL2STR(handle->replace_inj_defs));
+   fprintf(out, "   lift_lambdas:                  %s\n",
+           BOOL2STR(handle->lift_lambdas));
 
    fprintf(out, "   arg_cong:                      %s\n",
            EIT2STR(handle->arg_cong));
@@ -533,6 +536,7 @@ bool HeuristicParmsParseInto(Scanner_p in,
    PARSE_BOOL(detsort_tmpset);
    PARSE_BOOL(inverse_recognition);
    PARSE_BOOL(replace_inj_defs);
+   PARSE_BOOL(lift_lambdas);
    PARSE_STRING_AND_CONVERT(arg_cong, str2eit);
    PARSE_STRING_AND_CONVERT(neg_ext, str2eit);
    PARSE_STRING_AND_CONVERT(pos_ext, str2eit);

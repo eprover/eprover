@@ -87,6 +87,7 @@ long              step_limit = LONG_MAX,
    relevance_prune_level = 0,
    miniscope_limit = 1048576;
 long long tb_insert_limit = LLONG_MAX;
+bool lift_lambdas = true;
 
 int force_deriv_output = 0;
 char  *outdesc = DEFAULT_OUTPUT_DESCRIPTOR,
@@ -1773,6 +1774,9 @@ CLState_p process_options(int argc, char* argv[])
             break;
       case OPT_REPLACE_INJ_DEFS:
             h_parms->replace_inj_defs = true;
+            break;
+      case OPT_LIFT_LAMBDAS:
+            h_parms->lift_lambdas = CLStateGetBoolArg(handle, arg);
             break;
       default:
             assert(false && "Unknown option");

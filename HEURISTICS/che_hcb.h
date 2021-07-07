@@ -158,6 +158,7 @@ typedef struct heuristic_parms_cell
    int                 ext_sup_max_depth;
    bool                inverse_recognition;
    bool                replace_inj_defs;
+   bool                lift_lambdas;
 }HeuristicParmsCell, *HeuristicParms_p;
 
 

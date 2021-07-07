@@ -196,6 +196,7 @@ typedef enum
    OPT_EXT_SUP,
    OPT_INVERSE_RECOGNITION,
    OPT_REPLACE_INJ_DEFS,
+   OPT_LIFT_LAMBDAS,
    OPT_DUMMY
 }OptionCodes;
 
