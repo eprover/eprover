@@ -468,7 +468,8 @@ int main(int argc, char* argv[])
                                 proofstate->terms,
                                 proofstate->freshvars,
                                 proofstate->gc_terms,
-                                miniscope_limit);
+                                miniscope_limit,
+                                h_parms->lift_lambdas);
    }
    else
    {

@@ -509,7 +509,7 @@ int main(int argc, char* argv[])
    freshvars = VarBankAlloc(typebank);
    if(FormulaSetCNF2(formulas, f_ax_archive,
                      clauses, terms, freshvars,
-                     collector, 1000))
+                     collector, 1000, true))
    {
       VERBOUT("CNFization done\n");
    }

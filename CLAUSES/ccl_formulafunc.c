@@ -1368,7 +1368,9 @@ long FormulaSetCNF(FormulaSet_p set, FormulaSet_p archive,
 
 long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive,
                     ClauseSet_p clauseset, TB_p terms,
-                    VarBank_p fresh_vars, GCAdmin_p gc, long miniscope_limit)
+                    VarBank_p fresh_vars, GCAdmin_p gc, 
+                    long miniscope_limit,
+                    bool lift_lambdas)
 {
    WFormula_p form, handle;
    long res = 0;

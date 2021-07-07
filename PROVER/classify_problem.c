@@ -853,7 +853,7 @@ int main(int argc, char* argv[])
                               fstate->terms,
                               fstate->freshvars,
                               fstate->gc_terms,
-                              miniscope_limit);
+                              miniscope_limit, true);
             }
             else
             {
