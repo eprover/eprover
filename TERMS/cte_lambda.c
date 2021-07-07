@@ -36,6 +36,108 @@
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
 
+/*-----------------------------------------------------------------------
+//
+// Function: close_db()
+//
+//   Given body of the lambda, create a term LAM.body where LAM is the
+//   abstraction constructor for DB var of type ty.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+Term_p close_db(TB_p bank, Type_p ty, Term_p body)
+{
+   assert(TermIsShared(body));
+   
+   Term_p res = TermTopAlloc(SIG_DB_LAMBDA_CODE, 2);
+   res->args[0] = RequestDBVar(bank->db_vars, ty, 0);
+   res->args[1] = body;
+   res->type =
+      TypeBankInsertTypeShared(bank->sig->type_bank,
+                               ArrowTypeFlattened(&ty, 1, body->type));
+   return TBTermTopInsert(bank, res);
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: do_named_to_db()
+//
+//   Performs the actual conversion. Tries to reduce recursion by doing
+//   multiple lambda steps at the same time. Recursion can be completely
+//   elimininated using two stacks: One with pairs (term_to_process, depth)
+//   and the other one which records the terms that have been decomposed.
+//   However, we go for recursion it is unlikely that we will have that
+//   extremely deep terms.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+Term_p do_named_to_db(TB_p bank, Term_p t, long depth)
+{
+   Term_p res = NULL;
+   if(TermIsLambda(t))
+   {
+      assert(t->f_code == SIG_NAMED_LAMBDA_CODE);
+      assert(t->arity == 2);
+      assert(TermIsFreeVar(t->args[0]));
+
+      PStack_p vars = PStackAlloc();
+      PStack_p previous_bindings = PStackAlloc();
+
+      Term_p body = UnfoldLambda(t, vars);
+      for(PStackPointer i=0; i < PStackGetSP(vars); i++)
+      {
+         Term_p var = (Term_p)PStackElementP(vars, i);
+         PStackPushP(previous_bindings, var->binding);
+         var->binding = RequestDBVar(bank->db_vars, var->type, depth++);
+      }
+
+      res = do_named_to_db(bank, body, depth);
+
+      while(!PStackEmpty(vars))
+      {
+         Term_p var = (Term_p)PStackPopP(vars);
+         Term_p prev_binding = (Term_p)PStackPopP(previous_bindings);
+         var->binding = prev_binding;
+
+         res = close_db(bank, var->type, res);
+      }
+
+      PStackFree(vars);
+      PStackFree(previous_bindings);
+   }
+   else if(TermIsFreeVar(t))
+   {
+      if(t->binding && TermIsDBVar(t->binding))
+      {
+         assert(t->binding->type == t->type);
+         res = RequestDBVar(bank->db_vars, t->type, 
+                            depth - t->binding->f_code - 1);
+      }
+      else
+      {
+         res = t;
+      }
+   }
+   else
+   {
+      res = TermTopCopy(t);
+      for(long i = 0; i < t->arity; i++)
+      {
+         res->args[i] = do_named_to_db(bank, t->args[i], depth);
+      }
+   }
+
+   return res;
+}
+
 
 /*-----------------------------------------------------------------------
 //
@@ -502,6 +604,24 @@ TFormula_p LiftLambdas(TB_p terms, TFormula_p t, PStack_p definitions, PDTree_p 
    }
 
    return res;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: NamedToDB()
+//
+//   Given *closed* lambda in the named representation,
+//   return the corresponding 
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+Term_p NamedToDB(TB_p bank, Term_p lambda)
+{
+   return do_named_to_db(bank, lambda, 0);
 }
 
 /*---------------------------------------------------------------------*/

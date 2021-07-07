@@ -513,15 +513,20 @@ void TermPrintDbgHO(FILE* out, Term_p term, Sig_p sig, DerefType deref)
    const int limit = DEREF_LIMIT(term, deref);
    term = TermDeref(term, &deref);
 
+   if(TermIsDBVar(term))
+   {
+      assert(term->arity == 0);
+      fprintf(out, "db(%ld)", term->f_code);
+   }
    if(!TermIsTopLevelFreeVar(term))
    {
       fputs(SigFindName(sig, term->f_code), out);
-      fprintf(out, "(%ld)", term->f_code);
    }
    else
    {
       VarPrint(out, (TermIsFreeVar(term) ? term : term->args[0])->f_code);
    }
+
 
    for(int i = TermIsAppliedFreeVar(term) ? 1 : 0; i < term->arity; ++i)
    {
