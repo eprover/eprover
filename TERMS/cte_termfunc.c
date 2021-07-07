@@ -36,7 +36,7 @@ bool      TermPrintTypes = false;
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
 /*---------------------------------------------------------------------*/
-
+void do_fool_print(FILE* out, Sig_p sig, TFormula_p form, int depth);
 
 /*---------------------------------------------------------------------*/
 /*                         Internal Functions                          */
@@ -305,6 +305,251 @@ void print_let(FILE* out, Term_p term, Sig_p sig, DerefType deref)
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: do_fool_print()
+//
+//    Inner function 
+//
+// Global Variables: TermPrintLists
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+void do_ho_print(FILE* out, TFormula_p term, Sig_p sig, DerefType deref, int depth)
+{
+   if (problemType == PROBLEM_FO)
+   {
+      TermPrintFO(out, term, sig, deref);
+      return;
+   }
+
+   assert(term);
+   assert(sig||TermIsFreeVar(term));
+
+   const int limit = DEREF_LIMIT(term, deref);
+   term = TermDeref(term, &deref);
+
+   if(!TermIsAnyVar(term) &&
+      (SigIsLogicalSymbol(sig, term->f_code) ||
+      TermIsLambda(term)) &&
+      term->f_code != SIG_TRUE_CODE &&
+      term->f_code != SIG_FALSE_CODE)
+   {
+      do_fool_print(out, sig, term, depth);
+      return;
+   }
+
+   if(TermIsDBVar(term))
+   {
+      fprintf(out, "X%d", depth - (int)term->f_code - 1);
+   }
+   else if(!TermIsTopLevelAnyVar(term))
+   {
+      fputs(SigFindName(sig, term->f_code), out);
+   }
+   else
+   {
+      Term_p var = TermIsAnyVar(term) ? term : term->args[0];
+      if (TermIsFreeVar(var))
+      {
+         VarPrint(out, var->f_code);
+      }
+      else
+      {
+         fprintf(out, "X%d", depth - (int)var->f_code - 1);
+      }
+      
+   }
+
+   for(int i = TermIsAppliedAnyVar(term) ? 1 : 0; i < term->arity; ++i)
+   {
+      fputs(" @ ", out);
+      DerefType c_deref = CONVERT_DEREF(i, limit, deref);
+      if(term->args[i]->arity ||
+         (c_deref != DEREF_NEVER &&
+          term->args[i]->binding && term->args[i]->binding->arity))
+      {
+         fputs("(", out);
+         if(TypeIsBool(term->args[i]->type))
+         {
+            do_fool_print(out, sig, term->args[i], depth);
+         }
+         else
+         {
+            do_ho_print(out, term->args[i], sig, c_deref, depth);
+         }
+         fputs(")", out);
+      }
+      else
+      {
+         do_ho_print(out, term->args[i], sig, c_deref, depth);
+      }
+   }
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: do_fool_print()
+//
+//    Inner function 
+//
+// Global Variables: TermPrintLists
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+void do_fool_print(FILE* out, Sig_p sig, TFormula_p form, int depth)
+{
+   assert(form);
+
+   if(TermIsDBVar(form))
+   {
+      fprintf(out, "X%d", depth - (int)form->f_code - 1);
+   }
+   else if(form->f_code == sig->eqn_code || form->f_code == sig->neqn_code)
+   {
+      if(form->args[1]->f_code == SIG_TRUE_CODE)
+      {
+         if(form->f_code == sig->neqn_code)
+         {
+           fputs("~", out);
+         }
+         PRINT_HO_PAREN(out, '(');
+         do_ho_print(out, form->args[0], sig, DEREF_NEVER, depth);
+         PRINT_HO_PAREN(out, ')');
+      }
+      else
+      {
+         PRINT_HO_PAREN(out, '(');
+         PRINT_HO_PAREN(out, '(');
+         do_ho_print(out, form->args[0], sig, DEREF_NEVER, depth);
+         PRINT_HO_PAREN(out, ')');
+         if(form->f_code == sig->neqn_code)
+         {
+            fputc('!', out);
+         }
+         fputc('=', out);
+         PRINT_HO_PAREN(out, '(');
+         do_ho_print(out, form->args[1], sig, DEREF_NEVER, depth);
+         PRINT_HO_PAREN(out, ')');
+         PRINT_HO_PAREN(out, ')');
+      }
+
+   }
+   else if(form->f_code == sig->qex_code || form->f_code == sig->qall_code ||
+           TermIsLambda(form))
+   {
+      FunCode quantifier = form->f_code;
+      if(form->f_code == sig->qex_code)
+      {
+         fputs("?[", out);
+      }
+      else if (form->f_code == sig->qall_code)
+      {
+         fputs("![", out);
+      }
+      else
+      {
+         fputs("^[", out);
+      }
+      
+      if(form->f_code == SIG_DB_LAMBDA_CODE)
+      {
+         fprintf(out, "X%d", depth);
+         depth++;
+      }
+      else
+      {
+         do_ho_print(out, form->args[0], sig, DEREF_NEVER, depth);
+      }
+
+      if(problemType == PROBLEM_HO || !TypeIsIndividual(form->args[0]->type))
+      {
+         fputs(":", out);
+         TypePrintTSTP(out, sig->type_bank, form->args[0]->type);
+      }
+      while(form->args[1]->f_code == quantifier)
+      {
+         form = form->args[1];
+         fputs(", ", out);
+         if(form->f_code == SIG_DB_LAMBDA_CODE)
+         {
+            fprintf(out, "X%d", depth);
+            depth++;
+         }
+         else
+         {
+            do_ho_print(out, form->args[0], sig, DEREF_NEVER, depth);
+         }
+         if(problemType == PROBLEM_HO || !TypeIsIndividual(form->args[0]->type))
+         {
+            fputs(":", out);
+            TypePrintTSTP(out, sig->type_bank, form->args[0]->type);
+         }
+      }
+      fputs("]:(", out);
+      do_fool_print(out, sig, form->args[1], depth);
+      fputs(")", out);
+   }
+   else if(form->f_code == sig->not_code)
+   {
+      assert(form->f_code == sig->not_code);
+      fputs("~(", out);
+      do_fool_print(out, sig, form->args[0], depth);
+      fputs(")", out);
+   }
+   else
+   {
+      char* oprep = "XXX";
+      // does not print or chain now
+      if(!TermIsFreeVar(form) && SigQueryFuncProp(sig, form->f_code, FPFOFOp) && form->arity == 2)
+      {
+         fputs("(", out);
+         do_fool_print(out, sig, form->args[0], depth);
+         if(form->f_code == sig->and_code)
+         {
+            oprep = "&";
+         }
+         else if(form->f_code == sig->or_code)
+         {
+            oprep = "|";
+         }
+         else if(form->f_code == sig->impl_code)
+         {
+            oprep = "=>";
+         }
+         else if(form->f_code == sig->equiv_code)
+         {
+            oprep = "<=>";
+         }
+         else if(form->f_code == sig->nand_code)
+         {
+            oprep = "~&";
+         }
+         else if(form->f_code == sig->nor_code)
+         {
+         oprep = "~|";
+         }
+         else if(form->f_code == sig->bimpl_code)
+         {
+            oprep = "<=";
+         }
+         else if(form->f_code == sig->xor_code)
+         {
+            oprep = "<~>";
+         }
+         fputs(oprep, out);
+         do_fool_print(out, sig, form->args[1], depth);
+         fputs(")", out);
+      }
+      else
+      {
+         do_ho_print(out, form, sig, DEREF_NEVER, depth);
+      }
+   }
+}
+
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
 /*---------------------------------------------------------------------*/
@@ -436,59 +681,7 @@ void TermPrintFO(FILE* out, Term_p term, Sig_p sig, DerefType deref)
 
 void TermPrintHO(FILE* out, Term_p term, Sig_p sig, DerefType deref)
 {
-   assert(term);
-   assert(sig||TermIsFreeVar(term));
-
-   const int limit = DEREF_LIMIT(term, deref);
-   term = TermDeref(term, &deref);
-
-   if(!TermIsFreeVar(term) &&
-      (SigIsLogicalSymbol(sig, term->f_code) ||
-      TermIsLambda(term)) &&
-      term->f_code != SIG_TRUE_CODE &&
-      term->f_code != SIG_FALSE_CODE)
-   {
-      TermFOOLPrint(out, sig, term);
-      return;
-   }
-
-   if(!TermIsTopLevelFreeVar(term))
-   {
-      fputs(SigFindName(sig, term->f_code), out);
-   }
-   else
-   {
-      VarPrint(out, (TermIsFreeVar(term) ? term : term->args[0])->f_code);
-   }
-
-   for(int i = TermIsAppliedFreeVar(term) ? 1 : 0; i < term->arity; ++i)
-   {
-#ifdef PRINT_AT
-      fputs(" @ ", out);
-#else
-      fputs(" ", out);
-#endif
-      DerefType c_deref = CONVERT_DEREF(i, limit, deref);
-      if(term->args[i]->arity ||
-         (c_deref != DEREF_NEVER &&
-          term->args[i]->binding && term->args[i]->binding->arity))
-      {
-         fputs("(", out);
-         if(TypeIsBool(term->args[i]->type))
-         {
-            TermFOOLPrint(out, sig, term->args[i]);
-         }
-         else
-         {
-            TermPrint(out, term->args[i], sig, c_deref);
-         }
-         fputs(")", out);
-      }
-      else
-      {
-         TermPrint(out, term->args[i], sig, c_deref);
-      }
-   }
+   do_ho_print(out, term, sig, deref, 0);
 }
 
 
@@ -518,7 +711,7 @@ void TermPrintDbgHO(FILE* out, Term_p term, Sig_p sig, DerefType deref)
       assert(term->arity == 0);
       fprintf(out, "db(%ld)", term->f_code);
    }
-   if(!TermIsTopLevelFreeVar(term))
+   else if(!TermIsTopLevelFreeVar(term))
    {
       fputs(SigFindName(sig, term->f_code), out);
    }
@@ -1955,7 +2148,7 @@ void TermAddSymbolDistributionLimited(Term_p term, long *dist_array, long limit)
       term = PStackPopP(stack);
       assert(term);
 
-      if(!TermIsFreeVar(term))
+      if(!TermIsAnyVar(term))
       {
          int i;
 
@@ -2555,131 +2748,7 @@ Term_p TermCreatePrefix(Term_p orig, int arg_num)
 
 void TermFOOLPrint(FILE* out, Sig_p sig, TFormula_p form)
 {
-   assert(form);
-
-   if(form->f_code == sig->eqn_code || form->f_code == sig->neqn_code)
-   {
-      if(form->args[1]->f_code == SIG_TRUE_CODE)
-      {
-         if(form->f_code == sig->neqn_code)
-         {
-           fputs("~", out);
-         }
-         PRINT_HO_PAREN(out, '(');
-         TermPrint(out, form->args[0], sig, DEREF_NEVER);
-         PRINT_HO_PAREN(out, ')');
-      }
-      else
-      {
-         PRINT_HO_PAREN(out, '(');
-         PRINT_HO_PAREN(out, '(');
-         TermPrint(out, form->args[0], sig, DEREF_NEVER);
-         PRINT_HO_PAREN(out, ')');
-         if(form->f_code == sig->neqn_code)
-         {
-            fputc('!', out);
-         }
-         fputc('=', out);
-         PRINT_HO_PAREN(out, '(');
-         TermPrint(out, form->args[1], sig, DEREF_NEVER);
-         PRINT_HO_PAREN(out, ')');
-         PRINT_HO_PAREN(out, ')');
-      }
-
-   }
-   else if(form->f_code == sig->qex_code || form->f_code == sig->qall_code ||
-           form->f_code == SIG_NAMED_LAMBDA_CODE)
-   {
-      FunCode quantifier = form->f_code;
-      if(form->f_code == sig->qex_code)
-      {
-         fputs("?[", out);
-      }
-      else if (form->f_code == sig->qall_code)
-      {
-         fputs("![", out);
-      }
-      else
-      {
-         fputs("^[", out);
-      }
-      TermPrint(out, form->args[0], sig, DEREF_NEVER);
-      if(problemType == PROBLEM_HO || !TypeIsIndividual(form->args[0]->type))
-      {
-         fputs(":", out);
-         TypePrintTSTP(out, sig->type_bank, form->args[0]->type);
-      }
-      while(form->args[1]->f_code == quantifier)
-      {
-         form = form->args[1];
-         fputs(", ", out);
-         TermPrint(out, form->args[0], sig, DEREF_NEVER);
-         if(problemType == PROBLEM_HO || !TypeIsIndividual(form->args[0]->type))
-         {
-            fputs(":", out);
-            TypePrintTSTP(out, sig->type_bank, form->args[0]->type);
-         }
-      }
-      fputs("]:(", out);
-      TermFOOLPrint(out, sig, form->args[1]);
-      fputs(")", out);
-   }
-   else if(form->f_code == sig->not_code)
-   {
-      assert(form->f_code == sig->not_code);
-      fputs("~(", out);
-      TermFOOLPrint(out, sig, form->args[0]);
-      fputs(")", out);
-   }
-   else
-   {
-      char* oprep = "XXX";
-      // does not print or chain now
-      if(!TermIsFreeVar(form) && SigQueryFuncProp(sig, form->f_code, FPFOFOp) && form->arity == 2)
-      {
-         fputs("(", out);
-         TermFOOLPrint(out, sig, form->args[0]);
-         if(form->f_code == sig->and_code)
-         {
-            oprep = "&";
-         }
-         else if(form->f_code == sig->or_code)
-         {
-            oprep = "|";
-         }
-         else if(form->f_code == sig->impl_code)
-         {
-            oprep = "=>";
-         }
-         else if(form->f_code == sig->equiv_code)
-         {
-            oprep = "<=>";
-         }
-         else if(form->f_code == sig->nand_code)
-         {
-            oprep = "~&";
-         }
-         else if(form->f_code == sig->nor_code)
-         {
-         oprep = "~|";
-         }
-         else if(form->f_code == sig->bimpl_code)
-         {
-            oprep = "<=";
-         }
-         else if(form->f_code == sig->xor_code)
-         {
-            oprep = "<~>";
-         }
-         fputs(oprep, out);
-         TermFOOLPrint(out, sig, form->args[1]);
-         fputs(")", out);
-      }
-      else
-      {
-         TermPrint(out, form, sig, DEREF_NEVER);
-      }
-   }
+   do_fool_print(out, sig, form, 0);
 }
 
 /*----------------------------------------------------------------------*/

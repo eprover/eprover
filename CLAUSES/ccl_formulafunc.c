@@ -884,7 +884,7 @@ TFormula_p do_bool_eqn_replace(TFormula_p form, TB_p terms)
 {
    const Sig_p sig = terms->sig;
    bool  changed   = false;
-   if(form->f_code == SIG_NAMED_LAMBDA_CODE)
+   if(TermIsLambda(form))
    {
       return form;
    }
@@ -1381,7 +1381,11 @@ long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive,
    TFormulaSetLiftLets(set, archive, terms);
    TFormulaSetUnfoldLogSymbols(set, archive, terms);
    TFormulaSetLambdaNormalize(set, archive, terms);
-   TFormulaSetLiftLambdas(set, archive, terms);
+   if (lift_lambdas)
+   {
+      TFormulaSetLiftLambdas(set, archive, terms);
+   }
+   TFormulaSetNamedToDBLambdas(set, archive, terms);
    TFormulaSetUnrollFOOL(set, archive, terms);
    // printf("# Simplify\n");
    FormulaSetSimplify(set, terms);
@@ -2071,12 +2075,53 @@ long TFormulaSetLiftLambdas(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
       return 0;
    }
 }
+
+/*-----------------------------------------------------------------------
+//
+// Function: TFormulaSetNamedToDBLambdas()
+//
+//   Convert all lambdas in the proof state from named to
+//   de Bruijn representation ()
+//
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+long TFormulaSetNamedToDBLambdas(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
+{
+   long res = 0;
+   if(problemType == PROBLEM_HO)
+   {
+      for(WFormula_p form = set->anchor->succ; form!=set->anchor; form=form->succ)
+      {
+         TFormula_p handle = NamedToDB(terms, form->tformula);
+         if(handle!=form->tformula)
+         {
+            form->tformula = handle;
+            DocFormulaModificationDefault(form, inf_fof_simpl);
+            WFormulaPushDerivation(form, DCFofSimplify, NULL, NULL);
+            res++;
+         }
+      }
+      return res;
+   }
+   else
+   {
+      return 0;
+   }
+}
 #else
 long TFormulaSetLambdaNormalize(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
 {
    return 0;
 }
 long TFormulaSetLiftLambdas(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
+{
+   return 0;
+}
+long TFormulaNamedToDBLambdas(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
 {
    return 0;
 }

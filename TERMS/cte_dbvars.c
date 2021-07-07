@@ -126,11 +126,12 @@ void DBVarBankFree(DBVarBank_p db_bank)
    long db_idx;
    while((typemap = IntMapIterNext(iter_typemaps, &db_idx)))
    {
-      IntMapIter_p iter_vars = IntMapIterAlloc(typemap, LONG_MIN, LONG_MAX);
+      IntMapIter_p iter_vars = IntMapIterAlloc(typemap, 0, LONG_MAX);
       Term_p var;
       TypeUniqueID key;
       while((var = IntMapIterNext(iter_vars, &key)))
       {
+         assert(TermIsDBVar(var));
          TermTopFree(var);
       }
       IntMapIterFree(iter_vars);
