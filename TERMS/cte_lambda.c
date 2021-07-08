@@ -32,6 +32,8 @@
 /*                      Forward Declarations                           */
 /*---------------------------------------------------------------------*/
 
+Term_p do_beta_normalize_db(TB_p bank, Term_p t, int depth);
+
 /*---------------------------------------------------------------------*/
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
@@ -117,6 +119,223 @@ Term_p do_shift_db(TB_p bank, Term_p t, int shift_val, int depth)
       {
          res->args[i] = do_shift_db(bank, t->args[i], shift_val, depth);
          changed = changed || res->args[i] == t->args[i];
+      }
+
+      if(!changed)
+      {
+         TermTopFree(res);
+         res = t;
+      }
+      else
+      {
+         res = TBTermTopInsert(bank, res);
+      }
+   }
+
+   return res;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: replace_bound_vars()
+//
+//   1.  For DB vars that are bound, do nothing.
+//   2a. For DB vars that are loosely bound 
+//       with index 0 <= idx < total_bound, replace them with the
+//       corresponding term (shifted for depth)
+//   2b. For other losely bound variables with index idx, shift them for 
+//       total_bound - idx
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+Term_p replace_bound_vars(TB_p bank, Term_p t, int total_bound, int depth)
+{
+   assert(total_bound > 0);
+   Term_p res = NULL;
+   if(TermIsDBVar(t))
+   {
+      if(t->f_code < depth)
+      {
+         res = t;
+      }
+      else // it is losely bound variable;
+      {
+         if(t->f_code - depth < total_bound)
+         {
+            Term_p corresponding_db = 
+               RequestDBVar(bank->db_vars, t->type, t->f_code - depth);
+            assert(corresponding_db->binding);
+            res = ShiftDB(bank, corresponding_db->binding, depth);
+         }
+         else
+         {
+            res = RequestDBVar(bank->db_vars, t->type, t->f_code - total_bound);
+         }
+      }
+   }
+   else if(TermIsLambda(t))
+   {
+      assert(t->f_code == SIG_DB_LAMBDA_CODE);
+      assert(TermIsDBVar(t->args[0]));
+
+      Term_p matrix = t->args[1];
+      Term_p new_matrix = replace_bound_vars(bank, matrix, total_bound, depth+1);
+      if(matrix == new_matrix)
+      {
+         res = matrix;
+      }
+      else
+      {
+         res = close_db(bank, t->args[0]->type, new_matrix);
+      }
+   }
+   else if (t->arity == 0)
+   {
+      res = t; //optimization
+   }
+   else
+   {
+      res = TermTopCopy(t);
+      bool changed = false;
+
+      for(long i=0; i < res->arity; i++)
+      {
+         res->args[i] = replace_bound_vars(bank, t->args[i], total_bound, depth);
+         changed = changed || res->args[i] != t->args[i];
+      }
+
+      if(!changed)
+      {
+         TermTopFree(res);
+         res = t;
+      }
+      else
+      {
+         res = TBTermTopInsert(bank, res);
+      }
+   }
+
+   return res;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: whnf_step()
+//
+//   Given a term of the form (%XYZ. body) x1 x2 x3 x4 ...
+//   Computes the term (body[X -> x1, Y -> x2; Z -> x3]) x4 ... 
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+Term_p whnf_step(TB_p bank, Term_p t, int depth)
+{
+   Term_p res = NULL;
+   long    num_remaining = t->arity - 1;
+   Term_p* remaining_args = t->args + 1;
+   Term_p  matrix = t->args[0];
+
+   assert(num_remaining);
+
+   PStack_p to_bind_stack = PStackAlloc();
+   while(TermIsLambda(matrix) && num_remaining)
+   {
+      assert(matrix->f_code == SIG_DB_LAMBDA_CODE);
+      assert(TermIsDBVar(matrix->args[0]));
+      PStackPushP(to_bind_stack, *remaining_args);
+      assert((*remaining_args)->type == matrix->args[0]->type);
+      remaining_args++;
+      num_remaining--;
+      matrix = matrix->args[1];
+   }
+
+   long total_bound = PStackGetSP(to_bind_stack);
+   for(PStackPointer i=0; i < PStackGetSP(to_bind_stack); i++)
+   {
+      Term_p target = PStackElementP(to_bind_stack, i);
+      Term_p db_var = RequestDBVar(bank->db_vars, target->type, total_bound - i - 1);
+      assert(db_var->binding == NULL);
+      db_var->binding = target;
+   }
+
+   Term_p new_matrix = replace_bound_vars(bank, matrix, total_bound, 0);
+   if (num_remaining)
+   {
+      PStack_p rest = PStackAlloc();
+      for(long i = 0; i < num_remaining; i++)
+      {
+         PStackPushP(rest, remaining_args[i]);
+      }
+      new_matrix = ApplyTerms(bank, new_matrix, rest);
+      PStackFree(rest);
+   }
+
+   while(!PStackEmpty(to_bind_stack))
+   {
+      ((Term_p)PStackPopP(to_bind_stack))->binding = NULL;
+   }
+
+   res = do_beta_normalize_db(bank, new_matrix, depth);
+   
+   PStackFree(to_bind_stack);
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: do_beta_normalize_db()
+//
+//   Performs the actual beta-normalization.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+Term_p do_beta_normalize_db(TB_p bank, Term_p t, int depth)
+{
+   Term_p res = NULL;
+   if(TermIsPhonyApp(t) && TermIsLambda(t->args[0]))
+   {
+      res = whnf_step(bank, t, depth);
+   }
+   else if (t->arity == 0)
+   {
+      res = t; // optimization
+   }
+   else if (TermIsLambda(t))
+   {
+      assert(t->f_code == SIG_DB_LAMBDA_CODE);
+      assert(TermIsDBVar(t->args[0]));
+
+      Term_p matrix = t->args[1];
+      Term_p reduced_matrix = do_beta_normalize_db(bank, matrix, depth+1);
+      if(matrix == reduced_matrix)
+      {
+         res = t;
+      }
+      else
+      {
+         res = close_db(bank, t->args[0]->type, reduced_matrix);
+      }
+   }
+   else
+   {
+      res = TermTopCopy(t);
+      bool changed = false;
+      for(long i=0; i < res->arity; i++)
+      {
+         res->args[i] = do_beta_normalize_db(bank, t->args[i], depth);
+         changed = changed || res->args[i] != t->args[i];
       }
 
       if(!changed)
@@ -733,9 +952,9 @@ Term_p ShiftDB(TB_p bank, Term_p term, int shift_val)
 
 /*-----------------------------------------------------------------------
 //
-// Function: ShiftDB()
+// Function: BetaNormalizeDB()
 //
-//   Shifts all losely bound variables by *shift_val*
+//   Normalizes de Bruijn encoded lambda terms
 //
 // Global Variables: -
 //
@@ -743,10 +962,10 @@ Term_p ShiftDB(TB_p bank, Term_p term, int shift_val)
 //
 /----------------------------------------------------------------------*/
 
-// Term_p BetaNormalizeDB(TB_p bank, Term_p term, int shift_val)
-// {
-//    return do_shift_db(bank, term, shift_val, 0);
-// }
+Term_p BetaNormalizeDB(TB_p bank, Term_p term, int shift_val)
+{
+   return do_beta_normalize_db(bank, term, 0);
+}
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
