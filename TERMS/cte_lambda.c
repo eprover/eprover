@@ -40,6 +40,42 @@ Term_p do_beta_normalize_db(TB_p bank, Term_p t);
 
 /*-----------------------------------------------------------------------
 //
+// Function: flatten_apps()
+//
+//   Apply additional arguments to hd assuming hd is PHONY_APP.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+Term_p flatten_apps(TB_p bank, Term_p hd, Term_p* args, long num_args,
+                    Type_p res_type)
+{
+   assert(TermIsPhonyApp(hd));
+   assert(!TermIsPhonyApp(hd->args[0]));
+
+   Term_p res = TermTopAlloc(hd->f_code, hd->arity + num_args);
+#ifdef NDEBUG
+   res->type = res_type;
+#endif
+   for(long i=0; i < hd->arity; i++)
+   {
+      res->args[i] = hd->args[i];
+   }
+   for(long i=0; i < num_args; i++)
+   {
+      res->args[hd->arity+i] = args[i];
+   }
+
+   res = TBTermTopInsert(bank, res);
+   assert(res->type == res_type);
+   return res;
+}
+
+/*-----------------------------------------------------------------------
+//
 // Function: close_db()
 //
 //   Given body of the lambda, create a term LAM.body where LAM is the
@@ -187,7 +223,7 @@ Term_p replace_bound_vars(TB_p bank, Term_p t, int total_bound, int depth)
       Term_p new_matrix = replace_bound_vars(bank, matrix, total_bound, depth+1);
       if(matrix == new_matrix)
       {
-         res = matrix;
+         res = t;
       }
       else
       {
@@ -200,7 +236,7 @@ Term_p replace_bound_vars(TB_p bank, Term_p t, int total_bound, int depth)
    }
    else
    {
-      res = TermTopCopy(t);
+      res = TermTopCopyWithoutArgs(t);
       bool changed = false;
 
       for(long i=0; i < res->arity; i++)
@@ -216,7 +252,16 @@ Term_p replace_bound_vars(TB_p bank, Term_p t, int total_bound, int depth)
       }
       else
       {
-         res = TBTermTopInsert(bank, res);
+         if(TermIsPhonyApp(res) && TermIsPhonyApp(res->args[0]))
+         {
+            Term_p junk = res;
+            res = flatten_apps(bank, res->args[0], res->args+1, res->arity-1, res->type);
+            TermTopFree(junk);
+         }
+         else
+         {
+            res = TBTermTopInsert(bank, res);
+         }
       }
    }
 
@@ -267,6 +312,7 @@ Term_p whnf_step(TB_p bank, Term_p t)
       Term_p db_var = RequestDBVar(bank->db_vars, target->type, total_bound - i - 1);
       assert(db_var->binding == NULL);
       db_var->binding = target;
+      PStackAssignP(to_bind_stack, i, db_var);
    }
 
    Term_p new_matrix = replace_bound_vars(bank, matrix, total_bound, 0);
@@ -287,7 +333,7 @@ Term_p whnf_step(TB_p bank, Term_p t)
    }
 
    res = do_beta_normalize_db(bank, new_matrix);
-   
+  
    PStackFree(to_bind_stack);
    return res;
 }
@@ -741,7 +787,7 @@ Term_p lift_lambda(TB_p terms, PStack_p bound_vars, Term_p body,
    Term_p res;
    WFormula_p generalization = 
       find_generalization(liftings,
-                          AbstractNamedVars(terms, body, bound_vars),
+                          AbstractVars(terms, body, bound_vars),
                           &res);
    if(generalization)
    {
@@ -801,7 +847,7 @@ Term_p lift_lambda(TB_p terms, PStack_p bound_vars, Term_p body,
       WFormula_p def = WTFormulaAlloc(terms, def_f);
       DocFormulaCreationDefault(def, inf_fof_intro_def, NULL, NULL);
       WFormulaPushDerivation(def, DCIntroDef, NULL, NULL);
-      store_lifting(liftings, res, AbstractNamedVars(terms, body, bound_vars), def);
+      store_lifting(liftings, res, AbstractVars(terms, body, bound_vars), def);
 
       PStackPushP(definitions, def);
 
@@ -929,7 +975,7 @@ Term_p NamedToDB(TB_p bank, Term_p lambda)
 {
    if(TermHasLambdaSubterm(lambda))
    {
-      return do_named_to_db(bank, lambda, 0);
+      return BetaNormalizeDB(bank, do_named_to_db(bank, lambda, 0));
    }
    else
    {
@@ -973,7 +1019,7 @@ Term_p ShiftDB(TB_p bank, Term_p term, int shift_val)
 //
 /----------------------------------------------------------------------*/
 
-Term_p BetaNormalizeDB(TB_p bank, Term_p term, int shift_val)
+Term_p BetaNormalizeDB(TB_p bank, Term_p term)
 {
    if(TermIsBetaReducible(term))
    {

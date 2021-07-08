@@ -346,7 +346,22 @@ void do_ho_print(FILE* out, TFormula_p term, Sig_p sig, DerefType deref, int dep
    }
    else if(!TermIsTopLevelAnyVar(term))
    {
-      fputs(SigFindName(sig, term->f_code), out);
+      if(TermIsPhonyApp(term))
+      {
+         if(TermIsLambda(term->args[0]))
+         {
+            fputs("( ", out);
+         }
+         do_ho_print(out, term->args[0], sig, deref, depth);
+         if(TermIsLambda(term->args[0]))
+         {
+            fputs(" )", out);
+         }
+      }
+      else
+      {
+         fputs(SigFindName(sig, term->f_code), out);
+      }
    }
    else
    {
@@ -362,7 +377,7 @@ void do_ho_print(FILE* out, TFormula_p term, Sig_p sig, DerefType deref, int dep
       
    }
 
-   for(int i = TermIsAppliedAnyVar(term) ? 1 : 0; i < term->arity; ++i)
+   for(int i = TermIsPhonyApp(term) ? 1 : 0; i < term->arity; ++i)
    {
       fputs(" @ ", out);
       DerefType c_deref = CONVERT_DEREF(i, limit, deref);

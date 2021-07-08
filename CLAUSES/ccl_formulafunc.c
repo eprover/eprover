@@ -282,7 +282,7 @@ TFormula_p unencode_eqns(TB_p terms, TFormula_p t)
 /----------------------------------------------------------------------*/
 
 Term_p do_rw_with_defs(TB_p terms, Term_p t, IntMap_p def_map,
-                       PTree_p* used_defs, int* steps)
+                       PTree_p* used_defs, int* steps, bool snf)
 {
    if(*steps <= 0)
    {
@@ -293,7 +293,7 @@ Term_p do_rw_with_defs(TB_p terms, Term_p t, IntMap_p def_map,
    Term_p new = TermTopAlloc(t->f_code, t->arity);
    for(long i=0; i<t->arity; i++)
    {
-      new->args[i] = do_rw_with_defs(terms, t->args[i], def_map, used_defs, steps);
+      new->args[i] = do_rw_with_defs(terms, t->args[i], def_map, used_defs, steps, snf);
       changed = changed || new->args[i] != t->args[i];
    }
 
@@ -316,10 +316,11 @@ Term_p do_rw_with_defs(TB_p terms, Term_p t, IntMap_p def_map,
       {
          PStackPushP(args, new->args[i]);
       }
-      new = NamedLambdaSNF(terms, ApplyTerms(terms, rhs, args));
+      new = snf ? NamedLambdaSNF(terms, ApplyTerms(terms, rhs, args))
+                  : ApplyTerms(terms, rhs, args);
       PTreeStore(used_defs, wform);
       new = do_rw_with_defs(terms, new,
-                            def_map, used_defs, steps);
+                            def_map, used_defs, steps, snf);
       *steps = *steps - 1; //forgot the precedence :)
       PStackFree(args);
    }
@@ -385,7 +386,7 @@ PTree_p create_sym_map(FormulaSet_p set, IntMap_p sym_def_map)
       // now the definition is of the form f @ ..terms.. = \xyz. body
       // and we need to check if terms are distinct variables
       // and if \terms\xyz.body has no free variables (and if )
-      bool is_def = TypeIsPredicate(lhs->type) &&
+      bool is_def = //TypeIsPredicate(lhs->type) &&
                     lhs->f_code > sig->internal_symbols && rhs != bank->true_term;
       PStackReset(bvars);
       for(long i=0; is_def && i<lhs_body->arity; i++)
@@ -409,7 +410,7 @@ PTree_p create_sym_map(FormulaSet_p set, IntMap_p sym_def_map)
 
       if(is_def)
       {
-         rhs = AbstractNamedVars(bank, rhs_applied, bvars);
+         rhs = AbstractVars(bank, rhs_applied, bvars);
          PTree_p free_vars = NULL;
          TFormulaCollectFreeVars(bank, rhs, &free_vars);
          if(!TermHasFCode(rhs_applied, lhs_body->f_code) &&
@@ -465,7 +466,8 @@ void intersimplify_definitions(TB_p terms, IntMap_p sym_def_map)
       PTree_p used_defs = NULL;
       int max_steps = MAX_RW_STEPS;
       Term_p new_rhs = do_rw_with_defs(terms, next->tformula->args[1],
-                                       sym_def_map, &used_defs, &max_steps);
+                                       sym_def_map, &used_defs,
+                                       &max_steps, true);
       if(new_rhs!=next->tformula->args[1])
       {
          assert(used_defs);
@@ -1380,9 +1382,9 @@ long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive,
    TFormulaSetLiftItes(set, archive, terms);
    TFormulaSetLiftLets(set, archive, terms);
    TFormulaSetUnfoldLogSymbols(set, archive, terms);
-   TFormulaSetLambdaNormalize(set, archive, terms);
    if (lift_lambdas)
    {
+      TFormulaSetLambdaNormalize(set, archive, terms);
       TFormulaSetLiftLambdas(set, archive, terms);
    }
    TFormulaSetNamedToDBLambdas(set, archive, terms);
@@ -1963,7 +1965,8 @@ long TFormulaSetUnfoldLogSymbols(FormulaSet_p set, FormulaSet_p archive, TB_p te
             PTree_p used_defs = NULL;
             int max_steps = MAX_RW_STEPS;
             TFormula_p handle = do_rw_with_defs(terms, form->tformula,
-                                                sym_def_map, &used_defs, &max_steps);
+                                                sym_def_map, &used_defs, 
+                                                &max_steps, false);
 
             if(handle!=form->tformula)
             {

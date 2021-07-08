@@ -39,7 +39,7 @@ TFormula_p LiftLambdas(TB_p terms, TFormula_p t, PStack_p definitions,
                        PDTree_p liftings);
 TFormula_p NamedToDB(TB_p bank, TFormula_p lambda);
 Term_p     ShiftDB(TB_p bank, Term_p term, int shift_val);
-Term_p     BetaNormalizeDB(TB_p bank, Term_p term, int shift_val);
+Term_p     BetaNormalizeDB(TB_p bank, Term_p term);
 
 /*-----------------------------------------------------------------------
 //
@@ -90,7 +90,7 @@ static inline Term_p ApplyTerms(TB_p terms, Term_p head, PStack_p args)
 
 /*-----------------------------------------------------------------------
 //
-// Function: AbstractNamedVars()
+// Function: AbstractVars()
 //
 //   Abstract var_prefix over matrix. Variable at the top of the stack
 //   is the first one to abstract. Does not change the stack.
@@ -102,7 +102,7 @@ static inline Term_p ApplyTerms(TB_p terms, Term_p head, PStack_p args)
 //
 /----------------------------------------------------------------------*/
 
-static inline Term_p AbstractNamedVars(TB_p terms, Term_p matrix, PStack_p var_prefix)
+static inline Term_p AbstractVars(TB_p terms, Term_p matrix, PStack_p var_prefix)
 {
    int num_vars = PStackGetSP(var_prefix);
    Term_p res = matrix;
