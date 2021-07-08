@@ -64,6 +64,77 @@ Term_p close_db(TB_p bank, Type_p ty, Term_p body)
 
 /*-----------------------------------------------------------------------
 //
+// Function: do_shift_db()
+//
+//   Performs the actual shifting.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+Term_p do_shift_db(TB_p bank, Term_p t, int shift_val, int depth)
+{
+   Term_p res = NULL;
+   if(TermIsDBVar(t))
+   {
+      if(t->f_code >= depth)
+      {
+         res = RequestDBVar(bank->db_vars, t->type, t->f_code + depth);
+      }
+      else
+      {
+         res = t;
+      }
+   }
+   else if (TermIsLambda(t))
+   {
+      assert(t->f_code == SIG_DB_LAMBDA_CODE);
+      assert(t->arity == 2);
+      
+      Term_p matrix = t->args[1];
+      Term_p shifted = do_shift_db(bank, matrix, shift_val, depth+1);
+      if(matrix == shifted)
+      {
+         res = t;
+      }
+      else
+      {
+         res = close_db(bank, t->args[0]->type, shifted);
+      }
+   }
+   else if (t->arity == 0)
+   {
+      res = t; // optimization
+   }
+   else
+   {
+      res = TermTopCopy(t);
+      bool changed = false;
+
+      for(long i=0; i<res->arity; i++)
+      {
+         res->args[i] = do_shift_db(bank, t->args[i], shift_val, depth);
+         changed = changed || res->args[i] == t->args[i];
+      }
+
+      if(!changed)
+      {
+         TermTopFree(res);
+         res = t;
+      }
+      else
+      {
+         res = TBTermTopInsert(bank, res);
+      }
+   }
+
+   return res;
+}
+
+/*-----------------------------------------------------------------------
+//
 // Function: do_named_to_db()
 //
 //   Performs the actual conversion. Tries to reduce recursion by doing
@@ -633,8 +704,49 @@ TFormula_p LiftLambdas(TB_p terms, TFormula_p t, PStack_p definitions, PDTree_p 
 
 Term_p NamedToDB(TB_p bank, Term_p lambda)
 {
-   return do_named_to_db(bank, lambda, 0);
+   if(TermHasLambdaSubterm(lambda))
+   {
+      return do_named_to_db(bank, lambda, 0);
+   }
+   else
+   {
+      return lambda;
+   }
 }
+
+/*-----------------------------------------------------------------------
+//
+// Function: ShiftDB()
+//
+//   Shifts all losely bound variables by *shift_val*
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+Term_p ShiftDB(TB_p bank, Term_p term, int shift_val)
+{
+   return do_shift_db(bank, term, shift_val, 0);
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: ShiftDB()
+//
+//   Shifts all losely bound variables by *shift_val*
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+// Term_p BetaNormalizeDB(TB_p bank, Term_p term, int shift_val)
+// {
+//    return do_shift_db(bank, term, shift_val, 0);
+// }
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */

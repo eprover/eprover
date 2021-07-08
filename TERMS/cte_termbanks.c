@@ -169,6 +169,10 @@ static Term_p tb_termtop_insert(TB_p bank, Term_p t)
       {
          TermCellSetProp(t, TPIsBetaReducible);
       }
+      if(TermIsLambda(t))
+      {
+         TermCellSetProp(t, TPHasLambdaSubterm);
+      }
       t->v_count = 0;
       t->f_count = !TermIsPhonyApp(t) ? 1 : 0;
       t->weight = DEFAULT_FWEIGHT*t->f_count;
@@ -176,6 +180,7 @@ static Term_p tb_termtop_insert(TB_p bank, Term_p t)
       {
          assert(TermIsShared(t->args[i])||TermIsFreeVar(t->args[i]));
          TermCellSetProp(t, TermCellGiveProps(t->args[i], TPIsBetaReducible));
+         TermCellSetProp(t, TermCellGiveProps(t->args[i], TPHasLambdaSubterm));
          if(TermIsFreeVar(t->args[i]))
          {
             t->v_count += 1;
