@@ -741,7 +741,7 @@ Term_p lift_lambda(TB_p terms, PStack_p bound_vars, Term_p body,
    Term_p res;
    WFormula_p generalization = 
       find_generalization(liftings,
-                          AbstractVars(terms, body, bound_vars),
+                          AbstractNamedVars(terms, body, bound_vars),
                           &res);
    if(generalization)
    {
@@ -801,7 +801,7 @@ Term_p lift_lambda(TB_p terms, PStack_p bound_vars, Term_p body,
       WFormula_p def = WTFormulaAlloc(terms, def_f);
       DocFormulaCreationDefault(def, inf_fof_intro_def, NULL, NULL);
       WFormulaPushDerivation(def, DCIntroDef, NULL, NULL);
-      store_lifting(liftings, res, AbstractVars(terms, body, bound_vars), def);
+      store_lifting(liftings, res, AbstractNamedVars(terms, body, bound_vars), def);
 
       PStackPushP(definitions, def);
 

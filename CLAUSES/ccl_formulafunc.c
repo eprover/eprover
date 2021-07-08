@@ -409,7 +409,7 @@ PTree_p create_sym_map(FormulaSet_p set, IntMap_p sym_def_map)
 
       if(is_def)
       {
-         rhs = AbstractVars(bank, rhs_applied, bvars);
+         rhs = AbstractNamedVars(bank, rhs_applied, bvars);
          PTree_p free_vars = NULL;
          TFormulaCollectFreeVars(bank, rhs, &free_vars);
          if(!TermHasFCode(rhs_applied, lhs_body->f_code) &&
