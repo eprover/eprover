@@ -32,7 +32,7 @@
 /*                      Forward Declarations                           */
 /*---------------------------------------------------------------------*/
 
-Term_p do_beta_normalize_db(TB_p bank, Term_p t, int depth);
+Term_p do_beta_normalize_db(TB_p bank, Term_p t);
 
 /*---------------------------------------------------------------------*/
 /*                         Internal Functions                          */
@@ -78,6 +78,7 @@ Term_p close_db(TB_p bank, Type_p ty, Term_p body)
 
 Term_p do_shift_db(TB_p bank, Term_p t, int shift_val, int depth)
 {
+   assert(shift_val != 0);
    Term_p res = NULL;
    if(TermIsDBVar(t))
    {
@@ -235,9 +236,12 @@ Term_p replace_bound_vars(TB_p bank, Term_p t, int total_bound, int depth)
 //
 /----------------------------------------------------------------------*/
 
-Term_p whnf_step(TB_p bank, Term_p t, int depth)
+Term_p whnf_step(TB_p bank, Term_p t)
 {
-   Term_p res = NULL;
+   assert(TermIsPhonyApp(t));
+   assert(TermIsLambda(t->args[0]));
+
+   Term_p  res = NULL;
    long    num_remaining = t->arity - 1;
    Term_p* remaining_args = t->args + 1;
    Term_p  matrix = t->args[0];
@@ -282,7 +286,7 @@ Term_p whnf_step(TB_p bank, Term_p t, int depth)
       ((Term_p)PStackPopP(to_bind_stack))->binding = NULL;
    }
 
-   res = do_beta_normalize_db(bank, new_matrix, depth);
+   res = do_beta_normalize_db(bank, new_matrix);
    
    PStackFree(to_bind_stack);
    return res;
@@ -301,12 +305,12 @@ Term_p whnf_step(TB_p bank, Term_p t, int depth)
 //
 /----------------------------------------------------------------------*/
 
-Term_p do_beta_normalize_db(TB_p bank, Term_p t, int depth)
+Term_p do_beta_normalize_db(TB_p bank, Term_p t)
 {
    Term_p res = NULL;
    if(TermIsPhonyApp(t) && TermIsLambda(t->args[0]))
    {
-      res = whnf_step(bank, t, depth);
+      res = whnf_step(bank, t);
    }
    else if (t->arity == 0)
    {
@@ -318,7 +322,7 @@ Term_p do_beta_normalize_db(TB_p bank, Term_p t, int depth)
       assert(TermIsDBVar(t->args[0]));
 
       Term_p matrix = t->args[1];
-      Term_p reduced_matrix = do_beta_normalize_db(bank, matrix, depth+1);
+      Term_p reduced_matrix = do_beta_normalize_db(bank, matrix);
       if(matrix == reduced_matrix)
       {
          res = t;
@@ -334,7 +338,7 @@ Term_p do_beta_normalize_db(TB_p bank, Term_p t, int depth)
       bool changed = false;
       for(long i=0; i < res->arity; i++)
       {
-         res->args[i] = do_beta_normalize_db(bank, t->args[i], depth);
+         res->args[i] = do_beta_normalize_db(bank, t->args[i]);
          changed = changed || res->args[i] != t->args[i];
       }
 
@@ -947,7 +951,14 @@ Term_p NamedToDB(TB_p bank, Term_p lambda)
 
 Term_p ShiftDB(TB_p bank, Term_p term, int shift_val)
 {
-   return do_shift_db(bank, term, shift_val, 0);
+   if (shift_val == 0)
+   {
+      return term;
+   }
+   else
+   {
+      return do_shift_db(bank, term, shift_val, 0);
+   }
 }
 
 /*-----------------------------------------------------------------------
@@ -964,7 +975,15 @@ Term_p ShiftDB(TB_p bank, Term_p term, int shift_val)
 
 Term_p BetaNormalizeDB(TB_p bank, Term_p term, int shift_val)
 {
-   return do_beta_normalize_db(bank, term, 0);
+   if(TermIsBetaReducible(term))
+   {
+      return do_beta_normalize_db(bank, term);
+   }
+   else
+   {
+      return term;
+   }
+   
 }
 
 /*---------------------------------------------------------------------*/
