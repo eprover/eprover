@@ -40,6 +40,48 @@ Term_p do_beta_normalize_db(TB_p bank, Term_p t);
 
 /*-----------------------------------------------------------------------
 //
+// Function: drop_args()
+//
+//   Does eta-normalization in an optimized way: it does not do one
+//   lambda binder at the time (e.g. %x. (%y. g x y)  -> %x. g x -> g ), but
+//   it does it in one go %xy. g x y -> g.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+Term_p drop_args(TB_p bank, Term_p t, long args_to_drop)
+{
+   Term_p res = NULL;
+   if(TermIsPhonyApp(t) && t->arity == args_to_drop + 1)
+   {
+      res = t->args[0];
+   }
+   else
+   {
+      Type_p ty_args[args_to_drop];
+      for(long i=t->arity-args_to_drop; i < t->arity; i++)
+      {
+         ty_args[i-args_to_drop] = t->args[i]->type;
+      }
+
+      Term_p res = TermTopAlloc(t->f_code, t->arity - args_to_drop);
+      res->type = ArrowTypeFlattened(ty_args, args_to_drop, t->type);
+      for(long i=0; i < t->arity - args_to_drop; i++)
+      {
+         res->args[i] = t->args[i];
+      }
+
+      res = TBTermTopInsert(bank, res);
+   }
+   
+   return res;
+}
+
+/*-----------------------------------------------------------------------
+//
 // Function: flatten_apps()
 //
 //   Apply additional arguments to hd assuming hd is PHONY_APP.
@@ -264,7 +306,6 @@ Term_p replace_bound_vars(TB_p bank, Term_p t, int total_bound, int depth)
          }
       }
    }
-
    return res;
 }
 
@@ -338,6 +379,137 @@ Term_p whnf_step(TB_p bank, Term_p t)
    return res;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: find_min_db()
+//
+//   Find the loosely bound DB variable with the minimal index
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+long find_min_db(Term_p t, long depth)
+{
+   long res = -1;
+   if(TermIsDBVar(t))
+   {
+      if(t->f_code > depth)
+      {
+         res = t->f_code - depth;
+      }
+   }
+   else if (TermIsLambda(t))
+   {
+      res = find_min_db(t->args[1], depth+1);
+   }
+   else
+   {
+      for(long i=0; i<t->arity; i++)
+      {
+         long min_db = find_min_db(t->args[i], depth);
+         if(min_db != -1)
+         {
+            if(res == -1)
+            {
+               res = min_db;
+            }
+            else
+            {
+               res = MIN(res, min_db);
+            }
+         }
+      }
+   }
+   return res;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: do_eta_reduce_db()
+//
+//   Does eta-normalization in an optimized way: it does not do one
+//   lambda binder at the time (e.g. %x. (%y. g x y)  -> %x. g x -> g ), but
+//   it does it in one go %xy. g x y -> g.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+Term_p do_eta_reduce_db(TB_p bank, Term_p t)
+{
+   Term_p res; 
+   if(t->arity == 0)
+   {
+      res = t;
+   }
+   else
+   {
+      res = TermTopCopy(t);
+      bool changed = false;
+      for(long i=0; i<t->arity; i++)
+      {
+         res->args[i] = do_eta_reduce_db(bank, t->args[i]);
+         changed = changed || res->args[i] != t->args[i];
+      }
+
+      if(changed)
+      {
+         res = TBTermTopInsert(bank, res);
+      }
+      else
+      {
+         TermTopFree(res);
+         res = t;
+      }
+
+      t = res;
+      if(TermIsLambda(t))
+      {
+         assert(t->f_code == SIG_DB_LAMBDA_CODE);
+
+         PStack_p stack = PStackAlloc();
+         Term_p matrix = UnfoldLambda(t, stack);
+
+         if(TermIsDBVar(matrix->args[matrix->arity-1]) &&
+            matrix->args[matrix->arity-1] == 0)
+         {
+            long last_db = matrix->arity - 1;
+            for(; last_db >= (TermIsPhonyApp(matrix) ? 1 : 0); last_db--)
+            {
+               long expected_db = matrix->arity-1 - last_db;
+               if(! (TermIsDBVar(matrix->args[last_db]) && 
+                     matrix->args[last_db]->f_code == expected_db))
+               {
+                  break;
+               }
+            }
+            
+            long min_db = LONG_MAX;
+            for(long i=0; i<last_db; i++)
+            {
+               min_db = MIN(min_db, find_min_db(matrix->args[i], 0));
+            }
+
+            if(min_db > 0)
+            {
+               res = drop_args(bank, matrix, min_db-1);
+               while(PStackGetSP(stack) > min_db)
+               {
+                  matrix = close_db(bank, ((Term_p)PStackPopP(stack))->type, matrix);
+               }
+            }
+         }
+         PStackFree(stack);
+      }
+   }
+
+   return res;
+}
 
 /*-----------------------------------------------------------------------
 //
@@ -1031,6 +1203,32 @@ Term_p BetaNormalizeDB(TB_p bank, Term_p term)
    }
    
 }
+
+/*-----------------------------------------------------------------------
+//
+// Function: LambdaEtaReduceDB()
+//
+//   Performs eta-reduction on DB terms
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+Term_p LambdaEtaReduceDB(TB_p bank, Term_p term)
+{
+   if(TermHasLambdaSubterm(term))
+   {
+      return do_eta_reduce_db(bank, term);
+   }
+   else
+   {
+      return term;
+   }
+   
+}
+
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
