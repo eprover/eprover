@@ -1265,6 +1265,23 @@ Term_p LambdaEtaReduceDB(TB_p bank, Term_p term)
    }  
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: LambdaNormalizeDB()
+//
+//   Performs beta normalization, folowed by eta normalization.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+Term_p LambdaNormalizeDB(TB_p bank, Term_p term)
+{
+   return LambdaEtaReduceDB(bank, BetaNormalizeDB(bank, term));
+}
+
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
