@@ -28,6 +28,8 @@
 /*                        Global Variables                             */
 /*---------------------------------------------------------------------*/
 
+#define DB_NOT_FOUND (-1)
+
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
 /*---------------------------------------------------------------------*/
@@ -55,13 +57,15 @@ Term_p do_beta_normalize_db(TB_p bank, Term_p t);
 Term_p drop_args(TB_p bank, Term_p t, long args_to_drop)
 {
    Term_p res = NULL;
+   assert(args_to_drop <= t->arity);
+   assert(!TermIsPhonyApp(t) || args_to_drop < t->arity);
    if(TermIsPhonyApp(t) && t->arity == args_to_drop + 1)
    {
       res = t->args[0];
    }
    else
    {
-      Type_p ty_args[args_to_drop];
+      Type_p ty_args[args_to_drop]; // VLA
       for(long i=t->arity-args_to_drop; i < t->arity; i++)
       {
          ty_args[i-args_to_drop] = t->args[i]->type;
@@ -383,7 +387,8 @@ Term_p whnf_step(TB_p bank, Term_p t)
 //
 // Function: find_min_db()
 //
-//   Find the loosely bound DB variable with the minimal index
+//   Find the loosely bound DB variable with the minimal index.
+//   Return DB_NOT_FOUND if no such variable exists.
 //
 // Global Variables: -
 //
@@ -393,7 +398,7 @@ Term_p whnf_step(TB_p bank, Term_p t)
 
 long find_min_db(Term_p t, long depth)
 {
-   long res = -1;
+   long res = DB_NOT_FOUND;
    if(TermIsDBVar(t))
    {
       if(t->f_code > depth)
@@ -410,9 +415,9 @@ long find_min_db(Term_p t, long depth)
       for(long i=0; i<t->arity; i++)
       {
          long min_db = find_min_db(t->args[i], depth);
-         if(min_db != -1)
+         if(min_db != DB_NOT_FOUND)
          {
-            if(res == -1)
+            if(res == DB_NOT_FOUND)
             {
                res = min_db;
             }
@@ -440,40 +445,55 @@ long find_min_db(Term_p t, long depth)
 
 Term_p reduce_eta_top_level(TB_p bank, Term_p t)
 {
-   PStack_p stack = PStackAlloc();
-   Term_p matrix = UnfoldLambda(t, stack);
+   PStack_p bound_vars = PStackAlloc();
+   Term_p matrix = UnfoldLambda(t, bound_vars);
    Term_p res = t;
 
-   if(TermIsDBVar(matrix->args[matrix->arity-1]) &&
+   if(TermIsLambda(t) &&
+      TermIsDBVar(matrix->args[matrix->arity-1]) &&
       matrix->args[matrix->arity-1] == 0)
    {
+      // term is of the shape %x... . ... @ x
       long last_db = matrix->arity - 1;
       for(; last_db >= (TermIsPhonyApp(matrix) ? 1 : 0); last_db--)
       {
          long expected_db = matrix->arity-1 - last_db;
-         if(! (TermIsDBVar(matrix->args[last_db]) && 
+         if(! (TermIsDBVar(matrix->args[last_db]) &&
                matrix->args[last_db]->f_code == expected_db))
          {
             break;
          }
       }
       
-      long min_db = LONG_MAX;
+      long min_db = DB_NOT_FOUND;
       for(long i=0; i<last_db; i++)
       {
-         min_db = MIN(min_db, find_min_db(matrix->args[i], 0));
+         long min_db_i = find_min_db(matrix->args[i], 0);
+         if(min_db_i != DB_NOT_FOUND)
+         {
+            if(min_db == DB_NOT_FOUND)
+            {
+               min_db = min_db_i;
+            }
+            else
+            {
+               min_db = MIN(min_db, min_db_i);
+            }
+         }
       }
 
-      if(min_db > 0)
+      if(min_db != 0)
       {
-         res = drop_args(bank, matrix, min_db-1);
-         while(PStackGetSP(stack) > min_db)
+         long to_drop = min_db != DB_NOT_FOUND ? min_db : matrix->args[last_db]->f_code;
+         res = drop_args(bank, matrix, to_drop);
+         while(PStackGetSP(bound_vars) > to_drop)
          {
-            matrix = close_db(bank, ((Term_p)PStackPopP(stack))->type, matrix);
+            res = close_db(bank, ((Term_p)PStackPopP(bound_vars))->type, res);
          }
       }
    }
-   PStackFree(stack);
+   PStackFree(bound_vars);
+   assert(res->type == t->type);
    return res;
 }
 
@@ -496,7 +516,7 @@ Term_p do_eta_reduce_db(TB_p bank, Term_p t)
    Term_p res; 
    if(t->arity == 0 || !TermHasLambdaSubterm(t))
    {
-      res = t;
+      res = t; // optimization
    }
    else
    {
@@ -1242,8 +1262,7 @@ Term_p LambdaEtaReduceDB(TB_p bank, Term_p term)
    else
    {
       return term;
-   }
-   
+   }  
 }
 
 
