@@ -428,6 +428,57 @@ long find_min_db(Term_p t, long depth)
 
 /*-----------------------------------------------------------------------
 //
+// Function: reduce_eta_top_level()
+//
+//   Does one step of argument removal necessary for eta-reduction.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+Term_p reduce_eta_top_level(TB_p bank, Term_p t)
+{
+   PStack_p stack = PStackAlloc();
+   Term_p matrix = UnfoldLambda(t, stack);
+   Term_p res = t;
+
+   if(TermIsDBVar(matrix->args[matrix->arity-1]) &&
+      matrix->args[matrix->arity-1] == 0)
+   {
+      long last_db = matrix->arity - 1;
+      for(; last_db >= (TermIsPhonyApp(matrix) ? 1 : 0); last_db--)
+      {
+         long expected_db = matrix->arity-1 - last_db;
+         if(! (TermIsDBVar(matrix->args[last_db]) && 
+               matrix->args[last_db]->f_code == expected_db))
+         {
+            break;
+         }
+      }
+      
+      long min_db = LONG_MAX;
+      for(long i=0; i<last_db; i++)
+      {
+         min_db = MIN(min_db, find_min_db(matrix->args[i], 0));
+      }
+
+      if(min_db > 0)
+      {
+         res = drop_args(bank, matrix, min_db-1);
+         while(PStackGetSP(stack) > min_db)
+         {
+            matrix = close_db(bank, ((Term_p)PStackPopP(stack))->type, matrix);
+         }
+      }
+   }
+   PStackFree(stack);
+   return res;
+}
+
+/*-----------------------------------------------------------------------
+//
 // Function: do_eta_reduce_db()
 //
 //   Does eta-normalization in an optimized way: it does not do one
@@ -443,7 +494,7 @@ long find_min_db(Term_p t, long depth)
 Term_p do_eta_reduce_db(TB_p bank, Term_p t)
 {
    Term_p res; 
-   if(t->arity == 0)
+   if(t->arity == 0 || !TermHasLambdaSubterm(t))
    {
       res = t;
    }
@@ -467,44 +518,10 @@ Term_p do_eta_reduce_db(TB_p bank, Term_p t)
          res = t;
       }
 
-      t = res;
-      if(TermIsLambda(t))
+      if(TermIsLambda(res))
       {
-         assert(t->f_code == SIG_DB_LAMBDA_CODE);
-
-         PStack_p stack = PStackAlloc();
-         Term_p matrix = UnfoldLambda(t, stack);
-
-         if(TermIsDBVar(matrix->args[matrix->arity-1]) &&
-            matrix->args[matrix->arity-1] == 0)
-         {
-            long last_db = matrix->arity - 1;
-            for(; last_db >= (TermIsPhonyApp(matrix) ? 1 : 0); last_db--)
-            {
-               long expected_db = matrix->arity-1 - last_db;
-               if(! (TermIsDBVar(matrix->args[last_db]) && 
-                     matrix->args[last_db]->f_code == expected_db))
-               {
-                  break;
-               }
-            }
-            
-            long min_db = LONG_MAX;
-            for(long i=0; i<last_db; i++)
-            {
-               min_db = MIN(min_db, find_min_db(matrix->args[i], 0));
-            }
-
-            if(min_db > 0)
-            {
-               res = drop_args(bank, matrix, min_db-1);
-               while(PStackGetSP(stack) > min_db)
-               {
-                  matrix = close_db(bank, ((Term_p)PStackPopP(stack))->type, matrix);
-               }
-            }
-         }
-         PStackFree(stack);
+         assert(res->f_code == SIG_DB_LAMBDA_CODE);
+         res = reduce_eta_top_level(bank, res);         
       }
    }
 
