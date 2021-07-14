@@ -95,7 +95,11 @@ static Term_p __inline__ parse_ho_atom(Scanner_p in, TB_p bank)
    Type_p type;
    Term_p head;
 
-   if((id_type=TermParseOperator(in, id))==FSIdentVar)
+   if(TestInpTok(in, IteToken))
+   {
+      head = ParseIte(in, bank);
+   }
+   else if((id_type=TermParseOperator(in, id))==FSIdentVar)
    {
       /* A variable may be annotated with a sort */
       if(TestInpTok(in, Colon))
