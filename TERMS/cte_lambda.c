@@ -57,22 +57,28 @@ Term_p do_beta_normalize_db(TB_p bank, Term_p t);
 Term_p drop_args(TB_p bank, Term_p t, long args_to_drop)
 {
    Term_p res = NULL;
+   assert(args_to_drop >= 0);
    assert(args_to_drop <= t->arity);
    assert(!TermIsPhonyApp(t) || args_to_drop < t->arity);
-   if(TermIsPhonyApp(t) && t->arity == args_to_drop + 1)
+   if(args_to_drop == 0)
+   {
+      res = t;
+   }
+   else if(TermIsPhonyApp(t) && t->arity == args_to_drop + 1)
    {
       res = t->args[0];
    }
    else
    {
       Type_p ty_args[args_to_drop]; // VLA
-      for(long i=t->arity-args_to_drop; i < t->arity; i++)
+      for(long i=t->arity - args_to_drop; i < t->arity; i++)
       {
-         ty_args[i-args_to_drop] = t->args[i]->type;
+         ty_args[i-t->arity + args_to_drop] = t->args[i]->type;
       }
 
-      Term_p res = TermTopAlloc(t->f_code, t->arity - args_to_drop);
-      res->type = ArrowTypeFlattened(ty_args, args_to_drop, t->type);
+      res = TermTopAlloc(t->f_code, t->arity - args_to_drop);
+      res->type = TypeBankInsertTypeShared(bank->sig->type_bank,
+                                           ArrowTypeFlattened(ty_args, args_to_drop, t->type));
       for(long i=0; i < t->arity - args_to_drop; i++)
       {
          res->args[i] = t->args[i];
@@ -166,7 +172,7 @@ Term_p do_shift_db(TB_p bank, Term_p t, int shift_val, int depth)
    {
       if(t->f_code >= depth)
       {
-         res = RequestDBVar(bank->db_vars, t->type, t->f_code + depth);
+         res = RequestDBVar(bank->db_vars, t->type, t->f_code + shift_val);
       }
       else
       {
@@ -201,7 +207,7 @@ Term_p do_shift_db(TB_p bank, Term_p t, int shift_val, int depth)
       for(long i=0; i<res->arity; i++)
       {
          res->args[i] = do_shift_db(bank, t->args[i], shift_val, depth);
-         changed = changed || res->args[i] == t->args[i];
+         changed = changed || res->args[i] != t->args[i];
       }
 
       if(!changed)
@@ -214,7 +220,6 @@ Term_p do_shift_db(TB_p bank, Term_p t, int shift_val, int depth)
          res = TBTermTopInsert(bank, res);
       }
    }
-
    return res;
 }
 
@@ -450,12 +455,14 @@ Term_p reduce_eta_top_level(TB_p bank, Term_p t)
    Term_p res = t;
 
    if(TermIsLambda(t) &&
+      matrix->arity > 0 &&
       TermIsDBVar(matrix->args[matrix->arity-1]) &&
-      matrix->args[matrix->arity-1] == 0)
-   {
-      // term is of the shape %x... . ... @ x
+      matrix->args[matrix->arity-1]->f_code == 0)
+   {  // term is of the shape %x... . ... @ x
       long last_db = matrix->arity - 1;
-      for(; last_db >= (TermIsPhonyApp(matrix) ? 1 : 0); last_db--)
+      long left_limit = matrix->arity - PStackGetSP(bound_vars) - 1
+                        + (TermIsPhonyApp(matrix) ? 1 : 0);
+      for(; last_db > left_limit; last_db--)
       {
          long expected_db = matrix->arity-1 - last_db;
          if(! (TermIsDBVar(matrix->args[last_db]) &&
@@ -464,6 +471,10 @@ Term_p reduce_eta_top_level(TB_p bank, Term_p t)
             break;
          }
       }
+      last_db++; // last loop execution failed
+
+      assert(last_db >=0);
+      assert(last_db < matrix->arity);
       
       long min_db = DB_NOT_FOUND;
       for(long i=0; i<last_db; i++)
@@ -484,15 +495,27 @@ Term_p reduce_eta_top_level(TB_p bank, Term_p t)
 
       if(min_db != 0)
       {
-         long to_drop = min_db != DB_NOT_FOUND ? min_db : matrix->args[last_db]->f_code;
-         res = drop_args(bank, matrix, to_drop);
-         while(PStackGetSP(bound_vars) > to_drop)
+         long to_drop = min_db == DB_NOT_FOUND ? matrix->args[last_db]->f_code + 1
+                                               : MIN(min_db, matrix->args[last_db]->f_code + 1);
+         
+         res = ShiftDB(bank, drop_args(bank, matrix, to_drop), -to_drop);
+
+
+         
+         while(to_drop) // dropping leftmost binders
+         {
+            UNUSED(PStackPopP(bound_vars));
+            to_drop--;
+         }
+
+         while(!PStackEmpty(bound_vars))
          {
             res = close_db(bank, ((Term_p)PStackPopP(bound_vars))->type, res);
          }
       }
    }
    PStackFree(bound_vars);
+   assert(res);
    assert(res->type == t->type);
    return res;
 }
@@ -513,10 +536,31 @@ Term_p reduce_eta_top_level(TB_p bank, Term_p t)
 
 Term_p do_eta_reduce_db(TB_p bank, Term_p t)
 {
-   Term_p res; 
+   Term_p res;
    if(t->arity == 0 || !TermHasLambdaSubterm(t))
    {
       res = t; // optimization
+   }
+   else if (TermIsLambda(t))
+   {
+      PStack_p bvars = PStackAlloc();
+      Term_p matrix = UnfoldLambda(t, bvars);
+      Term_p reduced = do_eta_reduce_db(bank, matrix);
+      if(matrix == reduced)
+      {
+         res = t;  
+      }
+      else
+      {
+         res = reduced;
+         while(!PStackEmpty(bvars))
+         {
+            res = close_db(bank, ((Term_p)PStackPopP(bvars))->type, res);
+         }
+      }
+      PStackFree(bvars);
+
+      res = reduce_eta_top_level(bank, res);         
    }
    else
    {
@@ -536,12 +580,6 @@ Term_p do_eta_reduce_db(TB_p bank, Term_p t)
       {
          TermTopFree(res);
          res = t;
-      }
-
-      if(TermIsLambda(res))
-      {
-         assert(res->f_code == SIG_DB_LAMBDA_CODE);
-         res = reduce_eta_top_level(bank, res);         
       }
    }
 
@@ -1094,7 +1132,7 @@ TFormula_p NamedLambdaSNF(TB_p bank, TFormula_p t)
       t->args[0] != bank->true_term &&
       SigIsLogicalSymbol(bank->sig, t->args[0]->f_code))
    {
-      t = t->args[0];  
+      t = t->args[0];
    }
    return t;
 }
@@ -1184,7 +1222,7 @@ Term_p NamedToDB(TB_p bank, Term_p lambda)
 {
    if(TermHasLambdaSubterm(lambda))
    {
-      return BetaNormalizeDB(bank, do_named_to_db(bank, lambda, 0));
+      return LambdaNormalizeDB(bank, do_named_to_db(bank, lambda, 0));
    }
    else
    {
@@ -1230,15 +1268,19 @@ Term_p ShiftDB(TB_p bank, Term_p term, int shift_val)
 
 Term_p BetaNormalizeDB(TB_p bank, Term_p term)
 {
+   Term_p res = term;
    if(TermIsBetaReducible(term))
    {
-      return do_beta_normalize_db(bank, term);
+      res = do_beta_normalize_db(bank, term);
+      if(res->f_code == bank->sig->eqn_code &&
+         res->args[1] == bank->true_term &&
+         res->args[0] != bank->true_term &&
+         SigIsLogicalSymbol(bank->sig, res->args[0]->f_code))
+      {
+         res = res->args[0];
+      }
    }
-   else
-   {
-      return term;
-   }
-   
+   return res;
 }
 
 /*-----------------------------------------------------------------------

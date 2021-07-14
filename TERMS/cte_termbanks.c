@@ -2202,11 +2202,11 @@ Term_p ParseIte(Scanner_p in, TB_p bank)
 {
    AcceptInpTok(in, IteToken);
    AcceptInpTok(in, OpenBracket);
-   Term_p cond = TFormulaTPTPParse(in, bank);
+   Term_p cond = TFormulaTSTPParse(in, bank);
    AcceptInpTok(in, Comma);
-   Term_p if_true = TFormulaTPTPParse(in, bank);
+   Term_p if_true = TFormulaTSTPParse(in, bank);
    AcceptInpTok(in, Comma);
-   Term_p if_false = TFormulaTPTPParse(in, bank);
+   Term_p if_false = TFormulaTSTPParse(in, bank);
    AcceptInpTok(in, CloseBracket);
 
    Term_p res = TermTopAlloc(SIG_ITE_CODE, 3);
