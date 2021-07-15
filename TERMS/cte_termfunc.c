@@ -342,7 +342,7 @@ void do_ho_print(FILE* out, TFormula_p term, Sig_p sig, DerefType deref, int dep
 
    if(TermIsDBVar(term))
    {
-      fprintf(out, "X%d", depth - (int)term->f_code - 1);
+      fprintf(out, "Z%d", depth - (int)term->f_code - 1);
    }
    else if(!TermIsTopLevelAnyVar(term))
    {
@@ -471,7 +471,7 @@ void do_fool_print(FILE* out, Sig_p sig, TFormula_p form, int depth)
       
       if(form->f_code == SIG_DB_LAMBDA_CODE)
       {
-         fprintf(out, "X%d", depth);
+         fprintf(out, "Z%d", depth);
          depth++;
       }
       else
@@ -490,7 +490,7 @@ void do_fool_print(FILE* out, Sig_p sig, TFormula_p form, int depth)
          fputs(", ", out);
          if(form->f_code == SIG_DB_LAMBDA_CODE)
          {
-            fprintf(out, "X%d", depth);
+            fprintf(out, "Z%d", depth);
             depth++;
          }
          else

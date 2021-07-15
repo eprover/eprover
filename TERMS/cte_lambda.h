@@ -27,12 +27,16 @@
 #include <cte_termbanks.h>
 #include <cte_subst.h>
 
+typedef Term_p (*TermNormalizer)(TB_p bank, Term_p t);
+
 
 
 /*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
+void       SetEtaNormalizer(TermNormalizer);
+TermNormalizer GetEtaNormalizer();
 TFormula_p NamedLambdaSNF(TB_p terms, TFormula_p t);
 TFormula_p LambdaToForall(TB_p terms, TFormula_p t);
 TFormula_p LiftLambdas(TB_p terms, TFormula_p t, PStack_p definitions, 
@@ -41,6 +45,7 @@ TFormula_p NamedToDB(TB_p bank, TFormula_p lambda);
 Term_p     ShiftDB(TB_p bank, Term_p term, int shift_val);
 Term_p     BetaNormalizeDB(TB_p bank, Term_p term);
 Term_p     LambdaEtaReduceDB(TB_p bank, Term_p term);
+Term_p     LambdaEtaExpandDB(TB_p bank, Term_p term);
 Term_p     LambdaNormalizeDB(TB_p bank, Term_p term);
 
 /*-----------------------------------------------------------------------

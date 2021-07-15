@@ -197,6 +197,7 @@ typedef enum
    OPT_INVERSE_RECOGNITION,
    OPT_REPLACE_INJ_DEFS,
    OPT_LIFT_LAMBDAS,
+   OPT_ETA_NORMALIZE,
    OPT_DUMMY
 }OptionCodes;
 
@@ -1492,10 +1493,15 @@ OptCell opts[] =
     "After CNF and before saturation, replaces all clauses that are definitions "
     " of injectivity by axiomatization of inverse function."},
 
-    {OPT_LIFT_LAMBDAS,
+   {OPT_LIFT_LAMBDAS,
     '\0', "lift-lambdas",
     ReqArg, NULL,
     "Should the lambdas be replaced by named fuctions?"},
+   
+   {OPT_ETA_NORMALIZE,
+    '\0', "eta-normalize",
+    ReqArg, NULL,
+    "Which form of eta normalization to perform?"},
 
 
    {OPT_NOOPT,

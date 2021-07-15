@@ -31,6 +31,7 @@
 #include <cte_simpletypes.h>
 #include <cco_scheduling.h>
 #include <e_version.h>
+#include <cte_lambda.h>
 
 
 /*---------------------------------------------------------------------*/
@@ -1778,6 +1779,21 @@ CLState_p process_options(int argc, char* argv[])
             break;
       case OPT_LIFT_LAMBDAS:
             h_parms->lift_lambdas = CLStateGetBoolArg(handle, arg);
+            break;
+      case OPT_ETA_NORMALIZE:
+            if(strcmp(arg, "reduce")==0)
+            {
+               SetEtaNormalizer(LambdaEtaReduceDB);
+            }
+            else if(strcmp(arg, "expand")==0)
+            {
+               SetEtaNormalizer(LambdaEtaExpandDB);
+            }
+            else
+            {
+               Error("Option --eta-normalize requires 'reduce' or 'expand' as an argument",
+                     USAGE_ERROR);
+            }
             break;
       default:
             assert(false && "Unknown option");

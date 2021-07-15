@@ -30,6 +30,8 @@
 
 #define DB_NOT_FOUND (-1)
 
+static TermNormalizer eta_norm = LambdaEtaReduceDB;
+
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
 /*---------------------------------------------------------------------*/
@@ -1187,6 +1189,40 @@ Term_p lift_lambda(TB_p terms, PStack_p bound_vars, Term_p body,
 
 /*-----------------------------------------------------------------------
 //
+// Function: SetEtaNormalizer()
+//
+//   Register a function that is going to be used for eta normalization.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+inline void SetEtaNormalizer(TermNormalizer norm)
+{
+   eta_norm = norm;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: GetEtaNormalizer()
+//
+//   Register a function that is going to be used for eta normalization.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+inline TermNormalizer GetEtaNormalizer()
+{
+   return eta_norm;
+}
+
+/*-----------------------------------------------------------------------
+//
 // Function: NamedLambdaSNF()
 //
 //   Computes strong normal form for the lambda term in named notation.
@@ -1297,14 +1333,9 @@ TFormula_p LiftLambdas(TB_p terms, TFormula_p t, PStack_p definitions, PDTree_p 
 
 Term_p NamedToDB(TB_p bank, Term_p lambda)
 {
-   if(TermHasLambdaSubterm(lambda))
-   {
-      return LambdaNormalizeDB(bank, do_named_to_db(bank, lambda, 0));
-   }
-   else
-   {
-      return lambda;
-   }
+   return LambdaNormalizeDB(bank, 
+                            TermHasLambdaSubterm(lambda) ? 
+                              do_named_to_db(bank, lambda, 0) : lambda);
 }
 
 /*-----------------------------------------------------------------------
@@ -1422,7 +1453,7 @@ Term_p LambdaEtaExpandDB(TB_p bank, Term_p term)
 
 Term_p LambdaNormalizeDB(TB_p bank, Term_p term)
 {
-   return LambdaEtaReduceDB(bank, BetaNormalizeDB(bank, term));
+   return GetEtaNormalizer()(bank, BetaNormalizeDB(bank, term));
 }
 
 
