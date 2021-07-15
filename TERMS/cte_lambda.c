@@ -522,6 +522,83 @@ Term_p reduce_eta_top_level(TB_p bank, Term_p t)
 
 /*-----------------------------------------------------------------------
 //
+// Function: do_eta_expand_db()
+//
+//   Does eta-expansion on the lambda terms in the De Bruijn notation.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+Term_p do_eta_expand_db(TB_p bank, Term_p t)
+{
+   Term_p res;
+   if(TermIsLambda(t))
+   {
+      if(TermHasEtaExpandableSubterm(t->args[1]))
+      {
+         Term_p new_matrix = do_eta_expand_db(bank, t->args[1]);
+         assert(new_matrix != t->args[1]);
+         res = TermTopCopy(t);
+         res->args[1] = new_matrix;
+         res = TBTermTopInsert(bank, res);
+      }
+      else
+      {
+         res = t;
+      }
+   }
+   else if(t->arity == 0 || !TermHasEtaExpandableSubterm(t))
+   {
+      res = t; // optimization
+   }
+   else
+   {
+      res = TermTopCopy(t);
+      bool changed = false;
+      for(long i=0; i < res->arity; i++)
+      {
+         res->args[i] = do_eta_expand_db(bank, t->args[i]);
+         changed = changed || res->args[i] != t->args[i];
+      }
+      
+      if(changed)
+      {
+         res = TBTermTopInsert(bank, res);
+      }
+      else
+      {
+         TermTopFree(res);
+         res = t;
+      }
+   }
+
+   if(TypeIsArrow(res->type) && !TermIsLambda(res))
+   {
+      long num_args = TypeGetMaxArity(res->type);
+      PStack_p db_args = PStackAlloc();
+      for(long i=0; i<num_args; i++)
+      {
+         Term_p fresh_db = RequestDBVar(bank->db_vars, res->type->args[i], num_args-i-1);
+         PStackPushP(db_args, fresh_db);
+      }
+      
+      res = ApplyTerms(bank, ShiftDB(bank, res, num_args), db_args);
+      while(!PStackEmpty(db_args))
+      {
+         res = close_db(bank, ((Term_p)PStackPopP(db_args))->type, res);
+      }
+
+      PStackFree(db_args);
+   }
+
+   return res;
+}
+
+/*-----------------------------------------------------------------------
+//
 // Function: do_eta_reduce_db()
 //
 //   Does eta-normalization in an optimized way: it does not do one
@@ -1305,6 +1382,30 @@ Term_p LambdaEtaReduceDB(TB_p bank, Term_p term)
    {
       return term;
    }  
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: LambdaEtaExpandDB()
+//
+//   Performs eta-expansion on DB terms
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+Term_p LambdaEtaExpandDB(TB_p bank, Term_p term)
+{
+   if(TermHasEtaExpandableSubterm(term))
+   {
+      return do_eta_expand_db(bank, term);
+   }
+   else
+   {
+      return term;
+   }
 }
 
 /*-----------------------------------------------------------------------

@@ -173,6 +173,10 @@ static Term_p tb_termtop_insert(TB_p bank, Term_p t)
       {
          TermCellSetProp(t, TPHasLambdaSubterm);
       }
+      if(TypeIsArrow(t->type) && !TermIsLambda(t))
+      {
+         TermCellSetProp(t, TPHasEtaExpandableSubterm);
+      }
       t->v_count = 0;
       t->f_count = !TermIsPhonyApp(t) ? 1 : 0;
       t->weight = DEFAULT_FWEIGHT*t->f_count;
@@ -181,6 +185,7 @@ static Term_p tb_termtop_insert(TB_p bank, Term_p t)
          assert(TermIsShared(t->args[i])||TermIsFreeVar(t->args[i]));
          TermCellSetProp(t, TermCellGiveProps(t->args[i], TPIsBetaReducible));
          TermCellSetProp(t, TermCellGiveProps(t->args[i], TPHasLambdaSubterm));
+         TermCellSetProp(t, TermCellGiveProps(t->args[i], TPHasEtaExpandableSubterm));
          if(TermIsFreeVar(t->args[i]))
          {
             t->v_count += 1;

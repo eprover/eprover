@@ -94,6 +94,7 @@ typedef enum
    TPIsDBVar          = 1<<23,   /* Term is a DB variable when it has positive f-code
                                     and this tag. Also, the term *must* have no arguments */
    TPHasLambdaSubterm = 1<<24,   /* Term has a subterm which is a lambda term */
+   TPHasEtaExpandableSubterm = 1<<25   /* Term has a subterm which can be a target of eta-expansion */
 }TermProperties;
 
 
@@ -240,6 +241,7 @@ typedef uintptr_t DerefType, *DerefType_p;
 #define TermIsDBVar(term) (QueryProp((term), (TPIsDBVar)))
 #define TermIsAnyVar(term) (TermIsFreeVar(term) || TermIsDBVar(term))
 #define TermHasLambdaSubterm(term) (QueryProp((term), (TPHasLambdaSubterm)))
+#define TermHasEtaExpandableSubterm(term) (QueryProp((term), (TPHasEtaExpandableSubterm)))
 #else
 #define TermIsPhonyApp(term) (false)
 #define TermIsAppliedFreeVar(term) (false)
@@ -248,6 +250,7 @@ typedef uintptr_t DerefType, *DerefType_p;
 #define TermIsDBVar(term) (false)
 #define TermIsAnyVar(term) (TermIsFreeVar(term))
 #define TermHasLambdaSubterm(term) (false)
+#define TermHasEtaExpandableSubterm(term) (false)
 #endif
 #define TermIsTopLevelFreeVar(term) (TermIsFreeVar(term) || TermIsAppliedFreeVar(term))
 #define TermIsTopLevelAnyVar(term)  (TermIsAnyVar(term) || TermIsAppliedAnyVar(term))
