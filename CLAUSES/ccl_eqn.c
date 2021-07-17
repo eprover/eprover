@@ -726,7 +726,7 @@ Eqn_p EqnFOFParse(Scanner_p in, TB_p bank)
    Term_p lterm, rterm;
    Eqn_p handle;
 
-   
+
    positive = eqn_parse_real(in, bank, &lterm, &rterm, true);
    handle = EqnAlloc(lterm, rterm, bank, positive);
 
@@ -2612,8 +2612,9 @@ double EqnWeight(Eqn_p eq, double max_multiplier, long vweight, long
 //
 /----------------------------------------------------------------------*/
 
-double  EqnDAGWeight(Eqn_p eq, double max_multiplier, long vweight, long
-                     fweight, long dup_weight, bool new_eqn, bool new_terms)
+double  EqnDAGWeight(Eqn_p eq, double uniqmax_multiplier,
+                     double max_multiplier, long vweight, long fweight,
+                     long dup_weight, bool new_eqn, bool new_terms)
 {
    double res;
    long lweight, rweight;
@@ -2632,13 +2633,14 @@ double  EqnDAGWeight(Eqn_p eq, double max_multiplier, long vweight, long
 
    if(EqnIsOriented(eq))
    {
-      res = (double)rweight;
+      res = uniqmax_multiplier*max_multiplier*(double)lweight;
+      res += (double)rweight;
    }
    else
    {
-      res = (double)rweight*max_multiplier;
+      res = max_multiplier*(double)lweight;
+      res += max_multiplier*(double)rweight;
    }
-   res += (double)lweight*max_multiplier;
    return res;
 }
 

@@ -299,8 +299,9 @@ PStackPointer SubstNormEqn(Eqn_p eq, Subst_p subst, VarBank_p vars);
 
 double  EqnWeight(Eqn_p eq, double max_multiplier, long vweight, long
                   fweight, double app_var_mult);
-double  EqnDAGWeight(Eqn_p eq, double max_multiplier, long vweight, long
-                     fweight, long dup_weight, bool new_eqn, bool new_terms);
+double  EqnDAGWeight(Eqn_p eq, double uniqmax_multiplier,
+                     double max_multiplier, long vweight, long fweight,
+                     long dup_weight, bool new_eqn, bool new_terms);
 
 #define EqnStandardWeight(eqn)             \
    (TermStandardWeight((eqn)->lterm)+      \

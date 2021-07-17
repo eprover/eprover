@@ -60,6 +60,22 @@ typedef struct dagweightparamcell
 */
 
 
+/* Simplified with respect to DAG, but allowing for different weights
+ * for maximal terms */
+
+typedef struct RDAGWeightparamcell
+{
+   OCB_p  ocb;
+   long   vweight;
+   long   fweight;
+   long   dup_weight;
+   double uniqmax_term_multiplier;
+   double max_term_multiplier;
+   double max_literal_multiplier;
+   double pos_multiplier;
+}RDAGWeightParamCell, *RDAGWeightParam_p;
+
+
 
 /*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */
@@ -70,6 +86,13 @@ typedef struct dagweightparamcell
         SizeMalloc(sizeof(DAGWeightParamCell))
 #define DAGWeightParamCellFree(junk) \
         SizeFree(junk, sizeof(DAGWeightParamCell))
+
+
+#define RDAGWeightParamCellAlloc() (RDAGWeightParamCell*) \
+        SizeMalloc(sizeof(RDAGWeightParamCell))
+#define RDAGWeightParamCellFree(junk) \
+        SizeFree(junk, sizeof(RDAGWeightParamCell))
+
 
 WFCB_p DAGWeightInit(ClausePrioFun prio_fun, int fweight, int
                      vweight, double pos_multiplier, long dup_weight,
@@ -83,6 +106,25 @@ WFCB_p DAGWeightParse(Scanner_p in, OCB_p ocb, ProofState_p state);
 double DAGWeightCompute(void* data, Clause_p clause);
 
 void DAGWeightExit(void* data);
+
+
+WFCB_p RDAGWeightInit(ClausePrioFun prio_fun,
+                      OCB_p ocb,
+                      long fweight,
+                      long vweight,
+                      long dup_weight,
+                      double uniqmax_term_multiplier,
+                      double max_term_multiplier,
+                      double max_literal_multiplier,
+                      double pos_multiplier);
+
+WFCB_p RDAGWeightParse(Scanner_p in, OCB_p ocb, ProofState_p state);
+
+double RDAGWeightCompute(void* data, Clause_p clause);
+
+void RDAGWeightExit(void* data);
+
+
 
 #endif
 
