@@ -1164,6 +1164,25 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_NO_EQ_UNFOLD:
             h_parms->eqdef_incrlimit = LONG_MIN;
             break;
+      case OPT_INTRO_GOAL_DEFS:
+            if(strcmp(arg, "All")==0)
+            {
+               h_parms->add_goal_defs_pos = true;
+               h_parms->add_goal_defs_neg = true;
+            }
+            else if(strcmp(arg, "Neg")==0)
+            {
+               h_parms->add_goal_defs_neg = true;
+            }
+            else
+            {
+                Error("Option --goal-defs accepts only All or Neg.",
+                     USAGE_ERROR);
+            }
+            break;
+      case OPT_FINE_GOAL_DEFS:
+            h_parms->add_goal_defs_subterms = true;
+            break;
       case OPT_SINE:
             sine = arg;
             break;

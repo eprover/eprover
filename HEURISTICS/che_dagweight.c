@@ -326,11 +326,13 @@ double RDAGWeightCompute(void* data, Clause_p clause)
    double res = 0, pos_multiplier;
    Eqn_p handle;
 
+   ClauseCondMarkMaximalTerms(local->ocb, clause);
    EqnListTermDelProp(clause->literals, TPOpFlag);
 
    for(handle = clause->literals; handle; handle = handle->next)
    {
       pos_multiplier = EqnIsPositive(handle)?local->pos_multiplier:1;
+      //printf("pos_multiplier: %f", pos_multiplier);
       res += pos_multiplier *
          EqnDAGWeight(handle,
                       local->uniqmax_term_multiplier,
@@ -338,11 +340,11 @@ double RDAGWeightCompute(void* data, Clause_p clause)
                       local->vweight,
                       local->fweight,
                       local->dup_weight,
-                      false, false);
+                      true, true);
    }
-   // printf("\n# Eval: %6.2f: ", res);
-   // ClauseTSTPPrint(stdout, clause, true,true);
-   // printf("\n");
+   //printf("\n# Eval: %6.2f: ", res);
+   //ClauseTSTPPrint(stdout, clause, true,true);
+   //printf("\n");
    return res;
 }
 

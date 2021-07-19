@@ -34,7 +34,7 @@ Contents
 
 /* git tag E-2.6 */
 
-#define PVERSION      "2.6"
+#define PVERSION      "2.6dev001"
 
 #include "e_gitcommit.h"
 
