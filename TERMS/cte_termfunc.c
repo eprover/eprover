@@ -443,7 +443,7 @@ void TermPrintHO(FILE* out, Term_p term, Sig_p sig, DerefType deref)
    term = TermDeref(term, &deref);
 
    if(!TermIsVar(term) &&
-      (SigIsLogicalSymbol(sig, term->f_code) ||
+      ((SigIsLogicalSymbol(sig, term->f_code) && TypeIsBool(term->type)) ||
       TermIsLambda(term)) &&
       term->f_code != SIG_TRUE_CODE &&
       term->f_code != SIG_FALSE_CODE)
