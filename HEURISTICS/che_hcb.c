@@ -123,6 +123,10 @@ void HeuristicParmsInitialize(HeuristicParms_p handle)
    handle->eqdef_maxclauses              = DEFAULT_EQDEF_MAXCLAUSES;
    handle->eqdef_incrlimit               = DEFAULT_EQDEF_INCRLIMIT;
 
+   handle->add_goal_defs_pos             = false;
+   handle->add_goal_defs_neg             = false;
+   handle->add_goal_defs_subterms        = false;
+
    handle->heuristic_name                = HCB_DEFAULT_HEURISTIC;
    handle->heuristic_def                 = NULL;
    handle->prefer_initial_clauses        = false;
@@ -273,8 +277,12 @@ void HeuristicParmsPrint(FILE* out, HeuristicParms_p handle)
    fprintf(out, "   eqdef_maxclauses:               %ld\n", handle->eqdef_maxclauses);
    fprintf(out, "   eqdef_incrlimit:                %ld\n", handle->eqdef_incrlimit);
 
-   fprintf(out, "   heuristic_name:                 %s\n", handle->heuristic_name);
-   fprintf(out, "   heuristic_def:                  \"%s\"\n",
+   fprintf(out, "   add_goal_defs_pos:             %s\n", BOOL2STR(handle->add_goal_defs_pos));
+   fprintf(out, "   add_goal_defs_neg:             %s\n", BOOL2STR(handle->add_goal_defs_neg));
+   fprintf(out, "   add_goal_defs_subterms:        %s\n", BOOL2STR(handle->add_goal_defs_subterms));
+
+   fprintf(out, "   heuristic_name:                %s\n", handle->heuristic_name);
+   fprintf(out, "   heuristic_def:                 \"%s\"\n",
            handle->heuristic_def?handle->heuristic_def:"");
    fprintf(out, "   prefer_initial_clauses:         %s\n",
            BOOL2STR(handle->prefer_initial_clauses));
@@ -430,6 +438,11 @@ bool HeuristicParmsParseInto(Scanner_p in,
    PARSE_BOOL(no_preproc);
    PARSE_INT(eqdef_maxclauses);
    PARSE_INT(eqdef_incrlimit);
+
+   PARSE_BOOL(add_goal_defs_pos);
+   PARSE_BOOL(add_goal_defs_neg);
+   PARSE_BOOL(add_goal_defs_subterms);
+
    PARSE_IDENTIFIER(heuristic_name);
    PARSE_STRING(heuristic_def);
    PARSE_BOOL(prefer_initial_clauses);

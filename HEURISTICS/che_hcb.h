@@ -75,6 +75,9 @@ typedef struct heuristic_parms_cell
    bool                no_preproc;
    long                eqdef_maxclauses;
    long                eqdef_incrlimit;
+   bool                add_goal_defs_pos;
+   bool                add_goal_defs_neg; /* Twee-style goal rewriting */
+   bool                add_goal_defs_subterms;
 
 /* Clause selection elements */
    char                *heuristic_name;

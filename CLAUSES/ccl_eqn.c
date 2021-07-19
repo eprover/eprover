@@ -2621,7 +2621,7 @@ double  EqnDAGWeight(Eqn_p eq, double uniqmax_multiplier,
 
    if(new_eqn)
    {
-      EqnTermDelProp(eq, TPOpFlag);
+      EqnTermDelProp(eq,  TPOpFlag);
    }
    else if(new_terms)
    {
