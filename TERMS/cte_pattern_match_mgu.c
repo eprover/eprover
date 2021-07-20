@@ -208,6 +208,7 @@ Term_p solve_flex_rigid(TB_p bank, Term_p s_var, IntMap_p db_map, Term_p t,
    Term_p res;
    if(TermIsFreeVar(t))
    {
+      assert(!(t->binding));
       if(t == s_var)
       {
          *unif_res = NOT_UNIFIABLE;
@@ -245,7 +246,8 @@ Term_p solve_flex_rigid(TB_p bank, Term_p s_var, IntMap_p db_map, Term_p t,
       
       Term_p matrix = UnfoldLambda(t, dbvars);
       Term_p new_matrix = 
-         solve_flex_rigid(bank, s_var, db_map, matrix, subst, depth + PStackGetSP(dbvars), unif_res);
+         solve_flex_rigid(bank, s_var, db_map, matrix, 
+                          subst, depth + PStackGetSP(dbvars), unif_res);
       if(*unif_res == UNIFIABLE)
       {
          if(matrix == new_matrix)
@@ -268,7 +270,7 @@ Term_p solve_flex_rigid(TB_p bank, Term_p s_var, IntMap_p db_map, Term_p t,
 
       PStackFree(dbvars);
    }
-   else if (TermIsFreeVar(t))
+   else if (TermIsAppliedFreeVar(t))
    {
       t = normalize_free_var(bank, t);
       if(!t)
@@ -288,7 +290,7 @@ Term_p solve_flex_rigid(TB_p bank, Term_p s_var, IntMap_p db_map, Term_p t,
          PStack_p t_dbs = PStackAlloc();
          PStack_p s_dbs = PStackAlloc();
 
-         for(long i=1; t->arity; i++) // works if t is naked as well
+         for(long i=1; i < t->arity; i++) // works if t is naked as well
          {
             assert(TermIsDBVar(t->args[i]));
             Term_p arg = t->args[i];
@@ -322,10 +324,10 @@ Term_p solve_flex_rigid(TB_p bank, Term_p s_var, IntMap_p db_map, Term_p t,
          }
          SubstAddBinding(subst, t_var,
                          CloseWithTypePrefix(bank, t_prefix, NUM_ACTUAL_ARGS(t), t_binding_matrix));
+         res = ApplyTerms(bank, get_fvar_head(t_binding_matrix), s_dbs);
+         
          PStackFree(t_dbs);
          PStackFree(s_dbs);
-
-         res = ApplyTerms(bank, get_fvar_head(t_binding_matrix), s_dbs);
       }
    }
    else
@@ -335,7 +337,7 @@ Term_p solve_flex_rigid(TB_p bank, Term_p s_var, IntMap_p db_map, Term_p t,
       for(long i=0; i < res->arity && *unif_res == UNIFIABLE; i++)
       {
          res->args[i] = solve_flex_rigid(bank, s_var, db_map, t->args[i], 
-                                          subst, depth, unif_res);
+                                         subst, depth, unif_res);
          changed = changed || t->args[i] != res->args[i];
       }
 
@@ -435,7 +437,7 @@ OracleUnifResult flex_flex_diff(TB_p bank, Term_p s, Term_p t, Subst_p subst)
       PStack_p s_dbs = PStackAlloc();
       
       long num_args = NUM_ACTUAL_ARGS(t);
-      for(long i=1; t->arity; i++) // works if t is naked as well
+      for(long i=1; i < t->arity; i++) // works if t is naked as well
       {
          assert(TermIsDBVar(t->args[i]));
          Term_p db_val = IntMapGetVal(db_map, t->args[i]->f_code);
@@ -498,6 +500,7 @@ OracleUnifResult flex_flex_same(TB_p bank, Term_p s, Term_p t, Subst_p subst)
    {
       // decompose and continue, nothing to do
       assert(TermIsFreeVar(t)); // everything is eta-expanded
+      assert(s == t);
    }
    else
    {
@@ -527,7 +530,7 @@ OracleUnifResult flex_flex_same(TB_p bank, Term_p s, Term_p t, Subst_p subst)
 
          Term_p matrix = fresh_var_with_args(bank, db_args, GetRetType(var->type));
          SubstAddBinding(subst, var, 
-                         CloseWithTypePrefix(bank, var->type->args, var->arity-1, matrix));
+                         CloseWithTypePrefix(bank, var->type->args, max_args, matrix));
          PStackFree(db_args);
       }
    }
@@ -621,8 +624,7 @@ Term_p eta_expand_otf(TB_p bank, Term_p t1, Term_p t2)
       PStackAssignP(dbvars, i, RequestDBVar(bank->db_vars, dbvar_ty, pref_len-i-1));
    }
 
-   Term_p res = ApplyTerms(bank, t2, dbvars);
-   return res;
+   return ApplyTerms(bank, t2, dbvars);
 }
 
 /*-----------------------------------------------------------------------
@@ -712,6 +714,7 @@ OracleUnifResult SubstComputeMguPattern(Term_p t1, Term_p t2, Subst_p subst)
    assert(bank == TermGetBank(t2));
 
    VarBankSetVCountsToUsed(bank->vars);
+
    while(!PQueueEmpty(jobs) && res == UNIFIABLE)
    {
       t2 = whnf_deref(bank, PQueueGetLastP(jobs));
