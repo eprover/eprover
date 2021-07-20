@@ -130,32 +130,6 @@ Term_p flatten_apps(TB_p bank, Term_p hd, Term_p* args, long num_args,
 
 /*-----------------------------------------------------------------------
 //
-// Function: close_db()
-//
-//   Given body of the lambda, create a term LAM.body where LAM is the
-//   abstraction constructor for DB var of type ty.
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-Term_p close_db(TB_p bank, Type_p ty, Term_p body)
-{
-   assert(TermIsShared(body));
-   
-   Term_p res = TermTopAlloc(SIG_DB_LAMBDA_CODE, 2);
-   res->args[0] = RequestDBVar(bank->db_vars, ty, 0);
-   res->args[1] = body;
-   res->type =
-      TypeBankInsertTypeShared(bank->sig->type_bank,
-                               ArrowTypeFlattened(&ty, 1, body->type));
-   return TBTermTopInsert(bank, res);
-}
-
-/*-----------------------------------------------------------------------
-//
 // Function: do_shift_db()
 //
 //   Performs the actual shifting.
@@ -194,7 +168,7 @@ Term_p do_shift_db(TB_p bank, Term_p t, int shift_val, int depth)
       }
       else
       {
-         res = close_db(bank, t->args[0]->type, shifted);
+         res = CloseWithDBVar(bank, t->args[0]->type, shifted);
       }
    }
    else if (t->arity == 0)
@@ -280,7 +254,7 @@ Term_p replace_bound_vars(TB_p bank, Term_p t, int total_bound, int depth)
       }
       else
       {
-         res = close_db(bank, t->args[0]->type, new_matrix);
+         res = CloseWithDBVar(bank, t->args[0]->type, new_matrix);
       }
    }
    else if (t->arity == 0)
@@ -317,76 +291,6 @@ Term_p replace_bound_vars(TB_p bank, Term_p t, int total_bound, int depth)
          }
       }
    }
-   return res;
-}
-
-/*-----------------------------------------------------------------------
-//
-// Function: whnf_step()
-//
-//   Given a term of the form (%XYZ. body) x1 x2 x3 x4 ...
-//   Computes the term (body[X -> x1, Y -> x2; Z -> x3]) x4 ... 
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-Term_p whnf_step(TB_p bank, Term_p t)
-{
-   assert(TermIsPhonyApp(t));
-   assert(TermIsLambda(t->args[0]));
-
-   Term_p  res = NULL;
-   long    num_remaining = t->arity - 1;
-   Term_p* remaining_args = t->args + 1;
-   Term_p  matrix = t->args[0];
-
-   assert(num_remaining);
-
-   PStack_p to_bind_stack = PStackAlloc();
-   while(TermIsLambda(matrix) && num_remaining)
-   {
-      assert(matrix->f_code == SIG_DB_LAMBDA_CODE);
-      assert(TermIsDBVar(matrix->args[0]));
-      PStackPushP(to_bind_stack, *remaining_args);
-      assert((*remaining_args)->type == matrix->args[0]->type);
-      remaining_args++;
-      num_remaining--;
-      matrix = matrix->args[1];
-   }
-
-   long total_bound = PStackGetSP(to_bind_stack);
-   for(PStackPointer i=0; i < PStackGetSP(to_bind_stack); i++)
-   {
-      Term_p target = PStackElementP(to_bind_stack, i);
-      Term_p db_var = RequestDBVar(bank->db_vars, target->type, total_bound - i - 1);
-      assert(db_var->binding == NULL);
-      db_var->binding = target;
-      PStackAssignP(to_bind_stack, i, db_var);
-   }
-
-   Term_p new_matrix = replace_bound_vars(bank, matrix, total_bound, 0);
-   if (num_remaining)
-   {
-      PStack_p rest = PStackAlloc();
-      for(long i = 0; i < num_remaining; i++)
-      {
-         PStackPushP(rest, remaining_args[i]);
-      }
-      new_matrix = ApplyTerms(bank, new_matrix, rest);
-      PStackFree(rest);
-   }
-
-   while(!PStackEmpty(to_bind_stack))
-   {
-      ((Term_p)PStackPopP(to_bind_stack))->binding = NULL;
-   }
-
-   res = do_beta_normalize_db(bank, new_matrix);
-  
-   PStackFree(to_bind_stack);
    return res;
 }
 
@@ -512,7 +416,7 @@ Term_p reduce_eta_top_level(TB_p bank, Term_p t)
 
          while(!PStackEmpty(bound_vars))
          {
-            res = close_db(bank, ((Term_p)PStackPopP(bound_vars))->type, res);
+            res = CloseWithDBVar(bank, ((Term_p)PStackPopP(bound_vars))->type, res);
          }
       }
    }
@@ -590,7 +494,7 @@ Term_p do_eta_expand_db(TB_p bank, Term_p t)
       res = ApplyTerms(bank, ShiftDB(bank, res, num_args), db_args);
       while(!PStackEmpty(db_args))
       {
-         res = close_db(bank, ((Term_p)PStackPopP(db_args))->type, res);
+         res = CloseWithDBVar(bank, ((Term_p)PStackPopP(db_args))->type, res);
       }
 
       PStackFree(db_args);
@@ -634,7 +538,7 @@ Term_p do_eta_reduce_db(TB_p bank, Term_p t)
          res = reduced;
          while(!PStackEmpty(bvars))
          {
-            res = close_db(bank, ((Term_p)PStackPopP(bvars))->type, res);
+            res = CloseWithDBVar(bank, ((Term_p)PStackPopP(bvars))->type, res);
          }
       }
       PStackFree(bvars);
@@ -682,7 +586,7 @@ Term_p do_beta_normalize_db(TB_p bank, Term_p t)
    Term_p res = NULL;
    if(TermIsPhonyApp(t) && TermIsLambda(t->args[0]))
    {
-      res = whnf_step(bank, t);
+      res = WHNF_step(bank, t);
    }
    else if (t->arity == 0)
    {
@@ -701,7 +605,7 @@ Term_p do_beta_normalize_db(TB_p bank, Term_p t)
       }
       else
       {
-         res = close_db(bank, t->args[0]->type, reduced_matrix);
+         res = CloseWithDBVar(bank, t->args[0]->type, reduced_matrix);
       }
    }
    else
@@ -773,7 +677,7 @@ Term_p do_named_to_db(TB_p bank, Term_p t, long depth)
          Term_p prev_binding = (Term_p)PStackPopP(previous_bindings);
          var->binding = prev_binding;
 
-         res = close_db(bank, var->type, res);
+         res = CloseWithDBVar(bank, var->type, res);
       }
 
       PStackFree(vars);
@@ -1189,6 +1093,55 @@ Term_p lift_lambda(TB_p terms, PStack_p bound_vars, Term_p body,
 
 /*-----------------------------------------------------------------------
 //
+// Function: CloseWithDBVar()
+//
+//   Given body of the lambda, create a term LAM.body where LAM is the
+//   abstraction constructor for DB var of type ty.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+Term_p CloseWithDBVar(TB_p bank, Type_p ty, Term_p body)
+{
+   assert(TermIsShared(body));
+   
+   Term_p res = TermTopAlloc(SIG_DB_LAMBDA_CODE, 2);
+   res->args[0] = RequestDBVar(bank->db_vars, ty, 0);
+   res->args[1] = body;
+   res->type =
+      TypeBankInsertTypeShared(bank->sig->type_bank,
+                               ArrowTypeFlattened(&ty, 1, body->type));
+   return TBTermTopInsert(bank, res);
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: CloseWithTypePrefix()
+//
+//   Given an array of types [t1, t2, ..., tn] create a lambda term
+//   [X1:t1]: (... [Xn:tn]: (s))
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+Term_p CloseWithTypePrefix(TB_p bank, Type_p* tys, long size, Term_p matrix)
+{
+   Term_p res = matrix;
+   for(long i = size-1; i>=0; i--)
+   {
+      res = CloseWithDBVar(bank, tys[i], res);
+   }
+   return res;
+}
+
+/*-----------------------------------------------------------------------
+//
 // Function: SetEtaNormalizer()
 //
 //   Register a function that is going to be used for eta normalization.
@@ -1360,6 +1313,76 @@ Term_p ShiftDB(TB_p bank, Term_p term, int shift_val)
    {
       return do_shift_db(bank, term, shift_val, 0);
    }
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: WHNF_step()
+//
+//   Given a term of the form (%XYZ. body) x1 x2 x3 x4 ...
+//   Computes the term (body[X -> x1, Y -> x2; Z -> x3]) x4 ... 
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+Term_p WHNF_step(TB_p bank, Term_p t)
+{
+   assert(TermIsPhonyApp(t));
+   assert(TermIsLambda(t->args[0]));
+
+   Term_p  res = NULL;
+   long    num_remaining = t->arity - 1;
+   Term_p* remaining_args = t->args + 1;
+   Term_p  matrix = t->args[0];
+
+   assert(num_remaining);
+
+   PStack_p to_bind_stack = PStackAlloc();
+   while(TermIsLambda(matrix) && num_remaining)
+   {
+      assert(matrix->f_code == SIG_DB_LAMBDA_CODE);
+      assert(TermIsDBVar(matrix->args[0]));
+      PStackPushP(to_bind_stack, *remaining_args);
+      assert((*remaining_args)->type == matrix->args[0]->type);
+      remaining_args++;
+      num_remaining--;
+      matrix = matrix->args[1];
+   }
+
+   long total_bound = PStackGetSP(to_bind_stack);
+   for(PStackPointer i=0; i < PStackGetSP(to_bind_stack); i++)
+   {
+      Term_p target = PStackElementP(to_bind_stack, i);
+      Term_p db_var = RequestDBVar(bank->db_vars, target->type, total_bound - i - 1);
+      assert(db_var->binding == NULL);
+      db_var->binding = target;
+      PStackAssignP(to_bind_stack, i, db_var);
+   }
+
+   Term_p new_matrix = replace_bound_vars(bank, matrix, total_bound, 0);
+   if (num_remaining)
+   {
+      PStack_p rest = PStackAlloc();
+      for(long i = 0; i < num_remaining; i++)
+      {
+         PStackPushP(rest, remaining_args[i]);
+      }
+      new_matrix = ApplyTerms(bank, new_matrix, rest);
+      PStackFree(rest);
+   }
+
+   while(!PStackEmpty(to_bind_stack))
+   {
+      ((Term_p)PStackPopP(to_bind_stack))->binding = NULL;
+   }
+
+   res = do_beta_normalize_db(bank, new_matrix);
+  
+   PStackFree(to_bind_stack);
+   return res;
 }
 
 /*-----------------------------------------------------------------------

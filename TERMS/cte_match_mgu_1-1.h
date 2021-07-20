@@ -39,6 +39,12 @@ typedef enum which_term {
    RightTerm = 2
 } UnifTermSide;
 
+typedef enum oracle_unif_result {
+    UNIFIABLE,
+    NOT_UNIFIABLE,
+    NOT_IN_FRAGMENT,
+} OracleUnifResult;
+
 typedef struct unif_res{
    UnifTermSide term_side;
    int          term_remaining;

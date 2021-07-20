@@ -42,7 +42,10 @@ TFormula_p LambdaToForall(TB_p terms, TFormula_p t);
 TFormula_p LiftLambdas(TB_p terms, TFormula_p t, PStack_p definitions, 
                        PDTree_p liftings);
 TFormula_p NamedToDB(TB_p bank, TFormula_p lambda);
+Term_p     CloseWithDBVar(TB_p bank, Type_p ty, Term_p body);
+Term_p     CloseWithTypePrefix(TB_p bank, Type_p* tys, long size, Term_p matrix);
 Term_p     ShiftDB(TB_p bank, Term_p term, int shift_val);
+Term_p     WHNF_step(TB_p bank, Term_p t);
 Term_p     BetaNormalizeDB(TB_p bank, Term_p term);
 Term_p     LambdaEtaReduceDB(TB_p bank, Term_p term);
 Term_p     LambdaEtaExpandDB(TB_p bank, Term_p term);

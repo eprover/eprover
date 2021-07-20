@@ -330,7 +330,7 @@ void do_ho_print(FILE* out, TFormula_p term, Sig_p sig, DerefType deref, int dep
    const int limit = DEREF_LIMIT(term, deref);
    term = TermDeref(term, &deref);
 
-   if((!TermIsVar(term) &&
+   if((!TermIsAnyVar(term) &&
       ((SigIsLogicalSymbol(sig, term->f_code) && TypeIsBool(term->type)) ||
       TermIsLambda(term)) &&
       term->f_code != SIG_TRUE_CODE &&
@@ -2530,6 +2530,39 @@ long TermAddFunOcc(Term_p term, PDArray_p f_occur, PStack_p res_stack)
 }
 
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: TermArrayNoDuplicates()
+//
+//   Checks if there are no duplicates in the  
+//
+// Global Variables: -
+//
+// Side Effects    : Changes stack
+//
+/----------------------------------------------------------------------*/
+
+bool TermArrayNoDuplicates(Term_p* args, long size)
+{
+   if (size <= 1)
+   {
+      return true;
+   }
+   else
+   {
+      Term_p copy[size];
+      memcpy(copy, args, sizeof(Term_p)*size);
+      qsort(copy, size, sizeof(Term_p), PCmpFun);
+      bool unique = true;
+      for(long i=1; i<size && unique; i++)
+      {
+         unique = args[i] != args[i-1];
+      }
+      return unique;
+   }
+   
+}
 
 
 /*-----------------------------------------------------------------------

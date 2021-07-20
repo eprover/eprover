@@ -145,7 +145,7 @@ __inline__ Term_p applied_var_deref(Term_p orig)
 
       if(orig->args[0]->binding)
       {
-         if(TermIsFreeVar(orig->args[0]->binding) || TermIsLambda(orig->args[0]->binding))
+         if(TermIsAnyVar(orig->args[0]->binding) || TermIsLambda(orig->args[0]->binding))
          {
             res = TermTopAlloc(orig->f_code, orig->arity);
             res->properties = orig->properties & (TPPredPos);
