@@ -330,15 +330,17 @@ void do_ho_print(FILE* out, TFormula_p term, Sig_p sig, DerefType deref, int dep
    const int limit = DEREF_LIMIT(term, deref);
    term = TermDeref(term, &deref);
 
-   if(!TermIsAnyVar(term) &&
-      (SigIsLogicalSymbol(sig, term->f_code) ||
+   if((!TermIsVar(term) &&
+      ((SigIsLogicalSymbol(sig, term->f_code) && TypeIsBool(term->type)) ||
       TermIsLambda(term)) &&
       term->f_code != SIG_TRUE_CODE &&
-      term->f_code != SIG_FALSE_CODE)
+      term->f_code != SIG_FALSE_CODE))
    {
       do_fool_print(out, sig, term, depth);
       return;
    }
+
+   
 
    if(TermIsDBVar(term))
    {
