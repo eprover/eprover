@@ -310,12 +310,15 @@ static bool term_is_rewritable(TB_p bank, OCB_p ocb, Term_p term, Clause_p
    {
       return false;
    }
-   for(i=0; i<term->arity; i++)
+   if(!TermIsLambda(term))
    {
-      if(term_is_rewritable(bank, ocb, term->args[i], new_demod, nf_date, false))
+      for(i=0; i<term->arity; i++)
       {
-         res = true;
-         break;
+         if(term_is_rewritable(bank, ocb, term->args[i], new_demod, nf_date, false))
+         {
+            res = true;
+            break;
+         }
       }
    }
    if(res)
@@ -695,6 +698,11 @@ static bool term_subterm_rewrite(RWDesc_p desc, Term_p *term)
    bool modified = false;
    Term_p new_term = TermTopCopyWithoutArgs(*term);
    int  i;
+
+   if(TermIsLambda(*term))
+   {
+      return false;
+   }
 
    for(i=0; i<(*term)->arity; i++)
    {

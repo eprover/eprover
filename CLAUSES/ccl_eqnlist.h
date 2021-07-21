@@ -50,6 +50,8 @@ int     EqnListQueryPropNumber(Eqn_p list, EqnProperties prop);
 bool    EqnListExistsTermExcept(Eqn_p list, Eqn_p except, TermPredicateFun_p predicate);
 #define EqnListExistsTerm(list, predicate) EqnListExistsTermExcept(list, NULL, predicate)
 
+void    EqnListMapTerms(Eqn_p list, TermMapper_p f, void* arg);
+
 int      EqnListLength(Eqn_p list);
 Eqn_p    EqnListFromArray(Eqn_p* array, int lenght);
 PStack_p EqnListToStack(Eqn_p list);
@@ -129,6 +131,7 @@ void    EqnListSignedTermDelProp(Eqn_p list, TermProperties props, bool pos, boo
 long    EqnListTBTermDelPropCount(Eqn_p list, TermProperties props);
 
 long    EqnListCollectSubterms(Eqn_p list, PStack_p collector);
+void    EqnListLambdaNormalize(Eqn_p list);
 
 #endif
 

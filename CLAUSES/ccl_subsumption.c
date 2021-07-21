@@ -83,6 +83,7 @@ SimplifyRes unit_clause_set_strongsubsumes_termpair(ClauseSet_p set,
       if(SimplifyFailed(res))
       {
          if(TermIsAppliedFreeVar(t1) || TermIsAppliedFreeVar(t2) ||
+            TermIsLambda(t1) || TermIsLambda(t2) ||
             t1->f_code != t2->f_code || !t1->arity)
          {
             break;

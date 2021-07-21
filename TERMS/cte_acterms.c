@@ -235,7 +235,7 @@ ACTerm_p ACTermNormalize(Sig_p sig, Term_p term)
 {
    ACTerm_p handle = ACTermAlloc(term->f_code);
 
-   if(!TermIsAnyVar(term) && (term->arity != 0))
+   if(!TermIsAnyVar(term) && !TermIsLambda(term) && (term->arity != 0))
    {
       int i;
 

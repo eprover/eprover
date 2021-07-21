@@ -302,6 +302,7 @@ Clause_p ComputeEqualityFactor(TB_p bank, OCB_p ocb, ClausePos_p pos1,
          new_literals = EqnListCopyOptExcept(pos1->clause->literals,
                      pos1->literal);
          EqnListInsertFirst(&new_literals, new_condition);
+         EqnListLambdaNormalize(new_literals);
          EqnListRemoveResolved(&new_literals);
          EqnListRemoveDuplicates(new_literals);
          new_clause = ClauseAlloc(new_literals);

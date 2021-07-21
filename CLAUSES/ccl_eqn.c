@@ -3255,6 +3255,27 @@ bool EqnHasAppVar(Eqn_p eq)
    return TermIsAppliedFreeVar(eq->lterm) || TermIsAppliedFreeVar(eq->rterm);
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: EqnListMapTerms()
+//
+//   Map all terms in the equation list using f.
+//
+// Global Variables: -
+//
+// Side Effects    : Sets the OpFlag of newly collected terms.
+//
+/----------------------------------------------------------------------*/
+
+void EqnMap(Eqn_p list, TermMapper_p f, void* arg)
+{
+   for(Eqn_p lit = list; lit; lit = lit->next)
+   {
+      lit->lterm = f(arg, lit->lterm);
+      lit->rterm = f(arg, lit->rterm);
+   }
+}
+
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/

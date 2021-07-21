@@ -191,6 +191,7 @@ bool find_disagreements(Sig_p sig, Term_p t, Term_p s, PStack_p diss_stack)
       if(s!=t)
       {
          if(!TermIsPhonyApp(s) && !TermIsPhonyApp(t) &&
+            !TermIsLambda(s) && !TermIsLambda(t) &&
             s->f_code == t->f_code)
          {
             assert(s->arity == t->arity);
@@ -257,6 +258,7 @@ void do_ext_eqres(Clause_p cl, Eqn_p lit, ClauseSet_p store)
       EqnListAppend(&condition, rest);
       EqnListRemoveResolved(&condition);
       EqnListRemoveDuplicates(condition);
+      EqnListLambdaNormalize(condition);
       Clause_p res = ClauseAlloc(condition);
       store_result(res, cl, store, DCExtEqRes);
    }
@@ -317,6 +319,7 @@ void do_ext_sup(ClausePos_p from_pos, ClausePos_p into_pos, ClauseSet_p store,
       EqnListRemoveResolved(&condition);
       EqnListRemoveDuplicates(condition);
       
+      EqnListLambdaNormalize(condition);
       Clause_p res = ClauseAlloc(condition);
       res->proof_size  = into_pos->clause->proof_size+from_pos->clause->proof_size+1;
       res->proof_depth = MAX(into_pos->clause->proof_depth, from_pos->clause->proof_depth)+1;
@@ -624,6 +627,7 @@ void ComputeNegExt(ProofState_p state, ProofControl_p control, Clause_p clause)
             Eqn_p new_literals = EqnListCopyExcept(clause->literals, lit, state->terms);
             EqnListInsertFirst(&new_literals, new_lit);
 
+            EqnListLambdaNormalize(new_literals);
             Clause_p new_clause = ClauseAlloc(new_literals);
             state->neg_ext_count++;
             store_result(new_clause, clause, state->tmp_store, DCNegExt);
@@ -683,6 +687,7 @@ void ComputeArgCong(ProofState_p state, ProofControl_p control, Clause_p clause)
             Eqn_p new_literals = EqnListCopyExcept(clause->literals, lit, bank);
             EqnListInsertFirst(&new_literals, new_lit);
 
+            EqnListLambdaNormalize(new_literals);
             Clause_p new_clause = ClauseAlloc(new_literals);
             store_result(new_clause, clause, state->tmp_store, DCArgCong);
          }

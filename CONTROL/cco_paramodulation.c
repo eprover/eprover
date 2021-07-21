@@ -293,15 +293,13 @@ long compute_pos_into_pm_term(ParamodInfo_p pminfo,
    Subst_p            subst = SubstAlloc();
    Term_p             max_side, rep_side;
    ParamodulationType sim_pm;
-   UnificationResult  unif_res;
 
    /*printf("\n@i %ld\n", DebugCount); */
-   if(!UnifFailed((unif_res = SubstMguPossiblyPartial(olterm, into_clauses->term, subst)))
-        && CheckHOUnificationConstraints(unif_res, RightTerm, olterm, into_clauses->term))
+   if(SubstMguComplete(olterm, into_clauses->term, subst))
    {
       max_side = ClausePosGetSide(pminfo->from_pos);
       rep_side = ClausePosGetOtherSide(pminfo->from_pos);
-      pminfo->remaining_args = unif_res.term_remaining;
+      pminfo->remaining_args = 0;
 
       if((EqnIsOriented(pminfo->from_pos->literal) ||
           !TOGreater(pminfo->ocb, rep_side, max_side, DEREF_ALWAYS,
@@ -513,15 +511,13 @@ long compute_pos_from_pm_term(ParamodInfo_p pminfo,
    PObjTree_p       cell;
    Subst_p          subst = SubstAlloc();
    Term_p           max_side, min_side;
-   UnificationResult unif_res;
 
    /*printf("\n@f %ld\n", DebugCount); */
-   if(!UnifFailed(unif_res = SubstMguPossiblyPartial(olterm, from_clauses->term, subst))
-       && (CheckHOUnificationConstraints(unif_res, LeftTerm, from_clauses->term, olterm)))
+   if(SubstComputeMgu(olterm, from_clauses->term, subst))
    {
       max_side = ClausePosGetSide(pminfo->into_pos);
       min_side = ClausePosGetOtherSide(pminfo->into_pos);
-      pminfo->remaining_args = unif_res.term_remaining;
+      pminfo->remaining_args = 0;
 
       if((EqnIsOriented(pminfo->into_pos->literal) ||
           !TOGreater(pminfo->ocb, min_side, max_side, DEREF_ALWAYS,

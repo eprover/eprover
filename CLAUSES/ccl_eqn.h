@@ -415,6 +415,7 @@ long    EqnCollectSubterms(Eqn_p eqn, PStack_p collector);
 
 void EqnAppEncode(FILE* out, Eqn_p eq, bool negated);
 bool EqnHasAppVar(Eqn_p eq);
+void EqnMap(Eqn_p eq, TermMapper_p f, void* arg);
 
 /*---------------------------------------------------------------------*/
 /*                        Inline Functions                             */

@@ -218,6 +218,8 @@ typedef uintptr_t DerefType, *DerefType_p;
 #define CONVERT_DEREF(i, l, d) (UNUSED(i),UNUSED(l),d)
 #endif
 
+typedef Term_p (*TermMapper_p)(void*, Term_p);
+
 /*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/

@@ -21,6 +21,7 @@
 
 #include "ccl_eqnlist.h"
 #include "cte_typecheck.h"
+#include <cte_lambda.h>
 
 
 
@@ -1966,6 +1967,45 @@ long EqnListCollectSubterms(Eqn_p list, PStack_p collector)
    return res;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: EqnListMapTerms()
+//
+//   Map all terms in the equation list using f.
+//
+// Global Variables: -
+//
+// Side Effects    : Sets the OpFlag of newly collected terms.
+//
+/----------------------------------------------------------------------*/
+
+void EqnListMapTerms(Eqn_p list, TermMapper_p f, void* arg)
+{
+   for(Eqn_p lit = list; lit; lit = lit->next)
+   {
+      EqnMap(lit, f, arg);
+   }
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: EqnListLambdaNormalize()
+//
+//   Map all terms in the equation list using f.
+//
+// Global Variables: -
+//
+// Side Effects    : Sets the OpFlag of newly collected terms.
+//
+/----------------------------------------------------------------------*/
+
+void EqnListLambdaNormalize(Eqn_p list)
+{
+   if(list != NULL)
+   {
+      EqnListMapTerms(list, (TermMapper_p)LambdaNormalizeDB, list->bank);
+   }
+}
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */

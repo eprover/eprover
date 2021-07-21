@@ -38,9 +38,6 @@ typedef Term_p (*TermNormalizer)(TB_p bank, Term_p t);
 void       SetEtaNormalizer(TermNormalizer);
 TermNormalizer GetEtaNormalizer();
 TFormula_p NamedLambdaSNF(TB_p terms, TFormula_p t);
-TFormula_p LambdaToForall(TB_p terms, TFormula_p t);
-TFormula_p LiftLambdas(TB_p terms, TFormula_p t, PStack_p definitions, 
-                       PDTree_p liftings);
 TFormula_p NamedToDB(TB_p bank, TFormula_p lambda);
 Term_p     CloseWithDBVar(TB_p bank, Type_p ty, Term_p body);
 Term_p     CloseWithTypePrefix(TB_p bank, Type_p* tys, long size, Term_p matrix);

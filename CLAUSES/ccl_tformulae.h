@@ -27,6 +27,7 @@
 
 #include <ccl_clauses.h>
 #include <cte_typecheck.h>
+#include <ccl_pdtrees.h>
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
@@ -107,6 +108,9 @@ bool       TFormulaIsUntyped(TFormula_p form);
 
 TFormula_p TFormulaNegate(TFormula_p form, TB_p terms);
 Term_p EncodePredicateAsEqn(TB_p bank, TFormula_p f);
+TFormula_p LiftLambdas(TB_p terms, TFormula_p t, PStack_p definitions, PDTree_p liftings);
+TFormula_p LambdaToForall(TB_p terms, TFormula_p t);
+
 
 #endif
 

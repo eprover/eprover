@@ -216,7 +216,8 @@ SimplifyRes FindSimplifyingUnit(ClauseSet_p set, Term_p t1, Term_p t2,
 
    while(SimplifyFailed(res))
    {
-      if(TermIsTopLevelFreeVar(t1) || TermIsTopLevelFreeVar(t2) || 
+      if(TermIsTopLevelFreeVar(t1) || TermIsTopLevelFreeVar(t2) ||
+         TermIsLambda(t1) || TermIsLambda(t2) ||
          t1->f_code != t2->f_code || !t1->arity)
       {
         break;
