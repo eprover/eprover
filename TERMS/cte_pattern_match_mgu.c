@@ -784,6 +784,10 @@ OracleUnifResult SubstComputeMguPattern(Term_p t1, Term_p t2, Subst_p subst)
          assert(t1->arity == t2->arity);
          schedule_jobs(jobs, t1->args, t2->args, t1->arity);
       }
+      else
+      {
+         UNIF_FAIL(res);
+      }
    }
 
    PQueueFree(jobs);
@@ -791,5 +795,10 @@ OracleUnifResult SubstComputeMguPattern(Term_p t1, Term_p t2, Subst_p subst)
    {
       SubstBacktrackToPos(subst, backtrack);
    }
+   // else
+   // {
+   //    fprintf(stderr, "UNIFIED!\n");
+   //    SubstPrint(stderr, subst, bank->sig, DEREF_NEVER);
+   // }
    return res;
 }
