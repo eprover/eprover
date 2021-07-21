@@ -1036,7 +1036,11 @@ void PDTreeInsert(PDTree_p tree, ClausePos_p demod_side)
    
    assert(demod_side);
    term = ClausePosGetSide(demod_side);
-   PDTreeInsertTerm(tree, term, demod_side, true);
+   if(!TermHasLambdaSubterm(term))
+   {
+      // currently demodulation only on non-lambda terms
+      PDTreeInsertTerm(tree, term, demod_side, true);
+   }
 }
 
 /*-----------------------------------------------------------------------
@@ -1203,6 +1207,11 @@ long PDTreeDelete(PDTree_p tree, Term_p term, Clause_p clause)
    assert(tree->tree);
    assert(term);
    assert(clause);
+
+   if(TermHasLambdaSubterm(term))
+   {
+      return 0; // ignoring lambda subterms for the moment
+   }
 
    TermLRTraverseInit(tree->term_stack, term);
    node = tree->tree;
