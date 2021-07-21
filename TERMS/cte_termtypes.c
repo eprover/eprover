@@ -23,6 +23,7 @@
 
 #include "cte_termtypes.h"
 #include "cte_termbanks.h"
+#include "cte_lambda.h"
 
 
 /*---------------------------------------------------------------------*/
@@ -829,12 +830,13 @@ __inline__ Term_p MakeRewrittenTerm(Term_p orig, Term_p new, int remaining_orig,
       }
 
       TermSetBank(new_term, bank);
-      return new_term;
+      
+      return LambdaNormalizeDB(bank, new_term);
    }
    else
    {
       TermSetBank(new, bank);
-      return new; // If no args are remaining -- the situation is the same as in FO case
+      return LambdaNormalizeDB(bank, new); // If no args are remaining -- the situation is the same as in FO case
    }
 }
 #endif

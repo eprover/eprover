@@ -25,6 +25,7 @@ Changes
 
 #include "cte_match_mgu_1-1.h"
 #include "clb_plocalstacks.h"
+#include "cte_pattern_match_mgu.h"
 
 /*---------------------------------------------------------------------*/
 /*                        Global Variables                             */
@@ -607,6 +608,11 @@ UnificationResult SubstComputeMguHO(Term_p t1, Term_p t2, Subst_p subst)
       t2 =  TermDerefAlways(PQueueGetLastP(jobs));
       t1 =  TermDerefAlways(PQueueGetLastP(jobs)); 
 
+      if(TermHasLambdaSubterm(t1) || TermHasLambdaSubterm(t2))
+      {
+         FAIL_AND_BREAK(res, UNIF_FAILED);
+      }
+
       int start_idx;
 
       if(reorientation_needed(t1, t2))
@@ -787,6 +793,16 @@ __inline__ bool SubstMguComplete(Term_p t, Term_p s, Subst_p subst)
       if(UnifFailed(u_res) || u_res.term_remaining != 0)
       {
          SubstBacktrackToPos(subst, backtrack);
+         OracleUnifResult oracle_res = SubstComputeMguPattern(t, s, subst);
+         if(oracle_res != UNIFIABLE)
+         {
+            SubstBacktrackToPos(subst, backtrack);
+         }
+         else
+         {
+            u_res = ((UnificationResult){LeftTerm, 0});
+         }
+
       }
       
       res = !UnifFailed(u_res) && u_res.term_remaining == 0;
