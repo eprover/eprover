@@ -178,48 +178,47 @@ FunCode TermFPSampleFO(Term_p term, va_list ap)
 /----------------------------------------------------------------------*/
 FunCode TermFPSampleHO(Term_p term, va_list ap)
 {
-   assert(problemType == PROBLEM_HO);
-   int pos = va_arg(ap, int);
-   FunCode res;
+  int pos = 0;
+  FunCode res = 0;
 
-   int arg_expansion_num = TypeGetMaxArity(term->type);
+  for(pos = va_arg(ap, int); pos != -1;  pos = va_arg(ap, int))
+  {
+    while(TermIsLambda(term))
+    {
+      term = term->args[1];
+    }
 
-   if(pos != -1 && pos < arg_expansion_num)
-   {
-      res = (va_arg(ap, int) == -1) ? ANY_VAR : BELOW_VAR;
-   }
-   else if(pos != -1)
-   {
-      pos -= arg_expansion_num;
-      for(; pos != -1; pos = va_arg(ap, int))
-      {
-         if(TermIsFreeVar(term))
-         {
-            res = BELOW_VAR;
-            break;
-         }
+    if(TermIsTopLevelFreeVar(term))
+    {
+      res = BELOW_VAR;
+      break;
+    }
 
-         if(pos < ARG_NUM(term))
-         {
-            int actual_pos = term->arity-1 - pos;
-            term = term->args[actual_pos];
-         }
-         else
-         {
-            res = TermIsAppliedFreeVar(term) ? BELOW_VAR : NOT_IN_TERM;
-            break;
-         }
-      }
-   }
+    if(pos < term->arity)
+    {
+      term = term->args[pos];
+    }
+    else if(pos < term->arity + TypeGetMaxArity(term->type))
+    {
+      res = SIG_DB_LAMBDA_CODE;
+      break;
+    }
+    else
+    {
+      res = NOT_IN_TERM;
+      break;
+    }
+  }
 
-   if(pos == -1)
-   {
-      res = TermIsTopLevelFreeVar(term)?ANY_VAR:term->f_code;
-   }
+  if(pos == -1)
+  {
+     res = TermIsTopLevelFreeVar(term) ? ANY_VAR:
+            (TermIsTopLevelAnyVar(term) ? SIG_DB_LAMBDA_CODE :
+            term->f_code);
+  }
+  va_end(ap);
 
-   va_end(ap);
-
-   return res;
+  return res;
 }
 #endif
 
