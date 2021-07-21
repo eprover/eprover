@@ -324,50 +324,55 @@ FunCode TermFPFlexSampleFO(Term_p term, IntOrP* *seq)
 /----------------------------------------------------------------------*/
 FunCode TermFPFlexSampleHO(Term_p term, IntOrP* *seq)
 {
-   FunCode res = 0;
-   long pos = (*seq)->i_val;
+  FunCode res = 0;
+  long pos;
 
-   if(pos != -1  && !TermIsTopLevelFreeVar(term) && pos >= term->arity)
-   {
+  while((pos=(*seq)->i_val)!=-1)
+  {
+    while(TermIsLambda(term))
+    {
+      term = term->args[1];
+    }
+
+    if(TermIsTopLevelFreeVar(term))
+    {
       res = BELOW_VAR;
-   }
-   else
-   {
-      while((pos=(*seq)->i_val)!=-1)
-      {
-         if(TermIsTopLevelFreeVar(term))
-         {
-            res = BELOW_VAR;
-            break;
-         }
-         if(pos >= term->arity)
-         {
-            res = NOT_IN_TERM;
-            break;
-         }
-         term = term->args[pos];
-         (*seq)++;
-      }
-
-      if(pos == -1)
-      {
-         res = TermIsFreeVar(term) ? ANY_VAR :
-                     (TermIsAppliedFreeVar(term) ? BELOW_VAR : term->f_code);
-      }
-      else
-      {
-        /* Find the end of the position */
-        while((pos=(*seq)->i_val)!=-1)
-        {
-           (*seq)++;
-        }
-      }
-      /* We want to point beyond the end */
-      (*seq)++;
-   }
-
-
-   return res;
+      break;
+    }
+    if(pos < term->arity)
+    {
+      term = term->args[pos];
+    }
+    else if(pos < term->arity + TypeGetMaxArity(term->type))
+    {
+      res = SIG_DB_LAMBDA_CODE;
+      break;
+    }
+    else
+    {
+      res = NOT_IN_TERM;
+      break;
+    }
+    (*seq)++;
+  }
+  
+  if(pos == -1)
+  {
+     res = TermIsTopLevelFreeVar(term) ? ANY_VAR:
+            (TermIsTopLevelAnyVar(term) ? SIG_DB_LAMBDA_CODE :
+            term->f_code);
+  }
+  else
+  {
+     /* Find the end of the position */
+     while((pos=(*seq)->i_val)!=-1)
+     {
+        (*seq)++;
+     }
+  }
+  /* We want to point beyond the end */
+  (*seq)++;
+  return res;
 }
 
 /*-----------------------------------------------------------------------
