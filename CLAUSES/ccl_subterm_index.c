@@ -72,9 +72,12 @@ static long term_collect_idx_subterms(Term_p term, PTree_p *rest,
    {
       res++;
    }
-   for(i=0; i<term->arity; i++)
+   if(!TermIsLambda(term))
    {
-      res += term_collect_idx_subterms(term->args[i], rest, full, false);
+      for(i=0; i<term->arity; i++)
+      {
+         res += term_collect_idx_subterms(term->args[i], rest, full, false);
+      }
    }
    return res;
 }

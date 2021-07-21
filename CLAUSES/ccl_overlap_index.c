@@ -182,10 +182,13 @@ long term_collect_into_terms_pos(Term_p t, CompactPos pos, PStack_p terms)
    PStackPushInt(terms, pos);
    res++;
    pos += DEFAULT_FWEIGHT*(TermIsPhonyApp(t) ? 0 : 1);
-   for(i=0; i<t->arity; i++)
+   if(!TermIsLambda(t))
    {
-      res += term_collect_into_terms_pos(t->args[i], pos, terms);
-      pos += TermStandardWeight(t->args[i]);
+      for(i=0; i<t->arity; i++)
+      {
+         res += term_collect_into_terms_pos(t->args[i], pos, terms);
+         pos += TermStandardWeight(t->args[i]);
+      }
    }
    return res;
 }
@@ -218,13 +221,16 @@ long term_collect_into_terms_pos2(Term_p t, CompactPos pos,
    PStackPushInt(natoms, pos);
    res++;
    pos += DEFAULT_FWEIGHT*(TermIsPhonyApp(t) ? 0 : 1);
-   for(i=0; i<t->arity; i++)
+   if(!TermIsLambda(t))
    {
-      /* It's term_collect_into_terms_pos() on purpose - subterm need
-         to be indexed in the normal index for equational inferences!
-      */
-      res += term_collect_into_terms_pos(t->args[i], pos, terms);
-      pos += TermStandardWeight(t->args[i]);
+      for(i=0; i<t->arity; i++)
+      {
+         /* It's term_collect_into_terms_pos() on purpose - subterm need
+            to be indexed in the normal index for equational inferences!
+         */
+         res += term_collect_into_terms_pos(t->args[i], pos, terms);
+         pos += TermStandardWeight(t->args[i]);
+      }
    }
    return res;
 }
