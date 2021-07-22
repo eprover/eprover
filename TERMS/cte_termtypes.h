@@ -207,7 +207,9 @@ typedef uintptr_t DerefType, *DerefType_p;
    a part of term (up to DEREF_LIMIT) for which we do not follow pointers and
    then other part (after and including DEREF_LIMIT) for which we do follow pointers.  */
 #define DEREF_LIMIT(t,d) ((TermIsAppliedFreeVar(t) && (t)->args[0]->binding && (d) == DEREF_ONCE) ? \
-                          (t)->args[0]->binding->arity + ((TermIsFreeVar((t)->args[0]->binding)) ? 1 : 0)  : 0)
+                           (((TermIsLambda((t)->args[0]->binding)) ? 1 : (t)->args[0]->binding->arity) +\
+                           ((TermIsFreeVar((t)->args[0]->binding)) ? 1 : 0)) \
+                           : 0)
 /* Sets derefs according to the previous comment and expects i to be an index
    into arugment array, l to be DEREF_LIMIT and d wanted deref mode*/
 #define CONVERT_DEREF(i, l, d) (((i) < (l) && (d) == DEREF_ONCE) ? DEREF_NEVER : (d))

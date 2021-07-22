@@ -626,7 +626,7 @@ void eta_expand_otf(TB_p bank, Term_p *lambda_ref, Term_p *non_lambda_ref)
       PStackAssignP(dbvars, i, RequestDBVar(bank->db_vars, dbvar_ty, pref_len-i-1));
    }
 
-   *non_lambda_ref = ApplyTerms(bank, non_lambda, dbvars);
+   *non_lambda_ref = ApplyTerms(bank, ShiftDB(bank, non_lambda, pref_len), dbvars);
    PStackFree(dbvars);
 }
 
@@ -722,7 +722,14 @@ OracleUnifResult SubstComputeMguPattern(Term_p t1, Term_p t2, Subst_p subst)
    {
       t2 = whnf_deref(bank, PQueueGetLastP(jobs));
       t1 = whnf_deref(bank, PQueueGetLastP(jobs));
+
       prune_lambda_prefix(bank, &t1, &t2);
+
+
+      TermPrint(stderr, t1, bank->sig, DEREF_NEVER);
+      fprintf(stderr, " =?= ");
+      TermPrint(stderr, t2, bank->sig, DEREF_NEVER);
+      fprintf(stderr, ".\n");
       
       assert(t1->type == t2->type);
 
@@ -796,12 +803,13 @@ OracleUnifResult SubstComputeMguPattern(Term_p t1, Term_p t2, Subst_p subst)
    PQueueFree(jobs);
    if(res != UNIFIABLE)
    {
+      fprintf(stderr, "FAILED!\n");
       SubstBacktrackToPos(subst, backtrack);
    }
-   // else
-   // {
-   //    fprintf(stderr, "UNIFIED!\n");
-   //    SubstPrint(stderr, subst, bank->sig, DEREF_NEVER);
-   // }
+   else
+   {
+      fprintf(stderr, "UNIFIED!\n");
+      SubstPrint(stderr, subst, bank->sig, DEREF_NEVER);
+   }
    return res;
 }

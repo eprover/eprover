@@ -25,6 +25,7 @@
 #include "clb_plocalstacks.h"
 #include <cte_termpos.h>
 #include <ccl_tformulae.h>
+#include <cte_lambda.h>
 
 /*---------------------------------------------------------------------*/
 /*                        Global Variables                             */
@@ -1265,9 +1266,20 @@ bool TermStructEqualDeref(Term_p t1, Term_p t2, DerefType deref_1, DerefType der
    t1 = TermDeref(t1, &deref_1);
    t2 = TermDeref(t2, &deref_2);
 
+   if(problemType == PROBLEM_HO)
+   {
+      t1 = LambdaNormalizeDB(TermGetBank(t1), t1);
+      t2 = LambdaNormalizeDB(TermGetBank(t2), t1);
+   }
+
    if((t1==t2) && (deref_1==deref_2))
    {
       return true;
+   }
+
+   if(TermIsDBVar(t1) != TermIsDBVar(t2))
+   {
+      return false;
    }
 
    if(t1->f_code != t2->f_code)
@@ -1288,7 +1300,7 @@ bool TermStructEqualDeref(Term_p t1, Term_p t2, DerefType deref_1, DerefType der
    //old asserts
    assert(problemType == PROBLEM_HO || t1->type == t2->type);
    assert(problemType == PROBLEM_HO || t1->arity == t2->arity);
-   for(int i=0; i<t1->arity; i++)
+   for(int i=TermIsLambda(t1) ? 1 : 0; i<t1->arity; i++)
    {
       if(!TermStructEqualDeref(t1->args[i], t2->args[i],
                                CONVERT_DEREF(i, limit_1, deref_1),
