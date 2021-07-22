@@ -366,9 +366,10 @@ Term_p reduce_eta_top_level(TB_p bank, Term_p t)
       matrix->args[matrix->arity-1]->f_code == 0)
    {  // term is of the shape %x... . ... @ x
       long last_db = matrix->arity - 1;
-      long left_limit = matrix->arity - PStackGetSP(bound_vars) - 1
-                        + (TermIsPhonyApp(matrix) ? 1 : 0);
-      for(; last_db > left_limit; last_db--)
+      long left_limit = 
+         MAX(matrix->arity - PStackGetSP(bound_vars), 
+             TermIsPhonyApp(matrix) ? 1 : 0);
+      for(; last_db >= left_limit; last_db--)
       {
          long expected_db = matrix->arity-1 - last_db;
          if(! (TermIsDBVar(matrix->args[last_db]) &&
@@ -403,10 +404,8 @@ Term_p reduce_eta_top_level(TB_p bank, Term_p t)
       {
          long to_drop = min_db == DB_NOT_FOUND ? matrix->args[last_db]->f_code + 1
                                                : MIN(min_db, matrix->args[last_db]->f_code + 1);
-         
+
          res = ShiftDB(bank, drop_args(bank, matrix, to_drop), -to_drop);
-
-
          
          while(to_drop) // dropping leftmost binders
          {
