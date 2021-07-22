@@ -702,6 +702,7 @@ static bool term_subterm_rewrite(RWDesc_p desc, Term_p *term)
 
    if(TermIsLambda(*term))
    {
+      TermTopFree(new_term);
       return false;
    }
 

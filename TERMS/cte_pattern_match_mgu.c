@@ -401,6 +401,7 @@ OracleUnifResult flex_rigid(TB_p bank, Term_p s, Term_p t, Subst_p subst)
          SubstAddBinding(subst, s_var,
                          CloseWithTypePrefix(bank, s_prefix, NUM_ACTUAL_ARGS(s), s_binding_matrix));
       }
+      IntMapFree(db_map);
    }
    return res;
 }

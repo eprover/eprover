@@ -1210,6 +1210,7 @@ long PDTreeDelete(PDTree_p tree, Term_p term, Clause_p clause)
 
    if(TermHasLambdaSubterm(term))
    {
+      PStackFree(del_stack);
       return 0; // ignoring lambda subterms for the moment
    }
 
