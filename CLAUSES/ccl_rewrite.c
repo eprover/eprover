@@ -501,6 +501,7 @@ MatchRes_p indexed_find_demodulator(OCB_p ocb, Term_p term,
       pos = match_info->pos;
       eqn = pos->literal;
 
+
       if(match_info->remaining_args != 0 ||
          ((EqnIsOriented(eqn)&&
           !SysDateIsEarlier(TermNFDate(term,RewriteAdr(RuleRewrite)),

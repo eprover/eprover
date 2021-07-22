@@ -289,7 +289,7 @@ Clause_p ClausePlainParamodConstruct(ParamodInfo_p ol_desc)
             pm_lit = EqnAlloc(new_lhs, new_rhs, ol_desc->bank,
                               EqnIsPositive(ol_desc->into_pos->literal));
             pm_lit =  EqnListAppend(&pm_lit, into_copy);
-            EqnListLambdaNormalize(into_copy);
+            EqnListLambdaNormalize(pm_lit);
             EqnListRemoveResolved(&pm_lit);
             EqnListRemoveDuplicates(pm_lit);
             res = ClauseAlloc(pm_lit);
