@@ -609,13 +609,15 @@ static inline Term_p get_fvar_head(Term_p t)
 //
 /----------------------------------------------------------------------*/
 
-Term_p eta_expand_otf(TB_p bank, Term_p t1, Term_p t2)
+void eta_expand_otf(TB_p bank, Term_p *lambda_ref, Term_p *non_lambda_ref)
 {
-   assert(TermIsLambda(t1));
-   assert(!TermIsLambda(t2));
+   Term_p lambda = *lambda_ref, non_lambda = *non_lambda_ref;
+
+   assert(TermIsLambda(lambda));
+   assert(!TermIsLambda(non_lambda));
 
    PStack_p dbvars = PStackAlloc();
-   UNUSED(UnfoldLambda(t1, dbvars));
+   *lambda_ref = UnfoldLambda(lambda, dbvars);
 
    long pref_len = PStackGetSP(dbvars);
    for(long i=0; i<pref_len; i++)
@@ -624,7 +626,8 @@ Term_p eta_expand_otf(TB_p bank, Term_p t1, Term_p t2)
       PStackAssignP(dbvars, i, RequestDBVar(bank->db_vars, dbvar_ty, pref_len-i-1));
    }
 
-   return ApplyTerms(bank, t2, dbvars);
+   *non_lambda_ref = ApplyTerms(bank, non_lambda, dbvars);
+   PStackFree(dbvars);
 }
 
 /*-----------------------------------------------------------------------
@@ -661,12 +664,12 @@ bool prune_lambda_prefix(TB_p bank, Term_p *t1_ref, Term_p *t2_ref)
       pruned = true;
       if(TermIsLambda(t1))
       {
-         t2 = eta_expand_otf(bank, t1, t2);
+         eta_expand_otf(bank, &t1, &t2);
       }
       else
       {
          assert(TermIsLambda(t2));
-         t1 = eta_expand_otf(bank, t2, t1);
+         eta_expand_otf(bank, &t2, &t1);
       }
    }
 
@@ -720,7 +723,7 @@ OracleUnifResult SubstComputeMguPattern(Term_p t1, Term_p t2, Subst_p subst)
       t2 = whnf_deref(bank, PQueueGetLastP(jobs));
       t1 = whnf_deref(bank, PQueueGetLastP(jobs));
       prune_lambda_prefix(bank, &t1, &t2);
-
+      
       assert(t1->type == t2->type);
 
       if(TermIsTopLevelFreeVar(t2))

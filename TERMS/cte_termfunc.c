@@ -374,7 +374,7 @@ void do_ho_print(FILE* out, TFormula_p term, Sig_p sig, DerefType deref, int dep
       }
       else
       {
-         fprintf(out, "X%d", depth - (int)var->f_code - 1);
+         fprintf(out, "Z%d", depth - (int)var->f_code - 1);
       }
       
    }
@@ -422,7 +422,7 @@ void do_fool_print(FILE* out, Sig_p sig, TFormula_p form, int depth)
 
    if(TermIsDBVar(form))
    {
-      fprintf(out, "X%d", depth - (int)form->f_code - 1);
+      fprintf(out, "Z%d", depth - (int)form->f_code - 1);
    }
    else if(form->f_code == sig->eqn_code || form->f_code == sig->neqn_code)
    {

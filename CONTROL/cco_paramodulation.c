@@ -513,7 +513,7 @@ long compute_pos_from_pm_term(ParamodInfo_p pminfo,
    Term_p           max_side, min_side;
 
    /*printf("\n@f %ld\n", DebugCount); */
-   if(SubstComputeMgu(olterm, from_clauses->term, subst))
+   if(SubstMguComplete(olterm, from_clauses->term, subst))
    {
       max_side = ClausePosGetSide(pminfo->into_pos);
       min_side = ClausePosGetOtherSide(pminfo->into_pos);
