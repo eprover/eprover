@@ -1040,6 +1040,55 @@ Term_p WHNF_step(TB_p bank, Term_p t)
 
 /*-----------------------------------------------------------------------
 //
+// Function: WHNF_deref()
+//
+//   Dereference and beta-normalize term only until the head of the
+//   term becomes known.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+Term_p WHNF_deref(TB_p bank, Term_p t)
+{
+   Term_p res;
+   t = TermDerefAlways(t);
+
+   if(TermIsPhonyApp(t) && TermIsLambda(t->args[0]))
+   {
+      res = WHNF_deref(bank, WHNF_step(bank, t));
+   }
+   else if (TermIsLambda(t))
+   {
+      PStack_p dbvars = PStackAlloc();
+      Term_p matrix = UnfoldLambda(t, dbvars);
+      Term_p new_matrix = WHNF_deref(bank, matrix);
+      if(matrix == new_matrix)
+      {
+         res = t;
+      }
+      else
+      {
+         res = new_matrix;
+         while(!PStackEmpty(dbvars))
+         {
+            res = CloseWithDBVar(bank, ((Term_p)PStackPopP(dbvars))->type, res);
+         }
+      }
+      PStackFree(dbvars);
+   }
+   else
+   {
+      res = t;
+   }
+
+   return res;
+}
+
+/*-----------------------------------------------------------------------
+//
 // Function: BetaNormalizeDB()
 //
 //   Normalizes de Bruijn encoded lambda terms

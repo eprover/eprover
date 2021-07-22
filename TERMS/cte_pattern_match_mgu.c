@@ -45,55 +45,6 @@ static inline Term_p get_fvar_head(Term_p t);
 
 /*-----------------------------------------------------------------------
 //
-// Function: whnf_deref()
-//
-//   Dereference and beta-normalize term only until the head of the
-//   term becomes known.
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-Term_p whnf_deref(TB_p bank, Term_p t)
-{
-   Term_p res;
-   t = TermDerefAlways(t);
-
-   if(TermIsPhonyApp(t) && TermIsLambda(t->args[0]))
-   {
-      res = whnf_deref(bank, WHNF_step(bank, t));
-   }
-   else if (TermIsLambda(t))
-   {
-      PStack_p dbvars = PStackAlloc();
-      Term_p matrix = UnfoldLambda(t, dbvars);
-      Term_p new_matrix = whnf_deref(bank, matrix);
-      if(matrix == new_matrix)
-      {
-         res = t;
-      }
-      else
-      {
-         res = new_matrix;
-         while(!PStackEmpty(dbvars))
-         {
-            res = CloseWithDBVar(bank, ((Term_p)PStackPopP(dbvars))->type, res);
-         }
-      }
-      PStackFree(dbvars);
-   }
-   else
-   {
-      res = t;
-   }
-
-   return res;
-}
-
-/*-----------------------------------------------------------------------
-//
 // Function: fresh_var_with_args()
 //
 //   Make fresh variable applied to args with the appropriate return type.
@@ -204,7 +155,7 @@ Term_p normalize_free_var(TB_p bank, Term_p s)
 Term_p solve_flex_rigid(TB_p bank, Term_p s_var, IntMap_p db_map, Term_p t, 
                         Subst_p subst, long depth, OracleUnifResult* unif_res)
 {
-   t = whnf_deref(bank, t);
+   t = WHNF_deref(bank, t);
    Term_p res;
    if(TermIsFreeVar(t))
    {
@@ -505,6 +456,7 @@ OracleUnifResult flex_flex_same(TB_p bank, Term_p s, Term_p t, Subst_p subst)
    }
    else
    {
+      assert(TermIsAppliedFreeVar(t));
       s = normalize_free_var(bank, s);
       t = normalize_free_var(bank, t);
       if(!s || !t)
@@ -520,7 +472,7 @@ OracleUnifResult flex_flex_same(TB_p bank, Term_p s, Term_p t, Subst_p subst)
          assert(s->arity == t->arity);
          PStack_p db_args = PStackAlloc();
 
-         for(long i=0; i<s->arity; i++)
+         for(long i=1; i<s->arity; i++)
          {
             if(s->args[i] == t->args[i])
             {
@@ -701,6 +653,7 @@ bool prune_lambda_prefix(TB_p bank, Term_p *t1_ref, Term_p *t2_ref)
 
 OracleUnifResult SubstComputeMguPattern(Term_p t1, Term_p t2, Subst_p subst)
 {
+   Term_p orig_t1 = t1, orig_t2 = t2;
    if(t1->type != t2->type)
    {
       return NOT_UNIFIABLE;
@@ -721,17 +674,11 @@ OracleUnifResult SubstComputeMguPattern(Term_p t1, Term_p t2, Subst_p subst)
 
    while(!PQueueEmpty(jobs) && res == UNIFIABLE)
    {
-      t2 = whnf_deref(bank, PQueueGetLastP(jobs));
-      t1 = whnf_deref(bank, PQueueGetLastP(jobs));
+      t2 = WHNF_deref(bank, PQueueGetLastP(jobs));
+      t1 = WHNF_deref(bank, PQueueGetLastP(jobs));
 
       prune_lambda_prefix(bank, &t1, &t2);
 
-
-      TermPrint(stderr, t1, bank->sig, DEREF_NEVER);
-      fprintf(stderr, " =?= ");
-      TermPrint(stderr, t2, bank->sig, DEREF_NEVER);
-      fprintf(stderr, ".\n");
-      
       assert(t1->type == t2->type);
 
       if(TermIsTopLevelFreeVar(t2))
@@ -804,13 +751,11 @@ OracleUnifResult SubstComputeMguPattern(Term_p t1, Term_p t2, Subst_p subst)
    PQueueFree(jobs);
    if(res != UNIFIABLE)
    {
-      fprintf(stderr, "FAILED!\n");
       SubstBacktrackToPos(subst, backtrack);
    }
    else
    {
-      fprintf(stderr, "UNIFIED!\n");
-      SubstPrint(stderr, subst, bank->sig, DEREF_NEVER);
+      assert(TermStructEqualDeref(orig_t1, orig_t2, DEREF_ALWAYS, DEREF_ALWAYS));
    }
    return res;
 }

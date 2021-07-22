@@ -1153,44 +1153,9 @@ Term_p TermCopyKeepVars(Term_p source, DerefType deref)
 //
 /----------------------------------------------------------------------*/
 
-// extern TB_p bank;
 bool TermStructEqual(Term_p t1, Term_p t2)
 {
-   t1 = TermDerefAlways(t1);
-   t2 = TermDerefAlways(t2);
-
-   if(t1==t2)
-   {
-      return true;
-   }
-
-   if(t1->f_code != t2->f_code)
-   {
-      return false;
-   }
-
-   if(t1->type != t2->type)
-   {
-      // in HO case, it is posible for term
-      // to have same head but different arities.
-      // in that case the type must be different.
-      assert(problemType == PROBLEM_HO);
-      assert(TermIsPhonyApp(t1) || t1->arity != t2->arity);
-      return false;
-   }
-
-   //old asserts
-   assert(problemType == PROBLEM_HO || t1->type == t2->type);
-   assert(problemType == PROBLEM_HO || t1->arity == t2->arity);
-
-   for(int i=0; i<t1->arity; i++)
-   {
-      if(!TermStructEqual(t1->args[i], t2->args[i]))
-      {
-         return false;
-      }
-   }
-   return true;
+   return TermStructEqualDeref(t1, t2, DEREF_ALWAYS, DEREF_ALWAYS);
 }
 
 
@@ -1263,13 +1228,22 @@ bool TermStructEqualDeref(Term_p t1, Term_p t2, DerefType deref_1, DerefType der
    const int limit_1 = DEREF_LIMIT(t1, deref_1);
    const int limit_2 = DEREF_LIMIT(t2, deref_2);
 
-   t1 = TermDeref(t1, &deref_1);
-   t2 = TermDeref(t2, &deref_2);
-
-   if(problemType == PROBLEM_HO)
+   if(problemType == PROBLEM_HO && deref_1 == DEREF_ALWAYS)
    {
-      t1 = LambdaNormalizeDB(TermGetBank(t1), t1);
-      t2 = LambdaNormalizeDB(TermGetBank(t2), t1);
+      t1 = LambdaEtaReduceDB(TermGetBank(t1), WHNF_deref(TermGetBank(t1), t1));
+   }
+   else
+   {
+      t1 = LambdaNormalizeDB(TermGetBank(t1), TermDeref(t1, &deref_1));
+   }
+
+   if(problemType == PROBLEM_HO && deref_2 == DEREF_ALWAYS)
+   {
+      t2 = LambdaEtaReduceDB(TermGetBank(t2), WHNF_deref(TermGetBank(t2), t2));
+   }
+   else
+   {
+      t2 = LambdaNormalizeDB(TermGetBank(t2), TermDeref(t2, &deref_2));
    }
 
    if((t1==t2) && (deref_1==deref_2))

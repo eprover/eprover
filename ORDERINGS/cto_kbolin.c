@@ -661,6 +661,11 @@ static CompareResult kbolincmp_ho(OCB_p ocb, Term_p s, Term_p t,
    s = TermDeref(s, &deref_s);
    t = TermDeref(t, &deref_t);
 
+   if(TermHasLambdaSubterm(s) || TermHasLambdaSubterm(t))
+   {
+      return to_uncomparable;
+   }
+
    if(s->f_code == t->f_code)
    {
       // if we have two constants of the same fun code, there's nothing to update.
