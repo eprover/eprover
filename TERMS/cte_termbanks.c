@@ -30,6 +30,7 @@
 #include "cte_typecheck.h"
 #include <cte_typebanks.h>
 #include <ccl_tformulae.h>
+#include <cte_lambda.h>
 
 
 
@@ -2231,6 +2232,44 @@ Term_p ParseIte(Scanner_p in, TB_p bank)
    return TBTermTopInsert(bank, res);
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: NormalizePatternAppVar()
+//
+//   Tries to normalize applied variable so that all of its arguments
+//   are 
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+Term_p NormalizePatternAppVar(TB_p bank, Term_p s)
+{
+   if(TermIsFreeVar(s))
+   {
+      return s;
+   }
+
+   assert(TermIsAppliedFreeVar(s));
+   
+   s = LambdaEtaReduceDB(bank, s);
+   bool all_dbs = true;
+   for(long i=1; i<s->arity && all_dbs; i++)
+   {
+      all_dbs = TermIsDBVar(s->args[i]);
+   }
+
+   if(all_dbs && TermArrayNoDuplicates(s->args, s->arity))
+   {  
+      return s;
+   }
+   else
+   {
+      return NULL;
+   }
+}
 
 
 /*---------------------------------------------------------------------*/

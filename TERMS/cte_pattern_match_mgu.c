@@ -105,45 +105,6 @@ IntMap_p db_var_map(TB_p bank, Term_p s)
 
 /*-----------------------------------------------------------------------
 //
-// Function: normalize_free_var()
-//
-//   Tries to normalize applied variable so that all of its arguments
-//   are 
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-Term_p normalize_free_var(TB_p bank, Term_p s)
-{
-   if(TermIsFreeVar(s))
-   {
-      return s;
-   }
-
-   assert(TermIsAppliedFreeVar(s));
-   
-   s = LambdaEtaReduceDB(bank, s);
-   bool all_dbs = true;
-   for(long i=1; i<s->arity && all_dbs; i++)
-   {
-      all_dbs = TermIsDBVar(s->args[i]);
-   }
-
-   if(all_dbs && TermArrayNoDuplicates(s->args, s->arity))
-   {  
-      return s;
-   }
-   else
-   {
-      return NULL;
-   }
-}
-
-/*-----------------------------------------------------------------------
-//
 // Function: solve_flex_rigid()
 //
 //   Solve flex rigid
@@ -224,7 +185,7 @@ Term_p solve_flex_rigid(TB_p bank, Term_p s_var, IntMap_p db_map, Term_p t,
    }
    else if (TermIsAppliedFreeVar(t))
    {
-      t = normalize_free_var(bank, t);
+      t = NormalizePatternAppVar(bank, t);
       if(!t)
       {
          *unif_res = NOT_IN_FRAGMENT;
@@ -331,7 +292,7 @@ Term_p solve_flex_rigid(TB_p bank, Term_p s_var, IntMap_p db_map, Term_p t,
 OracleUnifResult flex_rigid(TB_p bank, Term_p s, Term_p t, Subst_p subst)
 {
    assert(TermIsTopLevelFreeVar(s));
-   s = normalize_free_var(bank, s);
+   s = NormalizePatternAppVar(bank, s);
    Term_p s_var = get_fvar_head(s);
    OracleUnifResult res = UNIFIABLE;
    if(!s)
@@ -375,8 +336,8 @@ OracleUnifResult flex_flex_diff(TB_p bank, Term_p s, Term_p t, Subst_p subst)
 {
    OracleUnifResult res = UNIFIABLE;
 
-   s = normalize_free_var(bank, s);
-   t = normalize_free_var(bank, t);
+   s = NormalizePatternAppVar(bank, s);
+   t = NormalizePatternAppVar(bank, t);
 
    if(!s || !t)
    {
@@ -458,8 +419,8 @@ OracleUnifResult flex_flex_same(TB_p bank, Term_p s, Term_p t, Subst_p subst)
    else
    {
       assert(TermIsAppliedFreeVar(t));
-      s = normalize_free_var(bank, s);
-      t = normalize_free_var(bank, t);
+      s = NormalizePatternAppVar(bank, s);
+      t = NormalizePatternAppVar(bank, t);
       if(!s || !t)
       {
          res = NOT_IN_FRAGMENT;
@@ -655,7 +616,7 @@ Term_p do_remap(TB_p bank, IntMap_p dbmap, Term_p t, OracleUnifResult* res, long
 
    if(TermIsAppliedFreeVar(t))
    {
-      t = normalize_free_var(bank, t);
+      t = NormalizePatternAppVar(bank, t);
       if(!t)
       {
          *res = NOT_IN_FRAGMENT;
@@ -786,7 +747,7 @@ OracleUnifResult match_var(TB_p bank, Subst_p subst,
                            Term_p matcher, Term_p to_match)
 {
    assert(TermIsTopLevelFreeVar(matcher));
-   matcher = normalize_free_var(bank, matcher);
+   matcher = NormalizePatternAppVar(bank, matcher);
    if(!matcher)
    {
       return NOT_IN_FRAGMENT;
@@ -1006,7 +967,7 @@ OracleUnifResult SubstComputeMatchPattern(Term_p matcher, Term_p to_match, Subst
 
       if(TermIsTopLevelFreeVar(matcher))
       {
-         matcher = normalize_free_var(bank, matcher);
+         matcher = NormalizePatternAppVar(bank, matcher);
          if(!matcher)
          {
             res = NOT_IN_FRAGMENT;

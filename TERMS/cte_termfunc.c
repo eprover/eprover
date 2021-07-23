@@ -1871,6 +1871,39 @@ bool TermIsDefTerm(Term_p term, int min_arity)
    return true;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: TermIsPattern()
+//
+//   Return true if term is a higher-order pttaern
+//
+// Global Variables: -
+//
+// Side Effects    : Sets TPOpFlag
+//
+/----------------------------------------------------------------------*/
+
+bool TermIsPattern(Term_p term)
+{
+   if(TermIsGround(term))
+   {
+      return true;
+   }
+   else if(TermIsAppliedFreeVar(term))
+   {
+      return NormalizePatternAppVar(TermGetBank(term), term) != NULL;
+   }
+   else
+   {
+      bool is_pattern = true;
+      for(long i=0; is_pattern && i<term->arity; i++)
+      {
+         is_pattern = is_pattern && TermIsPattern(term->args[i]);
+      }
+      return is_pattern;
+   }
+}
+
 
 /*-----------------------------------------------------------------------
 //
@@ -3031,7 +3064,6 @@ bool TermIsDBClosed(Term_p term)
 {
    return !TermHasDBSubterm(term) || do_is_db_closed(term, 0);
 }
-
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
