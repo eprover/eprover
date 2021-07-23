@@ -119,7 +119,9 @@ void dummy_del_fun(void* p)
 //
 // Function: PObjMapStore()
 //
-//   Stores a key value pair in the store.
+//   Stores a key value pair in the store. If a key already existed
+//   in the tree, corresponding value is returned. Else, NULL is
+//   returned.
 //
 // Global Variables: -
 //

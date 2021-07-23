@@ -1056,7 +1056,7 @@ void PDTreeInsert(PDTree_p tree, ClausePos_p demod_side)
 /----------------------------------------------------------------------*/
 
 void PDTreeInsertTerm(PDTree_p tree, Term_p term, ClausePos_p demod_side, 
-   bool store_data)
+                      bool store_data)
 {
    Term_p    curr;
    PDTNode_p node, *next;

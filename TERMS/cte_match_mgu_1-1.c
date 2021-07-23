@@ -46,6 +46,7 @@ const UnificationResult UNIF_INIT = {NoTerm, -2};
 
 #define FAIL_AND_BREAK(res, val) { (res) = (val); break; }
 #define UPDATE_IF_INIT(res, new) ((res) = ((res) == MATCH_INIT) ? (new) : (res))
+#define LFHOL_UNSUPPORTED(t) (TermHasLambdaSubterm(t) || TermHasDBSubterm(t))
 
 //#undef ENABLE_MATCHING_OPTIMIZATION
 
@@ -355,6 +356,11 @@ int SubstComputeMatchHO(Term_p matcher, Term_p to_match, Subst_p subst)
    {
       to_match =  PLocalStackPop(jobs);
       matcher  =  PLocalStackPop(jobs);
+
+      if(LFHOL_UNSUPPORTED(to_match) || LFHOL_UNSUPPORTED(matcher))
+      {
+         FAIL_AND_BREAK(res, MATCH_FAILED);
+      }
       
       if(TermIsTopLevelFreeVar(matcher))
       {
@@ -609,7 +615,7 @@ UnificationResult SubstComputeMguHO(Term_p t1, Term_p t2, Subst_p subst)
       t2 =  TermDerefAlways(PQueueGetLastP(jobs));
       t1 =  TermDerefAlways(PQueueGetLastP(jobs)); 
 
-      if(TermHasLambdaSubterm(t1) || TermHasLambdaSubterm(t2))
+      if(LFHOL_UNSUPPORTED(t1) || LFHOL_UNSUPPORTED(t2))
       {
          FAIL_AND_BREAK(res, UNIF_FAILED);
       }
@@ -756,8 +762,8 @@ __inline__ bool SubstMatchComplete(Term_p pattern, Term_p target, Subst_p subst)
       Term_p reduced_p = LambdaEtaReduceDB(TermGetBank(pattern), pattern),
              reduced_t = LambdaEtaReduceDB(TermGetBank(target), target);
       int res_i =  
-         !TermHasLambdaSubterm(reduced_p) && !TermHasLambdaSubterm(reduced_t) ?
-            SubstComputeMatchHO(pattern, target, subst) : MATCH_FAILED ;
+            LFHOL_UNSUPPORTED(reduced_p) || LFHOL_UNSUPPORTED(reduced_t) ?
+            MATCH_FAILED : SubstComputeMatchHO(pattern, target, subst)  ;
 
       if(res_i != 0)
       {
@@ -803,8 +809,8 @@ __inline__ bool SubstMguComplete(Term_p t, Term_p s, Subst_p subst)
              reduced_s = LambdaEtaReduceDB(TermGetBank(s), s);
          
       UnificationResult u_res =  
-         !TermHasLambdaSubterm(reduced_t) && !TermHasLambdaSubterm(reduced_s) ?
-            SubstComputeMguHO(reduced_t, reduced_s, subst) : UNIF_FAILED;
+         LFHOL_UNSUPPORTED(reduced_t) || LFHOL_UNSUPPORTED(reduced_s) ?
+         UNIF_FAILED : SubstComputeMguHO(reduced_t, reduced_s, subst);
 
       if(UnifFailed(u_res) || u_res.term_remaining != 0)
       {
