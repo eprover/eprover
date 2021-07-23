@@ -165,6 +165,10 @@ static Term_p tb_termtop_insert(TB_p bank, Term_p t)
       t->entry_no     = ++(bank->in_count);
       TermCellAssignProp(t,TPGarbageFlag, bank->garbage_state);
       TermCellSetProp(t, TPIsShared); /* Groundness may change below */
+      if(TermIsDBVar(t))
+      {
+         TermCellSetProp(t, TPIsDBVar);
+      }
       if(TermIsPhonyApp(t) && TermIsLambda(t->args[0]))
       {
          TermCellSetProp(t, TPIsBetaReducible);
@@ -184,6 +188,7 @@ static Term_p tb_termtop_insert(TB_p bank, Term_p t)
       {
          assert(TermIsShared(t->args[i])||TermIsFreeVar(t->args[i]));
          TermCellSetProp(t, TermCellGiveProps(t->args[i], TPIsBetaReducible));
+         TermCellSetProp(t, TermCellGiveProps(t->args[i], TPIsDBVar));
          TermCellSetProp(t, TermCellGiveProps(t->args[i], TPHasLambdaSubterm));
          TermCellSetProp(t, TermCellGiveProps(t->args[i], TPHasEtaExpandableSubterm));
          if(TermIsFreeVar(t->args[i]))

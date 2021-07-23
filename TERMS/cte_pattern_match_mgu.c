@@ -25,6 +25,7 @@ Changes
 
 #include "cte_pattern_match_mgu.h"
 #include <cte_lambda.h>
+#include <clb_plocalstacks.h>
 
 /*---------------------------------------------------------------------*/
 /*                        Global Variables                             */
@@ -606,6 +607,7 @@ bool prune_lambda_prefix(TB_p bank, Term_p *t1_ref, Term_p *t2_ref)
    
    while(TermIsLambda(t1) && TermIsLambda(t2))
    {
+      assert(t1->args[0]->type == t2->args[0]->type);
       t1 = t1->args[1];
       t2 = t2->args[1];
       pruned = true;
@@ -630,6 +632,192 @@ bool prune_lambda_prefix(TB_p bank, Term_p *t1_ref, Term_p *t2_ref)
    *t2_ref = t2;
 
    return pruned;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: do_remap()
+//
+//   The actual driver that does the remapping.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+Term_p do_remap(TB_p bank, IntMap_p dbmap, Term_p t, OracleUnifResult* res, long depth)
+{
+   if(!TermHasDBSubterm(t))
+   {
+      return t;
+   }
+
+   if(TermIsAppliedFreeVar(t))
+   {
+      t = normalize_free_var(bank, t);
+      if(!t)
+      {
+         *res = NOT_IN_FRAGMENT;
+         return NULL;
+      }
+   }
+
+   if(TermIsLambda(t))
+   {
+      PStack_p dbvars = PStackAlloc();
+
+      Term_p matrix = UnfoldLambda(t, dbvars);
+      Term_p new_matrix = do_remap(bank, dbmap, matrix, res, depth+PStackGetSP(dbvars));
+      if(matrix == new_matrix)
+      {
+         return t;
+      }
+      else if(new_matrix)
+      {
+         while(!PStackEmpty(dbvars))
+         {
+            new_matrix = CloseWithDBVar(bank, ((Term_p)PStackPopP(dbvars))->type,
+                                        new_matrix);
+         }
+         return new_matrix;
+      }
+      else
+      {
+         assert(*res != UNIFIABLE);
+         return NULL;
+      }
+
+      PStackFree(dbvars);
+   }
+   else if(TermIsDBVar(t))
+   {
+      if(t->f_code < depth)
+      {
+         return t;
+      }
+      else
+      {
+         Term_p replacement = IntMapGetVal(dbmap, t->f_code - depth);
+         if(!replacement)
+         {
+            *res = NOT_UNIFIABLE;
+            return NULL;            
+         }
+         else
+         {
+            return RequestDBVar(bank->db_vars, replacement->type,
+                                replacement->f_code + depth);
+         }
+      }
+   }
+   else
+   {
+      Term_p copy = TermTopCopyWithoutArgs(t);
+      bool changed = false;
+      for(long i=0; i<copy->arity && *res == UNIFIABLE; i++)
+      {
+         copy->args[i] = do_remap(bank, dbmap, t->args[i], res, depth);
+         changed = changed || copy->args[i] != t->args[i];
+      }
+
+      if(*res == UNIFIABLE)
+      {
+         if (changed)
+         {
+            return TBTermTopInsert(bank, copy);
+         }
+         else
+         {
+            TermTopFree(copy);
+            return t;
+         }
+      }
+      else
+      {
+         TermTopFree(copy);
+         return NULL;
+      }
+   }
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: remap_variables()
+//
+//   Given a matcher applied variable remap bound variables in to_match
+//   to match the ones that are arguments of the matcher. If this
+//   is not possible return NULL.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+Term_p remap_variables(TB_p bank, Term_p matcher, Term_p to_match, 
+                       OracleUnifResult* res)
+{
+   IntMap_p dbmap = db_var_map(bank, matcher);
+
+   Term_p t = do_remap(bank, dbmap, to_match, res, 0);
+
+   IntMapFree(dbmap);
+   return t;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: match_var()
+//
+//   Given an (applied) pattern variable matcher, compute the substitution
+//   that binds it to to_match. If no such substitution exists,
+//   or to_match is not a pattern, return the corresponding value. 
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+OracleUnifResult match_var(TB_p bank, Subst_p subst, 
+                           Term_p matcher, Term_p to_match)
+{
+   assert(TermIsTopLevelFreeVar(matcher));
+   matcher = normalize_free_var(bank, matcher);
+   if(!matcher)
+   {
+      return NOT_IN_FRAGMENT;
+   }
+
+   if(TermIsFreeVar(matcher))
+   {
+      if(TermIsDBClosed(to_match))
+      {
+         matcher->binding = to_match;
+         return UNIFIABLE;
+      }
+      else
+      {
+         return NOT_UNIFIABLE;
+      }
+   }
+   else
+   {
+      Type_p tys[matcher->arity-1];
+      for(long i=1; i<matcher->arity; i++)
+      {
+         tys[i-1] = matcher->args[i]->type;
+      }
+      OracleUnifResult res;
+      Term_p binding = remap_variables(bank, matcher, to_match, &res);
+      if(binding)
+      {
+         matcher->binding = CloseWithTypePrefix(bank, tys, matcher->arity-1, 
+                                                remap_variables(bank, matcher, to_match, &res));
+      }
+      return res;
+   }
 }
 
 /*---------------------------------------------------------------------*/
@@ -764,6 +952,107 @@ OracleUnifResult SubstComputeMguPattern(Term_p t1, Term_p t2, Subst_p subst)
       SubstPrint(stderr, subst, bank->sig, DEREF_NEVER);
       fprintf(stderr, ".\n");
       assert(TermStructEqualDeref(orig_t1, orig_t2, DEREF_ALWAYS, DEREF_ALWAYS));
+   }
+   return res;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: SubstComputeMatchPattern()
+//
+//   Computes the matcher of two pattern terms.
+//   NB: In HO logic, we cannot use the weight trick as substitution
+//       can possibly remove some of variable arguments. 
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+OracleUnifResult SubstComputeMatchPattern(Term_p matcher, Term_p to_match, Subst_p subst)
+{
+   assert(problemType == PROBLEM_HO);
+   if(matcher->type != to_match->type)
+   {
+      return NOT_UNIFIABLE;
+   }
+
+   PStackPointer backtrack = PStackGetSP(subst); /* For backtracking */
+   PLocalStackInit(jobs);
+
+   PLocalStackPush(jobs, matcher);
+   PLocalStackPush(jobs, to_match);
+
+   OracleUnifResult res = UNIFIABLE;
+   TB_p bank = TermGetBank(matcher);
+   assert(bank == TermGetBank(to_match));
+
+   while(!PLocalStackEmpty(jobs) && res == UNIFIABLE)
+   {
+      to_match =  PLocalStackPop(jobs);
+      matcher  =  PLocalStackPop(jobs);
+      prune_lambda_prefix(bank, &matcher, &to_match);
+
+      if(TermIsGround(to_match) && TermIsGround(matcher))
+      {
+         if(LambdaNormalizeDB(bank, to_match) == LambdaNormalizeDB(bank, matcher))
+         {
+            break;
+         }
+         else
+         {
+            UNIF_FAIL(res);
+         }
+      }
+
+      if(TermIsTopLevelFreeVar(matcher))
+      {
+         matcher = normalize_free_var(bank, matcher);
+         if(!matcher)
+         {
+            res = NOT_IN_FRAGMENT;
+            break;
+         }
+
+         Term_p fvar = get_fvar_head(matcher);
+         if(fvar->binding)
+         {
+            DerefType dummy = DEREF_ONCE;
+            matcher = LambdaNormalizeDB(bank, TermDeref(matcher, &dummy));
+            if(matcher != LambdaNormalizeDB(bank, to_match))
+            {
+               UNIF_FAIL(res);
+            }
+         }
+         else
+         {
+            res = match_var(bank, subst, matcher, to_match);
+         }
+      }
+      else if(TermIsDBVar(matcher))
+      {
+         if(!TermIsDBVar(to_match) || matcher->f_code != to_match->f_code)
+         {
+            UNIF_FAIL(res);
+         }
+      }
+      else
+      {
+         assert(matcher->arity == to_match->arity);
+         PLocalStackEnsureSpace(jobs, 2*matcher->arity);
+         for(int i=matcher->arity-1; i>=0; i--)
+         {
+            PLocalStackPush(jobs, matcher->args[i]);
+            PLocalStackPush(jobs, to_match->args[i]);
+         }
+      }
+   }
+
+   PLocalStackFree(jobs);
+   if(res != UNIFIABLE)
+   {
+      SubstBacktrackToPos(subst,backtrack);
    }
    return res;
 }

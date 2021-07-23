@@ -308,6 +308,38 @@ void print_let(FILE* out, Term_p term, Sig_p sig, DerefType deref)
 
 /*-----------------------------------------------------------------------
 //
+// Function: do_is_db_closed()
+//
+//    Does the actual closeness check.
+//
+// Global Variables: TermPrintLists
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+bool do_is_db_closed(Term_p t,  long depth)
+{
+   if(TermIsDBVar(t))
+   {
+      return t->f_code <= depth;
+   }
+   if(TermIsLambda(t))
+   {
+      return do_is_db_closed(t->args[1], depth+1);
+   }
+   else
+   {
+      bool closed = true;
+      for(long i=0; closed && i<t->arity; i++)
+      {
+         closed = closed && do_is_db_closed(t->args[i], depth);
+      }
+      return closed;
+   }
+}
+
+/*-----------------------------------------------------------------------
+//
 // Function: do_fool_print()
 //
 //    Inner function 
@@ -2979,6 +3011,22 @@ long TermDAGWeight(Term_p term, long fweight, long vweight,
    return res;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: TermIsDBClosed()
+//
+//    Checks if term has no leaky variables.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations, manipulates TPPOpFlag in term
+//                   cells.
+//
+/----------------------------------------------------------------------*/
+bool TermIsDBClosed(Term_p term)
+{
+   return do_is_db_closed(term, 0);
+}
 
 
 /*---------------------------------------------------------------------*/

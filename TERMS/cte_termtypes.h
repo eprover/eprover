@@ -94,7 +94,8 @@ typedef enum
    TPIsDBVar          = 1<<23,   /* Term is a DB variable when it has positive f-code
                                     and this tag. Also, the term *must* have no arguments */
    TPHasLambdaSubterm = 1<<24,   /* Term has a subterm which is a lambda term */
-   TPHasEtaExpandableSubterm = 1<<25   /* Term has a subterm which can be a target of eta-expansion */
+   TPHasEtaExpandableSubterm = 1<<25,   /* Term has a subterm which can be a target of eta-expansion */
+   TPHasDBSubterm     = 1<<26    /* Term has a subterm which is a de Bruijn variable */
 }TermProperties;
 
 
@@ -246,6 +247,7 @@ typedef Term_p (*TermMapper_p)(void*, Term_p);
 #define TermIsAnyVar(term) (TermIsFreeVar(term) || TermIsDBVar(term))
 #define TermHasLambdaSubterm(term) (QueryProp((term), (TPHasLambdaSubterm)))
 #define TermHasEtaExpandableSubterm(term) (QueryProp((term), (TPHasEtaExpandableSubterm)))
+#define TermHasDBSubterm(term) (QueryProp((term), (TPHasDBSubterm)))
 #else
 #define TermIsPhonyApp(term) (false)
 #define TermIsAppliedFreeVar(term) (false)
@@ -255,6 +257,7 @@ typedef Term_p (*TermMapper_p)(void*, Term_p);
 #define TermIsAnyVar(term) (TermIsFreeVar(term))
 #define TermHasLambdaSubterm(term) (false)
 #define TermHasEtaExpandableSubterm(term) (false)
+#define TermHasDBSubterm(term) (false)
 #endif
 #define TermIsTopLevelFreeVar(term) (TermIsFreeVar(term) || TermIsAppliedFreeVar(term))
 #define TermIsTopLevelAnyVar(term)  (TermIsAnyVar(term) || TermIsAppliedAnyVar(term))
