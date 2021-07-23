@@ -669,9 +669,10 @@ Term_p do_remap(TB_p bank, IntMap_p dbmap, Term_p t, OracleUnifResult* res, long
 
       Term_p matrix = UnfoldLambda(t, dbvars);
       Term_p new_matrix = do_remap(bank, dbmap, matrix, res, depth+PStackGetSP(dbvars));
+      Term_p ret;
       if(matrix == new_matrix)
       {
-         return t;
+         ret = t;
       }
       else if(new_matrix)
       {
@@ -680,15 +681,16 @@ Term_p do_remap(TB_p bank, IntMap_p dbmap, Term_p t, OracleUnifResult* res, long
             new_matrix = CloseWithDBVar(bank, ((Term_p)PStackPopP(dbvars))->type,
                                         new_matrix);
          }
-         return new_matrix;
+         ret = new_matrix;
       }
       else
       {
          assert(*res != UNIFIABLE);
-         return NULL;
+         ret = NULL;
       }
 
       PStackFree(dbvars);
+      return ret;
    }
    else if(TermIsDBVar(t))
    {
@@ -996,11 +998,7 @@ OracleUnifResult SubstComputeMatchPattern(Term_p matcher, Term_p to_match, Subst
 
       if(TermIsGround(to_match) && TermIsGround(matcher))
       {
-         if(LambdaNormalizeDB(bank, to_match) == LambdaNormalizeDB(bank, matcher))
-         {
-            break;
-         }
-         else
+         if(LambdaNormalizeDB(bank, to_match) != LambdaNormalizeDB(bank, matcher))
          {
             UNIF_FAIL(res);
          }

@@ -319,6 +319,10 @@ void print_let(FILE* out, Term_p term, Sig_p sig, DerefType deref)
 /----------------------------------------------------------------------*/
 bool do_is_db_closed(Term_p t,  long depth)
 {
+   if(!TermHasDBSubterm(t))
+   {
+      return true;
+   }
    if(TermIsDBVar(t))
    {
       return t->f_code <= depth;
@@ -3025,7 +3029,7 @@ long TermDAGWeight(Term_p term, long fweight, long vweight,
 /----------------------------------------------------------------------*/
 bool TermIsDBClosed(Term_p term)
 {
-   return do_is_db_closed(term, 0);
+   return !TermHasDBSubterm(term) || do_is_db_closed(term, 0);
 }
 
 
