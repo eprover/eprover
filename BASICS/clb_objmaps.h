@@ -37,6 +37,8 @@ typedef void (*ObjDelFun)(void *junk);
 
 typedef PObjTree_p PObjMap_p;
 
+#define PObjMapTraverseInit(root)  PTreeTraverseInit(root)
+#define PObjMapTraverseExit(stack) PStackFree(stack)
 
 /*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */
@@ -49,6 +51,7 @@ void*      PObjMapExtract(PObjTree_p *root, void* key,
                           ComparisonFunctionType cmpfun);
 void       PObjMapFreeWDeleter(PObjTree_p root, ObjDelFun del_fun_key, ObjDelFun del_fun_val);
 void       PObjMapFree(PObjTree_p root);
+void*      PObjMapTraverseNext(PStack_p state);
 #endif
 
 /*---------------------------------------------------------------------*/

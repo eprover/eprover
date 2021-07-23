@@ -229,6 +229,31 @@ void PObjMapFree(PObjMap_p root)
    PObjMapFreeWDeleter(root, dummy_del_fun, dummy_del_fun);
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: PObjMapTraverseNext()
+// 
+//   Iterates through all the values stored in the tree. 
+//
+// Global Variables: -
+//
+// Side Effects    : Changes the tree.
+//
+/----------------------------------------------------------------------*/
+
+void* PObjMapTraverseNext(PStack_p state)
+{
+   PObjMap_p node = PTreeTraverseNext(state);
+   if(node)
+   {
+      return ((kv_pair*)node->key)->value;
+   }
+   else
+   {
+      return NULL;
+   }
+}
+
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
