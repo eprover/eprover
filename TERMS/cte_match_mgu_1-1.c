@@ -26,6 +26,7 @@ Changes
 #include "cte_match_mgu_1-1.h"
 #include "clb_plocalstacks.h"
 #include "cte_pattern_match_mgu.h"
+#include <cte_lambda.h>
 
 /*---------------------------------------------------------------------*/
 /*                        Global Variables                             */
@@ -752,11 +753,21 @@ __inline__ bool SubstMatchComplete(Term_p pattern, Term_p target, Subst_p subst)
    {
       PStackPointer backtrack = PStackGetSP(subst);
 
-      int res_i =  SubstComputeMatchHO(pattern, target, subst);
+      Term_p reduced_p = LambdaEtaReduceDB(TermGetBank(pattern), pattern),
+             reduced_t = LambdaEtaReduceDB(TermGetBank(target), target);
+      int res_i =  
+         !TermHasLambdaSubterm(reduced_p) && !TermHasLambdaSubterm(reduced_t) ?
+            SubstComputeMatchHO(pattern, target, subst) : MATCH_FAILED ;
 
       if(res_i != 0)
       {
          SubstBacktrackToPos(subst, backtrack);
+         res_i = SubstComputeMatchPattern(pattern, target, subst) == UNIFIABLE ?
+                 0 : MATCH_FAILED;
+         if(res_i != 0)
+         {
+            SubstBacktrackToPos(subst, backtrack);
+         }
       }
       res = res_i == 0;  // are no arguments of s remaining after the match?
    }
@@ -788,7 +799,12 @@ __inline__ bool SubstMguComplete(Term_p t, Term_p s, Subst_p subst)
    {
       // no arguments of s remaining after the match
       PStackPointer backtrack = PStackGetSP(subst);
-      UnificationResult u_res =  SubstComputeMguHO(t, s, subst);
+      Term_p reduced_t = LambdaEtaReduceDB(TermGetBank(t), t),
+             reduced_s = LambdaEtaReduceDB(TermGetBank(s), s);
+         
+      UnificationResult u_res =  
+         !TermHasLambdaSubterm(reduced_t) && !TermHasLambdaSubterm(reduced_s) ?
+            SubstComputeMguHO(reduced_t, reduced_s, subst) : UNIF_FAILED;
 
       if(UnifFailed(u_res) || u_res.term_remaining != 0)
       {
@@ -802,11 +818,10 @@ __inline__ bool SubstMguComplete(Term_p t, Term_p s, Subst_p subst)
          {
             u_res = ((UnificationResult){LeftTerm, 0});
          }
-
       }
       
       res = !UnifFailed(u_res) && u_res.term_remaining == 0;
-   }  
+   }
 
    return res;
 }
