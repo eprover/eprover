@@ -30,19 +30,27 @@
 #include <clb_intmap.h>
 #include <ccl_clausepos.h>
 #include <clb_simple_stuff.h>
+#include <clb_objmaps.h>
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
 /*---------------------------------------------------------------------*/
 
+/* Information about how far are we in the traversal
+   of neighbors of the current node */
+typedef enum {
+   TRAVERSING_SYMBOLS,
+   TRAVERSING_VARIABLES,
+   DONE
+} TraversalState;
+
 
 /* A node in the perfect discrimination tree... */
-
 typedef struct pdt_node_cell
 {
    IntMap_p           f_alternatives;   /* Function symbols */
-   PDArray_p          v_alternatives;   /* Variables */
-   FunCode            max_var;          /* Largest variable... */
+   PObjMap_p          v_alternatives;   /* Variables */
+   PObjMap_p          db_alternatives;  /* DeBruijn alternatives */
    long               size_constr;      /* Only terms that have at
                                            least this weight are
                                            indexed at or beyond this
@@ -68,12 +76,11 @@ typedef struct pdt_node_cell
                                            need to backtrack this
                                            binding if we backtrack
                                            over this node? */
-   FunCode            trav_count;       /* For traversing during
-                                           matching. Both 0 and
-                                           node->max_var+1 represent
-                                           the (maximal one) function
-                                           symbol alternative, i is
-                                           variable i. */
+   PStack_p           var_traverse_stack; /* For traversing during
+                                             matching. Iterator through
+                                             the variables stored in v_alternatives */
+   TraversalState     state;              /* For traversing during
+                                             matching. Remembers how far we are */
    bool                leaf;   /* In HO inner nodes can store clauses,
                                   so we mark leaves explicitly -- an optimization */
 }PDTNodeCell, *PDTNode_p;
@@ -124,9 +131,8 @@ extern unsigned long PDTNodeCounter;
 
 #define  PDTREE_IGNORE_TERM_WEIGHT LONG_MAX
 #define  PDTREE_IGNORE_NF_DATE     SysDateCreationTime()
-#define  PDT_NODE_INIT_VAL(tree)   ((tree)->prefer_general)
-#define  PDT_NODE_CLOSED(tree,node) ((tree)->prefer_general?            \
-                                     (((node)->max_var)+2):(((node)->max_var)+1))
+#define  PDT_NODE_INIT_VAL(tree)   ((tree)->prefer_general ? TRAVERSING_SYMBOLS:TRAVERSING_VARIABLES)
+#define  PDT_NODE_CLOSED(tree,node) (DONE)
 
 #define   PDTreeCellAlloc()    (PDTreeCell*)SizeMalloc(sizeof(PDTreeCell))
 #define   PDTreeCellFree(junk) SizeFree(junk, sizeof(PDTreeCell))

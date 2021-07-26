@@ -243,8 +243,9 @@ PObjMap_p PObjMapInsert(PObjMap_p *root, PObjMap_p newnode,
 // Function: PObjMapStore()
 //
 //   Stores a key value pair in the store. If a key already existed
-//   in the tree, corresponding value is returned. Else, NULL is
-//   returned.
+//   in the tree, the old value is returned. Else, NULL is
+//   returned. In either way, map is updated to store a mapping 
+//   key -> value;
 //
 // Global Variables: -
 //
@@ -255,21 +256,58 @@ PObjMap_p PObjMapInsert(PObjMap_p *root, PObjMap_p newnode,
 void* PObjMapStore(PObjMap_p *root, void* key, void* value,
                    ComparisonFunctionType cmpfun)
 {
+   bool node_created;
+   void** val_ref = PObjMapGetRef(root, key, cmpfun, &node_created);
+   void* old_val = *val_ref;
+   *val_ref = value;
+   return !node_created ? old_val : NULL;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: PObjMapGetRef()
+//
+//   Returns a reference to the value for the corresponding key. If the
+//   key was previously not stored, new node is created and reference to
+//   its "value" field is returned. Updated_map is set to true if
+//   a new node was created.
+//
+// Global Variables: -
+//
+// Side Effects    : Changes the tree.
+//
+/----------------------------------------------------------------------*/
+
+void** PObjMapGetRef(PObjMap_p *root, void* key, ComparisonFunctionType cmpfun, 
+                    bool* updated_map)
+{
    PObjMap_p handle, newnode;
 
    handle = PObjMapNodeAlloc();
    //printf("\nPObjMapStore: %p\n", handle);
    handle->key = key;
-   handle->value = value;
+   handle->value = NULL;
 
    newnode = PObjMapInsert(root, handle, cmpfun);
 
    if(newnode)
    {
       PObjMapNodeFree(handle);
-      return newnode->value;
+      if(updated_map)
+      {
+         *updated_map = true;
+      }
+      return &newnode->value;
    }
-   return NULL;
+   else
+   {
+      if(updated_map)
+      {
+         *updated_map = false;
+      }
+      return &handle->value;
+   }
+
 }
 
 /*-----------------------------------------------------------------------
@@ -422,6 +460,22 @@ void* PObjMapTraverseNext(PStack_p state)
       handle = handle->lson;
    }
    return res;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: sizeof_node()
+// 
+//   Size of one PObjMap node object.
+//
+// Global Variables: -
+//
+// Side Effects    : Changes the tree.
+//
+/----------------------------------------------------------------------*/
+inline size_t sizeof_node()
+{
+   return sizeof(PObjMap);
 }
 
 /*---------------------------------------------------------------------*/

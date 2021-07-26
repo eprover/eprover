@@ -1755,13 +1755,19 @@ bool PDTreeVerifyIndex(PDTree_p tree, ClauseSet_p demods)
             }
          }
          IntMapIterFree(iter);
-         for(i=1; i<=handle->max_var; i++)
+
+         PStack_p map_iter = PObjMapTraverseInit(handle->v_alternatives);
+         while((handle = PObjMapTraverseNext(map_iter)))
          {
-            if(PDArrayElementP(handle->v_alternatives, i))
-            {
-               PStackPushP(stack, PDArrayElementP(handle->v_alternatives, i));
-            }
+            PStackPushP(stack, handle);
          }
+         PObjMapTraverseExit(map_iter);
+         map_iter = PObjMapTraverseInit(handle->db_alternatives);
+         while((handle = PObjMapTraverseNext(map_iter)))
+         {
+            PStackPushP(stack, handle);
+         }
+         PObjMapTraverseExit(map_iter);
       }
       else
       {
@@ -1772,22 +1778,14 @@ bool PDTreeVerifyIndex(PDTree_p tree, ClauseSet_p demods)
             if(!ClauseSetFind(demods, pos->clause))
             {
                res = false;
+               /* TODO: In HO it is possible that a clause will
+                  not be indexed */
                /* printf("Fehler: %d\n", (int)pos->clause);
                   ClausePrint(stdout, pos->clause, true);
                   printf("\n"); */
             }
          }
          PTreeTraverseExit(trav);
-         iter = IntMapIterAlloc(handle->f_alternatives, 0, LONG_MAX);
-         while((handle = IntMapIterNext(iter, &i)))
-         {
-            assert(!handle);
-         }
-         IntMapIterFree(iter);
-         for(i=0; i<handle->max_var; i++)
-         {
-            assert(!PDArrayElementP(handle->v_alternatives, i));
-         }
       }
    }
    PStackFree(stack);

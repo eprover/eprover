@@ -21,6 +21,8 @@
   -----------------------------------------------------------------------*/
 
 #include "ccl_pdtrees.h"
+#include <clb_ptrees.h>
+#include <cte_lambda.h>
 
 
 /*---------------------------------------------------------------------*/
@@ -33,6 +35,8 @@ bool PDTreeUseSizeConstraints = true;
 #ifdef PDT_COUNT_NODES
 unsigned long PDTNodeCounter = 0;
 #endif
+
+#define TermPCompare PCmpFun
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
@@ -88,7 +92,12 @@ static void pdtree_default_cell_free(PDTNode_p junk)
    assert(!junk->entries);
 
    IntMapFree(junk->f_alternatives);
-   PDArrayFree(junk->v_alternatives);
+   PObjMapFree(junk->v_alternatives);
+   PObjMapFree(junk->db_alternatives);
+   if(junk->var_traverse_stack)
+   {
+      PStackFree(junk->var_traverse_stack);
+   }
    PDTNodeCellFree(junk);
 }
 
@@ -109,13 +118,15 @@ static void pdtree_default_cell_free(PDTNode_p junk)
 static void* pdt_select_alt_ref(PDTree_p tree, PDTNode_p node, Term_p term)
 {
    void* res;
+   bool added_objmap_node = false;
 
-   if(TermIsFreeVar(term))
+   if(TermIsFreeVar(term) || (TermIsTopLevelFreeVar(term) && TermIsPattern(term)))
    {
-      tree->arr_storage_est -= PDArrayStorage(node->v_alternatives);
-      res = &(PDArrayElementP(node->v_alternatives,
-                              -term->f_code));
-      tree->arr_storage_est += PDArrayStorage(node->v_alternatives);
+      res = (PObjMapGetRef(&node->v_alternatives, term, TermPCompare, &added_objmap_node));
+   }
+   else if(TermIsDBVar(term))
+   {
+      res = (PObjMapGetRef(&node->db_alternatives, term, TermPCompare, &added_objmap_node));
    }
    else
    {
@@ -123,6 +134,9 @@ static void* pdt_select_alt_ref(PDTree_p tree, PDTNode_p node, Term_p term)
       res = IntMapGetRef(node->f_alternatives, term->f_code);
       tree->arr_storage_est += IntMapStorage(node->f_alternatives);
    }
+   
+   tree->arr_storage_est += added_objmap_node ? sizeof_node() : 0;
+
    return res;
 }
 
@@ -144,28 +158,31 @@ static void* pdt_select_alt_ref(PDTree_p tree, PDTNode_p node, Term_p term)
 static PStack_p pdt_node_succ_stack_create(PDTNode_p node)
 {
    PStack_p result = PStackAlloc();
-   FunCode i = 0; /* Stiffle warning */
-   long tmpmaxvar = 0;
    PDTNode_p next;
-   IntMapIter_p iter;
 
-   iter = IntMapIterAlloc(node->f_alternatives, 0, LONG_MAX);
-   while((next=IntMapIterNext(iter, &i)))
+   IntMapIter_p iter = IntMapIterAlloc(node->f_alternatives, 0, LONG_MAX);
+   FunCode dummy;
+   while((next=IntMapIterNext(iter, &dummy)))
    {
       assert(next);
       PStackPushP(result, next);
    }
    IntMapIterFree(iter);
-   for(i=1; i<=node->max_var; i++)
+   
+   PStack_p objmap_iter = PObjMapTraverseInit(node->v_alternatives);
+   while((next = PObjMapTraverseNext(objmap_iter)))
    {
-      next = PDArrayElementP(node->v_alternatives, i);
-      if(next)
-      {
-         PStackPushP(result, next);
-         tmpmaxvar = i;
-      }
+      PStackPushP(result, next);
    }
-   node->max_var = tmpmaxvar;
+   PObjMapTraverseExit(objmap_iter);
+
+   objmap_iter = PObjMapTraverseInit(node->db_alternatives);
+   while((next = PObjMapTraverseNext(objmap_iter)))
+   {
+      PStackPushP(result, next);
+   }
+   PObjMapTraverseExit(objmap_iter);
+
    return result;
 }
 
@@ -503,7 +520,7 @@ static bool pdtree_verify_node_constr(PDTree_p tree)
 // Function: pdtree_forward()
 //
 //   Find the next open possibility and advance to it. If none exists,
-//   indicate this by setting tree->tree_pos->trav_count to
+//   indicate this by setting tree->tree_pos->var_traverse_stack to
 //   PDT_NODE_CLOSED.
 //
 // Global Variables: -
@@ -514,119 +531,121 @@ static bool pdtree_verify_node_constr(PDTree_p tree)
 
 static void pdtree_forward(PDTree_p tree, Subst_p subst)
 {
-   PDTNode_p handle = tree->tree_pos, next = NULL;
-   FunCode   i = tree->tree_pos->trav_count, limit;
-   Term_p    term = PStackGetSP(tree->term_stack) ? PStackTopP(tree->term_stack) : NULL;
+//    PDTNode_p handle = tree->tree_pos, next = NULL;
+//    FunCode   i = tree->tree_pos->var_traverse_stack, limit;
+//    Term_p    term = PStackGetSP(tree->term_stack) ? PStackTopP(tree->term_stack) : NULL;
 
-   if(!term)
-   {
-      i = tree->tree_pos->trav_count = PDT_NODE_CLOSED(tree, handle);
-   }
+//    if(!term)
+//    {
+//       i = tree->tree_pos->var_traverse_stack = PDT_NODE_CLOSED(tree, handle);
+//    }
 
-   limit = PDT_NODE_CLOSED(tree,handle);
-   while(i<limit)
-   {
-      if(((i==0)||(i>handle->max_var))&&!TermIsFreeVar(term))
-      {
-         next = IntMapGetVal(handle->f_alternatives,term->f_code);
-         i++;
-         if(next)
-         {
-            PStackPushP(tree->term_proc, term);
-            TermLRTraverseNext(tree->term_stack);
-            next->trav_count = PDT_NODE_INIT_VAL(tree);
-            next->bound      = false;
-            assert(!next->variable);
-            tree->tree_pos = next;
-            /*if (next)
-              fprintf(stderr, "next->entries ? %p next->leaf %d? \n", next->entries,  next->leaf);
-              else
-              fprintf(stderr, "no next\n");*/
-#ifdef MEASURE_EXPENSIVE
-            tree->visited_count++;
-#endif
-            break;
-         }
-      }
-      else
-      {
-         next = PDArrayElementP(handle->v_alternatives,i);
-         i++;
-         if(next)
-         {
-            assert(next->variable);
-            bool bound = false;
-            if((!next->variable->binding)&&
-               (problemType == PROBLEM_HO || TermIsFreeVar(term) ||
-                SigSymbolUnifiesWithVar(tree->bank->sig, term->f_code)) &&
-               (problemType == PROBLEM_HO || next->variable->type == term->type))
-            {
-               if(problemType == PROBLEM_FO)
-               {
-                  assert(next->variable->type == term->type);
-                  PStackDiscardTop(tree->term_stack);
-                  SubstAddBinding(subst, next->variable, term);
-                  bound = true;
-               }
-               else
-               {
-                  int matched_up_to = PartiallyMatchVar(next->variable, term, tree->bank->sig, false);
-                  if(matched_up_to != MATCH_FAILED && matched_up_to <= ARG_NUM(term))
-                  {
-                     SubstBindAppVar(subst, next->variable, term, matched_up_to, tree->bank);
-                     PStackPushP(tree->term_proc, term);
-                     PStackDiscardTop(tree->term_stack);
+//    limit = PDT_NODE_CLOSED(tree,handle);
+//    while(i<limit)
+//    {
+//       if(((i==0)||(i>handle->max_var))&&!TermIsFreeVar(term))
+//       {
+//          next = IntMapGetVal(handle->f_alternatives,term->f_code);
+//          i++;
+//          if(next)
+//          {
+//             PStackPushP(tree->term_proc, term);
+//             TermLRTraverseNext(tree->term_stack);
+//             next->var_traverse_stack = PDT_NODE_INIT_VAL(tree);
+//             next->bound      = false;
+//             assert(!next->variable);
+//             tree->tree_pos = next;
+//             /*if (next)
+//               fprintf(stderr, "next->entries ? %p next->leaf %d? \n", next->entries,  next->leaf);
+//               else
+//               fprintf(stderr, "no next\n");*/
+// #ifdef MEASURE_EXPENSIVE
+//             tree->visited_count++;
+// #endif
+//             break;
+//          }
+//       }
+//       else
+//       {
+//          next = PDArrayElementP(handle->v_alternatives,i);
+//          i++;
+//          if(next)
+//          {
+//             assert(next->variable);
+//             bool bound = false;
+//             if((!next->variable->binding)&&
+//                (problemType == PROBLEM_HO || TermIsFreeVar(term) ||
+//                 SigSymbolUnifiesWithVar(tree->bank->sig, term->f_code)) &&
+//                (problemType == PROBLEM_HO || next->variable->type == term->type))
+//             {
+//                if(problemType == PROBLEM_FO)
+//                {
+//                   assert(next->variable->type == term->type);
+//                   PStackDiscardTop(tree->term_stack);
+//                   SubstAddBinding(subst, next->variable, term);
+//                   bound = true;
+//                }
+//                else
+//                {
+//                   int matched_up_to = PartiallyMatchVar(next->variable, term, tree->bank->sig, false);
+//                   if(matched_up_to != MATCH_FAILED && matched_up_to <= ARG_NUM(term))
+//                   {
+//                      SubstBindAppVar(subst, next->variable, term, matched_up_to, tree->bank);
+//                      PStackPushP(tree->term_proc, term);
+//                      PStackDiscardTop(tree->term_stack);
 
-                     if(matched_up_to != ARG_NUM(term))
-                     {
-                        push_remaining_args(tree->term_stack, matched_up_to, term);
-                     }
+//                      if(matched_up_to != ARG_NUM(term))
+//                      {
+//                         push_remaining_args(tree->term_stack, matched_up_to, term);
+//                      }
 
-                     bound = true;
-                  }
-               }
+//                      bound = true;
+//                   }
+//                }
 
-               if(bound)
-               {
-                  assert(next->variable->binding);
-                  next->trav_count   = PDT_NODE_INIT_VAL(tree);
-                  next->bound        = true;
-                  tree->tree_pos     = next;
-                  tree->term_weight  -= (TermStandardWeight(next->variable->binding) -
-                                         TermStandardWeight(next->variable));
-#ifdef MEASURE_EXPENSIVE
-                  tree->visited_count++;
-#endif
-                  break;
-               }
+//                if(bound)
+//                {
+//                   assert(next->variable->binding);
+//                   next->var_traverse_stack   = PDT_NODE_INIT_VAL(tree);
+//                   next->bound        = true;
+//                   tree->tree_pos     = next;
+//                   tree->term_weight  -= (TermStandardWeight(next->variable->binding) -
+//                                          TermStandardWeight(next->variable));
+// #ifdef MEASURE_EXPENSIVE
+//                   tree->visited_count++;
+// #endif
+//                   break;
+//                }
 
-            }
-            else if(next->variable->binding == term ||
-                    (problemType == PROBLEM_HO && TermIsPrefix(next->variable->binding, term)))
-            {
-               //fprintf(stderr, "Got into next->variable->binding prefix part.\n");
-               PStackDiscardTop(tree->term_stack);
-               if(problemType == PROBLEM_HO)
-               {
-                  PStackPushP(tree->term_proc, term);
-                  int args_eaten = next->variable->binding->arity -
-                     (TermIsAppliedFreeVar(next->variable->binding) ? 1 : 0);
-                  push_remaining_args(tree->term_stack, args_eaten, term);
-               }
-               next->trav_count   = PDT_NODE_INIT_VAL(tree);
-               next->bound        = false;
-               tree->tree_pos     = next;
-               tree->term_weight  -= (TermStandardWeight(next->variable->binding) -
-                                      TermStandardWeight(next->variable));
-#ifdef MEASURE_EXPENSIVE
-               tree->visited_count++;
-#endif
-               break;
-            }
-         }
-      }
-   }
-   handle->trav_count = i;
+//             }
+//             else if(next->variable->binding == term ||
+//                     (problemType == PROBLEM_HO && TermIsPrefix(next->variable->binding, term)))
+//             {
+//                //fprintf(stderr, "Got into next->variable->binding prefix part.\n");
+//                PStackDiscardTop(tree->term_stack);
+//                if(problemType == PROBLEM_HO)
+//                {
+//                   PStackPushP(tree->term_proc, term);
+//                   int args_eaten = next->variable->binding->arity -
+//                      (TermIsAppliedFreeVar(next->variable->binding) ? 1 : 0);
+//                   push_remaining_args(tree->term_stack, args_eaten, term);
+//                }
+//                next->var_traverse_stack   = PDT_NODE_INIT_VAL(tree);
+//                next->bound        = false;
+//                tree->tree_pos     = next;
+//                tree->term_weight  -= (TermStandardWeight(next->variable->binding) -
+//                                       TermStandardWeight(next->variable));
+// #ifdef MEASURE_EXPENSIVE
+//                tree->visited_count++;
+// #endif
+//                break;
+//             }
+//          }
+//       }
+//    }
+//    handle->var_traverse_stack = i;
+
+   Error("To be reimplemented", SYS_ERROR);
 }
 
 
@@ -731,19 +750,36 @@ void pdt_node_print(FILE* out, PDTNode_p node, int level)
       iter = IntMapIterAlloc(node->f_alternatives, 0, LONG_MAX);
       while((next=IntMapIterNext(iter, &i)))
       {
-         fprintf(out, "%sBranch %ld\n", IndentStr(2*level), i);
+         fprintf(out, "%sBranch(fcode) %ld\n", IndentStr(2*level), i);
          pdt_node_print(out, next, level+1);
       }
       IntMapIterFree(iter);
-      for(i=1; i<=node->max_var; i++)
+      PStack_p mapiter = PObjMapTraverseInit(node->v_alternatives);
+      while((next=PObjMapTraverseNext(mapiter)))
       {
-         next = PDArrayElementP(node->v_alternatives, i);
-         if(next)
+         assert(next);
+         fprintf(out, "%sBranch(var) ", IndentStr(2*level));
+         if(TermIsFreeVar(next->variable))
          {
-            fprintf(out, "%sBranch %ld\n", IndentStr(2*level), -i);
-            pdt_node_print(out, next, level+1);
+            fprintf(out, "%ld\n", -(next->variable->f_code));
+         }
+         else
+         {
+            TermPrint(out, next->variable, TermGetBank(next->variable)->sig, DEREF_NEVER);
+            fputs("\n", out);
          }
       }
+      PObjMapTraverseExit(mapiter);
+
+      mapiter = PObjMapTraverseInit(node->db_alternatives);
+      while((next=PObjMapTraverseNext(mapiter)))
+      {
+         assert(next);
+         assert(TermIsDBVar(next->variable));
+         fprintf(out, "%sBranch(db) %ld", IndentStr(2*level), next->variable->f_code);
+
+      }
+      PObjMapTraverseExit(mapiter);
    }
 }
 
@@ -835,15 +871,15 @@ PDTNode_p PDTNodeAlloc(void)
    handle = PDTNodeCellAlloc();
 
    handle->f_alternatives = IntMapAlloc();
-   handle->v_alternatives = PDArrayAlloc(PDNODE_VAR_INIT_ALT,
-                                         PDNODE_VAR_GROW_ALT);
-   handle->max_var        = 0;
+   handle->v_alternatives = NULL;
+   handle->db_alternatives = NULL;
    handle->size_constr    = LONG_MAX;
    handle->age_constr     = SysDateCreationTime();
    handle->parent         = NULL;
    handle->ref_count      = 0;
    handle->entries        = NULL;
-   handle->trav_count     = 0;
+   handle->var_traverse_stack = NULL;
+   handle->state = TRAVERSING_SYMBOLS;
    handle->variable       = NULL;
    handle->bound          = false;
    handle->leaf           = true;
@@ -878,21 +914,24 @@ void PDTNodeFree(PDTNode_p tree, Deleter deleter)
       PDTNodeFree(subtree, deleter);
    }
    IntMapIterFree(iter);
-   for(i=1; i<=tree->max_var; i++)
+   PStack_p objmap_iter = PObjMapTraverseInit(tree->v_alternatives);
+   while((subtree=PObjMapTraverseNext((objmap_iter))))
    {
-      subtree = PDArrayElementP(tree->v_alternatives, i);
-      if(subtree)
-      {
-         PDTNodeFree(subtree, deleter);
-      }
+      PDTNodeFree(subtree, deleter);
    }
+   PObjMapTraverseExit(objmap_iter);
+   objmap_iter = PObjMapTraverseInit(tree->db_alternatives);
+   while((subtree=PObjMapTraverseNext((objmap_iter))))
+   {
+      PDTNodeFree(subtree, deleter);
+   }
+   PObjMapTraverseExit(objmap_iter);
    while(tree->entries)
    {
       tmp = PTreeExtractRootKey(&tree->entries);
       ClausePosCellFreeWDeleter(tmp, deleter);
    }
    pdtree_default_cell_free(tree);
-
 }
 
 
@@ -938,9 +977,13 @@ Term_p TermLRTraverseNext(PStack_p stack)
       return NULL;
    }
    handle = PStackPopP(stack);
-   for(i=handle->arity-1; i>=0; i--)
+   if(!TermIsTopLevelFreeVar(handle))
    {
-      PStackPushP(stack, handle->args[i]);
+      // applied variables are not getting destructed
+      for(i=handle->arity-1; i>=(TermIsLambda(handle) ? 1 : 0); i--)
+      {
+         PStackPushP(stack, handle->args[i]);
+      }
    }
 
    return handle;
@@ -1062,10 +1105,24 @@ bool PDTreeInsertTerm(PDTree_p tree, Term_p term, ClausePos_p demod_side,
 
    assert(tree);
    assert(tree->tree);
+   assert(!TermIsBetaReducible(term));
+
+   if(TermIsPattern(term))
+   {
+      term = LambdaEtaExpandDB(tree->bank, term);
+   }
+   else
+   {
+      term = LambdaEtaReduceDB(tree->bank, term);
+      if(LFHOL_UNSUPPORTED(term))
+      {
+         return false;
+      }
+   }
 
    TermLRTraverseInit(tree->term_stack, term);
    node              = tree->tree;
-   tmp = TermStandardWeight(term);
+   tmp               = TermStandardWeight(term);
    if(demod_side&&demod_side->clause&&(!SysDateIsInvalid(node->age_constr)))
    {
       node->age_constr  = SysDateMaximum(demod_side->clause->date,
@@ -1080,12 +1137,12 @@ bool PDTreeInsertTerm(PDTree_p tree, Term_p term, ClausePos_p demod_side,
 
    while(curr)
    {
-      if(TermIsAppliedFreeVar(curr))
+      if(TermIsPhonyApp(curr) && !TermIsAppliedFreeVar(curr))
       {
+         assert(TermIsDBVar(curr->args[0]));
          curr = TermLRTraverseNext(tree->term_stack);
-         continue; // skipping the symbol for applied var.
+         continue;
       }
-
       next = pdt_select_alt_ref(tree, node, curr);
 
       if(!(*next))
@@ -1093,14 +1150,13 @@ bool PDTreeInsertTerm(PDTree_p tree, Term_p term, ClausePos_p demod_side,
          *next = PDTNodeAlloc();
          node->leaf = false;
 
-         tree->arr_storage_est+= (IntMapStorage((*next)->f_alternatives)+
-                                  PDArrayStorage((*next)->v_alternatives));
+         // initally PObjMaps for v and db alternatives are null
+         tree->arr_storage_est += (IntMapStorage((*next)->f_alternatives));
          (*next)->parent = node;
          tree->node_count++;
-         if(TermIsFreeVar(curr))
+         if(TermIsTopLevelAnyVar(curr))
          {
             (*next)->variable = curr;
-            node->max_var = MAX(node->max_var, -curr->f_code);
          }
       }
       node = *next;
@@ -1122,8 +1178,7 @@ bool PDTreeInsertTerm(PDTree_p tree, Term_p term, ClausePos_p demod_side,
       UNUSED(res); assert(res);
    }
    tree->clause_count++;
-   //printf("ISizeConstr %p: %ld\n", tree, pdt_verify_size_constraint(tree->tree));
-   //printf("IDateConstr %p: %ld\n", tree, pdt_verify_age_constraint(tree->tree));
+   return true;
 }
 
 /*-----------------------------------------------------------------------
@@ -1198,17 +1253,25 @@ long PDTreeDelete(PDTree_p tree, Term_p term, Clause_p clause)
    long res;
    PStack_p  del_stack = PStackAlloc();
    Term_p    curr;
-   PDTNode_p node, prev, *next, *del;
+   PDTNode_p node, prev, *next;
 
    assert(tree);
    assert(tree->tree);
    assert(term);
    assert(clause);
+   assert(!TermIsBetaReducible(term));
 
-   if(TermHasLambdaSubterm(term))
+   if(TermIsPattern(term))
    {
-      PStackFree(del_stack);
-      return 0; // ignoring lambda subterms for the moment
+      term = LambdaEtaExpandDB(tree->bank, term);
+   }
+   else
+   {
+      term = LambdaEtaReduceDB(tree->bank, term);
+      if(LFHOL_UNSUPPORTED(term))
+      {
+         return 0;
+      }
    }
 
    TermLRTraverseInit(tree->term_stack, term);
@@ -1218,16 +1281,18 @@ long PDTreeDelete(PDTree_p tree, Term_p term, Clause_p clause)
    while(curr)
    {
       // ignore applied var funcode again
-      if(TermIsAppliedFreeVar(curr))
+      if(TermIsPhonyApp(curr) && !TermIsAppliedFreeVar(curr))
       {
+         assert(TermIsDBVar(curr->args[0]));
          curr = TermLRTraverseNext(tree->term_stack);
          continue;
       }
       next = pdt_select_alt_ref(tree, node, curr);
       assert(next);
-      PStackPushP(del_stack, next);
+      PStackPushP(del_stack, curr);
 
       node = *next;
+      assert(node);
       curr = TermLRTraverseNext(tree->term_stack);
    }
    assert(node);
@@ -1243,19 +1308,33 @@ long PDTreeDelete(PDTree_p tree, Term_p term, Clause_p clause)
       node->age_constr = SysDateInvalidTime();
    }
 
+   Term_p del_term;
    while(node->parent)
    {
       prev = node->parent;
-      del  = PStackPopP(del_stack);
+      del_term = PStackPopP(del_stack);
       node->ref_count -= res;
       if(!node->ref_count)
       {
-         tree->arr_storage_est -= (IntMapStorage(node->f_alternatives)+
-                                   PDArrayStorage(node->v_alternatives));
+         tree->arr_storage_est -= (IntMapStorage(node->f_alternatives));
+         assert(!node->v_alternatives && !node->db_alternatives);
 
          pdtree_default_cell_free(node);
          tree->node_count--;
-         *del = NULL;
+         if(TermIsTopLevelFreeVar(del_term) || TermIsDBVar(del_term))
+         {
+            PObjMap_p* to_del = 
+               TermIsDBVar(del_term) ? &(prev->db_alternatives) :
+                                       &(prev->v_alternatives);
+            PObjMapExtract(to_del, del_term, TermPCompare);
+            tree->arr_storage_est -= sizeof_node();
+         }
+         else
+         {
+            tree->arr_storage_est -= IntMapStorage(node->f_alternatives);
+            assert(IntMapDelKey(prev->f_alternatives, del_term->f_code));
+            tree->arr_storage_est += IntMapStorage(node->f_alternatives);
+         }
       }
       else if(node->ref_count == PTreeNodes(node->entries))
       {
@@ -1303,7 +1382,7 @@ void PDTreeSearchInit(PDTree_p tree, Term_p term, SysDate age_constr,
    PStackReset(tree->term_proc);
    tree->tree_pos         = tree->tree;
    tree->prefer_general   = prefer_general?1:0;
-   tree->tree->trav_count = PDT_NODE_INIT_VAL(tree);
+   tree->tree->var_traverse_stack = NULL;
    tree->term             = term;
    tree->term_date        = age_constr;
    assert(TermStandardWeight(term) == TermWeight(term,DEFAULT_VWEIGHT,DEFAULT_FWEIGHT));
@@ -1357,14 +1436,14 @@ PDTNode_p PDTreeFindNextIndexedLeaf(PDTree_p tree, Subst_p subst)
       // if it is FOL problem, then if it has entries it is a leaf
       assert(problemType == PROBLEM_HO || !tree->tree_pos->entries || tree->tree_pos->leaf);
       if(!pdtree_verify_node_constr(tree)||
-         (tree->tree_pos->trav_count==PDT_NODE_CLOSED(tree,tree->tree_pos)))
+         (tree->tree_pos->state ==PDT_NODE_CLOSED(tree,tree->tree_pos)))
       {
          pdtree_backtrack(tree, subst);
       }
       else if(tree->tree_pos->leaf) /* Leaf node */
       {
          assert(tree->tree_pos->entries);
-         tree->tree_pos->trav_count = PDT_NODE_CLOSED(tree,tree->tree_pos);
+         tree->tree_pos->state = DONE;
          break;
       }
       else

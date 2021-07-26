@@ -46,7 +46,6 @@ const UnificationResult UNIF_INIT = {NoTerm, -2};
 
 #define FAIL_AND_BREAK(res, val) { (res) = (val); break; }
 #define UPDATE_IF_INIT(res, new) ((res) = ((res) == MATCH_INIT) ? (new) : (res))
-#define LFHOL_UNSUPPORTED(t) (TermHasLambdaSubterm(t) || TermHasDBSubterm(t))
 
 //#undef ENABLE_MATCHING_OPTIMIZATION
 
