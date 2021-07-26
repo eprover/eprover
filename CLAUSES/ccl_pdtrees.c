@@ -1030,17 +1030,14 @@ Term_p TermLRTraversePrevAppVar(PStack_p stack, Term_p original_term, Term_p var
 //
 /----------------------------------------------------------------------*/
 
-void PDTreeInsert(PDTree_p tree, ClausePos_p demod_side)
+bool PDTreeInsert(PDTree_p tree, ClausePos_p demod_side)
 {
    Term_p term;
    
    assert(demod_side);
    term = ClausePosGetSide(demod_side);
-   if(!TermHasLambdaSubterm(term))
-   {
-      // currently demodulation only on non-lambda terms
-      PDTreeInsertTerm(tree, term, demod_side, true);
-   }
+   // currently demodulation only on non-lambda terms
+   return PDTreeInsertTerm(tree, term, demod_side, true);
 }
 
 /*-----------------------------------------------------------------------
@@ -1055,7 +1052,7 @@ void PDTreeInsert(PDTree_p tree, ClausePos_p demod_side)
 //
 /----------------------------------------------------------------------*/
 
-void PDTreeInsertTerm(PDTree_p tree, Term_p term, ClausePos_p demod_side, 
+bool PDTreeInsertTerm(PDTree_p tree, Term_p term, ClausePos_p demod_side, 
                       bool store_data)
 {
    Term_p    curr;

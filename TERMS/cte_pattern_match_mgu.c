@@ -936,22 +936,32 @@ OracleUnifResult SubstComputeMguPattern(Term_p t1, Term_p t2, Subst_p subst)
 OracleUnifResult SubstComputeMatchPattern(Term_p matcher, Term_p to_match, Subst_p subst)
 {
    assert(problemType == PROBLEM_HO);
-   if(matcher->type != to_match->type)
+   if(matcher->type != to_match->type ||
+      !TermIsPattern(matcher) || !TermIsPattern(to_match))
    {
       return NOT_UNIFIABLE;
    }
 
+   TB_p bank = TermGetBank(matcher);
+   assert(bank == TermGetBank(to_match));
+   
    PStackPointer backtrack = PStackGetSP(subst); /* For backtracking */
    PLocalStackInit(jobs);
+
+   // to make the weight stuff work!!!
+   matcher = LambdaEtaExpandDB(bank, matcher);
+   to_match = LambdaEtaExpandDB(bank, to_match);
 
    PLocalStackPush(jobs, matcher);
    PLocalStackPush(jobs, to_match);
 
    OracleUnifResult res = UNIFIABLE;
-   TB_p bank = TermGetBank(matcher);
-   assert(bank == TermGetBank(to_match));
+   
+   long matcher_weight  = TermStandardWeight(matcher);
+   long to_match_weight = TermStandardWeight(to_match);
 
-   while(!PLocalStackEmpty(jobs) && res == UNIFIABLE)
+   while(!PLocalStackEmpty(jobs) && res == UNIFIABLE
+         && matcher_weight <= to_match_weight)
    {
       to_match =  PLocalStackPop(jobs);
       matcher  =  PLocalStackPop(jobs);
@@ -987,6 +997,13 @@ OracleUnifResult SubstComputeMatchPattern(Term_p matcher, Term_p to_match, Subst
          else
          {
             res = match_var(bank, subst, matcher, to_match);
+         }
+         matcher_weight += TermStandardWeight(to_match) - DEFAULT_VWEIGHT;
+
+         if(matcher_weight > to_match_weight)
+         {
+            res = false;
+            break;
          }
       }
       else if(TermIsDBVar(matcher))

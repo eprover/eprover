@@ -110,7 +110,6 @@ long    TermSymTypeWeight(Term_p term, long vweight, long fweight, long cweight,
 long    TermDepth(Term_p term);
 
 bool    TermIsDefTerm(Term_p term, int min_arity);
-bool    TermIsHOPattern(Term_p term);
 
 
 bool    TermHasFCode(Term_p term, FunCode f);

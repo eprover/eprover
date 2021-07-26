@@ -27,7 +27,8 @@ Changes
 
 #define CLB_OBJMAPS
 
-#include <clb_objtrees.h>
+#include <clb_pstacks.h>
+#include <clb_avlgeneric.h>
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
@@ -35,22 +36,25 @@ Changes
 
 typedef void (*ObjDelFun)(void *junk);
 
-typedef PObjTree_p PObjMap_p;
+struct objmap_node;
+typedef struct objmap_node* PObjMap_p;
 
-#define PObjMapTraverseInit(root)  PTreeTraverseInit(root)
-#define PObjMapTraverseExit(stack) PStackFree(stack)
+PStack_p PObjMapTraverseInit();
+void*    PObjMapTraverseNext(PStack_p);
+#define  PObjMapTraverseExit(stack) PStackFree(stack)
+
 
 /*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
-void*      PObjMapStore(PObjTree_p *root, void* key, void* value,
+void*      PObjMapStore(PObjMap_p *root, void* key, void* value,
                         ComparisonFunctionType cmpfun);
-void*      PObjMapFind(PObjTree_p *root, void* key,
+void*      PObjMapFind(PObjMap_p *root, void* key,
                        ComparisonFunctionType cmpfun);
-void*      PObjMapExtract(PObjTree_p *root, void* key,
+void*      PObjMapExtract(PObjMap_p *root, void* key,
                           ComparisonFunctionType cmpfun);
-void       PObjMapFreeWDeleter(PObjTree_p root, ObjDelFun del_fun_key, ObjDelFun del_fun_val);
-void       PObjMapFree(PObjTree_p root);
+void       PObjMapFreeWDeleter(PObjMap_p root, ObjDelFun del_fun_key, ObjDelFun del_fun_val);
+void       PObjMapFree(PObjMap_p root);
 void*      PObjMapTraverseNext(PStack_p state);
 #endif
 

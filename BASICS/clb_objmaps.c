@@ -1,14 +1,16 @@
 /*-----------------------------------------------------------------------
 
-File  : clb_objtrees.c
+File  : clb_objmaps.c
 
-Author: Stephan Schulz
+Author: Petar Vukmirovic
 
 Contents
 
-  Functions for object storing SPLAY trees.
+  Data structure for efficiently dealing with mapping a key
+  to a value. You only need to provide a (total) comparison function
+  on the keys and optionally a deleter function for keys.
 
-  Copyright 1998, 1999 by the author.
+Copyright 1998-2021 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
@@ -16,14 +18,25 @@ Contents
 
 Changes
 
-<1> Mon Feb 15 16:43:21 MET 1999
-    Imported from clb_ptrees.c
-
+<1> vr 23 jul 2021 16:47:42 CEST
+    Built on top of objtrees.[ch]
 -----------------------------------------------------------------------*/
 
 #include "clb_objmaps.h"
+#include "clb_objtrees.h"
 
+struct objmap_node
+{
+   struct objmap_node *lson;
+   struct objmap_node *rson;
+   void* key;
+   void* value;
+};
 
+typedef struct objmap_node PObjMap;
+
+#define PObjMapNodeAlloc() (SizeMalloc(sizeof(PObjMap)))
+#define PObjMapNodeFree(junk) SizeFree(junk, sizeof(PObjMap))
 
 /*---------------------------------------------------------------------*/
 /*                        Global Variables                             */
@@ -35,84 +48,194 @@ Changes
 /*---------------------------------------------------------------------*/
 
 
-typedef struct {
-   void* key;
-   void* value;
-   ComparisonFunctionType comparator;
-} kv_pair;
-
-#define AllocKVPair() (SizeMalloc(sizeof(kv_pair)))
-#define FreeKVPair(junk) SizeFree(junk, sizeof(kv_pair))
-
-
-
 /*---------------------------------------------------------------------*/
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
 
 /*-----------------------------------------------------------------------
 //
-// Function: mk_pair()
+// Function: splay_tree()
 //
-//   Constructs a key value pair with a given comparison function.
+//   Perform the splay operation on tree at node with key.
 //
 // Global Variables: -
 //
-// Side Effects    : Changes the tree.
+// Side Effects    : Changes tree
 //
 /----------------------------------------------------------------------*/
 
-static inline kv_pair* mk_pair(void* key, void* val, ComparisonFunctionType f)
+static PObjMap_p splay_tree(PObjMap_p tree, void* key,
+                            ComparisonFunctionType cmpfun)
 {
-   kv_pair* p = AllocKVPair();
-   p->key = key;
-   p->value = val;
-   p->comparator = f;
-   return p;
+   PObjMap_p   left, right, tmp;
+   PObjMap newnode;
+   int       cmpres;
+
+   if (!tree)
+   {
+      return tree;
+   }
+
+   newnode.lson = NULL;
+   newnode.rson = NULL;
+   left = &newnode;
+   right = &newnode;
+
+   for (;;)
+   {
+      cmpres = cmpfun(key, tree->key);
+      if (cmpres < 0)
+      {
+         if(!tree->lson)
+         {
+            break;
+         }
+         if(cmpfun(key, tree->lson->key) < 0)
+         {
+            tmp = tree->lson;
+            tree->lson = tmp->rson;
+            tmp->rson = tree;
+            tree = tmp;
+            if (!tree->lson)
+            {
+               break;
+            }
+         }
+         right->lson = tree;
+         right = tree;
+         tree = tree->lson;
+      }
+      else if(cmpres > 0)
+      {
+         if (!tree->rson)
+         {
+            break;
+         }
+         if(cmpfun(key, tree->rson->key) > 0)
+         {
+            tmp = tree->rson;
+            tree->rson = tmp->lson;
+            tmp->lson = tree;
+            tree = tmp;
+            if (!tree->rson)
+            {
+               break;
+            }
+         }
+         left->rson = tree;
+         left = tree;
+         tree = tree->rson;
+      }
+      else
+      {
+         break;
+      }
+   }
+   left->rson = tree->lson;
+   right->lson = tree->rson;
+   tree->lson = newnode.rson;
+   tree->rson = newnode.lson;
+
+   return tree;
 }
 
 /*-----------------------------------------------------------------------
 //
-// Function: objtree_store_fun()
+// Function: do_extract_entry()
 //
-//   Function that uses the underlying comparator on keys to
-//   store pairs in ObjTree.
+//   Find the entry with key key, remove it from the tree, rebalance
+//   the tree, and return the pointer to the removed element. Return
+//   NULL if no matching element exists.
 //
-// Global Variables: -
-//
-// Side Effects    : Changes the tree.
-//
-/----------------------------------------------------------------------*/
-
-int objtree_store_fun(const void* kv1, const void* kv2)
-{
-   kv_pair* x = (kv_pair*) kv1;
-   kv_pair* y = (kv_pair*) kv2;
-   assert(x->comparator == y->comparator);
-
-   return x->comparator(x->key, y->key);
-}
-
-/*-----------------------------------------------------------------------
-//
-// Function: dummy_del_fun()
-//
-//   Deletion function that does nothing.
 //
 // Global Variables: -
 //
-// Side Effects    : Changes the tree.
+// Side Effects    : Changes the tree
 //
 /----------------------------------------------------------------------*/
 
-void dummy_del_fun(void* p)
+PObjMap_p do_extract_entry(PObjMap_p *root, void* key,
+                           ComparisonFunctionType cmpfun)
 {
-   return;
+   PObjMap_p x, cell;
+
+   if (!(*root))
+   {
+      return NULL;
+   }
+   *root = splay_tree(*root, key, cmpfun);
+   if(cmpfun(key, (*root)->key)==0)
+   {
+      if (!(*root)->lson)
+      {
+         x = (*root)->rson;
+      }
+      else
+      {
+         x = splay_tree((*root)->lson, key, cmpfun);
+         x->rson = (*root)->rson;
+      }
+      cell = *root;
+      cell->lson = cell->rson = NULL;
+      *root = x;
+      return cell;
+   }
+   return NULL;
 }
+
+
 
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
 /*---------------------------------------------------------------------*/
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: PObjMapInsert()
+//
+//   If an entry with cmpfun(*root->key, newnode->key) == 0  exists in the
+//   tree return a pointer to it. Otherwise insert *newnode in the tree
+//   and return NULL. Will splay the tree!
+//
+// Global Variables: -
+//
+// Side Effects    : Changes the tree.
+//
+/----------------------------------------------------------------------*/
+
+PObjMap_p PObjMapInsert(PObjMap_p *root, PObjMap_p newnode,
+                        ComparisonFunctionType cmpfun)
+{
+   int cmpres;
+   if (!*root)
+   {
+      newnode->lson = newnode->rson = NULL;
+      *root = newnode;
+      return NULL;
+   }
+   *root = splay_tree(*root, newnode->key, cmpfun);
+
+   cmpres = cmpfun(newnode->key, (*root)->key);
+
+   if (cmpres < 0)
+   {
+      newnode->lson = (*root)->lson;
+      newnode->rson = *root;
+      (*root)->lson = NULL;
+      *root = newnode;
+      return NULL;
+   }
+   else if(cmpres > 0)
+   {
+      newnode->rson = (*root)->rson;
+      newnode->lson = *root;
+      (*root)->rson = NULL;
+      *root = newnode;
+      return NULL;
+   }
+   return *root;
+}
 
 
 /*-----------------------------------------------------------------------
@@ -132,9 +255,21 @@ void dummy_del_fun(void* p)
 void* PObjMapStore(PObjMap_p *root, void* key, void* value,
                    ComparisonFunctionType cmpfun)
 {
-   kv_pair* p = mk_pair(key, value, cmpfun);
-   kv_pair* res = PTreeObjStore(root, p, objtree_store_fun);
-   return res ? res->value : NULL;
+   PObjMap_p handle, newnode;
+
+   handle = PObjMapNodeAlloc();
+   //printf("\nPObjMapStore: %p\n", handle);
+   handle->key = key;
+   handle->value = value;
+
+   newnode = PObjMapInsert(root, handle, cmpfun);
+
+   if(newnode)
+   {
+      PObjMapNodeFree(handle);
+      return newnode->value;
+   }
+   return NULL;
 }
 
 /*-----------------------------------------------------------------------
@@ -150,11 +285,18 @@ void* PObjMapStore(PObjMap_p *root, void* key, void* value,
 //
 /----------------------------------------------------------------------*/
 
-void* PObjMapFind(PObjMap_p *root, void* key, ComparisonFunctionType cmpfun)
+void* PObjMapFind(PObjMap_p *root, void* key, ComparisonFunctionType
+           cmpfun)
 {
-   kv_pair p = {.key=key, .value=NULL, .comparator=cmpfun};
-   kv_pair* res = PTreeObjFindObj(root, &p, objtree_store_fun);
-   return res ? res->value : NULL;
+   if(*root)
+   {
+      *root = splay_tree(*root, key, cmpfun);
+      if(cmpfun((*root)->key, key)==0)
+      {
+         return (*root)->value;
+      }
+   }
+   return NULL;
 }
 
 /*-----------------------------------------------------------------------
@@ -171,21 +313,21 @@ void* PObjMapFind(PObjMap_p *root, void* key, ComparisonFunctionType cmpfun)
 /----------------------------------------------------------------------*/
 
 void* PObjMapExtract(PObjMap_p *root, void* key,
-                          ComparisonFunctionType cmpfun)
+                     ComparisonFunctionType cmpfun)
 {
-   kv_pair p = {.key=key, .value=NULL, .comparator=cmpfun};
-   kv_pair* res = PTreeObjExtractObject(root, &p, objtree_store_fun);
-   if(res)
+   PObjMap_p handle;
+   void*   res = NULL;
+
+   handle = do_extract_entry(root, key, cmpfun);
+   if(handle)
    {
-      void* value = res->value;
-      FreeKVPair(res);
-      return value;
+      res = handle->value;
+      PObjMapNodeFree(handle);
    }
-   else
-   {
-      return NULL;
-   }
+   return res;
 }
+
+
 
 /*-----------------------------------------------------------------------
 //
@@ -205,11 +347,9 @@ void PObjMapFreeWDeleter(PObjMap_p root, ObjDelFun del_key_fun, ObjDelFun del_va
    {
       PObjMapFreeWDeleter(root->lson, del_key_fun, del_val_fun);
       PObjMapFreeWDeleter(root->rson, del_key_fun, del_val_fun);
-      kv_pair* p = root->key;
-      del_key_fun(p->key);
-      del_val_fun(p->value);
-      FreeKVPair(p);
-      PTreeCellFree(root);
+      del_key_fun(root->key);
+      del_val_fun(root->value);
+      PObjMapNodeFree(root);
    }
 }
 
@@ -217,8 +357,7 @@ void PObjMapFreeWDeleter(PObjMap_p root, ObjDelFun del_key_fun, ObjDelFun del_va
 //
 // Function: PObjTreeFreeWDeleter()
 // 
-//   Free the tree using the functions that do nothing on keys
-//   and values.
+//   Free the tree using the functions that free keys and values.
 //
 // Global Variables: -
 //
@@ -228,14 +367,38 @@ void PObjMapFreeWDeleter(PObjMap_p root, ObjDelFun del_key_fun, ObjDelFun del_va
 
 void PObjMapFree(PObjMap_p root)
 {
-   PObjMapFreeWDeleter(root, dummy_del_fun, dummy_del_fun);
+   PObjMapFreeWDeleter(root, DummyObjDelFun, DummyObjDelFun);
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: PObjMapTraverseInit()
+// 
+//   Initialize the interator 
+//
+// Global Variables: -
+//
+// Side Effects    : Changes the tree.
+//
+/----------------------------------------------------------------------*/
+
+PStack_p PObjMapTraverseInit(PObjMap_p root)
+{
+   PStack_p stack = PStackAlloc();
+
+   while(root)
+   {
+      PStackPushP(stack, root);
+      root = root->lson;
+   }
+   return stack;
 }
 
 /*-----------------------------------------------------------------------
 //
 // Function: PObjMapTraverseNext()
 // 
-//   Iterates through all the values stored in the tree. 
+//   Traverses the nodes and returns value stored in each node
 //
 // Global Variables: -
 //
@@ -245,15 +408,20 @@ void PObjMapFree(PObjMap_p root)
 
 void* PObjMapTraverseNext(PStack_p state)
 {
-   PObjMap_p node = PTreeTraverseNext(state);
-   if(node)
-   {
-      return ((kv_pair*)node->key)->value;
-   }
-   else
+   if(PStackEmpty(state))
    {
       return NULL;
    }
+
+   PObjMap_p handle = PStackPopP(state);
+   void* res = handle->value;
+   handle = handle->rson;
+   while(handle)
+   {
+      PStackPushP(state, handle);
+      handle = handle->lson;
+   }
+   return res;
 }
 
 /*---------------------------------------------------------------------*/

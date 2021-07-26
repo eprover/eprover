@@ -136,6 +136,10 @@ static Term_p tb_termtop_insert(TB_p bank, Term_p t)
    assert(t);
    assert(!TermIsAnyVar(t));
    assert(!TermIsAppliedFreeVar(t) || TermIsFreeVar(t->args[0]));
+   assert(t->f_code != SIG_NAMED_LAMBDA_CODE ||
+          (t->arity == 2 && TermIsFreeVar(t->args[0])));
+   assert(t->f_code != SIG_DB_LAMBDA_CODE ||
+          (t->arity == 2 && TermIsDBVar(t->args[0])));
 
 #ifndef NDEBUG
    for(int i=0; i<t->arity; i++)
@@ -192,6 +196,7 @@ static Term_p tb_termtop_insert(TB_p bank, Term_p t)
          TermCellSetProp(t, TermCellGiveProps(t->args[i], TPIsDBVar));
          TermCellSetProp(t, TermCellGiveProps(t->args[i], TPHasLambdaSubterm));
          TermCellSetProp(t, TermCellGiveProps(t->args[i], TPHasEtaExpandableSubterm));
+         TermCellSetProp(t, TermCellGiveProps(t->args[i], TPHasNonPatternVar));
          if(TermIsFreeVar(t->args[i]))
          {
             t->v_count += 1;
@@ -202,6 +207,26 @@ static Term_p tb_termtop_insert(TB_p bank, Term_p t)
             t->v_count +=t->args[i]->v_count;
             t->f_count +=t->args[i]->f_count;
             t->weight  +=t->args[i]->weight;
+         }
+      }
+
+      if(TermIsLambda(t))
+      {
+         t->f_count -= 2; // adjusting for db var and lambda sign
+         t->weight  -= 2*DEFAULT_FWEIGHT; // adjusting  for db var and lambda sign
+      }
+      if(TermIsAppliedFreeVar(t))
+      {
+         // counting applied pattern free var as a single var.
+         if(NormalizePatternAppVar(bank, t))
+         {
+            t->f_count = 0;
+            t->v_count = 1;
+            t->weight  = DEFAULT_VWEIGHT;
+         }
+         else
+         {
+            TermCellSetProp(t, TPHasNonPatternVar);
          }
       }
 

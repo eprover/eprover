@@ -1599,14 +1599,18 @@ long TermWeightCompute(Term_p term, long vweight, long fweight)
 {
    long res = 0;
 
-   if(TermIsFreeVar(term))
+   if(TermIsFreeVar(term) ||
+     (TermIsAppliedFreeVar(term) && NormalizePatternAppVar(TermGetBank(term), term)))
    {
+      // if variable is of the form X xn where xn are bound variables -->
+      // then it is counted as a simple variable
       res += vweight;
    }
    else
    {
-      res += fweight*(TermIsPhonyApp(term) ? 0 : 1);
-      for(int i=0; i<term->arity; i++)
+      // lambdas (and corresponding bound var) are ignored.
+      res += fweight*(TermIsPhonyApp(term) || TermIsLambda(term) ? 0 : 1);
+      for(int i=(TermIsLambda(term)?1:0); i<term->arity; i++)
       {
          res += TermWeight(term->args[i], vweight, fweight);
       }
@@ -1869,39 +1873,6 @@ bool TermIsDefTerm(Term_p term, int min_arity)
       TermCellSetProp(term->args[i], TPOpFlag);
    }
    return true;
-}
-
-/*-----------------------------------------------------------------------
-//
-// Function: TermIsPattern()
-//
-//   Return true if term is a higher-order pttaern
-//
-// Global Variables: -
-//
-// Side Effects    : Sets TPOpFlag
-//
-/----------------------------------------------------------------------*/
-
-bool TermIsPattern(Term_p term)
-{
-   if(TermIsGround(term))
-   {
-      return true;
-   }
-   else if(TermIsAppliedFreeVar(term))
-   {
-      return NormalizePatternAppVar(TermGetBank(term), term) != NULL;
-   }
-   else
-   {
-      bool is_pattern = true;
-      for(long i=0; is_pattern && i<term->arity; i++)
-      {
-         is_pattern = is_pattern && TermIsPattern(term->args[i]);
-      }
-      return is_pattern;
-   }
 }
 
 

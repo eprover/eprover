@@ -173,8 +173,8 @@ Term_p    TermLRTraverseNext(PStack_p stack);
 Term_p    TermLRTraversePrev(PStack_p stack, Term_p term);
 Term_p    TermLRTraversePrevAppVar(PStack_p stack, Term_p original_term, Term_p var);
 
-void      PDTreeInsert(PDTree_p tree, ClausePos_p demod_side);
-void      PDTreeInsertTerm(PDTree_p tree, Term_p term, 
+bool      PDTreeInsert(PDTree_p tree, ClausePos_p demod_side);
+bool      PDTreeInsertTerm(PDTree_p tree, Term_p term, 
                            ClausePos_p demod_side, bool store_data);
 long      PDTreeDelete(PDTree_p tree, Term_p term, Clause_p clause);
 PDTNode_p PDTreeMatchPrefix(PDTree_p tree, Term_p term,  

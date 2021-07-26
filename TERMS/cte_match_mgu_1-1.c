@@ -765,7 +765,7 @@ __inline__ bool SubstMatchComplete(Term_p pattern, Term_p target, Subst_p subst)
             LFHOL_UNSUPPORTED(reduced_p) || LFHOL_UNSUPPORTED(reduced_t) ?
             MATCH_FAILED : SubstComputeMatchHO(pattern, target, subst)  ;
 
-      if(res_i != 0)
+      if(res_i != 0 && TermIsPattern(pattern) && TermIsPattern(target))
       {
          SubstBacktrackToPos(subst, backtrack);
          res_i = SubstComputeMatchPattern(pattern, target, subst) == UNIFIABLE ?
