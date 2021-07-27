@@ -544,6 +544,15 @@ static void pdtree_forward(PDTree_p tree, Subst_p subst)
       curr_state = tree->tree_pos->trav_state = DONE;
       PStackReset(tree->tree_pos->var_traverse_stack);
    }
+   else
+   {
+      if(TermIsPhonyApp(term) && !TermIsAppliedFreeVar(term))
+      {
+         assert(TermIsDBVar(term->args[0]));
+         term = TermLRTraverseNext(tree->term_stack);
+         PStackPushP(tree->term_proc, term);
+      }
+   }
 
    while(curr_state<DONE)
    {
@@ -584,9 +593,9 @@ static void pdtree_forward(PDTree_p tree, Subst_p subst)
                assert(TermIsDBVar(term) || !next->variable);
                assert(!TermIsDBVar(term) || next->variable);
                tree->tree_pos = next;
-   #ifdef MEASURE_EXPENSIVE
+#ifdef MEASURE_EXPENSIVE
                tree->visited_count++;
-   #endif
+#endif
                break;
             }
          }
@@ -614,26 +623,16 @@ static void pdtree_forward(PDTree_p tree, Subst_p subst)
                   {
                      success = SubstMatchComplete(next->variable, term, subst);
                   }
-
-                  if(success)
-                  {
-                     PStackDiscardTop(tree->term_stack);
-                     PStackPushP(tree->term_proc, term);
-                  }
                }
                else
                {
-                  if(SubstMatchComplete(next->variable, term, subst))
-                  {
-                     PStackDiscardTop(tree->term_stack);
-                     PStackPushP(tree->term_proc, term);
-                     success=true;
-                     break;
-                  }
+                  success = SubstMatchComplete(next->variable, term, subst);
                }
 
                if(success)
                {
+                  PStackDiscardTop(tree->term_stack);
+                  PStackPushP(tree->term_proc, term);
                   next->trav_state = 0;
                   if(trav_order[0] == TRAVERSING_VARIABLES)
                   {
@@ -643,7 +642,7 @@ static void pdtree_forward(PDTree_p tree, Subst_p subst)
                   {
                      PStackReset(next->var_traverse_stack);
                   }
-                  next->prev_subst      = prev_binding;
+                  next->prev_subst   = prev_binding;
                   tree->tree_pos     = next;
                   tree->term_weight  -= (TermStandardWeight(next->variable->binding) -
                                          TermStandardWeight(next->variable));
@@ -660,109 +659,7 @@ static void pdtree_forward(PDTree_p tree, Subst_p subst)
             curr_state++;
          }
       }
-//       if(((i==0)||(i>handle->max_var))&&!TermIsFreeVar(term))
-//       {
-//          next = IntMapGetVal(handle->f_alternatives,term->f_code);
-//          i++;
-//          if(next)
-//          {
-//             PStackPushP(tree->term_proc, term);
-//             TermLRTraverseNext(tree->term_stack);
-//             next->var_traverse_stack = PDT_NODE_INIT_VAL(tree);
-//             next->bound      = false;
-//             assert(!next->variable);
-//             tree->tree_pos = next;
-//             /*if (next)
-//               fprintf(stderr, "next->entries ? %p next->leaf %d? \n", next->entries,  next->leaf);
-//               else
-//               fprintf(stderr, "no next\n");*/
-// #ifdef MEASURE_EXPENSIVE
-//             tree->visited_count++;
-// #endif
-//             break;
-//          }
-//       }
-//       else
-//       {
-//          next = PDArrayElementP(handle->v_alternatives,i);
-//          i++;
-//          if(next)
-//          {
-//             assert(next->variable);
-//             bool bound = false;
-//             if((!next->variable->binding)&&
-//                (problemType == PROBLEM_HO || TermIsFreeVar(term) ||
-//                 SigSymbolUnifiesWithVar(tree->bank->sig, term->f_code)) &&
-//                (problemType == PROBLEM_HO || next->variable->type == term->type))
-//             {
-//                if(problemType == PROBLEM_FO)
-//                {
-//                   assert(next->variable->type == term->type);
-//                   PStackDiscardTop(tree->term_stack);
-//                   SubstAddBinding(subst, next->variable, term);
-//                   bound = true;
-//                }
-//                else
-//                {
-//                   int matched_up_to = PartiallyMatchVar(next->variable, term, tree->bank->sig, false);
-//                   if(matched_up_to != MATCH_FAILED && matched_up_to <= ARG_NUM(term))
-//                   {
-//                      SubstBindAppVar(subst, next->variable, term, matched_up_to, tree->bank);
-//                      PStackPushP(tree->term_proc, term);
-//                      PStackDiscardTop(tree->term_stack);
-
-//                      if(matched_up_to != ARG_NUM(term))
-//                      {
-//                         push_remaining_args(tree->term_stack, matched_up_to, term);
-//                      }
-
-//                      bound = true;
-//                   }
-//                }
-
-//                if(bound)
-//                {
-//                   assert(next->variable->binding);
-//                   next->var_traverse_stack   = PDT_NODE_INIT_VAL(tree);
-//                   next->bound        = true;
-//                   tree->tree_pos     = next;
-//                   tree->term_weight  -= (TermStandardWeight(next->variable->binding) -
-//                                          TermStandardWeight(next->variable));
-// #ifdef MEASURE_EXPENSIVE
-//                   tree->visited_count++;
-// #endif
-//                   break;
-//                }
-
-//             }
-//             else if(next->variable->binding == term ||
-//                     (problemType == PROBLEM_HO && TermIsPrefix(next->variable->binding, term)))
-//             {
-//                //fprintf(stderr, "Got into next->variable->binding prefix part.\n");
-//                PStackDiscardTop(tree->term_stack);
-//                if(problemType == PROBLEM_HO)
-//                {
-//                   PStackPushP(tree->term_proc, term);
-//                   int args_eaten = next->variable->binding->arity -
-//                      (TermIsAppliedFreeVar(next->variable->binding) ? 1 : 0);
-//                   push_remaining_args(tree->term_stack, args_eaten, term);
-//                }
-//                next->var_traverse_stack   = PDT_NODE_INIT_VAL(tree);
-//                next->bound        = false;
-//                tree->tree_pos     = next;
-//                tree->term_weight  -= (TermStandardWeight(next->variable->binding) -
-//                                       TermStandardWeight(next->variable));
-// #ifdef MEASURE_EXPENSIVE
-//                tree->visited_count++;
-// #endif
-//                break;
-//             }
-//          }
-//       }
    }
-   // handle->var_traverse_stack = i;
-
-   Error("To be reimplemented", SYS_ERROR);
 }
 
 
@@ -784,24 +681,36 @@ static void pdtree_backtrack(PDTree_p tree, Subst_p subst)
 
    if(handle->variable)
    {
-      tree->term_weight  += (TermStandardWeight(handle->variable->binding) -
-                             TermStandardWeight(handle->variable));
-      if(problemType == PROBLEM_FO)
+      if(TermIsTopLevelFreeVar(handle->variable))
       {
-         PStackPushP(tree->term_stack, handle->variable->binding);
-         // if(handle->bound)
-         // {
-         //    succ = SubstBacktrackSingle(subst);
-         //    UNUSED(succ); assert(succ);
-         // }
+         tree->term_weight  += (TermStandardWeight(handle->variable->binding) -
+                                TermStandardWeight(handle->variable));
+         PStackPushP(tree->term_stack, PStackPopP(tree->term_proc));
          SubstBacktrackToPos(subst, handle->prev_subst);
       }
-      else if(handle->variable->binding)
+      else
       {
-         Term_p original_term = PStackPopP(tree->term_proc);
-
-         TermLRTraversePrevAppVar(tree->term_stack, original_term, handle->variable);
-         SubstBacktrackToPos(subst, handle->prev_subst);
+         assert(TermIsDBVar(handle->variable));
+         assert(!handle->variable->binding);
+         Term_p bvar = PStackPopP(tree->term_proc);
+         assert(TermIsDBVar(bvar));
+         if(!PStackEmpty(tree->term_proc))
+         {
+            Term_p top = PStackTopP(tree->term_proc);
+            if(TermIsPhonyApp(top) && TermIsDBVar(top->args[0]))
+            {
+               assert(top->args[0] == bvar);
+               PStackPushP(tree->term_stack, PStackPopP(tree->term_proc));
+            }
+            else
+            {
+               PStackPushP(tree->term_stack, bvar);
+            }
+         }
+         else
+         {
+            PStackPushP(tree->term_stack, bvar);
+         }
       }
    }
    else if(handle->parent)
@@ -1095,20 +1004,8 @@ Term_p TermLRTraverseNext(PStack_p stack)
       return NULL;
    }
    handle = PStackPopP(stack);
-   if(TermIsPhonyApp(handle) && !TermIsAppliedFreeVar(handle))
-   {
-      // @ symbol is ignored when it is applying DB var
-      // to arguments
-      assert(TermIsDBVar(handle->args[0]));
-      handle = handle->args[0];
-      assert(handle->arity == 0);
-      for(i=handle->arity-1; i>=1; i--)
-      {
-         PStackPushP(stack, handle->args[i]);
-      }
-   }
    // applied variables are not getting destructed
-   else if(!TermIsTopLevelFreeVar(handle))
+   if(!TermIsTopLevelFreeVar(handle))
    {
       // phony DB variable gets skipped over for lambdas
       for(i=handle->arity-1; i>=(TermIsLambda(handle) ? 1 : 0); i--)
@@ -1268,6 +1165,12 @@ bool PDTreeInsertTerm(PDTree_p tree, Term_p term, ClausePos_p demod_side,
 
    while(curr)
    {
+      if(TermIsPhonyApp(curr) && !TermIsAppliedFreeVar(curr))
+      {
+         assert(TermIsDBVar(curr->args[0]));
+         curr = TermLRTraverseNext(tree->term_stack);
+         continue;
+      }
       next = pdt_select_alt_ref(tree, node, curr);
 
       if(!(*next))
@@ -1405,6 +1308,12 @@ long PDTreeDelete(PDTree_p tree, Term_p term, Clause_p clause)
 
    while(curr)
    {
+      if(TermIsPhonyApp(curr) && !TermIsAppliedFreeVar(curr))
+      {
+         assert(TermIsDBVar(curr->args[0]));
+         curr = TermLRTraverseNext(tree->term_stack);
+         continue;
+      }
       next = pdt_select_alt_ref(tree, node, curr);
       assert(next);
       PStackPushP(del_stack, curr);
