@@ -52,30 +52,6 @@ static long pdt_compute_size_constraint(PDTNode_p node);
 
 /*-----------------------------------------------------------------------
 //
-// Function: push_remaining_args()
-//
-//   Puts arguments that are trailing to the term stack.
-//   Determines the number of trailing arguments based on eaten_args.
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-static __inline__ void push_remaining_args(PStack_p term_stack, int eaten_args, Term_p to_match)
-{
-   // make up for app encoding
-   int limit = eaten_args + (TermIsAppliedFreeVar(to_match) ? 1 : 0);
-   for(int i=to_match->arity-1; i >= limit; i--)
-   {
-      PStackPushP(term_stack, to_match->args[i]);
-   }
-}
-
-
-/*-----------------------------------------------------------------------
-//
 // Function: pdtree_default_cell_free()
 //
 //   Free a node cell (but not potential children et al.)
@@ -90,7 +66,6 @@ static void pdtree_default_cell_free(PDTNode_p junk)
 {
    assert(junk);
    assert(junk->f_alternatives);
-   assert(junk->v_alternatives);
    assert(!junk->entries);
 
    IntMapFree(junk->f_alternatives);
@@ -122,7 +97,7 @@ static void* pdt_select_alt_ref(PDTree_p tree, PDTNode_p node, Term_p term)
    void* res;
    bool added_objmap_node = false;
 
-   if(TermIsFreeVar(term) || (TermIsTopLevelFreeVar(term) && TermIsPattern(term)))
+   if(TermIsTopLevelFreeVar(term))
    {
       res = (PObjMapGetRef(&node->v_alternatives, term, TermPCompare, &added_objmap_node));
    }
@@ -544,14 +519,11 @@ static void pdtree_forward(PDTree_p tree, Subst_p subst)
       curr_state = tree->tree_pos->trav_state = DONE;
       PStackReset(tree->tree_pos->var_traverse_stack);
    }
-   else
+   else if(TermIsPhonyApp(term) && !TermIsAppliedFreeVar(term))
    {
-      if(TermIsPhonyApp(term) && !TermIsAppliedFreeVar(term))
-      {
-         assert(TermIsDBVar(term->args[0]));
-         term = TermLRTraverseNext(tree->term_stack);
-         PStackPushP(tree->term_proc, term);
-      }
+      assert(TermIsDBVar(term->args[0]));
+      term = TermLRTraverseNext(tree->term_stack);
+      PStackPushP(tree->term_proc, term);
    }
 
    while(curr_state<DONE)
@@ -803,7 +775,6 @@ void pdt_node_print(FILE* out, PDTNode_p node, int level)
          fprintf(out, "%sBranch(db) %ld", IndentStr(2*level), next->variable->f_code);
 
       }
-      PObjMapTraverseExit(mapiter);
       PStackFree(mapiter);
    }
 }
@@ -946,12 +917,14 @@ void PDTNodeFree(PDTNode_p tree, Deleter deleter)
       PDTNodeFree(subtree, deleter);
    }
    PObjMapTraverseExit(objmap_iter);
+   PObjMapFree(tree->v_alternatives);
    objmap_iter = PObjMapTraverseInit(tree->db_alternatives, objmap_iter);
    while((subtree=PObjMapTraverseNext((objmap_iter))))
    {
       PDTNodeFree(subtree, deleter);
    }
    PObjMapTraverseExit(objmap_iter);
+   PObjMapFree(tree->db_alternatives);
    while(tree->entries)
    {
       tmp = PTreeExtractRootKey(&tree->entries);
@@ -959,6 +932,7 @@ void PDTNodeFree(PDTNode_p tree, Deleter deleter)
    }
    pdtree_default_cell_free(tree);
    PStackFree(objmap_iter);
+   PStackFree(tree->var_traverse_stack);
 }
 
 
@@ -1036,7 +1010,7 @@ Term_p TermLRTraversePrev(PStack_p stack, Term_p term)
    Term_p tmp;
    int    i;
 
-   for(i=0; i<term->arity; i++)
+   for(i=(TermIsLambda(term)?1:0); i<term->arity; i++)
    {
       tmp = PStackPopP(stack);
       UNUSED(tmp); assert(tmp == term->args[i]);
@@ -1044,47 +1018,6 @@ Term_p TermLRTraversePrev(PStack_p stack, Term_p term)
    PStackPushP(stack, term);
 
    return term;
-}
-
-/*-----------------------------------------------------------------------
-//
-// Function: TermLRTraversePrevAppVar()
-//
-//   Undoing binding applied variable. Differs from undoing binding
-//   normal variable since the term bound is not always the whole term
-//   on top of the stack -- applied variables can possibly match
-//   prefixes.
-//
-// Global Variables: -
-//
-// Side Effects    : Stack changes
-//
-/----------------------------------------------------------------------*/
-
-Term_p TermLRTraversePrevAppVar(PStack_p stack, Term_p original_term, Term_p var)
-{
-   Term_p tmp;
-   int    i;
-
-   assert(var->binding);
-   assert(original_term->arity >= var->binding->arity);
-
-   int to_backtrack_nr = original_term->arity - var->binding->arity;
-   if(TermIsAppliedFreeVar(original_term) && TermIsFreeVar(var->binding))
-   {
-      to_backtrack_nr--;
-   }
-
-   for(i=0; i<to_backtrack_nr; i++)
-   {
-      tmp = PStackPopP(stack);
-      UNUSED(tmp);
-      assert(tmp == original_term->args[var->binding->arity + i +
-                                        (TermIsAppliedFreeVar(original_term) && TermIsFreeVar(var->binding))]);
-   }
-   PStackPushP(stack, original_term);
-
-   return original_term;
 }
 
 
@@ -1406,6 +1339,21 @@ void PDTreeSearchInit(PDTree_p tree, Term_p term, SysDate age_constr,
 {
    assert(!tree->term);
 
+   if(!TermIsPattern(term))
+   {
+      term = LambdaEtaReduceDB(tree->bank, term);
+      if(LFHOL_UNSUPPORTED(term))
+      {
+         // term is not supported.
+         tree->tree_pos = NULL;
+         return;
+      }
+   }
+   else
+   {
+      term = LambdaEtaExpandDB(tree->bank, term);
+   }
+
    TermLRTraverseInit(tree->term_stack, term);
    PStackReset(tree->term_proc);
    tree->tree_pos         = tree->tree;
@@ -1517,7 +1465,6 @@ MatchRes_p PDTreeFindNextDemodulator(PDTree_p tree, Subst_p subst)
    PTree_p res_cell = NULL;
    MatchRes_p mi = MatchResAlloc();
 
-   assert(tree->tree_pos);
    while(tree->tree_pos)
    {
       if(tree->store_stack)
