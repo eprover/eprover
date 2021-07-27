@@ -41,7 +41,7 @@
 typedef enum {
    TRAVERSING_SYMBOLS,
    TRAVERSING_VARIABLES,
-   DONE
+   DONE = 2
 } TraversalState;
 
 
@@ -70,18 +70,15 @@ typedef struct pdt_node_cell
                                            (so that we can bind it
                                            while searching for
                                            matches) */
-   bool               bound;            /* Did we bind a variable (in
-                                           fact, the one above...) to
-                                           reach this node? I.e. do we
-                                           need to backtrack this
-                                           binding if we backtrack
-                                           over this node? */
+   PStackPointer      prev_subst;       /* For backtracking, to make sure
+                                           that we have a clean state when
+                                           we start backtracking. */
    PStack_p           var_traverse_stack; /* For traversing during
                                              matching. Iterator through
                                              the variables stored in v_alternatives */
-   TraversalState     state;              /* For traversing during
+   int                trav_state;         /* For traversing during
                                              matching. Remembers how far we are */
-   bool                leaf;   /* In HO inner nodes can store clauses,
+   bool               leaf;    /* In HO inner nodes can store clauses,
                                   so we mark leaves explicitly -- an optimization */
 }PDTNodeCell, *PDTNode_p;
 
@@ -131,7 +128,7 @@ extern unsigned long PDTNodeCounter;
 
 #define  PDTREE_IGNORE_TERM_WEIGHT LONG_MAX
 #define  PDTREE_IGNORE_NF_DATE     SysDateCreationTime()
-#define  PDT_NODE_INIT_VAL(tree)   ((tree)->prefer_general ? TRAVERSING_SYMBOLS:TRAVERSING_VARIABLES)
+#define  PDT_NODE_INIT_VAL(tree)    (0)
 #define  PDT_NODE_CLOSED(tree,node) (DONE)
 
 #define   PDTreeCellAlloc()    (PDTreeCell*)SizeMalloc(sizeof(PDTreeCell))

@@ -145,7 +145,7 @@ static PObjMap_p splay_tree(PObjMap_p tree, void* key,
 //
 //   Find the entry with key key, remove it from the tree, rebalance
 //   the tree, and return the pointer to the removed element. Return
-//   NULL if no matching element exists.
+//   NULL if no matching element exists. NB: Does not free the node.
 //
 //
 // Global Variables: -
@@ -269,8 +269,9 @@ void* PObjMapStore(PObjMap_p *root, void* key, void* value,
 //
 //   Returns a reference to the value for the corresponding key. If the
 //   key was previously not stored, new node is created and reference to
-//   its "value" field is returned. Updated_map is set to true if
-//   a new node was created.
+//   its "value" field is returned. updated_map is set to true if
+//   a new node was created [if you are not interested in this
+//   info, just pass NULL for updated_map].
 //
 // Global Variables: -
 //
@@ -295,7 +296,7 @@ void** PObjMapGetRef(PObjMap_p *root, void* key, ComparisonFunctionType cmpfun,
       PObjMapNodeFree(handle);
       if(updated_map)
       {
-         *updated_map = true;
+         *updated_map = false;
       }
       return &newnode->value;
    }
@@ -303,7 +304,7 @@ void** PObjMapGetRef(PObjMap_p *root, void* key, ComparisonFunctionType cmpfun,
    {
       if(updated_map)
       {
-         *updated_map = false;
+         *updated_map = true;
       }
       return &handle->value;
    }
@@ -323,8 +324,7 @@ void** PObjMapGetRef(PObjMap_p *root, void* key, ComparisonFunctionType cmpfun,
 //
 /----------------------------------------------------------------------*/
 
-void* PObjMapFind(PObjMap_p *root, void* key, ComparisonFunctionType
-           cmpfun)
+void* PObjMapFind(PObjMap_p *root, void* key, ComparisonFunctionType cmpfun)
 {
    if(*root)
    {
@@ -420,10 +420,9 @@ void PObjMapFree(PObjMap_p root)
 //
 /----------------------------------------------------------------------*/
 
-PStack_p PObjMapTraverseInit(PObjMap_p root)
+PStack_p PObjMapTraverseInit(PObjMap_p root, PStack_p stack)
 {
-   PStack_p stack = PStackAlloc();
-
+   PStackReset(stack);
    while(root)
    {
       PStackPushP(stack, root);
@@ -464,7 +463,7 @@ void* PObjMapTraverseNext(PStack_p state)
 
 /*-----------------------------------------------------------------------
 //
-// Function: sizeof_node()
+// Function: SizeOfPObjNode()
 // 
 //   Size of one PObjMap node object.
 //
@@ -473,7 +472,7 @@ void* PObjMapTraverseNext(PStack_p state)
 // Side Effects    : Changes the tree.
 //
 /----------------------------------------------------------------------*/
-inline size_t sizeof_node()
+inline size_t SizeOfPObjNode()
 {
    return sizeof(PObjMap);
 }

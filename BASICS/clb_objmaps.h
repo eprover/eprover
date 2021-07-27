@@ -39,9 +39,9 @@ typedef void (*ObjDelFun)(void *junk);
 struct objmap_node;
 typedef struct objmap_node* PObjMap_p;
 
-PStack_p PObjMapTraverseInit(PObjMap_p);
+PStack_p PObjMapTraverseInit(PObjMap_p, PStack_p);
 void*    PObjMapTraverseNext(PStack_p);
-#define  PObjMapTraverseExit(stack) PStackFree(stack)
+#define  PObjMapTraverseExit(stack) (assert(stack), PStackReset(stack))
 
 
 /*---------------------------------------------------------------------*/
@@ -58,7 +58,7 @@ void*      PObjMapExtract(PObjMap_p *root, void* key,
 void       PObjMapFreeWDeleter(PObjMap_p root, ObjDelFun del_fun_key, ObjDelFun del_fun_val);
 void       PObjMapFree(PObjMap_p root);
 void*      PObjMapTraverseNext(PStack_p state);
-size_t     sizeof_node();
+size_t     SizeOfPObjNode();
 #endif
 
 /*---------------------------------------------------------------------*/
