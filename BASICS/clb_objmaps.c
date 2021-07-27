@@ -412,7 +412,8 @@ void PObjMapFree(PObjMap_p root)
 //
 // Function: PObjMapTraverseInit()
 // 
-//   Initialize the interator 
+//   Initialize the interator. Unlike other iterator initializers,
+//   does not do memory managent on stacks.
 //
 // Global Variables: -
 //
@@ -422,6 +423,7 @@ void PObjMapFree(PObjMap_p root)
 
 PStack_p PObjMapTraverseInit(PObjMap_p root, PStack_p stack)
 {
+   assert(stack);
    PStackReset(stack);
    while(root)
    {
