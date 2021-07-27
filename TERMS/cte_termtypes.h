@@ -250,10 +250,12 @@ typedef Term_p (*TermMapper_p)(void*, Term_p);
 #define TermHasEtaExpandableSubterm(term) (QueryProp((term), (TPHasEtaExpandableSubterm)))
 #define TermHasDBSubterm(term) (QueryProp((term), (TPHasDBSubterm)))
 #define TermIsPattern(term) (!(QueryProp((term), (TPHasNonPatternVar))))
+#define TermIsDBLambda(term) ((term)->f_code == SIG_DB_LAMBDA_CODE)
 #else
 #define TermIsPhonyApp(term) (false)
 #define TermIsAppliedFreeVar(term) (false)
 #define TermIsAppliedAnyVar(term) (false)
+#define TermIsDBLambda(term) (false)
 #define TermIsLambda(term) (false)
 #define TermIsDBVar(term) (false)
 #define TermIsAnyVar(term) (TermIsFreeVar(term))

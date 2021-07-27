@@ -762,7 +762,7 @@ void TermPrintDbgHO(FILE* out, Term_p term, Sig_p sig, DerefType deref)
 
    if(TermIsDBVar(term))
    {
-      assert(term->arity == 0);
+      // assert(term->arity == 0);
       fprintf(out, "db(%ld)", term->f_code);
    }
    else if(!TermIsTopLevelFreeVar(term))
@@ -1609,8 +1609,8 @@ long TermWeightCompute(Term_p term, long vweight, long fweight)
    else
    {
       // lambdas (and corresponding bound var) are ignored.
-      res += fweight*(TermIsPhonyApp(term) || TermIsLambda(term) ? 0 : 1);
-      for(int i=(TermIsLambda(term)?1:0); i<term->arity; i++)
+      res += fweight*(TermIsPhonyApp(term) || TermIsDBLambda(term) ? 0 : 1);
+      for(int i=(TermIsDBLambda(term)?1:0); i<term->arity; i++)
       {
          res += TermWeight(term->args[i], vweight, fweight);
       }

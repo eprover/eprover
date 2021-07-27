@@ -732,8 +732,7 @@ TFormula_p do_fool_unroll(TFormula_p form, TB_p terms)
    }
    else
    {
-      if(TFormulaIsQuantified(terms->sig, form)
-         && form->f_code != SIG_NAMED_LAMBDA_CODE)
+      if(TFormulaIsQuantified(terms->sig, form) && !TermIsLambda(form))
       {
          unrolled1 = do_fool_unroll(form->args[1], terms);
          if(form->args[1] != unrolled1)
@@ -742,7 +741,7 @@ TFormula_p do_fool_unroll(TFormula_p form, TB_p terms)
                                         form->args[0], unrolled1);
          }
       }
-      else if(form->f_code != SIG_NAMED_LAMBDA_CODE)
+      else if(!TermIsLambda(form))
       {
          if(TFormulaHasSubForm1(terms->sig, form))
          {
