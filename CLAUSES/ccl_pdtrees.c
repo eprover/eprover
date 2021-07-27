@@ -767,6 +767,7 @@ void pdt_node_print(FILE* out, PDTNode_p node, Sig_p sig, int level)
             TermPrint(out, next->variable, sig, DEREF_NEVER);
             fputs("\n", out);
          }
+         pdt_node_print(out, next, sig, level+1);
       }
       PObjMapTraverseExit(mapiter);
 
@@ -776,6 +777,7 @@ void pdt_node_print(FILE* out, PDTNode_p node, Sig_p sig, int level)
          assert(next);
          assert(TermIsDBVar(next->variable));
          fprintf(out, "%sBranch(db) %ld", IndentStr(2*level), next->variable->f_code);
+         pdt_node_print(out, next, sig, level+1);
       }
       PStackFree(mapiter);
    }
@@ -1043,7 +1045,7 @@ bool PDTreeInsert(PDTree_p tree, ClausePos_p demod_side)
    assert(demod_side);
    term = ClausePosGetSide(demod_side);
    // currently demodulation only on non-lambda terms
-   fprintf(stderr, "before insertion of");
+   fprintf(stderr, "before insertion of (%p)", demod_side->clause);
    TermPrint(stderr, term, tree->bank->sig, DEREF_NEVER);
    fprintf(stderr, ".\n");
    PDTreePrint(stderr, tree);
@@ -1157,7 +1159,6 @@ bool PDTreeInsertTerm(PDTree_p tree, Term_p term, ClausePos_p demod_side,
    if (store_data) 
    {
       res = PTreeStore(&(node->entries), demod_side);
-      node->leaf=true;
       UNUSED(res); assert(res);
    }
    tree->clause_count++;
@@ -1257,8 +1258,10 @@ long PDTreeDelete(PDTree_p tree, Term_p term, Clause_p clause)
       }
    }
 
-   fprintf(stderr, "deleting ");
+   fprintf(stderr, "deleting %p:", clause);
    TermPrint(stderr, term, tree->bank->sig, DEREF_NEVER);
+   fprintf(stderr, ".\n");
+   PDTreePrint(stderr, tree);
    fprintf(stderr, ".\n");
 
    TermLRTraverseInit(tree->term_stack, term);
@@ -1282,8 +1285,10 @@ long PDTreeDelete(PDTree_p tree, Term_p term, Clause_p clause)
       curr = TermLRTraverseNext(tree->term_stack);
    }
    assert(node);
+   assert(node->entries);
 
    res = delete_clause_entries(&(node->entries), clause, tree->deleter);
+   assert(res);
 
    if(term->weight == node->size_constr)
    {
