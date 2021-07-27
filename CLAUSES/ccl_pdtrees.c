@@ -71,10 +71,7 @@ static void pdtree_default_cell_free(PDTNode_p junk)
    IntMapFree(junk->f_alternatives);
    PObjMapFree(junk->v_alternatives);
    PObjMapFree(junk->db_alternatives);
-   if(junk->var_traverse_stack)
-   {
-      PStackFree(junk->var_traverse_stack);
-   }
+   PStackFree(junk->var_traverse_stack);
    PDTNodeCellFree(junk);
 }
 
@@ -655,6 +652,7 @@ static void pdtree_backtrack(PDTree_p tree, Subst_p subst)
    {
       if(TermIsTopLevelFreeVar(handle->variable))
       {
+         assert(!handle->variable->binding);
          tree->term_weight  += (TermStandardWeight(handle->variable->binding) -
                                 TermStandardWeight(handle->variable));
          PStackPushP(tree->term_stack, PStackPopP(tree->term_proc));
@@ -666,6 +664,7 @@ static void pdtree_backtrack(PDTree_p tree, Subst_p subst)
          assert(!handle->variable->binding);
          Term_p bvar = PStackPopP(tree->term_proc);
          assert(TermIsDBVar(bvar));
+         assert(bvar == handle->variable);
          if(!PStackEmpty(tree->term_proc))
          {
             Term_p top = PStackTopP(tree->term_proc);
@@ -810,9 +809,6 @@ PDTree_p PDTreeAllocWDeleter(TB_p bank, Deleter deleter)
    handle->term            = NULL;
    handle->term_date       = SysDateCreationTime();
    handle->term_weight     = LONG_MAX;
-   handle->prefer_general  = 0; /* Not really necessary, it's
-                                   reinitialized in
-                                   PDTreeSearchInit() anyways.*/
    handle->clause_count    = 0;
    handle->node_count      = 0;
    handle->arr_storage_est = 0;
@@ -930,9 +926,8 @@ void PDTNodeFree(PDTNode_p tree, Deleter deleter)
       tmp = PTreeExtractRootKey(&tree->entries);
       ClausePosCellFreeWDeleter(tmp, deleter);
    }
-   pdtree_default_cell_free(tree);
    PStackFree(objmap_iter);
-   PStackFree(tree->var_traverse_stack);
+   pdtree_default_cell_free(tree);
 }
 
 
@@ -1345,6 +1340,7 @@ void PDTreeSearchInit(PDTree_p tree, Term_p term, SysDate age_constr,
       if(LFHOL_UNSUPPORTED(term))
       {
          // term is not supported.
+         fprintf(stderr, "failing.\n");
          tree->tree_pos = NULL;
          return;
       }
@@ -1357,7 +1353,6 @@ void PDTreeSearchInit(PDTree_p tree, Term_p term, SysDate age_constr,
    TermLRTraverseInit(tree->term_stack, term);
    PStackReset(tree->term_proc);
    tree->tree_pos         = tree->tree;
-   tree->prefer_general   = prefer_general?1:0;
    tree->tree->trav_state = 0;
    if(prefer_general)
    {

@@ -95,7 +95,6 @@ typedef struct pd_tree_cell
    Term_p    term;           /* ...used as a key during search */
    SysDate   term_date;      /* Temporarily bound during matching */
    long      term_weight;    /* Ditto */
-   int       prefer_general; /* Ditto */
    long      node_count;     /* How many tree nodes? */
    long      clause_count;   /* How many clauses? */
    long      arr_storage_est;/* How much memory used by arrays? */
