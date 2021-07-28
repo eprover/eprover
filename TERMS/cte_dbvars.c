@@ -55,7 +55,8 @@ Term_p mk_db(FunCode db_idx, Type_p type)
    assert(type);
 
    Term_p var = TermDefaultCellAlloc();
-   TermCellSetProp(var, TPIsShared|TPIsDBVar|TPHasDBSubterm);
+   TermCellSetProp(var, TPIsShared|TPIsDBVar|TPHasDBSubterm
+                        |(TypeIsArrow(type)?TPHasEtaExpandableSubterm:0));
 
    var->weight = DEFAULT_FWEIGHT;
    var->v_count = 0;

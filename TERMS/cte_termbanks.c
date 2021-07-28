@@ -168,6 +168,7 @@ static Term_p tb_termtop_insert(TB_p bank, Term_p t)
    else
    {
       t->entry_no     = ++(bank->in_count);
+      TermSetBank(t, bank);
       TermCellAssignProp(t,TPGarbageFlag, bank->garbage_state);
       TermCellSetProp(t, TPIsShared); /* Groundness may change below */
       if(TermIsDBVar(t))
@@ -195,7 +196,10 @@ static Term_p tb_termtop_insert(TB_p bank, Term_p t)
          TermCellSetProp(t, TermCellGiveProps(t->args[i], TPIsBetaReducible));
          TermCellSetProp(t, TermCellGiveProps(t->args[i], TPHasDBSubterm));
          TermCellSetProp(t, TermCellGiveProps(t->args[i], TPHasLambdaSubterm));
-         TermCellSetProp(t, TermCellGiveProps(t->args[i], TPHasEtaExpandableSubterm));
+         if(!TermIsPhonyApp(t) || i!=0)
+         {
+            TermCellSetProp(t, TermCellGiveProps(t->args[i], TPHasEtaExpandableSubterm));
+         }
          TermCellSetProp(t, TermCellGiveProps(t->args[i], TPHasNonPatternVar));
          if(TermIsFreeVar(t->args[i]))
          {
@@ -241,7 +245,7 @@ static Term_p tb_termtop_insert(TB_p bank, Term_p t)
       //assert(TermIsGround(t) == TermIsGroundCompute(t));
    }
 
-   TermSetBank(t, bank);
+   
    return t;
 }
 
@@ -2272,6 +2276,7 @@ Term_p ParseIte(Scanner_p in, TB_p bank)
 
 Term_p NormalizePatternAppVar(TB_p bank, Term_p s)
 {
+   assert(bank);
    if(TermIsFreeVar(s))
    {
       return s;

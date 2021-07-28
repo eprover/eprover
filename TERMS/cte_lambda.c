@@ -463,7 +463,7 @@ Term_p do_eta_expand_db(TB_p bank, Term_p t)
    {
       res = TermTopCopy(t);
       bool changed = false;
-      for(long i=0; i < res->arity; i++)
+      for(long i=TermIsPhonyApp(t)?1:0; i < res->arity; i++)
       {
          res->args[i] = do_eta_expand_db(bank, t->args[i]);
          changed = changed || res->args[i] != t->args[i];
@@ -487,7 +487,9 @@ Term_p do_eta_expand_db(TB_p bank, Term_p t)
       for(long i=0; i<num_args; i++)
       {
          Term_p fresh_db = RequestDBVar(bank->db_vars, res->type->args[i], num_args-i-1);
-         PStackPushP(db_args, fresh_db);
+         PStackPushP(db_args, 
+                     TypeIsArrow(fresh_db->type) ? 
+                        do_eta_expand_db(bank, fresh_db) : fresh_db);
       }
       
       res = ApplyTerms(bank, ShiftDB(bank, res, num_args), db_args);
@@ -519,6 +521,7 @@ Term_p do_eta_expand_db(TB_p bank, Term_p t)
 Term_p do_eta_reduce_db(TB_p bank, Term_p t)
 {
    Term_p res;
+   assert(bank);
    if(t->arity == 0 || !TermHasLambdaSubterm(t))
    {
       res = t; // optimization
@@ -1133,7 +1136,7 @@ Term_p LambdaEtaReduceDB(TB_p bank, Term_p term)
    {
       // sometimes bank comes from a variable and
       // that can be a problem.
-      return do_eta_reduce_db(TermGetBank(term), term);
+      return do_eta_reduce_db(!bank ? TermGetBank(term) : bank, term);
    }
    else
    {

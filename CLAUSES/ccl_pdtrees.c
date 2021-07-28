@@ -1073,6 +1073,10 @@ bool PDTreeInsertTerm(PDTree_p tree, Term_p term, ClausePos_p demod_side,
    assert(tree->tree);
    assert(!TermIsBetaReducible(term));
 
+   fprintf(stderr, "inserting(before): ");
+   TermPrint(stderr, term, tree->bank->sig, DEREF_NEVER);
+   fprintf(stderr, ".\n");
+
    if(TermIsPattern(term))
    {
       term = LambdaEtaExpandDB(tree->bank, term);
@@ -1085,6 +1089,10 @@ bool PDTreeInsertTerm(PDTree_p tree, Term_p term, ClausePos_p demod_side,
          return false;
       }
    }
+
+   fprintf(stderr, "inserting(after): ");
+   TermPrint(stderr, term, tree->bank->sig, DEREF_NEVER);
+   fprintf(stderr, ".\n");
 
    TermLRTraverseInit(tree->term_stack, term);
    node              = tree->tree;
