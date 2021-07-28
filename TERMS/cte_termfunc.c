@@ -1119,6 +1119,7 @@ Term_p TermCopy(Term_p source, VarBank_p vars, DBVarBank_p dbvars, DerefType der
          handle = RequestDBVar(dbvars, source->type, source->f_code);
       }
    }
+   else
    {
       handle = TermTopCopyWithoutArgs(source);
 
