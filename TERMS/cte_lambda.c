@@ -1050,20 +1050,20 @@ Term_p WHNF_step(TB_p bank, Term_p t)
 //
 /----------------------------------------------------------------------*/
 
-Term_p WHNF_deref(TB_p bank, Term_p t)
+Term_p WHNF_deref(Term_p t)
 {
    Term_p res;
    t = TermDerefAlways(t);
 
    if(TermIsPhonyApp(t) && TermIsLambda(t->args[0]))
    {
-      res = WHNF_deref(bank, WHNF_step(bank, t));
+      res = WHNF_deref(WHNF_step(TermGetBank(t), t));
    }
    else if (TermIsLambda(t))
    {
       PStack_p dbvars = PStackAlloc();
       Term_p matrix = UnfoldLambda(t, dbvars);
-      Term_p new_matrix = WHNF_deref(bank, matrix);
+      Term_p new_matrix = WHNF_deref(matrix);
       if(matrix == new_matrix)
       {
          res = t;
@@ -1073,7 +1073,7 @@ Term_p WHNF_deref(TB_p bank, Term_p t)
          res = new_matrix;
          while(!PStackEmpty(dbvars))
          {
-            res = CloseWithDBVar(bank, ((Term_p)PStackPopP(dbvars))->type, res);
+            res = CloseWithDBVar(TermGetBank(t), ((Term_p)PStackPopP(dbvars))->type, res);
          }
       }
       PStackFree(dbvars);
@@ -1131,7 +1131,9 @@ Term_p LambdaEtaReduceDB(TB_p bank, Term_p term)
 {
    if(TermHasLambdaSubterm(term))
    {
-      return do_eta_reduce_db(bank, term);
+      // sometimes bank comes from a variable and
+      // that can be a problem.
+      return do_eta_reduce_db(TermGetBank(term), term);
    }
    else
    {

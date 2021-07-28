@@ -43,7 +43,7 @@ Term_p     CloseWithDBVar(TB_p bank, Type_p ty, Term_p body);
 Term_p     CloseWithTypePrefix(TB_p bank, Type_p* tys, long size, Term_p matrix);
 Term_p     ShiftDB(TB_p bank, Term_p term, int shift_val);
 Term_p     WHNF_step(TB_p bank, Term_p t);
-Term_p     WHNF_deref(TB_p bank, Term_p t);
+Term_p     WHNF_deref(Term_p t);
 Term_p     BetaNormalizeDB(TB_p bank, Term_p term);
 Term_p     LambdaEtaReduceDB(TB_p bank, Term_p term);
 Term_p     LambdaEtaExpandDB(TB_p bank, Term_p term);

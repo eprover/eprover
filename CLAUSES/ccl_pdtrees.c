@@ -1354,7 +1354,6 @@ void PDTreeSearchInit(PDTree_p tree, Term_p term, SysDate age_constr,
       if(LFHOL_UNSUPPORTED(term))
       {
          // term is not supported.
-         fprintf(stderr, "failing.\n");
          tree->tree_pos = NULL;
          return;
       }

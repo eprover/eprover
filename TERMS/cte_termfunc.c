@@ -1261,25 +1261,45 @@ bool TermStructEqualNoDeref(Term_p t1, Term_p t2)
 
 bool TermStructEqualDeref(Term_p t1, Term_p t2, DerefType deref_1, DerefType deref_2)
 {
-   const int limit_1 = DEREF_LIMIT(t1, deref_1);
-   const int limit_2 = DEREF_LIMIT(t2, deref_2);
+   int limit_1 = DEREF_LIMIT(t1, deref_1);
+   int limit_2 = DEREF_LIMIT(t2, deref_2);
 
-   if(problemType == PROBLEM_HO && deref_1 == DEREF_ALWAYS)
+   TB_p bank = TermGetBank(t1);
+
+   if(problemType == PROBLEM_HO)
    {
-      t1 = LambdaEtaReduceDB(TermGetBank(t1), WHNF_deref(TermGetBank(t1), t1));
+      if(deref_1 == DEREF_ALWAYS)
+      {
+         t1 = LambdaEtaReduceDB(bank, WHNF_deref(t1));
+      }
+      else if(deref_1 == DEREF_ONCE)
+      {
+         t1 = LambdaEtaReduceDB(bank,
+            BetaNormalizeDB(bank, TBInsertInstantiated(bank, t1)));
+         limit_1 = INT_MAX;
+      }
    }
    else
    {
-      t1 = LambdaNormalizeDB(TermGetBank(t1), TermDeref(t1, &deref_1));
+      t1 = TermDeref(t1, &deref_1);
    }
 
-   if(problemType == PROBLEM_HO && deref_2 == DEREF_ALWAYS)
+   if(problemType == PROBLEM_HO)
    {
-      t2 = LambdaEtaReduceDB(TermGetBank(t2), WHNF_deref(TermGetBank(t2), t2));
+      if(deref_2 == DEREF_ALWAYS)
+      {
+         t2 = LambdaEtaReduceDB(bank, WHNF_deref(t2));
+      }
+      else if(deref_2 == DEREF_ONCE)
+      {
+         t1 = LambdaEtaReduceDB(bank,
+               BetaNormalizeDB(bank, TBInsertInstantiated(bank, t2)));
+         limit_2 = INT_MAX;
+      }
    }
    else
    {
-      t2 = LambdaNormalizeDB(TermGetBank(t2), TermDeref(t2, &deref_2));
+      t2 = TermDeref(t2, &deref_2);
    }
 
    if((t1==t2) && (deref_1==deref_2))

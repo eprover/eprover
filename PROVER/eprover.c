@@ -261,7 +261,7 @@ static void print_proof_stats(ProofState_p proofstate,
                               long preproc_removed)
 
 {
-   if(OutputLevel||print_statistics)
+   if(OutputLevel>1||print_statistics)
    {
       fprintf(GlobalOut, "# Parsed axioms                        : %ld\n",
               parsed_ax_no);

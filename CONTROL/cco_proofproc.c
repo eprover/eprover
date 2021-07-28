@@ -1532,7 +1532,7 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control,
    ClauseSetSetProp(state->tmp_store, CPIsIRVictim);
 
    clause = pclause->clause;
-
+   
    ClauseNormalizeVars(clause, state->freshvars);
    tmp_copy = ClauseCopyDisjoint(clause);
    tmp_copy->ident = clause->ident;

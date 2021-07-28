@@ -117,7 +117,7 @@ IntMap_p db_var_map(TB_p bank, Term_p s)
 Term_p solve_flex_rigid(TB_p bank, Term_p s_var, IntMap_p db_map, Term_p t, 
                         Subst_p subst, long depth, OracleUnifResult* unif_res)
 {
-   t = WHNF_deref(bank, t);
+   t = WHNF_deref(t);
    Term_p res;
    if(TermIsFreeVar(t))
    {
@@ -723,6 +723,7 @@ Term_p remap_variables(TB_p bank, Term_p matcher, Term_p to_match,
 {
    IntMap_p dbmap = db_var_map(bank, matcher);
 
+   *res = UNIFIABLE;
    Term_p t = do_remap(bank, dbmap, to_match, res, 0);
 
    IntMapFree(dbmap);
@@ -776,8 +777,11 @@ OracleUnifResult match_var(TB_p bank, Subst_p subst,
       Term_p binding = remap_variables(bank, matcher, to_match, &res);
       if(binding)
       {
-         matcher->binding = CloseWithTypePrefix(bank, tys, matcher->arity-1, 
-                                                remap_variables(bank, matcher, to_match, &res));
+         assert(res == UNIFIABLE);
+         binding = CloseWithTypePrefix(bank, tys, matcher->arity-1, 
+                                       remap_variables(bank, matcher, to_match, &res));
+         assert(TermIsAppliedFreeVar(matcher));
+         SubstAddBinding(subst, matcher->args[0], binding);
       }
       return res;
    }
@@ -825,8 +829,8 @@ OracleUnifResult SubstComputeMguPattern(Term_p t1, Term_p t2, Subst_p subst)
 
    while(!PQueueEmpty(jobs) && res == UNIFIABLE)
    {
-      t2 = WHNF_deref(bank, PQueueGetLastP(jobs));
-      t1 = WHNF_deref(bank, PQueueGetLastP(jobs));
+      t2 = WHNF_deref(PQueueGetLastP(jobs));
+      t1 = WHNF_deref(PQueueGetLastP(jobs));
 
       prune_lambda_prefix(bank, &t1, &t2);
 
