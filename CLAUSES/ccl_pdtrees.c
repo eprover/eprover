@@ -615,7 +615,7 @@ static void pdtree_forward(PDTree_p tree, Subst_p subst)
                   }
                   next->prev_subst   = prev_binding;
                   tree->tree_pos     = next;
-                  tree->term_weight  -= (TermStandardWeight(next->variable->binding) -
+                  tree->term_weight  -= (TermStandardWeight(term) -
                                          TermStandardWeight(next->variable));
 #ifdef MEASURE_EXPENSIVE
                   tree->visited_count++;
@@ -655,7 +655,7 @@ static void pdtree_backtrack(PDTree_p tree, Subst_p subst)
       if(TermIsTopLevelFreeVar(handle->variable))
       {
          assert(!handle->variable->binding);
-         tree->term_weight  += (TermStandardWeight(handle->variable->binding) -
+         tree->term_weight  += (TermStandardWeight((Term_p)PStackTopP(tree->term_proc)) -
                                 TermStandardWeight(handle->variable));
          PStackPushP(tree->term_stack, PStackPopP(tree->term_proc));
          SubstBacktrackToPos(subst, handle->prev_subst);
