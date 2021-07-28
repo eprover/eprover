@@ -620,6 +620,8 @@ static void pdtree_forward(PDTree_p tree, Subst_p subst)
 #ifdef MEASURE_EXPENSIVE
                   tree->visited_count++;
 #endif
+                  assert(hd_var->binding);
+                  assert(problemType != PROBLEM_FO || next->variable->binding);
                   break;
                }
             }
@@ -654,7 +656,9 @@ static void pdtree_backtrack(PDTree_p tree, Subst_p subst)
    {
       if(TermIsTopLevelFreeVar(handle->variable))
       {
-         assert(!handle->variable->binding);
+         assert(!TermIsFreeVar(handle->variable) || handle->variable->binding);
+         assert(!TermIsAppliedFreeVar(handle->variable) || 
+                handle->variable->args[0]->binding);
          tree->term_weight  += (TermStandardWeight((Term_p)PStackTopP(tree->term_proc)) -
                                 TermStandardWeight(handle->variable));
          PStackPushP(tree->term_stack, PStackPopP(tree->term_proc));
@@ -1073,10 +1077,6 @@ bool PDTreeInsertTerm(PDTree_p tree, Term_p term, ClausePos_p demod_side,
    assert(tree->tree);
    assert(!TermIsBetaReducible(term));
 
-   fprintf(stderr, "inserting(before): ");
-   TermPrint(stderr, term, tree->bank->sig, DEREF_NEVER);
-   fprintf(stderr, ".\n");
-
    if(TermIsPattern(term))
    {
       term = LambdaEtaExpandDB(tree->bank, term);
@@ -1089,10 +1089,6 @@ bool PDTreeInsertTerm(PDTree_p tree, Term_p term, ClausePos_p demod_side,
          return false;
       }
    }
-
-   fprintf(stderr, "inserting(after): ");
-   TermPrint(stderr, term, tree->bank->sig, DEREF_NEVER);
-   fprintf(stderr, ".\n");
 
    TermLRTraverseInit(tree->term_stack, term);
    node              = tree->tree;
@@ -1295,7 +1291,6 @@ long PDTreeDelete(PDTree_p tree, Term_p term, Clause_p clause)
          tree->arr_storage_est -= (IntMapStorage(node->f_alternatives));
          assert(!node->v_alternatives && !node->db_alternatives);
 
-         pdtree_default_cell_free(node);
          tree->node_count--;
          if(TermIsTopLevelFreeVar(del_term) || TermIsDBVar(del_term))
          {
@@ -1312,6 +1307,7 @@ long PDTreeDelete(PDTree_p tree, Term_p term, Clause_p clause)
             UNUSED(deleted); assert(deleted);
             tree->arr_storage_est += IntMapStorage(node->f_alternatives);
          }
+         pdtree_default_cell_free(node);
       }
       else if(node->ref_count == PTreeNodes(node->entries))
       {
