@@ -444,6 +444,10 @@ Term_p do_eta_expand_db(TB_p bank, Term_p t)
    {
       if(TermHasEtaExpandableSubterm(t->args[1]))
       {
+         fprintf(stderr, "expanding:");
+         TermPrint(stderr, t->args[1], bank->sig, DEREF_NEVER);
+         fprintf(stderr, ".\n");
+
          Term_p new_matrix = do_eta_expand_db(bank, t->args[1]);
          assert(new_matrix != t->args[1]);
          res = TermTopCopy(t);

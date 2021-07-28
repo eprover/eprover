@@ -196,7 +196,7 @@ static Term_p tb_termtop_insert(TB_p bank, Term_p t)
          TermCellSetProp(t, TermCellGiveProps(t->args[i], TPIsBetaReducible));
          TermCellSetProp(t, TermCellGiveProps(t->args[i], TPHasDBSubterm));
          TermCellSetProp(t, TermCellGiveProps(t->args[i], TPHasLambdaSubterm));
-         if(!TermIsPhonyApp(t) || i!=0)
+         if(!(TermIsPhonyApp(t) || TermIsLambda(t)) || i!=0)
          {
             TermCellSetProp(t, TermCellGiveProps(t->args[i], TPHasEtaExpandableSubterm));
          }
