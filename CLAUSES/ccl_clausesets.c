@@ -548,10 +548,10 @@ void ClauseSetPDTIndexedInsert(ClauseSet_p set, Clause_p newclause)
    pos->literal = newclause->literals;
    pos->side    = LeftSide;
    pos->pos     = NULL;
-   PDTreeInsert(set->demod_index, pos);
-   if(TermHasLambdaSubterm(ClausePosGetSide(pos)))
+   if(!PDTreeInsert(set->demod_index, pos))
    {
-      ClausePosCellFree(pos); // not inserted into PDT
+      // not inserted
+      ClausePosCellFree(pos);
    }
    if(!EqnIsOriented(newclause->literals))
    {
@@ -560,10 +560,10 @@ void ClauseSetPDTIndexedInsert(ClauseSet_p set, Clause_p newclause)
       pos->literal = newclause->literals;
       pos->side    = RightSide;
       pos->pos     = NULL;
-      PDTreeInsert(set->demod_index, pos);
-      if(TermHasLambdaSubterm(ClausePosGetSide(pos)))
+      if(!PDTreeInsert(set->demod_index, pos))
       {
-         ClausePosCellFree(pos); // not inserted into PDT
+         // not inserted
+         ClausePosCellFree(pos);
       }
    }
    ClauseSetProp(newclause, CPIsDIndexed);

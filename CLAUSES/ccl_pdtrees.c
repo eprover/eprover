@@ -1045,15 +1045,7 @@ bool PDTreeInsert(PDTree_p tree, ClausePos_p demod_side)
    assert(demod_side);
    term = ClausePosGetSide(demod_side);
    // currently demodulation only on non-lambda terms
-   fprintf(stderr, "before insertion of (%p)", demod_side->clause);
-   TermPrint(stderr, term, tree->bank->sig, DEREF_NEVER);
-   fprintf(stderr, ".\n");
-   PDTreePrint(stderr, tree);
-   fprintf(stderr, "\n");
    bool ans = PDTreeInsertTerm(tree, term, demod_side, true);
-   fprintf(stderr, "after insertion:");
-   PDTreePrint(stderr, tree);
-   fprintf(stderr, "\n");
    return ans;
 }
 
@@ -1083,20 +1075,15 @@ bool PDTreeInsertTerm(PDTree_p tree, Term_p term, ClausePos_p demod_side,
 
    if(TermIsPattern(term))
    {
-      fprintf(stderr, "inserting pattern: ");
       term = LambdaEtaExpandDB(tree->bank, term);
-      TermPrint(stderr, term, tree->bank->sig, DEREF_NEVER);
-      fprintf(stderr, ".\n");
    }
    else
    {
       term = LambdaEtaReduceDB(tree->bank, term);
       if(LFHOL_UNSUPPORTED(term))
       {
-         fprintf(stderr, "failing PDT.\n");
          return false;
       }
-      fprintf(stderr, "inserting LFHOL.\n");
    }
 
    TermLRTraverseInit(tree->term_stack, term);
@@ -1116,10 +1103,6 @@ bool PDTreeInsertTerm(PDTree_p tree, Term_p term, ClausePos_p demod_side,
 
    while(curr)
    {
-      fprintf(stderr, "insertion(curr): ");
-      TermPrint(stderr, curr, tree->bank->sig, DEREF_NEVER);
-      fprintf(stderr, ".\n");
-
       if(TermIsPhonyApp(curr) && !TermIsAppliedFreeVar(curr))
       {
          assert(TermIsDBVar(curr->args[0]));
@@ -1257,12 +1240,6 @@ long PDTreeDelete(PDTree_p tree, Term_p term, Clause_p clause)
          return 0;
       }
    }
-
-   fprintf(stderr, "deleting %p:", clause);
-   TermPrint(stderr, term, tree->bank->sig, DEREF_NEVER);
-   fprintf(stderr, ".\n");
-   PDTreePrint(stderr, tree);
-   fprintf(stderr, ".\n");
 
    TermLRTraverseInit(tree->term_stack, term);
    node = tree->tree;

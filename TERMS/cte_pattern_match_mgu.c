@@ -911,9 +911,6 @@ OracleUnifResult SubstComputeMguPattern(Term_p t1, Term_p t2, Subst_p subst)
    }
    else
    {
-      fprintf(stderr, "subst: ");
-      SubstPrint(stderr, subst, bank->sig, DEREF_NEVER);
-      fprintf(stderr, ".\n");
       assert(TermStructEqualDeref(orig_t1, orig_t2, DEREF_ALWAYS, DEREF_ALWAYS));
    }
    return res;
