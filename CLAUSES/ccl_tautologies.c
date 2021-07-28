@@ -234,7 +234,7 @@ static bool ground_normalize_eqn(Eqn_p eqn, Eqn_p eqns)
    bool res = false, tmp;
    Term_p term, shared;
 
-   term = TermCopy(eqn->lterm, eqn->bank->vars, eqn->bank->db_vars, false);
+   term = TermCopy(eqn->lterm, eqn->bank->vars, eqn->bank->db_vars, DEREF_NEVER);
    tmp  = term_compute_ground_NF(&term, eqns);
    if(tmp)
    {
@@ -244,7 +244,7 @@ static bool ground_normalize_eqn(Eqn_p eqn, Eqn_p eqns)
    }
    TermFree(term);
 
-   term = TermCopy(eqn->rterm, eqn->bank->vars, eqn->bank->db_vars, false);
+   term = TermCopy(eqn->rterm, eqn->bank->vars, eqn->bank->db_vars, DEREF_NEVER);
    tmp  = term_compute_ground_NF(&term, eqns);
    if(tmp)
    {
