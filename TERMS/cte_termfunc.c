@@ -1902,6 +1902,7 @@ bool TermIsDefTerm(Term_p term, int min_arity)
 // Function: TermHasFCode()
 //
 //   Return true if f occurs in term, false otherwise.
+//   NB: DeBruijn variables are ignored.
 //
 // Global Variables: -
 //
@@ -1914,6 +1915,11 @@ bool TermHasFCode(Term_p term, FunCode f)
    int i;
 
    assert(term);
+
+   if(TermIsDBVar(term))
+   {
+      return false;
+   }
 
    if(term->f_code == f)
    {

@@ -316,7 +316,7 @@ Term_p do_rw_with_defs(TB_p terms, Term_p t, IntMap_p def_map,
       {
          PStackPushP(args, new->args[i]);
       }
-      new = snf ? NamedLambdaSNF(terms, ApplyTerms(terms, rhs, args))
+      new = snf ? BetaNormalizeDB(terms, ApplyTerms(terms, rhs, args))
                   : ApplyTerms(terms, rhs, args);
       PTreeStore(used_defs, wform);
       new = do_rw_with_defs(terms, new,
@@ -356,7 +356,6 @@ PTree_p create_sym_map(FormulaSet_p set, IntMap_p sym_def_map)
       Term_p lhs = NULL, rhs = NULL;
       Term_p tform = form->tformula;
 
-
       while(tform->f_code == sig->qall_code && tform->arity == 2)
       {
          tform = tform->args[1];
@@ -380,12 +379,19 @@ PTree_p create_sym_map(FormulaSet_p set, IntMap_p sym_def_map)
       }
 
       PStack_p bvars = PStackAlloc();
-      Term_p lhs_body = UnfoldLambda(lhs,bvars);
-      Term_p rhs_applied = NamedLambdaSNF(bank, ApplyTerms(bank, rhs, bvars));
+      Term_p lhs_body = UnfoldLambda(lhs, bvars);
+      for(long i=0; i<PStackGetSP(bvars); i++)
+      {
+         Type_p ty = ((Term_p)PStackElementP(bvars, i))->type;
+         PStackAssignP(bvars, i, VarBankGetFreshVar(bank->vars, ty));
+      }
+      lhs_body = BetaNormalizeDB(bank, ApplyTerms(bank, lhs, bvars));
+      Term_p rhs_applied = BetaNormalizeDB(bank, ApplyTerms(bank, rhs, bvars));
 
       // now the definition is of the form f @ ..terms.. = \xyz. body
       // and we need to check if terms are distinct variables
-      // and if \terms\xyz.body has no free variables (and if )
+      // and if \terms\xyz.body has no free variables, and if lhs does
+      // not appear in 
       bool is_def = //TypeIsPredicate(lhs->type) &&
                     lhs->f_code > sig->internal_symbols && rhs != bank->true_term;
       PStackReset(bvars);
@@ -408,13 +414,10 @@ PTree_p create_sym_map(FormulaSet_p set, IntMap_p sym_def_map)
          }
       }
 
-      if(is_def)
+      if(is_def && !TermHasFCode(rhs_applied, lhs_body->f_code))
       {
          rhs = AbstractVars(bank, rhs_applied, bvars);
-         PTree_p free_vars = NULL;
-         TFormulaCollectFreeVars(bank, rhs, &free_vars);
-         if(!TermHasFCode(rhs_applied, lhs_body->f_code) &&
-            PTreeNodes(free_vars) == 0)
+         if(TermIsGround(rhs))
          {
             lhs = TermTopAlloc(lhs_body->f_code, 0);
 #ifdef NDEBUG
@@ -431,7 +434,6 @@ PTree_p create_sym_map(FormulaSet_p set, IntMap_p sym_def_map)
 
             PTreeStore(&recognized_definitions, form);
          }
-         PTreeFree(free_vars);
       }
 
       for(PStackPointer i=0; i<PStackGetSP(bvars); i++)
@@ -1383,13 +1385,13 @@ long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive,
    //printf("# Ite done\n");
    TFormulaSetLiftLets(set, archive, terms);
    //printf("# Let done\n");
+   TFormulaSetNamedToDBLambdas(set, archive, terms);
    TFormulaSetUnfoldLogSymbols(set, archive, terms);
    if (lift_lambdas)
    {
       TFormulaSetLambdaNormalize(set, archive, terms);
       TFormulaSetLiftLambdas(set, archive, terms);
    }
-   TFormulaSetNamedToDBLambdas(set, archive, terms);
    TFormulaSetUnrollFOOL(set, archive, terms);
    //printf("# Fool unrolled\n");
    FormulaSetSimplify(set, terms);
@@ -1920,7 +1922,7 @@ long TFormulaSetLambdaNormalize(FormulaSet_p set, FormulaSet_p archive, TB_p ter
    {
       for(WFormula_p form = set->anchor->succ; form!=set->anchor; form=form->succ)
       {
-         TFormula_p handle = LambdaToForall(terms, NamedLambdaSNF(terms, form->tformula));
+         TFormula_p handle = LambdaToForall(terms, BetaNormalizeDB(terms, form->tformula));
 
          if(handle!=form->tformula)
          {
@@ -1958,6 +1960,7 @@ long TFormulaSetUnfoldLogSymbols(FormulaSet_p set, FormulaSet_p archive, TB_p te
    long res = 0;
    if(problemType == PROBLEM_HO)
    {
+      VarBankSetVCountsToUsed(terms->vars);
       IntMap_p sym_def_map = IntMapAlloc();
       PTree_p def_wforms = create_sym_map(set, sym_def_map);
       intersimplify_definitions(terms, sym_def_map);
@@ -1970,7 +1973,7 @@ long TFormulaSetUnfoldLogSymbols(FormulaSet_p set, FormulaSet_p archive, TB_p te
             int max_steps = MAX_RW_STEPS;
             TFormula_p handle = do_rw_with_defs(terms, form->tformula,
                                                 sym_def_map, &used_defs, 
-                                                &max_steps, false);
+                                                &max_steps, true);
 
             if(handle!=form->tformula)
             {

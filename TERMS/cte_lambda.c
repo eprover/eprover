@@ -725,6 +725,69 @@ Term_p do_named_to_db(TB_p bank, Term_p t, long depth)
 
 /*-----------------------------------------------------------------------
 //
+// Function: replace_bvars()
+//
+//   Assuming free variables are bound to DB variables
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+Term_p replace_fvars (TB_p bank, Term_p t, long depth)
+{
+   if(TermIsGround(t))
+   {
+      return t;
+   }
+   else if(TermIsFreeVar(t))
+   {
+      if(t->binding)
+      {
+         return depth==0 ? t->binding :
+                 RequestDBVar(bank->db_vars, t->type, t->binding->f_code+depth);
+      }
+      else
+      {
+         return t;
+      }
+   }
+   else if(TermIsLambda(t))
+   {
+      Term_p new_matrix = replace_fvars(bank, t->args[1], depth+1);
+      if(new_matrix != t->args[1])
+      {
+         return CloseWithDBVar(bank, t->args[0]->type, new_matrix);
+      }
+      else
+      {
+         return t;
+      }
+   }
+   else
+   {
+      Term_p copy = TermTopCopy(t);
+      bool changed = false;
+      for(long i=0; i<t->arity; i++)
+      {
+         copy->args[i] = replace_fvars(bank, t->args[i], depth);
+         changed = changed || copy->args[i] != t->args[i];
+      }
+      if(changed)
+      {
+         return TBTermTopInsert(bank, copy);
+      }
+      else
+      {
+         TermTopFree(copy);
+         return t;
+      }
+   }
+}
+
+/*-----------------------------------------------------------------------
+//
 // Function: reduce_head()
 //
 //   Reduces all heading reducible lambda binders
@@ -969,6 +1032,42 @@ Term_p ShiftDB(TB_p bank, Term_p term, int shift_val)
       return do_shift_db(bank, term, shift_val, 0);
    }
 }
+
+/*-----------------------------------------------------------------------
+//
+// Function: AbstractVars()
+//
+//   Abstract var_prefix over matrix. Variable at the top of the stack 
+//   is the first one to abstract. Empties but does not delete the
+//   stack and represents everything as DB lambdas.
+//
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+Term_p AbstractVars(TB_p terms, Term_p matrix, PStack_p var_prefix)
+{
+   Subst_p subst = SubstAlloc();
+   for(long i=PStackGetSP(var_prefix)-1; i>=0; i--)
+   {
+      Term_p v = PStackElementP(var_prefix, i);
+      assert(v->binding == NULL);
+      SubstAddBinding(subst, v, 
+         RequestDBVar(terms->db_vars, v->type, PStackGetSP(var_prefix)-i-1));
+   }
+   matrix = replace_fvars(terms, matrix, 0);
+   while(!PStackEmpty(subst))
+   {
+      matrix = 
+         CloseWithDBVar(terms, ((Term_p)PStackPopP(subst))->type, matrix);
+   }
+   SubstDelete(subst);
+   return matrix;
+}
+
 
 /*-----------------------------------------------------------------------
 //

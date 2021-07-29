@@ -862,8 +862,14 @@ static Term_p lambda_eq_to_forall(TB_p terms, Term_p t)
 
          PStack_p more_vars = PStackGetSP(lhs_vars) > PStackGetSP(rhs_vars) ?
                               lhs_vars : rhs_vars;
-         Term_p lhs = NamedLambdaSNF(terms, ApplyTerms(terms, t->args[0], more_vars));
-         Term_p rhs = NamedLambdaSNF(terms, ApplyTerms(terms, t->args[1], more_vars));
+         PStack_p fresh_vars = PStackAlloc();
+         for(long i=0; i<PStackGetSP(more_vars); i++)
+         {
+            Term_p db = PStackElementP(more_vars, i);
+            PStackPushP(fresh_vars, VarBankGetFreshVar(terms->vars, db->type));
+         }
+         Term_p lhs = NamedLambdaSNF(terms, ApplyTerms(terms, t->args[0], fresh_vars));
+         Term_p rhs = NamedLambdaSNF(terms, ApplyTerms(terms, t->args[1], fresh_vars));
          if(lhs->type == sig->type_bank->bool_type)
          {
             
@@ -880,13 +886,14 @@ static Term_p lambda_eq_to_forall(TB_p terms, Term_p t)
 
          bool universal = t->f_code == sig->eqn_code 
                            || t->f_code == sig->equiv_code;
-         while(!PStackEmpty(more_vars))
+         while(!PStackEmpty(fresh_vars))
          {
-            t = TFormulaAddQuantor(terms, t, universal, PStackPopP(more_vars));
+            t = TFormulaAddQuantor(terms, t, universal, PStackPopP(fresh_vars));
          }
 
          PStackFree(lhs_vars);
          PStackFree(rhs_vars);
+         PStackFree(fresh_vars);
       }
    }
    return t;
@@ -1022,6 +1029,69 @@ void store_lifting(PDTree_p liftings, Term_p def_head, Term_p body, WFormula_p d
 
 /*-----------------------------------------------------------------------
 //
+// Function: store_lifting()
+//
+//   Renames every loosely bound DB variable (>= depth) to a fresh
+//   free variable using db_map. NB: Each fresh free variable
+//   is bound back to corresponding loosely bound DB (- depth).
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+Term_p unbind_loose(TB_p terms, IntMap_p db_map, long depth, Term_p t)
+{
+   assert(!TermIsLambda(t));
+   Term_p res;
+   if(!TermHasDBSubterm(t))
+   {
+      res = t;
+   }
+   else if (TermIsDBVar(t))
+   {
+      if(t->f_code < depth)
+      {
+         res = t;
+      }
+      else
+      {
+         Term_p* fvar_ref = (Term_p*)IntMapGetRef(db_map, t->f_code);
+         if(!*fvar_ref)
+         {
+            *fvar_ref = VarBankGetFreshVar(terms->vars, t->type);
+            (*fvar_ref)->binding = 
+               RequestDBVar(terms->db_vars, t->type, t->f_code-depth);
+         }
+         assert ((*fvar_ref)->type == t->type);
+         res = *fvar_ref;
+      }
+   }
+   else
+   {
+      res = TermTopCopy(t);
+      bool changed = false;
+      for(long i=0; i<res->arity; i++)
+      {
+         res->args[i] = unbind_loose(terms, db_map, depth, t->args[i]);
+         changed = changed || res->args[i] != t->args[i];
+      }
+
+      if(changed)
+      {
+         res = TBTermTopInsert(terms, res);
+      }
+      else
+      {
+         TermTopFree(res);
+         res = t;
+      }
+   }
+   return res;
+}
+
+/*-----------------------------------------------------------------------
+//
 // Function: lift_lambda()
 //
 //   Convert lambda term: ^[...bound vars...]:s[...free vars...]
@@ -1036,77 +1106,91 @@ void store_lifting(PDTree_p liftings, Term_p def_head, Term_p body, WFormula_p d
 Term_p lift_lambda(TB_p terms, PStack_p bound_vars, Term_p body, 
                    PStack_p definitions, PDTree_p liftings)
 {
-   Term_p res;
-   WFormula_p generalization = 
-      find_generalization(liftings,
-                          AbstractVars(terms, body, bound_vars),
-                          &res);
-   if(generalization)
+   PTree_p free_vars = NULL;
+   TFormulaCollectFreeVars(terms, body, &free_vars);
+   PStack_p free_var_stack = PStackAlloc();
+   PTreeToPStack(free_var_stack, free_vars);
+   PTreeFree(free_vars);
+
+   PStack_p bound_to_fresh = PStackAlloc();
+   for(long i=0; i<PStackGetSP(bound_vars); i++)
    {
-      PStackPushP(definitions, generalization);
+      Type_p fresh_ty = ((Term_p)PStackElementP(bound_vars,i))->type;
+      PStackPushP(bound_to_fresh, VarBankGetFreshVar(terms->vars, fresh_ty));
+   }
+
+   IntMap_p loosely_bound_to_fresh = IntMapAlloc();
+   Term_p body_no_loose = 
+      unbind_loose(terms, loosely_bound_to_fresh, PStackGetSP(bound_vars), body);
+   Term_p closed = body_no_loose;
+   for(long i=PStackGetSP(bound_vars)-1; i>=0; i--)
+   {
+      closed = 
+         CloseWithDBVar(terms, ((Term_p)PStackElementP(bound_vars, i))->type,
+                        closed);
+   }
+
+   PStack_p lb_stack_fresh_vars = PStackAlloc();
+   PStack_p lb_stack_db_vars = PStackAlloc();
+   long dummy;
+   Term_p var;
+   IntMapIter_p iter =  IntMapIterAlloc(loosely_bound_to_fresh, 0, LONG_MAX);
+   while((var = IntMapIterNext(iter, &dummy)))
+   {
+      PStackPushP(lb_stack_fresh_vars, var);
+      PStackPushP(lb_stack_db_vars, var->binding);
+      var->binding=NULL;
+   }
+   IntMapIterFree(iter);
+   IntMapFree(loosely_bound_to_fresh);
+
+   Type_p lift_sym_ty_args[PStackGetSP(lb_stack_db_vars)+1];
+   for(long i=0; i<PStackGetSP(lb_stack_db_vars); i++)
+   {
+      lift_sym_ty_args[i] = ((Term_p)PStackElementP(lb_stack_db_vars,i))->type;
+   }
+   lift_sym_ty_args[PStackGetSP(lb_stack_db_vars)] = closed->type;
+   Type_p res_ty = 
+      TypeBankInsertTypeShared(terms->sig->type_bank,
+         AllocArrowType(PStackGetSP(lb_stack_db_vars)+1, lift_sym_ty_args));
+   
+   Term_p def_head =  TermAllocNewSkolem(terms->sig, free_var_stack, res_ty);
+   def_head = TBTermTopInsert(terms, def_head);
+   
+   Term_p repl_t = ApplyTerms(terms, def_head, lb_stack_db_vars);
+   Term_p repl_lhs = 
+      ApplyTerms(terms,
+         ApplyTerms(terms, def_head, lb_stack_fresh_vars), bound_to_fresh);
+   Term_p repl_rhs = WHNF_step(terms, ApplyTerms(terms, closed, bound_to_fresh));
+
+   TFormula_p def_f;
+   if(TypeIsBool(body->type))
+   {
+      def_f = TFormulaFCodeAlloc(terms, terms->sig->equiv_code, 
+                              EncodePredicateAsEqn(terms, repl_lhs),
+                              EncodePredicateAsEqn(terms, repl_rhs));
    }
    else
    {
-      PTree_p free_vars_tree = NULL;
-      PStack_p free_vars = PStackAlloc();
-      PStack_p all_vars = PStackAlloc();
-      TFormulaCollectFreeVars(terms, body, &free_vars_tree);
-
-      for(int i=0; i<PStackGetSP(bound_vars); i++)
-      {
-         PTreeDeleteEntry(&free_vars_tree, PStackElementP(bound_vars, i));
-      }
-
-      PTreeToPStack(free_vars, free_vars_tree);
-      PTreeFree(free_vars_tree);
-      for(int i=0; i<PStackGetSP(free_vars); i++)
-      {
-         PStackPushP(all_vars, PStackElementP(free_vars, i));
-      }
-      for(int i=0; i<PStackGetSP(bound_vars); i++)
-      {
-         PStackPushP(all_vars, PStackElementP(bound_vars, i));
-      }
-
-      Term_p def_head =  TermAllocNewSkolem(terms->sig, all_vars, body->type);
-      def_head = TBTermTopInsert(terms, def_head);
-      res = TermTopAlloc(def_head->f_code, PStackGetSP(free_vars));
-      for(int i=0; i < PStackGetSP(free_vars); i++)
-      {
-         res->args[i] = PStackElementP(free_vars, i);
-      }
-      res = TBTermTopInsert(terms, res);
-      assert(def_head->type == body->type);
-
-      TFormula_p def_f;
-      if(body->type == terms->sig->type_bank->bool_type)
-      {
-         def_f = TFormulaFCodeAlloc(terms, terms->sig->equiv_code, 
-                                 EncodePredicateAsEqn(terms, def_head),
-                                 EncodePredicateAsEqn(terms, body));
-      }
-      else
-      {
-         def_f = TFormulaFCodeAlloc(terms, terms->sig->eqn_code, def_head, body);
-      }
-      
-      for(PStackPointer i=0; i<PStackGetSP(all_vars); i++)
-      {
-         def_f = TFormulaAddQuantor(terms, def_f, true,
-                                    PStackElementP(all_vars, i));
-      }
-
-      WFormula_p def = WTFormulaAlloc(terms, def_f);
-      DocFormulaCreationDefault(def, inf_fof_intro_def, NULL, NULL);
-      WFormulaPushDerivation(def, DCIntroDef, NULL, NULL);
-      store_lifting(liftings, res, AbstractVars(terms, body, bound_vars), def);
-
-      PStackPushP(definitions, def);
-
-      PStackFree(free_vars);
-      PStackFree(all_vars);
+      def_f = TFormulaFCodeAlloc(terms, terms->sig->eqn_code, repl_lhs, repl_rhs);
    }
-   return res;
+   
+   for(long i=0; i<repl_lhs->arity; i++)
+   {
+      def_f = TFormulaAddQuantor(terms, def_f, true, repl_lhs->args[i]);
+   }
+
+   WFormula_p def = WTFormulaAlloc(terms, def_f);
+   DocFormulaCreationDefault(def, inf_fof_intro_def, NULL, NULL);
+   WFormulaPushDerivation(def, DCIntroDef, NULL, NULL);
+
+   PStackPushP(definitions, def);
+
+   PStackFree(free_var_stack);
+   PStackFree(bound_to_fresh);
+   PStackFree(lb_stack_fresh_vars);
+   PStackFree(lb_stack_db_vars);
+   return repl_t;
 }
 
 /*---------------------------------------------------------------------*/
@@ -2409,6 +2493,7 @@ TFormula_p LiftLambdas(TB_p terms, TFormula_p t, PStack_p definitions, PDTree_p 
 
 TFormula_p LambdaToForall(TB_p terms, TFormula_p t)
 {
+   VarBankSetVCountsToUsed(terms->vars);
    return TermMap(terms, t, lambda_eq_to_forall);
 }
 
