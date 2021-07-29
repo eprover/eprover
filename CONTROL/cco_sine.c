@@ -375,6 +375,7 @@ void StructFOFSpecFree(StructFOFSpec_p ctrl)
    while(!PStackEmpty(ctrl->clause_sets))
    {
       cset = PStackPopP(ctrl->clause_sets);
+      fprintf(stderr, "freeing: %p\n", cset);
       ClauseSetFree(cset);
    }
    PStackFree(ctrl->clause_sets);
@@ -382,6 +383,7 @@ void StructFOFSpecFree(StructFOFSpec_p ctrl)
    while(!PStackEmpty(ctrl->formula_sets))
    {
       fset = PStackPopP(ctrl->formula_sets);
+      fprintf(stderr, "freeing: %p\n", fset);
       FormulaSetFree(fset);
    }
    PStackFree(ctrl->formula_sets);
@@ -582,14 +584,21 @@ long ProofStateSinE(ProofState_p state, char* fname)
 
    /* The following moves the responsibility for the sets into the spec! */
    StructFOFSpecAddProblem(spec, state->axioms, state->f_axioms);
+   fprintf(stderr, "formula set num before deletion: %ld, %ld\n", 
+      PTreeNodes(state->gc_terms->formula_sets), PTreeNodes(state->gc_terms->clause_sets));
    GCDeregisterFormulaSet(state->gc_terms, state->f_axioms);
    GCDeregisterClauseSet(state->gc_terms, state->axioms);
+   fprintf(stderr, "formula set num after deletion: %ld, %ld\n", 
+      PTreeNodes(state->gc_terms->formula_sets), PTreeNodes(state->gc_terms->clause_sets));
 
    /* ...so we need to povide fresh, empty axioms sets */
    state->axioms   = ClauseSetAlloc();
    state->f_axioms = FormulaSetAlloc();
    GCRegisterFormulaSet(state->gc_terms, state->f_axioms);
    GCRegisterClauseSet(state->gc_terms, state->axioms);
+   fprintf(stderr, "formula set num after insertion: %ld, %ld\n",
+      PTreeNodes(state->gc_terms->formula_sets), PTreeNodes(state->gc_terms->clause_sets));
+
 
    StructFOFSpecInitDistrib(spec);
    StructFOFSpecGetProblem(spec,
@@ -611,6 +620,11 @@ long ProofStateSinE(ProofState_p state, char* fname)
 
    axno = ClauseSetCardinality(state->axioms)+
       FormulaSetCardinality(state->f_axioms);
+
+   //fprintf(stderr, "removed %ld\n", axno_orig - axno);   
+   fprintf(stderr, "formula set num at the end: %ld, %ld\n",
+      PTreeNodes(state->gc_terms->formula_sets), PTreeNodes(state->gc_terms->clause_sets));
+
 
    return axno_orig-axno;
 }

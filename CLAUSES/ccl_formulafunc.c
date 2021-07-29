@@ -1378,8 +1378,11 @@ long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive,
    long old_nodes = TBNonVarTermNodes(terms);
    long gc_threshold = old_nodes*TFORMULA_GC_LIMIT;
 
+   //printf("# Start\n");
    TFormulaSetLiftItes(set, archive, terms);
+   //printf("# Ite done\n");
    TFormulaSetLiftLets(set, archive, terms);
+   //printf("# Let done\n");
    TFormulaSetUnfoldLogSymbols(set, archive, terms);
    if (lift_lambdas)
    {
@@ -1388,12 +1391,12 @@ long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive,
    }
    TFormulaSetNamedToDBLambdas(set, archive, terms);
    TFormulaSetUnrollFOOL(set, archive, terms);
-   // printf("# Simplify\n");
+   //printf("# Fool unrolled\n");
    FormulaSetSimplify(set, terms);
 
-   // printf("# Introducing definitions\n");
+   //printf("# Introducing definitions\n");
    TFormulaSetIntroduceDefs(set, archive, terms);
-   // printf("# Definitions introduced\n");
+   //printf("# Definitions introduced\n");
 
    while(!FormulaSetEmpty(set))
    {
@@ -1518,8 +1521,10 @@ long FormulaAndClauseSetParse(Scanner_p in, FormulaSet_p fset,
             }
             else
             {
+               // printf("Parsing begins\n");
                if(TestInpId(in, "input_formula|fof|tff|thf|tcf"))
                {
+                  // printf("It's a formula\n");
                   form = WFormulaParse(in, terms);
                   // fprintf(stdout, "Parsed: ");
                   // WFormulaPrint(stdout, form, true);

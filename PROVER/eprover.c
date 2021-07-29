@@ -166,6 +166,7 @@ ProofState_p parse_spec(CLState_p state,
                                NULL,
                                &skip_includes);
       // exit(-1);
+      //printf("Set complete\n");
       CheckInpTok(in, NoToken);
       DestroyScanner(in);
    }
@@ -185,6 +186,7 @@ ProofState_p parse_spec(CLState_p state,
    }
    *ax_no = parsed_ax_no;
 
+   //printf("Returning set\n");
    return proofstate;
 }
 
@@ -423,7 +425,6 @@ int main(int argc, char* argv[])
    relevancy_pruned += ProofStateSinE(proofstate, sine);
    relevancy_pruned += ProofStateRelevancyProcess(proofstate,
                                                   relevance_prune_level);
-
    if(app_encode)
    {
       FormulaSetAppEncode(stdout, proofstate->f_axioms);
