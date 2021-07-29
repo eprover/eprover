@@ -868,8 +868,8 @@ static Term_p lambda_eq_to_forall(TB_p terms, Term_p t)
             Term_p db = PStackElementP(more_vars, i);
             PStackPushP(fresh_vars, VarBankGetFreshVar(terms->vars, db->type));
          }
-         Term_p lhs = NamedLambdaSNF(terms, ApplyTerms(terms, t->args[0], fresh_vars));
-         Term_p rhs = NamedLambdaSNF(terms, ApplyTerms(terms, t->args[1], fresh_vars));
+         Term_p lhs = BetaNormalizeDB(terms, ApplyTerms(terms, t->args[0], fresh_vars));
+         Term_p rhs = BetaNormalizeDB(terms, ApplyTerms(terms, t->args[1], fresh_vars));
          if(lhs->type == sig->type_bank->bool_type)
          {
             
