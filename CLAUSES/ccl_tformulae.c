@@ -1144,15 +1144,23 @@ Term_p lift_lambda(TB_p terms, PStack_p bound_vars, Term_p body,
    IntMapIterFree(iter);
    IntMapFree(loosely_bound_to_fresh);
 
-   Type_p lift_sym_ty_args[PStackGetSP(lb_stack_db_vars)+1];
-   for(long i=0; i<PStackGetSP(lb_stack_db_vars); i++)
+   Type_p res_ty;
+   if(!PStackEmpty(lb_stack_db_vars))
    {
-      lift_sym_ty_args[i] = ((Term_p)PStackElementP(lb_stack_db_vars,i))->type;
+      Type_p* lift_sym_ty_args = TypeArgArrayAlloc(PStackGetSP(lb_stack_db_vars)+1);
+      for(long i=0; i<PStackGetSP(lb_stack_db_vars); i++)
+      {
+         lift_sym_ty_args[i] = ((Term_p)PStackElementP(lb_stack_db_vars,i))->type;
+      }
+      lift_sym_ty_args[PStackGetSP(lb_stack_db_vars)] = closed->type;
+      res_ty = 
+         TypeBankInsertTypeShared(terms->sig->type_bank,
+            AllocArrowType(PStackGetSP(lb_stack_db_vars)+1, lift_sym_ty_args));
    }
-   lift_sym_ty_args[PStackGetSP(lb_stack_db_vars)] = closed->type;
-   Type_p res_ty = 
-      TypeBankInsertTypeShared(terms->sig->type_bank,
-         AllocArrowType(PStackGetSP(lb_stack_db_vars)+1, lift_sym_ty_args));
+   else
+   {
+      res_ty = closed->type;
+   }
    
    Term_p def_head =  TermAllocNewSkolem(terms->sig, free_var_stack, res_ty);
    def_head = TBTermTopInsert(terms, def_head);

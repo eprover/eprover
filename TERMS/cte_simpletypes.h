@@ -78,7 +78,8 @@ Type_p  GetReturnSort(Type_p type);
 Type_p  TypeCopy(Type_p orig);
 
 #define AllocSimpleSort(code)       TypeAlloc((code), 0, NULL)
-#define AllocArrowType(arity, args) TypeAlloc(ArrowTypeCons, (arity), (args))
+#define AllocArrowType(arity, args) ((assert((arity) > 0)),\
+   ((arity) == 1 ? (args)[0] : TypeAlloc(ArrowTypeCons, (arity), (args))))
 
 #define TypeArgArrayAlloc(n) ((Type_p*) ((n) == 0 ? NULL : SizeMalloc((n)*sizeof(Type_p))))
 #define TypeArgArrayFree(junk, n) (((n)==0) ? NULL : ( SizeFreeReal((junk),((n)*sizeof(Type_p))) ))
