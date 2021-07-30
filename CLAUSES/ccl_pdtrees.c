@@ -520,7 +520,12 @@ static void pdtree_forward(PDTree_p tree, Subst_p subst)
    }
    else if(TermIsPhonyApp(term) && !TermIsAppliedFreeVar(term))
    {
-      assert(TermIsDBVar(term->args[0]));
+      if(!TermIsDBVar(term->args[0]))
+      {
+         fprintf(stderr, "violation: ");
+         TermPrintDbg(stderr, term, tree->bank->sig, DEREF_NEVER);
+         assert(false);
+      }
       term = TermLRTraverseNext(tree->term_stack);
       PStackPushP(tree->term_proc, term);
    }

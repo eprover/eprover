@@ -1037,6 +1037,47 @@ Derived_p DerivedAlloc(void)
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: DerivationStackPCLPrint()
+//
+//   Print a very short description of the derivation for debug 
+//   purposes.
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+void DerivationDebugPrint(FILE* out, PStack_p derivation)
+{
+   if(derivation)
+   {
+      PStackPointer sp = PStackGetSP(derivation);
+      PStackPointer i  = 0;
+      DerivationCode op;
+      while(i<sp)
+      {
+         op = PStackElementInt(derivation, i);
+         i++;
+         if(DCOpHasArg1(op))
+         {
+            i++;
+         }
+         if(DCOpHasArg2(op))
+         {
+            i++;
+         }
+         fprintf(out, "%s%s", opids[DPOpGetOpCode(op)], i==sp?"":",");
+      }
+   }
+   else
+   {
+      fprintf(out, " - ");
+   }
+}
+
 
 /*-----------------------------------------------------------------------
 //

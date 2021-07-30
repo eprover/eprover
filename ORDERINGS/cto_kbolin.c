@@ -836,29 +836,6 @@ CompareResult KBO6Compare(OCB_p ocb, Term_p s, Term_p t,
 
    kbo6reset(ocb);
 
-   PTree_p fvars = NULL;
-   TFormulaCollectFreeVars(TermGetBank(t), t, &fvars);
-   TFormulaCollectFreeVars(TermGetBank(s), s, &fvars);
-
-   PStack_p iter = PTreeTraverseInit(fvars);
-   PTree_p node;
-   while((node = PTreeTraverseNext(iter)))
-   {
-      Term_p var = node->key;
-      if(var->binding)
-      {
-         if((deref_s == DEREF_ALWAYS || deref_t == DEREF_ALWAYS)
-            && TermHasFCode(var->binding, var->f_code))
-         {
-            TermPrint(stderr, var, ocb->sig, DEREF_NEVER);
-            fprintf(stderr, " : ");
-            TermPrint(stderr, var->binding, ocb->sig, DEREF_NEVER);
-            assert(false);
-         }
-      }
-   }
-   PStackFree(iter);
-
 #ifdef ENABLE_LFHO
    res = problemType == PROBLEM_HO ?
             kbolincmp_ho(ocb, s, t, deref_s, deref_t)

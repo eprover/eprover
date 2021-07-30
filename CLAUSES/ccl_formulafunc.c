@@ -892,9 +892,9 @@ TFormula_p do_bool_eqn_replace(TFormula_p form, TB_p terms)
       return form;
    }
 
-   if(form->f_code == sig->eqn_code || form->f_code == sig->neqn_code)
+   if((form->f_code == sig->eqn_code || form->f_code == sig->neqn_code) 
+       && form->arity == 2)
    {
-      assert(form->arity == 2);
       if(!TermIsFreeVar(form->args[0]) && !TermIsFreeVar(form->args[1]) &&
          SigIsLogicalSymbol(terms->sig, form->args[0]->f_code) &&
          SigIsLogicalSymbol(terms->sig, form->args[1]->f_code) &&
@@ -1927,6 +1927,8 @@ long TFormulaSetLambdaNormalize(FormulaSet_p set, FormulaSet_p archive, TB_p ter
 
          if(handle!=form->tformula)
          {
+            assert(!TermIsBetaReducible(handle));
+
             form->tformula = handle;
             DocFormulaModificationDefault(form, inf_fof_simpl);
             WFormulaPushDerivation(form, DCFofSimplify, NULL, NULL);
@@ -2061,8 +2063,13 @@ long TFormulaSetLiftLambdas(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
       for(WFormula_p form = set->anchor->succ; form!=set->anchor; form=form->succ)
       {
          TFormula_p handle = LiftLambdas(terms, form->tformula, defs, liftings);
+         fprintf(stderr,"lift: ");
+         TermPrintDbgHO(stderr, form->tformula, terms->sig, DEREF_NEVER);
          if(handle!=form->tformula)
          {
+            fprintf(stderr,"\nres:");
+            TermPrintDbgHO(stderr, handle, terms->sig, DEREF_NEVER);
+
             form->tformula = handle;
             while(!(PStackEmpty(defs)))
             {
@@ -2072,6 +2079,7 @@ long TFormulaSetLiftLambdas(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
                res++;
             }
          }
+         fprintf(stderr,"\n");
       }
 
       PTreeVisitInOrder(all_defs, insert_to_set, set);

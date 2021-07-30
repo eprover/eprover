@@ -765,7 +765,7 @@ void TermPrintDbgHO(FILE* out, Term_p term, Sig_p sig, DerefType deref)
       // assert(term->arity == 0);
       fprintf(out, "db(%ld)", term->f_code);
    }
-   else if(!TermIsTopLevelFreeVar(term))
+   else if(!TermIsFreeVar(term))
    {
       fputs(SigFindName(sig, term->f_code), out);
    }
@@ -775,7 +775,7 @@ void TermPrintDbgHO(FILE* out, Term_p term, Sig_p sig, DerefType deref)
    }
 
 
-   for(int i = TermIsAppliedFreeVar(term) ? 1 : 0; i < term->arity; ++i)
+   for(int i = 0; i < term->arity; ++i)
    {
 #ifdef PRINT_AT
       fputs(" @ ", out);

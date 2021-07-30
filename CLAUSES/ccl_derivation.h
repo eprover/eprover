@@ -266,6 +266,7 @@ void DerivedSetInProof(Derived_p derived, bool in_proof);
 
 void DerivationStackPCLPrint(FILE* out, Sig_p sig, PStack_p derivation);
 void DerivationStackTSTPPrint(FILE* out, Sig_p sig, PStack_p derivation);
+void DerivationDebugPrint(FILE* out, PStack_p derivation);
 
 void DerivedPCLPrint(FILE* out, Sig_p sig, Derived_p derived);
 void DerivedTSTPPrint(FILE* out, Sig_p sig, Derived_p derived);

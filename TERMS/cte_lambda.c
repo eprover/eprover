@@ -8,7 +8,7 @@
 
   Functions that implement main operations of lambda calculus
 
-  Copyright 1998-2018 by the author.
+  Copyright 1998-2021 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
@@ -61,7 +61,7 @@ Term_p drop_args(TB_p bank, Term_p t, long args_to_drop)
    Term_p res = NULL;
    assert(args_to_drop >= 0);
    assert(args_to_drop <= t->arity);
-   assert(!TermIsPhonyApp(t) || args_to_drop < t->arity);
+   assert(!TermIsPhonyApp(t) || args_to_drop <= t->arity -1);
    if(args_to_drop == 0)
    {
       res = t;
@@ -590,7 +590,7 @@ Term_p do_beta_normalize_db(TB_p bank, Term_p t)
    {
       res = WHNF_step(bank, t);
    }
-   else if (t->arity == 0 || TermIsBetaReducible(t))
+   else if (t->arity == 0 || !TermIsBetaReducible(t))
    {
       res = t; // optimization
    }
@@ -1099,6 +1099,7 @@ Term_p BetaNormalizeDB(TB_p bank, Term_p term)
          res = res->args[0];
       }
    }
+   assert(!TermIsBetaReducible(res));
    return res;
 }
 

@@ -480,7 +480,7 @@ Term_p term_apply_arg(TypeBank_p tb, Term_p s, Term_p arg)
    assert(s->type->args[0] == arg->type);
    
    Term_p s_arg = NULL;
-   if (UNLIKELY(!TermIsAnyVar(s)))
+   if ((!TermIsAnyVar(s) && !TermIsLambda(s)))
    {
       s_arg = TermTopAlloc(s->f_code, s->arity+1);
       for(int i=0; i<s->arity; i++)

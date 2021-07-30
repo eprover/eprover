@@ -238,8 +238,9 @@ void TypeInferSort(Sig_p sig, Term_p term, Scanner_p in)
       }
       else if(TermIsLambda(term))
       {
+         assert(term->f_code != SIG_DB_LAMBDA_CODE || TermIsDBVar(term->args[0]));
+         assert(term->f_code != SIG_NAMED_LAMBDA_CODE || TermIsFreeVar(term->args[0]));
          // types have to be inferred only during parsing
-         assert(term->f_code == SIG_NAMED_LAMBDA_CODE);
          assert(term->arity == 2);
          // type of lambda is 'type of variable' -> 'type of body'
          term->type =
