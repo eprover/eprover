@@ -1144,7 +1144,7 @@ Term_p lift_lambda(TB_p terms, PStack_p bound_vars, Term_p body,
    IntMapIterFree(iter);
    IntMapFree(loosely_bound_to_fresh);
 
-   Type_p lift_sym_ty_args[PStackGetSP(lb_stack_db_vars)+1];
+   Type_p* lift_sym_ty_args = TypeArgArrayAlloc(PStackGetSP(lb_stack_db_vars)+1);
    for(long i=0; i<PStackGetSP(lb_stack_db_vars); i++)
    {
       lift_sym_ty_args[i] = ((Term_p)PStackElementP(lb_stack_db_vars,i))->type;
