@@ -129,7 +129,7 @@ Term_p solve_flex_rigid(TB_p bank, Term_p s_var, IntMap_p db_map, Term_p t,
       }
       else
       {
-         res = s_var;
+         res = t;
       }
    }
    else if (TermIsDBVar(t))
@@ -297,6 +297,19 @@ OracleUnifResult flex_rigid(TB_p bank, Term_p s, Term_p t, Subst_p subst)
    if(!s)
    {
       res = NOT_IN_FRAGMENT;
+   }
+   // all three functions are implemented very efficiently
+   // optmization to make algorithm more like FO one
+   else if(TermIsFreeVar(s) && TermIsPattern(t) && TermIsDBClosed(t))
+   {
+      if(OccurCheck(t, s))
+      {
+         res = NOT_UNIFIABLE;
+      }
+      else
+      {
+         SubstAddBinding(subst, s, t);
+      }
    }
    else
    {
@@ -758,7 +771,7 @@ OracleUnifResult match_var(TB_p bank, Subst_p subst,
    {
       if(TermIsDBClosed(to_match))
       {
-         matcher->binding = to_match;
+         SubstAddBinding(subst, matcher, to_match);
          return UNIFIABLE;
       }
       else

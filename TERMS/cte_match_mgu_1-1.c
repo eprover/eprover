@@ -89,7 +89,7 @@ static __inline__ bool reorientation_needed(Term_p t1, Term_p t2)
 
 /*-----------------------------------------------------------------------
 //
-// Function: occur_check()
+// Function: OccurCheck()
 //
 //   Occur check for variables, possibly more efficient than the
 //   general TermIsSubterm()
@@ -100,7 +100,7 @@ static __inline__ bool reorientation_needed(Term_p t1, Term_p t2)
 //
 /----------------------------------------------------------------------*/
 
-static bool occur_check(restrict Term_p term, restrict Term_p var)
+bool OccurCheck(restrict Term_p term, restrict Term_p var)
 {
    term = TermDerefAlways(term);
 
@@ -111,7 +111,7 @@ static bool occur_check(restrict Term_p term, restrict Term_p var)
 
    for(int i=0; i < term->arity; i++)
    {
-      if(occur_check(term->args[i], var))
+      if(OccurCheck(term->args[i], var))
       {
          return true;
       }
@@ -190,7 +190,7 @@ int PartiallyMatchVar(Term_p var_matcher, Term_p to_match, Sig_p sig,
    {
       for(int i=0; i<args_to_eat + TermIsAppliedFreeVar(to_match) ? 1 : 0; i++)
       {
-         if(occur_check(to_match->args[i], var_matcher))
+         if(OccurCheck(to_match->args[i], var_matcher))
          {
             return MATCH_FAILED;
          }
@@ -511,7 +511,7 @@ bool SubstComputeMgu(Term_p t1, Term_p t2, Subst_p subst)
             assert(t1->type);
             assert(t2->type);
             /* Sort check and occur check - remember, variables are elementary and shared! */
-            if((t1->type != t2->type) || occur_check(t2, t1))
+            if((t1->type != t2->type) || OccurCheck(t2, t1))
             {
                res = false;
                break;

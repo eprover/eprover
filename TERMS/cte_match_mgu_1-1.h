@@ -75,12 +75,14 @@ PERF_CTR_DECL(MguTimer);
 
 #define MATCH_FAILED -1
 
+bool OccurCheck(restrict Term_p term, restrict Term_p var);
+
 // FO matching and unification
 bool SubstComputeMatch(Term_p matcher, Term_p to_match, Subst_p subst);
 bool SubstComputeMgu(Term_p t1, Term_p t2, Subst_p subst);
 
 // HO matching and unification
-int  PartiallyMatchVar(Term_p var_matcher, Term_p to_match, Sig_p sig, bool perform_occur_check);
+int  PartiallyMatchVar(Term_p var_matcher, Term_p to_match, Sig_p sig, bool perform_OccursCheck);
 int  SubstComputeMatchHO(Term_p matcher, Term_p to_match, Subst_p subst);
 UnificationResult SubstComputeMguHO(Term_p t1, Term_p t2, Subst_p subst);
 
