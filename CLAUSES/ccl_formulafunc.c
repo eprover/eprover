@@ -1389,6 +1389,7 @@ long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive,
    TFormulaSetUnfoldLogSymbols(set, archive, terms);
    if (lift_lambdas)
    {
+      // maybe add an option for turning lambda equations into forall
       TFormulaSetLambdaNormalize(set, archive, terms);
       TFormulaSetLiftLambdas(set, archive, terms);
    }

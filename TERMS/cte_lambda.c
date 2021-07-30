@@ -257,7 +257,7 @@ Term_p replace_bound_vars(TB_p bank, Term_p t, int total_bound, int depth)
          res = CloseWithDBVar(bank, t->args[0]->type, new_matrix);
       }
    }
-   else if (t->arity == 0)
+   else if (t->arity == 0 || !TermHasDBSubterm(t))
    {
       res = t; //optimization
    }
@@ -590,7 +590,7 @@ Term_p do_beta_normalize_db(TB_p bank, Term_p t)
    {
       res = WHNF_step(bank, t);
    }
-   else if (t->arity == 0)
+   else if (t->arity == 0 || TermIsBetaReducible(t))
    {
       res = t; // optimization
    }
@@ -786,93 +786,6 @@ Term_p replace_fvars (TB_p bank, Term_p t, long depth)
    }
 }
 
-/*-----------------------------------------------------------------------
-//
-// Function: reduce_head()
-//
-//   Reduces all heading reducible lambda binders
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-static inline Term_p reduce_head (Term_p t)
-{
-   assert(TermIsPhonyApp(t) && TermIsLambda(t->args[0]));
-
-   Term_p body = t->args[0];
-   Term_p res;
-   Subst_p subst = SubstAlloc();
-   int     i = 1;
-
-   while(TermIsLambda(body) && i < t->arity)
-   {
-      // cancelling old bindings -- for name clashes (e.g. ^[X,X]:...)
-      body->args[0]->binding = NULL; 
-      SubstAddBinding(subst,  body->args[0], t->args[i++]);
-      body = body->args[1];
-   }
-
-   res = TBInsertInstantiated(TermGetBank(t), body);
-
-   if(i != t->arity)
-   {
-      PStack_p args = PStackAlloc();
-      for(; i<t->arity; i++)
-      {
-         PStackPushP(args, t->args[i]);
-      }
-      res = ApplyTerms(TermGetBank(res), res, args);
-      PStackFree(args);
-   }
-
-   SubstDelete(subst);
-   return res;
-}
-
-
-/*-----------------------------------------------------------------------
-//
-// Function: do_named_snf()
-//
-//   Do the actual work in SNF
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-static Term_p do_named_snf(Term_p t)
-{
-   if(TermIsBetaReducible(t))
-   {
-      if(TermIsPhonyApp(t) && TermIsLambda(t->args[0]))
-      {
-         t = do_named_snf(reduce_head(t));
-      }
-      else
-      {
-         Term_p new_t = TermTopCopyWithoutArgs(t);
-#ifndef NDEBUG
-         bool diff=false;
-#endif
-         for(int i=0; i<t->arity; i++)
-         {
-            new_t->args[i] = do_named_snf(t->args[i]);
-#ifndef NDEBUG
-            diff = diff || (new_t->args[i] != t->args[i]);
-#endif
-         }
-         assert(diff);
-         t = TBTermTopInsert(TermGetBank(t), new_t);
-      }
-   }
-   return t;
-}
-
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
 /*---------------------------------------------------------------------*/
@@ -962,35 +875,6 @@ inline TermNormalizer GetEtaNormalizer()
 
 /*-----------------------------------------------------------------------
 //
-// Function: NamedLambdaSNF()
-//
-//   Computes strong normal form for the lambda term in named notation.
-//   Not using TermMap for efficiency.
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-TFormula_p NamedLambdaSNF(TB_p bank, TFormula_p t)
-{
-   // Term_p orig = t;
-   VarBankSetVCountsToUsed(bank->vars);
-   t = do_named_snf(t);
-   // undoing the encoding of literals under lambdas
-   if(t->f_code == bank->sig->eqn_code &&
-      t->args[1] == bank->true_term &&
-      t->args[0] != bank->true_term &&
-      SigIsLogicalSymbol(bank->sig, t->args[0]->f_code))
-   {
-      t = t->args[0];
-   }
-   return t;
-}
-
-/*-----------------------------------------------------------------------
-//
 // Function: NamedToDB()
 //
 //   Given *closed* lambda in the named representation,
@@ -1065,6 +949,7 @@ Term_p AbstractVars(TB_p terms, Term_p matrix, PStack_p var_prefix)
          CloseWithDBVar(terms, ((Term_p)PStackPopP(subst))->type, matrix);
    }
    SubstDelete(subst);
+   assert(TermIsDBClosed(matrix));
    return matrix;
 }
 

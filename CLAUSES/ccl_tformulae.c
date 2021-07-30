@@ -860,8 +860,8 @@ static Term_p lambda_eq_to_forall(TB_p terms, Term_p t)
          UNUSED(UnfoldLambda(t->args[1], rhs_vars));
          assert(!PStackEmpty(lhs_vars) || !PStackEmpty(rhs_vars));
 
-         PStack_p more_vars = PStackGetSP(lhs_vars) > PStackGetSP(rhs_vars) ?
-                              lhs_vars : rhs_vars;
+         PStack_p more_vars = 
+            PStackGetSP(lhs_vars) > PStackGetSP(rhs_vars) ? lhs_vars : rhs_vars;
          PStack_p fresh_vars = PStackAlloc();
          for(long i=0; i<PStackGetSP(more_vars); i++)
          {
@@ -1106,6 +1106,7 @@ Term_p unbind_loose(TB_p terms, IntMap_p db_map, long depth, Term_p t)
 Term_p lift_lambda(TB_p terms, PStack_p bound_vars, Term_p body, 
                    PStack_p definitions, PDTree_p liftings)
 {
+   assert(!TermHasLambdaSubterm(body));
    PTree_p free_vars = NULL;
    TFormulaCollectFreeVars(terms, body, &free_vars);
    PStack_p free_var_stack = PStackAlloc();
@@ -2453,28 +2454,26 @@ TFormula_p LiftLambdas(TB_p terms, TFormula_p t, PStack_p definitions, PDTree_p 
 {
    Term_p res;
    PStack_p vars = NULL;
-   bool changed = false;
    if(TermIsLambda(t))
    {
       vars = PStackAlloc();
       t = UnfoldLambda(t, vars);
    }
 
-   res = TermTopCopyWithoutArgs(t);
-   for(int i=0; i<t->arity; i++)
+   if(!TermHasLambdaSubterm(t))
    {
-      res->args[i] = LiftLambdas(terms, t->args[i], definitions, liftings);
-      changed = changed || (res->args[i] != t->args[i]);
-   }
-
-   if(changed)
-   {
-      res = TBTermTopInsert(terms, res);
+      res = t;
    }
    else
    {
-      TermTopFree(res);
-      res = t;
+      res = TermTopCopyWithoutArgs(t);
+      for(int i=0; i<t->arity; i++)
+      {
+         res->args[i] = LiftLambdas(terms, t->args[i], definitions, liftings);
+      }
+
+      res = TBTermTopInsert(terms, res);
+      assert(res != t);
    }
 
    
