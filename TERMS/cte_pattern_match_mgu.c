@@ -293,14 +293,14 @@ OracleUnifResult flex_rigid(TB_p bank, Term_p s, Term_p t, Subst_p subst)
 {
    assert(TermIsTopLevelFreeVar(s));
    s = NormalizePatternAppVar(bank, s);
-   Term_p s_var = get_fvar_head(s);
    OracleUnifResult res = UNIFIABLE;
    if(!s)
    {
-      res = NOT_UNIFIABLE;
+      res = NOT_IN_FRAGMENT;
    }
    else
    {
+      Term_p s_var = get_fvar_head(s);
       IntMap_p db_map = db_var_map(bank, s);
       Term_p s_binding_matrix = solve_flex_rigid(bank, s_var, db_map, t, subst, 0, &res);
       if(res==UNIFIABLE)
@@ -809,10 +809,12 @@ OracleUnifResult match_var(TB_p bank, Subst_p subst,
 OracleUnifResult SubstComputeMguPattern(Term_p t1, Term_p t2, Subst_p subst)
 {
    Term_p orig_t1 = t1, orig_t2 = t2;
+   UNUSED(orig_t1); UNUSED(orig_t2);
    if(t1->type != t2->type)
    {
       return NOT_UNIFIABLE;
    }
+
 
    PStackPointer backtrack = PStackGetSP(subst); /* For backtracking */
 
@@ -1014,7 +1016,7 @@ OracleUnifResult SubstComputeMatchPattern(Term_p matcher, Term_p to_match, Subst
             UNIF_FAIL(res);
          }
       }
-      else
+      else if(matcher->f_code == to_match->f_code)
       {
          assert(matcher->arity == to_match->arity);
          PLocalStackEnsureSpace(jobs, 2*matcher->arity);
@@ -1023,6 +1025,10 @@ OracleUnifResult SubstComputeMatchPattern(Term_p matcher, Term_p to_match, Subst
             PLocalStackPush(jobs, matcher->args[i]);
             PLocalStackPush(jobs, to_match->args[i]);
          }
+      }
+      else
+      {
+         UNIF_FAIL(res);
       }
    }
 
