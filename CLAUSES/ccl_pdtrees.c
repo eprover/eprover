@@ -50,6 +50,19 @@ static long pdt_compute_size_constraint(PDTNode_p node);
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
 
+void print_t_stack(Sig_p sig, PStack_p stack)
+{
+   if(PStackEmpty(stack))
+   {
+      fprintf(stderr, " - ");
+   }
+   for(long i=PStackGetTopSP(stack); i>=0; i--)
+   {
+      TermPrintDbgHO(stderr, PStackElementP(stack, i), sig, DEREF_NEVER);
+      fprintf(stderr, ", ");
+   }
+}
+
 /*-----------------------------------------------------------------------
 //
 // Function: pdtree_default_cell_free()
@@ -522,11 +535,10 @@ static void pdtree_forward(PDTree_p tree, Subst_p subst)
    {
       if(!TermIsDBVar(term->args[0]))
       {
-         fprintf(stderr, "violation: ");
-         TermPrintDbg(stderr, term, tree->bank->sig, DEREF_NEVER);
          assert(false);
       }
-      term = TermLRTraverseNext(tree->term_stack);
+      TermLRTraverseNext(tree->term_stack);
+      term = term->args[0];      
       PStackPushP(tree->term_proc, term);
    }
 
@@ -643,6 +655,49 @@ static void pdtree_forward(PDTree_p tree, Subst_p subst)
 
 /*-----------------------------------------------------------------------
 //
+// Function: backtrack_bvar()
+//
+//   Given a bound variable, check if it was applied and if so,
+//   perform the correct backtracking. Remember, applied bound variables
+//   are not used directly, but first their phony applied symbol
+//   is decomposed.
+//
+// Global Variables: -
+//
+// Side Effects    : Changes tree state
+//
+/----------------------------------------------------------------------*/
+
+static inline void backtrack_bvar(PDTree_p tree, Term_p bvar)
+{
+   if(!PStackEmpty(tree->term_proc))
+   {
+      Term_p top = PStackTopP(tree->term_proc);
+      if(TermIsPhonyApp(top) && TermIsDBVar(top->args[0]))
+      {
+         assert(top->args[0] == bvar);
+         // -1 for bvar which was not put on term_stack 
+         for(long i=0; i<top->arity-1; i++)
+         {
+            assert(!PStackEmpty(tree->term_stack));
+            UNUSED(PStackPopP(tree->term_stack));
+         }
+         PStackPushP(tree->term_stack, PStackPopP(tree->term_proc));
+      }
+      else
+      {
+         PStackPushP(tree->term_stack, bvar);
+      }
+   }
+   else
+   {
+      PStackPushP(tree->term_stack, bvar);
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: pdtree_backtrack()
 //
 //   Backtrack to the predecessor node of the current state.
@@ -656,54 +711,32 @@ static void pdtree_forward(PDTree_p tree, Subst_p subst)
 static void pdtree_backtrack(PDTree_p tree, Subst_p subst)
 {
    PDTNode_p handle = tree->tree_pos;
-
-   if(handle->variable)
+   if(handle->variable && TermIsTopLevelFreeVar(handle->variable))
    {
-      if(TermIsTopLevelFreeVar(handle->variable))
-      {
-         assert(!TermIsFreeVar(handle->variable) || handle->variable->binding);
-         assert(!TermIsAppliedFreeVar(handle->variable) || 
-                handle->variable->args[0]->binding);
-         tree->term_weight  += (TermStandardWeight((Term_p)PStackTopP(tree->term_proc)) -
-                                TermStandardWeight(handle->variable));
-         PStackPushP(tree->term_stack, PStackPopP(tree->term_proc));
-         SubstBacktrackToPos(subst, handle->prev_subst);
-      }
-      else
-      {
-         assert(TermIsDBVar(handle->variable));
-         assert(!handle->variable->binding);
-         Term_p bvar = PStackPopP(tree->term_proc);
-         assert(TermIsDBVar(bvar));
-         assert(bvar == handle->variable);
-         if(!PStackEmpty(tree->term_proc))
-         {
-            Term_p top = PStackTopP(tree->term_proc);
-            if(TermIsPhonyApp(top) && TermIsDBVar(top->args[0]))
-            {
-               assert(top->args[0] == bvar);
-               PStackPushP(tree->term_stack, PStackPopP(tree->term_proc));
-            }
-            else
-            {
-               PStackPushP(tree->term_stack, bvar);
-            }
-         }
-         else
-         {
-            PStackPushP(tree->term_stack, bvar);
-         }
-      }
+      assert(!TermIsFreeVar(handle->variable) || handle->variable->binding);
+      assert(!TermIsAppliedFreeVar(handle->variable) || 
+               handle->variable->args[0]->binding);
+      tree->term_weight  += (TermStandardWeight((Term_p)PStackTopP(tree->term_proc)) -
+                              TermStandardWeight(handle->variable));
+      PStackPushP(tree->term_stack, PStackPopP(tree->term_proc));
+      SubstBacktrackToPos(subst, handle->prev_subst);
    }
    else if(handle->parent)
    {
       Term_p t = PStackPopP(tree->term_proc);
-
-      UNUSED(t); assert(t);
-      // fprintf(stderr, "backtracking");
-      // TermPrintDbgHO(stderr, t, tree->bank->sig, DEREF_NEVER);
-      // fprintf(stderr, ".\n");
-      TermLRTraversePrev(tree->term_stack,t);
+      assert(!TermIsPhonyApp(t) || !TermIsDBVar(t->args[0]));
+      if(TermIsDBVar(t))
+      {
+         backtrack_bvar(tree, t);
+      }
+      else
+      {
+         UNUSED(t); assert(t);
+         // fprintf(stderr, "backtracking");
+         // TermPrintDbgHO(stderr, t, tree->bank->sig, DEREF_NEVER);
+         // fprintf(stderr, ".\n");
+         TermLRTraversePrev(tree->term_stack,t);
+      }
    }
    tree->tree_pos = handle->parent;
 }
