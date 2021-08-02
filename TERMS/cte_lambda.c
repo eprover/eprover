@@ -96,7 +96,7 @@ Term_p drop_args(TB_p bank, Term_p t, long args_to_drop)
 //
 // Function: flatten_apps()
 //
-//   Apply additional arguments to hd assuming hd is PHONY_APP.
+//   Apply additional arguments to hd assuming hd needs to be flattened.
 //
 // Global Variables: -
 //
@@ -107,9 +107,6 @@ Term_p drop_args(TB_p bank, Term_p t, long args_to_drop)
 Term_p flatten_apps(TB_p bank, Term_p hd, Term_p* args, long num_args,
                     Type_p res_type)
 {
-   assert(TermIsPhonyApp(hd));
-   assert(!TermIsPhonyApp(hd->args[0]));
-
    Term_p res = TermTopAlloc(hd->f_code, hd->arity + num_args);
 #ifdef NDEBUG
    res->type = res_type;
@@ -279,7 +276,8 @@ Term_p replace_bound_vars(TB_p bank, Term_p t, int total_bound, int depth)
       }
       else
       {
-         if(TermIsPhonyApp(res) && TermIsPhonyApp(res->args[0]))
+         if(TermIsPhonyApp(res) && 
+            !(TermIsAnyVar(res->args[0]) || TermIsLambda(res->args[0])))
          {
             Term_p junk = res;
             res = flatten_apps(bank, res->args[0], res->args+1, res->arity-1, res->type);

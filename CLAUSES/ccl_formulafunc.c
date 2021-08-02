@@ -2063,12 +2063,12 @@ long TFormulaSetLiftLambdas(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
       for(WFormula_p form = set->anchor->succ; form!=set->anchor; form=form->succ)
       {
          TFormula_p handle = LiftLambdas(terms, form->tformula, defs, liftings);
-         fprintf(stderr,"lift: ");
-         TermPrintDbgHO(stderr, form->tformula, terms->sig, DEREF_NEVER);
+         // fprintf(stderr,"lift: ");
+         // TermPrintDbgHO(stderr, form->tformula, terms->sig, DEREF_NEVER);
          if(handle!=form->tformula)
          {
-            fprintf(stderr,"\nres:");
-            TermPrintDbgHO(stderr, handle, terms->sig, DEREF_NEVER);
+            //fprintf(stderr,"\nres:");
+            //TermPrintDbgHO(stderr, handle, terms->sig, DEREF_NEVER);
 
             form->tformula = handle;
             while(!(PStackEmpty(defs)))
@@ -2079,7 +2079,7 @@ long TFormulaSetLiftLambdas(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
                res++;
             }
          }
-         fprintf(stderr,"\n");
+         //fprintf(stderr,"\n");
       }
 
       PTreeVisitInOrder(all_defs, insert_to_set, set);

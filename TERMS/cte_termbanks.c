@@ -135,11 +135,12 @@ static Term_p tb_termtop_insert(TB_p bank, Term_p t)
 
    assert(t);
    assert(!TermIsAnyVar(t));
-   assert(!TermIsAppliedFreeVar(t) || TermIsFreeVar(t->args[0]));
    assert(t->f_code != SIG_NAMED_LAMBDA_CODE ||
           (t->arity == 2 && TermIsFreeVar(t->args[0])));
    assert(t->f_code != SIG_DB_LAMBDA_CODE ||
           (t->arity == 2 && TermIsDBVar(t->args[0])));
+   assert(!TermIsPhonyApp(t) || TermIsAnyVar(t->args[0]) || TermIsLambda(t->args[0]));
+   assert(!TermIsPhonyApp(t) || t->arity > 1);
 
 #ifndef NDEBUG
    for(int i=0; i<t->arity; i++)

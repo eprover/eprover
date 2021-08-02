@@ -1476,11 +1476,11 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control,
       arch_copy = ClauseArchiveCopy(state->archive, clause);
    }
 
-   fprintf(stderr, "processing: ");
-   ClausePrint(stderr, clause, true);
-   fprintf(stderr, "; ");
-   DerivationDebugPrint(stderr, clause->derivation);
-   fprintf(stderr, ".\n ");
+   // fprintf(stderr, "processing: ");
+   // ClausePrint(stderr, clause, true);
+   // fprintf(stderr, "; ");
+   // DerivationDebugPrint(stderr, clause->derivation);
+   // fprintf(stderr, ".\n ");
 
 
    if(!(pclause = ForwardContractClause(state, control,
