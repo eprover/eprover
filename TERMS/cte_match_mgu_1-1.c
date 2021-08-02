@@ -321,10 +321,12 @@ bool SubstComputeMatch(Term_p matcher, Term_p to_match, Subst_p subst)
 int SubstComputeMatchHO(Term_p matcher, Term_p to_match, Subst_p subst)
 {
    assert(problemType == PROBLEM_HO);
-   assert(TermGetBank(matcher) == TermGetBank(to_match));
    long matcher_weight  = TermStandardWeight(matcher);
    long to_match_weight = TermStandardWeight(to_match);
-   TB_p bank = TermGetBank(matcher);
+   TB_p bank = TermGetBank(matcher) ? TermGetBank(matcher) : TermGetBank(to_match);
+   assert(bank || TermIsAnyVar(matcher) || TermIsAnyVar(to_match));
+   assert(!(TermGetBank(matcher) && TermGetBank(to_match)) 
+            || TermGetBank(matcher) == TermGetBank(to_match));
 
    assert(TermStandardWeight(matcher)  == TermWeight(matcher, DEFAULT_VWEIGHT, DEFAULT_FWEIGHT));
    assert(TermStandardWeight(to_match) == TermWeight(to_match, DEFAULT_VWEIGHT, DEFAULT_FWEIGHT));

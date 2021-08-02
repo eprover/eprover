@@ -310,7 +310,7 @@ long find_min_db(Term_p t, long depth)
    long res = DB_NOT_FOUND;
    if(TermIsDBVar(t))
    {
-      if(t->f_code > depth)
+      if(t->f_code >= depth)
       {
          res = t->f_code - depth;
       }

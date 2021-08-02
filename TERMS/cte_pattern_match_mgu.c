@@ -958,8 +958,10 @@ OracleUnifResult SubstComputeMatchPattern(Term_p matcher, Term_p to_match, Subst
       return NOT_UNIFIABLE;
    }
 
-   TB_p bank = TermGetBank(matcher);
-   assert(bank == TermGetBank(to_match));
+   TB_p bank = TermGetBank(matcher) ? TermGetBank(matcher) : TermGetBank(to_match);
+   assert(bank || TermIsAnyVar(matcher) || TermIsAnyVar(to_match));
+   assert(!(TermGetBank(matcher) && TermGetBank(to_match)) 
+            || TermGetBank(matcher) == TermGetBank(to_match));
    
    PStackPointer backtrack = PStackGetSP(subst); /* For backtracking */
    PLocalStackInit(jobs);

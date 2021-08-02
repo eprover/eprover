@@ -700,6 +700,9 @@ static void pdtree_backtrack(PDTree_p tree, Subst_p subst)
       Term_p t = PStackPopP(tree->term_proc);
 
       UNUSED(t); assert(t);
+      // fprintf(stderr, "backtracking");
+      // TermPrintDbgHO(stderr, t, tree->bank->sig, DEREF_NEVER);
+      // fprintf(stderr, ".\n");
       TermLRTraversePrev(tree->term_stack,t);
    }
    tree->tree_pos = handle->parent;
