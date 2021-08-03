@@ -898,6 +898,7 @@ TFormula_p do_bool_eqn_replace(TFormula_p form, TB_p terms)
       if(!TermIsFreeVar(form->args[0]) && !TermIsFreeVar(form->args[1]) &&
          SigIsLogicalSymbol(terms->sig, form->args[0]->f_code) &&
          SigIsLogicalSymbol(terms->sig, form->args[1]->f_code) &&
+         TypeIsBool(form->args[0]) &&
          form->args[1] != terms->true_term)
       {
          // DAS literal is encoded as <predicate> = TRUE.

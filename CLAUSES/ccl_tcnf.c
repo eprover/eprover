@@ -246,7 +246,8 @@ TFormula_p tformula_rek_skolemize(TB_p terms, TFormula_p form,
    {
       /* All is well */
    }
-   else if(TFormulaIsLiteral(terms->sig, form))
+   else if(TFormulaIsLiteral(terms->sig, form) || 
+           TypeIsArrow(form->type))
    {
       form = TFormulaCopy(terms, form);
    }
@@ -679,7 +680,7 @@ long tform_find_miniscopeable(Sig_p sig, TFormula_p form, long limit,
    {
       return LONG_MAX;
    }
-   if(TFormulaIsLiteral(sig, form))
+   if(TFormulaIsLiteral(sig, form) || TypeIsArrow(form->type))
    {
       return 1;
    }
@@ -747,6 +748,7 @@ TFormula_p tform_copy_mod(TB_p terms, TFormula_p form)
    bool changed = false;
 
    if(TFormulaIsLiteral(terms->sig, form)
+      ||TypeIsArrow(form->type)
       ||!form->v_count
       ||TermIsFreeVar(form))
    {
@@ -808,7 +810,9 @@ long TFormulaEstimateClauses(TB_p bank, TFormula_p form, bool pos)
    /* printf("Estimating: ");TBPrintTermFull(stdout, bank, form);*/
 
    if(TermCellQueryProp(form, TPCheckFlag) ||
-      TFormulaIsLiteral(bank->sig, form))
+      TFormulaIsLiteral(bank->sig, form) ||
+      // partially applied formula
+      TypeIsArrow(form->type))
    {
       return 1;
    }
@@ -1020,7 +1024,7 @@ void TFormulaFindDefs(TB_p bank, TFormula_p form, int polarity,
    assert((polarity<=1) && (polarity >=-1));
    //printf("TFormulaFindDefs(%ld)...\n",TermDepth(form));
 
-   if(TFormulaIsLiteral(bank->sig, form))
+   if(TFormulaIsLiteral(bank->sig, form) || TypeIsArrow(form->type))
    {
       return;
    }
@@ -1121,7 +1125,7 @@ TFormula_p TFormulaCopyDef(TB_p bank, TFormula_p form, long blocked,
    NumXTree_p def_entry;
    long      realdef;
 
-   if(TFormulaIsLiteral(bank->sig, form))
+   if(TFormulaIsLiteral(bank->sig, form) || TypeIsArrow(form->type))
    {
       res = form;
    }
@@ -1225,7 +1229,7 @@ TFormula_p TFormulaSimplify(TB_p terms, TFormula_p form, long quopt_limit)
 
    // printf("Simplify %p %ld: ", form, form->weight);/* TFormulaTPTPPrint(stdout, terms, form, true, false)*/;printf("\n");
 
-   if(TFormulaIsLiteral(terms->sig, form))
+   if(TFormulaIsLiteral(terms->sig, form)||TypeIsArrow(form->type))
    {
       return form;
    }
@@ -1725,7 +1729,7 @@ TFormula_p TFormulaVarRename(TB_p terms, TFormula_p form)
       }
       handle = TBTermTopInsert(terms, newform);
    }
-   else if(TFormulaIsLiteral(terms->sig, form))
+   else if(TFormulaIsLiteral(terms->sig, form) || TypeIsArrow(form->type))
    {
       handle = TFormulaCopy(terms, form);
    }

@@ -1813,7 +1813,8 @@ TFormula_p TFormulaTSTPParse(Scanner_p in, TB_p terms)
          // if it is bool it is either a literal ((dis)equation) or a formula
          assert(SigIsLogicalSymbol(sig, f1->f_code));
          assert(SigIsLogicalSymbol(sig, f2->f_code));
-
+         
+         fprintf(stderr, "recasting...\n");
          op = (op == sig->eqn_code) ? sig->equiv_code : sig->xor_code;
       }
 

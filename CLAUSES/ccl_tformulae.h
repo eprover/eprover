@@ -56,7 +56,8 @@ typedef Term_p TFormula_p;
    ((form)->f_code == sig->qex_code || (form)->f_code == sig->qall_code || \
     (form)->f_code == SIG_NAMED_LAMBDA_CODE)
 #define   TFormulaIsLiteral(sig,form)                                   \
-   ((form)->f_code == (sig)->eqn_code || (form)->f_code == (sig)->neqn_code)
+   (((form)->f_code == (sig)->eqn_code || (form)->f_code == (sig)->neqn_code) &&\
+   ((form)->arity == 2))
 
 
 bool TFormulaIsPropConst(Sig_p sig, TFormula_p form, bool positive);
