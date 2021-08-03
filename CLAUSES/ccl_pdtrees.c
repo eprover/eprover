@@ -531,22 +531,19 @@ static void pdtree_forward(PDTree_p tree, Subst_p subst)
       curr_state = tree->tree_pos->trav_state = DONE;
       PStackReset(tree->tree_pos->var_traverse_stack);
    }
-   else if(TermIsPhonyApp(term) && !TermIsAppliedFreeVar(term))
-   {
-      if(!TermIsDBVar(term->args[0]))
-      {
-         assert(false);
-      }
-      TermLRTraverseNext(tree->term_stack);
-      term = term->args[0];      
-      PStackPushP(tree->term_proc, term);
-   }
 
    while(curr_state<DONE)
    {
       PStackPointer prev_binding = PStackGetSP(subst);
       if(trav_order[curr_state] == TRAVERSING_SYMBOLS)
       {
+         if(TermIsPhonyApp(term) && !TermIsAppliedFreeVar(term))
+         {
+            assert(TermIsDBVar(term->args[0]));
+            TermLRTraverseNext(tree->term_stack);
+            PStackPushP(tree->term_proc, term);
+            term = term->args[0];      
+         }
          tree->tree_pos->trav_state++;
          curr_state++;
          if(trav_order[curr_state] == TRAVERSING_VARIABLES)
@@ -732,9 +729,6 @@ static void pdtree_backtrack(PDTree_p tree, Subst_p subst)
       else
       {
          UNUSED(t); assert(t);
-         // fprintf(stderr, "backtracking");
-         // TermPrintDbgHO(stderr, t, tree->bank->sig, DEREF_NEVER);
-         // fprintf(stderr, ".\n");
          TermLRTraversePrev(tree->term_stack,t);
       }
    }

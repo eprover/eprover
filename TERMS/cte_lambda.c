@@ -1090,8 +1090,10 @@ Term_p BetaNormalizeDB(TB_p bank, Term_p term)
    {
       res = do_beta_normalize_db(bank, term);
       if(res->f_code == bank->sig->eqn_code &&
+         res->arity==2 &&
          res->args[1] == bank->true_term &&
          res->args[0] != bank->true_term &&
+         res->args[0]->f_code > 0 &&
          SigIsLogicalSymbol(bank->sig, res->args[0]->f_code))
       {
          res = res->args[0];

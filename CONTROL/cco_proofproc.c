@@ -1478,7 +1478,7 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control,
 
    // fprintf(stderr, "processing: ");
    // ClausePrint(stderr, clause, true);
-   // fprintf(stderr, "; ");
+   // fprintf(stderr, "\n");
    // DerivationDebugPrint(stderr, clause->derivation);
    // fprintf(stderr, ".\n ");
 

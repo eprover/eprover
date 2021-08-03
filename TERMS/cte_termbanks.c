@@ -2277,13 +2277,13 @@ Term_p ParseIte(Scanner_p in, TB_p bank)
 
 Term_p NormalizePatternAppVar(TB_p bank, Term_p s)
 {
-   assert(bank);
    if(TermIsFreeVar(s))
    {
       return s;
    }
 
    assert(TermIsAppliedFreeVar(s));
+   assert(bank);
    
    s = LambdaEtaReduceDB(bank, s);
    bool all_dbs = true;

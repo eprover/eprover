@@ -801,6 +801,10 @@ static void tformula_collect_freevars(TB_p bank, TFormula_p form, PTree_p *vars)
    {
       tformula_collect_freevars(bank, form->args[form->arity-1], vars);
    }
+   else if(TermIsDBVar(form))
+   {
+      return;
+   }
    else if(TFormulaIsQuantified(bank->sig, form))
    {
       old_prop = TermCellGiveProps(form->args[0], TPIsFreeVar);
@@ -1814,7 +1818,6 @@ TFormula_p TFormulaTSTPParse(Scanner_p in, TB_p terms)
          assert(SigIsLogicalSymbol(sig, f1->f_code));
          assert(SigIsLogicalSymbol(sig, f2->f_code));
          
-         fprintf(stderr, "recasting...\n");
          op = (op == sig->eqn_code) ? sig->equiv_code : sig->xor_code;
       }
 

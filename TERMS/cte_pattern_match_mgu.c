@@ -962,7 +962,7 @@ OracleUnifResult SubstComputeMatchPattern(Term_p matcher, Term_p to_match, Subst
    assert(bank || TermIsAnyVar(matcher) || TermIsAnyVar(to_match));
    assert(!(TermGetBank(matcher) && TermGetBank(to_match)) 
             || TermGetBank(matcher) == TermGetBank(to_match));
-   
+     
    PStackPointer backtrack = PStackGetSP(subst); /* For backtracking */
    PLocalStackInit(jobs);
 
@@ -978,19 +978,21 @@ OracleUnifResult SubstComputeMatchPattern(Term_p matcher, Term_p to_match, Subst
    long matcher_weight  = TermStandardWeight(matcher);
    long to_match_weight = TermStandardWeight(to_match);
 
-   while(!PLocalStackEmpty(jobs) && res == UNIFIABLE
-         && matcher_weight <= to_match_weight)
+   while(!PLocalStackEmpty(jobs) && res == UNIFIABLE)
    {
       to_match =  PLocalStackPop(jobs);
       matcher  =  PLocalStackPop(jobs);
       prune_lambda_prefix(bank, &matcher, &to_match);
-
       if(TermIsGround(to_match) && TermIsGround(matcher))
       {
          if(LambdaNormalizeDB(bank, to_match) != LambdaNormalizeDB(bank, matcher))
          {
             UNIF_FAIL(res);
          }
+      }
+      if(matcher_weight > to_match_weight)
+      {
+         UNIF_FAIL(res);
       }
 
       if(TermIsTopLevelFreeVar(matcher))
@@ -1020,8 +1022,7 @@ OracleUnifResult SubstComputeMatchPattern(Term_p matcher, Term_p to_match, Subst
 
          if(matcher_weight > to_match_weight)
          {
-            res = false;
-            break;
+            UNIF_FAIL(res);
          }
       }
       else if(TermIsDBVar(matcher))
@@ -1047,10 +1048,10 @@ OracleUnifResult SubstComputeMatchPattern(Term_p matcher, Term_p to_match, Subst
       }
    }
 
-   PLocalStackFree(jobs);
    if(res != UNIFIABLE)
    {
       SubstBacktrackToPos(subst,backtrack);
    }
+   PLocalStackFree(jobs);
    return res;
 }
