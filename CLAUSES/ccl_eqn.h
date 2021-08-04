@@ -132,6 +132,7 @@ extern IOFormat OutputFormat;
 #define EqnCellFree(junk) SizeFree(junk, sizeof(EqnCell))
 
 Eqn_p   EqnAlloc(Term_p lterm, Term_p rterm, TB_p bank, bool positive);
+Eqn_p   EqnAllocFlatten(Term_p lterm, TB_p bank, bool sign);
 void    EqnFree(Eqn_p junk);
 
 #define EqnCreateTrueLit(bank) (EqnAlloc((bank)->true_term, (bank)->true_term, bank, true))

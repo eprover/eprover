@@ -100,8 +100,8 @@ Clause_p build_eq_des_res(Eqn_p lit, bool sign_lterm, bool sign_rterm, Clause_p 
    assert(lit->lterm != terms->true_term);
    assert(lit->rterm != terms->true_term);
 
-   Eqn_p l_lit = EqnAlloc(lit->lterm, terms->true_term, terms, sign_lterm);
-   Eqn_p r_lit = EqnAlloc(lit->rterm, terms->true_term, terms, sign_rterm);
+   Eqn_p l_lit = EqnAllocFlatten(lit->lterm, terms, sign_lterm);
+   Eqn_p r_lit = EqnAllocFlatten(lit->rterm, terms, sign_rterm);
    l_lit->next = r_lit;
 
    EqnListAppend(&l_lit, rest);

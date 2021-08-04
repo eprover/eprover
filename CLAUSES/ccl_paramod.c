@@ -323,11 +323,23 @@ Clause_p ClauseSimParamodConstruct(ParamodInfo_p ol_desc)
    Eqn_p     into_copy, from_copy;
    Subst_p   subst = SubstAlloc();
 
-   assert(TermStructPrefixEqual(ClausePosGetSubterm(ol_desc->from_pos),
-                               ClausePosGetSubterm(ol_desc->into_pos),
-                               DEREF_ALWAYS,
-                               DEREF_ALWAYS,
-                               ol_desc->remaining_args, ol_desc->bank->sig));
+   if(!TermStructPrefixEqual(ClausePosGetSubterm(ol_desc->from_pos),
+                             ClausePosGetSubterm(ol_desc->into_pos),
+                             DEREF_ALWAYS,
+                             DEREF_ALWAYS,
+                             ol_desc->remaining_args, ol_desc->bank->sig))
+   {
+      fprintf(stderr, "not equal: ");
+      TermPrintDbgHO(stderr, ClausePosGetSubterm(ol_desc->from_pos), ol_desc->bank->sig, DEREF_NEVER);
+      fprintf(stderr, " |  ");
+      TermPrintDbgHO(stderr, ClausePosGetSubterm(ol_desc->from_pos), ol_desc->bank->sig, DEREF_ALWAYS);
+      fprintf(stderr, " <> \n");
+      TermPrintDbgHO(stderr, ClausePosGetSubterm(ol_desc->from_pos), ol_desc->bank->sig, DEREF_NEVER);
+      fprintf(stderr, " |  ");
+      TermPrintDbgHO(stderr, ClausePosGetSubterm(ol_desc->into_pos), ol_desc->bank->sig, DEREF_ALWAYS);
+      fprintf(stderr, ".\n");
+      assert(false);
+   }
 
    VarBankResetVCounts(ol_desc->freshvars);
    into_term = ClausePosGetSubterm(ol_desc->into_pos);

@@ -483,6 +483,10 @@ Term_p var_bank_var_alloc(VarBank_p bank, FunCode f_code, Type_p type)
 
    var = TermDefaultCellAlloc();
    TermCellSetProp(var, TPIsShared);
+   if(TypeIsArrow(type))
+   {
+      TermCellSetProp(var, TPHasEtaExpandableSubterm);
+   }
 
    var->weight = DEFAULT_VWEIGHT;
    var->v_count = 1;

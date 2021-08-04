@@ -648,6 +648,42 @@ Eqn_p EqnAlloc(Term_p lterm, Term_p rterm, TB_p bank,  bool positive)
    return handle;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: EqnAllocFlatten()
+//
+//   Allocates a predicate literal but makes sure that if it is
+//   a formula of the form (~)$eq(s,t) then s and t are lifted 
+//   to the literal level.
+//
+// Global Variables: -
+//
+// Side Effects    : Adds references
+//
+/----------------------------------------------------------------------*/
+
+Eqn_p EqnAllocFlatten(Term_p lterm, TB_p bank, bool sign)
+{
+   assert(TypeIsBool(lterm->type));
+   Eqn_p res;
+   if(lterm->f_code == bank->sig->eqn_code || 
+      lterm->f_code == bank->sig->neqn_code)
+   {
+      if(lterm->f_code == bank->sig->neqn_code)
+      {
+         sign = !sign;
+      }
+      res = EqnAlloc(lterm->args[0], lterm->args[1], bank, sign);
+   }
+   else
+   {
+      res = EqnAlloc(lterm, bank->true_term, bank, sign);
+   }
+   return res;
+}
+
+
+
 
 /*-----------------------------------------------------------------------
 //

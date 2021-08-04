@@ -1271,13 +1271,14 @@ bool TermStructEqualDeref(Term_p t1, Term_p t2, DerefType deref_1, DerefType der
    {
       if(deref_1 == DEREF_ALWAYS)
       {
-         t1 = LambdaEtaReduceDB(bank, WHNF_deref(t1));
+         t1 = GetEtaNormalizer()(bank, WHNF_deref(t1));
       }
-      else if(deref_1 == DEREF_ONCE)
+      else
       {
-         t1 = LambdaEtaReduceDB(bank,
-            BetaNormalizeDB(bank, TBInsertInstantiated(bank, t1)));
+         t1 = deref_1 == DEREF_ONCE ? TBInsertInstantiated(bank, t1) : t1;
+         t1 = LambdaNormalizeDB(bank, t1);
          limit_1 = INT_MAX;
+         deref_1 = DEREF_NEVER;
       }
    }
    else
@@ -1289,13 +1290,14 @@ bool TermStructEqualDeref(Term_p t1, Term_p t2, DerefType deref_1, DerefType der
    {
       if(deref_2 == DEREF_ALWAYS)
       {
-         t2 = LambdaEtaReduceDB(bank, WHNF_deref(t2));
+         t2 = GetEtaNormalizer()(bank, WHNF_deref(t2));
       }
-      else if(deref_2 == DEREF_ONCE)
+      else
       {
-         t1 = LambdaEtaReduceDB(bank,
-               BetaNormalizeDB(bank, TBInsertInstantiated(bank, t2)));
+         t2 = deref_2 == DEREF_ONCE ? TBInsertInstantiated(bank, t2) : t2;
+         t2 = LambdaNormalizeDB(bank, t2);
          limit_2 = INT_MAX;
+         deref_2 = DEREF_NEVER;
       }
    }
    else
