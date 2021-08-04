@@ -592,7 +592,6 @@ UnificationResult SubstComputeMguHO(Term_p t1, Term_p t2, Subst_p subst)
    #endif
    PERF_CTR_ENTRY(MguTimer);
    assert(problemType == PROBLEM_HO);
-   assert(TermGetBank(t1) == TermGetBank(t2));
 
    PStackPointer backtrack = PStackGetSP(subst);  //For backtracking 
 
@@ -600,6 +599,10 @@ UnificationResult SubstComputeMguHO(Term_p t1, Term_p t2, Subst_p subst)
    UnificationResult res = UNIF_INIT;
    bool swapped = reorientation_needed(t1, t2);
    TB_p bank = TermGetBank(t1);
+   if(!bank)
+   {
+      bank = TermGetBank(t2);
+   }
    Sig_p sig = bank->sig;
 
    PQueueStoreP(jobs, t1);
