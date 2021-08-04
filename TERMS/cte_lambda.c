@@ -168,7 +168,7 @@ Term_p do_shift_db(TB_p bank, Term_p t, int shift_val, int depth)
          res = CloseWithDBVar(bank, t->args[0]->type, shifted);
       }
    }
-   else if (t->arity == 0)
+   else if (t->arity == 0 || !TermHasDBSubterm(t))
    {
       res = t; // optimization
    }

@@ -383,6 +383,7 @@ void PObjMapFreeWDeleter(PObjMap_p root, ObjDelFun del_key_fun, ObjDelFun del_va
 {
    if(root)
    {
+      assert(!root->lson || !root->rson || root->lson != root->rson);
       PObjMapFreeWDeleter(root->lson, del_key_fun, del_val_fun);
       PObjMapFreeWDeleter(root->rson, del_key_fun, del_val_fun);
       del_key_fun(root->key);

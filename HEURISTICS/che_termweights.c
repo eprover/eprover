@@ -88,6 +88,7 @@ static PStack_p compute_subterms_generalizations(
    if (TermIsConst(term)) 
    {
       copy = TermTopAlloc(term->f_code,0);
+      TermSetBank(copy, TermGetBank(term));
       PStackPushP(gens,copy);
       PStackPushP(all,copy);
       copy->properties = term->properties;
@@ -118,6 +119,7 @@ static PStack_p compute_subterms_generalizations(
          break;
       }
       copy = TermTopAlloc(term->f_code,term->arity);
+      TermSetBank(copy, TermGetBank(term));
       for (i=0; i<term->arity; i++)
       {
          sgen = PDArrayElementP(sgens,i);
@@ -243,6 +245,7 @@ PStack_p ComputeTopGeneralizations(Term_p term, VarBank_p vars, Sig_p sig)
       }
       
       topgen = TermTopAlloc(code, sig->f_info[code].arity);
+      TermSetBank(topgen, TermGetBank(term));
       for (i=0; i<sig->f_info[code].arity; i++)
       {
          topgen->args[i] = VarBankVarAssertAlloc(vars, -2*(i+1), vars->sort_table->i_type); 

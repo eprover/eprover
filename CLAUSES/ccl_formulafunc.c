@@ -270,6 +270,69 @@ TFormula_p unencode_eqns(TB_p terms, TFormula_p t)
 
 /*-----------------------------------------------------------------------
 //
+// Function: refresh_qvars()
+//
+//   Bind all quantified variables in form to fresh free variables.
+//
+// Global Variables: -
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+
+Term_p refresh_qvars(TB_p terms, Term_p form)
+{
+   Term_p res;
+   Sig_p sig = terms->sig;
+   if(TermIsGround(form))
+   {
+      res = form;
+   }
+   else if (TermIsFreeVar(form))
+   {
+      assert(form->binding);
+      res = form->binding;
+   }
+   else if ((form->f_code == sig->qall_code || form->f_code == sig->qex_code)
+            && form->arity == 2)
+   {
+      Term_p prev_binding = form->args[0]->binding;
+      Term_p fresh_var = VarBankGetFreshVar(terms->vars, form->args[0]->type);
+      form->args[0]->binding = fresh_var;
+      res = TFormulaFCodeAlloc(terms, form->f_code,
+                               fresh_var, refresh_qvars(terms, form->args[1]));
+      form->args[0]->binding = prev_binding;
+   }
+   else if (TermIsDBVar(form) || form->arity == 0)
+   {
+      res = form;
+   }
+   else
+   {
+      res = TermTopCopy(form);
+      bool changed = false;
+
+      for(int i=0; i<form->arity; i++)
+      {
+         res->args[i] = refresh_qvars(terms, form->args[i]);
+         changed = changed || form->args[i] != res->args[i];
+      }
+
+      if(changed)
+      {
+         res = TBTermTopInsert(terms, res);
+      }
+      else
+      {
+         TermTopFree(res);
+         res = form;
+      }
+   }
+   return res;
+}
+
+/*-----------------------------------------------------------------------
+//
 // Function: do_rw_with_defs()
 //
 //   Actually performs rewriting on a term using definition map.
@@ -310,7 +373,7 @@ Term_p do_rw_with_defs(TB_p terms, Term_p t, IntMap_p def_map,
    WFormula_p wform = IntMapGetVal(def_map, new->f_code);
    if(wform)
    {
-      Term_p rhs = wform->tformula->args[1];
+      Term_p rhs = refresh_qvars(terms, wform->tformula->args[1]);
       PStack_p args = PStackAlloc();
       for(long i=0; i<new->arity; i++)
       {
