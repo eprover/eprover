@@ -46,6 +46,53 @@ typedef TFormula_p (*FormulaMapper)(TFormula_p, TB_p);
 
 /*-----------------------------------------------------------------------
 //
+// Function: form_struct_correct()
+//
+//  Is the only leaf of the formula an equation?
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+bool form_struct_correct(Sig_p sig, TFormula_p form)
+{
+   if(TFormulaIsLiteral(sig, form))
+   {
+      return true;
+   }
+   else if(form->f_code == sig->qall_code || form->f_code == sig->qex_code)
+   {
+      return form_struct_correct(sig, form->args[1]);
+   }
+   else if(!TermIsAnyVar(form) && SigQueryFuncProp(sig, form->f_code, FPFOFOp))
+   {
+      return (!TFormulaHasSubForm1(sig, form) || form_struct_correct(sig, form->args[0]))
+             && (!TFormulaHasSubForm2(sig, form) || form_struct_correct(sig, form->args[1]));
+
+   }
+   else
+   {
+      return false;
+   }
+}
+
+bool FormulaSetCorrectStruct(Sig_p sig, FormulaSet_p set)
+{
+   for(WFormula_p handle = set->anchor->succ; handle!=set->anchor; handle =
+             handle->succ)
+   {
+      DBG_PRINT(stderr, "working on: ", TermPrintDbgHO(stderr, handle->tformula, sig, DEREF_NEVER), ".\n");
+      if(!form_struct_correct(sig, handle->tformula))
+      {         
+         return false;
+      }
+   }
+   return true;
+}
+
+/*-----------------------------------------------------------------------
+//
 // Function: close_let_def()
 //
 //   For each defined symbol f(bound vars) = s, finds what are free variables
@@ -256,7 +303,7 @@ TFormula_p unencode_eqns(TB_p terms, TFormula_p t)
    Term_p res = t;
    if(t->f_code == terms->sig->eqn_code && t->arity == 2
       && t->args[1] == terms->true_term
-      && !TermIsFreeVar(t->args[0])
+      && !TermIsAnyVar(t->args[0])
       && (SigQueryFuncProp(terms->sig, t->args[0]->f_code, FPFOFOp)
           || t->args[0]->f_code == terms->sig->qex_code
           || t->args[0]->f_code == terms->sig->qall_code
@@ -455,7 +502,7 @@ PTree_p create_sym_map(FormulaSet_p set, IntMap_p sym_def_map)
       // and we need to check if terms are distinct variables
       // and if \terms\xyz.body has no free variables, and if lhs does
       // not appear in 
-      bool is_def = //TypeIsPredicate(lhs->type) &&
+      bool is_def = TypeIsPredicate(lhs->type) &&
                     lhs->f_code > sig->internal_symbols && rhs != bank->true_term;
       PStackReset(bvars);
       for(long i=0; is_def && i<lhs_body->arity; i++)
@@ -1444,12 +1491,14 @@ long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive,
    long old_nodes = TBNonVarTermNodes(terms);
    long gc_threshold = old_nodes*TFORMULA_GC_LIMIT;
 
-   //printf("# Start\n");
+
+   // printf("# Start\n");
    TFormulaSetLiftItes(set, archive, terms);
-   //printf("# Ite done\n");
+   // printf("# Ite done\n");
    TFormulaSetLiftLets(set, archive, terms);
-   //printf("# Let done\n");
+   // printf("# Let done\n");
    TFormulaSetNamedToDBLambdas(set, archive, terms);
+   // printf("# Renaming done\n");
    TFormulaSetUnfoldLogSymbols(set, archive, terms);
    if (lift_lambdas)
    {
@@ -1992,7 +2041,6 @@ long TFormulaSetLambdaNormalize(FormulaSet_p set, FormulaSet_p archive, TB_p ter
          if(handle!=form->tformula)
          {
             assert(!TermIsBetaReducible(handle));
-
             form->tformula = handle;
             DocFormulaModificationDefault(form, inf_fof_simpl);
             WFormulaPushDerivation(form, DCFofSimplify, NULL, NULL);
