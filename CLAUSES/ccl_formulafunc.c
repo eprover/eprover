@@ -46,6 +46,62 @@ typedef TFormula_p (*FormulaMapper)(TFormula_p, TB_p);
 
 /*-----------------------------------------------------------------------
 //
+// Function: flatten_apps()
+//
+//   Apply additional arguments to hd assuming hd needs to be flattened.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+Term_p flatten_apps(TB_p bank, Term_p hd, Term_p* args, long num_args,
+                    Type_p res_type)
+{
+   Term_p res = TermTopAlloc(hd->f_code, hd->arity + num_args);
+#ifdef NDEBUG
+   res->type = res_type;
+#endif
+   for(long i=0; i < hd->arity; i++)
+   {
+      res->args[i] = hd->args[i];
+   }
+   for(long i=0; i < num_args; i++)
+   {
+      res->args[hd->arity+i] = args[i];
+   }
+
+   res = TBTermTopInsert(bank, res);
+   assert(res->type == res_type);
+   return res;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: flatten_apps()
+//
+//   Apply additional arguments to hd assuming hd needs to be flattened.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+Term_p flatten_apps_driver(TB_p terms, Term_p t)
+{
+   if(TermIsPhonyApp(t) && !TermIsPhonyAppTarget(t->args[0]))
+   {
+      return flatten_apps(terms, t->args[0], t->args+1, t->arity-1, t->type);
+   }
+   else
+   {
+      return t;
+   }
+}
+
+/*-----------------------------------------------------------------------
+//
 // Function: close_let_def()
 //
 //   For each defined symbol f(bound vars) = s, finds what are free variables
@@ -226,7 +282,14 @@ TFormula_p lift_lets(TB_p terms, TFormula_p t, PStack_p fresh_defs)
 
       if(changed)
       {
+         if(TermIsPhonyApp(new) && !TermIsPhonyAppTarget(new->args[0]))
+         {
+            Term_p flat = flatten_apps(terms, new->args[0], new->args+1, new->arity-1, new->type);
+            TermTopFree(new);
+            new = flat;
+         }
          new = TBTermTopInsert(terms, new);
+         
       }
       else
       {
@@ -797,7 +860,8 @@ TFormula_p do_ite_unroll(TFormula_p form, TB_p terms)
                             TBTermTopInsert(terms, true_part),
                             TBTermTopInsert(terms, false_part));
 
-      form = do_ite_unroll(unrolled, terms);
+      form = do_ite_unroll(TermMap(terms, unrolled, flatten_apps_driver), 
+                           terms);
    }
    else if(TFormulaIsLiteral(terms->sig, form))
    {
@@ -830,10 +894,10 @@ TFormula_p do_ite_unroll(TFormula_p form, TB_p terms)
 
          TFormula_p if_true_impl =
             TFormulaFCodeAlloc(terms, terms->sig->or_code,
-                               neg_cond, repl_t);
+                               neg_cond, TermMap(terms, repl_t, flatten_apps_driver));
          TFormula_p if_false_impl =
             TFormulaFCodeAlloc(terms, terms->sig->or_code,
-                               cond, repl_f);
+                               cond, TermMap(terms, repl_f, flatten_apps_driver));
 
          // the whole formula
          form = TFormulaFCodeAlloc(terms, terms->sig->and_code,

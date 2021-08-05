@@ -232,10 +232,14 @@ typedef uintptr_t DerefType, *DerefType_p;
                                 TermIsVar((term)->args[0]))
 #define TermIsLambda(term) ((term)->f_code == SIG_NAMED_LAMBDA_CODE || \
                             (term)->f_code == SIG_DB_LAMBDA_CODE)
+#define TermIsPhonyAppTarget(term) (TermIsVar(term) || TermIsLambda(term) || \
+                                    (term)->f_code == SIG_ITE_CODE || \
+                                    (term)->f_code == SIG_LET_CODE)
 #else
 #define TermIsPhonyApp(term) (false)
 #define TermIsAppliedVar(term) (false)
 #define TermIsLambda(term) (false)
+#define TermIsPhonyAppTarget(term) (false)
 #endif
 #define TermIsTopLevelVar(term) (TermIsVar(term) || TermIsAppliedVar(term))
 
@@ -358,7 +362,16 @@ Term_p applied_var_deref(Term_p orig);
 static inline Type_p GetHeadType(Sig_p sig, Term_p term)
 {
 #ifdef ENABLE_LFHO
-   if(TermIsAppliedVar(term))
+   if(term->f_code == SIG_ITE_CODE)
+   {
+      assert(term->arity==3);
+      return term->type;
+   }
+   else if(term->f_code == SIG_LET_CODE)
+   {
+      return term->type;
+   }
+   else if(TermIsAppliedVar(term))
    {
       assert(!sig || term->f_code == SIG_PHONY_APP_CODE);
       return term->args[0]->type;
