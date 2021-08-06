@@ -1344,6 +1344,7 @@ long WFormulaCNF2(WFormula_p form, ClauseSet_p set,
                   TB_p terms, VarBank_p fresh_vars,
                   long miniscope_limit)
 {
+   form->tformula = LambdaNormalizeDB(terms, form->tformula);
    if(form->is_clause)
    {
       Clause_p clause = WFormClauseToClause(form);
@@ -2179,8 +2180,8 @@ long TFormulaSetLiftLambdas(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
          // TermPrintDbgHO(stderr, form->tformula, terms->sig, DEREF_NEVER);
          if(handle!=form->tformula)
          {
-            //fprintf(stderr,"\nres:");
-            //TermPrintDbgHO(stderr, handle, terms->sig, DEREF_NEVER);
+            // fprintf(stderr,"\nres:");
+            // TermPrintDbgHO(stderr, handle, terms->sig, DEREF_NEVER);
 
             form->tformula = handle;
             while(!(PStackEmpty(defs)))

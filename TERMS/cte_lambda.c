@@ -886,7 +886,7 @@ inline TermNormalizer GetEtaNormalizer()
 
 Term_p NamedToDB(TB_p bank, Term_p lambda)
 {
-   return LambdaNormalizeDB(bank, 
+   return BetaNormalizeDB(bank, 
                             TermHasLambdaSubterm(lambda) ? 
                               do_named_to_db(bank, lambda, 0) : lambda);
 }

@@ -82,8 +82,6 @@ static void pdtree_default_cell_free(PDTNode_p junk)
    assert(!junk->entries);
 
    IntMapFree(junk->f_alternatives);
-   PObjMapFree(junk->v_alternatives);
-   PObjMapFree(junk->db_alternatives);
    PStackFree(junk->var_traverse_stack);
    PDTNodeCellFree(junk);
 }

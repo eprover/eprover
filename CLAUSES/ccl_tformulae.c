@@ -933,8 +933,8 @@ WFormula_p find_generalization(PDTree_p liftings, Term_p query, TermRef name)
             LambdaEtaReduceDB(liftings->bank,
                BetaNormalizeDB(liftings->bank, 
                   TBInsert(liftings->bank, mi->pos->literal->rterm, 
-                           DEREF_ALWAYS)));
-         if(!LFHOL_UNSUPPORTED(candidate))
+                           DEREF_ALWAYS)));        
+         if(!TermHasLambdaSubterm(candidate))
          {
             *name = candidate;
             res = mi->pos->data;
@@ -1127,7 +1127,8 @@ Term_p lift_lambda(TB_p terms, PStack_p bound_vars, Term_p body,
          TypeBankInsertTypeShared(terms->sig->type_bank,
             ArrowTypeFlattened(lift_sym_ty_args, 
                                PStackGetSP(lb_stack_db_vars), closed->type));
-      
+      TypeArgArrayFree(lift_sym_ty_args, PStackGetSP(lb_stack_db_vars));
+
       Term_p def_head =  TermAllocNewSkolem(terms->sig, free_var_stack, res_ty);
       def_head = TBTermTopInsert(terms, def_head);
       
@@ -2429,6 +2430,7 @@ TFormula_p LiftLambdas(TB_p terms, TFormula_p t, PStack_p definitions, PDTree_p 
 {
    Term_p res;
    PStack_p vars = NULL;
+   t = BetaNormalizeDB(terms, t);
    if(TermIsLambda(t))
    {
       vars = PStackAlloc();

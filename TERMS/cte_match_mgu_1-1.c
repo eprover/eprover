@@ -342,8 +342,8 @@ int SubstComputeMatchHO(Term_p matcher, Term_p to_match, Subst_p subst)
       return MATCH_FAILED;
    }
 
-   Sig_p sig = bank->sig;
-   
+   Sig_p sig = bank ? bank->sig : NULL;
+
    PStackPointer backtrack = PStackGetSP(subst);
    PLocalStackInit(jobs);
 
@@ -448,7 +448,7 @@ int SubstComputeMatchHO(Term_p matcher, Term_p to_match, Subst_p subst)
    PLocalStackFree(jobs);
    assert(res != MATCH_INIT);
    assert(res == MATCH_FAILED || 
-            TermStructPrefixEqual(s, t, DEREF_ONCE, DEREF_NEVER, res, bank->sig));
+            TermStructPrefixEqual(s, t, DEREF_ONCE, DEREF_NEVER, res, sig));
    return res;
 }
 

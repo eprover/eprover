@@ -1270,7 +1270,7 @@ bool TermStructEqualDeref(Term_p t1, Term_p t2, DerefType deref_1, DerefType der
    int limit_1 = DEREF_LIMIT(t1, deref_1);
    int limit_2 = DEREF_LIMIT(t2, deref_2);
 
-   TB_p bank = TermGetBank(t1);
+   TB_p bank = TermGetBank(t1) ? TermGetBank(t1) : TermGetBank(t2);
 
    if(problemType == PROBLEM_HO)
    {
@@ -1280,7 +1280,9 @@ bool TermStructEqualDeref(Term_p t1, Term_p t2, DerefType deref_1, DerefType der
       }
       else
       {
-         t1 = deref_1 == DEREF_ONCE ? TBInsertInstantiated(bank, t1) : t1;
+         t1 = 
+            deref_1 == DEREF_ONCE ? 
+               (TermIsFreeVar(t1) ? t1->binding : TBInsertInstantiated(bank, t1)) : t1;
          t1 = LambdaNormalizeDB(bank, t1);
          limit_1 = INT_MAX;
          deref_1 = DEREF_NEVER;
@@ -1299,7 +1301,9 @@ bool TermStructEqualDeref(Term_p t1, Term_p t2, DerefType deref_1, DerefType der
       }
       else
       {
-         t2 = deref_2 == DEREF_ONCE ? TBInsertInstantiated(bank, t2) : t2;
+         t2 = 
+            deref_2 == DEREF_ONCE ? 
+               (TermIsFreeVar(t2) ? t2->binding : TBInsertInstantiated(bank, t2)) : t2;
          t2 = LambdaNormalizeDB(bank, t2);
          limit_2 = INT_MAX;
          deref_2 = DEREF_NEVER;
