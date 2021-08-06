@@ -26,8 +26,7 @@ Changes
 #include "ccl_clausefunc.h"
 #include "cte_lambda.h"
 
-#define  MAX_RW_STEPS 500
-
+#define MAX_RW_STEPS 500
 
 /*---------------------------------------------------------------------*/
 /*                        Global Variables                             */
@@ -57,19 +56,18 @@ typedef TFormula_p (*FormulaMapper)(TFormula_p, TB_p);
 /----------------------------------------------------------------------*/
 bool form_struct_correct(Sig_p sig, TFormula_p form)
 {
-   if(TFormulaIsLiteral(sig, form))
+   if (TFormulaIsLiteral(sig, form))
    {
       return true;
    }
-   else if(form->f_code == sig->qall_code || form->f_code == sig->qex_code)
+   else if (form->f_code == sig->qall_code || form->f_code == sig->qex_code)
    {
       return form_struct_correct(sig, form->args[1]);
    }
-   else if(!TermIsAnyVar(form) && SigQueryFuncProp(sig, form->f_code, FPFOFOp))
+   else if (!TermIsAnyVar(form) && SigQueryFuncProp(sig, form->f_code, FPFOFOp))
    {
-      return (!TFormulaHasSubForm1(sig, form) || form_struct_correct(sig, form->args[0]))
+      return (!TFormulaHasSubForm1(sig, form) || form_struct_correct(sig, form->args[0])) 
              && (!TFormulaHasSubForm2(sig, form) || form_struct_correct(sig, form->args[1]));
-
    }
    else
    {
@@ -79,12 +77,11 @@ bool form_struct_correct(Sig_p sig, TFormula_p form)
 
 bool FormulaSetCorrectStruct(Sig_p sig, FormulaSet_p set)
 {
-   for(WFormula_p handle = set->anchor->succ; handle!=set->anchor; handle =
-             handle->succ)
+   for (WFormula_p handle = set->anchor->succ; handle != set->anchor; handle =
+                                                                          handle->succ)
    {
-      DBG_PRINT(stderr, "working on: ", TermPrintDbgHO(stderr, handle->tformula, sig, DEREF_NEVER), ".\n");
-      if(!form_struct_correct(sig, handle->tformula))
-      {         
+      if (!form_struct_correct(sig, handle->tformula))
+      {
          return false;
       }
    }
@@ -104,14 +101,14 @@ bool FormulaSetCorrectStruct(Sig_p sig, FormulaSet_p set)
 //
 /----------------------------------------------------------------------*/
 
-static void close_let_def(TB_p bank, NumTree_p* closed_defs, Term_p def)
+static void close_let_def(TB_p bank, NumTree_p *closed_defs, Term_p def)
 {
    assert(def->f_code == bank->sig->eqn_code);
    PTree_p free_vars = NULL;
    Term_p lhs = def->args[0], rhs = def->args[1];
    TFormulaCollectFreeVars(bank, rhs, &free_vars);
 
-   for(int i=0; i<lhs->arity; i++)
+   for (int i = 0; i < lhs->arity; i++)
    {
       Term_p arg = lhs->args[i];
       assert(TermIsFreeVar(arg));
@@ -120,7 +117,7 @@ static void close_let_def(TB_p bank, NumTree_p* closed_defs, Term_p def)
 
    PStack_p all_vars = PStackAlloc();
    PTreeToPStack(all_vars, free_vars);
-   for(int i=0; i<lhs->arity; i++)
+   for (int i = 0; i < lhs->arity; i++)
    {
       PStackPushP(all_vars, lhs->args[i]);
    }
@@ -146,18 +143,18 @@ static void close_let_def(TB_p bank, NumTree_p* closed_defs, Term_p def)
 //
 /----------------------------------------------------------------------*/
 
-static Term_p replace_body(TB_p bank, NumTree_p* closed_defs, Term_p t)
+static Term_p replace_body(TB_p bank, NumTree_p *closed_defs, Term_p t)
 {
    NumTree_p node = NumTreeFind(closed_defs, t->f_code);
    Term_p new = TermTopCopy(t);
    bool changed = false;
-   for(long i=0; i<t->arity; i++)
+   for (long i = 0; i < t->arity; i++)
    {
       new->args[i] = replace_body(bank, closed_defs, t->args[i]);
       changed = changed || new->args[i] != t->args[i];
    }
 
-   if(!changed)
+   if (!changed)
    {
       TermTopFree(new);
       new = t;
@@ -167,13 +164,13 @@ static Term_p replace_body(TB_p bank, NumTree_p* closed_defs, Term_p t)
       new = TBTermTopInsert(bank, new);
    }
 
-   if(node)
+   if (node)
    {
       Term_p old_def = node->val1.p_val;
       Term_p new_def = node->val2.p_val;
 
       Subst_p subst = SubstAlloc();
-      for(long i=0; i<new->arity; i++)
+      for (long i = 0; i < new->arity; i++)
       {
          SubstAddBinding(subst, old_def->args[i], new->args[i]);
       }
@@ -197,12 +194,12 @@ static Term_p replace_body(TB_p bank, NumTree_p* closed_defs, Term_p t)
 //
 /----------------------------------------------------------------------*/
 
-void make_fresh_defs(TB_p bank, Term_p let_t, NumTree_p* defs, PStack_p res)
+void make_fresh_defs(TB_p bank, Term_p let_t, NumTree_p *defs, PStack_p res)
 {
    assert(let_t->f_code == SIG_LET_CODE);
    long num_def = let_t->arity - 1;
    Sig_p sig = bank->sig;
-   for(long i=0; i<num_def; i++)
+   for (long i = 0; i < num_def; i++)
    {
       assert(let_t->args[i]->f_code == bank->sig->eqn_code);
       FunCode old_lhs_fc = let_t->args[i]->args[0]->f_code;
@@ -212,7 +209,7 @@ void make_fresh_defs(TB_p bank, Term_p let_t, NumTree_p* defs, PStack_p res)
       Term_p new_lhs = node->val2.p_val;
       TFormula_p matrix;
 
-      if(TypeIsBool(rhs->type))
+      if (TypeIsBool(rhs->type))
       {
          matrix = TFormulaFCodeAlloc(bank, sig->equiv_code,
                                      EncodePredicateAsEqn(bank, new_lhs),
@@ -241,16 +238,16 @@ void make_fresh_defs(TB_p bank, Term_p let_t, NumTree_p* defs, PStack_p res)
 
 TFormula_p lift_lets(TB_p terms, TFormula_p t, PStack_p fresh_defs)
 {
-   if(TermIsFreeVar(t))
+   if (TermIsFreeVar(t))
    {
       return t;
    }
-   else if(t->f_code == SIG_LET_CODE)
+   else if (t->f_code == SIG_LET_CODE)
    {
       Term_p new = TermTopCopyWithoutArgs(t);
       NumTree_p closed_defs = NULL;
       long num_defs = t->arity - 1;
-      for(long i=0; i < num_defs; i++)
+      for (long i = 0; i < num_defs; i++)
       {
          new->args[i] = lift_lets(terms, t->args[i], fresh_defs);
          close_let_def(terms, &closed_defs, new->args[i]);
@@ -265,13 +262,13 @@ TFormula_p lift_lets(TB_p terms, TFormula_p t, PStack_p fresh_defs)
    {
       Term_p new = TermTopCopyWithoutArgs(t);
       bool changed = false;
-      for(int i=0; i<new->arity; i++)
+      for (int i = 0; i < new->arity; i++)
       {
          new->args[i] = lift_lets(terms, t->args[i], fresh_defs);
          changed = changed || new->args[i] != t->args[i];
       }
 
-      if(changed)
+      if (changed)
       {
          new = TBTermTopInsert(terms, new);
       }
@@ -282,8 +279,6 @@ TFormula_p lift_lets(TB_p terms, TFormula_p t, PStack_p fresh_defs)
       }
       return new;
    }
-
-
 }
 
 /*-----------------------------------------------------------------------
@@ -301,14 +296,15 @@ TFormula_p lift_lets(TB_p terms, TFormula_p t, PStack_p fresh_defs)
 TFormula_p unencode_eqns(TB_p terms, TFormula_p t)
 {
    Term_p res = t;
-   if(t->f_code == terms->sig->eqn_code && t->arity == 2
-      && t->args[1] == terms->true_term
-      && !TermIsAnyVar(t->args[0])
-      && (SigQueryFuncProp(terms->sig, t->args[0]->f_code, FPFOFOp)
-          || t->args[0]->f_code == terms->sig->qex_code
-          || t->args[0]->f_code == terms->sig->qall_code
-          || t->args[0]->f_code == terms->sig->eqn_code
-          || t->args[0]->f_code == terms->sig->neqn_code))
+   if (t->f_code == terms->sig->eqn_code 
+        && t->arity == 2 
+        && t->args[1] == terms->true_term 
+        && !TermIsAnyVar(t->args[0]) 
+        && (SigQueryFuncProp(terms->sig, t->args[0]->f_code, FPFOFOp) 
+            || t->args[0]->f_code == terms->sig->qex_code 
+            || t->args[0]->f_code == terms->sig->qall_code 
+            || t->args[0]->f_code == terms->sig->eqn_code 
+            || t->args[0]->f_code == terms->sig->neqn_code))
    {
       res = t->args[0];
    }
@@ -331,7 +327,7 @@ Term_p refresh_qvars(TB_p terms, Term_p form)
 {
    Term_p res;
    Sig_p sig = terms->sig;
-   if(TermIsGround(form))
+   if (TermIsGround(form))
    {
       res = form;
    }
@@ -340,8 +336,7 @@ Term_p refresh_qvars(TB_p terms, Term_p form)
       assert(form->binding);
       res = form->binding;
    }
-   else if ((form->f_code == sig->qall_code || form->f_code == sig->qex_code)
-            && form->arity == 2)
+   else if ((form->f_code == sig->qall_code || form->f_code == sig->qex_code) && form->arity == 2)
    {
       Term_p prev_binding = form->args[0]->binding;
       Term_p fresh_var = VarBankGetFreshVar(terms->vars, form->args[0]->type);
@@ -359,13 +354,13 @@ Term_p refresh_qvars(TB_p terms, Term_p form)
       res = TermTopCopy(form);
       bool changed = false;
 
-      for(int i=0; i<form->arity; i++)
+      for (int i = 0; i < form->arity; i++)
       {
          res->args[i] = refresh_qvars(terms, form->args[i]);
          changed = changed || form->args[i] != res->args[i];
       }
 
-      if(changed)
+      if (changed)
       {
          res = TBTermTopInsert(terms, res);
       }
@@ -392,22 +387,22 @@ Term_p refresh_qvars(TB_p terms, Term_p form)
 /----------------------------------------------------------------------*/
 
 Term_p do_rw_with_defs(TB_p terms, Term_p t, IntMap_p def_map,
-                       PTree_p* used_defs, int* steps, bool snf)
+                       PTree_p *used_defs, int *steps, bool snf)
 {
-   if(*steps <= 0)
+   if (*steps <= 0)
    {
       return t;
    }
 
-   bool changed=false;
+   bool changed = false;
    Term_p new = TermTopAlloc(t->f_code, t->arity);
-   for(long i=0; i<t->arity; i++)
+   for (long i = 0; i < t->arity; i++)
    {
       new->args[i] = do_rw_with_defs(terms, t->args[i], def_map, used_defs, steps, snf);
       changed = changed || new->args[i] != t->args[i];
    }
 
-   if(!changed)
+   if (!changed)
    {
       TermTopFree(new);
       new = t;
@@ -418,16 +413,16 @@ Term_p do_rw_with_defs(TB_p terms, Term_p t, IntMap_p def_map,
    }
 
    WFormula_p wform = IntMapGetVal(def_map, new->f_code);
-   if(wform)
+   if (wform)
    {
       Term_p rhs = refresh_qvars(terms, wform->tformula->args[1]);
       PStack_p args = PStackAlloc();
-      for(long i=0; i<new->arity; i++)
+      for (long i = 0; i < new->arity; i++)
       {
          PStackPushP(args, new->args[i]);
       }
       new = snf ? BetaNormalizeDB(terms, ApplyTerms(terms, rhs, args))
-                  : ApplyTerms(terms, rhs, args);
+                : ApplyTerms(terms, rhs, args);
       PTreeStore(used_defs, wform);
       new = do_rw_with_defs(terms, new,
                             def_map, used_defs, steps, snf);
@@ -454,9 +449,9 @@ Term_p do_rw_with_defs(TB_p terms, Term_p t, IntMap_p def_map,
 PTree_p create_sym_map(FormulaSet_p set, IntMap_p sym_def_map)
 {
    PTree_p recognized_definitions = NULL;
-   for(WFormula_p form = set->anchor->succ; form!=set->anchor; form=form->succ)
+   for (WFormula_p form = set->anchor->succ; form != set->anchor; form = form->succ)
    {
-      if(!(FormulaQueryProp(form, CPIsLambdaDef)))
+      if (!(FormulaQueryProp(form, CPIsLambdaDef)))
       {
          continue;
       }
@@ -466,19 +461,19 @@ PTree_p create_sym_map(FormulaSet_p set, IntMap_p sym_def_map)
       Term_p lhs = NULL, rhs = NULL;
       Term_p tform = form->tformula;
 
-      while(tform->f_code == sig->qall_code && tform->arity == 2)
+      while (tform->f_code == sig->qall_code && tform->arity == 2)
       {
          tform = tform->args[1];
       }
 
-      if(tform->f_code == sig->eqn_code)
+      if (tform->f_code == sig->eqn_code)
       {
          lhs = tform->args[0];
          rhs = tform->args[1];
       }
-      else if(tform->f_code == sig->equiv_code &&
-              tform->args[0]->f_code == sig->eqn_code &&
-              tform->args[0]->args[1] == bank->true_term)
+      else if (tform->f_code == sig->equiv_code &&
+               tform->args[0]->f_code == sig->eqn_code &&
+               tform->args[0]->args[1] == bank->true_term)
       {
          lhs = tform->args[0]->args[0];
          rhs = tform->args[1];
@@ -490,7 +485,7 @@ PTree_p create_sym_map(FormulaSet_p set, IntMap_p sym_def_map)
 
       PStack_p bvars = PStackAlloc();
       Term_p lhs_body = UnfoldLambda(lhs, bvars);
-      for(long i=0; i<PStackGetSP(bvars); i++)
+      for (long i = 0; i < PStackGetSP(bvars); i++)
       {
          Type_p ty = ((Term_p)PStackElementP(bvars, i))->type;
          PStackAssignP(bvars, i, VarBankGetFreshVar(bank->vars, ty));
@@ -501,19 +496,18 @@ PTree_p create_sym_map(FormulaSet_p set, IntMap_p sym_def_map)
       // now the definition is of the form f @ ..terms.. = \xyz. body
       // and we need to check if terms are distinct variables
       // and if \terms\xyz.body has no free variables, and if lhs does
-      // not appear in 
+      // not appear in
       bool is_def = TypeIsPredicate(lhs->type) &&
                     lhs->f_code > sig->internal_symbols && rhs != bank->true_term;
       PStackReset(bvars);
-      for(long i=0; is_def && i<lhs_body->arity; i++)
+      for (long i = 0; is_def && i < lhs_body->arity; i++)
       {
          Term_p arg = lhs_body->args[i];
-         if(arg->f_code == sig->eqn_code && arg->arity == 2
-            && arg->args[1] == bank->true_term)
+         if (arg->f_code == sig->eqn_code && arg->arity == 2 && arg->args[1] == bank->true_term)
          {
             arg = arg->args[0];
          }
-         if(!TermIsFreeVar(arg) || TermCellQueryProp(arg, TPIsSpecialVar))
+         if (!TermIsFreeVar(arg) || TermCellQueryProp(arg, TPIsSpecialVar))
          {
             is_def = false;
          }
@@ -524,10 +518,10 @@ PTree_p create_sym_map(FormulaSet_p set, IntMap_p sym_def_map)
          }
       }
 
-      if(is_def && !TermHasFCode(rhs_applied, lhs_body->f_code))
+      if (is_def && !TermHasFCode(rhs_applied, lhs_body->f_code))
       {
          rhs = AbstractVars(bank, rhs_applied, bvars);
-         if(!TFormulaHasFreeVars(bank, rhs))
+         if (!TFormulaHasFreeVars(bank, rhs))
          {
             lhs = TermTopAlloc(lhs_body->f_code, 0);
 #ifdef NDEBUG
@@ -546,7 +540,7 @@ PTree_p create_sym_map(FormulaSet_p set, IntMap_p sym_def_map)
          }
       }
 
-      for(PStackPointer i=0; i<PStackGetSP(bvars); i++)
+      for (PStackPointer i = 0; i < PStackGetSP(bvars); i++)
       {
          TermCellDelProp(((Term_p)PStackElementP(bvars, i)), TPIsSpecialVar);
       }
@@ -573,20 +567,20 @@ void intersimplify_definitions(TB_p terms, IntMap_p sym_def_map)
    IntMapIter_p iter = IntMapIterAlloc(sym_def_map, 0, LONG_MAX);
    long i;
    WFormula_p next = NULL;
-   while((next=IntMapIterNext(iter, &i)))
+   while ((next = IntMapIterNext(iter, &i)))
    {
       PTree_p used_defs = NULL;
       int max_steps = MAX_RW_STEPS;
       Term_p new_rhs = do_rw_with_defs(terms, next->tformula->args[1],
                                        sym_def_map, &used_defs,
                                        &max_steps, true);
-      if(new_rhs!=next->tformula->args[1])
+      if (new_rhs != next->tformula->args[1])
       {
          assert(used_defs);
          next->tformula->args[1] = new_rhs;
          PStack_p ptiter = PTreeTraverseInit(used_defs);
          PTree_p node = NULL;
-         while((node=PTreeTraverseNext(ptiter)))
+         while ((node = PTreeTraverseNext(ptiter)))
          {
             WFormulaPushDerivation(next, DCApplyDef, node->key, NULL);
          }
@@ -613,11 +607,11 @@ void intersimplify_definitions(TB_p terms, IntMap_p sym_def_map)
 bool map_formula(WFormula_p form, TB_p terms, FormulaMapper processor, DerivationCode dc)
 {
    TFormula_p original = form->tformula;
-   bool       changed = false;
+   bool changed = false;
 
    form->tformula = processor(original, terms);
 
-   if(form->tformula != original)
+   if (form->tformula != original)
    {
       WFormulaPushDerivation(form, dc, NULL, NULL);
       changed = true;
@@ -646,7 +640,7 @@ void ignore_include(Scanner_p in)
    AcceptInpId(in, "include");
    AcceptInpTok(in, OpenBracket);
    CheckInpTok(in, SQString);
-   char* name = DStrCopyCore(AktToken(in)->literal);
+   char *name = DStrCopyCore(AktToken(in)->literal);
    NextToken(in);
    AcceptInpTok(in, CloseBracket);
    AcceptInpTok(in, Fullstop);
@@ -654,7 +648,6 @@ void ignore_include(Scanner_p in)
    fprintf(stdout, "include('%s').\n", name);
    FREE(name);
 }
-
 
 /*-----------------------------------------------------------------------
 //
@@ -675,15 +668,14 @@ TFormula_p answer_lit_alloc(TB_p terms, PStack_p varstack)
    TFormula_p res;
    Term_p handle;
 
-   handle       = TBAllocNewSkolem(terms, varstack, NULL);
-   res          = TermTopAlloc(terms->sig->answer_code, 1);
+   handle = TBAllocNewSkolem(terms, varstack, NULL);
+   res = TermTopAlloc(terms->sig->answer_code, 1);
    res->args[0] = handle;
-   res          = TBTermTopInsert(terms, res);
-   res          = EqnTermsTBTermEncode(terms, res, terms->true_term, false, PENormal);
+   res = TBTermTopInsert(terms, res);
+   res = EqnTermsTBTermEncode(terms, res, terms->true_term, false, PENormal);
 
    return res;
 }
-
 
 /*-----------------------------------------------------------------------
 //
@@ -703,19 +695,18 @@ static bool verify_name(StrTree_p *name_selector, ClauseInfo_p info)
 {
    StrTree_p handle;
 
-   if(!(*name_selector))
+   if (!(*name_selector))
    {
       return true;
    }
    handle = StrTreeFind(name_selector, info->name);
-   if(!handle)
+   if (!handle)
    {
       return false;
    }
    handle->val1.i_val = 1; /* Mark as found */
    return true;
 }
-
 
 /*-----------------------------------------------------------------------
 //
@@ -737,32 +728,32 @@ static void check_all_found(Scanner_p in, StrTree_p name_selector)
 
    trav_stack = StrTreeTraverseInit(name_selector);
 
-   while((handle = StrTreeTraverseNext(trav_stack)))
+   while ((handle = StrTreeTraverseNext(trav_stack)))
    {
-      if(!handle->val1.i_val)
+      if (!handle->val1.i_val)
       {
          PStackPushP(err_stack, handle->key);
       }
    }
    StrTreeTraverseExit(trav_stack);
 
-   if(!PStackEmpty(err_stack))
+   if (!PStackEmpty(err_stack))
    {
       DStr_p err_str = DStrAlloc();
       char *sep = "";
       PStackPointer i;
 
-      if(in->include_pos)
+      if (in->include_pos)
       {
          DStrSet(err_str, in->include_pos);
          DStrAppendStr(err_str, " ");
       }
       DStrAppendStr(err_str, "\"include\" statement cannot "
-                    "find the following requested clauses/formulae in ");
+                             "find the following requested clauses/formulae in ");
       DStrAppendDStr(err_str, Source(in));
       DStrAppendStr(err_str, ": ");
 
-      for(i=0; i< PStackGetSP(err_stack); i++)
+      for (i = 0; i < PStackGetSP(err_stack); i++)
       {
          DStrAppendStr(err_str, sep);
          DStrAppendStr(err_str, PStackElementP(err_stack, i));
@@ -793,28 +784,28 @@ TFormula_p do_fool_unroll(TFormula_p form, TB_p terms)
 {
    TFormula_p unrolled1 = NULL;
    TFormula_p unrolled2 = NULL;
-   if(TFormulaIsLiteral(terms->sig, form))
+   if (TFormulaIsLiteral(terms->sig, form))
    {
       TermPos_p pos = PStackAlloc();
       PStackPushP(pos, form);
       PStackPushInt(pos, 0);
-      if(!TermFindFOOLSubterm(form->args[0], pos))
+      if (!TermFindFOOLSubterm(form->args[0], pos))
       {
          PStackDiscardTop(pos);
          PStackPushInt(pos, 1);
-         if(!TermFindFOOLSubterm(form->args[1], pos))
+         if (!TermFindFOOLSubterm(form->args[1], pos))
          {
             PStackReset(pos);
          }
       }
 
-      if(!PStackEmpty(pos))
+      if (!PStackEmpty(pos))
       {
          TFormula_p subform =
-            ((Term_p)PStackBelowTopP(pos))->args[PStackTopInt(pos)];
+             ((Term_p)PStackBelowTopP(pos))->args[PStackTopInt(pos)];
          assert(TypeIsBool(subform->type));
 
-         if(subform->f_code > terms->sig->internal_symbols)
+         if (subform->f_code > terms->sig->internal_symbols)
          {
             // This is a Skolem symbol that is not yet encoded as literal
             subform = EqnTermsTBTermEncode(terms, subform, terms->true_term,
@@ -830,42 +821,42 @@ TFormula_p do_fool_unroll(TFormula_p form, TB_p terms)
 
          // ~(p&q)|f(a,$true)=a from the above example
          TFormula_p fst_impl = TFormulaFCodeAlloc(terms, terms->sig->or_code,
-                                                   neg_subf, subform_t);
+                                                  neg_subf, subform_t);
          // (p&q)|f(a, $false)=a
          TFormula_p snd_impl = TFormulaFCodeAlloc(terms, terms->sig->or_code,
-                                                   subform, subform_f);
+                                                  subform, subform_f);
 
          // the whole formula
          form = TFormulaFCodeAlloc(terms, terms->sig->and_code,
-                                    do_fool_unroll(fst_impl, terms),
-                                    do_fool_unroll(snd_impl, terms));
+                                   do_fool_unroll(fst_impl, terms),
+                                   do_fool_unroll(snd_impl, terms));
       }
       PStackFree(pos);
    }
    else
    {
-      if(TFormulaIsQuantified(terms->sig, form) && !TermIsLambda(form))
+      if (TFormulaIsQuantified(terms->sig, form) && !TermIsLambda(form))
       {
          unrolled1 = do_fool_unroll(form->args[1], terms);
-         if(form->args[1] != unrolled1)
+         if (form->args[1] != unrolled1)
          {
             form = TFormulaQuantorAlloc(terms, form->f_code,
                                         form->args[0], unrolled1);
          }
       }
-      else if(!TermIsLambda(form))
+      else if (!TermIsLambda(form))
       {
-         if(TFormulaHasSubForm1(terms->sig, form))
+         if (TFormulaHasSubForm1(terms->sig, form))
          {
             unrolled1 = do_fool_unroll(form->args[0], terms);
          }
-         if(TFormulaHasSubForm2(terms->sig, form))
+         if (TFormulaHasSubForm2(terms->sig, form))
          {
             unrolled2 = do_fool_unroll(form->args[1], terms);
          }
 
-         if((unrolled1 && unrolled1 != form->args[0]) ||
-            (unrolled2 && unrolled2 != form->args[1]))
+         if ((unrolled1 && unrolled1 != form->args[0]) ||
+             (unrolled2 && unrolled2 != form->args[1]))
          {
             form = TFormulaFCodeAlloc(terms, form->f_code, unrolled1, unrolled2);
          }
@@ -891,7 +882,7 @@ TFormula_p do_fool_unroll(TFormula_p form, TB_p terms)
 
 TFormula_p do_ite_unroll(TFormula_p form, TB_p terms)
 {
-   if(form->f_code == SIG_ITE_CODE)
+   if (form->f_code == SIG_ITE_CODE)
    {
       assert(form->arity == 3);
       TFormula_p cond = form->args[0];
@@ -906,31 +897,31 @@ TFormula_p do_ite_unroll(TFormula_p form, TB_p terms)
       false_part->args[1] = form->args[2];
 
       TFormula_p unrolled =
-         TFormulaFCodeAlloc(terms, terms->sig->and_code,
-                            TBTermTopInsert(terms, true_part),
-                            TBTermTopInsert(terms, false_part));
+          TFormulaFCodeAlloc(terms, terms->sig->and_code,
+                             TBTermTopInsert(terms, true_part),
+                             TBTermTopInsert(terms, false_part));
 
       form = do_ite_unroll(unrolled, terms);
    }
-   else if(TFormulaIsLiteral(terms->sig, form))
+   else if (TFormulaIsLiteral(terms->sig, form))
    {
       TermPos_p pos = PStackAlloc();
       PStackPushP(pos, form);
       PStackPushInt(pos, 0);
-      if(form->args[0]->f_code != SIG_ITE_CODE && !TermFindIteSubterm(form->args[0], pos))
+      if (form->args[0]->f_code != SIG_ITE_CODE && !TermFindIteSubterm(form->args[0], pos))
       {
          PStackDiscardTop(pos);
          PStackPushInt(pos, 1);
-         if(form->args[1]->f_code != SIG_ITE_CODE && !TermFindIteSubterm(form->args[1], pos))
+         if (form->args[1]->f_code != SIG_ITE_CODE && !TermFindIteSubterm(form->args[1], pos))
          {
             PStackReset(pos);
          }
       }
 
-      if(!PStackEmpty(pos))
+      if (!PStackEmpty(pos))
       {
          TFormula_p ite_term =
-            ((Term_p)PStackBelowTopP(pos))->args[PStackTopInt(pos)];
+             ((Term_p)PStackBelowTopP(pos))->args[PStackTopInt(pos)];
          assert(ite_term->f_code == SIG_ITE_CODE);
 
          Term_p repl_t = TBTermPosReplace(terms, ite_term->args[1], pos,
@@ -942,16 +933,16 @@ TFormula_p do_ite_unroll(TFormula_p form, TB_p terms)
          TFormula_p neg_cond = TFormulaNegate(cond, terms);
 
          TFormula_p if_true_impl =
-            TFormulaFCodeAlloc(terms, terms->sig->or_code,
-                               neg_cond, repl_t);
+             TFormulaFCodeAlloc(terms, terms->sig->or_code,
+                                neg_cond, repl_t);
          TFormula_p if_false_impl =
-            TFormulaFCodeAlloc(terms, terms->sig->or_code,
-                               cond, repl_f);
+             TFormulaFCodeAlloc(terms, terms->sig->or_code,
+                                cond, repl_f);
 
          // the whole formula
          form = TFormulaFCodeAlloc(terms, terms->sig->and_code,
-                                    do_ite_unroll(if_true_impl, terms),
-                                    do_ite_unroll(if_false_impl, terms));
+                                   do_ite_unroll(if_true_impl, terms),
+                                   do_ite_unroll(if_false_impl, terms));
       }
       PStackFree(pos);
    }
@@ -959,13 +950,13 @@ TFormula_p do_ite_unroll(TFormula_p form, TB_p terms)
    {
       Term_p new = TermTopCopyWithoutArgs(form);
       bool changed = false;
-      for(long i=0; i<new->arity; i++)
+      for (long i = 0; i < new->arity; i++)
       {
          new->args[i] = do_ite_unroll(form->args[i], terms);
          changed = changed || new->args[i] != form->args[i];
       }
 
-      if(changed)
+      if (changed)
       {
          form = TBTermTopInsert(terms, new);
       }
@@ -977,7 +968,6 @@ TFormula_p do_ite_unroll(TFormula_p form, TB_p terms)
 
    return form;
 }
-
 
 /*-----------------------------------------------------------------------
 //
@@ -996,36 +986,34 @@ TFormula_p do_ite_unroll(TFormula_p form, TB_p terms)
 TFormula_p do_bool_eqn_replace(TFormula_p form, TB_p terms)
 {
    const Sig_p sig = terms->sig;
-   bool  changed   = false;
-   if(TermIsLambda(form))
+   bool changed = false;
+   if (TermIsLambda(form))
    {
       return form;
    }
 
-   if((form->f_code == sig->eqn_code || form->f_code == sig->neqn_code) 
-       && form->arity == 2)
+   if ((form->f_code == sig->eqn_code || form->f_code == sig->neqn_code) && form->arity == 2)
    {
-      if(!TermIsAnyVar(form->args[0]) && !TermIsAnyVar(form->args[1]) &&
-         SigIsLogicalSymbol(terms->sig, form->args[0]->f_code) &&
-         SigIsLogicalSymbol(terms->sig, form->args[1]->f_code) &&
-         TypeIsBool(form->args[0]) &&
-         form->args[1] != terms->true_term)
+      if (!TermIsAnyVar(form->args[0]) && !TermIsAnyVar(form->args[1]) &&
+          SigIsLogicalSymbol(terms->sig, form->args[0]->f_code) &&
+          SigIsLogicalSymbol(terms->sig, form->args[1]->f_code) &&
+          TypeIsBool(form->args[0]) &&
+          form->args[1] != terms->true_term)
       {
          // DAS literal is encoded as <predicate> = TRUE.
          // Our boolean equalities are <formula> = <formula>
          form = TFormulaFCodeAlloc(terms,
-                                   (form->f_code == terms->sig->eqn_code ?
-                                     terms->sig->equiv_code : terms->sig->xor_code),
+                                   (form->f_code == terms->sig->eqn_code ? terms->sig->equiv_code : terms->sig->xor_code),
                                    do_bool_eqn_replace(form->args[0], terms),
                                    do_bool_eqn_replace(form->args[1], terms));
          changed = true;
       }
    }
-   if(!TermIsAnyVar(form) && !changed)
+   if (!TermIsAnyVar(form) && !changed)
    {
       TFormula_p tmp = TermTopAlloc(form->f_code, form->arity);
       tmp->type = form->type;
-      for(int i=0; i<form->arity; i++)
+      for (int i = 0; i < form->arity; i++)
       {
          tmp->args[i] = do_bool_eqn_replace(form->args[i], terms);
       }
@@ -1034,11 +1022,9 @@ TFormula_p do_bool_eqn_replace(TFormula_p form, TB_p terms)
    return form;
 }
 
-
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
 /*---------------------------------------------------------------------*/
-
 
 /*-----------------------------------------------------------------------
 //
@@ -1102,8 +1088,6 @@ TFormula_p do_bool_eqn_replace(TFormula_p form, TB_p terms)
 /*    return res; */
 /* } */
 
-
-
 /*-----------------------------------------------------------------------
 //
 // Function: WFormulaConjectureNegate()
@@ -1122,7 +1106,7 @@ bool WFormulaConjectureNegate(WFormula_p wform)
 {
    FormulaProperties ftype = FormulaQueryType(wform);
 
-   if(ftype==CPTypeConjecture)
+   if (ftype == CPTypeConjecture)
    {
       wform->tformula = TFormulaFCodeAlloc(wform->terms,
                                            wform->terms->sig->not_code,
@@ -1135,7 +1119,6 @@ bool WFormulaConjectureNegate(WFormula_p wform)
    }
    return false;
 }
-
 
 /*-----------------------------------------------------------------------
 //
@@ -1159,12 +1142,12 @@ TFormula_p TFormulaAnnotateQuestion(TB_p terms,
    PStack_p varstack = PStackAlloc();
 
    handle = form;
-   while(handle->f_code == terms->sig->qex_code)
+   while (handle->f_code == terms->sig->qex_code)
    {
       PStackPushP(varstack, handle->args[0]);
       handle = handle->args[1];
    }
-   if(PStackEmpty(varstack))
+   if (PStackEmpty(varstack))
    {
       /* Not a "real" question, nothing to do */
       res = form;
@@ -1173,10 +1156,10 @@ TFormula_p TFormulaAnnotateQuestion(TB_p terms,
    {
       tmp = answer_lit_alloc(terms, varstack);
       res = TFormulaFCodeAlloc(terms, terms->sig->and_code, handle, tmp);
-      while(!PStackEmpty(varstack))
+      while (!PStackEmpty(varstack))
       {
          handle = PStackPopP(varstack);
-         res    = TFormulaFCodeAlloc(terms, terms->sig->qex_code, handle, res);
+         res = TFormulaFCodeAlloc(terms, terms->sig->qex_code, handle, res);
       }
    }
    PStackFree(varstack);
@@ -1202,10 +1185,10 @@ bool WFormulaAnnotateQuestion(WFormula_p wform, bool add_answer_lits,
                               bool conjectures_are_questions,
                               NumTree_p *question_assoc)
 {
-   if(FormulaQueryProp(wform, CPTypeQuestion)||
-      (FormulaQueryProp(wform, CPTypeConjecture)&&conjectures_are_questions))
+   if (FormulaQueryProp(wform, CPTypeQuestion) ||
+       (FormulaQueryProp(wform, CPTypeConjecture) && conjectures_are_questions))
    {
-      if(add_answer_lits)
+      if (add_answer_lits)
       {
          wform->tformula = TFormulaAnnotateQuestion(wform->terms,
                                                     wform->tformula,
@@ -1218,9 +1201,6 @@ bool WFormulaAnnotateQuestion(WFormula_p wform, bool add_answer_lits,
    }
    return false;
 }
-
-
-
 
 /*-----------------------------------------------------------------------
 //
@@ -1248,13 +1228,13 @@ long FormulaSetPreprocConjectures(FormulaSet_p set,
 
    handle = set->anchor->succ;
 
-   while(handle!=set->anchor)
+   while (handle != set->anchor)
    {
       WFormulaAnnotateQuestion(handle, add_answer_lits,
                                conjectures_are_questions,
                                NULL);
 
-      if(WFormulaConjectureNegate(handle))
+      if (WFormulaConjectureNegate(handle))
       {
          res++;
       }
@@ -1262,9 +1242,6 @@ long FormulaSetPreprocConjectures(FormulaSet_p set,
    }
    return res;
 }
-
-
-
 
 /*-----------------------------------------------------------------------
 //
@@ -1288,7 +1265,7 @@ bool WFormulaSimplify(WFormula_p form, TB_p terms)
    simplified = TFormulaSimplify(terms, form->tformula, 0);
    // TBVarSetStoreFree(terms);
 
-   if(simplified!=form->tformula)
+   if (simplified != form->tformula)
    {
       form->tformula = simplified;
       DocFormulaModificationDefault(form, inf_fof_simpl);
@@ -1297,7 +1274,6 @@ bool WFormulaSimplify(WFormula_p form, TB_p terms)
    }
    return res;
 }
-
 
 /*-----------------------------------------------------------------------
 //
@@ -1314,7 +1290,7 @@ bool WFormulaSimplify(WFormula_p form, TB_p terms)
 long WFormulaCNF(WFormula_p form, ClauseSet_p set,
                  TB_p terms, VarBank_p fresh_vars)
 {
-   if(form->is_clause)
+   if (form->is_clause)
    {
       Clause_p clause = WFormClauseToClause(form);
       ClausePushDerivation(clause, DCFofQuote, form, NULL);
@@ -1325,8 +1301,6 @@ long WFormulaCNF(WFormula_p form, ClauseSet_p set,
    return TFormulaToCNF(form, FormulaQueryType(form),
                         set, terms, fresh_vars);
 }
-
-
 
 /*-----------------------------------------------------------------------
 //
@@ -1345,7 +1319,7 @@ long WFormulaCNF2(WFormula_p form, ClauseSet_p set,
                   long miniscope_limit)
 {
    form->tformula = LambdaNormalizeDB(terms, form->tformula);
-   if(form->is_clause)
+   if (form->is_clause)
    {
       Clause_p clause = WFormClauseToClause(form);
       ClausePushDerivation(clause, DCFofQuote, form, NULL);
@@ -1356,8 +1330,6 @@ long WFormulaCNF2(WFormula_p form, ClauseSet_p set,
    return TFormulaToCNF(form, FormulaQueryType(form),
                         set, terms, fresh_vars);
 }
-
-
 
 /*-----------------------------------------------------------------------
 //
@@ -1377,40 +1349,39 @@ long FormulaSetSimplify(FormulaSet_p set, TB_p terms)
    WFormula_p handle;
    long res = 0;
    long old_nodes = TBNonVarTermNodes(terms);
-   long gc_threshold = old_nodes*TFORMULA_GC_LIMIT;
+   long gc_threshold = old_nodes * TFORMULA_GC_LIMIT;
    bool changed;
 
    handle = set->anchor->succ;
-   while(handle!=set->anchor)
+   while (handle != set->anchor)
    {
       // printf("Simplifying: \n");
       // WFormulaPrint(stdout, handle, true);
       // printf("\n");
-      changed =  WFormulaSimplify(handle, terms);
+      changed = WFormulaSimplify(handle, terms);
       // printf("Simplified %d\n", changed);
       // WFormulaPrint(stdout, handle, true);
       // printf("\n");
-      if(changed)
+      if (changed)
       {
          res++;
-         if(TBNonVarTermNodes(terms)>gc_threshold)
+         if (TBNonVarTermNodes(terms) > gc_threshold)
          {
             assert(terms == handle->terms);
             GCCollect(terms->gc);
             old_nodes = TBNonVarTermNodes(terms);
-            gc_threshold = old_nodes*TFORMULA_GC_LIMIT;
+            gc_threshold = old_nodes * TFORMULA_GC_LIMIT;
          }
       }
       handle = handle->succ;
    }
    // printf("All simplified\n");
-   if(TBNonVarTermNodes(terms)!=old_nodes)
+   if (TBNonVarTermNodes(terms) != old_nodes)
    {
       GCCollect(terms->gc);
    }
    // printf("Garbage collected\n");
    return res;
-
 }
 
 /*-----------------------------------------------------------------------
@@ -1433,14 +1404,14 @@ long FormulaSetCNF(FormulaSet_p set, FormulaSet_p archive,
    WFormula_p form, handle;
    long res = 0;
    long old_nodes = TBNonVarTermNodes(terms);
-   long gc_threshold = old_nodes*TFORMULA_GC_LIMIT;
+   long gc_threshold = old_nodes * TFORMULA_GC_LIMIT;
 
    FormulaSetSimplify(set, terms);
    // printf("FormulaSetSimplify done\n");
    TFormulaSetIntroduceDefs(set, archive, terms);
    // printf("Definitions introduced\n");
 
-   while(!FormulaSetEmpty(set))
+   while (!FormulaSetEmpty(set))
    {
       handle = FormulaSetExtractFirst(set);
       // WFormulaPrint(stdout, handle, true);
@@ -1449,24 +1420,23 @@ long FormulaSetCNF(FormulaSet_p set, FormulaSet_p archive,
       FormulaSetInsert(archive, handle);
       WFormulaPushDerivation(form, DCFofQuote, handle, NULL);
       handle = form;
-      res += WFormulaCNF(handle,clauseset, terms, fresh_vars);
+      res += WFormulaCNF(handle, clauseset, terms, fresh_vars);
       FormulaSetInsert(archive, handle);
-      if(handle->tformula &&
-         (TBNonVarTermNodes(terms)>gc_threshold))
+      if (handle->tformula &&
+          (TBNonVarTermNodes(terms) > gc_threshold))
       {
          assert(terms == handle->terms);
          GCCollect(gc);
          old_nodes = TBNonVarTermNodes(terms);
-         gc_threshold = old_nodes*TFORMULA_GC_LIMIT;
+         gc_threshold = old_nodes * TFORMULA_GC_LIMIT;
       }
    }
-   if(TBNonVarTermNodes(terms)!=old_nodes)
+   if (TBNonVarTermNodes(terms) != old_nodes)
    {
       GCCollect(gc);
    }
    return res;
 }
-
 
 /*-----------------------------------------------------------------------
 //
@@ -1483,15 +1453,14 @@ long FormulaSetCNF(FormulaSet_p set, FormulaSet_p archive,
 
 long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive,
                     ClauseSet_p clauseset, TB_p terms,
-                    VarBank_p fresh_vars, GCAdmin_p gc, 
+                    VarBank_p fresh_vars, GCAdmin_p gc,
                     long miniscope_limit,
                     bool lift_lambdas)
 {
    WFormula_p form, handle;
    long res = 0;
    long old_nodes = TBNonVarTermNodes(terms);
-   long gc_threshold = old_nodes*TFORMULA_GC_LIMIT;
-
+   long gc_threshold = old_nodes * TFORMULA_GC_LIMIT;
 
    // printf("# Start\n");
    TFormulaSetLiftItes(set, archive, terms);
@@ -1515,7 +1484,7 @@ long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive,
    TFormulaSetIntroduceDefs(set, archive, terms);
    //printf("# Definitions introduced\n");
 
-   while(!FormulaSetEmpty(set))
+   while (!FormulaSetEmpty(set))
    {
       handle = FormulaSetExtractFirst(set);
       //WFormulaPrint(stdout, handle, true);
@@ -1524,27 +1493,24 @@ long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive,
       FormulaSetInsert(archive, handle);
       WFormulaPushDerivation(form, DCFofQuote, handle, NULL);
       handle = form;
-      res += WFormulaCNF2(handle,clauseset, terms, fresh_vars,
+      res += WFormulaCNF2(handle, clauseset, terms, fresh_vars,
                           miniscope_limit);
       FormulaSetInsert(archive, handle);
-      if(handle->tformula &&
-         (TBNonVarTermNodes(terms)>gc_threshold))
+      if (handle->tformula &&
+          (TBNonVarTermNodes(terms) > gc_threshold))
       {
          assert(terms == handle->terms);
          GCCollect(gc);
          old_nodes = TBNonVarTermNodes(terms);
-         gc_threshold = old_nodes*TFORMULA_GC_LIMIT;
+         gc_threshold = old_nodes * TFORMULA_GC_LIMIT;
       }
    }
-   if(TBNonVarTermNodes(terms)!=old_nodes)
+   if (TBNonVarTermNodes(terms) != old_nodes)
    {
       GCCollect(gc);
    }
    return res;
 }
-
-
-
 
 /*-----------------------------------------------------------------------
 //
@@ -1562,7 +1528,6 @@ long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive,
 //
 /----------------------------------------------------------------------*/
 
-
 long FormulaAndClauseSetParse(Scanner_p in, FormulaSet_p fset,
                               ClauseSet_p wlset, TB_p terms,
                               StrTree_p *name_selector,
@@ -1570,124 +1535,124 @@ long FormulaAndClauseSetParse(Scanner_p in, FormulaSet_p fset,
 {
    long res = 0;
    WFormula_p form, nextform;
-   Clause_p   clause, nextclause;
-   StrTree_p  stand_in = NULL;
+   Clause_p clause, nextclause;
+   StrTree_p stand_in = NULL;
 
-   if(!name_selector)
+   if (!name_selector)
    {
       name_selector = &stand_in;
    }
 
-   switch(ScannerGetFormat(in))
+   switch (ScannerGetFormat(in))
    {
    case LOPFormat:
-         //* LOP does not at the moment support full FOF, or inline watchlists */
-         SetProblemType(PROBLEM_FO);
-         while(ClauseStartsMaybe(in))
-         {
-            form = WFormClauseParse(in, terms);
-            // fprintf(stdout, "Parsed: ");
-            // WFormulaPrint(stdout, form, true);
-            // fprintf(stdout, "\n");
-            FormulaSetInsert(fset, form);
-            res++;
-         }
-         break;
+      //* LOP does not at the moment support full FOF, or inline watchlists */
+      SetProblemType(PROBLEM_FO);
+      while (ClauseStartsMaybe(in))
+      {
+         form = WFormClauseParse(in, terms);
+         // fprintf(stdout, "Parsed: ");
+         // WFormulaPrint(stdout, form, true);
+         // fprintf(stdout, "\n");
+         FormulaSetInsert(fset, form);
+         res++;
+      }
+      break;
    default:
 #ifndef ENABLE_LFHO
-         if(TestInpId(in, "thf"))
-         {
-            Error("To support LFHOL reasoning, recompile the E prover"
-                  " using \'./configure --enable-ho && make rebuild\' \n",
-                  SYNTAX_ERROR);
-         }
+      if (TestInpId(in, "thf"))
+      {
+         Error("To support LFHOL reasoning, recompile the E prover"
+               " using \'./configure --enable-ho && make rebuild\' \n",
+               SYNTAX_ERROR);
+      }
 #endif
-         while(TestInpId(in, "input_formula|input_clause|fof|cnf|tff|thf|tcf|include"))
+      while (TestInpId(in, "input_formula|input_clause|fof|cnf|tff|thf|tcf|include"))
+      {
+         if (TestInpId(in, "include"))
          {
-            if(TestInpId(in, "include"))
+            if (app_encode)
             {
-               if(app_encode)
-               {
-                  ignore_include(in);
-                  continue;
-               }
+               ignore_include(in);
+               continue;
+            }
 
-               StrTree_p new_limit = NULL;
-               Scanner_p new_in;
-               FormulaSet_p nfset = FormulaSetAlloc();
-               ClauseSet_p  nwlset = ClauseSetAlloc();
-               new_in = ScannerParseInclude(in, &new_limit, skip_includes);
+            StrTree_p new_limit = NULL;
+            Scanner_p new_in;
+            FormulaSet_p nfset = FormulaSetAlloc();
+            ClauseSet_p nwlset = ClauseSetAlloc();
+            new_in = ScannerParseInclude(in, &new_limit, skip_includes);
 
-               if(new_in)
-               {
-                  res += FormulaAndClauseSetParse(new_in,
-                                                  nfset,
-                                                  nwlset,
-                                                  terms,
-                                                  &new_limit,
-                                                  skip_includes);
-                  DestroyScanner(new_in);
-               }
-               StrTreeFree(new_limit);
-               FormulaSetInsertSet(fset, nfset);
-               ClauseSetInsertSet(wlset, nwlset);
-               assert(ClauseSetEmpty(nfset));
-               assert(ClauseSetEmpty(nwlset));
-               FormulaSetFree(nfset);
-               ClauseSetFree(nwlset);
+            if (new_in)
+            {
+               res += FormulaAndClauseSetParse(new_in,
+                                               nfset,
+                                               nwlset,
+                                               terms,
+                                               &new_limit,
+                                               skip_includes);
+               DestroyScanner(new_in);
+            }
+            StrTreeFree(new_limit);
+            FormulaSetInsertSet(fset, nfset);
+            ClauseSetInsertSet(wlset, nwlset);
+            assert(ClauseSetEmpty(nfset));
+            assert(ClauseSetEmpty(nwlset));
+            FormulaSetFree(nfset);
+            ClauseSetFree(nwlset);
+         }
+         else
+         {
+            // printf("Parsing begins\n");
+            if (TestInpId(in, "input_formula|fof|tff|thf|tcf"))
+            {
+               // printf("It's a formula\n");
+               form = WFormulaParse(in, terms);
+               // fprintf(stdout, "Parsed: ");
+               // WFormulaPrint(stdout, form, true);
+               // fprintf(stdout, "\n");
             }
             else
             {
-               // printf("Parsing begins\n");
-               if(TestInpId(in, "input_formula|fof|tff|thf|tcf"))
-               {
-                  // printf("It's a formula\n");
-                  form = WFormulaParse(in, terms);
-                  // fprintf(stdout, "Parsed: ");
-                  // WFormulaPrint(stdout, form, true);
-                  // fprintf(stdout, "\n");
-               }
-               else
-               {
-                  assert(TestInpId(in, "input_clause|cnf"));
-                  //clause = ClauseParse(in, terms);
-                  //ClauseSetInsert(cset, clause);
-                  SetProblemType(PROBLEM_FO);
-                  form = WFormClauseParse(in, terms);
-               }
-               if(FormulaQueryType(form)==CPTypeWatchClause)
-               {
-                  assert(form->is_clause);
-                  clause = WFormClauseToClause(form);
-                  ClauseSetInsert(wlset, clause);
-                  WFormulaFree(form);
-               }
-               else
-               {
-                  FormulaSetInsert(fset, form);
-               }
-               res++;
+               assert(TestInpId(in, "input_clause|cnf"));
+               //clause = ClauseParse(in, terms);
+               //ClauseSetInsert(cset, clause);
+               SetProblemType(PROBLEM_FO);
+               form = WFormClauseParse(in, terms);
             }
+            if (FormulaQueryType(form) == CPTypeWatchClause)
+            {
+               assert(form->is_clause);
+               clause = WFormClauseToClause(form);
+               ClauseSetInsert(wlset, clause);
+               WFormulaFree(form);
+            }
+            else
+            {
+               FormulaSetInsert(fset, form);
+            }
+            res++;
          }
-         break;
+      }
+      break;
    }
-   if(*name_selector)
+   if (*name_selector)
    {
       form = fset->anchor->succ;
-      while(form!= fset->anchor)
+      while (form != fset->anchor)
       {
          nextform = form->succ;
-         if(!verify_name(name_selector, form->info))
+         if (!verify_name(name_selector, form->info))
          {
             FormulaSetDeleteEntry(form);
          }
          form = nextform;
       }
       clause = wlset->anchor->succ;
-      while(clause!= wlset->anchor)
+      while (clause != wlset->anchor)
       {
          nextclause = clause->succ;
-         if(!verify_name(name_selector, clause->info))
+         if (!verify_name(name_selector, clause->info))
          {
             ClauseSetDeleteEntry(clause);
          }
@@ -1697,7 +1662,6 @@ long FormulaAndClauseSetParse(Scanner_p in, FormulaSet_p fset,
    }
    return res;
 }
-
 
 /*-----------------------------------------------------------------------
 //
@@ -1716,7 +1680,7 @@ long FormulaAndClauseSetParse(Scanner_p in, FormulaSet_p fset,
 /----------------------------------------------------------------------*/
 
 long TFormulaToCNF(WFormula_p form, FormulaProperties type, ClauseSet_p set,
-                  TB_p terms, VarBank_p fresh_vars)
+                   TB_p terms, VarBank_p fresh_vars)
 {
    TFormula_p handle;
    long old_clause_number = set->members;
@@ -1724,17 +1688,17 @@ long TFormulaToCNF(WFormula_p form, FormulaProperties type, ClauseSet_p set,
    Clause_p clause;
 
    /* Skip quantors */
-   for(handle = form->tformula;
-       handle->f_code == terms->sig->qall_code;
-       handle = handle->args[1])
+   for (handle = form->tformula;
+        handle->f_code == terms->sig->qall_code;
+        handle = handle->args[1])
    {
       assert(handle);
    }
    PStackPushP(stack, handle);
-   while(!PStackEmpty(stack))
+   while (!PStackEmpty(stack))
    {
       handle = PStackPopP(stack);
-      if(handle->f_code == terms->sig->and_code)
+      if (handle->f_code == terms->sig->and_code)
       {
          PStackPushP(stack, handle->args[0]);
          PStackPushP(stack, handle->args[1]);
@@ -1746,7 +1710,7 @@ long TFormulaToCNF(WFormula_p form, FormulaProperties type, ClauseSet_p set,
          DocClauseFromForm(GlobalOut, OutputLevel, clause, form);
          ClausePushDerivation(clause, DCSplitConjunct, form, NULL);
 
-         if(ClauseEliminateNakedBooleanVariables(clause))
+         if (ClauseEliminateNakedBooleanVariables(clause))
          {
             ClausePushDerivation(clause, DCEliminateBVar, NULL, NULL);
          }
@@ -1757,7 +1721,6 @@ long TFormulaToCNF(WFormula_p form, FormulaProperties type, ClauseSet_p set,
    PStackFree(stack);
    return set->members - old_clause_number;
 }
-
 
 /*-----------------------------------------------------------------------
 //
@@ -1776,10 +1739,9 @@ void TFormulaSetDelTermpProp(FormulaSet_p set, TermProperties prop)
 {
    WFormula_p handle;
 
-   for(handle = set->anchor->succ; handle!=set->anchor; handle =
-          handle->succ)
+   for (handle = set->anchor->succ; handle != set->anchor; handle = handle->succ)
    {
-      if(handle->tformula)
+      if (handle->tformula)
       {
          TermDelProp(handle->tformula, DEREF_NEVER, prop);
       }
@@ -1805,19 +1767,17 @@ void TFormulaSetFindDefs(FormulaSet_p set, TB_p terms, NumXTree_p *defs,
    WFormula_p handle;
 
    // printf("TFormulaSetFindDefs()...\n");
-   for(handle = set->anchor->succ; handle!=set->anchor; handle =
-          handle->succ)
+   for (handle = set->anchor->succ; handle != set->anchor; handle = handle->succ)
    {
       assert(handle->tformula);
 
-      if(handle->tformula && !handle->is_clause && FormulaDefLimit)
+      if (handle->tformula && !handle->is_clause && FormulaDefLimit)
       {
          TFormulaFindDefs(terms, handle->tformula, 1,
-                          FormulaDefLimit, defs,  renamed_forms);
+                          FormulaDefLimit, defs, renamed_forms);
       }
    }
 }
-
 
 /*-----------------------------------------------------------------------
 //
@@ -1838,19 +1798,19 @@ void TFormulaSetFindDefs(FormulaSet_p set, TB_p terms, NumXTree_p *defs,
 long TFormulaApplyDefs(WFormula_p form, TB_p terms, NumXTree_p *defs)
 {
    TFormula_p reduced;
-   long       res = 0;
-   PStack_p   defs_used = PStackAlloc();
+   long res = 0;
+   PStack_p defs_used = PStackAlloc();
    PStackPointer i;
 
    reduced = TFormulaCopyDef(terms, form->tformula, form->ident,
                              defs, defs_used);
-   if(!PStackEmpty(defs_used))
+   if (!PStackEmpty(defs_used))
    {
       assert(form->tformula != reduced);
       form->tformula = reduced; /* Old one will be picked up by gc */
       DocFormulaIntroDefsDefault(form, defs_used);
       res = PStackGetSP(defs_used);
-      for(i=0; i<res; i++)
+      for (i = 0; i < res; i++)
       {
          WFormulaPushDerivation(form,
                                 DCApplyDef,
@@ -1907,7 +1867,6 @@ bool TFormulaReplaceEqnWithEquiv(WFormula_p form, TB_p terms)
    return map_formula(form, terms, do_bool_eqn_replace, DCFoolUnroll);
 }
 
-
 /*-----------------------------------------------------------------------
 //
 // Function: TFormulaSetUnrollFOOL()
@@ -1923,10 +1882,10 @@ bool TFormulaReplaceEqnWithEquiv(WFormula_p form, TB_p terms)
 long TFormulaSetUnrollFOOL(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
 {
    long res = 0;
-   for(WFormula_p formula = set->anchor->succ; formula!=set->anchor; formula=formula->succ)
+   for (WFormula_p formula = set->anchor->succ; formula != set->anchor; formula = formula->succ)
    {
       TFormulaReplaceEqnWithEquiv(formula, terms);
-      if(TFormulaUnrollFOOL(formula, terms))
+      if (TFormulaUnrollFOOL(formula, terms))
       {
          res++;
       }
@@ -1954,7 +1913,7 @@ long TFormulaSetLiftLets(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
 
    PStack_p lifted_lets = PStackAlloc();
 
-   for(WFormula_p form = set->anchor->succ; form!=set->anchor; form=form->succ)
+   for (WFormula_p form = set->anchor->succ; form != set->anchor; form = form->succ)
    {
       TFormula_p tform = form->tformula;
       VarBankSetVCountsToUsed(terms->vars);
@@ -1962,12 +1921,12 @@ long TFormulaSetLiftLets(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
       PStackPointer i = PStackGetSP(lifted_lets);
 
       tform = lift_lets(terms, tform, lifted_lets);
-      if(i != PStackGetSP(lifted_lets))
+      if (i != PStackGetSP(lifted_lets))
       {
          res++;
 
          form->tformula = unencode_eqns(terms, tform);
-         for(; i < PStackGetSP(lifted_lets); i++)
+         for (; i < PStackGetSP(lifted_lets); i++)
          {
             TFormula_p def = PStackElementP(lifted_lets, i);
             WFormula_p wdef = WTFormulaAlloc(terms, def);
@@ -1978,7 +1937,7 @@ long TFormulaSetLiftLets(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
       }
    }
 
-   while(!PStackEmpty(lifted_lets))
+   while (!PStackEmpty(lifted_lets))
    {
       FormulaSetInsert(set, PStackPopP(lifted_lets));
    }
@@ -1987,7 +1946,6 @@ long TFormulaSetLiftLets(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
 
    return res;
 }
-
 
 /*-----------------------------------------------------------------------
 //
@@ -2006,9 +1964,9 @@ long TFormulaSetLiftLets(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
 long TFormulaSetLiftItes(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
 {
    long res = 0;
-   for(WFormula_p formula = set->anchor->succ; formula!=set->anchor; formula=formula->succ)
+   for (WFormula_p formula = set->anchor->succ; formula != set->anchor; formula = formula->succ)
    {
-      if(map_formula(formula, terms, do_ite_unroll, DCFoolUnroll))
+      if (map_formula(formula, terms, do_ite_unroll, DCFoolUnroll))
       {
          res++;
       }
@@ -2033,13 +1991,13 @@ long TFormulaSetLiftItes(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
 long TFormulaSetLambdaNormalize(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
 {
    long res = 0;
-   if(problemType == PROBLEM_HO)
+   if (problemType == PROBLEM_HO)
    {
-      for(WFormula_p form = set->anchor->succ; form!=set->anchor; form=form->succ)
+      for (WFormula_p form = set->anchor->succ; form != set->anchor; form = form->succ)
       {
          TFormula_p handle = LambdaToForall(terms, BetaNormalizeDB(terms, form->tformula));
 
-         if(handle!=form->tformula)
+         if (handle != form->tformula)
          {
             assert(!TermIsBetaReducible(handle));
             form->tformula = handle;
@@ -2055,7 +2013,6 @@ long TFormulaSetLambdaNormalize(FormulaSet_p set, FormulaSet_p archive, TB_p ter
       return 0;
    }
 }
-
 
 /*-----------------------------------------------------------------------
 //
@@ -2074,31 +2031,31 @@ long TFormulaSetLambdaNormalize(FormulaSet_p set, FormulaSet_p archive, TB_p ter
 long TFormulaSetUnfoldLogSymbols(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
 {
    long res = 0;
-   if(problemType == PROBLEM_HO)
+   if (problemType == PROBLEM_HO)
    {
       VarBankSetVCountsToUsed(terms->vars);
       IntMap_p sym_def_map = IntMapAlloc();
       PTree_p def_wforms = create_sym_map(set, sym_def_map);
       intersimplify_definitions(terms, sym_def_map);
 
-      for(WFormula_p form = set->anchor->succ; form!=set->anchor; form=form->succ)
+      for (WFormula_p form = set->anchor->succ; form != set->anchor; form = form->succ)
       {
-         if(!PTreeFind(&def_wforms, form))
+         if (!PTreeFind(&def_wforms, form))
          {
             PTree_p used_defs = NULL;
             int max_steps = MAX_RW_STEPS;
             TFormula_p handle = do_rw_with_defs(terms, form->tformula,
-                                                sym_def_map, &used_defs, 
+                                                sym_def_map, &used_defs,
                                                 &max_steps, true);
 
-            if(handle!=form->tformula)
+            if (handle != form->tformula)
             {
                form->tformula = TermMap(terms, handle, unencode_eqns);
 
                DocFormulaModificationDefault(form, inf_fof_simpl);
                PStack_p ptiter = PTreeTraverseInit(used_defs);
-               PTree_p node=NULL;
-               while((node=PTreeTraverseNext(ptiter)))
+               PTree_p node = NULL;
+               while ((node = PTreeTraverseNext(ptiter)))
                {
                   WFormulaPushDerivation(form, DCApplyDef, node->key, NULL);
                }
@@ -2112,7 +2069,7 @@ long TFormulaSetUnfoldLogSymbols(FormulaSet_p set, FormulaSet_p archive, TB_p te
       IntMapIter_p iter = IntMapIterAlloc(sym_def_map, 0, LONG_MAX);
       WFormula_p next;
       long i;
-      while((next=IntMapIterNext(iter, &i)))
+      while ((next = IntMapIterNext(iter, &i)))
       {
          FormulaSetInsert(archive, next);
       }
@@ -2120,7 +2077,7 @@ long TFormulaSetUnfoldLogSymbols(FormulaSet_p set, FormulaSet_p archive, TB_p te
 
       PStack_p titer = PTreeTraverseInit(def_wforms);
       PTree_p node;
-      while((node = PTreeTraverseNext(titer)))
+      while ((node = PTreeTraverseNext(titer)))
       {
          next = node->key;
          FormulaSetExtractEntry(next);
@@ -2139,9 +2096,6 @@ long TFormulaSetUnfoldLogSymbols(FormulaSet_p set, FormulaSet_p archive, TB_p te
    }
 }
 
-
-
-
 /*-----------------------------------------------------------------------
 //
 // Function: TFormulaSetLiftLambdas()
@@ -2155,12 +2109,12 @@ long TFormulaSetUnfoldLogSymbols(FormulaSet_p set, FormulaSet_p archive, TB_p te
 //
 /----------------------------------------------------------------------*/
 
-static void deleter(void* to_delete)
+static void deleter(void *to_delete)
 {
    EqnFree(((ClausePos_p)to_delete)->literal);
 }
 
-static void insert_to_set(void* set, void* def)
+static void insert_to_set(void *set, void *def)
 {
    FormulaSetInsert(set, def);
 }
@@ -2168,23 +2122,23 @@ static void insert_to_set(void* set, void* def)
 long TFormulaSetLiftLambdas(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
 {
    long res = 0;
-   if(problemType == PROBLEM_HO)
+   if (problemType == PROBLEM_HO)
    {
       PStack_p defs = PStackAlloc();
       PTree_p all_defs = NULL;
       PDTree_p liftings = PDTreeAllocWDeleter(terms, deleter);
-      for(WFormula_p form = set->anchor->succ; form!=set->anchor; form=form->succ)
+      for (WFormula_p form = set->anchor->succ; form != set->anchor; form = form->succ)
       {
          TFormula_p handle = LiftLambdas(terms, form->tformula, defs, liftings);
          // fprintf(stderr,"lift: ");
          // TermPrintDbgHO(stderr, form->tformula, terms->sig, DEREF_NEVER);
-         if(handle!=form->tformula)
+         if (handle != form->tformula)
          {
             // fprintf(stderr,"\nres:");
             // TermPrintDbgHO(stderr, handle, terms->sig, DEREF_NEVER);
 
             form->tformula = handle;
-            while(!(PStackEmpty(defs)))
+            while (!(PStackEmpty(defs)))
             {
                WFormula_p def = PStackPopP(defs);
                WFormulaPushDerivation(form, DCApplyDef, def, NULL);
@@ -2224,12 +2178,12 @@ long TFormulaSetLiftLambdas(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
 long TFormulaSetNamedToDBLambdas(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
 {
    long res = 0;
-   if(problemType == PROBLEM_HO)
+   if (problemType == PROBLEM_HO)
    {
-      for(WFormula_p form = set->anchor->succ; form!=set->anchor; form=form->succ)
+      for (WFormula_p form = set->anchor->succ; form != set->anchor; form = form->succ)
       {
          TFormula_p handle = NamedToDB(terms, form->tformula);
-         if(handle!=form->tformula)
+         if (handle != form->tformula)
          {
             form->tformula = handle;
             DocFormulaModificationDefault(form, inf_fof_simpl);
@@ -2290,14 +2244,14 @@ long TFormulaSetIntroduceDefs(FormulaSet_p set, FormulaSet_p archive, TB_p terms
 {
    long res = 0;
    NumXTree_p defs = NULL, cell;
-   PStack_p  renamed_forms = PStackAlloc();
+   PStack_p renamed_forms = PStackAlloc();
    PStackPointer i;
    TFormula_p form, def, newdef;
-   long       polarity;
+   long polarity;
    WFormula_p w_def, c_def, formula, arch_form;
 
    //printf("TFormulaSetIntroduceDefs()...\n");
-   TFormulaSetDelTermpProp(set, TPCheckFlag|TPPosPolarity|TPNegPolarity);
+   TFormulaSetDelTermpProp(set, TPCheckFlag | TPPosPolarity | TPNegPolarity);
    //printf("Deleted properties\n");
    FormulaSetMarkPolarity(set);
    //printf("Marked polarites\n");
@@ -2308,13 +2262,13 @@ long TFormulaSetIntroduceDefs(FormulaSet_p set, FormulaSet_p archive, TB_p terms
    res = PStackGetSP(renamed_forms);
    //printf("About to Create defs\n");
 
-   for(i=0; i<PStackGetSP(renamed_forms); i++)
+   for (i = 0; i < PStackGetSP(renamed_forms); i++)
    {
-      form = PStackElementP(renamed_forms,i);
+      form = PStackElementP(renamed_forms, i);
       cell = NumXTreeFind(&defs, form->entry_no);
       assert(cell);
       polarity = TFormulaDecodePolarity(terms, form);
-      def      = cell->vals[1].p_val;
+      def = cell->vals[1].p_val;
       newdef = TFormulaCreateDef(terms, def, form,
                                  0);
       w_def = WTFormulaAlloc(terms, newdef);
@@ -2326,8 +2280,8 @@ long TFormulaSetIntroduceDefs(FormulaSet_p set, FormulaSet_p archive, TB_p terms
       FormulaSetInsert(archive, arch_form);
       WFormulaPushDerivation(w_def, DCFofQuote, arch_form, NULL);
 
-      cell->vals[3].p_val=arch_form;
-      if(polarity == 0)
+      cell->vals[3].p_val = arch_form;
+      if (polarity == 0)
       {
          cell->vals[2].i_val = w_def->ident; /* ..and this is the
                                                 blocking id of the
@@ -2337,7 +2291,7 @@ long TFormulaSetIntroduceDefs(FormulaSet_p set, FormulaSet_p archive, TB_p terms
       else
       {
          newdef = TFormulaCreateDef(terms, def, form,
-                                 polarity);
+                                    polarity);
          c_def = WTFormulaAlloc(terms, newdef);
          DocFormulaCreationDefault(c_def, inf_fof_split_equiv, w_def, NULL);
          cell->vals[2].i_val = c_def->ident; /* ..and this is the
@@ -2351,14 +2305,13 @@ long TFormulaSetIntroduceDefs(FormulaSet_p set, FormulaSet_p archive, TB_p terms
    PStackFree(renamed_forms);
 
    // printf("About to apply defs\n");
-   for(formula = set->anchor->succ; formula!=set->anchor; formula=formula->succ)
+   for (formula = set->anchor->succ; formula != set->anchor; formula = formula->succ)
    {
       TFormulaApplyDefs(formula, terms, &defs);
    }
    NumXTreeFree(defs);
    return res;
 }
-
 
 /*-----------------------------------------------------------------------
 //
@@ -2380,7 +2333,7 @@ void FormulaSetArchive(FormulaSet_p set, FormulaSet_p archive)
 
    tmpset = FormulaSetAlloc();
 
-   while((handle = FormulaSetExtractFirst(set)))
+   while ((handle = FormulaSetExtractFirst(set)))
    {
       newform = WFormulaFlatCopy(handle);
       WFormulaPushDerivation(newform, DCFofQuote, handle, NULL);
@@ -2392,7 +2345,6 @@ void FormulaSetArchive(FormulaSet_p set, FormulaSet_p archive)
    FormulaSetInsertSet(set, tmpset);
    FormulaSetFree(tmpset);
 }
-
 
 /*-----------------------------------------------------------------------
 //
@@ -2406,20 +2358,19 @@ void FormulaSetArchive(FormulaSet_p set, FormulaSet_p archive)
 //
 /----------------------------------------------------------------------*/
 
-void FormulaSetDocInital(FILE* out, long level, FormulaSet_p set)
+void FormulaSetDocInital(FILE *out, long level, FormulaSet_p set)
 {
    WFormula_p handle;
 
-   if(level>=2)
+   if (level >= 2)
    {
-      for(handle = set->anchor->succ; handle!=set->anchor; handle =
-             handle->succ)
+      for (handle = set->anchor->succ; handle != set->anchor; handle =
+                                                                  handle->succ)
       {
-         DocFormulaCreationDefault(handle, inf_initial, NULL,NULL);
+         DocFormulaCreationDefault(handle, inf_initial, NULL, NULL);
       }
    }
 }
-
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
