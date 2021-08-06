@@ -1501,12 +1501,15 @@ long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive,
    TFormulaSetNamedToDBLambdas(set, archive, terms);
    // printf("# Renaming done\n");
    TFormulaSetUnfoldLogSymbols(set, archive, terms);
+   fprintf(stderr, "before lifting.\n");
    if (lift_lambdas)
    {
       // maybe add an option for turning lambda equations into forall
       TFormulaSetLambdaNormalize(set, archive, terms);
+      fprintf(stderr, "after normalization.\n");
       TFormulaSetLiftLambdas(set, archive, terms);
    }
+   fprintf(stderr, "after lifting.\n");
    TFormulaSetUnrollFOOL(set, archive, terms);
    //printf("# Fool unrolled\n");
    FormulaSetSimplify(set, terms);

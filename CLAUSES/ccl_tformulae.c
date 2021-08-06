@@ -929,11 +929,17 @@ WFormula_p find_generalization(PDTree_p liftings, Term_p query, TermRef name)
    {
       if(mi->remaining_args == 0)
       {
+         //once to deref variables that matched the definition
+         //to query
+         Term_p matcher_derefed = 
+            TBInsertInstantiated(liftings->bank, mi->pos->literal->rterm);
+         //the second time to bind free variables to loosely bound ones
+         matcher_derefed = 
+            TBInsertInstantiated(liftings->bank, matcher_derefed);
+
          Term_p candidate = 
             LambdaEtaReduceDB(liftings->bank,
-               BetaNormalizeDB(liftings->bank, 
-                  TBInsert(liftings->bank, mi->pos->literal->rterm, 
-                           DEREF_ALWAYS)));        
+               BetaNormalizeDB(liftings->bank, matcher_derefed));        
          if(!TermHasLambdaSubterm(candidate))
          {
             *name = candidate;
