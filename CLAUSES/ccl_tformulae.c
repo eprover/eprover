@@ -864,6 +864,8 @@ Term_p EncodePredicateAsEqn(TB_p bank, TFormula_p f)
       (f->f_code > sig->internal_symbols ||
        f->f_code == SIG_TRUE_CODE ||
        f->f_code == SIG_FALSE_CODE ||
+       f->f_code == SIG_ITE_CODE ||
+       f->f_code == SIG_LET_CODE ||
        TermIsVar(f) ||
        TermIsPhonyApp(f)) &&
       f->type == sig->type_bank->bool_type)
@@ -1458,7 +1460,11 @@ TFormula_p TFormulaTSTPParse(Scanner_p in, TB_p terms)
          assert(f2->type == sig->type_bank->bool_type);
          // if it is bool it is either a literal ((dis)equation) or a formula
          assert(SigIsLogicalSymbol(sig, f1->f_code));
-         assert(SigIsLogicalSymbol(sig, f2->f_code));
+         if(!SigIsLogicalSymbol(sig, f2->f_code))
+         {
+            TermPrintDbgHO(stderr, f2, terms->sig, DEREF_NEVER);
+            assert(false);
+         }
 
          op = (op == sig->eqn_code) ? sig->equiv_code : sig->xor_code;
       }
