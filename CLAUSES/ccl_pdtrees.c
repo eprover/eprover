@@ -1437,7 +1437,8 @@ void PDTreeSearchInit(PDTree_p tree, Term_p term, SysDate age_constr,
 
 void PDTreeSearchExit(PDTree_p tree)
 {
-   assert(tree->term);
+   // not all terms can be targets
+   assert(problemType == PROBLEM_HO || tree->term);
 
    if(tree->store_stack)
    {

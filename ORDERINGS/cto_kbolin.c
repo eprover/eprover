@@ -758,7 +758,7 @@ static CompareResult kbolincmp_ho(OCB_p ocb, Term_p s, Term_p t,
       else
       {
          assert(!TermIsAppliedFreeVar(s) || !TermIsAppliedFreeVar(t));
-         CompareResult tmp = (TermIsAppliedFreeVar(s) || TermIsAppliedFreeVar(t)) ?
+         CompareResult tmp = (TermIsTopLevelAnyVar(s) || TermIsTopLevelAnyVar(t)) ?
                                to_uncomparable : OCBFunCompare(ocb, s->f_code, t->f_code);
          if(tmp == to_greater)
          {

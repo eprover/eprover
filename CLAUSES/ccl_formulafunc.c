@@ -1005,7 +1005,7 @@ TFormula_p do_bool_eqn_replace(TFormula_p form, TB_p terms)
    if((form->f_code == sig->eqn_code || form->f_code == sig->neqn_code) 
        && form->arity == 2)
    {
-      if(!TermIsFreeVar(form->args[0]) && !TermIsFreeVar(form->args[1]) &&
+      if(!TermIsAnyVar(form->args[0]) && !TermIsAnyVar(form->args[1]) &&
          SigIsLogicalSymbol(terms->sig, form->args[0]->f_code) &&
          SigIsLogicalSymbol(terms->sig, form->args[1]->f_code) &&
          TypeIsBool(form->args[0]) &&
@@ -1021,7 +1021,7 @@ TFormula_p do_bool_eqn_replace(TFormula_p form, TB_p terms)
          changed = true;
       }
    }
-   if(!TermIsFreeVar(form) && !changed)
+   if(!TermIsAnyVar(form) && !changed)
    {
       TFormula_p tmp = TermTopAlloc(form->f_code, form->arity);
       tmp->type = form->type;
@@ -1501,15 +1501,12 @@ long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive,
    TFormulaSetNamedToDBLambdas(set, archive, terms);
    // printf("# Renaming done\n");
    TFormulaSetUnfoldLogSymbols(set, archive, terms);
-   fprintf(stderr, "before lifting.\n");
    if (lift_lambdas)
    {
       // maybe add an option for turning lambda equations into forall
       TFormulaSetLambdaNormalize(set, archive, terms);
-      fprintf(stderr, "after normalization.\n");
       TFormulaSetLiftLambdas(set, archive, terms);
    }
-   fprintf(stderr, "after lifting.\n");
    TFormulaSetUnrollFOOL(set, archive, terms);
    //printf("# Fool unrolled\n");
    FormulaSetSimplify(set, terms);
