@@ -1217,6 +1217,11 @@ bool TermStructEqualNoDeref(Term_p t1, Term_p t2)
       return true;
    }
 
+   if(TermIsDBVar(t1) != TermIsDBVar(t2))
+   {
+      return false;
+   }
+
    if(t1->f_code != t2->f_code)
    {
       return false;
@@ -1228,7 +1233,7 @@ bool TermStructEqualNoDeref(Term_p t1, Term_p t2)
       // to have same head but different arities.
       // in that case the type must be different.
       assert(problemType == PROBLEM_HO);
-      assert(TermIsPhonyApp(t1) || t1->arity != t2->arity);
+      assert(TermIsPhonyApp(t1) || TermIsDBVar(t1) ||  TermIsLambda(t1) || t1->arity != t2->arity);
       return false;
    }
 
