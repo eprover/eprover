@@ -933,6 +933,18 @@ WFormula_p find_generalization(PDTree_p liftings, Term_p query, TermRef name)
          //to query
          Term_p matcher_derefed = 
             TBInsertInstantiated(liftings->bank, mi->pos->literal->rterm);
+         
+         // to make sure that previously derefed vars are not derefed
+         // again, we temporarily unbind them
+         Term_p old_bindings[PStackGetSP(subst)];
+         for(long i=0; i<PStackGetSP(subst); i++)
+         {
+            Term_p var = PStackElementP(subst, i);
+            old_bindings[i] = var->binding;
+            var->binding = NULL;
+         }
+
+
          //the second time to bind free variables to loosely bound ones
          matcher_derefed = 
             TBInsertInstantiated(liftings->bank, matcher_derefed);
@@ -944,6 +956,13 @@ WFormula_p find_generalization(PDTree_p liftings, Term_p query, TermRef name)
          {
             *name = candidate;
             res = mi->pos->data;
+         }
+         else
+         {
+            for(long i=0; i<PStackGetSP(subst); i++)
+            {
+               ((Term_p)PStackElementP(subst, i))->binding = old_bindings[i];
+            }
          }
       }
       MatchResFree(mi);
