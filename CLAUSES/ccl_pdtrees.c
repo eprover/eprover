@@ -575,8 +575,6 @@ static void pdtree_forward(PDTree_p tree, Subst_p subst)
                   PStackReset(next->var_traverse_stack);
                }
                next->prev_subst      = prev_binding;
-               assert(TermIsDBVar(term) || !next->variable);
-               assert(!TermIsDBVar(term) || next->variable);
                tree->tree_pos = next;
 #ifdef MEASURE_EXPENSIVE
                tree->visited_count++;
@@ -1112,7 +1110,7 @@ bool PDTreeInsertTerm(PDTree_p tree, Term_p term, ClausePos_p demod_side,
    assert(tree->tree);
    assert(!TermIsBetaReducible(term));
 
-   if(TermIsPattern(term))
+   if(TermIsNonFOPattern(term))
    {
       term = LambdaEtaExpandDB(tree->bank, term);
    }
@@ -1267,7 +1265,7 @@ long PDTreeDelete(PDTree_p tree, Term_p term, Clause_p clause)
    assert(clause);
    assert(!TermIsBetaReducible(term));
 
-   if(TermIsPattern(term))
+   if(TermIsNonFOPattern(term))
    {
       term = LambdaEtaExpandDB(tree->bank, term);
    }
@@ -1391,7 +1389,7 @@ void PDTreeSearchInit(PDTree_p tree, Term_p term, SysDate age_constr,
 {
    assert(!tree->term);
 
-   if(!TermIsPattern(term))
+   if(!TermIsNonFOPattern(term))
    {
       term = LambdaEtaReduceDB(tree->bank, term);
       if(LFHOL_UNSUPPORTED(term))

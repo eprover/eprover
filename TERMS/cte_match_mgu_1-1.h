@@ -60,8 +60,6 @@ extern const UnificationResult UNIF_INIT;
 #define GetSideStr(ur) ((ur).term_side == NoTerm ? "Failed" : \
                           (ur).term_side == LeftTerm ? "Left" : "Right")
 
-#define LFHOL_UNSUPPORTED(t) (TermHasLambdaSubterm(t) || TermHasDBSubterm(t))
-
 /*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/

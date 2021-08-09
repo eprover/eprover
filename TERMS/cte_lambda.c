@@ -126,6 +126,39 @@ Term_p flatten_apps(TB_p bank, Term_p hd, Term_p* args, long num_args,
 
 /*-----------------------------------------------------------------------
 //
+// Function: flatten_and_make_shared()
+//
+//   Beta normalization and eta-reduction can result in a term that
+//   has PhonyApp symbol at head and a regular symbol as its first argument.
+//   This function performs the necessary flattening on the intermediary
+//   term created during either normalization procedure and makes sure
+//   that it is shared.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+Term_p flatten_and_make_shared(TB_p bank, Term_p t)
+{
+   assert(!TermIsShared(t));
+   if(TermIsPhonyApp(t) && 
+      !(TermIsAnyVar(t->args[0]) || TermIsLambda(t->args[0])))
+   {
+      Term_p junk = t;
+      t = flatten_apps(bank, t->args[0], t->args+1, t->arity-1, t->type);
+      TermTopFree(junk);
+   }
+   else
+   {
+      t = TBTermTopInsert(bank, t);
+   }
+   return t;
+}
+
+/*-----------------------------------------------------------------------
+//
 // Function: do_shift_db()
 //
 //   Performs the actual shifting.
@@ -268,25 +301,8 @@ Term_p replace_bound_vars(TB_p bank, Term_p t, int total_bound, int depth)
          changed = changed || res->args[i] != t->args[i];
       }
 
-      if(!changed)
-      {
-         TermTopFree(res);
-         res = t;
-      }
-      else
-      {
-         if(TermIsPhonyApp(res) && 
-            !(TermIsAnyVar(res->args[0]) || TermIsLambda(res->args[0])))
-         {
-            Term_p junk = res;
-            res = flatten_apps(bank, res->args[0], res->args+1, res->arity-1, res->type);
-            TermTopFree(junk);
-         }
-         else
-         {
-            res = TBTermTopInsert(bank, res);
-         }
-      }
+      res = changed ? flatten_and_make_shared(bank, res) :
+                      (TermTopFree(res), t);
    }
    return res;
 }
@@ -554,15 +570,8 @@ Term_p do_eta_reduce_db(TB_p bank, Term_p t)
          changed = changed || res->args[i] != t->args[i];
       }
 
-      if(changed)
-      {
-         res = TBTermTopInsert(bank, res);
-      }
-      else
-      {
-         TermTopFree(res);
-         res = t;
-      }
+      res = changed ? flatten_and_make_shared(bank, res) :
+                      (TermTopFree(res), t);
    }
 
    return res;

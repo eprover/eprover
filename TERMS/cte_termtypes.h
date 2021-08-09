@@ -249,7 +249,10 @@ typedef Term_p (*TermMapper_p)(void*, Term_p);
 #define TermHasLambdaSubterm(term) (QueryProp((term), (TPHasLambdaSubterm)))
 #define TermHasEtaExpandableSubterm(term) (QueryProp((term), (TPHasEtaExpandableSubterm)))
 #define TermHasDBSubterm(term) (QueryProp((term), (TPHasDBSubterm)))
+// does a term have a feature that does not belong to LFHOL?
+#define LFHOL_UNSUPPORTED(t) (TermHasLambdaSubterm(t) || TermHasDBSubterm(t))
 #define TermIsPattern(term) (!(QueryProp((term), (TPHasNonPatternVar))))
+#define TermIsNonFOPattern(term) (TermIsPattern(term) && LFHOL_UNSUPPORTED(term))
 #define TermIsDBLambda(term) ((term)->f_code == SIG_DB_LAMBDA_CODE)
 #else
 #define TermIsPhonyApp(term) (false)
@@ -262,7 +265,9 @@ typedef Term_p (*TermMapper_p)(void*, Term_p);
 #define TermHasLambdaSubterm(term) (false)
 #define TermHasEtaExpandableSubterm(term) (false)
 #define TermHasDBSubterm(term) (false)
-#define TermIsPattern(term) (false)
+#define LFHOL_UNSUPPORTED(t) (false)
+#define TermIsPattern(term) (true) // every fo subterm is a pattern
+#define TermIsNonFOPattern(term) (false) // every fo subterm is a pattern
 #endif
 #define TermIsTopLevelFreeVar(term) (TermIsFreeVar(term) || TermIsAppliedFreeVar(term))
 #define TermIsTopLevelAnyVar(term)  (TermIsAnyVar(term) || TermIsAppliedAnyVar(term))
@@ -485,7 +490,7 @@ static inline Term_p TermDerefAlways(Term_p term)
 
 static Term_p inline TermDeref(Term_p term, DerefType_p deref)
 {
-   assert(TermIsTopLevelFreeVar(term) || !(term->binding));
+   assert(TermIsTopLevelAnyVar(term) || !(term->binding));
 
    if(*deref == DEREF_ALWAYS)
    {
