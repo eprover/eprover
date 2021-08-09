@@ -325,7 +325,7 @@ bool do_is_db_closed(Term_p t,  long depth)
    }
    if(TermIsDBVar(t))
    {
-      return t->f_code <= depth;
+      return t->f_code < depth;
    }
    if(TermIsLambda(t))
    {

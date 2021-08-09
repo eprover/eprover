@@ -110,8 +110,9 @@ static void* pdt_select_alt_ref(PDTree_p tree, PDTNode_p node, Term_p term)
       res = (PObjMapGetRef(&node->v_alternatives, term, TermPCompare, &added_objmap_node));
       assert(node->v_alternatives);
    }
-   else if(TermIsDBVar(term))
+   else if(TermIsDBVar(term) || TermIsLambda(term))
    {
+      term = TermIsDBVar(term) ? term : term->args[0];
       res = (PObjMapGetRef(&node->db_alternatives, term, TermPCompare, &added_objmap_node));
       assert(node->db_alternatives);
    }
@@ -551,13 +552,14 @@ static void pdtree_forward(PDTree_p tree, Subst_p subst)
          }
          if(!TermIsTopLevelFreeVar(term))
          {
-            if(!TermIsDBVar(term))
+            if(TermIsDBVar(term) || TermIsLambda(term))
             {
-               next = IntMapGetVal(handle->f_alternatives,term->f_code);
+               next = PObjMapFind(&handle->db_alternatives,
+                                  TermIsDBVar(term) ? term : term->args[0], TermPCompare);
             }
             else
             {
-               next = PObjMapFind(&handle->db_alternatives, term, TermPCompare);
+               next = IntMapGetVal(handle->f_alternatives,term->f_code);
             }
             if(next)
             {
@@ -992,7 +994,7 @@ void PDTNodeFree(PDTNode_p tree, Deleter deleter)
 void TermLRTraverseInit(PStack_p stack, Term_p term)
 {
    PStackReset(stack);
-   PStackPushP(stack,term);
+   PStackPushP(stack, term);
 }
 
 
@@ -1325,12 +1327,16 @@ long PDTreeDelete(PDTree_p tree, Term_p term, Clause_p clause)
          assert(!node->v_alternatives && !node->db_alternatives);
 
          tree->node_count--;
-         if(TermIsTopLevelFreeVar(del_term) || TermIsDBVar(del_term))
+         if(TermIsTopLevelFreeVar(del_term) || TermIsDBVar(del_term) || TermIsLambda(del_term))
          {
             PObjMap_p* to_del = 
-               TermIsDBVar(del_term) ? &(prev->db_alternatives) :
-                                       &(prev->v_alternatives);
-            PObjMapExtract(to_del, del_term, TermPCompare);
+               TermIsTopLevelFreeVar(del_term) ? &(prev->v_alternatives) :
+                                                 &(prev->db_alternatives);
+            void* deleted = 
+               PObjMapExtract(to_del, 
+                              TermIsLambda(del_term) ? del_term->args[0] : del_term,
+                              TermPCompare);
+            UNUSED(deleted); assert(deleted);
             tree->arr_storage_est -= SizeOfPObjNode();
          }
          else

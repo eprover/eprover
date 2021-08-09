@@ -933,8 +933,8 @@ WFormula_p find_generalization(PDTree_p liftings, Term_p query, TermRef name)
          //to query
          Term_p matcher_derefed = 
             TBInsertInstantiated(liftings->bank, mi->pos->literal->rterm);
-         
-         // to make sure that previously derefed vars are not derefed
+
+    // to make sure that previously derefed vars are not derefed
          // again, we temporarily unbind them
          Term_p old_bindings[PStackGetSP(subst)];
          for(long i=0; i<PStackGetSP(subst); i++)
@@ -949,7 +949,7 @@ WFormula_p find_generalization(PDTree_p liftings, Term_p query, TermRef name)
          matcher_derefed = 
             TBInsertInstantiated(liftings->bank, matcher_derefed);
 
-         Term_p candidate = 
+         Term_p candidate =
             LambdaEtaReduceDB(liftings->bank,
                BetaNormalizeDB(liftings->bank, matcher_derefed));        
          if(!TermHasLambdaSubterm(candidate))

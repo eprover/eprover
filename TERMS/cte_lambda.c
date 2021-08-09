@@ -88,7 +88,6 @@ Term_p drop_args(TB_p bank, Term_p t, long args_to_drop)
 
       res = TBTermTopInsert(bank, res);
    }
-   
    return res;
 }
 
@@ -905,14 +904,17 @@ Term_p NamedToDB(TB_p bank, Term_p lambda)
 
 Term_p ShiftDB(TB_p bank, Term_p term, int shift_val)
 {
+   Term_p res;
    if (shift_val == 0)
    {
-      return term;
+      res = term;
    }
    else
    {
-      return do_shift_db(bank, term, shift_val, 0);
+      res = do_shift_db(bank, term, shift_val, 0);
    }
+   assert(res->type == term->type);
+   return res;
 }
 
 /*-----------------------------------------------------------------------
