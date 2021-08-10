@@ -143,6 +143,7 @@ void OrderParmsInitialize(OrderParms_p handle)
    handle->to_const_weight               = WConstNoWeight;
    handle->to_defs_min                   = false;
    handle->lit_cmp                       = LCNormal;
+   handle->ho_order_kind                 = LFHO_ORDER;
 }
 
 

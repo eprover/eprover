@@ -198,6 +198,7 @@ typedef enum
    OPT_REPLACE_INJ_DEFS,
    OPT_LIFT_LAMBDAS,
    OPT_ETA_NORMALIZE,
+   OPT_HO_ORDER_KIND,
    OPT_DUMMY
 }OptionCodes;
 
@@ -1502,6 +1503,11 @@ OptCell opts[] =
     '\0', "eta-normalize",
     ReqArg, NULL,
     "Which form of eta normalization to perform?"},
+
+   {OPT_HO_ORDER_KIND,
+    '\0', "ho-order-kind",
+    ReqArg, NULL,
+    "Do we use simple LFHO order or a more advanced Boolean free lambda-KBO?"},
 
 
    {OPT_NOOPT,

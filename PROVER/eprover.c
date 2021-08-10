@@ -1796,6 +1796,20 @@ CLState_p process_options(int argc, char* argv[])
                      USAGE_ERROR);
             }
             break;
+      case OPT_HO_ORDER_KIND:
+            if(strcmp(arg, "lfho")==0)
+            {
+               h_parms->order_params.ho_order_kind = LFHO_ORDER;
+            }
+            else if(strcmp(arg, "lambda")==0)
+            {
+               h_parms->order_params.ho_order_kind = BFHO_ORDER;
+            }
+            else
+            {
+               Error("Option --ho-order-kind requires 'lfho' or 'lambda' as an argument",
+                     USAGE_ERROR);
+            }
       default:
             assert(false && "Unknown option");
             break;
