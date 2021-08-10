@@ -45,6 +45,12 @@ typedef enum
    to_notleeq
 }CompareResult;
 
+typedef enum ho_order_kind 
+{
+   LFHO_ORDER, // older LFHO order
+   LAMBDA_ORDER  // Boolean free HO order
+} HoOrderKind;
+
 
 
 /*---------------------------------------------------------------------*/

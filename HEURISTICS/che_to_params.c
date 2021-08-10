@@ -19,6 +19,9 @@
 
 #include "che_to_params.h"
 
+#define DEFAULT_LAMBDA_WEIGHT 20
+#define DEFAULT_DB_WEIGHT 10
+
 
 
 /*---------------------------------------------------------------------*/
@@ -144,6 +147,8 @@ void OrderParmsInitialize(OrderParms_p handle)
    handle->to_defs_min                   = false;
    handle->lit_cmp                       = LCNormal;
    handle->ho_order_kind                 = LFHO_ORDER;
+   handle->lam_w                         = DEFAULT_LAMBDA_WEIGHT;
+   handle->db_w                          = DEFAULT_DB_WEIGHT;
 }
 
 

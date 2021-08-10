@@ -949,27 +949,27 @@ OCB_p  TOCreateOrdering(ProofState_p state, OrderParms_p params,
    switch(params->ordertype)
    {
    case LPO:
-         handle = OCBAlloc(LPO, prec_by_weight, state->signature);
+         handle = OCBAlloc(LPO, prec_by_weight, state->signature, params->ho_order_kind);
          TOGeneratePrecedence(handle, state->axioms, pre_precedence,
                               params);
          break;
    case LPOCopy:
-         handle = OCBAlloc(LPOCopy, prec_by_weight, state->signature);
+         handle = OCBAlloc(LPOCopy, prec_by_weight, state->signature, params->ho_order_kind);
          TOGeneratePrecedence(handle, state->axioms, pre_precedence,
                               params);
          break;
    case LPO4:
-         handle = OCBAlloc(LPO4, prec_by_weight, state->signature);
+         handle = OCBAlloc(LPO4, prec_by_weight, state->signature, params->ho_order_kind);
          TOGeneratePrecedence(handle, state->axioms, pre_precedence,
                               params);
          break;
    case LPO4Copy:
-         handle = OCBAlloc(LPO4Copy, prec_by_weight, state->signature);
+         handle = OCBAlloc(LPO4Copy, prec_by_weight, state->signature, params->ho_order_kind);
          TOGeneratePrecedence(handle, state->axioms, pre_precedence,
                               params);
          break;
    case KBO:
-         handle = OCBAlloc(KBO, prec_by_weight, state->signature);
+         handle = OCBAlloc(KBO, prec_by_weight, state->signature, params->ho_order_kind);
          TOGeneratePrecedence(handle, state->axioms, pre_precedence,
                               params);
          TOGenerateWeights(handle, state->axioms,
@@ -977,7 +977,7 @@ OCB_p  TOCreateOrdering(ProofState_p state, OrderParms_p params,
                            params);
          break;
    case KBO6:
-         handle = OCBAlloc(KBO6, prec_by_weight, state->signature);
+         handle = OCBAlloc(KBO6, prec_by_weight, state->signature, params->ho_order_kind);
          TOGeneratePrecedence(handle, state->axioms, pre_precedence,
                               params);
          TOGenerateWeights(handle, state->axioms,

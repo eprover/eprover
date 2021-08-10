@@ -199,6 +199,8 @@ typedef enum
    OPT_LIFT_LAMBDAS,
    OPT_ETA_NORMALIZE,
    OPT_HO_ORDER_KIND,
+   OPT_LAM_WEIGHT,
+   OPT_DB_WEIGHT,
    OPT_DUMMY
 }OptionCodes;
 
@@ -1508,6 +1510,16 @@ OptCell opts[] =
     '\0', "ho-order-kind",
     ReqArg, NULL,
     "Do we use simple LFHO order or a more advanced Boolean free lambda-KBO?"},
+
+   {OPT_LAM_WEIGHT,
+    '\0', "kbo-lam-weight",
+    ReqArg, NULL,
+    "Weight of lambda symbol in KBO."},
+
+   {OPT_DB_WEIGHT,
+    '\0', "kbo-db-weight",
+    ReqArg, NULL,
+    "Weight of DB var in KBO."},
 
 
    {OPT_NOOPT,

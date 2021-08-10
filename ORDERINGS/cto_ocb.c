@@ -66,6 +66,23 @@ char* TONames[]=
 
 /*-----------------------------------------------------------------------
 //
+// Function: free_val()
+//
+//   Frees the value stored in the 
+//
+// Global Variables: -
+//
+// Side Effects    : Changes ocb->precedences
+//
+/----------------------------------------------------------------------*/
+
+void free_val(void* key)
+{
+   SizeFree(key, sizeof(long));
+}
+
+/*-----------------------------------------------------------------------
+//
 // Function: ocb_trans_compute()
 //
 //   Given the relations between f1 and f2, and f2 and f3, compute the
@@ -163,7 +180,7 @@ static void alloc_precedence(OCB_p handle, bool prec_by_weight)
 //
 /----------------------------------------------------------------------*/
 
-OCB_p OCBAlloc(TermOrdering type, bool prec_by_weight, Sig_p sig)
+OCB_p OCBAlloc(TermOrdering type, bool prec_by_weight, Sig_p sig, HoOrderKind ho_order_kind)
 {
    OCB_p handle;
    int   i,j;
@@ -173,6 +190,7 @@ OCB_p OCBAlloc(TermOrdering type, bool prec_by_weight, Sig_p sig)
    handle->type  = type;
    handle->sig   = sig;
    handle->min_constants  = PDIntArrayAlloc(16,0);
+   handle->ho_order_kind = ho_order_kind;
    handle->weights    = NULL;
    handle->sig_size = sig->f_count;
    handle->statestack = PStackAlloc();
@@ -183,8 +201,10 @@ OCB_p OCBAlloc(TermOrdering type, bool prec_by_weight, Sig_p sig)
    handle->pos_bal = 0;
    handle->neg_bal = 0;
    handle->max_var = 0;
-   handle->vb_size = 64;
-   handle->vb      = SizeMalloc(handle->vb_size*sizeof(int));
+   handle->vb_size = ho_order_kind == LAMBDA_ORDER ? 0 : 64;
+   handle->vb      = ho_order_kind == LAMBDA_ORDER ?
+                        NULL : SizeMalloc(handle->vb_size*sizeof(int));
+   handle->ho_vb   = NULL;
    for(size_t i=0; i<handle->vb_size; i++)
    {
       handle->vb[i] = 0;
@@ -293,6 +313,7 @@ void OCBFree(OCB_p junk)
    assert(junk->vb);
    SizeFree(junk->vb, junk->vb_size*sizeof(int));
    PStackFree(junk->statestack);
+   PObjMapFreeWDeleter(junk->ho_vb, DummyObjDelFun, free_val);
    OCBCellFree(junk);
 }
 
@@ -655,6 +676,23 @@ CompareResult OCBFunCompareMatrix(OCB_p ocb, FunCode f1, FunCode f2)
    return Q_TO_PART(f2-f1);
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: OCBResetHOVarMap()
+//
+//   Resets mapping of (applied) variables to number of occurrences.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void OCBResetHOVarMap(OCB_p ocb)
+{
+   PObjMapFreeWDeleter(ocb->ho_vb, DummyObjDelFun, free_val);
+   ocb->ho_vb = NULL;
+}
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */

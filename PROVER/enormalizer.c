@@ -533,7 +533,7 @@ int main(int argc, char* argv[])
    VERBOUT("# Demodulators\n");
    VERBOSE(ClauseSetPrint(stderr, demodulators[0], true););
 
-   ocb = OCBAlloc(EMPTY, false, terms->sig);
+   ocb = OCBAlloc(EMPTY, false, terms->sig, LFHO_ORDER);
 
    process_terms(termname, terms, ocb, demodulators);
    process_clauses(clausename, terms, ocb, demodulators);

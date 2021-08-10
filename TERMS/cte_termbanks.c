@@ -817,6 +817,54 @@ Term_p TBInsert(TB_p bank, Term_p term, DerefType deref)
 
 /*-----------------------------------------------------------------------
 //
+// Function: TBInsertInstantiatedDeref()
+//
+//  Insert the term, following the bindings of the variables
+//  according to DerefType.
+//
+// Global Variables: -
+//
+// Side Effects    : Changes term bank
+//
+/----------------------------------------------------------------------*/
+
+Term_p TBInsertInstantiatedDeref(TB_p bank, Term_p term, DerefType deref)
+{
+   if(deref == DEREF_NEVER)
+   {
+      return term;
+   }
+
+   int    i;
+   Term_p t;
+   const int limit = DEREF_LIMIT(term, deref);
+
+   assert(term);
+
+   term = TermDeref(term, &deref);
+
+   if(TermIsAnyVar(term) || TermIsGround(term))
+   {
+      t = term;
+   }
+   else
+   {
+      t = TermTopCopyWithoutArgs(term); /* This is an unshared term cell at the moment */
+
+      for(i=0; i<t->arity; i++)
+      {
+         t->args[i] = 
+            TBInsertInstantiatedDeref(bank ? bank : TermGetBank(term), 
+                                     term->args[i],
+                                      CONVERT_DEREF(i, limit, deref));
+      }
+      t = tb_termtop_insert(bank, t);
+   }
+   return t;
+}
+
+/*-----------------------------------------------------------------------
+//
 // Function: TBInsertIgnoreVar()
 //
 //  As TBInsert, but does instead of using variables from the term bank,

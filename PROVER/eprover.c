@@ -1404,6 +1404,12 @@ CLState_p process_options(int argc, char* argv[])
                      USAGE_ERROR);
             }
             break;
+      case OPT_LAM_WEIGHT:
+            h_parms->order_params.lam_w = CLStateGetIntArg(handle, arg);
+            break;
+      case OPT_DB_WEIGHT:
+            h_parms->order_params.db_w = CLStateGetIntArg(handle, arg);
+            break;
       case OPT_TO_WEIGHTGEN:
             h_parms->order_params.to_weight_gen = TOTranslateWeightGenMethod(arg);
             if(!h_parms->order_params.to_weight_gen)
@@ -1803,7 +1809,7 @@ CLState_p process_options(int argc, char* argv[])
             }
             else if(strcmp(arg, "lambda")==0)
             {
-               h_parms->order_params.ho_order_kind = BFHO_ORDER;
+               h_parms->order_params.ho_order_kind = LAMBDA_ORDER;
             }
             else
             {

@@ -28,7 +28,12 @@ Changes
 
 #include "cto_kbolin.h"
 #include "clb_plocalstacks.h"
+#include <cte_lambda.h>
 
+
+typedef enum {
+   LHS, RHS
+} ComparisonSide;
 
 /*---------------------------------------------------------------------*/
 /*                        Global Variables                             */
@@ -47,6 +52,8 @@ static CompareResult kbo6cmp(OCB_p ocb, Term_p s, Term_p t,
 
 static CompareResult kbo6cmplex(OCB_p ocb, Term_p s, Term_p t,
                          DerefType deref_s, DerefType deref_t);
+
+static CompareResult cmp_arities(Term_p s, Term_p t);
 
 /*---------------------------------------------------------------------*/
 /*                         Internal Functions                          */
@@ -120,6 +127,32 @@ static void inc_vb(OCB_p ocb, Term_p var)
    }
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: inc_vb_ho()
+//
+//   Like inc_vb, but maps fluid terms to fresh variables.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static void inc_vb_ho(OCB_p ocb, Term_p var)
+{
+   assert(TermIsTopLevelFreeVar(var));
+   long** bal_ref = (long**)PObjMapGetRef(&ocb->ho_vb, var, PCmpFun, NULL);
+   if(*bal_ref == NULL)
+   {
+      MK_HO_VB_KEY(*bal_ref, 0L);
+   }
+   ocb->pos_bal += (**bal_ref ==  0);
+   ocb->neg_bal -= (**bal_ref == -1);
+   **bal_ref += 1;
+   ocb->wb += ocb->var_weight;
+}
+
 
 /*-----------------------------------------------------------------------
 //
@@ -158,6 +191,32 @@ static void dec_vb(OCB_p ocb, Term_p var)
    }
 }
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: dec_vb_ho()
+//
+//   Like dec_vb, but maps fluid terms to fresh variables.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static void dec_vb_ho(OCB_p ocb, Term_p var)
+{
+   assert(TermIsTopLevelFreeVar(var));
+   long** bal_ref = (long**)PObjMapGetRef(&ocb->ho_vb, var, PCmpFun, NULL);
+   if(*bal_ref == NULL)
+   {
+      MK_HO_VB_KEY(*bal_ref, 0L);
+   }
+   ocb->neg_bal += (**bal_ref == 0);
+   ocb->pos_bal -= (**bal_ref == 1);
+   **bal_ref += 1;
+   ocb->wb += ocb->var_weight;
+}
 
 /*-----------------------------------------------------------------------
 //
@@ -405,6 +464,24 @@ static CompareResult kbo6cmp(OCB_p ocb, Term_p s, Term_p t,
    return res;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: is_fluid()
+//
+//   Approximation the fluidity test -- see 
+//   https://arxiv.org/abs/2102.00453 for definition
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static inline bool is_fluid(Term_p t) 
+{
+   return TermIsTopLevelFreeVar(t) ||
+          (TermIsLambda(t) && !TermIsGround(t));
+}
 
 /*-----------------------------------------------------------------------
 //
@@ -501,6 +578,162 @@ static void mfyvwbrhs(OCB_p ocb, Term_p term, DerefType deref_t, int orig_limit)
    }
 
    PLocalTaggedStackFree(stack);
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: mfyvwblhs_ho()
+//
+//   Update ocb according to term on the LHS of a comparison.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static void mfyvwb_ho(OCB_p ocb, Term_p term, ComparisonSide side)
+{
+   PLocalStackInit(stack);
+   
+   PLocalStackPush(stack, term);
+
+   while(!PLocalTaggedStackEmpty(stack))
+   {
+      Term_p t = PLocalStackPop(stack);
+      if(is_fluid(t))
+      {
+         (side == LHS ? inc_vb_ho : dec_vb_ho)(ocb, term);
+      }
+      else
+      {
+         if(TermIsLambda(term))
+         {
+            ocb->wb += 
+               (side == LHS ? OCBLamWeight(ocb) : -OCBLamWeight(ocb));
+         }
+         else if(TermIsDBVar(term))
+         {
+            ocb->wb += 
+               (side == LHS ? OCBDBWeight(ocb) : -OCBDBWeight(ocb));
+         }
+         else if (!TermIsPhonyApp(term))
+         {
+            ocb->wb += 
+               (side == LHS ? OCBFunWeight(ocb, term->f_code) 
+                            : - OCBFunWeight(ocb, term->f_code));
+         }
+         PLocalStackEnsureSpace(stack, (term->arity - (TermIsLambda(term) ? 1 : 0)));
+         for(int i=TermIsLambda(term) ? 1 : 0; i<term->arity; i++)
+         {
+            PLocalStackPush(stack, term->args[i]);
+         }
+
+      }
+   }
+
+   PLocalStackFree(stack);
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: heads_same()
+//
+//   Update ocb according to term on the LHS of a comparison.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static bool heads_same(Term_p s, Term_p t)
+{
+   if(!TermIsPhonyApp(s) && !TermIsPhonyApp(t))
+   {
+      return s->f_code == t->f_code;
+   }
+   else
+   {
+      return TermIsPhonyApp(s) == TermIsPhonyApp(t) &&
+             s->args[0] == t->args[0];
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: classify_head()
+//
+//   Assigns a number to the term head that can be used for comparison.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static int classify_head(Term_p s)
+{
+   assert(!TermIsTopLevelFreeVar(s));
+   // lam > db > symbol
+   if(TermIsLambda(s))
+   {
+      return 3;
+   }
+   else if(TermIsPhonyApp(s) || TermIsDBVar(s))
+   {
+      return 2;
+   }
+   else
+   {
+      return 1;
+   }
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: cmp_heads()
+//
+//   Compares head terms.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static CompareResult cmp_heads(OCB_p ocb, Term_p s, Term_p t)
+{
+   assert(!TermIsTopLevelFreeVar(s));
+   assert(!TermIsTopLevelFreeVar(t));
+
+   int s_hd_class = classify_head(s);
+   int t_hd_class = classify_head(t);
+   if(s_hd_class == t_hd_class)
+   {
+      if(!TermIsTopLevelAnyVar(s) && !TermIsLambda(s))
+      {
+         assert(!TermIsTopLevelAnyVar(t) && !TermIsLambda(t));
+         return OCBFunCompare(ocb, s->f_code, t->f_code);
+      }
+      else if(TermIsTopLevelAnyVar(s))
+      {
+         assert(TermIsTopLevelAnyVar(t));
+         FunCode db_s = (TermIsAppliedAnyVar(s) ? s->args[0] : s)->f_code;
+         FunCode db_t = (TermIsAppliedAnyVar(t) ? t->args[0] : t)->f_code;
+         assert(db_s != db_t); // KBO should check for equality before
+         return (db_s > db_t) ? to_greater : to_lesser;
+      }
+      else
+      {
+         return to_uncomparable;
+      }
+   }
+   else
+   {
+      return (s_hd_class > t_hd_class) ? to_greater : to_lesser;
+   }
 }
 
 /*-----------------------------------------------------------------------
@@ -613,6 +846,168 @@ static CompareResult kbolincmp(OCB_p ocb, Term_p s, Term_p t,
       }
    }
    return res;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: kbolincmp_lambda_driver()
+//
+//   Does the actual comparison.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static CompareResult kbolincmp_lambda_driver(OCB_p ocb, Term_p s, Term_p t)
+{
+   CompareResult res = to_equal;
+   if(is_fluid(s))
+   {
+      if(is_fluid(t))
+      {
+         // FLUID, FLUID
+         inc_vb_ho(ocb, s);
+         dec_vb_ho(ocb, s);
+         res = s==t ? to_equal : to_uncomparable;
+      }
+      {
+         // FLUID, t
+         inc_vb_ho(ocb, s);
+         mfyvwb_ho(ocb, s, RHS);
+         res = ocb->pos_bal?to_uncomparable:to_lesser;
+      }
+   }
+   else if(is_fluid(t))
+   {
+      // s, FLUID
+      dec_vb_ho(ocb, s);
+      mfyvwb_ho(ocb, s, LHS);
+      res = ocb->neg_bal?to_uncomparable:to_greater;
+   }
+   else
+   {
+      if(heads_same(s,t))
+      {
+         // if we have two constants of the same fun code, there's nothing to update.
+         bool done = s->arity == t->arity ? s->arity == 0 : false;
+         int i = 0;
+         while(!done)
+         {
+            res = s->arity == t->arity ? kbolincmp_lambda_driver(ocb, s->args[i], t->args[i]) :
+                                         cmp_arities(s,t);
+
+            if(res!=to_equal)
+            {
+               // increase only if we got here through kbolincmp_ho
+               i += s->arity == t->arity ? 1 : 0;
+               if(i < s->arity || i < t->arity)
+               {
+                  for(int j= i==0 && TermIsPhonyApp(s) ? 1 : i; j<s->arity; j++)
+                  {
+                     mfyvwb_ho(ocb, s->args[j], LHS);
+                  }
+
+                  for(int j= i==0 && TermIsPhonyApp(t) ? 1 : i; j<t->arity; j++)
+                  {
+                     mfyvwb_ho(ocb, t->args[j], RHS);
+                  }
+
+                  CompareResult g_or_n = ocb->neg_bal?to_uncomparable:to_greater;
+                  CompareResult l_or_n = ocb->pos_bal?to_uncomparable:to_lesser;
+
+                  if(ocb->wb>0)
+                  {
+                     res = g_or_n;
+                  }
+                  else if(ocb->wb<0)
+                  {
+                     res = l_or_n;
+                  }
+                  else if(res == to_greater)
+                  {
+                     res = g_or_n;
+                  }
+                  else if(res == to_lesser)
+                  {
+                     res = l_or_n;
+                  }
+               }
+               done = true;
+            }
+            else
+            {
+               assert(t->arity == s->arity);
+               i++;
+               done = i == s->arity;
+            }
+         }
+      }
+      else
+      {
+         mfyvwb_ho(ocb, s, LHS);
+         mfyvwb_ho(ocb, t, RHS);
+         CompareResult g_or_n = ocb->neg_bal?to_uncomparable:to_greater;
+         CompareResult l_or_n = ocb->pos_bal?to_uncomparable:to_lesser;
+
+         if(ocb->wb>0)
+         {
+            res = g_or_n;
+         }
+         else if(ocb->wb<0)
+         {
+            res = l_or_n;
+         }
+         else
+         {
+            CompareResult tmp = cmp_heads(ocb, s, t);
+            if(tmp == to_greater)
+            {
+               res = g_or_n;
+            }
+            else if(tmp == to_lesser)
+            {
+               res = l_or_n;
+            }
+            else
+            {
+               assert(tmp == to_uncomparable);
+               res = to_uncomparable;
+            }
+         }
+      }
+   }
+   return res;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: kbolincmp_lambda()
+//
+//   Perform a KBO comparison between s and t that takes lambdas into
+//   account. Amounts to Boolean free derived lambda KBO.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+
+static CompareResult kbolincmp_lambda(OCB_p ocb, Term_p s, Term_p t,
+                             DerefType deref_s, DerefType deref_t)
+{
+   assert(problemType == PROBLEM_HO); // no need to change derefs
+
+   s = LambdaEtaReduceDB(TermGetBank(s),
+         BetaNormalizeDB(TermGetBank(s),
+            TBInsertInstantiatedDeref(TermGetBank(s), s, deref_s)));
+   t =  LambdaEtaReduceDB(TermGetBank(t), 
+         BetaNormalizeDB(TermGetBank(t),
+            TBInsertInstantiatedDeref(TermGetBank(t), t, deref_t)));
+
+   return kbolincmp_lambda_driver(ocb, s, t);
 }
 
 #ifdef ENABLE_LFHO
@@ -793,9 +1188,16 @@ static CompareResult kbolincmp_ho(OCB_p ocb, Term_p s, Term_p t,
 
 static void __inline__ kbo6reset(OCB_p ocb)
 {
-   for(size_t i=0; i<=ocb->max_var; i++)
+   if(ocb->ho_order_kind == LAMBDA_ORDER)
    {
-      ocb->vb[i] = 0;
+      OCBResetHOVarMap(ocb);
+   }
+   else
+   {
+      for(size_t i=0; i<=ocb->max_var; i++)
+      {
+         ocb->vb[i] = 0;
+      }
    }
    ocb->wb      = 0;
    ocb->pos_bal = 0;
@@ -838,7 +1240,7 @@ CompareResult KBO6Compare(OCB_p ocb, Term_p s, Term_p t,
 
 #ifdef ENABLE_LFHO
    res = problemType == PROBLEM_HO ?
-            kbolincmp_ho(ocb, s, t, deref_s, deref_t)
+            (ocb->ho_order_kind == LFHO_ORDER ? kbolincmp_ho : kbolincmp_lambda)(ocb, s, t, deref_s, deref_t)
             : kbolincmp(ocb, s, t, deref_s, deref_t);
    //res = kbolincmp(ocb, s, t, deref_s, deref_t);
 #else
@@ -880,7 +1282,7 @@ bool KBO6Greater(OCB_p ocb, Term_p s, Term_p t,
    kbo6reset(ocb);
 #ifdef ENABLE_LFHO
    res = problemType == PROBLEM_HO ?
-            kbolincmp_ho(ocb, s, t, deref_s, deref_t)
+            (ocb->ho_order_kind == LFHO_ORDER ? kbolincmp_ho : kbolincmp_lambda)(ocb, s, t, deref_s, deref_t)
             : kbolincmp(ocb, s, t, deref_s, deref_t);
 #else
    res = kbolincmp(ocb, s, t, deref_s, deref_t);

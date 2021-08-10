@@ -133,14 +133,6 @@ typedef enum
    WMaxMethod = WConstantWeight /* Update as required! */
 }TOWeightGenMethod;
 
-typedef enum ho_order_kind 
-{
-   LFHO_ORDER, // older LFHO order
-   BFHO_ORDER  // Boolean free HO order
-} HoOrderKind;
-
-
-
 typedef struct order_parms_cell
 {
    TermOrdering      ordertype;
@@ -167,6 +159,8 @@ typedef struct order_parms_cell
    /* How to compare literals */
    LiteralCmp        lit_cmp;
    HoOrderKind       ho_order_kind;
+   long              lam_w;
+   long              db_w;
 }OrderParmsCell, *OrderParms_p;
 
 

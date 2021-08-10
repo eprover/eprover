@@ -1468,6 +1468,9 @@ void TOGenerateWeights(OCB_p ocb, ClauseSet_p axioms, char *pre_weights,
       set_user_weights(ocb, pre_weights);
    }
 
+   ocb->lam_weight = oparms->lam_w;
+   ocb->db_weight = oparms->db_w;
+
 #ifdef PRINT_FUNWEIGHTS
    print_weight_array(GlobalOut,ocb);
 #endif
