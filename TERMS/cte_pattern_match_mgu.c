@@ -836,9 +836,7 @@ OracleUnifResult SubstComputeMguPattern(Term_p t1, Term_p t2, Subst_p subst)
 
    PQueueStoreP(jobs, t1);
    PQueueStoreP(jobs, t2);
-   TB_p bank = TermGetBank(t1);
-   assert(bank);
-   assert(bank == TermGetBank(t2));
+   TB_p bank = TermGetBank(t1) ? TermGetBank(t1) : TermGetBank(t2);
 
    VarBankSetVCountsToUsed(bank->vars);
 
@@ -854,7 +852,14 @@ OracleUnifResult SubstComputeMguPattern(Term_p t1, Term_p t2, Subst_p subst)
          continue;
       }
 
-      assert(t1->type == t2->type);
+      if(t1->type != t2->type)
+      {
+         DBG_PRINT(stderr, " > ", TermPrintDbgHO(stderr, orig_t1, bank->sig, DEREF_NEVER), " =?= ");
+         DBG_PRINT(stderr, "", TermPrintDbgHO(stderr, orig_t2, bank->sig, DEREF_NEVER), ".\n");
+         DBG_PRINT(stderr, " > ", TermPrintDbgHO(stderr, t1, bank->sig, DEREF_NEVER), " =?= ");
+         DBG_PRINT(stderr, "", TermPrintDbgHO(stderr, t2, bank->sig, DEREF_NEVER), ".\n");
+         assert(false);
+      }
 
       if(TermIsTopLevelFreeVar(t2))
       {
