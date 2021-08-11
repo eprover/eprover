@@ -368,6 +368,7 @@ void do_ho_print(FILE* out, TFormula_p term, Sig_p sig, DerefType deref, int dep
    term = TermDeref(term, &deref);
 
    if((!TermIsAnyVar(term) &&
+       !(TFormulaIsQuantified(sig, term) && term->arity == 1) &&
       ((SigIsLogicalSymbol(sig, term->f_code) && TypeIsBool(term->type)) ||
       TermIsLambda(term)) &&
       term->f_code != SIG_TRUE_CODE &&
@@ -492,8 +493,8 @@ void do_fool_print(FILE* out, Sig_p sig, TFormula_p form, int depth)
       }
 
    }
-   else if(form->f_code == sig->qex_code || form->f_code == sig->qall_code ||
-           TermIsLambda(form))
+   else if((form->f_code == sig->qex_code || form->f_code == sig->qall_code ||
+           TermIsLambda(form)) && form->arity == 2)
    {
       FunCode quantifier = form->f_code;
       if(form->f_code == sig->qex_code)

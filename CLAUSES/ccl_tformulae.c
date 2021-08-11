@@ -805,7 +805,7 @@ static void tformula_collect_freevars(TB_p bank, TFormula_p form, PTree_p *vars)
    {
       return;
    }
-   else if(TFormulaIsQuantified(bank->sig, form))
+   else if(TFormulaIsQuantified(bank->sig, form) && form->arity == 2)
    {
       old_prop = TermCellGiveProps(form->args[0], TPIsFreeVar);
       TermCellDelProp(form->args[0], TPIsFreeVar);

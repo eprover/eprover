@@ -851,7 +851,7 @@ Term_p do_encode_quantifiers_as_lambdas(TB_p bank, Term_p t, long depth)
       bool changed = false;
       for(long i = 0; i < t->arity; i++)
       {
-         res->args[i] = do_named_to_db(bank, t->args[i], depth);
+         res->args[i] = do_encode_quantifiers_as_lambdas(bank, t->args[i], depth);
          changed = changed || res->args[i] != t->args[i];
       }
 
