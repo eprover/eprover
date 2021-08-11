@@ -49,6 +49,8 @@ Term_p     BetaNormalizeDB(TB_p bank, Term_p term);
 Term_p     LambdaEtaReduceDB(TB_p bank, Term_p term);
 Term_p     LambdaEtaExpandDB(TB_p bank, Term_p term);
 Term_p     LambdaNormalizeDB(TB_p bank, Term_p term);
+Term_p     EncodeQuantifiersAsLambdas(TB_p bank, Term_p term);
+Term_p     DecodeQuantifiers(TB_p bank, Term_p term);
 
 /*-----------------------------------------------------------------------
 //

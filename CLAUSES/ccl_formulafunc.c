@@ -1323,7 +1323,13 @@ long WFormulaCNF2(WFormula_p form, ClauseSet_p set,
    {
       Clause_p clause = WFormClauseToClause(form);
       ClausePushDerivation(clause, DCFofQuote, form, NULL);
+      if(problemType == PROBLEM_HO)
+      {
+         EqnListMapTerms(clause->literals, 
+            (TermMapper_p)EncodeQuantifiersAsLambdas, terms);
+      }
       ClauseSetInsert(set, clause);
+
       return 1;
    }
    WTFormulaConjunctiveNF3(form, terms, miniscope_limit);
@@ -1461,21 +1467,21 @@ long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive,
    long res = 0;
    long old_nodes = TBNonVarTermNodes(terms);
    long gc_threshold = old_nodes * TFORMULA_GC_LIMIT;
-
-   // printf("# Start\n");
-   TFormulaSetLiftItes(set, archive, terms);
-   // printf("# Ite done\n");
-   TFormulaSetLiftLets(set, archive, terms);
-   // printf("# Let done\n");
-   TFormulaSetNamedToDBLambdas(set, archive, terms);
-   // printf("# Renaming done\n");
-   TFormulaSetUnfoldLogSymbols(set, archive, terms);
-   if (lift_lambdas)
+#ifdef ENABLE_LFHO
+   if(problemType == PROBLEM_HO)
    {
-      // maybe add an option for turning lambda equations into forall
-      TFormulaSetLambdaNormalize(set, archive, terms);
-      TFormulaSetLiftLambdas(set, archive, terms);
+      TFormulaSetLiftItes(set, archive, terms);
+      TFormulaSetLiftLets(set, archive, terms);
+      TFormulaSetNamedToDBLambdas(set, archive, terms);
+      TFormulaSetUnfoldLogSymbols(set, archive, terms);
+      if (lift_lambdas)
+      {
+         // TODO: maybe add an option for turning lambda equations into forall
+         TFormulaSetLambdaNormalize(set, archive, terms);
+         TFormulaSetLiftLambdas(set, archive, terms);
+      }
    }
+#endif
    TFormulaSetUnrollFOOL(set, archive, terms);
    //printf("# Fool unrolled\n");
    FormulaSetSimplify(set, terms);
@@ -1713,6 +1719,11 @@ long TFormulaToCNF(WFormula_p form, FormulaProperties type, ClauseSet_p set,
          if (ClauseEliminateNakedBooleanVariables(clause))
          {
             ClausePushDerivation(clause, DCEliminateBVar, NULL, NULL);
+         }
+
+         if(problemType == PROBLEM_HO)
+         {
+            EqnListMapTerms(clause->literals, (TermMapper_p)EncodeQuantifiersAsLambdas, terms);
          }
 
          ClauseSetInsert(set, clause);
