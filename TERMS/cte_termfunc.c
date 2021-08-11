@@ -461,7 +461,8 @@ void do_fool_print(FILE* out, Sig_p sig, TFormula_p form, int depth)
    {
       fprintf(out, "Z%d", depth - (int)form->f_code - 1);
    }
-   else if(form->f_code == sig->eqn_code || form->f_code == sig->neqn_code)
+   else if((form->f_code == sig->eqn_code || form->f_code == sig->neqn_code)
+           && TypeIsBool(form->type))
    {
       if(form->args[1]->f_code == SIG_TRUE_CODE)
       {
@@ -1282,7 +1283,7 @@ bool TermStructEqualDeref(Term_p t1, Term_p t2, DerefType deref_1, DerefType der
       {
          t1 = 
             deref_1 == DEREF_ONCE ? 
-               (TermIsFreeVar(t1) ? t1->binding : TBInsertInstantiated(bank, t1)) : t1;
+               (TermIsFreeVar(t1) ? t1->binding : TBInsertInstantiatedDeref(bank, t1, deref_1)) : t1;
          t1 = LambdaNormalizeDB(bank, t1);
          limit_1 = INT_MAX;
          deref_1 = DEREF_NEVER;
@@ -1303,7 +1304,7 @@ bool TermStructEqualDeref(Term_p t1, Term_p t2, DerefType deref_1, DerefType der
       {
          t2 = 
             deref_2 == DEREF_ONCE ? 
-               (TermIsFreeVar(t2) ? t2->binding : TBInsertInstantiated(bank, t2)) : t2;
+               (TermIsFreeVar(t2) ? t2->binding : TBInsertInstantiatedDeref(bank, t2, deref_2)) : t2;
          t2 = LambdaNormalizeDB(bank, t2);
          limit_2 = INT_MAX;
          deref_2 = DEREF_NEVER;

@@ -871,6 +871,7 @@ static CompareResult kbolincmp_lambda_driver(OCB_p ocb, Term_p s, Term_p t)
          dec_vb_ho(ocb, t);
          res = s==t ? to_equal : to_uncomparable;
       }
+      else
       {
          // FLUID, t
          inc_vb_ho(ocb, s);
@@ -904,12 +905,12 @@ static CompareResult kbolincmp_lambda_driver(OCB_p ocb, Term_p s, Term_p t)
                i += s->arity == t->arity ? 1 : 0;
                if(i < s->arity || i < t->arity)
                {
-                  for(int j= i==0 && TermIsPhonyApp(s) ? 1 : i; j<s->arity; j++)
+                  for(int j= i==0 && (TermIsPhonyApp(s) || TermIsLambda(s)) ? 1 : i; j<s->arity; j++)
                   {
                      mfyvwb_ho(ocb, s->args[j], LHS);
                   }
 
-                  for(int j= i==0 && TermIsPhonyApp(t) ? 1 : i; j<t->arity; j++)
+                  for(int j= i==0 && (TermIsPhonyApp(t) || TermIsLambda(t)) ? 1 : i; j<t->arity; j++)
                   {
                      mfyvwb_ho(ocb, t->args[j], RHS);
                   }
@@ -999,6 +1000,7 @@ static CompareResult kbolincmp_lambda(OCB_p ocb, Term_p s, Term_p t,
                                       DerefType deref_s, DerefType deref_t)
 {
    assert(problemType == PROBLEM_HO);
+   assert(ocb->ho_vb == NULL);
 
    s = LambdaEtaReduceDB(TermGetBank(s),
          BetaNormalizeDB(TermGetBank(s),
@@ -1007,7 +1009,13 @@ static CompareResult kbolincmp_lambda(OCB_p ocb, Term_p s, Term_p t,
          BetaNormalizeDB(TermGetBank(t),
             TBInsertInstantiatedDeref(TermGetBank(t), t, deref_t)));
 
-   return kbolincmp_lambda_driver(ocb, s, t);
+   CompareResult res = kbolincmp_lambda_driver(ocb, s, t);
+
+   // DBG_PRINT(stderr, "", TermPrintDbgHO(stderr, s, ocb->sig, DEREF_NEVER),
+   //          POCompareSymbol[res]);
+   // DBG_PRINT(stderr, "", TermPrintDbgHO(stderr, t, ocb->sig, DEREF_NEVER),
+   //           ".\n");
+   return res;
 }
 
 #ifdef ENABLE_LFHO
@@ -1237,6 +1245,7 @@ CompareResult KBO6Compare(OCB_p ocb, Term_p s, Term_p t,
    CompareResult res;
 
    kbo6reset(ocb);
+   assert(ocb->ho_vb == NULL);
 
 #ifdef ENABLE_LFHO
    res = problemType == PROBLEM_HO ?

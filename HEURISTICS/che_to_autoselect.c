@@ -63,6 +63,7 @@ void init_oparms(OrderParms_p oparms)
    oparms->conj_axiom_mod  = 0;
    oparms->axiom_only_mod  = 0;
    oparms->lit_cmp         = LCNormal;
+   oparms->ho_order_kind   = LFHO_ORDER;
 
 }
 
@@ -118,12 +119,13 @@ GCC_DIAGNOSTIC_PUSH
 __attribute__((optnone))
 __attribute__((optimize(0)))
 #endif
-OCB_p generate_auto_ordering(ProofState_p state, SpecFeature_p spec)
+OCB_p generate_auto_ordering(ProofState_p state, SpecFeature_p spec, HoOrderKind order_kind)
 {
    OrderParmsCell  oparms;
    SpecLimits_p    limits = CreateDefaultSpecLimits();
 
    init_oparms(&oparms);
+   oparms.ho_order_kind = order_kind;
    OUTPRINT(1, "\n# Auto-Ordering is analysing problem.\n");
 #include "che_auto_cases.c"
    print_oparms(&oparms);
@@ -156,7 +158,7 @@ GCC_DIAGNOSTIC_PUSH
 __attribute__((optnone))
 __attribute__((optimize(0)))
 #endif
-OCB_p generate_autocasc_ordering(ProofState_p state, SpecFeature_p spec)
+OCB_p generate_autocasc_ordering(ProofState_p state, SpecFeature_p spec, HoOrderKind order_kind)
 {
    OrderParmsCell  oparms;
    SpecLimits_p    limits = SpecLimitsAlloc();
@@ -183,6 +185,7 @@ OCB_p generate_autocasc_ordering(ProofState_p state, SpecFeature_p spec)
    oparms.to_weight_gen   = WSelectMaximal;
    oparms.to_prec_gen     = PUnaryFirst;
    oparms.lit_cmp         = LCNormal;
+   oparms.ho_order_kind  = order_kind;
    OUTPRINT(1, "\n# Auto-Ordering is analysing problem.\n");
 
 #include "che_auto_cases.c"
@@ -229,7 +232,7 @@ GCC_DIAGNOSTIC_PUSH
 __attribute__((optnone))
 __attribute__((optimize(0)))
 #endif
-OCB_p generate_autodev_ordering(ProofState_p state, SpecFeature_p spec)
+OCB_p generate_autodev_ordering(ProofState_p state, SpecFeature_p spec, HoOrderKind order_kind)
 {
    OrderParmsCell  oparms;
    SpecLimits_p    limits = CreateDefaultSpecLimits();
@@ -239,6 +242,7 @@ OCB_p generate_autodev_ordering(ProofState_p state, SpecFeature_p spec)
    oparms.to_weight_gen   = WSelectMaximal;
    oparms.to_prec_gen     = PUnaryFirst;
    oparms.lit_cmp         = LCNormal;
+   oparms.ho_order_kind   = order_kind;
 
    OUTPRINT(1, "\n# Auto-Ordering is analysing problem.\n");
 #include "che_auto_cases.c"
@@ -292,12 +296,13 @@ GCC_DIAGNOSTIC_PUSH
 __attribute__((optnone))
 __attribute__((optimize(0)))
 #endif
-OCB_p generate_autosched0_ordering(ProofState_p state, SpecFeature_p spec)
+OCB_p generate_autosched0_ordering(ProofState_p state, SpecFeature_p spec, HoOrderKind ho_order_kind)
 {
    OrderParmsCell  oparms;
    SpecLimits_p    limits = CreateDefaultSpecLimits();
 
    init_oparms(&oparms);
+   oparms.ho_order_kind = ho_order_kind;
    OUTPRINT(1, "\n# AutoSched0-Ordering is analysing problem.\n");
 #include "che_auto_cases.c"
    print_oparms(&oparms);
@@ -315,12 +320,13 @@ GCC_DIAGNOSTIC_PUSH
 __attribute__((optnone))
 __attribute__((optimize(0)))
 #endif
-OCB_p generate_autosched1_ordering(ProofState_p state, SpecFeature_p spec)
+OCB_p generate_autosched1_ordering(ProofState_p state, SpecFeature_p spec, HoOrderKind ho_order_kind)
 {
    OrderParmsCell  oparms;
    SpecLimits_p    limits = CreateDefaultSpecLimits();
 
    init_oparms(&oparms);
+   oparms.ho_order_kind = ho_order_kind;
    OUTPRINT(1, "\n# AutoSched1-Ordering is analysing problem.\n");
 #include "che_auto_cases.c"
    print_oparms(&oparms);
@@ -338,12 +344,13 @@ GCC_DIAGNOSTIC_PUSH
 __attribute__((optnone))
 __attribute__((optimize(0)))
 #endif
-OCB_p generate_autosched2_ordering(ProofState_p state, SpecFeature_p spec)
+OCB_p generate_autosched2_ordering(ProofState_p state, SpecFeature_p spec, HoOrderKind ho_order_kind)
 {
    OrderParmsCell  oparms;
    SpecLimits_p    limits = CreateDefaultSpecLimits();
 
    init_oparms(&oparms);
+   oparms.ho_order_kind = ho_order_kind;
    OUTPRINT(1, "\n# AutoSched2-Ordering is analysing problem.\n");
 #include "che_auto_cases.c"
    print_oparms(&oparms);
@@ -361,12 +368,13 @@ GCC_DIAGNOSTIC_PUSH
 __attribute__((optnone))
 __attribute__((optimize(0)))
 #endif
-OCB_p generate_autosched3_ordering(ProofState_p state, SpecFeature_p spec)
+OCB_p generate_autosched3_ordering(ProofState_p state, SpecFeature_p spec, HoOrderKind ho_order_kind)
 {
    OrderParmsCell  oparms;
    SpecLimits_p    limits = CreateDefaultSpecLimits();
 
    init_oparms(&oparms);
+   oparms.ho_order_kind = ho_order_kind;
    OUTPRINT(1, "\n# AutoSched3-Ordering is analysing problem.\n");
 #include "che_auto_cases.c"
    print_oparms(&oparms);
@@ -384,12 +392,13 @@ GCC_DIAGNOSTIC_PUSH
 __attribute__((optnone))
 __attribute__((optimize(0)))
 #endif
-OCB_p generate_autosched4_ordering(ProofState_p state, SpecFeature_p spec)
+OCB_p generate_autosched4_ordering(ProofState_p state, SpecFeature_p spec, HoOrderKind ho_order_kind)
 {
    OrderParmsCell  oparms;
    SpecLimits_p    limits = CreateDefaultSpecLimits();
 
    init_oparms(&oparms);
+   oparms.ho_order_kind = ho_order_kind;
    OUTPRINT(1, "\n# AutoSched4-Ordering is analysing problem.\n");
 #include "che_auto_cases.c"
    print_oparms(&oparms);
@@ -407,12 +416,13 @@ GCC_DIAGNOSTIC_PUSH
 __attribute__((optnone))
 __attribute__((optimize(0)))
 #endif
-OCB_p generate_autosched5_ordering(ProofState_p state, SpecFeature_p spec)
+OCB_p generate_autosched5_ordering(ProofState_p state, SpecFeature_p spec, HoOrderKind ho_order_kind)
 {
    OrderParmsCell  oparms;
    SpecLimits_p    limits = CreateDefaultSpecLimits();
 
    init_oparms(&oparms);
+   oparms.ho_order_kind = ho_order_kind;
    OUTPRINT(1, "\n# AutoSched5-Ordering is analysing problem.\n");
 #include "che_auto_cases.c"
    print_oparms(&oparms);
@@ -430,12 +440,13 @@ GCC_DIAGNOSTIC_PUSH
 __attribute__((optnone))
 __attribute__((optimize(0)))
 #endif
-OCB_p generate_autosched6_ordering(ProofState_p state, SpecFeature_p spec)
+OCB_p generate_autosched6_ordering(ProofState_p state, SpecFeature_p spec, HoOrderKind ho_order_kind)
 {
    OrderParmsCell  oparms;
    SpecLimits_p    limits = CreateDefaultSpecLimits();
 
    init_oparms(&oparms);
+   oparms.ho_order_kind = ho_order_kind;
    OUTPRINT(1, "\n# AutoSched6-Ordering is analysing problem.\n");
 #include "che_auto_cases.c"
    print_oparms(&oparms);
@@ -453,12 +464,13 @@ GCC_DIAGNOSTIC_PUSH
 __attribute__((optnone))
 __attribute__((optimize(0)))
 #endif
-OCB_p generate_autosched7_ordering(ProofState_p state, SpecFeature_p spec)
+OCB_p generate_autosched7_ordering(ProofState_p state, SpecFeature_p spec, HoOrderKind ho_order_kind)
 {
    OrderParmsCell  oparms;
    SpecLimits_p    limits = CreateDefaultSpecLimits();
 
    init_oparms(&oparms);
+   oparms.ho_order_kind = ho_order_kind;
    OUTPRINT(1, "\n# AutoSched7-Ordering is analysing problem.\n");
 #include "che_auto_cases.c"
    print_oparms(&oparms);
@@ -477,12 +489,13 @@ GCC_DIAGNOSTIC_PUSH
 __attribute__((optnone))
 __attribute__((optimize(0)))
 #endif
-OCB_p generate_autosched8_ordering(ProofState_p state, SpecFeature_p spec)
+OCB_p generate_autosched8_ordering(ProofState_p state, SpecFeature_p spec, HoOrderKind ho_order_kind)
 {
    OrderParmsCell  oparms;
    SpecLimits_p    limits = CreateDefaultSpecLimits();
 
    init_oparms(&oparms);
+   oparms.ho_order_kind = ho_order_kind;
    OUTPRINT(1, "\n# AutoSched8-Ordering is analysing problem.\n");
 #include "che_auto_cases.c"
    print_oparms(&oparms);
@@ -500,12 +513,13 @@ GCC_DIAGNOSTIC_PUSH
 __attribute__((optnone))
 __attribute__((optimize(0)))
 #endif
-OCB_p generate_autosched9_ordering(ProofState_p state, SpecFeature_p spec)
+OCB_p generate_autosched9_ordering(ProofState_p state, SpecFeature_p spec, HoOrderKind ho_order_kind)
 {
    OrderParmsCell  oparms;
    SpecLimits_p    limits = CreateDefaultSpecLimits();
 
    init_oparms(&oparms);
+   oparms.ho_order_kind = ho_order_kind;
    OUTPRINT(1, "\n# AutoSched9-Ordering is analysing problem.\n");
 #include "che_auto_cases.c"
    print_oparms(&oparms);
@@ -848,55 +862,55 @@ OCB_p TOSelectOrdering(ProofState_p state, HeuristicParms_p params,
    }
    else if(tmp.ordertype == AUTO)
    {
-      result = generate_auto_ordering(state, specs);
+      result = generate_auto_ordering(state, specs, params->order_params.ho_order_kind);
    }
    else if(tmp.ordertype == AUTOCASC)
    {
-      result = generate_autocasc_ordering(state, specs);
+      result = generate_autocasc_ordering(state, specs, params->order_params.ho_order_kind);
    }
    else if(tmp.ordertype == AUTODEV)
    {
-      result = generate_autodev_ordering(state, specs);
+      result = generate_autodev_ordering(state, specs, params->order_params.ho_order_kind);
    }
    else if(tmp.ordertype == AUTOSCHED0)
    {
-      result = generate_autosched0_ordering(state, specs);
+      result = generate_autosched0_ordering(state, specs, params->order_params.ho_order_kind);
    }
    else if(tmp.ordertype == AUTOSCHED1)
    {
-      result = generate_autosched1_ordering(state, specs);
+      result = generate_autosched1_ordering(state, specs, params->order_params.ho_order_kind);
    }
    else if(tmp.ordertype == AUTOSCHED2)
    {
-      result = generate_autosched2_ordering(state, specs);
+      result = generate_autosched2_ordering(state, specs, params->order_params.ho_order_kind);
    }
    else if(tmp.ordertype == AUTOSCHED3)
    {
-      result = generate_autosched3_ordering(state, specs);
+      result = generate_autosched3_ordering(state, specs, params->order_params.ho_order_kind);
    }
    else if(tmp.ordertype == AUTOSCHED4)
    {
-      result = generate_autosched4_ordering(state, specs);
+      result = generate_autosched4_ordering(state, specs, params->order_params.ho_order_kind);
    }
    else if(tmp.ordertype == AUTOSCHED5)
    {
-      result = generate_autosched5_ordering(state, specs);
+      result = generate_autosched5_ordering(state, specs, params->order_params.ho_order_kind);
    }
    else if(tmp.ordertype == AUTOSCHED6)
    {
-      result = generate_autosched6_ordering(state, specs);
+      result = generate_autosched6_ordering(state, specs, params->order_params.ho_order_kind);
    }
    else if(tmp.ordertype == AUTOSCHED7)
    {
-      result = generate_autosched7_ordering(state, specs);
+      result = generate_autosched7_ordering(state, specs, params->order_params.ho_order_kind);
    }
    else if(tmp.ordertype == AUTOSCHED8)
    {
-      result = generate_autosched8_ordering(state, specs);
+      result = generate_autosched8_ordering(state, specs, params->order_params.ho_order_kind);
    }
    else if(tmp.ordertype == AUTOSCHED9)
    {
-      result = generate_autosched9_ordering(state, specs);
+      result = generate_autosched9_ordering(state, specs, params->order_params.ho_order_kind);
    }
    else
    {
@@ -934,6 +948,7 @@ OCB_p  TOCreateOrdering(ProofState_p state, OrderParms_p params,
 {
    OCB_p handle;
    bool prec_by_weight = pre_precedence?false:true;
+   assert(params->ho_order_kind == LFHO_ORDER || params->ho_order_kind == LAMBDA_ORDER);
 
    /* printf("TOCreateOrdering(%d, %d, %d, %ld)\n", params->ordertype,
       params->to_weight_gen, params->to_prec_gen,
