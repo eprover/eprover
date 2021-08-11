@@ -598,7 +598,7 @@ static void mfyvwb_ho(OCB_p ocb, Term_p term, ComparisonSide side)
    
    PLocalStackPush(stack, term);
 
-   while(!PLocalTaggedStackEmpty(stack))
+   while(!PLocalStackEmpty(stack))
    {
       Term_p t = PLocalStackPop(stack);
       if(is_fluid(t))
@@ -628,7 +628,6 @@ static void mfyvwb_ho(OCB_p ocb, Term_p term, ComparisonSide side)
          {
             PLocalStackPush(stack, term->args[i]);
          }
-
       }
    }
 
@@ -647,7 +646,7 @@ static void mfyvwb_ho(OCB_p ocb, Term_p term, ComparisonSide side)
 //
 /----------------------------------------------------------------------*/
 
-static bool heads_same(Term_p s, Term_p t)
+static inline bool heads_same(Term_p s, Term_p t)
 {
    if(!TermIsPhonyApp(s) && !TermIsPhonyApp(t))
    {
@@ -655,7 +654,7 @@ static bool heads_same(Term_p s, Term_p t)
    }
    else
    {
-      return TermIsPhonyApp(s) == TermIsPhonyApp(t) &&
+      return TermIsPhonyApp(s) && TermIsPhonyApp(t) &&
              s->args[0] == t->args[0];
    }
 }
@@ -673,7 +672,7 @@ static bool heads_same(Term_p s, Term_p t)
 //
 /----------------------------------------------------------------------*/
 
-static int classify_head(Term_p s)
+static inline int classify_head(Term_p s)
 {
    assert(!TermIsTopLevelFreeVar(s));
    // lam > db > symbol
@@ -869,20 +868,20 @@ static CompareResult kbolincmp_lambda_driver(OCB_p ocb, Term_p s, Term_p t)
       {
          // FLUID, FLUID
          inc_vb_ho(ocb, s);
-         dec_vb_ho(ocb, s);
+         dec_vb_ho(ocb, t);
          res = s==t ? to_equal : to_uncomparable;
       }
       {
          // FLUID, t
          inc_vb_ho(ocb, s);
-         mfyvwb_ho(ocb, s, RHS);
+         mfyvwb_ho(ocb, t, RHS);
          res = ocb->pos_bal?to_uncomparable:to_lesser;
       }
    }
    else if(is_fluid(t))
    {
       // s, FLUID
-      dec_vb_ho(ocb, s);
+      dec_vb_ho(ocb, t);
       mfyvwb_ho(ocb, s, LHS);
       res = ocb->neg_bal?to_uncomparable:to_greater;
    }
@@ -890,11 +889,12 @@ static CompareResult kbolincmp_lambda_driver(OCB_p ocb, Term_p s, Term_p t)
    {
       if(heads_same(s,t))
       {
-         // if we have two constants of the same fun code, there's nothing to update.
          bool done = s->arity == t->arity ? s->arity == 0 : false;
          int i = 0;
          while(!done)
          {
+            // if one of the terms is applied DB var and the other one is unapplied,
+            // arity must be different and the code will jump into length-lexicographic
             res = s->arity == t->arity ? kbolincmp_lambda_driver(ocb, s->args[i], t->args[i]) :
                                          cmp_arities(s,t);
 
@@ -996,9 +996,9 @@ static CompareResult kbolincmp_lambda_driver(OCB_p ocb, Term_p s, Term_p t)
 
 
 static CompareResult kbolincmp_lambda(OCB_p ocb, Term_p s, Term_p t,
-                             DerefType deref_s, DerefType deref_t)
+                                      DerefType deref_s, DerefType deref_t)
 {
-   assert(problemType == PROBLEM_HO); // no need to change derefs
+   assert(problemType == PROBLEM_HO);
 
    s = LambdaEtaReduceDB(TermGetBank(s),
          BetaNormalizeDB(TermGetBank(s),
@@ -1024,7 +1024,7 @@ static CompareResult kbolincmp_lambda(OCB_p ocb, Term_p s, Term_p t,
 //
 /----------------------------------------------------------------------*/
 
-static CompareResult cmp_arities(Term_p s, Term_p t)
+static inline CompareResult cmp_arities(Term_p s, Term_p t)
 {
    assert(s->arity != t->arity);
    return s->arity > t->arity ? to_greater : to_lesser;

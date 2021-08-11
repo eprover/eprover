@@ -855,8 +855,7 @@ Term_p TBInsertInstantiatedDeref(TB_p bank, Term_p term, DerefType deref)
       {
          t->args[i] = 
             TBInsertInstantiatedDeref(bank ? bank : TermGetBank(term), 
-                                     term->args[i],
-                                      CONVERT_DEREF(i, limit, deref));
+                                      term->args[i], CONVERT_DEREF(i, limit, deref));
       }
       t = tb_termtop_insert(bank, t);
    }
