@@ -309,9 +309,10 @@ void OCBFree(OCB_p junk)
    }
    PDArrayFree(junk->min_constants);
    assert(junk);
-   assert(junk->vb_size > 0);
-   assert(junk->vb);
-   SizeFree(junk->vb, junk->vb_size*sizeof(int));
+   if(junk->vb)
+   {
+      SizeFree(junk->vb, junk->vb_size*sizeof(int));
+   }
    PStackFree(junk->statestack);
    PObjMapFreeWDeleter(junk->ho_vb, DummyObjDelFun, free_val);
    OCBCellFree(junk);

@@ -92,6 +92,25 @@ static void __attribute__ ((noinline)) resize_vb(OCB_p ocb, size_t index)
 
 /*-----------------------------------------------------------------------
 //
+// Function: is_fluid()
+//
+//   Approximation the fluidity test -- see 
+//   https://arxiv.org/abs/2102.00453 for definition
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static inline bool is_fluid(Term_p t) 
+{
+   return TermIsTopLevelFreeVar(t) ||
+          (TermIsLambda(t) && !TermIsGround(t));
+}
+
+/*-----------------------------------------------------------------------
+//
 // Function: inc_vb()
 //
 //   Update all values in ocb when processing var on the
@@ -141,7 +160,7 @@ static void inc_vb(OCB_p ocb, Term_p var)
 
 static void inc_vb_ho(OCB_p ocb, Term_p var)
 {
-   assert(TermIsTopLevelFreeVar(var));
+   assert(is_fluid(var));
    long** bal_ref = (long**)PObjMapGetRef(&ocb->ho_vb, var, PCmpFun, NULL);
    if(*bal_ref == NULL)
    {
@@ -206,7 +225,7 @@ static void dec_vb(OCB_p ocb, Term_p var)
 
 static void dec_vb_ho(OCB_p ocb, Term_p var)
 {
-   assert(TermIsTopLevelFreeVar(var));
+   assert(is_fluid(var));
    long** bal_ref = (long**)PObjMapGetRef(&ocb->ho_vb, var, PCmpFun, NULL);
    if(*bal_ref == NULL)
    {
@@ -466,25 +485,6 @@ static CompareResult kbo6cmp(OCB_p ocb, Term_p s, Term_p t,
 
 /*-----------------------------------------------------------------------
 //
-// Function: is_fluid()
-//
-//   Approximation the fluidity test -- see 
-//   https://arxiv.org/abs/2102.00453 for definition
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-static inline bool is_fluid(Term_p t) 
-{
-   return TermIsTopLevelFreeVar(t) ||
-          (TermIsLambda(t) && !TermIsGround(t));
-}
-
-/*-----------------------------------------------------------------------
-//
 // Function: mfyvwblhs()
 //
 //   Update ocb according to term on the LHS of a comparison.
@@ -592,41 +592,41 @@ static void mfyvwbrhs(OCB_p ocb, Term_p term, DerefType deref_t, int orig_limit)
 //
 /----------------------------------------------------------------------*/
 
-static void mfyvwb_ho(OCB_p ocb, Term_p term, ComparisonSide side)
+static void mfyvwb_ho(OCB_p ocb, Term_p orig, ComparisonSide side)
 {
    PLocalStackInit(stack);
    
-   PLocalStackPush(stack, term);
+   PLocalStackPush(stack, orig);
 
    while(!PLocalStackEmpty(stack))
    {
       Term_p t = PLocalStackPop(stack);
       if(is_fluid(t))
       {
-         (side == LHS ? inc_vb_ho : dec_vb_ho)(ocb, term);
+         (side == LHS ? inc_vb_ho : dec_vb_ho)(ocb, t);
       }
       else
       {
-         if(TermIsLambda(term))
+         if(TermIsLambda(t))
          {
             ocb->wb += 
                (side == LHS ? OCBLamWeight(ocb) : -OCBLamWeight(ocb));
          }
-         else if(TermIsDBVar(term))
+         else if(TermIsDBVar(t))
          {
             ocb->wb += 
                (side == LHS ? OCBDBWeight(ocb) : -OCBDBWeight(ocb));
          }
-         else if (!TermIsPhonyApp(term))
+         else if (!TermIsPhonyApp(t))
          {
             ocb->wb += 
-               (side == LHS ? OCBFunWeight(ocb, term->f_code) 
-                            : - OCBFunWeight(ocb, term->f_code));
+               (side == LHS ? OCBFunWeight(ocb, t->f_code) 
+                            : - OCBFunWeight(ocb, t->f_code));
          }
-         PLocalStackEnsureSpace(stack, (term->arity - (TermIsLambda(term) ? 1 : 0)));
-         for(int i=TermIsLambda(term) ? 1 : 0; i<term->arity; i++)
+         PLocalStackEnsureSpace(stack, (t->arity - (TermIsLambda(t) ? 1 : 0)));
+         for(int i=TermIsLambda(t) ? 1 : 0; i<t->arity; i++)
          {
-            PLocalStackPush(stack, term->args[i]);
+            PLocalStackPush(stack, t->args[i]);
          }
       }
    }

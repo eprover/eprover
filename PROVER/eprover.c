@@ -1816,6 +1816,7 @@ CLState_p process_options(int argc, char* argv[])
                Error("Option --ho-order-kind requires 'lfho' or 'lambda' as an argument",
                      USAGE_ERROR);
             }
+            break;
       default:
             assert(false && "Unknown option");
             break;
