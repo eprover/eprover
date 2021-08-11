@@ -267,14 +267,29 @@ void TypeInferSort(Sig_p sig, Term_p term, Scanner_p in)
             AktTokenError(in, "Equality must have at least one argument",
                           SYNTAX_ERROR);
          }
-         assert(TermIsFreeVar(term->args[0]));
-         Type_p arg_type = term->args[0]->type;
-         Type_p quant_type_args[3] =
-            {arg_type,
-            sig->type_bank->bool_type,
-            sig->type_bank->bool_type};
-         type = TypeBankInsertTypeShared(sig->type_bank,
-                                         AllocArrowTypeCopyArgs(3, quant_type_args));
+         if(TermIsFreeVar(term->args[0]))
+         {
+            Type_p arg_type = term->args[0]->type;
+            Type_p quant_type_args[3] =
+               {arg_type,
+               sig->type_bank->bool_type,
+               sig->type_bank->bool_type};
+            type = TypeBankInsertTypeShared(sig->type_bank,
+                                          AllocArrowTypeCopyArgs(3, quant_type_args));
+         }
+         else
+         {
+            if(!TypeIsArrow(term->args[0]->type) || !TypeIsPredicate(term->args[0]->type))
+            {
+               in?
+                  AktTokenError(in, "Wrong encoding of quantifier arguments", false):
+                  Error("Wrong encoding of quantifier arguments", SYNTAX_ERROR);
+            }
+            Type_p quant_type_args[2] =
+               {term->args[0]->type, sig->type_bank->bool_type};
+            type = TypeBankInsertTypeShared(sig->type_bank,
+                                          AllocArrowTypeCopyArgs(2, quant_type_args));
+         }
       }
       else
       {

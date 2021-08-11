@@ -463,46 +463,6 @@ void do_ext_sup_into(Clause_p renamed_cl, Clause_p orig_cl, ProofState_p state)
 
 /*-----------------------------------------------------------------------
 //
-// Function: term_apply_arg()
-//
-//   Applies one term to the other. Performs rudimentary typechecking.
-//   Term is UNSHARED.
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-Term_p term_apply_arg(TypeBank_p tb, Term_p s, Term_p arg) 
-{
-   assert(TypeIsArrow(s->type));
-   assert(s->type->args[0] == arg->type);
-   
-   Term_p s_arg = NULL;
-   if ((!TermIsAnyVar(s) && !TermIsLambda(s)))
-   {
-      s_arg = TermTopAlloc(s->f_code, s->arity+1);
-      for(int i=0; i<s->arity; i++)
-      {
-         s_arg->args[i] = s->args[i]; 
-      }
-      s_arg->args[s->arity] = arg;
-   }
-   else
-   {
-      s_arg = TermTopAlloc(SIG_PHONY_APP_CODE, 2);
-      s_arg->args[0] = s;
-      s_arg->args[1] = arg;
-   }
-   
-   s_arg->type = TypeBankInsertTypeShared(tb, TypeDropFirstArg(s->type));
-   
-   return s_arg;
-}
-
-/*-----------------------------------------------------------------------
-//
 // Function: term_drop_last_arg()
 //
 //   Removes the last argument of a term. Assumes there is at least
@@ -619,9 +579,9 @@ void ComputeNegExt(ProofState_p state, ProofControl_p control, Clause_p clause)
             skolem->type = lit_type->args[i];
             skolem = TBTermTopInsert(state->terms, skolem);
             new_lhs = TBTermTopInsert(state->terms,
-                                      term_apply_arg(state->signature->type_bank, new_lhs, skolem));
+                                      TermApplyArg(state->signature->type_bank, new_lhs, skolem));
             new_rhs = TBTermTopInsert(state->terms,
-                                      term_apply_arg(state->signature->type_bank, new_rhs, skolem));
+                                      TermApplyArg(state->signature->type_bank, new_rhs, skolem));
 
             Eqn_p new_lit = EqnAlloc(new_lhs, new_rhs, state->terms, false);
             Eqn_p new_literals = EqnListCopyExcept(clause->literals, lit, state->terms);

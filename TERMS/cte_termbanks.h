@@ -190,6 +190,7 @@ Term_p  TBGetFreqConstTerm(TB_p terms, Type_p sort,
                            long* dist_array, FunConstCmpFunType is_better);
 Term_p  TermMap(TB_p bank, Term_p t, TermMapper f);
 Term_p NormalizePatternAppVar(TB_p bank, Term_p s);
+Term_p TermApplyArg(TypeBank_p tb, Term_p s, Term_p arg);
 
 
 

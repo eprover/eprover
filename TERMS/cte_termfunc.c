@@ -3075,6 +3075,46 @@ bool TermIsDBClosed(Term_p term)
    return !TermHasDBSubterm(term) || do_is_db_closed(term, 0);
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: TermApplyArg()
+//
+//   Applies one term to the other. Performs rudimentary typechecking.
+//   Term is UNSHARED.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+Term_p TermApplyArg(TypeBank_p tb, Term_p s, Term_p arg) 
+{
+   assert(TypeIsArrow(s->type));
+   assert(s->type->args[0] == arg->type);
+   
+   Term_p s_arg = NULL;
+   if ((!TermIsAnyVar(s) && !TermIsLambda(s)))
+   {
+      s_arg = TermTopAlloc(s->f_code, s->arity+1);
+      for(int i=0; i<s->arity; i++)
+      {
+         s_arg->args[i] = s->args[i]; 
+      }
+      s_arg->args[s->arity] = arg;
+   }
+   else
+   {
+      s_arg = TermTopAlloc(SIG_PHONY_APP_CODE, 2);
+      s_arg->args[0] = s;
+      s_arg->args[1] = arg;
+   }
+   
+   s_arg->type = TypeBankInsertTypeShared(tb, TypeDropFirstArg(s->type));
+   
+   return s_arg;
+}
+
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
