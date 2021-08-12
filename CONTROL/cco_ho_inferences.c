@@ -805,6 +805,7 @@ bool ImmediateClausification(Clause_p cl, ClauseSet_p store, ClauseSet_p archive
             PStackReset(res->derivation);
             store_result(res, cl, store, DCDynamicCNF);
          }
+         
          clausified=true;
          ClauseSetFree(res_set);
       }
