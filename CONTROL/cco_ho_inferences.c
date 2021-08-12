@@ -775,15 +775,20 @@ bool ImmediateClausification(Clause_p cl, ClauseSet_p store, ClauseSet_p archive
       {
          TB_p bank = lit->bank;
 
+         VarBankSetVCountsToUsed(bank->vars);
+
          WFormula_p wrapped = WFormulaOfClause(cl, bank);
+         wrapped->tformula = DecodeQuantifiers(bank, wrapped->tformula);
+         
          FormulaSet_p work_set = FormulaSetAlloc();
-         ClauseSet_p res_set = ClauseSetAlloc();
          FormulaSetInsert(work_set, wrapped);
+
+         ClauseSet_p res_set = ClauseSetAlloc();
          FormulaSet_p archive = FormulaSetAlloc();
          
          TFormulaSetUnrollFOOL(work_set, archive, bank);
          TFormulaSetIntroduceDefs(work_set, archive, bank);
-         FormulaSetSimplify(work_set, bank);
+         FormulaSetSimplify(work_set, bank, false);
 
          while(!FormulaSetEmpty(work_set))
          {
@@ -794,11 +799,15 @@ bool ImmediateClausification(Clause_p cl, ClauseSet_p store, ClauseSet_p archive
 
          FormulaSetFree(work_set);
          FormulaSetFree(archive);
+         DBG_PRINT(stderr, "immediate_clausification(", ClausePrint(stderr, cl, true), ") =\n");
          while(!ClauseSetEmpty(res_set))
          {
             Clause_p res = ClauseSetExtractFirst(res_set);
+            DBG_PRINT(stderr, " > ", ClausePrint(stderr, res, true), ".\n");
+            PStackReset(res->derivation);
             store_result(res, cl, store, DCDynamicCNF);
          }
+         clausified=true;
       }
    }
 

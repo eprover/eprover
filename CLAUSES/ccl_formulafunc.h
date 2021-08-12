@@ -64,7 +64,7 @@ long WFormulaCNF(WFormula_p form, ClauseSet_p set,
 long WFormulaCNF2(WFormula_p form, ClauseSet_p set,
                   TB_p terms, VarBank_p fresh_vars,
                   long miniscope_limit);
-long FormulaSetSimplify(FormulaSet_p set, TB_p terms);
+long FormulaSetSimplify(FormulaSet_p set, TB_p terms, bool gc);
 
 long FormulaSetCNF(FormulaSet_p set, FormulaSet_p archive,
                    ClauseSet_p clauseset, TB_p terms,

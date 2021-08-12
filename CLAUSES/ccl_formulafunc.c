@@ -1350,7 +1350,7 @@ long WFormulaCNF2(WFormula_p form, ClauseSet_p set,
 //
 /----------------------------------------------------------------------*/
 
-long FormulaSetSimplify(FormulaSet_p set, TB_p terms)
+long FormulaSetSimplify(FormulaSet_p set, TB_p terms, bool do_garbage_collect)
 {
    WFormula_p handle;
    long res = 0;
@@ -1371,8 +1371,9 @@ long FormulaSetSimplify(FormulaSet_p set, TB_p terms)
       if (changed)
       {
          res++;
-         if (TBNonVarTermNodes(terms) > gc_threshold)
+         if (do_garbage_collect && TBNonVarTermNodes(terms) > gc_threshold)
          {
+            fprintf(stderr, "cleaning...\n");
             assert(terms == handle->terms);
             GCCollect(terms->gc);
             old_nodes = TBNonVarTermNodes(terms);
@@ -1382,7 +1383,7 @@ long FormulaSetSimplify(FormulaSet_p set, TB_p terms)
       handle = handle->succ;
    }
    // printf("All simplified\n");
-   if (TBNonVarTermNodes(terms) != old_nodes)
+   if (do_garbage_collect && TBNonVarTermNodes(terms) != old_nodes)
    {
       GCCollect(terms->gc);
    }
@@ -1412,7 +1413,7 @@ long FormulaSetCNF(FormulaSet_p set, FormulaSet_p archive,
    long old_nodes = TBNonVarTermNodes(terms);
    long gc_threshold = old_nodes * TFORMULA_GC_LIMIT;
 
-   FormulaSetSimplify(set, terms);
+   FormulaSetSimplify(set, terms, true);
    // printf("FormulaSetSimplify done\n");
    TFormulaSetIntroduceDefs(set, archive, terms);
    // printf("Definitions introduced\n");
@@ -1484,7 +1485,7 @@ long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive,
 #endif
    TFormulaSetUnrollFOOL(set, archive, terms);
    //printf("# Fool unrolled\n");
-   FormulaSetSimplify(set, terms);
+   FormulaSetSimplify(set, terms, true);
 
    //printf("# Introducing definitions\n");
    TFormulaSetIntroduceDefs(set, archive, terms);

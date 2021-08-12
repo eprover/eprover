@@ -2353,9 +2353,9 @@ Clause_p TFormulaCollectClause(TFormula_p form, TB_p terms,
    PStack_p stack, lit_stack = PStackAlloc();
    PStackPointer i;
 
-   /*printf("tformula_collect_clause(): ");
-     TFormulaTPTPPrint(GlobalOut, terms, form, true, false);
-     printf("\n");*/
+   // fprintf(stderr, "tformula_collect_clause(): ");
+   // TermPrintDbgHO(stderr, form, terms->sig, DEREF_NEVER);
+   // fprintf(stderr, "\n");
 
    stack = PStackAlloc();
    PStackPushP(stack, form);

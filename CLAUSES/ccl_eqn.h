@@ -211,7 +211,7 @@ void    EqnFree(Eqn_p junk);
    TermDelProp((eqn)->rterm, DEREF_NEVER, (prop))
 
 #define EqnIsClausifiable(eq) \
-   TypeIsBool((eq)->lterm) && \
+   TypeIsBool((eq)->lterm->type) && \
    ((eq)->rterm != (eq)->bank->true_term || \
       (!TermIsAnyVar((eq)->lterm) && \
       SigIsLogicalSymbol((eq)->bank->sig, (eq)->lterm->f_code)))
