@@ -1487,39 +1487,46 @@ void TFormulaTPTPPrint(FILE* out, TB_p bank, TFormula_p form, bool fullterms, bo
    }
    else if(TFormulaIsQuantified(bank->sig,form))
    {
-      FunCode quantifier = form->f_code;
-      if(form->f_code == bank->sig->qex_code)
+      if(form->arity==2)
       {
-         fputs("?[", out);
-      }
-      else if(form->f_code == bank->sig->qall_code)
-      {
-         fputs("![", out);
-      }
-      else
-      {
-         fputs("^[", out);
-      }
-      TermPrint(out, form->args[0], bank->sig, DEREF_NEVER);
-      if(problemType == PROBLEM_HO || !TypeIsIndividual(form->args[0]->type))
-      {
-         fputs(":", out);
-         TypePrintTSTP(out, bank->sig->type_bank, form->args[0]->type);
-      }
-      while(form->args[1]->f_code == quantifier)
-      {
-         form = form->args[1];
-         fputs(", ", out);
+         FunCode quantifier = form->f_code;
+         if(form->f_code == bank->sig->qex_code)
+         {
+            fputs("?[", out);
+         }
+         else if(form->f_code == bank->sig->qall_code)
+         {
+            fputs("![", out);
+         }
+         else
+         {
+            fputs("^[", out);
+         }
          TermPrint(out, form->args[0], bank->sig, DEREF_NEVER);
          if(problemType == PROBLEM_HO || !TypeIsIndividual(form->args[0]->type))
          {
             fputs(":", out);
             TypePrintTSTP(out, bank->sig->type_bank, form->args[0]->type);
          }
+         while(form->args[1]->f_code == quantifier)
+         {
+            form = form->args[1];
+            fputs(", ", out);
+            TermPrint(out, form->args[0], bank->sig, DEREF_NEVER);
+            if(problemType == PROBLEM_HO || !TypeIsIndividual(form->args[0]->type))
+            {
+               fputs(":", out);
+               TypePrintTSTP(out, bank->sig->type_bank, form->args[0]->type);
+            }
+         }
+         fputs("]:(", out);
+         TFormulaTPTPPrint(out, bank, form->args[1], fullterms, pcl);
+         fputs(")", out);
       }
-      fputs("]:(", out);
-      TFormulaTPTPPrint(out, bank, form->args[1], fullterms, pcl);
-      fputs(")", out);
+      else
+      {
+         TermPrintDbgHO(out, form, bank->sig, DEREF_NEVER);
+      }
    }
    else if(TFormulaIsUnary(form))
    {

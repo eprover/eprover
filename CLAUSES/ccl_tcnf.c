@@ -868,6 +868,7 @@ long TFormulaEstimateClauses(TB_p bank, TFormula_p form, bool pos)
       }
       else
       {
+         TermPrintDbgHO(stderr, form, bank->sig, DEREF_NEVER);
          assert(false && "Formula not in correct simplified form");
       }
    }

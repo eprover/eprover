@@ -787,8 +787,8 @@ bool ImmediateClausification(Clause_p cl, ClauseSet_p store, ClauseSet_p archive
          FormulaSet_p archive = FormulaSetAlloc();
          
          TFormulaSetUnrollFOOL(work_set, archive, bank);
-         TFormulaSetIntroduceDefs(work_set, archive, bank);
          FormulaSetSimplify(work_set, bank, false);
+         TFormulaSetIntroduceDefs(work_set, archive, bank);
 
          while(!FormulaSetEmpty(work_set))
          {
