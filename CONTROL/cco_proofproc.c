@@ -634,9 +634,9 @@ static Clause_p insert_new_clauses(ProofState_p state, ProofControl_p control)
    state->generated_lit_count+=state->tmp_store->literals;
    while((handle = ClauseSetExtractFirst(state->tmp_store)))
    {
-      printf("Inserting: ");
-      ClausePrint(stdout, handle, true);
-      printf("\n");
+      // printf("Inserting: ");
+      // ClausePrint(stdout, handle, true);
+      // printf("\n");
       if(ClauseQueryProp(handle,CPIsIRVictim))
       {
          assert(ClauseQueryProp(handle, CPLimitedRW));

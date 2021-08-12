@@ -799,15 +799,14 @@ bool ImmediateClausification(Clause_p cl, ClauseSet_p store, ClauseSet_p archive
 
          FormulaSetFree(work_set);
          FormulaSetFree(archive);
-         DBG_PRINT(stderr, "immediate_clausification(", ClausePrint(stderr, cl, true), ") =\n");
          while(!ClauseSetEmpty(res_set))
          {
             Clause_p res = ClauseSetExtractFirst(res_set);
-            DBG_PRINT(stderr, " > ", ClausePrint(stderr, res, true), ".\n");
             PStackReset(res->derivation);
             store_result(res, cl, store, DCDynamicCNF);
          }
          clausified=true;
+         ClauseSetFree(res_set);
       }
    }
 
