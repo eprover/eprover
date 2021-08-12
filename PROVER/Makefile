@@ -15,7 +15,7 @@ include ../Makefile.vars
 
 # Project specific variables
 
-PROJECT = eprover e_ltb_runner e_stratpar e_deduction_server e_axfilter \
+PROJECT = $(EPROVER_BIN) e_ltb_runner e_stratpar e_deduction_server e_axfilter \
 	  classify_problem epatternize e_client e_server\
           direct_examples epclanalyse epclextract checkproof eground\
           enormalizer edpll epcllemma \
@@ -30,7 +30,7 @@ depend: *.c
 
 clean:
 	@rm -rf *.o $(PROJECT) *.dSYM termprops tsm_classify
-	@rm -rf eprover-ho
+	@rm -rf eprover-ho eprover
 
 # Services (provided by the master Makefile)
 
@@ -43,11 +43,8 @@ EPROVER = eprover.o ../lib/CONTROL.a ../lib/HEURISTICS.a\
             ../lib/CLAUSES.a ../lib/ORDERINGS.a ../lib/TERMS.a\
             ../lib/INOUT.a ../lib/BASICS.a  ../lib/CONTRIB.a
 
-eprover: $(EPROVER)
-	$(LD) -o eprover $(EPROVER) $(LIBS)
-
-eprover-ho: eprover
-	mv eprover eprover-ho
+$(EPROVER_BIN): $(EPROVER)
+	$(LD) -o $(EPROVER_BIN) $(EPROVER) $(LIBS)
 
 E_LTB_RUNNER = e_ltb_runner.o ../lib/CONTROL.a ../lib/HEURISTICS.a\
             ../lib/CLAUSES.a ../lib/ORDERINGS.a ../lib/TERMS.a\
