@@ -213,7 +213,7 @@ void SigInsertInternalCodes(Sig_p sig)
    SigSetPolymorphic(sig, sig->eqn_code, true);
 
    sig->neqn_code   = SigInsertId(sig, "$neq",   2, true);
-   SigSetPolymorphic(sig, sig->eqn_code, true);
+   SigSetPolymorphic(sig, sig->neqn_code, true);
 
    sig->qex_code   = SigInsertId(sig, "$qex",   2, true);
    sig->qall_code  = SigInsertId(sig, "$qall",  2, true);

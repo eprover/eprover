@@ -1724,6 +1724,7 @@ long TFormulaToCNF(WFormula_p form, FormulaProperties type, ClauseSet_p set,
 
          if(problemType == PROBLEM_HO)
          {
+            DBG_PRINT(stderr, "encoding quants:", ClausePrintDBG(stderr, clause), ".\n");
             EqnListMapTerms(clause->literals, (TermMapper_p)EncodeQuantifiersAsLambdas, terms);
          }
 

@@ -311,6 +311,7 @@ void     ClausePrintTPTPFormat(FILE* out, Clause_p clause);
 void     ClausePrintLOPFormat(FILE* out, Clause_p clause, bool fullterms);
 
 void     ClausePrint(FILE* out, Clause_p clause, bool fullterms);
+void     ClausePrintDBG(FILE* out, Clause_p clause);
 void     ClausePCLPrint(FILE* out, Clause_p clause, bool fullterms);
 void     ClauseTSTPCorePrint(FILE* out, Clause_p clause, bool fullterms);
 void     ClauseTSTPPrint(FILE* out, Clause_p clause, bool fullterms,

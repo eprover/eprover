@@ -1301,6 +1301,33 @@ void ClausePrint(FILE* out, Clause_p clause, bool fullterms)
    }
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: ClausePrintDBG()
+//
+//   Print a clause in the form useful for debugging.
+//
+// Global Variables: OutputFormat
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+void ClausePrintDBG(FILE* out, Clause_p clause)
+{
+   fprintf(out, "thf(cl%ld, plain, ", 
+           clause->ident >= 0 ? clause->ident : clause->ident-LONG_MIN);
+   if(clause->literals)
+   {
+      EqnPrintDBG(out, clause->literals);
+      for(Eqn_p lit = clause->literals->next; lit; lit = lit->next)
+      {
+         DBG_PRINT(out, " | ", EqnPrintDBG(out, lit), "");
+      }
+   }
+   fprintf(out, " ).");
+}
+
 
 /*-----------------------------------------------------------------------
 //

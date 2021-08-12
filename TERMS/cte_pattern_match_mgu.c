@@ -920,6 +920,14 @@ OracleUnifResult SubstComputeMguPattern(Term_p t1, Term_p t2, Subst_p subst)
       else if (t1->f_code == t2->f_code)
       {
          assert(t1->arity == t2->arity);
+         if(SigIsPolymorphic(bank->sig, t1->f_code)
+            && t1->arity != 0
+            && t1->args[0]->type != t2->args[0]->type) 
+         {
+            // if poly symbol is constant the first type check and the
+            // surrounding context guarantees type correctness
+            UNIF_FAIL(res);
+         }
          schedule_jobs(jobs, t1->args, t2->args, t1->arity);
       }
       else

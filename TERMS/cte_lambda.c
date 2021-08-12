@@ -810,6 +810,7 @@ Term_p do_encode_quantifiers_as_lambdas(TB_p bank, Term_p t, long depth)
    }
    else if(t->f_code == bank->sig->qall_code || t->f_code == bank->sig->qex_code)
    {
+      assert(t->arity == 2);
       FunCode quant = t->f_code;
       PStack_p prefix = PStackAlloc();
       Term_p matrix = t;
@@ -1270,6 +1271,7 @@ Term_p BetaNormalizeDB(TB_p bank, Term_p term)
 
 Term_p EncodeQuantifiersAsLambdas(TB_p bank, Term_p term)
 {
+   DBG_PRINT(stderr, "encoding: ", TermPrintDbgHO(stderr, term, bank->sig, DEREF_NEVER), ".\n");
    return do_encode_quantifiers_as_lambdas(bank, term, 0);
 }
 

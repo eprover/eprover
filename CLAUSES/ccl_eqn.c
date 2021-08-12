@@ -1055,6 +1055,24 @@ void EqnPrint(FILE* out, Eqn_p eq, bool negated,  bool fullterms)
 
 /*-----------------------------------------------------------------------
 //
+// Function: EqnPrintDBG()
+//
+//   Debug printing of the equation. 
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+void EqnPrintDBG(FILE* out, Eqn_p eq)
+{
+   TermPrintDbgHO(out, eq->lterm, eq->bank->sig, DEREF_NEVER);
+   fprintf(out, "%s=", EqnIsPositive(eq)?"":"!");
+   TermPrintDbgHO(out, eq->rterm, eq->bank->sig, DEREF_NEVER);
+   fprintf(out, "%s", EqnIsMaximal(eq) ? "*" : "");
+   fprintf(out, "%s", EqnIsOriented(eq) ? ">" : "");
+}
+
+/*-----------------------------------------------------------------------
+//
 // Function: EqnPrintDeref()
 //
 //   Print a (potentially instantiated) equation (in standard infix).
@@ -3303,13 +3321,10 @@ bool EqnHasAppVar(Eqn_p eq)
 //
 /----------------------------------------------------------------------*/
 
-void EqnMap(Eqn_p list, TermMapper_p f, void* arg)
+void EqnMap(Eqn_p lit, TermMapper_p f, void* arg)
 {
-   for(Eqn_p lit = list; lit; lit = lit->next)
-   {
-      lit->lterm = f(arg, lit->lterm);
-      lit->rterm = f(arg, lit->rterm);
-   }
+   lit->lterm = f(arg, lit->lterm);
+   lit->rterm = f(arg, lit->rterm);
 }
 
 /*---------------------------------------------------------------------*/
