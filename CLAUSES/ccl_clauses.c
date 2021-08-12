@@ -1462,7 +1462,7 @@ void ClauseTSTPPrint(FILE* out, Clause_p clause, bool fullterms, bool complete)
       form = TFormulaClosure(clause->literals->bank, form, true);
 
       TFormulaTPTPPrint(out, clause->literals->bank, form, fullterms, false);
-      // TermPrintDbgHO(out, form, clause->literals->bank->sig, DEREF_NEVER);
+      TermPrintDbgHO(out, form, clause->literals->bank->sig, DEREF_NEVER);
       // handled by GC, no need to free
    }
 

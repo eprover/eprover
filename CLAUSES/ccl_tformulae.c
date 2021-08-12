@@ -1329,12 +1329,26 @@ TFormula_p TFormulaFCodeAlloc(TB_p bank, FunCode op, TFormula_p arg1, TFormula_p
 TFormula_p TFormulaLitAlloc(Eqn_p literal)
 {
    TFormula_p res;
+   TB_p bank = literal->bank;
 
    assert(literal);
 
-   res = EqnTermsTBTermEncode(literal->bank, literal->lterm,
+   if(EqnIsClausifiable(literal))
+   {
+      Term_p lterm = EncodePredicateAsEqn(bank, literal->lterm);
+      Term_p rterm = EncodePredicateAsEqn(bank, literal->rterm);
+      res = 
+         TFormulaFCodeAlloc(bank,
+            EqnIsPositive(literal) ? bank->sig->equiv_code : bank->sig->xor_code,
+            lterm, rterm);
+   }
+   else
+   {
+      res = EqnTermsTBTermEncode(literal->bank, literal->lterm,
                               literal->rterm, EqnIsPositive(literal),
                               PENormal);
+   }
+
    return res;
 
 }

@@ -210,6 +210,12 @@ void    EqnFree(Eqn_p junk);
    TermDelProp((eqn)->lterm, DEREF_NEVER, (prop));      \
    TermDelProp((eqn)->rterm, DEREF_NEVER, (prop))
 
+#define EqnIsClausifiable(eq) \
+   TypeIsBool((eq)->lterm) && \
+   ((eq)->rterm != (eq)->bank->true_term || \
+      (!TermIsAnyVar((eq)->lterm) && \
+      SigIsLogicalSymbol((eq)->bank->sig, (eq)->lterm->f_code)))
+
 bool    EqnParseInfix(Scanner_p in, TB_p bank, Term_p *lref, Term_p *rref);
 Eqn_p   EqnParse(Scanner_p in, TB_p bank);
 Eqn_p   EqnFOFParse(Scanner_p in, TB_p bank);

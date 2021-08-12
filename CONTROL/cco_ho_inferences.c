@@ -79,81 +79,6 @@ void store_result(Clause_p new_clause, Clause_p orig_clause,
    ClauseSetInsert(store, new_clause);
 }
 
-/*-----------------------------------------------------------------------
-//
-// Function: build_eq_des_res()
-//
-//   Given an offending equivalence lit build flattened clause
-//   using given signs for the left and right hand side of the equivalence
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-Clause_p build_eq_des_res(Eqn_p lit, bool sign_lterm, bool sign_rterm, Clause_p cl)
-{
-   TB_p terms = lit->bank;
-   Eqn_p rest = EqnListCopyExcept(cl->literals, lit, terms);
-
-   assert(lit->lterm != terms->true_term);
-   assert(lit->rterm != terms->true_term);
-
-   Eqn_p l_lit = EqnAllocFlatten(lit->lterm, terms, sign_lterm);
-   Eqn_p r_lit = EqnAllocFlatten(lit->rterm, terms, sign_rterm);
-   l_lit->next = r_lit;
-
-   EqnListAppend(&l_lit, rest);
-   return ClauseAlloc(l_lit);
-}
-
-/*-----------------------------------------------------------------------
-//
-// Function: do_equiv_destruct()
-//
-//   Goes through clauses and finds a boolean literal that is not of the
-//   form s (!=) $true and distributes the literal over the rest of
-//   the clause
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-bool do_equiv_destruct(Clause_p cl, PStack_p tasks)
-{
-   bool found_lit = false;
-   for(Eqn_p lit=cl->literals; !found_lit && lit; lit=lit->next)
-   {
-      TB_p terms = lit->bank;
-      if(TypeIsBool(lit->lterm->type) && 
-         lit->rterm != terms->true_term &&
-         (TermIsAnyVar(lit->lterm) ||
-          !SigQueryProp(terms->sig, lit->lterm->f_code, FPFOFOp)) &&
-         (TermIsAnyVar(lit->rterm) ||
-          !SigQueryProp(terms->sig, lit->rterm->f_code, FPFOFOp)))
-      {
-         Clause_p child1, child2;
-         if(EqnIsPositive(lit))
-         {
-            child1 = build_eq_des_res(lit, false, true, cl);
-            child2 = build_eq_des_res(lit, true, false, cl);
-         }
-         else
-         {
-            child1 = build_eq_des_res(lit, false, false, cl);
-            child2 = build_eq_des_res(lit, true, true, cl);
-         }
-
-         found_lit = true;
-         PStackPushP(tasks, child1);
-         PStackPushP(tasks, child2);
-      }
-   }
-   return found_lit;
-}
 
 /*-----------------------------------------------------------------------
 //
@@ -831,7 +756,7 @@ void ComputeExtEqRes(ProofState_p state, ProofControl_p control, Clause_p cl)
 
 /*-----------------------------------------------------------------------
 //
-// Function: DestructEquivalences()
+// Function: ImmediateClausification()
 //
 //   Performs dynamic clausfication of equivalences.
 //
@@ -841,37 +766,48 @@ void ComputeExtEqRes(ProofState_p state, ProofControl_p control, Clause_p cl)
 //
 /----------------------------------------------------------------------*/
 
-bool DestructEquivalences(Clause_p cl, ClauseSet_p store, ClauseSet_p archive)
-{
-   PStack_p tasks = PStackAlloc();
-   PStackPushP(tasks, cl);
-   bool destructed_one = false;
-
-   while(!PStackEmpty(tasks))
+bool ImmediateClausification(Clause_p cl, ClauseSet_p store, ClauseSet_p archive)
+{  
+   bool clausified = false;
+   for(Eqn_p lit = cl->literals; !clausified && lit; lit=lit->next)
    {
-      Clause_p task = PStackPopP(tasks);
-      if(!do_equiv_destruct(task, tasks))
+      if(EqnIsClausifiable(lit))
       {
-         // clause reached a fixed point
-         if(task != cl)
+         TB_p bank = lit->bank;
+
+         WFormula_p wrapped = WFormulaOfClause(cl, bank);
+         FormulaSet_p work_set = FormulaSetAlloc();
+         ClauseSet_p res_set = ClauseSetAlloc();
+         FormulaSetInsert(work_set, wrapped);
+         FormulaSet_p archive = FormulaSetAlloc();
+         
+         TFormulaSetUnrollFOOL(work_set, archive, bank);
+         TFormulaSetIntroduceDefs(work_set, archive, bank);
+         FormulaSetSimplify(work_set, bank);
+
+         while(!FormulaSetEmpty(work_set))
          {
-            store_result(task, cl, store, DCDynamicCNF);
-            destructed_one = true;
+            WFormula_p handle = FormulaSetExtractFirst(work_set);
+            WFormulaCNF2(handle, res_set, bank, bank->vars, 100); // low miniscope limit for efficiency
+            WFormulaFree(handle);
+         }
+
+         FormulaSetFree(work_set);
+         FormulaSetFree(archive);
+         while(!ClauseSetEmpty(res_set))
+         {
+            Clause_p res = ClauseSetExtractFirst(res_set);
+            store_result(res, cl, store, DCDynamicCNF);
          }
       }
-      else if(task != cl)
-      {
-         // removing an intermediary clause created above
-         ClauseFree(task);
-      }
    }
-   
-   PStackFree(tasks);
-   if(destructed_one)
+
+   if(clausified)
    {
       ClauseSetInsert(archive, cl);
    }
-   return destructed_one;
+
+   return clausified;
 }
 
 /*-----------------------------------------------------------------------

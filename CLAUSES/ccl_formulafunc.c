@@ -2279,7 +2279,7 @@ long TFormulaSetIntroduceDefs(FormulaSet_p set, FormulaSet_p archive, TB_p terms
       w_def = WTFormulaAlloc(terms, newdef);
       DocFormulaCreationDefault(w_def, inf_fof_intro_def, NULL, NULL);
       cell->vals[0].i_val = w_def->ident; /* Replace polarity with
-                                        * definition id */
+                                           * definition id */
       arch_form = WFormulaFlatCopy(w_def);
       WFormulaPushDerivation(arch_form, DCIntroDef, NULL, NULL);
       FormulaSetInsert(archive, arch_form);

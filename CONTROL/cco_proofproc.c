@@ -748,7 +748,7 @@ Clause_p replacing_inferences(ProofState_p state, ProofControl_p
    long     clause_count;
    Clause_p res = pclause->clause;
 
-   if(problemType == PROBLEM_HO && DestructEquivalences(res, state->tmp_store, state->archive))
+   if(problemType == PROBLEM_HO && ImmediateClausification(res, state->tmp_store, state->archive))
    {
       pclause->clause = NULL;
    }
