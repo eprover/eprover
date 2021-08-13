@@ -1439,7 +1439,7 @@ long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive,
    long old_nodes = TBNonVarTermNodes(terms);
    long gc_threshold = old_nodes*TFORMULA_GC_LIMIT;
 
-   //printf("# Start\n");
+   //printf("# FormulaSetCNF2()...\n");
    TFormulaSetLiftItes(set, archive, terms);
    //printf("# Ite done\n");
    TFormulaSetLiftLets(set, archive, terms);

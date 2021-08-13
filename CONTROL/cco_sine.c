@@ -308,13 +308,13 @@ StructFOFSpec_p StructFOFSpecCreate(TB_p terms)
 {
    StructFOFSpec_p handle = StructFOFSpecCellAlloc();
 
-   handle->sig             = terms->sig;
+   //handle->sig             = terms->sig;
    handle->terms           = terms;
-   handle->gc_terms        = GCAdminAlloc(handle->terms);
+   //handle->gc_terms        = NULL;
    handle->clause_sets     = PStackAlloc();
    handle->formula_sets    = PStackAlloc();
    handle->parsed_includes = NULL;
-   handle->f_distrib       = GenDistribAlloc(handle->sig);
+   handle->f_distrib       = GenDistribAlloc(handle->terms->sig);
    handle->shared_ax_sp    = 0;
 
    return handle;
@@ -339,6 +339,7 @@ StructFOFSpec_p StructFOFSpecAlloc(void)
    Sig_p sig;
    TB_p  terms;
    TypeBank_p sort_table;
+   StructFOFSpec_p res;
 
    sort_table = TypeBankAlloc();
    sig =   SigAlloc(sort_table);
@@ -348,8 +349,10 @@ StructFOFSpec_p StructFOFSpecAlloc(void)
    sig->distinct_props = sig->distinct_props&~
       (FPIsInteger|FPIsRational|FPIsFloat);
 
-   terms = TBAlloc(sig);
-   return StructFOFSpecCreate(terms);
+   terms         = TBAlloc(sig);
+   res           = StructFOFSpecCreate(terms);
+   // res->gc_terms = GCAdminAlloc(terms);
+   return res;
 }
 
 
@@ -375,6 +378,7 @@ void StructFOFSpecFree(StructFOFSpec_p ctrl)
    while(!PStackEmpty(ctrl->clause_sets))
    {
       cset = PStackPopP(ctrl->clause_sets);
+      GCDeregisterClauseSet(ctrl->terms->gc, cset);
       ClauseSetFree(cset);
    }
    PStackFree(ctrl->clause_sets);
@@ -382,25 +386,10 @@ void StructFOFSpecFree(StructFOFSpec_p ctrl)
    while(!PStackEmpty(ctrl->formula_sets))
    {
       fset = PStackPopP(ctrl->formula_sets);
+      GCDeregisterFormulaSet(ctrl->terms->gc, fset);
       FormulaSetFree(fset);
    }
    PStackFree(ctrl->formula_sets);
-   GCAdminFree(ctrl->gc_terms);
-   if(ctrl->sig)
-   {
-      if(ctrl->sig->type_bank)
-      {
-         TypeBankFree(ctrl->sig->type_bank);
-         ctrl->sig->type_bank = NULL;
-      }
-      SigFree(ctrl->sig);
-      ctrl->terms->sig = NULL;
-   }
-   if(ctrl->terms)
-   {
-      TBFree(ctrl->terms);
-      ctrl->terms = NULL;
-   }
    StrTreeFree(ctrl->parsed_includes);
    GenDistribFree(ctrl->f_distrib);
 
@@ -481,8 +470,8 @@ long StructFOFSpecParseAxioms(StructFOFSpec_p ctrl, PStack_p axfiles,
             fprintf(GlobalOut, "# Parsing %s\n", iname);
             cset = ClauseSetAlloc();
             fset = FormulaSetAlloc();
-            GCRegisterFormulaSet(ctrl->gc_terms, fset);
-            GCRegisterClauseSet(ctrl->gc_terms, cset);
+            GCRegisterFormulaSet(ctrl->terms->gc, fset);
+            GCRegisterClauseSet(ctrl->terms->gc, cset);
             res += FormulaAndClauseSetParse(in, fset, cset, ctrl->terms,
                                             NULL,
                                             &(ctrl->parsed_includes));
@@ -521,7 +510,7 @@ long StructFOFSpecParseAxioms(StructFOFSpec_p ctrl, PStack_p axfiles,
 
 void StructFOFSpecInitDistrib(StructFOFSpec_p ctrl)
 {
-   GenDistribSizeAdjust(ctrl->f_distrib, ctrl->sig);
+   GenDistribSizeAdjust(ctrl->f_distrib, ctrl->terms->sig);
    GenDistribAddClauseSets(ctrl->f_distrib, ctrl->clause_sets);
    GenDistribAddFormulaSets(ctrl->f_distrib, ctrl->formula_sets);
 }
@@ -578,18 +567,11 @@ long ProofStateSinE(ProofState_p state, char* fname)
 
    formulas = PStackAlloc();
    clauses  = PStackAlloc();
+   GCDeregisterFormulaSet(state->terms->gc, state->f_axioms);
+   GCDeregisterClauseSet(state->terms->gc, state->axioms);
+
    spec = StructFOFSpecCreate(state->terms);
-
-   /* The following moves the responsibility for the sets into the spec! */
    StructFOFSpecAddProblem(spec, state->axioms, state->f_axioms);
-   GCDeregisterFormulaSet(state->gc_terms, state->f_axioms);
-   GCDeregisterClauseSet(state->gc_terms, state->axioms);
-
-   /* ...so we need to povide fresh, empty axioms sets */
-   state->axioms   = ClauseSetAlloc();
-   state->f_axioms = FormulaSetAlloc();
-   GCRegisterFormulaSet(state->gc_terms, state->f_axioms);
-   GCRegisterClauseSet(state->gc_terms, state->axioms);
 
    StructFOFSpecInitDistrib(spec);
    StructFOFSpecGetProblem(spec,
@@ -597,20 +579,27 @@ long ProofStateSinE(ProofState_p state, char* fname)
                            clauses,
                            formulas);
 
+   state->axioms   = ClauseSetAlloc();
+   state->f_axioms = FormulaSetAlloc();
+   GCRegisterFormulaSet(state->terms->gc, state->f_axioms);
+   GCRegisterClauseSet(state->terms->gc, state->axioms);
    PStackClausesMove(clauses, state->axioms);
    PStackFormulasMove(formulas, state->f_axioms);
    PStackFree(formulas);
    PStackFree(clauses);
+   /* ...so we need to povide fresh, empty axioms sets */
 
    /* Now rescue signature and term bank. */
-   spec->sig = NULL;
-   spec->terms = NULL;
+   // spec->sig = NULL;
+   // spec->terms = NULL;
    StructFOFSpecFree(spec);
 
    AxFilterSetFree(filters);
 
    axno = ClauseSetCardinality(state->axioms)+
       FormulaSetCardinality(state->f_axioms);
+
+   //printf("...ProofStateSinE()\n");
 
    return axno_orig-axno;
 }
