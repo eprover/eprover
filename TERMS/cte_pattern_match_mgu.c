@@ -828,7 +828,6 @@ OracleUnifResult SubstComputeMguPattern(Term_p t1, Term_p t2, Subst_p subst)
       return NOT_UNIFIABLE;
    }
 
-
    PStackPointer backtrack = PStackGetSP(subst); /* For backtracking */
 
    OracleUnifResult res = UNIFIABLE;
@@ -1047,6 +1046,12 @@ OracleUnifResult SubstComputeMatchPattern(Term_p matcher, Term_p to_match, Subst
       }
       else if(matcher->f_code == to_match->f_code)
       {
+         if(SigIsPolymorphic(bank->sig, matcher->f_code)
+            && matcher->arity != 0
+            && matcher->args[0]->type != to_match->args[0]->type) 
+         {
+            UNIF_FAIL(res);
+         }
          assert(matcher->arity == to_match->arity);
          PLocalStackEnsureSpace(jobs, 2*matcher->arity);
          for(int i=matcher->arity-1; i>=0; i--)

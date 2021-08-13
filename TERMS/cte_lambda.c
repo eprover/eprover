@@ -758,7 +758,7 @@ Term_p do_post_cnf_encode(TB_p bank, Term_p t, long depth)
          res = t;
       }
    }
-   else if(TermIsFreeVar(t))
+   else if(TermIsAnyVar(t))
    {
       if(t->binding && TermIsDBVar(t->binding))
       {

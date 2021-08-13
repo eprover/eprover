@@ -237,14 +237,15 @@ typedef Term_p (*TermMapper_p)(void*, Term_p);
 #define TermIsFreeVar(t) ((t)->f_code < 0)
 #define TermIsConst(t)(!TermIsAnyVar(t) && ((t)->arity==0))
 #ifdef ENABLE_LFHO
-#define TermIsPhonyApp(term) ((term)->f_code == SIG_PHONY_APP_CODE)
-#define TermIsAppliedFreeVar(term) ((term)->f_code == SIG_PHONY_APP_CODE && \
-                                TermIsFreeVar((term)->args[0]))
-#define TermIsAppliedAnyVar(term) ((term)->f_code == SIG_PHONY_APP_CODE && \
-                                   TermIsAnyVar((term)->args[0]))
-#define TermIsLambda(term) ((term)->f_code == SIG_NAMED_LAMBDA_CODE || \
-                            (term)->f_code == SIG_DB_LAMBDA_CODE)
 #define TermIsDBVar(term) (QueryProp((term), (TPIsDBVar)))
+#define TermIsPhonyApp(term) (!TermIsDBVar(term) && (term)->f_code == SIG_PHONY_APP_CODE)
+#define TermIsAppliedFreeVar(term) (!TermIsDBVar(term) && (term)->f_code == SIG_PHONY_APP_CODE && \
+                                    TermIsFreeVar((term)->args[0]))
+#define TermIsAppliedAnyVar(term) (!TermIsDBVar(term) && (term)->f_code == SIG_PHONY_APP_CODE && \
+                                   TermIsAnyVar((term)->args[0]))
+#define TermIsLambda(term) (!TermIsDBVar(term) &&\
+                            ((term)->f_code == SIG_NAMED_LAMBDA_CODE || \
+                            (term)->f_code == SIG_DB_LAMBDA_CODE))
 #define TermIsAnyVar(term) (TermIsFreeVar(term) || TermIsDBVar(term))
 #define TermHasLambdaSubterm(term) (QueryProp((term), (TPHasLambdaSubterm)))
 #define TermHasEtaExpandableSubterm(term) (QueryProp((term), (TPHasEtaExpandableSubterm)))
@@ -253,7 +254,7 @@ typedef Term_p (*TermMapper_p)(void*, Term_p);
 #define LFHOL_UNSUPPORTED(t) (TermHasLambdaSubterm(t) || TermHasDBSubterm(t))
 #define TermIsPattern(term) (!(QueryProp((term), (TPHasNonPatternVar))))
 #define TermIsNonFOPattern(term) (TermIsPattern(term) && LFHOL_UNSUPPORTED(term))
-#define TermIsDBLambda(term) ((term)->f_code == SIG_DB_LAMBDA_CODE)
+#define TermIsDBLambda(term) (!TermIsDBVar(term) && (term)->f_code == SIG_DB_LAMBDA_CODE)
 #else
 #define TermIsPhonyApp(term) (false)
 #define TermIsAppliedFreeVar(term) (false)

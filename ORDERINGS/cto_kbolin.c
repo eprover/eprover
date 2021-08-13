@@ -233,7 +233,7 @@ static void dec_vb_ho(OCB_p ocb, Term_p var)
    }
    ocb->neg_bal += (**bal_ref == 0);
    ocb->pos_bal -= (**bal_ref == 1);
-   **bal_ref += 1;
+   **bal_ref -= 1;
    ocb->wb -= ocb->var_weight;
 }
 
