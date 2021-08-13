@@ -234,7 +234,7 @@ static void dec_vb_ho(OCB_p ocb, Term_p var)
    ocb->neg_bal += (**bal_ref == 0);
    ocb->pos_bal -= (**bal_ref == 1);
    **bal_ref += 1;
-   ocb->wb += ocb->var_weight;
+   ocb->wb -= ocb->var_weight;
 }
 
 /*-----------------------------------------------------------------------
@@ -610,18 +610,18 @@ static void mfyvwb_ho(OCB_p ocb, Term_p orig, ComparisonSide side)
          if(TermIsLambda(t))
          {
             ocb->wb += 
-               (side == LHS ? OCBLamWeight(ocb) : -OCBLamWeight(ocb));
+               ((side == LHS) ? OCBLamWeight(ocb) : -OCBLamWeight(ocb));
          }
          else if(TermIsDBVar(t))
          {
             ocb->wb += 
-               (side == LHS ? OCBDBWeight(ocb) : -OCBDBWeight(ocb));
+               ((side == LHS) ? OCBDBWeight(ocb) : -OCBDBWeight(ocb));
          }
          else if (!TermIsPhonyApp(t))
          {
             ocb->wb += 
-               (side == LHS ? OCBFunWeight(ocb, t->f_code) 
-                            : - OCBFunWeight(ocb, t->f_code));
+               ((side == LHS) ? OCBFunWeight(ocb, t->f_code) 
+                            : -OCBFunWeight(ocb, t->f_code));
          }
          PLocalStackEnsureSpace(stack, (t->arity - (TermIsLambda(t) ? 1 : 0)));
          for(int i=TermIsLambda(t) ? 1 : 0; i<t->arity; i++)
