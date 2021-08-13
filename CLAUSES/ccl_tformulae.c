@@ -636,7 +636,7 @@ static TFormula_p applied_tform_tstp_parse(Scanner_p in, TB_p terms, TFormula_p 
          fprintf(stderr, "max args: %d\n", max_args);
          fprintf(stderr, "type: ");
          TypePrintTSTP(stderr, terms->sig->type_bank, hd_type);
-         TermPrintDbgHO(stderr, head, terms->sig, DEREF_NEVER);
+         TermPrintDbg(stderr, head, terms->sig, DEREF_NEVER);
          AktTokenError(in, " Too many arguments applied to the symbol",
                        SYNTAX_ERROR);
       }
@@ -1462,7 +1462,7 @@ TFormula_p TFormulaTSTPParse(Scanner_p in, TB_p terms)
          assert(SigIsLogicalSymbol(sig, f1->f_code));
          if(!SigIsLogicalSymbol(sig, f2->f_code))
          {
-            TermPrintDbgHO(stderr, f2, terms->sig, DEREF_NEVER);
+            TermPrintDbg(stderr, f2, terms->sig, DEREF_NEVER);
             assert(false);
          }
 
