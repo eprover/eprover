@@ -1063,13 +1063,21 @@ void DerivationDebugPrint(FILE* out, PStack_p derivation)
          i++;
          if(DCOpHasArg1(op))
          {
+            if(DCOpHasCnfArg1(op))
+            {
+               DBG_PRINT(out, "[", ClausePrintDBG(out, PStackElementP(derivation, i)), "]");
+            }
             i++;
          }
          if(DCOpHasArg2(op))
          {
+            if(DCOpHasCnfArg2(op))
+            {
+               DBG_PRINT(out, "[", ClausePrintDBG(out, PStackElementP(derivation, i)), "]");
+            }
             i++;
          }
-         fprintf(out, "%s%s", opids[DPOpGetOpCode(op)], i==sp?"":",");
+         fprintf(out, "<%s%s>", opids[DPOpGetOpCode(op)], i==sp?"":",");
       }
    }
    else

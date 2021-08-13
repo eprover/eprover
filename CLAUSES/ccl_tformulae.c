@@ -1333,10 +1333,18 @@ TFormula_p TFormulaLitAlloc(Eqn_p literal)
 
    assert(literal);
 
-   if(EqnIsClausifiable(literal))
+   if(literal->rterm == bank->true_term)
    {
-      Term_p lterm = EncodePredicateAsEqn(bank, literal->lterm);
-      Term_p rterm = EncodePredicateAsEqn(bank, literal->rterm);
+      res = DecodeFormulasForCNF(bank, literal->lterm);
+      if(EqnIsNegative(literal))
+      {
+         res = TFormulaFCodeAlloc(bank, bank->sig->not_code, res, NULL);
+      }
+   }
+   else if(EqnIsClausifiable(literal))
+   {
+      Term_p lterm = DecodeFormulasForCNF(bank, literal->lterm);
+      Term_p rterm = DecodeFormulasForCNF(bank, literal->rterm);
       res = 
          TFormulaFCodeAlloc(bank,
             EqnIsPositive(literal) ? bank->sig->equiv_code : bank->sig->xor_code,
@@ -1344,9 +1352,10 @@ TFormula_p TFormulaLitAlloc(Eqn_p literal)
    }
    else
    {
-      res = EqnTermsTBTermEncode(literal->bank, literal->lterm,
-                              literal->rterm, EqnIsPositive(literal),
-                              PENormal);
+      Term_p lterm = DecodeFormulasForCNF(bank, literal->lterm);
+      Term_p rterm = DecodeFormulasForCNF(bank, literal->rterm);
+      res = 
+         EqnTermsTBTermEncode(bank, lterm, rterm, EqnIsPositive(literal), PENormal);
    }
 
    return res;

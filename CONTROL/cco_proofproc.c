@@ -66,6 +66,7 @@ void document_processing(Clause_p clause)
          putc('\n', GlobalOut);
          putc('#', GlobalOut);
          ClausePrintDBG(GlobalOut, clause);
+         DerivationDebugPrint(GlobalOut, clause->derivation);
          putc('\n', GlobalOut);
       }
       DocClauseQuoteDefault(6, clause, "new_given");
@@ -1477,7 +1478,7 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control,
    }
 
    // fprintf(stderr, "processing: ");
-   // ClausePrint(stderr, clause, true);
+   // ClausePrintDBG(stderr, clause);
    // fprintf(stderr, "\n");
    // DerivationDebugPrint(stderr, clause->derivation);
    // fprintf(stderr, ".\n ");

@@ -630,7 +630,8 @@ void WFormulaTSTPPrint(FILE* out, WFormula_p form, bool fullterms,
    }
    else
    {
-      TFormulaTPTPPrint(out, form->terms, form->tformula,fullterms, false);
+      // TFormulaTPTPPrint(out, form->terms, form->tformula,fullterms, false);
+      TermPrintDbgHO(out, form->tformula, form->terms->sig, DEREF_NEVER);
       //fprintf(out, "");
       //fprintf(out, "<dummy %p in %p>", form->tformula, form->terms);
    }

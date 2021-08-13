@@ -730,43 +730,6 @@ Term_p do_named_to_db(TB_p bank, Term_p t, long depth)
 
 /*-----------------------------------------------------------------------
 //
-// Function: decode_quant_mapper()
-//
-//   Helper function for decoding quantifiers.
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-Term_p decode_quant_mapper(TB_p bank, Term_p t)
-{
-   Sig_p sig = bank->sig;
-   Term_p res;
-   if((t->f_code == sig->qall_code || t->f_code == sig->qex_code)
-      && t->arity == 1)
-   {
-      assert(TypeIsArrow(t->args[0]->type));
-      assert(t->args[0]->type->arity == 2);
-      assert(TypeIsPredicate(t->args[0]->type));
-      Term_p fresh_var = 
-         VarBankGetFreshVar(bank->vars, t->args[0]->type->args[0]);
-      Term_p new_matrix =
-         WHNF_step(bank, 
-            TBTermTopInsert(bank, 
-               TermApplyArg(bank->sig->type_bank, t->args[0], fresh_var)));
-      res = TFormulaQuantorAlloc(bank, t->f_code, fresh_var, new_matrix);
-   }
-   else
-   {
-      res = t;
-   }
-   return res;
-}
-
-/*-----------------------------------------------------------------------
-//
 // Function: encode_quantifiers_as_lambdas()
 //
 //   Encodes (![X,Y,Z]: body) into ! @ ^[X]: (! @ ^[Y]: ( ! @ ^[Z]: (body)))
@@ -777,7 +740,7 @@ Term_p decode_quant_mapper(TB_p bank, Term_p t)
 //
 /----------------------------------------------------------------------*/
 
-Term_p do_encode_quantifiers_as_lambdas(TB_p bank, Term_p t, long depth)
+Term_p do_post_cnf_encode(TB_p bank, Term_p t, long depth)
 {
    Term_p res = NULL;
    if(TermIsLambda(t))
@@ -785,7 +748,7 @@ Term_p do_encode_quantifiers_as_lambdas(TB_p bank, Term_p t, long depth)
       assert(t->f_code == SIG_DB_LAMBDA_CODE);
       assert(t->arity == 2);
       assert(TermIsDBVar(t->args[0]));
-      Term_p new_matrix = do_encode_quantifiers_as_lambdas(bank, t->args[1], depth+1);
+      Term_p new_matrix = do_post_cnf_encode(bank, t->args[1], depth+1);
       if(new_matrix != t->args[1])
       {
          res = CloseWithDBVar(bank, t->args[0]->type, new_matrix);
@@ -826,7 +789,7 @@ Term_p do_encode_quantifiers_as_lambdas(TB_p bank, Term_p t, long depth)
       }
 
       matrix = 
-         do_encode_quantifiers_as_lambdas(bank,
+         do_post_cnf_encode(bank,
             ShiftDB(bank, matrix, PStackGetSP(prefix) / 2), depth);
       
       while(!PStackEmpty(prefix))
@@ -846,13 +809,18 @@ Term_p do_encode_quantifiers_as_lambdas(TB_p bank, Term_p t, long depth)
       PStackFree(prefix);
       res = matrix;
    }
+   else if (t->f_code == bank->sig->eqn_code && t->arity == 2
+            && t->args[1] == bank->true_term)
+   {
+      res = do_post_cnf_encode(bank, t->args[0], depth);
+   }
    else
    {
       res = TermTopCopy(t);
       bool changed = false;
       for(long i = 0; i < t->arity; i++)
       {
-         res->args[i] = do_encode_quantifiers_as_lambdas(bank, t->args[i], depth);
+         res->args[i] = do_post_cnf_encode(bank, t->args[i], depth);
          changed = changed || res->args[i] != t->args[i];
       }
 
@@ -1120,8 +1088,10 @@ Term_p AbstractVars(TB_p terms, Term_p matrix, PStack_p var_prefix)
 
 Term_p WHNF_step(TB_p bank, Term_p t)
 {
-   assert(TermIsPhonyApp(t));
-   assert(TermIsLambda(t->args[0]));
+   if(!TermIsPhonyApp(t) || !TermIsLambda(t->args[0]))
+   {
+      return t;
+   }
 
    Term_p  res = NULL;
    long    num_remaining = t->arity - 1;
@@ -1258,7 +1228,7 @@ Term_p BetaNormalizeDB(TB_p bank, Term_p term)
 
 /*-----------------------------------------------------------------------
 //
-// Function: EncodeQuantifiersAsLambdas()
+// Function: PostCNFEncodeFormulas()
 //
 //   Takes quantifiers encoded using a free variable into the ones
 //   which use DB.
@@ -1269,18 +1239,19 @@ Term_p BetaNormalizeDB(TB_p bank, Term_p term)
 //
 /----------------------------------------------------------------------*/
 
-Term_p EncodeQuantifiersAsLambdas(TB_p bank, Term_p term)
+Term_p PostCNFEncodeFormulas(TB_p bank, Term_p term)
 {
-   DBG_PRINT(stderr, "encoding: ", TermPrintDbgHO(stderr, term, bank->sig, DEREF_NEVER), ".\n");
-   return do_encode_quantifiers_as_lambdas(bank, term, 0);
+   return do_post_cnf_encode(bank, term, 0);
 }
 
 /*-----------------------------------------------------------------------
 //
-// Function: DecodeQuantifiers()
+// Function: DecodeFormulasForCNF()
 //
-//   Takes quantifiers encoded using lambdas as the only quantifier,
-//   and reencodes them into traditional E form.
+//   Takes formulas that are in the form for proving and decodes them
+//   into the form necessary for CNF. Most importantly, atoms are encoded
+//   as $eq(term, $true) and lambda-encoded quantifiers are turned into
+//   variable-encoded ones.
 //
 // Global Variables: -
 //
@@ -1288,9 +1259,50 @@ Term_p EncodeQuantifiersAsLambdas(TB_p bank, Term_p term)
 //
 /----------------------------------------------------------------------*/
 
-Term_p DecodeQuantifiers(TB_p bank, Term_p term)
+Term_p DecodeFormulasForCNF(TB_p bank, Term_p t)
 {
-   return TermMap(bank, term, decode_quant_mapper);
+   Sig_p sig = bank->sig;
+   Term_p res = NULL;
+   if((t->f_code == sig->qall_code || t->f_code == sig->qex_code) && t->arity == 1)
+   {
+      assert(TypeIsArrow(t->args[0]->type));
+      assert(t->args[0]->type->arity == 2);
+      assert(TypeIsPredicate(t->args[0]->type));
+      Term_p fresh_var = 
+         VarBankGetFreshVar(bank->vars, t->args[0]->type->args[0]);
+      Term_p new_matrix =
+         WHNF_step(bank,
+            TBTermTopInsert(bank,
+               TermApplyArg(bank->sig->type_bank, t->args[0], fresh_var)));
+      res = TFormulaQuantorAlloc(bank, t->f_code, fresh_var, 
+                                 DecodeFormulasForCNF(bank, new_matrix));
+   }
+   else if (TermIsAnyVar(t) || t->arity == 0)
+   {
+      res = t;
+   }
+   else
+   {
+      res = TermTopCopyWithoutArgs(t);
+      bool changed = false;
+      for(long i = 0; i < t->arity; i++)
+      {
+         res->args[i] = DecodeFormulasForCNF(bank, t->args[i]);
+         changed = changed || res->args[i] != t->args[i];
+      }
+
+      if (changed)
+      {
+         res = TBTermTopInsert(bank, res);
+      }
+      else
+      {
+         TermTopFree(res);
+         res = t;
+      }
+   }
+
+   return EncodePredicateAsEqn(bank, res);
 }
 
 /*-----------------------------------------------------------------------

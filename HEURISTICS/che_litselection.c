@@ -1375,8 +1375,11 @@ void SelectDiffNegativeLiteral(OCB_p ocb, Clause_p clause)
       }
       handle = handle->next;
    }
-   assert(selected);
-   EqnSetProp(selected, EPIsSelected);
+
+   if(selected)
+   {
+      EqnSetProp(selected, EPIsSelected);
+   }
 }
 
 

@@ -80,7 +80,7 @@ static PStack_p compute_subterms_generalizations(
       term,vars,term_vars,fresh_var_code);
    PStackPushStack(gens, gen_vars);
 
-   if (TermIsFreeVar(term)) 
+   if (TermIsAnyVar(term)) 
    {
       return gens;
    }

@@ -208,6 +208,10 @@ bool ForwardModifyClause(ProofState_p state,
       ClauseQueryProp(clause, CPLimitedRW) did not change any more. */
    while(!done)
    {
+      if(problemType == PROBLEM_HO)
+      {
+         NormalizeEquations(clause);
+      }
       ClauseComputeLINormalform(control->ocb,
                                 state->terms, clause,
                                 state->demods, level,
@@ -244,6 +248,10 @@ bool ForwardModifyClause(ProofState_p state,
       }
 
       /* Still forward simplification... */
+      if(problemType == PROBLEM_HO)
+      {
+         NormalizeEquations(clause);
+      }
       if(clause->neg_lit_no)
       {
          ClausePositiveSimplifyReflect(state->processed_pos_eqns, clause);

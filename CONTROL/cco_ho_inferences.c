@@ -756,6 +756,70 @@ void ComputeExtEqRes(ProofState_p state, ProofControl_p control, Clause_p cl)
 
 /*-----------------------------------------------------------------------
 //
+// Function: InferInjectiveDefinition()
+//
+//   Lifts nested equalities to the literal equality level, and removes
+//   nested $nots.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+bool NormalizeEquations(Clause_p cl)
+{
+   bool normalized = false;
+   for(Eqn_p lit = cl->literals; lit; lit = lit->next)
+   {
+      TB_p bank = lit->bank;
+      if(lit->rterm == bank->true_term &&
+         (lit->lterm->f_code == bank->sig->eqn_code
+          || lit->lterm->f_code == bank->sig->neqn_code
+          || lit->lterm->f_code == bank->sig->not_code))
+      {
+         bool negate = false;
+         normalized = true;
+         Term_p lterm = lit->lterm;
+         while(lterm->f_code == bank->sig->not_code)
+         {
+            assert(lterm->arity == 1);
+            negate = !negate;
+            lterm = lterm->args[0];
+         }
+
+         if(lterm->f_code == bank->sig->eqn_code ||
+            lterm->f_code == bank->sig->neqn_code)
+         {
+            lit->lterm = lterm->args[0];
+            lit->rterm = lterm->args[1];
+            if(lterm->f_code == bank->sig->neqn_code)
+            {
+               negate = !negate;
+            }
+         }
+         else
+         {
+            lit->lterm = lterm;
+         }
+
+         if(negate)
+         {
+            EqnFlipProp(lit, EPIsPositive);
+         }
+      }
+   }
+
+   if(normalized)
+   {
+      EqnListRemoveResolved(&cl->literals);
+      ClausePushDerivation(cl, DCNormalize, NULL, NULL);
+   }
+
+   return normalized;
+}
+
+/*-----------------------------------------------------------------------
+//
 // Function: ImmediateClausification()
 //
 //   Performs dynamic clausfication of equivalences.
@@ -773,22 +837,29 @@ bool ImmediateClausification(Clause_p cl, ClauseSet_p store, ClauseSet_p archive
    {
       if(EqnIsClausifiable(lit))
       {
+         // DBG_PRINT(stderr, " ", EqnPrintDBG(stderr, lit), " is clausifiable.\n");
+         // DBG_PRINT(stderr, "new cnf attempt: ", ClausePrintDBG(stderr, cl), ".\n");
+         // DBG_PRINT(stderr, "derivation", DerivationDebugPrint(stderr, cl->derivation), ".\n");
          TB_p bank = lit->bank;
 
          VarBankSetVCountsToUsed(bank->vars);
 
          WFormula_p wrapped = WFormulaOfClause(cl, bank);
-         wrapped->tformula = DecodeQuantifiers(bank, wrapped->tformula);
-         
+         // DBG_PRINT(stderr, "decoded: ", TermPrintDbgHO(stderr, wrapped->tformula, lit->bank->sig, DEREF_NEVER), ".\n");
+       
          FormulaSet_p work_set = FormulaSetAlloc();
          FormulaSetInsert(work_set, wrapped);
 
          ClauseSet_p res_set = ClauseSetAlloc();
          FormulaSet_p archive = FormulaSetAlloc();
          
+         // DBG_PRINT(stderr, "begin: ", FormulaSetPrint(stderr, work_set, true), ".\n");
          TFormulaSetUnrollFOOL(work_set, archive, bank);
+         // DBG_PRINT(stderr, "unrolled: ", FormulaSetPrint(stderr, work_set, true), ".\n");
          FormulaSetSimplify(work_set, bank, false);
+         // DBG_PRINT(stderr, "simplifed: ", FormulaSetPrint(stderr, work_set, true), ".\n");
          TFormulaSetIntroduceDefs(work_set, archive, bank);
+         // DBG_PRINT(stderr, "defs: ", FormulaSetPrint(stderr, work_set, true), ".\n");
 
          while(!FormulaSetEmpty(work_set))
          {
@@ -802,6 +873,7 @@ bool ImmediateClausification(Clause_p cl, ClauseSet_p store, ClauseSet_p archive
          while(!ClauseSetEmpty(res_set))
          {
             Clause_p res = ClauseSetExtractFirst(res_set);
+            // DBG_PRINT(stderr, " > ", ClausePrintDBG(stderr, res), ".\n");
             PStackReset(res->derivation);
             store_result(res, cl, store, DCDynamicCNF);
          }

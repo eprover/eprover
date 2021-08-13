@@ -594,6 +594,16 @@ bool EqnParseInfix(Scanner_p in, TB_p bank, Term_p *lref, Term_p *rref)
 Eqn_p EqnAlloc(Term_p lterm, Term_p rterm, TB_p bank,  bool positive)
 {
    Eqn_p handle = EqnCellAlloc();
+   if(lterm == bank->false_term)
+   {
+      lterm = bank->true_term;
+      positive = !positive;
+   }
+   if(rterm == bank->false_term)
+   {
+      rterm = bank->true_term;
+      positive = !positive;
+   }
 
    /* printf("Handle = %p\n", handle); */
    handle->properties = EPNoProps;

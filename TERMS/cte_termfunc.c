@@ -1458,7 +1458,7 @@ long TermStructWeightCompare(Term_p t1, Term_p t2)
 
    if(TermIsFreeVar(t1))
    { /* Then t2 also is a variable due to equal weights! */
-      assert(TermIsFreeVar(t2));
+      assert(problemType == PROBLEM_HO || TermIsFreeVar(t2));
       return TypesCmp(t1->type, t2->type);
    }
 
@@ -1643,7 +1643,7 @@ long TermWeightCompute(Term_p term, long vweight, long fweight)
    else
    {
       // lambdas (and corresponding bound var) are ignored.
-      res += fweight*(TermIsPhonyApp(term) || TermIsDBLambda(term) ? 0 : 1);
+      res += fweight*((TermIsPhonyApp(term) || TermIsDBLambda(term)) ? 0 : 1);
       for(int i=(TermIsDBLambda(term)?1:0); i<term->arity; i++)
       {
          res += TermWeight(term->args[i], vweight, fweight);
