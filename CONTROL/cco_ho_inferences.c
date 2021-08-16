@@ -356,7 +356,7 @@ void do_ext_sup_into(Clause_p renamed_cl, Clause_p orig_cl, ProofState_p state)
       UnpackClausePosInto(cpos_into, renamed_cl, into_pos);
 
       FunCode fc = PStackPopInt(into_pos_stack);
-      assert(fc > state->signature->internal_symbols);
+      // assert(fc > state->signature->internal_symbols);
       ClauseTPosTree_p from_partners = IntMapGetVal(from_idx, fc);
 
 

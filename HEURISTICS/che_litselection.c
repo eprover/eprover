@@ -4645,7 +4645,7 @@ static void maxlcomplexavoidpred_weight(LitEval_p lit, Clause_p clause,
          lit->w1+=1;
       }
       lit->w2 = -lit_sel_diff_weight(lit->literal);
-      if(EqnIsEquLit(lit->literal))
+      if(EqnIsEquLit(lit->literal) || TermIsAnyVar(lit->literal->lterm) || TermIsPhonyApp(lit->literal->lterm))
       {
          lit->w3 = PDArrayElementInt(pd, 0);
       }

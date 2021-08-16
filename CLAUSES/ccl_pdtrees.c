@@ -534,6 +534,7 @@ static void pdtree_forward(PDTree_p tree, Subst_p subst)
    while(curr_state<DONE)
    {
       PStackPointer prev_binding = PStackGetSP(subst);
+      bool decomposed_app_bvar = false;
       if(trav_order[curr_state] == TRAVERSING_SYMBOLS)
       {
          if(TermIsPhonyApp(term) && !TermIsAppliedFreeVar(term))
@@ -541,6 +542,7 @@ static void pdtree_forward(PDTree_p tree, Subst_p subst)
             assert(TermIsDBVar(term->args[0]));
             TermLRTraverseNext(tree->term_stack);
             PStackPushP(tree->term_proc, term);
+            decomposed_app_bvar = true;
             term = term->args[0];      
          }
          tree->tree_pos->trav_state++;
@@ -580,6 +582,14 @@ static void pdtree_forward(PDTree_p tree, Subst_p subst)
                tree->visited_count++;
 #endif
                break;
+            }
+            else if(decomposed_app_bvar)
+            {
+               assert(TermIsPhonyApp((Term_p)PStackTopP(tree->term_proc)) && 
+                      TermIsDBVar(((Term_p)PStackTopP(tree->term_proc))->args[0]));
+               assert(PStackTopP(tree->term_stack) == 
+                     ((Term_p)PStackTopP(tree->term_proc))->args[0]);
+               PStackPushP(tree->term_proc, PStackPopP(tree->term_stack));
             }
          }
       }
@@ -719,7 +729,11 @@ static void pdtree_backtrack(PDTree_p tree, Subst_p subst)
    else if(handle->parent)
    {
       Term_p t = PStackPopP(tree->term_proc);
-      assert(!TermIsPhonyApp(t) || !TermIsDBVar(t->args[0]));
+      if(!(!TermIsPhonyApp(t) || !TermIsDBVar(t->args[0])))
+      {
+         DBG_PRINT(stderr, "error: ", TermPrintDbg(stderr, t, tree->bank->sig, DEREF_NEVER), ".\n");
+         assert(false);
+      }
       if(TermIsDBVar(t))
       {
          backtrack_bvar(tree, t);
@@ -1274,6 +1288,7 @@ long PDTreeDelete(PDTree_p tree, Term_p term, Clause_p clause)
       term = LambdaEtaReduceDB(tree->bank, term);
       if(LFHOL_UNSUPPORTED(term))
       {
+         PStackFree(del_stack);
          return 0;
       }
    }

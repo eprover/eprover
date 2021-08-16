@@ -786,6 +786,7 @@ TFormula_p do_fool_unroll(TFormula_p form, TB_p terms)
    TFormula_p unrolled2 = NULL;
    if (TFormulaIsLiteral(terms->sig, form))
    {
+      form = LambdaEtaReduceDB(terms, form);
       TermPos_p pos = PStackAlloc();
       PStackPushP(pos, form);
       PStackPushInt(pos, 0);

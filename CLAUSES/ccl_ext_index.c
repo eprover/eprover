@@ -108,10 +108,12 @@ void insert_idx(ExtIndex_p idx, Clause_p cl, PStack_p collected_pos)
 void collect_into_pos_term(Term_p t, CompactPos pos, PStack_p stack)
 {
    PStackPointer old_top = PStackGetSP(stack);
-   CompactPos new_pos = pos + DEFAULT_FWEIGHT*(TermIsPhonyApp(t) ? 0 : 1);
    bool has_func_subterm = false;
-   if(!TermIsLambda(t))
+   
+   Term_p normalized_pattern = MAYBE_NORMALIZE_APP_VAR(t);
+   if(!TermIsLambda(t) && !normalized_pattern)
    {
+      CompactPos new_pos = pos + DEFAULT_FWEIGHT*(TermIsPhonyApp(t) ? 0 : 1);
       for(int i=0; i < t->arity; i++)
       {
          Term_p arg = t->args[i];
@@ -121,7 +123,7 @@ void collect_into_pos_term(Term_p t, CompactPos pos, PStack_p stack)
          new_pos += TermStandardWeight(arg);
       }
    }
-   if(!TypeIsArrow(t->type) && !TermIsTopLevelAnyVar(t))
+   if(!TypeIsArrow(t->type) && !TermIsTopLevelAnyVar(t) && !normalized_pattern)
    {
       if(has_func_subterm || PStackGetSP(stack) != old_top)
       {
@@ -339,13 +341,15 @@ void CollectExtSupFromPos(Clause_p cl, PStack_p pos_stack)
    {
       if(!TypeIsArrow(handle->lterm) && EqnIsPositive(handle))
       {
-         if(!TermIsTopLevelFreeVar(handle->lterm) && TermHasExtEligSubterm(handle->lterm))
+         if(!TermIsTopLevelFreeVar(handle->lterm) && !MAYBE_NORMALIZE_APP_VAR(handle->lterm) &&
+            TermHasExtEligSubterm(handle->lterm))
          {
             PStackPushInt(pos_stack, handle->lterm->f_code);
             PStackPushInt(pos_stack, pos);
          }
          pos += TermStandardWeight(handle->lterm);
-         if(!TermIsTopLevelFreeVar(handle->rterm) && TermHasExtEligSubterm(handle->rterm))
+         if(!TermIsTopLevelFreeVar(handle->rterm) && !MAYBE_NORMALIZE_APP_VAR(handle->lterm) &&
+            TermHasExtEligSubterm(handle->rterm))
          {
             PStackPushInt(pos_stack, handle->rterm->f_code);
             PStackPushInt(pos_stack, pos);
