@@ -661,6 +661,10 @@ static Clause_p insert_new_clauses(ProofState_p state, ProofControl_p control)
          ClauseFree(handle);
          continue;
       }
+
+
+
+
       check_watchlist(&(state->wlindices), state->watchlist,
                       handle, state->archive,
                       control->heuristic_parms.watchlist_is_static);
@@ -668,6 +672,27 @@ static Clause_p insert_new_clauses(ProofState_p state, ProofControl_p control)
       {
          return handle;
       }
+
+      if(control->heuristic_parms.forward_subsumption_aggressive)
+      {
+         FVPackedClause_p pclause;
+
+         pclause = ForwardSubsumption(state,
+                                      handle,
+                                      &(state->aggressive_forward_subsumed_count),
+                                      true);
+         if(pclause)
+         {  // Not subsumed
+            FVUnpackClause(pclause);
+            ENSURE_NULL(pclause);
+         }
+         else
+         {
+            ClauseFree(handle);
+            continue;
+         }
+      }
+
       if(control->heuristic_parms.er_aggressive &&
          control->heuristic_parms.er_varlit_destructive &&
          (clause_count =
@@ -752,7 +777,7 @@ Clause_p replacing_inferences(ProofState_p state, ProofControl_p
    {
       pclause->clause = NULL;
    }
-   else 
+   else
    if(control->heuristic_parms.er_varlit_destructive &&
       (clause_count =
        ClauseERNormalizeVar(state->terms,

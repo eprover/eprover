@@ -213,6 +213,7 @@ ProofState_p ProofStateAlloc(FunctionProperties free_symb_prop)
    handle->backward_rewritten_count     = 0;
    handle->backward_rewritten_lit_count = 0;
    handle->generated_count              = 0;
+   handle->aggressive_forward_subsumed_count  = 0;
    handle->generated_lit_count          = 0;
    handle->non_trivial_generated_count  = 0;
    handle->context_sr_count     = 0;
@@ -619,8 +620,10 @@ void ProofStateStatisticsPrint(FILE* out, ProofState_p state)
            state->backward_rewritten_count);
    fprintf(out, "# Generated clauses                    : %ld\n",
            state->generated_count - state->backward_rewritten_count);
-   fprintf(out, "# ...of the previous two non-trivial   : %ld\n",
+   fprintf(out, "# ...of the previous two non-redundant : %ld\n",
            state->non_trivial_generated_count);
+   fprintf(out, "# ...aggressively subsumed             : %ld\n",
+           state->aggressive_forward_subsumed_count);
    fprintf(out, "# Contextual simplify-reflections      : %ld\n",
            state->context_sr_count);
    fprintf(out, "# Paramodulations                      : %ld\n",

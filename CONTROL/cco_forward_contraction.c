@@ -40,12 +40,15 @@
 /*---------------------------------------------------------------------*/
 
 
+
+
+
 /*-----------------------------------------------------------------------
 //
 // Function: forward_contract_keep()
 //
 //   Apply all forward-contracting inferences to clause. Return NULL
-//   if it becomes trivial, a FVPackedClause containing it
+//   if it becomes trivialredundant, a FVPackedClause containing it
 //   otherwise. Does not delete clause. Subsumed and trivial clauses
 //   are counted in the cells pointed to by the 4th and 5th
 //   argument. Provide dummies to avoid this.
@@ -65,7 +68,6 @@ static FVPackedClause_p forward_contract_keep(ProofState_p state, ProofControl_p
                                               RewriteLevel level)
 {
    FVPackedClause_p pclause;
-   Clause_p subsumer = 0;
    bool trivial = false;
 
    assert(clause);
@@ -81,7 +83,7 @@ static FVPackedClause_p forward_contract_keep(ProofState_p state, ProofControl_p
          return NULL;
       }
 
-      if(ClauseIsEmpty(clause) || 
+      if(ClauseIsEmpty(clause) ||
          (problemType == PROBLEM_HO && ResolveFlexClause(clause)))
       {
          return FVIndexPackClause(clause, NULL);
@@ -110,30 +112,10 @@ static FVPackedClause_p forward_contract_keep(ProofState_p state, ProofControl_p
 
       assert(!ClauseIsTrivial(clause));
 
-      clause->weight = ClauseStandardWeight(clause);
-      pclause = FVIndexPackClause(clause, state->processed_non_units->fvindex);
-
-      if(clause->pos_lit_no)
+      pclause = ForwardSubsumption(state, clause, subsumed_count,
+                                   non_unit_subsumption);
+      if(!pclause)
       {
-         subsumer = UnitClauseSetSubsumesClause(state->processed_pos_eqns, clause);
-      }
-      if(!subsumer && clause->neg_lit_no)
-      {
-         subsumer = UnitClauseSetSubsumesClause(state->processed_neg_units,
-                                                clause);
-      }
-      if(!subsumer && (ClauseLiteralNumber(clause)>1) && non_unit_subsumption)
-      {
-         ClauseSubsumeOrderSortLits(clause);
-         subsumer = ClauseSetSubsumesFVPackedClause(state->processed_non_units, pclause);
-      }
-      if(subsumer)
-      {
-         DocClauseQuote(GlobalOut, OutputLevel, 6, pclause->clause,
-                        "subsumed", subsumer);
-         (*subsumed_count)++;
-         FVUnpackClause(pclause);
-         ENSURE_NULL(pclause);
          return NULL;
       }
       if(context_sr && ClauseLiteralNumber(clause) > 1)
@@ -168,6 +150,61 @@ static FVPackedClause_p forward_contract_keep(ProofState_p state, ProofControl_p
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
 /*---------------------------------------------------------------------*/
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: ForwadSubsumption()
+//
+//   Try to subsume clause with clauses in state->processed*. Return
+//   NULL if this succeeds, a FVPackedClause containing clause
+//   otherwise. Note that clause is _not_ deleted in either case!
+//
+// Global Variables: -
+//
+// Side Effects    : Sets clause->weight
+//
+/----------------------------------------------------------------------*/
+
+FVPackedClause_p ForwardSubsumption(ProofState_p state,
+                                            Clause_p clause,
+                                            unsigned long* subsumed_count,
+                                            bool non_unit_subsumption)
+{
+   FVPackedClause_p pclause;
+   Clause_p subsumer = NULL;
+
+   clause->weight = ClauseStandardWeight(clause);
+   pclause = FVIndexPackClause(clause, state->processed_non_units->fvindex);
+
+   if(clause->pos_lit_no)
+   {
+      subsumer = UnitClauseSetSubsumesClause(state->processed_pos_eqns, clause);
+   }
+   if(!subsumer && clause->neg_lit_no)
+   {
+      subsumer = UnitClauseSetSubsumesClause(state->processed_neg_units,
+                                             clause);
+   }
+   if(!subsumer && (ClauseLiteralNumber(clause)>1) && non_unit_subsumption)
+   {
+      ClauseSubsumeOrderSortLits(clause);
+      subsumer = ClauseSetSubsumesFVPackedClause(state->processed_non_units, pclause);
+   }
+   if(subsumer)
+   {
+      DocClauseQuote(GlobalOut, OutputLevel, 6, pclause->clause,
+                     "subsumed", subsumer);
+      (*subsumed_count)++;
+      FVUnpackClause(pclause);
+      ENSURE_NULL(pclause);
+      return NULL;
+   }
+   return pclause;
+}
+
+
+
 
 /*-----------------------------------------------------------------------
 //
