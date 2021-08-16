@@ -157,7 +157,7 @@ EPCtrl_p batch_create_runner(StructFOFSpec_p ctrl,
    file = TempFileName();
    fp   = SecureFOpen(file, "w");
 
-   SigPrintTypeDeclsTSTP(fp, ctrl->sig);
+   SigPrintTypeDeclsTSTP(fp, ctrl->terms->sig);
    PStackClausePrintTSTP(fp, cspec);
    PStackFormulaPrintTSTP(fp, fspec);
    SecureFClose(fp);
@@ -593,10 +593,10 @@ void StructFOFSpecAddProblem(StructFOFSpec_p ctrl,
                              ClauseSet_p clauses,
                              FormulaSet_p formulas)
 {
-   GenDistribSizeAdjust(ctrl->f_distrib, ctrl->sig);
-   GCRegisterClauseSet(ctrl->gc_terms, clauses);
+   GenDistribSizeAdjust(ctrl->f_distrib, ctrl->terms->sig);
+   GCRegisterClauseSet(ctrl->terms->gc, clauses);
    PStackPushP(ctrl->clause_sets, clauses);
-   GCRegisterFormulaSet(ctrl->gc_terms, formulas);
+   GCRegisterFormulaSet(ctrl->terms->gc, formulas);
    PStackPushP(ctrl->formula_sets, formulas);
 
    GenDistribAddClauseSet(ctrl->f_distrib, clauses, 1);
@@ -632,13 +632,13 @@ void StructFOFSpecBacktrackToSpec(StructFOFSpec_p ctrl)
    while(PStackGetSP(ctrl->clause_sets)>ctrl->shared_ax_sp)
    {
       clauses = PStackPopP(ctrl->clause_sets);
-      GCDeregisterClauseSet(ctrl->gc_terms, clauses);
+      GCDeregisterClauseSet(ctrl->terms->gc, clauses);
       ClauseSetFree(clauses);
       formulas = PStackPopP(ctrl->formula_sets);
-      GCDeregisterFormulaSet(ctrl->gc_terms, formulas);
+      GCDeregisterFormulaSet(ctrl->terms->gc, formulas);
       FormulaSetFree(formulas);
    }
-   GCCollect(ctrl->gc_terms);
+   GCCollect(ctrl->terms->gc);
    SigBacktrack(ctrl->terms->sig, ctrl->shared_ax_f_count);
 
    problemType = PROBLEM_NOT_INIT;
@@ -1113,7 +1113,7 @@ void BatchProcessVariants(BatchSpec_p spec, char* variants[], char* provers[],
               prob_count-solved_count, var_count-variant, concrete_prob_count);
 
       // Loading axioms here!
-      // DISABLED FOR CASC-28 - no shared axioms. inconsisten spec!
+      // DISABLED FOR CASC-28 - no shared axioms. Inconsisten Spec!
       //ctrl = StructFOFSpecAlloc();
       //concrete_batch_struct_FOF_spec_init(spec,
       //                                   ctrl,

@@ -429,6 +429,7 @@ TFormula_p NamedLambdaSNF(TB_p bank, TFormula_p t)
    if(t->f_code == bank->sig->eqn_code &&
       t->args[1] == bank->true_term &&
       t->args[0] != bank->true_term &&
+      !TermIsVar(t->args[0]) &&
       SigIsLogicalSymbol(bank->sig, t->args[0]->f_code))
    {
       t = t->args[0];  

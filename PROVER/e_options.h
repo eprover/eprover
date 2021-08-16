@@ -168,6 +168,7 @@ typedef enum
    OPT_WATCHLIST,
    OPT_STATIC_WATCHLIST,
    OPT_WATCHLIST_NO_SIMPLIFY,
+   OPT_FW_SUMBSUMPTION_AGGRESSIVE,
    OPT_NO_INDEXED_SUBSUMPTION,
    OPT_FVINDEX_STYLE,
    OPT_FVINDEX_FEATURETYPES,
@@ -1290,6 +1291,13 @@ OptCell opts[] =
     "By default, the watchlist is brought into normal form with respect "
     "to the current processed clause set and certain simplifications. "
     "This option disables simplification for the watchlist."},
+
+   {OPT_FW_SUMBSUMPTION_AGGRESSIVE,
+    '\0', "fw-subsumption-aggressive",
+    NoArg, NULL,
+    "Perform forward subsumption on newly generated clauses before they "
+    "are evaluated. This is particularly useful if heuristic evaluation is "
+    "very expensive, e.g. via externally connected neural networks."},
 
    {OPT_NO_INDEXED_SUBSUMPTION,
     '\0', "conventional-subsumption",

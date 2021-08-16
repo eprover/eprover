@@ -298,7 +298,7 @@ void filter_problem(StructFOFSpec_p ctrl,
    {
       fprintf(fp, "%s", desc);
    }
-   SigPrintTypeDeclsTSTP(fp, ctrl->sig);
+   SigPrintTypeDeclsTSTP(fp, ctrl->terms->sig);
    PStackClausePrintTSTP(fp, clauses);
    PStackFormulaPrintTSTP(fp, formulas);
    fclose(fp);
@@ -406,21 +406,21 @@ void seeded_filter_all(StructFOFSpec_p ctrl,
    FormulaStackCondSetType(symb_formulas, CPTypeHypothesis);
 
    DStrAppendStr(desc, "% Seed symbol: ");
-   DStrAppendStr(desc, SigFindName(ctrl->sig, seed_symbol));
+   DStrAppendStr(desc, SigFindName(ctrl->terms->sig, seed_symbol));
    DStrAppendStr(desc, " = ");
    DStrAppendInt(desc, seed_symbol);
    DStrAppendStr(desc, "\n% Seeds      : All\n");
    DStrAppendStr(desc, "% Arity      : ");
-   DStrAppendInt(desc, SigFindArity(ctrl->sig, seed_symbol));
+   DStrAppendInt(desc, SigFindArity(ctrl->terms->sig, seed_symbol));
    DStrAppendStr(desc, "\n% Type       : ");
-   DStrAppendStr(desc, SigIsPredicate(ctrl->sig, seed_symbol)?
+   DStrAppendStr(desc, SigIsPredicate(ctrl->terms->sig, seed_symbol)?
                  "Predicate\n":"Function\n");
 
    DStrAppendStr(name, corename);
    DStrAppendStr(name, "_SA_");
-   DStrAppendStr(name, SigIsPredicate(ctrl->sig, seed_symbol)?
+   DStrAppendStr(name, SigIsPredicate(ctrl->terms->sig, seed_symbol)?
                  "P":"F");
-   DStrAppendInt(name, SigFindArity(ctrl->sig, seed_symbol));
+   DStrAppendInt(name, SigFindArity(ctrl->terms->sig, seed_symbol));
    DStrAppendStr(name, "_");
    DStrAppendInt(name, seed_symbol);
 
@@ -480,21 +480,21 @@ void seeded_filter_largest(StructFOFSpec_p ctrl,
    }
 
    DStrAppendStr(desc, "% Seed symbol: ");
-   DStrAppendStr(desc, SigFindName(ctrl->sig, seed_symbol));
+   DStrAppendStr(desc, SigFindName(ctrl->terms->sig, seed_symbol));
    DStrAppendStr(desc, " = ");
    DStrAppendInt(desc, seed_symbol);
    DStrAppendStr(desc, "\n% Seeds      : Largest\n");
    DStrAppendStr(desc, "% Arity      : ");
-   DStrAppendInt(desc, SigFindArity(ctrl->sig, seed_symbol));
+   DStrAppendInt(desc, SigFindArity(ctrl->terms->sig, seed_symbol));
    DStrAppendStr(desc, "\n% Type       : ");
-   DStrAppendStr(desc, SigIsPredicate(ctrl->sig, seed_symbol)?
+   DStrAppendStr(desc, SigIsPredicate(ctrl->terms->sig, seed_symbol)?
                  "Predicate\n":"Function\n");
 
    DStrAppendStr(name, corename);
    DStrAppendStr(name, "_SL_");
-   DStrAppendStr(name, SigIsPredicate(ctrl->sig, seed_symbol)?
+   DStrAppendStr(name, SigIsPredicate(ctrl->terms->sig, seed_symbol)?
                  "P":"F");
-   DStrAppendInt(name, SigFindArity(ctrl->sig, seed_symbol));
+   DStrAppendInt(name, SigFindArity(ctrl->terms->sig, seed_symbol));
    DStrAppendStr(name, "_");
    DStrAppendInt(name, seed_symbol);
 
@@ -556,21 +556,21 @@ void seeded_filter_diverse(StructFOFSpec_p ctrl,
    }
 
    DStrAppendStr(desc, "% Seed symbol: ");
-   DStrAppendStr(desc, SigFindName(ctrl->sig, seed_symbol));
+   DStrAppendStr(desc, SigFindName(ctrl->terms->sig, seed_symbol));
    DStrAppendStr(desc, " = ");
    DStrAppendInt(desc, seed_symbol);
    DStrAppendStr(desc, "\n% Seeds      : Diverse\n");
    DStrAppendStr(desc, "% Arity      : ");
-   DStrAppendInt(desc, SigFindArity(ctrl->sig, seed_symbol));
+   DStrAppendInt(desc, SigFindArity(ctrl->terms->sig, seed_symbol));
    DStrAppendStr(desc, "\n% Type       : ");
-   DStrAppendStr(desc, SigIsPredicate(ctrl->sig, seed_symbol)?
+   DStrAppendStr(desc, SigIsPredicate(ctrl->terms->sig, seed_symbol)?
                  "Predicate\n":"Function\n");
 
    DStrAppendStr(name, corename);
    DStrAppendStr(name, "_SD_");
-   DStrAppendStr(name, SigIsPredicate(ctrl->sig, seed_symbol)?
+   DStrAppendStr(name, SigIsPredicate(ctrl->terms->sig, seed_symbol)?
                  "P":"F");
-   DStrAppendInt(name, SigFindArity(ctrl->sig, seed_symbol));
+   DStrAppendInt(name, SigFindArity(ctrl->terms->sig, seed_symbol));
    DStrAppendStr(name, "_");
    DStrAppendInt(name, seed_symbol);
 
@@ -681,7 +681,7 @@ void seeded_filters(StructFOFSpec_p ctrl,
    PStack_p seed_symbols = PStackAlloc();
    FunCode seed;
 
-   find_seed_symbols(ctrl->sig, seed_symbols);
+   find_seed_symbols(ctrl->terms->sig, seed_symbols);
    subsample_seed_symbols(ctrl, seed_symbols);
 
    while(!PStackEmpty(seed_symbols))

@@ -95,7 +95,16 @@ static Term_p __inline__ parse_ho_atom(Scanner_p in, TB_p bank)
    Type_p type;
    Term_p head;
 
-   if((id_type=TermParseOperator(in, id))==FSIdentVar)
+   if(TestInpTok(in, IteToken))
+   {
+      head = ParseIte(in, bank);
+   }
+   else if(TestInpTok(in, LetToken))
+   {
+      head = ParseLet(in, bank);
+      assert(head->type);
+   }
+   else if((id_type=TermParseOperator(in, id))==FSIdentVar)
    {
       /* A variable may be annotated with a sort */
       if(TestInpTok(in, Colon))
@@ -146,8 +155,8 @@ static Term_p normalize_head(Term_p head, Term_p* rest_args, int rest_arity, TB_
    }
    else
    {
-      int total_arity = (TermIsLambda(head) ? 0 : head->arity) + rest_arity;
-      if(TermIsVar(head) || TermIsLambda(head))
+      int total_arity = (TermIsPhonyAppTarget(head) ? 0 : head->arity) + rest_arity;
+      if(TermIsPhonyAppTarget(head))
       {
          total_arity++; // head is going to be the first argument
 
@@ -619,10 +628,15 @@ static TFormula_p applied_tform_tstp_parse(Scanner_p in, TB_p terms, TFormula_p 
    bool head_is_logical = !TermIsVar(head) && SigQueryFuncProp(terms->sig, head->f_code, FPFOFOp);
    Term_p arg;
 
+
    while(TestInpTok(in, Application))
    {
       if(i >= max_args)
       {
+         fprintf(stderr, "max args: %d\n", max_args);
+         fprintf(stderr, "type: ");
+         TypePrintTSTP(stderr, terms->sig->type_bank, hd_type);
+         TermPrintDbg(stderr, head, terms->sig, DEREF_NEVER);
          AktTokenError(in, " Too many arguments applied to the symbol",
                        SYNTAX_ERROR);
       }
@@ -850,6 +864,8 @@ Term_p EncodePredicateAsEqn(TB_p bank, TFormula_p f)
       (f->f_code > sig->internal_symbols ||
        f->f_code == SIG_TRUE_CODE ||
        f->f_code == SIG_FALSE_CODE ||
+       f->f_code == SIG_ITE_CODE ||
+       f->f_code == SIG_LET_CODE ||
        TermIsVar(f) ||
        TermIsPhonyApp(f)) &&
       f->type == sig->type_bank->bool_type)
@@ -1444,7 +1460,11 @@ TFormula_p TFormulaTSTPParse(Scanner_p in, TB_p terms)
          assert(f2->type == sig->type_bank->bool_type);
          // if it is bool it is either a literal ((dis)equation) or a formula
          assert(SigIsLogicalSymbol(sig, f1->f_code));
-         assert(SigIsLogicalSymbol(sig, f2->f_code));
+         if(!SigIsLogicalSymbol(sig, f2->f_code))
+         {
+            TermPrintDbg(stderr, f2, terms->sig, DEREF_NEVER);
+            assert(false);
+         }
 
          op = (op == sig->eqn_code) ? sig->equiv_code : sig->xor_code;
       }

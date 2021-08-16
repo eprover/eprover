@@ -112,6 +112,8 @@ typedef struct heuristic_parms_cell
    bool                forward_context_sr_aggressive;
    bool                backward_context_sr;
 
+   bool                forward_subsumption_aggressive;
+
    RewriteLevel        forward_demod;
    bool                prefer_general;
 
