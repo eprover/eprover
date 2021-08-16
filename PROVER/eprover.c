@@ -471,7 +471,8 @@ int main(int argc, char* argv[])
                                 proofstate->freshvars,
                                 proofstate->gc_terms,
                                 miniscope_limit,
-                                h_parms->lift_lambdas);
+                                h_parms->lift_lambdas,
+                                h_parms->lambda_to_forall);
    }
    else
    {
@@ -1786,6 +1787,9 @@ CLState_p process_options(int argc, char* argv[])
             break;
       case OPT_LIFT_LAMBDAS:
             h_parms->lift_lambdas = CLStateGetBoolArg(handle, arg);
+            break;
+      case OPT_LAMBDA_TO_FORALL:
+            h_parms->lambda_to_forall = CLStateGetBoolArg(handle, arg);
             break;
       case OPT_ETA_NORMALIZE:
             if(strcmp(arg, "reduce")==0)

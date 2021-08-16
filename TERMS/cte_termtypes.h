@@ -241,6 +241,8 @@ typedef Term_p (*TermMapper_p)(void*, Term_p);
 #define TermIsPhonyApp(term) (!TermIsDBVar(term) && (term)->f_code == SIG_PHONY_APP_CODE)
 #define TermIsAppliedFreeVar(term) (!TermIsDBVar(term) && (term)->f_code == SIG_PHONY_APP_CODE && \
                                     TermIsFreeVar((term)->args[0]))
+#define TermIsAppliedDBVar(term) (!TermIsDBVar(term) && (term)->f_code == SIG_PHONY_APP_CODE && \
+                                    TermIsDBVar((term)->args[0]))
 #define TermIsAppliedAnyVar(term) (!TermIsDBVar(term) && (term)->f_code == SIG_PHONY_APP_CODE && \
                                    TermIsAnyVar((term)->args[0]))
 #define TermIsLambda(term) (!TermIsDBVar(term) &&\
@@ -258,6 +260,7 @@ typedef Term_p (*TermMapper_p)(void*, Term_p);
 #else
 #define TermIsPhonyApp(term) (false)
 #define TermIsAppliedFreeVar(term) (false)
+#define TermIsAppliedDBVar(term) (false)
 #define TermIsAppliedAnyVar(term) (false)
 #define TermIsDBLambda(term) (false)
 #define TermIsLambda(term) (false)
@@ -271,6 +274,7 @@ typedef Term_p (*TermMapper_p)(void*, Term_p);
 #define TermIsNonFOPattern(term) (false) // every fo subterm is a pattern
 #endif
 #define TermIsTopLevelFreeVar(term) (TermIsFreeVar(term) || TermIsAppliedFreeVar(term))
+#define TermIsTopLevelDBVar(term) (TermIsDBVar(term) || TermIsAppliedDBVar(term))
 #define TermIsTopLevelAnyVar(term)  (TermIsAnyVar(term) || TermIsAppliedAnyVar(term))
 
 #define TermCellSetProp(term, prop) SetProp((term), (prop))

@@ -199,6 +199,7 @@ typedef enum
    OPT_LIFT_LAMBDAS,
    OPT_ETA_NORMALIZE,
    OPT_HO_ORDER_KIND,
+   OPT_LAMBDA_TO_FORALL,
    OPT_LAM_WEIGHT,
    OPT_DB_WEIGHT,
    OPT_DUMMY
@@ -1510,6 +1511,11 @@ OptCell opts[] =
     '\0', "ho-order-kind",
     ReqArg, NULL,
     "Do we use simple LFHO order or a more advanced Boolean free lambda-KBO?"},
+
+   {OPT_LAMBDA_TO_FORALL,
+    '\0', "cnf-lambda-to-forall",
+    ReqArg, NULL,
+    "Do we turn equations of the form ^X.s (!)= ^X.t into (?)!X. s (!)= t ?"},
 
    {OPT_LAM_WEIGHT,
     '\0', "kbo-lam-weight",

@@ -1463,7 +1463,8 @@ long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive,
                     ClauseSet_p clauseset, TB_p terms,
                     VarBank_p fresh_vars, GCAdmin_p gc,
                     long miniscope_limit,
-                    bool lift_lambdas)
+                    bool lift_lambdas,
+                    bool lambda_to_forall)
 {
    WFormula_p form, handle;
    long res = 0;
@@ -1476,10 +1477,12 @@ long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive,
       TFormulaSetLiftLets(set, archive, terms);
       TFormulaSetNamedToDBLambdas(set, archive, terms);
       TFormulaSetUnfoldLogSymbols(set, archive, terms);
+      if(lambda_to_forall)
+      {
+         TFormulaSetLambdaNormalize(set, archive, terms);
+      }
       if (lift_lambdas)
       {
-         // TODO: maybe add an option for turning lambda equations into forall
-         TFormulaSetLambdaNormalize(set, archive, terms);
          TFormulaSetLiftLambdas(set, archive, terms);
       }
    }

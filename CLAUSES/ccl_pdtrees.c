@@ -110,7 +110,7 @@ static void* pdt_select_alt_ref(PDTree_p tree, PDTNode_p node, Term_p term)
       res = (PObjMapGetRef(&node->v_alternatives, term, TermPCompare, &added_objmap_node));
       assert(node->v_alternatives);
    }
-   else if(TermIsDBVar(term) || TermIsLambda(term))
+   else if(TermIsDBVar(term) || TermIsAppliedDBVar(term) || TermIsLambda(term))
    {
       term = TermIsDBVar(term) ? term : term->args[0];
       res = (PObjMapGetRef(&node->db_alternatives, term, TermPCompare, &added_objmap_node));
@@ -534,17 +534,8 @@ static void pdtree_forward(PDTree_p tree, Subst_p subst)
    while(curr_state<DONE)
    {
       PStackPointer prev_binding = PStackGetSP(subst);
-      bool decomposed_app_bvar = false;
       if(trav_order[curr_state] == TRAVERSING_SYMBOLS)
       {
-         if(TermIsPhonyApp(term) && !TermIsAppliedFreeVar(term))
-         {
-            assert(TermIsDBVar(term->args[0]));
-            TermLRTraverseNext(tree->term_stack);
-            PStackPushP(tree->term_proc, term);
-            decomposed_app_bvar = true;
-            term = term->args[0];      
-         }
          tree->tree_pos->trav_state++;
          curr_state++;
          if(trav_order[curr_state] == TRAVERSING_VARIABLES)
@@ -554,10 +545,14 @@ static void pdtree_forward(PDTree_p tree, Subst_p subst)
          }
          if(!TermIsTopLevelFreeVar(term))
          {
-            if(TermIsDBVar(term) || TermIsLambda(term))
+            Term_p query = 
+               TermIsPhonyApp(term) ? (assert(TermIsDBVar(term->args[0])), term->args[0]):
+                                      term;
+            // using nested DB symbol for indentifying Lambda expression
+            if(TermIsDBVar(query) || TermIsLambda(query))
             {
                next = PObjMapFind(&handle->db_alternatives,
-                                  TermIsDBVar(term) ? term : term->args[0], TermPCompare);
+                                  TermIsDBVar(query) ? query : query->args[0], TermPCompare);
             }
             else
             {
@@ -582,14 +577,6 @@ static void pdtree_forward(PDTree_p tree, Subst_p subst)
                tree->visited_count++;
 #endif
                break;
-            }
-            else if(decomposed_app_bvar)
-            {
-               assert(TermIsPhonyApp((Term_p)PStackTopP(tree->term_proc)) && 
-                      TermIsDBVar(((Term_p)PStackTopP(tree->term_proc))->args[0]));
-               assert(PStackTopP(tree->term_stack) == 
-                     ((Term_p)PStackTopP(tree->term_proc))->args[0]);
-               PStackPushP(tree->term_proc, PStackPopP(tree->term_stack));
             }
          }
       }
@@ -657,50 +644,6 @@ static void pdtree_forward(PDTree_p tree, Subst_p subst)
    }
 }
 
-
-/*-----------------------------------------------------------------------
-//
-// Function: backtrack_bvar()
-//
-//   Given a bound variable, check if it was applied and if so,
-//   perform the correct backtracking. Remember, applied bound variables
-//   are not used directly, but first their phony applied symbol
-//   is decomposed.
-//
-// Global Variables: -
-//
-// Side Effects    : Changes tree state
-//
-/----------------------------------------------------------------------*/
-
-static inline void backtrack_bvar(PDTree_p tree, Term_p bvar)
-{
-   if(!PStackEmpty(tree->term_proc))
-   {
-      Term_p top = PStackTopP(tree->term_proc);
-      if(TermIsPhonyApp(top) && TermIsDBVar(top->args[0]))
-      {
-         assert(top->args[0] == bvar);
-         // -1 for bvar which was not put on term_stack 
-         for(long i=0; i<top->arity-1; i++)
-         {
-            assert(!PStackEmpty(tree->term_stack));
-            UNUSED(PStackPopP(tree->term_stack));
-         }
-         PStackPushP(tree->term_stack, PStackPopP(tree->term_proc));
-      }
-      else
-      {
-         PStackPushP(tree->term_stack, bvar);
-      }
-   }
-   else
-   {
-      PStackPushP(tree->term_stack, bvar);
-   }
-}
-
-
 /*-----------------------------------------------------------------------
 //
 // Function: pdtree_backtrack()
@@ -729,20 +672,8 @@ static void pdtree_backtrack(PDTree_p tree, Subst_p subst)
    else if(handle->parent)
    {
       Term_p t = PStackPopP(tree->term_proc);
-      if(!(!TermIsPhonyApp(t) || !TermIsDBVar(t->args[0])))
-      {
-         DBG_PRINT(stderr, "error: ", TermPrintDbg(stderr, t, tree->bank->sig, DEREF_NEVER), ".\n");
-         assert(false);
-      }
-      if(TermIsDBVar(t))
-      {
-         backtrack_bvar(tree, t);
-      }
-      else
-      {
-         UNUSED(t); assert(t);
-         TermLRTraversePrev(tree->term_stack,t);
-      }
+      UNUSED(t); assert(t);
+      TermLRTraversePrev(tree->term_stack,t);
    }
    tree->tree_pos = handle->parent;
 }
@@ -1037,7 +968,9 @@ Term_p TermLRTraverseNext(PStack_p stack)
    if(!TermIsTopLevelFreeVar(handle))
    {
       // phony DB variable gets skipped over for lambdas
-      for(i=handle->arity-1; i>=(TermIsLambda(handle) ? 1 : 0); i--)
+      // and the head DB variable gets skipped for applied db vars
+      for(i = handle->arity-1; 
+          i >= (TermIsLambda(handle) || TermIsAppliedDBVar(handle)) ? 1 : 0; i--)
       {
          PStackPushP(stack, handle->args[i]);
       }
@@ -1065,7 +998,8 @@ Term_p TermLRTraversePrev(PStack_p stack, Term_p term)
    Term_p tmp;
    int    i;
 
-   for(i=(TermIsLambda(term)?1:0); i<term->arity; i++)
+   for(i = (TermIsLambda(term) || TermIsAppliedDBVar(term) ? 1 : 0); 
+       i < term->arity; i++)
    {
       tmp = PStackPopP(stack);
       UNUSED(tmp); assert(tmp == term->args[i]);
@@ -1154,12 +1088,6 @@ bool PDTreeInsertTerm(PDTree_p tree, Term_p term, ClausePos_p demod_side,
 
    while(curr)
    {
-      if(TermIsPhonyApp(curr) && !TermIsAppliedFreeVar(curr))
-      {
-         assert(TermIsDBVar(curr->args[0]));
-         curr = TermLRTraverseNext(tree->term_stack);
-         continue;
-      }
       next = pdt_select_alt_ref(tree, node, curr);
 
       if(!(*next))
@@ -1174,7 +1102,7 @@ bool PDTreeInsertTerm(PDTree_p tree, Term_p term, ClausePos_p demod_side,
          tree->node_count++;// applied variables are not getting destructed
          if(TermIsTopLevelAnyVar(curr))
          {
-            (*next)->variable = curr;
+            (*next)->variable = TermIsAppliedDBVar(curr) ? curr->args[0] : curr;
          }
       }
       node = *next;
@@ -1269,7 +1197,6 @@ PDTNode_p PDTreeMatchPrefix(PDTree_p tree, Term_p term,
 long PDTreeDelete(PDTree_p tree, Term_p term, Clause_p clause)
 {
    long res;
-   PStack_p  del_stack = PStackAlloc();
    Term_p    curr;
    PDTNode_p node, prev, *next;
 
@@ -1288,23 +1215,17 @@ long PDTreeDelete(PDTree_p tree, Term_p term, Clause_p clause)
       term = LambdaEtaReduceDB(tree->bank, term);
       if(LFHOL_UNSUPPORTED(term))
       {
-         PStackFree(del_stack);
          return 0;
       }
    }
 
+   PStack_p  del_stack = PStackAlloc();
    TermLRTraverseInit(tree->term_stack, term);
    node = tree->tree;
    curr = TermLRTraverseNext(tree->term_stack);
 
    while(curr)
    {
-      if(TermIsPhonyApp(curr) && !TermIsAppliedFreeVar(curr))
-      {
-         assert(TermIsDBVar(curr->args[0]));
-         curr = TermLRTraverseNext(tree->term_stack);
-         continue;
-      }
       next = pdt_select_alt_ref(tree, node, curr);
       assert(next);
       PStackPushP(del_stack, curr);
@@ -1340,14 +1261,15 @@ long PDTreeDelete(PDTree_p tree, Term_p term, Clause_p clause)
          assert(!node->v_alternatives && !node->db_alternatives);
 
          tree->node_count--;
-         if(TermIsTopLevelFreeVar(del_term) || TermIsDBVar(del_term) || TermIsLambda(del_term))
+         if(TermIsTopLevelAnyVar(del_term) || TermIsLambda(del_term))
          {
             PObjMap_p* to_del = 
                TermIsTopLevelFreeVar(del_term) ? &(prev->v_alternatives) :
                                                  &(prev->db_alternatives);
             void* deleted = 
                PObjMapExtract(to_del, 
-                              TermIsLambda(del_term) ? del_term->args[0] : del_term,
+                              (TermIsLambda(del_term) || TermIsAppliedDBVar(del_term)) 
+                                 ? del_term->args[0] : del_term,
                               TermPCompare);
             UNUSED(deleted); assert(deleted);
             tree->arr_storage_est -= SizeOfPObjNode();

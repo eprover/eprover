@@ -1037,12 +1037,32 @@ OracleUnifResult SubstComputeMatchPattern(Term_p matcher, Term_p to_match, Subst
             UNIF_FAIL(res);
          }
       }
-      else if(TermIsDBVar(matcher))
+      else if(TermIsTopLevelDBVar(matcher))
       {
-         if(!TermIsDBVar(to_match) || matcher->f_code != to_match->f_code)
+         if(TermIsDBVar(matcher))
          {
-            UNIF_FAIL(res);
+            if(!TermIsDBVar(to_match) || matcher->f_code != to_match->f_code)
+            {
+               UNIF_FAIL(res);
+            }
          }
+         else
+         {
+            if(TermIsAppliedDBVar(to_match) && matcher->args[0] == to_match->args[0])
+            {
+               PLocalStackEnsureSpace(jobs, 2*(matcher->arity-1));
+               for(int i=matcher->arity-1; i>=1; i--)
+               {
+                  PLocalStackPush(jobs, matcher->args[i]);
+                  PLocalStackPush(jobs, to_match->args[i]);
+               }
+            }
+            else
+            {
+               UNIF_FAIL(res);
+            }
+         }
+         
       }
       else if(matcher->f_code == to_match->f_code)
       {

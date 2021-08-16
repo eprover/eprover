@@ -159,6 +159,7 @@ typedef struct heuristic_parms_cell
    bool                inverse_recognition;
    bool                replace_inj_defs;
    bool                lift_lambdas;
+   bool                lambda_to_forall;
 }HeuristicParmsCell, *HeuristicParms_p;
 
 

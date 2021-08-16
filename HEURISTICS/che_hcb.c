@@ -196,6 +196,7 @@ void HeuristicParmsInitialize(HeuristicParms_p handle)
    handle->replace_inj_defs              = false;
    handle->lift_lambdas                  = true;
    handle->ext_sup_max_depth             = NO_EXT_SUP;
+   handle->lambda_to_forall              = true;
 }
 
 
