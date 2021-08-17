@@ -327,7 +327,8 @@ int SubstComputeMatchHO(Term_p matcher, Term_p to_match, Subst_p subst)
 #endif 
 
    int res = MATCH_INIT;
-   if(matcher_weight > to_match_weight)
+   if(matcher_weight > to_match_weight ||
+      matcher->type != to_match->type)
    {
       return MATCH_FAILED;
    }
@@ -347,11 +348,7 @@ int SubstComputeMatchHO(Term_p matcher, Term_p to_match, Subst_p subst)
    {
       to_match =  PLocalStackPop(jobs);
       matcher  =  PLocalStackPop(jobs);
-
-      if(LFHOL_UNSUPPORTED(to_match) || LFHOL_UNSUPPORTED(matcher))
-      {
-         FAIL_AND_BREAK(res, MATCH_FAILED);
-      }
+      PruneLambdaPrefix(bank, &matcher, &to_match);
       
       if(TermIsTopLevelFreeVar(matcher))
       {
@@ -359,7 +356,11 @@ int SubstComputeMatchHO(Term_p matcher, Term_p to_match, Subst_p subst)
 
          if(var->binding)
          {
-            if(TermIsPrefix(var->binding, to_match))
+            // lambdas can occur if before this algorithm pattern unification has been
+            // called. Because of complications with E's dereferencing mechanism of
+            // mathching variables -- we currently do no support binding terms
+            // to lambdas in this algorithm.
+            if(!TermIsLambda(var->binding) && TermIsPrefix(var->binding, to_match))
             {
                start_idx = ARG_NUM(var->binding);
                matcher_weight += TermStandardWeight(var->binding) - DEFAULT_VWEIGHT;
@@ -368,8 +369,7 @@ int SubstComputeMatchHO(Term_p matcher, Term_p to_match, Subst_p subst)
                   FAIL_AND_BREAK(res, MATCH_FAILED);
                }
 
-               assert(ARG_NUM(to_match) - start_idx - ARG_NUM(matcher) == 0 || res == MATCH_INIT);
-               UPDATE_IF_INIT(res, ARG_NUM(to_match) - start_idx - ARG_NUM(matcher));
+               assert(ARG_NUM(to_match) - start_idx - ARG_NUM(matcher) == 0);
             }
             else
             {
@@ -394,39 +394,40 @@ int SubstComputeMatchHO(Term_p matcher, Term_p to_match, Subst_p subst)
                   FAIL_AND_BREAK(res, MATCH_FAILED);
                }
 
-               assert(args_eaten + ARG_NUM(matcher) == ARG_NUM(to_match) || res == MATCH_INIT);
-               UPDATE_IF_INIT(res, ARG_NUM(to_match) - args_eaten - ARG_NUM(matcher));
+               assert(args_eaten + ARG_NUM(matcher) == ARG_NUM(to_match));
             }
          }
       }
       else
       {
-         if(matcher->f_code != to_match->f_code 
-               || matcher->arity > to_match ->arity)
+         if(TermIsDBVar(matcher) != TermIsDBVar(to_match)
+            || TermIsAppliedDBVar(matcher) != TermIsAppliedDBVar(to_match)
+            || matcher->arity != to_match->arity)
+         {
+            FAIL_AND_BREAK(res, MATCH_FAILED);
+         }
+
+
+         if(matcher->f_code != to_match->f_code ||
+            (SigIsPolymorphic(bank->sig, matcher->f_code)
+            && matcher->arity != 0
+            && matcher->args[0]->type != to_match->args[0]->type))
          {
             FAIL_AND_BREAK(res, MATCH_FAILED);
          }
          else
          {
-            assert(ARG_NUM(matcher) == ARG_NUM(to_match) || res == MATCH_INIT);
+            assert(ARG_NUM(matcher) == ARG_NUM(to_match));
 
             start_idx = 0;
-            UPDATE_IF_INIT(res, ARG_NUM(to_match) - ARG_NUM(matcher));
          }
       }
 
-      const int offset = start_idx + (TermIsAppliedFreeVar(to_match) ? 1 : 0)
-                                   - (TermIsAppliedFreeVar(matcher) ? 1 : 0);
-      if(matcher->arity + offset > to_match->arity)
+      PLocalStackEnsureSpace(jobs, 2*(matcher->arity-(TermIsAppliedFreeVar(matcher)?1:0)));
+      for(int i=0; i<matcher->arity-(TermIsAppliedFreeVar(matcher)?1:0); i++)
       {
-         FAIL_AND_BREAK(res, MATCH_FAILED);
-      }
-      
-      PLocalStackEnsureSpace(jobs, 2*(matcher->arity));
-      for(int i=TermIsAppliedFreeVar(matcher) ? 1 : 0; i<matcher->arity; i++)
-      {
-         PLocalStackPush(jobs, matcher->args[i]);
-         PLocalStackPush(jobs, to_match->args[i+offset]);
+         PLocalStackPush(jobs, matcher->args[i+(TermIsAppliedFreeVar(matcher)?1:0)]);
+         PLocalStackPush(jobs, to_match->args[i+start_idx+(TermIsAppliedFreeVar(to_match)?1:0)]);
       }
    }
 
@@ -610,7 +611,17 @@ UnificationResult SubstComputeMguHO(Term_p t1, Term_p t2, Subst_p subst)
    while(!PQueueEmpty(jobs))
    {
       t2 =  WHNF_deref(PQueueGetLastP(jobs));
-      t1 =  WHNF_deref(PQueueGetLastP(jobs)); 
+      t1 =  WHNF_deref(PQueueGetLastP(jobs));
+      if(TermIsFreeVar(t1) && TermIsDBClosed(t2) && (t1 == t2 || OccurCheck(t2, t1)))
+      {
+         SubstAddBinding(subst, t1, t2);
+         continue;
+      }
+      else if(TermIsFreeVar(t2) && TermIsDBClosed(t1) && (t1 == t2 || OccurCheck(t1, t2)))
+      {
+         SubstAddBinding(subst, t2, t1);
+         continue;
+      }
 
       PruneLambdaPrefix(bank, &t1, &t2);
 
@@ -662,7 +673,7 @@ UnificationResult SubstComputeMguHO(Term_p t1, Term_p t2, Subst_p subst)
          }
       }
 
-      for(int i=0; i<t1->arity; i++)
+      for(int i=0; i<t1->arity-(TermIsAppliedFreeVar(t1)?1:0); i++)
       {
          Term_p arg_t = t1->args[i+(TermIsAppliedFreeVar(t1)?1:0)] ,
                 arg_s = t2->args[i+args_eaten+(TermIsAppliedFreeVar(t2)?1:0)];
