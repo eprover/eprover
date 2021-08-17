@@ -39,13 +39,12 @@ long UnifSuccesses = 0;
 
 PERF_CTR_DEFINE(MguTimer);
 
-#define MATCH_INIT -2
+#define MATCH_SUCC 0
 
 const UnificationResult UNIF_FAILED = false;
 const UnificationResult UNIF_SUCC = true;
 
 #define FAIL_AND_BREAK(res, val) { (res) = (val); break; }
-#define UPDATE_IF_INIT(res, new) ((res) = ((res) == MATCH_INIT) ? (new) : (res))
 
 //#undef ENABLE_MATCHING_OPTIMIZATION
 
@@ -326,7 +325,7 @@ int SubstComputeMatchHO(Term_p matcher, Term_p to_match, Subst_p subst)
    Term_p t = to_match;
 #endif 
 
-   int res = MATCH_INIT;
+   int res = MATCH_SUCC;
    if(matcher_weight > to_match_weight ||
       matcher->type != to_match->type)
    {
@@ -437,7 +436,6 @@ int SubstComputeMatchHO(Term_p matcher, Term_p to_match, Subst_p subst)
    }
 
    PLocalStackFree(jobs);
-   assert(res != MATCH_INIT);
    assert(res == MATCH_FAILED || 
             TermStructPrefixEqual(s, t, DEREF_ONCE, DEREF_NEVER, res, sig));
    return res;
