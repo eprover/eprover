@@ -1066,10 +1066,6 @@ bool PDTreeInsertTerm(PDTree_p tree, Term_p term, ClausePos_p demod_side,
    else
    {
       term = LambdaEtaReduceDB(tree->bank, term);
-      if(LFHOL_UNSUPPORTED(term))
-      {
-         return false;
-      }
    }
 
    TermLRTraverseInit(tree->term_stack, term);
@@ -1214,10 +1210,6 @@ long PDTreeDelete(PDTree_p tree, Term_p term, Clause_p clause)
    else
    {
       term = LambdaEtaReduceDB(tree->bank, term);
-      if(LFHOL_UNSUPPORTED(term))
-      {
-         return 0;
-      }
    }
 
    PStack_p  del_stack = PStackAlloc();
