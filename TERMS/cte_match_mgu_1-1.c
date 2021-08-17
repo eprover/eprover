@@ -41,8 +41,8 @@ PERF_CTR_DEFINE(MguTimer);
 
 #define MATCH_INIT -2
 
-const UnificationResult UNIF_FAILED = {NoTerm, -1};
-const UnificationResult UNIF_INIT = {NoTerm, -2};
+const UnificationResult UNIF_FAILED = false;
+const UnificationResult UNIF_SUCC = true;
 
 #define FAIL_AND_BREAK(res, val) { (res) = (val); break; }
 #define UPDATE_IF_INIT(res, new) ((res) = ((res) == MATCH_INIT) ? (new) : (res))
@@ -72,18 +72,9 @@ const UnificationResult UNIF_INIT = {NoTerm, -2};
 /----------------------------------------------------------------------*/
 static __inline__ bool reorientation_needed(Term_p t1, Term_p t2)
 {
-   if(TermIsTopLevelFreeVar(t2))
-   {
-      return !TermIsTopLevelFreeVar(t1) ||
-               TypeGetMaxArity(GetHeadType(NULL, t2)) <
-               TypeGetMaxArity(GetHeadType(NULL, t1)) ||
-               (TypeGetMaxArity(GetHeadType(NULL, t2)) ==
-               TypeGetMaxArity(GetHeadType(NULL, t1)) && t2->arity < t1->arity);
-   }
-   else
-   {
-      return false;
-   }
+   return (TermIsTopLevelFreeVar(t2) && !TermIsTopLevelFreeVar(t1))
+          || (TermIsTopLevelFreeVar(t1) && TermIsTopLevelFreeVar(t2)
+              && t1->arity > t2->arity);
 }
 
 
@@ -144,12 +135,13 @@ int PartiallyMatchVar(Term_p var_matcher, Term_p to_match, Sig_p sig,
 {
    assert(TermIsFreeVar(var_matcher) && !var_matcher->binding);
    assert(problemType == PROBLEM_HO || !TypeIsArrow(var_matcher->type));
+   assert(!TermIsLambda(to_match));
    
    int args_to_eat = MATCH_FAILED;
    Type_p term_head_type = GetHeadType(sig, to_match);
    Type_p matcher_type   = var_matcher->type;
 
-   if(!term_head_type || LFHOL_UNSUPPORTED(to_match))
+   if(!term_head_type)
    {
       // ad-hoc polymorphic type -- at the moment we cannot
       // determine these types :(
@@ -186,14 +178,12 @@ int PartiallyMatchVar(Term_p var_matcher, Term_p to_match, Sig_p sig,
       return MATCH_FAILED;
    }
 
-   if(perform_occur_check)
+   for(int i=0; i<args_to_eat + TermIsAppliedFreeVar(to_match) ? 1 : 0; i++)
    {
-      for(int i=0; i<args_to_eat + TermIsAppliedFreeVar(to_match) ? 1 : 0; i++)
+      if(!TermIsDBClosed(to_match->args[i]) ||
+         (perform_occur_check && OccurCheck(to_match->args[i], var_matcher)))
       {
-         if(OccurCheck(to_match->args[i], var_matcher))
-         {
-            return MATCH_FAILED;
-         }
+         return MATCH_FAILED;
       }
    }
    // the number of arguments eaten
@@ -585,6 +575,7 @@ bool SubstComputeMgu(Term_p t1, Term_p t2, Subst_p subst)
 // Side Effects    :
 //
 /----------------------------------------------------------------------*/
+
 UnificationResult SubstComputeMguHO(Term_p t1, Term_p t2, Subst_p subst)
 {   
    #ifdef MEASURE_UNIFICATION
@@ -592,12 +583,15 @@ UnificationResult SubstComputeMguHO(Term_p t1, Term_p t2, Subst_p subst)
    #endif
    PERF_CTR_ENTRY(MguTimer);
    assert(problemType == PROBLEM_HO);
+   if(t1->type != t2->type)
+   {
+      return UNIF_FAILED;
+   }
 
    PStackPointer backtrack = PStackGetSP(subst);  //For backtracking 
 
    PQueue_p jobs = PQueueAlloc();
-   UnificationResult res = UNIF_INIT;
-   bool swapped = reorientation_needed(t1, t2);
+   UnificationResult res = UNIF_SUCC;
    TB_p bank = TermGetBank(t1);
    if(!bank)
    {
@@ -615,16 +609,12 @@ UnificationResult SubstComputeMguHO(Term_p t1, Term_p t2, Subst_p subst)
 
    while(!PQueueEmpty(jobs))
    {
-      //fprintf(stderr, "|jobs|: %ld\n", PQueueCardinality(jobs));
-      t2 =  TermDerefAlways(PQueueGetLastP(jobs));
-      t1 =  TermDerefAlways(PQueueGetLastP(jobs)); 
+      t2 =  WHNF_deref(PQueueGetLastP(jobs));
+      t1 =  WHNF_deref(PQueueGetLastP(jobs)); 
 
-      if(LFHOL_UNSUPPORTED(t1) || LFHOL_UNSUPPORTED(t2))
-      {
-         FAIL_AND_BREAK(res, UNIF_FAILED);
-      }
+      PruneLambdaPrefix(bank, &t1, &t2);
 
-      int start_idx;
+      int args_eaten;
 
       if(reorientation_needed(t1, t2))
       {
@@ -634,8 +624,9 @@ UnificationResult SubstComputeMguHO(Term_p t1, Term_p t2, Subst_p subst)
       if(TermIsTopLevelFreeVar(t1))
       {
          Term_p var = TermIsAppliedFreeVar(t1) ? t1->args[0] : t1;
+         assert(!TermIsTopLevelFreeVar(t2) || t1->arity <= t2->arity);
          
-         int args_eaten = PartiallyMatchVar(var, t2, sig, true);
+         args_eaten = PartiallyMatchVar(var, t2, sig, true);
          if(args_eaten == MATCH_FAILED)
          {
             FAIL_AND_BREAK(res, UNIF_FAILED);
@@ -646,68 +637,45 @@ UnificationResult SubstComputeMguHO(Term_p t1, Term_p t2, Subst_p subst)
          if(var->binding == var)
          {
             var->binding = NULL;
-            start_idx = 0;
+            args_eaten = 0;
             PStackPop(subst);
          }
-         else
-         {
-            start_idx = ARG_NUM(var->binding);
-
-            assert(args_eaten == ARG_NUM(var->binding));   
-         }      
       }
       else
       {
+         args_eaten=0;
          assert(!TermIsTopLevelFreeVar(t1) && !TermIsTopLevelFreeVar(t2));
 
-         if(t1->f_code != t2->f_code)
+         if(TermIsDBVar(t1) != TermIsDBVar(t2)
+            || TermIsAppliedDBVar(t1) != TermIsAppliedDBVar(t2)
+            || t1->arity != t2->arity)
          {
             FAIL_AND_BREAK(res, UNIF_FAILED);
          }
 
-         start_idx = 0;         
-      }
-
-      Term_p min_term = t1;
-      Term_p max_term = t2;
-      int offset_min = 0;
-      int offset_max = start_idx;
-
-      if(ARG_NUM(t1) > ARG_NUM(t2) - start_idx)
-      {
-         assert(UnifIsInit(res));
-         // making sure that the argument with less arguments is on the left
-         // previously we made sure that the variable is on the left.
-         SWAP(min_term, max_term);
-         SWAP(offset_min, offset_max);
-      }
-
-      offset_min += (TermIsAppliedFreeVar(min_term) ? 1 : 0);
-      offset_max += (TermIsAppliedFreeVar(max_term) ? 1 : 0);
-      
-      assert(min_term->arity - offset_min <= max_term->arity - offset_max && min_term->arity >= offset_min &&
-               max_term->arity >= offset_max);
-
-      if(UnifIsInit(res))
-      {
-         res = (UnificationResult){min_term == t1 ? (!swapped ? RightTerm : LeftTerm) 
-                                                      : (!swapped ? LeftTerm : RightTerm), 
-                                  ABS(ARG_NUM(t1) - ARG_NUM(t2) + start_idx)};   
-      }
-
-      for(int i=0; i<min_term->arity - offset_min; i++)
-      {
-         Term_p min_arg = min_term->args[i + offset_min];
-         Term_p max_arg = max_term->args[i + offset_max];
-         if(TermIsTopLevelFreeVar(min_arg) || TermIsTopLevelFreeVar(max_arg))
+         if(t1->f_code != t2->f_code ||
+            (SigIsPolymorphic(bank->sig, t1->f_code)
+            && t1->arity != 0
+            && t1->args[0]->type != t2->args[0]->type))
          {
-            PQueueBuryP(jobs, max_arg);
-            PQueueBuryP(jobs, min_arg);
+            FAIL_AND_BREAK(res, UNIF_FAILED);
+         }
+      }
+
+      for(int i=0; i<t1->arity; i++)
+      {
+         Term_p arg_t = t1->args[i+(TermIsAppliedFreeVar(t1)?1:0)] ,
+                arg_s = t2->args[i+args_eaten+(TermIsAppliedFreeVar(t2)?1:0)];
+
+         if(TermIsTopLevelFreeVar(arg_t) || TermIsTopLevelFreeVar(arg_s))
+         {
+            PQueueBuryP(jobs, arg_s);
+            PQueueBuryP(jobs, arg_t);
          }
          else
          {
-            PQueueStoreP(jobs, min_arg);
-            PQueueStoreP(jobs, max_arg);
+            PQueueStoreP(jobs, arg_t);
+            PQueueStoreP(jobs, arg_s);
          }  
       }
    }
@@ -722,10 +690,7 @@ UnificationResult SubstComputeMguHO(Term_p t1, Term_p t2, Subst_p subst)
          UnifSuccesses++;
       #endif
 
-      assert(TermStructPrefixEqual(res.term_side == RightTerm ? debug_t1 : debug_t2,
-                                   res.term_side == RightTerm ? debug_t2 : debug_t1,
-                                   DEREF_ALWAYS, DEREF_ALWAYS, res.term_remaining,
-                                   sig));
+      assert(TermStructPrefixEqual(debug_t1, debug_t2, DEREF_ALWAYS, DEREF_ALWAYS, 0, sig));
    }
 
    PQueueFree(jobs);
@@ -812,11 +777,9 @@ __inline__ bool SubstMguComplete(Term_p t, Term_p s, Subst_p subst)
       Term_p reduced_t = LambdaEtaReduceDB(TermGetBank(t), t),
              reduced_s = LambdaEtaReduceDB(TermGetBank(s), s);
          
-      UnificationResult u_res =  
-         LFHOL_UNSUPPORTED(reduced_t) || LFHOL_UNSUPPORTED(reduced_s) ?
-         UNIF_FAILED : SubstComputeMguHO(reduced_t, reduced_s, subst);
+      res = SubstComputeMguHO(reduced_t, reduced_s, subst);
 
-      if(UnifFailed(u_res) || u_res.term_remaining != 0)
+      if(UnifFailed(res))
       {
          SubstBacktrackToPos(subst, backtrack);
          OracleUnifResult oracle_res = SubstComputeMguPattern(t, s, subst);
@@ -826,11 +789,9 @@ __inline__ bool SubstMguComplete(Term_p t, Term_p s, Subst_p subst)
          }
          else
          {
-            u_res = ((UnificationResult){LeftTerm, 0});
+            res = true;
          }
       }
-      
-      res = !UnifFailed(u_res) && u_res.term_remaining == 0;
    }
 
    return res;
@@ -868,42 +829,6 @@ __inline__ int SubstMatchPossiblyPartial(Term_p pattern, Term_p target, Subst_p 
 }
 #endif
 
-/*-----------------------------------------------------------------------
-//
-// Function: SubstMguPossiblyPartial()
-//
-//  Determines if t can unify with s so that n arguments are
-//  remaining in either side (n <= ARG_NUM(t) || n <= ARG_NUM(s)). 
-//  In that case, it adds bindings to subst and returns object encoding n 
-//  and term in which arguments are remaining. Otherwise returns 
-//  object encoding failure and leaves subst unchanged.
-//
-// Global Variables:
-//
-// Side Effects    :
-//
-/----------------------------------------------------------------------*/
-UnificationResult SubstMguPossiblyPartial(Term_p t, Term_p s, Subst_p subst)
-{
-   UnificationResult res;
-   PStackPointer backtrack = PStackGetSP(subst);
-   
-   if(problemType == PROBLEM_FO)
-   {
-      res = (UnificationResult) {SubstComputeMgu(t,s,subst) ? RightTerm : NoTerm, 0};
-   }
-   else
-   {
-      res = SubstComputeMguHO(t,s,subst);
-      if(res.term_remaining != 0)
-      {
-         res = UNIF_FAILED;
-         SubstBacktrackToPos(subst, backtrack);
-      }
-   }
-
-   return res;
-}
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/

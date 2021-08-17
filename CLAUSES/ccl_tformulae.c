@@ -1043,7 +1043,7 @@ Term_p unbind_loose(TB_p terms, IntMap_p db_map, long depth, Term_p t)
    }
    else
    {
-      res = TermTopCopy(t);
+      res = TermTopCopyWithoutArgs(t);
       bool changed = false;
       for(long i=0; i<res->arity; i++)
       {

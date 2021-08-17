@@ -587,7 +587,7 @@ Term_p ComputeOverlap(TB_p bank, OCB_p ocb, ClausePos_p from, Term_p
 
    oldstate = PStackGetSP(subst);
 
-   unify_res = SubstMguPossiblyPartial(max_side, sub_into, subst);
+   unify_res = SubstMguComplete(max_side, sub_into, subst);
 
    /* If unification succeeded and potentially prefix of into term has been unified */
    if(!UnifFailed(unify_res)
@@ -606,7 +606,7 @@ Term_p ComputeOverlap(TB_p bank, OCB_p ocb, ClausePos_p from, Term_p
          SubstNormTerm(into, subst, freshvars, bank->sig);
          SubstNormTerm(rep_side, subst, freshvars, bank->sig);
          new_rside = TBTermPosReplace(bank, rep_side, pos,
-                       DEREF_ALWAYS, unify_res.term_remaining, sub_into);
+                       DEREF_ALWAYS, 0, sub_into);
       }
    }
    return new_rside;
@@ -816,7 +816,7 @@ Clause_p ClauseOrderedSimParamod(TB_p bank, OCB_p ocb, ClausePos_p
    from_term = ClausePosGetSide(from);
    subst = SubstAlloc();
    VarBankResetVCounts(freshvars);
-   unify_res = SubstMguPossiblyPartial(from_term, into_term, subst);
+   unify_res = SubstMguComplete(from_term, into_term, subst);
 
    if((UnifFailed(unify_res) ||
        !CheckHOUnificationConstraints(unify_res, RightTerm, from_term, into_term)) ||
@@ -871,15 +871,9 @@ Clause_p ClauseOrderedSimParamod(TB_p bank, OCB_p ocb, ClausePos_p
 
       Term_p tmp_rhs = MakeRewrittenTerm(TermDerefAlways(into_term),
                                          TermDerefAlways(ClausePosGetOtherSide(from)),
-                                         unify_res.term_remaining,
+                                         0,
                                          bank);
       rhs_instance = TBInsertNoProps(bank, tmp_rhs, DEREF_ALWAYS);
-
-      if(unify_res.term_remaining)
-      {
-         TermTopFree(tmp_rhs);
-         tmp_rhs = NULL;
-      }
 
       into_copy = EqnListCopyRepl(into->clause->literals,
                                   bank, into_term, rhs_instance);
@@ -954,7 +948,7 @@ Clause_p ClauseOrderedSuperSimParamod(TB_p bank, OCB_p ocb, ClausePos_p
    from_term = ClausePosGetSide(from);
    subst = SubstAlloc();
    VarBankResetVCounts(freshvars);
-   unify_res = SubstMguPossiblyPartial(from_term, into_term, subst);
+   unify_res = SubstMguComplete(from_term, into_term, subst);
 
    if((UnifFailed(unify_res) ||
        !CheckHOUnificationConstraints(unify_res, RightTerm, from_term, into_term)) ||
@@ -1010,15 +1004,10 @@ Clause_p ClauseOrderedSuperSimParamod(TB_p bank, OCB_p ocb, ClausePos_p
       Term_p tmp_lhs = TBInsert(bank, into_term, DEREF_ALWAYS);
       Term_p tmp_rhs = MakeRewrittenTerm(TermDerefAlways(into_term),
                                          TermDerefAlways(ClausePosGetOtherSide(from)),
-                                         unify_res.term_remaining,
+                                         0,
                                          bank);
       rhs_instance = TBInsertNoProps(bank, tmp_rhs, DEREF_ALWAYS);
 
-      if(unify_res.term_remaining)
-      {
-         TermTopFree(tmp_rhs);
-         tmp_rhs = NULL;
-      }
 
       tmp_copy = EqnListCopy(into->clause->literals, bank);
 
@@ -1347,11 +1336,7 @@ Term_p ClausePosNextParamodPair(ClausePos_p from_pos, ClausePos_p
 
 bool CheckHOUnificationConstraints(UnificationResult res, UnifTermSide exp_side, Term_p from, Term_p to)
 {
-   return
-      // if we have some args remaining, we have them on the right side
-      (res.term_remaining == 0 || res.term_side == exp_side) &&
-            // and we do not paramodulate at the variable head.
-            !(TermIsAppliedFreeVar(to) && ARG_NUM(to) == res.term_remaining);
+   return true;
 }
 #endif
 

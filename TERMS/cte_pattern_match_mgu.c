@@ -245,7 +245,7 @@ Term_p solve_flex_rigid(TB_p bank, Term_p s_var, IntMap_p db_map, Term_p t,
    }
    else
    {
-      res = TermTopCopy(t);
+      res = TermTopCopyWithoutArgs(t);
       bool changed = false;
       for(long i=0; i < res->arity && *unif_res == UNIFIABLE; i++)
       {
@@ -560,56 +560,6 @@ void eta_expand_otf(TB_p bank, Term_p *lambda_ref, Term_p *non_lambda_ref)
 
 /*-----------------------------------------------------------------------
 //
-// Function: prune_lambda_prefix()
-//
-//   Make sure that terms are eta-expanded enough that they have the
-//   lambda-prefix of the same size and then trim this prefix,
-//   revealing only the bodies of the terms. References of those
-//   trimmed bodies are assigned to arguments t1_ref and t2_ref.
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-bool prune_lambda_prefix(TB_p bank, Term_p *t1_ref, Term_p *t2_ref)
-{
-   Term_p t1 = *t1_ref;
-   Term_p t2 = *t2_ref;
-   bool pruned = false;
-   
-   while(TermIsLambda(t1) && TermIsLambda(t2))
-   {
-      assert(t1->args[0]->type == t2->args[0]->type);
-      t1 = t1->args[1];
-      t2 = t2->args[1];
-      pruned = true;
-   }
-
-   
-   if(TermIsLambda(t1) || TermIsLambda(t2))
-   {
-      pruned = true;
-      if(TermIsLambda(t1))
-      {
-         eta_expand_otf(bank, &t1, &t2);
-      }
-      else
-      {
-         assert(TermIsLambda(t2));
-         eta_expand_otf(bank, &t2, &t1);
-      }
-   }
-
-   *t1_ref = t1;
-   *t2_ref = t2;
-
-   return pruned;
-}
-
-/*-----------------------------------------------------------------------
-//
 // Function: do_remap()
 //
 //   The actual driver that does the remapping.
@@ -806,6 +756,56 @@ OracleUnifResult match_var(TB_p bank, Subst_p subst,
 
 /*-----------------------------------------------------------------------
 //
+// Function: PruneLambdaPrefix()
+//
+//   Make sure that terms are eta-expanded enough that they have the
+//   lambda-prefix of the same size and then trim this prefix,
+//   revealing only the bodies of the terms. References of those
+//   trimmed bodies are assigned to arguments t1_ref and t2_ref.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+bool PruneLambdaPrefix(TB_p bank, Term_p *t1_ref, Term_p *t2_ref)
+{
+   Term_p t1 = *t1_ref;
+   Term_p t2 = *t2_ref;
+   bool pruned = false;
+   
+   while(TermIsLambda(t1) && TermIsLambda(t2))
+   {
+      assert(t1->args[0]->type == t2->args[0]->type);
+      t1 = t1->args[1];
+      t2 = t2->args[1];
+      pruned = true;
+   }
+
+   
+   if(TermIsLambda(t1) || TermIsLambda(t2))
+   {
+      pruned = true;
+      if(TermIsLambda(t1))
+      {
+         eta_expand_otf(bank, &t1, &t2);
+      }
+      else
+      {
+         assert(TermIsLambda(t2));
+         eta_expand_otf(bank, &t2, &t1);
+      }
+   }
+
+   *t1_ref = t1;
+   *t2_ref = t2;
+
+   return pruned;
+}
+
+/*-----------------------------------------------------------------------
+//
 // Function: SubstComputeMguPattern()
 //
 //   Compute MGU of two terms which might not be patterns. If the terms
@@ -844,21 +844,14 @@ OracleUnifResult SubstComputeMguPattern(Term_p t1, Term_p t2, Subst_p subst)
       t2 = WHNF_deref(PQueueGetLastP(jobs));
       t1 = WHNF_deref(PQueueGetLastP(jobs));
 
-      prune_lambda_prefix(bank, &t1, &t2);
+      PruneLambdaPrefix(bank, &t1, &t2);
 
       if(t1 == t2)
       {
          continue;
       }
 
-      if(t1->type != t2->type)
-      {
-         DBG_PRINT(stderr, " > ", TermPrintDbgHO(stderr, orig_t1, bank->sig, DEREF_NEVER), " =?= ");
-         DBG_PRINT(stderr, "", TermPrintDbgHO(stderr, orig_t2, bank->sig, DEREF_NEVER), ".\n");
-         DBG_PRINT(stderr, " > ", TermPrintDbgHO(stderr, t1, bank->sig, DEREF_NEVER), " =?= ");
-         DBG_PRINT(stderr, "", TermPrintDbgHO(stderr, t2, bank->sig, DEREF_NEVER), ".\n");
-         assert(false);
-      }
+      assert(t1->type == t2->type);
 
       if(TermIsTopLevelFreeVar(t2))
       {
@@ -994,7 +987,7 @@ OracleUnifResult SubstComputeMatchPattern(Term_p matcher, Term_p to_match, Subst
    {
       to_match =  PLocalStackPop(jobs);
       matcher  =  PLocalStackPop(jobs);
-      prune_lambda_prefix(bank, &matcher, &to_match);
+      PruneLambdaPrefix(bank, &matcher, &to_match);
       if(TermIsGround(to_match) && TermIsGround(matcher))
       {
          if(LambdaNormalizeDB(bank, to_match) != LambdaNormalizeDB(bank, matcher))

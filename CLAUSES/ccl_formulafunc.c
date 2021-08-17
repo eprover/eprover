@@ -146,7 +146,7 @@ static void close_let_def(TB_p bank, NumTree_p *closed_defs, Term_p def)
 static Term_p replace_body(TB_p bank, NumTree_p *closed_defs, Term_p t)
 {
    NumTree_p node = NumTreeFind(closed_defs, t->f_code);
-   Term_p new = TermTopCopy(t);
+   Term_p new = TermTopCopyWithoutArgs(t);
    bool changed = false;
    for (long i = 0; i < t->arity; i++)
    {
@@ -351,7 +351,7 @@ Term_p refresh_qvars(TB_p terms, Term_p form)
    }
    else
    {
-      res = TermTopCopy(form);
+      res = TermTopCopyWithoutArgs(form);
       bool changed = false;
 
       for (int i = 0; i < form->arity; i++)

@@ -517,6 +517,7 @@ void simplify_watchlist(ProofState_p state, ProofControl_p control,
 static void generate_new_clauses(ProofState_p state, ProofControl_p
                                  control, Clause_p clause, Clause_p tmp_copy)
 {
+   VarBankSetVCountsToUsed(state->terms->vars);
    ComputeHOInferences(state,control,tmp_copy,clause);
    if(control->heuristic_parms.enable_eq_factoring)
    {
@@ -749,7 +750,7 @@ Clause_p replacing_inferences(ProofState_p state, ProofControl_p
    long     clause_count;
    Clause_p res = pclause->clause;
 
-   if(problemType == PROBLEM_HO && ImmediateClausification(res, state->tmp_store, state->archive))
+   if(problemType == PROBLEM_HO && ImmediateClausification(res, state->tmp_store, state->archive, state->freshvars))
    {
       pclause->clause = NULL;
    }
@@ -1476,13 +1477,6 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control,
    {
       arch_copy = ClauseArchiveCopy(state->archive, clause);
    }
-
-   // fprintf(stderr, "processing: ");
-   // ClausePrintDBG(stderr, clause);
-   // fprintf(stderr, "\n");
-   // DerivationDebugPrint(stderr, clause->derivation);
-   // fprintf(stderr, ".\n ");
-
 
    if(!(pclause = ForwardContractClause(state, control,
                                         clause, true,

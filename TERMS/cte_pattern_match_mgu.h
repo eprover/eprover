@@ -37,6 +37,7 @@ Changes
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
+bool PruneLambdaPrefix(TB_p bank, Term_p *t1_ref, Term_p *t2_ref);
 OracleUnifResult SubstComputeMguPattern(Term_p t1, Term_p t2, Subst_p subst);
 OracleUnifResult SubstComputeMatchPattern(Term_p matcher, Term_p to_match, Subst_p subst);
 

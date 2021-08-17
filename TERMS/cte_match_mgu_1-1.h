@@ -45,20 +45,12 @@ typedef enum oracle_unif_result {
     NOT_IN_FRAGMENT,
 } OracleUnifResult;
 
-typedef struct unif_res{
-   UnifTermSide term_side;
-   int          term_remaining;
-} UnificationResult;
+typedef bool UnificationResult;
 
 extern const UnificationResult UNIF_FAILED;
-extern const UnificationResult UNIF_INIT;
+extern const UnificationResult UNIF_SUCC;
 
-#define UnifFailed(u_res) ((u_res).term_side == NoTerm)
-#define UnifIsInit(u_res) ((u_res).term_side == NoTerm && (u_res).term_remaining == -2)
-
-
-#define GetSideStr(ur) ((ur).term_side == NoTerm ? "Failed" : \
-                          (ur).term_side == LeftTerm ? "Left" : "Right")
+#define UnifFailed(u_res) (u_res)
 
 /*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */
@@ -101,10 +93,6 @@ int SubstMatchPossiblyPartial(Term_p t, Term_p s, Subst_p subst);
 #define SubstMatchPossiblyPartial(t, s, subst)  (SubstComputeMatch(t, s, subst) ? 0 : MATCH_FAILED)
 
 #endif
-
-// the return result is considerably more complex, so we have to run wrapper
-UnificationResult SubstMguPossiblyPartial(Term_p t, Term_p s, Subst_p subst);
-
 
 #define VerifyMatch(matcher, to_match) \
         TermStructEqualDeref((matcher), (to_match), \

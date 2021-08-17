@@ -622,14 +622,7 @@ static Term_p rewrite_with_clause_set(OCB_p ocb, TB_p bank, Term_p term,
       assert(mi->pos->clause->ident);
       TermAddRWLink(term, repl, mi->pos->clause, ClauseIsSOS(mi->pos->clause),
                     restricted_rw?RWAlwaysRewritable:RWLimitedRewritable);
-      if(!TOGreater(ocb, term, repl, DEREF_NEVER, DEREF_NEVER))
-      {
-         DBG_PRINT(stderr, "term:", TermPrintDbgHO(stderr, term, bank->sig, DEREF_NEVER), ".\n");
-         DBG_PRINT(stderr, "repl:", TermPrintDbgHO(stderr, repl, bank->sig, DEREF_NEVER), ".\n");
-         DBG_PRINT(stderr, (EqnIsOriented(mi->pos->clause->literals) ?  "eq_oriented:" : "eq:"), 
-                           ClausePrint(stderr, mi->pos->clause, true), ".\n");
-         assert(false);
-      }
+      assert(TOGreater(ocb, term, repl, DEREF_NEVER, DEREF_NEVER));
 
       term = repl;
       MatchResFree(mi);

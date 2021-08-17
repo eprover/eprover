@@ -206,7 +206,7 @@ Term_p do_shift_db(TB_p bank, Term_p t, int shift_val, int depth)
    }
    else
    {
-      res = TermTopCopy(t);
+      res = TermTopCopyWithoutArgs(t);
       bool changed = false;
 
       for(long i=0; i<res->arity; i++)
@@ -474,7 +474,11 @@ Term_p do_eta_expand_db(TB_p bank, Term_p t)
    }
    else
    {
-      res = TermTopCopy(t);
+      res = TermTopCopyWithoutArgs(t);
+      if(TermIsPhonyApp(t))
+      {
+         res->args[0] = t->args[0];
+      }
       bool changed = false;
       for(long i=TermIsPhonyApp(t)?1:0; i < res->arity; i++)
       {
@@ -562,7 +566,7 @@ Term_p do_eta_reduce_db(TB_p bank, Term_p t)
    }
    else
    {
-      res = TermTopCopy(t);
+      res = TermTopCopyWithoutArgs(t);
       bool changed = false;
       for(long i=0; i<t->arity; i++)
       {
@@ -618,7 +622,7 @@ Term_p do_beta_normalize_db(TB_p bank, Term_p t)
    }
    else
    {
-      res = TermTopCopy(t);
+      res = TermTopCopyWithoutArgs(t);
       bool changed = false;
       for(long i=0; i < res->arity; i++)
       {
@@ -706,7 +710,7 @@ Term_p do_named_to_db(TB_p bank, Term_p t, long depth)
    }
    else
    {
-      res = TermTopCopy(t);
+      res = TermTopCopyWithoutArgs(t);
       bool changed = false;
       for(long i = 0; i < t->arity; i++)
       {
@@ -816,7 +820,7 @@ Term_p do_post_cnf_encode(TB_p bank, Term_p t, long depth)
    }
    else
    {
-      res = TermTopCopy(t);
+      res = TermTopCopyWithoutArgs(t);
       bool changed = false;
       for(long i = 0; i < t->arity; i++)
       {
@@ -883,7 +887,7 @@ Term_p replace_fvars (TB_p bank, Term_p t, long depth)
    }
    else
    {
-      Term_p copy = TermTopCopy(t);
+      Term_p copy = TermTopCopyWithoutArgs(t);
       bool changed = false;
       for(long i=0; i<t->arity; i++)
       {

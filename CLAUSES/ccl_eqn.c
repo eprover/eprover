@@ -626,9 +626,9 @@ Eqn_p EqnAlloc(Term_p lterm, Term_p rterm, TB_p bank,  bool positive)
 #ifndef ENABLE_LFHO
       //assert(!TermIsFreeVar(lterm));
 #endif
-      if(lterm->f_code > bank->sig->internal_symbols
-         && !(TermIsDBVar(lterm)))
+      if(lterm->f_code > bank->sig->internal_symbols)
       {
+         assert(!TermIsDBVar(lterm));
          SigDeclareIsPredicate(bank->sig, lterm->f_code);
       }
 
