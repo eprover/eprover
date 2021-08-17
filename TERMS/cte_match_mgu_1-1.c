@@ -741,11 +741,9 @@ __inline__ bool SubstMatchComplete(Term_p pattern, Term_p target, Subst_p subst)
 
       Term_p reduced_p = LambdaEtaReduceDB(TermGetBank(pattern), pattern),
              reduced_t = LambdaEtaReduceDB(TermGetBank(target), target);
-      int res_i =  
-            LFHOL_UNSUPPORTED(reduced_p) || LFHOL_UNSUPPORTED(reduced_t) ?
-            MATCH_FAILED : SubstComputeMatchHO(pattern, target, subst)  ;
+      int res_i = SubstComputeMatchHO(reduced_p, reduced_t, subst);
 
-      if(res_i != 0 && TermIsPattern(pattern) && TermIsPattern(target))
+      if(res_i != 0 && TermIsNonFOPattern(pattern) && TermIsNonFOPattern(target))
       {
          SubstBacktrackToPos(subst, backtrack);
          res_i = SubstComputeMatchPattern(pattern, target, subst) == UNIFIABLE ?
@@ -790,7 +788,7 @@ __inline__ bool SubstMguComplete(Term_p t, Term_p s, Subst_p subst)
          
       res = SubstComputeMguHO(reduced_t, reduced_s, subst);
 
-      if(UnifFailed(res))
+      if(UnifFailed(res) && TermIsNonFOPattern(t) && TermIsNonFOPattern(s))
       {
          SubstBacktrackToPos(subst, backtrack);
          OracleUnifResult oracle_res = SubstComputeMguPattern(t, s, subst);
