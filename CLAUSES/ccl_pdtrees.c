@@ -1319,19 +1319,13 @@ void PDTreeSearchInit(PDTree_p tree, Term_p term, SysDate age_constr,
 {
    assert(!tree->term);
 
-   if(!TermIsNonFOPattern(term))
+   if(TermIsNonFOPattern(term))
    {
-      term = LambdaEtaReduceDB(tree->bank, term);
-      if(LFHOL_UNSUPPORTED(term))
-      {
-         // term is not supported.
-         tree->tree_pos = NULL;
-         return;
-      }
+      term = LambdaEtaExpandDB(tree->bank, term);
    }
    else
    {
-      term = LambdaEtaExpandDB(tree->bank, term);
+      term = LambdaEtaReduceDB(tree->bank, term);
    }
 
    TermLRTraverseInit(tree->term_stack, term);

@@ -408,9 +408,10 @@ int SubstComputeMatchHO(Term_p matcher, Term_p to_match, Subst_p subst)
 
 
          if(matcher->f_code != to_match->f_code ||
-            (SigIsPolymorphic(bank->sig, matcher->f_code)
-            && matcher->arity != 0
-            && matcher->args[0]->type != to_match->args[0]->type))
+            (!TermIsTopLevelDBVar(matcher)
+              && SigIsPolymorphic(bank->sig, matcher->f_code)
+              && matcher->arity != 0
+              && matcher->args[0]->type != to_match->args[0]->type))
          {
             FAIL_AND_BREAK(res, MATCH_FAILED);
          }
@@ -610,12 +611,14 @@ UnificationResult SubstComputeMguHO(Term_p t1, Term_p t2, Subst_p subst)
    {
       t2 =  WHNF_deref(PQueueGetLastP(jobs));
       t1 =  WHNF_deref(PQueueGetLastP(jobs));
-      if(TermIsFreeVar(t1) && TermIsDBClosed(t2) && (t1 == t2 || OccurCheck(t2, t1)))
+      // trying to deal with cases X = LAM xyz. complicated term,
+      // which cannot be dealt with otherwise.
+      if(TermIsFreeVar(t1) && TermIsDBClosed(t2) && (!OccurCheck(t2, t1)))
       {
          SubstAddBinding(subst, t1, t2);
          continue;
       }
-      else if(TermIsFreeVar(t2) && TermIsDBClosed(t1) && (t1 == t2 || OccurCheck(t1, t2)))
+      else if(TermIsFreeVar(t2) && TermIsDBClosed(t1) && (!OccurCheck(t1, t2)))
       {
          SubstAddBinding(subst, t2, t1);
          continue;
@@ -663,9 +666,10 @@ UnificationResult SubstComputeMguHO(Term_p t1, Term_p t2, Subst_p subst)
          }
 
          if(t1->f_code != t2->f_code ||
-            (SigIsPolymorphic(bank->sig, t1->f_code)
-            && t1->arity != 0
-            && t1->args[0]->type != t2->args[0]->type))
+            (!TermIsTopLevelDBVar(t1)
+              && SigIsPolymorphic(bank->sig, t1->f_code)
+              && t1->arity != 0
+              && t1->args[0]->type != t2->args[0]->type))
          {
             FAIL_AND_BREAK(res, UNIF_FAILED);
          }
@@ -699,7 +703,13 @@ UnificationResult SubstComputeMguHO(Term_p t1, Term_p t2, Subst_p subst)
          UnifSuccesses++;
       #endif
 
-      assert(TermStructPrefixEqual(debug_t1, debug_t2, DEREF_ALWAYS, DEREF_ALWAYS, 0, sig));
+      if(!TermStructPrefixEqual(debug_t1, debug_t2, DEREF_ALWAYS, DEREF_ALWAYS, 0, sig))
+      {
+         DBG_PRINT(stderr, "t1:", TermPrintDbgHO(stderr, debug_t1, sig, DEREF_NEVER), " <?> " );
+         DBG_PRINT(stderr, "t2:", TermPrintDbgHO(stderr, debug_t2, sig, DEREF_NEVER), ".\n " );
+         DBG_PRINT(stderr, "subst:", SubstPrint(stderr, subst, sig, DEREF_NEVER), ".\n " );
+         assert(false);
+      }
    }
 
    PQueueFree(jobs);

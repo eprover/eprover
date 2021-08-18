@@ -50,7 +50,7 @@ typedef bool UnificationResult;
 extern const UnificationResult UNIF_FAILED;
 extern const UnificationResult UNIF_SUCC;
 
-#define UnifFailed(u_res) (u_res)
+#define UnifFailed(u_res) (!u_res)
 
 /*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */
