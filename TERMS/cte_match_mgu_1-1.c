@@ -813,37 +813,6 @@ __inline__ bool SubstMguComplete(Term_p t, Term_p s, Subst_p subst)
 
    return res;
 }
-
-/*-----------------------------------------------------------------------
-//
-// Function: SubstMatchPossiblyPartial()
-//
-//  Determines if pattern can match target so that n arguments are
-//  remaining in target (n <= ARG_NUM(target)). In that case, it adds
-//  bindings to subst and returns n. Otherwise returns MATCH_FAILED and
-//  leaves subst unchanged.
-//
-// Global Variables:
-//
-// Side Effects    :
-//
-/----------------------------------------------------------------------*/
-__inline__ int SubstMatchPossiblyPartial(Term_p pattern, Term_p target, Subst_p subst)
-{
-   int res;
-   if(problemType == PROBLEM_FO)
-   {
-      res = SubstComputeMatch(pattern, target, subst) ? 0 : MATCH_FAILED;
-   }
-   else
-   {
-      res = SubstComputeMatchHO(pattern, target, subst);
-   }
-
-   // if matched -> number of remaining args is in good range
-   assert(res == MATCH_FAILED|| res <= ARG_NUM(target)); 
-   return res;
-}
 #endif
 
 /*---------------------------------------------------------------------*/

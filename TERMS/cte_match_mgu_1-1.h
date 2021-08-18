@@ -83,14 +83,12 @@ UnificationResult SubstComputeMguHO(Term_p t1, Term_p t2, Subst_p subst);
 // based on the problem type.
 bool SubstMatchComplete(Term_p t, Term_p s, Subst_p subst);
 bool SubstMguComplete(Term_p t, Term_p s, Subst_p subst);
-int SubstMatchPossiblyPartial(Term_p t, Term_p s, Subst_p subst);
 
 #else
 
 // If we are working in FOL mode, we revert to normal E behavior.
 #define SubstMatchComplete(t, s, subst) (SubstComputeMatch(t, s, subst))
 #define SubstMguComplete(t, s, subst)   (SubstComputeMgu(t, s, subst))
-#define SubstMatchPossiblyPartial(t, s, subst)  (SubstComputeMatch(t, s, subst) ? 0 : MATCH_FAILED)
 
 #endif
 
