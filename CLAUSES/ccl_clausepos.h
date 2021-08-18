@@ -44,11 +44,6 @@ typedef struct clauseposcell
    void*     data;
 }ClausePosCell, *ClausePos_p;
 
-typedef struct match_info_cell {
-  int remaining_args;
-  ClausePos_p pos;
-}MatchResCell, *MatchRes_p;
-
 /*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
@@ -59,9 +54,6 @@ typedef void (*Deleter)(void*);
 #define ClausePosCellAlloc() (ClausePosCell*)SizeMalloc(sizeof(ClausePosCell))
 #define ClausePosCellFree(junk)         SizeFree(junk, sizeof(ClausePosCell))
 static inline void    ClausePosCellFreeWDeleter(ClausePos_p junk, Deleter del);
-
-#define MatchResAlloc()      (MatchRes_p) SizeMalloc(sizeof(MatchResCell))
-#define MatchResFree(junk)   SizeFree(junk, sizeof(MatchResCell))
 
 #ifdef CONSTANT_MEM_ESTIMATE
 #define CLAUSEPOSCELL_MEM 20

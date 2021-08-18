@@ -920,52 +920,48 @@ static Term_p lambda_eq_to_forall(TB_p terms, Term_p t)
 
 WFormula_p find_generalization(PDTree_p liftings, Term_p query, TermRef name)
 {
-   MatchRes_p mi;
+   ClausePos_p pos;
    Subst_p    subst = SubstAlloc();
    WFormula_p res = NULL;
 
    PDTreeSearchInit(liftings, query, PDTREE_IGNORE_NF_DATE, false);
-   while(!res && (mi = PDTreeFindNextDemodulator(liftings, subst)))
+   while(!res && (pos = PDTreeFindNextDemodulator(liftings, subst)))
    {
-      if(mi->remaining_args == 0)
-      {
-         //once to deref variables that matched the definition
-         //to query
-         Term_p matcher_derefed = 
-            TBInsertInstantiated(liftings->bank, mi->pos->literal->rterm);
+      //once to deref variables that matched the definition
+      //to query
+      Term_p matcher_derefed = 
+         TBInsertInstantiated(liftings->bank, pos->literal->rterm);
 
-    // to make sure that previously derefed vars are not derefed
-         // again, we temporarily unbind them
-         Term_p old_bindings[PStackGetSP(subst)];
+      // to make sure that previously derefed vars are not derefed
+      // again, we temporarily unbind them
+      Term_p old_bindings[PStackGetSP(subst)];
+      for(long i=0; i<PStackGetSP(subst); i++)
+      {
+         Term_p var = PStackElementP(subst, i);
+         old_bindings[i] = var->binding;
+         var->binding = NULL;
+      }
+
+
+      //the second time to bind free variables to loosely bound ones
+      matcher_derefed = 
+         TBInsertInstantiated(liftings->bank, matcher_derefed);
+
+      Term_p candidate =
+         LambdaEtaReduceDB(liftings->bank,
+            BetaNormalizeDB(liftings->bank, matcher_derefed));        
+      if(!TermHasLambdaSubterm(candidate))
+      {
+         *name = candidate;
+         res = pos->data;
+      }
+      else
+      {
          for(long i=0; i<PStackGetSP(subst); i++)
          {
-            Term_p var = PStackElementP(subst, i);
-            old_bindings[i] = var->binding;
-            var->binding = NULL;
-         }
-
-
-         //the second time to bind free variables to loosely bound ones
-         matcher_derefed = 
-            TBInsertInstantiated(liftings->bank, matcher_derefed);
-
-         Term_p candidate =
-            LambdaEtaReduceDB(liftings->bank,
-               BetaNormalizeDB(liftings->bank, matcher_derefed));        
-         if(!TermHasLambdaSubterm(candidate))
-         {
-            *name = candidate;
-            res = mi->pos->data;
-         }
-         else
-         {
-            for(long i=0; i<PStackGetSP(subst); i++)
-            {
-               ((Term_p)PStackElementP(subst, i))->binding = old_bindings[i];
-            }
+            ((Term_p)PStackElementP(subst, i))->binding = old_bindings[i];
          }
       }
-      MatchResFree(mi);
    }
    PDTreeSearchExit(liftings);
    SubstDelete(subst);

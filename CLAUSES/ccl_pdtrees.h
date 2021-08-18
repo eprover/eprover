@@ -188,7 +188,7 @@ void      PDTreeSearchExit(PDTree_p tree);
 PDTNode_p PDTreeFindNextIndexedLeaf(PDTree_p tree, Subst_p subst);
 
 
-MatchRes_p PDTreeFindNextDemodulator(PDTree_p tree, Subst_p subst);
+ClausePos_p PDTreeFindNextDemodulator(PDTree_p tree, Subst_p subst);
 
 void PDTreePrint(FILE* out, PDTree_p tree);
 

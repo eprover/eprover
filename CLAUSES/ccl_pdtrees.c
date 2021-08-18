@@ -1434,10 +1434,9 @@ PDTNode_p PDTreeFindNextIndexedLeaf(PDTree_p tree, Subst_p subst)
 //
 /----------------------------------------------------------------------*/
 
-MatchRes_p PDTreeFindNextDemodulator(PDTree_p tree, Subst_p subst)
+ClausePos_p PDTreeFindNextDemodulator(PDTree_p tree, Subst_p subst)
 {
    PTree_p res_cell = NULL;
-   MatchRes_p mi = MatchResAlloc();
 
    while(tree->tree_pos)
    {
@@ -1446,9 +1445,7 @@ MatchRes_p PDTreeFindNextDemodulator(PDTree_p tree, Subst_p subst)
          res_cell = PTreeTraverseNext(tree->store_stack);
          if(res_cell)
          {
-            mi->remaining_args = PStackGetSP(tree->term_stack);
-            mi->pos = res_cell->key;
-            return mi;
+            return res_cell->key;
          }
          else
          {
@@ -1464,7 +1461,6 @@ MatchRes_p PDTreeFindNextDemodulator(PDTree_p tree, Subst_p subst)
       }
    }
 
-   MatchResFree(mi);
    return NULL;
 }
 
