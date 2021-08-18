@@ -703,13 +703,7 @@ UnificationResult SubstComputeMguHO(Term_p t1, Term_p t2, Subst_p subst)
          UnifSuccesses++;
       #endif
 
-      if(!TermStructPrefixEqual(debug_t1, debug_t2, DEREF_ALWAYS, DEREF_ALWAYS, 0, sig))
-      {
-         DBG_PRINT(stderr, "t1:", TermPrintDbgHO(stderr, debug_t1, sig, DEREF_NEVER), " <?> " );
-         DBG_PRINT(stderr, "t2:", TermPrintDbgHO(stderr, debug_t2, sig, DEREF_NEVER), ".\n " );
-         DBG_PRINT(stderr, "subst:", SubstPrint(stderr, subst, sig, DEREF_NEVER), ".\n " );
-         assert(false);
-      }
+      assert(!TermStructPrefixEqual(debug_t1, debug_t2, DEREF_ALWAYS, DEREF_ALWAYS, 0, sig));
    }
 
    PQueueFree(jobs);
