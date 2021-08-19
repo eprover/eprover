@@ -257,6 +257,9 @@ typedef Term_p (*TermMapper_p)(void*, Term_p);
 #define TermIsPattern(term) (!(QueryProp((term), (TPHasNonPatternVar))))
 #define TermIsNonFOPattern(term) (TermIsPattern(term) && LFHOL_UNSUPPORTED(term))
 #define TermIsDBLambda(term) (!TermIsDBVar(term) && (term)->f_code == SIG_DB_LAMBDA_CODE)
+#define TermIsPhonyAppTarget(term) (TermIsAnyVar(term) || TermIsLambda(term) || \
+                                    (term)->f_code == SIG_ITE_CODE || \
+                                    (term)->f_code == SIG_LET_CODE)
 #else
 #define TermIsPhonyApp(term) (false)
 #define TermIsAppliedFreeVar(term) (false)
@@ -395,8 +398,17 @@ Term_p applied_var_deref(Term_p orig);
 
 static inline Type_p GetHeadType(Sig_p sig, Term_p term)
 {
+   if(term->f_code == SIG_ITE_CODE)
+   {
+      assert(term->arity==3);
+      return term->type;
+   }
+   else if(term->f_code == SIG_LET_CODE)
+   {
+      return term->type;
+   }
 #ifdef ENABLE_LFHO
-   if(TermIsPhonyApp(term))
+   else if(TermIsAppliedFreeVar(term))
    {
       assert(!sig || term->f_code == SIG_PHONY_APP_CODE);
       return term->args[0]->type;

@@ -45,47 +45,25 @@ typedef TFormula_p (*FormulaMapper)(TFormula_p, TB_p);
 
 /*-----------------------------------------------------------------------
 //
-// Function: form_struct_correct()
+// Function: FlattenApps()
 //
-//  Is the only leaf of the formula an equation?
+//   Apply additional arguments to hd assuming hd needs to be flattened.
 //
 // Global Variables: -
 //
-// Side Effects    : Output
+// Side Effects    : -
 //
 /----------------------------------------------------------------------*/
-bool form_struct_correct(Sig_p sig, TFormula_p form)
+Term_p FlattenApps_driver(TB_p terms, Term_p t)
 {
-   if (TFormulaIsLiteral(sig, form))
+   if(TermIsPhonyApp(t) && !TermIsPhonyAppTarget(t->args[0]))
    {
-      return true;
-   }
-   else if (form->f_code == sig->qall_code || form->f_code == sig->qex_code)
-   {
-      return form_struct_correct(sig, form->args[1]);
-   }
-   else if (!TermIsAnyVar(form) && SigQueryFuncProp(sig, form->f_code, FPFOFOp))
-   {
-      return (!TFormulaHasSubForm1(sig, form) || form_struct_correct(sig, form->args[0])) 
-             && (!TFormulaHasSubForm2(sig, form) || form_struct_correct(sig, form->args[1]));
+      return FlattenApps(terms, t->args[0], t->args+1, t->arity-1, t->type);
    }
    else
    {
-      return false;
+      return t;
    }
-}
-
-bool FormulaSetCorrectStruct(Sig_p sig, FormulaSet_p set)
-{
-   for (WFormula_p handle = set->anchor->succ; handle != set->anchor; handle =
-                                                                          handle->succ)
-   {
-      if (!form_struct_correct(sig, handle->tformula))
-      {
-         return false;
-      }
-   }
-   return true;
 }
 
 /*-----------------------------------------------------------------------
@@ -133,7 +111,7 @@ static void close_let_def(TB_p bank, NumTree_p *closed_defs, Term_p def)
 
 /*-----------------------------------------------------------------------
 //
-// Function: close_let_def()
+// Function: replace_body()
 //
 //   Replace all occurences of old symbols with new definitions.
 //
@@ -270,7 +248,14 @@ TFormula_p lift_lets(TB_p terms, TFormula_p t, PStack_p fresh_defs)
 
       if (changed)
       {
+         if(TermIsPhonyApp(new) && !TermIsPhonyAppTarget(new->args[0]))
+         {
+            Term_p flat = FlattenApps(terms, new->args[0], new->args+1, new->arity-1, new->type);
+            TermTopFree(new);
+            new = flat;
+         }
          new = TBTermTopInsert(terms, new);
+         
       }
       else
       {
@@ -902,7 +887,8 @@ TFormula_p do_ite_unroll(TFormula_p form, TB_p terms)
                              TBTermTopInsert(terms, true_part),
                              TBTermTopInsert(terms, false_part));
 
-      form = do_ite_unroll(unrolled, terms);
+      form = do_ite_unroll(TermMap(terms, unrolled, FlattenApps_driver), 
+                           terms);
    }
    else if (TFormulaIsLiteral(terms->sig, form))
    {
@@ -934,11 +920,11 @@ TFormula_p do_ite_unroll(TFormula_p form, TB_p terms)
          TFormula_p neg_cond = TFormulaNegate(cond, terms);
 
          TFormula_p if_true_impl =
-             TFormulaFCodeAlloc(terms, terms->sig->or_code,
-                                neg_cond, repl_t);
+            TFormulaFCodeAlloc(terms, terms->sig->or_code,
+                               neg_cond, TermMap(terms, repl_t, FlattenApps_driver));
          TFormula_p if_false_impl =
-             TFormulaFCodeAlloc(terms, terms->sig->or_code,
-                                cond, repl_f);
+            TFormulaFCodeAlloc(terms, terms->sig->or_code,
+                               cond, TermMap(terms, repl_f, FlattenApps_driver));
 
          // the whole formula
          form = TFormulaFCodeAlloc(terms, terms->sig->and_code,

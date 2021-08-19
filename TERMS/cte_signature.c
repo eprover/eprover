@@ -632,7 +632,7 @@ FunCode SigInsertId(Sig_p sig, const char* name, int arity, bool special_id)
 
    if(pos) /* name is already known */
    {
-      if(sig->f_info[pos].arity != arity)
+      if(sig->f_info[pos].arity != arity && problemType == PROBLEM_FO)
       {
          //printf("Problem: %s %d != %d\n", name, arity, sig->f_info[pos].arity);
 #ifdef MULTI_ARITY_HACK

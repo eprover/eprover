@@ -333,7 +333,6 @@ int SubstComputeMatchHO(Term_p matcher, Term_p to_match, Subst_p subst)
    }
 
    Sig_p sig = bank ? bank->sig : NULL;
-
    PStackPointer backtrack = PStackGetSP(subst);
    PLocalStackInit(jobs);
 

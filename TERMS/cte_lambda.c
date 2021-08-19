@@ -93,7 +93,7 @@ Term_p drop_args(TB_p bank, Term_p t, long args_to_drop)
 
 /*-----------------------------------------------------------------------
 //
-// Function: flatten_apps()
+// Function: FlattenApps()
 //
 //   Apply additional arguments to hd assuming hd needs to be flattened.
 //
@@ -103,7 +103,7 @@ Term_p drop_args(TB_p bank, Term_p t, long args_to_drop)
 //
 /----------------------------------------------------------------------*/
 
-Term_p flatten_apps(TB_p bank, Term_p hd, Term_p* args, long num_args,
+Term_p FlattenApps(TB_p bank, Term_p hd, Term_p* args, long num_args,
                     Type_p res_type)
 {
    Term_p res = TermTopAlloc(hd->f_code, hd->arity + num_args);
@@ -147,7 +147,7 @@ Term_p flatten_and_make_shared(TB_p bank, Term_p t)
       !(TermIsAnyVar(t->args[0]) || TermIsLambda(t->args[0])))
    {
       Term_p junk = t;
-      t = flatten_apps(bank, t->args[0], t->args+1, t->arity-1, t->type);
+      t = FlattenApps(bank, t->args[0], t->args+1, t->arity-1, t->type);
       TermTopFree(junk);
    }
    else

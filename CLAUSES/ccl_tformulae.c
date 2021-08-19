@@ -103,6 +103,11 @@ static Term_p __inline__ parse_ho_atom(Scanner_p in, TB_p bank)
    {
       head = ParseIte(in, bank);
    }
+   else if(TestInpTok(in, LetToken))
+   {
+      head = ParseLet(in, bank);
+      assert(head->type);
+   }
    else if((id_type=TermParseOperator(in, id))==FSIdentVar)
    {
       /* A variable may be annotated with a sort */
@@ -154,8 +159,8 @@ static Term_p normalize_head(Term_p head, Term_p* rest_args, int rest_arity, TB_
    }
    else
    {
-      int total_arity = (TermIsLambda(head) ? 0 : head->arity) + rest_arity;
-      if(TermIsFreeVar(head) || TermIsLambda(head))
+      int total_arity = (TermIsPhonyAppTarget(head) ? 0 : head->arity) + rest_arity;
+      if(TermIsPhonyAppTarget(head))
       {
          total_arity++; // head is going to be the first argument
 
@@ -627,10 +632,15 @@ static TFormula_p applied_tform_tstp_parse(Scanner_p in, TB_p terms, TFormula_p 
    bool head_is_logical = !TermIsFreeVar(head) && SigQueryFuncProp(terms->sig, head->f_code, FPFOFOp);
    Term_p arg;
 
+
    while(TestInpTok(in, Application))
    {
       if(i >= max_args)
       {
+         fprintf(stderr, "max args: %d\n", max_args);
+         fprintf(stderr, "type: ");
+         TypePrintTSTP(stderr, terms->sig->type_bank, hd_type);
+         TermPrintDbgHO(stderr, head, terms->sig, DEREF_NEVER);
          AktTokenError(in, " Too many arguments applied to the symbol",
                        SYNTAX_ERROR);
       }
@@ -1224,6 +1234,8 @@ Term_p EncodePredicateAsEqn(TB_p bank, TFormula_p f)
       (f->f_code > sig->internal_symbols ||
        f->f_code == SIG_TRUE_CODE ||
        f->f_code == SIG_FALSE_CODE ||
+       f->f_code == SIG_ITE_CODE ||
+       f->f_code == SIG_LET_CODE ||
        TermIsFreeVar(f) ||
        TermIsPhonyApp(f)) &&
       f->type == sig->type_bank->bool_type)

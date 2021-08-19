@@ -51,6 +51,7 @@ Term_p     LambdaEtaExpandDB(TB_p bank, Term_p term);
 Term_p     LambdaNormalizeDB(TB_p bank, Term_p term);
 Term_p     PostCNFEncodeFormulas(TB_p bank, Term_p term);
 Term_p     DecodeFormulasForCNF(TB_p bank, Term_p term);
+Term_p     FlattenApps(TB_p bank, Term_p hd, Term_p* args, long num_args, Type_p res_type);
 
 /*-----------------------------------------------------------------------
 //
