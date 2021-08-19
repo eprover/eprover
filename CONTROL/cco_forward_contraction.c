@@ -93,6 +93,12 @@ static FVPackedClause_p forward_contract_keep(ProofState_p state, ProofControl_p
          return FVIndexPackClause(clause, NULL);
       }
 
+      if(BooleanSimplification(clause))
+      {
+         (*trivial_count)++;
+         return NULL;
+      }
+
       if(control->ac_handling_active && ClauseIsACRedundant(clause))
       {
          if(!ClauseIsUnit(clause)||

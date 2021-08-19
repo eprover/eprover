@@ -19,6 +19,7 @@ Contents
 
 #include "cco_ho_inferences.h"
 #include <cte_lambda.h>
+#include <ccl_tcnf.h>
 
 /*---------------------------------------------------------------------*/
 /*                        Global Variables                             */
@@ -869,6 +870,45 @@ bool ImmediateClausification(Clause_p cl, ClauseSet_p store, ClauseSet_p archive
    }
 
    return clausified;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: BooleanSimplification()
+//
+//   Performs boolean simplification and returns true if formula becomes
+//   redundant.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+bool BooleanSimplification(Clause_p cl)
+{
+   bool changed = false;
+   bool is_tautology = false;
+   for(Eqn_p lit = cl->literals; !is_tautology && lit; lit = lit->next)
+   {
+      Term_p old_lterm = lit->lterm, old_rterm = lit->rterm;
+      EqnMap(lit, (TermMapper_p)TFormulaSimplifyDecoded, lit->bank);
+      if(old_lterm != lit->lterm || old_rterm != lit->rterm)
+      {
+         changed = true;
+      }
+      if(EqnIsTrivial(lit))
+      {
+         is_tautology = true;
+      }
+   }
+
+   if(changed)
+   {
+      ClausePushDerivation(cl, DCNormalize, NULL, NULL);
+   }
+
+   return is_tautology;
 }
 
 /*-----------------------------------------------------------------------

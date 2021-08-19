@@ -207,7 +207,6 @@ static void unroll_and_or(Term_p form, FunCode fc, PStack_p args)
    PStackFree(tasks);
 }
 
-
 /*-----------------------------------------------------------------------
 //
 // Function: troot_nnf()

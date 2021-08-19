@@ -24,3 +24,4 @@ bool ResolveFlexClause(Clause_p cl);
 bool NormalizeEquations(Clause_p cl);
 void ComputeHOInferences(ProofState_p state, ProofControl_p control, 
                          Clause_p renamed_clause, Clause_p orig_clause);
+bool BooleanSimplification(Clause_p cl);
