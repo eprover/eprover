@@ -201,7 +201,11 @@ void do_ext_sup(ClausePos_p from_pos, ClausePos_p into_pos, ClauseSet_p store,
    PStack_p disagreements = PStackAlloc();
    Term_p from_t = ClausePosGetSubterm(from_pos);
    Term_p into_t = ClausePosGetSubterm(into_pos);
-   if (find_disagreements(terms->sig, from_t, into_t, disagreements))
+   // avoiding  ext sup from positive literal into positive top position
+   if (!(EqnIsPositive(from_pos->literal) && EqnIsPositive(into_pos->literal)
+         && PStackEmpty(into_pos->pos) 
+         && ClausePosGetOtherSide(from_pos) == ClausePosGetOtherSide(into_pos)) &&
+       find_disagreements(terms->sig, from_t, into_t, disagreements))
    {
       Subst_p subst = SubstAlloc();
       VarBankResetVCounts(freshvars);
