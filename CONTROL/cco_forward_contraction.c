@@ -115,6 +115,11 @@ static FVPackedClause_p forward_contract_keep(ProofState_p state, ProofControl_p
       //printf("\n");
 
       assert(!ClauseIsTrivial(clause));
+      
+      if(problemType==PROBLEM_HO)
+      {
+         ClauseEliminateNakedBooleanVariables(clause);
+      }
 
       clause->weight = ClauseStandardWeight(clause);
       pclause = FVIndexPackClause(clause, state->processed_non_units->fvindex);

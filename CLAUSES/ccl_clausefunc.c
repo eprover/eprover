@@ -737,6 +737,7 @@ bool ClauseEliminateNakedBooleanVariables(Clause_p clause)
       EqnListFree(clause->literals);
       clause->literals = res;
       ClauseRemoveSuperfluousLiterals(clause);
+      ClausePushDerivation(clause, DCNormalize, NULL, NULL);
    }
 
    PStackFree(all_lits);

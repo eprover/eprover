@@ -3333,8 +3333,29 @@ bool EqnHasAppVar(Eqn_p eq)
 
 void EqnMap(Eqn_p lit, TermMapper_p f, void* arg)
 {
-   lit->lterm = f(arg, lit->lterm);
-   lit->rterm = f(arg, lit->rterm);
+   Term_p lterm = f(arg, lit->lterm);
+   Term_p rterm = f(arg, lit->rterm);
+   bool negate = false;
+   TB_p bank = lit->bank;
+
+   if(lterm == bank->false_term)
+   {
+      lterm = bank->true_term;
+      negate = !negate;
+   }
+   if(rterm == bank->false_term)
+   {
+      rterm = bank->true_term;
+      negate = !negate;
+   }
+
+   if(negate)
+   {
+      EqnFlipProp(lit, EPIsPositive);
+   }
+   
+   lit->lterm = lterm;
+   lit->rterm = rterm;
 }
 
 /*---------------------------------------------------------------------*/

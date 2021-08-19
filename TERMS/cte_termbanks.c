@@ -1204,23 +1204,6 @@ Term_p TBInsertInstantiatedHO(TB_p bank, Term_p term, bool follow_bind)
    }
    else
    {
-      Term_p binding_copy = NULL;
-      if(TFormulaIsQuantified(bank->sig, term))
-      {
-         if(term->args[0]->binding)
-         {
-            // making sure to avoid capture
-            binding_copy = term->args[0]->binding;
-            term->args[0]->binding = NULL;
-         }
-         else
-         {
-            term->args[0]->binding = VarBankGetFreshVar(bank->vars,
-                                                        term->args[0]->type);
-         }
-
-      }
-
       t = TermTopCopyWithoutArgs(term); /* This is an unshared term cell at the moment */
       t->properties    = TPIgnoreProps;
 
@@ -1232,11 +1215,6 @@ Term_p TBInsertInstantiatedHO(TB_p bank, Term_p term, bool follow_bind)
          t->args[i] = TBInsertInstantiatedHO(bank, term->args[i], follow_bind && (i >= ignore_args));
       }
       t = tb_termtop_insert(bank, t);
-
-      if(TFormulaIsQuantified(bank->sig, term))
-      {
-         term->args[0]->binding = binding_copy;
-      }
    }
    return t;
 }

@@ -1402,7 +1402,7 @@ PDTNode_p PDTreeFindNextIndexedLeaf(PDTree_p tree, Subst_p subst)
       {
          pdtree_backtrack(tree, subst);
       }
-      else if(tree->tree_pos->leaf) /* Leaf node */
+      else if(tree->tree_pos->leaf && PStackEmpty(tree->term_stack)) /* Leaf node */
       {
          assert(tree->tree_pos->entries);
          tree->tree_pos->trav_state = DONE;
@@ -1411,7 +1411,7 @@ PDTNode_p PDTreeFindNextIndexedLeaf(PDTree_p tree, Subst_p subst)
       else
       {
          pdtree_forward(tree, subst);
-         if(tree->tree_pos && tree->tree_pos->entries)
+         if(tree->tree_pos && tree->tree_pos->entries && PStackEmpty(tree->term_stack))
          {
             // take clauses from this node
             break;

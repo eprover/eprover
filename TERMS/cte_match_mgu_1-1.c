@@ -703,7 +703,7 @@ UnificationResult SubstComputeMguHO(Term_p t1, Term_p t2, Subst_p subst)
          UnifSuccesses++;
       #endif
 
-      assert(!TermStructPrefixEqual(debug_t1, debug_t2, DEREF_ALWAYS, DEREF_ALWAYS, 0, sig));
+      assert(TermStructPrefixEqual(debug_t1, debug_t2, DEREF_ALWAYS, DEREF_ALWAYS, 0, sig));
    }
 
    PQueueFree(jobs);
@@ -777,6 +777,8 @@ __inline__ bool SubstMatchComplete(Term_p pattern, Term_p target, Subst_p subst)
 __inline__ bool SubstMguComplete(Term_p t, Term_p s, Subst_p subst)
 {
    bool res;
+   // DBG_PRINT(stderr, "unifying: ", TermPrintDbgHO(stderr, t, TermGetBank(t)->sig, DEREF_NEVER), " <=?=> ");
+   // DBG_PRINT(stderr, "", TermPrintDbgHO(stderr, s, TermGetBank(s)->sig, DEREF_NEVER), ".\n");
    if(problemType == PROBLEM_FO)
    {
       res = SubstComputeMgu(t, s, subst);
@@ -804,7 +806,14 @@ __inline__ bool SubstMguComplete(Term_p t, Term_p s, Subst_p subst)
          }
       }
    }
-
+   // if(res)
+   // {
+   //    DBG_PRINT(stderr, "success: ", SubstPrint(stderr, subst, TermGetBank(t)->sig, DEREF_NEVER), ".\n");
+   // }
+   // else
+   // {
+   //    DBG_PRINT(stderr, "failed: ", SubstPrint(stderr, subst, TermGetBank(t)->sig, DEREF_NEVER), ".\n");
+   // }
    return res;
 }
 #endif
