@@ -1624,6 +1624,7 @@ TFormula_p TFormulaSimplifyDecoded(TB_p terms, TFormula_p form)
                PStackPointer idx = 
                   PStackBinSearch(res_args, neg_arg, 
                                  0, PStackGetSP(res_args), term_compare);
+               fprintf(stderr, "idx returned: %ld(%ld)\n", idx, PStackGetSP(res_args));
                if(idx < PStackGetSP(res_args) && PStackElementP(res_args,i) == neg_arg)
                {
                   res = asbsorbing_element;
@@ -1657,7 +1658,7 @@ TFormula_p TFormulaSimplifyDecoded(TB_p terms, TFormula_p form)
    {
       if(form->arity == 1)
       {
-         res = negate_form(terms, res);
+         res = negate_form(terms, form->args[0]);
       }
    }
    else if(form->f_code == sig->impl_code)
