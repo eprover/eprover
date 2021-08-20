@@ -1014,7 +1014,7 @@ TFormula_p do_simplify_decoded(TB_p terms, TFormula_p form, bool unroll_implicat
                PStackPushP(args, PStackElementP(res_args, 0));
                for(PStackPointer i=1; i < PStackGetSP(res_args); i++)
                {
-                  if(PStackElementP(args, i) != PStackElementP(args, i-1))
+                  if(PStackElementP(res_args, i) != PStackElementP(res_args, i-1))
                   {
                      PStackPushP(args, PStackElementP(res_args, i));
                   }
