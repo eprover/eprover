@@ -333,6 +333,29 @@ void PStackPrintInt(FILE* out, char* format, PStack_p stack)
    }
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: PStackPrintP()
+//
+//   Print a stack (interpreted as pointer stack) using the format
+//   given.
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+void PStackPrintP(FILE* out, char* format, PStack_p stack)
+{
+   PStackPointer i;
+
+   for(i=0; i<PStackGetSP(stack); i++)
+   {
+      fprintf(out, format, PStackElementP(stack, i));
+   }
+}
+
 
 
 /*---------------------------------------------------------------------*/

@@ -1478,8 +1478,6 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control,
       arch_copy = ClauseArchiveCopy(state->archive, clause);
    }
 
-   DBG_PRINT(stderr, " before contraction ", ClausePrintDBG(stderr, clause), ".\n");
-
    if(!(pclause = ForwardContractClause(state, control,
                                         clause, true,
                                         control->heuristic_parms.forward_context_sr,

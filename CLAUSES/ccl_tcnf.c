@@ -938,8 +938,9 @@ static int term_compare(const void* v1, const void* v2)
 {
    const IntOrP* e1 = (const IntOrP*) v1;
    const IntOrP* e2 = (const IntOrP*) v2;
+   int res = PCmp(e1->p_val, e2->p_val);
 
-   return PCmp(e1->p_val, e2->p_val);
+   return res;
 }
 
 TFormula_p do_simplify_decoded(TB_p terms, TFormula_p form, bool unroll_implications)
@@ -957,7 +958,7 @@ TFormula_p do_simplify_decoded(TB_p terms, TFormula_p form, bool unroll_implicat
          form->f_code == sig->or_code ? terms->true_term : terms->false_term;
       if(form->arity == 1)
       {
-         form = simplify_args(terms, form, unroll_implications);
+         form = simplify_args(terms, form, true);
          Type_p bool_ty = terms->sig->type_bank->bool_type;
          if (form->args[0] == neutral_element)
          {
@@ -971,7 +972,6 @@ TFormula_p do_simplify_decoded(TB_p terms, TFormula_p form, bool unroll_implicat
       }
       else if(form->arity == 2)
       {
-         // check for T F and negated arguments         
          res = NULL;
          bool changed = false;
          PStack_p args = PStackAlloc();
@@ -999,17 +999,41 @@ TFormula_p do_simplify_decoded(TB_p terms, TFormula_p form, bool unroll_implicat
                   res = asbsorbing_element;
                }
             }
+            else
+            {
+               changed = true;
+            }
          }
          if(!res)
          {
             PStackSort(res_args, term_compare);
+            if(!PStackEmpty(res_args))
+            {
+               // removing duplicates;
+               PStackReset(args);
+               PStackPushP(args, PStackElementP(res_args, 0));
+               for(PStackPointer i=1; i < PStackGetSP(res_args); i++)
+               {
+                  if(PStackElementP(args, i) != PStackElementP(args, i-1))
+                  {
+                     PStackPushP(args, PStackElementP(res_args, i));
+                  }
+                  else
+                  {
+                     changed = true;
+                  }
+               }
+               SWAP(args, res_args);
+            }
+
+
             for(PStackPointer i=0; !res && i<PStackGetSP(res_args); i++)
             {
                Term_p neg_arg = negate_form(terms, PStackElementP(res_args, i));
-               PStackPointer idx = 
-                  PStackBinSearch(res_args, neg_arg, 
-                                 0, PStackGetSP(res_args), term_compare);
-               if(idx < PStackGetSP(res_args) && PStackElementP(res_args,i) == neg_arg)
+               IntOrP neg_arg_key = {.p_val = neg_arg};
+               Term_p found = 
+                  bsearch(&neg_arg_key, res_args->stack, res_args->current, sizeof(IntOrP), term_compare);
+               if(found)
                {
                   res = asbsorbing_element;
                }
@@ -1017,7 +1041,7 @@ TFormula_p do_simplify_decoded(TB_p terms, TFormula_p form, bool unroll_implicat
 
             if(!res)
             {
-               if(!changed && PStackGetSP(res_args) == PStackGetSP(args))
+               if(!changed)
                {
                   res = form;
                }
@@ -1054,7 +1078,7 @@ TFormula_p do_simplify_decoded(TB_p terms, TFormula_p form, bool unroll_implicat
                             form->args[1]->f_code != sig->impl_code));
       if(form->arity == 2)
       {
-         Term_p res = NULL;
+         res = NULL;
          if(unroll_implications)
          {
             PStack_p precedent = PStackAlloc();
@@ -1071,13 +1095,12 @@ TFormula_p do_simplify_decoded(TB_p terms, TFormula_p form, bool unroll_implicat
 
             PStackSort(precedent, term_compare);
 
-            for(long i=0; i < PStackGetSP(consequent); i++)
+            for(long i=0; !res && i < PStackGetSP(consequent); i++)
             {
-               Term_p arg = PStackElementP(consequent, i);
-               PStackPointer idx = 
-                     PStackBinSearch(precedent, arg, 
-                                    0, PStackGetSP(precedent), term_compare);
-               if(idx < PStackGetSP(precedent) && PStackElementP(precedent,i) == arg)
+               IntOrP arg_key = {.p_val = PStackElementP(consequent, i)};
+               Term_p found = 
+                  bsearch(&arg_key, precedent->stack, precedent->current, sizeof(IntOrP), term_compare);
+               if(found)
                {
                   res = terms->true_term;
                }
@@ -1091,33 +1114,17 @@ TFormula_p do_simplify_decoded(TB_p terms, TFormula_p form, bool unroll_implicat
          {
             Term_p p = form->args[0], c = form->args[1];
 
-            if(p == c)
+            if(p == c || p == terms->false_term || c == terms->true_term)
             {
                res = terms->true_term;
             }
-            else if(c == negate_form(terms, p))
+            else if(c == negate_form(terms, p) || p == negate_form(terms, c) || p == terms->true_term)
             {
                res = c;
-            }
-            else if(p == negate_form(terms, c))
-            {
-               res = c;
-            }
-            else if(p == terms->true_term)
-            {
-               res = c;
-            }
-            else if(p == terms->false_term)
-            {
-               res = terms->true_term;
             }
             else if(c == terms->false_term)
             {
                res = negate_form(terms, p);
-            }
-            else if(c == terms->true_term)
-            {
-               res = terms->true_term;
             }
             else
             {
@@ -1131,11 +1138,11 @@ TFormula_p do_simplify_decoded(TB_p terms, TFormula_p form, bool unroll_implicat
             form->f_code == sig->eqn_code ||
             form->f_code == sig->neqn_code)
    {
-      form = simplify_args(terms, form, unroll_implications);
+      form = simplify_args(terms, form, true);
       if(form->arity == 2)
       {
          bool negative = form->f_code == sig->xor_code
-                      || form->f_code == sig->neqn_code;
+                         || form->f_code == sig->neqn_code;
 
          if(form->args[0] == form->args[1])
          {
@@ -1162,7 +1169,7 @@ TFormula_p do_simplify_decoded(TB_p terms, TFormula_p form, bool unroll_implicat
    else if (form->f_code == sig->qex_code ||
             form->f_code == sig->qall_code)
    {
-      form = simplify_args(terms, form, unroll_implications);
+      form = simplify_args(terms, form, true);
       if(form->arity == 1 && TermIsLambda(form->args[0]))
       {
          Term_p matrix = form->args[0]->args[1];
@@ -1172,6 +1179,10 @@ TFormula_p do_simplify_decoded(TB_p terms, TFormula_p form, bool unroll_implicat
             res = matrix;
          }
       }
+   }
+   else
+   {
+      res = simplify_args(terms, form, true);
    }
    return res;
 }
