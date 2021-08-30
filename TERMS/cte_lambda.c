@@ -1117,6 +1117,8 @@ Term_p WHNF_step(TB_p bank, Term_p t)
    }
 
    long total_bound = PStackGetSP(to_bind_stack);
+   assert(total_bound);
+
    for(PStackPointer i=0; i < PStackGetSP(to_bind_stack); i++)
    {
       Term_p target = PStackElementP(to_bind_stack, i);

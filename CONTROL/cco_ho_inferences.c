@@ -449,9 +449,9 @@ void mk_leibniz_instance(ClauseSet_p store, Clause_p cl,
    var->binding = binding;
 
    Eqn_p res_lits = EqnListCopyOptExcept(cl->literals, lit);
+   EqnListLambdaNormalize(res_lits);
    EqnListRemoveResolved(&res_lits);
    EqnListRemoveDuplicates(res_lits);
-   EqnListLambdaNormalize(res_lits);
    Clause_p res = ClauseAlloc(res_lits);
    NormalizeEquations(res);
    store_result(res, cl, store, DCLeibnizElim);
@@ -954,7 +954,8 @@ long EliminateLeibnizEquality(ClauseSet_p store, Clause_p cl, int limit)
             
             Term_p var = lit->lterm->args[0];
             Term_p lhs = lit->lterm;
-            for(int i=0; i<lhs->arity; i++)
+            assert(TermIsAppliedFreeVar(lhs));
+            for(int i=1; i<lhs->arity; i++)
             {
                if(!OccurCheck(lhs->args[i], var))
                {
@@ -962,13 +963,15 @@ long EliminateLeibnizEquality(ClauseSet_p store, Clause_p cl, int limit)
                      TFormulaFCodeAlloc(
                         lit->bank,
                         EqnIsPositive(lit) ? sig->neqn_code : sig->eqn_code,
-                        RequestDBVar(lit->bank->db_vars, lhs->type, lhs->arity-i-1),
+                        RequestDBVar(lit->bank->db_vars, lhs->args[i]->type, lhs->arity-i-1),
                         lhs->args[i]);
                   Term_p res = matrix;
-                  for(int i=lhs->arity-1; i>=0; i--)
+                  for(int i=lhs->arity-1; i>=1; i--)
                   {
                      res = CloseWithDBVar(lit->bank, lhs->args[i]->type, res);
                   }
+                  
+                  assert(var->type == res->type);
                   mk_leibniz_instance(store, cl, lit, var, res);
                   num_eliminations++;
                }
