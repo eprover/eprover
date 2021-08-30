@@ -919,8 +919,13 @@ bool ImmediateClausification(Clause_p cl, ClauseSet_p store, ClauseSet_p archive
 //
 /----------------------------------------------------------------------*/
 
-long EliminateLeibnizEquality(ClauseSet_p store, Clause_p cl)
+long EliminateLeibnizEquality(ClauseSet_p store, Clause_p cl, int limit)
 {
+   if(cl->proof_depth > limit)
+   {
+      return 0;
+   }
+
    IntMap_p pos_vars = IntMapAlloc();
    IntMap_p neg_vars = IntMapAlloc();
    long num_eliminations = 0;
@@ -1131,6 +1136,11 @@ void ComputeHOInferences(ProofState_p state, ProofControl_p control,
       {
          ComputeExtSup(state, control, renamed_cl, orig_clause);
          ComputeExtEqRes(state, control, orig_clause);
+      }
+      if (control->heuristic_parms.elim_leibniz_max_depth >= 0)
+      {
+         EliminateLeibnizEquality(state->tmp_store, orig_clause,
+                                  control->heuristic_parms.elim_leibniz_max_depth);
       }
    }
 }

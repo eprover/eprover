@@ -60,6 +60,7 @@ typedef enum
 
 #define EIT2STR(x) (((x) == AllLits) ? ("all") : (((x) == MaxLits) ? "max" : "off"))
 #define NO_EXT_SUP (-1)
+#define NO_ELIM_LEIBNIZ (-1)
 
 
 /* External parameters for heuristics and proof control. When this is
@@ -162,6 +163,7 @@ typedef struct heuristic_parms_cell
    bool                replace_inj_defs;
    bool                lift_lambdas;
    bool                lambda_to_forall;
+   int                 elim_leibniz_max_depth;
 }HeuristicParmsCell, *HeuristicParms_p;
 
 

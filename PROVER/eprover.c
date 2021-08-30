@@ -1794,6 +1794,9 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_LAMBDA_TO_FORALL:
             h_parms->lambda_to_forall = CLStateGetBoolArg(handle, arg);
             break;
+      case OPT_ELIM_LEIBNIZ:
+            h_parms->elim_leibniz_max_depth = CLStateGetIntArgCheckRange(handle, arg, -1, INT_MAX);
+            break;
       case OPT_ETA_NORMALIZE:
             if(strcmp(arg, "reduce")==0)
             {

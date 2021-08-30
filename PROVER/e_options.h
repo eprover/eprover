@@ -203,6 +203,7 @@ typedef enum
    OPT_LAMBDA_TO_FORALL,
    OPT_LAM_WEIGHT,
    OPT_DB_WEIGHT,
+   OPT_ELIM_LEIBNIZ,
    OPT_DUMMY
 }OptionCodes;
 
@@ -1534,6 +1535,13 @@ OptCell opts[] =
     '\0', "kbo-db-weight",
     ReqArg, NULL,
     "Weight of DB var in KBO."},
+
+   {OPT_ELIM_LEIBNIZ,
+    '\0', "eliminate-leibniz-eq",
+    ReqArg, NULL,
+    "Maximal proof depth of the clause on which Leibniz"\
+    " equality elimination should be applied"\
+    "; -1 disaables Leibniz equality elimination altogether"},
 
 
    {OPT_NOOPT,

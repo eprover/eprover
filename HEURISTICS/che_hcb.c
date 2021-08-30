@@ -199,6 +199,7 @@ void HeuristicParmsInitialize(HeuristicParms_p handle)
    handle->lift_lambdas                  = true;
    handle->ext_sup_max_depth             = NO_EXT_SUP;
    handle->lambda_to_forall              = true;
+   handle->elim_leibniz_max_depth        = NO_ELIM_LEIBNIZ;
 }
 
 
