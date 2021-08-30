@@ -45,13 +45,18 @@
 
 #define DEFAULT_FILTER_DESCRIPTOR "Fc"
 
+
+FVPackedClause_p ForwardSubsumption(ProofState_p state,
+                                    Clause_p clause,
+                                    unsigned long* subsumed_count,
+                                    bool non_unit_subsumption);
+
 bool ForwardModifyClause(ProofState_p state,
                          ProofControl_p control,
                          Clause_p clause,
                          bool context_sr,
                          bool condense,
                          RewriteLevel level);
-
 
 FVPackedClause_p ForwardContractClause(ProofState_p state,
                                        ProofControl_p control,

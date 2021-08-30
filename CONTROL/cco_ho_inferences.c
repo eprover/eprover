@@ -129,7 +129,8 @@ bool find_disagreements(Sig_p sig, Term_p t, Term_p s, PStack_p diss_stack)
             PStackPushP(diss_stack, t);
             PStackPushP(diss_stack, s);
             exists_elig = exists_elig ||
-                          (TYPE_EXT_ELIGIBLE(s->type) && (TermIsFreeVar(s) || (!TermIsDBVar(s) && !SigQueryFuncProp(sig, s->f_code, FPFOFOp))) && (TermIsFreeVar(t) || (!TermIsDBVar(t) && !SigQueryFuncProp(sig, t->f_code, FPFOFOp))));
+                          (TYPE_EXT_ELIGIBLE(s->type)
+                           && !TermIsFreeVar(s) && !TermIsFreeVar(t));
          }
       }
    }
@@ -426,6 +427,38 @@ Term_p term_drop_last_arg(TypeBank_p tb, Term_p s)
       return t;
    }
 }
+
+/*-----------------------------------------------------------------------
+//
+// Function: mk_leibniz_instance()
+//
+//   Bind variable to binding and add the corresponding instance to
+//   the proof state.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void mk_leibniz_instance(ClauseSet_p store, Clause_p cl, 
+                         Eqn_p lit, Term_p var, Term_p binding)
+{
+   assert(!var->binding);
+
+   var->binding = binding;
+
+   Eqn_p res_lits = EqnListCopyOptExcept(cl->literals, lit);
+   EqnListRemoveResolved(&res_lits);
+   EqnListRemoveDuplicates(res_lits);
+   EqnListLambdaNormalize(res_lits);
+   Clause_p res = ClauseAlloc(res_lits);
+   NormalizeEquations(res);
+   store_result(res, cl, store, DCLeibnizElim);
+
+   var->binding = NULL;
+}
+
 
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
@@ -870,6 +903,78 @@ bool ImmediateClausification(Clause_p cl, ClauseSet_p store, ClauseSet_p archive
    }
 
    return clausified;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: EliminateLeibnizEquality()
+//
+//   Find a subclause of C of the form X sn | ~X tn and generate two 
+//   series of instances C{X |-> %xn. x_i != s_i} and 
+//   C{X |-> %xn. x_i = t_i}.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+long EliminateLeibnizEquality(ClauseSet_p store, Clause_p cl)
+{
+   IntMap_p pos_vars = IntMapAlloc();
+   IntMap_p neg_vars = IntMapAlloc();
+   long num_eliminations = 0;
+
+
+   for(Eqn_p lit = cl->literals; lit; lit = lit->next)
+   {
+      if(!EqnIsEquLit(lit) && TermIsAppliedFreeVar(lit->lterm))
+      {
+         assert(lit->rterm == lit->bank->true_term);
+         IntMapAssign((EqnIsPositive(lit) ? pos_vars : neg_vars), 
+                      lit->lterm->args[0]->f_code, cl);
+      }
+   }
+
+   for(Eqn_p lit = cl->literals; lit; lit = lit->next)
+   {
+      if(!EqnIsEquLit(lit) && TermIsAppliedFreeVar(lit->lterm))
+      {
+         bool found_opposite = 
+            IntMapGetVal(EqnIsPositive(lit) ? neg_vars : pos_vars,
+                         lit->lterm->args[0]->f_code);
+         if(found_opposite)
+         {
+            Sig_p sig = lit->bank->sig;
+            
+            Term_p var = lit->lterm->args[0];
+            Term_p lhs = lit->lterm;
+            for(int i=0; i<lhs->arity; i++)
+            {
+               if(!OccurCheck(lhs->args[i], var))
+               {
+                  Term_p matrix = 
+                     TFormulaFCodeAlloc(
+                        lit->bank,
+                        EqnIsPositive(lit) ? sig->neqn_code : sig->eqn_code,
+                        RequestDBVar(lit->bank->db_vars, lhs->type, lhs->arity-i-1),
+                        lhs->args[i]);
+                  Term_p res = matrix;
+                  for(int i=lhs->arity-1; i>=0; i--)
+                  {
+                     res = CloseWithDBVar(lit->bank, lhs->args[i]->type, res);
+                  }
+                  mk_leibniz_instance(store, cl, lit, var, res);
+                  num_eliminations++;
+               }
+            }
+         }
+      }
+   }
+   
+   IntMapFree(pos_vars);
+   IntMapFree(neg_vars);
+   return num_eliminations;
 }
 
 /*-----------------------------------------------------------------------

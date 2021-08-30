@@ -111,6 +111,7 @@ void GCRegisterFormulaSet(GCAdmin_p gc, FormulaSet_p set)
 {
    assert(gc);
    assert(set);
+   //printf("# GCRegisterFormulaSet(%p, %p)\n", gc, set);
    PTreeStore(&(gc->formula_sets), set);
 }
 
@@ -131,6 +132,7 @@ void GCRegisterClauseSet(GCAdmin_p gc, ClauseSet_p set)
 {
    assert(gc);
    assert(set);
+   //printf("# GCRegisterClauseSet(%p, %p)\n", gc, set);
    PTreeStore(&(gc->clause_sets), set);
 }
 
@@ -151,6 +153,7 @@ void GCDeregisterFormulaSet(GCAdmin_p gc, FormulaSet_p set)
 {
    assert(gc);
    assert(set);
+   //printf("# GCDeregisterFormulaSet(%p, %p)\n", gc, set);
    PTreeDeleteEntry(&(gc->formula_sets), set);
 }
 
@@ -170,6 +173,8 @@ void GCDeregisterClauseSet(GCAdmin_p gc, ClauseSet_p set)
 {
    assert(gc);
    assert(set);
+
+   //printf("# GCDeregisterClauseSet(%p, %p)\n", gc, set);
    PTreeDeleteEntry(&(gc->clause_sets), set);
 }
 
@@ -193,9 +198,11 @@ long GCCollect(GCAdmin_p gc)
    assert(gc);
    assert(gc->bank);
 
+   //printf("# GCCollect(%p)\n", gc);
    trav = PTreeTraverseInit(gc->clause_sets);
    while((entry = PTreeTraverseNext(trav)))
    {
+      //printf("# Marking clause set %p\n", entry->key);
       ClauseSetGCMarkTerms(entry->key);
    }
    PTreeTraverseExit(trav);
@@ -203,6 +210,7 @@ long GCCollect(GCAdmin_p gc)
    trav = PTreeTraverseInit(gc->formula_sets);
    while((entry = PTreeTraverseNext(trav)))
    {
+      //printf("# Marking formula set %p\n", entry->key);
       FormulaSetGCMarkCells(entry->key);
    }
    PTreeTraverseExit(trav);
@@ -214,5 +222,3 @@ long GCCollect(GCAdmin_p gc)
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-

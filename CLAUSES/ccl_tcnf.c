@@ -116,6 +116,10 @@ static Term_p negate_form(TB_p bank, Term_p t)
    {
       return t;
    }
+   else if (TermIsDBVar(t))
+   {
+      return TFormulaFCodeAlloc(bank, sig->not_code, t, NULL);
+   }
 
    if(t->f_code == sig->not_code)
    {
@@ -194,7 +198,7 @@ static void unroll_binary(Term_p form, FunCode fc, PStack_p args)
    while(!PStackEmpty(tasks))
    {
       Term_p task = PStackPopP(tasks);
-      if(task->arity == 2 && task->f_code == fc)
+      if(!TermIsDBVar(task) && task->arity == 2 && task->f_code == fc)
       {
          PStackPushP(tasks, task->args[1]);
          PStackPushP(tasks, task->args[0]);
@@ -945,6 +949,13 @@ static int term_compare(const void* v1, const void* v2)
 
 TFormula_p do_simplify_decoded(TB_p terms, TFormula_p form, bool unroll_implications)
 {
+   // making sure that no comparisons below
+   // will be invalid because something is DB var
+   if(TermIsDBVar(form))
+   {
+      return form;
+   }
+
    assert(terms);
    Sig_p sig = terms->sig;
 
@@ -1032,7 +1043,8 @@ TFormula_p do_simplify_decoded(TB_p terms, TFormula_p form, bool unroll_implicat
                Term_p neg_arg = negate_form(terms, PStackElementP(res_args, i));
                IntOrP neg_arg_key = {.p_val = neg_arg};
                Term_p found = 
-                  bsearch(&neg_arg_key, res_args->stack, res_args->current, sizeof(IntOrP), term_compare);
+                  bsearch(&neg_arg_key, res_args->stack, res_args->current, 
+                          sizeof(IntOrP), term_compare);
                if(found)
                {
                   res = asbsorbing_element;
@@ -1099,7 +1111,8 @@ TFormula_p do_simplify_decoded(TB_p terms, TFormula_p form, bool unroll_implicat
             {
                IntOrP arg_key = {.p_val = PStackElementP(consequent, i)};
                Term_p found = 
-                  bsearch(&arg_key, precedent->stack, precedent->current, sizeof(IntOrP), term_compare);
+                  bsearch(&arg_key, precedent->stack, 
+                          precedent->current, sizeof(IntOrP), term_compare);
                if(found)
                {
                   res = terms->true_term;
@@ -1118,7 +1131,8 @@ TFormula_p do_simplify_decoded(TB_p terms, TFormula_p form, bool unroll_implicat
             {
                res = terms->true_term;
             }
-            else if(c == negate_form(terms, p) || p == negate_form(terms, c) || p == terms->true_term)
+            else if(c == negate_form(terms, p) || p == negate_form(terms, c) 
+                    || p == terms->true_term)
             {
                res = c;
             }
@@ -1827,7 +1841,8 @@ TFormula_p TFormulaSimplify(TB_p terms, TFormula_p form, long quopt_limit)
 
 TFormula_p TFormulaSimplifyDecoded(TB_p terms, TFormula_p form)
 {
-   return do_simplify_decoded(terms, form, true);
+   Term_p res = do_simplify_decoded(terms, form, true);
+   return res;
 }
 
 /*-----------------------------------------------------------------------
@@ -2661,3 +2676,4 @@ void WTFormulaConjunctiveNF3(WFormula_p form, TB_p terms,
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
+
