@@ -19,6 +19,7 @@
   -----------------------------------------------------------------------*/
 
 #include "cto_ocb.h"
+#include <che_to_params.h>
 
 
 
@@ -204,6 +205,8 @@ OCB_p OCBAlloc(TermOrdering type, bool prec_by_weight, Sig_p sig, HoOrderKind ho
    handle->vb_size = ho_order_kind == LAMBDA_ORDER ? 0 : 64;
    handle->vb      = ho_order_kind == LAMBDA_ORDER ?
                         NULL : SizeMalloc(handle->vb_size*sizeof(int));
+   handle->db_weight = DEFAULT_DB_WEIGHT;
+   handle->lam_weight = DEFAULT_LAMBDA_WEIGHT;
    handle->ho_vb   = NULL;
    for(size_t i=0; i<handle->vb_size; i++)
    {

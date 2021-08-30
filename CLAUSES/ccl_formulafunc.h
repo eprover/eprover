@@ -73,7 +73,7 @@ long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive,
                     ClauseSet_p clauseset, TB_p terms,
                     VarBank_p fresh_vars, GCAdmin_p gc,
                     long miniscope_limit, bool lift_lambdas,
-                    bool lambda_to_forall);
+                    bool lambda_to_forall, bool unfold_only_form);
 long FormulaAndClauseSetParse(Scanner_p in, FormulaSet_p fset,
                               ClauseSet_p wlset, TB_p terms,
                               StrTree_p *name_selector,
@@ -99,7 +99,7 @@ long TFormulaSetLiftLets(FormulaSet_p set, FormulaSet_p archive, TB_p terms);
 long TFormulaSetUnrollFOOL(FormulaSet_p set, FormulaSet_p archive, TB_p terms);
 long TFormulaSetLambdaNormalize(FormulaSet_p set, FormulaSet_p archive, TB_p terms);
 long TFormulaSetNamedToDBLambdas(FormulaSet_p set, FormulaSet_p archive, TB_p terms);
-long TFormulaSetUnfoldLogSymbols(FormulaSet_p set, FormulaSet_p archive, TB_p terms);
+long TFormulaSetUnfoldLogSymbols(FormulaSet_p set, FormulaSet_p archive, TB_p terms, bool only_forms);
 bool TFormulaUnrollFOOL(WFormula_p form, TB_p terms);
 long TFormulaSetLiftLambdas(FormulaSet_p set, FormulaSet_p archive, TB_p terms);
 

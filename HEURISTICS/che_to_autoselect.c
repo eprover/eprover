@@ -64,7 +64,8 @@ void init_oparms(OrderParms_p oparms)
    oparms->axiom_only_mod  = 0;
    oparms->lit_cmp         = LCNormal;
    oparms->ho_order_kind   = LFHO_ORDER;
-
+   oparms->db_w = DEFAULT_DB_WEIGHT;
+   oparms->lam_w = DEFAULT_LAMBDA_WEIGHT;
 }
 
 /*-----------------------------------------------------------------------

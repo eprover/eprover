@@ -431,7 +431,7 @@ Term_p do_rw_with_defs(TB_p terms, Term_p t, IntMap_p def_map,
 //
 /----------------------------------------------------------------------*/
 
-PTree_p create_sym_map(FormulaSet_p set, IntMap_p sym_def_map)
+PTree_p create_sym_map(FormulaSet_p set, IntMap_p sym_def_map, bool unfold_only_forms)
 {
    PTree_p recognized_definitions = NULL;
    for (WFormula_p form = set->anchor->succ; form != set->anchor; form = form->succ)
@@ -482,7 +482,7 @@ PTree_p create_sym_map(FormulaSet_p set, IntMap_p sym_def_map)
       // and we need to check if terms are distinct variables
       // and if \terms\xyz.body has no free variables, and if lhs does
       // not appear in
-      bool is_def = TypeIsPredicate(lhs->type) &&
+      bool is_def = (!unfold_only_forms || TypeIsPredicate(lhs->type)) &&
                     lhs->f_code > sig->internal_symbols && rhs != bank->true_term;
       PStackReset(bvars);
       for (long i = 0; is_def && i < lhs_body->arity; i++)
@@ -1450,7 +1450,8 @@ long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive,
                     VarBank_p fresh_vars, GCAdmin_p gc,
                     long miniscope_limit,
                     bool lift_lambdas,
-                    bool lambda_to_forall)
+                    bool lambda_to_forall,
+                    bool unfold_only_forms)
 {
    WFormula_p form, handle;
    long res = 0;
@@ -1462,7 +1463,7 @@ long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive,
       TFormulaSetLiftItes(set, archive, terms);
       TFormulaSetLiftLets(set, archive, terms);
       TFormulaSetNamedToDBLambdas(set, archive, terms);
-      TFormulaSetUnfoldLogSymbols(set, archive, terms);
+      TFormulaSetUnfoldLogSymbols(set, archive, terms, unfold_only_forms);
       if(lambda_to_forall)
       {
          TFormulaSetLambdaNormalize(set, archive, terms);
@@ -2030,14 +2031,14 @@ long TFormulaSetLambdaNormalize(FormulaSet_p set, FormulaSet_p archive, TB_p ter
 //
 /----------------------------------------------------------------------*/
 
-long TFormulaSetUnfoldLogSymbols(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
+long TFormulaSetUnfoldLogSymbols(FormulaSet_p set, FormulaSet_p archive, TB_p terms, bool unfold_only_forms)
 {
    long res = 0;
    if (problemType == PROBLEM_HO)
    {
       VarBankSetVCountsToUsed(terms->vars);
       IntMap_p sym_def_map = IntMapAlloc();
-      PTree_p def_wforms = create_sym_map(set, sym_def_map);
+      PTree_p def_wforms = create_sym_map(set, sym_def_map, unfold_only_forms);
       intersimplify_definitions(terms, sym_def_map);
 
       for (WFormula_p form = set->anchor->succ; form != set->anchor; form = form->succ)
@@ -2207,7 +2208,7 @@ long TFormulaNamedToDBLambdas(FormulaSet_p set, FormulaSet_p archive, TB_p terms
 {
    return 0;
 }
-long TFormulaSetUnfoldLogSymbols(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
+long TFormulaSetUnfoldLogSymbols(FormulaSet_p set, FormulaSet_p archive, TB_p terms, bool unfold_only_forms)
 {
    return 0;
 }

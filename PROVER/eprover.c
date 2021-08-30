@@ -472,7 +472,8 @@ int main(int argc, char* argv[])
                                 proofstate->gc_terms,
                                 miniscope_limit,
                                 h_parms->lift_lambdas,
-                                h_parms->lambda_to_forall);
+                                h_parms->lambda_to_forall,
+                                h_parms->unroll_only_formulas);
    }
    else
    {
@@ -1800,6 +1801,9 @@ CLState_p process_options(int argc, char* argv[])
             break;
       case OPT_ELIM_LEIBNIZ:
             h_parms->elim_leibniz_max_depth = CLStateGetIntArgCheckRange(handle, arg, -1, INT_MAX);
+            break;
+      case OPT_UNROLL_FORMULAS_ONLY:
+            h_parms->unroll_only_formulas = CLStateGetBoolArg(handle, arg);
             break;
       case OPT_ETA_NORMALIZE:
             if(strcmp(arg, "reduce")==0)

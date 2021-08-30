@@ -28,6 +28,8 @@ Changes
 
 #include <cto_ocb.h>
 
+#define DEFAULT_LAMBDA_WEIGHT 20
+#define DEFAULT_DB_WEIGHT 10
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */

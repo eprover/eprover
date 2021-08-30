@@ -204,6 +204,7 @@ typedef enum
    OPT_LAM_WEIGHT,
    OPT_DB_WEIGHT,
    OPT_ELIM_LEIBNIZ,
+   OPT_UNROLL_FORMULAS_ONLY,
    OPT_DUMMY
 }OptionCodes;
 
@@ -1542,6 +1543,12 @@ OptCell opts[] =
     "Maximal proof depth of the clause on which Leibniz"\
     " equality elimination should be applied"\
     "; -1 disaables Leibniz equality elimination altogether"},
+
+    {OPT_UNROLL_FORMULAS_ONLY,
+    '\0', "unroll-formulas-only",
+    ReqArg, NULL,
+    "Set to true if you want only formulas to be recognized as definitions"
+    " during CNF. Default is true."},
 
 
    {OPT_NOOPT,

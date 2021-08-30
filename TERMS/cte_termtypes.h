@@ -408,7 +408,7 @@ static inline Type_p GetHeadType(Sig_p sig, Term_p term)
       return term->type;
    }
 #ifdef ENABLE_LFHO
-   else if(TermIsAppliedFreeVar(term))
+   else if(TermIsAppliedAnyVar(term))
    {
       assert(!sig || term->f_code == SIG_PHONY_APP_CODE);
       return term->args[0]->type;

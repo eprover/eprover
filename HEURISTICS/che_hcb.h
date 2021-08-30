@@ -163,6 +163,7 @@ typedef struct heuristic_parms_cell
    bool                replace_inj_defs;
    bool                lift_lambdas;
    bool                lambda_to_forall;
+   bool                unroll_only_formulas;
    int                 elim_leibniz_max_depth;
 }HeuristicParmsCell, *HeuristicParms_p;
 

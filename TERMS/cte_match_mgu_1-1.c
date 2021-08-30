@@ -140,7 +140,7 @@ int PartiallyMatchVar(Term_p var_matcher, Term_p to_match, Sig_p sig,
    Type_p term_head_type = GetHeadType(sig, to_match);
    Type_p matcher_type   = var_matcher->type;
 
-   if(!term_head_type)
+   if(!term_head_type || TermIsTopLevelDBVar(to_match))
    {
       // ad-hoc polymorphic type -- at the moment we cannot
       // determine these types :(
@@ -177,7 +177,7 @@ int PartiallyMatchVar(Term_p var_matcher, Term_p to_match, Sig_p sig,
       return MATCH_FAILED;
    }
 
-   for(int i=0; i<args_to_eat + TermIsAppliedFreeVar(to_match) ? 1 : 0; i++)
+   for(int i=0; i<args_to_eat + TermIsAppliedAnyVar(to_match) ? 1 : 0; i++)
    {
       if(!TermIsDBClosed(to_match->args[i]) ||
          (perform_occur_check && OccurCheck(to_match->args[i], var_matcher)))
