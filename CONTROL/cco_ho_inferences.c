@@ -1015,7 +1015,7 @@ bool BooleanSimplification(Clause_p cl)
       {
          changed = true;
       }
-      if(EqnIsTrivial(lit))
+      if(EqnIsTrue(lit))
       {
          is_tautology = true;
       }
