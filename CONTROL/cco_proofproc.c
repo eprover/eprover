@@ -66,7 +66,7 @@ void document_processing(Clause_p clause)
          putc('\n', GlobalOut);
          putc('#', GlobalOut);
          ClausePrintDBG(GlobalOut, clause);
-         DerivationDebugPrint(GlobalOut, clause->derivation);
+         // DerivationDebugPrint(GlobalOut, clause->derivation);
          putc('\n', GlobalOut);
       }
       DocClauseQuoteDefault(6, clause, "new_given");

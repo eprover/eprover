@@ -720,6 +720,10 @@ int main(int argc, char* argv[])
             fprintf(GlobalOut, "\n# Failure: Out of unprocessed clauses!\n");
             if(!SilentTimeOut)
             {
+               ClauseSetPrint(stderr, proofstate->processed_pos_rules, true);
+               ClauseSetPrint(stderr, proofstate->processed_pos_eqns, true);
+               ClauseSetPrint(stderr, proofstate->processed_neg_units, true);
+               ClauseSetPrint(stderr, proofstate->processed_non_units, true);
                TSTPOUT(GlobalOut, "GaveUp");
             }
             retval = INCOMPLETE_PROOFSTATE;

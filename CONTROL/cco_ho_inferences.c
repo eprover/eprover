@@ -813,6 +813,11 @@ bool NormalizeEquations(Clause_p cl)
             lit->lterm = lterm;
          }
 
+         if(lit->rterm != bank->true_term)
+         {
+            EqnSetProp(lit, EPIsEquLiteral);
+         }
+
          if (negate)
          {
             EqnFlipProp(lit, EPIsPositive);

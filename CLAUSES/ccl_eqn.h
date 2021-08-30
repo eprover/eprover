@@ -153,7 +153,8 @@ void    EqnFree(Eqn_p junk);
 #define EqnIsOriented(eq) EqnQueryProp((eq), EPIsOriented)
 #define EqnIsPositive(eq) EqnQueryProp((eq), EPIsPositive)
 #define EqnIsNegative(eq) (!(EqnQueryProp((eq), EPIsPositive)))
-#define EqnIsEquLit(eq)   EqnQueryProp((eq), EPIsEquLiteral)
+#define EqnIsEquLit(eq)   (assert(EqnQueryProp((eq), EPIsEquLiteral) || (eq)->rterm == (eq)->bank->true_term),\
+                          EqnQueryProp((eq), EPIsEquLiteral))
 #define EqnIsMaximal(eq)  EqnQueryProp((eq), EPIsMaximal)
 #define EqnIsStrictlyMaximal(eq)                                        \
    EqnQueryProp((eq), EPIsStrictlyMaximal)
