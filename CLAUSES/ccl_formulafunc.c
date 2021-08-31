@@ -772,12 +772,6 @@ static bool fool_should_ignore(Term_p t, TB_p bank)
       return false;
    }
 
-   if(t->f_code == sig->not_code)
-   {
-      assert(t->arity == 1);
-      t = t->args[0];
-   }
-
    if(t->f_code == sig->eqn_code || t->f_code == sig->neqn_code)
    {
       assert(t->arity == 2);

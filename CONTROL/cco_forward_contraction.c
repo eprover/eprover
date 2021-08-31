@@ -89,16 +89,16 @@ static FVPackedClause_p forward_contract_keep(ProofState_p state, ProofControl_p
          return NULL;
       }
 
-      if(ClauseIsEmpty(clause) ||
-         (problemType == PROBLEM_HO && ResolveFlexClause(clause)))
-      {
-         return FVIndexPackClause(clause, NULL);
-      }
-
       if(BooleanSimplification(clause))
       {
          (*trivial_count)++;
          return NULL;
+      }
+      
+      if(ClauseIsEmpty(clause) ||
+         (problemType == PROBLEM_HO && ResolveFlexClause(clause)))
+      {
+         return FVIndexPackClause(clause, NULL);
       }
 
       if(control->ac_handling_active && ClauseIsACRedundant(clause))

@@ -1127,6 +1127,7 @@ bool BooleanSimplification(Clause_p cl)
 
    if(changed)
    {
+      ClauseRemoveSuperfluousLiterals(cl);
       ClausePushDerivation(cl, DCNormalize, NULL, NULL);
    }
 
