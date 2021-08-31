@@ -94,7 +94,7 @@ static FVPackedClause_p forward_contract_keep(ProofState_p state, ProofControl_p
          (*trivial_count)++;
          return NULL;
       }
-      
+
       if(ClauseIsEmpty(clause) ||
          (problemType == PROBLEM_HO && ResolveFlexClause(clause)))
       {
@@ -126,9 +126,12 @@ static FVPackedClause_p forward_contract_keep(ProofState_p state, ProofControl_p
       
       if(problemType==PROBLEM_HO)
       {
-         ClauseEliminateNakedBooleanVariables(clause);
+         if(ClauseEliminateNakedBooleanVariables(clause))
+         {
+            (*trivial_count)++;
+            return NULL;  
+         }
       }
-
       pclause = ForwardSubsumption(state, clause, subsumed_count,
                                    non_unit_subsumption);
       if(!pclause)

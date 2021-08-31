@@ -883,9 +883,7 @@ bool NormalizeEquations(Clause_p cl)
 
    if (normalized)
    {
-      EqnListRemoveResolved(&cl->literals);
-      EqnListRemoveDuplicates(cl->literals);
-      ClauseRecomputeLitCounts(cl);
+      ClauseRemoveSuperfluousLiterals(cl);
       ClausePushDerivation(cl, DCNormalize, NULL, NULL);
    }
 

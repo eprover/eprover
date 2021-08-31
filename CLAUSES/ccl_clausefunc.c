@@ -655,7 +655,7 @@ void PStackClausePrint(FILE* out, PStack_p stack, char* extra)
 //   If the clause containts boolean variables X and ~X, convert the
 //   clause to {$true}. If the clause C contains only X replace the
 //   clause with C[X |-> $false]. If the clause C contains only ~X replace
-//   C with C[X |-> $true].
+//   C with C[X |-> $true]. Returns true if a clause becomes a tautology.
 //
 // Global Variables: -
 //
@@ -742,7 +742,7 @@ bool ClauseEliminateNakedBooleanVariables(Clause_p clause)
 
    PStackFree(all_lits);
    SubstDelete(subst);
-   return eliminated_var;
+   return EqnListFindTrue(clause->literals);
 }
 
 
