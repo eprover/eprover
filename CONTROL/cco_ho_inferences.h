@@ -19,6 +19,18 @@ Contents
 
 #include <che_proofcontrol.h>
 
+typedef enum 
+{
+  NegMode,
+  AndMode,
+  OrMode,
+  EqMode,
+  QuantMode,
+  PragmaticMode,
+  FullMode,
+  LogSymbolMode
+} PrimEnumMode;
+
 bool ImmediateClausification(Clause_p cl, ClauseSet_p store, ClauseSet_p archive, VarBank_p fresh_vars);
 bool ResolveFlexClause(Clause_p cl);
 bool NormalizeEquations(Clause_p cl);

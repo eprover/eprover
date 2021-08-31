@@ -91,6 +91,58 @@ void store_result(Clause_p new_clause, Clause_p orig_clause,
 //
 /----------------------------------------------------------------------*/
 
+int prim_enum_var(ClauseSet_p store, Clause_p cl, PrimEnumMode mode, Term_p app_var)
+{
+   assert(TermIsAppliedFreeVar(app_var));
+   assert(TypeIsPredicate(app_var->args[0]->type));
+   int generated_cls = 0;
+
+   if(mode == NegMode || mode == FullMode)
+   {
+      // generate not
+   }
+   if(mode == AndMode || mode == FullMode)
+   {
+      // generate and
+   }
+   if(mode == OrMode || mode == FullMode)
+   {
+      // generate and
+   }
+   if(mode == EqMode || mode == FullMode)
+   {
+      // generate and
+   }
+   // generate true
+   // generate false
+   if(mode == QuantMode || mode == FullMode)
+   {
+      // generate quants
+   }
+   if(mode == PragmaticMode)
+   {
+      // generate various pragmatic instances
+   }
+   if(mode == LogSymbolMode)
+   {
+      // generate exact logical symbols
+   }
+   return generated_cls;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: find_disagreements()
+//
+//   Stores the computed inference with the given derivation code
+//   in the temporary store for the newly infered clauses.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
 bool find_disagreements(Sig_p sig, Term_p t, Term_p s, PStack_p diss_stack)
 {
    if (t->type != s->type || t == s)
@@ -993,6 +1045,54 @@ long EliminateLeibnizEquality(ClauseSet_p store, Clause_p cl, int limit)
    IntMapFree(neg_vars);
    return num_eliminations;
 }
+
+/*-----------------------------------------------------------------------
+//
+// Function: PrimitiveEnumeration()
+//
+//   Instantiate clauses with primitive substitutions -- imitations
+//   of logical symbols.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+long PrimitiveEnumeration(ClauseSet_p store, Clause_p cl, PrimEnumMode mode, int limit)
+{
+   if(cl->proof_depth > limit)
+   {
+      return 0;
+   }
+
+   long new_cls = 0;
+   IntMap_p processed_vars = IntMapAlloc();
+
+   for(Eqn_p lit = cl->literals; lit; lit = lit->next)
+   {
+      if(TypeIsBool(lit->lterm->type)) 
+      {
+         if(TermIsAppliedFreeVar(lit->lterm) 
+            && !IntMapGetVal(processed_vars, lit->lterm->args[0]->f_code))
+         {
+            new_cls += prim_enum_var(store, cl, mode, lit->lterm);
+            IntMapAssign(processed_vars, lit->lterm->args[0]->f_code, cl);
+         }
+
+         if(TermIsAppliedFreeVar(lit->rterm) 
+            && !IntMapGetVal(processed_vars, lit->rterm->args[0]->f_code))
+         {
+            new_cls += prim_enum_var(store, cl, mode, lit->rterm);
+            IntMapAssign(processed_vars, lit->rterm->args[0]->f_code, cl);
+         }
+      }
+   }
+
+   IntMapFree(processed_vars);
+   return new_cls;
+}
+
 
 /*-----------------------------------------------------------------------
 //
