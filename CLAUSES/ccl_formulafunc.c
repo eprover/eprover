@@ -753,6 +753,100 @@ static void check_all_found(Scanner_p in, StrTree_p name_selector)
 
 /*-----------------------------------------------------------------------
 //
+// Function: fool_should_ignore()
+//
+//   Is the term a variable encoded as X = true, X!=true or a negation 
+//   thereof. Or is it of the form $eq(true, true) or $eq(false, false).
+//
+// Global Variables: -
+//
+// Side Effects    : Input, Memory operations
+//
+/----------------------------------------------------------------------*/
+
+static bool fool_should_ignore(Term_p t, TB_p bank)
+{
+   Sig_p sig = bank->sig;
+   if(!TypeIsBool(t->type))
+   {
+      return false;
+   }
+
+   if(t->f_code == sig->not_code)
+   {
+      assert(t->arity == 1);
+      t = t->args[0];
+   }
+
+   if(t->f_code == sig->eqn_code || t->f_code == sig->neqn_code)
+   {
+      assert(t->arity == 2);
+      if(t->args[1] == bank->true_term)
+      {
+         return TermIsFreeVar(t->args[0]) || t->args[0] == bank->true_term;
+      }
+   }
+   return TermIsFreeVar(t);
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: find_fool_subterm()
+//
+//   Returns true if it finds a formula subterm in t. pos is the position
+//   corresponding to this subterm if it is found, empty otherwise.
+//
+// Global Variables:
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+
+bool find_fool_subterm(TB_p bank, Term_p t, TermPos_p pos)
+{
+   int i;
+   PStackPushP(pos, t);
+   bool found = false;
+
+   for(i=0; !TermIsLambda(t) && i<t->arity; i++)
+   {
+      PStackPushInt(pos, i);
+
+      if(TypeIsBool(t->args[i]->type))
+      {
+         if(!(fool_should_ignore(t->args[i], bank) ||
+               t->args[i]->f_code == SIG_TRUE_CODE
+              || t->args[i]->f_code == SIG_FALSE_CODE))
+         {
+            found = true;
+            break;
+         }
+      }
+      else if(find_fool_subterm(bank, t->args[i], pos))
+      {
+         found = true;
+         break;
+      }
+
+      PStackDiscardTop(pos);
+   }
+
+   if(!found)
+   {
+      // did not find formula subterm
+      PStackDiscardTop(pos);
+      return false;
+   }
+   else
+   {
+      return true;
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: do_fool_unroll()
 //
 //   Unroll boolean arguments of terms. For example, subformula
@@ -775,11 +869,11 @@ TFormula_p do_fool_unroll(TFormula_p form, TB_p terms)
       TermPos_p pos = PStackAlloc();
       PStackPushP(pos, form);
       PStackPushInt(pos, 0);
-      if (!TermFindFOOLSubterm(form->args[0], pos))
+      if (!find_fool_subterm(terms, form->args[0], pos))
       {
          PStackDiscardTop(pos);
          PStackPushInt(pos, 1);
-         if (!TermFindFOOLSubterm(form->args[1], pos))
+         if (!find_fool_subterm(terms, form->args[1], pos))
          {
             PStackReset(pos);
          }
@@ -1481,7 +1575,6 @@ long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive,
    //printf("# Introducing definitions\n");
    TFormulaSetIntroduceDefs(set, archive, terms);
    //printf("# Definitions introduced\n");
-
    while (!FormulaSetEmpty(set))
    {
       handle = FormulaSetExtractFirst(set);

@@ -2102,60 +2102,6 @@ bool TermFindIteSubterm(Term_p t, TermPos_p pos)
 
 /*-----------------------------------------------------------------------
 //
-// Function: TermFindFOOLSubterm()
-//
-//   Returns true if it finds a formula subterm in t. pos is the position
-//   corresponding to this subterm if it is found, empty otherwise.
-//
-// Global Variables:
-//
-// Side Effects    :
-//
-/----------------------------------------------------------------------*/
-
-bool TermFindFOOLSubterm(Term_p t, TermPos_p pos)
-{
-   int i;
-   PStackPushP(pos, t);
-   bool found = false;
-
-   for(i=0; !TermIsLambda(t) && i<t->arity; i++)
-   {
-      PStackPushInt(pos, i);
-
-      if(TypeIsBool(t->args[i]->type))
-      {
-         if(!(TermIsFreeVar(t->args[i]) || t->args[i]->f_code == SIG_TRUE_CODE
-              || t->args[i]->f_code == SIG_FALSE_CODE))
-         {
-            found = true;
-            break;
-         }
-      }
-      else if(TermFindFOOLSubterm(t->args[i], pos))
-      {
-         found = true;
-         break;
-      }
-
-      PStackDiscardTop(pos);
-   }
-
-   if(!found)
-   {
-      // did not find formula subterm
-      PStackDiscardTop(pos);
-      return false;
-   }
-   else
-   {
-      return true;
-   }
-}
-
-
-/*-----------------------------------------------------------------------
-//
 // Function: VarBankCheckBindings()
 //
 //   For all variables in bank, check if they are bound. If sig!=0,

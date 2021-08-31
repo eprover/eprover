@@ -66,6 +66,7 @@ void init_oparms(OrderParms_p oparms)
    oparms->ho_order_kind   = LFHO_ORDER;
    oparms->db_w = DEFAULT_DB_WEIGHT;
    oparms->lam_w = DEFAULT_LAMBDA_WEIGHT;
+   oparms->force_kbo_var_weight = false;
 }
 
 /*-----------------------------------------------------------------------

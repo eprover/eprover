@@ -121,6 +121,14 @@ static Term_p negate_form(TB_p bank, Term_p t)
       return TFormulaFCodeAlloc(bank, sig->not_code, t, NULL);
    }
 
+   if(t == bank->true_term)
+   {
+      return bank->false_term;
+   }
+   if(t == bank->false_term)
+   {
+      return bank->true_term;
+   }
    if(t->f_code == sig->not_code)
    {
       return t->args[0];

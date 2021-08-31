@@ -3354,6 +3354,12 @@ void EqnMap(Eqn_p lit, TermMapper_p f, void* arg)
       EqnFlipProp(lit, EPIsPositive);
    }
    
+   if(lterm != lit->lterm)
+   {
+      EqnDelProp(lit, EPMaxIsUpToDate);
+      EqnDelProp(lit, EPIsOriented);
+   }
+   
    lit->lterm = lterm;
    lit->rterm = rterm;
 }

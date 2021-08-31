@@ -636,6 +636,7 @@ void ComputePosExt(ProofState_p state, ProofControl_p control, Clause_p clause)
          Term_p lhs = lit->lterm, rhs = lit->rterm;
 
          while (lhs->arity && rhs->arity &&
+                !TermIsLambda(lhs) && !TermIsLambda(rhs) &&
                 lhs->args[lhs->arity - 1] == rhs->args[rhs->arity - 1] &&
                 TermIsFreeVar(lhs->args[lhs->arity - 1]))
          {
@@ -671,6 +672,7 @@ void ComputePosExt(ProofState_p state, ProofControl_p control, Clause_p clause)
                }
                if (!TermIsFreeVar(rhs))
                {
+                  // DBG_PRINT(stderr, "inserting: ", TermPrintDbg(stderr, rhs, state->terms->sig, DEREF_NEVER), ".\n");
                   rhs = TBTermTopInsert(state->terms, rhs);
                }
 
@@ -822,6 +824,8 @@ bool NormalizeEquations(Clause_p cl)
          {
             EqnFlipProp(lit, EPIsPositive);
          }
+         EqnDelProp(lit, EPMaxIsUpToDate);
+         EqnDelProp(lit, EPIsOriented);
       }
    }
 
