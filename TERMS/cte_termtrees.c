@@ -209,6 +209,15 @@ long TermTopCompare(Term_p t1, Term_p t2)
    assert(problemType == PROBLEM_HO || t1->type == t2->type);
    assert(TermIsPhonyApp(t1) || problemType == PROBLEM_HO  || t1->arity == t2->arity);
 
+   if(problemType == PROBLEM_HO)
+   {
+      res = PCmp(t1->type, t2->type);
+      if(res)
+      {
+         return res;
+      }
+   }
+
    if(t1->arity != t2->arity)
    {
       return t1->arity - t2->arity;
