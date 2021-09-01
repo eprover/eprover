@@ -80,6 +80,152 @@ void store_result(Clause_p new_clause, Clause_p orig_clause,
 
 /*-----------------------------------------------------------------------
 //
+// Function: fresh_pattern()
+//
+//   Given an applied variable s, create a fresh variable applied to bound
+//   variables representing arguments of s
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+Term_p fresh_pattern(TB_p bank, Term_p t)
+{
+   assert(TermIsAppliedFreeVar(t));
+   Type_p arg_tys[t->arity-1];
+   Type_p var_ty = NULL;
+   for(int i=1; i<t->arity; i++)
+   {
+      arg_tys[i-1] = t->args[i]->type;
+   }
+   var_ty = TypeBankInsertTypeShared(bank->sig->type_bank,
+               ArrowTypeFlattened(arg_tys, t->arity-1, t->type));
+   Term_p fresh_var = VarBankGetFreshVar(bank->vars, var_ty);
+   Term_p applied = TermTopCopyWithoutArgs(t);
+   applied->args[0] = fresh_var;
+   
+   for(int i=1; i<t->arity; i++)
+   {
+      applied->args[i] = 
+         RequestDBVar(bank->db_vars, t->args[i]->type, t->arity-i-1);
+   }
+
+   return TBTermTopInsert(bank, applied);
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: close_for_appvar()
+//
+//   Analyze the arguments of applied variable and generate a lambda
+//   prefix for the matrix that corresponds to each argument of the lambda
+//   var
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+Term_p close_for_appvar(TB_p bank, Term_p appvar, Term_p matrix)
+{
+   Type_p ty_pref[appvar->arity-1];
+   for(int i=1; i<appvar->arity; i++)
+   {
+      ty_pref[i-1] = appvar->args[i]->type;
+   }
+   return CloseWithTypePrefix(bank, ty_pref, appvar->arity-1, matrix);
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: apply_pattern_vars()
+//
+//   Apply fresh variables (applied to bound ones that correspond to arguments
+//   of appvar) to head.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+Term_p apply_pattern_vars(TB_p bank, Term_p head, Term_p appvar)
+{
+   assert(TermIsAppliedFreeVar(appvar));
+   Term_p res;
+   if(!TypeIsArrow(head->type))
+   {
+      res = head;
+   }
+   else
+   {
+      Type_p arg_tys[appvar->arity-1];
+      for(int i=1; i<appvar->arity; i++)
+      {
+         arg_tys[i-1] = appvar->args[i]->type;
+      }
+
+      PStack_p db_args = PStackAlloc();
+      for(int i=1; i < appvar->arity; i++)
+      {
+         PStackPushP(db_args, 
+            RequestDBVar(bank->db_vars, appvar->args[i]->type,
+                         appvar->arity-i-1));
+      }
+
+      PStack_p hd_args = PStackAlloc();
+      for(int i=0; i<head->type->arity-1; i++)
+      {
+         Type_p v_ty = 
+            TypeBankInsertTypeShared(bank->sig->type_bank,
+               ArrowTypeFlattened(arg_tys, appvar->arity-1, head->type->args[i]));
+         Term_p fvar = VarBankGetFreshVar(bank->vars, v_ty);
+         PStackPushP(hd_args, ApplyTerms(bank, fvar, db_args));
+      }
+
+      res = ApplyTerms(bank, head, hd_args);
+
+      PStackFree(db_args);
+      PStackFree(hd_args);
+   }
+   return res;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: mk_prim_enum_inst()
+//
+//   Create an instance of clause and set the proof object 
+//   for primitive enumeration.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void mk_prim_enum_inst(ClauseSet_p store, Clause_p cl, Term_p var, Term_p target)
+{
+   assert(!var->binding);
+
+   var->binding = target;
+
+   Eqn_p res_lits = EqnListCopyOpt(cl->literals);
+   EqnListLambdaNormalize(res_lits);
+   EqnListRemoveResolved(&res_lits);
+   EqnListRemoveDuplicates(res_lits);
+   Clause_p res = ClauseAlloc(res_lits);
+   NormalizeEquations(res);
+   store_result(res, cl, store, DCPrimEnum);
+
+   var->binding = NULL;
+}
+
+/*-----------------------------------------------------------------------
+//
 // Function: find_disagreements()
 //
 //   Stores the computed inference with the given derivation code
@@ -94,38 +240,152 @@ void store_result(Clause_p new_clause, Clause_p orig_clause,
 int prim_enum_var(ClauseSet_p store, Clause_p cl, PrimEnumMode mode, Term_p app_var)
 {
    assert(TermIsAppliedFreeVar(app_var));
-   assert(TypeIsPredicate(app_var->args[0]->type));
+   assert(TypeIsBool(app_var->type));
    int generated_cls = 0;
+   TB_p bank = cl->literals->bank;
 
    if(mode == NegMode || mode == FullMode)
    {
-      // generate not
+      Term_p neg_matrix = 
+         TFormulaFCodeAlloc(bank, bank->sig->not_code, 
+                            fresh_pattern(bank, app_var), NULL);
+      mk_prim_enum_inst(store, cl, app_var->args[0], 
+                        close_for_appvar(bank, app_var, neg_matrix));
+      generated_cls++;
    }
    if(mode == AndMode || mode == FullMode)
    {
-      // generate and
+      Term_p and_matrix = 
+         TFormulaFCodeAlloc(bank, bank->sig->and_code, 
+                            fresh_pattern(bank, app_var), 
+                            fresh_pattern(bank, app_var));
+      mk_prim_enum_inst(store, cl, app_var->args[0], 
+                        close_for_appvar(bank, app_var, and_matrix));
+      generated_cls++;
    }
    if(mode == OrMode || mode == FullMode)
    {
-      // generate and
+      Term_p or_matrix = 
+         TFormulaFCodeAlloc(bank, bank->sig->or_code, 
+                            fresh_pattern(bank, app_var), 
+                            fresh_pattern(bank, app_var));
+      mk_prim_enum_inst(store, cl, app_var->args[0], 
+                        close_for_appvar(bank, app_var, or_matrix));
+      generated_cls++;
    }
    if(mode == EqMode || mode == FullMode)
    {
-      // generate and
+      Term_p eq_matrix = 
+         TFormulaFCodeAlloc(bank, bank->sig->eqn_code, 
+                            fresh_pattern(bank, app_var), 
+                            fresh_pattern(bank, app_var));
+      mk_prim_enum_inst(store, cl, app_var->args[0], 
+                        close_for_appvar(bank, app_var, eq_matrix));
+      generated_cls++;
    }
-   // generate true
-   // generate false
-   if(mode == QuantMode || mode == FullMode)
-   {
-      // generate quants
-   }
+   mk_prim_enum_inst(store, cl, app_var->args[0], 
+                      close_for_appvar(bank, app_var, bank->true_term));
+   mk_prim_enum_inst(store, cl, app_var->args[0], 
+                      close_for_appvar(bank, app_var, bank->false_term));
+   generated_cls += 2;
    if(mode == PragmaticMode)
    {
-      // generate various pragmatic instances
+      for(int i=1; i < app_var->arity; i++)
+      {
+         for(int j=2; j < app_var->arity; j++)
+         {
+            if(app_var->args[i]->type == app_var->args[j]->type)
+            {
+               Type_p ty = app_var->args[i]->type;
+               Term_p db_i = RequestDBVar(bank->db_vars, ty, app_var->arity-i-1);
+               Term_p db_j = RequestDBVar(bank->db_vars, ty, app_var->arity-j-1);
+               Term_p eq_matrix = 
+                  TFormulaFCodeAlloc(bank, bank->sig->eqn_code, db_i, db_j);
+               Term_p neq_matrix = 
+                  TFormulaFCodeAlloc(bank, bank->sig->neqn_code, db_i, db_j);
+               mk_prim_enum_inst(store, cl, app_var->args[0], 
+                                 close_for_appvar(bank, app_var, eq_matrix));
+               mk_prim_enum_inst(store, cl, app_var->args[0],
+                                 close_for_appvar(bank, app_var, neq_matrix));
+               generated_cls += 2;
+
+               if(TypeIsPredicate(ty))
+               {
+                  Term_p proj_i = apply_pattern_vars(bank, db_i, app_var);
+                  Term_p proj_j = apply_pattern_vars(bank, db_i, app_var);
+                  Term_p and_matrix = 
+                     TFormulaFCodeAlloc(bank, bank->sig->and_code, proj_i, proj_j);
+                  Term_p or_matrix = 
+                     TFormulaFCodeAlloc(bank, bank->sig->or_code, proj_i, proj_j);
+                  mk_prim_enum_inst(store, cl, app_var->args[0],
+                                    close_for_appvar(bank, app_var, and_matrix));
+                  mk_prim_enum_inst(store, cl, app_var->args[0], 
+                                    close_for_appvar(bank, app_var, or_matrix));
+                  generated_cls += 2;
+               }
+            }
+         }
+      }
    }
-   if(mode == LogSymbolMode)
+   if(mode == LogSymbolMode || mode == PragmaticMode)
    {
-      // generate exact logical symbols
+      Type_p var_ty = app_var->args[0]->type;
+      if(TypeIsArrow(var_ty))
+      {
+         if(var_ty->arity == 2 &&
+            TypeIsBool(var_ty->args[0]) && TypeIsBool(var_ty->args[1]))
+         {
+            Term_p not_matrix = TermTopAlloc(bank->sig->not_code, 0);
+            not_matrix->type = var_ty;
+            mk_prim_enum_inst(store, cl, app_var->args[0], 
+                              close_for_appvar(bank, app_var, TBTermTopInsert(bank, not_matrix)));
+            generated_cls++;
+         }
+         else if(var_ty->arity == 3 &&
+                 TypeIsBool(var_ty->args[0]) && TypeIsBool(var_ty->args[1])
+                 && TypeIsBool(var_ty->args[2]))
+         {
+            Term_p and_matrix = TermTopAlloc(bank->sig->and_code, 0);
+            and_matrix->type = var_ty;
+            Term_p or_matrix = TermTopAlloc(bank->sig->or_code, 0);
+            or_matrix->type = var_ty;
+            mk_prim_enum_inst(store, cl, app_var->args[0], 
+                              close_for_appvar(bank, app_var, TBTermTopInsert(bank, and_matrix)));
+            mk_prim_enum_inst(store, cl, app_var->args[0], 
+                              close_for_appvar(bank, app_var, TBTermTopInsert(bank, or_matrix)));
+            generated_cls += 2;
+         }
+
+         if(var_ty->arity == 3 && 
+            var_ty->args[0] == var_ty->args[1] && TypeIsBool(var_ty->args[2]))
+         {
+            Term_p eqn_matrix = TermTopAlloc(bank->sig->eqn_code, 0);
+            eqn_matrix->type = var_ty;
+            Term_p neqn_matrix = TermTopAlloc(bank->sig->neqn_code, 0);
+            neqn_matrix->type = var_ty;
+            mk_prim_enum_inst(store, cl, app_var->args[0], 
+                              close_for_appvar(bank, app_var, TBTermTopInsert(bank, eqn_matrix)));
+            mk_prim_enum_inst(store, cl, app_var->args[0], 
+                              close_for_appvar(bank, app_var, TBTermTopInsert(bank, neqn_matrix)));
+            generated_cls += 2;
+         }
+         if(var_ty->arity == 2 &&
+            TypeIsBool(var_ty->args[1]) &&
+            TypeIsArrow(var_ty->args[0]) &&
+            var_ty->args[0]->arity == 2 &&
+            TypeIsBool(var_ty->args[0]->args[1]))
+         {
+            Term_p all_matrix = TermTopAlloc(bank->sig->qall_code, 0);
+            all_matrix->type = var_ty;
+            Term_p ex_matrix = TermTopAlloc(bank->sig->qex_code, 0);
+            ex_matrix->type = var_ty;
+            mk_prim_enum_inst(store, cl, app_var->args[0], 
+                              close_for_appvar(bank, app_var, TBTermTopInsert(bank, all_matrix)));
+            mk_prim_enum_inst(store, cl, app_var->args[0], 
+                              close_for_appvar(bank, app_var, TBTermTopInsert(bank, ex_matrix)));
+            generated_cls += 2;
+         }
+      }
    }
    return generated_cls;
 }

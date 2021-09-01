@@ -80,6 +80,7 @@ char *opids[] =
    PCL_EXT_EQRES,
    PCL_INV_REC,
    PCL_LEIBNIZ_ELIM,
+   PCL_PRIM_ENUM
 };
 
 char *optheory [] =
@@ -131,6 +132,7 @@ char *optheory [] =
    NULL,
    NULL,
    NULL,
+   NULL
 };
 
 
@@ -174,6 +176,7 @@ char *opstatus [] =
    "thm",
    "thm",
    /* HO */
+   "thm",
    "thm",
    "thm",
    "thm",
