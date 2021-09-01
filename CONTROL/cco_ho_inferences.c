@@ -172,8 +172,7 @@ Term_p apply_pattern_vars(TB_p bank, Term_p head, Term_p appvar)
       for(int i=1; i < appvar->arity; i++)
       {
          PStackPushP(db_args, 
-            RequestDBVar(bank->db_vars, appvar->args[i]->type,
-                         appvar->arity-i-1));
+            RequestDBVar(bank->db_vars, appvar->args[i]->type, appvar->arity-i-1));
       }
 
       PStack_p hd_args = PStackAlloc();
@@ -269,7 +268,7 @@ int prim_enum_var(ClauseSet_p store, Clause_p cl, PrimEnumMode mode, Term_p app_
          TFormulaFCodeAlloc(bank, bank->sig->or_code, 
                             fresh_pattern(bank, app_var), 
                             fresh_pattern(bank, app_var));
-      mk_prim_enum_inst(store, cl, app_var->args[0], 
+      mk_prim_enum_inst(store, cl, app_var->args[0],
                         close_for_appvar(bank, app_var, or_matrix));
       generated_cls++;
    }
@@ -279,7 +278,7 @@ int prim_enum_var(ClauseSet_p store, Clause_p cl, PrimEnumMode mode, Term_p app_
          TFormulaFCodeAlloc(bank, bank->sig->eqn_code, 
                             fresh_pattern(bank, app_var), 
                             fresh_pattern(bank, app_var));
-      mk_prim_enum_inst(store, cl, app_var->args[0], 
+      mk_prim_enum_inst(store, cl, app_var->args[0],
                         close_for_appvar(bank, app_var, eq_matrix));
       generated_cls++;
    }
@@ -312,7 +311,7 @@ int prim_enum_var(ClauseSet_p store, Clause_p cl, PrimEnumMode mode, Term_p app_
                if(TypeIsPredicate(ty))
                {
                   Term_p proj_i = apply_pattern_vars(bank, db_i, app_var);
-                  Term_p proj_j = apply_pattern_vars(bank, db_i, app_var);
+                  Term_p proj_j = apply_pattern_vars(bank, db_j, app_var);
                   Term_p and_matrix = 
                      TFormulaFCodeAlloc(bank, bank->sig->and_code, proj_i, proj_j);
                   Term_p or_matrix = 
@@ -379,9 +378,9 @@ int prim_enum_var(ClauseSet_p store, Clause_p cl, PrimEnumMode mode, Term_p app_
             all_matrix->type = var_ty;
             Term_p ex_matrix = TermTopAlloc(bank->sig->qex_code, 0);
             ex_matrix->type = var_ty;
-            mk_prim_enum_inst(store, cl, app_var->args[0], 
+            mk_prim_enum_inst(store, cl, app_var->args[0],
                               close_for_appvar(bank, app_var, TBTermTopInsert(bank, all_matrix)));
-            mk_prim_enum_inst(store, cl, app_var->args[0], 
+            mk_prim_enum_inst(store, cl, app_var->args[0],
                               close_for_appvar(bank, app_var, TBTermTopInsert(bank, ex_matrix)));
             generated_cls += 2;
          }
@@ -1333,14 +1332,14 @@ long PrimitiveEnumeration(ClauseSet_p store, Clause_p cl, PrimEnumMode mode, int
    {
       if(TypeIsBool(lit->lterm->type)) 
       {
-         if(TermIsAppliedFreeVar(lit->lterm) 
+         if(TermIsAppliedFreeVar(lit->lterm)
             && !IntMapGetVal(processed_vars, lit->lterm->args[0]->f_code))
          {
             new_cls += prim_enum_var(store, cl, mode, lit->lterm);
             IntMapAssign(processed_vars, lit->lterm->args[0]->f_code, cl);
          }
 
-         if(TermIsAppliedFreeVar(lit->rterm) 
+         if(TermIsAppliedFreeVar(lit->rterm)
             && !IntMapGetVal(processed_vars, lit->rterm->args[0]->f_code))
          {
             new_cls += prim_enum_var(store, cl, mode, lit->rterm);
