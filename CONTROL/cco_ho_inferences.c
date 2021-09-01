@@ -883,6 +883,7 @@ bool NormalizeEquations(Clause_p cl)
 
    if (normalized)
    {
+      ClauseRecomputeLitCounts(cl);
       ClauseRemoveSuperfluousLiterals(cl);
       ClausePushDerivation(cl, DCNormalize, NULL, NULL);
    }
