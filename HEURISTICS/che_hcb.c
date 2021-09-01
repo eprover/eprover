@@ -201,6 +201,8 @@ void HeuristicParmsInitialize(HeuristicParms_p handle)
    handle->lambda_to_forall              = true;
    handle->unroll_only_formulas          = true;
    handle->elim_leibniz_max_depth        = NO_ELIM_LEIBNIZ;
+   handle->prim_enum_mode                = PragmaticMode;
+   handle->prim_enum_max_depth           = -1;
 }
 
 

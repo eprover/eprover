@@ -1805,6 +1805,44 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_UNROLL_FORMULAS_ONLY:
             h_parms->unroll_only_formulas = CLStateGetBoolArg(handle, arg);
             break;
+      case OPT_PRIM_ENUM_MAX_DEPTH:
+            h_parms->prim_enum_max_depth = CLStateGetIntArgCheckRange(handle, arg, -1, INT_MAX);
+            break;
+      case OPT_PRIM_ENUM_KIND:
+            if(strcmp(arg, "neg")==0)
+            {
+               h_parms->prim_enum_mode = NegMode;
+            }
+            else if(strcmp(arg, "and")==0)
+            {
+               h_parms->prim_enum_mode = AndMode;
+            }
+            else if(strcmp(arg, "or")==0)
+            {
+               h_parms->prim_enum_mode = OrMode;
+            }
+            else if(strcmp(arg, "eq")==0)
+            {
+               h_parms->prim_enum_mode = EqMode;
+            }
+            else if(strcmp(arg, "pragmatic")==0)
+            {
+               h_parms->prim_enum_mode = PragmaticMode;
+            }
+            else if(strcmp(arg, "full")==0)
+            {
+               h_parms->prim_enum_mode = FullMode;
+            }
+            else if(strcmp(arg, "logsym")==0)
+            {
+               h_parms->prim_enum_mode = LogSymbolMode;
+            }
+            else
+            {
+               Error("Option --prim-enum-mode excepts neg, and, or, eq, pragmatic, full, or logsym",
+                     USAGE_ERROR);
+            }
+            break;
       case OPT_ETA_NORMALIZE:
             if(strcmp(arg, "reduce")==0)
             {

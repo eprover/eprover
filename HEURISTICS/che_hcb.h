@@ -58,6 +58,17 @@ typedef enum
    NoLits
 }ExtInferenceType;
 
+typedef enum 
+{
+  NegMode,
+  AndMode,
+  OrMode,
+  EqMode,
+  PragmaticMode,
+  FullMode,
+  LogSymbolMode
+} PrimEnumMode;
+
 #define EIT2STR(x) (((x) == AllLits) ? ("all") : (((x) == MaxLits) ? "max" : "off"))
 #define NO_EXT_SUP (-1)
 #define NO_ELIM_LEIBNIZ (-1)
@@ -165,6 +176,8 @@ typedef struct heuristic_parms_cell
    bool                lambda_to_forall;
    bool                unroll_only_formulas;
    int                 elim_leibniz_max_depth;
+   PrimEnumMode        prim_enum_mode;
+   int                 prim_enum_max_depth;
 }HeuristicParmsCell, *HeuristicParms_p;
 
 

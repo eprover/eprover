@@ -1515,5 +1515,11 @@ void ComputeHOInferences(ProofState_p state, ProofControl_p control,
          EliminateLeibnizEquality(state->tmp_store, orig_clause,
                                   control->heuristic_parms.elim_leibniz_max_depth);
       }
+      if (control->heuristic_parms.prim_enum_max_depth >= 0)
+      {
+         PrimitiveEnumeration(state->tmp_store, orig_clause, 
+                              control->heuristic_parms.prim_enum_mode,
+                              control->heuristic_parms.prim_enum_max_depth);
+      }
    }
 }

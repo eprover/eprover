@@ -205,6 +205,8 @@ typedef enum
    OPT_DB_WEIGHT,
    OPT_ELIM_LEIBNIZ,
    OPT_UNROLL_FORMULAS_ONLY,
+   OPT_PRIM_ENUM_KIND,
+   OPT_PRIM_ENUM_MAX_DEPTH,
    OPT_DUMMY
 }OptionCodes;
 
@@ -1549,6 +1551,17 @@ OptCell opts[] =
     ReqArg, NULL,
     "Set to true if you want only formulas to be recognized as definitions"
     " during CNF. Default is true."},
+
+    {OPT_PRIM_ENUM_KIND,
+    '\0', "prim-enum-mode",
+    ReqArg, NULL,
+    "Choose the mode of primitive enumeration "},
+
+    {OPT_PRIM_ENUM_MAX_DEPTH,
+    '\0', "prim-enum-max-depth",
+    ReqArg, NULL,
+    "Maximal proof depth of a clause on which primitive enumeration is applied."
+    " -1 disables primitive enumeration"},
 
 
    {OPT_NOOPT,
