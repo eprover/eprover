@@ -642,6 +642,7 @@ void ComputeArgCong(ProofState_p state, ProofControl_p control, Clause_p clause)
 
             Term_p new_lhs = ApplyTerms(bank, lhs, fresh_vars),
                    new_rhs = ApplyTerms(bank, rhs, fresh_vars);
+            assert(new_lhs->type == new_rhs->type);
             Eqn_p new_lit = EqnAlloc(new_lhs, new_rhs, bank, true);
             Eqn_p new_literals = EqnListCopyExcept(clause->literals, lit, bank);
             EqnListInsertFirst(&new_literals, new_lit);

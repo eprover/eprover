@@ -496,29 +496,7 @@ Term_p do_eta_expand_db(TB_p bank, Term_p t)
          res = t;
       }
    }
-
-   if(TypeIsArrow(res->type) && !TermIsLambda(res))
-   {
-      long num_args = TypeGetMaxArity(res->type);
-      PStack_p db_args = PStackAlloc();
-      for(long i=0; i<num_args; i++)
-      {
-         Term_p fresh_db = RequestDBVar(bank->db_vars, res->type->args[i], num_args-i-1);
-         PStackPushP(db_args, 
-                     TypeIsArrow(fresh_db->type) ? 
-                        do_eta_expand_db(bank, fresh_db) : fresh_db);
-      }
-      
-      res = ApplyTerms(bank, ShiftDB(bank, res, num_args), db_args);
-      while(!PStackEmpty(db_args))
-      {
-         res = CloseWithDBVar(bank, ((Term_p)PStackPopP(db_args))->type, res);
-      }
-
-      PStackFree(db_args);
-   }
-
-   return res;
+   return LambdaEtaExpandDBTopLevel(bank, res);
 }
 
 /*-----------------------------------------------------------------------
@@ -576,6 +554,16 @@ Term_p do_eta_reduce_db(TB_p bank, Term_p t)
 
       res = changed ? flatten_and_make_shared(bank, res) :
                       (TermTopFree(res), t);
+   }
+
+   if((res->f_code == bank->sig->qall_code 
+         || res->f_code == bank->sig->qex_code) 
+      && res->arity == 1
+      && !TermIsLambda(res->args[0]))
+   {
+      Term_p copy = TermTopCopyWithoutArgs(res);
+      copy->args[0] = LambdaEtaExpandDBTopLevel(bank, res->args[0]);
+      res = TBTermTopInsert(bank, copy);
    }
 
    return res;
@@ -1247,7 +1235,7 @@ Term_p BetaNormalizeDB(TB_p bank, Term_p term)
 
 Term_p PostCNFEncodeFormulas(TB_p bank, Term_p term)
 {
-   return do_post_cnf_encode(bank, term, 0);
+   return LambdaNormalizeDB(bank, do_post_cnf_encode(bank, term, 0));
 }
 
 /*-----------------------------------------------------------------------
@@ -1313,6 +1301,44 @@ Term_p DecodeFormulasForCNF(TB_p bank, Term_p t)
 
 /*-----------------------------------------------------------------------
 //
+// Function: LambdaEtaExpandDBTopLevel()
+//
+//   Do only one top-level step of eta expansion.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+Term_p LambdaEtaExpandDBTopLevel(TB_p bank, Term_p t)
+{
+   if(TypeIsArrow(t->type) && !TermIsLambda(t))
+   {
+      long num_args = TypeGetMaxArity(t->type);
+      PStack_p db_args = PStackAlloc();
+      for(long i=0; i<num_args; i++)
+      {
+         Term_p fresh_db = RequestDBVar(bank->db_vars, t->type->args[i], num_args-i-1);
+         PStackPushP(db_args, 
+                     TypeIsArrow(fresh_db->type) ? 
+                        do_eta_expand_db(bank, fresh_db) : fresh_db);
+      }
+      
+      t = ApplyTerms(bank, ShiftDB(bank, t, num_args), db_args);
+      while(!PStackEmpty(db_args))
+      {
+         t = CloseWithDBVar(bank, ((Term_p)PStackPopP(db_args))->type, t);
+      }
+
+      PStackFree(db_args);
+   }
+   return t;
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: LambdaEtaReduceDB()
 //
 //   Performs eta-reduction on DB terms
@@ -1325,16 +1351,19 @@ Term_p DecodeFormulasForCNF(TB_p bank, Term_p t)
 
 Term_p LambdaEtaReduceDB(TB_p bank, Term_p term)
 {
+   Term_p res;
    if(TermHasLambdaSubterm(term))
    {
       // sometimes bank comes from a variable and
       // that can be a problem.
-      return do_eta_reduce_db(!bank ? TermGetBank(term) : bank, term);
+      res = do_eta_reduce_db(!bank ? TermGetBank(term) : bank, term);
    }
    else
    {
-      return term;
-   }  
+      res = term;
+   }
+   assert(res->type == term->type);
+   return res;
 }
 
 /*-----------------------------------------------------------------------

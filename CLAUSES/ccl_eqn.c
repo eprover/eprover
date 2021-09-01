@@ -641,7 +641,7 @@ Eqn_p EqnAlloc(Term_p lterm, Term_p rterm, TB_p bank,  bool positive)
 
    /* Allowing predicate variables to be stored in equation */
    if(lterm->type != rterm->type &&
-         !(TypeIsPredicate(lterm->type) && rterm == bank->true_term))
+      !(TypeIsPredicate(lterm->type) && rterm == bank->true_term))
    {
       TermAssertSameSort(bank->sig, lterm, rterm);
    }

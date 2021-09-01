@@ -79,6 +79,12 @@ FunCode DetectCommutativity(Clause_p clause)
 
    FAIL_ON((lit->lterm->arity!=2)||
       (lit->lterm->f_code!=lit->rterm->f_code));
+   // due to weight adjustment either arguement can 
+   // be a pattern applied variable.
+   FAIL_ON(TermIsLambda(lit->lterm->args[0]));
+   FAIL_ON(TermIsLambda(lit->lterm->args[1]));
+   FAIL_ON(TermIsLambda(lit->rterm->args[0]));
+   FAIL_ON(TermIsLambda(lit->rterm->args[1]));
    assert(lit->lterm->args);
    assert(TermIsFreeVar(lit->lterm->args[0])); /* Otherwise default weight */
    assert(TermIsFreeVar(lit->lterm->args[1])); /* is borked */

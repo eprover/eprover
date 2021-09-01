@@ -47,6 +47,7 @@ Term_p     WHNF_step(TB_p bank, Term_p t);
 Term_p     WHNF_deref(Term_p t);
 Term_p     BetaNormalizeDB(TB_p bank, Term_p term);
 Term_p     LambdaEtaReduceDB(TB_p bank, Term_p term);
+Term_p     LambdaEtaExpandDBTopLevel(TB_p bank, Term_p t);
 Term_p     LambdaEtaExpandDB(TB_p bank, Term_p term);
 Term_p     LambdaNormalizeDB(TB_p bank, Term_p term);
 Term_p     PostCNFEncodeFormulas(TB_p bank, Term_p term);

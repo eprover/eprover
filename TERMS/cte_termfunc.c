@@ -1521,14 +1521,14 @@ long TermLexCompare(Term_p t1, Term_p t2)
       return res;
    }
 
-   if(t1->type != t2->type)
+   if(t1->arity != t2->arity)
    {
       // in HO case, it is posible for term
       // to have same head but different arities.
       // in that case the type must be different.
       assert(problemType == PROBLEM_HO);
-      assert(t1->arity != t2->arity);
-      return t1->arity - t2->arity; //asume lenght-lexicographic
+      assert(t1->type != t2->type);
+      return t1->arity - t2->arity; //asume length-lexicographic
    }
 
    //old asserts
