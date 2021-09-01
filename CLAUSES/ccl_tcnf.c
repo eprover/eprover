@@ -1069,7 +1069,7 @@ TFormula_p do_simplify_decoded(TB_p terms, TFormula_p form, bool unroll_implicat
                {
                   if(PStackEmpty(res_args))
                   {
-                     res = asbsorbing_element;
+                     res = neutral_element;
                   }
                   else
                   {
@@ -1077,9 +1077,9 @@ TFormula_p do_simplify_decoded(TB_p terms, TFormula_p form, bool unroll_implicat
                   }
                }
             }
-            PStackFree(res_args);
-            PStackFree(args);
          }
+         PStackFree(res_args);
+         PStackFree(args);
       }
    }
    else if(form->f_code == sig->not_code)

@@ -219,6 +219,7 @@ void mk_prim_enum_inst(ClauseSet_p store, Clause_p cl, Term_p var, Term_p target
    Clause_p res = ClauseAlloc(res_lits);
    NormalizeEquations(res);
    store_result(res, cl, store, DCPrimEnum);
+   BooleanSimplification(res);
 
    var->binding = NULL;
 }
@@ -291,7 +292,7 @@ int prim_enum_var(ClauseSet_p store, Clause_p cl, PrimEnumMode mode, Term_p app_
    {
       for(int i=1; i < app_var->arity; i++)
       {
-         for(int j=2; j < app_var->arity; j++)
+         for(int j=i+1; j < app_var->arity; j++)
          {
             if(app_var->args[i]->type == app_var->args[j]->type)
             {
@@ -337,7 +338,7 @@ int prim_enum_var(ClauseSet_p store, Clause_p cl, PrimEnumMode mode, Term_p app_
             Term_p not_matrix = TermTopAlloc(bank->sig->not_code, 0);
             not_matrix->type = var_ty;
             mk_prim_enum_inst(store, cl, app_var->args[0], 
-                              close_for_appvar(bank, app_var, TBTermTopInsert(bank, not_matrix)));
+                              TBTermTopInsert(bank, not_matrix));
             generated_cls++;
          }
          else if(var_ty->arity == 3 &&
@@ -349,9 +350,9 @@ int prim_enum_var(ClauseSet_p store, Clause_p cl, PrimEnumMode mode, Term_p app_
             Term_p or_matrix = TermTopAlloc(bank->sig->or_code, 0);
             or_matrix->type = var_ty;
             mk_prim_enum_inst(store, cl, app_var->args[0], 
-                              close_for_appvar(bank, app_var, TBTermTopInsert(bank, and_matrix)));
+                              TBTermTopInsert(bank, and_matrix));
             mk_prim_enum_inst(store, cl, app_var->args[0], 
-                              close_for_appvar(bank, app_var, TBTermTopInsert(bank, or_matrix)));
+                              TBTermTopInsert(bank, or_matrix));
             generated_cls += 2;
          }
 
@@ -363,9 +364,9 @@ int prim_enum_var(ClauseSet_p store, Clause_p cl, PrimEnumMode mode, Term_p app_
             Term_p neqn_matrix = TermTopAlloc(bank->sig->neqn_code, 0);
             neqn_matrix->type = var_ty;
             mk_prim_enum_inst(store, cl, app_var->args[0], 
-                              close_for_appvar(bank, app_var, TBTermTopInsert(bank, eqn_matrix)));
+                              TBTermTopInsert(bank, eqn_matrix));
             mk_prim_enum_inst(store, cl, app_var->args[0], 
-                              close_for_appvar(bank, app_var, TBTermTopInsert(bank, neqn_matrix)));
+                              TBTermTopInsert(bank, neqn_matrix));
             generated_cls += 2;
          }
          if(var_ty->arity == 2 &&
@@ -379,9 +380,9 @@ int prim_enum_var(ClauseSet_p store, Clause_p cl, PrimEnumMode mode, Term_p app_
             Term_p ex_matrix = TermTopAlloc(bank->sig->qex_code, 0);
             ex_matrix->type = var_ty;
             mk_prim_enum_inst(store, cl, app_var->args[0],
-                              close_for_appvar(bank, app_var, TBTermTopInsert(bank, all_matrix)));
+                              TBTermTopInsert(bank, all_matrix));
             mk_prim_enum_inst(store, cl, app_var->args[0],
-                              close_for_appvar(bank, app_var, TBTermTopInsert(bank, ex_matrix)));
+                              TBTermTopInsert(bank, ex_matrix));
             generated_cls += 2;
          }
       }
@@ -1127,6 +1128,16 @@ bool NormalizeEquations(Clause_p cl)
             lit->lterm = lterm;
          }
 
+         if(lit->lterm == bank->false_term)
+         {
+            lit->lterm = bank->true_term;
+            negate = !negate;
+         }
+         if(lit->rterm == bank->false_term)
+         {
+            lit->rterm = bank->true_term;
+            negate = !negate;
+         }
          if(lit->rterm != bank->true_term)
          {
             EqnSetProp(lit, EPIsEquLiteral);
