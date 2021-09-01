@@ -5715,7 +5715,7 @@ static void select_cq_ar_eql_weight(LitEval_p lit, Clause_p clause,
 {
    Eqn_p l = lit->literal;
 
-   if(EqnIsEquLit(l))
+   if(EqnIsEquLit(l) || TermIsFreeVar(l->lterm))
    {
       lit->w1 = 1000000;
       lit->w2 = 0;
@@ -5760,7 +5760,7 @@ static void select_cq_ar_eqf_weight(LitEval_p lit, Clause_p clause,
 {
    Eqn_p l = lit->literal;
 
-   if(EqnIsEquLit(l))
+   if(EqnIsEquLit(l) || TermIsFreeVar(l->lterm))
    {
       lit->w1 = -100000;
       lit->w2 = 0;
@@ -5804,7 +5804,7 @@ static void select_cq_iar_eql_weight(LitEval_p lit, Clause_p clause,
 {
    Eqn_p l = lit->literal;
 
-   if(EqnIsEquLit(l))
+   if(EqnIsEquLit(l) || TermIsFreeVar(l->lterm))
    {
       lit->w1 = 100000;
       lit->w2 = 0;
@@ -5849,7 +5849,7 @@ static void select_cq_iar_eqf_weight(LitEval_p lit, Clause_p clause,
 {
    Eqn_p l = lit->literal;
 
-   if(EqnIsEquLit(l))
+   if(EqnIsEquLit(l) || TermIsFreeVar(l->lterm))
    {
       lit->w1 = -100000;
       lit->w2 = 0;
@@ -5896,7 +5896,7 @@ static void select_cq_ar_weight(LitEval_p lit, Clause_p clause,
 {
    Eqn_p l = lit->literal;
 
-   if(EqnIsEquLit(l))
+   if(EqnIsEquLit(l) || TermIsFreeVar(l->lterm))
    {
       lit->w1 = -2;
       lit->w2 = l->lterm->f_code > 0
@@ -5944,7 +5944,7 @@ static void select_cq_iar_weight(LitEval_p lit, Clause_p clause,
 {
    Eqn_p l = lit->literal;
 
-   if(EqnIsEquLit(l))
+   if(EqnIsEquLit(l) || TermIsFreeVar(l->lterm))
    {
      lit->w1 = 2;
       lit->w2 = l->lterm->f_code > 0
@@ -5992,7 +5992,7 @@ static void select_cq_arnp_eqf_weight(LitEval_p lit, Clause_p clause,
 {
    Eqn_p l = lit->literal;
 
-   if(EqnIsEquLit(l))
+   if(EqnIsEquLit(l) || TermIsFreeVar(l->lterm))
    {
       lit->w1 = -100000;
       lit->w2 = 0;
@@ -6044,7 +6044,7 @@ static void select_cq_iarnp_eqf_weight(LitEval_p lit, Clause_p clause,
 {
    Eqn_p l = lit->literal;
 
-   if(EqnIsEquLit(l))
+   if(EqnIsEquLit(l) || TermIsFreeVar(l->lterm))
    {
       lit->w1 = -1000000;
       lit->w2 = 0;
@@ -6094,7 +6094,7 @@ static void select_grcq_ar_eqf_weight(LitEval_p lit, Clause_p clause,
 {
    Eqn_p l = lit->literal;
 
-   if(EqnIsEquLit(l))
+   if(EqnIsEquLit(l) || TermIsFreeVar(l->lterm))
    {
       lit->w1 = -1000000;
       lit->w2 = 0;
@@ -6144,7 +6144,7 @@ static void select_cqgr_ar_eqf_weight(LitEval_p lit, Clause_p clause,
 {
    Eqn_p l = lit->literal;
 
-   if(EqnIsEquLit(l))
+   if(EqnIsEquLit(l) || TermIsFreeVar(l->lterm))
    {
       lit->w1 = -1000000;
       lit->w2 = 0;
@@ -6193,7 +6193,7 @@ static void select_cq_arnt_eqf_weight(LitEval_p lit, Clause_p clause,
 {
    Eqn_p l = lit->literal;
 
-   if(EqnIsEquLit(l))
+   if(EqnIsEquLit(l) || TermIsFreeVar(l->lterm))
    {
       lit->w1 = -100000;
       lit->w2 = 0;
@@ -6243,7 +6243,7 @@ static void select_cq_iarnt_eqf_weight(LitEval_p lit, Clause_p clause,
 {
    Eqn_p l = lit->literal;
 
-   if(EqnIsEquLit(l))
+   if(EqnIsEquLit(l) || TermIsFreeVar(l->lterm))
    {
       lit->w1 = -100000;
       lit->w2 = 0;
@@ -6294,7 +6294,7 @@ static void select_cq_arntnp_eqf_weight(LitEval_p lit, Clause_p clause,
 {
    Eqn_p l = lit->literal;
 
-   if(EqnIsEquLit(l))
+   if(EqnIsEquLit(l) || TermIsFreeVar(l->lterm))
    {
       lit->w1 = -100000;
       lit->w2 = 0;
@@ -6345,7 +6345,7 @@ static void select_cq_iarntnp_eqf_weight(LitEval_p lit, Clause_p clause,
 {
    Eqn_p l = lit->literal;
 
-   if(EqnIsEquLit(l))
+   if(EqnIsEquLit(l) || TermIsFreeVar(l->lterm))
    {
       lit->w1 = -100000;
       lit->w2 = 0;
@@ -6395,7 +6395,7 @@ static void select_cq_arnxt_eqf_weight(LitEval_p lit, Clause_p clause,
 {
    Eqn_p l = lit->literal;
 
-   if(EqnIsEquLit(l))
+   if(EqnIsEquLit(l) || TermIsFreeVar(l->lterm))
    {
       lit->w1 = -100000;
       lit->w2 = 0;
@@ -6446,7 +6446,7 @@ static void select_cq_iarnxt_eqf_weight(LitEval_p lit, Clause_p clause,
 {
    Eqn_p l = lit->literal;
 
-   if(EqnIsEquLit(l))
+   if(EqnIsEquLit(l) || TermIsFreeVar(l->lterm))
    {
       lit->w1 = -100000;
       lit->w2 = 0;
@@ -6496,7 +6496,7 @@ static void select_cq_arntnp_weight(LitEval_p lit, Clause_p clause,
 {
    Eqn_p l = lit->literal;
 
-   if(EqnIsEquLit(l))
+   if(EqnIsEquLit(l) || TermIsFreeVar(l->lterm))
    {
       lit->w1 = -2;
       lit->w2 = l->lterm->f_code > 0
@@ -6547,7 +6547,7 @@ static void select_cq_iarntnp_weight(LitEval_p lit, Clause_p clause,
 {
    Eqn_p l = lit->literal;
 
-   if(EqnIsEquLit(l))
+   if(EqnIsEquLit(l) || TermIsFreeVar(l->lterm))
    {
       lit->w1 = 2;
       lit->w2 = l->lterm->f_code > 0
@@ -6597,7 +6597,7 @@ static void select_cq_arnt_weight(LitEval_p lit, Clause_p clause,
 {
    Eqn_p l = lit->literal;
 
-   if(EqnIsEquLit(l))
+   if(EqnIsEquLit(l) || TermIsFreeVar(l->lterm))
    {
       lit->w1 = -2;
       lit->w2 = l->lterm->f_code > 0
@@ -6647,7 +6647,7 @@ static void select_cq_iarnt_weight(LitEval_p lit, Clause_p clause,
 {
    Eqn_p l = lit->literal;
 
-   if(EqnIsEquLit(l))
+   if(EqnIsEquLit(l) || TermIsFreeVar(l->lterm))
    {
       lit->w1 = 2;
       lit->w2 = l->lterm->f_code > 0
@@ -6697,7 +6697,7 @@ static void select_cq_arnp_weight(LitEval_p lit, Clause_p clause,
 {
    Eqn_p l = lit->literal;
 
-   if(EqnIsEquLit(l))
+   if(EqnIsEquLit(l) || TermIsFreeVar(l->lterm))
    {
       lit->w1 = -2;
       lit->w2 = l->lterm->f_code > 0
@@ -6748,7 +6748,7 @@ static void select_cq_iarnp_weight(LitEval_p lit, Clause_p clause,
 {
    Eqn_p l = lit->literal;
 
-   if(EqnIsEquLit(l))
+   if(EqnIsEquLit(l) || TermIsFreeVar(l->lterm))
    {
       lit->w1 = 2;
       lit->w2 = l->lterm->f_code > 0
