@@ -1062,7 +1062,7 @@ TFormula_p do_bool_eqn_replace(TFormula_p form, TB_p terms)
 {
    const Sig_p sig = terms->sig;
    bool changed = false;
-   if (TermIsLambda(form))
+   if (TermIsDBVar(form))
    {
       return form;
    }

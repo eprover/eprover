@@ -243,11 +243,12 @@ int prim_enum_var(ClauseSet_p store, Clause_p cl, PrimEnumMode mode, Term_p app_
    assert(TypeIsBool(app_var->type));
    int generated_cls = 0;
    TB_p bank = cl->literals->bank;
+   Sig_p sig = bank->sig;
 
    if(mode == NegMode || mode == FullMode)
    {
       Term_p neg_matrix = 
-         TFormulaFCodeAlloc(bank, bank->sig->not_code, 
+         TFormulaFCodeAlloc(bank, sig->not_code, 
                             fresh_pattern(bank, app_var), NULL);
       mk_prim_enum_inst(store, cl, app_var->args[0], 
                         close_for_appvar(bank, app_var, neg_matrix));
@@ -256,7 +257,7 @@ int prim_enum_var(ClauseSet_p store, Clause_p cl, PrimEnumMode mode, Term_p app_
    if(mode == AndMode || mode == FullMode)
    {
       Term_p and_matrix = 
-         TFormulaFCodeAlloc(bank, bank->sig->and_code, 
+         TFormulaFCodeAlloc(bank, sig->and_code, 
                             fresh_pattern(bank, app_var), 
                             fresh_pattern(bank, app_var));
       mk_prim_enum_inst(store, cl, app_var->args[0], 
@@ -266,7 +267,7 @@ int prim_enum_var(ClauseSet_p store, Clause_p cl, PrimEnumMode mode, Term_p app_
    if(mode == OrMode || mode == FullMode)
    {
       Term_p or_matrix = 
-         TFormulaFCodeAlloc(bank, bank->sig->or_code, 
+         TFormulaFCodeAlloc(bank, sig->or_code, 
                             fresh_pattern(bank, app_var), 
                             fresh_pattern(bank, app_var));
       mk_prim_enum_inst(store, cl, app_var->args[0],
@@ -276,7 +277,7 @@ int prim_enum_var(ClauseSet_p store, Clause_p cl, PrimEnumMode mode, Term_p app_
    if(mode == EqMode || mode == FullMode)
    {
       Term_p eq_matrix = 
-         TFormulaFCodeAlloc(bank, bank->sig->eqn_code, 
+         TFormulaFCodeAlloc(bank, sig->equiv_code, 
                             fresh_pattern(bank, app_var), 
                             fresh_pattern(bank, app_var));
       mk_prim_enum_inst(store, cl, app_var->args[0],
@@ -299,10 +300,10 @@ int prim_enum_var(ClauseSet_p store, Clause_p cl, PrimEnumMode mode, Term_p app_
                Type_p ty = app_var->args[i]->type;
                Term_p db_i = RequestDBVar(bank->db_vars, ty, app_var->arity-i-1);
                Term_p db_j = RequestDBVar(bank->db_vars, ty, app_var->arity-j-1);
-               Term_p eq_matrix = 
-                  TFormulaFCodeAlloc(bank, bank->sig->eqn_code, db_i, db_j);
-               Term_p neq_matrix = 
-                  TFormulaFCodeAlloc(bank, bank->sig->neqn_code, db_i, db_j);
+               FunCode pos_code = TypeIsBool(ty) ? sig->equiv_code : sig->eqn_code;
+               FunCode neg_code = TypeIsBool(ty) ? sig->xor_code : sig->neqn_code;
+               Term_p eq_matrix = TFormulaFCodeAlloc(bank, pos_code, db_i, db_j);
+               Term_p neq_matrix = TFormulaFCodeAlloc(bank, neg_code, db_i, db_j);
                mk_prim_enum_inst(store, cl, app_var->args[0], 
                                  close_for_appvar(bank, app_var, eq_matrix));
                mk_prim_enum_inst(store, cl, app_var->args[0],
@@ -314,9 +315,9 @@ int prim_enum_var(ClauseSet_p store, Clause_p cl, PrimEnumMode mode, Term_p app_
                   Term_p proj_i = apply_pattern_vars(bank, db_i, app_var);
                   Term_p proj_j = apply_pattern_vars(bank, db_j, app_var);
                   Term_p and_matrix = 
-                     TFormulaFCodeAlloc(bank, bank->sig->and_code, proj_i, proj_j);
+                     TFormulaFCodeAlloc(bank, sig->and_code, proj_i, proj_j);
                   Term_p or_matrix = 
-                     TFormulaFCodeAlloc(bank, bank->sig->or_code, proj_i, proj_j);
+                     TFormulaFCodeAlloc(bank, sig->or_code, proj_i, proj_j);
                   mk_prim_enum_inst(store, cl, app_var->args[0],
                                     close_for_appvar(bank, app_var, and_matrix));
                   mk_prim_enum_inst(store, cl, app_var->args[0], 
@@ -335,7 +336,7 @@ int prim_enum_var(ClauseSet_p store, Clause_p cl, PrimEnumMode mode, Term_p app_
          if(var_ty->arity == 2 &&
             TypeIsBool(var_ty->args[0]) && TypeIsBool(var_ty->args[1]))
          {
-            Term_p not_matrix = TermTopAlloc(bank->sig->not_code, 0);
+            Term_p not_matrix = TermTopAlloc(sig->not_code, 0);
             not_matrix->type = var_ty;
             mk_prim_enum_inst(store, cl, app_var->args[0], 
                               TBTermTopInsert(bank, not_matrix));
@@ -345,9 +346,9 @@ int prim_enum_var(ClauseSet_p store, Clause_p cl, PrimEnumMode mode, Term_p app_
                  TypeIsBool(var_ty->args[0]) && TypeIsBool(var_ty->args[1])
                  && TypeIsBool(var_ty->args[2]))
          {
-            Term_p and_matrix = TermTopAlloc(bank->sig->and_code, 0);
+            Term_p and_matrix = TermTopAlloc(sig->and_code, 0);
             and_matrix->type = var_ty;
-            Term_p or_matrix = TermTopAlloc(bank->sig->or_code, 0);
+            Term_p or_matrix = TermTopAlloc(sig->or_code, 0);
             or_matrix->type = var_ty;
             mk_prim_enum_inst(store, cl, app_var->args[0], 
                               TBTermTopInsert(bank, and_matrix));
@@ -359,9 +360,13 @@ int prim_enum_var(ClauseSet_p store, Clause_p cl, PrimEnumMode mode, Term_p app_
          if(var_ty->arity == 3 && 
             var_ty->args[0] == var_ty->args[1] && TypeIsBool(var_ty->args[2]))
          {
-            Term_p eqn_matrix = TermTopAlloc(bank->sig->eqn_code, 0);
+            FunCode pos_code = 
+               TypeIsBool(var_ty->args[0]) ? sig->equiv_code : sig->eqn_code;
+            Term_p eqn_matrix = TermTopAlloc(pos_code, 0);
             eqn_matrix->type = var_ty;
-            Term_p neqn_matrix = TermTopAlloc(bank->sig->neqn_code, 0);
+            FunCode neg_code = 
+               TypeIsBool(var_ty->args[0]) ? sig->xor_code : sig->neqn_code;
+            Term_p neqn_matrix = TermTopAlloc(neg_code, 0);
             neqn_matrix->type = var_ty;
             mk_prim_enum_inst(store, cl, app_var->args[0], 
                               TBTermTopInsert(bank, eqn_matrix));
@@ -375,9 +380,9 @@ int prim_enum_var(ClauseSet_p store, Clause_p cl, PrimEnumMode mode, Term_p app_
             var_ty->args[0]->arity == 2 &&
             TypeIsBool(var_ty->args[0]->args[1]))
          {
-            Term_p all_matrix = TermTopAlloc(bank->sig->qall_code, 0);
+            Term_p all_matrix = TermTopAlloc(sig->qall_code, 0);
             all_matrix->type = var_ty;
-            Term_p ex_matrix = TermTopAlloc(bank->sig->qex_code, 0);
+            Term_p ex_matrix = TermTopAlloc(sig->qex_code, 0);
             ex_matrix->type = var_ty;
             mk_prim_enum_inst(store, cl, app_var->args[0],
                               TBTermTopInsert(bank, all_matrix));
