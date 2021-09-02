@@ -763,9 +763,9 @@ Term_p do_post_cnf_encode(TB_p bank, Term_p t, long depth)
          res = t;
       }
    }
-   else if(t->f_code == bank->sig->qall_code || t->f_code == bank->sig->qex_code)
+   else if((t->f_code == bank->sig->qall_code || t->f_code == bank->sig->qex_code) &&
+           t->arity == 2)
    {
-      assert(t->arity == 2);
       FunCode quant = t->f_code;
       PStack_p prefix = PStackAlloc();
       Term_p matrix = t;

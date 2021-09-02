@@ -1079,6 +1079,7 @@ void EqnPrintDBG(FILE* out, Eqn_p eq)
    TermPrintDbgHO(out, eq->rterm, eq->bank->sig, DEREF_NEVER);
    fprintf(out, "%s", EqnIsMaximal(eq) ? "*" : "");
    fprintf(out, "%s", EqnIsOriented(eq) ? ">" : "");
+   fprintf(out, "%s", EqnIsEquLit(eq) ? "#" : "");
 }
 
 /*-----------------------------------------------------------------------
@@ -3352,7 +3353,7 @@ void EqnMap(Eqn_p lit, TermMapper_p f, void* arg)
    {
       SWAP(lterm, rterm);
    }
-   if(lterm != bank->true_term)
+   if(rterm != bank->true_term)
    {
       EqnSetProp(lit, EPIsEquLiteral);
    }

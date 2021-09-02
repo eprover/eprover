@@ -154,6 +154,7 @@ void    EqnFree(Eqn_p junk);
 #define EqnIsPositive(eq) EqnQueryProp((eq), EPIsPositive)
 #define EqnIsNegative(eq) (!(EqnQueryProp((eq), EPIsPositive)))
 #define EqnIsEquLit(eq)   (assert(EqnQueryProp((eq), EPIsEquLiteral) || (eq)->rterm == (eq)->bank->true_term),\
+                           assert(!EqnQueryProp((eq), EPIsEquLiteral) || (eq)->rterm != (eq)->bank->true_term),\
                           EqnQueryProp((eq), EPIsEquLiteral))
 #define EqnIsMaximal(eq)  EqnQueryProp((eq), EPIsMaximal)
 #define EqnIsStrictlyMaximal(eq)                                        \
