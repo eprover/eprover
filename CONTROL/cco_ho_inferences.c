@@ -709,7 +709,8 @@ void find_choice_triggers(IntMap_p choice_syms, PStack_p triggers, Term_p t)
 {
    if(!TermIsDBVar(t) && !TermIsLambda(t))
    {
-      if(t->arity == 1 && IntMapGetVal(choice_syms, t->f_code))
+      if(t->arity == 1 && IntMapGetVal(choice_syms, t->f_code) &&
+         !TermIsFreeVar(t->args[0]))
       {
          PStackPushP(triggers, t);
       }
@@ -737,14 +738,13 @@ void find_choice_triggers(IntMap_p choice_syms, PStack_p triggers, Term_p t)
 /----------------------------------------------------------------------*/
 
 void mk_choice_inst(ClauseSet_p store, IntMap_p choice_syms, Clause_p cl, 
-                    Term_p trigger)
+                    FunCode choice_code, Term_p trigger)
 {
-   assert(trigger->arity == 1);
-   assert(TypeIsArrow(trigger->args[0]->type));
-   assert(TypeIsPredicate(trigger->args[0]->type));
-   assert(IntMapGetVal(choice_syms, trigger->f_code));
+   assert(TypeIsArrow(trigger->type));
+   assert(TypeIsPredicate(trigger->type));
+   assert(IntMapGetVal(choice_syms, choice_code));
 
-   Clause_p choice_def = IntMapGetVal(choice_syms, trigger->f_code);
+   Clause_p choice_def = IntMapGetVal(choice_syms, choice_code);
    Eqn_p neg_lit = 
       EqnIsNegative(choice_def->literals) 
          ? choice_def->literals : choice_def->literals->next;
@@ -1671,16 +1671,25 @@ int InstantiateChoiceClauses(ClauseSet_p store, IntMap_p choice_syms,
       {
          TB_p bank = lit->bank;
          Term_p trigger = PStackPopP(triggers);
-         mk_choice_inst(store, choice_syms, orig_cl, trigger);
+         FunCode choice_code = trigger->f_code;
+         trigger = trigger->args[0];
+
+         DBG_PRINT(stderr, "trigger:", TermPrintDbg(stderr, trigger, bank->sig, DEREF_NEVER), "\n");
+         DBG_PRINT(stderr, "literal:", EqnPrintDBG(stderr, lit), "\n");
+
+         mk_choice_inst(store, choice_syms, orig_cl, choice_code, trigger);
          
          Term_p neg_trigger = 
-            TermTopCopyWithoutArgs(LambdaEtaExpandDBTopLevel(lit->bank, trigger));
-         assert(TermIsLambda(neg_trigger));
+            TermTopCopy(LambdaEtaExpandDBTopLevel(lit->bank, trigger));
+         if(!TermIsLambda(neg_trigger))
+         {
+            assert(false);
+         }
          assert(TypeIsBool(neg_trigger->args[1]->type));
-         neg_trigger->args[0] = trigger->args[0];
          neg_trigger->args[1] = 
-            TFormulaFCodeAlloc(bank, bank->sig->not_code, trigger->args[1], NULL);
-         mk_choice_inst(store, choice_syms, orig_cl, TBTermTopInsert(bank, neg_trigger));
+            TFormulaFCodeAlloc(bank, bank->sig->not_code, neg_trigger->args[1], NULL);
+         mk_choice_inst(store, choice_syms, orig_cl,
+                        choice_code, TBTermTopInsert(bank, neg_trigger));
 
          new_cls += 2;
       }

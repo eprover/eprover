@@ -158,7 +158,7 @@ typedef enum
    DCInvRec           = DOInvRec|Arg1Cnf,
    DCLeibnizElim      = DOLeibnizElim|Arg1Cnf,
    DCPrimEnum         = DOPrimEnum|Arg1Cnf,
-   DCChoiceInst       = DOChoiceInst|Arg2Cnf
+   DCChoiceInst       = DOChoiceInst|Arg1Cnf|Arg2Cnf
 }DerivationCode;
 
 
