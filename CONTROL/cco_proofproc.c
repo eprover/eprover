@@ -1517,7 +1517,7 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control,
    }
 
    if(problemType == PROBLEM_HO &&
-      control->heuristic_parms.inst_choice &&
+      control->heuristic_parms.inst_choice >= 0 &&
       RecognizeChoiceOperator(state->choice_opcodes, clause))
    {
       ClauseSetInsert(state->archive, clause);

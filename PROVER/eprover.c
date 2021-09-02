@@ -1809,7 +1809,7 @@ CLState_p process_options(int argc, char* argv[])
             h_parms->prim_enum_max_depth = CLStateGetIntArgCheckRange(handle, arg, -1, INT_MAX);
             break;
       case OPT_CHOICE_INST:
-            h_parms->inst_choice = CLStateGetBoolArg(handle, arg);
+            h_parms->inst_choice = CLStateGetIntArgCheckRange(handle, arg, -1, INT_MAX);
             break;
       case OPT_PRIM_ENUM_KIND:
             if(strcmp(arg, "neg")==0)

@@ -1565,9 +1565,11 @@ OptCell opts[] =
     " -1 disables primitive enumeration"},
 
     {OPT_CHOICE_INST,
-    '\0', "inst-choice",
+    '\0', "inst-choice-max-depth",
     ReqArg, NULL,
-    "Enable/disable recognition and instantiation of defined chioce symbols."},
+    "Maximal proof depth of a clause which is going to"
+    " be scanned for occurrences of defined choice symbol"
+    " -1 disables scanning for choice symbols"},
 
 
    {OPT_NOOPT,

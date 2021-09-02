@@ -745,6 +745,16 @@ void mk_choice_inst(ClauseSet_p store, IntMap_p choice_syms, Clause_p cl,
    assert(IntMapGetVal(choice_syms, choice_code));
 
    Clause_p choice_def = IntMapGetVal(choice_syms, choice_code);
+#ifndef NDEBUG
+   PTree_p cl_vars = NULL, trig_vars = NULL;
+   ClauseCollectVariables(choice_def, &cl_vars);
+   TFormulaCollectFreeVars(choice_def->literals->bank, trigger, &trig_vars);
+   PTree_p intersection = PTreeIntersection(cl_vars, trig_vars);
+   assert(intersection == NULL);
+   PTreeFree(cl_vars);
+   PTreeFree(trig_vars);
+   PTreeFree(intersection);
+#endif
    Eqn_p neg_lit = 
       EqnIsNegative(choice_def->literals) 
          ? choice_def->literals : choice_def->literals->next;
@@ -762,7 +772,7 @@ void mk_choice_inst(ClauseSet_p store, IntMap_p choice_syms, Clause_p cl,
    NormalizeEquations(res);
    store_result(res, cl, choice_def, store, DCChoiceInst);
    BooleanSimplification(res);
-
+   
    var->binding = NULL;
 }
 
@@ -1658,10 +1668,17 @@ bool RecognizeChoiceOperator(IntMap_p choice_symbols_map, Clause_p cl)
 #define FAIL_ON(cond) if (cond) return false
 
 int InstantiateChoiceClauses(ClauseSet_p store, IntMap_p choice_syms, 
-                             Clause_p renamed_cl, Clause_p orig_cl)
+                             Clause_p renamed_cl, Clause_p orig_cl,
+                             int limit)
 {
+   if(orig_cl->proof_depth > limit)
+   {
+      return 0;
+   }
+
    PStack_p triggers = PStackAlloc();
    int new_cls = 0;
+
    for(Eqn_p lit = renamed_cl->literals; lit; lit = lit->next)
    {
       assert(PStackEmpty(triggers));
@@ -1673,10 +1690,6 @@ int InstantiateChoiceClauses(ClauseSet_p store, IntMap_p choice_syms,
          Term_p trigger = PStackPopP(triggers);
          FunCode choice_code = trigger->f_code;
          trigger = trigger->args[0];
-
-         DBG_PRINT(stderr, "trigger:", TermPrintDbg(stderr, trigger, bank->sig, DEREF_NEVER), "\n");
-         DBG_PRINT(stderr, "literal:", EqnPrintDBG(stderr, lit), "\n");
-
          mk_choice_inst(store, choice_syms, orig_cl, choice_code, trigger);
          
          Term_p neg_trigger = 
@@ -1747,10 +1760,11 @@ void ComputeHOInferences(ProofState_p state, ProofControl_p control,
                               control->heuristic_parms.prim_enum_mode,
                               control->heuristic_parms.prim_enum_max_depth);
       }
-      if (control->heuristic_parms.inst_choice)
+      if (control->heuristic_parms.inst_choice >=0)
       {
          InstantiateChoiceClauses(state->tmp_store, state->choice_opcodes, 
-                                  renamed_cl, orig_clause);
+                                  renamed_cl, orig_clause, 
+                                  control->heuristic_parms.inst_choice);
       }
    }
 }
