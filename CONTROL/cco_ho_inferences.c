@@ -746,14 +746,15 @@ void mk_choice_inst(ClauseSet_p store, IntMap_p choice_syms, Clause_p cl,
 
    Clause_p choice_def = IntMapGetVal(choice_syms, trigger->f_code);
    Eqn_p neg_lit = 
-      EqnIsNegative(cl->literals) ? cl->literals : cl->literals->next;
+      EqnIsNegative(choice_def->literals) 
+         ? choice_def->literals : choice_def->literals->next;
    assert(TermIsAppliedFreeVar(neg_lit->lterm));
    
    Term_p var = neg_lit->lterm->args[0];
    assert(!var->binding);
    var->binding = trigger;
 
-   Eqn_p res_lits = EqnListCopyOpt(cl->literals);
+   Eqn_p res_lits = EqnListCopyOpt(choice_def->literals);
    EqnListLambdaNormalize(res_lits);
    EqnListRemoveResolved(&res_lits);
    EqnListRemoveDuplicates(res_lits);
@@ -1679,7 +1680,6 @@ int InstantiateChoiceClauses(ClauseSet_p store, IntMap_p choice_syms,
          neg_trigger->args[0] = trigger->args[0];
          neg_trigger->args[1] = 
             TFormulaFCodeAlloc(bank, bank->sig->not_code, trigger->args[1], NULL);
-         assert(TermIsLambda(neg_trigger));
          mk_choice_inst(store, choice_syms, orig_cl, TBTermTopInsert(bank, neg_trigger));
 
          new_cls += 2;
