@@ -3348,6 +3348,18 @@ void EqnMap(Eqn_p lit, TermMapper_p f, void* arg)
       rterm = bank->true_term;
       negate = !negate;
    }
+   if(lterm == bank->true_term)
+   {
+      SWAP(lterm, rterm);
+   }
+   if(lterm != bank->true_term)
+   {
+      EqnSetProp(lit, EPIsEquLiteral);
+   }
+   else
+   {
+      EqnDelProp(lit, EPIsEquLiteral);
+   }
 
    if(negate)
    {

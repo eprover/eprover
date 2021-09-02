@@ -1105,8 +1105,20 @@ bool NormalizeEquations(Clause_p cl)
    for (Eqn_p lit = cl->literals; lit; lit = lit->next)
    {
       TB_p bank = lit->bank;
+      Sig_p sig = bank->sig;
+      if(lit->lterm == bank->true_term)
+      {
+         SWAP(lit->lterm, lit->rterm);
+         EqnDelProp(lit, EPIsEquLiteral);
+         EqnDelProp(lit, EPMaxIsUpToDate);
+         EqnDelProp(lit, EPIsOriented);
+         normalized=true;
+      }
+
       if (lit->rterm == bank->true_term &&
-          (lit->lterm->f_code == bank->sig->eqn_code || lit->lterm->f_code == bank->sig->neqn_code || lit->lterm->f_code == bank->sig->not_code))
+          (lit->lterm->f_code == sig->eqn_code || 
+           lit->lterm->f_code == sig->neqn_code || 
+           lit->lterm->f_code == sig->not_code))
       {
          bool negate = false;
          normalized = true;
@@ -1143,9 +1155,18 @@ bool NormalizeEquations(Clause_p cl)
             lit->rterm = bank->true_term;
             negate = !negate;
          }
+         if(lit->lterm == bank->true_term)
+         {
+            SWAP(lit->lterm, lit->rterm);
+         }
+
          if(lit->rterm != bank->true_term)
          {
             EqnSetProp(lit, EPIsEquLiteral);
+         }
+         else
+         {
+            EqnDelProp(lit, EPIsEquLiteral);
          }
 
          if (negate)
@@ -1402,6 +1423,7 @@ bool BooleanSimplification(Clause_p cl)
 
    if(changed)
    {
+      ClauseRecomputeLitCounts(cl);
       ClauseRemoveSuperfluousLiterals(cl);
       ClausePushDerivation(cl, DCNormalize, NULL, NULL);
    }
