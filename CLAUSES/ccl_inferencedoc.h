@@ -122,6 +122,7 @@ typedef enum
 #define PCL_INV_REC "recongize_injectivity"
 #define PCL_LEIBNIZ_ELIM "eliminate_leibniz_eq"
 #define PCL_PRIM_ENUM "primitive_enumeration"
+#define PCL_CHOICE_INST "choice_inst"
 
 
 /*---------------------------------------------------------------------*/

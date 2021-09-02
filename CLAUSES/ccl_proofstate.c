@@ -146,6 +146,7 @@ ProofState_p ProofStateAlloc(FunctionProperties free_symb_prop)
 
    handle->type_bank            = TypeBankAlloc();
    handle->signature            = SigAlloc(handle->type_bank);
+   handle->choice_opcodes       = IntMapAlloc();
    SigInsertInternalCodes(handle->signature);
    handle->original_symbols     = 0;
    handle->terms                = TBAlloc(handle->signature);
@@ -409,6 +410,7 @@ void ProofStateFree(ProofState_p junk)
 {
    assert(junk);
    ClauseSetFree(junk->axioms);
+   IntMapFree(junk->choice_opcodes);
    FormulaSetFree(junk->f_axioms);
    FormulaSetFree(junk->f_ax_archive);
    ClauseSetFree(junk->processed_pos_rules);

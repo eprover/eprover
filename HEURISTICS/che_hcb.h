@@ -178,6 +178,7 @@ typedef struct heuristic_parms_cell
    int                 elim_leibniz_max_depth;
    PrimEnumMode        prim_enum_mode;
    int                 prim_enum_max_depth;
+   bool                inst_choice;
 }HeuristicParmsCell, *HeuristicParms_p;
 
 

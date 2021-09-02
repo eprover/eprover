@@ -207,6 +207,7 @@ typedef enum
    OPT_UNROLL_FORMULAS_ONLY,
    OPT_PRIM_ENUM_KIND,
    OPT_PRIM_ENUM_MAX_DEPTH,
+   OPT_CHOICE_INST,
    OPT_DUMMY
 }OptionCodes;
 
@@ -1562,6 +1563,11 @@ OptCell opts[] =
     ReqArg, NULL,
     "Maximal proof depth of a clause on which primitive enumeration is applied."
     " -1 disables primitive enumeration"},
+
+    {OPT_CHOICE_INST,
+    '\0', "inst-choice",
+    ReqArg, NULL,
+    "Enable/disable recognition and instantiation of defined chioce symbols."},
 
 
    {OPT_NOOPT,

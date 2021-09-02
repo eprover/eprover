@@ -203,6 +203,7 @@ void HeuristicParmsInitialize(HeuristicParms_p handle)
    handle->elim_leibniz_max_depth        = NO_ELIM_LEIBNIZ;
    handle->prim_enum_mode                = PragmaticMode;
    handle->prim_enum_max_depth           = -1;
+   handle->inst_choice                   = false;
 }
 
 

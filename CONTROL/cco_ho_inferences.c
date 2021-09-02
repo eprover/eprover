@@ -46,7 +46,7 @@ Contents
 //
 /----------------------------------------------------------------------*/
 
-void set_proof_object(Clause_p new_clause, Clause_p orig_clause,
+void set_proof_object(Clause_p new_clause, Clause_p orig_clause, Clause_p parent2,
                       DerivationCode dc)
 {
    new_clause->proof_depth = orig_clause->proof_depth + 1;
@@ -55,7 +55,7 @@ void set_proof_object(Clause_p new_clause, Clause_p orig_clause,
    ClauseSetProp(new_clause, ClauseGiveProps(orig_clause, CPIsSOS));
    // TODO: Clause documentation is not implemented at the moment.
    // DocClauseCreationDefault(clause, inf_efactor, clause, NULL);
-   ClausePushDerivation(new_clause, dc, orig_clause, NULL);
+   ClausePushDerivation(new_clause, dc, orig_clause, parent2);
 }
 
 /*-----------------------------------------------------------------------
@@ -71,10 +71,10 @@ void set_proof_object(Clause_p new_clause, Clause_p orig_clause,
 //
 /----------------------------------------------------------------------*/
 
-void store_result(Clause_p new_clause, Clause_p orig_clause,
+void store_result(Clause_p new_clause, Clause_p orig_clause, Clause_p parent2,
                   ClauseSet_p store, DerivationCode dc)
 {
-   set_proof_object(new_clause, orig_clause, dc);
+   set_proof_object(new_clause, orig_clause, parent2, dc);
    ClauseSetInsert(store, new_clause);
 }
 
@@ -218,7 +218,7 @@ void mk_prim_enum_inst(ClauseSet_p store, Clause_p cl, Term_p var, Term_p target
    EqnListRemoveDuplicates(res_lits);
    Clause_p res = ClauseAlloc(res_lits);
    NormalizeEquations(res);
-   store_result(res, cl, store, DCPrimEnum);
+   store_result(res, cl, NULL, store, DCPrimEnum);
    BooleanSimplification(res);
 
    var->binding = NULL;
@@ -496,7 +496,7 @@ void do_ext_eqres(Clause_p cl, Eqn_p lit, ClauseSet_p store)
       EqnListRemoveDuplicates(condition);
       EqnListLambdaNormalize(condition);
       Clause_p res = ClauseAlloc(condition);
-      store_result(res, cl, store, DCExtEqRes);
+      store_result(res, cl, NULL, store, DCExtEqRes);
    }
 
    PStackFree(disagreements);
@@ -694,6 +694,79 @@ void do_ext_sup_into(Clause_p renamed_cl, Clause_p orig_cl, ProofState_p state)
 
 /*-----------------------------------------------------------------------
 //
+// Function: find_choice_triggers()
+//
+//  Find subterms of t that are of the form ch(s) where ch is in choice_syms.
+//  Store the subterm on stack triggers.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void find_choice_triggers(IntMap_p choice_syms, PStack_p triggers, Term_p t)
+{
+   if(!TermIsDBVar(t) && !TermIsLambda(t))
+   {
+      if(t->arity == 1 && IntMapGetVal(choice_syms, t->f_code))
+      {
+         PStackPushP(triggers, t);
+      }
+      else if(!TermIsFreeVar(t) && t->arity)
+      {
+         for(int i=0; i<t->arity; i++)
+         {
+            find_choice_triggers(choice_syms, triggers, t->args[i]);
+         }
+      }
+   }
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: mk_choice_inst()
+//
+//  Given a term whose head is a defined choice symbol, instantiate
+//  the corresponding choice axiom with the argument of the choice term.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void mk_choice_inst(ClauseSet_p store, IntMap_p choice_syms, Clause_p cl, 
+                    Term_p trigger)
+{
+   assert(trigger->arity == 1);
+   assert(TypeIsArrow(trigger->args[0]->type));
+   assert(TypeIsPredicate(trigger->args[0]->type));
+   assert(IntMapGetVal(choice_syms, trigger->f_code));
+
+   Clause_p choice_def = IntMapGetVal(choice_syms, trigger->f_code);
+   Eqn_p neg_lit = 
+      EqnIsNegative(cl->literals) ? cl->literals : cl->literals->next;
+   assert(TermIsAppliedFreeVar(neg_lit->lterm));
+   
+   Term_p var = neg_lit->lterm->args[0];
+   assert(!var->binding);
+   var->binding = trigger;
+
+   Eqn_p res_lits = EqnListCopyOpt(cl->literals);
+   EqnListLambdaNormalize(res_lits);
+   EqnListRemoveResolved(&res_lits);
+   EqnListRemoveDuplicates(res_lits);
+   Clause_p res = ClauseAlloc(res_lits);
+   NormalizeEquations(res);
+   store_result(res, cl, choice_def, store, DCChoiceInst);
+   BooleanSimplification(res);
+
+   var->binding = NULL;
+}
+
+/*-----------------------------------------------------------------------
+//
 // Function: term_drop_last_arg()
 //
 //   Removes the last argument of a term. Assumes there is at least
@@ -771,7 +844,7 @@ void mk_leibniz_instance(ClauseSet_p store, Clause_p cl,
    EqnListRemoveDuplicates(res_lits);
    Clause_p res = ClauseAlloc(res_lits);
    NormalizeEquations(res);
-   store_result(res, cl, store, DCLeibnizElim);
+   store_result(res, cl, NULL, store, DCLeibnizElim);
 
    var->binding = NULL;
 }
@@ -855,7 +928,7 @@ void ComputeNegExt(ProofState_p state, ProofControl_p control, Clause_p clause)
             EqnListLambdaNormalize(new_literals);
             Clause_p new_clause = ClauseAlloc(new_literals);
             state->neg_ext_count++;
-            store_result(new_clause, clause, state->tmp_store, DCNegExt);
+            store_result(new_clause, clause, NULL, state->tmp_store, DCNegExt);
          }
 
          TypeArgArrayFree(vars_types, num_vars);
@@ -914,7 +987,7 @@ void ComputeArgCong(ProofState_p state, ProofControl_p control, Clause_p clause)
 
             EqnListLambdaNormalize(new_literals);
             Clause_p new_clause = ClauseAlloc(new_literals);
-            store_result(new_clause, clause, state->tmp_store, DCArgCong);
+            store_result(new_clause, clause, NULL, state->tmp_store, DCArgCong);
          }
          PStackFree(fresh_vars);
       }
@@ -999,7 +1072,7 @@ void ComputePosExt(ProofState_p state, ProofControl_p control, Clause_p clause)
                EqnListInsertFirst(&new_literals, new_lit);
 
                Clause_p new_clause = ClauseAlloc(new_literals);
-               store_result(new_clause, clause, state->tmp_store, DCPosExt);
+               store_result(new_clause, clause, NULL, state->tmp_store, DCPosExt);
             }
             else
             {
@@ -1246,7 +1319,7 @@ bool ImmediateClausification(Clause_p cl, ClauseSet_p store, ClauseSet_p archive
             Clause_p res = ClauseSetExtractFirst(res_set);
             // DBG_PRINT(stderr, " > ", ClausePrintDBG(stderr, res), ".\n");
             PStackReset(res->derivation);
-            store_result(res, cl, store, DCDynamicCNF);
+            store_result(res, cl, NULL, store, DCDynamicCNF);
          }
 
          clausified = true;
@@ -1511,6 +1584,113 @@ bool ResolveFlexClause(Clause_p cl)
 
 /*-----------------------------------------------------------------------
 //
+// Function: RecognizeChoiceOperator()
+//
+//   If the clause is of the form ~P X | P (f P) it will recognize
+//   that f is a defined choice operatior, store f in choice_symbols
+//   map and return true.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+#define FAIL_ON(cond) if (cond) return false
+
+bool RecognizeChoiceOperator(IntMap_p choice_symbols_map, Clause_p cl)
+{
+   FAIL_ON(cl->pos_lit_no != 1);
+   FAIL_ON(cl->neg_lit_no != 1);
+
+   Eqn_p pos_lit = 
+      EqnIsPositive(cl->literals) ? cl->literals : cl->literals->next;
+   Eqn_p neg_lit = 
+      EqnIsNegative(cl->literals) ? cl->literals : cl->literals->next;
+   assert(EqnIsPositive(pos_lit));
+   assert(EqnIsNegative(neg_lit));
+
+   FAIL_ON(EqnIsEquLit(pos_lit));
+   FAIL_ON(EqnIsEquLit(neg_lit));
+
+   TB_p bank = pos_lit->bank;
+   Term_p neg_term = 
+      BetaNormalizeDB(bank, LambdaEtaReduceDB(bank, neg_lit->lterm));
+   Term_p pos_term = 
+      BetaNormalizeDB(bank, LambdaEtaReduceDB(bank, pos_lit->lterm));
+
+   FAIL_ON(!TermIsAppliedFreeVar(neg_term));
+   FAIL_ON(!TermIsAppliedFreeVar(pos_term));
+
+   FAIL_ON(neg_term->arity != 2);
+   FAIL_ON(!TermIsFreeVar(neg_term->args[1]));
+
+   Term_p p_var = neg_term->args[0];
+   FAIL_ON(pos_term->arity != 2);
+   FAIL_ON(pos_term->args[0] != p_var);
+
+   Term_p fp = pos_term->args[1];
+   FAIL_ON(fp->arity != 1);
+   FAIL_ON(fp->f_code <= bank->sig->internal_symbols);
+   FAIL_ON(fp->args[0] != p_var);
+   FAIL_ON(IntMapGetVal(choice_symbols_map, fp->f_code));
+
+   neg_lit->lterm = neg_term;
+   pos_lit->lterm = pos_term;
+   IntMapAssign(choice_symbols_map, fp->f_code, cl);
+   return true;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: InstantiateChoiceClauses()
+//
+//   Scan the clause for term of the form (f t) where f is a defined choice 
+//   symbol and instantiate the saved choice axioms with t and negation thereof
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+#define FAIL_ON(cond) if (cond) return false
+
+int InstantiateChoiceClauses(ClauseSet_p store, IntMap_p choice_syms, 
+                             Clause_p renamed_cl, Clause_p orig_cl)
+{
+   PStack_p triggers = PStackAlloc();
+   int new_cls = 0;
+   for(Eqn_p lit = renamed_cl->literals; lit; lit = lit->next)
+   {
+      assert(PStackEmpty(triggers));
+      find_choice_triggers(choice_syms, triggers, lit->lterm);
+      find_choice_triggers(choice_syms, triggers, lit->rterm);
+      while(!PStackEmpty(triggers))
+      {
+         TB_p bank = lit->bank;
+         Term_p trigger = PStackPopP(triggers);
+         mk_choice_inst(store, choice_syms, orig_cl, trigger);
+         
+         Term_p neg_trigger = 
+            TermTopCopyWithoutArgs(LambdaEtaExpandDBTopLevel(lit->bank, trigger));
+         assert(TermIsLambda(neg_trigger));
+         assert(TypeIsBool(neg_trigger->args[1]->type));
+         neg_trigger->args[0] = trigger->args[0];
+         neg_trigger->args[1] = 
+            TFormulaFCodeAlloc(bank, bank->sig->not_code, trigger->args[1], NULL);
+         assert(TermIsLambda(neg_trigger));
+         mk_choice_inst(store, choice_syms, orig_cl, TBTermTopInsert(bank, neg_trigger));
+
+         new_cls += 2;
+      }
+   }
+   PStackFree(triggers);
+   return new_cls;
+}
+
+/*-----------------------------------------------------------------------
+//
 // Function: ComputeHOInferences()
 //
 //   Computes all registered HO inferences. 
@@ -1557,6 +1737,11 @@ void ComputeHOInferences(ProofState_p state, ProofControl_p control,
          PrimitiveEnumeration(state->tmp_store, orig_clause, 
                               control->heuristic_parms.prim_enum_mode,
                               control->heuristic_parms.prim_enum_max_depth);
+      }
+      if (control->heuristic_parms.inst_choice)
+      {
+         InstantiateChoiceClauses(state->tmp_store, state->choice_opcodes, 
+                                  renamed_cl, orig_clause);
       }
    }
 }
