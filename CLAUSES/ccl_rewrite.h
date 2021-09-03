@@ -91,6 +91,8 @@ long FindRewritableClausesIndexed(OCB_p ocb, SubtermIndex_p index,
                                   PStack_p stack, Clause_p new_demod,
                                   SysDate nf_date);
 
+bool ClauseLocalRW(Clause_p clause);
+
 #endif
 
 /*---------------------------------------------------------------------*/

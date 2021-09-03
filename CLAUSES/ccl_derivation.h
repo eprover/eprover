@@ -50,6 +50,7 @@ typedef enum
    /* For simplifying inferences, the main premise is implicit */
    DOEvalGC,
    DORewrite,
+   DOLocalRewrite,
    DOUnfold,
    DOApplyDef,
    DOContextSR,
@@ -116,6 +117,7 @@ typedef enum
    /* For simplifying inferences, the main premise is implicit */
    DCCnfEvalGC        = DOEvalGC,
    DCRewrite          = DORewrite|Arg1Cnf,
+   DCLocalRewrite     = DOLocalRewrite,
    DCUnfold           = DOUnfold|Arg1Cnf,
    DCApplyDef         = DOApplyDef|Arg1Fof,
    DCContextSR        = DOContextSR|Arg1Cnf,

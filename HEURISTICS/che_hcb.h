@@ -179,6 +179,7 @@ typedef struct heuristic_parms_cell
    PrimEnumMode        prim_enum_mode;
    int                 prim_enum_max_depth;
    int                 inst_choice;
+   bool                local_rw;
 }HeuristicParmsCell, *HeuristicParms_p;
 
 

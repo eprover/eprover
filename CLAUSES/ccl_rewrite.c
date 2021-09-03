@@ -21,6 +21,11 @@
 #include "ccl_rewrite.h"
 #include <cte_lambda.h>
 
+typedef struct {
+   PObjMap_p* rw_sys;
+   TB_p bank;
+} local_rw_args;
+
 
 /*---------------------------------------------------------------------*/
 /*                        Global Variables                             */
@@ -461,6 +466,57 @@ static bool find_rewritable_clauses(OCB_p ocb, ClauseSet_p set,
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: replace_term()
+//
+//   Replace all subterms stored in the rw_sys.
+//
+// Global Variables: -
+//
+// Side Effects    : Instantiates
+//
+/----------------------------------------------------------------------*/
+
+Term_p replace_term(PObjMap_p* rw_sys, TB_p bank, Term_p t)
+{
+   Term_p s = PObjMapFind(rw_sys, t, PCmpFun);
+
+   if(s && s!=t)
+   {
+      s = replace_term(rw_sys, bank, s);
+   }
+   else
+   {
+      bool changed = false;
+      s = TermTopCopyWithoutArgs(t);
+      for(int i=0; i < t->arity; i++)
+      {
+         s->args[i] = replace_term(rw_sys, bank, t->args[i]);
+         assert(TermIsShared(s->args[i]) && s->args[i]->type == t->args[i]->type);
+         changed = changed || (s->args[i] != t->args[i]);
+      }
+
+      if(changed)
+      {
+         s = TBTermTopInsert(bank, s);
+      }
+      else
+      {
+         TermTopFree(s);
+         s = t;
+      }
+   }
+   return s;
+}
+
+//helper function to adhere to TermMapper interface
+Term_p local_rw_term(void* p_args, Term_p t)
+{
+   local_rw_args* args = p_args;
+   return replace_term(args->rw_sys, args->bank, t);
+}
+
 
 
 /*-----------------------------------------------------------------------
@@ -842,6 +898,10 @@ EqnSide eqn_li_normalform(RWDesc_p desc, ClausePos_p pos, bool interred_rw)
    eqn->rterm = term_li_normalform(desc, eqn->rterm, false);
    if(r_old!=eqn->rterm)
    {
+      if(EqnQueryProp(eqn, EPIsEquLiteral) && eqn->rterm == eqn->bank->true_term)
+      {
+         EqnDelProp(eqn, EPIsEquLiteral);
+      }
       if(EqnIsOriented(eqn))
       {
          res = res|MinSide;
@@ -1331,6 +1391,64 @@ long FindRewritableClausesIndexed(OCB_p ocb, SubtermIndex_p index,
    return res;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseLocalRW()
+//
+//   Find negative literals s != t such that s > t and replace all 
+//   occurrences of s with t in the clause.
+//
+// Global Variables: -
+//
+// Side Effects    : Changes nf_dates of terms, may add rewrite
+//                   links.
+//
+/----------------------------------------------------------------------*/
+
+bool ClauseLocalRW(Clause_p clause)
+{
+   PObjMap_p rw_sys = NULL;
+
+   for(Eqn_p lit = clause->literals; lit; lit = lit->next)
+   {
+      if(EqnIsNegative(lit) && EqnIsOriented(lit))
+      {
+         PObjMapStore(&rw_sys, lit->lterm, lit->rterm, PCmpFun);
+      }
+      else if(!EqnIsEquLit(lit) && EqnIsPositive(lit))
+      {
+         assert(lit->rterm == lit->bank->true_term);
+         PObjMapStore(&rw_sys, lit->lterm, lit->bank->false_term, PCmpFun);
+      }
+   }
+
+   bool modified = false;
+   for(Eqn_p lit = clause->literals; lit; lit = lit->next)
+   {
+      if(!(EqnIsNegative(lit) && EqnIsOriented(lit))
+          && !(!EqnIsEquLit(lit) && EqnIsPositive(lit)))
+      {
+         Term_p lterm = lit->lterm, rterm = lit->rterm;
+         local_rw_args arg = {.rw_sys = &rw_sys, .bank = lit->bank };
+         EqnMap(lit, local_rw_term, &arg);
+         if(lterm != lit->lterm || rterm != lit->rterm)
+         {
+            modified = true;
+         }
+      }
+   }
+
+   if(modified)
+   {
+      ClauseRecomputeLitCounts(clause);
+      ClauseRemoveSuperfluousLiterals(clause);
+      ClausePushDerivation(clause, DCLocalRewrite, NULL, NULL);
+   }
+
+
+   PObjMapFree(rw_sys);
+   return modified;
+}
 
 
 /*---------------------------------------------------------------------*/

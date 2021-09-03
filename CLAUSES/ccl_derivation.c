@@ -39,6 +39,7 @@ char *opids[] =
    /* Simplifying */
    PCL_EVALGC,
    PCL_RW,
+   PCL_LOCAL_RW,
    PCL_RW,
    PCL_AD,
    PCL_CSR,
@@ -100,6 +101,7 @@ char *optheory [] =
    NULL,
    NULL,
    NULL,
+   NULL,
    "answers",
    /* Simplification/Modfication for FOF */
    NULL,
@@ -144,6 +146,7 @@ char *opstatus [] =
    NULL,
    "NA",
    /* Simplifying */
+   "thm",
    "thm",
    "thm",
    "thm",

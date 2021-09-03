@@ -316,6 +316,14 @@ bool ForwardModifyClause(ProofState_p state,
       {
          ClauseNegativeSimplifyReflect(state->processed_neg_units, clause);
       }
+      if(control->heuristic_parms.local_rw
+         && ClauseLocalRW(clause))
+      {
+         if(problemType == PROBLEM_HO)
+         {
+            NormalizeEquations(clause);
+         }  
+      }
       done = ClauseQueryProp(clause, CPLimitedRW)==limited_rw;
    }
    return false;

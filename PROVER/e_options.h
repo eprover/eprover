@@ -208,6 +208,7 @@ typedef enum
    OPT_PRIM_ENUM_KIND,
    OPT_PRIM_ENUM_MAX_DEPTH,
    OPT_CHOICE_INST,
+   OPT_LOCAL_RW,
    OPT_DUMMY
 }OptionCodes;
 
@@ -1570,6 +1571,11 @@ OptCell opts[] =
     "Maximal proof depth of a clause which is going to"
     " be scanned for occurrences of defined choice symbol"
     " -1 disables scanning for choice symbols"},
+
+    {OPT_LOCAL_RW,
+    '\0', "local-rw",
+    ReqArg, NULL,
+    "Enable/disable local rewriting."},
 
 
    {OPT_NOOPT,

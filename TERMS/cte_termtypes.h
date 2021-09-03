@@ -573,7 +573,7 @@ static inline Term_p TermTopCopyWithoutArgs(restrict Term_p source)
    }
 
    /* All other properties are tied to the specific term! */
-   handle->properties = (source->properties&(TPPredPos));
+   handle->properties = (source->properties&(TPPredPos|TPIsDBVar));
    TermCellDelProp(handle, TPOutputFlag); /* As it gets a new id below */
 
    handle->f_code = source->f_code;

@@ -90,6 +90,7 @@ typedef enum
 #define TSTP_SPLIT_REFINED "esplit"
 #define TSTP_SPLIT_BASE    "split"
 #define PCL_RW     "rw"
+#define PCL_LOCAL_RW "local_rw"
 #define PCL_SR     "sr"
 #define PCL_CSR    "csr"
 #define PCL_ACRES  "ar"
