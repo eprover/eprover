@@ -29,7 +29,7 @@ Changes
 /*---------------------------------------------------------------------*/
 
 typedef IntMap_p ExtIndex_p;
-#define TYPE_EXT_ELIGIBLE(t) (TypeIsArrow((t)))
+#define TYPE_EXT_ELIGIBLE(t) (TypeIsBool(t) || TypeIsArrow((t)))
 
 
 

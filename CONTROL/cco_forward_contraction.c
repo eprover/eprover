@@ -267,8 +267,13 @@ bool ForwardModifyClause(ProofState_p state,
                                 state->terms, clause,
                                 state->demods, level,
                                 control->heuristic_parms.prefer_general);
+      if(problemType == PROBLEM_HO)
+      {
+         NormalizeEquations(clause);
+      }
 
       limited_rw = ClauseQueryProp(clause, CPLimitedRW);
+      // DBG_PRINT(stderr, "removing superflous: ", ClausePrintDBG(stderr, clause), ".\n");
       removed_lits = ClauseRemoveSuperfluousLiterals(clause);
       if(removed_lits)
       {

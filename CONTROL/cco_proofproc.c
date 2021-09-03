@@ -1520,6 +1520,7 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control,
       control->heuristic_parms.inst_choice >= 0 &&
       RecognizeChoiceOperator(state->choice_opcodes, clause))
    {
+      FVUnpackClause(pclause);
       ClauseSetInsert(state->archive, clause);
       return NULL;
    }

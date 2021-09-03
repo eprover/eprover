@@ -1190,7 +1190,7 @@ bool NormalizeEquations(Clause_p cl)
    {
       TB_p bank = lit->bank;
       Sig_p sig = bank->sig;
-      if(lit->lterm == bank->true_term)
+      if(lit->lterm == bank->true_term && lit->rterm != bank->true_term)
       {
          SWAP(lit->lterm, lit->rterm);
          EqnDelProp(lit, EPIsEquLiteral);

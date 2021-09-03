@@ -604,6 +604,10 @@ Eqn_p EqnAlloc(Term_p lterm, Term_p rterm, TB_p bank,  bool positive)
       rterm = bank->true_term;
       positive = !positive;
    }
+   if(lterm == bank->true_term)
+   {
+      SWAP(lterm, rterm);
+   }
 
    /* printf("Handle = %p\n", handle); */
    handle->properties = EPNoProps;
@@ -1079,7 +1083,7 @@ void EqnPrintDBG(FILE* out, Eqn_p eq)
    TermPrintDbgHO(out, eq->rterm, eq->bank->sig, DEREF_NEVER);
    fprintf(out, "%s", EqnIsMaximal(eq) ? "*" : "");
    fprintf(out, "%s", EqnIsOriented(eq) ? ">" : "");
-   fprintf(out, "%s", EqnIsEquLit(eq) ? "#" : "");
+   fprintf(out, "%s", EqnQueryProp(eq, EPIsEquLiteral) ? "#" : "");
 }
 
 /*-----------------------------------------------------------------------

@@ -185,7 +185,9 @@ int ACTermCompare(ACTerm_p t1, ACTerm_p t2)
 {
    assert(t1 && t2);
 
-   int res = CMP(t1->f_code, t2->f_code);
+   int res = 
+      (t1->f_code == SIG_DB_LAMBDA_CODE || t2->f_code == SIG_DB_LAMBDA_CODE) ? 
+      -1 : CMP(t1->f_code, t2->f_code);
 
    if(res == 0 && t1->f_code > 0)
    {

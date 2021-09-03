@@ -1568,7 +1568,7 @@
 #ifdef CHE_HEURISTICS_INTERNAL
             res = "G_E___212_C18_F1_AE_Q12_CS_SP_S0Y";
       control->heuristic_parms.forward_context_sr = true;
-      control->heuristic_parms.selection_strategy=SelectMaxLComplexAvoidPosPred;
+      control->heuristic_parms.selection_strategy=(problemType==PROBLEM_HO) ? SelectMaxLComplexStronglyAvoidAppVar : SelectMaxLComplexAvoidPosPred;
       control->heuristic_parms.split_clauses=12;
       control->heuristic_parms.split_fresh_defs=false;
       control->heuristic_parms.er_varlit_destructive=true;
@@ -2796,7 +2796,7 @@
 #ifdef CHE_HEURISTICS_INTERNAL
             res = "G_E___215_C46_F1_AE_CS_SP_PS_S0Y";
       control->heuristic_parms.forward_context_sr = true;
-      control->heuristic_parms.selection_strategy=SelectMaxLComplexAvoidPosPred;
+      control->heuristic_parms.selection_strategy=(problemType==PROBLEM_HO) ? SelectMaxLComplexStronglyAvoidAppVar : SelectMaxLComplexAvoidPosPred;
       control->heuristic_parms.er_varlit_destructive=true;
       control->heuristic_parms.er_aggressive=true;
       control->heuristic_parms.forward_demod=1;
@@ -14684,7 +14684,7 @@
             res = "G_E___302_C18_F1_URBAN_S5PRR_RG_S0Y";
       control->heuristic_parms.prefer_initial_clauses=true;
       control->heuristic_parms.forward_context_sr = true;
-      control->heuristic_parms.selection_strategy=SelectMaxLComplexAvoidPosPred;
+      control->heuristic_parms.selection_strategy=(problemType==PROBLEM_HO) ? SelectMaxLComplexStronglyAvoidAppVar : SelectMaxLComplexAvoidPosPred;
       control->heuristic_parms.split_aggressive=true;
       control->heuristic_parms.er_varlit_destructive=true;
       control->heuristic_parms.er_aggressive=true;
@@ -14722,7 +14722,7 @@
             res = "G_E___200_B02_F1_AE_CS_SP_PI_S0Y";
       control->heuristic_parms.prefer_initial_clauses=true;
       control->heuristic_parms.forward_context_sr = true;
-      control->heuristic_parms.selection_strategy=SelectMaxLComplexAvoidPosPred;
+      control->heuristic_parms.selection_strategy=(problemType==PROBLEM_HO) ? SelectMaxLComplexStronglyAvoidAppVar : SelectMaxLComplexAvoidPosPred;
       control->heuristic_parms.er_varlit_destructive=true;
       control->heuristic_parms.er_aggressive=true;
       control->heuristic_parms.forward_demod=1;
@@ -16931,7 +16931,7 @@
             res = "G_E___200_B07_F1_AE_CS_SP_PI_S0Y";
       control->heuristic_parms.prefer_initial_clauses=true;
       control->heuristic_parms.forward_context_sr = true;
-      control->heuristic_parms.selection_strategy=SelectMaxLComplexAvoidPosPred;
+      control->heuristic_parms.selection_strategy=(problemType==PROBLEM_HO) ? SelectMaxLComplexStronglyAvoidAppVar : SelectMaxLComplexAvoidPosPred;
       control->heuristic_parms.er_varlit_destructive=true;
       control->heuristic_parms.er_aggressive=true;
       control->heuristic_parms.forward_demod=1;
@@ -17180,7 +17180,7 @@
 #ifdef CHE_HEURISTICS_INTERNAL
             res = "C07_19_nc_SAT001_MinMin_rr";
       control->heuristic_parms.forward_context_sr = true;
-      control->heuristic_parms.selection_strategy=SelectMaxLComplexAvoidPosPred;
+      control->heuristic_parms.selection_strategy=(problemType==PROBLEM_HO) ? SelectMaxLComplexStronglyAvoidAppVar : SelectMaxLComplexAvoidPosPred;
       control->heuristic_parms.er_varlit_destructive=true;
       control->heuristic_parms.er_strong_destructive=true;
       control->heuristic_parms.er_varlit_destructive=true;
@@ -17674,7 +17674,7 @@
 #ifdef CHE_HEURISTICS_INTERNAL
             res = "G_E___200_C45_F1_AE_CS_SP_S0Y";
       control->heuristic_parms.forward_context_sr = true;
-      control->heuristic_parms.selection_strategy=SelectMaxLComplexAvoidPosPred;
+      control->heuristic_parms.selection_strategy=(problemType==PROBLEM_HO) ? SelectMaxLComplexStronglyAvoidAppVar : SelectMaxLComplexAvoidPosPred;
       control->heuristic_parms.er_varlit_destructive=true;
       control->heuristic_parms.er_aggressive=true;
       control->heuristic_parms.forward_demod=1;
