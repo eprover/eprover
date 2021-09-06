@@ -46,11 +46,16 @@ Contents
 //
 /----------------------------------------------------------------------*/
 
+#define PROOF_DEPTH(c) (c) ? ((c)->proof_depth) : 0
+#define PROOF_SIZE(c) (c) ? ((c)->proof_size) : 0
+
 void set_proof_object(Clause_p new_clause, Clause_p orig_clause, Clause_p parent2,
-                      DerivationCode dc)
+                      DerivationCode dc, int depth_incr)
 {
-   new_clause->proof_depth = orig_clause->proof_depth + 1;
-   new_clause->proof_size = orig_clause->proof_size + 1;
+   new_clause->proof_depth =
+      PROOF_DEPTH(orig_clause) + PROOF_DEPTH(parent2) + depth_incr;
+   new_clause->proof_size =
+      PROOF_SIZE(orig_clause) + PROOF_SIZE(parent2) + 1;
    ClauseSetTPTPType(new_clause, ClauseQueryTPTPType(orig_clause));
    ClauseSetProp(new_clause, ClauseGiveProps(orig_clause, CPIsSOS));
    // TODO: Clause documentation is not implemented at the moment.
@@ -72,9 +77,9 @@ void set_proof_object(Clause_p new_clause, Clause_p orig_clause, Clause_p parent
 /----------------------------------------------------------------------*/
 
 void store_result(Clause_p new_clause, Clause_p orig_clause, Clause_p parent2,
-                  ClauseSet_p store, DerivationCode dc)
+                  ClauseSet_p store, DerivationCode dc, int depth_incr)
 {
-   set_proof_object(new_clause, orig_clause, parent2, dc);
+   set_proof_object(new_clause, orig_clause, parent2, dc, depth_incr);
    ClauseSetInsert(store, new_clause);
 }
 
@@ -218,7 +223,7 @@ void mk_prim_enum_inst(ClauseSet_p store, Clause_p cl, Term_p var, Term_p target
    EqnListRemoveDuplicates(res_lits);
    Clause_p res = ClauseAlloc(res_lits);
    NormalizeEquations(res);
-   store_result(res, cl, NULL, store, DCPrimEnum);
+   store_result(res, cl, NULL, store, DCPrimEnum, 1);
    BooleanSimplification(res);
 
    var->binding = NULL;
@@ -496,7 +501,7 @@ void do_ext_eqres(Clause_p cl, Eqn_p lit, ClauseSet_p store)
       EqnListRemoveDuplicates(condition);
       EqnListLambdaNormalize(condition);
       Clause_p res = ClauseAlloc(condition);
-      store_result(res, cl, NULL, store, DCExtEqRes);
+      store_result(res, cl, NULL, store, DCExtEqRes, 1);
    }
 
    PStackFree(disagreements);
@@ -770,7 +775,7 @@ void mk_choice_inst(ClauseSet_p store, IntMap_p choice_syms, Clause_p cl,
    EqnListRemoveDuplicates(res_lits);
    Clause_p res = ClauseAlloc(res_lits);
    NormalizeEquations(res);
-   store_result(res, cl, choice_def, store, DCChoiceInst);
+   store_result(res, cl, choice_def, store, DCChoiceInst, 1);
    BooleanSimplification(res);
    
    var->binding = NULL;
@@ -855,7 +860,7 @@ void mk_leibniz_instance(ClauseSet_p store, Clause_p cl,
    EqnListRemoveDuplicates(res_lits);
    Clause_p res = ClauseAlloc(res_lits);
    NormalizeEquations(res);
-   store_result(res, cl, NULL, store, DCLeibnizElim);
+   store_result(res, cl, NULL, store, DCLeibnizElim, 1);
 
    var->binding = NULL;
 }
@@ -939,7 +944,7 @@ void ComputeNegExt(ProofState_p state, ProofControl_p control, Clause_p clause)
             EqnListLambdaNormalize(new_literals);
             Clause_p new_clause = ClauseAlloc(new_literals);
             state->neg_ext_count++;
-            store_result(new_clause, clause, NULL, state->tmp_store, DCNegExt);
+            store_result(new_clause, clause, NULL, state->tmp_store, DCNegExt, 0);
          }
 
          TypeArgArrayFree(vars_types, num_vars);
@@ -998,7 +1003,7 @@ void ComputeArgCong(ProofState_p state, ProofControl_p control, Clause_p clause)
 
             EqnListLambdaNormalize(new_literals);
             Clause_p new_clause = ClauseAlloc(new_literals);
-            store_result(new_clause, clause, NULL, state->tmp_store, DCArgCong);
+            store_result(new_clause, clause, NULL, state->tmp_store, DCArgCong, 0);
          }
          PStackFree(fresh_vars);
       }
@@ -1083,7 +1088,7 @@ void ComputePosExt(ProofState_p state, ProofControl_p control, Clause_p clause)
                EqnListInsertFirst(&new_literals, new_lit);
 
                Clause_p new_clause = ClauseAlloc(new_literals);
-               store_result(new_clause, clause, NULL, state->tmp_store, DCPosExt);
+               store_result(new_clause, clause, NULL, state->tmp_store, DCPosExt, 0);
             }
             else
             {
@@ -1330,7 +1335,7 @@ bool ImmediateClausification(Clause_p cl, ClauseSet_p store, ClauseSet_p archive
             Clause_p res = ClauseSetExtractFirst(res_set);
             // DBG_PRINT(stderr, " > ", ClausePrintDBG(stderr, res), ".\n");
             PStackReset(res->derivation);
-            store_result(res, cl, NULL, store, DCDynamicCNF);
+            store_result(res, cl, NULL, store, DCDynamicCNF, 0);
          }
 
          clausified = true;

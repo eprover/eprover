@@ -1170,7 +1170,7 @@ bool LiteralSubsumesClause(Eqn_p literal, Clause_p clause)
             eqn_topsubsumes_termpair(literal, handle->lterm,
                                      handle->rterm))
          {
-            return false;
+            return true;
          }
       }
       handle = handle->next;
