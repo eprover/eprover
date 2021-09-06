@@ -437,11 +437,14 @@ bool find_disagreements(Sig_p sig, Term_p t, Term_p s, PStack_p diss_stack)
       {
          if (!TermIsPhonyApp(s) && !TermIsPhonyApp(t) &&
              !TermIsLambda(s) && !TermIsLambda(t) &&
-             s->f_code == t->f_code)
+             s->f_code == t->f_code &&
+             (!SigIsPolymorphic(sig, s->f_code) || s->arity == 0 ||
+               s->args[0]->type == t->args[0]->type))
          {
             assert(s->arity == t->arity);
             for (int i = 0; i < t->arity; i++)
             {
+               assert(t->args[i]->type == s->args[i]->type);
                PStackPushP(tasks, t->args[i]);
                PStackPushP(tasks, s->args[i]);
             }
@@ -539,9 +542,17 @@ void do_ext_sup(ClausePos_p from_pos, ClausePos_p into_pos, ClauseSet_p store,
       Eqn_p condition = NULL;
       while (!PStackEmpty(disagreements))
       {
-         Eqn_p cond = EqnAlloc(TBInsertInstantiated(terms, PStackPopP(disagreements)),
-                               TBInsertInstantiated(terms, PStackPopP(disagreements)),
-                               terms, false);
+         Term_p lhs = TBInsertInstantiated(terms, PStackPopP(disagreements));
+         Term_p rhs = TBInsertInstantiated(terms, PStackPopP(disagreements));
+         if(lhs->type != rhs->type)
+         {
+            DBG_PRINT(stderr, "from: ", ClausePrintDBG(stderr, from_pos->clause), ".\n");
+            DBG_PRINT(stderr, "into: ", ClausePrintDBG(stderr, into_pos->clause), ".\n");
+            DBG_PRINT(stderr, "lhs: ", TermPrintDbg(stderr, lhs, terms->sig, DEREF_NEVER), ".\n");
+            DBG_PRINT(stderr, "rhs: ", TermPrintDbg(stderr, rhs, terms->sig, DEREF_NEVER), ".\n");
+            assert(false);
+         }
+         Eqn_p cond = EqnAlloc(lhs, rhs, terms, false);
          cond->next = condition;
          condition = cond;
       }

@@ -1278,7 +1278,7 @@ bool TermStructEqualDeref(Term_p t1, Term_p t2, DerefType deref_1, DerefType der
    {
       if(deref_1 == DEREF_ALWAYS)
       {
-         t1 = GetEtaNormalizer()(bank, WHNF_deref(t1));
+         t1 = LambdaEtaExpandDBTopLevel(bank, WHNF_deref(t1));
       }
       else
       {
@@ -1299,7 +1299,7 @@ bool TermStructEqualDeref(Term_p t1, Term_p t2, DerefType deref_1, DerefType der
    {
       if(deref_2 == DEREF_ALWAYS)
       {
-         t2 = GetEtaNormalizer()(bank, WHNF_deref(t2));
+         t2 = LambdaEtaExpandDBTopLevel(bank, WHNF_deref(t2));
       }
       else
       {
@@ -1350,6 +1350,8 @@ bool TermStructEqualDeref(Term_p t1, Term_p t2, DerefType deref_1, DerefType der
                                CONVERT_DEREF(i, limit_1, deref_1),
                                CONVERT_DEREF(i, limit_2, deref_2)))
       {
+         DBG_PRINT(stderr, "[err] t1: ", TermPrintDbg(stderr, t1, bank->sig, DEREF_NEVER), ".\n");
+         DBG_PRINT(stderr, "t2: ", TermPrintDbg(stderr, t2, bank->sig, DEREF_NEVER), ".\n");
          return false;
       }
    }
