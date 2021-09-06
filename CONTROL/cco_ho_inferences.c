@@ -114,7 +114,7 @@ Term_p fresh_pattern(TB_p bank, Term_p t)
    for(int i=1; i<t->arity; i++)
    {
       applied->args[i] = 
-         RequestDBVar(bank->db_vars, t->args[i]->type, t->arity-i-1);
+         TBRequestDBVar(bank, t->args[i]->type, t->arity-i-1);
    }
 
    return TBTermTopInsert(bank, applied);
@@ -177,7 +177,7 @@ Term_p apply_pattern_vars(TB_p bank, Term_p head, Term_p appvar)
       for(int i=1; i < appvar->arity; i++)
       {
          PStackPushP(db_args, 
-            RequestDBVar(bank->db_vars, appvar->args[i]->type, appvar->arity-i-1));
+            TBRequestDBVar(bank, appvar->args[i]->type, appvar->arity-i-1));
       }
 
       PStack_p hd_args = PStackAlloc();
@@ -303,8 +303,8 @@ int prim_enum_var(ClauseSet_p store, Clause_p cl, PrimEnumMode mode, Term_p app_
             if(app_var->args[i]->type == app_var->args[j]->type)
             {
                Type_p ty = app_var->args[i]->type;
-               Term_p db_i = RequestDBVar(bank->db_vars, ty, app_var->arity-i-1);
-               Term_p db_j = RequestDBVar(bank->db_vars, ty, app_var->arity-j-1);
+               Term_p db_i = TBRequestDBVar(bank, ty, app_var->arity-i-1);
+               Term_p db_j = TBRequestDBVar(bank, ty, app_var->arity-j-1);
                FunCode pos_code = TypeIsBool(ty) ? sig->equiv_code : sig->eqn_code;
                FunCode neg_code = TypeIsBool(ty) ? sig->xor_code : sig->neqn_code;
                Term_p eq_matrix = TFormulaFCodeAlloc(bank, pos_code, db_i, db_j);
@@ -1413,7 +1413,7 @@ long EliminateLeibnizEquality(ClauseSet_p store, Clause_p cl, int limit)
                      TFormulaFCodeAlloc(
                         lit->bank,
                         EqnIsPositive(lit) ? sig->neqn_code : sig->eqn_code,
-                        RequestDBVar(lit->bank->db_vars, lhs->args[i]->type, lhs->arity-i-1),
+                        TBRequestDBVar(lit->bank, lhs->args[i]->type, lhs->arity-i-1),
                         lhs->args[i]);
                   Term_p res = matrix;
                   for(int i=lhs->arity-1; i>=1; i--)

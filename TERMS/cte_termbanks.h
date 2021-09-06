@@ -210,6 +210,13 @@ static inline Term_p TBRawTermParse(Scanner_p in, TB_p bank)
    
 }
 
+static inline Term_p TBRequestDBVar(TB_p bank, Type_p ty, int idx)
+{
+   Term_p dbvar = RequestDBVar(bank->db_vars, ty, idx);
+   TermSetBank(dbvar, bank);
+   return dbvar;
+}
+
 #endif
 
 /*---------------------------------------------------------------------*/

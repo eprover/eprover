@@ -96,7 +96,7 @@ IntMap_p db_var_map(TB_p bank, Term_p s)
       Term_p arg = s->args[i];
       assert(TermIsDBVar(arg));
       IntMapAssign(db_map, arg->f_code, 
-                   RequestDBVar(bank->db_vars, arg->type, num_args-i));
+                   TBRequestDBVar(bank, arg->type, num_args-i));
    }
 
 
@@ -148,8 +148,8 @@ Term_p solve_flex_rigid(TB_p bank, Term_p s_var, IntMap_p db_map, Term_p t,
          }
          else
          {
-            res = RequestDBVar(bank->db_vars, replacement->type,
-                               replacement->f_code + depth);
+            res = TBRequestDBVar(bank, replacement->type,
+                                 replacement->f_code + depth);
          }
       }
    }
@@ -210,9 +210,9 @@ Term_p solve_flex_rigid(TB_p bank, Term_p s_var, IntMap_p db_map, Term_p t,
             if(arg->f_code < depth)
             {
                PStackPushP(t_dbs, 
-                           RequestDBVar(bank->db_vars, arg->type, num_args-i));
+                           TBRequestDBVar(bank, arg->type, num_args-i));
                PStackPushP(s_dbs, 
-                           RequestDBVar(bank->db_vars, arg->type, arg->f_code));
+                           TBRequestDBVar(bank, arg->type, arg->f_code));
             }
             else
             {
@@ -220,9 +220,9 @@ Term_p solve_flex_rigid(TB_p bank, Term_p s_var, IntMap_p db_map, Term_p t,
                if(db_val)
                {
                   PStackPushP(t_dbs, 
-                        RequestDBVar(bank->db_vars, arg->type, num_args-i));
+                        TBRequestDBVar(bank, arg->type, num_args-i));
                   PStackPushP(s_dbs, 
-                        RequestDBVar(bank->db_vars, db_val->type, db_val->f_code + depth));
+                        TBRequestDBVar(bank, db_val->type, db_val->f_code + depth));
                }
             }
          }
@@ -371,7 +371,7 @@ OracleUnifResult flex_flex_diff(TB_p bank, Term_p s, Term_p t, Subst_p subst)
          if(db_val)
          {
             PStackPushP(t_dbs, 
-                        RequestDBVar(bank->db_vars, t->args[i]->type, num_args-i));
+                        TBRequestDBVar(bank, t->args[i]->type, num_args-i));
             PStackPushP(s_dbs, db_val);
          }
       }
@@ -452,7 +452,7 @@ OracleUnifResult flex_flex_same(TB_p bank, Term_p s, Term_p t, Subst_p subst)
             if(s->args[i] == t->args[i])
             {
                PStackPushP(db_args, 
-                           RequestDBVar(bank->db_vars, s->args[i]->type, max_args-i-1));
+                           TBRequestDBVar(bank, s->args[i]->type, max_args-i-1));
             }
          }
 
@@ -551,7 +551,7 @@ void eta_expand_otf(TB_p bank, Term_p *lambda_ref, Term_p *non_lambda_ref)
    for(long i=0; i<pref_len; i++)
    {
       Type_p dbvar_ty = ((Term_p)PStackElementP(dbvars, i))->type; 
-      PStackAssignP(dbvars, i, RequestDBVar(bank->db_vars, dbvar_ty, pref_len-i-1));
+      PStackAssignP(dbvars, i, TBRequestDBVar(bank, dbvar_ty, pref_len-i-1));
    }
 
    *non_lambda_ref = ApplyTerms(bank, ShiftDB(bank, non_lambda, pref_len), dbvars);
@@ -632,8 +632,8 @@ Term_p do_remap(TB_p bank, IntMap_p dbmap, Term_p t, OracleUnifResult* res, long
          }
          else
          {
-            return RequestDBVar(bank->db_vars, replacement->type,
-                                replacement->f_code + depth);
+            return TBRequestDBVar(bank, replacement->type,
+                                  replacement->f_code + depth);
          }
       }
    }

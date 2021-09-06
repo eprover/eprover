@@ -1041,7 +1041,7 @@ Term_p unbind_loose(TB_p terms, IntMap_p db_map, long depth, Term_p t)
          {
             *fvar_ref = VarBankGetFreshVar(terms->vars, t->type);
             (*fvar_ref)->binding = 
-               RequestDBVar(terms->db_vars, t->type, t->f_code-depth);
+               TBRequestDBVar(terms, t->type, t->f_code-depth);
          }
          assert ((*fvar_ref)->type == t->type);
          res = *fvar_ref;

@@ -177,7 +177,7 @@ Term_p do_shift_db(TB_p bank, Term_p t, int shift_val, int depth)
    {
       if(t->f_code >= depth)
       {
-         res = RequestDBVar(bank->db_vars, t->type, t->f_code + shift_val);
+         res = TBRequestDBVar(bank, t->type, t->f_code + shift_val);
       }
       else
       {
@@ -260,13 +260,13 @@ Term_p replace_bound_vars(TB_p bank, Term_p t, int total_bound, int depth)
          if(t->f_code - depth < total_bound)
          {
             Term_p corresponding_db = 
-               RequestDBVar(bank->db_vars, t->type, t->f_code - depth);
+               TBRequestDBVar(bank, t->type, t->f_code - depth);
             assert(corresponding_db->binding);
             res = ShiftDB(bank, corresponding_db->binding, depth);
          }
          else
          {
-            res = RequestDBVar(bank->db_vars, t->type, t->f_code - total_bound);
+            res = TBRequestDBVar(bank, t->type, t->f_code - total_bound);
          }
       }
    }
@@ -666,7 +666,7 @@ Term_p do_named_to_db(TB_p bank, Term_p t, long depth)
       {
          Term_p var = (Term_p)PStackElementP(vars, i);
          PStackPushP(previous_bindings, var->binding);
-         var->binding = RequestDBVar(bank->db_vars, var->type, depth++);
+         var->binding = TBRequestDBVar(bank, var->type, depth++);
       }
 
       res = do_named_to_db(bank, body, depth);
@@ -688,8 +688,8 @@ Term_p do_named_to_db(TB_p bank, Term_p t, long depth)
       if(t->binding && TermIsDBVar(t->binding))
       {
          assert(t->binding->type == t->type);
-         res = RequestDBVar(bank->db_vars, t->type, 
-                            depth - t->binding->f_code - 1);
+         res = TBRequestDBVar(bank, t->type, 
+                              depth - t->binding->f_code - 1);
       }
       else
       {
@@ -755,8 +755,8 @@ Term_p do_post_cnf_encode(TB_p bank, Term_p t, long depth)
       if(t->binding && TermIsDBVar(t->binding))
       {
          assert(t->binding->type == t->type);
-         res = RequestDBVar(bank->db_vars, t->type,
-                            depth - t->binding->f_code - 1);
+         res = TBRequestDBVar(bank, t->type,
+                              depth - t->binding->f_code - 1);
       }
       else
       {
@@ -775,7 +775,7 @@ Term_p do_post_cnf_encode(TB_p bank, Term_p t, long depth)
          Term_p var = matrix->args[0];
          PStackPushP(prefix, var);
          PStackPushP(prefix, var->binding);
-         var->binding = RequestDBVar(bank->db_vars, var->type, depth++);
+         var->binding = TBRequestDBVar(bank, var->type, depth++);
 
          matrix = matrix->args[1];
       }
@@ -854,7 +854,7 @@ Term_p replace_fvars (TB_p bank, Term_p t, long depth)
       if(t->binding)
       {
          return depth==0 ? t->binding :
-                 RequestDBVar(bank->db_vars, t->type, t->binding->f_code+depth);
+                 TBRequestDBVar(bank, t->type, t->binding->f_code+depth);
       }
       else
       {
@@ -916,7 +916,7 @@ Term_p CloseWithDBVar(TB_p bank, Type_p ty, Term_p body)
    assert(TermIsShared(body));
    
    Term_p res = TermTopAlloc(SIG_DB_LAMBDA_CODE, 2);
-   res->args[0] = RequestDBVar(bank->db_vars, ty, 0);
+   res->args[0] = TBRequestDBVar(bank, ty, 0);
    res->args[1] = body;
    res->type =
       TypeBankInsertTypeShared(bank->sig->type_bank,
@@ -1051,7 +1051,7 @@ Term_p AbstractVars(TB_p terms, Term_p matrix, PStack_p var_prefix)
       Term_p v = PStackElementP(var_prefix, i);
       assert(v->binding == NULL);
       SubstAddBinding(subst, v, 
-         RequestDBVar(terms->db_vars, v->type, PStackGetSP(var_prefix)-i-1));
+         TBRequestDBVar(terms, v->type, PStackGetSP(var_prefix)-i-1));
    }
    matrix = replace_fvars(terms, matrix, 0);
    while(!PStackEmpty(subst))
@@ -1110,7 +1110,7 @@ Term_p WHNF_step(TB_p bank, Term_p t)
    for(PStackPointer i=0; i < PStackGetSP(to_bind_stack); i++)
    {
       Term_p target = PStackElementP(to_bind_stack, i);
-      Term_p db_var = RequestDBVar(bank->db_vars, target->type, total_bound - i - 1);
+      Term_p db_var = TBRequestDBVar(bank, target->type, total_bound - i - 1);
       assert(db_var->binding == NULL);
       db_var->binding = target;
       PStackAssignP(to_bind_stack, i, db_var);

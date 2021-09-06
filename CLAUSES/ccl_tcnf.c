@@ -982,7 +982,7 @@ TFormula_p do_simplify_decoded(TB_p terms, TFormula_p form, bool unroll_implicat
          if (form->args[0] == neutral_element)
          {
             res = CloseWithDBVar(terms, bool_ty,
-                                 RequestDBVar(terms->db_vars, bool_ty, 0));
+                                 TBRequestDBVar(terms, bool_ty, 0));
          }
          else if (form->args[0] == asbsorbing_element)
          {

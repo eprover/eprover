@@ -1132,6 +1132,7 @@ Term_p TermCopy(Term_p source, VarBank_p vars, DBVarBank_p dbvars, DerefType der
       }
    }
 
+   TermSetBank(handle, TermGetBank(source));
    return handle;
 }
 

@@ -164,6 +164,7 @@ static Term_p tb_termtop_insert(TB_p bank, Term_p t)
       assert(!TermIsShared(t));
       new->properties = (new->properties | t->properties)/*& bank->prop_mask*/;
       TermTopFree(t);
+      TermSetBank(t, bank);
       t = new;
    }
    else
@@ -795,7 +796,7 @@ Term_p TBInsert(TB_p bank, Term_p term, DerefType deref)
    }
    else if (TermIsDBVar(term))
    {
-      t = RequestDBVar(bank->db_vars, term->type, term->f_code);
+      t = TBRequestDBVar(bank, term->type, term->f_code);
       TermSetBank(t, bank);
    }
    else
@@ -939,7 +940,7 @@ Term_p TBInsertNoProps(TB_p bank, Term_p term, DerefType deref)
    }
    else if (TermIsDBVar(term))
    {
-      t = RequestDBVar(bank->db_vars, term->type, term->f_code);
+      t = TBRequestDBVar(bank, term->type, term->f_code);
       TermSetBank(t, bank);
    }
    else
@@ -998,7 +999,7 @@ Term_p  TBInsertRepl(TB_p bank, Term_p term, DerefType deref, Term_p old, Term_p
    }
    else if (TermIsDBVar(term))
    {
-      t = RequestDBVar(bank->db_vars, term->type, term->f_code);
+      t = TBRequestDBVar(bank, term->type, term->f_code);
       TermSetBank(t, bank);
    }
    else
@@ -1128,7 +1129,7 @@ Term_p TBInsertInstantiatedFO(TB_p bank, Term_p term)
    }
    else if (TermIsDBVar(term))
    {
-      t = RequestDBVar(bank->db_vars, term->type, term->f_code);
+      t = TBRequestDBVar(bank, term->type, term->f_code);
       TermSetBank(t, bank);
    }
    else
@@ -1182,7 +1183,7 @@ Term_p TBInsertInstantiatedHO(TB_p bank, Term_p term, bool follow_bind)
    }
    else if (TermIsDBVar(term))
    {
-      t = RequestDBVar(bank->db_vars, term->type, term->f_code);
+      t = TBRequestDBVar(bank, term->type, term->f_code);
       TermSetBank(t, bank);
       return t;
    }
@@ -1284,7 +1285,7 @@ Term_p TBInsertOpt(TB_p bank, Term_p term, DerefType deref)
    }
    else if (TermIsDBVar(term))
    {
-      t = RequestDBVar(bank->db_vars, term->type, term->f_code);
+      t = TBRequestDBVar(bank, term->type, term->f_code);
       TermSetBank(t, bank);
    }
    else
@@ -1339,7 +1340,7 @@ Term_p  TBInsertDisjoint(TB_p bank, Term_p term)
    }
    else if (TermIsDBVar(term))
    {
-      t = RequestDBVar(bank->db_vars, term->type, term->f_code);
+      t = TBRequestDBVar(bank, term->type, term->f_code);
       TermSetBank(t, bank);
    }
    else
@@ -1424,7 +1425,7 @@ Term_p TBFind(TB_p bank, Term_p term)
    }
    else if (TermIsDBVar(term))
    {
-      return RequestDBVar(bank->db_vars, term->type, term->f_code);
+      return TBRequestDBVar(bank, term->type, term->f_code);
    }
    return TermCellStoreFind(&(bank->term_store), term);
 }
