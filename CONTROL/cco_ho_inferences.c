@@ -544,14 +544,7 @@ void do_ext_sup(ClausePos_p from_pos, ClausePos_p into_pos, ClauseSet_p store,
       {
          Term_p lhs = TBInsertInstantiated(terms, PStackPopP(disagreements));
          Term_p rhs = TBInsertInstantiated(terms, PStackPopP(disagreements));
-         if(lhs->type != rhs->type)
-         {
-            DBG_PRINT(stderr, "from: ", ClausePrintDBG(stderr, from_pos->clause), ".\n");
-            DBG_PRINT(stderr, "into: ", ClausePrintDBG(stderr, into_pos->clause), ".\n");
-            DBG_PRINT(stderr, "lhs: ", TermPrintDbg(stderr, lhs, terms->sig, DEREF_NEVER), ".\n");
-            DBG_PRINT(stderr, "rhs: ", TermPrintDbg(stderr, rhs, terms->sig, DEREF_NEVER), ".\n");
-            assert(false);
-         }
+         assert(lhs->type == rhs->type);
          Eqn_p cond = EqnAlloc(lhs, rhs, terms, false);
          cond->next = condition;
          condition = cond;
