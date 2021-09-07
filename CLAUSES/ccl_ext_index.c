@@ -236,9 +236,12 @@ bool TermHasExtEligSubterm(Term_p t)
 //
 /----------------------------------------------------------------------*/
 
-void ExtIndexInsertIntoClause(ExtIndex_p into_index, Clause_p cl)
+void ExtIndexInsertIntoClause(ExtIndex_p into_index, Clause_p cl, int max_depth)
 {
-   handle_into_idx(into_index, cl, insert_idx);
+   if(cl->proof_depth <= max_depth)
+   {
+      handle_into_idx(into_index, cl, insert_idx);
+   }
 }
 
 
@@ -272,9 +275,12 @@ void ExtIndexDeleteIntoClause(ExtIndex_p into_index, Clause_p cl)
 //
 /----------------------------------------------------------------------*/
 
-void ExtIndexInsertFromClause(ExtIndex_p into_index, Clause_p cl)
+void ExtIndexInsertFromClause(ExtIndex_p into_index, Clause_p cl, int max_depth)
 {
-   handle_from_idx(into_index, cl, insert_idx);
+   if(cl->proof_depth <= max_depth)
+   {
+      handle_from_idx(into_index, cl, insert_idx);
+   }
 }
 
 /*-----------------------------------------------------------------------

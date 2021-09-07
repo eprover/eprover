@@ -2270,11 +2270,11 @@ void TermAddSymbolDistExist(Term_p term, long *dist_array,
          int i;
 
          assert(term->f_code > 0);
-         if(!dist_array[term->f_code] && !TermIsPhonyApp(term))
+         if(!dist_array[term->f_code] && !TermIsPhonyApp(term) && !TermIsLambda(term))
          {
             PStackPushInt(exists, term->f_code);
          }
-         dist_array[term->f_code] += TermIsPhonyApp(term) ? 0 : 1;
+         dist_array[term->f_code] += (TermIsPhonyApp(term) || TermIsLambda(term)) ? 0 : 1;
 
          for(i=0; i<term->arity; i++)
          {

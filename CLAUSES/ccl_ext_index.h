@@ -45,9 +45,9 @@ bool TermHasExtEligSubterm(Term_p t);
 void CollectExtSupFromPos(Clause_p cl, PStack_p pos_stack);
 void CollectExtSupIntoPos(Clause_p cl, PStack_p pos_stack);
 
-void ExtIndexInsertIntoClause(ExtIndex_p into_index, Clause_p cl);
+void ExtIndexInsertIntoClause(ExtIndex_p into_index, Clause_p cl, int max_depth);
 void ExtIndexDeleteIntoClause(ExtIndex_p into_index, Clause_p cl);
-void ExtIndexInsertFromClause(ExtIndex_p into_index, Clause_p cl);
+void ExtIndexInsertFromClause(ExtIndex_p into_index, Clause_p cl, int max_depth);
 void ExtIndexDeleteFromClause(ExtIndex_p into_index, Clause_p cl);
 void ExtIndexFree(ExtIndex_p into_index);
 

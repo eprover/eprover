@@ -245,9 +245,9 @@ void GlobalIndicesInsertClause(GlobalIndices_p indices, Clause_p clause)
    }
    if(GetExtIntoIdx(indices))
    {
-      ExtIndexInsertIntoClause(GetExtIntoIdx(indices), clause);
+      ExtIndexInsertIntoClause(GetExtIntoIdx(indices), clause, GetExtMaxDepth(indices));
       assert(GetExtFromIdx(indices));
-      ExtIndexInsertFromClause(GetExtFromIdx(indices), clause);
+      ExtIndexInsertFromClause(GetExtFromIdx(indices), clause, GetExtMaxDepth(indices));
    }
 }
 

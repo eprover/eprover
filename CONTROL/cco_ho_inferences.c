@@ -385,14 +385,19 @@ int prim_enum_var(ClauseSet_p store, Clause_p cl, PrimEnumMode mode, Term_p app_
             var_ty->args[0]->arity == 2 &&
             TypeIsBool(var_ty->args[0]->args[1]))
          {
-            Term_p all_matrix = TermTopAlloc(sig->qall_code, 0);
-            all_matrix->type = var_ty;
-            Term_p ex_matrix = TermTopAlloc(sig->qex_code, 0);
-            ex_matrix->type = var_ty;
+            Term_p db_var = TBRequestDBVar(bank, var_ty->args[0], 0);
+            Term_p all_matrix = TermTopAlloc(sig->qall_code, 1);
+            all_matrix->args[0] = db_var;
+            all_matrix->type = sig->type_bank->bool_type;
+            all_matrix = TBTermTopInsert(bank, all_matrix);
+            Term_p ex_matrix = TermTopAlloc(sig->qex_code, 1);
+            ex_matrix->args[0] = db_var;
+            ex_matrix->type = sig->type_bank->bool_type;
+            ex_matrix = TBTermTopInsert(bank, ex_matrix);
             mk_prim_enum_inst(store, cl, app_var->args[0],
-                              TBTermTopInsert(bank, all_matrix));
+                              CloseWithDBVar(bank, var_ty->args[0], all_matrix));
             mk_prim_enum_inst(store, cl, app_var->args[0],
-                              TBTermTopInsert(bank, ex_matrix));
+                              CloseWithDBVar(bank, var_ty->args[0], ex_matrix));
             generated_cls += 2;
          }
       }
@@ -425,7 +430,6 @@ bool find_disagreements(Sig_p sig, Term_p t, Term_p s, PStack_p diss_stack)
    PStack_p tasks = PStackAlloc();
    PStackPushP(tasks, t);
    PStackPushP(tasks, s);
-
    bool exists_elig = false;
 
    while (!PStackEmpty(tasks))
@@ -531,7 +535,9 @@ void do_ext_sup(ClausePos_p from_pos, ClausePos_p into_pos, ClauseSet_p store,
    // avoiding  ext sup from positive literal into positive top position
    if (!(EqnIsPositive(from_pos->literal) && EqnIsPositive(into_pos->literal)
          && PStackEmpty(into_pos->pos) 
-         && ClausePosGetOtherSide(from_pos) == ClausePosGetOtherSide(into_pos)) &&
+         && (ClausePosGetOtherSide(from_pos) == ClausePosGetOtherSide(into_pos) ||
+             // can be done in both directions
+             from_pos->clause < into_pos->clause)) &&
        find_disagreements(terms->sig, from_t, into_t, disagreements))
    {
       Subst_p subst = SubstAlloc();
@@ -1337,6 +1343,8 @@ bool ImmediateClausification(Clause_p cl, ClauseSet_p store, ClauseSet_p archive
          while (!ClauseSetEmpty(res_set))
          {
             Clause_p res = ClauseSetExtractFirst(res_set);
+            EqnListMapTerms(res->literals, (TermMapper_p)LambdaNormalizeDB, 
+                            res->literals ? res->literals->bank : NULL);
             // DBG_PRINT(stderr, " > ", ClausePrintDBG(stderr, res), ".\n");
             PStackReset(res->derivation);
             store_result(res, cl, NULL, store, DCDynamicCNF, 0);
