@@ -80,6 +80,7 @@ char *opids[] =
    PCL_EXT_SUP,
    PCL_EXT_EQRES,
    PCL_INV_REC,
+   PCL_CHOICE_AX,
    PCL_LEIBNIZ_ELIM,
    PCL_PRIM_ENUM,
    PCL_CHOICE_INST,

@@ -729,6 +729,39 @@ void find_choice_triggers(IntMap_p choice_syms, PStack_p triggers, Term_p t)
       {
          PStackPushP(triggers, t);
       }
+      else if(TermIsAppliedFreeVar(t) && t->arity == 2)
+      {
+         Term_p var = t->args[0];
+         Type_p ty = var->type;
+         if(TypeIsArrow(ty) && ty->arity>=2 &&
+            (TypeIsArrow(ty->args[0]) && ty->args[0]->arity == 2 &&
+             TypeIsPredicate(ty->args[0])))
+         {
+            // remaining checks if var type is (A -> o) -> A
+            bool typechecks = true;
+            Type_p a_type = ty->args[0]->args[0];
+            if(TypeIsArrow(a_type) && a_type->arity == ty->arity-1)
+            {
+               for(int i=0; typechecks && i< a_type->arity; i++)
+               {
+                  typechecks = typechecks && a_type->args[i] == ty->args[i+1];
+               }
+            }
+            else if (!TypeIsArrow(a_type) && ty->arity == 2)
+            {
+               typechecks = a_type == ty->args[1];
+            }
+            else
+            {
+               typechecks = false;
+            }
+
+            if(typechecks)
+            {
+               PStackPushP(triggers, t);
+            }
+         }
+      }
       else if(!TermIsFreeVar(t) && t->arity)
       {
          for(int i=0; i<t->arity; i++)
@@ -741,7 +774,7 @@ void find_choice_triggers(IntMap_p choice_syms, PStack_p triggers, Term_p t)
 
 /*-----------------------------------------------------------------------
 //
-// Function: mk_choice_inst()
+// Function: do_mk_choice_inst()
 //
 //  Given a term whose head is a defined choice symbol, instantiate
 //  the corresponding choice axiom with the argument of the choice term.
@@ -752,7 +785,7 @@ void find_choice_triggers(IntMap_p choice_syms, PStack_p triggers, Term_p t)
 //
 /----------------------------------------------------------------------*/
 
-void mk_choice_inst(ClauseSet_p store, IntMap_p choice_syms, Clause_p cl, 
+void do_mk_choice_inst(ClauseSet_p store, IntMap_p choice_syms, Clause_p cl, 
                     FunCode choice_code, Term_p trigger)
 {
    assert(TypeIsArrow(trigger->type));
@@ -789,6 +822,93 @@ void mk_choice_inst(ClauseSet_p store, IntMap_p choice_syms, Clause_p cl,
    BooleanSimplification(res);
    
    var->binding = NULL;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: inst_choice()
+//
+//  Instantiate choice axiom for choice code with trigger and its negation.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+int inst_choice(ClauseSet_p store, IntMap_p choice_syms, Clause_p cl, 
+                 FunCode choice_code, Term_p trigger)
+{
+   assert(cl->literals);
+   TB_p bank = cl->literals->bank;
+   do_mk_choice_inst(store, choice_syms, cl, choice_code, trigger);
+   
+   Term_p neg_trigger = 
+      TermTopCopy(LambdaEtaExpandDBTopLevel(bank, trigger));
+   assert(TermIsLambda(neg_trigger));
+   assert(TypeIsBool(neg_trigger->args[1]->type));
+   neg_trigger->args[1] = 
+      TFormulaFCodeAlloc(bank, bank->sig->not_code, neg_trigger->args[1], NULL);
+   do_mk_choice_inst(store, choice_syms, cl,
+                     choice_code, TBTermTopInsert(bank, neg_trigger));
+   return 2;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: mk_new_choice()
+//
+//  Given a type ty create a new clause representing choice axiom.
+//  Store the new clause in choice syms map and in the archive.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+FunCode mk_new_choice(TB_p bank, ClauseSet_p archive, IntMap_p choice_syms, Type_p ty)
+{
+   assert(TypeIsArrow(ty));
+   assert(ty->arity >= 2);
+   Type_p a_to_o = ty->args[0]; // ty is of the form (a -> o) -> a
+   PStack_p vars = PStackAlloc();
+   Term_p ch_const = TermAllocNewSkolem(bank->sig, vars, ty);
+   ch_const = TBTermTopInsert(bank, ch_const);
+
+   Term_p p_var = VarBankGetFreshVar(bank->vars, a_to_o);
+   TermSetBank(p_var, bank);
+
+   Term_p ch_p = 
+      TBTermTopInsert(bank, TermApplyArg(bank->sig->type_bank, ch_const, p_var));
+   Term_p p_ch_p = 
+      TBTermTopInsert(bank, TermApplyArg(bank->sig->type_bank, p_var, ch_p));
+
+   assert(TypeIsArrow(a_to_o));
+   assert(a_to_o->arity == 2);
+   Type_p a = ty->args[0]->args[0];
+
+   Term_p x_var = VarBankGetFreshVar(bank->vars, a);
+   TermSetBank(x_var, bank);
+
+   Term_p p_x = 
+      TBTermTopInsert(bank, TermApplyArg(bank->sig->type_bank, p_var, x_var));
+
+   Eqn_p not_p_x_lit = EqnAlloc(p_x, bank->true_term, bank, false);
+   Eqn_p p_ch_p_lit = EqnAlloc(p_ch_p, bank->true_term, bank, true);
+
+   not_p_x_lit->next = p_ch_p_lit;
+   Clause_p res = ClauseAlloc(not_p_x_lit);
+   // TODO: Clause documentation is not implemented at the moment.
+   // DocClauseCreationDefault(clause, inf_efactor, clause, NULL);
+   ClausePushDerivation(res, DCChoiceAx, NULL, NULL);
+   ClauseSetInsert(archive, res);
+   
+   assert(!IntMapGetVal(choice_syms, ch_const->f_code));
+
+   IntMapAssign(choice_syms, ch_const->f_code, res);
+
+   return ch_const->f_code;
 }
 
 /*-----------------------------------------------------------------------
@@ -1684,9 +1804,9 @@ bool RecognizeChoiceOperator(IntMap_p choice_symbols_map, Clause_p cl)
 
 #define FAIL_ON(cond) if (cond) return false
 
-int InstantiateChoiceClauses(ClauseSet_p store, IntMap_p choice_syms, 
-                             Clause_p renamed_cl, Clause_p orig_cl,
-                             int limit)
+int InstantiateChoiceClauses(ClauseSet_p store, ClauseSet_p archive, 
+                             IntMap_p choice_syms, Clause_p renamed_cl,
+                             Clause_p orig_cl, int limit)
 {
    if(orig_cl->proof_depth > limit)
    {
@@ -1703,25 +1823,45 @@ int InstantiateChoiceClauses(ClauseSet_p store, IntMap_p choice_syms,
       find_choice_triggers(choice_syms, triggers, lit->rterm);
       while(!PStackEmpty(triggers))
       {
-         TB_p bank = lit->bank;
          Term_p trigger = PStackPopP(triggers);
-         FunCode choice_code = trigger->f_code;
-         trigger = trigger->args[0];
-         mk_choice_inst(store, choice_syms, orig_cl, choice_code, trigger);
-         
-         Term_p neg_trigger = 
-            TermTopCopy(LambdaEtaExpandDBTopLevel(lit->bank, trigger));
-         if(!TermIsLambda(neg_trigger))
+         if(!TermIsAppliedFreeVar(trigger))
          {
-            assert(false);
-         }
-         assert(TypeIsBool(neg_trigger->args[1]->type));
-         neg_trigger->args[1] = 
-            TFormulaFCodeAlloc(bank, bank->sig->not_code, neg_trigger->args[1], NULL);
-         mk_choice_inst(store, choice_syms, orig_cl,
-                        choice_code, TBTermTopInsert(bank, neg_trigger));
+            FunCode choice_code = trigger->f_code;
+            trigger = trigger->args[0];
 
-         new_cls += 2;
+            new_cls += inst_choice(store, choice_syms, orig_cl, choice_code, trigger);
+         }
+         else
+         {
+            assert(trigger->arity == 2);
+            Term_p var = trigger->args[0];
+            trigger = trigger->args[1];
+
+            IntMapIter_p iter = IntMapIterAlloc(choice_syms, 0, LONG_MAX);
+            PStack_p choice_codes = PStackAlloc();
+            FunCode ch_code = 0;
+            while(IntMapIterNext(iter, &ch_code))
+            {
+               Sig_p sig = lit->bank->sig;
+               if(var->type == SigGetType(sig, ch_code))
+               {
+                  PStackPushInt(choice_codes, ch_code);
+               }
+            }
+            IntMapIterFree(iter);
+
+            if(PStackEmpty(choice_codes))
+            {
+               PStackPushInt(choice_codes,
+                             mk_new_choice(lit->bank, archive, choice_syms, var->type));
+            }
+
+            while(!PStackEmpty(choice_codes))
+            {
+               new_cls += inst_choice(store, choice_syms, orig_cl, 
+                                      PStackPopInt(choice_codes), trigger);
+            }
+         }
       }
    }
    PStackFree(triggers);
@@ -1779,7 +1919,7 @@ void ComputeHOInferences(ProofState_p state, ProofControl_p control,
       }
       if (control->heuristic_parms.inst_choice >=0)
       {
-         InstantiateChoiceClauses(state->tmp_store, state->choice_opcodes, 
+         InstantiateChoiceClauses(state->tmp_store, state->archive, state->choice_opcodes, 
                                   renamed_cl, orig_clause, 
                                   control->heuristic_parms.inst_choice);
       }

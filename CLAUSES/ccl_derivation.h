@@ -91,6 +91,7 @@ typedef enum
    DOExtSup,
    DOExtEqRes,
    DOInvRec,
+   DOChoiceAx,
    DOLeibnizElim,
    DOPrimEnum,
    DOChoiceInst
@@ -158,6 +159,7 @@ typedef enum
    DCExtSup           = DOExtSup|Arg1Cnf|Arg2Cnf,
    DCExtEqRes         = DOExtEqRes|Arg1Cnf,
    DCInvRec           = DOInvRec|Arg1Cnf,
+   DCChoiceAx         = DOChoiceAx,
    DCLeibnizElim      = DOLeibnizElim|Arg1Cnf,
    DCPrimEnum         = DOPrimEnum|Arg1Cnf,
    DCChoiceInst       = DOChoiceInst|Arg1Cnf|Arg2Cnf
