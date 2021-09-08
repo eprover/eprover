@@ -379,15 +379,14 @@ void* PObjMapExtract(PObjMap_p *root, void* key,
 //
 /----------------------------------------------------------------------*/
 
-void PObjMapFreeWDeleter(PObjMap_p root, ObjDelFun del_key_fun, ObjDelFun del_val_fun)
+void PObjMapFreeWDeleter(PObjMap_p root, KeyValDelFun del_fun)
 {
    if(root)
    {
       assert(!root->lson || !root->rson || root->lson != root->rson);
-      PObjMapFreeWDeleter(root->lson, del_key_fun, del_val_fun);
-      PObjMapFreeWDeleter(root->rson, del_key_fun, del_val_fun);
-      del_key_fun(root->key);
-      del_val_fun(root->value);
+      PObjMapFreeWDeleter(root->lson, del_fun);
+      PObjMapFreeWDeleter(root->rson, del_fun);
+      del_fun(root->key, root->value);
       PObjMapNodeFree(root);
    }
 }
@@ -404,9 +403,11 @@ void PObjMapFreeWDeleter(PObjMap_p root, ObjDelFun del_key_fun, ObjDelFun del_va
 //
 /----------------------------------------------------------------------*/
 
+void dummy(void* a, void* b) {}
+
 void PObjMapFree(PObjMap_p root)
 {
-   PObjMapFreeWDeleter(root, DummyObjDelFun, DummyObjDelFun);
+   PObjMapFreeWDeleter(root, dummy);
 }
 
 /*-----------------------------------------------------------------------
@@ -438,7 +439,8 @@ PStack_p PObjMapTraverseInit(PObjMap_p root, PStack_p stack)
 //
 // Function: PObjMapTraverseNext()
 // 
-//   Traverses the nodes and returns value stored in each node
+//   Traverses the nodes and returns value stored in each node. If you want
+//   to know the value of the key, use a non-NULL second argument,
 //
 // Global Variables: -
 //
@@ -446,7 +448,7 @@ PStack_p PObjMapTraverseInit(PObjMap_p root, PStack_p stack)
 //
 /----------------------------------------------------------------------*/
 
-void* PObjMapTraverseNext(PStack_p state)
+void* PObjMapTraverseNext(PStack_p state, void** key)
 {
    if(PStackEmpty(state))
    {
@@ -454,6 +456,10 @@ void* PObjMapTraverseNext(PStack_p state)
    }
 
    PObjMap_p handle = PStackPopP(state);
+   if(key)
+   {
+      *key = handle->key;
+   }
    void* res = handle->value;
    handle = handle->rson;
    while(handle)

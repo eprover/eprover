@@ -1220,7 +1220,6 @@ Term_p TBInsertInstantiatedHO(TB_p bank, Term_p term, bool follow_bind)
    return t;
 }
 
-#ifdef ENABLE_LFHO
 /*-----------------------------------------------------------------------
 //
 // Function: TBInsertInstantiated()
@@ -1245,7 +1244,6 @@ __inline__ Term_p TBInsertInstantiated(TB_p bank, Term_p term)
       return TBInsertInstantiatedFO(bank, term);
    }
 }
-#endif
 
 
 /*-----------------------------------------------------------------------

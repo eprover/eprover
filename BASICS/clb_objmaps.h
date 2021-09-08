@@ -34,13 +34,13 @@ Changes
 /*                    Data type declarations                           */
 /*---------------------------------------------------------------------*/
 
-typedef void (*ObjDelFun)(void *junk);
+typedef void (*KeyValDelFun)(void *key, void* val);
 
 struct objmap_node;
 typedef struct objmap_node* PObjMap_p;
 
 PStack_p PObjMapTraverseInit(PObjMap_p, PStack_p);
-void*    PObjMapTraverseNext(PStack_p);
+void*    PObjMapTraverseNext(PStack_p, void**);
 #define  PObjMapTraverseExit(stack) (assert(stack), PStackReset(stack))
 
 
@@ -55,9 +55,8 @@ void*      PObjMapFind(PObjMap_p *root, void* key,
                        ComparisonFunctionType cmpfun);
 void*      PObjMapExtract(PObjMap_p *root, void* key,
                           ComparisonFunctionType cmpfun);
-void       PObjMapFreeWDeleter(PObjMap_p root, ObjDelFun del_fun_key, ObjDelFun del_fun_val);
+void       PObjMapFreeWDeleter(PObjMap_p root, KeyValDelFun del_fun);
 void       PObjMapFree(PObjMap_p root);
-void*      PObjMapTraverseNext(PStack_p state);
 size_t     SizeOfPObjNode();
 #endif
 

@@ -1758,13 +1758,13 @@ bool PDTreeVerifyIndex(PDTree_p tree, ClauseSet_p demods)
 
          PStack_p map_iter = PStackAlloc();
           map_iter = PObjMapTraverseInit(handle->v_alternatives, map_iter);
-         while((handle = PObjMapTraverseNext(map_iter)))
+         while((handle = PObjMapTraverseNext(map_iter, NULL)))
          {
             PStackPushP(stack, handle);
          }
          PObjMapTraverseExit(map_iter);
          map_iter = PObjMapTraverseInit(handle->db_alternatives, map_iter);
-         while((handle = PObjMapTraverseNext(map_iter)))
+         while((handle = PObjMapTraverseNext(map_iter, NULL)))
          {
             PStackPushP(stack, handle);
          }
@@ -2459,7 +2459,6 @@ bool ClauseSetIsUntyped(ClauseSet_p set)
    }
    return true;
 }
-
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */

@@ -84,6 +84,7 @@ char *opids[] =
    PCL_LEIBNIZ_ELIM,
    PCL_PRIM_ENUM,
    PCL_CHOICE_INST,
+   PCL_PRUNE_ARG
 };
 
 char *optheory [] =
@@ -127,6 +128,8 @@ char *optheory [] =
    NULL,
    NULL,
    /* HO inferences */
+   NULL,
+   NULL,
    NULL,
    NULL,
    NULL,
@@ -182,6 +185,8 @@ char *opstatus [] =
    "thm",
    "thm",
    /* HO */
+   "thm",
+   "thm",
    "thm",
    "thm",
    "thm",

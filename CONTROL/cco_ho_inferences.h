@@ -21,9 +21,10 @@ Contents
 
 bool ImmediateClausification(Clause_p cl, ClauseSet_p store, 
                              ClauseSet_p archive, VarBank_p fresh_vars);
-bool RecognizeChoiceOperator(IntMap_p choice_symbols_map, Clause_p cl);
 bool ResolveFlexClause(Clause_p cl);
 bool NormalizeEquations(Clause_p cl);
 void ComputeHOInferences(ProofState_p state, ProofControl_p control, 
                          Clause_p renamed_clause, Clause_p orig_clause);
 bool BooleanSimplification(Clause_p cl);
+void ClauseSetRecognizeChoice(IntMap_p choice_syms, ClauseSet_p set, 
+                              ClauseSet_p archive);

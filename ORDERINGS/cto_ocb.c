@@ -77,9 +77,9 @@ char* TONames[]=
 //
 /----------------------------------------------------------------------*/
 
-void free_val(void* key)
+void free_val(void* key, void* val)
 {
-   SizeFree(key, sizeof(long));
+   SizeFree(val, sizeof(long));
 }
 
 /*-----------------------------------------------------------------------
@@ -317,7 +317,7 @@ void OCBFree(OCB_p junk)
       SizeFree(junk->vb, junk->vb_size*sizeof(int));
    }
    PStackFree(junk->statestack);
-   PObjMapFreeWDeleter(junk->ho_vb, DummyObjDelFun, free_val);
+   PObjMapFreeWDeleter(junk->ho_vb, free_val);
    OCBCellFree(junk);
 }
 
@@ -694,7 +694,7 @@ CompareResult OCBFunCompareMatrix(OCB_p ocb, FunCode f1, FunCode f2)
 
 void OCBResetHOVarMap(OCB_p ocb)
 {
-   PObjMapFreeWDeleter(ocb->ho_vb, DummyObjDelFun, free_val);
+   PObjMapFreeWDeleter(ocb->ho_vb, free_val);
    ocb->ho_vb = NULL;
 }
 

@@ -94,7 +94,8 @@ typedef enum
    DOChoiceAx,
    DOLeibnizElim,
    DOPrimEnum,
-   DOChoiceInst
+   DOChoiceInst,
+   DOPruneArg
 }OpCode;
 
 
@@ -162,7 +163,8 @@ typedef enum
    DCChoiceAx         = DOChoiceAx,
    DCLeibnizElim      = DOLeibnizElim|Arg1Cnf,
    DCPrimEnum         = DOPrimEnum|Arg1Cnf,
-   DCChoiceInst       = DOChoiceInst|Arg1Cnf|Arg2Cnf
+   DCChoiceInst       = DOChoiceInst|Arg1Cnf|Arg2Cnf,
+   DCPruneArg         = DOPruneArg
 }DerivationCode;
 
 

@@ -532,6 +532,13 @@ int main(int argc, char* argv[])
                                                     proofstate->tmp_terms,
                                                     h_parms->eqdef_incrlimit,
                                                     h_parms->eqdef_maxclauses);
+   if(problemType == PROBLEM_HO &&
+      proofcontrol->heuristic_parms.inst_choice >= 0)
+   {
+      ClauseSetRecognizeChoice(proofstate->choice_opcodes, 
+                               proofstate->axioms, 
+                               proofstate->archive);
+   }
 
    PCLFullTerms = pcl_full_terms; /* Preprocessing always uses full
                                      terms, so we set the flag for

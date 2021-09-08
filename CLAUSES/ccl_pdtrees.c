@@ -160,14 +160,14 @@ static PStack_p pdt_node_succ_stack_create(PDTNode_p node)
    
    PStack_p objmap_iter = PStackAlloc();
    objmap_iter = PObjMapTraverseInit(node->v_alternatives, objmap_iter);
-   while((next = PObjMapTraverseNext(objmap_iter)))
+   while((next = PObjMapTraverseNext(objmap_iter, NULL)))
    {
       PStackPushP(result, next);
    }
    PObjMapTraverseExit(objmap_iter);
 
    objmap_iter = PObjMapTraverseInit(node->db_alternatives, objmap_iter);
-   while((next = PObjMapTraverseNext(objmap_iter)))
+   while((next = PObjMapTraverseNext(objmap_iter, NULL)))
    {
       PStackPushP(result, next);
    }
@@ -584,7 +584,7 @@ static void pdtree_forward(PDTree_p tree, Subst_p subst)
       else
       {
          assert(trav_order[curr_state] == TRAVERSING_VARIABLES);
-         next = PObjMapTraverseNext(tree->tree_pos->var_traverse_stack);
+         next = PObjMapTraverseNext(tree->tree_pos->var_traverse_stack, NULL);
          if(next)
          {
             assert(next->variable);
@@ -737,7 +737,7 @@ void pdt_node_print(FILE* out, PDTNode_p node, Sig_p sig, int level)
       IntMapIterFree(iter);
       PStack_p mapiter = PStackAlloc();
       mapiter = PObjMapTraverseInit(node->v_alternatives, mapiter);
-      while((next=PObjMapTraverseNext(mapiter)))
+      while((next=PObjMapTraverseNext(mapiter, NULL)))
       {
          assert(next);
          fprintf(out, "%sBranch(var) ", IndentStr(2*level));
@@ -755,7 +755,7 @@ void pdt_node_print(FILE* out, PDTNode_p node, Sig_p sig, int level)
       PObjMapTraverseExit(mapiter);
 
       mapiter = PObjMapTraverseInit(node->db_alternatives, mapiter);
-      while((next=PObjMapTraverseNext(mapiter)))
+      while((next=PObjMapTraverseNext(mapiter, NULL)))
       {
          assert(next);
          assert(TermIsDBVar(next->variable));
@@ -900,14 +900,14 @@ void PDTNodeFree(PDTNode_p tree, Deleter deleter)
    IntMapIterFree(iter);
    PStack_p objmap_iter = PStackAlloc();
    objmap_iter = PObjMapTraverseInit(tree->v_alternatives, objmap_iter);
-   while((subtree=PObjMapTraverseNext((objmap_iter))))
+   while((subtree=PObjMapTraverseNext(objmap_iter, NULL)))
    {
       PDTNodeFree(subtree, deleter);
    }
    PObjMapTraverseExit(objmap_iter);
    PObjMapFree(tree->v_alternatives);
    objmap_iter = PObjMapTraverseInit(tree->db_alternatives, objmap_iter);
-   while((subtree=PObjMapTraverseNext((objmap_iter))))
+   while((subtree=PObjMapTraverseNext(objmap_iter, NULL)))
    {
       PDTNodeFree(subtree, deleter);
    }

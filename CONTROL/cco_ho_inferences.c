@@ -231,6 +231,185 @@ void mk_prim_enum_inst(ClauseSet_p store, Clause_p cl, Term_p var, Term_p target
 
 /*-----------------------------------------------------------------------
 //
+// Function: remove_constant_args()
+//
+//   For each variable in var_occs, mark the indexes of arguments that
+//   always occur with the same value.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void remove_constant_args(PObjMap_p* var_occs, PObjMap_p* var_removed_args)
+{
+   PStack_p iter = PStackAlloc();
+   PObjMapTraverseInit(*var_occs, iter);
+   Term_p var;
+   PStack_p occs;
+
+   while((occs = PObjMapTraverseNext(iter, (void**)&var)))
+   {
+      PStack_p already_removed = 
+         PObjMapFind(var_removed_args, var, PCmpFun);
+      int num_args = TypeGetMaxArity(var->type);
+      assert(!PStackEmpty(occs));
+      if(PStackGetSP(occs) == 1)
+      {
+         Term_p* occ = PStackElementP(occs, 0);
+         for(int i=0; occ[i] && i<num_args; i++)
+         {
+            if(!PStackFindInt(already_removed, i) &&
+                TermIsDBClosed(occ[i]))
+            {
+               PStackPushInt(already_removed, i);
+            }
+         }
+      }
+      else
+      {
+         Term_p* first_occ = PStackElementP(occs, 0);
+         for(int i=0; first_occ[i] && i<num_args; i++)
+         {
+            bool can_remove_i = 
+               TermIsDBClosed(first_occ[i]) && 
+               !PStackFindInt(already_removed, i);
+            
+            for(PStackPointer j=1; can_remove_i && j<PStackGetSP(occs); j++)
+            {
+               Term_p* i_occ = PStackElementP(occs, 0);
+               can_remove_i = i_occ[j] && i_occ[j] == first_occ[j];
+            }
+
+            if(can_remove_i)
+            {
+               PStackPushInt(already_removed, i);
+            }
+         }
+      }
+   }
+
+   PStackFree(iter);
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: remove_repeated_args()
+//
+//   For each variable in var_occs remove the argument with index i
+//   if there is another argument with index j such that for each occurence
+//   arugments at i and j are the same.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void remove_repeated_args(PObjMap_p* var_occs, PObjMap_p* var_removed_args)
+{
+   PStack_p iter = PStackAlloc();
+   PObjMapTraverseInit(*var_occs, iter);
+   Term_p var;
+   PStack_p occs;
+
+   while((occs = PObjMapTraverseNext(iter, (void**)&var)))
+   {
+      PStack_p already_removed = 
+         PObjMapFind(var_removed_args, var, PCmpFun);
+      int num_args = TypeGetMaxArity(var->type);
+      assert(!PStackEmpty(occs));
+
+      Term_p* first_occ = PStackElementP(occs, 0);
+      for(int i=0; first_occ[i] && i<num_args; i++)
+      {
+         bool is_removable=false;
+         for(int j=i+1; !is_removable && first_occ[j] && j<num_args; j++)
+         {
+            is_removable = true;
+            if(!PStackFindInt(already_removed, i) &&
+               !PStackFindInt(already_removed, j) &&
+               first_occ[i] == first_occ[j])
+            {
+               // testing if we can remove i-th argument 
+               for(PStackPointer k=1; is_removable && k<PStackGetSP(occs); k++)
+               {
+                  Term_p* occ_args = PStackElementP(occs, k);
+                  is_removable = occ_args[i] && occ_args[j] &&
+                                 occ_args[i] == occ_args[j];
+               }
+            }
+         }
+
+         if(is_removable)
+         {
+            PStackPushInt(already_removed, i);
+         }
+      }
+   }
+
+   PStackFree(iter);
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: compute_removal_subst()
+//
+//   Based on data in var_removed_args (containing indexes of arguments to be
+//   removed), create a substitution removing all the arguments.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void compute_removal_subst(PObjMap_p* var_removed_args, Subst_p subst, 
+                           TB_p bank)
+{
+   PStack_p iter = PStackAlloc();
+   PObjMapTraverseInit(*var_removed_args, iter);
+   Term_p var;
+   PStack_p occs;
+
+   while((occs = PObjMapTraverseNext(iter, (void**)&var)))
+   {
+      if(!PStackEmpty(occs))
+      {
+         assert(TypeIsArrow(var->type));
+         int max_args = TypeGetMaxArity(var->type);
+         PStack_p new_db_vars = PStackAlloc();
+         for(int i=0; i<max_args; i++)
+         {
+            if(!PStackFindInt(occs, i))
+            {
+               PStackPushP(new_db_vars,
+                  RequestDBVar(bank->db_vars, var->type->args[i], max_args-i-1));
+            }
+         }
+
+         Type_p arg_tys[PStackGetSP(new_db_vars)];
+         for(PStackPointer i=0; i<PStackGetSP(new_db_vars); i++)
+         {
+            arg_tys[i] = ((Term_p)PStackElementP(new_db_vars,i))->type;
+         }
+         Type_p ty = 
+            TypeBankInsertTypeShared(bank->sig->type_bank,
+               ArrowTypeFlattened(arg_tys, PStackGetSP(new_db_vars), 
+                                  var->type->args[var->type->arity-1]));
+         Term_p fresh_var = VarBankGetFreshVar(bank->vars, ty);
+         Term_p matrix = ApplyTerms(bank, fresh_var, new_db_vars);
+         Term_p closed = 
+            CloseWithTypePrefix(bank, var->type->args, var->type->arity-1, matrix);
+         SubstAddBinding(subst, var, closed);
+      }
+   }
+   PStackFree(iter);
+}
+
+/*-----------------------------------------------------------------------
+//
 // Function: find_disagreements()
 //
 //   Stores the computed inference with the given derivation code
@@ -403,6 +582,65 @@ int prim_enum_var(ClauseSet_p store, Clause_p cl, PrimEnumMode mode, Term_p app_
       }
    }
    return generated_cls;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: do_recognize_choice()
+//
+//   If the clause is of the form ~P X | P (f P) it will recognize
+//   that f is a defined choice operatior, store f in choice_symbols
+//   map and return true.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+#define FAIL_ON(cond) if (cond) return false
+
+bool do_recognize_choice(IntMap_p choice_symbols_map, Clause_p cl)
+{
+   FAIL_ON(cl->pos_lit_no != 1);
+   FAIL_ON(cl->neg_lit_no != 1);
+
+   Eqn_p pos_lit = 
+      EqnIsPositive(cl->literals) ? cl->literals : cl->literals->next;
+   Eqn_p neg_lit = 
+      EqnIsNegative(cl->literals) ? cl->literals : cl->literals->next;
+   assert(EqnIsPositive(pos_lit));
+   assert(EqnIsNegative(neg_lit));
+
+   FAIL_ON(EqnIsEquLit(pos_lit));
+   FAIL_ON(EqnIsEquLit(neg_lit));
+
+   TB_p bank = pos_lit->bank;
+   Term_p neg_term = 
+      BetaNormalizeDB(bank, LambdaEtaReduceDB(bank, neg_lit->lterm));
+   Term_p pos_term = 
+      BetaNormalizeDB(bank, LambdaEtaReduceDB(bank, pos_lit->lterm));
+
+   FAIL_ON(!TermIsAppliedFreeVar(neg_term));
+   FAIL_ON(!TermIsAppliedFreeVar(pos_term));
+
+   FAIL_ON(neg_term->arity != 2);
+   FAIL_ON(!TermIsFreeVar(neg_term->args[1]));
+
+   Term_p p_var = neg_term->args[0];
+   FAIL_ON(pos_term->arity != 2);
+   FAIL_ON(pos_term->args[0] != p_var);
+
+   Term_p fp = pos_term->args[1];
+   FAIL_ON(fp->arity != 1);
+   FAIL_ON(fp->f_code <= bank->sig->internal_symbols);
+   FAIL_ON(fp->args[0] != p_var);
+   FAIL_ON(IntMapGetVal(choice_symbols_map, fp->f_code));
+
+   neg_lit->lterm = neg_term;
+   pos_lit->lterm = pos_term;
+   IntMapAssign(choice_symbols_map, fp->f_code, cl);
+   return true;
 }
 
 /*-----------------------------------------------------------------------
@@ -875,6 +1113,7 @@ FunCode mk_new_choice(TB_p bank, ClauseSet_p archive, IntMap_p choice_syms, Type
    PStack_p vars = PStackAlloc();
    Term_p ch_const = TermAllocNewSkolem(bank->sig, vars, ty);
    ch_const = TBTermTopInsert(bank, ch_const);
+   PStackFree(vars);
 
    Term_p p_var = VarBankGetFreshVar(bank->vars, a_to_o);
    TermSetBank(p_var, bank);
@@ -1732,61 +1971,136 @@ bool ResolveFlexClause(Clause_p cl)
 
 /*-----------------------------------------------------------------------
 //
-// Function: RecognizeChoiceOperator()
+// Function: ClausePruneArgs
 //
-//   If the clause is of the form ~P X | P (f P) it will recognize
-//   that f is a defined choice operatior, store f in choice_symbols
-//   map and return true.
+//   Recognize all choice axioms in set, insert them in the choice_syms,
+//   and move the clauses to archive.
 //
 // Global Variables: -
 //
-// Side Effects    : -
+// Side Effects    : Memory operations
 //
 /----------------------------------------------------------------------*/
+#define TermArgAlloc(n) (SizeMalloc((n)*sizeof(Term_p)))
+#define TermArgFree(arg, n) SizeFree(arg, (n)*sizeof(Term_p))
 
-#define FAIL_ON(cond) if (cond) return false
-
-bool RecognizeChoiceOperator(IntMap_p choice_symbols_map, Clause_p cl)
+void free_var_occs(void* k, void* v)
 {
-   FAIL_ON(cl->pos_lit_no != 1);
-   FAIL_ON(cl->neg_lit_no != 1);
+   Term_p var = k;
+   PStack_p occs = v;
+   int size = TypeGetMaxArity(var->type);
+#ifdef USE_SYSTEM_MEM
+   UNUSED(size); // stiffling warnings;
+#endif
+   while(!PStackEmpty(occs))
+   {
+      Term_p* args = PStackPopP(occs);
+      TermArgFree(args, size);
+   }
+   PStackFree(v);
+}
 
-   Eqn_p pos_lit = 
-      EqnIsPositive(cl->literals) ? cl->literals : cl->literals->next;
-   Eqn_p neg_lit = 
-      EqnIsNegative(cl->literals) ? cl->literals : cl->literals->next;
-   assert(EqnIsPositive(pos_lit));
-   assert(EqnIsNegative(neg_lit));
+void free_removed_args(void* k, void* v)
+{
+   PStackFree(v);
+}
 
-   FAIL_ON(EqnIsEquLit(pos_lit));
-   FAIL_ON(EqnIsEquLit(neg_lit));
+void ClausePruneArgs(Clause_p cl)
+{
+   PObjMap_p var_occs = NULL;
+   PObjMap_p var_removed_args = NULL;
+   PStack_p trav_stack = PStackAlloc();
+   for(Eqn_p lit = cl->literals; lit; lit = lit->next)
+   {
+      PStackPushP(trav_stack, lit->lterm);
+      PStackPushP(trav_stack, lit->rterm);
 
-   TB_p bank = pos_lit->bank;
-   Term_p neg_term = 
-      BetaNormalizeDB(bank, LambdaEtaReduceDB(bank, neg_lit->lterm));
-   Term_p pos_term = 
-      BetaNormalizeDB(bank, LambdaEtaReduceDB(bank, pos_lit->lterm));
+      while(!PStackEmpty(trav_stack))
+      {
+         Term_p t = PStackPopP(trav_stack);
+         if(TermIsAppliedFreeVar(t))
+         {
+            Term_p var = t->args[0];
+            int max_args = TypeGetMaxArity(var->type);
+            Term_p* args = TermArgAlloc(max_args);
+            for(int i=1; i<t->arity; i++)
+            {
+               args[i-1] = t->args[i];
+            }
+            for(int i=t->arity-1; i<max_args; i++)
+            {
+               args[i] = NULL;
+            }
+            PStack_p* occurrences = (PStack_p*)PObjMapGetRef(&var_occs, var, PCmpFun, NULL);
+            if(!(*occurrences))
+            {
+               *occurrences = PStackAlloc();
+               PStack_p* removed = (PStack_p*)PObjMapGetRef(&var_removed_args, var, PCmpFun, NULL);
+               assert(!(*removed));
+               *removed = PStackAlloc();
+            }
+            PStackPushP(*occurrences, args);
+         }
 
-   FAIL_ON(!TermIsAppliedFreeVar(neg_term));
-   FAIL_ON(!TermIsAppliedFreeVar(pos_term));
+         for(int i=(TermIsPhonyApp(t) ? 1 : 0); i<t->arity; i++)
+         {
+            PStackPushP(trav_stack, t->args[i]);
+         }
+      }
+   }
+   
+   remove_constant_args(&var_occs, &var_removed_args);
+   remove_repeated_args(&var_occs, &var_removed_args);
+   
+   Subst_p subst = SubstAlloc();
+   compute_removal_subst(&var_removed_args, subst, cl->literals->bank);
+   
+   EqnListMapTerms(cl->literals, (TermMapper_p)TBInsertInstantiated, cl->literals->bank);
+   EqnListLambdaNormalize(cl->literals);
+   EqnListRemoveResolved(&cl->literals);
+   EqnListRemoveDuplicates(cl->literals);
+   ClausePushDerivation(cl, DCPruneArg, NULL, NULL);
+   SubstDelete(subst);
+   
+   PObjMapFreeWDeleter(var_occs, free_var_occs);
+   PObjMapFreeWDeleter(var_removed_args, free_removed_args);
+   PStackFree(trav_stack);
+}
 
-   FAIL_ON(neg_term->arity != 2);
-   FAIL_ON(!TermIsFreeVar(neg_term->args[1]));
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseSetRecognizeChoice
+//
+//   Recognize all choice axioms in set, insert them in the choice_syms,
+//   and move the clauses to archive.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+void ClauseSetRecognizeChoice(IntMap_p choice_syms, 
+                              ClauseSet_p set, 
+                              ClauseSet_p archive)
+{
+   Clause_p handle;
+   PStack_p ch_axioms = PStackAlloc();
 
-   Term_p p_var = neg_term->args[0];
-   FAIL_ON(pos_term->arity != 2);
-   FAIL_ON(pos_term->args[0] != p_var);
+   for(handle = set->anchor->succ; handle!=set->anchor; handle = handle->succ)
+   {
+      if(do_recognize_choice(choice_syms, handle))
+      {
+         PStackPushP(ch_axioms, handle);
+      }
+   }
 
-   Term_p fp = pos_term->args[1];
-   FAIL_ON(fp->arity != 1);
-   FAIL_ON(fp->f_code <= bank->sig->internal_symbols);
-   FAIL_ON(fp->args[0] != p_var);
-   FAIL_ON(IntMapGetVal(choice_symbols_map, fp->f_code));
-
-   neg_lit->lterm = neg_term;
-   pos_lit->lterm = pos_term;
-   IntMapAssign(choice_symbols_map, fp->f_code, cl);
-   return true;
+   while(!PStackEmpty(ch_axioms))
+   {
+      handle = PStackPopP(ch_axioms);
+      ClauseSetMoveClause(archive, handle);
+   }
+   
+   PStackFree(ch_axioms);
 }
 
 /*-----------------------------------------------------------------------
@@ -1861,6 +2175,7 @@ int InstantiateChoiceClauses(ClauseSet_p store, ClauseSet_p archive,
                new_cls += inst_choice(store, choice_syms, orig_cl, 
                                       PStackPopInt(choice_codes), trigger);
             }
+            PStackFree(choice_codes);
          }
       }
    }
