@@ -251,8 +251,7 @@ static void scan_C_comment(Scanner_p in)
 //
 // Function: scan_string()
 //
-//   Scan a string (enclosed in "" or ''). Only the value of the strings,
-//   not the delimiter is stored.
+//   Scan a string (enclosed in "" or '').
 //
 // Global Variables: -
 //
@@ -263,20 +262,21 @@ static void scan_C_comment(Scanner_p in)
 static void scan_string(Scanner_p in, char delim)
 {
    bool escape = false;
+   int curr;
 
    AktToken(in)->tok = (delim=='\'')?SQString:String;
 
    DStrAppendChar(AktToken(in)->literal, CurrChar(in));
    NextChar(in);
-   while(escape || (CurrChar(in) != delim))
+   while(escape || ((curr = CurrChar(in)) != delim))
    {
-      if(!isprint(CurrChar(in)))
+      if(!isprint(curr) && curr<=127)
       {
          AktTokenError(in,
                        "Non-printable character in string constant",
                        false);
       }
-      if(CurrChar(in)=='\\')
+      if(curr=='\\')
       {
          escape = !escape;
       }
@@ -284,10 +284,10 @@ static void scan_string(Scanner_p in, char delim)
       {
          escape = false;
       }
-      DStrAppendChar(AktToken(in)->literal, CurrChar(in));
+      DStrAppendChar(AktToken(in)->literal, curr);
       NextChar(in);
    }
-   DStrAppendChar(AktToken(in)->literal, CurrChar(in));
+   DStrAppendChar(AktToken(in)->literal, curr);
    NextChar(in);
 }
 
