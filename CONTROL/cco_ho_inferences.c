@@ -255,38 +255,23 @@ void remove_constant_args(PObjMap_p* var_occs, PObjMap_p* var_removed_args)
          PObjMapFind(var_removed_args, var, PCmpFun);
       int num_args = TypeGetMaxArity(var->type);
       assert(!PStackEmpty(occs));
-      if(PStackGetSP(occs) == 1)
+      Term_p* first_occ = PStackElementP(occs, 0);
+      for(int arg_idx=0; first_occ[arg_idx] && arg_idx<num_args; arg_idx++)
       {
-         fprintf(stderr, "one occurrence, removing all!\n");
-         Term_p* occ = PStackElementP(occs, 0);
-         for(int i=0; occ[i] && i<num_args; i++)
+         bool is_removable = 
+            TermIsDBClosed(first_occ[arg_idx]) && 
+            !PStackFindInt(already_removed, arg_idx);
+         
+         for(long occ_idx=1; is_removable && occ_idx<PStackGetSP(occs); occ_idx++)
          {
-            if(!PStackFindInt(already_removed, i) &&
-                TermIsDBClosed(occ[i]))
-            {
-               PStackPushInt(already_removed, i);
-            }
+            Term_p* next_occ = PStackElementP(occs, occ_idx);
+            is_removable = next_occ[arg_idx] && 
+                           next_occ[arg_idx] == first_occ[arg_idx];
          }
-      }
-      else
-      {
-         Term_p* first_occ = PStackElementP(occs, 0);
-         for(int arg_idx=0; first_occ[arg_idx] && arg_idx<num_args; arg_idx++)
-         {
-            bool can_remove_arg = 
-               TermIsDBClosed(first_occ[arg_idx]) && 
-               !PStackFindInt(already_removed, arg_idx);
-            
-            for(PStackPointer occ_idx=1; can_remove_arg && occ_idx<PStackGetSP(occs); occ_idx++)
-            {
-               Term_p* new_occ = PStackElementP(occs, occ_idx);
-               can_remove_arg = new_occ[occ_idx] && new_occ[occ_idx] == first_occ[occ_idx];
-            }
 
-            if(can_remove_arg)
-            {
-               PStackPushInt(already_removed, arg_idx);
-            }
+         if(is_removable)
+         {
+            PStackPushInt(already_removed, arg_idx);
          }
       }
    }
@@ -330,19 +315,19 @@ void remove_repeated_args(PObjMap_p* var_occs, PObjMap_p* var_removed_args)
              !is_removable && first_occ[arg_j] && arg_j<num_args; 
              arg_j++)
          {
-            is_removable = true;
-            if(!PStackFindInt(already_removed, arg_i) &&
-               !PStackFindInt(already_removed, arg_j) &&
-               first_occ[arg_i] == first_occ[arg_j])
+            is_removable = !PStackFindInt(already_removed, arg_i) &&
+                           !PStackFindInt(already_removed, arg_j) &&
+                           first_occ[arg_i] == first_occ[arg_j];
+            if(is_removable)
             {
                // testing if we can remove i-th argument 
                for(PStackPointer occ_idx=1; 
                    is_removable && occ_idx<PStackGetSP(occs); 
                    occ_idx++)
                {
-                  Term_p* occ_args = PStackElementP(occs, occ_idx);
-                  is_removable = occ_args[arg_i] && occ_args[arg_j] &&
-                                 occ_args[arg_i] == occ_args[arg_j];
+                  Term_p* next_occ = PStackElementP(occs, occ_idx);
+                  is_removable = next_occ[arg_i] && next_occ[arg_j] &&
+                                 next_occ[arg_i] == next_occ[arg_j];
                }
             }
          }
@@ -353,7 +338,6 @@ void remove_repeated_args(PObjMap_p* var_occs, PObjMap_p* var_removed_args)
          }
       }
    }
-
    PStackFree(iter);
 }
 
@@ -382,7 +366,6 @@ void compute_removal_subst(PObjMap_p* var_removed_args, Subst_p subst,
    {
       if(!PStackEmpty(occs))
       {
-         DBG_PRINT(stderr, "to remove: ", PStackPrintInt(stderr, "%ld,", occs), ".\n");
          assert(TypeIsArrow(var->type));
          int max_args = TypeGetMaxArity(var->type);
          PStack_p new_db_vars = PStackAlloc();
@@ -409,6 +392,7 @@ void compute_removal_subst(PObjMap_p* var_removed_args, Subst_p subst,
          Term_p closed = 
             CloseWithTypePrefix(bank, var->type->args, var->type->arity-1, matrix);
          SubstAddBinding(subst, var, closed);
+         PStackFree(new_db_vars);
       }
    }
    PStackFree(iter);
