@@ -257,6 +257,7 @@ void remove_constant_args(PObjMap_p* var_occs, PObjMap_p* var_removed_args)
       assert(!PStackEmpty(occs));
       if(PStackGetSP(occs) == 1)
       {
+         fprintf(stderr, "one occurrence, removing all!\n");
          Term_p* occ = PStackElementP(occs, 0);
          for(int i=0; occ[i] && i<num_args; i++)
          {
@@ -270,21 +271,21 @@ void remove_constant_args(PObjMap_p* var_occs, PObjMap_p* var_removed_args)
       else
       {
          Term_p* first_occ = PStackElementP(occs, 0);
-         for(int i=0; first_occ[i] && i<num_args; i++)
+         for(int arg_idx=0; first_occ[arg_idx] && arg_idx<num_args; arg_idx++)
          {
-            bool can_remove_i = 
-               TermIsDBClosed(first_occ[i]) && 
-               !PStackFindInt(already_removed, i);
+            bool can_remove_arg = 
+               TermIsDBClosed(first_occ[arg_idx]) && 
+               !PStackFindInt(already_removed, arg_idx);
             
-            for(PStackPointer j=1; can_remove_i && j<PStackGetSP(occs); j++)
+            for(PStackPointer occ_idx=1; can_remove_arg && occ_idx<PStackGetSP(occs); occ_idx++)
             {
-               Term_p* i_occ = PStackElementP(occs, 0);
-               can_remove_i = i_occ[j] && i_occ[j] == first_occ[j];
+               Term_p* new_occ = PStackElementP(occs, occ_idx);
+               can_remove_arg = new_occ[occ_idx] && new_occ[occ_idx] == first_occ[occ_idx];
             }
 
-            if(can_remove_i)
+            if(can_remove_arg)
             {
-               PStackPushInt(already_removed, i);
+               PStackPushInt(already_removed, arg_idx);
             }
          }
       }
@@ -322,29 +323,33 @@ void remove_repeated_args(PObjMap_p* var_occs, PObjMap_p* var_removed_args)
       assert(!PStackEmpty(occs));
 
       Term_p* first_occ = PStackElementP(occs, 0);
-      for(int i=0; first_occ[i] && i<num_args; i++)
+      for(int arg_i=0; first_occ[arg_i] && arg_i<num_args; arg_i++)
       {
          bool is_removable=false;
-         for(int j=i+1; !is_removable && first_occ[j] && j<num_args; j++)
+         for(int arg_j=arg_i+1; 
+             !is_removable && first_occ[arg_j] && arg_j<num_args; 
+             arg_j++)
          {
             is_removable = true;
-            if(!PStackFindInt(already_removed, i) &&
-               !PStackFindInt(already_removed, j) &&
-               first_occ[i] == first_occ[j])
+            if(!PStackFindInt(already_removed, arg_i) &&
+               !PStackFindInt(already_removed, arg_j) &&
+               first_occ[arg_i] == first_occ[arg_j])
             {
                // testing if we can remove i-th argument 
-               for(PStackPointer k=1; is_removable && k<PStackGetSP(occs); k++)
+               for(PStackPointer occ_idx=1; 
+                   is_removable && occ_idx<PStackGetSP(occs); 
+                   occ_idx++)
                {
-                  Term_p* occ_args = PStackElementP(occs, k);
-                  is_removable = occ_args[i] && occ_args[j] &&
-                                 occ_args[i] == occ_args[j];
+                  Term_p* occ_args = PStackElementP(occs, occ_idx);
+                  is_removable = occ_args[arg_i] && occ_args[arg_j] &&
+                                 occ_args[arg_i] == occ_args[arg_j];
                }
             }
          }
 
          if(is_removable)
          {
-            PStackPushInt(already_removed, i);
+            PStackPushInt(already_removed, arg_i);
          }
       }
    }
@@ -377,6 +382,7 @@ void compute_removal_subst(PObjMap_p* var_removed_args, Subst_p subst,
    {
       if(!PStackEmpty(occs))
       {
+         DBG_PRINT(stderr, "to remove: ", PStackPrintInt(stderr, "%ld,", occs), ".\n");
          assert(TypeIsArrow(var->type));
          int max_args = TypeGetMaxArity(var->type);
          PStack_p new_db_vars = PStackAlloc();
