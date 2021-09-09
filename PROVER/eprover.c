@@ -32,7 +32,7 @@
 #include <cco_scheduling.h>
 #include <e_version.h>
 #include <cte_lambda.h>
-
+#include <cco_ho_inferences.h>
 
 /*---------------------------------------------------------------------*/
 /*                  Data types                                         */
@@ -1814,6 +1814,9 @@ CLState_p process_options(int argc, char* argv[])
             break;
       case OPT_PRIM_ENUM_MAX_DEPTH:
             h_parms->prim_enum_max_depth = CLStateGetIntArgCheckRange(handle, arg, -1, INT_MAX);
+            break;
+      case OPT_PRUNE_ARGS:
+            h_parms->prune_args = CLStateGetBoolArg(handle, arg);
             break;
       case OPT_CHOICE_INST:
             h_parms->inst_choice = CLStateGetIntArgCheckRange(handle, arg, -1, INT_MAX);

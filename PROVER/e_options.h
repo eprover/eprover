@@ -209,6 +209,7 @@ typedef enum
    OPT_PRIM_ENUM_MAX_DEPTH,
    OPT_CHOICE_INST,
    OPT_LOCAL_RW,
+   OPT_PRUNE_ARGS,
    OPT_DUMMY
 }OptionCodes;
 
@@ -1576,6 +1577,11 @@ OptCell opts[] =
     '\0', "local-rw",
     ReqArg, NULL,
     "Enable/disable local rewriting."},
+
+    {OPT_PRUNE_ARGS,
+    '\0', "prune-args",
+    ReqArg, NULL,
+    "Enable/disable pruning arguments of applied variables."},
 
 
    {OPT_NOOPT,

@@ -26,5 +26,6 @@ bool NormalizeEquations(Clause_p cl);
 void ComputeHOInferences(ProofState_p state, ProofControl_p control, 
                          Clause_p renamed_clause, Clause_p orig_clause);
 bool BooleanSimplification(Clause_p cl);
+void ClausePruneArgs(Clause_p cl);
 void ClauseSetRecognizeChoice(IntMap_p choice_syms, ClauseSet_p set, 
                               ClauseSet_p archive);

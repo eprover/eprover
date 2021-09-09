@@ -205,6 +205,7 @@ void HeuristicParmsInitialize(HeuristicParms_p handle)
    handle->prim_enum_max_depth           = -1;
    handle->inst_choice                   = -1;
    handle->local_rw                      = false;
+   handle->prune_args                    = false;
 }
 
 

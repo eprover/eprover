@@ -285,6 +285,15 @@ bool ForwardModifyClause(ProofState_p state,
          ClauseRemoveACResolved(clause);
       }
 
+      if(control->heuristic_parms.local_rw
+         && ClauseLocalRW(clause))
+      {
+         if(problemType == PROBLEM_HO)
+         {
+            NormalizeEquations(clause);
+         }  
+      }
+
       /* Now we mark maximal terms... */
       ClauseOrientLiterals(control->ocb, clause);
 
@@ -303,6 +312,12 @@ bool ForwardModifyClause(ProofState_p state,
          return true;
       }
 
+      if(problemType == PROBLEM_HO &&
+         control->heuristic_parms.prune_args)
+      {
+         ClausePruneArgs(clause);
+      }
+
       /* Still forward simplification... */
       if(problemType == PROBLEM_HO)
       {
@@ -315,14 +330,6 @@ bool ForwardModifyClause(ProofState_p state,
       if(clause->pos_lit_no)
       {
          ClauseNegativeSimplifyReflect(state->processed_neg_units, clause);
-      }
-      if(control->heuristic_parms.local_rw
-         && ClauseLocalRW(clause))
-      {
-         if(problemType == PROBLEM_HO)
-         {
-            NormalizeEquations(clause);
-         }  
       }
       done = ClauseQueryProp(clause, CPLimitedRW)==limited_rw;
    }

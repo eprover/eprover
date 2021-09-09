@@ -1451,7 +1451,6 @@ void ProofStateInit(ProofState_p state, ProofControl_p control)
                      control->heuristic_parms.pm_from_index_type,
                      control->heuristic_parms.pm_into_index_type,
                      control->heuristic_parms.ext_sup_max_depth);
-
 }
 
 

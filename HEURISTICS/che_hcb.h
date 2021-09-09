@@ -180,6 +180,7 @@ typedef struct heuristic_parms_cell
    int                 prim_enum_max_depth;
    int                 inst_choice;
    bool                local_rw;
+   bool                prune_args;
 }HeuristicParmsCell, *HeuristicParms_p;
 
 
