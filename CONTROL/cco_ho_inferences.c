@@ -346,7 +346,8 @@ void remove_repeated_args(PObjMap_p* var_occs, PObjMap_p* var_removed_args)
 // Function: compute_removal_subst()
 //
 //   Based on data in var_removed_args (containing indexes of arguments to be
-//   removed), create a substitution removing all the arguments.
+//   removed), create a substitution removing all the arguments. Returns
+//   true if at least one argument is removed.
 //
 // Global Variables: -
 //
@@ -354,13 +355,14 @@ void remove_repeated_args(PObjMap_p* var_occs, PObjMap_p* var_removed_args)
 //
 /----------------------------------------------------------------------*/
 
-void compute_removal_subst(PObjMap_p* var_removed_args, Subst_p subst, 
+bool compute_removal_subst(PObjMap_p* var_removed_args, Subst_p subst, 
                            TB_p bank)
 {
    PStack_p iter = PStackAlloc();
    PObjMapTraverseInit(*var_removed_args, iter);
    Term_p var;
    PStack_p occs;
+   bool removed = false;
 
    while((occs = PObjMapTraverseNext(iter, (void**)&var)))
    {
@@ -392,10 +394,12 @@ void compute_removal_subst(PObjMap_p* var_removed_args, Subst_p subst,
          Term_p closed = 
             CloseWithTypePrefix(bank, var->type->args, var->type->arity-1, matrix);
          SubstAddBinding(subst, var, closed);
+         removed = true;
          PStackFree(new_db_vars);
       }
    }
    PStackFree(iter);
+   return removed;
 }
 
 /*-----------------------------------------------------------------------
@@ -1997,6 +2001,11 @@ void free_removed_args(void* k, void* v)
 
 void ClausePruneArgs(Clause_p cl)
 {
+   if(ClauseIsEmpty(cl))
+   {
+      return;
+   }
+
    PObjMap_p var_occs = NULL;
    PObjMap_p var_removed_args = NULL;
    PStack_p trav_stack = PStackAlloc();
@@ -2008,16 +2017,18 @@ void ClausePruneArgs(Clause_p cl)
       while(!PStackEmpty(trav_stack))
       {
          Term_p t = PStackPopP(trav_stack);
-         if(TermIsAppliedFreeVar(t))
+         if(TermIsAppliedFreeVar(t) || 
+            (TermIsFreeVar(t) && TypeIsArrow(t->type)))
          {
-            Term_p var = t->args[0];
+            Term_p var = TermIsAppliedFreeVar(t) ? t->args[0] : t;
             int max_args = TypeGetMaxArity(var->type);
             Term_p* args = TermArgAlloc(max_args);
+            assert(!TermIsFreeVar(t) || t->arity == 0);
             for(int i=1; i<t->arity; i++)
             {
                args[i-1] = t->args[i];
             }
-            for(int i=t->arity-1; i<max_args; i++)
+            for(int i=MAX(t->arity-1,0); i<max_args; i++)
             {
                args[i] = NULL;
             }
@@ -2043,13 +2054,14 @@ void ClausePruneArgs(Clause_p cl)
    remove_repeated_args(&var_occs, &var_removed_args);
    
    Subst_p subst = SubstAlloc();
-   compute_removal_subst(&var_removed_args, subst, cl->literals->bank);
-   
-   EqnListMapTerms(cl->literals, (TermMapper_p)TBInsertInstantiated, cl->literals->bank);
-   EqnListLambdaNormalize(cl->literals);
-   EqnListRemoveResolved(&cl->literals);
-   EqnListRemoveDuplicates(cl->literals);
-   ClausePushDerivation(cl, DCPruneArg, NULL, NULL);
+   if(compute_removal_subst(&var_removed_args, subst, cl->literals->bank))
+   {
+      EqnListMapTerms(cl->literals, (TermMapper_p)TBInsertInstantiated, cl->literals->bank);
+      EqnListLambdaNormalize(cl->literals);
+      EqnListRemoveResolved(&cl->literals);
+      EqnListRemoveDuplicates(cl->literals);
+      ClausePushDerivation(cl, DCPruneArg, NULL, NULL);
+   }
    SubstDelete(subst);
    
    PObjMapFreeWDeleter(var_occs, free_var_occs);
