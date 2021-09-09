@@ -57,7 +57,7 @@ typedef struct streamcell
    struct streamcell* next;
    DStr_p             source;
    StreamType         stream_type; /* Only constant strings allowed
-                  here! */
+                                      here! */
    long               string_pos;
    FILE*              file;
    bool               eof_seen;
@@ -105,8 +105,3 @@ void     CloseStackedInput(Inpstack_p stack);
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
-
-
-
