@@ -51,6 +51,7 @@ PERF_CTR_DEFINE(SatTimer);
 
 char              *outname = NULL;
 char              *watchlist_filename = NULL;
+char              *parse_strategy_filename = NULL;
 HeuristicParms_p  h_parms;
 FVIndexParms_p    fvi_parms;
 bool              print_sat = false,
@@ -404,6 +405,13 @@ int main(int argc, char* argv[])
    {
       HeuristicParmsPrint(stdout, h_parms);
       exit(NO_ERROR);
+   }
+   if(parse_strategy_filename)
+   {
+      Scanner_p in = CreateScanner(StreamTypeFile, parse_strategy_filename, true, NULL, true);
+      HeuristicParmsParseInto(in,h_parms,true);
+      PStackPushP(hcb_definitions, h_parms->heuristic_def);
+      DBG_PRINT(stderr, "parsed props: ", HeuristicParmsPrint(stdout, h_parms), ".\n");
    }
 
    if(state->argc ==  0)
@@ -1067,6 +1075,9 @@ CLState_p process_options(int argc, char* argv[])
             break;
       case OPT_PRINT_STRATEGY:
             print_strategy = true;
+            break;
+      case OPT_PARSE_STRATEGY:
+            parse_strategy_filename = arg;
             break;
       case OPT_STEP_LIMIT:
             step_limit = CLStateGetIntArg(handle, arg);

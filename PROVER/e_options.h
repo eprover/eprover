@@ -65,6 +65,7 @@ typedef enum
    OPT_SOFTCPU_LIMIT,
    OPT_RUSAGE_INFO,
    OPT_PRINT_STRATEGY,
+   OPT_PARSE_STRATEGY,
    OPT_STEP_LIMIT,
    OPT_PROC_LIMIT,
    OPT_UNPROC_LIMIT,
@@ -491,6 +492,12 @@ OptCell opts[] =
     NoArg, NULL,
     "Print a representation of all search parameters and their setting. "
     "Then terminate."},
+
+   {OPT_PARSE_STRATEGY,
+    '\0', "parse-strategy",
+    ReqArg, NULL,
+    "Parse the previously printed representation of strategy and set"
+    " all proof search parameters accordingly."},
 
    {OPT_STEP_LIMIT,
     'C', "processed-clauses-limit",
