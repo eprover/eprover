@@ -2234,11 +2234,11 @@ void ComputeHOInferences(ProofState_p state, ProofControl_p control,
                               control->heuristic_parms.prim_enum_mode,
                               control->heuristic_parms.prim_enum_max_depth);
       }
-      if (control->heuristic_parms.inst_choice >=0)
+      if (control->heuristic_parms.inst_choice_max_depth >=0)
       {
          InstantiateChoiceClauses(state->tmp_store, state->archive, state->choice_opcodes, 
                                   renamed_cl, orig_clause, 
-                                  control->heuristic_parms.inst_choice);
+                                  control->heuristic_parms.inst_choice_max_depth);
       }
    }
 }

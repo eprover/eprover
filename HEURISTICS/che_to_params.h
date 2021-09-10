@@ -161,9 +161,15 @@ typedef struct order_parms_cell
    /* How to compare literals */
    LiteralCmp        lit_cmp;
    HoOrderKind       ho_order_kind;
-   long              lam_w;
-   long              db_w;
+   int               lam_w;
+   int               db_w;
 }OrderParmsCell, *OrderParms_p;
+
+#define HOK2STR(x) (((x) == LFHO_ORDER) ? ("lfho") : (((x) == LAMBDA_ORDER) ? "lambda" : "unknown"))
+
+#define STR2HOK(val) (!strcmp((val), "lfho") ? LFHO_ORDER\
+                      :!strcmp((val), "lambda") ? LAMBDA_ORDER\
+                      :(-1))
 
 
 /*---------------------------------------------------------------------*/

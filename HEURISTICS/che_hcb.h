@@ -70,6 +70,26 @@ typedef enum
 } PrimEnumMode;
 
 #define EIT2STR(x) (((x) == AllLits) ? ("all") : (((x) == MaxLits) ? "max" : "off"))
+#define HOK2STR(x) (((x) == LFHO_ORDER) ? ("lfho") : (((x) == LAMBDA_ORDER) ? "lambda" : "unknown"))
+#define PEM2STR(x) ((x) == NegMode ? ("neg")\
+                    : (x) == AndMode ? ("and")\
+                    : (x) == OrMode ? ("or")\
+                    : (x) == EqMode ? ("eq")\
+                    : (x) == PragmaticMode ? ("pragmatic")\
+                    : (x) == FullMode ? ("full") \
+                    : (x) == LogSymbolMode ? ("logsymbol") \
+                    : "unknown")
+#define STR2PEM(val) (!strcmp((val), "neg") ? NegMode\
+                      : !strcmp(val, "and") ? AndMode\
+                      : !strcmp(val, "or") ? OrMode\
+                      : !strcmp(val, "eq") ? EqMode\
+                      : !strcmp(val, "pragmatic") ? PragmaticMode\
+                      : !strcmp(val, "full") ? FullMode\
+                      : !strcmp(val, "logsymbol") ? LogSymbolMode\
+                      : (-1))
+#define STR2HOK(val) (!strcmp((val), "lfho") ? LFHO_ORDER\
+                      :!strcmp((val), "lambda") ? LAMBDA_ORDER\
+                      :(-1))
 #define NO_EXT_SUP (-1)
 #define NO_ELIM_LEIBNIZ (-1)
 
@@ -178,7 +198,7 @@ typedef struct heuristic_parms_cell
    int                 elim_leibniz_max_depth;
    PrimEnumMode        prim_enum_mode;
    int                 prim_enum_max_depth;
-   int                 inst_choice;
+   int                 inst_choice_max_depth;
    bool                local_rw;
    bool                prune_args;
 }HeuristicParmsCell, *HeuristicParms_p;

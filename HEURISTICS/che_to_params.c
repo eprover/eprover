@@ -187,6 +187,9 @@ void OrderParmsPrint(FILE* out, OrderParms_p handle)
    fprintf(out, "      to_defs_min:             %s\n",
            BOOL2STR(handle->to_defs_min));
    fprintf(out, "      lit_cmp:                 %d\n", handle->lit_cmp);
+   fprintf(out, "      lam_w:                   %d\n", handle->lam_w);
+   fprintf(out, "      db_w:                    %d\n", handle->db_w);
+   fprintf(out, "      ho_order_kind:           %s\n", HOK2STR(handle->ho_order_kind));
 
    fprintf(out, "   }\n");
 }
@@ -205,6 +208,16 @@ void OrderParmsPrint(FILE* out, OrderParms_p handle)
 // Side Effects    :
 //
 /----------------------------------------------------------------------*/
+
+inline HoOrderKind str2hok(char* v)
+{
+   HoOrderKind hok = STR2HOK(v);
+   if(hok==-1)
+   {
+      Error("Unknown HOOrderKind", USAGE_ERROR);
+   }
+   return hok;
+}
 
 bool OrderParmsParseInto(Scanner_p in,
                          OrderParms_p handle,
@@ -239,6 +252,9 @@ bool OrderParmsParseInto(Scanner_p in,
    PARSE_INT(to_const_weight);
    PARSE_BOOL(to_defs_min);
    PARSE_INT(lit_cmp);
+   PARSE_INT(lam_w);
+   PARSE_INT(db_w);
+   PARSE_STRING_AND_CONVERT(ho_order_kind, str2hok);
 
    AcceptInpTok(in, CloseCurly);
 

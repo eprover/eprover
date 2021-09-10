@@ -533,7 +533,7 @@ int main(int argc, char* argv[])
                                                     h_parms->eqdef_incrlimit,
                                                     h_parms->eqdef_maxclauses);
    if(problemType == PROBLEM_HO &&
-      proofcontrol->heuristic_parms.inst_choice >= 0)
+      proofcontrol->heuristic_parms.inst_choice_max_depth >= 0)
    {
       ClauseSetRecognizeChoice(proofstate->choice_opcodes, 
                                proofstate->axioms, 
@@ -1819,7 +1819,7 @@ CLState_p process_options(int argc, char* argv[])
             h_parms->prune_args = CLStateGetBoolArg(handle, arg);
             break;
       case OPT_CHOICE_INST:
-            h_parms->inst_choice = CLStateGetIntArgCheckRange(handle, arg, -1, INT_MAX);
+            h_parms->inst_choice_max_depth = CLStateGetIntArgCheckRange(handle, arg, -1, INT_MAX);
             break;
       case OPT_LOCAL_RW:
             h_parms->local_rw = CLStateGetBoolArg(handle, arg);

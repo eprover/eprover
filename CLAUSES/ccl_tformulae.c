@@ -1341,7 +1341,13 @@ TFormula_p TFormulaLitAlloc(Eqn_p literal)
 
    assert(literal);
 
-   if(literal->rterm == bank->true_term)
+   if(problemType == PROBLEM_FO)
+   {
+      res = EqnTermsTBTermEncode(literal->bank, literal->lterm,
+                                 literal->rterm, EqnIsPositive(literal),
+                                 PENormal);
+   }
+   else if(literal->rterm == bank->true_term)
    {
       res = DecodeFormulasForCNF(bank, literal->lterm);
       if(EqnIsNegative(literal))

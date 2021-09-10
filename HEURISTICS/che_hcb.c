@@ -70,6 +70,28 @@ inline ExtInferenceType str2eit(char* value)
 
 /*-----------------------------------------------------------------------
 //
+// Function: str2eit()
+//
+//    Parse the value of ExtInferenceType parameter.
+//
+// Global Variables:
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+
+inline PrimEnumMode str2pem(char* value)
+{
+   PrimEnumMode res = STR2PEM(value);
+   if(res == -1)
+   {
+      Error("Unknown PrimEnumMode identifier.", USAGE_ERROR);
+   }
+   return res;
+}
+
+/*-----------------------------------------------------------------------
+//
 // Function: get_next_clause()
 //
 //   Return the next clause from the selected EvalTreeTraverse-Stack,
@@ -203,7 +225,7 @@ void HeuristicParmsInitialize(HeuristicParms_p handle)
    handle->elim_leibniz_max_depth        = NO_ELIM_LEIBNIZ;
    handle->prim_enum_mode                = PragmaticMode;
    handle->prim_enum_max_depth           = -1;
-   handle->inst_choice                   = -1;
+   handle->inst_choice_max_depth         = -1;
    handle->local_rw                      = false;
    handle->prune_args                    = false;
 }
@@ -387,12 +409,6 @@ void HeuristicParmsPrint(FILE* out, HeuristicParms_p handle)
            BOOL2STR(handle->detsort_bw_rw));
    fprintf(out, "   detsort_tmpset:                 %s\n",
            BOOL2STR(handle->detsort_tmpset));
-   fprintf(out, "   inverse_recognition:            %s\n",
-           BOOL2STR(handle->inverse_recognition));
-   fprintf(out, "   replace_inj_defs:               %s\n",
-           BOOL2STR(handle->replace_inj_defs));
-   fprintf(out, "   lift_lambdas:                  %s\n",
-           BOOL2STR(handle->lift_lambdas));
 
    fprintf(out, "   arg_cong:                       %s\n",
            EIT2STR(handle->arg_cong));
@@ -400,8 +416,32 @@ void HeuristicParmsPrint(FILE* out, HeuristicParms_p handle)
            EIT2STR(handle->neg_ext));
    fprintf(out, "   pos_ext:                        %s\n",
            EIT2STR(handle->pos_ext));
+   
    fprintf(out, "   ext_sup_max_depth:              %d\n",
            handle->ext_sup_max_depth);
+      
+   fprintf(out, "   inverse_recognition:            %s\n",
+           BOOL2STR(handle->inverse_recognition));
+   fprintf(out, "   replace_inj_defs:               %s\n",
+           BOOL2STR(handle->replace_inj_defs));
+   fprintf(out, "   lift_lambdas:                  %s\n",
+           BOOL2STR(handle->lift_lambdas));
+   fprintf(out, "   lambda_to_forall:              %s\n",
+           BOOL2STR(handle->lambda_to_forall));
+   fprintf(out, "   unroll_only_formulas:          %s\n",
+           BOOL2STR(handle->unroll_only_formulas));
+   fprintf(out, "   elim_leibniz_max_depth:        %d\n",
+           handle->elim_leibniz_max_depth);
+   fprintf(out, "   prim_enum_mode:                %s\n",
+           PEM2STR(handle->prim_enum_mode));
+   fprintf(out, "   prim_enum_max_depth:           %d\n",
+           handle->prim_enum_max_depth);
+   fprintf(out, "   inst_choice_max_depth:         %d\n",
+           handle->inst_choice_max_depth);
+   fprintf(out, "   local_rw:                      %s\n",
+           BOOL2STR(handle->local_rw));
+   fprintf(out, "   prune_args:                    %s\n",
+           BOOL2STR(handle->prune_args));
 
    fprintf(out, "}\n");
 }
@@ -546,15 +586,23 @@ bool HeuristicParmsParseInto(Scanner_p in,
    PARSE_BOOL(presat_interreduction);
    PARSE_BOOL(detsort_bw_rw);
    PARSE_BOOL(detsort_tmpset);
-   PARSE_BOOL(inverse_recognition);
-   PARSE_BOOL(replace_inj_defs);
-   PARSE_BOOL(lift_lambdas);
+
+
    PARSE_STRING_AND_CONVERT(arg_cong, str2eit);
    PARSE_STRING_AND_CONVERT(neg_ext, str2eit);
    PARSE_STRING_AND_CONVERT(pos_ext, str2eit);
    PARSE_INT(ext_sup_max_depth);
-
-
+   PARSE_BOOL(inverse_recognition);
+   PARSE_BOOL(replace_inj_defs);
+   PARSE_BOOL(lift_lambdas);
+   PARSE_BOOL(lambda_to_forall);
+   PARSE_BOOL(unroll_only_formulas);
+   PARSE_INT(elim_leibniz_max_depth);
+   PARSE_STRING_AND_CONVERT(prim_enum_mode, str2pem);
+   PARSE_INT(prim_enum_max_depth);
+   PARSE_INT(inst_choice_max_depth);
+   PARSE_BOOL(local_rw);
+   PARSE_BOOL(prune_args);
 
 
    AcceptInpTok(in, CloseCurly);
