@@ -1498,6 +1498,12 @@ TFormula_p TcfTSTPParse(Scanner_p in, TB_p terms)
 
    CheckInpTok(in, TermStartToken|TildeSign|UnivQuantor|OpenBracket);
 
+   bool in_parens = false;
+   if(TestInpTok(in, OpenBracket))
+   {
+      AcceptInpTok(in, OpenBracket);
+      in_parens = true;
+   }
    if(TestInpTok(in, UnivQuantor))
    {
       FunCode quantor;
@@ -1508,17 +1514,11 @@ TFormula_p TcfTSTPParse(Scanner_p in, TB_p terms)
    }
    else
    {
-      bool in_parens = false;
-      if(TestInpTok(in, OpenBracket))
-      {
-         AcceptInpTok(in, OpenBracket);
-         in_parens = true;
-      }
       res = clause_tform_tstp_parse(in, terms);
-      if(in_parens)
-      {
-         AcceptInpTok(in, CloseBracket);
-      }
+   }
+   if(in_parens)
+   {
+      AcceptInpTok(in, CloseBracket);
    }
    return res;
 }
