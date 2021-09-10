@@ -406,12 +406,14 @@ int main(int argc, char* argv[])
       HeuristicParmsPrint(stdout, h_parms);
       exit(NO_ERROR);
    }
+   
    if(parse_strategy_filename)
    {
       Scanner_p in = CreateScanner(StreamTypeFile, parse_strategy_filename, true, NULL, true);
       HeuristicParmsParseInto(in,h_parms,true);
       PStackPushP(hcb_definitions, h_parms->heuristic_def);
-      DBG_PRINT(stderr, "parsed props: ", HeuristicParmsPrint(stdout, h_parms), ".\n");
+      fprintf(stderr, "heuristic def: %s\n", h_parms->heuristic_def);
+      DBG_PRINT(stderr, "parsed heuristic:", HeuristicParmsPrint(stderr, h_parms), ".\n");
    }
 
    if(state->argc ==  0)

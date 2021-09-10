@@ -346,7 +346,7 @@ typedef struct order_parms_cell
    {\
       NextToken(in);                            \
       AcceptInpTok(in, Colon);\
-      CheckInpTok(in, String);                            \
+      CheckInpTok(in, String|Identifier);                            \
       handle->name = converter(DStrView(AktToken(in)->literal));     \
       NextToken(in);\
    }\
