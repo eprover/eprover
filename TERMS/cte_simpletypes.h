@@ -16,7 +16,7 @@ Contents
 
 Changes
 
-<2> Somewhere at the end of 2017. Completely rewritten 
+<2> Somewhere at the end of 2017. Completely rewritten
     by Petar Vukmirovic.
 
 <1> Sat Jul  6 09:45:14 CEST 2013
@@ -88,9 +88,11 @@ Type_p  TypeCopy(Type_p orig);
 #define  TypeIsIndividual(t)  ((t)->f_code == STIndividuals)
 #define  TypeIsTypeConstructor(t) (TypeIsKind(t) || (TypeIsArrow(t) && TypeIsKind((t)->args[0])))
 
+bool TypeIsUntyped(Type_p t);
+
 #define  GetRetType(t)        (TypeIsArrow(t) ? (t)->args[(t)->arity-1] : (t))
 
-int TypeGetMaxArity(Type_p t); 
+int TypeGetMaxArity(Type_p t);
 
 int TypesCmp(Type_p t1, Type_p t2);
 Type_p FlattenType(Type_p type);
