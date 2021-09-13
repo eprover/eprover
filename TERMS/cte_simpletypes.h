@@ -91,7 +91,7 @@ Type_p  TypeCopy(Type_p orig);
 
 #define  GetRetType(t)        (TypeIsArrow(t) ? (t)->args[(t)->arity-1] : (t))
 
-int TypeGetMaxArity(Type_p t); 
+int TypeGetMaxArity(Type_p t);
 
 int TypesCmp(Type_p t1, Type_p t2);
 Type_p FlattenType(Type_p type);
@@ -152,6 +152,36 @@ static inline Type_p AllocArrowTypeCopyArgs(int arity, Type_p const* args)
       args_copy[i] = args[i];
    }
    return AllocArrowType(arity, args_copy); //casting away the cons
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: TypeGetOrder()
+//
+//   Calculates the order of the type.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+static inline int TypeGetOrder(Type_p t)
+{
+   int order;
+   if(!TypeIsArrow(t))
+   {
+      order = 0;
+   }
+   else
+   {
+      assert(!TypeIsArrow(t->args[t->arity-1]));
+      for(int i=0; i<t->arity; i++)
+      {
+         order = MAX(order, TypeGetOrder(t->args[i]));
+      }
+      order++;
+   }
+   return order;
 }
 
 #endif
