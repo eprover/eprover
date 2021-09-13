@@ -137,6 +137,10 @@ typedef struct spec_feature_cell
    SpecFeatures sum_fun_ar_class;
    SpecFeatures max_depth_class;
    
+   bool         has_ho_features; // does the problem have syntactic HO features
+   bool         quantifies_booleans; // is there any variable in whose type $o
+                                     // appears
+   bool         has_defined_choice; // there is a clause that defines choice
    SpecFeatures order_class;
    SpecFeatures defs_class;
    SpecFeatures form_defs_class;
@@ -173,13 +177,9 @@ typedef struct spec_feature_cell
    int          pred_nonconst_count;
 
    /* HO features */
-   bool         has_ho_features; // does the problem have syntactic HO features
    int          order; // maximal order of a symbol
    int          num_of_definitions; // number of formulas tagged with definition
    double       perc_of_form_defs; // percentage of which defines formulas
-   bool         quantifies_booleans; // is there any variable in whose type $o
-                                     // appears
-   bool         has_defined_choice; // there is a clause that defines choice
 }SpecFeatureCell, *SpecFeature_p;
 
 
