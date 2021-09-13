@@ -473,7 +473,7 @@ int main(int argc, char* argv[])
                             false);
    def_store->def_clauses->fvindex = FVIAnchorAlloc(cspec, perm);
 
-   SpecFeaturesCompute(&features, clauses, formulas, terms);
+   SpecFeaturesCompute(&features, clauses, formulas, f_ax_archive, terms);
 
    GCDeregisterFormulaSet(collector, formulas);
    FormulaSetFree(formulas);

@@ -877,16 +877,18 @@ int main(int argc, char* argv[])
             }
             if(!specsig_classify)
             {
-               SpecFeaturesCompute(&features, fstate->axioms, fstate->f_axioms, fstate->terms);
+               SpecFeaturesCompute(&features, fstate->axioms, fstate->f_axioms,
+                                   fstate->f_ax_archive, fstate->terms);
                SpecFeaturesAddEval(&features, limits);
+               fprintf(stderr, "evaluated!!!\n");
 
                if(!tptp_header)
                {
-                  fprintf(GlobalOut, "%s : ", state->argv[i]);
-                  SpecFeaturesPrint(GlobalOut, &features);
-                  fprintf(GlobalOut, " : ");
-                  SpecTypePrint(GlobalOut, &features, mask);
-                  fprintf(GlobalOut, "\n");
+                  fprintf(stderr, "%s : ", state->argv[i]);
+                  SpecFeaturesPrint(stderr, &features);
+                  fprintf(stderr, " : ");
+                  SpecTypePrint(stderr, &features, mask);
+                  fprintf(stderr, "\n");
                }
                else
                {

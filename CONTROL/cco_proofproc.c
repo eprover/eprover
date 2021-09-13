@@ -1104,7 +1104,7 @@ void ProofControlInit(ProofState_p state, ProofControl_p control,
 
    SpecFeaturesCompute(&(control->problem_specs),
                        state->axioms, state->f_axioms,
-                       state->terms);
+                       state->f_ax_archive, state->terms);
 
    control->ocb = TOSelectOrdering(state, params,
                                    &(control->problem_specs));

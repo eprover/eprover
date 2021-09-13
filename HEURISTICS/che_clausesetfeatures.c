@@ -904,7 +904,7 @@ long ClauseSetMaxLiteralNumber(ClauseSet_p set)
 /----------------------------------------------------------------------*/
 
 void SpecFeaturesCompute(SpecFeature_p features, ClauseSet_p set,
-                         FormulaSet_p fset, TB_p bank)
+                         FormulaSet_p fset, FormulaSet_p farch, TB_p bank)
 {
    long tmp, count;
    Sig_p sig = bank->sig;
@@ -1037,7 +1037,7 @@ void SpecFeaturesCompute(SpecFeature_p features, ClauseSet_p set,
                               &(features->order),
                               &(features->quantifies_booleans),
                               &(features->has_defined_choice));
-   FormulaSetDefinitionStatistics(fset, bank,
+   FormulaSetDefinitionStatistics(fset, farch, bank,
                                   &(features->num_of_definitions), 
                                   &(features->perc_of_form_defs));
 }
@@ -1255,15 +1255,15 @@ void SpecFeaturesAddEval(SpecFeature_p features, SpecLimits_p limits)
 
    if(features->perc_of_form_defs < limits->perc_form_defs_medium_limit)
    {
-      features->defs_class = SpecFewFormDefs;
+      features->form_defs_class = SpecFewFormDefs;
    }
    else if(features->perc_of_form_defs < limits->perc_form_defs_large_limit)
    {
-      features->defs_class = SpecMediumFormDefs;
+      features->form_defs_class = SpecMediumFormDefs;
    }
    else
    {
-      features->defs_class = SpecManyFormDefs;
+      features->form_defs_class = SpecManyFormDefs;
    }
 }
 
@@ -1289,7 +1289,7 @@ void SpecFeaturesPrint(FILE* out, SpecFeature_p features)
    fprintf(out,
            "( %3ld, %3ld, %3ld, %3ld, %3ld, %3ld, %3ld, %3ld, %3ld,"
            " %3ld, %3ld, %3ld, %3ld, %3ld, %3ld, %8.6f, %8.6f,"
-           " %3d, %3d, %3d, %3ld, %3ld )",
+           " %3d, %3d, %3d, %3ld, %3ld, %3d, %3d, %8.6f, %s, %s )",
            features->goals,
            features->axioms,
            features->clauses,
@@ -1311,7 +1311,12 @@ void SpecFeaturesPrint(FILE* out, SpecFeature_p features)
            features->avg_fun_arity,
            features->sum_fun_arity,
            features->clause_max_depth,
-           features->clause_avg_depth
+           features->clause_avg_depth,
+           features->order,
+           features->num_of_definitions,
+           features->perc_of_form_defs,
+           BOOL2STR(features->quantifies_booleans),
+           BOOL2STR(features->has_defined_choice)
       );
 }
 
@@ -1464,30 +1469,38 @@ void SpecFeaturesParse(Scanner_p in, SpecFeature_p features)
 //
 /----------------------------------------------------------------------*/
 
+#define GET_ENCODING(idx) (assert((idx) < (enc_len)), encoding[(idx)])
+
 void SpecTypePrint(FILE* out, SpecFeature_p features, char* mask)
 {
-   const char encoding[]="UHGNSPFSMFSMFSMFSMSML0123SMLSMD";
-   char       result[14]; /* Big enough for the '\0'!!!*/
+   const char encoding[]="UHGNSPFSMFSMFSMFSMSML0123SMLSMDFSHFMMFMM";
+   const int enc_len = strlen(encoding);
+   char       result[19]; /* Big enough for the '\0'!!!*/
    int        i, limit;
 
    assert(features);
-   assert(mask && (strlen(mask)==13));
+   assert(mask && (strlen(mask)>=13) && (strlen(mask)<=18));
    limit = strlen(mask);
 
-   sprintf(result, "%c%c%c%c%c%c%c%c%c%c%c%c%c",
-           encoding[features->axiomtypes],
-           encoding[features->goaltypes],
-           encoding[features->eq_content],
-           encoding[features->ng_unit_content],
+   snprintf(result, 19, "%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c",
+           GET_ENCODING(features->axiomtypes),
+           GET_ENCODING(features->goaltypes),
+           GET_ENCODING(features->eq_content),
+           GET_ENCODING(features->ng_unit_content),
            features->goals_are_ground?'G':'N',
-           encoding[features->set_clause_size],
-           encoding[features->set_literal_size],
-           encoding[features->set_termcell_size],
-           encoding[features->ground_positive_content],
-           encoding[features->max_fun_ar_class],
-           encoding[features->avg_fun_ar_class],
-           encoding[features->sum_fun_ar_class],
-           encoding[features->max_depth_class]);
+           GET_ENCODING(features->set_clause_size),
+           GET_ENCODING(features->set_literal_size),
+           GET_ENCODING(features->set_termcell_size),
+           GET_ENCODING(features->ground_positive_content),
+           GET_ENCODING(features->max_fun_ar_class),
+           GET_ENCODING(features->avg_fun_ar_class),
+           GET_ENCODING(features->sum_fun_ar_class),
+           GET_ENCODING(features->max_depth_class),
+           GET_ENCODING(features->order_class),
+           GET_ENCODING(features->defs_class),
+           GET_ENCODING(features->form_defs_class),
+           features->quantifies_booleans?'B':'N',
+           features->has_defined_choice?'C':'N');
    for(i=0; i<limit; i++)
    {
       if(mask[i]=='-')
@@ -1754,7 +1767,7 @@ void ClauseSetComputeHOFeatures(ClauseSet_p set, Sig_p sig,
    bool has_choice = false;
 
    int ord = 0;
-   for(FunCode i = sig->internal_symbols; i<sig->f_count; i++)
+   for(FunCode i = sig->internal_symbols+1; i<sig->f_count; i++)
    {
       ord = MAX(ord, TypeGetOrder(SigGetType(sig, i)));
    }

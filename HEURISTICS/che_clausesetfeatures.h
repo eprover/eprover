@@ -420,7 +420,8 @@ void    ClauseSetComputeHOFeatures(ClauseSet_p set, Sig_p sig,
                                    bool* quantifies_bools,
                                    bool* has_defined_choice);
 void    SpecFeaturesCompute(SpecFeature_p features, ClauseSet_p cset,
-                            FormulaSet_p fset, TB_p bank);
+                            FormulaSet_p fset, FormulaSet_p farch,
+                            TB_p bank);
 void    SpecFeaturesAddEval(SpecFeature_p features, SpecLimits_p limits);
 
 void    SpecFeaturesPrint(FILE* out, SpecFeature_p features);

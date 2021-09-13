@@ -603,51 +603,56 @@ long FormulaSetCollectFCode(FormulaSet_p set, FunCode f_code,
 //
 /----------------------------------------------------------------------*/
 
-void FormulaSetDefinitionStatistics(FormulaSet_p set, TB_p bank,
-                                    int* num_defs, 
+void FormulaSetDefinitionStatistics(FormulaSet_p orig, FormulaSet_p arch, 
+                                    TB_p bank, int* num_defs, 
                                     double* percentage_form_defs)
 {
    WFormula_p handle;
    int defs = 0;
    int form_defs = 0;
    Sig_p sig = bank->sig;
+   FormulaSet_p sets[2] = {orig, arch};
 
-   for(handle = set->anchor->succ;
-       handle != set->anchor;
-       handle = handle->succ)
+   for(int i=0; i<2; i++)
    {
-      if(FormulaQueryProp(handle, CPIsLambdaDef))
+      FormulaSet_p set = sets[i];
+      for(handle = set->anchor->succ;
+          handle != set->anchor;
+          handle = handle->succ)
       {
-         Term_p tform = handle->tformula;
-         Term_p head = NULL;
-         while (tform->f_code == sig->qall_code && tform->arity == 2)
+         if(FormulaQueryProp(handle, CPIsLambdaDef))
          {
-            tform = tform->args[1];
-         }
-
-         if (tform->f_code == sig->eqn_code)
-         {
-            head = tform->args[0];
-         }
-         else if (tform->f_code == sig->equiv_code &&
-                  tform->args[0]->f_code == sig->eqn_code &&
-                  tform->args[0]->args[1] == bank->true_term)
-         {
-            head = tform->args[0]->args[0];
-         }
-
-         if(head)
-         {
-            defs++;
-            if(TypeIsPredicate(head->type))
+            Term_p tform = handle->tformula;
+            Term_p head = NULL;
+            while (tform->f_code == sig->qall_code && tform->arity == 2)
             {
-               form_defs++;
+               tform = tform->args[1];
+            }
+
+            if (tform->f_code == sig->eqn_code)
+            {
+               head = tform->args[0];
+            }
+            else if (tform->f_code == sig->equiv_code &&
+                     tform->args[0]->f_code == sig->eqn_code &&
+                     tform->args[0]->args[1] == bank->true_term)
+            {
+               head = tform->args[0]->args[0];
+            }
+
+            if(head)
+            {
+               defs++;
+               if(TypeIsPredicate(head->type))
+               {
+                  form_defs++;
+               }
             }
          }
       }
    }
    *num_defs = defs;
-   *percentage_form_defs = ((double)form_defs)/defs;
+   *percentage_form_defs = defs ? (((double)form_defs)/defs) : 0.0;
 }
 
 
