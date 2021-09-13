@@ -102,6 +102,14 @@ SpecLimits_p SpecLimitsAlloc(void)
    handle->fun_medium_limit       = FUN_MEDIUM_DEFAULT;
    handle->fun_large_limit        = FUN_LARGE_DEFAULT;
 
+   handle->order_medium_limit     = ORDER_MEDIUM_DEFAULT;
+   handle->order_large_limit      = ORDER_LARGE_DEFAULT;
+   handle->num_of_defs_medium_limit = DEFS_MEDIUM_DEFAULT;
+   handle->num_of_defs_large_limit = DEFS_LARGE_DEFAULT;
+   handle->perc_form_defs_medium_limit = DEFS_PERC_MEDIUM_DEFAULT;
+   handle->perc_form_defs_large_limit = DEFS_PERC_MEDIUM_DEFAULT;
+
+
    return handle;
 }
 
@@ -1023,6 +1031,7 @@ void SpecFeaturesCompute(SpecFeature_p features, ClauseSet_p set,
        (double)(features->positiveaxioms))
       :0.0;
 
+   /* all ho features computed below */
    ClauseSetComputeHOFeatures(set, sig, 
                               &(features->has_ho_features),
                               &(features->order),
@@ -1215,6 +1224,46 @@ void SpecFeaturesAddEval(SpecFeature_p features, SpecLimits_p limits)
    {
       features->max_depth_class = SpecDepthDeep;
       /* printf("Deep %ld %ld\n", features->clause_max_depth, limits->depth_medium_limit);*/
+   }
+
+   if(features->order < 2)
+   {
+      features->order_class = SpecFO;
+   }
+   else if(features->order == 2)
+   {
+      features->order_class = SpecSO;
+   }
+   else
+   {
+      assert(features->order >= 3);
+      features->order_class = SpecHO;
+   }
+
+   if(features->num_of_definitions < limits->num_of_defs_medium_limit)
+   {
+      features->defs_class = SpecFewDefs;
+   }
+   else if(features->num_of_definitions < limits->num_of_defs_large_limit)
+   {
+      features->defs_class = SpecMediumDefs;
+   }
+   else
+   {
+      features->defs_class = SpecManyDefs;
+   }
+
+   if(features->perc_of_form_defs < limits->perc_form_defs_medium_limit)
+   {
+      features->defs_class = SpecFewFormDefs;
+   }
+   else if(features->perc_of_form_defs < limits->perc_form_defs_large_limit)
+   {
+      features->defs_class = SpecMediumFormDefs;
+   }
+   else
+   {
+      features->defs_class = SpecManyFormDefs;
    }
 }
 
@@ -1664,6 +1713,13 @@ SpecLimits_p CreateDefaultSpecLimits(void)
    limits->ngu_absolute         = true;
    limits->ngu_few_limit        = 1;
    limits->ngu_many_limit       = 3;
+   
+   limits->order_medium_limit   = ORDER_MEDIUM_DEFAULT;
+   limits->order_large_limit    = ORDER_LARGE_DEFAULT;
+   limits->num_of_defs_medium_limit = DEFS_MEDIUM_DEFAULT;
+   limits->num_of_defs_large_limit = DEFS_LARGE_DEFAULT;
+   limits->perc_form_defs_medium_limit = DEFS_PERC_MEDIUM_DEFAULT;
+   limits->perc_form_defs_large_limit = DEFS_PERC_LARGE_DEFAULT;
 
    return limits;
 }
@@ -1721,12 +1777,11 @@ void ClauseSetComputeHOFeatures(ClauseSet_p set, Sig_p sig,
 
       for(Eqn_p eqn = handle->literals; is_fo && eqn; eqn = eqn->next)
       {
-         is_fo = is_fo && !IS_NON_FO_TERM(eqn->lterm) && !IS_NON_FO_TERM(eqn->rterm);
+         is_fo = is_fo && !IS_NON_FO_TERM(eqn->lterm) 
+                       && !IS_NON_FO_TERM(eqn->rterm);
       }
 
       has_choice = has_choice || ClauseRecognizeChoice(NULL, handle);
-
-      
    }
    
    *order = ord;

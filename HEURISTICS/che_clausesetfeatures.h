@@ -65,6 +65,15 @@ typedef enum
    SpecDepthShallow,
    SpecDepthMedium,
    SpecDepthDeep,
+   SpecFO,
+   SpecSO,
+   SpecHO,
+   SpecFewDefs,
+   SpecMediumDefs,
+   SpecManyDefs,
+   SpecFewFormDefs,
+   SpecMediumFormDefs,
+   SpecManyFormDefs,
 }SpecFeatures;
 
 
@@ -100,6 +109,12 @@ typedef struct spec_limits_cell
    int    func_large_limit;
    int    fun_medium_limit;
    int    fun_large_limit;
+   int    order_medium_limit;
+   int    order_large_limit;
+   int    num_of_defs_medium_limit;
+   int    num_of_defs_large_limit;
+   double perc_form_defs_medium_limit;
+   double perc_form_defs_large_limit;
 }SpecLimitsCell, *SpecLimits_p;
 
 
@@ -121,6 +136,11 @@ typedef struct spec_feature_cell
    SpecFeatures avg_fun_ar_class;
    SpecFeatures sum_fun_ar_class;
    SpecFeatures max_depth_class;
+   
+   SpecFeatures order_class;
+   SpecFeatures defs_class;
+   SpecFeatures form_defs_class;
+   
    long         clauses;
    long         goals;
    long         axioms;
@@ -203,6 +223,12 @@ typedef struct spec_feature_cell
 #define FUN_MEDIUM_DEFAULT       360
 #define FUN_LARGE_DEFAULT        400
 
+#define ORDER_MEDIUM_DEFAULT     2 // second order is already medium
+#define ORDER_LARGE_DEFAULT      3 // third order is already high
+#define DEFS_MEDIUM_DEFAULT      8
+#define DEFS_LARGE_DEFAULT       64
+#define DEFS_PERC_MEDIUM_DEFAULT 0.25
+#define DEFS_PERC_LARGE_DEFAULT  0.75
 
 
 #define DEFAULT_OUTPUT_DESCRIPTOR "eigEIG"
