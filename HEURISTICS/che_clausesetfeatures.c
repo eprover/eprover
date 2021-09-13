@@ -896,10 +896,10 @@ long ClauseSetMaxLiteralNumber(ClauseSet_p set)
 /----------------------------------------------------------------------*/
 
 void SpecFeaturesCompute(SpecFeature_p features, ClauseSet_p set,
-                         Sig_p sig)
+                         FormulaSet_p fset, TB_p bank)
 {
    long tmp, count;
-
+   Sig_p sig = bank->sig;
    features->clauses          = set->members;
    features->goals            = ClauseSetCountGoals(set);
    features->axioms           = features->clauses-features->goals;
@@ -1023,7 +1023,14 @@ void SpecFeaturesCompute(SpecFeature_p features, ClauseSet_p set,
        (double)(features->positiveaxioms))
       :0.0;
 
-
+   ClauseSetComputeHOFeatures(set, sig, 
+                              &(features->has_ho_features),
+                              &(features->order),
+                              &(features->quantifies_booleans),
+                              &(features->has_defined_choice));
+   FormulaSetDefinitionStatistics(fset, bank,
+                                  &(features->num_of_definitions), 
+                                  &(features->perc_of_form_defs));
 }
 
 
@@ -1661,6 +1668,72 @@ SpecLimits_p CreateDefaultSpecLimits(void)
    return limits;
 }
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseSetComputeHOFeatures()
+//
+//  Fill in the HO statistics such as: are there non-FO features  of the
+//  problem, what is the maximal term order in the problem, does the
+//  problem quantify booleans and does it have defined choice clauses.
+//
+// Global Variables:
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+
+#define VAR_ORDER(ty) (TypeGetOrder(ty) + (TypeIsArrow(ty) ? 1 : 0))
+#define IS_NON_FO_TERM(t) ( TermIsNonFOPattern(t) || TermHasLambdaSubterm(t) || TermHasDBSubterm(t) )
+
+void ClauseSetComputeHOFeatures(ClauseSet_p set, Sig_p sig,
+                                bool* has_ho_features,
+                                int* order,
+                                bool* quantifies_bools,
+                                bool* has_defined_choice)
+{
+   Clause_p handle;
+   bool is_fo = true;
+   bool var_has_bools = false;
+   bool has_choice = false;
+
+   int ord = 0;
+   for(FunCode i = sig->internal_symbols; i<sig->f_count; i++)
+   {
+      ord = MAX(ord, TypeGetOrder(SigGetType(sig, i)));
+   }
+
+   for(handle = set->anchor->succ; handle!=set->anchor;
+       handle = handle->succ)
+   {
+      PTree_p vars = NULL;
+      ClauseCollectVariables(handle, &vars);
+      PStack_p iter = PTreeTraverseInit(vars);
+      PTree_p node;
+      while((node = PTreeTraverseNext(iter)))
+      {
+         Type_p ty = ((Term_p)node->key)->type;
+         ord = MAX(ord, VAR_ORDER(ty));
+         var_has_bools = var_has_bools || TypeHasBool(ty);
+      }
+      PTreeTraverseExit(iter);
+      PTreeFree(vars);
+
+      for(Eqn_p eqn = handle->literals; is_fo && eqn; eqn = eqn->next)
+      {
+         is_fo = is_fo && !IS_NON_FO_TERM(eqn->lterm) && !IS_NON_FO_TERM(eqn->rterm);
+      }
+
+      has_choice = has_choice || ClauseRecognizeChoice(NULL, handle);
+
+      
+   }
+   
+   *order = ord;
+   *has_ho_features = !is_fo;
+   *quantifies_bools = var_has_bools;
+   *has_defined_choice = has_choice;
+}
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */

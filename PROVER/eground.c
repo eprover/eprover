@@ -456,11 +456,6 @@ int main(int argc, char* argv[])
    }
    VarBankFree(freshvars);
 
-   GCDeregisterFormulaSet(collector, formulas);
-   FormulaSetFree(formulas);
-   GCDeregisterFormulaSet(collector, f_ax_archive);
-   FormulaSetFree(f_ax_archive);
-
    ClauseSetRemoveSuperfluousLiterals(clauses);
 
    cspec = FVCollectAlloc(FVIACFeatures,
@@ -478,7 +473,12 @@ int main(int argc, char* argv[])
                             false);
    def_store->def_clauses->fvindex = FVIAnchorAlloc(cspec, perm);
 
-   SpecFeaturesCompute(&features, clauses, sig);
+   SpecFeaturesCompute(&features, clauses, formulas, terms);
+
+   GCDeregisterFormulaSet(collector, formulas);
+   FormulaSetFree(formulas);
+   GCDeregisterFormulaSet(collector, f_ax_archive);
+   FormulaSetFree(f_ax_archive);
 
    if(!SpecNoEq(&features))
    {

@@ -151,6 +151,15 @@ typedef struct spec_feature_cell
    int          fun_const_count;
    int          fun_nonconst_count;
    int          pred_nonconst_count;
+
+   /* HO features */
+   bool         has_ho_features; // does the problem have syntactic HO features
+   int          order; // maximal order of a symbol
+   int          num_of_definitions; // number of formulas tagged with definition
+   double       perc_of_form_defs; // percentage of which defines formulas
+   bool         quantifies_booleans; // is there any variable in whose type $o
+                                     // appears
+   bool         has_defined_choice; // there is a clause that defines choice
 }SpecFeatureCell, *SpecFeature_p;
 
 
@@ -325,6 +334,8 @@ long    ClauseSetCountHornGoals(ClauseSet_p set);
         (ClauseSetCountHornGoals(set) == ClauseSetCountGoals(set))
 
 long    ClauseSetCountEquational(ClauseSet_p set);
+bool    ClauseSetHasHOFeatures(ClauseSet_p set);
+int     ClauseSetComputeMaxOrder(ClauseSet_p set, Sig_p sig);
 
 /* Are all clauses equational? */
 #define ClauseSetIsEquationalSet(set) \
@@ -377,8 +388,13 @@ long    ClauseSetCountVariables(ClauseSet_p set);
 long    ClauseSetCountSingletons(ClauseSet_p set);
 long    ClauseSetTPTPDepthInfoAdd(ClauseSet_p set, long* depthmax,
               long* depthsum, long* count);
-void    SpecFeaturesCompute(SpecFeature_p features, ClauseSet_p set,
-             Sig_p sig);
+void    ClauseSetComputeHOFeatures(ClauseSet_p set, Sig_p sig,
+                                   bool* has_ho_features,
+                                   int* order,
+                                   bool* quantifies_bools,
+                                   bool* has_defined_choice);
+void    SpecFeaturesCompute(SpecFeature_p features, ClauseSet_p cset,
+                            FormulaSet_p fset, TB_p bank);
 void    SpecFeaturesAddEval(SpecFeature_p features, SpecLimits_p limits);
 
 void    SpecFeaturesPrint(FILE* out, SpecFeature_p features);

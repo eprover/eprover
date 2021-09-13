@@ -422,6 +422,7 @@ long     ClauseReturnFCodes(Clause_p clause, PStack_p f_codes);
 bool    ClauseIsUntyped(Clause_p clause);
 
 bool    ClauseQueryLiteral(Clause_p clause, bool (*query_fun)(Eqn_p));
+bool    ClauseRecognizeChoice(IntMap_p choice_symbols_map, Clause_p cl);
 #endif
 
 /*---------------------------------------------------------------------*/

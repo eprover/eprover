@@ -590,6 +590,66 @@ long FormulaSetCollectFCode(FormulaSet_p set, FunCode f_code,
    return ret;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: FormulaSetCollectFCode()
+//
+//   Store information about the number of definitions and the percentage
+//   of definitions that define Boolean symbols in the arguments.
+//
+// Global Variables: -
+//
+// Side Effects    : Only via PStackPushP()
+//
+/----------------------------------------------------------------------*/
+
+void FormulaSetDefinitionStatistics(FormulaSet_p set, TB_p bank,
+                                    int* num_defs, 
+                                    double* percentage_form_defs)
+{
+   WFormula_p handle;
+   int defs = 0;
+   int form_defs = 0;
+   Sig_p sig = bank->sig;
+
+   for(handle = set->anchor->succ;
+       handle != set->anchor;
+       handle = handle->succ)
+   {
+      if(FormulaQueryProp(handle, CPIsLambdaDef))
+      {
+         Term_p tform = handle->tformula;
+         Term_p head = NULL;
+         while (tform->f_code == sig->qall_code && tform->arity == 2)
+         {
+            tform = tform->args[1];
+         }
+
+         if (tform->f_code == sig->eqn_code)
+         {
+            head = tform->args[0];
+         }
+         else if (tform->f_code == sig->equiv_code &&
+                  tform->args[0]->f_code == sig->eqn_code &&
+                  tform->args[0]->args[1] == bank->true_term)
+         {
+            head = tform->args[0]->args[0];
+         }
+
+         if(head)
+         {
+            defs++;
+            if(TypeIsPredicate(head->type))
+            {
+               form_defs++;
+            }
+         }
+      }
+   }
+   *num_defs = defs;
+   *percentage_form_defs = ((double)form_defs)/defs;
+}
+
 
 
 

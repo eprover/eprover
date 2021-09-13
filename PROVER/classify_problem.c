@@ -877,7 +877,7 @@ int main(int argc, char* argv[])
             }
             if(!specsig_classify)
             {
-               SpecFeaturesCompute(&features, fstate->axioms, fstate->signature);
+               SpecFeaturesCompute(&features, fstate->axioms, fstate->f_axioms, fstate->terms);
                SpecFeaturesAddEval(&features, limits);
 
                if(!tptp_header)

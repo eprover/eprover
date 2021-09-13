@@ -1103,7 +1103,8 @@ void ProofControlInit(ProofState_p state, ProofControl_p control,
    assert(!control->hcb);
 
    SpecFeaturesCompute(&(control->problem_specs),
-                       state->axioms,state->signature);
+                       state->axioms, state->f_axioms,
+                       state->terms);
 
    control->ocb = TOSelectOrdering(state, params,
                                    &(control->problem_specs));

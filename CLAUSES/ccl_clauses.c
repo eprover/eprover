@@ -21,6 +21,7 @@
 
 #include "ccl_clauses.h"
 #include "ccl_tformulae.h"
+#include "cte_lambda.h"
 
 
 /*---------------------------------------------------------------------*/
@@ -2556,6 +2557,71 @@ bool ClauseQueryLiteral(Clause_p clause, bool (*query_fun)(Eqn_p))
       }
    }
    return false;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseRecognizeChoice()
+//
+//   If the clause is of the form ~P X | P (f P) it will recognize
+//   that f is a defined choice operatior, store f in choice_symbols
+//   map and return true.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+#define FAIL_ON(cond) if (cond) return false
+
+bool ClauseRecognizeChoice(IntMap_p choice_symbols_map, Clause_p cl)
+{
+   FAIL_ON(cl->pos_lit_no != 1);
+   FAIL_ON(cl->neg_lit_no != 1);
+
+   Eqn_p pos_lit = 
+      EqnIsPositive(cl->literals) ? cl->literals : cl->literals->next;
+   Eqn_p neg_lit = 
+      EqnIsNegative(cl->literals) ? cl->literals : cl->literals->next;
+   assert(EqnIsPositive(pos_lit));
+   assert(EqnIsNegative(neg_lit));
+
+   FAIL_ON(EqnIsEquLit(pos_lit));
+   FAIL_ON(EqnIsEquLit(neg_lit));
+
+   TB_p bank = pos_lit->bank;
+   Term_p neg_term = 
+      BetaNormalizeDB(bank, LambdaEtaReduceDB(bank, neg_lit->lterm));
+   Term_p pos_term = 
+      BetaNormalizeDB(bank, LambdaEtaReduceDB(bank, pos_lit->lterm));
+
+   FAIL_ON(!TermIsAppliedFreeVar(neg_term));
+   FAIL_ON(!TermIsAppliedFreeVar(pos_term));
+
+   FAIL_ON(neg_term->arity != 2);
+   FAIL_ON(!TermIsFreeVar(neg_term->args[1]));
+
+   Term_p p_var = neg_term->args[0];
+   FAIL_ON(pos_term->arity != 2);
+   FAIL_ON(pos_term->args[0] != p_var);
+
+   Term_p fp = pos_term->args[1];
+   FAIL_ON(fp->arity != 1);
+   FAIL_ON(fp->f_code <= bank->sig->internal_symbols);
+   FAIL_ON(fp->args[0] != p_var);
+   if(choice_symbols_map)
+   {
+      FAIL_ON(IntMapGetVal(choice_symbols_map, fp->f_code));
+   }
+
+   if(choice_symbols_map)
+   {
+      neg_lit->lterm = neg_term;
+      pos_lit->lterm = pos_term;
+      IntMapAssign(choice_symbols_map, fp->f_code, cl);
+   }
+   return true;
 }
 
 /*---------------------------------------------------------------------*/

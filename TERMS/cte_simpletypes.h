@@ -167,12 +167,8 @@ static inline Type_p AllocArrowTypeCopyArgs(int arity, Type_p const* args)
 /----------------------------------------------------------------------*/
 static inline int TypeGetOrder(Type_p t)
 {
-   int order;
-   if(!TypeIsArrow(t))
-   {
-      order = 0;
-   }
-   else
+   int order=0;
+   if(TypeIsArrow(t))
    {
       assert(!TypeIsArrow(t->args[t->arity-1]));
       for(int i=0; i<t->arity; i++)
