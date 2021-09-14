@@ -68,6 +68,12 @@ char* PrioFunNames[]=
    "PreferAppVar",
    "PreferNonAppVar",
    "ByAppVarNum",
+   "PreferHOSteps",
+   "PreferLambdas",
+   "DeferLambdas",
+   "PreferFormulas",
+   "DeferFormulas",
+   "PreferEasyHO",
    NULL
 };
 
@@ -109,6 +115,12 @@ static ClausePrioFun prio_fun_array[]=
    PrioFunPreferAppVar,
    PrioFunPreferNonAppVar,
    PrioFunByAppVarNum,
+   PrioFunPreferHOSteps,
+   PrioFunPreferLambdas,
+   PrioFunDeferLambdas,
+   PrioFunPreferFormulas,
+   PrioFunDeferFormulas,
+   PrioFunPreferEasyHO,
    NULL
 };
 
