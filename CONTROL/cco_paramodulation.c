@@ -252,7 +252,12 @@ static long compute_into_pm_pos_clause(ParamodInfo_p pminfo,
                                      pm_type==ParamodPlain?inf_paramod:inf_sim_paramod,
                                      pminfo->into,
                                      pminfo->new_orig);
-            ClausePushDerivation(clause,  pm_type==ParamodPlain?DCParamod:DCSimParamod,
+            DerivationCode dc = pm_type==ParamodPlain?DCParamod:DCSimParamod;
+            if(pminfo->subst_is_ho)
+            {
+               dc = DPSetIsHO(dc);
+            }
+            ClausePushDerivation(clause, dc,
                                  pminfo->into, pminfo->new_orig);
          }
       }
@@ -299,7 +304,7 @@ long compute_pos_into_pm_term(ParamodInfo_p pminfo,
    {
       max_side = ClausePosGetSide(pminfo->from_pos);
       rep_side = ClausePosGetOtherSide(pminfo->from_pos);
-      pminfo->remaining_args = 0;
+      pminfo->subst_is_ho = SubstHasHOBinding(subst);
 
       if((EqnIsOriented(pminfo->from_pos->literal) ||
           !TOGreater(pminfo->ocb, rep_side, max_side, DEREF_ALWAYS,
@@ -517,7 +522,7 @@ long compute_pos_from_pm_term(ParamodInfo_p pminfo,
    {
       max_side = ClausePosGetSide(pminfo->into_pos);
       min_side = ClausePosGetOtherSide(pminfo->into_pos);
-      pminfo->remaining_args = 0;
+      pminfo->subst_is_ho = SubstHasHOBinding(subst);
 
       if((EqnIsOriented(pminfo->into_pos->literal) ||
           !TOGreater(pminfo->ocb, min_side, max_side, DEREF_ALWAYS,

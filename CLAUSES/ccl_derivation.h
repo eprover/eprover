@@ -107,6 +107,7 @@ typedef enum
    Arg2Fof = 1<<11,
    Arg2Cnf = 1<<12,
    Arg2Num = 1<<13,
+   ArgIsHO = 1<<14,
 }ArgDesc;
 
 
@@ -152,19 +153,19 @@ typedef enum
    DCFoolUnroll       = DOFOOLUnroll,
    DCEliminateBVar    = DOEliminateBVar,
    /* HO inferences */
-   DCDynamicCNF       = DODynamicCNF|Arg1Cnf,
-   DCFlexResolve      = DOFlexResolve,
-   DCArgCong          = DOArgCong|Arg1Cnf,
-   DCNegExt           = DONegExt|Arg1Cnf,
-   DCPosExt           = DOPosExt|Arg1Cnf,
-   DCExtSup           = DOExtSup|Arg1Cnf|Arg2Cnf,
-   DCExtEqRes         = DOExtEqRes|Arg1Cnf,
-   DCInvRec           = DOInvRec|Arg1Cnf,
-   DCChoiceAx         = DOChoiceAx,
-   DCLeibnizElim      = DOLeibnizElim|Arg1Cnf,
-   DCPrimEnum         = DOPrimEnum|Arg1Cnf,
-   DCChoiceInst       = DOChoiceInst|Arg1Cnf|Arg2Cnf,
-   DCPruneArg         = DOPruneArg
+   DCDynamicCNF       = DODynamicCNF|Arg1Cnf|ArgIsHO,
+   DCFlexResolve      = DOFlexResolve|ArgIsHO,
+   DCArgCong          = DOArgCong|Arg1Cnf|ArgIsHO,
+   DCNegExt           = DONegExt|Arg1Cnf|ArgIsHO,
+   DCPosExt           = DOPosExt|Arg1Cnf|ArgIsHO,
+   DCExtSup           = DOExtSup|Arg1Cnf|Arg2Cnf|ArgIsHO,
+   DCExtEqRes         = DOExtEqRes|Arg1Cnf|ArgIsHO,
+   DCInvRec           = DOInvRec|Arg1Cnf|ArgIsHO,
+   DCChoiceAx         = DOChoiceAx|ArgIsHO,
+   DCLeibnizElim      = DOLeibnizElim|Arg1Cnf|ArgIsHO,
+   DCPrimEnum         = DOPrimEnum|Arg1Cnf|ArgIsHO,
+   DCChoiceInst       = DOChoiceInst|Arg1Cnf|Arg2Cnf|ArgIsHO,
+   DCPruneArg         = DOPruneArg|ArgIsHO
 }DerivationCode;
 
 
@@ -234,6 +235,8 @@ extern bool            ProofObjectRecordsGCSelection;
 #define DPOpGetOpCode(op)  ((op)&127)
 #define DCOpIsGenerating(op) ((DPOpGetOpCode(op) >= DOParamod)&&(DPOpGetOpCode(op) <= DOSatGen))
 
+#define DPSetIsHO(op) ((op) | ArgIsHO)
+#define DPGetIsHO(op) ((op) & ArgIsHO)
 
 void ClausePushDerivation(Clause_p clause, DerivationCode op,
                           void* arg1, void* arg2);

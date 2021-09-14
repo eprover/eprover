@@ -81,6 +81,12 @@ EvalPriority PrioFunDeferWatchlist(Clause_p clause);
 EvalPriority PrioFunByAppVarNum(Clause_p clause);
 EvalPriority PrioFunPreferAppVar(Clause_p clause);
 EvalPriority PrioFunPreferNonAppVar(Clause_p clause);
+EvalPriority PrioFunPreferHOSteps(Clause_p clause);
+EvalPriority PrioFunPreferLambdas(Clause_p clause);
+EvalPriority PrioFunDeferLambdas(Clause_p clause);
+EvalPriority PrioFunPreferFormulas(Clause_p clause);
+EvalPriority PrioFunDeferFormulas(Clause_p clause);
+EvalPriority PrioFunPreferEasyHO(Clause_p clause);
 
 #endif
 

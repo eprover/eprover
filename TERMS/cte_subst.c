@@ -446,6 +446,33 @@ PStackPointer SubstBindAppVar(Subst_p subst, Term_p var, Term_p to_bind, int up_
    return ret;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: SubstHasHOBinding()
+//
+//   Does the substitution have any bound variable that is of
+//   functional type
+//
+// Global Variables: -
+//
+// Side Effects    : Changes subst.
+//
+/----------------------------------------------------------------------*/
+
+bool SubstHasHOBinding(Subst_p subst)
+{
+   bool ans = false;
+   if(problemType == PROBLEM_HO)
+   {
+      for(PStackPointer i = 0; !ans && i<PStackGetSP(subst); i++)
+      {
+         Term_p var = PStackElementP(subst, i);
+         ans = TypeIsArrow(var->type);
+      }
+   }
+   return ans;
+}
+
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/

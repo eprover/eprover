@@ -242,7 +242,7 @@ Clause_p ClausePlainParamodConstruct(ParamodInfo_p ol_desc)
                                ClausePosGetSubterm(ol_desc->into_pos),
                                DEREF_ALWAYS,
                                DEREF_ALWAYS,
-                               ol_desc->remaining_args, ol_desc->bank->sig));
+                               0, ol_desc->bank->sig));
    assert(EqnIsPositive(ol_desc->from_pos->literal));
    assert(PStackEmpty(ol_desc->from_pos->pos));
 
@@ -257,7 +257,7 @@ Clause_p ClausePlainParamodConstruct(ParamodInfo_p ol_desc)
    into_rhs = ClausePosGetOtherSide(ol_desc->into_pos);
    new_lhs = TBTermPosReplace(ol_desc->bank, from_rhs,
                               ol_desc->into_pos->pos,
-                              DEREF_ALWAYS, ol_desc->remaining_args,
+                              DEREF_ALWAYS, 0,
                               ClausePosGetSubterm(ol_desc->into_pos));
 
    new_rhs = TBInsertOpt(ol_desc->bank,
@@ -323,24 +323,6 @@ Clause_p ClauseSimParamodConstruct(ParamodInfo_p ol_desc)
    Eqn_p     into_copy, from_copy;
    Subst_p   subst = SubstAlloc();
 
-   if(!TermStructPrefixEqual(ClausePosGetSubterm(ol_desc->from_pos),
-                             ClausePosGetSubterm(ol_desc->into_pos),
-                             DEREF_ALWAYS,
-                             DEREF_ALWAYS,
-                             ol_desc->remaining_args, ol_desc->bank->sig))
-   {
-      fprintf(stderr, "not equal: ");
-      TermPrintDbgHO(stderr, ClausePosGetSubterm(ol_desc->from_pos), ol_desc->bank->sig, DEREF_NEVER);
-      fprintf(stderr, " |  ");
-      TermPrintDbgHO(stderr, ClausePosGetSubterm(ol_desc->from_pos), ol_desc->bank->sig, DEREF_ALWAYS);
-      fprintf(stderr, " <> \n");
-      TermPrintDbgHO(stderr, ClausePosGetSubterm(ol_desc->from_pos), ol_desc->bank->sig, DEREF_NEVER);
-      fprintf(stderr, " |  ");
-      TermPrintDbgHO(stderr, ClausePosGetSubterm(ol_desc->into_pos), ol_desc->bank->sig, DEREF_ALWAYS);
-      fprintf(stderr, ".\n");
-      assert(false);
-   }
-
    VarBankResetVCounts(ol_desc->freshvars);
    into_term = ClausePosGetSubterm(ol_desc->into_pos);
 
@@ -357,17 +339,10 @@ Clause_p ClauseSimParamodConstruct(ParamodInfo_p ol_desc)
    Term_p tmp_rhs =
       MakeRewrittenTerm(TermDerefAlways(into_term),
                         TermDerefAlways(ClausePosGetOtherSide(ol_desc->from_pos)),
-                        ol_desc->remaining_args,
+                        0,
                         ol_desc->bank);
 
    rhs_instance = TBInsertNoProps(ol_desc->bank, tmp_rhs, DEREF_ALWAYS);
-
-   if(ol_desc->remaining_args)
-   {
-      assert(problemType == PROBLEM_HO);
-      TermTopFree(tmp_rhs); // MakeRewrittenTerm allocated new term
-      tmp_rhs = NULL;
-   }
 
    into_copy = EqnListCopyRepl(ol_desc->into->literals,
                                ol_desc->bank, into_term, rhs_instance);
@@ -428,7 +403,7 @@ Clause_p ClauseSuperSimParamodConstruct(ParamodInfo_p ol_desc)
                                 ClausePosGetSubterm(ol_desc->into_pos),
                                 DEREF_ALWAYS,
                                 DEREF_ALWAYS,
-                                ol_desc->remaining_args, ol_desc->bank->sig));
+                                0, ol_desc->bank->sig));
 
    VarBankResetVCounts(ol_desc->freshvars);
    into_term = ClausePosGetSubterm(ol_desc->into_pos);
@@ -448,17 +423,10 @@ Clause_p ClauseSuperSimParamodConstruct(ParamodInfo_p ol_desc)
    Term_p tmp_rhs =
       MakeRewrittenTerm(TermDerefAlways(into_term),
                         TermDerefAlways(ClausePosGetOtherSide(ol_desc->from_pos)),
-                        ol_desc->remaining_args,
+                        0,
                         ol_desc->bank);
 
    rhs_instance = TBInsertNoProps(ol_desc->bank, tmp_rhs, DEREF_ALWAYS);
-
-   if(ol_desc->remaining_args)
-   {
-      assert(problemType == PROBLEM_HO);
-      TermTopFree(tmp_rhs); // MakeRewrittenTerm allocated new term
-      tmp_rhs = NULL;
-   }
 
    tmp_copy = EqnListCopyOpt(ol_desc->into->literals);
 
@@ -524,7 +492,6 @@ Clause_p ClauseParamodConstruct(ParamodInfo_p ol_desc,
 
    assert(PackClausePos(ol_desc->from_pos) == ol_desc->from_cpos);
    assert(PackClausePos(ol_desc->into_pos) == ol_desc->into_cpos);
-   assert(problemType == PROBLEM_HO || ol_desc->remaining_args == 0);
 
    switch(pm_type)
    {
