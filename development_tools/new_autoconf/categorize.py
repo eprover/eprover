@@ -13,7 +13,8 @@ class Classifier(object):
       proc_res = sp.run([self._bin, prob_path] + self._opts, 
                         stdout=sp.PIPE, stderr=sp.PIPE, 
                         timeout=self._to)
-      if(proc_res.returncode == 0):
+      # 5 when options are used
+      if(proc_res.returncode in [0,5]):
         class_ = proc_res.stdout\
                          .decode(encoding='ascii', errors='ignore')\
                          .split(":")[-1]\
@@ -65,7 +66,6 @@ def make_class_map(probs, e_classify_bin, e_classify_args,
         print("empty: {0}".format(prob))
 
       if class_ not in class_map:
-        # print ("New class:{0}".format(class_))
         class_map[class_] = [prob]
       else:
         class_map[class_].append(prob)
@@ -77,8 +77,13 @@ def make_class_map(probs, e_classify_bin, e_classify_args,
     return {}
 
 
-def make_class_dir(class_map, out_dir):
+def make_class_dir(class_map, out_dir, e_args):
   os.makedirs(out_dir, exist_ok=True)
+
+  with open(p.join(out_dir, "description"), 'w') as fd:
+    fd.write("The following (non-default) parameters were used:\n")
+    fd.write(','.join(e_args) + "\n")
+
   for(class_, probs) in class_map.items():
     with open(p.join(out_dir, class_), 'w') as fd:
       for prob in probs:
@@ -123,7 +128,8 @@ def main():
   class_map = make_class_map(all_probs, args.e_classify_path,
                              args.e_classify_args, args.max_cpus, 
                              args.timeout)
-  make_class_dir(class_map, args.out_dir)
+  print("There are {0} classes.".format(len(class_map)))
+  make_class_dir(class_map, args.out_dir, args.e_classify_args)
 
 if __name__ == '__main__':
   main()

@@ -195,18 +195,18 @@ typedef struct spec_feature_cell
 #define GPC_ABSOLUTE           true
 #define GPC_FEW_DEFAULT        0.25
 #define GPC_MANY_DEFAULT       0.75
-#define GPC_FEW_ABSDEFAULT        1
-#define GPC_MANY_ABSDEFAULT       3
+#define GPC_FEW_ABSDEFAULT        2
+#define GPC_MANY_ABSDEFAULT       5
 #define AX_1_DEFAULT             10
 #define AX_4_DEFAULT             15
-#define AX_SOME_DEFAULT          20
-#define AX_MANY_DEFAULT         100
-#define LIT_SOME_DEFAULT         15
-#define LIT_MANY_DEFAULT        100
-#define TERM_MED_DEFAULT         60
-#define TERM_LARGE_DEFAULT     1000
-#define FAR_SUM_MED_DEFAULT      5
-#define FAR_SUM_LARGE_DEFAULT   24
+#define AX_SOME_DEFAULT        1000
+#define AX_MANY_DEFAULT       10000
+#define LIT_SOME_DEFAULT        400
+#define LIT_MANY_DEFAULT       4000
+#define TERM_MED_DEFAULT        200
+#define TERM_LARGE_DEFAULT     1500
+#define FAR_SUM_MED_DEFAULT      4
+#define FAR_SUM_LARGE_DEFAULT   29
 #define DEPTH_MEDIUM_DEFAULT     0 /* Partitioning two ways turns out
                                       to be nearly as good as 3 way on
                                       the test set */

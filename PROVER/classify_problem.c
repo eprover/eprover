@@ -469,7 +469,7 @@ OptCell opts[] =
 };
 
 char *outname = NULL,
-     *mask = "aaaaa----aaaa",
+     *mask = "aaaa-aaaaaa-a",
      *raw_mask = "aaaaaaa";
 
 IOFormat parse_format     = AutoFormat;

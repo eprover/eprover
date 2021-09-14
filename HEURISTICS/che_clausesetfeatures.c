@@ -80,12 +80,12 @@ SpecLimits_p SpecLimitsAlloc(void)
       handle->gpc_few_limit          = GPC_FEW_DEFAULT;
       handle->gpc_many_limit         = GPC_MANY_DEFAULT;
    }
-   handle->ax_some_limit          = AX_SOME_DEFAULT       ;
-   handle->ax_many_limit          = AX_MANY_DEFAULT       ;
-   handle->lit_some_limit         = LIT_SOME_DEFAULT      ;
-   handle->lit_many_limit         = LIT_MANY_DEFAULT      ;
-   handle->term_medium_limit      = TERM_MED_DEFAULT      ;
-   handle->term_large_limit       = TERM_LARGE_DEFAULT    ;
+   handle->ax_some_limit          = AX_SOME_DEFAULT ;
+   handle->ax_many_limit          = AX_MANY_DEFAULT ;
+   handle->lit_some_limit         = LIT_SOME_DEFAULT;
+   handle->lit_many_limit         = LIT_MANY_DEFAULT;
+   handle->term_medium_limit      = TERM_MED_DEFAULT;
+   handle->term_large_limit       = TERM_LARGE_DEFAULT;
    handle->far_sum_medium_limit   = FAR_SUM_MED_DEFAULT  ;
    handle->far_sum_large_limit    = FAR_SUM_LARGE_DEFAULT;
    handle->depth_medium_limit     = DEPTH_MEDIUM_DEFAULT;
@@ -1055,6 +1055,8 @@ void SpecFeaturesCompute(SpecFeature_p features, ClauseSet_p set,
 //
 /----------------------------------------------------------------------*/
 
+#define ADJUST_FOR_HO(limit, scale) (limit) / ((problemType == PROBLEM_HO) ? (scale) : 1)
+
 void SpecFeaturesAddEval(SpecFeature_p features, SpecLimits_p limits)
 {
 
@@ -1119,11 +1121,11 @@ void SpecFeaturesAddEval(SpecFeature_p features, SpecLimits_p limits)
       }
    }
 
-   if(features->clauses < limits->ax_some_limit)
+   if(features->clauses < ADJUST_FOR_HO(limits->ax_some_limit, 5))
    {
       features->set_clause_size = SpecFewAxioms;
    }
-   else if(features->clauses < limits->ax_many_limit)
+   else if(features->clauses < ADJUST_FOR_HO(limits->ax_many_limit, 7))
    {
       features->set_clause_size = SpecSomeAxioms;
    }
@@ -1132,11 +1134,11 @@ void SpecFeaturesAddEval(SpecFeature_p features, SpecLimits_p limits)
       features->set_clause_size = SpecManyAxioms;
    }
 
-   if(features->literals < limits->lit_some_limit)
+   if(features->literals < ADJUST_FOR_HO(limits->lit_some_limit, 5))
    {
       features->set_literal_size = SpecFewLiterals;
    }
-   else if(features->literals < limits->lit_many_limit)
+   else if(features->literals < ADJUST_FOR_HO(limits->lit_many_limit, 7))
    {
       features->set_literal_size = SpecSomeLiterals;
    }
