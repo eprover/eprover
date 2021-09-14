@@ -267,7 +267,8 @@ Eqn_p ClausePosNextOrderedFactorLiterals(ClausePos_p pos1, ClausePos_p
 /----------------------------------------------------------------------*/
 
 Clause_p ComputeEqualityFactor(TB_p bank, OCB_p ocb, ClausePos_p pos1,
-                ClausePos_p pos2, VarBank_p freshvars)
+                               ClausePos_p pos2, VarBank_p freshvars,
+                               bool* subst_is_ho)
 {
    Term_p  max_term, with_term, min_term, new_lside, new_rside;
    Eqn_p   new_condition, new_literals;
@@ -292,6 +293,7 @@ Clause_p ComputeEqualityFactor(TB_p bank, OCB_p ocb, ClausePos_p pos1,
           EqnListEqnIsMaximal(ocb, pos1->clause->literals,
                     pos1->literal))
       {
+         *subst_is_ho = SubstHasHOBinding(subst);
          NormSubstEqnListExcept(pos1->clause->literals, pos2->literal,
                                 subst, freshvars);
          new_lside = TBInsertNoProps(bank, min_term, DEREF_ALWAYS);

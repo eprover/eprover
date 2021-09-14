@@ -59,7 +59,8 @@ bool EqResOnMaximalLiteralsOnly = true;
 //
 /----------------------------------------------------------------------*/
 
-Clause_p ComputeEqRes(TB_p bank, ClausePos_p pos, VarBank_p freshvars)
+Clause_p ComputeEqRes(TB_p bank, ClausePos_p pos, VarBank_p freshvars, 
+                      bool* subst_is_ho)
 {
    Subst_p  subst;
    Clause_p new_clause = NULL;
@@ -74,6 +75,7 @@ Clause_p ComputeEqRes(TB_p bank, ClausePos_p pos, VarBank_p freshvars)
                               subst);
    if(unifies)
    {
+      *subst_is_ho = SubstHasHOBinding(subst);
       NormSubstEqnListExcept(pos->clause->literals, pos->literal,
               subst, freshvars);
       new_literals = EqnListCopyOptExcept(pos->clause->literals,

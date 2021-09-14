@@ -472,8 +472,13 @@ static long compute_from_pm_pos_clause(ParamodInfo_p pminfo,
                                      pm_type?inf_sim_paramod:inf_paramod,
                                      pminfo->new_orig,
                                      pminfo->from);
-            ClausePushDerivation(clause,  pm_type?DCSimParamod:DCParamod,
-                                    pminfo->new_orig, pminfo->from);
+            DerivationCode dc = pm_type?DCSimParamod:DCParamod;
+            if(pminfo->subst_is_ho)
+            {
+               dc = DPSetIsHO(dc);
+            }
+            ClausePushDerivation(clause, dc,
+                                 pminfo->new_orig, pminfo->from);
          }
       }
       ClausePosFree(pminfo->from_pos);

@@ -129,19 +129,21 @@ long ComputeAllEqualityFactors(TB_p bank, OCB_p ocb,
 
       while(test)
       {
-    factor = ComputeEqualityFactor(bank, ocb, pos1, pos2, freshvars);
-    if(factor)
-    {
-       factor_count++;
-       factor->proof_depth = clause->proof_depth+1;
-       factor->proof_size  = clause->proof_size+1;
-       ClauseSetTPTPType(factor, ClauseQueryTPTPType(clause));
-       ClauseSetProp(factor, ClauseGiveProps(clause, CPIsSOS));
-       DocClauseCreationDefault(factor, inf_efactor, clause, NULL);
-       ClausePushDerivation(factor, DCEqFactor, clause, NULL);
-       ClauseSetInsert(store, factor);
-    }
-    test = ClausePosNextEqualityFactorSides(pos1, pos2);
+         bool is_ho = false;
+         factor = ComputeEqualityFactor(bank, ocb, pos1, pos2, freshvars, &is_ho);
+         if(factor)
+         {
+            factor_count++;
+            factor->proof_depth = clause->proof_depth+1;
+            factor->proof_size  = clause->proof_size+1;
+            ClauseSetTPTPType(factor, ClauseQueryTPTPType(clause));
+            ClauseSetProp(factor, ClauseGiveProps(clause, CPIsSOS));
+            DocClauseCreationDefault(factor, inf_efactor, clause, NULL);
+            ClausePushDerivation(factor, is_ho ? DPSetIsHO(DCEqFactor) : DCEqFactor,
+                                 clause, NULL);
+            ClauseSetInsert(store, factor);
+         }
+         test = ClausePosNextEqualityFactorSides(pos1, pos2);
       }
       ClausePosFree(pos1);
       ClausePosFree(pos2);
