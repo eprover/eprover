@@ -139,7 +139,7 @@ long ComputeAllEqualityFactors(TB_p bank, OCB_p ocb,
             ClauseSetTPTPType(factor, ClauseQueryTPTPType(clause));
             ClauseSetProp(factor, ClauseGiveProps(clause, CPIsSOS));
             DocClauseCreationDefault(factor, inf_efactor, clause, NULL);
-            ClausePushDerivation(factor, is_ho ? DPSetIsHO(DCEqFactor) : DCEqFactor,
+            ClausePushDerivation(factor, is_ho ? DCGetIsHO(DCEqFactor) : DCEqFactor,
                                  clause, NULL);
             ClauseSetInsert(store, factor);
          }
