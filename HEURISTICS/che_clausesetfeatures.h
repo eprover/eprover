@@ -137,7 +137,7 @@ typedef struct spec_feature_cell
    SpecFeatures sum_fun_ar_class;
    SpecFeatures max_depth_class;
    
-   bool         has_ho_features; // does the problem have syntactic HO features
+   bool         has_ho_features; // has any HO feature
    bool         quantifies_booleans; // is there any variable in whose type $o
                                      // appears
    bool         has_defined_choice; // there is a clause that defines choice
@@ -227,8 +227,8 @@ typedef struct spec_feature_cell
 #define ORDER_LARGE_DEFAULT      3 // third order is already high
 #define DEFS_MEDIUM_DEFAULT      8
 #define DEFS_LARGE_DEFAULT       64
-#define DEFS_PERC_MEDIUM_DEFAULT 0.25
-#define DEFS_PERC_LARGE_DEFAULT  0.75
+#define DEFS_PERC_MEDIUM_DEFAULT 0.15
+#define DEFS_PERC_LARGE_DEFAULT  0.5
 
 
 #define DEFAULT_OUTPUT_DESCRIPTOR "eigEIG"
@@ -420,8 +420,7 @@ void    ClauseSetComputeHOFeatures(ClauseSet_p set, Sig_p sig,
                                    bool* quantifies_bools,
                                    bool* has_defined_choice);
 void    SpecFeaturesCompute(SpecFeature_p features, ClauseSet_p cset,
-                            FormulaSet_p fset, FormulaSet_p farch,
-                            TB_p bank);
+                            FormulaSet_p fset, FormulaSet_p arch, TB_p bank);
 void    SpecFeaturesAddEval(SpecFeature_p features, SpecLimits_p limits);
 
 void    SpecFeaturesPrint(FILE* out, SpecFeature_p features);
