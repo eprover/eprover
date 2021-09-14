@@ -74,6 +74,7 @@ char* PrioFunNames[]=
    "PreferFormulas",
    "DeferFormulas",
    "PreferEasyHO",
+   "PreferFO",
    NULL
 };
 
@@ -121,6 +122,7 @@ static ClausePrioFun prio_fun_array[]=
    PrioFunPreferFormulas,
    PrioFunDeferFormulas,
    PrioFunPreferEasyHO,
+   PrioFunPreferFO,
    NULL
 };
 
@@ -1235,7 +1237,6 @@ EvalPriority PrioFunDeferFormulas(Clause_p clause)
 //
 /----------------------------------------------------------------------*/
 
-
 EvalPriority PrioFunPreferEasyHO(Clause_p clause)
 {
    PStack_p derivation = clause->derivation;
@@ -1280,6 +1281,33 @@ EvalPriority PrioFunPreferEasyHO(Clause_p clause)
          prio = PrioFunPreferFormulas(clause);
       }
       prio = PrioPrefer ? PrioNormal : PrioDefer;
+   }
+   return prio;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: PrioFunPreferEasyHO()
+//
+//   Prefer clauses that have no formula subterms.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+EvalPriority PrioFunPreferFO(Clause_p clause)
+{
+   EvalPriority prio = PrioNormal;
+
+   for(Eqn_p eqn=clause->literals; prio == PrioNormal && eqn; 
+       eqn = eqn->next)
+   {
+      if(!TermIsPattern(eqn->lterm) || !TermIsPattern(eqn->rterm))
+      {
+         prio = PrioDefer;
+      }
    }
    return prio;
 }

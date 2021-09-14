@@ -87,6 +87,7 @@ EvalPriority PrioFunDeferLambdas(Clause_p clause);
 EvalPriority PrioFunPreferFormulas(Clause_p clause);
 EvalPriority PrioFunDeferFormulas(Clause_p clause);
 EvalPriority PrioFunPreferEasyHO(Clause_p clause);
+EvalPriority PrioFunPreferFO(Clause_p clause);
 
 #endif
 
