@@ -1079,7 +1079,7 @@ EvalPriority PrioFunPreferHOSteps(Clause_p clause)
    if(derivation && problemType == PROBLEM_HO)
    {
       PStackPointer sp = PStackGetSP(derivation);
-      PStackPointer i  = 0;
+      PStackPointer i = 0;
       DerivationCode op;
       bool has_ho = false;
       while(!has_ho && i<sp)
@@ -1118,7 +1118,8 @@ EvalPriority PrioFunPreferLambdas(Clause_p clause)
    for(Eqn_p eqn=clause->literals; prio == PrioNormal && eqn; 
        eqn = eqn->next)
    {
-      if(TermHasLambdaSubterm(eqn->lterm) || TermHasLambdaSubterm(eqn->rterm))
+      if(TermHasLambdaSubterm(eqn->lterm) ||
+         TermHasLambdaSubterm(eqn->rterm))
       {
          prio = PrioPrefer;
       }
@@ -1173,8 +1174,8 @@ EvalPriority PrioFunPreferFormulas(Clause_p clause)
       while(prio == PrioNormal && !PStackEmpty(subterms))
       {
          Term_p t = PStackPopP(subterms);
-         if(TypeIsBool(t) && t != bank->true_term && t != bank->false_term
-            && SigIsLogicalSymbol(bank->sig, t->f_code))
+         if(TypeIsBool(t->type) && t != bank->true_term &&
+            t != bank->false_term && SigIsLogicalSymbol(bank->sig, t->f_code))
          {
             prio = PrioPrefer;
          }
@@ -1255,7 +1256,7 @@ EvalPriority PrioFunPreferEasyHO(Clause_p clause)
       for(Eqn_p eqn=clause->literals; prio == PrioNormal && eqn; 
           eqn = eqn->next)
       {
-         if(TypeIsArrow(eqn->lterm) || 
+         if(TypeIsArrow(eqn->lterm->type) || 
             TermIsNonFOPattern(eqn->lterm) ||
             TermIsNonFOPattern(eqn->rterm))
          {
