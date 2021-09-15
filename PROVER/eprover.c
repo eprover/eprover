@@ -573,7 +573,9 @@ int main(int argc, char* argv[])
 
    if(SigHasUnimplementedInterpretedSymbols(proofstate->signature)||
       (proofcontrol->heuristic_parms.selection_strategy ==  SelectNoGeneration) ||
-      (proofcontrol->heuristic_parms.order_params.lit_cmp == LCTFOEqMax))
+      (proofcontrol->heuristic_parms.order_params.lit_cmp == LCTFOEqMax)||
+      (!h_parms->enable_eq_factoring)||
+      (!h_parms->enable_neg_unit_paramod))
    {
       inf_sys_complete = false;
    }
