@@ -1298,7 +1298,7 @@ const char* configuration = i == num_categories ? best_conf : confs[i];
 DStr_p category_name = DStrAlloc();
 DStrAppendStr(category_name, CONFIGURATIONS_ROOT);
 DStrAppendStr(category_name, configuration);
-Scanner_p in = CreateScanner(StreamTypeFile, DStrView(category_name), true, NULL, true);
+Scanner_p in = CreateScanner(StreamTypeInternalString, DStrView(category_name), true, NULL, true);
 HeuristicParmsParseInto(in, parms, true);
 DestroyScanner(in);
 DStrFree(category_name);
