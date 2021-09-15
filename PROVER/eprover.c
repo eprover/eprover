@@ -571,6 +571,13 @@ int main(int argc, char* argv[])
    assert(problemType != PROBLEM_HO || proofcontrol->ocb->type == KBO6);
 #endif
 
+   if(SigHasUnimplementedInterpretedSymbols(proofstate->signature)||
+      (proofcontrol->heuristic_parms.selection_strategy ==  SelectNoGeneration) ||
+      (proofcontrol->heuristic_parms.order_params.lit_cmp == LCTFOEqMax))
+   {
+      inf_sys_complete = false;
+   }
+
    if(!success)
    {
       success = Saturate(proofstate, proofcontrol, step_limit,
@@ -578,11 +585,6 @@ int main(int argc, char* argv[])
                          generated_limit, tb_insert_limit, answer_limit);
    }
    PERF_CTR_EXIT(SatTimer);
-
-   if(SigHasUnimplementedInterpretedSymbols(proofstate->signature))
-   {
-      inf_sys_complete = false;
-   }
 
    out_of_clauses = ClauseSetEmpty(proofstate->unprocessed);
    if(filter_sat)
@@ -1248,10 +1250,7 @@ CLState_p process_options(int argc, char* argv[])
                Error(DStrView(err), USAGE_ERROR);
                DStrFree(err);
             }
-            if(h_parms->selection_strategy == SelectNoGeneration)
-            {
-               inf_sys_complete = false;
-            }
+            // Incomplete selection is noted later
             break;
       case OPT_POS_LITSEL_MIN:
             h_parms->pos_lit_sel_min = CLStateGetIntArg(handle, arg);
