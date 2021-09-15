@@ -1132,7 +1132,8 @@ OptCell opts[] =
     "Modify how literal comparisons are done. 'None' is equivalent to the "
     "previous option, 'Normal' uses the normal lifting of the term ordering, "
     "'TFOEqMax' uses the equivalent of a transfinite ordering deciding on the "
-    "predicate symbol and making equational literals maximal, and 'TFOEqMin' "
+    "predicate symbol and making equational literals maximal (note that this "
+    "setting makes the prover incomplere), and 'TFOEqMin' "
     "modifies this by making equational symbols minimal."},
 
    {OPT_TPTP_SOS,
