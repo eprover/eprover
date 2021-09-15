@@ -1,6 +1,8 @@
 import os
 import os.path as p
 
+PROB_CATEGORIES_FILENAME = "problem_categories"
+
 class Classifier(object):
   def __init__(self, binary, opts, timeout):
     self._bin = binary
@@ -51,6 +53,7 @@ def make_class_map(probs, e_classify_bin, e_classify_args,
     classified = pool.imap_unordered(classifier, probs)
 
     class_map = {}
+    prob_map = {}
     total_probs = len(probs)
     for (i, (prob, class_)) in enumerate(classified):
       import progressbar as pb
@@ -69,17 +72,23 @@ def make_class_map(probs, e_classify_bin, e_classify_args,
         class_map[class_] = [prob]
       else:
         class_map[class_].append(prob)
+      
+      prob_map[prob] = class_
     
-    return class_map
+    return (class_map, prob_map)
   except:
     import traceback
     print("% Fatal error:{0}".format(traceback.format_exc()))
     return {}
 
 
-def make_class_dir(class_map, out_dir, e_args):
+def make_class_dir(class_map, prob_map, out_dir, e_args):
   os.makedirs(out_dir, exist_ok=True)
 
+  with open(p.join(out_dir, PROB_CATEGORIES_FILENAME), 'w') as fd:
+    for (prob, class_) in prob_map.items():
+      fd.write("{0}:{1}\n".format(prob, class_))
+  
   with open(p.join(out_dir, "description"), 'w') as fd:
     fd.write("The following (non-default) parameters were used:\n")
     fd.write(','.join(e_args) + "\n")
@@ -125,11 +134,11 @@ def main():
   args = init_args()
   all_probs = get_probs(args.root, args.filter)
   print("Found {0} problems.".format(len(all_probs)))
-  class_map = make_class_map(all_probs, args.e_classify_path,
-                             args.e_classify_args, args.max_cpus, 
-                             args.timeout)
+  class_map, prob_map = make_class_map(all_probs, args.e_classify_path,
+                                       args.e_classify_args, args.max_cpus,
+                                       args.timeout)
   print("There are {0} classes.".format(len(class_map)))
-  make_class_dir(class_map, args.out_dir, args.e_classify_args)
+  make_class_dir(class_map, prob_map, args.out_dir, args.e_classify_args)
 
 if __name__ == '__main__':
   main()

@@ -427,6 +427,7 @@ void    SpecFeaturesPrint(FILE* out, SpecFeature_p features);
 
 void    SpecFeaturesParse(Scanner_p in, SpecFeature_p features);
 
+char*    SpecTypeString(SpecFeature_p features, const char* mask);
 void    SpecTypePrint(FILE* out, SpecFeature_p features, char* mask);
 
 void    ClauseSetPrintPosUnits(FILE* out, ClauseSet_p set, bool

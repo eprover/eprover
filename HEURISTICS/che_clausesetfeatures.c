@@ -1456,9 +1456,9 @@ void SpecFeaturesParse(Scanner_p in, SpecFeature_p features)
 
 /*-----------------------------------------------------------------------
 //
-// Function: SpecTypePrint()
+// Function: SpecTypeString()
 //
-//   Print the type of the problem as a n-letter code.
+//   Encode the type of the problem as a n-letter code.
 //   1) Axioms are [U]nit, [H]orn, [General]
 //   2) Goals  are [U]nit, [H]orn, [General]
 //   3) [N]o equality, [S]ome equality, [P]ure equality
@@ -1470,10 +1470,8 @@ void SpecFeaturesParse(Scanner_p in, SpecFeature_p features)
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
-
 #define GET_ENCODING(idx) (assert((idx) < (enc_len)), encoding[(idx)])
-
-void SpecTypePrint(FILE* out, SpecFeature_p features, char* mask)
+char* SpecTypeString(SpecFeature_p features, const char* mask)
 {
    const char encoding[]="UHGNSPFSMFSMFSMFSMSML0123SMLSMDFSHFMMFMM";
 #ifndef NDEBUG
@@ -1512,7 +1510,27 @@ void SpecTypePrint(FILE* out, SpecFeature_p features, char* mask)
          result[i]= '-';
       }
    }
+   return SecureStrndup(result, 19);
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: SpecTypePrint()
+//
+//   Print the string created by SpecTypeString
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void SpecTypePrint(FILE* out, SpecFeature_p features, char* mask)
+{
+   char* result = SpecTypeString(features, mask);
    fputs(result, out);
+   FREE(result);
 }
 
 /*-----------------------------------------------------------------------

@@ -217,11 +217,21 @@ HCB_p HCBAutoModeCreate(HCBARGUMENTS)
 {
    char *res = "Default";
    SpecFeature_p spec = &(control->problem_specs);
-   SpecLimits_p limits = CreateDefaultSpecLimits();
+   SpecLimits_p limits; 
 
-   control->heuristic_parms.selection_strategy = SelectNoLiterals;
-   OUTPRINT(1, "# Auto-Heuristic is analysing problem.\n");
+   if(problemType == PROBLEM_FO)
+   {
+      limits = CreateDefaultSpecLimits();
+      control->heuristic_parms.selection_strategy = SelectNoLiterals;
+      OUTPRINT(1, "# Auto-Heuristic is analysing problem.\n");
 #include "che_auto_cases.c"
+   }
+   else
+   {
+      limits = SpecLimitsAlloc();
+      assert(problemType == PROBLEM_HO);
+#include "che_new_autoschedule.c"
+   }
    SpecLimitsCellFree(limits);
 
    finalize_auto_parms("Auto-Mode", res, control, parms, spec);
