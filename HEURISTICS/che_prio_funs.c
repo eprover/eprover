@@ -1188,8 +1188,9 @@ EvalPriority PrioFunPreferFormulas(Clause_p clause)
       while(prio == PrioNormal && !PStackEmpty(subterms))
       {
          Term_p t = PStackPopP(subterms);
-         if(TypeIsBool(t->type) && t != bank->true_term &&
-            t != bank->false_term && SigIsLogicalSymbol(bank->sig, t->f_code))
+         if(!TermIsFreeVar(t) && TypeIsBool(t->type) && 
+            t != bank->true_term && t != bank->false_term &&
+            SigIsLogicalSymbol(bank->sig, t->f_code))
          {
             prio = PrioPrefer;
          }
