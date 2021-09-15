@@ -524,7 +524,7 @@ bool OCBPrecedenceBacktrack(OCB_p ocb, PStackPointer state)
 
 FunCode OCBMinConst(OCB_p ocb, Type_p type)
 {
-   long sort = GetReturnSort(type)->type_uid;
+   long sort = type->type_uid;
    FunCode cand;
 
    cand = PDArrayElementInt(ocb->min_constants, sort);
@@ -546,7 +546,7 @@ FunCode OCBMinConst(OCB_p ocb, Type_p type)
 
 void OCBCondSetMinConst(OCB_p ocb, Type_p type, FunCode cand)
 {
-   long sort = GetReturnSort(type)->type_uid;
+   long sort = type->type_uid;
 
    if(!OCBMinConst(ocb, type))
    {
@@ -573,6 +573,7 @@ void OCBCondSetMinConst(OCB_p ocb, Type_p type, FunCode cand)
 FunCode OCBFindMinConst(OCB_p ocb, Type_p type)
 {
    FunCode i, cand=0;
+   assert(type);
 
    assert(ocb && ocb->sig);
 

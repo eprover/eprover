@@ -236,7 +236,7 @@ extern bool            ProofObjectRecordsGCSelection;
 #define DCOpIsGenerating(op) ((DPOpGetOpCode(op) >= DOParamod)&&(DPOpGetOpCode(op) <= DOSatGen))
 
 #define DPSetIsHO(op) ((op) | ArgIsHO)
-#define DCGetIsHO(op) ((op) & ArgIsHO)
+#define DPGetIsHO(op) ((op) & ArgIsHO)
 
 void ClausePushDerivation(Clause_p clause, DerivationCode op,
                           void* arg1, void* arg2);

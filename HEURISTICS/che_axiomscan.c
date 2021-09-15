@@ -130,8 +130,14 @@ FunCode DetectAssociativity(Clause_p clause)
       (TermStandardWeight(lit->lterm)!=
        (2*DEFAULT_FWEIGHT+(3*DEFAULT_VWEIGHT))));
 
+   FAIL_ON(TermIsAppliedFreeVar(lit->lterm));
+   FAIL_ON(TermIsLambda(lit->lterm));
+   FAIL_ON(TermIsAppliedFreeVar(lit->rterm));
+   FAIL_ON(TermIsLambda(lit->rterm));
+
    FAIL_ON(lit->lterm->f_code!=lit->rterm->f_code);
    FAIL_ON((lit->lterm->arity!=2));
+   assert(lit->rterm->arity == 2);
 
    if(TermIsFreeVar(lit->lterm->args[0]))
    {
@@ -145,6 +151,7 @@ FunCode DetectAssociativity(Clause_p clause)
    }
    f = lterm->f_code;
    FAIL_ON(f!=lterm->args[0]->f_code);
+   FAIL_ON(lterm->args[0]->arity != 2);
    FAIL_ON(!TermIsFreeVar(lterm->args[0]->args[0]));
    FAIL_ON(!TermIsFreeVar(lterm->args[0]->args[1]));
    FAIL_ON(!TermIsFreeVar(lterm->args[1]));
@@ -156,6 +163,7 @@ FunCode DetectAssociativity(Clause_p clause)
       the top symbol of the right hand side is f */
    FAIL_ON(f!=rterm->args[1]->f_code);
    FAIL_ON(v1!=rterm->args[0]->f_code);
+   FAIL_ON(rterm->args[1]->arity != 2);
    FAIL_ON(v2!=rterm->args[1]->args[0]->f_code);
    FAIL_ON(v3!=rterm->args[1]->args[1]->f_code);
 

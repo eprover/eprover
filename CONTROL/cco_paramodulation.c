@@ -255,7 +255,7 @@ static long compute_into_pm_pos_clause(ParamodInfo_p pminfo,
             DerivationCode dc = pm_type==ParamodPlain?DCParamod:DCSimParamod;
             if(pminfo->subst_is_ho)
             {
-               dc = DCGetIsHO(dc);
+               dc = DPSetIsHO(dc);
             }
             ClausePushDerivation(clause, dc,
                                  pminfo->into, pminfo->new_orig);
@@ -475,7 +475,7 @@ static long compute_from_pm_pos_clause(ParamodInfo_p pminfo,
             DerivationCode dc = pm_type?DCSimParamod:DCParamod;
             if(pminfo->subst_is_ho)
             {
-               dc = DCGetIsHO(dc);
+               dc = DPSetIsHO(dc);
             }
             ClausePushDerivation(clause, dc,
                                  pminfo->new_orig, pminfo->from);

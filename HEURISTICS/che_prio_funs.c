@@ -1099,7 +1099,7 @@ EvalPriority PrioFunPreferHOSteps(Clause_p clause)
       while(!has_ho && i<sp)
       {
          op = PStackElementInt(derivation, i);
-         has_ho = DCGetIsHO(op);
+         has_ho = DPGetIsHO(op);
          i++;
          if(DCOpHasArg1(op))
          {

@@ -1966,13 +1966,14 @@ Term_p TBCreateConstTerm(TB_p bank, FunCode fconst)
 Term_p TBCreateMinTerm(TB_p bank, FunCode min_const)
 {
    Type_p type = SigGetType(bank->sig, min_const);
-   long sort = GetReturnSort(type)->type_uid;
-   Term_p t = PDArrayElementP(bank->min_terms, sort);
+   assert(type);
+   Term_p t = PDArrayElementP(bank->min_terms, type->type_uid);
 
    if(!t)
    {
       t = TBCreateConstTerm(bank, min_const);
-      PDArrayAssignP(bank->min_terms, sort, t);
+      assert(t->type);
+      PDArrayAssignP(bank->min_terms, type->type_uid, t);
    }
    return t;
 }
