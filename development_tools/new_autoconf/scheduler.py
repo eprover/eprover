@@ -102,28 +102,30 @@ class Configuration(object):
     return str(self)
 
 def parse_categories(root):
-  from categorize import PROB_CATEGORIES_FILENAME
-  f_name = p.join(root, PROB_CATEGORIES_FILENAME)
-  if p.exists(root) and p.isdir(root) and\
-     p.exists(f_name):
-    prob_map = {}
-    category_map = {}
-    with open(f_name) as fd:
-      for line in fd:
-        prob,cat_name = map(str.strip, line.split(":"))
-        prob_map[prob] = cat_name
-        if cat_name in category_map:
-          category = category_map[cat_name]
-        else:
-          category = Category(cat_name)
-          category_map[cat_name] = category
-        category.add_prob(prob)
-    return prob_map, category_map
-  else:
-    import sys
-    print(("{0} is not appropriate TPTP categorization root. "+
-           "Use categorize.py to create the catetgorization").format(root))
-    sys.exit(-1)
+  from categorize import CATEGORIZATIONS, IGNORE_CLASSES
+  cats = []
+  for cat_filename in CATEGORIZATIONS:
+    f_name = p.join(root, cat_filename)
+    if p.exists(root) and p.isdir(root) and\
+       p.exists(f_name):
+      category_map = {}
+      with open(f_name) as fd:
+        for line in fd:
+          prob,cat_name = map(str.strip, line.split(":"))
+          if cat_name not in IGNORE_CLASSES:
+            if cat_name in category_map:
+              category = category_map[cat_name]
+            else:
+              category = Category(cat_name)
+              category_map[cat_name] = category
+            category.add_prob(prob)
+      cats.append(category_map)
+    else:
+      import sys
+      print(("{0} is not appropriate TPTP categorization root. "+
+            "Use categorize.py to create the catetgorization").format(root))
+      sys.exit(-1)
+  return cats
 
 
 def parse_result_file(fd, confs):
@@ -161,7 +163,9 @@ def parse_configurations(archives, archive_format, json_root):
         with io.TextIOWrapper(arch_fd.open(csv_file.filename)) as csv_fd:
           parse_result_file(csv_fd, confs)
     except StopIteration:
-      print("Warning: {0} is not appropriate StarExec JobInfo archive".format(arch))
+      import sys
+      print("Warning: {0} is not appropriate StarExec JobInfo archive".format(arch),
+            file=sys.stderr)
   for conf in confs.values():
     conf.parse_json(p.join(json_root, conf.get_name()))
 
@@ -206,9 +210,6 @@ def schedule(cats, confs, take_general):
   while confs and cats:
     best_conf = confs.popleft() if take_general else pop_best(confs, cats)
     covered_cats = cover_cats(best_conf, cats)
-    if not covered_cats:
-      break # remaining configurations are not going to solve any problem,
-            # thus we deafult to the best one and do not keep it in cat_to_confs
     for cat in covered_cats:
       cat_to_confs[cat.get_name()] = best_conf
     cats.difference(covered_cats)
@@ -249,14 +250,16 @@ def init_args():
 
   return args
 
-def output(confs, category_to_confs):
+def output(confs, category_to_confs, raw_category_to_conf):
   best_conf = max(confs.values(), key=Configuration.stats)
 
-  print('const char* best_conf = "{0}";'.format(best_conf.get_name()))
-  print('const long  num_categories = {0};'.format(len(category_to_confs)))
+  print('long  num_categories = {0};'.format(len(category_to_confs)))
+  print('long  num_raw_categories = {0};'.format(len(raw_category_to_conf)))
+
 
   for conf in confs.values():
-    print('const char* {0} = "{1}"'.format(conf.get_name(), conf.to_json()))
+    print('char* {0} = "{1}";'.format(conf.get_name(), conf.to_json()))
+  print('char* best_conf = {0};'.format(best_conf.get_name()))
   
   def print_str_list(var_name, str_list, quote=True):
     print('char* {0}[] = {{ '.format(var_name))
@@ -269,13 +272,19 @@ def output(confs, category_to_confs):
                               category_to_confs.values()), 
                  quote=False)
 
+  print_str_list("raw_categories", raw_category_to_conf.keys())
+  print_str_list("raw_confs", map(Configuration.get_name, 
+                                  raw_category_to_conf.values()), 
+                 quote=False)
+
 
 def main():
   args = init_args()
-  _, category_map = parse_categories(args.category_root)
+  category_map, raw_category_map = parse_categories(args.category_root)
   configurations = parse_configurations(args.result_archives, args.arch_format, args.conf_root)
   category_to_conf = schedule(category_map, configurations, args.prefer_general)
-  output(configurations, category_to_conf)
+  raw_category_to_conf = schedule(raw_category_map, configurations, args.prefer_general)
+  output(configurations, category_to_conf, raw_category_to_conf)
 
 
 

@@ -82,7 +82,7 @@ long         FormulaSetCollectFCode(FormulaSet_p set, FunCode f_code,
 void FormulaSetAppEncode(FILE* out, FormulaSet_p set);
 void FormulaSetDefinitionStatistics(FormulaSet_p orig, FormulaSet_p arch, 
                                     TB_p bank, int* num_defs, 
-                                    double* percentage_form_defs);
+                                    double* percentage_form_defs, bool* );
 
 #endif
 

@@ -470,7 +470,7 @@ OptCell opts[] =
 
 char *outname = NULL,
      *mask = "aaaa-aaaaaa-a",
-     *raw_mask = "aaaaaaa";
+     *raw_mask = "aaaaaaaaaa";
 
 IOFormat parse_format     = AutoFormat;
 bool tptp_header      = false,
@@ -1036,15 +1036,15 @@ CLState_p process_options(int argc, char* argv[], SpecLimits_p limits)
             break;
       case OPT_MASK:
        mask = arg;
-       if(strlen(mask)!=13)
+       if(strlen(mask)<13)
        {
-          Error("Option -c (--class-mask) requires 13-letter "
+          Error("Option -c (--class-mask) requires at least 13-letter "
                 "string as an argument", USAGE_ERROR);
        }
        break;
       case OPT_RAW_MASK:
             raw_mask = arg;
-            if(strlen(raw_mask)!=7)
+            if(strlen(raw_mask)!=10)
             {
                Error("Option -c (--class-mask) requires 7-letter "
                      "string as an argument", USAGE_ERROR);

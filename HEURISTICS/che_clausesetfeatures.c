@@ -1037,9 +1037,6 @@ void SpecFeaturesCompute(SpecFeature_p features, ClauseSet_p set,
                               &(features->order),
                               &(features->quantifies_booleans),
                               &(features->has_defined_choice));
-   FormulaSetDefinitionStatistics(fset, farch, bank,
-                                  &(features->num_of_definitions), 
-                                  &(features->perc_of_form_defs));
 }
 
 

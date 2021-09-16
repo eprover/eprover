@@ -73,7 +73,7 @@ void finalize_auto_parms(char* modename, char* hname,
 {
 
 
-   if(OutputLevel+1)
+   if(OutputLevel+1 && problemType == PROBLEM_FO)
    {
       fprintf(GlobalOut,
               "# %s selected heuristic %s\n"
@@ -81,6 +81,20 @@ void finalize_auto_parms(char* modename, char* hname,
               modename,
               hname,
               GetLitSelName(control->heuristic_parms.selection_strategy));
+   }
+   if(OutputLevel ||
+#ifdef DNDEBUG
+false
+#else
+true
+#endif   
+   )
+   {
+      if(problemType == PROBLEM_HO)
+      {
+         fprintf(GlobalOut, "Selected heuristic:\n");
+         HeuristicParmsPrint(stderr, parms);
+      }
    }
    if(parms->mem_limit>2 && (parms->delete_bad_limit ==
                              DEFAULT_DELETE_BAD_LIMIT))
@@ -218,20 +232,10 @@ HCB_p HCBAutoModeCreate(HCBARGUMENTS)
    char *res = "Default";
    SpecFeature_p spec = &(control->problem_specs);
    SpecLimits_p limits; 
-
-   if(problemType == PROBLEM_FO)
-   {
-      limits = CreateDefaultSpecLimits();
-      control->heuristic_parms.selection_strategy = SelectNoLiterals;
-      OUTPRINT(1, "# Auto-Heuristic is analysing problem.\n");
+   limits = CreateDefaultSpecLimits();
+   control->heuristic_parms.selection_strategy = SelectNoLiterals;
+   OUTPRINT(1, "# Auto-Heuristic is analysing problem.\n");
 #include "che_auto_cases.c"
-   }
-   else
-   {
-      limits = SpecLimitsAlloc();
-      assert(problemType == PROBLEM_HO);
-#include "che_new_autoschedule.c"
-   }
    SpecLimitsCellFree(limits);
 
    finalize_auto_parms("Auto-Mode", res, control, parms, spec);

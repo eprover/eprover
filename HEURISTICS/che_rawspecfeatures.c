@@ -73,7 +73,7 @@ void RawSpecFeaturesCompute(RawSpecFeature_p features, ProofState_p state)
                                  &(features->hypothesis_count));
 
    features->sig_size    = SigCountSymbols(state->terms->sig, true)+
-      SigCountSymbols(state->terms->sig,false);
+                           SigCountSymbols(state->terms->sig,false);
 
    features->predc_size = SigCountAritySymbols(state->terms->sig, 0, true);
    features->func_size  = SigCountAritySymbols(state->terms->sig, 0, false);
@@ -82,16 +82,20 @@ void RawSpecFeaturesCompute(RawSpecFeature_p features, ProofState_p state)
    features->fun_size  = SigCountSymbols(state->terms->sig, false)-
       SigCountAritySymbols(state->terms->sig, 0, false);
 
-
+   FormulaSetDefinitionStatistics(state->f_axioms, state->f_ax_archive,
+                                  state->terms,
+                                  &(features->num_of_definitions), 
+                                  &(features->perc_of_form_defs),
+                                  &(features->has_lambdas));
    features->class[0] = '\0';
 }
-
-#define RAW_CLASSIFY(index, value, some, many)\
-   if((value) < (some))\
+#define ADJUST_FOR_HO(limit, scale) (limit) / ((problemType == PROBLEM_HO) ? (scale) : 1)
+#define RAW_CLASSIFY(index, value, some, many, ho_scale_some, ho_scale_many)\
+   if((value) < (ADJUST_FOR_HO(some, ho_scale_some)))\
    {                                            \
       features->class[index] = 'S';             \
    }                                            \
-   else if((value) < (many))                    \
+   else if((value) < (ADJUST_FOR_HO(many, ho_scale_many)))                    \
    {                                            \
       features->class[index] = 'M';             \
    }                                            \
@@ -118,21 +122,25 @@ void RawSpecFeaturesClassify(RawSpecFeature_p features, SpecLimits_p limits,
                              char* pattern)
 {
    RAW_CLASSIFY(0, features->sentence_no,
-                limits->ax_some_limit, limits->ax_many_limit);
+                limits->ax_some_limit, limits->ax_many_limit, 5, 7);
    RAW_CLASSIFY(1, features->term_size,
-                limits->term_medium_limit, limits->term_large_limit);
+                limits->term_medium_limit, limits->term_large_limit, 2, 4);
    RAW_CLASSIFY(2, features->sig_size,
-                limits->symbols_medium_limit, limits->symbols_large_limit);
+                limits->symbols_medium_limit, limits->symbols_large_limit, 5, 7);
 
    RAW_CLASSIFY(3, features->pred_size,
-                limits->pred_medium_limit, limits->pred_large_limit);
+                limits->pred_medium_limit, limits->pred_large_limit, 10, 10);
    RAW_CLASSIFY(4, features->predc_size,
-                limits->predc_medium_limit, limits->predc_large_limit);
+                limits->predc_medium_limit, limits->predc_large_limit, 1, 1);
    RAW_CLASSIFY(5, features->fun_size,
-                limits->fun_medium_limit, limits->fun_large_limit);
+                limits->fun_medium_limit, limits->fun_large_limit, 9, 5);
    RAW_CLASSIFY(6, features->func_size,
-                limits->func_medium_limit, limits->func_large_limit);
-
+                limits->func_medium_limit, limits->func_large_limit, 2 ,10);
+   RAW_CLASSIFY(7, features->num_of_definitions,
+                limits->num_of_defs_medium_limit, limits->num_of_defs_large_limit, 1, 1);
+   RAW_CLASSIFY(8, features->perc_of_form_defs,
+                limits->perc_form_defs_medium_limit, limits->perc_form_defs_large_limit, 1, 1);
+   features->class[9] = features->has_lambdas ? 'B' : 'N';
    if(pattern)
    {
       char* handle;
@@ -145,7 +153,7 @@ void RawSpecFeaturesClassify(RawSpecFeature_p features, SpecLimits_p limits,
          }
       }
    }
-   features->class[7] = '\0';
+   features->class[10] = '\0';
 }
 
 
@@ -181,13 +189,19 @@ void RawSpecFeaturesParse(Scanner_p in, RawSpecFeature_p features)
    features->fun_size   = ParseInt(in);
    AcceptInpTok(in, Comma);
    features->func_size   = ParseInt(in);
+   AcceptInpTok(in, Comma);
+   features->num_of_definitions   = ParseInt(in);
+   AcceptInpTok(in, Comma);
+   features->perc_of_form_defs   = ParseFloat(in);
+   AcceptInpTok(in, Comma);
+   features->has_lambdas   = ParseBool(in);
 
    AcceptInpTok(in, CloseBracket);
    AcceptInpTok(in, Colon);
    class = ParsePlainFilename(in);
-   if(strlen(class) != 7)
+   if(strlen(class) != 10)
    {
-      Error("Raw class name must have 7 characters", SYNTAX_ERROR);
+      Error("Raw class name must have 10 characters", SYNTAX_ERROR);
    }
    strcpy(features->class, class);
    FREE(class);
@@ -208,7 +222,7 @@ void RawSpecFeaturesParse(Scanner_p in, RawSpecFeature_p features)
 
 void RawSpecFeaturesPrint(FILE* out, RawSpecFeature_p features)
 {
-      fprintf(out, "(%7ld, %7lld, %6d, %6d, %6d, %6d, %6d) : %s",
+      fprintf(out, "(%7ld, %7lld, %6d, %6d, %6d, %6d, %6d, %6d, %.3f, %s ) : %s",
               features->sentence_no,
               features->term_size,
               features->sig_size,
@@ -216,6 +230,9 @@ void RawSpecFeaturesPrint(FILE* out, RawSpecFeature_p features)
               features->predc_size,
               features->fun_size,
               features->func_size,
+              features->num_of_definitions,
+              features->perc_of_form_defs,
+              features->has_lambdas ? "true" : "false",
               features->class);
 }
 

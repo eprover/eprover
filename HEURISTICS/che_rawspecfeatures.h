@@ -31,6 +31,7 @@ Changes
 /*                    Data type declarations                           */
 /*---------------------------------------------------------------------*/
 
+#define NUM_RAW_FEATURES
 
 
 typedef struct raw_spec_feature_cell
@@ -44,7 +45,10 @@ typedef struct raw_spec_feature_cell
    int       func_size;
    long      conjecture_count;
    long      hypothesis_count;
-   char      class[8];
+   bool      has_lambdas;
+   int       num_of_definitions; // number of formulas tagged with definition
+   double    perc_of_form_defs; // percentage of which defines formulas
+   char      class[11];
 }RawSpecFeatureCell, *RawSpecFeature_p;
 
 
