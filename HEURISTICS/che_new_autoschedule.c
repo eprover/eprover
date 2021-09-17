@@ -17,9 +17,6 @@ Changes
 
 #include "che_hcb.h"
 
-const char* DEFAULT_MASK = "aaaaa-aaaaaa-aa--aa";
-const char* RAW_DEFAULT_MASK = "aaa----aaa";
-
 #include "autoschedule_gen.vars"
 
 void class_to_heuristic(const char* problem_category, const char** categories,

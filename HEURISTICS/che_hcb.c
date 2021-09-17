@@ -144,6 +144,7 @@ void HeuristicParmsInitialize(HeuristicParms_p handle)
    handle->no_preproc                    = false;
    handle->eqdef_maxclauses              = DEFAULT_EQDEF_MAXCLAUSES;
    handle->eqdef_incrlimit               = DEFAULT_EQDEF_INCRLIMIT;
+   handle->sine                          = NULL;
 
    handle->heuristic_name                = HCB_DEFAULT_HEURISTIC;
    handle->heuristic_def                 = NULL;
@@ -268,6 +269,11 @@ void HeuristicParmsFree(HeuristicParms_p junk)
    assert(junk);
 
    junk->heuristic_name = NULL;
+   if(junk->sine)
+   {
+      FREE(junk->sine);
+      junk->heuristic_def = NULL;
+   }
    if(junk->heuristic_def)
    {
       FREE(junk->heuristic_def);
@@ -301,6 +307,8 @@ void HeuristicParmsPrint(FILE* out, HeuristicParms_p handle)
    fprintf(out, "   no_preproc:                     %s\n", BOOL2STR(handle->no_preproc));
    fprintf(out, "   eqdef_maxclauses:               %ld\n", handle->eqdef_maxclauses);
    fprintf(out, "   eqdef_incrlimit:                %ld\n", handle->eqdef_incrlimit);
+
+   fprintf(out, "   sine                            %s\n", handle->sine);
 
    fprintf(out, "   heuristic_name:                 %s\n", handle->heuristic_name);
    fprintf(out, "   heuristic_def:                  \"%s\"\n",
@@ -479,6 +487,7 @@ bool HeuristicParmsParseInto(Scanner_p in,
    PARSE_BOOL(no_preproc);
    PARSE_INT(eqdef_maxclauses);
    PARSE_INT(eqdef_incrlimit);
+   PARSE_IDENTIFIER(sine);
    PARSE_IDENTIFIER(heuristic_name);
    PARSE_STRING(heuristic_def);
    PARSE_BOOL(prefer_initial_clauses);

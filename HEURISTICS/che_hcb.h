@@ -103,6 +103,8 @@ typedef struct heuristic_parms_cell
    bool                no_preproc;
    long                eqdef_maxclauses;
    long                eqdef_incrlimit;
+   
+   char*               sine;
 
 /* Clause selection elements */
    char                *heuristic_name;

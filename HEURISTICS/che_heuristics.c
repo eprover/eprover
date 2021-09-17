@@ -19,6 +19,7 @@
   -----------------------------------------------------------------------*/
 
 #include "che_heuristics.h"
+#include "che_new_autoschedule.h"
 
 
 
@@ -235,7 +236,17 @@ HCB_p HCBAutoModeCreate(HCBARGUMENTS)
    limits = CreateDefaultSpecLimits();
    control->heuristic_parms.selection_strategy = SelectNoLiterals;
    OUTPRINT(1, "# Auto-Heuristic is analysing problem.\n");
+   if(problemType==PROBLEM_HO)
+   {
+      SpecFeaturesAddEval(spec, limits);
+      char* result = SpecTypeString(spec, DEFAULT_MASK);
+      HeuristicForCategory(result, &(control->heuristic_parms));
+      FREE(result);
+   }
+   else
+   {
 #include "che_auto_cases.c"
+   }
    SpecLimitsCellFree(limits);
 
    finalize_auto_parms("Auto-Mode", res, control, parms, spec);

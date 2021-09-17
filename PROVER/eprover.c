@@ -33,6 +33,7 @@
 #include <e_version.h>
 #include <cte_lambda.h>
 #include <cco_ho_inferences.h>
+#include <che_new_autoschedule.h>
 
 /*---------------------------------------------------------------------*/
 /*                  Data types                                         */
@@ -95,8 +96,8 @@ int force_deriv_output = 0;
 char  *outdesc = DEFAULT_OUTPUT_DESCRIPTOR,
       *filterdesc = DEFAULT_FILTER_DESCRIPTOR;
 PStack_p          wfcb_definitions, hcb_definitions;
-char              *sine=NULL;
 pid_t              pid = 0;
+bool               auto_conf = false;
 
 FunctionProperties free_symb_prop = FPIgnoreProps;
 
@@ -430,7 +431,29 @@ int main(int argc, char* argv[])
       goto cleanup1;
    }
 
-   relevancy_pruned += ProofStateSinE(proofstate, sine);
+   if(auto_conf && problemType == PROBLEM_HO)
+   {
+      RawSpecFeatureCell features;
+      SpecLimits_p limits = CreateDefaultSpecLimits(); 
+
+      RawSpecFeaturesCompute(&features, proofstate);
+      RawSpecFeaturesClassify(&features, limits, RAW_DEFAULT_MASK);
+      HeuristicForRawCategory(features.class, h_parms);
+      
+#ifndef NDEBUG
+      fprintf(stderr, "%s: (lift_lambdas = %d, lambda_to_forall = %d," 
+                      "unroll_only_formulas = %d, sine = %s)\n", 
+                      features.class,
+                      h_parms->lift_lambdas,
+                      h_parms->lambda_to_forall,
+                      h_parms->unroll_only_formulas,
+                      h_parms->sine);
+#endif
+
+      SpecLimitsCellFree(limits);
+   }
+
+   relevancy_pruned += ProofStateSinE(proofstate, h_parms->sine);
    relevancy_pruned += ProofStateRelevancyProcess(proofstate,
                                                   relevance_prune_level);
    if(app_encode)
@@ -1143,7 +1166,8 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_AUTO:
             h_parms->heuristic_name = "Auto";
             h_parms->order_params.ordertype = AUTO;
-            sine = "Auto";
+            h_parms->sine = SecureStrdup("Auto");
+            auto_conf = true;
             break;
       case OPT_SATAUTO:
             h_parms->heuristic_name = "Auto";
@@ -1152,7 +1176,7 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_AUTODEV:
             h_parms->heuristic_name = "AutoDev";
             h_parms->order_params.ordertype = AUTODEV;
-            sine = "Auto";
+            h_parms->sine = SecureStrdup("Auto");
             break;
       case OPT_SATAUTODEV:
             h_parms->heuristic_name = "AutoDev";
@@ -1160,7 +1184,7 @@ CLState_p process_options(int argc, char* argv[])
             break;
       case OPT_AUTO_SCHED:
             strategy_scheduling = true;
-            sine = "Auto";
+            h_parms->sine = SecureStrdup("Auto");
             break;
       case OPT_SATAUTO_SCHED:
             strategy_scheduling = true;
@@ -1192,7 +1216,7 @@ CLState_p process_options(int argc, char* argv[])
             h_parms->eqdef_incrlimit = LONG_MIN;
             break;
       case OPT_SINE:
-            sine = arg;
+            h_parms->sine = SecureStrdup(arg);
             break;
       case OPT_REL_PRUNE_LEVEL:
             relevance_prune_level = CLStateGetIntArg(handle, arg);
