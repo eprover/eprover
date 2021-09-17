@@ -1,6 +1,6 @@
-from enum import Enum
-import os
 import os.path as p
+from sys import stderr
+from common import Category, Configuration, ArchiveFormat, tuple_is_smaller
 
 JOBINFO_PROB_NAME = 'benchmark'
 JOBINFO_CONFIGURATION = 'configuration'
@@ -8,98 +8,6 @@ JOBINFO_TIME = 'cpu time'
 JOBINFO_RESULT = 'result'
 
 SUCCESS_RESULTS = ['ContradictoryAxioms', 'Theorem', 'Unsatisfiable']
-
-class ArchiveFormat(Enum):
-  PROTOCOL_FORMAT = 'protocol'
-  JOBINFO_FORMAT = 'jobinfo'
-
-  def __str__(self):
-    return self.value
-
-
-class Category(object):
-  def __init__(self, name):
-    self._name = name
-    self._probs = []
-    self._best = None
-  
-  def add_prob(self, prob):
-    self._probs.append(prob)
-
-  def get_problems(self):
-    return self._probs
-
-  def get_name(self):
-    return self._name
-
-  def store_evaluation(self, eval, conf):
-    if self._best is None:
-      self._best = (eval[0], eval[1], conf)
-    else:
-      curr = self._best[:2]
-      if eval > curr:
-        self._best = (eval[0], eval[1], conf)
-  
-  def get_best_conf(self):
-    if self._best is None:
-      return None
-    else:
-      return self._best[2]
-  
-  def __str__(self):
-    return "{0} : {1}".format(self._name, ",".join(self._probs))
-
-  def __repr__(self):
-    return str(self)
-
-
-class Configuration(object):
-  def __init__(self, name):
-    self._name = name
-    self._probs = {}
-    self._memo_eval = {}
-    self._num_solved = 0
-    self._total_time = 0.0
-
-  def add_solved_prob(self, prob, time):
-    self._num_solved += 1
-    self._total_time += time
-    self._probs[prob] = time
-
-  def evaluate_category(self, category):
-    if category in self._memo_eval:
-      return self._memo_eval[category]
-    
-    solved, time = (0, 0.0)
-    for prob in category.get_problems():
-      if prob in self._probs:
-        solved += 1
-        time += self._probs[prob]
-    self._memo_eval[category] = (solved, time)
-    category.store_evaluation((solved, time), self)
-    return (solved, time)
-  
-  def stats(self):
-    return (self._num_solved, self._total_time)
-  
-  def parse_json(self, path):
-    with open(path, 'r') as fd:
-      self._json = fd.read().replace("\n", "\\n").replace('"', '\\"')
-
-  def to_json(self):
-    return self._json
-
-  def get_name(self):
-    from pathlib import Path
-    return Path(self._name).stem
-
-
-  def __str__(self):
-    return "{0} : ({1}, {2})".format(self._name, self._num_solved, 
-                                     self._total_time)
-
-  def __repr__(self):
-    return str(self)
 
 def parse_categories(root):
   from categorize import CATEGORIZATIONS, IGNORE_CLASSES
@@ -148,7 +56,7 @@ def parse_result_file(fd, confs):
       conf.add_solved_prob(prob, time)
 
     
-def parse_configurations(archives, archive_format, json_root):
+def parse_configurations(archives, archive_format, json_root=None):
   if(archive_format == ArchiveFormat.PROTOCOL_FORMAT):
     raise NotImplementedError
   
@@ -163,32 +71,37 @@ def parse_configurations(archives, archive_format, json_root):
         with io.TextIOWrapper(arch_fd.open(csv_file.filename)) as csv_fd:
           parse_result_file(csv_fd, confs)
     except StopIteration:
-      import sys
       print("Warning: {0} is not appropriate StarExec JobInfo archive".format(arch),
-            file=sys.stderr)
-  for conf in confs.values():
-    conf.parse_json(p.join(json_root, conf.get_name()))
+            file=stderr)
+  if json_root is not None:
+    for conf in confs.values():
+      conf.parse_json(p.join(json_root, conf.get_name()))
 
   return confs
 
 
 def pop_best(confs, cats):
-  best_stat = (-1, 0.0, None)
+  best_stat = (set(), -1, 0.0, None)
   for conf in confs:
-    stat = (0, 0.0, conf)
+    stat = (set(), 0, 0.0, conf)
     for cat in cats:
-      cat_stat = conf.evaluate_category(cat)
-      stat = (stat[0] + cat_stat[0], stat[1] + cat_stat[1], stat[2])
-    if stat[:2] > best_stat[:2]:
+      # the first time evaluate_category is called with all the
+      # confs and this is going to be cached
+      cat_stat = conf.evaluate_category(cat, confs)
+      stat = (stat[0].union(cat_stat[0]), stat[1] + cat_stat[1], 
+              stat[2] + cat_stat[2], conf)
+    from common import tuple_is_smaller
+    if tuple_is_smaller(best_stat, stat):
       best_stat = stat
-  confs.remove(best_stat[2])
-  return best_stat[2]
+  confs.remove(best_stat[3])
+  return best_stat[3]
 
-def cover_cats(conf, cats):
+def cover_cats(conf, cats, others):
   covered = set()
   for cat in cats:
-    if (conf.evaluate_category(cat)[0] != 0 and
+    if (conf.evaluate_category(cat, others)[0] and
         cat.get_best_conf() == conf):
+      print("conf({0}) = {1}".format(cat, conf.get_name()), file=stderr)
       covered.add(cat)
   return covered
 
@@ -203,16 +116,19 @@ def schedule(cats, confs, take_general):
   # precomputation of the timing data for all confs and cats
   for conf in confs:
     for cat in cats:
-      conf.evaluate_category(cat)
+      conf.evaluate_category(cat, confs)
 
   cat_to_confs = {}
 
   while confs and cats:
     best_conf = confs.popleft() if take_general else pop_best(confs, cats)
-    covered_cats = cover_cats(best_conf, cats)
+    covered_cats = cover_cats(best_conf, cats, confs)
     for cat in covered_cats:
       cat_to_confs[cat.get_name()] = best_conf
-    cats.difference(covered_cats)
+    cats = cats.difference(covered_cats)
+  
+  if cats:
+    print("unassinged: {0}".format(",".join(map(str, cats))), file=stderr)
   
   return cat_to_confs
 
