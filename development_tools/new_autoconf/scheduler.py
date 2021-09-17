@@ -253,29 +253,28 @@ def init_args():
 def output(confs, category_to_confs, raw_category_to_conf):
   best_conf = max(confs.values(), key=Configuration.stats)
 
-  print('long  num_categories = {0};'.format(len(category_to_confs)))
-  print('long  num_raw_categories = {0};'.format(len(raw_category_to_conf)))
+  print('const long  num_categories = {0};'.format(len(category_to_confs)))
+  print('const long  num_raw_categories = {0};'.format(len(raw_category_to_conf)))
 
+  def conf_w_comment(conf):
+    return '"{0}"/*{1}*/'.format(conf.to_json(), conf.get_name())
 
-  for conf in confs.values():
-    print('char* {0} = "{1}";'.format(conf.get_name(), conf.to_json()))
-  print('char* best_conf = {0};'.format(best_conf.get_name()))
+  print('const char* best_conf = {0};'.format(conf_w_comment(best_conf)))
   
-  def print_str_list(var_name, str_list, quote=True):
-    print('char* {0}[] = {{ '.format(var_name))
-    print(",\n".join(map(lambda x: '   {1}{0}{1}'.format(x, '"' if quote else ''),
-                         str_list)))
+  def print_str_list(var_name, str_list):
+    print('const char* {0}[] = {{ '.format(var_name))
+    print(",\n".join(str_list))
     print("};")
-  
-  print_str_list("categories", category_to_confs.keys())
-  print_str_list("confs", map(Configuration.get_name, 
-                              category_to_confs.values()), 
-                 quote=False)
 
-  print_str_list("raw_categories", raw_category_to_conf.keys())
-  print_str_list("raw_confs", map(Configuration.get_name, 
-                                  raw_category_to_conf.values()), 
-                 quote=False)
+  print_str_list("categories", map(lambda x: '"{0}"'.format(x), 
+                                   category_to_confs.keys()))
+  print_str_list("confs", map(conf_w_comment, 
+                              category_to_confs.values()))
+
+  print_str_list("raw_categories", map(lambda x: '"{0}"'.format(x),
+                                       raw_category_to_conf.keys()))
+  print_str_list("raw_confs", map(conf_w_comment, 
+                                  raw_category_to_conf.values()))
 
 
 def main():

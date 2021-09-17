@@ -27,11 +27,11 @@ void class_to_heuristic(const char* problem_category, const char** categories,
                         HeuristicParms_p params)
 {
   int i=0;
-  for(; i<num_categories && strcmp(categories[i], category); i++)
+  for(; i<num_categories && strcmp(categories[i], problem_category); i++)
       {}
   const char* configuration = i == num_categories ? best_conf : confs[i];
   Scanner_p in = CreateScanner(StreamTypeInternalString, (char*)configuration, true, NULL, true);
-  HeuristicParmsParseInto(in, params, true);
+  HeuristicParmsParseInto(in, params, true); 
   DestroyScanner(in);
 }
 
