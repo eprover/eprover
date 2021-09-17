@@ -435,10 +435,17 @@ int main(int argc, char* argv[])
    {
       RawSpecFeatureCell features;
       SpecLimits_p limits = CreateDefaultSpecLimits(); 
+      HeuristicParms_p preproc_heuristics = HeuristicParmsAlloc();
 
       RawSpecFeaturesCompute(&features, proofstate);
       RawSpecFeaturesClassify(&features, limits, RAW_DEFAULT_MASK);
-      HeuristicForRawCategory(features.class, h_parms);
+      HeuristicForRawCategory(features.class, preproc_heuristics);
+
+      h_parms->lift_lambdas = preproc_heuristics->lift_lambdas;
+      h_parms->lambda_to_forall = preproc_heuristics->lambda_to_forall;
+      h_parms->unroll_only_formulas = preproc_heuristics->unroll_only_formulas;
+      h_parms->sine = preproc_heuristics->sine;
+      preproc_heuristics->sine = NULL;
       
 #ifndef NDEBUG
       fprintf(stderr, "%s: (lift_lambdas = %d, lambda_to_forall = %d," 
@@ -451,6 +458,7 @@ int main(int argc, char* argv[])
 #endif
 
       SpecLimitsCellFree(limits);
+      HeuristicParmsCellFree(preproc_heuristics);
    }
 
    relevancy_pruned += ProofStateSinE(proofstate, h_parms->sine);

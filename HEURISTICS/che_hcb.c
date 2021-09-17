@@ -308,7 +308,7 @@ void HeuristicParmsPrint(FILE* out, HeuristicParms_p handle)
    fprintf(out, "   eqdef_maxclauses:               %ld\n", handle->eqdef_maxclauses);
    fprintf(out, "   eqdef_incrlimit:                %ld\n", handle->eqdef_incrlimit);
 
-   fprintf(out, "   sine                            %s\n", handle->sine);
+   fprintf(out, "   sine:                           \"%s\"\n", handle->sine ? handle->sine : "Auto");
 
    fprintf(out, "   heuristic_name:                 %s\n", handle->heuristic_name);
    fprintf(out, "   heuristic_def:                  \"%s\"\n",
@@ -487,7 +487,7 @@ bool HeuristicParmsParseInto(Scanner_p in,
    PARSE_BOOL(no_preproc);
    PARSE_INT(eqdef_maxclauses);
    PARSE_INT(eqdef_incrlimit);
-   PARSE_IDENTIFIER(sine);
+   PARSE_STRING(sine);
    PARSE_IDENTIFIER(heuristic_name);
    PARSE_STRING(heuristic_def);
    PARSE_BOOL(prefer_initial_clauses);

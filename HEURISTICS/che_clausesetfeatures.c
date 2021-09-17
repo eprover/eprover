@@ -1480,20 +1480,19 @@ char* SpecTypeString(SpecFeature_p features, const char* mask)
    assert(features);
    assert(mask && (strlen(mask)>=13) && (strlen(mask)<=18));
    limit = strlen(mask);
-
    snprintf(result, 19, "%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c",
            GET_ENCODING(features->axiomtypes),
            GET_ENCODING(features->goaltypes),
-           GET_ENCODING(features->eq_content),
-           GET_ENCODING(features->ng_unit_content),
+           GET_ENCODING(features->eq_content), 
+           GET_ENCODING(features->ng_unit_content), 
            features->goals_are_ground?'G':'N',
-           GET_ENCODING(features->set_clause_size),
+           GET_ENCODING(features->set_clause_size), 
            GET_ENCODING(features->set_literal_size),
-           GET_ENCODING(features->set_termcell_size),
-           GET_ENCODING(features->ground_positive_content),
-           GET_ENCODING(features->max_fun_ar_class),
+           GET_ENCODING(features->set_termcell_size), 
+           GET_ENCODING(features->ground_positive_content), 
+           GET_ENCODING(features->max_fun_ar_class), 
            GET_ENCODING(features->avg_fun_ar_class),
-           GET_ENCODING(features->sum_fun_ar_class),
+           GET_ENCODING(features->sum_fun_ar_class), 
            GET_ENCODING(features->max_depth_class),
            GET_ENCODING(features->order_class),
            GET_ENCODING(features->defs_class),

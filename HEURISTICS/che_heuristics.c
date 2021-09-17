@@ -84,17 +84,17 @@ void finalize_auto_parms(char* modename, char* hname,
               GetLitSelName(control->heuristic_parms.selection_strategy));
    }
    if(OutputLevel ||
-#ifdef DNDEBUG
-false
-#else
+#ifndef NDEBUG
 true
+#else
+false
 #endif   
    )
    {
       if(problemType == PROBLEM_HO)
       {
          fprintf(GlobalOut, "Selected heuristic:\n");
-         HeuristicParmsPrint(stderr, parms);
+         HeuristicParmsPrint(stderr, &(control->heuristic_parms));
       }
    }
    if(parms->mem_limit>2 && (parms->delete_bad_limit ==
