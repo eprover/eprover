@@ -272,7 +272,6 @@ void HeuristicParmsFree(HeuristicParms_p junk)
    if(junk->sine)
    {
       FREE(junk->sine);
-      junk->heuristic_def = NULL;
    }
    if(junk->heuristic_def)
    {

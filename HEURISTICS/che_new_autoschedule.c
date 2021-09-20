@@ -25,7 +25,7 @@ void print_config_name(FILE* out, const char* config)
   assert(strchr(config, '\n'));
   DStrAppendBuffer(str, (char*)config, strchr(config, '\n') - config);
   fprintf(out, "# config: %s\n", DStrView(str));
-  DStrCellFree(str);
+  DStrFree(str);
 }
 
 int str_distance(const char* a, const char* b)
