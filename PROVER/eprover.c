@@ -448,9 +448,8 @@ int main(int argc, char* argv[])
       preproc_heuristics->sine = NULL;
       
 #ifndef NDEBUG
-      fprintf(stderr, "%s: (lift_lambdas = %d, lambda_to_forall = %d," 
+      fprintf(stderr, "(lift_lambdas = %d, lambda_to_forall = %d," 
                       "unroll_only_formulas = %d, sine = %s)\n", 
-                      features.class,
                       h_parms->lift_lambdas,
                       h_parms->lambda_to_forall,
                       h_parms->unroll_only_formulas,

@@ -19,7 +19,7 @@ Changes
 
 #include "autoschedule_gen.vars"
 
-void class_to_heuristic(const char* problem_category, const char** categories,
+const char* class_to_heuristic(const char* problem_category, const char** categories,
                         const char** configurations, int num_categories, 
                         HeuristicParms_p params)
 {
@@ -30,6 +30,7 @@ void class_to_heuristic(const char* problem_category, const char** categories,
   Scanner_p in = CreateScanner(StreamTypeInternalString, (char*)configuration, true, NULL, true);
   HeuristicParmsParseInto(in, params, true); 
   DestroyScanner(in);
+  return configuration;
 }
 
 void HeuristicForRawCategory(const char* raw_category, HeuristicParms_p parms)

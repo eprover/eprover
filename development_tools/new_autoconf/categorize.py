@@ -41,15 +41,21 @@ class Classifier(object):
 
 
 def get_probs(root, prob_filter):
+  def apply_filter(f):
+    return (prob_filter is None or 
+             any(filter(lambda c: c in f, prob_filter)))
+
   all_files = []
-  for (path, _, files) in os.walk(root):
-    files =\
-      map(lambda f: p.join(path, f),
-        filter(lambda f: f.endswith(".p") and
-                (prob_filter is None or 
-                 any(filter(lambda c: c in f, prob_filter))), 
-               files))
-    all_files += files
+  if os.path.isdir(root):
+    for (path, _, files) in os.walk(root):
+      files =\
+        map(lambda f: p.join(path, f),
+          filter(lambda f: f.endswith(".p") and apply_filter(f),
+                files))
+      all_files += files
+  else:
+    with open(root) as fd:
+      all_files += list(map(str.strip, filter(apply_filter, fd)))
   return all_files
 
 
@@ -134,7 +140,10 @@ def init_args():
   parser.add_argument('e_classify_path', metavar='E_CLASSIFY_PATH',
                       help='path to the e_classify binary')
   parser.add_argument('root', metavar='ROOT',
-                      help='root directory containing TPTP problem files')
+                      help='root directory or file containing TPTP problem files. In the case'
+                           ' directory is given as the argument all files with .p extension in this'
+                           ' directory will be considered; if the argument is a file in which each'
+                           ' line is a path to a file then those files will be processed.' )
   parser.add_argument('e_classify_args', metavar='E_CLASSIFY_ARGS', nargs='*',
                       help='arguments passed to e_classify')
   parser.add_argument('--filter', dest='filter', default=None,

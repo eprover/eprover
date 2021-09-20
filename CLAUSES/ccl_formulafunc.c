@@ -2456,6 +2456,49 @@ void FormulaSetDocInital(FILE *out, long level, FormulaSet_p set)
    }
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: FormulaSetDocInital()
+//
+//   Does a formula have a lambda that does not appear at the eqn level?
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+bool FormulaHasNonTopLevelLambda(Sig_p sig, TFormula_p form)
+{
+   PStack_p stack = PStackAlloc();
+   PStackPushP(stack, form);
+   PStackPushInt(stack, true);
+   bool res = false;
+   
+   while(!PStackEmpty(stack) && !res)
+   {
+      bool is_at_top = PStackPopInt(stack);
+      Term_p form = PStackPopP(stack);
+
+      if(is_at_top)
+      {
+         is_at_top = is_at_top && (!TermIsFreeVar(form) && SigIsLogicalSymbol(sig, form->f_code));
+         for(int i=0; i<form->arity; i++)
+         {
+            PStackPushP(stack, form->args[i]);
+            PStackPushInt(stack, is_at_top);
+         }
+      }
+      else
+      {
+         res = TermHasLambdaSubterm(form);
+      }
+   }
+
+   PStackFree(stack);
+   return res;
+}
+
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/

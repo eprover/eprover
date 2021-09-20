@@ -99,6 +99,7 @@ DStr_p TypeAppEncodedName(Type_p type);
 
 Type_p ArrowTypeFlattened(Type_p const* args, int args_num, Type_p ret);
 Type_p TypeDropFirstArg(Type_p ty);
+bool IsChoiceType(Type_p ty);
 
 
 bool TypeHasBool(Type_p t);

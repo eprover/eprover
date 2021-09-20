@@ -85,7 +85,7 @@ void finalize_auto_parms(char* modename, char* hname,
    }
    if(OutputLevel ||
 #ifndef NDEBUG
-true
+false // true
 #else
 false
 #endif   
@@ -240,7 +240,8 @@ HCB_p HCBAutoModeCreate(HCBARGUMENTS)
    {
       SpecFeaturesAddEval(spec, limits);
       char* result = SpecTypeString(spec, DEFAULT_MASK);
-      HeuristicForCategory(result, &(control->heuristic_parms));
+      HeuristicForCategory(result, parms);
+      res = parms->heuristic_def;
       FREE(result);
    }
    else

@@ -111,6 +111,8 @@ typedef struct spec_limits_cell
    int    fun_large_limit;
    int    order_medium_limit;
    int    order_large_limit;
+   int    num_of_lams_medium_limit;
+   int    num_of_lams_large_limit;
    int    num_of_defs_medium_limit;
    int    num_of_defs_large_limit;
    double perc_form_defs_medium_limit;
@@ -223,6 +225,8 @@ typedef struct spec_feature_cell
 #define FUN_MEDIUM_DEFAULT       360
 #define FUN_LARGE_DEFAULT        400
 
+#define NUM_LAMS_MEDIUM_DEFAULT  4 
+#define NUM_LAMS_LARGE_DEFAULT   16 
 #define ORDER_MEDIUM_DEFAULT     2 // second order is already medium
 #define ORDER_LARGE_DEFAULT      3 // third order is already high
 #define DEFS_MEDIUM_DEFAULT      8

@@ -45,10 +45,12 @@ typedef struct raw_spec_feature_cell
    int       func_size;
    long      conjecture_count;
    long      hypothesis_count;
-   bool      has_lambdas;
+   int       num_lambdas;
+   bool      has_choice_sym; // has a symobl in the signature of the type
+                             // that fits a monomorphized choice
    int       num_of_definitions; // number of formulas tagged with definition
    double    perc_of_form_defs; // percentage of which defines formulas
-   char      class[11];
+   char      class[12];
 }RawSpecFeatureCell, *RawSpecFeature_p;
 
 

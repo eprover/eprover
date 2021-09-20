@@ -22,6 +22,7 @@ Changes
 -----------------------------------------------------------------------*/
 
 #include "ccl_formulasets.h"
+#include "ccl_formulafunc.h"
 
 
 
@@ -489,7 +490,7 @@ long long FormulaSetStandardWeight(FormulaSet_p set)
        handle!=set->anchor;
        handle = handle->succ)
    {
-      res += WFormulaStandardWeight(handle);
+      res += FormulaQueryProp(handle, CPIsLambdaDef) ? 0 : WFormulaStandardWeight(handle);
    }
    return res;
 
@@ -606,12 +607,12 @@ long FormulaSetCollectFCode(FormulaSet_p set, FunCode f_code,
 void FormulaSetDefinitionStatistics(FormulaSet_p orig, FormulaSet_p arch, 
                                     TB_p bank, int* num_defs, 
                                     double* percentage_form_defs, 
-                                    bool* has_lams)
+                                    int* num_lams)
 {
    WFormula_p handle;
    int defs = 0;
    int form_defs = 0;
-   bool _has_lams = false;
+   int _num_lams = 0;
    Sig_p sig = bank->sig;
    FormulaSet_p sets[2] = {orig, arch};
 
@@ -622,7 +623,10 @@ void FormulaSetDefinitionStatistics(FormulaSet_p orig, FormulaSet_p arch,
           handle != set->anchor;
           handle = handle->succ)
       {
-         _has_lams = _has_lams || TermHasLambdaSubterm(handle->tformula);
+         if(FormulaHasNonTopLevelLambda(bank->sig, handle->tformula))
+         {
+            _num_lams++;
+         }
          if(FormulaQueryProp(handle, CPIsLambdaDef))
          {
             Term_p tform = handle->tformula;
@@ -656,7 +660,7 @@ void FormulaSetDefinitionStatistics(FormulaSet_p orig, FormulaSet_p arch,
    }
    *num_defs = defs;
    *percentage_form_defs = defs ? (((double)form_defs)/defs) : 0.0;
-   *has_lams = _has_lams;
+   *num_lams = _num_lams;
 }
 
 

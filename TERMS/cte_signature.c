@@ -2047,6 +2047,30 @@ void SigExitLetScope(Sig_p sig)
    PStackFree(scope);
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: SigHasChoiceSym()
+//
+//   Count number of symbols with a given arity. If predictates is
+//   true, count predicates, otherwise count function symbols.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+bool SigHasChoiceSym(Sig_p sig)
+{
+   FunCode i;
+
+   for(i=sig->internal_symbols+1; 
+       i<=sig->f_count && !IsChoiceType(SigGetType(sig, i)); 
+       i++)
+   {}
+   return i<=sig->f_count;
+}
+
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */

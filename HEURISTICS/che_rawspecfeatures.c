@@ -81,12 +81,13 @@ void RawSpecFeaturesCompute(RawSpecFeature_p features, ProofState_p state)
       SigCountAritySymbols(state->terms->sig, 0, true);
    features->fun_size  = SigCountSymbols(state->terms->sig, false)-
       SigCountAritySymbols(state->terms->sig, 0, false);
+   features->has_choice_sym = SigHasChoiceSym(state->terms->sig);
 
    FormulaSetDefinitionStatistics(state->f_axioms, state->f_ax_archive,
                                   state->terms,
                                   &(features->num_of_definitions), 
                                   &(features->perc_of_form_defs),
-                                  &(features->has_lambdas));
+                                  &(features->num_lambdas));
    features->class[0] = '\0';
 }
 #define ADJUST_FOR_HO(limit, scale) (limit) / ((problemType == PROBLEM_HO) ? (scale) : 1)
@@ -140,7 +141,9 @@ void RawSpecFeaturesClassify(RawSpecFeature_p features, SpecLimits_p limits,
                 limits->num_of_defs_medium_limit, limits->num_of_defs_large_limit, 1, 1);
    RAW_CLASSIFY(8, features->perc_of_form_defs,
                 limits->perc_form_defs_medium_limit, limits->perc_form_defs_large_limit, 1, 1);
-   features->class[9] = features->has_lambdas ? 'B' : 'N';
+   RAW_CLASSIFY(9, features->num_lambdas,
+                limits->num_of_lams_medium_limit, limits->num_of_lams_large_limit, 1, 1);
+   features->class[10] = features->has_choice_sym ? 'C' : 'N';
    if(pattern)
    {
       char* handle;
@@ -153,7 +156,7 @@ void RawSpecFeaturesClassify(RawSpecFeature_p features, SpecLimits_p limits,
          }
       }
    }
-   features->class[10] = '\0';
+   features->class[11] = '\0';
 }
 
 
@@ -194,7 +197,9 @@ void RawSpecFeaturesParse(Scanner_p in, RawSpecFeature_p features)
    AcceptInpTok(in, Comma);
    features->perc_of_form_defs   = ParseFloat(in);
    AcceptInpTok(in, Comma);
-   features->has_lambdas   = ParseBool(in);
+   features->num_lambdas   = ParseInt(in);
+   AcceptInpTok(in, Comma);
+   features->has_choice_sym   = ParseBool(in);
 
    AcceptInpTok(in, CloseBracket);
    AcceptInpTok(in, Colon);
@@ -222,7 +227,7 @@ void RawSpecFeaturesParse(Scanner_p in, RawSpecFeature_p features)
 
 void RawSpecFeaturesPrint(FILE* out, RawSpecFeature_p features)
 {
-      fprintf(out, "(%7ld, %7lld, %6d, %6d, %6d, %6d, %6d, %6d, %.3f, %s ) : %s",
+      fprintf(out, "(%7ld, %7lld, %6d, %6d, %6d, %6d, %6d, %6d, %.3f, %d ) : %s",
               features->sentence_no,
               features->term_size,
               features->sig_size,
@@ -232,7 +237,7 @@ void RawSpecFeaturesPrint(FILE* out, RawSpecFeature_p features)
               features->func_size,
               features->num_of_definitions,
               features->perc_of_form_defs,
-              features->has_lambdas ? "true" : "false",
+              features->num_lambdas,
               features->class);
 }
 

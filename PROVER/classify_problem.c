@@ -1044,9 +1044,9 @@ CLState_p process_options(int argc, char* argv[], SpecLimits_p limits)
        break;
       case OPT_RAW_MASK:
             raw_mask = arg;
-            if(strlen(raw_mask)!=10)
+            if(strlen(raw_mask)!=11)
             {
-               Error("Option -c (--class-mask) requires 7-letter "
+               Error("Option -c (--class-mask) requires 11-letter "
                      "string as an argument", USAGE_ERROR);
             }
             break;

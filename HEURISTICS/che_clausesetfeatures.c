@@ -108,6 +108,8 @@ SpecLimits_p SpecLimitsAlloc(void)
    handle->num_of_defs_large_limit = DEFS_LARGE_DEFAULT;
    handle->perc_form_defs_medium_limit = DEFS_PERC_MEDIUM_DEFAULT;
    handle->perc_form_defs_large_limit = DEFS_PERC_MEDIUM_DEFAULT;
+   handle->num_of_lams_medium_limit = NUM_LAMS_MEDIUM_DEFAULT;
+   handle->num_of_lams_large_limit = NUM_LAMS_LARGE_DEFAULT;
 
 
    return handle;
@@ -1751,6 +1753,8 @@ SpecLimits_p CreateDefaultSpecLimits(void)
    limits->num_of_defs_large_limit = DEFS_LARGE_DEFAULT;
    limits->perc_form_defs_medium_limit = DEFS_PERC_MEDIUM_DEFAULT;
    limits->perc_form_defs_large_limit = DEFS_PERC_LARGE_DEFAULT;
+   limits->num_of_lams_medium_limit = NUM_LAMS_MEDIUM_DEFAULT;
+   limits->num_of_lams_large_limit = NUM_LAMS_LARGE_DEFAULT;
 
    return limits;
 }
