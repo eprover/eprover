@@ -28,14 +28,41 @@ void print_config_name(FILE* out, const char* config)
   DStrCellFree(str);
 }
 
+int str_distance(const char* a, const char* b)
+{
+  int dist = 0;
+  while(*a && *b)
+  {
+    dist += *a == *b ? 0 : 1;
+    a++;
+    b++;
+  }
+  dist += strlen(a);
+  dist += strlen(b);
+  return dist;
+}
+
 const char* class_to_heuristic(const char* problem_category, const char** categories,
                         const char** configurations, int num_categories, 
                         HeuristicParms_p params)
 {
   int i=0;
-  for(; i<num_categories && strcmp(categories[i], problem_category); i++)
-      {}
-  const char* configuration = i == num_categories ? best_conf : configurations[i];
+  int min_idx = -1;
+  int min_dist = INT_MAX;
+  for(; i<num_categories; i++)
+  {
+    int dist = str_distance(categories[i], problem_category);
+    if(dist == 0)
+    {
+      break;
+    }
+    if (dist < min_dist)
+    {
+      min_dist = dist;  
+      min_idx = i;
+    }
+  }
+  const char* configuration =  configurations[i != num_categories ? i : min_idx];
   Scanner_p in = CreateScanner(StreamTypeInternalString, (char*)configuration, true, NULL, true);
   HeuristicParmsParseInto(in, params, true); 
   DestroyScanner(in);

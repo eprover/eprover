@@ -550,7 +550,6 @@ int main(int argc, char* argv[])
                                             h_parms->eqdef_maxclauses);
       VERBOUT("Clausal preprocessing complete.\n");
    }
-   //HeuristicParmsPrint(stdout, h_parms);
 
    proofcontrol = ProofControlAlloc();
    ProofControlInit(proofstate, proofcontrol, h_parms,
