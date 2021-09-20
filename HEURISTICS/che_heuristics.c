@@ -72,7 +72,10 @@ void finalize_auto_parms(char* modename, char* hname,
                          HeuristicParms_p parms,
                          SpecFeature_p spec)
 {
-
+   if(problemType == PROBLEM_HO)
+   {
+      control->heuristic_parms = *parms;
+   }
 
    if(OutputLevel+1 && problemType == PROBLEM_FO)
    {

@@ -19,6 +19,15 @@ Changes
 
 #include "autoschedule_gen.vars"
 
+void print_config_name(FILE* out, const char* config)
+{
+  DStr_p str = DStrAlloc();
+  assert(strchr(config, '\n'));
+  DStrAppendBuffer(str, (char*)config, strchr(config, '\n') - config);
+  fprintf(out, "# config: %s\n", DStrView(str));
+  DStrCellFree(str);
+}
+
 const char* class_to_heuristic(const char* problem_category, const char** categories,
                         const char** configurations, int num_categories, 
                         HeuristicParms_p params)
@@ -35,10 +44,14 @@ const char* class_to_heuristic(const char* problem_category, const char** catego
 
 void HeuristicForRawCategory(const char* raw_category, HeuristicParms_p parms)
 {
-  class_to_heuristic(raw_category, raw_categories, raw_confs, num_raw_categories, parms);
+  const char* config = class_to_heuristic(raw_category, raw_categories, raw_confs, num_raw_categories, parms);
+  fprintf(stderr, "# raw_category: %s\n", raw_category);
+  print_config_name(stderr, config);
 }
 
 void HeuristicForCategory(const char* category, HeuristicParms_p parms)
 {
-  class_to_heuristic(category, categories, confs, num_categories, parms);
+  const char* config = class_to_heuristic(category, categories, confs, num_categories, parms);
+  fprintf(stderr, "# category: %s\n", category);
+  print_config_name(stderr, config);
 }
