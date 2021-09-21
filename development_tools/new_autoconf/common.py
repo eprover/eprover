@@ -1,12 +1,10 @@
 
-from development_tools.pylib_basics import uniq_unsorted
-
-
 def tuple_is_smaller(a, b):
   a,b = list(a[:3]),list(b[:3])
   a[2],b[2] = -a[2], -b[2] # smaller times are better
   return a < b #lexicographic comp
 
+from enum import Enum
 class ArchiveFormat(Enum):
   PROTOCOL_FORMAT = 'protocol'
   JOBINFO_FORMAT = 'jobinfo'

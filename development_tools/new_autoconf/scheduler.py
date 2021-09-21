@@ -261,12 +261,13 @@ def multi_schedule(num_confs, cats, confs, var_name):
 
     res[cat] = schedule
   
-  output_multi_schedule(res, num_confs, var_name, var_name+"_conf")
+  output_multi_schedule(res, num_confs, var_name, 
+                        var_name.replace('categories', 'confs'))
 
 def schedule_multiple(time_ratios, cats, raw_cats, confs):
   print_new_schedule_cell(time_ratios)
-  multi_schedule(len(time_ratios), cats, confs, "multischedule_categories")
   multi_schedule(len(time_ratios), raw_cats, confs, "multischedule_raw_categories")
+  multi_schedule(len(time_ratios), cats, confs, "multischedule_categories")
 
 
 def main():
