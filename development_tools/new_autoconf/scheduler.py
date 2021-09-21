@@ -87,7 +87,7 @@ def pop_best(confs, cats):
     for cat in cats:
       # the first time evaluate_category is called with all the
       # confs and this is going to be cached
-      cat_stat = conf.evaluate_category(cat, confs)
+      cat_stat = conf.evaluate_category(cat)
       stat = (stat[0].union(cat_stat[0]), stat[1] + cat_stat[1], 
               stat[2] + cat_stat[2], conf)
     from common import tuple_is_smaller
@@ -99,16 +99,16 @@ def pop_best(confs, cats):
 def cover_cats(conf, cats, others):
   covered = set()
   for cat in cats:
-    if (conf.evaluate_category(cat, others)[0] and
+    if (conf.evaluate_category(cat)[0] and
         cat.get_best_conf() == conf):
       print("conf({0}) = {1}".format(cat, conf.get_name()), file=stderr)
       covered.add(cat)
   return covered
 
-def schedule(cats, confs, take_general):
+def schedule_best_single(cats, confs, take_general):
   from collections import deque
   if take_general:
-    confs = deque(sorted(confs.values(), key=Configuration.stats))
+    confs = deque(sorted(confs.values(), key=Configuration.as_order_key, reverse=True))
   else:
     confs = set(confs.values())
   cats = set(cats.values())
@@ -116,7 +116,7 @@ def schedule(cats, confs, take_general):
   # precomputation of the timing data for all confs and cats
   for conf in confs:
     for cat in cats:
-      conf.evaluate_category(cat, confs)
+      conf.evaluate_category(cat)
 
   cat_to_confs = {}
 
@@ -162,12 +162,27 @@ def init_args():
                     type=bool, default=False,
                     help='when two configurations perform the same on the given category of'
                          'problems prefer the one that performs better overall')
+  parser.add_argument("--mutli-schedule", dest='multi_schedule', default=[], nargs='+', type=float,
+                    help='instead of a single autoconfiguration, create a schedule of confiurations;'
+                         ' a list of ratios of time limits (at least two elements) is'
+                         ' specified as the argument. For example if argument is [0.33, 0.33, 0.33] each '
+                         ' of the generated configurations will be run for a third of the time.')
   args = parser.parse_args()
+  if args.multi_schedule and len(args.multi_schedule) < 2:
+    parser.error("--multi-schedule requires at least two arguments")
+  
+  if args.multi_schedule and sum(args.multi_schedule) < 0.98:
+    parser.error("--multi-schedule arguments must sum up to (approximately) 1")
 
   return args
 
-def output(confs, category_to_confs, raw_category_to_conf):
-  best_conf = max(confs.values(), key=Configuration.stats)
+def print_str_list(var_name, str_list, type_modifier = "const_char*", array_modifier="[]"):
+    print('{1} {0}{2} = {{ '.format(var_name, type_modifier, array_modifier))
+    print(",\n".join(str_list))
+    print("};")
+
+def output_single(confs, category_to_confs, raw_category_to_conf):
+  best_conf = max(confs.values(), key=Configuration.as_order_key)
 
   print('const long  num_categories = {0};'.format(len(category_to_confs)))
   print('const long  num_raw_categories = {0};'.format(len(raw_category_to_conf)))
@@ -176,32 +191,94 @@ def output(confs, category_to_confs, raw_category_to_conf):
     return '"{0}"/*{1}*/'.format(conf.to_json(), conf.get_name())
 
   print('const char* best_conf = {0};'.format(conf_w_comment(best_conf)))
+
+  cat_keys, cat_vals = list(zip(*category_to_confs.items()))
+  print_str_list("categories", map(lambda x: '"{0}"'.format(x), cat_keys))
+  print_str_list("confs", map(conf_w_comment, cat_vals))
+
+  rcat_keys, rcat_vals = list(zip(*raw_category_to_confs.items()))
+  print_str_list("raw_categories", map(lambda x: '"{0}"'.format(x),rcat_keys))
+  print_str_list("raw_confs", map(conf_w_comment, rcat_vals))
+
+def print_new_schedule_cell(time_ratios):
+  print("const int num_schedules = {0};".format(len(time_ratios)))
+  print("ScheduleCell NEW_HO_SCHEDULE[] =\n{{");
+  for (i,ratio) in enumerate(time_ratios):
+    print('  {{ "NewAutoSched_{0}", NoOrdering, "Auto",  {.2f}, 0}},'.format(i, ratio))
+  print('{{NULL, NoOrdering, NULL, 0.0, 0}} ')
+  print('}};')
+
+def output_multi_schedule(cat_to_conf, sched_size, cat_name, conf_name):
+  cat_keys, conf_list = list(zip(*cat_to_conf.items()))
+  print_str_list(cat_name, cat_keys)
+  print_str_list(conf_name, '{{' + ",".join(['\"{0}\"'.format(c.to_json()) for c in conf_list]) + '}}',
+                 array_modifier='[][{0}]'.format(sched_size))
+
+def multi_schedule(num_confs, cats, confs, var_name):
+  assert(num_confs >= 2)
+  assert(len(confs) >= num_confs)
   
-  def print_str_list(var_name, str_list):
-    print('const char* {0}[] = {{ '.format(var_name))
-    print(",\n".join(str_list))
-    print("};")
+  #precomputation
+  for conf in confs:
+    for cat in cats:
+      conf.evaluate_category(cat)
+  
+  best_overall = max(confs.values(), key=Configuration.as_order_key)
 
-  print_str_list("categories", map(lambda x: '"{0}"'.format(x), 
-                                   category_to_confs.keys()))
-  print_str_list("confs", map(conf_w_comment, 
-                              category_to_confs.values()))
+  
+  res = {}
+  for cat in cats:
+    schedule = []
+    best_for_cat = cat.get_best_conf()
+    sched_size = 1
+    schedule.append(best_for_cat)
+    if best_for_cat != best_overall:
+      schedule.append(best_overall)
+      sched_size += 1
 
-  print_str_list("raw_categories", map(lambda x: '"{0}"'.format(x),
-                                       raw_category_to_conf.keys()))
-  print_str_list("raw_confs", map(conf_w_comment, 
-                                  raw_category_to_conf.values()))
+    remaining_probs = set(cat.get_problems())
+    for conf in schedule:
+      remaining_probs.difference(conf.get_solved_probs())
+    remaining_confs = set(confs).difference([best_for_cat, best_overall])
+      
+    while remaining_probs and sched_size!=num_confs:
+      best_conf = max(remaining_confs,
+                      key=lambda x: x.evaluate_for_probs(remaining_probs))
+      curr_res = best_conf.evaluate_for_probs(remaining_probs)
+      if curr_res[0] == 0:
+        #no problems can be solved by any of the remaining confs
+        remaining_probs = []
+      else:
+        schedule.append(best_conf)
+        remaining_probs.difference(best_conf.get_solved_probs())
+        sched_size += 1
+    
+    if sched_size!=num_confs:
+      schedule += list(sorted(remaining_confs, key=Configuration.as_order_key, 
+                              reverse=True))[:num_confs-sched_size]
+    
+    assert(len(schedule) == num_confs)
+
+    res[cat] = schedule
+  
+  output_multi_schedule(res, num_confs, var_name, var_name+"_conf")
+
+def schedule_multiple(time_ratios, cats, raw_cats, confs):
+  print_new_schedule_cell(time_ratios)
+  multi_schedule(len(time_ratios), cats, confs, "multischedule_categories")
+  multi_schedule(len(time_ratios), raw_cats, confs, "multischedule_raw_categories")
 
 
 def main():
   args = init_args()
   category_map, raw_category_map = parse_categories(args.category_root)
   configurations = parse_configurations(args.result_archives, args.arch_format, args.conf_root)
-  category_to_conf = schedule(category_map, configurations, args.prefer_general)
-  raw_category_to_conf = schedule(raw_category_map, configurations, args.prefer_general)
-  output(configurations, category_to_conf, raw_category_to_conf)
-
-
+  if not args.multi_schedule:
+    category_to_conf = schedule_best_single(category_map, configurations, args.prefer_general)
+    raw_category_to_conf = schedule_best_single(raw_category_map, configurations, args.prefer_general)
+    output_single(configurations, category_to_conf, raw_category_to_conf)
+  else:
+    schedule_multiple(args.multi_schedule, category_map, raw_category_map, configurations)
 
 if __name__ == '__main__':
   main()
