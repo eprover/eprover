@@ -86,9 +86,9 @@ class Configuration(object):
   #of other configurations without you doing anything
   def evaluate_category(self, category, num_other_confs=None):
     if category in self._memo_eval:
-      return self._memo_probs[category]   
+      return self._memo_eval[category]   
     
-    eval = self.evaluate_for_probs(category.get_probs(), num_other_confs)
+    eval = self.evaluate_for_probs(category.get_problems(), num_other_confs)
     self._memo_eval[category] = eval
     category.store_evaluation(eval, self)
     return eval
@@ -108,7 +108,7 @@ class Configuration(object):
       self._json = fd.read().replace("\n", "\\n").replace('"', '\\"')
 
   def to_json(self):
-    return self._json
+    return '#{0}\\n{1}'.format(self._name, self._json)
 
   def get_name(self):
     from pathlib import Path

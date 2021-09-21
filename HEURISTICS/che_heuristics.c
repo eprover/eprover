@@ -139,6 +139,11 @@ HCB_p HCBCreate(char* name, HCBARGUMENTS)
 
    assert(control->ocb);
 
+   if(strstr(name, "NewAutoSched_"))
+   {
+      return HCBAutoModeCreate(state,control,parms);
+   }
+
    for(i=0; HeuristicsTable[i].heuristic; i++)
    {
       if(strcmp(HeuristicsTable[i].name, name)==0)
@@ -243,7 +248,15 @@ HCB_p HCBAutoModeCreate(HCBARGUMENTS)
    {
       SpecFeaturesAddEval(spec, limits);
       char* result = SpecTypeString(spec, DEFAULT_MASK);
-      HeuristicForCategory(result, parms);
+      int attempt_idx = GetAttemptIdx(parms->heuristic_name);
+      if (attempt_idx == -1)
+      {
+         AutoHeuristicForCategory(result, parms);
+      }
+      else
+      {
+         ScheduleForCategory(result, attempt_idx, parms);
+      }
       res = parms->heuristic_def;
       FREE(result);
    }

@@ -81,16 +81,15 @@ def parse_configurations(archives, archive_format, json_root=None):
 
 
 def pop_best(confs, cats):
-  best_stat = (set(), -1, 0.0, None)
+  best_stat = (0, -1, 0.0, None)
   for conf in confs:
-    stat = (set(), 0, 0.0, conf)
+    stat = (0, 0, 0.0, conf)
     for cat in cats:
       # the first time evaluate_category is called with all the
       # confs and this is going to be cached
       cat_stat = conf.evaluate_category(cat)
-      stat = (stat[0].union(cat_stat[0]), stat[1] + cat_stat[1], 
+      stat = (stat[0] + cat_stat[0], stat[1] + cat_stat[1], 
               stat[2] + cat_stat[2], conf)
-    from common import tuple_is_smaller
     if tuple_is_smaller(best_stat, stat):
       best_stat = stat
   confs.remove(best_stat[3])
@@ -162,11 +161,12 @@ def init_args():
                     type=bool, default=False,
                     help='when two configurations perform the same on the given category of'
                          'problems prefer the one that performs better overall')
-  parser.add_argument("--mutli-schedule", dest='multi_schedule', default=[], nargs='+', type=float,
-                    help='instead of a single autoconfiguration, create a schedule of confiurations;'
-                         ' a list of ratios of time limits (at least two elements) is'
-                         ' specified as the argument. For example if argument is [0.33, 0.33, 0.33] each '
-                         ' of the generated configurations will be run for a third of the time.')
+  parser.add_argument("--multi-schedule", dest='multi_schedule', default=[], nargs='+', type=float,
+                      metavar='TIME_RATIO',
+                      help='instead of a single autoconfiguration, create a schedule of confiurations;'
+                           ' a list of ratios of time limits (at least two elements) is'
+                           ' specified as the argument. For example if argument is [0.33, 0.33, 0.33] each '
+                           ' of the generated configurations will be run for a third of the time.')
   args = parser.parse_args()
   if args.multi_schedule and len(args.multi_schedule) < 2:
     parser.error("--multi-schedule requires at least two arguments")
@@ -176,7 +176,7 @@ def init_args():
 
   return args
 
-def print_str_list(var_name, str_list, type_modifier = "const_char*", array_modifier="[]"):
+def print_str_list(var_name, str_list, type_modifier = "const char*", array_modifier="[]"):
     print('{1} {0}{2} = {{ '.format(var_name, type_modifier, array_modifier))
     print(",\n".join(str_list))
     print("};")
@@ -196,35 +196,36 @@ def output_single(confs, category_to_confs, raw_category_to_conf):
   print_str_list("categories", map(lambda x: '"{0}"'.format(x), cat_keys))
   print_str_list("confs", map(conf_w_comment, cat_vals))
 
-  rcat_keys, rcat_vals = list(zip(*raw_category_to_confs.items()))
+  rcat_keys, rcat_vals = list(zip(*raw_category_to_conf.items()))
   print_str_list("raw_categories", map(lambda x: '"{0}"'.format(x),rcat_keys))
   print_str_list("raw_confs", map(conf_w_comment, rcat_vals))
 
 def print_new_schedule_cell(time_ratios):
-  print("const int num_schedules = {0};".format(len(time_ratios)))
-  print("ScheduleCell NEW_HO_SCHEDULE[] =\n{{");
+  print("#define SCHEDULE_SIZE {0}".format(len(time_ratios)))
+  print("ScheduleCell NEW_HO_SCHEDULE[] =\n{");
   for (i,ratio) in enumerate(time_ratios):
-    print('  {{ "NewAutoSched_{0}", NoOrdering, "Auto",  {.2f}, 0}},'.format(i, ratio))
-  print('{{NULL, NoOrdering, NULL, 0.0, 0}} ')
-  print('}};')
+    print('  {{ "NewAutoSched_{0}", NoOrdering, "Auto",  {1:.2f}, 0}},'.format(i, ratio))
+  print('  {NULL, NoOrdering, NULL, 0.0, 0} ')
+  print('};')
 
 def output_multi_schedule(cat_to_conf, sched_size, cat_name, conf_name):
-  cat_keys, conf_list = list(zip(*cat_to_conf.items()))
-  print_str_list(cat_name, cat_keys)
-  print_str_list(conf_name, '{{' + ",".join(['\"{0}\"'.format(c.to_json()) for c in conf_list]) + '}}',
+  cat_keys, schedules = list(zip(*cat_to_conf.items()))
+  print_str_list(cat_name, map(lambda c: '"' + c.get_name() + '"', cat_keys))
+  print_str_list(conf_name, ['{' +  ",".join(['"' + c.to_json() + '"' for c in s]) + '}' for s in schedules],
                  array_modifier='[][{0}]'.format(sched_size))
 
 def multi_schedule(num_confs, cats, confs, var_name):
   assert(num_confs >= 2)
   assert(len(confs) >= num_confs)
+  cats = cats.values()
+  confs = confs.values()
   
   #precomputation
   for conf in confs:
     for cat in cats:
       conf.evaluate_category(cat)
   
-  best_overall = max(confs.values(), key=Configuration.as_order_key)
-
+  best_overall = max(confs, key=Configuration.as_order_key)
   
   res = {}
   for cat in cats:
@@ -251,6 +252,7 @@ def multi_schedule(num_confs, cats, confs, var_name):
       else:
         schedule.append(best_conf)
         remaining_probs.difference(best_conf.get_solved_probs())
+        remaining_confs.remove(best_conf)
         sched_size += 1
     
     if sched_size!=num_confs:
