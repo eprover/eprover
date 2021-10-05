@@ -423,6 +423,10 @@ int main(int argc, char* argv[])
    proofstate = parse_spec(state, parse_format,
                            error_on_empty, free_symb_prop,
                            &parsed_ax_no);
+   if(problemType == PROBLEM_HO && strategy_scheduling)
+   {
+      chosen_schedule = ho_schedule;
+   }
 
    if(syntax_only)
    {
@@ -431,7 +435,13 @@ int main(int argc, char* argv[])
       goto cleanup1;
    }
 
-   if(auto_conf && problemType == PROBLEM_HO)
+
+   if(strategy_scheduling)
+   {
+      ExecuteSchedule(chosen_schedule, h_parms, print_rusage);
+   }
+
+   if((auto_conf || strategy_scheduling) && problemType == PROBLEM_HO)
    {
       RawSpecFeatureCell features;
       SpecLimits_p limits = CreateDefaultSpecLimits(); 
@@ -439,7 +449,18 @@ int main(int argc, char* argv[])
 
       RawSpecFeaturesCompute(&features, proofstate);
       RawSpecFeaturesClassify(&features, limits, RAW_DEFAULT_MASK);
-      HeuristicForRawCategory(features.class, preproc_heuristics);
+      
+      int attempt_idx = GetAttemptIdx(h_parms->heuristic_name);
+      if (attempt_idx == -1)
+      {
+         assert(auto_conf);
+         AutoHeuristicForRawCategory(features.class, preproc_heuristics);
+      }
+      else
+      {
+         ScheduleForRawCategory(features.class, attempt_idx, preproc_heuristics);
+      }
+      
 
       h_parms->lift_lambdas = preproc_heuristics->lift_lambdas;
       h_parms->lambda_to_forall = preproc_heuristics->lambda_to_forall;
@@ -467,11 +488,6 @@ int main(int argc, char* argv[])
    {
       FormulaSetAppEncode(stdout, proofstate->f_axioms);
       goto cleanup1;
-   }
-
-   if(strategy_scheduling)
-   {
-      ExecuteSchedule(chosen_schedule, h_parms, print_rusage);
    }
 
    FormulaSetDocInital(GlobalOut, OutputLevel, proofstate->f_axioms);

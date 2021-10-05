@@ -15,9 +15,12 @@ Changes
 
 -----------------------------------------------------------------------*/
 
-#include "che_hcb.h"
+#include "che_new_autoschedule.h"
 
 #include "autoschedule_gen.vars"
+#include "autoschedule_gen_multi.vars"
+
+ScheduleCell* ho_schedule = NEW_HO_SCHEDULE;
 
 void print_config_name(FILE* out, const char* config)
 {
@@ -69,16 +72,67 @@ const char* class_to_heuristic(const char* problem_category, const char** catego
   return configuration;
 }
 
-void HeuristicForRawCategory(const char* raw_category, HeuristicParms_p parms)
+const char* class_to_schedule(const char* problem_category, const char** categories,
+                        const char* configurations[][SCHEDULE_SIZE], int num_categories, 
+                        int attempt_idx, HeuristicParms_p params)
+{
+  int i=0;
+  int min_idx = -1;
+  int min_dist = INT_MAX;
+  for(; i<num_categories; i++)
+  {
+    int dist = str_distance(categories[i], problem_category);
+    if(dist == 0)
+    {
+      break;
+    }
+    if (dist < min_dist)
+    {
+      min_dist = dist;  
+      min_idx = i;
+    }
+  }
+  const char* conf =  configurations[i != num_categories ? i : min_idx][attempt_idx];
+  assert(attempt_idx < SCHEDULE_SIZE);
+  Scanner_p in = CreateScanner(StreamTypeInternalString, (char*)conf, true, NULL, true);
+  HeuristicParmsParseInto(in, params, true); 
+  DestroyScanner(in);
+  return conf;
+}
+
+void AutoHeuristicForRawCategory(const char* raw_category, HeuristicParms_p parms)
 {
   const char* config = class_to_heuristic(raw_category, raw_categories, raw_confs, num_raw_categories, parms);
   fprintf(stderr, "# raw_category: %s\n", raw_category);
   print_config_name(stderr, config);
 }
 
-void HeuristicForCategory(const char* category, HeuristicParms_p parms)
+void ScheduleForRawCategory(const char* raw_category, int attempt_idx, HeuristicParms_p parms)
+{
+  const char* config = class_to_schedule(raw_category, multischedule_raw_categories, multischedule_raw_confs, 
+                                         num_raw_categories, attempt_idx, parms);
+  fprintf(stderr, "# raw_category(%d): %s\n", attempt_idx, raw_category);
+  print_config_name(stderr, config);
+}
+
+void AutoHeuristicForCategory(const char* category, HeuristicParms_p parms)
 {
   const char* config = class_to_heuristic(category, categories, confs, num_categories, parms);
   fprintf(stderr, "# category: %s\n", category);
   print_config_name(stderr, config);
 }
+
+void ScheduleForCategory(const char* category, int attempt_idx, HeuristicParms_p parms)
+{
+  const char* config = class_to_schedule(category, multischedule_categories, multischedule_confs, 
+                                         num_categories, attempt_idx, parms);
+  fprintf(stderr, "# category(%d): %s\n", attempt_idx, category);
+  print_config_name(stderr, config);
+}
+
+int GetAttemptIdx(const char* strategy_name)
+{
+  char* pref = "NewAutoSched_";
+  return strstr(strategy_name, pref) ? atoi(strategy_name + strlen(pref)) : -1;
+}
+
