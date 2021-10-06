@@ -583,6 +583,54 @@ void TermPrintArgList(FILE* out, Term_p *args, int arity, Sig_p sig,
 
 /*-----------------------------------------------------------------------
 //
+// Function: TermPrintSimple()
+//
+//   Print a FO term without giving any special semantics to 
+//   symbols -- basically prints the serialized syntax tree.
+//
+// Global Variables: TermPrintLists
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+void TermPrintSimple(FILE* out, Term_p term, Sig_p sig)
+{
+   assert(term);
+   assert(sig||TermIsVar(term));
+   // no need to change derefs here -- FOL
+
+   if(TermIsVar(term))
+   {
+      VarPrint(out, term->f_code);
+   }
+   else
+   {
+      fputs(SigFindName(sig, term->f_code), out);
+      if(!TermIsConst(term))
+      {
+         assert(term->args);
+         int i;
+
+         assert(term->arity>=1);
+         putc('(', out);
+
+         TermPrintSimple(out, term->args[0], sig);
+
+         for(i=1; i<term->arity; i++)
+         {
+            putc(',', out);
+            /* putc(' ', out); */
+            TermPrintSimple(out, term->args[i], sig);
+         }
+         putc(')', out);
+      }
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: TermParseOperator()
 //
 //   Parse an operator (i.e. an optional $, followed by an

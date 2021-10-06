@@ -262,13 +262,13 @@ void SigInsertInternalCodes(Sig_p sig)
    f_code =
 #endif
    SigInsertId(sig, "$ite", 3, true);
-   SigSetPolymorphic(sig, SIG_ITE_CODE, true);
+   // SigSetPolymorphic(sig, SIG_ITE_CODE, true);
    assert(f_code == SIG_ITE_CODE); //for future code changes
 #ifndef NDEBUG
    f_code =
 #endif
    SigInsertId(sig, "$let", 3, true);
-   SigSetPolymorphic(sig, SIG_LET_CODE, true);
+   // SigSetPolymorphic(sig, SIG_LET_CODE, true);
    assert(f_code == SIG_LET_CODE); //for future code changes
 
    Type_p* args = TypeArgArrayAlloc(2);

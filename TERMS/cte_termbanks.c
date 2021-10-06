@@ -376,8 +376,7 @@ static Term_p parse_let_sym_def(Scanner_p in, TB_p bank, PStack_p type_decls)
       AcceptInpTok(in, Colon);
       AcceptInpTok(in, EqualSign);
 
-      Term_p rhs = TypeIsPredicate(type) ?
-                     TFormulaTSTPParse(in, bank) : TBTermParse(in, bank);
+      Term_p rhs = TFormulaTSTPParse(in, bank);
       Term_p lhs = TermTopAlloc(id, arity);
       for(int i=0; i<arity; i++)
       {
@@ -1616,6 +1615,119 @@ Term_p TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop)
 
 /*-----------------------------------------------------------------------
 //
+// Function: TBTermParseSimple()
+//
+//   Parses terms without giving any special semantics to symbols.
+//   Input variant of TermPrintSimple().
+//
+// Global Variables: -
+//
+// Side Effects    : Input, memory operations, changes termbank.
+//
+/----------------------------------------------------------------------*/
+
+Term_p TBTermParseSimple(Scanner_p in, TB_p bank)
+{
+   Term_p        handle;
+   DStr_p        id;
+   FuncSymbType  id_type;
+   DStr_p        source_name, errpos;
+   Type_p        type;
+   long          line, column;
+   StreamType    type_stream;
+
+   source_name = DStrGetRef(AktToken(in)->source);
+   type_stream = AktToken(in)->stream_type;
+   line = AktToken(in)->line;
+   column = AktToken(in)->column;
+
+   /* Normal term stuff, bloated because of the nonsensical SETHEO
+      syntax */
+   id = DStrAlloc();
+
+   if((id_type=TermParseOperator(in, id))==FSIdentVar)
+   {
+      /* A variable may be annotated with a sort */
+      if(TestInpTok(in, Colon))
+      {
+         AcceptInpTok(in, Colon);
+         type = TypeBankParseType(in, bank->sig->type_bank);
+         handle = VarBankExtNameAssertAllocSort(bank->vars,
+                                                DStrView(id), type);
+      }
+      else
+      {
+         handle = VarBankExtNameAssertAlloc(bank->vars, DStrView(id));
+      }
+   }
+   else
+   {
+      if(TestInpTok(in, OpenBracket))
+      {
+         AcceptInpTok(in, OpenBracket);
+         if(TestInpTok(in, CloseBracket))
+         {
+            NextToken(in);
+            handle = TermDefaultCellAlloc();
+         }
+         else
+         {
+            PStack_p args = PStackAlloc();
+            int i=0;
+
+            PStackPushP(args, TBTermParseSimple(in, bank));
+            i++;
+
+            while(TestInpTok(in, Comma))
+            {
+               NextToken(in);
+               PStackPushP(args, TBTermParseSimple(in, bank));
+               i++;
+            }
+
+            AcceptInpTok(in, CloseBracket);
+            int arity = PStackGetSP(args);
+            handle = TermDefaultCellArityAlloc(arity);
+
+            for(i=0;i<arity;i++)
+            {
+               handle->args[i] = PStackElementP(args,i);
+            }
+
+            PStackFree(args);
+         }
+      }
+      else
+      {
+         handle = TermDefaultCellAlloc();
+         handle->arity = 0;
+      }
+      handle->f_code = TermSigInsert(bank->sig, DStrView(id),
+                                       handle->arity, false, id_type);
+      if(!handle->f_code)
+      {
+         errpos = DStrAlloc();
+         DStrAppendStr(errpos, PosRep(type_stream, source_name, line, column));
+         DStrAppendStr(errpos, DStrView(id));
+         DStrAppendStr(errpos, " used with arity ");
+         DStrAppendInt(errpos, (long)handle->arity);
+         DStrAppendStr(errpos, ", but registered with arity ");
+         DStrAppendInt(errpos,
+                        (long)(bank->sig)->
+                        f_info[SigFindFCode(bank->sig, DStrView(id))].arity);
+         Error(DStrView(errpos), SYNTAX_ERROR);
+         DStrFree(errpos);
+      }
+      handle = tb_termtop_insert(bank, handle);
+   }
+   DStrFree(id);
+   DStrReleaseRef(source_name);
+
+   return handle;
+}
+
+/*-----------------------------------------------------------------------
+//
 // Function: TBRefSetProp()
 //
 //   Make ref point to a term of the same structure as *ref, but with
@@ -2118,7 +2230,7 @@ Term_p ParseLet(Scanner_p in, TB_p bank)
    AcceptInpTok(in, Comma);
 
    SigEnterLetScope(bank->sig, type_decls);
-   Term_p body = TFormulaTPTPParse(in, bank);
+   Term_p body = TFormulaTSTPParse(in, bank);
    SigExitLetScope(bank->sig);
 
    Term_p let_term = make_let(bank, definitions, body);

@@ -860,8 +860,7 @@ static void tformula_collect_freevars(TB_p bank, TFormula_p form, PTree_p *vars)
 Term_p EncodePredicateAsEqn(TB_p bank, TFormula_p f)
 {
    Sig_p sig = bank->sig;
-   if(problemType == PROBLEM_HO &&
-      (f->f_code > sig->internal_symbols ||
+   if((f->f_code > sig->internal_symbols ||
        f->f_code == SIG_TRUE_CODE ||
        f->f_code == SIG_FALSE_CODE ||
        f->f_code == SIG_ITE_CODE ||
