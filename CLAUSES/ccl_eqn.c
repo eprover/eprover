@@ -557,10 +557,17 @@ bool EqnParseInfix(Scanner_p in, TB_p bank, Term_p *lref, Term_p *rref)
             DStrAppendStr(err, " interpreted both as function and predicate (check parentheses).");
             AktTokenError(in, DStrView(err), SYNTAX_ERROR);
          }
-         rterm = bank->true_term; /* Non-Equational literal */
-         if(lterm->f_code > bank->sig->internal_symbols)
+         if(TypeIsBool(lterm->type)) // can be special symbol like $ite and $let
          {
-            TypeDeclareIsPredicate(bank->sig, lterm);
+            rterm = bank->true_term; /* Non-Equational literal */
+            if(lterm->f_code > bank->sig->internal_symbols)
+            {
+               TypeDeclareIsPredicate(bank->sig, lterm);
+            }
+         }
+         else
+         {
+            rterm = NULL;
          }
       }
    }

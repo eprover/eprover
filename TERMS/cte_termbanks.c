@@ -2168,7 +2168,7 @@ Term_p ParseIte(Scanner_p in, TB_p bank)
    res->args[2] = if_false;
 
    TermAssertSameSort(bank->sig, cond, bank->true_term);
-   TermAssertSameSort(bank->sig, if_false, if_true);
+   TermAssertSameSort(bank->sig, if_true, if_false);
 
    res->type = if_true->type;
    return TBTermTopInsert(bank, res);
