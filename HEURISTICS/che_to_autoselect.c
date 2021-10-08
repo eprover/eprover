@@ -956,12 +956,12 @@ OCB_p  TOCreateOrdering(ProofState_p state, OrderParms_p params,
       params->to_weight_gen, params->to_prec_gen,
       params->to_const_weight); */
 
-#ifdef ENABLE_LFHO
-   if(problemType == PROBLEM_HO)
-   {
-      params->ordertype = KBO6;
-   }
-#endif
+// #ifdef ENABLE_LFHO
+//    if(problemType == PROBLEM_HO)
+//    {
+//       params->ordertype = KBO6;
+//    }
+// #endif
 
    switch(params->ordertype)
    {
