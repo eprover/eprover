@@ -97,6 +97,7 @@ typedef enum
    TPHasEtaExpandableSubterm = 1<<25,   /* Term has a subterm which can be a target of eta-expansion */
    TPHasDBSubterm     = 1<<26,    /* Term has a subterm which is a de Bruijn variable */
    TPHasNonPatternVar = 1<<27,    /* Term has an applied variable which is not a pattern*/
+   TPHasAppVar = 1<<28,    /* Term has an applied variable*/
 }TermProperties;
 
 
@@ -252,6 +253,7 @@ typedef Term_p (*TermMapper_p)(void*, Term_p);
 #define TermHasLambdaSubterm(term) (QueryProp((term), (TPHasLambdaSubterm)))
 #define TermHasEtaExpandableSubterm(term) (QueryProp((term), (TPHasEtaExpandableSubterm)))
 #define TermHasDBSubterm(term) (QueryProp((term), (TPHasDBSubterm)))
+#define TermHasAppVar(term) (QueryProp((term), (TPHasAppVar)))
 // does a term have a feature that does not belong to LFHOL?
 #define LFHOL_UNSUPPORTED(t) (TermHasLambdaSubterm(t) || TermHasDBSubterm(t))
 #define TermIsPattern(term) (!(QueryProp((term), (TPHasNonPatternVar))))
@@ -275,6 +277,7 @@ typedef Term_p (*TermMapper_p)(void*, Term_p);
 #define LFHOL_UNSUPPORTED(t) (false)
 #define TermIsPattern(term) (true) // every fo subterm is a pattern
 #define TermIsNonFOPattern(term) (false) // every fo subterm is a pattern
+#define TermHasAppVar(term) (false)
 #endif
 #define TermIsTopLevelFreeVar(term) (TermIsFreeVar(term) || TermIsAppliedFreeVar(term))
 #define TermIsTopLevelDBVar(term) (TermIsDBVar(term) || TermIsAppliedDBVar(term))

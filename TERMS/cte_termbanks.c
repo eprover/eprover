@@ -203,6 +203,7 @@ static Term_p tb_termtop_insert(TB_p bank, Term_p t)
             TermCellSetProp(t, TermCellGiveProps(t->args[i], TPHasEtaExpandableSubterm));
          }
          TermCellSetProp(t, TermCellGiveProps(t->args[i], TPHasNonPatternVar));
+         TermCellSetProp(t, TermCellGiveProps(t->args[i], TPHasAppVar));
          if(TermIsFreeVar(t->args[i]))
          {
             t->v_count += 1;
@@ -223,6 +224,7 @@ static Term_p tb_termtop_insert(TB_p bank, Term_p t)
       }
       if(TermIsAppliedFreeVar(t))
       {
+         TermCellSetProp(t, TPHasAppVar);
          // counting applied pattern free var as a single var.
          if(NormalizePatternAppVar(bank, t))
          {
