@@ -289,7 +289,7 @@ TFormula_p lift_lets(TB_p terms, TFormula_p t, PStack_p fresh_defs)
             new = flat;
          }
          new = TBTermTopInsert(terms, new);
-         
+
       }
       else
       {
@@ -860,7 +860,7 @@ TFormula_p do_ite_unroll(TFormula_p form, TB_p terms)
                             TBTermTopInsert(terms, true_part),
                             TBTermTopInsert(terms, false_part));
 
-      form = do_ite_unroll(TermMap(terms, unrolled, flatten_apps_driver), 
+      form = do_ite_unroll(TermMap(terms, unrolled, flatten_apps_driver),
                            terms);
    }
    else if(TFormulaIsLiteral(terms->sig, form))
