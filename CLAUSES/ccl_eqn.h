@@ -302,6 +302,8 @@ double  EqnWeight(Eqn_p eq, double max_multiplier, long vweight, long
 double  EqnDAGWeight(Eqn_p eq, double uniqmax_multiplier,
                      double max_multiplier, long vweight, long fweight,
                      long dup_weight, bool new_eqn, bool new_terms);
+double  EqnDAGWeight2(Eqn_p eq, double maxw_multiplier,
+                      long vweight, long fweight, long dup_weight);
 
 #define EqnStandardWeight(eqn)             \
    (TermStandardWeight((eqn)->lterm)+      \

@@ -88,7 +88,7 @@ Version 2.0 -> 2.1 Maharani Hills
 
 - Added type output for CNFed TFFs
 - Added tcf sublanguage for clause-form TFFs
-- Combined consequtive applications of the same quantifier into a
+- Combined consecutive applications of the same quantifier into a
   single quantifier
 - Improved stability and performance on TFF problems
 - Changed internal workflow of unprocessed clauses so that they can be
