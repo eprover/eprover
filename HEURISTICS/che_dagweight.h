@@ -61,7 +61,7 @@ typedef struct dagweightparamcell
 
 
 /* Simplified with respect to DAG, but allowing for different weights
- * for maximal terms */
+ * for maximal terms. Also reused for Twee-style RDAGWeight2. */
 
 typedef struct RDAGWeightparamcell
 {
@@ -123,6 +123,20 @@ WFCB_p RDAGWeightParse(Scanner_p in, OCB_p ocb, ProofState_p state);
 double RDAGWeightCompute(void* data, Clause_p clause);
 
 void RDAGWeightExit(void* data);
+
+
+WFCB_p RDAGWeight2Init(ClausePrioFun prio_fun,
+                       OCB_p ocb,
+                       long fweight,
+                       long vweight,
+                       long dup_weight,
+                       double max_term_multiplier,
+                       double pos_multiplier);
+
+WFCB_p RDAGWeight2Parse(Scanner_p in, OCB_p ocb, ProofState_p state);
+
+double RDAGWeight2Compute(void* data, Clause_p clause);
+
 
 
 

@@ -417,6 +417,7 @@ void TermPrintFO(FILE* out, Term_p term, Sig_p sig, DerefType deref)
    }
 }
 
+
 #define PRINT_AT
 
 #ifdef ENABLE_LFHO
@@ -579,6 +580,7 @@ void TermPrintArgList(FILE* out, Term_p *args, int arity, Sig_p sig,
    }
    putc(')', out);
 }
+
 
 
 /*-----------------------------------------------------------------------

@@ -2621,7 +2621,7 @@ double  EqnDAGWeight(Eqn_p eq, double uniqmax_multiplier,
 
    if(new_eqn)
    {
-      EqnTermDelProp(eq,  TPOpFlag);
+      EqnTermDelProp(eq, TPOpFlag);
    }
    else if(new_terms)
    {
@@ -2641,6 +2641,40 @@ double  EqnDAGWeight(Eqn_p eq, double uniqmax_multiplier,
       res = max_multiplier*(double)lweight;
       res += max_multiplier*(double)rweight;
    }
+   return res;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: EqnDAGWeight2()
+//
+//   Alternative DAG weight of an equation, inspired by Twee
+//   (Smallbone:CADE-202, but details via personal email): Terms are
+//   treated as individual DAGs, the bigger weight of both terms is
+//   boosted by a multiplier. Term order is not considered.
+//
+// Global Variables: -
+//
+// Side Effects    : Sets TPOpFlag
+//
+/----------------------------------------------------------------------*/
+
+double EqnDAGWeight2(Eqn_p eq, double maxw_multiplier,
+                     long vweight, long fweight, long dup_weight)
+{
+   double res;
+   long lweight, rweight;
+
+   lweight = TermDAGWeight(eq->lterm, fweight, vweight, dup_weight, true);
+   rweight = TermDAGWeight(eq->rterm, fweight, vweight, dup_weight, true);
+   //printf("(%ld/%ld)\n", lweight, rweight);
+
+   if(rweight > lweight)
+   {
+      SWAP(lweight, rweight);
+   }
+   res = maxw_multiplier*lweight+rweight;
+
    return res;
 }
 

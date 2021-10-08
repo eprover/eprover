@@ -65,6 +65,7 @@ void TermPrintDbgHO(FILE* out, Term_p term, Sig_p sig, DerefType deref);
 #endif
 void TermPrintSimple(FILE* out, Term_p term, Sig_p sig);
 void   TermPrintArgList(FILE* out, Term_p *args, int arity, Sig_p sig, DerefType deref);
+void   TermPrintArgListRaw(FILE* out, Term_p *args, int arity, Sig_p sig, DerefType deref);
 void   TermFOOLPrint(FILE* out, Sig_p sig, Term_p form);
 FuncSymbType TermParseOperator(Scanner_p in, DStr_p id);
 FunCode       TermSigInsert(Sig_p sig, const char* name, int arity, bool
