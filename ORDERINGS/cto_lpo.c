@@ -903,10 +903,11 @@ bool LPO4Greater(OCB_p ocb, Term_p s, Term_p t,
 CompareResult LPO4Compare(OCB_p ocb, Term_p s, Term_p t,
                           DerefType deref_s, DerefType deref_t)
 {
-   assert(problemType != PROBLEM_HO); // no need to change derefs
    CompareResult res;
 
    /* printf("LPO4Compare()...\n"); */
+   adjust_ho_deref(&s, &deref_s);
+   adjust_ho_deref(&t, &deref_t);
 
    if(TermStructEqualDeref(s, t, deref_s, deref_t))
    {

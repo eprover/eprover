@@ -2434,6 +2434,38 @@ long ClauseSetCountConjectures(ClauseSet_p set, long* hypos)
    return ret;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseConjectureOrder()
+//
+//   Return the maximal order of the symbols that appear in the conjecture.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+int ClauseConjectureOrder(ClauseSet_p set)
+{
+   int ord = 0;
+   Clause_p handle;
+
+   for(handle = set->anchor->succ;
+       handle != set->anchor;
+       handle = handle->succ)
+   {
+      for(Eqn_p lit = handle->literals; lit; lit = lit->next)
+      {
+         Sig_p sig = lit->bank->sig;
+         ord = MAX(ord, MAX(TermComputeOrder(sig, lit->lterm),
+                            TermComputeOrder(sig, lit->rterm)));
+      }
+
+   }
+   return ord;
+}
+
 
 /*-----------------------------------------------------------------------
 //

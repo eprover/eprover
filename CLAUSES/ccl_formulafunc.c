@@ -2499,6 +2499,45 @@ bool FormulaHasNonTopLevelLambda(Sig_p sig, TFormula_p form)
    return res;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: FormulaHasAppVarLit()
+//
+//   Does formula have a literal that is an applied variable?
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+bool FormulaHasAppVarLit(Sig_p sig, TFormula_p form)
+{
+   PStack_p stack = PStackAlloc();
+   PStackPushP(stack, form);
+   bool res = false;
+   
+   while(!PStackEmpty(stack) && !res)
+   {
+      TFormula_p form = PStackPopP(stack);
+      if(TFormulaIsLiteral(sig, form))
+      {
+         res = TermIsAppliedFreeVar(form->args[0]) 
+               || TermIsAppliedFreeVar(form->args[1]);
+      }
+      else if(form->f_code > 0 && SigIsLogicalSymbol(sig, form->f_code))
+      {
+         for(int i=0; i<form->arity; i++)
+         {
+            PStackPushP(stack, form->args[i]);
+         }
+      }
+   }
+
+   PStackFree(stack);
+   return res;
+}
+
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/

@@ -3068,6 +3068,48 @@ Term_p TermApplyArg(TypeBank_p tb, Term_p s, Term_p arg)
    return s_arg;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: TermComputeOrder()
+//
+//   Computes the maximal order of the symbols that appear in the term.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+int TermComputeOrder(Sig_p sig, Term_p term)
+{
+   PStack_p subterms = PStackAlloc();
+   PStackPushP(subterms, term);
+   int ord = VAR_ORDER(term->type);
+
+   while(!PStackEmpty(subterms))
+   {
+      Term_p subterm = PStackPopP(subterms);
+      if(TermIsFreeVar(subterm))
+      {
+         ord = MAX(ord, VAR_ORDER(subterm->type));
+      }
+      else if(!TermIsLambda(subterm) && !TermIsPhonyApp(subterm))
+      {
+         Type_p ty = 
+            TermIsDBVar(subterm) ? subterm->type : SigGetType(sig, subterm->f_code);
+         ord = MAX(ord, TypeGetOrder(ty));
+      }
+
+      for(int i=TermIsLambda(subterm) ? 1 : 0; i<subterm->arity; i++)
+      {
+         PStackPushP(subterms, subterm->args[i]);
+      }
+   }
+
+   PStackFree(subterms);
+   return ord;
+}
+
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/

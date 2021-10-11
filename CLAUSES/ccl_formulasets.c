@@ -532,6 +532,35 @@ long FormulaSetCountConjectures(FormulaSet_p set, long* hypos)
 
 /*-----------------------------------------------------------------------
 //
+// Function: FormulaSetCountConjectures()
+//
+//   Return the maximal order of the symbols that appear in the conjecture.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+int FormulaConjectureOrder(FormulaSet_p set)
+{
+   int ord = 0;
+   WFormula_p handle;
+
+   for(handle = set->anchor->succ;
+       handle != set->anchor;
+       handle = handle->succ)
+   {
+      if(FormulaIsConjecture(handle) || FormulaIsHypothesis(handle))
+      {
+         ord = MAX(ord, TermComputeOrder(handle->terms->sig, handle->tformula));
+      }
+   }
+   return ord;
+}
+
+/*-----------------------------------------------------------------------
+//
 // Function: FormulaStackCondSetType()
 //
 //   Set the type of all formulas on stack to type if that does not
@@ -607,7 +636,7 @@ long FormulaSetCollectFCode(FormulaSet_p set, FunCode f_code,
 void FormulaSetDefinitionStatistics(FormulaSet_p orig, FormulaSet_p arch, 
                                     TB_p bank, int* num_defs, 
                                     double* percentage_form_defs, 
-                                    int* num_lams)
+                                    int* num_lams, bool* has_app_var_lits)
 {
    WFormula_p handle;
    int defs = 0;
@@ -615,6 +644,7 @@ void FormulaSetDefinitionStatistics(FormulaSet_p orig, FormulaSet_p arch,
    int _num_lams = 0;
    Sig_p sig = bank->sig;
    FormulaSet_p sets[2] = {orig, arch};
+   bool _has_av_lits = false;
 
    for(int i=0; i<2; i++)
    {
@@ -623,6 +653,7 @@ void FormulaSetDefinitionStatistics(FormulaSet_p orig, FormulaSet_p arch,
           handle != set->anchor;
           handle = handle->succ)
       {
+         _has_av_lits = _has_av_lits || FormulaHasAppVarLit(bank->sig, handle->tformula);
          if(FormulaHasNonTopLevelLambda(bank->sig, handle->tformula))
          {
             _num_lams++;
@@ -661,6 +692,7 @@ void FormulaSetDefinitionStatistics(FormulaSet_p orig, FormulaSet_p arch,
    *num_defs = defs;
    *percentage_form_defs = defs ? (((double)form_defs)/defs) : 0.0;
    *num_lams = _num_lams;
+   *has_app_var_lits = _has_av_lits;
 }
 
 

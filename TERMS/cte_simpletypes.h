@@ -181,6 +181,8 @@ static inline int TypeGetOrder(Type_p t)
    return order;
 }
 
+#define VAR_ORDER(ty) (TypeGetOrder(ty) + (TypeIsArrow(ty) ? 1 : 0))
+
 #endif
 
 

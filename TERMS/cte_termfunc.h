@@ -176,6 +176,7 @@ Term_p TermCopyNormalizeVars(VarBank_p vars, Term_p term,
 long   TermDAGWeight(Term_p term, long fweight, long vweight,
                       long dup_weight, bool new_term);
 bool   TermIsDBClosed(Term_p term);
+int    TermComputeOrder(Sig_p sig, Term_p term);
 
 
 /*-----------------------------------------------------------------------

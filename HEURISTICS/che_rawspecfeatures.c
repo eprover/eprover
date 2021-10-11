@@ -59,6 +59,7 @@ Changes
 
 void RawSpecFeaturesCompute(RawSpecFeature_p features, ProofState_p state)
 {
+   Sig_p sig = state->terms->sig;
    features->sentence_no = ClauseSetCardinality(state->axioms)+
       ClauseSetCardinality(state->f_axioms);
    features->term_size   = ClauseSetStandardWeight(state->axioms)+
@@ -72,22 +73,30 @@ void RawSpecFeaturesCompute(RawSpecFeature_p features, ProofState_p state)
       FormulaSetCountConjectures(state->f_axioms,
                                  &(features->hypothesis_count));
 
-   features->sig_size    = SigCountSymbols(state->terms->sig, true)+
-                           SigCountSymbols(state->terms->sig,false);
+   features->sig_size    = SigCountSymbols(sig, true) + SigCountSymbols(sig,false);
 
-   features->predc_size = SigCountAritySymbols(state->terms->sig, 0, true);
-   features->func_size  = SigCountAritySymbols(state->terms->sig, 0, false);
-   features->pred_size = SigCountSymbols(state->terms->sig, true)-
-      SigCountAritySymbols(state->terms->sig, 0, true);
-   features->fun_size  = SigCountSymbols(state->terms->sig, false)-
-      SigCountAritySymbols(state->terms->sig, 0, false);
-   features->has_choice_sym = SigHasChoiceSym(state->terms->sig);
+   features->predc_size = SigCountAritySymbols(sig, 0, true);
+   features->func_size  = SigCountAritySymbols(sig, 0, false);
+   features->pred_size = SigCountSymbols(sig, true)-
+      SigCountAritySymbols(sig, 0, true);
+   features->fun_size  = SigCountSymbols(sig, false)-
+      SigCountAritySymbols(sig, 0, false);
+   features->has_choice_sym = SigHasChoiceSym(sig);
+
+   features->order = 1;
+   for(FunCode i = sig->internal_symbols+1; i<sig->f_count; i++)
+   {
+      features->order = MAX(features->order, TypeGetOrder(SigGetType(sig, i)));
+   }
+   features->conj_order = MAX(FormulaConjectureOrder(state->f_axioms),
+                              ClauseConjectureOrder(state->axioms));
 
    FormulaSetDefinitionStatistics(state->f_axioms, state->f_ax_archive,
                                   state->terms,
-                                  &(features->num_of_definitions), 
+                                  &(features->num_of_definitions),
                                   &(features->perc_of_form_defs),
-                                  &(features->num_lambdas));
+                                  &(features->num_lambdas),
+                                  &(features->app_var_lits));
    features->class[0] = '\0';
 }
 #define ADJUST_FOR_HO(limit, scale) (limit) / ((problemType == PROBLEM_HO) ? (scale) : 1)
@@ -144,6 +153,10 @@ void RawSpecFeaturesClassify(RawSpecFeature_p features, SpecLimits_p limits,
    RAW_CLASSIFY(9, features->num_lambdas,
                 limits->num_of_lams_medium_limit, limits->num_of_lams_large_limit, 1, 1);
    features->class[10] = features->has_choice_sym ? 'C' : 'N';
+   features->class[11] = features->order == 1 ? 'F' : (features->order == 2 ? 'S' : 'H');
+   features->class[12] = features->conj_order == 0 ? 'N' : 
+                           (features->conj_order == 1 ? 'F' : (features->conj_order == 2 ? 'S' : 'H'));
+   features->class[13] = features->app_var_lits ? 'A' : 'N';
    if(pattern)
    {
       char* handle;
@@ -156,7 +169,7 @@ void RawSpecFeaturesClassify(RawSpecFeature_p features, SpecLimits_p limits,
          }
       }
    }
-   features->class[11] = '\0';
+   features->class[14] = '\0';
 }
 
 
@@ -200,11 +213,17 @@ void RawSpecFeaturesParse(Scanner_p in, RawSpecFeature_p features)
    features->num_lambdas   = ParseInt(in);
    AcceptInpTok(in, Comma);
    features->has_choice_sym   = ParseBool(in);
+   AcceptInpTok(in, Comma);
+   features->order   = ParseInt(in);
+   AcceptInpTok(in, Comma);
+   features->conj_order = ParseInt(in);
+   AcceptInpTok(in, Comma);
+   features->app_var_lits   = ParseBool(in);
 
    AcceptInpTok(in, CloseBracket);
    AcceptInpTok(in, Colon);
    class = ParsePlainFilename(in);
-   if(strlen(class) != 10)
+   if(strlen(class) != 14)
    {
       Error("Raw class name must have 10 characters", SYNTAX_ERROR);
    }
@@ -227,7 +246,7 @@ void RawSpecFeaturesParse(Scanner_p in, RawSpecFeature_p features)
 
 void RawSpecFeaturesPrint(FILE* out, RawSpecFeature_p features)
 {
-      fprintf(out, "(%7ld, %7lld, %6d, %6d, %6d, %6d, %6d, %6d, %.3f, %d ) : %s",
+      fprintf(out, "(%7ld, %7lld, %6d, %6d, %6d, %6d, %6d, %6d, %.3f, %d, %d, %d %d ) : %s",
               features->sentence_no,
               features->term_size,
               features->sig_size,
@@ -238,6 +257,9 @@ void RawSpecFeaturesPrint(FILE* out, RawSpecFeature_p features)
               features->num_of_definitions,
               features->perc_of_form_defs,
               features->num_lambdas,
+              features->order,
+              features->conj_order,
+              features->app_var_lits,
               features->class);
 }
 

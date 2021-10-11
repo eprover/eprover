@@ -1774,7 +1774,6 @@ SpecLimits_p CreateDefaultSpecLimits(void)
 //
 /----------------------------------------------------------------------*/
 
-#define VAR_ORDER(ty) (TypeGetOrder(ty) + (TypeIsArrow(ty) ? 1 : 0))
 #define IS_NON_FO_TERM(t) ( TermIsNonFOPattern(t) || TermHasLambdaSubterm(t) || TermHasDBSubterm(t) )
 
 void ClauseSetComputeHOFeatures(ClauseSet_p set, Sig_p sig,
