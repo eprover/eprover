@@ -65,7 +65,7 @@ def make_class_map(probs, e_classify_bin, e_classify_args,
   p_maps = []
 
   for extra_args in (([] if not mask else ["--class-mask="+mask]), 
-                    (["--raw-class"] + ([] if not raw_mask else ["--raw-mask="+raw_mask]))):
+                     (["--raw-class"] +  ([] if not raw_mask else ["--raw-mask="+raw_mask]))):
     try:
       import multiprocessing as m
       pool = m.Pool(max_cpus)

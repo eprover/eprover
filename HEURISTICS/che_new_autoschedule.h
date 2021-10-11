@@ -1,8 +1,8 @@
 #include "che_hcb.h"
 #include <cco_scheduling.h>
 
-#define DEFAULT_MASK "aaaa-aaaaaa-aa--aa"
-#define RAW_DEFAULT_MASK "aaaaaaaaaaa"
+#define DEFAULT_MASK "aaaa-aaaaaa-aa--aaa"
+#define RAW_DEFAULT_MASK "aaaaaaaaaaaa"
 
 extern ScheduleCell* ho_schedule;
 

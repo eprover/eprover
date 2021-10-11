@@ -1036,6 +1036,7 @@ void SpecFeaturesCompute(SpecFeature_p features, ClauseSet_p set,
       :0.0;
 
    /* all ho features computed below */
+   features->num_of_definitions = -1;
    ClauseSetComputeHOFeatures(set, sig, 
                               &(features->has_ho_features),
                               &(features->order),
@@ -1280,7 +1281,7 @@ void SpecFeaturesAddEval(SpecFeature_p features, SpecLimits_p limits)
    }
    else
    {
-      features->appvar_lits_class = SpecMediumApplits;
+      features->appvar_lits_class = SpecManyApplits;
    }
 }
 
@@ -1306,7 +1307,7 @@ void SpecFeaturesPrint(FILE* out, SpecFeature_p features)
    fprintf(out,
            "( %3ld, %3ld, %3ld, %3ld, %3ld, %3ld, %3ld, %3ld, %3ld,"
            " %3ld, %3ld, %3ld, %3ld, %3ld, %3ld, %8.6f, %8.6f,"
-           " %3d, %3d, %3d, %3ld, %3ld, %3d, %3d, %8.6f, %s, %s )",
+           " %3d, %3d, %3d, %3ld, %3ld, %3d, %3d, %8.6f, %8.6f, %s, %s )",
            features->goals,
            features->axioms,
            features->clauses,
@@ -1332,6 +1333,7 @@ void SpecFeaturesPrint(FILE* out, SpecFeature_p features)
            features->order,
            features->num_of_definitions,
            features->perc_of_form_defs,
+           features->perc_of_appvar_lits,
            BOOL2STR(features->quantifies_booleans),
            BOOL2STR(features->has_defined_choice)
       );
@@ -1488,7 +1490,7 @@ void SpecFeaturesParse(Scanner_p in, SpecFeature_p features)
 #define GET_ENCODING(idx) (assert((idx) < (enc_len)), encoding[(idx)])
 char* SpecTypeString(SpecFeature_p features, const char* mask)
 {
-   const char encoding[]="UHGNSPFSMFSMFSMFSMSML0123SMLSMDFSHFMMFMM";
+   const char encoding[]="UHGNSPFSMFSMFSMFSMSML0123SMLSMDFSHFSMFSMFSM";
 #ifndef NDEBUG
    const int enc_len = strlen(encoding);
 #endif
@@ -1496,7 +1498,7 @@ char* SpecTypeString(SpecFeature_p features, const char* mask)
    int        i, limit;
 
    assert(features);
-   assert(mask && (strlen(mask)>=13) && (strlen(mask)<=18));
+   assert(mask && (strlen(mask)>=13) && (strlen(mask)<=19));
    limit = strlen(mask);
    snprintf(result, 20, "%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c",
            GET_ENCODING(features->axiomtypes),

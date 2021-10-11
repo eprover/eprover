@@ -3097,7 +3097,7 @@ int TermComputeOrder(Sig_p sig, Term_p term)
       {
          Type_p ty = 
             TermIsDBVar(subterm) ? subterm->type : SigGetType(sig, subterm->f_code);
-         ord = MAX(ord, TypeGetOrder(ty));
+         ord = MAX(ord, ty ? TypeGetOrder(ty) : 0);
       }
 
       for(int i=TermIsLambda(subterm) ? 1 : 0; i<subterm->arity; i++)

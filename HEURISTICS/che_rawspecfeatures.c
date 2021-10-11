@@ -84,9 +84,12 @@ void RawSpecFeaturesCompute(RawSpecFeature_p features, ProofState_p state)
    features->has_choice_sym = SigHasChoiceSym(sig);
 
    features->order = 1;
-   for(FunCode i = sig->internal_symbols+1; i<sig->f_count; i++)
+   for(WFormula_p f = state->f_axioms->anchor->succ; 
+       f != state->f_axioms->anchor; 
+       f = f->succ)   
    {
-      features->order = MAX(features->order, TypeGetOrder(SigGetType(sig, i)));
+      features->order = MAX(features->order, 
+                            TermComputeOrder(f->terms->sig, f->tformula));
    }
    features->conj_order = MAX(FormulaConjectureOrder(state->f_axioms),
                               ClauseConjectureOrder(state->axioms));
@@ -246,7 +249,7 @@ void RawSpecFeaturesParse(Scanner_p in, RawSpecFeature_p features)
 
 void RawSpecFeaturesPrint(FILE* out, RawSpecFeature_p features)
 {
-      fprintf(out, "(%7ld, %7lld, %6d, %6d, %6d, %6d, %6d, %6d, %.3f, %d, %d, %d %d ) : %s",
+      fprintf(out, "(%7ld, %7lld, %6d, %6d, %6d, %6d, %6d, %6d, %.3f, %d, %d, %d, %d ) : %s",
               features->sentence_no,
               features->term_size,
               features->sig_size,
