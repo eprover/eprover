@@ -74,6 +74,9 @@ typedef enum
    SpecFewFormDefs,
    SpecMediumFormDefs,
    SpecManyFormDefs,
+   SpecFewApplits,
+   SpecMediumApplits,
+   SpecManyApplits,
 }SpecFeatures;
 
 
@@ -117,6 +120,8 @@ typedef struct spec_limits_cell
    int    num_of_defs_large_limit;
    double perc_form_defs_medium_limit;
    double perc_form_defs_large_limit;
+   double perc_app_lits_medium_limit;
+   double perc_app_lits_large_limit;
 }SpecLimitsCell, *SpecLimits_p;
 
 
@@ -146,6 +151,7 @@ typedef struct spec_feature_cell
    SpecFeatures order_class;
    SpecFeatures defs_class;
    SpecFeatures form_defs_class;
+   SpecFeatures appvar_lits_class;
    
    long         clauses;
    long         goals;
@@ -182,6 +188,7 @@ typedef struct spec_feature_cell
    int          order; // maximal order of a symbol
    int          num_of_definitions; // number of formulas tagged with definition
    double       perc_of_form_defs; // percentage of which defines formulas
+   double       perc_of_appvar_lits; // percentage of which defines formulas
 }SpecFeatureCell, *SpecFeature_p;
 
 
@@ -233,6 +240,8 @@ typedef struct spec_feature_cell
 #define DEFS_LARGE_DEFAULT       64
 #define DEFS_PERC_MEDIUM_DEFAULT 0.15
 #define DEFS_PERC_LARGE_DEFAULT  0.5
+#define PERC_APPLIT_MEDIUM_DEFAULT 0.1
+#define PERC_APPLIT_LARGE_DEFAULT  0.5
 
 
 #define DEFAULT_OUTPUT_DESCRIPTOR "eigEIG"
@@ -422,7 +431,8 @@ void    ClauseSetComputeHOFeatures(ClauseSet_p set, Sig_p sig,
                                    bool* has_ho_features,
                                    int* order,
                                    bool* quantifies_bools,
-                                   bool* has_defined_choice);
+                                   bool* has_defined_choice,
+                                   double* perc_appvar_lit);
 void    SpecFeaturesCompute(SpecFeature_p features, ClauseSet_p cset,
                             FormulaSet_p fset, FormulaSet_p arch, TB_p bank);
 void    SpecFeaturesAddEval(SpecFeature_p features, SpecLimits_p limits);

@@ -108,6 +108,8 @@ SpecLimits_p SpecLimitsAlloc(void)
    handle->num_of_defs_large_limit = DEFS_LARGE_DEFAULT;
    handle->perc_form_defs_medium_limit = DEFS_PERC_MEDIUM_DEFAULT;
    handle->perc_form_defs_large_limit = DEFS_PERC_MEDIUM_DEFAULT;
+   handle->perc_app_lits_medium_limit = PERC_APPLIT_MEDIUM_DEFAULT;
+   handle->perc_app_lits_large_limit = PERC_APPLIT_LARGE_DEFAULT;
    handle->num_of_lams_medium_limit = NUM_LAMS_MEDIUM_DEFAULT;
    handle->num_of_lams_large_limit = NUM_LAMS_LARGE_DEFAULT;
 
@@ -1038,7 +1040,8 @@ void SpecFeaturesCompute(SpecFeature_p features, ClauseSet_p set,
                               &(features->has_ho_features),
                               &(features->order),
                               &(features->quantifies_booleans),
-                              &(features->has_defined_choice));
+                              &(features->has_defined_choice),
+                              &(features->perc_of_appvar_lits));
 }
 
 
@@ -1266,6 +1269,19 @@ void SpecFeaturesAddEval(SpecFeature_p features, SpecLimits_p limits)
    {
       features->form_defs_class = SpecManyFormDefs;
    }
+
+   if(features->perc_of_appvar_lits < limits->perc_app_lits_medium_limit)
+   {
+      features->appvar_lits_class = SpecFewApplits;
+   }
+   else if(features->perc_of_appvar_lits < limits->perc_app_lits_large_limit)
+   {
+      features->appvar_lits_class = SpecMediumApplits;
+   }
+   else
+   {
+      features->appvar_lits_class = SpecMediumApplits;
+   }
 }
 
 
@@ -1476,13 +1492,13 @@ char* SpecTypeString(SpecFeature_p features, const char* mask)
 #ifndef NDEBUG
    const int enc_len = strlen(encoding);
 #endif
-   char       result[19]; /* Big enough for the '\0'!!!*/
+   char       result[20]; /* Big enough for the '\0'!!!*/
    int        i, limit;
 
    assert(features);
    assert(mask && (strlen(mask)>=13) && (strlen(mask)<=18));
    limit = strlen(mask);
-   snprintf(result, 19, "%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c",
+   snprintf(result, 20, "%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c",
            GET_ENCODING(features->axiomtypes),
            GET_ENCODING(features->goaltypes),
            GET_ENCODING(features->eq_content), 
@@ -1499,6 +1515,7 @@ char* SpecTypeString(SpecFeature_p features, const char* mask)
            GET_ENCODING(features->order_class),
            GET_ENCODING(features->defs_class),
            GET_ENCODING(features->form_defs_class),
+           GET_ENCODING(features->appvar_lits_class),
            features->quantifies_booleans?'B':'N',
            features->has_defined_choice?'C':'N');
    for(i=0; i<limit; i++)
@@ -1508,7 +1525,7 @@ char* SpecTypeString(SpecFeature_p features, const char* mask)
          result[i]= '-';
       }
    }
-   return SecureStrndup(result, 19);
+   return SecureStrndup(result, 20);
 }
 
 
@@ -1755,6 +1772,8 @@ SpecLimits_p CreateDefaultSpecLimits(void)
    limits->perc_form_defs_large_limit = DEFS_PERC_LARGE_DEFAULT;
    limits->num_of_lams_medium_limit = NUM_LAMS_MEDIUM_DEFAULT;
    limits->num_of_lams_large_limit = NUM_LAMS_LARGE_DEFAULT;
+   limits->perc_app_lits_medium_limit = PERC_APPLIT_MEDIUM_DEFAULT;
+   limits->perc_app_lits_large_limit = PERC_APPLIT_LARGE_DEFAULT;
 
    return limits;
 }
@@ -1780,12 +1799,14 @@ void ClauseSetComputeHOFeatures(ClauseSet_p set, Sig_p sig,
                                 bool* has_ho_features,
                                 int* order,
                                 bool* quantifies_bools,
-                                bool* has_defined_choice)
+                                bool* has_defined_choice,
+                                double* perc_app_var_lits)
 {
    Clause_p handle;
    bool is_fo = true;
    bool var_has_bools = false;
    bool has_choice = false;
+   int av_lits = 0;
 
    int ord = 0;
    for(FunCode i = sig->internal_symbols+1; i<sig->f_count; i++)
@@ -1808,20 +1829,26 @@ void ClauseSetComputeHOFeatures(ClauseSet_p set, Sig_p sig,
       }
       PTreeTraverseExit(iter);
       PTreeFree(vars);
-
-      for(Eqn_p eqn = handle->literals; is_fo && eqn; eqn = eqn->next)
+      
+      bool has_app_var = false;
+      for(Eqn_p eqn = handle->literals; eqn; eqn = eqn->next)
       {
          is_fo = is_fo && !IS_NON_FO_TERM(eqn->lterm) 
                        && !IS_NON_FO_TERM(eqn->rterm);
+         has_app_var = has_app_var || TermIsAppliedFreeVar(eqn->lterm) 
+                                   || TermIsAppliedFreeVar(eqn->rterm);
       }
 
       has_choice = has_choice || ClauseRecognizeChoice(NULL, handle);
+      av_lits += has_app_var ? 1 : 0;
    }
    
    *order = ord;
    *has_ho_features = !is_fo;
    *quantifies_bools = var_has_bools;
    *has_defined_choice = has_choice;
+   *perc_app_var_lits = 
+      ClauseSetCardinality(set) ? ((double)av_lits / ClauseSetCardinality(set)) : 0.0 ;
 }
 
 /*---------------------------------------------------------------------*/
