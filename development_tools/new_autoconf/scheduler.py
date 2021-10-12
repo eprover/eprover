@@ -239,7 +239,7 @@ def multi_schedule(num_confs, cats, confs, var_name):
 
     remaining_probs = set(cat.get_problems())
     for conf in schedule:
-      remaining_probs.difference(conf.get_solved_probs())
+      remaining_probs = remaining_probs.difference(conf.get_solved_probs())
     remaining_confs = set(confs).difference([best_for_cat, best_overall])
       
     while remaining_probs and sched_size!=num_confs:
@@ -248,13 +248,12 @@ def multi_schedule(num_confs, cats, confs, var_name):
       curr_res = best_conf.evaluate_for_probs(remaining_probs)
       if curr_res[0] == 0:
         #no problems can be solved by any of the remaining confs
-        remaining_probs = []
+        break
       else:
         schedule.append(best_conf)
-        remaining_probs.difference(best_conf.get_solved_probs())
+        remaining_probs = remaining_probs.difference(best_conf.get_solved_probs())
         remaining_confs.remove(best_conf)
-        sched_size += 1
-    
+        sched_size += 1   
     if sched_size!=num_confs:
       schedule += list(sorted(remaining_confs, key=Configuration.as_order_key, 
                               reverse=True))[:num_confs-sched_size]
