@@ -1338,7 +1338,7 @@ bool TermStructEqualDeref(Term_p t1, Term_p t2, DerefType deref_1, DerefType der
       // to have same head but different arities.
       // in that case the type must be different.
       assert(problemType == PROBLEM_HO);
-      assert(TermIsPhonyApp(t1) || t1->arity != t2->arity);
+      assert(TermIsPhonyApp(t1) || TermIsLambda(t1) || t1->arity != t2->arity);
       return false;
    }
 
@@ -1351,8 +1351,8 @@ bool TermStructEqualDeref(Term_p t1, Term_p t2, DerefType deref_1, DerefType der
                                CONVERT_DEREF(i, limit_1, deref_1),
                                CONVERT_DEREF(i, limit_2, deref_2)))
       {
-         DBG_PRINT(stderr, "[err] t1: ", TermPrintDbg(stderr, t1, bank->sig, DEREF_NEVER), ".\n");
-         DBG_PRINT(stderr, "t2: ", TermPrintDbg(stderr, t2, bank->sig, DEREF_NEVER), ".\n");
+         // DBG_PRINT(stderr, "[err] t1: ", TermPrintDbg(stderr, t1, bank->sig, DEREF_NEVER), ".\n");
+         // DBG_PRINT(stderr, "t2: ", TermPrintDbg(stderr, t2, bank->sig, DEREF_NEVER), ".\n");
          return false;
       }
    }

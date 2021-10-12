@@ -568,7 +568,7 @@ static bool lpo4_greater(OCB_p ocb, Term_p s, Term_p t,
    s = LambdaEtaReduceDB(TermGetBank(s), 
          BetaNormalizeDB(TermGetBank(s), TermDeref(s, &deref_s)));
    t = LambdaEtaReduceDB(TermGetBank(t), 
-         BetaNormalizeDB(TermGetBank(t),TermDeref(t, &deref_t)));
+         BetaNormalizeDB(TermGetBank(t), TermDeref(t, &deref_t)));
 
    if(TermIsTopLevelFreeVar(s))
    {
