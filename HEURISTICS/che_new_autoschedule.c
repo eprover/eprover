@@ -132,7 +132,7 @@ void ScheduleForCategory(const char* category, int attempt_idx, HeuristicParms_p
 
 int GetAttemptIdx(const char* strategy_name)
 {
-  char* pref = "NewAutoSched_";
+  char* pref = "AutoNewSched_";
   return strstr(strategy_name, pref) ? atoi(strategy_name + strlen(pref)) : -1;
 }
 

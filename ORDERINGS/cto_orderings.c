@@ -189,6 +189,7 @@ CompareResult TOCompare(OCB_p ocb, Term_p s, Term_p t, DerefType deref_s,
     assert(false && "RPO not yet implemented!");
     break;
    case KBO:
+    assert(problemType != PROBLEM_HO);
     res = KBOCompare(ocb, s, t, deref_s, deref_t);
     break;
    case KBO6:

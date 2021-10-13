@@ -204,7 +204,7 @@ def print_new_schedule_cell(time_ratios):
   print("#define SCHEDULE_SIZE {0}".format(len(time_ratios)))
   print("ScheduleCell NEW_HO_SCHEDULE[] =\n{");
   for (i,ratio) in enumerate(time_ratios):
-    print('  {{ "NewAutoSched_{0}", NoOrdering, "Auto",  {1:.2f}, 0}},'.format(i, ratio))
+    print('  {{ "AutoNewSched_{0}", NoOrdering, "Auto",  {1:.2f}, 0}},'.format(i, ratio))
   print('  {NULL, NoOrdering, NULL, 0.0, 0} ')
   print('};')
 

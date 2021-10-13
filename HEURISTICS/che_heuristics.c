@@ -139,7 +139,7 @@ HCB_p HCBCreate(char* name, HCBARGUMENTS)
 
    assert(control->ocb);
 
-   if(strstr(name, "NewAutoSched_"))
+   if(strstr(name, "AutoNewSched_"))
    {
       return HCBAutoModeCreate(state,control,parms);
    }
