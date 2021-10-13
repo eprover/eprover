@@ -79,7 +79,7 @@ void ExampleRepFree(ExampleRep_p junk)
 
 void ExampleRepPrint(FILE* out, ExampleRep_p rep)
 {
-   fprintf(out, "%ld: \"%s\"\n", rep->ident, rep->name);
+   locked_fprintf(out, "%ld: \"%s\"\n", rep->ident, rep->name);
    NumFeaturesPrint(out, rep->features);
    fputc('\n', out);
 }
@@ -457,7 +457,7 @@ long ExampleSetSelectByDist(PStack_p results, ExampleSet_p set,
       current = tmp_array[i].object.p_val;
       if(Verbose)
       {
-    fprintf(stderr, "Selected problem %ld: %s\n", current->ident,
+    locked_fprintf(stderr, "Selected problem %ld: %s\n", current->ident,
        current->name);
       }
       PStackPushInt(results, current->ident);

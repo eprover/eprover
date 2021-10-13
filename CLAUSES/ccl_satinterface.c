@@ -563,9 +563,9 @@ void SatClausePrint(FILE* out, SatClause_p satclause)
 
    for(i=0; i<satclause->lit_no; i++)
    {
-      fprintf(out, "%d ", satclause->literals[i]);
+      locked_fprintf(out, "%d ", satclause->literals[i]);
    }
-   fprintf(out, "0\n");
+   locked_fprintf(out, "0\n");
 }
 
 
@@ -587,7 +587,7 @@ void SatClauseSetPrint(FILE* out, SatClauseSet_p set)
 
    assert(set);
 
-   fprintf(out, "p cnf %d %ld\n", set->max_lit, PStackGetSP(set->set));
+   locked_fprintf(out, "p cnf %d %ld\n", set->max_lit, PStackGetSP(set->set));
 
    for(i=0; i<PStackGetSP(set->set); i++)
    {
@@ -1066,7 +1066,7 @@ ProverResult SatClauseSetCheckUnsat(SatClauseSet_p satset, Clause_p *empty,
    if(res == PRUnsatisfiable)
    {
       PStack_p unsat_core = PStackAlloc();
-      fprintf(GlobalOut, "# SatCheck found unsatisfiable ground set\n");
+      locked_fprintf(GlobalOut, "# SatCheck found unsatisfiable ground set\n");
       *empty = EmptyClauseAlloc();
       sat_extract_core(satset, unsat_core, solver);
       satset->core_size = PStackGetSP(unsat_core);

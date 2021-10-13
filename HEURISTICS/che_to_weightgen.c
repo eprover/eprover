@@ -70,16 +70,16 @@ static void print_weight_array(FILE* out,OCB_p ocb)
 {
    FunCode i;
 
-   fprintf(out, "# Ordering weights: ");
+   locked_fprintf(out, "# Ordering weights: ");
    for(i = 1; i<=ocb->sig->f_count; i++)
    {
       if(!SigIsSpecial(ocb->sig, i))
       {
-         fprintf(out, "%s:%ld ", SigFindName(ocb->sig,i),
+         locked_fprintf(out, "%s:%ld ", SigFindName(ocb->sig,i),
                  OCBFunWeight(ocb,i));
       }
    }
-   fprintf(out, "\n");
+   locked_fprintf(out, "\n");
 }
 
 #endif
@@ -1464,7 +1464,7 @@ void TOGenerateWeights(OCB_p ocb, ClauseSet_p axioms, char *pre_weights,
 #endif
    if(pre_weights)
    {
-      fprintf(stderr, "setting user weights\n");
+      locked_fprintf(stderr, "setting user weights\n");
       set_user_weights(ocb, pre_weights);
    }
 

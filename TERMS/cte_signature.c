@@ -55,13 +55,13 @@ static void sig_print_operator(FILE* out, Sig_p sig, FunCode op, bool comments)
 {
    if(comments)
    {
-      fprintf(out, "   %-13s : %2d    #  %2ld %2d \n",
+      locked_fprintf(out, "   %-13s : %2d    #  %2ld %2d \n",
               sig->f_info[op].name, sig->f_info[op].arity, op,
               sig->f_info[op].properties);
    }
    else
    {
-      fprintf(out, "   %-13s : %2d\n",
+      locked_fprintf(out, "   %-13s : %2d\n",
               sig->f_info[op].name, sig->f_info[op].arity);
    }
 }
@@ -833,9 +833,9 @@ void SigPrint(FILE* out, Sig_p sig)
 {
    FunCode i;
 
-   fprintf(out, "# Signature (%2ld symbols out of %2ld allocated):\n",
+   locked_fprintf(out, "# Signature (%2ld symbols out of %2ld allocated):\n",
            sig->f_count, sig->size);
-   fprintf(out, "#     -Symbol-    -Arity- -Encoding-\n");
+   locked_fprintf(out, "#     -Symbol-    -Arity- -Encoding-\n");
 
    for(i=1; i<=sig->f_count; i++)
    {
@@ -891,17 +891,17 @@ void SigPrintACStatus(FILE* out, Sig_p sig)
    {
       if(SigQueryFuncProp(sig, i, FPIsAC))
       {
-         fprintf(out, "# %s is AC\n", sig->f_info[i].name);
+         locked_fprintf(out, "# %s is AC\n", sig->f_info[i].name);
          continue;
       }
       if(SigQueryFuncProp(sig, i, FPAssociative))
       {
-         fprintf(out, "# %s is associative\n", sig->f_info[i].name);
+         locked_fprintf(out, "# %s is associative\n", sig->f_info[i].name);
          continue;
       }
       if(SigQueryFuncProp(sig, i, FPCommutative))
       {
-         fprintf(out, "# %s is commutative\n", sig->f_info[i].name);
+         locked_fprintf(out, "# %s is commutative\n", sig->f_info[i].name);
          continue;
       }
    }
@@ -1520,12 +1520,12 @@ void SigDeclareType(Sig_p sig, FunCode f, Type_p type)
          {
             if(Verbose>=3)
             {
-               fprintf(stderr, "# Type conflict for %s between ",
+               locked_fprintf(stderr, "# Type conflict for %s between ",
                        SigFindName(sig, f));
                TypePrintTSTP(stderr, sig->type_bank, fun->type);
-               fprintf(stderr, " and ");
+               locked_fprintf(stderr, " and ");
                TypePrintTSTP(stderr, sig->type_bank, type);
-               fprintf(stderr, "\n");
+               locked_fprintf(stderr, "\n");
             }
             Error("type error", INPUT_SEMANTIC_ERROR);
          }
@@ -1533,9 +1533,9 @@ void SigDeclareType(Sig_p sig, FunCode f, Type_p type)
          {
             if(Verbose >= 2)
             {
-               fprintf(stderr, "# type re-declaration %s: ", SigFindName(sig, f));
+               locked_fprintf(stderr, "# type re-declaration %s: ", SigFindName(sig, f));
                TypePrintTSTP(stderr, sig->type_bank, type);
-               fprintf(stderr, "\n");
+               locked_fprintf(stderr, "\n");
             }
             fun->type = type;
          }
@@ -1545,9 +1545,9 @@ void SigDeclareType(Sig_p sig, FunCode f, Type_p type)
    {
       if(Verbose >= 2)
       {
-         fprintf(stderr, "# type declaration %s: ", SigFindName(sig, f));
+         locked_fprintf(stderr, "# type declaration %s: ", SigFindName(sig, f));
          TypePrintTSTP(stderr, sig->type_bank, type);
-         fprintf(stderr, "\n");
+         locked_fprintf(stderr, "\n");
       }
       fun->type = type;
    }
@@ -1673,7 +1673,7 @@ void SigPrintTypes(FILE* out, Sig_p sig)
       }
 
       fun = &sig->f_info[i];
-      fprintf(out, "%s:", fun->name);
+      locked_fprintf(out, "%s:", fun->name);
       fflush(out);
       if (!fun->type)
       {
@@ -1710,9 +1710,9 @@ void SigPrintTypeDeclsTSTP(FILE* out, Sig_p sig)
       fun = &sig->f_info[i];
       if (fun->type)
       {
-         fprintf(out, "%s(decl_%ld, type, %s: ", tag, i, fun->name);
+         locked_fprintf(out, "%s(decl_%ld, type, %s: ", tag, i, fun->name);
          TypePrintTSTP(out, sig->type_bank, fun->type);
-         fprintf(out, ").\n");
+         locked_fprintf(out, ").\n");
       }
    }
 }
@@ -1910,7 +1910,7 @@ void SigPrintAppEncodedDecls(FILE* out, Sig_p sig)
 {
    for(FunCode i=sig->internal_symbols+1; i <= sig->f_count; i++)
    {
-      fprintf(out, "tff(symboltypedecl%ld, type, %s: ",
+      locked_fprintf(out, "tff(symboltypedecl%ld, type, %s: ",
                       (i+1)-sig->internal_symbols, SigFindName(sig, i));
       if (SigQueryFuncProp(sig, i, FPTypedApplication))
       {
@@ -1920,7 +1920,7 @@ void SigPrintAppEncodedDecls(FILE* out, Sig_p sig)
          DStr_p ret = TypeAppEncodedName(t->args[2]);
 
 
-         fprintf(out, "(%s * %s) > %s",
+         locked_fprintf(out, "(%s * %s) > %s",
                          DStrView(left), DStrView(right), DStrView(ret));
 
          DStrFree(left);
@@ -1932,9 +1932,9 @@ void SigPrintAppEncodedDecls(FILE* out, Sig_p sig)
          Type_p t = SigGetType(sig, i);
          DStr_p typename = TypeAppEncodedName(t);
 
-         fprintf(out, "%s", DStrView(typename));
+         locked_fprintf(out, "%s", DStrView(typename));
       }
-      fprintf(out, ").\n");
+      locked_fprintf(out, ").\n");
    }
 
 }

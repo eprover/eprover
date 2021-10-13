@@ -206,13 +206,13 @@ ParamodulationType ParamodType(char *pm_str)
 
 void ParamodInfoPrint(FILE* out, ParamodInfo_p info)
 {
-   fprintf(out, "# From: %6ld |%6ld\n# ", info->from->ident, info->from_cpos);
+   locked_fprintf(out, "# From: %6ld |%6ld\n# ", info->from->ident, info->from_cpos);
    ClausePrint(out, info->from, true);
-   fprintf(out, "\n#Into: %6ld |%6ld\n#", info->into->ident, info->into_cpos);
+   locked_fprintf(out, "\n#Into: %6ld |%6ld\n#", info->into->ident, info->into_cpos);
    ClausePrint(out, info->into, true);
-   fprintf(out, "\n#Orig: %6ld\n#", info->new_orig->ident);
+   locked_fprintf(out, "\n#Orig: %6ld\n#", info->new_orig->ident);
    ClausePrint(out, info->new_orig, true);
-   fprintf(out, "\n");
+   locked_fprintf(out, "\n");
 }
 
 

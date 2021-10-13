@@ -250,7 +250,7 @@ CLState_p process_options(int argc, char* argv[])
 
 void print_help(FILE* out)
 {
-   fprintf(out, "\n\
+   locked_fprintf(out, "\n\
 \n"
 NAME " " VERSION "\n\
 \n\
@@ -258,7 +258,7 @@ Usage: " NAME " [options] <name>\n\
 \n\
 Remove the example <name> from an E knowledge base.\n\n");
    PrintOptions(stdout, opts, "Options\n\n");
-   fprintf(out, "\n\n" E_FOOTER);
+   locked_fprintf(out, "\n\n" E_FOOTER);
 }
 
 

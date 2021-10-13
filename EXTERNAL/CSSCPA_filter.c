@@ -145,7 +145,7 @@ int main(int argc, char* argv[])
       CSSCPALoop(in, procstate);
       DestroyScanner(in);
    }
-   fprintf(GlobalOut, "\n# Resulting clause set:\n");
+   locked_fprintf(GlobalOut, "\n# Resulting clause set:\n");
    ClauseSetTSTPPrint(GlobalOut, procstate->pos_units, true);
    ClauseSetTSTPPrint(GlobalOut, procstate->neg_units, true);
    ClauseSetTSTPPrint(GlobalOut, procstate->non_units, true);
@@ -219,12 +219,12 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_RANT:
        if(CLStateGetIntArg(handle, arg)!=0)
        {
-          fprintf(stderr, "Improve it yourself, mate. The code is"
+          locked_fprintf(stderr, "Improve it yourself, mate. The code is"
              " free.\n");
        }
        else
        {
-          fprintf(stderr, "You call that a rant????\n");
+          locked_fprintf(stderr, "You call that a rant????\n");
        }
        break;
      default:
@@ -237,7 +237,7 @@ CLState_p process_options(int argc, char* argv[])
 
 void print_help(FILE* out)
 {
-   fprintf(out, "\n\
+   locked_fprintf(out, "\n\
 \n"
 NAME " " VERSION "\n\
 \n\
@@ -264,7 +264,7 @@ to overcome CLIB's input buffering.\n\
 \n\
 \n");
    PrintOptions(stdout, opts, "Options\n\n");
-   fprintf(out, "\n\n" E_FOOTER);
+   locked_fprintf(out, "\n\n" E_FOOTER);
 }
 
 

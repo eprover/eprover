@@ -232,7 +232,7 @@ EPCtrl_p ECtrlCreateGeneric(char* prover, char* name,
       printf("Error\n");
    }
 
-   //fprintf(GlobalOut, "# Line = '%s'", l);
+   //locked_fprintf(GlobalOut, "# Line = '%s'", l);
    if(!strstr(line, "# Pid: "))
    {
       Error("Cannot get eprover PID", OTHER_ERROR);
@@ -512,7 +512,7 @@ EPCtrl_p EPCtrlSetGetResult(EPCtrlSet_p set, bool delete_files)
             case PRCounterSatisfiable:
             case PRFailure:
                   /* Process terminates, but no proof found -> Remove it*/
-                  fprintf(GlobalOut, "# No proof found by %s\n",
+                  locked_fprintf(GlobalOut, "# No proof found by %s\n",
                           handle->name);
 
                   EPCtrlSetDeleteProc(set, handle, delete_files);

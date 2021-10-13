@@ -27,7 +27,7 @@ void print_config_name(FILE* out, const char* config)
   DStr_p str = DStrAlloc();
   assert(strchr(config, '\n'));
   DStrAppendBuffer(str, (char*)config, strchr(config, '\n') - config);
-  fprintf(out, "# config: %s\n", DStrView(str));
+  locked_fprintf(out, "# config: %s\n", DStrView(str));
   DStrFree(str);
 }
 
@@ -103,7 +103,7 @@ const char* class_to_schedule(const char* problem_category, const char** categor
 void AutoHeuristicForRawCategory(const char* raw_category, HeuristicParms_p parms)
 {
   const char* config = class_to_heuristic(raw_category, raw_categories, raw_confs, num_raw_categories, parms);
-  fprintf(stderr, "# raw_category: %s\n", raw_category);
+  locked_fprintf(stderr, "# raw_category: %s\n", raw_category);
   print_config_name(stderr, config);
 }
 
@@ -111,14 +111,14 @@ void ScheduleForRawCategory(const char* raw_category, int attempt_idx, Heuristic
 {
   const char* config = class_to_schedule(raw_category, multischedule_raw_categories, multischedule_raw_confs, 
                                          num_raw_categories, attempt_idx, parms);
-  fprintf(stderr, "# raw_category(%d): %s\n", attempt_idx, raw_category);
+  locked_fprintf(stderr, "# raw_category(%d): %s\n", attempt_idx, raw_category);
   print_config_name(stderr, config);
 }
 
 void AutoHeuristicForCategory(const char* category, HeuristicParms_p parms)
 {
   const char* config = class_to_heuristic(category, categories, confs, num_categories, parms);
-  fprintf(stderr, "# category: %s\n", category);
+  locked_fprintf(stderr, "# category: %s\n", category);
   print_config_name(stderr, config);
 }
 
@@ -126,7 +126,7 @@ void ScheduleForCategory(const char* category, int attempt_idx, HeuristicParms_p
 {
   const char* config = class_to_schedule(category, multischedule_categories, multischedule_confs, 
                                          num_categories, attempt_idx, parms);
-  fprintf(stderr, "# category(%d): %s\n", attempt_idx, category);
+  locked_fprintf(stderr, "# category(%d): %s\n", attempt_idx, category);
   print_config_name(stderr, config);
 }
 

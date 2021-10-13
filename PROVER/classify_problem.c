@@ -583,9 +583,9 @@ void process_raw_feature_files(char *argv[], SpecLimits_p limits)
       {
          name = parse_raw_feature_line(in, &features);
          RawSpecFeaturesClassify(&features, limits, raw_mask);
-         fprintf(GlobalOut, "%s : ", name);
+         locked_fprintf(GlobalOut, "%s : ", name);
          RawSpecFeaturesPrint(GlobalOut, &features);
-         fprintf(GlobalOut, "\n");
+         locked_fprintf(GlobalOut, "\n");
          FREE(name);
       }
       DestroyScanner(in);
@@ -621,11 +621,11 @@ void process_feature_files(char *argv[], SpecLimits_p limits)
       {
          name = parse_feature_line(in, &features);
          SpecFeaturesAddEval(&features, limits);
-         fprintf(GlobalOut, "%s : ", name);
+         locked_fprintf(GlobalOut, "%s : ", name);
          SpecFeaturesPrint(GlobalOut, &features);
-         fprintf(GlobalOut, " : ");
+         locked_fprintf(GlobalOut, " : ");
          SpecTypePrint(GlobalOut, &features, mask);
-         fprintf(GlobalOut, "\n");
+         locked_fprintf(GlobalOut, "\n");
          FREE(name);
       }
       DestroyScanner(in);
@@ -653,29 +653,29 @@ void print_tptp_header(ProofState_p    fstate,
    int min_arity, max_arity, symbol_count;
    long depthmax, depthsum, count;
 
-   fprintf(GlobalOut,
+   locked_fprintf(GlobalOut,
            "%% Syntax   : Number of clauses    : %4ld "
            "(%4ld non-Horn; %3ld unit; %3ld RR)\n",
            features.clauses,
            features.clauses-features.horn,
            features.unit,
            ClauseSetCountRangeRestricted(fstate->axioms));
-   fprintf(GlobalOut,
+   locked_fprintf(GlobalOut,
            "%%            Number of literals   : %4ld "
            "(%4ld equality)\n",
            features.literals,
            ClauseSetCountEqnLiterals(fstate->axioms));
-   fprintf(GlobalOut,
+   locked_fprintf(GlobalOut,
            "%%            Maximal clause size  : %4ld ",
            ClauseSetMaxLiteralNumber(fstate->axioms));
    if(features.clauses)
    {
-      fprintf(GlobalOut, "(%4ld average)\n",
+      locked_fprintf(GlobalOut, "(%4ld average)\n",
               features.literals/features.clauses);
    }
    else
    {
-      fprintf(GlobalOut, "(   - average)\n");
+      locked_fprintf(GlobalOut, "(   - average)\n");
    }
 
    symbol_count = SigCountSymbols(fstate->signature, true);
@@ -689,40 +689,40 @@ void print_tptp_header(ProofState_p    fstate,
       max_arity = MAX(max_arity,2);
       min_arity = MIN(min_arity,2);
    }
-   fprintf(GlobalOut,
+   locked_fprintf(GlobalOut,
            "%%            Number of predicates : %4d "
            "(%4d propositional; ",
            symbol_count,
            SigCountAritySymbols(fstate->signature, 0, true));
    if(symbol_count)
    {
-      fprintf(GlobalOut, "%d-%d arity)\n",
+      locked_fprintf(GlobalOut, "%d-%d arity)\n",
               min_arity, max_arity);
    }
    else
    {
-      fprintf(GlobalOut, "--- arity)\n");
+      locked_fprintf(GlobalOut, "--- arity)\n");
    }
 
    symbol_count = SigCountSymbols(fstate->signature, false);
    min_arity = SigFindMinFunctionArity(fstate->signature);
    max_arity = SigFindMaxFunctionArity(fstate->signature);
 
-   fprintf(GlobalOut,
+   locked_fprintf(GlobalOut,
            "%%            Number of functors   : %4d "
                        "(%4d constant; ",
            symbol_count,
            SigCountAritySymbols(fstate->signature, 0, false));
    if(symbol_count)
    {
-      fprintf(GlobalOut, "%d-%d arity)\n",
+      locked_fprintf(GlobalOut, "%d-%d arity)\n",
               min_arity, max_arity);
    }
    else
    {
-      fprintf(GlobalOut, "--- arity)\n");
+      locked_fprintf(GlobalOut, "--- arity)\n");
    }
-   fprintf(GlobalOut,
+   locked_fprintf(GlobalOut,
                        "%%            Number of variables  : %4ld (%4ld singleton)\n",
            ClauseSetCountVariables(fstate->axioms),
            ClauseSetCountSingletons(fstate->axioms));
@@ -730,13 +730,13 @@ void print_tptp_header(ProofState_p    fstate,
                              &count);
    if(fstate->axioms->literals)
    {
-      fprintf(GlobalOut,
+      locked_fprintf(GlobalOut,
               "%%            Maximal term depth   : %4ld (%4ld average)\n",
               features.clause_max_depth, features.clause_avg_depth);
    }
    else
    {
-      fprintf(GlobalOut,
+      locked_fprintf(GlobalOut,
                           "%%            Maximal term depth   :    - (   - average)\n");
    }
 }
@@ -768,9 +768,9 @@ void do_raw_classification(char* name, ProofState_p state,
    RawSpecFeaturesCompute(&features, state);
    RawSpecFeaturesClassify(&features, limits, raw_mask);
 
-   fprintf(GlobalOut, "%s : ", name);
+   locked_fprintf(GlobalOut, "%s : ", name);
    RawSpecFeaturesPrint(GlobalOut, &features);
-   fprintf(GlobalOut, "\n");
+   locked_fprintf(GlobalOut, "\n");
 }
 
 
@@ -883,11 +883,11 @@ int main(int argc, char* argv[])
 
                if(!tptp_header)
                {
-                  fprintf(GlobalOut, "%s : ", state->argv[i]);
+                  locked_fprintf(GlobalOut, "%s : ", state->argv[i]);
                   SpecFeaturesPrint(GlobalOut, &features);
-                  fprintf(GlobalOut, " : ");
+                  locked_fprintf(GlobalOut, " : ");
                   SpecTypePrint(GlobalOut, &features, mask);
-                  fprintf(GlobalOut, "\n");
+                  locked_fprintf(GlobalOut, "\n");
                }
                else
                {
@@ -899,9 +899,9 @@ int main(int argc, char* argv[])
                SpecSigFeatureInit(&specsigfeatures);
                ClauseSetCollectSigFeatures(fstate->signature, fstate->axioms,
                                            &specsigfeatures);
-               fprintf(GlobalOut, "%s : ", state->argv[i]);
+               locked_fprintf(GlobalOut, "%s : ", state->argv[i]);
                SpecSigFeaturePrint(GlobalOut, &specsigfeatures);
-               fprintf(GlobalOut, " : \n");
+               locked_fprintf(GlobalOut, " : \n");
             }
             DestroyScanner(in);
             ProofStateFree(fstate);
@@ -1151,7 +1151,7 @@ CLState_p process_options(int argc, char* argv[], SpecLimits_p limits)
 
 void print_help(FILE* out)
 {
-   fprintf(out, "\n\
+   locked_fprintf(out, "\n\
 \n\
 " NAME " " VERSION "\n\
 \n\
@@ -1160,7 +1160,7 @@ Usage: classify_problem [options] [files]\n\
 Read sets of clauses and classify them according to predefined criteria.\n\
 \n");
    PrintOptions(stdout, opts, "Options:\n\n");
-   fprintf(out, "\n\
+   locked_fprintf(out, "\n\
 Copyright (C) 1998-2009 by Stephan Schulz, " STS_MAIL "\n\
 \n\
 This program is a part of the support structure for the E equational\n\

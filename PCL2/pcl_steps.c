@@ -63,9 +63,9 @@ static void print_shell_pcl_warning(FILE* out, PCLStep_p step)
    {
       Warning("Shell PCL step encountered where "
               "full PCL step was required");
-      fprintf(out, "# Step ");
+      locked_fprintf(out, "# Step ");
       PCLIdPrint(out, step->id);
-      fprintf(out, " omitted (Shell)\n");
+      locked_fprintf(out, " omitted (Shell)\n");
    }
 }
 
@@ -302,19 +302,19 @@ void PCLStepPrintExtra(FILE* out, PCLStep_p step, bool data)
    if(step->extra)
    {
       fputs(" : ", out);
-      fprintf(out, "%s", step->extra);
+      locked_fprintf(out, "%s", step->extra);
    }
    else if(PCLStepQueryProp(step, PCLIsLemma))
    {
       fputs(" : 'lemma'", out);
    }
 #ifdef NEVER_DEFINED
-   fprintf(out, "/* %ld -> %f */", step->proof_tree_size, step->lemma_quality);
+   locked_fprintf(out, "/* %ld -> %f */", step->proof_tree_size, step->lemma_quality);
 #endif
    if(data)
    {
 #ifdef NEVER_DEFINED
-      fprintf(out, " /* %#8X %6ld %6ld %3ld %3ld %3ld %3ld %4.3f */",
+      locked_fprintf(out, " /* %#8X %6ld %6ld %3ld %3ld %3ld %3ld %4.3f */",
          step->properties,
          step->proof_dag_size,
          step->proof_tree_size,
@@ -324,7 +324,7 @@ void PCLStepPrintExtra(FILE* out, PCLStep_p step, bool data)
          step->passive_simpl_refs,
          step->lemma_quality);
 #endif
-       fprintf(out, " /* %3ld %3ld %3ld %3ld %3ld  */",
+       locked_fprintf(out, " /* %3ld %3ld %3ld %3ld %3ld  */",
          step->contrib_simpl_refs,
          step->contrib_gen_refs,
          step->useless_simpl_refs,
@@ -395,7 +395,7 @@ void PCLStepPrintTSTP(FILE* out, PCLStep_p step)
 
    if(PCLStepIsClausal(step))
    {
-      fprintf(out, "cnf(");
+      locked_fprintf(out, "cnf(");
       PCLIdPrintTSTP(out, step->id);
       fputc(',', out);
       fputs(PCLPropToTSTPType(step->properties), out);
@@ -410,7 +410,7 @@ void PCLStepPrintTSTP(FILE* out, PCLStep_p step)
    }
    else
    {
-      fprintf(out, "fof(");
+      locked_fprintf(out, "fof(");
       PCLIdPrintTSTP(out, step->id);
       fputc(',', out);
       fputs(PCLPropToTSTPType(step->properties), out);
@@ -428,7 +428,7 @@ void PCLStepPrintTSTP(FILE* out, PCLStep_p step)
    PCLExprPrintTSTP(out, step->just, false);
    if(step->extra)
    {
-      fprintf(out, ",[%s]", step->extra);
+      locked_fprintf(out, ",[%s]", step->extra);
    }
    /* else if(PCLStepQueryProp(step, PCLIsLemma))
    {
@@ -467,7 +467,7 @@ void PCLStepPrintTPTP(FILE* out, PCLStep_p step)
       }
       else
       {
-         fprintf(out, "input_formula(");
+         locked_fprintf(out, "input_formula(");
          PCLIdPrintTSTP(out, step->id);
          fputc(',', out);
          fputs(PCLPropToTSTPType(step->properties), out);
@@ -579,7 +579,7 @@ void PCLStepPrintExample(FILE* out, PCLStep_p step, long id,
    }
    else
    {
-      fprintf(out, "%4ld:(%ld, %f,%f,%f,%f):",
+      locked_fprintf(out, "%4ld:(%ld, %f,%f,%f,%f):",
               id,
               step->proof_distance,
               step->contrib_simpl_refs/(float)(proof_steps+1),

@@ -369,12 +369,12 @@ int TupleNext(FixedDArray_p cur, FixedDArray_p max)
 void TuplePrint(FixedDArray_p t)
 {
    int i;
-   fprintf(GlobalOut, "(");
+   locked_fprintf(GlobalOut, "(");
    for (i=0; i<t->size; i++) 
    {
-      fprintf(GlobalOut, "%ld,", t->array[i]);
+      locked_fprintf(GlobalOut, "%ld,", t->array[i]);
    }
-   fprintf(GlobalOut, ")\n");
+   locked_fprintf(GlobalOut, ")\n");
 }
 
 /*-----------------------------------------------------------------------

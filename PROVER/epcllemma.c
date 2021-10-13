@@ -623,7 +623,7 @@ CLState_p process_options(int argc, char* argv[])
 
 void print_help(FILE* out)
 {
-   fprintf(out,
+   locked_fprintf(out,
       "\n"
       "\n"
 NAME " " VERSION "\n"
@@ -633,7 +633,7 @@ NAME " " VERSION "\n"
 "Read an UPCL2 protocol and suggest certain steps as lemmas."
 "\n");
    PrintOptions(stdout, opts, "Options\n\n");
-   fprintf(out, "\n\
+   locked_fprintf(out, "\n\
 Copyright (C) 2003-2005 by Stephan Schulz, " STS_MAIL "\n\
 \n\
 This program is a part of the support structure for the E equational\n\

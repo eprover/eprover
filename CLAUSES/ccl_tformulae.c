@@ -637,8 +637,8 @@ static TFormula_p applied_tform_tstp_parse(Scanner_p in, TB_p terms, TFormula_p 
    {
       if(i >= max_args)
       {
-         fprintf(stderr, "max args: %d\n", max_args);
-         fprintf(stderr, "type: ");
+         locked_fprintf(stderr, "max args: %d\n", max_args);
+         locked_fprintf(stderr, "type: ");
          TypePrintTSTP(stderr, terms->sig->type_bank, hd_type);
          TermPrintDbg(stderr, head, terms->sig, DEREF_NEVER);
          AktTokenError(in, " Too many arguments applied to the symbol",
@@ -1666,7 +1666,7 @@ void TFormulaAppEncode(FILE* out, TB_p bank, TFormula_p form)
 
       DStr_p type_name = TypeAppEncodedName(form->args[0]->type);
 
-      fprintf(out, "%s", DStrView(type_name));
+      locked_fprintf(out, "%s", DStrView(type_name));
 
       DStrFree(type_name);
 
@@ -1681,7 +1681,7 @@ void TFormulaAppEncode(FILE* out, TB_p bank, TFormula_p form)
          fputs(":", out);
          type_name = TypeAppEncodedName(form->args[0]->type);
 
-         fprintf(out, "%s", DStrView(type_name));
+         locked_fprintf(out, "%s", DStrView(type_name));
 
          DStrFree(type_name);
       }
@@ -2383,9 +2383,9 @@ Clause_p TFormulaCollectClause(TFormula_p form, TB_p terms,
    PStack_p stack, lit_stack = PStackAlloc();
    PStackPointer i;
 
-   // fprintf(stderr, "tformula_collect_clause(): ");
+   // locked_fprintf(stderr, "tformula_collect_clause(): ");
    // TermPrintDbgHO(stderr, form, terms->sig, DEREF_NEVER);
-   // fprintf(stderr, "\n");
+   // locked_fprintf(stderr, "\n");
 
    stack = PStackAlloc();
    PStackPushP(stack, form);

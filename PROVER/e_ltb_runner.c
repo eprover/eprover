@@ -268,9 +268,9 @@ int main(int argc, char* argv[])
                                     ScannerGetDefaultDir(in),
                                     outdir);
          now = GetSecTime();
-         fprintf(GlobalOut, "\n\n# == WCT: %4lds, Solved: %4ld/%4ld    ==\n",
+         locked_fprintf(GlobalOut, "\n\n# == WCT: %4lds, Solved: %4ld/%4ld    ==\n",
                  now-start, res, BatchSpecProblemNo(spec));
-         fprintf(GlobalOut, "# =============== Batch done ===========\n\n");
+         locked_fprintf(GlobalOut, "# =============== Batch done ===========\n\n");
          if(interactive)
          {
             BatchProcessInteractive(spec, ctrl, stdout);
@@ -280,7 +280,7 @@ int main(int argc, char* argv[])
       else
       {
          BatchProcessVariants(spec, use_variants, provers, start, ScannerGetDefaultDir(in), outdir);
-         fprintf(GlobalOut, "# =============== Variant batch done ===========\n\n");
+         locked_fprintf(GlobalOut, "# =============== Variant batch done ===========\n\n");
       }
       BatchSpecFree(spec);
    }
@@ -341,7 +341,7 @@ CLState_p process_options(int argc, char* argv[])
        print_help(stdout);
        exit(NO_ERROR);
       case OPT_VERSION:
-       fprintf(stdout, NAME " " VERSION " " E_NICKNAME "\n");
+       locked_fprintf(stdout, NAME " " VERSION " " E_NICKNAME "\n");
        exit(NO_ERROR);
       case OPT_OUTPUT:
        outname = arg;
@@ -387,7 +387,7 @@ CLState_p process_options(int argc, char* argv[])
 
 void print_help(FILE* out)
 {
-   fprintf(out, "\n"
+   locked_fprintf(out, "\n"
 NAME " " VERSION " \"" E_NICKNAME "\"\n\
 \n\
 Usage: " NAME " [options] [Batchfile] [PATH_TO_EPROVER]\n\
@@ -395,7 +395,7 @@ Usage: " NAME " [options] [Batchfile] [PATH_TO_EPROVER]\n\
 Read a CASC LTB batch specification file and process it.\n\
 \n");
    PrintOptions(stdout, opts, "Options:\n\n");
-   fprintf(out, "\n\n" E_FOOTER);
+   locked_fprintf(out, "\n\n" E_FOOTER);
 }
 
 

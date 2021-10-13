@@ -54,10 +54,11 @@ extern ScheduleCell const* CASC_SCHEDULE;
 extern ScheduleCell const* CASC_SH_SCHEDULE;
 extern ScheduleCell* chosen_schedule;
 
-void ScheduleTimesInit(ScheduleCell sched[], double time_used);
+void ScheduleTimesInit(ScheduleCell sched[], double time_used, int num_cpus);
 pid_t ExecuteSchedule(ScheduleCell strats[],
                       HeuristicParms_p  h_parms,
-                      bool print_rusage);
+                      bool print_rusage, int num_cpus, 
+                      bool* proof_found_flag, sem_t* proof_found_sem);
 
 
 #endif

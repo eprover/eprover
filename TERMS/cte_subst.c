@@ -196,7 +196,7 @@ bool SubstBindingPrint(FILE* out, Term_p var, Sig_p sig, DerefType deref)
 {
    TermPrint(out, var, sig, DEREF_NEVER);
    DBG_PRINT(out, " : ", TypePrintTSTP(out, sig->type_bank, var->type), " ");
-   fprintf(out, "<-");
+   locked_fprintf(out, "<-");
    if(var->binding)
    {
       TermPrint(out, var->binding, sig, deref);
@@ -229,20 +229,20 @@ long SubstPrint(FILE* out, Subst_p subst, Sig_p sig, DerefType deref)
    PStackPointer i, limit;
 
    limit = PStackGetSP(subst);
-   fprintf(out, "{");
+   locked_fprintf(out, "{");
    if(limit)
    {
       SubstBindingPrint(out,  PStackElementP(subst,0), sig, deref);
       {
          for(i=1; i<limit;i++)
          {
-            fprintf(out, ", ");
+            locked_fprintf(out, ", ");
             SubstBindingPrint(out,  PStackElementP(subst,i), sig,
                               deref);
          }
       }
    }
-   fprintf(out, "}");
+   locked_fprintf(out, "}");
 
    return (long)limit;
 }

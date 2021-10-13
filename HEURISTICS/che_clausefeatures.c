@@ -446,7 +446,7 @@ long ClauseTPTPDepthInfoAdd(Clause_p clause, long* depthmax, long*
 
 void ClauseInfoPrint(FILE* out, Clause_p clause)
 {
-   fprintf(out, "info(%ld, %ld, %ld, %ld, %ld, %d, %ld, %ld)",
+   locked_fprintf(out, "info(%ld, %ld, %ld, %ld, %ld, %d, %ld, %ld)",
       clause->ident,
       clause->proof_depth,
       clause->proof_size,
@@ -499,9 +499,9 @@ void ClausePropInfoPrint(FILE* out, Clause_p clause)
 {
    assert(clause);
 
-   fprintf(out, "# ");
+   locked_fprintf(out, "# ");
    ClausePCLPrint(out, clause, true);
-   fprintf(out,
+   locked_fprintf(out,
       "\n"
       "# Standardweight: %6ld\n"
       "# Symbol count  : %6ld\n"

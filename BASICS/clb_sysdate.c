@@ -22,6 +22,7 @@ Changes
 -----------------------------------------------------------------------*/
 
 #include "clb_sysdate.h"
+#include "clb_simple_stuff.h"
 
 
 
@@ -61,7 +62,7 @@ Changes
 
 void SysDatePrint(FILE* out, SysDate date)
 {
-   fprintf(out, "%5lu", date);
+   locked_fprintf(out, "%5lu", date);
 }
 
 /*---------------------------------------------------------------------*/

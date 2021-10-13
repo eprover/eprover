@@ -21,6 +21,7 @@ Changes
 -----------------------------------------------------------------------*/
 
 #include <clb_pstacks.h>
+#include "clb_simple_stuff.h"
 
 
 /*---------------------------------------------------------------------*/
@@ -329,7 +330,7 @@ void PStackPrintInt(FILE* out, char* format, PStack_p stack)
 
    for(i=0; i<PStackGetSP(stack); i++)
    {
-      fprintf(out, format, PStackElementInt(stack, i));
+      locked_fprintf(out, format, PStackElementInt(stack, i));
    }
 }
 
@@ -352,7 +353,7 @@ void PStackPrintP(FILE* out, char* format, PStack_p stack)
 
    for(i=0; i<PStackGetSP(stack); i++)
    {
-      fprintf(out, format, PStackElementP(stack, i));
+      locked_fprintf(out, format, PStackElementP(stack, i));
    }
 }
 

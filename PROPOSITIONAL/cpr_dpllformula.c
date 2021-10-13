@@ -163,7 +163,7 @@ void DPLLFormulaPrint(FILE* out,DPLLFormula_p form, DPLLOutputFormat format,
       {
     if(form->atoms[i].pos_occur || form->atoms[i].neg_occur)
     {
-       fprintf(out, "# %4ld: %4ld %4ld\n", i,
+       locked_fprintf(out, "# %4ld: %4ld %4ld\n", i,
           form->atoms[i].pos_occur,
           form->atoms[i].pos_occur);
     }
@@ -276,16 +276,16 @@ void DPLLFormulaParseLOP(Scanner_p in, Sig_p sig, DPLLFormula_p form)
       clause = ClauseParse(in, terms);
       pclause = DPLLClauseFromClause(form->sig, clause);
       ClauseFree(clause);
-      fprintf(GlobalOut, "New clause: ");
+      locked_fprintf(GlobalOut, "New clause: ");
       DPLLClausePrintLOP(GlobalOut, form->sig, pclause);
       if(DPLLClauseNormalize(pclause))
       {
-    fprintf(GlobalOut, "...discarded (tautology)\n");
+    locked_fprintf(GlobalOut, "...discarded (tautology)\n");
     DPLLClauseFree(pclause);
     continue;
       }
       DPLLFormulaInsertClause(form, pclause);
-      fprintf(GlobalOut, "...accepted\n");
+      locked_fprintf(GlobalOut, "...accepted\n");
    }
    terms->sig = NULL;
    TBFree(terms);

@@ -99,7 +99,7 @@ static void check_ac_status(ProofState_p state, ProofControl_p
          if(OutputLevel)
          {
             SigPrintACStatus(GlobalOut, state->signature);
-            fprintf(GlobalOut, "# AC handling enabled dynamically\n");
+            locked_fprintf(GlobalOut, "# AC handling enabled dynamically\n");
          }
       }
    }
@@ -413,7 +413,7 @@ void check_watchlist(GlobalIndices_p indices, ClauseSet_p watchlist,
             ClauseSetProp(clause, CPSubsumesWatch);
             if(OutputLevel == 1)
             {
-               fprintf(GlobalOut,"# Watchlist reduced by %ld clause%s\n",
+               locked_fprintf(GlobalOut,"# Watchlist reduced by %ld clause%s\n",
                        removed,removed==1?"":"s");
             }
             // ClausePrint(GlobalOut, clause, true); printf("\n");
@@ -850,7 +850,7 @@ static Clause_p cleanup_unprocessed_clauses(ProofState_p state,
       tmp = ClauseSetDeleteOrphans(state->unprocessed);
       if(OutputLevel)
       {
-         fprintf(GlobalOut,
+         locked_fprintf(GlobalOut,
                  "# Deleted %ld orphaned clauses (remaining: %ld)\n",
                  tmp, state->unprocessed->members);
       }
@@ -873,7 +873,7 @@ static Clause_p cleanup_unprocessed_clauses(ProofState_p state,
       }
       if(OutputLevel)
       {
-         fprintf(GlobalOut,
+         locked_fprintf(GlobalOut,
                  "# Special forward-contraction deletes %ld clauses"
                  "(remaining: %ld) \n",
                  tmp - state->unprocessed->members,
@@ -900,7 +900,7 @@ static Clause_p cleanup_unprocessed_clauses(ProofState_p state,
       state->non_redundant_deleted += tmp;
       if(OutputLevel)
       {
-         fprintf(GlobalOut,
+         locked_fprintf(GlobalOut,
                  "# Deleted %ld orphaned clauses and %ld bad "
                  "clauses (prover may be incomplete now)\n",
                  tmp, tmp2);
@@ -1022,9 +1022,9 @@ static void print_sharing_factor(ProofState_p state)
       ClauseSetGetTermNodes(state->processed_non_units)+
       ClauseSetGetTermNodes(state->unprocessed);
 
-   fprintf(GlobalOut, "\n#        GClauses   NClauses    NShared  "
+   locked_fprintf(GlobalOut, "\n#        GClauses   NClauses    NShared  "
            "NUnshared    TShared  TUnshared TSharinF   \n");
-   fprintf(GlobalOut, "# grep %10ld %10ld %10ld %10ld %10ld %10ld %10.3f\n",
+   locked_fprintf(GlobalOut, "# grep %10ld %10ld %10ld %10ld %10ld %10ld %10.3f\n",
            state->generated_count - state->backward_rewritten_count,
            state->tmp_store->members,
            ClauseSetGetSharedTermNodes(state->tmp_store),
@@ -1432,7 +1432,7 @@ void ProofStateInit(ProofState_p state, ProofControl_p control)
    {
       if(OutputLevel)
       {
-         fprintf(GlobalOut, "# Scanning for AC axioms\n");
+         locked_fprintf(GlobalOut, "# Scanning for AC axioms\n");
       }
       control->ac_handling_active = ClauseSetScanAC(state->signature,
                                                     state->unprocessed);
@@ -1441,7 +1441,7 @@ void ProofStateInit(ProofState_p state, ProofControl_p control)
          SigPrintACStatus(GlobalOut, state->signature);
          if(control->ac_handling_active)
          {
-            fprintf(GlobalOut, "# AC handling enabled\n");
+            locked_fprintf(GlobalOut, "# AC handling enabled\n");
          }
       }
    }

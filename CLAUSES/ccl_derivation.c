@@ -1095,12 +1095,12 @@ void DerivationDebugPrint(FILE* out, PStack_p derivation)
             }
             i++;
          }
-         fprintf(out, "<%s%s>", opids[DPOpGetOpCode(op)], i==sp?"":",");
+         locked_fprintf(out, "<%s%s>", opids[DPOpGetOpCode(op)], i==sp?"":",");
       }
    }
    else
    {
-      fprintf(out, " - ");
+      locked_fprintf(out, " - ");
    }
 }
 
@@ -1160,13 +1160,13 @@ void DerivationStackPCLPrint(FILE* out, Sig_p sig, PStack_p derivation)
          case DCFofQuote:
                break;
          case DCIntroDef:
-               fprintf(out, "%s", "introduced");
+               locked_fprintf(out, "%s", "introduced");
                break;
          case DCCnfAddArg:
                PStackPushP(arg_stack, PStackElementP(derivation, i+1));
                break;
          default:
-               fprintf(out, "%s(", opids[DPOpGetOpCode(op)]);
+               locked_fprintf(out, "%s(", opids[DPOpGetOpCode(op)]);
                break;
          }
       }
@@ -1182,20 +1182,20 @@ void DerivationStackPCLPrint(FILE* out, Sig_p sig, PStack_p derivation)
             {
                if(i!=0)
                {
-                  fprintf(out, ", ");
+                  locked_fprintf(out, ", ");
                }
-               fprintf(out, "%ld",
+               locked_fprintf(out, "%ld",
                        get_clauseform_id(op, 1, PStackElementP(derivation, i+1)));
                if(DCOpHasParentArg2(op))
                {
-                  fprintf(out, ", %ld",
+                  locked_fprintf(out, ", %ld",
                           get_clauseform_id(op, 2, PStackElementP(derivation, i+2)));
                }
             }
             while(!PStackEmpty(arg_stack))
             {
                ax = PStackPopP(arg_stack);
-               fprintf(out, ", %ld", ax->ident);
+               locked_fprintf(out, ", %ld", ax->ident);
             }
             switch(op)
             {
@@ -1209,12 +1209,12 @@ void DerivationStackPCLPrint(FILE* out, Sig_p sig, PStack_p derivation)
                   for(j=0; j<ac_limit; j++)
                   {
                      ax = PStackElementP(sig->ac_axioms, j);
-                     fprintf(out, ", %ld", ax->ident);
+                     locked_fprintf(out, ", %ld", ax->ident);
                   }
-                  fprintf(out, ")");
+                  locked_fprintf(out, ")");
                   break;
             default:
-                  fprintf(out, ")");
+                  locked_fprintf(out, ")");
                   break;
             }
          }
@@ -1285,13 +1285,13 @@ void DerivationStackTSTPPrint(FILE* out, Sig_p sig, PStack_p derivation)
          case DCFofQuote:
                break;
          case DCIntroDef:
-               fprintf(out, "%s", opids[DPOpGetOpCode(op)]);
+               locked_fprintf(out, "%s", opids[DPOpGetOpCode(op)]);
                break;
          case DCCnfAddArg:
                PStackPushP(arg_stack, PStackElementP(derivation, i+1));
                break;
          default:
-               fprintf(out, "inference(%s,[status(%s)],[",
+               locked_fprintf(out, "inference(%s,[status(%s)],[",
                        opids[opc],
                        opstatus[opc]);
                break;
@@ -1310,20 +1310,20 @@ void DerivationStackTSTPPrint(FILE* out, Sig_p sig, PStack_p derivation)
             {
                if(i!=0)
                {
-                  fprintf(out, ", ");
+                  locked_fprintf(out, ", ");
                }
-               fprintf(out, "%s",
+               locked_fprintf(out, "%s",
                        tstp_get_clauseform_id(op, 1, PStackElementP(derivation, i+1)));
                if(DCOpHasParentArg2(op))
                {
-                  fprintf(out, ", %s",
+                  locked_fprintf(out, ", %s",
                           tstp_get_clauseform_id(op, 2, PStackElementP(derivation, i+2)));
                }
             }
             while(!PStackEmpty(arg_stack))
             {
                ax = PStackPopP(arg_stack);
-               fprintf(out, ", c_0_%ld", ax->ident);
+               locked_fprintf(out, ", c_0_%ld", ax->ident);
             }
             switch(op)
             {
@@ -1337,20 +1337,20 @@ void DerivationStackTSTPPrint(FILE* out, Sig_p sig, PStack_p derivation)
                   for(j=0; j<ac_limit; j++)
                   {
                      ax = PStackElementP(sig->ac_axioms, j);
-                     fprintf(out, ", c_0_%ld", ax->ident);
+                     locked_fprintf(out, ", c_0_%ld", ax->ident);
                   }
                   if(optheory[opc])
                   {
-                     fprintf(out, ", theory(%s)",optheory[opc]);
+                     locked_fprintf(out, ", theory(%s)",optheory[opc]);
                   }
-                  fprintf(out, "])");
+                  locked_fprintf(out, "])");
                   break;
             default:
                   if(optheory[opc])
                   {
-                     fprintf(out, ", theory(%s)",optheory[opc]);
+                     locked_fprintf(out, ", theory(%s)",optheory[opc]);
                   }
-                  fprintf(out, "])");
+                  locked_fprintf(out, "])");
                   break;
             }
          }
@@ -1381,8 +1381,8 @@ void DerivedPCLPrint(FILE* out, Sig_p sig, Derived_p derived)
 {
    if(derived->clause)
    {
-      fprintf(out, "%6ld : ", derived->clause->ident);
-      fprintf(out, "%s : ",
+      locked_fprintf(out, "%6ld : ", derived->clause->ident);
+      locked_fprintf(out, "%s : ",
               PCLTypeStr(ClauseQueryTPTPType(derived->clause)));
       ClausePCLPrint(out, derived->clause, PCLFullTerms);
       fputs(" : ", out);
@@ -1398,19 +1398,19 @@ void DerivedPCLPrint(FILE* out, Sig_p sig, Derived_p derived)
       {
          if(ClauseIsEmpty(derived->clause))
          {
-            fprintf(out, " : 'proof'");
+            locked_fprintf(out, " : 'proof'");
          }
          else
          {
-            fprintf(out, " : 'final'");
+            locked_fprintf(out, " : 'final'");
          }
       }
    }
    else
    {
       assert(derived->formula);
-      fprintf(out, "%6ld : ", derived->formula->ident);
-      fprintf(out, "%s : ",
+      locked_fprintf(out, "%6ld : ", derived->formula->ident);
+      locked_fprintf(out, "%s : ",
               PCLTypeStr(FormulaQueryType(derived->formula)));
       TFormulaTPTPPrint(out,
                         derived->formula->terms,
@@ -1446,18 +1446,18 @@ void DerivedTSTPPrint(FILE* out, Sig_p sig, Derived_p derived)
 {
    if(derived->clause)
    {
-      // fprintf(out, "%p: ", derived->clause);
+      // locked_fprintf(out, "%p: ", derived->clause);
       ClauseTSTPPrint(out, derived->clause, true, false);
       if(derived->clause->derivation)
       {
-         fprintf(out, ", ");
+         locked_fprintf(out, ", ");
          DerivationStackTSTPPrint(out, sig, derived->clause->derivation);
       }
       else
       {
          if(derived->clause->info)
          {
-            fprintf(out, ", ");
+            locked_fprintf(out, ", ");
             ClauseSourceInfoPrintTSTP(out, derived->clause->info);
          }
       }
@@ -1465,34 +1465,34 @@ void DerivedTSTPPrint(FILE* out, Sig_p sig, Derived_p derived)
       {
          if(ClauseIsEmpty(derived->clause))
          {
-            fprintf(out, ", ['proof']");
+            locked_fprintf(out, ", ['proof']");
          }
          else
          {
-            fprintf(out, ", ['final']");
+            locked_fprintf(out, ", ['final']");
          }
       }
-      fprintf(out, ").");
+      locked_fprintf(out, ").");
    }
    else
    {
       assert(derived->formula);
-      // fprintf(out, "%p: ", derived->formula);
+      // locked_fprintf(out, "%p: ", derived->formula);
       WFormulaTSTPPrint(out, derived->formula, true, false);
       if(derived->formula->derivation)
       {
-         fprintf(out, ", ");
+         locked_fprintf(out, ", ");
          DerivationStackTSTPPrint(out, sig, derived->formula->derivation);
       }
       else
       {
          if(derived->formula->info)
          {
-            fprintf(out, ", ");
+            locked_fprintf(out, ", ");
             ClauseSourceInfoPrintTSTP(out, derived->formula->info);
          }
       }
-      fprintf(out, ").");
+      locked_fprintf(out, ").");
    }
 }
 
@@ -1661,7 +1661,7 @@ void DerivedDotPrint(FILE* out, Sig_p sig, Derived_p derived,
    //parent_count = PStackGetSP(parent_clauses)+
    //PStackGetSP(parent_formulas);
 
-   fprintf(out, "  %ld [shape=%s%s,style=filled,label=\"",
+   locked_fprintf(out, "  %ld [shape=%s%s,style=filled,label=\"",
            id, shape, DerivedDotNodeColour(derived));
 
    if(derived->clause)
@@ -1672,7 +1672,7 @@ void DerivedDotPrint(FILE* out, Sig_p sig, Derived_p derived,
       }
       else
       {
-         fprintf(out, "c%ld", derived->clause->ident);
+         locked_fprintf(out, "c%ld", derived->clause->ident);
       }
    }
    else
@@ -1684,38 +1684,38 @@ void DerivedDotPrint(FILE* out, Sig_p sig, Derived_p derived,
       }
       else
       {
-         fprintf(out, "c%ld", derived->formula->ident);
+         locked_fprintf(out, "c%ld", derived->formula->ident);
       }
    }
    if(print_derivation >= POGraph2)
    {
       if(deriv)
       {
-         fprintf(out, ",\\n");
+         locked_fprintf(out, ",\\n");
          DerivationStackTSTPPrint(out, sig, deriv);
       }
       else if(info)
       {
-         fprintf(out, ",\\n");
+         locked_fprintf(out, ",\\n");
          ClauseSourceInfoPrintTSTP(out, info);
       }
    }
    if(print_derivation >= POGraph1)
    {
-      fprintf(out, ").\n");
+      locked_fprintf(out, ").\n");
    }
-   fprintf(out, "\"]\n");
+   locked_fprintf(out, "\"]\n");
 
    while(!PStackEmpty(parent_clauses))
    {
       cparent = PStackPopP(parent_clauses);
-      fprintf(out, "    %ld -> %ld [style=\"bold\"%s]\n", cparent->ident, id,
+      locked_fprintf(out, "    %ld -> %ld [style=\"bold\"%s]\n", cparent->ident, id,
               DerivedDotClauseLinkColour(derived, cparent));
    }
    while(!PStackEmpty(parent_formulas))
    {
       fparent = PStackPopP(parent_formulas);
-      fprintf(out, "    %ld -> %ld [style=\"bold\"%s]\n", fparent->ident, id,
+      locked_fprintf(out, "    %ld -> %ld [style=\"bold\"%s]\n", fparent->ident, id,
               DerivedDotFormulaLinkColour(derived, fparent));
    }
    PStackFree(parent_clauses);
@@ -2336,7 +2336,7 @@ void DerivationPrint(FILE* out, Derivation_p derivation, char* frame)
 
    assert(derivation->ordered);
 
-   fprintf(out, "# SZS output start %s\n", frame);
+   locked_fprintf(out, "# SZS output start %s\n", frame);
    for(sp=PStackGetSP(derivation->ordered_deriv)-1; sp>=0; sp--)
    {
       node = PStackElementP(derivation->ordered_deriv, sp);
@@ -2349,12 +2349,12 @@ void DerivationPrint(FILE* out, Derivation_p derivation, char* frame)
             DerivedTSTPPrint(out, derivation->sig, node);
             break;
       default:
-            fprintf(out, "# Output format not implemented.");
+            locked_fprintf(out, "# Output format not implemented.");
             break;
       }
-      fprintf(out, "\n");
+      locked_fprintf(out, "\n");
    }
-   fprintf(out, "# SZS output end %s\n", frame);
+   locked_fprintf(out, "# SZS output end %s\n", frame);
 }
 
 
@@ -2380,7 +2380,7 @@ void DerivationDotPrint(FILE* out, Derivation_p derivation,
 
    assert(derivation->ordered);
 
-   fprintf(out,
+   locked_fprintf(out,
            "digraph proof{\n"
            "  rankdir=TB\n"
            "  graph [splines=true overlap=false];\n"
@@ -2393,12 +2393,12 @@ void DerivationDotPrint(FILE* out, Derivation_p derivation,
       node = PStackElementP(derivation->ordered_deriv, sp);
       if(axiom_open && DerivedGetDerivstack(node))
       { /* Axioms come first, and this is not one anymore */
-         fprintf(out, "   }\n");
+         locked_fprintf(out, "   }\n");
          axiom_open = false;
       }
       DerivedDotPrint(out, derivation->sig, node, print_derivation);
    }
-   fprintf(out, "}\n");
+   locked_fprintf(out, "}\n");
 }
 
 
@@ -2431,25 +2431,25 @@ void DerivationPrintConditional(FILE* out, char* status, Derivation_p derivation
    DerivationAnalyse(derivation);
    if(print_analysis)
    {
-      fprintf(GlobalOut, "# Proof object total steps             : %lu\n",
+      locked_fprintf(GlobalOut, "# Proof object total steps             : %lu\n",
               derivation->clause_step_count+derivation->formula_step_count);
-      fprintf(GlobalOut, "# Proof object clause steps            : %lu\n",
+      locked_fprintf(GlobalOut, "# Proof object clause steps            : %lu\n",
               derivation->clause_step_count);
-      fprintf(GlobalOut, "# Proof object formula steps           : %lu\n",
+      locked_fprintf(GlobalOut, "# Proof object formula steps           : %lu\n",
               derivation->formula_step_count);
-      fprintf(GlobalOut, "# Proof object conjectures             : %lu\n",
+      locked_fprintf(GlobalOut, "# Proof object conjectures             : %lu\n",
               derivation->clause_conjecture_count+derivation->formula_conjecture_count);
-      fprintf(GlobalOut, "# Proof object clause conjectures      : %lu\n",
+      locked_fprintf(GlobalOut, "# Proof object clause conjectures      : %lu\n",
               derivation->clause_conjecture_count);
-      fprintf(GlobalOut, "# Proof object formula conjectures     : %lu\n",
+      locked_fprintf(GlobalOut, "# Proof object formula conjectures     : %lu\n",
               derivation->formula_conjecture_count);
-      fprintf(GlobalOut, "# Proof object initial clauses used    : %lu\n",
+      locked_fprintf(GlobalOut, "# Proof object initial clauses used    : %lu\n",
               derivation->initial_clause_count);
-      fprintf(GlobalOut, "# Proof object initial formulas used   : %lu\n",
+      locked_fprintf(GlobalOut, "# Proof object initial formulas used   : %lu\n",
               derivation->initial_formula_count);
-      fprintf(GlobalOut, "# Proof object generating inferences   : %lu\n",
+      locked_fprintf(GlobalOut, "# Proof object generating inferences   : %lu\n",
               derivation->generating_inf_count);
-      fprintf(GlobalOut, "# Proof object simplifying inferences  : %lu\n",
+      locked_fprintf(GlobalOut, "# Proof object simplifying inferences  : %lu\n",
               derivation->simplifying_inf_count);
    }
 }

@@ -220,7 +220,7 @@ CLState_p process_options(int argc, char* argv[])
 
 void print_help(FILE* out)
 {
-   fprintf(out,
+   locked_fprintf(out,
       "\n"
       "\n"
 NAME " " VERSION "\n"
@@ -231,7 +231,7 @@ Read an PCL2 protocol and print a number of statistics about the\n\
 protocol and its clauses.\n\
 \n");
    PrintOptions(stdout, opts, "Options\n\n");
-   fprintf(out, "\n\
+   locked_fprintf(out, "\n\
 Copyright (C) 2002-2009 by Stephan Schulz, " STS_MAIL "\n\
 \n\
 This program is a part of the support structure for the E equational\n\

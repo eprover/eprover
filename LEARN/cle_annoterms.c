@@ -374,7 +374,7 @@ void AnnoSetPrint(FILE* out, AnnoSet_p set)
    PStack_p stack;
    NumTree_p handle;
 
-   fprintf(out, "\n# Annotated terms:\n");
+   locked_fprintf(out, "\n# Annotated terms:\n");
 
    stack = NumTreeTraverseInit(set->set);
    while((handle = NumTreeTraverseNext(stack)))

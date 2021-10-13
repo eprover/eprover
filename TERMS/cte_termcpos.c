@@ -105,12 +105,12 @@ void TermPrintAllCPos(FILE* out, TB_p bank, Term_p term)
    TermLinearize(stack, term);
    for(i=0; (t=TermCPosGetSubterm(term, i));  i++)
    {
-      fprintf(out, "\nPos %3ld: ", i);
+      locked_fprintf(out, "\nPos %3ld: ", i);
       TBPrintTermFull(out, bank, t);
-      fprintf(out, " === ");
+      locked_fprintf(out, " === ");
       TBPrintTermFull(out, bank, PStackElementP(stack, i));
    }
-   fprintf(out, "\n");
+   locked_fprintf(out, "\n");
    PStackFree(stack);
 }
 

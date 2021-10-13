@@ -249,7 +249,7 @@ void RawSpecFeaturesParse(Scanner_p in, RawSpecFeature_p features)
 
 void RawSpecFeaturesPrint(FILE* out, RawSpecFeature_p features)
 {
-      fprintf(out, "(%7ld, %7lld, %6d, %6d, %6d, %6d, %6d, %6d, %.3f, %d, %d, %d, %d ) : %s",
+      locked_fprintf(out, "(%7ld, %7lld, %6d, %6d, %6d, %6d, %6d, %6d, %.3f, %d, %d, %d, %d ) : %s",
               features->sentence_no,
               features->term_size,
               features->sig_size,

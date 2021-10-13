@@ -1304,7 +1304,7 @@ void SpecFeaturesPrint(FILE* out, SpecFeature_p features)
 {
    assert(features);
 
-   fprintf(out,
+   locked_fprintf(out,
            "( %3ld, %3ld, %3ld, %3ld, %3ld, %3ld, %3ld, %3ld, %3ld,"
            " %3ld, %3ld, %3ld, %3ld, %3ld, %3ld, %8.6f, %8.6f,"
            " %3d, %3d, %3d, %3ld, %3ld, %3d, %3d, %8.6f, %8.6f, %s, %s )",
@@ -1659,12 +1659,12 @@ void ProofStatePrintSelective(FILE* out, ProofState_p state, char*
       case 't':
             if(problemType == PROBLEM_HO || !ClauseSetIsUntyped(state->axioms))
             {
-               fprintf(out, "# Type declarations:\n");
+               locked_fprintf(out, "# Type declarations:\n");
                SigPrintTypeDeclsTSTP(out, state->terms->sig);
             }
             break;
       case 'e':
-            fprintf(out, "# Processed positive unit clauses:\n");
+            locked_fprintf(out, "# Processed positive unit clauses:\n");
             ClauseSetPrintPosUnits(out, state->processed_pos_rules,
                                    printinfo);
             ClauseSetPrintPosUnits(out, state->processed_pos_eqns,
@@ -1672,31 +1672,31 @@ void ProofStatePrintSelective(FILE* out, ProofState_p state, char*
             fputc('\n', out);
             break;
       case 'i':
-            fprintf(out, "# Processed negative unit clauses:\n");
+            locked_fprintf(out, "# Processed negative unit clauses:\n");
             ClauseSetPrintNegUnits(out, state->processed_neg_units,
                                    printinfo);
             fputc('\n', out);
             break;
       case 'g':
-            fprintf(out, "# Processed non-unit clauses:\n");
+            locked_fprintf(out, "# Processed non-unit clauses:\n");
             ClauseSetPrintNonUnits(out, state->processed_non_units,
                                    printinfo);
             fputc('\n', out);
             break;
       case 'E':
-            fprintf(out, "# Unprocessed positive unit clauses:\n");
+            locked_fprintf(out, "# Unprocessed positive unit clauses:\n");
             ClauseSetPrintPosUnits(out, state->unprocessed,
                                    printinfo);
             fputc('\n', out);
             break;
       case 'I':
-            fprintf(out, "# Unprocessed negative unit clauses:\n");
+            locked_fprintf(out, "# Unprocessed negative unit clauses:\n");
             ClauseSetPrintNegUnits(out, state->unprocessed,
                                    printinfo);
             fputc('\n', out);
             break;
       case 'G':
-            fprintf(out, "# Unprocessed non-unit clauses:\n");
+            locked_fprintf(out, "# Unprocessed non-unit clauses:\n");
             ClauseSetPrintNonUnits(out, state->unprocessed,
                                    printinfo);
             fputc('\n', out);
@@ -1704,24 +1704,24 @@ void ProofStatePrintSelective(FILE* out, ProofState_p state, char*
       case 'a':
             if(ClauseSetIsEquational(state->axioms))
             {
-               fprintf(out, "# Equality axioms:\n");
+               locked_fprintf(out, "# Equality axioms:\n");
                EqAxiomsPrint(out, state->signature, true);
             }
             else
             {
-               fprintf(out, "# No equality axioms required.\n");
+               locked_fprintf(out, "# No equality axioms required.\n");
             }
 
             break;
       case 'A':
             if(ClauseSetIsEquational(state->axioms))
             {
-               fprintf(out, "# Equality axioms:\n");
+               locked_fprintf(out, "# Equality axioms:\n");
                EqAxiomsPrint(out, state->signature, false);
             }
             else
             {
-               fprintf(out, "# No equality axioms required.\n");
+               locked_fprintf(out, "# No equality axioms required.\n");
             }
             break;
       default:

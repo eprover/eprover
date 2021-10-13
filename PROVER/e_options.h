@@ -670,11 +670,13 @@ OptCell opts[] =
 
    {OPT_AUTO_SCHED,
     '\0', "auto-schedule",
-    NoArg, NULL,
+    OptArg, "1",
     "Use the (experimental) strategy scheduling. This will try several "
     "different fully specified search strategies (aka \"Auto-Modes\"), "
     "one after the other, until a proof or saturation is found, or the "
-    "time limit is exceeded."},
+    "time limit is exceeded. Optional argument is the number of CPUs on which "
+    "the schedule is going to be executed on. By default, the schedule is executed "
+    "on a single core. To execute on all cores of a system set the argument to -1"},
 
    {OPT_SATAUTO_SCHED,
     '\0', "satauto-schedule",

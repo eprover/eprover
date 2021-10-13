@@ -20,6 +20,8 @@ Changes
 -----------------------------------------------------------------------*/
 
 #include "cco_scheduling.h"
+#include <unistd.h>
+#include <sys/mman.h>
 
 
 
@@ -87,7 +89,7 @@ ScheduleCell* chosen_schedule = _CASC_SCHEDULE;
 //
 /----------------------------------------------------------------------*/
 
-void ScheduleTimesInit(ScheduleCell sched[], double time_used)
+void ScheduleTimesInit(ScheduleCell sched[], double time_used, int num_cpus)
 {
    int i;
    rlim_t sum = 0, tmp, limit;
@@ -107,6 +109,9 @@ void ScheduleTimesInit(ScheduleCell sched[], double time_used)
          limit = DEFAULT_SCHED_TIME_LIMIT-time_used;
       }
    }
+
+   // limit is a wallclock limit
+   limit = limit * num_cpus;
 
    for(i=0; sched[i+1].heu_name; i++)
    {
@@ -139,21 +144,36 @@ void ScheduleTimesInit(ScheduleCell sched[], double time_used)
 //
 /----------------------------------------------------------------------*/
 
+void _resume(int _)
+{
+   // dummy function to make sure signal is not ignored
+   return;   
+}
+
 pid_t ExecuteSchedule(ScheduleCell strats[],
                       HeuristicParms_p  h_parms,
-                      bool print_rusage)
+                      bool print_rusage, int num_cpus, 
+                      bool* proof_found_flag, sem_t* proof_found_sem)
 {
    int raw_status, status = OTHER_ERROR, i;
    pid_t pid       = 0, respid;
    double run_time = GetTotalCPUTime();
+   
+   if(num_cpus <= 0)
+   {
+      // using all available CPUs
+      num_cpus = sysconf(_SC_NPROCESSORS_ONLN);
+      locked_fprintf(stderr, "# Will run on %d CPU cores.\n", num_cpus);
+   }
 
-   ScheduleTimesInit(strats, run_time);
+   ScheduleTimesInit(strats, run_time, num_cpus);
+   PStack_p child_pids = PStackAlloc();
 
    for(i=0; strats[i].heu_name; i++)
    {
       h_parms->heuristic_name         = strats[i].heu_name;
       h_parms->order_params.ordertype = strats[i].ordering;
-      fprintf(GlobalOut, "# Trying %s for %ld seconds\n",
+      locked_fprintf(GlobalOut, "# Will try %s for %ld seconds\n",
               strats[i].heu_name,
               (long)strats[i].time_absolute);
       fflush(GlobalOut);
@@ -166,16 +186,54 @@ pid_t ExecuteSchedule(ScheduleCell strats[],
          {
             SetSoftRlimit(RLIMIT_CPU, strats[i].time_absolute);
          }
-         return pid;
+         signal(SIGUSR1, _resume);
+         pause();
+         break;
       }
       else
       {
          /* Parent */
+         PStackPushInt(child_pids, pid);
+      }
+   }
+   if(print_rusage)
+   {
+      PrintRusage(GlobalOut);
+   }
+   if(pid==0)
+   {
+      return pid; // child continues on
+   }
+   else
+   {
+      PStackPointer activated = 0;
+      PStackPointer finished = 0;
+      PStackPointer sched_size = PStackGetSP(child_pids);
+      for(; activated < num_cpus && activated < sched_size; activated++)
+      {
+         pid_t child_pid = PStackElementInt(child_pids, activated);
+         kill(child_pid, SIGUSR1); // activating the child.
+      }
+
+      while(finished < sched_size)
+      {
          respid = -1;
          while(respid == -1)
          {
-            respid = waitpid(pid, &raw_status, 0);
+            respid = wait(&raw_status);
          }
+         finished++;
+
+         int sched_idx = -1;
+         for(PStackPointer i=0; sched_idx==-1 &&i<PStackGetSP(child_pids); i++)
+         {
+            if(PStackElementInt(child_pids, i) == respid)
+            {
+               sched_idx = i;
+            }
+         }
+         assert(sched_idx!=-1);
+
          if(WIFEXITED(raw_status))
          {
             status = WEXITSTATUS(raw_status);
@@ -185,77 +243,33 @@ pid_t ExecuteSchedule(ScheduleCell strats[],
                {
                   PrintRusage(GlobalOut);
                }
-               exit(status);
+               kill(0, SIGKILL); // killing all the children
+               break;
             }
             else
             {
-               fprintf(GlobalOut, "# No success with %s\n",
-                       strats[i].heu_name);
+               locked_fprintf(GlobalOut, "# No success with %s\n",
+                        strats[sched_idx].heu_name);
             }
          }
          else
          {
-            fprintf(GlobalOut, "# Abnormal termination for %s\n",
-                    strats[i].heu_name);
+            locked_fprintf(GlobalOut, "# Abnormal termination for %s\n",
+                     strats[sched_idx].heu_name);
+         }
+
+         if(activated < sched_size)
+         {
+            // activating another schild
+            kill(PStackElementInt(child_pids, activated++), SIGUSR1); 
          }
       }
+      // all children died
+      // munmap(proof_found_flag, sizeof(bool));
+      // sem_destroy(proof_found_sem);
+      // sem_destroy(print_mutex);
+      // print_mutex = NULL;
    }
-   if(print_rusage)
-   {
-      PrintRusage(GlobalOut);
-   }
-   /* The following is ugly: Because the individual strategies can
-      fail, but the whole schedule can succeed, we cannot let the
-      strategies report failure to standard out (that might confuse
-      badly-written meta-tools (and there are such ;-)). Hence, the
-      TSPT status in the failure case is suppressed and needs to be
-      added here. This is ony partially possible - we take the exit
-      status of the last strategy of the schedule. */
-   switch(status)
-   {
-   case PROOF_FOUND:
-   case SATISFIABLE:
-         /* Nothing to do, success reported by the child */
-         break;
-   case OUT_OF_MEMORY:
-    TSTPOUT(stdout, "ResourceOut");
-         break;
-   case SYNTAX_ERROR:
-         /* Should never be possible here */
-         TSTPOUT(stdout, "SyntaxError");
-         break;
-   case USAGE_ERROR:
-         /* Should never be possible here */
-         TSTPOUT(stdout, "UsageError");
-         break;
-   case FILE_ERROR:
-         /* Should never be possible here */
-         TSTPOUT(stdout, "OSError");
-         break;
-   case SYS_ERROR:
-         TSTPOUT(stdout, "OSError");
-         break;
-   case CPU_LIMIT_ERROR:
-         WriteStr(GlobalOutFD, "\n# Failure: Resource limit exceeded (time)\n");
-         TSTPOUTFD(GlobalOutFD, "ResourceOut");
-         Error("CPU time limit exceeded, terminating", CPU_LIMIT_ERROR);
-         break;
-   case RESOURCE_OUT:
-    TSTPOUT(stdout, "ResourceOut");
-         break;
-   case INCOMPLETE_PROOFSTATE:
-         TSTPOUT(GlobalOut, "GaveUp");
-         break;
-   case OTHER_ERROR:
-         TSTPOUT(stdout, "Error");
-         break;
-   case INPUT_SEMANTIC_ERROR:
-         TSTPOUT(stdout, "SemanticError");
-         break;
-   default:
-         break;
-   }
-   exit(status);
    return pid;
 }
 

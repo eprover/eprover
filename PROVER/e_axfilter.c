@@ -287,16 +287,16 @@ void filter_problem(StructFOFSpec_p ctrl,
                            clauses,
                            formulas);
 
-   fprintf(GlobalOut, "# Filter: %s goes into file %s\n",
+   locked_fprintf(GlobalOut, "# Filter: %s goes into file %s\n",
            filter->name,
            DStrView(filename));
 
    fp = fopen(DStrView(filename), "w");
-   fprintf(fp, "%% Filter %s on file %s\n",
+   locked_fprintf(fp, "%% Filter %s on file %s\n",
            filter->name, corename);
    if(desc)
    {
-      fprintf(fp, "%s", desc);
+      locked_fprintf(fp, "%s", desc);
    }
    SigPrintTypeDeclsTSTP(fp, ctrl->terms->sig);
    PStackClausePrintTSTP(fp, clauses);
@@ -856,7 +856,7 @@ CLState_p process_options(int argc, char* argv[])
             print_help(stdout);
             exit(NO_ERROR);
       case OPT_VERSION:
-            fprintf(stdout, NAME " " VERSION " " E_NICKNAME "\n");
+            locked_fprintf(stdout, NAME " " VERSION " " E_NICKNAME "\n");
             exit(NO_ERROR);
       case OPT_OUTPUT:
             outname = arg;
@@ -963,7 +963,7 @@ CLState_p process_options(int argc, char* argv[])
 
 void print_help(FILE* out)
 {
-   fprintf(out, "\n"
+   locked_fprintf(out, "\n"
 NAME " " VERSION " \"" E_NICKNAME "\"\n\
 \n\
 Usage: " NAME " [options] [files]\n\
@@ -984,7 +984,7 @@ since it uses file names generated from the input file name and filter\n\
 names to store the different result files\n\
 \n");
    PrintOptions(stdout, opts, "Options:\n\n");
-   fprintf(out, "\n\n" E_FOOTER);
+   locked_fprintf(out, "\n\n" E_FOOTER);
 }
 
 

@@ -642,7 +642,7 @@ void PStackClausePrint(FILE* out, PStack_p stack, char* extra)
       ClausePrint(out, clause, true);
       if(extra)
       {
-         fprintf(out, "%s", extra);
+         locked_fprintf(out, "%s", extra);
       }
       fputc('\n', out);
    }

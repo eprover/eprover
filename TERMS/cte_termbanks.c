@@ -79,7 +79,7 @@ static void tb_print_dag(FILE *out, NumTree_p in_index, Sig_p sig)
    }
    tb_print_dag(out, in_index->lson, sig);
    term = in_index->val1.p_val;
-   fprintf(out, "*%ld : ", term->entry_no);
+   locked_fprintf(out, "*%ld : ", term->entry_no);
 
    if(TermIsFreeVar(term))
    {
@@ -96,23 +96,23 @@ static void tb_print_dag(FILE *out, NumTree_p in_index, Sig_p sig)
          assert(term->args);
          putc('(', out);
 
-         fprintf(out, "*%ld", TBCellIdent(term->args[0]));
+         locked_fprintf(out, "*%ld", TBCellIdent(term->args[0]));
          for(i=1; i<term->arity; i++)
          {
             putc(',', out);
-            fprintf(out, "*%ld", TBCellIdent(term->args[i]));
+            locked_fprintf(out, "*%ld", TBCellIdent(term->args[i]));
          }
          putc(')', out);
       }
-      fprintf(out, "   =   ");
+      locked_fprintf(out, "   =   ");
       TermPrint(out, term, sig, DEREF_NEVER);
    }
    if(TBPrintInternalInfo)
    {
-      fprintf(out, "\t/*  Properties: %10d */",
+      locked_fprintf(out, "\t/*  Properties: %10d */",
               term->properties);
    }
-   fprintf(out, "\n");
+   locked_fprintf(out, "\n");
    tb_print_dag(out, in_index->rson, sig);
 }
 
@@ -1488,7 +1488,7 @@ void TBPrintTermCompact(FILE* out, TB_p bank, Term_p term)
 
    if(TermCellQueryProp(term, TPOutputFlag))
    {
-      fprintf(out, "*%ld", term->entry_no);
+      locked_fprintf(out, "*%ld", term->entry_no);
    }
    else
    {
@@ -1498,7 +1498,7 @@ void TBPrintTermCompact(FILE* out, TB_p bank, Term_p term)
       }
       else
       {
-         fprintf(out, "*%ld:", term->entry_no);
+         locked_fprintf(out, "*%ld:", term->entry_no);
          TermCellSetProp(term, TPOutputFlag);
          fputs(SigFindName(bank->sig, term->f_code), out);
          if(!TermIsConst(term))
@@ -1576,7 +1576,7 @@ void TBPrintBankTerms(FILE* out, TB_p bank)
             if(TermCellQueryProp(term, TPTopPos))
             {
                TBPrintTermCompact(out, bank, term);
-               fprintf(out, "\n");
+               locked_fprintf(out, "\n");
             }
          }
       }
@@ -1912,12 +1912,12 @@ long TBGCSweep(TB_p bank)
    VERBOUT("Garbage collection started.\n");
    recovered = TermCellStoreGCSweep(&(bank->term_store),
                                     bank->garbage_state);
-   VERBOSE(fprintf(stderr, "Garbage collection reclaimed %ld unused term cells.\n",recovered););
+   VERBOSE(locked_fprintf(stderr, "Garbage collection reclaimed %ld unused term cells.\n",recovered););
 /* #ifdef PRINT_SOMEERRORS_STDOUT */
 #ifdef NEVER_DEFINED
    if(OutputLevel)
    {
-      fprintf(GlobalOut,
+      locked_fprintf(GlobalOut,
               "# Garbage collection reclaimed %ld unused term cells.\n",
               recovered);
    }

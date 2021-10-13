@@ -577,15 +577,15 @@ int main(int argc, char* argv[])
       switch(groundset->complete)
       {
       case cpl_complete:
-            fprintf(GlobalOut,
+            locked_fprintf(GlobalOut,
                     "# Full and complete proof state written!\n");
             break;
       case cpl_lowmem:
-            fprintf(GlobalOut,
+            locked_fprintf(GlobalOut,
                     "# Out of memory: Proof state incomplete!\n");
             break;
       case cpl_timeout:
-            fprintf(GlobalOut,
+            locked_fprintf(GlobalOut,
                     "# Timeout: Proof state incomplete!\n");
             break;
       default:
@@ -594,11 +594,11 @@ int main(int argc, char* argv[])
    }
    else
    {
-      fprintf(GlobalOut, "# Success!\n");
+      locked_fprintf(GlobalOut, "# Success!\n");
    }
    if(print_statistics)
    {
-      fprintf(GlobalOut,
+      locked_fprintf(GlobalOut,
               "\n"
               "# Initial clauses                      : %ld\n"
               "# Initial literals                     : %ld\n"
@@ -764,7 +764,7 @@ CLState_p process_options(int argc, char* argv[])
                         "Give explicit value to --memory-limit", OTHER_ERROR);
                }
                mem_limit = MEGA*mem_limit;
-               VERBOSE(fprintf(stderr,
+               VERBOSE(locked_fprintf(stderr,
                                "Physical memory determined as %ld MB\n"
                                "Memory limit set to %lld MB\n",
                                tmpmem,
@@ -861,7 +861,7 @@ CLState_p process_options(int argc, char* argv[])
 
 void print_help(FILE* out)
 {
-   fprintf(out, "\n\
+   locked_fprintf(out, "\n\
 \n\
 "NAME " " VERSION "\n\
 \n\
@@ -874,7 +874,7 @@ clauses to guarantee that a ground refutation can be found for\n\
 unsatisfiable clause sets.\n\
 \n");
    PrintOptions(stdout, opts, "Options\n\n");
-   fprintf(out, "\n\n" E_FOOTER);
+   locked_fprintf(out, "\n\n" E_FOOTER);
 }
 
 

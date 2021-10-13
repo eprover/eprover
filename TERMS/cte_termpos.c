@@ -105,10 +105,10 @@ void TermPosPrint(FILE* out, TermPos_p pos)
    {
       return;
    }
-   fprintf(out, "%ld", PStackElementInt(pos, 1));
+   locked_fprintf(out, "%ld", PStackElementInt(pos, 1));
    for(i=2; i<PStackGetSP(pos); i+=2)
    {
-      fprintf(out, ".%ld\n", PStackElementInt(pos, i+1));
+      locked_fprintf(out, ".%ld\n", PStackElementInt(pos, i+1));
    }
 }
 
@@ -131,23 +131,23 @@ void TermPosDebugPrint(FILE* out, Sig_p sig, TermPos_p pos)
 {
    PStackPointer i;
 
-   fprintf(out, "# TermPos--\n");
+   locked_fprintf(out, "# TermPos--\n");
    for(i=0; i<PStackGetSP(pos); i+=2)
    {
-      fprintf(out, "# ");
+      locked_fprintf(out, "# ");
       if(sig)
       {
     TermPrint(out, PStackElementP(pos, i), sig, DEREF_NEVER);
-    fprintf(out, "...");
+    locked_fprintf(out, "...");
     TermPrint(out, PStackElementP(pos, i), sig, DEREF_ALWAYS);
       }
       else
       {
-    fprintf(out, "<%p>", PStackElementP(pos, i));
+    locked_fprintf(out, "<%p>", PStackElementP(pos, i));
       }
-      fprintf(out, " Subterm %ld\n", PStackElementInt(pos, i+1));
+      locked_fprintf(out, " Subterm %ld\n", PStackElementInt(pos, i+1));
    }
-   fprintf(out, "# --TermPos\n");
+   locked_fprintf(out, "# --TermPos\n");
 }
 
 /*---------------------------------------------------------------------*/

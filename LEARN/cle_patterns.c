@@ -1231,11 +1231,11 @@ void PatternTermPrint(FILE* out, PatternSubst_p subst, Term_p term,
    {
       if(!id)
       {
-         fprintf(out, "X%ld", -term->f_code);
+         locked_fprintf(out, "X%ld", -term->f_code);
       }
       else
       {
-         fprintf(out, "Xn%ld", -(id-NORM_VAR_INIT));
+         locked_fprintf(out, "Xn%ld", -(id-NORM_VAR_INIT));
       }
    }
    else
@@ -1251,15 +1251,15 @@ void PatternTermPrint(FILE* out, PatternSubst_p subst, Term_p term,
       }
       if(term->arity)
       {
-         fprintf(out, "(");
+         locked_fprintf(out, "(");
          PatternTermPrint(out, subst, term->args[0], sig);
 
          for(i=1; i<term->arity; i++)
          {
-            fprintf(out, ",");
+            locked_fprintf(out, ",");
             PatternTermPrint(out, subst, term->args[i], sig);
          }
-         fprintf(out, ")");
+         locked_fprintf(out, ")");
       }
    }
 }

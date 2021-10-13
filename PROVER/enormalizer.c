@@ -308,9 +308,9 @@ long build_rw_system(ClauseSet_p demods, ClauseSet_p spec)
       }
       else
       {
-         fprintf(stderr, "%s: Clause is not a rewrite rule: ", NAME);
+         locked_fprintf(stderr, "%s: Clause is not a rewrite rule: ", NAME);
          ClausePrint(stderr, handle, true);
-         fprintf(stderr, " -- ignoring\n");
+         locked_fprintf(stderr, " -- ignoring\n");
          ClauseFree(handle);
       }
    }
@@ -345,9 +345,9 @@ void process_terms(char* infile, TB_p terms, OCB_p ocb, ClauseSet_p *demodulator
                                       demodulators,
                                       1, false, false);
          TBPrintTermFull(GlobalOut, terms, t);
-         fprintf(GlobalOut, " ==> ");
+         locked_fprintf(GlobalOut, " ==> ");
          TBPrintTermFull(GlobalOut, terms, tp);
-         fprintf(GlobalOut, "\n");
+         locked_fprintf(GlobalOut, "\n");
       }
       DestroyScanner(in);
    }
@@ -382,9 +382,9 @@ void process_clauses(char* infile, TB_p terms, OCB_p ocb, ClauseSet_p *demodulat
          ClauseComputeLINormalform(ocb, terms, clause,
                                       demodulators,
                                       1, false);
-         fprintf(GlobalOut, " ==> ");
+         locked_fprintf(GlobalOut, " ==> ");
          ClausePrint(GlobalOut, clause, true);
-         fprintf(GlobalOut, "\n");
+         locked_fprintf(GlobalOut, "\n");
          ClauseFree(clause);
       }
       DestroyScanner(in);
@@ -421,9 +421,9 @@ void process_formulas(char* infile, TB_p terms, OCB_p ocb, ClauseSet_p *demodula
          form->tformula = TermComputeLINormalform(ocb, terms, form->tformula,
                                                   demodulators,
                                                   1, false, false);
-         fprintf(GlobalOut, " ==> ");
+         locked_fprintf(GlobalOut, " ==> ");
          WFormulaPrint(GlobalOut, form, true);
-         fprintf(GlobalOut, "\n");
+         locked_fprintf(GlobalOut, "\n");
          WFormulaFree(form);
       }
       DestroyScanner(in);
@@ -670,7 +670,7 @@ CLState_p process_options(int argc, char* argv[])
                         "Give explicit value to --memory-limit", OTHER_ERROR);
                }
                mem_limit = MEGA*mem_limit;
-               VERBOSE(fprintf(stderr,
+               VERBOSE(locked_fprintf(stderr,
                                "Physical memory determined as %ld MB\n"
                                "Memory limit set to %lld MB\n",
                                tmpmem,
@@ -749,7 +749,7 @@ CLState_p process_options(int argc, char* argv[])
 
 void print_help(FILE* out)
 {
-   fprintf(out, "\n\
+   locked_fprintf(out, "\n\
 "NAME " " VERSION "\n\
 \n\
 Usage: enormalizer [options] [rulefiles]\n\
@@ -774,7 +774,7 @@ returned from the perfect discrimination tree index).\n\
 The normalized terms/clauses/formulas are printed.\n\
 \n");
    PrintOptions(stdout, opts, "Options\n\n");
-   fprintf(out, "\n\n" E_FOOTER);
+   locked_fprintf(out, "\n\n" E_FOOTER);
 }
 
 

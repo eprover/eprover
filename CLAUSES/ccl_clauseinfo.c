@@ -157,7 +157,7 @@ void ClauseSourceInfoPrint(FILE* out, ClauseInfo_p info, char *inf_lit, char* de
          name = buffer;
       }
    }
-   fprintf(out, "%s(%s, %s)", inf_lit, source, name);
+   locked_fprintf(out, "%s(%s, %s)", inf_lit, source, name);
    DStrFree(source_accu);
 }
 

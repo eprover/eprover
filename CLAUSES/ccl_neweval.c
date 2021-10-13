@@ -216,7 +216,7 @@ void EvalsFree(Eval_p junk)
 
 void EvalPrint(FILE* out, Eval_p eval, int pos)
 {
-   fprintf(out, "[%3ld:%.10f:%ld]", eval->evals[pos].priority,
+   locked_fprintf(out, "[%3ld:%.10f:%ld]", eval->evals[pos].priority,
       eval->evals[pos].heuristic, eval->eval_count);
 }
 
@@ -235,9 +235,9 @@ void EvalPrint(FILE* out, Eval_p eval, int pos)
 
 void EvalPrintComment(FILE* out, Eval_p eval, int pos)
 {
-   fprintf(out, "/*");
+   locked_fprintf(out, "/*");
    EvalPrint(out, eval, pos);
-   fprintf(out, "*/");
+   locked_fprintf(out, "*/");
 
 }
 
@@ -279,9 +279,9 @@ void EvalListPrint(FILE* out, Eval_p list)
 
 void EvalListPrintComment(FILE* out, Eval_p list)
 {
-   fprintf(out, "/*");
+   locked_fprintf(out, "/*");
    EvalListPrint(out, list);
-   fprintf(out, "*/");
+   locked_fprintf(out, "*/");
 }
 
 

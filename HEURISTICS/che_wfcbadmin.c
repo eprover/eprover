@@ -220,7 +220,7 @@ long WFCBAdminAddWFCB(WFCBAdmin_p set, char* name, WFCB_p wfcb)
    assert(name);
    assert(wfcb);
 
-   VERBOSE2(fprintf(stderr, "%s: Adding weight function '%s'.\n",
+   VERBOSE2(locked_fprintf(stderr, "%s: Adding weight function '%s'.\n",
          ProgName, name););
    PStackPushP(set->names, SecureStrdup(name));
    PStackPushP(set->wfcb_set, wfcb);

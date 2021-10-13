@@ -145,13 +145,13 @@ void DDArrayDebugPrint(FILE* out, DDArray_p array, long size)
 
    for(i = 0; i<size; i++)
    {
-      fprintf(out, " %5.3f ", DDArrayElement(array, i));
+      locked_fprintf(out, " %5.3f ", DDArrayElement(array, i));
       if(((i+1) % 10)==0)
       {
-    fprintf(out, "\n");
+    locked_fprintf(out, "\n");
       }
    }
-   fprintf(out, "\n");
+   locked_fprintf(out, "\n");
 }
 
 

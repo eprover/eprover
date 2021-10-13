@@ -339,70 +339,70 @@ void OCBDebugPrint(FILE* out, OCB_p ocb)
 {
    long i,j;
 
-   fprintf(out, "# ==============OCB-Debug-Information============\n");
-   fprintf(out, "# ===============================================\n");
+   locked_fprintf(out, "# ==============OCB-Debug-Information============\n");
+   locked_fprintf(out, "# ===============================================\n");
    if(ocb->sig)
    {
       SigPrint(out, ocb->sig);
    }
    else
    {
-      fprintf(out, "# No sig!\n");
+      locked_fprintf(out, "# No sig!\n");
    }
-   fprintf(out, "# -----------------------------------------------\n");
+   locked_fprintf(out, "# -----------------------------------------------\n");
    if(ocb->weights)
    {
-      fprintf(out, "# Weights:");
+      locked_fprintf(out, "# Weights:");
       for(i=1; i<=ocb->sig_size;i++)
       {
          if(!((i-1)%8))
          {
-            fprintf(out, "\n# ");
+            locked_fprintf(out, "\n# ");
          }
          if(ocb->sig)
          {
-            fprintf(out, " (%s = %ld) ", SigFindName(ocb->sig,i), OCBFunWeight(ocb, i));
+            locked_fprintf(out, " (%s = %ld) ", SigFindName(ocb->sig,i), OCBFunWeight(ocb, i));
          }
          else
          {
-            fprintf(out, " (%ld = %ld) ", i, OCBFunWeight(ocb, i));
+            locked_fprintf(out, " (%ld = %ld) ", i, OCBFunWeight(ocb, i));
          }
       }
-      fprintf(out, "\n\n");
+      locked_fprintf(out, "\n\n");
    }
    else
    {
-      fprintf(out, "# No weights!\n");
+      locked_fprintf(out, "# No weights!\n");
    }
-   fprintf(out, "# -----------------------------------------------\n");
+   locked_fprintf(out, "# -----------------------------------------------\n");
    if(ocb->precedence)
    {
-      fprintf(out, "# Precedence Matrix:\n#       ");
+      locked_fprintf(out, "# Precedence Matrix:\n#       ");
       for(j=1; j<=ocb->sig_size; j++)
       {
-         fprintf(out, " %2ld ", j);
+         locked_fprintf(out, " %2ld ", j);
       }
-      fprintf(out, "\n");
+      locked_fprintf(out, "\n");
       for(i=1; i<=ocb->sig_size; i++)
       {
-         fprintf(out, "# %2ld  | ", i);
+         locked_fprintf(out, "# %2ld  | ", i);
          fflush(stdout);
          for(j=1; j<=ocb->sig_size; j++)
          {
             char* symb;
 
             symb = POCompareSymbol[OCBFunCompare(ocb, i, j)];
-            fprintf(out, " %s", symb);
+            locked_fprintf(out, " %s", symb);
             fflush(stdout);
          }
-         fprintf(out, "\n");
+         locked_fprintf(out, "\n");
       }
    }
    else
    {
-      fprintf(out, "# No precedence!\n");
+      locked_fprintf(out, "# No precedence!\n");
    }
-   fprintf(out, "# ===============================================\n");
+   locked_fprintf(out, "# ===============================================\n");
 }
 
 

@@ -79,7 +79,7 @@ void finalize_auto_parms(char* modename, char* hname,
 
    if(OutputLevel+1 && problemType == PROBLEM_FO)
    {
-      fprintf(GlobalOut,
+      locked_fprintf(GlobalOut,
               "# %s selected heuristic %s\n"
               "# and selection function %s.\n#\n",
               modename,
@@ -96,7 +96,7 @@ false
    {
       if(problemType == PROBLEM_HO)
       {
-         fprintf(GlobalOut, "Selected heuristic:\n");
+         locked_fprintf(GlobalOut, "Selected heuristic:\n");
          HeuristicParmsPrint(stderr, &(control->heuristic_parms));
       }
    }

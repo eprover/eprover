@@ -739,12 +739,12 @@ void PrintOption(FILE* out, Opt_p option)
 
    if(option->shortopt)
    {
-      fprintf(out, "   -%c%s\n", option->shortopt,
+      locked_fprintf(out, "   -%c%s\n", option->shortopt,
          option->type == ReqArg ? " <arg>" : "");
    }
    if(option->longopt)
    {
-      fprintf(out, "  --%s%s\n", option->longopt, l_argdesc);
+      locked_fprintf(out, "  --%s%s\n", option->longopt, l_argdesc);
    }
 
    DStrAppendStr(optdesc, option->desc);
@@ -775,10 +775,10 @@ void PrintOption(FILE* out, Opt_p option)
    desc = DStrView(optdesc);
    while(desc)
    {
-      fprintf(out, "    ");
+      locked_fprintf(out, "    ");
       desc = print_start_of_str(out, desc, FORMAT_WIDTH-4);
    }
-   fprintf(out, "\n");
+   locked_fprintf(out, "\n");
    DStrFree(optdesc);
 }
 
@@ -802,7 +802,7 @@ void PrintOptions(FILE* out, OptCell option[], char* header)
 
    if(header)
    {
-      fprintf(out, "%s", header);
+      locked_fprintf(out, "%s", header);
    }
 
    for(i=0; option[i].option_code; i++)

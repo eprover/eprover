@@ -236,10 +236,10 @@ void FixedDArrayPrint(FILE* out, FixedDArray_p array)
 {
    long i;
 
-   fprintf(out, "# Size %ld:", array->size);
+   locked_fprintf(out, "# Size %ld:", array->size);
    for(i=0; i<array->size; i++)
    {
-      fprintf(out, " %4ld", array->array[i]);
+      locked_fprintf(out, " %4ld", array->array[i]);
    }
    fputc('\n', out);
 }

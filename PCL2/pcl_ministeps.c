@@ -165,7 +165,7 @@ void PCLMiniStepPrint(FILE* out, PCLMiniStep_p step, TB_p bank)
 {
    assert(step);
 
-   fprintf(out, "%6ld : ", step->id);
+   locked_fprintf(out, "%6ld : ", step->id);
    PCLPrintExternalType(out, step->properties);
    fputs(" : ", out);
    if(!PCLStepIsShell(step))
@@ -183,7 +183,7 @@ void PCLMiniStepPrint(FILE* out, PCLMiniStep_p step, TB_p bank)
    PCLMiniExprPrint(out, step->just);
    if(step->extra)
    {
-      fprintf(out, " : %s", step->extra);
+      locked_fprintf(out, " : %s", step->extra);
    }
 }
 
@@ -206,7 +206,7 @@ void PCLMiniStepPrintTSTP(FILE* out, PCLMiniStep_p step, TB_p bank)
 
    if(PCLStepIsClausal(step))
    {
-      fprintf(out, "cnf(%ld,%s,",step->id,
+      locked_fprintf(out, "cnf(%ld,%s,",step->id,
               PCLPropToTSTPType(step->properties));
       if(PCLStepIsShell(step))
       {
@@ -218,7 +218,7 @@ void PCLMiniStepPrintTSTP(FILE* out, PCLMiniStep_p step, TB_p bank)
    }
    else
    {
-      fprintf(out, "fof(%ld, %s,", step->id,
+      locked_fprintf(out, "fof(%ld, %s,", step->id,
               PCLPropToTSTPType(step->properties));
       if(PCLStepIsShell(step))
       {
@@ -232,7 +232,7 @@ void PCLMiniStepPrintTSTP(FILE* out, PCLMiniStep_p step, TB_p bank)
    PCLExprPrintTSTP(out, step->just, true);
    if(step->extra)
    {
-      fprintf(out, ",[%s]", step->extra);
+      locked_fprintf(out, ",[%s]", step->extra);
    }
    fputs(").", out);
 }

@@ -807,13 +807,13 @@ void PrintToken(FILE* out, Token_p token)
    char* handle;
 
    handle = DescribeToken(token->tok);
-   fprintf(out, "Token:    %d = %s\n", (int)token->tok, handle);
+   locked_fprintf(out, "Token:    %d = %s\n", (int)token->tok, handle);
    FREE(handle);
-   fprintf(out, "Position: %s   ", TokenPosRep(token));
-   fprintf(out, "Literal:  %s\n", token->literal?DStrView(token->literal):"");
-   fprintf(out, "Numval:   %6" PRIuMAX "   Skipped:  %s\n", token->numval,
+   locked_fprintf(out, "Position: %s   ", TokenPosRep(token));
+   locked_fprintf(out, "Literal:  %s\n", token->literal?DStrView(token->literal):"");
+   locked_fprintf(out, "Numval:   %6" PRIuMAX "   Skipped:  %s\n", token->numval,
            token->skipped ? "true" : "false");
-   fprintf(out, "Comment:  %s\n", DStrView(token->comment));
+   locked_fprintf(out, "Comment:  %s\n", DStrView(token->comment));
 }
 
 

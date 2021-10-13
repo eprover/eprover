@@ -20,7 +20,7 @@
   -----------------------------------------------------------------------*/
 
 #include "clb_numtrees.h"
-
+#include "clb_simple_stuff.h"
 
 
 /*---------------------------------------------------------------------*/
@@ -64,21 +64,21 @@ static long numtree_print(FILE* out, NumTree_p tree, bool keys_only,
 
    if(!tree)
    {
-      fprintf(out, "%s[]\n", DStrView(indstr));
+      locked_fprintf(out, "%s[]\n", DStrView(indstr));
       size = 0;
    }
    else
    {
       if(keys_only)
       {
-         fprintf(out, "%s%ld\n", DStrView(indstr), tree->key);
+         locked_fprintf(out, "%s%ld\n", DStrView(indstr), tree->key);
       }
       else
       {
-         fprintf(out, "%s%ld\n", DStrView(indstr), tree->key);
-         fprintf(out, "%s Val1: %ld  Val2: %ld\n", DStrView(indstr),
+         locked_fprintf(out, "%s%ld\n", DStrView(indstr), tree->key);
+         locked_fprintf(out, "%s Val1: %ld  Val2: %ld\n", DStrView(indstr),
                  tree->val1.i_val, tree->val2.i_val);
-         fprintf(out, "%s lson: %p  rson: %p\n", DStrView(indstr),
+         locked_fprintf(out, "%s lson: %p  rson: %p\n", DStrView(indstr),
                  (void*)tree->lson, (void*)tree->rson);
       }
       size = 1;
@@ -342,7 +342,7 @@ long NumTreeDebugPrint(FILE* out, NumTree_p tree, bool keys_only)
 {
    long size;
    size = numtree_print(out, tree, keys_only, 0);
-   fprintf(out, "Tree size: %ld\n", size);
+   locked_fprintf(out, "Tree size: %ld\n", size);
    return size;
 }
 

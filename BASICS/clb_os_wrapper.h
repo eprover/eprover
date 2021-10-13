@@ -64,7 +64,7 @@ typedef enum
       if(getrlimit(RLIMIT_STACK, &rlim)==-1)\
       {\
          TmpErrno = errno;\
-         fprintf(stderr, "%s: Warning: Cannot get stack limit", argv[0]);\
+         locked_fprintf(stderr, "%s: Warning: Cannot get stack limit", argv[0]);\
       }\
       else\
       {\
@@ -72,8 +72,8 @@ typedef enum
          res = setrlimit(RLIMIT_STACK, &rlim);\
          if(res ==-1)\
          {\
-            fprintf(stderr, "%s: Warning: Cannot set stack limit", argv[0]);\
-            fprintf(stderr, "%s: Warning: Continuing with default stack size", argv[0]);\
+            locked_fprintf(stderr, "%s: Warning: Cannot set stack limit", argv[0]);\
+            locked_fprintf(stderr, "%s: Warning: Continuing with default stack size", argv[0]);\
          }\
       }\
    }

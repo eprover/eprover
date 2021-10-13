@@ -388,7 +388,7 @@ void PCLProtPropDataPrint(FILE* out, PCLPropData_p data)
    long clauses =
       data->pos_clauses+data->neg_clauses+data->mix_clauses;
 
-   fprintf(out,
+   locked_fprintf(out,
       "# Protocol properties\n"
       "# ===================\n"
       "# Number of clauses                  : %6ld\n"
@@ -419,16 +419,16 @@ void PCLProtPropDataPrint(FILE* out, PCLPropData_p data)
       (double)(data->var_count)/clauses,
       (double)(data->const_count)/clauses,
       (double)(data->pred_count)/clauses);
-   fprintf(out, "# Longest Clause (if any): \n");
+   locked_fprintf(out, "# Longest Clause (if any): \n");
    PCLStepPrint(out, data->longest_clause);
-   fprintf(out, "\n# Largest Clause (if any): \n");
+   locked_fprintf(out, "\n# Largest Clause (if any): \n");
    PCLStepPrint(out, data->max_symbol_clause);
-   fprintf(out, "\n# Heaviest Clause (if any): \n");
+   locked_fprintf(out, "\n# Heaviest Clause (if any): \n");
    ClausePropInfoPrint(out, data->max_standard_weight_clause->logic.clause);
    PCLStepPrint(out, data->max_standard_weight_clause);
-   fprintf(out, "\n# Deepest Clause (if any): \n");
+   locked_fprintf(out, "\n# Deepest Clause (if any): \n");
    PCLStepPrint(out, data->max_depth_clause);
-   fprintf(out, "\n");
+   locked_fprintf(out, "\n");
 }
 
 

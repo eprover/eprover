@@ -89,7 +89,7 @@ FlatAnnoTerm_p FlatAnnoTermAlloc(Term_p term, double eval, double
 void FlatAnnoTermPrint(FILE* out, FlatAnnoTerm_p term, Sig_p sig)
 {
    TermPrint(out, term->term, sig, DEREF_NEVER);
-   fprintf(out, " : %f. /* EvalWeight: %f, Id: %ld */", term->eval,
+   locked_fprintf(out, " : %f. /* EvalWeight: %f, Id: %ld */", term->eval,
       term->eval_weight, term->term->entry_no);
 }
 

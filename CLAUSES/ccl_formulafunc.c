@@ -630,7 +630,7 @@ void ignore_include(Scanner_p in)
    AcceptInpTok(in, CloseBracket);
    AcceptInpTok(in, Fullstop);
 
-   fprintf(stdout, "include('%s').\n", name);
+   locked_fprintf(stdout, "include('%s').\n", name);
    FREE(name);
 }
 
@@ -1448,7 +1448,7 @@ long FormulaSetSimplify(FormulaSet_p set, TB_p terms, bool do_garbage_collect)
          res++;
          if (do_garbage_collect && TBNonVarTermNodes(terms) > gc_threshold)
          {
-            fprintf(stderr, "cleaning...\n");
+            locked_fprintf(stderr, "cleaning...\n");
             assert(terms == handle->terms);
             GCCollect(terms->gc);
             old_nodes = TBNonVarTermNodes(terms);
@@ -1497,7 +1497,7 @@ long FormulaSetCNF(FormulaSet_p set, FormulaSet_p archive,
    {
       handle = FormulaSetExtractFirst(set);
       // WFormulaPrint(stdout, handle, true);
-      // fprintf(stdout, "\n");
+      // locked_fprintf(stdout, "\n");
       form = WFormulaFlatCopy(handle);
       FormulaSetInsert(archive, handle);
       WFormulaPushDerivation(form, DCFofQuote, handle, NULL);
@@ -1573,7 +1573,7 @@ long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive,
    {
       handle = FormulaSetExtractFirst(set);
       //WFormulaPrint(stdout, handle, true);
-      //fprintf(stdout, "\n");
+      //locked_fprintf(stdout, "\n");
       form = WFormulaFlatCopy(handle);
       FormulaSetInsert(archive, handle);
       WFormulaPushDerivation(form, DCFofQuote, handle, NULL);
@@ -1636,9 +1636,9 @@ long FormulaAndClauseSetParse(Scanner_p in, FormulaSet_p fset,
       while (ClauseStartsMaybe(in))
       {
          form = WFormClauseParse(in, terms);
-         // fprintf(stdout, "Parsed: ");
+         // locked_fprintf(stdout, "Parsed: ");
          // WFormulaPrint(stdout, form, true);
-         // fprintf(stdout, "\n");
+         // locked_fprintf(stdout, "\n");
          FormulaSetInsert(fset, form);
          res++;
       }
@@ -1693,9 +1693,9 @@ long FormulaAndClauseSetParse(Scanner_p in, FormulaSet_p fset,
             {
                // printf("It's a formula\n");
                form = WFormulaParse(in, terms);
-               // fprintf(stdout, "Parsed: ");
+               // locked_fprintf(stdout, "Parsed: ");
                // WFormulaPrint(stdout, form, true);
-               // fprintf(stdout, "\n");
+               // locked_fprintf(stdout, "\n");
             }
             else
             {

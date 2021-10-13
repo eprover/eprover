@@ -93,18 +93,18 @@ void subterm_tree_print_dot(FILE* out, SubtermTree_p root, Sig_p sig)
    if(root)
    {
       data = root->key;
-      fprintf(out, "     t%p [label=\"<l>|", root);
+      locked_fprintf(out, "     t%p [label=\"<l>|", root);
       TermPrint(out, data->term, sig, DEREF_ALWAYS);
-      fprintf(out, "|<r>\"]\n");
+      locked_fprintf(out, "|<r>\"]\n");
       if(root->lson)
       {
          subterm_tree_print_dot(out, root->lson, sig);
-         fprintf(out, "     t%p:l -- t%p\n", root, root->lson);
+         locked_fprintf(out, "     t%p:l -- t%p\n", root, root->lson);
       }
       if(root->rson)
       {
          subterm_tree_print_dot(out, root->rson, sig);
-         fprintf(out, "     t%p:r -- t%p\n", root, root->rson);
+         locked_fprintf(out, "     t%p:r -- t%p\n", root, root->rson);
       }
    }
 }
@@ -437,10 +437,10 @@ void SubtermTreePrint(FILE* out, SubtermTree_p root, Sig_p sig)
    {
       SubtermTreePrint(out, root->lson, sig);
       data = root->key;
-      fprintf(out, "Node: %p data=%p\n", root, data);
-      fprintf(out, "Key: %ld = ", data->term->entry_no);
+      locked_fprintf(out, "Node: %p data=%p\n", root, data);
+      locked_fprintf(out, "Key: %ld = ", data->term->entry_no);
       TermPrint(out, data->term, sig, DEREF_ALWAYS);
-      fprintf(out, "\nlson=%p, rson=%p\n\n", root->lson, root->rson);
+      locked_fprintf(out, "\nlson=%p, rson=%p\n\n", root->lson, root->rson);
       SubtermTreePrint(out, root->rson, sig);
    }
 }
@@ -459,7 +459,7 @@ void SubtermTreePrint(FILE* out, SubtermTree_p root, Sig_p sig)
 
 void SubtermTreePrintDot(FILE* out, SubtermTree_p root, Sig_p sig)
 {
-   fprintf(out,
+   locked_fprintf(out,
            "     subgraph g%p{\n"
            "     nodesep=0.05\n"
            "     node [shape=record,width=1.9,height=.1, penwidth=0,"
@@ -475,19 +475,19 @@ void SubtermTreePrintDot(FILE* out, SubtermTree_p root, Sig_p sig)
       SubtermOcc_p data;
 
       PTreeToPStack(terms, root);
-      fprintf(out, "     t%p [label=\"{|{", root);
+      locked_fprintf(out, "     t%p [label=\"{|{", root);
       for(i=0; i<PStackGetSP(terms); i++)
       {
          data = PStackElementP(terms, i);
-         fprintf(out, "%s", sep);
+         locked_fprintf(out, "%s", sep);
          sep = "|";
          TermPrint(out, data->term, sig, DEREF_ALWAYS);
       }
-      fprintf(out, "}}\"]\n");
+      locked_fprintf(out, "}}\"]\n");
       PStackFree(terms);
    }
 #endif
-   fprintf(out, "     }\n");
+   locked_fprintf(out, "     }\n");
 }
 
 /*-----------------------------------------------------------------------
@@ -504,7 +504,7 @@ void SubtermTreePrintDot(FILE* out, SubtermTree_p root, Sig_p sig)
 
 void SubtermTreePrintDummy(FILE* out, SubtermTree_p root, Sig_p sig)
 {
-   fprintf(out, "     t%p [shape=box label=\"%ld terms\"]\n", root, PObjTreeNodes(root));
+   locked_fprintf(out, "     t%p [shape=box label=\"%ld terms\"]\n", root, PObjTreeNodes(root));
 }
 
 

@@ -566,19 +566,19 @@ void ProofStateTrain(ProofState_p state, bool print_pos, bool print_neg)
 
    ProofStatePickTrainingExamples(state, pos_examples, neg_examples);
 
-   fprintf(GlobalOut, "# Training examples: %ld positive, %ld negative\n",
+   locked_fprintf(GlobalOut, "# Training examples: %ld positive, %ld negative\n",
            PStackGetSP(pos_examples), PStackGetSP(neg_examples));
    if(print_pos)
    {
-      fprintf(GlobalOut, "# Training: Positive examples begin\n");
+      locked_fprintf(GlobalOut, "# Training: Positive examples begin\n");
       PStackClausePrint(GlobalOut, pos_examples, "# trainpos");
-      fprintf(GlobalOut, "# Training: Positive examples end\n");
+      locked_fprintf(GlobalOut, "# Training: Positive examples end\n");
    }
    if(print_neg)
    {
-      fprintf(GlobalOut, "# Training: Negative examples begin\n");
+      locked_fprintf(GlobalOut, "# Training: Negative examples begin\n");
       PStackClausePrint(GlobalOut, neg_examples, "#trainneg");
-      fprintf(GlobalOut, "# Training: Negative examples end\n");
+      locked_fprintf(GlobalOut, "# Training: Negative examples end\n");
    }
 
    PStackFree(pos_examples);
@@ -602,66 +602,66 @@ void ProofStateTrain(ProofState_p state, bool print_pos, bool print_neg)
 
 void ProofStateStatisticsPrint(FILE* out, ProofState_p state)
 {
-   fprintf(out, "# Initial clauses in saturation        : %ld\n",
+   locked_fprintf(out, "# Initial clauses in saturation        : %ld\n",
            state->axioms->members);
-   fprintf(out, "# Processed clauses                    : %ld\n",
+   locked_fprintf(out, "# Processed clauses                    : %ld\n",
            state->processed_count);
-   fprintf(out, "# ...of these trivial                  : %ld\n",
+   locked_fprintf(out, "# ...of these trivial                  : %ld\n",
            state->proc_trivial_count);
-   fprintf(out, "# ...subsumed                          : %ld\n",
+   locked_fprintf(out, "# ...subsumed                          : %ld\n",
            state->proc_forward_subsumed_count);
-   fprintf(out, "# ...remaining for further processing  : %ld\n",
+   locked_fprintf(out, "# ...remaining for further processing  : %ld\n",
            state->proc_non_trivial_count);
-   fprintf(out, "# Other redundant clauses eliminated   : %ld\n",
+   locked_fprintf(out, "# Other redundant clauses eliminated   : %ld\n",
            state->other_redundant_count);
-   fprintf(out, "# Clauses deleted for lack of memory   : %ld\n",
+   locked_fprintf(out, "# Clauses deleted for lack of memory   : %ld\n",
            state->non_redundant_deleted);
-   fprintf(out, "# Backward-subsumed                    : %ld\n",
+   locked_fprintf(out, "# Backward-subsumed                    : %ld\n",
            state->backward_subsumed_count);
-   fprintf(out, "# Backward-rewritten                   : %ld\n",
+   locked_fprintf(out, "# Backward-rewritten                   : %ld\n",
            state->backward_rewritten_count);
-   fprintf(out, "# Generated clauses                    : %ld\n",
+   locked_fprintf(out, "# Generated clauses                    : %ld\n",
            state->generated_count - state->backward_rewritten_count);
-   fprintf(out, "# ...of the previous two non-redundant : %ld\n",
+   locked_fprintf(out, "# ...of the previous two non-redundant : %ld\n",
            state->non_trivial_generated_count);
-   fprintf(out, "# ...aggressively subsumed             : %ld\n",
+   locked_fprintf(out, "# ...aggressively subsumed             : %ld\n",
            state->aggressive_forward_subsumed_count);
-   fprintf(out, "# Contextual simplify-reflections      : %ld\n",
+   locked_fprintf(out, "# Contextual simplify-reflections      : %ld\n",
            state->context_sr_count);
-   fprintf(out, "# Paramodulations                      : %ld\n",
+   locked_fprintf(out, "# Paramodulations                      : %ld\n",
            state->paramod_count);
-   fprintf(out, "# Factorizations                       : %ld\n",
+   locked_fprintf(out, "# Factorizations                       : %ld\n",
            state->factor_count);
-   fprintf(out, "# NegExts                              : %ld\n",
+   locked_fprintf(out, "# NegExts                              : %ld\n",
            state->neg_ext_count);
-   fprintf(out, "# Equation resolutions                 : %ld\n",
+   locked_fprintf(out, "# Equation resolutions                 : %ld\n",
            state->resolv_count);
-   fprintf(out, "# Propositional unsat checks           : %ld\n",
+   locked_fprintf(out, "# Propositional unsat checks           : %ld\n",
            state->satcheck_count);
-   fprintf(out, "#    Propositional check models        : %ld\n",
+   locked_fprintf(out, "#    Propositional check models        : %ld\n",
            state->satcheck_satisfiable);
-   fprintf(out, "#    Propositional check unsatisfiable : %ld\n",
+   locked_fprintf(out, "#    Propositional check unsatisfiable : %ld\n",
            state->satcheck_success);
-   fprintf(out, "#    Propositional clauses             : %ld\n",
+   locked_fprintf(out, "#    Propositional clauses             : %ld\n",
            state->satcheck_full_size);
-   fprintf(out, "#    Propositional clauses after purity: %ld\n",
+   locked_fprintf(out, "#    Propositional clauses after purity: %ld\n",
            state->satcheck_actual_size);
-   fprintf(out, "#    Propositional unsat core size     : %ld\n",
+   locked_fprintf(out, "#    Propositional unsat core size     : %ld\n",
            state->satcheck_core_size);
-   fprintf(out, "#    Propositional preprocessing time  : %.3f\n",
+   locked_fprintf(out, "#    Propositional preprocessing time  : %.3f\n",
            state->satcheck_preproc_time);
-   fprintf(out, "#    Propositional encoding time       : %.3f\n",
+   locked_fprintf(out, "#    Propositional encoding time       : %.3f\n",
            state->satcheck_encoding_time);
-   fprintf(out, "#    Propositional solver time         : %.3f\n",
+   locked_fprintf(out, "#    Propositional solver time         : %.3f\n",
            state->satcheck_solver_time);
-   fprintf(out, "#    Success case prop preproc time    : %.3f\n",
+   locked_fprintf(out, "#    Success case prop preproc time    : %.3f\n",
            state->satcheck_preproc_stime);
-   fprintf(out, "#    Success case prop encoding time   : %.3f\n",
+   locked_fprintf(out, "#    Success case prop encoding time   : %.3f\n",
            state->satcheck_encoding_stime);
-   fprintf(out, "#    Success case prop solver time     : %.3f\n",
+   locked_fprintf(out, "#    Success case prop solver time     : %.3f\n",
            state->satcheck_solver_stime);
 
-   fprintf(out,
+   locked_fprintf(out,
            "# Current number of processed clauses  : %ld\n"
            "#    Positive orientable unit clauses  : %ld\n"
            "#    Positive unorientable unit clauses: %ld\n"
@@ -675,34 +675,34 @@ void ProofStateStatisticsPrint(FILE* out, ProofState_p state)
            state->processed_pos_eqns->members,
            state->processed_neg_units->members,
            state->processed_non_units->members);
-   fprintf(out,
+   locked_fprintf(out,
            "# Current number of unprocessed clauses: %ld\n",
            state->unprocessed->members);
-   fprintf(out,
+   locked_fprintf(out,
            "# ...number of literals in the above   : %ld\n",
            state->unprocessed->literals);
-   fprintf(out,
+   locked_fprintf(out,
            "# Current number of archived formulas  : %ld\n",
            state->f_archive->members);
-   fprintf(out,
+   locked_fprintf(out,
            "# Current number of archived clauses   : %ld\n",
            state->archive->members);
    if(ProofObjectRecordsGCSelection)
    {
-      fprintf(out,
+      locked_fprintf(out,
               "# Proof object given clauses           : %ld\n",
               state->gc_used_count);
-      fprintf(out,
+      locked_fprintf(out,
               "# Proof search given clauses           : %ld\n",
               state->gc_count);
    }
    if(TBPrintDetails)
    {
-      fprintf(out,
+      locked_fprintf(out,
               "# Total literals in generated clauses  : %ld\n",
               state->generated_lit_count -
               state->backward_rewritten_lit_count);
-      fprintf(out,
+      locked_fprintf(out,
               "# Shared term nodes                    : %ld\n"
               "# ...corresponding unshared nodes      : %ld\n",
               TBTermNodes(state->terms),
@@ -713,16 +713,16 @@ void ProofStateStatisticsPrint(FILE* out, ProofState_p state)
               ClauseSetGetTermNodes(state->processed_neg_units)+
               ClauseSetGetTermNodes(state->processed_non_units)+
               ClauseSetGetTermNodes(state->unprocessed));
-      fprintf(out,
+      locked_fprintf(out,
          "# Shared rewrite steps                 : %lu\n",
               state->terms->rewrite_steps);
-      fprintf(out,
+      locked_fprintf(out,
               "# Match attempts with oriented units   : %lu\n"
               "# Match attempts with unoriented units : %lu\n",
               state->processed_pos_rules->demod_index->match_count,
               state->processed_pos_eqns->demod_index->match_count);
 #ifdef MEASURE_EXPENSIVE
-      fprintf(out,
+      locked_fprintf(out,
               "# Oriented PDT nodes visited           : %lu\n"
               "# Unoriented PDT nodes visited         : %lu\n",
               state->processed_pos_rules->demod_index->visited_count,
@@ -749,14 +749,14 @@ void ProofStateStatisticsPrint(FILE* out, ProofState_p state)
 
 void ProofStatePrint(FILE* out, ProofState_p state)
 {
-   fprintf(out, "\n# Processed positive unit clauses:\n");
+   locked_fprintf(out, "\n# Processed positive unit clauses:\n");
    ClauseSetPrint(out, state->processed_pos_rules, true);
    ClauseSetPrint(out, state->processed_pos_eqns, true);
-   fprintf(out, "\n# Processed negative unit clauses:\n");
+   locked_fprintf(out, "\n# Processed negative unit clauses:\n");
    ClauseSetPrint(out, state->processed_neg_units, true);
-   fprintf(out, "\n# Processed non-unit clauses:\n");
+   locked_fprintf(out, "\n# Processed non-unit clauses:\n");
    ClauseSetPrint(out, state->processed_non_units, true);
-   fprintf(out, "\n# Unprocessed clauses:\n");
+   locked_fprintf(out, "\n# Unprocessed clauses:\n");
    ClauseSetPrint(out, state->unprocessed, true);
 }
 

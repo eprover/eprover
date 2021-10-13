@@ -102,7 +102,7 @@ void KBDescFree(KBDesc_p desc)
 
 void KBDescPrint(FILE* out, KBDesc_p desc)
 {
-   fprintf(out,
+   locked_fprintf(out,
       "# E theorem prover knowledge base description\n"
       "Version     : \"%s\"\n"
       "NegProp     : %8f  # "

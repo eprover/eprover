@@ -26,7 +26,9 @@
 
 #include <string.h>
 #include <clb_error.h>
-
+#include <pthread.h>
+#include <semaphore.h>
+#include <unistd.h>
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
 /*---------------------------------------------------------------------*/
@@ -91,9 +93,13 @@ long   ComputeGCD(long a, long b);
 void   SetProblemType(ProblemType t);
 
 #define DBG_PRINT(out, prefix, main, suffix) \
-   fprintf(out, "%s", prefix);\
+   locked_fprintf(out, "%s", prefix);\
    main;\
-   fprintf(out, "%s", suffix)
+   locked_fprintf(out, "%s", suffix)
+
+extern sem_t* print_mutex;
+void locked_fprintf(FILE* file, const char *fmt, ...);
+
 
 #endif
 

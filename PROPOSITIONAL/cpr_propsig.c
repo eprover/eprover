@@ -190,13 +190,13 @@ void PropSigPrint(FILE* out, PropSig_p psig)
 {
    long i;
 
-   fprintf(out, "# Propositional signature:\n");
-   fprintf(out, "# ------------------------\n");
+   locked_fprintf(out, "# Propositional signature:\n");
+   locked_fprintf(out, "# ------------------------\n");
    for(i=1; i<PropSigAtomNumber(psig); i++)
    {
-      fprintf(out, "# %6ld : %s\n", i, PropSigGetAtomName(psig,i));
+      locked_fprintf(out, "# %6ld : %s\n", i, PropSigGetAtomName(psig,i));
    }
-   fprintf(out, "\n");
+   locked_fprintf(out, "\n");
 }
 
 

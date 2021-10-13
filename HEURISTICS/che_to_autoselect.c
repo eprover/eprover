@@ -87,13 +87,13 @@ void print_oparms(OrderParms_p oparms)
 
    if(OutputLevel)
    {
-      fprintf(GlobalOut, "# Auto-mode selected ordering type %s\n",
+      locked_fprintf(GlobalOut, "# Auto-mode selected ordering type %s\n",
               TONames[oparms->ordertype]);
-      fprintf(GlobalOut, "# Auto-mode selected ordering precedence scheme <%s>\n",
+      locked_fprintf(GlobalOut, "# Auto-mode selected ordering precedence scheme <%s>\n",
               TOGetPrecGenName(oparms->to_prec_gen));
       if(oparms->ordertype == KBO || oparms->ordertype == KBO6)
       {
-         fprintf(GlobalOut, "# Auto-mode selected weight ordering scheme <%s>\n",
+         locked_fprintf(GlobalOut, "# Auto-mode selected weight ordering scheme <%s>\n",
                  TOGetWeightGenName(oparms->to_weight_gen));
       }
       fputs("#\n", GlobalOut);
@@ -195,13 +195,13 @@ OCB_p generate_autocasc_ordering(ProofState_p state, SpecFeature_p spec, HoOrder
 
    if(OutputLevel)
    {
-      fprintf(GlobalOut, "# Auto-mode selected ordering type %s\n",
+      locked_fprintf(GlobalOut, "# Auto-mode selected ordering type %s\n",
               TONames[oparms.ordertype]);
-      fprintf(GlobalOut, "# Auto-mode selected ordering precedence scheme <%s>\n",
+      locked_fprintf(GlobalOut, "# Auto-mode selected ordering precedence scheme <%s>\n",
               TOGetPrecGenName(oparms.to_prec_gen));
       if(oparms.ordertype == KBO || oparms.ordertype == KBO6)
       {
-         fprintf(GlobalOut, "# Auto-mode selected weight ordering scheme <%s>\n",
+         locked_fprintf(GlobalOut, "# Auto-mode selected weight ordering scheme <%s>\n",
                  TOGetWeightGenName(oparms.to_weight_gen));
       }
       fputs("#\n", GlobalOut);
@@ -252,13 +252,13 @@ OCB_p generate_autodev_ordering(ProofState_p state, SpecFeature_p spec, HoOrderK
 
    if(OutputLevel)
    {
-      fprintf(GlobalOut, "# Auto-mode (Dev) selected ordering type %s\n",
+      locked_fprintf(GlobalOut, "# Auto-mode (Dev) selected ordering type %s\n",
               TONames[oparms.ordertype]);
-      fprintf(GlobalOut, "# Auto-mode (Dev) selected ordering precedence scheme <%s>\n",
+      locked_fprintf(GlobalOut, "# Auto-mode (Dev) selected ordering precedence scheme <%s>\n",
               TOGetPrecGenName(oparms.to_prec_gen));
       if(oparms.ordertype == KBO || oparms.ordertype == KBO6)
       {
-         fprintf(GlobalOut, "# Auto-mode (Dev) selected weight ordering scheme <%s>\n",
+         locked_fprintf(GlobalOut, "# Auto-mode (Dev) selected weight ordering scheme <%s>\n",
                  TOGetWeightGenName(oparms.to_weight_gen));
       }
       fputs("#\n", GlobalOut);
@@ -824,7 +824,7 @@ OCB_p OrderFindOptimal(OrderParms_p mask, OrderEvaluationFun eval_fun,
          OCBFree(tmp_ocb);
       }
    }
-   VERBOSE(fprintf(stderr, "%s: Term Ordering found: (%s, %s, %s, %ld)\n",
+   VERBOSE(locked_fprintf(stderr, "%s: Term Ordering found: (%s, %s, %s, %ld)\n",
                    ProgName,
                    TONames[store.ordertype],
                    TOGetPrecGenName(store.to_prec_gen),

@@ -55,12 +55,12 @@ void print_t_stack(Sig_p sig, PStack_p stack)
 {
    if(PStackEmpty(stack))
    {
-      fprintf(stderr, " - ");
+      locked_fprintf(stderr, " - ");
    }
    for(long i=PStackGetTopSP(stack); i>=0; i--)
    {
       TermPrintDbgHO(stderr, PStackElementP(stack, i), sig, DEREF_NEVER);
-      fprintf(stderr, ", ");
+      locked_fprintf(stderr, ", ");
    }
 }
 
@@ -700,16 +700,16 @@ void pdt_node_print(FILE* out, PDTNode_p node, Sig_p sig, int level)
       PTree_p trav;
       ClausePos_p entry;
 
-      fprintf(out, "%sleaf size=%ld age=%lu leaf?=%d\n", IndentStr(2*level),
+      locked_fprintf(out, "%sleaf size=%ld age=%lu leaf?=%d\n", IndentStr(2*level),
               node->size_constr, node->age_constr, node->leaf);
       trav_stack = PTreeTraverseInit(node->entries);
 
       while((trav = PTreeTraverseNext(trav_stack)))
       {
-         fprintf(out, "%s: ",IndentStr(2*level));
+         locked_fprintf(out, "%s: ",IndentStr(2*level));
          entry = trav->key;
          ClausePrint(out, entry->clause, true);
-         fprintf(out, "\n");
+         locked_fprintf(out, "\n");
       }
       PTreeTraverseExit(trav_stack);
    }
@@ -719,7 +719,7 @@ void pdt_node_print(FILE* out, PDTNode_p node, Sig_p sig, int level)
       PDTNode_p next;
       IntMapIter_p iter;
 
-      fprintf(out, "%sinternal size=%ld age=%lu f_alts=%p, v_alts=%p, db_alts=%p, type=%d\n",
+      locked_fprintf(out, "%sinternal size=%ld age=%lu f_alts=%p, v_alts=%p, db_alts=%p, type=%d\n",
               IndentStr(2*level),
               node->size_constr,
               node->age_constr,
@@ -731,7 +731,7 @@ void pdt_node_print(FILE* out, PDTNode_p node, Sig_p sig, int level)
       iter = IntMapIterAlloc(node->f_alternatives, 0, LONG_MAX);
       while((next=IntMapIterNext(iter, &i)))
       {
-         fprintf(out, "%sBranch(fcode) %s, %ld\n", IndentStr(2*level), SigFindName(sig, i), i);
+         locked_fprintf(out, "%sBranch(fcode) %s, %ld\n", IndentStr(2*level), SigFindName(sig, i), i);
          pdt_node_print(out, next, sig, level+1);
       }
       IntMapIterFree(iter);
@@ -740,10 +740,10 @@ void pdt_node_print(FILE* out, PDTNode_p node, Sig_p sig, int level)
       while((next=PObjMapTraverseNext(mapiter, NULL)))
       {
          assert(next);
-         fprintf(out, "%sBranch(var) ", IndentStr(2*level));
+         locked_fprintf(out, "%sBranch(var) ", IndentStr(2*level));
          if(TermIsFreeVar(next->variable))
          {
-            fprintf(out, "%ld\n", -(next->variable->f_code));
+            locked_fprintf(out, "%ld\n", -(next->variable->f_code));
          }
          else
          {
@@ -759,14 +759,14 @@ void pdt_node_print(FILE* out, PDTNode_p node, Sig_p sig, int level)
       {
          assert(next);
          assert(TermIsDBVar(next->variable));
-         fprintf(out, "%sBranch(db) %ld", IndentStr(2*level), next->variable->f_code);
+         locked_fprintf(out, "%sBranch(db) %ld", IndentStr(2*level), next->variable->f_code);
          pdt_node_print(out, next, sig, level+1);
       }
       PStackFree(mapiter);
    }
    else
    {
-      fprintf(out, "strange. it is leaf, but has no entries.\n");
+      locked_fprintf(out, "strange. it is leaf, but has no entries.\n");
    }
 }
 

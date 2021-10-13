@@ -36,7 +36,7 @@ Changes
 
 
 #define OUTPRINT(level, message)\
-    if(level<= OutputLevel){fprintf(GlobalOut, message);}
+    if(level<= OutputLevel){locked_fprintf(GlobalOut, message);}
 
 
 /*---------------------------------------------------------------------*/

@@ -327,7 +327,7 @@ void NumFeaturesPrint(FILE* out, Features_p features)
    sep = "";
    for(i=0; i<=features->pred_max_arity; i++)
    {
-      fprintf(out, "%s%ld", sep,
+      locked_fprintf(out, "%s%ld", sep,
          PDArrayElementInt(features->pred_distrib,i));
       sep = ", ";
    }
@@ -335,14 +335,14 @@ void NumFeaturesPrint(FILE* out, Features_p features)
    sep = "";
    for(i=0; i<=features->func_max_arity; i++)
    {
-      fprintf(out, "%s%ld", sep,
+      locked_fprintf(out, "%s%ld", sep,
          PDArrayElementInt(features->func_distrib,i));
       sep = ", ";
    }
-   fprintf(out, ")\n(%f", features->features[0]);
+   locked_fprintf(out, ")\n(%f", features->features[0]);
    for(i=1; i<FEATURE_NUMBER;i++)
    {
-      fprintf(out, ", %f", features->features[i]);
+      locked_fprintf(out, ", %f", features->features[i]);
    }
    fputs(")\n",out);
 }

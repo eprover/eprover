@@ -61,7 +61,7 @@ static bool pcl_run_prover(char* command, char*success)
 
    if(OutputLevel>1)
    {
-      fprintf(GlobalOut, "# Running %s\n", command);
+      locked_fprintf(GlobalOut, "# Running %s\n", command);
    }
    ppipe=popen(command, "r");
    if(!ppipe)
@@ -77,7 +77,7 @@ static bool pcl_run_prover(char* command, char*success)
       }
       if(OutputLevel >= 3)
       {
-    fprintf(GlobalOut, "#> %s", line);
+    locked_fprintf(GlobalOut, "#> %s", line);
       }
    }
    pclose(ppipe);
@@ -126,9 +126,9 @@ static bool pcl_verify_eprover(ClauseSet_p problem,char *executable,
 
    if(!res)
    {
-      fprintf(GlobalOut, "# ------------Problem begin--------------\n");
+      locked_fprintf(GlobalOut, "# ------------Problem begin--------------\n");
       FilePrint(GlobalOut, name);
-      fprintf(GlobalOut, "# ------------Problem end----------------\n");
+      locked_fprintf(GlobalOut, "# ------------Problem end----------------\n");
    }
 
    TempFileRemove(name);
@@ -284,7 +284,7 @@ static bool pcl_verify_otter(ClauseSet_p problem,char *executable,
       executable=OTTER_EXEC_DEFAULT;
    }
    problemfile = OutOpen(name);
-   fprintf(problemfile,
+   locked_fprintf(problemfile,
       "set(prolog_style_variables).\n"
       "clear(print_kept).\n"
       "clear(print_new_demod).\n"
@@ -298,7 +298,7 @@ static bool pcl_verify_otter(ClauseSet_p problem,char *executable,
       "list(usable).\n\n"
       "equal(X,X).\n",time_limit);
    clause_set_print_otter(problemfile, problem);
-   fprintf(problemfile,
+   locked_fprintf(problemfile,
       "end_of_list.\n");
    OutClose(problemfile);
 
@@ -311,9 +311,9 @@ static bool pcl_verify_otter(ClauseSet_p problem,char *executable,
 
    if(!res)
    {
-      fprintf(GlobalOut, "# ------------Problem begin--------------\n");
+      locked_fprintf(GlobalOut, "# ------------Problem begin--------------\n");
       FilePrint(GlobalOut, name);
-      fprintf(GlobalOut, "# ------------Problem end----------------\n");
+      locked_fprintf(GlobalOut, "# ------------Problem end----------------\n");
    }
 
    TempFileRemove(name);
@@ -347,27 +347,27 @@ static void sig_print_dfg(FILE* out, ClauseSet_p set, Sig_p sig)
    }
    ClauseSetAddSymbolDistribution(set, symbol_distrib);
 
-   fprintf(out,"list_of_symbols.\nfunctions[(spass_hack,0)");
+   locked_fprintf(out,"list_of_symbols.\nfunctions[(spass_hack,0)");
    for(i=sig->internal_symbols+1; i<sig->size; i++)
    {
       if(symbol_distrib[i]&&!SigIsPredicate(sig,i))
       {
-    fprintf(out, ",(%s,%d)",
+    locked_fprintf(out, ",(%s,%d)",
        SigFindName(sig, i),
        SigFindArity(sig, i));
       }
    }
-   fprintf(out,"].\npredicates[(spass_pred_dummy,0)");
+   locked_fprintf(out,"].\npredicates[(spass_pred_dummy,0)");
    for(i=sig->internal_symbols+1; i<sig->size; i++)
    {
       if(symbol_distrib[i]&&SigIsPredicate(sig,i))
       {
-    fprintf(out, ",(%s,%d)",
+    locked_fprintf(out, ",(%s,%d)",
        SigFindName(sig, i),
        SigFindArity(sig, i));
       }
    }
-   fprintf(out,"].\nend_of_list.\n");
+   locked_fprintf(out,"].\nend_of_list.\n");
 }
 
 
@@ -429,11 +429,11 @@ static void clause_print_dfg(FILE* out, Clause_p clause)
    Term_p   var;
    long     var_no;
 
-   fprintf(out, "clause(");
+   locked_fprintf(out, "clause(");
    var_no = ClauseCollectVariables(clause, &variables);
    if(var_no)
    {
-      fprintf(out, "forall([");
+      locked_fprintf(out, "forall([");
       stack=PTreeTraverseInit(variables);
       cell = PTreeTraverseNext(stack);
       if(cell)
@@ -450,9 +450,9 @@ static void clause_print_dfg(FILE* out, Clause_p clause)
       }
       PTreeTraverseExit(stack);
       PTreeFree(variables);
-      fprintf(out, "],");
+      locked_fprintf(out, "],");
    }
-   fprintf(out, "or(");
+   locked_fprintf(out, "or(");
 
    handle=clause->literals;
    if(handle)
@@ -470,7 +470,7 @@ static void clause_print_dfg(FILE* out, Clause_p clause)
    {
       fputs("not(equal(spass_hack,spass_hack))",out);
    }
-   fprintf(out, ")%c, c%ld ).", (var_no?')':' '), clause->ident);
+   locked_fprintf(out, ")%c, c%ld ).", (var_no?')':' '), clause->ident);
 }
 
 
@@ -524,14 +524,14 @@ static bool pcl_verify_spass(ClauseSet_p problem,char *executable,
       executable=SPASS_EXEC_DEFAULT;
    }
    problemfile = OutOpen(name);
-   fprintf(problemfile,
+   locked_fprintf(problemfile,
       "begin_problem(Unknown).\n");
 
    sig_print_dfg(problemfile, problem, sig);
 
-   fprintf(problemfile, "list_of_clauses(axioms,cnf).\n");
+   locked_fprintf(problemfile, "list_of_clauses(axioms,cnf).\n");
    clause_set_print_dfg(problemfile, problem);
-   fprintf(problemfile, "end_of_list.\n"
+   locked_fprintf(problemfile, "end_of_list.\n"
       "list_of_settings(SPASS).\n"
       "set_flag(TimeLimit, %ld).\n"
       "end_of_list.\n"
@@ -545,9 +545,9 @@ static bool pcl_verify_spass(ClauseSet_p problem,char *executable,
    res = pcl_run_prover(DStrView(command), "Proof found.");
    if(!res)
    {
-      fprintf(GlobalOut, "# ------------Problem begin--------------\n");
+      locked_fprintf(GlobalOut, "# ------------Problem begin--------------\n");
       FilePrint(GlobalOut, name);
-      fprintf(GlobalOut, "# ------------Problem end----------------\n");
+      locked_fprintf(GlobalOut, "# ------------Problem end----------------\n");
    }
 
    TempFileRemove(name);
@@ -776,7 +776,7 @@ long PCLProtCheck(PCLProt_p prot, ProverType prover, char* executable,
       step = PStackElementP(stack,i);
       if(OutputLevel)
       {
-    fprintf(GlobalOut, "# Checking ");
+    locked_fprintf(GlobalOut, "# Checking ");
     PCLStepPrint(GlobalOut, step);
     fputc('\n', GlobalOut);
       }

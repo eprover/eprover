@@ -1357,9 +1357,9 @@ long TFormulaEstimateClauses(TB_p bank, TFormula_p form, bool pos)
       }
       else
       {
-         fprintf(stderr, "error in ");
+         locked_fprintf(stderr, "error in ");
          TermPrintDbg(stderr, form, bank->sig, DEREF_NEVER);
-         fprintf(stderr, ".\n");
+         locked_fprintf(stderr, ".\n");
          assert(false && "Formula not in correct simplified form");
       }
    }

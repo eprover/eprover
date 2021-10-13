@@ -151,7 +151,7 @@ CLState_p process_options(int argc, char* argv[])
 
 void print_help(FILE* out)
 {
-   fprintf(out, "\n\
+   locked_fprintf(out, "\n\
 \n\
 ex_commandline.c "VERSION"\n\
 \n\

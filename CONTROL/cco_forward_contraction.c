@@ -75,14 +75,14 @@ static FVPackedClause_p forward_contract_keep(ProofState_p state, ProofControl_p
 
    if(control->heuristic_parms.enable_given_forward_simpl)
    {
-      // fprintf(stderr, "before rw: ");
+      // locked_fprintf(stderr, "before rw: ");
       // ClausePrint(stderr, clause, true);
-      // fprintf(stderr, ".\n");
+      // locked_fprintf(stderr, ".\n");
       trivial = ForwardModifyClause(state, control, clause,
                                     context_sr, condense, level);
-      // fprintf(stderr, "after rw: ");
+      // locked_fprintf(stderr, "after rw: ");
       // ClausePrint(stderr, clause, true);
-      // fprintf(stderr, ".\n");      
+      // locked_fprintf(stderr, ".\n");      
       if(trivial)
       {
          (*trivial_count)++;
