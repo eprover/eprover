@@ -232,7 +232,7 @@ bool OrderParmsParseInto(Scanner_p in,
    PARSE_IDENT_NO(to_prec_gen, TOPrecGenNames);
    PARSE_BOOL(rewrite_strong_rhs_inst);
    PARSE_STRING(to_pre_prec);
-   if(strcmp(handle->to_pre_prec, "")==0)
+   if(handle->to_pre_prec && strcmp(handle->to_pre_prec, "")==0)
    {
       FREE(handle->to_pre_prec);
       handle->to_pre_prec = NULL;
@@ -244,7 +244,7 @@ bool OrderParmsParseInto(Scanner_p in,
    PARSE_INT(defpred_mod);
    PARSE_BOOL(force_kbo_var_weight);
    PARSE_STRING(to_pre_weights);
-   if(strcmp(handle->to_pre_weights, "")==0)
+   if(handle->to_pre_weights && strcmp(handle->to_pre_weights, "")==0)
    {
       FREE(handle->to_pre_weights);
       handle->to_pre_weights = NULL;

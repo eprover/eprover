@@ -426,7 +426,10 @@ int main(int argc, char* argv[])
    {
       Scanner_p in = CreateScanner(StreamTypeFile, parse_strategy_filename, true, NULL, true);
       HeuristicParmsParseInto(in,h_parms,true);
-      PStackPushP(hcb_definitions, h_parms->heuristic_def);
+      if(h_parms->heuristic_def)
+      {
+         PStackPushP(hcb_definitions, h_parms->heuristic_def);
+      }
    }
 
    if(state->argc ==  0)
@@ -1313,7 +1316,6 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_INHERIT_CONJ_PM_LIT:
             h_parms->inherit_conj_pm_lit = true;
             break;
-
       case OPT_LITERAL_SELECT:
             h_parms->selection_strategy = GetLitSelFun(arg);
             if(!h_parms->selection_strategy)

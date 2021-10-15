@@ -51,7 +51,15 @@ class Configuration(object):
   _all_probs = {} # hold info how many confs solved a problem
   _all_confs = 0  # how many objetcs of Conf type have been created
 
-  PREPROCESSING_KEYS = 
+  PREPROCESSING_KEYS = [
+    'no_preproc', 'eqdef_maxclauses', 'eqdef_incrlimit',
+    'formula_def_limit',  'sine', 'presat_interreduction',
+    'lift_lambdas', 'lambda_to_forall', 'unroll_only_formulas'
+  ]
+
+  ONLY_PREPROCESSING = 1
+  ONLY_SATURATION = 2
+  BOTH = 3
 
   def __init__(self, name):
     self._name = name
@@ -108,11 +116,26 @@ class Configuration(object):
   def parse_json(self, path):
     with open(path, 'r') as fd:
       import re
-      raw = fd.read().replace("\n", "\\n").replace('"', '\\"')
-      self._json = re.sub(' +', ' ', raw) # making the representation more compact
+      self._json = re.sub(' +', ' ', fd.read()) # making the representation more compact
 
-  def to_json(self):
-    return '#{0}\\n{1}'.format(self._name, self._json)
+  def to_json(self, json_mode=BOTH):
+    if json_mode == self.BOTH:
+      json = self._json
+    elif json_mode == self.ONLY_PREPROCESSING:
+      lines = filter(lambda l: '{' in l or '}' in l or \
+                               any(filter(lambda k: l.strip().startswith(k), 
+                                          self.PREPROCESSING_KEYS)),
+                     self._json.split('\n'))
+      json = '\n'.join(lines)
+    else:
+      assert(json_mode == self.ONLY_SATURATION)
+      lines = filter(lambda l: '{' in l or '}' in l or \
+                               all(filter(lambda k: not l.strip().startswith(k), 
+                                          self.PREPROCESSING_KEYS)),
+                     self._json.split('\n'))
+      json = '\n'.join(lines)
+    return '#{0}\\n{1}'.format(self._name, json.replace("\n", "\\n").replace('"', '\\"'))
+    
 
   def get_name(self):
     from pathlib import Path
@@ -127,4 +150,3 @@ class Configuration(object):
 
   def __repr__(self):
     return str(self)
-

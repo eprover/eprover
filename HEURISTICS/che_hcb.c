@@ -482,8 +482,15 @@ bool HeuristicParmsParseInto(Scanner_p in,
    bool res = true;
 
    AcceptInpTok(in, OpenCurly);
-
-   res = OrderParmsParseInto(in, &(handle->order_params), warn_missing);
+   
+   if(TestInpTok(in, OpenCurly))
+   {
+      res = OrderParmsParseInto(in, &(handle->order_params), warn_missing);
+   }
+   else if(warn_missing)
+   {
+      Warning("Config misses %s\n", "ordering information");
+   }
 
    PARSE_BOOL(no_preproc);
    PARSE_INT(eqdef_maxclauses);

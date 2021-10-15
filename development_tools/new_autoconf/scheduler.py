@@ -187,18 +187,20 @@ def output_single(confs, category_to_confs, raw_category_to_conf):
   print('const long  num_categories = {0};'.format(len(category_to_confs)))
   print('const long  num_raw_categories = {0};'.format(len(raw_category_to_conf)))
 
-  def conf_w_comment(conf):
-    return '"{0}"/*{1}*/'.format(conf.to_json(), conf.get_name())
+  def conf_w_comment(conf, json_kind=Configuration.BOTH):
+    return '"{0}"/*{1}*/'.format(conf.to_json(json_kind), conf.get_name())
 
   print('const char* best_conf = {0};'.format(conf_w_comment(best_conf)))
 
   cat_keys, cat_vals = list(zip(*category_to_confs.items()))
   print_str_list("categories", map(lambda x: '"{0}"'.format(x), cat_keys))
-  print_str_list("confs", map(conf_w_comment, cat_vals))
+  print_str_list("confs", 
+    map(lambda c: conf_w_comment(c, Configuration.ONLY_SATURATION), cat_vals))
 
   rcat_keys, rcat_vals = list(zip(*raw_category_to_conf.items()))
   print_str_list("raw_categories", map(lambda x: '"{0}"'.format(x),rcat_keys))
-  print_str_list("raw_confs", map(conf_w_comment, rcat_vals))
+  print_str_list("raw_confs", 
+    map(lambda c: conf_w_comment(c, Configuration.ONLY_PREPROCESSING), rcat_vals))
 
 def print_new_schedule_cell(time_ratios):
   print("#define SCHEDULE_SIZE {0}".format(len(time_ratios)))
