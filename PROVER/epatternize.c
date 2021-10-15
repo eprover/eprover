@@ -576,7 +576,7 @@ int main(int argc, char* argv[])
                              fstate->terms,
                              fstate->freshvars,
                              fstate->gc_terms,
-                             FormulaDefLimit,);
+                             FormulaDefLimit);
          }
 
          for(clause = fstate->axioms->anchor->succ;
