@@ -856,7 +856,7 @@ OCB_p TOSelectOrdering(ProofState_p state, HeuristicParms_p params,
 
    tmp = params->order_params;
 
-   if(problemType == PROBLEM_HO)
+   if(problemType == PROBLEM_HO && StringStartsWith(params->heuristic_name, "Auto"))
    {
       SpecLimits_p limits = CreateDefaultSpecLimits();
       SpecFeaturesAddEval(specs, limits);

@@ -905,7 +905,7 @@ CompareResult LPO4Compare(OCB_p ocb, Term_p s, Term_p t,
 {
    CompareResult res;
 
-   /* printf("LPO4Compare()...\n"); */
+   // printf("LPO4Compare()...\n");
    adjust_ho_deref(&s, &deref_s);
    adjust_ho_deref(&t, &deref_t);
 
@@ -925,7 +925,7 @@ CompareResult LPO4Compare(OCB_p ocb, Term_p s, Term_p t,
    {
       res = to_uncomparable;
    }
-   /* printf("...LPO4Compare()=%d\n", res); */
+   // printf("...LPO4Compare()=%d\n", res);
    /* assert(res == LPOCompare(ocb, s, t, deref_s, deref_t)); */
    return res;
 }

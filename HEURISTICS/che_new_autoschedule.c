@@ -22,12 +22,12 @@ Changes
 
 ScheduleCell* ho_schedule = NEW_HO_SCHEDULE;
 
-void print_config_name(FILE* out, const char* config)
+void print_config_name(FILE* out, const char* config, int idx)
 {
   DStr_p str = DStrAlloc();
   assert(strchr(config, '\n'));
   DStrAppendBuffer(str, (char*)config, strchr(config, '\n') - config);
-  locked_fprintf(out, "# config: %s\n", DStrView(str));
+  locked_fprintf(out, "# config(%d): %s\n", idx, DStrView(str));
   DStrFree(str);
 }
 
@@ -104,30 +104,30 @@ void AutoHeuristicForRawCategory(const char* raw_category, HeuristicParms_p parm
 {
   const char* config = class_to_heuristic(raw_category, raw_categories, raw_confs, num_raw_categories, parms);
   locked_fprintf(stderr, "# raw_category: %s\n", raw_category);
-  print_config_name(stderr, config);
+  print_config_name(stderr, config, 0);
 }
 
 void ScheduleForRawCategory(const char* raw_category, int attempt_idx, HeuristicParms_p parms)
 {
   const char* config = class_to_schedule(raw_category, multischedule_raw_categories, multischedule_raw_confs, 
                                          num_raw_categories, attempt_idx, parms);
-  locked_fprintf(stderr, "# raw_category(%d): %s\n", attempt_idx, raw_category);
-  print_config_name(stderr, config);
+  VERBOSE2(locked_fprintf(stderr, "# raw_category(%d): %s\n", attempt_idx, raw_category);)
+  print_config_name(stderr, config, attempt_idx);
 }
 
 void AutoHeuristicForCategory(const char* category, HeuristicParms_p parms)
 {
   const char* config = class_to_heuristic(category, categories, confs, num_categories, parms);
   locked_fprintf(stderr, "# category: %s\n", category);
-  print_config_name(stderr, config);
+  print_config_name(stderr, config, 0);
 }
 
 void ScheduleForCategory(const char* category, int attempt_idx, HeuristicParms_p parms)
 {
   const char* config = class_to_schedule(category, multischedule_categories, multischedule_confs, 
                                          num_categories, attempt_idx, parms);
-  locked_fprintf(stderr, "# category(%d): %s\n", attempt_idx, category);
-  print_config_name(stderr, config);
+  VERBOSE2(locked_fprintf(stderr, "# category(%d): %s\n", attempt_idx, category);)
+  print_config_name(stderr, config, attempt_idx);
 }
 
 int GetAttemptIdx(const char* strategy_name)

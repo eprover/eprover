@@ -243,6 +243,7 @@ pid_t ExecuteSchedule(ScheduleCell strats[],
                {
                   PrintRusage(GlobalOut);
                }
+               locked_fprintf(GlobalOut, "# Proof found by %s\n", strats[sched_idx].heu_name);
                kill(0, SIGKILL); // killing all the children
                break;
             }

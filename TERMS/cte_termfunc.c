@@ -1268,6 +1268,9 @@ bool TermStructEqualNoDeref(Term_p t1, Term_p t2)
 //
 /----------------------------------------------------------------------*/
 
+// to make sure that we terminate, we do not eta-expand the variables
+// and constants.
+#define ETA_EXP(t,b) ((t)->arity==0 ? (t) : LambdaEtaExpandDBTopLevel(b, t))
 bool TermStructEqualDeref(Term_p t1, Term_p t2, DerefType deref_1, DerefType deref_2)
 {
    int limit_1 = DEREF_LIMIT(t1, deref_1);
@@ -1279,14 +1282,16 @@ bool TermStructEqualDeref(Term_p t1, Term_p t2, DerefType deref_1, DerefType der
    {
       if(deref_1 == DEREF_ALWAYS)
       {
-         t1 = LambdaEtaExpandDBTopLevel(bank, WHNF_deref(t1));
+         t1 = WHNF_deref(t1);
+         t1 = ETA_EXP(t1, bank);
       }
       else
       {
          t1 = 
             deref_1 == DEREF_ONCE ? 
                (TermIsFreeVar(t1) ? t1->binding : TBInsertInstantiatedDeref(bank, t1, deref_1)) : t1;
-         t1 = LambdaNormalizeDB(bank, t1);
+         t1 = BetaNormalizeDB(bank, t1);
+         t1 = ETA_EXP(t1, bank);
          limit_1 = INT_MAX;
          deref_1 = DEREF_NEVER;
       }
@@ -1300,14 +1305,16 @@ bool TermStructEqualDeref(Term_p t1, Term_p t2, DerefType deref_1, DerefType der
    {
       if(deref_2 == DEREF_ALWAYS)
       {
-         t2 = LambdaEtaExpandDBTopLevel(bank, WHNF_deref(t2));
+         t2 = WHNF_deref(t2);
+         t2 = ETA_EXP(t2, bank);
       }
       else
       {
          t2 = 
             deref_2 == DEREF_ONCE ? 
                (TermIsFreeVar(t2) ? t2->binding : TBInsertInstantiatedDeref(bank, t2, deref_2)) : t2;
-         t2 = LambdaNormalizeDB(bank, t2);
+         t2 = BetaNormalizeDB(bank, t2);
+         t2 = ETA_EXP(t2, bank);
          limit_2 = INT_MAX;
          deref_2 = DEREF_NEVER;
       }
@@ -1316,7 +1323,6 @@ bool TermStructEqualDeref(Term_p t1, Term_p t2, DerefType deref_1, DerefType der
    {
       t2 = TermDeref(t2, &deref_2);
    }
-
    if((t1==t2) && (deref_1==deref_2))
    {
       return true;
