@@ -486,6 +486,7 @@ long eqdef_incrlimit  = DEFAULT_EQDEF_INCRLIMIT;
 FunctionProperties free_symb_prop = FPIgnoreProps;
 ProblemType problemType  = PROBLEM_NOT_INIT;
 char *sine = NULL;
+long FormulaDefLimit = 24;
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
@@ -853,7 +854,8 @@ int main(int argc, char* argv[])
                               fstate->terms,
                               fstate->freshvars,
                               fstate->gc_terms,
-                              miniscope_limit, true, true, true);
+                              miniscope_limit, FormulaDefLimit,
+                              true, true, true);
             }
             else
             {
@@ -862,7 +864,8 @@ int main(int argc, char* argv[])
                              fstate->axioms,
                              fstate->terms,
                              fstate->freshvars,
-                             fstate->gc_terms);
+                             fstate->gc_terms,
+                             FormulaDefLimit,);
             }
             if(!no_preproc)
             {

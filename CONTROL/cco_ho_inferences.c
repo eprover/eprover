@@ -1593,7 +1593,7 @@ bool NormalizeEquations(Clause_p cl)
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
-
+#define DEFAULT_RENAMING_LIMIT 24
 bool ImmediateClausification(Clause_p cl, ClauseSet_p store, ClauseSet_p archive,
                              VarBank_p fresh_vars)
 {
@@ -1602,15 +1602,11 @@ bool ImmediateClausification(Clause_p cl, ClauseSet_p store, ClauseSet_p archive
    {
       if (EqnIsClausifiable(lit))
       {
-         // DBG_PRINT(stderr, " ", EqnPrintDBG(stderr, lit), " is clausifiable.\n");
-         // DBG_PRINT(stderr, "new cnf attempt: ", ClausePrintDBG(stderr, cl), ".\n");
-         // DBG_PRINT(stderr, "derivation", DerivationDebugPrint(stderr, cl->derivation), ".\n");
          TB_p bank = lit->bank;
 
          VarBankSetVCountsToUsed(bank->vars);
 
          WFormula_p wrapped = WFormulaOfClause(cl, bank);
-         // DBG_PRINT(stderr, "decoded: ", TermPrintDbgHO(stderr, wrapped->tformula, lit->bank->sig, DEREF_NEVER), ".\n");
 
          FormulaSet_p work_set = FormulaSetAlloc();
          FormulaSetInsert(work_set, wrapped);
@@ -1618,13 +1614,9 @@ bool ImmediateClausification(Clause_p cl, ClauseSet_p store, ClauseSet_p archive
          ClauseSet_p res_set = ClauseSetAlloc();
          FormulaSet_p archive = FormulaSetAlloc();
 
-         // DBG_PRINT(stderr, "begin: ", FormulaSetPrint(stderr, work_set, true), ".\n");
          TFormulaSetUnrollFOOL(work_set, archive, bank);
-         // DBG_PRINT(stderr, "unrolled: ", FormulaSetPrint(stderr, work_set, true), ".\n");
          FormulaSetSimplify(work_set, bank, false);
-         // DBG_PRINT(stderr, "simplifed: ", FormulaSetPrint(stderr, work_set, true), ".\n");
-         TFormulaSetIntroduceDefs(work_set, archive, bank);
-         // DBG_PRINT(stderr, "defs: ", FormulaSetPrint(stderr, work_set, true), ".\n");
+         TFormulaSetIntroduceDefs(work_set, archive, bank, DEFAULT_RENAMING_LIMIT);
 
          while (!FormulaSetEmpty(work_set))
          {

@@ -540,6 +540,7 @@ int main(int argc, char* argv[])
                                 proofstate->freshvars,
                                 proofstate->gc_terms,
                                 miniscope_limit,
+                                h_parms->formula_def_limit,
                                 h_parms->lift_lambdas,
                                 h_parms->lambda_to_forall,
                                 h_parms->unroll_only_formulas);
@@ -551,7 +552,8 @@ int main(int argc, char* argv[])
                                proofstate->axioms,
                                proofstate->terms,
                                proofstate->freshvars,
-                               proofstate->gc_terms);
+                               proofstate->gc_terms,
+                               h_parms->formula_def_limit);
    }
    VERBOUT("Clausification done.\n");
 
@@ -1817,7 +1819,7 @@ CLState_p process_options(int argc, char* argv[])
             new_cnf = false;
             /* Intentional fall-through */
       case OPT_DEF_CNF:
-            FormulaDefLimit = CLStateGetIntArgCheckRange(handle, arg, 0, LONG_MAX);
+            h_parms->formula_def_limit = CLStateGetIntArgCheckRange(handle, arg, 0, LONG_MAX);
             break;
       case OPT_MINISCOPE_LIMIT:
             miniscope_limit =  CLStateGetIntArgCheckRange(handle, arg, 0, LONG_MAX);

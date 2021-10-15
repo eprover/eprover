@@ -51,6 +51,8 @@ class Configuration(object):
   _all_probs = {} # hold info how many confs solved a problem
   _all_confs = 0  # how many objetcs of Conf type have been created
 
+  PREPROCESSING_KEYS = 
+
   def __init__(self, name):
     self._name = name
     self._probs = {}
@@ -105,7 +107,9 @@ class Configuration(object):
 
   def parse_json(self, path):
     with open(path, 'r') as fd:
-      self._json = fd.read().replace("\n", "\\n").replace('"', '\\"')
+      import re
+      raw = fd.read().replace("\n", "\\n").replace('"', '\\"')
+      self._json = re.sub(' +', ' ', raw) # making the representation more compact
 
   def to_json(self):
     return '#{0}\\n{1}'.format(self._name, self._json)

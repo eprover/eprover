@@ -103,6 +103,7 @@ typedef struct heuristic_parms_cell
    bool                no_preproc;
    long                eqdef_maxclauses;
    long                eqdef_incrlimit;
+   long                formula_def_limit;
    
    char*               sine;
 

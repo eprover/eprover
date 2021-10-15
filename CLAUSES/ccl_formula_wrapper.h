@@ -55,7 +55,6 @@ typedef struct wformula_cell
 
 extern long FormulaIdentCounter;
 extern bool FormulaTermEncoding;
-extern long FormulaDefLimit;
 
 #define FormulaSetProp(form, prop) SetProp((form), (prop))
 #define FormulaDelProp(form, prop) DelProp((form), (prop))

@@ -71,12 +71,12 @@ long FormulaSetSimplify(FormulaSet_p set, TB_p terms, bool gc);
 
 long FormulaSetCNF(FormulaSet_p set, FormulaSet_p archive,
                    ClauseSet_p clauseset, TB_p terms,
-                   VarBank_p fresh_vars, GCAdmin_p gc);
+                   VarBank_p fresh_vars, GCAdmin_p gc, long def_limit);
 long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive,
                     ClauseSet_p clauseset, TB_p terms,
                     VarBank_p fresh_vars, GCAdmin_p gc,
-                    long miniscope_limit, bool lift_lambdas,
-                    bool lambda_to_forall, bool unfold_only_form);
+                    long miniscope_limit, long def_limit,
+                    bool lift_lambdas, bool lambda_to_forall, bool unfold_only_form);
 long FormulaAndClauseSetParse(Scanner_p in, FormulaSet_p fset,
                               ClauseSet_p wlset, TB_p terms,
                               StrTree_p *name_selector,
@@ -88,11 +88,11 @@ long TFormulaToCNF(WFormula_p form, FormulaProperties type, ClauseSet_p set,
 
 void TFormulaSetDelTermpProp(FormulaSet_p set, TermProperties prop);
 void TFormulaSetFindDefs(FormulaSet_p set, TB_p terms, NumXTree_p *defs,
-                         PStack_p renamed_forms);
+                         PStack_p renamed_forms, long limit);
 long TFormulaApplyDefs(WFormula_p form, TB_p terms, NumXTree_p *defs);
 long TFormulaSetIntroduceDefs(FormulaSet_p set,
                               FormulaSet_p archive,
-                              TB_p terms);
+                              TB_p terms, long limit);
 
 void FormulaSetArchive(FormulaSet_p set, FormulaSet_p archive);
 void FormulaSetDocInital(FILE* out, long level, FormulaSet_p set);

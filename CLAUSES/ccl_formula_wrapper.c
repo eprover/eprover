@@ -30,7 +30,6 @@ Changes
 /*---------------------------------------------------------------------*/
 
 long global_formula_counter = LONG_MIN;
-long FormulaDefLimit        = TFORM_RENAME_LIMIT;
 bool FormulasKeepInputNames = true;
 
 

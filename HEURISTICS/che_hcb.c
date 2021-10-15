@@ -144,6 +144,7 @@ void HeuristicParmsInitialize(HeuristicParms_p handle)
    handle->no_preproc                    = false;
    handle->eqdef_maxclauses              = DEFAULT_EQDEF_MAXCLAUSES;
    handle->eqdef_incrlimit               = DEFAULT_EQDEF_INCRLIMIT;
+   handle->formula_def_limit             = 24;
    handle->sine                          = NULL;
 
    handle->heuristic_name                = HCB_DEFAULT_HEURISTIC;
@@ -306,6 +307,7 @@ void HeuristicParmsPrint(FILE* out, HeuristicParms_p handle)
    locked_fprintf(out, "   no_preproc:                     %s\n", BOOL2STR(handle->no_preproc));
    locked_fprintf(out, "   eqdef_maxclauses:               %ld\n", handle->eqdef_maxclauses);
    locked_fprintf(out, "   eqdef_incrlimit:                %ld\n", handle->eqdef_incrlimit);
+   locked_fprintf(out, "   formula_def_limit:              %ld\n", handle->formula_def_limit);
 
    locked_fprintf(out, "   sine:                           \"%s\"\n", handle->sine ? handle->sine : "Auto");
 
@@ -486,6 +488,7 @@ bool HeuristicParmsParseInto(Scanner_p in,
    PARSE_BOOL(no_preproc);
    PARSE_INT(eqdef_maxclauses);
    PARSE_INT(eqdef_incrlimit);
+   PARSE_INT(formula_def_limit);
    PARSE_STRING(sine);
    PARSE_IDENTIFIER(heuristic_name);
    PARSE_STRING(heuristic_def);

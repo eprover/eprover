@@ -12,6 +12,9 @@ ERROR_CLASS = 'error_class'
 
 IGNORE_CLASSES = [UNPARSABLE_CLASS, TIMEOUT_CLASS, ERROR_CLASS]
 
+RAW_CLASS = 0
+CNF_CLASS = 1
+
 class Classifier(object):
   def __init__(self, binary, opts, timeout):
     self._bin = binary
@@ -104,8 +107,11 @@ def make_class_map(probs, e_classify_bin, e_classify_args,
   return (c_maps, p_maps)
 
 
-def make_class_dir(class_maps, prob_maps, out_dir, e_args, raw_mask, mask):
-  os.makedirs(out_dir, exist_ok=True)
+def make_class_dirs(class_maps, prob_maps, out_dir, e_args, raw_mask, mask):
+  CNF_NAME, RAW_NAME = 'cnf_class', 'raw_class'
+
+  os.makedirs(p.join(out_dir, CNF_NAME), exist_ok=True)
+  os.makedirs(p.join(out_dir, RAW_NAME), exist_ok=True)
 
   for (i, cat_name) in enumerate(CATEGORIZATIONS):
     with open(p.join(out_dir, cat_name), 'w') as fd:
@@ -120,9 +126,9 @@ def make_class_dir(class_maps, prob_maps, out_dir, e_args, raw_mask, mask):
     if mask:
       fd.write("mask: -c{0}\n".format(mask))
 
-  for c_map in class_maps:
+  for name, c_map in zip([CNF_NAME, RAW_NAME],  class_maps):
     for(class_, probs) in c_map.items():
-      with open(p.join(out_dir, class_), 'w') as fd:
+      with open(p.join(out_dir, name, class_), 'w') as fd:
         for prob in probs:
           fd.write(prob + '\n')
 
@@ -173,8 +179,8 @@ def main():
                                        args.e_classify_args, args.max_cpus,
                                        args.mask, args.raw_mask,
                                        args.timeout)
-  print("There are {0}/{1} classes.".format(len(class_map[0]), len(class_map[1])))
-  make_class_dir(class_map, prob_map, args.out_dir, args.e_classify_args, 
+  print("There are {0}/{1} classes.".format(len(class_map[RAW_CLASS]), len(class_map[CNF_CLASS])))
+  make_class_dirs(class_map, prob_map, args.out_dir, args.e_classify_args, 
                  args.raw_mask, args.mask)
 
 if __name__ == '__main__':

@@ -1481,7 +1481,7 @@ long FormulaSetSimplify(FormulaSet_p set, TB_p terms, bool do_garbage_collect)
 
 long FormulaSetCNF(FormulaSet_p set, FormulaSet_p archive,
                    ClauseSet_p clauseset, TB_p terms,
-                   VarBank_p fresh_vars, GCAdmin_p gc)
+                   VarBank_p fresh_vars, GCAdmin_p gc, long def_limit)
 {
    WFormula_p form, handle;
    long res = 0;
@@ -1490,7 +1490,7 @@ long FormulaSetCNF(FormulaSet_p set, FormulaSet_p archive,
 
    FormulaSetSimplify(set, terms, true);
    // printf("FormulaSetSimplify done\n");
-   TFormulaSetIntroduceDefs(set, archive, terms);
+   TFormulaSetIntroduceDefs(set, archive, terms, def_limit);
    // printf("Definitions introduced\n");
 
    while (!FormulaSetEmpty(set))
@@ -1536,6 +1536,7 @@ long FormulaSetCNF(FormulaSet_p set, FormulaSet_p archive,
 long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive,
                     ClauseSet_p clauseset, TB_p terms,
                     VarBank_p fresh_vars, GCAdmin_p gc,
+                    long def_limit,
                     long miniscope_limit,
                     bool lift_lambdas,
                     bool lambda_to_forall,
@@ -1567,7 +1568,7 @@ long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive,
    FormulaSetSimplify(set, terms, true);
 
    //printf("# Introducing definitions\n");
-   TFormulaSetIntroduceDefs(set, archive, terms);
+   TFormulaSetIntroduceDefs(set, archive, terms, def_limit);
    //printf("# Definitions introduced\n");
    while (!FormulaSetEmpty(set))
    {
@@ -1852,7 +1853,7 @@ void TFormulaSetDelTermpProp(FormulaSet_p set, TermProperties prop)
 /----------------------------------------------------------------------*/
 
 void TFormulaSetFindDefs(FormulaSet_p set, TB_p terms, NumXTree_p *defs,
-                         PStack_p renamed_forms)
+                         PStack_p renamed_forms, long formula_def_limit)
 {
    WFormula_p handle;
 
@@ -1861,10 +1862,10 @@ void TFormulaSetFindDefs(FormulaSet_p set, TB_p terms, NumXTree_p *defs,
    {
       assert(handle->tformula);
 
-      if (handle->tformula && !handle->is_clause && FormulaDefLimit)
+      if (handle->tformula && !handle->is_clause && formula_def_limit)
       {
          TFormulaFindDefs(terms, handle->tformula, 1,
-                          FormulaDefLimit, defs, renamed_forms);
+                          formula_def_limit, defs, renamed_forms);
       }
    }
 }
@@ -2324,7 +2325,7 @@ long TFormulaSetUnfoldLogSymbols(FormulaSet_p set, FormulaSet_p archive, TB_p te
 //
 /----------------------------------------------------------------------*/
 
-long TFormulaSetIntroduceDefs(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
+long TFormulaSetIntroduceDefs(FormulaSet_p set, FormulaSet_p archive, TB_p terms, long limit)
 {
    long res = 0;
    NumXTree_p defs = NULL, cell;
@@ -2341,7 +2342,7 @@ long TFormulaSetIntroduceDefs(FormulaSet_p set, FormulaSet_p archive, TB_p terms
    //printf("Marked polarites\n");
 
    //printf("About to find defs\n");
-   TFormulaSetFindDefs(set, terms, &defs, renamed_forms);
+   TFormulaSetFindDefs(set, terms, &defs, renamed_forms, limit);
 
    res = PStackGetSP(renamed_forms);
    //printf("About to Create defs\n");
