@@ -67,7 +67,7 @@ const char* class_to_heuristic(const char* problem_category, const char** catego
   }
   const char* configuration =  configurations[i != num_categories ? i : min_idx];
   Scanner_p in = CreateScanner(StreamTypeInternalString, (char*)configuration, true, NULL, true);
-  HeuristicParmsParseInto(in, params, true); 
+  HeuristicParmsParseInto(in, params, false); 
   DestroyScanner(in);
   return configuration;
 }
@@ -95,7 +95,7 @@ const char* class_to_schedule(const char* problem_category, const char** categor
   const char* conf =  configurations[i != num_categories ? i : min_idx][attempt_idx];
   assert(attempt_idx < SCHEDULE_SIZE);
   Scanner_p in = CreateScanner(StreamTypeInternalString, (char*)conf, true, NULL, true);
-  HeuristicParmsParseInto(in, params, true); 
+  HeuristicParmsParseInto(in, params, false); 
   DestroyScanner(in);
   return conf;
 }
