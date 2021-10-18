@@ -209,7 +209,7 @@ void OrderParmsPrint(FILE* out, OrderParms_p handle)
 //
 /----------------------------------------------------------------------*/
 
-inline HoOrderKind str2hok(char* v)
+HoOrderKind str2hok(char* v)
 {
    HoOrderKind hok = STR2HOK(v);
    if(hok==-1)

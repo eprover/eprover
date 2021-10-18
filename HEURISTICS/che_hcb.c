@@ -50,7 +50,7 @@ PERF_CTR_DEFINE(ClauseEvalTimer);
 //
 /----------------------------------------------------------------------*/
 
-inline ExtInferenceType str2eit(char* value)
+ExtInferenceType str2eit(char* value)
 {
    if(!strcmp(value, "all"))
    {
@@ -80,7 +80,7 @@ inline ExtInferenceType str2eit(char* value)
 //
 /----------------------------------------------------------------------*/
 
-inline PrimEnumMode str2pem(char* value)
+PrimEnumMode str2pem(char* value)
 {
    PrimEnumMode res = STR2PEM(value);
    if(res == -1)
