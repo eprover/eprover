@@ -320,7 +320,7 @@ void TypeInferSort(Sig_p sig, Term_p term, Scanner_p in)
                   {
                      locked_fprintf(stderr, "# Type mismatch in argument #%d of ", i+1);
 #ifdef ENABLE_LFHO
-                     TermPrintDbgHO(stderr, term, sig, DEREF_NEVER);
+                     TermPrintDbg(stderr, term, sig, DEREF_NEVER);
 #else
                      TermPrintFO(stderr, term, sig, DEREF_NEVER);
 #endif

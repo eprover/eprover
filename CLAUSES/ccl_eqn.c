@@ -1078,9 +1078,9 @@ void EqnPrint(FILE* out, Eqn_p eq, bool negated,  bool fullterms)
 /----------------------------------------------------------------------*/
 void EqnPrintDBG(FILE* out, Eqn_p eq)
 {
-   TermPrintDbgHO(out, eq->lterm, eq->bank->sig, DEREF_NEVER);
+   TermPrintDbg(out, eq->lterm, eq->bank->sig, DEREF_NEVER);
    locked_fprintf(out, "%s=", EqnIsPositive(eq)?"":"!");
-   TermPrintDbgHO(out, eq->rterm, eq->bank->sig, DEREF_NEVER);
+   TermPrintDbg(out, eq->rterm, eq->bank->sig, DEREF_NEVER);
    locked_fprintf(out, "%s", EqnIsMaximal(eq) ? "*" : "");
    locked_fprintf(out, "%s", EqnIsOriented(eq) ? ">" : "");
    locked_fprintf(out, "%s", EqnQueryProp(eq, EPIsEquLiteral) ? "#" : "");

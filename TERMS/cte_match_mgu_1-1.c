@@ -776,8 +776,8 @@ __inline__ bool SubstMatchComplete(Term_p pattern, Term_p target, Subst_p subst)
 __inline__ bool SubstMguComplete(Term_p t, Term_p s, Subst_p subst)
 {
    bool res;
-   // DBG_PRINT(stderr, "unifying: ", TermPrintDbgHO(stderr, t, TermGetBank(t)->sig, DEREF_NEVER), " <=?=> ");
-   // DBG_PRINT(stderr, "", TermPrintDbgHO(stderr, s, TermGetBank(s)->sig, DEREF_NEVER), ".\n");
+   // DBG_PRINT(stderr, "unifying: ", TermPrintDbg(stderr, t, TermGetBank(t)->sig, DEREF_NEVER), " <=?=> ");
+   // DBG_PRINT(stderr, "", TermPrintDbg(stderr, s, TermGetBank(s)->sig, DEREF_NEVER), ".\n");
    if(problemType == PROBLEM_FO)
    {
       res = SubstComputeMgu(t, s, subst);

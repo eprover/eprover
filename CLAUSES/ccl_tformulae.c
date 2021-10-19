@@ -1548,7 +1548,7 @@ void TFormulaTPTPPrint(FILE* out, TB_p bank, TFormula_p form, bool fullterms, bo
       }
       else
       {
-         TermPrintDbgHO(out, form, bank->sig, DEREF_NEVER);
+         TermPrintDbg(out, form, bank->sig, DEREF_NEVER);
       }
    }
    else if(TFormulaIsUnary(form))
@@ -2384,7 +2384,7 @@ Clause_p TFormulaCollectClause(TFormula_p form, TB_p terms,
    PStackPointer i;
 
    // locked_fprintf(stderr, "tformula_collect_clause(): ");
-   // TermPrintDbgHO(stderr, form, terms->sig, DEREF_NEVER);
+   // TermPrintDbg(stderr, form, terms->sig, DEREF_NEVER);
    // locked_fprintf(stderr, "\n");
 
    stack = PStackAlloc();

@@ -46,8 +46,8 @@ Contents
 //
 /----------------------------------------------------------------------*/
 
-#define PROOF_DEPTH(c) (c) ? ((c)->proof_depth) : 0
-#define PROOF_SIZE(c) (c) ? ((c)->proof_size) : 0
+#define PROOF_DEPTH(c) ((c) ? ((c)->proof_depth) : 0)
+#define PROOF_SIZE(c) ((c) ? ((c)->proof_size) : 0)
 
 void set_proof_object(Clause_p new_clause, Clause_p orig_clause, Clause_p parent2,
                       DerivationCode dc, int depth_incr)

@@ -512,7 +512,7 @@ WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms)
          // locked_fprintf(stderr, "# TFormula parsed!: ");
          // TFormulaTPTPPrint(stderr, terms, tform, true, false);
          // locked_fprintf(stderr, " : ");
-         // TermPrintDbgHO(stderr, tform, terms->sig, DEREF_NEVER);
+         // TermPrintDbg(stderr, tform, terms->sig, DEREF_NEVER);
          // locked_fprintf(stderr, ";\n");
       }
 
@@ -630,7 +630,7 @@ void WFormulaTSTPPrint(FILE* out, WFormula_p form, bool fullterms,
    else
    {
       TFormulaTPTPPrint(out, form->terms, form->tformula,fullterms, false);
-      // TermPrintDbgHO(out, form->tformula, form->terms->sig, DEREF_NEVER);
+      // TermPrintDbg(out, form->tformula, form->terms->sig, DEREF_NEVER);
       //locked_fprintf(out, "");
       //locked_fprintf(out, "<dummy %p in %p>", form->tformula, form->terms);
    }

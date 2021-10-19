@@ -59,7 +59,7 @@ void print_t_stack(Sig_p sig, PStack_p stack)
    }
    for(long i=PStackGetTopSP(stack); i>=0; i--)
    {
-      TermPrintDbgHO(stderr, PStackElementP(stack, i), sig, DEREF_NEVER);
+      TermPrintDbg(stderr, PStackElementP(stack, i), sig, DEREF_NEVER);
       locked_fprintf(stderr, ", ");
    }
 }

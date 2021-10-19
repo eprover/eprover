@@ -1014,9 +1014,9 @@ static CompareResult kbolincmp_lambda(OCB_p ocb, Term_p s, Term_p t,
          (t->f_code == SIG_TRUE_CODE ? to_equal : to_lesser) :
       (t->f_code == SIG_TRUE_CODE ? to_greater : kbolincmp_lambda_driver(ocb, s, t));
 
-   // DBG_PRINT(stderr, "", TermPrintDbgHO(stderr, s, ocb->sig, DEREF_NEVER),
+   // DBG_PRINT(stderr, "", TermPrintDbg(stderr, s, ocb->sig, DEREF_NEVER),
    //          POCompareSymbol[res]);
-   // DBG_PRINT(stderr, "", TermPrintDbgHO(stderr, t, ocb->sig, DEREF_NEVER),
+   // DBG_PRINT(stderr, "", TermPrintDbg(stderr, t, ocb->sig, DEREF_NEVER),
    //           ".\n");
    return res;
 }

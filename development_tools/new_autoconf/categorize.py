@@ -127,10 +127,13 @@ def make_class_dirs(class_maps, prob_maps, out_dir, e_args, raw_mask, mask):
       fd.write("mask: -c{0}\n".format(mask))
 
   for name, c_map in zip([CNF_NAME, RAW_NAME],  class_maps):
-    for(class_, probs) in c_map.items():
-      with open(p.join(out_dir, name, class_), 'w') as fd:
-        for prob in probs:
-          fd.write(prob + '\n')
+    for (class_, probs) in c_map.items():
+      if class_:
+        with open(p.join(out_dir, name, class_), 'w') as fd:
+          for prob in probs:
+            fd.write(prob + '\n')
+      else:
+        print('empty_class: {0}'.format(",".join(probs)))
 
 
 def init_args():
