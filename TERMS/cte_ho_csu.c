@@ -43,10 +43,12 @@ struct csu_iter
    PStack_p backtrack_info;
    // in what state is the current solving of the pair?
    ConstraintTag_t current_state;
+   PStackPointer init_pos;
    Subst_p subst;
 };
 
 #define GET_HEAD_ID(t) (TermIsPhonyApp(t) ? (t)->args[0]->f_code : (t)->f_code)
+#define CSUIterAlloc() (SizeMalloc(sizeof(struct csu_iter)))
 
 /*---------------------------------------------------------------------*/
 /*                        Global Variables                             */
@@ -64,7 +66,8 @@ struct csu_iter
 //
 // Function: destroy_iter()
 //
-//  
+//  Destroys the iter and frees all the memory EXCEPT for the initial
+//  substitution.
 //
 // Global Variables: -
 //
@@ -72,12 +75,35 @@ struct csu_iter
 //
 /----------------------------------------------------------------------*/
 
-void destroy_iter(CSUIterator_t* iter)
+void destroy_iter(CSUIterator_p iter)
 {
    PStackFree(iter->backtrack_info);
    PStackFree(iter->constraints);
-   SubstDelete(iter->subst);
+   SubstBacktrackToPos(iter->subst, iter->init_pos);
    SizeFree(iter, sizeof(CSUIterator_t));
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: forward_iter()
+//
+//   After the iterator has successfully been backtracked, 
+//   try to find the solution.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+bool forward_iter(CSUIterator_p iter)
+{
+   bool res = true;
+   while(!PStackEmpty(iter->constraints))
+   {
+      //
+   }
+   return res;
 }
 
 /*-----------------------------------------------------------------------
@@ -95,7 +121,7 @@ void destroy_iter(CSUIterator_t* iter)
 //
 /----------------------------------------------------------------------*/
 
-bool backtrack_iter(CSUIterator_t* iter)
+bool backtrack_iter(CSUIterator_p iter)
 {
    bool res = false;
    if(!PStackEmpty(iter->backtrack_info))
@@ -176,17 +202,68 @@ bool backtrack_iter(CSUIterator_t* iter)
 //
 /----------------------------------------------------------------------*/
 
-bool NextCSUElement(CSUIterator_t* iter)
+bool NextCSUElement(CSUIterator_p iter)
 {
-   bool res;
+   bool res = false;
    if(backtrack_iter(iter))
    {
-      res = false;
+      res = forward_iter(iter);
    }
-   else
+   if(!res)
    {
       destroy_iter(iter);
-      res = true;
    }
    return res;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: CSUIterInit()
+//
+//   Given a (previously initialized) iterator if there exists a next
+//   unifier return true and set the substitution of the iterator 
+//   to the unifier. If there is no unifier, all the variables are
+//   unbound and false is returned. When false is returned, CSUIterator
+//   is destroyed an is no longer to be used.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+CSUIterator_p CSUIterInit(Term_p lhs, Term_p rhs, Subst_p subst)
+{
+   CSUIterator_p res = CSUIterAlloc();
+   res->subst = subst;
+   res->init_pos = PStackGetSP(subst);
+   res->backtrack_info = PStackAlloc();
+   res->constraints = PStackAlloc();
+
+   // initialization
+   PStackPushInt(res->backtrack_info, res->init_pos);
+   PStackPushInt(res->backtrack_info, INIT_TAG);
+   PStackPushP(res->constraints, rhs);
+   PStackPushP(res->constraints, lhs);
+
+   return res;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: CSUIterGetCurrentSubst()
+//
+//   Returns the substitution stored in the iterator. NB: User needs
+//   to take care that substitution is only observed in the correct
+//   states.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+Subst_p CSUIterGetCurrentSubst(CSUIterator_p iter)
+{
+   return iter->subst;
 }

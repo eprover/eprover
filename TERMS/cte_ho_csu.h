@@ -2,7 +2,7 @@
 
 File  : cte_ho_csu.h
 
-Author: Petar Vukirovic
+Author: Petar Vukmirovic
 
 Contents
 
@@ -22,13 +22,21 @@ Changes
 
 -----------------------------------------------------------------------*/
 
-#ifndef CTE_FULL_UNIF
-#define CTE_FULL_UNIF
 
 #include <cte_termtypes.h>
 #include <cte_subst.h>
 
+#ifndef CTE_FULL_UNIF
+#define CTE_FULL_UNIF
+
 typedef struct csu_iter CSUIterator_t;
+typedef CSUIterator_t* CSUIterator_p;
+
+CSUIterator_p CSUIterInit(Term_p lhs, Term_p rhs, Subst_p subst);
+Subst_p CSUIterGetCurrentSubst(CSUIterator_p iter);
+bool NextCSUElement(CSUIterator_p iter);
+
+
 
 #endif
 

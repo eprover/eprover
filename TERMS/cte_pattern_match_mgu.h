@@ -2,7 +2,7 @@
 
 File  : cte_pattern_match_mgu.h
 
-Author: Petar Vukirovic
+Author: Petar Vukmirovic
 
 Contents
 
