@@ -53,7 +53,7 @@ typedef struct raw_spec_feature_cell
    int       order; // order of signature
    int       conj_order; // order of conjecture symbols
    bool      app_var_lits; // do the formulas have applied variable literals
-   char      class[14];
+   char      class[15];
 }RawSpecFeatureCell, *RawSpecFeature_p;
 
 
