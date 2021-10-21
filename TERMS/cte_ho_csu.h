@@ -25,6 +25,11 @@ Changes
 #ifndef CTE_FULL_UNIF
 #define CTE_FULL_UNIF
 
+#include <cte_termtypes.h>
+#include <cte_subst.h>
+
+typedef struct csu_iter CSUIterator_t;
+
 #endif
 
 /*---------------------------------------------------------------------*/
