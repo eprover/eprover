@@ -94,6 +94,7 @@ long              step_limit = LONG_MAX,
 long long tb_insert_limit = LLONG_MAX;
 bool lift_lambdas = true;
 int num_cpus = 1;
+UnifMode unif_mode = SingleUnif;
 
 int force_deriv_output = 0;
 char  *outdesc = DEFAULT_OUTPUT_DESCRIPTOR,
@@ -1873,6 +1874,32 @@ CLState_p process_options(int argc, char* argv[])
             {
                Error("pos-ext excepts either all or max", 0);
             }
+            break;
+      case OPT_FUNC_PROJ_IMIT:
+            h_parms->func_proj_limit = CLStateGetIntArgCheckRange(handle, arg, 0, 255);
+            break;
+      case OPT_IMIT_LIMIT:
+            h_parms->imit_limit = CLStateGetIntArgCheckRange(handle, arg, 0, 255);
+            break;
+      case OPT_IDENT_LIMIT:
+            h_parms->ident_limit = CLStateGetIntArgCheckRange(handle, arg, 0, 255);
+            break;
+      case OPT_ELIM_LIMIT:
+            h_parms->elim_limit = CLStateGetIntArgCheckRange(handle, arg, 0, 255);
+            break;
+      case OPT_UNIF_MODE:
+            unif_mode = STR2UM(arg);
+            if(unif_mode==-1)
+            {
+               Error("values of unif mode are eiter single or multi", 0);
+            }
+            h_parms->unif_mode = unif_mode;
+            break;
+      case OPT_PATTERN_ORACLE:
+            h_parms->pattern_oracle = CLStateGetBoolArg(handle, arg);
+            break;
+      case OPT_FIXPOINT_ORACLE:
+            h_parms->fixpoint_oracle = CLStateGetBoolArg(handle, arg);
             break;
       case OPT_EXT_SUP:
             h_parms->ext_sup_max_depth =

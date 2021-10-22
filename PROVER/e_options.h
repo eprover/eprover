@@ -211,6 +211,13 @@ typedef enum
    OPT_CHOICE_INST,
    OPT_LOCAL_RW,
    OPT_PRUNE_ARGS,
+   OPT_FUNC_PROJ_IMIT,
+   OPT_IMIT_LIMIT,
+   OPT_IDENT_LIMIT,
+   OPT_ELIM_LIMIT,
+   OPT_UNIF_MODE,
+   OPT_PATTERN_ORACLE,
+   OPT_FIXPOINT_ORACLE,
    OPT_DUMMY
 }OptionCodes;
 
@@ -1591,6 +1598,41 @@ OptCell opts[] =
     '\0', "prune-args",
     ReqArg, NULL,
     "Enable/disable pruning arguments of applied variables."},
+
+    {OPT_FUNC_PROJ_IMIT,
+    '\0', "func-proj-limit",
+    ReqArg, NULL,
+    "Maximal number of functional projections"},
+
+    {OPT_IMIT_LIMIT,
+    '\0', "imit-limit",
+    ReqArg, NULL,
+    "Maximal number of imitations"},
+
+    {OPT_IDENT_LIMIT,
+    '\0', "ident-limit",
+    ReqArg, NULL,
+    "Maximal number of identifications"},
+
+    {OPT_ELIM_LIMIT,
+    '\0', "elim-limit",
+    ReqArg, NULL,
+    "Maximal number of eliminations"},
+
+    {OPT_UNIF_MODE,
+    '\0', "unif-mode",
+    ReqArg, NULL,
+    "Set the mode of unification: either single or multi."},
+
+    {OPT_PATTERN_ORACLE,
+    '\0', "pattern-oracle",
+    ReqArg, NULL,
+    "Turn the pattern oracle on or off."},
+
+    {OPT_FIXPOINT_ORACLE,
+    '\0', "pattern-oracle",
+    ReqArg, NULL,
+    "Turn the pattern oracle on or off."},
 
 
    {OPT_NOOPT,
