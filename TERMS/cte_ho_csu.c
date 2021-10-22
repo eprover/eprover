@@ -24,6 +24,7 @@ Changes
 
 #include "cte_ho_csu.h"
 #include <cte_lambda.h>
+#include <che_hcb.h>
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
@@ -61,6 +62,8 @@ struct csu_iter
 /*---------------------------------------------------------------------*/
 /*                        Global Variables                             */
 /*---------------------------------------------------------------------*/
+
+static HeuristicParms_p params = NULL;
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
@@ -443,6 +446,8 @@ bool NextCSUElement(CSUIterator_p iter)
 
 CSUIterator_p CSUIterInit(Term_p lhs, Term_p rhs, Subst_p subst, TB_p bank)
 {
+   assert(params);
+
    CSUIterator_p res = CSUIterAlloc();
    res->subst = subst;
    res->init_pos = PStackGetSP(subst);
@@ -479,4 +484,22 @@ CSUIterator_p CSUIterInit(Term_p lhs, Term_p rhs, Subst_p subst, TB_p bank)
 Subst_p CSUIterGetCurrentSubst(CSUIterator_p iter)
 {
    return iter->subst;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: InitUnifLimits()
+//
+//   Store heuristic parameters locally and use them to pick up the 
+//   limits for unification.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void InitUnifLimits(HeuristicParms_p p)
+{
+   params = p;
 }

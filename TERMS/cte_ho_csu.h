@@ -26,6 +26,7 @@ Changes
 #include <cte_termtypes.h>
 #include <cte_subst.h>
 #include <cte_pattern_match_mgu.h>
+#include <che_hcb.h>
 
 #ifndef CTE_FULL_UNIF
 #define CTE_FULL_UNIF
@@ -36,6 +37,7 @@ typedef CSUIterator_t* CSUIterator_p;
 CSUIterator_p CSUIterInit(Term_p lhs, Term_p rhs, Subst_p subst, TB_p bank);
 Subst_p CSUIterGetCurrentSubst(CSUIterator_p iter);
 bool NextCSUElement(CSUIterator_p iter);
+void InitUnifLimits(HeuristicParms_p p);
 
 
 
