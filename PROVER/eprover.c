@@ -634,6 +634,7 @@ int main(int argc, char* argv[])
    {
       locked_fprintf(GlobalOut, "# Preprocessing time       : %.3f s\n", preproc_time);
    }
+
    if(proofcontrol->heuristic_parms.presat_interreduction)
    {
       LiteralSelectionFun sel_strat =

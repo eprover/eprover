@@ -1634,7 +1634,6 @@ OptCell opts[] =
     ReqArg, NULL,
     "Turn the pattern oracle on or off."},
 
-
    {OPT_NOOPT,
     '\0', NULL,
     NoArg, NULL,
