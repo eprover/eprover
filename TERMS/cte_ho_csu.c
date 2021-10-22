@@ -45,6 +45,7 @@ struct csu_iter
    ConstraintTag_t current_state;
    PStackPointer init_pos;
    Subst_p subst;
+   TB_p bank;
 };
 
 #define GET_HEAD_ID(t) (TermIsPhonyApp(t) ? (t)->args[0]->f_code : (t)->f_code)
@@ -85,6 +86,27 @@ void destroy_iter(CSUIterator_p iter)
 
 /*-----------------------------------------------------------------------
 //
+// Function: store_backtrack_pair()
+//
+//   Prepare the backtracking state.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void store_backtrack_pair(CSUIterator_p iter, Term_p lhs, Term_p rhs,
+                          ConstraintTag_t new_tag)
+{
+   PStackPushInt(iter->backtrack_info, PStackGetSP(iter->subst));
+   PStackPushInt(iter->backtrack_info, new_tag);
+   PStackPushP(iter->backtrack_info, rhs);
+   PStackPushP(iter->backtrack_info, lhs);
+}
+
+/*-----------------------------------------------------------------------
+//
 // Function: forward_iter()
 //
 //   After the iterator has successfully been backtracked, 
@@ -99,9 +121,92 @@ void destroy_iter(CSUIterator_p iter)
 bool forward_iter(CSUIterator_p iter)
 {
    bool res = true;
-   while(!PStackEmpty(iter->constraints))
+   while(res && !PStackEmpty(iter->constraints))
    {
-      //
+      assert(PStackGetSP(iter->constraints) % 2 == 0);
+      Term_p lhs = WHNF_deref(PStackPopP(iter->constraints));
+      Term_p rhs = WHNF_deref(PStackPopP(iter->constraints));
+      PruneLambdaPrefix(iter->bank, &lhs, &rhs);
+
+      if(lhs->type != rhs->type)
+      {
+         assert(iter->current_state == INIT_TAG);
+         res = false;
+      }
+      else if(lhs == rhs)
+      {
+         store_backtrack_pair(iter, lhs, rhs, SOLVED_BY_ORACLE_TAG);
+      }
+      else
+      {
+         if(TermIsTopLevelFreeVar(rhs))
+         {
+            SWAP(lhs, rhs);
+         }
+
+         // if either of the sides is app var
+         // LHS must be free var
+         if(TermIsTopLevelFreeVar(lhs))
+         {
+            // TODO:
+            // try oracles
+            // if oracles do not work,
+            // try getting the binder
+         }
+         else
+         {
+            if(TermIsPhonyApp(lhs))
+            {
+               if(TermIsPhonyApp(rhs))
+               {
+                  assert(TermIsDBVar(lhs->args[0]));
+                  assert(TermIsDBVar(rhs->args[0]));
+                  if(lhs->args[0] == rhs->args[0])
+                  {
+                     assert(lhs->arity == rhs->arity);
+                     schedule_args(iter, lhs->args+1, rhs->args+1, lhs->arity-1);
+                     store_backtrack_pair(iter, lhs, rhs, RIGID_PROCESSED_TAG);
+                  }
+                  else
+                  {
+                     res = backtrack_iter(iter);
+                  }
+               }
+               else
+               {
+                  res = backtrack_iter(iter);
+               }
+            }
+            else if(TermIsDBVar(lhs))
+            {
+               if(!TermIsDBVar(rhs) || lhs->f_code != rhs->f_code)
+               {
+                  res = backtrack_iter(iter);
+               }
+               else
+               {
+                  store_backtrack_pair(iter, lhs, rhs, RIGID_PROCESSED_TAG);
+               }
+            }
+            else if (lhs->f_code == rhs->f_code)
+            {
+               assert(lhs->arity == rhs->arity);
+               if(SigIsPolymorphic(iter->bank->sig, lhs->f_code)
+                  && lhs->arity != 0
+                  && lhs->args[0]->type != rhs->args[0]->type) 
+               {
+                  res = backtrack_iter(iter);
+               }
+               else
+               {
+                  schedule_jobs(jobs, t1->args, t2->args, t1->arity);
+               }
+            }
+         }
+
+      }
+
+
    }
    return res;
 }
@@ -130,10 +235,10 @@ bool backtrack_iter(CSUIterator_p iter)
       while(PStackGetSP(iter->backtrack_info) >= 4 && !res)
       {
          assert(PStackGetSP(iter->backtrack_info) % 4 == 0);
-         PStackPointer subst_pointer = PStackPopInt(iter->backtrack_info);
-         ConstraintTag_t constr_tag = PStackPopInt(iter->backtrack_info);
-         Term_p rhs = PStackPopP(iter->backtrack_info);
          Term_p lhs = PStackPopP(iter->backtrack_info);
+         Term_p rhs = PStackPopP(iter->backtrack_info);
+         ConstraintTag_t constr_tag = PStackPopInt(iter->backtrack_info);
+         PStackPointer subst_pointer = PStackPopInt(iter->backtrack_info);
 
          if(constr_tag == INIT_TAG)
          {
@@ -168,7 +273,7 @@ bool backtrack_iter(CSUIterator_p iter)
                to_drop = lhs->arity - (TermIsPhonyApp(lhs) ? 1 : 0);
             }
             
-            for(int i=0 ; i<to_drop; i++)
+            for(int i=0; i<to_drop; i++)
             {
                PStackPop(iter->constraints);
                PStackPop(iter->constraints);
@@ -232,19 +337,20 @@ bool NextCSUElement(CSUIterator_p iter)
 //
 /----------------------------------------------------------------------*/
 
-CSUIterator_p CSUIterInit(Term_p lhs, Term_p rhs, Subst_p subst)
+CSUIterator_p CSUIterInit(Term_p lhs, Term_p rhs, Subst_p subst, TB_p bank)
 {
    CSUIterator_p res = CSUIterAlloc();
    res->subst = subst;
    res->init_pos = PStackGetSP(subst);
    res->backtrack_info = PStackAlloc();
    res->constraints = PStackAlloc();
+   res->bank = bank;
 
    // initialization
    PStackPushInt(res->backtrack_info, res->init_pos);
    PStackPushInt(res->backtrack_info, INIT_TAG);
-   PStackPushP(res->constraints, rhs);
-   PStackPushP(res->constraints, lhs);
+   PStackPushP(res->backtrack_info, rhs);
+   PStackPushP(res->backtrack_info, lhs);
 
    return res;
 }

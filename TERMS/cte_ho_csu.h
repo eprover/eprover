@@ -25,6 +25,7 @@ Changes
 
 #include <cte_termtypes.h>
 #include <cte_subst.h>
+#include <cte_pattern_match_mgu.h>
 
 #ifndef CTE_FULL_UNIF
 #define CTE_FULL_UNIF

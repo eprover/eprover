@@ -38,7 +38,6 @@ Changes
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
 /*---------------------------------------------------------------------*/
-static inline Term_p get_fvar_head(Term_p t);
 
 /*---------------------------------------------------------------------*/
 /*                         Internal Functions                          */
@@ -191,7 +190,7 @@ Term_p solve_flex_rigid(TB_p bank, Term_p s_var, IntMap_p db_map, Term_p t,
          *unif_res = NOT_IN_FRAGMENT;
          res = NULL;
       }
-      else if (get_fvar_head(t) == s_var)
+      else if (GetFVarHead(t) == s_var)
       {
          *unif_res = NOT_UNIFIABLE;
          res = NULL;
@@ -227,7 +226,7 @@ Term_p solve_flex_rigid(TB_p bank, Term_p s_var, IntMap_p db_map, Term_p t,
             }
          }
 
-         Term_p t_var = get_fvar_head(t);
+         Term_p t_var = GetFVarHead(t);
          Term_p t_binding_matrix =
             fresh_var_with_args(bank, t_dbs, t->type);
          Type_p t_prefix[NUM_ACTUAL_ARGS(t)];
@@ -237,7 +236,7 @@ Term_p solve_flex_rigid(TB_p bank, Term_p s_var, IntMap_p db_map, Term_p t,
          }
          SubstAddBinding(subst, t_var,
                          CloseWithTypePrefix(bank, t_prefix, NUM_ACTUAL_ARGS(t), t_binding_matrix));
-         res = ApplyTerms(bank, get_fvar_head(t_binding_matrix), s_dbs);
+         res = ApplyTerms(bank, GetFVarHead(t_binding_matrix), s_dbs);
          
          PStackFree(t_dbs);
          PStackFree(s_dbs);
@@ -313,7 +312,7 @@ OracleUnifResult flex_rigid(TB_p bank, Term_p s, Term_p t, Subst_p subst)
    }
    else
    {
-      Term_p s_var = get_fvar_head(s);
+      Term_p s_var = GetFVarHead(s);
       IntMap_p db_map = db_var_map(bank, s);
       Term_p s_binding_matrix = solve_flex_rigid(bank, s_var, db_map, t, subst, 0, &res);
       if(res==UNIFIABLE)
@@ -376,7 +375,7 @@ OracleUnifResult flex_flex_diff(TB_p bank, Term_p s, Term_p t, Subst_p subst)
          }
       }
 
-      Term_p t_var = get_fvar_head(t);
+      Term_p t_var = GetFVarHead(t);
       Term_p t_binding_matrix = 
          fresh_var_with_args(bank, t_dbs, t->type);
       Type_p t_prefix[NUM_ACTUAL_ARGS(t)];
@@ -387,9 +386,9 @@ OracleUnifResult flex_flex_diff(TB_p bank, Term_p s, Term_p t, Subst_p subst)
       SubstAddBinding(subst, t_var,
                       CloseWithTypePrefix(bank, t_prefix, NUM_ACTUAL_ARGS(t), t_binding_matrix));
 
-      Term_p s_var = get_fvar_head(s);
+      Term_p s_var = GetFVarHead(s);
       Term_p s_binding_matrix =
-         ApplyTerms(bank, get_fvar_head(t_binding_matrix), s_dbs);
+         ApplyTerms(bank, GetFVarHead(t_binding_matrix), s_dbs);
       Type_p s_prefix[NUM_ACTUAL_ARGS(s)];
       for(long i=1; i<s->arity; i++) // works with naked s as well
       {
@@ -440,8 +439,8 @@ OracleUnifResult flex_flex_same(TB_p bank, Term_p s, Term_p t, Subst_p subst)
       }
       else
       {
-         Term_p var = get_fvar_head(s);
-         assert(var == get_fvar_head(t));
+         Term_p var = GetFVarHead(s);
+         assert(var == GetFVarHead(t));
          assert(TypeIsArrow(var->type));
          long max_args = TypeGetMaxArity(var->type);
          assert(s->arity == t->arity);
@@ -497,7 +496,7 @@ static inline void schedule_jobs(PQueue_p q, Term_p* xs, Term_p* ys, long size)
 
 /*-----------------------------------------------------------------------
 //
-// Function: get_fvar_head()
+// Function: GetFVarHead()
 //
 //   If a term is (possibly applied) free variable, get the term
 //   which represents this free variable.
@@ -508,7 +507,7 @@ static inline void schedule_jobs(PQueue_p q, Term_p* xs, Term_p* ys, long size)
 //
 /----------------------------------------------------------------------*/
 
-static inline Term_p get_fvar_head(Term_p t)
+inline Term_p GetFVarHead(Term_p t)
 {
    assert(TermIsTopLevelFreeVar(t));
    if(TermIsAppliedFreeVar(t))
@@ -864,7 +863,7 @@ OracleUnifResult SubstComputeMguPattern(Term_p t1, Term_p t2, Subst_p subst)
       {
          if(TermIsTopLevelFreeVar(t2))
          {
-            if(get_fvar_head(t1) == get_fvar_head(t2))
+            if(GetFVarHead(t1) == GetFVarHead(t2))
             {
                res = flex_flex_same(bank, t1, t2, subst);
             }
@@ -1009,7 +1008,7 @@ OracleUnifResult SubstComputeMatchPattern(Term_p matcher, Term_p to_match, Subst
             break;
          }
 
-         Term_p fvar = get_fvar_head(matcher);
+         Term_p fvar = GetFVarHead(matcher);
          if(fvar->binding)
          {
             DerefType dummy = DEREF_ONCE;
