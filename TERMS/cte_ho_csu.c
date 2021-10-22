@@ -23,6 +23,7 @@ Changes
 -----------------------------------------------------------------------*/
 
 #include "cte_ho_csu.h"
+#include <cte_lambda.h>
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
@@ -38,7 +39,8 @@ ConstraintTag_t SOLVED_BY_ORACLE_TAG = 2;
 
 struct csu_iter 
 {
-   PStack_p constraints; // pairs of terms to unify
+   PStack_p constraints; // pairs of terms to unify -- it is not a queue because
+                         // of faster backtracking
    // quadruples (LHS, RHS, how was the constraint solved, subst before solution)
    PStack_p backtrack_info;
    // in what state is the current solving of the pair?
@@ -46,6 +48,11 @@ struct csu_iter
    PStackPointer init_pos;
    Subst_p subst;
    TB_p bank;
+
+   // implementation-specific data used for optimization
+   PStack_p tmp_rigid_diff;
+   PStack_p tmp_rigid_same;
+   PStack_p tmp_flex;
 };
 
 #define GET_HEAD_ID(t) (TermIsPhonyApp(t) ? (t)->args[0]->f_code : (t)->f_code)
@@ -58,6 +65,8 @@ struct csu_iter
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
 /*---------------------------------------------------------------------*/
+
+bool backtrack_iter(CSUIterator_p iter);
 
 /*---------------------------------------------------------------------*/
 /*                         Internal Functions                          */
@@ -80,6 +89,9 @@ void destroy_iter(CSUIterator_p iter)
 {
    PStackFree(iter->backtrack_info);
    PStackFree(iter->constraints);
+   PStackFree(iter->tmp_rigid_diff);
+   PStackFree(iter->tmp_rigid_same);
+   PStackFree(iter->tmp_flex);
    SubstBacktrackToPos(iter->subst, iter->init_pos);
    SizeFree(iter, sizeof(CSUIterator_t));
 }
@@ -103,6 +115,100 @@ void store_backtrack_pair(CSUIterator_p iter, Term_p lhs, Term_p rhs,
    PStackPushInt(iter->backtrack_info, new_tag);
    PStackPushP(iter->backtrack_info, rhs);
    PStackPushP(iter->backtrack_info, lhs);
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: unroll_fcode()
+//
+//   Go under lamdbas and follow binding pointers until we either hit
+//   rigid symbol or there are no more bindings
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+FunCode unroll_fcode(Term_p t)
+{
+   while(TermIsLambda(t))
+   {
+      t = t->args[1];
+   }
+
+   while(CAN_DEREF(t))
+   {
+      Term_p var = TermIsAppliedFreeVar(t) ? t->args[0] : t;
+      t = var->binding;
+      while(TermIsLambda(t))
+      {
+         t = t->args[1];
+      }
+   }
+
+   return (TermIsPhonyApp(t) ? t->args[0] : t)->f_code;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: move_stack()
+//
+//   Push one stack to the other one and reset the original one.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void move_stack(PStack_p new, PStack_p old)
+{
+   PStackPushStack(old, new);
+   PStackReset(new);
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: store_backtrack_pair()
+//
+//   Put the arguments on the constraints stack in the order which 
+//   improves the performance of unif algorithm: first rigid-rigid
+//   of different values, then other rigid-rigid and then flex-flex-pairs
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void schedule_args(CSUIterator_p iter, Term_p* l_args, Term_p* r_args, int size)
+{
+   assert(PStackEmpty(iter->tmp_flex) && PStackEmpty(iter->tmp_rigid_diff)
+                                      && PStackEmpty(iter->tmp_rigid_same));
+   for(int i=0; i<size; i++)
+   {
+      FunCode l_fc = unroll_fcode(l_args[i]), r_fc = unroll_fcode(r_args[i]);
+      if(l_fc < 0 || r_fc < 0)
+      {
+         PStackPushP(iter->tmp_flex, r_args[i]);
+         PStackPushP(iter->tmp_flex, l_args[i]);
+      }
+      else if(l_fc == r_fc)
+      {
+         PStackPushP(iter->tmp_rigid_same, r_args[i]);
+         PStackPushP(iter->tmp_rigid_same, l_args[i]);
+      }
+      else
+      {
+         PStackPushP(iter->tmp_rigid_diff, r_args[i]);
+         PStackPushP(iter->tmp_rigid_diff, l_args[i]);
+      }
+   }
+
+   move_stack(iter->tmp_flex, iter->constraints);
+   move_stack(iter->tmp_rigid_same, iter->constraints);
+   move_stack(iter->tmp_rigid_diff, iter->constraints);
 }
 
 /*-----------------------------------------------------------------------
@@ -199,14 +305,12 @@ bool forward_iter(CSUIterator_p iter)
                }
                else
                {
-                  schedule_jobs(jobs, t1->args, t2->args, t1->arity);
+                  schedule_args(iter, lhs->args+1, rhs->args+1, lhs->arity-1);
+                  store_backtrack_pair(iter, lhs, rhs, RIGID_PROCESSED_TAG);
                }
             }
          }
-
       }
-
-
    }
    return res;
 }
@@ -345,6 +449,9 @@ CSUIterator_p CSUIterInit(Term_p lhs, Term_p rhs, Subst_p subst, TB_p bank)
    res->backtrack_info = PStackAlloc();
    res->constraints = PStackAlloc();
    res->bank = bank;
+   res->tmp_rigid_diff = PStackAlloc();
+   res->tmp_rigid_same = PStackAlloc();
+   res->tmp_flex = PStackAlloc();
 
    // initialization
    PStackPushInt(res->backtrack_info, res->init_pos);

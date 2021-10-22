@@ -33,7 +33,7 @@ Changes
 typedef struct csu_iter CSUIterator_t;
 typedef CSUIterator_t* CSUIterator_p;
 
-CSUIterator_p CSUIterInit(Term_p lhs, Term_p rhs, Subst_p subst);
+CSUIterator_p CSUIterInit(Term_p lhs, Term_p rhs, Subst_p subst, TB_p bank);
 Subst_p CSUIterGetCurrentSubst(CSUIterator_p iter);
 bool NextCSUElement(CSUIterator_p iter);
 

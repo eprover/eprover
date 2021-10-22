@@ -494,32 +494,6 @@ static inline void schedule_jobs(PQueue_p q, Term_p* xs, Term_p* ys, long size)
    }
 }
 
-/*-----------------------------------------------------------------------
-//
-// Function: GetFVarHead()
-//
-//   If a term is (possibly applied) free variable, get the term
-//   which represents this free variable.
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-inline Term_p GetFVarHead(Term_p t)
-{
-   assert(TermIsTopLevelFreeVar(t));
-   if(TermIsAppliedFreeVar(t))
-   {
-      return t->args[0];
-   }
-   else
-   {
-      return t;
-   }
-}
-
 
 /*-----------------------------------------------------------------------
 //

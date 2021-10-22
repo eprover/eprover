@@ -36,10 +36,40 @@ Changes
 /*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
-inline Term_p GetFVarHead(Term_p t);
 bool PruneLambdaPrefix(TB_p bank, Term_p *t1_ref, Term_p *t2_ref);
 OracleUnifResult SubstComputeMguPattern(Term_p t1, Term_p t2, Subst_p subst);
 OracleUnifResult SubstComputeMatchPattern(Term_p matcher, Term_p to_match, Subst_p subst);
+
+/*---------------------------------------------------------------------*/
+/*                Inline Functions                                     */
+/*---------------------------------------------------------------------*/
+
+/*-----------------------------------------------------------------------
+//
+// Function: GetFVarHead()
+//
+//   If a term is (possibly applied) free variable, get the term
+//   which represents this free variable.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+inline Term_p GetFVarHead(Term_p t)
+{
+   assert(TermIsTopLevelFreeVar(t));
+   if(TermIsAppliedFreeVar(t))
+   {
+      return t->args[0];
+   }
+   else
+   {
+      return t;
+   }
+}
+
 
 #endif
 
