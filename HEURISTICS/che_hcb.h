@@ -69,6 +69,12 @@ typedef enum
   LogSymbolMode
 } PrimEnumMode;
 
+typedef enum 
+{
+  SingleUnif, // use only unification which returns a single unifier
+  MultiUnif // use unification which possibly returns a multiple unifiers
+} UnifMode;
+
 #define EIT2STR(x) (((x) == AllLits) ? ("all") : (((x) == MaxLits) ? "max" : "off"))
 #define PEM2STR(x) ((x) == NegMode ? ("neg")\
                     : (x) == AndMode ? ("and")\
@@ -86,6 +92,9 @@ typedef enum
                       : !strcmp(val, "full") ? FullMode\
                       : !strcmp(val, "logsymbol") ? LogSymbolMode\
                       : (-1))
+#define UM2STR(x) ((x) == SingleUnif ? "single" : "multi")
+#define STR2UM(val) (!strcmp((val), "single") ? SingleUnif :\
+                     !strcmp((val), "multi") ? MultiUnif : (-1))
 #define NO_EXT_SUP (-1)
 #define NO_ELIM_LEIBNIZ (-1)
 
@@ -200,6 +209,15 @@ typedef struct heuristic_parms_cell
    int                 inst_choice_max_depth;
    bool                local_rw;
    bool                prune_args;
+   // unification limits
+   int                 func_proj_limit;
+   int                 imit_limit;
+   int                 ident_limit;
+   int                 elim_limit;
+   // unification options
+   UnifMode            unif_mode;
+   bool                pattern_oracle;
+   bool                fixpoint_oracle;
 }HeuristicParmsCell, *HeuristicParms_p;
 
 

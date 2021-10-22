@@ -25,6 +25,7 @@ Changes
 #include "cte_ho_csu.h"
 #include <cte_lambda.h>
 #include <che_hcb.h>
+#include <stdint.h>
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
@@ -33,6 +34,9 @@ Changes
 // datatype that holds information if the rigid pair was processed
 // or how far we are in the generation of binders for a flex-* pair
 typedef unsigned long ConstraintTag_t;
+// datatype that encodes the limits for 1) non-simple projections
+// 2) rigid imitations 3) identifiations 4) eliminations
+typedef uint32_t Limits_t;
 
 ConstraintTag_t INIT_TAG = 0;
 ConstraintTag_t RIGID_PROCESSED_TAG = 1;
@@ -46,6 +50,8 @@ struct csu_iter
    PStack_p backtrack_info;
    // in what state is the current solving of the pair?
    ConstraintTag_t current_state;
+   // what are the current limit bindings
+   Limits_t current_limits;
    PStackPointer init_pos;
    Subst_p subst;
    TB_p bank;
@@ -116,6 +122,7 @@ void store_backtrack_pair(CSUIterator_p iter, Term_p lhs, Term_p rhs,
 {
    PStackPushInt(iter->backtrack_info, PStackGetSP(iter->subst));
    PStackPushInt(iter->backtrack_info, new_tag);
+   PStackPushInt(iter->backtrack_info, iter->current_limits);
    PStackPushP(iter->backtrack_info, rhs);
    PStackPushP(iter->backtrack_info, lhs);
 }
@@ -344,6 +351,7 @@ bool backtrack_iter(CSUIterator_p iter)
          assert(PStackGetSP(iter->backtrack_info) % 4 == 0);
          Term_p lhs = PStackPopP(iter->backtrack_info);
          Term_p rhs = PStackPopP(iter->backtrack_info);
+         Limits_t limits = PStackPopInt(iter->backtrack_info);
          ConstraintTag_t constr_tag = PStackPopInt(iter->backtrack_info);
          PStackPointer subst_pointer = PStackPopInt(iter->backtrack_info);
 
@@ -388,6 +396,7 @@ bool backtrack_iter(CSUIterator_p iter)
             PStackPushP(iter->constraints, rhs);
             PStackPushP(iter->constraints, lhs);
             SubstBacktrackToPos(iter->subst, subst_pointer);
+            iter->current_limits = limits;
          }
       }
    }
@@ -457,10 +466,12 @@ CSUIterator_p CSUIterInit(Term_p lhs, Term_p rhs, Subst_p subst, TB_p bank)
    res->tmp_rigid_diff = PStackAlloc();
    res->tmp_rigid_same = PStackAlloc();
    res->tmp_flex = PStackAlloc();
+   res->current_limits = 0;
 
    // initialization
    PStackPushInt(res->backtrack_info, res->init_pos);
    PStackPushInt(res->backtrack_info, INIT_TAG);
+   PStackPushInt(res->backtrack_info, res->current_limits);
    PStackPushP(res->backtrack_info, rhs);
    PStackPushP(res->backtrack_info, lhs);
 

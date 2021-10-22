@@ -72,7 +72,7 @@ ExtInferenceType str2eit(char* value)
 //
 // Function: str2eit()
 //
-//    Parse the value of ExtInferenceType parameter.
+//    Parse the value of PrimEnumMode parameter.
 //
 // Global Variables:
 //
@@ -86,6 +86,28 @@ PrimEnumMode str2pem(char* value)
    if(res == -1)
    {
       Error("Unknown PrimEnumMode identifier.", USAGE_ERROR);
+   }
+   return res;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: str2eit()
+//
+//    Parse the value of UnifMode parameter.
+//
+// Global Variables:
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+
+UnifMode str2um(char* value)
+{
+   UnifMode res = STR2UM(value);
+   if(res == -1)
+   {
+      Error("Unknown UnifMode identifier.", USAGE_ERROR);
    }
    return res;
 }
@@ -230,6 +252,15 @@ void HeuristicParmsInitialize(HeuristicParms_p handle)
    handle->inst_choice_max_depth         = -1;
    handle->local_rw                      = false;
    handle->prune_args                    = false;
+
+   handle->func_proj_limit = 0;
+   handle->imit_limit = 0;
+   handle->ident_limit = 0;
+   handle->elim_limit = 0;
+
+   handle->unif_mode = SingleUnif;
+   handle->pattern_oracle = true;
+   handle->fixpoint_oracle = true;
 }
 
 
@@ -451,6 +482,20 @@ void HeuristicParmsPrint(FILE* out, HeuristicParms_p handle)
            BOOL2STR(handle->local_rw));
    locked_fprintf(out, "   prune_args:                    %s\n",
            BOOL2STR(handle->prune_args));
+   locked_fprintf(out, "   func_proj_limit:               %d\n",
+           handle->func_proj_limit);
+   locked_fprintf(out, "   imit_limit:                    %d\n",
+           handle->imit_limit);
+   locked_fprintf(out, "   ident_limit:                   %d\n",
+           handle->ident_limit);
+   locked_fprintf(out, "   elim_limit:                    %d\n",
+           handle->elim_limit);
+   locked_fprintf(out, "   unif_mode:                     %s\n",
+           UM2STR(handle->unif_mode));
+   locked_fprintf(out, "   pattern_oracle:                %s\n",
+           BOOL2STR(handle->pattern_oracle));
+   locked_fprintf(out, "   fixpoint_oracle:               %s\n",
+           BOOL2STR(handle->fixpoint_oracle));
 
    locked_fprintf(out, "}\n");
 }
@@ -621,6 +666,15 @@ bool HeuristicParmsParseInto(Scanner_p in,
    PARSE_INT(inst_choice_max_depth);
    PARSE_BOOL(local_rw);
    PARSE_BOOL(prune_args);
+
+   PARSE_INT(func_proj_limit);
+   PARSE_INT(imit_limit);
+   PARSE_INT(ident_limit);
+   PARSE_INT(elim_limit);
+
+   PARSE_STRING_AND_CONVERT(unif_mode, str2um);
+   PARSE_BOOL(pattern_oracle);
+   PARSE_BOOL(fixpoint_oracle);
 
 
    AcceptInpTok(in, CloseCurly);
