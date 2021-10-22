@@ -1877,16 +1877,16 @@ CLState_p process_options(int argc, char* argv[])
             }
             break;
       case OPT_FUNC_PROJ_IMIT:
-            h_parms->func_proj_limit = CLStateGetIntArgCheckRange(handle, arg, 0, 255);
+            h_parms->func_proj_limit = CLStateGetIntArgCheckRange(handle, arg, 0, 63);
             break;
       case OPT_IMIT_LIMIT:
-            h_parms->imit_limit = CLStateGetIntArgCheckRange(handle, arg, 0, 255);
+            h_parms->imit_limit = CLStateGetIntArgCheckRange(handle, arg, 0, 63);
             break;
       case OPT_IDENT_LIMIT:
-            h_parms->ident_limit = CLStateGetIntArgCheckRange(handle, arg, 0, 255);
+            h_parms->ident_limit = CLStateGetIntArgCheckRange(handle, arg, 0, 63);
             break;
       case OPT_ELIM_LIMIT:
-            h_parms->elim_limit = CLStateGetIntArgCheckRange(handle, arg, 0, 255);
+            h_parms->elim_limit = CLStateGetIntArgCheckRange(handle, arg, 0, 63);
             break;
       case OPT_UNIF_MODE:
             unif_mode = STR2UM(arg);

@@ -64,6 +64,7 @@ struct csu_iter
 
 #define GET_HEAD_ID(t) (TermIsPhonyApp(t) ? (t)->args[0]->f_code : (t)->f_code)
 #define CSUIterAlloc() (SizeMalloc(sizeof(struct csu_iter)))
+#define POP_TOP_CONSTRAINTS(s) UNUSED(PStackPopP(s)),UNUSED(PStackPopP(s))
 
 /*---------------------------------------------------------------------*/
 /*                        Global Variables                             */
@@ -107,7 +108,7 @@ void destroy_iter(CSUIterator_p iter)
 
 /*-----------------------------------------------------------------------
 //
-// Function: store_backtrack_pair()
+// Function: prepare_backtrack()
 //
 //   Prepare the backtracking state.
 //
@@ -117,10 +118,10 @@ void destroy_iter(CSUIterator_p iter)
 //
 /----------------------------------------------------------------------*/
 
-void store_backtrack_pair(CSUIterator_p iter, Term_p lhs, Term_p rhs,
-                          ConstraintTag_t new_tag)
+void prepare_backtrack(CSUIterator_p iter, Term_p lhs, Term_p rhs,
+                       ConstraintTag_t new_tag, PStackPointer subst_ptr)
 {
-   PStackPushInt(iter->backtrack_info, PStackGetSP(iter->subst));
+   PStackPushInt(iter->backtrack_info, subst_ptr);
    PStackPushInt(iter->backtrack_info, new_tag);
    PStackPushInt(iter->backtrack_info, iter->current_limits);
    PStackPushP(iter->backtrack_info, rhs);
@@ -180,7 +181,7 @@ void move_stack(PStack_p new, PStack_p old)
 
 /*-----------------------------------------------------------------------
 //
-// Function: store_backtrack_pair()
+// Function: prepare_backtrack()
 //
 //   Put the arguments on the constraints stack in the order which 
 //   improves the performance of unif algorithm: first rigid-rigid
@@ -240,8 +241,11 @@ bool forward_iter(CSUIterator_p iter)
    while(res && !PStackEmpty(iter->constraints))
    {
       assert(PStackGetSP(iter->constraints) % 2 == 0);
-      Term_p lhs = WHNF_deref(PStackPopP(iter->constraints));
-      Term_p rhs = WHNF_deref(PStackPopP(iter->constraints));
+      // items are poped from the stack only when they are solved
+      Term_p orig_lhs = PStackTopP(iter->constraints);
+      Term_p orig_rhs = PStackBelowTopP(iter->constraints);
+      Term_p lhs = WHNF_deref(orig_lhs);
+      Term_p rhs = WHNF_deref(orig_rhs);
       PruneLambdaPrefix(iter->bank, &lhs, &rhs);
 
       if(lhs->type != rhs->type)
@@ -251,7 +255,9 @@ bool forward_iter(CSUIterator_p iter)
       }
       else if(lhs == rhs)
       {
-         store_backtrack_pair(iter, lhs, rhs, SOLVED_BY_ORACLE_TAG);
+         POP_TOP_CONSTRAINTS(iter->constraints);
+         prepare_backtrack(iter, orig_lhs, orig_rhs, SOLVED_BY_ORACLE_TAG, 
+                           PStackGetSP(iter->subst));
       }
       else
       {
@@ -264,10 +270,32 @@ bool forward_iter(CSUIterator_p iter)
          // LHS must be free var
          if(TermIsTopLevelFreeVar(lhs))
          {
-            // TODO:
-            // try oracles
-            // if oracles do not work,
-            // try getting the binder
+            PStackPointer subst_ptr = PStackGetSP(iter->subst);
+            OracleUnifResult oracle_res = NOT_IN_FRAGMENT;
+            if(params->fixpoint_oracle)
+            {
+               // TODO: add fixpoint oracle invocation
+            }
+            else if(oracle_res == NOT_IN_FRAGMENT && params->pattern_oracle)
+            {
+               oracle_res = SubstComputeMguPattern(lhs, rhs, iter->subst);
+            }
+
+            if(oracle_res == UNIFIABLE)
+            {
+               POP_TOP_CONSTRAINTS(iter->constraints);
+               prepare_backtrack(iter, orig_lhs, orig_rhs, SOLVED_BY_ORACLE_TAG, subst_ptr);
+            }
+            else if(oracle_res == NOT_UNIFIABLE)
+            {
+               backtrack_iter(iter);
+            }
+            else
+            {
+               // TODO:
+               // if oracles do not work,
+               // try getting the binder
+            }
          }
          else
          {
@@ -280,8 +308,10 @@ bool forward_iter(CSUIterator_p iter)
                   if(lhs->args[0] == rhs->args[0])
                   {
                      assert(lhs->arity == rhs->arity);
+                     POP_TOP_CONSTRAINTS(iter->constraints);
                      schedule_args(iter, lhs->args+1, rhs->args+1, lhs->arity-1);
-                     store_backtrack_pair(iter, lhs, rhs, RIGID_PROCESSED_TAG);
+                     prepare_backtrack(iter, orig_lhs, orig_rhs,
+                                       SOLVED_BY_ORACLE_TAG, PStackGetSP(iter->subst));
                   }
                   else
                   {
@@ -301,7 +331,9 @@ bool forward_iter(CSUIterator_p iter)
                }
                else
                {
-                  store_backtrack_pair(iter, lhs, rhs, RIGID_PROCESSED_TAG);
+                  POP_TOP_CONSTRAINTS(iter->constraints);
+                  prepare_backtrack(iter, orig_lhs, orig_rhs, 
+                                    RIGID_PROCESSED_TAG, PStackGetSP(iter->subst));
                }
             }
             else if (lhs->f_code == rhs->f_code)
@@ -315,8 +347,10 @@ bool forward_iter(CSUIterator_p iter)
                }
                else
                {
-                  schedule_args(iter, lhs->args+1, rhs->args+1, lhs->arity-1);
-                  store_backtrack_pair(iter, lhs, rhs, RIGID_PROCESSED_TAG);
+                  POP_TOP_CONSTRAINTS(iter->constraints);
+                  schedule_args(iter, lhs->args, rhs->args, lhs->arity);
+                  prepare_backtrack(iter, orig_lhs, orig_rhs, 
+                                    RIGID_PROCESSED_TAG, PStackGetSP(iter->subst));
                }
             }
          }
