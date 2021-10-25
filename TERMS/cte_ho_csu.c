@@ -23,19 +23,21 @@ Changes
 -----------------------------------------------------------------------*/
 
 #include "cte_ho_csu.h"
+#include "cte_ho_bindings.h"
 #include <cte_lambda.h>
 #include <che_hcb.h>
 #include <stdint.h>
 #include <cte_fixpoint_unif.h>
 
+
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
 /*---------------------------------------------------------------------*/
 
-ConstraintTag_t INIT_TAG = 0;
-ConstraintTag_t RIGID_PROCESSED_TAG = 1;
-ConstraintTag_t SOLVED_BY_ORACLE_TAG = 2;
-ConstraintTag_t DECOMPOSED_VAR = 3;
+const ConstraintTag_t INIT_TAG = 0;
+const ConstraintTag_t RIGID_PROCESSED_TAG = 1;
+const ConstraintTag_t SOLVED_BY_ORACLE_TAG = 2;
+const ConstraintTag_t DECOMPOSED_VAR = 3;
 
 struct csu_iter 
 {
@@ -288,7 +290,7 @@ bool forward_iter(CSUIterator_p iter)
                ConstraintTag_t next_state = 
                   ComputeNextBinding(lhs, rhs, iter->current_state, 
                                      iter->current_limits, iter->bank,
-                                     iter->subst);
+                                     iter->subst, params);
                if(next_state)
                {
                   prepare_backtrack(iter, lhs, rhs, next_state, subst_ptr);

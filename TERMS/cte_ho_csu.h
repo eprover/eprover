@@ -41,6 +41,8 @@ typedef unsigned long ConstraintTag_t;
 // 2) rigid imitations 3) identifiations 4) eliminations
 typedef uint32_t Limits_t;
 
+extern const ConstraintTag_t DECOMPOSED_VAR;
+
 CSUIterator_p CSUIterInit(Term_p lhs, Term_p rhs, Subst_p subst, TB_p bank);
 Subst_p CSUIterGetCurrentSubst(CSUIterator_p iter);
 bool NextCSUElement(CSUIterator_p iter);
