@@ -23,6 +23,7 @@ Changes
 -----------------------------------------------------------------------*/
 
 #include "cte_ho_bindings.h"
+#include "cte_pattern_match_mgu.h"
 
 #define CONSTRAINT_STATE(c) ((c) & 3)
 #define CONSTRAINT_COUNTER(c) ((c) >> 2) // c must be unisigned!!!
@@ -42,9 +43,9 @@ Changes
 
 
 #define INC_IMIT(c) ( (GET_IMIT(c)+1) | (~IMIT_MASK & c) )
-#define INC_PROJ(c) ( (GET_PROJ(c)+1 << 6) | (~PROJ_MASK & c) )
-#define INC_IDENT(c) ( (GET_IDENT(c)+1 << 12) | (~IDENT_MASK & c) )
-#define INC_ELIM(c) ( (GET_ELIM(c)+1 << 18) | (~ELIM_MASK & c) )
+#define INC_PROJ(c) ( ((GET_PROJ(c)+1) << 6) | (~PROJ_MASK & c) )
+#define INC_IDENT(c) ( ((GET_IDENT(c)+1) << 12) | (~IDENT_MASK & c) )
+#define INC_ELIM(c) ( ((GET_ELIM(c)+1) << 18) | (~ELIM_MASK & c) )
 
 
 /*---------------------------------------------------------------------*/
@@ -158,15 +159,16 @@ Term_p build_trivial_ident(TB_p bank, Term_p lhs, Term_p rhs)
 //
 // Function: SubstComputeFixpointMgu()
 //
-//   Assuming that var is an (applied) variable and rhs an arbitrary term
+//   Assuming that flex is an (applied) variable and rhs an arbitrary term
 //   which are normalized and to which substitution is applied generate
-//   the next binding in an attempt to solve the problem var =?= rhs. 
+//   the next binding in an attempt to solve the problem flex =?= rhs. 
 //   What the next binding is is determined by the value of 'state'.
 //   The last two bits of 'state' have special meaning (is the variable
 //   pair already processed) and the remaining bits determine how far
 //   in the enumeration of bindings we are. 'applied_bs' counts how
 //   many bindings of a certain kind are applied. It is a value that
 //   is inspected through bit masks that give value of particular bindings.
+//   Sets succ to true if substitution was changed
 //
 // Global Variables: -
 //
@@ -174,90 +176,113 @@ Term_p build_trivial_ident(TB_p bank, Term_p lhs, Term_p rhs)
 //
 /----------------------------------------------------------------------*/
 
-ConstraintTag_t ComputeNextBinding(Term_p var, Term_p rhs, 
-                                   ConstraintTag_t state, Limits_t applied_bs,
+ConstraintTag_t ComputeNextBinding(Term_p flex, Term_p rhs, 
+                                   ConstraintTag_t state, Limits_t* applied_bs,
                                    TB_p bank, Subst_p subst,
-                                   HeuristicParms_p parms)
+                                   HeuristicParms_p parms, bool* succ)
 {
-   assert(TermIsTopLevelFreeVar(var));
-   ConstraintTag_t counter = CONSTRAINT_COUNTER(state);
+   assert(TermIsTopLevelFreeVar(flex));
+   ConstraintTag_t cnt = CONSTRAINT_COUNTER(state);
    ConstraintTag_t is_solved = CONSTRAINT_STATE(state);
    ConstraintTag_t res = 0;
+   PStackPointer orig_subst = PStackGetSP(subst);
 
    if(is_solved != DECOMPOSED_VAR)
    {
-      int num_args = TermIsPhonyApp(var) ? var->arity-1 : 0;
-      Term_p hd_var = TermIsPhonyApp(var) ? var->args[0] : var;
-      
-      /* counter values : 0 -- imitation
-                        : 1-num_args -- projection
-                        : num_args+1 -- 2*num_args -- elimination
-                        : 2*num_args+1 -- (trivial) identification
-      */
-      while(res == 0 && counter < 2*num_args+2)
+      const int num_args_l = MAX(flex->arity-1, 0);
+      const int num_args_r = TermIsTopLevelFreeVar(rhs) ? MAX(rhs->arity-1, 0) : 0;
+      const int limit = 1 + 2*num_args_l + 2*num_args_r + 1;
+                  // 1 for imitation
+                  // 2*arguments for projection and eliminations
+                  // 1 for identification
+
+      while(res == 0 && cnt < limit)
       {
-         if(counter == 0)
+         if(cnt == 0)
          {
-            counter++;
+            cnt++;
             if(!TermIsAppliedFreeVar(rhs) &&
-               GET_IMIT(applied_bs) < parms->imit_limit)
+               GET_IMIT(*applied_bs) < parms->imit_limit)
             {
-               Term_p target = build_imitation(bank, var, rhs);
+               Term_p target = build_imitation(bank, flex, rhs);
                if(target)
                {
                   // imitation building can fail if head is DB var
-                  res = BUILD_CONSTR(counter, state);
-                  SubstAddBinding(subst, var, target);
+                  res = BUILD_CONSTR(cnt, state);
+                  SubstAddBinding(subst, flex, target);
+                  *applied_bs = INC_IMIT(*applied_bs);
                }
             }
          }
-         else if(num_args != 0 && counter <= num_args)
+         else if((num_args_l != 0 || num_args_r != 0) 
+                  && cnt <= num_args_l + num_args_r)
          {
-            // applied variable so we do not subtract 1
-            Term_p arg = var->args[counter]; 
+            // sometimes we need to apply projection on both left
+            // and right side
+            bool left_side = num_args_l != 0 && cnt <= num_args_l;
+            Term_p arg = 
+               left_side ? flex->args[cnt] : rhs->args[cnt-num_args_l]; 
+            Term_p hd_var = GetFVarHead(left_side ? flex : rhs);
             if(GetRetType(hd_var->type) == GetRetType(arg->type) &&
-               (GET_PROJ(applied_bs) < parms->func_proj_limit
+               (GET_PROJ(*applied_bs) < parms->func_proj_limit
                || !TypeIsArrow(arg->type)))
             {
-               Term_p target = build_projection(bank, var, rhs, counter-1);
+               int offset = left_side ? 1 : num_args_l + 1;
+               if(!left_side)
+               {
+                  SWAP(flex, rhs);
+               }
+               Term_p target = build_projection(bank, flex, rhs, cnt-offset);
                if(target)
                {
                   // building projection can fail if it is determined
                   // that it should not be generated
-                  res = BUILD_CONSTR(counter+1, state);
-                  SubstAddBinding(subst, var, target);
+                  res = BUILD_CONSTR(cnt+1, state);
+                  SubstAddBinding(subst, flex, target);
+                  *applied_bs = INC_PROJ(*applied_bs);
                }
             }
-            counter++;
+            cnt++;
          }
-         else if(num_args != 0 && counter <= 2*num_args)
+         else if((num_args_l != 0 || num_args_r != 0) && 
+                 cnt <= 2*(num_args_l+num_args_r))
          {
             // elimination -- currently computing only linear
             // applied variable so we do not subtract 1
-            counter++;
-            if(GET_ELIM(applied_bs) < parms->elim_limit)
+            cnt++;
+            if(GET_ELIM(*applied_bs) < parms->elim_limit)
             {
-               Term_p target = build_elim(bank, var, counter-num_args-1);
-               res = BUILD_CONSTR(counter, state);
-               SubstAddBinding(subst, var, target);
+               bool left_side = num_args_l != 0 && cnt <= 2*num_args_l + num_args_r;
+               if(!left_side)
+               {
+                  flex = rhs;
+               }
+               int offset = cnt - (left_side ? 1 : 2)*num_args_l - num_args_r;
+               Term_p target = 
+                  build_elim(bank, flex, cnt-offset);
+               res = BUILD_CONSTR(cnt, state);
+               SubstAddBinding(subst, GetFVarHead(flex), target);
+               *applied_bs = INC_ELIM(*applied_bs);
             }
             else 
             {
                // skipping other arguments
-               counter = 2*num_args+1;
+               cnt = 2*(num_args_l+num_args_r)+1;
             }
          }
-         else if(counter == 2*num_args+1 && TermIsTopLevelFreeVar(rhs))
+         else if(cnt == 2*(num_args_l+num_args_r)+1 && TermIsTopLevelFreeVar(rhs))
          {
             // identification
-            counter++;
+            cnt++;
             Term_p target = 
-               (GET_IDENT(applied_bs) < parms->ident_limit ? build_ident : build_trivial_ident)
-               (bank, var, rhs);
-            res = BUILD_CONSTR(counter, state);
-            SubstAddBinding(subst, var, target);
+               (GET_IDENT(*applied_bs) < parms->ident_limit ? build_ident : build_trivial_ident)
+               (bank, flex, rhs);
+            res = BUILD_CONSTR(cnt, DECOMPOSED_VAR);
+            *applied_bs = INC_IDENT(*applied_bs);
+            SubstAddBinding(subst, flex, target);
          }
       }
    }
+   *succ = PStackGetSP(subst) != orig_subst;
    return res;
 }

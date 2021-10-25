@@ -287,13 +287,16 @@ bool forward_iter(CSUIterator_p iter)
             }
             else
             {
+               bool moved_forward;
+               Limits_t next_limits = iter->current_limits;
                ConstraintTag_t next_state = 
                   ComputeNextBinding(lhs, rhs, iter->current_state, 
-                                     iter->current_limits, iter->bank,
-                                     iter->subst, params);
-               if(next_state)
+                                     &next_limits, iter->bank,
+                                     iter->subst, params, &moved_forward);
+               if(moved_forward)
                {
                   prepare_backtrack(iter, lhs, rhs, next_state, subst_ptr);
+                  iter->current_limits = next_limits;
                   iter->current_state = RIGID_PROCESSED_TAG; // first larger than INIT
                }
                else if(GET_HEAD_ID(lhs) == GET_HEAD_ID(rhs))
@@ -304,6 +307,7 @@ bool forward_iter(CSUIterator_p iter)
                   schedule_args(iter, lhs->args+1, rhs->args+1, MAX(0, lhs->arity-1));
                   prepare_backtrack(iter, lhs, rhs, DECOMPOSED_VAR, subst_ptr);
                   iter->current_state = RIGID_PROCESSED_TAG; // first larger than INIT
+                  iter->current_limits = next_limits;
                }
                else
                {
