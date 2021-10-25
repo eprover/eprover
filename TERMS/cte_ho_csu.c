@@ -237,10 +237,8 @@ bool forward_iter(CSUIterator_p iter)
    {
       assert(PStackGetSP(iter->constraints) % 2 == 0);
       // items are poped from the stack only when they are solved
-      Term_p orig_lhs = PStackTopP(iter->constraints);
-      Term_p orig_rhs = PStackBelowTopP(iter->constraints);
-      Term_p lhs = WHNF_deref(orig_lhs);
-      Term_p rhs = WHNF_deref(orig_rhs);
+      Term_p lhs = WHNF_deref(PStackTopP(iter->constraints));
+      Term_p rhs = WHNF_deref(PStackBelowTopP(iter->constraints));
       PruneLambdaPrefix(iter->bank, &lhs, &rhs);
 
       if(lhs->type != rhs->type)
@@ -251,7 +249,7 @@ bool forward_iter(CSUIterator_p iter)
       else if(lhs == rhs)
       {
          POP_TOP_CONSTRAINTS(iter->constraints);
-         prepare_backtrack(iter, orig_lhs, orig_rhs, SOLVED_BY_ORACLE_TAG, 
+         prepare_backtrack(iter, lhs, rhs, SOLVED_BY_ORACLE_TAG, 
                            PStackGetSP(iter->subst));
       }
       else
@@ -279,7 +277,7 @@ bool forward_iter(CSUIterator_p iter)
             if(oracle_res == UNIFIABLE)
             {
                POP_TOP_CONSTRAINTS(iter->constraints);
-               prepare_backtrack(iter, orig_lhs, orig_rhs, SOLVED_BY_ORACLE_TAG, subst_ptr);
+               prepare_backtrack(iter, lhs, rhs, SOLVED_BY_ORACLE_TAG, subst_ptr);
             }
             else if(oracle_res == NOT_UNIFIABLE)
             {
@@ -293,25 +291,21 @@ bool forward_iter(CSUIterator_p iter)
                                      iter->subst);
                if(next_state)
                {
-                  prepare_backtrack(iter, orig_lhs, orig_rhs, next_state, subst_ptr);
-                  iter->current_state = INIT_TAG;
+                  prepare_backtrack(iter, lhs, rhs, next_state, subst_ptr);
+                  iter->current_state = RIGID_PROCESSED_TAG; // first larger than INIT
                }
-               else if(iter->current_state != DECOMPOSED_VAR)
+               else if(GET_HEAD_ID(lhs) == GET_HEAD_ID(rhs))
                {
-                  if(GET_HEAD_ID(lhs) == GET_HEAD_ID(rhs))
-                  {
-                     assert(lhs->arity == rhs->arity);
-                     assert(TermIsPhonyApp(lhs) == TermIsPhonyApp(rhs));
-                     POP_TOP_CONSTRAINTS(iter->constraints);
-                     schedule_args(iter, lhs->args+1, rhs->args+1,
-                                   MAX(0, lhs->arity-1));
-                     prepare_backtrack(iter, orig_lhs, orig_rhs, DECOMPOSED_VAR, subst_ptr);
-                     iter->current_state = INIT_TAG;
-                  }
-                  else
-                  {
-                     backtrack_iter(iter);
-                  }
+                  assert(lhs->arity == rhs->arity);
+                  assert(TermIsPhonyApp(lhs) == TermIsPhonyApp(rhs));
+                  POP_TOP_CONSTRAINTS(iter->constraints);
+                  schedule_args(iter, lhs->args+1, rhs->args+1, MAX(0, lhs->arity-1));
+                  prepare_backtrack(iter, lhs, rhs, DECOMPOSED_VAR, subst_ptr);
+                  iter->current_state = RIGID_PROCESSED_TAG; // first larger than INIT
+               }
+               else
+               {
+                  backtrack_iter(iter);
                }
             }
          }
@@ -328,7 +322,7 @@ bool forward_iter(CSUIterator_p iter)
                      assert(lhs->arity == rhs->arity);
                      POP_TOP_CONSTRAINTS(iter->constraints);
                      schedule_args(iter, lhs->args+1, rhs->args+1, lhs->arity-1);
-                     prepare_backtrack(iter, orig_lhs, orig_rhs,
+                     prepare_backtrack(iter, lhs, rhs,
                                        SOLVED_BY_ORACLE_TAG, PStackGetSP(iter->subst));
                   }
                   else
@@ -350,7 +344,7 @@ bool forward_iter(CSUIterator_p iter)
                else
                {
                   POP_TOP_CONSTRAINTS(iter->constraints);
-                  prepare_backtrack(iter, orig_lhs, orig_rhs, 
+                  prepare_backtrack(iter, lhs, rhs, 
                                     RIGID_PROCESSED_TAG, PStackGetSP(iter->subst));
                }
             }
@@ -367,7 +361,7 @@ bool forward_iter(CSUIterator_p iter)
                {
                   POP_TOP_CONSTRAINTS(iter->constraints);
                   schedule_args(iter, lhs->args, rhs->args, lhs->arity);
-                  prepare_backtrack(iter, orig_lhs, orig_rhs, 
+                  prepare_backtrack(iter, lhs, rhs, 
                                     RIGID_PROCESSED_TAG, PStackGetSP(iter->subst));
                }
             }
@@ -397,10 +391,11 @@ bool backtrack_iter(CSUIterator_p iter)
    bool res = false;
    if(!PStackEmpty(iter->backtrack_info))
    {
-      assert(PStackGetSP(iter->backtrack_info) >= 4);
-      while(PStackGetSP(iter->backtrack_info) >= 4 && !res)
+      assert(PStackGetSP(iter->backtrack_info) >= 5);
+      while(PStackGetSP(iter->backtrack_info) >= 5 && !res)
       {
-         assert(PStackGetSP(iter->backtrack_info) % 4 == 0);
+         assert(PStackGetSP(iter->backtrack_info) % 5 == 0);
+         // lhs and rhs based on which we made decisions
          Term_p lhs = PStackPopP(iter->backtrack_info);
          Term_p rhs = PStackPopP(iter->backtrack_info);
          Limits_t limits = PStackPopInt(iter->backtrack_info);
@@ -420,6 +415,12 @@ bool backtrack_iter(CSUIterator_p iter)
             if(constr_tag == SOLVED_BY_ORACLE_TAG)
             {
                to_drop = 0;
+            }
+            else if(constr_tag == DECOMPOSED_VAR)
+            {
+               assert(TermIsTopLevelFreeVar(lhs) && TermIsTopLevelFreeVar(rhs));
+               assert(TermIsPhonyApp(lhs) == TermIsPhonyApp(rhs));
+               to_drop = TermIsAppliedFreeVar(lhs) ? lhs->arity - 1 : 0;
             }
             else if(TermIsTopLevelFreeVar(lhs) || TermIsTopLevelFreeVar(rhs))
             {
