@@ -1,6 +1,6 @@
 /*-----------------------------------------------------------------------
 
-File  : cte_match_mgu_1-1.c
+File  : cte_pattern_match_mgu.c
 
 Author: Stephan Schulz
 

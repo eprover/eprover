@@ -276,7 +276,7 @@ bool forward_iter(CSUIterator_p iter)
             {
                // TODO: add fixpoint oracle invocation
             }
-            else if(oracle_res == NOT_IN_FRAGMENT && params->pattern_oracle)
+            if(oracle_res == NOT_IN_FRAGMENT && params->pattern_oracle)
             {
                oracle_res = SubstComputeMguPattern(lhs, rhs, iter->subst);
             }
