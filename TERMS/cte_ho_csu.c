@@ -26,6 +26,7 @@ Changes
 #include <cte_lambda.h>
 #include <che_hcb.h>
 #include <stdint.h>
+#include <cte_fixpoint_unif.h>
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
@@ -274,7 +275,7 @@ bool forward_iter(CSUIterator_p iter)
             OracleUnifResult oracle_res = NOT_IN_FRAGMENT;
             if(params->fixpoint_oracle)
             {
-               // TODO: add fixpoint oracle invocation
+               oracle_res = SubstComputeFixpointMgu(lhs, rhs, iter->subst);
             }
             if(oracle_res == NOT_IN_FRAGMENT && params->pattern_oracle)
             {
