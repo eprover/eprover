@@ -32,16 +32,10 @@ Changes
 /*                    Data type declarations                           */
 /*---------------------------------------------------------------------*/
 
-// datatype that holds information if the rigid pair was processed
-// or how far we are in the generation of binders for a flex-* pair
-typedef unsigned long ConstraintTag_t;
-// datatype that encodes the limits for 1) non-simple projections
-// 2) rigid imitations 3) identifiations 4) eliminations
-typedef uint32_t Limits_t;
-
 ConstraintTag_t INIT_TAG = 0;
 ConstraintTag_t RIGID_PROCESSED_TAG = 1;
 ConstraintTag_t SOLVED_BY_ORACLE_TAG = 2;
+ConstraintTag_t DECOMPOSED_VAR = 3;
 
 struct csu_iter 
 {
@@ -267,11 +261,11 @@ bool forward_iter(CSUIterator_p iter)
             SWAP(lhs, rhs);
          }
 
+         PStackPointer subst_ptr = PStackGetSP(iter->subst);
          // if either of the sides is app var
          // LHS must be free var
          if(TermIsTopLevelFreeVar(lhs))
          {
-            PStackPointer subst_ptr = PStackGetSP(iter->subst);
             OracleUnifResult oracle_res = NOT_IN_FRAGMENT;
             if(params->fixpoint_oracle)
             {
@@ -293,9 +287,32 @@ bool forward_iter(CSUIterator_p iter)
             }
             else
             {
-               // TODO:
-               // if oracles do not work,
-               // try getting the binder
+               ConstraintTag_t next_state = 
+                  ComputeNextBinding(lhs, rhs, iter->current_state, 
+                                     iter->current_limits, iter->bank,
+                                     iter->subst);
+               if(next_state)
+               {
+                  prepare_backtrack(iter, orig_lhs, orig_rhs, next_state, subst_ptr);
+                  iter->current_state = INIT_TAG;
+               }
+               else if(iter->current_state != DECOMPOSED_VAR)
+               {
+                  if(GET_HEAD_ID(lhs) == GET_HEAD_ID(rhs))
+                  {
+                     assert(lhs->arity == rhs->arity);
+                     assert(TermIsPhonyApp(lhs) == TermIsPhonyApp(rhs));
+                     POP_TOP_CONSTRAINTS(iter->constraints);
+                     schedule_args(iter, lhs->args+1, rhs->args+1,
+                                   MAX(0, lhs->arity-1));
+                     prepare_backtrack(iter, orig_lhs, orig_rhs, DECOMPOSED_VAR, subst_ptr);
+                     iter->current_state = INIT_TAG;
+                  }
+                  else
+                  {
+                     backtrack_iter(iter);
+                  }
+               }
             }
          }
          else
@@ -460,8 +477,8 @@ bool backtrack_iter(CSUIterator_p iter)
 
 bool NextCSUElement(CSUIterator_p iter)
 {
-   bool res = false;
-   if(backtrack_iter(iter))
+   bool res = backtrack_iter(iter);
+   if(res)
    {
       res = forward_iter(iter);
    }
@@ -503,7 +520,7 @@ CSUIterator_p CSUIterInit(Term_p lhs, Term_p rhs, Subst_p subst, TB_p bank)
    res->tmp_flex = PStackAlloc();
    res->current_limits = 0;
 
-   // initialization
+   // initialization of internal stuff
    PStackPushInt(res->backtrack_info, res->init_pos);
    PStackPushInt(res->backtrack_info, INIT_TAG);
    PStackPushInt(res->backtrack_info, res->current_limits);

@@ -34,6 +34,13 @@ Changes
 typedef struct csu_iter CSUIterator_t;
 typedef CSUIterator_t* CSUIterator_p;
 
+// datatype that holds information if the rigid pair was processed
+// or how far we are in the generation of binders for a flex-* pair
+typedef unsigned long ConstraintTag_t;
+// datatype that encodes the limits for 1) non-simple projections
+// 2) rigid imitations 3) identifiations 4) eliminations
+typedef uint32_t Limits_t;
+
 CSUIterator_p CSUIterInit(Term_p lhs, Term_p rhs, Subst_p subst, TB_p bank);
 Subst_p CSUIterGetCurrentSubst(CSUIterator_p iter);
 bool NextCSUElement(CSUIterator_p iter);
