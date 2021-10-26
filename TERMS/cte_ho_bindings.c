@@ -125,6 +125,8 @@ Term_p build_imitation(TB_p bank, Term_p flex, Term_p rhs)
 //
 //   Projects onto argument idx if return type of variable at the head
 //   of flex returns the same type as the argument. Otherwise returns NULL.
+//   Inside the code idx is increased because flex is applied using
+//   PHONY_APP_CODE.
 //
 // Global Variables: -
 //
@@ -134,7 +136,67 @@ Term_p build_imitation(TB_p bank, Term_p flex, Term_p rhs)
 
 Term_p build_projection(TB_p bank, Term_p flex, Term_p rhs, int idx)
 {
-   return NULL;
+   assert(TermIsAppliedFreeVar(flex));
+   assert(!TermIsLambda(rhs));
+   assert(idx <= flex->arity - 1);
+   Type_p var_ty = GetFVarHead(flex)->type;
+   // optimization for not calling WHNF
+   Term_p arg =
+      TermIsTopLevelFreeVar(rhs) ?
+         flex->args[idx+1] : WHNF_step(bank, flex->args[idx+1]);
+   assert(GetRetType(var_ty) == GetRetType(arg->type));
+
+   if(!TermIsTopLevelFreeVar(arg) && !TermIsTopLevelFreeVar(rhs))
+   {
+      if(TermIsTopLevelDBVar(arg) && TermIsTopLevelDBVar(rhs))
+      {
+         Term_p db_arg = TermIsPhonyApp(arg) ? arg->args[0] : arg;
+         Term_p db_rhs = TermIsPhonyApp(rhs) ? rhs->args[0] : rhs;
+         if(db_arg != db_rhs)
+         {
+            return NULL;
+         }
+      }
+      else if(!TermIsTopLevelAnyVar(arg) && !TermIsTopLevelAnyVar(rhs) &&
+              !TermIsLambda(arg) && !TermIsLambda(rhs))
+      {
+         if(arg->f_code != rhs->f_code)
+         {
+            return NULL;
+         }
+      }
+   }
+   // up this point NULL will be returned if it was determined
+   // that projection will result in failure
+
+   Term_p matrix;
+   if(TypeIsArrow(arg->type))
+   {
+      PStack_p db_vars = PStackAlloc();
+      for(int i=0; i<var_ty->arity-1; i++)
+      {
+         Term_p db_var =
+            RequestDBVar(bank->db_vars, var_ty->args[i], var_ty->arity-i-2); 
+         PStackPushP(db_vars, db_var);
+      }
+
+      matrix = TermTopAlloc(SIG_PHONY_APP_CODE, arg->type->arity);
+      matrix->args[0] = PStackElementP(db_vars, idx);
+#ifndef NDEBUG
+      matrix->type = GetRetType(matrix->args[0]->type);
+#endif
+      for(int i=1; i<arg->type->arity; i++)
+      {
+         matrix->args[i] = FreshVarWArgs(bank, db_vars, arg->type->args[i-1]);
+      }
+      matrix = TBTermTopInsert(bank, matrix);
+      PStackFree(db_vars);
+   }
+   else
+   {
+      matrix = TBRequestDBVar(bank, arg->type, TypeGetMaxArity(var_ty)-idx-1);
+   }
+   return CloseWithTypePrefix(bank, var_ty->args, var_ty->arity-1, matrix);
 }
 
 /*-----------------------------------------------------------------------
@@ -277,7 +339,7 @@ ConstraintTag_t ComputeNextBinding(Term_p flex, Term_p rhs,
                if(target)
                {
                   // building projection can fail if it is determined
-                  // that it should not be generated
+                  // that it would lead to unsolvable problem
                   res = BUILD_CONSTR(cnt+1, state);
                   SubstAddBinding(subst, flex, target);
                   *applied_bs = INC_PROJ(*applied_bs);

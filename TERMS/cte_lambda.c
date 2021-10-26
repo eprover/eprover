@@ -1133,7 +1133,8 @@ Term_p WHNF_step(TB_p bank, Term_p t)
       ((Term_p)PStackPopP(to_bind_stack))->binding = NULL;
    }
 
-   res = do_beta_normalize_db(bank, new_matrix);
+   // res = do_beta_normalize_db(bank, new_matrix);
+   res = new_matrix;
   
    PStackFree(to_bind_stack);
    return res;
