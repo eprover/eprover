@@ -250,7 +250,58 @@ Term_p build_elim(TB_p bank, Term_p flex, int idx)
 bool build_ident(TB_p bank, Term_p lhs, Term_p rhs,
                  Term_p* l_target, Term_p* r_target)
 {
-   return false;
+   assert(TermIsAppliedFreeVar(lhs));
+   bool res = false;
+   if(TermIsTopLevelFreeVar(rhs))
+   {
+      Type_p l_ty = GetFVarHead(lhs)->type;
+      Type_p r_ty = GetFVarHead(rhs)->type;
+      assert(GetRetType(l_ty) == GetRetType(r_ty));
+      const int l_tylen = TypeGetMaxArity(l_ty);
+      const int r_tylen = TypeGetMaxArity(r_ty); 
+      Type_p arg_types[l_tylen + r_tylen];
+      memcpy(arg_types, l_ty->args, l_tylen*sizeof(Type_p));
+      memcpy(arg_types+l_tylen, r_ty->args, r_tylen*sizeof(Type_p));
+      Type_p ty = 
+         TypeBankInsertTypeShared(bank->sig->type_bank,
+            ArrowTypeFlattened(arg_types, l_tylen+r_tylen, GetRetType(l_ty)));
+      Term_p new_var = VarBankGetFreshVar(bank->vars, ty);
+
+      PStack_p l_dbvars = PStackAlloc();
+      PStack_p r_dbvars = PStackAlloc();
+
+      PStack_p to_apply_l = PStackAlloc();
+      PStack_p to_apply_r = PStackAlloc();
+
+      for(int i=0; i<l_tylen; i++)
+      {
+         Term_p dbv = TBRequestDBVar(bank, l_ty->args[i], l_tylen-i-1);
+         PStackPushP(l_dbvars, dbv);
+         PStackPushP(to_apply_l, dbv);
+      }
+      for(int i=0; i<r_tylen; i++)
+      {
+         Term_p dbv = TBRequestDBVar(bank, r_ty->args[i], r_tylen-i-1);
+         PStackPushP(r_dbvars, dbv);
+         PStackPushP(to_apply_l, FreshVarWArgs(bank, l_dbvars, r_ty->args[i]));
+      }
+      for(int i=0; i<l_tylen; i++)
+      {
+         PStackPushP(to_apply_r, FreshVarWArgs(bank, r_dbvars, l_ty->args[i]));
+      }
+      PStackPushStack(to_apply_r, r_dbvars);
+
+      Term_p matrix_l = ApplyTerms(bank, new_var, to_apply_l);
+      Term_p matrix_r = ApplyTerms(bank, new_var, to_apply_r);
+
+      *l_target = 
+         CloseWithTypePrefix(bank, l_ty->args, TypeGetMaxArity(l_ty), matrix_l);
+      *r_target = 
+         CloseWithTypePrefix(bank, r_ty->args, TypeGetMaxArity(r_ty), matrix_r);
+
+      res = true;
+   }
+   return res;
 }
 
 /*-----------------------------------------------------------------------
