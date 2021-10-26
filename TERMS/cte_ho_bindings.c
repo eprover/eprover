@@ -247,9 +247,10 @@ Term_p build_elim(TB_p bank, Term_p flex, int idx)
 //
 /----------------------------------------------------------------------*/
 
-Term_p build_ident(TB_p bank, Term_p lhs, Term_p rhs)
+bool build_ident(TB_p bank, Term_p lhs, Term_p rhs,
+                 Term_p* l_target, Term_p* r_target)
 {
-   return NULL;
+   return false;
 }
 
 /*-----------------------------------------------------------------------
@@ -265,9 +266,29 @@ Term_p build_ident(TB_p bank, Term_p lhs, Term_p rhs)
 //
 /----------------------------------------------------------------------*/
 
-Term_p build_trivial_ident(TB_p bank, Term_p lhs, Term_p rhs)
+bool build_trivial_ident(TB_p bank, Term_p lhs, Term_p rhs,
+                         Term_p* l_target, Term_p* r_target)
 {
-   return NULL;
+   assert(TermIsTopLevelFreeVar(lhs));
+   bool res = false;
+   if(TermIsTopLevelFreeVar(rhs))
+   {
+      Type_p l_ty = GetFVarHead(lhs)->type;
+      Type_p r_ty = GetFVarHead(rhs)->type;
+      assert(GetRetType(l_ty) == GetRetType(r_ty));
+
+      Term_p matrix = 
+         VarBankGetFreshVar(bank->vars, GetRetType(l_ty));
+      
+      *l_target = 
+         CloseWithTypePrefix(bank, l_ty->args,
+                           TypeIsArrow(l_ty) ? l_ty->arity-1 : 0, matrix);
+      *r_target = 
+         CloseWithTypePrefix(bank, r_ty->args,
+                           TypeIsArrow(r_ty) ? r_ty->arity-1 : 0, matrix);
+      res = true;
+   }
+   return res;
 }
 
 
@@ -395,12 +416,18 @@ ConstraintTag_t ComputeNextBinding(Term_p flex, Term_p rhs,
          {
             // identification
             cnt++;
-            Term_p target = 
+            Term_p l_target, r_target;
+            bool succ = 
                (GET_IDENT(*applied_bs) < parms->ident_limit ? build_ident : build_trivial_ident)
-               (bank, flex, rhs);
+               (bank, flex, rhs, &l_target, &r_target);
+
             res = BUILD_CONSTR(cnt, DECOMPOSED_VAR);
-            *applied_bs = INC_IDENT(*applied_bs);
-            SubstAddBinding(subst, flex, target);
+            if(succ)
+            {
+               *applied_bs = INC_IDENT(*applied_bs);
+               SubstAddBinding(subst, GetFVarHead(flex), l_target);
+               SubstAddBinding(subst, GetFVarHead(rhs), r_target);
+            }
          }
       }
    }
