@@ -213,7 +213,25 @@ Term_p build_projection(TB_p bank, Term_p flex, Term_p rhs, int idx)
 
 Term_p build_elim(TB_p bank, Term_p flex, int idx)
 {
-   return NULL;
+   assert(TermIsAppliedFreeVar(flex));
+   PStack_p db_vars = PStackAlloc();
+   for(int i=1; i<flex->arity; i++)
+   {
+      if(i-1 != idx)
+      {
+         Term_p dbv = TBRequestDBVar(bank, flex->args[i]->type, flex->arity-i-1);
+         PStackPushP(db_vars, dbv);
+      }
+   }
+
+   Term_p res = FreshVarWArgs(bank, db_vars, flex->type);
+   for(int i=flex->arity-1; i>=1; i--)
+   {
+      res = CloseWithDBVar(bank, flex->args[i]->type, res);
+   }
+   PStackFree(db_vars);
+
+   return res;
 }
 
 /*-----------------------------------------------------------------------
