@@ -102,15 +102,16 @@ Term_p build_imitation(TB_p bank, Term_p flex, Term_p rhs)
          matrix = TermTopAlloc(rhs->f_code, rigid_ty->arity-1);
          for(int i=0; i<rigid_ty->arity-1; i++)
          {
-            Term_p fvar = FreshVarWArgs(bank, db_vars, rigid_ty->args[i]);
-            matrix->args[i] = fvar;
+            matrix->args[i] = FreshVarWArgs(bank, db_vars, rigid_ty->args[i]);
          }
       }
       else
       {
          matrix = TermConstCellAlloc(rhs->f_code);
-         matrix->type = rigid_ty;
       }
+#ifndef NDEBUG
+      matrix->type = GetRetType(rigid_ty);
+#endif
       matrix = TBTermTopInsert(bank, matrix);
       res = CloseWithTypePrefix(bank, var_ty->args, TypeGetMaxArity(var_ty), matrix);
 
@@ -138,7 +139,7 @@ Term_p build_projection(TB_p bank, Term_p flex, Term_p rhs, int idx)
 {
    assert(TermIsAppliedFreeVar(flex));
    assert(!TermIsLambda(rhs));
-   assert(idx <= flex->arity - 1);
+   assert(idx < flex->arity - 1);
    Type_p var_ty = GetFVarHead(flex)->type;
    // optimization for not calling WHNF
    Term_p arg =
@@ -165,6 +166,10 @@ Term_p build_projection(TB_p bank, Term_p flex, Term_p rhs, int idx)
             return NULL;
          }
       }
+      else if(!EQUIV(TermIsTopLevelDBVar(arg), TermIsTopLevelDBVar(rhs)))
+      {
+         return NULL;
+      }
    }
    // up this point NULL will be returned if it was determined
    // that projection will result in failure
@@ -175,8 +180,7 @@ Term_p build_projection(TB_p bank, Term_p flex, Term_p rhs, int idx)
       PStack_p db_vars = PStackAlloc();
       for(int i=0; i<var_ty->arity-1; i++)
       {
-         Term_p db_var =
-            RequestDBVar(bank->db_vars, var_ty->args[i], var_ty->arity-i-2); 
+         Term_p db_var = TBRequestDBVar(bank, var_ty->args[i], var_ty->arity-i-2);
          PStackPushP(db_vars, db_var);
       }
 
@@ -262,10 +266,10 @@ bool build_ident(TB_p bank, Term_p lhs, Term_p rhs,
       Type_p arg_types[l_tylen + r_tylen];
       memcpy(arg_types, l_ty->args, l_tylen*sizeof(Type_p));
       memcpy(arg_types+l_tylen, r_ty->args, r_tylen*sizeof(Type_p));
-      Type_p ty = 
+      Type_p matrix_var_ty = 
          TypeBankInsertTypeShared(bank->sig->type_bank,
             ArrowTypeFlattened(arg_types, l_tylen+r_tylen, GetRetType(l_ty)));
-      Term_p new_var = VarBankGetFreshVar(bank->vars, ty);
+      Term_p matrix_var = VarBankGetFreshVar(bank->vars, matrix_var_ty);
 
       PStack_p l_dbvars = PStackAlloc();
       PStack_p r_dbvars = PStackAlloc();
@@ -291,13 +295,18 @@ bool build_ident(TB_p bank, Term_p lhs, Term_p rhs,
       }
       PStackPushStack(to_apply_r, r_dbvars);
 
-      Term_p matrix_l = ApplyTerms(bank, new_var, to_apply_l);
-      Term_p matrix_r = ApplyTerms(bank, new_var, to_apply_r);
+      Term_p matrix_l = ApplyTerms(bank, matrix_var, to_apply_l);
+      Term_p matrix_r = ApplyTerms(bank, matrix_var, to_apply_r);
 
       *l_target = 
          CloseWithTypePrefix(bank, l_ty->args, TypeGetMaxArity(l_ty), matrix_l);
       *r_target = 
          CloseWithTypePrefix(bank, r_ty->args, TypeGetMaxArity(r_ty), matrix_r);
+
+      PStackFree(to_apply_r);
+      PStackFree(to_apply_l);
+      PStackFree(l_dbvars);
+      PStackFree(r_dbvars);
 
       res = true;
    }
@@ -333,10 +342,10 @@ bool build_trivial_ident(TB_p bank, Term_p lhs, Term_p rhs,
       
       *l_target = 
          CloseWithTypePrefix(bank, l_ty->args,
-                           TypeIsArrow(l_ty) ? l_ty->arity-1 : 0, matrix);
+                             TypeIsArrow(l_ty) ? l_ty->arity-1 : 0, matrix);
       *r_target = 
          CloseWithTypePrefix(bank, r_ty->args,
-                           TypeIsArrow(r_ty) ? r_ty->arity-1 : 0, matrix);
+                             TypeIsArrow(r_ty) ? r_ty->arity-1 : 0, matrix);
       res = true;
    }
    return res;
@@ -402,7 +411,7 @@ ConstraintTag_t ComputeNextBinding(Term_p flex, Term_p rhs,
                {
                   // imitation building can fail if head is DB var
                   res = BUILD_CONSTR(cnt, state);
-                  SubstAddBinding(subst, flex, target);
+                  SubstAddBinding(subst, GetFVarHead(flex), target);
                   *applied_bs = INC_IMIT(*applied_bs);
                }
             }
@@ -431,7 +440,7 @@ ConstraintTag_t ComputeNextBinding(Term_p flex, Term_p rhs,
                   // building projection can fail if it is determined
                   // that it would lead to unsolvable problem
                   res = BUILD_CONSTR(cnt+1, state);
-                  SubstAddBinding(subst, flex, target);
+                  SubstAddBinding(subst, GetFVarHead(flex), target);
                   *applied_bs = INC_PROJ(*applied_bs);
                }
             }
@@ -451,8 +460,7 @@ ConstraintTag_t ComputeNextBinding(Term_p flex, Term_p rhs,
                   flex = rhs;
                }
                int offset = cnt - (left_side ? 1 : 2)*num_args_l - num_args_r;
-               Term_p target = 
-                  build_elim(bank, flex, cnt-offset);
+               Term_p target = build_elim(bank, flex, cnt-offset);
                res = BUILD_CONSTR(cnt, state);
                SubstAddBinding(subst, GetFVarHead(flex), target);
                *applied_bs = INC_ELIM(*applied_bs);
