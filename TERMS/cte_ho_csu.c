@@ -2,7 +2,7 @@
 
 File  : cte_ho_csu.c
 
-Author: Stephan Schulz
+Author: Petar Vukmirovic
 
 Contents
 
