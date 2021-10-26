@@ -359,7 +359,7 @@ bool forward_iter(CSUIterator_p iter)
                assert(lhs->arity == rhs->arity);
                if(SigIsPolymorphic(iter->bank->sig, lhs->f_code)
                   && lhs->arity != 0
-                  && lhs->args[0]->type != rhs->args[0]->type) 
+                  && lhs->args[0]->type != rhs->args[0]->type)
                {
                   res = backtrack_iter(iter);
                }
@@ -367,7 +367,7 @@ bool forward_iter(CSUIterator_p iter)
                {
                   POP_TOP_CONSTRAINTS(iter->constraints);
                   schedule_args(iter, lhs->args, rhs->args, lhs->arity);
-                  prepare_backtrack(iter, lhs, rhs, 
+                  prepare_backtrack(iter, lhs, rhs,
                                     RIGID_PROCESSED_TAG, PStackGetSP(iter->subst));
                }
             }
@@ -487,6 +487,14 @@ bool NextCSUElement(CSUIterator_p iter)
    bool res = backtrack_iter(iter);
    if(res)
    {
+      if(iter->current_state == INIT_TAG && params->unif_mode == SingleUnif)
+      {
+         res = SubstComputeMgu(PStackTopP(iter->constraints), PStackBelowTopP(iter->constraints),
+                               iter->subst);
+         // on the next call we destroy the iterator
+         PStackReset(iter->constraints);
+         PStackReset(iter->backtrack_info);
+      }
       res = forward_iter(iter);
    }
    if(!res)
