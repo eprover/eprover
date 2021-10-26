@@ -24,11 +24,10 @@ Changes
 
 #include "cte_ho_bindings.h"
 #include "cte_pattern_match_mgu.h"
+#include "cte_lambda.h"
 
 #define CONSTRAINT_STATE(c) ((c) & 3)
 #define CONSTRAINT_COUNTER(c) ((c) >> 2) // c must be unisigned!!!
-// #define CONSTRAINT_COUNTER_ADD(c,x) ( ((CONSTRAINT_COUNTER(c) + x) << 2) | (CONSTRAINT_STATE(c)) )
-// #define CONSTRAINT_COUNTER_INC(c) ( CONSTRAINT_COUNTER_ADD(c, 1))
 #define BUILD_CONSTR(c, s) (((c)<<2)|s)
 
 #define IMIT_MASK (63U)
@@ -75,7 +74,49 @@ Changes
 
 Term_p build_imitation(TB_p bank, Term_p flex, Term_p rhs)
 {
-   return NULL;
+   Term_p res;
+   if(TermIsPhonyApp(rhs) || TermIsDBVar(rhs))
+   {
+      assert(!TermIsLambda(rhs->args[0]));
+      // it must be app free or bound variable
+      res = NULL; 
+   }
+   else
+   {
+      Type_p var_ty = GetFVarHead(flex)->type;
+      PStack_p db_vars = PStackAlloc();
+      if(TypeIsArrow(var_ty))
+      {
+         for(int i=0; i<var_ty->arity-1; i++)
+         {
+            Term_p db_var =
+               RequestDBVar(bank->db_vars, var_ty->args[i], var_ty->arity-i-2); 
+            PStackPushP(db_vars, db_var);
+         }
+      }
+
+      Type_p rigid_ty = SigGetType(bank->sig, rhs->f_code);
+      Term_p matrix;
+      if(TypeIsArrow(rigid_ty))
+      {
+         matrix = TermTopAlloc(rhs->f_code, rigid_ty->arity-1);
+         for(int i=0; i<rigid_ty->arity-1; i++)
+         {
+            Term_p fvar = FreshVarWArgs(bank, db_vars, rigid_ty->args[i]);
+            matrix->args[i] = fvar;
+         }
+      }
+      else
+      {
+         matrix = TermConstCellAlloc(rhs->f_code);
+         matrix->type = rigid_ty;
+      }
+      matrix = TBTermTopInsert(bank, matrix);
+      res = CloseWithTypePrefix(bank, var_ty->args, TypeGetMaxArity(var_ty), matrix);
+
+      PStackFree(db_vars);
+   }
+   return res;
 }
 
 /*-----------------------------------------------------------------------

@@ -45,32 +45,6 @@ Changes
 
 /*-----------------------------------------------------------------------
 //
-// Function: fresh_var_with_args()
-//
-//   Make fresh variable applied to args with the appropriate return type.
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-Term_p fresh_var_with_args(TB_p bank, PStack_p args, Type_p ret_ty)
-{
-   Type_p arg_tys[PStackGetSP(args)];
-   for(long i=0; i < PStackGetSP(args); i++)
-   {
-      arg_tys[i] = ((Term_p) PStackElementP(args, i))->type;
-   }
-   Type_p var_ty = 
-      TypeBankInsertTypeShared(bank->sig->type_bank,
-         ArrowTypeFlattened(arg_tys, PStackGetSP(args), ret_ty));
-   Term_p head = VarBankGetFreshVar(bank->vars, var_ty);
-   return ApplyTerms(bank, head, args);   
-}
-
-/*-----------------------------------------------------------------------
-//
 // Function: db_var_map()
 //
 //   For each DB var which is the argument of a free variable
@@ -228,7 +202,7 @@ Term_p solve_flex_rigid(TB_p bank, Term_p s_var, IntMap_p db_map, Term_p t,
 
          Term_p t_var = GetFVarHead(t);
          Term_p t_binding_matrix =
-            fresh_var_with_args(bank, t_dbs, t->type);
+            FreshVarWArgs(bank, t_dbs, t->type);
          Type_p t_prefix[NUM_ACTUAL_ARGS(t)];
          for(long i=1; i<t->arity; i++) // works with naked t as well
          {
@@ -377,7 +351,7 @@ OracleUnifResult flex_flex_diff(TB_p bank, Term_p s, Term_p t, Subst_p subst)
 
       Term_p t_var = GetFVarHead(t);
       Term_p t_binding_matrix = 
-         fresh_var_with_args(bank, t_dbs, t->type);
+         FreshVarWArgs(bank, t_dbs, t->type);
       Type_p t_prefix[NUM_ACTUAL_ARGS(t)];
       for(long i=1; i<t->arity; i++) // works with naked t as well
       {
@@ -455,7 +429,7 @@ OracleUnifResult flex_flex_same(TB_p bank, Term_p s, Term_p t, Subst_p subst)
             }
          }
 
-         Term_p matrix = fresh_var_with_args(bank, db_args, GetRetType(var->type));
+         Term_p matrix = FreshVarWArgs(bank, db_args, GetRetType(var->type));
          SubstAddBinding(subst, var, 
                          CloseWithTypePrefix(bank, var->type->args, max_args, matrix));
          PStackFree(db_args);
@@ -1058,4 +1032,30 @@ OracleUnifResult SubstComputeMatchPattern(Term_p matcher, Term_p to_match, Subst
    }
    PLocalStackFree(jobs);
    return res;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: FreshVarWArgs()
+//
+//   Make fresh variable applied to args with the appropriate return type.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+Term_p FreshVarWArgs(TB_p bank, PStack_p args, Type_p ret_ty)
+{
+   Type_p arg_tys[PStackGetSP(args)];
+   for(long i=0; i < PStackGetSP(args); i++)
+   {
+      arg_tys[i] = ((Term_p) PStackElementP(args, i))->type;
+   }
+   Type_p var_ty = 
+      TypeBankInsertTypeShared(bank->sig->type_bank,
+         ArrowTypeFlattened(arg_tys, PStackGetSP(args), ret_ty));
+   Term_p head = VarBankGetFreshVar(bank->vars, var_ty);
+   return ApplyTerms(bank, head, args);   
 }
