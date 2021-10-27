@@ -22,6 +22,7 @@ Changes
 -----------------------------------------------------------------------*/
 
 #include "cco_paramodulation.h"
+#include <cte_ho_csu.h>
 
 
 
@@ -300,7 +301,9 @@ long compute_pos_into_pm_term(ParamodInfo_p pminfo,
    ParamodulationType sim_pm;
 
    /*printf("\n@i %ld\n", DebugCount); */
-   if(SubstMguComplete(olterm, into_clauses->term, subst))
+   CSUIterator_p unif_iter = 
+      CSUIterInit(olterm, into_clauses->term, subst, pminfo->bank);
+   while(NextCSUElement(unif_iter))
    {
       max_side = ClausePosGetSide(pminfo->from_pos);
       rep_side = ClausePosGetOtherSide(pminfo->from_pos);
@@ -326,6 +329,7 @@ long compute_pos_into_pm_term(ParamodInfo_p pminfo,
          PTreeTraverseExit(iterstack);
       }
    }
+   CSUIterDestroy(unif_iter);
    SubstDelete(subst);
    return res;
 }
@@ -523,7 +527,9 @@ long compute_pos_from_pm_term(ParamodInfo_p pminfo,
    Term_p           max_side, min_side;
 
    /*printf("\n@f %ld\n", DebugCount); */
-   if(SubstMguComplete(olterm, from_clauses->term, subst))
+   CSUIterator_p unif_iter = 
+      CSUIterInit(olterm, from_clauses->term, subst, pminfo->bank);
+   while(NextCSUElement(unif_iter))
    {
       max_side = ClausePosGetSide(pminfo->into_pos);
       min_side = ClausePosGetOtherSide(pminfo->into_pos);
@@ -553,6 +559,7 @@ long compute_pos_from_pm_term(ParamodInfo_p pminfo,
          PTreeTraverseExit(iterstack);
       }
    }
+   CSUIterDestroy(unif_iter);
    SubstDelete(subst);
    return res;
 }
