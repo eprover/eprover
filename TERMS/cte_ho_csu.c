@@ -81,30 +81,6 @@ bool backtrack_iter(CSUIterator_p iter);
 
 /*-----------------------------------------------------------------------
 //
-// Function: destroy_iter()
-//
-//  Destroys the iter and frees all the memory EXCEPT for the initial
-//  substitution.
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-void destroy_iter(CSUIterator_p iter)
-{
-   PStackFree(iter->backtrack_info);
-   PStackFree(iter->constraints);
-   PStackFree(iter->tmp_rigid_diff);
-   PStackFree(iter->tmp_rigid_same);
-   PStackFree(iter->tmp_flex);
-   SubstBacktrackToPos(iter->subst, iter->init_pos);
-   SizeFree(iter, sizeof(CSUIterator_t));
-}
-
-/*-----------------------------------------------------------------------
-//
 // Function: prepare_backtrack()
 //
 //   Prepare the backtracking state.
@@ -489,7 +465,7 @@ bool NextCSUElement(CSUIterator_p iter)
    {
       if(iter->current_state == INIT_TAG && params->unif_mode == SingleUnif)
       {
-         res = SubstComputeMgu(PStackTopP(iter->constraints), PStackBelowTopP(iter->constraints),
+         res = SubstMguComplete(PStackTopP(iter->constraints), PStackBelowTopP(iter->constraints),
                                iter->subst);
          // on the next call we destroy the iterator
          PStackReset(iter->constraints);
@@ -499,7 +475,7 @@ bool NextCSUElement(CSUIterator_p iter)
    }
    if(!res)
    {
-      destroy_iter(iter);
+      CSUIterDestroy(iter);
    }
    return res;
 }
@@ -580,4 +556,28 @@ Subst_p CSUIterGetCurrentSubst(CSUIterator_p iter)
 void InitUnifLimits(HeuristicParms_p p)
 {
    params = p;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: CSUIterDestroy()
+//
+//  Destroys the iter and frees all the memory EXCEPT for the initial
+//  substitution.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void CSUIterDestroy(CSUIterator_p iter)
+{
+   PStackFree(iter->backtrack_info);
+   PStackFree(iter->constraints);
+   PStackFree(iter->tmp_rigid_diff);
+   PStackFree(iter->tmp_rigid_same);
+   PStackFree(iter->tmp_flex);
+   SubstBacktrackToPos(iter->subst, iter->init_pos);
+   SizeFree(iter, sizeof(CSUIterator_t));
 }

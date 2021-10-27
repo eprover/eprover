@@ -119,6 +119,7 @@ long ComputeAllEqualityFactors(TB_p bank, OCB_p ocb,
    Eqn_p       test;
    ClausePos_p pos1, pos2;
    long        factor_count = 0;
+   PStack_p res_cls = PStackAlloc();
 
    if(!ClauseIsHorn(clause) && !ClauseQueryProp(clause,CPNoGeneration))
    {
@@ -130,9 +131,11 @@ long ComputeAllEqualityFactors(TB_p bank, OCB_p ocb,
       while(test)
       {
          bool is_ho = false;
-         factor = ComputeEqualityFactor(bank, ocb, pos1, pos2, freshvars, &is_ho);
-         if(factor)
+         ComputeEqualityFactor(bank, ocb, pos1, pos2, freshvars, &is_ho, res_cls);
+         while(!PStackEmpty(res_cls))
          {
+            factor = PStackPopP(res_cls);
+            assert(factor);
             factor_count++;
             factor->proof_depth = clause->proof_depth+1;
             factor->proof_size  = clause->proof_size+1;
@@ -148,6 +151,7 @@ long ComputeAllEqualityFactors(TB_p bank, OCB_p ocb,
       ClausePosFree(pos1);
       ClausePosFree(pos2);
    }
+   PStackFree(res_cls);
    return factor_count;
 }
 
