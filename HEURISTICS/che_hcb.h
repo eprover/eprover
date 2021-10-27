@@ -218,6 +218,7 @@ typedef struct heuristic_parms_cell
    UnifMode            unif_mode;
    bool                pattern_oracle;
    bool                fixpoint_oracle;
+   int                 max_unifiers;
 }HeuristicParmsCell, *HeuristicParms_p;
 
 

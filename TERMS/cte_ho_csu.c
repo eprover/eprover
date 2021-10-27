@@ -52,6 +52,7 @@ struct csu_iter
    PStackPointer init_pos;
    Subst_p subst;
    TB_p bank;
+   int unifiers_returned;
 
    // implementation-specific data used for optimization
    PStack_p tmp_rigid_diff;
@@ -371,7 +372,8 @@ bool forward_iter(CSUIterator_p iter)
 bool backtrack_iter(CSUIterator_p iter)
 {
    bool res = false;
-   if(!PStackEmpty(iter->backtrack_info))
+   if(!PStackEmpty(iter->backtrack_info) &&
+      iter->unifiers_returned < params->max_unifiers)
    {
       assert(PStackGetSP(iter->backtrack_info) >= 5);
       while(PStackGetSP(iter->backtrack_info) >= 5 && !res)
@@ -510,6 +512,7 @@ CSUIterator_p CSUIterInit(Term_p lhs, Term_p rhs, Subst_p subst, TB_p bank)
    res->tmp_rigid_same = PStackAlloc();
    res->tmp_flex = PStackAlloc();
    res->current_limits = 0;
+   res->unifiers_returned = 0;
 
    // initialization of internal stuff
    PStackPushInt(res->backtrack_info, res->init_pos);

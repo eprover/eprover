@@ -261,6 +261,7 @@ void HeuristicParmsInitialize(HeuristicParms_p handle)
    handle->unif_mode = SingleUnif;
    handle->pattern_oracle = true;
    handle->fixpoint_oracle = true;
+   handle->max_unifiers = 4;
 }
 
 
@@ -496,6 +497,8 @@ void HeuristicParmsPrint(FILE* out, HeuristicParms_p handle)
            BOOL2STR(handle->pattern_oracle));
    locked_fprintf(out, "   fixpoint_oracle:               %s\n",
            BOOL2STR(handle->fixpoint_oracle));
+   locked_fprintf(out, "   max_unifiers:                    %d\n",
+           handle->max_unifiers);
 
    locked_fprintf(out, "}\n");
 }
@@ -675,6 +678,7 @@ bool HeuristicParmsParseInto(Scanner_p in,
    PARSE_STRING_AND_CONVERT(unif_mode, str2um);
    PARSE_BOOL(pattern_oracle);
    PARSE_BOOL(fixpoint_oracle);
+   PARSE_INT(max_unifiers);
 
 
    AcceptInpTok(in, CloseCurly);

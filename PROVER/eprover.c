@@ -1888,6 +1888,9 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_ELIM_LIMIT:
             h_parms->elim_limit = CLStateGetIntArgCheckRange(handle, arg, 0, 63);
             break;
+      case OPT_MAX_UNIFIERS:
+            h_parms->max_unifiers = CLStateGetIntArgCheckRange(handle, arg, 0, 1024);
+            break;
       case OPT_UNIF_MODE:
             unif_mode = STR2UM(arg);
             if(unif_mode==-1)

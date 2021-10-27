@@ -67,6 +67,7 @@ long ComputeAllEqnResolvents(TB_p bank, Clause_p clause, ClauseSet_p
    Eqn_p       test;
    ClausePos_p pos;
    long        resolv_count = 0;
+   PStack_p    res_cls = PStackAlloc();
 
    if(clause->neg_lit_no && !ClauseQueryProp(clause,CPNoGeneration))
    {
@@ -77,9 +78,11 @@ long ComputeAllEqnResolvents(TB_p bank, Clause_p clause, ClauseSet_p
       while(test)
       {
          bool inf_is_ho = false;
-         resolvent = ComputeEqRes(bank, pos, freshvars, &inf_is_ho);
-         if(resolvent)
+         UNUSED(ComputeEqRes(bank, pos, freshvars, &inf_is_ho, res_cls));
+
+         while(!PStackEmpty(res_cls))
          {
+            resolvent = PStackPopP(res_cls);
             resolv_count++;
             resolvent->proof_depth = clause->proof_depth+1;
             resolvent->proof_size  = clause->proof_size+1;
@@ -94,6 +97,7 @@ long ComputeAllEqnResolvents(TB_p bank, Clause_p clause, ClauseSet_p
       }
       ClausePosFree(pos);
    }
+   PStackFree(res_cls);
    return resolv_count;
 }
 
@@ -135,7 +139,7 @@ long ClauseERNormalizeVar(TB_p bank, Clause_p clause, ClauseSet_p
                pos->clause  = clause;
                pos->literal = lit;
                bool is_ho = false;
-               handle = ComputeEqRes(bank, pos, freshvars, &is_ho);
+               handle = ComputeEqRes(bank, pos, freshvars, &is_ho, NULL);
                if(handle)
                {
                   found = true;

@@ -218,6 +218,7 @@ typedef enum
    OPT_UNIF_MODE,
    OPT_PATTERN_ORACLE,
    OPT_FIXPOINT_ORACLE,
+   OPT_MAX_UNIFIERS,
    OPT_DUMMY
 }OptionCodes;
 
@@ -1633,6 +1634,11 @@ OptCell opts[] =
     '\0', "pattern-oracle",
     ReqArg, NULL,
     "Turn the pattern oracle on or off."},
+
+    {OPT_MAX_UNIFIERS,
+    '\0', "max_unifiers",
+    ReqArg, NULL,
+    "Maximal number of imitations"},
 
    {OPT_NOOPT,
     '\0', NULL,
