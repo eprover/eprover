@@ -1270,7 +1270,7 @@ bool TermStructEqualNoDeref(Term_p t1, Term_p t2)
 
 // to make sure that we terminate, we do not eta-expand the variables
 // and constants.
-#define ETA_EXP(t,b) ((t)->arity==0 ? (t) : LambdaEtaExpandDBTopLevel(b, t))
+#define ETA_EXP(t,b) (LambdaEtaExpandDBTopLevel(b, t))
 bool TermStructEqualDeref(Term_p t1, Term_p t2, DerefType deref_1, DerefType deref_2)
 {
    int limit_1 = DEREF_LIMIT(t1, deref_1);
@@ -1357,8 +1357,6 @@ bool TermStructEqualDeref(Term_p t1, Term_p t2, DerefType deref_1, DerefType der
                                CONVERT_DEREF(i, limit_1, deref_1),
                                CONVERT_DEREF(i, limit_2, deref_2)))
       {
-         // DBG_PRINT(stderr, "[err] t1: ", TermPrintDbg(stderr, t1, bank->sig, DEREF_NEVER), ".\n");
-         // DBG_PRINT(stderr, "t2: ", TermPrintDbg(stderr, t2, bank->sig, DEREF_NEVER), ".\n");
          return false;
       }
    }
