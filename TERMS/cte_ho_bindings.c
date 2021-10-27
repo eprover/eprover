@@ -488,6 +488,10 @@ ConstraintTag_t ComputeNextBinding(Term_p flex, Term_p rhs,
                SubstAddBinding(subst, GetFVarHead(rhs), r_target);
             }
          }
+         else
+         {
+            cnt++;
+         }
       }
    }
    *succ = PStackGetSP(subst) != orig_subst;

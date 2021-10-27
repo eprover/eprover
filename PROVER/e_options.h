@@ -1636,7 +1636,7 @@ OptCell opts[] =
     "Turn the pattern oracle on or off."},
 
     {OPT_MAX_UNIFIERS,
-    '\0', "max_unifiers",
+    '\0', "max-unifiers",
     ReqArg, NULL,
     "Maximal number of imitations"},
 

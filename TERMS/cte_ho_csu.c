@@ -220,8 +220,8 @@ bool forward_iter(CSUIterator_p iter)
       Term_p rhs = WHNF_deref(PStackBelowTopP(iter->constraints));
       PruneLambdaPrefix(iter->bank, &lhs, &rhs);
 
-      DBG_PRINT(stderr, "", TermPrintDbg(stderr, lhs, iter->bank->sig, DEREF_NEVER), " <> ");
-      DBG_PRINT(stderr, "", TermPrintDbg(stderr, rhs, iter->bank->sig, DEREF_NEVER), ".\n");
+      // DBG_PRINT(stderr, "", TermPrintDbg(stderr, lhs, iter->bank->sig, DEREF_NEVER), " <> ");
+      // DBG_PRINT(stderr, "", TermPrintDbg(stderr, rhs, iter->bank->sig, DEREF_NEVER), ".\n");
 
       if(lhs->type != rhs->type)
       {
@@ -485,7 +485,9 @@ bool NextCSUElement(CSUIterator_p iter)
       else
       {
          res = forward_iter(iter);
-         fprintf(stderr, "result: %d\n", res);
+         DBG_PRINT(stderr, res ? "succ" : "fail: ", 
+                   SubstPrint(stderr, iter->subst, iter->bank->sig, DEREF_NEVER),
+                   ".\n");
       }
    }
    return res;
@@ -529,6 +531,9 @@ CSUIterator_p CSUIterInit(Term_p lhs, Term_p rhs, Subst_p subst, TB_p bank)
    PStackPushInt(res->backtrack_info, res->current_limits);
    PStackPushP(res->backtrack_info, rhs);
    PStackPushP(res->backtrack_info, lhs);
+
+   DBG_PRINT(stderr, "lhs: ", TermPrintDbg(stderr, lhs, bank->sig, DEREF_NEVER), "\n");
+   DBG_PRINT(stderr, "rhs: ", TermPrintDbg(stderr, rhs, bank->sig, DEREF_NEVER), "\n");
 
    return res;
 }
