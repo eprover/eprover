@@ -220,6 +220,9 @@ bool forward_iter(CSUIterator_p iter)
       Term_p rhs = WHNF_deref(PStackBelowTopP(iter->constraints));
       PruneLambdaPrefix(iter->bank, &lhs, &rhs);
 
+      DBG_PRINT(stderr, "", TermPrintDbg(stderr, lhs, iter->bank->sig, DEREF_NEVER), " <> ");
+      DBG_PRINT(stderr, "", TermPrintDbg(stderr, rhs, iter->bank->sig, DEREF_NEVER), ".\n");
+
       if(lhs->type != rhs->type)
       {
          assert(iter->current_state == INIT_TAG);
@@ -260,7 +263,7 @@ bool forward_iter(CSUIterator_p iter)
             }
             else if(oracle_res == NOT_UNIFIABLE)
             {
-               backtrack_iter(iter);
+               res = backtrack_iter(iter);
             }
             else
             {
@@ -288,7 +291,7 @@ bool forward_iter(CSUIterator_p iter)
                }
                else
                {
-                  backtrack_iter(iter);
+                  res = backtrack_iter(iter);
                }
             }
          }
@@ -348,6 +351,11 @@ bool forward_iter(CSUIterator_p iter)
                                     RIGID_PROCESSED_TAG, PStackGetSP(iter->subst));
                }
             }
+            else
+            {
+               iter->current_state = RIGID_PROCESSED_TAG;
+               res = backtrack_iter(iter);
+            }
          }
       }
    }
@@ -372,6 +380,7 @@ bool forward_iter(CSUIterator_p iter)
 bool backtrack_iter(CSUIterator_p iter)
 {
    bool res = false;
+   assert(PStackGetSP(iter->backtrack_info) % 5 == 0);
    if(!PStackEmpty(iter->backtrack_info) &&
       iter->unifiers_returned < params->max_unifiers)
    {
@@ -476,6 +485,7 @@ bool NextCSUElement(CSUIterator_p iter)
       else
       {
          res = forward_iter(iter);
+         fprintf(stderr, "result: %d\n", res);
       }
    }
    return res;
