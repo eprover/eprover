@@ -475,10 +475,6 @@ bool NextCSUElement(CSUIterator_p iter)
       }
       res = forward_iter(iter);
    }
-   if(!res)
-   {
-      CSUIterDestroy(iter);
-   }
    return res;
 }
 
