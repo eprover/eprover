@@ -587,6 +587,10 @@ Term_p do_beta_normalize_db(TB_p bank, Term_p t)
    if(TermIsPhonyApp(t) && TermIsLambda(t->args[0]))
    {
       res = WHNF_step(bank, t);
+      if(TermIsBetaReducible(res))
+      {
+         res = do_beta_normalize_db(bank, res);
+      }
    }
    else if (t->arity == 0 || !TermIsBetaReducible(t))
    {

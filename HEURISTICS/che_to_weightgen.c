@@ -791,7 +791,8 @@ static void generate_freqrank_weights(OCB_p ocb, ClauseSet_p axioms)
          weight++;
       }
       *OCBFunWeightPos(ocb, array->array[i].symbol) =
-         weight*W_DEFAULT_WEIGHT;
+         // avoiding assigning 0 weight
+         MAX(weight,1)*W_DEFAULT_WEIGHT;
    }
    FCodeFeatureArrayFree(array);
 }
@@ -932,7 +933,8 @@ static void generate_invfreqrank_weights(OCB_p ocb, ClauseSet_p axioms)
          weight++;
       }
       *OCBFunWeightPos(ocb, array->array[i].symbol) =
-         weight*W_DEFAULT_WEIGHT;
+         // making sure 0 is not given to any symbol
+         MAX(weight,1)*W_DEFAULT_WEIGHT;
    }
    FCodeFeatureArrayFree(array);
 }
@@ -1449,7 +1451,7 @@ void TOGenerateWeights(OCB_p ocb, ClauseSet_p axioms, char *pre_weights,
       {
          if(oparms->to_const_weight != WConstNoSpecialWeight)
          {
-            *OCBFunWeightPos(ocb, i) = oparms->to_const_weight;
+            *OCBFunWeightPos(ocb, i) = MAX(oparms->to_const_weight,1); // at least 1
          }
          assert(OCBFunWeight(ocb,i)>0);
          if(oparms->force_kbo_var_weight)

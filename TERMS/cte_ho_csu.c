@@ -473,7 +473,10 @@ bool NextCSUElement(CSUIterator_p iter)
          PStackReset(iter->constraints);
          PStackReset(iter->backtrack_info);
       }
-      res = forward_iter(iter);
+      else
+      {
+         res = forward_iter(iter);
+      }
    }
    return res;
 }
