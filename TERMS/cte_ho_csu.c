@@ -532,9 +532,8 @@ CSUIterator_p CSUIterInit(Term_p lhs, Term_p rhs, Subst_p subst, TB_p bank)
    PStackPushP(res->backtrack_info, rhs);
    PStackPushP(res->backtrack_info, lhs);
 
-   DBG_PRINT(stderr, "lhs: ", TermPrintDbg(stderr, lhs, bank->sig, DEREF_NEVER), "\n");
-   DBG_PRINT(stderr, "rhs: ", TermPrintDbg(stderr, rhs, bank->sig, DEREF_NEVER), "\n");
-
+   DBG_PRINT(stderr, "l: ", TermPrintDbg(stderr, lhs, bank->sig, DEREF_NEVER), ", ");
+   DBG_PRINT(stderr, "r: ", TermPrintDbg(stderr, rhs, bank->sig, DEREF_NEVER), ".\n");
    return res;
 }
 

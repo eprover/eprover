@@ -217,6 +217,8 @@ Term_p build_projection(TB_p bank, Term_p flex, Term_p rhs, int idx)
 
 Term_p build_elim(TB_p bank, Term_p flex, int idx)
 {
+   DBG_PRINT(stderr, "elim: ", TermPrintDbg(stderr, flex, bank->sig, DEREF_NEVER), ".\n");
+   fprintf(stderr, "arg: %d\n", idx);
    assert(TermIsAppliedFreeVar(flex));
    PStack_p db_vars = PStackAlloc();
    for(int i=1; i<flex->arity; i++)
@@ -398,8 +400,13 @@ ConstraintTag_t ComputeNextBinding(Term_p flex, Term_p rhs,
                   // 2*arguments for projection and eliminations
                   // 1 for identification
 
+      DBG_PRINT(stderr, "flex:", TermPrintDbg(stderr, flex, bank->sig, DEREF_NEVER), "; ");
+      DBG_PRINT(stderr, "rhs:", TermPrintDbg(stderr, rhs, bank->sig, DEREF_NEVER), "; ");
+      fprintf(stderr, "limit: %d\n", limit);
+
       while(res == 0 && cnt < limit)
       {
+         fprintf(stderr, "cnt: %lu\n", cnt);
          if(cnt == 0)
          {
             cnt++;
@@ -451,7 +458,6 @@ ConstraintTag_t ComputeNextBinding(Term_p flex, Term_p rhs,
          {
             // elimination -- currently computing only linear
             // applied variable so we do not subtract 1
-            cnt++;
             if(GET_ELIM(*applied_bs) < parms->elim_limit)
             {
                bool left_side = num_args_l != 0 && cnt <= 2*num_args_l + num_args_r;
@@ -459,8 +465,9 @@ ConstraintTag_t ComputeNextBinding(Term_p flex, Term_p rhs,
                {
                   flex = rhs;
                }
-               int offset = cnt - (left_side ? 1 : 2)*num_args_l - num_args_r;
+               int offset = (left_side ? 1 : 2)*num_args_l - num_args_r + 1;
                Term_p target = build_elim(bank, flex, cnt-offset);
+               cnt++;
                res = BUILD_CONSTR(cnt, state);
                SubstAddBinding(subst, GetFVarHead(flex), target);
                *applied_bs = INC_ELIM(*applied_bs);
