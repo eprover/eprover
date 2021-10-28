@@ -75,9 +75,9 @@ Changes
 Term_p build_imitation(TB_p bank, Term_p flex, Term_p rhs)
 {
    Term_p res;
-   if(TermIsPhonyApp(rhs) || TermIsDBVar(rhs))
+   if(TermIsPhonyApp(rhs) || TermIsFreeVar(rhs) || TermIsDBVar(rhs))
    {
-      assert(!TermIsLambda(rhs->args[0]));
+      assert(!TermIsPhonyApp(rhs) ||  !TermIsLambda(rhs->args[0]));
       // it must be app free or bound variable
       res = NULL; 
    }
@@ -256,7 +256,6 @@ Term_p build_elim(TB_p bank, Term_p flex, int idx)
 bool build_ident(TB_p bank, Term_p lhs, Term_p rhs,
                  Term_p* l_target, Term_p* r_target)
 {
-   assert(TermIsAppliedFreeVar(lhs));
    bool res = false;
    if(TermIsTopLevelFreeVar(rhs))
    {
@@ -410,7 +409,7 @@ ConstraintTag_t ComputeNextBinding(Term_p flex, Term_p rhs,
          if(cnt == 0)
          {
             cnt++;
-            if(!TermIsAppliedFreeVar(rhs) &&
+            if(!TermIsTopLevelFreeVar(rhs) &&
                GET_IMIT(*applied_bs) < parms->imit_limit)
             {
                Term_p target = build_imitation(bank, flex, rhs);
@@ -478,7 +477,9 @@ ConstraintTag_t ComputeNextBinding(Term_p flex, Term_p rhs,
                cnt = 2*(num_args_l+num_args_r)+1;
             }
          }
-         else if(cnt == 2*(num_args_l+num_args_r)+1 && TermIsTopLevelFreeVar(rhs))
+         else if((cnt == 2*(num_args_l+num_args_r)+1) 
+                 && TermIsTopLevelFreeVar(rhs)
+                 && (GetFVarHead(flex) != GetFVarHead(rhs)))
          {
             // identification
             cnt++;
