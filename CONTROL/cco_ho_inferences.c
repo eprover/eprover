@@ -376,7 +376,7 @@ bool compute_removal_subst(PObjMap_p* var_removed_args, Subst_p subst,
             if(!PStackFindInt(occs, i))
             {
                PStackPushP(new_db_vars,
-                  RequestDBVar(bank->db_vars, var->type->args[i], max_args-i-1));
+                  TBRequestDBVar(bank, var->type->args[i], max_args-i-1));
             }
          }
 

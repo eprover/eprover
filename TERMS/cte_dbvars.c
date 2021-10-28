@@ -74,7 +74,7 @@ Term_p mk_db(FunCode db_idx, Type_p type)
 
 /*-----------------------------------------------------------------------
 //
-// Function: RequestDBVar()
+// Function: _RequestDBVar()
 //
 //   Create (or find) a unique, shared term that represents 
 //   a DB variable with the given type and index. Function always
@@ -86,7 +86,7 @@ Term_p mk_db(FunCode db_idx, Type_p type)
 //
 /----------------------------------------------------------------------*/
 
-Term_p RequestDBVar(DBVarBank_p db_bank, Type_p type, long db_index)
+Term_p _RequestDBVar(DBVarBank_p db_bank, Type_p type, long db_index)
 {
    assert(db_index >= 0);
    assert(type->type_uid != INVALID_TYPE_UID);

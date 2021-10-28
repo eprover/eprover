@@ -1324,7 +1324,7 @@ Term_p LambdaEtaExpandDBTopLevel(TB_p bank, Term_p t)
       PStack_p db_args = PStackAlloc();
       for(long i=0; i<num_args; i++)
       {
-         Term_p fresh_db = RequestDBVar(bank->db_vars, t->type->args[i], num_args-i-1);
+         Term_p fresh_db = TBRequestDBVar(bank, t->type->args[i], num_args-i-1);
          PStackPushP(db_args, 
                      TypeIsArrow(fresh_db->type) ? 
                         do_eta_expand_db(bank, fresh_db) : fresh_db);

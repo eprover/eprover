@@ -216,12 +216,8 @@ bool forward_iter(CSUIterator_p iter)
    {
       assert(PStackGetSP(iter->constraints) % 2 == 0);
       // items are poped from the stack only when they are solved
-      Term_p lhs = WHNF_deref(PStackTopP(iter->constraints));
-      Term_p rhs = WHNF_deref(PStackBelowTopP(iter->constraints));
-      PruneLambdaPrefix(iter->bank, &lhs, &rhs);
-
-      // DBG_PRINT(stderr, "", TermPrintDbg(stderr, lhs, iter->bank->sig, DEREF_NEVER), " <> ");
-      // DBG_PRINT(stderr, "", TermPrintDbg(stderr, rhs, iter->bank->sig, DEREF_NEVER), ".\n");
+      Term_p lhs = PStackTopP(iter->constraints);
+      Term_p rhs = PStackBelowTopP(iter->constraints);
 
       if(lhs->type != rhs->type)
       {
@@ -236,6 +232,16 @@ bool forward_iter(CSUIterator_p iter)
       }
       else
       {
+         lhs = WHNF_deref(lhs);
+         rhs = WHNF_deref(rhs);
+         PruneLambdaPrefix(iter->bank, &lhs, &rhs);
+         if(lhs == rhs)
+         {
+            POP_TOP_CONSTRAINTS(iter->constraints);
+            prepare_backtrack(iter, lhs, rhs, SOLVED_BY_ORACLE_TAG, 
+                              PStackGetSP(iter->subst));
+            continue; // using continue not to indent too much :(
+         }
          if(TermIsTopLevelFreeVar(rhs))
          {
             SWAP(lhs, rhs);
@@ -485,7 +491,7 @@ bool NextCSUElement(CSUIterator_p iter)
       else
       {
          res = forward_iter(iter);
-         DBG_PRINT(stderr, res ? "succ" : "fail: ", 
+         DBG_PRINT(stderr, res ? "succ" : "fail: ",
                    SubstPrint(stderr, iter->subst, iter->bank->sig, DEREF_NEVER),
                    ".\n");
       }

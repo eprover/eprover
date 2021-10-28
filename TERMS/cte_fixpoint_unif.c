@@ -59,6 +59,7 @@ OracleUnifResult rigid_path_check(Term_p t1, Term_p t2, bool has_pref,
                                   bool under_var, int depth)
 {
    OracleUnifResult res;
+   t2 = WHNF_deref(t2);
    if(TermIsAppliedFreeVar(t2))
    {
       if(t1 == t2->args[0])
@@ -67,8 +68,8 @@ OracleUnifResult rigid_path_check(Term_p t1, Term_p t2, bool has_pref,
       }
       else
       {
-         res = rigid_path_check_args(t1, t2->args+1, t2->arity-1, 
-                                     has_pref, true, depth);
+         res = rigid_path_check_args(t1, t2->args+1, has_pref, true,
+                                     depth, t2->arity-1);
       }
    }
    else if(TermIsFreeVar(t2))
@@ -97,8 +98,8 @@ OracleUnifResult rigid_path_check(Term_p t1, Term_p t2, bool has_pref,
    }
    else
    {
-      res = rigid_path_check_args(t1, t2->args, t2->arity,
-                                  has_pref, under_var, depth);
+      res = rigid_path_check_args(t1, t2->args, has_pref, under_var, 
+                                  depth, t2->arity);
    }
 
    return res;

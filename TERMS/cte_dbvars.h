@@ -43,7 +43,10 @@ typedef IntMap_p DBVarBank_p;
 
 #define DBVarBankAlloc() IntMapAlloc()
 
-Term_p  RequestDBVar(DBVarBank_p db_bank, Type_p type, long db_index);
+// _ in the name means that this is a function that must be exported
+// but that it should be seldom used -- only in contexts where you do
+// not have access to TermBank. Otherwise use TBRequestDBVar.
+Term_p  _RequestDBVar(DBVarBank_p db_bank, Type_p type, long db_index);
 void    DBVarBankFree(DBVarBank_p db_bank);
 
 

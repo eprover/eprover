@@ -783,6 +783,7 @@ OracleUnifResult SubstComputeMguPattern(Term_p t1, Term_p t2, Subst_p subst)
    PQueueStoreP(jobs, t1);
    PQueueStoreP(jobs, t2);
    TB_p bank = TermGetBank(t1) ? TermGetBank(t1) : TermGetBank(t2);
+   assert(bank);
 
    VarBankSetVCountsToUsed(bank->vars);
 
@@ -1057,5 +1058,6 @@ Term_p FreshVarWArgs(TB_p bank, PStack_p args, Type_p ret_ty)
       TypeBankInsertTypeShared(bank->sig->type_bank,
          ArrowTypeFlattened(arg_tys, PStackGetSP(args), ret_ty));
    Term_p head = VarBankGetFreshVar(bank->vars, var_ty);
-   return ApplyTerms(bank, head, args);   
+   return PStackEmpty(args) ? TBInsert(bank, head, DEREF_NEVER) :
+                              ApplyTerms(bank, head, args);
 }

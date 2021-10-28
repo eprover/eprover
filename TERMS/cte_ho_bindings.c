@@ -90,7 +90,7 @@ Term_p build_imitation(TB_p bank, Term_p flex, Term_p rhs)
          for(int i=0; i<var_ty->arity-1; i++)
          {
             Term_p db_var =
-               RequestDBVar(bank->db_vars, var_ty->args[i], var_ty->arity-i-2); 
+               TBRequestDBVar(bank, var_ty->args[i], var_ty->arity-i-2); 
             PStackPushP(db_vars, db_var);
          }
       }
@@ -217,8 +217,6 @@ Term_p build_projection(TB_p bank, Term_p flex, Term_p rhs, int idx)
 
 Term_p build_elim(TB_p bank, Term_p flex, int idx)
 {
-   DBG_PRINT(stderr, "elim: ", TermPrintDbg(stderr, flex, bank->sig, DEREF_NEVER), ".\n");
-   fprintf(stderr, "arg: %d\n", idx);
    assert(TermIsAppliedFreeVar(flex));
    PStack_p db_vars = PStackAlloc();
    for(int i=1; i<flex->arity; i++)
@@ -399,13 +397,8 @@ ConstraintTag_t ComputeNextBinding(Term_p flex, Term_p rhs,
                   // 2*arguments for projection and eliminations
                   // 1 for identification
 
-      DBG_PRINT(stderr, "flex:", TermPrintDbg(stderr, flex, bank->sig, DEREF_NEVER), "; ");
-      DBG_PRINT(stderr, "rhs:", TermPrintDbg(stderr, rhs, bank->sig, DEREF_NEVER), "; ");
-      fprintf(stderr, "limit: %d\n", limit);
-
       while(res == 0 && cnt < limit)
       {
-         fprintf(stderr, "cnt: %lu\n", cnt);
          if(cnt == 0)
          {
             cnt++;
