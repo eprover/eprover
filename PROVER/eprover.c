@@ -431,6 +431,7 @@ int main(int argc, char* argv[])
       {
          PStackPushP(hcb_definitions, h_parms->heuristic_def);
       }
+      DestroyScanner(in);
    }
 
    if(state->argc ==  0)

@@ -58,6 +58,10 @@ struct csu_iter
    PStack_p tmp_rigid_diff;
    PStack_p tmp_rigid_same;
    PStack_p tmp_flex;
+#ifndef NDEBUG
+   Term_p orig_lhs;
+   Term_p orig_rhs;
+#endif
 };
 
 #define GET_HEAD_ID(t) (TermIsPhonyApp(t) ? (t)->args[0]->f_code : (t)->f_code)
@@ -528,8 +532,10 @@ bool NextCSUElement(CSUIterator_p iter)
       else
       {
          res = forward_iter(iter);
+         iter->unifiers_returned += res ? 1 : 0;
       }
    }
+   assert(!res || TermStructEqualDeref(iter->orig_lhs, iter->orig_rhs, DEREF_ALWAYS, DEREF_ALWAYS));
    return res;
 }
 
@@ -571,6 +577,10 @@ CSUIterator_p CSUIterInit(Term_p lhs, Term_p rhs, Subst_p subst, TB_p bank)
    PStackPushInt(res->backtrack_info, res->current_limits);
    PStackPushP(res->backtrack_info, rhs);
    PStackPushP(res->backtrack_info, lhs);
+#ifndef NDEBUG
+   res->orig_lhs = lhs;
+   res->orig_rhs = rhs;
+#endif
    return res;
 }
 

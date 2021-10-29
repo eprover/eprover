@@ -103,7 +103,7 @@ Clause_p ComputeEqRes(TB_p bank, ClausePos_p pos, VarBank_p freshvars,
          CSUIterInit(pos->literal->lterm, pos->literal->rterm, subst, bank);
       while(NextCSUElement(unif_iter))
       {
-         *subst_is_ho = SubstHasHOBinding(subst);
+         *subst_is_ho = *subst_is_ho || SubstHasHOBinding(subst);
          Clause_p cl = build_resolvent(pos, subst, freshvars);
          PStackPushP(res_cls, cl);
          if(ClauseIsEmpty(cl))
