@@ -321,6 +321,10 @@ Term_p refresh_qvars(TB_p terms, Term_p form)
       assert(form->binding);
       res = form->binding;
    }
+   else if (TermIsDBVar(form) || form->arity == 0)
+   {
+      res = form;
+   }
    else if ((form->f_code == sig->qall_code || form->f_code == sig->qex_code) && form->arity == 2)
    {
       Term_p prev_binding = form->args[0]->binding;
@@ -329,10 +333,6 @@ Term_p refresh_qvars(TB_p terms, Term_p form)
       res = TFormulaFCodeAlloc(terms, form->f_code,
                                fresh_var, refresh_qvars(terms, form->args[1]));
       form->args[0]->binding = prev_binding;
-   }
-   else if (TermIsDBVar(form) || form->arity == 0)
-   {
-      res = form;
    }
    else
    {

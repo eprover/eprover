@@ -82,6 +82,43 @@ bool backtrack_iter(CSUIterator_p iter);
 
 /*-----------------------------------------------------------------------
 //
+// Function: dbg_print_state()
+//
+//   Print the state in human-readeable format.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void dbg_print_state(FILE* out, CSUIterator_p iter)
+{
+   TB_p bank = iter->bank;
+   fprintf(out, "***state:\n");
+   fprintf(out, "[");
+   for(int i=PStackGetSP(iter->constraints)-1; i>=1; i -= 2)
+   {
+      TermPrintDbg(out, PStackElementP(iter->constraints, i), bank->sig, DEREF_NEVER);
+      fprintf(out, ", ");
+      TermPrintDbg(out, PStackElementP(iter->constraints, i-1), bank->sig, DEREF_NEVER);
+      fprintf(out, ";");
+   }
+   fprintf(out, "]\n");
+
+   fprintf(out, "[|");
+   for(int i=PStackGetSP(iter->backtrack_info)-1; i>=4; i -= 5)
+   {
+      TermPrintDbg(out, PStackElementP(iter->backtrack_info, i), bank->sig, DEREF_NEVER);
+      fprintf(out, ", ");
+      TermPrintDbg(out, PStackElementP(iter->backtrack_info, i-1), bank->sig, DEREF_NEVER);
+      fprintf(out, ";");
+   }
+   fprintf(out, "|]\n");
+}
+
+/*-----------------------------------------------------------------------
+//
 // Function: prepare_backtrack()
 //
 //   Prepare the backtracking state.
@@ -315,7 +352,7 @@ bool forward_iter(CSUIterator_p iter)
                      POP_TOP_CONSTRAINTS(iter->constraints);
                      schedule_args(iter, lhs->args+1, rhs->args+1, lhs->arity-1);
                      prepare_backtrack(iter, lhs, rhs,
-                                       SOLVED_BY_ORACLE_TAG, PStackGetSP(iter->subst));
+                                       RIGID_PROCESSED_TAG, PStackGetSP(iter->subst));
                   }
                   else
                   {
@@ -491,9 +528,6 @@ bool NextCSUElement(CSUIterator_p iter)
       else
       {
          res = forward_iter(iter);
-         DBG_PRINT(stderr, res ? "succ" : "fail: ",
-                   SubstPrint(stderr, iter->subst, iter->bank->sig, DEREF_NEVER),
-                   ".\n");
       }
    }
    return res;
@@ -537,9 +571,6 @@ CSUIterator_p CSUIterInit(Term_p lhs, Term_p rhs, Subst_p subst, TB_p bank)
    PStackPushInt(res->backtrack_info, res->current_limits);
    PStackPushP(res->backtrack_info, rhs);
    PStackPushP(res->backtrack_info, lhs);
-
-   DBG_PRINT(stderr, "l: ", TermPrintDbg(stderr, lhs, bank->sig, DEREF_NEVER), ", ");
-   DBG_PRINT(stderr, "r: ", TermPrintDbg(stderr, rhs, bank->sig, DEREF_NEVER), ".\n");
    return res;
 }
 

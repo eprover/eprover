@@ -146,7 +146,6 @@ Term_p build_projection(TB_p bank, Term_p flex, Term_p rhs, int idx)
       TermIsTopLevelFreeVar(rhs) ?
          flex->args[idx+1] : WHNF_step(bank, flex->args[idx+1]);
    assert(GetRetType(var_ty) == GetRetType(arg->type));
-
    if(!TermIsTopLevelFreeVar(arg) && !TermIsTopLevelFreeVar(rhs))
    {
       if(TermIsTopLevelDBVar(arg) && TermIsTopLevelDBVar(rhs))
@@ -158,7 +157,7 @@ Term_p build_projection(TB_p bank, Term_p flex, Term_p rhs, int idx)
             return NULL;
          }
       }
-      else if(!TermIsTopLevelAnyVar(arg) && !TermIsTopLevelAnyVar(rhs) &&
+      else if(!TermIsTopLevelDBVar(arg) && !TermIsTopLevelDBVar(rhs) &&
               !TermIsLambda(arg) && !TermIsLambda(rhs))
       {
          if(arg->f_code != rhs->f_code)
@@ -166,7 +165,8 @@ Term_p build_projection(TB_p bank, Term_p flex, Term_p rhs, int idx)
             return NULL;
          }
       }
-      else if(!EQUIV(TermIsTopLevelDBVar(arg), TermIsTopLevelDBVar(rhs)))
+      else if( !TermIsLambda(arg) && !TermIsLambda(rhs) &&
+               !EQUIV(TermIsTopLevelDBVar(arg), TermIsTopLevelDBVar(rhs)))
       {
          return NULL;
       }

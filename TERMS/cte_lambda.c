@@ -754,7 +754,11 @@ Term_p do_post_cnf_encode(TB_p bank, Term_p t, long depth)
          res = t;
       }
    }
-   else if(TermIsAnyVar(t))
+   else if(TermIsDBVar(t))
+   {
+      res = t;
+   }
+   else if(TermIsFreeVar(t))
    {
       if(t->binding && TermIsDBVar(t->binding))
       {
@@ -1000,9 +1004,10 @@ inline TermNormalizer GetEtaNormalizer()
 
 Term_p NamedToDB(TB_p bank, Term_p lambda)
 {
-   return BetaNormalizeDB(bank, 
+   Term_p res = BetaNormalizeDB(bank, 
                             TermHasLambdaSubterm(lambda) ? 
                               do_named_to_db(bank, lambda, 0) : lambda);
+   return res;
 }
 
 /*-----------------------------------------------------------------------
@@ -1058,10 +1063,10 @@ Term_p AbstractVars(TB_p terms, Term_p matrix, PStack_p var_prefix)
          TBRequestDBVar(terms, v->type, PStackGetSP(var_prefix)-i-1));
    }
    matrix = replace_fvars(terms, matrix, 0);
-   while(!PStackEmpty(subst))
+   for(long i=PStackGetSP(var_prefix)-1; i>=0; i--)
    {
       matrix = 
-         CloseWithDBVar(terms, ((Term_p)PStackPopP(subst))->type, matrix);
+         CloseWithDBVar(terms, ((Term_p)PStackElementP(subst,i))->type, matrix);
    }
    SubstDelete(subst);
    assert(TermIsDBClosed(matrix));
