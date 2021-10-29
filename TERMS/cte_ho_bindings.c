@@ -269,6 +269,7 @@ bool build_ident(TB_p bank, Term_p lhs, Term_p rhs,
          TypeBankInsertTypeShared(bank->sig->type_bank,
             ArrowTypeFlattened(arg_types, l_tylen+r_tylen, GetRetType(l_ty)));
       Term_p matrix_var = VarBankGetFreshVar(bank->vars, matrix_var_ty);
+      matrix_var = TBInsert(bank, matrix_var, DEREF_NEVER);
 
       PStack_p l_dbvars = PStackAlloc();
       PStack_p r_dbvars = PStackAlloc();
@@ -337,7 +338,7 @@ bool build_trivial_ident(TB_p bank, Term_p lhs, Term_p rhs,
       assert(GetRetType(l_ty) == GetRetType(r_ty));
 
       Term_p matrix = 
-         VarBankGetFreshVar(bank->vars, GetRetType(l_ty));
+         TBInsert(bank, VarBankGetFreshVar(bank->vars, GetRetType(l_ty)), DEREF_NEVER);
       
       *l_target = 
          CloseWithTypePrefix(bank, l_ty->args,
@@ -384,11 +385,11 @@ ConstraintTag_t ComputeNextBinding(Term_p flex, Term_p rhs,
 {
    assert(TermIsTopLevelFreeVar(flex));
    ConstraintTag_t cnt = CONSTRAINT_COUNTER(state);
-   ConstraintTag_t is_solved = CONSTRAINT_STATE(state);
+   ConstraintTag_t end_state = CONSTRAINT_STATE(state);
    ConstraintTag_t res = 0;
    PStackPointer orig_subst = PStackGetSP(subst);
 
-   if(is_solved != DECOMPOSED_VAR)
+   if(end_state != DECOMPOSED_VAR)
    {
       const int num_args_l = MAX(flex->arity-1, 0);
       const int num_args_r = TermIsTopLevelFreeVar(rhs) ? MAX(rhs->arity-1, 0) : 0;
@@ -397,7 +398,8 @@ ConstraintTag_t ComputeNextBinding(Term_p flex, Term_p rhs,
                   // 2*arguments for projection and eliminations
                   // 1 for identification
 
-      while(res == 0 && cnt < limit)
+      Term_p target = NULL;
+      while(!target && cnt < limit)
       {
          if(cnt == 0)
          {
@@ -405,11 +407,10 @@ ConstraintTag_t ComputeNextBinding(Term_p flex, Term_p rhs,
             if(!TermIsTopLevelFreeVar(rhs) &&
                GET_IMIT(*applied_bs) < parms->imit_limit)
             {
-               Term_p target = build_imitation(bank, flex, rhs);
+               target = build_imitation(bank, flex, rhs);
                if(target)
                {
                   // imitation building can fail if head is DB var
-                  res = BUILD_CONSTR(cnt, state);
                   SubstAddBinding(subst, GetFVarHead(flex), target);
                   *applied_bs = INC_IMIT(*applied_bs);
                }
@@ -433,12 +434,11 @@ ConstraintTag_t ComputeNextBinding(Term_p flex, Term_p rhs,
                {
                   SWAP(flex, rhs);
                }
-               Term_p target = build_projection(bank, flex, rhs, cnt-offset);
+               target = build_projection(bank, flex, rhs, cnt-offset);
                if(target)
                {
                   // building projection can fail if it is determined
                   // that it would lead to unsolvable problem
-                  res = BUILD_CONSTR(cnt+1, state);
                   SubstAddBinding(subst, GetFVarHead(flex), target);
                   *applied_bs = INC_PROJ(*applied_bs);
                }
@@ -457,10 +457,9 @@ ConstraintTag_t ComputeNextBinding(Term_p flex, Term_p rhs,
                {
                   flex = rhs;
                }
-               int offset = (left_side ? 1 : 2)*num_args_l - num_args_r + 1;
-               Term_p target = build_elim(bank, flex, cnt-offset);
+               int offset = (left_side ? 1 : 2)*num_args_l + num_args_r + 1;
+               target = build_elim(bank, flex, cnt-offset);
                cnt++;
-               res = BUILD_CONSTR(cnt, state);
                SubstAddBinding(subst, GetFVarHead(flex), target);
                *applied_bs = INC_ELIM(*applied_bs);
             }
@@ -481,10 +480,11 @@ ConstraintTag_t ComputeNextBinding(Term_p flex, Term_p rhs,
                (GET_IDENT(*applied_bs) < parms->ident_limit ? build_ident : build_trivial_ident)
                (bank, flex, rhs, &l_target, &r_target);
 
-            res = BUILD_CONSTR(cnt, DECOMPOSED_VAR);
+            end_state = DECOMPOSED_VAR;
             if(succ)
             {
                *applied_bs = INC_IDENT(*applied_bs);
+               target = l_target; // to break;
                SubstAddBinding(subst, GetFVarHead(flex), l_target);
                SubstAddBinding(subst, GetFVarHead(rhs), r_target);
             }
@@ -495,6 +495,7 @@ ConstraintTag_t ComputeNextBinding(Term_p flex, Term_p rhs,
          }
       }
    }
+   res = BUILD_CONSTR(cnt, end_state);
    *succ = PStackGetSP(subst) != orig_subst;
    return res;
 }

@@ -791,7 +791,6 @@ OracleUnifResult SubstComputeMguPattern(Term_p t1, Term_p t2, Subst_p subst)
    {
       t2 = WHNF_deref(PQueueGetLastP(jobs));
       t1 = WHNF_deref(PQueueGetLastP(jobs));
-
       PruneLambdaPrefix(bank, &t1, &t2);
 
       if(t1 == t2)
@@ -1057,7 +1056,7 @@ Term_p FreshVarWArgs(TB_p bank, PStack_p args, Type_p ret_ty)
    Type_p var_ty = 
       TypeBankInsertTypeShared(bank->sig->type_bank,
          ArrowTypeFlattened(arg_tys, PStackGetSP(args), ret_ty));
-   Term_p head = VarBankGetFreshVar(bank->vars, var_ty);
+   Term_p head = TBInsert(bank, VarBankGetFreshVar(bank->vars, var_ty), DEREF_NEVER);
    return PStackEmpty(args) ? TBInsert(bank, head, DEREF_NEVER) :
                               ApplyTerms(bank, head, args);
 }

@@ -119,6 +119,8 @@ void dbg_print_state(FILE* out, CSUIterator_p iter)
       fprintf(out, ";");
    }
    fprintf(out, "|]\n");
+   SubstPrint(out, iter->subst, iter->bank->sig, DEREF_NEVER);
+   fprintf(out, "\n");
 }
 
 /*-----------------------------------------------------------------------
@@ -273,17 +275,22 @@ bool forward_iter(CSUIterator_p iter)
       }
       else
       {
+         Term_p orig_lhs = lhs, orig_rhs = rhs; 
          lhs = WHNF_deref(lhs);
          rhs = WHNF_deref(rhs);
          PruneLambdaPrefix(iter->bank, &lhs, &rhs);
+
+         // DBG_PRINT(stderr, "\nsolving: ", TermPrintDbg(stderr, lhs, iter->bank->sig, DEREF_NEVER), " <> ");
+         // DBG_PRINT(stderr, "", TermPrintDbg(stderr, rhs, iter->bank->sig, DEREF_NEVER), ".\n");
+         // dbg_print_state(stderr, iter);
          if(lhs == rhs)
          {
             POP_TOP_CONSTRAINTS(iter->constraints);
-            prepare_backtrack(iter, lhs, rhs, SOLVED_BY_ORACLE_TAG, 
+            prepare_backtrack(iter, orig_lhs, orig_rhs, SOLVED_BY_ORACLE_TAG, 
                               PStackGetSP(iter->subst));
             continue; // using continue not to indent too much :(
          }
-         if(TermIsTopLevelFreeVar(rhs))
+         if(TermIsTopLevelFreeVar(rhs) && !TermIsTopLevelFreeVar(lhs))
          {
             SWAP(lhs, rhs);
          }
@@ -306,7 +313,7 @@ bool forward_iter(CSUIterator_p iter)
             if(oracle_res == UNIFIABLE)
             {
                POP_TOP_CONSTRAINTS(iter->constraints);
-               prepare_backtrack(iter, lhs, rhs, SOLVED_BY_ORACLE_TAG, subst_ptr);
+               prepare_backtrack(iter, orig_lhs, orig_rhs, SOLVED_BY_ORACLE_TAG, subst_ptr);
             }
             else if(oracle_res == NOT_UNIFIABLE)
             {
@@ -322,7 +329,9 @@ bool forward_iter(CSUIterator_p iter)
                                      iter->subst, params, &moved_forward);
                if(moved_forward)
                {
-                  prepare_backtrack(iter, lhs, rhs, next_state, subst_ptr);
+                  assert(next_state != iter->current_state);
+                  assert(next_state != DECOMPOSED_VAR);
+                  prepare_backtrack(iter, orig_lhs, orig_rhs, next_state, subst_ptr);
                   iter->current_limits = next_limits;
                   iter->current_state = RIGID_PROCESSED_TAG; // first larger than INIT
                }
@@ -460,6 +469,7 @@ bool backtrack_iter(CSUIterator_p iter)
             {
                assert(TermIsTopLevelFreeVar(lhs) && TermIsTopLevelFreeVar(rhs));
                assert(TermIsPhonyApp(lhs) == TermIsPhonyApp(rhs));
+               assert(GetFVarHead(lhs) == GetFVarHead(rhs));
                to_drop = TermIsAppliedFreeVar(lhs) ? lhs->arity - 1 : 0;
             }
             else if(TermIsTopLevelFreeVar(lhs) || TermIsTopLevelFreeVar(rhs))
@@ -535,7 +545,15 @@ bool NextCSUElement(CSUIterator_p iter)
          iter->unifiers_returned += res ? 1 : 0;
       }
    }
-   assert(!res || TermStructEqualDeref(iter->orig_lhs, iter->orig_rhs, DEREF_ALWAYS, DEREF_ALWAYS));
+#ifndef NDEBUG
+   if(!(!res || TermStructEqualDeref(iter->orig_lhs, iter->orig_rhs, DEREF_ALWAYS, DEREF_ALWAYS)))
+   {
+      DBG_PRINT(stderr, "", TermPrintDbg(stderr, iter->orig_lhs, iter->bank->sig, DEREF_NEVER), " <> ");
+      DBG_PRINT(stderr, "", TermPrintDbg(stderr, iter->orig_rhs, iter->bank->sig, DEREF_NEVER), ".\n");
+      DBG_PRINT(stderr, "subst: ", SubstPrint(stderr, iter->subst, iter->bank->sig, DEREF_NEVER), ".\n");
+      assert(false);
+   }
+#endif
    return res;
 }
 
@@ -581,6 +599,8 @@ CSUIterator_p CSUIterInit(Term_p lhs, Term_p rhs, Subst_p subst, TB_p bank)
    res->orig_lhs = lhs;
    res->orig_rhs = rhs;
 #endif
+   // DBG_PRINT(stderr, "begin:", TermPrintDbg(stderr, lhs, bank->sig, DEREF_NEVER), " <> ");
+   // DBG_PRINT(stderr, "", TermPrintDbg(stderr, rhs, bank->sig, DEREF_NEVER), ".\n");
    return res;
 }
 
