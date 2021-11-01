@@ -55,26 +55,35 @@ inline OracleUnifResult rigid_path_check_args(Term_p t1, Term_p* args,
 //
 /----------------------------------------------------------------------*/
 
-OracleUnifResult rigid_path_check(Term_p t1, Term_p t2, bool has_pref, 
+OracleUnifResult rigid_path_check(Term_p var, Term_p t2, bool has_pref, 
                                   bool under_var, int depth)
 {
+   assert(TermIsFreeVar(var));
+
    OracleUnifResult res;
    t2 = WHNF_deref(t2);
    if(TermIsAppliedFreeVar(t2))
    {
-      if(t1 == t2->args[0])
+      if(var == t2->args[0])
       {
          res = (under_var || has_pref) ? NOT_IN_FRAGMENT : NOT_UNIFIABLE;
       }
       else
       {
-         res = rigid_path_check_args(t1, t2->args+1, has_pref, true,
+         res = rigid_path_check_args(var, t2->args+1, has_pref, true,
                                      depth, t2->arity-1);
       }
    }
    else if(TermIsFreeVar(t2))
    {
-      res = (under_var || TypeIsArrow(t2->type)) ? NOT_IN_FRAGMENT : NOT_UNIFIABLE;
+      if(var == t2)
+      {
+         res = (under_var || TypeIsArrow(t2->type)) ? NOT_IN_FRAGMENT : NOT_UNIFIABLE;
+      }
+      else
+      {
+         res = UNIFIABLE;
+      }
    }
    else if(TermIsLambda(t2))
    {
@@ -83,7 +92,7 @@ OracleUnifResult rigid_path_check(Term_p t1, Term_p t2, bool has_pref,
          t2 = t2->args[1];
          depth++;
       }
-      res = rigid_path_check(t1, t2, has_pref, under_var, depth);
+      res = rigid_path_check(var, t2, has_pref, under_var, depth);
    }
    else if(TermIsDBVar(t2))
    {
@@ -98,7 +107,7 @@ OracleUnifResult rigid_path_check(Term_p t1, Term_p t2, bool has_pref,
    }
    else
    {
-      res = rigid_path_check_args(t1, t2->args, has_pref, under_var, 
+      res = rigid_path_check_args(var, t2->args, has_pref, under_var, 
                                   depth, t2->arity);
    }
 

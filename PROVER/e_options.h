@@ -1631,7 +1631,7 @@ OptCell opts[] =
     "Turn the pattern oracle on or off."},
 
     {OPT_FIXPOINT_ORACLE,
-    '\0', "pattern-oracle",
+    '\0', "fixpoint-oracle",
     ReqArg, NULL,
     "Turn the pattern oracle on or off."},
 
