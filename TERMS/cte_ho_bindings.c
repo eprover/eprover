@@ -83,39 +83,48 @@ Term_p build_imitation(TB_p bank, Term_p flex, Term_p rhs)
    }
    else
    {
-      Type_p var_ty = GetFVarHead(flex)->type;
-      PStack_p db_vars = PStackAlloc();
-      if(TypeIsArrow(var_ty))
-      {
-         for(int i=0; i<var_ty->arity-1; i++)
-         {
-            Term_p db_var =
-               TBRequestDBVar(bank, var_ty->args[i], var_ty->arity-i-2); 
-            PStackPushP(db_vars, db_var);
-         }
-      }
-
       Type_p rigid_ty = SigGetType(bank->sig, rhs->f_code);
-      Term_p matrix;
-      if(TypeIsArrow(rigid_ty))
+      if(rigid_ty)
       {
-         matrix = TermTopAlloc(rhs->f_code, rigid_ty->arity-1);
-         for(int i=0; i<rigid_ty->arity-1; i++)
+         Type_p var_ty = GetFVarHead(flex)->type;
+         PStack_p db_vars = PStackAlloc();
+         if(TypeIsArrow(var_ty))
          {
-            matrix->args[i] = FreshVarWArgs(bank, db_vars, rigid_ty->args[i]);
+            for(int i=0; i<var_ty->arity-1; i++)
+            {
+               Term_p db_var =
+                  TBRequestDBVar(bank, var_ty->args[i], var_ty->arity-i-2); 
+               PStackPushP(db_vars, db_var);
+            }
          }
+
+         Term_p matrix;
+         if(TypeIsArrow(rigid_ty))
+         {
+            matrix = TermTopAlloc(rhs->f_code, rigid_ty->arity-1);
+            for(int i=0; i<rigid_ty->arity-1; i++)
+            {
+               matrix->args[i] = FreshVarWArgs(bank, db_vars, rigid_ty->args[i]);
+            }
+         }
+         else
+         {
+            matrix = TermConstCellAlloc(rhs->f_code);
+         }
+#ifndef NDEBUG
+         matrix->type = GetRetType(rigid_ty);
+#endif
+         matrix = TBTermTopInsert(bank, matrix);
+         res = CloseWithTypePrefix(bank, var_ty->args, TypeGetMaxArity(var_ty), matrix);
+
+         PStackFree(db_vars);
       }
       else
       {
-         matrix = TermConstCellAlloc(rhs->f_code);
+         // in some cases there are symbols that have polymorphic types --
+         // their imitation is not yet implemented.
+         res = NULL;
       }
-#ifndef NDEBUG
-      matrix->type = GetRetType(rigid_ty);
-#endif
-      matrix = TBTermTopInsert(bank, matrix);
-      res = CloseWithTypePrefix(bank, var_ty->args, TypeGetMaxArity(var_ty), matrix);
-
-      PStackFree(db_vars);
    }
    return res;
 }

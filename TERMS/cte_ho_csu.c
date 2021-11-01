@@ -420,6 +420,28 @@ bool forward_iter(CSUIterator_p iter)
 
 /*-----------------------------------------------------------------------
 //
+// Function: is_flex()
+//
+//   Unrolls lambdas and then checks if matrix is a top-level app var.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+bool is_flex(Term_p t)
+{
+   while(TermIsLambda(t))
+   {
+      t = t->args[1];
+   }
+   return TermIsTopLevelFreeVar(t);
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: backtrack_iter()
 //
 //   After the call to CSUIterInit or successful call to NextCSUElement,
@@ -472,7 +494,7 @@ bool backtrack_iter(CSUIterator_p iter)
                assert(GetFVarHead(lhs) == GetFVarHead(rhs));
                to_drop = TermIsAppliedFreeVar(lhs) ? lhs->arity - 1 : 0;
             }
-            else if(TermIsTopLevelFreeVar(lhs) || TermIsTopLevelFreeVar(rhs))
+            else if(is_flex(lhs) || is_flex(rhs))
             {
                // variables are somehow resolved, and
                // thus we remove the result of this resolving
