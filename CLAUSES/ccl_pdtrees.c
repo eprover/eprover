@@ -129,6 +129,43 @@ static void* pdt_select_alt_ref(PDTree_p tree, PDTNode_p node, Term_p term)
    return res;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: pdt_select_next()
+//
+//   Find an alternative node based on the term given. The difference
+//   between this function and pdt_select_alt_ref is that no node in
+//   the underlying data structures will be created.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static void* pdt_select_next(PDTree_p tree, PDTNode_p node, Term_p term)
+{
+   void* res;
+
+   if(TermIsTopLevelFreeVar(term))
+   {
+      res = PObjMapFind(&node->v_alternatives, term, TermPCompare);
+   }
+   else if(TermIsDBVar(term) || TermIsAppliedDBVar(term) || TermIsLambda(term))
+   {
+      term = TermIsDBVar(term) ? term : term->args[0];
+      res = PObjMapFind(&node->db_alternatives, term, TermPCompare);
+   }
+   else
+   {
+      tree->arr_storage_est -= IntMapStorage(node->f_alternatives);
+      res = IntMapGetVal(node->f_alternatives, term->f_code);
+      tree->arr_storage_est += IntMapStorage(node->f_alternatives);
+   }
+
+   return res;
+}
+
 
 /*-----------------------------------------------------------------------
 //
@@ -902,6 +939,7 @@ void PDTNodeFree(PDTNode_p tree, Deleter deleter)
    objmap_iter = PObjMapTraverseInit(tree->v_alternatives, objmap_iter);
    while((subtree=PObjMapTraverseNext(objmap_iter, NULL)))
    {
+      assert(subtree);
       PDTNodeFree(subtree, deleter);
    }
    PObjMapTraverseExit(objmap_iter);
@@ -909,6 +947,7 @@ void PDTNodeFree(PDTNode_p tree, Deleter deleter)
    objmap_iter = PObjMapTraverseInit(tree->db_alternatives, objmap_iter);
    while((subtree=PObjMapTraverseNext(objmap_iter, NULL)))
    {
+      assert(subtree);
       PDTNodeFree(subtree, deleter);
    }
    PObjMapTraverseExit(objmap_iter);
@@ -1141,7 +1180,7 @@ PDTNode_p PDTreeMatchPrefix(PDTree_p tree, Term_p term,
    long* matched, long* remains)
 {
    Term_p    curr;
-   PDTNode_p node, last, *next;
+   PDTNode_p node, last, next;
 
    assert(tree);
    assert(tree->tree);
@@ -1160,15 +1199,15 @@ PDTNode_p PDTreeMatchPrefix(PDTree_p tree, Term_p term,
       }
       else 
       {
-         next = pdt_select_alt_ref(tree, node, curr);
-         if (!(*next))
+         next = pdt_select_next(tree, node, curr);
+         if (!(next))
          {
             (*remains)++;
             node = NULL;
          }
          else {
             (*matched)++;
-            node = *next;
+            node = next;
             last = node;
          }
       }

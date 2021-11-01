@@ -2012,7 +2012,7 @@ CLState_p process_options(int argc, char* argv[])
    }
    if(!PStackEmpty(hcb_definitions))
    {
-      h_parms->heuristic_def = SecureStrdup(PStackTopP(hcb_definitions));
+      h_parms->heuristic_def = PStackTopP(hcb_definitions);
    }
 
 
