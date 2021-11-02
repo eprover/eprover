@@ -158,6 +158,9 @@ OracleUnifResult SubstComputeFixpointMgu(Term_p t1, Term_p t2, Subst_p subst)
 {
    t1 = LambdaEtaReduceDB(TermGetBank(t1), WHNF_deref(t1));
    t2 = LambdaEtaReduceDB(TermGetBank(t2), WHNF_deref(t2));
+   
+   // DBG_PRINT(stderr, "fx: ", TermPrintDbg(stderr, t1, TermGetBank(t1)->sig, DEREF_NEVER), " <?> ");
+   // DBG_PRINT(stderr, "", TermPrintDbg(stderr, t2, TermGetBank(t2)->sig, DEREF_NEVER), ".\n");
 
    OracleUnifResult res;
    if(TermIsFreeVar(t1) && TermIsFreeVar(t2))
@@ -187,6 +190,10 @@ OracleUnifResult SubstComputeFixpointMgu(Term_p t1, Term_p t2, Subst_p subst)
          SubstAddBinding(subst, t1, t2);
       }
    }
+
+   // DBG_PRINT(stderr, res == UNIFIABLE ? "unif" : (res == NOT_UNIFIABLE ? "nunif" : "nif"), 
+   //           SubstPrint(stderr, subst, TermGetBank(t1)->sig, DEREF_NEVER), ".\n");
+
 
    return res;
 }

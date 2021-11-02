@@ -34,8 +34,8 @@ Changes
 /*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
-ConstraintTag_t ComputeNextBinding(Term_p var, Term_p rhs, 
-                                   ConstraintTag_t state, Limits_t* limits,
+StateTag_t ComputeNextBinding(Term_p var, Term_p rhs, 
+                                   StateTag_t state, Limits_t* limits,
                                    TB_p bank, Subst_p subst,
                                    HeuristicParms_p parms, bool* succ);
 #endif

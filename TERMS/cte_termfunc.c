@@ -774,6 +774,8 @@ void TermPrintDbgHO(FILE* out, Term_p term, Sig_p sig, DerefType deref)
    else
    {
       VarPrint(out, (TermIsFreeVar(term) ? term : term->args[0])->f_code);
+      // fputs(" : ", out);
+      // TypePrintTSTP(stderr, sig->type_bank, (TermIsFreeVar(term) ? term : term->args[0])->type);
    }
 
 

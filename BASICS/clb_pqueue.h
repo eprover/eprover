@@ -336,7 +336,7 @@ static inline IntOrP PQueueGetLast(PQueue_p queue)
 
    assert(!PQueueEmpty(queue));
 
-   queue->head = queue->head? (queue->head-1):queue->size-1;
+   queue->head = queue->head ? (queue->head-1):queue->size-1;
    res = queue->queue[queue->head];
 
    return res;

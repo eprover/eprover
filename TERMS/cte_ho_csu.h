@@ -34,14 +34,18 @@ Changes
 typedef struct csu_iter CSUIterator_t;
 typedef CSUIterator_t* CSUIterator_p;
 
+#define CONSTRAINT_STATE(c) ((c)&3)
+#define CONSTRAINT_COUNTER(c) ((c) >> 2) // c must be unisigned!!!
+#define BUILD_CONSTR(c, s) (((c) << 2) | s)
+
 // datatype that holds information if the rigid pair was processed
 // or how far we are in the generation of binders for a flex-* pair
-typedef unsigned long ConstraintTag_t;
+typedef unsigned long StateTag_t;
 // datatype that encodes the limits for 1) non-simple projections
 // 2) rigid imitations 3) identifiations 4) eliminations
 typedef uint32_t Limits_t;
 
-extern const ConstraintTag_t DECOMPOSED_VAR;
+extern const StateTag_t DECOMPOSED_VAR;
 
 CSUIterator_p CSUIterInit(Term_p lhs, Term_p rhs, Subst_p subst, TB_p bank);
 void CSUIterDestroy(CSUIterator_p iter);

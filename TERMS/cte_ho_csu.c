@@ -34,19 +34,20 @@ Changes
 /*                    Data type declarations                           */
 /*---------------------------------------------------------------------*/
 
-const ConstraintTag_t INIT_TAG = 0;
-const ConstraintTag_t RIGID_PROCESSED_TAG = 1;
-const ConstraintTag_t SOLVED_BY_ORACLE_TAG = 2;
-const ConstraintTag_t DECOMPOSED_VAR = 3;
+const StateTag_t INIT_TAG = 0;
+const StateTag_t RIGID_PROCESSED_TAG = 1;
+const StateTag_t SOLVED_BY_ORACLE_TAG = 2;
+const StateTag_t DECOMPOSED_VAR = 3;
+
+#define BT_STEP_SIZE 4
 
 struct csu_iter 
 {
-   PStack_p constraints; // pairs of terms to unify -- it is not a queue because
-                         // of faster backtracking
-   // quadruples (LHS, RHS, how was the constraint solved, subst before solution)
+   PQueue_p constraints; // pairs of terms to unify
+   // quadruples (old constraints, state, limits, pointer)
    PStack_p backtrack_info;
    // in what state is the current solving of the pair?
-   ConstraintTag_t current_state;
+   StateTag_t current_state;
    // what are the current limit bindings
    Limits_t current_limits;
    PStackPointer init_pos;
@@ -66,7 +67,6 @@ struct csu_iter
 
 #define GET_HEAD_ID(t) (TermIsPhonyApp(t) ? (t)->args[0]->f_code : (t)->f_code)
 #define CSUIterAlloc() (SizeMalloc(sizeof(struct csu_iter)))
-#define POP_TOP_CONSTRAINTS(s) UNUSED(PStackPopP(s)),UNUSED(PStackPopP(s))
 
 /*---------------------------------------------------------------------*/
 /*                        Global Variables                             */
@@ -98,29 +98,72 @@ bool backtrack_iter(CSUIterator_p iter);
 
 void dbg_print_state(FILE* out, CSUIterator_p iter)
 {
-   TB_p bank = iter->bank;
-   fprintf(out, "***state:\n");
-   fprintf(out, "[");
-   for(int i=PStackGetSP(iter->constraints)-1; i>=1; i -= 2)
-   {
-      TermPrintDbg(out, PStackElementP(iter->constraints, i), bank->sig, DEREF_NEVER);
-      fprintf(out, ", ");
-      TermPrintDbg(out, PStackElementP(iter->constraints, i-1), bank->sig, DEREF_NEVER);
-      fprintf(out, ";");
-   }
-   fprintf(out, "]\n");
+   // TB_p bank = iter->bank;
+   // fprintf(out, "***state:\n");
+   // fprintf(out, "[");
+   // for(int i=PStackGetSP(iter->constraints)-1; i>=1; i -= 2)
+   // {
+   //    TermPrintDbg(out, PStackElementP(iter->constraints, i), bank->sig, DEREF_NEVER);
+   //    fprintf(out, ", ");
+   //    TermPrintDbg(out, PStackElementP(iter->constraints, i-1), bank->sig, DEREF_NEVER);
+   //    fprintf(out, ";");
+   // }
+   // fprintf(out, "]\n");
 
-   fprintf(out, "[|");
-   for(int i=PStackGetSP(iter->backtrack_info)-1; i>=4; i -= 5)
-   {
-      TermPrintDbg(out, PStackElementP(iter->backtrack_info, i), bank->sig, DEREF_NEVER);
-      fprintf(out, ", ");
-      TermPrintDbg(out, PStackElementP(iter->backtrack_info, i-1), bank->sig, DEREF_NEVER);
-      fprintf(out, ";");
-   }
-   fprintf(out, "|]\n");
-   SubstPrint(out, iter->subst, iter->bank->sig, DEREF_NEVER);
-   fprintf(out, "\n");
+   // fprintf(out, "[|");
+   // for(int i=PStackGetSP(iter->backtrack_info)-1; i>=BT_STEP_SIZE; i -= BT_STEP_SIZE)
+   // {
+   //    TermPrintDbg(out, PStackElementP(iter->backtrack_info, i), bank->sig, DEREF_NEVER);
+   //    fprintf(out, ", ");
+   //    TermPrintDbg(out, PStackElementP(iter->backtrack_info, i-1), bank->sig, DEREF_NEVER);
+   //    fprintf(out, ";");
+   // }
+   // fprintf(out, "|]\n");
+   // SubstPrint(out, iter->subst, bank->sig, DEREF_NEVER);
+   // fprintf(out, "\n");
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: whnf_and_prune()
+//
+//   Normalize heads and remove the possible lambda prefixes.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void whnf_and_prune(TB_p bank, Term_p* l, Term_p* r)
+{
+   *l = WHNF_deref(*l);
+   *r = WHNF_deref(*r);
+   PruneLambdaPrefix(bank, l, r);
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: build_new_queue()
+//
+//   Builds a copy of the queue that is to be used for backtracking.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+PQueue_p build_new_queue(PQueue_p old, Term_p lhs, Term_p rhs)
+{
+   PQueue_p res = PQueueCellAlloc();
+   *res = *old; // copy all fields
+   res->queue = SizeMalloc(old->size*sizeof(IntOrP));
+   memcpy(res->queue, old->queue, sizeof(IntOrP)*sizeof(IntOrP));
+
+   PQueueStoreP(res, lhs);
+   PQueueStoreP(res, rhs);
+   return res;
 }
 
 /*-----------------------------------------------------------------------
@@ -135,14 +178,13 @@ void dbg_print_state(FILE* out, CSUIterator_p iter)
 //
 /----------------------------------------------------------------------*/
 
-void prepare_backtrack(CSUIterator_p iter, Term_p lhs, Term_p rhs,
-                       ConstraintTag_t new_tag, PStackPointer subst_ptr)
+void prepare_backtrack(CSUIterator_p iter, Term_p lhs, Term_p rhs, StateTag_t next_state, 
+                       Limits_t next_limits, PStackPointer subst_ptr)
 {
+   PStackPushP(iter->backtrack_info, build_new_queue(iter->constraints, lhs, rhs));
+   PStackPushInt(iter->backtrack_info, next_state);
+   PStackPushInt(iter->backtrack_info, next_limits);
    PStackPushInt(iter->backtrack_info, subst_ptr);
-   PStackPushInt(iter->backtrack_info, new_tag);
-   PStackPushInt(iter->backtrack_info, iter->current_limits);
-   PStackPushP(iter->backtrack_info, rhs);
-   PStackPushP(iter->backtrack_info, lhs);
 }
 
 /*-----------------------------------------------------------------------
@@ -190,10 +232,12 @@ FunCode unroll_fcode(Term_p t)
 //
 /----------------------------------------------------------------------*/
 
-void move_stack(PStack_p new, PStack_p old)
+void move_stack(PQueue_p new, PStack_p old, void (*mover)(PQueue_p queue, void* val))
 {
-   PStackPushStack(old, new);
-   PStackReset(new);
+   while(!PStackEmpty(old))
+   {
+      mover(new, PStackPopP(old));
+   }
 }
 
 /*-----------------------------------------------------------------------
@@ -234,9 +278,9 @@ void schedule_args(CSUIterator_p iter, Term_p* l_args, Term_p* r_args, int size)
       }
    }
 
-   move_stack(iter->tmp_flex, iter->constraints);
-   move_stack(iter->tmp_rigid_same, iter->constraints);
-   move_stack(iter->tmp_rigid_diff, iter->constraints);
+   move_stack(iter->constraints, iter->tmp_rigid_diff, PQueueStoreP);
+   move_stack(iter->constraints, iter->tmp_rigid_same, PQueueStoreP);
+   move_stack(iter->constraints, iter->tmp_flex, PQueueBuryP);
 }
 
 /*-----------------------------------------------------------------------
@@ -255,49 +299,37 @@ void schedule_args(CSUIterator_p iter, Term_p* l_args, Term_p* r_args, int size)
 bool forward_iter(CSUIterator_p iter)
 {
    bool res = true;
-   while(res && !PStackEmpty(iter->constraints))
+   while(res && !PQueueEmpty(iter->constraints))
    {
-      assert(PStackGetSP(iter->constraints) % 2 == 0);
+      assert(PQueueCardinality(iter->constraints) % 2 == 0);
       // items are poped from the stack only when they are solved
-      Term_p lhs = PStackTopP(iter->constraints);
-      Term_p rhs = PStackBelowTopP(iter->constraints);
+      Term_p lhs = PQueueGetLastP(iter->constraints);
+      Term_p rhs = PQueueGetLastP(iter->constraints);
 
       if(lhs->type != rhs->type)
       {
          assert(iter->current_state == INIT_TAG);
          res = false;
       }
-      else if(lhs == rhs)
-      {
-         POP_TOP_CONSTRAINTS(iter->constraints);
-         prepare_backtrack(iter, lhs, rhs, SOLVED_BY_ORACLE_TAG, 
-                           PStackGetSP(iter->subst));
-      }
       else
       {
-         Term_p orig_lhs = lhs, orig_rhs = rhs; 
-         lhs = WHNF_deref(lhs);
-         rhs = WHNF_deref(rhs);
-         PruneLambdaPrefix(iter->bank, &lhs, &rhs);
+         whnf_and_prune(iter->bank, &lhs, &rhs);
+         PStackPointer subst_ptr = PStackGetSP(iter->subst);
 
-         // DBG_PRINT(stderr, "\nsolving: ", TermPrintDbg(stderr, lhs, iter->bank->sig, DEREF_NEVER), " <> ");
-         // DBG_PRINT(stderr, "", TermPrintDbg(stderr, rhs, iter->bank->sig, DEREF_NEVER), ".\n");
-         // dbg_print_state(stderr, iter);
+         DBG_PRINT(stderr, "\nsolving: ", TermPrintDbg(stderr, lhs, iter->bank->sig, DEREF_NEVER), " <> ");
+         DBG_PRINT(stderr, "", TermPrintDbg(stderr, rhs, iter->bank->sig, DEREF_NEVER), ".\n");
+         dbg_print_state(stderr, iter);
+
          if(lhs == rhs)
          {
-            POP_TOP_CONSTRAINTS(iter->constraints);
-            prepare_backtrack(iter, orig_lhs, orig_rhs, SOLVED_BY_ORACLE_TAG, 
-                              PStackGetSP(iter->subst));
             continue; // using continue not to indent too much :(
          }
+
          if(TermIsTopLevelFreeVar(rhs) && !TermIsTopLevelFreeVar(lhs))
          {
             SWAP(lhs, rhs);
          }
 
-         PStackPointer subst_ptr = PStackGetSP(iter->subst);
-         // if either of the sides is app var
-         // LHS must be free var
          if(TermIsTopLevelFreeVar(lhs))
          {
             OracleUnifResult oracle_res = NOT_IN_FRAGMENT;
@@ -310,20 +342,15 @@ bool forward_iter(CSUIterator_p iter)
                oracle_res = SubstComputeMguPattern(lhs, rhs, iter->subst);
             }
 
-            if(oracle_res == UNIFIABLE)
-            {
-               POP_TOP_CONSTRAINTS(iter->constraints);
-               prepare_backtrack(iter, orig_lhs, orig_rhs, SOLVED_BY_ORACLE_TAG, subst_ptr);
-            }
-            else if(oracle_res == NOT_UNIFIABLE)
+            if(oracle_res == NOT_UNIFIABLE)
             {
                res = backtrack_iter(iter);
             }
-            else
+            else if (oracle_res == NOT_IN_FRAGMENT)
             {
                bool moved_forward;
                Limits_t next_limits = iter->current_limits;
-               ConstraintTag_t next_state = 
+               StateTag_t next_state = 
                   ComputeNextBinding(lhs, rhs, iter->current_state, 
                                      &next_limits, iter->bank,
                                      iter->subst, params, &moved_forward);
@@ -331,7 +358,7 @@ bool forward_iter(CSUIterator_p iter)
                {
                   assert(next_state != iter->current_state);
                   assert(next_state != DECOMPOSED_VAR);
-                  prepare_backtrack(iter, orig_lhs, orig_rhs, next_state, subst_ptr);
+                  prepare_backtrack(iter, lhs, rhs, next_state, next_limits, subst_ptr);
                   iter->current_limits = next_limits;
                   iter->current_state = RIGID_PROCESSED_TAG; // first larger than INIT
                }
@@ -339,9 +366,7 @@ bool forward_iter(CSUIterator_p iter)
                {
                   assert(lhs->arity == rhs->arity);
                   assert(TermIsPhonyApp(lhs) == TermIsPhonyApp(rhs));
-                  POP_TOP_CONSTRAINTS(iter->constraints);
                   schedule_args(iter, lhs->args+1, rhs->args+1, MAX(0, lhs->arity-1));
-                  prepare_backtrack(iter, lhs, rhs, DECOMPOSED_VAR, subst_ptr);
                   iter->current_state = RIGID_PROCESSED_TAG; // first larger than INIT
                   iter->current_limits = next_limits;
                }
@@ -362,10 +387,7 @@ bool forward_iter(CSUIterator_p iter)
                   if(lhs->args[0] == rhs->args[0])
                   {
                      assert(lhs->arity == rhs->arity);
-                     POP_TOP_CONSTRAINTS(iter->constraints);
                      schedule_args(iter, lhs->args+1, rhs->args+1, lhs->arity-1);
-                     prepare_backtrack(iter, lhs, rhs,
-                                       RIGID_PROCESSED_TAG, PStackGetSP(iter->subst));
                   }
                   else
                   {
@@ -383,12 +405,6 @@ bool forward_iter(CSUIterator_p iter)
                {
                   res = backtrack_iter(iter);
                }
-               else
-               {
-                  POP_TOP_CONSTRAINTS(iter->constraints);
-                  prepare_backtrack(iter, lhs, rhs, 
-                                    RIGID_PROCESSED_TAG, PStackGetSP(iter->subst));
-               }
             }
             else if (lhs->f_code == rhs->f_code)
             {
@@ -401,15 +417,11 @@ bool forward_iter(CSUIterator_p iter)
                }
                else
                {
-                  POP_TOP_CONSTRAINTS(iter->constraints);
                   schedule_args(iter, lhs->args, rhs->args, lhs->arity);
-                  prepare_backtrack(iter, lhs, rhs,
-                                    RIGID_PROCESSED_TAG, PStackGetSP(iter->subst));
                }
             }
             else
             {
-               iter->current_state = RIGID_PROCESSED_TAG;
                res = backtrack_iter(iter);
             }
          }
@@ -417,28 +429,6 @@ bool forward_iter(CSUIterator_p iter)
    }
    return res;
 }
-
-/*-----------------------------------------------------------------------
-//
-// Function: is_flex()
-//
-//   Unrolls lambdas and then checks if matrix is a top-level app var.
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-bool is_flex(Term_p t)
-{
-   while(TermIsLambda(t))
-   {
-      t = t->args[1];
-   }
-   return TermIsTopLevelFreeVar(t);
-}
-
 
 /*-----------------------------------------------------------------------
 //
@@ -457,72 +447,28 @@ bool is_flex(Term_p t)
 
 bool backtrack_iter(CSUIterator_p iter)
 {
-   bool res = false;
-   assert(PStackGetSP(iter->backtrack_info) % 5 == 0);
-   if(!PStackEmpty(iter->backtrack_info) &&
-      iter->unifiers_returned < params->max_unifiers)
+   bool res;
+   if(iter->current_state == INIT_TAG)
    {
-      assert(PStackGetSP(iter->backtrack_info) >= 5);
-      while(PStackGetSP(iter->backtrack_info) >= 5 && !res)
+      assert(PQueueCardinality(iter->constraints) == 2);
+      iter->current_state = RIGID_PROCESSED_TAG;
+      res = true;
+   }
+   else
+   {
+      if(PStackEmpty(iter->backtrack_info))
       {
-         assert(PStackGetSP(iter->backtrack_info) % 5 == 0);
-         // lhs and rhs based on which we made decisions
-         Term_p lhs = PStackPopP(iter->backtrack_info);
-         Term_p rhs = PStackPopP(iter->backtrack_info);
-         Limits_t limits = PStackPopInt(iter->backtrack_info);
-         ConstraintTag_t constr_tag = PStackPopInt(iter->backtrack_info);
-         PStackPointer subst_pointer = PStackPopInt(iter->backtrack_info);
-
-         if(constr_tag == INIT_TAG)
-         {
-            iter->current_state = INIT_TAG;
-            PStackPushP(iter->constraints, rhs);
-            PStackPushP(iter->constraints, lhs);
-            res = true;
-         }
-         else
-         {
-            int to_drop;
-            if(constr_tag == SOLVED_BY_ORACLE_TAG)
-            {
-               to_drop = 0;
-            }
-            else if(constr_tag == DECOMPOSED_VAR)
-            {
-               assert(TermIsTopLevelFreeVar(lhs) && TermIsTopLevelFreeVar(rhs));
-               assert(TermIsPhonyApp(lhs) == TermIsPhonyApp(rhs));
-               assert(GetFVarHead(lhs) == GetFVarHead(rhs));
-               to_drop = TermIsAppliedFreeVar(lhs) ? lhs->arity - 1 : 0;
-            }
-            else if(is_flex(lhs) || is_flex(rhs))
-            {
-               // variables are somehow resolved, and
-               // thus we remove the result of this resolving
-               // to backtrack
-               to_drop = 1;
-               iter->current_state = constr_tag;
-               res = true; // we backtrack to first variable
-            }
-            else
-            {
-               assert(constr_tag == RIGID_PROCESSED_TAG);
-               assert(TermIsPhonyApp(lhs) == TermIsPhonyApp(rhs));
-               assert(GET_HEAD_ID(lhs) == GET_HEAD_ID(rhs));
-               assert(lhs->arity == rhs->arity);
-
-               to_drop = lhs->arity - (TermIsPhonyApp(lhs) ? 1 : 0);
-            }
-            
-            for(int i=0; i<to_drop; i++)
-            {
-               PStackPop(iter->constraints);
-               PStackPop(iter->constraints);
-            }
-            PStackPushP(iter->constraints, rhs);
-            PStackPushP(iter->constraints, lhs);
-            SubstBacktrackToPos(iter->subst, subst_pointer);
-            iter->current_limits = limits;
-         }
+         res = false;
+      }
+      else
+      {
+         assert(PStackGetSP(iter->backtrack_info) % BT_STEP_SIZE == 0);
+         SubstBacktrackToPos(iter->subst, PStackPopInt(iter->backtrack_info));
+         iter->current_limits = PStackPopInt(iter->backtrack_info);
+         iter->current_state = PStackPopInt(iter->backtrack_info);
+         PQueueFree(iter->constraints);
+         iter->constraints = PStackPopP(iter->backtrack_info);
+         res = true;
       }
    }
    return res;
@@ -553,13 +499,13 @@ bool NextCSUElement(CSUIterator_p iter)
    bool res = backtrack_iter(iter);
    if(res)
    {
-      if(iter->current_state == INIT_TAG && params->unif_mode == SingleUnif)
+      if(params->unif_mode == SingleUnif && iter->unifiers_returned == 0)
       {
-         res = SubstMguComplete(PStackTopP(iter->constraints), PStackBelowTopP(iter->constraints),
+         res = SubstMguComplete(PQueueGetLastP(iter->constraints), PQueueGetLastP(iter->constraints),
                                iter->subst);
          // on the next call we destroy the iterator
-         PStackReset(iter->constraints);
          PStackReset(iter->backtrack_info);
+         iter->unifiers_returned = 1;
       }
       else
       {
@@ -567,6 +513,7 @@ bool NextCSUElement(CSUIterator_p iter)
          iter->unifiers_returned += res ? 1 : 0;
       }
    }
+   DBG_PRINT(stderr, res ? "subst:" : "fail:", SubstPrint(stderr, iter->subst, iter->bank->sig, DEREF_NEVER), ".\n");
 #ifndef NDEBUG
    if(!(!res || TermStructEqualDeref(iter->orig_lhs, iter->orig_rhs, DEREF_ALWAYS, DEREF_ALWAYS)))
    {
@@ -603,26 +550,24 @@ CSUIterator_p CSUIterInit(Term_p lhs, Term_p rhs, Subst_p subst, TB_p bank)
    res->subst = subst;
    res->init_pos = PStackGetSP(subst);
    res->backtrack_info = PStackAlloc();
-   res->constraints = PStackAlloc();
+   res->constraints = PQueueAlloc();
+   PQueueStoreP(res->constraints, lhs);
+   PQueueStoreP(res->constraints, rhs);
    res->bank = bank;
+   res->current_limits = 0;
+   res->current_state = INIT_TAG;
+   res->unifiers_returned = 0;
+
+   // initialization of internal stufF
    res->tmp_rigid_diff = PStackAlloc();
    res->tmp_rigid_same = PStackAlloc();
    res->tmp_flex = PStackAlloc();
-   res->current_limits = 0;
-   res->unifiers_returned = 0;
-
-   // initialization of internal stuff
-   PStackPushInt(res->backtrack_info, res->init_pos);
-   PStackPushInt(res->backtrack_info, INIT_TAG);
-   PStackPushInt(res->backtrack_info, res->current_limits);
-   PStackPushP(res->backtrack_info, rhs);
-   PStackPushP(res->backtrack_info, lhs);
 #ifndef NDEBUG
    res->orig_lhs = lhs;
    res->orig_rhs = rhs;
 #endif
-   // DBG_PRINT(stderr, "begin:", TermPrintDbg(stderr, lhs, bank->sig, DEREF_NEVER), " <> ");
-   // DBG_PRINT(stderr, "", TermPrintDbg(stderr, rhs, bank->sig, DEREF_NEVER), ".\n");
+   DBG_PRINT(stderr, "begin:", TermPrintDbg(stderr, lhs, bank->sig, DEREF_NEVER), " <> ");
+   DBG_PRINT(stderr, "", TermPrintDbg(stderr, rhs, bank->sig, DEREF_NEVER), ".\n");
    return res;
 }
 
@@ -678,8 +623,14 @@ void InitUnifLimits(HeuristicParms_p p)
 
 void CSUIterDestroy(CSUIterator_p iter)
 {
+   PStackPointer i = PStackGetSP(iter->backtrack_info);
+   while(i>=BT_STEP_SIZE)
+   {
+      PQueueFree(PStackElementP(iter->backtrack_info, i-4));
+      i-=4;
+   }
    PStackFree(iter->backtrack_info);
-   PStackFree(iter->constraints);
+   PQueueFree(iter->constraints);
    PStackFree(iter->tmp_rigid_diff);
    PStackFree(iter->tmp_rigid_same);
    PStackFree(iter->tmp_flex);
