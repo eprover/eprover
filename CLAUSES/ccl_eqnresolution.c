@@ -106,10 +106,10 @@ Clause_p ComputeEqRes(TB_p bank, ClausePos_p pos, VarBank_p freshvars,
          *subst_is_ho = *subst_is_ho || SubstHasHOBinding(subst);
          Clause_p cl = build_resolvent(pos, subst, freshvars);
          PStackPushP(res_cls, cl);
-         // if(ClauseIsEmpty(cl))
-         // {
-         //    break; // if empty clause is found do not enumerate unifiers anymore.
-         // }
+         if(ClauseIsEmpty(cl))
+         {
+            break; // if empty clause is found do not enumerate unifiers anymore.
+         }
       }
       CSUIterDestroy(unif_iter);
    }

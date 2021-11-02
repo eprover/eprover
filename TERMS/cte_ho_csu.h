@@ -43,7 +43,7 @@ typedef CSUIterator_t* CSUIterator_p;
 typedef unsigned long StateTag_t;
 // datatype that encodes the limits for 1) non-simple projections
 // 2) rigid imitations 3) identifiations 4) eliminations
-typedef uint32_t Limits_t;
+typedef unsigned long Limits_t;
 
 extern const StateTag_t DECOMPOSED_VAR;
 

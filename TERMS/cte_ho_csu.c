@@ -98,29 +98,24 @@ bool backtrack_iter(CSUIterator_p iter);
 
 void dbg_print_state(FILE* out, CSUIterator_p iter)
 {
-   // TB_p bank = iter->bank;
-   // fprintf(out, "***state:\n");
-   // fprintf(out, "[");
-   // for(int i=PStackGetSP(iter->constraints)-1; i>=1; i -= 2)
-   // {
-   //    TermPrintDbg(out, PStackElementP(iter->constraints, i), bank->sig, DEREF_NEVER);
-   //    fprintf(out, ", ");
-   //    TermPrintDbg(out, PStackElementP(iter->constraints, i-1), bank->sig, DEREF_NEVER);
-   //    fprintf(out, ";");
-   // }
-   // fprintf(out, "]\n");
-
-   // fprintf(out, "[|");
-   // for(int i=PStackGetSP(iter->backtrack_info)-1; i>=BT_STEP_SIZE; i -= BT_STEP_SIZE)
-   // {
-   //    TermPrintDbg(out, PStackElementP(iter->backtrack_info, i), bank->sig, DEREF_NEVER);
-   //    fprintf(out, ", ");
-   //    TermPrintDbg(out, PStackElementP(iter->backtrack_info, i-1), bank->sig, DEREF_NEVER);
-   //    fprintf(out, ";");
-   // }
-   // fprintf(out, "|]\n");
-   // SubstPrint(out, iter->subst, bank->sig, DEREF_NEVER);
-   // fprintf(out, "\n");
+   TB_p bank = iter->bank;
+   fprintf(out, "***state:\n");
+   fprintf(out, "[");
+   if(!PQueueEmpty(iter->constraints))
+   {
+      PQueue_p q = iter->constraints;
+      fprintf(stderr, "%ld", PQueueCardinality(q));
+      // for(int i=q->tail; i != q->head; i = (i + 2) % q->size)
+      // {
+      //    TermPrintDbg(out, q->queue[i].p_val, bank->sig, DEREF_NEVER);
+      //    fprintf(out, ", ");
+      //    TermPrintDbg(out, q->queue[(i+1) % q->size].p_val, bank->sig, DEREF_NEVER);
+      //    fprintf(out, ";");
+      // }
+   }
+   fprintf(out, "]\nbt_size:%ld\n", PStackGetSP(iter->backtrack_info));
+   SubstPrint(out, iter->subst, bank->sig, DEREF_NEVER);
+   fprintf(out, "\n");
 }
 
 /*-----------------------------------------------------------------------
@@ -159,7 +154,7 @@ PQueue_p build_new_queue(PQueue_p old, Term_p lhs, Term_p rhs)
    PQueue_p res = PQueueCellAlloc();
    *res = *old; // copy all fields
    res->queue = SizeMalloc(old->size*sizeof(IntOrP));
-   memcpy(res->queue, old->queue, sizeof(IntOrP)*sizeof(IntOrP));
+   memcpy(res->queue, old->queue, old->size*sizeof(IntOrP));
 
    PQueueStoreP(res, lhs);
    PQueueStoreP(res, rhs);
@@ -232,11 +227,24 @@ FunCode unroll_fcode(Term_p t)
 //
 /----------------------------------------------------------------------*/
 
-void move_stack(PQueue_p new, PStack_p old, void (*mover)(PQueue_p queue, void* val))
+#define BURY_KIND 0
+#define STORE_KIND 1
+void move_stack(PQueue_p new, PStack_p old, int move_kind)
 {
+   int i=0;
    while(!PStackEmpty(old))
    {
-      mover(new, PStackPopP(old));
+      Term_p t = PStackPopP(old);
+      assert(t);
+      if (move_kind == BURY_KIND)
+      {
+         PQueueBuryP(new, t);
+      }
+      else
+      {
+         PQueueStoreP(new, t);
+      }
+      i++;
    }
 }
 
@@ -278,9 +286,9 @@ void schedule_args(CSUIterator_p iter, Term_p* l_args, Term_p* r_args, int size)
       }
    }
 
-   move_stack(iter->constraints, iter->tmp_rigid_diff, PQueueStoreP);
-   move_stack(iter->constraints, iter->tmp_rigid_same, PQueueStoreP);
-   move_stack(iter->constraints, iter->tmp_flex, PQueueBuryP);
+   move_stack(iter->constraints, iter->tmp_rigid_same, STORE_KIND);
+   move_stack(iter->constraints, iter->tmp_rigid_diff, STORE_KIND);
+   move_stack(iter->constraints, iter->tmp_flex, BURY_KIND);
 }
 
 /*-----------------------------------------------------------------------
@@ -305,10 +313,12 @@ bool forward_iter(CSUIterator_p iter)
       // items are poped from the stack only when they are solved
       Term_p lhs = PQueueGetLastP(iter->constraints);
       Term_p rhs = PQueueGetLastP(iter->constraints);
+      assert(lhs);
+      assert(rhs);
 
       if(lhs->type != rhs->type)
       {
-         assert(iter->current_state == INIT_TAG);
+         assert(PQueueEmpty(iter->constraints)); // only in the beginning
          res = false;
       }
       else
@@ -316,9 +326,9 @@ bool forward_iter(CSUIterator_p iter)
          whnf_and_prune(iter->bank, &lhs, &rhs);
          PStackPointer subst_ptr = PStackGetSP(iter->subst);
 
-         DBG_PRINT(stderr, "\nsolving: ", TermPrintDbg(stderr, lhs, iter->bank->sig, DEREF_NEVER), " <> ");
-         DBG_PRINT(stderr, "", TermPrintDbg(stderr, rhs, iter->bank->sig, DEREF_NEVER), ".\n");
-         dbg_print_state(stderr, iter);
+         // DBG_PRINT(stderr, "\nsolving: ", TermPrintDbg(stderr, lhs, iter->bank->sig, DEREF_NEVER), " <> ");
+         // DBG_PRINT(stderr, "", TermPrintDbg(stderr, rhs, iter->bank->sig, DEREF_NEVER), ".\n");
+         // dbg_print_state(stderr, iter);
 
          if(lhs == rhs)
          {
@@ -361,6 +371,9 @@ bool forward_iter(CSUIterator_p iter)
                   prepare_backtrack(iter, lhs, rhs, next_state, next_limits, subst_ptr);
                   iter->current_limits = next_limits;
                   iter->current_state = RIGID_PROCESSED_TAG; // first larger than INIT
+                  // return the tasks
+                  PQueueStoreP(iter->constraints, rhs);
+                  PQueueStoreP(iter->constraints, lhs);
                }
                else if(GET_HEAD_ID(lhs) == GET_HEAD_ID(rhs))
                {
@@ -513,7 +526,7 @@ bool NextCSUElement(CSUIterator_p iter)
          iter->unifiers_returned += res ? 1 : 0;
       }
    }
-   DBG_PRINT(stderr, res ? "subst:" : "fail:", SubstPrint(stderr, iter->subst, iter->bank->sig, DEREF_NEVER), ".\n");
+   // DBG_PRINT(stderr, res ? "subst:" : "fail:", SubstPrint(stderr, iter->subst, iter->bank->sig, DEREF_NEVER), ".\n");
 #ifndef NDEBUG
    if(!(!res || TermStructEqualDeref(iter->orig_lhs, iter->orig_rhs, DEREF_ALWAYS, DEREF_ALWAYS)))
    {
@@ -551,8 +564,8 @@ CSUIterator_p CSUIterInit(Term_p lhs, Term_p rhs, Subst_p subst, TB_p bank)
    res->init_pos = PStackGetSP(subst);
    res->backtrack_info = PStackAlloc();
    res->constraints = PQueueAlloc();
-   PQueueStoreP(res->constraints, lhs);
    PQueueStoreP(res->constraints, rhs);
+   PQueueStoreP(res->constraints, lhs);
    res->bank = bank;
    res->current_limits = 0;
    res->current_state = INIT_TAG;
@@ -566,8 +579,8 @@ CSUIterator_p CSUIterInit(Term_p lhs, Term_p rhs, Subst_p subst, TB_p bank)
    res->orig_lhs = lhs;
    res->orig_rhs = rhs;
 #endif
-   DBG_PRINT(stderr, "begin:", TermPrintDbg(stderr, lhs, bank->sig, DEREF_NEVER), " <> ");
-   DBG_PRINT(stderr, "", TermPrintDbg(stderr, rhs, bank->sig, DEREF_NEVER), ".\n");
+   // DBG_PRINT(stderr, "begin:", TermPrintDbg(stderr, lhs, bank->sig, DEREF_NEVER), " <> ");
+   // DBG_PRINT(stderr, "", TermPrintDbg(stderr, rhs, bank->sig, DEREF_NEVER), ".\n");
    return res;
 }
 

@@ -100,10 +100,8 @@ long PQueueCardinality(PQueue_p queue)
    }
    else
    {
-      res = queue->tail+(queue->size-queue->head);
+      res = queue->head + (queue->size - queue->tail);
    }
-   /* printf("Card(%ld, %ld) =  %ld\n", queue->head, queue->tail,
-      res); */
    return res;
 }
 
