@@ -1001,10 +1001,11 @@ static CompareResult kbolincmp_lambda(OCB_p ocb, Term_p s, Term_p t,
 {
    assert(problemType == PROBLEM_HO);
    assert(ocb->ho_vb == NULL);
-
+   // DBG_PRINT(stderr, "s:", TermPrintDbg(stderr, s, ocb->sig, DEREF_NEVER), "; ");
    s = LambdaEtaReduceDB(TermGetBank(s),
          BetaNormalizeDB(TermGetBank(s),
             TBInsertInstantiatedDeref(TermGetBank(s), s, deref_s)));
+   // DBG_PRINT(stderr, "t:", TermPrintDbg(stderr, t, ocb->sig, DEREF_NEVER), ".\n");
    t =  LambdaEtaReduceDB(TermGetBank(t), 
          BetaNormalizeDB(TermGetBank(t),
             TBInsertInstantiatedDeref(TermGetBank(t), t, deref_t)));

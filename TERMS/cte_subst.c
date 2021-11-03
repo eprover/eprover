@@ -23,6 +23,7 @@
 
 #include "cte_subst.h"
 #include "clb_plocalstacks.h"
+#include "cte_lambda.h"
 
 
 
@@ -155,10 +156,14 @@ PStackPointer SubstNormTerm(Term_p term, Subst_p subst, VarBank_p vars, Sig_p si
    PStackPointer ret = PStackGetSP(subst);
    PLocalStackInit(stack);
    PLocalStackPush(stack, term);
+   assert(TermGetBank(term));
+
+   Term_p (*deref)(Term_p) = 
+      problemType == PROBLEM_HO ? WHNF_deref : TermDerefAlways;
 
    while(!PLocalStackEmpty(stack))
    {
-      term = TermDerefAlways(PLocalStackPop(stack));
+      term = deref(PLocalStackPop(stack));
       if(TermIsFreeVar(term))
       {
          if(!TermCellQueryProp(term, TPSpecialFlag))

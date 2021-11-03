@@ -156,8 +156,8 @@ PQueue_p build_new_queue(PQueue_p old, Term_p lhs, Term_p rhs)
    res->queue = SizeMalloc(old->size*sizeof(IntOrP));
    memcpy(res->queue, old->queue, old->size*sizeof(IntOrP));
 
-   PQueueStoreP(res, lhs);
    PQueueStoreP(res, rhs);
+   PQueueStoreP(res, lhs);
    return res;
 }
 
@@ -526,6 +526,9 @@ bool NextCSUElement(CSUIterator_p iter)
          iter->unifiers_returned += res ? 1 : 0;
       }
    }
+   // fprintf(stderr, "problem(%d): ", iter->unifiers_returned);
+   // DBG_PRINT(stderr, "", TermPrintDbg(stderr, iter->orig_lhs, iter->bank->sig, DEREF_NEVER), " <> ");
+   // DBG_PRINT(stderr, "", TermPrintDbg(stderr, iter->orig_rhs, iter->bank->sig, DEREF_NEVER), ".\n");
    // DBG_PRINT(stderr, res ? "subst:" : "fail:", SubstPrint(stderr, iter->subst, iter->bank->sig, DEREF_NEVER), ".\n");
 #ifndef NDEBUG
    if(!(!res || TermStructEqualDeref(iter->orig_lhs, iter->orig_rhs, DEREF_ALWAYS, DEREF_ALWAYS)))
@@ -536,6 +539,10 @@ bool NextCSUElement(CSUIterator_p iter)
       assert(false);
    }
 #endif
+   if(!res)
+   {
+      SubstBacktrackToPos(iter->subst, iter->init_pos);
+   }
    return res;
 }
 
