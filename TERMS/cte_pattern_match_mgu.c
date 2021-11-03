@@ -797,6 +797,11 @@ OracleUnifResult SubstComputeMguPattern(Term_p t1, Term_p t2, Subst_p subst)
       {
          continue;
       }
+      else if(TermIsGround(t1) && TermIsGround(t2))
+      {
+         assert(t1 != t2);
+         UNIF_FAIL(res);
+      }
 
       assert(t1->type == t2->type);
 
@@ -855,6 +860,11 @@ OracleUnifResult SubstComputeMguPattern(Term_p t1, Term_p t2, Subst_p subst)
          {
             UNIF_FAIL(res);
          }
+      }
+      else if (TermIsDBVar(t2))
+      {
+         assert(!TermIsPhonyApp(t1) && !TermIsDBVar(t1));
+         UNIF_FAIL(res);
       }
       else if (t1->f_code == t2->f_code)
       {

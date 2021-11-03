@@ -107,7 +107,7 @@ Term_p fresh_pattern(TB_p bank, Term_p t)
    }
    var_ty = TypeBankInsertTypeShared(bank->sig->type_bank,
                ArrowTypeFlattened(arg_tys, t->arity-1, t->type));
-   Term_p fresh_var = VarBankGetFreshVar(bank->vars, var_ty);
+   Term_p fresh_var = TBInsert(bank, VarBankGetFreshVar(bank->vars, var_ty), DEREF_NEVER);
    Term_p applied = TermTopCopyWithoutArgs(t);
    applied->args[0] = fresh_var;
    
@@ -186,7 +186,8 @@ Term_p apply_pattern_vars(TB_p bank, Term_p head, Term_p appvar)
          Type_p v_ty = 
             TypeBankInsertTypeShared(bank->sig->type_bank,
                ArrowTypeFlattened(arg_tys, appvar->arity-1, head->type->args[i]));
-         Term_p fvar = VarBankGetFreshVar(bank->vars, v_ty);
+         Term_p fvar = TBInsert(bank, VarBankGetFreshVar(bank->vars, v_ty), DEREF_NEVER);
+
          PStackPushP(hd_args, ApplyTerms(bank, fvar, db_args));
       }
 
@@ -389,7 +390,7 @@ bool compute_removal_subst(PObjMap_p* var_removed_args, Subst_p subst,
             TypeBankInsertTypeShared(bank->sig->type_bank,
                ArrowTypeFlattened(arg_tys, PStackGetSP(new_db_vars), 
                                   var->type->args[var->type->arity-1]));
-         Term_p fresh_var = VarBankGetFreshVar(bank->vars, ty);
+         Term_p fresh_var = TBInsert(bank, VarBankGetFreshVar(bank->vars, ty), DEREF_NEVER);
          Term_p matrix = ApplyTerms(bank, fresh_var, new_db_vars);
          Term_p closed = 
             CloseWithTypePrefix(bank, var->type->args, var->type->arity-1, matrix);
@@ -1297,7 +1298,9 @@ void ComputeArgCong(ProofState_p state, ProofControl_p control, Clause_p clause)
          Term_p lhs = lit->lterm, rhs = lit->rterm;
          for (int i = 0; i < needed_args; i++)
          {
-            PStackPushP(fresh_vars, VarBankGetFreshVar(varbank, lhs->type->args[i]));
+            Term_p fvar = 
+               TBInsert(bank, VarBankGetFreshVar(varbank, lhs->type->args[i]), DEREF_NEVER);
+            PStackPushP(fresh_vars, fvar);
 
             Term_p new_lhs = ApplyTerms(bank, lhs, fresh_vars),
                    new_rhs = ApplyTerms(bank, rhs, fresh_vars);

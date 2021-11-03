@@ -326,13 +326,19 @@ bool forward_iter(CSUIterator_p iter)
          whnf_and_prune(iter->bank, &lhs, &rhs);
          PStackPointer subst_ptr = PStackGetSP(iter->subst);
 
-         // DBG_PRINT(stderr, "\nsolving: ", TermPrintDbg(stderr, lhs, iter->bank->sig, DEREF_NEVER), " <> ");
-         // DBG_PRINT(stderr, "", TermPrintDbg(stderr, rhs, iter->bank->sig, DEREF_NEVER), ".\n");
+         // DBG_PRINT(stderr, "\nsolving: ", TermPrint(stderr, lhs, iter->bank->sig, DEREF_NEVER), " <> ");
+         // DBG_PRINT(stderr, "", TermPrint(stderr, rhs, iter->bank->sig, DEREF_NEVER), ".\n");
          // dbg_print_state(stderr, iter);
 
          if(lhs == rhs)
          {
             continue; // using continue not to indent too much :(
+         }
+         else if(TermIsGround(lhs) && TermIsGround(rhs))
+         {
+            assert(lhs != rhs);
+            res = backtrack_iter(iter);
+            break;
          }
 
          if(TermIsTopLevelFreeVar(rhs) && !TermIsTopLevelFreeVar(lhs))
@@ -368,7 +374,7 @@ bool forward_iter(CSUIterator_p iter)
                {
                   assert(next_state != iter->current_state);
                   assert(next_state != DECOMPOSED_VAR);
-                  prepare_backtrack(iter, lhs, rhs, next_state, next_limits, subst_ptr);
+                  prepare_backtrack(iter, lhs, rhs, next_state, iter->current_limits, subst_ptr);
                   iter->current_limits = next_limits;
                   iter->current_state = RIGID_PROCESSED_TAG; // first larger than INIT
                   // return the tasks
@@ -418,6 +424,11 @@ bool forward_iter(CSUIterator_p iter)
                {
                   res = backtrack_iter(iter);
                }
+            }
+            else if (TermIsDBVar(rhs))
+            {
+               assert(!TermIsPhonyApp(lhs) && !TermIsDBVar(lhs));
+               res = backtrack_iter(iter);
             }
             else if (lhs->f_code == rhs->f_code)
             {
@@ -469,7 +480,8 @@ bool backtrack_iter(CSUIterator_p iter)
    }
    else
    {
-      if(PStackEmpty(iter->backtrack_info))
+      if(PStackEmpty(iter->backtrack_info) ||
+         iter->unifiers_returned >= params->max_unifiers)
       {
          res = false;
       }
@@ -527,14 +539,14 @@ bool NextCSUElement(CSUIterator_p iter)
       }
    }
    // fprintf(stderr, "problem(%d): ", iter->unifiers_returned);
-   // DBG_PRINT(stderr, "", TermPrintDbg(stderr, iter->orig_lhs, iter->bank->sig, DEREF_NEVER), " <> ");
-   // DBG_PRINT(stderr, "", TermPrintDbg(stderr, iter->orig_rhs, iter->bank->sig, DEREF_NEVER), ".\n");
+   // DBG_PRINT(stderr, "", TermPrint(stderr, iter->orig_lhs, iter->bank->sig, DEREF_NEVER), " <> ");
+   // DBG_PRINT(stderr, "", TermPrint(stderr, iter->orig_rhs, iter->bank->sig, DEREF_NEVER), ".\n");
    // DBG_PRINT(stderr, res ? "subst:" : "fail:", SubstPrint(stderr, iter->subst, iter->bank->sig, DEREF_NEVER), ".\n");
 #ifndef NDEBUG
    if(!(!res || TermStructEqualDeref(iter->orig_lhs, iter->orig_rhs, DEREF_ALWAYS, DEREF_ALWAYS)))
    {
-      DBG_PRINT(stderr, "", TermPrintDbg(stderr, iter->orig_lhs, iter->bank->sig, DEREF_NEVER), " <> ");
-      DBG_PRINT(stderr, "", TermPrintDbg(stderr, iter->orig_rhs, iter->bank->sig, DEREF_NEVER), ".\n");
+      DBG_PRINT(stderr, "", TermPrint(stderr, iter->orig_lhs, iter->bank->sig, DEREF_NEVER), " <> ");
+      DBG_PRINT(stderr, "", TermPrint(stderr, iter->orig_rhs, iter->bank->sig, DEREF_NEVER), ".\n");
       DBG_PRINT(stderr, "subst: ", SubstPrint(stderr, iter->subst, iter->bank->sig, DEREF_NEVER), ".\n");
       assert(false);
    }
@@ -586,8 +598,8 @@ CSUIterator_p CSUIterInit(Term_p lhs, Term_p rhs, Subst_p subst, TB_p bank)
    res->orig_lhs = lhs;
    res->orig_rhs = rhs;
 #endif
-   // DBG_PRINT(stderr, "begin:", TermPrintDbg(stderr, lhs, bank->sig, DEREF_NEVER), " <> ");
-   // DBG_PRINT(stderr, "", TermPrintDbg(stderr, rhs, bank->sig, DEREF_NEVER), ".\n");
+   // DBG_PRINT(stderr, "begin:", TermPrint(stderr, lhs, bank->sig, DEREF_NEVER), " <> ");
+   // DBG_PRINT(stderr, "", TermPrint(stderr, rhs, bank->sig, DEREF_NEVER), ".\n");
    return res;
 }
 
