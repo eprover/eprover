@@ -513,7 +513,8 @@ static void mfyvwblhs(OCB_p ocb, Term_p term, DerefType deref_t, int orig_limit)
       else
       {
          limit_t = DEREF_LIMIT(term, deref_t);
-         term = TermDeref(term, &deref_t);
+         term = deref_t == DEREF_ALWAYS && problemType == PROBLEM_HO ? 
+                WHNF_deref(term) : TermDeref(term, &deref_t);
       }
 
       if(TermIsFreeVar(term))
@@ -562,7 +563,8 @@ static void mfyvwbrhs(OCB_p ocb, Term_p term, DerefType deref_t, int orig_limit)
       else
       {
          limit_t = DEREF_LIMIT(term, deref_t);
-         term = TermDeref(term, &deref_t);
+         term = deref_t == DEREF_ALWAYS && problemType == PROBLEM_HO ? 
+                WHNF_deref(term) : TermDeref(term, &deref_t);
       }
 
       if(TermIsFreeVar(term))
@@ -1065,8 +1067,8 @@ static CompareResult kbolincmp_ho(OCB_p ocb, Term_p s, Term_p t,
    const int limit_s = DEREF_LIMIT(s, deref_s);
    const int limit_t = DEREF_LIMIT(t, deref_t);
 
-   s = TermDeref(s, &deref_s);
-   t = TermDeref(t, &deref_t);
+   s = deref_s == DEREF_ALWAYS ? WHNF_deref(s) : TermDeref(s, &deref_s);
+   t = deref_t == DEREF_ALWAYS ? WHNF_deref(t) : TermDeref(t, &deref_t);
 
    if(s->f_code == t->f_code)
    {
