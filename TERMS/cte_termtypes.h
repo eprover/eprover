@@ -433,6 +433,32 @@ static inline Type_p GetHeadType(Sig_p sig, Term_p term)
 
 /*-----------------------------------------------------------------------
 //
+// Function: GetFVarHead()
+//
+//   If a term is (possibly applied) free variable, get the term
+//   which represents this free variable.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+inline Term_p GetFVarHead(Term_p t)
+{
+   assert(TermIsTopLevelFreeVar(t));
+   if(TermIsAppliedFreeVar(t))
+   {
+      return t->args[0];
+   }
+   else
+   {
+      return t;
+   }
+}
+
+/*-----------------------------------------------------------------------
+//
 // Function: deref_step()
 //
 //   Dereference term once

@@ -789,7 +789,8 @@ Term_p TBInsert(TB_p bank, Term_p term, DerefType deref)
 
    assert(term);
 
-   term = TermDeref(term, &deref);
+   term = problemType == PROBLEM_HO && deref == DEREF_ALWAYS ?
+            WHNF_deref(term) : TermDeref(term, &deref);
 
    if(TermIsFreeVar(term))
    {
@@ -842,8 +843,8 @@ Term_p TBInsertInstantiatedDeref(TB_p bank, Term_p term, DerefType deref)
    const int limit = DEREF_LIMIT(term, deref);
 
    assert(term);
-
-   term = BetaNormalizeDB(bank, TermDeref(term, &deref));
+   term = problemType == PROBLEM_HO && deref == DEREF_ALWAYS ?
+            WHNF_deref(term) : TermDeref(term, &deref);
 
    if(TermIsAnyVar(term) || TermIsGround(term))
    {
@@ -887,7 +888,8 @@ Term_p TBInsertIgnoreVar(TB_p bank, Term_p term, DerefType deref)
 
    assert(term);
 
-   term = TermDeref(term, &deref);
+   term = problemType == PROBLEM_HO && deref == DEREF_ALWAYS ?
+            WHNF_deref(term) : TermDeref(term, &deref);
 
    if(TermIsAnyVar(term))
    {
@@ -932,7 +934,8 @@ Term_p TBInsertNoProps(TB_p bank, Term_p term, DerefType deref)
    assert(term);
 
    const int limit = DEREF_LIMIT(term, deref);
-   term = TermDeref(term, &deref);
+   term = problemType == PROBLEM_HO && deref == DEREF_ALWAYS ?
+            WHNF_deref(term) : TermDeref(term, &deref);
 
    if(TermIsFreeVar(term))
    {

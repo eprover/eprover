@@ -97,6 +97,11 @@ void   SetProblemType(ProblemType t);
    main;\
    locked_fprintf(out, "%s", suffix)
 
+#define DBG_TPRINT(out, prefix, term, suffix) \
+   locked_fprintf(out, "%s", prefix);\
+   TermPrintDbg(out, term, TermGetBank(term)->sig, DEREF_NEVER);\
+   locked_fprintf(out, "%s", suffix)
+
 extern sem_t* print_mutex;
 void locked_fprintf(FILE* file, const char *fmt, ...);
 

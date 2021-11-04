@@ -26,6 +26,7 @@
 #include <cte_termpos.h>
 #include <ccl_tformulae.h>
 #include <cte_lambda.h>
+#include <cte_pattern_match_mgu.h>
 
 /*---------------------------------------------------------------------*/
 /*                        Global Variables                             */
@@ -1272,7 +1273,6 @@ bool TermStructEqualNoDeref(Term_p t1, Term_p t2)
 
 // to make sure that we terminate, we do not eta-expand the variables
 // and constants.
-#define ETA_EXP(t,b) (LambdaEtaExpandDBTopLevel(b, t))
 bool TermStructEqualDeref(Term_p t1, Term_p t2, DerefType deref_1, DerefType deref_2)
 {
    int limit_1 = DEREF_LIMIT(t1, deref_1);
@@ -1285,7 +1285,6 @@ bool TermStructEqualDeref(Term_p t1, Term_p t2, DerefType deref_1, DerefType der
       if(deref_1 == DEREF_ALWAYS)
       {
          t1 = WHNF_deref(t1);
-         t1 = ETA_EXP(t1, bank);
       }
       else
       {
@@ -1293,7 +1292,6 @@ bool TermStructEqualDeref(Term_p t1, Term_p t2, DerefType deref_1, DerefType der
             deref_1 == DEREF_ONCE ? 
                (TermIsFreeVar(t1) ? t1->binding : TBInsertInstantiatedDeref(bank, t1, deref_1)) : t1;
          t1 = BetaNormalizeDB(bank, t1);
-         t1 = ETA_EXP(t1, bank);
          limit_1 = INT_MAX;
          deref_1 = DEREF_NEVER;
       }
@@ -1308,7 +1306,6 @@ bool TermStructEqualDeref(Term_p t1, Term_p t2, DerefType deref_1, DerefType der
       if(deref_2 == DEREF_ALWAYS)
       {
          t2 = WHNF_deref(t2);
-         t2 = ETA_EXP(t2, bank);
       }
       else
       {
@@ -1316,7 +1313,6 @@ bool TermStructEqualDeref(Term_p t1, Term_p t2, DerefType deref_1, DerefType der
             deref_2 == DEREF_ONCE ? 
                (TermIsFreeVar(t2) ? t2->binding : TBInsertInstantiatedDeref(bank, t2, deref_2)) : t2;
          t2 = BetaNormalizeDB(bank, t2);
-         t2 = ETA_EXP(t2, bank);
          limit_2 = INT_MAX;
          deref_2 = DEREF_NEVER;
       }
@@ -1325,6 +1321,13 @@ bool TermStructEqualDeref(Term_p t1, Term_p t2, DerefType deref_1, DerefType der
    {
       t2 = TermDeref(t2, &deref_2);
    }
+
+   if(t1->type != t2->type)
+   {
+      return false;
+   }
+   PruneLambdaPrefix(bank, &t1, &t2);
+
    if((t1==t2) && (deref_1==deref_2))
    {
       return true;
@@ -3114,6 +3117,40 @@ int TermComputeOrder(Sig_p sig, Term_p term)
 
    PStackFree(subterms);
    return ord;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: TermPrintVarBinds()
+//
+//   Prints all the variables and their bindings from the term t
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void visitor(void* sig, void* tp)
+{
+   Term_p t = tp;
+   DBG_PRINT(stderr, "", TermPrintDbg(stderr, t, sig, DEREF_NEVER), " <- ");
+   if(t->binding)
+   {
+      DBG_PRINT(stderr, "", TermPrintDbg(stderr, t->binding, sig, DEREF_NEVER), ";");
+   }
+   else
+   {
+      fprintf(stderr, "/;");
+   }
+}
+
+void TermPrintDbgVarBinds(Sig_p sig, Term_p t)
+{
+   PTree_p vars = NULL;
+   TermCollectVariables(t, &vars);
+   PTreeVisitInOrder(vars, visitor, sig);
+   PTreeFree(vars);
 }
 
 /*---------------------------------------------------------------------*/

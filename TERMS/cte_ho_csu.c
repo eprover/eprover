@@ -338,7 +338,7 @@ bool forward_iter(CSUIterator_p iter)
          {
             assert(lhs != rhs);
             res = backtrack_iter(iter);
-            break;
+            continue;
          }
 
          if(TermIsTopLevelFreeVar(rhs) && !TermIsTopLevelFreeVar(lhs))
