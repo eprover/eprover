@@ -1343,10 +1343,13 @@ Eqn_p EqnCopy(Eqn_p eq, TB_p bank)
    lterm = TBInsertNoProps(bank, eq->lterm, DEREF_ALWAYS);
    rterm = TBInsertNoProps(bank, eq->rterm, DEREF_ALWAYS);
 
-   handle = EqnAlloc(lterm, rterm, bank, false); /* Properties will be
-                                                    taken care of
-                                                    later! */
-   handle->properties = eq->properties;
+   /* Properties will be taken care of later! */
+   handle = EqnAlloc(lterm, rterm, bank, EqnIsPositive(eq));
+   // in HO version positivity is computed in relatively complex way,
+   // thus EPIsPositive must be preserved!
+   handle->properties = 
+      (handle->properties & EPIsPositive)
+      | (eq->properties & ~EPIsPositive);
    if(!EqnIsOriented(handle))
    {
       EqnDelProp(handle, EPMaxIsUpToDate);
@@ -1375,10 +1378,13 @@ Eqn_p EqnFlatCopy(Eqn_p eq)
    lterm = eq->lterm;
    rterm = eq->rterm;
 
-   handle = EqnAlloc(lterm, rterm, eq->bank, false); /* Properties will be
-                                                        taken care of
-                                                        later! */
-   handle->properties = eq->properties;
+   /* Properties will be taken care of later! */
+   handle = EqnAlloc(lterm, rterm, eq->bank, EqnIsPositive(eq));
+   // in HO version positivity is computed in relatively complex way,
+   // thus EPIsPositive must be preserved!
+   handle->properties = 
+      (handle->properties & EPIsPositive)
+      | (eq->properties & ~EPIsPositive);
    if(!EqnIsOriented(handle))
    {
       EqnDelProp(handle, EPMaxIsUpToDate);
@@ -1407,10 +1413,13 @@ Eqn_p EqnCopyRepl(Eqn_p eq, TB_p bank, Term_p old, Term_p repl)
    lterm = TBInsertRepl(bank, eq->lterm, DEREF_ALWAYS, old, repl);
    rterm = TBInsertRepl(bank, eq->rterm, DEREF_ALWAYS, old, repl);
 
-   handle = EqnAlloc(lterm, rterm, bank, false); /* Properties will be
-                                                    taken care of
-                                                    later! */
-   handle->properties = eq->properties;
+   /* Properties will be taken care of later! */
+   handle = EqnAlloc(lterm, rterm, bank, EqnIsPositive(eq));
+   // in HO version positivity is computed in relatively complex way,
+   // thus EPIsPositive must be preserved!
+   handle->properties = 
+      (handle->properties & EPIsPositive)
+      | (eq->properties & ~EPIsPositive);
    EqnDelProp(handle, EPMaxIsUpToDate);
    EqnDelProp(handle, EPIsOriented);
 
@@ -1439,10 +1448,13 @@ Eqn_p EqnCopyReplPlain(Eqn_p eq, TB_p bank, Term_p old, Term_p repl)
    lterm = TBInsertReplPlain(bank, eq->lterm, old, repl);
    rterm = TBInsertReplPlain(bank, eq->rterm, old, repl);
 
-   handle = EqnAlloc(lterm, rterm, bank, false); /* Properties will be
-                                                    taken care of
-                                                    later! */
-   handle->properties = eq->properties;
+   /* Properties will be taken care of later! */
+   handle = EqnAlloc(lterm, rterm, bank, EqnIsPositive(eq));
+   // in HO version positivity is computed in relatively complex way,
+   // thus EPIsPositive must be preserved!
+   handle->properties = 
+      (handle->properties & EPIsPositive)
+      | (eq->properties & ~EPIsPositive);
    EqnDelProp(handle, EPMaxIsUpToDate);
    EqnDelProp(handle, EPIsOriented);
 
@@ -1472,10 +1484,13 @@ Eqn_p EqnCopyOpt(Eqn_p eq)
    lterm = TBInsertOpt(eq->bank, eq->lterm, DEREF_ALWAYS);
    rterm = TBInsertOpt(eq->bank, eq->rterm, DEREF_ALWAYS);
 
-   handle = EqnAlloc(lterm, rterm, eq->bank, false); /* Properties will be
-                                                        taken care of
-                                                        later! */
-   handle->properties = eq->properties;
+   /* Properties will be taken care of later! */
+   handle = EqnAlloc(lterm, rterm, eq->bank, EqnIsPositive(eq));
+   // in HO version positivity is computed in relatively complex way,
+   // thus EPIsPositive must be preserved!
+   handle->properties = 
+      (handle->properties & EPIsPositive)
+      | (eq->properties & ~EPIsPositive);
    EqnDelProp(handle, EPMaxIsUpToDate);
    EqnDelProp(handle, EPIsOriented);
 
@@ -1504,10 +1519,13 @@ Eqn_p EqnCopyDisjoint(Eqn_p eq)
    lterm = TBInsertDisjoint(eq->bank, eq->lterm);
    rterm = TBInsertDisjoint(eq->bank, eq->rterm);
 
-   handle = EqnAlloc(lterm, rterm, eq->bank, false); /* Properties will be
-                                                        taken care of
-                                                        later! */
-   handle->properties = eq->properties;
+   /* Properties will be taken care of later! */
+   handle = EqnAlloc(lterm, rterm, eq->bank, EqnIsPositive(eq));
+   // in HO version positivity is computed in relatively complex way,
+   // thus EPIsPositive must be preserved!
+   handle->properties = 
+      (handle->properties & EPIsPositive)
+      | (eq->properties & ~EPIsPositive);
 
    return handle;
 }
