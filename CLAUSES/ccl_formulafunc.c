@@ -1549,9 +1549,9 @@ long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive,
 #ifdef ENABLE_LFHO
    if(problemType == PROBLEM_HO)
    {
+      TFormulaSetNamedToDBLambdas(set, archive, terms);
       TFormulaSetLiftItes(set, archive, terms);
       TFormulaSetLiftLets(set, archive, terms);
-      TFormulaSetNamedToDBLambdas(set, archive, terms);
       TFormulaSetUnfoldLogSymbols(set, archive, terms, unfold_only_forms);
       if(lambda_to_forall)
       {
