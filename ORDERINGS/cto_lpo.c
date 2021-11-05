@@ -183,6 +183,10 @@ static inline bool is_ho_subterm(Term_p super, Term_p test, DerefType super_dere
       // in ho we do not go below app var
       return super == test;
    }
+   else if(super == test)
+   {
+      return true;
+   }
 
    for(int i=TermIsLambda(super) ? 1:0; i<super->arity; i++)
    {
@@ -565,10 +569,12 @@ static bool lpo4_greater(OCB_p ocb, Term_p s, Term_p t,
    }
    recursion_depth++;
 
-   s = LambdaEtaReduceDB(TermGetBank(s), 
-         BetaNormalizeDB(TermGetBank(s), TermDeref(s, &deref_s)));
-   t = LambdaEtaReduceDB(TermGetBank(t), 
-         BetaNormalizeDB(TermGetBank(t), TermDeref(t, &deref_t)));
+   s = LambdaEtaReduceDB(TermGetBank(s),
+         deref_s == DEREF_NEVER ? s : (deref_s == DEREF_ALWAYS ? WHNF_deref(s) : 
+                                       WHNF_step(TermGetBank(s), TermDeref(s, &deref_s))));
+   t = LambdaEtaReduceDB(TermGetBank(t),
+         deref_t == DEREF_NEVER ? t : (deref_t == DEREF_ALWAYS ? WHNF_deref(t) : 
+                                       WHNF_step(TermGetBank(t), TermDeref(t, &deref_t))));
 
    if(TermIsTopLevelFreeVar(s))
    {

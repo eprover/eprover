@@ -150,8 +150,8 @@ static bool instance_is_rule(OCB_p ocb, TB_p bank,
          desc->sos_rewritten = true;
       }
 
-      assert(TOGreater(desc->ocb, term, TermRWReplaceField(term),
-                        DEREF_NEVER, DEREF_NEVER));
+      // assert(TOGreater(desc->ocb, term, TermRWReplaceField(term),
+      //                   DEREF_NEVER, DEREF_NEVER));
       term = TermRWReplaceField(term);
       assert(term);
    }
@@ -667,6 +667,7 @@ static Term_p rewrite_with_clause_set(OCB_p ocb, TB_p bank, Term_p term,
       assert(pos->clause->ident);
       TermAddRWLink(term, repl, pos->clause, ClauseIsSOS(pos->clause),
                     restricted_rw?RWAlwaysRewritable:RWLimitedRewritable);
+#ifndef NDEBUG
       if(!TOGreater(ocb, term, repl, DEREF_NEVER, DEREF_NEVER))
       {
          DBG_PRINT(stderr, "rw did not succeed: ", TermPrintDbg(stderr, term, bank->sig, DEREF_NEVER), " <> ");
@@ -675,6 +676,7 @@ static Term_p rewrite_with_clause_set(OCB_p ocb, TB_p bank, Term_p term,
          DBG_PRINT(stderr, "derivation: ", DerivationDebugPrint(stderr, pos->clause->derivation), ".\n");
          assert(false);
       }
+#endif
 
       term = repl;
    }

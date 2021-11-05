@@ -210,13 +210,13 @@ def print_new_schedule_cell(time_ratios):
   print('  {NULL, NoOrdering, NULL, 0.0, 0} ')
   print('};')
 
-def output_multi_schedule(cat_to_conf, sched_size, cat_name, conf_name):
+def output_multi_schedule(cat_to_conf, sched_size, cat_name, conf_name, json_kind):
   cat_keys, schedules = list(zip(*cat_to_conf.items()))
   print_str_list(cat_name, map(lambda c: '"' + c.get_name() + '"', cat_keys))
-  print_str_list(conf_name, ['{' +  ",".join(['"' + c.to_json() + '"' for c in s]) + '}' for s in schedules],
+  print_str_list(conf_name, ['{' +  ",".join(['"' + c.to_json(json_kind) + '"' for c in s]) + '}' for s in schedules],
                  array_modifier='[][{0}]'.format(sched_size))
 
-def multi_schedule(num_confs, cats, confs, var_name):
+def multi_schedule(num_confs, cats, confs, var_name, json_kind):
   assert(num_confs >= 2)
   assert(len(confs) >= num_confs)
   cats = cats.values()
@@ -265,12 +265,13 @@ def multi_schedule(num_confs, cats, confs, var_name):
     res[cat] = schedule
   
   output_multi_schedule(res, num_confs, var_name, 
-                        var_name.replace('categories', 'confs'))
+                        var_name.replace('categories', 'confs'),
+                        json_kind)
 
 def schedule_multiple(time_ratios, cats, raw_cats, confs):
   print_new_schedule_cell(time_ratios)
-  multi_schedule(len(time_ratios), raw_cats, confs, "multischedule_raw_categories")
-  multi_schedule(len(time_ratios), cats, confs, "multischedule_categories")
+  multi_schedule(len(time_ratios), raw_cats, confs, "multischedule_raw_categories", Configuration.ONLY_PREPROCESSING)
+  multi_schedule(len(time_ratios), cats, confs, "multischedule_categories", Configuration.ONLY_SATURATION)
 
 
 def main():

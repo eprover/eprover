@@ -1003,14 +1003,16 @@ static CompareResult kbolincmp_lambda(OCB_p ocb, Term_p s, Term_p t,
 {
    assert(problemType == PROBLEM_HO);
    assert(ocb->ho_vb == NULL);
-   // DBG_PRINT(stderr, "s:", TermPrintDbg(stderr, s, ocb->sig, DEREF_NEVER), "; ");
+   // DBG_TPRINT(stderr, "s: ", s, ", ");
    s = LambdaEtaReduceDB(TermGetBank(s),
          BetaNormalizeDB(TermGetBank(s),
             TBInsertInstantiatedDeref(TermGetBank(s), s, deref_s)));
-   // DBG_PRINT(stderr, "t:", TermPrintDbg(stderr, t, ocb->sig, DEREF_NEVER), ".\n");
+   // DBG_TPRINT(stderr, "snf(s): ", s, ".\n");
+   // DBG_TPRINT(stderr, "t: ", t, "; ");
    t =  LambdaEtaReduceDB(TermGetBank(t), 
          BetaNormalizeDB(TermGetBank(t),
             TBInsertInstantiatedDeref(TermGetBank(t), t, deref_t)));
+   // DBG_TPRINT(stderr, "snf(t): ", t, ".\n");
 
    CompareResult res = 
       s->f_code == SIG_TRUE_CODE ? 
