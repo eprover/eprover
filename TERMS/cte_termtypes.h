@@ -278,6 +278,7 @@ typedef Term_p (*TermMapper_p)(void*, Term_p);
 #define TermIsPattern(term) (true) // every fo subterm is a pattern
 #define TermIsNonFOPattern(term) (false) // every fo subterm is a pattern
 #define TermHasAppVar(term) (false)
+#define TermIsPhonyAppTarget(term) (false)
 #endif
 #define TermIsTopLevelFreeVar(term) (TermIsFreeVar(term) || TermIsAppliedFreeVar(term))
 #define TermIsTopLevelDBVar(term) (TermIsDBVar(term) || TermIsAppliedDBVar(term))
