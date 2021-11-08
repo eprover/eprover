@@ -4,14 +4,6 @@ def tuple_is_smaller(a, b):
   a[2],b[2] = -a[2], -b[2] # smaller times are better
   return a < b #lexicographic comp
 
-from enum import Enum
-class ArchiveFormat(Enum):
-  PROTOCOL_FORMAT = 'protocol'
-  JOBINFO_FORMAT = 'jobinfo'
-
-  def __str__(self):
-    return self.value
-
 class Category(object):
   def __init__(self, name):
     self._name = name
@@ -68,6 +60,7 @@ class Configuration(object):
     self._num_solved = 0
     self._total_time = 0.0
     self._total_uniqness = None
+    self._json = None
     Configuration._all_confs += 1
 
   def add_solved_prob(self, prob, time):
@@ -117,8 +110,19 @@ class Configuration(object):
     with open(path, 'r') as fd:
       import re
       self._json = re.sub(' +', ' ', fd.read()) # making the representation more compact
+  
+  def compute_json(self, eprover_path, args):
+    import subprocess as sp, re
+    JSON_PRINT = ['--print-strategy']
+    proc_res = sp.Popen([eprover_path] + args + JSON_PRINT, 
+                        stdout=sp.PIPE, stderr=sp.PIPE,shell=True)
+    raw_res = proc_res.stdout.read().decode(encoding='ascii', errors='ignore')
+    self._json = re.sub(' +', ' ', raw_res)
 
   def to_json(self, json_mode=BOTH):
+    if self._json is None:
+      return None
+
     if json_mode == self.BOTH:
       json = self._json
     elif json_mode == self.ONLY_PREPROCESSING:

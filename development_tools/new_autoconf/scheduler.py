@@ -1,6 +1,8 @@
+import enum
 import os.path as p
 from sys import stderr
-from common import Category, Configuration, ArchiveFormat, tuple_is_smaller
+from common import Category, Configuration, tuple_is_smaller
+from development_tools.new_autoconf.progressbar import print_progress_bar
 
 JOBINFO_PROB_NAME = 'benchmark'
 JOBINFO_CONFIGURATION = 'configuration'
@@ -8,6 +10,9 @@ JOBINFO_TIME = 'cpu time'
 JOBINFO_RESULT = 'result'
 
 SUCCESS_RESULTS = ['ContradictoryAxioms', 'Theorem', 'Unsatisfiable']
+
+PROTOCOL = 'protocol_'
+
 
 def parse_categories(root):
   from categorize import CATEGORIZATIONS, IGNORE_CLASSES
@@ -36,47 +41,122 @@ def parse_categories(root):
   return cats
 
 
-def parse_result_file(fd, confs):
-  import csv
-  reader = csv.DictReader(fd)
+def parse_jobinfo_file(_, fd, confs, __):
+  import csv, pathlib as p
+  try:
+    reader = csv.DictReader(fd)
 
-  for row in reader:
-    result = row[JOBINFO_RESULT].strip()
-    if result in SUCCESS_RESULTS:
-      prob = row[JOBINFO_PROB_NAME].split('/')[-1].strip()
-      conf_name = row[JOBINFO_CONFIGURATION].strip()
-      time = float(row[JOBINFO_TIME].strip())
+    for row in reader:
+      result = row[JOBINFO_RESULT].strip()
+      if result in SUCCESS_RESULTS:
+        prob = row[JOBINFO_PROB_NAME].split('/')[-1].strip()
+        conf_name = p.Path(row[JOBINFO_CONFIGURATION].strip()).stem
+        time = float(row[JOBINFO_TIME].strip())
 
-      if conf_name in confs:
-        conf = confs[conf_name]
-      else:
-        conf = Configuration(conf_name)
-        confs[conf_name] = conf
-      
-      conf.add_solved_prob(prob, time)
+        if conf_name in confs:
+          conf = confs[conf_name]
+        else:
+          conf = Configuration(conf_name)
+          confs[conf_name] = conf
+        
+        conf.add_solved_prob(prob, time)
+    return True
+  except csv.Error:
+    return False
 
+
+def parse_protocol_file(filename, fd, confs, e_path):
+  try:
+    assert(filename.strartswith(PROTOCOL))
+    first_line = next(fd)
+    if not first_line.startswith('#'):
+      raise StopIteration
     
-def parse_configurations(archives, archive_format, json_root=None):
-  if(archive_format == ArchiveFormat.PROTOCOL_FORMAT):
-    raise NotImplementedError
-  
-  confs = {}
-  for arch in archives:
-    from zipfile import ZipFile
-    try:
-      with ZipFile(arch) as arch_fd:
-        import io
-        csv_file = next(filter(lambda x: x.filename.endswith('.csv'), 
-                               arch_fd.infolist()))
-        with io.TextIOWrapper(arch_fd.open(csv_file.filename)) as csv_fd:
-          parse_result_file(csv_fd, confs)
-    except StopIteration:
-      print("Warning: {0} is not appropriate StarExec JobInfo archive".format(arch),
-            file=stderr)
-  if json_root is not None:
-    for conf in confs.values():
-      conf.parse_json(p.join(json_root, conf.get_name()))
+    e_args = first_line[1:].strip().split(' ')[1:]
+    conf_name = filename[len(PROTOCOL):]
+    if conf_name in confs:
+      print('{0} is ignored because it is already parsed'.format(filename), file=stderr)
+      raise StopIteration
 
+    columns = {}
+    import re
+    col_re = re.compile(r'#\s*?(\d+)\s*(.*)')
+
+    conf = Configuration(conf_name)
+    conf.compute_json(e_path, e_args)
+
+    PROBLEM_COL = 'Problem'
+    STATUS_COL = 'Status '
+    TIME_COL =  'User time'
+
+    line = next(fd)
+    while True:
+      m = col_re.match(line)
+      if m:
+        columns[m.group(2).strip()] = int(m.group(1))-1
+      else:
+        break
+      line = next(fd)
+    next(fd) # ignoring line with all columns
+
+    for line in fd:
+      values = line.split()
+      (prob, status, time) = values[columns[PROBLEM_COL]], values[columns[STATUS_COL]],\
+                             float(values[columns[TIME_COL]])
+      if (status != 'F'):
+        conf.add_solved_prob(prob, time)
+
+    confs[conf.get_name()] = conf
+    return True
+  except StopIteration:
+    return False
+
+
+def parse_configurations(archives, e_path, json_root=None):
+  confs = {}
+
+  from zipfile import ZipFile
+  from tarfile import is_tarfile, TarFile
+
+  def parse_file(file_name, file_descriptor):
+    return (parse_protocol_file if file_name.startswith(PROTOCOL) else parse_jobinfo_file)(
+      file_name, file_descriptor, confs, e_path
+    )
+
+  def parse_zip(arch):
+    any_success = False
+    with ZipFile(arch) as fd:
+      import io
+      names = list(filter(lambda x: x.endswith('.csv'), fd.namelist()))
+      for (i,csv_filename) in enumerate(names):
+        print_progress_bar(i+1, len(names))
+        with io.TextIOWrapper(fd.open(csv_filename)) as csv_fd:
+          any_success = parse_file(csv_filename, csv_fd) or any_success
+    return any_success
+  
+  def parse_tar(arch):
+    any_success = False
+    with ZipFile(arch) as fd:
+      import io
+      names = list(filter(lambda x: x.endswith('.csv'), fd.getmembers()))
+      for (i,csv_member) in enumerate(names):
+        print_progress_bar(i+1, len(names))
+        with io.TextIOWrapper(csv_member.to_buf()) as csv_fd:
+          any_success = parse_file(csv_member.name, csv_fd) or any_success
+    return any_success
+
+  for arch in archives:
+    print('Working on {0}'.format(arch), file=stderr)
+    success = (parse_tar if is_tarfile(arch) else parse_zip)(arch)
+    if not success:
+      print('WARNING: No configurations could be parsed from {0}'.format(arch), file=stderr)
+
+  from pathlib import Path
+  for conf in Path(json_root).iterdir():
+    conf_name = Path(conf).name
+    if conf_name in confs and confs[conf_name].to_json() is None:
+      confs[conf_name].parse_json(conf)
+  
   return confs
 
 
@@ -95,6 +175,7 @@ def pop_best(confs, cats):
   confs.remove(best_stat[3])
   return best_stat[3]
 
+
 def cover_cats(conf, cats, others):
   covered = set()
   for cat in cats:
@@ -103,6 +184,7 @@ def cover_cats(conf, cats, others):
       print("conf({0}) = {1}".format(cat, conf.get_name()), file=stderr)
       covered.add(cat)
   return covered
+
 
 def schedule_best_single(cats, confs, take_general):
   from collections import deque
@@ -150,13 +232,11 @@ def init_args():
                            'of the correct form, it can be created using '
                            'categorize.py script. Consult the help of categorize.py '
                            'for more information.')
-  parser.add_argument('conf_root', metavar='CONFIGURATION_ROOT',
-                      help='root directory containing JSON files describing heuristics')
-  parser.add_argument('--archive-format', dest='arch_format',
-                      type=ArchiveFormat,
-                      default=ArchiveFormat.JOBINFO_FORMAT,
-                      choices=list(ArchiveFormat),
-                      help='are the archives in the protocol format or in StarExec jobinfo format')
+  parser.add_argument('--conf-root', 'conf_root',
+                      help='root directory containing JSON files corresponding to configurations in JobInfo files')
+  parser.add_argument('--e-path', dest='e_path',
+                    help='path to eprover which is necessary for some features of this script (e.g., '
+                         ' generation of JSON representation  of the configuration)')
   parser.add_argument('--prefer-general', dest='prefer_general',
                     type=bool, default=False,
                     help='when two configurations perform the same on the given category of'
@@ -176,10 +256,12 @@ def init_args():
 
   return args
 
+
 def print_str_list(var_name, str_list, type_modifier = "const char*", array_modifier="[]"):
     print('{1} {0}{2} = {{ '.format(var_name, type_modifier, array_modifier))
     print(",\n".join(str_list))
     print("};")
+
 
 def output_single(confs, category_to_confs, raw_category_to_conf):
   best_conf = max(confs.values(), key=Configuration.as_order_key)
@@ -202,6 +284,7 @@ def output_single(confs, category_to_confs, raw_category_to_conf):
   print_str_list("raw_confs", 
     map(lambda c: conf_w_comment(c, Configuration.ONLY_PREPROCESSING), rcat_vals))
 
+
 def print_new_schedule_cell(time_ratios):
   print("#define SCHEDULE_SIZE {0}".format(len(time_ratios)))
   print("ScheduleCell NEW_HO_SCHEDULE[] =\n{");
@@ -210,11 +293,13 @@ def print_new_schedule_cell(time_ratios):
   print('  {NULL, NoOrdering, NULL, 0.0, 0} ')
   print('};')
 
+
 def output_multi_schedule(cat_to_conf, sched_size, cat_name, conf_name, json_kind):
   cat_keys, schedules = list(zip(*cat_to_conf.items()))
   print_str_list(cat_name, map(lambda c: '"' + c.get_name() + '"', cat_keys))
   print_str_list(conf_name, ['{' +  ",".join(['"' + c.to_json(json_kind) + '"' for c in s]) + '}' for s in schedules],
                  array_modifier='[][{0}]'.format(sched_size))
+
 
 def multi_schedule(num_confs, cats, confs, var_name, json_kind):
   assert(num_confs >= 2)
@@ -268,6 +353,7 @@ def multi_schedule(num_confs, cats, confs, var_name, json_kind):
                         var_name.replace('categories', 'confs'),
                         json_kind)
 
+
 def schedule_multiple(time_ratios, cats, raw_cats, confs):
   print_new_schedule_cell(time_ratios)
   multi_schedule(len(time_ratios), raw_cats, confs, "multischedule_raw_categories", Configuration.ONLY_PREPROCESSING)
@@ -277,7 +363,7 @@ def schedule_multiple(time_ratios, cats, raw_cats, confs):
 def main():
   args = init_args()
   category_map, raw_category_map = parse_categories(args.category_root)
-  configurations = parse_configurations(args.result_archives, args.arch_format, args.conf_root)
+  configurations = parse_configurations(args.result_archives, args.e_path, args.conf_root)
   if not args.multi_schedule:
     category_to_conf = schedule_best_single(category_map, configurations, args.prefer_general)
     raw_category_to_conf = schedule_best_single(raw_category_map, configurations, args.prefer_general)
