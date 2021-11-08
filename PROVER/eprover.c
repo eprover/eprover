@@ -442,9 +442,9 @@ int main(int argc, char* argv[])
    proofstate = parse_spec(state, parse_format,
                            error_on_empty, free_symb_prop,
                            &parsed_ax_no);
-   if(problemType == PROBLEM_HO && strategy_scheduling)
+   if(strategy_scheduling)
    {
-      chosen_schedule = ho_schedule;
+      chosen_schedule = new_schedule;
    }
 
    if(syntax_only)
@@ -454,14 +454,13 @@ int main(int argc, char* argv[])
       goto cleanup1;
    }
 
-
    if(strategy_scheduling)
    {
       ExecuteSchedule(chosen_schedule, h_parms, print_rusage, num_cpus,
                       proof_found_flag, &proof_found_sem);
    }
 
-   if((auto_conf || strategy_scheduling) && problemType == PROBLEM_HO)
+   if(auto_conf || strategy_scheduling)
    {
       RawSpecFeatureCell features;
       SpecLimits_p limits = CreateDefaultSpecLimits(); 

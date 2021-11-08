@@ -20,7 +20,7 @@ Changes
 #include "autoschedule_gen.vars"
 #include "autoschedule_gen_multi.vars"
 
-ScheduleCell* ho_schedule = NEW_HO_SCHEDULE;
+ScheduleCell* new_schedule = NEW_HO_SCHEDULE;
 
 void print_config_name(FILE* out, const char* config, int idx)
 {

@@ -72,20 +72,8 @@ void finalize_auto_parms(char* modename, char* hname,
                          HeuristicParms_p parms,
                          SpecFeature_p spec)
 {
-   if(problemType == PROBLEM_HO)
-   {
-      control->heuristic_parms = *parms;
-   }
+   control->heuristic_parms = *parms;
 
-   if(OutputLevel+1 && problemType == PROBLEM_FO)
-   {
-      locked_fprintf(GlobalOut,
-              "# %s selected heuristic %s\n"
-              "# and selection function %s.\n#\n",
-              modename,
-              hname,
-              GetLitSelName(control->heuristic_parms.selection_strategy));
-   }
    if(OutputLevel ||
 #ifndef NDEBUG
 false // true
@@ -94,11 +82,8 @@ false
 #endif   
    )
    {
-      if(problemType == PROBLEM_HO)
-      {
-         locked_fprintf(GlobalOut, "Selected heuristic:\n");
-         HeuristicParmsPrint(stderr, &(control->heuristic_parms));
-      }
+      locked_fprintf(GlobalOut, "Selected heuristic:\n");
+      HeuristicParmsPrint(stderr, &(control->heuristic_parms));
    }
    if(parms->mem_limit>2 && (parms->delete_bad_limit ==
                              DEFAULT_DELETE_BAD_LIMIT))
@@ -244,26 +229,19 @@ HCB_p HCBAutoModeCreate(HCBARGUMENTS)
    limits = CreateDefaultSpecLimits();
    control->heuristic_parms.selection_strategy = SelectNoLiterals;
    OUTPRINT(1, "# Auto-Heuristic is analysing problem.\n");
-   if(problemType==PROBLEM_HO)
+   SpecFeaturesAddEval(spec, limits);
+   char* result = SpecTypeString(spec, DEFAULT_MASK);
+   int attempt_idx = GetAttemptIdx(parms->heuristic_name);
+   if (attempt_idx == -1)
    {
-      SpecFeaturesAddEval(spec, limits);
-      char* result = SpecTypeString(spec, DEFAULT_MASK);
-      int attempt_idx = GetAttemptIdx(parms->heuristic_name);
-      if (attempt_idx == -1)
-      {
-         AutoHeuristicForCategory(result, parms);
-      }
-      else
-      {
-         ScheduleForCategory(result, attempt_idx, parms);
-      }
-      res = parms->heuristic_def;
-      FREE(result);
+      AutoHeuristicForCategory(result, parms);
    }
    else
    {
-#include "che_auto_cases.c"
+      ScheduleForCategory(result, attempt_idx, parms);
    }
+   res = parms->heuristic_def;
+   FREE(result);
    SpecLimitsCellFree(limits);
 
    finalize_auto_parms("Auto-Mode", res, control, parms, spec);
@@ -320,7 +298,6 @@ HCB_p HCBCASCAutoModeCreate(HCBARGUMENTS)
 
    control->heuristic_parms.selection_strategy = SelectNoLiterals;
    OUTPRINT(1, "# Auto-Heuristic is analysing problem.\n");
-#include "che_auto_cases.c"
    SpecLimitsCellFree(limits);
 
    finalize_auto_parms("Auto-Mode (CASC-20)", res, control, parms, spec);
@@ -361,7 +338,7 @@ HCB_p HCBDevAutoModeCreate(HCBARGUMENTS)
 
    control->heuristic_parms.selection_strategy = SelectNoLiterals;
    OUTPRINT(1, "# Auto-Heuristic is analysing problem.\n");
-#include "che_auto_cases.c"
+
    SpecLimitsCellFree(limits);
 
    finalize_auto_parms("AutoDev-Mode", res, control, parms, spec);
@@ -404,7 +381,7 @@ HCB_p HCBAutoSched0Create(HCBARGUMENTS)
 
    control->heuristic_parms.selection_strategy = SelectNoLiterals;
    OUTPRINT(1, "# Auto-Heuristic is analysing problem.\n");
-#include "che_auto_cases.c"
+
    SpecLimitsCellFree(limits);
 
    finalize_auto_parms("AutoSched0-Mode", res, control, parms, spec);
@@ -430,7 +407,7 @@ HCB_p HCBAutoSched1Create(HCBARGUMENTS)
 
    control->heuristic_parms.selection_strategy = SelectNoLiterals;
    OUTPRINT(1, "# Auto-Heuristic is analysing problem.\n");
-#include "che_auto_cases.c"
+
    SpecLimitsCellFree(limits);
 
    finalize_auto_parms("AutoSched1-Mode", res, control, parms, spec);
@@ -456,7 +433,7 @@ HCB_p HCBAutoSched2Create(HCBARGUMENTS)
 
    control->heuristic_parms.selection_strategy = SelectNoLiterals;
    OUTPRINT(1, "# Auto-Heuristic is analysing problem.\n");
-#include "che_auto_cases.c"
+
    SpecLimitsCellFree(limits);
 
    finalize_auto_parms("AutoSched2-Mode", res, control, parms, spec);
@@ -482,7 +459,7 @@ HCB_p HCBAutoSched3Create(HCBARGUMENTS)
 
    control->heuristic_parms.selection_strategy = SelectNoLiterals;
    OUTPRINT(1, "# Auto-Heuristic is analysing problem.\n");
-#include "che_auto_cases.c"
+
    SpecLimitsCellFree(limits);
 
    finalize_auto_parms("AutoSched3-Mode", res, control, parms, spec);
@@ -509,7 +486,7 @@ HCB_p HCBAutoSched4Create(HCBARGUMENTS)
 
    control->heuristic_parms.selection_strategy = SelectNoLiterals;
    OUTPRINT(1, "# Auto-Heuristic is analysing problem.\n");
-#include "che_auto_cases.c"
+
    SpecLimitsCellFree(limits);
 
    finalize_auto_parms("AutoSched4-Mode", res, control, parms, spec);
@@ -536,7 +513,7 @@ HCB_p HCBAutoSched5Create(HCBARGUMENTS)
 
    control->heuristic_parms.selection_strategy = SelectNoLiterals;
    OUTPRINT(1, "# Auto-Heuristic is analysing problem.\n");
-#include "che_auto_cases.c"
+
    SpecLimitsCellFree(limits);
 
    finalize_auto_parms("AutoSched5-Mode", res, control, parms, spec);
@@ -563,7 +540,7 @@ HCB_p HCBAutoSched6Create(HCBARGUMENTS)
 
    control->heuristic_parms.selection_strategy = SelectNoLiterals;
    OUTPRINT(1, "# Auto-Heuristic is analysing problem.\n");
-#include "che_auto_cases.c"
+
    SpecLimitsCellFree(limits);
 
    finalize_auto_parms("AutoSched6-Mode", res, control, parms, spec);
@@ -590,7 +567,7 @@ HCB_p HCBAutoSched7Create(HCBARGUMENTS)
 
    control->heuristic_parms.selection_strategy = SelectNoLiterals;
    OUTPRINT(1, "# Auto-Heuristic is analysing problem.\n");
-#include "che_auto_cases.c"
+
    SpecLimitsCellFree(limits);
 
    finalize_auto_parms("AutoSched7-Mode", res, control, parms, spec);
@@ -618,7 +595,7 @@ HCB_p HCBAutoSched8Create(HCBARGUMENTS)
 
    control->heuristic_parms.selection_strategy = SelectNoLiterals;
    OUTPRINT(1, "# Auto-Heuristic is analysing problem.\n");
-#include "che_auto_cases.c"
+
    SpecLimitsCellFree(limits);
 
    finalize_auto_parms("AutoSched8-Mode", res, control, parms, spec);
@@ -645,7 +622,7 @@ HCB_p HCBAutoSched9Create(HCBARGUMENTS)
 
    control->heuristic_parms.selection_strategy = SelectNoLiterals;
    OUTPRINT(1, "# Auto-Heuristic is analysing problem.\n");
-#include "che_auto_cases.c"
+
    SpecLimitsCellFree(limits);
 
    finalize_auto_parms("AutoSched9-Mode", res, control, parms, spec);

@@ -2,7 +2,7 @@ import enum
 import os.path as p
 from sys import stderr
 from common import Category, Configuration, tuple_is_smaller
-from development_tools.new_autoconf.progressbar import print_progress_bar
+from progressbar import print_progress_bar
 
 JOBINFO_PROB_NAME = 'benchmark'
 JOBINFO_CONFIGURATION = 'configuration'
@@ -61,13 +61,13 @@ def parse_jobinfo_file(_, fd, confs, __):
         
         conf.add_solved_prob(prob, time)
     return True
-  except csv.Error:
+  except (csv.Error, KeyError):
     return False
 
 
 def parse_protocol_file(filename, fd, confs, e_path):
   try:
-    assert(filename.strartswith(PROTOCOL))
+    assert(filename.startswith(PROTOCOL))
     first_line = next(fd)
     if not first_line.startswith('#'):
       raise StopIteration
@@ -86,7 +86,7 @@ def parse_protocol_file(filename, fd, confs, e_path):
     conf.compute_json(e_path, e_args)
 
     PROBLEM_COL = 'Problem'
-    STATUS_COL = 'Status '
+    STATUS_COL = 'Status'
     TIME_COL =  'User time'
 
     line = next(fd)
@@ -102,29 +102,33 @@ def parse_protocol_file(filename, fd, confs, e_path):
     for line in fd:
       values = line.split()
       (prob, status, time) = values[columns[PROBLEM_COL]], values[columns[STATUS_COL]],\
-                             float(values[columns[TIME_COL]])
+                             values[columns[TIME_COL]]
       if (status != 'F'):
-        conf.add_solved_prob(prob, time)
+        try:
+          conf.add_solved_prob(prob, float(time))
+        except ValueError:
+          print('# Error with line {0} in {1}'.format(line, filename), file=stderr)
 
     confs[conf.get_name()] = conf
     return True
   except StopIteration:
+    print('Iteration stopped')
     return False
 
 
 def parse_configurations(archives, e_path, json_root=None):
   confs = {}
 
-  from zipfile import ZipFile
-  from tarfile import is_tarfile, TarFile
-
   def parse_file(file_name, file_descriptor):
+    from pathlib import Path
+    file_name = Path(file_name).name
     return (parse_protocol_file if file_name.startswith(PROTOCOL) else parse_jobinfo_file)(
       file_name, file_descriptor, confs, e_path
     )
 
   def parse_zip(arch):
     any_success = False
+    from zipfile import ZipFile
     with ZipFile(arch) as fd:
       import io
       names = list(filter(lambda x: x.endswith('.csv'), fd.namelist()))
@@ -134,20 +138,22 @@ def parse_configurations(archives, e_path, json_root=None):
           any_success = parse_file(csv_filename, csv_fd) or any_success
     return any_success
   
+  import tarfile as tf
   def parse_tar(arch):
     any_success = False
-    with ZipFile(arch) as fd:
+    with tf.open(arch, mode='r') as fd:
       import io
-      names = list(filter(lambda x: x.endswith('.csv'), fd.getmembers()))
-      for (i,csv_member) in enumerate(names):
-        print_progress_bar(i+1, len(names))
-        with io.TextIOWrapper(csv_member.to_buf()) as csv_fd:
-          any_success = parse_file(csv_member.name, csv_fd) or any_success
+      for (i,csv_member) in enumerate(fd):
+        msg = f'\r --> file {i}: {csv_member.name}|'
+        print(f'{msg:<150}', end = '\r', file=stderr)
+        if csv_member.name.endswith('csv'):
+          with io.TextIOWrapper(fd.extractfile(csv_member)) as csv_fd:
+            any_success = parse_file(csv_member.name, csv_fd) or any_success
     return any_success
 
   for arch in archives:
     print('Working on {0}'.format(arch), file=stderr)
-    success = (parse_tar if is_tarfile(arch) else parse_zip)(arch)
+    success = (parse_tar if tf.is_tarfile(arch) else parse_zip)(arch)
     if not success:
       print('WARNING: No configurations could be parsed from {0}'.format(arch), file=stderr)
 
@@ -232,7 +238,7 @@ def init_args():
                            'of the correct form, it can be created using '
                            'categorize.py script. Consult the help of categorize.py '
                            'for more information.')
-  parser.add_argument('--conf-root', 'conf_root',
+  parser.add_argument('--conf-root', dest='conf_root',
                       help='root directory containing JSON files corresponding to configurations in JobInfo files')
   parser.add_argument('--e-path', dest='e_path',
                     help='path to eprover which is necessary for some features of this script (e.g., '

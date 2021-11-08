@@ -4,7 +4,7 @@
 #define DEFAULT_MASK "aaaa-aaaaaa-aa--aaa"
 #define RAW_DEFAULT_MASK "aaaaaaaaaaaa"
 
-extern ScheduleCell* ho_schedule;
+extern ScheduleCell* new_schedule;
 
 int  GetAttemptIdx(const char* strategy_name);
 

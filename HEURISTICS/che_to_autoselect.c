@@ -130,7 +130,7 @@ OCB_p generate_auto_ordering(ProofState_p state, SpecFeature_p spec, HoOrderKind
    init_oparms(&oparms);
    oparms.ho_order_kind = order_kind;
    OUTPRINT(1, "\n# Auto-Ordering is analysing problem.\n");
-#include "che_auto_cases.c"
+
    print_oparms(&oparms);
    SpecLimitsCellFree(limits);
    return TOCreateOrdering(state, &oparms, NULL, NULL);
@@ -191,7 +191,7 @@ OCB_p generate_autocasc_ordering(ProofState_p state, SpecFeature_p spec, HoOrder
    oparms.ho_order_kind  = order_kind;
    OUTPRINT(1, "\n# Auto-Ordering is analysing problem.\n");
 
-#include "che_auto_cases.c"
+
 
    if(OutputLevel)
    {
@@ -248,7 +248,7 @@ OCB_p generate_autodev_ordering(ProofState_p state, SpecFeature_p spec, HoOrderK
    oparms.ho_order_kind   = order_kind;
 
    OUTPRINT(1, "\n# Auto-Ordering is analysing problem.\n");
-#include "che_auto_cases.c"
+
 
    if(OutputLevel)
    {
@@ -307,7 +307,7 @@ OCB_p generate_autosched0_ordering(ProofState_p state, SpecFeature_p spec, HoOrd
    init_oparms(&oparms);
    oparms.ho_order_kind = ho_order_kind;
    OUTPRINT(1, "\n# AutoSched0-Ordering is analysing problem.\n");
-#include "che_auto_cases.c"
+
    print_oparms(&oparms);
    SpecLimitsCellFree(limits);
    return TOCreateOrdering(state, &oparms, NULL, NULL);
@@ -331,7 +331,7 @@ OCB_p generate_autosched1_ordering(ProofState_p state, SpecFeature_p spec, HoOrd
    init_oparms(&oparms);
    oparms.ho_order_kind = ho_order_kind;
    OUTPRINT(1, "\n# AutoSched1-Ordering is analysing problem.\n");
-#include "che_auto_cases.c"
+
    print_oparms(&oparms);
    SpecLimitsCellFree(limits);
    return TOCreateOrdering(state, &oparms, NULL, NULL);
@@ -355,7 +355,7 @@ OCB_p generate_autosched2_ordering(ProofState_p state, SpecFeature_p spec, HoOrd
    init_oparms(&oparms);
    oparms.ho_order_kind = ho_order_kind;
    OUTPRINT(1, "\n# AutoSched2-Ordering is analysing problem.\n");
-#include "che_auto_cases.c"
+
    print_oparms(&oparms);
    SpecLimitsCellFree(limits);
    return TOCreateOrdering(state, &oparms, NULL, NULL);
@@ -379,7 +379,7 @@ OCB_p generate_autosched3_ordering(ProofState_p state, SpecFeature_p spec, HoOrd
    init_oparms(&oparms);
    oparms.ho_order_kind = ho_order_kind;
    OUTPRINT(1, "\n# AutoSched3-Ordering is analysing problem.\n");
-#include "che_auto_cases.c"
+
    print_oparms(&oparms);
    SpecLimitsCellFree(limits);
    return TOCreateOrdering(state, &oparms, NULL, NULL);
@@ -403,7 +403,7 @@ OCB_p generate_autosched4_ordering(ProofState_p state, SpecFeature_p spec, HoOrd
    init_oparms(&oparms);
    oparms.ho_order_kind = ho_order_kind;
    OUTPRINT(1, "\n# AutoSched4-Ordering is analysing problem.\n");
-#include "che_auto_cases.c"
+
    print_oparms(&oparms);
    SpecLimitsCellFree(limits);
    return TOCreateOrdering(state, &oparms, NULL, NULL);
@@ -427,7 +427,7 @@ OCB_p generate_autosched5_ordering(ProofState_p state, SpecFeature_p spec, HoOrd
    init_oparms(&oparms);
    oparms.ho_order_kind = ho_order_kind;
    OUTPRINT(1, "\n# AutoSched5-Ordering is analysing problem.\n");
-#include "che_auto_cases.c"
+
    print_oparms(&oparms);
    SpecLimitsCellFree(limits);
    return TOCreateOrdering(state, &oparms, NULL, NULL);
@@ -451,7 +451,7 @@ OCB_p generate_autosched6_ordering(ProofState_p state, SpecFeature_p spec, HoOrd
    init_oparms(&oparms);
    oparms.ho_order_kind = ho_order_kind;
    OUTPRINT(1, "\n# AutoSched6-Ordering is analysing problem.\n");
-#include "che_auto_cases.c"
+
    print_oparms(&oparms);
    SpecLimitsCellFree(limits);
    return TOCreateOrdering(state, &oparms, NULL, NULL);
@@ -475,7 +475,7 @@ OCB_p generate_autosched7_ordering(ProofState_p state, SpecFeature_p spec, HoOrd
    init_oparms(&oparms);
    oparms.ho_order_kind = ho_order_kind;
    OUTPRINT(1, "\n# AutoSched7-Ordering is analysing problem.\n");
-#include "che_auto_cases.c"
+
    print_oparms(&oparms);
    SpecLimitsCellFree(limits);
    return TOCreateOrdering(state, &oparms, NULL, NULL);
@@ -500,7 +500,7 @@ OCB_p generate_autosched8_ordering(ProofState_p state, SpecFeature_p spec, HoOrd
    init_oparms(&oparms);
    oparms.ho_order_kind = ho_order_kind;
    OUTPRINT(1, "\n# AutoSched8-Ordering is analysing problem.\n");
-#include "che_auto_cases.c"
+
    print_oparms(&oparms);
    SpecLimitsCellFree(limits);
    return TOCreateOrdering(state, &oparms, NULL, NULL);
@@ -524,7 +524,7 @@ OCB_p generate_autosched9_ordering(ProofState_p state, SpecFeature_p spec, HoOrd
    init_oparms(&oparms);
    oparms.ho_order_kind = ho_order_kind;
    OUTPRINT(1, "\n# AutoSched9-Ordering is analysing problem.\n");
-#include "che_auto_cases.c"
+
    print_oparms(&oparms);
    SpecLimitsCellFree(limits);
    return TOCreateOrdering(state, &oparms, NULL, NULL);
@@ -856,7 +856,7 @@ OCB_p TOSelectOrdering(ProofState_p state, HeuristicParms_p params,
 
    tmp = params->order_params;
 
-   if(problemType == PROBLEM_HO && StringStartsWith(params->heuristic_name, "Auto"))
+   if(StringStartsWith(params->heuristic_name, "Auto"))
    {
       SpecLimits_p limits = CreateDefaultSpecLimits();
       SpecFeaturesAddEval(specs, limits);
@@ -884,58 +884,6 @@ OCB_p TOSelectOrdering(ProofState_p state, HeuristicParms_p params,
       local = params->order_params;
 
       result = OrderFindOptimal(&local, OrderEvaluate, state, params);
-   }
-   else if(tmp.ordertype == AUTO)
-   {
-      result = generate_auto_ordering(state, specs, params->order_params.ho_order_kind);
-   }
-   else if(tmp.ordertype == AUTOCASC)
-   {
-      result = generate_autocasc_ordering(state, specs, params->order_params.ho_order_kind);
-   }
-   else if(tmp.ordertype == AUTODEV)
-   {
-      result = generate_autodev_ordering(state, specs, params->order_params.ho_order_kind);
-   }
-   else if(tmp.ordertype == AUTOSCHED0)
-   {
-      result = generate_autosched0_ordering(state, specs, params->order_params.ho_order_kind);
-   }
-   else if(tmp.ordertype == AUTOSCHED1)
-   {
-      result = generate_autosched1_ordering(state, specs, params->order_params.ho_order_kind);
-   }
-   else if(tmp.ordertype == AUTOSCHED2)
-   {
-      result = generate_autosched2_ordering(state, specs, params->order_params.ho_order_kind);
-   }
-   else if(tmp.ordertype == AUTOSCHED3)
-   {
-      result = generate_autosched3_ordering(state, specs, params->order_params.ho_order_kind);
-   }
-   else if(tmp.ordertype == AUTOSCHED4)
-   {
-      result = generate_autosched4_ordering(state, specs, params->order_params.ho_order_kind);
-   }
-   else if(tmp.ordertype == AUTOSCHED5)
-   {
-      result = generate_autosched5_ordering(state, specs, params->order_params.ho_order_kind);
-   }
-   else if(tmp.ordertype == AUTOSCHED6)
-   {
-      result = generate_autosched6_ordering(state, specs, params->order_params.ho_order_kind);
-   }
-   else if(tmp.ordertype == AUTOSCHED7)
-   {
-      result = generate_autosched7_ordering(state, specs, params->order_params.ho_order_kind);
-   }
-   else if(tmp.ordertype == AUTOSCHED8)
-   {
-      result = generate_autosched8_ordering(state, specs, params->order_params.ho_order_kind);
-   }
-   else if(tmp.ordertype == AUTOSCHED9)
-   {
-      result = generate_autosched9_ordering(state, specs, params->order_params.ho_order_kind);
    }
    else
    {
