@@ -877,13 +877,16 @@ static Term_p lambda_eq_to_forall(TB_p terms, Term_p t)
          PStack_p more_vars = 
             PStackGetSP(lhs_vars) > PStackGetSP(rhs_vars) ? lhs_vars : rhs_vars;
          PStack_p fresh_vars = PStackAlloc();
+         PStack_p encoded_vars = PStackAlloc();
          for(long i=0; i<PStackGetSP(more_vars); i++)
          {
             Term_p db = PStackElementP(more_vars, i);
-            PStackPushP(fresh_vars, VarBankGetFreshVar(terms->vars, db->type));
+            Term_p fvar = VarBankGetFreshVar(terms->vars, db->type);
+            PStackPushP(fresh_vars, fvar);
+            PStackPushP(encoded_vars, EncodePredicateAsEqn(terms, fvar));
          }
-         Term_p lhs = BetaNormalizeDB(terms, ApplyTerms(terms, t->args[0], fresh_vars));
-         Term_p rhs = BetaNormalizeDB(terms, ApplyTerms(terms, t->args[1], fresh_vars));
+         Term_p lhs = BetaNormalizeDB(terms, ApplyTerms(terms, t->args[0], encoded_vars));
+         Term_p rhs = BetaNormalizeDB(terms, ApplyTerms(terms, t->args[1], encoded_vars));
          if(lhs->type == sig->type_bank->bool_type)
          {
             
@@ -908,6 +911,7 @@ static Term_p lambda_eq_to_forall(TB_p terms, Term_p t)
          PStackFree(lhs_vars);
          PStackFree(rhs_vars);
          PStackFree(fresh_vars);
+         PStackFree(encoded_vars);
       }
    }
    return t;

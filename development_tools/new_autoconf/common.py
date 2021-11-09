@@ -40,7 +40,8 @@ class Category(object):
 
 
 class Configuration(object):
-  _all_probs = {} # hold info how many confs solved a problem
+  _all_solved = {} # hold info how many confs solved a problem
+  _all_attempted = {} # hold info how many confs attempted a problem
   _all_confs = 0  # how many objetcs of Conf type have been created
 
   PREPROCESSING_KEYS = [
@@ -58,6 +59,7 @@ class Configuration(object):
     self._probs = {}
     self._memo_eval = {}
     self._num_solved = 0
+    self._num_attempted = 0
     self._total_time = 0.0
     self._total_uniqness = None
     self._json = None
@@ -67,44 +69,46 @@ class Configuration(object):
     self._num_solved += 1
     self._total_time += time
     self._probs[prob] = time
-    if prob not in Configuration._all_probs:
-      Configuration._all_probs[prob] = 1
+    if prob not in Configuration._all_solved:
+      Configuration._all_solved[prob] = 1
+    else:
+      Configuration._all_solved[prob] += 1
+    self.add_attempted_prob(prob)
+  
+  def add_attempted_prob(self, prob):
+    self._num_attempted += 1
+    if prob not in Configuration._all_attempted:
+      Configuration._all_attempted[prob] = 1
+    else:
+      Configuration._all_attempted[prob] += 1
 
-  def evaluate_for_probs(self, probs, num_other_confs=None):
-    if num_other_confs is None:
-      num_other_confs = Configuration._all_confs
-
+  def evaluate_for_probs(self, probs):
     solved, uniqness_points, time = (0, 0, 0.0)
     for prob in probs:
       if prob in self._probs:
         solved += 1
-        uniqness_points += num_other_confs - Configuration._all_probs[prob]
+        uniqness_points += Configuration._all_attempted[prob] - Configuration._all_solved[prob]
         time += self._probs[prob]
-    return (solved, uniqness_points, time)
+    return (solved, uniqness_points, time / max(solved,1))
 
-  #in principle, num_other_confs only needs to be supplied
-  #when Configuration objects are created and deleted
-  #if you once parse the Conf and store it for the duration
-  #of the program _all_confs will correctly count the number
-  #of other configurations without you doing anything
-  def evaluate_category(self, category, num_other_confs=None):
+  def evaluate_category(self, category):
     if category in self._memo_eval:
       return self._memo_eval[category]   
     
-    eval = self.evaluate_for_probs(category.get_problems(), num_other_confs)
+    eval = self.evaluate_for_probs(category.get_problems())
     self._memo_eval[category] = eval
     category.store_evaluation(eval, self)
     return eval
 
-  def as_order_key(self, num_other_confs=None):
+  def rate_general(self):
     if self._total_uniqness is None:
-      if num_other_confs is None:
-        num_other_confs = Configuration._all_confs
       self._total_uniqness = 0
       for prob in self._probs.keys():
-        self._total_uniqness += num_other_confs - Configuration._all_probs[prob]
+        self._total_uniqness += Configuration._all_attempted[prob] - Configuration._all_solved[prob]
 
-    return (self._num_solved, self._total_uniqness,  -self._total_time)
+    return (self._num_solved / self._num_attempted, self._total_uniqness,
+            -self._total_time / max(self._num_solved,1))
+
 
   def parse_json(self, path):
     with open(path, 'r') as fd:

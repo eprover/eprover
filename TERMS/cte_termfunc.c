@@ -3098,16 +3098,7 @@ int TermComputeOrder(Sig_p sig, Term_p term)
    while(!PStackEmpty(subterms))
    {
       Term_p subterm = PStackPopP(subterms);
-      if(TermIsFreeVar(subterm))
-      {
-         ord = MAX(ord, VAR_ORDER(subterm->type));
-      }
-      else if(!TermIsLambda(subterm) && !TermIsPhonyApp(subterm))
-      {
-         Type_p ty = 
-            TermIsDBVar(subterm) ? subterm->type : SigGetType(sig, subterm->f_code);
-         ord = MAX(ord, ty ? TypeGetOrder(ty) : 0);
-      }
+      ord = MAX(ord, VAR_ORDER(subterm->type));
 
       for(int i=TermIsLambda(subterm) ? 1 : 0; i<subterm->arity; i++)
       {

@@ -22,12 +22,12 @@ Changes
 
 ScheduleCell* new_schedule = NEW_HO_SCHEDULE;
 
-void print_config_name(FILE* out, const char* config, int idx)
+void print_config_name(FILE* out, const char* prefix, const char* config, int idx)
 {
   DStr_p str = DStrAlloc();
   assert(strchr(config, '\n'));
   DStrAppendBuffer(str, (char*)config, strchr(config, '\n') - config);
-  locked_fprintf(out, "# config(%d): %s\n", idx, DStrView(str));
+  locked_fprintf(out, "# %s config(%d): %s\n", prefix, idx, DStrView(str));
   DStrFree(str);
 }
 
@@ -49,23 +49,27 @@ const char* class_to_heuristic(const char* problem_category, const char** catego
                         const char** configurations, int num_categories, 
                         HeuristicParms_p params)
 {
-  int i=0;
   int min_idx = -1;
   int min_dist = INT_MAX;
-  for(; i<num_categories; i++)
+  for(int i=0; i<num_categories; i++)
   {
-    int dist = str_distance(categories[i], problem_category);
-    if(dist == 0)
+    for(int i=0; min_dist && i<num_categories; i++)
     {
-      break;
-    }
-    if (dist < min_dist)
-    {
-      min_dist = dist;  
-      min_idx = i;
+      int dist = str_distance(categories[i], problem_category);
+      if(dist == 0)
+      {
+        min_idx = i;
+        min_dist = 0;
+      }
+      if (dist < min_dist)
+      {
+        min_dist = dist;  
+        min_idx = i;
+      }
     }
   }
-  const char* configuration =  configurations[i != num_categories ? i : min_idx];
+  assert(min_idx >= 0);
+  const char* configuration =  configurations[min_idx];
   Scanner_p in = CreateScanner(StreamTypeInternalString, (char*)configuration, true, NULL, true);
   HeuristicParmsParseInto(in, params, false); 
   DestroyScanner(in);
@@ -76,15 +80,15 @@ const char* class_to_schedule(const char* problem_category, const char** categor
                         const char* configurations[][SCHEDULE_SIZE], int num_categories, 
                         int attempt_idx, HeuristicParms_p params)
 {
-  int i=0;
   int min_idx = -1;
   int min_dist = INT_MAX;
-  for(; i<num_categories; i++)
+  for(int i=0; min_dist && i<num_categories; i++)
   {
     int dist = str_distance(categories[i], problem_category);
     if(dist == 0)
     {
-      break;
+      min_idx = i;
+      min_dist = 0;
     }
     if (dist < min_dist)
     {
@@ -92,7 +96,8 @@ const char* class_to_schedule(const char* problem_category, const char** categor
       min_idx = i;
     }
   }
-  const char* conf =  configurations[i != num_categories ? i : min_idx][attempt_idx];
+  assert(min_idx >= 0);
+  const char* conf =  configurations[min_idx][attempt_idx];
   assert(attempt_idx < SCHEDULE_SIZE);
   Scanner_p in = CreateScanner(StreamTypeInternalString, (char*)conf, true, NULL, true);
   HeuristicParmsParseInto(in, params, false); 
@@ -104,30 +109,30 @@ void AutoHeuristicForRawCategory(const char* raw_category, HeuristicParms_p parm
 {
   const char* config = class_to_heuristic(raw_category, raw_categories, raw_confs, num_raw_categories, parms);
   locked_fprintf(stderr, "# raw_category: %s\n", raw_category);
-  print_config_name(stderr, config, 0);
+  print_config_name(stderr, "raw", config, 0);
 }
 
 void ScheduleForRawCategory(const char* raw_category, int attempt_idx, HeuristicParms_p parms)
 {
   const char* config = class_to_schedule(raw_category, multischedule_raw_categories, multischedule_raw_confs, 
-                                         num_raw_categories, attempt_idx, parms);
-  VERBOSE2(locked_fprintf(stderr, "# raw_category(%d): %s\n", attempt_idx, raw_category);)
-  print_config_name(stderr, config, attempt_idx);
+                                         multischedule_raw_categories_len, attempt_idx, parms);
+  locked_fprintf(stderr, "# raw_category(%d): %s\n", attempt_idx, raw_category);
+  print_config_name(stderr, "raw", config, attempt_idx);
 }
 
 void AutoHeuristicForCategory(const char* category, HeuristicParms_p parms)
 {
   const char* config = class_to_heuristic(category, categories, confs, num_categories, parms);
   locked_fprintf(stderr, "# category: %s\n", category);
-  print_config_name(stderr, config, 0);
+  print_config_name(stderr, "after cnf", config, 0);
 }
 
 void ScheduleForCategory(const char* category, int attempt_idx, HeuristicParms_p parms)
 {
   const char* config = class_to_schedule(category, multischedule_categories, multischedule_confs, 
-                                         num_categories, attempt_idx, parms);
-  VERBOSE2(locked_fprintf(stderr, "# category(%d): %s\n", attempt_idx, category);)
-  print_config_name(stderr, config, attempt_idx);
+                                         multischedule_categories_len, attempt_idx, parms);
+  locked_fprintf(stderr, "# category(%d): %s\n", attempt_idx, category);
+  print_config_name(stderr, "after cnf", config, attempt_idx);
 }
 
 int GetAttemptIdx(const char* strategy_name)

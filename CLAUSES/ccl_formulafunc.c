@@ -1976,8 +1976,10 @@ long TFormulaSetUnrollFOOL(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
    for (WFormula_p formula = set->anchor->succ; formula != set->anchor; formula = formula->succ)
    {
       TFormulaReplaceEqnWithEquiv(formula, terms);
+      DBG_TPRINT(stderr, "unrolling", formula->tformula, "\n");;
       if (TFormulaUnrollFOOL(formula, terms))
       {
+         DBG_TPRINT(stderr, "unrolled", formula->tformula, "\n");;
          res++;
       }
    }

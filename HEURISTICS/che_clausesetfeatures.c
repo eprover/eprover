@@ -1811,7 +1811,7 @@ void ClauseSetComputeHOFeatures(ClauseSet_p set, Sig_p sig,
    int av_lits = 0;
 
    int ord = 0;
-   for(FunCode i = sig->internal_symbols+1; i<sig->f_count; i++)
+   for(FunCode i = sig->internal_symbols+1; i<=sig->f_count; i++)
    {
       ord = MAX(ord, TypeGetOrder(SigGetType(sig, i)));
    }

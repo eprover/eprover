@@ -48,18 +48,18 @@ def parse_jobinfo_file(_, fd, confs, __):
 
     for row in reader:
       result = row[JOBINFO_RESULT].strip()
+      prob = row[JOBINFO_PROB_NAME].split('/')[-1].strip()
+      conf_name = p.Path(row[JOBINFO_CONFIGURATION].strip()).stem
+      if conf_name in confs:
+        conf = confs[conf_name]
+      else:
+        conf = Configuration(conf_name)
+        confs[conf_name] = conf
       if result in SUCCESS_RESULTS:
-        prob = row[JOBINFO_PROB_NAME].split('/')[-1].strip()
-        conf_name = p.Path(row[JOBINFO_CONFIGURATION].strip()).stem
-        time = float(row[JOBINFO_TIME].strip())
-
-        if conf_name in confs:
-          conf = confs[conf_name]
-        else:
-          conf = Configuration(conf_name)
-          confs[conf_name] = conf
-        
+        time = float(row[JOBINFO_TIME].strip())        
         conf.add_solved_prob(prob, time)
+      else:
+        conf.add_attempted_prob(prob)
     return True
   except (csv.Error, KeyError):
     return False
@@ -108,6 +108,9 @@ def parse_protocol_file(filename, fd, confs, e_path):
           conf.add_solved_prob(prob, float(time))
         except ValueError:
           print('# Error with line {0} in {1}'.format(line, filename), file=stderr)
+          conf.add_attempted_prob(prob)
+      else:
+        conf.add_attempted_prob(prob)
 
     confs[conf.get_name()] = conf
     return True
@@ -187,7 +190,6 @@ def cover_cats(conf, cats, others):
   for cat in cats:
     if (conf.evaluate_category(cat)[0] and
         cat.get_best_conf() == conf):
-      print("conf({0}) = {1}".format(cat, conf.get_name()), file=stderr)
       covered.add(cat)
   return covered
 
@@ -195,7 +197,7 @@ def cover_cats(conf, cats, others):
 def schedule_best_single(cats, confs, take_general):
   from collections import deque
   if take_general:
-    confs = deque(sorted(confs.values(), key=Configuration.as_order_key, reverse=True))
+    confs = deque(sorted(confs.values(), key=Configuration.rate_general, reverse=True))
   else:
     confs = set(confs.values())
   cats = set(cats.values())
@@ -213,10 +215,7 @@ def schedule_best_single(cats, confs, take_general):
     for cat in covered_cats:
       cat_to_confs[cat.get_name()] = best_conf
     cats = cats.difference(covered_cats)
-  
-  if cats:
-    print("unassinged: {0}".format(",".join(map(str, cats))), file=stderr)
-  
+    
   return cat_to_confs
 
 
@@ -270,7 +269,7 @@ def print_str_list(var_name, str_list, type_modifier = "const char*", array_modi
 
 
 def output_single(confs, category_to_confs, raw_category_to_conf):
-  best_conf = max(confs.values(), key=Configuration.as_order_key)
+  best_conf = max(confs.values(), key=Configuration.rate_general)
 
   print('const long  num_categories = {0};'.format(len(category_to_confs)))
   print('const long  num_raw_categories = {0};'.format(len(raw_category_to_conf)))
@@ -302,10 +301,14 @@ def print_new_schedule_cell(time_ratios):
 
 def output_multi_schedule(cat_to_conf, sched_size, cat_name, conf_name, json_kind):
   cat_keys, schedules = list(zip(*cat_to_conf.items()))
+  print('const int {0}_len = {1};'.format(cat_name, len(cat_keys)))
   print_str_list(cat_name, map(lambda c: '"' + c.get_name() + '"', cat_keys))
   print_str_list(conf_name, ['{' +  ",".join(['"' + c.to_json(json_kind) + '"' for c in s]) + '}' for s in schedules],
                  array_modifier='[][{0}]'.format(sched_size))
 
+
+def eval2key(x):
+  return (x[0], x[1], -x[2])
 
 def multi_schedule(num_confs, cats, confs, var_name, json_kind):
   assert(num_confs >= 2)
@@ -317,27 +320,21 @@ def multi_schedule(num_confs, cats, confs, var_name, json_kind):
   for conf in confs:
     for cat in cats:
       conf.evaluate_category(cat)
-  
-  best_overall = max(confs, key=Configuration.as_order_key)
-  
+
   res = {}
   for cat in cats:
-    schedule = []
     best_for_cat = cat.get_best_conf()
     sched_size = 1
-    schedule.append(best_for_cat)
-    if best_for_cat != best_overall:
-      schedule.append(best_overall)
-      sched_size += 1
-
+    schedule = [best_for_cat]
+   
     remaining_probs = set(cat.get_problems())
     for conf in schedule:
       remaining_probs = remaining_probs.difference(conf.get_solved_probs())
-    remaining_confs = set(confs).difference([best_for_cat, best_overall])
+    remaining_confs = set(confs).difference(schedule)
       
     while remaining_probs and sched_size!=num_confs:
       best_conf = max(remaining_confs,
-                      key=lambda x: x.evaluate_for_probs(remaining_probs))
+                      key=lambda x: eval2key(x.evaluate_for_probs(remaining_probs)))
       curr_res = best_conf.evaluate_for_probs(remaining_probs)
       if curr_res[0] == 0:
         #no problems can be solved by any of the remaining confs
@@ -346,9 +343,10 @@ def multi_schedule(num_confs, cats, confs, var_name, json_kind):
         schedule.append(best_conf)
         remaining_probs = remaining_probs.difference(best_conf.get_solved_probs())
         remaining_confs.remove(best_conf)
-        sched_size += 1   
+        sched_size += 1
     if sched_size!=num_confs:
-      schedule += list(sorted(remaining_confs, key=Configuration.as_order_key, 
+      schedule += list(sorted(remaining_confs, 
+                              key=lambda x: eval2key(x.evaluate_category(cat)), 
                               reverse=True))[:num_confs-sched_size]
     
     assert(len(schedule) == num_confs)
