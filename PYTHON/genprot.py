@@ -189,7 +189,7 @@ def process_file(data, features, archivename, path, fileopener, info):
     fileextension = splitext(path)[-1]
     filename      = basename(path)
     if problemname and configname and fileextension == ".txt" \
-       and (("+" in problemname) or ("-" in problemname or ("_" in problemname))):
+       and (("+" in problemname) or ("-" in problemname or ("_" in problemname) or ("^" in problemname))):
         entry = make_entry(fileopener(info).readlines())
         if entry:
            entry.update({"Configname":configname,

@@ -508,11 +508,11 @@ long StructFOFSpecParseAxioms(StructFOFSpec_p ctrl, PStack_p axfiles,
 //
 /----------------------------------------------------------------------*/
 
-void StructFOFSpecInitDistrib(StructFOFSpec_p ctrl)
+void StructFOFSpecInitDistrib(StructFOFSpec_p ctrl, bool trim)
 {
    GenDistribSizeAdjust(ctrl->f_distrib, ctrl->terms->sig);
    GenDistribAddClauseSets(ctrl->f_distrib, ctrl->clause_sets);
-   GenDistribAddFormulaSets(ctrl->f_distrib, ctrl->formula_sets);
+   GenDistribAddFormulaSets(ctrl->f_distrib, ctrl->formula_sets, trim);
 }
 
 
@@ -571,10 +571,10 @@ long ProofStateSinE(ProofState_p state, char* fname)
    GCDeregisterClauseSet(state->terms->gc, state->axioms);
 
    spec = StructFOFSpecCreate(state->terms);
-   StructFOFSpecAddProblem(spec, state->axioms, state->f_axioms);
+   StructFOFSpecAddProblem(spec, state->axioms, state->f_axioms, filter->trim_implications);
 
 
-   StructFOFSpecInitDistrib(spec);
+   StructFOFSpecInitDistrib(spec, filter->trim_implications);
    StructFOFSpecGetProblem(spec,
                            filter,
                            clauses,

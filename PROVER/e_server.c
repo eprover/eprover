@@ -264,7 +264,7 @@ int main(int argc, char* argv[])
 
    ctrl = StructFOFSpecAlloc();
    StructFOFSpecParseAxioms(ctrl, prob_names, parse_format, NULL);
-   StructFOFSpecInitDistrib(ctrl);
+   StructFOFSpecInitDistrib(ctrl, false);
    StructFOFSpecResetShared(ctrl);
 
    /* Do stuff */

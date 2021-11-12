@@ -136,6 +136,7 @@ AxFilter_p AxFilterAlloc(void)
                                               problematic */
    handle->max_set_fraction     = 1.0;
    handle->add_no_symbol_axioms = false;
+   handle->trim_implications    = false;
 
    return handle;
 }
@@ -253,7 +254,12 @@ AxFilter_p GSinEParse(Scanner_p in)
       res->add_no_symbol_axioms = TestInpId(in, "addnosymb");
       AcceptInpId(in, "addnosymb|ignorenosymb");
    }
-
+   if(TestInpTok(in, Comma))
+   {
+      AcceptInpTok(in, Comma);
+      res->trim_implications = TestInpId(in, "true");
+      NextToken(in);
+   }
 
    AcceptInpTok(in, CloseBracket);
 
