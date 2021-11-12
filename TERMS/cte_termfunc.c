@@ -3144,6 +3144,36 @@ void TermPrintDbgVarBinds(Sig_p sig, Term_p t)
    PTreeFree(vars);
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: TermTrimImplications()
+//
+//   Computes the maximal order of the symbols that appear in the term.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+#define TRIM_THRESHOLD 10
+Term_p TermTrimImplications(Sig_p sig, Term_p f)
+{
+   Term_p orig_f = f;
+   while(TFormulaIsQuantified(sig, f) && f->arity == 2)
+   {
+      f = f->args[1];
+   }
+
+   int num_impls = 0;
+   while(f->f_code == sig->impl_code && f->arity == 2)
+   {
+      num_impls++;
+      f = f->args[1];
+   }
+   return num_impls >= TRIM_THRESHOLD ? f : orig_f;
+}
+
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/

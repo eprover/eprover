@@ -419,10 +419,12 @@ void GenDistribAddFormula(GenDistrib_p dist,
                           short factor)
 {
    PStack_p symbol_stack = PStackAlloc();
+   Sig_p sig = form->terms->sig;
 
-   TermAddSymbolDistExist(form->tformula,
-                             dist->f_distrib,
-                             symbol_stack);
+   TermAddSymbolDistExist((FormulaIsConjecture(form) && problemType == PROBLEM_HO) ?
+                           TermTrimImplications(sig, form->tformula) : form->tformula,
+                           dist->f_distrib,
+                           symbol_stack);
    gd_merge_single_res(dist, symbol_stack, factor);
 
    while(!PStackEmpty(symbol_stack))
@@ -673,11 +675,13 @@ void FormulaComputeDRel(GenDistrib_p generality,
                         PStack_p res)
 {
    PStack_p      symbol_stack = PStackAlloc();
+   Sig_p sig = form->terms->sig;
 
    /* memset(generality->f_distrib, 0, generality->size*sizeof(long)); */
-   TermAddSymbolDistExist(form->tformula,
-                             generality->f_distrib,
-                             symbol_stack);
+   TermAddSymbolDistExist((FormulaIsConjecture(form) && problemType == PROBLEM_HO) ?
+                          TermTrimImplications(sig,  form->tformula) : form->tformula,
+                          generality->f_distrib,
+                          symbol_stack);
 
    /* printf("Symbolstack has %d elements\n",
       PStackGetSP(symbol_stack)); */
