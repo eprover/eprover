@@ -1494,7 +1494,7 @@ char* SpecTypeString(SpecFeature_p features, const char* mask)
 #ifndef NDEBUG
    const int enc_len = strlen(encoding);
 #endif
-   char       result[20]; /* Big enough for the '\0'!!!*/
+   char       result[SPEC_STRING_MEM]; /* Big enough for the '\0'!!!*/
    int        i, limit;
 
    assert(features);

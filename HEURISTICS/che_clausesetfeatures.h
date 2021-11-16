@@ -243,6 +243,7 @@ typedef struct spec_feature_cell
 #define PERC_APPLIT_MEDIUM_DEFAULT 0.1
 #define PERC_APPLIT_LARGE_DEFAULT  0.5
 
+#define SPEC_STRING_MEM          20
 
 #define DEFAULT_OUTPUT_DESCRIPTOR "eigEIG"
 #define DEFAULT_CLASS_MASK "aaaaaaaaaaaaa"

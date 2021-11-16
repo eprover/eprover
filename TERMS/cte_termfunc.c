@@ -3146,7 +3146,7 @@ void TermPrintDbgVarBinds(Sig_p sig, Term_p t)
 
 /*-----------------------------------------------------------------------
 //
-// Function: TrimImplication()
+// Function: TermTrimImplications()
 //
 //   Consider only the conclusion part of the implication for
 //   considering the symbols in SinE.
@@ -3157,31 +3157,22 @@ void TermPrintDbgVarBinds(Sig_p sig, Term_p t)
 //
 /----------------------------------------------------------------------*/
 
-#define TRIM_THRESHOLD 30
-Term_p TrimImplication(Sig_p sig, Term_p f)
+#define TRIM_THRESHOLD 10
+Term_p TermTrimImplications(Sig_p sig, Term_p f)
 {
-   int num_impls = 0;
    Term_p orig_f = f;
-   while( (TFormulaIsQuantified(sig, f) && f->arity == 2)  )
+   while(TFormulaIsQuantified(sig, f) && f->arity == 2)
    {
       f = f->args[1];
    }
 
-   while( (f->f_code == sig->impl_code && f->arity == 2) )
+   int num_impls = 0;
+   while(f->f_code == sig->impl_code && f->arity == 2)
    {
       num_impls++;
       f = f->args[1];
    }
-
-   if(num_impls >= TRIM_THRESHOLD)
-   {
-      return f;
-   }
-   else
-   {
-      return orig_f;
-   }
-   return f;
+   return num_impls >= TRIM_THRESHOLD ? f : orig_f;
 }
 
 /*---------------------------------------------------------------------*/

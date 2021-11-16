@@ -284,7 +284,7 @@ char* stage_command(InteractiveSpec_p interactive, DStr_p axiom_set)
          }
          else
          {
-            StructFOFSpecAddProblem(interactive->ctrl, handle->cset, handle->fset);
+            StructFOFSpecAddProblem(interactive->ctrl, handle->cset, handle->fset, false);
             handle->staged = 1;
             interactive->ctrl->shared_ax_sp = PStackGetSP(interactive->ctrl->clause_sets);
             return OK_STAGED_MESSAGE;
@@ -573,7 +573,7 @@ char* unstage_command(InteractiveSpec_p interactive, DStr_p axiom_set)
 
       if(strcmp( DStrView(axiom_set), DStrView(chandle->identifier)) == 0 )
       {
-         GenDistribAddFormulaSet(interactive->ctrl->f_distrib, fhandle, -1);
+         GenDistribAddFormulaSet(interactive->ctrl->f_distrib, fhandle, false, -1);
          GenDistribAddClauseSet(interactive->ctrl->f_distrib, chandle, -1);
          found = 1;
          break;

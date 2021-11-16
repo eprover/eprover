@@ -75,9 +75,10 @@ void         GenDistribAddClauseSet(GenDistrib_p dist, ClauseSet_p set,
                                     short factor);
 
 void         GenDistribAddFormula(GenDistrib_p dist, WFormula_p form,
-                                  short factor);
+                                  bool trim, short factor);
 void         GenDistribAddFormulaSet(GenDistrib_p dist,
                                      FormulaSet_p set,
+                                     bool trim,
                                      short factor);
 
 void         GenDistribAddClauseSetStack(GenDistrib_p dist,
@@ -87,20 +88,21 @@ void         GenDistribAddClauseSetStack(GenDistrib_p dist,
 void         GenDistribAddFormulaSetStack(GenDistrib_p dist,
                                           PStack_p stack,
                                           PStackPointer start,
+                                          bool trim,
                                           short factor);
 
 #define GenDistribAddClauseSets(dist, stack) \
    GenDistribAddClauseSetStack((dist), (stack), 0, 1)
 
-#define GenDistribAddFormulaSets(dist, stack) \
-   GenDistribAddFormulaSetStack((dist), (stack), 0, 1)
+#define GenDistribAddFormulaSets(dist, stack, trim) \
+   GenDistribAddFormulaSetStack((dist), (stack), 0, trim, 1)
 
 
 #define GenDistribBacktrackClauseSets(dist, stack, sp)     \
    GenDistribAddClauseSetStack((dist), (stack), (sp), -1)
 
 #define GenDistribBacktrackFormulaSets(dist, stack, sp)          \
-   GenDistribAddFormulaSetStack((dist), (stack), (sp), -1)
+   GenDistribAddFormulaSetStack((dist), (stack), (sp), false, -1)
 
 
 void         GenDistPrint(FILE* out, GenDistrib_p dist);
@@ -119,7 +121,8 @@ void        FormulaComputeDRel(GenDistrib_p generality,
                                double benevolence,
                                long generosity,
                                WFormula_p form,
-                               PStack_p res);
+                               PStack_p res,
+                               bool trim_impl);
 
 #endif
 

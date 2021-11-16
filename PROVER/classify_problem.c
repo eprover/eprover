@@ -32,6 +32,7 @@ Changes
 #include <che_rawspecfeatures.h>
 #include <cco_sine.h>
 #include <e_version.h>
+#include <che_new_autoschedule.h>
 
 /*---------------------------------------------------------------------*/
 /*                  Data types                                         */
@@ -98,7 +99,8 @@ typedef enum
    OPT_FUNC_MEDIUM_LIMIT,
    OPT_FUNC_LARGE_LIMIT,
    OPT_FUN_MEDIUM_LIMIT,
-   OPT_FUN_LARGE_LIMIT
+   OPT_FUN_LARGE_LIMIT,
+   OPT_MERGED_CLASSIFICATION,
 }OptionCodes;
 
 
@@ -462,6 +464,12 @@ OptCell opts[] =
     "Set the minimum number of non-constant function symbols for large size "
     "by this measure."},
 
+   {OPT_MERGED_CLASSIFICATION,
+    '\0', "merged-classification",
+    ReqArg, NULL,
+    "Perform classification that merges formula and clause properties. "
+    "The required argument is the timeout given to clausification (seconds)."},
+
    {OPT_NOOPT,
     '\0', NULL,
     NoArg, NULL,
@@ -480,6 +488,7 @@ bool tptp_header      = false,
    new_cnf          = true,
    parse_features   = false,
    app_encode       = false;
+int cnf_timeout = -1;
 long eqdef_maxclauses = DEFAULT_EQDEF_MAXCLAUSES,
    miniscope_limit  = 1000;
 long eqdef_incrlimit  = DEFAULT_EQDEF_INCRLIMIT;
@@ -774,6 +783,80 @@ void do_raw_classification(char* name, ProofState_p state,
    locked_fprintf(GlobalOut, "\n");
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: ClausifyAndClassifyWTimeout()
+//
+//   Run the defaultclausification and get the corresponding classification
+//   string. If last three arguments are non-NULL, the full classification string
+//   with computed features will be output to stdout.
+//
+// Global Variables: Plenty, most simple flags used read-only
+//
+// Side Effects    : Does everything...
+//
+/----------------------------------------------------------------------*/
+
+void ClausifyAndClassifyWTimeout(ProofState_p state, int timeout, 
+                                 char* mask,
+                                 char class[SPEC_STRING_MEM])
+{
+   const int DEFAULT_MINISCOPE = 1000;
+   const int DEFAULT_FORMULA_DEF_LIMIT = 24;
+   const bool DEFAULT_LIFT_LAMS = true;
+   const bool DEFAULT_LAM_TO_FORALL = true;
+   const bool DEFAULT_UNFOLD_ONLY_FORM = true;
+
+   int fds[2];
+   if(pipe(fds) == -1)
+   {
+      perror("pipe failed");
+      exit(1);
+   }
+
+   SpecFeatureCell features;
+   SpecLimits_p limits = CreateDefaultSpecLimits();
+
+   pid_t pid = fork();
+   if (pid == -1)
+   {
+      perror("fork failed");
+      exit(1);
+   }
+   else if (pid == 0)
+   {
+      // child
+      close(fds[0]);
+      SetSoftRlimit(RLIMIT_CPU, timeout);
+      FormulaSetCNF2(state->f_axioms, state->f_ax_archive,
+                     state->axioms, state->terms,
+                     state->freshvars, state->gc_terms,
+                     DEFAULT_MINISCOPE, DEFAULT_FORMULA_DEF_LIMIT,
+                     DEFAULT_LIFT_LAMS, DEFAULT_LAM_TO_FORALL, 
+                     DEFAULT_UNFOLD_ONLY_FORM);
+      SpecFeaturesCompute(&features, state->axioms, state->f_axioms,
+                          state->f_ax_archive, state->terms);
+      SpecFeaturesAddEval(&features, limits);
+      if(write(fds[1], SpecTypeString(&features, mask), SPEC_STRING_MEM) == -1)
+      {
+         perror("could not write");
+      }
+      exit(0);
+   }
+   else
+   {
+      // parent
+      close(fds[1]);
+      int nbytes = read(fds[0], class, SPEC_STRING_MEM);
+      if(nbytes < SPEC_STRING_MEM)
+      {
+         memset(class, '-', SPEC_STRING_MEM-1);
+         class[SPEC_STRING_MEM-1]='\0';
+      }
+      SpecLimitsCellFree(limits);
+   }
+}
+
 
 /*-----------------------------------------------------------------------
 //
@@ -838,7 +921,17 @@ int main(int argc, char* argv[])
                                   fstate->terms, NULL, &skip_includes);
          ProofStateSinE(fstate, sine);
 
-         if(raw_classify)
+         if(cnf_timeout != -1)
+         {
+            // merged classification
+            RawSpecFeatureCell features;
+            RawSpecFeaturesCompute(&features, fstate);
+            RawSpecFeaturesClassify(&features, limits, RAW_DEFAULT_MASK);
+            char cnf_class[SPEC_STRING_MEM];
+            ClausifyAndClassifyWTimeout(fstate, cnf_timeout, DEFAULT_MASK, cnf_class);
+            fprintf(GlobalOut, "%s : (NULL) : %s%s\n", state->argv[1], features.class, cnf_class);
+         }
+         else if(raw_classify)
          {
             do_raw_classification(state->argv[i], fstate, limits);
          }
@@ -1130,6 +1223,9 @@ CLState_p process_options(int argc, char* argv[], SpecLimits_p limits)
             break;
       case OPT_FUN_LARGE_LIMIT:
             limits->fun_large_limit = CLStateGetIntArg(handle, arg);
+            break;
+      case OPT_MERGED_CLASSIFICATION:
+            cnf_timeout = CLStateGetIntArg(handle, arg);
             break;
       default:
             assert(false);

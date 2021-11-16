@@ -93,6 +93,7 @@ void DRelationAddFormula(DRelation_p drel,
                          GeneralityMeasure gentype,
                          double benevolence,
                          long generosity,
+                         bool trim,
                          WFormula_p form);
 
 void DRelationAddClauseSet(DRelation_p drel,
@@ -107,6 +108,7 @@ void DRelationAddFormulaSet(DRelation_p drel,
                             GeneralityMeasure gentype,
                             double benevolence,
                             long generosity,
+                            bool trim,
                             FormulaSet_p set);
 
 void DRelationAddClauseSets(DRelation_p drel,
@@ -121,6 +123,7 @@ void DRelationAddFormulaSets(DRelation_p drel,
                              GeneralityMeasure gentype,
                              double benevolence,
                              long generosity,
+                             bool trim,
                              PStack_p sets);
 
 void PQueueStoreClause(PQueue_p axioms, Clause_p clause);
@@ -137,6 +140,7 @@ long SelectDefiningAxioms(DRelation_p drel,
                           Sig_p sig,
                           int max_recursion_depth,
                           long max_set_size,
+                          bool trim,
                           PQueue_p axioms,
                           PStack_p res_clauses,
                           PStack_p res_formulas);
