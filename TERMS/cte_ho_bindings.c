@@ -412,7 +412,10 @@ StateTag_t ComputeNextBinding(Term_p flex, Term_p rhs,
                {
                   // imitation building can fail if head is DB var
                   SubstAddBinding(subst, GetFVarHead(flex), target);
-                  *applied_bs = INC_IMIT(*applied_bs);
+                  if(!TermIsGround(target))
+                  {
+                     *applied_bs = INC_IMIT(*applied_bs);
+                  }
                }
             }
          }

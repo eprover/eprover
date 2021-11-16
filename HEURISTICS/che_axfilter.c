@@ -55,17 +55,17 @@ char* AxFilterDefaultSet ="\
    gf150_gu_RUU_F100_L20000=GSinE(CountFormulas, ,   1.5,,,20000,1.0)\
    gf120_gu_RUU_F100_L00100=GSinE(CountFormulas, ,   1.2,,,  100,1.0)\
    gf200_gu_R03_F100_L20000=GSinE(CountFormulas, ,   2.0,, 3,20000,1.0)\
-   gf600_gu_R05_F100_L20000=GSinE(CountFormulas, ,   6.0,, 5,20000,1.0)\
+   gf600_gu_R05_F100_L20000=GSinE(CountFormulas, ,   6.0,, 5,20000,1.0, true)\
    gf200_gu_RUU_F100_L20000=GSinE(CountFormulas, ,   2.0,,  ,20000,1.0)\
-   gf120_gu_RUU_F100_L01000=GSinE(CountFormulas, ,   1.2,,  , 1000,1.0)\
+   gf120_gu_RUU_F100_L01000=GSinE(CountFormulas, ,   1.2,,  , 1000,1.0, true)\
 \
-   gf500_h_gu_R04_F100_L20000=GSinE(CountFormulas, hypos,   5.0,, 4,20000,1.0)\
+   gf500_h_gu_R04_F100_L20000=GSinE(CountFormulas, hypos,   5.0,, 4,20000,1.0, true)\
    gf120_h_gu_RUU_F100_L00500=GSinE(CountFormulas, hypos,   1.2,,,  500,1.0)\
    gf120_h_gu_R02_F100_L20000=GSinE(CountFormulas, hypos,   1.2,, 2,20000,1.0)\
    gf150_h_gu_RUU_F100_L20000=GSinE(CountFormulas, hypos,   1.5,,,20000,1.0)\
    gf120_h_gu_RUU_F100_L00100=GSinE(CountFormulas, hypos,   1.2,,,  100,1.0)\
    gf200_h_gu_R03_F100_L20000=GSinE(CountFormulas, hypos,   2.0,, 3,20000,1.0)\
-   gf600_h_gu_R05_F100_L20000=GSinE(CountFormulas, hypos,   6.0,, 5,20000,1.0)\
+   gf600_h_gu_R05_F100_L20000=GSinE(CountFormulas, hypos,   6.0,, 5,20000,1.0,true)\
    gf200_h_gu_RUU_F100_L20000=GSinE(CountFormulas, hypos,   2.0,,  ,20000,1.0)\
    gf120_h_gu_RUU_F100_L01000=GSinE(CountFormulas, hypos,   1.2,,  , 1000,1.0)\
 \
@@ -248,17 +248,17 @@ AxFilter_p GSinEParse(Scanner_p in)
    {
       res->max_set_fraction = ParseFloat(in);
    }
-   if(TestInpTok(in, Comma))
+   if(TestInpTok(in, Comma) && TestId(LookToken(in, 1), "addnosymb|ignorenosymb"))
    {
       AcceptInpTok(in, Comma);
       res->add_no_symbol_axioms = TestInpId(in, "addnosymb");
       AcceptInpId(in, "addnosymb|ignorenosymb");
    }
-   if(TestInpTok(in, Comma))
+   if(TestInpTok(in, Comma) && TestId(LookToken(in, 1), "true|false"))
    {
       AcceptInpTok(in, Comma);
       res->trim_implications = TestInpId(in, "true");
-      NextToken(in);
+      AcceptInpId(in, "true|false");
    }
 
    AcceptInpTok(in, CloseBracket);

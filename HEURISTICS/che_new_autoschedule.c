@@ -132,6 +132,7 @@ void ScheduleForCategory(const char* category, int attempt_idx, HeuristicParms_p
   const char* config = class_to_schedule(category, multischedule_categories, multischedule_confs, 
                                          multischedule_categories_len, attempt_idx, parms);
   locked_fprintf(stderr, "# category(%d): %s\n", attempt_idx, category);
+  // DBG_PRINT(stderr, "config: ", HeuristicParmsPrint(stderr, parms), ".\n");
   print_config_name(stderr, "after cnf", config, attempt_idx);
 }
 

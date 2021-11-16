@@ -653,10 +653,6 @@ int main(int argc, char* argv[])
    }
    PERF_CTR_ENTRY(SatTimer);
 
-// #ifdef ENABLE_LFHO
-//    // if the problem is HO -> we have to use KBO6
-//    assert(problemType != PROBLEM_HO || proofcontrol->ocb->type == KBO6);
-// #endif
 
    if(!success)
    {
