@@ -15,9 +15,9 @@ PROTOCOL = 'protocol_'
 
 
 def parse_categories(root):
-  from categorize import IGNORE_CLASSES, PROB_CATEGORIES_FILENAME
+  from categorize import IGNORE_CLASSES, CNF_NAME, PROB_CATEGORIES_FILENAME
   category_map = {}
-  f_name = p.join(root, PROB_CATEGORIES_FILENAME)
+  f_name = p.join(root, CNF_NAME, PROB_CATEGORIES_FILENAME)
   if p.exists(root) and p.isdir(root) and p.exists(f_name):
     with open(f_name) as fd:
       for line in fd:
@@ -156,10 +156,11 @@ def parse_configurations(archives, e_path, json_root=None):
       print('WARNING: No configurations could be parsed from {0}'.format(arch), file=stderr)
 
   from pathlib import Path
-  for conf in Path(json_root).iterdir():
-    conf_name = Path(conf).name
-    if conf_name in confs and confs[conf_name].to_json() is None:
-      confs[conf_name].parse_json(conf)
+  if json_root:
+    for conf in Path(json_root).iterdir():
+      conf_name = Path(conf).name
+      if conf_name in confs and confs[conf_name].to_json() is None:
+        confs[conf_name].parse_json(conf)
   
   return confs
 
@@ -276,7 +277,7 @@ def output_single(confs, category_to_confs):
   cat_keys, cat_vals = list(zip(*category_to_confs.items()))
   print_str_list("categories", map(lambda x: '"{0}"'.format(x), cat_keys))
   print_str_list("confs", 
-    map(lambda c: conf_w_comment(c, Configuration.ONLY_SATURATION), cat_vals))
+    map(lambda c: conf_w_comment(c, Configuration.BOTH), cat_vals))
 
 
 def print_new_schedule_cell(time_ratios):
@@ -349,7 +350,7 @@ def multi_schedule(num_confs, cats, confs, var_name, json_kind):
 
 def schedule_multiple(time_ratios, cats, confs):
   print_new_schedule_cell(time_ratios)
-  multi_schedule(len(time_ratios), cats, confs, "multischedule_categories", Configuration.ONLY_SATURATION)
+  multi_schedule(len(time_ratios), cats, confs, "multischedule_categories", Configuration.BOTH)
 
 
 def main():

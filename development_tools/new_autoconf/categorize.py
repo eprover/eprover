@@ -9,6 +9,8 @@ CATEGORIZATIONS = [PROB_CATEGORIES_FILENAME, PROB_RAW_CATEGORIES_FILENAME]
 UNPARSABLE_CLASS = 'unparsable_class'
 TIMEOUT_CLASS = 'timeout_class'
 ERROR_CLASS = 'error_class'
+CNF_NAME = 'cnf_class'
+RAW_NAME = 'raw_class'
 
 IGNORE_CLASSES = [UNPARSABLE_CLASS, TIMEOUT_CLASS, ERROR_CLASS]
 
@@ -104,8 +106,6 @@ def make_class_map(probs, e_classify_bin, e_classify_args,
 
 
 def make_class_dirs(class_map, prob_map, out_dir, e_args, raw_mask, mask, cnf_timeout):
-  CNF_NAME, RAW_NAME = 'cnf_class', 'raw_class'
-
   os.makedirs(p.join(out_dir, CNF_NAME), exist_ok=True)
 
   with open(p.join(out_dir, CNF_NAME, PROB_CATEGORIES_FILENAME), 'w') as fd:
