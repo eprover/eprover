@@ -178,6 +178,7 @@ long   TermDAGWeight(Term_p term, long fweight, long vweight,
 bool   TermIsDBClosed(Term_p term);
 int    TermComputeOrder(Sig_p sig, Term_p term);
 void TermPrintDbgVarBinds(Sig_p sig, Term_p t);
+Term_p TrimImplication(Sig_p sig, Term_p f);
 
 
 /*-----------------------------------------------------------------------

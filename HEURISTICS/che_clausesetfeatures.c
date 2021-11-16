@@ -1853,6 +1853,63 @@ void ClauseSetComputeHOFeatures(ClauseSet_p set, Sig_p sig,
       ClauseSetCardinality(set) ? ((double)av_lits / ClauseSetCardinality(set)) : 0.0 ;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: SpecLimitsPrint()
+//
+//  Fill in the HO statistics such as: are there non-FO features  of the
+//  problem, what is the maximal term order in the problem, does the
+//  problem quantify booleans and does it have defined choice clauses.
+//
+// Global Variables:
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+
+void SpecLimitsPrint(FILE* out, SpecLimits_p limits)
+{
+   fprintf(stderr, "[ %d | %g | %g | %d | %g | %g |"
+                   " %ld | %ld | %ld | %ld | %ld | %ld | %ld | %ld | %ld | %ld | "
+                   " %d | %d | %d | %d | %d | %d | %d | %d | %d | %d | %d | %d | %d | %d | %d | %d | "
+                   " %g | %g | %g | %g ]\n",
+   limits->ngu_absolute,
+   limits->ngu_few_limit,
+   limits->ngu_many_limit,
+   limits->gpc_absolute,
+   limits->gpc_few_limit,
+   limits->gpc_many_limit,
+   limits->ax_some_limit,
+   limits->ax_many_limit,
+   limits->lit_some_limit,
+   limits->lit_many_limit,
+   limits->term_medium_limit,
+   limits->term_large_limit,
+   limits->far_sum_medium_limit,
+   limits->far_sum_large_limit,
+   limits->depth_medium_limit,
+   limits->depth_deep_limit,
+   limits->symbols_medium_limit,
+   limits->symbols_large_limit,
+   limits->predc_medium_limit,
+   limits->predc_large_limit,
+   limits->pred_medium_limit,
+   limits->pred_large_limit,
+   limits->func_medium_limit,
+   limits->func_large_limit,
+   limits->fun_medium_limit,
+   limits->fun_large_limit,
+   limits->order_medium_limit,
+   limits->order_large_limit,
+   limits->num_of_lams_medium_limit,
+   limits->num_of_lams_large_limit,
+   limits->num_of_defs_medium_limit,
+   limits->num_of_defs_large_limit,
+   limits->perc_form_defs_medium_limit,
+   limits->perc_form_defs_large_limit,
+   limits->perc_app_lits_medium_limit,
+   limits->perc_app_lits_large_limit);
+}
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/

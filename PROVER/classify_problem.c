@@ -805,7 +805,7 @@ int main(int argc, char* argv[])
 
    InitIO(NAME);
 
-   limits = SpecLimitsAlloc();
+   limits = CreateDefaultSpecLimits();
    state = process_options(argc, argv, limits);
 
    OpenGlobalOut(outname);

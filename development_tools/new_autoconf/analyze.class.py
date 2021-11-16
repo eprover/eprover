@@ -68,7 +68,7 @@ def main():
   
   for conf in sorted(configurations, key=lambda x: x.evaluate_category(cat)):
     eval = conf.evaluate_category(cat)
-    print("{0} : {1}|{2}|{3}".format(conf.get_name(), eval[0], eval[1], eval[2]))
+    print("{0} : {1}|{2}|{3}|{4}".format(conf.get_name(), eval[0], eval[1], eval[2], len(conf.get_solved_probs())))
 
 if __name__ == '__main__':
   main()

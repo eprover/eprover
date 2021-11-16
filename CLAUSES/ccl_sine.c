@@ -579,7 +579,8 @@ long SelectDefiningAxioms(DRelation_p drel,
             }
             FormulaSetProp(form, CPIsRelevant);
             PStackPushP(res_formulas, form);
-            TermAddSymbolDistExist(form->tformula, dist_array, symbol_stack);
+            TermAddSymbolDistExist((FormulaIsConjecture(form) && problemType == PROBLEM_HO ?
+                                   TrimImplication(sig, form->tformula) :  form->tformula), dist_array, symbol_stack);
             res++;
             break;
       default:

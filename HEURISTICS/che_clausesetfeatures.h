@@ -438,6 +438,8 @@ void    SpecFeaturesCompute(SpecFeature_p features, ClauseSet_p cset,
 void    SpecFeaturesAddEval(SpecFeature_p features, SpecLimits_p limits);
 
 void    SpecFeaturesPrint(FILE* out, SpecFeature_p features);
+void    SpecLimitsPrint(FILE* out, SpecLimits_p limits);
+
 
 void    SpecFeaturesParse(Scanner_p in, SpecFeature_p features);
 

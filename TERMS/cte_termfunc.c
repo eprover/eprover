@@ -1894,7 +1894,7 @@ bool TermIsDefTerm(Term_p term, int min_arity)
 
    assert(term);
 
-   if(TermIsAnyVar(term) || TermIsPhonyApp(term))
+   if(TermIsAnyVar(term) || TermIsPhonyApp(term) || TermIsLambda(term))
    {
       return false;
    }
@@ -3142,6 +3142,46 @@ void TermPrintDbgVarBinds(Sig_p sig, Term_p t)
    TermCollectVariables(t, &vars);
    PTreeVisitInOrder(vars, visitor, sig);
    PTreeFree(vars);
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: TrimImplication()
+//
+//   Consider only the conclusion part of the implication for
+//   considering the symbols in SinE.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+#define TRIM_THRESHOLD 30
+Term_p TrimImplication(Sig_p sig, Term_p f)
+{
+   int num_impls = 0;
+   Term_p orig_f = f;
+   while( (TFormulaIsQuantified(sig, f) && f->arity == 2)  )
+   {
+      f = f->args[1];
+   }
+
+   while( (f->f_code == sig->impl_code && f->arity == 2) )
+   {
+      num_impls++;
+      f = f->args[1];
+   }
+
+   if(num_impls >= TRIM_THRESHOLD)
+   {
+      return f;
+   }
+   else
+   {
+      return orig_f;
+   }
+   return f;
 }
 
 /*---------------------------------------------------------------------*/
