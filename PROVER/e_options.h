@@ -219,6 +219,7 @@ typedef enum
    OPT_PATTERN_ORACLE,
    OPT_FIXPOINT_ORACLE,
    OPT_MAX_UNIFIERS,
+   OPT_CNF_TIMEOUT_PORTION,
    OPT_DUMMY
 }OptionCodes;
 
@@ -1639,6 +1640,12 @@ OptCell opts[] =
     '\0', "max-unifiers",
     ReqArg, NULL,
     "Maximal number of imitations"},
+
+    {OPT_CNF_TIMEOUT_PORTION,
+    '\0', "classification-timeout-portion",
+    ReqArg, NULL,
+    "Which percentage (from 1 to 99) of the total CPU time will be devoted to "
+    "problem classification?"},
 
    {OPT_NOOPT,
     '\0', NULL,

@@ -223,30 +223,7 @@ __attribute__((optimize(0)))
 #endif
 HCB_p HCBAutoModeCreate(HCBARGUMENTS)
 {
-   char *res = "Default";
-   SpecFeature_p spec = &(control->problem_specs);
-   SpecLimits_p limits; 
-   limits = CreateDefaultSpecLimits();
-   control->heuristic_parms.selection_strategy = SelectNoLiterals;
-   OUTPRINT(1, "# Auto-Heuristic is analysing problem.\n");
-   SpecFeaturesAddEval(spec, limits);
-   char* result = SpecTypeString(spec, DEFAULT_MASK);
-   int attempt_idx = GetAttemptIdx(parms->heuristic_name);
-   if (attempt_idx == -1)
-   {
-      AutoHeuristicForCategory(result, parms);
-   }
-   else
-   {
-      ScheduleForCategory(result, attempt_idx, parms);
-   }
-   res = parms->heuristic_def;
-   FREE(result);
-   SpecLimitsCellFree(limits);
-
-   finalize_auto_parms("Auto-Mode", res, control, parms, spec);
-
-   return GetHeuristic(res, state, control, parms);
+   return GetHeuristic(parms->heuristic_def, state, control, parms);
 }
 GCC_DIAGNOSTIC_POP
 #undef CHE_HEURISTICS_AUTO

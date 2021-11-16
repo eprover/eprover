@@ -243,6 +243,7 @@ typedef struct spec_feature_cell
 #define PERC_APPLIT_MEDIUM_DEFAULT 0.1
 #define PERC_APPLIT_LARGE_DEFAULT  0.5
 
+#define SPEC_STRING_MEM          20
 
 #define DEFAULT_OUTPUT_DESCRIPTOR "eigEIG"
 #define DEFAULT_CLASS_MASK "aaaaaaaaaaaaa"
@@ -438,6 +439,8 @@ void    SpecFeaturesCompute(SpecFeature_p features, ClauseSet_p cset,
 void    SpecFeaturesAddEval(SpecFeature_p features, SpecLimits_p limits);
 
 void    SpecFeaturesPrint(FILE* out, SpecFeature_p features);
+void    SpecLimitsPrint(FILE* out, SpecLimits_p limits);
+
 
 void    SpecFeaturesParse(Scanner_p in, SpecFeature_p features);
 
@@ -454,6 +457,10 @@ void    ProofStatePrintSelective(FILE* out, ProofState_p state, char*
              descriptor, bool printinfo);
 
 SpecLimits_p CreateDefaultSpecLimits(void);
+
+void ClausifyAndClassifyWTimeout(ProofState_p state, int timeout, 
+                                 char* mask,
+                                 char class[SPEC_STRING_MEM]);
 
 
 

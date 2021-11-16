@@ -102,6 +102,7 @@ char  *outdesc = DEFAULT_OUTPUT_DESCRIPTOR,
 PStack_p          wfcb_definitions, hcb_definitions;
 pid_t              pid = 0;
 bool               auto_conf = false;
+double             clausification_time_part=0.02;
 
 FunctionProperties free_symb_prop = FPIgnoreProps;
 
@@ -464,29 +465,26 @@ int main(int argc, char* argv[])
    {
       RawSpecFeatureCell features;
       SpecLimits_p limits = CreateDefaultSpecLimits(); 
-      HeuristicParms_p preproc_heuristics = HeuristicParmsAlloc();
+      char class[RAW_CLASS_SIZE + SPEC_STRING_MEM];
 
       RawSpecFeaturesCompute(&features, proofstate);
       RawSpecFeaturesClassify(&features, limits, RAW_DEFAULT_MASK);
+      strcpy(class, features.class);
+      ClausifyAndClassifyWTimeout(proofstate, 
+                                  MAX(1, (int)(ScheduleTimeLimit*clausification_time_part)),
+                                  DEFAULT_MASK, class+RAW_CLASS_SIZE-1);
       
       int attempt_idx = GetAttemptIdx(h_parms->heuristic_name);
-      if (attempt_idx == -1)
+      if(attempt_idx == -1)
       {
          assert(auto_conf);
-         AutoHeuristicForRawCategory(features.class, preproc_heuristics);
+         AutoHeuristicForCategory(class, h_parms);
       }
       else
       {
-         ScheduleForRawCategory(features.class, attempt_idx, preproc_heuristics);
+         ScheduleForCategory(class, attempt_idx, h_parms);
       }
-      
-
-      h_parms->lift_lambdas = preproc_heuristics->lift_lambdas;
-      h_parms->lambda_to_forall = preproc_heuristics->lambda_to_forall;
-      h_parms->unroll_only_formulas = preproc_heuristics->unroll_only_formulas;
-      h_parms->sine = preproc_heuristics->sine;
-      preproc_heuristics->sine = NULL;
-      
+            
 #ifndef NDEBUG
       locked_fprintf(stderr, "(lift_lambdas = %d, lambda_to_forall = %d," 
                       "unroll_only_formulas = %d, sine = %s)\n", 
@@ -497,7 +495,6 @@ int main(int argc, char* argv[])
 #endif
 
       SpecLimitsCellFree(limits);
-      HeuristicParmsCellFree(preproc_heuristics);
    }
 
    relevancy_pruned += ProofStateSinE(proofstate, h_parms->sine);
@@ -2009,6 +2006,9 @@ CLState_p process_options(int argc, char* argv[])
                      USAGE_ERROR);
             }
             break;
+      case OPT_CNF_TIMEOUT_PORTION:
+            clausification_time_part =
+               CLStateGetIntArgCheckRange(handle, arg, 1, 99) / (double) 100;
       default:
             assert(false && "Unknown option");
             break;

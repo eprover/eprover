@@ -1894,7 +1894,7 @@ bool TermIsDefTerm(Term_p term, int min_arity)
 
    assert(term);
 
-   if(TermIsAnyVar(term) || TermIsPhonyApp(term))
+   if(TermIsAnyVar(term) || TermIsPhonyApp(term) || TermIsLambda(term))
    {
       return false;
    }
@@ -3148,7 +3148,8 @@ void TermPrintDbgVarBinds(Sig_p sig, Term_p t)
 //
 // Function: TermTrimImplications()
 //
-//   Computes the maximal order of the symbols that appear in the term.
+//   Consider only the conclusion part of the implication for
+//   considering the symbols in SinE.
 //
 // Global Variables: -
 //

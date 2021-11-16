@@ -1494,7 +1494,7 @@ char* SpecTypeString(SpecFeature_p features, const char* mask)
 #ifndef NDEBUG
    const int enc_len = strlen(encoding);
 #endif
-   char       result[20]; /* Big enough for the '\0'!!!*/
+   char       result[SPEC_STRING_MEM]; /* Big enough for the '\0'!!!*/
    int        i, limit;
 
    assert(features);
@@ -1853,6 +1853,137 @@ void ClauseSetComputeHOFeatures(ClauseSet_p set, Sig_p sig,
       ClauseSetCardinality(set) ? ((double)av_lits / ClauseSetCardinality(set)) : 0.0 ;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: SpecLimitsPrint()
+//
+//  Fill in the HO statistics such as: are there non-FO features  of the
+//  problem, what is the maximal term order in the problem, does the
+//  problem quantify booleans and does it have defined choice clauses.
+//
+// Global Variables:
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+
+void SpecLimitsPrint(FILE* out, SpecLimits_p limits)
+{
+   fprintf(stderr, "[ %d | %g | %g | %d | %g | %g |"
+                   " %ld | %ld | %ld | %ld | %ld | %ld | %ld | %ld | %ld | %ld | "
+                   " %d | %d | %d | %d | %d | %d | %d | %d | %d | %d | %d | %d | %d | %d | %d | %d | "
+                   " %g | %g | %g | %g ]\n",
+   limits->ngu_absolute,
+   limits->ngu_few_limit,
+   limits->ngu_many_limit,
+   limits->gpc_absolute,
+   limits->gpc_few_limit,
+   limits->gpc_many_limit,
+   limits->ax_some_limit,
+   limits->ax_many_limit,
+   limits->lit_some_limit,
+   limits->lit_many_limit,
+   limits->term_medium_limit,
+   limits->term_large_limit,
+   limits->far_sum_medium_limit,
+   limits->far_sum_large_limit,
+   limits->depth_medium_limit,
+   limits->depth_deep_limit,
+   limits->symbols_medium_limit,
+   limits->symbols_large_limit,
+   limits->predc_medium_limit,
+   limits->predc_large_limit,
+   limits->pred_medium_limit,
+   limits->pred_large_limit,
+   limits->func_medium_limit,
+   limits->func_large_limit,
+   limits->fun_medium_limit,
+   limits->fun_large_limit,
+   limits->order_medium_limit,
+   limits->order_large_limit,
+   limits->num_of_lams_medium_limit,
+   limits->num_of_lams_large_limit,
+   limits->num_of_defs_medium_limit,
+   limits->num_of_defs_large_limit,
+   limits->perc_form_defs_medium_limit,
+   limits->perc_form_defs_large_limit,
+   limits->perc_app_lits_medium_limit,
+   limits->perc_app_lits_large_limit);
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClausifyAndClassifyWTimeout()
+//
+//   Run the defaultclausification and get the corresponding classification
+//   string. If last three arguments are non-NULL, the full classification string
+//   with computed features will be output to stdout.
+//
+// Global Variables: Plenty, most simple flags used read-only
+//
+// Side Effects    : Does everything...
+//
+/----------------------------------------------------------------------*/
+
+void ClausifyAndClassifyWTimeout(ProofState_p state, int timeout, 
+                                 char* mask,
+                                 char class[SPEC_STRING_MEM])
+{
+   const int DEFAULT_MINISCOPE = 1000;
+   const int DEFAULT_FORMULA_DEF_LIMIT = 24;
+   const bool DEFAULT_LIFT_LAMS = true;
+   const bool DEFAULT_LAM_TO_FORALL = true;
+   const bool DEFAULT_UNFOLD_ONLY_FORM = true;
+
+   int fds[2];
+   if(pipe(fds) == -1)
+   {
+      perror("pipe failed");
+      exit(1);
+   }
+
+   SpecFeatureCell features;
+   SpecLimits_p limits = CreateDefaultSpecLimits();
+
+   pid_t pid = fork();
+   if (pid == -1)
+   {
+      perror("fork failed");
+      exit(1);
+   }
+   else if (pid == 0)
+   {
+      // child
+      close(fds[0]);
+      SetSoftRlimit(RLIMIT_CPU, timeout);
+      FormulaSetCNF2(state->f_axioms, state->f_ax_archive,
+                     state->axioms, state->terms,
+                     state->freshvars, state->gc_terms,
+                     DEFAULT_MINISCOPE, DEFAULT_FORMULA_DEF_LIMIT,
+                     DEFAULT_LIFT_LAMS, DEFAULT_LAM_TO_FORALL, 
+                     DEFAULT_UNFOLD_ONLY_FORM);
+      SpecFeaturesCompute(&features, state->axioms, state->f_axioms,
+                          state->f_ax_archive, state->terms);
+      SpecFeaturesAddEval(&features, limits);
+      if(write(fds[1], SpecTypeString(&features, mask), SPEC_STRING_MEM) == -1)
+      {
+         perror("could not write");
+      }
+      exit(0);
+   }
+   else
+   {
+      // parent
+      close(fds[1]);
+      int nbytes = read(fds[0], class, SPEC_STRING_MEM);
+      if(nbytes < SPEC_STRING_MEM)
+      {
+         memset(class, '-', SPEC_STRING_MEM-1);
+         class[SPEC_STRING_MEM-1]='\0';
+      }
+      SpecLimitsCellFree(limits);
+   }
+}
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/

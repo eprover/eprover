@@ -105,21 +105,6 @@ const char* class_to_schedule(const char* problem_category, const char** categor
   return conf;
 }
 
-void AutoHeuristicForRawCategory(const char* raw_category, HeuristicParms_p parms)
-{
-  const char* config = class_to_heuristic(raw_category, raw_categories, raw_confs, num_raw_categories, parms);
-  locked_fprintf(stderr, "# raw_category: %s\n", raw_category);
-  print_config_name(stderr, "raw", config, 0);
-}
-
-void ScheduleForRawCategory(const char* raw_category, int attempt_idx, HeuristicParms_p parms)
-{
-  const char* config = class_to_schedule(raw_category, multischedule_raw_categories, multischedule_raw_confs, 
-                                         multischedule_raw_categories_len, attempt_idx, parms);
-  locked_fprintf(stderr, "# raw_category(%d): %s\n", attempt_idx, raw_category);
-  print_config_name(stderr, "raw", config, attempt_idx);
-}
-
 void AutoHeuristicForCategory(const char* category, HeuristicParms_p parms)
 {
   const char* config = class_to_heuristic(category, categories, confs, num_categories, parms);

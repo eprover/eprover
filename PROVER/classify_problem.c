@@ -32,6 +32,7 @@ Changes
 #include <che_rawspecfeatures.h>
 #include <cco_sine.h>
 #include <e_version.h>
+#include <che_new_autoschedule.h>
 
 /*---------------------------------------------------------------------*/
 /*                  Data types                                         */
@@ -98,7 +99,8 @@ typedef enum
    OPT_FUNC_MEDIUM_LIMIT,
    OPT_FUNC_LARGE_LIMIT,
    OPT_FUN_MEDIUM_LIMIT,
-   OPT_FUN_LARGE_LIMIT
+   OPT_FUN_LARGE_LIMIT,
+   OPT_MERGED_CLASSIFICATION,
 }OptionCodes;
 
 
@@ -462,6 +464,12 @@ OptCell opts[] =
     "Set the minimum number of non-constant function symbols for large size "
     "by this measure."},
 
+   {OPT_MERGED_CLASSIFICATION,
+    '\0', "merged-classification",
+    ReqArg, NULL,
+    "Perform classification that merges formula and clause properties. "
+    "The required argument is the timeout given to clausification (seconds)."},
+
    {OPT_NOOPT,
     '\0', NULL,
     NoArg, NULL,
@@ -480,6 +488,7 @@ bool tptp_header      = false,
    new_cnf          = true,
    parse_features   = false,
    app_encode       = false;
+int cnf_timeout = -1;
 long eqdef_maxclauses = DEFAULT_EQDEF_MAXCLAUSES,
    miniscope_limit  = 1000;
 long eqdef_incrlimit  = DEFAULT_EQDEF_INCRLIMIT;
@@ -805,7 +814,7 @@ int main(int argc, char* argv[])
 
    InitIO(NAME);
 
-   limits = SpecLimitsAlloc();
+   limits = CreateDefaultSpecLimits();
    state = process_options(argc, argv, limits);
 
    OpenGlobalOut(outname);
@@ -838,7 +847,17 @@ int main(int argc, char* argv[])
                                   fstate->terms, NULL, &skip_includes);
          ProofStateSinE(fstate, sine);
 
-         if(raw_classify)
+         if(cnf_timeout != -1)
+         {
+            // merged classification
+            RawSpecFeatureCell features;
+            RawSpecFeaturesCompute(&features, fstate);
+            RawSpecFeaturesClassify(&features, limits, RAW_DEFAULT_MASK);
+            char cnf_class[SPEC_STRING_MEM];
+            ClausifyAndClassifyWTimeout(fstate, cnf_timeout, DEFAULT_MASK, cnf_class);
+            fprintf(GlobalOut, "%s : (NULL) : %s%s\n", state->argv[i], features.class, cnf_class);
+         }
+         else if(raw_classify)
          {
             do_raw_classification(state->argv[i], fstate, limits);
          }
@@ -1130,6 +1149,9 @@ CLState_p process_options(int argc, char* argv[], SpecLimits_p limits)
             break;
       case OPT_FUN_LARGE_LIMIT:
             limits->fun_large_limit = CLStateGetIntArg(handle, arg);
+            break;
+      case OPT_MERGED_CLASSIFICATION:
+            cnf_timeout = CLStateGetIntArg(handle, arg);
             break;
       default:
             assert(false);
