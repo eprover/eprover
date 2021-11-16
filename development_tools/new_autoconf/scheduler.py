@@ -15,31 +15,26 @@ PROTOCOL = 'protocol_'
 
 
 def parse_categories(root):
-  from categorize import CATEGORIZATIONS, IGNORE_CLASSES
-  cats = []
-  for cat_filename in CATEGORIZATIONS:
-    f_name = p.join(root, cat_filename)
-    if p.exists(root) and p.isdir(root) and\
-       p.exists(f_name):
-      category_map = {}
-      with open(f_name) as fd:
-        for line in fd:
-          prob,cat_name = map(str.strip, line.split(":"))
-          if cat_name not in IGNORE_CLASSES:
-            if cat_name in category_map:
-              category = category_map[cat_name]
-            else:
-              category = Category(cat_name)
-              category_map[cat_name] = category
-            category.add_prob(prob)
-      cats.append(category_map)
-    else:
-      import sys
-      print(("{0} is not appropriate TPTP categorization root. "+
-            "Use categorize.py to create the catetgorization").format(root))
-      sys.exit(-1)
-  return cats
-
+  from categorize import IGNORE_CLASSES, PROB_CATEGORIES_FILENAME
+  category_map = {}
+  f_name = p.join(root, PROB_CATEGORIES_FILENAME)
+  if p.exists(root) and p.isdir(root) and p.exists(f_name):
+    with open(f_name) as fd:
+      for line in fd:
+        prob,cat_name = map(str.strip, line.split(":"))
+        if cat_name not in IGNORE_CLASSES:
+          if cat_name in category_map:
+            category = category_map[cat_name]
+          else:
+            category = Category(cat_name)
+            category_map[cat_name] = category
+          category.add_prob(prob)
+  else:
+    import sys
+    print(("{0} is not appropriate TPTP categorization root. "+
+          "Use categorize.py to create the catetgorization").format(root))
+    sys.exit(-1)
+  return category_map
 
 def parse_jobinfo_file(_, fd, confs, __):
   import csv, pathlib as p
@@ -268,11 +263,10 @@ def print_str_list(var_name, str_list, type_modifier = "const char*", array_modi
     print("};")
 
 
-def output_single(confs, category_to_confs, raw_category_to_conf):
+def output_single(confs, category_to_confs):
   best_conf = max(confs.values(), key=Configuration.rate_general)
 
   print('const long  num_categories = {0};'.format(len(category_to_confs)))
-  print('const long  num_raw_categories = {0};'.format(len(raw_category_to_conf)))
 
   def conf_w_comment(conf, json_kind=Configuration.BOTH):
     return '"{0}"/*{1}*/'.format(conf.to_json(json_kind), conf.get_name())
@@ -283,11 +277,6 @@ def output_single(confs, category_to_confs, raw_category_to_conf):
   print_str_list("categories", map(lambda x: '"{0}"'.format(x), cat_keys))
   print_str_list("confs", 
     map(lambda c: conf_w_comment(c, Configuration.ONLY_SATURATION), cat_vals))
-
-  rcat_keys, rcat_vals = list(zip(*raw_category_to_conf.items()))
-  print_str_list("raw_categories", map(lambda x: '"{0}"'.format(x),rcat_keys))
-  print_str_list("raw_confs", 
-    map(lambda c: conf_w_comment(c, Configuration.ONLY_PREPROCESSING), rcat_vals))
 
 
 def print_new_schedule_cell(time_ratios):
@@ -358,22 +347,20 @@ def multi_schedule(num_confs, cats, confs, var_name, json_kind):
                         json_kind)
 
 
-def schedule_multiple(time_ratios, cats, raw_cats, confs):
+def schedule_multiple(time_ratios, cats, confs):
   print_new_schedule_cell(time_ratios)
-  multi_schedule(len(time_ratios), raw_cats, confs, "multischedule_raw_categories", Configuration.ONLY_PREPROCESSING)
   multi_schedule(len(time_ratios), cats, confs, "multischedule_categories", Configuration.ONLY_SATURATION)
 
 
 def main():
   args = init_args()
-  category_map, raw_category_map = parse_categories(args.category_root)
+  category_map = parse_categories(args.category_root)
   configurations = parse_configurations(args.result_archives, args.e_path, args.conf_root)
   if not args.multi_schedule:
     category_to_conf = schedule_best_single(category_map, configurations, args.prefer_general)
-    raw_category_to_conf = schedule_best_single(raw_category_map, configurations, args.prefer_general)
-    output_single(configurations, category_to_conf, raw_category_to_conf)
+    output_single(configurations, category_to_conf)
   else:
-    schedule_multiple(args.multi_schedule, category_map, raw_category_map, configurations)
+    schedule_multiple(args.multi_schedule, category_map, configurations)
 
 if __name__ == '__main__':
   main()

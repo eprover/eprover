@@ -1910,6 +1910,80 @@ void SpecLimitsPrint(FILE* out, SpecLimits_p limits)
    limits->perc_app_lits_medium_limit,
    limits->perc_app_lits_large_limit);
 }
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClausifyAndClassifyWTimeout()
+//
+//   Run the defaultclausification and get the corresponding classification
+//   string. If last three arguments are non-NULL, the full classification string
+//   with computed features will be output to stdout.
+//
+// Global Variables: Plenty, most simple flags used read-only
+//
+// Side Effects    : Does everything...
+//
+/----------------------------------------------------------------------*/
+
+void ClausifyAndClassifyWTimeout(ProofState_p state, int timeout, 
+                                 char* mask,
+                                 char class[SPEC_STRING_MEM])
+{
+   const int DEFAULT_MINISCOPE = 1000;
+   const int DEFAULT_FORMULA_DEF_LIMIT = 24;
+   const bool DEFAULT_LIFT_LAMS = true;
+   const bool DEFAULT_LAM_TO_FORALL = true;
+   const bool DEFAULT_UNFOLD_ONLY_FORM = true;
+
+   int fds[2];
+   if(pipe(fds) == -1)
+   {
+      perror("pipe failed");
+      exit(1);
+   }
+
+   SpecFeatureCell features;
+   SpecLimits_p limits = CreateDefaultSpecLimits();
+
+   pid_t pid = fork();
+   if (pid == -1)
+   {
+      perror("fork failed");
+      exit(1);
+   }
+   else if (pid == 0)
+   {
+      // child
+      close(fds[0]);
+      SetSoftRlimit(RLIMIT_CPU, timeout);
+      FormulaSetCNF2(state->f_axioms, state->f_ax_archive,
+                     state->axioms, state->terms,
+                     state->freshvars, state->gc_terms,
+                     DEFAULT_MINISCOPE, DEFAULT_FORMULA_DEF_LIMIT,
+                     DEFAULT_LIFT_LAMS, DEFAULT_LAM_TO_FORALL, 
+                     DEFAULT_UNFOLD_ONLY_FORM);
+      SpecFeaturesCompute(&features, state->axioms, state->f_axioms,
+                          state->f_ax_archive, state->terms);
+      SpecFeaturesAddEval(&features, limits);
+      if(write(fds[1], SpecTypeString(&features, mask), SPEC_STRING_MEM) == -1)
+      {
+         perror("could not write");
+      }
+      exit(0);
+   }
+   else
+   {
+      // parent
+      close(fds[1]);
+      int nbytes = read(fds[0], class, SPEC_STRING_MEM);
+      if(nbytes < SPEC_STRING_MEM)
+      {
+         memset(class, '-', SPEC_STRING_MEM-1);
+         class[SPEC_STRING_MEM-1]='\0';
+      }
+      SpecLimitsCellFree(limits);
+   }
+}
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/

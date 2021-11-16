@@ -458,6 +458,10 @@ void    ProofStatePrintSelective(FILE* out, ProofState_p state, char*
 
 SpecLimits_p CreateDefaultSpecLimits(void);
 
+void ClausifyAndClassifyWTimeout(ProofState_p state, int timeout, 
+                                 char* mask,
+                                 char class[SPEC_STRING_MEM]);
+
 
 
 #endif

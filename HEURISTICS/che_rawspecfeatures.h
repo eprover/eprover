@@ -32,6 +32,7 @@ Changes
 /*---------------------------------------------------------------------*/
 
 #define NUM_RAW_FEATURES
+#define RAW_CLASS_SIZE 15
 
 
 typedef struct raw_spec_feature_cell
@@ -53,7 +54,7 @@ typedef struct raw_spec_feature_cell
    int       order; // order of signature
    int       conj_order; // order of conjecture symbols
    bool      app_var_lits; // do the formulas have applied variable literals
-   char      class[15];
+   char      class[RAW_CLASS_SIZE];
 }RawSpecFeatureCell, *RawSpecFeature_p;
 
 

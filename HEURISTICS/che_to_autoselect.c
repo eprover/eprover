@@ -858,25 +858,7 @@ OCB_p TOSelectOrdering(ProofState_p state, HeuristicParms_p params,
 
    if(StringStartsWith(params->heuristic_name, "Auto"))
    {
-      SpecLimits_p limits = CreateDefaultSpecLimits();
-      SpecFeaturesAddEval(specs, limits);
-      char* class = SpecTypeString(specs, DEFAULT_MASK);
-      int attempt_idx = GetAttemptIdx(params->heuristic_name);
-
-      HeuristicParmsCell tmp_parms;
-      HeuristicParmsInitialize(&tmp_parms);
-      if (attempt_idx == -1)
-      {
-         AutoHeuristicForCategory(class, &tmp_parms);
-      }
-      else
-      {
-         ScheduleForCategory(class, attempt_idx, &tmp_parms);
-      }
-      FREE(class);
-
-      SpecLimitsCellFree(limits);
-      result = TOCreateOrdering(state, &tmp_parms.order_params, NULL, NULL);
+      result = TOCreateOrdering(state, &params->order_params, NULL, NULL);
    }
    else if(tmp.ordertype == OPTIMIZE_AX)
    {
