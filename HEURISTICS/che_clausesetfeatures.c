@@ -20,6 +20,7 @@
   -----------------------------------------------------------------------*/
 
 #include "che_clausesetfeatures.h"
+#include <sys/wait.h>
 
 
 /*---------------------------------------------------------------------*/
@@ -1955,7 +1956,11 @@ void ClausifyAndClassifyWTimeout(ProofState_p state, int timeout,
    {
       // child
       close(fds[0]);
-      SetSoftRlimit(RLIMIT_CPU, timeout);
+      if(SetSoftRlimit(RLIMIT_CPU, timeout) != RLimSuccess)
+      {
+         fprintf(stderr, "softrlimit call failed.\n");
+         exit(-1);
+      }
       FormulaSetCNF2(state->f_axioms, state->f_ax_archive,
                      state->axioms, state->terms,
                      state->freshvars, state->gc_terms,
@@ -1982,6 +1987,7 @@ void ClausifyAndClassifyWTimeout(ProofState_p state, int timeout,
          class[SPEC_STRING_MEM-1]='\0';
       }
       SpecLimitsCellFree(limits);
+      waitpid(pid, NULL, 0); // collect exit status
    }
 }
 /*---------------------------------------------------------------------*/

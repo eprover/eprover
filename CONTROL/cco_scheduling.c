@@ -184,7 +184,11 @@ pid_t ExecuteSchedule(ScheduleCell strats[],
          SilentTimeOut = true;
          if(strats[i].time_absolute!=RLIM_INFINITY)
          {
-            SetSoftRlimit(RLIMIT_CPU, strats[i].time_absolute);
+            if(SetSoftRlimit(RLIMIT_CPU, strats[i].time_absolute) != RLimSuccess)
+            {
+               locked_fprintf(stderr, "softrlimit call failed.\n");
+               exit(-1);
+            }
          }
          signal(SIGUSR1, _resume);
          pause();

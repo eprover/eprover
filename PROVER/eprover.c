@@ -388,6 +388,8 @@ int main(int argc, char* argv[])
       parsed_ax_no,
       relevancy_pruned = 0;
    double           preproc_time;
+   char class[RAW_CLASS_SIZE + SPEC_STRING_MEM];
+   SpecLimits_p limits = NULL;
    Derivation_p deriv;
 
    // == INITIALIZING PRINITING SEMAPHORE == 
@@ -455,17 +457,10 @@ int main(int argc, char* argv[])
       goto cleanup1;
    }
 
-   if(strategy_scheduling)
-   {
-      ExecuteSchedule(chosen_schedule, h_parms, print_rusage, num_cpus,
-                      proof_found_flag, &proof_found_sem);
-   }
-
    if(auto_conf || strategy_scheduling)
    {
       RawSpecFeatureCell features;
-      SpecLimits_p limits = CreateDefaultSpecLimits(); 
-      char class[RAW_CLASS_SIZE + SPEC_STRING_MEM];
+      limits = CreateDefaultSpecLimits(); 
 
       RawSpecFeaturesCompute(&features, proofstate);
       RawSpecFeaturesClassify(&features, limits, RAW_DEFAULT_MASK);
@@ -473,7 +468,16 @@ int main(int argc, char* argv[])
       ClausifyAndClassifyWTimeout(proofstate, 
                                   MAX(1, (int)(ScheduleTimeLimit*clausification_time_part)),
                                   DEFAULT_MASK, class+RAW_CLASS_SIZE-1);
-      
+   }
+
+   if(strategy_scheduling)
+   {
+      ExecuteSchedule(chosen_schedule, h_parms, print_rusage, num_cpus,
+                      proof_found_flag, &proof_found_sem);
+   }
+
+   if(auto_conf || strategy_scheduling) 
+   {
       int attempt_idx = GetAttemptIdx(h_parms->heuristic_name);
       if(attempt_idx == -1)
       {
@@ -484,6 +488,7 @@ int main(int argc, char* argv[])
       {
          ScheduleForCategory(class, attempt_idx, h_parms);
       }
+   }  
             
 #ifndef NDEBUG
       locked_fprintf(stderr, "(lift_lambdas = %d, lambda_to_forall = %d," 
@@ -494,8 +499,10 @@ int main(int argc, char* argv[])
                       h_parms->sine);
 #endif
 
-      SpecLimitsCellFree(limits);
-   }
+      if(limits)
+      {
+         SpecLimitsCellFree(limits);
+      }
 
    relevancy_pruned += ProofStateSinE(proofstate, h_parms->sine);
    relevancy_pruned += ProofStateRelevancyProcess(proofstate,
