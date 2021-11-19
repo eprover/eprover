@@ -1061,7 +1061,9 @@ TFormula_p do_ite_unroll(TFormula_p form, TB_p terms)
 TFormula_p do_bool_eqn_replace(TFormula_p form, TB_p terms)
 {
    const Sig_p sig = terms->sig;
+   assert(sig);
    bool changed = false;
+
    if (TermIsDBVar(form))
    {
       return form;
@@ -1448,7 +1450,6 @@ long FormulaSetSimplify(FormulaSet_p set, TB_p terms, bool do_garbage_collect)
          res++;
          if (do_garbage_collect && TBNonVarTermNodes(terms) > gc_threshold)
          {
-            locked_fprintf(stderr, "cleaning...\n");
             assert(terms == handle->terms);
             GCCollect(terms->gc);
             old_nodes = TBNonVarTermNodes(terms);

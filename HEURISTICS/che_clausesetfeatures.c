@@ -22,7 +22,6 @@
 #include "che_clausesetfeatures.h"
 #include <sys/wait.h>
 
-
 /*---------------------------------------------------------------------*/
 /*                        Global Variables                             */
 /*---------------------------------------------------------------------*/
@@ -1930,9 +1929,9 @@ void ClausifyAndClassifyWTimeout(ProofState_p state, int timeout,
                                  char* mask,
                                  char class[SPEC_STRING_MEM])
 {
-   const int DEFAULT_MINISCOPE = 1000;
+   const int DEFAULT_MINISCOPE = 1048576;
    const int DEFAULT_FORMULA_DEF_LIMIT = 24;
-   const bool DEFAULT_LIFT_LAMS = true;
+   const bool DEFAULT_LIFT_LAMS = false;
    const bool DEFAULT_LAM_TO_FORALL = true;
    const bool DEFAULT_UNFOLD_ONLY_FORM = true;
 
@@ -1961,6 +1960,7 @@ void ClausifyAndClassifyWTimeout(ProofState_p state, int timeout,
          fprintf(stderr, "softrlimit call failed.\n");
          exit(-1);
       }
+      FormulaSetPreprocConjectures(state->f_axioms, state->f_ax_archive, false, false);
       FormulaSetCNF2(state->f_axioms, state->f_ax_archive,
                      state->axioms, state->terms,
                      state->freshvars, state->gc_terms,
