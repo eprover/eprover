@@ -71,7 +71,10 @@ const char* class_to_heuristic(const char* problem_category, const char** catego
   assert(min_idx >= 0);
   const char* configuration =  configurations[min_idx];
   Scanner_p in = CreateScanner(StreamTypeInternalString, (char*)configuration, true, NULL, true);
-  HeuristicParmsParseInto(in, params, false); 
+  char* old_name = params->heuristic_name;
+  HeuristicParmsParseInto(in, params, false);
+  FREE(params->heuristic_name);
+  params->heuristic_name = old_name; 
   DestroyScanner(in);
   return configuration;
 }
@@ -100,7 +103,10 @@ const char* class_to_schedule(const char* problem_category, const char** categor
   const char* conf =  configurations[min_idx][attempt_idx];
   assert(attempt_idx < SCHEDULE_SIZE);
   Scanner_p in = CreateScanner(StreamTypeInternalString, (char*)conf, true, NULL, true);
-  HeuristicParmsParseInto(in, params, false); 
+  char* old_name = params->heuristic_name;
+  HeuristicParmsParseInto(in, params, false);
+  FREE(params->heuristic_name);
+  params->heuristic_name = old_name;
   DestroyScanner(in);
   return conf;
 }
@@ -109,16 +115,14 @@ void AutoHeuristicForCategory(const char* category, HeuristicParms_p parms)
 {
   const char* config = class_to_heuristic(category, categories, confs, num_categories, parms);
   locked_fprintf(stderr, "# category: %s\n", category);
-  print_config_name(stderr, "after cnf", config, 0);
+  print_config_name(stderr, "", config, 0);
 }
 
 void ScheduleForCategory(const char* category, int attempt_idx, HeuristicParms_p parms)
 {
   const char* config = class_to_schedule(category, multischedule_categories, multischedule_confs, 
                                          multischedule_categories_len, attempt_idx, parms);
-  locked_fprintf(stderr, "# category(%d): %s\n", attempt_idx, category);
-  // DBG_PRINT(stderr, "config: ", HeuristicParmsPrint(stderr, parms), ".\n");
-  print_config_name(stderr, "after cnf", config, attempt_idx);
+  print_config_name(stderr, "", config, attempt_idx);
 }
 
 int GetAttemptIdx(const char* strategy_name)

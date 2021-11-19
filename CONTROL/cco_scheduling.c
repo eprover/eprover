@@ -206,6 +206,7 @@ pid_t ExecuteSchedule(ScheduleCell strats[],
    }
    if(pid==0)
    {
+      PStackFree(child_pids);
       return pid; // child continues on
    }
    else
@@ -270,10 +271,11 @@ pid_t ExecuteSchedule(ScheduleCell strats[],
          }
       }
       // all children died
-      // munmap(proof_found_flag, sizeof(bool));
-      // sem_destroy(proof_found_sem);
-      // sem_destroy(print_mutex);
-      // print_mutex = NULL;
+      munmap(proof_found_flag, sizeof(bool));
+      sem_destroy(proof_found_sem);
+      sem_destroy(print_mutex);
+      print_mutex = NULL;
+      PStackFree(child_pids);
    }
    return pid;
 }

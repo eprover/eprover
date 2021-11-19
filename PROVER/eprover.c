@@ -468,6 +468,7 @@ int main(int argc, char* argv[])
       ClausifyAndClassifyWTimeout(proofstate, 
                                   MAX(1, (int)(ScheduleTimeLimit*clausification_time_part)),
                                   DEFAULT_MASK, class+RAW_CLASS_SIZE-1);
+      fprintf(GlobalOut, "#category: %s\n", class);
    }
 
    if(strategy_scheduling)
