@@ -74,6 +74,11 @@ class Configuration(object):
     else:
       Configuration._all_solved[prob] += 1
     self.add_attempted_prob(prob)
+
+  def remove_solved_over_time(self, max_time):
+    self._probs = {p:t for (p,t) in self._probs.items() if t < max_time}
+    self._total_time = sum(self._probs.values())
+    self._num_solved = len(self._probs)
   
   def add_attempted_prob(self, prob):
     self._num_attempted += 1

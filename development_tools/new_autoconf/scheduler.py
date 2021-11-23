@@ -36,7 +36,7 @@ def parse_categories(root):
     sys.exit(-1)
   return category_map
 
-def parse_jobinfo_file(_, fd, confs, __):
+def parse_jobinfo_file(_, fd, confs, __, limit):
   import csv, pathlib as p
   try:
     reader = csv.DictReader(fd)
@@ -51,8 +51,11 @@ def parse_jobinfo_file(_, fd, confs, __):
         conf = Configuration(conf_name)
         confs[conf_name] = conf
       if result in SUCCESS_RESULTS:
-        time = float(row[JOBINFO_TIME].strip())        
-        conf.add_solved_prob(prob, time)
+        time = float(row[JOBINFO_TIME].strip())
+        if time < limit:     
+          conf.add_solved_prob(prob, time)
+        else:
+          conf.add_attempted_prob(prob)
       else:
         conf.add_attempted_prob(prob)
     return True
@@ -60,7 +63,7 @@ def parse_jobinfo_file(_, fd, confs, __):
     return False
 
 
-def parse_protocol_file(filename, fd, confs, e_path):
+def parse_protocol_file(filename, fd, confs, e_path, limit):
   try:
     assert(filename.startswith(PROTOCOL))
     first_line = next(fd)
@@ -100,7 +103,10 @@ def parse_protocol_file(filename, fd, confs, e_path):
                              values[columns[TIME_COL]]
       if (status != 'F'):
         try:
-          conf.add_solved_prob(prob, float(time))
+          if float(time) < limit:
+            conf.add_solved_prob(prob, float(time))
+          else:
+            conf.add_attempted_prob(prob)
         except ValueError:
           print('# Error with line {0} in {1}'.format(line, filename), file=stderr)
           conf.add_attempted_prob(prob)
@@ -114,14 +120,14 @@ def parse_protocol_file(filename, fd, confs, e_path):
     return False
 
 
-def parse_configurations(archives, e_path, json_root=None):
+def parse_configurations(archives, e_path, limit, json_root=None):
   confs = {}
 
   def parse_file(file_name, file_descriptor):
     from pathlib import Path
     file_name = Path(file_name).name
     return (parse_protocol_file if file_name.startswith(PROTOCOL) else parse_jobinfo_file)(
-      file_name, file_descriptor, confs, e_path
+      file_name, file_descriptor, confs, e_path, limit
     )
 
   def parse_zip(arch):
@@ -259,9 +265,9 @@ def init_args():
 
 
 def print_str_list(var_name, str_list, type_modifier = "const char*", array_modifier="[]"):
-    print('{1} {0}{2} = {{ '.format(var_name, type_modifier, array_modifier))
-    print(",\n".join(str_list))
-    print("};")
+  print('{1} {0}{2} = {{ '.format(var_name, type_modifier, array_modifier))
+  print(",\n".join(str_list))
+  print("};")
 
 
 def output_single(confs, category_to_confs):
@@ -270,7 +276,7 @@ def output_single(confs, category_to_confs):
   print('const long  num_categories = {0};'.format(len(category_to_confs)))
 
   def conf_w_comment(conf, json_kind=Configuration.BOTH):
-    return '"{0}"/*{1}*/'.format(conf.to_json(json_kind), conf.get_name())
+    return '"{0}"'.format(conf.to_json(json_kind))
 
   print('const char* best_conf = {0};'.format(conf_w_comment(best_conf)))
 
@@ -303,8 +309,8 @@ def eval2key(x):
 def multi_schedule(num_confs, cats, confs, var_name, json_kind):
   assert(num_confs >= 2)
   assert(len(confs) >= num_confs)
-  cats = cats.values()
-  confs = confs.values()
+  cats = cats.values() if type(cats) is dict else cats
+  confs = confs.values() if type(confs) is dict else confs
   
   #precomputation
   for conf in confs:
@@ -312,7 +318,9 @@ def multi_schedule(num_confs, cats, confs, var_name, json_kind):
       conf.evaluate_category(cat)
 
   res = {}
-  for cat in cats:
+  n = len(cats)
+  for (i,cat) in enumerate(cats):
+    print_progress_bar(i, n)
     best_for_cat = cat.get_best_conf()
     sched_size = 1
     schedule = [best_for_cat]
@@ -356,7 +364,8 @@ def schedule_multiple(time_ratios, cats, confs):
 def main():
   args = init_args()
   category_map = parse_categories(args.category_root)
-  configurations = parse_configurations(args.result_archives, args.e_path, args.conf_root)
+  limit = 100 if args.multi_schedule else 200
+  configurations = parse_configurations(args.result_archives, args.e_path, limit, args.conf_root)
   if not args.multi_schedule:
     category_to_conf = schedule_best_single(category_map, configurations, args.prefer_general)
     output_single(configurations, category_to_conf)

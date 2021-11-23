@@ -71,6 +71,10 @@ const char* class_to_heuristic(const char* problem_category, const char** catego
   assert(min_idx >= 0);
   const char* configuration =  configurations[min_idx];
   Scanner_p in = CreateScanner(StreamTypeInternalString, (char*)configuration, true, NULL, true);
+  if(min_dist != 0)
+  {
+    fprintf(stderr, "# non-exact category match(%d): %s\n", min_dist, categories[min_idx]);
+  }
   char* old_name = params->heuristic_name;
   HeuristicParmsParseInto(in, params, false);
   FREE(params->heuristic_name);
