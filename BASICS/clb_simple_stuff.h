@@ -92,6 +92,7 @@ long   ComputeGCD(long a, long b);
 
 void   SetProblemType(ProblemType t);
 
+#ifndef NDEBUG
 #define DBG_PRINT(out, prefix, main, suffix) \
    locked_fprintf(out, "%s", prefix);\
    main;\
@@ -101,6 +102,10 @@ void   SetProblemType(ProblemType t);
    locked_fprintf(out, "%s", prefix);\
    TermPrintDbg(out, term, TermGetBank(term)->sig, DEREF_NEVER);\
    locked_fprintf(out, "%s", suffix)
+#else
+#define DBG_PRINT(out, prefix, main, suffix) ((void)0)
+#define DBG_TPRINT(out, prefix, main, suffix) ((void)0)
+#endif
 
 extern sem_t* print_mutex;
 void locked_fprintf(FILE* file, const char *fmt, ...);

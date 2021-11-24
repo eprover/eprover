@@ -155,6 +155,9 @@ class Configuration(object):
 
   def get_solved_probs(self):
     return set(self._probs.keys())
+
+  def get_num_attempted(self):
+    return self._num_attempted
   
   def __str__(self):
     return "{0} : ({1}, {2})".format(self._name, self._num_solved, 

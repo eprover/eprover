@@ -85,10 +85,55 @@ void store_result(Clause_p new_clause, Clause_p orig_clause, Clause_p parent2,
 
 /*-----------------------------------------------------------------------
 //
-// Function: fresh_pattern()
+// Function: fresh_pattern_w_ty()
 //
 //   Given an applied variable s, create a fresh variable applied to bound
-//   variables representing arguments of s
+//   variables representing arguments of s, whose return type is ty
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+Term_p fresh_pattern_w_ty(TB_p bank, Term_p t, Type_p ty)
+{
+   assert(TermIsAppliedFreeVar(t));
+   Type_p arg_tys[t->arity-1];
+   Type_p var_ty = NULL;
+   Term_p res = NULL;
+   for(int i=1; i<t->arity; i++)
+   {
+      arg_tys[i-1] = t->args[i]->type;
+   }
+   var_ty = TypeBankInsertTypeShared(bank->sig->type_bank,
+               ArrowTypeFlattened(arg_tys, t->arity-1, ty));
+   Term_p fresh_var = TBInsert(bank, VarBankGetFreshVar(bank->vars, var_ty), DEREF_NEVER);
+   Term_p applied = TermTopCopyWithoutArgs(t);
+#ifdef NDEBUG
+   applied->type = ty;
+#else
+   applied->type = NULL;
+#endif
+   applied->args[0] = fresh_var;
+   
+   for(int i=1; i<t->arity; i++)
+   {
+      applied->args[i] = 
+         TBRequestDBVar(bank, t->args[i]->type, t->arity-i-1);
+   }
+
+   res = TBTermTopInsert(bank, applied);
+   assert(res->type == ty);
+
+   return res;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: fresh_pattern()
+//
+//   Like fresh_pattern_w_ty but copies the return type from t
 //
 // Global Variables: -
 //
@@ -98,26 +143,7 @@ void store_result(Clause_p new_clause, Clause_p orig_clause, Clause_p parent2,
 
 Term_p fresh_pattern(TB_p bank, Term_p t)
 {
-   assert(TermIsAppliedFreeVar(t));
-   Type_p arg_tys[t->arity-1];
-   Type_p var_ty = NULL;
-   for(int i=1; i<t->arity; i++)
-   {
-      arg_tys[i-1] = t->args[i]->type;
-   }
-   var_ty = TypeBankInsertTypeShared(bank->sig->type_bank,
-               ArrowTypeFlattened(arg_tys, t->arity-1, t->type));
-   Term_p fresh_var = TBInsert(bank, VarBankGetFreshVar(bank->vars, var_ty), DEREF_NEVER);
-   Term_p applied = TermTopCopyWithoutArgs(t);
-   applied->args[0] = fresh_var;
-   
-   for(int i=1; i<t->arity; i++)
-   {
-      applied->args[i] = 
-         TBRequestDBVar(bank, t->args[i]->type, t->arity-i-1);
-   }
-
-   return TBTermTopInsert(bank, applied);
+   return fresh_pattern_w_ty(bank, t, t->type);
 }
 
 /*-----------------------------------------------------------------------
@@ -215,6 +241,7 @@ Term_p apply_pattern_vars(TB_p bank, Term_p head, Term_p appvar)
 void mk_prim_enum_inst(ClauseSet_p store, Clause_p cl, Term_p var, Term_p target)
 {
    assert(!var->binding);
+   assert(var->type == target->type);
 
    var->binding = target;
 
@@ -222,7 +249,7 @@ void mk_prim_enum_inst(ClauseSet_p store, Clause_p cl, Term_p var, Term_p target
    EqnListLambdaNormalize(res_lits);
    EqnListRemoveResolved(&res_lits);
    EqnListRemoveDuplicates(res_lits);
-   Clause_p res = ClauseAlloc(res_lits);
+   Clause_p res = ClauseAlloc(res_lits);   
    NormalizeEquations(res);
    store_result(res, cl, NULL, store, DCPrimEnum, 1);
    BooleanSimplification(res);
@@ -455,13 +482,37 @@ int prim_enum_var(ClauseSet_p store, Clause_p cl, PrimEnumMode mode, Term_p app_
    }
    if(mode == EqMode || mode == FullMode)
    {
-      Term_p eq_matrix = 
-         TFormulaFCodeAlloc(bank, sig->equiv_code, 
-                            fresh_pattern(bank, app_var), 
-                            fresh_pattern(bank, app_var));
-      mk_prim_enum_inst(store, cl, app_var->args[0],
-                        close_for_appvar(bank, app_var, eq_matrix));
-      generated_cls++;
+      // Term_p eq_matrix = 
+      //    TFormulaFCodeAlloc(bank, sig->equiv_code, 
+      //                       fresh_pattern(bank, app_var), 
+      //                       fresh_pattern(bank, app_var));
+      // mk_prim_enum_inst(store, cl, app_var->args[0],
+      //                   close_for_appvar(bank, app_var, eq_matrix));
+      // generated_cls++;
+      PTree_p ret_types = NULL;
+      for(int i=1; i<app_var->arity; i++)
+      {
+         PTreeStore(&ret_types, app_var->args[i]->type);
+      }
+      
+      PStack_p tys = PTreeTraverseInit(ret_types);
+      PTree_p next = NULL;
+      while((next=PTreeTraverseNext(tys)))
+      {
+         Type_p ret_ty = next->key;
+         Term_p eq_matrix = 
+            TFormulaFCodeAlloc(bank,
+                               TypeIsBool(ret_ty) ? sig->equiv_code : sig->eqn_code, 
+                               fresh_pattern_w_ty(bank, app_var, ret_ty), 
+                               fresh_pattern_w_ty(bank, app_var, ret_ty));
+         mk_prim_enum_inst(store, cl, app_var->args[0],
+                           close_for_appvar(bank, app_var, eq_matrix));
+         generated_cls++;
+      }
+      PTreeTraverseExit(tys);
+      PTreeFree(ret_types);
+
+      
    }
    mk_prim_enum_inst(store, cl, app_var->args[0], 
                       close_for_appvar(bank, app_var, bank->true_term));
