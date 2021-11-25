@@ -19,7 +19,8 @@ include Makefile.vars
 
 # Project specific variables
 
-PROJECT  = E
+
+PROJECT  = $(shell basename `pwd`)
 
 LIBS     = CONTRIB BASICS INOUT TERMS ORDERINGS CLAUSES PROPOSITIONAL LEARN \
            PCL2 HEURISTICS CONTROL
@@ -73,6 +74,7 @@ commit_id:
 
 # Build a distribution
 distrib: default_config commit_id man documentation cleandist
+	@echo $(MYVAR)
 	@echo "Did you think about: "
 	@echo " - Changing the bibliographies to local version"
 	@echo " - increasing the dev version number and committing to git?"
