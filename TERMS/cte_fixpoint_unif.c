@@ -35,9 +35,9 @@ Changes
 /*                      Forward Declarations                           */
 /*---------------------------------------------------------------------*/
 
-inline OracleUnifResult rigid_path_check_args(Term_p t1, Term_p* args, 
-                                              bool under_var, bool has_pref,
-                                              int depth, int length);
+static inline OracleUnifResult rigid_path_check_args(Term_p t1, Term_p* args,
+                                                     bool under_var, bool has_pref,
+                                                     int depth, int length);
 
 /*---------------------------------------------------------------------*/
 /*                         Internal Functions                          */
@@ -55,7 +55,7 @@ inline OracleUnifResult rigid_path_check_args(Term_p t1, Term_p* args,
 //
 /----------------------------------------------------------------------*/
 
-OracleUnifResult rigid_path_check(Term_p var, Term_p t2, bool has_pref, 
+OracleUnifResult rigid_path_check(Term_p var, Term_p t2, bool has_pref,
                                   bool under_var, int depth)
 {
    assert(TermIsFreeVar(var));
@@ -107,7 +107,7 @@ OracleUnifResult rigid_path_check(Term_p var, Term_p t2, bool has_pref,
    }
    else
    {
-      res = rigid_path_check_args(var, t2->args, has_pref, under_var, 
+      res = rigid_path_check_args(var, t2->args, has_pref, under_var,
                                   depth, t2->arity);
    }
 
@@ -126,7 +126,7 @@ OracleUnifResult rigid_path_check(Term_p var, Term_p t2, bool has_pref,
 //
 /----------------------------------------------------------------------*/
 
-inline OracleUnifResult rigid_path_check_args(Term_p t1, Term_p* args, bool has_pref, 
+static inline OracleUnifResult rigid_path_check_args(Term_p t1, Term_p* args, bool has_pref,
                                               bool under_var, int depth, int length)
 {
    OracleUnifResult res = UNIFIABLE;
@@ -158,7 +158,7 @@ OracleUnifResult SubstComputeFixpointMgu(Term_p t1, Term_p t2, Subst_p subst)
 {
    t1 = LambdaEtaReduceDB(TermGetBank(t1), WHNF_deref(t1));
    t2 = LambdaEtaReduceDB(TermGetBank(t2), WHNF_deref(t2));
-   
+
    // DBG_PRINT(stderr, "fx: ", TermPrintDbg(stderr, t1, TermGetBank(t1)->sig, DEREF_NEVER), " <?> ");
    // DBG_PRINT(stderr, "", TermPrintDbg(stderr, t2, TermGetBank(t2)->sig, DEREF_NEVER), ".\n");
 
@@ -191,7 +191,7 @@ OracleUnifResult SubstComputeFixpointMgu(Term_p t1, Term_p t2, Subst_p subst)
       }
    }
 
-   // DBG_PRINT(stderr, res == UNIFIABLE ? "unif" : (res == NOT_UNIFIABLE ? "nunif" : "nif"), 
+   // DBG_PRINT(stderr, res == UNIFIABLE ? "unif" : (res == NOT_UNIFIABLE ? "nunif" : "nif"),
    //           SubstPrint(stderr, subst, TermGetBank(t1)->sig, DEREF_NEVER), ".\n");
 
 

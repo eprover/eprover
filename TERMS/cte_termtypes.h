@@ -86,7 +86,7 @@ typedef enum
                                    this occurs with negative polarity. */
    TPIsDerefedAppVar  = 1<<20,  /* Is the object obtained as a cache
                                    for applied variables -- dbg purposes */
-   TPIsBetaReducible  = 1<<21,  /* Does the term have at least one subterm with 
+   TPIsBetaReducible  = 1<<21,  /* Does the term have at least one subterm with
                                    lambda abstraction as term head */
    TPIsEtaReducible   = 1<<22,  /* Does the term have at least one subterm which is
                                    lambda abstraction and the last argument of body is
@@ -445,7 +445,7 @@ static inline Type_p GetHeadType(Sig_p sig, Term_p term)
 //
 /----------------------------------------------------------------------*/
 
-inline Term_p GetFVarHead(Term_p t)
+static inline Term_p GetFVarHead(Term_p t)
 {
    assert(TermIsTopLevelFreeVar(t));
    if(TermIsAppliedFreeVar(t))
