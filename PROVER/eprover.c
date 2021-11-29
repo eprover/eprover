@@ -392,14 +392,6 @@ int main(int argc, char* argv[])
    SpecLimits_p limits = NULL;
    Derivation_p deriv;
 
-   // == INITIALIZING PRINITING SEMAPHORE == 
-   sem_init(&print_sem, 1, 1);
-   print_mutex = &print_sem;
-   sem_init(&proof_found_sem, 1, 1);
-   proof_found_flag = 
-      mmap(NULL, sizeof(bool), PROT_READ | PROT_WRITE, 
-           MAP_SHARED | MAP_ANONYMOUS, -1, 0);
-
    assert(argv[0]);
 
 #ifdef STACK_SIZE
@@ -448,6 +440,13 @@ int main(int argc, char* argv[])
    if(strategy_scheduling)
    {
       chosen_schedule = new_schedule;
+      // == INITIALIZING PRINITING SEMAPHORE == 
+      sem_init(&print_sem, 1, 1);
+      print_mutex = &print_sem;
+      sem_init(&proof_found_sem, 1, 1);
+      proof_found_flag = 
+         mmap(NULL, sizeof(bool), PROT_READ | PROT_WRITE,
+         MAP_SHARED | MAP_ANONYMOUS, -1, 0);
    }
 
    if(syntax_only)
@@ -693,10 +692,17 @@ int main(int argc, char* argv[])
          DocClauseQuoteDefault(2, success, "proof");
       }
 
-      sem_wait(&proof_found_sem);
-      if(!*proof_found_flag)
+      if(strategy_scheduling)
       {
-         *proof_found_flag = true;
+         sem_wait(&proof_found_sem);
+      }
+      if(!strategy_scheduling || !*proof_found_flag)
+      {
+         if(strategy_scheduling)
+         {
+            *proof_found_flag = true;
+
+         }
          locked_fprintf(GlobalOut, "\n# Proof found!\n");
 
          if(print_full_deriv)
@@ -747,7 +753,10 @@ int main(int argc, char* argv[])
          }
          DerivationFree(deriv);
       }
-      sem_post(&proof_found_sem);
+      if(strategy_scheduling)
+      {
+            sem_post(&proof_found_sem);
+      }
    }
    else if(proofstate->watchlist && ClauseSetEmpty(proofstate->watchlist))
    {
