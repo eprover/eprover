@@ -2528,9 +2528,7 @@ TFormula_p LiftLambdas(TB_p terms, TFormula_p t, PStack_p definitions, PDTree_p 
    
    if(vars)
    {
-      DBG_TPRINT(stderr, "lift(", res, ") =");
       res = lift_lambda(terms, vars, res, definitions, liftings);
-      DBG_TPRINT(stderr, "", res, ";\n");
       PStackFree(vars);
    }
 

@@ -80,6 +80,7 @@ typedef enum
    DOSplitEquiv,
    DOIntroDef,
    DOSplitConjunct,
+   DOLiftLambdas,
    DOFOOLUnroll,
    DOEliminateBVar,
    /* HO inferences */
@@ -150,6 +151,7 @@ typedef enum
    DCSplitEquiv       = DOSplitEquiv|Arg1Fof,
    DCIntroDef         = DOIntroDef,
    DCSplitConjunct    = DOSplitConjunct|Arg1Fof,
+   DCLiftLambdas      = DOLiftLambdas|Arg1Fof,
    DCFoolUnroll       = DOFOOLUnroll,
    DCEliminateBVar    = DOEliminateBVar,
    /* HO inferences */

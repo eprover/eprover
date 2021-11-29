@@ -1558,10 +1558,10 @@ long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive,
       {
          TFormulaSetLambdaNormalize(set, archive, terms);
       }
-      if (lift_lambdas)
-      {
-         TFormulaSetLiftLambdas(set, archive, terms);
-      }
+      // if (lift_lambdas)
+      // {
+      //    TFormulaSetLiftLambdas(set, archive, terms);
+      // }
    }
 #endif
    TFormulaSetUnrollFOOL(set, archive, terms);
@@ -1591,6 +1591,10 @@ long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive,
          old_nodes = TBNonVarTermNodes(terms);
          gc_threshold = old_nodes * TFORMULA_GC_LIMIT;
       }
+   }
+   if(lift_lambdas)
+   {
+      ClauseSetLiftLambdas(clauseset, archive, terms, fresh_vars);
    }
    if (TBNonVarTermNodes(terms) != old_nodes)
    {
@@ -2538,6 +2542,70 @@ bool FormulaHasAppVarLit(Sig_p sig, TFormula_p form)
 
    PStackFree(stack);
    return res;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseSetLiftLambdas()
+//
+//   Lift lambdas in clauses, change them in place, modify the proof object
+//   and store the lambda definitions in archive. New lambda definitions are 
+//   clausified in turn.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+void ClauseSetLiftLambdas(ClauseSet_p set, FormulaSet_p archive, TB_p terms, VarBank_p fresh_vars)
+{
+   PStack_p defs = PStackAlloc();
+   PTree_p all_defs = NULL;
+   PDTree_p liftings = PDTreeAllocWDeleter(terms, deleter);
+
+   VarBankSetVCountsToUsed(terms->vars);
+
+   for(Clause_p handle = set->anchor->succ; handle!=set->anchor; handle = handle->succ)
+   {
+      bool cl_changed = false;
+      for(Eqn_p lit = handle->literals; lit; lit = lit->next)
+      {
+         Term_p lterm = !TermIsLambda(lit->lterm) && TermHasLambdaSubterm(lit->lterm) ?
+            LiftLambdas(terms, DecodeFormulasForCNF(terms, lit->lterm), defs, liftings) : lit->lterm;
+         Term_p rterm = !TermIsLambda(lit->rterm) && TermHasLambdaSubterm(lit->rterm) ?
+            LiftLambdas(terms, DecodeFormulasForCNF(terms, lit->rterm), defs, liftings) : lit->rterm;
+         cl_changed = cl_changed || lit->lterm != lterm || lit->rterm != rterm;
+         lit->lterm = lterm;
+         lit->rterm = rterm;
+      }
+
+      if(cl_changed)
+      {
+         while (!(PStackEmpty(defs)))
+         {
+            WFormula_p def = PStackPopP(defs);
+            ClausePushDerivation(handle, DCLiftLambdas, def, NULL);
+            PTreeStore(&all_defs, def);
+         }
+      }
+   }
+
+   PStack_p def_iter = PTreeTraverseInit(all_defs);
+   PTree_p node;
+   while((node = PTreeTraverseNext(def_iter)))
+   {
+      WFormula_p handle = node->key;
+      WFormula_p copy = WFormulaFlatCopy(handle);
+      FormulaSetInsert(archive, handle);
+      WFormulaCNF2(copy, set, terms, fresh_vars, 100);
+      FormulaSetInsert(archive, copy);
+   }
+   PTreeTraverseExit(def_iter);
+
+   PStackFree(defs);
+   PTreeFree(all_defs);
+   PDTreeFree(liftings);
 }
 
 /*---------------------------------------------------------------------*/

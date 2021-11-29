@@ -1051,6 +1051,8 @@ ProverResult SatClauseSetCheckUnsat(SatClauseSet_p satset, Clause_p *empty,
    solverres = picosat_sat(solver, sat_check_decision_limit);
    //printf("# YYYYY Solver done\n");
 
+   fprintf(stderr, "SAT-check!\n");
+
    switch(solverres)
    {
    case PICOSAT_SATISFIABLE:

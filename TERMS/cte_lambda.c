@@ -1004,7 +1004,7 @@ inline TermNormalizer GetEtaNormalizer()
 
 Term_p NamedToDB(TB_p bank, Term_p lambda)
 {
-   Term_p res = LambdaNormalizeDB(bank, 
+   Term_p res = BetaNormalizeDB(bank, 
                             TermHasLambdaSubterm(lambda) ? 
                               do_named_to_db(bank, lambda, 0) : lambda);
    return res;

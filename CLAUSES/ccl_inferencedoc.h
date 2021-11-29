@@ -108,6 +108,7 @@ typedef enum
 #define PCL_VR     "variable_rename"
 #define PCL_SK     "skolemize"
 #define PCL_DSTR   "distribute"
+#define PCL_LL     "lift_lambdas"
 #define PCL_ANNOQ  "add_answer_literal"
 #define PCL_EVANS  "eval_answer_literal"
 #define PCL_NC     "assume_negation"

@@ -69,6 +69,7 @@ char *opids[] =
    PCL_SE,
    PCL_ID_DEF,
    PCL_SC,
+   PCL_LL,
    PCL_FU,
    PCL_EBV,
    /* HO inferences */
@@ -122,6 +123,7 @@ char *optheory [] =
    NULL,
    NULL,
    /* Others */
+   NULL,
    NULL,
    NULL,
    NULL,
@@ -181,6 +183,7 @@ char *opstatus [] =
    /* Others */
    "thm",
    NULL,
+   "thm",
    "thm",
    "thm",
    "thm",
