@@ -1239,7 +1239,7 @@ Term_p EncodePredicateAsEqn(TB_p bank, TFormula_p f)
        f->f_code == SIG_FALSE_CODE ||
        f->f_code == SIG_ITE_CODE ||
        f->f_code == SIG_LET_CODE ||
-       TermIsFreeVar(f) ||
+       TermIsAnyVar(f) ||
        TermIsPhonyApp(f)) &&
       f->type == sig->type_bank->bool_type)
    {

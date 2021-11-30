@@ -600,7 +600,7 @@ long ProofStateSinE(ProofState_p state, char* fname)
    axno = ClauseSetCardinality(state->axioms)+
       FormulaSetCardinality(state->f_axioms);
 
-   //printf("...ProofStateSinE()\n");
+   printf("# ...ProofStateSinE()=%ld\n", axno_orig-axno);
 
    return axno_orig-axno;
 }

@@ -879,12 +879,9 @@ TFormula_p do_fool_unroll(TFormula_p form, TB_p terms)
              ((Term_p)PStackBelowTopP(pos))->args[PStackTopInt(pos)];
          assert(TypeIsBool(subform->type));
 
-         if (subform->f_code > terms->sig->internal_symbols)
-         {
             // This is a Skolem symbol that is not yet encoded as literal
-            subform = EqnTermsTBTermEncode(terms, subform, terms->true_term,
-                                           true, PENormal);
-         }
+            
+         subform = EncodePredicateAsEqn(terms, subform);
 
          Term_p subform_t = TBTermPosReplace(terms, terms->true_term, pos,
                                              DEREF_NEVER, 0, subform);
@@ -2070,7 +2067,6 @@ long TFormulaSetLiftItes(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
    return res;
 }
 
-#ifdef ENABLE_LFHO
 /*-----------------------------------------------------------------------
 //
 // Function: TFormulaSetLambdaNormalize()
@@ -2288,24 +2284,7 @@ long TFormulaSetNamedToDBLambdas(FormulaSet_p set, FormulaSet_p archive, TB_p te
       return 0;
    }
 }
-#else
-long TFormulaSetLambdaNormalize(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
-{
-   return 0;
-}
-long TFormulaSetLiftLambdas(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
-{
-   return 0;
-}
-long TFormulaNamedToDBLambdas(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
-{
-   return 0;
-}
-long TFormulaSetUnfoldLogSymbols(FormulaSet_p set, FormulaSet_p archive, TB_p terms, bool unfold_only_forms)
-{
-   return 0;
-}
-#endif
+
 /*-----------------------------------------------------------------------
 //
 // Function: TFormulaSetIntroduceDefs()
@@ -2598,6 +2577,7 @@ void ClauseSetLiftLambdas(ClauseSet_p set, FormulaSet_p archive, TB_p terms, Var
       WFormula_p handle = node->key;
       WFormula_p copy = WFormulaFlatCopy(handle);
       FormulaSetInsert(archive, handle);
+      DBG_TPRINT(stderr, "wcnf: ", copy->tformula, ".\n");
       TFormulaUnrollFOOL(copy, terms);
       WFormulaSimplify(copy, terms);
       WFormulaCNF2(copy, set, terms, fresh_vars, 100);
