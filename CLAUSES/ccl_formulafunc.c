@@ -2577,7 +2577,6 @@ void ClauseSetLiftLambdas(ClauseSet_p set, FormulaSet_p archive, TB_p terms, Var
       WFormula_p handle = node->key;
       WFormula_p copy = WFormulaFlatCopy(handle);
       FormulaSetInsert(archive, handle);
-      DBG_TPRINT(stderr, "wcnf: ", copy->tformula, ".\n");
       TFormulaUnrollFOOL(copy, terms);
       WFormulaSimplify(copy, terms);
       WFormulaCNF2(copy, set, terms, fresh_vars, 100);

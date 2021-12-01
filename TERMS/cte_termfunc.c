@@ -2272,7 +2272,7 @@ void TermAddSymbolDistributionLimited(Term_p term, long *dist_array, long limit)
 void  TermAddTypeDistribution(Term_p term, Sig_p sig, long* type_arr)
 {
    PStack_p stack = PStackAlloc();
-   TypeUniqueID type_uid = INVALID_TYPE_UID;
+   Type_p ty = NULL;
    assert(term);
    assert(sig);
 
@@ -2282,10 +2282,12 @@ void  TermAddTypeDistribution(Term_p term, Sig_p sig, long* type_arr)
    {
       term = PStackPopP(stack);
       assert(term);
-      assert(GetHeadType(sig, term));
+      ty = GetHeadType(sig, term); 
+      if(ty) // some polymorphic symbols have no type
+      {
+         type_arr[ty->type_uid]++;
+      }
 
-      type_uid = GetHeadType(sig, term)->type_uid;
-      type_arr[type_uid]++;
 
       int i;
       for(i=TermIsPhonyApp(term) ? 1 : 0; i<term->arity; i++)

@@ -21,6 +21,18 @@ Contents
 #include <cte_lambda.h>
 #include <ccl_tcnf.h>
 
+typedef struct ptr_pair_
+{
+   void* x;
+   void* y;
+} PtrPair;
+
+typedef PtrPair* PtrPair_p;
+
+#define PtrPairAlloc() (SizeMalloc(sizeof(PtrPair)))
+#define PtrPairFree(junk) SizeFree((junk), sizeof(PtrPair))
+
+
 /*---------------------------------------------------------------------*/
 /*                        Global Variables                             */
 /*---------------------------------------------------------------------*/
@@ -29,9 +41,219 @@ Contents
 /*                      Forward Declarations                           */
 /*---------------------------------------------------------------------*/
 
+void set_proof_object(Clause_p new_clause, Clause_p orig_clause, Clause_p parent2,
+                      DerivationCode dc, int depth_incr);
+
 /*---------------------------------------------------------------------*/
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
+
+/*-----------------------------------------------------------------------
+//
+// Function: mk_ptr_pair()
+//
+//   Create a pointer pair on the heap
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static inline PtrPair_p mk_ptr_pair(void* x, void* y)
+{
+   PtrPair_p pair = PtrPairAlloc();
+   pair->x = x;
+   pair->y = y;
+   return pair;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: instantiate_w_abstractions()
+//
+//   Find abstraction for the variable var in orig_cl and store 
+//   the resulting clause in res
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void instantiate_w_abstractions(Term_p var, Clause_p orig_cl, PObjMap_p* store,
+                                PStack_p res)
+{
+   PStack_p hits = PObjMapFind(store, var->type, PCmpFun);
+
+   for(PStackPointer i=0; i<PStackGetSP(hits); i++)
+   {
+      PtrPair_p target_cl = PStackElementP(hits, i);
+      Term_p target = target_cl->x;
+      Clause_p other_cl = target_cl->y;
+
+      assert(!var->binding);   
+      assert(var->type == target->type);
+
+      var->binding = target;
+      Eqn_p res_lits = EqnListCopyOpt(orig_cl->literals);
+      EqnListLambdaNormalize(res_lits);
+      EqnListRemoveResolved(&res_lits);
+      EqnListRemoveDuplicates(res_lits);
+      Clause_p res_cl = ClauseAlloc(res_lits);   
+      NormalizeEquations(res_cl);
+      set_proof_object(res_cl, orig_cl, other_cl, DCTrigger, 1);
+      BooleanSimplification(res_cl);
+      PStackPushP(res, res_cl);
+      var->binding = NULL;
+   }
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: do_abstract()
+//
+//   Replace arg with DB variable 0 (appropriately shifted) in t
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+Term_p do_abstract(Term_p t, Term_p arg, TB_p bank, int depth, Subst_p refresh)
+{
+   Term_p res;
+   if(t == arg)
+   {
+      res = TBRequestDBVar(bank, arg->type, depth);
+   }
+   else if(TermIsLambda(t))
+   {
+      Term_p new_matrix = do_abstract(t->args[1], arg, bank,
+                                       depth+1, refresh);
+      if(new_matrix != t->args[1])
+      {
+         res = CloseWithDBVar(bank, t->args[0]->type, new_matrix);
+      }
+      else
+      {
+         res = t;
+      }
+   }
+   else if(TermIsFreeVar(t))
+   {
+      if(t->binding)
+      {
+         res = t->binding;
+      }
+      else
+      {
+         Term_p fvar = VarBankGetFreshVar(bank->vars, t->type);
+         SubstAddBinding(refresh, t, fvar);
+         res = fvar;
+      }
+   }
+   else if(t->arity == 0)
+   {
+      res = t;
+   }
+   else
+   {
+      Term_p new = TermTopCopyWithoutArgs(t);
+      bool changed = false;
+      for(int i=0; i<t->arity; i++)
+      {
+         new->args[i] = do_abstract(t->args[i], arg, bank, depth, refresh);
+         changed = changed || new->args[i] != t->args[i];
+      }
+
+      if(changed)
+      {
+         res = TBTermTopInsert(bank, new);
+      }
+      else
+      {
+         TermTopFree(new);
+         res = t;
+      }
+   }
+
+   return res;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: abstract_arg()
+//
+//   Construct an abrastraction %x. lhs[x] = rhs[x] where
+//   lhs[x] is lhs in which arg is replaced by x (similarly rhs[x]).
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+Term_p abstract_arg(Term_p lhs, Term_p rhs, Term_p arg, TB_p bank, bool sign)
+{
+   Subst_p refresher = SubstAlloc();
+   Term_p lhs_abs = do_abstract(lhs, arg, bank, 0, refresher);
+   Term_p rhs_abs = do_abstract(lhs, arg, bank, 0, refresher);
+
+   Term_p matrix = EqnTermsTBTermEncode(bank, lhs_abs, rhs_abs, sign, PENormal);
+   SubstDelete(refresher);
+   return CloseWithDBVar(bank, arg->type, matrix);
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: store_abstraction()
+//
+//   Stores the computed inference with the given derivation code
+//   in the temporary store for the newly infered clauses.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void store_abstraction(Clause_p cl, PObjMap_p* store)
+{
+   assert(ClauseLiteralNumber(cl) == 1);
+   Eqn_p lit = cl->literals;
+   Sig_p sig = lit->bank->sig;
+
+   if(lit->lterm->f_code == lit->rterm->f_code &&
+      lit->lterm->f_code > sig->internal_symbols)
+   {
+      assert(lit->lterm->arity == lit->rterm->arity);
+      Term_p terms[2] = {lit->lterm, lit->rterm};
+      for(int i=0; i<2; i++)
+      {
+         Term_p t = terms[i];
+         Term_p other = terms[1-i];
+         for(int arg_i=0; arg_i<lit->lterm->arity; i++)
+         {
+            if(TermIsDBClosed(t->args[arg_i]) &&
+               TermIsSubterm(other, t->args[arg_i], DEREF_NEVER))
+            {
+               Term_p abstraction = abstract_arg(t, other, t->args[i], lit->bank,
+                                                 !EqnIsPositive(lit));
+               PtrPair_p pair = mk_ptr_pair(abstraction, cl);
+               PStack_p* res = (PStack_p*)
+                  PObjMapGetRef(store, abstraction->type, PCmpFun, NULL);
+               if(!*res)
+               {
+                  *res = PStackAlloc();
+               }
+               PStackPushP(*res, pair);
+            }
+         }
+      }
+   }
+}
 
 /*-----------------------------------------------------------------------
 //
@@ -1012,7 +1234,7 @@ void find_choice_triggers(IntMap_p choice_syms, PStack_p triggers, Term_p t)
 /----------------------------------------------------------------------*/
 
 void do_mk_choice_inst(ClauseSet_p store, IntMap_p choice_syms, Clause_p cl, 
-                    FunCode choice_code, Term_p trigger)
+                       FunCode choice_code, Term_p trigger)
 {
    assert(TypeIsArrow(trigger->type));
    assert(TypeIsPredicate(trigger->type));
@@ -2174,6 +2396,70 @@ int InstantiateChoiceClauses(ClauseSet_p store, ClauseSet_p archive,
    }
    PStackFree(triggers);
    return new_cls;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: PreinstantiateInduction()
+//
+//   Compute all induction triggers from the original clause set and 
+//   instantiate clauses that have variables of the correct type.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void del_node(void* key, void* val)
+{
+   PStack_p triggers = (PStack_p) val;
+   while(!PStackEmpty(triggers))
+   {
+      PtrPairFree(PStackPopP(triggers));
+   }
+   PStackFree(triggers);
+}
+
+void PreinstantiateInduction(ClauseSet_p cls, TB_p bank)
+{
+   VarBankSetVCountsToUsed(bank->vars);
+   PObjMap_p terms_by_type = NULL;
+   for(Clause_p handle = cls->anchor->succ; handle != cls->anchor; 
+       handle = handle->succ)
+   {
+      if(ClauseIsSOS(handle) && ClauseLiteralNumber(handle) == 1)
+      {
+         store_abstraction(handle, &terms_by_type);
+      }
+   }
+
+   PStack_p res = PStackAlloc();
+
+   for(Clause_p handle = cls->anchor->succ; handle != cls->anchor; 
+       handle = handle->succ)
+   {
+      PTree_p vars = NULL;
+      ClauseCollectVariables(handle, &vars);
+
+      PStack_p iter = PTreeTraverseInit(vars);
+      PTree_p node = NULL;
+      while((node = PTreeTraverseNext(iter)))
+      {
+         instantiate_w_abstractions(node->key, handle, &terms_by_type, res);
+      }
+
+      PTreeFree(vars);
+      PStackFree(iter);
+   }
+
+   while(!PStackEmpty(res))
+   {
+      ClauseSetInsert(cls, PStackPopP(res));   
+   }
+
+   PStackFree(res);
+   PObjMapFreeWDeleter(terms_by_type, del_node);   
 }
 
 /*-----------------------------------------------------------------------
