@@ -105,6 +105,7 @@ void instantiate_w_abstractions(Term_p var, Clause_p orig_cl, PObjMap_p* store,
       set_proof_object(res_cl, orig_cl, other_cl, DCTrigger, 1);
       BooleanSimplification(res_cl);
       PStackPushP(res, res_cl);
+      DBG_PRINT(stderr, "res:", ClausePrintDBG(stderr, res_cl), ".\n");
       var->binding = NULL;
    }
 }
@@ -234,7 +235,7 @@ void store_abstraction(Clause_p cl, PObjMap_p* store)
       {
          Term_p t = terms[i];
          Term_p other = terms[1-i];
-         for(int arg_i=0; arg_i<lit->lterm->arity; i++)
+         for(int arg_i=0; arg_i<lit->lterm->arity; arg_i++)
          {
             if(TermIsDBClosed(t->args[arg_i]) &&
                TermIsSubterm(other, t->args[arg_i], DEREF_NEVER))
@@ -2416,25 +2417,28 @@ void del_node(void* key, void* val)
    PStack_p triggers = (PStack_p) val;
    while(!PStackEmpty(triggers))
    {
-      PtrPairFree(PStackPopP(triggers));
+      PtrPair_p pair = PStackPopP(triggers);
+      PtrPairFree(pair);
    }
    PStackFree(triggers);
 }
 
-void PreinstantiateInduction(ClauseSet_p cls, TB_p bank)
+void PreinstantiateInduction(ClauseSet_p cls, ClauseSet_p archive, TB_p bank)
 {
    VarBankSetVCountsToUsed(bank->vars);
    PObjMap_p terms_by_type = NULL;
    for(Clause_p handle = cls->anchor->succ; handle != cls->anchor; 
        handle = handle->succ)
    {
-      if(ClauseIsSOS(handle) && ClauseLiteralNumber(handle) == 1)
+      if(ClauseIsConjecture(handle) && ClauseLiteralNumber(handle) == 1)
       {
+         DBG_PRINT(stderr, "abstracting", ClausePrintDBG(stderr, handle), ".\n");
          store_abstraction(handle, &terms_by_type);
       }
    }
 
    PStack_p res = PStackAlloc();
+   PStack_p to_remove = PStackAlloc();
 
    for(Clause_p handle = cls->anchor->succ; handle != cls->anchor; 
        handle = handle->succ)
@@ -2444,9 +2448,16 @@ void PreinstantiateInduction(ClauseSet_p cls, TB_p bank)
 
       PStack_p iter = PTreeTraverseInit(vars);
       PTree_p node = NULL;
+      PStackPointer old_ptr = PStackGetSP(res);
       while((node = PTreeTraverseNext(iter)))
       {
          instantiate_w_abstractions(node->key, handle, &terms_by_type, res);
+      }
+
+      if(old_ptr != PStackGetSP(res))
+      {
+         // if instantiated any term
+         PStackPushP(to_remove, handle);
       }
 
       PTreeFree(vars);
@@ -2455,10 +2466,19 @@ void PreinstantiateInduction(ClauseSet_p cls, TB_p bank)
 
    while(!PStackEmpty(res))
    {
+      fprintf(stderr, "inserting: ");
+      ClausePrintDBG(stderr, PStackTopP(res));
+      fprintf(stderr, ".\n");
       ClauseSetInsert(cls, PStackPopP(res));   
    }
 
+   while(!PStackEmpty(to_remove))
+   {
+      ClauseSetMoveClause(archive, PStackPopP(to_remove));   
+   }
+
    PStackFree(res);
+   PStackFree(to_remove);
    PObjMapFreeWDeleter(terms_by_type, del_node);   
 }
 

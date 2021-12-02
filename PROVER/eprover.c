@@ -641,7 +641,8 @@ int main(int argc, char* argv[])
 
    if(proofcontrol->heuristic_parms.preinstantiate_induction)
    {
-      PreinstantiateInduction(proofstate->axioms, proofstate->terms);
+      fprintf(stderr, "instantiating... \n");
+      PreinstantiateInduction(proofstate->axioms, proofstate->archive, proofstate->terms);
    }
 
    if(proofcontrol->heuristic_parms.presat_interreduction)
@@ -2033,6 +2034,7 @@ CLState_p process_options(int argc, char* argv[])
                CLStateGetIntArgCheckRange(handle, arg, 1, 99) / (double) 100;
       case OPT_PREINSTANTIATE_INDUCTION:
             h_parms->preinstantiate_induction = CLStateGetBoolArg(handle, arg);
+            break;
       default:
             assert(false && "Unknown option");
             break;

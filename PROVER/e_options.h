@@ -1648,6 +1648,12 @@ OptCell opts[] =
     "Which percentage (from 1 to 99) of the total CPU time will be devoted to "
     "problem classification?"},
 
+    {OPT_PREINSTANTIATE_INDUCTION,
+    '\0', "preinstantiate-induction",
+    ReqArg, NULL,
+    "Abstract unit clauses coming from conjecture and use the abstractions "
+    "to instantiate clauses that look like the ones coming from induction axioms."},
+
    {OPT_NOOPT,
     '\0', NULL,
     NoArg, NULL,
@@ -1655,7 +1661,6 @@ OptCell opts[] =
 };
 
 #endif
-
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
