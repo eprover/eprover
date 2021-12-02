@@ -86,7 +86,7 @@ void instantiate_w_abstractions(Term_p var, Clause_p orig_cl, PObjMap_p* store,
 {
    PStack_p hits = PObjMapFind(store, var->type, PCmpFun);
 
-   for(PStackPointer i=0; i<PStackGetSP(hits); i++)
+   for(PStackPointer i=0; hits && i<PStackGetSP(hits); i++)
    {
       PtrPair_p target_cl = PStackElementP(hits, i);
       Term_p target = target_cl->x;
@@ -199,7 +199,7 @@ Term_p abstract_arg(Term_p lhs, Term_p rhs, Term_p arg, TB_p bank, bool sign)
 {
    Subst_p refresher = SubstAlloc();
    Term_p lhs_abs = do_abstract(lhs, arg, bank, 0, refresher);
-   Term_p rhs_abs = do_abstract(lhs, arg, bank, 0, refresher);
+   Term_p rhs_abs = do_abstract(rhs, arg, bank, 0, refresher);
 
    Term_p matrix = EqnTermsTBTermEncode(bank, lhs_abs, rhs_abs, sign, PENormal);
    SubstDelete(refresher);
