@@ -209,6 +209,7 @@ typedef struct heuristic_parms_cell
    int                 inst_choice_max_depth;
    bool                local_rw;
    bool                prune_args;
+   bool                preinstantiate_induction;
    // unification limits
    int                 func_proj_limit;
    int                 imit_limit;

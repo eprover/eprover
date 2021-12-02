@@ -252,6 +252,7 @@ void HeuristicParmsInitialize(HeuristicParms_p handle)
    handle->inst_choice_max_depth         = -1;
    handle->local_rw                      = false;
    handle->prune_args                    = false;
+   handle->preinstantiate_induction     = false;
 
    handle->func_proj_limit = 0;
    handle->imit_limit = 0;
@@ -483,6 +484,8 @@ void HeuristicParmsPrint(FILE* out, HeuristicParms_p handle)
            BOOL2STR(handle->local_rw));
    locked_fprintf(out, "   prune_args:                    %s\n",
            BOOL2STR(handle->prune_args));
+   locked_fprintf(out, "   preinstantiate_induction:      %s\n",
+           BOOL2STR(handle->preinstantiate_induction));
    locked_fprintf(out, "   func_proj_limit:               %d\n",
            handle->func_proj_limit);
    locked_fprintf(out, "   imit_limit:                    %d\n",
@@ -669,6 +672,7 @@ bool HeuristicParmsParseInto(Scanner_p in,
    PARSE_INT(inst_choice_max_depth);
    PARSE_BOOL(local_rw);
    PARSE_BOOL(prune_args);
+   PARSE_BOOL(preinstantiate_induction);
 
    PARSE_INT(func_proj_limit);
    PARSE_INT(imit_limit);
