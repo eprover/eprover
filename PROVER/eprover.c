@@ -618,6 +618,12 @@ int main(int argc, char* argv[])
                                proofstate->archive);
    }
 
+
+   if(proofcontrol->heuristic_parms.preinstantiate_induction)
+   {
+      PreinstantiateInduction(proofstate->axioms, proofstate->archive, proofstate->terms);
+   }
+
    PCLFullTerms = pcl_full_terms; /* Preprocessing always uses full
                                      terms, so we set the flag for
                                      the main proof search only now! */
@@ -637,12 +643,6 @@ int main(int argc, char* argv[])
    if(print_rusage)
    {
       locked_fprintf(GlobalOut, "# Preprocessing time       : %.3f s\n", preproc_time);
-   }
-
-   if(proofcontrol->heuristic_parms.preinstantiate_induction)
-   {
-      fprintf(stderr, "instantiating... \n");
-      PreinstantiateInduction(proofstate->axioms, proofstate->archive, proofstate->terms);
    }
 
    if(proofcontrol->heuristic_parms.presat_interreduction)

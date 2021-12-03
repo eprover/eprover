@@ -39,7 +39,8 @@ typedef enum
 {
    AFNoFilter = 0,
    AFGSinE,    /* Generalized SinE */
-   AFThreshold  /* Pass all formulas if less then N */
+   AFThreshold,  /* Pass all formulas if less then N */
+   AFLambdaDefines  /* Pass only conjecture and all definitions */
 }AxFilterType;
 
 

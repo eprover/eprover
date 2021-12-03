@@ -684,6 +684,12 @@ long StructFOFSpecGetProblem(StructFOFSpec_p ctrl,
                                res_clauses,
                                res_formulas);
          break;
+   case AFLambdaDefines:
+         res = SelectDefinitions(ctrl->clause_sets,
+                                ctrl->formula_sets,
+                                res_clauses,
+                                res_formulas);
+         break;
    default:
          assert(false && "Unknown AxFilter type");
          break;

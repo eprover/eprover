@@ -61,7 +61,7 @@ static AxFilter_p sine_get_filter(char* fname, AxFilterSet_p *filters)
 
    in = CreateScanner(StreamTypeOptionString, fname, true, NULL, true);
    CheckInpTok(in, Name);
-   if(TestTok(LookToken(in,1), NoToken))
+   if(!TestInpId(in, "LambdaDef") && TestTok(LookToken(in,1), NoToken))
    {
       *filters = AxFilterSetCreateInternal(AxFilterDefaultSet);
       filter = AxFilterSetFindFilter(*filters, fname);

@@ -2432,13 +2432,11 @@ void PreinstantiateInduction(ClauseSet_p cls, ClauseSet_p archive, TB_p bank)
    {
       if(ClauseIsConjecture(handle) && ClauseLiteralNumber(handle) == 1)
       {
-         DBG_PRINT(stderr, "abstracting", ClausePrintDBG(stderr, handle), ".\n");
          store_abstraction(handle, &terms_by_type);
       }
    }
 
    PStack_p res = PStackAlloc();
-   PStack_p to_remove = PStackAlloc();
 
    for(Clause_p handle = cls->anchor->succ; handle != cls->anchor; 
        handle = handle->succ)
@@ -2448,16 +2446,9 @@ void PreinstantiateInduction(ClauseSet_p cls, ClauseSet_p archive, TB_p bank)
 
       PStack_p iter = PTreeTraverseInit(vars);
       PTree_p node = NULL;
-      PStackPointer old_ptr = PStackGetSP(res);
       while((node = PTreeTraverseNext(iter)))
       {
          instantiate_w_abstractions(node->key, handle, &terms_by_type, res);
-      }
-
-      if(old_ptr != PStackGetSP(res))
-      {
-         // if instantiated any term
-         PStackPushP(to_remove, handle);
       }
 
       PTreeFree(vars);
@@ -2466,19 +2457,10 @@ void PreinstantiateInduction(ClauseSet_p cls, ClauseSet_p archive, TB_p bank)
 
    while(!PStackEmpty(res))
    {
-      fprintf(stderr, "inserting: ");
-      ClausePrintDBG(stderr, PStackTopP(res));
-      fprintf(stderr, ".\n");
       ClauseSetInsert(cls, PStackPopP(res));   
    }
 
-   while(!PStackEmpty(to_remove))
-   {
-      ClauseSetMoveClause(archive, PStackPopP(to_remove));   
-   }
-
    PStackFree(res);
-   PStackFree(to_remove);
    PObjMapFreeWDeleter(terms_by_type, del_node);   
 }
 

@@ -299,6 +299,28 @@ AxFilter_p ThresholdParse(Scanner_p in)
    return res;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: LambdaDefParse()
+//
+//   Parse an LambdaDef filter: has no arguments
+//
+//
+// Global Variables: -
+//
+// Side Effects    : IO, memory operations.
+//
+/----------------------------------------------------------------------*/
+
+AxFilter_p LambdaDefParse(Scanner_p in)
+{
+   AxFilter_p res = AxFilterAlloc();
+
+   AcceptInpId(in, "LambdaDef");
+   res->type = AFLambdaDefines;
+   return res;
+}
+
 
 
 /*-----------------------------------------------------------------------
@@ -315,7 +337,7 @@ AxFilter_p ThresholdParse(Scanner_p in)
 
 AxFilter_p AxFilterParse(Scanner_p in)
 {
-   CheckInpId(in, "GSinE|Threshold");
+   CheckInpId(in, "GSinE|Threshold|LambdaDef");
 
    if(TestInpId(in, "GSinE"))
    {
@@ -324,6 +346,10 @@ AxFilter_p AxFilterParse(Scanner_p in)
    if(TestInpId(in, "Threshold"))
    {
       return ThresholdParse(in);
+   }
+   if(TestInpId(in, "LambdaDef"))
+   {
+      return LambdaDefParse(in);
    }
    return NULL;
 }
@@ -409,6 +435,8 @@ bool AxFilterPrintBuf(char* buf, int buflen, AxFilter_p filter)
          res = snprintf(buf, buflen, "Threshold(%ld)",
                         filter->threshold);
          break;
+   case AFLambdaDefines:
+         res = snprintf(buf, buflen, "LambdaDef");
    default:
          assert(false && "Unknown AxFilter type");
          break;

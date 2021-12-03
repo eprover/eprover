@@ -789,6 +789,50 @@ long SelectThreshold(PStack_p          clause_sets,
    return PStackGetSP(res_clauses)+PStackGetSP(res_formulas);
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: SelectDefinitions()
+//
+//   Select lambda definitions only 
+//
+// Global Variables: -
+//
+// Side Effects    : Only irrelevant (appart from the output to the
+//                   result stacks).
+//
+/----------------------------------------------------------------------*/
+
+long SelectDefinitions(PStack_p clause_sets, PStack_p formula_sets,
+                       PStack_p res_clauses, PStack_p res_formulas)
+{
+   PStackPointer i;
+   FormulaSet_p fset;
+   WFormula_p formula;
+
+   // ignoring clause sets because only formulas can be 
+   // tagged as definitions
+   for(i=0; i<PStackGetSP(formula_sets); i++)
+   {
+      fset = PStackElementP(formula_sets, i);
+      for(formula = fset->anchor->succ;
+          formula!=fset->anchor;
+          formula=formula->succ)
+      {
+         if(FormulaQueryProp(formula, CPIsLambdaDef))
+         {
+            PStackPushP(res_formulas, formula);
+         }
+         else if (FormulaIsConjecture(formula)||(FormulaIsHypothesis(formula)))
+         {
+            PStackPushP(res_formulas, formula);
+         }
+      }
+   }
+
+   return PStackGetSP(res_formulas);
+}
+
+
 
 /*-----------------------------------------------------------------------
 //

@@ -1488,8 +1488,6 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control,
    if(OutputLevel==1)
    {
       putc('#', GlobalOut);
-      ClausePrintDBG(stderr, clause);
-      putc('\n', stderr);
    }
    assert(clause);
 

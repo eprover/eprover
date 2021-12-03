@@ -160,6 +160,9 @@ long SelectThreshold(PStack_p          clause_sets,
                      PStack_p          res_clauses,
                      PStack_p          res_formulas);
 
+long SelectDefinitions(PStack_p clause_sets, PStack_p formula_sets,
+                       PStack_p res_clauses, PStack_p res_formulas);
+
 
 void DRelPrintDebug(FILE* out, DRel_p rel, Sig_p sig);
 void DRelationPrintDebug(FILE* out, DRelation_p rel, Sig_p sig);
