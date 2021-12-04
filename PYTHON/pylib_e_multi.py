@@ -72,7 +72,7 @@ class id(object):
 homeDir = os.path.expanduser("~")
 eRunDir = homeDir+"/EPROVER/RUNDIR"
 eResDir = eRunDir
-eFlatTPTP = homeDir+"/EPROVER/TPTP_7.3.0_FLAT"
+eFlatTPTP = homeDir+"/EPROVER/TPTP_7.5.0_FLAT"
 
 class etask(object):
     ids = id("t")
@@ -102,7 +102,7 @@ class etask(object):
         self.cmd = cmd
         self.proc = subprocess.Popen(cmd, stdin=None,
                                      stdout=subprocess.PIPE,
-                                     stderr=subprocess.PIPE,
+                                     stderr=subprocess.STDOUT,
                                      shell=True,
                                      close_fds=True)
         self.status = "run"
