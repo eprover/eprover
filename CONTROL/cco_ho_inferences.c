@@ -105,6 +105,8 @@ void instantiate_w_abstractions(Term_p var, Clause_p orig_cl, PObjMap_p* store,
       set_proof_object(res_cl, orig_cl, other_cl, DCTrigger, 1);
       BooleanSimplification(res_cl);
       PStackPushP(res, res_cl);
+      DBG_PRINT(stderr, "orig: ", ClausePrintDBG(stderr, orig_cl), ".\n");
+      DBG_TPRINT(stderr, "target:", target, ".\n");
       DBG_PRINT(stderr, "res:", ClausePrintDBG(stderr, res_cl), ".\n");
       var->binding = NULL;
    }
@@ -199,6 +201,11 @@ Term_p do_abstract(Term_p t, Term_p arg, TB_p bank, int depth, Subst_p refresh)
 Term_p abstract_arg(Term_p lhs, Term_p rhs, Term_p arg, TB_p bank, bool sign)
 {
    Subst_p refresher = SubstAlloc();
+
+   DBG_TPRINT(stderr, "abstracting ", arg, "from ");
+   DBG_TPRINT(stderr, " ", lhs, " <> ");
+   DBG_TPRINT(stderr, " ", rhs, " .\n");
+
    Term_p lhs_abs = do_abstract(lhs, arg, bank, 0, refresher);
    Term_p rhs_abs = do_abstract(rhs, arg, bank, 0, refresher);
 
@@ -231,25 +238,34 @@ void store_abstraction(Clause_p cl, PObjMap_p* store)
    {
       assert(lit->lterm->arity == lit->rterm->arity);
       Term_p terms[2] = {lit->lterm, lit->rterm};
-      for(int i=0; i<2; i++)
+      for(int term_i=0; term_i<2; term_i++)
       {
-         Term_p t = terms[i];
-         Term_p other = terms[1-i];
+         Term_p t = terms[term_i];
+         Term_p other = terms[1-term_i];
          for(int arg_i=0; arg_i<lit->lterm->arity; arg_i++)
          {
             if(TermIsDBClosed(t->args[arg_i]) &&
                TermIsSubterm(other, t->args[arg_i], DEREF_NEVER))
             {
-               Term_p abstraction = abstract_arg(t, other, t->args[i], lit->bank,
-                                                 !EqnIsPositive(lit));
-               PtrPair_p pair = mk_ptr_pair(abstraction, cl);
+               Term_p abstraction = abstract_arg(t, other, t->args[arg_i],
+                                                  lit->bank, !EqnIsPositive(lit));
                PStack_p* res = (PStack_p*)
                   PObjMapGetRef(store, abstraction->type, PCmpFun, NULL);
                if(!*res)
                {
                   *res = PStackAlloc();
                }
-               PStackPushP(*res, pair);
+               bool found = false;
+               for(PStackPointer i=0; !found && i < PStackGetSP(*res); i++)
+               {
+                  PtrPair_p pair = PStackElementP(*res, i);
+                  found = pair->x == abstraction; 
+               }
+               if (!found)
+               {
+                  PtrPair_p pair = mk_ptr_pair(abstraction, cl);
+                  PStackPushP(*res, pair);
+               }
             }
          }
       }
