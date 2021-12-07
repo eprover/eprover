@@ -105,9 +105,6 @@ void instantiate_w_abstractions(Term_p var, Clause_p orig_cl, PObjMap_p* store,
       set_proof_object(res_cl, orig_cl, other_cl, DCTrigger, 1);
       BooleanSimplification(res_cl);
       PStackPushP(res, res_cl);
-      DBG_PRINT(stderr, "orig: ", ClausePrintDBG(stderr, orig_cl), ".\n");
-      DBG_TPRINT(stderr, "target:", target, ".\n");
-      DBG_PRINT(stderr, "res:", ClausePrintDBG(stderr, res_cl), ".\n");
       var->binding = NULL;
    }
 }
@@ -201,11 +198,6 @@ Term_p do_abstract(Term_p t, Term_p arg, TB_p bank, int depth, Subst_p refresh)
 Term_p abstract_arg(Term_p lhs, Term_p rhs, Term_p arg, TB_p bank, bool sign)
 {
    Subst_p refresher = SubstAlloc();
-
-   DBG_TPRINT(stderr, "abstracting ", arg, "from ");
-   DBG_TPRINT(stderr, " ", lhs, " <> ");
-   DBG_TPRINT(stderr, " ", rhs, " .\n");
-
    Term_p lhs_abs = do_abstract(lhs, arg, bank, 0, refresher);
    Term_p rhs_abs = do_abstract(rhs, arg, bank, 0, refresher);
 

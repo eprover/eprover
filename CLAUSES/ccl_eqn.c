@@ -2484,7 +2484,8 @@ CompareResult tfo_literal_compare(OCB_p ocb, Eqn_p eq1, Eqn_p eq2)
       {
          return to_lesser;
       }
-      if(!EqnIsEquLit(eq1)) /* both non-equational! */
+      if(!EqnIsEquLit(eq1) && !TermIsTopLevelFreeVar(eq1->lterm) 
+                           && !TermIsTopLevelFreeVar(eq2->lterm)) /* both non-equational! */
       {
          return OCBFunCompare(ocb, eq1->lterm->f_code, eq2->lterm->f_code);
       }
@@ -2499,7 +2500,8 @@ CompareResult tfo_literal_compare(OCB_p ocb, Eqn_p eq1, Eqn_p eq2)
       {
          return to_greater;
       }
-      if(!EqnIsEquLit(eq1)) /* both non-equational! */
+      if(!EqnIsEquLit(eq1) && !TermIsTopLevelFreeVar(eq1->lterm)
+                           && !TermIsTopLevelFreeVar(eq2->lterm)) /* both non-equational! */
       {
          return OCBFunCompare(ocb, eq1->lterm->f_code, eq2->lterm->f_code);
       }
