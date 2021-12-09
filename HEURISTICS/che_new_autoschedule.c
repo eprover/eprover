@@ -124,7 +124,6 @@ void AutoHeuristicForCategory(const char* category, HeuristicParms_p parms)
 
 void ScheduleForCategory(const char* category, int attempt_idx, HeuristicParms_p parms)
 {
-  locked_fprintf(stderr, "# getting category %d: %s\n", attempt_idx, category);
   const char* config = class_to_schedule(category, multischedule_categories, multischedule_confs, 
                                          multischedule_categories_len, attempt_idx, parms);
   print_config_name(stderr, "", config, attempt_idx);

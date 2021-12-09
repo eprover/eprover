@@ -157,7 +157,7 @@ pid_t activate_child(int child_idx, ScheduleCell strats[],
       h_parms->order_params.ordertype = strats[child_idx].ordering;
       if(strats[child_idx].time_absolute!=RLIM_INFINITY)
       {
-         locked_fprintf(stderr, "scheduling %s for %ld seconds.\n",
+         locked_fprintf(stderr, "# Scheduling %s for %ld seconds.\n",
                         h_parms->heuristic_name,
                         (long)strats[child_idx].time_absolute);
          if(SetSoftRlimit(RLIMIT_CPU, strats[child_idx].time_absolute) 
@@ -280,8 +280,8 @@ pid_t ExecuteSchedule(ScheduleCell strats[],
       else if(!done && activated < sched_size)
       {
          // activating another schild
-         activated++;
          pid = activate_child(activated, strats, h_parms);
+         activated++;
          done = pid == 0;  // child is automatically done
       }
    }
