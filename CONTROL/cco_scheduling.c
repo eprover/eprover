@@ -130,6 +130,47 @@ void ScheduleTimesInit(ScheduleCell sched[], double time_used, int num_cpus)
    }
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function:  activate_child()
+//
+//   Fork a process correspoding to schedule cell with idx i and
+//   set its parameters accordingly. Returns parent id either of child
+//   or parent.
+//
+// Global Variables: SilentTimeOut
+//
+// Side Effects    : Forks, the child runs the proof search, re-sets
+//                   time limits, sets heuristic parameters
+//
+/----------------------------------------------------------------------*/
+
+pid_t activate_child(int child_idx, ScheduleCell strats[],
+                     HeuristicParms_p h_parms)
+{
+   pid_t pid = fork();
+   if(pid == 0)
+   {
+      //child
+      SilentTimeOut = true;
+      h_parms->heuristic_name         = strats[child_idx].heu_name;
+      h_parms->order_params.ordertype = strats[child_idx].ordering;
+      if(strats[child_idx].time_absolute!=RLIM_INFINITY)
+      {
+         locked_fprintf(stderr, "scheduling %s for %ld seconds.\n",
+                        h_parms->heuristic_name,
+                        (long)strats[child_idx].time_absolute);
+         if(SetSoftRlimit(RLIMIT_CPU, strats[child_idx].time_absolute) 
+               != RLimSuccess)
+         {
+            locked_fprintf(stderr, "softrlimit call failed.\n");
+            exit(-1);
+         }
+      }
+   }
+   return pid;
+}
+
 
 /*-----------------------------------------------------------------------
 //
@@ -144,19 +185,12 @@ void ScheduleTimesInit(ScheduleCell sched[], double time_used, int num_cpus)
 //
 /----------------------------------------------------------------------*/
 
-void _resume(int _)
-{
-   // dummy function to make sure signal is not ignored
-   return;   
-}
-
 pid_t ExecuteSchedule(ScheduleCell strats[],
                       HeuristicParms_p  h_parms,
                       bool print_rusage, int num_cpus, 
                       bool* proof_found_flag, sem_t* proof_found_sem)
 {
-   int raw_status, status = OTHER_ERROR, i;
-   pid_t pid       = 0, respid;
+   int raw_status, status = OTHER_ERROR;
    double run_time = GetTotalCPUTime();
    
    if(num_cpus <= 0)
@@ -167,116 +201,91 @@ pid_t ExecuteSchedule(ScheduleCell strats[],
    }
 
    ScheduleTimesInit(strats, run_time, num_cpus);
-   PStack_p child_pids = PStackAlloc();
-
-   for(i=0; strats[i].heu_name; i++)
+   int sched_size = 0;
+   for(int i=0; strats[i].heu_name; i++)
    {
-      h_parms->heuristic_name         = strats[i].heu_name;
-      h_parms->order_params.ordertype = strats[i].ordering;
-      locked_fprintf(GlobalOut, "# Will try %s for %ld seconds\n",
-              strats[i].heu_name,
-              (long)strats[i].time_absolute);
-      fflush(GlobalOut);
-      pid = fork();
-      if(pid == 0)
+      sched_size++;
+   }
+
+   int activated = 0;
+   int finished = 0;
+   pid_t child_pids[sched_size];
+   pid_t pid = 1;
+
+   for(; pid && activated < MIN(num_cpus,sched_size); activated++)
+   {
+      pid = activate_child(activated, strats, h_parms);
+      if(pid != 0)
       {
-         /* Child */
-         SilentTimeOut = true;
-         if(strats[i].time_absolute!=RLIM_INFINITY)
-         {
-            if(SetSoftRlimit(RLIMIT_CPU, strats[i].time_absolute) != RLimSuccess)
-            {
-               locked_fprintf(stderr, "softrlimit call failed.\n");
-               exit(-1);
-            }
-         }
-         signal(SIGUSR1, _resume);
-         pause();
-         break;
-      }
-      else
-      {
-         /* Parent */
-         PStackPushInt(child_pids, pid);
+         child_pids[activated] = pid;
       }
    }
-   if(print_rusage)
+
+   bool done = pid == 0;
+   // if we are parent then we wait for any child to finish
+   // and if it did not prove the problem schedule a new child
+   while(!done)
    {
-      PrintRusage(GlobalOut);
-   }
-   if(pid==0)
-   {
-      PStackFree(child_pids);
-      return pid; // child continues on
-   }
-   else
-   {
-      PStackPointer activated = 0;
-      PStackPointer finished = 0;
-      PStackPointer sched_size = PStackGetSP(child_pids);
-      for(; activated < num_cpus && activated < sched_size; activated++)
+      pid_t child_id = -1;
+      while(child_id == -1)
       {
-         pid_t child_pid = PStackElementInt(child_pids, activated);
-         kill(child_pid, SIGUSR1); // activating the child.
+         child_id = wait(&raw_status);
+      }
+      finished++;
+
+      if(print_rusage)
+      {
+         PrintRusage(GlobalOut);
       }
 
-      while(finished < sched_size)
+      int sched_idx = -1;
+      for(int i=0; sched_idx==-1 && i<activated; i++)
       {
-         respid = -1;
-         while(respid == -1)
+         if(child_pids[i] == child_id)
          {
-            respid = wait(&raw_status);
+            sched_idx = i;
          }
-         finished++;
+      }
+      assert(sched_idx!=-1);
 
-         int sched_idx = -1;
-         for(PStackPointer i=0; sched_idx==-1 &&i<PStackGetSP(child_pids); i++)
+      if(WIFEXITED(raw_status))
+      {
+         status = WEXITSTATUS(raw_status);
+         if((status == SATISFIABLE) || (status == PROOF_FOUND))
          {
-            if(PStackElementInt(child_pids, i) == respid)
+            if(print_rusage)
             {
-               sched_idx = i;
+               PrintRusage(GlobalOut);
             }
-         }
-         assert(sched_idx!=-1);
-
-         if(WIFEXITED(raw_status))
-         {
-            status = WEXITSTATUS(raw_status);
-            if((status == SATISFIABLE) || (status == PROOF_FOUND))
-            {
-               if(print_rusage)
-               {
-                  PrintRusage(GlobalOut);
-               }
-               locked_fprintf(GlobalOut, "# Proof found by %s\n", strats[sched_idx].heu_name);
-               kill(0, SIGKILL); // killing all the children
-               break;
-            }
-            else
-            {
-               locked_fprintf(GlobalOut, "# No success with %s\n",
-                        strats[sched_idx].heu_name);
-            }
+            locked_fprintf(GlobalOut, "# Proof found by %s\n", strats[sched_idx].heu_name);
+            kill(0, SIGKILL); // killing all the children
+            done = true;
          }
          else
          {
-            locked_fprintf(GlobalOut, "# Abnormal termination for %s\n",
+            locked_fprintf(GlobalOut, "# No success with %s\n",
                      strats[sched_idx].heu_name);
          }
-
-         if(activated < sched_size)
-         {
-            // activating another schild
-            kill(PStackElementInt(child_pids, activated++), SIGUSR1); 
-         }
       }
-      // all children died
-      munmap(proof_found_flag, sizeof(bool));
-      sem_destroy(proof_found_sem);
-      sem_destroy(print_mutex);
-      print_mutex = NULL;
-      PStackFree(child_pids);
+      else
+      {
+         locked_fprintf(GlobalOut, "# Abnormal termination for %s\n",
+                  strats[sched_idx].heu_name);
+      }
+
+      if(finished == sched_size)
+      {
+         done = true;
+      }
+      else if(!done && activated < sched_size)
+      {
+         // activating another schild
+         activated++;
+         pid = activate_child(activated, strats, h_parms);
+         done = pid == 0;  // child is automatically done
+      }
    }
+
    return pid;
 }
 
