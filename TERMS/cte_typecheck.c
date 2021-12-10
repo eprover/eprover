@@ -428,7 +428,7 @@ void TypeDeclareIsPredicate(Sig_p sig, Term_p term)
 
 void TypeDeclareIsNotPredicate(Sig_p sig, Term_p term, Scanner_p in)
 {
-   if(!TermIsVar(term))
+   if(!TermIsVar(term) && term->f_code > sig->internal_symbols)
    {
       TypeInferSort(sig, term, in);
       SigDeclareIsFunction(sig, term->f_code);

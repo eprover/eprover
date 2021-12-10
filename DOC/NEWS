@@ -6,6 +6,8 @@ Version 2.6 ->
 
 - New option --fw-subsumption-aggressive.
 - Fixed bug in negative unit subsumption.
+- Added new DAG-based evaluation functions
+- Fixed status for incomplete literal weight functions
 - Added support for UTF-8 in Strings and single-quoted symbols.
 
 
