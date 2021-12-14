@@ -370,6 +370,10 @@ void ExecuteScheduleMultiCore(ScheduleCell strats[],
          fprintf(GlobalOut, "# Result found by %s\n", handle->name);
          fputs(DStrView(handle->output), GlobalOut);
          fflush(GlobalOut);
+         if(print_rusage)
+         {
+            PrintRusage(GlobalOut);
+         }
          exit(handle->exit_status);
       }
    }while(EGPCtrlSetCardinality(procs));
@@ -378,6 +382,10 @@ void ExecuteScheduleMultiCore(ScheduleCell strats[],
 
    fprintf(GlobalOut, "# Schedule exhausted\n");
    TSTPOUT(GlobalOut, "GaveUp");
+   if(print_rusage)
+   {
+      PrintRusage(GlobalOut);
+   }
    exit(RESOURCE_OUT);
 }
 
