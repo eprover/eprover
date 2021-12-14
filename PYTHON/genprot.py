@@ -150,11 +150,26 @@ def remove_timestamp(line):
                 # line with only timestamp or other data
                 return ""
 
+
+def clean_key(entry, keymap):
+    """
+    In the latest version of pylib_e_multi, stderr and stdout run
+    together, sometimes mixing up lines and obscuring keys. This might
+    help...
+    """
+    for i in keymap.keys():
+        if entry.startswith(i):
+            return i
+    return entry
+
+
 def make_entry(lines):
     entry = dict()
     for line in lines:
         line = line.decode()
         line = remove_timestamp(line)
+        line = line.replace("eprover: CPU time limit exceeded, terminating", "", 1)
+
         split = line.split(":", 1)
         key   = split[0].strip()
         # Correct for TPTP errors causing E parse error mistaken for a result
@@ -164,14 +179,14 @@ def make_entry(lines):
         if key.startswith("SZS status Inappropriate"):
             return None
         if key.startswith("SZS status"):
-            entry["Status"] = statusmap[key]
+            entry["Status"] = statusmap[clean_key(key, statusmap)]
         elif key.startswith("exec failed"):
             entry["Status"] = statusmap["exec failed"]
             entry["Failure"] = failuremap["exec failed"]
         elif key == "Problem":
             entry[key] = (value.split(":", 1)[0].strip() + ".p")
         elif key == "Failure":
-            entry[key] = failuremap[value]
+            entry[key] = failuremap[clean_key(value, failuremap)]
         elif value != "":
             entry[key] = value
     return entry

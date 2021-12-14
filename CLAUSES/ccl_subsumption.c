@@ -219,7 +219,7 @@ static bool eqn_subsumes_termpair(Eqn_p eqn, Term_p t1, Term_p t2)
 
    while(!(res = eqn_topsubsumes_termpair(eqn, t1, t2)))
    {
-      if(TermIsPhonyApp(t1) || TermIsPhonyApp(t2) || 
+      if(TermIsPhonyApp(t1) || TermIsPhonyApp(t2) ||
          t1->f_code != t2->f_code || !t1->arity)
       {
          break;

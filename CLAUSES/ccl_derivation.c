@@ -2428,6 +2428,7 @@ void DerivationPrintConditional(FILE* out, char* status, Derivation_p derivation
 {
    if(print_derivation == POList)
    {
+      SigPrintTypeDeclsTSTP(out, sig);
       DerivationPrint(GlobalOut, derivation, status);
    }
    else if(print_derivation >= POGraph1)

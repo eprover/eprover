@@ -1,7 +1,17 @@
 This history describes the major differences between versions of the E
 equational theorem prover.
 
-Version 2.5 -> 2/6 Floral Guranse
+
+Version 2.6 ->
+
+- New option --fw-subsumption-aggressive.
+- Fixed bug in negative unit subsumption.
+- Added new DAG-based evaluation functions
+- Fixed status for incomplete literal weight functions
+- Added support for UTF-8 in Strings and single-quoted symbols.
+
+
+Version 2.5 -> 2.6 Floral Guranse
 
 - Much improved algorithm for finding maximal literals in long clauses
 - Much improved algorithm for identifying dual (conflicting) literals
@@ -80,7 +90,7 @@ Version 2.0 -> 2.1 Maharani Hills
 
 - Added type output for CNFed TFFs
 - Added tcf sublanguage for clause-form TFFs
-- Combined consequtive applications of the same quantifier into a
+- Combined consecutive applications of the same quantifier into a
   single quantifier
 - Improved stability and performance on TFF problems
 - Changed internal workflow of unprocessed clauses so that they can be

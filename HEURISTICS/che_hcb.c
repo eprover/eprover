@@ -169,6 +169,10 @@ void HeuristicParmsInitialize(HeuristicParms_p handle)
    handle->formula_def_limit             = 24;
    handle->sine                          = NULL;
 
+   handle->add_goal_defs_pos             = false;
+   handle->add_goal_defs_neg             = false;
+   handle->add_goal_defs_subterms        = false;
+
    handle->heuristic_name                = HCB_DEFAULT_HEURISTIC;
    handle->heuristic_def                 = NULL;
    handle->prefer_initial_clauses        = false;
@@ -343,9 +347,12 @@ void HeuristicParmsPrint(FILE* out, HeuristicParms_p handle)
    locked_fprintf(out, "   formula_def_limit:              %ld\n", handle->formula_def_limit);
 
    locked_fprintf(out, "   sine:                           \"%s\"\n", handle->sine ? handle->sine : "Auto");
+   fprintf(out, "   add_goal_defs_pos:             %s\n", BOOL2STR(handle->add_goal_defs_pos));
+   fprintf(out, "   add_goal_defs_neg:             %s\n", BOOL2STR(handle->add_goal_defs_neg));
+   fprintf(out, "   add_goal_defs_subterms:        %s\n", BOOL2STR(handle->add_goal_defs_subterms));
 
-   locked_fprintf(out, "   heuristic_name:                 %s\n", handle->heuristic_name);
-   locked_fprintf(out, "   heuristic_def:                  \"%s\"\n",
+   fprintf(out, "   heuristic_name:                %s\n", handle->heuristic_name);
+   fprintf(out, "   heuristic_def:                 \"%s\"\n",
            handle->heuristic_def?handle->heuristic_def:"");
    locked_fprintf(out, "   prefer_initial_clauses:         %s\n",
            BOOL2STR(handle->prefer_initial_clauses));
@@ -546,8 +553,14 @@ bool HeuristicParmsParseInto(Scanner_p in,
    PARSE_BOOL(no_preproc);
    PARSE_INT(eqdef_maxclauses);
    PARSE_INT(eqdef_incrlimit);
+   
    PARSE_INT(formula_def_limit);
    PARSE_STRING(sine);
+
+   PARSE_BOOL(add_goal_defs_pos);
+   PARSE_BOOL(add_goal_defs_neg);
+   PARSE_BOOL(add_goal_defs_subterms);
+
    PARSE_IDENTIFIER(heuristic_name);
    PARSE_STRING(heuristic_def);
    PARSE_BOOL(prefer_initial_clauses);

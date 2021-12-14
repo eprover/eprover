@@ -167,7 +167,8 @@ AnnoTerm_p AnnoTermParse(Scanner_p in, TB_p bank, long expected)
    Annotation_p annos = NULL;
    AnnoTerm_p   handle;
 
-   term = TBRawTermParse(in, bank);
+   //term = TBRawTermParse(in, bank);
+   term = TBTermParse(in, bank);
    AcceptInpTok(in, Colon);
    AnnotationListParse(in, &annos, expected);
    AcceptInpTok(in, Fullstop);
@@ -379,7 +380,7 @@ void AnnoSetPrint(FILE* out, AnnoSet_p set)
    stack = NumTreeTraverseInit(set->set);
    while((handle = NumTreeTraverseNext(stack)))
    {
-      AnnoTermPrint(out, set->terms, handle->val1.p_val, false);
+      AnnoTermPrint(out, set->terms, handle->val1.p_val, true);
       fputc('\n', out);
    }
    NumTreeTraverseExit(stack);

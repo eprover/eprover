@@ -366,10 +366,6 @@ static void print_proof_stats(ProofState_p proofstate,
 //
 /----------------------------------------------------------------------*/
 
-sem_t print_sem;
-sem_t proof_found_sem;
-static bool* proof_found_flag;
-
 int main(int argc, char* argv[])
 {
    int              retval = NO_ERROR;
@@ -440,13 +436,6 @@ int main(int argc, char* argv[])
    if(strategy_scheduling)
    {
       chosen_schedule = new_schedule;
-      // == INITIALIZING PRINITING SEMAPHORE == 
-      sem_init(&print_sem, 1, 1);
-      print_mutex = &print_sem;
-      sem_init(&proof_found_sem, 1, 1);
-      proof_found_flag = 
-         mmap(NULL, sizeof(bool), PROT_READ | PROT_WRITE,
-         MAP_SHARED | MAP_ANONYMOUS, -1, 0);
    }
 
    if(syntax_only)
@@ -472,9 +461,10 @@ int main(int argc, char* argv[])
 
    if(strategy_scheduling)
    {
-      ExecuteSchedule(chosen_schedule, h_parms, print_rusage, num_cpus,
-                      proof_found_flag, &proof_found_sem);
+      // ExecuteSchedule(chosen_schedule, h_parms, print_rusage);
+      ExecuteScheduleMultiCore(chosen_schedule, h_parms, print_rusage, 4);
    }
+
 
    if(auto_conf || strategy_scheduling) 
    {
@@ -664,6 +654,15 @@ int main(int argc, char* argv[])
    PERF_CTR_ENTRY(SatTimer);
 
 
+   if(SigHasUnimplementedInterpretedSymbols(proofstate->signature)||
+      (proofcontrol->heuristic_parms.selection_strategy ==  SelectNoGeneration) ||
+      (proofcontrol->heuristic_parms.order_params.lit_cmp == LCTFOEqMax)||
+      (!h_parms->enable_eq_factoring)||
+      (!h_parms->enable_neg_unit_paramod))
+   {
+      inf_sys_complete = false;
+   }
+
    if(!success)
    {
       success = Saturate(proofstate, proofcontrol, step_limit,
@@ -671,11 +670,6 @@ int main(int argc, char* argv[])
                          generated_limit, tb_insert_limit, answer_limit);
    }
    PERF_CTR_EXIT(SatTimer);
-
-   if(SigHasUnimplementedInterpretedSymbols(proofstate->signature))
-   {
-      inf_sys_complete = false;
-   }
 
    out_of_clauses = ClauseSetEmpty(proofstate->unprocessed);
    if(filter_sat)
@@ -698,71 +692,55 @@ int main(int argc, char* argv[])
          DocClauseQuoteDefault(2, success, "proof");
       }
 
-      if(strategy_scheduling)
+      locked_fprintf(GlobalOut, "\n# Proof found!\n");
+
+      if(print_full_deriv)
       {
-         sem_wait(&proof_found_sem);
+      ClauseSetPushClauses(proofstate->extract_roots,
+                              proofstate->processed_pos_rules);
+      ClauseSetPushClauses(proofstate->extract_roots,
+                              proofstate->processed_pos_eqns);
+      ClauseSetPushClauses(proofstate->extract_roots,
+                              proofstate->processed_neg_units);
+      ClauseSetPushClauses(proofstate->extract_roots,
+                              proofstate->processed_non_units);
+      ClauseSetPushClauses(proofstate->extract_roots,
+                              proofstate->unprocessed);
       }
-      if(!strategy_scheduling || !*proof_found_flag)
+      deriv = DerivationCompute(proofstate->extract_roots,
+                              proofstate->signature);
+
+      if(!proofstate->status_reported)
       {
-         if(strategy_scheduling)
-         {
-            *proof_found_flag = true;
-
-         }
-         locked_fprintf(GlobalOut, "\n# Proof found!\n");
-
-         if(print_full_deriv)
-         {
-            ClauseSetPushClauses(proofstate->extract_roots,
-                                    proofstate->processed_pos_rules);
-            ClauseSetPushClauses(proofstate->extract_roots,
-                                    proofstate->processed_pos_eqns);
-            ClauseSetPushClauses(proofstate->extract_roots,
-                                    proofstate->processed_neg_units);
-            ClauseSetPushClauses(proofstate->extract_roots,
-                                    proofstate->processed_non_units);
-            ClauseSetPushClauses(proofstate->extract_roots,
-                                    proofstate->unprocessed);
-         }
-         deriv = DerivationCompute(proofstate->extract_roots,
-                                 proofstate->signature);
-
-         if(!proofstate->status_reported)
-         {
-            if(neg_conjectures)
-            {
-               TSTPOUT(GlobalOut, deriv->has_conjecture?"Theorem":"ContradictoryAxioms");
-            }
-            else
-            {
-               TSTPOUT(GlobalOut, "Unsatisfiable");
-            }
-            proofstate->status_reported = true;
-            retval = PROOF_FOUND;
-         }
-
-
-         if(PrintProofObject)
-         {
-            DerivationPrintConditional(GlobalOut,
-                                    "CNFRefutation",
-                                          deriv,
-                                          proofstate->signature,
-                                          print_derivation,
-                                          OutputLevel||print_statistics);
-            ProofStateAnalyseGC(proofstate);
-            if(proc_training_data)
-            {
-               ProofStateTrain(proofstate, proc_training_data&TSPrintPos,
-                           proc_training_data&TSPrintNeg);
-            }
-         }
-         DerivationFree(deriv);
-      }
-      if(strategy_scheduling)
+      if(neg_conjectures)
       {
-            sem_post(&proof_found_sem);
+            TSTPOUT(GlobalOut, deriv->has_conjecture?"Theorem":"ContradictoryAxioms");
       }
+      else
+      {
+            TSTPOUT(GlobalOut, "Unsatisfiable");
+      }
+      proofstate->status_reported = true;
+      retval = PROOF_FOUND;
+      }
+
+
+      if(PrintProofObject)
+      {
+      DerivationPrintConditional(GlobalOut,
+                              "CNFRefutation",
+                                    deriv,
+                                    proofstate->signature,
+                                    print_derivation,
+                                    OutputLevel||print_statistics);
+      ProofStateAnalyseGC(proofstate);
+      if(proc_training_data)
+      {
+            ProofStateTrain(proofstate, proc_training_data&TSPrintPos,
+                        proc_training_data&TSPrintNeg);
+      }
+      }
+      DerivationFree(deriv);
    }
    else if(proofstate->watchlist && ClauseSetEmpty(proofstate->watchlist))
    {
@@ -1283,6 +1261,25 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_NO_EQ_UNFOLD:
             h_parms->eqdef_incrlimit = LONG_MIN;
             break;
+      case OPT_INTRO_GOAL_DEFS:
+            if(strcmp(arg, "All")==0)
+            {
+               h_parms->add_goal_defs_pos = true;
+               h_parms->add_goal_defs_neg = true;
+            }
+            else if(strcmp(arg, "Neg")==0)
+            {
+               h_parms->add_goal_defs_neg = true;
+            }
+            else
+            {
+                Error("Option --goal-defs accepts only All or Neg.",
+                     USAGE_ERROR);
+            }
+            break;
+      case OPT_FINE_GOAL_DEFS:
+            h_parms->add_goal_defs_subterms = true;
+            break;
       case OPT_SINE:
             h_parms->sine = SecureStrdup(arg);
             break;
@@ -1347,10 +1344,7 @@ CLState_p process_options(int argc, char* argv[])
                Error(DStrView(err), USAGE_ERROR);
                DStrFree(err);
             }
-            if(h_parms->selection_strategy == SelectNoGeneration)
-            {
-               inf_sys_complete = false;
-            }
+            // Incomplete selection is noted later
             break;
       case OPT_POS_LITSEL_MIN:
             h_parms->pos_lit_sel_min = CLStateGetIntArg(handle, arg);

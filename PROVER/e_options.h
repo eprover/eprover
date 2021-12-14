@@ -95,6 +95,8 @@ typedef enum
    OPT_EQ_UNFOLD_LIMIT,
    OPT_EQ_UNFOLD_MAXCLAUSES,
    OPT_NO_EQ_UNFOLD,
+   OPT_INTRO_GOAL_DEFS,
+   OPT_FINE_GOAL_DEFS,
    OPT_SINE,
    OPT_REL_PRUNE_LEVEL,
    OPT_PRESAT_SIMPLIY,
@@ -731,6 +733,20 @@ OptCell opts[] =
     "During preprocessing, abstain from unfolding (and removing) "
     "equational definitions."},
 
+   {OPT_INTRO_GOAL_DEFS,
+    '\0', "goal-defs",
+    OptArg, "All",
+    "Introduce Twee-style equational definitions for ground terms "
+    "in conjecture clauses. The argument can be All or Neg, which will"
+    " only consider ground terms from negative literals."},
+
+   {OPT_FINE_GOAL_DEFS,
+    '\0', "goal-subterm-defs",
+    NoArg, NULL,
+    "Introduce goal definitions for all conjecture ground subterms. "
+    "The default is to only introduce them for the maximal (with respect "
+    "to the subterm relation) ground terms in conjecture clauses."},
+
    {OPT_SINE,
     '\0', "sine",
     OptArg, "Auto",
@@ -1148,7 +1164,8 @@ OptCell opts[] =
     "Modify how literal comparisons are done. 'None' is equivalent to the "
     "previous option, 'Normal' uses the normal lifting of the term ordering, "
     "'TFOEqMax' uses the equivalent of a transfinite ordering deciding on the "
-    "predicate symbol and making equational literals maximal, and 'TFOEqMin' "
+    "predicate symbol and making equational literals maximal (note that this "
+    "setting makes the prover incomplere), and 'TFOEqMin' "
     "modifies this by making equational symbols minimal."},
 
    {OPT_TPTP_SOS,

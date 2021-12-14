@@ -255,7 +255,7 @@ TFormula_p lift_lets(TB_p terms, TFormula_p t, PStack_p fresh_defs)
             new = flat;
          }
          new = TBTermTopInsert(terms, new);
-         
+
       }
       else
       {

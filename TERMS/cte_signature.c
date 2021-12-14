@@ -1713,7 +1713,7 @@ void SigPrintTypeDeclsTSTP(FILE* out, Sig_p sig)
    for(i=sig->internal_symbols+1; i <= sig->f_count; i++)
    {
       fun = &sig->f_info[i];
-      if (fun->type)
+      if (fun->type && !TypeIsUntyped(fun->type))
       {
          locked_fprintf(out, "%s(decl_%ld, type, %s: ", tag, i, fun->name);
          TypePrintTSTP(out, sig->type_bank, fun->type);

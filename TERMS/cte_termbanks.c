@@ -600,7 +600,7 @@ static void normalize_boolean_terms(Term_p* term_ref, TB_p bank)
 /----------------------------------------------------------------------*/
 
 static Term_p tb_term_parse_arglist(Scanner_p in, TB_p bank,
-                                       bool check_symb_prop, Type_p type)
+                                    bool check_symb_prop, Type_p type)
 {
    Term_p   tmp;
    Term_p result;
@@ -869,7 +869,7 @@ Term_p TBInsertInstantiatedDeref(TB_p bank, Term_p term, DerefType deref)
 // Function: TBInsertIgnoreVar()
 //
 //  As TBInsert, but does instead of using variables from the term bank,
-//  uses the ones already present in the temr. 
+//  uses the ones already present in the temr.
 //
 //  TermProperties are masked with bank->prop_mask.
 //
@@ -1723,7 +1723,7 @@ Term_p TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop)
             DStrFree(errpos);
          }
          handle = tb_termtop_insert(bank, handle);
-         }
+      }
       DStrFree(id);
    }
    DStrReleaseRef(source_name);

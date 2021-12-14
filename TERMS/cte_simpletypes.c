@@ -135,6 +135,35 @@ static const char* get_builtin_name(Type_p t)
 
 /*-----------------------------------------------------------------------
 //
+// Function: TypeIsUntyped()
+//
+//   Return if the type does not contain any non-standard sorts,
+//   i.e. if it is a type that occurs in plain cnf/fof problems.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+bool TypeIsUntyped(Type_p t)
+{
+   if(!TypeIsArrow(t))
+   {
+      return (t->f_code == STBool)||(t->f_code == STIndividuals);
+   }
+   for(int i=0; i<t->arity; i++)
+   {
+      if(!TypeIsUntyped(t->args[i]))
+      {
+         return false;
+      }
+   }
+   return true;
+}
+
+/*-----------------------------------------------------------------------
+//
 // Function: TypeCopy()
 //
 //  Creates a shallow copy of orig.
@@ -389,7 +418,7 @@ bool TypeHasBool(Type_p t)
 // Function: ArrowTypeFlattened()
 //
 //  Makes the flattened arrow type out of arguments and return type.
-//  Flattening refers to flattening out return type when arrow is 
+//  Flattening refers to flattening out return type when arrow is
 //  constructed. If args_num is 0, returns return_type.
 //
 // Global Variables: -
@@ -400,7 +429,7 @@ bool TypeHasBool(Type_p t)
 
 Type_p ArrowTypeFlattened(Type_p const* args, int args_num, Type_p ret)
 {
-   if (args_num == 0) 
+   if (args_num == 0)
    {
       return ret;
    }
@@ -419,7 +448,7 @@ Type_p ArrowTypeFlattened(Type_p const* args, int args_num, Type_p ret)
       {
          TypeFree(args_ret_ty);
       }
-      
+
       return res;
    }
 }

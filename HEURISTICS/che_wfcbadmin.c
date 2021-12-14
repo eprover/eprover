@@ -37,6 +37,8 @@ char* WeightFunParseFunNames[]=
    "Uniqweight",
    "Defaultweight",
    "DAGweight",
+   "RDAGweight",
+   "RDAGweight2",
    "Refinedweight",
    "Refinedweight2",
    "Diversityweight",
@@ -84,6 +86,8 @@ static WeightFunParseFun parse_fun_array[]=
    UniqWeightParse, /* NOTE2ME:  did not change it */
    DefaultWeightParse, /* NOTE2ME:  did not change it */
    DAGWeightParse,
+   RDAGWeightParse,
+   RDAGWeight2Parse,
    ClauseRefinedWeightParse,
    ClauseRefinedWeight2Parse,
    DiversityWeightParse,

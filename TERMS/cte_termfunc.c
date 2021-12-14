@@ -719,6 +719,7 @@ void TermPrintFO(FILE* out, Term_p term, Sig_p sig, DerefType deref)
    }
 }
 
+
 #define PRINT_AT
 
 #ifdef ENABLE_LFHO
@@ -838,11 +839,12 @@ void TermPrintArgList(FILE* out, Term_p *args, int arity, Sig_p sig,
 }
 
 
+
 /*-----------------------------------------------------------------------
 //
 // Function: TermPrintSimple()
 //
-//   Print a FO term without giving any special semantics to 
+//   Print a FO term without giving any special semantics to
 //   symbols -- basically prints the serialized syntax tree.
 //
 // Global Variables: TermPrintLists

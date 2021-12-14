@@ -115,6 +115,9 @@ typedef struct heuristic_parms_cell
    long                formula_def_limit;
    
    char*               sine;
+   bool                add_goal_defs_pos;
+   bool                add_goal_defs_neg; /* Twee-style goal rewriting */
+   bool                add_goal_defs_subterms;
 
 /* Clause selection elements */
    char                *heuristic_name;
