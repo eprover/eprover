@@ -692,53 +692,54 @@ int main(int argc, char* argv[])
          DocClauseQuoteDefault(2, success, "proof");
       }
 
+
       locked_fprintf(GlobalOut, "\n# Proof found!\n");
 
       if(print_full_deriv)
       {
-      ClauseSetPushClauses(proofstate->extract_roots,
-                              proofstate->processed_pos_rules);
-      ClauseSetPushClauses(proofstate->extract_roots,
-                              proofstate->processed_pos_eqns);
-      ClauseSetPushClauses(proofstate->extract_roots,
-                              proofstate->processed_neg_units);
-      ClauseSetPushClauses(proofstate->extract_roots,
-                              proofstate->processed_non_units);
-      ClauseSetPushClauses(proofstate->extract_roots,
-                              proofstate->unprocessed);
+         ClauseSetPushClauses(proofstate->extract_roots,
+                                 proofstate->processed_pos_rules);
+         ClauseSetPushClauses(proofstate->extract_roots,
+                                 proofstate->processed_pos_eqns);
+         ClauseSetPushClauses(proofstate->extract_roots,
+                                 proofstate->processed_neg_units);
+         ClauseSetPushClauses(proofstate->extract_roots,
+                                 proofstate->processed_non_units);
+         ClauseSetPushClauses(proofstate->extract_roots,
+                                 proofstate->unprocessed);
       }
       deriv = DerivationCompute(proofstate->extract_roots,
                               proofstate->signature);
 
       if(!proofstate->status_reported)
       {
-      if(neg_conjectures)
-      {
+         if(neg_conjectures)
+         {
             TSTPOUT(GlobalOut, deriv->has_conjecture?"Theorem":"ContradictoryAxioms");
-      }
-      else
-      {
+         }
+         else
+         {
             TSTPOUT(GlobalOut, "Unsatisfiable");
-      }
-      proofstate->status_reported = true;
-      retval = PROOF_FOUND;
+         }
+         proofstate->status_reported = true;
+         retval = PROOF_FOUND;
       }
 
 
       if(PrintProofObject)
       {
-      DerivationPrintConditional(GlobalOut,
-                              "CNFRefutation",
+         DerivationPrintConditional(GlobalOut,
+                                    "CNFRefutation",
                                     deriv,
                                     proofstate->signature,
                                     print_derivation,
                                     OutputLevel||print_statistics);
-      ProofStateAnalyseGC(proofstate);
-      if(proc_training_data)
-      {
+         ProofStateAnalyseGC(proofstate);
+         if(proc_training_data)
+         {
             ProofStateTrain(proofstate, proc_training_data&TSPrintPos,
                         proc_training_data&TSPrintNeg);
-      }
+         }
       }
       DerivationFree(deriv);
    }
