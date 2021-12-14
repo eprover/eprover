@@ -431,7 +431,8 @@ int main(int argc, char* argv[])
 
    if(strategy_scheduling)
    {
-      ExecuteSchedule(chosen_schedule, h_parms, print_rusage);
+      // ExecuteSchedule(chosen_schedule, h_parms, print_rusage);
+      ExecuteScheduleMultiCore(chosen_schedule, h_parms, print_rusage, 4);
    }
 
    FormulaSetDocInital(GlobalOut, OutputLevel, proofstate->f_axioms);
