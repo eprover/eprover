@@ -87,6 +87,7 @@ EGPCtrl_p EGPCtrlAlloc(int cores)
 
 void EGPCtrlFree(EGPCtrl_p junk)
 {
+   // printf("Freeing: %p\n", junk);
    DStrFree(junk->output);
    FREE(junk->name);
    EPCtrlCellFree(junk);
@@ -108,9 +109,18 @@ void EGPCtrlFree(EGPCtrl_p junk)
 
 void EGPCtrlCleanup(EGPCtrl_p ctrl)
 {
+   int raw_status;
+   int respid = -1;
+
    if(ctrl->pid)
    {
-      kill(ctrl->pid, SIGTERM);
+      if(kill(ctrl->pid, SIGTERM) == 0)
+      {
+         while(respid == -1)
+         {
+            respid = waitpid(ctrl->pid, &raw_status, 0);
+         }
+      }
       ctrl->pid = 0;
    }
    if(ctrl->fileno != -1)
@@ -145,6 +155,7 @@ EGPCtrl_p EGPCtrlCreate(char *name, int cores, rlim_t cpu_limit)
       SysError("pipe failed", SYS_ERROR);
       exit(EXIT_FAILURE);
    }
+   fprintf(GlobalOut, "# Starting %s with %jus\n", name, (uintmax_t)cpu_limit);
 
    if((childpid = fork()) <0 )
    {
@@ -226,6 +237,10 @@ bool EGPCtrlGetResult(EGPCtrl_p ctrl, char* buffer, long buf_size)
       {
          ctrl->result = PRCounterSatisfiable;
       }
+      else
+      {
+         ctrl->result = PRFailure;
+      }
       while(respid == -1)
       {
          respid = waitpid(ctrl->pid, &raw_status, 0);
@@ -234,6 +249,8 @@ bool EGPCtrlGetResult(EGPCtrl_p ctrl, char* buffer, long buf_size)
       {
          ctrl->exit_status = WEXITSTATUS(raw_status);
       }
+      fprintf(GlobalOut, "# %s with pid %d completed with status %d\n",
+              ctrl->name, ctrl->pid, ctrl->exit_status);
       ctrl->pid = 0;
       return true;
    }
@@ -431,13 +448,14 @@ EGPCtrl_p EGPCtrlSetGetResult(EGPCtrlSet_p set)
       if(FD_ISSET(i, &readfds))
       {
          handle = EGPCtrlSetFindProc(set, i);
-         eof = EGPCtrlGetResult(handle, set->buffer, EPCTRL_BUFSIZE);
+         eof = EGPCtrlGetResult(handle, set->buffer, EGPCTRL_BUFSIZE);
          if(eof)
          {
             switch(handle->result)
             {
             case PRNoResult:
                   /* No result (yet) -> should not really happen! */
+                  assert(false);
                   break;
             case PRSatisfiable:
             case PRCounterSatisfiable:
