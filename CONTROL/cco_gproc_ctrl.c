@@ -61,6 +61,7 @@ EGPCtrl_p EGPCtrlAlloc(int cores)
 {
    EGPCtrl_p ctrl = EGPCtrlCellAlloc();
 
+   ctrl->name        = NULL;
    ctrl->pid         = 0;
    ctrl->fileno      = -1;
    ctrl->exit_status = 0;
@@ -69,6 +70,7 @@ EGPCtrl_p EGPCtrlAlloc(int cores)
    ctrl->result      = PRNoResult;
    ctrl->output      = DStrAlloc();
 
+   //printf("Allocating: %p\n", ctrl);
    return ctrl;
 }
 
@@ -87,10 +89,10 @@ EGPCtrl_p EGPCtrlAlloc(int cores)
 
 void EGPCtrlFree(EGPCtrl_p junk)
 {
-   // printf("Freeing: %p\n", junk);
+   //printf("Freeing: %p\n", junk);
    DStrFree(junk->output);
    FREE(junk->name);
-   EPCtrlCellFree(junk);
+   EGPCtrlCellFree(junk);
 }
 
 
@@ -202,12 +204,16 @@ EGPCtrl_p EGPCtrlCreate(char *name, int cores, rlim_t cpu_limit)
 //
 /----------------------------------------------------------------------*/
 
-bool EGPCtrlGetResult(EGPCtrl_p ctrl, char* buffer, long buf_size)
+bool EGPCtrlGetResult(EGPCtrl_p ctrl, char *buffer, long buf_size)
 {
    int len, raw_status;
    int respid = -1;
 
-   len = read(ctrl->fileno, buffer, buf_size-1);
+   len = read(ctrl->fileno, buffer, (size_t)(buf_size-1));
+   if(len == -1)
+   {
+      SysError("read() failed", SYS_ERROR);
+   }
    buffer[len] = '\0';
 
    if(len)
@@ -248,6 +254,10 @@ bool EGPCtrlGetResult(EGPCtrl_p ctrl, char* buffer, long buf_size)
       if(WIFEXITED(raw_status))
       {
          ctrl->exit_status = WEXITSTATUS(raw_status);
+      }
+      else
+      {
+         ctrl->exit_status = -1; //Aborted or killed (timeout)
       }
       fprintf(GlobalOut, "# %s with pid %d completed with status %d\n",
               ctrl->name, ctrl->pid, ctrl->exit_status);
