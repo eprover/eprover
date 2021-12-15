@@ -45,9 +45,8 @@ typedef struct e_gpctrl_cell
    DStr_p       output;
 }EGPCtrlCell, *EGPCtrl_p;
 
+
 #define EGPCTRL_BUFSIZE 1024
-
-
 
 typedef struct e_gpctrl_set_cell
 {
@@ -62,8 +61,8 @@ typedef struct e_gpctrl_set_cell
 /*---------------------------------------------------------------------*/
 
 
-#define EGPCtrlCellAlloc()    (EGPCtrlCell*)SizeMalloc(sizeof(EGPCtrlCell))
-#define EGPCtrlCellFree(junk) SizeFree(junk, sizeof(EGPCtrlCell))
+#define EGPCtrlCellAlloc()    (EGPCtrlCell*)SizeMalloc(sizeof(EGPCtrlCell)+0)
+#define EGPCtrlCellFree(junk) SizeFree(junk, sizeof(EGPCtrlCell)+0)
 
 EGPCtrl_p EGPCtrlAlloc(int cores);
 void      EGPCtrlFree(EGPCtrl_p junk);
