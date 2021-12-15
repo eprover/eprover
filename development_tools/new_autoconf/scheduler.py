@@ -306,7 +306,7 @@ def output_multi_schedule(cat_to_conf, sched_size, cat_name, conf_name, json_kin
 def eval2key(x):
   return (x[0], x[1], -x[2])
 
-def multi_schedule(num_confs, cats, confs, var_name, json_kind):
+def multi_schedule(num_confs, cats, confs, var_name, json_kind, dbg=False):
   assert(num_confs >= 2)
   assert(len(confs) >= num_confs)
   cats = cats.values() if type(cats) is dict else cats
@@ -327,6 +327,8 @@ def multi_schedule(num_confs, cats, confs, var_name, json_kind):
    
     remaining_probs = set(cat.get_problems())
     for conf in schedule:
+      if dbg:
+        print('{0}: {1}'.format(conf.get_name(), ",".join(conf.get_solved_probs())))
       remaining_probs = remaining_probs.difference(conf.get_solved_probs())
     remaining_confs = set(confs).difference(schedule)
       
@@ -339,6 +341,9 @@ def multi_schedule(num_confs, cats, confs, var_name, json_kind):
         break
       else:
         schedule.append(best_conf)
+        if dbg:
+          print('{0}: {1}'.format(best_conf.get_name(), 
+                                  ",".join(remaining_probs.intersection(best_conf.get_solved_probs()))))
         remaining_probs = remaining_probs.difference(best_conf.get_solved_probs())
         remaining_confs.remove(best_conf)
         sched_size += 1
@@ -351,9 +356,10 @@ def multi_schedule(num_confs, cats, confs, var_name, json_kind):
 
     res[cat] = schedule
   
-  output_multi_schedule(res, num_confs, var_name, 
-                        var_name.replace('categories', 'confs'),
-                        json_kind)
+  if not dbg:
+    output_multi_schedule(res, num_confs, var_name, 
+                          var_name.replace('categories', 'confs'),
+                          json_kind)
 
 
 def schedule_multiple(time_ratios, cats, confs):
