@@ -9,7 +9,7 @@ Version 2.6 ->
 - Added new DAG-based evaluation functions
 - Fixed status for incomplete literal weight functions
 - Added support for UTF-8 in Strings and single-quoted symbols.
-
+- Added multicore scheduler
 
 Version 2.5 -> 2.6 Floral Guranse
 
