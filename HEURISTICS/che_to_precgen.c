@@ -58,16 +58,16 @@ void print_prec_array(FILE* out, Sig_p sig, FCodeFeatureArray_p array)
    FunCode i;
    char *del = "";
 
-   locked_fprintf(out, "# Ordering precedence: ");
+   fprintf(out, "# Ordering precedence: ");
    for(i = sig->f_count; i > 0; i--)
    {
       if(!SigIsSpecial(sig, array->array[i].symbol))
       {
-         locked_fprintf(out, "%s%s", del, SigFindName(sig,array->array[i].symbol));
+         fprintf(out, "%s%s", del, SigFindName(sig,array->array[i].symbol));
          del = " > ";
       }
    }
-   locked_fprintf(out, "\n");
+   fprintf(out, "\n");
 }
 #endif
 

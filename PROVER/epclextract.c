@@ -241,15 +241,15 @@ int main(int argc, char* argv[])
    {
       if(no_extract)
       {
-    locked_fprintf(GlobalOut, "# SZS output start Derivation.\n");
+    fprintf(GlobalOut, "# SZS output start Derivation.\n");
       }
       else if(empty_clause)
       {
-    locked_fprintf(GlobalOut, "# SZS output start CNFRefutation.\n");
+    fprintf(GlobalOut, "# SZS output start CNFRefutation.\n");
       }
       else
       {
-    locked_fprintf(GlobalOut, "# SZS output start Saturation.\n");
+    fprintf(GlobalOut, "# SZS output start Saturation.\n");
       }
    }
    if(fast_extract)
@@ -264,15 +264,15 @@ int main(int argc, char* argv[])
    {
       if(no_extract)
       {
-    locked_fprintf(GlobalOut, "# SZS output end Derivation.\n");
+    fprintf(GlobalOut, "# SZS output end Derivation.\n");
       }
       else if(empty_clause)
       {
-    locked_fprintf(GlobalOut, "# SZS output end CNFRefutation\n");
+    fprintf(GlobalOut, "# SZS output end CNFRefutation\n");
       }
       else
       {
-    locked_fprintf(GlobalOut, "# SZS output end Saturation.\n");
+    fprintf(GlobalOut, "# SZS output end Saturation.\n");
       }
    }
 #ifdef FAST_EXIT
@@ -369,7 +369,7 @@ CLState_p process_options(int argc, char* argv[])
 
 void print_help(FILE* out)
 {
-   locked_fprintf(out,
+   fprintf(out,
       "\n"
       "\n"
 NAME " " VERSION "\n"
@@ -380,7 +380,7 @@ NAME " " VERSION "\n"
 " the clauses in \"proof\", \"final\", or \"extract\" steps.\n"
 "\n");
    PrintOptions(stdout, opts, "Options\n\n");
-   locked_fprintf(out, "\n\n" E_FOOTER);
+   fprintf(out, "\n\n" E_FOOTER);
 }
 
 

@@ -535,7 +535,7 @@ void GenDistPrint(FILE* out, GenDistrib_p dist)
 
    for(i=dist->sig->internal_symbols+1; i<dist->size; i++)
    {
-      locked_fprintf(out, "# %-20s (%8ld = %8ld): %8ld  %8ld\n",
+      fprintf(out, "# %-20s (%8ld = %8ld): %8ld  %8ld\n",
               SigFindName(dist->sig, i),
               i,
               dist->dist_array[i].f_code,

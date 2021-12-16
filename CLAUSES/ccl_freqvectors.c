@@ -317,21 +317,21 @@ void FreqVectorPrint(FILE* out, FreqVector_p vec)
    assert(vec);
    if(vec->clause)
    {
-      locked_fprintf(out, "# FV for: ");
+      fprintf(out, "# FV for: ");
       ClausePrint(out, vec->clause, true);
-      locked_fprintf(out, "\n");
+      fprintf(out, "\n");
    }
    else
    {
-      locked_fprintf(out, "# FV, no clause given.\n");
+      fprintf(out, "# FV, no clause given.\n");
    }
-   locked_fprintf(out, "# FV(len=%ld):", vec->size);
+   fprintf(out, "# FV(len=%ld):", vec->size);
    for(i=0; i<vec->size; i++)
 
    {
-      locked_fprintf(out, " %ld", vec->array[i]);
+      fprintf(out, " %ld", vec->array[i]);
    }
-   locked_fprintf(out, "\n");
+   fprintf(out, "\n");
 }
 
 

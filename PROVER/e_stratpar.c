@@ -127,7 +127,7 @@ int main(int argc, char* argv[])
       tmp = EPCtrlSetGetResult(ctrl, false);
       if(tmp)
       {
-         locked_fprintf(GlobalOut, "%s", DStrView(tmp->output));
+         fprintf(GlobalOut, "%s", DStrView(tmp->output));
          break;
       }
    }
@@ -180,7 +180,7 @@ CLState_p process_options(int argc, char* argv[])
             print_help(stdout);
             exit(NO_ERROR);
       case OPT_VERSION:
-            locked_fprintf(stdout, NAME " " VERSION " " E_NICKNAME "\n");
+            fprintf(stdout, NAME " " VERSION " " E_NICKNAME "\n");
             exit(NO_ERROR);
       case OPT_CPU_LIMIT:
             HardTimeLimit = CLStateGetIntArg(handle, arg);
@@ -195,7 +195,7 @@ CLState_p process_options(int argc, char* argv[])
 
 void print_help(FILE* out)
 {
-   locked_fprintf(out, "\n"
+   fprintf(out, "\n"
            NAME " " VERSION " \"" E_NICKNAME "\"\n\
 \n\
 Usage: " NAME " [options] [file]\n\
@@ -203,7 +203,7 @@ Usage: " NAME " [options] [file]\n\
 Run 8 instances of E with different strategies in parallel.\n\
 \n");
    PrintOptions(stdout, opts, "Options:\n\n");
-   locked_fprintf(out, "\n\n" E_FOOTER);
+   fprintf(out, "\n\n" E_FOOTER);
 }
 
 

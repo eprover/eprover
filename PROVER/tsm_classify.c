@@ -200,7 +200,7 @@ int main(int argc, char* argv[])
 
    successes = TSMClassifySet(admin, ftest_set);
    nodes     = FlatAnnoSetSize(ftest_set);
-   locked_fprintf(GlobalOut, "% ld terms, %ld successes, %5.3f percent\n", nodes,
+   fprintf(GlobalOut, "% ld terms, %ld successes, %5.3f percent\n", nodes,
       successes, 100.0*(double)successes/(double)nodes);
 
    TSMAdminFree(admin);
@@ -318,7 +318,7 @@ CLState_p process_options(int argc, char* argv[])
 
 void print_help(FILE* out)
 {
-   locked_fprintf(out, "\n\
+   fprintf(out, "\n\
 \n"
 NAME " " VERSION "\n\
 \n\
@@ -328,7 +328,7 @@ Parse a classification problem specification file and return\n\
 results. This is an experimental programm and does not have all the\n\
 usual error checking and hand holding features as E proper!\n");
    PrintOptions(stdout, opts, "Options\n\n");
-   locked_fprintf(out, "\n\n" E_FOOTER);
+   fprintf(out, "\n\n" E_FOOTER);
 }
 
 

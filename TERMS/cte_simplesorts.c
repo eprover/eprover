@@ -258,23 +258,23 @@ void SortTablePrint(FILE* out, SortTable_p table)
    StrTree_p     cell;
    PStack_p      stack;
 
-   locked_fprintf(out, "Sort table in order of sort creation:\n");
-   locked_fprintf(out, "=====================================\n");
+   fprintf(out, "Sort table in order of sort creation:\n");
+   fprintf(out, "=====================================\n");
    for(i=0; i<PStackGetSP(table->back_index); i++)
    {
-      locked_fprintf(out, "Type %4ld: %s\n", i, SortTableGetRep(table, i));
+      fprintf(out, "Type %4ld: %s\n", i, SortTableGetRep(table, i));
    }
-   locked_fprintf(out, "\nSort table in alphabetic order:\n");
-   locked_fprintf(out, "=====================================\n");
+   fprintf(out, "\nSort table in alphabetic order:\n");
+   fprintf(out, "=====================================\n");
 
 
    stack = StrTreeTraverseInit(table->sort_index);
    while((cell=StrTreeTraverseNext(stack)))
    {
-      locked_fprintf(out, "Type %4ld: %s\n", cell->val1.i_val, cell->key);
+      fprintf(out, "Type %4ld: %s\n", cell->val1.i_val, cell->key);
    }
    PStackFree(stack);
-   locked_fprintf(out, "\n");
+   fprintf(out, "\n");
 }
 
 

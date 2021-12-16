@@ -602,7 +602,7 @@ Term_p VarBankExtNameAssertAlloc(VarBank_p bank, char* name)
 
    if(Verbose>=5)
    {
-      locked_fprintf(stderr, "Alloc no sort %s\n", name);
+      fprintf(stderr, "Alloc no sort %s\n", name);
    }
 
    var = VarBankExtNameFind(bank, name);
@@ -643,7 +643,7 @@ Term_p VarBankExtNameAssertAllocSort(VarBank_p bank, char* name, Type_p type)
 
    if(Verbose>=5)
    {
-      locked_fprintf(stderr, "# Alloc variable %s with sort ", name);
+      fprintf(stderr, "# Alloc variable %s with sort ", name);
       TypePrintTSTP(stderr, bank->sort_table, type);
       fputc('\n', stderr);
    }

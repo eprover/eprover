@@ -407,10 +407,10 @@ static long fp_index_rek_find_matchable(FPTree_p index, IndexFP_p key,
 void fp_index_leaf_prt_size(FILE* out, PStack_p stack, FPTree_p leaf)
 {
    long tmp;
-   locked_fprintf(out, "# ");
+   fprintf(out, "# ");
    PStackPrintInt(out, "%4ld.", stack);
    tmp =  PObjTreeNodes(leaf->payload);
-   locked_fprintf(out, ":%ld terms\n", tmp);
+   fprintf(out, ":%ld terms\n", tmp);
 }
 
 
@@ -557,7 +557,7 @@ void fp_index_tree_print_node(FILE* out, FPTree_p index,
       symbol = PStackElementInt(stack,i);
       DStrAppendStr(label, fp_symbol(sig, symbol));
    }
-   locked_fprintf(out, "   l%p [label=\"%s\"]\n", index, DStrView(label));
+   fprintf(out, "   l%p [label=\"%s\"]\n", index, DStrView(label));
 
    DStrFree(label);
 }
@@ -622,7 +622,7 @@ void fp_index_tree_print_edges(FILE* out, FPTree_p index,
       iter = IntMapIterAlloc(index->f_alternatives, BELOW_VAR, LONG_MAX);
       while((child=IntMapIterNext(iter, &i)))
       {
-         locked_fprintf(out, "   l%p -- l%p [label=%s]\n",
+         fprintf(out, "   l%p -- l%p [label=%s]\n",
                  index, child, fp_symbol(sig, i));
          fp_index_tree_print_edges(out, child, stack, sig);
       }
@@ -1328,7 +1328,7 @@ void FPIndexDistribPrint(FILE* out, FPIndex_p index)
 
    leaves = fp_index_tree_print(out, index->index, path, fp_index_leaf_prt_size,
                                 &entries);
-   locked_fprintf(out, "# %ld entries, %ld leaves, %f entries/leaf\n",
+   fprintf(out, "# %ld entries, %ld leaves, %f entries/leaf\n",
            entries, leaves, (double)entries/leaves);
 
    PStackFree(path);
@@ -1388,7 +1388,7 @@ void FPIndexDistribDataPrint(FILE* out, FPIndex_p index)
    {
       nodes = FPIndexCollectDistrib(index, &leaves, &avg, &stddev);
    }
-   locked_fprintf(out, "%5ld nodes, %5ld leaves, %6.2f+/-%4.3f terms/leaf",
+   fprintf(out, "%5ld nodes, %5ld leaves, %6.2f+/-%4.3f terms/leaf",
            nodes, leaves, avg, stddev);
 }
 
@@ -1455,7 +1455,7 @@ void FPIndexPrintDot(FILE* out, char* name, FPIndex_p index,
    PStack_p stack = PStackAlloc();
    PStackPointer i;
 
-   locked_fprintf(out, "graph %s{\n   rankdir=LR\n   nodesep=0.05\n", name);
+   fprintf(out, "graph %s{\n   rankdir=LR\n   nodesep=0.05\n", name);
    fp_index_tree_print_nodes(out, index->index, stack, sig);
    fp_index_tree_print_edges(out, index->index, stack, sig);
 
@@ -1468,12 +1468,12 @@ void FPIndexPrintDot(FILE* out, char* name, FPIndex_p index,
       if(leaf->payload)
       {
          prt_leaf(out, leaf->payload, sig);
-         locked_fprintf(out, "   l%p -- t%p [ranksep=0.1]\n", leaf, leaf->payload);
+         fprintf(out, "   l%p -- t%p [ranksep=0.1]\n", leaf, leaf->payload);
       }
    }
    PStackReset(stack);
 
-   locked_fprintf(out, "}\n");
+   fprintf(out, "}\n");
 
    PStackFree(stack);
 }

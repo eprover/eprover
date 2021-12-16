@@ -101,10 +101,10 @@ void PCLIdPrintFormatted(FILE* out, PCLId_p id, bool formatted)
    assert(PDArrayElementInt(id,0)!=NO_PCL_ID_ELEMENT); /* Redundant,
                        bute
                        well...erm...*/
-   locked_fprintf(out, formatted?"%7ld":"%ld", PDArrayElementInt(id,0));
+   fprintf(out, formatted?"%7ld":"%ld", PDArrayElementInt(id,0));
    for(i=1;PDArrayElementInt(id,i)!=NO_PCL_ID_ELEMENT;i++)
    {
-      locked_fprintf(out, ".%ld", PDArrayElementInt(id,i));
+      fprintf(out, ".%ld", PDArrayElementInt(id,i));
    }
 }
 
@@ -134,14 +134,14 @@ void PCLIdPrintTSTP(FILE* out, PCLId_p id)
 
    if(PDArrayElementInt(id,1)==NO_PCL_ID_ELEMENT)
    {
-      locked_fprintf(out, "%ld", PDArrayElementInt(id,0));
+      fprintf(out, "%ld", PDArrayElementInt(id,0));
    }
    else
    {
-      locked_fprintf(out, "pclid%ld", PDArrayElementInt(id,0));
+      fprintf(out, "pclid%ld", PDArrayElementInt(id,0));
       for(i=1;PDArrayElementInt(id,i)!=NO_PCL_ID_ELEMENT;i++)
       {
-    locked_fprintf(out, "_%ld", PDArrayElementInt(id,i));
+    fprintf(out, "_%ld", PDArrayElementInt(id,i));
       }
    }
 }

@@ -82,7 +82,7 @@ false
 #endif   
    )
    {
-      locked_fprintf(GlobalOut, "Selected heuristic:\n");
+      fprintf(GlobalOut, "Selected heuristic:\n");
       HeuristicParmsPrint(stderr, &(control->heuristic_parms));
    }
    if(parms->mem_limit>2 && (parms->delete_bad_limit ==

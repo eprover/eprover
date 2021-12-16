@@ -383,7 +383,7 @@ void do_ho_print(FILE* out, TFormula_p term, Sig_p sig, DerefType deref, int dep
 
    if(TermIsDBVar(term))
    {
-      locked_fprintf(out, "Z%d", depth - (int)term->f_code - 1);
+      fprintf(out, "Z%d", depth - (int)term->f_code - 1);
    }
    else if(!TermIsTopLevelAnyVar(term))
    {
@@ -413,7 +413,7 @@ void do_ho_print(FILE* out, TFormula_p term, Sig_p sig, DerefType deref, int dep
       }
       else
       {
-         locked_fprintf(out, "Z%d", depth - (int)var->f_code - 1);
+         fprintf(out, "Z%d", depth - (int)var->f_code - 1);
       }
       
    }
@@ -461,7 +461,7 @@ void do_fool_print(FILE* out, Sig_p sig, TFormula_p form, int depth)
 
    if(TermIsDBVar(form))
    {
-      locked_fprintf(out, "Z%d", depth - (int)form->f_code - 1);
+      fprintf(out, "Z%d", depth - (int)form->f_code - 1);
    }
    else if((form->f_code == sig->eqn_code || form->f_code == sig->neqn_code)
            && TypeIsBool(form->type))
@@ -513,7 +513,7 @@ void do_fool_print(FILE* out, Sig_p sig, TFormula_p form, int depth)
       
       if(form->f_code == SIG_DB_LAMBDA_CODE)
       {
-         locked_fprintf(out, "Z%d", depth);
+         fprintf(out, "Z%d", depth);
          depth++;
       }
       else
@@ -532,7 +532,7 @@ void do_fool_print(FILE* out, Sig_p sig, TFormula_p form, int depth)
          fputs(", ", out);
          if(form->f_code == SIG_DB_LAMBDA_CODE)
          {
-            locked_fprintf(out, "Z%d", depth);
+            fprintf(out, "Z%d", depth);
             depth++;
          }
          else
@@ -634,7 +634,7 @@ void VarPrint(FILE* out, FunCode var)
    {
       id = 'Y';
    }
-   locked_fprintf(out, "%c%ld", id, -((var-1)/2));
+   fprintf(out, "%c%ld", id, -((var-1)/2));
 }
 
 
@@ -674,17 +674,17 @@ void TermPrintFO(FILE* out, Term_p term, Sig_p sig, DerefType deref)
 #ifdef NEVER_DEFINED
    if(TermCellQueryProp(term, TPRestricted))
    {
-      locked_fprintf(out, "*");
+      fprintf(out, "*");
    }
    if(TermCellQueryProp(term, TPIsRewritten))
    {
       if(TermIsTopRewritten(term))
       {
-         locked_fprintf(out, "=");
+         fprintf(out, "=");
       }
       else
       {
-         locked_fprintf(out, "+");
+         fprintf(out, "+");
       }
    }
 #endif
@@ -703,7 +703,7 @@ void TermPrintFO(FILE* out, Term_p term, Sig_p sig, DerefType deref)
       else
       {
          fputs(SigFindName(sig, term->f_code), out);
-         // locked_fprintf(out, "(%ld)", term->f_code);
+         // fprintf(out, "(%ld)", term->f_code);
          if(!TermIsConst(term))
          {
             assert(term->args);
@@ -767,7 +767,7 @@ void TermPrintDbgHO(FILE* out, Term_p term, Sig_p sig, DerefType deref)
    if(TermIsDBVar(term))
    {
       // assert(term->arity == 0);
-      locked_fprintf(out, "db(%ld)", term->f_code);
+      fprintf(out, "db(%ld)", term->f_code);
    }
    else if(!TermIsFreeVar(term))
    {
@@ -2182,7 +2182,7 @@ FunCode VarBankCheckBindings(FILE* out, VarBank_p bank, Sig_p sig)
    long      res = 0;
    int       i;
 
-   locked_fprintf(out, "#  VarBankCheckBindings() started...\n");
+   fprintf(out, "#  VarBankCheckBindings() started...\n");
    for(i=1; i<PDArraySize(bank->variables); i++)
    {
       term = PDArrayElementP(bank->variables, i);
@@ -2194,22 +2194,22 @@ FunCode VarBankCheckBindings(FILE* out, VarBank_p bank, Sig_p sig)
             res++;
             if(sig)
             {
-               locked_fprintf(out, "# %ld: ", term->f_code);
+               fprintf(out, "# %ld: ", term->f_code);
                TermPrint(out, term, sig, DEREF_NEVER);
-               locked_fprintf(out, " <--- ");
+               fprintf(out, " <--- ");
                TermPrint(out, term, sig, DEREF_ONCE);
-               locked_fprintf(out, "\n");
+               fprintf(out, "\n");
             }
             else
             {
-               locked_fprintf(out, "# Var%ld <---- %p\n",
+               fprintf(out, "# Var%ld <---- %p\n",
                        term->f_code,
                        (void*)term->binding);
             }
          }
       }
    }
-   locked_fprintf(out, "#  ...VarBankCheckBindings() completed\n");
+   fprintf(out, "#  ...VarBankCheckBindings() completed\n");
    return res;
 }
 
@@ -2716,15 +2716,15 @@ void TermAssertSameSort(Sig_p sig, Term_p t1, Term_p t2)
 {
    if(t1->type != t2->type)
    {
-      locked_fprintf(stderr, "# Error: terms ");
+      fprintf(stderr, "# Error: terms ");
       TermPrintDbg(stderr, t1, sig, DEREF_NEVER);
-      locked_fprintf(stderr, ": ");
+      fprintf(stderr, ": ");
       TypePrintTSTP(stderr, sig->type_bank, t1->type);
-      locked_fprintf(stderr, " and ");
+      fprintf(stderr, " and ");
       TermPrintDbg(stderr, t2, sig, DEREF_NEVER);
-      locked_fprintf(stderr, ": ");
+      fprintf(stderr, ": ");
       TypePrintTSTP(stderr, sig->type_bank, t2->type);
-      locked_fprintf(stderr, " should have the same sort\n");
+      fprintf(stderr, " should have the same sort\n");
       assert(false);
       Error("Type error", SYNTAX_ERROR);
    }

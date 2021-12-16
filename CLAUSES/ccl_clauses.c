@@ -1046,7 +1046,7 @@ Clause_p ClauseSkolemize(Clause_p clause, TB_p bank)
 void ClausePrintList(FILE* out, Clause_p clause, bool fullterms)
 {
    EqnListPrint(out, clause->literals, "; ", false, fullterms);
-   locked_fprintf(out, " <-.");
+   fprintf(out, " <-.");
 }
 
 
@@ -1077,11 +1077,11 @@ void ClausePrintAxiom(FILE* out, Clause_p clause, bool fullterms)
          i++;
          if(i<clause->pos_lit_no)
          {
-            locked_fprintf(out, "; ");
+            fprintf(out, "; ");
          }
       }
    }
-   locked_fprintf(out, " <- ");
+   fprintf(out, " <- ");
 
    i = 0;
    for(handle = clause->literals; handle; handle = handle->next)
@@ -1092,11 +1092,11 @@ void ClausePrintAxiom(FILE* out, Clause_p clause, bool fullterms)
          i++;
          if(i<clause->neg_lit_no)
          {
-            locked_fprintf(out, ", ");
+            fprintf(out, ", ");
          }
       }
    }
-   locked_fprintf(out, ".");
+   fprintf(out, ".");
 }
 
 
@@ -1121,16 +1121,16 @@ void ClausePrintRule(FILE* out, Clause_p clause, bool fullterms)
       EqnPrint(out, clause->literals, false, fullterms);
       if(clause->literals->next)
       {
-         locked_fprintf(out, " <- ");
+         fprintf(out, " <- ");
          EqnListPrint(out, clause->literals->next, ", ", true,
                       fullterms);
       }
    }
    else
    {
-      locked_fprintf(out, " <- ");
+      fprintf(out, " <- ");
    }
-   locked_fprintf(out, ".");
+   fprintf(out, ".");
 }
 
 
@@ -1148,9 +1148,9 @@ void ClausePrintRule(FILE* out, Clause_p clause, bool fullterms)
 
 void ClausePrintGoal(FILE* out, Clause_p clause, bool fullterms)
 {
-   locked_fprintf(out, "<- ");
+   fprintf(out, "<- ");
    EqnListPrint(out, clause->literals, ", ", true, fullterms);
-   locked_fprintf(out, ".");
+   fprintf(out, ".");
 }
 
 
@@ -1171,9 +1171,9 @@ void ClausePrintQuery(FILE* out, Clause_p clause, bool fullterms)
 {
    assert(ClauseLiteralNumber(clause));
 
-   locked_fprintf(out, "?- ");
+   fprintf(out, "?- ");
    EqnListPrint(out, clause->literals, ", ", true, fullterms);
-   locked_fprintf(out, ".");
+   fprintf(out, ".");
 }
 
 /*-----------------------------------------------------------------------
@@ -1219,16 +1219,16 @@ void ClausePrintTPTPFormat(FILE* out, Clause_p clause)
 
    if(clause->ident >= 0)
    {
-      locked_fprintf(out, "input_clause(c_%d_%ld,%s,[",
+      fprintf(out, "input_clause(c_%d_%ld,%s,[",
               source, clause->ident, typename);
    }
    else
    {
-      locked_fprintf(out, "input_clause(i_%d_%ld,%s,[",
+      fprintf(out, "input_clause(i_%d_%ld,%s,[",
               source, clause->ident-LONG_MIN, typename);
    }
    EqnListPrint(out, clause->literals, ",", false, true);
-   locked_fprintf(out, "]).");
+   fprintf(out, "]).");
 }
 
 /*-----------------------------------------------------------------------
@@ -1273,18 +1273,18 @@ void ClausePrintLOPFormat(FILE* out, Clause_p clause, bool fullterms)
 void ClausePrint(FILE* out, Clause_p clause, bool fullterms)
 {
 
-   /* locked_fprintf(out, "(%ld, %ld)", clause->proof_depth,
+   /* fprintf(out, "(%ld, %ld)", clause->proof_depth,
       clause->proof_size); */
 
 /* #define PRINT_SOS_PROP 1 */
 #ifdef PRINT_SOS_PROP
    if(ClauseQueryProp(clause, CPIsSOS))
    {
-      locked_fprintf(out, "/* SoS */");
+      fprintf(out, "/* SoS */");
    }
    else
    {
-      locked_fprintf(out, "/* --- */");
+      fprintf(out, "/* --- */");
    }
 #endif
 
@@ -1316,7 +1316,7 @@ void ClausePrint(FILE* out, Clause_p clause, bool fullterms)
 
 void ClausePrintDBG(FILE* out, Clause_p clause)
 {
-   locked_fprintf(out, "thf(cl%ld, plain, ", 
+   fprintf(out, "thf(cl%ld, plain, ", 
            clause->ident >= 0 ? clause->ident : clause->ident-LONG_MIN);
    if(clause->literals)
    {
@@ -1326,7 +1326,7 @@ void ClausePrintDBG(FILE* out, Clause_p clause)
          DBG_PRINT(out, " | ", EqnPrintDBG(out, lit), "");
       }
    }
-   locked_fprintf(out, " ).");
+   fprintf(out, " ).");
 }
 
 
@@ -1349,18 +1349,18 @@ void ClausePCLPrint(FILE* out, Clause_p clause, bool fullterms)
 #ifdef PRINT_SOS_PROP
    if(ClauseQueryProp(clause, CPIsSOS))
    {
-      locked_fprintf(out, "/* SoS */");
+      fprintf(out, "/* SoS */");
    }
    else
    {
-      locked_fprintf(out, "/* --- */");
+      fprintf(out, "/* --- */");
    }
 #endif
 /* #define PCLPRINTDEGBUG */
 #ifdef PCLPRINTDEGBUG
    if(clause->literals)
    {
-      locked_fprintf(out, "/* %d; %lu; %lu(%lu)=%lu(%lu)*/",
+      fprintf(out, "/* %d; %lu; %lu(%lu)=%lu(%lu)*/",
               ClauseQueryProp(clause, CPLimitedRW),
               clause->date,
               clause->literals->lterm->entry_no,
@@ -1395,7 +1395,7 @@ void ClauseTSTPCorePrint(FILE* out, Clause_p clause, bool fullterms)
    fputc('(', out);
    if(ClauseIsEmpty(clause))
    {
-      locked_fprintf(out, "$false");
+      fprintf(out, "$false");
    }
    else
    {
@@ -1464,19 +1464,19 @@ void ClauseTSTPPrint(FILE* out, Clause_p clause, bool fullterms, bool complete)
    source = ClauseQueryCSSCPASource(clause);
    if(clause->ident >= 0)
    {
-      locked_fprintf(out, "%s(c_%d_%ld, ",
+      fprintf(out, "%s(c_%d_%ld, ",
               kind,
               source,
               clause->ident);
    }
    else
    {
-      locked_fprintf(out, "%s(i_%d_%ld, ",
+      fprintf(out, "%s(i_%d_%ld, ",
               kind,
               source,
               clause->ident-LONG_MIN);
    }
-   locked_fprintf(out, "%s, ", typename);
+   fprintf(out, "%s, ", typename);
 
    if(ClauseIsEmpty(clause) || (is_untyped && problemType != PROBLEM_HO))
    {
@@ -1496,7 +1496,7 @@ void ClauseTSTPPrint(FILE* out, Clause_p clause, bool fullterms, bool complete)
 
    if(complete)
    {
-      locked_fprintf(out, ").");
+      fprintf(out, ").");
    }
 }
 

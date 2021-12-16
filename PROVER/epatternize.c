@@ -588,10 +588,10 @@ int main(int argc, char* argv[])
             if(PatternClauseCompute(clause, &pat_subst, &listrep))
             {
                // ClauseTSTPPrint(GlobalOut, clause, true, true);
-               // locked_fprintf(GlobalOut, "\n");
+               // fprintf(GlobalOut, "\n");
                clauserep = FlatEncodeClauseListRep(fstate->terms, listrep);
                PatternTermPrint(GlobalOut, pat_subst, clauserep, fstate->terms->sig);
-               locked_fprintf(GlobalOut, "\n");
+               fprintf(GlobalOut, "\n");
             }
             PStackFree(listrep);
          }
@@ -844,7 +844,7 @@ CLState_p process_options(int argc, char* argv[], SpecLimits_p limits)
 
 void print_help(FILE* out)
 {
-   locked_fprintf(out, "\n\
+   fprintf(out, "\n\
 \n\
 " NAME " " VERSION "\n\
 \n\
@@ -854,7 +854,7 @@ Read sets of clauses/formulas, perform cnfization, then convert \n\
 the clauses to patterns and print them.\n\
 \n");
    PrintOptions(stdout, opts, "Options:\n\n");
-   locked_fprintf(out, "\n\
+   fprintf(out, "\n\
 Copyright (C) 1998-2009 by Stephan Schulz, " STS_MAIL "\n\
 \n\
 This program is a part of the support structure for the E equational\n\

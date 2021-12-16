@@ -117,7 +117,7 @@ void* SecureMalloc(int size)
       {   /*  Still nothing...*/
 #ifdef PRINT_SOMEERRORS_STDOUT
     PrintRusage(stdout);
-    locked_fprintf(stdout, "# Failure: Resource limit exceeded (memory)\n");
+    fprintf(stdout, "# Failure: Resource limit exceeded (memory)\n");
 #endif
          Error("Out of Memory", OUT_OF_MEMORY);
       }
@@ -165,7 +165,7 @@ void* SecureRealloc(void *ptr, int size)
       {   /*  Still nothing...*/
 #ifdef PRINT_SOMEERRORS_STDOUT
     PrintRusage(stdout);
-    locked_fprintf(stdout, "# Failure: Resource limit exceeded (memory)\n");
+    fprintf(stdout, "# Failure: Resource limit exceeded (memory)\n");
 #endif
     Error("Out of Memory", OUT_OF_MEMORY);
       }
@@ -425,30 +425,30 @@ long* IntArrayAlloc(int size)
 
 void MemDebugPrintStats(FILE* out)
 {
-   locked_fprintf(out,
+   fprintf(out,
       "\n# -------------------------------------------------\n");
-   locked_fprintf(out,
+   fprintf(out,
       "# Total SizeMalloc()ed memory: %ld Bytes (%ld requests)\n",
       size_malloc_mem, size_malloc_count);
-   locked_fprintf(out,
+   fprintf(out,
       "# Total SizeFree()ed   memory: %ld Bytes (%ld requests)\n",
       size_free_mem, size_free_count);
-   locked_fprintf(out,
+   fprintf(out,
       "# New requests: %6ld (%6ld by SecureMalloc(), %6ld by SecureRealloc())\n",
       secure_malloc_count+secure_realloc_m_count,
       secure_malloc_count, secure_realloc_m_count);
-   locked_fprintf(out,
+   fprintf(out,
       "# Total SecureMalloc()ed memory: %ld Bytes\n", secure_malloc_mem);
-   locked_fprintf(out,
+   fprintf(out,
       "# Returned:    %6ld (%6ld by FREE(),         %6ld by SecureRealloc())\n",
       clb_free_count+secure_realloc_f_count,
       clb_free_count , secure_realloc_f_count);
-   locked_fprintf(out,
+   fprintf(out,
       "# SecureRealloc(ptr): %6ld (%6ld Allocs, %6ld Frees, %6ld Reallocs)\n",
       secure_realloc_count, secure_realloc_m_count,
       secure_realloc_f_count,
       secure_realloc_count-(secure_realloc_m_count+secure_realloc_f_count));
-   locked_fprintf(out,
+   fprintf(out,
       "# -------------------------------------------------\n\n");
 }
 

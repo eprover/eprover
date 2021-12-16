@@ -258,7 +258,7 @@ long PCLProtParse(Scanner_p in, PCLProt_p prot)
    {
       if(!in->ignore_comments)
       {
-         locked_fprintf(GlobalOut, "%s", DStrView(AktToken(in)->comment));
+         fprintf(GlobalOut, "%s", DStrView(AktToken(in)->comment));
          DStrReset(AktToken(in)->comment);
       }
       line = AktToken(in)->line;
@@ -282,7 +282,7 @@ long PCLProtParse(Scanner_p in, PCLProt_p prot)
    }
    if(!in->ignore_comments)
    {
-      locked_fprintf(GlobalOut, "%s", DStrView(AktToken(in)->comment));
+      fprintf(GlobalOut, "%s", DStrView(AktToken(in)->comment));
       DStrReset(AktToken(in)->comment);
    }
    return res;

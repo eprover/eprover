@@ -130,48 +130,6 @@ void ScheduleTimesInit(ScheduleCell sched[], double time_used)
 
 /*-----------------------------------------------------------------------
 //
-// Function:  activate_child()
-//
-//   Fork a process correspoding to schedule cell with idx i and
-//   set its parameters accordingly. Returns parent id either of child
-//   or parent.
-//
-// Global Variables: SilentTimeOut
-//
-// Side Effects    : Forks, the child runs the proof search, re-sets
-//                   time limits, sets heuristic parameters
-//
-/----------------------------------------------------------------------*/
-
-pid_t activate_child(int child_idx, ScheduleCell strats[],
-                     HeuristicParms_p h_parms)
-{
-   pid_t pid = fork();
-   if(pid == 0)
-   {
-      //child
-      SilentTimeOut = true;
-      h_parms->heuristic_name         = strats[child_idx].heu_name;
-      h_parms->order_params.ordertype = strats[child_idx].ordering;
-      if(strats[child_idx].time_absolute!=RLIM_INFINITY)
-      {
-         locked_fprintf(stderr, "# Scheduling %s for %ld seconds.\n",
-                        h_parms->heuristic_name,
-                        (long)strats[child_idx].time_absolute);
-         if(SetSoftRlimit(RLIMIT_CPU, strats[child_idx].time_absolute) 
-               != RLimSuccess)
-         {
-            locked_fprintf(stderr, "softrlimit call failed.\n");
-            exit(-1);
-         }
-      }
-   }
-   return pid;
-}
-
-
-/*-----------------------------------------------------------------------
-//
 // Function:  ExecuteSchedule()
 //
 //   Execute the hard-coded strategy schedule.
@@ -415,7 +373,7 @@ void ExecuteScheduleMultiCore(ScheduleCell strats[],
          fputs(DStrView(handle->output), GlobalOut);
          fflush(GlobalOut);
          exit(handle->exit_status);
-      }
+      } 
    }while(EGPCtrlSetCardinality(procs));
 
    EGPCtrlSetFree(procs);

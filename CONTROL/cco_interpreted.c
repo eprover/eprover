@@ -63,7 +63,7 @@ void answer_lit_print(FILE* out, Eqn_p lit)
    int i;
    char *sep="";
 
-   locked_fprintf(out, "[");
+   fprintf(out, "[");
    if(EqnQueryProp(lit, EPPseudoLit)
       &&
       SigIsSimpleAnswerPred(lit->bank->sig, lit->lterm->f_code)
@@ -74,7 +74,7 @@ void answer_lit_print(FILE* out, Eqn_p lit)
       answer_term = lit->lterm->args[0];
       for(i=0; i<answer_term->arity; i++)
       {
-         locked_fprintf(out, "%s", sep);
+         fprintf(out, "%s", sep);
          TBPrintTermFull(out, lit->bank, answer_term->args[i]);
          sep = ", ";
       }
@@ -84,7 +84,7 @@ void answer_lit_print(FILE* out, Eqn_p lit)
       /* It's something weird -> Just print it */
       EqnTSTPPrint(out, lit, true);
    }
-   locked_fprintf(out, "]");
+   fprintf(out, "]");
 }
 
 
@@ -117,8 +117,8 @@ void ClausePrintAnswer(FILE* out, Clause_p clause, ProofState_p state)
          TSTPOUT(GlobalOut, "Theorem");
          state->status_reported = true;
       }
-      locked_fprintf(out, "# SZS answers Tuple [");
-      locked_fprintf(out, "%s", ClauseLiteralNumber(clause)>1?"(":"");
+      fprintf(out, "# SZS answers Tuple [");
+      fprintf(out, "%s", ClauseLiteralNumber(clause)>1?"(":"");
       handle = clause->literals;
       if(handle)
       {
@@ -126,13 +126,13 @@ void ClausePrintAnswer(FILE* out, Clause_p clause, ProofState_p state)
          handle = handle->next;
          while(handle)
          {
-            locked_fprintf(out, "|");
+            fprintf(out, "|");
             answer_lit_print(out, handle);
             handle = handle->next;
          }
       }
-      locked_fprintf(out, "%s", ClauseLiteralNumber(clause)>1?")":"");
-      locked_fprintf(out, "|_]\n");
+      fprintf(out, "%s", ClauseLiteralNumber(clause)>1?")":"");
+      fprintf(out, "|_]\n");
    }
 }
 

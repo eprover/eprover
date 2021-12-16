@@ -62,7 +62,7 @@ Changes
 
 void SysDatePrint(FILE* out, SysDate date)
 {
-   locked_fprintf(out, "%5lu", date);
+   fprintf(out, "%5lu", date);
 }
 
 /*---------------------------------------------------------------------*/

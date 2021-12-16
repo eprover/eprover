@@ -132,7 +132,7 @@ int main(int argc, char* argv[])
        com = false;
     }
     TermPrint(GlobalOut, term, sig, DEREF_NEVER);
-    locked_fprintf(GlobalOut, "  : %ld : %ld : %c : %c\n",
+    fprintf(GlobalOut, "  : %ld : %ld : %c : %c\n",
        size,depth, sym?'s':'n',com?'s':'n');
     /* TBDelete(bank,term); */
     count++;
@@ -144,7 +144,7 @@ int main(int argc, char* argv[])
       DestroyScanner(in);
    }
 
-   locked_fprintf(GlobalOut,
+   fprintf(GlobalOut,
       "# Terms: %ld  ASize: %f MSize: %ld, ADepth: %f MDepth: %ld\n",
       count, size_sum/(float)count, size_max,
       depth_sum/(float)count, depth_max);
@@ -211,7 +211,7 @@ CLState_p process_options(int argc, char* argv[])
 
 void print_help(FILE* out)
 {
-   locked_fprintf(out, "\n\
+   fprintf(out, "\n\
 \n\
 cl_test\n\
 \n\

@@ -330,7 +330,7 @@ void PStackPrintInt(FILE* out, char* format, PStack_p stack)
 
    for(i=0; i<PStackGetSP(stack); i++)
    {
-      locked_fprintf(out, format, PStackElementInt(stack, i));
+      fprintf(out, format, PStackElementInt(stack, i));
    }
 }
 
@@ -353,7 +353,7 @@ void PStackPrintP(FILE* out, char* format, PStack_p stack)
 
    for(i=0; i<PStackGetSP(stack); i++)
    {
-      locked_fprintf(out, format, PStackElementP(stack, i));
+      fprintf(out, format, PStackElementP(stack, i));
    }
 }
 

@@ -593,16 +593,16 @@ long PTreeDebugPrint(FILE* out, PTree_p root)
       {
          if(res % 10 == 0)
          {
-            locked_fprintf(out, "\n#");
+            fprintf(out, "\n#");
          }
-         locked_fprintf(out, " %7p", root->key);
+         fprintf(out, " %7p", root->key);
          PStackPushP(stack, root->lson);
          PStackPushP(stack, root->rson);
          res++;
       }
    }
    PStackFree(stack);
-   locked_fprintf(out, "\n");
+   fprintf(out, "\n");
 
    return res;
 }

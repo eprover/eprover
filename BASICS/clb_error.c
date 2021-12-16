@@ -209,9 +209,9 @@ void Error(char* message, ErrorCodes ret, ...)
    va_list ap;
    va_start(ap, ret);
 
-   locked_fprintf(stderr, "%s: ", ProgName);
+   fprintf(stderr, "%s: ", ProgName);
    vfprintf(stderr, message, ap);
-   locked_fprintf(stderr, "\n");
+   fprintf(stderr, "\n");
    va_end(ap);
 
    exit(ret);
@@ -238,9 +238,9 @@ void SysError(char* message, ErrorCodes ret, ...)
    va_list ap;
    va_start(ap, ret);
 
-   locked_fprintf(stderr, "%s: ", ProgName);
+   fprintf(stderr, "%s: ", ProgName);
    vfprintf(stderr, message, ap);
-   locked_fprintf(stderr, "\n");
+   fprintf(stderr, "\n");
    errno = TmpErrno;
    perror(ProgName);
    va_end(ap);
@@ -266,9 +266,9 @@ void Warning(char* message, ...)
    va_list ap;
    va_start(ap, message);
 
-   locked_fprintf(stderr, "%s: Warning: ", ProgName);
+   fprintf(stderr, "%s: Warning: ", ProgName);
    vfprintf(stderr, message, ap);
-   locked_fprintf(stderr, "\n");
+   fprintf(stderr, "\n");
 
    va_end(ap);
 }
@@ -293,9 +293,9 @@ void SysWarning(char* message, ...)
    va_list ap;
    va_start(ap, message);
 
-   locked_fprintf(stderr, "%s: Warning: ", ProgName);
+   fprintf(stderr, "%s: Warning: ", ProgName);
    vfprintf(stderr, message, ap);
-   locked_fprintf(stderr, "\n");
+   fprintf(stderr, "\n");
    errno = TmpErrno;
    perror(ProgName);
 
@@ -366,19 +366,19 @@ void PrintRusage(FILE* out)
    usage.ru_stime.tv_sec  += cusage.ru_stime.tv_sec;
    usage.ru_stime.tv_usec += cusage.ru_stime.tv_usec;
 
-   locked_fprintf(out,
+   fprintf(out,
       "\n# -------------------------------------------------\n");
-   locked_fprintf(out,
+   fprintf(out,
       "# User time                : %.3f s\n",
       (usage.ru_utime.tv_sec)+(usage.ru_utime.tv_usec)/1000000.0);
-   locked_fprintf(out,
+   fprintf(out,
       "# System time              : %.3f s\n",
       (usage.ru_stime.tv_sec)+(usage.ru_stime.tv_usec)/1000000.0);
-   locked_fprintf(out,
+   fprintf(out,
       "# Total time               : %.3f s\n",
       (usage.ru_utime.tv_sec+usage.ru_stime.tv_sec)+
       ((usage.ru_utime.tv_usec+usage.ru_stime.tv_usec)/1000000.0));
-   locked_fprintf(out,
+   fprintf(out,
       "# Maximum resident set size: %ld pages\n",
       usage.ru_maxrss);
 }

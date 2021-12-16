@@ -147,7 +147,7 @@ char* run_command(InteractiveSpec_p interactive,
       }
 
 
-      locked_fprintf(stdout, "%s", DStrView(jobname));
+      fprintf(stdout, "%s", DStrView(jobname));
       fflush(stdout);
 
       sprintf(buffer, "\n# Processing started for %s\n", DStrView(jobname));
@@ -215,7 +215,7 @@ char* add_command(InteractiveSpec_p interactive,
 
    file = TempFileName();
    fp   = SecureFOpen(file, "w");
-   locked_fprintf(fp, "%s", DStrView(input_axioms));
+   fprintf(fp, "%s", DStrView(input_axioms));
    SecureFClose(fp);
 
    axioms_scanner = CreateScanner(StreamTypeFile,
@@ -696,7 +696,7 @@ void print_to_outstream(char* message, FILE* fp, int sock_fd)
    }
    else
    {
-      locked_fprintf(fp, "%s", message);
+      fprintf(fp, "%s", message);
       fflush(fp);
    }
 }

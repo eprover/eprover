@@ -975,16 +975,16 @@ void IndexFPPrint(FILE* out, IndexFP_p fp)
 
    if(limit>=2)
    {
-      locked_fprintf(out, "<%ld", fp[1]);
+      fprintf(out, "<%ld", fp[1]);
       for(i=2; i<limit; i++)
       {
-         locked_fprintf(out, ",%ld", fp[i]);
+         fprintf(out, ",%ld", fp[i]);
       }
-      locked_fprintf(out, ">");
+      fprintf(out, ">");
    }
    else
    {
-      locked_fprintf(out, "<>");
+      fprintf(out, "<>");
    }
 }
 

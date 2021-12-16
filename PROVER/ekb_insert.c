@@ -289,7 +289,7 @@ CLState_p process_options(int argc, char* argv[])
 
 void print_help(FILE* out)
 {
-   locked_fprintf(out, "\n\
+   fprintf(out, "\n\
 \n"
            NAME " " VERSION "\n\
 \n\
@@ -299,7 +299,7 @@ Insert example files into an E knowledge base. Each non-option argument\n\
 is considered as one individual example file. For most applications\n\
 this is obsolete, use ekb_ginsert instead.\n\n");
    PrintOptions(stdout, opts, "Options\n\n");
-   locked_fprintf(out, "\n\n" E_FOOTER);
+   fprintf(out, "\n\n" E_FOOTER);
 }
 
 

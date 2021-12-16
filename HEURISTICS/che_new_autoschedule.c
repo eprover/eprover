@@ -27,7 +27,7 @@ void print_config_name(FILE* out, const char* prefix, const char* config, int id
   DStr_p str = DStrAlloc();
   assert(strchr(config, '\n'));
   DStrAppendBuffer(str, (char*)config, strchr(config, '\n') - config);
-  locked_fprintf(out, "# %s config(%d): %s\n", prefix, idx, DStrView(str));
+  fprintf(out, "# %s config(%d): %s\n", prefix, idx, DStrView(str));
   DStrFree(str);
 }
 
@@ -118,7 +118,7 @@ const char* class_to_schedule(const char* problem_category, const char** categor
 void AutoHeuristicForCategory(const char* category, HeuristicParms_p parms)
 {
   const char* config = class_to_heuristic(category, categories, confs, num_categories, parms);
-  locked_fprintf(stderr, "# category: %s\n", category);
+  fprintf(stderr, "# category: %s\n", category);
   print_config_name(stderr, "", config, 0);
 }
 

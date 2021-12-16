@@ -304,11 +304,11 @@ void TypeInferSort(Sig_p sig, Term_p term, Scanner_p in)
             if(problemType == PROBLEM_FO && !app_encode
                && term->arity != type->arity-1)
             {
-               locked_fprintf(stderr, "Arity mismatch for ");
+               fprintf(stderr, "Arity mismatch for ");
                TermPrint(stderr, term, sig, DEREF_NEVER);
-               locked_fprintf(stderr, " and type ");
+               fprintf(stderr, " and type ");
                TypePrintTSTP(stderr, sig->type_bank, type);
-               locked_fprintf(stderr, "\n");
+               fprintf(stderr, "\n");
                TI_ERROR("Type error");
             }
 
@@ -318,17 +318,17 @@ void TypeInferSort(Sig_p sig, Term_p term, Scanner_p in)
                {
                   if(term->args[i]->type != type->args[i])
                   {
-                     locked_fprintf(stderr, "# Type mismatch in argument #%d of ", i+1);
+                     fprintf(stderr, "# Type mismatch in argument #%d of ", i+1);
 #ifdef ENABLE_LFHO
                      TermPrintDbg(stderr, term, sig, DEREF_NEVER);
 #else
                      TermPrintFO(stderr, term, sig, DEREF_NEVER);
 #endif
-                     locked_fprintf(stderr, ": expected ");
+                     fprintf(stderr, ": expected ");
                      TypePrintTSTP(stderr, sig->type_bank, type->args[i]);
-                     locked_fprintf(stderr, " but got ");
+                     fprintf(stderr, " but got ");
                      TypePrintTSTP(stderr, sig->type_bank, term->args[i]->type);
-                     locked_fprintf(stderr, "\n");
+                     fprintf(stderr, "\n");
                      assert(false);
                      TI_ERROR("Type error");
                   }
@@ -343,13 +343,13 @@ void TypeInferSort(Sig_p sig, Term_p term, Scanner_p in)
 
                   if(term->args[i]->type != type->args[i-1])
                   {
-                     locked_fprintf(stderr, "# Type mismatch in argument #%d of ", i+1);
+                     fprintf(stderr, "# Type mismatch in argument #%d of ", i+1);
                      TermPrint(stderr, term, sig, DEREF_NEVER);
-                     locked_fprintf(stderr, ": expected ");
+                     fprintf(stderr, ": expected ");
                      TypePrintTSTP(stderr, sig->type_bank, type->args[i-1]);
-                     locked_fprintf(stderr, " but got ");
+                     fprintf(stderr, " but got ");
                      TypePrintTSTP(stderr, sig->type_bank, term->args[i]->type);
-                     locked_fprintf(stderr, "\n");
+                     fprintf(stderr, "\n");
                      assert(false);
                      TI_ERROR("Type error");
                   }
@@ -358,7 +358,7 @@ void TypeInferSort(Sig_p sig, Term_p term, Scanner_p in)
             term->type = term_determine_type(term, type, sig->type_bank);
             if(term->type==NULL)
             {
-               locked_fprintf(stderr, "# too many arguments supplied for %s\n",
+               fprintf(stderr, "# too many arguments supplied for %s\n",
                        SigFindName(sig, term->f_code));
                assert(false);
                in?AktTokenError(in, "Type error", false):Error("Type error", SYNTAX_ERROR);
@@ -368,11 +368,11 @@ void TypeInferSort(Sig_p sig, Term_p term, Scanner_p in)
          {
             if(term->arity != 0)
             {
-               locked_fprintf(stderr, "# Type mismatch for ");
+               fprintf(stderr, "# Type mismatch for ");
                TermPrint(stderr, term, sig, DEREF_NEVER);
-               locked_fprintf(stderr, " and type ");
+               fprintf(stderr, " and type ");
                TypePrintTSTP(stderr, sig->type_bank, type);
-               locked_fprintf(stderr, "\n");
+               fprintf(stderr, "\n");
                assert(false);
                TI_ERROR("Type error");
             }

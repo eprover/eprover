@@ -1,6 +1,7 @@
 import enum
 import os.path as p
 from sys import stderr
+from typing import ChainMap
 from common import Category, Configuration, tuple_is_smaller
 from progressbar import print_progress_bar
 
@@ -13,28 +14,31 @@ SUCCESS_RESULTS = ['ContradictoryAxioms', 'Theorem', 'Unsatisfiable']
 
 PROTOCOL = 'protocol_'
 
-
 def parse_categories(root):
-  from categorize import IGNORE_CLASSES, CNF_NAME, PROB_CATEGORIES_FILENAME
-  category_map = {}
-  f_name = p.join(root, CNF_NAME, PROB_CATEGORIES_FILENAME)
-  if p.exists(root) and p.isdir(root) and p.exists(f_name):
-    with open(f_name) as fd:
-      for line in fd:
-        prob,cat_name = map(str.strip, line.split(":"))
-        if cat_name not in IGNORE_CLASSES:
-          if cat_name in category_map:
-            category = category_map[cat_name]
-          else:
-            category = Category(cat_name)
-            category_map[cat_name] = category
-          category.add_prob(prob)
-  else:
-    import sys
-    print(("{0} is not appropriate TPTP categorization root. "+
-          "Use categorize.py to create the catetgorization").format(root))
-    sys.exit(-1)
-  return category_map
+  from categorize import CATEGORIZATIONS, IGNORE_CLASSES
+  cats = []
+  for cat_filename in CATEGORIZATIONS:
+    f_name = p.join(root, cat_filename)
+    if p.exists(root) and p.isdir(root) and\
+       p.exists(f_name):
+      category_map = {}
+      with open(f_name) as fd:
+        for line in fd:
+          prob,cat_name = map(str.strip, line.split(":"))
+          if cat_name not in IGNORE_CLASSES:
+            if cat_name in category_map:
+              category = category_map[cat_name]
+            else:
+              category = Category(cat_name)
+              category_map[cat_name] = category
+            category.add_prob(prob)
+      cats.append(category_map)
+    else:
+      import sys
+      print(("{0} is not appropriate TPTP categorization root. "+
+             "Use categorize.py to create the catetgorization").format(root))
+      sys.exit(-1)
+  return cats
 
 def parse_jobinfo_file(_, fd, confs, __, limit):
   import csv, pathlib as p
@@ -171,56 +175,6 @@ def parse_configurations(archives, e_path, limit, json_root=None):
   return confs
 
 
-def pop_best(confs, cats):
-  best_stat = (0, -1, 0.0, None)
-  for conf in confs:
-    stat = (0, 0, 0.0, conf)
-    for cat in cats:
-      # the first time evaluate_category is called with all the
-      # confs and this is going to be cached
-      cat_stat = conf.evaluate_category(cat)
-      stat = (stat[0] + cat_stat[0], stat[1] + cat_stat[1], 
-              stat[2] + cat_stat[2], conf)
-    if tuple_is_smaller(best_stat, stat):
-      best_stat = stat
-  confs.remove(best_stat[3])
-  return best_stat[3]
-
-
-def cover_cats(conf, cats, others):
-  covered = set()
-  for cat in cats:
-    if (conf.evaluate_category(cat)[0] and
-        cat.get_best_conf() == conf):
-      covered.add(cat)
-  return covered
-
-
-def schedule_best_single(cats, confs, take_general):
-  from collections import deque
-  if take_general:
-    confs = deque(sorted(confs.values(), key=Configuration.rate_general, reverse=True))
-  else:
-    confs = set(confs.values())
-  cats = set(cats.values())
-
-  # precomputation of the timing data for all confs and cats
-  for conf in confs:
-    for cat in cats:
-      conf.evaluate_category(cat)
-
-  cat_to_confs = {}
-
-  while confs and cats:
-    best_conf = confs.popleft() if take_general else pop_best(confs, cats)
-    covered_cats = cover_cats(best_conf, cats, confs)
-    for cat in covered_cats:
-      cat_to_confs[cat.get_name()] = best_conf
-    cats = cats.difference(covered_cats)
-    
-  return cat_to_confs
-
-
 def init_args():
   import argparse
 
@@ -240,20 +194,17 @@ def init_args():
                            'categorize.py script. Consult the help of categorize.py '
                            'for more information.')
   parser.add_argument('--conf-root', dest='conf_root',
-                      help='root directory containing JSON files corresponding to configurations in JobInfo files')
+                      help='root directory containing JSON files corresponding '
+                           'to configurations in JobInfo files')
+  parser.add_argument('--max-preproc-size', dest='max_preproc_size',
+                      help='maximal size of preprocessing schedule')
+  parser.add_argument('--min-search-size', dest='min_search_size',
+                      help='minimal size of search schedule')
+  parser.add_argument('--max-search-size', dest='max_search_size',
+                      help='maximal size of search schedule')
   parser.add_argument('--e-path', dest='e_path',
-                    help='path to eprover which is necessary for some features of this script (e.g., '
-                         ' generation of JSON representation  of the configuration)')
-  parser.add_argument('--prefer-general', dest='prefer_general',
-                    type=bool, default=False,
-                    help='when two configurations perform the same on the given category of'
-                         'problems prefer the one that performs better overall')
-  parser.add_argument("--multi-schedule", dest='multi_schedule', default=[], nargs='+', type=float,
-                      metavar='TIME_RATIO',
-                      help='instead of a single autoconfiguration, create a schedule of confiurations;'
-                           ' a list of ratios of time limits (at least two elements) is'
-                           ' specified as the argument. For example if argument is [0.33, 0.33, 0.33] each '
-                           ' of the generated configurations will be run for a third of the time.')
+                      help='path to eprover which is necessary for some features of this script (e.g.,'
+                           ' generation of JSON representation  of the configuration)')
   args = parser.parse_args()
   if args.multi_schedule and len(args.multi_schedule) < 2:
     parser.error("--multi-schedule requires at least two arguments")
@@ -264,113 +215,104 @@ def init_args():
   return args
 
 
-def print_str_list(var_name, str_list, type_modifier = "const char*", array_modifier="[]"):
-  print('{1} {0}{2} = {{ '.format(var_name, type_modifier, array_modifier))
-  print(",\n".join(str_list))
-  print("};")
+def get_best_conf(confs, probs):
+  m_conf, m_eval = None, (0,0,0)
+  for c in confs:
+    eval = c.evaluate_for_probs(probs)
+    if tuple_is_smaller(m_eval, eval):
+      m_conf = c
+      m_eval = eval
 
+  return (m_conf, m_eval)
 
-def output_single(confs, category_to_confs):
-  best_conf = max(confs.values(), key=Configuration.rate_general)
-
-  print('const long  num_categories = {0};'.format(len(category_to_confs)))
-
-  def conf_w_comment(conf, json_kind=Configuration.BOTH):
-    return '"{0}"'.format(conf.to_json(json_kind))
-
-  print('const char* best_conf = {0};'.format(conf_w_comment(best_conf)))
-
-  cat_keys, cat_vals = list(zip(*category_to_confs.items()))
-  print_str_list("categories", map(lambda x: '"{0}"'.format(x), cat_keys))
-  print_str_list("confs", 
-    map(lambda c: conf_w_comment(c, Configuration.BOTH), cat_vals))
-
-
-def print_new_schedule_cell(time_ratios):
-  print("#define SCHEDULE_SIZE {0}".format(len(time_ratios)))
-  print("ScheduleCell NEW_HO_SCHEDULE[] =\n{");
-  for (i,ratio) in enumerate(time_ratios):
-    print('  {{ "AutoNewSched_{0}", NoOrdering, "Auto",  {1:.2f}, 0}},'.format(i, ratio))
-  print('  {NULL, NoOrdering, NULL, 0.0, 0} ')
-  print('};')
-
-
-def output_multi_schedule(cat_to_conf, sched_size, cat_name, conf_name, json_kind):
-  cat_keys, schedules = list(zip(*cat_to_conf.items()))
-  print('const int {0}_len = {1};'.format(cat_name, len(cat_keys)))
-  print_str_list(cat_name, map(lambda c: '"' + c.get_name() + '"', cat_keys))
-  print_str_list(conf_name, ['{' +  ",".join(['"' + c.to_json(json_kind) + '"' for c in s]) + '}' for s in schedules],
-                 array_modifier='[][{0}]'.format(sched_size))
-
-
-def eval2key(x):
-  return (x[0], x[1], -x[2])
-
-def multi_schedule(num_confs, cats, confs, var_name, json_kind):
-  assert(num_confs >= 2)
-  assert(len(confs) >= num_confs)
+def schedule(cats, confs, min_size, max_size, used_confs, unique_preproc=False):
   cats = cats.values() if type(cats) is dict else cats
   confs = confs.values() if type(confs) is dict else confs
-  
-  #precomputation
-  for conf in confs:
-    for cat in cats:
-      conf.evaluate_category(cat)
 
   res = {}
   n = len(cats)
+  remaining_confs = set(confs)
   for (i,cat) in enumerate(cats):
     print_progress_bar(i, n)
-    best_for_cat = cat.get_best_conf()
-    sched_size = 1
-    schedule = [best_for_cat]
-   
+    
+    schedule = []
     remaining_probs = set(cat.get_problems())
-    for conf in schedule:
-      remaining_probs = remaining_probs.difference(conf.get_solved_probs())
-    remaining_confs = set(confs).difference(schedule)
-      
-    while remaining_probs and sched_size!=num_confs:
-      best_conf = max(remaining_confs,
-                      key=lambda x: eval2key(x.evaluate_for_probs(remaining_probs)))
-      curr_res = best_conf.evaluate_for_probs(remaining_probs)
-      if curr_res[0] == 0:
+    total_probs = len(remaining_probs)
+    sched_size = 0
+    remaining_ratio = 1
+    
+    while remaining_probs and sched_size<max_size:
+      best_conf, best_eval = get_best_conf(remaining_confs, remaining_probs)
+      if best_eval[0] == 0:
         #no problems can be solved by any of the remaining confs
         break
       else:
-        schedule.append(best_conf)
-        remaining_probs = remaining_probs.difference(best_conf.get_solved_probs())
+        solved_probs = remaining_probs.intersection(best_conf.get_solved_probs())
+        ratio = len(solved_probs)/total_probs
+        remaining_ratio -= ratio
+        schedule.append( (best_conf, ratio) )
+        remaining_probs.difference_update(solved_probs)
         remaining_confs.remove(best_conf)
+        if unique_preproc:
+          same_preproc = filter(lambda x: x.get_preprocess_params() 
+                                  == best_conf.get_preprocess_params(),
+                                remaining_confs)
+          remaining_confs.difference_update(same_preproc)
+
+        used_confs.add(best_conf)
         sched_size += 1
-    if sched_size!=num_confs:
-      schedule += list(sorted(remaining_confs, 
-                              key=lambda x: eval2key(x.evaluate_category(cat)), 
-                              reverse=True))[:num_confs-sched_size]
     
-    assert(len(schedule) == num_confs)
+    if sched_size<min_size:
+      to_add = min_size - sched_size
+      
+      # if we did not have enough configurations to fill 
+      # in the scheule, then we take the best ones until
+      # the schedule is filled
+      schedule += map(lambda x: (x, remaining_ratio / to_add),
+                      sorted(remaining_confs, key=lambda x: x.rate_general(), 
+                             reverse=True)[:to_add])
 
     res[cat] = schedule
-  
-  output_multi_schedule(res, num_confs, var_name, 
-                        var_name.replace('categories', 'confs'),
-                        json_kind)
+
+def output_used_confs(confs):
+  print('StrStrPair conf_map[] =\n  {');
+  for c in confs:
+    print('    { "{0}", "{1}" }, '.format(c.get_name(), c.to_json()))
+  print('};')
+
+def output_schedule(var_prefix, schedule):
+  def get_sched_name(cat):
+    return var_prefix + "_" + cat.get_name().replace('-', '_')
 
 
-def schedule_multiple(time_ratios, cats, confs):
-  print_new_schedule_cell(time_ratios)
-  multi_schedule(len(time_ratios), cats, confs, "multischedule_categories", Configuration.BOTH)
+  SC = 'ScheduleCell'
+  for cat,confs_w_ratio in schedule.items():
+    print('{0} {1}[] = {'.format(SC, get_sched_name(cat)))
+    for (c,r) in confs_w_ratio:
+      print ('{ "{0}", NoOrdering, NULL, {1}, 1, 1 }, '.format(c.get_name(), round(r,4)))
+    print('};')
 
+  print('StrSchedPair {0}_sched_map[] =\n  {'.format(var_prefix));
+  for cat in schedule.keys():
+    print('{ "{0}", {1} }, ', cat.get_name(), get_sched_name(cat))
+  print('};')
+    
 
 def main():
   args = init_args()
-  category_map = parse_categories(args.category_root)
-  limit = 100 if args.multi_schedule else 200
-  configurations = parse_configurations(args.result_archives, args.e_path, limit, args.conf_root)
-  if not args.multi_schedule:
-    category_to_conf = schedule_best_single(category_map, configurations, args.prefer_general)
-    output_single(configurations, category_to_conf)
-  else:
-    schedule_multiple(args.multi_schedule, category_map, configurations)
+  category_map, raw_category_map = parse_categories(args.category_root)
+  configurations = parse_configurations(args.result_archives, args.e_path, args.conf_root)
+  used_confs = set()
+
+  preproc_sched = schedule(raw_category_map, configurations, 1,
+                           args.max_preprocessing_size, used_confs, True)
+  search_sched = schedule(category_map, configurations, args.min_search_size,
+                          args.max_search_size, used_confs)
+
+  print('// Found {0} confs, using {1}'.format(len(configurations), len(used_confs)))
+  output_used_confs(used_confs)
+  output_schedule("preproc", preproc_sched)
+  output_schedule("search", search_sched)
 
 if __name__ == '__main__':
   main()

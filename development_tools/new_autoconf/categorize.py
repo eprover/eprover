@@ -9,8 +9,6 @@ CATEGORIZATIONS = [PROB_CATEGORIES_FILENAME, PROB_RAW_CATEGORIES_FILENAME]
 UNPARSABLE_CLASS = 'unparsable_class'
 TIMEOUT_CLASS = 'timeout_class'
 ERROR_CLASS = 'error_class'
-CNF_NAME = 'cnf_class'
-RAW_NAME = 'raw_class'
 
 IGNORE_CLASSES = [UNPARSABLE_CLASS, TIMEOUT_CLASS, ERROR_CLASS]
 
@@ -64,53 +62,61 @@ def get_probs(root, prob_filter):
   return all_files
 
 
-def make_class_map(probs, e_classify_bin, e_classify_args,
-                   max_cpus, mask, raw_mask, cnf_timeout, bin_timeout):
-  class_map = {}
-  prob_map = {}
-  try:
-    assert(cnf_timeout is not None)
-    import multiprocessing as m
-    pool = m.Pool(max_cpus)
-    extra_args = ([] if not mask else ["--class-mask="+mask]) +\
-                 ([] if not raw_mask else ["--raw-mask="+raw_mask]) +\
-                 ["--merged-classification="+cnf_timeout]
+def make_class_map(probs, e_classify_bin, e_classify_args, 
+                   max_cpus, mask, raw_mask, timeout):
+  c_maps = []
+  p_maps = []
 
-    classifier = Classifier(e_classify_bin, e_classify_args + extra_args, bin_timeout)
-    classified = pool.imap_unordered(classifier, probs)
+  for extra_args in (([] if not mask else ["--class-mask="+mask]), 
+                     (["--raw-class"] +  ([] if not raw_mask else ["--raw-mask="+raw_mask]))):
+    try:
+      import multiprocessing as m
+      pool = m.Pool(max_cpus)
+      classifier = Classifier(e_classify_bin, e_classify_args + extra_args, timeout)
+      classified = pool.imap_unordered(classifier, probs)
 
-    total_probs = len(probs)
-    for (i, (prob, class_)) in enumerate(classified):
-      import progressbar as pb
-      pb.print_progress_bar(i+1, total_probs)
+      class_map = {}
+      prob_map = {}
+      total_probs = len(probs)
+      for (i, (prob, class_)) in enumerate(classified):
+        import progressbar as pb
+        pb.print_progress_bar(i+1, total_probs)
+        
+        if(class_.startswith("ERROR_CLASS:")):
+          # print('{0}: {1}'.format(prob, class_))
+          class_ = ERROR_CLASS
+        
+        prob = p.basename(prob)
+
+        if(len(class_) == 0):
+          print("empty: {0}".format(prob))
+
+        if class_ not in class_map:
+          class_map[class_] = [prob]
+        else:
+          class_map[class_].append(prob)
+        
+        prob_map[prob] = class_
       
-      if(class_.startswith("ERROR_CLASS:")):
-        # print('{0}: {1}'.format(prob, class_))
-        class_ = ERROR_CLASS
-      
-      prob = p.basename(prob)
-
-      if(len(class_) == 0):
-        print("empty: {0}".format(prob))
-
-      if class_ not in class_map:
-        class_map[class_] = [prob]
-      else:
-        class_map[class_].append(prob)
-      
-      prob_map[prob] = class_
-  except:
-    import traceback
-    print("% Fatal error:{0}".format(traceback.format_exc()))
-  return (class_map, prob_map)
+      # return (class_map, prob_map)
+      c_maps.append(class_map)
+      p_maps.append(prob_map)
+    except:
+      import traceback
+      print("% Fatal error:{0}".format(traceback.format_exc()))
+  return (c_maps, p_maps)
 
 
-def make_class_dirs(class_map, prob_map, out_dir, e_args, raw_mask, mask, cnf_timeout):
+def make_class_dirs(class_maps, prob_maps, out_dir, e_args, raw_mask, mask):
+  CNF_NAME, RAW_NAME = 'cnf_class', 'raw_class'
+
   os.makedirs(p.join(out_dir, CNF_NAME), exist_ok=True)
+  os.makedirs(p.join(out_dir, RAW_NAME), exist_ok=True)
 
-  with open(p.join(out_dir, CNF_NAME, PROB_CATEGORIES_FILENAME), 'w') as fd:
-    for (prob, class_) in prob_map.items():
-      fd.write("{0}:{1}\n".format(prob, class_))
+  for (i, cat_name) in enumerate(CATEGORIZATIONS):
+    with open(p.join(out_dir, cat_name), 'w') as fd:
+      for (prob, class_) in prob_maps[i].items():
+        fd.write("{0}:{1}\n".format(prob, class_))
   
   with open(p.join(out_dir, "description"), 'w') as fd:
     fd.write("The following (non-default) parameters were used:\n")
@@ -119,15 +125,15 @@ def make_class_dirs(class_map, prob_map, out_dir, e_args, raw_mask, mask, cnf_ti
       fd.write("raw_mask: -c{0}\n".format(raw_mask))
     if mask:
       fd.write("mask: -c{0}\n".format(mask))
-    fd.write("cnf_timeout: {0}".format(cnf_timeout))
 
-  for (class_, probs) in class_map.items():
-    if class_:
-      with open(p.join(out_dir, CNF_NAME, class_), 'w') as fd:
-        for prob in probs:
-          fd.write(prob + '\n')
-    else:
-      print('empty_class: {0}'.format(",".join(probs)))
+  for name, c_map in zip([CNF_NAME, RAW_NAME],  class_maps):
+    for (class_, probs) in c_map.items():
+      if class_:
+        with open(p.join(out_dir, name, class_), 'w') as fd:
+          for prob in probs:
+            fd.write(prob + '\n')
+      else:
+        print('empty_class: {0}'.format(",".join(probs)))
 
 
 def init_args():
@@ -147,8 +153,6 @@ def init_args():
                            ' directory is given as the argument all files with .p extension in this'
                            ' directory will be considered; if the argument is a file in which each'
                            ' line is a path to a file then those files will be processed.' )
-  parser.add_argument('cnf_timeout', metavar='CNF_TIMEOUT',
-                      help='timeout for cnf part of classification')
   parser.add_argument('e_classify_args', metavar='E_CLASSIFY_ARGS', nargs='*',
                       help='arguments passed to e_classify')
   parser.add_argument('--filter', dest='filter', default=None,
@@ -163,7 +167,7 @@ def init_args():
   parser.add_argument('--max-cpus', dest='max_cpus', default=os.cpu_count(), type=int,
                       help='maximal number of CPUs to be used for '
                            'categorization. The default is all available CPUs ')
-  parser.add_argument('--binary-timeout', dest='bin_timeout', default=60, type=int,
+  parser.add_argument('--binary-timeout', dest='timeout', default=60, type=int,
                       help='timeout for a single e_classify run')
   args = parser.parse_args()
 
@@ -176,11 +180,11 @@ def main():
   print("Found {0} problems.".format(len(all_probs)))
   class_map, prob_map = make_class_map(all_probs, args.e_classify_path,
                                        args.e_classify_args, args.max_cpus,
-                                       args.mask, args.raw_mask, args.cnf_timeout,
-                                       args.bin_timeout)
-  print("There are {0} classes.".format(len(class_map)))
+                                       args.mask, args.raw_mask,
+                                       args.timeout)
+  print("There are {0}/{1} classes.".format(len(class_map[RAW_CLASS]), len(class_map[CNF_CLASS])))
   make_class_dirs(class_map, prob_map, args.out_dir, args.e_classify_args, 
-                  args.raw_mask, args.mask, args.cnf_timeout)
+                 args.raw_mask, args.mask)
 
 if __name__ == '__main__':
   main()

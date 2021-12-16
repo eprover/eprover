@@ -159,9 +159,9 @@ int main(int argc, char* argv[])
    proof_steps = PCLProtCountProp(prot, PCLIsProofStep);
    neg_steps = proof_steps?neg_proportion*proof_steps:neg_examples;
    PCLProtSelectExamples(prot, neg_steps);
-   locked_fprintf(GlobalOut, "# Axioms:\n");
+   fprintf(GlobalOut, "# Axioms:\n");
    PCLProtPrintPropClauses(GlobalOut, prot, PCLIsInitial, lop_format);
-   locked_fprintf(GlobalOut, ".\n\n# Examples:\n");
+   fprintf(GlobalOut, ".\n\n# Examples:\n");
    PCLProtPrintExamples(GlobalOut, prot);
 
    PCLProtFree(prot);
@@ -240,7 +240,7 @@ CLState_p process_options(int argc, char* argv[])
 
 void print_help(FILE* out)
 {
-   locked_fprintf(out, "\n\
+   fprintf(out, "\n\
 \n"
 NAME " " VERSION "\n\
 \n\
@@ -250,7 +250,7 @@ Parse a full PCL listing (possibly\n\
 spread over multiple files), and generate training examples\n\
 corresponding to the selected clauses.\n");
    PrintOptions(stdout, opts, "Options\n\n");
-   locked_fprintf(out, "\n\n" E_FOOTER);
+   fprintf(out, "\n\n" E_FOOTER);
 }
 
 

@@ -35,8 +35,6 @@ static unsigned int xstate = 123456789,
 
 
 static RandStateCell rand_state = {123456789,987654321,43219876,6543217};
-sem_t* print_mutex = NULL;
-
 
 
 /*---------------------------------------------------------------------*/
@@ -327,38 +325,6 @@ void SetProblemType(ProblemType t)
      Error("Mixing of first order and higer order syntax is not allowed.",
            SYNTAX_ERROR);
   }
-}
-
-/*-----------------------------------------------------------------------
-//
-// Function: TCPReadTextBlock()
-//
-//   If print_mutex is non-NULL, it will lock on it to make sure 
-//   that only one process at the time is printing.
-//
-// Global Variables: -
-//
-// Side Effects    :
-//
-/----------------------------------------------------------------------*/
-
-void locked_fprintf(FILE* file, const char *fmt, ...) 
-{
-   if (print_mutex)
-   {
-      // print mutex must be initialized ONCE before forking 
-      // in main!
-      sem_wait(print_mutex);
-   }
-   va_list args;
-   va_start(args, fmt);
-   vfprintf(file, fmt, args);
-   va_end(args);
-
-   if(print_mutex)
-   {
-      sem_post(print_mutex);
-   }
 }
 
 

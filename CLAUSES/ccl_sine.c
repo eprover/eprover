@@ -659,7 +659,7 @@ long SelectAxioms(GenDistrib_p      f_distrib,
 
    assert(PStackGetSP(clause_sets)==PStackGetSP(formula_sets));
 
-   /* locked_fprintf(GlobalOut, "# Axiom selection starts (%lld)\n",
+   /* fprintf(GlobalOut, "# Axiom selection starts (%lld)\n",
       GetSecTimeMod()); */
    DRelationAddClauseSets(drel, f_distrib,
                           ax_filter->gen_measure,
@@ -672,7 +672,7 @@ long SelectAxioms(GenDistrib_p      f_distrib,
                            ax_filter->generosity,
                            ax_filter->trim_implications,
                            formula_sets);
-   /* locked_fprintf(GlobalOut, "# DRelation constructed (%lld)\n",
+   /* fprintf(GlobalOut, "# DRelation constructed (%lld)\n",
     * GetSecTimeMod()); */
 
    for(i=seed_start; i<PStackGetSP(clause_sets); i++)
@@ -684,9 +684,9 @@ long SelectAxioms(GenDistrib_p      f_distrib,
                                               selq,
                                               ax_filter->use_hypotheses);
    }
-   /* locked_fprintf(GlobalOut, "# Hypotheses found (%lld)\n",
+   /* fprintf(GlobalOut, "# Hypotheses found (%lld)\n",
       GetSecTimeMod()); */
-   VERBOSE(locked_fprintf(stderr, "# Found %ld seed clauses/formulas\n", seeds););
+   VERBOSE(fprintf(stderr, "# Found %ld seed clauses/formulas\n", seeds););
    if(!seeds)
    {
       /* No goals-> the empty set contains all relevant clauses */
@@ -723,7 +723,7 @@ long SelectAxioms(GenDistrib_p      f_distrib,
    }
    PStackFormulaDelProp(res_formulas, CPIsRelevant);
    PStackClauseDelProp(res_clauses, CPIsRelevant);
-   /* locked_fprintf(GlobalOut, "# Axioms selected (%lld)\n",
+   /* fprintf(GlobalOut, "# Axioms selected (%lld)\n",
       GetSecTimeMod()); */
    PQueueFree(selq);
    DRelationFree(drel);
@@ -849,7 +849,7 @@ long SelectDefinitions(PStack_p clause_sets, PStack_p formula_sets,
 
 void DRelPrintDebug(FILE* out, DRel_p rel, Sig_p sig)
 {
-   locked_fprintf(out, "# %6ld %-15s: %6ld clauses, %6ld formulas\n",
+   fprintf(out, "# %6ld %-15s: %6ld clauses, %6ld formulas\n",
            rel->f_code,
            SigFindName(sig, rel->f_code),
            PStackGetSP(rel->d_clauses),
