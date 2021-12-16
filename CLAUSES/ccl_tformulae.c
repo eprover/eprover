@@ -1553,8 +1553,6 @@ void TFormulaTPTPPrint(FILE* out, TB_p bank, TFormula_p form, bool fullterms, bo
       {
          TermPrintDbg(out, form, bank->sig, DEREF_NEVER);
       }
-      fputs("]:", out);
-      TFormulaTPTPPrint(out, bank, form->args[1], fullterms, pcl);
    }
    else if(TFormulaIsUnary(form))
    {

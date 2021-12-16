@@ -38,7 +38,7 @@ def main():
   args = init_args()
   from scheduler import parse_configurations
   if args.pickled_confs is None:
-    confs_dict = parse_configurations(args.result_archives, args.e_path, args.conf_root)
+    confs_dict = parse_configurations(args.result_archives, args.e_path, 100, args.conf_root)
     configurations = list(confs_dict.values())
     with open('pickled_confs.txt', 'wb') as pickle_fd:
       pickle.dump(configurations, pickle_fd)
@@ -70,7 +70,8 @@ def main():
     print("{0} : {1}|{2}|{3}|{4}".format(conf.get_name(), eval[0], eval[1], eval[2], len(conf.get_solved_probs())))
 
   from scheduler import multi_schedule
-  multi_schedule(8, [cat], configurations, "TEST", Configuration.BOTH)
+  print(cat)
+  multi_schedule(8, [cat], configurations, "TEST", Configuration.BOTH, dbg=True)
 
 if __name__ == '__main__':
   main()

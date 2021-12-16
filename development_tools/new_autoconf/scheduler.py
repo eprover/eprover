@@ -225,7 +225,17 @@ def get_best_conf(confs, probs):
 
   return (m_conf, m_eval)
 
+<<<<<<< HEAD
 def schedule(cats, confs, min_size, max_size, used_confs, unique_preproc=False):
+=======
+
+def eval2key(x):
+  return (x[0], x[1], -x[2])
+
+def multi_schedule(num_confs, cats, confs, var_name, json_kind, dbg=False):
+  assert(num_confs >= 2)
+  assert(len(confs) >= num_confs)
+>>>>>>> e787bd886ef162238f9a8a17d73aa8f1d2f6eb74
   cats = cats.values() if type(cats) is dict else cats
   confs = confs.values() if type(confs) is dict else confs
 
@@ -237,6 +247,7 @@ def schedule(cats, confs, min_size, max_size, used_confs, unique_preproc=False):
     
     schedule = []
     remaining_probs = set(cat.get_problems())
+<<<<<<< HEAD
     total_probs = len(remaining_probs)
     sched_size = 0
     remaining_ratio = 1
@@ -252,6 +263,27 @@ def schedule(cats, confs, min_size, max_size, used_confs, unique_preproc=False):
         remaining_ratio -= ratio
         schedule.append( (best_conf, ratio) )
         remaining_probs.difference_update(solved_probs)
+=======
+    for conf in schedule:
+      if dbg:
+        print('{0}: {1}'.format(conf.get_name(), ",".join(conf.get_solved_probs())))
+      remaining_probs = remaining_probs.difference(conf.get_solved_probs())
+    remaining_confs = set(confs).difference(schedule)
+      
+    while remaining_probs and sched_size!=num_confs:
+      best_conf = max(remaining_confs,
+                      key=lambda x: eval2key(x.evaluate_for_probs(remaining_probs)))
+      curr_res = best_conf.evaluate_for_probs(remaining_probs)
+      if curr_res[0] == 0:
+        #no problems can be solved by any of the remaining confs
+        break
+      else:
+        schedule.append(best_conf)
+        if dbg:
+          print('{0}: {1}'.format(best_conf.get_name(), 
+                                  ",".join(remaining_probs.intersection(best_conf.get_solved_probs()))))
+        remaining_probs = remaining_probs.difference(best_conf.get_solved_probs())
+>>>>>>> e787bd886ef162238f9a8a17d73aa8f1d2f6eb74
         remaining_confs.remove(best_conf)
         if unique_preproc:
           same_preproc = filter(lambda x: x.get_preprocess_params() 
@@ -273,6 +305,14 @@ def schedule(cats, confs, min_size, max_size, used_confs, unique_preproc=False):
                              reverse=True)[:to_add])
 
     res[cat] = schedule
+<<<<<<< HEAD
+=======
+  
+  if not dbg:
+    output_multi_schedule(res, num_confs, var_name, 
+                          var_name.replace('categories', 'confs'),
+                          json_kind)
+>>>>>>> e787bd886ef162238f9a8a17d73aa8f1d2f6eb74
 
 def output_used_confs(confs):
   print('StrStrPair conf_map[] =\n  {');
