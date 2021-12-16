@@ -199,7 +199,7 @@ int main(int argc, char* argv[])
          else if(pid > 0)
          {
             close(sock_fd);
-            locked_fprintf(stdout, "Client connected ..\n");
+            fprintf(stdout, "Client connected ..\n");
             fflush(stdout);
             continue;
          }
@@ -266,7 +266,7 @@ CLState_p process_options(int argc, char* argv[])
             exit(NO_ERROR);
             break;
       case OPT_VERSION:
-            locked_fprintf(stdout, NAME " " VERSION " " E_NICKNAME "\n");
+            fprintf(stdout, NAME " " VERSION " " E_NICKNAME "\n");
             exit(NO_ERROR);
             break;
       case OPT_PORT:
@@ -294,7 +294,7 @@ CLState_p process_options(int argc, char* argv[])
 
 void print_help(FILE* out)
 {
-   locked_fprintf(out, "\n"
+   fprintf(out, "\n"
            NAME " " VERSION " \"" E_NICKNAME "\"\n\
 \n                                                \
 Usage: " NAME " -p <port> [options] [files]\n     \
@@ -303,7 +303,7 @@ The E deduction server offers deduction services based on local or\n    \
 uploaded axiom sets via network. See README.server.\n                   \
 \n");
    PrintOptions(stdout, opts, "Options:\n\n");
-   locked_fprintf(out, "\n\n" E_FOOTER);
+   fprintf(out, "\n\n" E_FOOTER);
 }
 
 

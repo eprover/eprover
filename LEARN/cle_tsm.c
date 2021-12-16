@@ -763,7 +763,7 @@ IndexType TSMFindOptimalIndex(TSMAdmin_p admin, FlatAnnoSet_p set,
    *depth = best_depth;
    if(OutputLevel)
    {
-      locked_fprintf(GlobalOut, "# Selected: %2d  depth: %2ld\n", best_index,
+      fprintf(GlobalOut, "# Selected: %2d  depth: %2ld\n", best_index,
               best_depth);
    }
    return best_index;
@@ -1337,7 +1337,7 @@ void TSMPrintFlat(FILE* out, TSM_p tsm)
       tsa = PDArrayElementP(tsm->tsas, i);
       if(tsa)
       {
-         locked_fprintf(out, "# %3ld: Weight = %6.3f EvalWeight = %6.3f\n",
+         fprintf(out, "# %3ld: Weight = %6.3f EvalWeight = %6.3f\n",
                  i, tsa->eval, tsa->eval_weight);
       }
    }
@@ -1371,7 +1371,7 @@ void TSMPrintRek(FILE* out, TSMAdmin_p admin, TSM_p tsm, int depth)
       tsa = PDArrayElementP(tsm->tsas, i);
       if(tsa)
       {
-         locked_fprintf(out, pattern,"",
+         fprintf(out, pattern,"",
                  i, tsa->eval, tsa->eval_weight);
          for(j=0; j<tsa->arity; j++)
          {

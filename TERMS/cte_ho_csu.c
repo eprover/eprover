@@ -105,13 +105,6 @@ void dbg_print_state(FILE* out, CSUIterator_p iter)
    {
       PQueue_p q = iter->constraints;
       fprintf(stderr, "%ld", PQueueCardinality(q));
-      // for(int i=q->tail; i != q->head; i = (i + 2) % q->size)
-      // {
-      //    TermPrintDbg(out, q->queue[i].p_val, bank->sig, DEREF_NEVER);
-      //    fprintf(out, ", ");
-      //    TermPrintDbg(out, q->queue[(i+1) % q->size].p_val, bank->sig, DEREF_NEVER);
-      //    fprintf(out, ";");
-      // }
    }
    fprintf(out, "]\nbt_size:%ld\n", PStackGetSP(iter->backtrack_info));
    SubstPrint(out, iter->subst, bank->sig, DEREF_NEVER);

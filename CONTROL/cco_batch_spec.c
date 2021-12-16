@@ -144,14 +144,14 @@ EPCtrl_p batch_create_runner(StructFOFSpec_p ctrl,
    PStack_p cspec = PStackAlloc();
    PStack_p fspec = PStackAlloc();
 
-   locked_fprintf(GlobalOut, "# Filtering for ");
+   fprintf(GlobalOut, "# Filtering for ");
    AxFilterPrint(GlobalOut, ax_filter);
-   locked_fprintf(GlobalOut, " (%lld)\n", GetSecTimeMod());
+   fprintf(GlobalOut, " (%lld)\n", GetSecTimeMod());
    StructFOFSpecGetProblem(ctrl,
                            ax_filter,
                            cspec,
                            fspec);
-   /* locked_fprintf(GlobalOut, "# Spec has %d clauses and %d formulas (%lld)\n",
+   /* fprintf(GlobalOut, "# Spec has %d clauses and %d formulas (%lld)\n",
       PStackGetSP(cspec), PStackGetSP(fspec), GetSecTimeMod()); */
 
    file = TempFileName();
@@ -164,7 +164,7 @@ EPCtrl_p batch_create_runner(StructFOFSpec_p ctrl,
    //printf("=======================================\n");
    //FilePrint(stdout, file);
    //printf("=======================================\n");
-   /* locked_fprintf(GlobalOut, "# Written new problem (%lld)\n",
+   /* fprintf(GlobalOut, "# Written new problem (%lld)\n",
     * GetSecTimeMod()); */
 
    AxFilterPrintBuf(name, 320, ax_filter);
@@ -234,23 +234,23 @@ void print_op_line(FILE* out, BatchSpec_p spec, BOOutputType state)
 {
    if( spec->res_assurance == state)
    {
-      locked_fprintf(out,  " Assurance");
+      fprintf(out,  " Assurance");
    }
    if( spec->res_proof == state)
    {
-      locked_fprintf(out, " Proof");
+      fprintf(out, " Proof");
    }
    if( spec->res_model == state)
    {
-      locked_fprintf(out, " Model");
+      fprintf(out, " Model");
    }
    if( spec->res_answer == state)
    {
-      locked_fprintf(out, " Answer");
+      fprintf(out, " Answer");
    }
    if( spec->res_list_fof == state)
    {
-      locked_fprintf(out, " ListOfFOF");
+      fprintf(out, " ListOfFOF");
    }
 }
 
@@ -439,45 +439,45 @@ void BatchSpecPrint(FILE* out, BatchSpec_p spec)
 {
    PStackPointer i;
 
-   locked_fprintf(out, "%% SZS start BatchConfiguration\n");
-   locked_fprintf(out, "division.category %s\n", spec->category);
+   fprintf(out, "%% SZS start BatchConfiguration\n");
+   fprintf(out, "division.category %s\n", spec->category);
    if(spec->train_dir)
    {
-      locked_fprintf(out, "division.category.training_directory %s\n",
+      fprintf(out, "division.category.training_directory %s\n",
               spec->train_dir);
    }
    if(spec->ordered)
    {
-      locked_fprintf(out, "execution.order ordered\n");
+      fprintf(out, "execution.order ordered\n");
    }
-   locked_fprintf(out, "output.required");
+   fprintf(out, "output.required");
    print_op_line(out, spec, BORequired);
-   locked_fprintf(out, "\n");
+   fprintf(out, "\n");
 
-   locked_fprintf(out, "output.desired");
+   fprintf(out, "output.desired");
    print_op_line(out, spec, BODesired);
-   locked_fprintf(out, "\n");
+   fprintf(out, "\n");
 
-   locked_fprintf(out, "limit.time.problem.wc %ld\n", spec->per_prob_limit);
-   locked_fprintf(out, "limit.time.overall.wc %ld\n", spec->total_wtc_limit);
-   locked_fprintf(out, "%% SZS end BatchConfiguration\n");
-   locked_fprintf(out, "%% SZS start BatchIncludes\n");
+   fprintf(out, "limit.time.problem.wc %ld\n", spec->per_prob_limit);
+   fprintf(out, "limit.time.overall.wc %ld\n", spec->total_wtc_limit);
+   fprintf(out, "%% SZS end BatchConfiguration\n");
+   fprintf(out, "%% SZS start BatchIncludes\n");
 
    for(i=0; i<PStackGetSP(spec->includes); i++)
    {
-      locked_fprintf(out, "include('%s').\n",
+      fprintf(out, "include('%s').\n",
               (char*)PStackElementP(spec->includes, i));
    }
-   locked_fprintf(out, "%% SZS end BatchIncludes\n");
-   locked_fprintf(out, "%% SZS start BatchProblems\n");
+   fprintf(out, "%% SZS end BatchIncludes\n");
+   fprintf(out, "%% SZS start BatchProblems\n");
 
    for(i=0; i<PStackGetSP(spec->source_files); i++)
    {
-      locked_fprintf(out, "%s %s\n",
+      fprintf(out, "%s %s\n",
               (char*)PStackElementP(spec->source_files, i),
               (char*)PStackElementP(spec->dest_files, i));
    }
-   locked_fprintf(out, "%% SZS end BatchProblems\n");
+   fprintf(out, "%% SZS end BatchProblems\n");
 }
 
 
@@ -768,12 +768,12 @@ bool BatchProcessProblem(BatchSpec_p spec,
 
    if(handle)
    {
-      locked_fprintf(GlobalOut, "%s for %s\n", PRResultTable[handle->result], jobname);
+      fprintf(GlobalOut, "%s for %s\n", PRResultTable[handle->result], jobname);
       res = true;
       now = GetSecTime();
       used = now - handle->start_time;
       remaining = handle->prob_time - used;
-      locked_fprintf(GlobalOut,
+      fprintf(GlobalOut,
               "# Solution found by %s (started %lld, remaining %lld)\n",
               handle->name, handle->start_time, remaining);
       if(out!=GlobalOut)
@@ -784,20 +784,20 @@ bool BatchProcessProblem(BatchSpec_p spec,
          }
          else
          {
-            locked_fprintf(out, "%s for %s\n", PRResultTable[handle->result], jobname);
-            locked_fprintf(out, "%s", DStrView(handle->output));
+            fprintf(out, "%s for %s\n", PRResultTable[handle->result], jobname);
+            fprintf(out, "%s", DStrView(handle->output));
             fflush(out);
          }
 
       }
       if(interactive)
       {
-         locked_fprintf(GlobalOut, "%s", DStrView(handle->output));
+         fprintf(GlobalOut, "%s", DStrView(handle->output));
       }
    }
    else
    {
-      locked_fprintf(GlobalOut, "# SZS status GaveUp for %s\n", jobname);
+      fprintf(GlobalOut, "# SZS status GaveUp for %s\n", jobname);
       if(out!=GlobalOut)
       {
 
@@ -809,7 +809,7 @@ bool BatchProcessProblem(BatchSpec_p spec,
          }
          else
          {
-            locked_fprintf(out, "%s", buffer);
+            fprintf(out, "%s", buffer);
             fflush(out);
          }
       }
@@ -852,8 +852,8 @@ bool BatchProcessFile(BatchSpec_p spec,
    FormulaSet_p fset;
    FILE* fp;
 
-   locked_fprintf(GlobalOut, "\n# Processing %s -> %s\n", source, dest);
-   locked_fprintf(GlobalOut, "# SZS status Started for %s\n", source);
+   fprintf(GlobalOut, "\n# Processing %s -> %s\n", source, dest);
+   fprintf(GlobalOut, "# SZS status Started for %s\n", source);
    fflush(GlobalOut);
 
    in = CreateScanner(StreamTypeFile, source, true, default_dir, true);
@@ -881,7 +881,7 @@ bool BatchProcessFile(BatchSpec_p spec,
                              false);
    SecureFClose(fp);
 
-   locked_fprintf(GlobalOut, "# SZS status Ended for %s\n\n", source);
+   fprintf(GlobalOut, "# SZS status Ended for %s\n\n", source);
    fflush(GlobalOut);
 
    return res;
@@ -996,11 +996,11 @@ void BatchProcessInteractive(BatchSpec_p spec,
    {
       DStrReset(input);
 
-      locked_fprintf(fp, "# Enter job, 'help' or 'quit', followed by 'go.' on a line of its own:\n");
+      fprintf(fp, "# Enter job, 'help' or 'quit', followed by 'go.' on a line of its own:\n");
       fflush(fp);
       if(!ReadTextBlock(input, stdin, "go.\n"))
       {
-         locked_fprintf(fp, "# Error: Read failed (probably EOF)\n");
+         fprintf(fp, "# Error: Read failed (probably EOF)\n");
          break;
       }
 
@@ -1015,7 +1015,7 @@ void BatchProcessInteractive(BatchSpec_p spec,
       }
       else if(TestInpId(in, "help"))
       {
-         locked_fprintf(fp, "\
+         fprintf(fp, "\
 # Enter a job, 'help' or 'quit'. Finish any action with 'go.' on a line\n\
 # of its own. A job consists of an optional job name specifier of the\n\
 # form 'job <ident>.', followed by a specification of a first-order\n\
@@ -1038,7 +1038,7 @@ void BatchProcessInteractive(BatchSpec_p spec,
          {
             DStrAppendStr(jobname, "unnamed_job");
          }
-         locked_fprintf(fp, "\n# Processing started for %s\n", DStrView(jobname));
+         fprintf(fp, "\n# Processing started for %s\n", DStrView(jobname));
 
          dummy = ClauseSetAlloc();
          fset = FormulaSetAlloc();
@@ -1057,7 +1057,7 @@ void BatchProcessInteractive(BatchSpec_p spec,
                                    fp,
                                    -1,
                                    true);
-         locked_fprintf(fp, "\n# Processing finished for %s\n\n", DStrView(jobname));
+         fprintf(fp, "\n# Processing finished for %s\n\n", DStrView(jobname));
       }
       DestroyScanner(in);
    }
@@ -1102,7 +1102,7 @@ void BatchProcessVariants(BatchSpec_p spec, char* variants[], char* provers[],
    var_count    = StringArrayCardinality(variants);
 
    concrete_prob_count = prob_count*var_count;
-   locked_fprintf(GlobalOut,
+   fprintf(GlobalOut,
            "# Initial: %ld abstract problems, %ld variants, %ld concrete problems\n",
            prob_count, var_count, concrete_prob_count);
    for(variant = 0; variants[variant]; variant++)
@@ -1113,10 +1113,10 @@ void BatchProcessVariants(BatchSpec_p spec, char* variants[], char* provers[],
       remaining = spec->total_wtc_limit-(now-start);
       concrete_prob_count = (prob_count-solved_count)*(var_count-variant);
 
-      locked_fprintf(GlobalOut, "# Round %ld, working on variant %s, remaining time %lds\n",
+      fprintf(GlobalOut, "# Round %ld, working on variant %s, remaining time %lds\n",
               variant, variants[variant], remaining);
 
-      locked_fprintf(GlobalOut, "# %ld unsolved abstract problems, %ld remaining variants,"
+      fprintf(GlobalOut, "# %ld unsolved abstract problems, %ld remaining variants,"
               " %ld concrete problems\n",
               prob_count-solved_count, var_count-variant, concrete_prob_count);
 
@@ -1140,7 +1140,7 @@ void BatchProcessVariants(BatchSpec_p spec, char* variants[], char* provers[],
          abstract_name = PStackElementP(spec->source_files, i);
          if(PDArrayElementInt(solved, i))
          {
-            locked_fprintf(GlobalOut, "# Abstract problem %s already solved\n",
+            fprintf(GlobalOut, "# Abstract problem %s already solved\n",
                     abstract_name);
          }
          else
@@ -1150,7 +1150,7 @@ void BatchProcessVariants(BatchSpec_p spec, char* variants[], char* provers[],
             per_prob_time = (remaining/concrete_prob_count)+1;
 
             concrete_name = abstract_to_concrete(abstract_name, variants[variant], ".p");
-            locked_fprintf(GlobalOut, "# Trying abstract problem %s via %s for %lds\n",
+            fprintf(GlobalOut, "# Trying abstract problem %s via %s for %lds\n",
                     abstract_name, concrete_name, per_prob_time);
 
             DStrReset(dest_name);

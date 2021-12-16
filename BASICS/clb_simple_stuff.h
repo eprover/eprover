@@ -94,21 +94,19 @@ void   SetProblemType(ProblemType t);
 
 #ifndef NDEBUG
 #define DBG_PRINT(out, prefix, main, suffix) \
-   locked_fprintf(out, "%s", prefix);\
+   fprintf(out, "%s", prefix);\
    main;\
-   locked_fprintf(out, "%s", suffix)
+   fprintf(out, "%s", suffix)
 
 #define DBG_TPRINT(out, prefix, term, suffix) \
-   locked_fprintf(out, "%s", prefix);\
+   fprintf(out, "%s", prefix);\
    TermPrintDbg(out, term, TermGetBank(term)->sig, DEREF_NEVER);\
-   locked_fprintf(out, "%s", suffix)
+   fprintf(out, "%s", suffix)
 #else
 #define DBG_PRINT(out, prefix, main, suffix) ((void)0)
 #define DBG_TPRINT(out, prefix, main, suffix) ((void)0)
 #endif
 
-extern sem_t* print_mutex;
-void locked_fprintf(FILE* file, const char *fmt, ...);
 
 
 #endif

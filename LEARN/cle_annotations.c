@@ -238,11 +238,11 @@ void AnnotationPrint(FILE* out, Annotation_p anno)
    long i;
    char* sep = "";
 
-   locked_fprintf(out, "%ld:(", anno->key);
+   fprintf(out, "%ld:(", anno->key);
    for(i=0; i< anno->val2.i_val; i++)
    {
       fputs(sep, out);
-      locked_fprintf(out, "%f", DDArrayElement(anno->val1.p_val, i));
+      fprintf(out, "%f", DDArrayElement(anno->val1.p_val, i));
       sep = ",";
    }
    fputc(')', out);

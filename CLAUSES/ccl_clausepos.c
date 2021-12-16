@@ -70,7 +70,7 @@ void ClausePosPrint(FILE* out, ClausePos_p pos)
    {
       i++;
    }
-   locked_fprintf(out, "%ld.%ld.%c.", pos->clause->ident, i,
+   fprintf(out, "%ld.%ld.%c.", pos->clause->ident, i,
            pos->side==RightSide?'R':'L');
    TermPosPrint(out, pos->pos);
 }

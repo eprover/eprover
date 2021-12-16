@@ -56,7 +56,7 @@ static void print_var_pattern(FILE* out, char* symbol, int arity, char*
    char* prefix = "";
    alt_var = !alt_var ? "" : alt_var; // silence compiler warning
 
-   locked_fprintf(out, "%s(", symbol);
+   fprintf(out, "%s(", symbol);
 
    for(i=1; i<= arity; i++)
    {
@@ -67,11 +67,11 @@ static void print_var_pattern(FILE* out, char* symbol, int arity, char*
       }
       else
       {
-         locked_fprintf(out, "%s%d", var, i);
+         fprintf(out, "%s%d", var, i);
       }
       prefix = ",";
    }
-   locked_fprintf(out, ")");
+   fprintf(out, ")");
 }
 
 
@@ -97,27 +97,27 @@ static void eq_func_axiom_print(FILE* out, char* symbol, int arity,
    {
       for(i=1; i<=arity; i++)
       {
-         locked_fprintf(out, "equal(");
+         fprintf(out, "equal(");
          print_var_pattern(out, symbol, arity, "X", "Y", i);
-         locked_fprintf(out, ",");
+         fprintf(out, ",");
          print_var_pattern(out, symbol, arity, "X", "Z", i);
-         locked_fprintf(out, ") <- ");
-         locked_fprintf(out, "equal(Y,Z).\n");
+         fprintf(out, ") <- ");
+         fprintf(out, "equal(Y,Z).\n");
       }
    }
    else
    {
-      locked_fprintf(out, "equal(");
+      fprintf(out, "equal(");
       print_var_pattern(out, symbol, arity, "X", NULL,0);
-      locked_fprintf(out, ",");
+      fprintf(out, ",");
       print_var_pattern(out, symbol, arity, "Y", NULL,0);
-      locked_fprintf(out, ") <- ");
+      fprintf(out, ") <- ");
       for(i=1; i<=arity; i++)
       {
-         locked_fprintf(out, "%sequal(X%d,Y%d)", prefix, i, i);
+         fprintf(out, "%sequal(X%d,Y%d)", prefix, i, i);
          prefix = ",";
       }
-      locked_fprintf(out, ".\n");
+      fprintf(out, ".\n");
    }
 }
 
@@ -143,21 +143,21 @@ static void eq_pred_axiom_print(FILE* out, char* symbol, int arity,
       for(i=1; i<=arity; i++)
       {
          print_var_pattern(out, symbol, arity, "X", "Y", i);
-         locked_fprintf(out, " <- ");
+         fprintf(out, " <- ");
          print_var_pattern(out, symbol, arity, "X", "Z", i);
-         locked_fprintf(out, ", equal(Y,Z).\n");
+         fprintf(out, ", equal(Y,Z).\n");
       }
    }
    else
    {
       print_var_pattern(out, symbol, arity, "X", NULL,0);
-      locked_fprintf(out, " <- ");
+      fprintf(out, " <- ");
       print_var_pattern(out, symbol, arity, "Y", NULL,0);
       for(i=1; i<=arity; i++)
       {
-         locked_fprintf(out, ",equal(X%d,Y%d)", i, i);
+         fprintf(out, ",equal(X%d,Y%d)", i, i);
       }
-      locked_fprintf(out, ".\n");
+      fprintf(out, ".\n");
    }
 }
 
@@ -183,28 +183,28 @@ static void tptp_eq_func_axiom_print(FILE* out, char* symbol, int arity,
    {
       for(i=1; i<=arity; i++)
       {
-         locked_fprintf(out, "input_clause(eq_subst_%s%d, axiom, [++equal(",
+         fprintf(out, "input_clause(eq_subst_%s%d, axiom, [++equal(",
                  symbol, i);
          print_var_pattern(out, symbol, arity, "X", "Y", i);
-         locked_fprintf(out, ",");
+         fprintf(out, ",");
          print_var_pattern(out, symbol, arity, "X", "Z", i);
-         locked_fprintf(out, "),");
-         locked_fprintf(out, "--equal(Y,Z)]).\n");
+         fprintf(out, "),");
+         fprintf(out, "--equal(Y,Z)]).\n");
       }
    }
    else
    {
-      locked_fprintf(out, "input_clause(eq_subst_%s, axiom, [++equal(",
+      fprintf(out, "input_clause(eq_subst_%s, axiom, [++equal(",
               symbol);
       print_var_pattern(out, symbol, arity, "X", NULL,0);
-      locked_fprintf(out, ",");
+      fprintf(out, ",");
       print_var_pattern(out, symbol, arity, "Y", NULL,0);
-      locked_fprintf(out, ")");
+      fprintf(out, ")");
       for(i=1; i<=arity; i++)
       {
-         locked_fprintf(out, ",--equal(X%d,Y%d)", i, i);
+         fprintf(out, ",--equal(X%d,Y%d)", i, i);
       }
-      locked_fprintf(out, "]).\n");
+      fprintf(out, "]).\n");
    }
 }
 
@@ -229,26 +229,26 @@ static void tptp_eq_pred_axiom_print(FILE* out, char* symbol, int arity,
    {
       for(i=1; i<=arity; i++)
       {
-         locked_fprintf(out, "input_clause(eq_subst_%s%d, axiom, [++",
+         fprintf(out, "input_clause(eq_subst_%s%d, axiom, [++",
                  symbol, i);
          print_var_pattern(out, symbol, arity, "X", "Y", i);
-         locked_fprintf(out, ",--");
+         fprintf(out, ",--");
          print_var_pattern(out, symbol, arity, "X", "Z", i);
-         locked_fprintf(out, ",--equal(Y,Z)]).\n");
+         fprintf(out, ",--equal(Y,Z)]).\n");
       }
    }
    else
    {
-      locked_fprintf(out, "input_clause(eq_subst_%s, axiom, [++",
+      fprintf(out, "input_clause(eq_subst_%s, axiom, [++",
               symbol);
       print_var_pattern(out, symbol, arity, "X", NULL,0);
-      locked_fprintf(out, ",--");
+      fprintf(out, ",--");
       print_var_pattern(out, symbol, arity, "Y", NULL,0);
       for(i=1; i<=arity; i++)
       {
-         locked_fprintf(out, ",--equal(X%d,Y%d)", i, i);
+         fprintf(out, ",--equal(X%d,Y%d)", i, i);
       }
-      locked_fprintf(out, "]).\n");
+      fprintf(out, "]).\n");
    }
 }
 
@@ -1817,7 +1817,7 @@ void EqAxiomsPrint(FILE* out, Sig_p sig, bool single_subst)
 
    if(OutputFormat == TPTPFormat)
    {
-      locked_fprintf(out,
+      fprintf(out,
               "input_clause(eq_reflexive, axiom, [++equal(X,X)]).\n"
               "input_clause(eq_symmetric, axiom,"
               " [++equal(X,Y),--equal(Y,X)]).\n"
@@ -1847,7 +1847,7 @@ void EqAxiomsPrint(FILE* out, Sig_p sig, bool single_subst)
    }
    else
    {
-      locked_fprintf(out,
+      fprintf(out,
               "equal(X,X) <- .\n"
               "equal(X,Y) <- equal(Y,X).\n"
               "equal(X,Z) <- equal(X,Y), equal(Y,Z).\n");

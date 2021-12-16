@@ -84,7 +84,7 @@ void print_lvl(FILE* out, int level)
 {
    for(int i=0; i<level; i++)
    {
-      locked_fprintf(out, "--");
+      fprintf(out, "--");
    }
 }
 
@@ -112,7 +112,7 @@ void print_clauses(FILE* out, PTree_p clauses, int level, bool fullterms)
       cl_handle = node->key;
       print_lvl(out, level);
       ClausePrint(out, cl_handle, fullterms);
-      locked_fprintf(stderr, " \n");
+      fprintf(stderr, " \n");
    }
 
    PTreeTraverseExit(stack);
@@ -147,7 +147,7 @@ void fv_index_print(FILE* out, FVIndex_p index, bool fullterms, int level)
       while((succ = IntMapIterNext(iterator, &key)))
       {
          print_lvl(out, level);
-         locked_fprintf(stderr, "Alternative %ld: \n", key);
+         fprintf(stderr, "Alternative %ld: \n", key);
 
          fv_index_print(out, succ, fullterms, level+1);
       }
@@ -342,7 +342,7 @@ void FVIAnchorFree(FVIAnchor_p junk)
 {
    assert(junk);
 
-   /* locked_fprintf(GlobalOut,
+   /* fprintf(GlobalOut,
       "# Freeing FVIndex. %ld leaves, %ld empty. Total nodes: %ld. Mem: %ld\n",
       FVIndexCountNodes(junk->index, true, false),
       FVIndexCountNodes(junk->index, true, true),
@@ -568,7 +568,7 @@ FVPackedClause_p FVIndexPackClause(Clause_p clause, FVIAnchor_p anchor)
 
 void FVIndexPrint(FILE* out, FVIndex_p index, bool fullterms)
 {
-   locked_fprintf(stderr, "* ROOT *\n");
+   fprintf(stderr, "* ROOT *\n");
    fv_index_print(out, index, fullterms, 0);
 }
 

@@ -269,11 +269,11 @@ void ClauseTPosTreeDeleteClause(ClauseTPosTree_p *tree, Clause_p clause)
 
 void ClauseTPosTreePrint(FILE* out, ClauseTPos_p tree)
 {
-   locked_fprintf(out, "OLs: ");
+   fprintf(out, "OLs: ");
    ClausePrint(out, tree->clause, true);
-   locked_fprintf(out, "\nocc: ");
+   fprintf(out, "\nocc: ");
    NumTreeDebugPrint(out, tree->pos, true);
-   locked_fprintf(out, "\n");
+   fprintf(out, "\n");
 }
 
 

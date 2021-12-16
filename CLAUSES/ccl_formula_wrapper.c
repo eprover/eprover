@@ -401,10 +401,10 @@ void WFormulaTPTPPrint(FILE* out, WFormula_p form, bool fullterms)
     typename = "unknown";
     break;
    }
-   locked_fprintf(out, "input_formula(%s,%s,", WFormulaGetId(form), typename);
+   fprintf(out, "input_formula(%s,%s,", WFormulaGetId(form), typename);
 
    TFormulaTPTPPrint(out, form->terms, form->tformula,fullterms, false);
-   locked_fprintf(out,").");
+   fprintf(out,").");
 }
 
 
@@ -507,13 +507,13 @@ WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms)
       }
       else
       {
-         // locked_fprintf(stderr, "# TFormula Start!\n");
+         // fprintf(stderr, "# TFormula Start!\n");
          tform = TFormulaTSTPParse(in, terms);
-         // locked_fprintf(stderr, "# TFormula parsed!: ");
+         // fprintf(stderr, "# TFormula parsed!: ");
          // TFormulaTPTPPrint(stderr, terms, tform, true, false);
-         // locked_fprintf(stderr, " : ");
+         // fprintf(stderr, " : ");
          // TermPrintDbg(stderr, tform, terms->sig, DEREF_NEVER);
-         // locked_fprintf(stderr, ";\n");
+         // fprintf(stderr, ";\n");
       }
 
 
@@ -618,8 +618,8 @@ void WFormulaTSTPPrint(FILE* out, WFormula_p form, bool fullterms,
    default:
     break;
    }
-   locked_fprintf(out, "%s(%s, %s", formula_kind, WFormulaGetId(form), typename);
-   locked_fprintf(out, ", ");
+   fprintf(out, "%s(%s, %s", formula_kind, WFormulaGetId(form), typename);
+   fprintf(out, ", ");
 
    if(form->is_clause)
    {
@@ -631,12 +631,12 @@ void WFormulaTSTPPrint(FILE* out, WFormula_p form, bool fullterms,
    {
       TFormulaTPTPPrint(out, form->terms, form->tformula,fullterms, false);
       // TermPrintDbg(out, form->tformula, form->terms->sig, DEREF_NEVER);
-      //locked_fprintf(out, "");
-      //locked_fprintf(out, "<dummy %p in %p>", form->tformula, form->terms);
+      //fprintf(out, "");
+      //fprintf(out, "<dummy %p in %p>", form->tformula, form->terms);
    }
    if(complete)
    {
-      locked_fprintf(out, ").");
+      fprintf(out, ").");
    }
 }
 
@@ -684,12 +684,12 @@ void WFormulaAppEncode(FILE* out, WFormula_p form)
    default:
     break;
    }
-   locked_fprintf(out, "%s(%s, %s", formula_kind, WFormulaGetId(form), typename);
-   locked_fprintf(out, ", ");
+   fprintf(out, "%s(%s, %s", formula_kind, WFormulaGetId(form), typename);
+   fprintf(out, ", ");
 
    assert(!form->is_clause);
    TFormulaAppEncode(out, form->terms, form->tformula);
-   locked_fprintf(out, ").");
+   fprintf(out, ").");
 }
 
 

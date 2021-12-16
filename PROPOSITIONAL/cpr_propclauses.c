@@ -227,23 +227,23 @@ void DPLLClausePrintLOP(FILE* out, PropSig_p psig, DPLLClause_p clause)
    {
       if(clause->literals[i]>0)
       {
-    locked_fprintf(out, "%s%s", sep,
+    fprintf(out, "%s%s", sep,
        PropSigGetAtomName(psig,clause->literals[i]));
     sep=";";
       }
    }
-   locked_fprintf(out,"<-");
+   fprintf(out,"<-");
    sep="";
    for(i=0; i<clause->lit_no;i++)
    {
       if(clause->literals[i]<0)
       {
-    locked_fprintf(out, "%s%s", sep,
+    fprintf(out, "%s%s", sep,
        PropSigGetAtomName(psig,-clause->literals[i]));
     sep=",";
       }
    }
-   locked_fprintf(out,".");
+   fprintf(out,".");
 }
 
 /*-----------------------------------------------------------------------
@@ -269,9 +269,9 @@ void DPLLClausePrintDimacs(FILE* out,DPLLClause_p clause)
    unsigned int i;
    for(i=0; i<clause->lit_no;i++)
    {
-      locked_fprintf(out,"%ld ", clause->literals[i]);
+      fprintf(out,"%ld ", clause->literals[i]);
    }
-   locked_fprintf(out, "0\n");
+   fprintf(out, "0\n");
 }
 
 

@@ -343,7 +343,7 @@ long PCLExprProofSize(PCLProt_p prot, PCLExpr_p expr, InferenceWeight_p iw,
       }
       else
       {
-    PCLExprPrint(stderr, expr, false); locked_fprintf(stderr, "  ");
+    PCLExprPrint(stderr, expr, false); fprintf(stderr, "  ");
     Error("Reference to non-existing step", SYNTAX_ERROR);
       }
    }

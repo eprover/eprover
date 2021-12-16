@@ -382,9 +382,9 @@ Type_p TypeBankInsertTypeShared(TypeBank_p bank, Type_p t)
          res->type_uid = ++bank->types_count;
          if (Verbose > 1)
          {
-            locked_fprintf(stderr, "# Type ");
+            fprintf(stderr, "# Type ");
             TypePrintTSTP(stderr, bank, t);
-            locked_fprintf(stderr, " is inserted.\n");
+            fprintf(stderr, " is inserted.\n");
          }
       }
       else
@@ -431,7 +431,7 @@ TypeConsCode TypeBankDefineTypeConstructor(TypeBank_p bank, const char* name, in
 
          if (Verbose > 1)
          {
-            locked_fprintf(stderr, "# previous arity was %ld, now it is %d.\n", GetArity(node), arity);
+            fprintf(stderr, "# previous arity was %ld, now it is %d.\n", GetArity(node), arity);
          }
 
          Error(DStrView(err_msg), SYNTAX_ERROR);
@@ -731,19 +731,19 @@ void TypePrintTSTP(FILE* out, TypeBank_p bank, Type_p type)
          if(nr_of_args == 1)
          {
             TypePrintTSTP(out, bank, type->args[0]);
-            locked_fprintf(out, " > ");
+            fprintf(out, " > ");
             TypePrintTSTP(out, bank, type->args[1]);
          }
          else
          {
-            locked_fprintf(out, "(");
+            fprintf(out, "(");
             for(int i=0; i<nr_of_args-1; i++)
             {
                TypePrintTSTP(out, bank, type->args[i]);
-               locked_fprintf(out, " * ");
+               fprintf(out, " * ");
             }
             TypePrintTSTP(out, bank, type->args[nr_of_args-1]);
-            locked_fprintf(out, ") > ");
+            fprintf(out, ") > ");
 
             TypePrintTSTP(out, bank, type->args[type->arity-1]);
          }
@@ -754,31 +754,31 @@ void TypePrintTSTP(FILE* out, TypeBank_p bank, Type_p type)
          {
             if(TypeIsArrow(type->args[i]))
             {
-               locked_fprintf(out, "(");
+               fprintf(out, "(");
             }
             TypePrintTSTP(out, bank, type->args[i]);
             if(TypeIsArrow(type->args[i]))
             {
-               locked_fprintf(out, ")");
+               fprintf(out, ")");
             }
-            locked_fprintf(out, " > ");
+            fprintf(out, " > ");
          }
          TypePrintTSTP(out, bank, type->args[type->arity-1]);
       }
    }
    else
    {
-      locked_fprintf(out, "%s", TypeBankFindTCName(bank, type->f_code));
+      fprintf(out, "%s", TypeBankFindTCName(bank, type->f_code));
       if(type->arity)
       {
-         locked_fprintf(out, "(");
+         fprintf(out, "(");
          for(int i=0; i<type->arity-1; i++)
          {
             TypePrintTSTP(out, bank, type->args[i]);
-            locked_fprintf(out, ", ");
+            fprintf(out, ", ");
          }
          TypePrintTSTP(out, bank, type->args[type->arity-1]);
-         locked_fprintf(out, ")");
+         fprintf(out, ")");
       }
    }
 }
@@ -887,11 +887,11 @@ void TypeBankAppEncodeTypes(FILE* out, TypeBank_p tb, bool print_type_comment)
             DStr_p type_name = TypeAppEncodedName(type);
             if(print_type_comment)
             {
-               locked_fprintf(out, "%%-- ");
+               fprintf(out, "%%-- ");
                TypePrintTSTP(out, tb, type);
-               locked_fprintf(out, ".\n");
+               fprintf(out, ".\n");
             }
-            locked_fprintf(out, "tff(typedecl%d, type, %s: $tType).\n", total_types, DStrView(type_name));
+            fprintf(out, "tff(typedecl%d, type, %s: $tType).\n", total_types, DStrView(type_name));
             DStrFree(type_name);
          }
       }

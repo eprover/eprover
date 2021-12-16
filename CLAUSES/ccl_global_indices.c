@@ -92,7 +92,7 @@ void GlobalIndicesInit(GlobalIndices_p indices,
 {
    FPIndexFunction indexfun;
 
-   // locked_fprintf(GlobalOut, "# GlobalIndicesInit(%p, <>, %s, %s, %s)\n", indices, rw_bw_index_type, pm_from_index_type, pm_into_index_type);
+   // fprintf(GlobalOut, "# GlobalIndicesInit(%p, <>, %s, %s, %s)\n", indices, rw_bw_index_type, pm_from_index_type, pm_into_index_type);
 
    indices->sig = sig;
    indexfun = GetFPIndexFunction(rw_bw_index_type);
@@ -322,7 +322,7 @@ void GlobalIndicesInsertClauseSet(GlobalIndices_p indices,
 {
    Clause_p handle;
 
-   // locked_fprintf(GlobalOut, "GlobalIndicesInsertClauseSet(%p, %p)\n", indices, set);
+   // fprintf(GlobalOut, "GlobalIndicesInsertClauseSet(%p, %p)\n", indices, set);
 
    if(!indices->bw_rw_index)
    {

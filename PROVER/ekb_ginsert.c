@@ -224,9 +224,9 @@ int main(int argc, char* argv[])
    neg_steps = proof_steps?kb_desc->neg_proportion*proof_steps:
       kb_desc->fail_neg_examples;
    PCLProtSelectExamples(prot, neg_steps);
-   locked_fprintf(out, "# Axioms:\n");
+   fprintf(out, "# Axioms:\n");
    PCLProtPrintPropClauses(out, prot, PCLIsInitial, lop_format);
-   locked_fprintf(out, ".\n\n# Examples:\n");
+   fprintf(out, ".\n\n# Examples:\n");
    PCLProtPrintExamples(out, prot);
    PCLProtFree(prot);
    OutClose(out);
@@ -348,7 +348,7 @@ CLState_p process_options(int argc, char* argv[])
 
 void print_help(FILE* out)
 {
-   locked_fprintf(out, "\n\
+   fprintf(out, "\n\
 \n\
 ekb_ginsert " VERSION "\n\
 \n\
@@ -357,7 +357,7 @@ Usage: ekb_ginsert [options] [name]\n\
 Generate a set of training examples from an E inference list (i.e. an\n\
 EPCL trace of a proof run) and insert it into a knowledge base.\n\n");
    PrintOptions(stdout, opts, "Options\n\n");
-   locked_fprintf(out, "\n\n" E_FOOTER);
+   fprintf(out, "\n\n" E_FOOTER);
 }
 
 

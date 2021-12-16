@@ -166,7 +166,7 @@ void* SecureMalloc(size_t size)
       {   /*  Still nothing...*/
 #ifdef PRINT_SOMEERRORS_STDOUT
          SetMemoryLimit(RLIM_INFINITY);
-         locked_fprintf(stdout, "# Failure: Resource limit exceeded (memory)\n");
+         fprintf(stdout, "# Failure: Resource limit exceeded (memory)\n");
          TSTPOUT(stdout, "ResourceOut");
          fflush(stdout);
          PrintRusage(stdout);
@@ -222,7 +222,7 @@ void* SecureRealloc(void *ptr, size_t size)
       {   /*  Still nothing...*/
 #ifdef PRINT_SOMEERRORS_STDOUT
          SetMemoryLimit(RLIM_INFINITY);
-         locked_fprintf(stdout, "# Failure: Resource limit exceeded (memory)\n");
+         fprintf(stdout, "# Failure: Resource limit exceeded (memory)\n");
          fflush(stdout);
          PrintRusage(stdout);
 #endif
@@ -353,30 +353,30 @@ long* IntArrayAlloc(int size)
 
 void MemDebugPrintStats(FILE* out)
 {
-   locked_fprintf(out,
+   fprintf(out,
            "\n# -------------------------------------------------\n");
-   locked_fprintf(out,
+   fprintf(out,
            "# Total SizeMalloc()ed memory: %ld Bytes (%ld requests)\n",
            size_malloc_mem, size_malloc_count);
-   locked_fprintf(out,
+   fprintf(out,
            "# Total SizeFree()ed   memory: %ld Bytes (%ld requests)\n",
            size_free_mem, size_free_count);
-   locked_fprintf(out,
+   fprintf(out,
            "# New requests: %6ld (%6ld by SecureMalloc(), %6ld by SecureRealloc())\n",
            secure_malloc_count+secure_realloc_m_count,
            secure_malloc_count, secure_realloc_m_count);
-   locked_fprintf(out,
+   fprintf(out,
            "# Total SecureMalloc()ed memory: %ld Bytes\n", secure_malloc_mem);
-   locked_fprintf(out,
+   fprintf(out,
            "# Returned:    %6ld (%6ld by FREE(),         %6ld by SecureRealloc())\n",
            clb_free_count+secure_realloc_f_count,
            clb_free_count , secure_realloc_f_count);
-   locked_fprintf(out,
+   fprintf(out,
            "# SecureRealloc(ptr): %6ld (%6ld Allocs, %6ld Frees, %6ld Reallocs)\n",
            secure_realloc_count, secure_realloc_m_count,
            secure_realloc_f_count,
            secure_realloc_count-(secure_realloc_m_count+secure_realloc_f_count));
-   locked_fprintf(out,
+   fprintf(out,
            "# -------------------------------------------------\n\n");
 }
 
@@ -397,20 +397,20 @@ void MemFreeListPrint(FILE* out)
 {
    long i, sum =0, count=0, tmp;
 
-   locked_fprintf(out, "# MemFreeListPrint()\n");
-   locked_fprintf(out, "# ===============================\n");
+   fprintf(out, "# MemFreeListPrint()\n");
+   fprintf(out, "# ===============================\n");
    for(i=0; i< MEM_ARR_SIZE; i++)
    {
       tmp = free_list_size(free_mem_list[i]);
       if(tmp)
       {
-         locked_fprintf(out, "# %4ld: %ld\n", i, tmp);
+         fprintf(out, "# %4ld: %ld\n", i, tmp);
          sum += tmp*(i);
          count += tmp;
       }
    }
-   locked_fprintf(out, "# ===============================\n");
-   locked_fprintf(out, "# %6ld blocks with %ld bytes \n", count, sum);
+   fprintf(out, "# ===============================\n");
+   fprintf(out, "# %6ld blocks with %ld bytes \n", count, sum);
 }
 
 

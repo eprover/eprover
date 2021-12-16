@@ -95,8 +95,8 @@ char* PCLTypeStr(FormulaProperties type)
 
 static void pcl_print_start(FILE* out, Clause_p clause, bool print_clause)
 {
-   locked_fprintf(out, PCLStepCompact?"%ld:":"%6ld : ", clause->ident);
-   locked_fprintf(out, "%s:", PCLTypeStr(ClauseQueryTPTPType(clause)));
+   fprintf(out, PCLStepCompact?"%ld:":"%6ld : ", clause->ident);
+   fprintf(out, "%s:", PCLTypeStr(ClauseQueryTPTPType(clause)));
    if(print_clause)
    {
       ClausePCLPrint(out, clause, PCLFullTerms);
@@ -120,16 +120,16 @@ static void pcl_print_end(FILE* out, char* comment, Clause_p clause)
 {
    if(ClauseQueryProp(clause, CPWatchOnly)&&comment)
    {
-      locked_fprintf(out, PCLStepCompact?":'wl,%s'" : ": 'wl,%s'",
+      fprintf(out, PCLStepCompact?":'wl,%s'" : ": 'wl,%s'",
          comment);
    }
    else if(comment)
    {
-      locked_fprintf(out, PCLStepCompact?":'%s'":" : '%s'",comment);
+      fprintf(out, PCLStepCompact?":'%s'":" : '%s'",comment);
    }
    else if(ClauseQueryProp(clause, CPWatchOnly))
    {
-      locked_fprintf(out, PCLStepCompact?":'wl'":" : 'wl'");
+      fprintf(out, PCLStepCompact?":'wl'":" : 'wl'");
    }
    fputc('\n', out);
 }
@@ -151,15 +151,15 @@ static void tstp_print_end(FILE* out, char* comment, Clause_p clause)
 {
    if(ClauseQueryProp(clause, CPWatchOnly)&&comment)
    {
-      locked_fprintf(out, ",['wl,%s']", comment);
+      fprintf(out, ",['wl,%s']", comment);
    }
    else if(comment)
    {
-      locked_fprintf(out, ",['%s']", comment);
+      fprintf(out, ",['%s']", comment);
    }
    else if(ClauseQueryProp(clause, CPWatchOnly))
    {
-      locked_fprintf(out, ",['wl']");
+      fprintf(out, ",['wl']");
    }
    fputs(").\n", out);
 }
@@ -188,12 +188,12 @@ static void print_initial(FILE* out, Clause_p clause, char* comment)
     break;
    case tstp_format:
     ClauseTSTPPrint(out, clause, PCLFullTerms, false);
-    locked_fprintf(out, ", ");
+    fprintf(out, ", ");
          ClauseSourceInfoPrintTSTP(out, clause->info);
     tstp_print_end(out, comment, clause);
     break;
    default:
-    locked_fprintf(out, "# Output format not implemented.\n");
+    fprintf(out, "# Output format not implemented.\n");
     break;
    }
 }
@@ -220,13 +220,13 @@ static void print_paramod(FILE* out, Clause_p clause, Clause_p
    {
    case pcl_format:
     pcl_print_start(out, clause, PCLShellLevel<1);
-    locked_fprintf(out, "%s(%ld,%ld)", inf, parent1->ident,
+    fprintf(out, "%s(%ld,%ld)", inf, parent1->ident,
        parent2->ident);
     pcl_print_end(out, comment, clause);
     break;
    case tstp_format:
     ClauseTSTPPrint(out, clause, PCLFullTerms, false);
-    locked_fprintf(out,
+    fprintf(out,
        ",inference(%s,[status(thm)],[c_0_%ld,c_0_%ld])",
                  inf,
        parent1->ident,
@@ -234,7 +234,7 @@ static void print_paramod(FILE* out, Clause_p clause, Clause_p
     tstp_print_end(out, comment, clause);
     break;
    default:
-    locked_fprintf(out, "# Output format not implemented.\n");
+    fprintf(out, "# Output format not implemented.\n");
     break;
    }
 }
@@ -259,18 +259,18 @@ static void print_eres(FILE* out, Clause_p clause, Clause_p
    {
    case pcl_format:
     pcl_print_start(out, clause, PCLShellLevel<1);
-    locked_fprintf(out, PCL_ER"(%ld)", parent1->ident);
+    fprintf(out, PCL_ER"(%ld)", parent1->ident);
     pcl_print_end(out, comment, clause);
     break;
    case tstp_format:
     ClauseTSTPPrint(out, clause, PCLFullTerms, false);
-    locked_fprintf(out,
+    fprintf(out,
        ",inference("PCL_ER",[status(thm)],[c_0_%ld])",
        parent1->ident);
     tstp_print_end(out, comment, clause);
     break;
    default:
-    locked_fprintf(out, "# Output format not implemented.\n");
+    fprintf(out, "# Output format not implemented.\n");
     break;
    }
 }
@@ -295,18 +295,18 @@ static void print_des_eres(FILE* out, Clause_p clause, long old_id,
    {
    case pcl_format:
     pcl_print_start(out, clause, PCLShellLevel<1);
-    locked_fprintf(out, PCL_ER"(%ld)", old_id);
+    fprintf(out, PCL_ER"(%ld)", old_id);
     pcl_print_end(out, comment, clause);
     break;
    case tstp_format:
     ClauseTSTPPrint(out, clause, PCLFullTerms, false);
-    locked_fprintf(out,
+    fprintf(out,
        ",inference("PCL_ER",[status(thm)],[c_0_%ld])",
        old_id);
     tstp_print_end(out, comment, clause);
     break;
    default:
-    locked_fprintf(out, "# Output format not implemented.\n");
+    fprintf(out, "# Output format not implemented.\n");
     break;
    }
 }
@@ -331,18 +331,18 @@ static void print_efactor(FILE* out, Clause_p clause, Clause_p
    {
    case pcl_format:
     pcl_print_start(out, clause, PCLShellLevel<1);
-    locked_fprintf(out, PCL_EF"(%ld)", parent1->ident);
+    fprintf(out, PCL_EF"(%ld)", parent1->ident);
     pcl_print_end(out, comment, clause);
     break;
    case tstp_format:
     ClauseTSTPPrint(out, clause, PCLFullTerms, false);
-    locked_fprintf(out,
+    fprintf(out,
        ",inference("PCL_EF",[status(thm)],[c_0_%ld])",
        parent1->ident);
     tstp_print_end(out, comment, clause);
     break;
    default:
-    locked_fprintf(out, "# Output format not implemented.\n");
+    fprintf(out, "# Output format not implemented.\n");
     break;
    }
 }
@@ -367,19 +367,19 @@ static void print_factor(FILE* out, Clause_p clause, Clause_p
    {
    case pcl_format:
     pcl_print_start(out, clause, PCLShellLevel<1);
-    locked_fprintf(out, PCL_OF"(%ld)", parent1->ident);
+    fprintf(out, PCL_OF"(%ld)", parent1->ident);
     pcl_print_end(out, comment, clause);
     break;
    case tstp_format:
     ClauseTSTPPrint(out, clause, PCLFullTerms, false);
-    locked_fprintf(out,
+    fprintf(out,
        ",inference("PCL_OF
                  ",[status(thm)],[c_0_%ld])",
        parent1->ident);
     tstp_print_end(out, comment, clause);
     break;
    default:
-    locked_fprintf(out, "# Output format not implemented.\n");
+    fprintf(out, "# Output format not implemented.\n");
     break;
    }
 }
@@ -405,12 +405,12 @@ static void print_split(FILE* out, Clause_p clause, Clause_p
    {
    case pcl_format:
     pcl_print_start(out, clause, PCLShellLevel<1);
-    locked_fprintf(out, PCL_SPLIT"(%ld)", parent1->ident);
+    fprintf(out, PCL_SPLIT"(%ld)", parent1->ident);
     pcl_print_end(out, comment, clause);
     break;
    case tstp_format:
     ClauseTSTPPrint(out, clause, PCLFullTerms, false);
-    locked_fprintf(out,
+    fprintf(out,
        ",inference("
                  TSTP_SPLIT_BASE
                  ",["TSTP_SPLIT_BASE"("TSTP_SPLIT_REFINED
@@ -419,7 +419,7 @@ static void print_split(FILE* out, Clause_p clause, Clause_p
     tstp_print_end(out, comment, clause);
     break;
     default:
-    locked_fprintf(out, "# Output format not implemented.\n");
+    fprintf(out, "# Output format not implemented.\n");
     break;
    }
 }
@@ -443,20 +443,20 @@ static void print_simplify_reflect(FILE* out, Clause_p clause, long
    {
    case pcl_format:
     pcl_print_start(out, clause, PCLShellLevel<1);
-    locked_fprintf(out, PCL_SR"(%ld,%ld)", old_id,
+    fprintf(out, PCL_SR"(%ld,%ld)", old_id,
        partner->ident);
     pcl_print_end(out, comment, clause);
     break;
   case tstp_format:
     ClauseTSTPPrint(out, clause, PCLFullTerms, false);
-    locked_fprintf(out,
+    fprintf(out,
        ",inference("PCL_SR",[status(thm)],[c_0_%ld,c_0_%ld])",
        old_id,
        partner->ident);
     tstp_print_end(out, comment, clause);
     break;
    default:
-    locked_fprintf(out, "# Output format not implemented.\n");
+    fprintf(out, "# Output format not implemented.\n");
     break;
    }
 }
@@ -480,13 +480,13 @@ static void print_context_simplify_reflect(FILE* out, Clause_p clause, long
    {
    case pcl_format:
     pcl_print_start(out, clause, PCLShellLevel<1);
-    locked_fprintf(out, PCL_CSR"(%ld,%ld)", old_id,
+    fprintf(out, PCL_CSR"(%ld,%ld)", old_id,
        partner->ident);
     pcl_print_end(out, comment, clause);
     break;
  case tstp_format:
     ClauseTSTPPrint(out, clause, PCLFullTerms, false);
-    locked_fprintf(out,
+    fprintf(out,
        ",inference("PCL_CSR
                  ",[status(thm)],[c_0_%ld,c_0_%ld])",
        old_id,
@@ -494,7 +494,7 @@ static void print_context_simplify_reflect(FILE* out, Clause_p clause, long
     tstp_print_end(out, comment, clause);
     break;
    default:
-    locked_fprintf(out, "# Output format not implemented.\n");
+    fprintf(out, "# Output format not implemented.\n");
     break;
    }
 }
@@ -522,20 +522,20 @@ static void print_ac_res(FILE* out, Clause_p clause, long
    {
    case pcl_format:
     pcl_print_start(out, clause, PCLShellLevel<1);
-    locked_fprintf(out, PCL_ACRES"(%ld", old_id);
+    fprintf(out, PCL_ACRES"(%ld", old_id);
     assert(!PStackEmpty(sig->ac_axioms));
     sp = PStackGetSP(sig->ac_axioms);
     for(i=0; i< sp; i++)
     {
             ax = PStackElementP(sig->ac_axioms,i);
-       locked_fprintf(out, ",%ld", ax->ident);
+       fprintf(out, ",%ld", ax->ident);
     }
     fputc(')', out);
     pcl_print_end(out, comment, clause);
     break;
    case tstp_format:
     ClauseTSTPPrint(out, clause, PCLFullTerms, false);
-    locked_fprintf(out,
+    fprintf(out,
        ",inference("PCL_ACRES
                  ",[status(thm)],[c_0_%ld", old_id);
     assert(!PStackEmpty(sig->ac_axioms));
@@ -543,13 +543,13 @@ static void print_ac_res(FILE* out, Clause_p clause, long
     for(i=0; i< sp; i++)
     {
             ax = PStackElementP(sig->ac_axioms,i);
-       locked_fprintf(out, ",c_0_%ld", ax->ident);
+       fprintf(out, ",c_0_%ld", ax->ident);
     }
     fputs("])", out);
     tstp_print_end(out, comment, clause);
     break;
    default:
-    locked_fprintf(out, "# Output format not implemented.\n");
+    fprintf(out, "# Output format not implemented.\n");
     break;
    }
 }
@@ -575,19 +575,19 @@ static void print_minimize(FILE* out, Clause_p clause, long
    {
    case pcl_format:
     pcl_print_start(out, clause, PCLShellLevel<1);
-    locked_fprintf(out, PCL_CN"(%ld)", old_id);
+    fprintf(out, PCL_CN"(%ld)", old_id);
     pcl_print_end(out, comment, clause);
     break;
    case tstp_format:
          ClauseTSTPPrint(out, clause, PCLFullTerms, false);
-         locked_fprintf(out,
+         fprintf(out,
                  ",inference("PCL_CN
                  ",[status(thm)],[c_0_%ld])",
                  old_id);
          tstp_print_end(out, comment, clause);
          break;
    default:
-    locked_fprintf(out, "# Output format not implemented.\n");
+    fprintf(out, "# Output format not implemented.\n");
     break;
    }
 }
@@ -612,19 +612,19 @@ static void print_condense(FILE* out, Clause_p clause, long
    {
    case pcl_format:
     pcl_print_start(out, clause, PCLShellLevel<1);
-    locked_fprintf(out, PCL_CONDENSE"(%ld)", old_id);
+    fprintf(out, PCL_CONDENSE"(%ld)", old_id);
     pcl_print_end(out, comment, clause);
     break;
    case tstp_format:
          ClauseTSTPPrint(out, clause, PCLFullTerms, false);
-         locked_fprintf(out,
+         fprintf(out,
                  ",inference("PCL_CONDENSE
                  ",[status(thm)],[c_0_%ld])",
                  old_id);
          tstp_print_end(out, comment, clause);
          break;
    default:
-    locked_fprintf(out, "# Output format not implemented.\n");
+    fprintf(out, "# Output format not implemented.\n");
     break;
    }
 }
@@ -648,18 +648,18 @@ static void print_eval_answer(FILE* out, Clause_p clause, long
    {
    case pcl_format:
     pcl_print_start(out, clause, PCLShellLevel<1);
-    locked_fprintf(out, PCL_EVANS"(%ld)", old_id);
+    fprintf(out, PCL_EVANS"(%ld)", old_id);
     pcl_print_end(out, comment, clause);
     break;
    case tstp_format:
          ClauseTSTPPrint(out, clause, PCLFullTerms, false);
-         locked_fprintf(out,
+         fprintf(out,
                  ",inference("PCL_EVANS",[status(thm)],[c_0_%ld, theory(answers)])",
                  old_id);
          tstp_print_end(out, comment, clause);
          break;
    default:
-    locked_fprintf(out, "# Output format not implemented.\n");
+    fprintf(out, "# Output format not implemented.\n");
     break;
    }
 }
@@ -701,11 +701,11 @@ static void print_rewrite(FILE* out, ClausePos_p rewritten, long
     {
        fputs(PCL_RW"(", out);
     }
-    locked_fprintf(out, "%ld", old_id);
+    fprintf(out, "%ld", old_id);
     for(i=0; i<PStackGetSP(rwsteps); i++)
     {
             demod = PStackElementP(rwsteps,i);
-       locked_fprintf(out, ",%ld)", demod->ident);
+       fprintf(out, ",%ld)", demod->ident);
     }
     pcl_print_end(out, comment, rewritten->clause);
     break;
@@ -716,19 +716,19 @@ static void print_rewrite(FILE* out, ClausePos_p rewritten, long
     fputc(',', out);
     for(i=0; i<PStackGetSP(rwsteps); i++)
     {
-       locked_fprintf(out,"inference("PCL_RW", [status(thm)],[");
+       fprintf(out,"inference("PCL_RW", [status(thm)],[");
     }
-    locked_fprintf(out, "c_0_%ld", old_id);
+    fprintf(out, "c_0_%ld", old_id);
     for(i=0; i<PStackGetSP(rwsteps); i++)
     {
             demod = PStackElementP(rwsteps,i);
-       locked_fprintf(out, ",c_0_%ld])",
+       fprintf(out, ",c_0_%ld])",
           demod->ident);
     }
     tstp_print_end(out, comment, rewritten->clause);
     break;
    default:
-    locked_fprintf(out, "# Output format not implemented.\n");
+    fprintf(out, "# Output format not implemented.\n");
     break;
    }
    PStackFree(rwsteps);
@@ -761,10 +761,10 @@ static void print_eq_unfold(FILE* out, Clause_p rewritten,
     {
        fputs(PCL_RW"(", out);
     }
-    locked_fprintf(out, "%ld", old_id);
+    fprintf(out, "%ld", old_id);
     for(i=0; i<PStackGetSP(demod_pos); i++)
     {
-       locked_fprintf(out, ",%ld)", demod->clause->ident);
+       fprintf(out, ",%ld)", demod->clause->ident);
     }
     pcl_print_end(out, "unfolding", rewritten);
     break;
@@ -773,18 +773,18 @@ static void print_eq_unfold(FILE* out, Clause_p rewritten,
     fputc(',', out);
     for(i=0; i<PStackGetSP(demod_pos); i++)
     {
-       locked_fprintf(out,"inference("PCL_RW", [status(thm)],[");
+       fprintf(out,"inference("PCL_RW", [status(thm)],[");
     }
-    locked_fprintf(out, "c_0_%ld", old_id);
+    fprintf(out, "c_0_%ld", old_id);
     for(i=0; i<PStackGetSP(demod_pos); i++)
     {
-       locked_fprintf(out, ",c_0_%ld])",
+       fprintf(out, ",c_0_%ld])",
           demod->clause->ident);
     }
     tstp_print_end(out, "Unfolding", rewritten);
     break;
     default:
-    locked_fprintf(out, "# Output format not implemented.\n");
+    fprintf(out, "# Output format not implemented.\n");
     break;
    }
 }
@@ -812,8 +812,8 @@ static void print_eq_unfold(FILE* out, Clause_p rewritten,
 
 static void pcl_formula_print_start(FILE* out, WFormula_p form, bool print_form)
 {
-   locked_fprintf(out, PCLStepCompact?"%ld:":"%6ld : ", form->ident);
-   locked_fprintf(out, "%s:", PCLTypeStr(FormulaQueryType(form)));
+   fprintf(out, PCLStepCompact?"%ld:":"%6ld : ", form->ident);
+   fprintf(out, "%s:", PCLTypeStr(FormulaQueryType(form)));
 
    if(print_form)
    {
@@ -838,7 +838,7 @@ static void pcl_formula_print_end(FILE* out, char* comment)
 {
    if(comment)
    {
-      locked_fprintf(out, PCLStepCompact?":'%s'":" : '%s'",comment);
+      fprintf(out, PCLStepCompact?":'%s'":" : '%s'",comment);
    }
    fputc('\n', out);
 }
@@ -860,7 +860,7 @@ static void tstp_formula_print_end(FILE* out, char* comment)
 {
    if(comment)
    {
-      locked_fprintf(out, ",['%s']", comment);
+      fprintf(out, ",['%s']", comment);
    }
    fputs(").\n", out);
 }
@@ -889,12 +889,12 @@ static void print_formula_initial(FILE* out, WFormula_p form, char* comment)
     break;
    case tstp_format:
     WFormulaTSTPPrint(out, form, PCLFullTerms, false);
-    locked_fprintf(out, ", ");
+    fprintf(out, ", ");
          ClauseSourceInfoPrintTSTP(out, form->info);
     tstp_formula_print_end(out, comment);
     break;
    default:
-    locked_fprintf(out, "# Output format not implemented.\n");
+    fprintf(out, "# Output format not implemented.\n");
     break;
    }
 }
@@ -919,17 +919,17 @@ static void print_fof_intro_def(FILE* out, WFormula_p form, char* comment)
    {
    case pcl_format:
     pcl_formula_print_start(out, form, PCLShellLevel<1);
-         locked_fprintf(out, PCL_ID);
+         fprintf(out, PCL_ID);
     pcl_formula_print_end(out, comment);
     break;
    case tstp_format:
     WFormulaTSTPPrint(out, form, PCLFullTerms, false);
-    locked_fprintf(out, ", ");
-         locked_fprintf(out, PCL_ID_DEF);
+    fprintf(out, ", ");
+         fprintf(out, PCL_ID_DEF);
     tstp_formula_print_end(out, comment);
     break;
    default:
-    locked_fprintf(out, "# Output format not implemented.\n");
+    fprintf(out, "# Output format not implemented.\n");
     break;
    }
 }
@@ -957,18 +957,18 @@ static void print_fof_split_equiv(FILE* out, WFormula_p form,
    {
    case pcl_format:
     pcl_formula_print_start(out, form, PCLShellLevel<1);
-         locked_fprintf(out, PCL_SE"(%ld)",parent->ident);
+         fprintf(out, PCL_SE"(%ld)",parent->ident);
     pcl_formula_print_end(out, comment);
     break;
    case tstp_format:
     WFormulaTSTPPrint(out, form, PCLFullTerms, false);
-    locked_fprintf(out, ", ");
-         locked_fprintf(out, "inference("PCL_SE", [status(thm)], [c_0_%ld])",
+    fprintf(out, ", ");
+         fprintf(out, "inference("PCL_SE", [status(thm)], [c_0_%ld])",
                  parent->ident);
     tstp_formula_print_end(out, comment);
     break;
    default:
-    locked_fprintf(out, "# Output format not implemented.\n");
+    fprintf(out, "# Output format not implemented.\n");
     break;
    }
 }
@@ -994,16 +994,16 @@ static void print_fof_simpl(FILE* out, WFormula_p form,
    {
    case pcl_format:
     pcl_formula_print_start(out, form, PCLShellLevel<1);
-         locked_fprintf(out, PCL_FS"(%ld)", old_id);
+         fprintf(out, PCL_FS"(%ld)", old_id);
     pcl_formula_print_end(out, comment);
     break;
    case tstp_format:
     WFormulaTSTPPrint(out, form, PCLFullTerms, false);
-         locked_fprintf(out, ",inference("PCL_FS", [status(thm)],[c_0_%ld])", old_id);
+         fprintf(out, ",inference("PCL_FS", [status(thm)],[c_0_%ld])", old_id);
          tstp_formula_print_end(out, comment);
     break;
    default:
-    locked_fprintf(out, "# Output format not implemented.\n");
+    fprintf(out, "# Output format not implemented.\n");
     break;
    }
 }
@@ -1028,16 +1028,16 @@ static void print_neg_conj(FILE* out, WFormula_p form,
    {
    case pcl_format:
     pcl_formula_print_start(out, form, PCLShellLevel<1);
-         locked_fprintf(out, PCL_NC"(%ld)", old_id);
+         fprintf(out, PCL_NC"(%ld)", old_id);
     pcl_formula_print_end(out, comment);
     break;
    case tstp_format:
     WFormulaTSTPPrint(out, form, PCLFullTerms, false);
-         locked_fprintf(out, ",inference("PCL_NC", [status(cth)],[c_0_%ld])", old_id);
+         fprintf(out, ",inference("PCL_NC", [status(cth)],[c_0_%ld])", old_id);
          tstp_formula_print_end(out, comment);
     break;
    default:
-    locked_fprintf(out, "# Output format not implemented.\n");
+    fprintf(out, "# Output format not implemented.\n");
     break;
    }
 }
@@ -1062,16 +1062,16 @@ static void print_fof_nnf(FILE* out, WFormula_p form,
    {
    case pcl_format:
     pcl_formula_print_start(out, form, PCLShellLevel<1);
-         locked_fprintf(out, PCL_NNF"(%ld)", old_id);
+         fprintf(out, PCL_NNF"(%ld)", old_id);
     pcl_formula_print_end(out, comment);
     break;
    case tstp_format:
     WFormulaTSTPPrint(out, form, PCLFullTerms, false);
-         locked_fprintf(out, ",inference("PCL_NNF", [status(thm)],[c_0_%ld])", old_id);
+         fprintf(out, ",inference("PCL_NNF", [status(thm)],[c_0_%ld])", old_id);
          tstp_formula_print_end(out, comment);
     break;
    default:
-    locked_fprintf(out, "# Output format not implemented.\n");
+    fprintf(out, "# Output format not implemented.\n");
     break;
    }
 }
@@ -1097,16 +1097,16 @@ static void print_shift_quantors(FILE* out, WFormula_p form,
    {
    case pcl_format:
     pcl_formula_print_start(out, form, PCLShellLevel<1);
-         locked_fprintf(out, PCL_SQ"(%ld)", old_id);
+         fprintf(out, PCL_SQ"(%ld)", old_id);
     pcl_formula_print_end(out, comment);
     break;
    case tstp_format:
     WFormulaTSTPPrint(out, form, PCLFullTerms, false);
-         locked_fprintf(out, ",inference("PCL_SQ", [status(thm)],[c_0_%ld])", old_id);
+         fprintf(out, ",inference("PCL_SQ", [status(thm)],[c_0_%ld])", old_id);
          tstp_formula_print_end(out, comment);
     break;
    default:
-    locked_fprintf(out, "# Output format not implemented.\n");
+    fprintf(out, "# Output format not implemented.\n");
     break;
    }
 }
@@ -1132,16 +1132,16 @@ static void print_skolemize(FILE* out, WFormula_p form,
    {
    case pcl_format:
     pcl_formula_print_start(out, form, PCLShellLevel<1);
-         locked_fprintf(out, PCL_SK"(%ld)", old_id);
+         fprintf(out, PCL_SK"(%ld)", old_id);
     pcl_formula_print_end(out, comment);
     break;
    case tstp_format:
     WFormulaTSTPPrint(out, form, PCLFullTerms, false);
-         locked_fprintf(out, ",inference("PCL_SK", [status(esa)], [c_0_%ld])", old_id);
+         fprintf(out, ",inference("PCL_SK", [status(esa)], [c_0_%ld])", old_id);
          tstp_formula_print_end(out, comment);
     break;
    default:
-    locked_fprintf(out, "# Output format not implemented.\n");
+    fprintf(out, "# Output format not implemented.\n");
     break;
    }
 }
@@ -1166,16 +1166,16 @@ static void print_distribute(FILE* out, WFormula_p form,
    {
    case pcl_format:
     pcl_formula_print_start(out, form, PCLShellLevel<1);
-         locked_fprintf(out, PCL_DSTR"(%ld)", old_id);
+         fprintf(out, PCL_DSTR"(%ld)", old_id);
     pcl_formula_print_end(out, comment);
     break;
    case tstp_format:
     WFormulaTSTPPrint(out, form, PCLFullTerms, false);
-         locked_fprintf(out, ",inference("PCL_DSTR", [status(thm)],[c_0_%ld])", old_id);
+         fprintf(out, ",inference("PCL_DSTR", [status(thm)],[c_0_%ld])", old_id);
          tstp_formula_print_end(out, comment);
     break;
    default:
-    locked_fprintf(out, "# Output format not implemented.\n");
+    fprintf(out, "# Output format not implemented.\n");
     break;
    }
 }
@@ -1199,16 +1199,16 @@ static void print_annotate_question(FILE* out, WFormula_p form,
    {
    case pcl_format:
     pcl_formula_print_start(out, form, PCLShellLevel<1);
-         locked_fprintf(out, PCL_ANNOQ"(%ld)", old_id);
+         fprintf(out, PCL_ANNOQ"(%ld)", old_id);
     pcl_formula_print_end(out, comment);
     break;
    case tstp_format:
     WFormulaTSTPPrint(out, form, PCLFullTerms, false);
-         locked_fprintf(out, ",inference("PCL_ANNOQ", [status(thm)],[c_0_%ld,theory(answers)])", old_id);
+         fprintf(out, ",inference("PCL_ANNOQ", [status(thm)],[c_0_%ld,theory(answers)])", old_id);
          tstp_formula_print_end(out, comment);
     break;
    default:
-    locked_fprintf(out, "# Output format not implemented.\n");
+    fprintf(out, "# Output format not implemented.\n");
     break;
    }
 }
@@ -1235,16 +1235,16 @@ static void print_var_rename(FILE* out, WFormula_p form,
    {
    case pcl_format:
     pcl_formula_print_start(out, form, PCLShellLevel<1);
-         locked_fprintf(out, PCL_VR"(%ld)", old_id);
+         fprintf(out, PCL_VR"(%ld)", old_id);
     pcl_formula_print_end(out, comment);
     break;
    case tstp_format:
     WFormulaTSTPPrint(out, form, PCLFullTerms, false);
-         locked_fprintf(out, ",inference("PCL_VR", [status(thm)],[c_0_%ld])", old_id);
+         fprintf(out, ",inference("PCL_VR", [status(thm)],[c_0_%ld])", old_id);
          tstp_formula_print_end(out, comment);
     break;
    default:
-    locked_fprintf(out, "# Output format not implemented.\n");
+    fprintf(out, "# Output format not implemented.\n");
     break;
    }
 }
@@ -1350,18 +1350,18 @@ void DocClauseFromForm(FILE* out, long level, Clause_p clause,
       case pcl_format:
             clause->ident = ++ClauseIdentCounter;
             pcl_print_start(out, clause, PCLShellLevel<1);
-            locked_fprintf(out, PCL_SC "(%ld)", parent->ident);
+            fprintf(out, PCL_SC "(%ld)", parent->ident);
             pcl_print_end(out, NULL, clause);
             break;
       case tstp_format:
             clause->ident = ++ClauseIdentCounter;
             ClauseTSTPPrint(out, clause, PCLFullTerms, false);
-            locked_fprintf(out, ",inference("PCL_SC", [status(thm)],[c_0_%ld])",
+            fprintf(out, ",inference("PCL_SC", [status(thm)],[c_0_%ld])",
                     parent->ident);
             tstp_print_end(out, NULL, clause);
             break;
       default:
-            locked_fprintf(out, "# Output format not implemented.\n");
+            fprintf(out, "# Output format not implemented.\n");
             break;
       }
    }
@@ -1439,7 +1439,7 @@ void DocClauseModification(FILE* out, long level, Clause_p clause, InfType
        break;
          /* inf_rewrite is special and handled below !*/
       default:
-       locked_fprintf(out, "# Clause modification %d not yet implemented.\n",op);
+       fprintf(out, "# Clause modification %d not yet implemented.\n",op);
        break;
       }
    }
@@ -1477,11 +1477,11 @@ void DocClauseQuote(FILE* out, long level, long target_level,
       case pcl_format:
        clause->ident = ++ClauseIdentCounter;
        pcl_print_start(out, clause, PCLShellLevel<1);
-       locked_fprintf(out, "%ld", old_id);
+       fprintf(out, "%ld", old_id);
        if(opt_partner)
        {
           assert(comment);
-          locked_fprintf(out, " : '%s(%ld)'\n", comment, opt_partner->ident);
+          fprintf(out, " : '%s(%ld)'\n", comment, opt_partner->ident);
        }
        else
        {
@@ -1491,24 +1491,24 @@ void DocClauseQuote(FILE* out, long level, long target_level,
       case tstp_format:
        clause->ident = ++ClauseIdentCounter;
        ClauseTSTPPrint(out, clause, PCLFullTerms, false);
-       locked_fprintf(out, ", c_0_%ld", old_id);
+       fprintf(out, ", c_0_%ld", old_id);
        if(opt_partner)
        {
           assert(comment);
-          locked_fprintf(out, ",['%s(c_0_%ld)']).\n", comment, opt_partner->ident);
+          fprintf(out, ",['%s(c_0_%ld)']).\n", comment, opt_partner->ident);
        }
        else if(comment)
        {
-          locked_fprintf(out, ",['%s']).\n", comment);
+          fprintf(out, ",['%s']).\n", comment);
        }
        else
        {
-          locked_fprintf(out, ").\n");
+          fprintf(out, ").\n");
        }
        break;
 
       default:
-       locked_fprintf(out, "# Output format not implemented.\n");
+       fprintf(out, "# Output format not implemented.\n");
        break;
       }
    }
@@ -1707,31 +1707,31 @@ void DocFormulaIntroDefs(FILE* out, long level, WFormula_p form,
             {
                fputs(PCL_AD "(", out);
             }
-            locked_fprintf(out, "%ld", old_id);
+            fprintf(out, "%ld", old_id);
             for(i=0; i<PStackGetSP(def_list); i++)
             {
                def = PStackElementP(def_list, i);
-               locked_fprintf(out, ",%ld)", def->ident);
+               fprintf(out, ",%ld)", def->ident);
             }
             pcl_formula_print_end(out, comment);
             break;
       case tstp_format:
             WFormulaTSTPPrint(out, form, PCLFullTerms, false);
-            locked_fprintf(out, ", ");
+            fprintf(out, ", ");
             for(i=0; i<PStackGetSP(def_list); i++)
             {
                fputs("inference("PCL_AD",[status(thm)],[", out);
             }
-            locked_fprintf(out, "c_0_%ld", old_id);
+            fprintf(out, "c_0_%ld", old_id);
             for(i=0; i<PStackGetSP(def_list); i++)
             {
                def = PStackElementP(def_list, i);
-               locked_fprintf(out, ",c_0_%ld])", def->ident);
+               fprintf(out, ",c_0_%ld])", def->ident);
             }
             tstp_formula_print_end(out, comment);
             break;
       default:
-            locked_fprintf(out, "# Output format not implemented.\n");
+            fprintf(out, "# Output format not implemented.\n");
             break;
       }
    }
@@ -1794,18 +1794,18 @@ void DocIntroSplitDefRest(FILE* out, long level, Clause_p clause,
       case pcl_format:
             clause->ident = ++ClauseIdentCounter;
             pcl_print_start(out, clause, PCLShellLevel<1);
-            locked_fprintf(out, PCL_SE "(%ld)", parent->ident);
+            fprintf(out, PCL_SE "(%ld)", parent->ident);
             pcl_print_end(out, NULL, clause);
             break;
       case tstp_format:
             clause->ident = ++ClauseIdentCounter;
             ClauseTSTPPrint(out, clause, PCLFullTerms, false);
-            locked_fprintf(out, ",inference("PCL_SE", [status(thm)],[c_0_%ld])",
+            fprintf(out, ",inference("PCL_SE", [status(thm)],[c_0_%ld])",
                     parent->ident);
             tstp_print_end(out, NULL, clause);
             break;
       default:
-            locked_fprintf(out, "# Output format not implemented.\n");
+            fprintf(out, "# Output format not implemented.\n");
             break;
       }
    }
@@ -1843,10 +1843,10 @@ void DocClauseApplyDefs(FILE* out, long level, Clause_p clause,
             {
                fputs(PCL_AD"(", out);
             }
-            locked_fprintf(out, "%ld", parent_id);
+            fprintf(out, "%ld", parent_id);
             for(i=0; i<PStackGetSP(def_ids); i++)
             {
-               locked_fprintf(out, ",%ld)", PStackElementInt(def_ids, i));
+               fprintf(out, ",%ld)", PStackElementInt(def_ids, i));
             }
             pcl_print_end(out, "split", clause);
             break;
@@ -1856,18 +1856,18 @@ void DocClauseApplyDefs(FILE* out, long level, Clause_p clause,
             fputc(',', out);
             for(i=0; i<PStackGetSP(def_ids); i++)
             {
-               locked_fprintf(out,"inference("PCL_AD", [status(thm)],[");
+               fprintf(out,"inference("PCL_AD", [status(thm)],[");
             }
-            locked_fprintf(out, "c_0_%ld", parent_id);
+            fprintf(out, "c_0_%ld", parent_id);
             for(i=0; i<PStackGetSP(def_ids); i++)
             {
-               locked_fprintf(out, ",c_0_%ld])",
+               fprintf(out, ",c_0_%ld])",
                        PStackElementInt(def_ids, i));
             }
             tstp_print_end(out, "split", clause);
             break;
       default:
-            locked_fprintf(out, "# Output format not implemented.\n");
+            fprintf(out, "# Output format not implemented.\n");
             break;
       }
    }

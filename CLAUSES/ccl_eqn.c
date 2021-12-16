@@ -991,32 +991,32 @@ void EqnPrint(FILE* out, Eqn_p eq, bool negated,  bool fullterms)
 #ifdef MARK_MAX_EQNS
    if(EqnIsMaximal(eq))
    {
-      locked_fprintf(out, "{");
+      fprintf(out, "{");
    }
 #endif
    /* if(EqnIsSelected(eq))
    {
-      locked_fprintf(out, "+");
+      fprintf(out, "+");
    } */
    /* if(EqnIsXTypePred(eq))
    {
-      locked_fprintf(out, "*");
+      fprintf(out, "*");
    }*/
    if(OutputFormat == TPTPFormat)
    {
       if(positive)
       {
-         locked_fprintf(out,"++");
+         fprintf(out,"++");
       }
       else
       {
-         locked_fprintf(out,"--");
+         fprintf(out,"--");
       }
       if(EqnIsEquLit(eq))
       {
          fputs(EQUAL_PREDICATE"(", out);
          TBPrintTerm(out, eq->bank, eq->lterm, fullterms);
-         locked_fprintf(out, ", ");
+         fprintf(out, ", ");
          TBPrintTerm(out, eq->bank, eq->rterm, fullterms);
          fputc(')', out);
       }
@@ -1040,8 +1040,8 @@ void EqnPrint(FILE* out, Eqn_p eq, bool negated,  bool fullterms)
          {
             fputc('!', out);
          }
-         /* locked_fprintf(out, EqnIsOriented(eq)?"=>":"="); */
-         locked_fprintf(out, "=");
+         /* fprintf(out, EqnIsOriented(eq)?"=>":"="); */
+         fprintf(out, "=");
          TBPrintTerm(out, eq->bank, eq->rterm, fullterms);
          PRINT_HO_PAREN(out, ')');
       }
@@ -1057,7 +1057,7 @@ void EqnPrint(FILE* out, Eqn_p eq, bool negated,  bool fullterms)
          {
             fputs(EQUAL_PREDICATE"(", out);
             TBPrintTerm(out, eq->bank, eq->lterm, fullterms);
-            locked_fprintf(out, ", ");
+            fprintf(out, ", ");
             TBPrintTerm(out, eq->bank, eq->rterm, fullterms);
             fputc(')', out);
          }
@@ -1072,7 +1072,7 @@ void EqnPrint(FILE* out, Eqn_p eq, bool negated,  bool fullterms)
 #ifdef MARK_MAX_EQNS
    if(EqnIsMaximal(eq))
    {
-      locked_fprintf(out, "}");
+      fprintf(out, "}");
    }
 #endif
 }
@@ -1089,11 +1089,11 @@ void EqnPrint(FILE* out, Eqn_p eq, bool negated,  bool fullterms)
 void EqnPrintDBG(FILE* out, Eqn_p eq)
 {
    TermPrintDbg(out, eq->lterm, eq->bank->sig, DEREF_NEVER);
-   locked_fprintf(out, "%s=", EqnIsPositive(eq)?"":"!");
+   fprintf(out, "%s=", EqnIsPositive(eq)?"":"!");
    TermPrintDbg(out, eq->rterm, eq->bank->sig, DEREF_NEVER);
-   locked_fprintf(out, "%s", EqnIsMaximal(eq) ? "*" : "");
-   locked_fprintf(out, "%s", EqnIsOriented(eq) ? ">" : "");
-   locked_fprintf(out, "%s", EqnQueryProp(eq, EPIsEquLiteral) ? "#" : "");
+   fprintf(out, "%s", EqnIsMaximal(eq) ? "*" : "");
+   fprintf(out, "%s", EqnIsOriented(eq) ? ">" : "");
+   fprintf(out, "%s", EqnQueryProp(eq, EPIsEquLiteral) ? "#" : "");
 }
 
 /*-----------------------------------------------------------------------
@@ -1111,7 +1111,7 @@ void EqnPrintDBG(FILE* out, Eqn_p eq)
 void EqnPrintDeref(FILE* out, Eqn_p eq, DerefType deref)
 {
    TermPrint(out, eq->lterm, eq->bank->sig, deref);
-   locked_fprintf(out, "%s", EqnIsPositive(eq)?"=":"!=");
+   fprintf(out, "%s", EqnIsPositive(eq)?"=":"!=");
    TermPrint(out, eq->rterm, eq->bank->sig, deref);
 }
 
@@ -1182,13 +1182,13 @@ void EqnFOFPrint(FILE* out, Eqn_p eq, bool negated,  bool fullterms, bool pcl)
    {
       if(!positive)
       {
-         locked_fprintf(out,"~");
+         fprintf(out,"~");
       }
       if(EqnIsEquLit(eq))
       {
          fputs(EQUAL_PREDICATE"(", out);
          TBPrintTerm(out, eq->bank, eq->lterm, fullterms);
-         locked_fprintf(out, ", ");
+         fprintf(out, ", ");
          TBPrintTerm(out, eq->bank, eq->rterm, fullterms);
          fputc(')', out);
       }
@@ -1267,7 +1267,7 @@ void EqnTSTPPrint(FILE* out, Eqn_p eq, bool fullterms)
       if(EqnIsEquLit(eq))
       {
          TBPrintTerm(out, eq->bank, eq->lterm, fullterms);
-         locked_fprintf(out, "%s", EqnIsNegative(eq)?"!=":"=");
+         fprintf(out, "%s", EqnIsNegative(eq)?"!=":"=");
          TBPrintTerm(out, eq->bank, eq->rterm, fullterms);
       }
       else

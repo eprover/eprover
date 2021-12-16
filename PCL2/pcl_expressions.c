@@ -434,7 +434,7 @@ void PCLExprPrint(FILE* out, PCLExpr_p expr, bool mini)
       }
       else
       {
-         locked_fprintf(out, "initial");
+         fprintf(out, "initial");
       }
       return;
    }
@@ -443,7 +443,7 @@ void PCLExprPrint(FILE* out, PCLExpr_p expr, bool mini)
       assert(expr->arg_no==1);
       if(mini)
       {
-         locked_fprintf(out, "%ld", PCLExprArgInt(expr,0));
+         fprintf(out, "%ld", PCLExprArgInt(expr,0));
       }
       else
       {
@@ -458,107 +458,107 @@ void PCLExprPrint(FILE* out, PCLExpr_p expr, bool mini)
    switch(expr->op)
    {
    case PCLOpIntroDef:
-         locked_fprintf(out, PCL_ID);
+         fprintf(out, PCL_ID);
          assert(expr->arg_no==0);
          break;
    case PCLOpParamod:
-         locked_fprintf(out, PCL_PM);
+         fprintf(out, PCL_PM);
          assert(expr->arg_no==2);
          break;
    case PCLOpSimParamod:
-         locked_fprintf(out, PCL_SPM);
+         fprintf(out, PCL_SPM);
          assert(expr->arg_no==2);
          break;
    case PCLOpEResolution:
-         locked_fprintf(out, PCL_ER);
+         fprintf(out, PCL_ER);
          assert(expr->arg_no==1);
          break;
    case PCLOpEvalGC:
-         locked_fprintf(out, PCL_EVALGC);
+         fprintf(out, PCL_EVALGC);
          assert(expr->arg_no==1);
          break;
    case PCLOpEFactoring:
-         locked_fprintf(out, PCL_EF);
+         fprintf(out, PCL_EF);
          assert(expr->arg_no==1);
          break;
    case PCLOpSatCheck:
-         locked_fprintf(out, PCL_SAT);
+         fprintf(out, PCL_SAT);
          assert(expr->arg_no>0);
          break;
    case PCLOpCondense:
-         locked_fprintf(out, PCL_CONDENSE);
+         fprintf(out, PCL_CONDENSE);
          assert(expr->arg_no==1);
          break;
    case PCLOpSimplifyReflect:
-         locked_fprintf(out, PCL_SR);
+         fprintf(out, PCL_SR);
          assert(expr->arg_no==2);
          break;
    case PCLOpContextSimplifyReflect:
-         locked_fprintf(out, PCL_CSR);
+         fprintf(out, PCL_CSR);
          assert(expr->arg_no==2);
          break;
    case PCLOpACResolution:
-         locked_fprintf(out, PCL_ACRES);
+         fprintf(out, PCL_ACRES);
          assert(expr->arg_no>0);
          break;
    case PCLOpRewrite:
-         locked_fprintf(out, PCL_RW);
+         fprintf(out, PCL_RW);
          assert(expr->arg_no==2);
          break;
    case PCLOpClauseNormalize:
-         locked_fprintf(out, PCL_CN);
+         fprintf(out, PCL_CN);
          assert(expr->arg_no==1);
          break;
    case PCLOpApplyDef:
-         locked_fprintf(out, PCL_AD);
+         fprintf(out, PCL_AD);
          assert(expr->arg_no==2);
          break;
    case PCLOpSplitClause:
-         locked_fprintf(out, PCL_SPLIT);
+         fprintf(out, PCL_SPLIT);
          assert(expr->arg_no==1);
          break;
    case PCLOpFOFSplitConjunct:
-         locked_fprintf(out, PCL_SC);
+         fprintf(out, PCL_SC);
          assert(expr->arg_no==1);
          break;
    case PCLOpSplitEquiv:
-         locked_fprintf(out, PCL_SE);
+         fprintf(out, PCL_SE);
          assert(expr->arg_no==1);
          break;
    case PCLOpFOFSimplify:
-         locked_fprintf(out, PCL_FS);
+         fprintf(out, PCL_FS);
          assert(expr->arg_no==1);
          break;
    case PCLOpFOFDeMorgan:
-         locked_fprintf(out, PCL_NNF);
+         fprintf(out, PCL_NNF);
          assert(expr->arg_no==1);
          break;
    case PCLOpFOFDistributeQuantors:
-         locked_fprintf(out, PCL_SQ);
+         fprintf(out, PCL_SQ);
          assert(expr->arg_no==1);
          break;
    case PCLOpAnnotateQuestion:
-         locked_fprintf(out, PCL_ANNOQ);
+         fprintf(out, PCL_ANNOQ);
          assert(expr->arg_no==1);
          break;
    case PCLOpEvalAnswers:
-         locked_fprintf(out, PCL_EVANS);
+         fprintf(out, PCL_EVANS);
          assert(expr->arg_no==1);
          break;
    case PCLOpFOFDistributeDisjunction:
-         locked_fprintf(out, PCL_DSTR);
+         fprintf(out, PCL_DSTR);
          assert(expr->arg_no==1);
          break;
    case PCLOpFOFVarRename:
-         locked_fprintf(out, PCL_VR);
+         fprintf(out, PCL_VR);
          assert(expr->arg_no==1);
          break;
    case PCLOpFOFSkolemize:
-         locked_fprintf(out, PCL_SK);
+         fprintf(out, PCL_SK);
          assert(expr->arg_no==1);
          break;
    case PCLOpFOFAssumeNegation:
-         locked_fprintf(out, PCL_NC);
+         fprintf(out, PCL_NC);
          assert(expr->arg_no==1);
          break;
    default:
@@ -622,15 +622,15 @@ void PCLExprPrintTSTP(FILE* out, PCLExpr_p expr, bool mini)
          }
          else
          {
-            locked_fprintf(out, "unknown()");
+            fprintf(out, "unknown()");
          }
          return;
    case PCLOpQuote:
          assert(expr->arg_no==1);
          if(mini)
          {
-            /* locked_fprintf(out, "c_0_%ld", PCLExprArgInt(expr,0)); */
-            locked_fprintf(out, "%ld", PCLExprArgInt(expr,0));
+            /* fprintf(out, "c_0_%ld", PCLExprArgInt(expr,0)); */
+            fprintf(out, "%ld", PCLExprArgInt(expr,0));
          }
          else
          {
@@ -638,141 +638,141 @@ void PCLExprPrintTSTP(FILE* out, PCLExpr_p expr, bool mini)
          }
          return;
    case PCLOpIntroDef:
-         locked_fprintf(out, PCL_ID"(definition)");
+         fprintf(out, PCL_ID"(definition)");
          return;
    default:
          break;
    }
 
-   locked_fprintf(out, "inference(");
+   fprintf(out, "inference(");
    switch(expr->op)
    {
    case PCLOpParamod:
-         locked_fprintf(out, PCL_PM);
+         fprintf(out, PCL_PM);
          status = status_thm;
          assert(expr->arg_no==2);
          break;
    case PCLOpSimParamod:
-         locked_fprintf(out, PCL_SPM);
+         fprintf(out, PCL_SPM);
          status = status_thm;
          assert(expr->arg_no==2);
          break;
    case PCLOpEResolution:
-         locked_fprintf(out, PCL_ER);
+         fprintf(out, PCL_ER);
          status = status_thm;
          assert(expr->arg_no==1);
          break;
    case PCLOpEvalGC:
-         locked_fprintf(out, PCL_EVALGC);
+         fprintf(out, PCL_EVALGC);
          status = status_thm;
          assert(expr->arg_no==1);
          break;
    case PCLOpEFactoring:
-         locked_fprintf(out, PCL_EF);
+         fprintf(out, PCL_EF);
          status = status_thm;
          assert(expr->arg_no==1);
          break;
    case PCLOpACResolution:
-         locked_fprintf(out, PCL_ACRES);
+         fprintf(out, PCL_ACRES);
          status = status_thm;
          assert(expr->arg_no>0);
          break;
    case PCLOpSatCheck:
-         locked_fprintf(out, PCL_SAT);
+         fprintf(out, PCL_SAT);
          status = status_thm;
          assert(expr->arg_no>0);
          break;
    case PCLOpCondense:
-         locked_fprintf(out, PCL_CONDENSE);
+         fprintf(out, PCL_CONDENSE);
          status = status_thm;
          assert(expr->arg_no==1);
          break;
    case PCLOpSimplifyReflect:
-         locked_fprintf(out, PCL_SR);
+         fprintf(out, PCL_SR);
          status = status_thm;
          assert(expr->arg_no==2);
          break;
    case PCLOpContextSimplifyReflect:
-         locked_fprintf(out, PCL_CSR);
+         fprintf(out, PCL_CSR);
          status = status_thm;
          assert(expr->arg_no==2);
          break;
    case PCLOpRewrite:
-         locked_fprintf(out, PCL_RW);
+         fprintf(out, PCL_RW);
          status = status_thm;
          assert(expr->arg_no==2);
          break;
    case PCLOpClauseNormalize:
-         locked_fprintf(out, PCL_CN);
+         fprintf(out, PCL_CN);
          status = status_thm;
          assert(expr->arg_no==1);
          break;
    case PCLOpApplyDef:
-         locked_fprintf(out, PCL_AD);
+         fprintf(out, PCL_AD);
          status = status_thm;
          assert(expr->arg_no==2);
          break;
    case PCLOpSplitClause:
-         locked_fprintf(out, TSTP_SPLIT_BASE
+         fprintf(out, TSTP_SPLIT_BASE
                  ",["TSTP_SPLIT_BASE"("
                  TSTP_SPLIT_REFINED",[])]");
          status = "";
          assert(expr->arg_no==1);
          break;
    case PCLOpFOFSplitConjunct:
-         locked_fprintf(out, PCL_SC);
+         fprintf(out, PCL_SC);
          status = status_thm;
          assert(expr->arg_no==1);
          break;
    case PCLOpSplitEquiv:
-         locked_fprintf(out, PCL_SE);
+         fprintf(out, PCL_SE);
          status = status_thm;
          assert(expr->arg_no==1);
          break;
    case PCLOpFOFSimplify:
-         locked_fprintf(out, PCL_FS);
+         fprintf(out, PCL_FS);
          status = status_thm;
          assert(expr->arg_no==1);
          break;
    case PCLOpFOFDeMorgan:
-         locked_fprintf(out, PCL_NNF);
+         fprintf(out, PCL_NNF);
          status = status_thm;
          assert(expr->arg_no==1);
          break;
    case PCLOpFOFDistributeQuantors:
-         locked_fprintf(out, PCL_SQ);
+         fprintf(out, PCL_SQ);
          status = status_thm;
          assert(expr->arg_no==1);
          break;
    case PCLOpAnnotateQuestion:
-         locked_fprintf(out, PCL_ANNOQ);
+         fprintf(out, PCL_ANNOQ);
          status = status_thm;
          needs_ans      = true;
          assert(expr->arg_no==1);
          break;
    case PCLOpEvalAnswers:
-         locked_fprintf(out, PCL_EVANS);
+         fprintf(out, PCL_EVANS);
          status = status_thm;
          needs_ans      = true;
          assert(expr->arg_no==1);
          break;
    case PCLOpFOFDistributeDisjunction:
-         locked_fprintf(out, PCL_DSTR);
+         fprintf(out, PCL_DSTR);
          status = status_thm;
          assert(expr->arg_no==1);
          break;
    case PCLOpFOFVarRename:
-         locked_fprintf(out, PCL_VR);
+         fprintf(out, PCL_VR);
          status = status_thm;
          assert(expr->arg_no==1);
          break;
    case PCLOpFOFSkolemize:
-         locked_fprintf(out, PCL_SK);
+         fprintf(out, PCL_SK);
          status = status_esa;
          assert(expr->arg_no==1);
          break;
    case PCLOpFOFAssumeNegation:
-         locked_fprintf(out, PCL_NC);
+         fprintf(out, PCL_NC);
          status = status_cth;
          assert(expr->arg_no==1);
          break;
@@ -781,7 +781,7 @@ void PCLExprPrintTSTP(FILE* out, PCLExpr_p expr, bool mini)
          assert(false && "Unknown PCL operator");
          break;
    }
-   locked_fprintf(out, "%s,[", status);
+   fprintf(out, "%s,[", status);
    PCLExprPrintTSTP(out, PCLExprArg(expr,0), mini);
    for(i=1; i<expr->arg_no; i++)
    {

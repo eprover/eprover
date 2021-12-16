@@ -161,37 +161,37 @@ void OrderParmsInitialize(OrderParms_p handle)
 
 void OrderParmsPrint(FILE* out, OrderParms_p handle)
 {
-   locked_fprintf(out, "   {\n");
-   locked_fprintf(out, "      ordertype:               %s\n",
+   fprintf(out, "   {\n");
+   fprintf(out, "      ordertype:               %s\n",
            TONames[handle->ordertype]);
-   locked_fprintf(out, "      to_weight_gen:           %s\n",
+   fprintf(out, "      to_weight_gen:           %s\n",
            TOWeightGenNames[handle->to_weight_gen]);
-   locked_fprintf(out, "      to_prec_gen:             %s\n",
+   fprintf(out, "      to_prec_gen:             %s\n",
            TOPrecGenNames[handle->to_prec_gen]);
-   locked_fprintf(out, "      rewrite_strong_rhs_inst: %s\n",
+   fprintf(out, "      rewrite_strong_rhs_inst: %s\n",
            BOOL2STR(handle->rewrite_strong_rhs_inst));
 
-   locked_fprintf(out, "      to_pre_prec:             \"%s\"\n",
+   fprintf(out, "      to_pre_prec:             \"%s\"\n",
            handle->to_pre_prec?handle->to_pre_prec:"");
-   locked_fprintf(out, "      conj_only_mod:           %d\n", handle->conj_only_mod);
-   locked_fprintf(out, "      conj_axiom_mod:          %d\n", handle->conj_axiom_mod);
-   locked_fprintf(out, "      axiom_only_mod:          %d\n", handle->axiom_only_mod);
-   locked_fprintf(out, "      skolem_mod:              %d\n", handle->skolem_mod);
-   locked_fprintf(out, "      defpred_mod:             %d\n", handle->defpred_mod);
-   locked_fprintf(out, "      force_kbo_var_weight:    %s\n",
+   fprintf(out, "      conj_only_mod:           %d\n", handle->conj_only_mod);
+   fprintf(out, "      conj_axiom_mod:          %d\n", handle->conj_axiom_mod);
+   fprintf(out, "      axiom_only_mod:          %d\n", handle->axiom_only_mod);
+   fprintf(out, "      skolem_mod:              %d\n", handle->skolem_mod);
+   fprintf(out, "      defpred_mod:             %d\n", handle->defpred_mod);
+   fprintf(out, "      force_kbo_var_weight:    %s\n",
            BOOL2STR(handle->force_kbo_var_weight));
-   locked_fprintf(out, "      to_pre_weights:          \"%s\"\n",
+   fprintf(out, "      to_pre_weights:          \"%s\"\n",
            handle->to_pre_weights?handle->to_pre_weights:"");
 
-   locked_fprintf(out, "      to_const_weight:         %ld\n", handle->to_const_weight);
-   locked_fprintf(out, "      to_defs_min:             %s\n",
+   fprintf(out, "      to_const_weight:         %ld\n", handle->to_const_weight);
+   fprintf(out, "      to_defs_min:             %s\n",
            BOOL2STR(handle->to_defs_min));
-   locked_fprintf(out, "      lit_cmp:                 %d\n", handle->lit_cmp);
-   locked_fprintf(out, "      lam_w:                   %d\n", handle->lam_w);
-   locked_fprintf(out, "      db_w:                    %d\n", handle->db_w);
-   locked_fprintf(out, "      ho_order_kind:           %s\n", HOK2STR(handle->ho_order_kind));
+   fprintf(out, "      lit_cmp:                 %d\n", handle->lit_cmp);
+   fprintf(out, "      lam_w:                   %d\n", handle->lam_w);
+   fprintf(out, "      db_w:                    %d\n", handle->db_w);
+   fprintf(out, "      ho_order_kind:           %s\n", HOK2STR(handle->ho_order_kind));
 
-   locked_fprintf(out, "   }\n");
+   fprintf(out, "   }\n");
 }
 
 /*-----------------------------------------------------------------------

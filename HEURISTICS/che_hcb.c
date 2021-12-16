@@ -337,16 +337,16 @@ void HeuristicParmsFree(HeuristicParms_p junk)
 
 void HeuristicParmsPrint(FILE* out, HeuristicParms_p handle)
 {
-   locked_fprintf(out, "{\n");
+   fprintf(out, "{\n");
 
    OrderParmsPrint(out, &(handle->order_params));
 
-   locked_fprintf(out, "   no_preproc:                     %s\n", BOOL2STR(handle->no_preproc));
-   locked_fprintf(out, "   eqdef_maxclauses:               %ld\n", handle->eqdef_maxclauses);
-   locked_fprintf(out, "   eqdef_incrlimit:                %ld\n", handle->eqdef_incrlimit);
-   locked_fprintf(out, "   formula_def_limit:              %ld\n", handle->formula_def_limit);
+   fprintf(out, "   no_preproc:                     %s\n", BOOL2STR(handle->no_preproc));
+   fprintf(out, "   eqdef_maxclauses:               %ld\n", handle->eqdef_maxclauses);
+   fprintf(out, "   eqdef_incrlimit:                %ld\n", handle->eqdef_incrlimit);
+   fprintf(out, "   formula_def_limit:              %ld\n", handle->formula_def_limit);
 
-   locked_fprintf(out, "   sine:                           \"%s\"\n", handle->sine ? handle->sine : "Auto");
+   fprintf(out, "   sine:                           \"%s\"\n", handle->sine ? handle->sine : "Auto");
    fprintf(out, "   add_goal_defs_pos:             %s\n", BOOL2STR(handle->add_goal_defs_pos));
    fprintf(out, "   add_goal_defs_neg:             %s\n", BOOL2STR(handle->add_goal_defs_neg));
    fprintf(out, "   add_goal_defs_subterms:        %s\n", BOOL2STR(handle->add_goal_defs_subterms));
@@ -354,163 +354,163 @@ void HeuristicParmsPrint(FILE* out, HeuristicParms_p handle)
    fprintf(out, "   heuristic_name:                %s\n", handle->heuristic_name);
    fprintf(out, "   heuristic_def:                 \"%s\"\n",
            handle->heuristic_def?handle->heuristic_def:"");
-   locked_fprintf(out, "   prefer_initial_clauses:         %s\n",
+   fprintf(out, "   prefer_initial_clauses:         %s\n",
            BOOL2STR(handle->prefer_initial_clauses));
 
-   locked_fprintf(out, "   selection_strategy:             %s\n",
+   fprintf(out, "   selection_strategy:             %s\n",
            GetLitSelName(handle->selection_strategy));
 
-   locked_fprintf(out, "   pos_lit_sel_min:                %ld\n", handle->pos_lit_sel_min);
-   locked_fprintf(out, "   pos_lit_sel_max:                %ld\n", handle->pos_lit_sel_max);
-   locked_fprintf(out, "   neg_lit_sel_min:                %ld\n", handle->neg_lit_sel_min);
-   locked_fprintf(out, "   neg_lit_sel_max:                %ld\n", handle->neg_lit_sel_max);
-   locked_fprintf(out, "   all_lit_sel_min:                %ld\n", handle->all_lit_sel_min);
-   locked_fprintf(out, "   all_lit_sel_max:                %ld\n", handle->all_lit_sel_max);
-   locked_fprintf(out, "   weight_sel_min:                 %ld\n", handle->weight_sel_min);
+   fprintf(out, "   pos_lit_sel_min:                %ld\n", handle->pos_lit_sel_min);
+   fprintf(out, "   pos_lit_sel_max:                %ld\n", handle->pos_lit_sel_max);
+   fprintf(out, "   neg_lit_sel_min:                %ld\n", handle->neg_lit_sel_min);
+   fprintf(out, "   neg_lit_sel_max:                %ld\n", handle->neg_lit_sel_max);
+   fprintf(out, "   all_lit_sel_min:                %ld\n", handle->all_lit_sel_min);
+   fprintf(out, "   all_lit_sel_max:                %ld\n", handle->all_lit_sel_max);
+   fprintf(out, "   weight_sel_min:                 %ld\n", handle->weight_sel_min);
 
-   locked_fprintf(out, "   select_on_proc_only:            %s\n",
+   fprintf(out, "   select_on_proc_only:            %s\n",
            BOOL2STR(handle->select_on_proc_only));
-   locked_fprintf(out, "   inherit_paramod_lit:            %s\n",
+   fprintf(out, "   inherit_paramod_lit:            %s\n",
            BOOL2STR(handle->inherit_paramod_lit));
-   locked_fprintf(out, "   inherit_goal_pm_lit:            %s\n",
+   fprintf(out, "   inherit_goal_pm_lit:            %s\n",
            BOOL2STR(handle->inherit_goal_pm_lit));
-   locked_fprintf(out, "   inherit_conj_pm_lit:            %s\n",
+   fprintf(out, "   inherit_conj_pm_lit:            %s\n",
            BOOL2STR(handle->inherit_conj_pm_lit));
 
-   locked_fprintf(out, "   enable_eq_factoring:            %s\n",
+   fprintf(out, "   enable_eq_factoring:            %s\n",
            BOOL2STR(handle->enable_eq_factoring));
-   locked_fprintf(out, "   enable_neg_unit_paramod:        %s\n",
+   fprintf(out, "   enable_neg_unit_paramod:        %s\n",
            BOOL2STR(handle->enable_neg_unit_paramod));
-   locked_fprintf(out, "   enable_given_forward_simpl:     %s\n",
+   fprintf(out, "   enable_given_forward_simpl:     %s\n",
            BOOL2STR(handle->enable_given_forward_simpl));
 
-   locked_fprintf(out, "   pm_type:                        %s\n", ParamodStr(handle->pm_type));
+   fprintf(out, "   pm_type:                        %s\n", ParamodStr(handle->pm_type));
 
-   locked_fprintf(out, "   ac_handling:                    %d\n", handle->ac_handling);
-   locked_fprintf(out, "   ac_res_aggressive:              %s\n",
+   fprintf(out, "   ac_handling:                    %d\n", handle->ac_handling);
+   fprintf(out, "   ac_res_aggressive:              %s\n",
            BOOL2STR(handle->ac_res_aggressive));
-   locked_fprintf(out, "   forward_context_sr:             %s\n",
+   fprintf(out, "   forward_context_sr:             %s\n",
            BOOL2STR(handle->forward_context_sr));
-   locked_fprintf(out, "   forward_context_sr_aggressive:  %s\n",
+   fprintf(out, "   forward_context_sr_aggressive:  %s\n",
            BOOL2STR(handle->forward_context_sr_aggressive));
-   locked_fprintf(out, "   backward_context_sr:            %s\n",
+   fprintf(out, "   backward_context_sr:            %s\n",
            BOOL2STR(handle->backward_context_sr));
 
-   locked_fprintf(out, "   forward_subsumption_aggressive: %s\n",
+   fprintf(out, "   forward_subsumption_aggressive: %s\n",
            BOOL2STR(handle->forward_subsumption_aggressive));
 
-   locked_fprintf(out, "   forward_demod:                  %d\n", handle->forward_demod);
-   locked_fprintf(out, "   prefer_general:                 %s\n",
+   fprintf(out, "   forward_demod:                  %d\n", handle->forward_demod);
+   fprintf(out, "   prefer_general:                 %s\n",
            BOOL2STR(handle->prefer_general));
 
-   locked_fprintf(out, "   condensing:                     %s\n",
+   fprintf(out, "   condensing:                     %s\n",
            BOOL2STR(handle->condensing));
-   locked_fprintf(out, "   condensing_aggressive:          %s\n",
+   fprintf(out, "   condensing_aggressive:          %s\n",
            BOOL2STR(handle->condensing_aggressive));
 
-   locked_fprintf(out, "   er_varlit_destructive:          %s\n",
+   fprintf(out, "   er_varlit_destructive:          %s\n",
            BOOL2STR(handle->er_varlit_destructive));
-   locked_fprintf(out, "   er_strong_destructive:          %s\n",
+   fprintf(out, "   er_strong_destructive:          %s\n",
            BOOL2STR(handle->er_strong_destructive));
-   locked_fprintf(out, "   er_aggressive:                  %s\n",
+   fprintf(out, "   er_aggressive:                  %s\n",
            BOOL2STR(handle->er_aggressive));
 
-   locked_fprintf(out, "   split_clauses:                  %d\n", handle->split_clauses);
-   locked_fprintf(out, "   split_method:                   %d\n", handle->split_method);
-   locked_fprintf(out, "   split_aggressive:               %s\n",
+   fprintf(out, "   split_clauses:                  %d\n", handle->split_clauses);
+   fprintf(out, "   split_method:                   %d\n", handle->split_method);
+   fprintf(out, "   split_aggressive:               %s\n",
            BOOL2STR(handle->split_aggressive));
-   locked_fprintf(out, "   split_fresh_defs:               %s\n",
+   fprintf(out, "   split_fresh_defs:               %s\n",
            BOOL2STR(handle->split_fresh_defs));
 
-   locked_fprintf(out, "   rw_bw_index_type:               %s\n", handle->rw_bw_index_type);
-   locked_fprintf(out, "   pm_from_index_type:             %s\n", handle->pm_from_index_type);
-   locked_fprintf(out, "   pm_into_index_type:             %s\n", handle->pm_into_index_type);
+   fprintf(out, "   rw_bw_index_type:               %s\n", handle->rw_bw_index_type);
+   fprintf(out, "   pm_from_index_type:             %s\n", handle->pm_from_index_type);
+   fprintf(out, "   pm_into_index_type:             %s\n", handle->pm_into_index_type);
 
-   locked_fprintf(out, "   sat_check_grounding:            %s\n",
+   fprintf(out, "   sat_check_grounding:            %s\n",
            GroundingStratNames[handle->sat_check_grounding]);
-   locked_fprintf(out, "   sat_check_step_limit:           %ld\n", handle->sat_check_step_limit);
-   locked_fprintf(out, "   sat_check_size_limit:           %ld\n", handle->sat_check_size_limit);
-   locked_fprintf(out, "   sat_check_ttinsert_limit:       %ld\n",
+   fprintf(out, "   sat_check_step_limit:           %ld\n", handle->sat_check_step_limit);
+   fprintf(out, "   sat_check_size_limit:           %ld\n", handle->sat_check_size_limit);
+   fprintf(out, "   sat_check_ttinsert_limit:       %ld\n",
            handle->sat_check_ttinsert_limit);
-   locked_fprintf(out, "   sat_check_normconst:            %s\n",
+   fprintf(out, "   sat_check_normconst:            %s\n",
            BOOL2STR(handle->sat_check_normconst));
-   locked_fprintf(out, "   sat_check_normalize:            %s\n",
+   fprintf(out, "   sat_check_normalize:            %s\n",
            BOOL2STR(handle->sat_check_normalize));
-   locked_fprintf(out, "   sat_check_decision_limit:       %d\n",
+   fprintf(out, "   sat_check_decision_limit:       %d\n",
            handle->sat_check_decision_limit);
 
-   locked_fprintf(out, "   filter_orphans_limit:           %ld\n", handle->filter_orphans_limit);
-   locked_fprintf(out, "   forward_contract_limit:         %ld\n", handle->forward_contract_limit);
-   locked_fprintf(out, "   delete_bad_limit:               %lld\n", handle->delete_bad_limit);
-   locked_fprintf(out, "   mem_limit:                      %" PRIuMAX "\n",
+   fprintf(out, "   filter_orphans_limit:           %ld\n", handle->filter_orphans_limit);
+   fprintf(out, "   forward_contract_limit:         %ld\n", handle->forward_contract_limit);
+   fprintf(out, "   delete_bad_limit:               %lld\n", handle->delete_bad_limit);
+   fprintf(out, "   mem_limit:                      %" PRIuMAX "\n",
            (uintmax_t)handle->mem_limit);
 
 
-   locked_fprintf(out, "   watchlist_simplify:             %s\n",
+   fprintf(out, "   watchlist_simplify:             %s\n",
            BOOL2STR(handle->watchlist_simplify));
-   locked_fprintf(out, "   watchlist_is_static:            %s\n",
+   fprintf(out, "   watchlist_is_static:            %s\n",
            BOOL2STR(handle->watchlist_is_static));
-   locked_fprintf(out, "   use_tptp_sos:                   %s\n",
+   fprintf(out, "   use_tptp_sos:                   %s\n",
            BOOL2STR(handle->use_tptp_sos));
-   locked_fprintf(out, "   presat_interreduction:          %s\n",
+   fprintf(out, "   presat_interreduction:          %s\n",
            BOOL2STR(handle->presat_interreduction));
-   locked_fprintf(out, "   detsort_bw_rw:                  %s\n",
+   fprintf(out, "   detsort_bw_rw:                  %s\n",
            BOOL2STR(handle->detsort_bw_rw));
-   locked_fprintf(out, "   detsort_tmpset:                 %s\n",
+   fprintf(out, "   detsort_tmpset:                 %s\n",
            BOOL2STR(handle->detsort_tmpset));
 
-   locked_fprintf(out, "   arg_cong:                       %s\n",
+   fprintf(out, "   arg_cong:                       %s\n",
            EIT2STR(handle->arg_cong));
-   locked_fprintf(out, "   neg_ext:                        %s\n",
+   fprintf(out, "   neg_ext:                        %s\n",
            EIT2STR(handle->neg_ext));
-   locked_fprintf(out, "   pos_ext:                        %s\n",
+   fprintf(out, "   pos_ext:                        %s\n",
            EIT2STR(handle->pos_ext));
    
-   locked_fprintf(out, "   ext_sup_max_depth:              %d\n",
+   fprintf(out, "   ext_sup_max_depth:              %d\n",
            handle->ext_sup_max_depth);
       
-   locked_fprintf(out, "   inverse_recognition:            %s\n",
+   fprintf(out, "   inverse_recognition:            %s\n",
            BOOL2STR(handle->inverse_recognition));
-   locked_fprintf(out, "   replace_inj_defs:               %s\n",
+   fprintf(out, "   replace_inj_defs:               %s\n",
            BOOL2STR(handle->replace_inj_defs));
-   locked_fprintf(out, "   lift_lambdas:                  %s\n",
+   fprintf(out, "   lift_lambdas:                  %s\n",
            BOOL2STR(handle->lift_lambdas));
-   locked_fprintf(out, "   lambda_to_forall:              %s\n",
+   fprintf(out, "   lambda_to_forall:              %s\n",
            BOOL2STR(handle->lambda_to_forall));
-   locked_fprintf(out, "   unroll_only_formulas:          %s\n",
+   fprintf(out, "   unroll_only_formulas:          %s\n",
            BOOL2STR(handle->unroll_only_formulas));
-   locked_fprintf(out, "   elim_leibniz_max_depth:        %d\n",
+   fprintf(out, "   elim_leibniz_max_depth:        %d\n",
            handle->elim_leibniz_max_depth);
-   locked_fprintf(out, "   prim_enum_mode:                %s\n",
+   fprintf(out, "   prim_enum_mode:                %s\n",
            PEM2STR(handle->prim_enum_mode));
-   locked_fprintf(out, "   prim_enum_max_depth:           %d\n",
+   fprintf(out, "   prim_enum_max_depth:           %d\n",
            handle->prim_enum_max_depth);
-   locked_fprintf(out, "   inst_choice_max_depth:         %d\n",
+   fprintf(out, "   inst_choice_max_depth:         %d\n",
            handle->inst_choice_max_depth);
-   locked_fprintf(out, "   local_rw:                      %s\n",
+   fprintf(out, "   local_rw:                      %s\n",
            BOOL2STR(handle->local_rw));
-   locked_fprintf(out, "   prune_args:                    %s\n",
+   fprintf(out, "   prune_args:                    %s\n",
            BOOL2STR(handle->prune_args));
-   locked_fprintf(out, "   preinstantiate_induction:      %s\n",
+   fprintf(out, "   preinstantiate_induction:      %s\n",
            BOOL2STR(handle->preinstantiate_induction));
-   locked_fprintf(out, "   func_proj_limit:               %d\n",
+   fprintf(out, "   func_proj_limit:               %d\n",
            handle->func_proj_limit);
-   locked_fprintf(out, "   imit_limit:                    %d\n",
+   fprintf(out, "   imit_limit:                    %d\n",
            handle->imit_limit);
-   locked_fprintf(out, "   ident_limit:                   %d\n",
+   fprintf(out, "   ident_limit:                   %d\n",
            handle->ident_limit);
-   locked_fprintf(out, "   elim_limit:                    %d\n",
+   fprintf(out, "   elim_limit:                    %d\n",
            handle->elim_limit);
-   locked_fprintf(out, "   unif_mode:                     %s\n",
+   fprintf(out, "   unif_mode:                     %s\n",
            UM2STR(handle->unif_mode));
-   locked_fprintf(out, "   pattern_oracle:                %s\n",
+   fprintf(out, "   pattern_oracle:                %s\n",
            BOOL2STR(handle->pattern_oracle));
-   locked_fprintf(out, "   fixpoint_oracle:               %s\n",
+   fprintf(out, "   fixpoint_oracle:               %s\n",
            BOOL2STR(handle->fixpoint_oracle));
-   locked_fprintf(out, "   max_unifiers:                    %d\n",
+   fprintf(out, "   max_unifiers:                    %d\n",
            handle->max_unifiers);
 
-   locked_fprintf(out, "}\n");
+   fprintf(out, "}\n");
 }
 
 

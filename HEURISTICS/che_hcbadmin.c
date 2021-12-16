@@ -178,7 +178,7 @@ long HCBAdminAddHCB(HCBAdmin_p set, char* name, HCB_p hcb)
    assert(name);
    assert(hcb);
 
-   VERBOSE2(locked_fprintf(stderr, "%s: Adding heuristic '%s'.\n",
+   VERBOSE2(fprintf(stderr, "%s: Adding heuristic '%s'.\n",
                     ProgName, name););
    PStackPushP(set->names, SecureStrdup(name));
    PStackPushP(set->hcb_set, hcb);

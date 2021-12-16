@@ -467,7 +467,7 @@ long StructFOFSpecParseAxioms(StructFOFSpec_p ctrl, PStack_p axfiles,
          {
             ScannerSetFormat(in, parse_format);
 
-            locked_fprintf(GlobalOut, "# Parsing %s\n", iname);
+            fprintf(GlobalOut, "# Parsing %s\n", iname);
             cset = ClauseSetAlloc();
             fset = FormulaSetAlloc();
             GCRegisterFormulaSet(ctrl->terms->gc, fset);
@@ -484,7 +484,7 @@ long StructFOFSpecParseAxioms(StructFOFSpec_p ctrl, PStack_p axfiles,
          }
          else
          {
-            locked_fprintf(GlobalOut, "# Could not find %s\n", iname);
+            fprintf(GlobalOut, "# Could not find %s\n", iname);
          }
       }
    }

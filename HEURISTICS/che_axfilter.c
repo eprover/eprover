@@ -468,7 +468,7 @@ void AxFilterPrint(FILE* out, AxFilter_p filter)
       success =  AxFilterPrintBuf(buf, size, filter);
       if(success)
       {
-         locked_fprintf(out, "%s", buf);
+         fprintf(out, "%s", buf);
       }
       FREE(buf);
       size *= 2;
@@ -490,7 +490,7 @@ void AxFilterPrint(FILE* out, AxFilter_p filter)
 
 void AxFilterDefPrint(FILE* out, AxFilter_p filter)
 {
-   locked_fprintf(out, "%s = ", filter->name);
+   fprintf(out, "%s = ", filter->name);
    AxFilterPrint(out, filter);
 }
 
@@ -613,7 +613,7 @@ void AxFilterSetPrint(FILE* out, AxFilterSet_p set)
    for(i=0; i<PStackGetSP(set->set); i++)
    {
       AxFilterDefPrint(out, PStackElementP(set->set, i));
-      locked_fprintf(out, "\n");
+      fprintf(out, "\n");
    }
 }
 

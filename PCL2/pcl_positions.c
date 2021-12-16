@@ -163,17 +163,17 @@ void PCL2PosPrint(FILE* out, PCL2Pos_p pos)
 
    assert(pos);
 
-   locked_fprintf(out, "%ld", pos->literal);
+   fprintf(out, "%ld", pos->literal);
    if(pos->side!=NoSide)
    {
       assert((pos->side==LeftSide) || (pos->side==RightSide));
-      locked_fprintf(out, ".%c", (pos->side==LeftSide)?'L':'R');
+      fprintf(out, ".%c", (pos->side==LeftSide)?'L':'R');
 
       i=0;
       while(i<pos->termposlen)
       {
     assert(pos->termpos);
-    locked_fprintf(out, "%ld", PDArrayElementInt(pos->termpos,i++));
+    fprintf(out, "%ld", PDArrayElementInt(pos->termpos,i++));
       }
    }
 }

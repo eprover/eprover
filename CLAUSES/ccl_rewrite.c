@@ -607,15 +607,15 @@ ClausePos_p indexed_find_demodulator(OCB_p ocb, Term_p term,
       && !TermStructPrefixEqual(ClausePosGetSide(res), term, DEREF_ONCE, DEREF_NEVER,
                                 0, ocb->sig))
    {
-      locked_fprintf(stderr, "Term ");
+      fprintf(stderr, "Term ");
       TermPrintDbg(stderr, ClausePosGetSide(res), ocb->sig, DEREF_NEVER);
-      locked_fprintf(stderr, " derefed { ");
+      fprintf(stderr, " derefed { ");
       TermPrintDbg(stderr, ClausePosGetSide(res), ocb->sig, DEREF_ONCE);
-      locked_fprintf(stderr, " } should match ");
+      fprintf(stderr, " } should match ");
       TermPrintDbg(stderr, term, ocb->sig, DEREF_NEVER);
-      locked_fprintf(stderr, ", substitution is : ");
+      fprintf(stderr, ", substitution is : ");
       SubstPrint(stderr, subst, ocb->sig, DEREF_NEVER);
-      locked_fprintf(stderr, ".\n");
+      fprintf(stderr, ".\n");
 
       assert(false);
    }

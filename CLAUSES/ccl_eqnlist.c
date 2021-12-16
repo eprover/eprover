@@ -1545,7 +1545,7 @@ void EqnListPrintDeref(FILE* out, Eqn_p list, char* sep,
       EqnPrintDeref(out, handle, deref);
       if(handle->next)
       {
-         locked_fprintf(out, "%s", sep);
+         fprintf(out, "%s", sep);
       }
    }
 }

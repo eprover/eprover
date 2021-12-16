@@ -155,7 +155,7 @@ void tcp_msg_wait(int sock, char* reply)
       msg = TCPStringRecvX(sock);
       if(msg)
       {
-         locked_fprintf(GlobalOut, "# Server: %s\n", msg);
+         fprintf(GlobalOut, "# Server: %s\n", msg);
          if(strcmp(msg, reply)==0)
          {
             FREE(msg);
@@ -213,7 +213,7 @@ int main(int argc, char* argv[])
    {
       FileLoad(state->argv[i],problem);
    }
-   //locked_fprintf(GlobalOut, "Problem:\n%s", DStrView(problem));
+   //fprintf(GlobalOut, "Problem:\n%s", DStrView(problem));
 
    sock = CreateClientSock(server, port);
 
@@ -277,7 +277,7 @@ CLState_p process_options(int argc, char* argv[])
        print_help(stdout);
        exit(NO_ERROR);
       case OPT_VERSION:
-       locked_fprintf(stdout, "E " VERSION " " E_NICKNAME "\n");
+       fprintf(stdout, "E " VERSION " " E_NICKNAME "\n");
        exit(NO_ERROR);
       case OPT_OUTPUT:
        outname = arg;
@@ -307,7 +307,7 @@ CLState_p process_options(int argc, char* argv[])
 
 void print_help(FILE* out)
 {
-   locked_fprintf(out, "\n\
+   fprintf(out, "\n\
 E " VERSION " \"" E_NICKNAME "\"\n\
 \n\
 Usage: " NAME " [options] [files]\n\
@@ -316,7 +316,7 @@ Read an problem specification, connect to the E deduction server, \n\
 and try to have the problem solved.\n\
 \n");
    PrintOptions(stdout, opts, "Options:\n\n");
-   locked_fprintf(out, "\n\
+   fprintf(out, "\n\
 Copyright (C) 2011 by Stephan Schulz, " STS_MAIL "\n\
 \n\
 You can find the latest version of E and additional information at\n"

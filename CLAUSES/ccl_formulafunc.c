@@ -630,7 +630,7 @@ void ignore_include(Scanner_p in)
    AcceptInpTok(in, CloseBracket);
    AcceptInpTok(in, Fullstop);
 
-   locked_fprintf(stdout, "include('%s').\n", name);
+   fprintf(stdout, "include('%s').\n", name);
    FREE(name);
 }
 
@@ -1495,7 +1495,7 @@ long FormulaSetCNF(FormulaSet_p set, FormulaSet_p archive,
    {
       handle = FormulaSetExtractFirst(set);
       // WFormulaPrint(stdout, handle, true);
-      // locked_fprintf(stdout, "\n");
+      // fprintf(stdout, "\n");
       form = WFormulaFlatCopy(handle);
       FormulaSetInsert(archive, handle);
       WFormulaPushDerivation(form, DCFofQuote, handle, NULL);
@@ -1572,7 +1572,7 @@ long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive,
    {
       handle = FormulaSetExtractFirst(set);
       //WFormulaPrint(stdout, handle, true);
-      //locked_fprintf(stdout, "\n");
+      //fprintf(stdout, "\n");
       form = WFormulaFlatCopy(handle);
       FormulaSetInsert(archive, handle);
       WFormulaPushDerivation(form, DCFofQuote, handle, NULL);
@@ -1639,9 +1639,9 @@ long FormulaAndClauseSetParse(Scanner_p in, FormulaSet_p fset,
       while (ClauseStartsMaybe(in))
       {
          form = WFormClauseParse(in, terms);
-         // locked_fprintf(stdout, "Parsed: ");
+         // fprintf(stdout, "Parsed: ");
          // WFormulaPrint(stdout, form, true);
-         // locked_fprintf(stdout, "\n");
+         // fprintf(stdout, "\n");
          FormulaSetInsert(fset, form);
          res++;
       }
@@ -1696,9 +1696,9 @@ long FormulaAndClauseSetParse(Scanner_p in, FormulaSet_p fset,
             {
                // printf("It's a formula\n");
                form = WFormulaParse(in, terms);
-               // locked_fprintf(stdout, "Parsed: ");
+               // fprintf(stdout, "Parsed: ");
                // WFormulaPrint(stdout, form, true);
-               // locked_fprintf(stdout, "\n");
+               // fprintf(stdout, "\n");
             }
             else
             {

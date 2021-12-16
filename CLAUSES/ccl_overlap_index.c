@@ -734,8 +734,8 @@ void OverlapIndexSubtermTreePrint(FILE* out, SubtermTree_p root)
    {
       OverlapIndexSubtermTreePrint(out, root->lson);
       data = root->key;
-      locked_fprintf(out, "Node: %p data=%p\n", root, data);
-      locked_fprintf(out, "Key: %ld = ", data->term->entry_no);
+      fprintf(out, "Node: %p data=%p\n", root, data);
+      fprintf(out, "Key: %ld = ", data->term->entry_no);
       if(data->pl.pos.clauses)
       {
          ClauseTPos_p clause_tpos = data->pl.pos.clauses->key;
@@ -744,12 +744,12 @@ void OverlapIndexSubtermTreePrint(FILE* out, SubtermTree_p root)
          {
              TermPrint(out, data->term, clause->literals->bank->sig, DEREF_ALWAYS);
          }
-         locked_fprintf(out, "\n");
+         fprintf(out, "\n");
          OverlapIndexClauseTreePrint(out, data->pl.pos.clauses);
       }
       else
       {
-         locked_fprintf(out, "\nlson=%p, rson=%p\n\n", root->lson, root->rson);
+         fprintf(out, "\nlson=%p, rson=%p\n\n", root->lson, root->rson);
       }
       OverlapIndexSubtermTreePrint(out, root->rson);
    }
@@ -772,9 +772,9 @@ void OverlapIndexFPLeafPrint(FILE* out, PStack_p stack, FPTree_p leaf)
 {
    PStack_p iter = PStackAlloc();
 
-   locked_fprintf(out, "# ");
+   fprintf(out, "# ");
    PStackPrintInt(out, "%4ld.", stack);
-   locked_fprintf(out, ":%ld terms\n", PObjTreeNodes(leaf->payload));
+   fprintf(out, ":%ld terms\n", PObjTreeNodes(leaf->payload));
    OverlapIndexSubtermTreePrint(out, leaf->payload);
 
    PStackFree(iter);

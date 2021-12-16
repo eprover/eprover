@@ -170,7 +170,7 @@ void PrintDashedStatuses(FILE* out, char* stat1, char* stat2, char* fallback)
 
    if(stat1 && stat2)
    {
-      locked_fprintf(out, "%s-%s", stat1, stat2);
+      fprintf(out, "%s-%s", stat1, stat2);
    }
    else if(stat1)
    {

@@ -390,7 +390,7 @@ CLState_p process_options(int argc, char* argv[])
        print_help(stdout);
        exit(NO_ERROR);
       case OPT_VERSION:
-       locked_fprintf(stdout, "E " VERSION " " E_NICKNAME "\n");
+       fprintf(stdout, "E " VERSION " " E_NICKNAME "\n");
        exit(NO_ERROR);
       case OPT_OUTPUT:
        outname = arg;
@@ -437,7 +437,7 @@ CLState_p process_options(int argc, char* argv[])
 
 void print_help(FILE* out)
 {
-   locked_fprintf(out, "\n\
+   fprintf(out, "\n\
 E " VERSION " \"" E_NICKNAME "\"\n\
 \n\
 Usage: " NAME " [options] [files]\n\
@@ -451,7 +451,7 @@ to use for proof attemtps, the dervice port, and the binary of the\n\
 prover to use.\n\
 \n");
    PrintOptions(stdout, opts, "Options:\n\n");
-   locked_fprintf(out, "\n\
+   fprintf(out, "\n\
 Copyright (C) 2011 by Stephan Schulz, " STS_MAIL "\n\
 \n\
 You can find the latest version of E and additional information at\n"

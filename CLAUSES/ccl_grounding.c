@@ -552,7 +552,7 @@ void PrintDimacsHeader(FILE* out, long max_lit, long members)
    {
       max_lit = 1;
    }
-   locked_fprintf(out, "p cnf %ld %ld\n", max_lit, members);
+   fprintf(out, "p cnf %ld %ld\n", max_lit, members);
 }
 
 
@@ -576,7 +576,7 @@ void ClausePrintDimacs(FILE* out, Clause_p clause)
    {
       /* SATO is broken, and so may be lots of other provers...we just
          print a trivial problem that reduces to empty...*/
-      locked_fprintf(out, " -1 0\n  1 0\n");
+      fprintf(out, " -1 0\n  1 0\n");
    }
    else
    {
@@ -584,11 +584,11 @@ void ClausePrintDimacs(FILE* out, Clause_p clause)
       {
          if(EqnIsPositive(handle))
          {
-            locked_fprintf(stdout, "  %ld", handle->lterm->entry_no);
+            fprintf(stdout, "  %ld", handle->lterm->entry_no);
          }
          else
          {
-            locked_fprintf(stdout, " -%ld", handle->lterm->entry_no);
+            fprintf(stdout, " -%ld", handle->lterm->entry_no);
          }
       }
       fputs(" 0\n", out);
@@ -831,11 +831,11 @@ void GroundSetPrintDimacs(FILE* out, GroundSet_p set)
       status = PDArrayElementInt(set->units, i);
       if(status&GCUPos)
       {
-         locked_fprintf(out, "  %ld 0\n", i);
+         fprintf(out, "  %ld 0\n", i);
       }
       if(status&GCUNeg)
       {
-         locked_fprintf(out, " -%ld 0\n", i);
+         fprintf(out, " -%ld 0\n", i);
       }
    }
    for(handle = set->non_units->list; handle; handle = handle->next)
@@ -1025,7 +1025,7 @@ bool ClauseSetCreateGroundInstances(TB_p bank, ClauseSet_p set,
          est_inst = est_inst*tmp;
          if(est_inst > give_up)
          {
-            locked_fprintf(GlobalOut, "\n# Failure: User resource limit"
+            fprintf(GlobalOut, "\n# Failure: User resource limit"
                     " exceeded (estimated number of instances)!\n");
             exit(NO_ERROR);
          }
@@ -1123,7 +1123,7 @@ bool ClauseSetCreateConstrGroundInstances(TB_p bank, ClauseSet_p set,
          clause_estimate = varinstestimate(inst);
          if((GroundSetMembers(groundset)+clause_estimate) > give_up)
          {
-            locked_fprintf(GlobalOut, "\n# Failure: User resource limit"
+            fprintf(GlobalOut, "\n# Failure: User resource limit"
                     " exceeded (estimated number of instances)!\n");
             exit(NO_ERROR);
          }

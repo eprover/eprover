@@ -186,7 +186,7 @@ ProofState_p parse_spec(CLState_p state,
    if(error_on_empty_local && (parsed_ax_no == 0))
    {
 #ifdef PRINT_SOMEERRORS_STDOUT
-      locked_fprintf(GlobalOut, "# Error: Input file contains no clauses or formulas\n");
+      fprintf(GlobalOut, "# Error: Input file contains no clauses or formulas\n");
       TSTPOUT(GlobalOut, "InputError");
 #endif
       Error("Input file contains no clauses or formulas", OTHER_ERROR);
@@ -214,12 +214,12 @@ static void print_info(void)
 {
    if(print_pid)
    {
-      locked_fprintf(GlobalOut, "# Pid: %lld\n", (long long)pid);
+      fprintf(GlobalOut, "# Pid: %lld\n", (long long)pid);
       fflush(GlobalOut);
    }
    if(print_version)
    {
-      locked_fprintf(GlobalOut, "# Version: %s\n", VERSION);
+      fprintf(GlobalOut, "# Version: %s\n", VERSION);
       fflush(GlobalOut);
    }
 }
@@ -272,45 +272,45 @@ static void print_proof_stats(ProofState_p proofstate,
 {
    if(OutputLevel>1||print_statistics)
    {
-      locked_fprintf(GlobalOut, "# Parsed axioms                        : %ld\n",
+      fprintf(GlobalOut, "# Parsed axioms                        : %ld\n",
               parsed_ax_no);
-      locked_fprintf(GlobalOut, "# Removed by relevancy pruning/SinE    : %ld\n",
+      fprintf(GlobalOut, "# Removed by relevancy pruning/SinE    : %ld\n",
               relevancy_pruned);
-      locked_fprintf(GlobalOut, "# Initial clauses                      : %ld\n",
+      fprintf(GlobalOut, "# Initial clauses                      : %ld\n",
               raw_clause_no);
-      locked_fprintf(GlobalOut, "# Removed in clause preprocessing      : %ld\n",
+      fprintf(GlobalOut, "# Removed in clause preprocessing      : %ld\n",
               preproc_removed);
       ProofStateStatisticsPrint(GlobalOut, proofstate);
-      locked_fprintf(GlobalOut, "# Clause-clause subsumption calls (NU) : %ld\n",
+      fprintf(GlobalOut, "# Clause-clause subsumption calls (NU) : %ld\n",
               ClauseClauseSubsumptionCalls);
-      locked_fprintf(GlobalOut, "# Rec. Clause-clause subsumption calls : %ld\n",
+      fprintf(GlobalOut, "# Rec. Clause-clause subsumption calls : %ld\n",
               ClauseClauseSubsumptionCallsRec);
-      locked_fprintf(GlobalOut, "# Non-unit clause-clause subsumptions  : %ld\n",
+      fprintf(GlobalOut, "# Non-unit clause-clause subsumptions  : %ld\n",
               ClauseClauseSubsumptionSuccesses);
-      locked_fprintf(GlobalOut, "# Unit Clause-clause subsumption calls : %ld\n",
+      fprintf(GlobalOut, "# Unit Clause-clause subsumption calls : %ld\n",
               UnitClauseClauseSubsumptionCalls);
-      locked_fprintf(GlobalOut, "# Rewrite failures with RHS unbound    : %ld\n",
+      fprintf(GlobalOut, "# Rewrite failures with RHS unbound    : %ld\n",
               RewriteUnboundVarFails);
-      locked_fprintf(GlobalOut, "# BW rewrite match attempts            : %ld\n",
+      fprintf(GlobalOut, "# BW rewrite match attempts            : %ld\n",
               BWRWMatchAttempts);
-      locked_fprintf(GlobalOut, "# BW rewrite match successes           : %ld\n",
+      fprintf(GlobalOut, "# BW rewrite match successes           : %ld\n",
               BWRWMatchSuccesses);
-      locked_fprintf(GlobalOut, "# Condensation attempts                : %ld\n",
+      fprintf(GlobalOut, "# Condensation attempts                : %ld\n",
               CondensationAttempts);
-      locked_fprintf(GlobalOut, "# Condensation successes               : %ld\n",
+      fprintf(GlobalOut, "# Condensation successes               : %ld\n",
               CondensationSuccesses);
 
 #ifdef MEASURE_UNIFICATION
-      locked_fprintf(GlobalOut, "# Unification attempts                 : %ld\n",
+      fprintf(GlobalOut, "# Unification attempts                 : %ld\n",
               UnifAttempts);
-      locked_fprintf(GlobalOut, "# Unification successes                : %ld\n",
+      fprintf(GlobalOut, "# Unification successes                : %ld\n",
               UnifSuccesses);
 #endif
 #ifdef PDT_COUNT_NODES
-      locked_fprintf(GlobalOut, "# PDT nodes visited                    : %ld\n",
+      fprintf(GlobalOut, "# PDT nodes visited                    : %ld\n",
               PDTNodeCounter);
 #endif
-      locked_fprintf(GlobalOut, "# Termbank termtop insertions          : %lld\n",
+      fprintf(GlobalOut, "# Termbank termtop insertions          : %lld\n",
               proofstate->terms->insertions);
       PERF_CTR_PRINT(GlobalOut, MguTimer);
       PERF_CTR_PRINT(GlobalOut, SatTimer);
@@ -327,26 +327,26 @@ static void print_proof_stats(ProofState_p proofstate,
       PERF_CTR_PRINT(GlobalOut, ClauseEvalTimer);
 
 #ifdef PRINT_INDEX_STATS
-      locked_fprintf(GlobalOut, "# Backwards rewriting index : ");
+      fprintf(GlobalOut, "# Backwards rewriting index : ");
       FPIndexDistribDataPrint(GlobalOut, proofstate->gindices.bw_rw_index);
-      locked_fprintf(GlobalOut, "\n");
+      fprintf(GlobalOut, "\n");
       /*FPIndexPrintDot(GlobalOut, "rw_bw_index",
         proofstate->gindices.bw_rw_index,
         SubtermTreePrintDot,
         proofstate->signature);*/
-      locked_fprintf(GlobalOut, "# Paramod-from index        : ");
+      fprintf(GlobalOut, "# Paramod-from index        : ");
       FPIndexDistribDataPrint(GlobalOut, proofstate->gindices.pm_from_index);
-      locked_fprintf(GlobalOut, "\n");
+      fprintf(GlobalOut, "\n");
       FPIndexPrintDot(GlobalOut, "pm_from_index",
                       proofstate->gindices.pm_from_index,
                       SubtermTreePrintDot,
                       proofstate->signature);
-      locked_fprintf(GlobalOut, "# Paramod-into index        : ");
+      fprintf(GlobalOut, "# Paramod-into index        : ");
       FPIndexDistribDataPrint(GlobalOut, proofstate->gindices.pm_into_index);
-      locked_fprintf(GlobalOut, "\n");
-      locked_fprintf(GlobalOut, "# Paramod-neg-atom index    : ");
+      fprintf(GlobalOut, "\n");
+      fprintf(GlobalOut, "# Paramod-neg-atom index    : ");
       FPIndexDistribDataPrint(GlobalOut, proofstate->gindices.pm_negp_index);
-      locked_fprintf(GlobalOut, "\n");
+      fprintf(GlobalOut, "\n");
 #endif
       // PDTreePrint(GlobalOut, proofstate->processed_pos_rules->demod_index);
    }
@@ -440,7 +440,7 @@ int main(int argc, char* argv[])
 
    if(syntax_only)
    {
-      locked_fprintf(GlobalOut, "\n# Parsing successful!\n");
+      fprintf(GlobalOut, "\n# Parsing successful!\n");
       TSTPOUT(GlobalOut, "Unknown");
       goto cleanup1;
    }
@@ -481,7 +481,7 @@ int main(int argc, char* argv[])
    }  
             
 #ifndef NDEBUG
-      locked_fprintf(stderr, "(lift_lambdas = %d, lambda_to_forall = %d," 
+      fprintf(stderr, "(lift_lambdas = %d, lambda_to_forall = %d," 
                       "unroll_only_formulas = %d, sine = %s)\n", 
                       h_parms->lift_lambdas,
                       h_parms->lambda_to_forall,
@@ -508,7 +508,7 @@ int main(int argc, char* argv[])
 
    if(prune_only)
    {
-      locked_fprintf(GlobalOut, "\n# Pruning successful!\n");
+      fprintf(GlobalOut, "\n# Pruning successful!\n");
       TSTPOUT(GlobalOut, "Unknown");
       goto cleanup1;
    }
@@ -632,7 +632,7 @@ int main(int argc, char* argv[])
    preproc_time = GetTotalCPUTime();
    if(print_rusage)
    {
-      locked_fprintf(GlobalOut, "# Preprocessing time       : %.3f s\n", preproc_time);
+      fprintf(GlobalOut, "# Preprocessing time       : %.3f s\n", preproc_time);
    }
 
    if(proofcontrol->heuristic_parms.presat_interreduction)
@@ -644,7 +644,7 @@ int main(int argc, char* argv[])
       success = Saturate(proofstate, proofcontrol, LONG_MAX,
                          LONG_MAX, LONG_MAX, LONG_MAX, LONG_MAX,
                          LLONG_MAX, LONG_MAX);
-      locked_fprintf(GlobalOut, "# Presaturation interreduction done\n");
+      fprintf(GlobalOut, "# Presaturation interreduction done\n");
       proofcontrol->heuristic_parms.selection_strategy = sel_strat;
       if(!success)
       {
@@ -693,7 +693,7 @@ int main(int argc, char* argv[])
       }
 
 
-      locked_fprintf(GlobalOut, "\n# Proof found!\n");
+      fprintf(GlobalOut, "\n# Proof found!\n");
 
       if(print_full_deriv)
       {
@@ -748,7 +748,7 @@ int main(int argc, char* argv[])
       ProofStatePropDocQuote(GlobalOut, OutputLevel,
                              CPSubsumesWatch, proofstate,
                              "final_subsumes_wl");
-      locked_fprintf(GlobalOut, "\n# Watchlist is empty!\n");
+      fprintf(GlobalOut, "\n# Watchlist is empty!\n");
       TSTPOUT(GlobalOut, "ResourceOut");
       retval = RESOURCE_OUT;
    }
@@ -765,14 +765,14 @@ int main(int argc, char* argv[])
 
       if(cnf_only)
       {
-         locked_fprintf(GlobalOut, "\n# CNFization successful!\n");
+         fprintf(GlobalOut, "\n# CNFization successful!\n");
          TSTPOUT(GlobalOut, "Unknown");
       }
       else if(out_of_clauses)
       {
          if(!(inf_sys_complete || assume_inf_sys_complete))
          {
-            locked_fprintf(GlobalOut,
+            fprintf(GlobalOut,
                     "\n# Clause set closed under "
                     "restricted calculus!\n");
             if(!SilentTimeOut)
@@ -785,7 +785,7 @@ int main(int argc, char* argv[])
                  inf_sys_complete &&
                  proofstate->has_interpreted_symbols)
          {
-            locked_fprintf(GlobalOut,
+            fprintf(GlobalOut,
                     "\n# Clause set saturated up to interpreted theories!\n");
             if(!SilentTimeOut)
             {
@@ -795,14 +795,14 @@ int main(int argc, char* argv[])
          }
          else if(problemType == PROBLEM_FO && proofstate->state_is_complete && inf_sys_complete)
          {
-            locked_fprintf(GlobalOut, "\n# No proof found!\n");
+            fprintf(GlobalOut, "\n# No proof found!\n");
             TSTPOUT(GlobalOut, neg_conjectures?"CounterSatisfiable":"Satisfiable");
             sat_status = "Saturation";
             retval = SATISFIABLE;
          }
          else
          {
-            locked_fprintf(GlobalOut, "\n# Failure: Out of unprocessed clauses!\n");
+            fprintf(GlobalOut, "\n# Failure: Out of unprocessed clauses!\n");
             if(!SilentTimeOut)
             {
                ClauseSetPrint(stderr, proofstate->processed_pos_rules, true);
@@ -816,7 +816,7 @@ int main(int argc, char* argv[])
       }
       else
       {
-         locked_fprintf(GlobalOut, "\n# Failure: User resource limit exceeded!\n");
+         fprintf(GlobalOut, "\n# Failure: User resource limit exceeded!\n");
          if(!SilentTimeOut)
          {
             TSTPOUT(GlobalOut, "ResourceOut");
@@ -856,18 +856,18 @@ int main(int argc, char* argv[])
    {
       if(proofstate->non_redundant_deleted)
       {
-         locked_fprintf(GlobalOut, "\n# Saturated system is incomplete!\n");
+         fprintf(GlobalOut, "\n# Saturated system is incomplete!\n");
       }
       if(success)
       {
-         locked_fprintf(GlobalOut, "# Saturated system contains the empty clause:\n");
+         fprintf(GlobalOut, "# Saturated system contains the empty clause:\n");
          ClausePrint(GlobalOut, success, true);
          fputc('\n',GlobalOut);
          fputc('\n',GlobalOut);
       }
       ProofStatePrintSelective(GlobalOut, proofstate, outdesc,
                                outinfo);
-      locked_fprintf(GlobalOut, "\n");
+      fprintf(GlobalOut, "\n");
    }
 
    if(success)
@@ -883,7 +883,7 @@ int main(int argc, char* argv[])
                      preproc_removed);
 #ifndef FAST_EXIT
 #ifdef FULL_MEM_STATS
-   locked_fprintf(GlobalOut,
+   fprintf(GlobalOut,
            "# sizeof TermCell     : %ld\n"
            "# sizeof EqnCell      : %ld\n"
            "# sizeof ClauseCell   : %ld\n"
@@ -900,7 +900,7 @@ int main(int argc, char* argv[])
            sizeof(EvalCell),
            sizeof(ClausePosCell),
            sizeof(PDArrayCell));
-   locked_fprintf(GlobalOut, "# Estimated memory usage: %ld\n",
+   fprintf(GlobalOut, "# Estimated memory usage: %ld\n",
            ProofStateStorage(proofstate));
    MemFreeListPrint(GlobalOut);
 #endif
@@ -1003,7 +1003,7 @@ CLState_p process_options(int argc, char* argv[])
             print_help(stdout);
             exit(NO_ERROR);
       case OPT_VERSION:
-            locked_fprintf(stdout, "E %s %s (%s)\n", VERSION, E_NICKNAME, ECOMMITID);
+            fprintf(stdout, "E %s %s (%s)\n", VERSION, E_NICKNAME, ECOMMITID);
             exit(NO_ERROR);
       case OPT_OUTPUT:
             outname = arg;
@@ -1099,7 +1099,7 @@ CLState_p process_options(int argc, char* argv[])
                   Error("Cannot find physical memory automatically. "
                         "Give explicit value to --memory-limit", OTHER_ERROR);
                }
-               VERBOSE(locked_fprintf(stderr,
+               VERBOSE(fprintf(stderr,
                                "Physical memory determined as %lld MB\n",
                                tmpmem););
 
@@ -1113,7 +1113,7 @@ CLState_p process_options(int argc, char* argv[])
                /* We expect the user to know what he is doing */
                mem_limit = CLStateGetIntArg(handle, arg);
             }
-            VERBOSE(locked_fprintf(stderr,
+            VERBOSE(fprintf(stderr,
                             "Memory limit set to %lld MB\n",
                             (long long)mem_limit););
             h_parms->mem_limit = MEGA*mem_limit;
@@ -2067,7 +2067,7 @@ CLState_p process_options(int argc, char* argv[])
 
 void print_help(FILE* out)
 {
-   locked_fprintf(out, "\n\
+   fprintf(out, "\n\
 E " VERSION " \"" E_NICKNAME "\"\n\
 \n\
 Usage: " NAME " [options] [files]\n\
@@ -2075,7 +2075,7 @@ Usage: " NAME " [options] [files]\n\
 Read a set of first-order clauses and formulae and try to refute it.\n\
 \n");
    PrintOptions(stdout, opts, "Options:\n\n");
-   locked_fprintf(out, "\n\n" E_FOOTER);
+   fprintf(out, "\n\n" E_FOOTER);
 }
 
 

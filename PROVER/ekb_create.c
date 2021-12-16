@@ -157,18 +157,18 @@ int main(int argc, char* argv[])
    KBDescFree(handle);
 
    out = OutOpen(KBFileName(name, basename, "signature"));
-   locked_fprintf(out,
+   fprintf(out,
       "# Special function symbols that are not generalized.\n"
       "# You need to hand-hack this at the moment.\n");
    OutClose(out);
 
    out = OutOpen(KBFileName(name, basename, "problems"));
-   locked_fprintf(out,
+   fprintf(out,
       "# Example names and features. \n");
    OutClose(out);
 
    out = OutOpen(KBFileName(name, basename, "clausepatterns"));
-   locked_fprintf(out,
+   fprintf(out,
       "# Individual annotated patterns. \n");
    OutClose(out);
 
@@ -256,7 +256,7 @@ CLState_p process_options(int argc, char* argv[])
 
 void print_help(FILE* out)
 {
-   locked_fprintf(out, "\n\
+   fprintf(out, "\n\
 \n"
 NAME " " VERSION "\n\
 \n\
@@ -264,7 +264,7 @@ Usage: " NAME " [options] [<name>]\n\
 \n\
 Create an empty knowledge base with name <name> for E.\n\n");
    PrintOptions(stdout, opts, "Options\n\n");
-   locked_fprintf(out, "\n\n" E_FOOTER);
+   fprintf(out, "\n\n" E_FOOTER);
 }
 
 

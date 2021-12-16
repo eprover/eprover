@@ -275,7 +275,7 @@ CLState_p process_options(int argc, char* argv[])
                         "Give explicit value to --memory-limit", OTHER_ERROR);
                }
                mem_limit = MEGA*mem_limit;
-               VERBOSE(locked_fprintf(stderr,
+               VERBOSE(fprintf(stderr,
                                "Physical memory determined as %ld MB\n"
                                "Memory limit set to %lld MB\n",
                                tmpmem,
@@ -355,7 +355,7 @@ CLState_p process_options(int argc, char* argv[])
 
 void print_help(FILE* out)
 {
-   locked_fprintf(out, "\n\
+   fprintf(out, "\n\
 \n\
 "NAME " " VERSION "\n\
 \n\
@@ -365,7 +365,7 @@ Read a set of ground clauses and try to refute (or satisfy) it.\n\
 Not completed yet!\n\
 \n");
    PrintOptions(stdout, opts, "Options\n\n");
-   locked_fprintf(out, "\n\
+   fprintf(out, "\n\
 Copyright (C) 2003 by Stephan Schulz, " STS_MAIL" \n\
 \n\
 This program is a part of the support structure for the E equational\n\

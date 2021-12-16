@@ -44,11 +44,18 @@ class Configuration(object):
   _all_attempted = {} # hold info how many confs attempted a problem
   _all_confs = 0  # how many objetcs of Conf type have been created
 
-  PREPROCESSING_KEYS = [
-    'no_preproc', 'eqdef_maxclauses', 'eqdef_incrlimit',
-    'formula_def_limit',  'sine', 'presat_interreduction',
-    'lift_lambdas', 'lambda_to_forall', 'unroll_only_formulas'
-  ]
+  PREPROCESSING_W_DEFAULTS =
+  {
+    'no_preproc': 'false', 
+    'eqdef_maxclauses': '20000', 
+    'eqdef_incrlimit': '20',
+    'formula_def_limit': '24', 
+    'sine': 'Auto', 
+    'presat_interreduction': 'false',
+    'lift_lambdas': 'true',
+    'lambda_to_forall': 'true', 
+    'unroll_only_formulas' :'true'
+  }
 
   ONLY_PREPROCESSING = 1
   ONLY_SATURATION = 2
@@ -63,6 +70,7 @@ class Configuration(object):
     self._total_time = 0.0
     self._total_uniqness = None
     self._json = None
+    self._preprocess = None
     Configuration._all_confs += 1
 
   def add_solved_prob(self, prob, time):
@@ -131,22 +139,28 @@ class Configuration(object):
     if self._json is None:
       return None
 
-    if json_mode == self.BOTH:
-      json = self._json
-    elif json_mode == self.ONLY_PREPROCESSING:
-      lines = filter(lambda l: '{' in l or '}' in l or \
-                               any(filter(lambda k: l.strip().startswith(k), 
-                                          self.PREPROCESSING_KEYS)),
-                     self._json.split('\n'))
-      json = '\n'.join(lines)
-    else:
-      assert(json_mode == self.ONLY_SATURATION)
-      lines = filter(lambda l: '{' in l or '}' in l or \
-                               all(filter(lambda k: not l.strip().startswith(k), 
-                                          self.PREPROCESSING_KEYS)),
-                     self._json.split('\n'))
-      json = '\n'.join(lines)
+    json = self._json
     return '#{0}\\n{1}'.format(self._name, json.replace("\n", "\\n").replace('"', '\\"'))
+
+  def get_preprocess_params(self):
+    if self._preprocess is not None:
+      return self._preprocess
+    
+    if self._json is None:
+      return None
+
+    for key,def_val in PREPROCESSING_W_DEFAULTS.items():
+      self._preprocess = {}
+      json_lines = self._json.split('\n')
+      for line in json_lines:
+        if key in line:
+          self._preprocess[key] = line.split(':')[1].strip()
+          break
+      if key not in self._preprocess:
+        self._preprocess[key] = def_val
+    
+    return self._preprocess 
+
     
 
   def get_name(self):

@@ -120,7 +120,7 @@ void SpecSigFeaturePrint(FILE*out, SpecSigFeature_p specftrs)
 
    for(i=0; i<SPECSIG_TOTAL_FTR_NO; i++)
    {
-      locked_fprintf(out, "%s%5ld", sep, specftrs->features[i]);
+      fprintf(out, "%s%5ld", sep, specftrs->features[i]);
       sep =", ";
    }
 }

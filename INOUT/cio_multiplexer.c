@@ -120,7 +120,7 @@ void TCPChannelFree(TCPChannel_p junk)
 void TCPChannelClose(TCPChannel_p channel)
 {
    assert(channel->sock>=0);
-   VERBOSE(locked_fprintf(stderr, "Closing channel %d\n", channel->sock););
+   VERBOSE(fprintf(stderr, "Closing channel %d\n", channel->sock););
    close(channel->sock);
    channel->sock = -1;
 }

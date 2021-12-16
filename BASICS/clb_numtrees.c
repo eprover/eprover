@@ -64,21 +64,21 @@ static long numtree_print(FILE* out, NumTree_p tree, bool keys_only,
 
    if(!tree)
    {
-      locked_fprintf(out, "%s[]\n", DStrView(indstr));
+      fprintf(out, "%s[]\n", DStrView(indstr));
       size = 0;
    }
    else
    {
       if(keys_only)
       {
-         locked_fprintf(out, "%s%ld\n", DStrView(indstr), tree->key);
+         fprintf(out, "%s%ld\n", DStrView(indstr), tree->key);
       }
       else
       {
-         locked_fprintf(out, "%s%ld\n", DStrView(indstr), tree->key);
-         locked_fprintf(out, "%s Val1: %ld  Val2: %ld\n", DStrView(indstr),
+         fprintf(out, "%s%ld\n", DStrView(indstr), tree->key);
+         fprintf(out, "%s Val1: %ld  Val2: %ld\n", DStrView(indstr),
                  tree->val1.i_val, tree->val2.i_val);
-         locked_fprintf(out, "%s lson: %p  rson: %p\n", DStrView(indstr),
+         fprintf(out, "%s lson: %p  rson: %p\n", DStrView(indstr),
                  (void*)tree->lson, (void*)tree->rson);
       }
       size = 1;
@@ -342,7 +342,7 @@ long NumTreeDebugPrint(FILE* out, NumTree_p tree, bool keys_only)
 {
    long size;
    size = numtree_print(out, tree, keys_only, 0);
-   locked_fprintf(out, "Tree size: %ld\n", size);
+   fprintf(out, "Tree size: %ld\n", size);
    return size;
 }
 
