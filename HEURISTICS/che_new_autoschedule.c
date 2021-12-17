@@ -17,19 +17,20 @@ Changes
 
 #include "che_new_autoschedule.h"
 
-#include "autoschedule_gen.vars"
-#include "autoschedule_gen_multi.vars"
 
-ScheduleCell* new_schedule = NEW_HO_SCHEDULE;
-
-void print_config_name(FILE* out, const char* prefix, const char* config, int idx)
+typedef struct 
 {
-  DStr_p str = DStrAlloc();
-  assert(strchr(config, '\n'));
-  DStrAppendBuffer(str, (char*)config, strchr(config, '\n') - config);
-  fprintf(out, "# %s config(%d): %s\n", prefix, idx, DStrView(str));
-  DStrFree(str);
-}
+  char* key;
+  char* value;
+} StrStrPair;
+
+typedef struct 
+{
+  char* key;
+  ScheduleCell* value;
+} StrSchedPair;
+
+#include "schedule.vars"
 
 int str_distance(const char* a, const char* b)
 {
@@ -45,53 +46,13 @@ int str_distance(const char* a, const char* b)
   return dist;
 }
 
-const char* class_to_heuristic(const char* problem_category, const char** categories,
-                        const char** configurations, int num_categories, 
-                        HeuristicParms_p params)
+ScheduleCell* class_to_schedule(const char* problem_category, StrSchedPair* schedules)
 {
   int min_idx = -1;
   int min_dist = INT_MAX;
-  for(int i=0; i<num_categories; i++)
+  for(int i=0; min_dist && schedules[i].key; i++)
   {
-    for(int i=0; min_dist && i<num_categories; i++)
-    {
-      int dist = str_distance(categories[i], problem_category);
-      if(dist == 0)
-      {
-        min_idx = i;
-        min_dist = 0;
-      }
-      if (dist < min_dist)
-      {
-        min_dist = dist;  
-        min_idx = i;
-      }
-    }
-  }
-  assert(min_idx >= 0);
-  const char* configuration =  configurations[min_idx];
-  Scanner_p in = CreateScanner(StreamTypeInternalString, (char*)configuration, true, NULL, true);
-  if(min_dist != 0)
-  {
-    fprintf(stderr, "# non-exact category match(%d): %s\n", min_dist, categories[min_idx]);
-  }
-  char* old_name = params->heuristic_name;
-  HeuristicParmsParseInto(in, params, false);
-  FREE(params->heuristic_name);
-  params->heuristic_name = old_name; 
-  DestroyScanner(in);
-  return configuration;
-}
-
-const char* class_to_schedule(const char* problem_category, const char** categories,
-                        const char* configurations[][SCHEDULE_SIZE], int num_categories, 
-                        int attempt_idx, HeuristicParms_p params)
-{
-  int min_idx = -1;
-  int min_dist = INT_MAX;
-  for(int i=0; min_dist && i<num_categories; i++)
-  {
-    int dist = str_distance(categories[i], problem_category);
+    int dist = str_distance(schedules[i].key, problem_category);
     if(dist == 0)
     {
       min_idx = i;
@@ -104,34 +65,31 @@ const char* class_to_schedule(const char* problem_category, const char** categor
     }
   }
   assert(min_idx >= 0);
-  const char* conf =  configurations[min_idx][attempt_idx];
-  assert(attempt_idx < SCHEDULE_SIZE);
-  Scanner_p in = CreateScanner(StreamTypeInternalString, (char*)conf, true, NULL, true);
-  char* old_name = params->heuristic_name;
-  HeuristicParmsParseInto(in, params, false);
-  FREE(params->heuristic_name);
-  params->heuristic_name = old_name;
-  DestroyScanner(in);
-  return conf;
+  return schedules[min_idx].value;
 }
 
-void AutoHeuristicForCategory(const char* category, HeuristicParms_p parms)
+ScheduleCell* GetPreprocessingSchedule(const char* problem_category)
 {
-  const char* config = class_to_heuristic(category, categories, confs, num_categories, parms);
-  fprintf(stderr, "# category: %s\n", category);
-  print_config_name(stderr, "", config, 0);
+  return class_to_schedule(problem_category, preproc_sched_map);
 }
 
-void ScheduleForCategory(const char* category, int attempt_idx, HeuristicParms_p parms)
+ScheduleCell* GetSearchSchedule(const char* problem_category)
 {
-  const char* config = class_to_schedule(category, multischedule_categories, multischedule_confs, 
-                                         multischedule_categories_len, attempt_idx, parms);
-  print_config_name(stderr, "", config, attempt_idx);
+  return class_to_schedule(problem_category, search_sched_map);
 }
 
-int GetAttemptIdx(const char* strategy_name)
+void GetHeuristicWithName(const char* name, HeuristicParms_p target)
 {
-  char* pref = "AutoNewSched_";
-  return strstr(strategy_name, pref) ? atoi(strategy_name + strlen(pref)) : -1;
+  for(int i=0; conf_map[i].key; i++)
+  {
+    if(!strcmp(name, conf_map[i].key))
+    {
+      Scanner_p in = CreateScanner(StreamTypeInternalString, (char*)conf_map[i].value, 
+                                   true, NULL, true);
+      HeuristicParmsParseInto(in, target, false);
+      DestroyScanner(in);
+    }
+  }
+  fprintf(stderr, "Internal error -- configuration name %s not found.\n", name);
+  SysError("exiting", -1);
 }
-

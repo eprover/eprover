@@ -384,7 +384,6 @@ int main(int argc, char* argv[])
       parsed_ax_no,
       relevancy_pruned = 0;
    double           preproc_time;
-   char class[RAW_CLASS_SIZE + SPEC_STRING_MEM];
    SpecLimits_p limits = NULL;
    Derivation_p deriv;
 
@@ -433,10 +432,6 @@ int main(int argc, char* argv[])
    proofstate = parse_spec(state, parse_format,
                            error_on_empty, free_symb_prop,
                            &parsed_ax_no);
-   if(strategy_scheduling)
-   {
-      chosen_schedule = new_schedule;
-   }
 
    if(syntax_only)
    {
@@ -445,40 +440,23 @@ int main(int argc, char* argv[])
       goto cleanup1;
    }
 
-   if(auto_conf || strategy_scheduling)
+   int sched_idx = -1;
+   ScheduleCell* preproc_schedule = NULL;
+   if(strategy_scheduling)
    {
       RawSpecFeatureCell features;
       limits = CreateDefaultSpecLimits(); 
 
       RawSpecFeaturesCompute(&features, proofstate);
       RawSpecFeaturesClassify(&features, limits, RAW_DEFAULT_MASK);
-      strcpy(class, features.class);
-      ClausifyAndClassifyWTimeout(proofstate, 
-                                  MAX(1, (int)(ScheduleTimeLimit*clausification_time_part)),
-                                  DEFAULT_MASK, class+RAW_CLASS_SIZE-1);
-      fprintf(GlobalOut, "#category: %s\n", class);
+      preproc_schedule = GetPreprocessingSchedule(features.class);
+      sched_idx = ExecuteScheduleMultiCore(preproc_schedule, 
+                                           h_parms, print_rusage, 
+                                           ScheduleTimeLimit, true, num_cpus);
+      char* preproc_conf_name = h_parms->heuristic_name;
+      GetHeuristicWithName(preproc_conf_name, h_parms);
    }
 
-   if(strategy_scheduling)
-   {
-      // ExecuteSchedule(chosen_schedule, h_parms, print_rusage);
-      ExecuteScheduleMultiCore(chosen_schedule, h_parms, print_rusage, num_cpus);
-   }
-
-
-   if(auto_conf || strategy_scheduling) 
-   {
-      int attempt_idx = GetAttemptIdx(h_parms->heuristic_name);
-      if(attempt_idx == -1)
-      {
-         assert(auto_conf);
-         AutoHeuristicForCategory(class, h_parms);
-      }
-      else
-      {
-         ScheduleForCategory(class, attempt_idx, h_parms);
-      }
-   }  
             
 #ifndef NDEBUG
       fprintf(stderr, "(lift_lambdas = %d, lambda_to_forall = %d," 
@@ -580,6 +558,22 @@ int main(int argc, char* argv[])
                                             h_parms->eqdef_incrlimit,
                                             h_parms->eqdef_maxclauses);
       VERBOUT("Clausal preprocessing complete.\n");
+   }
+
+   if(strategy_scheduling)
+   {
+      SpecFeatureCell features;
+      SpecFeaturesCompute(&features, proofstate->axioms, proofstate->f_axioms,
+                          proofstate->f_ax_archive, proofstate->terms);
+      SpecFeaturesAddEval(&features, limits);
+      char* class = SpecTypeString(&features, DEFAULT_MASK);
+      ExecuteScheduleMultiCore(GetSearchSchedule(class), 
+                               h_parms, print_rusage, 
+                               preproc_schedule[sched_idx].time_absolute, 
+                               false, preproc_schedule[sched_idx].cores);
+      GetHeuristicWithName(h_parms->heuristic_name, h_parms);
+      h_parms->heuristic_name = h_parms->heuristic_def;
+      FREE(class);
    }
 
    proofcontrol = ProofControlAlloc();
@@ -1235,20 +1229,6 @@ CLState_p process_options(int argc, char* argv[])
             break;
       case OPT_SATAUTO_SCHED:
             strategy_scheduling = true;
-            break;
-      case OPT_AUTOSCHEDULE_KIND:
-            if(strcmp(arg, "SH")==0)
-            {
-               chosen_schedule = (ScheduleCell*)CASC_SH_SCHEDULE;
-            }
-            else if(strcmp(arg, "CASC")==0)
-            {
-               chosen_schedule = (ScheduleCell*)CASC_SCHEDULE;
-            }
-            else
-            {
-               Error("There are only two schedules available: SH and CASC", USAGE_ERROR);
-            }
             break;
       case OPT_NO_PREPROCESSING:
             h_parms->no_preproc = true;

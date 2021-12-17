@@ -57,17 +57,17 @@ extern ScheduleCell const* CASC_SH_SCHEDULE;
 extern ScheduleCell* chosen_schedule;
 
 void ScheduleTimesInit(ScheduleCell sched[], double time_used);
-pid_t ExecuteSchedule(ScheduleCell strats[],
-                      HeuristicParms_p  h_parms,
-                      bool print_rusage, int num_cpus, 
-                      bool* proof_found_flag, sem_t* proof_found_sem);
 
-void ScheduleTimesInitMultiCore(ScheduleCell sched[], double time_used,
-                                int cores);
+void ScheduleTimesInitMultiCore(ScheduleCell sched[], double time_used, 
+                                double time_limit, bool compute_core_limit,
+                                int* cores);
 
-void ExecuteScheduleMultiCore(ScheduleCell strats[],
-                              HeuristicParms_p  h_parms,
-                              bool print_rusage, int cores);
+int ExecuteScheduleMultiCore(ScheduleCell strats[],
+                             HeuristicParms_p  h_parms,
+                             bool print_rusage,
+                             int wc_time_limit,
+                             int compute_cores_per_schedule,
+                             int max_cores);
 
 
 #endif

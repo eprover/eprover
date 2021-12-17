@@ -856,11 +856,7 @@ OCB_p TOSelectOrdering(ProofState_p state, HeuristicParms_p params,
 
    tmp = params->order_params;
 
-   if(StringStartsWith(params->heuristic_name, "Auto"))
-   {
-      result = TOCreateOrdering(state, &params->order_params, NULL, NULL);
-   }
-   else if(tmp.ordertype == OPTIMIZE_AX)
+   if(tmp.ordertype == OPTIMIZE_AX)
    {
       OrderParmsCell local;
       local = params->order_params;

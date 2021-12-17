@@ -4,11 +4,7 @@
 #define DEFAULT_MASK "aaaa-aaaaaa-aa--aaa"
 #define RAW_DEFAULT_MASK "aaaaaaaaaaaa"
 
-extern ScheduleCell* new_schedule;
+ScheduleCell* GetPreprocessingSchedule(const char* problem_category);
+ScheduleCell* GetSearchSchedule(const char* problem_category);
+void GetHeuristicWithName(const char* name, HeuristicParms_p target);
 
-int  GetAttemptIdx(const char* strategy_name);
-
-void AutoHeuristicForRawCategory(const char* raw_category, HeuristicParms_p parms);
-void AutoHeuristicForCategory(const char* category, HeuristicParms_p parms);
-void ScheduleForRawCategory(const char* raw_category, int attempt_idx, HeuristicParms_p parms);
-void ScheduleForCategory(const char* category, int attempt_idx, HeuristicParms_p parms);

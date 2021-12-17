@@ -300,7 +300,9 @@ def output_used_confs(confs):
   print('StrStrPair conf_map[] =\n  {');
   for c in confs:
     print('    {{ "{0}", "{1}" }}, '.format(c.get_name(), c.to_json()))
+  print('{ NULL, NULL }');
   print('};')
+  print("const int num_confs = {0};".format(len(confs)))
 
 def output_schedule(var_prefix, schedule):
   def get_sched_name(cat):
@@ -318,7 +320,9 @@ def output_schedule(var_prefix, schedule):
   print('StrSchedPair {0}_sched_map[] =\n  {{'.format(var_prefix));
   for cat in schedule.keys():
     print('{{ "{0}", {1} }}, '.format(cat.get_name(), get_sched_name(cat)))
+  print('{ NULL, NULL }');
   print('};')
+  print('const int num_{0} = {1};'.format(var_prefix, len(schedule)))
     
 
 def main():
