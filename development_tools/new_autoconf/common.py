@@ -44,7 +44,7 @@ class Configuration(object):
   _all_attempted = {} # hold info how many confs attempted a problem
   _all_confs = 0  # how many objetcs of Conf type have been created
 
-  PREPROCESSING_W_DEFAULTS =
+  PREPROCESSING_W_DEFAULTS =\
   {
     'no_preproc': 'false', 
     'eqdef_maxclauses': '20000', 
@@ -113,15 +113,6 @@ class Configuration(object):
     category.store_evaluation(eval, self)
     return eval
 
-  def rate_general(self):
-    if self._total_uniqness is None:
-      self._total_uniqness = 0
-      for prob in self._probs.keys():
-        self._total_uniqness += Configuration._all_attempted[prob] - Configuration._all_solved[prob]
-
-    return (self._num_solved / self._num_attempted, self._total_uniqness,
-            -self._total_time / max(self._num_solved,1))
-
 
   def parse_json(self, path):
     with open(path, 'r') as fd:
@@ -149,7 +140,7 @@ class Configuration(object):
     if self._json is None:
       return None
 
-    for key,def_val in PREPROCESSING_W_DEFAULTS.items():
+    for key,def_val in Configuration.PREPROCESSING_W_DEFAULTS.items():
       self._preprocess = {}
       json_lines = self._json.split('\n')
       for line in json_lines:

@@ -196,27 +196,22 @@ def init_args():
   parser.add_argument('--conf-root', dest='conf_root',
                       help='root directory containing JSON files corresponding '
                            'to configurations in JobInfo files')
-  parser.add_argument('--max-preproc-size', dest='max_preproc_size',
+  parser.add_argument('--max-preproc-size', dest='max_preproc_size', default=4, type=int,
                       help='maximal size of preprocessing schedule')
-  parser.add_argument('--min-search-size', dest='min_search_size',
+  parser.add_argument('--min-search-size', dest='min_search_size', default=3, type=int,
                       help='minimal size of search schedule')
-  parser.add_argument('--max-search-size', dest='max_search_size',
+  parser.add_argument('--max-search-size', dest='max_search_size', default=6, type=int,
                       help='maximal size of search schedule')
   parser.add_argument('--e-path', dest='e_path',
                       help='path to eprover which is necessary for some features of this script (e.g.,'
                            ' generation of JSON representation  of the configuration)')
   args = parser.parse_args()
-  if args.multi_schedule and len(args.multi_schedule) < 2:
-    parser.error("--multi-schedule requires at least two arguments")
-  
-  if args.multi_schedule and sum(args.multi_schedule) < 0.98:
-    parser.error("--multi-schedule arguments must sum up to (approximately) 1")
 
   return args
 
 
 def get_best_conf(confs, probs):
-  m_conf, m_eval = None, (0,0,0)
+  m_conf, m_eval = None, (-1,-1,0)
   for c in confs:
     eval = c.evaluate_for_probs(probs)
     if tuple_is_smaller(m_eval, eval):
@@ -225,13 +220,36 @@ def get_best_conf(confs, probs):
 
   return (m_conf, m_eval)
 
-def schedule(cats, confs, min_size, max_size, used_confs, unique_preproc=False):
+def adjust_ratios(schedule, min_ratio):
+  total_ratio = sum(map(lambda x: x[1], schedule))
+  assert(total_ratio <= 1.02) #around 1.0 due to cutoff cannot be so precise.
+
+  if total_ratio <= 0.98:
+    mult = 1 / total_ratio
+    schedule = list(map(lambda x: (x[0], mult*x[1]), schedule))
+  
+  added_to_min = 0
+  adjusted = 0
+  for i in range(0, len(schedule)):
+    c, r = schedule[i]
+    if r < min_ratio:
+      added_to_min += min_ratio-r
+      adjusted +=1
+      schedule[i] = (c, min_ratio)  
+  
+  for i in range(0, len(schedule)):
+    c, r = schedule[i]
+    if r != min_ratio:
+      schedule[i] = (c, r - added_to_min / (len(schedule)-adjusted))
+
+  return schedule
+
+def schedule(cats, confs, min_size, max_size, used_confs, unique_preproc=False, min_ratio=0.05):
   cats = cats.values() if type(cats) is dict else cats
   confs = confs.values() if type(confs) is dict else confs
 
   res = {}
   n = len(cats)
-  remaining_confs = set(confs)
   for (i,cat) in enumerate(cats):
     print_progress_bar(i, n)
     
@@ -240,8 +258,9 @@ def schedule(cats, confs, min_size, max_size, used_confs, unique_preproc=False):
     total_probs = len(remaining_probs)
     sched_size = 0
     remaining_ratio = 1
+    remaining_confs = set(confs)
     
-    while remaining_probs and sched_size<max_size:
+    while remaining_confs and remaining_probs and sched_size<max_size:
       best_conf, best_eval = get_best_conf(remaining_confs, remaining_probs)
       if best_eval[0] == 0:
         #no problems can be solved by any of the remaining confs
@@ -257,7 +276,7 @@ def schedule(cats, confs, min_size, max_size, used_confs, unique_preproc=False):
           same_preproc = filter(lambda x: x.get_preprocess_params() 
                                   == best_conf.get_preprocess_params(),
                                 remaining_confs)
-          remaining_confs.difference_update(same_preproc)
+          remaining_confs.difference_update(set(same_preproc))
 
         used_confs.add(best_conf)
         sched_size += 1
@@ -268,16 +287,19 @@ def schedule(cats, confs, min_size, max_size, used_confs, unique_preproc=False):
       # if we did not have enough configurations to fill 
       # in the scheule, then we take the best ones until
       # the schedule is filled
+      assert(remaining_confs)
       schedule += map(lambda x: (x, remaining_ratio / to_add),
-                      sorted(remaining_confs, key=lambda x: x.rate_general(), 
+                      sorted(remaining_confs, key=lambda x: x.evaluate_for_probs(cat.get_problems()), 
                              reverse=True)[:to_add])
 
-    res[cat] = schedule
+    res[cat] = adjust_ratios(schedule, min_ratio)
+  
+  return res
 
 def output_used_confs(confs):
   print('StrStrPair conf_map[] =\n  {');
   for c in confs:
-    print('    { "{0}", "{1}" }, '.format(c.get_name(), c.to_json()))
+    print('    {{ "{0}", "{1}" }}, '.format(c.get_name(), c.to_json()))
   print('};')
 
 def output_schedule(var_prefix, schedule):
@@ -287,25 +309,26 @@ def output_schedule(var_prefix, schedule):
 
   SC = 'ScheduleCell'
   for cat,confs_w_ratio in schedule.items():
-    print('{0} {1}[] = {'.format(SC, get_sched_name(cat)))
+    print('{0} {1}[] = {{'.format(SC, get_sched_name(cat)))
     for (c,r) in confs_w_ratio:
-      print ('{ "{0}", NoOrdering, NULL, {1}, 1, 1 }, '.format(c.get_name(), round(r,4)))
+      print ('{{ "{0}", NoOrdering, NULL, {1}, 1, 1 }}, '.format(c.get_name(), round(r,4)))
+    print('{ NULL, NoOrdering, NULL, 0, 1, 1}')
     print('};')
 
-  print('StrSchedPair {0}_sched_map[] =\n  {'.format(var_prefix));
+  print('StrSchedPair {0}_sched_map[] =\n  {{'.format(var_prefix));
   for cat in schedule.keys():
-    print('{ "{0}", {1} }, ', cat.get_name(), get_sched_name(cat))
+    print('{{ "{0}", {1} }}, '.format(cat.get_name(), get_sched_name(cat)))
   print('};')
     
 
 def main():
   args = init_args()
   category_map, raw_category_map = parse_categories(args.category_root)
-  configurations = parse_configurations(args.result_archives, args.e_path, args.conf_root)
+  configurations = parse_configurations(args.result_archives, args.e_path, 100, args.conf_root)
   used_confs = set()
 
   preproc_sched = schedule(raw_category_map, configurations, 1,
-                           args.max_preprocessing_size, used_confs, True)
+                           args.max_preproc_size, used_confs, True, 0.1)
   search_sched = schedule(category_map, configurations, args.min_search_size,
                           args.max_search_size, used_confs)
 
