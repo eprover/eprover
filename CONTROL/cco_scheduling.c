@@ -164,7 +164,7 @@ void ScheduleTimesInitMultiCore(ScheduleCell sched[], double time_used,
    if(compute_core_limit)
    {
       total_limit = limit;
-      for(i=0; sched[i+1].heu_name; i++)
+      for(i=0; sched[i].heu_name; i++)
       {
          // error in each step is at most 1 -- so we can
          // add at most sched_size extra cores
@@ -189,7 +189,7 @@ void ScheduleTimesInitMultiCore(ScheduleCell sched[], double time_used,
       total_limit = (*cores)*limit;
    }
 
-   for(i=0; sched[i+1].heu_name; i++)
+   for(i=0; sched[i].heu_name; i++)
    {
       tmp = sched[i].time_fraction*sched[i].cores*total_limit;
       if(tmp>limit)

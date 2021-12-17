@@ -452,7 +452,8 @@ int main(int argc, char* argv[])
       preproc_schedule = GetPreprocessingSchedule(features.class);
       sched_idx = ExecuteScheduleMultiCore(preproc_schedule, 
                                            h_parms, print_rusage, 
-                                           ScheduleTimeLimit, true, num_cpus);
+                                           ScheduleTimeLimit ? ScheduleTimeLimit : DEFAULT_SCHED_TIME_LIMIT, 
+                                           true, num_cpus);
       char* preproc_conf_name = h_parms->heuristic_name;
       GetHeuristicWithName(preproc_conf_name, h_parms);
    }

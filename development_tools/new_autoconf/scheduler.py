@@ -278,7 +278,6 @@ def schedule(cats, confs, min_size, max_size, used_confs, unique_preproc=False, 
                                 remaining_confs)
           remaining_confs.difference_update(set(same_preproc))
 
-        used_confs.add(best_conf)
         sched_size += 1
     
     if sched_size<min_size:
@@ -292,6 +291,7 @@ def schedule(cats, confs, min_size, max_size, used_confs, unique_preproc=False, 
                       sorted(remaining_confs, key=lambda x: x.evaluate_for_probs(cat.get_problems()), 
                              reverse=True)[:to_add])
 
+    used_confs.update(map(lambda x: x[0], schedule))
     res[cat] = adjust_ratios(schedule, min_ratio)
   
   return res

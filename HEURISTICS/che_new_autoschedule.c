@@ -88,6 +88,7 @@ void GetHeuristicWithName(const char* name, HeuristicParms_p target)
                                    true, NULL, true);
       HeuristicParmsParseInto(in, target, false);
       DestroyScanner(in);
+      return;
     }
   }
   fprintf(stderr, "Internal error -- configuration name %s not found.\n", name);
