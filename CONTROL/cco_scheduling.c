@@ -246,6 +246,7 @@ int ExecuteScheduleMultiCore(ScheduleCell strats[],
          else
          {
             EGPCtrlSetAddProc(procs, handle);
+            // fprintf(stderr, "Will run %s(%d) for %ld\n", handle->name, handle->pid, strats[i].time_absolute);
          }
          i++;
       }

@@ -1869,7 +1869,7 @@ void ClauseSetComputeHOFeatures(ClauseSet_p set, Sig_p sig,
 
 void SpecLimitsPrint(FILE* out, SpecLimits_p limits)
 {
-   fprintf(stderr, "[ %d | %g | %g | %d | %g | %g |"
+   fprintf(out, "[ %d | %g | %g | %d | %g | %g |"
                    " %ld | %ld | %ld | %ld | %ld | %ld | %ld | %ld | %ld | %ld | "
                    " %d | %d | %d | %d | %d | %d | %d | %d | %d | %d | %d | %d | %d | %d | %d | %d | "
                    " %g | %g | %g | %g ]\n",

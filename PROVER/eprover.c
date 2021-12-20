@@ -450,6 +450,7 @@ int main(int argc, char* argv[])
       RawSpecFeaturesCompute(&features, proofstate);
       RawSpecFeaturesClassify(&features, limits, RAW_DEFAULT_MASK);
       preproc_schedule = GetPreprocessingSchedule(features.class);
+      fprintf(stdout, "# Preprocessing class: %s.\n", features.class);
       sched_idx = ExecuteScheduleMultiCore(preproc_schedule, 
                                            h_parms, print_rusage, 
                                            ScheduleTimeLimit ? ScheduleTimeLimit : DEFAULT_SCHED_TIME_LIMIT, 
@@ -467,11 +468,6 @@ int main(int argc, char* argv[])
                       h_parms->unroll_only_formulas,
                       h_parms->sine);
 #endif
-
-      if(limits)
-      {
-         SpecLimitsCellFree(limits);
-      }
 
    relevancy_pruned += ProofStateSinE(proofstate, h_parms->sine);
    relevancy_pruned += ProofStateRelevancyProcess(proofstate,
@@ -575,6 +571,12 @@ int main(int argc, char* argv[])
       GetHeuristicWithName(h_parms->heuristic_name, h_parms);
       h_parms->heuristic_name = h_parms->heuristic_def;
       FREE(class);
+
+   }
+
+   if(limits)
+   {
+      SpecLimitsCellFree(limits);
    }
 
    proofcontrol = ProofControlAlloc();

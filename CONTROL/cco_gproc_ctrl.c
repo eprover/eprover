@@ -218,6 +218,8 @@ bool EGPCtrlGetResult(EGPCtrl_p ctrl, char *buffer, long buf_size)
    }
    buffer[len] = '\0';
 
+   fprintf(stderr, "# %s says: [|%s|].\n", ctrl->name, buffer);
+
    if(len)
    {
       DStrAppendStr(ctrl->output, buffer);
