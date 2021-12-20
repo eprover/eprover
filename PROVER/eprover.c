@@ -564,6 +564,7 @@ int main(int argc, char* argv[])
                           proofstate->f_ax_archive, proofstate->terms);
       SpecFeaturesAddEval(&features, limits);
       char* class = SpecTypeString(&features, DEFAULT_MASK);
+      fprintf(stdout, "# Search class: %s\n", class);
       ExecuteScheduleMultiCore(GetSearchSchedule(class), 
                                h_parms, print_rusage, 
                                preproc_schedule[sched_idx].time_absolute, 
@@ -571,7 +572,6 @@ int main(int argc, char* argv[])
       GetHeuristicWithName(h_parms->heuristic_name, h_parms);
       h_parms->heuristic_name = h_parms->heuristic_def;
       FREE(class);
-
    }
 
    if(limits)

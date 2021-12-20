@@ -1043,6 +1043,18 @@ void SpecFeaturesCompute(SpecFeature_p features, ClauseSet_p set,
                               &(features->quantifies_booleans),
                               &(features->has_defined_choice),
                               &(features->perc_of_appvar_lits));
+   // overwriting order as different clausifications can influence it.
+   features->order = 1;
+   FormulaSet_p sets[2] = {farch, fset};
+   for(int i=0; i<2; i++)
+   {
+      for(WFormula_p f = sets[i]->anchor->succ; f != sets[i]->anchor; f = f->succ)   
+      {
+         features->order = MAX(features->order, 
+                              TermComputeOrder(f->terms->sig, f->tformula));
+      }
+   }
+   
 }
 
 

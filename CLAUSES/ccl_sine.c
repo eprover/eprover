@@ -596,7 +596,6 @@ long SelectDefiningAxioms(DRelation_p drel,
             break;
       }
       for(ssp=0; ssp<PStackGetSP(symbol_stack); ssp++)
-
       {
          i = PStackElementInt(symbol_stack, ssp);
          if((i > sig->internal_symbols) &&

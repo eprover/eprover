@@ -65,6 +65,10 @@ ScheduleCell* class_to_schedule(const char* problem_category, StrSchedPair* sche
     }
   }
   assert(min_idx >= 0);
+  if(min_dist)
+  {
+    fprintf(stdout, "# partial match(%d): %s\n", min_dist, schedules[min_idx].key);
+  }
   return schedules[min_idx].value;
 }
 
