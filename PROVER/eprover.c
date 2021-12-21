@@ -576,8 +576,12 @@ int main(int argc, char* argv[])
       PreinstantiateInduction(proofstate->axioms, proofstate->archive, proofstate->terms);
    }
 
-   if(strategy_scheduling)
+   if(strategy_scheduling || auto_conf)
    {
+      if(!limits)
+      {
+         limits = CreateDefaultSpecLimits(); 
+      }
       SpecFeatureCell features;
       SpecFeaturesCompute(&features, proofstate->axioms, proofstate->f_axioms,
                           proofstate->f_ax_archive, proofstate->terms);
@@ -590,12 +594,24 @@ int main(int argc, char* argv[])
       SpecFeaturesAddEval(&features, limits);
       char* class = SpecTypeString(&features, DEFAULT_MASK);
       fprintf(stdout, "# Search class: %s\n", class);
-      ExecuteScheduleMultiCore(GetSearchSchedule(class), 
-                               h_parms, print_rusage, 
-                               preproc_schedule[sched_idx].time_absolute, 
-                               false, preproc_schedule[sched_idx].cores);
-      GetHeuristicWithName(h_parms->heuristic_name, h_parms);
-      h_parms->heuristic_name = h_parms->heuristic_def;
+      if (strategy_scheduling)
+      {
+         ExecuteScheduleMultiCore(GetSearchSchedule(class), 
+                                 h_parms, print_rusage, 
+                                 preproc_schedule[sched_idx].time_absolute, 
+                                 false, preproc_schedule[sched_idx].cores);
+         GetHeuristicWithName(h_parms->heuristic_name, h_parms);
+         h_parms->heuristic_name = h_parms->heuristic_def;
+      }
+      else
+      {
+         assert(auto_conf);
+         // executing the first one from the schedule.
+         char* conf_name = GetSearchSchedule(class)->heu_name;
+         GetHeuristicWithName(conf_name, h_parms);
+         fprintf(stderr, "# Configuration: %s\n", conf_name);
+         h_parms->heuristic_name = h_parms->heuristic_def;
+      }
       FREE(class);
    }
 

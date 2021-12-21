@@ -1531,7 +1531,7 @@ char* SpecTypeString(SpecFeature_p features, const char* mask)
    int        i, limit;
 
    assert(features);
-   assert(mask && (strlen(mask)>=13) && (strlen(mask)<=19));
+   assert(mask && (strlen(mask)>=13) && (strlen(mask)<=22));
    limit = strlen(mask);
    snprintf(result, 22, "%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c",
            problemType == PROBLEM_HO ? 'H' : 'F',
