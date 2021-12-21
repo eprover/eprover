@@ -901,6 +901,16 @@ int main(int argc, char* argv[])
             {
                SpecFeaturesCompute(&features, fstate->axioms, fstate->f_axioms,
                                    fstate->f_ax_archive, fstate->terms);
+               if (problemType == PROBLEM_HO)
+               {
+                  RawSpecFeatureCell raw_features;
+                  RawSpecFeaturesCompute(&raw_features, fstate);
+                  RawSpecFeaturesClassify(&raw_features, limits, RAW_DEFAULT_MASK);
+                  features.order = raw_features.order;
+                  features.goal_order = raw_features.conj_order;
+                  features.num_of_definitions = raw_features.num_of_definitions;
+                  features.perc_of_form_defs = raw_features.perc_of_form_defs;
+               }
                SpecFeaturesAddEval(&features, limits);
 
                if(!tptp_header)

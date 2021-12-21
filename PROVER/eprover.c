@@ -557,6 +557,25 @@ int main(int argc, char* argv[])
       VERBOUT("Clausal preprocessing complete.\n");
    }
 
+   preproc_removed += ClauseSetUnfoldEqDefNormalize(proofstate->axioms,
+                                                    proofstate->watchlist,
+                                                    proofstate->archive,
+                                                    proofstate->tmp_terms,
+                                                    h_parms->eqdef_incrlimit,
+                                                    h_parms->eqdef_maxclauses);
+   if(problemType == PROBLEM_HO && h_parms->inst_choice_max_depth >= 0)
+   {
+      ClauseSetRecognizeChoice(proofstate->choice_opcodes, 
+                               proofstate->axioms, 
+                               proofstate->archive);
+   }
+
+
+   if(h_parms->preinstantiate_induction)
+   {
+      PreinstantiateInduction(proofstate->axioms, proofstate->archive, proofstate->terms);
+   }
+
    if(strategy_scheduling)
    {
       SpecFeatureCell features;
@@ -597,25 +616,6 @@ int main(int argc, char* argv[])
    /* HeuristicParmsFree(parms); */
 
    // Unfold definitions and re-normalize
-   preproc_removed += ClauseSetUnfoldEqDefNormalize(proofstate->axioms,
-                                                    proofstate->watchlist,
-                                                    proofstate->archive,
-                                                    proofstate->tmp_terms,
-                                                    h_parms->eqdef_incrlimit,
-                                                    h_parms->eqdef_maxclauses);
-   if(problemType == PROBLEM_HO &&
-      proofcontrol->heuristic_parms.inst_choice_max_depth >= 0)
-   {
-      ClauseSetRecognizeChoice(proofstate->choice_opcodes, 
-                               proofstate->axioms, 
-                               proofstate->archive);
-   }
-
-
-   if(proofcontrol->heuristic_parms.preinstantiate_induction)
-   {
-      PreinstantiateInduction(proofstate->axioms, proofstate->archive, proofstate->terms);
-   }
 
    PCLFullTerms = pcl_full_terms; /* Preprocessing always uses full
                                      terms, so we set the flag for

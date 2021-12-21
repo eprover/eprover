@@ -1,8 +1,9 @@
 
 def tuple_is_smaller(a, b):
-  a,b = list(a[:3]),list(b[:3])
-  a[2],b[2] = -a[2], -b[2] # smaller times are better
-  return a < b #lexicographic comp
+  a,b = list(a[:4]),list(b[:4])
+  a[3],b[3] = -a[3], -b[3] # smaller times are better
+
+  return a < b
 
 class Category(object):
   def __init__(self, name):
@@ -54,7 +55,9 @@ class Configuration(object):
     'presat_interreduction': 'false',
     'lift_lambdas': 'true',
     'lambda_to_forall': 'true', 
-    'unroll_only_formulas' :'true'
+    'unroll_only_formulas' : 'true',
+    'inst_choice_max_depth' : '-1',
+    'preinstantiate_induction' : 'false'
   }
 
   ONLY_PREPROCESSING = 1
@@ -64,9 +67,9 @@ class Configuration(object):
   def __init__(self, name):
     self._name = name
     self._probs = {}
+    self._attempted = set()
     self._memo_eval = {}
     self._num_solved = 0
-    self._num_attempted = 0
     self._total_time = 0.0
     self._total_uniqness = None
     self._json = None
@@ -89,7 +92,7 @@ class Configuration(object):
     self._num_solved = len(self._probs)
   
   def add_attempted_prob(self, prob):
-    self._num_attempted += 1
+    self._attempted.add(prob)
     if prob not in Configuration._all_attempted:
       Configuration._all_attempted[prob] = 1
     else:
@@ -102,7 +105,9 @@ class Configuration(object):
         solved += 1
         uniqness_points += Configuration._all_attempted[prob] - Configuration._all_solved[prob]
         time += self._probs[prob]
-    return (solved, uniqness_points, time / max(solved,1))
+    # order of rating: 1) solved for problem list 2) score of uniqueness within the solved problems
+    # 3) ration of solved to attempted problems, 4) avg necessary time to solve a prob
+    return (solved, uniqness_points, len(self._probs) / max(len(self._attempted), 1), time / max(solved,1))
 
   def evaluate_category(self, category):
     if category in self._memo_eval:
@@ -162,7 +167,7 @@ class Configuration(object):
     return set(self._probs.keys())
 
   def get_num_attempted(self):
-    return self._num_attempted
+    return len(self._attempted)
   
   def __str__(self):
     return "{0} : ({1}, {2})".format(self._name, self._num_solved, 

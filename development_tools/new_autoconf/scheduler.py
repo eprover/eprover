@@ -211,7 +211,7 @@ def init_args():
 
 
 def get_best_conf(confs, probs):
-  m_conf, m_eval = None, (-1,-1,0)
+  m_conf, m_eval = None, (-1,-1,0,0)
   for c in confs:
     eval = c.evaluate_for_probs(probs)
     if tuple_is_smaller(m_eval, eval):
@@ -292,8 +292,13 @@ def schedule(cats, confs, min_size, max_size, used_confs,
       # in the scheule, then we take the best ones until
       # the schedule is filled
       assert(remaining_confs)
+
+      def eval_probs(conf, cat):
+        (sol, uniq, succ, time) = conf.evaluate_for_probs(cat.get_problems())
+        return (sol, uniq, succ, -time)
+
       schedule += map(lambda x: (x, remaining_ratio / to_add),
-                      sorted(remaining_confs, key=lambda x: x.evaluate_for_probs(cat.get_problems()), 
+                      sorted(remaining_confs, key=lambda x: eval_probs(x, cat), 
                              reverse=True)[:to_add])
 
     used_confs.update(map(lambda x: x[0], schedule))
