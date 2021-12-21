@@ -244,7 +244,8 @@ def adjust_ratios(schedule, min_ratio):
 
   return schedule
 
-def schedule(cats, confs, min_size, max_size, used_confs, unique_preproc=False, min_ratio=0.05):
+def schedule(cats, confs, min_size, max_size, used_confs, 
+             unique_preproc=False, min_ratio=0.05, dbg=False):
   cats = cats.values() if type(cats) is dict else cats
   confs = confs.values() if type(confs) is dict else confs
 
@@ -267,16 +268,20 @@ def schedule(cats, confs, min_size, max_size, used_confs, unique_preproc=False, 
         break
       else:
         solved_probs = remaining_probs.intersection(best_conf.get_solved_probs())
+        if dbg:
+          print('# {0} : {1}'.format(best_conf.get_name(), solved_probs))
         ratio = len(solved_probs)/total_probs
         remaining_ratio -= ratio
         schedule.append( (best_conf, ratio) )
         remaining_probs.difference_update(solved_probs)
         remaining_confs.remove(best_conf)
         if unique_preproc:
-          same_preproc = filter(lambda x: x.get_preprocess_params() 
+          same_preproc = set(filter(lambda x: x.get_preprocess_params() 
                                   == best_conf.get_preprocess_params(),
-                                remaining_confs)
-          remaining_confs.difference_update(set(same_preproc))
+                                remaining_confs))
+          if (dbg):
+            print("removing {0}".format(list(map(lambda x: x.get_name(), same_preproc))))
+          remaining_confs.difference_update(same_preproc)
 
         sched_size += 1
     

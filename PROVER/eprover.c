@@ -442,15 +442,15 @@ int main(int argc, char* argv[])
 
    int sched_idx = -1;
    ScheduleCell* preproc_schedule = NULL;
+   RawSpecFeatureCell raw_features;
    if(strategy_scheduling)
    {
-      RawSpecFeatureCell features;
       limits = CreateDefaultSpecLimits(); 
 
-      RawSpecFeaturesCompute(&features, proofstate);
-      RawSpecFeaturesClassify(&features, limits, RAW_DEFAULT_MASK);
-      preproc_schedule = GetPreprocessingSchedule(features.class);
-      fprintf(stdout, "# Preprocessing class: %s.\n", features.class);
+      RawSpecFeaturesCompute(&raw_features, proofstate);
+      RawSpecFeaturesClassify(&raw_features, limits, RAW_DEFAULT_MASK);
+      preproc_schedule = GetPreprocessingSchedule(raw_features.class);
+      fprintf(stdout, "# Preprocessing class: %s.\n", raw_features.class);
       sched_idx = ExecuteScheduleMultiCore(preproc_schedule, 
                                            h_parms, print_rusage, 
                                            ScheduleTimeLimit ? ScheduleTimeLimit : DEFAULT_SCHED_TIME_LIMIT, 
@@ -562,6 +562,12 @@ int main(int argc, char* argv[])
       SpecFeatureCell features;
       SpecFeaturesCompute(&features, proofstate->axioms, proofstate->f_axioms,
                           proofstate->f_ax_archive, proofstate->terms);
+      // order info can be affected by clausification
+      // (imagine new symbols being introduced)
+      features.order = raw_features.order;
+      features.goal_order = raw_features.conj_order;
+      features.num_of_definitions = raw_features.num_of_definitions;
+      features.perc_of_form_defs = raw_features.perc_of_form_defs;
       SpecFeaturesAddEval(&features, limits);
       char* class = SpecTypeString(&features, DEFAULT_MASK);
       fprintf(stdout, "# Search class: %s\n", class);

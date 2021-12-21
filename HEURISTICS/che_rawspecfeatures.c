@@ -84,15 +84,18 @@ void RawSpecFeaturesCompute(RawSpecFeature_p features, ProofState_p state)
    features->has_choice_sym = SigHasChoiceSym(sig);
 
    features->order = 1;
+   features->conj_order = 1;
    for(WFormula_p f = state->f_axioms->anchor->succ; 
        f != state->f_axioms->anchor; 
        f = f->succ)   
    {
-      features->order = MAX(features->order, 
-                            TermComputeOrder(f->terms->sig, f->tformula));
+      int ord = TermComputeOrder(f->terms->sig, f->tformula);
+      features->order = MAX(features->order, ord);
+      if(FormulaIsConjecture(f) || FormulaIsHypothesis(f))
+      {
+         features->conj_order = MAX(features->conj_order, ord);
+      }
    }
-   features->conj_order = MAX(FormulaConjectureOrder(state->f_axioms),
-                              ClauseConjectureOrder(state->axioms));
 
    FormulaSetDefinitionStatistics(state->f_axioms, state->f_ax_archive,
                                   state->terms,
@@ -134,32 +137,33 @@ void RawSpecFeaturesCompute(RawSpecFeature_p features, ProofState_p state)
 void RawSpecFeaturesClassify(RawSpecFeature_p features, SpecLimits_p limits,
                              char* pattern)
 {
-   RAW_CLASSIFY(0, features->sentence_no,
+   features->class[0] = problemType == PROBLEM_HO ? 'H' : 'F';
+   RAW_CLASSIFY(1, features->sentence_no,
                 limits->ax_some_limit, limits->ax_many_limit, 5, 7);
-   RAW_CLASSIFY(1, features->term_size,
+   RAW_CLASSIFY(2, features->term_size,
                 limits->term_medium_limit, limits->term_large_limit, 2, 4);
-   RAW_CLASSIFY(2, features->sig_size,
+   RAW_CLASSIFY(3, features->sig_size,
                 limits->symbols_medium_limit, limits->symbols_large_limit, 5, 7);
 
-   RAW_CLASSIFY(3, features->pred_size,
+   RAW_CLASSIFY(4, features->pred_size,
                 limits->pred_medium_limit, limits->pred_large_limit, 10, 10);
-   RAW_CLASSIFY(4, features->predc_size,
+   RAW_CLASSIFY(5, features->predc_size,
                 limits->predc_medium_limit, limits->predc_large_limit, 1, 1);
-   RAW_CLASSIFY(5, features->fun_size,
+   RAW_CLASSIFY(6, features->fun_size,
                 limits->fun_medium_limit, limits->fun_large_limit, 9, 5);
-   RAW_CLASSIFY(6, features->func_size,
+   RAW_CLASSIFY(7, features->func_size,
                 limits->func_medium_limit, limits->func_large_limit, 2 ,10);
-   RAW_CLASSIFY(7, features->num_of_definitions,
+   RAW_CLASSIFY(8, features->num_of_definitions,
                 limits->num_of_defs_medium_limit, limits->num_of_defs_large_limit, 1, 1);
-   RAW_CLASSIFY(8, features->perc_of_form_defs,
+   RAW_CLASSIFY(9, features->perc_of_form_defs,
                 limits->perc_form_defs_medium_limit, limits->perc_form_defs_large_limit, 1, 1);
-   RAW_CLASSIFY(9, features->num_lambdas,
+   RAW_CLASSIFY(10, features->num_lambdas,
                 limits->num_of_lams_medium_limit, limits->num_of_lams_large_limit, 1, 1);
-   features->class[10] = features->has_choice_sym ? 'C' : 'N';
-   features->class[11] = features->order == 1 ? 'F' : (features->order == 2 ? 'S' : 'H');
-   features->class[12] = features->conj_order == 0 ? 'N' : 
+   features->class[11] = features->has_choice_sym ? 'C' : 'N';
+   features->class[12] = features->order == 1 ? 'F' : (features->order == 2 ? 'S' : 'H');
+   features->class[13] = features->conj_order == 0 ? 'N' : 
                            (features->conj_order == 1 ? 'F' : (features->conj_order == 2 ? 'S' : 'H'));
-   features->class[13] = features->app_var_lits ? 'A' : 'N';
+   features->class[14] = features->app_var_lits ? 'A' : 'N';
    if(pattern)
    {
       char* handle;
@@ -172,7 +176,7 @@ void RawSpecFeaturesClassify(RawSpecFeature_p features, SpecLimits_p limits,
          }
       }
    }
-   features->class[14] = '\0';
+   features->class[15] = '\0';
 }
 
 

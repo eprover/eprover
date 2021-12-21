@@ -1045,13 +1045,20 @@ void SpecFeaturesCompute(SpecFeature_p features, ClauseSet_p set,
                               &(features->perc_of_appvar_lits));
    // overwriting order as different clausifications can influence it.
    features->order = 1;
+   features->goal_order = 1;
    FormulaSet_p sets[2] = {farch, fset};
    for(int i=0; i<2; i++)
    {
       for(WFormula_p f = sets[i]->anchor->succ; f != sets[i]->anchor; f = f->succ)   
       {
-         features->order = MAX(features->order, 
-                              TermComputeOrder(f->terms->sig, f->tformula));
+         int ord = TermComputeOrder(f->terms->sig, f->tformula);
+         features->order = MAX(features->order, ord);
+         if(FormulaQueryType(f) == CPTypeConjecture ||
+            FormulaQueryType(f) == CPTypeNegConjecture ||
+            FormulaQueryType(f) == CPTypeHypothesis )
+         {
+            features->goal_order = MAX(features->goal_order, ord);
+         }
       }
    }
    
@@ -1255,6 +1262,20 @@ void SpecFeaturesAddEval(SpecFeature_p features, SpecLimits_p limits)
    {
       assert(features->order >= 3);
       features->order_class = SpecHO;
+   }
+
+   if(features->goal_order < 2)
+   {
+      features->goal_order_class = SpecFO;
+   }
+   else if(features->goal_order == 2)
+   {
+      features->goal_order_class = SpecSO;
+   }
+   else
+   {
+      assert(features->goal_order >= 3);
+      features->goal_order_class = SpecHO;
    }
 
    if(features->num_of_definitions < limits->num_of_defs_medium_limit)
@@ -1512,7 +1533,8 @@ char* SpecTypeString(SpecFeature_p features, const char* mask)
    assert(features);
    assert(mask && (strlen(mask)>=13) && (strlen(mask)<=19));
    limit = strlen(mask);
-   snprintf(result, 20, "%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c",
+   snprintf(result, 22, "%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c",
+           problemType == PROBLEM_HO ? 'H' : 'F',
            GET_ENCODING(features->axiomtypes),
            GET_ENCODING(features->goaltypes),
            GET_ENCODING(features->eq_content), 
@@ -1527,6 +1549,7 @@ char* SpecTypeString(SpecFeature_p features, const char* mask)
            GET_ENCODING(features->sum_fun_ar_class), 
            GET_ENCODING(features->max_depth_class),
            GET_ENCODING(features->order_class),
+           GET_ENCODING(features->goal_order_class),
            GET_ENCODING(features->defs_class),
            GET_ENCODING(features->form_defs_class),
            GET_ENCODING(features->appvar_lits_class),
@@ -1539,7 +1562,7 @@ char* SpecTypeString(SpecFeature_p features, const char* mask)
          result[i]= '-';
       }
    }
-   return SecureStrndup(result, 20);
+   return SecureStrndup(result, 21);
 }
 
 

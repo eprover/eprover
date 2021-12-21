@@ -23,6 +23,7 @@ def init_args():
   parser.add_argument('--e-path', dest='e_path',
                       help='path to eprover which is necessary for some features of this script (e.g., '
                          ' generation of JSON representation  of the configuration)')
+  parser.add_argument("--single-problem", dest='single_prob',default=False, action='store_true')
 
   args = parser.parse_args()
   if args.pickled_confs is None and\
@@ -57,10 +58,14 @@ def main():
 
   
   from os.path import basename
-  cat = Category(basename(args.category_file))
-  with open(args.category_file) as fd:
-    for line in fd:
-      cat.add_prob(line.strip())
+  name = "single" if args.single_prob else basename(args.category_file) 
+  cat = Category(name)
+  if not args.single_prob:
+    with open(args.category_file) as fd:
+      for line in fd:
+        cat.add_prob(line.strip())
+  else:
+    cat.add_prob(args.category_file.strip())
   
   for conf in configurations:
     conf.evaluate_category(cat)
@@ -69,9 +74,11 @@ def main():
     eval = conf.evaluate_category(cat)
     print("{0} : {1}|{2}|{3}|{4}".format(conf.get_name(), eval[0], eval[1], eval[2], len(conf.get_solved_probs())))
 
-  from scheduler import multi_schedule
+  from scheduler import schedule
   print(cat)
-  multi_schedule(8, [cat], configurations, "TEST", Configuration.BOTH, dbg=True)
+  # multi_schedule(8, [cat], configurations, "TEST", Configuration.BOTH, dbg=True)
+  schedule([cat], configurations, 1, 3, set(), True, 0.1, dbg=True)
+
 
 if __name__ == '__main__':
   main()

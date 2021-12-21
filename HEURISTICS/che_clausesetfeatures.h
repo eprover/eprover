@@ -149,6 +149,7 @@ typedef struct spec_feature_cell
                                      // appears
    bool         has_defined_choice; // there is a clause that defines choice
    SpecFeatures order_class;
+   SpecFeatures goal_order_class;
    SpecFeatures defs_class;
    SpecFeatures form_defs_class;
    SpecFeatures appvar_lits_class;
@@ -185,7 +186,8 @@ typedef struct spec_feature_cell
    int          pred_nonconst_count;
 
    /* HO features */
-   int          order; // maximal order of a symbol
+   int          order; // maximal order of the problem
+   int          goal_order; // maximal order of hypothesis/conjecture
    int          num_of_definitions; // number of formulas tagged with definition
    double       perc_of_form_defs; // percentage of which defines formulas
    double       perc_of_appvar_lits; // percentage of which defines formulas
@@ -243,7 +245,7 @@ typedef struct spec_feature_cell
 #define PERC_APPLIT_MEDIUM_DEFAULT 0.1
 #define PERC_APPLIT_LARGE_DEFAULT  0.5
 
-#define SPEC_STRING_MEM          20
+#define SPEC_STRING_MEM          22
 
 #define DEFAULT_OUTPUT_DESCRIPTOR "eigEIG"
 #define DEFAULT_CLASS_MASK "aaaaaaaaaaaaa"

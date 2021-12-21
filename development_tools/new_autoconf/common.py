@@ -140,8 +140,8 @@ class Configuration(object):
     if self._json is None:
       return None
 
+    self._preprocess = {}
     for key,def_val in Configuration.PREPROCESSING_W_DEFAULTS.items():
-      self._preprocess = {}
       json_lines = self._json.split('\n')
       for line in json_lines:
         if key in line:

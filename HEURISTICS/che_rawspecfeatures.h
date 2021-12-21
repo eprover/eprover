@@ -32,7 +32,7 @@ Changes
 /*---------------------------------------------------------------------*/
 
 #define NUM_RAW_FEATURES
-#define RAW_CLASS_SIZE 15
+#define RAW_CLASS_SIZE 16
 
 
 typedef struct raw_spec_feature_cell
