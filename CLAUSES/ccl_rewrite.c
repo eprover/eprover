@@ -215,7 +215,7 @@ static RWResultType term_is_top_rewritable(TB_p bank, OCB_p ocb,
                if(remains)
                {
                   repl = TBTermTopInsert(bank, repl);
-               }      
+               }
             }
             TermAddRWLink(term, repl, new_demod, ClauseIsSOS(new_demod), res);
          }
@@ -245,7 +245,7 @@ static RWResultType term_is_top_rewritable(TB_p bank, OCB_p ocb,
                if(remains)
                {
                   repl = TBTermTopInsert(bank, repl);
-               }      
+               }
             }
 
             TermAddRWLink(term, repl, new_demod, ClauseIsSOS(new_demod), res);
@@ -617,7 +617,10 @@ static Term_p rewrite_with_clause_set(OCB_p ocb, TB_p bank, Term_p term,
       assert(mi->pos->clause->ident);
       TermAddRWLink(term, repl, mi->pos->clause, ClauseIsSOS(mi->pos->clause),
                     restricted_rw?RWAlwaysRewritable:RWLimitedRewritable);
-      assert(TOGreater(ocb, term, repl, DEREF_NEVER, DEREF_NEVER));
+      // assert(TOGreater(ocb, term, repl, DEREF_NEVER, DEREF_NEVER));
+      // The assertion is logically true, but in practice LPO fails on
+      // too deep terms, so l > r, but sigma(l) !> sigma(r) w.r.t. the
+      // implementation
 
       term = repl;
       MatchResFree(mi);
@@ -995,7 +998,7 @@ static long term_find_rw_clauses(Clause_p demod,
                if(remains)
                {
                   repl = TBTermTopInsert(eqn->bank, repl);
-               }      
+               }
             }
             TermAddRWLink(term, repl, demod, ClauseIsSOS(demod), rwres);
             //TermDeleteRWLink(term);
