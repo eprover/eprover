@@ -2307,24 +2307,10 @@ void ClauseSetRecognizeChoice(IntMap_p choice_syms,
                               ClauseSet_p set, 
                               ClauseSet_p archive)
 {
-   Clause_p handle;
-   PStack_p ch_axioms = PStackAlloc();
-
-   for(handle = set->anchor->succ; handle!=set->anchor; handle = handle->succ)
+   for(Clause_p handle = set->anchor->succ; handle!=set->anchor; handle = handle->succ)
    {
-      if(ClauseRecognizeChoice(choice_syms, handle))
-      {
-         PStackPushP(ch_axioms, handle);
-      }
+      ClauseRecognizeChoice(choice_syms, handle);
    }
-
-   while(!PStackEmpty(ch_axioms))
-   {
-      handle = PStackPopP(ch_axioms);
-      ClauseSetMoveClause(archive, handle);
-   }
-   
-   PStackFree(ch_axioms);
 }
 
 /*-----------------------------------------------------------------------

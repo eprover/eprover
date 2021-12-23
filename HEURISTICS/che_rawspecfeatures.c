@@ -105,7 +105,7 @@ void RawSpecFeaturesCompute(RawSpecFeature_p features, ProofState_p state)
                                   &(features->app_var_lits));
    features->class[0] = '\0';
 }
-#define ADJUST_FOR_HO(limit, scale) (limit) / ((problemType == PROBLEM_HO) ? (scale) : 1)
+#define ADJUST_FOR_HO(limit, scale) (limit) 
 #define RAW_CLASSIFY(index, value, some, many, ho_scale_some, ho_scale_many)\
    if((value) < (ADJUST_FOR_HO(some, ho_scale_some)))\
    {                                            \

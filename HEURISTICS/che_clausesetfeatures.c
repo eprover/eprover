@@ -1077,7 +1077,7 @@ void SpecFeaturesCompute(SpecFeature_p features, ClauseSet_p set,
 //
 /----------------------------------------------------------------------*/
 
-#define ADJUST_FOR_HO(limit, scale) (limit) / ((problemType == PROBLEM_HO) ? (scale) : 1)
+#define ADJUST_FOR_HO(limit, scale) (limit) 
 
 void SpecFeaturesAddEval(SpecFeature_p features, SpecLimits_p limits)
 {

@@ -62,6 +62,10 @@ void ScheduleTimesInitMultiCore(ScheduleCell sched[], double time_used,
                                 double time_limit, bool compute_core_limit,
                                 int* cores);
 
+void InitializePlaceholderSearchSchedule(ScheduleCell* search_sched, 
+                                         ScheduleCell* preproc_sched,
+                                         bool force_preproc);
+
 int ExecuteScheduleMultiCore(ScheduleCell strats[],
                              HeuristicParms_p  h_parms,
                              bool print_rusage,

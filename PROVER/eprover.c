@@ -78,7 +78,8 @@ bool              print_sat = false,
    incomplete = false,
    conjectures_are_questions = false,
    app_encode = false,
-   strategy_scheduling = false;
+   strategy_scheduling = false,
+   force_pre_schedule = false;
 ProofOutput       print_derivation = PONone;
 long              proc_training_data;
 
@@ -443,7 +444,7 @@ int main(int argc, char* argv[])
    int sched_idx = -1;
    ScheduleCell* preproc_schedule = NULL;
    RawSpecFeatureCell raw_features;
-   if(strategy_scheduling)
+   if(auto_conf || strategy_scheduling)
    {
       limits = CreateDefaultSpecLimits(); 
 
@@ -451,12 +452,21 @@ int main(int argc, char* argv[])
       RawSpecFeaturesClassify(&raw_features, limits, RAW_DEFAULT_MASK);
       preproc_schedule = GetPreprocessingSchedule(raw_features.class);
       fprintf(stdout, "# Preprocessing class: %s.\n", raw_features.class);
-      sched_idx = ExecuteScheduleMultiCore(preproc_schedule, 
-                                           h_parms, print_rusage, 
-                                           ScheduleTimeLimit ? ScheduleTimeLimit : DEFAULT_SCHED_TIME_LIMIT, 
-                                           true, num_cpus);
-      char* preproc_conf_name = h_parms->heuristic_name;
-      GetHeuristicWithName(preproc_conf_name, h_parms);
+      if(strategy_scheduling)
+      {
+         sched_idx = ExecuteScheduleMultiCore(preproc_schedule, 
+                                             h_parms, print_rusage, 
+                                             ScheduleTimeLimit ? ScheduleTimeLimit : DEFAULT_SCHED_TIME_LIMIT, 
+                                             true, num_cpus);
+         char* preproc_conf_name = h_parms->heuristic_name;
+         GetHeuristicWithName(preproc_conf_name, h_parms);
+      }
+      else
+      {
+         assert(auto_conf);
+         GetHeuristicWithName(preproc_schedule->heu_name, h_parms);
+         fprintf(stderr, "# Configuration: %s\n", preproc_schedule->heu_name);
+      }
    }
 
             
@@ -596,7 +606,10 @@ int main(int argc, char* argv[])
       fprintf(stdout, "# Search class: %s\n", class);
       if (strategy_scheduling)
       {
-         ExecuteScheduleMultiCore(GetSearchSchedule(class), 
+         ScheduleCell* search_sched = GetSearchSchedule(class);
+         InitializePlaceholderSearchSchedule(search_sched, preproc_schedule+sched_idx,
+                                             force_pre_schedule);
+         ExecuteScheduleMultiCore(search_sched, 
                                  h_parms, print_rusage, 
                                  preproc_schedule[sched_idx].time_absolute, 
                                  false, preproc_schedule[sched_idx].cores);
@@ -1251,6 +1264,9 @@ CLState_p process_options(int argc, char* argv[])
             strategy_scheduling = true;
             num_cpus = CLStateGetIntArg(handle, arg);
             h_parms->sine = SecureStrdup("Auto");
+            break;
+      case OPT_FORCE_PREPROC_SCHED:
+            force_pre_schedule = CLStateGetBoolArg(handle, arg);
             break;
       case OPT_SATAUTO_SCHED:
             strategy_scheduling = true;

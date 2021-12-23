@@ -275,6 +275,56 @@ int ExecuteScheduleMultiCore(ScheduleCell strats[],
    exit(RESOURCE_OUT);
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function:  InitializePlaceholderSearchSchedule()
+//
+//   Find the placeholder position in search sched and replace
+//   it with NULL (terminate the schedule array) if we do not
+//   need to insert preprocessing schedule into search schedule,
+//   otherwise replace it with the name of preprocessing schedule.
+//
+// Global Variables: SilentTimeOut
+//
+// Side Effects    : Forks, the child runs the proof search, re-sets
+//                   time limits, sets heuristic parameters
+//
+/----------------------------------------------------------------------*/
+
+void InitializePlaceholderSearchSchedule(ScheduleCell* search_sched, 
+                                         ScheduleCell* preproc_sched,
+                                         bool force_preproc)
+{
+   const char* PLACEHOLDER = "<placeholder>";
+   const double PREPROC_RATIO = 0.1;
+   int i;
+   for(i=0; strcmp(search_sched[i].heu_name, PLACEHOLDER); i++)
+   {
+      if(force_preproc)
+      {
+         if(!strcmp(search_sched[i].heu_name, preproc_sched->heu_name))
+         {
+            force_preproc = false; // already found
+         }
+      }
+   }
+
+   if(!force_preproc)
+   {
+      search_sched[i].heu_name = NULL;
+   }
+   else
+   {
+      search_sched[i].heu_name = preproc_sched->heu_name;
+      search_sched[i].time_fraction = PREPROC_RATIO;
+      double rest_multipler = 1-PREPROC_RATIO;
+      for(int j=0; j<i; j++)
+      {
+         search_sched[i].time_absolute *= rest_multipler;
+      }
+   }
+}
+
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */

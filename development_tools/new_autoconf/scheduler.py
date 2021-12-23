@@ -198,6 +198,8 @@ def init_args():
                            'to configurations in JobInfo files')
   parser.add_argument('--max-preproc-size', dest='max_preproc_size', default=4, type=int,
                       help='maximal size of preprocessing schedule')
+  parser.add_argument('--min-preproc-size', dest='min_preproc_size', default=1, type=int,
+                      help='minimal size of preprocessing schedule')
   parser.add_argument('--min-search-size', dest='min_search_size', default=3, type=int,
                       help='minimal size of search schedule')
   parser.add_argument('--max-search-size', dest='max_search_size', default=6, type=int,
@@ -228,19 +230,29 @@ def adjust_ratios(schedule, min_ratio):
     mult = 1 / total_ratio
     schedule = list(map(lambda x: (x[0], mult*x[1]), schedule))
   
-  added_to_min = 0
-  adjusted = 0
-  for i in range(0, len(schedule)):
-    c, r = schedule[i]
-    if r < min_ratio:
-      added_to_min += min_ratio-r
-      adjusted +=1
-      schedule[i] = (c, min_ratio)  
-  
-  for i in range(0, len(schedule)):
-    c, r = schedule[i]
-    if r != min_ratio:
-      schedule[i] = (c, r - added_to_min / (len(schedule)-adjusted))
+  min_ratio = min(min_ratio, 1/len(schedule))
+  schedule.sort(key=lambda x: x[1], reverse=True)
+
+  i=len(schedule)-1
+  fix_amount = 0
+  while i>=0 and schedule[i][1] < min_ratio :
+    (conf, ratio) = schedule[i]
+    fix_amount += min_ratio - ratio
+    schedule[i] = (conf, min_ratio)
+    i-=1
+
+  divider = i+1;
+  while i>=0:
+    to_remove = fix_amount / divider
+    (conf, ratio) = schedule[i]
+    if(ratio-to_remove) < min_ratio:
+      schedule[i] = (conf, min_ratio)
+      divider -= 1
+      fix_amount -= ratio - min_ratio
+    else:
+      schedule[i] = (conf, ratio-to_remove)
+      fix_amount -= to_remove
+    i -= 1
 
   return schedule
 
@@ -314,7 +326,7 @@ def output_used_confs(confs):
   print('};')
   print("const int num_confs = {0};".format(len(confs)))
 
-def output_schedule(var_prefix, schedule):
+def output_schedule(var_prefix, schedule, extra_field=False):
   def get_sched_name(cat):
     return var_prefix + "_" + cat.get_name().replace('-', '_')
 
@@ -324,6 +336,8 @@ def output_schedule(var_prefix, schedule):
     print('{0} {1}[] = {{'.format(SC, get_sched_name(cat)))
     for (c,r) in confs_w_ratio:
       print ('{{ "{0}", NoOrdering, NULL, {1}, 1, 1 }}, '.format(c.get_name(), round(r,4)))
+    if extra_field:
+      print('{ "<placeholder>", NoOrdering, NULL, 0, 1, 1}, ')
     print('{ NULL, NoOrdering, NULL, 0, 1, 1}')
     print('};')
 
@@ -341,15 +355,15 @@ def main():
   configurations = parse_configurations(args.result_archives, args.e_path, 100, args.conf_root)
   used_confs = set()
 
-  preproc_sched = schedule(raw_category_map, configurations, 1,
-                           args.max_preproc_size, used_confs, True, 0.1)
+  preproc_sched = schedule(raw_category_map, configurations, args.min_preproc_size,
+                           args.max_preproc_size, used_confs, True, 0.15)
   search_sched = schedule(category_map, configurations, args.min_search_size,
-                          args.max_search_size, used_confs)
+                          args.max_search_size, used_confs, min_ratio=0.075)
 
   print('// Found {0} confs, using {1}'.format(len(configurations), len(used_confs)))
   output_used_confs(used_confs)
   output_schedule("preproc", preproc_sched)
-  output_schedule("search", search_sched)
+  output_schedule("search", search_sched, extra_field=True)
 
 if __name__ == '__main__':
   main()

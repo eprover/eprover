@@ -89,6 +89,7 @@ typedef enum
    OPT_AUTODEV,
    OPT_SATAUTODEV,
    OPT_AUTO_SCHED,
+   OPT_FORCE_PREPROC_SCHED,
    OPT_SATAUTO_SCHED,
    OPT_NO_PREPROCESSING,
    OPT_EQ_UNFOLD_LIMIT,
@@ -688,6 +689,12 @@ OptCell opts[] =
     "time limit is exceeded. Optional argument is the number of CPUs on which "
     "the schedule is going to be executed on. By default, the schedule is executed "
     "on a single core. To execute on all cores of a system set the argument to -1"},
+
+    {OPT_FORCE_PREPROC_SCHED,
+    '\0', "force-preproc-sched",
+    ReqArg, NULL,
+    "When autoscheduling is used, make sure that preprocessing schedule is"
+    "inserted in the search categories"},
 
    {OPT_SATAUTO_SCHED,
     '\0', "satauto-schedule",

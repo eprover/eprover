@@ -22,10 +22,10 @@ class Category(object):
 
   def store_evaluation(self, eval, conf):
     if self._best is None:
-      self._best = (eval[0], eval[1], eval[2], conf)
+      self._best = (eval[0], eval[1], eval[2], eval[3], conf)
     else:
       if tuple_is_smaller(self._best, eval):
-        self._best = (eval[0], eval[1], eval[2], conf)
+        self._best = (eval[0], eval[1], eval[2], eval[3], conf)
 
   def get_best_conf(self):
     if self._best is None:
