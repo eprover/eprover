@@ -103,7 +103,6 @@ void RawSpecFeaturesCompute(RawSpecFeature_p features, ProofState_p state)
                                   &(features->perc_of_form_defs),
                                   &(features->num_lambdas),
                                   &(features->app_var_lits));
-   fprintf(stderr, "# num lams: %d\n", features->num_lambdas);
    features->class[0] = '\0';
 }
 #define ADJUST_FOR_HO(limit, scale) (limit) 

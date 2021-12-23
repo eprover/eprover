@@ -234,8 +234,8 @@ typedef struct spec_feature_cell
 #define FUN_MEDIUM_DEFAULT       360
 #define FUN_LARGE_DEFAULT        400
 
-#define NUM_LAMS_MEDIUM_DEFAULT  3 
-#define NUM_LAMS_LARGE_DEFAULT   9 
+#define NUM_LAMS_MEDIUM_DEFAULT  2 
+#define NUM_LAMS_LARGE_DEFAULT   8 
 #define ORDER_MEDIUM_DEFAULT     2 // second order is already medium
 #define ORDER_LARGE_DEFAULT      3 // third order is already high
 #define DEFS_MEDIUM_DEFAULT      8

@@ -59,7 +59,7 @@ extern ScheduleCell* chosen_schedule;
 void ScheduleTimesInit(ScheduleCell sched[], double time_used);
 
 void ScheduleTimesInitMultiCore(ScheduleCell sched[], double time_used, 
-                                double time_limit, bool compute_core_limit,
+                                double time_limit, bool preprocessing_schedule,
                                 int* cores);
 
 void InitializePlaceholderSearchSchedule(ScheduleCell* search_sched, 

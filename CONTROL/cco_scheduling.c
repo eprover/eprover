@@ -132,7 +132,7 @@ void ScheduleTimesInit(ScheduleCell sched[], double time_used)
 //
 // Function: ScheduleTimesInitMultiCore()
 //
-//    If compute_core_limit is true (used for scheduling preprocessing)
+//    If preprocessing_schedule is true (used for scheduling preprocessing)
 //    based on the time fraction the number of cores allocated to the preprocessor
 //    will be computed and stored in cores. Cores must be initialized to the
 //    prefered maximal number of cores and if this number is smaller than
@@ -146,7 +146,7 @@ void ScheduleTimesInit(ScheduleCell sched[], double time_used)
 /----------------------------------------------------------------------*/
 
 void ScheduleTimesInitMultiCore(ScheduleCell sched[], double time_used, 
-                                double time_limit, bool compute_core_limit,
+                                double time_limit, bool preprocessing_schedule,
                                 int* cores)
 {
    int i;
@@ -158,14 +158,28 @@ void ScheduleTimesInitMultiCore(ScheduleCell sched[], double time_used,
    {
       sched_size++;
    }
-   if(compute_core_limit)
+   if (preprocessing_schedule && sched_size > *cores)
    {
-      *cores = MAX(*cores, sched_size);
+      // shortening schedule to the num of cores.
+      sched_size = *cores;
+      sched[sched_size].heu_name = NULL;
+
+      // rescaling time fractions for lower number of cores.
+      double total_ratio = 0;
+      for(int i=0; sched[i].heu_name; i++)
+      {
+         total_ratio += sched[i].time_fraction;
+      }
+      double factor = 1 / total_ratio;
+      for(int i=0; sched[i].heu_name; i++)
+      {
+         sched[i].time_fraction *= factor;
+      }
    }
 
    limit = ceil(time_limit-time_used);
    total_limit = limit;
-   if(compute_core_limit)
+   if(preprocessing_schedule)
    {
       for(i=0; sched[i].heu_name; i++)
       {
@@ -191,7 +205,7 @@ void ScheduleTimesInitMultiCore(ScheduleCell sched[], double time_used,
    for(i=0; sched[i].heu_name; i++)
    {
 
-      tmp = ceil((compute_core_limit ? 1.0 : sched[i].time_fraction)*sched[i].cores*total_limit);
+      tmp = ceil((preprocessing_schedule ? 1.0 : sched[i].time_fraction)*sched[i].cores*total_limit);
       sched[i].time_absolute = tmp;
       sum = sum+tmp;
    }
@@ -218,7 +232,7 @@ int ExecuteScheduleMultiCore(ScheduleCell strats[],
                               HeuristicParms_p  h_parms,
                               bool print_rusage,
                               int wc_time_limit,
-                              int compute_cores_per_schedule,
+                              int preproc_schedule,
                               int max_cores)
 {
    int i;
@@ -228,7 +242,7 @@ int ExecuteScheduleMultiCore(ScheduleCell strats[],
 
 
    ScheduleTimesInitMultiCore(strats, run_time, wc_time_limit,
-                              compute_cores_per_schedule, &max_cores);
+                              preproc_schedule, &max_cores);
 
    i=0;
    do
