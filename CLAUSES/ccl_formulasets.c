@@ -654,10 +654,8 @@ void FormulaSetDefinitionStatistics(FormulaSet_p orig, FormulaSet_p arch,
           handle = handle->succ)
       {
          _has_av_lits = _has_av_lits || FormulaHasAppVarLit(bank->sig, handle->tformula);
-         if(FormulaHasNonTopLevelLambda(bank->sig, handle->tformula))
-         {
-            _num_lams++;
-         }
+         _num_lams += FormulaCountNonTopLevelLambdas(bank->sig, handle->tformula);
+         
          if(FormulaQueryProp(handle, CPIsLambdaDef))
          {
             Term_p tform = handle->tformula;

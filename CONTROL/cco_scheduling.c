@@ -158,7 +158,10 @@ void ScheduleTimesInitMultiCore(ScheduleCell sched[], double time_used,
    {
       sched_size++;
    }
-   *cores = MAX(*cores, sched_size);
+   if(compute_core_limit)
+   {
+      *cores = MAX(*cores, sched_size);
+   }
 
    limit = ceil(time_limit-time_used);
    total_limit = limit;
@@ -188,7 +191,7 @@ void ScheduleTimesInitMultiCore(ScheduleCell sched[], double time_used,
    for(i=0; sched[i].heu_name; i++)
    {
 
-      tmp = ceil(sched[i].time_fraction*sched[i].cores*total_limit);
+      tmp = ceil((compute_core_limit ? 1.0 : sched[i].time_fraction)*sched[i].cores*total_limit);
       sched[i].time_absolute = tmp;
       sum = sum+tmp;
    }

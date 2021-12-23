@@ -43,7 +43,7 @@ Changes
 
 bool WFormulaConjectureNegate(WFormula_p wform);
 
-bool FormulaHasNonTopLevelLambda(Sig_p sig, TFormula_p form);
+int  FormulaCountNonTopLevelLambdas(Sig_p sig, TFormula_p form);
 bool FormulaHasAppVarLit(Sig_p sig, TFormula_p form);
 
 TFormula_p TFormulaAnnotateQuestion(TB_p terms,

@@ -2443,9 +2443,9 @@ void FormulaSetDocInital(FILE *out, long level, FormulaSet_p set)
 
 /*-----------------------------------------------------------------------
 //
-// Function: FormulaSetDocInital()
+// Function: FormulaCountNonTopLevelLambdas()
 //
-//   Does a formula have a lambda that does not appear at the eqn level?
+//   Count non-top level lambdas in the formulas
 //
 // Global Variables: -
 //
@@ -2453,30 +2453,39 @@ void FormulaSetDocInital(FILE *out, long level, FormulaSet_p set)
 //
 /----------------------------------------------------------------------*/
 
-bool FormulaHasNonTopLevelLambda(Sig_p sig, TFormula_p form)
+int FormulaCountNonTopLevelLambdas(Sig_p sig, TFormula_p form)
 {
    PStack_p stack = PStackAlloc();
    PStackPushP(stack, form);
    PStackPushInt(stack, true);
-   bool res = false;
+   int res = 0;
    
-   while(!PStackEmpty(stack) && !res)
+   while(!PStackEmpty(stack))
    {
       bool is_at_top = PStackPopInt(stack);
       Term_p form = PStackPopP(stack);
 
-      if(is_at_top)
+      if(TermHasLambdaSubterm(form))
       {
-         is_at_top = is_at_top && (!TermIsFreeVar(form) && SigIsLogicalSymbol(sig, form->f_code));
-         for(int i=0; i<form->arity; i++)
+         if(is_at_top)
          {
-            PStackPushP(stack, form->args[i]);
-            PStackPushInt(stack, is_at_top);
+            is_at_top = is_at_top && (!TermIsFreeVar(form) 
+                                      && (SigIsLogicalSymbol(sig, form->f_code)
+                                          || TermIsLambda(form)));
          }
-      }
-      else
-      {
-         res = TermHasLambdaSubterm(form);
+         else if(TermIsLambda(form))
+         {
+            res++;
+         }
+         
+         for(int i=TermIsPhonyApp(form) || TermIsLambda(form) ? 1 : 0; i<form->arity; i++)
+         {
+            if(TermHasLambdaSubterm(form->args[i]))
+            {
+               PStackPushP(stack, form->args[i]);
+               PStackPushInt(stack, is_at_top);
+            }
+         }
       }
    }
 
