@@ -160,7 +160,7 @@ void ScheduleTimesInitMultiCore(ScheduleCell sched[], double time_used,
    }
    *cores = MAX(*cores, sched_size);
 
-   limit = time_limit-time_used;
+   limit = ceil(time_limit-time_used);
    total_limit = limit;
    if(compute_core_limit)
    {
@@ -188,7 +188,7 @@ void ScheduleTimesInitMultiCore(ScheduleCell sched[], double time_used,
    for(i=0; sched[i].heu_name; i++)
    {
 
-      tmp = sched[i].time_fraction*sched[i].cores*total_limit;
+      tmp = ceil(sched[i].time_fraction*sched[i].cores*total_limit);
       sched[i].time_absolute = tmp;
       sum = sum+tmp;
    }
@@ -320,7 +320,7 @@ void InitializePlaceholderSearchSchedule(ScheduleCell* search_sched,
       double rest_multipler = 1-PREPROC_RATIO;
       for(int j=0; j<i; j++)
       {
-         search_sched[i].time_absolute *= rest_multipler;
+         search_sched[j].time_fraction *= rest_multipler;
       }
    }
 }

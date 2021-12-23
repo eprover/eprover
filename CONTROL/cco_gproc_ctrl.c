@@ -159,7 +159,7 @@ EGPCtrl_p EGPCtrlCreate(char *name, int cores, rlim_t cpu_limit)
       SysError("pipe failed", SYS_ERROR);
       exit(EXIT_FAILURE);
    }
-   fprintf(GlobalOut, "# Starting %s with %jus\n", name, (uintmax_t)cpu_limit);
+   fprintf(GlobalOut, "# Starting %s with %jus (%d) cores\n", name, (uintmax_t)cpu_limit, cores);
 
    if((childpid = fork()) <0 )
    {
@@ -218,7 +218,7 @@ bool EGPCtrlGetResult(EGPCtrl_p ctrl, char *buffer, long buf_size)
    }
    buffer[len] = '\0';
 
-   fprintf(stdout, "# %s: [%s].\n", ctrl->name, buffer);
+   // fprintf(stdout, "# %s: [%s].\n", ctrl->name, buffer);
 
    if(len)
    {
