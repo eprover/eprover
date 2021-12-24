@@ -267,7 +267,7 @@ int ExecuteScheduleMultiCore(ScheduleCell strats[],
          }
          i++;
       }
-      handle = EGPCtrlSetGetResult(procs);
+      handle = EGPCtrlSetCardinality(procs) ? EGPCtrlSetGetResult(procs) : NULL;
       if(handle)
       {
          fprintf(GlobalOut, "# Result found by %s\n", handle->name);
@@ -279,7 +279,7 @@ int ExecuteScheduleMultiCore(ScheduleCell strats[],
          }
          exit(handle->exit_status);
       } 
-   }while(EGPCtrlSetCardinality(procs));
+   }while(EGPCtrlSetCardinality(procs) || strats[i].heu_name);
 
    EGPCtrlSetFree(procs);
 
