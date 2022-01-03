@@ -48,11 +48,10 @@ class Configuration(object):
   PREPROCESSING_W_DEFAULTS =\
   {
     'no_preproc': 'false', 
-    'eqdef_maxclauses': '20000', 
-    'eqdef_incrlimit': '20',
+    # 'eqdef_maxclauses': '20000', 
+    # 'eqdef_incrlimit': '20',
     'formula_def_limit': '24', 
     'sine': 'Auto', 
-    'presat_interreduction': 'false',
     'lift_lambdas': 'true',
     'lambda_to_forall': 'true', 
     'unroll_only_formulas' : 'true',
