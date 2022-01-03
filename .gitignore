@@ -59,6 +59,7 @@ EXECDIR/
 
 # Prover
 PROVER/e_stratpar
+PROVER/epatternize
 
 # Picosat files
 CONTRIB/picosat-965/*
