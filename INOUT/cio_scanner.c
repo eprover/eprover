@@ -848,6 +848,7 @@ Scanner_p CreateScanner(StreamType type, char *name, bool
    if((type == StreamTypeFile && strcmp(name,"-")==0)||
       (type != StreamTypeFile))
    {
+      // TODO: Failure happens when no file ("-") inputted.
       stream = OpenStackedInput(&handle->source, type, name, true);
       assert(stream);
    }

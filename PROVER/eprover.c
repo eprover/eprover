@@ -131,7 +131,9 @@ ProofState_p parse_spec(CLState_p state,
                         IOFormat parse_format_local,
                         bool error_on_empty_local,
                         FunctionProperties free_symb_prop_local,
-                        long* ax_no)
+                        long* ax_no,
+                        bool repl,
+                        ProofState_p proofstate_p)
 {
    ProofState_p proofstate;
    Scanner_p in;
@@ -139,10 +141,26 @@ ProofState_p parse_spec(CLState_p state,
    StrTree_p skip_includes = NULL;
    long parsed_ax_no;
 
-   proofstate = ProofStateAlloc(free_symb_prop_local);
+   if (repl)
+   {
+      proofstate = proofstate_p;
+   }
+   else
+   {
+      proofstate = ProofStateAlloc(free_symb_prop_local);
+   }
+
    for(i=0; state->argv[i]; i++)
    {
-      in = CreateScanner(StreamTypeFile, state->argv[i], true, NULL, true);
+      if (repl)
+      {
+         in = CreateScanner(StreamTypeInternalString, state->argv[i], true, NULL, true);
+      }
+      else
+      {
+         in = CreateScanner(StreamTypeFile, state->argv[i], true, NULL, true);
+      }
+
       ScannerSetFormat(in, parse_format_local);
       if(parse_format_local == AutoFormat && in->format == TSTPFormat)
       {
@@ -213,6 +231,38 @@ static void print_info(void)
       fprintf(GlobalOut, "# Version: %s\n", VERSION);
       fflush(GlobalOut);
    }
+}
+
+static ProofState_p repl(CLState_p state, long* parsed_ax_no) {
+   char line[1024];
+   ProofState_p proofstate = ProofStateAlloc(free_symb_prop);
+
+   for (;;)
+   {
+      fprintf(GlobalOut, "> ");
+
+      if (!fgets(line, sizeof(line), stdin) || strncmp(line, "analyze.", 8) == 0)
+      {
+         printf("\n");
+         break;
+      }
+
+      CLStateInsertArg(state, line);
+      proofstate = parse_spec(state, parse_format,
+                              error_on_empty, free_symb_prop,
+                              parsed_ax_no,
+                              true,
+                              proofstate);
+      printf("%ld\n", (*parsed_ax_no));
+      state->argc--;
+   }
+
+   if (*parsed_ax_no == -1)
+   {
+      exit(USAGE_ERROR);
+   }
+
+   return proofstate;
 }
 
 /*-----------------------------------------------------------------------
@@ -406,12 +456,18 @@ int main(int argc, char* argv[])
 
    if(state->argc ==  0)
    {
-      CLStateInsertArg(state, "-");
+      // TODO: Add REPL.
+      proofstate = repl(state, &parsed_ax_no);
+      // CLStateInsertArg(state, "-");
    }
-
-   proofstate = parse_spec(state, parse_format,
-                           error_on_empty, free_symb_prop,
-                           &parsed_ax_no);
+   else
+   {
+      proofstate = parse_spec(state, parse_format,
+                              error_on_empty, free_symb_prop,
+                              &parsed_ax_no,
+                              false,
+                              NULL);
+   }
 
    if(syntax_only)
    {
