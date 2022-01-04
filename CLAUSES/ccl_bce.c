@@ -26,6 +26,12 @@ Changes
 /*                    Data type declarations                           */
 /*---------------------------------------------------------------------*/
 
+typedef struct
+{
+   PStack_p clauses;
+   bool ignored;
+} SymbolRecord;
+
 
 /*---------------------------------------------------------------------*/
 /*                        Global Variables                             */
@@ -60,9 +66,9 @@ Changes
 //
 /----------------------------------------------------------------------*/
 
-void EliminateBlockedClauses(ClauseSet_p passive, ClauseSet_p archive, int max_occs)
+void EliminateBlockedClauses(ClauseSet_p passive, ClauseSet_p archive,
+                             int max_occs)
 {
-
 }
 
 /*---------------------------------------------------------------------*/

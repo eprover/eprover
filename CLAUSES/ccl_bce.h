@@ -20,6 +20,11 @@ Changes
 <1> di  4 jan 2022 13:00:10 CET
 -----------------------------------------------------------------------*/
 
+#ifndef CCL_BCE
+#define CCL_BCE
+
 #include <ccl_clausesets.h>
 
 void EliminateBlockedClauses(ClauseSet_p set, ClauseSet_p archive, int max_occs);
+
+#endif

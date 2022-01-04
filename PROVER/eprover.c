@@ -587,9 +587,11 @@ int main(int argc, char* argv[])
       PreinstantiateInduction(proofstate->axioms, proofstate->archive, proofstate->terms);
    }
 
-   if(h_parms->bce)
+   if(problemType == PROBLEM_FO && h_parms->bce)
    {
-      EliminateBlockedClauses(proofstate->axioms, proofstate->axioms, h_parms->bce_max_occs);
+      // todo: eventually check if the problem in HO syntax is FO.
+      EliminateBlockedClauses(proofstate->axioms, proofstate->axioms,
+                              h_parms->bce_max_occs);
    }
 
    if(strategy_scheduling || auto_conf)
