@@ -200,6 +200,8 @@ typedef enum
    OPT_EXT_SUP,
    OPT_INVERSE_RECOGNITION,
    OPT_REPLACE_INJ_DEFS,
+   OPT_BCE,
+   OPT_BCE_MAX_OCCS,
    OPT_LIFT_LAMBDAS,
    OPT_ETA_NORMALIZE,
    OPT_HO_ORDER_KIND,
@@ -1669,6 +1671,14 @@ OptCell opts[] =
     ReqArg, NULL,
     "Abstract unit clauses coming from conjecture and use the abstractions "
     "to instantiate clauses that look like the ones coming from induction axioms."},
+
+    {OPT_BCE,
+    '\0', "bce", ReqArg, NULL, "Turn blocked clause elimination on or off"},
+
+    {OPT_BCE_MAX_OCCS,
+    '\0', "bce-max-occs", ReqArg, NULL, 
+    "Stop tracking symbol after it occurs in <arg> clauses"
+    " Set <arg> to -1 disable this limit"},
 
    {OPT_NOOPT,
     '\0', NULL,

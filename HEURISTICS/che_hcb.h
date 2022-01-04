@@ -119,6 +119,9 @@ typedef struct heuristic_parms_cell
    bool                add_goal_defs_neg; /* Twee-style goal rewriting */
    bool                add_goal_defs_subterms;
 
+   bool                bce;
+   int                 bce_max_occs;
+
 /* Clause selection elements */
    char                *heuristic_name;
    char                *heuristic_def;

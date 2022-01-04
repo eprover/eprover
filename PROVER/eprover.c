@@ -34,6 +34,7 @@
 #include <cte_lambda.h>
 #include <cco_ho_inferences.h>
 #include <che_new_autoschedule.h>
+#include <ccl_bce.h>
 #include <sys/mman.h>
 
 
@@ -584,6 +585,11 @@ int main(int argc, char* argv[])
    if(h_parms->preinstantiate_induction)
    {
       PreinstantiateInduction(proofstate->axioms, proofstate->archive, proofstate->terms);
+   }
+
+   if(h_parms->bce)
+   {
+      EliminateBlockedClauses(proofstate->axioms, proofstate->axioms, h_parms->bce_max_occs);
    }
 
    if(strategy_scheduling || auto_conf)
@@ -1955,6 +1961,12 @@ CLState_p process_options(int argc, char* argv[])
             break;
       case OPT_REPLACE_INJ_DEFS:
             h_parms->replace_inj_defs = true;
+            break;
+      case OPT_BCE:
+            h_parms->bce = CLStateGetBoolArg(handle, arg);
+            break;
+      case OPT_BCE_MAX_OCCS:
+            h_parms->bce_max_occs = CLStateGetIntArgCheckRange(handle, arg, -1, INT_MAX);
             break;
       case OPT_LIFT_LAMBDAS:
             h_parms->lift_lambdas = CLStateGetBoolArg(handle, arg);

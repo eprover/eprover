@@ -1,6 +1,6 @@
 /*-----------------------------------------------------------------------
 
-File  : cco_ho_inferences.j
+File  : cco_ho_inferences.h
 
 Author: Petar Vukmirovic
 

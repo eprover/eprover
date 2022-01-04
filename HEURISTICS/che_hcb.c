@@ -177,6 +177,9 @@ void HeuristicParmsInitialize(HeuristicParms_p handle)
    handle->heuristic_def                 = NULL;
    handle->prefer_initial_clauses        = false;
 
+   handle->bce                           = false;
+   handle->bce_max_occs                  = 0;
+
    handle->selection_strategy            = SelectNoLiterals;
    handle->pos_lit_sel_min               = 0;
    handle->pos_lit_sel_max               = LONG_MAX;
@@ -350,6 +353,9 @@ void HeuristicParmsPrint(FILE* out, HeuristicParms_p handle)
    fprintf(out, "   add_goal_defs_pos:             %s\n", BOOL2STR(handle->add_goal_defs_pos));
    fprintf(out, "   add_goal_defs_neg:             %s\n", BOOL2STR(handle->add_goal_defs_neg));
    fprintf(out, "   add_goal_defs_subterms:        %s\n", BOOL2STR(handle->add_goal_defs_subterms));
+
+   fprintf(out, "   bce:                           %s\n", BOOL2STR(handle->bce));
+   fprintf(out, "   bce_max_occs:                  %d\n", handle->bce_max_occs);
 
    fprintf(out, "   heuristic_name:                %s\n", handle->heuristic_name);
    fprintf(out, "   heuristic_def:                 \"%s\"\n",
