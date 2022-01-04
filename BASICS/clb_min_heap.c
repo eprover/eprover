@@ -110,9 +110,9 @@ void drop_down(MinHeap_p h, PStackPointer curr_idx)
       {
          min_c_idx = l;
       }
-      else if(r < size && 
-              h->cmp(PStackElementRef(h->arr, min_c_idx), 
-                     PStackElementRef(h->arr, r)) < 0)
+      if(r < size && 
+         h->cmp(PStackElementRef(h->arr, min_c_idx), 
+                PStackElementRef(h->arr, r)) < 0)
       {
          min_c_idx = r;
       }
@@ -146,7 +146,7 @@ void drop_down(MinHeap_p h, PStackPointer curr_idx)
 //
 // Side Effects    : Output
 //
-/----------------------------------------------------------------------*/
+/-----------------------------------------------------------------------*/
 
 void add(MinHeap_p h, IntOrP key)
 {
