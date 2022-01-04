@@ -294,3 +294,21 @@ void MinHeapIncrKey(MinHeap_p h, long idx)
 {
    bubble_up(h, idx);
 }
+
+/*-----------------------------------------------------------------------
+//
+// Function: MinHeapFree()
+//
+//   Deallocate the space allocated for junk.
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+void MinHeapFree(MinHeap_p junk)
+{
+   PStackFree(junk->arr);
+   SizeFree(junk, sizeof(struct MinHeap));
+}

@@ -39,8 +39,8 @@ void MinHeapAddP(MinHeap_p, void*);
 void MinHeapAddInt(MinHeap_p, long);
 
 IntOrP MinHeapPopMax(MinHeap_p);
-#define MinHeapPopMaxP(m) (MinHeapPopMax(m)->p_val)
-#define MinHeapPopMaxInt(m) (MinHeapPopMax(m)->i_val)
+#define MinHeapPopMaxP(m) (MinHeapPopMax(m).p_val)
+#define MinHeapPopMaxInt(m) (MinHeapPopMax(m).i_val)
 
 void MinHeapDecrKey(MinHeap_p, long);
 void MinHeapIncrKey(MinHeap_p, long);
