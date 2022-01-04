@@ -228,6 +228,8 @@ void ScheduleTimesInitMultiCore(ScheduleCell sched[], double time_used,
 //
 /----------------------------------------------------------------------*/
 
+#define TERMINATE(status) signal(SIGQUIT, SIG_IGN); kill(0, SIGQUIT); exit(status)
+
 int ExecuteScheduleMultiCore(ScheduleCell strats[],
                               HeuristicParms_p  h_parms,
                               bool print_rusage,
@@ -277,7 +279,14 @@ int ExecuteScheduleMultiCore(ScheduleCell strats[],
          {
             PrintRusage(GlobalOut);
          }
-         exit(handle->exit_status);
+         if(preproc_schedule)
+         {
+            TERMINATE(handle->exit_status);
+         }
+         else
+         {
+            exit(handle->exit_status);
+         }
       } 
    }while(EGPCtrlSetCardinality(procs) || strats[i].heu_name);
 
@@ -289,7 +298,14 @@ int ExecuteScheduleMultiCore(ScheduleCell strats[],
    {
       PrintRusage(GlobalOut);
    }
-   exit(RESOURCE_OUT);
+   if(preproc_schedule)
+   {
+      TERMINATE(RESOURCE_OUT);
+   }
+   else
+   {
+      exit(handle->exit_status);
+   }
 }
 
 /*-----------------------------------------------------------------------
