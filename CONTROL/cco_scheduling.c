@@ -228,7 +228,12 @@ void ScheduleTimesInitMultiCore(ScheduleCell sched[], double time_used,
 //
 /----------------------------------------------------------------------*/
 
-#define TERMINATE(status) signal(SIGQUIT, SIG_IGN); kill(0, SIGQUIT); exit(status)
+#define TERMINATE_CHILDREN() signal(SIGQUIT, SIG_IGN); kill(0, SIGQUIT)
+
+void _catch_and_quit(int _)
+{
+   exit(RESOURCE_OUT);
+}
 
 int ExecuteScheduleMultiCore(ScheduleCell strats[],
                               HeuristicParms_p  h_parms,
@@ -260,6 +265,7 @@ int ExecuteScheduleMultiCore(ScheduleCell strats[],
             h_parms->heuristic_name         = strats[i].heu_name;
             h_parms->order_params.ordertype = strats[i].ordering;
             SilentTimeOut = true;
+            signal(SIGQUIT, _catch_and_quit);
             return i; // tells the other scheduling call what is the parent
          }
          else
@@ -281,12 +287,9 @@ int ExecuteScheduleMultiCore(ScheduleCell strats[],
          }
          if(preproc_schedule)
          {
-            TERMINATE(handle->exit_status);
+            TERMINATE_CHILDREN();
          }
-         else
-         {
-            exit(handle->exit_status);
-         }
+         exit(handle->exit_status);
       } 
    }while(EGPCtrlSetCardinality(procs) || strats[i].heu_name);
 
@@ -300,12 +303,9 @@ int ExecuteScheduleMultiCore(ScheduleCell strats[],
    }
    if(preproc_schedule)
    {
-      TERMINATE(RESOURCE_OUT);
+      TERMINATE_CHILDREN();
    }
-   else
-   {
-      exit(handle->exit_status);
-   }
+   exit(RESOURCE_OUT);
 }
 
 /*-----------------------------------------------------------------------
