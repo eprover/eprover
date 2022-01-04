@@ -73,7 +73,8 @@ bool              print_sat = false,
    incomplete = false,
    conjectures_are_questions = false,
    app_encode = false,
-   strategy_scheduling = false;
+   strategy_scheduling = false,
+   repl_active = false;
 ProofOutput       print_derivation = PONone;
 long              proc_training_data;
 
@@ -233,7 +234,24 @@ static void print_info(void)
    }
 }
 
-static ProofState_p repl(CLState_p state, long* parsed_ax_no) {
+
+/*-----------------------------------------------------------------------
+//
+// Function: repl()
+//
+//   Interactive command line tool.
+//
+// Global Variables: GlobalOut, repl_active
+//
+// Side Effects    : Same as parse_spec()
+//
+/----------------------------------------------------------------------*/
+
+static ProofState_p repl(CLState_p state,
+                         IOFormat parse_format_local,
+                         bool error_on_empty_local,
+                         FunctionProperties free_symb_prop_local,
+                         long* parsed_ax_no) {
    char line[1024];
    ProofState_p proofstate = ProofStateAlloc(free_symb_prop);
 
@@ -241,19 +259,23 @@ static ProofState_p repl(CLState_p state, long* parsed_ax_no) {
    {
       fprintf(GlobalOut, "> ");
 
-      if (!fgets(line, sizeof(line), stdin) || strncmp(line, "analyze.", 8) == 0)
+      if (!fgets(line, sizeof(line), stdin) || strncmp(line, "run.", 4) == 0)
       {
          printf("\n");
+         repl_active = true;
          break;
       }
 
       CLStateInsertArg(state, line);
-      proofstate = parse_spec(state, parse_format,
-                              error_on_empty, free_symb_prop,
+      proofstate = parse_spec(state,
+                              parse_format_local,
+                              error_on_empty_local,
+                              free_symb_prop_local,
                               parsed_ax_no,
                               true,
                               proofstate);
-      printf("%ld\n", (*parsed_ax_no));
+
+      // Decrease state->argc so next iteration overrides the same spot in argv.
       state->argc--;
    }
 
@@ -456,8 +478,18 @@ int main(int argc, char* argv[])
 
    if(state->argc ==  0)
    {
-      // TODO: Add REPL.
-      proofstate = repl(state, &parsed_ax_no);
+      // Callback for when a proof is done so REPL keeps being alive.
+      repl_call:
+      if (!proofstate && repl_active) {
+         // Free old proofstate if repl is called again.
+         ProofStateFree(proofstate);
+      }
+
+      proofstate = repl(state,
+                        parse_format,
+                        error_on_empty,
+                        free_symb_prop,
+                        &parsed_ax_no);
       // CLStateInsertArg(state, "-");
    }
    else
@@ -849,6 +881,11 @@ int main(int argc, char* argv[])
                      relevancy_pruned,
                      raw_clause_no,
                      preproc_removed);
+
+   // If REPL was running before, call it again.
+   if (repl_active) {
+      goto repl_call;
+   }
 #ifndef FAST_EXIT
 #ifdef FULL_MEM_STATS
    fprintf(GlobalOut,

@@ -1586,9 +1586,9 @@ long FormulaAndClauseSetParse(Scanner_p in, FormulaSet_p fset,
                {
                   // printf("It's a formula\n");
                   form = WFormulaParse(in, terms);
-                  fprintf(stdout, "Parsed: ");
-                  WFormulaPrint(stdout, form, true);
-                  fprintf(stdout, "\n");
+                  // fprintf(stdout, "Parsed: ");
+                  // WFormulaPrint(stdout, form, true);
+                  // fprintf(stdout, "\n");
                }
                else
                {
