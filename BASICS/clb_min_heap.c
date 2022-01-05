@@ -240,7 +240,7 @@ void MinHeapAddInt(MinHeap_p h, long i)
 
 /*-----------------------------------------------------------------------
 //
-// Function: MinHeapPopMax()
+// Function: MinHeapPopMin()
 //
 //   Pop the maximum element and restore heap property.
 //
@@ -250,14 +250,14 @@ void MinHeapAddInt(MinHeap_p h, long i)
 //
 /----------------------------------------------------------------------*/
 
-IntOrP MinHeapPopMax(MinHeap_p h)
+IntOrP MinHeapPopMin(MinHeap_p h)
 {
    IntOrP ret_val = PStackPop(h->arr);
    if(MinHeapSize(h))
    {
       *PStackElementRef(h->arr, 0) = ret_val;
+      drop_down(h, 0);
    }
-   drop_down(h, 0);
    return ret_val;
 }
 
@@ -311,4 +311,32 @@ void MinHeapFree(MinHeap_p junk)
 {
    PStackFree(junk->arr);
    SizeFree(junk, sizeof(struct MinHeap));
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: DBGPrintHeap()
+//
+//   Print the contents of the heap. If as_ptr is true, then the heap
+//   is interpreted as heap of pointers.
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+void DBGPrintHeap(FILE* out, MinHeap_p h, bool as_ptr)
+{
+   for(PStackPointer i=0; i<PStackGetSP(h->arr); i++)
+   {
+      if(as_ptr)
+      {
+         fprintf(out, "%p; ", PStackElementP(h->arr, i));
+      }
+      else
+      {
+         fprintf(out, "%ld; ", PStackElementInt(h->arr, i));
+      }
+   }
 }

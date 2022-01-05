@@ -38,13 +38,15 @@ long   MinHeapSize(MinHeap_p);
 void MinHeapAddP(MinHeap_p, void*);
 void MinHeapAddInt(MinHeap_p, long);
 
-IntOrP MinHeapPopMax(MinHeap_p);
-#define MinHeapPopMaxP(m) (MinHeapPopMax(m).p_val)
-#define MinHeapPopMaxInt(m) (MinHeapPopMax(m).i_val)
+IntOrP MinHeapPopMin(MinHeap_p);
+#define MinHeapPopMinP(m) (MinHeapPopMin(m).p_val)
+#define MinHeapPopMinInt(m) (MinHeapPopMin(m).i_val)
 
 void MinHeapDecrKey(MinHeap_p, long);
 void MinHeapIncrKey(MinHeap_p, long);
 
 void MinHeapFree(MinHeap_p);
+
+void DBGPrintHeap(FILE* out, MinHeap_p h, bool as_ptr);
 
 #endif

@@ -435,7 +435,7 @@ bool check_blockedness_eq(BCE_task_p task, Clause_p partner, TB_p tmp_bank)
       EqnListAppend(&cond, EqnListCopy(others, others->bank));
       Clause_p tmp_cl = ClauseAlloc(cond);
       res = ClauseIsTautologyReal(tmp_bank, tmp_cl, false);
-      ClauseFree(tmp_cl);
+      // ClauseFree(tmp_cl); NB: TAUTOLOGY CHECK FREES THE CLAUSE
    }
 
    PStackFree(same_head);
@@ -507,6 +507,7 @@ void free_blocker(void *key, void* val)
    while(!PStackEmpty(blocked_tasks))
    {
       BCE_task_p t = PStackPopP(blocked_tasks);
+      fprintf(stderr, "freing %p %p\n", key, t);
       SizeFree(t, sizeof(BCE_task));
    }
    PStackFree(blocked_tasks);
@@ -521,7 +522,8 @@ long do_eliminate_clauses(MinHeap_p task_queue, ClauseSet_p archive,
    long eliminated = 0;
    while(MinHeapSize(task_queue))
    {
-      BCE_task_p min_task = MinHeapPopMaxP(task_queue);
+      // DBG_PRINT(stderr, "heap: ", DBGPrintHeap(stderr, task_queue, true), ".\n");
+      BCE_task_p min_task = MinHeapPopMinP(task_queue);
       if(min_task->orig_cl->set != archive)
       {
          // clause is not archived, we can go on
@@ -531,9 +533,9 @@ long do_eliminate_clauses(MinHeap_p task_queue, ClauseSet_p archive,
             // all candidates are processed, clause is blocked
             ClauseSetMoveClause(archive, min_task->orig_cl);
             eliminated++;
-            DBG_PRINT(stderr, "eliminated ", ClausePrint(stderr, min_task->orig_cl, true), ".\n");
 
             PStack_p blocked = PObjMapExtract(&blocker_map, min_task->parent, PCmpFun);
+            fprintf(stderr, "extracted %p.\n", min_task->parent);
             if(blocked)
             {
                while(!PStackEmpty(blocked))
@@ -550,12 +552,17 @@ long do_eliminate_clauses(MinHeap_p task_queue, ClauseSet_p archive,
             // remember that checking of candidates needs to be continued
             // once the clause which prevented blocking is removed
             PStack_p* blocked = (PStack_p*)PObjMapGetRef(&blocker_map, min_task->parent, PCmpFun, NULL);
+            fprintf(stderr, "inserting %p.\n", min_task->parent);
             if(!*blocked)
             {
                *blocked = PStackAlloc();
             }
             PStackPushP(*blocked, min_task);
          }
+      }
+      else
+      {
+         BCETaskFree(min_task);
       }
    }
    PObjMapFreeWDeleter(blocker_map, free_blocker);
@@ -608,7 +615,7 @@ void EliminateBlockedClauses(ClauseSet_p passive, ClauseSet_p archive,
    }
 
    PStackFree(fresh_cls);
-
+   MinHeapFree(task_queue);
 }
 
 /*---------------------------------------------------------------------*/
