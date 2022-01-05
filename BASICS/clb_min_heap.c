@@ -130,7 +130,7 @@ void drop_down(MinHeap_p h, PStackPointer curr_idx)
       }
       else
       {
-         min_c_idx = size; // breaking
+         curr_idx = size; // breaking
       }
    }
 }
@@ -151,8 +151,8 @@ void drop_down(MinHeap_p h, PStackPointer curr_idx)
 void add(MinHeap_p h, IntOrP key)
 {
    push(h->arr, key);
-   CALL_SETTER(h, key.p_val, PStackGetSP(h->arr));
-   bubble_up(h, PStackGetSP(h->arr));
+   CALL_SETTER(h, key.p_val, PStackGetTopSP(h->arr));
+   bubble_up(h, PStackGetTopSP(h->arr));
 }
 
 /*---------------------------------------------------------------------*/

@@ -590,7 +590,7 @@ int main(int argc, char* argv[])
    if(problemType == PROBLEM_FO && h_parms->bce)
    {
       // todo: eventually check if the problem in HO syntax is FO.
-      EliminateBlockedClauses(proofstate->axioms, proofstate->axioms,
+      EliminateBlockedClauses(proofstate->axioms, proofstate->archive,
                               h_parms->bce_max_occs,
                               proofstate->tmp_terms);
    }

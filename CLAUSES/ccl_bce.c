@@ -24,7 +24,7 @@ Changes
 #include <clb_min_heap.h>
 
 #define OCC_CNT(s) ((s) ? PStackGetSP(s) : 0)
-#define IS_BLOCKED(s) (s && PStackGetSP(s) == 0)
+#define IS_BLOCKED(s) ((s) && PStackGetSP(s) == 0)
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
@@ -32,7 +32,8 @@ Changes
 
 typedef struct 
 {
-   Clause_p parent;
+   Clause_p orig_cl; // original clause that is potentially removed
+   Clause_p parent; // renamed clause used for resulutons -- for efficiency
    Eqn_p lit;
    PStack_p candidates; // NB: Can be null;
    PStackPointer processed_cands;
@@ -70,9 +71,10 @@ typedef bool (*BlockednessChecker)(BCE_task_p, Clause_p, TB_p);
 //
 /----------------------------------------------------------------------*/
 
-BCE_task_p make_task(Clause_p cl, Eqn_p lit, PStack_p cands)
+BCE_task_p make_task(Clause_p orig_cl, Clause_p cl, Eqn_p lit, PStack_p cands)
 {
    BCE_task_p res = SizeMalloc(sizeof(BCE_task));
+   res->orig_cl = orig_cl;
    res->parent = cl;
    res->lit = lit;
    res->candidates = cands;
@@ -128,8 +130,9 @@ IntMap_p make_sym_map(ClauseSet_p set, int occ_limit, bool* eq_found)
             PStack_p* fc_cls = (PStack_p*)IntMapGetRef(res, fc);
             if(!IS_BLOCKED(*fc_cls))
             {
-               PStack_p* other_fc_cls = (PStack_p*)IntMapGetRef(res, -fc);
-               if((OCC_CNT(*fc_cls) + OCC_CNT(*other_fc_cls)) >= occ_limit)
+               PStack_p other_fc_cls = (PStack_p)IntMapGetVal(res, -fc);
+               if( occ_limit > 0 && // limiting enabled
+                  ((OCC_CNT(*fc_cls) + OCC_CNT(other_fc_cls)) >= occ_limit))
                {
                   // removing all elements -- essentially blocking clauses
                   if(*fc_cls)
@@ -141,13 +144,14 @@ IntMap_p make_sym_map(ClauseSet_p set, int occ_limit, bool* eq_found)
                      *fc_cls = PStackAlloc();
                   }
 
-                  if(*other_fc_cls)
+                  PStack_p* other_fc_ref = (PStack_p*)IntMapGetRef(res, -fc);
+                  if(*other_fc_ref)
                   {
-                     PStackReset(*other_fc_cls);
+                     PStackReset(*other_fc_ref);
                   }
                   else
                   {
-                     *other_fc_cls = PStackAlloc();
+                     *other_fc_ref = PStackAlloc();
                   }
                }
                else
@@ -193,6 +197,7 @@ MinHeap_p make_bce_queue(ClauseSet_p set, IntMap_p sym_map, PStack_p fresh_claus
    MinHeap_p res = MinHeapAlloc(compare_taks);
    for(Clause_p cl = set->anchor->succ; cl!=set->anchor; cl = cl->succ)
    {
+      assert(cl->set);
       Clause_p f_cl = ClauseCopyDisjoint(cl);
       for(Eqn_p lit=f_cl->literals; lit; lit = lit->next)
       {
@@ -202,7 +207,7 @@ MinHeap_p make_bce_queue(ClauseSet_p set, IntMap_p sym_map, PStack_p fresh_claus
             PStack_p cands = IntMapGetVal(sym_map, -fc);
             if(!IS_BLOCKED(cands))
             {
-               BCE_task_p t = make_task(f_cl, lit, cands);
+               BCE_task_p t = make_task(cl, f_cl, lit, cands);
                MinHeapAddP(res, t);
             }
          }
@@ -459,7 +464,7 @@ void check_candidates(BCE_task_p t, ClauseSet_p archive,
    for(;t->processed_cands < OCC_CNT(t->candidates); t->processed_cands++)
    {
       Clause_p cand = PStackElementP(t->candidates, t->processed_cands);
-      if(cand != t->parent && cand->set != archive && !f(t, cand, tmp_bank))
+      if(cand != t->orig_cl && cand->set != archive && !f(t, cand, tmp_bank))
       {
          break;
       }
@@ -507,23 +512,26 @@ void free_blocker(void *key, void* val)
    PStackFree(blocked_tasks);
 }
 
-void do_eliminate_clauses(MinHeap_p task_queue, ClauseSet_p archive, 
+long do_eliminate_clauses(MinHeap_p task_queue, ClauseSet_p archive, 
                           bool has_eq, TB_p tmp_bank)
 {
    PObjMap_p blocker_map = NULL;
    BlockednessChecker checker = 
       has_eq ? check_blockedness_eq : check_blockedness_neq;
+   long eliminated = 0;
    while(MinHeapSize(task_queue))
    {
       BCE_task_p min_task = MinHeapPopMaxP(task_queue);
-      if(min_task->parent->set != archive)
+      if(min_task->orig_cl->set != archive)
       {
          // clause is not archived, we can go on
          check_candidates(min_task, archive, checker, tmp_bank);
          if(min_task->processed_cands == OCC_CNT(min_task->candidates))
          {
             // all candidates are processed, clause is blocked
-            ClauseSetMoveClause(archive, min_task->parent);
+            ClauseSetMoveClause(archive, min_task->orig_cl);
+            eliminated++;
+            DBG_PRINT(stderr, "eliminated ", ClausePrint(stderr, min_task->orig_cl, true), ".\n");
 
             PStack_p blocked = PObjMapExtract(&blocker_map, min_task->parent, PCmpFun);
             if(blocked)
@@ -551,6 +559,7 @@ void do_eliminate_clauses(MinHeap_p task_queue, ClauseSet_p archive,
       }
    }
    PObjMapFreeWDeleter(blocker_map, free_blocker);
+   return eliminated;
 }
 
 /*---------------------------------------------------------------------*/
@@ -576,17 +585,22 @@ void EliminateBlockedClauses(ClauseSet_p passive, ClauseSet_p archive,
 {
    bool eq_found = false;
    IntMap_p sym_occs = make_sym_map(passive, max_occs, &eq_found);
-   PStack_p fresh_cls = PStackAlloc();
-   MinHeap_p task_queue = make_bce_queue(passive, sym_occs, fresh_cls);
-   do_eliminate_clauses(task_queue, archive, eq_found, tmp_bank);
-   IntMapIter_p iter = IntMapIterAlloc(sym_occs, LONG_MIN, LONG_MAX);
-   
+   IntMapIter_p iter;
    long key;
    PStack_p cls = NULL;
+
+   PStack_p fresh_cls = PStackAlloc();
+   MinHeap_p task_queue = make_bce_queue(passive, sym_occs, fresh_cls);
+   long num_eliminated = 
+      do_eliminate_clauses(task_queue, archive, eq_found, tmp_bank);
+   
+   iter = IntMapIterAlloc(sym_occs, LONG_MIN, LONG_MAX);
+   cls = NULL;
    while( (cls = IntMapIterNext(iter, &key)) )
    {
       PStackFree(cls);
    }
+   IntMapIterFree(iter);
 
    while(!PStackEmpty(fresh_cls))
    {
