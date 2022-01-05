@@ -42,7 +42,7 @@ typedef BCE_task* BCE_task_p;
 
 typedef bool (*BlockednessChecker)(BCE_task_p, Clause_p, TB_p);
 
-#define BCETaskFree(t) (SizeFree((t), sizeof(BCE_task)))
+#define BCETaskFree(t) SizeFree((t), sizeof(BCE_task))
 
 /*---------------------------------------------------------------------*/
 /*                        Global Variables                             */
