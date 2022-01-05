@@ -133,6 +133,8 @@ long    EqnListTBTermDelPropCount(Eqn_p list, TermProperties props);
 long    EqnListCollectSubterms(Eqn_p list, PStack_p collector);
 void    EqnListLambdaNormalize(Eqn_p list);
 
+bool    EqnListFindCompLitExcept(Eqn_p xs, Eqn_p exc, Eqn_p ys, 
+                                 DerefType d_x, DerefType d_y);
 #endif
 
 /*---------------------------------------------------------------------*/

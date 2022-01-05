@@ -1325,6 +1325,7 @@ bool TermStructEqualNoDeref(Term_p t1, Term_p t2)
 // and constants.
 bool TermStructEqualDeref(Term_p t1, Term_p t2, DerefType deref_1, DerefType deref_2)
 {
+
    int limit_1 = DEREF_LIMIT(t1, deref_1);
    int limit_2 = DEREF_LIMIT(t2, deref_2);
 
@@ -1377,6 +1378,11 @@ bool TermStructEqualDeref(Term_p t1, Term_p t2, DerefType deref_1, DerefType der
       return false;
    }
    PruneLambdaPrefix(bank, &t1, &t2);
+
+   if(deref_1 == DEREF_NEVER && deref_2 == DEREF_NEVER)
+   {
+      return t1 == t2;
+   }
 
    if((t1==t2) && (deref_1==deref_2))
    {

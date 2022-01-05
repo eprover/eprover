@@ -591,7 +591,8 @@ int main(int argc, char* argv[])
    {
       // todo: eventually check if the problem in HO syntax is FO.
       EliminateBlockedClauses(proofstate->axioms, proofstate->axioms,
-                              h_parms->bce_max_occs);
+                              h_parms->bce_max_occs,
+                              proofstate->tmp_terms);
    }
 
    if(strategy_scheduling || auto_conf)

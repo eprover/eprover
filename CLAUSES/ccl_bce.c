@@ -33,14 +33,14 @@ Changes
 typedef struct 
 {
    Clause_p parent;
-   int lit_idx;
+   Eqn_p lit;
    PStack_p candidates; // NB: Can be null;
    PStackPointer processed_cands;
 } BCE_task;
 
 typedef BCE_task* BCE_task_p;
 
-typedef bool (*BlockednessChecker)(BCE_task_p, Clause_p);
+typedef bool (*BlockednessChecker)(BCE_task_p, Clause_p, TB_p);
 
 #define BCETaskFree(t) (SizeFree((t), sizeof(BCE_task)))
 
@@ -70,11 +70,11 @@ typedef bool (*BlockednessChecker)(BCE_task_p, Clause_p);
 //
 /----------------------------------------------------------------------*/
 
-BCE_task_p make_task(Clause_p cl, int lit_idx, PStack_p cands)
+BCE_task_p make_task(Clause_p cl, Eqn_p lit, PStack_p cands)
 {
    BCE_task_p res = SizeMalloc(sizeof(BCE_task));
    res->parent = cl;
-   res->lit_idx = lit_idx;
+   res->lit = lit;
    res->candidates = cands;
    res->processed_cands = 0;
    return res;
@@ -188,13 +188,13 @@ IntMap_p make_sym_map(ClauseSet_p set, int occ_limit, bool* eq_found)
 //
 /----------------------------------------------------------------------*/
 
-MinHeap_p make_bce_queue(ClauseSet_p set, IntMap_p sym_map)
+MinHeap_p make_bce_queue(ClauseSet_p set, IntMap_p sym_map, PStack_p fresh_clauses)
 {
    MinHeap_p res = MinHeapAlloc(compare_taks);
    for(Clause_p cl = set->anchor->succ; cl!=set->anchor; cl = cl->succ)
    {
-      int lit_idx = 0;
-      for(Eqn_p lit=cl->literals; lit; lit = lit->next)
+      Clause_p f_cl = ClauseCopyDisjoint(cl);
+      for(Eqn_p lit=f_cl->literals; lit; lit = lit->next)
       {
          if(!EqnIsEquLit(lit))
          {
@@ -202,11 +202,10 @@ MinHeap_p make_bce_queue(ClauseSet_p set, IntMap_p sym_map)
             PStack_p cands = IntMapGetVal(sym_map, -fc);
             if(!IS_BLOCKED(cands))
             {
-               BCE_task_p t = make_task(cl, lit_idx, cands);
+               BCE_task_p t = make_task(f_cl, lit, cands);
                MinHeapAddP(res, t);
             }
          }
-         lit_idx++;
       }  
    }
    return res;
@@ -214,10 +213,10 @@ MinHeap_p make_bce_queue(ClauseSet_p set, IntMap_p sym_map)
 
 /*-----------------------------------------------------------------------
 //
-// Function: check_blockedness_neq()
+// Function: split_partner_literals()
 // 
-//   Check if clause all L-resolvents between literal described by task
-//   and b are tautologies.
+//   Splits the literals in partner clause into those that unify and
+//   those that do not unify with "lit".
 //
 // Global Variables: -
 //
@@ -225,9 +224,26 @@ MinHeap_p make_bce_queue(ClauseSet_p set, IntMap_p sym_map)
 //
 /----------------------------------------------------------------------*/
 
-bool check_blockedness_neq(BCE_task_p task, Clause_p b)
+void split_partner_literals(Eqn_p lit, Clause_p partner,
+                            PStack_p unif, PStack_p non_unif)
 {
-   return false;
+   Subst_p subst = SubstAlloc();
+   for(Eqn_p part_lit = partner->literals; part_lit; part_lit = part_lit->next)
+   {
+      if(EqnIsPositive(lit) != EqnIsPositive(part_lit) &&
+         !EqnIsEquLit(part_lit) && 
+         SubstMguComplete(lit->lterm, part_lit->lterm, subst))
+      {
+         PStackPushP(unif, part_lit);
+         SubstBacktrack(subst);
+      }
+      else
+      {
+         PStackPushP(non_unif, part_lit);
+      }
+
+   }
+   SubstDelete(subst);
 }
 
 /*-----------------------------------------------------------------------
@@ -243,9 +259,196 @@ bool check_blockedness_neq(BCE_task_p task, Clause_p b)
 //
 /----------------------------------------------------------------------*/
 
-bool check_blockedness_eq(BCE_task_p task, Clause_p b)
+bool check_l_resolvents_neq(Clause_p cl, Eqn_p lit, PStack_p unif,
+                            PStack_p non_unif, PStack_p processed)
 {
-   return false;
+   assert(!PStackEmpty(processed));
+   Subst_p subst = SubstAlloc();
+   Eqn_p part_lit = PStackElementP(unif, PStackTopInt(processed));
+#ifndef NDEBUG
+   bool unif_res = 
+#endif
+      SubstMguComplete(lit->lterm, part_lit->lterm, subst)
+   ;
+   assert(unif_res);
+   bool res = false;
+
+   while(true)
+   {
+      bool comp_found = false;
+      for(PStackPointer i=0; !comp_found && i<PStackGetSP(non_unif); i++)
+      {
+         comp_found = EqnListFindCompLitExcept(cl->literals, lit, 
+                                               PStackElementP(non_unif, i),
+                                               DEREF_ALWAYS, DEREF_ALWAYS);
+      }
+      
+      if(comp_found)
+      {
+         // found complementing literals outside L-group of literals,
+         // no need for extending the processed group
+         res = true;
+         break;
+      }
+
+      if(PStackGetSP(processed) == PStackGetSP(unif))
+      {
+         // went through all the unifiable literals, cannot be extended anymore
+         break;
+      }
+
+      PStackPointer prev_try = PStackGetSP(processed);
+      for(PStackPointer i=0; i<PStackGetSP(unif); i++)
+      {
+         if(!PStackFindInt(processed, i))
+         {
+            if(EqnListFindCompLitExcept(cl->literals, lit, 
+                                        PStackElementP(unif, i),
+                                        DEREF_ALWAYS, DEREF_ALWAYS))
+            {
+               PStackPushInt(processed, i);
+            }
+         }
+      }
+
+      if(prev_try == PStackGetSP(processed))
+      {
+         // not extended, did not find complementary literals
+         break;
+      }
+      
+      bool unifiable = true;
+      for(; unifiable && prev_try < PStackGetSP(processed); prev_try++)
+      {
+         Eqn_p o_lit = PStackElementP(unif, PStackElementInt(processed, prev_try));
+         unifiable = SubstMguComplete(lit->lterm, o_lit->lterm, subst);
+      }
+
+      if(!unifiable)
+      {
+         res = true;
+         break;
+      }
+   }
+
+   SubstDelete(subst);
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: check_blockedness_neq()
+// 
+//   Check if clause all L-resolvents between literal described by task
+//   and b are tautologies.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+bool check_blockedness_neq(BCE_task_p task, Clause_p partner, TB_p _)
+{
+   assert(!EqnIsEquLit(task->lit));
+   Eqn_p lit = task->lit;
+   bool res;
+   
+   PStack_p unifiable = PStackAlloc();
+   PStack_p non_unififable = PStackAlloc();
+   split_partner_literals(lit, partner, unifiable, non_unififable);
+
+   if(PStackEmpty(unifiable))
+   {
+      res = true;
+   }
+   else
+   {
+      PStack_p processed = PStackAlloc();
+      res = true;
+      for(PStackPointer i=0; res && i<PStackGetSP(unifiable); i++)
+      {
+         PStackReset(processed);
+         PStackPushInt(processed, i);
+         res = check_l_resolvents_neq(task->parent, lit, unifiable,
+                                      non_unififable, processed);
+      }
+      PStackFree(processed);
+   }
+
+   PStackFree(unifiable);
+   PStackFree(non_unififable);
+   return res;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: check_blockedness_eq()
+// 
+//   Check if clause all equational L-resolvents between literal
+//   described by task and b are tautologies.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+bool check_blockedness_eq(BCE_task_p task, Clause_p partner, TB_p tmp_bank)
+{
+   assert(!EqnIsEquLit(task->lit));
+   Eqn_p lit = task->lit;
+   bool res;
+   
+   PStack_p same_head = PStackAlloc();
+   Eqn_p others = NULL;
+
+   for(Eqn_p p_lit = partner->literals; p_lit; p_lit = p_lit->next)
+   {
+      if(EqnIsPositive(lit) != EqnIsPositive(p_lit) &&
+         !EqnIsEquLit(p_lit) &&
+         lit->lterm->f_code == p_lit->lterm->f_code)
+      {
+         PStackPushP(same_head, p_lit);
+      }
+      else
+      {
+         Eqn_p eq_copy = EqnCopy(p_lit, p_lit->bank);
+         EqnListInsertFirst(&others, eq_copy);
+      }
+   }
+
+   if(PStackEmpty(same_head))
+   {
+      res = true;
+   }
+   else
+   {
+      res = true;
+      while(res && !PStackEmpty(same_head))
+      {
+         Eqn_p p_lit = PStackPopP(same_head);
+         Eqn_p cond = NULL;
+         for(int i=0; i<p_lit->lterm->arity; i++)
+         {
+            Eqn_p neq = EqnAlloc(p_lit->lterm->args[i], lit->lterm->args[i],
+                                 p_lit->bank, false);
+            EqnListInsertFirst(&cond, neq);
+         }
+         Eqn_p orig_cl = EqnListCopyExcept(task->parent->literals, 
+                                           task->lit, task->lit->bank);
+         EqnListAppend(&cond, orig_cl);
+         EqnListAppend(&cond, EqnListCopy(others, others->bank));
+         Clause_p tmp_cl = ClauseAlloc(cond);
+         res = ClauseIsTautologyReal(tmp_bank, tmp_cl, false);
+         ClauseFree(tmp_cl);
+      }
+   }
+
+   PStackFree(same_head);
+   EqnListFree(others);
+   return res;
 }
 
 /*-----------------------------------------------------------------------
@@ -261,14 +464,15 @@ bool check_blockedness_eq(BCE_task_p task, Clause_p b)
 //
 /----------------------------------------------------------------------*/
 
-void check_candidates(BCE_task_p t, ClauseSet_p archive, BlockednessChecker f)
+void check_candidates(BCE_task_p t, ClauseSet_p archive, 
+                      BlockednessChecker f, TB_p tmp_bank)
 {
    assert(!IS_BLOCKED(t->candidates));
 
    for(;t->processed_cands < OCC_CNT(t->candidates); t->processed_cands++)
    {
       Clause_p cand = PStackElementP(t->candidates, t->processed_cands);
-      if(cand != t->parent && cand->set != archive && !f(t, cand))
+      if(cand != t->parent && cand->set != archive && !f(t, cand, tmp_bank))
       {
          break;
       }
@@ -317,7 +521,7 @@ void free_blocker(void *key, void* val)
 }
 
 void do_eliminate_clauses(MinHeap_p task_queue, ClauseSet_p archive, 
-                          bool has_eq)
+                          bool has_eq, TB_p tmp_bank)
 {
    PObjMap_p blocker_map = NULL;
    BlockednessChecker checker = 
@@ -328,7 +532,7 @@ void do_eliminate_clauses(MinHeap_p task_queue, ClauseSet_p archive,
       if(min_task->parent->set != archive)
       {
          // clause is not archived, we can go on
-         check_candidates(min_task, archive, checker);
+         check_candidates(min_task, archive, checker, tmp_bank);
          if(min_task->processed_cands == OCC_CNT(min_task->candidates))
          {
             // all candidates are processed, clause is blocked
@@ -381,12 +585,13 @@ void do_eliminate_clauses(MinHeap_p task_queue, ClauseSet_p archive,
 /----------------------------------------------------------------------*/
 
 void EliminateBlockedClauses(ClauseSet_p passive, ClauseSet_p archive,
-                             int max_occs)
+                             int max_occs, TB_p tmp_bank)
 {
    bool eq_found = false;
    IntMap_p sym_occs = make_sym_map(passive, max_occs, &eq_found);
-   MinHeap_p task_queue = make_bce_queue(passive, sym_occs);
-   do_eliminate_clauses(task_queue, archive, eq_found);
+   PStack_p fresh_cls = PStackAlloc();
+   MinHeap_p task_queue = make_bce_queue(passive, sym_occs, fresh_cls);
+   do_eliminate_clauses(task_queue, archive, eq_found, tmp_bank);
    IntMapIter_p iter = IntMapIterAlloc(sym_occs, LONG_MIN, LONG_MAX);
    
    long key;
@@ -395,6 +600,14 @@ void EliminateBlockedClauses(ClauseSet_p passive, ClauseSet_p archive,
    {
       PStackFree(cls);
    }
+
+   while(!PStackEmpty(fresh_cls))
+   {
+      ClauseFree(PStackPopP(fresh_cls));
+   }
+
+   PStackFree(fresh_cls);
+
 }
 
 /*---------------------------------------------------------------------*/

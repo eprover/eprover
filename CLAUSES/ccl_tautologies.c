@@ -349,7 +349,7 @@ static void ground_complete_neg_eqns(EqnRef list)
 //
 //----------------------------------------------------------------------*/
 
-bool ClauseIsTautology(TB_p work_bank, Clause_p clause)
+bool ClauseIsTautologyReal(TB_p work_bank, Clause_p clause, bool copy_cl)
 {
    Eqn_p    rw_system, handle;
    Clause_p work_copy;
@@ -368,7 +368,7 @@ bool ClauseIsTautology(TB_p work_bank, Clause_p clause)
       //printf("# ClauseIsTautology() - neg_lit_no: %d\n", clause->neg_lit_no);
       return ClauseIsTrivial(clause);
    }
-   work_copy = ClauseCopy(clause, work_bank);
+   work_copy = copy_cl ? ClauseCopy(clause, work_bank) : clause;
    rw_system = EqnListExtractByProps(&(work_copy->literals),
                                      EPIsPositive, true);
    assert(rw_system);

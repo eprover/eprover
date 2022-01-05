@@ -1974,10 +1974,12 @@ long EqnStructWeightLexCompare(Eqn_p l1, Eqn_p l2)
 
 /*-----------------------------------------------------------------------
 //
-// Function: EqnEqual()
+// Function: EqnEqualDeref()
 //
 //   Test wether two equations are equivalent (modulo commutativity).
-//   Treats equations as _unsigned_ term sets.
+//   Treats equations as _unsigned_ term sets. Follows variable binding
+//   pointers as denoted by d1 and d2.
+//   
 //
 // Global Variables: -
 //
@@ -1985,18 +1987,18 @@ long EqnStructWeightLexCompare(Eqn_p l1, Eqn_p l2)
 //
 /----------------------------------------------------------------------*/
 
-bool EqnEqual(Eqn_p eq1,  Eqn_p eq2)
+bool EqnEqualDeref(Eqn_p eq1,  Eqn_p eq2, DerefType d1, DerefType d2)
 {
    bool res;
 
-   res = EqnEqualDirected(eq1, eq2);
+   res = EqnEqualDirectedDeref(eq1, eq2, d1, d2);
 
    if(res || (EqnIsOriented(eq1) && EqnIsOriented(eq2)))
    {
       return res;
    }
    EqnSwapSidesSimple(eq2);
-   res = EqnEqualDirected(eq1, eq2);
+   res = EqnEqualDirectedDeref(eq1, eq2, d1, d2);
    EqnSwapSidesSimple(eq2);
    return res;
 }

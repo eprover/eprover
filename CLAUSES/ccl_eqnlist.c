@@ -2007,6 +2007,33 @@ void EqnListLambdaNormalize(Eqn_p list)
    }
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: EqnListFindCompLitExcept()
+//
+//   Try to find if there are literal complementary to y in xs 
+//   (ignoring exc in it) and ys. Follow dereference as d_x and d_y.
+//
+// Global Variables: -
+//
+// Side Effects    : Sets the OpFlag of newly collected terms.
+//
+/----------------------------------------------------------------------*/
+
+bool EqnListFindCompLitExcept(Eqn_p xs, Eqn_p exc, Eqn_p y, 
+                              DerefType d_x, DerefType d_y)
+{
+   bool res = false;
+   for(Eqn_p x = xs; !res && x; x = x->next)
+   {
+      if(x != exc && EqnIsPositive(x) != EqnIsPositive(y))
+      {
+         res = EqnEqualDeref(x, y, d_x, d_y);
+      }
+   }
+   return res;
+}
+
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/

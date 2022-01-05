@@ -275,7 +275,13 @@ int     EqnCanonCompareRef(const void* lit1ref, const void* l2ref);
 long    EqnStructWeightLexCompare(Eqn_p l1, Eqn_p lit2);
 #define EqnEqualDirected(eq1, eq2) \
    (((eq1)->lterm == (eq2)->lterm) && ((eq1)->rterm == (eq2)->rterm))
-bool    EqnEqual(Eqn_p eq1,  Eqn_p eq2);
+#define EqnEqualDirectedDeref(eq1, eq2, d1, d2) \
+   ((d1 == DEREF_NEVER && d2 == DEREF_NEVER) ?\
+      EqnEqualDirected(eq1, eq2) :\
+      (TermStructEqualDeref((eq1)->lterm, (eq2)->lterm, d1, d2) && \
+       TermStructEqualDeref((eq1)->rterm, (eq2)->rterm, d1, d2)))
+bool    EqnEqualDeref(Eqn_p eq1,  Eqn_p eq2, DerefType d1, DerefType d2);
+#define EqnEqual(eq1, eq2) (EqnEqualDeref(eq1, eq2, DEREF_NEVER, DEREF_NEVER))
 #define LiteralEqual(eq1, eq2) \
    (PropsAreEquiv((eq1),(eq2),EPIsPositive) && EqnEqual((eq1),(eq2)))
 

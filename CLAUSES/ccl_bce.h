@@ -25,6 +25,7 @@ Changes
 
 #include <ccl_clausesets.h>
 
-void EliminateBlockedClauses(ClauseSet_p set, ClauseSet_p archive, int max_occs);
+void EliminateBlockedClauses(ClauseSet_p set, ClauseSet_p archive, 
+                             int max_occs, TB_p tmp_bank);
 
 #endif
