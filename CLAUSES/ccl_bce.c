@@ -356,29 +356,23 @@ bool check_blockedness_neq(BCE_task_p task, Clause_p partner, TB_p _)
    bool res;
    
    PStack_p unifiable = PStackAlloc();
-   PStack_p non_unififable = PStackAlloc();
-   split_partner_literals(lit, partner, unifiable, non_unififable);
+   PStack_p nonunifiable = PStackAlloc();
+   split_partner_literals(lit, partner, unifiable, nonunifiable);
 
-   if(PStackEmpty(unifiable))
+   PStack_p processed = PStackAlloc();
+   res = true;
+   for(PStackPointer i=0; res && i<PStackGetSP(unifiable); i++)
    {
-      res = true;
+      PStackReset(processed);
+      PStackPushInt(processed, i);
+      res = check_l_resolvents_neq(task->parent, lit, unifiable,
+                                    nonunifiable, processed);
    }
-   else
-   {
-      PStack_p processed = PStackAlloc();
-      res = true;
-      for(PStackPointer i=0; res && i<PStackGetSP(unifiable); i++)
-      {
-         PStackReset(processed);
-         PStackPushInt(processed, i);
-         res = check_l_resolvents_neq(task->parent, lit, unifiable,
-                                      non_unififable, processed);
-      }
-      PStackFree(processed);
-   }
-
+   
+   PStackFree(processed);
    PStackFree(unifiable);
-   PStackFree(non_unififable);
+   PStackFree(nonunifiable);
+   
    return res;
 }
 
@@ -419,31 +413,24 @@ bool check_blockedness_eq(BCE_task_p task, Clause_p partner, TB_p tmp_bank)
       }
    }
 
-   if(PStackEmpty(same_head))
+   res = true;
+   while(res && !PStackEmpty(same_head))
    {
-      res = true;
-   }
-   else
-   {
-      res = true;
-      while(res && !PStackEmpty(same_head))
+      Eqn_p p_lit = PStackPopP(same_head);
+      Eqn_p cond = NULL;
+      for(int i=0; i<p_lit->lterm->arity; i++)
       {
-         Eqn_p p_lit = PStackPopP(same_head);
-         Eqn_p cond = NULL;
-         for(int i=0; i<p_lit->lterm->arity; i++)
-         {
-            Eqn_p neq = EqnAlloc(p_lit->lterm->args[i], lit->lterm->args[i],
-                                 p_lit->bank, false);
-            EqnListInsertFirst(&cond, neq);
-         }
-         Eqn_p orig_cl = EqnListCopyExcept(task->parent->literals, 
-                                           task->lit, task->lit->bank);
-         EqnListAppend(&cond, orig_cl);
-         EqnListAppend(&cond, EqnListCopy(others, others->bank));
-         Clause_p tmp_cl = ClauseAlloc(cond);
-         res = ClauseIsTautologyReal(tmp_bank, tmp_cl, false);
-         ClauseFree(tmp_cl);
+         Eqn_p neq = EqnAlloc(p_lit->lterm->args[i], lit->lterm->args[i],
+                              p_lit->bank, false);
+         EqnListInsertFirst(&cond, neq);
       }
+      Eqn_p orig_cl = EqnListCopyExcept(task->parent->literals, 
+                                        task->lit, task->lit->bank);
+      EqnListAppend(&cond, orig_cl);
+      EqnListAppend(&cond, EqnListCopy(others, others->bank));
+      Clause_p tmp_cl = ClauseAlloc(cond);
+      res = ClauseIsTautologyReal(tmp_bank, tmp_cl, false);
+      ClauseFree(tmp_cl);
    }
 
    PStackFree(same_head);
