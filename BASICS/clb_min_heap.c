@@ -252,13 +252,22 @@ void MinHeapAddInt(MinHeap_p h, long i)
 
 IntOrP MinHeapPopMin(MinHeap_p h)
 {
-   IntOrP ret_val = PStackPop(h->arr);
    if(MinHeapSize(h))
    {
-      *PStackElementRef(h->arr, 0) = ret_val;
-      drop_down(h, 0);
+      IntOrP ret_val = PStackElement(h->arr, 0);
+      IntOrP last = PStackPop(h->arr);
+      if(PStackGetSP(h->arr))
+      {
+         *PStackElementRef(h->arr, 0) = last;
+         drop_down(h, 0);
+      }
+      return ret_val;
    }
-   return ret_val;
+   else
+   {
+      SysError("Trying to get an element from an empty heap", -1);
+      return (IntOrP){.p_val = NULL};
+   }
 }
 
 /*-----------------------------------------------------------------------

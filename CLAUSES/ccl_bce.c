@@ -507,7 +507,6 @@ void free_blocker(void *key, void* val)
    while(!PStackEmpty(blocked_tasks))
    {
       BCE_task_p t = PStackPopP(blocked_tasks);
-      fprintf(stderr, "freing %p %p\n", key, t);
       SizeFree(t, sizeof(BCE_task));
    }
    PStackFree(blocked_tasks);
@@ -522,7 +521,6 @@ long do_eliminate_clauses(MinHeap_p task_queue, ClauseSet_p archive,
    long eliminated = 0;
    while(MinHeapSize(task_queue))
    {
-      // DBG_PRINT(stderr, "heap: ", DBGPrintHeap(stderr, task_queue, true), ".\n");
       BCE_task_p min_task = MinHeapPopMinP(task_queue);
       if(min_task->orig_cl->set != archive)
       {
@@ -552,7 +550,6 @@ long do_eliminate_clauses(MinHeap_p task_queue, ClauseSet_p archive,
             // remember that checking of candidates needs to be continued
             // once the clause which prevented blocking is removed
             PStack_p* blocked = (PStack_p*)PObjMapGetRef(&blocker_map, min_task->parent, PCmpFun, NULL);
-            fprintf(stderr, "inserting %p.\n", min_task->parent);
             if(!*blocked)
             {
                *blocked = PStackAlloc();
