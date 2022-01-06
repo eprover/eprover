@@ -96,8 +96,8 @@ BCE_task_p make_task(Clause_p orig_cl, Clause_p cl, Eqn_p lit, PStack_p cands)
 
 int compare_taks(IntOrP* ip_a, IntOrP* ip_b)
 {
-   BCE_task_p a = (BCE_task_p)ip_a;
-   BCE_task_p b = (BCE_task_p)ip_b;
+   BCE_task_p a = (BCE_task_p)(ip_a->p_val);
+   BCE_task_p b = (BCE_task_p)(ip_b->p_val);
    // order by the number of remaining candidates
    PStackPointer a_total = a->candidates ? PStackGetSP(a->candidates): 0;
    PStackPointer b_total = b->candidates ? PStackGetSP(b->candidates): 0;
@@ -209,8 +209,7 @@ MinHeap_p make_bce_queue(ClauseSet_p set, NumTree_p* sym_map, PStack_p fresh_cla
          if(!EqnIsEquLit(lit))
          {
             FunCode fc = lit->lterm->f_code * (EqnIsPositive(lit) ? 1 : -1);
-            // PStack_p cands = IntMapGetVal(sym_map, -fc);
-            NumTree_p cands_node = NumTreeFind(sym_map, fc);
+            NumTree_p cands_node = NumTreeFind(sym_map, -fc);
             if(!IS_BLOCKED(cands_node))
             {
                BCE_task_p t = make_task(cl, f_cl, lit, 
@@ -405,8 +404,9 @@ bool check_blockedness_eq(BCE_task_p task, Clause_p partner, TB_p tmp_bank)
 {
    assert(!EqnIsEquLit(task->lit));
    Eqn_p lit = task->lit;
+   TB_p bank = lit->bank;
    bool res;
-   
+
    PStack_p same_head = PStackAlloc();
    Eqn_p others = NULL;
 
@@ -438,8 +438,8 @@ bool check_blockedness_eq(BCE_task_p task, Clause_p partner, TB_p tmp_bank)
       }
       Eqn_p orig_cl = EqnListCopyExcept(task->parent->literals, 
                                         task->lit, task->lit->bank);
-      EqnListAppend(&cond, orig_cl);
-      EqnListAppend(&cond, EqnListCopy(others, others->bank));
+      cond = EqnListAppend(&cond, orig_cl);
+      cond = EqnListAppend(&cond, EqnListCopy(others, bank));
       Clause_p tmp_cl = ClauseAlloc(cond);
       res = ClauseIsTautologyReal(tmp_bank, tmp_cl, false);
       // ClauseFree(tmp_cl); NB: TAUTOLOGY CHECK FREES THE CLAUSE
@@ -597,15 +597,16 @@ long do_eliminate_clauses(MinHeap_p task_queue, ClauseSet_p archive,
 void EliminateBlockedClauses(ClauseSet_p passive, ClauseSet_p archive,
                              int max_occs, TB_p tmp_bank)
 {
-   bool eq_found = false;
-   NumTree_p sym_occs = make_sym_map(passive, max_occs, &eq_found); 
+   fprintf(stdout, "%% BCE start: %ld\n", ClauseSetCardinality(passive));
 
+   bool eq_found = false;
+   NumTree_p sym_occs = make_sym_map(passive, max_occs, &eq_found);
    PStack_p fresh_cls = PStackAlloc();
    MinHeap_p task_queue = make_bce_queue(passive, &sym_occs, fresh_cls);
    long num_eliminated = 
       do_eliminate_clauses(task_queue, archive, eq_found, tmp_bank);
    
-   fprintf(stderr, "BCE eliminated %ld.\n", num_eliminated);
+   fprintf(stdout, "%% BCE eliminated: %ld.\n", num_eliminated);
 
    while(!PStackEmpty(fresh_cls))
    {
@@ -616,8 +617,8 @@ void EliminateBlockedClauses(ClauseSet_p passive, ClauseSet_p archive,
    NumTree_p n = NULL;
    while( (n = NumTreeTraverseNext(iter)) )
    {
-      PStack_p tasks = n->val1.p_val;
-      PStackFree(tasks);
+      PStack_p cls = n->val1.p_val;
+      PStackFree(cls);
    }
    NumTreeTraverseExit(iter);
    NumTreeFree(sym_occs);
