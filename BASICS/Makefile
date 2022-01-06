@@ -45,6 +45,11 @@ BASIC_LIB = clb_error.o clb_memory.o clb_os_wrapper.o \
             clb_simple_stuff.o clb_partial_orderings.o \
             clb_plocalstacks.o clb_min_heap.o
 
+MIN_HEAP = clb_min_heap.o
+
+min_heap: $(MIN_HEAP)
+	$(LD) -o min_heap  $(BASIC_LIB) -lm
+
 $(LIB): $(BASIC_LIB)
 	$(AR) $(LIB) $(BASIC_LIB)
 

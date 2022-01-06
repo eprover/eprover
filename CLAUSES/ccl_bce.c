@@ -532,6 +532,8 @@ long do_eliminate_clauses(MinHeap_p task_queue, ClauseSet_p archive,
    while(MinHeapSize(task_queue))
    {
       BCE_task_p min_task = MinHeapPopMinP(task_queue);
+      long remaining = 
+         (min_task->candidates ? PStackGetSP(min_task->candidates): 0) - min_task->processed_cands;
       if(min_task->orig_cl->set != archive)
       {
          // clause is not archived, we can go on
