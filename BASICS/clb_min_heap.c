@@ -351,32 +351,32 @@ void DBGPrintHeap(FILE* out, MinHeap_p h, bool as_ptr)
 }
 
 // code meant for testing 
-ProblemType problemType  = PROBLEM_NOT_INIT;
+// ProblemType problemType  = PROBLEM_NOT_INIT;
 
-int cmp(IntOrP* ia, IntOrP* ib)
-{
-   return CMP(ia->i_val, ib->i_val);
-}
+// int cmp(IntOrP* ia, IntOrP* ib)
+// {
+//    return CMP(ia->i_val, ib->i_val);
+// }
 
-int main(int argc, char* argv[])
-{
-   int test_arr[] = {5, -1, 4, 10, 20, 12, 8, 99, 1};
-   int test_arr_size = sizeof(test_arr) / sizeof(int);
-   MinHeap_p h = MinHeapAlloc(cmp);
+// int main(int argc, char* argv[])
+// {
+//    int test_arr[] = {5, -1, 4, 10, 20, 12, 8, 99, 1};
+//    int test_arr_size = sizeof(test_arr) / sizeof(int);
+//    MinHeap_p h = MinHeapAlloc(cmp);
 
-   for(int i=0; i< test_arr_size; i++)
-   {
-      MinHeapAddInt(h, test_arr[i]);
-   }
+//    for(int i=0; i< test_arr_size; i++)
+//    {
+//       MinHeapAddInt(h, test_arr[i]);
+//    }
 
-   DBGPrintHeap(stderr, h, false);
-   fprintf(stderr, ";; \n ");
+//    DBGPrintHeap(stderr, h, false);
+//    fprintf(stderr, ";; \n ");
 
-   while(MinHeapSize(h))
-   {
-      fprintf(stderr, "%ld; ", MinHeapPopMinInt(h));
-   }
-   fprintf(stderr, "\n");
-   MinHeapFree(h);
-   return 0;
-}
+//    while(MinHeapSize(h))
+//    {
+//       fprintf(stderr, "%ld; ", MinHeapPopMinInt(h));
+//    }
+//    fprintf(stderr, "\n");
+//    MinHeapFree(h);
+//    return 0;
+// }
