@@ -653,7 +653,7 @@ void IntMapIterFree(IntMapIter_p junk)
 
 void IntMapDebugPrint(FILE* out, IntMap_p map)
 {
-   IntMapIter_p iter = IntMapIterAlloc(map,0, LONG_MAX);
+   IntMapIter_p iter = IntMapIterAlloc(map, LONG_MIN, LONG_MAX);
    void* val;
    long  key = 0;
 

@@ -23,8 +23,8 @@ Changes
 #include "ccl_bce.h"
 #include <clb_min_heap.h>
 
-#define OCC_CNT(s) ((s) ? PStackGetSP(s) : 0)
-#define IS_BLOCKED(s) ((s) && PStackGetSP(s) == 0)
+#define OCC_CNT(n) ((n) ? PStackGetSP( (PStack_p) ((n)->val1.p_val)) : 0)
+#define IS_BLOCKED(n) ((n) && PStackGetSP((PStack_p) ((n)->val1.p_val)) == 0)
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
@@ -99,8 +99,9 @@ int compare_taks(IntOrP* ip_a, IntOrP* ip_b)
    BCE_task_p a = (BCE_task_p)ip_a;
    BCE_task_p b = (BCE_task_p)ip_b;
    // order by the number of remaining candidates
-   return CMP((OCC_CNT(a->candidates)-a->processed_cands),
-              (OCC_CNT(b->candidates)-b->processed_cands));
+   PStackPointer a_total = a->candidates ? PStackGetSP(a->candidates): 0;
+   PStackPointer b_total = b->candidates ? PStackGetSP(b->candidates): 0;
+   return CMP(a_total-a->processed_cands, b_total-b->processed_cands);
 }
 
 /*-----------------------------------------------------------------------
@@ -117,9 +118,10 @@ int compare_taks(IntOrP* ip_a, IntOrP* ip_b)
 //
 /----------------------------------------------------------------------*/
 
-IntMap_p make_sym_map(ClauseSet_p set, int occ_limit, bool* eq_found)
+NumTree_p make_sym_map(ClauseSet_p set, int occ_limit, bool* eq_found)
 {
-   IntMap_p res = IntMapAlloc();
+   NumTree_p res = NULL;
+   IntOrP dummy = {.p_val = NULL};
    for(Clause_p cl = set->anchor->succ; cl!=set->anchor; cl = cl->succ)
    {
       for(Eqn_p lit=cl->literals; lit; lit = lit->next)
@@ -127,44 +129,46 @@ IntMap_p make_sym_map(ClauseSet_p set, int occ_limit, bool* eq_found)
          if(!EqnIsEquLit(lit))
          {
             FunCode fc = lit->lterm->f_code * (EqnIsPositive(lit) ? 1 : -1);
-            PStack_p* fc_cls = (PStack_p*)IntMapGetRef(res, fc);
-            if(!IS_BLOCKED(*fc_cls))
+            // NB: Because of internal working of IntMap, it is VERY important
+            // that GetVal is called before GetRef
+            NumTree_p other_fc_cls = NumTreeFind(&res, -fc);
+            NumTree_p fc_cls = NumTreeFind(&res, fc);
+            if(!IS_BLOCKED(fc_cls))
             {
-               PStack_p other_fc_cls = (PStack_p)IntMapGetVal(res, -fc);
                if( occ_limit > 0 && // limiting enabled
-                  ((OCC_CNT(*fc_cls) + OCC_CNT(other_fc_cls)) >= occ_limit))
+                  ((OCC_CNT(fc_cls) + OCC_CNT(other_fc_cls)) >= occ_limit))
                {
-                  // removing all elements -- essentially blocking clauses
-                  if(*fc_cls)
+                  // removing all elements  -- essentially blocking tracking of symbol
+                  if(fc_cls)
                   {
-                     PStackReset(*fc_cls);
+                     PStackReset(fc_cls->val1.p_val);
                   }
                   else
                   {
-                     *fc_cls = PStackAlloc();
+                     NumTreeStore(&res, fc, ((IntOrP){.p_val = PStackAlloc()}), dummy);
                   }
 
-                  PStack_p* other_fc_ref = (PStack_p*)IntMapGetRef(res, -fc);
-                  if(*other_fc_ref)
+                  if(other_fc_cls)
                   {
-                     PStackReset(*other_fc_ref);
+                     PStackReset(other_fc_cls->val1.p_val);
                   }
                   else
                   {
-                     *other_fc_ref = PStackAlloc();
+                     NumTreeStore(&res, -fc, ((IntOrP){.p_val = PStackAlloc()}), dummy);
                   }
                }
                else
                {
-                  if(!*fc_cls)
+                  if(!fc_cls)
                   {
-                     *fc_cls = PStackAlloc();
-                     PStackPushP(*fc_cls, cl);
+                     IntOrP new = {.p_val = PStackAlloc()};
+                     PStackPushP(new.p_val, cl);
+                     NumTreeStore(&res, fc, new, dummy);
                   }
-                  else if(PStackTopP(*fc_cls) != cl)
+                  else if(PStackTopP(fc_cls->val1.p_val) != cl)
                   {
                      // putting only one copy of a clause
-                     PStackPushP(*fc_cls, cl);
+                     PStackPushP(fc_cls->val1.p_val, cl);
                   }
                }
             }
@@ -192,7 +196,7 @@ IntMap_p make_sym_map(ClauseSet_p set, int occ_limit, bool* eq_found)
 //
 /----------------------------------------------------------------------*/
 
-MinHeap_p make_bce_queue(ClauseSet_p set, IntMap_p sym_map, PStack_p fresh_clauses)
+MinHeap_p make_bce_queue(ClauseSet_p set, NumTree_p* sym_map, PStack_p fresh_clauses)
 {
    MinHeap_p res = MinHeapAlloc(compare_taks);
    for(Clause_p cl = set->anchor->succ; cl!=set->anchor; cl = cl->succ)
@@ -204,10 +208,12 @@ MinHeap_p make_bce_queue(ClauseSet_p set, IntMap_p sym_map, PStack_p fresh_claus
          if(!EqnIsEquLit(lit))
          {
             FunCode fc = lit->lterm->f_code * (EqnIsPositive(lit) ? 1 : -1);
-            PStack_p cands = IntMapGetVal(sym_map, -fc);
-            if(!IS_BLOCKED(cands))
+            // PStack_p cands = IntMapGetVal(sym_map, -fc);
+            NumTree_p cands_node = NumTreeFind(sym_map, fc);
+            if(!IS_BLOCKED(cands_node))
             {
-               BCE_task_p t = make_task(cl, f_cl, lit, cands);
+               BCE_task_p t = make_task(cl, f_cl, lit, 
+                                        cands_node ? cands_node->val1.p_val : NULL);
                MinHeapAddP(res, t);
             }
          }
@@ -459,14 +465,17 @@ bool check_blockedness_eq(BCE_task_p task, Clause_p partner, TB_p tmp_bank)
 void check_candidates(BCE_task_p t, ClauseSet_p archive, 
                       BlockednessChecker f, TB_p tmp_bank)
 {
-   assert(!IS_BLOCKED(t->candidates));
+   assert(!t->candidates || !PStackEmpty(t->candidates));
 
-   for(;t->processed_cands < OCC_CNT(t->candidates); t->processed_cands++)
+   if(t->candidates)
    {
-      Clause_p cand = PStackElementP(t->candidates, t->processed_cands);
-      if(cand != t->orig_cl && cand->set != archive && !f(t, cand, tmp_bank))
+      for(;t->processed_cands < PStackGetSP(t->candidates); t->processed_cands++)
       {
-         break;
+         Clause_p cand = PStackElementP(t->candidates, t->processed_cands);
+         if(cand != t->orig_cl && cand->set != archive && !f(t, cand, tmp_bank))
+         {
+            break;
+         }
       }
    }
 }
@@ -526,14 +535,14 @@ long do_eliminate_clauses(MinHeap_p task_queue, ClauseSet_p archive,
       {
          // clause is not archived, we can go on
          check_candidates(min_task, archive, checker, tmp_bank);
-         if(min_task->processed_cands == OCC_CNT(min_task->candidates))
+         if(!min_task->candidates ||
+            min_task->processed_cands == PStackGetSP(min_task->candidates))
          {
             // all candidates are processed, clause is blocked
             ClauseSetMoveClause(archive, min_task->orig_cl);
             eliminated++;
 
             PStack_p blocked = PObjMapExtract(&blocker_map, min_task->parent, PCmpFun);
-            fprintf(stderr, "extracted %p.\n", min_task->parent);
             if(blocked)
             {
                while(!PStackEmpty(blocked))
@@ -588,28 +597,34 @@ void EliminateBlockedClauses(ClauseSet_p passive, ClauseSet_p archive,
                              int max_occs, TB_p tmp_bank)
 {
    bool eq_found = false;
-   IntMap_p sym_occs = make_sym_map(passive, max_occs, &eq_found);
-   IntMapIter_p iter;
-   long key;
-   PStack_p cls = NULL;
+   NumTree_p sym_occs = make_sym_map(passive, max_occs, &eq_found); 
 
    PStack_p fresh_cls = PStackAlloc();
-   MinHeap_p task_queue = make_bce_queue(passive, sym_occs, fresh_cls);
+   MinHeap_p task_queue = make_bce_queue(passive, &sym_occs, fresh_cls);
    long num_eliminated = 
       do_eliminate_clauses(task_queue, archive, eq_found, tmp_bank);
    
-   iter = IntMapIterAlloc(sym_occs, LONG_MIN, LONG_MAX);
-   cls = NULL;
-   while( (cls = IntMapIterNext(iter, &key)) )
-   {
-      PStackFree(cls);
-   }
-   IntMapIterFree(iter);
+   fprintf(stderr, "BCE eliminated %ld.\n", num_eliminated);
 
    while(!PStackEmpty(fresh_cls))
    {
       ClauseFree(PStackPopP(fresh_cls));
    }
+
+   PStack_p iter = NumTreeTraverseInit(sym_occs);
+   NumTree_p n = NULL;
+   while( (n = NumTreeTraverseNext(iter)) )
+   {
+      PStack_p tasks = n->val1.p_val;
+      while(!PStackEmpty(tasks))
+      {
+         BCE_task_p t = PStackPopP(tasks);
+         BCETaskFree(t);
+      }
+      PStackFree(tasks);
+   }
+   NumTreeTraverseExit(iter);
+   NumTreeFree(sym_occs);
 
    PStackFree(fresh_cls);
    MinHeapFree(task_queue);
