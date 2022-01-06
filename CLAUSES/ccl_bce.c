@@ -203,6 +203,7 @@ MinHeap_p make_bce_queue(ClauseSet_p set, NumTree_p* sym_map, PStack_p fresh_cla
    {
       assert(cl->set);
       Clause_p f_cl = ClauseCopyDisjoint(cl);
+      PStackPushP(fresh_clauses, f_cl);
       for(Eqn_p lit=f_cl->literals; lit; lit = lit->next)
       {
          if(!EqnIsEquLit(lit))
@@ -616,11 +617,6 @@ void EliminateBlockedClauses(ClauseSet_p passive, ClauseSet_p archive,
    while( (n = NumTreeTraverseNext(iter)) )
    {
       PStack_p tasks = n->val1.p_val;
-      while(!PStackEmpty(tasks))
-      {
-         BCE_task_p t = PStackPopP(tasks);
-         BCETaskFree(t);
-      }
       PStackFree(tasks);
    }
    NumTreeTraverseExit(iter);
