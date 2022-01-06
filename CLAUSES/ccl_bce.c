@@ -532,6 +532,7 @@ long do_eliminate_clauses(MinHeap_p task_queue, ClauseSet_p archive,
    while(MinHeapSize(task_queue))
    {
       BCE_task_p min_task = MinHeapPopMinP(task_queue);
+      DBG_PRINT(stderr, " trying ", ClausePrint(stderr, min_task->orig_cl, true), ";");
       if(min_task->orig_cl->set != archive)
       {
          // clause is not archived, we can go on
@@ -543,7 +544,7 @@ long do_eliminate_clauses(MinHeap_p task_queue, ClauseSet_p archive,
             ClauseSetMoveClause(archive, min_task->orig_cl);
             eliminated++;
 
-            PStack_p blocked = PObjMapExtract(&blocker_map, min_task->parent, PCmpFun);
+            PStack_p blocked = PObjMapExtract(&blocker_map, min_task->orig_cl, PCmpFun);
             if(blocked)
             {
                while(!PStackEmpty(blocked))
@@ -559,7 +560,8 @@ long do_eliminate_clauses(MinHeap_p task_queue, ClauseSet_p archive,
             // because of the last checked candidate, clause is not blocked.
             // remember that checking of candidates needs to be continued
             // once the clause which prevented blocking is removed
-            PStack_p* blocked = (PStack_p*)PObjMapGetRef(&blocker_map, min_task->parent, PCmpFun, NULL);
+            Clause_p offending_cl = PStackElementP(min_task->candidates, min_task->processed_cands);
+            PStack_p* blocked = (PStack_p*)PObjMapGetRef(&blocker_map, offending_cl, PCmpFun, NULL);
             if(!*blocked)
             {
                *blocked = PStackAlloc();
