@@ -261,6 +261,7 @@ IntOrP MinHeapPopMin(MinHeap_p h)
          *PStackElementRef(h->arr, 0) = last;
          drop_down(h, 0);
       }
+      CALL_SETTER(h, ret_val.p_val, -1);
       return ret_val;
    }
    else
