@@ -535,7 +535,7 @@ void check_tautologies(PETask_p task, PStack_p unsat_core, TB_p tmp_terms)
 //
 /----------------------------------------------------------------------*/
 
-void check_unsat_and_tauto(PETask_p task)
+void check_unsat_and_tauto(PETask_p task, TB_p tmp_terms)
 {
    PTree_p all_gates = PTreeMerge(&task->pos_gates->set, task->neg_gates->set);
    Clause_p pivot = PTreeExtractRootKey(&all_gates);
@@ -587,7 +587,7 @@ void check_unsat_and_tauto(PETask_p task)
                       i);
       }
 
-      check_tautologies(task, unsat_core);
+      check_tautologies(task, unsat_core, tmp_terms);
    }
    else
    {
@@ -623,7 +623,7 @@ void check_unsat_and_tauto(PETask_p task)
 //
 /----------------------------------------------------------------------*/
 
-void update_gate_status(IntMap_p sym_map)
+void update_gate_status(IntMap_p sym_map, TB_p tmp_terms)
 {
    IntMapIter_p iter = IntMapIterAlloc(sym_map, 0, LONG_MAX);
    PETask_p task;
@@ -632,7 +632,7 @@ void update_gate_status(IntMap_p sym_map)
    {
       if(task->pos_gates->card && task->neg_gates->card)
       {
-         check_unsat_and_tauto(task);
+         check_unsat_and_tauto(task, tmp_terms);
       }
       else
       {
@@ -682,7 +682,7 @@ void update_statistics(PETask_p task, Clause_p cl)
 /----------------------------------------------------------------------*/
 
 void build_task_queue(ClauseSet_p passive, int max_occs, bool recognize_gates, 
-                      IntMap_p* m_ref, MinHeap_p* q_ref)
+                      IntMap_p* m_ref, MinHeap_p* q_ref, TB_p tmp_terms)
 {
    IntMap_p sym_map = *m_ref;
    MinHeap_p task_queue = *q_ref;
@@ -741,7 +741,7 @@ void build_task_queue(ClauseSet_p passive, int max_occs, bool recognize_gates,
    
    if(recognize_gates)
    {
-      update_gate_status(sym_map);
+      update_gate_status(sym_map, tmp_terms);
    }
    
    IntMapIter_p iter = IntMapIterAlloc(sym_map, 0, LONG_MAX);
@@ -780,6 +780,7 @@ void PredicateElimination(ClauseSet_p passive, ClauseSet_p archive,
    IntMap_p sym_map = IntMapAlloc();
    MinHeap_p task_queue = MinHeapAlloc(cmp_tasks);
    // TODO IGNORED max_occs
-   build_task_queue(passive, max_occs, recognize_gates, &sym_map, &task_queue);
+   build_task_queue(passive, max_occs, recognize_gates, &sym_map, 
+                    &task_queue, tmp_bank);
    eliminate_predicates(passive, archive, sym_map, task_queue, tmp_bank);
 }
