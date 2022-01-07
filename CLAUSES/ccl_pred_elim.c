@@ -23,6 +23,7 @@ Changes
 
 #include "ccl_pred_elim.h"
 #include <clb_min_heap.h>
+#include <ccl_satinterface.h>
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
@@ -55,7 +56,8 @@ struct PETaskCell
 
    long num_lit;
    double sq_vars;
-   long size;
+   long size; // size is set to -1 to denote that maximal 
+              // number of occurences has been reached
    
    long heap_idx;
 };
@@ -77,6 +79,32 @@ typedef struct PETaskCell* PETask_p;
 /*---------------------------------------------------------------------*/
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
+
+/*-----------------------------------------------------------------------
+//
+// Function: set_proof_object()
+// 
+//   Set proof object according to given arguments
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+void set_proof_object(Clause_p new_clause, Clause_p p1, Clause_p p2,
+                      DerivationCode dc)
+{
+   new_clause->proof_depth =
+      MAX(PROOF_DEPTH(p1), PROOF_DEPTH(p2));
+   new_clause->proof_size =
+      PROOF_SIZE(p1) + PROOF_SIZE(p2) + 1;
+   ClauseSetTPTPType(new_clause, ClauseQueryTPTPType(p1));
+   ClauseSetProp(new_clause, ClauseGiveProps(p1, CPIsSOS));
+   ClauseSetProp(new_clause, ClauseGiveProps(p2, CPIsSOS));
+   // TODO: Clause documentation is not implemented at the moment.
+   // DocClauseCreationDefault(clause, inf_efactor, clause, NULL);
+   ClausePushDerivation(new_clause, dc, p1, p2);
+}
 
 /*-----------------------------------------------------------------------
 //
@@ -304,6 +332,343 @@ int cmp_tasks(IntOrP* ip_a, IntOrP* ip_b)
 
 /*-----------------------------------------------------------------------
 //
+// Function: declare_not_gate()
+// 
+//   Go through all the tasks and see if their potential gates are 
+//   actually gates.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void declare_not_gate(PETask_p task)
+{
+   task->pos_gates->card = 0;
+   PTreeFree(task->pos_gates->set);
+   task->pos_gates->set = NULL;
+
+   task->neg_gates->card = 0;
+   PTreeFree(task->neg_gates->set);
+   task->neg_gates->set = NULL;
+
+   task->g_status = NOT_GATE;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: find_lit_w_head()
+// 
+//    Find a (predicate) literal that whose head symbol is f and return it.
+//    If such a literal is not found return NULL; Extracts the other
+//    literals in rest if rest is not NULL.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+#define ANY_SIGN 0
+#define ONLY_NEG 1
+#define ONLY_POS 2
+
+Eqn_p find_lit_w_head(Eqn_p lits, FunCode f, EqnRef rest, int sign)
+{
+   Eqn_p res = NULL;
+   while(lits)
+   {
+      Eqn_p tmp = lits->next;
+      if (lits->lterm->f_code == f &&
+         (sign == 0 || ((sign-1) == (EqnIsPositive(lits) ? 1 : 0))))
+      {
+         res = lits;
+         if(rest)
+         {
+            // extracting the element
+            lits->next = NULL;
+         }
+         else
+         {
+            break;
+         }
+      }
+      else if(rest)
+      {
+         EqnListInsertFirst(rest, lits);
+      }
+      lits = tmp;
+   }
+   return res;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: check_unsat_and_tauto()
+// 
+//   Builds regular non-equational resolvent between p_cl and n_cl clause
+//   more precisely between their literals pos and neg where pos and neg are
+//   the first positive/negative literal that contain symbol f. Undefined 
+//   behavior if they do not contain f. If resolvent cannot be built 
+//   (not unifiable), return NULL
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+Term_p inst_term(TB_p bank, Term_p t)
+{
+   return TBInsert(bank, t, DEREF_ALWAYS);
+}
+
+Clause_p build_neq_resolvent(Clause_p p_cl, Clause_p n_cl, FunCode f)
+{
+   Clause_p p_cpy = ClauseCopyDisjoint(p_cl);
+   Eqn_p p_rest = NULL;
+   Eqn_p p_lit = find_lit_w_head(p_cl->literals, f, &p_rest, ONLY_POS);
+   assert(p_lit);
+
+   Clause_p n_cpy = ClauseCopy(n_cl, p_lit->bank);
+   Eqn_p n_rest = NULL;
+   Eqn_p n_lit = find_lit_w_head(n_cl->literals, f, &n_rest, ONLY_NEG);
+   assert(n_lit);
+
+   Subst_p subst = SubstAlloc();
+   Clause_p res = NULL;
+   if(SubstComputeMgu(n_lit->lterm, p_lit->lterm, subst))
+   {
+      EqnListMapTerms(p_rest, (TermMapper_p)inst_term, p_lit->bank);
+      EqnListMapTerms(n_rest, (TermMapper_p)inst_term, n_lit->bank);
+      p_rest = EqnListAppend(&p_rest, n_rest);
+      p_cpy->literals = NULL;
+      n_cpy->literals = NULL;
+      ClauseFree(p_cpy);
+      ClauseFree(n_cpy);
+
+      res = ClauseAlloc(p_rest);
+      set_proof_object(res, p_cl, n_cl, DCParamod);
+   }
+   else
+   {
+      EqnFree(p_lit);
+      EqnFree(n_lit);
+      EqnListFree(p_rest);
+      EqnListFree(n_rest);
+      p_cpy->literals = NULL;
+      n_cpy->literals = NULL;
+      ClauseFree(n_cpy);
+      ClauseFree(p_cpy);
+   }
+
+   SusbtDelete(subst);
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: check_unsat_and_tauto()
+// 
+//   Checks condition (4) and (5) from Definition 13. in SAT techniques
+//   paper (https://matryoshka-project.github.io/pubs/satelimsup_paper.pdf)
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+void check_tautologies(PETask_p task, PStack_p unsat_core, TB_p tmp_terms)
+{
+   PStack_p pos = PStackAlloc();
+   PStack_p neg = PStackAlloc();
+
+   while(!PStackEmpty(unsat_core))
+   {
+      Clause_p cl = PStackPopP(unsat_core);
+      Eqn_p pred = find_lit_w_head(cl->literals, task->sym, NULL, ANY_SIGN);
+      PStackPushP(EqnIsPositive(pred) ? pos : neg, cl);
+   }
+
+   bool all_tautologies = true;
+   for(PStackPointer i = 0; i < PStackGetSP(pos); i++)
+   {
+      Clause_p pos_cl = PStackElementP(pos, i);
+      Eqn_p p_pred = find_lit_w_head(pos_cl->literals, task->sym, NULL, ANY_SIGN);
+      
+      for(PStackPointer j = 0; all_tautologies && i < PStackGetSP(neg); i++)
+      {
+         Clause_p neg_cl = PStackElementP(pos, i);
+         Eqn_p n_pred = find_lit_w_head(pos_cl->literals, task->sym, NULL, ANY_SIGN);
+         Clause_p res = build_neq_resolvent(pos_cl, neg_cl, task->sym);
+         all_tautologies = ClauseIsTautologyReal(tmp_terms, res, false);
+      }
+   }
+
+   declare_not_gate(task); // removing all_clauses
+   if(all_tautologies)
+   {
+      task->g_status = IS_GATE;
+      while(!PStackEmpty(pos))
+      {
+         CCSStoreCl(task->pos_gates, PStackPopP(pos));
+      }
+      while(!PStackEmpty(neg))
+      {
+         CCSStoreCl(task->neg_gates, PStackPopP(neg));
+      }
+   }
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: check_unsat_and_tauto()
+// 
+//   Checks condition (4) and (5) from Definition 13. in SAT techniques
+//   paper (https://matryoshka-project.github.io/pubs/satelimsup_paper.pdf)
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void check_unsat_and_tauto(PETask_p task)
+{
+   PTree_p all_gates = PTreeMerge(&task->pos_gates->set, task->neg_gates->set);
+   Clause_p pivot = PTreeExtractRootKey(&all_gates);
+   Clause_p pivot_fresh = ClauseCopyDisjoint(pivot);
+   Eqn_p rest_fresh = NULL;
+   Eqn_p fresh_lit = find_lit_w_head(pivot_fresh->literals, task->sym,  &rest_fresh, ANY_SIGN);
+   TB_p bank = fresh_lit->bank;
+   pivot_fresh->literals = rest_fresh;
+   ClauseRecomputeLitCounts(pivot_fresh);
+
+   SatSolver_p solver = picosat_init();
+   picosat_enable_trace_generation(solver);
+
+   SatClauseSet_p environment = SatClauseSetAlloc();
+
+   // map connecting fresh clauses to original ones
+   PObjMap_p fresh_original_map = NULL;
+   PObjMapStore(&fresh_original_map, pivot_fresh, pivot, PCmpFun);
+
+   // all clauses need to fit to the pivot
+   PStack_p iter = PTreeTraverseInit(all_gates);
+   PTree_p key;
+   Subst_p subst = SubstAlloc();
+   while((key = PTreeTraverseNext(iter)))
+   {
+      Clause_p cl = key->key;
+      Eqn_p sym_lit = find_lit_w_head(cl->literals, task->sym, NULL, ANY_SIGN);
+#ifndef NDEBUG
+      bool subst_res = 
+#endif
+      SubstComputeMatch(sym_lit->lterm, fresh_lit->lterm, subst);
+      assert(subst_res); // both are distinct bound variables, just matching them
+
+      Eqn_p rest = EqnListCopyExcept(cl->literals, sym_lit, bank);
+      Clause_p res_cl = ClauseAlloc(rest);
+      SubstBacktrack(subst);
+      SatClauseCreateAndStore(res_cl, environment);            
+   }
+
+   PStack_p unsat_core = PStackAlloc();
+   if(SatClauseSetCheckAndGetCore(environment, solver, unsat_core))
+   {
+      // restoring original clauses
+      for(PStackPointer i=0; i<PStackGetSP(unsat_core); i++)
+      {
+         PStackAssignP(unsat_core,
+                      PObjMapFind(&fresh_original_map, 
+                                  PStackElementP(unsat_core, i), PCmpFun),
+                      i);
+      }
+
+      check_tautologies(task, unsat_core);
+   }
+   else
+   {
+      declare_not_gate(task);
+   }
+
+   PStack_p iter = PStackAlloc();
+   iter = PObjMapTraverseInit(fresh_original_map, iter);
+   PObjMap_p n = NULL;
+   Clause_p fresh = NULL;
+   while( (n = PObjMapTraverseNext(iter, &fresh)) )
+   {
+      ClauseFree(fresh);
+   }
+   PObjMapFree(fresh_original_map);
+   PStackFree(iter);
+   SatClauseSetFree(environment);
+   PStackFree(unsat_core);
+   SubstDelete(subst);
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: update_gate_status()
+// 
+//   Go through all the tasks and see if their potential gates are 
+//   actually gates.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void update_gate_status(IntMap_p sym_map)
+{
+   IntMapIter_p iter = IntMapIterAlloc(sym_map, 0, LONG_MAX);
+   PETask_p task;
+   long dummy;
+   while((task = IntMapIterNext(iter, &dummy)))
+   {
+      if(task->pos_gates->card && task->neg_gates->card)
+      {
+         check_unsat_and_tauto(task);
+      }
+      else
+      {
+         declare_not_gate(task);
+      }
+   }
+   IntMapIterFree(iter);
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: update_statistics()
+// 
+//   Update number of literals, clauses and \mu measure (square of the 
+//   number of different variables).
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void update_statistics(PETask_p task, Clause_p cl)
+{
+   task->num_lit += ClauseLiteralNumber(cl);
+   task->size += 1;
+
+   PTree_p vars = NULL;
+   ClauseCollectVariables(cl, &vars);
+   long num_vars = PTreeNodes(vars);
+   PTreeFree(vars);
+   task->sq_vars += num_vars*num_vars;
+}
+
+/*-----------------------------------------------------------------------
+//
 // Function: PredicateElimination()
 // 
 //   Preprocess the passive clause set, create corresponding predicate
@@ -338,23 +703,37 @@ void build_task_queue(ClauseSet_p passive, int max_occs, bool recognize_gates,
                *task = mk_task(fc);
             }
 
-            if(!find_fcode_except(cl, lit, fc))
+            int occs = (*task)->offending_cls->card + 
+                        sign ? (*task)->pos_gates->card + (*task)->positive_singular->card :
+                               (*task)->neg_gates->card + (*task)->negative_singular->card;
+            
+            if(occs == max_occs)
             {
-               if(recognize_gates && potential_gate(cl, lit))
+               (*task)->size == -1;
+            }
+
+            if((*task)->size != -1)
+            {
+               if(!find_fcode_except(cl, lit, fc))
                {
-                  CCSStoreCl(sign ? (*task)->pos_gates : (*task)->neg_gates, cl);
-               }
-               else
-               {
+                  if(recognize_gates && potential_gate(cl, lit))
+                  {
+                     CCSStoreCl(sign ? (*task)->pos_gates : (*task)->neg_gates, cl);
+                  }
                   CCSStoreCl(
                      sign ? (*task)->positive_singular : (*task)->negative_singular,
                      cl);
+                  /* in the beginning, we store potential gate clauses in both
+                     singular and gete sets, then we check if something really
+                     is a gate at the end and if so remove corresponding clauses
+                     from the singular set */
                }
-            }
-            else
-            {
-               // else it is offending
-               CCSStoreCl((*task)->offending_cls, cl);
+               else
+               {
+                  // else it is offending
+                  CCSStoreCl((*task)->offending_cls, cl);
+               }
+               update_statistics(*task, cl);
             }
          }
       }

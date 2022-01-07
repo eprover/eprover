@@ -1083,6 +1083,32 @@ ProverResult SatClauseSetCheckUnsat(SatClauseSet_p satset, Clause_p *empty,
    return res;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: SatClauseSetCheckAndGetCore()
+//
+//   Checks for unsatisfiability and extracts the unsat core in the case
+//   of unsatisfiability. If core is found true is returned.
+//
+// Global Variables: -
+//
+// Side Effects    : Runs external SAT solver, file operations, ...
+//
+/----------------------------------------------------------------------*/
+
+bool SatClauseSetCheckAndGetCore(SatClauseSet_p satset,
+                                 SatSolver_p solver,
+                                 PStack_p unsat_core)
+{
+   SatClauseSetMarkPure(satset);
+   SatClauseSetExportToSolverNonPure(solver, satset);
+   int solverres = picosat_sat(solver, 10000);
+   if(solverres == PICOSAT_UNSATISFIABLE)
+   {
+      sat_extract_core(satset, unsat_core, solver);
+   }
+   return solverres == PICOSAT_UNSATISFIABLE;
+}
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
