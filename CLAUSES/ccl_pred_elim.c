@@ -340,7 +340,7 @@ void build_task_queue(ClauseSet_p passive, int max_occs, bool recognize_gates,
 
             if(!find_fcode_except(cl, lit, fc))
             {
-               if(potential_gate(cl, lit))
+               if(recognize_gates && potential_gate(cl, lit))
                {
                   CCSStoreCl(sign ? (*task)->pos_gates : (*task)->neg_gates, cl);
                }
@@ -359,6 +359,20 @@ void build_task_queue(ClauseSet_p passive, int max_occs, bool recognize_gates,
          }
       }
    }
+   
+   if(recognize_gates)
+   {
+      update_gate_status(sym_map);
+   }
+   
+   IntMapIter_p iter = IntMapIterAlloc(sym_map, 0, LONG_MAX);
+   long key;
+   PETask_p t;
+   while( (t = IntMapIterNext(iter, &key)) )
+   {
+      MinHeapAddP(task_queue, t);
+   }
+   IntMapIterFree(iter);
 }
 
 /*---------------------------------------------------------------------*/
@@ -386,5 +400,7 @@ void PredicateElimination(ClauseSet_p passive, ClauseSet_p archive,
 {
    IntMap_p sym_map = IntMapAlloc();
    MinHeap_p task_queue = MinHeapAlloc(cmp_tasks);
+   // TODO IGNORED max_occs
    build_task_queue(passive, max_occs, recognize_gates, &sym_map, &task_queue);
+   eliminate_predicates(passive, archive, sym_map, task_queue, tmp_bank);
 }
