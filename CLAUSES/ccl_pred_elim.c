@@ -803,9 +803,124 @@ void build_task_queue(ClauseSet_p passive, int max_occs, bool recognize_gates,
    IntMapIterFree(iter);
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: try_gate_elimination()
+// 
+//   Tries to eliminate the symbol described by task by inlining gates.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+bool try_gate_elimination(PETask_p task, PStack_p cls)
+{
+   return false;   
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: try_singular_elimination()
+// 
+//   Tries to eliminate the symbol described by task by performing classical
+//   singular predicate elimination.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+bool try_singular_elimination(PETask_p task, PStack_p cls)
+{
+   return false;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: try_singular_elimination()
+// 
+//   After symbol has successfully been eliminated, remove all clauses
+//   in which symbol appeared. Then check if this elimination makes
+//   elimination of some other symbol possible
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+void remove_clauses_from_state(PETask_p task, IntMap_p sym_map,
+                               MinHeap_p task_queue)
+{
+   return;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: add_clauses()
+// 
+//   Adds new clauses to the state, which might make some other symbols
+//   non-removable anymore.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void add_clauses(IntMap_p sym_map, MinHeap_p h, PStack_p cls)
+{
+   return;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: eliminate_predicates()
+// 
+//   Driver that does actual predicate elimination.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void eliminate_predicates(ClauseSet_p passive, ClauseSet_p archive, 
+                          IntMap_p sym_map, MinHeap_p task_queue, 
+                          TB_p tmp_bank)
+{
+   PStack_p cls = PStackAlloc();
+   while(MinHeapSize(task_queue))
+   {
+      PETask_p task = MinHeapPopMinP(task_queue);
+      if(task->g_status == IS_GATE)
+      {
+         if(try_gate_elimination(task, cls))
+         {
+            remove_clauses_from_state(task, sym_map, task_queue);
+         }
+      }
+      else
+      {
+         assert(!task->offending_cls->card);
+         if(try_singular_elimination(task, cls))
+         {
+            remove_clauses_from_state(task, sym_map, task_queue);
+         }
+      }
+      if(!PStackEmpty(cls))
+      {
+         add_clauses(sym_map, task_queue, cls);
+         PStackReset(cls);
+      }
+   }
+}
+
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
 /*---------------------------------------------------------------------*/
+
 
 /*-----------------------------------------------------------------------
 //
@@ -836,5 +951,8 @@ void PredicateElimination(ClauseSet_p passive, ClauseSet_p archive,
    // TODO IGNORED max_occs
    build_task_queue(passive, max_occs, recognize_gates, &sym_map, 
                     &task_queue, tmp_bank);
-   // eliminate_predicates(passive, archive, sym_map, task_queue, tmp_bank);
+   long pre_elimination_cnt = ClauseSetCardinality(passive);
+   fprintf(stdout, "%% PE start: %ld", pre_elimination_cnt);
+   eliminate_predicates(passive, archive, sym_map, task_queue, tmp_bank);
+   fprintf(stdout, "%% PE eliminated: %ld", pre_elimination_cnt - ClauseSetCardinality(passive));
 }
