@@ -76,6 +76,7 @@ typedef enum
    DOEqFactor,
    DOEqRes,
    DOSatGen,
+   DOPEResolve,
    /* CNF conversion and similar */
    DOSplitEquiv,
    DOIntroDef,
@@ -148,6 +149,7 @@ typedef enum
    DCEqFactor         = DOEqFactor|Arg1Cnf,
    DCEqRes            = DOEqRes|Arg1Cnf,
    DCSatGen           = DOSatGen|Arg1Cnf,
+   DCPEResolve        = DOPEResolve|Arg1Cnf|Arg2Cnf,
    /* CNF conversion and similar */
    DCSplitEquiv       = DOSplitEquiv|Arg1Fof,
    DCIntroDef         = DOIntroDef,

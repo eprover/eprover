@@ -66,8 +66,8 @@ typedef struct PETaskCell* PETask_p;
 // binarizes boolean values -- ensures that they are 1 or 0 which C
 // standard does not guarantee
 #define BIN(x) ((x) ? 1 : 0)
-
 #define CAN_SCHEDULE(t) (!(t)->offending_cls->card || (t)->g_status == IS_GATE)
+#define IN_HEAP(t) ((t)->heap_idx != -1)
 /*---------------------------------------------------------------------*/
 /*                        Global Variables                             */
 /*---------------------------------------------------------------------*/
@@ -448,9 +448,11 @@ Clause_p build_neq_resolvent(Clause_p p_cl, Clause_p n_cl, FunCode f)
       n_cpy->literals = NULL;
       ClauseFree(p_cpy);
       ClauseFree(n_cpy);
+      EqnFree(p_lit);
+      EqnFree(n_lit);
 
       res = ClauseAlloc(p_rest);
-      set_proof_object(res, p_cl, n_cl, DCParamod);
+      set_proof_object(res, p_cl, n_cl, DCPEResolve);
    }
    else
    {
@@ -465,6 +467,50 @@ Clause_p build_neq_resolvent(Clause_p p_cl, Clause_p n_cl, FunCode f)
    }
 
    SubstDelete(subst);
+   return res;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: build_eq_resolvent()
+// 
+//   Like build_neq_resolvent() but (1) builds EQ resolvent and 
+//   (2) never fails as there is no unification involved.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+Clause_p build_eq_resolvent(Clause_p p_cl, Clause_p n_cl, FunCode f)
+{
+   Eqn_p p_disjoint = EqnListCopyDisjoint(p_cl->literals);
+   Eqn_p p_rest = NULL;
+   Eqn_p p_lit = find_lit_w_head(p_disjoint, f, &p_rest, ONLY_POS);
+   assert(p_lit);
+
+   Eqn_p n_copy = EqnListCopy(n_cl->literals, p_lit->bank);
+   Eqn_p n_rest = NULL;
+   Eqn_p n_lit = find_lit_w_head(n_copy, f, &n_rest, ONLY_NEG);
+   assert(n_lit);
+
+   Eqn_p cond = NULL;
+   for(int i=0; i<p_lit->lterm->arity; i++)
+   {
+      Eqn_p neq = EqnAlloc(p_lit->lterm->args[i], n_lit->lterm->args[i],
+                           p_lit->bank, false);
+      EqnListInsertFirst(&cond, neq);
+   }
+
+   cond = EqnListAppend(&cond, p_rest);
+   cond = EqnListAppend(&cond, n_rest);
+
+   Clause_p res = ClauseAlloc(p_rest);
+   set_proof_object(res, p_cl, n_cl, DCPEResolve);
+   EqnFree(p_lit);
+   EqnFree(n_lit);
+
    return res;
 }
 
@@ -776,12 +822,17 @@ void build_task_queue(ClauseSet_p passive, int max_occs, bool recognize_gates,
 //
 /----------------------------------------------------------------------*/
 
+void idx_setter(void* task, int idx)
+{
+   ((PETask_p)task)->heap_idx = idx;
+}
+
 void PredicateElimination(ClauseSet_p passive, ClauseSet_p archive,
                            int max_occs, bool recognize_gates,
                            TB_p tmp_bank)
 {
    IntMap_p sym_map = IntMapAlloc();
-   MinHeap_p task_queue = MinHeapAlloc(cmp_tasks);
+   MinHeap_p task_queue = MinHeapAllocWithIndex(cmp_tasks, idx_setter);
    // TODO IGNORED max_occs
    build_task_queue(passive, max_occs, recognize_gates, &sym_map, 
                     &task_queue, tmp_bank);

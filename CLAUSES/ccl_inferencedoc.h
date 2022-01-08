@@ -86,6 +86,7 @@ typedef enum
 #define PCL_EF     "ef"
 #define PCL_OF     "of"
 #define PCL_SAT    "cdclpropres"
+#define PCL_PE_RESOLVE    "pred_elim_resolve"
 #define PCL_SPLIT  "split"
 #define TSTP_SPLIT_REFINED "esplit"
 #define TSTP_SPLIT_BASE    "split"
