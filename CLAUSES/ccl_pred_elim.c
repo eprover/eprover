@@ -66,6 +66,8 @@ typedef struct PETaskCell* PETask_p;
 // binarizes boolean values -- ensures that they are 1 or 0 which C
 // standard does not guarantee
 #define BIN(x) ((x) ? 1 : 0)
+
+#define CAN_SCHEDULE(t) (!(t)->offending_cls->card || (t)->g_status == IS_GATE)
 /*---------------------------------------------------------------------*/
 /*                        Global Variables                             */
 /*---------------------------------------------------------------------*/
@@ -95,9 +97,8 @@ void set_proof_object(Clause_p new_clause, Clause_p p1, Clause_p p2,
                       DerivationCode dc)
 {
    new_clause->proof_depth =
-      MAX(PROOF_DEPTH(p1), PROOF_DEPTH(p2));
-   new_clause->proof_size =
-      PROOF_SIZE(p1) + PROOF_SIZE(p2) + 1;
+      MAX(p1->proof_depth, p2->proof_depth) + 1;
+   new_clause->proof_size = p1->proof_size + p2->proof_size + 1;
    ClauseSetTPTPType(new_clause, ClauseQueryTPTPType(p1));
    ClauseSetProp(new_clause, ClauseGiveProps(p1, CPIsSOS));
    ClauseSetProp(new_clause, ClauseGiveProps(p2, CPIsSOS));
@@ -171,6 +172,8 @@ static inline PETask_p mk_task(FunCode fc)
    res->size = 0;
 
    res->heap_idx = -1;
+
+   return res;
 }
 
 /*-----------------------------------------------------------------------
@@ -216,7 +219,7 @@ bool term_vars_from_set(Term_p t, PTree_p* vars)
    while(res && !PStackEmpty(subterms))
    {
       t = PStackPopP(subterms);
-      res = !TermIsFreeVar(t) || !PTreeFind(vars, t);
+      res = !TermIsFreeVar(t) || PTreeFind(vars, t);
       for(int i=0; res && i<t->arity; i++)
       {
          PStackPushP(subterms, t->args[i]);
@@ -241,9 +244,7 @@ bool term_vars_from_set(Term_p t, PTree_p* vars)
 /----------------------------------------------------------------------*/
 
 bool potential_gate(Clause_p cl, Eqn_p lit)
-{
-   asser(TBTermIsTypeTerm(lit->lterm));
-   
+{  
    PTree_p vars = NULL;
    Term_p pred = lit->lterm;
    bool unique_vars = true;
@@ -405,7 +406,7 @@ Eqn_p find_lit_w_head(Eqn_p lits, FunCode f, EqnRef rest, int sign)
 
 /*-----------------------------------------------------------------------
 //
-// Function: check_unsat_and_tauto()
+// Function: build_neq_resolvent()
 // 
 //   Builds regular non-equational resolvent between p_cl and n_cl clause
 //   more precisely between their literals pos and neg where pos and neg are
@@ -463,7 +464,7 @@ Clause_p build_neq_resolvent(Clause_p p_cl, Clause_p n_cl, FunCode f)
       ClauseFree(p_cpy);
    }
 
-   SusbtDelete(subst);
+   SubstDelete(subst);
    return res;
 }
 
@@ -496,13 +497,11 @@ void check_tautologies(PETask_p task, PStack_p unsat_core, TB_p tmp_terms)
    for(PStackPointer i = 0; i < PStackGetSP(pos); i++)
    {
       Clause_p pos_cl = PStackElementP(pos, i);
-      Eqn_p p_pred = find_lit_w_head(pos_cl->literals, task->sym, NULL, ANY_SIGN);
-      
       for(PStackPointer j = 0; all_tautologies && i < PStackGetSP(neg); i++)
       {
-         Clause_p neg_cl = PStackElementP(pos, i);
-         Eqn_p n_pred = find_lit_w_head(pos_cl->literals, task->sym, NULL, ANY_SIGN);
+         Clause_p neg_cl = PStackElementP(pos, j);
          Clause_p res = build_neq_resolvent(pos_cl, neg_cl, task->sym);
+         // NB: freshly built resolvent is freed here!
          all_tautologies = ClauseIsTautologyReal(tmp_terms, res, false);
       }
    }
@@ -537,7 +536,8 @@ void check_tautologies(PETask_p task, PStack_p unsat_core, TB_p tmp_terms)
 
 void check_unsat_and_tauto(PETask_p task, TB_p tmp_terms)
 {
-   PTree_p all_gates = PTreeMerge(&task->pos_gates->set, task->neg_gates->set);
+   PTreeMerge(&(task->pos_gates->set), task->neg_gates->set);
+   PTree_p all_gates = task->pos_gates->set;
    Clause_p pivot = PTreeExtractRootKey(&all_gates);
    Clause_p pivot_fresh = ClauseCopyDisjoint(pivot);
    Eqn_p rest_fresh = NULL;
@@ -550,6 +550,7 @@ void check_unsat_and_tauto(PETask_p task, TB_p tmp_terms)
    picosat_enable_trace_generation(solver);
 
    SatClauseSet_p environment = SatClauseSetAlloc();
+   SatClauseCreateAndStore(pivot_fresh, environment);
 
    // map connecting fresh clauses to original ones
    PObjMap_p fresh_original_map = NULL;
@@ -574,6 +575,7 @@ void check_unsat_and_tauto(PETask_p task, TB_p tmp_terms)
       SubstBacktrack(subst);
       SatClauseCreateAndStore(res_cl, environment);            
    }
+   PTreeTraverseExit(iter);
 
    PStack_p unsat_core = PStackAlloc();
    if(SatClauseSetCheckAndGetCore(environment, solver, unsat_core))
@@ -581,10 +583,9 @@ void check_unsat_and_tauto(PETask_p task, TB_p tmp_terms)
       // restoring original clauses
       for(PStackPointer i=0; i<PStackGetSP(unsat_core); i++)
       {
-         PStackAssignP(unsat_core,
+         PStackAssignP(unsat_core, i,
                       PObjMapFind(&fresh_original_map, 
-                                  PStackElementP(unsat_core, i), PCmpFun),
-                      i);
+                                  PStackElementP(unsat_core, i), PCmpFun));
       }
 
       check_tautologies(task, unsat_core, tmp_terms);
@@ -594,11 +595,11 @@ void check_unsat_and_tauto(PETask_p task, TB_p tmp_terms)
       declare_not_gate(task);
    }
 
-   PStack_p iter = PStackAlloc();
+   iter = PStackAlloc();
    iter = PObjMapTraverseInit(fresh_original_map, iter);
    PObjMap_p n = NULL;
    Clause_p fresh = NULL;
-   while( (n = PObjMapTraverseNext(iter, &fresh)) )
+   while( (n = PObjMapTraverseNext(iter, (void**)&fresh)) )
    {
       ClauseFree(fresh);
    }
@@ -607,6 +608,7 @@ void check_unsat_and_tauto(PETask_p task, TB_p tmp_terms)
    SatClauseSetFree(environment);
    PStackFree(unsat_core);
    SubstDelete(subst);
+   picosat_reset(solver);
 }
 
 
@@ -691,13 +693,13 @@ void build_task_queue(ClauseSet_p passive, int max_occs, bool recognize_gates,
 
    for(Clause_p cl = passive->anchor->succ; cl!=passive->anchor; cl = cl->succ)
    {
-      for(Eqn_p lit = cl->literals; lit; lit->next)
+      for(Eqn_p lit = cl->literals; lit; lit = lit->next)
       {
          if(!EqnIsEquLit(lit))
          {
             FunCode fc = lit->lterm->f_code;
             bool sign = EqnIsPositive(lit);
-            PETask_p* task = IntMapGetRef(sym_map, fc);
+            PETask_p* task = (PETask_p*)IntMapGetRef(sym_map, fc);
             if(!*task)
             {
                *task = mk_task(fc);
@@ -707,22 +709,21 @@ void build_task_queue(ClauseSet_p passive, int max_occs, bool recognize_gates,
                         sign ? (*task)->pos_gates->card + (*task)->positive_singular->card :
                                (*task)->neg_gates->card + (*task)->negative_singular->card;
             
-            if(occs == max_occs)
+            if(occs >= max_occs)
             {
-               (*task)->size == -1;
+               // blocking the task
+               (*task)->size = -1;
             }
 
             if((*task)->size != -1)
             {
-               if(!find_fcode_except(cl, lit, fc))
+               if(!find_fcode_except(cl->literals, lit, fc))
                {
                   if(recognize_gates && potential_gate(cl, lit))
                   {
                      CCSStoreCl(sign ? (*task)->pos_gates : (*task)->neg_gates, cl);
                   }
-                  CCSStoreCl(
-                     sign ? (*task)->positive_singular : (*task)->negative_singular,
-                     cl);
+                  CCSStoreCl(sign ? (*task)->positive_singular : (*task)->negative_singular, cl);
                   /* in the beginning, we store potential gate clauses in both
                      singular and gete sets, then we check if something really
                      is a gate at the end and if so remove corresponding clauses
@@ -730,7 +731,6 @@ void build_task_queue(ClauseSet_p passive, int max_occs, bool recognize_gates,
                }
                else
                {
-                  // else it is offending
                   CCSStoreCl((*task)->offending_cls, cl);
                }
                update_statistics(*task, cl);
@@ -749,7 +749,10 @@ void build_task_queue(ClauseSet_p passive, int max_occs, bool recognize_gates,
    PETask_p t;
    while( (t = IntMapIterNext(iter, &key)) )
    {
-      MinHeapAddP(task_queue, t);
+      if(CAN_SCHEDULE(t))
+      {
+         MinHeapAddP(task_queue, t);
+      }
    }
    IntMapIterFree(iter);
 }
@@ -782,5 +785,5 @@ void PredicateElimination(ClauseSet_p passive, ClauseSet_p archive,
    // TODO IGNORED max_occs
    build_task_queue(passive, max_occs, recognize_gates, &sym_map, 
                     &task_queue, tmp_bank);
-   eliminate_predicates(passive, archive, sym_map, task_queue, tmp_bank);
+   // eliminate_predicates(passive, archive, sym_map, task_queue, tmp_bank);
 }

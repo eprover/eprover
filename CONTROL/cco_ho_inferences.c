@@ -284,7 +284,7 @@ void set_proof_object(Clause_p new_clause, Clause_p orig_clause, Clause_p parent
                       DerivationCode dc, int depth_incr)
 {
    new_clause->proof_depth =
-      PROOF_DEPTH(orig_clause) + PROOF_DEPTH(parent2) + depth_incr;
+      MAX(PROOF_DEPTH(orig_clause), PROOF_DEPTH(parent2)) + depth_incr;
    new_clause->proof_size =
       PROOF_SIZE(orig_clause) + PROOF_SIZE(parent2) + 1;
    ClauseSetTPTPType(new_clause, ClauseQueryTPTPType(orig_clause));
