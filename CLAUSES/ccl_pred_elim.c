@@ -68,6 +68,8 @@ typedef struct PETaskCell* PETask_p;
 #define BIN(x) ((x) ? 1 : 0)
 #define CAN_SCHEDULE(t) (!(t)->offending_cls->card || (t)->g_status == IS_GATE)
 #define IN_HEAP(t) ((t)->heap_idx != -1)
+
+#define CCSFree(junk) SizeFree(junk, sizeof(CheapClauseSet))
 /*---------------------------------------------------------------------*/
 /*                        Global Variables                             */
 /*---------------------------------------------------------------------*/
@@ -174,6 +176,27 @@ static inline PETask_p mk_task(FunCode fc)
    res->heap_idx = -1;
 
    return res;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: PETaskFree()
+// 
+//   Release the memory used by task object.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+void PETaskFree(PETask_p task)
+{
+   CCSFree(task->positive_singular);
+   CCSFree(task->negative_singular);
+   CCSFree(task->offending_cls);
+   CCSFree(task->pos_gates);
+   CCSFree(task->neg_gates);
+   SizeFree(task, sizeof(struct PETaskCell));
 }
 
 /*-----------------------------------------------------------------------
@@ -955,4 +978,15 @@ void PredicateElimination(ClauseSet_p passive, ClauseSet_p archive,
    fprintf(stdout, "%% PE start: %ld", pre_elimination_cnt);
    eliminate_predicates(passive, archive, sym_map, task_queue, tmp_bank);
    fprintf(stdout, "%% PE eliminated: %ld", pre_elimination_cnt - ClauseSetCardinality(passive));
+
+   MinHeapFree(task_queue);
+   IntMapIter_p iter = IntMapIterAlloc(sym_map, 0, LONG_MAX);
+   long _;
+   PETask_p junk;
+   while( (junk = IntMapIterNext(iter, &_)))
+   {
+      PETaskFree(junk);
+   }
+   IntMapIterFree(iter);
+   IntMapFree(sym_map);
 }
