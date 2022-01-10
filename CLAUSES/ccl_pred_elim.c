@@ -735,6 +735,7 @@ void check_tautologies(PETask_p task, PStack_p unsat_core, TB_p tmp_terms)
    while(!PStackEmpty(unsat_core))
    {
       Clause_p cl = PStackPopP(unsat_core);
+      assert(cl);
       Eqn_p pred = find_lit_w_head(cl->literals, task->sym, NULL, ANY_SIGN);
       PStackPushP(EqnIsPositive(pred) ? pos : neg, cl);
    }
@@ -785,9 +786,11 @@ void check_tautologies(PETask_p task, PStack_p unsat_core, TB_p tmp_terms)
 
 void check_unsat_and_tauto(PETask_p task, TB_p tmp_terms)
 {
-   PTreeMerge(&(task->pos_gates->set), task->neg_gates->set);
-   PTree_p all_gates = task->pos_gates->set;
-   Clause_p pivot = PTreeExtractRootKey(&all_gates);
+   PStack_p all_gates = PStackAlloc();
+   PTreeToPStack(all_gates, task->pos_gates->set);
+   PTreeToPStack(all_gates, task->neg_gates->set);
+   
+   Clause_p pivot = PStackPopP(all_gates);
    Clause_p pivot_fresh = ClauseCopyDisjoint(pivot);
    Eqn_p rest_fresh = NULL;
    Eqn_p fresh_lit = find_lit_w_head(pivot_fresh->literals, task->sym,  &rest_fresh, ANY_SIGN);
@@ -806,12 +809,10 @@ void check_unsat_and_tauto(PETask_p task, TB_p tmp_terms)
    PObjMapStore(&fresh_original_map, pivot_fresh, pivot, PCmpFun);
 
    // all clauses need to fit to the pivot
-   PStack_p iter = PTreeTraverseInit(all_gates);
-   PTree_p key;
    Subst_p subst = SubstAlloc();
-   while((key = PTreeTraverseNext(iter)))
+   while(!PStackEmpty(all_gates))
    {
-      Clause_p cl = key->key;
+      Clause_p cl = PStackPopP(all_gates);
       Eqn_p sym_lit = find_lit_w_head(cl->literals, task->sym, NULL, ANY_SIGN);
 #ifndef NDEBUG
       bool subst_res = 
@@ -822,9 +823,10 @@ void check_unsat_and_tauto(PETask_p task, TB_p tmp_terms)
       Eqn_p rest = EqnListCopyExcept(cl->literals, sym_lit, bank);
       Clause_p res_cl = ClauseAlloc(rest);
       SubstBacktrack(subst);
-      SatClauseCreateAndStore(res_cl, environment);            
+      SatClauseCreateAndStore(res_cl, environment);
+      PObjMapStore(&fresh_original_map, res_cl, cl, PCmpFun);   
    }
-   PTreeTraverseExit(iter);
+   PStackFree(all_gates);
 
    PStack_p unsat_core = PStackAlloc();
    if(SatClauseSetCheckAndGetCore(environment, solver, unsat_core))
@@ -841,11 +843,10 @@ void check_unsat_and_tauto(PETask_p task, TB_p tmp_terms)
    }
    else
    {
-      task->neg_gates->set = NULL;
       declare_not_gate(task);
    }
 
-   iter = PStackAlloc();
+   PStack_p iter = PStackAlloc();
    iter = PObjMapTraverseInit(fresh_original_map, iter);
    PObjMap_p n = NULL;
    Clause_p fresh = NULL;
@@ -973,9 +974,13 @@ void do_singular_elimination(PTree_p pos_cls_tree, PTree_p neg_cls_tree,
       {
          Clause_p ncl = PStackElementP(neg_cls, j);
          Clause_p rcl = resolver(pcl, ncl, sym);
-         if(!ClauseIsTautology(tmp_terms, rcl))
+         if(rcl && !ClauseIsTautology(tmp_terms, rcl))
          {
             PStackPushP(cls, rcl);
+         }
+         else if(rcl)
+         {
+            ClauseFree(rcl);
          }
       }
    }
@@ -1025,9 +1030,14 @@ void do_gates_against_offending(PETask_p task, PStack_p cls, TB_p tmp_terms)
             Clause_p res = 
                build_neq_resolvent(sign ? offending : gate_cl, 
                                    sign ? gate_cl : offending, task->sym);
+            assert(res);
             if(!ClauseIsTautology(tmp_terms, res))
             {
                PStackPushP(cls, res);
+            }
+            else
+            {
+               ClauseFree(res);
             }
          }
       }
@@ -1057,7 +1067,7 @@ void try_gate_elimination(PETask_p task, PStack_p cls, TB_p tmp_terms)
 {
    do_singular_elimination(task->pos_gates->set, task->negative_singular->set,
                            task->sym, build_neq_resolvent, cls, tmp_terms);
-   do_singular_elimination(task->neg_gates->set, task->neg_gates->set,
+   do_singular_elimination(task->positive_singular->set, task->neg_gates->set,
                            task->sym, build_neq_resolvent, cls, tmp_terms);
    do_gates_against_offending(task, cls, tmp_terms);
 }
@@ -1266,6 +1276,13 @@ void eliminate_predicates(ClauseSet_p passive, ClauseSet_p archive,
             EqnListMapTerms(cl->literals, reassign_vars, bank);
             ClauseSetInsert(passive, cl);
             react_clause_added(cl, sym_map, task_queue, max_occs);
+         }
+      }
+      else
+      {
+         while(!PStackEmpty(cls))
+         {
+            ClauseFree(PStackPopP(cls));
          }
       }
       PStackReset(cls);
