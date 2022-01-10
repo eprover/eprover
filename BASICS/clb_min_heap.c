@@ -71,9 +71,9 @@ void bubble_up(MinHeap_p h, PStackPointer child_idx)
       IntOrP* parent_ref = PStackElementRef(h->arr, parent_idx);
       if(h->cmp(child_ref, parent_ref) < 0)
       {
-         SWAP(*child_ref, *parent_ref);
          CALL_SETTER(h, child_ref->p_val, parent_idx);
          CALL_SETTER(h, parent_ref->p_val, child_idx);
+         SWAP(*child_ref, *parent_ref);
          
          child_idx = parent_idx;
       }
@@ -122,9 +122,9 @@ void drop_down(MinHeap_p h, PStackPointer curr_idx)
          IntOrP* parent_ref = PStackElementRef(h->arr, curr_idx);
          IntOrP* child_ref = PStackElementRef(h->arr, min_c_idx);
 
-         SWAP(*child_ref, *parent_ref);
          CALL_SETTER(h, parent_ref->p_val, min_c_idx);
          CALL_SETTER(h, child_ref->p_val, curr_idx);
+         SWAP(*child_ref, *parent_ref);
 
          curr_idx = min_c_idx;
       }
@@ -259,6 +259,7 @@ IntOrP MinHeapPopMin(MinHeap_p h)
       if(PStackGetSP(h->arr))
       {
          *PStackElementRef(h->arr, 0) = last;
+         CALL_SETTER(h, last.p_val, 0);
          drop_down(h, 0);
       }
       CALL_SETTER(h, ret_val.p_val, -1);

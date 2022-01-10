@@ -601,7 +601,8 @@ int main(int argc, char* argv[])
       // todo: eventually check if the problem in HO syntax is FO.
       PredicateElimination(proofstate->axioms, proofstate->archive,
                            h_parms->pred_elim_max_occs, h_parms->pred_elim_gates,
-                           h_parms->pred_elim_tolerance, proofstate->tmp_terms);
+                           h_parms->pred_elim_tolerance, proofstate->terms,
+                           proofstate->tmp_terms, proofstate->freshvars);
    }
 
    if(strategy_scheduling || auto_conf)

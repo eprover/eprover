@@ -443,7 +443,11 @@ void scan_clause_for_predicates(Clause_p cl, IntMap_p sym_map, MinHeap_p queue,
             }
             update_statistics(&(*task)->num_lit, &(*task)->size,
                               &(*task)->sq_vars, cl, false);
-            MinHeapUpdateElement(queue, (*task)->heap_idx);
+            if(IN_HEAP(*task))
+            {
+               (CAN_SCHEDULE(*task) ? MinHeapUpdateElement : MinHeapRemoveElement)
+                                      (queue, (*task)->heap_idx);
+            }
          }
       }
       else if(eqn_found)
@@ -1174,7 +1178,7 @@ void remove_clauses_from_state(PETask_p task, IntMap_p sym_map,
    while( (node = PTreeTraverseNext(iter)) )
    {
       Clause_p cl = node->key;
-      DBG_PRINT(stderr, "removing cl: ", ClausePrintDBG(stderr, cl), ";\n");
+      // DBG_PRINT(stderr, "removing cl: ", ClausePrintDBG(stderr, cl), ";\n");
       ClauseSetMoveClause(archive, cl);
       react_clause_removed(cl, sym_map, task_queue);
    }
@@ -1221,16 +1225,22 @@ bool measure_decreases(PETask_p task, PStack_p new_cls, int tolerance)
 //
 /----------------------------------------------------------------------*/
 
+Term_p reassign_vars(void* bank, Term_p t)
+{
+   return TBInsertOpt(bank, t, DEREF_NEVER);
+}
+
 void eliminate_predicates(ClauseSet_p passive, ClauseSet_p archive, 
                           IntMap_p sym_map, MinHeap_p task_queue, 
-                          TB_p tmp_bank, ResolverFun_p resolver,
-                          long max_occs, int measure_tolerance)
+                          TB_p bank, TB_p tmp_bank, ResolverFun_p resolver,
+                          long max_occs, int measure_tolerance,
+                          VarBank_p freshvars)
 {
    PStack_p cls = PStackAlloc();
    while(MinHeapSize(task_queue))
    {
       PETask_p task = MinHeapPopMinP(task_queue);
-      DBG_PRINT(stderr, "chosen task:\n", dbg_print(stderr, tmp_bank->sig, task), ".\n");
+      // DBG_PRINT(stderr, "chosen task:\n", dbg_print(stderr, tmp_bank->sig, task), ".\n");
       task->last_check_num_lit = task->num_lit;
       task->last_check_sq_vars = task->sq_vars;
       if(task->g_status == IS_GATE)
@@ -1249,6 +1259,8 @@ void eliminate_predicates(ClauseSet_p passive, ClauseSet_p archive,
          while(!PStackEmpty(cls))
          {
             Clause_p cl = PStackPopP(cls);
+            ClauseNormalizeVars(cl, freshvars);
+            EqnListMapTerms(cl->literals, reassign_vars, bank);
             ClauseSetInsert(passive, cl);
             react_clause_added(cl, sym_map, task_queue, max_occs);
          }
@@ -1284,7 +1296,8 @@ void idx_setter(void* task, int idx)
 
 void PredicateElimination(ClauseSet_p passive, ClauseSet_p archive,
                            int max_occs, bool recognize_gates,
-                           int measure_tolerance, TB_p tmp_bank)
+                           int measure_tolerance, TB_p bank,
+                           TB_p tmp_bank, VarBank_p fresh_vars)
 {
    IntMap_p sym_map = IntMapAlloc();
    MinHeap_p task_queue = MinHeapAllocWithIndex(cmp_tasks, idx_setter);
@@ -1295,7 +1308,8 @@ void PredicateElimination(ClauseSet_p passive, ClauseSet_p archive,
    ResolverFun_p resolver = eqn_found ? build_eq_resolvent : build_neq_resolvent;
    fprintf(stdout, "%% PE start: %ld", pre_elimination_cnt);
    eliminate_predicates(passive, archive, sym_map, task_queue, 
-                        tmp_bank, resolver, max_occs, measure_tolerance);
+                        bank, tmp_bank, resolver, max_occs, 
+                        measure_tolerance, fresh_vars);
    fprintf(stdout, "%% PE eliminated: %ld", pre_elimination_cnt - ClauseSetCardinality(passive));
 
    MinHeapFree(task_queue);
