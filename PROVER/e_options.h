@@ -1685,19 +1685,19 @@ OptCell opts[] =
     " Set <arg> to -1 disable this limit"},
 
     {OPT_PRED_ELIM,
-    '\0', "bce", ReqArg, NULL, "Turn predicate elimination on or off"},
+    '\0', "pred-elim", ReqArg, NULL, "Turn predicate elimination on or off"},
 
     {OPT_PRED_ELIM_MAX_OCCS,
-    '\0', "bce-max-occs", ReqArg, NULL, 
+    '\0', "pred-elim-max-occs", ReqArg, NULL, 
     "Stop tracking symbol after it occurs in <arg> clauses"
     " Set <arg> to -1 disable this limit"},
 
     {OPT_PRED_ELIM_TOLERANCE,
-    '\0', "bce-max-occs", ReqArg, NULL, 
+    '\0', "pred-elim-tolerance", ReqArg, NULL, 
     "Tolerance for predicate elimination measures."},
 
     {OPT_PRED_ELIM_GATES,
-    '\0', "bce", ReqArg, NULL, "Turn gate recognition for predicate elimination on or off"},
+    '\0', "pred-elim-recognize-gates", ReqArg, NULL, "Turn gate recognition for predicate elimination on or off"},
 
    {OPT_NOOPT,
     '\0', NULL,

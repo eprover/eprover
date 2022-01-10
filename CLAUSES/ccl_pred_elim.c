@@ -91,6 +91,38 @@ typedef Clause_p (*ResolverFun_p)(Clause_p, Clause_p, FunCode);
 
 /*-----------------------------------------------------------------------
 //
+// Function: dbg_print()
+// 
+//   Set proof object according to given arguments
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void print_node(FILE* out, Clause_p cl)
+{
+   ClausePrint(stderr, cl, true);
+   fputs("; ", out);
+}
+
+void dbg_print(FILE* out, Sig_p sig, PETask_p t)
+{
+   fprintf(out, "%s(%ld):\n", SigFindName(sig, t->sym), t->size);
+
+   DBG_PRINT(out, "+singular:\n >", PTreeVisitInOrder(t->positive_singular->set, (void (*)(void *, void *))print_node, out), ".\n");
+   DBG_PRINT(out, "-singular:\n >", PTreeVisitInOrder(t->negative_singular->set, (void (*)(void *, void *))print_node, out), ".\n");
+   if(t->g_status == IS_GATE)
+   {
+      DBG_PRINT(out, "+gate:\n >", PTreeVisitInOrder(t->neg_gates->set, (void (*)(void *, void *))print_node, out), ".\n");
+      DBG_PRINT(out, "-gate:\n >", PTreeVisitInOrder(t->pos_gates->set, (void (*)(void *, void *))print_node, out), ".\n");
+   }
+   DBG_PRINT(out, "offending:\n >", PTreeVisitInOrder(t->offending_cls->set, (void (*)(void *, void *))print_node, out), ".\n");
+}
+
+/*-----------------------------------------------------------------------
+//
 // Function: set_proof_object()
 // 
 //   Set proof object according to given arguments
@@ -585,14 +617,15 @@ Term_p inst_term(TB_p bank, Term_p t)
 
 Clause_p build_neq_resolvent(Clause_p p_cl, Clause_p n_cl, FunCode f)
 {
+   assert(p_cl != n_cl);
    Clause_p p_cpy = ClauseCopyDisjoint(p_cl);
    Eqn_p p_rest = NULL;
-   Eqn_p p_lit = find_lit_w_head(p_cl->literals, f, &p_rest, ONLY_POS);
+   Eqn_p p_lit = find_lit_w_head(p_cpy->literals, f, &p_rest, ONLY_POS);
    assert(p_lit);
 
    Clause_p n_cpy = ClauseCopy(n_cl, p_lit->bank);
    Eqn_p n_rest = NULL;
-   Eqn_p n_lit = find_lit_w_head(n_cl->literals, f, &n_rest, ONLY_NEG);
+   Eqn_p n_lit = find_lit_w_head(n_cpy->literals, f, &n_rest, ONLY_NEG);
    assert(n_lit);
 
    Subst_p subst = SubstAlloc();
@@ -707,7 +740,7 @@ void check_tautologies(PETask_p task, PStack_p unsat_core, TB_p tmp_terms)
       Clause_p pos_cl = PStackElementP(pos, i);
       for(PStackPointer j = 0; all_tautologies && i < PStackGetSP(neg); i++)
       {
-         Clause_p neg_cl = PStackElementP(pos, j);
+         Clause_p neg_cl = PStackElementP(neg, j);
          Clause_p res = build_neq_resolvent(pos_cl, neg_cl, task->sym);
          // NB: freshly built resolvent is freed here!
          all_tautologies = ClauseIsTautologyReal(tmp_terms, res, false);
@@ -922,7 +955,7 @@ void do_singular_elimination(PTree_p pos_cls_tree, PTree_p neg_cls_tree,
    PStack_p pos_cls = PStackAlloc();
    PStack_p neg_cls = PStackAlloc();
    PTreeToPStack(pos_cls, pos_cls_tree);
-   PTreeToPStack(neg_cls, pos_cls_tree);
+   PTreeToPStack(neg_cls, neg_cls_tree);
 
    for(PStackPointer i=0; i<PStackGetSP(pos_cls); i++)
    {
@@ -1075,6 +1108,7 @@ void react_clause_removed(Clause_p cl, IntMap_p sym_map, MinHeap_p h)
       if(!EqnIsEquLit(lit))
       {
          PETask_p task = IntMapGetVal(sym_map, lit->lterm->f_code);
+         assert(task);
          bool sign = EqnIsPositive(lit);
          if(task->size != TASK_BLOCKED)
          {
@@ -1140,6 +1174,7 @@ void remove_clauses_from_state(PETask_p task, IntMap_p sym_map,
    while( (node = PTreeTraverseNext(iter)) )
    {
       Clause_p cl = node->key;
+      DBG_PRINT(stderr, "removing cl: ", ClausePrintDBG(stderr, cl), ";\n");
       ClauseSetMoveClause(archive, cl);
       react_clause_removed(cl, sym_map, task_queue);
    }
@@ -1195,6 +1230,7 @@ void eliminate_predicates(ClauseSet_p passive, ClauseSet_p archive,
    while(MinHeapSize(task_queue))
    {
       PETask_p task = MinHeapPopMinP(task_queue);
+      DBG_PRINT(stderr, "chosen task:\n", dbg_print(stderr, tmp_bank->sig, task), ".\n");
       task->last_check_num_lit = task->num_lit;
       task->last_check_sq_vars = task->sq_vars;
       if(task->g_status == IS_GATE)
