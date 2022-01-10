@@ -201,6 +201,7 @@ static inline bool CCSRemoveCl(CCS_p set, Clause_p cl)
    if(removed)
    {
       set->card--;
+      PTreeCellFree(removed);
       return true;
    }
    else
@@ -764,6 +765,9 @@ void check_tautologies(PETask_p task, PStack_p unsat_core, TB_p tmp_terms)
          CCSStoreCl(task->neg_gates, PStackPopP(neg));
       }
    }
+
+   PStackFree(pos);
+   PStackFree(neg);
 }
 
 /*-----------------------------------------------------------------------
@@ -837,6 +841,7 @@ void check_unsat_and_tauto(PETask_p task, TB_p tmp_terms)
    }
    else
    {
+      task->neg_gates->set = NULL;
       declare_not_gate(task);
    }
 
@@ -1162,27 +1167,25 @@ void react_clause_removed(Clause_p cl, IntMap_p sym_map, MinHeap_p h)
 //
 /----------------------------------------------------------------------*/
 
-#define MERGE_AND_DELETE(target, source) PTreeMerge(target, source); source = NULL
 void remove_clauses_from_state(PETask_p task, IntMap_p sym_map,
                                MinHeap_p task_queue, ClauseSet_p archive)
 {
-   PTree_p* all_cls = &(task->pos_gates->set);
-   MERGE_AND_DELETE(all_cls, task->neg_gates->set);
-   MERGE_AND_DELETE(all_cls, task->positive_singular->set);
-   MERGE_AND_DELETE(all_cls, task->negative_singular->set);
-   MERGE_AND_DELETE(all_cls, task->offending_cls->set);
    task->size = TASK_BLOCKED; // blocking the symbol!
+   PStack_p all_cls = PStackAlloc();
+   PTreeToPStack(all_cls, task->pos_gates->set);
+   PTreeToPStack(all_cls, task->neg_gates->set);
+   PTreeToPStack(all_cls, task->positive_singular->set);
+   PTreeToPStack(all_cls, task->negative_singular->set);
+   PTreeToPStack(all_cls, task->offending_cls->set);
 
-   PStack_p iter = PTreeTraverseInit(*all_cls);
-   PTree_p node;
-   while( (node = PTreeTraverseNext(iter)) )
+   while( !PStackEmpty(all_cls) )
    {
-      Clause_p cl = node->key;
+      Clause_p cl = PStackPopP(all_cls);
       // DBG_PRINT(stderr, "removing cl: ", ClausePrintDBG(stderr, cl), ";\n");
       ClauseSetMoveClause(archive, cl);
       react_clause_removed(cl, sym_map, task_queue);
    }
-   PStackFree(iter);
+   PStackFree(all_cls);
 }
 
 /*-----------------------------------------------------------------------
@@ -1267,6 +1270,7 @@ void eliminate_predicates(ClauseSet_p passive, ClauseSet_p archive,
       }
       PStackReset(cls);
    }
+   PStackFree(cls);
 }
 
 /*---------------------------------------------------------------------*/
