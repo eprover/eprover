@@ -53,6 +53,7 @@ ehthumbs.db
 Thumbs.db
 ./vscode/*
 ./vscode*
+__pycache__/
 
 # Executable directory
 EXECDIR/
