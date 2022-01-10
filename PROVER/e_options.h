@@ -202,6 +202,9 @@ typedef enum
    OPT_REPLACE_INJ_DEFS,
    OPT_BCE,
    OPT_BCE_MAX_OCCS,
+   OPT_PRED_ELIM,
+   OPT_PRED_ELIM_GATES,
+   OPT_PRED_ELIM_MAX_OCCS,
    OPT_LIFT_LAMBDAS,
    OPT_ETA_NORMALIZE,
    OPT_HO_ORDER_KIND,
@@ -1679,6 +1682,17 @@ OptCell opts[] =
     '\0', "bce-max-occs", ReqArg, NULL, 
     "Stop tracking symbol after it occurs in <arg> clauses"
     " Set <arg> to -1 disable this limit"},
+
+    {OPT_PRED_ELIM,
+    '\0', "bce", ReqArg, NULL, "Turn predicate elimination on or off"},
+
+    {OPT_PRED_ELIM_MAX_OCCS,
+    '\0', "bce-max-occs", ReqArg, NULL, 
+    "Stop tracking symbol after it occurs in <arg> clauses"
+    " Set <arg> to -1 disable this limit"},
+
+    {OPT_PRED_ELIM_GATES,
+    '\0', "bce", ReqArg, NULL, "Turn gate recognition for predicate elimination on or off"},
 
    {OPT_NOOPT,
     '\0', NULL,

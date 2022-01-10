@@ -1963,7 +1963,13 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_BCE_MAX_OCCS:
             h_parms->bce_max_occs = CLStateGetIntArgCheckRange(handle, arg, -1, INT_MAX);
             break;
-      case OPT_LIFT_LAMBDAS:
+      case OPT_PRED_ELIM:
+            h_parms->bce = CLStateGetBoolArg(handle, arg);
+            break;
+      case OPT_PRED_ELIM_GATES:
+            h_parms->bce_max_occs = CLStateGetIntArgCheckRange(handle, arg, -1, INT_MAX);
+            break;
+      case OPT_PRED_ELIM_MAX_OCCS:
             h_parms->lift_lambdas = CLStateGetBoolArg(handle, arg);
             break;
       case OPT_LAMBDA_TO_FORALL:

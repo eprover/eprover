@@ -122,6 +122,10 @@ typedef struct heuristic_parms_cell
    bool                bce;
    int                 bce_max_occs;
 
+   bool                pred_elim;
+   bool                pred_elim_gates;
+   int                 pred_elim_max_occs;
+
 /* Clause selection elements */
    char                *heuristic_name;
    char                *heuristic_def;

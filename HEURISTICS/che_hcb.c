@@ -180,6 +180,10 @@ void HeuristicParmsInitialize(HeuristicParms_p handle)
    handle->bce                           = false;
    handle->bce_max_occs                  = 0;
 
+   handle->pred_elim                     = false;
+   handle->pred_elim_gates               = false;
+   handle->pred_elim_max_occs            = 0;
+
    handle->selection_strategy            = SelectNoLiterals;
    handle->pos_lit_sel_min               = 0;
    handle->pos_lit_sel_max               = LONG_MAX;
@@ -354,8 +358,13 @@ void HeuristicParmsPrint(FILE* out, HeuristicParms_p handle)
    fprintf(out, "   add_goal_defs_neg:             %s\n", BOOL2STR(handle->add_goal_defs_neg));
    fprintf(out, "   add_goal_defs_subterms:        %s\n", BOOL2STR(handle->add_goal_defs_subterms));
 
-   fprintf(out, "   bce:                           %s\n", BOOL2STR(handle->bce));
-   fprintf(out, "   bce_max_occs:                  %d\n", handle->bce_max_occs);
+   // TEMPORARILY DISABLING BCE PRINTING AND PARSING
+//    fprintf(out, "   bce:                           %s\n", BOOL2STR(handle->bce));
+//    fprintf(out, "   bce_max_occs:                  %d\n", handle->bce_max_occs);
+
+//    fprintf(out, "   pred_elim:                           %s\n", BOOL2STR(handle->pred_elim));
+//    fprintf(out, "   pred_elim_gates:                     %s\n", BOOL2STR(handle->pred_elim_gates));
+//    fprintf(out, "   pred_elim_max_occs:                  %d\n", handle->pred_elim_max_occs);
 
    fprintf(out, "   heuristic_name:                %s\n", handle->heuristic_name);
    fprintf(out, "   heuristic_def:                 \"%s\"\n",
@@ -566,6 +575,14 @@ bool HeuristicParmsParseInto(Scanner_p in,
    PARSE_BOOL(add_goal_defs_pos);
    PARSE_BOOL(add_goal_defs_neg);
    PARSE_BOOL(add_goal_defs_subterms);
+
+   // temporarily ignoring BCE AND PE SETTINGS.
+//    PARSE_BOOL(bce);
+//    PARSE_INT(bce_max_occs);
+   
+//    PARSE_BOOL(pred_elim);
+//    PARSE_BOOL(pred_elim_gates);
+//    PARSE_INT(pred_elim_max_occs);
 
    PARSE_IDENTIFIER(heuristic_name);
    PARSE_STRING(heuristic_def);
