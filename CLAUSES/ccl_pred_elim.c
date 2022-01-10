@@ -63,6 +63,8 @@ struct PETaskCell
 };
 typedef struct PETaskCell* PETask_p;
 
+typedef Clause_p (*ResolverFun_p)(Clause_p, Clause_p, FunCode);
+
 // binarizes boolean values -- ensures that they are 1 or 0 which C
 // standard does not guarantee
 #define BIN(x) ((x) ? 1 : 0)
@@ -474,6 +476,8 @@ Clause_p build_neq_resolvent(Clause_p p_cl, Clause_p n_cl, FunCode f)
       EqnFree(p_lit);
       EqnFree(n_lit);
 
+      EqnListRemoveResolved(&p_rest);
+      EqnListRemoveDuplicates(p_rest);
       res = ClauseAlloc(p_rest);
       set_proof_object(res, p_cl, n_cl, DCPEResolve);
    }
@@ -529,6 +533,8 @@ Clause_p build_eq_resolvent(Clause_p p_cl, Clause_p n_cl, FunCode f)
    cond = EqnListAppend(&cond, p_rest);
    cond = EqnListAppend(&cond, n_rest);
 
+   EqnListRemoveResolved(&p_rest);
+   EqnListRemoveDuplicates(p_rest);
    Clause_p res = ClauseAlloc(p_rest);
    set_proof_object(res, p_cl, n_cl, DCPEResolve);
    EqnFree(p_lit);
@@ -753,7 +759,8 @@ void update_statistics(PETask_p task, Clause_p cl)
 /----------------------------------------------------------------------*/
 
 void build_task_queue(ClauseSet_p passive, int max_occs, bool recognize_gates, 
-                      IntMap_p* m_ref, MinHeap_p* q_ref, TB_p tmp_terms)
+                      IntMap_p* m_ref, MinHeap_p* q_ref, TB_p tmp_terms, 
+                      bool* eqn_found)
 {
    IntMap_p sym_map = *m_ref;
    MinHeap_p task_queue = *q_ref;
@@ -805,6 +812,10 @@ void build_task_queue(ClauseSet_p passive, int max_occs, bool recognize_gates,
                update_statistics(*task, cl);
             }
          }
+         else
+         {
+            *eqn_found = true;
+         }
       }
    }
    
@@ -840,7 +851,6 @@ void build_task_queue(ClauseSet_p passive, int max_occs, bool recognize_gates,
 
 bool try_gate_elimination(PETask_p task, PStack_p cls)
 {
-   return false;   
 }
 
 /*-----------------------------------------------------------------------
@@ -855,14 +865,14 @@ bool try_gate_elimination(PETask_p task, PStack_p cls)
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
-bool try_singular_elimination(PETask_p task, PStack_p cls)
+bool try_singular_elimination(PETask_p task, PStack_p cls, ResolverFun_p res)
 {
    return false;
 }
 
 /*-----------------------------------------------------------------------
 //
-// Function: try_singular_elimination()
+// Function: remove_clauses_from_state()
 // 
 //   After symbol has successfully been eliminated, remove all clauses
 //   in which symbol appeared. Then check if this elimination makes
@@ -911,7 +921,7 @@ void add_clauses(IntMap_p sym_map, MinHeap_p h, PStack_p cls)
 
 void eliminate_predicates(ClauseSet_p passive, ClauseSet_p archive, 
                           IntMap_p sym_map, MinHeap_p task_queue, 
-                          TB_p tmp_bank)
+                          TB_p tmp_bank, ResolverFun_p resolver)
 {
    PStack_p cls = PStackAlloc();
    while(MinHeapSize(task_queue))
@@ -927,7 +937,7 @@ void eliminate_predicates(ClauseSet_p passive, ClauseSet_p archive,
       else
       {
          assert(!task->offending_cls->card);
-         if(try_singular_elimination(task, cls))
+         if(try_singular_elimination(task, cls, resolver))
          {
             remove_clauses_from_state(task, sym_map, task_queue);
          }
@@ -971,12 +981,13 @@ void PredicateElimination(ClauseSet_p passive, ClauseSet_p archive,
 {
    IntMap_p sym_map = IntMapAlloc();
    MinHeap_p task_queue = MinHeapAllocWithIndex(cmp_tasks, idx_setter);
-   // TODO IGNORED max_occs
+   bool eqn_found;
    build_task_queue(passive, max_occs, recognize_gates, &sym_map, 
-                    &task_queue, tmp_bank);
+                    &task_queue, tmp_bank, &eqn_found);
    long pre_elimination_cnt = ClauseSetCardinality(passive);
+   ResolverFun_p resolver = eqn_found ? build_eq_resolvent : build_neq_resolvent;
    fprintf(stdout, "%% PE start: %ld", pre_elimination_cnt);
-   eliminate_predicates(passive, archive, sym_map, task_queue, tmp_bank);
+   eliminate_predicates(passive, archive, sym_map, task_queue, tmp_bank, resolver);
    fprintf(stdout, "%% PE eliminated: %ld", pre_elimination_cnt - ClauseSetCardinality(passive));
 
    MinHeapFree(task_queue);

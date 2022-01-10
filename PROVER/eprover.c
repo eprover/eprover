@@ -646,15 +646,7 @@ int main(int argc, char* argv[])
    ProofControlInit(proofstate, proofcontrol, h_parms,
                     fvi_parms, wfcb_definitions, hcb_definitions);
 
-   /* Scanner_p hin = CreateScanner(StreamTypeFile, "bla.txt", true, NULL, true); */
-   /* HeuristicParms_p parms = HeuristicParmsParse(hin, true); */
-   /* DestroyScanner(hin); */
-   /* printf("# Parsed\n"); */
-   /* HeuristicParmsPrint(stdout, parms); */
-   /* HeuristicParmsFree(parms); */
-
    // Unfold definitions and re-normalize
-
    PCLFullTerms = pcl_full_terms; /* Preprocessing always uses full
                                      terms, so we set the flag for
                                      the main proof search only now! */
