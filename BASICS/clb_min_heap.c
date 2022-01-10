@@ -204,7 +204,7 @@ long MinHeapSize(MinHeap_p h)
 //
 // Function: MinHeapAddP()
 //
-//   Add a pointer to heap.
+//   Add a pointer to heap. O(log n)
 //
 // Global Variables: -
 //
@@ -223,7 +223,7 @@ void MinHeapAddP(MinHeap_p h, void* p)
 //
 // Function: MinHeapAddInt()
 //
-//   Add an integer to heap.
+//   Add an integer to heap. O(log n)
 //
 // Global Variables: -
 //
@@ -242,7 +242,7 @@ void MinHeapAddInt(MinHeap_p h, long i)
 //
 // Function: MinHeapPopMin()
 //
-//   Pop the maximum element and restore heap property.
+//   Pop the maximum element and restore heap property. O(log n)
 //
 // Global Variables: -
 //
@@ -275,7 +275,7 @@ IntOrP MinHeapPopMin(MinHeap_p h)
 //
 // Function: MinHeapDecrKey()
 //
-//   Notify that the key assigned to the idx has (possibly) been decreased.
+//   Notify that the key assigned to the idx has (possibly) been decreased. O(log n)
 //
 // Global Variables: -
 //
@@ -292,7 +292,7 @@ void MinHeapDecrKey(MinHeap_p h, long idx)
 //
 // Function: MinHeapIncrKey()
 //
-//   Notify that the key assigned to the idx has (possibly) been increased.
+//   Notify that the key assigned to the idx has (possibly) been increased. O(log n)
 //
 // Global Variables: -
 //
@@ -328,7 +328,7 @@ void MinHeapFree(MinHeap_p junk)
 // Function: DBGPrintHeap()
 //
 //   Print the contents of the heap. If as_ptr is true, then the heap
-//   is interpreted as heap of pointers.
+//   is interpreted as heap of pointers. O(n)
 //
 // Global Variables: -
 //
@@ -348,6 +348,65 @@ void DBGPrintHeap(FILE* out, MinHeap_p h, bool as_ptr)
       {
          fprintf(out, "%ld; ", PStackElementInt(h->arr, i));
       }
+   }
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: MinHeapUpdateElement()
+//
+//   When the value of an element has been updated, then fix its position
+//   inside the heap by reruning comparison function on corresponding nodes.
+//   * If the element becomes smaller than parent -- than bubble the node up
+//   * Else -- try sifting the node down (this will succeed only if the node
+//    increased in value)
+//   O(log n)
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+void MinHeapUpdateElement(MinHeap_p h, long idx)
+{
+   if(idx >= 0)
+   {
+      // if element is in the heap
+      if(!IS_ROOT(idx) 
+         && h->cmp(PStackElementRef(h->arr, idx), 
+                   PStackElementRef(h->arr, PARENT(idx))) < 0)
+      {
+         bubble_up(h, idx);
+      }
+      else
+      {
+         drop_down(h, idx);
+      }
+   }
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: MinHeapUpdateElement()
+//
+//   Assuming the index is within the heap, the function removes
+//   an element with index idx from the heap. O(log n)
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+void MinHeapRemoveElement(MinHeap_p h, long idx)
+{
+   assert(idx >=0 && idx < PStackGetSP(h->arr));
+   CALL_SETTER(h, PStackElementP(h->arr, idx), -1);
+   IntOrP last = PStackPop(h->arr);
+   if(idx != PStackGetSP(h->arr))
+   {
+      CALL_SETTER(h, last.p_val, idx);
+      *PStackElementRef(h->arr, idx) = last;
+      MinHeapUpdateElement(h, idx);
    }
 }
 

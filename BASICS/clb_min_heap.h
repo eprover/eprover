@@ -42,6 +42,8 @@ IntOrP MinHeapPopMin(MinHeap_p);
 #define MinHeapPopMinP(m) (MinHeapPopMin(m).p_val)
 #define MinHeapPopMinInt(m) (MinHeapPopMin(m).i_val)
 
+void MinHeapUpdateElement(MinHeap_p h, long idx);
+void MinHeapRemoveElement(MinHeap_p h, long idx);
 void MinHeapDecrKey(MinHeap_p, long);
 void MinHeapIncrKey(MinHeap_p, long);
 

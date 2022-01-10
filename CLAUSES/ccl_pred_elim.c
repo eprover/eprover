@@ -56,8 +56,10 @@ struct PETaskCell
 
    long num_lit;
    double sq_vars;
-   long size; // size is set to -1 to denote that maximal 
-              // number of occurences has been reached
+   long size;
+
+   long last_check_num_lit;
+   double last_check_sq_vars;
    
    long heap_idx;
 };
@@ -71,7 +73,8 @@ typedef Clause_p (*ResolverFun_p)(Clause_p, Clause_p, FunCode);
 #define CAN_SCHEDULE(t) (!(t)->offending_cls->card || (t)->g_status == IS_GATE)
 #define IN_HEAP(t) ((t)->heap_idx != -1)
 
-#define CCSFree(junk) SizeFree(junk, sizeof(CheapClauseSet))
+#define CCSFree(junk) PTreeFree(junk->set); SizeFree(junk, sizeof(CheapClauseSet))
+#define TASK_BLOCKED (-1)
 /*---------------------------------------------------------------------*/
 /*                        Global Variables                             */
 /*---------------------------------------------------------------------*/
@@ -133,9 +136,9 @@ static inline CCS_p mk_ccs()
 
 /*-----------------------------------------------------------------------
 //
-// Function: mk_task()
+// Function: CCSStoreCl()
 // 
-//   Make a default task cell
+//   Store a clause in the set that tracks the number of elements.
 //
 // Global Variables: -
 //
@@ -146,6 +149,32 @@ static inline CCS_p mk_ccs()
 static inline void CCSStoreCl(CCS_p set, Clause_p cl)
 {
    set->card += PTreeStore(&(set->set), cl) ? 1 : 0;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: CCSRemoveCl()
+// 
+//   Remove a clause from the set that tracks the number of elements.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static inline bool CCSRemoveCl(CCS_p set, Clause_p cl)
+{
+   PTree_p removed = PTreeExtractEntry(&(set->set), cl);
+   if(removed)
+   {
+      set->card--;
+      return true;
+   }
+   else
+   {
+      return false;
+   }
 }
 
 /*-----------------------------------------------------------------------
@@ -174,6 +203,9 @@ static inline PETask_p mk_task(FunCode fc)
    res->num_lit = 0;
    res->sq_vars = 0.0;
    res->size = 0;
+
+   res->last_check_num_lit = LONG_MAX;
+   res->sq_vars = INFINITY;
 
    res->heap_idx = -1;
 
@@ -213,16 +245,20 @@ void PETaskFree(PETask_p task)
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
-static inline bool find_fcode_except(Eqn_p cl, Eqn_p exc, FunCode fc)
+static inline Eqn_p find_fcode_except(Eqn_p cl, Eqn_p exc, FunCode fc)
 {
-   bool found = false;
+   Eqn_p found = NULL;
    while(!found && cl)
    {
-      found = cl != exc && !EqnIsEquLit(cl) && cl->lterm->f_code == fc;
+      if(cl != exc && !EqnIsEquLit(cl) && cl->lterm->f_code == fc)
+      {
+         found = cl;
+      }
       cl = cl->next;
    }
    return found;
 }
+
 
 /*-----------------------------------------------------------------------
 //
@@ -288,6 +324,101 @@ bool potential_gate(Clause_p cl, Eqn_p lit)
 
    PTreeFree(vars);
    return unique_vars;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: update_statistics()
+// 
+//   Update number of literals, clauses and \mu measure (square of the 
+//   number of different variables).
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void update_statistics(long* num_lit, long* set_size, double* mu, 
+                       Clause_p cl, bool negate)
+{
+   const int multiplier = negate ? -1 : 1;
+   *num_lit += ClauseLiteralNumber(cl)*multiplier;
+   *set_size += 1*multiplier;
+
+   PTree_p vars = NULL;
+   ClauseCollectVariables(cl, &vars);
+   long num_vars = PTreeNodes(vars);
+   PTreeFree(vars);
+   *mu += num_vars*num_vars*multiplier;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: scan_clause_for_predicates()
+// 
+//   Scans the clause for all the predicate literals and updates 
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void scan_clause_for_predicates(Clause_p cl, IntMap_p sym_map, MinHeap_p queue,
+                                long max_occs, bool recognize_gates, 
+                                bool* eqn_found)
+{
+   for(Eqn_p lit = cl->literals; lit; lit = lit->next)
+   {
+      if(!EqnIsEquLit(lit))
+      {
+         FunCode fc = lit->lterm->f_code;
+         bool sign = EqnIsPositive(lit);
+         PETask_p* task = (PETask_p*)IntMapGetRef(sym_map, fc);
+         if(!*task)
+         {
+            *task = mk_task(fc);
+         }
+
+         int occs = (*task)->offending_cls->card + 
+                     sign ? (*task)->pos_gates->card + (*task)->positive_singular->card :
+                            (*task)->neg_gates->card + (*task)->negative_singular->card;
+         
+         if(occs >= max_occs)
+         {
+            // blocking the task
+            (*task)->size = TASK_BLOCKED;
+         }
+
+         if((*task)->size != TASK_BLOCKED)
+         {
+            if(!find_fcode_except(cl->literals, lit, fc))
+            {
+               if(recognize_gates && potential_gate(cl, lit))
+               {
+                  CCSStoreCl(sign ? (*task)->pos_gates : (*task)->neg_gates, cl);
+               }
+               CCSStoreCl(sign ? (*task)->positive_singular : (*task)->negative_singular, cl);
+               /* in the beginning, we store potential gate clauses in both
+                  singular and gete sets, then we check if something really
+                  is a gate at the end and if so remove corresponding clauses
+                  from the singular set */
+            }
+            else
+            {
+               CCSStoreCl((*task)->offending_cls, cl);
+            }
+            update_statistics(&(*task)->num_lit, &(*task)->size,
+                              &(*task)->sq_vars, cl, false);
+            MinHeapUpdateElement(queue, (*task)->heap_idx);
+         }
+      }
+      else if(eqn_found)
+      {
+         *eqn_found = true;
+      }
+   }
 }
 
 /*-----------------------------------------------------------------------
@@ -719,30 +850,7 @@ void update_gate_status(IntMap_p sym_map, TB_p tmp_terms)
    IntMapIterFree(iter);
 }
 
-/*-----------------------------------------------------------------------
-//
-// Function: update_statistics()
-// 
-//   Update number of literals, clauses and \mu measure (square of the 
-//   number of different variables).
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
 
-void update_statistics(PETask_p task, Clause_p cl)
-{
-   task->num_lit += ClauseLiteralNumber(cl);
-   task->size += 1;
-
-   PTree_p vars = NULL;
-   ClauseCollectVariables(cl, &vars);
-   long num_vars = PTreeNodes(vars);
-   PTreeFree(vars);
-   task->sq_vars += num_vars*num_vars;
-}
 
 /*-----------------------------------------------------------------------
 //
@@ -769,54 +877,8 @@ void build_task_queue(ClauseSet_p passive, int max_occs, bool recognize_gates,
 
    for(Clause_p cl = passive->anchor->succ; cl!=passive->anchor; cl = cl->succ)
    {
-      for(Eqn_p lit = cl->literals; lit; lit = lit->next)
-      {
-         if(!EqnIsEquLit(lit))
-         {
-            FunCode fc = lit->lterm->f_code;
-            bool sign = EqnIsPositive(lit);
-            PETask_p* task = (PETask_p*)IntMapGetRef(sym_map, fc);
-            if(!*task)
-            {
-               *task = mk_task(fc);
-            }
-
-            int occs = (*task)->offending_cls->card + 
-                        sign ? (*task)->pos_gates->card + (*task)->positive_singular->card :
-                               (*task)->neg_gates->card + (*task)->negative_singular->card;
-            
-            if(occs >= max_occs)
-            {
-               // blocking the task
-               (*task)->size = -1;
-            }
-
-            if((*task)->size != -1)
-            {
-               if(!find_fcode_except(cl->literals, lit, fc))
-               {
-                  if(recognize_gates && potential_gate(cl, lit))
-                  {
-                     CCSStoreCl(sign ? (*task)->pos_gates : (*task)->neg_gates, cl);
-                  }
-                  CCSStoreCl(sign ? (*task)->positive_singular : (*task)->negative_singular, cl);
-                  /* in the beginning, we store potential gate clauses in both
-                     singular and gete sets, then we check if something really
-                     is a gate at the end and if so remove corresponding clauses
-                     from the singular set */
-               }
-               else
-               {
-                  CCSStoreCl((*task)->offending_cls, cl);
-               }
-               update_statistics(*task, cl);
-            }
-         }
-         else
-         {
-            *eqn_found = true;
-         }
-      }
+      scan_clause_for_predicates(cl, sym_map, task_queue,
+                                 max_occs, recognize_gates, eqn_found);
    }
    
    if(recognize_gates)
@@ -839,9 +901,11 @@ void build_task_queue(ClauseSet_p passive, int max_occs, bool recognize_gates,
 
 /*-----------------------------------------------------------------------
 //
-// Function: try_gate_elimination()
+// Function: do_singular_elimination()
 // 
-//   Tries to eliminate the symbol described by task by inlining gates.
+//   Assuming the clauses in pos_cls tree are the ones that have the positive
+//   singular occurence of sym and the neg_cls have the negative one,
+//   compute the only possible resolvent between them.
 //
 // Global Variables: -
 //
@@ -849,8 +913,109 @@ void build_task_queue(ClauseSet_p passive, int max_occs, bool recognize_gates,
 //
 /----------------------------------------------------------------------*/
 
-bool try_gate_elimination(PETask_p task, PStack_p cls)
+void do_singular_elimination(PTree_p pos_cls_tree, PTree_p neg_cls_tree, 
+                             FunCode sym, ResolverFun_p resolver, 
+                             PStack_p cls, TB_p tmp_terms)
 {
+   PStack_p pos_cls = PStackAlloc();
+   PStack_p neg_cls = PStackAlloc();
+   PTreeToPStack(pos_cls, pos_cls_tree);
+   PTreeToPStack(neg_cls, pos_cls_tree);
+
+   for(PStackPointer i=0; i<PStackGetSP(pos_cls); i++)
+   {
+      Clause_p pcl = PStackElementP(pos_cls, i);
+      for(PStackPointer j=0; j<PStackGetSP(neg_cls); j++)
+      {
+         Clause_p ncl = PStackElementP(neg_cls, j);
+         Clause_p rcl = resolver(pcl, ncl, sym);
+         if(!ClauseIsTautology(tmp_terms, rcl))
+         {
+            PStackPushP(cls, rcl);
+         }
+      }
+   }
+
+   PStackFree(pos_cls);
+   PStackFree(neg_cls);
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: do_gates_against_offending()
+// 
+//   Fixpoint computation in which all occurrences of sym in offending
+//   clauses are removed one by one by using the clauses in gates.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void do_gates_against_offending(PETask_p task, PStack_p cls, TB_p tmp_terms)
+{
+   PStack_p pos_cls = PStackAlloc();
+   PStack_p neg_cls = PStackAlloc();
+   PStack_p worklist = PStackAlloc();
+   PTreeToPStack(pos_cls, task->pos_gates->set);
+   PTreeToPStack(neg_cls, task->neg_gates->set);
+   PTreeToPStack(worklist, task->offending_cls->set);
+
+   while(!PStackEmpty(worklist))
+   {
+      Clause_p offending = PStackPopP(worklist);
+      Eqn_p sym_occ = find_fcode_except(offending->literals, NULL, task->sym);
+      if(!sym_occ)
+      {
+         // all occurrences of sym eliminated
+         PStackPushP(cls, offending);
+      }
+      else
+      {
+         bool sign = EqnIsPositive(sym_occ);
+         PStack_p gate_set = sign ? neg_cls : pos_cls;
+         for(PStackPointer i = 0; i<PStackGetSP(gate_set); i++)
+         {
+            Clause_p gate_cl = PStackElementP(gate_set, i);
+            Clause_p res = 
+               build_neq_resolvent(sign ? offending : gate_cl, 
+                                   sign ? gate_cl : offending, task->sym);
+            if(!ClauseIsTautology(tmp_terms, res))
+            {
+               PStackPushP(cls, res);
+            }
+         }
+      }
+   }
+
+   PStackFree(pos_cls);
+   PStackFree(neg_cls);
+   PStackFree(worklist);
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: try_gate_elimination()
+// 
+//   Fills cls with all the following resolvents: positive gates against
+//   singular negative clauses, negative gates against negative singular
+//   clauses and gates against all clauses in which symbol occurs multiple
+//   times.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void try_gate_elimination(PETask_p task, PStack_p cls, TB_p tmp_terms)
+{
+   do_singular_elimination(task->pos_gates->set, task->negative_singular->set,
+                           task->sym, build_neq_resolvent, cls, tmp_terms);
+   do_singular_elimination(task->neg_gates->set, task->neg_gates->set,
+                           task->sym, build_neq_resolvent, cls, tmp_terms);
+   do_gates_against_offending(task, cls, tmp_terms);
 }
 
 /*-----------------------------------------------------------------------
@@ -865,9 +1030,82 @@ bool try_gate_elimination(PETask_p task, PStack_p cls)
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
-bool try_singular_elimination(PETask_p task, PStack_p cls, ResolverFun_p res)
+void try_singular_elimination(PETask_p task, PStack_p cls, 
+                              ResolverFun_p resolver, TB_p tmp_terms)
 {
-   return false;
+   do_singular_elimination(task->positive_singular->set, task->negative_singular->set, 
+                           task->sym, resolver, cls, tmp_terms);
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: react_clause_added()
+// 
+//   Update data structures to reflect adding of the clause.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void react_clause_added(Clause_p cl, IntMap_p sym_map, MinHeap_p h, long max_occs)
+{
+   scan_clause_for_predicates(cl, sym_map, h, max_occs, false, NULL);
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: react_clause_removed()
+// 
+//   Update data structures to reflect removing of a clause.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void react_clause_removed(Clause_p cl, IntMap_p sym_map, MinHeap_p h)
+{
+   for(Eqn_p lit = cl->literals; lit; lit = lit->next)
+   {
+      if(!EqnIsEquLit(lit))
+      {
+         PETask_p task = IntMapGetVal(sym_map, lit->lterm->f_code);
+         bool sign = EqnIsPositive(lit);
+         if(task->size != TASK_BLOCKED)
+         {
+            bool removed_gate = false;
+            removed_gate = removed_gate || 
+               CCSRemoveCl(sign ? task->pos_gates : task->neg_gates, cl);
+            if(!removed_gate)
+            {
+               CCSRemoveCl(sign ? task->positive_singular : task->negative_singular, cl);
+               CCSRemoveCl(task->offending_cls, cl);
+               update_statistics(&(task)->num_lit, &(task)->size,
+                                  &(task)->sq_vars, cl, true);
+               if(!IN_HEAP(task) &&
+                  CAN_SCHEDULE(task) &&
+                  task->last_check_num_lit > task->num_lit &&
+                  task->last_check_sq_vars > task->sq_vars)
+               {
+                  MinHeapAddP(h, task);
+               }
+            }
+            else
+            {
+               assert(task->g_status == IS_GATE);
+               declare_not_gate(task);
+               if(IN_HEAP(task) && !CAN_SCHEDULE(task))
+               {
+                  MinHeapRemoveElement(h, task->heap_idx);
+               }
+            }
+            
+         }
+      }
+   }
 }
 
 /*-----------------------------------------------------------------------
@@ -883,18 +1121,34 @@ bool try_singular_elimination(PETask_p task, PStack_p cls, ResolverFun_p res)
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
+
+#define MERGE_AND_DELETE(target, source) PTreeMerge(target, source); source = NULL
 void remove_clauses_from_state(PETask_p task, IntMap_p sym_map,
-                               MinHeap_p task_queue)
+                               MinHeap_p task_queue, ClauseSet_p archive)
 {
-   return;
+   PTree_p* all_cls = &(task->pos_gates->set);
+   MERGE_AND_DELETE(all_cls, task->neg_gates->set);
+   MERGE_AND_DELETE(all_cls, task->positive_singular->set);
+   MERGE_AND_DELETE(all_cls, task->negative_singular->set);
+   MERGE_AND_DELETE(all_cls, task->offending_cls->set);
+   task->size = TASK_BLOCKED; // blocking the symbol!
+
+   PStack_p iter = PTreeTraverseInit(*all_cls);
+   PTree_p node;
+   while( (node = PTreeTraverseNext(iter)) )
+   {
+      Clause_p cl = node->key;
+      ClauseSetMoveClause(archive, cl);
+      react_clause_removed(cl, sym_map, task_queue);
+   }
+   PStackFree(iter);
 }
 
 /*-----------------------------------------------------------------------
 //
-// Function: add_clauses()
+// Function: measure_decreases()
 // 
-//   Adds new clauses to the state, which might make some other symbols
-//   non-removable anymore.
+//   Check if replacing the symbol decreases the measure.
 //
 // Global Variables: -
 //
@@ -902,9 +1156,20 @@ void remove_clauses_from_state(PETask_p task, IntMap_p sym_map,
 //
 /----------------------------------------------------------------------*/
 
-void add_clauses(IntMap_p sym_map, MinHeap_p h, PStack_p cls)
+bool measure_decreases(PETask_p task, PStack_p new_cls, int tolerance)
 {
-   return;
+   long num_lits = 0;
+   long set_size = 0;
+   double mu = 0.0;
+   for(PStackPointer i=0; i < PStackGetSP(new_cls); i++)
+   {
+      update_statistics(&num_lits, &set_size, &mu,
+                        PStackElementP(new_cls, i), false);
+   }
+
+   return num_lits < task->num_lit + tolerance ||
+          set_size < task->size + tolerance ||
+          mu <= task->sq_vars;
 }
 
 /*-----------------------------------------------------------------------
@@ -921,32 +1186,36 @@ void add_clauses(IntMap_p sym_map, MinHeap_p h, PStack_p cls)
 
 void eliminate_predicates(ClauseSet_p passive, ClauseSet_p archive, 
                           IntMap_p sym_map, MinHeap_p task_queue, 
-                          TB_p tmp_bank, ResolverFun_p resolver)
+                          TB_p tmp_bank, ResolverFun_p resolver,
+                          long max_occs, int measure_tolerance)
 {
    PStack_p cls = PStackAlloc();
    while(MinHeapSize(task_queue))
    {
       PETask_p task = MinHeapPopMinP(task_queue);
+      task->last_check_num_lit = task->num_lit;
+      task->last_check_sq_vars = task->sq_vars;
       if(task->g_status == IS_GATE)
       {
-         if(try_gate_elimination(task, cls))
-         {
-            remove_clauses_from_state(task, sym_map, task_queue);
-         }
+         try_gate_elimination(task, cls, tmp_bank);
       }
       else
       {
          assert(!task->offending_cls->card);
-         if(try_singular_elimination(task, cls, resolver))
+         try_singular_elimination(task, cls, resolver, tmp_bank);
+      }
+      
+      if(measure_decreases(task, cls, measure_tolerance))
+      {
+         remove_clauses_from_state(task, sym_map, task_queue, archive);
+         while(!PStackEmpty(cls))
          {
-            remove_clauses_from_state(task, sym_map, task_queue);
+            Clause_p cl = PStackPopP(cls);
+            ClauseSetInsert(passive, cl);
+            react_clause_added(cl, sym_map, task_queue, max_occs);
          }
       }
-      if(!PStackEmpty(cls))
-      {
-         add_clauses(sym_map, task_queue, cls);
-         PStackReset(cls);
-      }
+      PStackReset(cls);
    }
 }
 
@@ -977,7 +1246,7 @@ void idx_setter(void* task, int idx)
 
 void PredicateElimination(ClauseSet_p passive, ClauseSet_p archive,
                            int max_occs, bool recognize_gates,
-                           TB_p tmp_bank)
+                           int measure_tolerance, TB_p tmp_bank)
 {
    IntMap_p sym_map = IntMapAlloc();
    MinHeap_p task_queue = MinHeapAllocWithIndex(cmp_tasks, idx_setter);
@@ -987,7 +1256,8 @@ void PredicateElimination(ClauseSet_p passive, ClauseSet_p archive,
    long pre_elimination_cnt = ClauseSetCardinality(passive);
    ResolverFun_p resolver = eqn_found ? build_eq_resolvent : build_neq_resolvent;
    fprintf(stdout, "%% PE start: %ld", pre_elimination_cnt);
-   eliminate_predicates(passive, archive, sym_map, task_queue, tmp_bank, resolver);
+   eliminate_predicates(passive, archive, sym_map, task_queue, 
+                        tmp_bank, resolver, max_occs, measure_tolerance);
    fprintf(stdout, "%% PE eliminated: %ld", pre_elimination_cnt - ClauseSetCardinality(passive));
 
    MinHeapFree(task_queue);
