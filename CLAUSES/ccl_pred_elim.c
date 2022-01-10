@@ -441,7 +441,9 @@ static inline long max_cardinality(const PETask_p t)
    {
       assert(!t->offending_cls->card);
       res = t->pos_gates->card*t->negative_singular->card +
-            t->neg_gates->card*t->positive_singular->card;
+            t->neg_gates->card*t->positive_singular->card +
+            t->pos_gates->card*t->offending_cls->card + 
+            t->neg_gates->card*t->offending_cls->card;
    }
    else
    {
@@ -472,8 +474,8 @@ int cmp_tasks(IntOrP* ip_a, IntOrP* ip_b)
    PETask_p a = ip_a->p_val;
    PETask_p b = ip_b->p_val;
 
-   // prefering the ones that are singular
-   int res = BIN(a->offending_cls->card != 0) - BIN(b->offending_cls->card != 0);
+   // prefering the ones that can be scheduled
+   int res = BIN(CAN_SCHEDULE(a)) - BIN(CAN_SCHEDULE(b));
    EXIT_ON_DIFF(res);
    
    // prefering smaller sets
