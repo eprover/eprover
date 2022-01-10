@@ -100,7 +100,7 @@ typedef Clause_p (*ResolverFun_p)(Clause_p, Clause_p, FunCode);
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
-void set_proof_object(Clause_p new_clause, Clause_p p1, Clause_p p2,
+void update_proof_object(Clause_p new_clause, Clause_p p1, Clause_p p2,
                       DerivationCode dc)
 {
    new_clause->proof_depth =
@@ -612,7 +612,7 @@ Clause_p build_neq_resolvent(Clause_p p_cl, Clause_p n_cl, FunCode f)
       EqnListRemoveResolved(&p_rest);
       EqnListRemoveDuplicates(p_rest);
       res = ClauseAlloc(p_rest);
-      set_proof_object(res, p_cl, n_cl, DCPEResolve);
+      update_proof_object(res, p_cl, n_cl, DCPEResolve);
    }
    else
    {
@@ -669,7 +669,7 @@ Clause_p build_eq_resolvent(Clause_p p_cl, Clause_p n_cl, FunCode f)
    EqnListRemoveResolved(&p_rest);
    EqnListRemoveDuplicates(p_rest);
    Clause_p res = ClauseAlloc(p_rest);
-   set_proof_object(res, p_cl, n_cl, DCPEResolve);
+   update_proof_object(res, p_cl, n_cl, DCPEResolve);
    EqnFree(p_lit);
    EqnFree(n_lit);
 

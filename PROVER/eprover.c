@@ -35,6 +35,7 @@
 #include <cco_ho_inferences.h>
 #include <che_new_autoschedule.h>
 #include <ccl_bce.h>
+#include <ccl_pred_elim.h>
 #include <sys/mman.h>
 
 
@@ -593,6 +594,14 @@ int main(int argc, char* argv[])
       EliminateBlockedClauses(proofstate->axioms, proofstate->archive,
                               h_parms->bce_max_occs,
                               proofstate->tmp_terms);
+   }
+
+   if(problemType == PROBLEM_FO && h_parms->pred_elim)
+   {
+      // todo: eventually check if the problem in HO syntax is FO.
+      PredicateElimination(proofstate->axioms, proofstate->archive,
+                           h_parms->pred_elim_max_occs, h_parms->pred_elim_gates,
+                           h_parms->pred_elim_tolerance, proofstate->tmp_terms);
    }
 
    if(strategy_scheduling || auto_conf)
@@ -1964,13 +1973,16 @@ CLState_p process_options(int argc, char* argv[])
             h_parms->bce_max_occs = CLStateGetIntArgCheckRange(handle, arg, -1, INT_MAX);
             break;
       case OPT_PRED_ELIM:
-            h_parms->bce = CLStateGetBoolArg(handle, arg);
+            h_parms->pred_elim = CLStateGetBoolArg(handle, arg);
             break;
       case OPT_PRED_ELIM_GATES:
-            h_parms->bce_max_occs = CLStateGetIntArgCheckRange(handle, arg, -1, INT_MAX);
+            h_parms->pred_elim_gates = CLStateGetBoolArg(handle, arg);
             break;
       case OPT_PRED_ELIM_MAX_OCCS:
-            h_parms->lift_lambdas = CLStateGetBoolArg(handle, arg);
+            h_parms->pred_elim_max_occs = CLStateGetIntArgCheckRange(handle, arg, -1, INT_MAX);
+            break;
+      case OPT_PRED_ELIM_TOLERANCE:
+            h_parms->pred_elim_tolerance = CLStateGetIntArgCheckRange(handle, arg, 0, INT_MAX);
             break;
       case OPT_LAMBDA_TO_FORALL:
             h_parms->lambda_to_forall = CLStateGetBoolArg(handle, arg);

@@ -26,6 +26,8 @@ Changes
 
 #include <ccl_clausesets.h>
 
-struct PEAdminCell;
+void PredicateElimination(ClauseSet_p passive, ClauseSet_p archive,
+                           int max_occs, bool recognize_gates,
+                           int measure_tolerance, TB_p tmp_bank);
 
 #endif
