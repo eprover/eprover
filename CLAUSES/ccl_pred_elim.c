@@ -698,15 +698,18 @@ Clause_p build_eq_resolvent(Clause_p p_cl, Clause_p n_cl, FunCode f)
    {
       Eqn_p neq = EqnAlloc(p_lit->lterm->args[i], n_lit->lterm->args[i],
                            p_lit->bank, false);
-      EqnListInsertFirst(&cond, neq);
+      neq->next = cond;
+      cond = neq;
    }
 
-   cond = EqnListAppend(&cond, p_rest);
-   cond = EqnListAppend(&cond, n_rest);
+   DBG_PRINT(stderr, "cond: ", EqnListPrint(stderr, cond, "|", false, true), ".\n");
 
-   EqnListRemoveResolved(&p_rest);
-   EqnListRemoveDuplicates(p_rest);
-   Clause_p res = ClauseAlloc(p_rest);
+   EqnListAppend(&cond, p_rest);
+   EqnListAppend(&cond, n_rest);
+
+   EqnListRemoveResolved(&cond);
+   EqnListRemoveDuplicates(cond);
+   Clause_p res = ClauseAlloc(cond);
    update_proof_object(res, p_cl, n_cl, DCPEResolve);
    EqnFree(p_lit);
    EqnFree(n_lit);
@@ -757,13 +760,19 @@ void check_tautologies(PETask_p task, PStack_p unsat_core, TB_p tmp_terms)
    if(all_tautologies)
    {
       task->g_status = IS_GATE;
+      fprintf(stderr, "is_gate: %s;\n+: ", SigFindName(tmp_terms->sig, task->sym));
       while(!PStackEmpty(pos))
       {
-         CCSStoreCl(task->pos_gates, PStackPopP(pos));
+         Clause_p cl = PStackPopP(pos);
+         DBG_PRINT(stderr, "", ClausePrint(stderr, cl, true), "; ");
+         CCSStoreCl(task->pos_gates, cl);
       }
+      fprintf(stderr,"-:");
       while(!PStackEmpty(neg))
       {
-         CCSStoreCl(task->neg_gates, PStackPopP(neg));
+         Clause_p cl = PStackPopP(neg);
+         DBG_PRINT(stderr, "", ClausePrint(stderr, cl, true), "; ");
+         CCSStoreCl(task->neg_gates, cl);
       }
    }
 
