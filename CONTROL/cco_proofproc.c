@@ -1448,6 +1448,7 @@ void ProofStateInit(ProofState_p state, ProofControl_p control)
       }
    }
 
+   GlobalIndicesFreeIndices(&(state->gindices)); // if we are reinstantiating
    GlobalIndicesInit(&(state->gindices),
                      state->signature,
                      control->heuristic_parms.rw_bw_index_type,

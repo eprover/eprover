@@ -27,8 +27,9 @@ Changes
 #include <ccl_clausesets.h>
 
 void PredicateElimination(ClauseSet_p passive, ClauseSet_p archive,
-                           int max_occs, bool recognize_gates,
-                           int measure_tolerance, TB_p bank,
-                           TB_p tmp_bank, VarBank_p fresh_vars);
+                          ClauseSet_p add_to,
+                          int max_occs, bool recognize_gates,
+                          int measure_tolerance, TB_p bank,
+                          TB_p tmp_bank, VarBank_p fresh_vars);
 
 #endif

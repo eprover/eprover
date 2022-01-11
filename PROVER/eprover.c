@@ -575,6 +575,7 @@ int main(int argc, char* argv[])
                                                     proofstate->tmp_terms,
                                                     h_parms->eqdef_incrlimit,
                                                     h_parms->eqdef_maxclauses);
+   
    if(problemType == PROBLEM_HO && h_parms->inst_choice_max_depth >= 0)
    {
       ClauseSetRecognizeChoice(proofstate->choice_opcodes, 
@@ -582,30 +583,56 @@ int main(int argc, char* argv[])
                                proofstate->archive);
    }
 
-
-   if(h_parms->preinstantiate_induction)
+   if(!success && h_parms->preinstantiate_induction)
    {
       PreinstantiateInduction(proofstate->axioms, proofstate->archive, proofstate->terms);
    }
 
-   if(problemType == PROBLEM_FO && h_parms->bce)
+   
+   bool reset_proof_state = false;
+   if(h_parms->presat_interreduction)
    {
-      // todo: eventually check if the problem in HO syntax is FO.
-      EliminateBlockedClauses(proofstate->axioms, proofstate->archive,
+      ProofControl_p tmp_ctrl = ProofControlAlloc();
+      ProofControlInit(proofstate, tmp_ctrl, h_parms,
+                       fvi_parms, wfcb_definitions, hcb_definitions);
+      LiteralSelectionFun sel_strat =
+         tmp_ctrl->heuristic_parms.selection_strategy;
+      ProofStateInit(proofstate, tmp_ctrl);
+
+      tmp_ctrl->heuristic_parms.selection_strategy = SelectNoGeneration;
+      success = Saturate(proofstate, tmp_ctrl, LONG_MAX,
+                         LONG_MAX, LONG_MAX, LONG_MAX, LONG_MAX,
+                         LLONG_MAX, LONG_MAX);
+      fprintf(GlobalOut, "# Presaturation interreduction done\n");
+      tmp_ctrl->heuristic_parms.selection_strategy = sel_strat;
+      if(!success)
+      {
+         reset_proof_state = true;
+      }
+      ProofControlFree(tmp_ctrl);
+   }
+
+
+   if(!success && problemType == PROBLEM_FO && h_parms->bce)
+   {
+      EliminateBlockedClauses(reset_proof_state ? proofstate->unprocessed : proofstate->axioms, 
+                              proofstate->archive,
                               h_parms->bce_max_occs,
                               proofstate->tmp_terms);
    }
 
-   if(problemType == PROBLEM_FO && h_parms->pred_elim)
+   if(!success && problemType == PROBLEM_FO && h_parms->pred_elim)
    {
       // todo: eventually check if the problem in HO syntax is FO.
-      PredicateElimination(proofstate->axioms, proofstate->archive,
+      PredicateElimination(reset_proof_state ? proofstate->unprocessed : proofstate->axioms, 
+                           proofstate->archive, 
+                           reset_proof_state ? proofstate->tmp_store : proofstate->axioms,
                            h_parms->pred_elim_max_occs, h_parms->pred_elim_gates,
                            h_parms->pred_elim_tolerance, proofstate->terms,
                            proofstate->tmp_terms, proofstate->freshvars);
    }
 
-   if(strategy_scheduling || auto_conf)
+   if(!success && (strategy_scheduling || auto_conf))
    {
       if(!limits)
       {
@@ -655,6 +682,11 @@ int main(int argc, char* argv[])
    proofcontrol = ProofControlAlloc();
    ProofControlInit(proofstate, proofcontrol, h_parms,
                     fvi_parms, wfcb_definitions, hcb_definitions);
+   if(reset_proof_state)
+   {
+      ProofStateResetProcessed(proofstate, proofcontrol);
+      ProofStateResetProcessedSet(proofstate, proofcontrol, proofstate->tmp_store);
+   }
 
    // Unfold definitions and re-normalize
    PCLFullTerms = pcl_full_terms; /* Preprocessing always uses full
@@ -668,7 +700,10 @@ int main(int argc, char* argv[])
                      proofcontrol->heuristic_parms.ext_sup_max_depth);
    //printf("Alive (1)!\n");
 
-   ProofStateInit(proofstate, proofcontrol);
+   if(!reset_proof_state)
+   {
+      ProofStateInit(proofstate, proofcontrol);
+   }
    //printf("Alive (2)!\n");
 
    VERBOUT2("Prover state initialized\n");
@@ -678,22 +713,6 @@ int main(int argc, char* argv[])
       fprintf(GlobalOut, "# Preprocessing time       : %.3f s\n", preproc_time);
    }
 
-   if(proofcontrol->heuristic_parms.presat_interreduction)
-   {
-      LiteralSelectionFun sel_strat =
-         proofcontrol->heuristic_parms.selection_strategy;
-
-      proofcontrol->heuristic_parms.selection_strategy = SelectNoGeneration;
-      success = Saturate(proofstate, proofcontrol, LONG_MAX,
-                         LONG_MAX, LONG_MAX, LONG_MAX, LONG_MAX,
-                         LLONG_MAX, LONG_MAX);
-      fprintf(GlobalOut, "# Presaturation interreduction done\n");
-      proofcontrol->heuristic_parms.selection_strategy = sel_strat;
-      if(!success)
-      {
-         ProofStateResetProcessed(proofstate, proofcontrol);
-      }
-   }
    PERF_CTR_ENTRY(SatTimer);
 
 

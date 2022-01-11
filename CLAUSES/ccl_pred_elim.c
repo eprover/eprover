@@ -1270,7 +1270,7 @@ bool measure_decreases(PETask_p task, PStack_p new_cls, int tolerance)
 /----------------------------------------------------------------------*/
 
 
-void eliminate_predicates(ClauseSet_p passive, ClauseSet_p archive, 
+void eliminate_predicates(ClauseSet_p passive, ClauseSet_p archive, ClauseSet_p to_add,
                           IntMap_p sym_map, MinHeap_p task_queue, 
                           TB_p bank, TB_p tmp_bank, ResolverFun_p resolver,
                           long max_occs, int measure_tolerance,
@@ -1308,7 +1308,7 @@ void eliminate_predicates(ClauseSet_p passive, ClauseSet_p archive,
             // DBG_PRINT(stderr, "> ", ClausePrint(stderr, cl, true), "; ");
             ClauseNormalizeVars(cl, freshvars);
             EqnListMapTerms(cl->literals, reassign_vars, bank);
-            ClauseSetInsert(passive, cl);
+            ClauseSetInsert(to_add, cl);
             react_clause_added(cl, sym_map, task_queue, max_occs);
          }
          // fprintf(stderr, "\n");
@@ -1350,7 +1350,8 @@ void idx_setter(void* task, int idx)
    ((PETask_p)task)->heap_idx = idx;
 }
 
-void PredicateElimination(ClauseSet_p passive, ClauseSet_p archive,
+void PredicateElimination(ClauseSet_p passive, ClauseSet_p archive, 
+                           ClauseSet_p to_add,
                            int max_occs, bool recognize_gates,
                            int measure_tolerance, TB_p bank,
                            TB_p tmp_bank, VarBank_p fresh_vars)
@@ -1363,7 +1364,7 @@ void PredicateElimination(ClauseSet_p passive, ClauseSet_p archive,
    build_task_queue(passive, max_occs, recognize_gates, &sym_map, 
                     &task_queue, tmp_bank, &eqn_found);
    ResolverFun_p resolver = eqn_found ? build_eq_resolvent : build_neq_resolvent;
-   eliminate_predicates(passive, archive, sym_map, task_queue, 
+   eliminate_predicates(passive, archive, to_add, sym_map, task_queue, 
                         bank, tmp_bank, resolver, max_occs, 
                         measure_tolerance, fresh_vars);
    fprintf(stdout, "%% PE eliminated: %ld\n", pre_elimination_cnt - ClauseSetCardinality(passive));
