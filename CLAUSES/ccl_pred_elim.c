@@ -702,8 +702,6 @@ Clause_p build_eq_resolvent(Clause_p p_cl, Clause_p n_cl, FunCode f)
       cond = neq;
    }
 
-   DBG_PRINT(stderr, "cond: ", EqnListPrint(stderr, cond, "|", false, true), ".\n");
-
    EqnListAppend(&cond, p_rest);
    EqnListAppend(&cond, n_rest);
 
@@ -869,6 +867,7 @@ void check_unsat_and_tauto(PETask_p task, TB_p tmp_terms)
    PStackFree(unsat_core);
    SubstDelete(subst);
    picosat_reset(solver);
+   EqnFree(fresh_lit);
 }
 
 
@@ -1277,15 +1276,18 @@ void eliminate_predicates(ClauseSet_p passive, ClauseSet_p archive,
       
       if(measure_decreases(task, cls, measure_tolerance))
       {
+         DBG_PRINT(stderr, "removal successful:\n", dbg_print(stderr, tmp_bank->sig, task), ".\n");
          remove_clauses_from_state(task, sym_map, task_queue, archive);
          while(!PStackEmpty(cls))
          {
             Clause_p cl = PStackPopP(cls);
+            DBG_PRINT(stderr, "> ", ClausePrint(stderr, cl, true), "; ");
             ClauseNormalizeVars(cl, freshvars);
             EqnListMapTerms(cl->literals, reassign_vars, bank);
             ClauseSetInsert(passive, cl);
             react_clause_added(cl, sym_map, task_queue, max_occs);
          }
+         fprintf(stderr, "\n");
       }
       else
       {
@@ -1336,11 +1338,11 @@ void PredicateElimination(ClauseSet_p passive, ClauseSet_p archive,
                     &task_queue, tmp_bank, &eqn_found);
    long pre_elimination_cnt = ClauseSetCardinality(passive);
    ResolverFun_p resolver = eqn_found ? build_eq_resolvent : build_neq_resolvent;
-   fprintf(stdout, "%% PE start: %ld", pre_elimination_cnt);
+   fprintf(stdout, "%% PE start: %ld\n", pre_elimination_cnt);
    eliminate_predicates(passive, archive, sym_map, task_queue, 
                         bank, tmp_bank, resolver, max_occs, 
                         measure_tolerance, fresh_vars);
-   fprintf(stdout, "%% PE eliminated: %ld", pre_elimination_cnt - ClauseSetCardinality(passive));
+   fprintf(stdout, "%% PE eliminated: %ld\n", pre_elimination_cnt - ClauseSetCardinality(passive));
 
    MinHeapFree(task_queue);
    IntMapIter_p iter = IntMapIterAlloc(sym_map, 0, LONG_MAX);
