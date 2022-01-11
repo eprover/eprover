@@ -75,6 +75,13 @@ typedef Clause_p (*ResolverFun_p)(Clause_p, Clause_p, FunCode);
 
 #define CCSFree(junk) PTreeFree(junk->set); SizeFree(junk, sizeof(CheapClauseSet))
 #define TASK_BLOCKED (-1)
+
+// lifted lambda that simply gives DEREF NEVER to TBInsertOpt
+Term_p reassign_vars(void* bank, Term_p t)
+{
+   return TBInsertOpt(bank, t, DEREF_NEVER);
+}
+
 /*---------------------------------------------------------------------*/
 /*                        Global Variables                             */
 /*---------------------------------------------------------------------*/
@@ -418,7 +425,7 @@ void scan_clause_for_predicates(Clause_p cl, IntMap_p sym_map, MinHeap_p queue,
                      sign ? (*task)->pos_gates->card + (*task)->positive_singular->card :
                             (*task)->neg_gates->card + (*task)->negative_singular->card;
          
-         if(occs >= max_occs)
+         if(max_occs >= 0 && occs >= max_occs)
          {
             // blocking the task
             (*task)->size = TASK_BLOCKED;
@@ -476,7 +483,6 @@ static inline long max_cardinality(const PETask_p t)
    long res;
    if(t->g_status == IS_GATE)
    {
-      assert(!t->offending_cls->card);
       res = t->pos_gates->card*t->negative_singular->card +
             t->neg_gates->card*t->positive_singular->card +
             t->pos_gates->card*t->offending_cls->card + 
@@ -576,7 +582,7 @@ Eqn_p find_lit_w_head(Eqn_p lits, FunCode f, EqnRef rest, int sign)
    while(lits)
    {
       Eqn_p tmp = lits->next;
-      if (lits->lterm->f_code == f &&
+      if (!res && lits->lterm->f_code == f &&
          (sign == 0 || ((sign-1) == (EqnIsPositive(lits) ? 1 : 0))))
       {
          res = lits;
@@ -623,6 +629,7 @@ Term_p inst_term(TB_p bank, Term_p t)
 Clause_p build_neq_resolvent(Clause_p p_cl, Clause_p n_cl, FunCode f)
 {
    assert(p_cl != n_cl);
+
    Clause_p p_cpy = ClauseCopyDisjoint(p_cl);
    Eqn_p p_rest = NULL;
    Eqn_p p_lit = find_lit_w_head(p_cpy->literals, f, &p_rest, ONLY_POS);
@@ -635,11 +642,12 @@ Clause_p build_neq_resolvent(Clause_p p_cl, Clause_p n_cl, FunCode f)
 
    Subst_p subst = SubstAlloc();
    Clause_p res = NULL;
+
    if(SubstComputeMgu(n_lit->lterm, p_lit->lterm, subst))
    {
       EqnListMapTerms(p_rest, (TermMapper_p)inst_term, p_lit->bank);
       EqnListMapTerms(n_rest, (TermMapper_p)inst_term, n_lit->bank);
-      p_rest = EqnListAppend(&p_rest, n_rest);
+      EqnListAppend(&p_rest, n_rest);
       p_cpy->literals = NULL;
       n_cpy->literals = NULL;
       ClauseFree(p_cpy);
@@ -764,6 +772,7 @@ void check_tautologies(PETask_p task, PStack_p unsat_core, TB_p tmp_terms)
          Clause_p cl = PStackPopP(pos);
          DBG_PRINT(stderr, "", ClausePrint(stderr, cl, true), "; ");
          CCSStoreCl(task->pos_gates, cl);
+         CCSRemoveCl(task->positive_singular, cl);
       }
       fprintf(stderr,"-:");
       while(!PStackEmpty(neg))
@@ -771,6 +780,7 @@ void check_tautologies(PETask_p task, PStack_p unsat_core, TB_p tmp_terms)
          Clause_p cl = PStackPopP(neg);
          DBG_PRINT(stderr, "", ClausePrint(stderr, cl, true), "; ");
          CCSStoreCl(task->neg_gates, cl);
+         CCSRemoveCl(task->negative_singular, cl);
       }
    }
 
@@ -1010,7 +1020,8 @@ void do_singular_elimination(PTree_p pos_cls_tree, PTree_p neg_cls_tree,
 //
 /----------------------------------------------------------------------*/
 
-void do_gates_against_offending(PETask_p task, PStack_p cls, TB_p tmp_terms)
+void do_gates_against_offending(PETask_p task, PStack_p cls, 
+                                TB_p tmp_terms, VarBank_p freshvars)
 {
    PStack_p pos_cls = PStackAlloc();
    PStack_p neg_cls = PStackAlloc();
@@ -1041,12 +1052,19 @@ void do_gates_against_offending(PETask_p task, PStack_p cls, TB_p tmp_terms)
             assert(res);
             if(!ClauseIsTautology(tmp_terms, res))
             {
-               PStackPushP(cls, res);
+               ClauseNormalizeVars(res, freshvars);
+               EqnListMapTerms(res->literals, reassign_vars, sym_occ->bank);
+               PStackPushP(worklist, res);
             }
             else
             {
                ClauseFree(res);
             }
+         }
+         if(!PTreeFind(&(task->offending_cls->set), offending))
+         {
+            // this was intermediary clause
+            ClauseFree(offending);
          }
       }
    }
@@ -1071,13 +1089,14 @@ void do_gates_against_offending(PETask_p task, PStack_p cls, TB_p tmp_terms)
 //
 /----------------------------------------------------------------------*/
 
-void try_gate_elimination(PETask_p task, PStack_p cls, TB_p tmp_terms)
+void try_gate_elimination(PETask_p task, PStack_p cls, TB_p tmp_terms,
+                          VarBank_p freshvars)
 {
    do_singular_elimination(task->pos_gates->set, task->negative_singular->set,
                            task->sym, build_neq_resolvent, cls, tmp_terms);
    do_singular_elimination(task->positive_singular->set, task->neg_gates->set,
                            task->sym, build_neq_resolvent, cls, tmp_terms);
-   do_gates_against_offending(task, cls, tmp_terms);
+   do_gates_against_offending(task, cls, tmp_terms, freshvars);
 }
 
 /*-----------------------------------------------------------------------
@@ -1159,6 +1178,9 @@ void react_clause_removed(Clause_p cl, IntMap_p sym_map, MinHeap_p h)
             else
             {
                assert(task->g_status == IS_GATE);
+               PTreeMerge(&(task->positive_singular->set), task->pos_gates->set);
+               PTreeMerge(&(task->negative_singular->set), task->neg_gates->set);
+               task->neg_gates->set = task->pos_gates->set = NULL;
                declare_not_gate(task);
                if(IN_HEAP(task) && !CAN_SCHEDULE(task))
                {
@@ -1246,10 +1268,6 @@ bool measure_decreases(PETask_p task, PStack_p new_cls, int tolerance)
 //
 /----------------------------------------------------------------------*/
 
-Term_p reassign_vars(void* bank, Term_p t)
-{
-   return TBInsertOpt(bank, t, DEREF_NEVER);
-}
 
 void eliminate_predicates(ClauseSet_p passive, ClauseSet_p archive, 
                           IntMap_p sym_map, MinHeap_p task_queue, 
@@ -1264,9 +1282,14 @@ void eliminate_predicates(ClauseSet_p passive, ClauseSet_p archive,
       // DBG_PRINT(stderr, "chosen task:\n", dbg_print(stderr, tmp_bank->sig, task), ".\n");
       task->last_check_num_lit = task->num_lit;
       task->last_check_sq_vars = task->sq_vars;
+      if(task->size == TASK_BLOCKED)
+      {
+         continue;
+      }
+
       if(task->g_status == IS_GATE)
       {
-         try_gate_elimination(task, cls, tmp_bank);
+         try_gate_elimination(task, cls, tmp_bank, freshvars);
       }
       else
       {
@@ -1331,14 +1354,14 @@ void PredicateElimination(ClauseSet_p passive, ClauseSet_p archive,
                            int measure_tolerance, TB_p bank,
                            TB_p tmp_bank, VarBank_p fresh_vars)
 {
+   long pre_elimination_cnt = ClauseSetCardinality(passive);
+   fprintf(stdout, "%% PE start: %ld\n", pre_elimination_cnt);
    IntMap_p sym_map = IntMapAlloc();
    MinHeap_p task_queue = MinHeapAllocWithIndex(cmp_tasks, idx_setter);
    bool eqn_found;
    build_task_queue(passive, max_occs, recognize_gates, &sym_map, 
                     &task_queue, tmp_bank, &eqn_found);
-   long pre_elimination_cnt = ClauseSetCardinality(passive);
    ResolverFun_p resolver = eqn_found ? build_eq_resolvent : build_neq_resolvent;
-   fprintf(stdout, "%% PE start: %ld\n", pre_elimination_cnt);
    eliminate_predicates(passive, archive, sym_map, task_queue, 
                         bank, tmp_bank, resolver, max_occs, 
                         measure_tolerance, fresh_vars);
