@@ -245,7 +245,7 @@ static inline PETask_p mk_task(FunCode fc)
    res->size = 0;
 
    res->last_check_num_lit = LONG_MAX;
-   res->sq_vars = INFINITY;
+   res->last_check_sq_vars = INFINITY;
 
    res->heap_idx = -1;
 
@@ -425,7 +425,7 @@ void scan_clause_for_predicates(Clause_p cl, IntMap_p sym_map, MinHeap_p queue,
                      sign ? (*task)->pos_gates->card + (*task)->positive_singular->card :
                             (*task)->neg_gates->card + (*task)->negative_singular->card;
          
-         if(max_occs >= 0 && occs >= max_occs)
+         if(max_occs > 0 && occs >= max_occs)
          {
             // blocking the task
             (*task)->size = TASK_BLOCKED;
@@ -766,19 +766,19 @@ void check_tautologies(PETask_p task, PStack_p unsat_core, TB_p tmp_terms)
    if(all_tautologies)
    {
       task->g_status = IS_GATE;
-      fprintf(stderr, "is_gate: %s;\n+: ", SigFindName(tmp_terms->sig, task->sym));
+      // fprintf(stderr, "is_gate: %s;\n+: ", SigFindName(tmp_terms->sig, task->sym));
       while(!PStackEmpty(pos))
       {
          Clause_p cl = PStackPopP(pos);
-         DBG_PRINT(stderr, "", ClausePrint(stderr, cl, true), "; ");
+         // DBG_PRINT(stderr, "", ClausePrint(stderr, cl, true), "; ");
          CCSStoreCl(task->pos_gates, cl);
          CCSRemoveCl(task->positive_singular, cl);
       }
-      fprintf(stderr,"-:");
+      // fprintf(stderr,"-:");
       while(!PStackEmpty(neg))
       {
          Clause_p cl = PStackPopP(neg);
-         DBG_PRINT(stderr, "", ClausePrint(stderr, cl, true), "; ");
+         // DBG_PRINT(stderr, "", ClausePrint(stderr, cl, true), "; ");
          CCSStoreCl(task->neg_gates, cl);
          CCSRemoveCl(task->negative_singular, cl);
       }
@@ -1014,14 +1014,15 @@ void do_singular_elimination(PTree_p pos_cls_tree, PTree_p neg_cls_tree,
 //   Fixpoint computation in which all occurrences of sym in offending
 //   clauses are removed one by one by using the clauses in gates.
 //
-// Global Variables: -
+// Global Variables, ClauseSet_p archive: -
 //
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
 
-void do_gates_against_offending(PETask_p task, PStack_p cls, 
-                                TB_p tmp_terms, VarBank_p freshvars)
+void do_gates_against_offending(PETask_p task, PStack_p cls,
+                                TB_p tmp_terms, VarBank_p freshvars,
+                                ClauseSet_p archive)
 {
    PStack_p pos_cls = PStackAlloc();
    PStack_p neg_cls = PStackAlloc();
@@ -1064,7 +1065,7 @@ void do_gates_against_offending(PETask_p task, PStack_p cls,
          if(!PTreeFind(&(task->offending_cls->set), offending))
          {
             // this was intermediary clause
-            ClauseFree(offending);
+            ClauseSetInsert(archive, offending);
          }
       }
    }
@@ -1090,13 +1091,13 @@ void do_gates_against_offending(PETask_p task, PStack_p cls,
 /----------------------------------------------------------------------*/
 
 void try_gate_elimination(PETask_p task, PStack_p cls, TB_p tmp_terms,
-                          VarBank_p freshvars)
+                          VarBank_p freshvars, ClauseSet_p archive)
 {
    do_singular_elimination(task->pos_gates->set, task->negative_singular->set,
                            task->sym, build_neq_resolvent, cls, tmp_terms);
    do_singular_elimination(task->positive_singular->set, task->neg_gates->set,
                            task->sym, build_neq_resolvent, cls, tmp_terms);
-   do_gates_against_offending(task, cls, tmp_terms, freshvars);
+   do_gates_against_offending(task, cls, tmp_terms, freshvars, archive);
 }
 
 /*-----------------------------------------------------------------------
@@ -1251,9 +1252,9 @@ bool measure_decreases(PETask_p task, PStack_p new_cls, int tolerance)
                         PStackElementP(new_cls, i), false);
    }
 
-   return num_lits < task->num_lit + tolerance ||
-          set_size < task->size + tolerance ||
-          mu <= task->sq_vars;
+   return (num_lits < task->num_lit + tolerance) ||
+          (set_size < task->size + tolerance) ||
+          (mu < task->sq_vars);
 }
 
 /*-----------------------------------------------------------------------
@@ -1289,7 +1290,7 @@ void eliminate_predicates(ClauseSet_p passive, ClauseSet_p archive,
 
       if(task->g_status == IS_GATE)
       {
-         try_gate_elimination(task, cls, tmp_bank, freshvars);
+         try_gate_elimination(task, cls, tmp_bank, freshvars, archive);
       }
       else
       {
@@ -1299,18 +1300,18 @@ void eliminate_predicates(ClauseSet_p passive, ClauseSet_p archive,
       
       if(measure_decreases(task, cls, measure_tolerance))
       {
-         DBG_PRINT(stderr, "removal successful:\n", dbg_print(stderr, tmp_bank->sig, task), ".\n");
+         // DBG_PRINT(stderr, "removal successful:\n", dbg_print(stderr, tmp_bank->sig, task), ".\n");
          remove_clauses_from_state(task, sym_map, task_queue, archive);
          while(!PStackEmpty(cls))
          {
             Clause_p cl = PStackPopP(cls);
-            DBG_PRINT(stderr, "> ", ClausePrint(stderr, cl, true), "; ");
+            // DBG_PRINT(stderr, "> ", ClausePrint(stderr, cl, true), "; ");
             ClauseNormalizeVars(cl, freshvars);
             EqnListMapTerms(cl->literals, reassign_vars, bank);
             ClauseSetInsert(passive, cl);
             react_clause_added(cl, sym_map, task_queue, max_occs);
          }
-         fprintf(stderr, "\n");
+         // fprintf(stderr, "\n");
       }
       else
       {
