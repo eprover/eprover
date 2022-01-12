@@ -38,8 +38,7 @@ typedef CheapClauseSet* CCS_p;
 
 typedef enum 
 {
-   CANDIDATE = 0, // still checking... only to be used in initialization
-   IS_GATE = 1,
+   IS_GATE = 1, //values important
    NOT_GATE = 2
 } GateStatus;
 
@@ -185,9 +184,14 @@ static inline CCS_p mk_ccs()
 //
 /----------------------------------------------------------------------*/
 
-static inline void CCSStoreCl(CCS_p set, Clause_p cl)
+static inline bool CCSStoreCl(CCS_p set, Clause_p cl)
 {
-   set->card += PTreeStore(&(set->set), cl) ? 1 : 0;
+   bool inserted = PTreeStore(&(set->set), cl);
+   if(inserted)
+   {
+      set->card++;
+   }
+   return inserted;
 }
 
 /*-----------------------------------------------------------------------
@@ -239,6 +243,7 @@ static inline PETask_p mk_task(FunCode fc)
    res->offending_cls = mk_ccs();
    res->pos_gates = mk_ccs();
    res->neg_gates = mk_ccs();
+   res->g_status = NOT_GATE;
 
    res->num_lit = 0;
    res->sq_vars = 0.0;
@@ -433,13 +438,17 @@ void scan_clause_for_predicates(Clause_p cl, IntMap_p sym_map, MinHeap_p queue,
 
          if((*task)->size != TASK_BLOCKED)
          {
+            bool clause_inserted = false;
             if(!find_fcode_except(cl->literals, lit, fc))
             {
                if(recognize_gates && potential_gate(cl, lit))
                {
-                  CCSStoreCl(sign ? (*task)->pos_gates : (*task)->neg_gates, cl);
+                  clause_inserted = 
+                     CCSStoreCl(sign ? (*task)->pos_gates : (*task)->neg_gates, cl);
                }
-               CCSStoreCl(sign ? (*task)->positive_singular : (*task)->negative_singular, cl);
+               clause_inserted = 
+                  CCSStoreCl(sign ? (*task)->positive_singular : (*task)->negative_singular, cl) ||
+                  clause_inserted;
                /* in the beginning, we store potential gate clauses in both
                   singular and gete sets, then we check if something really
                   is a gate at the end and if so remove corresponding clauses
@@ -447,10 +456,14 @@ void scan_clause_for_predicates(Clause_p cl, IntMap_p sym_map, MinHeap_p queue,
             }
             else
             {
-               CCSStoreCl((*task)->offending_cls, cl);
+               clause_inserted = 
+                  CCSStoreCl((*task)->offending_cls, cl) || clause_inserted;
             }
-            update_statistics(&(*task)->num_lit, &(*task)->size,
-                              &(*task)->sq_vars, cl, false);
+            if(clause_inserted)
+            {
+               update_statistics(&(*task)->num_lit, &(*task)->size,
+                                 &(*task)->sq_vars, cl, false);
+            }
             if(IN_HEAP(*task))
             {
                (CAN_SCHEDULE(*task) ? MinHeapUpdateElement : MinHeapRemoveElement)
@@ -954,6 +967,11 @@ void build_task_queue(ClauseSet_p passive, int max_occs, bool recognize_gates,
    PETask_p t;
    while( (t = IntMapIterNext(iter, &key)) )
    {
+      if(!recognize_gates)
+      {
+         assert(t->pos_gates->card == 0 && t->neg_gates->card == 0);
+         t->g_status = NOT_GATE;
+      }
       if(CAN_SCHEDULE(t))
       {
          MinHeapAddP(task_queue, t);
@@ -1159,21 +1177,25 @@ void react_clause_removed(Clause_p cl, IntMap_p sym_map, MinHeap_p h)
          bool sign = EqnIsPositive(lit);
          if(task->size != TASK_BLOCKED)
          {
-            bool removed_gate = false;
-            removed_gate = removed_gate || 
-               CCSRemoveCl(sign ? task->pos_gates : task->neg_gates, cl);
-            if(!removed_gate)
+            bool removed = false;
+            removed = CCSRemoveCl(sign ? task->pos_gates : task->neg_gates, cl);
+            if(!removed)
             {
-               CCSRemoveCl(sign ? task->positive_singular : task->negative_singular, cl);
-               CCSRemoveCl(task->offending_cls, cl);
-               update_statistics(&(task)->num_lit, &(task)->size,
-                                  &(task)->sq_vars, cl, true);
-               if(!IN_HEAP(task) &&
-                  CAN_SCHEDULE(task) &&
-                  task->last_check_num_lit > task->num_lit &&
-                  task->last_check_sq_vars > task->sq_vars)
+               removed = 
+                  CCSRemoveCl(sign ? task->positive_singular : task->negative_singular, cl)
+                  || removed;
+               removed = CCSRemoveCl(task->offending_cls, cl) || removed;
+               if(removed)
                {
-                  MinHeapAddP(h, task);
+                  update_statistics(&(task)->num_lit, &(task)->size,
+                                    &(task)->sq_vars, cl, true);
+                  if(!IN_HEAP(task) &&
+                     CAN_SCHEDULE(task) &&
+                     task->last_check_num_lit > task->num_lit &&
+                     task->last_check_sq_vars > task->sq_vars)
+                  {
+                     MinHeapAddP(h, task);
+                  }
                }
             }
             else
@@ -1187,6 +1209,8 @@ void react_clause_removed(Clause_p cl, IntMap_p sym_map, MinHeap_p h)
                {
                   MinHeapRemoveElement(h, task->heap_idx);
                }
+               update_statistics(&(task)->num_lit, &(task)->size,
+                                    &(task)->sq_vars, cl, true);
             }
             
          }
@@ -1241,7 +1265,8 @@ void remove_clauses_from_state(PETask_p task, IntMap_p sym_map,
 //
 /----------------------------------------------------------------------*/
 
-bool measure_decreases(PETask_p task, PStack_p new_cls, int tolerance)
+bool measure_decreases(PETask_p task, PStack_p new_cls, int tolerance,
+                       bool force_mu_decrease)
 {
    long num_lits = 0;
    long set_size = 0;
@@ -1252,9 +1277,12 @@ bool measure_decreases(PETask_p task, PStack_p new_cls, int tolerance)
                         PStackElementP(new_cls, i), false);
    }
 
-   return (num_lits < task->num_lit + tolerance) ||
-          (set_size < task->size + tolerance) ||
-          (mu < task->sq_vars);
+   bool lit_cl_decrease = (num_lits < task->num_lit + tolerance) ||
+                          (set_size < task->size + tolerance);
+   bool mu_decrease = (mu < task->sq_vars + tolerance);
+
+   return force_mu_decrease ? mu_decrease && lit_cl_decrease
+                            : mu_decrease || lit_cl_decrease;
 }
 
 /*-----------------------------------------------------------------------
@@ -1270,11 +1298,10 @@ bool measure_decreases(PETask_p task, PStack_p new_cls, int tolerance)
 /----------------------------------------------------------------------*/
 
 
-void eliminate_predicates(ClauseSet_p passive, ClauseSet_p archive, ClauseSet_p to_add,
+void eliminate_predicates(ClauseSet_p passive, ClauseSet_p archive, 
                           IntMap_p sym_map, MinHeap_p task_queue, 
                           TB_p bank, TB_p tmp_bank, ResolverFun_p resolver,
-                          long max_occs, int measure_tolerance,
-                          VarBank_p freshvars)
+                          const HeuristicParms_p parms, VarBank_p freshvars)
 {
    PStack_p cls = PStackAlloc();
    while(MinHeapSize(task_queue))
@@ -1298,7 +1325,8 @@ void eliminate_predicates(ClauseSet_p passive, ClauseSet_p archive, ClauseSet_p 
          try_singular_elimination(task, cls, resolver, tmp_bank);
       }
       
-      if(measure_decreases(task, cls, measure_tolerance))
+      if(measure_decreases(task, cls, parms->pred_elim_tolerance,
+                           parms->pred_elim_force_mu_decrease))
       {
          // DBG_PRINT(stderr, "removal successful:\n", dbg_print(stderr, tmp_bank->sig, task), ".\n");
          remove_clauses_from_state(task, sym_map, task_queue, archive);
@@ -1308,8 +1336,8 @@ void eliminate_predicates(ClauseSet_p passive, ClauseSet_p archive, ClauseSet_p 
             // DBG_PRINT(stderr, "> ", ClausePrint(stderr, cl, true), "; ");
             ClauseNormalizeVars(cl, freshvars);
             EqnListMapTerms(cl->literals, reassign_vars, bank);
-            ClauseSetInsert(to_add, cl);
-            react_clause_added(cl, sym_map, task_queue, max_occs);
+            ClauseSetInsert(passive, cl);
+            react_clause_added(cl, sym_map, task_queue, parms->pred_elim_max_occs);
          }
          // fprintf(stderr, "\n");
       }
@@ -1350,23 +1378,20 @@ void idx_setter(void* task, int idx)
    ((PETask_p)task)->heap_idx = idx;
 }
 
-void PredicateElimination(ClauseSet_p passive, ClauseSet_p archive, 
-                           ClauseSet_p to_add,
-                           int max_occs, bool recognize_gates,
-                           int measure_tolerance, TB_p bank,
-                           TB_p tmp_bank, VarBank_p fresh_vars)
+void PredicateElimination(ClauseSet_p passive, ClauseSet_p archive,
+                          const HeuristicParms_p parms,  TB_p bank,
+                          TB_p tmp_bank, VarBank_p fresh_vars)
 {
    long pre_elimination_cnt = ClauseSetCardinality(passive);
    fprintf(stdout, "%% PE start: %ld\n", pre_elimination_cnt);
    IntMap_p sym_map = IntMapAlloc();
    MinHeap_p task_queue = MinHeapAllocWithIndex(cmp_tasks, idx_setter);
    bool eqn_found;
-   build_task_queue(passive, max_occs, recognize_gates, &sym_map, 
-                    &task_queue, tmp_bank, &eqn_found);
+   build_task_queue(passive, parms->pred_elim_max_occs, parms->pred_elim_gates, 
+                    &sym_map, &task_queue, tmp_bank, &eqn_found);
    ResolverFun_p resolver = eqn_found ? build_eq_resolvent : build_neq_resolvent;
-   eliminate_predicates(passive, archive, to_add, sym_map, task_queue, 
-                        bank, tmp_bank, resolver, max_occs, 
-                        measure_tolerance, fresh_vars);
+   eliminate_predicates(passive, archive, sym_map, task_queue, 
+                        bank, tmp_bank, resolver, parms, fresh_vars);
    fprintf(stdout, "%% PE eliminated: %ld\n", pre_elimination_cnt - ClauseSetCardinality(passive));
 
    MinHeapFree(task_queue);

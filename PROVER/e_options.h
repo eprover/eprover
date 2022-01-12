@@ -204,6 +204,7 @@ typedef enum
    OPT_BCE_MAX_OCCS,
    OPT_PRED_ELIM,
    OPT_PRED_ELIM_GATES,
+   OPT_PRED_ELIM_FORCE_MU_DECREASE,
    OPT_PRED_ELIM_MAX_OCCS,
    OPT_PRED_ELIM_TOLERANCE,
    OPT_LIFT_LAMBDAS,
@@ -1698,6 +1699,12 @@ OptCell opts[] =
 
     {OPT_PRED_ELIM_GATES,
     '\0', "pred-elim-recognize-gates", ReqArg, NULL, "Turn gate recognition for predicate elimination on or off"},
+
+    {OPT_PRED_ELIM_FORCE_MU_DECREASE,
+    '\0', "pred-elim-force-mu-decrease", ReqArg, NULL, 
+     "Require that the square number of distinct free variables "
+     "decreases when doing predicate elimination. Helps avoid "
+     "creating huge clauses."},
 
    {OPT_NOOPT,
     '\0', NULL,

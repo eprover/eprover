@@ -25,11 +25,10 @@ Changes
 #define CCL_PE
 
 #include <ccl_clausesets.h>
+#include <che_hcb.h>
 
 void PredicateElimination(ClauseSet_p passive, ClauseSet_p archive,
-                          ClauseSet_p add_to,
-                          int max_occs, bool recognize_gates,
-                          int measure_tolerance, TB_p bank,
+                          const HeuristicParms_p parms,  TB_p bank,
                           TB_p tmp_bank, VarBank_p fresh_vars);
 
 #endif

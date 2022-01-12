@@ -1103,10 +1103,6 @@ void ProofControlInit(ProofState_p state, ProofControl_p control,
    assert(!control->ocb);
    assert(!control->hcb);
 
-   SpecFeaturesCompute(&(control->problem_specs),
-                       state->axioms, state->f_axioms,
-                       state->f_ax_archive, state->terms);
-
    control->ocb = TOSelectOrdering(state, params,
                                    &(control->problem_specs));
 
@@ -1205,6 +1201,37 @@ void ProofStateResetProcessedSet(ProofState_p state,
    }
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: ProofStateMoveSetToTmp()
+//
+//   Lightweight version of ProofStateResetProcessedSet which simply
+//   moves all clauses from set to tmp_store without reevaluating
+//   clause evaluation features.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void ProofStateMoveSetToTmp(ProofState_p state,
+                            ProofControl_p control,
+                            ClauseSet_p set)
+{
+   Clause_p handle;
+
+   while((handle = ClauseSetExtractFirst(set)))
+   {
+      if(ClauseQueryProp(handle, CPIsGlobalIndexed))
+      {
+         GlobalIndicesDeleteClause(&(state->gindices), handle);
+      }
+      ClauseDelProp(handle, CPIsOriented);
+      ClauseSetInsert(state->tmp_store, handle);
+   }
+}
+
 
 /*-----------------------------------------------------------------------
 //
@@ -1224,6 +1251,26 @@ void ProofStateResetProcessed(ProofState_p state, ProofControl_p control)
    ProofStateResetProcessedSet(state, control, state->processed_pos_eqns);
    ProofStateResetProcessedSet(state, control, state->processed_neg_units);
    ProofStateResetProcessedSet(state, control, state->processed_non_units);
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: ProofStateMoveToTmpStore()
+//
+//   Move all clauses from the processed clause sets to tmp store.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void ProofStateMoveToTmpStore(ProofState_p state, ProofControl_p control)
+{
+   ProofStateMoveSetToTmp(state, control, state->processed_pos_rules);
+   ProofStateMoveSetToTmp(state, control, state->processed_pos_eqns);
+   ProofStateMoveSetToTmp(state, control, state->processed_neg_units);
+   ProofStateMoveSetToTmp(state, control, state->processed_non_units);
 }
 
 

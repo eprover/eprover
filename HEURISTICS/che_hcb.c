@@ -178,12 +178,13 @@ void HeuristicParmsInitialize(HeuristicParms_p handle)
    handle->prefer_initial_clauses        = false;
 
    handle->bce                           = false;
-   handle->bce_max_occs                  = 0;
+   handle->bce_max_occs                  = DEFAULT_SYM_OCCS;
 
    handle->pred_elim                     = false;
    handle->pred_elim_gates               = false;
-   handle->pred_elim_max_occs            = 0;
+   handle->pred_elim_max_occs            = DEFAULT_SYM_OCCS;
    handle->pred_elim_tolerance           = 0;
+   handle->pred_elim_force_mu_decrease   = false;
 
    handle->selection_strategy            = SelectNoLiterals;
    handle->pos_lit_sel_min               = 0;
@@ -586,6 +587,7 @@ bool HeuristicParmsParseInto(Scanner_p in,
 //    PARSE_BOOL(pred_elim_gates);
 //    PARSE_INT(pred_elim_max_occs);
 //    PARSE_INT(pred_elim_tolerance);
+//    PARSE_BOOL(pred_elim_force_mu_decrease);
 
    PARSE_IDENTIFIER(heuristic_name);
    PARSE_STRING(heuristic_def);

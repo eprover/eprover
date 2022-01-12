@@ -126,6 +126,7 @@ typedef struct heuristic_parms_cell
    bool                pred_elim_gates;
    int                 pred_elim_max_occs;
    int                 pred_elim_tolerance;
+   bool                pred_elim_force_mu_decrease;
 
 /* Clause selection elements */
    char                *heuristic_name;
@@ -275,6 +276,9 @@ typedef struct hcb_cell
 }HCBCell, *HCB_p;
 
 #define HCB_DEFAULT_HEURISTIC "Default"
+
+/* Default symbol occurrences limit for BCE and PE */
+#define DEFAULT_SYM_OCCS 512
 
 #define DEFAULT_FILTER_ORPHANS_LIMIT LONG_MAX
 #define DEFAULT_FORWARD_CONTRACT_LIMIT LONG_MAX
