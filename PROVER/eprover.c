@@ -636,7 +636,7 @@ int main(int argc, char* argv[])
          limits = CreateDefaultSpecLimits(); 
       }
       SpecFeatureCell features;
-      SpecFeaturesCompute(&features, presaturated ?  proofstate->tmp_store : proofstate->axioms, 
+      SpecFeaturesCompute(&features, proofstate->axioms, 
                           proofstate->f_axioms,
                           proofstate->f_ax_archive, proofstate->terms);
       // order info can be affected by clausification
