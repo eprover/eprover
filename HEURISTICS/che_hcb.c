@@ -420,6 +420,8 @@ void HeuristicParmsPrint(FILE* out, HeuristicParms_p handle)
    fprintf(out, "   forward_demod:                  %d\n", handle->forward_demod);
    fprintf(out, "   prefer_general:                 %s\n",
            BOOL2STR(handle->prefer_general));
+//    fprintf(out, "   lambda_demod:                 %s\n",
+//            BOOL2STR(handle->lambda_demod));
 
    fprintf(out, "   condensing:                     %s\n",
            BOOL2STR(handle->condensing));
@@ -663,6 +665,7 @@ bool HeuristicParmsParseInto(Scanner_p in,
    PARSE_BOOL(forward_subsumption_aggressive);
    PARSE_INT_LIMITED(forward_demod,0,2);
    PARSE_BOOL(prefer_general);
+   //PARSE_BOOL(lambda_demod);
    PARSE_BOOL(condensing);
    PARSE_BOOL(condensing_aggressive);
    PARSE_BOOL(er_varlit_destructive);
