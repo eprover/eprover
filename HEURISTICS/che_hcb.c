@@ -214,6 +214,7 @@ void HeuristicParmsInitialize(HeuristicParms_p handle)
 
    handle->forward_demod                 = FullRewrite;
    handle->prefer_general                = false;
+   handle->lambda_demod                  = false;
 
    handle->er_varlit_destructive         = false;
    handle->er_strong_destructive         = false;

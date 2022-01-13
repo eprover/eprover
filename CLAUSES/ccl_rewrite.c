@@ -43,7 +43,7 @@ long BWRWRwSuccesses = 0;
 /*---------------------------------------------------------------------*/
 
 static Term_p term_li_normalform(RWDesc_p desc, Term_p term,
-                                 bool restricted_rw);
+                                 bool restricted_rw, bool lambda_demod);
 
 /*---------------------------------------------------------------------*/
 /*                         Internal Functions                          */
@@ -717,7 +717,8 @@ static Term_p rewrite_with_clause_setlist(OCB_p ocb, TB_p bank, Term_p term,
    {
       assert(demodulators[i]);
 
-      if(SysDateIsEarlier(TermNFDate(term,level-1), demodulators[i]->date))
+      if(TermIsDBClosed(term) &&
+         SysDateIsEarlier(TermNFDate(term,level-1), demodulators[i]->date))
       {
          res = rewrite_with_clause_set(ocb, bank, term,
                                        TermNFDate(term,level-1),
@@ -748,13 +749,13 @@ static Term_p rewrite_with_clause_setlist(OCB_p ocb, TB_p bank, Term_p term,
 //
 /----------------------------------------------------------------------*/
 
-static bool term_subterm_rewrite(RWDesc_p desc, Term_p *term)
+static bool term_subterm_rewrite(RWDesc_p desc, Term_p *term, bool lambda_demod)
 {
    bool modified = false;
    Term_p new_term = TermTopCopyWithoutArgs(*term);
    int  i;
 
-   if(TermIsLambda(*term))
+   if(!lambda_demod && TermIsLambda(*term))
    {
       TermTopFree(new_term);
       return false;
@@ -762,7 +763,7 @@ static bool term_subterm_rewrite(RWDesc_p desc, Term_p *term)
 
    for(i=0; i<(*term)->arity; i++)
    {
-      new_term->args[i] = term_li_normalform(desc, (*term)->args[i], false);
+      new_term->args[i] = term_li_normalform(desc, (*term)->args[i], false, lambda_demod);
       modified = modified || (new_term->args[i]!= (*term)->args[i]);
    }
    if(modified)
@@ -796,7 +797,8 @@ static bool term_subterm_rewrite(RWDesc_p desc, Term_p *term)
 /----------------------------------------------------------------------*/
 
 static Term_p term_li_normalform(RWDesc_p desc, Term_p term,
-                                 bool restricted_rw)
+                                 bool restricted_rw,
+                                 bool lambda_demod)
 {
    bool    modified = true;
    Term_p new_term;
@@ -820,7 +822,7 @@ static Term_p term_li_normalform(RWDesc_p desc, Term_p term,
    }
    while(modified)
    {
-      modified = term_subterm_rewrite(desc, &term);
+      modified = term_subterm_rewrite(desc, &term, lambda_demod);
 
       if(!TermIsFreeVar(term))
       {
@@ -875,7 +877,8 @@ static Term_p term_li_normalform(RWDesc_p desc, Term_p term,
 //
 /----------------------------------------------------------------------*/
 
-EqnSide eqn_li_normalform(RWDesc_p desc, ClausePos_p pos, bool interred_rw)
+EqnSide eqn_li_normalform(RWDesc_p desc, ClausePos_p pos, 
+                          bool interred_rw, bool lambda_demod)
 {
    Eqn_p  eqn = pos->literal;
    Term_p l_old = eqn->lterm, r_old = eqn->rterm;
@@ -883,7 +886,8 @@ EqnSide eqn_li_normalform(RWDesc_p desc, ClausePos_p pos, bool interred_rw)
       EqnIsOriented(eqn) && interred_rw;
    EqnSide res = NoSide;
 
-   eqn->lterm =  term_li_normalform(desc, eqn->lterm, restricted_rw);
+   eqn->lterm =  term_li_normalform(desc, eqn->lterm, 
+                                    restricted_rw, lambda_demod);
    if(l_old!=eqn->lterm)
    {
       EqnDelProp(eqn, EPMaxIsUpToDate);
@@ -897,7 +901,7 @@ EqnSide eqn_li_normalform(RWDesc_p desc, ClausePos_p pos, bool interred_rw)
       TermComputeRWSequence(pos->clause->derivation,
                             l_old, ClausePosGetSide(pos), DCRewrite);
    }
-   eqn->rterm = term_li_normalform(desc, eqn->rterm, false);
+   eqn->rterm = term_li_normalform(desc, eqn->rterm, false, lambda_demod);
    if(r_old!=eqn->rterm)
    {
       if(EqnQueryProp(eqn, EPIsEquLiteral) && eqn->rterm == eqn->bank->true_term)
@@ -1186,13 +1190,13 @@ static long find_rewritable_clauses_indexed(Clause_p demod,
 Term_p TermComputeLINormalform(OCB_p ocb, TB_p bank, Term_p term,
                                ClauseSet_p *demodulators, RewriteLevel
                                level, bool prefer_general,
-                               bool restricted_rw)
+                               bool restricted_rw, bool lambda_demod)
 {
    Term_p res;
    RWDesc_p desc = rw_desc_cell_alloc(ocb, bank, demodulators, level,
                                       prefer_general);
 
-   res = term_li_normalform(desc, term, restricted_rw);
+   res = term_li_normalform(desc, term, restricted_rw, lambda_demod);
    RWDescCellFree(desc);
    return res;
 }
@@ -1212,8 +1216,8 @@ Term_p TermComputeLINormalform(OCB_p ocb, TB_p bank, Term_p term,
 /----------------------------------------------------------------------*/
 
 bool ClauseComputeLINormalform(OCB_p ocb, TB_p bank, Clause_p clause,
-                               ClauseSet_p *demodulators,
-                               RewriteLevel level, bool prefer_general)
+                               ClauseSet_p *demodulators, RewriteLevel level,
+                               bool prefer_general, bool lambda_demod)
 {
    Eqn_p handle;
    EqnSide tmp = NoSide;
@@ -1242,11 +1246,13 @@ bool ClauseComputeLINormalform(OCB_p ocb, TB_p bank, Clause_p clause,
       for(handle = clause->literals; handle; handle=handle->next)
       {
          pos.literal = handle;
-         tmp = eqn_li_normalform(desc, &pos, ClauseQueryProp(clause,CPLimitedRW));
+         tmp = eqn_li_normalform(desc, &pos, 
+                                 ClauseQueryProp(clause,CPLimitedRW),
+                                 lambda_demod);
          if((tmp&MaxSide)
             && EqnIsPositive(handle)
-            &&EqnIsMaximal(handle)
-            &&ClauseQueryProp(clause,CPLimitedRW))
+            && EqnIsMaximal(handle)
+            && ClauseQueryProp(clause,CPLimitedRW))
          {
             ClauseDelProp(clause,CPLimitedRW);
             /* We need to try everything again...*/
@@ -1286,7 +1292,7 @@ bool ClauseComputeLINormalform(OCB_p ocb, TB_p bank, Clause_p clause,
 long ClauseSetComputeLINormalform(OCB_p ocb, TB_p bank, ClauseSet_p
                                   set, ClauseSet_p *demodulators,
                                   RewriteLevel level, bool
-                                  prefer_general)
+                                  prefer_general, bool lambda_demod)
 {
    Clause_p handle;
    bool     tmp;
@@ -1301,7 +1307,8 @@ long ClauseSetComputeLINormalform(OCB_p ocb, TB_p bank, ClauseSet_p
                                       handle,
                                       demodulators,
                                       level,
-                                      prefer_general);
+                                      prefer_general,
+                                      lambda_demod);
 
       if(tmp)
       {

@@ -1916,11 +1916,11 @@ TFormula_p TFormulaNNF(TB_p terms, TFormula_p form, int polarity)
       }
       else
       {
-         if(!TFormulaIsLiteral(terms->sig, form))
-         {
-            DBG_TPRINT(stderr, "error: ", form, ".\n");
-            DBG_PRINT(stderr, "type: ", TypePrintTSTP(stderr, terms->sig->type_bank, form->type), ".\n");
-         }
+         // if(!TFormulaIsLiteral(terms->sig, form))
+         // {
+         //    DBG_TPRINT(stderr, "error: ", form, ".\n");
+         //    DBG_PRINT(stderr, "type: ", TypePrintTSTP(stderr, terms->sig->type_bank, form->type), ".\n");
+         // }
          assert(TFormulaIsLiteral(terms->sig, form)
                 && "Top level term not in normal form");
       }

@@ -164,6 +164,7 @@ typedef struct heuristic_parms_cell
 
    RewriteLevel        forward_demod;
    bool                prefer_general;
+   bool                lambda_demod;
 
    bool                condensing;
    bool                condensing_aggressive;

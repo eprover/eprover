@@ -157,6 +157,7 @@ typedef enum
    OPT_BACKWARD_CSR,
    OPT_RULES_GENERAL,
    OPT_FORWARD_DEMOD,
+   OPT_DEMOD_LAMBDA,
    OPT_STRONG_RHS_INSTANCE,
    OPT_STRONGSUBSUMPTION,
    OPT_SAT_STEP_INTERVAL,
@@ -1239,6 +1240,11 @@ OptCell opts[] =
     "value of 0 means no rewriting, 1 indicates to use rules "
     "(orientable equations) only, 2 indicates full rewriting with "
     "rules and instances of unorientable equations. Default behavior is 2."},
+
+   {OPT_DEMOD_LAMBDA,
+    '\0', "demod-under-lambda",
+    ReqArg, NULL,
+    "Demodulate *closed* subterms under lambdas."},
 
    {OPT_STRONG_RHS_INSTANCE,
     '\0', "strong-rw-inst",
