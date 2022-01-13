@@ -1680,6 +1680,9 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_DEMOD_LAMBDA:
             h_parms->lambda_demod = CLStateGetBoolArg(handle, arg);
             break;
+      case OPT_LIFT_LAMBDAS:
+            h_parms->lift_lambdas = CLStateGetBoolArg(handle, arg);
+            break;
       case OPT_STRONG_RHS_INSTANCE:
             h_parms->order_params.rewrite_strong_rhs_inst = true;
             break;

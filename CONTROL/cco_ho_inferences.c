@@ -210,6 +210,40 @@ Term_p abstract_arg(Term_p lhs, Term_p rhs, Term_p arg, TB_p bank, bool sign)
 //
 // Function: store_abstraction()
 //
+//   Adds the calculated abstraction to the store
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void add_abs_to_store(PObjMap_p* store, Term_p abstraction, Clause_p cl)
+{
+   PStack_p* res = (PStack_p*)
+      PObjMapGetRef(store, abstraction->type, PCmpFun, NULL);
+   if(!*res)
+   {
+      *res = PStackAlloc();
+   }
+   bool found = false;
+   for(PStackPointer i=0; !found && i < PStackGetSP(*res); i++)
+   {
+      PtrPair_p pair = PStackElementP(*res, i);
+      found = pair->x == abstraction; 
+   }
+   if (!found)
+   {
+      PtrPair_p pair = mk_ptr_pair(abstraction, cl);
+      PStackPushP(*res, pair);
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: store_abstraction()
+//
 //   Stores the computed inference with the given derivation code
 //   in the temporary store for the newly infered clauses.
 //
@@ -225,8 +259,7 @@ void store_abstraction(Clause_p cl, PObjMap_p* store)
    Eqn_p lit = cl->literals;
    Sig_p sig = lit->bank->sig;
 
-   if(lit->lterm->f_code == lit->rterm->f_code &&
-      lit->lterm->f_code > sig->internal_symbols)
+   if(lit->lterm->f_code > sig->internal_symbols)
    {
       assert(lit->lterm->arity == lit->rterm->arity);
       Term_p terms[2] = {lit->lterm, lit->rterm};
@@ -234,30 +267,27 @@ void store_abstraction(Clause_p cl, PObjMap_p* store)
       {
          Term_p t = terms[term_i];
          Term_p other = terms[1-term_i];
-         for(int arg_i=0; arg_i<lit->lterm->arity; arg_i++)
+         if(t->f_code == other->f_code)
          {
-            if(TermIsDBClosed(t->args[arg_i]) &&
-               TermIsSubterm(other, t->args[arg_i], DEREF_NEVER))
+            for(int arg_i=0; arg_i<lit->lterm->arity; arg_i++)
             {
-               Term_p abstraction = abstract_arg(t, other, t->args[arg_i],
-                                                  lit->bank, !EqnIsPositive(lit));
-               PStack_p* res = (PStack_p*)
-                  PObjMapGetRef(store, abstraction->type, PCmpFun, NULL);
-               if(!*res)
+               if(TermIsDBClosed(t->args[arg_i]) &&
+                  TermIsSubterm(other, t->args[arg_i], DEREF_NEVER))
                {
-                  *res = PStackAlloc();
+                  Term_p abstraction = abstract_arg(t, other, t->args[arg_i],
+                                                   lit->bank, !EqnIsPositive(lit));
+                  add_abs_to_store(store, abstraction, cl);
                }
-               bool found = false;
-               for(PStackPointer i=0; !found && i < PStackGetSP(*res); i++)
-               {
-                  PtrPair_p pair = PStackElementP(*res, i);
-                  found = pair->x == abstraction; 
-               }
-               if (!found)
-               {
-                  PtrPair_p pair = mk_ptr_pair(abstraction, cl);
-                  PStackPushP(*res, pair);
-               }
+            }
+         }
+         else
+         {
+            assert(TermIsDBClosed(t) && TermIsDBClosed(other));
+            if(TermIsSubterm(other, t, DEREF_NEVER))
+            {
+               Term_p abstraction = abstract_arg(t, other, t,
+                                                 lit->bank, !EqnIsPositive(lit));
+               add_abs_to_store(store, abstraction, cl);
             }
          }
       }
