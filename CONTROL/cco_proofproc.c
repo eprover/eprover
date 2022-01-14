@@ -1504,6 +1504,7 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control,
    {
       return NULL;
    }
+   
    //EvalListPrintComment(GlobalOut, clause->evaluations); printf("\n");
    if(OutputLevel==1)
    {

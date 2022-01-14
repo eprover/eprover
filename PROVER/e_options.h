@@ -228,6 +228,7 @@ typedef enum
    OPT_PATTERN_ORACLE,
    OPT_FIXPOINT_ORACLE,
    OPT_MAX_UNIFIERS,
+   OPT_MAX_UNIF_STEPS,
    OPT_CNF_TIMEOUT_PORTION,
    OPT_PREINSTANTIATE_INDUCTION,
    OPT_DUMMY
@@ -1669,6 +1670,13 @@ OptCell opts[] =
     '\0', "max-unifiers",
     ReqArg, NULL,
     "Maximal number of imitations"},
+    
+    {OPT_MAX_UNIF_STEPS,
+    '\0', "max-unif-steps",
+    ReqArg, NULL,
+    "Maximal number of variable bindings that can "
+    "be done in one single call to copmuting the next unifier."},
+
 
     {OPT_CNF_TIMEOUT_PORTION,
     '\0', "classification-timeout-portion",
