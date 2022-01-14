@@ -49,10 +49,11 @@ bool SubtermIndexDeleteOcc(SubtermIndex_p index, Clause_p clause,
 
 long ClauseCollectIdxSubterms(Clause_p clause,
                               PTree_p *rest,
-                              PTree_p *full);
+                              PTree_p *full,
+                              bool lambda_demod);
 
-void SubtermIndexInsertClause(SubtermIndex_p index, Clause_p clause);
-void SubtermIndexDeleteClause(SubtermIndex_p index, Clause_p clause);
+void SubtermIndexInsertClause(SubtermIndex_p index, Clause_p clause, bool lambda_demod);
+void SubtermIndexDeleteClause(SubtermIndex_p index, Clause_p clause, bool lambda_demod);
 
 #endif
 
