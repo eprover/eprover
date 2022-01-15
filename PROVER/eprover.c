@@ -575,7 +575,6 @@ int main(int argc, char* argv[])
                                                     proofstate->tmp_terms,
                                                     h_parms->eqdef_incrlimit,
                                                     h_parms->eqdef_maxclauses);
-   
    if(problemType == PROBLEM_HO && h_parms->inst_choice_max_depth >= 0)
    {
       ClauseSetRecognizeChoice(proofstate->choice_opcodes, 
@@ -583,61 +582,37 @@ int main(int argc, char* argv[])
                                proofstate->archive);
    }
 
-   if(!success && h_parms->preinstantiate_induction)
+
+   if(h_parms->preinstantiate_induction)
    {
       PreinstantiateInduction(proofstate->axioms, proofstate->archive, proofstate->terms);
    }
 
-   
-   bool presaturated = h_parms->presat_interreduction; // h_params is wiped out
-   if(h_parms->presat_interreduction)
+   if(problemType == PROBLEM_FO && h_parms->bce)
    {
-      ProofControl_p tmp_ctrl = ProofControlAlloc();
-      ProofControlInit(proofstate, tmp_ctrl, h_parms,
-                       fvi_parms, wfcb_definitions, hcb_definitions);
-      LiteralSelectionFun sel_strat =
-         tmp_ctrl->heuristic_parms.selection_strategy;
-      ProofStateInit(proofstate, tmp_ctrl);
-
-      tmp_ctrl->heuristic_parms.selection_strategy = SelectNoGeneration;
-      success = Saturate(proofstate, tmp_ctrl, LONG_MAX,
-                         LONG_MAX, LONG_MAX, LONG_MAX, LONG_MAX,
-                         LLONG_MAX, LONG_MAX);
-      fprintf(GlobalOut, "# Presaturation interreduction done\n");
-      tmp_ctrl->heuristic_parms.selection_strategy = sel_strat;
-      // after presaturation we store everything in tmp_store
-      // and then when proof control is initialized when search
-      // starts, move everything from tmp to unprocesseds
-      ProofStateMoveToTmpStore(proofstate, tmp_ctrl);
-      ProofControlFree(tmp_ctrl);
-   }
-
-
-   if(!success && problemType == PROBLEM_FO && h_parms->bce)
-   {
-      EliminateBlockedClauses(presaturated ? proofstate->tmp_store : proofstate->axioms, 
-                              proofstate->archive,
+      // todo: eventually check if the problem in HO syntax is FO.
+      EliminateBlockedClauses(proofstate->axioms, proofstate->archive,
                               h_parms->bce_max_occs,
                               proofstate->tmp_terms);
    }
 
-   if(!success && problemType == PROBLEM_FO && h_parms->pred_elim)
+   if(problemType == PROBLEM_FO && h_parms->pred_elim)
    {
       // todo: eventually check if the problem in HO syntax is FO.
-      PredicateElimination(presaturated ? proofstate->tmp_store : proofstate->axioms, 
-                           proofstate->archive, h_parms, proofstate->terms,
+      PredicateElimination(proofstate->axioms, proofstate->archive,
+                           h_parms->pred_elim_max_occs, h_parms->pred_elim_gates,
+                           h_parms->pred_elim_tolerance, proofstate->terms,
                            proofstate->tmp_terms, proofstate->freshvars);
    }
 
-   if(!success && (strategy_scheduling || auto_conf))
+   if(strategy_scheduling || auto_conf)
    {
       if(!limits)
       {
          limits = CreateDefaultSpecLimits(); 
       }
       SpecFeatureCell features;
-      SpecFeaturesCompute(&features, proofstate->axioms, 
-                          proofstate->f_axioms,
+      SpecFeaturesCompute(&features, proofstate->axioms, proofstate->f_axioms,
                           proofstate->f_ax_archive, proofstate->terms);
       // order info can be affected by clausification
       // (imagine new symbols being introduced)
@@ -680,10 +655,6 @@ int main(int argc, char* argv[])
    proofcontrol = ProofControlAlloc();
    ProofControlInit(proofstate, proofcontrol, h_parms,
                     fvi_parms, wfcb_definitions, hcb_definitions);
-   if(presaturated)
-   {
-      ProofStateResetProcessedSet(proofstate, proofcontrol, proofstate->tmp_store);
-   }
 
    // Unfold definitions and re-normalize
    PCLFullTerms = pcl_full_terms; /* Preprocessing always uses full
@@ -697,11 +668,7 @@ int main(int argc, char* argv[])
                      proofcontrol->heuristic_parms.ext_sup_max_depth);
    //printf("Alive (1)!\n");
 
-   if(!presaturated)
-   {
-      // presaturation already initialized everything it should have.
-      ProofStateInit(proofstate, proofcontrol);
-   }
+   ProofStateInit(proofstate, proofcontrol);
    //printf("Alive (2)!\n");
 
    VERBOUT2("Prover state initialized\n");
@@ -711,6 +678,22 @@ int main(int argc, char* argv[])
       fprintf(GlobalOut, "# Preprocessing time       : %.3f s\n", preproc_time);
    }
 
+   if(proofcontrol->heuristic_parms.presat_interreduction)
+   {
+      LiteralSelectionFun sel_strat =
+         proofcontrol->heuristic_parms.selection_strategy;
+
+      proofcontrol->heuristic_parms.selection_strategy = SelectNoGeneration;
+      success = Saturate(proofstate, proofcontrol, LONG_MAX,
+                         LONG_MAX, LONG_MAX, LONG_MAX, LONG_MAX,
+                         LLONG_MAX, LONG_MAX);
+      fprintf(GlobalOut, "# Presaturation interreduction done\n");
+      proofcontrol->heuristic_parms.selection_strategy = sel_strat;
+      if(!success)
+      {
+         ProofStateResetProcessed(proofstate, proofcontrol);
+      }
+   }
    PERF_CTR_ENTRY(SatTimer);
 
 
@@ -1694,6 +1677,12 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_FORWARD_DEMOD:
             h_parms->forward_demod = CLStateGetIntArgCheckRange(handle, arg, 0, 2);
             break;
+      case OPT_DEMOD_LAMBDA:
+            h_parms->lambda_demod = CLStateGetBoolArg(handle, arg);
+            break;
+      case OPT_LIFT_LAMBDAS:
+            h_parms->lift_lambdas = CLStateGetBoolArg(handle, arg);
+            break;
       case OPT_STRONG_RHS_INSTANCE:
             h_parms->order_params.rewrite_strong_rhs_inst = true;
             break;
@@ -1960,6 +1949,9 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_MAX_UNIFIERS:
             h_parms->max_unifiers = CLStateGetIntArgCheckRange(handle, arg, 0, 1024);
             break;
+      case OPT_MAX_UNIF_STEPS:
+            h_parms->max_unif_steps = CLStateGetIntArgCheckRange(handle, arg, 0, 100000);
+            break;
       case OPT_UNIF_MODE:
             unif_mode = STR2UM(arg);
             if(unif_mode==-1)
@@ -2001,9 +1993,6 @@ CLState_p process_options(int argc, char* argv[])
             break;
       case OPT_PRED_ELIM_TOLERANCE:
             h_parms->pred_elim_tolerance = CLStateGetIntArgCheckRange(handle, arg, 0, INT_MAX);
-            break;
-      case OPT_PRED_ELIM_FORCE_MU_DECREASE:
-            h_parms->pred_elim_force_mu_decrease = CLStateGetBoolArg(handle, arg);
             break;
       case OPT_LAMBDA_TO_FORALL:
             h_parms->lambda_to_forall = CLStateGetBoolArg(handle, arg);
