@@ -1244,7 +1244,7 @@ void ProofStateMoveSetToTmp(ProofState_p state,
    {
       if(ClauseQueryProp(handle, CPIsGlobalIndexed))
       {
-         GlobalIndicesDeleteClause(&(state->gindices), handle);
+         GlobalIndicesDeleteClause(&(state->gindices), handle, control->heuristic_parms.lambda_demod);
       }
       ClauseDelProp(handle, CPIsOriented);
       ClauseSetInsert(state->tmp_store, handle);

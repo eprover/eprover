@@ -156,7 +156,7 @@ PStackPointer SubstNormTerm(Term_p term, Subst_p subst, VarBank_p vars, Sig_p si
    PStackPointer ret = PStackGetSP(subst);
    PLocalStackInit(stack);
    PLocalStackPush(stack, term);
-   assert(TermGetBank(term));
+   // assert(TermGetBank(term));
 
    Term_p (*deref)(Term_p) = 
       problemType == PROBLEM_HO ? WHNF_deref : TermDerefAlways;

@@ -389,6 +389,8 @@ int main(int argc, char* argv[])
    double           preproc_time;
    SpecLimits_p limits = NULL;
    Derivation_p deriv;
+   SpecFeatureCell features;
+
 
    assert(argv[0]);
 
@@ -547,6 +549,23 @@ int main(int argc, char* argv[])
       VERBOUT("CNFization done\n");
    }
 
+   if(strategy_scheduling || auto_conf)
+   {
+      if(!limits)
+      {
+         limits = CreateDefaultSpecLimits(); 
+      }
+      SpecFeaturesCompute(&features, proofstate->axioms, proofstate->f_axioms,
+                          proofstate->f_ax_archive, proofstate->terms);
+      // order info can be affected by clausification
+      // (imagine new symbols being introduced)
+      features.order = raw_features.order;
+      features.goal_order = raw_features.conj_order;
+      features.num_of_definitions = raw_features.num_of_definitions;
+      features.perc_of_form_defs = raw_features.perc_of_form_defs;
+      SpecFeaturesAddEval(&features, limits);
+   }
+
    raw_clause_no = proofstate->axioms->members;
    ProofStateLoadWatchlist(proofstate, watchlist_filename, parse_format);
 
@@ -600,27 +619,12 @@ int main(int argc, char* argv[])
    {
       // todo: eventually check if the problem in HO syntax is FO.
       PredicateElimination(proofstate->axioms, proofstate->archive,
-                           h_parms->pred_elim_max_occs, h_parms->pred_elim_gates,
-                           h_parms->pred_elim_tolerance, proofstate->terms,
+                           h_parms, proofstate->terms,
                            proofstate->tmp_terms, proofstate->freshvars);
    }
 
    if(strategy_scheduling || auto_conf)
    {
-      if(!limits)
-      {
-         limits = CreateDefaultSpecLimits(); 
-      }
-      SpecFeatureCell features;
-      SpecFeaturesCompute(&features, proofstate->axioms, proofstate->f_axioms,
-                          proofstate->f_ax_archive, proofstate->terms);
-      // order info can be affected by clausification
-      // (imagine new symbols being introduced)
-      features.order = raw_features.order;
-      features.goal_order = raw_features.conj_order;
-      features.num_of_definitions = raw_features.num_of_definitions;
-      features.perc_of_form_defs = raw_features.perc_of_form_defs;
-      SpecFeaturesAddEval(&features, limits);
       char* class = SpecTypeString(&features, DEFAULT_MASK);
       fprintf(stdout, "# Search class: %s\n", class);
       if (strategy_scheduling)
@@ -1993,6 +1997,9 @@ CLState_p process_options(int argc, char* argv[])
             break;
       case OPT_PRED_ELIM_TOLERANCE:
             h_parms->pred_elim_tolerance = CLStateGetIntArgCheckRange(handle, arg, 0, INT_MAX);
+            break;
+      case OPT_PRED_ELIM_FORCE_MU_DECREASE:
+            h_parms->pred_elim_force_mu_decrease = CLStateGetBoolArg(handle, arg);
             break;
       case OPT_LAMBDA_TO_FORALL:
             h_parms->lambda_to_forall = CLStateGetBoolArg(handle, arg);
