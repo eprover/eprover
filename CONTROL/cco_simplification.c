@@ -60,11 +60,12 @@
 void ClauseMoveSimplified(GlobalIndices_p gindices,
                           Clause_p clause,
                           ClauseSet_p tmp_set,
-                          ClauseSet_p archive)
+                          ClauseSet_p archive,
+                          bool lambda_demod)
 {
    Clause_p new_clause;
    // printf("# Removing %p from %p: ", clause, clause->set);ClausePrint(stdout, clause, true);printf("\n");
-   GlobalIndicesDeleteClause(gindices, clause);
+   GlobalIndicesDeleteClause(gindices, clause, lambda_demod);
    DocClauseQuoteDefault(6, clause, "simplifiable");
 
    ClauseSetExtractEntry(clause);
@@ -90,7 +91,8 @@ void ClauseMoveSimplified(GlobalIndices_p gindices,
 bool RemoveRewritableClauses(OCB_p ocb, ClauseSet_p from, ClauseSet_p into,
                              ClauseSet_p archive,
                              Clause_p new_demod, SysDate nf_date,
-                             GlobalIndices_p gindices)
+                             GlobalIndices_p gindices,
+                             bool lambda_demod)
 {
    PStack_p stack = PStackAlloc();
    Clause_p handle;
@@ -101,7 +103,7 @@ bool RemoveRewritableClauses(OCB_p ocb, ClauseSet_p from, ClauseSet_p into,
    {
       handle = PStackPopP(stack);
 
-      ClauseMoveSimplified(gindices, handle, into, archive);
+      ClauseMoveSimplified(gindices, handle, into, archive, lambda_demod);
    }
    PStackFree(stack);
 
@@ -125,7 +127,7 @@ bool RemoveRewritableClauses(OCB_p ocb, ClauseSet_p from, ClauseSet_p into,
 bool RemoveRewritableClausesIndexed(OCB_p ocb, ClauseSet_p into,
                                     ClauseSet_p archive,
                                     Clause_p new_demod, SysDate nf_date,
-                                    GlobalIndices_p gindices)
+                                    GlobalIndices_p gindices, bool lambda_demod)
 {
    PStack_p stack = PStackAlloc();
    Clause_p handle;
@@ -138,7 +140,7 @@ bool RemoveRewritableClausesIndexed(OCB_p ocb, ClauseSet_p into,
       handle = PStackPopP(stack);
       // printf("# XXX RWRemoving %p from %p with index %p (flag %d): ", handle, handle->set, gindices, ClauseQueryProp(handle, CPIsGlobalIndexed)); ClausePrint(stdout, handle, true); printf("\n");
       ClauseDelProp(handle, CPRWDetected);
-      ClauseMoveSimplified(gindices, handle, into, archive);
+      ClauseMoveSimplified(gindices, handle, into, archive, lambda_demod);
    }
    PStackFree(stack);
 
@@ -162,7 +164,7 @@ bool RemoveRewritableClausesIndexed(OCB_p ocb, ClauseSet_p into,
 
 long ClauseSetUnitSimplify(ClauseSet_p set, Clause_p simplifier,
                            ClauseSet_p tmp_set, ClauseSet_p archive,
-                           GlobalIndices_p gindices)
+                           GlobalIndices_p gindices, bool lambda_demod)
 {
    Clause_p handle, move;
    long res = 0,tmp;
@@ -175,7 +177,7 @@ long ClauseSetUnitSimplify(ClauseSet_p set, Clause_p simplifier,
       handle = handle->succ;
       if(tmp)
       {
-         ClauseMoveSimplified(gindices, move, tmp_set, archive);
+         ClauseMoveSimplified(gindices, move, tmp_set, archive, lambda_demod);
          res++;
       }
    }
@@ -199,7 +201,8 @@ long RemoveContextualSRClauses(ClauseSet_p from,
                                ClauseSet_p into,
                                ClauseSet_p archive,
                                Clause_p simplifier,
-                               GlobalIndices_p gindices)
+                               GlobalIndices_p gindices,
+                               bool lambda_demod)
 {
    PStack_p stack = PStackAlloc();
    long res = 0;
@@ -213,7 +216,7 @@ long RemoveContextualSRClauses(ClauseSet_p from,
       if(handle->set == from) /* Clauses may be found more than once
                                  by ClauseSetFindContextSRClauses() */
       {
-         ClauseMoveSimplified(gindices, handle, into, archive);
+         ClauseMoveSimplified(gindices, handle, into, archive, lambda_demod);
          res++;
       }
    }

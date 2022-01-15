@@ -215,6 +215,7 @@ void HeuristicParmsInitialize(HeuristicParms_p handle)
 
    handle->forward_demod                 = FullRewrite;
    handle->prefer_general                = false;
+   handle->lambda_demod                  = false;
 
    handle->er_varlit_destructive         = false;
    handle->er_strong_destructive         = false;
@@ -276,6 +277,7 @@ void HeuristicParmsInitialize(HeuristicParms_p handle)
    handle->pattern_oracle = true;
    handle->fixpoint_oracle = true;
    handle->max_unifiers = 4;
+   handle->max_unif_steps = 256;
 }
 
 
@@ -420,6 +422,8 @@ void HeuristicParmsPrint(FILE* out, HeuristicParms_p handle)
    fprintf(out, "   forward_demod:                  %d\n", handle->forward_demod);
    fprintf(out, "   prefer_general:                 %s\n",
            BOOL2STR(handle->prefer_general));
+//    fprintf(out, "   lambda_demod:                 %s\n",
+//            BOOL2STR(handle->lambda_demod));
 
    fprintf(out, "   condensing:                     %s\n",
            BOOL2STR(handle->condensing));
@@ -525,8 +529,10 @@ void HeuristicParmsPrint(FILE* out, HeuristicParms_p handle)
            BOOL2STR(handle->pattern_oracle));
    fprintf(out, "   fixpoint_oracle:               %s\n",
            BOOL2STR(handle->fixpoint_oracle));
-   fprintf(out, "   max_unifiers:                    %d\n",
+   fprintf(out, "   max_unifiers:                  %d\n",
            handle->max_unifiers);
+   fprintf(out, "   max_unif_steps:                %d\n",
+           handle->max_unif_steps);
 
    fprintf(out, "}\n");
 }
@@ -664,6 +670,7 @@ bool HeuristicParmsParseInto(Scanner_p in,
    PARSE_BOOL(forward_subsumption_aggressive);
    PARSE_INT_LIMITED(forward_demod,0,2);
    PARSE_BOOL(prefer_general);
+   //PARSE_BOOL(lambda_demod);
    PARSE_BOOL(condensing);
    PARSE_BOOL(condensing_aggressive);
    PARSE_BOOL(er_varlit_destructive);
@@ -724,6 +731,7 @@ bool HeuristicParmsParseInto(Scanner_p in,
    PARSE_BOOL(pattern_oracle);
    PARSE_BOOL(fixpoint_oracle);
    PARSE_INT(max_unifiers);
+   PARSE_INT(max_unif_steps);
 
 
    AcceptInpTok(in, CloseCurly);

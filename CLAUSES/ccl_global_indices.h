@@ -91,9 +91,9 @@ void GlobalIndicesFreeIndices(GlobalIndices_p indices);
 void GlobalIndicesReset(GlobalIndices_p indices);
 
 
-void GlobalIndicesInsertClause(GlobalIndices_p indices, Clause_p clause);
-void GlobalIndicesDeleteClause(GlobalIndices_p indices, Clause_p clause);
-void GlobalIndicesInsertClauseSet(GlobalIndices_p indices, ClauseSet_p set);
+void GlobalIndicesInsertClause(GlobalIndices_p indices, Clause_p clause, bool lambda_demod);
+void GlobalIndicesDeleteClause(GlobalIndices_p indices, Clause_p clause, bool lambda_demod);
+void GlobalIndicesInsertClauseSet(GlobalIndices_p indices, ClauseSet_p set, bool lambda_demod);
 
 
 #endif

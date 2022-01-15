@@ -54,6 +54,8 @@ struct csu_iter
    Subst_p subst;
    TB_p bank;
    int unifiers_returned;
+   // steps that are done in one call to NextIter()
+   int steps;
 
    // implementation-specific data used for optimization
    PStack_p tmp_rigid_diff;
@@ -99,7 +101,7 @@ bool backtrack_iter(CSUIterator_p iter);
 void dbg_print_state(FILE* out, CSUIterator_p iter)
 {
    TB_p bank = iter->bank;
-   fprintf(out, "***state:\n");
+   // fprintf(out, "***state(%ld):\n", iter->current_state);
    fprintf(out, "[");
    if(!PQueueEmpty(iter->constraints))
    {
@@ -309,7 +311,12 @@ bool forward_iter(CSUIterator_p iter)
       assert(lhs);
       assert(rhs);
 
-      if(lhs->type != rhs->type)
+      if(params->max_unif_steps > 0 && iter->steps >= params->max_unif_steps)
+      {
+         res = backtrack_iter(iter);
+         continue;
+      }
+      else if(lhs->type != rhs->type)
       {
          assert(PQueueEmpty(iter->constraints)); // only in the beginning
          res = false;
@@ -318,11 +325,12 @@ bool forward_iter(CSUIterator_p iter)
       {
          whnf_and_prune(iter->bank, &lhs, &rhs);
          PStackPointer subst_ptr = PStackGetSP(iter->subst);
-
+         // DBG_PRINT(stderr, "\noriginal: ", TermPrint(stderr, iter->orig_lhs, iter->bank->sig, DEREF_NEVER), " <> ");
+         // DBG_PRINT(stderr, "", TermPrint(stderr, iter->orig_rhs, iter->bank->sig, DEREF_NEVER), ".\n");
          // DBG_PRINT(stderr, "\nsolving: ", TermPrint(stderr, lhs, iter->bank->sig, DEREF_NEVER), " <> ");
          // DBG_PRINT(stderr, "", TermPrint(stderr, rhs, iter->bank->sig, DEREF_NEVER), ".\n");
+         // DBG_PRINT(stderr, "subst:", SubstPrint(stderr, iter->subst, iter->bank->sig, DEREF_NEVER), ".\n");
          // dbg_print_state(stderr, iter);
-
          if(lhs == rhs)
          {
             continue; // using continue not to indent too much :(
@@ -357,6 +365,7 @@ bool forward_iter(CSUIterator_p iter)
             }
             else if (oracle_res == NOT_IN_FRAGMENT)
             {
+               iter->steps++; // something is going to be applied to variable
                bool moved_forward;
                Limits_t next_limits = iter->current_limits;
                StateTag_t next_state = 
@@ -515,6 +524,7 @@ bool backtrack_iter(CSUIterator_p iter)
 bool NextCSUElement(CSUIterator_p iter)
 {
    bool res = backtrack_iter(iter);
+   iter->steps = 0;
    if(res)
    {
       if(params->unif_mode == SingleUnif && iter->unifiers_returned == 0)
@@ -572,6 +582,9 @@ CSUIterator_p CSUIterInit(Term_p lhs, Term_p rhs, Subst_p subst, TB_p bank)
    assert(params);
 
    CSUIterator_p res = CSUIterAlloc();
+   // fprintf(stderr, "begin:");
+   // DBG_PRINT(stderr, "",  TermPrint(stderr, lhs, bank->sig, DEREF_NEVER), " <> ");
+   // DBG_PRINT(stderr, "", TermPrint(stderr, rhs, bank->sig, DEREF_NEVER), ".\n");
    res->subst = subst;
    res->init_pos = PStackGetSP(subst);
    res->backtrack_info = PStackAlloc();
@@ -582,6 +595,7 @@ CSUIterator_p CSUIterInit(Term_p lhs, Term_p rhs, Subst_p subst, TB_p bank)
    res->current_limits = 0;
    res->current_state = INIT_TAG;
    res->unifiers_returned = 0;
+   res->steps = 0;
 
    // initialization of internal stufF
    res->tmp_rigid_diff = PStackAlloc();
@@ -591,8 +605,6 @@ CSUIterator_p CSUIterInit(Term_p lhs, Term_p rhs, Subst_p subst, TB_p bank)
    res->orig_lhs = lhs;
    res->orig_rhs = rhs;
 #endif
-   // DBG_PRINT(stderr, "begin:", TermPrint(stderr, lhs, bank->sig, DEREF_NEVER), " <> ");
-   // DBG_PRINT(stderr, "", TermPrint(stderr, rhs, bank->sig, DEREF_NEVER), ".\n");
    return res;
 }
 

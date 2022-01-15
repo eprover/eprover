@@ -344,7 +344,7 @@ void ProofStateInitWatchlist(ProofState_p state, OCB_p ocb)
       }
       ClauseSetIndexedInsertClauseSet(state->watchlist, tmpset);
       ClauseSetFree(tmpset);
-      GlobalIndicesInsertClauseSet(&(state->wlindices),state->watchlist);
+      GlobalIndicesInsertClauseSet(&(state->wlindices),state->watchlist, false);
       // ClauseSetPrint(stdout, state->watchlist, true);
    }
 }

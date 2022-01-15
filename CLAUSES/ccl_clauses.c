@@ -2580,7 +2580,7 @@ bool ClauseRecognizeChoice(IntMap_p choice_symbols_map, Clause_p cl)
    FAIL_ON(cl->pos_lit_no != 1);
    FAIL_ON(cl->neg_lit_no != 1);
 
-   Eqn_p pos_lit = 
+   Eqn_p pos_lit =
       EqnIsPositive(cl->literals) ? cl->literals : cl->literals->next;
    Eqn_p neg_lit = 
       EqnIsNegative(cl->literals) ? cl->literals : cl->literals->next;

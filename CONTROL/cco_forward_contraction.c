@@ -266,7 +266,8 @@ bool ForwardModifyClause(ProofState_p state,
       ClauseComputeLINormalform(control->ocb,
                                 state->terms, clause,
                                 state->demods, level,
-                                control->heuristic_parms.prefer_general);
+                                control->heuristic_parms.prefer_general,
+                                control->heuristic_parms.lambda_demod);
       if(problemType == PROBLEM_HO)
       {
          NormalizeEquations(clause);

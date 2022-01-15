@@ -343,7 +343,7 @@ void process_terms(char* infile, TB_p terms, OCB_p ocb, ClauseSet_p *demodulator
          t  = TBTermParse(in, terms);
          tp = TermComputeLINormalform(ocb, terms, t,
                                       demodulators,
-                                      1, false, false);
+                                      1, false, false, false);
          TBPrintTermFull(GlobalOut, terms, t);
          fprintf(GlobalOut, " ==> ");
          TBPrintTermFull(GlobalOut, terms, tp);
@@ -381,7 +381,7 @@ void process_clauses(char* infile, TB_p terms, OCB_p ocb, ClauseSet_p *demodulat
          ClausePrint(GlobalOut, clause, true);
          ClauseComputeLINormalform(ocb, terms, clause,
                                       demodulators,
-                                      1, false);
+                                      1, false, false);
          fprintf(GlobalOut, " ==> ");
          ClausePrint(GlobalOut, clause, true);
          fprintf(GlobalOut, "\n");
@@ -420,7 +420,7 @@ void process_formulas(char* infile, TB_p terms, OCB_p ocb, ClauseSet_p *demodula
 
          form->tformula = TermComputeLINormalform(ocb, terms, form->tformula,
                                                   demodulators,
-                                                  1, false, false);
+                                                  1, false, false, false);
          fprintf(GlobalOut, " ==> ");
          WFormulaPrint(GlobalOut, form, true);
          fprintf(GlobalOut, "\n");

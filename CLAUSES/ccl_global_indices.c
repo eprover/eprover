@@ -213,7 +213,8 @@ void GlobalIndicesReset(GlobalIndices_p indices)
 //
 /----------------------------------------------------------------------*/
 
-void GlobalIndicesInsertClause(GlobalIndices_p indices, Clause_p clause)
+void GlobalIndicesInsertClause(GlobalIndices_p indices, Clause_p clause,
+                               bool lambda_demod)
 {
    assert(!ClauseQueryProp(clause, CPIsGlobalIndexed));
 
@@ -224,7 +225,7 @@ void GlobalIndicesInsertClause(GlobalIndices_p indices, Clause_p clause)
    if(indices->bw_rw_index)
    {
       PERF_CTR_ENTRY(BWRWIndexTimer);
-      SubtermIndexInsertClause(indices->bw_rw_index, clause);
+      SubtermIndexInsertClause(indices->bw_rw_index, clause, lambda_demod);
       PERF_CTR_EXIT(BWRWIndexTimer);
    }
 
@@ -265,7 +266,7 @@ void GlobalIndicesInsertClause(GlobalIndices_p indices, Clause_p clause)
 //
 /----------------------------------------------------------------------*/
 
-void GlobalIndicesDeleteClause(GlobalIndices_p indices, Clause_p clause)
+void GlobalIndicesDeleteClause(GlobalIndices_p indices, Clause_p clause, bool lambda_demod)
 {
    //printf("# XXX GlobalIndicesDeleteClause()... (set=%p): ", clause->set);ClausePrint(GlobalOut, clause, true);printf("\n");
 
@@ -276,7 +277,7 @@ void GlobalIndicesDeleteClause(GlobalIndices_p indices, Clause_p clause)
    if(indices->bw_rw_index)
    {
       PERF_CTR_ENTRY(BWRWIndexTimer);
-      SubtermIndexDeleteClause(indices->bw_rw_index, clause);
+      SubtermIndexDeleteClause(indices->bw_rw_index, clause, lambda_demod);
       PERF_CTR_EXIT(BWRWIndexTimer);
    }
 
@@ -318,7 +319,8 @@ void GlobalIndicesDeleteClause(GlobalIndices_p indices, Clause_p clause)
 /----------------------------------------------------------------------*/
 
 void GlobalIndicesInsertClauseSet(GlobalIndices_p indices,
-                                  ClauseSet_p set)
+                                  ClauseSet_p set,
+                                  bool lambda_demod)
 {
    Clause_p handle;
 
@@ -330,7 +332,7 @@ void GlobalIndicesInsertClauseSet(GlobalIndices_p indices,
    }
    for(handle=set->anchor->succ; handle!=set->anchor; handle=handle->succ)
    {
-      GlobalIndicesInsertClause(indices, handle);
+      GlobalIndicesInsertClause(indices, handle, lambda_demod);
    }
 }
 

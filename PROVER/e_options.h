@@ -157,6 +157,7 @@ typedef enum
    OPT_BACKWARD_CSR,
    OPT_RULES_GENERAL,
    OPT_FORWARD_DEMOD,
+   OPT_DEMOD_LAMBDA,
    OPT_STRONG_RHS_INSTANCE,
    OPT_STRONGSUBSUMPTION,
    OPT_SAT_STEP_INTERVAL,
@@ -228,6 +229,7 @@ typedef enum
    OPT_PATTERN_ORACLE,
    OPT_FIXPOINT_ORACLE,
    OPT_MAX_UNIFIERS,
+   OPT_MAX_UNIF_STEPS,
    OPT_CNF_TIMEOUT_PORTION,
    OPT_PREINSTANTIATE_INDUCTION,
    OPT_DUMMY
@@ -1241,6 +1243,11 @@ OptCell opts[] =
     "(orientable equations) only, 2 indicates full rewriting with "
     "rules and instances of unorientable equations. Default behavior is 2."},
 
+   {OPT_DEMOD_LAMBDA,
+    '\0', "demod-under-lambda",
+    ReqArg, NULL,
+    "Demodulate *closed* subterms under lambdas."},
+
    {OPT_STRONG_RHS_INSTANCE,
     '\0', "strong-rw-inst",
     NoArg, NULL,
@@ -1664,6 +1671,13 @@ OptCell opts[] =
     '\0', "max-unifiers",
     ReqArg, NULL,
     "Maximal number of imitations"},
+    
+    {OPT_MAX_UNIF_STEPS,
+    '\0', "max-unif-steps",
+    ReqArg, NULL,
+    "Maximal number of variable bindings that can "
+    "be done in one single call to copmuting the next unifier."},
+
 
     {OPT_CNF_TIMEOUT_PORTION,
     '\0', "classification-timeout-portion",
