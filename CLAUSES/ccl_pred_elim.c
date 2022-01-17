@@ -338,6 +338,29 @@ bool term_vars_from_set(Term_p t, PTree_p* vars)
 
 /*-----------------------------------------------------------------------
 //
+// Function: unique_distinct_vars()
+// 
+//   Is the term of the form p(X1, ..., Xn) where all X1...Xn are distinct 
+//   free variables. varset is not freed, only (possibly) modified
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+bool unique_distinct_vars(Term_p t, PTree_p* varset)
+{
+   bool res =  true;
+   for(int i=0; res && i < t->arity; i++)
+   {
+      res = TermIsFreeVar(t->args[i]) && PTreeStore(varset, t->args[i]);
+   }
+   return res;
+}
+
+/*-----------------------------------------------------------------------
+//
 // Function: potential_gate()
 // 
 //   Is the clause of the chape (~)p(X1, ..., Xn) \/ C where all Xi are 
@@ -353,12 +376,7 @@ bool potential_gate(Clause_p cl, Eqn_p lit)
 {  
    PTree_p vars = NULL;
    Term_p pred = lit->lterm;
-   bool unique_vars = true;
-   for(int i=0; unique_vars && i < pred->arity; i++)
-   {
-      unique_vars = TermIsFreeVar(pred->args[i]) &&
-                    PTreeStore(&vars, pred->args[i]);
-   }
+   bool unique_vars = unique_distinct_vars(pred, &vars);
 
    for(Eqn_p iter = cl->literals; unique_vars && iter; iter = iter->next)
    {
@@ -714,21 +732,44 @@ Clause_p build_eq_resolvent(Clause_p p_cl, Clause_p n_cl, FunCode f)
    Eqn_p n_lit = find_lit_w_head(n_copy, f, &n_rest, ONLY_NEG);
    assert(n_lit);
 
-   Eqn_p cond = NULL;
-   for(int i=0; i<p_lit->lterm->arity; i++)
+   PTree_p p_vars = NULL;
+   PTree_p n_vars = NULL;
+   Eqn_p res_lits = NULL;
+
+   // if we have unique distinct vars (cheap to check)
+   // -- we can do better 
+   if(unique_distinct_vars(p_lit->lterm, &p_vars) ||
+      unique_distinct_vars(n_lit->lterm, &n_vars))
    {
-      Eqn_p neq = EqnAlloc(p_lit->lterm->args[i], n_lit->lterm->args[i],
-                           p_lit->bank, false);
-      neq->next = cond;
-      cond = neq;
+      Subst_p subst = SubstAlloc();
+#ifndef NDEBUG
+      bool unif = 
+#endif
+      SubstComputeMgu(p_lit->lterm, n_lit->lterm, subst);
+      assert(unif);
+
+      EqnListMapTerms(p_rest, (TermMapper_p)inst_term, p_lit->bank);
+      EqnListMapTerms(n_rest, (TermMapper_p)inst_term, n_lit->bank);
+      EqnListAppend(&res_lits, p_rest);
+      EqnListAppend(&res_lits, n_rest);
+      SubstDelete(subst);
    }
+   else
+   {
+      for(int i=0; i<p_lit->lterm->arity; i++)
+      {
+         Eqn_p neq = EqnAlloc(p_lit->lterm->args[i], n_lit->lterm->args[i],
+                              p_lit->bank, false);
+         neq->next = res_lits;
+         res_lits = neq;
+      }
 
-   EqnListAppend(&cond, p_rest);
-   EqnListAppend(&cond, n_rest);
-
-   EqnListRemoveResolved(&cond);
-   EqnListRemoveDuplicates(cond);
-   Clause_p res = ClauseAlloc(cond);
+      EqnListAppend(&res_lits, p_rest);
+      EqnListAppend(&res_lits, n_rest);
+   }
+   EqnListRemoveResolved(&res_lits);
+   EqnListRemoveDuplicates(res_lits);
+   Clause_p res = ClauseAlloc(res_lits);
    update_proof_object(res, p_cl, n_cl, DCPEResolve);
    EqnFree(p_lit);
    EqnFree(n_lit);
@@ -1333,7 +1374,7 @@ void eliminate_predicates(ClauseSet_p passive, ClauseSet_p archive,
          while(!PStackEmpty(cls))
          {
             Clause_p cl = PStackPopP(cls);
-            // DBG_PRINT(stderr, "> ", ClausePrint(stderr, cl, true), "; ");
+            // DBG_PRINT(stderr, "|> ", ClausePrint(stderr, cl, true), "; ");
             ClauseNormalizeVars(cl, freshvars);
             EqnListMapTerms(cl->literals, reassign_vars, bank);
             ClauseSetInsert(passive, cl);
