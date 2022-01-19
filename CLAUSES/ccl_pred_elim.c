@@ -141,12 +141,11 @@ void dbg_print(FILE* out, Sig_p sig, PETask_p t)
 void update_proof_object(Clause_p new_clause, Clause_p p1, Clause_p p2,
                       DerivationCode dc)
 {
-   new_clause->proof_depth =
-      MAX(p1->proof_depth, p2->proof_depth) + 1;
+   new_clause->proof_depth = MAX(p1->proof_depth, p2->proof_depth) + 1;
    new_clause->proof_size = p1->proof_size + p2->proof_size + 1;
-   ClauseSetTPTPType(new_clause, ClauseQueryTPTPType(p1));
-   ClauseSetProp(new_clause, ClauseGiveProps(p1, CPIsSOS));
-   ClauseSetProp(new_clause, ClauseGiveProps(p2, CPIsSOS));
+   ClauseSetTPTPType(new_clause,
+      TPTPTypesCombine(ClauseQueryTPTPType(p1), ClauseQueryTPTPType(p2)));
+   ClauseSetProp(new_clause, ClauseGiveProps(p1, CPIsSOS)|ClauseGiveProps(p2, CPIsSOS));
    // TODO: Clause documentation is not implemented at the moment.
    // DocClauseCreationDefault(clause, inf_efactor, clause, NULL);
    ClausePushDerivation(new_clause, dc, p1, p2);
