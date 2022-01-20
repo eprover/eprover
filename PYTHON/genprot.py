@@ -207,6 +207,8 @@ def process_file(data, features, archivename, path, fileopener, info):
        and (("+" in problemname) or ("-" in problemname or ("_" in problemname) or ("^" in problemname))):
         entry = make_entry(fileopener(info).readlines())
         if entry:
+           if "Problem" not in entry:
+               entry["Problem"] = problemname
            entry.update({"Configname":configname,
                          "Filename":filename,
                          "Archivename":archivename})
@@ -225,7 +227,7 @@ def process_file(data, features, archivename, path, fileopener, info):
            if entry["Failure"] == failuremap["exec failed"]:
                entry["Problem"] = problemname
                entry["Version"] = eversion
-           if entry["Problem"] in features:
+           if "Problem" in entry and entry["Problem"] in features:
                entry.update(features[entry["Problem"]])
            if not configname in data or \
               not problemname in data[configname] \

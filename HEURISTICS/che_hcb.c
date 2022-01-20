@@ -185,6 +185,7 @@ void HeuristicParmsInitialize(HeuristicParms_p handle)
    handle->pred_elim_max_occs            = DEFAULT_SYM_OCCS;
    handle->pred_elim_tolerance           = 0;
    handle->pred_elim_force_mu_decrease   = false;
+   handle->pred_elim_ignore_conj_syms    = false;
 
    handle->selection_strategy            = SelectNoLiterals;
    handle->pos_lit_sel_min               = 0;
@@ -366,10 +367,12 @@ void HeuristicParmsPrint(FILE* out, HeuristicParms_p handle)
 //    fprintf(out, "   bce:                           %s\n", BOOL2STR(handle->bce));
 //    fprintf(out, "   bce_max_occs:                  %d\n", handle->bce_max_occs);
 
-//    fprintf(out, "   pred_elim:                           %s\n", BOOL2STR(handle->pred_elim));
-//    fprintf(out, "   pred_elim_gates:                     %s\n", BOOL2STR(handle->pred_elim_gates));
-//    fprintf(out, "   pred_elim_max_occs:                  %d\n", handle->pred_elim_max_occs);
-//    fprintf(out, "   pred_elim_tolerance:                 %d\n", handle->pred_elim_tolerance);
+//    fprintf(out, "   pred_elim:                     %s\n", BOOL2STR(handle->pred_elim));
+//    fprintf(out, "   pred_elim_gates:               %s\n", BOOL2STR(handle->pred_elim_gates));
+//    fprintf(out, "   pred_elim_max_occs:            %d\n", handle->pred_elim_max_occs);
+//    fprintf(out, "   pred_elim_tolerance:           %d\n", handle->pred_elim_tolerance);
+//    fprintf(out, "   pred_elim_force_mu_decrease    %s\n", BOOL2STR(handle->pred_elim_force_mu_decrease));
+//    fprintf(out, "   pred_elim_ignore_conj_syms     %s\n", BOOL2STR(handle->pred_elim_ignore_conj_syms));
 
    fprintf(out, "   heuristic_name:                %s\n", handle->heuristic_name);
    fprintf(out, "   heuristic_def:                 \"%s\"\n",
@@ -594,6 +597,7 @@ bool HeuristicParmsParseInto(Scanner_p in,
 //    PARSE_INT(pred_elim_max_occs);
 //    PARSE_INT(pred_elim_tolerance);
 //    PARSE_BOOL(pred_elim_force_mu_decrease);
+//    PARSE_BOOL(pred_elim_ignore_conj_syms);
 
    PARSE_IDENTIFIER(heuristic_name);
    PARSE_STRING(heuristic_def);

@@ -59,7 +59,8 @@ void TermPrintHO(FILE* out, Term_p term, Sig_p sig, DerefType deref);
 void TermPrintDbgHO(FILE* out, Term_p term, Sig_p sig, DerefType deref);
 #define TermPrint(out, term, sig, deref) (problemType == PROBLEM_HO ? \
         TermPrintHO(out, term, sig, deref) : TermPrintFO(out, term, sig, deref))
-#define TermPrintDbg(out, term, sig, deref)  TermPrintDbgHO(out, term, sig, deref)
+#define TermPrintDbg(out, term, sig, deref)  (problemType == PROBLEM_HO ?\
+    TermPrintDbgHO(out, term, sig, deref) : TermPrintFO(out, term, sig, deref))
 #else
 #define TermPrint(out, term, sig, deref) TermPrintFO(out, term, sig, deref)
 #define TermPrintDbg(out, term, sig, deref)  TermPrintFO(out, term, sig, deref)

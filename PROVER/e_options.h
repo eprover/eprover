@@ -206,6 +206,7 @@ typedef enum
    OPT_PRED_ELIM,
    OPT_PRED_ELIM_GATES,
    OPT_PRED_ELIM_FORCE_MU_DECREASE,
+   OPT_PRED_ELIM_IGNORE_CONJ_SYMS,
    OPT_PRED_ELIM_MAX_OCCS,
    OPT_PRED_ELIM_TOLERANCE,
    OPT_LIFT_LAMBDAS,
@@ -1719,6 +1720,12 @@ OptCell opts[] =
      "Require that the square number of distinct free variables "
      "decreases when doing predicate elimination. Helps avoid "
      "creating huge clauses."},
+
+    {OPT_PRED_ELIM_IGNORE_CONJ_SYMS,
+    '\0', "pred-elim-ignore-conj-syms", ReqArg, NULL, 
+     "Disable eliminating symbols that occur in the conjecture."},
+
+
 
    {OPT_NOOPT,
     '\0', NULL,

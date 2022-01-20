@@ -139,13 +139,14 @@ void dbg_print(FILE* out, Sig_p sig, PETask_p t)
 //
 /----------------------------------------------------------------------*/
 void update_proof_object(Clause_p new_clause, Clause_p p1, Clause_p p2,
-                      DerivationCode dc)
+                         DerivationCode dc)
 {
    new_clause->proof_depth = MAX(p1->proof_depth, p2->proof_depth) + 1;
    new_clause->proof_size = p1->proof_size + p2->proof_size + 1;
+   
+   ClauseSetProp(new_clause, ClauseGiveProps(p1, CPIsSOS)|ClauseGiveProps(p2, CPIsSOS));  
    ClauseSetTPTPType(new_clause,
       TPTPTypesCombine(ClauseQueryTPTPType(p1), ClauseQueryTPTPType(p2)));
-   ClauseSetProp(new_clause, ClauseGiveProps(p1, CPIsSOS)|ClauseGiveProps(p2, CPIsSOS));
    // TODO: Clause documentation is not implemented at the moment.
    // DocClauseCreationDefault(clause, inf_efactor, clause, NULL);
    ClausePushDerivation(new_clause, dc, p1, p2);
@@ -428,9 +429,11 @@ void update_statistics(long* num_lit, long* set_size, double* mu,
 /----------------------------------------------------------------------*/
 
 void scan_clause_for_predicates(Clause_p cl, IntMap_p sym_map, MinHeap_p queue,
-                                long max_occs, bool recognize_gates, 
-                                bool* eqn_found)
+                                long max_occs, bool recognize_gates, bool use_tptp_sos,
+                                bool ignore_conj_syms, bool* eqn_found)
 {
+   bool cl_is_conj =
+      (ClauseQueryTPTPType(cl) == CPTypeConjecture)||(ClauseIsGoal(cl));
    for(Eqn_p lit = cl->literals; lit; lit = lit->next)
    {
       if(!EqnIsEquLit(lit))
@@ -447,7 +450,7 @@ void scan_clause_for_predicates(Clause_p cl, IntMap_p sym_map, MinHeap_p queue,
                      sign ? (*task)->pos_gates->card + (*task)->positive_singular->card :
                             (*task)->neg_gates->card + (*task)->negative_singular->card;
          
-         if(max_occs > 0 && occs >= max_occs)
+         if((ignore_conj_syms && cl_is_conj) || (max_occs > 0 && occs >= max_occs))
          {
             // blocking the task
             (*task)->size = TASK_BLOCKED;
@@ -982,7 +985,7 @@ void update_gate_status(IntMap_p sym_map, TB_p tmp_terms)
 //
 /----------------------------------------------------------------------*/
 
-void build_task_queue(ClauseSet_p passive, int max_occs, bool recognize_gates, 
+void build_task_queue(ClauseSet_p passive, const HeuristicParms_p parms,
                       IntMap_p* m_ref, MinHeap_p* q_ref, TB_p tmp_terms, 
                       bool* eqn_found)
 {
@@ -993,11 +996,12 @@ void build_task_queue(ClauseSet_p passive, int max_occs, bool recognize_gates,
 
    for(Clause_p cl = passive->anchor->succ; cl!=passive->anchor; cl = cl->succ)
    {
-      scan_clause_for_predicates(cl, sym_map, task_queue,
-                                 max_occs, recognize_gates, eqn_found);
+      scan_clause_for_predicates(cl, sym_map, task_queue, parms->pred_elim_max_occs,
+                                 parms->pred_elim_gates, parms->use_tptp_sos,
+                                 parms->pred_elim_ignore_conj_syms, eqn_found);
    }
    
-   if(recognize_gates)
+   if(parms->pred_elim_gates)
    {
       update_gate_status(sym_map, tmp_terms);
    }
@@ -1007,7 +1011,7 @@ void build_task_queue(ClauseSet_p passive, int max_occs, bool recognize_gates,
    PETask_p t;
    while( (t = IntMapIterNext(iter, &key)) )
    {
-      if(!recognize_gates)
+      if(!parms->pred_elim_gates)
       {
          assert(t->pos_gates->card == 0 && t->neg_gates->card == 0);
          t->g_status = NOT_GATE;
@@ -1191,7 +1195,7 @@ void try_singular_elimination(PETask_p task, PStack_p cls,
 
 void react_clause_added(Clause_p cl, IntMap_p sym_map, MinHeap_p h, long max_occs)
 {
-   scan_clause_for_predicates(cl, sym_map, h, max_occs, false, NULL);
+   scan_clause_for_predicates(cl, sym_map, h, max_occs, false, false, false, NULL);
 }
 
 /*-----------------------------------------------------------------------
@@ -1427,8 +1431,7 @@ void PredicateElimination(ClauseSet_p passive, ClauseSet_p archive,
    IntMap_p sym_map = IntMapAlloc();
    MinHeap_p task_queue = MinHeapAllocWithIndex(cmp_tasks, idx_setter);
    bool eqn_found;
-   build_task_queue(passive, parms->pred_elim_max_occs, parms->pred_elim_gates, 
-                    &sym_map, &task_queue, tmp_bank, &eqn_found);
+   build_task_queue(passive, parms, &sym_map, &task_queue, tmp_bank, &eqn_found);
    ResolverFun_p resolver = eqn_found ? build_eq_resolvent : build_neq_resolvent;
    eliminate_predicates(passive, archive, sym_map, task_queue, 
                         bank, tmp_bank, resolver, parms, fresh_vars);
