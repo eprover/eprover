@@ -350,6 +350,7 @@ StructFOFSpec_p StructFOFSpecAlloc(void)
       (FPIsInteger|FPIsRational|FPIsFloat);
 
    terms         = TBAlloc(sig);
+   GCAdminAlloc(terms);
    res           = StructFOFSpecCreate(terms);
    // res->gc_terms = GCAdminAlloc(terms);
    return res;
@@ -360,9 +361,10 @@ StructFOFSpec_p StructFOFSpecAlloc(void)
 
 /*-----------------------------------------------------------------------
 //
-// Function: StructFOFSpecFree()
+// Function: StructFOFSpecDestroy()
 //
-//   Free a StructFOFSpec data structure.
+//   Dissassemble and Free the FOFSpec, but leave term bank and
+//   signature alone.
 //
 // Global Variables: -
 //
@@ -370,7 +372,7 @@ StructFOFSpec_p StructFOFSpecAlloc(void)
 //
 /----------------------------------------------------------------------*/
 
-void StructFOFSpecFree(StructFOFSpec_p ctrl)
+void StructFOFSpecDestroy(StructFOFSpec_p ctrl)
 {
    FormulaSet_p fset;
    ClauseSet_p  cset;
@@ -394,6 +396,34 @@ void StructFOFSpecFree(StructFOFSpec_p ctrl)
    GenDistribFree(ctrl->f_distrib);
 
    StructFOFSpecCellFree(ctrl);
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: StructFOFSpecFree()
+//
+//   Free a StructFOFSpec data structure.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+void StructFOFSpecFree(StructFOFSpec_p ctrl)
+{
+   TB_p  terms            = ctrl->terms;
+   Sig_p sig              = terms->sig;
+   TypeBank_p sort_table  = sig->type_bank;
+
+   StructFOFSpecDestroy(ctrl);
+
+   TypeBankFree(sort_table);
+   SigFree(sig);
+   terms->sig = NULL;
+   GCAdminFree(terms->gc);
+   TBFree(terms);
 }
 
 
@@ -453,16 +483,16 @@ long StructFOFSpecParseAxioms(StructFOFSpec_p ctrl, PStack_p axfiles,
    long         res = 0;
    static IntOrP dummy = {0};
 
-   //printf("# XXX Called with %ld axiom files\n", PStackGetSP(axfiles));
+   printf("# XXX Called with %ld axiom files\n", PStackGetSP(axfiles));
 
    for(i=0; i<PStackGetSP(axfiles); i++)
    {
       iname = PStackElementP(axfiles, i);
       if(!StrTreeFind(&(ctrl->parsed_includes), iname))
       {
-         //printf("Calling with %s\n", iname);
+         printf("Calling with %s\n", iname);
          in = CreateScanner(StreamTypeFile, iname, true, default_dir, false);
-         //printf("Result: %p\n", in);
+         printf("Result: %p\n", in);
          if(in)
          {
             ScannerSetFormat(in, parse_format);
@@ -472,6 +502,7 @@ long StructFOFSpecParseAxioms(StructFOFSpec_p ctrl, PStack_p axfiles,
             fset = FormulaSetAlloc();
             GCRegisterFormulaSet(ctrl->terms->gc, fset);
             GCRegisterClauseSet(ctrl->terms->gc, cset);
+            printf("Registered\n");
             res += FormulaAndClauseSetParse(in, fset, cset, ctrl->terms,
                                             NULL,
                                             &(ctrl->parsed_includes));
@@ -592,7 +623,7 @@ long ProofStateSinE(ProofState_p state, char* fname)
    /* Now rescue signature and term bank. */
    // spec->sig = NULL;
    // spec->terms = NULL;
-   StructFOFSpecFree(spec);
+   StructFOFSpecDestroy(spec);
 
    AxFilterSetFree(filters);
 

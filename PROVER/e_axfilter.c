@@ -789,7 +789,9 @@ int main(int argc, char* argv[])
    FREE(tname);
 
    ctrl = StructFOFSpecAlloc();
+   printf("Hi\n");
    StructFOFSpecParseAxioms(ctrl, prob_names, parse_format, NULL);
+   printf("Ho\n");
    StructFOFSpecInitDistrib(ctrl);
    StructFOFSpecResetShared(ctrl);
 
