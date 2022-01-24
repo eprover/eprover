@@ -34,8 +34,8 @@ ScheduleCell _CASC_SCHEDULE[] =
    {"AutoSched2",  AUTOSCHED2,  "Auto", 0.0733, 0, 1},
    {"AutoSched3",  AUTOSCHED3,  "Auto", 0.06  , 0, 1},
    {"AutoSched4",  AUTOSCHED4,  "Auto", 0.0433, 0, 1},
-   {"AutoSched5",  AUTOSCHED5,  "Auto", 0.03  , 0, 1},
-   {"AutoSched6",  AUTOSCHED6,  "Auto", 0.0166, 0, 1},
+   {"AutoSched5",  AUTOSCHED5,  "Auto", 0.0366, 0, 1},
+   {"AutoSched6",  AUTOSCHED6,  "Auto", 0.0167, 0, 1},
    {"AutoSched7",  AUTOSCHED7,  "Auto", 0.0167, 0, 1},
    {"AutoSched8",  AUTOSCHED8,  "Auto", 0.0167, 0, 1},
    {"AutoSched9",  AUTOSCHED9,  "Auto", 0.0167, 0, 1},
@@ -281,6 +281,12 @@ void ScheduleTimesInitMultiCore(ScheduleCell sched[], double time_used, int core
 {
    int i;
    rlim_t sum=0, tmp, limit, total_limit;
+   double
+      nominal_sum = 0.0,
+      actual_sum = 0.0,
+      nominal_rest,
+      actual_rest,
+      frac;
 
    limit = 0;
    if(ScheduleTimeLimit)
@@ -301,20 +307,26 @@ void ScheduleTimesInitMultiCore(ScheduleCell sched[], double time_used, int core
 
    for(i=0; sched[i].heu_name; i++)
    {
-      tmp = sched[i].time_fraction*total_limit;
+      nominal_rest = 1-nominal_sum;
+      actual_rest  = 1-actual_sum;
+
+      tmp = sched[i].time_fraction*total_limit*(actual_rest/nominal_rest);
       if(tmp>limit)
       {
-         total_limit+= 2*(tmp-limit);
          tmp = limit;
       }
       sched[i].time_absolute = tmp;
+      sum += tmp;
+      frac = (float)tmp/total_limit;
+      nominal_sum += sched[i].time_fraction;
+      actual_sum  += frac;
+
       fprintf(GlobalOut,
-              "# %s assigned %ju seconds\n",
-              sched[i].heu_name, (uintmax_t)tmp);
-      sum = sum+tmp;
+              "# %s assigned %ju seconds (%f)\n",
+              sched[i].heu_name, (uintmax_t)tmp, frac);
    }
    fprintf(GlobalOut,
-           "# Scheduled %d strats onto %d cores with %ju seconds (%ju total)\n",
+           "# Scheduled %d strats onto %d cores with %ju seconds (%ju)\n",
            i, cores, (uintmax_t)limit, (uintmax_t)sum);
 }
 
