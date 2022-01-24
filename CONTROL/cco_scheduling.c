@@ -304,10 +304,13 @@ void ScheduleTimesInitMultiCore(ScheduleCell sched[], double time_used, int core
       tmp = sched[i].time_fraction*total_limit;
       if(tmp>limit)
       {
-         total_limit+= (tmp-limit);
+         total_limit+= 2*(tmp-limit);
          tmp = limit;
       }
       sched[i].time_absolute = tmp;
+      fprintf(GlobalOut,
+              "# %s assigned %ju seconds\n",
+              sched[i].heu_name, (uintmax_t)tmp);
       sum = sum+tmp;
    }
    fprintf(GlobalOut,
