@@ -653,7 +653,7 @@ OptCell opts[] =
 
    {OPT_AUTO_SCHED,
     '\0', "auto-schedule",
-    OptArg, NULL,
+    NoArg, NULL,
     "Use the (experimental) strategy scheduling. This will try several "
     "different fully specified search strategies (aka \"Auto-Modes\"), "
     "one after the other, until a proof or saturation is found, or the "
