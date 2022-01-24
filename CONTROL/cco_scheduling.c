@@ -282,7 +282,6 @@ void ScheduleTimesInitMultiCore(ScheduleCell sched[], double time_used, int core
    int i;
    rlim_t sum=0, tmp, limit, total_limit;
 
-
    limit = 0;
    if(ScheduleTimeLimit)
    {
@@ -300,7 +299,7 @@ void ScheduleTimesInitMultiCore(ScheduleCell sched[], double time_used, int core
    }
    total_limit = limit*cores;
 
-   for(i=0; sched[i+1].heu_name; i++)
+   for(i=0; sched[i].heu_name; i++)
    {
       tmp = sched[i].time_fraction*total_limit;
       if(tmp>limit)

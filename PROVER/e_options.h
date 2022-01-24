@@ -90,6 +90,7 @@ typedef enum
    OPT_AUTO_SCHED,
    OPT_SATAUTO_SCHED,
    OPT_AUTOSCHEDULE_KIND,
+   OPT_MULTI_CORE,
    OPT_NO_PREPROCESSING,
    OPT_EQ_UNFOLD_LIMIT,
    OPT_EQ_UNFOLD_MAXCLAUSES,
@@ -652,7 +653,7 @@ OptCell opts[] =
 
    {OPT_AUTO_SCHED,
     '\0', "auto-schedule",
-    NoArg, NULL,
+    OptArg, NULL,
     "Use the (experimental) strategy scheduling. This will try several "
     "different fully specified search strategies (aka \"Auto-Modes\"), "
     "one after the other, until a proof or saturation is found, or the "
@@ -669,8 +670,13 @@ OptCell opts[] =
     ReqArg, NULL,
     "Choose a schedule kind that is more optimized for different purposes: "
     "CASC is optimized for general-purpose theorem proving, while SH "
-    "is optimized for theorem low-timeout theorem proving."
+    "is optimized for low-timeout theorem proving."
     },
+
+   {OPT_MULTI_CORE,
+   '\0', "multi-core",
+   OptArg, "4",
+   "Set the number of cores to use for strategy scheduling."},
 
    {OPT_NO_PREPROCESSING,
     '\0', "no-preprocessing",

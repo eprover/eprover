@@ -83,6 +83,7 @@ long              step_limit = LONG_MAX,
    proc_limit = LONG_MAX,
    unproc_limit = LONG_MAX,
    total_limit = LONG_MAX,
+   cores       = 1,
    generated_limit = LONG_MAX,
    relevance_prune_level = 0,
    miniscope_limit = 1048576;
@@ -432,7 +433,7 @@ int main(int argc, char* argv[])
    if(strategy_scheduling)
    {
       // ExecuteSchedule(chosen_schedule, h_parms, print_rusage);
-      ExecuteScheduleMultiCore(chosen_schedule, h_parms, print_rusage, 4);
+      ExecuteScheduleMultiCore(chosen_schedule, h_parms, print_rusage, cores);
    }
 
    FormulaSetDocInital(GlobalOut, OutputLevel, proofstate->f_axioms);
@@ -1156,6 +1157,9 @@ CLState_p process_options(int argc, char* argv[])
             {
                Error("There are only two schedules available: SH and CASC", USAGE_ERROR);
             }
+            break;
+      case OPT_MULTI_CORE:
+            cores = CLStateGetIntArgCheckRange(handle, arg, 0, INT_MAX);
             break;
       case OPT_NO_PREPROCESSING:
             h_parms->no_preproc = true;
