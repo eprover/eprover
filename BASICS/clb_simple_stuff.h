@@ -92,7 +92,6 @@ long   ComputeGCD(long a, long b);
 
 void   SetProblemType(ProblemType t);
 
-#ifndef NDEBUG
 #define DBG_PRINT(out, prefix, main, suffix) \
    fprintf(out, "%s", prefix);\
    main;\
@@ -102,10 +101,6 @@ void   SetProblemType(ProblemType t);
    fprintf(out, "%s", prefix);\
    TermPrintDbg(out, term, TermGetBank(term)->sig, DEREF_NEVER);\
    fprintf(out, "%s", suffix)
-#else
-#define DBG_PRINT(out, prefix, main, suffix) ((void)0)
-#define DBG_TPRINT(out, prefix, main, suffix) ((void)0)
-#endif
 
 
 

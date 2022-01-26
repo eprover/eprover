@@ -612,6 +612,7 @@ int main(int argc, char* argv[])
       {
          limits = CreateDefaultSpecLimits(); 
       }
+      const int choice_max_depth = h_parms->inst_choice_max_depth;
       SpecFeaturesCompute(&features, proofstate->axioms, proofstate->f_axioms,
                           proofstate->f_ax_archive, proofstate->terms);
       // order info can be affected by clausification
@@ -634,6 +635,7 @@ int main(int argc, char* argv[])
                                  false, preproc_schedule[sched_idx].cores);
          GetHeuristicWithName(h_parms->heuristic_name, h_parms);
          h_parms->heuristic_name = h_parms->heuristic_def;
+         h_parms->inst_choice_max_depth = choice_max_depth;
       }
       else
       {
@@ -643,6 +645,7 @@ int main(int argc, char* argv[])
          GetHeuristicWithName(conf_name, h_parms);
          fprintf(stderr, "# Configuration: %s\n", conf_name);
          h_parms->heuristic_name = h_parms->heuristic_def;
+         h_parms->inst_choice_max_depth = choice_max_depth;
       }
       FREE(class);
    }

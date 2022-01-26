@@ -743,13 +743,6 @@ int prim_enum_var(ClauseSet_p store, Clause_p cl, PrimEnumMode mode, Term_p app_
    }
    if(mode == EqMode || mode == FullMode)
    {
-      // Term_p eq_matrix = 
-      //    TFormulaFCodeAlloc(bank, sig->equiv_code, 
-      //                       fresh_pattern(bank, app_var), 
-      //                       fresh_pattern(bank, app_var));
-      // mk_prim_enum_inst(store, cl, app_var->args[0],
-      //                   close_for_appvar(bank, app_var, eq_matrix));
-      // generated_cls++;
       PTree_p ret_types = NULL;
       for(int i=1; i<app_var->arity; i++)
       {
@@ -1329,7 +1322,7 @@ int inst_choice(ClauseSet_p store, IntMap_p choice_syms, Clause_p cl,
    assert(cl->literals);
    TB_p bank = cl->literals->bank;
    do_mk_choice_inst(store, choice_syms, cl, choice_code, trigger);
-   
+
    Term_p neg_trigger = 
       TermTopCopy(LambdaEtaExpandDBTopLevel(bank, trigger));
    assert(TermIsLambda(neg_trigger));
@@ -2059,7 +2052,7 @@ long EliminateLeibnizEquality(ClauseSet_p store, Clause_p cl, int limit)
 /----------------------------------------------------------------------*/
 
 long PrimitiveEnumeration(ClauseSet_p store, Clause_p cl, PrimEnumMode mode, int limit)
-{
+{   
    if(cl->proof_depth > limit)
    {
       return 0;

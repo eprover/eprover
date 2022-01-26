@@ -1094,6 +1094,11 @@ void DerivationDebugPrint(FILE* out, PStack_p derivation)
             {
                DBG_PRINT(out, "[", ClausePrintDBG(out, PStackElementP(derivation, i)), "]");
             }
+            else if(DCOpHasFofArg1(op))
+            {
+               WFormula_p f = PStackElementP(derivation, i);
+               DBG_PRINT(out, "[", WFormulaTSTPPrint(stderr, f, true, true), "]");
+            }
             i++;
          }
          if(DCOpHasArg2(op))
@@ -1101,6 +1106,11 @@ void DerivationDebugPrint(FILE* out, PStack_p derivation)
             if(DCOpHasCnfArg2(op))
             {
                DBG_PRINT(out, "[", ClausePrintDBG(out, PStackElementP(derivation, i)), "]");
+            }
+            else if(DCOpHasFofArg2(op))
+            {
+               WFormula_p f = PStackElementP(derivation, i);
+               DBG_PRINT(out, "[", WFormulaTSTPPrint(stderr, f, true, true), "]");
             }
             i++;
          }

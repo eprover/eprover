@@ -296,7 +296,7 @@ char* WFormulaGetId(WFormula_p form)
       id = form->ident;
       prefix = 'c';
    }
-   sprintf(ident, "%c_0_%ld", prefix, id);
+   snprintf(ident, 31, "%c_0_%ld", prefix, id);
    return ident;
 }
 
