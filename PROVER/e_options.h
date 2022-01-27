@@ -676,7 +676,10 @@ OptCell opts[] =
    {OPT_MULTI_CORE,
    '\0', "multi-core",
    OptArg, "4",
-   "Set the number of cores to use for strategy scheduling."},
+   "Set the number of cores to use for strategy scheduling. Currently, the "
+   "existing (originally linear) schedules will be recomputed for "
+   "(near-)optimal use of the cores. If more than one core is activated, it "
+   "is assumed that any cpu-limit is a per-core limit."},
 
    {OPT_NO_PREPROCESSING,
     '\0', "no-preprocessing",
