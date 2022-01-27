@@ -944,6 +944,54 @@ WFormula_p WFormulaOfClause(Clause_p clause, TB_p bank)
    return res;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: WFormulaGetLambdaDefinedSym
+//
+//   If the formula is an axiom tagged with 'definition' role then
+//   extract the function code of the defined symbol. In case
+//   of a format error (definition tag, but nothing is defined)
+//   or tag is not present  return -1.
+//
+//   Allocate a formula.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+FunCode WFormulaGetLambdaDefinedSym(WFormula_p form)
+{
+   FunCode res = -1;
+   if(FormulaQueryProp(form, CPIsLambdaDef))
+   {
+      Term_p tform = form->tformula;
+      Sig_p sig = form->terms->sig;
+      while (tform->f_code == sig->qall_code && tform->arity == 2)
+      {
+         tform = tform->args[1];
+      }
+
+      Term_p lhs = NULL;
+      if (tform->f_code == sig->eqn_code)
+      {
+         lhs = tform->args[0];
+      }
+      else if(tform->f_code == sig->equiv_code &&
+              tform->args[0]->f_code == sig->eqn_code)
+      {
+         lhs = tform->args[0]->args[0];
+      }
+
+      if(lhs && lhs->f_code > sig->internal_symbols)
+      {
+         res = lhs->f_code;
+      }
+   }
+   return res;
+}
+
 
 
 /*---------------------------------------------------------------------*/

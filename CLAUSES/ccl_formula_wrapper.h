@@ -105,6 +105,7 @@ void       WFormulaPrint(FILE* out, WFormula_p form, bool fullterms);
 
 long       WFormulaReturnFCodes(WFormula_p form, PStack_p f_codes);
 long       WFormulaSymbolDiversity(WFormula_p form);
+FunCode    WFormulaGetLambdaDefinedSym(WFormula_p form);
 
 
 WFormula_p WFormulaOfClause(Clause_p clause, TB_p terms);

@@ -471,6 +471,8 @@ int main(int argc, char* argv[])
          GetHeuristicWithName(preproc_schedule->heu_name, h_parms);
          fprintf(stderr, "# Configuration: %s\n", preproc_schedule->heu_name);
       }
+      CLStateFree(state);
+      state = process_options(argc, argv); // refilling the h_parms with user options
    }
 
             
@@ -543,6 +545,7 @@ int main(int argc, char* argv[])
                                h_parms->formula_def_limit);
    }
    VERBOUT("Clausification done.\n");
+   fprintf(stderr, "CNF done.\n");
 
    if(cnf_size)
    {
@@ -648,6 +651,8 @@ int main(int argc, char* argv[])
          h_parms->inst_choice_max_depth = choice_max_depth;
       }
       FREE(class);
+      CLStateFree(state);
+      state = process_options(argc, argv); // refilling the h_parms with user options
    }
 
    if(limits)
@@ -1256,10 +1261,12 @@ CLState_p process_options(int argc, char* argv[])
             EqnUseInfix = true;
             break;
       case OPT_AUTO:
-            h_parms->heuristic_name = "Auto";
-            h_parms->order_params.ordertype = AUTO;
-            h_parms->sine = SecureStrdup("Auto");
-            auto_conf = true;
+            if(!auto_conf)
+            {
+                h_parms->order_params.ordertype = AUTO;
+                h_parms->sine = SecureStrdup("Auto");
+                auto_conf = true;
+            }
             break;
       case OPT_SATAUTO:
             h_parms->heuristic_name = "Auto";
@@ -1275,9 +1282,12 @@ CLState_p process_options(int argc, char* argv[])
             h_parms->order_params.ordertype = AUTODEV;
             break;
       case OPT_AUTO_SCHED:
-            strategy_scheduling = true;
-            num_cpus = CLStateGetIntArg(handle, arg);
-            h_parms->sine = SecureStrdup("Auto");
+            if(!strategy_scheduling)
+            {
+               num_cpus = CLStateGetIntArg(handle, arg);
+               h_parms->sine = SecureStrdup("Auto");
+               strategy_scheduling = true;
+            }
             break;
       case OPT_FORCE_PREPROC_SCHED:
             force_pre_schedule = CLStateGetBoolArg(handle, arg);

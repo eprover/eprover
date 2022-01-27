@@ -78,6 +78,7 @@ typedef struct
    double            max_set_fraction;
    bool              add_no_symbol_axioms;
    bool              trim_implications;
+   bool              defined_symbols_in_drel;
 }AxFilterCell, *AxFilter_p;
 
 

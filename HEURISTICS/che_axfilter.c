@@ -49,27 +49,27 @@ char* GeneralityMeasureNames[] =
 char* AxFilterDefaultSet ="\
    threshold010000=Threshold(10000)\
 \
-   gf500_gu_R04_F100_L20000=GSinE(CountFormulas, ,   5.0,, 4,20000,1.0)\
-   gf120_gu_RUU_F100_L00500=GSinE(CountFormulas, ,   1.2,,,  500,1.0)\
-   gf120_gu_R02_F100_L20000=GSinE(CountFormulas, ,   1.2,, 2,20000,1.0)\
-   gf150_gu_RUU_F100_L20000=GSinE(CountFormulas, ,   1.5,,,20000,1.0)\
-   gf120_gu_RUU_F100_L00100=GSinE(CountFormulas, ,   1.2,,,  100,1.0)\
-   gf200_gu_R03_F100_L20000=GSinE(CountFormulas, ,   2.0,, 3,20000,1.0)\
-   gf600_gu_R05_F100_L20000=GSinE(CountFormulas, ,   6.0,, 5,20000,1.0, false)\
-   gf200_gu_RUU_F100_L20000=GSinE(CountFormulas, ,   2.0,,  ,20000,1.0)\
-   gf120_gu_RUU_F100_L01000=GSinE(CountFormulas, ,   1.2,,  , 1000,1.0, false)\
+   gf500_gu_R04_F100_L20000=GSinE(CountFormulas, ,false,   5.0,, 4,20000,1.0)\
+   gf120_gu_RUU_F100_L00500=GSinE(CountFormulas, ,false,   1.2,,,  500,1.0)\
+   gf120_gu_R02_F100_L20000=GSinE(CountFormulas, ,false,   1.2,, 2,20000,1.0)\
+   gf150_gu_RUU_F100_L20000=GSinE(CountFormulas, ,false,   1.5,,,20000,1.0)\
+   gf120_gu_RUU_F100_L00100=GSinE(CountFormulas, ,false,   1.2,,,  100,1.0)\
+   gf200_gu_R03_F100_L20000=GSinE(CountFormulas, ,false,   2.0,, 3,20000,1.0)\
+   gf600_gu_R05_F100_L20000=GSinE(CountFormulas, ,false,   6.0,, 5,20000,1.0, false)\
+   gf200_gu_RUU_F100_L20000=GSinE(CountFormulas, ,false,   2.0,,  ,20000,1.0)\
+   gf120_gu_RUU_F100_L01000=GSinE(CountFormulas, ,false,   1.2,,  , 1000,1.0, false)\
 \
-   gf500_h_gu_R04_F100_L20000=GSinE(CountFormulas, hypos,   5.0,, 4,20000,1.0, false)\
-   gf120_h_gu_RUU_F100_L00500=GSinE(CountFormulas, hypos,   1.2,,,  500,1.0)\
-   gf120_h_gu_R02_F100_L20000=GSinE(CountFormulas, hypos,   1.2,, 2,20000,1.0)\
-   gf150_h_gu_RUU_F100_L20000=GSinE(CountFormulas, hypos,   1.5,,,20000,1.0)\
-   gf120_h_gu_RUU_F100_L00100=GSinE(CountFormulas, hypos,   1.2,,,  100,1.0)\
-   gf200_h_gu_R03_F100_L20000=GSinE(CountFormulas, hypos,   2.0,, 3,20000,1.0)\
-   gf600_h_gu_R05_F100_L20000=GSinE(CountFormulas, hypos,   6.0,, 5,20000,1.0,false)\
-   gf200_h_gu_RUU_F100_L20000=GSinE(CountFormulas, hypos,   2.0,,  ,20000,1.0)\
-   gf120_h_gu_RUU_F100_L01000=GSinE(CountFormulas, hypos,   1.2,,  , 1000,1.0)\
+   gf500_h_gu_R04_F100_L20000=GSinE(CountFormulas, hypos,false,   5.0,, 4,20000,1.0, false)\
+   gf120_h_gu_RUU_F100_L00500=GSinE(CountFormulas, hypos,false,   1.2,,,  500,1.0)\
+   gf120_h_gu_R02_F100_L20000=GSinE(CountFormulas, hypos,false,   1.2,, 2,20000,1.0)\
+   gf150_h_gu_RUU_F100_L20000=GSinE(CountFormulas, hypos,false,   1.5,,,20000,1.0)\
+   gf120_h_gu_RUU_F100_L00100=GSinE(CountFormulas, hypos,false,   1.2,,,  100,1.0)\
+   gf200_h_gu_R03_F100_L20000=GSinE(CountFormulas, hypos,false,   2.0,, 3,20000,1.0)\
+   gf600_h_gu_R05_F100_L20000=GSinE(CountFormulas, hypos,false,   6.0,, 5,20000,1.0,false)\
+   gf200_h_gu_RUU_F100_L20000=GSinE(CountFormulas, hypos,false,   2.0,,  ,20000,1.0)\
+   gf120_h_gu_RUU_F100_L01000=GSinE(CountFormulas, hypos,false,   1.2,,  , 1000,1.0)\
 \
-   gf600_gu_R05_F100_L20000add=GSinE(CountFormulas, ,   6.0,, 5,20000,1.0,addnosymb)\
+   gf600_gu_R05_F100_L20000add=GSinE(CountFormulas, ,false,   6.0,, 5,20000,1.0,addnosymb)\
 ";
 
 /*---------------------------------------------------------------------*/
@@ -137,6 +137,7 @@ AxFilter_p AxFilterAlloc(void)
    handle->max_set_fraction     = 1.0;
    handle->add_no_symbol_axioms = false;
    handle->trim_implications    = false;
+   handle->defined_symbols_in_drel = true; // if 
 
    return handle;
 }
@@ -222,8 +223,15 @@ AxFilter_p GSinEParse(Scanner_p in)
    AcceptInpTok(in, Comma);
    if(!TestInpTok(in, Comma))
    {
+      res->defined_symbols_in_drel = TestInpId(in, "true");
+      AcceptInpId(in, "true|false");
+   }
+   AcceptInpTok(in, Comma);
+   if(!TestInpTok(in, Comma))
+   {
       res->benevolence = ParseFloat(in);
    }
+   
    AcceptInpTok(in, Comma);
 
    if(!TestInpTok(in, Comma))

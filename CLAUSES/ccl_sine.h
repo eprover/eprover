@@ -94,6 +94,7 @@ void DRelationAddFormula(DRelation_p drel,
                          double benevolence,
                          long generosity,
                          bool trim,
+                         bool force_def,
                          WFormula_p form);
 
 void DRelationAddClauseSet(DRelation_p drel,
@@ -109,6 +110,7 @@ void DRelationAddFormulaSet(DRelation_p drel,
                             double benevolence,
                             long generosity,
                             bool trim,
+                            bool force_def,
                             FormulaSet_p set);
 
 void DRelationAddClauseSets(DRelation_p drel,
@@ -124,6 +126,7 @@ void DRelationAddFormulaSets(DRelation_p drel,
                              double benevolence,
                              long generosity,
                              bool trim,
+                             bool force_def,
                              PStack_p sets);
 
 void PQueueStoreClause(PQueue_p axioms, Clause_p clause);
