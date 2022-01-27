@@ -545,7 +545,6 @@ int main(int argc, char* argv[])
                                h_parms->formula_def_limit);
    }
    VERBOUT("Clausification done.\n");
-   fprintf(stderr, "CNF done.\n");
 
    if(cnf_size)
    {

@@ -1591,12 +1591,10 @@ long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive,
          gc_threshold = old_nodes * TFORMULA_GC_LIMIT;
       }
    }
-   fprintf(stderr, "lifting lamdbas...\n");
    if(lift_lambdas)
    {
       ClauseSetLiftLambdas(clauseset, archive, terms, fresh_vars);
    }
-   fprintf(stderr, "done...\n");
    if (TBNonVarTermNodes(terms) != old_nodes)
    {
       GCCollect(gc);
