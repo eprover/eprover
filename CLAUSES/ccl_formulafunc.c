@@ -1345,7 +1345,7 @@ long FormulaSetSimplify(FormulaSet_p set, TB_p terms)
          if(TBNonVarTermNodes(terms)>gc_threshold)
          {
             assert(terms == handle->terms);
-            GCCollect(terms->gc);
+            TBGCCollect(terms);
             old_nodes = TBNonVarTermNodes(terms);
             gc_threshold = old_nodes*TFORMULA_GC_LIMIT;
          }
@@ -1355,7 +1355,7 @@ long FormulaSetSimplify(FormulaSet_p set, TB_p terms)
    // printf("All simplified\n");
    if(TBNonVarTermNodes(terms)!=old_nodes)
    {
-      GCCollect(terms->gc);
+      TBGCCollect(terms);
    }
    // printf("Garbage collected\n");
    return res;
@@ -1377,7 +1377,7 @@ long FormulaSetSimplify(FormulaSet_p set, TB_p terms)
 
 long FormulaSetCNF(FormulaSet_p set, FormulaSet_p archive,
                    ClauseSet_p clauseset, TB_p terms,
-                   VarBank_p fresh_vars, GCAdmin_p gc)
+                   VarBank_p fresh_vars)
 {
    WFormula_p form, handle;
    long res = 0;
@@ -1404,14 +1404,14 @@ long FormulaSetCNF(FormulaSet_p set, FormulaSet_p archive,
          (TBNonVarTermNodes(terms)>gc_threshold))
       {
          assert(terms == handle->terms);
-         GCCollect(gc);
+         TBGCCollect(terms);
          old_nodes = TBNonVarTermNodes(terms);
          gc_threshold = old_nodes*TFORMULA_GC_LIMIT;
       }
    }
    if(TBNonVarTermNodes(terms)!=old_nodes)
    {
-      GCCollect(gc);
+      TBGCCollect(terms);
    }
    return res;
 }
@@ -1432,7 +1432,8 @@ long FormulaSetCNF(FormulaSet_p set, FormulaSet_p archive,
 
 long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive,
                     ClauseSet_p clauseset, TB_p terms,
-                    VarBank_p fresh_vars, GCAdmin_p gc, long miniscope_limit)
+                    VarBank_p fresh_vars
+                    , long miniscope_limit)
 {
    WFormula_p form, handle;
    long res = 0;
@@ -1474,14 +1475,14 @@ long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive,
          (TBNonVarTermNodes(terms)>gc_threshold))
       {
          assert(terms == handle->terms);
-         GCCollect(gc);
+         TBGCCollect(terms);
          old_nodes = TBNonVarTermNodes(terms);
          gc_threshold = old_nodes*TFORMULA_GC_LIMIT;
       }
    }
    if(TBNonVarTermNodes(terms)!=old_nodes)
    {
-      GCCollect(gc);
+      TBGCCollect(terms);
    }
    return res;
 }

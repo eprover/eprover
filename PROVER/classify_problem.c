@@ -852,7 +852,6 @@ int main(int argc, char* argv[])
                               fstate->axioms,
                               fstate->terms,
                               fstate->freshvars,
-                              fstate->gc_terms,
                               miniscope_limit);
             }
             else
@@ -861,8 +860,7 @@ int main(int argc, char* argv[])
                              fstate->f_ax_archive,
                              fstate->axioms,
                              fstate->terms,
-                             fstate->freshvars,
-                             fstate->gc_terms);
+                             fstate->freshvars);
             }
             if(!no_preproc)
             {

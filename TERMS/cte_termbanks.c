@@ -626,6 +626,7 @@ TB_p TBAlloc(Sig_p sig)
    handle->rewrite_steps = 0;
    handle->ext_index = PDIntArrayAlloc(1,100000);
    handle->garbage_state = TPIgnoreProps;
+   handle->gc = GCAdminAlloc();
    handle->sig = sig;
    handle->vars = VarBankAlloc(sig->type_bank);
    TermCellStoreInit(&(handle->term_store));
@@ -667,8 +668,10 @@ void TBFree(TB_p junk)
     */
    TermCellStoreExit(&(junk->term_store));
    PDArrayFree(junk->ext_index);
+   GCAdminFree(junk->gc);
    VarBankFree(junk->vars);
    PDArrayFree(junk->min_terms);
+
    //assert(!junk->freevarsets);
    TBCellFree(junk);
 }

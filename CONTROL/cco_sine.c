@@ -350,7 +350,6 @@ StructFOFSpec_p StructFOFSpecAlloc(void)
       (FPIsInteger|FPIsRational|FPIsFloat);
 
    terms         = TBAlloc(sig);
-   GCAdminAlloc(terms);
    res           = StructFOFSpecCreate(terms);
    // res->gc_terms = GCAdminAlloc(terms);
    return res;
@@ -422,7 +421,6 @@ void StructFOFSpecFree(StructFOFSpec_p ctrl)
    TypeBankFree(sort_table);
    SigFree(sig);
    terms->sig = NULL;
-   GCAdminFree(terms->gc);
    TBFree(terms);
 }
 
@@ -500,8 +498,8 @@ long StructFOFSpecParseAxioms(StructFOFSpec_p ctrl, PStack_p axfiles,
             fprintf(GlobalOut, "# Parsing %s\n", iname);
             cset = ClauseSetAlloc();
             fset = FormulaSetAlloc();
-            GCRegisterFormulaSet(ctrl->terms->gc, fset);
-            GCRegisterClauseSet(ctrl->terms->gc, cset);
+            TBGCRegisterFormulaSet(ctrl->terms, fset);
+            TBGCRegisterClauseSet(ctrl->terms, cset);
             printf("Registered\n");
             res += FormulaAndClauseSetParse(in, fset, cset, ctrl->terms,
                                             NULL,
@@ -612,8 +610,8 @@ long ProofStateSinE(ProofState_p state, char* fname)
 
    state->axioms   = ClauseSetAlloc();
    state->f_axioms = FormulaSetAlloc();
-   GCRegisterFormulaSet(state->terms->gc, state->f_axioms);
-   GCRegisterClauseSet(state->terms->gc, state->axioms);
+   TBGCRegisterFormulaSet(state->terms, state->f_axioms);
+   TBGCRegisterClauseSet(state->terms, state->axioms);
    PStackClausesMove(clauses, state->axioms);
    PStackFormulasMove(formulas, state->f_axioms);
    PStackFree(formulas);

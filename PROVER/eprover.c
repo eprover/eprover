@@ -470,7 +470,6 @@ int main(int argc, char* argv[])
                                 proofstate->axioms,
                                 proofstate->terms,
                                 proofstate->freshvars,
-                                proofstate->gc_terms,
                                 miniscope_limit);
    }
    else
@@ -479,8 +478,7 @@ int main(int argc, char* argv[])
                                proofstate->f_ax_archive,
                                proofstate->axioms,
                                proofstate->terms,
-                               proofstate->freshvars,
-                               proofstate->gc_terms);
+                               proofstate->freshvars);
    }
    VERBOUT("Clausification done.\n");
 

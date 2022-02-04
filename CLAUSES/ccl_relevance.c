@@ -224,8 +224,8 @@ static void proofstate_rel_prune(ProofState_p state,
    PStackPointer i, base;
    PList_p       set;
 
-   GCDeregisterFormulaSet(state->gc_terms, state->f_axioms);
-   GCDeregisterClauseSet(state->gc_terms, state->axioms);
+   TBGCDeregisterFormulaSet(state->terms, state->f_axioms);
+   TBGCDeregisterClauseSet(state->terms, state->axioms);
 
    for(i=0; i<level; i++)
    {
@@ -249,8 +249,8 @@ static void proofstate_rel_prune(ProofState_p state,
    state->axioms   = new_ax;
    state->f_axioms = new_fax;
 
-   GCRegisterFormulaSet(state->gc_terms, state->f_axioms);
-   GCRegisterClauseSet(state->gc_terms, state->axioms);
+   TBGCRegisterFormulaSet(state->terms, state->f_axioms);
+   TBGCRegisterClauseSet(state->terms, state->axioms);
 }
 
 

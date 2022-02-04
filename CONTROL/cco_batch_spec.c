@@ -594,9 +594,9 @@ void StructFOFSpecAddProblem(StructFOFSpec_p ctrl,
                              FormulaSet_p formulas)
 {
    GenDistribSizeAdjust(ctrl->f_distrib, ctrl->terms->sig);
-   GCRegisterClauseSet(ctrl->terms->gc, clauses);
+   TBGCRegisterClauseSet(ctrl->terms, clauses);
    PStackPushP(ctrl->clause_sets, clauses);
-   GCRegisterFormulaSet(ctrl->terms->gc, formulas);
+   TBGCRegisterFormulaSet(ctrl->terms, formulas);
    PStackPushP(ctrl->formula_sets, formulas);
 
    GenDistribAddClauseSet(ctrl->f_distrib, clauses, 1);
@@ -638,7 +638,7 @@ void StructFOFSpecBacktrackToSpec(StructFOFSpec_p ctrl)
       GCDeregisterFormulaSet(ctrl->terms->gc, formulas);
       FormulaSetFree(formulas);
    }
-   GCCollect(ctrl->terms->gc);
+   TBGCCollect(ctrl->terms);
    SigBacktrack(ctrl->terms->sig, ctrl->shared_ax_f_count);
 
    problemType = PROBLEM_NOT_INIT;

@@ -38,11 +38,11 @@ TERM_LIB = cte_functypes.o cte_signature.o\
            cte_termtypes.o \
            cte_termvars.o cte_acterms.o\
            cte_varhash.o cte_varsets.o cte_termfunc.o cte_termtrees.o\
-           cte_termcellstore.o\
+           cte_termcellstore.o cte_garbage_coll.o \
            cte_termbanks.o cte_subst.o cte_termpos.o cte_termcpos.o \
-           cte_replace.o cte_match_mgu_1-1.o cte_idx_fp.o cte_fp_index.o \
-	   	   cte_simpletypes.o cte_typecheck.o cte_typebanks.o \
-		   cte_termweightext.o cte_lambda.o
+	   cte_replace.o cte_match_mgu_1-1.o cte_idx_fp.o cte_fp_index.o \
+	   cte_simpletypes.o cte_typecheck.o cte_typebanks.o \
+	   cte_termweightext.o cte_lambda.o
 
 $(LIB): $(TERM_LIB)
 	$(AR) $(LIB) $(TERM_LIB)
