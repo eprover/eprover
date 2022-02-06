@@ -48,6 +48,7 @@ typedef enum
    OPT_OUTPUT,
    OPT_FILTER,
    OPT_SEED_SYMBOLS,
+   OPT_SEEDS,
    OPT_SEED_SUBSAMPLE,
    OPT_SEED_METHODS,
    OPT_DUMP_FILTER,
@@ -130,6 +131,12 @@ OptCell opts[] =
     "symbols to use. 'p' indicates predicate symbols, 'f' non-constant "
     "function symbols, and 'c' constants. Note that this will create "
     "potentially multiple output files for each activated symbols."},
+
+   {OPT_SEEDS,
+    '\0', "seeds",
+    ReqArg, NULL,
+    "Explicitly specify the symbols that should be used as seed symbols for "
+    "axiom extraction. This overwrites --seed-subsample and --seed-symbols."},
 
    {OPT_SEED_SUBSAMPLE,
     '\0', "seed-subsample",
@@ -233,6 +240,7 @@ bool     seed_preds   = false,
          seed_diverse = false,
          seed_all     = true,
          app_encode   = false;
+char*    seedstr      = NULL;
 
 SubSampleMethod subsample   = SubSNone;
 long            sample_size = LONG_MAX;
@@ -660,6 +668,57 @@ void subsample_seed_symbols(StructFOFSpec_p ctrl, PStack_p seed_symbols)
 }
 
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: decode_seed_symbols()
+//
+//   Parse the symbols from seedstr, find their encoding, and put them
+//   onto the provided stack. Terminate with error if there is an
+//   unknown symbol.
+//
+// Global Variables: -
+//
+// Side Effects    : May terminate program, memory operations
+//
+/----------------------------------------------------------------------*/
+
+void decode_seed_symbols(Sig_p sig, char* seedstr, PStack_p seed_symbols)
+{
+   DStr_p id = DStrAlloc();
+   FunCode f_code;
+
+   Scanner_p in = CreateScanner(StreamTypeOptionString, seedstr,
+                                true, NULL, true);
+   CheckInpTok(in, FuncSymbStartToken);
+   FuncSymbParse(in, id);
+   f_code = SigFindFCode(sig, DStrView(id));
+   if(!f_code)
+   {
+
+      Error("User-requested symbol %s unknown while parsing option --seeds",
+            USAGE_ERROR, DStrView(id) );
+   }
+   PStackPushInt(seed_symbols, f_code);
+
+   while(TestInpTok(in, Comma))
+   {
+      AcceptInpTok(in, Comma);
+      DStrReset(id);
+      FuncSymbParse(in, id);
+      f_code = SigFindFCode(sig, DStrView(id));
+      if(!f_code)
+      {
+         Error("User-requested symbol %s unknown while parsing option --seeds",
+               USAGE_ERROR, DStrView(id));
+      }
+      PStackPushInt(seed_symbols, f_code);
+   }
+   DestroyScanner(in);
+   DStrFree(id);
+}
+
+
 /*-----------------------------------------------------------------------
 //
 // Function: seeded_filters()
@@ -681,8 +740,15 @@ void seeded_filters(StructFOFSpec_p ctrl,
    PStack_p seed_symbols = PStackAlloc();
    FunCode seed;
 
-   find_seed_symbols(ctrl->terms->sig, seed_symbols);
-   subsample_seed_symbols(ctrl, seed_symbols);
+   if(seedstr)
+   {
+      decode_seed_symbols(ctrl->terms->sig, seedstr, seed_symbols);
+   }
+   else
+   {
+      find_seed_symbols(ctrl->terms->sig, seed_symbols);
+      subsample_seed_symbols(ctrl, seed_symbols);
+   }
 
    while(!PStackEmpty(seed_symbols))
    {
@@ -789,13 +855,11 @@ int main(int argc, char* argv[])
    FREE(tname);
 
    ctrl = StructFOFSpecAlloc();
-   printf("Hi\n");
    StructFOFSpecParseAxioms(ctrl, prob_names, parse_format, NULL);
-   printf("Ho\n");
    StructFOFSpecInitDistrib(ctrl);
    StructFOFSpecResetShared(ctrl);
 
-   if(seed_preds || seed_funs || seed_consts)
+   if(seed_preds || seed_funs || seed_consts || seedstr)
    {
       seeded_filters(ctrl, filters, DStrView(corename));
    }
@@ -893,6 +957,9 @@ CLState_p process_options(int argc, char* argv[])
                      break;
                }
             }
+            break;
+      case OPT_SEEDS:
+            seedstr = arg;
             break;
       case OPT_SEED_SUBSAMPLE:
             if(strlen(arg)<2 ||

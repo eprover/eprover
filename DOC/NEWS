@@ -12,6 +12,7 @@ Version 2.6 ->
 - Added multicore scheduler and schedule generation
 - Various minor improvements
 
+
 Version 2.5 -> 2.6 Floral Guranse
 
 - Much improved algorithm for finding maximal literals in long clauses

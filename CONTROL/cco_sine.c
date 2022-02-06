@@ -481,16 +481,16 @@ long StructFOFSpecParseAxioms(StructFOFSpec_p ctrl, PStack_p axfiles,
    long         res = 0;
    static IntOrP dummy = {0};
 
-   printf("# XXX Called with %ld axiom files\n", PStackGetSP(axfiles));
+   //printf("# XXX Called with %ld axiom files\n", PStackGetSP(axfiles));
 
    for(i=0; i<PStackGetSP(axfiles); i++)
    {
       iname = PStackElementP(axfiles, i);
       if(!StrTreeFind(&(ctrl->parsed_includes), iname))
       {
-         printf("Calling with %s\n", iname);
+         //printf("Calling with %s\n", iname);
          in = CreateScanner(StreamTypeFile, iname, true, default_dir, false);
-         printf("Result: %p\n", in);
+         //printf("Result: %p\n", in);
          if(in)
          {
             ScannerSetFormat(in, parse_format);
@@ -500,7 +500,6 @@ long StructFOFSpecParseAxioms(StructFOFSpec_p ctrl, PStack_p axfiles,
             fset = FormulaSetAlloc();
             TBGCRegisterFormulaSet(ctrl->terms, fset);
             TBGCRegisterClauseSet(ctrl->terms, cset);
-            printf("Registered\n");
             res += FormulaAndClauseSetParse(in, fset, cset, ctrl->terms,
                                             NULL,
                                             &(ctrl->parsed_includes));
