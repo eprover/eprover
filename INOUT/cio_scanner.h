@@ -94,7 +94,7 @@ typedef unsigned long long TokenType;
 #define LambdaQuantor (Carret)
 #define LetToken      (2*LambdaQuantor)
 #define IteToken      (2*LetToken)
-
+#define ErrorToken    (2*IteToken)
 
 #define SkipToken     (WhiteSpace | Comment)
 #define Identifier    (Ident | Idnum)
@@ -140,6 +140,17 @@ typedef struct tokencell
 
 #define MAXTOKENLOOKAHEAD 4
 
+typedef struct {
+   DStr_p message;
+   Token_p token;
+} ErrorCell, *Error_p;
+
+typedef struct {
+   Error_p errors;
+   int count;
+   int capacity;
+} ErrorStack, *ErrorStack_p;
+
 typedef struct scannercell
 {
    Stream_p    source;  /* Input stack from which to read */
@@ -154,12 +165,19 @@ typedef struct scannercell
    TokenCell   tok_sequence[MAXTOKENLOOKAHEAD]; /* Need help? Bozo! */
    int         current; /* Pointer to current token in tok_sequence */
    char*       include_pos; /* If created by "include", by which one? */
+
+   ErrorStack error_stack;
+   bool        panic_mode; /* Flag to check if panic mode was activated. */
 }ScannerCell, *Scanner_p;
 
 
 /*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
+#define ErrorCellAlloc()        (ErrorCell*)SizeMalloc(sizeof(ErrorCell))
+void PushErrorStack(ErrorStack_p stack, ErrorCell error);
+void FreeErrorStack(ErrorStack_p stack);
+void InitErrorStack(ErrorStack_p stack);
 
 #define TokenCellAlloc()      (TokenCell*)SizeMalloc(sizeof(TokenCell))
 #define TokenCellFree(junk)   SizeFree(junk, sizeof(TokenCell))
@@ -212,7 +230,7 @@ bool TestIdnum(Token_p akt, char* ids);
 #define TestInpTokNoSkip(in, toks) \
         (TestInpNoSkip(in) && TestInpTok(in, toks))
 
-void AktTokenError(Scanner_p in, char* msg, bool syserr);
+void AktTokenError(Scanner_p in, char* msg, bool _);
 void AktTokenWarning(Scanner_p in, char* msg);
 
 void CheckInpTok(Scanner_p in, TokenType toks);

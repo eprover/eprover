@@ -69,6 +69,7 @@ static TokenRepCell token_print_rep[] =
    {FOFXor,       "Negated Equivalence/Xor ('<~>')"},
    {FOFNand,      "Nand ('~&')"},
    {FOFNor,       "Nor ('~|'')"},
+   {ErrorToken,   "Error token"},
    {NoToken,      NULL}
 
 };
@@ -507,7 +508,7 @@ static Token_p scan_token(Scanner_p in)
             AktToken(in)->tok = Carret;
             break;
       default:
-            DStrAppendChar(AktToken(in)->literal, CurrChar(in));
+            // DStrAppendChar(AktToken(in)->literal, CurrChar(in));
             AktTokenError(in, "Illegal character", false);
             break;
       }
@@ -845,6 +846,9 @@ Scanner_p CreateScanner(StreamType type, char *name, bool
    handle->include_key = NULL;
    handle->format = LOPFormat;
 
+   InitErrorStack(&handle->error_stack);
+   handle->panic_mode = false;
+
    if((type == StreamTypeFile && strcmp(name,"-")==0)||
       (type != StreamTypeFile))
    {
@@ -961,6 +965,7 @@ void DestroyScanner(Scanner_p  junk)
    {
       FREE(junk->include_pos);
    }
+   FreeErrorStack(&junk->error_stack);
    ScannerCellFree(junk);
 }
 
@@ -1083,6 +1088,42 @@ bool TestIdnum(Token_p akt, char* ids)
    return str_n_element(DStrView(akt->literal), ids, len);
 }
 
+void InitErrorStack(ErrorStack_p stack)
+{
+   stack->errors = NULL;
+   stack->count = 0;
+   stack->capacity = 0;
+}
+
+void PushErrorStack(ErrorStack_p stack, ErrorCell error)
+{
+   int old_capacity;
+   if (stack->count == stack->capacity)
+   {
+      old_capacity = stack->capacity;
+      stack->capacity = old_capacity == 0 ? 8 : old_capacity * 2;
+      stack->errors = (Error_p)SecureRealloc(stack->errors, stack->capacity * sizeof(ErrorCell));
+   }
+   stack->errors[stack->count++] = error;
+}
+
+void FreeErrorStack(ErrorStack_p stack)
+{
+   SizeFree(stack->errors, stack->capacity * sizeof(ErrorCell));
+   stack->errors = NULL;
+   stack->count = stack->capacity = 0;
+}
+
+static void PushError(Scanner_p in, DStr_p message)
+{
+   Error_p error;
+
+   error = ErrorCellAlloc();
+   error->message = message;
+   error->token = AktToken(in);
+
+   PushErrorStack(&in->error_stack, *error);
+}
 
 /*-----------------------------------------------------------------------
 //
@@ -1098,20 +1139,17 @@ bool TestIdnum(Token_p akt, char* ids)
 //
 /----------------------------------------------------------------------*/
 
-void AktTokenError(Scanner_p in, char* msg, bool syserr)
+void AktTokenError(Scanner_p in, char* msg, bool _)
 {
-   DStr_p err = DStrAlloc();
+   // Set token cell type to ErrorToken.
+   AktToken(in)->tok = ErrorToken;
 
-   compose_errmsg(err, in, msg);
-   if(syserr)
-   {
-      SysError(DStrView(err), SYNTAX_ERROR);
-   }
-   else
-   {
-      Error(DStrView(err), SYNTAX_ERROR);
-   }
-   DStrFree(err); /* Just for symmetry reasons */
+   // Create error message.
+   DStr_p err = DStrAlloc();
+   DStrAppendStr(err, msg);
+
+   // Push new error to error stack.
+   PushError(in, err);
 }
 
 
