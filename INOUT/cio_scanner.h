@@ -140,15 +140,25 @@ typedef struct tokencell
 
 #define MAXTOKENLOOKAHEAD 4
 
-typedef struct {
+typedef enum
+{
+    WARNING,
+    CRITICAL
+} ErrorType;
+
+typedef struct
+{
    DStr_p message;
    Token_p token;
+   ErrorType type;
 } ErrorCell, *Error_p;
 
-typedef struct {
+typedef struct
+{
    Error_p errors;
    int count;
    int capacity;
+   int handle;
 } ErrorStack, *ErrorStack_p;
 
 typedef struct scannercell
@@ -178,6 +188,7 @@ typedef struct scannercell
 void PushErrorStack(ErrorStack_p stack, ErrorCell error);
 void FreeErrorStack(ErrorStack_p stack);
 void InitErrorStack(ErrorStack_p stack);
+ErrorCell GetFirstUnhandledError(ErrorStack_p);
 
 #define TokenCellAlloc()      (TokenCell*)SizeMalloc(sizeof(TokenCell))
 #define TokenCellFree(junk)   SizeFree(junk, sizeof(TokenCell))

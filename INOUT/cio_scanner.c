@@ -1093,6 +1093,7 @@ void InitErrorStack(ErrorStack_p stack)
    stack->errors = NULL;
    stack->count = 0;
    stack->capacity = 0;
+   stack->handle = 0;
 }
 
 void PushErrorStack(ErrorStack_p stack, ErrorCell error)
@@ -1109,18 +1110,25 @@ void PushErrorStack(ErrorStack_p stack, ErrorCell error)
 
 void FreeErrorStack(ErrorStack_p stack)
 {
+   int i;
+   for (i = 0; i < stack->capacity; i++)
+   {
+      DStrFree(stack->errors[i].message);
+      TokenCellFree(stack->errors[i].token);
+   }
    SizeFree(stack->errors, stack->capacity * sizeof(ErrorCell));
-   stack->errors = NULL;
-   stack->count = stack->capacity = 0;
+   stack->capacity = stack->count = stack->handle = 0;
+   SizeFree(stack, sizeof(ErrorStack));
 }
 
-static void PushError(Scanner_p in, DStr_p message)
+static void PushScannerError(Scanner_p in, DStr_p message)
 {
    Error_p error;
 
    error = ErrorCellAlloc();
    error->message = message;
    error->token = AktToken(in);
+   error->type = CRITICAL;
 
    PushErrorStack(&in->error_stack, *error);
 }
@@ -1149,7 +1157,7 @@ void AktTokenError(Scanner_p in, char* msg, bool _)
    DStrAppendStr(err, msg);
 
    // Push new error to error stack.
-   PushError(in, err);
+   PushScannerError(in, err);
 }
 
 
@@ -1188,22 +1196,32 @@ void AktTokenWarning(Scanner_p in, char* msg)
 //
 /----------------------------------------------------------------------*/
 
+ErrorCell GetFirstUnhandledError(ErrorStack_p stack)
+{
+   ErrorCell error = stack->errors[stack->handle];
+   return error;
+}
+
 void CheckInpTok(Scanner_p in, TokenType toks)
 {
+   if (in->error_stack.count > 0)
+   {
+      ErrorCell error = GetFirstUnhandledError(&in->error_stack);
+
+      // Check if first element in error stack points to current token.
+      // Error in scanner -> panic mode because it normally cannot be handled properly.
+      if (error.token == AktToken(in))
+      {
+         fprintf(GlobalOut, "Scanner Error");
+         in->error_stack.handle++;
+      }
+   }
+
    if(!TestInpTok(in, toks))
    {
-      char* tmp;
-
-      DStrReset(in->accu);
-      tmp = DescribeToken(toks);
-      DStrAppendStr(in->accu, tmp);
-      FREE(tmp);
-      DStrAppendStr(in->accu, " expected, but ");
-      tmp = DescribeToken(AktToken(in)->tok);
-      DStrAppendStr(in->accu, tmp);
-      FREE(tmp);
-      DStrAppendStr(in->accu, " read ");
-      AktTokenError(in, DStrView(in->accu), false);
+      // Parser Error.
+      fprintf(GlobalOut, "Parser Error");
+      exit(70);
    }
 }
 
