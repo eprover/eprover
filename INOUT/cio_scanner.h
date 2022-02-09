@@ -176,7 +176,7 @@ typedef struct scannercell
    int         current; /* Pointer to current token in tok_sequence */
    char*       include_pos; /* If created by "include", by which one? */
 
-   ErrorStack error_stack;
+   ErrorStack_p error_stack;
    bool        panic_mode; /* Flag to check if panic mode was activated. */
 }ScannerCell, *Scanner_p;
 
@@ -185,6 +185,8 @@ typedef struct scannercell
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 #define ErrorCellAlloc()        (ErrorCell*)SizeMalloc(sizeof(ErrorCell))
+#define ErrorCellFree(junk)     SizeFree(junk, sizeof(ErrorCell))
+#define ErrorStackAlloc()       (ErrorStack_p)SizeMalloc(sizeof(ErrorStack))
 void PushErrorStack(ErrorStack_p stack, ErrorCell error);
 void FreeErrorStack(ErrorStack_p stack);
 void InitErrorStack(ErrorStack_p stack);

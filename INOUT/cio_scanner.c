@@ -846,7 +846,8 @@ Scanner_p CreateScanner(StreamType type, char *name, bool
    handle->include_key = NULL;
    handle->format = LOPFormat;
 
-   InitErrorStack(&handle->error_stack);
+   handle->error_stack = ErrorStackAlloc();
+   InitErrorStack(handle->error_stack);
    handle->panic_mode = false;
 
    if((type == StreamTypeFile && strcmp(name,"-")==0)||
@@ -965,7 +966,7 @@ void DestroyScanner(Scanner_p  junk)
    {
       FREE(junk->include_pos);
    }
-   FreeErrorStack(&junk->error_stack);
+   FreeErrorStack(junk->error_stack);
    ScannerCellFree(junk);
 }
 
@@ -1115,8 +1116,8 @@ void FreeErrorStack(ErrorStack_p stack)
    {
       DStrFree(stack->errors[i].message);
       TokenCellFree(stack->errors[i].token);
+      ErrorCellFree(&stack->errors[i]);
    }
-   SizeFree(stack->errors, stack->capacity * sizeof(ErrorCell));
    stack->capacity = stack->count = stack->handle = 0;
    SizeFree(stack, sizeof(ErrorStack));
 }
@@ -1130,7 +1131,7 @@ static void PushScannerError(Scanner_p in, DStr_p message)
    error->token = AktToken(in);
    error->type = CRITICAL;
 
-   PushErrorStack(&in->error_stack, *error);
+   PushErrorStack(in->error_stack, *error);
 }
 
 /*-----------------------------------------------------------------------
@@ -1204,23 +1205,30 @@ ErrorCell GetFirstUnhandledError(ErrorStack_p stack)
 
 void CheckInpTok(Scanner_p in, TokenType toks)
 {
-   if (in->error_stack.count > 0)
+   if (in->error_stack->count > 0)
    {
-      ErrorCell error = GetFirstUnhandledError(&in->error_stack);
+      ErrorCell error = GetFirstUnhandledError(in->error_stack);
 
       // Check if first element in error stack points to current token.
       // Error in scanner -> panic mode because it normally cannot be handled properly.
       if (error.token == AktToken(in))
       {
-         fprintf(GlobalOut, "Scanner Error");
-         in->error_stack.handle++;
+         fprintf(GlobalOut, "Scanner Error\n");
+         int i;
+         for (i = 0; i < in->error_stack->count; i++)
+         {
+            PrintToken(GlobalOut, in->error_stack->errors[i].token);
+            fprintf(GlobalOut, "\n");
+         }
+         in->error_stack->handle++;
+         exit(70);
       }
    }
 
    if(!TestInpTok(in, toks))
    {
       // Parser Error.
-      fprintf(GlobalOut, "Parser Error");
+      fprintf(GlobalOut, "Parser Error\n");
       exit(70);
    }
 }
