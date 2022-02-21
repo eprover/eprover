@@ -235,15 +235,15 @@ static void compute_d_rel(GenDistrib_p      generality,
       for(i=0; i<PStackGetSP(sort_stack); i++)
       {
          gen = PStackElementP(sort_stack, i);
+         // fprintf(stderr, "generality(% ld)=%s: %ld\n",
+         //    i,
+         //    SigFindName(generality->sig, gen->f_code),
+         //    extract_generality(gen, gentype));
          
          if(extract_generality(gen, gentype)>gen_limit)
          {
             break;
          }
-         // fprintf(stderr, "generality(% ld)=%s: %ld\n",
-         //    i,
-         //    SigFindName(generality->sig, gen->f_code),
-         //    extract_generality(gen, gentype));
          PStackPushInt(res, gen->f_code);
       }
       /* printf("Selected %d symbols including %ld\n",
@@ -689,7 +689,7 @@ void FormulaComputeDRel(GenDistrib_p generality,
 
    /* printf("Symbolstack has %d elements\n",
       PStackGetSP(symbol_stack)); */
-   // DBG_PRINT(stderr, "sine(", WFormulaTSTPPrint(stderr, form, true, true), ").\n");
+   fprintf(stderr, "sine(%s)=\n", WFormulaGetId(form));
    compute_d_rel(generality, gentype, benevolence, generosity, symbol_stack, res);
 
    while(!PStackEmpty(symbol_stack))

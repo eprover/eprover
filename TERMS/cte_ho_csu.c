@@ -245,7 +245,7 @@ void move_stack(PQueue_p new, PStack_p old, int move_kind)
 
 /*-----------------------------------------------------------------------
 //
-// Function: prepare_backtrack()
+// Function: schedule_args()
 //
 //   Put the arguments on the constraints stack in the order which 
 //   improves the performance of unif algorithm: first rigid-rigid

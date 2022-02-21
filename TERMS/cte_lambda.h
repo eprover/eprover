@@ -42,7 +42,7 @@ TFormula_p NamedToDB(TB_p bank, TFormula_p lambda);
 Term_p     CloseWithDBVar(TB_p bank, Type_p ty, Term_p body);
 Term_p     CloseWithTypePrefix(TB_p bank, Type_p* tys, long size, Term_p matrix);
 Term_p     ShiftDB(TB_p bank, Term_p term, int shift_val);
-Term_p AbstractVars(TB_p terms, Term_p matrix, PStack_p var_prefix);
+Term_p     AbstractVars(TB_p terms, Term_p matrix, PStack_p var_prefix);
 Term_p     WHNF_step(TB_p bank, Term_p t);
 Term_p     WHNF_deref(Term_p t);
 Term_p     BetaNormalizeDB(TB_p bank, Term_p term);

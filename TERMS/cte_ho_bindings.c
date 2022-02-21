@@ -379,9 +379,9 @@ bool build_trivial_ident(TB_p bank, Term_p lhs, Term_p rhs,
 /----------------------------------------------------------------------*/
 
 StateTag_t ComputeNextBinding(Term_p flex, Term_p rhs,
-                                   StateTag_t state, Limits_t *applied_bs,
-                                   TB_p bank, Subst_p subst,
-                                   HeuristicParms_p parms, bool *succ)
+                              StateTag_t state, Limits_t *applied_bs,
+                              TB_p bank, Subst_p subst,
+                              HeuristicParms_p parms, bool *succ)
 {
    assert(TermIsTopLevelFreeVar(flex));
    StateTag_t cnt = CONSTRAINT_COUNTER(state);

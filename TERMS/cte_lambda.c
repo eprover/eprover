@@ -334,7 +334,7 @@ long find_min_db(Term_p t, long depth)
    {
       res = find_min_db(t->args[1], depth+1);
    }
-   else
+   else if (TermHasDBSubterm(t))
    {
       for(long i=0; i<t->arity; i++)
       {

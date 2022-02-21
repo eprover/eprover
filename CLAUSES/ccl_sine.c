@@ -599,6 +599,7 @@ long SelectDefiningAxioms(DRelation_p drel,
             }
             FormulaSetProp(form, CPIsRelevant);
             PStackPushP(res_formulas, form);
+            // fprintf(stderr, "activating form: %s\n", WFormulaGetId(form));
             TermAddSymbolDistExist((FormulaIsConjecture(form) && trim_implications) ?
                                     TermTrimImplications(sig, form->tformula) : form->tformula,
                                     dist_array, symbol_stack);
@@ -616,6 +617,7 @@ long SelectDefiningAxioms(DRelation_p drel,
             !frel->activated)
          {
             frel->activated = true;
+            // fprintf(stderr, " > |%s|: ", SigFindName(sig, i));
             for(sp=0; sp<PStackGetSP(frel->d_clauses); sp++)
             {
                clause = PStackElementP(frel->d_clauses, sp);
@@ -624,8 +626,10 @@ long SelectDefiningAxioms(DRelation_p drel,
             for(sp=0; sp<PStackGetSP(frel->d_formulas); sp++)
             {
                form = PStackElementP(frel->d_formulas, sp);
+               // fprintf(stderr, "%s; ", WFormulaGetId(form));
                PQueueStoreFormula(axioms, form);
             }
+            // fprintf(stderr, "\n");
          }
          dist_array[i] = 0;
       }
@@ -687,6 +691,7 @@ long SelectAxioms(GenDistrib_p      f_distrib,
                            formula_sets);
    /* fprintf(GlobalOut, "# DRelation constructed (%lld)\n",
     * GetSecTimeMod()); */
+   // DRelationPrintDebug(stderr, drel, f_distrib->sig);
 
    for(i=seed_start; i<PStackGetSP(clause_sets); i++)
    {

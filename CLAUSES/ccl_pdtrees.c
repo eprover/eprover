@@ -1069,7 +1069,6 @@ bool PDTreeInsert(PDTree_p tree, ClausePos_p demod_side)
    
    assert(demod_side);
    term = ClausePosGetSide(demod_side);
-   // currently demodulation only on non-lambda terms
    bool ans = PDTreeInsertTerm(tree, term, demod_side, true);
    return ans;
 }

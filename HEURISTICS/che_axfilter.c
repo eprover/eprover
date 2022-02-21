@@ -137,7 +137,7 @@ AxFilter_p AxFilterAlloc(void)
    handle->max_set_fraction     = 1.0;
    handle->add_no_symbol_axioms = false;
    handle->trim_implications    = false;
-   handle->defined_symbols_in_drel = true; // if 
+   handle->defined_symbols_in_drel = false; // if 
 
    return handle;
 }
@@ -221,12 +221,12 @@ AxFilter_p GSinEParse(Scanner_p in)
       NextToken(in);
    }
    AcceptInpTok(in, Comma);
-   if(!TestInpTok(in, Comma))
+   if(!TestInpTok(in, Comma) && TestInpId(in,"true|false"))
    {
       res->defined_symbols_in_drel = TestInpId(in, "true");
       AcceptInpId(in, "true|false");
+      AcceptInpTok(in, Comma);
    }
-   AcceptInpTok(in, Comma);
    if(!TestInpTok(in, Comma))
    {
       res->benevolence = ParseFloat(in);

@@ -1003,26 +1003,18 @@ static CompareResult kbolincmp_lambda(OCB_p ocb, Term_p s, Term_p t,
 {
    assert(problemType == PROBLEM_HO);
    assert(ocb->ho_vb == NULL);
-   // DBG_TPRINT(stderr, "s: ", s, ", ");
    s = LambdaEtaReduceDB(TermGetBank(s),
          BetaNormalizeDB(TermGetBank(s),
             TBInsertInstantiatedDeref(TermGetBank(s), s, deref_s)));
-   // DBG_TPRINT(stderr, "snf(s): ", s, ".\n");
-   // DBG_TPRINT(stderr, "t: ", t, "; ");
    t =  LambdaEtaReduceDB(TermGetBank(t), 
          BetaNormalizeDB(TermGetBank(t),
             TBInsertInstantiatedDeref(TermGetBank(t), t, deref_t)));
-   // DBG_TPRINT(stderr, "snf(t): ", t, ".\n");
 
    CompareResult res = 
       s->f_code == SIG_TRUE_CODE ? 
          (t->f_code == SIG_TRUE_CODE ? to_equal : to_lesser) :
       (t->f_code == SIG_TRUE_CODE ? to_greater : kbolincmp_lambda_driver(ocb, s, t));
 
-   // DBG_PRINT(stderr, "", TermPrintDbg(stderr, s, ocb->sig, DEREF_NEVER),
-   //          POCompareSymbol[res]);
-   // DBG_PRINT(stderr, "", TermPrintDbg(stderr, t, ocb->sig, DEREF_NEVER),
-   //           ".\n");
    return res;
 }
 
