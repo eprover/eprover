@@ -236,11 +236,11 @@ void _catch_and_quit(int _)
 }
 
 int ExecuteScheduleMultiCore(ScheduleCell strats[],
-                              HeuristicParms_p  h_parms,
-                              bool print_rusage,
-                              int wc_time_limit,
-                              int preproc_schedule,
-                              int max_cores)
+                             HeuristicParms_p  h_parms,
+                             bool print_rusage,
+                             int wc_time_limit,
+                             int preproc_schedule,
+                             int max_cores)
 {
    int i;
    double run_time = GetTotalCPUTime();
