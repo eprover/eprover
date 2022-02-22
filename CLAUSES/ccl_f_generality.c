@@ -689,7 +689,7 @@ void FormulaComputeDRel(GenDistrib_p generality,
 
    /* printf("Symbolstack has %d elements\n",
       PStackGetSP(symbol_stack)); */
-   fprintf(stderr, "sine(%s)=\n", WFormulaGetId(form));
+   // fprintf(stderr, "sine(%s)=\n", WFormulaGetId(form));
    compute_d_rel(generality, gentype, benevolence, generosity, symbol_stack, res);
 
    while(!PStackEmpty(symbol_stack))

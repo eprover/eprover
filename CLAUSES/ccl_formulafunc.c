@@ -803,7 +803,7 @@ bool find_fool_subterm(TB_p bank, Term_p t, TermPos_p pos)
    PStackPushP(pos, t);
    bool found = false;
 
-   for(i=0; !TermIsLambda(t) && !TermIsAppliedFreeVar(t) && i<t->arity; i++)
+   for(i=0; !TermIsLambda(t) /*&& !TermIsAppliedFreeVar(t)*/ && i<t->arity; i++)
    {
       PStackPushInt(pos, i);
 

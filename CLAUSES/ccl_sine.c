@@ -740,13 +740,13 @@ long SelectAxioms(GenDistrib_p      f_distrib,
                                  res_formulas);
    }
    PStackFormulaDelProp(res_formulas, CPIsRelevant);
-   fprintf(stderr, "sine selected:\n");
-   for(PStackPointer i=0; i<PStackGetSP(res_formulas); i++)
-   {
-      WFormula_p f = PStackElementP(res_formulas, i);
-      fprintf(stderr, "%s, ", WFormulaGetId(f));
-   }
-   fprintf(stderr, ".\n");
+   // fprintf(stderr, "sine selected:\n");
+   // for(PStackPointer i=0; i<PStackGetSP(res_formulas); i++)
+   // {
+   //    WFormula_p f = PStackElementP(res_formulas, i);
+   //    fprintf(stderr, "%s, ", WFormulaGetId(f));
+   // }
+   // fprintf(stderr, ".\n");
    PStackClauseDelProp(res_clauses, CPIsRelevant);
    /* fprintf(GlobalOut, "# Axioms selected (%lld)\n",
       GetSecTimeMod()); */
