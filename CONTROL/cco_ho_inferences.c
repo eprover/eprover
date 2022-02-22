@@ -1603,7 +1603,7 @@ void ComputeArgCong(ProofState_p state, ProofControl_p control, Clause_p clause)
          Term_p lhs = lit->lterm, rhs = lit->rterm;
          for (int i = 0; i < needed_args; i++)
          {
-            Term_p fvar = 
+            Term_p fvar =
                TBInsert(bank, VarBankGetFreshVar(varbank, lhs->type->args[i]), DEREF_NEVER);
             PStackPushP(fresh_vars, fvar);
 
