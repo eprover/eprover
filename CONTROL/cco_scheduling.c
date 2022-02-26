@@ -228,7 +228,7 @@ void ScheduleTimesInitMultiCore(ScheduleCell sched[], double time_used,
 //
 /----------------------------------------------------------------------*/
 
-#define TERMINATE_CHILDREN() signal(SIGQUIT, SIG_IGN); kill(0, SIGQUIT)
+#define TERMINATE_CHILDREN() //signal(SIGQUIT, SIG_IGN); kill(0, SIGQUIT)
 
 void _catch_and_quit(int _)
 {

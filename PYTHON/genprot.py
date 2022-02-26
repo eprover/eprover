@@ -195,7 +195,7 @@ def process_file(data, features, archivename, path, fileopener, info):
     if verbose:
         print("Processing: ", path)
     problemname   = basename(dirname(path))
-    configname    = "_".join(basename(dirname(dirname(path))).split("_")[4:])
+    configname    = "_".join(basename(dirname(dirname(path))).split("___")[1:])
     mo            = version_re.search(basename(dirname(dirname(path))).split("_", 1)[0])
     if mo:
         eversion = mo.group()
