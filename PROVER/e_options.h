@@ -233,6 +233,7 @@ typedef enum
    OPT_MAX_UNIF_STEPS,
    OPT_CNF_TIMEOUT_PORTION,
    OPT_PREINSTANTIATE_INDUCTION,
+   OPT_SERIALIZE_SCHEDULE,
    OPT_DUMMY
 }OptionCodes;
 
@@ -705,6 +706,11 @@ OptCell opts[] =
     ReqArg, NULL,
     "When autoscheduling is used, make sure that preprocessing schedule is"
     "inserted in the search categories"},
+
+    {OPT_SERIALIZE_SCHEDULE,
+    '\0', "serialize-schedule",
+    ReqArg, NULL,
+    "Convert parallel auto-schedule into serialized one."},
 
    {OPT_SATAUTO_SCHED,
     '\0', "satauto-schedule",

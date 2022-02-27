@@ -81,6 +81,7 @@ bool              print_sat = false,
    conjectures_are_questions = false,
    app_encode = false,
    strategy_scheduling = false,
+   serialize_schedule = false,
    force_pre_schedule = true;
 ProofOutput       print_derivation = PONone;
 long              proc_training_data;
@@ -122,8 +123,41 @@ void print_help(FILE* out);
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
 
+/*-----------------------------------------------------------------------
+//
+// Function: set_limits()
+//
+//   Sets time and memory limits.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory, input, may terminate with error.
+//
+/----------------------------------------------------------------------*/
 
+void set_limits(rlim_t hard_time_limit, rlim_t soft_time_limit, rlim_t mem_limit)
+{
+   if((hard_time_limit!=RLIM_INFINITY)||(soft_time_limit!=RLIM_INFINITY))
+   {
+      if(soft_time_limit!=RLIM_INFINITY)
+      {
+         SetSoftRlimitErr(RLIMIT_CPU, SoftTimeLimit, "RLIMIT_CPU (E-Soft)");
+         TimeLimitIsSoft = true;
+      }
+      else
+      {
+         SetSoftRlimitErr(RLIMIT_CPU, hard_time_limit, "RLIMIT_CPU (E-Hard)");
+         TimeLimitIsSoft = false;
+      }
 
+      if(SetSoftRlimit(RLIMIT_CORE, 0)!=RLimSuccess)
+      {
+         perror("eprover");
+         Warning("Cannot prevent core dumps!");
+      }
+   }
+   SetMemoryLimit(mem_limit);
+}
 
 /*-----------------------------------------------------------------------
 //
@@ -461,7 +495,7 @@ int main(int argc, char* argv[])
          sched_idx = ExecuteScheduleMultiCore(preproc_schedule, 
                                              h_parms, print_rusage, 
                                              ScheduleTimeLimit ? ScheduleTimeLimit : DEFAULT_SCHED_TIME_LIMIT, 
-                                             true, num_cpus);
+                                             true, num_cpus, serialize_schedule);
          char* preproc_conf_name = h_parms->heuristic_name;
          GetHeuristicWithName(preproc_conf_name, h_parms);
       }
@@ -628,13 +662,14 @@ int main(int argc, char* argv[])
       fprintf(stdout, "# Search class: %s\n", class);
       if (strategy_scheduling)
       {
+         set_limits(HardTimeLimit, SoftTimeLimit, h_parms->mem_limit);
          ScheduleCell* search_sched = GetSearchSchedule(class);
          InitializePlaceholderSearchSchedule(search_sched, preproc_schedule+sched_idx,
                                              force_pre_schedule);
          ExecuteScheduleMultiCore(search_sched, 
                                  h_parms, print_rusage, 
                                  preproc_schedule[sched_idx].time_absolute, 
-                                 false, preproc_schedule[sched_idx].cores);
+                                 false, preproc_schedule[sched_idx].cores, false);
          GetHeuristicWithName(h_parms->heuristic_name, h_parms);
          h_parms->heuristic_name = h_parms->heuristic_def;
          h_parms->inst_choice_max_depth = choice_max_depth;
@@ -1287,6 +1322,9 @@ CLState_p process_options(int argc, char* argv[])
                h_parms->sine = SecureStrdup("Auto");
                strategy_scheduling = true;
             }
+            break;
+      case OPT_SERIALIZE_SCHEDULE:
+            serialize_schedule = CLStateGetBoolArg(handle, arg);
             break;
       case OPT_FORCE_PREPROC_SCHED:
             force_pre_schedule = CLStateGetBoolArg(handle, arg);
@@ -2114,27 +2152,10 @@ CLState_p process_options(int argc, char* argv[])
       h_parms->heuristic_def = PStackTopP(hcb_definitions);
    }
 
-
-   if((HardTimeLimit!=RLIM_INFINITY)||(SoftTimeLimit!=RLIM_INFINITY))
+   if(!strategy_scheduling)
    {
-      if(SoftTimeLimit!=RLIM_INFINITY)
-      {
-         SetSoftRlimitErr(RLIMIT_CPU, SoftTimeLimit, "RLIMIT_CPU (E-Soft)");
-         TimeLimitIsSoft = true;
-      }
-      else
-      {
-         SetSoftRlimitErr(RLIMIT_CPU, HardTimeLimit, "RLIMIT_CPU (E-Hard)");
-         TimeLimitIsSoft = false;
-      }
-
-      if(SetSoftRlimit(RLIMIT_CORE, 0)!=RLimSuccess)
-      {
-         perror("eprover");
-         Warning("Cannot prevent core dumps!");
-      }
+      set_limits(HardTimeLimit, SoftTimeLimit, h_parms->mem_limit);
    }
-   SetMemoryLimit(h_parms->mem_limit);
 
    return state;
 }

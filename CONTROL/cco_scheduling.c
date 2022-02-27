@@ -147,12 +147,12 @@ void ScheduleTimesInit(ScheduleCell sched[], double time_used)
 
 void ScheduleTimesInitMultiCore(ScheduleCell sched[], double time_used, 
                                 double time_limit, bool preprocessing_schedule,
-                                int* cores)
+                                int* cores, bool serialize)
 {
    int i;
    rlim_t sum=0, tmp, limit, total_limit;
    int allocated_cores = 0;
-   
+
    int sched_size = 0;
    while(sched[sched_size].heu_name)
    {
@@ -181,31 +181,44 @@ void ScheduleTimesInitMultiCore(ScheduleCell sched[], double time_used,
    total_limit = limit;
    if(preprocessing_schedule)
    {
-      for(i=0; sched[i].heu_name; i++)
+      if(serialize)
       {
-         // error in each step is at most 1 -- so we can
-         // add at most sched_size extra cores
-         sched[i].cores = MAX(ceil(sched[i].time_fraction*(*cores)), 1.0);
-         allocated_cores += sched[i].cores;
+         for(i=0; sched[i].heu_name; i++)
+         {
+            // error in each step is at most 1 -- so we can
+            // add at most sched_size extra cores
+            sched[i].cores = 1;
+         }
+         allocated_cores = *cores = 1;
       }
-      int error = allocated_cores-(*cores);
-      assert(error <= sched_size);
-      for(i=sched_size-1; error && i >=0; i--)
+      else
       {
-         // fixing the error in allocating cores (starting)
-         // from the least important schedule
-         // IMPORTANT: we leave at least one core per schedule
-         int to_take = MIN(sched[i].cores-1, error);
-         sched[i].cores -=  to_take;
-         error -= to_take;
+         for(i=0; sched[i].heu_name; i++)
+         {
+            // error in each step is at most 1 -- so we can
+            // add at most sched_size extra cores
+            sched[i].cores = MAX(ceil(sched[i].time_fraction*(*cores)), 1.0);
+            allocated_cores += sched[i].cores;
+         }
+         int error = allocated_cores-(*cores);
+         assert(error <= sched_size);
+         for(i=sched_size-1; error && i >=0; i--)
+         {
+            // fixing the error in allocating cores (starting)
+            // from the least important schedule
+            // IMPORTANT: we leave at least one core per schedule
+            int to_take = MIN(sched[i].cores-1, error);
+            sched[i].cores -=  to_take;
+            error -= to_take;
+         }
+         assert(!error);
       }
-      assert(!error);
    }
 
    for(i=0; sched[i].heu_name; i++)
    {
-
-      tmp = ceil((preprocessing_schedule ? 1.0 : sched[i].time_fraction)*sched[i].cores*total_limit);
+      tmp = ceil((preprocessing_schedule && !serialize ? 1.0 : sched[i].time_fraction)
+            *sched[i].cores*total_limit);
       sched[i].time_absolute = tmp;
       sum = sum+tmp;
    }
@@ -228,7 +241,7 @@ void ScheduleTimesInitMultiCore(ScheduleCell sched[], double time_used,
 //
 /----------------------------------------------------------------------*/
 
-#define TERMINATE_CHILDREN() //signal(SIGQUIT, SIG_IGN); kill(0, SIGQUIT)
+#define TERMINATE_CHILDREN() signal(SIGQUIT, SIG_IGN); kill(0, SIGQUIT)
 
 void _catch_and_quit(int _)
 {
@@ -240,7 +253,8 @@ int ExecuteScheduleMultiCore(ScheduleCell strats[],
                              bool print_rusage,
                              int wc_time_limit,
                              int preproc_schedule,
-                             int max_cores)
+                             int max_cores,
+                             bool serialize)
 {
    int i;
    double run_time = GetTotalCPUTime();
@@ -249,7 +263,7 @@ int ExecuteScheduleMultiCore(ScheduleCell strats[],
 
 
    ScheduleTimesInitMultiCore(strats, run_time, wc_time_limit,
-                              preproc_schedule, &max_cores);
+                              preproc_schedule, &max_cores, serialize);
 
    i=0;
    do
@@ -264,7 +278,7 @@ int ExecuteScheduleMultiCore(ScheduleCell strats[],
          { /* Child - get out, do work! */
             h_parms->heuristic_name         = strats[i].heu_name;
             h_parms->order_params.ordertype = strats[i].ordering;
-            SilentTimeOut = true;
+            SilentTimeOut = false;
             signal(SIGQUIT, _catch_and_quit);
             return i; // tells the other scheduling call what is the parent
          }
@@ -275,7 +289,7 @@ int ExecuteScheduleMultiCore(ScheduleCell strats[],
          }
          i++;
       }
-      handle = EGPCtrlSetCardinality(procs) ? EGPCtrlSetGetResult(procs) : NULL;
+      handle = EGPCtrlSetGetResult(procs);
       if(handle)
       {
          fprintf(GlobalOut, "# Result found by %s\n", handle->name);

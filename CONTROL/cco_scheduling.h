@@ -60,7 +60,7 @@ void ScheduleTimesInit(ScheduleCell sched[], double time_used);
 
 void ScheduleTimesInitMultiCore(ScheduleCell sched[], double time_used, 
                                 double time_limit, bool preprocessing_schedule,
-                                int* cores);
+                                int* cores, bool serialize);
 
 void InitializePlaceholderSearchSchedule(ScheduleCell* search_sched, 
                                          ScheduleCell* preproc_sched,
@@ -71,7 +71,8 @@ int ExecuteScheduleMultiCore(ScheduleCell strats[],
                              bool print_rusage,
                              int wc_time_limit,
                              int compute_cores_per_schedule,
-                             int max_cores);
+                             int max_cores,
+                             bool serialize);
 
 
 #endif
