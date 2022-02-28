@@ -75,17 +75,19 @@ def parse_protocol_file(filename, fd, confs, e_path, limit):
       raise StopIteration
     
     e_args = first_line[1:].strip().split(' ')[1:]
-    conf_name = filename[len(PROTOCOL):]
+    from pathlib import Path
+    conf_name = Path(filename[len(PROTOCOL):]).stem
+    
     if conf_name in confs:
-      print('{0} is ignored because it is already parsed'.format(filename), file=stderr)
-      raise StopIteration
+      conf = confs[conf_name]
+    else:
+      conf = Configuration(conf_name)
+      confs[conf_name] = conf
+    conf.compute_json(e_path, e_args)
 
     columns = {}
     import re
     col_re = re.compile(r'#\s*?(\d+)\s*(.*)')
-
-    conf = Configuration(conf_name)
-    conf.compute_json(e_path, e_args)
 
     PROBLEM_COL = 'Problem'
     STATUS_COL = 'Status'
@@ -117,7 +119,6 @@ def parse_protocol_file(filename, fd, confs, e_path, limit):
       else:
         conf.add_attempted_prob(prob)
 
-    confs[conf.get_name()] = conf
     return True
   except StopIteration:
     print('Iteration stopped')

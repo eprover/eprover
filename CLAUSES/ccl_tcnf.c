@@ -1301,7 +1301,9 @@ long TFormulaEstimateClauses(TB_p bank, TFormula_p form, bool pos)
       }
       else
       {
+#ifndef NDEBUG
          TermPrintDbg(stderr, form, bank->sig, DEREF_NEVER);
+#endif
          assert(false && "Formula not in correct simplified form");
       }
    }

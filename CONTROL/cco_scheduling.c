@@ -278,7 +278,7 @@ int ExecuteScheduleMultiCore(ScheduleCell strats[],
          { /* Child - get out, do work! */
             h_parms->heuristic_name         = strats[i].heu_name;
             h_parms->order_params.ordertype = strats[i].ordering;
-            SilentTimeOut = false;
+            SilentTimeOut = true;
             signal(SIGQUIT, _catch_and_quit);
             return i; // tells the other scheduling call what is the parent
          }
