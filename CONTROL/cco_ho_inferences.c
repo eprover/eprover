@@ -242,7 +242,47 @@ void add_abs_to_store(PObjMap_p* store, Term_p abstraction, Clause_p cl)
 
 /*-----------------------------------------------------------------------
 //
-// Function: store_abstraction()
+// Function: store_abstraction_form()
+//
+//   If the formula is of the shape Q1[X]. Q2[Y].... Qn[Z]: f
+//   where Qi is a quantifier, store abstraction for every quantifier.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void store_abstraction_form(WFormula_p wform, ClauseSet_p archive, PObjMap_p* store)
+{
+   TB_p bank = wform->terms;
+   Sig_p sig = bank->sig;
+
+   if(TFormulaIsQuantifiedNL(sig, wform->tformula) &&
+      wform->tformula->arity == 2)
+   {
+      Term_p encoded = PostCNFEncodeFormulas(bank, wform->tformula);
+      Eqn_p lit = EqnAlloc(encoded, bank->true_term, bank, true);
+      Clause_p cl = ClauseAlloc(lit);
+      ClausePushDerivation(cl, DCFofQuote, wform, NULL);
+      ClauseSetInsert(archive, cl);
+
+      Term_p quantified = encoded;
+      while(TFormulaIsQuantifiedNL(sig, quantified) && quantified->arity == 1)
+      {
+         Term_p lambda = quantified->args[0];
+         add_abs_to_store(store, lambda, cl);
+         Term_p fvar = VarBankGetFreshVar(bank->vars, lambda->args[0]->type);
+         quantified =
+            WHNF_step(bank,
+              TBTermTopInsert(bank, TermApplyArg(sig->type_bank, lambda, fvar)));
+      }
+   }
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: store_abstraction_cl()
 //
 //   Stores the computed inference with the given derivation code
 //   in the temporary store for the newly infered clauses.
@@ -253,7 +293,7 @@ void add_abs_to_store(PObjMap_p* store, Term_p abstraction, Clause_p cl)
 //
 /----------------------------------------------------------------------*/
 
-void store_abstraction(Clause_p cl, PObjMap_p* store)
+void store_abstraction_cl(Clause_p cl, PObjMap_p* store)
 {
    assert(ClauseLiteralNumber(cl) == 1);
    Eqn_p lit = cl->literals;
@@ -2440,16 +2480,24 @@ void del_node(void* key, void* val)
    PStackFree(triggers);
 }
 
-void PreinstantiateInduction(ClauseSet_p cls, ClauseSet_p archive, TB_p bank)
+void PreinstantiateInduction(FormulaSet_p forms, ClauseSet_p cls, ClauseSet_p archive, TB_p bank)
 {
    VarBankSetVCountsToUsed(bank->vars);
    PObjMap_p terms_by_type = NULL;
+   for(WFormula_p handle = forms->anchor->succ; handle != forms->anchor; 
+       handle = handle->succ)
+   {
+      if(FormulaQueryType(handle) == CPTypeConjecture)
+      {
+         store_abstraction_form(handle, archive, &terms_by_type);
+      }
+   }
    for(Clause_p handle = cls->anchor->succ; handle != cls->anchor; 
        handle = handle->succ)
    {
       if(ClauseIsConjecture(handle) && ClauseLiteralNumber(handle) == 1)
       {
-         store_abstraction(handle, &terms_by_type);
+         store_abstraction_cl(handle, &terms_by_type);
       }
    }
 

@@ -620,10 +620,10 @@ int main(int argc, char* argv[])
                                proofstate->archive);
    }
 
-
    if(h_parms->preinstantiate_induction)
    {
-      PreinstantiateInduction(proofstate->axioms, proofstate->archive, proofstate->terms);
+      PreinstantiateInduction(proofstate->f_ax_archive, proofstate->axioms, 
+                              proofstate->archive, proofstate->terms);
    }
 
    if(problemType == PROBLEM_FO && h_parms->bce)
