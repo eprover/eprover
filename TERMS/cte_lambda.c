@@ -1073,13 +1073,11 @@ Term_p AbstractVars(TB_p terms, Term_p matrix, PStack_p var_prefix)
    return matrix;
 }
 
-
 /*-----------------------------------------------------------------------
 //
-// Function: WHNF_step()
+// Function: whnf_step_uncached()
 //
-//   Given a term of the form (%XYZ. body) x1 x2 x3 x4 ...
-//   Computes the term (body[X -> x1, Y -> x2; Z -> x3]) x4 ... 
+//   Actaully compute whnf without considering cache.
 //
 // Global Variables: -
 //
@@ -1087,13 +1085,8 @@ Term_p AbstractVars(TB_p terms, Term_p matrix, PStack_p var_prefix)
 //
 /----------------------------------------------------------------------*/
 
-Term_p WHNF_step(TB_p bank, Term_p t)
+Term_p whnf_step_uncached(TB_p bank, Term_p t)
 {
-   if(!TermIsPhonyApp(t) || !TermIsLambda(t->args[0]))
-   {
-      return t;
-   }
-
    Term_p  res = NULL;
    long    num_remaining = t->arity - 1;
    Term_p* remaining_args = t->args + 1;
@@ -1146,6 +1139,35 @@ Term_p WHNF_step(TB_p bank, Term_p t)
    res = new_matrix;
   
    PStackFree(to_bind_stack);
+   TermSetCache(t, res);
+   return res;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: WHNF_step()
+//
+//   Given a term of the form (%XYZ. body) x1 x2 x3 x4 ...
+//   Computes the term (body[X -> x1, Y -> x2; Z -> x3]) x4 ... 
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+Term_p WHNF_step(TB_p bank, Term_p t)
+{
+   if(!TermIsPhonyApp(t) || !TermIsLambda(t->args[0]))
+   {
+      return t;
+   }
+
+   Term_p res = TermGetCache(t);
+   if(!res)
+   {
+      res = whnf_step_uncached(bank, t);
+   }
    return res;
 }
 
