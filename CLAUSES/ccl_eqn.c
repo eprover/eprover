@@ -1350,8 +1350,8 @@ Eqn_p EqnCopy(Eqn_p eq, TB_p bank)
    Eqn_p  handle;
    Term_p lterm, rterm;
 
-   lterm = TBInsertNoProps(bank, eq->lterm, DEREF_ALWAYS);
-   rterm = TBInsertNoProps(bank, eq->rterm, DEREF_ALWAYS);
+   lterm = TBInsertNoPropsCached(bank, eq->lterm, DEREF_ALWAYS);
+   rterm = TBInsertNoPropsCached(bank, eq->rterm, DEREF_ALWAYS);
 
    /* Properties will be taken care of later! */
    handle = EqnAlloc(lterm, rterm, bank, EqnIsPositive(eq));

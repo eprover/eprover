@@ -862,7 +862,11 @@ static void tformula_collect_freevars(TB_p bank, TFormula_p form, PTree_p *vars)
 static Term_p lambda_eq_to_forall(TB_p terms, Term_p t)
 {
    Sig_p sig = terms->sig;
-   if((t->f_code == sig->eqn_code
+   if(!TermHasEqNeq(t))
+   {
+      t = NULL;
+   }
+   else if((t->f_code == sig->eqn_code
        || t->f_code == sig->neqn_code) 
       && t->arity == 2)
    {

@@ -98,6 +98,8 @@ typedef enum
    TPHasDBSubterm     = 1<<26,    /* Term has a subterm which is a de Bruijn variable */
    TPHasNonPatternVar = 1<<27,    /* Term has an applied variable which is not a pattern*/
    TPHasAppVar = 1<<28,    /* Term has an applied variable*/
+   TPHasEqNeqSym = 1<<29,    /* Term contains eq or neq symbol*/
+   TPHasBoolSubterm = 1<<30,    /* Term has Boolean subterms or is a Boolean term itself*/
 }TermProperties;
 
 
@@ -237,8 +239,10 @@ typedef Term_p (*TermMapper_p)(void*, Term_p);
 #define RewriteAdr(level) (assert(level),(level)-1)
 #define TermIsFreeVar(t) ((t)->f_code < 0)
 #define TermIsConst(t)(!TermIsAnyVar(t) && ((t)->arity==0))
+#define TermHasEqNeq(t)(QueryProp((t), (TPHasEqNeqSym)))
 #ifdef ENABLE_LFHO
 #define TermIsDBVar(term) (QueryProp((term), (TPIsDBVar)))
+#define TermHasBoolSubterm(t)(QueryProp((t), (TPHasBoolSubterm)))
 #define TermIsPhonyApp(term) (!TermIsDBVar(term) && (term)->f_code == SIG_PHONY_APP_CODE)
 #define TermIsAppliedFreeVar(term) (!TermIsDBVar(term) && (term)->f_code == SIG_PHONY_APP_CODE && \
                                     TermIsFreeVar((term)->args[0]))
@@ -265,6 +269,7 @@ typedef Term_p (*TermMapper_p)(void*, Term_p);
 #else
 #define TermIsPhonyApp(term) (false)
 #define TermIsAppliedFreeVar(term) (false)
+#define TermHasBoolSubterm(t)(false)
 #define TermIsAppliedDBVar(term) (false)
 #define TermIsAppliedAnyVar(term) (false)
 #define TermIsDBLambda(term) (false)

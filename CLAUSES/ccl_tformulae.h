@@ -82,7 +82,7 @@ TFormula_p TcfTSTPParse(Scanner_p in, TB_p terms);
 #define    TFormulaEqual(f1,f2) ((f1)==(f2))
 bool       TFormulaVarIsFree(TB_p bank, TFormula_p form, Term_p var);
 bool       TFormulaVarIsFreeCached(TB_p bank, TFormula_p form, Term_p var);
-#define    TFormulaCopy(bank, form) TBInsertNoProps(bank, form, DEREF_ALWAYS)
+#define    TFormulaCopy(bank, form) TBInsertNoPropsCached(bank, form, DEREF_ALWAYS)
 
 void       TFormulaCollectFreeVars(TB_p bank, TFormula_p form, PTree_p *vars);
 bool       TFormulaIsClosed(TB_p bank, TFormula_p form);

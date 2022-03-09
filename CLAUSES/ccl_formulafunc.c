@@ -281,15 +281,19 @@ TFormula_p lift_lets(TB_p terms, TFormula_p t, PStack_p fresh_defs)
 TFormula_p unencode_eqns(TB_p terms, TFormula_p t)
 {
    Term_p res = t;
-   if (t->f_code == terms->sig->eqn_code 
-        && t->arity == 2 
-        && t->args[1] == terms->true_term 
-        && !TermIsAnyVar(t->args[0]) 
-        && (SigQueryFuncProp(terms->sig, t->args[0]->f_code, FPFOFOp) 
-            || t->args[0]->f_code == terms->sig->qex_code 
-            || t->args[0]->f_code == terms->sig->qall_code 
-            || t->args[0]->f_code == terms->sig->eqn_code 
-            || t->args[0]->f_code == terms->sig->neqn_code))
+   if(!TermHasEqNeq(t))
+   {
+      res = NULL;
+   }
+   else if (t->f_code == terms->sig->eqn_code 
+            && t->arity == 2 
+            && t->args[1] == terms->true_term 
+            && !TermIsAnyVar(t->args[0]) 
+            && (SigQueryFuncProp(terms->sig, t->args[0]->f_code, FPFOFOp) 
+                || t->args[0]->f_code == terms->sig->qex_code 
+                || t->args[0]->f_code == terms->sig->qall_code 
+                || t->args[0]->f_code == terms->sig->eqn_code 
+                || t->args[0]->f_code == terms->sig->neqn_code))
    {
       res = t->args[0];
    }
@@ -802,29 +806,33 @@ bool find_fool_subterm(TB_p bank, Term_p t, TermPos_p pos)
    int i;
    PStackPushP(pos, t);
    bool found = false;
-
-   for(i=0; !TermIsLambda(t) /*&& !TermIsAppliedFreeVar(t)*/ && i<t->arity; i++)
+   
+   if(!TermIsLambda(t) && TermHasBoolSubterm(t))
    {
-      PStackPushInt(pos, i);
-
-      if(TypeIsBool(t->args[i]->type))
+      for(i=0; i<t->arity; i++)
       {
-         if(!(fool_should_ignore(t->args[i], bank) ||
-               t->args[i]->f_code == SIG_TRUE_CODE
-              || t->args[i]->f_code == SIG_FALSE_CODE))
+         PStackPushInt(pos, i);
+
+         if(TypeIsBool(t->args[i]->type))
+         {
+            if(!(fool_should_ignore(t->args[i], bank) ||
+                  t->args[i]->f_code == SIG_TRUE_CODE
+               || t->args[i]->f_code == SIG_FALSE_CODE))
+            {
+               found = true;
+               break;
+            }
+         }
+         else if(find_fool_subterm(bank, t->args[i], pos))
          {
             found = true;
             break;
          }
-      }
-      else if(find_fool_subterm(bank, t->args[i], pos))
-      {
-         found = true;
-         break;
-      }
 
-      PStackDiscardTop(pos);
+         PStackDiscardTop(pos);
+      }
    }
+
 
    if(!found)
    {
@@ -1061,7 +1069,7 @@ TFormula_p do_bool_eqn_replace(TFormula_p form, TB_p terms)
    assert(sig);
    bool changed = false;
 
-   if (TermIsDBVar(form))
+   if (TermIsDBVar(form) || !TermHasEqNeq(form))
    {
       return form;
    }

@@ -738,23 +738,8 @@ Term_p do_named_to_db(TB_p bank, Term_p t, long depth)
 
 Term_p do_post_cnf_encode(TB_p bank, Term_p t, long depth)
 {
-   Term_p res = NULL;
-   if(TermIsLambda(t))
-   {
-      assert(t->f_code == SIG_DB_LAMBDA_CODE);
-      assert(t->arity == 2);
-      assert(TermIsDBVar(t->args[0]));
-      Term_p new_matrix = do_post_cnf_encode(bank, t->args[1], depth+1);
-      if(new_matrix != t->args[1])
-      {
-         res = CloseWithDBVar(bank, t->args[0]->type, new_matrix);
-      }
-      else
-      {
-         res = t;
-      }
-   }
-   else if(TermIsDBVar(t))
+   Term_p res;
+   if(TermIsDBVar(t))
    {
       res = t;
    }
@@ -765,6 +750,25 @@ Term_p do_post_cnf_encode(TB_p bank, Term_p t, long depth)
          assert(t->binding->type == t->type);
          res = TBRequestDBVar(bank, t->type,
                               depth - t->binding->f_code - 1);
+      }
+      else
+      {
+         res = t;
+      }
+   }
+   else if (!TermHasBoolSubterm(t) && TermIsGround(t))
+   {
+      res = t; // optimization
+   }
+   else if(TermIsLambda(t))
+   {
+      assert(t->f_code == SIG_DB_LAMBDA_CODE);
+      assert(t->arity == 2);
+      assert(TermIsDBVar(t->args[0]));
+      Term_p new_matrix = do_post_cnf_encode(bank, t->args[1], depth+1);
+      if(new_matrix != t->args[1])
+      {
+         res = CloseWithDBVar(bank, t->args[0]->type, new_matrix);
       }
       else
       {

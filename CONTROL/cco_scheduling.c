@@ -217,10 +217,17 @@ void ScheduleTimesInitMultiCore(ScheduleCell sched[], double time_used,
 
    for(i=0; sched[i].heu_name; i++)
    {
+      if (!preprocessing_schedule && (sum >= total_limit))
+      {
+         // limiting search schedules from going crazy.
+         sched[i].heu_name = NULL;
+         break;
+      }
+
       tmp = ceil((preprocessing_schedule && !serialize ? 1.0 : sched[i].time_fraction)
             *sched[i].cores*total_limit);
-      sched[i].time_absolute = tmp;
-      sum = sum+tmp;
+      sched[i].time_absolute = preprocessing_schedule ? tmp :  MIN(tmp, limit-sum);
+      sum = sum+sched[i].time_absolute;
    }
    fprintf(GlobalOut,
            "# Scheduled %d strats onto %d cores with %ju seconds (%ju total)\n",

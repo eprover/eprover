@@ -2116,10 +2116,13 @@ FunCode TermFindMaxVarCode(Term_p term)
    else
    {
       res = 0;
-      for(i=0; i<term->arity; i++)
+      if(!TermIsGround(term))
       {
-         tmp = TermFindMaxVarCode(term->args[i]);
-         res = MIN(res, tmp);
+         for(i=0; i<term->arity; i++)
+         {
+            tmp = TermFindMaxVarCode(term->args[i]);
+            res = MIN(res, tmp);
+         }
       }
    }
    return res;

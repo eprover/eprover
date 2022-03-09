@@ -177,6 +177,10 @@ static Term_p tb_termtop_insert(TB_p bank, Term_p t)
       {
          TermCellSetProp(t, TPHasDBSubterm);
       }
+      if(TypeIsBool(t->type))
+      {
+         TermCellSetProp(t, TPHasBoolSubterm);
+      }
       if(TermIsPhonyApp(t) && TermIsLambda(t->args[0]))
       {
          TermCellSetProp(t, TPIsBetaReducible);
@@ -189,6 +193,10 @@ static Term_p tb_termtop_insert(TB_p bank, Term_p t)
       {
          TermCellSetProp(t, TPHasEtaExpandableSubterm);
       }
+      if(t->f_code == bank->sig->eqn_code || t->f_code == bank->sig->neqn_code)
+      {
+         TermCellSetProp(t, TPHasEqNeqSym);
+      }
       t->v_count = 0;
       t->f_count = !TermIsPhonyApp(t) ? 1 : 0;
       t->weight = DEFAULT_FWEIGHT*t->f_count;
@@ -197,6 +205,12 @@ static Term_p tb_termtop_insert(TB_p bank, Term_p t)
          assert(TermIsShared(t->args[i])||TermIsFreeVar(t->args[i]));
          TermCellSetProp(t, TermCellGiveProps(t->args[i], TPIsBetaReducible));
          TermCellSetProp(t, TermCellGiveProps(t->args[i], TPHasDBSubterm));
+         TermCellSetProp(t, TermCellGiveProps(t->args[i], TPHasEqNeqSym));
+         TermCellSetProp(t, TermCellGiveProps(t->args[i], TPHasBoolSubterm));
+         if(TypeIsBool(t->args[i]))
+         {
+            TermCellSetProp(t, TPHasBoolSubterm); // vars and dbvars are sometimes not shared.
+         }
          TermCellSetProp(t, TermCellGiveProps(t->args[i], TPHasLambdaSubterm));
          if(!(TermIsPhonyApp(t) || TermIsLambda(t)) || i!=0)
          {
@@ -542,6 +556,68 @@ static Term_p choose_subterm_parse_fun(bool check_symb_prop,
 
    return res;
 }
+
+/*-----------------------------------------------------------------------
+//
+// Function: normalize_boolean_terms()
+//
+//   If term_ref points to an equation of type X=true that appears
+//   under context, replace this equation by X.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+Term_p do_tb_insert_no_props_cached(TB_p bank, Term_p term,
+                                    DerefType deref, PObjMap_p* cache)
+{
+   int    i;
+   Term_p t;
+
+   assert(term);
+
+   term = problemType == PROBLEM_HO && deref == DEREF_ALWAYS ?
+            WHNF_deref(term) : TermDeref(term, &deref);
+   Term_p cached = PObjMapFind(cache, term, PCmpFun);
+   if(cached)
+   {
+      t = cached;
+   }
+   else
+   {
+      const int limit = DEREF_LIMIT(term, deref);
+
+      if(TermIsFreeVar(term))
+      {
+         t = VarBankVarAssertAlloc(bank->vars, term->f_code, term->type);
+         TermSetBank(t, bank);
+      }
+      else if (TermIsDBVar(term))
+      {
+         t = TBRequestDBVar(bank, term->type, term->f_code);
+         TermSetBank(t, bank);
+      }
+      else
+      {
+         t = TermTopCopyWithoutArgs(term); /* This is an unshared term cell at the moment */
+         t->properties = TPIgnoreProps;
+
+         assert(SysDateIsCreationDate(t->rw_data.nf_date[0]));
+         assert(SysDateIsCreationDate(t->rw_data.nf_date[1]));
+
+         for(i=0; i<t->arity; i++)
+         {
+            t->args[i] = do_tb_insert_no_props_cached(bank, term->args[i],
+                                                      CONVERT_DEREF(i, limit, deref), cache);
+         }
+         t = tb_termtop_insert(bank, t);
+      }
+      PObjMapStore(cache, term, t, PCmpFun);
+   }
+   return t;
+}
+
 
 /*-----------------------------------------------------------------------
 //
@@ -964,6 +1040,35 @@ Term_p TBInsertNoProps(TB_p bank, Term_p term, DerefType deref)
    return t;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: TBInsertNoPropsCached()
+//
+//   As TBInsert, but will set all properties of the new term to 0
+//   first. Also, use a cache so that work is not repeated for the
+//   same terms.
+//
+// Global Variables: TBSupportReplace
+//
+// Side Effects    : Changes term bank
+//
+/----------------------------------------------------------------------*/
+#define CACHE_THRESHOLD 8096
+Term_p TBInsertNoPropsCached(TB_p bank, Term_p term, DerefType deref)
+{
+   Term_p res;
+   if(term->f_count > CACHE_THRESHOLD)
+   {
+      PObjMap_p cache = NULL;
+      res = do_tb_insert_no_props_cached(bank, term, deref, &cache);
+      PObjMapFree(cache);
+   }
+   else
+   {
+      res = TBInsertNoProps(bank, term, deref);
+   }
+   return res;
+}
 
 /*-----------------------------------------------------------------------
 //
@@ -2247,7 +2352,9 @@ Term_p TBGetFreqConstTerm(TB_p terms, Type_p type,
 //   it continues mapping t'. Else, it recursively applies f to
 //   arguments of t. Result term is guaranteed to be shared.
 //   Term mapper must also return shared term of the same type
-//   as the original one.
+//   as the original one. IMPORTANT: If f returns NULL this signifies 
+//   that recursion should stop and the term is unaltered: this is used
+//   to painlessly implement optimizations.
 //
 // Global Variables: -
 //
@@ -2257,10 +2364,15 @@ Term_p TBGetFreqConstTerm(TB_p terms, Type_p type,
 
 Term_p TermMap(TB_p bank, Term_p t, TermMapper f)
 {
+   assert(t);
    Term_p s = f(bank, t);
    assert(TermIsShared(s) && s->type == t->type);
 
-   if(s!=t)
+   if(!s)
+   {
+      s = t;
+   }
+   else if (s!=t)
    {
       s = TermMap(bank, s, f);
    }

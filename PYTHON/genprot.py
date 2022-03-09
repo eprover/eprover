@@ -184,7 +184,8 @@ def make_entry(lines):
             entry["Status"] = statusmap["exec failed"]
             entry["Failure"] = failuremap["exec failed"]
         elif key == "Problem":
-            entry[key] = (value.split(":", 1)[0].strip() + ".p")
+            if not value.startswith('%'):
+                entry[key] = (value.split(":", 1)[0].strip() + ".p")
         elif key == "Failure":
             entry[key] = failuremap[clean_key(value, failuremap)]
         elif value != "":
