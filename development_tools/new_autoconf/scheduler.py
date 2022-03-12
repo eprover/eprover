@@ -357,9 +357,9 @@ def main():
   used_confs = set()
 
   preproc_sched = schedule(raw_category_map, configurations, args.min_preproc_size,
-                           args.max_preproc_size, used_confs, True, 0.15)
+                           args.max_preproc_size, used_confs, True, 0.125)
   search_sched = schedule(category_map, configurations, args.min_search_size,
-                          args.max_search_size, used_confs, min_ratio=0.075)
+                          args.max_search_size, used_confs, min_ratio=0.125)
 
   print('// Found {0} confs, using {1}'.format(len(configurations), len(used_confs)))
   output_used_confs(used_confs)

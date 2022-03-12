@@ -1565,10 +1565,10 @@ long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive,
       {
          TFormulaSetLambdaNormalize(set, archive, terms);
       }
-      // if (lift_lambdas)
-      // {
-      //    TFormulaSetLiftLambdas(set, archive, terms);
-      // }
+      if (lift_lambdas)
+      {
+         TFormulaSetLiftLambdas(set, archive, terms);
+      }
    }
 #endif
    TFormulaSetUnrollFOOL(set, archive, terms);
@@ -1599,10 +1599,10 @@ long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive,
          gc_threshold = old_nodes * TFORMULA_GC_LIMIT;
       }
    }
-   if(lift_lambdas)
-   {
-      ClauseSetLiftLambdas(clauseset, archive, terms, fresh_vars);
-   }
+   // if(lift_lambdas)
+   // {
+   //    ClauseSetLiftLambdas(clauseset, archive, terms, fresh_vars);
+   // }
    if (TBNonVarTermNodes(terms) != old_nodes)
    {
       GCCollect(gc);
