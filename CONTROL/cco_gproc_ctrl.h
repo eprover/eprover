@@ -26,6 +26,7 @@
 
 #include <cco_proc_ctrl.h>
 #include <unistd.h>
+#include <sys/wait.h>
 
 
 /*---------------------------------------------------------------------*/
