@@ -1,10 +1,10 @@
 /*-----------------------------------------------------------------------
 
-File  : term2dag.c
+  File  : term2dag.c
 
-Author: Stephan Schulz
+  Author: Stephan Schulz
 
-Contents
+  Contents
 
   Main program for a simple CLIB application: Read term set, write
   equivalent DAG.
@@ -15,9 +15,7 @@ Contents
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
-
-<1> Fri Nov 28 00:27:40 MET 1997
+  Created: Fri Nov 28 00:27:40 MET 1997
 
 -----------------------------------------------------------------------*/
 
@@ -115,8 +113,8 @@ int main(int argc, char* argv[])
       in = CreateScanner(StreamTypeFile, state->argv[i] , true, NULL, true);
       while(!TestInpTok(in, NoToken))
       {
-    term  = TBTermParse(in, bank);
-    TermCellSetProp(term, TPTopPos);
+         term  = TBTermParse(in, bank);
+         TermCellSetProp(term, TPTopPos);
       }
       DestroyScanner(in);
    }
@@ -163,20 +161,20 @@ CLState_p process_options(int argc, char* argv[])
       switch(handle->option_code)
       {
       case OPT_VERBOSE:
-    Verbose = CLStateGetIntArg(handle, arg);
+            Verbose = CLStateGetIntArg(handle, arg);
     break;
       case OPT_HELP:
-    print_help(stdout);
-    exit(NO_ERROR);
+            print_help(stdout);
+            exit(NO_ERROR);
       case OPT_OUTPUT:
-    outname = arg;
-    break;
+            outname = arg;
+            break;
       case OPT_PRINT_REFS:
-    TBPrintInternalInfo = CLStateGetBoolArg(handle, arg);
-    break;
+            TBPrintInternalInfo = CLStateGetBoolArg(handle, arg);
+            break;
       default:
-    assert(false);
-    break;
+            assert(false);
+            break;
       }
    }
    return state;
@@ -185,11 +183,11 @@ CLState_p process_options(int argc, char* argv[])
 void print_help(FILE* out)
 {
    fprintf(out, "\n\
-\n\
-term2dag "VERSION"\n\
-\n\
-Usage: term2dag [options] [files]\n\
-\n\
+\n                                              \
+term2dag "VERSION"\n                            \
+\n                                              \
+Usage: term2dag [options] [files]\n             \
+\n                                                      \
 Read a set of terms and print a DAG representing it.\n\
 \n");
    PrintOptions(stdout, opts, "Options\n\n");
