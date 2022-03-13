@@ -67,7 +67,7 @@ class id(object):
 
     def newId(self):
         self.count = self.count+1
-        return "%s%d"%(self.prefix,self.count)
+        return "%s%04d"%(self.prefix,self.count)
 
 homeDir = os.path.expanduser("~")
 eRunDir = homeDir+"/EPROVER/RUNDIR"
