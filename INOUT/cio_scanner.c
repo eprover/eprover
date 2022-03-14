@@ -846,8 +846,7 @@ Scanner_p CreateScanner(StreamType type, char *name, bool
    handle->include_key = NULL;
    handle->format = LOPFormat;
 
-   handle->error_stack = ErrorStackAlloc();
-   InitErrorStack(handle->error_stack);
+   handle->error_stack = PStackAlloc();
    handle->panic_mode = false;
 
    if((type == StreamTypeFile && strcmp(name,"-")==0)||
@@ -966,7 +965,7 @@ void DestroyScanner(Scanner_p  junk)
    {
       FREE(junk->include_pos);
    }
-   FreeErrorStack(junk->error_stack);
+   PStackFree(junk->error_stack);
    ScannerCellFree(junk);
 }
 
@@ -1089,49 +1088,18 @@ bool TestIdnum(Token_p akt, char* ids)
    return str_n_element(DStrView(akt->literal), ids, len);
 }
 
-void InitErrorStack(ErrorStack_p stack)
-{
-   stack->errors = NULL;
-   stack->count = 0;
-   stack->capacity = 0;
-   stack->handle = 0;
-}
-
-void PushErrorStack(ErrorStack_p stack, ErrorCell error)
-{
-   int old_capacity;
-   if (stack->count == stack->capacity)
-   {
-      old_capacity = stack->capacity;
-      stack->capacity = old_capacity == 0 ? 8 : old_capacity * 2;
-      stack->errors = (Error_p)SecureRealloc(stack->errors, stack->capacity * sizeof(ErrorCell));
-   }
-   stack->errors[stack->count++] = error;
-}
-
-void FreeErrorStack(ErrorStack_p stack)
-{
-   int i;
-   for (i = 0; i < stack->capacity; i++)
-   {
-      DStrFree(stack->errors[i].message);
-      TokenCellFree(stack->errors[i].token);
-      ErrorCellFree(&stack->errors[i]);
-   }
-   stack->capacity = stack->count = stack->handle = 0;
-   SizeFree(stack, sizeof(ErrorStack));
-}
-
-static void PushScannerError(Scanner_p in, DStr_p message)
+Error_p InitErrorCell(DStr_p message, DStr_p accu, long line, long column, ErrorType type)
 {
    Error_p error;
 
    error = ErrorCellAlloc();
    error->message = message;
-   error->token = AktToken(in);
-   error->type = CRITICAL;
+   error->accu = accu;
+   error->line = line;
+   error->column = column;
+   error->type = type;
 
-   PushErrorStack(in->error_stack, *error);
+   return error;
 }
 
 /*-----------------------------------------------------------------------
@@ -1156,9 +1124,6 @@ void AktTokenError(Scanner_p in, char* msg, bool _)
    // Create error message.
    DStr_p err = DStrAlloc();
    DStrAppendStr(err, msg);
-
-   // Push new error to error stack.
-   PushScannerError(in, err);
 }
 
 
@@ -1197,39 +1162,41 @@ void AktTokenWarning(Scanner_p in, char* msg)
 //
 /----------------------------------------------------------------------*/
 
-ErrorCell GetFirstUnhandledError(ErrorStack_p stack)
-{
-   ErrorCell error = stack->errors[stack->handle];
-   return error;
-}
-
 void CheckInpTok(Scanner_p in, TokenType toks)
 {
-   if (in->error_stack->count > 0)
+   if (TestInpTok(in, ErrorToken))
    {
-      ErrorCell error = GetFirstUnhandledError(in->error_stack);
+      /*
+       * TODO:
+       * * Create ErrorCell and push it to error_stack
+       * * Panic mode
+       */
 
-      // Check if first element in error stack points to current token.
-      // Error in scanner -> panic mode because it normally cannot be handled properly.
-      if (error.token == AktToken(in))
-      {
-         fprintf(GlobalOut, "Scanner Error\n");
-         int i;
-         for (i = 0; i < in->error_stack->count; i++)
-         {
-            PrintToken(GlobalOut, in->error_stack->errors[i].token);
-            fprintf(GlobalOut, "\n");
-         }
-         in->error_stack->handle++;
-         exit(70);
-      }
+      fprintf(GlobalOut, "ERROR TOKEN ENCOUNTERED\n");
+
+      exit(1);
    }
 
    if(!TestInpTok(in, toks))
    {
       // Parser Error.
       fprintf(GlobalOut, "Parser Error\n");
-      exit(70);
+
+      // TODO: Try to recover, else panic.
+      char* tmp;
+
+      DStrReset(in->accu);
+      tmp = DescribeToken(toks);
+      DStrAppendStr(in->accu, tmp);
+      FREE(tmp);
+      DStrAppendStr(in->accu, " expected, but ");
+      tmp = DescribeToken(AktToken(in)->tok);
+      DStrAppendStr(in->accu, tmp);
+      FREE(tmp);
+      DStrAppendStr(in->accu, " read ");
+      DStr_p err = DStrAlloc();
+      compose_errmsg(err, in, DStrView(in->accu));
+      SysError(DStrView(err), SYNTAX_ERROR);
    }
 }
 

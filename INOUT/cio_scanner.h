@@ -149,17 +149,12 @@ typedef enum
 typedef struct
 {
    DStr_p message;
-   Token_p token;
+   DStr_p accu;
+   long line;
+   long column;
+   // int length;
    ErrorType type;
 } ErrorCell, *Error_p;
-
-typedef struct
-{
-   Error_p errors;
-   int count;
-   int capacity;
-   int handle;
-} ErrorStack, *ErrorStack_p;
 
 typedef struct scannercell
 {
@@ -176,7 +171,7 @@ typedef struct scannercell
    int         current; /* Pointer to current token in tok_sequence */
    char*       include_pos; /* If created by "include", by which one? */
 
-   ErrorStack_p error_stack;
+   PStack_p    error_stack;
    bool        panic_mode; /* Flag to check if panic mode was activated. */
 }ScannerCell, *Scanner_p;
 
@@ -186,11 +181,8 @@ typedef struct scannercell
 /*---------------------------------------------------------------------*/
 #define ErrorCellAlloc()        (ErrorCell*)SizeMalloc(sizeof(ErrorCell))
 #define ErrorCellFree(junk)     SizeFree(junk, sizeof(ErrorCell))
-#define ErrorStackAlloc()       (ErrorStack_p)SizeMalloc(sizeof(ErrorStack))
-void PushErrorStack(ErrorStack_p stack, ErrorCell error);
-void FreeErrorStack(ErrorStack_p stack);
-void InitErrorStack(ErrorStack_p stack);
-ErrorCell GetFirstUnhandledError(ErrorStack_p);
+#define ErrorStackAlloc()       (ErrorStack*)SizeMalloc(sizeof(ErrorStack))
+Error_p InitErrorCell(DStr_p message, DStr_p accu, long line, long column, ErrorType type);
 
 #define TokenCellAlloc()      (TokenCell*)SizeMalloc(sizeof(TokenCell))
 #define TokenCellFree(junk)   SizeFree(junk, sizeof(TokenCell))
