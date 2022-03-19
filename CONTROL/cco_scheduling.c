@@ -376,6 +376,7 @@ void InitializePlaceholderSearchSchedule(ScheduleCell* search_sched,
       {
          search_sched[j].time_fraction *= rest_multipler;
       }
+      SWAP(search_sched[i], search_sched[1]);
    }
 }
 
