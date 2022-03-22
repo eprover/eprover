@@ -20,7 +20,8 @@ Contents
 #include <che_proofcontrol.h>
 
 bool ImmediateClausification(Clause_p cl, ClauseSet_p store, 
-                             ClauseSet_p archive, VarBank_p fresh_vars);
+                             ClauseSet_p archive, VarBank_p fresh_vars,
+                             bool fool_unroll);
 bool ResolveFlexClause(Clause_p cl);
 bool NormalizeEquations(Clause_p cl);
 void ComputeHOInferences(ProofState_p state, ProofControl_p control, 

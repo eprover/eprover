@@ -1400,7 +1400,8 @@ long WFormulaCNF(WFormula_p form, ClauseSet_p set,
 
 long WFormulaCNF2(WFormula_p form, ClauseSet_p set,
                   TB_p terms, VarBank_p fresh_vars,
-                  long miniscope_limit)
+                  long miniscope_limit,
+                  bool fool_unroll)
 {
    form->tformula = LambdaNormalizeDB(terms, form->tformula);
    if (form->is_clause)
@@ -1416,7 +1417,7 @@ long WFormulaCNF2(WFormula_p form, ClauseSet_p set,
 
       return 1;
    }
-   WTFormulaConjunctiveNF3(form, terms, miniscope_limit);
+   WTFormulaConjunctiveNF3(form, terms, miniscope_limit, fool_unroll);
    return TFormulaToCNF(form, FormulaQueryType(form),
                         set, terms, fresh_vars);
 }
@@ -1548,7 +1549,8 @@ long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive,
                     long def_limit,
                     bool lift_lambdas,
                     bool lambda_to_forall,
-                    bool unfold_only_forms)
+                    bool unfold_only_forms,
+                    bool fool_unroll)
 {
    WFormula_p form, handle;
    long res = 0;
@@ -1571,7 +1573,10 @@ long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive,
       // }
    }
 #endif
-   TFormulaSetUnrollFOOL(set, archive, terms);
+   if(fool_unroll)
+   {
+      TFormulaSetUnrollFOOL(set, archive, terms);
+   }
    //printf("# Fool unrolled\n");
    FormulaSetSimplify(set, terms, true);
 
@@ -1588,7 +1593,7 @@ long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive,
       WFormulaPushDerivation(form, DCFofQuote, handle, NULL);
       handle = form;
       res += WFormulaCNF2(handle, clauseset, terms, fresh_vars,
-                          miniscope_limit);
+                          miniscope_limit, fool_unroll);
       FormulaSetInsert(archive, handle);
       if (handle->tformula &&
           (TBNonVarTermNodes(terms) > gc_threshold))
@@ -1601,7 +1606,7 @@ long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive,
    }
    if(lift_lambdas)
    {
-      ClauseSetLiftLambdas(clauseset, archive, terms, fresh_vars);
+      ClauseSetLiftLambdas(clauseset, archive, terms, fresh_vars, fool_unroll);
    }
    if (TBNonVarTermNodes(terms) != old_nodes)
    {
@@ -2556,7 +2561,8 @@ bool FormulaHasAppVarLit(Sig_p sig, TFormula_p form)
 //
 /----------------------------------------------------------------------*/
 
-void ClauseSetLiftLambdas(ClauseSet_p set, FormulaSet_p archive, TB_p terms, VarBank_p fresh_vars)
+void ClauseSetLiftLambdas(ClauseSet_p set, FormulaSet_p archive, TB_p terms, 
+                          VarBank_p fresh_vars, bool unroll_fool)
 {
    PStack_p defs = PStackAlloc();
    PTree_p all_defs = NULL;
@@ -2596,9 +2602,12 @@ void ClauseSetLiftLambdas(ClauseSet_p set, FormulaSet_p archive, TB_p terms, Var
       WFormula_p handle = node->key;
       WFormula_p copy = WFormulaFlatCopy(handle);
       FormulaSetInsert(archive, handle);
-      TFormulaUnrollFOOL(copy, terms);
+      if(unroll_fool)
+      {
+         TFormulaUnrollFOOL(copy, terms);
+      }
       WFormulaSimplify(copy, terms);
-      WFormulaCNF2(copy, set, terms, fresh_vars, 100);
+      WFormulaCNF2(copy, set, terms, fresh_vars, 100, unroll_fool);
       FormulaSetInsert(archive, copy);
    }
    PTreeTraverseExit(def_iter);

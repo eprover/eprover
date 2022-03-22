@@ -192,6 +192,7 @@ typedef enum
    OPT_FREE_OBJECTS,
    OPT_DEF_CNF_OLD,
    OPT_DEF_CNF,
+   OPT_FOOL_UNROLL,
    OPT_MINISCOPE_LIMIT,
    OPT_PRINT_TYPES,
    OPT_APP_ENCODE,
@@ -1499,6 +1500,11 @@ OptCell opts[] =
     "subformulae to avoid exponential blow-up. The optional argument "
     "is a fudge factor that determines when definitions are introduced. "
     "0 disables definitions completely. The default works well."},
+    // OPT_FOOL_UNROLL
+   {OPT_FOOL_UNROLL,
+    '\0', "fool-unroll",
+    ReqArg, NULL,
+    "Enable or disable FOOL unrolling. Useful for some SH problems."},
 
    {OPT_DEF_CNF_OLD,
     '\0', "old-cnf",

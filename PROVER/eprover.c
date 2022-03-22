@@ -566,7 +566,8 @@ int main(int argc, char* argv[])
                                 h_parms->formula_def_limit,
                                 h_parms->lift_lambdas,
                                 h_parms->lambda_to_forall,
-                                h_parms->unroll_only_formulas);
+                                h_parms->unroll_only_formulas,
+                                h_parms->fool_unroll);
    }
    else
    {
@@ -1923,6 +1924,9 @@ CLState_p process_options(int argc, char* argv[])
             /* Intentional fall-through */
       case OPT_DEF_CNF:
             h_parms->formula_def_limit = CLStateGetIntArgCheckRange(handle, arg, 0, LONG_MAX);
+            break;
+      case OPT_FOOL_UNROLL:
+            h_parms->fool_unroll = CLStateGetBoolArg(handle, arg);
             break;
       case OPT_MINISCOPE_LIMIT:
             miniscope_limit =  CLStateGetIntArgCheckRange(handle, arg, 0, LONG_MAX);

@@ -877,7 +877,7 @@ int main(int argc, char* argv[])
                               fstate->freshvars,
                               fstate->gc_terms,
                               miniscope_limit, FormulaDefLimit,
-                              true, true, true);
+                              true, true, true, true);
             }
             else
             {

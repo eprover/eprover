@@ -224,6 +224,7 @@ typedef struct heuristic_parms_cell
    bool                local_rw;
    bool                prune_args;
    bool                preinstantiate_induction;
+   bool                fool_unroll;
    // unification limits
    int                 func_proj_limit;
    int                 imit_limit;

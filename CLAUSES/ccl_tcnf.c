@@ -2499,7 +2499,7 @@ void WTFormulaConjunctiveNF(WFormula_p form, TB_p terms)
 /----------------------------------------------------------------------*/
 
 void WTFormulaConjunctiveNF2(WFormula_p form, TB_p terms,
-                             long miniscope_limit)
+                             long miniscope_limit, bool unroll_fool)
 {
    TFormula_p handle;
 
@@ -2586,7 +2586,10 @@ void WTFormulaConjunctiveNF2(WFormula_p form, TB_p terms,
 
    // Skolemization might have introduced Skolem predicates, which
    // we have to unroll again  -- unrolling keeps things in NNF
-   TFormulaUnrollFOOL(form,terms); // handles proof object internally
+   if(unroll_fool)
+   {
+      TFormulaUnrollFOOL(form,terms); // handles proof object internally
+   }
 
    handle = TFormulaDistributeDisjunctions(terms, form->tformula);
 
@@ -2614,7 +2617,7 @@ void WTFormulaConjunctiveNF2(WFormula_p form, TB_p terms,
 /----------------------------------------------------------------------*/
 
 void WTFormulaConjunctiveNF3(WFormula_p form, TB_p terms,
-                             long miniscope_limit)
+                             long miniscope_limit, bool unroll_fool)
 {
    TFormula_p handle;
 
@@ -2673,7 +2676,10 @@ void WTFormulaConjunctiveNF3(WFormula_p form, TB_p terms,
       WFormulaPushDerivation(form, DCShiftQuantors, NULL, NULL);
    }
 
-   TFormulaUnrollFOOL(form,terms); // handles proof object internally
+   if(unroll_fool)
+   {
+      TFormulaUnrollFOOL(form,terms); // handles proof object internally
+   }
    handle = TFormulaDistributeDisjunctions(terms, form->tformula);
 
    if(handle!=form->tformula)

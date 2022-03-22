@@ -1969,6 +1969,7 @@ void ClausifyAndClassifyWTimeout(ProofState_p state, int timeout,
    const bool DEFAULT_LIFT_LAMS = false;
    const bool DEFAULT_LAM_TO_FORALL = true;
    const bool DEFAULT_UNFOLD_ONLY_FORM = true;
+   const bool DEFAULT_UNROLL_FOOL = true;
 
    int fds[2];
    if(pipe(fds) == -1)
@@ -2001,7 +2002,7 @@ void ClausifyAndClassifyWTimeout(ProofState_p state, int timeout,
                      state->freshvars, state->gc_terms,
                      DEFAULT_MINISCOPE, DEFAULT_FORMULA_DEF_LIMIT,
                      DEFAULT_LIFT_LAMS, DEFAULT_LAM_TO_FORALL, 
-                     DEFAULT_UNFOLD_ONLY_FORM);
+                     DEFAULT_UNFOLD_ONLY_FORM, DEFAULT_UNROLL_FOOL);
       SpecFeaturesCompute(&features, state->axioms, state->f_axioms,
                           state->f_ax_archive, state->terms);
       SpecFeaturesAddEval(&features, limits);

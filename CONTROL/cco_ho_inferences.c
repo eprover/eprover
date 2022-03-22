@@ -1943,7 +1943,7 @@ bool NormalizeEquations(Clause_p cl)
 /----------------------------------------------------------------------*/
 #define DEFAULT_RENAMING_LIMIT 24
 bool ImmediateClausification(Clause_p cl, ClauseSet_p store, ClauseSet_p archive,
-                             VarBank_p fresh_vars)
+                             VarBank_p fresh_vars, bool fool_unroll)
 {
    bool clausified = false;
    for (Eqn_p lit = cl->literals; !clausified && lit; lit = lit->next)
@@ -1962,14 +1962,17 @@ bool ImmediateClausification(Clause_p cl, ClauseSet_p store, ClauseSet_p archive
          ClauseSet_p res_set = ClauseSetAlloc();
          FormulaSet_p archive = FormulaSetAlloc();
 
-         TFormulaSetUnrollFOOL(work_set, archive, bank);
+         if(fool_unroll)
+         {
+            TFormulaSetUnrollFOOL(work_set, archive, bank);
+         }
          FormulaSetSimplify(work_set, bank, false);
          TFormulaSetIntroduceDefs(work_set, archive, bank, DEFAULT_RENAMING_LIMIT);
 
          while (!FormulaSetEmpty(work_set))
          {
             WFormula_p handle = FormulaSetExtractFirst(work_set);
-            WFormulaCNF2(handle, res_set, bank, fresh_vars, 100); // low miniscope limit for efficiency
+            WFormulaCNF2(handle, res_set, bank, fresh_vars, 100, fool_unroll); // low miniscope limit for efficiency
             WFormulaFree(handle);
          }
 
