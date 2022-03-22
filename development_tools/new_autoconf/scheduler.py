@@ -205,6 +205,8 @@ def init_args():
                       help='minimal size of search schedule')
   parser.add_argument('--max-search-size', dest='max_search_size', default=6, type=int,
                       help='maximal size of search schedule')
+  parser.add_argument('--min-cat-size', dest='min_cat_size', type=int,
+                      help='ignore categories that have less than X elements')
   parser.add_argument('--e-path', dest='e_path',
                       help='path to eprover which is necessary for some features of this script (e.g.,'
                            ' generation of JSON representation  of the configuration)')
@@ -310,9 +312,22 @@ def schedule(cats, confs, min_size, max_size, used_confs,
         (sol, uniq, succ, time) = conf.evaluate_for_probs(cat.get_problems())
         return (sol, uniq, succ, -time)
 
-      schedule += map(lambda x: (x, remaining_ratio / to_add),
-                      sorted(remaining_confs, key=lambda x: eval_probs(x, cat), 
-                             reverse=True)[:to_add])
+      remaining_confs = list(sorted(remaining_confs, key=lambda x: eval_probs(x, cat), 
+                                    reverse=True))
+      rem_ratio = remaining_ratio / to_add
+      while remaining_confs and to_add:
+        chosen_conf = remaining_confs[0]
+        schedule.append( (chosen_conf, rem_ratio) )
+        remaining_confs = list(filter(lambda x: x.get_preprocess_params() 
+                                                 != chosen_conf.get_preprocess_params(), 
+                              remaining_confs))
+        to_add -= 1
+                      
+
+    if dbg:
+      final_sch =  list(map(lambda x: x[0], schedule))
+      print("Final schedule: {0}".format(",".join(map(Configuration.get_name, final_sch))))
+      print("Schedule preproc: {0}".format(";\n".join(list(map(lambda x: str(x.get_preprocess_params()), final_sch)))))
 
     used_confs.update(map(lambda x: x[0], schedule))
     res[cat] = adjust_ratios(schedule, min_ratio)
@@ -348,11 +363,18 @@ def output_schedule(var_prefix, schedule, extra_field=False):
   print('{ NULL, NULL }');
   print('};')
   print('const int num_{0} = {1};'.format(var_prefix, len(schedule)))
-    
+
+
+def clean_small_cats(cats, limit):
+  return {k:v for (k,v) in cats.items() if len(v.get_problems()) >= limit}
+
 
 def main():
   args = init_args()
   category_map, raw_category_map = parse_categories(args.category_root)
+  if args.min_cat_size:
+    category_map = clean_small_cats(category_map, args.min_cat_size)
+    raw_category_map = clean_small_cats(raw_category_map, args.min_cat_size)
   configurations = parse_configurations(args.result_archives, args.e_path, 100, args.conf_root)
   used_confs = set()
 

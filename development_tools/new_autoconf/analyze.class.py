@@ -12,7 +12,9 @@ def init_args():
   ''' 
   parser = argparse.ArgumentParser(description=description)
   parser.add_argument('category_file', metavar='CATEGORY_ROOT',
-                      help='file containing list of files in the given category')
+                      help='file of containing lines of the form file:category')
+  parser.add_argument('target_category', metavar='TARGET_CATEGORY',
+                      help='the category to analyze')
   parser.add_argument('--result-archives', dest='result_archives', nargs='+',
                       help='archives containing the evaluation results')
   parser.add_argument('--conf-root', dest='conf_root',
@@ -58,14 +60,16 @@ def main():
 
   
   from os.path import basename
-  name = "single" if args.single_prob else basename(args.category_file) 
+  name = "single" if args.single_prob else basename(args.target_category) 
   cat = Category(name)
   if not args.single_prob:
     with open(args.category_file) as fd:
       for line in fd:
-        cat.add_prob(line.strip())
+        prob,cat_name = line.split(':', maxsplit=2)
+        if cat_name.strip() == name:
+          cat.add_prob(prob)
   else:
-    cat.add_prob(args.category_file.strip())
+    cat.add_prob(args.target_category.strip())
   
   for conf in configurations:
     conf.evaluate_category(cat)
@@ -77,7 +81,7 @@ def main():
   from scheduler import schedule
   print(cat)
   # multi_schedule(8, [cat], configurations, "TEST", Configuration.BOTH, dbg=True)
-  schedule([cat], configurations, 1, 3, set(), True, 0.1, dbg=True)
+  schedule([cat], configurations, 3, 10, set(), True, 0.1, dbg=True)
 
 
 if __name__ == '__main__':
