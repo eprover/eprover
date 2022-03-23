@@ -17,6 +17,9 @@ class Category(object):
   def get_problems(self):
     return self._probs
 
+  def get_size(self):
+    return len(self.get_problems())
+
   def get_name(self):
     return self._name
 

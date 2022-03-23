@@ -359,7 +359,7 @@ def output_schedule(var_prefix, schedule, extra_field=False):
 
   print('StrSchedPair {0}_sched_map[] =\n  {{'.format(var_prefix));
   for cat in schedule.keys():
-    print('{{ "{0}", {1} }}, '.format(cat.get_name(), get_sched_name(cat)))
+    print('{{ "{0}", {1}, {2} }}, '.format(cat.get_name(), get_sched_name(cat), cat.get_size()))
   print('{ NULL, NULL }');
   print('};')
   print('const int num_{0} = {1};'.format(var_prefix, len(schedule)))

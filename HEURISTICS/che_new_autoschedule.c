@@ -28,6 +28,8 @@ typedef struct
 {
   char* key;
   ScheduleCell* value;
+  int class_size; // how many problems were originally in the class used for scheduling
+                  // (will be used for tie-breaking when choosing the class) 
 } StrSchedPair;
 
 #include "schedule.vars"
@@ -50,6 +52,7 @@ ScheduleCell* class_to_schedule(const char* problem_category, StrSchedPair* sche
 {
   int min_idx = -1;
   int min_dist = INT_MAX;
+  int max_class_size = INT_MIN;
   for(int i=0; min_dist && schedules[i].key; i++)
   {
     int dist = str_distance(schedules[i].key, problem_category);
@@ -58,10 +61,16 @@ ScheduleCell* class_to_schedule(const char* problem_category, StrSchedPair* sche
       min_idx = i;
       min_dist = 0;
     }
-    if (dist < min_dist)
+    else if (dist < min_dist)
     {
       min_dist = dist;  
       min_idx = i;
+      max_class_size = schedules[i].class_size;
+    }
+    else if (dist == min_dist && schedules[i].class_size > max_class_size)
+    {
+      min_idx = i;
+      max_class_size = schedules[i].class_size;
     }
   }
   assert(min_idx >= 0);
