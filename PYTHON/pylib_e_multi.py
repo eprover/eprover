@@ -187,9 +187,9 @@ class job(object):
         self.cardinality -= 1
         if self.cardinality == 0:
             print("# Job "+self.getId()+" "+self.script+" complete")
-            z = zipfile.ZipFile(self.containerdir+".zip" ,"w")
-            z.write(self.containerdir)
-            z.close()
+            shutil.make_archive(self.containerdir,
+                                "zip",
+                                base_dir=self.containerdir)
             shutil.rmtree(self.containerdir)
             print("# Job "+self.getId()+" zipped")
 
