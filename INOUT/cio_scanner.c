@@ -932,6 +932,15 @@ Scanner_p CreateScanner(StreamType type, char *name, bool
    return handle;
 }
 
+void DestroyErrorCell(Error_p junk)
+{
+   assert(junk);
+   assert(junk->message);
+
+   DStrFree(junk->message);
+   ErrorCellFree(junk);
+}
+
 /*-----------------------------------------------------------------------
 //
 // Function: DestroyScanner()
@@ -965,8 +974,17 @@ void DestroyScanner(Scanner_p  junk)
    {
       FREE(junk->include_pos);
    }
-   PStackFree(junk->error_stack);
 
+   // Clear error stack
+
+   PStackPointer i;
+   Error_p error;
+   for(i=0; i < junk->error_stack->current; i++)
+   {
+      error = (Error_p)PStackElement(junk->error_stack, i).p_val;
+      DestroyErrorCell(error);
+   }
+   PStackCellFree(junk->error_stack);
 
    ScannerCellFree(junk);
 }
@@ -1090,13 +1108,12 @@ bool TestIdnum(Token_p akt, char* ids)
    return str_n_element(DStrView(akt->literal), ids, len);
 }
 
-Error_p InitErrorCell(DStr_p message, DStr_p accu, long line, long column, ErrorType type)
+Error_p InitErrorCell(DStr_p message, long line, long column, ErrorType type)
 {
    Error_p error;
 
    error = ErrorCellAlloc();
    error->message = message;
-   error->accu = accu;
    error->line = line;
    error->column = column;
    error->type = type;
@@ -1125,7 +1142,7 @@ void AktTokenError(Scanner_p in, char* msg, bool _)
 
    // Create error message.
    DStr_p err = DStrAlloc();
-   DStrAppendStr(err, msg);
+   compose_errmsg(err, in, msg);
 
    // Save token message in token.
    AktToken(in)->comment = err;
@@ -1153,9 +1170,62 @@ void AktTokenWarning(Scanner_p in, char* msg)
    Warning(DStrView(err));
 }
 
+static void PrintErrorStack(PStack_p error_stack)
+{
+   PStackPointer i;
+   Error_p error;
+   for (i = 0; i < error_stack->current; i++)
+   {
+      error = (Error_p) PStackElement(error_stack, i).p_val;
+      fprintf(GlobalOut, DStrView(error->message));
+   }
+}
+
 static void PanicMode(Scanner_p in)
 {
+   // Return if panic mode is currently active.
+   in->panic_mode = false;
 
+   fprintf(GlobalOut, "PANIC MODE\n");
+
+   // Panic mode.
+   while (!TestTok(AktToken(in), NoToken))
+   {
+      if (TestTok(AktToken(in), Fullstop))
+      {
+         NextToken(in);
+         break;
+      }
+
+      // TODO: Get all.
+      if (TestId(AktToken(in), "fof|cnf"))
+      {
+         break;
+      }
+
+      NextToken(in);
+   }
+
+   PrintErrorStack(in->error_stack);
+
+   // TODO: JUMPS
+}
+
+static void ThrowError(Scanner_p in, DStr_p message)
+{
+   // Do not throw errors in panic mode.
+   if (in->panic_mode) return;
+   in->panic_mode = true;
+   assert(message);
+
+   // Create error object.
+   Error_p error = InitErrorCell(message, AktToken(in)->line, AktToken(in)->column, CRITICAL);
+
+   // Push on error stack.
+   PStackPushP(in->error_stack, error);
+
+   // Enter panic mode.
+   PanicMode(in);
 }
 
 
@@ -1174,36 +1244,40 @@ static void PanicMode(Scanner_p in)
 
 void CheckInpTok(Scanner_p in, TokenType toks)
 {
-   // Scanner error
+   /*
+    * TODO:
+    * 1. Check if current token is error token.
+    *    Yes: Create error and read comment from token (=error message)
+    *       -> Goto: 3
+    *    No: Check if token is in expected list.
+    *       No: -> Goto: 2
+    * 2. Create error object + message and push it.
+    *    -> Goto: 3
+    * 3. Panic Mode
+    */
+
+   bool has_error = false;
+   DStr_p message;
+
    if (TestInpTok(in, ErrorToken))
    {
-      /*
-       * TODO:
-       * * Create ErrorCell and push it to error_stack
-       * * Panic mode
-       */
-
-      // Create error object.
-      Error_p error = InitErrorCell(NULL, NULL, AktToken(in)->line, AktToken(in)->column, CRITICAL);
-
-      // Push on error stack.
-      PStackPushP(in->error_stack, error);
-
+      // Scanner error
+      has_error = true;
       fprintf(GlobalOut, "Scanner Error\n");
-      exit(1);
 
-      // Enter panic mode.
-      PanicMode(in);
+      // Get error message from token.
+      message = DStrAlloc();
+      DStrAppendStr(message, DStrView(AktToken(in)->comment));
    }
 
-   if(!TestInpTok(in, toks))
+   if(!has_error && !TestInpTok(in, toks))
    {
       // Parser Error.
+      has_error = true;
       fprintf(GlobalOut, "Parser Error\n");
 
-      // TODO: Try to recover, else panic.
+      // Create error message.
       char* tmp;
-
       DStrReset(in->accu);
       tmp = DescribeToken(toks);
       DStrAppendStr(in->accu, tmp);
@@ -1213,9 +1287,14 @@ void CheckInpTok(Scanner_p in, TokenType toks)
       DStrAppendStr(in->accu, tmp);
       FREE(tmp);
       DStrAppendStr(in->accu, " read ");
-      DStr_p err = DStrAlloc();
-      compose_errmsg(err, in, DStrView(in->accu));
-      SysError(DStrView(err), SYNTAX_ERROR);
+
+      message = DStrAlloc();
+      compose_errmsg(message, in, DStrView(in->accu));
+   }
+
+   if (has_error)
+   {
+      ThrowError(in, message);
    }
 }
 
@@ -1248,7 +1327,11 @@ void CheckInpTokNoSkip(Scanner_p in, TokenType toks)
       DStrAppendStr(in->accu, tmp);
       FREE(tmp);
       DStrAppendStr(in->accu, " read ");
-      AktTokenError(in, DStrView(in->accu), false);
+
+      DStr_p message = DStrAlloc();
+      DStrAppendStr(message, DStrView(in->accu));
+      ThrowError(in, message);
+      return;
    }
    CheckInpTok(in, toks);
 }
@@ -1269,6 +1352,7 @@ void CheckInpTokNoSkip(Scanner_p in, TokenType toks)
 
 void CheckInpId(Scanner_p in, char* ids)
 {
+
    if(!TestInpId(in, ids))
    {
       char* tmp;
@@ -1282,7 +1366,11 @@ void CheckInpId(Scanner_p in, char* ids)
       DStrAppendStr(in->accu, "('");
       DStrAppendStr(in->accu, DStrView(AktToken(in)->literal));
       DStrAppendStr(in->accu, "') read ");
-      AktTokenError(in, DStrView(in->accu), false);
+
+      // Throw error.
+      DStr_p message = DStrAlloc();
+      DStrAppendStr(message, DStrView(in->accu));
+      ThrowError(in, message);
    }
 }
 

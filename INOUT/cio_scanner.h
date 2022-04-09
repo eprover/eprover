@@ -149,7 +149,6 @@ typedef enum
 typedef struct
 {
    DStr_p message;
-   DStr_p accu;
    long line;
    long column;
    // int length;
@@ -181,8 +180,8 @@ typedef struct scannercell
 /*---------------------------------------------------------------------*/
 #define ErrorCellAlloc()        (ErrorCell*)SizeMalloc(sizeof(ErrorCell))
 #define ErrorCellFree(junk)     SizeFree(junk, sizeof(ErrorCell))
-#define ErrorStackAlloc()       (ErrorStack*)SizeMalloc(sizeof(ErrorStack))
-Error_p InitErrorCell(DStr_p message, DStr_p accu, long line, long column, ErrorType type);
+Error_p InitErrorCell(DStr_p message, long line, long column, ErrorType type);
+void DestroyErrorCell(Error_p junk);
 
 #define TokenCellAlloc()      (TokenCell*)SizeMalloc(sizeof(TokenCell))
 #define TokenCellFree(junk)   SizeFree(junk, sizeof(TokenCell))
@@ -216,7 +215,6 @@ Scanner_p CreateScanner(StreamType type, char *name, bool
 void      DestroyScanner(Scanner_p  junk);
 
 void      ScannerSetFormat(Scanner_p scanner, IOFormat fmt);
-
 
 #define TOKENREALPOS(pos) ((pos) % MAXTOKENLOOKAHEAD)
 #define AktToken(in) (&((in)->tok_sequence[(in)->current]))
