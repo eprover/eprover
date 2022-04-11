@@ -1190,14 +1190,19 @@ static void PanicMode(Scanner_p in)
    // Panic mode.
    while (!TestTok(AktToken(in), NoToken))
    {
-      if (TestTok(AktToken(in), Fullstop))
+      if (TestTok(AktToken(in), CloseBracket))
       {
          NextToken(in);
-         break;
+
+         if (TestTok(AktToken(in), Fullstop))
+         {
+            NextToken(in);
+            break;
+         }
       }
 
       // TODO: Get all.
-      if (TestId(AktToken(in), "fof|cnf"))
+      if (TestId(AktToken(in), "input_formula|input_clause|fof|cnf|tff|thf|tcf|include"))
       {
          break;
       }
