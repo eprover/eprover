@@ -29,6 +29,7 @@ Changes
 #include <clb_stringtrees.h>
 #include <ctype.h>
 #include <limits.h>
+#include <setjmp.h>
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
@@ -172,6 +173,7 @@ typedef struct scannercell
 
    PStack_p    error_stack;
    bool        panic_mode; /* Flag to check if panic mode was activated. */
+   jmp_buf     jump_buffer;
 }ScannerCell, *Scanner_p;
 
 

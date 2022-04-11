@@ -21,7 +21,6 @@ Changes
     New
 
 -----------------------------------------------------------------------*/
-
 #include "ccl_formulafunc.h"
 #include "ccl_clausefunc.h"
 #include "cte_lambda.h"
@@ -1511,7 +1510,16 @@ long FormulaAndClauseSetParse(Scanner_p in, FormulaSet_p fset,
                               StrTree_p *name_selector,
                               StrTree_p *skip_includes)
 {
+   int r = setjmp(in->jump_buffer);
+
+   if (r != 0)
+   {
+      r = setjmp(in->jump_buffer);
+      fprintf(GlobalOut, "\n\n--------\nJUMP\n--------\n");
+   }
+
    long res = 0;
+
    WFormula_p form, nextform;
    Clause_p   clause, nextclause;
    StrTree_p  stand_in = NULL;

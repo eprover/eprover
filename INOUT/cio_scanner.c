@@ -21,7 +21,6 @@
 #include "cio_scanner.h"
 
 
-
 /*---------------------------------------------------------------------*/
 /*                        Global Variables                             */
 /*---------------------------------------------------------------------*/
@@ -1209,6 +1208,7 @@ static void PanicMode(Scanner_p in)
    PrintErrorStack(in->error_stack);
 
    // TODO: JUMPS
+   longjmp(in->jump_buffer, 2);
 }
 
 static void ThrowError(Scanner_p in, DStr_p message)
