@@ -1,7 +1,7 @@
 
 def tuple_is_smaller(a, b):
-  a,b = list(a[:4]),list(b[:4])
-  a[3],b[3] = -a[3], -b[3] # smaller times are better
+  a,b = list(a[:5]),list(b[:5])
+  a[4],b[4] = -a[4], -b[4] # smaller times are better
 
   return a < b
 
@@ -25,10 +25,10 @@ class Category(object):
 
   def store_evaluation(self, eval, conf):
     if self._best is None:
-      self._best = (eval[0], eval[1], eval[2], eval[3], conf)
+      self._best = (eval[0], eval[1], eval[2], eval[3], eval[4], conf)
     else:
       if tuple_is_smaller(self._best, eval):
-        self._best = (eval[0], eval[1], eval[2], eval[3], conf)
+        self._best = (eval[0], eval[1], eval[2], eval[3], eval[4], conf)
 
   def get_best_conf(self):
     if self._best is None:
@@ -50,7 +50,7 @@ class Configuration(object):
 
   PREPROCESSING_W_DEFAULTS =\
   {
-    'no_preproc': 'false', 
+    # 'no_preproc': 'false', 
     # 'eqdef_maxclauses': '20000', 
     # 'eqdef_incrlimit': '20',
     'formula_def_limit': '24', 
@@ -100,7 +100,7 @@ class Configuration(object):
     else:
       Configuration._all_attempted[prob] += 1
 
-  def evaluate_for_probs(self, probs):
+  def evaluate_for_probs(self, prev_conf, probs):
     solved, uniqness_points, time = (0, 0, 0.0)
     for prob in probs:
       if prob in self._probs:
@@ -108,14 +108,18 @@ class Configuration(object):
         uniqness_points += Configuration._all_attempted[prob] - Configuration._all_solved[prob]
         time += self._probs[prob]
     # order of rating: 1) solved for problem list 2) score of uniqueness within the solved problems
-    # 3) ration of solved to attempted problems, 4) avg necessary time to solve a prob
-    return (solved, uniqness_points, len(self._probs) / max(len(self._attempted), 1), time / max(solved,1))
+    # 3) how different this configuration is with respect to the previous one (for preprocessing)
+    # 4) ration of solved to attempted problems, 5) avg necessary time to solve a prob
+    return (solved, uniqness_points,
+            0 if prev_conf is None else self._num_diffs(prev_conf),
+            len(self._probs) / max(len(self._attempted), 1), 
+            time / max(solved,1))
 
   def evaluate_category(self, category):
     if category in self._memo_eval:
       return self._memo_eval[category]   
     
-    eval = self.evaluate_for_probs(category.get_problems())
+    eval = self.evaluate_for_probs(None, category.get_problems())
     self._memo_eval[category] = eval
     category.store_evaluation(eval, self)
     return eval
@@ -159,7 +163,11 @@ class Configuration(object):
     
     return self._preprocess 
 
-    
+  def _num_diffs(self, other):
+    diffs = 0
+    for key in Configuration.PREPROCESSING_W_DEFAULTS.keys():
+      diffs += self._preprocess.get(key, None) != other._preprocess.get(key, None)
+    return diffs
 
   def get_name(self):
     from pathlib import Path

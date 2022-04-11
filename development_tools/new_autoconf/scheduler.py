@@ -215,10 +215,10 @@ def init_args():
   return args
 
 
-def get_best_conf(confs, probs):
-  m_conf, m_eval = None, (-1,-1,0,0)
+def get_best_conf(confs, last, probs):
+  m_conf, m_eval = None, (-1,-1,0,0,0)
   for c in confs:
-    eval = c.evaluate_for_probs(probs)
+    eval = c.evaluate_for_probs(last, probs)
     if tuple_is_smaller(m_eval, eval):
       m_conf = c
       m_eval = eval
@@ -277,7 +277,9 @@ def schedule(cats, confs, min_size, max_size, used_confs,
     remaining_confs = set(confs)
     
     while remaining_confs and remaining_probs and sched_size<max_size:
-      best_conf, best_eval = get_best_conf(remaining_confs, remaining_probs)
+      best_conf, best_eval = get_best_conf(remaining_confs, 
+                                           schedule[-1][0] if schedule else None, 
+                                           remaining_probs)
       if best_eval[0] == 0:
         #no problems can be solved by any of the remaining confs
         break
@@ -308,11 +310,12 @@ def schedule(cats, confs, min_size, max_size, used_confs,
       # the schedule is filled
       assert(remaining_confs)
 
-      def eval_probs(conf, cat):
-        (sol, uniq, succ, time) = conf.evaluate_for_probs(cat.get_problems())
-        return (sol, uniq, succ, -time)
+      def eval_probs(conf, last, cat):
+        (sol, uniq, dist, succ, time) = conf.evaluate_for_probs(last, cat.get_problems())
+        return (sol, uniq, dist, succ, -time)
 
-      remaining_confs = list(sorted(remaining_confs, key=lambda x: eval_probs(x, cat), 
+      last = schedule[-1][0] if schedule else None
+      remaining_confs = list(sorted(remaining_confs, key=lambda x: eval_probs(x, last, cat), 
                                     reverse=True))
       rem_ratio = remaining_ratio / to_add
       while remaining_confs and to_add:
