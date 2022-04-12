@@ -122,6 +122,7 @@ typedef enum
 #define PCL_POS_EXT "pos_ext"
 #define PCL_EXT_SUP "ext_sup"
 #define PCL_EXT_EQRES "ext_eqres"
+#define PCL_EXT_EQFACT "ext_eqfact"
 #define PCL_INV_REC "recongize_injectivity"
 #define PCL_CHOICE_AX "introduce_choice_axiom"
 #define PCL_LEIBNIZ_ELIM "eliminate_leibniz_eq"

@@ -81,6 +81,7 @@ char *opids[] =
    PCL_POS_EXT,
    PCL_EXT_SUP,
    PCL_EXT_EQRES,
+   PCL_EXT_EQFACT,
    PCL_INV_REC,
    PCL_CHOICE_AX,
    PCL_LEIBNIZ_ELIM,
@@ -146,6 +147,7 @@ char *optheory [] =
    NULL,
    NULL,
    NULL,
+   NULL,
    NULL
 };
 
@@ -193,6 +195,7 @@ char *opstatus [] =
    "thm",
    "thm",
    /* HO */
+   "thm",
    "thm",
    "thm",
    "thm",

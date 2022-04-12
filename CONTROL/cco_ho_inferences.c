@@ -997,6 +997,103 @@ bool find_disagreements(Sig_p sig, Term_p t, Term_p s, PStack_p diss_stack)
 
 /*-----------------------------------------------------------------------
 //
+// Function: advance_eq_fact_pos()
+//
+//   Given an *initialized* clause position pos, find the next one which
+//   can take part in ExtEqFact inference
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+bool advance_eq_fact_pos(ClausePos_p pos)
+{
+   bool advanced = false;
+   while(pos->literal && !advanced)
+   {
+      if(EqnIsPositive(pos->literal))
+      {
+         if(pos->side == NoSide && TermHasExtEligSubterm(pos->literal->lterm))
+         {
+            pos->side = LeftSide;
+            advanced = true;
+         }
+         else if(pos->side == LeftSide && TermHasExtEligSubterm(pos->literal->rterm))
+         {
+            pos->side = RightSide;
+            advanced = true;
+         }
+      }
+
+      if(!advanced)
+      {
+         pos->literal = pos->literal->next;
+         pos->side = NoSide;
+      }
+   }
+   return advanced;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: do_ext_eq_fact()
+//
+//   Given an *initialized* clause position pos, find the next one which
+//   can take part in ExtEqFact inference
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void do_ext_eq_fact(ClausePos_p main_pos, ClausePos_p partner_pos, 
+                    ClauseSet_p cl_store)
+{
+   assert(main_pos->clause == partner_pos->clause);
+   assert(main_pos->literal);
+   assert(partner_pos->literal);
+   assert(main_pos->literal != partner_pos->literal);
+
+   Term_p main_term  = ClausePosGetSide(main_pos);
+   Term_p partner_term = ClausePosGetSide(partner_pos);
+   TB_p bank = main_pos->literal->bank;
+
+   PStack_p disagreements = PStackAlloc();
+   if(find_disagreements(bank->sig, main_term, partner_term, disagreements))
+   {
+      Term_p main_other_term = ClausePosGetOtherSide(main_pos);
+      Term_p partner_other_term = ClausePosGetOtherSide(partner_pos);
+      Eqn_p new_cl_lits = EqnAlloc(main_other_term, partner_other_term,
+                                   bank, false);
+      while (!PStackEmpty(disagreements))
+      {
+         Eqn_p cond = EqnAlloc(PStackPopP(disagreements), PStackPopP(disagreements),
+                               bank, false);
+         cond->next = new_cl_lits;
+         new_cl_lits = cond;
+      }
+      Eqn_p old_cl_lits =
+        EqnListCopyOptExcept(main_pos->clause->literals, main_pos->literal);
+      EqnListAppend(&new_cl_lits, old_cl_lits);
+      EqnListRemoveResolved(&new_cl_lits);
+      EqnListRemoveDuplicates(new_cl_lits);
+      EqnListLambdaNormalize(new_cl_lits);
+      Clause_p res = ClauseAlloc(new_cl_lits);
+      res->proof_size = main_pos->clause->proof_size + 1;
+      res->proof_depth = main_pos->clause->proof_depth + 1;
+      ClauseSetProp(res, (ClauseGiveProps(main_pos->clause, CPIsSOS)));
+      ClausePushDerivation(res, DCExtEqRes, main_pos->clause, NULL);
+      ClauseSetInsert(cl_store, res);
+   }
+
+   PStackFree(disagreements);
+}
+
+/*-----------------------------------------------------------------------
+//
 // Function: do_ext_sup()
 //
 //   Performs ExtEqRes inference.
@@ -1776,10 +1873,9 @@ void InferInjectiveDefinition(ProofState_p state, ProofControl_p control, Clause
 
 /*-----------------------------------------------------------------------
 //
-// Function: InferInjectiveDefinition()
+// Function: ComputeExtSup()
 //
-//   If clause postulates injectivity of some symbol
-//   add the definition of inverse to the proof state.
+//   Computes abstracting variant of superposition rule.
 //
 // Global Variables: -
 //
@@ -1798,10 +1894,9 @@ void ComputeExtSup(ProofState_p state, ProofControl_p control,
 
 /*-----------------------------------------------------------------------
 //
-// Function: InferInjectiveDefinition()
+// Function: ComputeExtEqRes()
 //
-//   If clause postulates injectivity of some symbol
-//   add the definition of inverse to the proof state.
+//   Computes abstracting variant of equality resolution.
 //
 // Global Variables: -
 //
@@ -1831,7 +1926,44 @@ void ComputeExtEqRes(ProofState_p state, ProofControl_p control, Clause_p cl)
 
 /*-----------------------------------------------------------------------
 //
-// Function: InferInjectiveDefinition()
+// Function: ComputeExtEqFact()
+//
+//   Computes abstracting variant of equality factoring.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void ComputeExtEqFact(ProofState_p state, ProofControl_p control, Clause_p cl)
+{
+   if (cl->proof_depth <= control->heuristic_parms.ext_sup_max_depth)
+   {
+      ClausePos_p pos1 = ClausePosAlloc();
+      ClausePos_p pos2 = ClausePosAlloc();
+      pos1->clause = pos2->clause = cl;
+      pos1->literal = cl->literals;
+      pos1->side = NoSide;
+
+      while(advance_eq_fact_pos(pos1))
+      {
+         pos2->literal = pos1->literal->next;
+         pos2->side = NoSide;
+         while(advance_eq_fact_pos(pos2))
+         {
+            do_ext_eq_fact(pos1, pos2, state->tmp_store);
+         }
+      }
+
+      ClausePosFree(pos1);
+      ClausePosFree(pos2);
+   }
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: NormalizeEquations()
 //
 //   Lifts nested equalities to the literal equality level, and removes
 //   nested $nots.
@@ -2569,6 +2701,7 @@ void ComputeHOInferences(ProofState_p state, ProofControl_p control,
       {
          ComputeExtSup(state, control, renamed_cl, orig_clause);
          ComputeExtEqRes(state, control, orig_clause);
+         ComputeExtEqFact(state, control, orig_clause);
       }
       if (control->heuristic_parms.elim_leibniz_max_depth >= 0)
       {
