@@ -88,7 +88,7 @@ void GlobalIndicesInit(GlobalIndices_p indices,
                        char* rw_bw_index_type,
                        char* pm_from_index_type,
                        char* pm_into_index_type,
-                       int   ext_sup_max_depth)
+                       int   ext_rules_max_depth)
 {
    FPIndexFunction indexfun;
 
@@ -125,7 +125,7 @@ void GlobalIndicesInit(GlobalIndices_p indices,
    {
       SetExtIntoIdx(indices, ExtIdxAlloc());
       SetExtFromIdx(indices, ExtIdxAlloc());
-      SetExtMaxDepth(indices, ext_sup_max_depth);
+      SetExtMaxDepth(indices, ext_rules_max_depth);
    }
 }
 

@@ -287,7 +287,7 @@ int ExecuteScheduleMultiCore(ScheduleCell strats[],
             h_parms->order_params.ordertype = strats[i].ordering;
             SilentTimeOut = true;
             signal(SIGQUIT, _catch_and_quit);
-            EGPCtrlSetFree(procs);
+            // EGPCtrlSetFree(procs);
             return i; // tells the other scheduling call what is the parent
          }
          else

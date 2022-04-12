@@ -1885,7 +1885,7 @@ void InferInjectiveDefinition(ProofState_p state, ProofControl_p control, Clause
 void ComputeExtSup(ProofState_p state, ProofControl_p control,
                    Clause_p renamed_cl, Clause_p orig_clause)
 {
-   if (orig_clause->proof_depth <= control->heuristic_parms.ext_sup_max_depth)
+   if (orig_clause->proof_depth <= control->heuristic_parms.ext_rules_max_depth)
    {
       do_ext_sup_from(renamed_cl, orig_clause, state);
       do_ext_sup_into(renamed_cl, orig_clause, state);
@@ -1906,7 +1906,7 @@ void ComputeExtSup(ProofState_p state, ProofControl_p control,
 
 void ComputeExtEqRes(ProofState_p state, ProofControl_p control, Clause_p cl)
 {
-   if (cl->proof_depth <= control->heuristic_parms.ext_sup_max_depth)
+   if (cl->proof_depth <= control->heuristic_parms.ext_rules_max_depth)
    {
       for (Eqn_p lit = cl->literals; lit; lit = lit->next)
       {
@@ -1938,7 +1938,7 @@ void ComputeExtEqRes(ProofState_p state, ProofControl_p control, Clause_p cl)
 
 void ComputeExtEqFact(ProofState_p state, ProofControl_p control, Clause_p cl)
 {
-   if (cl->proof_depth <= control->heuristic_parms.ext_sup_max_depth)
+   if (cl->proof_depth <= control->heuristic_parms.ext_rules_max_depth)
    {
       ClausePos_p pos1 = ClausePosAlloc();
       ClausePos_p pos2 = ClausePosAlloc();
@@ -2697,7 +2697,7 @@ void ComputeHOInferences(ProofState_p state, ProofControl_p control,
       {
          InferInjectiveDefinition(state, control, orig_clause);
       }
-      if (control->heuristic_parms.ext_sup_max_depth >= 0)
+      if (control->heuristic_parms.ext_rules_max_depth >= 0)
       {
          ComputeExtSup(state, control, renamed_cl, orig_clause);
          ComputeExtEqRes(state, control, orig_clause);

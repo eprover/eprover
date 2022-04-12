@@ -258,7 +258,7 @@ void HeuristicParmsInitialize(HeuristicParms_p handle)
    handle->inverse_recognition           = false;
    handle->replace_inj_defs              = false;
    handle->lift_lambdas                  = true;
-   handle->ext_sup_max_depth             = NO_EXT_SUP;
+   handle->ext_rules_max_depth             = NO_EXT_SUP;
    handle->lambda_to_forall              = true;
    handle->unroll_only_formulas          = true;
    handle->elim_leibniz_max_depth        = NO_ELIM_LEIBNIZ;
@@ -493,7 +493,7 @@ void HeuristicParmsPrint(FILE* out, HeuristicParms_p handle)
            EIT2STR(handle->pos_ext));
    
    fprintf(out, "   ext_sup_max_depth:              %d\n",
-           handle->ext_sup_max_depth);
+           handle->ext_rules_max_depth);
       
    fprintf(out, "   inverse_recognition:            %s\n",
            BOOL2STR(handle->inverse_recognition));
@@ -715,7 +715,7 @@ bool HeuristicParmsParseInto(Scanner_p in,
    PARSE_STRING_AND_CONVERT(arg_cong, str2eit);
    PARSE_STRING_AND_CONVERT(neg_ext, str2eit);
    PARSE_STRING_AND_CONVERT(pos_ext, str2eit);
-   PARSE_INT(ext_sup_max_depth);
+   PARSE_INT(ext_rules_max_depth);
    PARSE_BOOL(inverse_recognition);
    PARSE_BOOL(replace_inj_defs);
    PARSE_BOOL(lift_lambdas);

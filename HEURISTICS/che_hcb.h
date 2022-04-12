@@ -211,7 +211,7 @@ typedef struct heuristic_parms_cell
    ExtInferenceType    arg_cong;
    ExtInferenceType    neg_ext;
    ExtInferenceType    pos_ext;
-   int                 ext_sup_max_depth;
+   int                 ext_rules_max_depth;
    bool                inverse_recognition;
    bool                replace_inj_defs;
    bool                lift_lambdas;

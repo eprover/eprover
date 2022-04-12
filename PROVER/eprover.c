@@ -708,7 +708,7 @@ int main(int argc, char* argv[])
                      proofcontrol->heuristic_parms.rw_bw_index_type,
                      "NoIndex",
                      "NoIndex",
-                     proofcontrol->heuristic_parms.ext_sup_max_depth);
+                     proofcontrol->heuristic_parms.ext_rules_max_depth);
    //printf("Alive (1)!\n");
 
    ProofStateInit(proofstate, proofcontrol);
@@ -2021,7 +2021,7 @@ CLState_p process_options(int argc, char* argv[])
             h_parms->fixpoint_oracle = CLStateGetBoolArg(handle, arg);
             break;
       case OPT_EXT_SUP:
-            h_parms->ext_sup_max_depth =
+            h_parms->ext_rules_max_depth =
                CLStateGetIntArgCheckRange(handle, arg, -1, INT_MAX);
             break;
       case OPT_INVERSE_RECOGNITION:
