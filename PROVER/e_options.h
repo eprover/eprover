@@ -1559,7 +1559,7 @@ OptCell opts[] =
     '\0', "ext-sup-max-depth",
     ReqArg, NULL,
     "Sets the maximal proof depth of the clause which will be considered for "
-    " ExtSup inferences. Negative value disables the rule."},
+    " Ext-family of inferences. Negative value disables the rule."},
 
    {OPT_INVERSE_RECOGNITION,
     '\0', "inverse-recognition",
@@ -1638,7 +1638,8 @@ OptCell opts[] =
     {OPT_LOCAL_RW,
     '\0', "local-rw",
     ReqArg, NULL,
-    "Enable/disable local rewriting."},
+    "Enable/disable local rewriting: if the clause is of the form s != t | "
+    " C, where s > t, rewrite all occurrences of s with t in C."},
 
     {OPT_PRUNE_ARGS,
     '\0', "prune-args",
@@ -1690,7 +1691,6 @@ OptCell opts[] =
     ReqArg, NULL,
     "Maximal number of variable bindings that can "
     "be done in one single call to copmuting the next unifier."},
-
 
     {OPT_CNF_TIMEOUT_PORTION,
     '\0', "classification-timeout-portion",

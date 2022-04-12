@@ -1562,7 +1562,7 @@ long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive,
       TFormulaSetNamedToDBLambdas(set, archive, terms);
       TFormulaSetLiftItes(set, archive, terms);
       TFormulaSetLiftLets(set, archive, terms);
-      TFormulaSetUnfoldLogSymbols(set, archive, terms, unfold_only_forms);
+      TFormulaSetUnfoldDefSymbols(set, archive, terms, unfold_only_forms);
       if(lambda_to_forall)
       {
          TFormulaSetLambdaNormalize(set, archive, terms);
@@ -2123,7 +2123,7 @@ long TFormulaSetLambdaNormalize(FormulaSet_p set, FormulaSet_p archive, TB_p ter
 
 /*-----------------------------------------------------------------------
 //
-// Function: TFormulaSetUnfoldLogSymbols()
+// Function: TFormulaSetUnfoldDefSymbols()
 //
 //    Rewrites all formulas using defined symbols of the form
 //    sym = \vars. body where return type of sym is Bool
@@ -2135,7 +2135,7 @@ long TFormulaSetLambdaNormalize(FormulaSet_p set, FormulaSet_p archive, TB_p ter
 //
 /----------------------------------------------------------------------*/
 
-long TFormulaSetUnfoldLogSymbols(FormulaSet_p set, FormulaSet_p archive, TB_p terms, bool unfold_only_forms)
+long TFormulaSetUnfoldDefSymbols(FormulaSet_p set, FormulaSet_p archive, TB_p terms, bool unfold_only_forms)
 {
    long res = 0;
    if (problemType == PROBLEM_HO)

@@ -104,7 +104,7 @@ long TFormulaSetLiftLets(FormulaSet_p set, FormulaSet_p archive, TB_p terms);
 long TFormulaSetUnrollFOOL(FormulaSet_p set, FormulaSet_p archive, TB_p terms);
 long TFormulaSetLambdaNormalize(FormulaSet_p set, FormulaSet_p archive, TB_p terms);
 long TFormulaSetNamedToDBLambdas(FormulaSet_p set, FormulaSet_p archive, TB_p terms);
-long TFormulaSetUnfoldLogSymbols(FormulaSet_p set, FormulaSet_p archive, TB_p terms, bool only_forms);
+long TFormulaSetUnfoldDefSymbols(FormulaSet_p set, FormulaSet_p archive, TB_p terms, bool only_forms);
 bool TFormulaUnrollFOOL(WFormula_p form, TB_p terms);
 long TFormulaSetLiftLambdas(FormulaSet_p set, FormulaSet_p archive, TB_p terms);
 void ClauseSetLiftLambdas(ClauseSet_p set, FormulaSet_p archive, TB_p terms, VarBank_p fresh_vars, bool unroll_fool);

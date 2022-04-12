@@ -492,7 +492,7 @@ void HeuristicParmsPrint(FILE* out, HeuristicParms_p handle)
    fprintf(out, "   pos_ext:                        %s\n",
            EIT2STR(handle->pos_ext));
    
-   fprintf(out, "   ext_sup_max_depth:              %d\n",
+   fprintf(out, "   ext_rules_max_depth:            %d\n",
            handle->ext_rules_max_depth);
       
    fprintf(out, "   inverse_recognition:            %s\n",
