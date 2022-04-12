@@ -1085,7 +1085,7 @@ void do_ext_eq_fact(ClausePos_p main_pos, ClausePos_p partner_pos,
       res->proof_size = main_pos->clause->proof_size + 1;
       res->proof_depth = main_pos->clause->proof_depth + 1;
       ClauseSetProp(res, (ClauseGiveProps(main_pos->clause, CPIsSOS)));
-      ClausePushDerivation(res, DCExtEqRes, main_pos->clause, NULL);
+      ClausePushDerivation(res, DCExtEqFact, main_pos->clause, NULL);
       ClauseSetInsert(cl_store, res);
    }
 

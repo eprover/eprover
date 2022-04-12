@@ -166,7 +166,7 @@ typedef enum
    DCPosExt           = DOPosExt|Arg1Cnf|ArgIsHO,
    DCExtSup           = DOExtSup|Arg1Cnf|Arg2Cnf|ArgIsHO,
    DCExtEqRes         = DOExtEqRes|Arg1Cnf|ArgIsHO,
-   DCEqFact           = DOExtEqFact|Arg1Cnf|ArgIsHO,
+   DCExtEqFact        = DOExtEqFact|Arg1Cnf|ArgIsHO,
    DCInvRec           = DOInvRec|Arg1Cnf|ArgIsHO,
    DCChoiceAx         = DOChoiceAx|ArgIsHO,
    DCLeibnizElim      = DOLeibnizElim|Arg1Cnf|ArgIsHO,
