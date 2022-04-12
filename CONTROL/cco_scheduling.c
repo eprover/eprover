@@ -287,6 +287,7 @@ int ExecuteScheduleMultiCore(ScheduleCell strats[],
             h_parms->order_params.ordertype = strats[i].ordering;
             SilentTimeOut = true;
             signal(SIGQUIT, _catch_and_quit);
+            EGPCtrlSetFree(procs);
             return i; // tells the other scheduling call what is the parent
          }
          else
@@ -310,6 +311,7 @@ int ExecuteScheduleMultiCore(ScheduleCell strats[],
          {
             TERMINATE_CHILDREN();
          }
+         EGPCtrlSetFree(procs);
          exit(handle->exit_status);
       } 
    }while(EGPCtrlSetCardinality(procs) || strats[i].heu_name);

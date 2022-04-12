@@ -2366,7 +2366,7 @@ Term_p TermMap(TB_p bank, Term_p t, TermMapper f)
 {
    assert(t);
    Term_p s = f(bank, t);
-   assert(TermIsShared(s) && s->type == t->type);
+   assert(!s || TermIsShared(s) && s->type == t->type);
 
    if(!s)
    {
