@@ -1567,10 +1567,6 @@ long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive,
       {
          TFormulaSetLambdaNormalize(set, archive, terms);
       }
-      // if (lift_lambdas)
-      // {
-      //    TFormulaSetLiftLambdas(set, archive, terms);
-      // }
    }
 #endif
    if(fool_unroll)

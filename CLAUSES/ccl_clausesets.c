@@ -1600,7 +1600,8 @@ ClausePos_p ClauseSetFindEqDefinition(ClauseSet_p set, int min_arity,
        handle!=set->anchor;
        handle = handle->succ)
    {
-      side = ClauseIsEqDefinition(handle, min_arity);
+      side = problemType == PROBLEM_FO ? ClauseIsEqDefinition(handle, min_arity) :
+                                         ClauseExtractHODefinition(handle, min_arity) ;
       if(side!=NoSide)
       {
          res = ClausePosCellAlloc();

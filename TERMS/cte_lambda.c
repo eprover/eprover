@@ -1046,8 +1046,7 @@ Term_p ShiftDB(TB_p bank, Term_p term, int shift_val)
 // Function: AbstractVars()
 //
 //   Abstract var_prefix over matrix. Variable at the top of the stack 
-//   is the first one to abstract. Empties but does not delete the
-//   stack and represents everything as DB lambdas.
+//   is the first one to abstract.
 //
 //
 // Global Variables: -
@@ -1058,6 +1057,7 @@ Term_p ShiftDB(TB_p bank, Term_p term, int shift_val)
 
 Term_p AbstractVars(TB_p terms, Term_p matrix, PStack_p var_prefix)
 {
+   assert(TermIsDBClosed(matrix));
    Subst_p subst = SubstAlloc();
    for(long i=PStackGetSP(var_prefix)-1; i>=0; i--)
    {
@@ -1070,7 +1070,7 @@ Term_p AbstractVars(TB_p terms, Term_p matrix, PStack_p var_prefix)
    for(long i=PStackGetSP(var_prefix)-1; i>=0; i--)
    {
       matrix = 
-         CloseWithDBVar(terms, ((Term_p)PStackElementP(subst,i))->type, matrix);
+         CloseWithDBVar(terms, ((Term_p)PStackElementP(var_prefix,i))->type, matrix);
    }
    SubstDelete(subst);
    assert(TermIsDBClosed(matrix));

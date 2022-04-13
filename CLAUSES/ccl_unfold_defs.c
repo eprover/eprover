@@ -22,6 +22,7 @@
   -----------------------------------------------------------------------*/
 
 #include "ccl_unfold_defs.h"
+#include <cte_lambda.h>
 
 
 
@@ -41,7 +42,7 @@
 
 /*-----------------------------------------------------------------------
 //
-// Function: term_top_unfold_def()
+// Function: term_top_unfold_def_fo()
 //
 //   If possible, return the term that results from applying the
 //   demodulator at top position, otherwise return term.
@@ -52,7 +53,7 @@
 //
 /----------------------------------------------------------------------*/
 
-static Term_p term_top_unfold_def(TB_p bank, Term_p term, ClausePos_p demod)
+static Term_p term_top_unfold_def_fo(TB_p bank, Term_p term, ClausePos_p demod)
 {
    Term_p lside, rside, res;
    Subst_p subst;
@@ -75,6 +76,54 @@ static Term_p term_top_unfold_def(TB_p bank, Term_p term, ClausePos_p demod)
    return res;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: term_top_unfold_def_ho()
+//
+//   Like term_top_unfold_def_fo, but assumes that all definitions
+//   have been transformed into symbol = lambda expression, so it does
+//   not do matching, but lambda normalization.
+//
+// Global Variables: -
+//
+// Side Effects    : Changes term bank.
+//
+/----------------------------------------------------------------------*/
+
+static Term_p term_top_unfold_def_ho(TB_p bank, Term_p term, ClausePos_p demod)
+{
+   Term_p lside, rside;
+   assert(bank&&term&&demod);
+
+   lside = ClausePosGetSide(demod);
+   assert(!TermIsTopLevelAnyVar(lside));
+   assert(!TermIsLambda(lside));
+
+   if(lside->f_code != term->f_code)
+   {
+      return term;
+   }
+   rside = ClausePosGetOtherSide(demod);
+   assert(lside->type == rside->type);
+   if(term->arity == 0)
+   {
+      assert(term->type == rside->type);
+      return rside;
+   }
+   else
+   {
+      PStack_p args = PStackAlloc();
+      for(int i=0; i<term->arity; i++)
+      {
+         PStackPushP(args, term->args[i]);
+      }
+      Term_p res = WHNF_step(bank, ApplyTerms(bank, rside, args));
+      PStackFree(args);
+      assert(res->type == term->type);
+      return res;
+   }
+}
+
 
 /*-----------------------------------------------------------------------
 //
@@ -95,7 +144,7 @@ static Term_p term_top_unfold_def(TB_p bank, Term_p term, ClausePos_p demod)
 static Term_p term_unfold_def(TB_p bank, Term_p term, PStack_p
                               pos_stack, ClausePos_p demod)
 {
-   Term_p res, tmp;
+   Term_p res, tmp = NULL;
    int i;
    bool changed = false;
 
@@ -119,7 +168,7 @@ static Term_p term_unfold_def(TB_p bank, Term_p term, PStack_p
       TermTopFree(res);
       tmp = term;
    }
-   res = term_top_unfold_def(bank, tmp, demod);
+   res = (problemType == PROBLEM_FO ? term_top_unfold_def_fo : term_top_unfold_def_ho)(bank, tmp, demod);
    if(res!=tmp)
    {
       PStackPushP(pos_stack, term);
@@ -273,8 +322,7 @@ long ClauseSetUnfoldAllEqDefs(ClauseSet_p set, ClauseSet_p passive,
    long res = false;
    Clause_p start = NULL;
 
-   while((demod = ClauseSetFindEqDefinition(set, min_arity, start))
-          && problemType == PROBLEM_FO) // disable unfoldings in HO for the moment
+   while((demod = ClauseSetFindEqDefinition(set, min_arity, start)))
    {
       start = demod->clause->succ;
       if((TermStandardWeight(ClausePosGetOtherSide(demod))-

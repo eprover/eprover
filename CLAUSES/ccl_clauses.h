@@ -294,6 +294,8 @@ bool     ClauseIsAntiRangeRestricted(Clause_p clause);
 
 bool     ClauseIsStronglyRangeRestricted(Clause_p clause);
 EqnSide  ClauseIsEqDefinition(Clause_p clause, int min_arity);
+EqnSide  ClauseExtractHODefinition(Clause_p clause, int min_arity);
+
 
 Clause_p ClauseCopy(Clause_p clause, TB_p bank);
 Clause_p ClauseFlatCopy(Clause_p clause);

@@ -899,9 +899,55 @@ EqnSide ClauseIsEqDefinition(Clause_p clause, int min_arity)
 {
    assert(clause);
 
-   if(problemType == PROBLEM_FO && ClauseIsUnit(clause))
+   if(ClauseIsUnit(clause))
    {
       return EqnIsDefinition(clause->literals, min_arity);
+   }
+   return NoSide;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseExtractHODefinition()
+//
+//   If clause is a positive unit definition f(X1....Xn)=t (f not in
+//   t), then the clause is transformed into f = \X1...Xn. t and LeftSide
+//   is returned
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+EqnSide ClauseExtractHODefinition(Clause_p clause, int min_arity)
+{
+   assert(clause);
+
+   if(ClauseIsUnit(clause))
+   {
+      EqnSide def_side = EqnIsDefinition(clause->literals, min_arity);
+      if(def_side != NoSide)
+      {
+         PStack_p vars = PStackAlloc();
+         Eqn_p lit = clause->literals;
+         Term_p def_term = def_side == LeftSide ? lit->lterm : lit->rterm;
+         for(int i=0; i<def_term->arity; i++)
+         {
+            assert(TermIsFreeVar(def_term->args[i]));
+            PStackPushP(vars, def_term->args[i]);
+         }
+         Term_p other_term = def_side == LeftSide ? lit->rterm : lit->lterm;
+         Term_p abstracted_term = AbstractVars(lit->bank, other_term, vars);
+         Term_p symbol = TermTopAlloc(def_term->f_code, 0);
+         symbol->type = abstracted_term->type;
+         assert(symbol->type == SigGetType(lit->bank->sig, symbol->f_code));
+         symbol = TBTermTopInsert(lit->bank, symbol);
+         lit->lterm = symbol;
+         lit->rterm = abstracted_term;
+         PStackFree(vars);
+         return LeftSide;
+      }
    }
    return NoSide;
 }
