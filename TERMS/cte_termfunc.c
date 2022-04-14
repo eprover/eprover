@@ -1968,7 +1968,7 @@ bool TermIsDefTerm(Term_p term, int min_arity)
    }
    for(i=0; i<term->arity; i++)
    {
-      if(TermCellQueryProp(term->args[i], TPOpFlag))
+      if(!TermIsFreeVar(term->args[i]) || TermCellQueryProp(term->args[i], TPOpFlag))
       {
          return false;
       }

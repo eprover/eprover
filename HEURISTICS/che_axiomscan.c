@@ -72,10 +72,10 @@ FunCode DetectCommutativity(Clause_p clause)
    assert(lit);
    FAIL_ON(!EqnIsPositive(lit));
    FAIL_ON(TermIsPhonyApp(lit->lterm) || TermIsPhonyApp(lit->rterm));
-   FAIL_ON((TermStandardWeight(lit->lterm)!=
-       DEFAULT_FWEIGHT+(2*DEFAULT_VWEIGHT))||
-      (TermStandardWeight(lit->rterm)!=
-       DEFAULT_FWEIGHT+(2*DEFAULT_VWEIGHT)));
+   FAIL_ON(lit->lterm->arity != 2 || lit->rterm->arity != 2);
+   
+   FAIL_ON(!TermIsFreeVar(lit->lterm->args[0]) || !TermIsFreeVar(lit->lterm->args[1]));
+   FAIL_ON(!TermIsFreeVar(lit->rterm->args[0]) || !TermIsFreeVar(lit->rterm->args[1]));
 
    FAIL_ON((lit->lterm->arity!=2)||
       (lit->lterm->f_code!=lit->rterm->f_code));
