@@ -216,7 +216,7 @@ void make_fresh_defs(TB_p bank, Term_p let_t, NumTree_p *defs, PStack_p res)
 
 TFormula_p lift_lets(TB_p terms, TFormula_p t, PStack_p fresh_defs)
 {
-   if (TermIsFreeVar(t))
+   if (TermIsAnyVar(t))
    {
       return t;
    }

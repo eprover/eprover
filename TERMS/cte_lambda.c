@@ -1311,6 +1311,18 @@ Term_p DecodeFormulasForCNF(TB_p bank, Term_p t)
    {
       res = t;
    }
+   else if(TermIsLambda(t))
+   {
+      Term_p new_matrix = DecodeFormulasForCNF(bank, t->args[1]);
+      if(t->args[1] != new_matrix)
+      {
+         res = CloseWithDBVar(bank, t->args[0]->type, new_matrix);
+      }
+      else
+      {
+         res = t;
+      }
+   }
    else
    {
       res = TermTopCopyWithoutArgs(t);
