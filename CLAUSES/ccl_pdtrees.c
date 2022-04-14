@@ -1231,7 +1231,7 @@ PDTNode_p PDTreeMatchPrefix(PDTree_p tree, Term_p term,
 
 long PDTreeDelete(PDTree_p tree, Term_p term, Clause_p clause)
 {
-   long res;
+   long res=0;
    Term_p    curr;
    PDTNode_p node, prev, *next;
 
@@ -1255,70 +1255,21 @@ long PDTreeDelete(PDTree_p tree, Term_p term, Clause_p clause)
    node = tree->tree;
    curr = TermLRTraverseNext(tree->term_stack);
 
-   while(curr)
+   while(node && curr)
    {
       next = pdt_select_alt_ref(tree, node, curr);
       assert(next);
       PStackPushP(del_stack, curr);
 
       node = *next;
-      assert(node);
+      // assert(node);
       curr = TermLRTraverseNext(tree->term_stack);
    }
-   assert(node);
-   assert(node->entries);
-
-   res = delete_clause_entries(&(node->entries), clause, tree->deleter);
-   assert(res);
-
-   if(term->weight == node->size_constr)
+   
+   if (node)
    {
-      node->size_constr = -1;
-   }
-   if(SysDateEqual(node->age_constr, clause->date))
-   {
-      node->age_constr = SysDateInvalidTime();
-   }
-
-   Term_p del_term;
-   while(node->parent)
-   {
-      prev = node->parent;
-      del_term = PStackPopP(del_stack);
-      node->ref_count -= res;
-      if(!node->ref_count)
-      {
-         tree->arr_storage_est -= (IntMapStorage(node->f_alternatives));
-         assert(!node->v_alternatives && !node->db_alternatives);
-
-         tree->node_count--;
-         if(TermIsTopLevelAnyVar(del_term) || TermIsLambda(del_term))
-         {
-            PObjMap_p* to_del = 
-               TermIsTopLevelFreeVar(del_term) ? &(prev->v_alternatives) :
-                                                 &(prev->db_alternatives);
-            void* deleted = 
-               PObjMapExtract(to_del, 
-                              (TermIsLambda(del_term) || TermIsAppliedDBVar(del_term)) 
-                                 ? del_term->args[0] : del_term,
-                              TermPCompare);
-            UNUSED(deleted); assert(deleted);
-            tree->arr_storage_est -= SizeOfPObjNode();
-         }
-         else
-         {
-            tree->arr_storage_est -= IntMapStorage(node->f_alternatives);
-            void* deleted = IntMapDelKey(prev->f_alternatives, del_term->f_code);
-            UNUSED(deleted); assert(deleted);
-            tree->arr_storage_est += IntMapStorage(node->f_alternatives);
-         }
-         pdtree_default_cell_free(node);
-      }
-      else if(node->ref_count == PTreeNodes(node->entries))
-      {
-         node->leaf = true;
-      }
-      node = prev;
+      res = delete_clause_entries(&(node->entries), clause, tree->deleter);
+      assert(res);
 
       if(term->weight == node->size_constr)
       {
@@ -1328,6 +1279,59 @@ long PDTreeDelete(PDTree_p tree, Term_p term, Clause_p clause)
       {
          node->age_constr = SysDateInvalidTime();
       }
+
+      Term_p del_term;
+      while(node->parent)
+      {
+         prev = node->parent;
+         del_term = PStackPopP(del_stack);
+         node->ref_count -= res;
+         if(!node->ref_count)
+         {
+            tree->arr_storage_est -= (IntMapStorage(node->f_alternatives));
+
+            tree->node_count--;
+            if(TermIsTopLevelAnyVar(del_term) || TermIsLambda(del_term))
+            {
+               PObjMap_p* to_del = 
+                  TermIsTopLevelFreeVar(del_term) ? &(prev->v_alternatives) :
+                                                   &(prev->db_alternatives);
+               void* deleted = 
+                  PObjMapExtract(to_del, 
+                                 (TermIsLambda(del_term) || TermIsAppliedDBVar(del_term)) 
+                                    ? del_term->args[0] : del_term,
+                                 TermPCompare);
+               UNUSED(deleted); assert(deleted);
+               tree->arr_storage_est -= SizeOfPObjNode();
+            }
+            else
+            {
+               tree->arr_storage_est -= IntMapStorage(node->f_alternatives);
+               void* deleted = IntMapDelKey(prev->f_alternatives, del_term->f_code);
+               UNUSED(deleted); assert(deleted);
+               tree->arr_storage_est += IntMapStorage(node->f_alternatives);
+            }
+            pdtree_default_cell_free(node);
+         }
+         else if(node->ref_count == PTreeNodes(node->entries))
+         {
+            node->leaf = true;
+         }
+         node = prev;
+
+         if(term->weight == node->size_constr)
+         {
+            node->size_constr = -1;
+         }
+         if(SysDateEqual(node->age_constr, clause->date))
+         {
+            node->age_constr = SysDateInvalidTime();
+         }
+      }
+   }
+   else
+   {
+      PStackReset(tree->term_stack);
    }
    PStackFree(del_stack);
    tree->clause_count-=res;

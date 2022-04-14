@@ -53,15 +53,14 @@
 //
 /----------------------------------------------------------------------*/
 
-static Term_p term_top_unfold_def_fo(TB_p bank, Term_p term, ClausePos_p demod)
+static Term_p term_top_unfold_def_fo(TB_p bank, Term_p term, Term_p lside, Term_p rside)
 {
-   Term_p lside, rside, res;
+   Term_p res;
    Subst_p subst;
    bool tmp;
 
-   assert(bank&&term&&demod);
+   assert(bank&&term&&lside&&rside);
 
-   lside = ClausePosGetSide(demod);
    assert(!TermIsAnyVar(lside));
    if(lside->f_code != term->f_code)
    {
@@ -70,7 +69,6 @@ static Term_p term_top_unfold_def_fo(TB_p bank, Term_p term, ClausePos_p demod)
    subst = SubstAlloc();
    tmp = SubstMatchComplete(lside, term, subst);
    UNUSED(tmp); assert(tmp); /* Match must exist because demod is demod! */
-   rside = ClausePosGetOtherSide(demod);
    res = TBInsertInstantiated(bank, rside);
    SubstDelete(subst);
    return res;
@@ -90,12 +88,10 @@ static Term_p term_top_unfold_def_fo(TB_p bank, Term_p term, ClausePos_p demod)
 //
 /----------------------------------------------------------------------*/
 
-static Term_p term_top_unfold_def_ho(TB_p bank, Term_p term, ClausePos_p demod)
+static Term_p term_top_unfold_def_ho(TB_p bank, Term_p term, Term_p lside, Term_p rside)
 {
-   Term_p lside, rside;
-   assert(bank&&term&&demod);
+   assert(bank&&term&&lside&&rside);
 
-   lside = ClausePosGetSide(demod);
    assert(!TermIsTopLevelAnyVar(lside));
    assert(!TermIsLambda(lside));
 
@@ -103,7 +99,6 @@ static Term_p term_top_unfold_def_ho(TB_p bank, Term_p term, ClausePos_p demod)
    {
       return term;
    }
-   rside = ClausePosGetOtherSide(demod);
    assert(lside->type == rside->type);
    if(term->arity == 0)
    {
@@ -142,7 +137,7 @@ static Term_p term_top_unfold_def_ho(TB_p bank, Term_p term, ClausePos_p demod)
 /----------------------------------------------------------------------*/
 
 static Term_p term_unfold_def(TB_p bank, Term_p term, PStack_p
-                              pos_stack, ClausePos_p demod)
+                              pos_stack, Term_p demod_l, Term_p demod_r)
 {
    Term_p res, tmp = NULL;
    int i;
@@ -153,7 +148,7 @@ static Term_p term_unfold_def(TB_p bank, Term_p term, PStack_p
    for(i=0; i<res->arity; i++)
    {
       res->args[i] = term_unfold_def(bank, term->args[i], pos_stack,
-                                     demod);
+                                     demod_l, demod_r);
       if(res->args[i] != term->args[i])
       {
          changed = true;
@@ -168,7 +163,8 @@ static Term_p term_unfold_def(TB_p bank, Term_p term, PStack_p
       TermTopFree(res);
       tmp = term;
    }
-   res = (problemType == PROBLEM_FO ? term_top_unfold_def_fo : term_top_unfold_def_ho)(bank, tmp, demod);
+   res = (problemType == PROBLEM_FO ? term_top_unfold_def_fo : term_top_unfold_def_ho)
+            (bank, tmp, demod_l, demod_r);
    if(res!=tmp)
    {
       PStackPushP(pos_stack, term);
@@ -189,18 +185,18 @@ static Term_p term_unfold_def(TB_p bank, Term_p term, PStack_p
 //
 /----------------------------------------------------------------------*/
 
-static bool eqn_unfold_def(Eqn_p eqn, PStack_p pos_stack, ClausePos_p demod)
+static bool eqn_unfold_def(Eqn_p eqn, PStack_p pos_stack, Term_p lside, Term_p rside)
 {
    bool res = false;
    Term_p tmp;
 
-   tmp = term_unfold_def(eqn->bank, eqn->lterm, pos_stack, demod);
+   tmp = term_unfold_def(eqn->bank, eqn->lterm, pos_stack, lside, rside);
    if(tmp != eqn->lterm)
    {
       res = true;
       eqn->lterm = tmp;
    }
-   tmp = term_unfold_def(eqn->bank, eqn->rterm, pos_stack, demod);
+   tmp = term_unfold_def(eqn->bank, eqn->rterm, pos_stack, lside, rside);
    if(tmp != eqn->rterm)
    {
       res = true;
@@ -219,7 +215,10 @@ static bool eqn_unfold_def(Eqn_p eqn, PStack_p pos_stack, ClausePos_p demod)
 // Function: ClauseUnfoldEqDef()
 //
 //   Apply demod to normalize clause. Print unfolding as (annotated)
-//   rewrite steps. Return true if clause changed.
+//   rewrite steps. Return true if clause changed. NB: In case of HO
+//   unfolding lside and rside can be transformed into a lambda equation.
+//   Thus, they might be different in shape from what is stored in demod.
+//   Demod is still used to build proof object.
 //
 // Global Variables: -
 //
@@ -227,7 +226,7 @@ static bool eqn_unfold_def(Eqn_p eqn, PStack_p pos_stack, ClausePos_p demod)
 //
 /----------------------------------------------------------------------*/
 
-bool ClauseUnfoldEqDef(Clause_p clause, ClausePos_p demod)
+bool ClauseUnfoldEqDef(Clause_p clause, ClausePos_p demod, Term_p lside, Term_p rside)
 {
    bool res = false;
    PStack_p pos_stack = PStackAlloc();
@@ -236,7 +235,7 @@ bool ClauseUnfoldEqDef(Clause_p clause, ClausePos_p demod)
 
    for(handle = clause->literals; handle; handle = handle->next)
    {
-      eqn_unfold_def(handle, pos_stack, demod);
+      eqn_unfold_def(handle, pos_stack, lside, rside);
    }
 
    if(!PStackEmpty(pos_stack))
@@ -279,11 +278,19 @@ bool ClauseSetUnfoldEqDef(ClauseSet_p set, ClausePos_p demod)
       res = false,
       demod_is_conj = ClauseIsConjecture(demod->clause);
 
+   Term_p lside = ClausePosGetSide(demod);
+   Term_p rside = ClausePosGetOtherSide(demod);
+
+   if(problemType == PROBLEM_HO)
+   {
+      ClauseExtractHODefinition(demod->clause, demod->side, &lside, &rside);
+   }
+
    for(handle = set->anchor->succ;
        handle!=set->anchor;
        handle = handle->succ)
    {
-      if(ClauseUnfoldEqDef(handle, demod))
+      if(ClauseUnfoldEqDef(handle, demod, lside, rside))
       {
          res = true;
          ClauseRemoveSuperfluousLiterals(handle);
