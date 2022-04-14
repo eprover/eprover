@@ -37,6 +37,7 @@
 #include <cte_varsets.h>
 #include <cte_dbvars.h>
 #include <cte_termcellstore.h>
+#include <cte_garbage_coll.h>
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
@@ -73,12 +74,12 @@ typedef struct tbcell
                                     get the new value, so that marking
                                     can be done by flipping in the
                                     term cell. */
-   struct gc_admin_cell *gc;     /* Higher level code can register
+   GCAdmin_p      gc;     /* Higher level code can register
                                   * garbage collection information
                                   * here. This is only a convenience
                                   * link, memory needs to be managed
                                   * elsewhere. */
-   PDArray_p     ext_index;      /* Associate _external_ abbreviations (=
+   PDArray_p      ext_index;     /* Associate _external_ abbreviations (=
                                     entry_no's with term nodes, necessary
                                     for parsing of term bank terms. For
                                     critical cases (full protocolls) this
@@ -192,6 +193,11 @@ Term_p NormalizePatternAppVar(TB_p bank, Term_p s);
 Term_p TermApplyArg(TypeBank_p tb, Term_p s, Term_p arg);
 
 
+#define TBGCRegisterFormulaSet(terms, set)   GCRegisterFormulaSet((terms)->gc,(set))
+#define TBGCRegisterClauseSet(terms, set)    GCRegisterClauseSet((terms)->gc,(set))
+#define TBGCDeregisterFormulaSet(terms, set) GCDeregisterFormulaSet((terms)->gc,(set))
+#define TBGCDeregisterClauseSet(terms, set)  GCDeregisterClauseSet((terms)->gc,(set))
+
 
 /*---------------------------------------------------------------------*/
 /*                Inline Functions                                     */
@@ -205,7 +211,7 @@ static inline Term_p  TBTermParse(Scanner_p in, TB_p bank)
 static inline Term_p TBRawTermParse(Scanner_p in, TB_p bank)
 {
    return TBTermParseReal(in, bank, false);
-   
+
 }
 
 static inline Term_p TBRequestDBVar(TB_p bank, Type_p ty, int idx)

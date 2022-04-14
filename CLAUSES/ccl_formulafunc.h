@@ -72,10 +72,10 @@ long FormulaSetSimplify(FormulaSet_p set, TB_p terms, bool gc);
 
 long FormulaSetCNF(FormulaSet_p set, FormulaSet_p archive,
                    ClauseSet_p clauseset, TB_p terms,
-                   VarBank_p fresh_vars, GCAdmin_p gc, long def_limit);
+                   VarBank_p fresh_vars,long def_limit);
 long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive,
                     ClauseSet_p clauseset, TB_p terms,
-                    VarBank_p fresh_vars, GCAdmin_p gc,
+                    VarBank_p fresh_vars,
                     long miniscope_limit, long def_limit,
                     bool lift_lambdas, bool lambda_to_forall, bool unfold_only_form,
                     bool unroll_fool);

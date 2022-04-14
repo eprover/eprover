@@ -59,8 +59,11 @@ typedef struct structured_FOF_spec_cell
 #define StructFOFSpecCellAlloc()    (StructFOFSpecCell*)SizeMalloc(sizeof(StructFOFSpecCell))
 #define StructFOFSpecCellFree(junk) SizeFree(junk, sizeof(StructFOFSpecCell))
 
+StructFOFSpec_p StructFOFSpecCreate(TB_p terms);
 StructFOFSpec_p StructFOFSpecAlloc(void);
-void           StructFOFSpecFree(StructFOFSpec_p ctrl);
+
+void            StructFOFSpecDestroy(StructFOFSpec_p ctrl);
+void            StructFOFSpecFree(StructFOFSpec_p ctrl);
 
 long           StructFOFSpecParseAxioms(StructFOFSpec_p ctrl,
                                        PStack_p axfiles,

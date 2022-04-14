@@ -1,10 +1,10 @@
 /*-----------------------------------------------------------------------
 
-File  : enormalizer.c
+  File  : enormalizer.c
 
-Author: Stephan Schulz
+  Author: Stephan Schulz
 
-Contents
+  Contents
 
   Read a set of unit clauses (and/or formulas) and a set of
   terms/clauses/formulas. The unit clauses/formulas are interpreted as
@@ -13,16 +13,13 @@ Contents
   deterministic but unspecified. If the rule system is not
   terminating, rewriting might get stuck into an infinite loop.
 
-  Copyright 2013 by the author.
+  Copyright 2013-2022 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
-
-<1> Mon Feb  4 23:21:45 CET 2013
-    New
+  Created: Mon Feb  4 23:21:45 CET 2013
 
 -----------------------------------------------------------------------*/
 
@@ -446,7 +443,6 @@ void process_formulas(char* infile, TB_p terms, OCB_p ocb, ClauseSet_p *demodula
 int main(int argc, char* argv[])
 {
    TB_p            terms;
-   GCAdmin_p       collector;
    VarBank_p       freshvars;
    TypeBank_p      typebank;
    Sig_p           sig;
@@ -479,15 +475,14 @@ int main(int argc, char* argv[])
    sig          = SigAlloc(typebank);
    SigInsertInternalCodes(sig);
    terms        = TBAlloc(sig);
-   collector    = GCAdminAlloc(terms);
    clauses      = ClauseSetAlloc();
    dummy        = ClauseSetAlloc();
    formulas     = FormulaSetAlloc();
    f_ax_archive = FormulaSetAlloc();
 
-   GCRegisterClauseSet(collector, clauses);
-   GCRegisterFormulaSet(collector, formulas);
-   GCRegisterFormulaSet(collector, f_ax_archive);
+   TBGCRegisterClauseSet(terms, clauses);
+   TBGCRegisterFormulaSet(terms, formulas);
+   TBGCRegisterFormulaSet(terms, f_ax_archive);
 
    for(i=0; state->argv[i]; i++)
    {
@@ -509,25 +504,25 @@ int main(int argc, char* argv[])
    freshvars = VarBankAlloc(typebank);
    if(FormulaSetCNF2(formulas, f_ax_archive,
                      clauses, terms, freshvars,
-                     collector, 1000, 24, true, true, true, true))
+                     1000, 24, true, true, true, true))
    {
       VERBOUT("CNFization done\n");
    }
    VarBankFree(freshvars);
 
-   GCDeregisterFormulaSet(collector, formulas);
+   GCDeregisterFormulaSet(terms->gc, formulas);
    FormulaSetFree(formulas);
-   GCDeregisterFormulaSet(collector, f_ax_archive);
+   GCDeregisterFormulaSet(terms->gc, f_ax_archive);
    FormulaSetFree(f_ax_archive);
 
    demodulators[0] = ClauseSetAlloc();
    demodulators[0]->demod_index = PDTreeAlloc(terms);
-   GCRegisterClauseSet(collector, demodulators[0]);
+   TBGCRegisterClauseSet(terms, demodulators[0]);
 
    build_rw_system(demodulators[0], clauses);
 
 
-   GCDeregisterClauseSet(collector, clauses);
+   GCDeregisterClauseSet(terms->gc, clauses);
    ClauseSetFree(clauses);
 
    VERBOUT("# Demodulators\n");
@@ -543,7 +538,6 @@ int main(int argc, char* argv[])
 
 #ifndef FAST_EXIT
    ClauseSetFree(demodulators[0]);
-   GCAdminFree(collector);
 
    terms->sig = NULL;
    TBFree(terms);

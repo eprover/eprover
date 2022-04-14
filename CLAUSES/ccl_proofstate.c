@@ -183,23 +183,22 @@ ProofState_p ProofStateAlloc(FunctionProperties free_symb_prop)
    handle->definition_store     = DefStoreAlloc(handle->terms);
    handle->def_store_cspec      = NULL;
 
-   handle->gc_terms             = GCAdminAlloc(handle->terms);
-   GCRegisterFormulaSet(handle->gc_terms, handle->f_axioms);
-   GCRegisterFormulaSet(handle->gc_terms, handle->f_ax_archive);
-   GCRegisterClauseSet(handle->gc_terms, handle->axioms);
-   GCRegisterClauseSet(handle->gc_terms, handle->ax_archive);
-   GCRegisterClauseSet(handle->gc_terms, handle->processed_pos_rules);
-   GCRegisterClauseSet(handle->gc_terms, handle->processed_pos_eqns);
-   GCRegisterClauseSet(handle->gc_terms, handle->processed_neg_units);
-   GCRegisterClauseSet(handle->gc_terms, handle->processed_non_units);
-   GCRegisterClauseSet(handle->gc_terms, handle->unprocessed);
-   GCRegisterClauseSet(handle->gc_terms, handle->tmp_store);
-   GCRegisterClauseSet(handle->gc_terms, handle->eval_store);
-   GCRegisterClauseSet(handle->gc_terms, handle->archive);
-   GCRegisterClauseSet(handle->gc_terms, handle->watchlist);
-   GCRegisterClauseSet(handle->gc_terms, handle->definition_store->def_clauses);
-   GCRegisterFormulaSet(handle->gc_terms, handle->definition_store->def_archive);
-   GCRegisterFormulaSet(handle->gc_terms, handle->f_archive);
+   TBGCRegisterFormulaSet(handle->terms, handle->f_axioms);
+   TBGCRegisterFormulaSet(handle->terms, handle->f_ax_archive);
+   TBGCRegisterClauseSet(handle->terms, handle->axioms);
+   TBGCRegisterClauseSet(handle->terms, handle->ax_archive);
+   TBGCRegisterClauseSet(handle->terms, handle->processed_pos_rules);
+   TBGCRegisterClauseSet(handle->terms, handle->processed_pos_eqns);
+   TBGCRegisterClauseSet(handle->terms, handle->processed_neg_units);
+   TBGCRegisterClauseSet(handle->terms, handle->processed_non_units);
+   TBGCRegisterClauseSet(handle->terms, handle->unprocessed);
+   TBGCRegisterClauseSet(handle->terms, handle->tmp_store);
+   TBGCRegisterClauseSet(handle->terms, handle->eval_store);
+   TBGCRegisterClauseSet(handle->terms, handle->archive);
+   TBGCRegisterClauseSet(handle->terms, handle->watchlist);
+   TBGCRegisterClauseSet(handle->terms, handle->definition_store->def_clauses);
+   TBGCRegisterFormulaSet(handle->terms, handle->definition_store->def_archive);
+   TBGCRegisterFormulaSet(handle->terms, handle->f_archive);
 
    handle->status_reported              = false;
    handle->answer_count                 = 0;
@@ -306,7 +305,7 @@ void ProofStateLoadWatchlist(ProofState_p state,
    }
    else if(!watchlist_filename)
    {
-      GCDeregisterClauseSet(state->gc_terms, state->watchlist);
+      GCDeregisterClauseSet(state->terms->gc, state->watchlist);
       ClauseSetFree(state->watchlist);
       state->watchlist = NULL;
    }
@@ -388,7 +387,7 @@ void ProofStateResetClauseSets(ProofState_p state, bool term_gc)
    }
    if(term_gc)
    {
-      GCCollect(state->gc_terms);
+      TBGCCollect(state->terms);
       //GCCollect(state->gc_original_terms);
    }
 }
@@ -425,8 +424,6 @@ void ProofStateFree(ProofState_p junk)
    FormulaSetFree(junk->f_archive);
    PStackFree(junk->extract_roots);
    GlobalIndicesFreeIndices(&(junk->gindices));
-   GCAdminFree(junk->gc_terms);
-   //GCAdminFree(junk->gc_original_terms);
    if(junk->watchlist)
    {
       ClauseSetFree(junk->watchlist);

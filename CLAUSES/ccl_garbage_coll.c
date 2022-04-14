@@ -8,7 +8,7 @@ Contents
 
   Code for simplifying term cell garbage collection.
 
-  Copyright 2010 by the author.
+  Copyright 2010-2022 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
@@ -45,144 +45,12 @@ Changes
 /*                         Exported Functions                          */
 /*---------------------------------------------------------------------*/
 
-/*-----------------------------------------------------------------------
-//
-// Function: GCAdminAlloc()
-//
-//   Allocate an initialized GCAdminCell for the given termbank.
-//
-// Global Variables: -
-//
-// Side Effects    : Memory operations
-//
-/----------------------------------------------------------------------*/
-
-GCAdmin_p GCAdminAlloc(TB_p bank)
-{
-   GCAdmin_p handle = GCAdminCellAlloc();
-
-   assert(bank);
-
-   handle->bank         = bank;
-   handle->clause_sets  = NULL;
-   handle->formula_sets = NULL;
-   bank->gc             = handle;
-
-   return handle;
-}
-
 
 /*-----------------------------------------------------------------------
 //
-// Function: GCAdminFree()
+// Function: TBGCCollect()
 //
-//   Free a GCAdmin Cell.
-//
-// Global Variables: -
-//
-// Side Effects    : Memory operations
-//
-/----------------------------------------------------------------------*/
-
-void GCAdminFree(GCAdmin_p junk)
-{
-   assert(junk);
-
-   PTreeFree(junk->clause_sets);
-   PTreeFree(junk->formula_sets);
-
-   GCAdminCellFree(junk);
-}
-
-
-/*-----------------------------------------------------------------------
-//
-// Function: GCRegisterFormulaSet()
-//
-//   Register a formula set as containing relevant terms.
-//
-// Global Variables: -
-//
-// Side Effects    : Via PTReeStore()
-//
-/----------------------------------------------------------------------*/
-
-void GCRegisterFormulaSet(GCAdmin_p gc, FormulaSet_p set)
-{
-   assert(gc);
-   assert(set);
-   //printf("# GCRegisterFormulaSet(%p, %p)\n", gc, set);
-   PTreeStore(&(gc->formula_sets), set);
-}
-
-
-/*-----------------------------------------------------------------------
-//
-// Function: GCRegisterClauseSet()
-//
-//   Register a clause set as containing relevant terms.
-//
-// Global Variables: -
-//
-// Side Effects    : Via PTReeStore()
-//
-/----------------------------------------------------------------------*/
-
-void GCRegisterClauseSet(GCAdmin_p gc, ClauseSet_p set)
-{
-   assert(gc);
-   assert(set);
-   //printf("# GCRegisterClauseSet(%p, %p)\n", gc, set);
-   PTreeStore(&(gc->clause_sets), set);
-}
-
-
-/*-----------------------------------------------------------------------
-//
-// Function: GCDeregisterFormulaSet()
-//
-//   Unregister a formula set as containing relevant terms.
-//
-// Global Variables: -
-//
-// Side Effects    : Via PTreeDeleteEntry()
-//
-/----------------------------------------------------------------------*/
-
-void GCDeregisterFormulaSet(GCAdmin_p gc, FormulaSet_p set)
-{
-   assert(gc);
-   assert(set);
-   //printf("# GCDeregisterFormulaSet(%p, %p)\n", gc, set);
-   PTreeDeleteEntry(&(gc->formula_sets), set);
-}
-
-/*-----------------------------------------------------------------------
-//
-// Function: GCDeregisterClauseSet()
-//
-//   Unregister a clause set as containing relevant terms.
-//
-// Global Variables: -
-//
-// Side Effects    : Via PTreeDeleteEntry()
-//
-/----------------------------------------------------------------------*/
-
-void GCDeregisterClauseSet(GCAdmin_p gc, ClauseSet_p set)
-{
-   assert(gc);
-   assert(set);
-
-   //printf("# GCDeregisterClauseSet(%p, %p)\n", gc, set);
-   PTreeDeleteEntry(&(gc->clause_sets), set);
-}
-
-/*-----------------------------------------------------------------------
-//
-// Function: GCCollect()
-//
-//   Perform garbage collection on gc->bank.
+//   Perform garbage collection on bank.
 //
 // Global Variables: -
 //
@@ -190,16 +58,16 @@ void GCDeregisterClauseSet(GCAdmin_p gc, ClauseSet_p set)
 //
 /----------------------------------------------------------------------*/
 
-long GCCollect(GCAdmin_p gc)
+long TBGCCollect(TB_p bank)
 {
    PTree_p entry;
    PStack_p trav;
 
-   assert(gc);
-   assert(gc->bank);
+   assert(bank);
+   assert(bank->gc);
 
    //printf("# GCCollect(%p)\n", gc);
-   trav = PTreeTraverseInit(gc->clause_sets);
+   trav = PTreeTraverseInit(bank->gc->clause_sets);
    while((entry = PTreeTraverseNext(trav)))
    {
       //printf("# Marking clause set %p\n", entry->key);
@@ -207,7 +75,7 @@ long GCCollect(GCAdmin_p gc)
    }
    PTreeTraverseExit(trav);
 
-   trav = PTreeTraverseInit(gc->formula_sets);
+   trav = PTreeTraverseInit(bank->gc->formula_sets);
    while((entry = PTreeTraverseNext(trav)))
    {
       //printf("# Marking formula set %p\n", entry->key);
@@ -215,7 +83,7 @@ long GCCollect(GCAdmin_p gc)
    }
    PTreeTraverseExit(trav);
 
-   return TBGCSweep(gc->bank);
+   return TBGCSweep(bank);
 }
 
 

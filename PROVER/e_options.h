@@ -52,6 +52,7 @@ typedef enum
    OPT_SILENT,
    OPT_OUTPUTLEVEL,
    OPT_PROOF_OBJECT,
+   OPT_PROOF_STATS,
    OPT_PROOF_GRAPH,
    OPT_FULL_DERIV,
    OPT_FORCE_DERIV,
@@ -303,6 +304,11 @@ OptCell opts[] =
     "syntax, depending on input format and explicit settings. The "
     "following option will suppress normal output of the proof "
     "object in favour of a graphial representation."},
+
+   {OPT_PROOF_STATS,
+    '\0', "proof-statistics",
+    NoArg, NULL,
+    "Print various statistics of the proof object."},
 
    {OPT_PROOF_GRAPH,
     '\0', "proof-graph",
@@ -718,7 +724,6 @@ OptCell opts[] =
     NoArg, NULL,
     "Use the (experimental) strategy scheduling without SInE, thus "
     "maintaining completeness."},
-
 
    {OPT_NO_PREPROCESSING,
     '\0', "no-preprocessing",

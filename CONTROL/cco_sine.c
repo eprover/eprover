@@ -362,9 +362,10 @@ StructFOFSpec_p StructFOFSpecAlloc(void)
 
 /*-----------------------------------------------------------------------
 //
-// Function: StructFOFSpecFree()
+// Function: StructFOFSpecDestroy()
 //
-//   Free a StructFOFSpec data structure.
+//   Dissassemble and Free the FOFSpec, but leave term bank and
+//   signature alone.
 //
 // Global Variables: -
 //
@@ -372,7 +373,7 @@ StructFOFSpec_p StructFOFSpecAlloc(void)
 //
 /----------------------------------------------------------------------*/
 
-void StructFOFSpecFree(StructFOFSpec_p ctrl)
+void StructFOFSpecDestroy(StructFOFSpec_p ctrl)
 {
    FormulaSet_p fset;
    ClauseSet_p  cset;
@@ -396,6 +397,33 @@ void StructFOFSpecFree(StructFOFSpec_p ctrl)
    GenDistribFree(ctrl->f_distrib);
 
    StructFOFSpecCellFree(ctrl);
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: StructFOFSpecFree()
+//
+//   Free a StructFOFSpec data structure.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+void StructFOFSpecFree(StructFOFSpec_p ctrl)
+{
+   TB_p  terms            = ctrl->terms;
+   Sig_p sig              = terms->sig;
+   TypeBank_p sort_table  = sig->type_bank;
+
+   StructFOFSpecDestroy(ctrl);
+
+   TypeBankFree(sort_table);
+   SigFree(sig);
+   terms->sig = NULL;
+   TBFree(terms);
 }
 
 
@@ -472,8 +500,8 @@ long StructFOFSpecParseAxioms(StructFOFSpec_p ctrl, PStack_p axfiles,
             fprintf(GlobalOut, "# Parsing %s\n", iname);
             cset = ClauseSetAlloc();
             fset = FormulaSetAlloc();
-            GCRegisterFormulaSet(ctrl->terms->gc, fset);
-            GCRegisterClauseSet(ctrl->terms->gc, cset);
+            TBGCRegisterFormulaSet(ctrl->terms, fset);
+            TBGCRegisterClauseSet(ctrl->terms, cset);
             res += FormulaAndClauseSetParse(in, fset, cset, ctrl->terms,
                                             NULL,
                                             &(ctrl->parsed_includes));
@@ -584,8 +612,8 @@ long ProofStateSinE(ProofState_p state, char* fname)
 
    state->axioms   = ClauseSetAlloc();
    state->f_axioms = FormulaSetAlloc();
-   GCRegisterFormulaSet(state->terms->gc, state->f_axioms);
-   GCRegisterClauseSet(state->terms->gc, state->axioms);
+   TBGCRegisterFormulaSet(state->terms, state->f_axioms);
+   TBGCRegisterClauseSet(state->terms, state->axioms);
    PStackClausesMove(clauses, state->axioms);
    PStackFormulasMove(formulas, state->f_axioms);
    PStackFree(formulas);
@@ -595,7 +623,7 @@ long ProofStateSinE(ProofState_p state, char* fname)
    /* Now rescue signature and term bank. */
    // spec->sig = NULL;
    // spec->terms = NULL;
-   StructFOFSpecFree(spec);
+   StructFOFSpecDestroy(spec);
 
    AxFilterSetFree(filters);
 

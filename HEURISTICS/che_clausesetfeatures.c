@@ -1999,7 +1999,7 @@ void ClausifyAndClassifyWTimeout(ProofState_p state, int timeout,
       FormulaSetPreprocConjectures(state->f_axioms, state->f_ax_archive, false, false);
       FormulaSetCNF2(state->f_axioms, state->f_ax_archive,
                      state->axioms, state->terms,
-                     state->freshvars, state->gc_terms,
+                     state->freshvars,
                      DEFAULT_MINISCOPE, DEFAULT_FORMULA_DEF_LIMIT,
                      DEFAULT_LIFT_LAMS, DEFAULT_LAM_TO_FORALL, 
                      DEFAULT_UNFOLD_ONLY_FORM, DEFAULT_UNROLL_FOOL);

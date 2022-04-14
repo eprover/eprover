@@ -62,6 +62,7 @@ FVIndexParms_p    fvi_parms;
 bool              print_sat = false,
    print_full_deriv = false,
    print_statistics = false,
+   proof_statistics = false,
    filter_sat = false,
    print_rusage = false,
    print_strategy = false,
@@ -92,6 +93,7 @@ long              step_limit = LONG_MAX,
    proc_limit = LONG_MAX,
    unproc_limit = LONG_MAX,
    total_limit = LONG_MAX,
+   cores       = 1,
    generated_limit = LONG_MAX,
    relevance_prune_level = 0,
    miniscope_limit = 1048576;
@@ -561,7 +563,6 @@ int main(int argc, char* argv[])
                                 proofstate->axioms,
                                 proofstate->terms,
                                 proofstate->freshvars,
-                                proofstate->gc_terms,
                                 miniscope_limit,
                                 h_parms->formula_def_limit,
                                 h_parms->lift_lambdas,
@@ -576,7 +577,6 @@ int main(int argc, char* argv[])
                                proofstate->axioms,
                                proofstate->terms,
                                proofstate->freshvars,
-                               proofstate->gc_terms,
                                h_parms->formula_def_limit);
    }
    VERBOUT("Clausification done.\n");
@@ -819,7 +819,7 @@ int main(int argc, char* argv[])
                                     deriv,
                                     proofstate->signature,
                                     print_derivation,
-                                    OutputLevel||print_statistics);
+                                    proof_statistics);
          ProofStateAnalyseGC(proofstate);
          if(proc_training_data)
          {
@@ -933,7 +933,7 @@ int main(int argc, char* argv[])
                                    proofstate->extract_roots,
                                    proofstate->signature,
                                    print_derivation,
-                                   OutputLevel||print_statistics);
+                                   proof_statistics);
       }
 
    }
@@ -1104,6 +1104,9 @@ CLState_p process_options(int argc, char* argv[])
             PrintProofObject = MAX(CLStateGetIntArgCheckRange(handle, arg, 0, 3),
                                    PrintProofObject);
             print_derivation = MAX(print_derivation, POList);
+            break;
+      case OPT_PROOF_STATS:
+            proof_statistics = true;
             break;
       case OPT_PROOF_GRAPH:
             PrintProofObject = MAX(1, PrintProofObject);

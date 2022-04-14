@@ -378,7 +378,6 @@ void print_help(FILE* out);
 int main(int argc, char* argv[])
 {
    TB_p            terms;
-   GCAdmin_p       collector;
    VarBank_p       freshvars;
    TypeBank_p      type_bank;
    Sig_p           sig;
@@ -417,16 +416,15 @@ int main(int argc, char* argv[])
    sig          = SigAlloc(type_bank);
    SigInsertInternalCodes(sig);
    terms        = TBAlloc(sig);
-   collector    = GCAdminAlloc(terms);
    def_store    = DefStoreAlloc(terms);
    clauses      = ClauseSetAlloc();
    dummy        = ClauseSetAlloc();
    formulas     = FormulaSetAlloc();
    f_ax_archive = FormulaSetAlloc();
 
-   GCRegisterClauseSet(collector, clauses);
-   GCRegisterFormulaSet(collector, formulas);
-   GCRegisterFormulaSet(collector, f_ax_archive);
+   TBGCRegisterClauseSet(terms, clauses);
+   TBGCRegisterFormulaSet(terms, formulas);
+   TBGCRegisterFormulaSet(terms, f_ax_archive);
 
    for(i=0; state->argv[i]; i++)
    {
@@ -451,11 +449,16 @@ int main(int argc, char* argv[])
       VERBOUT("Negated conjectures.\n");
    }
    freshvars = VarBankAlloc(type_bank);
-   if(FormulaSetCNF(formulas, f_ax_archive, clauses, terms, freshvars, collector, FormulaDefLimit))
+   if(FormulaSetCNF(formulas, f_ax_archive, clauses, terms, freshvars,FormulaDefLimit))
    {
       VERBOUT("CNFization done\n");
    }
    VarBankFree(freshvars);
+
+   TBGCDeregisterFormulaSet(terms, formulas);
+   FormulaSetFree(formulas);
+   TBGCDeregisterFormulaSet(terms, f_ax_archive);
+   FormulaSetFree(f_ax_archive);
 
    ClauseSetRemoveSuperfluousLiterals(clauses);
 
@@ -475,11 +478,6 @@ int main(int argc, char* argv[])
    def_store->def_clauses->fvindex = FVIAnchorAlloc(cspec, perm);
 
    SpecFeaturesCompute(&features, clauses, formulas, f_ax_archive, terms);
-
-   GCDeregisterFormulaSet(collector, formulas);
-   FormulaSetFree(formulas);
-   GCDeregisterFormulaSet(collector, f_ax_archive);
-   FormulaSetFree(f_ax_archive);
 
    if(!SpecNoEq(&features))
    {
@@ -612,7 +610,6 @@ int main(int argc, char* argv[])
 #ifndef FAST_EXIT
    GroundSetFree(groundset);
    ClauseSetFree(clauses);
-   GCAdminFree(collector);
 
    terms->sig = NULL;
    DefStoreFree(def_store);

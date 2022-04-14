@@ -564,7 +564,6 @@ int main(int argc, char* argv[])
                            fstate->axioms,
                            fstate->terms,
                            fstate->freshvars,
-                           fstate->gc_terms,
                            miniscope_limit, FormulaDefLimit, 
                            true, true, true, true);
          }
@@ -575,7 +574,6 @@ int main(int argc, char* argv[])
                              fstate->axioms,
                              fstate->terms,
                              fstate->freshvars,
-                             fstate->gc_terms,
                              FormulaDefLimit);
          }
 
