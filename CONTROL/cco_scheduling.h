@@ -52,9 +52,6 @@ typedef struct schedule_cell
 
 #define DEFAULT_SCHED_TIME_LIMIT 300
 
-extern ScheduleCell const* CASC_SCHEDULE;
-extern ScheduleCell const* CASC_SH_SCHEDULE;
-extern ScheduleCell* chosen_schedule;
 
 void ScheduleTimesInit(ScheduleCell sched[], double time_used);
 

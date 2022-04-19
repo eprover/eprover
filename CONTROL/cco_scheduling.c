@@ -29,39 +29,6 @@ Changes
 /*                        Global Variables                             */
 /*---------------------------------------------------------------------*/
 
-ScheduleCell _CASC_SCHEDULE[] =
-{
-   {"AutoSched0",  AUTOSCHED0,  "Auto", 0.5   , 0, 1},
-   {"AutoSched1",  AUTOSCHED1,  "Auto", 0.22  , 0, 1},
-   {"AutoSched2",  AUTOSCHED2,  "Auto", 0.0733, 0, 1},
-   {"AutoSched3",  AUTOSCHED3,  "Auto", 0.06  , 0, 1},
-   {"AutoSched4",  AUTOSCHED4,  "Auto", 0.0433, 0, 1},
-   {"AutoSched5",  AUTOSCHED5,  "Auto", 0.0366, 0, 1},
-   {"AutoSched6",  AUTOSCHED6,  "Auto", 0.0167, 0, 1},
-   {"AutoSched7",  AUTOSCHED7,  "Auto", 0.0167, 0, 1},
-   {"AutoSched8",  AUTOSCHED8,  "Auto", 0.0167, 0, 1},
-   {"AutoSched9",  AUTOSCHED9,  "Auto", 0.0167, 0, 1},
-   {NULL,          NoOrdering,  NULL  , 0.0   , 0, 1}
-};
-
-ScheduleCell _CASC_SH_SCHEDULE[] =
-{
-   {"AutoSched0",  AUTOSCHED0,  "Auto", 0.34, 0, 1},
-   {"AutoSched1",  AUTOSCHED1,  "Auto", 0.09, 0, 1},
-   {"AutoSched2",  AUTOSCHED2,  "Auto", 0.09, 0, 1},
-   {"AutoSched3",  AUTOSCHED3,  "Auto", 0.09, 0, 1},
-   {"AutoSched4",  AUTOSCHED4,  "Auto", 0.09, 0, 1},
-   {"AutoSched5",  AUTOSCHED5,  "Auto", 0.08, 0, 1},
-   {"AutoSched6",  AUTOSCHED6,  "Auto", 0.08, 0, 1},
-   {"AutoSched7",  AUTOSCHED7,  "Auto", 0.08, 0, 1},
-   {"AutoSched8",  AUTOSCHED8,  "Auto", 0.08, 0, 1},
-   {"AutoSched9",  AUTOSCHED9,  "Auto", 0.08, 0, 1},
-   {NULL,          NoOrdering,  NULL  , 0.0 , 0, 1}
-};
-
-const ScheduleCell* CASC_SCHEDULE = _CASC_SCHEDULE;
-const ScheduleCell* CASC_SH_SCHEDULE = _CASC_SH_SCHEDULE;
-ScheduleCell* chosen_schedule = _CASC_SCHEDULE;
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
 /*---------------------------------------------------------------------*/

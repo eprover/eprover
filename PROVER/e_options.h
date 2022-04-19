@@ -86,9 +86,6 @@ typedef enum
    OPT_TSTP_PRINT,
    OPT_TSTP_FORMAT,
    OPT_AUTO,
-   OPT_SATAUTO,
-   OPT_AUTODEV,
-   OPT_SATAUTODEV,
    OPT_AUTO_SCHED,
    OPT_FORCE_PREPROC_SCHED,
    OPT_SATAUTO_SCHED,
@@ -679,24 +676,6 @@ OptCell opts[] =
     NoArg, NULL,
     "Automatically determine settings for proof search. This is "
     "equivalent to -xAuto -tAuto --sine=Auto."},
-
-   {OPT_SATAUTO,
-    '\0', "satauto",
-    NoArg, NULL,
-    "Automatically determine settings for proof/saturation search. This is "
-    "equivalent to -xAuto -tAuto."},
-
-   {OPT_AUTODEV,
-    '\0', "autodev",
-    NoArg, NULL,
-    "Automatically determine settings for proof search (development "
-    "version). This is equivalent to -xAutoDev -tAutoDev --sine=Auto."},
-
-   {OPT_SATAUTODEV,
-    '\0', "satautodev",
-    NoArg, NULL,
-    "Automatically determine settings for proof/saturation search "
-    "(development version). This is equivalent to -xAutoDev -tAutoDev."},
 
    {OPT_AUTO_SCHED,
     '\0', "auto-schedule",

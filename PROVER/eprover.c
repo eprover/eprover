@@ -672,7 +672,6 @@ int main(int argc, char* argv[])
                                  preproc_schedule[sched_idx].time_absolute, 
                                  false, preproc_schedule[sched_idx].cores, false);
          GetHeuristicWithName(h_parms->heuristic_name, h_parms);
-         h_parms->heuristic_name = h_parms->heuristic_def;
          h_parms->inst_choice_max_depth = choice_max_depth;
       }
       else
@@ -682,12 +681,12 @@ int main(int argc, char* argv[])
          char* conf_name = GetSearchSchedule(class)->heu_name;
          GetHeuristicWithName(conf_name, h_parms);
          fprintf(stderr, "# Configuration: %s\n", conf_name);
-         h_parms->heuristic_name = h_parms->heuristic_def;
          h_parms->inst_choice_max_depth = choice_max_depth;
       }
       FREE(class);
       CLStateFree(state);
       state = process_options(argc, argv); // refilling the h_parms with user options
+      h_parms->heuristic_name = h_parms->heuristic_def;
    }
 
    if(limits)
@@ -1301,23 +1300,9 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_AUTO:
             if(!auto_conf)
             {
-                h_parms->order_params.ordertype = AUTO;
                 h_parms->sine = SecureStrdup("Auto");
                 auto_conf = true;
             }
-            break;
-      case OPT_SATAUTO:
-            h_parms->heuristic_name = "Auto";
-            h_parms->order_params.ordertype = AUTO;
-            break;
-      case OPT_AUTODEV:
-            h_parms->heuristic_name = "AutoDev";
-            h_parms->order_params.ordertype = AUTODEV;
-            h_parms->sine = SecureStrdup("Auto");
-            break;
-      case OPT_SATAUTODEV:
-            h_parms->heuristic_name = "AutoDev";
-            h_parms->order_params.ordertype = AUTODEV;
             break;
       case OPT_AUTO_SCHED:
             if(!strategy_scheduling)
@@ -1518,55 +1503,7 @@ CLState_p process_options(int argc, char* argv[])
             h_parms->split_fresh_defs = false;
             break;
       case OPT_ORDERING:
-            if(strcmp(arg, "Auto")==0)
-            {
-               h_parms->order_params.ordertype = AUTO;
-            }
-            else if(strcmp(arg, "AutoCASC")==0)
-            {
-               h_parms->order_params.ordertype = AUTOCASC;
-            }
-            else if(strcmp(arg, "AutoDev")==0)
-            {
-               h_parms->order_params.ordertype = AUTODEV;
-            }
-            else if(strcmp(arg, "AutoSched0")==0)
-            {
-               h_parms->order_params.ordertype = AUTOSCHED0;
-            }
-            else if(strcmp(arg, "AutoSched1")==0)
-            {
-               h_parms->order_params.ordertype = AUTOSCHED1;
-            }
-            else if(strcmp(arg, "AutoSched2")==0)
-            {
-               h_parms->order_params.ordertype = AUTOSCHED2;
-            }
-            else if(strcmp(arg, "AutoSched3")==0)
-            {
-               h_parms->order_params.ordertype = AUTOSCHED3;
-            }
-            else if(strcmp(arg, "AutoSched4")==0)
-            {
-               h_parms->order_params.ordertype = AUTOSCHED4;
-            }
-            else if(strcmp(arg, "AutoSched5")==0)
-            {
-               h_parms->order_params.ordertype = AUTOSCHED5;
-            }
-            else if(strcmp(arg, "AutoSched6")==0)
-            {
-               h_parms->order_params.ordertype = AUTOSCHED6;
-            }
-            else if(strcmp(arg, "AutoSched7")==0)
-            {
-               h_parms->order_params.ordertype = AUTOSCHED7;
-            }
-            else if(strcmp(arg, "Optimize")==0)
-            {
-               h_parms->order_params.ordertype = OPTIMIZE_AX;
-            }
-            else if(strcmp(arg, "LPO")==0)
+            if(strcmp(arg, "LPO")==0)
             {
                h_parms->order_params.ordertype = LPO;
             }
@@ -1590,12 +1527,13 @@ CLState_p process_options(int argc, char* argv[])
             {
                h_parms->order_params.ordertype = KBO6;
             }
+            else if(strcmp(arg, "Optimize")==0)
+            {
+               h_parms->order_params.ordertype = OPTIMIZE_AX;
+            }
             else
             {
-               Error("Option -t (--term-ordering) requires Auto, "
-                     "AutoCASC, AutoDev, AutoSched0, AutoSched1, "
-                     "AutoSched2, AutoSched3, AutoSched4, AutoSched5,"
-                     "AutoSched6, AutoSched7, Optimize, "
+               Error("Option -t (--term-ordering) requires Optimize, "
                      "LPO, LPO4, KBO or KBO6 as an argument",
                      USAGE_ERROR);
             }
