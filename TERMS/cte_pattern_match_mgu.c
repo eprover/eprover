@@ -33,7 +33,7 @@ Changes
 
 #define UNIF_FAIL(res) ((res) = NOT_UNIFIABLE); break
 #define IS_RIGID(t) ((t)->f_code > 0 || !TermIsTopLevelFreeVar(t))
-#define NUM_ACTUAL_ARGS(t) (TermIsAppliedFreeVar(t) ? (t)->arity-1 : 0)
+#define NUM_ACTUAL_ARGS(t) (TermIsAppliedFreeVar(t) ? (t)->arity-1 : (t)->arity)
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
