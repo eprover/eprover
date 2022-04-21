@@ -489,6 +489,168 @@ double RDAGWeight2Compute(void* data, Clause_p clause)
 
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: RDAGWeight3Init()
+//
+//   Return an initialized WFCB for RDAGWeight3Compute().
+//
+// Global Variables:
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+
+WFCB_p RDAGWeight3Init(ClausePrioFun prio_fun,
+                       OCB_p ocb,
+                       long fweight,
+                       long vweight,
+                       long nfweight,
+                       long nvweight,
+                       long dup_weight,
+                       double max_term_multiplier,
+                       double pos_multiplier,
+                       double pneq_multiplier,
+                       double nneq_multiplier)
+{
+   RDAGWeightParam_p data = RDAGWeightParamCellAlloc();
+
+   data->ocb                    = ocb;
+   data->fweight                = fweight;
+   data->vweight                = vweight;
+   data->nfweight               = nfweight;
+   data->nvweight               = nvweight;
+   data->dup_weight             = dup_weight;
+   data->uniqmax_term_multiplier= 1; /* Unused */
+   data->max_term_multiplier    = max_term_multiplier;
+   data->max_literal_multiplier = 1; /* unused */
+   data->pos_multiplier         = pos_multiplier;
+   data->pneq_multiplier        = pneq_multiplier;
+   data->nneq_multiplier        = nneq_multiplier;
+
+   /* RDAGWeightExit intentionally reused  */
+   return WFCBAlloc(RDAGWeight3Compute, prio_fun,
+                    RDAGWeightExit, data);
+
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: RDAGWeight3Parse()
+//
+//   Parse a refined Twee-style DAG2-clauseweight-definition.
+//
+// Global Variables:
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+
+WFCB_p RDAGWeight3Parse(Scanner_p in, OCB_p ocb, ProofState_p
+            state)
+{
+   ClausePrioFun prio_fun;
+   long fweight, vweight, nfweight, nvweight, dup_weight;
+   double pos_multiplier, max_term_multiplier, pneq_multiplier, nneq_multiplier;
+
+   AcceptInpTok(in, OpenBracket);
+   prio_fun = ParsePrioFun(in);
+   AcceptInpTok(in, Comma);
+   fweight = ParseInt(in);
+   AcceptInpTok(in, Comma);
+   vweight = ParseInt(in);
+   AcceptInpTok(in, Comma);
+   nfweight = ParseInt(in);
+   AcceptInpTok(in, Comma);
+   nvweight = ParseInt(in);
+   AcceptInpTok(in, Comma);
+   dup_weight = ParseInt(in);
+   AcceptInpTok(in, Comma);
+   max_term_multiplier = ParseFloat(in);
+   AcceptInpTok(in, Comma);
+   pos_multiplier = ParseFloat(in);
+   AcceptInpTok(in, Comma);
+   pneq_multiplier = ParseFloat(in);
+   AcceptInpTok(in, Comma);
+   nneq_multiplier = ParseFloat(in);
+   AcceptInpTok(in, CloseBracket);
+
+   return RDAGWeight3Init(prio_fun,
+                          ocb,
+                          fweight, vweight,
+                          nfweight, nvweight,
+                          dup_weight,
+                          max_term_multiplier,
+                          pos_multiplier,
+                          pneq_multiplier,
+                          nneq_multiplier);
+}
+
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: RDAGWeight3Compute()
+//
+//   Compute a mixed dag weight. For positive literals, both terms are
+//   independendly computed, either with normal weights, or with dag
+//   weights. For negative literals, we use one dag.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+double RDAGWeight3Compute(void* data, Clause_p clause)
+{
+   RDAGWeightParam_p local = data;
+   double res = 0, litw, lweight, rweight;
+   Eqn_p handle;
+
+   for(handle = clause->literals; handle; handle = handle->next)
+   {
+      if(EqnIsPositive(handle))
+      {
+         lweight = TermDAGWeight(handle->lterm, local->fweight,
+                                 local->vweight, local->dup_weight, true);
+         rweight = TermDAGWeight(handle->rterm, local->fweight,
+                                 local->vweight, local->dup_weight, true);
+         if(lweight >= rweight)
+         {
+            lweight *= local->max_term_multiplier;
+         }
+         else
+         {
+            rweight *= local->max_term_multiplier;
+         }
+         litw = (lweight+rweight)*local->pos_multiplier;
+         if(EqnIsEquLit(handle))
+         {
+            litw *= local->pneq_multiplier;
+         }
+      }
+      else
+      {
+         EqnTermDelProp(handle, TPOpFlag);
+         lweight = TermDAGWeight(handle->lterm, local->nfweight,
+                                 local->nvweight, local->dup_weight, false);
+         rweight = TermDAGWeight(handle->rterm, local->nfweight,
+                                 local->nvweight, local->dup_weight, false);
+         litw = lweight+rweight;
+         if(EqnIsEquLit(handle))
+         {
+            litw *= local->nneq_multiplier;
+         }
+      }
+      res = res+litw;
+   }
+   return res;
+}
+
+
+
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */

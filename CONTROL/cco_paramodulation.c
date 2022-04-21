@@ -470,7 +470,7 @@ static long compute_from_pm_pos_clause(ParamodInfo_p pminfo,
                                      pminfo->new_orig,
                                      pminfo->from);
             ClausePushDerivation(clause,  pm_type?DCSimParamod:DCParamod,
-                                    pminfo->new_orig, pminfo->from);
+                                 pminfo->new_orig, pminfo->from);
          }
       }
       ClausePosFree(pminfo->from_pos);

@@ -51,6 +51,7 @@ typedef enum
    OPT_VARIANTS28,
    OPT_VARIANTS28_HO,
    OPT_VARIANTS28_25,
+   OPT_VARIANTSJ11,
    OPT_NEWSCHEDULE,
    OPT_INTERACTIVE,
    OPT_PRINT_STATISTICS,
@@ -127,6 +128,12 @@ OptCell opts[] =
     "compete in CASC-28. It requires manual installation of the eprover-2.5 "
     "binary in the StarExec package."},
 
+   {OPT_VARIANTSJ11,
+    0, "variantsj11",
+    NoArg,  NULL,
+    "Handle different variants for each problem base name as required for "
+    "CASC-J11. See above."},
+
    {OPT_INTERACTIVE,
     'i', "interactive",
     NoArg, NULL,
@@ -184,6 +191,11 @@ char* provers28_ho[]  = {"./eprover", "./eprover", "./eprover-ho", NULL};
 
 char* variants28_25[] = {"+1", "_1", NULL};
 char* provers28_25[]  = {"./eprover-25", "./eprover-25", NULL};
+
+char* variantsj11[] = {"_1", "_2", "_3", "_4", "^1", "^2", NULL};
+char* proversj11[]  = {"./eprover", "./eprover", "./eprover",
+   "./eprover", "./eprover", NULL};
+
 
 
 /*---------------------------------------------------------------------*/
@@ -279,7 +291,9 @@ int main(int argc, char* argv[])
       }
       else
       {
-         BatchProcessVariants(spec, use_variants, provers, start, ScannerGetDefaultDir(in), outdir);
+         BatchProcessVariants(spec, use_variants,
+                              provers, start, ScannerGetDefaultDir(in),
+                              outdir);
          fprintf(GlobalOut, "# =============== Variant batch done ===========\n\n");
       }
       BatchSpecFree(spec);
@@ -364,6 +378,10 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_VARIANTS28_25:
             use_variants = variants28_25;
             provers = provers28_25;
+            break;
+      case OPT_VARIANTSJ11:
+            use_variants = variantsj11;
+            provers = proversj11;
             break;
       case OPT_INTERACTIVE:
             interactive = true;
