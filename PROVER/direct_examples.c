@@ -117,7 +117,7 @@ int main(int argc, char* argv[])
    CLState_p       state;
    Scanner_p       in;
    PCLProt_p       prot;
-   long            steps, proof_steps, neg_steps;
+   long            proof_steps, neg_steps;
    int             i;
 
    assert(argv[0]);
@@ -140,12 +140,11 @@ int main(int argc, char* argv[])
    {
       CLStateInsertArg(state, "-");
    }
-   steps = 0;
    for(i=0; state->argv[i]; i++)
    {
       in = CreateScanner(StreamTypeFile, state->argv[i], true, NULL, true);
       ScannerSetFormat(in, TPTPFormat);
-      steps+=PCLProtParse(in, prot);
+      PCLProtParse(in, prot);
       CheckInpTok(in, NoToken);
       DestroyScanner(in);
    }

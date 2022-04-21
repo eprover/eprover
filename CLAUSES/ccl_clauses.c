@@ -148,17 +148,16 @@ static void clause_collect_posneg_vars(Clause_p clause,
                                 PTree_p *neg_vars)
 {
    Eqn_p handle;
-   long collected = 0;
 
    for(handle=clause->literals; handle; handle = handle->next)
    {
       if(EqnIsPositive(handle))
       {
-         collected += EqnCollectVariables(handle, pos_vars);
+         EqnCollectVariables(handle, pos_vars);
       }
       else
       {
-         collected += EqnCollectVariables(handle, neg_vars);
+         EqnCollectVariables(handle, neg_vars);
       }
    }
 }

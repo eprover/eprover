@@ -1,26 +1,23 @@
 /*-----------------------------------------------------------------------
 
-File  : epclextract.c
+  File  : epclextract.c
 
-Author: Stephan Schulz
+  Author: Stephan Schulz
 
-Contents
+  Contents
 
   Read a PCL protocol and print all steps that are needed to print
   "proof", "final", or "extract" steps.
 
-  Copyright 2002-2009 by the author.
+  Copyright 2002-2022 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
+  Created: Tue Jul  9 19:15:05 MEST 2002
 
-<1> Tue Jul  9 19:15:05 MEST 2002
-    New
-
------------------------------------------------------------------------*/
+  -----------------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <cio_commandline.h>
@@ -116,14 +113,14 @@ OptCell opts[] =
    {OPT_OUTPUT,
     'o', "output-file",
     ReqArg, NULL,
-   "Redirect output into the named file."},
+    "Redirect output into the named file."},
 
    {OPT_SILENT,
     's', "silent",
     NoArg, NULL,
     "Equivalent to --output-level=0."},
 
-    {OPT_NOOPT,
+   {OPT_NOOPT,
     '\0', NULL,
     NoArg, NULL,
     NULL}
@@ -133,10 +130,10 @@ char       *outname    = NULL;
 long       time_limit  = 10;
 char       *executable = NULL;
 bool       fast_extract = false,
-           comp_frame = false,
-           no_extract = false,
-           pass_comments = false,
-           app_encode = false;
+   comp_frame = false,
+   no_extract = false,
+   pass_comments = false,
+   app_encode = false;
 OutputFormatType output_format = pcl_format;
 ProblemType problemType  = PROBLEM_NOT_INIT;
 
@@ -156,7 +153,6 @@ int main(int argc, char* argv[])
 {
    CLState_p       state;
    Scanner_p       in;
-   long            steps;
    int             i;
    bool            empty_clause = false;
    PCLMiniProt_p   mprot = NULL;
@@ -186,8 +182,6 @@ int main(int argc, char* argv[])
    {
       CLStateInsertArg(state, "-");
    }
-   steps = 0;
-
    if(fast_extract)
    {
       mprot = PCLMiniProtAlloc();
@@ -203,11 +197,11 @@ int main(int argc, char* argv[])
       ScannerSetFormat(in, TPTPFormat);
       if(fast_extract)
       {
-    steps+=PCLMiniProtParse(in, mprot);
+         PCLMiniProtParse(in, mprot);
       }
       else
       {
-    steps+=PCLProtParse(in, prot);
+         PCLProtParse(in, prot);
       }
       CheckInpTok(in, NoToken);
       DestroyScanner(in);
@@ -219,37 +213,37 @@ int main(int argc, char* argv[])
    {
       if(no_extract)
       {
-    PCLMiniProtSetClauseProp(mprot, PCLIsProofStep);
+         PCLMiniProtSetClauseProp(mprot, PCLIsProofStep);
       }
       else
       {
-    empty_clause = PCLMiniProtMarkProofClauses(mprot, true);
+         empty_clause = PCLMiniProtMarkProofClauses(mprot, true);
       }
    }
    else
    {
       if(no_extract)
       {
-    PCLProtSetProp(prot, PCLIsProofStep);
+         PCLProtSetProp(prot, PCLIsProofStep);
       }
       else
       {
-    empty_clause = PCLProtMarkProofClauses(prot);
+         empty_clause = PCLProtMarkProofClauses(prot);
       }
    }
    if(comp_frame)
    {
       if(no_extract)
       {
-    fprintf(GlobalOut, "# SZS output start Derivation.\n");
+         fprintf(GlobalOut, "# SZS output start Derivation.\n");
       }
       else if(empty_clause)
       {
-    fprintf(GlobalOut, "# SZS output start CNFRefutation.\n");
+         fprintf(GlobalOut, "# SZS output start CNFRefutation.\n");
       }
       else
       {
-    fprintf(GlobalOut, "# SZS output start Saturation.\n");
+         fprintf(GlobalOut, "# SZS output start Saturation.\n");
       }
    }
    if(fast_extract)
@@ -264,15 +258,15 @@ int main(int argc, char* argv[])
    {
       if(no_extract)
       {
-    fprintf(GlobalOut, "# SZS output end Derivation.\n");
+         fprintf(GlobalOut, "# SZS output end Derivation.\n");
       }
       else if(empty_clause)
       {
-    fprintf(GlobalOut, "# SZS output end CNFRefutation\n");
+         fprintf(GlobalOut, "# SZS output end CNFRefutation\n");
       }
       else
       {
-    fprintf(GlobalOut, "# SZS output end Saturation.\n");
+         fprintf(GlobalOut, "# SZS output end Saturation.\n");
       }
    }
 #ifdef FAST_EXIT
@@ -329,39 +323,39 @@ CLState_p process_options(int argc, char* argv[])
       switch(handle->option_code)
       {
       case OPT_VERBOSE:
-       Verbose = CLStateGetIntArg(handle, arg);
-       break;
+            Verbose = CLStateGetIntArg(handle, arg);
+            break;
       case OPT_HELP:
-       print_help(stdout);
-       exit(NO_ERROR);
+            print_help(stdout);
+            exit(NO_ERROR);
       case OPT_VERSION:
-       printf(NAME " " VERSION "\n");
-       exit(NO_ERROR);
+            printf(NAME " " VERSION "\n");
+            exit(NO_ERROR);
       case OPT_FAST:
-       fast_extract = true;
-       break;
+            fast_extract = true;
+            break;
       case OPT_PASS_COMMENTS:
             pass_comments = true;
             break;
       case OPT_COMPETITION:
-       comp_frame = true;
-       break;
+            comp_frame = true;
+            break;
       case OPT_NO_EXTRACT:
-       no_extract = true;
-       break;
+            no_extract = true;
+            break;
       case OPT_TSTP_PRINT:
-       output_format = tstp_format;
+            output_format = tstp_format;
             OutputFormat = TSTPFormat;
-       break;
+            break;
       case OPT_OUTPUT:
-       outname = arg;
-       break;
+            outname = arg;
+            break;
       case OPT_SILENT:
-       OutputLevel = 0;
-       break;
+            OutputLevel = 0;
+            break;
       default:
-    assert(false);
-    break;
+            assert(false);
+            break;
       }
    }
    return state;
@@ -370,15 +364,15 @@ CLState_p process_options(int argc, char* argv[])
 void print_help(FILE* out)
 {
    fprintf(out,
-      "\n"
-      "\n"
-NAME " " VERSION "\n"
-"\n"
-"Usage: " NAME " [options] [files]\n"
-"\n"
-"Read an PCL2 protocol and print the steps necessary for proving"
-" the clauses in \"proof\", \"final\", or \"extract\" steps.\n"
-"\n");
+           "\n"
+           "\n"
+           NAME " " VERSION "\n"
+           "\n"
+           "Usage: " NAME " [options] [files]\n"
+           "\n"
+           "Read an PCL2 protocol and print the steps necessary for proving"
+           " the clauses in \"proof\", \"final\", or \"extract\" steps.\n"
+           "\n");
    PrintOptions(stdout, opts, "Options\n\n");
    fprintf(out, "\n\n" E_FOOTER);
 }
