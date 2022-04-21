@@ -690,7 +690,7 @@ int main(int argc, char* argv[])
             {
                ScheduleCell* filtered_default = GetFilteredDefaultSchedule(search_sched);
 #ifdef NDEBUG
-               FILE* out = stderr;
+               FILE* out = stdout;
 #else 
                FILE* out = stderr;
 #endif

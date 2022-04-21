@@ -345,31 +345,49 @@ def output_used_confs(confs):
   print('};')
   print("const int num_confs = {0};".format(len(confs)))
 
+def get_sched_name(var_prefix, cat):
+  return var_prefix + "_" + cat.get_name().replace('-', '_')
+
 def output_schedule(var_prefix, schedule, extra_field=False):
-  def get_sched_name(cat):
-    return var_prefix + "_" + cat.get_name().replace('-', '_')
-
-
   SC = 'ScheduleCell'
-  for cat,confs_w_ratio in schedule.items():
-    print('{0} {1}[] = {{'.format(SC, get_sched_name(cat)))
-    for (c,r) in confs_w_ratio:
-      print ('{{ "{0}", NoOrdering, NULL, {1}, 1, 1 }}, '.format(c.get_name(), round(r,4)))
-    if extra_field:
-      print('{ "<placeholder>", NoOrdering, NULL, 0, 1, 1}, ')
-    print('{ NULL, NoOrdering, NULL, 0, 1, 1}')
-    print('};')
+  cat,confs_w_ratio = schedule
+  print('{0} {1}[] = {{'.format(SC, get_sched_name(var_prefix, cat)))
+  for (c,r) in confs_w_ratio:
+    print ('{{ "{0}", NoOrdering, NULL, {1}, 1, 1 }}, '.format(c.get_name(), round(r,4)))
+  if extra_field:
+    print('{ "<placeholder>", NoOrdering, NULL, 0, 1, 1}, ')
+  print('{ NULL, NoOrdering, NULL, 0, 1, 1}')
+  print('};')
 
+
+def output_schedule_map(var_prefix, schedule, extra_field=False):
+  for sch in schedule.items():
+    output_schedule(var_prefix, sch, extra_field)
   print('StrSchedPair {0}_sched_map[] =\n  {{'.format(var_prefix));
   for cat in schedule.keys():
-    print('{{ "{0}", {1}, {2} }}, '.format(cat.get_name(), get_sched_name(cat), cat.get_size()))
-  print('{ NULL, NULL }');
+    print('{{ "{0}", {1}, {2} }}, '.format(cat.get_name(), get_sched_name(var_prefix, cat), 
+                                           cat.get_size()))
+  print('{ NULL, NULL, 0 }');
   print('};')
   print('const int num_{0} = {1};'.format(var_prefix, len(schedule)))
 
 
 def clean_small_cats(cats, limit):
   return {k:v for (k,v) in cats.items() if len(v.get_problems()) >= limit}
+
+
+def generate_best_schedule(cat_map, confs, min_size, max_size, min_ratio=None):
+  if min_ratio is None:
+    min_ratio = 1.0/max_size
+  
+  DUMMY_NAME = "DEFAULT_SCHEDULE"
+  all_probs = Category(DUMMY_NAME)
+  for prob_set in map(lambda x: x.get_problems(), cat_map.values()):
+    for prob in prob_set:
+      all_probs.add_prob(prob)
+  
+  return schedule({DUMMY_NAME: all_probs}, confs, min_size, max_size, 
+                  set(), min_ratio=min_ratio)
 
 
 def main():
@@ -385,11 +403,13 @@ def main():
                            args.max_preproc_size, used_confs, True, 0.1)
   search_sched = schedule(category_map, configurations, args.min_search_size,
                           args.max_search_size, used_confs, min_ratio=0.1)
+  best_sched = generate_best_schedule(category_map, configurations, 1, 8)
 
   print('// Found {0} confs, using {1}'.format(len(configurations), len(used_confs)))
   output_used_confs(used_confs)
-  output_schedule("preproc", preproc_sched)
-  output_schedule("search", search_sched, extra_field=True)
+  output_schedule_map("preproc", preproc_sched)
+  output_schedule_map("search", search_sched, extra_field=True)
+  output_schedule("", next(iter(best_sched.items())))
 
 if __name__ == '__main__':
   main()

@@ -54,10 +54,8 @@ Changes
 static inline bool name_in_schedule(const char* name, ScheduleCell* sched)
 {
    bool ans = false;
-   fprintf(stderr, "new check: %s\n", name);
    for(int i=0; sched[i].heu_name && !ans; i++)
    {
-      fprintf(stderr, "<%s>", sched[i].heu_name);
       ans = !strcmp(name, sched[i].heu_name);
    }
    return ans;
@@ -406,7 +404,6 @@ ScheduleCell* GetFilteredDefaultSchedule(ScheduleCell* exhausted_sched)
       default_sch[i].time_fraction = ratio;
    }
    default_sch[last_filtered+1].heu_name = NULL;
-   fprintf(stderr, "last_filtered = %d\n", last_filtered);
 
    return default_sch;
 }
