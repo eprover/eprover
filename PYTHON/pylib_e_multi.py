@@ -206,7 +206,6 @@ class scheduler(object):
         self.tasks    = {}
         self.filecount = 0
         self.blockfiles = [
-            os.path.expanduser("~it16072")+"/CPU_REQUEST",
             os.path.expanduser("~sschulz")+"/CPU_REQUEST",
             os.path.expanduser("~schulz")+"/CPU_REQUEST"
             ]
