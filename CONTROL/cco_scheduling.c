@@ -20,6 +20,7 @@ Changes
 -----------------------------------------------------------------------*/
 
 #include "cco_scheduling.h"
+#include <che_new_autoschedule.h>
 #include <unistd.h>
 #include <sys/mman.h>
 
@@ -37,6 +38,30 @@ Changes
 /*---------------------------------------------------------------------*/
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
+
+/*-----------------------------------------------------------------------
+//
+// Function: name_in_schedule()
+//
+//   Is the heuristic name in the schedule?
+//
+// Global Variables:
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+
+static inline bool name_in_schedule(const char* name, ScheduleCell* sched)
+{
+   bool ans = false;
+   fprintf(stderr, "new check: %s\n", name);
+   for(int i=0; sched[i].heu_name && !ans; i++)
+   {
+      fprintf(stderr, "<%s>", sched[i].heu_name);
+      ans = !strcmp(name, sched[i].heu_name);
+   }
+   return ans;
+}
 
 
 
@@ -286,7 +311,6 @@ int ExecuteScheduleMultiCore(ScheduleCell strats[],
    EGPCtrlSetFree(procs);
 
    fprintf(GlobalOut, "# Schedule exhausted\n");
-   TSTPOUT(GlobalOut, "GaveUp");
    if(print_rusage)
    {
       PrintRusage(GlobalOut);
@@ -295,7 +319,7 @@ int ExecuteScheduleMultiCore(ScheduleCell strats[],
    {
       TERMINATE_CHILDREN();
    }
-   exit(RESOURCE_OUT);
+   return SCHEDULE_DONE;
 }
 
 /*-----------------------------------------------------------------------
@@ -347,6 +371,44 @@ void InitializePlaceholderSearchSchedule(ScheduleCell* search_sched,
       }
       SWAP(search_sched[i], search_sched[1]);
    }
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function:  GetDefaultSchedule()
+//
+//   After a schedule is exhausted, then turn back to the default schedule
+//   and filter the configurations that have not be run from it.
+//
+// Global Variables: SilentTimeOut
+//
+// Side Effects    : Forks, the child runs the proof search, re-sets
+//                   time limits, sets heuristic parameters
+//
+/----------------------------------------------------------------------*/
+
+ScheduleCell* GetFilteredDefaultSchedule(ScheduleCell* exhausted_sched)
+{
+   ScheduleCell* default_sch = GetDefaultSchedule();
+   int last_filtered = -1;
+   for(int i=0; default_sch[i].heu_name; i++)
+   {
+      if(!name_in_schedule(default_sch[i].heu_name, exhausted_sched))
+      {
+         last_filtered++;
+         SWAP(default_sch[last_filtered], default_sch[i]);
+      }
+   }
+
+   const double ratio = 1.0 / (last_filtered+1);
+   for(int i=0; i<last_filtered; i++)
+   {
+      default_sch[i].time_fraction = ratio;
+   }
+   default_sch[last_filtered+1].heu_name = NULL;
+   fprintf(stderr, "last_filtered = %d\n", last_filtered);
+
+   return default_sch;
 }
 
 

@@ -109,3 +109,8 @@ void GetHeuristicWithName(const char* name, HeuristicParms_p target)
   fprintf(stderr, "Internal error -- configuration name %s not found.\n", name);
   SysError("exiting", -1);
 }
+
+ScheduleCell* GetDefaultSchedule()
+{
+  return _DEFAULT_SCHEDULE;
+}

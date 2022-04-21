@@ -484,6 +484,8 @@ int main(int argc, char* argv[])
    int sched_idx = -1;
    ScheduleCell* preproc_schedule = NULL;
    RawSpecFeatureCell raw_features;
+   rlim_t wc_sched_limit =
+      ScheduleTimeLimit ? ScheduleTimeLimit : DEFAULT_SCHED_TIME_LIMIT;
    if(auto_conf || strategy_scheduling)
    {
       limits = CreateDefaultSpecLimits(); 
@@ -494,12 +496,19 @@ int main(int argc, char* argv[])
       fprintf(stdout, "# Preprocessing class: %s.\n", raw_features.class);
       if(strategy_scheduling)
       {
-         sched_idx = ExecuteScheduleMultiCore(preproc_schedule, 
-                                             h_parms, print_rusage, 
-                                             ScheduleTimeLimit ? ScheduleTimeLimit : DEFAULT_SCHED_TIME_LIMIT, 
-                                             true, num_cpus, serialize_schedule);
-         char* preproc_conf_name = h_parms->heuristic_name;
-         GetHeuristicWithName(preproc_conf_name, h_parms);
+         sched_idx = ExecuteScheduleMultiCore(preproc_schedule, h_parms, print_rusage,
+                                             wc_sched_limit, true,
+                                             num_cpus, serialize_schedule);
+         if (sched_idx != SCHEDULE_DONE)
+         {
+            char* preproc_conf_name = h_parms->heuristic_name;
+            GetHeuristicWithName(preproc_conf_name, h_parms);
+         }
+         else
+         {
+            TSTPOUT(GlobalOut, "GaveUp");
+            exit(RESOURCE_OUT);
+         }
       }
       else
       {
@@ -643,7 +652,7 @@ int main(int argc, char* argv[])
                            proofstate->tmp_terms, proofstate->freshvars);
    }
 
-   if(strategy_scheduling || auto_conf)
+   if((strategy_scheduling && sched_idx != -1) || auto_conf)
    {
       if(!limits)
       {
@@ -667,10 +676,40 @@ int main(int argc, char* argv[])
          ScheduleCell* search_sched = GetSearchSchedule(class);
          InitializePlaceholderSearchSchedule(search_sched, preproc_schedule+sched_idx,
                                              force_pre_schedule);
-         ExecuteScheduleMultiCore(search_sched, 
-                                 h_parms, print_rusage, 
-                                 preproc_schedule[sched_idx].time_absolute, 
-                                 false, preproc_schedule[sched_idx].cores, false);
+         int status = 
+            ExecuteScheduleMultiCore(search_sched, 
+                                     h_parms, print_rusage, 
+                                     preproc_schedule[sched_idx].time_absolute, 
+                                     false, preproc_schedule[sched_idx].cores, false);
+         if (status == SCHEDULE_DONE)
+         {
+            double total_cpu = GetTotalCPUTimeIncludingChildren();
+            double total_limit = preproc_schedule[sched_idx].time_absolute;
+            double remaining_time = total_limit - total_cpu;
+            if(remaining_time > RETRY_DEFAULT_SCHEDULE_THRESHOLD)
+            {
+               ScheduleCell* filtered_default = GetFilteredDefaultSchedule(search_sched);
+#ifdef NDEBUG
+               FILE* out = stderr;
+#else 
+               FILE* out = stderr;
+#endif
+               fprintf(out, "# executing default schedule for %g seconds.\n", remaining_time);
+               status = 
+                  ExecuteScheduleMultiCore(filtered_default, h_parms, print_rusage, 
+                                          remaining_time, false, 
+                                          preproc_schedule[sched_idx].cores, false);
+               fprintf(out, "status = %d.\n", status);
+               if (status == SCHEDULE_DONE)
+               {
+                  exit(RESOURCE_OUT);
+               }
+            }
+            else
+            {
+               exit(RESOURCE_OUT);
+            }
+         }
          GetHeuristicWithName(h_parms->heuristic_name, h_parms);
          h_parms->inst_choice_max_depth = choice_max_depth;
       }

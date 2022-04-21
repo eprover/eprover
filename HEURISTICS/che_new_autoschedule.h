@@ -6,5 +6,6 @@
 
 ScheduleCell* GetPreprocessingSchedule(const char* problem_category);
 ScheduleCell* GetSearchSchedule(const char* problem_category);
+ScheduleCell* GetDefaultSchedule();
 void GetHeuristicWithName(const char* name, HeuristicParms_p target);
 

@@ -51,6 +51,8 @@ typedef struct schedule_cell
 /*---------------------------------------------------------------------*/
 
 #define DEFAULT_SCHED_TIME_LIMIT 300
+#define SCHEDULE_DONE (-1)
+#define RETRY_DEFAULT_SCHEDULE_THRESHOLD (2.0)
 
 
 void ScheduleTimesInit(ScheduleCell sched[], double time_used);
@@ -70,6 +72,9 @@ int ExecuteScheduleMultiCore(ScheduleCell strats[],
                              int compute_cores_per_schedule,
                              int max_cores,
                              bool serialize);
+
+ScheduleCell* GetFilteredDefaultSchedule(ScheduleCell* exhausted_sched);
+
 
 
 #endif
