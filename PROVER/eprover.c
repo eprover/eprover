@@ -699,7 +699,6 @@ int main(int argc, char* argv[])
                   ExecuteScheduleMultiCore(filtered_default, h_parms, print_rusage, 
                                           remaining_time, false, 
                                           preproc_schedule[sched_idx].cores, false);
-               fprintf(out, "status = %d.\n", status);
                if (status == SCHEDULE_DONE)
                {
                   exit(RESOURCE_OUT);
