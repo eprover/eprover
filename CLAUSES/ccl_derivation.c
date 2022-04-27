@@ -1195,15 +1195,7 @@ void DerivationStackTSTPPrint(FILE* out, Sig_p sig, PStack_p derivation)
          PStackPushInt(subexpr_stack, i);
 
          op = PStackElementInt(derivation, i);
-         i++;
-         if(DCOpHasArg1(op))
-         {
-            i++;
-         }
-         if(DCOpHasArg2(op))
-         {
-            i++;
-         }
+         i += DCOpCountArgs(op) + 1;
       }
       /* Print the beginning of the subexpressions */
 

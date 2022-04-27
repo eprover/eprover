@@ -237,6 +237,9 @@ extern bool            ProofObjectRecordsGCSelection;
 #define DCOpHasParentArg4(op) ((op)&(Arg4Cnf|Arg4Fof))
 #define DCOpHasArg4(op)       ((op)&(Arg4Cnf|Arg4Fof|Arg4Num))
 
+#define DCOpCountArgs(op)     ((DCOpHasArg1(op) != 0) + (DCOpHasArg2(op) != 0) \
+                              + (DCOpHasArg3(op) != 0) + (DCOpHasArg4(op) != 0))
+
 #define DPOpGetOpCode(op)  ((op)&127)
 #define DCOpIsGenerating(op) ((DPOpGetOpCode(op) >= DOParamod)&&(DPOpGetOpCode(op) <= DOSatGen))
 
