@@ -24,6 +24,9 @@
 
 #define CCL_DERIVATION
 
+#include <stdarg.h>
+
+#include "ccl_clausecpos.h"
 #include <ccl_inferencedoc.h>
 #include <ccl_clauses.h>
 #include <ccl_formula_wrapper.h>
@@ -237,6 +240,12 @@ extern bool            ProofObjectRecordsGCSelection;
 #define DCOpHasParentArg4(op) ((op)&(Arg4Cnf|Arg4Fof))
 #define DCOpHasArg4(op)       ((op)&(Arg4Cnf|Arg4Fof|Arg4Num))
 
+#define DCOpHasCnfArgN(op,n)    ((op)&(Arg1Cnf<<(n)))
+#define DCOpHasFofArgN(op,n)    ((op)&(Arg1Fof<<(n)))
+#define DCOpHasNumArgN(op,n)    ((op)&(Arg1Num<<(n)))
+#define DCOpHasParentArgN(op,n) ((op)&((Arg1Cnf|Arg1Fof)<<(n)))
+#define DCOpHasArgN(op,n)       ((op)&((Arg1Cnf|Arg1Fof|Arg1Num)<<(n)))
+
 #define DCOpCountArgs(op)     ((DCOpHasArg1(op) != 0) + (DCOpHasArg2(op) != 0) \
                               + (DCOpHasArg3(op) != 0) + (DCOpHasArg4(op) != 0))
 
@@ -244,8 +253,7 @@ extern bool            ProofObjectRecordsGCSelection;
 #define DCOpIsGenerating(op) ((DPOpGetOpCode(op) >= DOParamod)&&(DPOpGetOpCode(op) <= DOSatGen))
 
 
-void ClausePushDerivation(Clause_p clause, DerivationCode op,
-                          void* arg1, void* arg2);
+void ClausePushDerivation(Clause_p clause, DerivationCode op, ...);
 
 void ClausePushACResDerivation(Clause_p clause, Sig_p sig);
 

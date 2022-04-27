@@ -532,28 +532,36 @@ void DerivedSetInProof(Derived_p derived, bool in_proof)
 //
 /----------------------------------------------------------------------*/
 
-void ClausePushDerivation(Clause_p clause, DerivationCode op,
-                          void* arg1, void* arg2)
+void ClausePushDerivation(Clause_p clause, DerivationCode op, ...)
 {
    assert(clause);
    assert(op);
 
    CLAUSE_ENSURE_DERIVATION(clause);
-   assert(DCOpHasCnfArg1(op)||DCOpHasFofArg1(op)||!arg1);
-   assert(DCOpHasCnfArg2(op)||DCOpHasFofArg2(op)||!arg2);
-   assert(DCOpHasCnfArg1(op)||!DCOpHasCnfArg2(op));
+
+   int arg_cnt = DCOpCountArgs(op);
 
    PStackPushInt(clause->derivation, op);
-   if(arg1)
+
+   va_list argp;
+   va_start(argp, op);
+
+   for(int i = 0; i < arg_cnt; ++i)
    {
-      PStackPushP(clause->derivation, arg1);
-      if(arg2)
+      if(DCOpHasParentArgN(op, i))
       {
-         PStackPushP(clause->derivation, arg2);
+         void* arg = va_arg(argp, void*);
+         PStackPushP(clause->derivation, arg);
+      }
+      else if(DCOpHasNumArgN(op, i))
+      {
+         CompactPos pos = va_arg(argp, CompactPos);
+         PStackPushInt(clause->derivation, pos);
       }
    }
-}
 
+   va_end(argp);
+}
 
 /*-----------------------------------------------------------------------
 //
