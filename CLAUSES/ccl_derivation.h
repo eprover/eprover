@@ -101,6 +101,12 @@ typedef enum
    Arg2Fof = 1<<11,
    Arg2Cnf = 1<<12,
    Arg2Num = 1<<13,
+   Arg3Fof = 1<<14,
+   Arg3Cnf = 1<<15,
+   Arg3Num = 1<<16,
+   Arg4Fof = 1<<17,
+   Arg4Cnf = 1<<18,
+   Arg4Num = 1<<19,
 }ArgDesc;
 
 
@@ -218,6 +224,18 @@ extern bool            ProofObjectRecordsGCSelection;
 #define DCOpHasNumArg2(op)    ((op)&Arg2Num)
 #define DCOpHasParentArg2(op) ((op)&(Arg2Cnf|Arg2Fof))
 #define DCOpHasArg2(op)       ((op)&(Arg2Cnf|Arg2Fof|Arg2Num))
+
+#define DCOpHasCnfArg3(op)    ((op)&Arg3Cnf)
+#define DCOpHasFofArg3(op)    ((op)&Arg3Fof)
+#define DCOpHasNumArg3(op)    ((op)&Arg3Num)
+#define DCOpHasParentArg3(op) ((op)&(Arg3Cnf|Arg3Fof))
+#define DCOpHasArg3(op)       ((op)&(Arg3Cnf|Arg3Fof|Arg3Num))
+
+#define DCOpHasCnfArg4(op)    ((op)&Arg4Cnf)
+#define DCOpHasFofArg4(op)    ((op)&Arg4Fof)
+#define DCOpHasNumArg4(op)    ((op)&Arg4Num)
+#define DCOpHasParentArg4(op) ((op)&(Arg4Cnf|Arg4Fof))
+#define DCOpHasArg4(op)       ((op)&(Arg4Cnf|Arg4Fof|Arg4Num))
 
 #define DPOpGetOpCode(op)  ((op)&127)
 #define DCOpIsGenerating(op) ((DPOpGetOpCode(op) >= DOParamod)&&(DPOpGetOpCode(op) <= DOSatGen))
