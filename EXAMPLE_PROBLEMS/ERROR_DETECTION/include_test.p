@@ -1,2 +1,3 @@
 # Comment
-include('../SMOKETEST/socrates.p').
+include('./test.p').
+fof(socratesdies,  conjecture, mortal(socrates)).

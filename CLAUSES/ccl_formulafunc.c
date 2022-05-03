@@ -1571,6 +1571,13 @@ long FormulaAndClauseSetParse(Scanner_p in, FormulaSet_p fset,
                                                   terms,
                                                   &new_limit,
                                                   skip_includes);
+
+                  // Print error stack of include parser.
+                  if (new_in->had_error)
+                  {
+                     PrintErrorStack(new_in->error_stack);
+                  }
+
                   DestroyScanner(new_in);
                }
                StrTreeFree(new_limit);

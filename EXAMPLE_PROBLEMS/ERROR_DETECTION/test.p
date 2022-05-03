@@ -24,4 +24,3 @@ fof(weallÜdie,      axiom, ![X]:(human(X) => mortal(X))).
 fof(wealldie,      axiom, ![X]:(human(X) => mortal(X))).
 fof/wealldie,      axiom, ![X]:(human(X) => mortal(X))).
 fof(socrateshuman, axiom, ![X]:(human(socrates))).
-fof(socratesdies,  conjecture, mortal(socrates)).
