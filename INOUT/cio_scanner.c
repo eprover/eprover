@@ -950,7 +950,10 @@ void FreeVars(PStack_p free_var_stack)
    for(i=free_var_stack->current - 1; i >= 0; i--)
    {
       free_var = (FreeVar_p)PStackElement(free_var_stack, i).p_val;
-      free_var->free_func(free_var->var);
+      if (free_var->var)
+      {
+         free_var->free_func(free_var->var);
+      }
       PStackPopP(free_var_stack);
    }
 }
@@ -1231,7 +1234,6 @@ void PrintErrorStack(PStack_p error_stack)
 
 static void panic_mode(Scanner_p in)
 {
-   
    // Return if panic mode is currently active.
    in->panic_mode = false;
 
