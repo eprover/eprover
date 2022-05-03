@@ -185,6 +185,13 @@ ProofState_p parse_spec(CLState_p state,
       // exit(-1);
       //printf("Set complete\n");
       CheckInpTok(in, NoToken);
+
+      // Print error stack if any errors have been thrown
+      if (in->had_error)
+      {
+         PrintErrorStack(in->error_stack);
+      }
+
       DestroyScanner(in);
    }
    VERBOUT2("Specification read\n");

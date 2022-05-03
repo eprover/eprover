@@ -847,6 +847,7 @@ Scanner_p CreateScanner(StreamType type, char *name, bool
 
    handle->error_stack = PStackAlloc();
    handle->panic_mode = false;
+   handle->had_error = false;
 
    if((type == StreamTypeFile && strcmp(name,"-")==0)||
       (type != StreamTypeFile))
@@ -1169,7 +1170,7 @@ void AktTokenWarning(Scanner_p in, char* msg)
    Warning(DStrView(err));
 }
 
-static void PrintErrorStack(PStack_p error_stack)
+void PrintErrorStack(PStack_p error_stack)
 {
    PStackPointer i;
    Error_p error;
@@ -1177,15 +1178,14 @@ static void PrintErrorStack(PStack_p error_stack)
    {
       error = (Error_p) PStackElement(error_stack, i).p_val;
       fprintf(GlobalOut, DStrView(error->message));
+      fprintf(GlobalOut, "\n");
    }
 }
 
-static void PanicMode(Scanner_p in)
+static void panic_mode(Scanner_p in)
 {
    // Return if panic mode is currently active.
    in->panic_mode = false;
-
-   fprintf(GlobalOut, "PANIC MODE\n");
 
    // Panic mode.
    while (!TestTok(AktToken(in), NoToken))
@@ -1210,14 +1210,14 @@ static void PanicMode(Scanner_p in)
       NextToken(in);
    }
 
-   PrintErrorStack(in->error_stack);
-
    // TODO: JUMPS
    longjmp(in->jump_buffer, 2);
 }
 
-static void ThrowError(Scanner_p in, DStr_p message)
+static void throw_error(Scanner_p in, DStr_p message)
 {
+   in->had_error = true;
+
    // Do not throw errors in panic mode.
    if (in->panic_mode) return;
    in->panic_mode = true;
@@ -1230,7 +1230,7 @@ static void ThrowError(Scanner_p in, DStr_p message)
    PStackPushP(in->error_stack, error);
 
    // Enter panic mode.
-   PanicMode(in);
+   panic_mode(in);
 }
 
 
@@ -1249,18 +1249,6 @@ static void ThrowError(Scanner_p in, DStr_p message)
 
 void CheckInpTok(Scanner_p in, TokenType toks)
 {
-   /*
-    * TODO:
-    * 1. Check if current token is error token.
-    *    Yes: Create error and read comment from token (=error message)
-    *       -> Goto: 3
-    *    No: Check if token is in expected list.
-    *       No: -> Goto: 2
-    * 2. Create error object + message and push it.
-    *    -> Goto: 3
-    * 3. Panic Mode
-    */
-
    bool has_error = false;
    DStr_p message;
 
@@ -1268,7 +1256,6 @@ void CheckInpTok(Scanner_p in, TokenType toks)
    {
       // Scanner error
       has_error = true;
-      fprintf(GlobalOut, "Scanner Error\n");
 
       // Get error message from token.
       message = DStrAlloc();
@@ -1279,7 +1266,6 @@ void CheckInpTok(Scanner_p in, TokenType toks)
    {
       // Parser Error.
       has_error = true;
-      fprintf(GlobalOut, "Parser Error\n");
 
       // Create error message.
       char* tmp;
@@ -1299,7 +1285,7 @@ void CheckInpTok(Scanner_p in, TokenType toks)
 
    if (has_error)
    {
-      ThrowError(in, message);
+      throw_error(in, message);
    }
 }
 
@@ -1335,7 +1321,7 @@ void CheckInpTokNoSkip(Scanner_p in, TokenType toks)
 
       DStr_p message = DStrAlloc();
       DStrAppendStr(message, DStrView(in->accu));
-      ThrowError(in, message);
+      throw_error(in, message);
       return;
    }
    CheckInpTok(in, toks);
@@ -1375,7 +1361,7 @@ void CheckInpId(Scanner_p in, char* ids)
       // Throw error.
       DStr_p message = DStrAlloc();
       DStrAppendStr(message, DStrView(in->accu));
-      ThrowError(in, message);
+      throw_error(in, message);
    }
 }
 

@@ -171,8 +171,10 @@ typedef struct scannercell
    int         current; /* Pointer to current token in tok_sequence */
    char*       include_pos; /* If created by "include", by which one? */
 
-   PStack_p    error_stack;
+   PStack_p    error_stack; /* Stack for all error cells */
+   bool        had_error;   /* Flag to check if any error has been thrown */
    bool        panic_mode; /* Flag to check if panic mode was activated. */
+
    jmp_buf     jump_buffer;
 }ScannerCell, *Scanner_p;
 
@@ -184,6 +186,7 @@ typedef struct scannercell
 #define ErrorCellFree(junk)     SizeFree(junk, sizeof(ErrorCell))
 Error_p InitErrorCell(DStr_p message, long line, long column, ErrorType type);
 void DestroyErrorCell(Error_p junk);
+void PrintErrorStack(PStack_p error_stack);
 
 #define TokenCellAlloc()      (TokenCell*)SizeMalloc(sizeof(TokenCell))
 #define TokenCellFree(junk)   SizeFree(junk, sizeof(TokenCell))

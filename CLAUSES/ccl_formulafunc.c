@@ -1510,13 +1510,7 @@ long FormulaAndClauseSetParse(Scanner_p in, FormulaSet_p fset,
                               StrTree_p *name_selector,
                               StrTree_p *skip_includes)
 {
-   int r = setjmp(in->jump_buffer);
-
-   if (r != 0)
-   {
-      r = setjmp(in->jump_buffer);
-      fprintf(GlobalOut, "\n\n--------\nJUMP\n--------\n");
-   }
+   setjmp(in->jump_buffer);
 
    long res = 0;
 
