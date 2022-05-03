@@ -1510,7 +1510,12 @@ long FormulaAndClauseSetParse(Scanner_p in, FormulaSet_p fset,
                               StrTree_p *name_selector,
                               StrTree_p *skip_includes)
 {
-   setjmp(in->jump_buffer);
+   int jmpret = setjmp(in->jump_buffer);
+
+   if (jmpret)
+   {
+      FreeVars(in->free_var_stack);
+   }
 
    long res = 0;
 

@@ -156,6 +156,12 @@ typedef struct
    ErrorType type;
 } ErrorCell, *Error_p;
 
+typedef struct
+{
+   const void * var;
+   const void (*free_func)();
+} FreeVar, *FreeVar_p;
+
 typedef struct scannercell
 {
    Stream_p    source;  /* Input stack from which to read */
@@ -172,6 +178,7 @@ typedef struct scannercell
    char*       include_pos; /* If created by "include", by which one? */
 
    PStack_p    error_stack; /* Stack for all error cells */
+   PStack_p    free_var_stack; /* Stack to free variables after panic mode */
    bool        had_error;   /* Flag to check if any error has been thrown */
    bool        panic_mode; /* Flag to check if panic mode was activated. */
 
@@ -187,6 +194,13 @@ typedef struct scannercell
 Error_p InitErrorCell(DStr_p message, long line, long column, ErrorType type);
 void DestroyErrorCell(Error_p junk);
 void PrintErrorStack(PStack_p error_stack);
+
+#define FreeVarAlloc()          (FreeVar*)SizeMalloc(sizeof(FreeVar))
+#define FreeVarFree(junk)       SizeFree(junk, sizeof(FreeVar))
+FreeVar_p  InitFreeVar(const void * var, const void (*free_func));
+void PushFreeVar(PStack_p free_var_stack, const void * var, const void (*free_func));
+void FreeVarPopN(PStack_p free_var_stack, int n);
+void FreeVars(PStack_p free_var_stack);
 
 #define TokenCellAlloc()      (TokenCell*)SizeMalloc(sizeof(TokenCell))
 #define TokenCellFree(junk)   SizeFree(junk, sizeof(TokenCell))

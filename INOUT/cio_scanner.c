@@ -846,6 +846,7 @@ Scanner_p CreateScanner(StreamType type, char *name, bool
    handle->format = LOPFormat;
 
    handle->error_stack = PStackAlloc();
+   handle->free_var_stack = PStackAlloc();
    handle->panic_mode = false;
    handle->had_error = false;
 
@@ -941,6 +942,19 @@ void DestroyErrorCell(Error_p junk)
    ErrorCellFree(junk);
 }
 
+void FreeVars(PStack_p free_var_stack)
+{
+   FreeVar_p free_var;
+   PStackPointer i;
+
+   for(i=free_var_stack->current - 1; i >= 0; i--)
+   {
+      free_var = (FreeVar_p)PStackElement(free_var_stack, i).p_val;
+      free_var->free_func(free_var->var);
+      PStackPopP(free_var_stack);
+   }
+}
+
 /*-----------------------------------------------------------------------
 //
 // Function: DestroyScanner()
@@ -976,7 +990,6 @@ void DestroyScanner(Scanner_p  junk)
    }
 
    // Clear error stack
-
    PStackPointer i;
    Error_p error;
    for(i=0; i < junk->error_stack->current; i++)
@@ -985,6 +998,10 @@ void DestroyScanner(Scanner_p  junk)
       DestroyErrorCell(error);
    }
    PStackCellFree(junk->error_stack);
+
+   // Clear all vars in free_var_stack when scanner is destroyed.
+   FreeVars(junk->free_var_stack);
+   PStackCellFree(junk->free_var_stack);
 
    ScannerCellFree(junk);
 }
@@ -1121,6 +1138,36 @@ Error_p InitErrorCell(DStr_p message, long line, long column, ErrorType type)
    return error;
 }
 
+FreeVar_p InitFreeVar(const void * var, const void (*free_func))
+{
+   FreeVar_p handle;
+
+   handle = FreeVarAlloc();
+   handle->var = var;
+   handle->free_func = free_func;
+
+   return handle;
+}
+
+void PushFreeVar(PStack_p free_var_stack, const void * var, const void (*free_func))
+{
+   FreeVar_p handle;
+   handle = InitFreeVar(var, free_func);
+
+   PStackPushP(free_var_stack, handle);
+}
+
+void FreeVarPopN(PStack_p free_var_stack, int n)
+{
+   assert(free_var_stack->current >= n);
+
+   int i;
+   for (i = 0; i < n; i++)
+   {
+      PStackPopP(free_var_stack);
+   }
+}
+
 /*-----------------------------------------------------------------------
 //
 // Function: AktTokenError()
@@ -1184,6 +1231,7 @@ void PrintErrorStack(PStack_p error_stack)
 
 static void panic_mode(Scanner_p in)
 {
+   
    // Return if panic mode is currently active.
    in->panic_mode = false;
 
