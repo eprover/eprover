@@ -1185,8 +1185,9 @@ void FreeVarPopN(PStack_p free_var_stack, int n)
 //
 /----------------------------------------------------------------------*/
 
-void AktTokenError(Scanner_p in, char* msg, bool _)
+void AktTokenError(Scanner_p in, char* msg, bool syserr)
 {
+
    // Set token cell type to ErrorToken.
    AktToken(in)->tok = ErrorToken;
 
@@ -1194,7 +1195,17 @@ void AktTokenError(Scanner_p in, char* msg, bool _)
    DStr_p err = DStrAlloc();
    compose_errmsg(err, in, msg);
 
+   // Throw system error.
+   if (syserr)
+   {
+      SysError(DStrView(err), SYNTAX_ERROR);
+   }
+
    // Save token message in token.
+   if (AktToken(in)->comment)
+   {
+      DStrFree(AktToken(in)->comment);
+   }
    AktToken(in)->comment = err;
 }
 

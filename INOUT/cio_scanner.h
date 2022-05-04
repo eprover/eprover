@@ -252,7 +252,7 @@ bool TestIdnum(Token_p akt, char* ids);
 #define TestInpTokNoSkip(in, toks) \
         (TestInpNoSkip(in) && TestInpTok(in, toks))
 
-void AktTokenError(Scanner_p in, char* msg, bool _);
+void AktTokenError(Scanner_p in, char* msg, bool syserr);
 void AktTokenWarning(Scanner_p in, char* msg);
 
 void CheckInpTok(Scanner_p in, TokenType toks);
