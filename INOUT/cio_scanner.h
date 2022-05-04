@@ -193,6 +193,7 @@ typedef struct scannercell
 #define ErrorCellFree(junk)     SizeFree(junk, sizeof(ErrorCell))
 Error_p InitErrorCell(DStr_p message, long line, long column, ErrorType type);
 void DestroyErrorCell(Error_p junk);
+void MergeErrorStack(PStack_p dest, PStack_p src);
 void PrintErrorStack(PStack_p error_stack);
 
 #define FreeVarAlloc()          (FreeVar*)SizeMalloc(sizeof(FreeVar))

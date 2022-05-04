@@ -1580,7 +1580,8 @@ long FormulaAndClauseSetParse(Scanner_p in, FormulaSet_p fset,
                   // Print error stack of include parser.
                   if (new_in->had_error)
                   {
-                     PrintErrorStack(new_in->error_stack);
+                     in->had_error = true;
+                     MergeErrorStack(in->error_stack, new_in->error_stack);
                   }
 
                   DestroyScanner(new_in);

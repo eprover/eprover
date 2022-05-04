@@ -1243,6 +1243,21 @@ void PrintErrorStack(PStack_p error_stack)
    }
 }
 
+void MergeErrorStack(PStack_p dest, PStack_p src) {
+   PStackPointer i;
+   Error_p err;
+   Error_p cpy;
+   DStr_p msg;
+   for (i = 0; i < src->current; i++)
+   {
+      err = (Error_p) PStackElement(src, i).p_val;
+      msg = DStrAlloc();
+      DStrAppendStr(msg, DStrCopy(err->message));
+      cpy = InitErrorCell(msg, err->line, err->column, err->type);
+      PStackPushP(dest, cpy);
+   }
+}
+
 static void panic_mode(Scanner_p in)
 {
    // Return if panic mode is currently active.
