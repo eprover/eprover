@@ -433,6 +433,8 @@ WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms)
    long              line, column;
    StreamType        inptype;
 
+   
+
    info = ClauseInfoAlloc(NULL, DStrView(AktToken(in)->source),
                           AktToken(in)->line,
                           AktToken(in)->column);

@@ -938,7 +938,7 @@ void DestroyErrorCell(Error_p junk)
    assert(junk);
    assert(junk->message);
 
-   DStrFree(junk->message);
+   DStrReleaseRef(junk->message);
    ErrorCellFree(junk);
 }
 
@@ -954,6 +954,7 @@ void FreeVars(PStack_p free_var_stack)
       {
          free_var->free_func(free_var->var);
       }
+      FreeVarFree(free_var);
       PStackPopP(free_var_stack);
    }
 }
