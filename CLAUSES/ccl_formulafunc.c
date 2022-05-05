@@ -595,11 +595,13 @@ void ignore_include(Scanner_p in)
    AcceptInpTok(in, OpenBracket);
    CheckInpTok(in, SQString);
    char* name = DStrCopyCore(AktToken(in)->literal);
+   PushFreeVar(in->free_var_stack, name, free);
    NextToken(in);
    AcceptInpTok(in, CloseBracket);
    AcceptInpTok(in, Fullstop);
 
    fprintf(stdout, "include('%s').\n", name);
+   FreeVarPopN(in->free_var_stack, 1);
    FREE(name);
 }
 

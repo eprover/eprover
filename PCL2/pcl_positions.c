@@ -110,6 +110,7 @@ void PCL2PosFree(PCL2Pos_p pos)
 PCL2Pos_p PCL2PosParse(Scanner_p in)
 {
    PCL2Pos_p handle = PCL2PosAlloc();
+   PushFreeVar(in->free_var_stack, handle, PCL2PosFree);
    long      i;
 
    handle->literal = AktToken(in)->numval;
@@ -141,6 +142,7 @@ PCL2Pos_p PCL2PosParse(Scanner_p in)
       }
       handle->termposlen=i;
    }
+   FreeVarPopN(in->free_var_stack, 1);
    return handle;
 }
 

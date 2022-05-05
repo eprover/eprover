@@ -191,6 +191,7 @@ void AxFilterFree(AxFilter_p junk)
 AxFilter_p GSinEParse(Scanner_p in)
 {
    AxFilter_p res = AxFilterAlloc();
+   PushFreeVar(in->free_var_stack, res, AxFilterFree);
 
    AcceptInpId(in, "GSinE");
    res->type = AFGSinE;
@@ -256,7 +257,7 @@ AxFilter_p GSinEParse(Scanner_p in)
 
 
    AcceptInpTok(in, CloseBracket);
-
+   FreeVarPopN(in->free_var_stack, 1);
    return res;
 }
 

@@ -324,6 +324,8 @@ WFormula_p WFormulaTPTPParse(Scanner_p in, TB_p terms)
    info = ClauseInfoAlloc(NULL, DStrView(AktToken(in)->source),
                           AktToken(in)->line,
                           AktToken(in)->column);
+   PushFreeVar(in->free_var_stack, info, ClauseInfoFree);
+
    AcceptInpId(in, "input_formula");
    SetProblemType(PROBLEM_FO);
    AcceptInpTok(in, OpenBracket);
@@ -357,12 +359,15 @@ WFormula_p WFormulaTPTPParse(Scanner_p in, TB_p terms)
 
    tform = TFormulaTPTPParse(in, terms);
    handle = WTFormulaAlloc(terms, tform);
+   PushFreeVar(in->free_var_stack, handle, WFormulaFree);
 
    AcceptInpTok(in, CloseBracket);
    AcceptInpTok(in, Fullstop);
    FormulaSetType(handle, type);
    FormulaSetProp(handle, CPInitial|CPInputFormula);
    handle->info = info;
+
+   FreeVarPopN(in->free_var_stack, 2);
 
    return handle;
 }
@@ -431,13 +436,17 @@ WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms)
    bool              is_tcf = false;
    DStr_p            source_name;
    long              line, column;
+   int               added_free_vars;
    StreamType        inptype;
 
    
-
+   added_free_vars = 0;
    info = ClauseInfoAlloc(NULL, DStrView(AktToken(in)->source),
                           AktToken(in)->line,
                           AktToken(in)->column);
+
+   PushFreeVar(in->free_var_stack, info, ClauseInfoFree);
+   added_free_vars++;
 
    if(TestInpId(in, "tcf"))
    {
@@ -481,7 +490,10 @@ WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms)
       SigParseTFFTypeDeclaration(in, terms->sig);
 
       tform = TFormulaPropConstantAlloc(terms, true);
+
       handle = WTFormulaAlloc(terms, tform);
+      PushFreeVar(in->free_var_stack, handle, WFormulaFree);
+      added_free_vars++;
    }
    else
    {
@@ -530,6 +542,8 @@ WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms)
       DStrReleaseRef(source_name);
 
       handle = WTFormulaAlloc(terms, tform);
+      PushFreeVar(in->free_var_stack, handle, WFormulaFree);
+      added_free_vars++;
    }
 
    if(TestInpTok(in, Comma))
@@ -550,6 +564,8 @@ WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms)
    handle->info = info;
 
    // printf("# Formula complete!\n");
+   FreeVarPopN(in->free_var_stack, added_free_vars);
+
    return handle;
 }
 

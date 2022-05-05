@@ -1166,9 +1166,11 @@ void FreeVarPopN(PStack_p free_var_stack, int n)
    assert(free_var_stack->current >= n);
 
    int i;
+   FreeVar_p p;
    for (i = 0; i < n; i++)
    {
-      PStackPopP(free_var_stack);
+      p = (FreeVar_p)PStackPopP(free_var_stack);
+      FreeVarFree(p);
    }
 }
 
@@ -1203,10 +1205,7 @@ void AktTokenError(Scanner_p in, char* msg, bool syserr)
    }
 
    // Save token message in token.
-   if (AktToken(in)->comment)
-   {
-      DStrFree(AktToken(in)->comment);
-   }
+   DStrReleaseRef(AktToken(in)->comment);
    AktToken(in)->comment = err;
 }
 
@@ -1236,12 +1235,22 @@ void PrintErrorStack(PStack_p error_stack)
 {
    PStackPointer i;
    Error_p error;
+
+   if (error_stack->current > 0)
+   {
+      fprintf(GlobalOut, "\n+--------------+");
+      fprintf(GlobalOut, "\n| ERRORS FOUND |");
+      fprintf(GlobalOut, "\n+--------------+\n\n");
+   }
+
    for (i = 0; i < error_stack->current; i++)
    {
       error = (Error_p) PStackElement(error_stack, i).p_val;
       fprintf(GlobalOut, DStrView(error->message));
       fprintf(GlobalOut, "\n");
    }
+
+   fprintf(GlobalOut, "\n");
 }
 
 void MergeErrorStack(PStack_p dest, PStack_p src) {

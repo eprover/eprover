@@ -1583,6 +1583,7 @@ Clause_p ClauseParse(Scanner_p in, TB_p bank)
    FormulaProperties input = CPInputFormula;
    Clause_p handle;
    ClauseInfo_p info;
+   int free_vars_num = 0;
 
    if(ClausesHaveLocalVariables)
    {
@@ -1594,6 +1595,9 @@ Clause_p ClauseParse(Scanner_p in, TB_p bank)
    }
    info = ClauseInfoAlloc(NULL, DStrView(AktToken(in)->source),
                           AktToken(in)->line, AktToken(in)->column);
+   PushFreeVar(in->free_var_stack, info, ClauseInfoFree);
+   free_vars_num++;
+
    if(ScannerGetFormat(in) == TPTPFormat)
    {
       AcceptInpId(in, "input_clause");
@@ -1609,6 +1613,9 @@ Clause_p ClauseParse(Scanner_p in, TB_p bank)
       AcceptInpTok(in, Comma);
       AcceptInpTok(in, OpenSquare);
       concl = EqnListParse(in, bank, Comma);
+      PushFreeVar(in->free_var_stack, concl, EqnFree);
+      free_vars_num++;
+
       AcceptInpTok(in, CloseSquare);
       AcceptInpTok(in, CloseBracket);
    }
@@ -1634,11 +1641,15 @@ Clause_p ClauseParse(Scanner_p in, TB_p bank)
       {
          AcceptInpTok(in, OpenBracket);
          concl = EqnListParse(in, bank, Pipe);
+         PushFreeVar(in->free_var_stack, concl, EqnFree);
+         free_vars_num++;
          AcceptInpTok(in, CloseBracket);
       }
       else
       {
          concl = EqnListParse(in, bank, Pipe);
+         PushFreeVar(in->free_var_stack, concl, EqnFree);
+         free_vars_num++;
       }
       if(TestInpTok(in, Comma))
       {
@@ -1656,6 +1667,9 @@ Clause_p ClauseParse(Scanner_p in, TB_p bank)
    else
    {
       concl = EqnListParse(in, bank, Semicolon);
+      PushFreeVar(in->free_var_stack, concl, EqnFree);
+      free_vars_num++;
+
       if(TestInpTok(in, Colon))
       {
          if(EqnListLength(concl)>1)
@@ -1695,6 +1709,8 @@ Clause_p ClauseParse(Scanner_p in, TB_p bank)
          AcceptInpTokNoSkip(in, Hyphen);
 
          precond = EqnListParse(in, bank, Comma);
+         PushFreeVar(in->free_var_stack, precond, EqnFree);
+         free_vars_num++;
 
          if(procedural && EqnListLength(precond)==0)
          {
@@ -1708,6 +1724,7 @@ Clause_p ClauseParse(Scanner_p in, TB_p bank)
          EqnListAppend(&concl, precond);
       }
    }
+   FreeVarPopN(in->free_var_stack, free_vars_num);
    AcceptInpTok(in, Fullstop);
    handle = ClauseAlloc(concl);
    ClauseSetTPTPType(handle, type);

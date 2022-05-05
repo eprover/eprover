@@ -177,7 +177,9 @@ void PCLMiniExprFree(PCLExpr_p junk)
 PCLExpr_p PCLExprParse(Scanner_p in, bool mini)
 {
    PCLExpr_p handle=PCLExprAlloc();
-   long      i, arg_no=0;
+   PushFreeVar(in->free_var_stack, handle, PCLExprFree);
+
+   long      i, arg_no=0, free_var_num = 1;
    ClauseInfo_p info = NULL;
 
    if(TestInpTok(in,PosInt))
@@ -208,6 +210,8 @@ PCLExpr_p PCLExprParse(Scanner_p in, bool mini)
       if(TestInpTok(in, OpenBracket))
       {
          info = ClauseInfoAllocEmpty();
+         PushFreeVar(in->free_var_stack, info, ClauseInfoFree);
+         free_var_num = 2;
          NextToken(in);
          info->source = DStrCopyCore(AktToken(in)->literal);
          AcceptInpTok(in, String);
@@ -401,6 +405,7 @@ PCLExpr_p PCLExprParse(Scanner_p in, bool mini)
          handle->arg_no=0;
       }
    }
+   FreeVarPopN(in->free_var_stack, free_var_num);
    return handle;
 }
 

@@ -1515,10 +1515,12 @@ TFormula_p TcfTSTPParse(Scanner_p in, TB_p terms)
    {
       res = clause_tform_tstp_parse(in, terms);
    }
+   PushFreeVar(in->free_var_stack, res, TermFree);
    if(in_parens)
    {
       AcceptInpTok(in, CloseBracket);
    }
+   FreeVarPopN(in->free_var_stack, 1);
    return res;
 }
 
