@@ -1001,11 +1001,11 @@ void DestroyScanner(Scanner_p  junk)
       error = (Error_p)PStackElement(junk->error_stack, i).p_val;
       DestroyErrorCell(error);
    }
-   PStackCellFree(junk->error_stack);
+   PStackFree(junk->error_stack);
 
    // Clear all vars in free_var_stack when scanner is destroyed.
    FreeVars(junk->free_var_stack);
-   PStackCellFree(junk->free_var_stack);
+   PStackFree(junk->free_var_stack);
 
    ScannerCellFree(junk);
 }
