@@ -949,17 +949,16 @@ void DestroyErrorCell(Error_p junk)
 void FreeVars(PStack_p free_var_stack)
 {
    FreeVar_p free_var;
-   PStackPointer i;
+   int i;
 
-   for(i=free_var_stack->current - 1; i >= 0; i--)
+   for(i=0; i < free_var_stack->current; i++)
    {
-      free_var = (FreeVar_p)PStackElement(free_var_stack, i).p_val;
+      free_var = (FreeVar_p)PStackPopP(free_var_stack);
       if (free_var->var)
       {
          free_var->free_func(free_var->var);
       }
       FreeVarFree(free_var);
-      PStackPopP(free_var_stack);
    }
 }
 

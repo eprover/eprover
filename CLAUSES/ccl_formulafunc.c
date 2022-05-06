@@ -1567,7 +1567,9 @@ long FormulaAndClauseSetParse(Scanner_p in, FormulaSet_p fset,
                StrTree_p new_limit = NULL;
                Scanner_p new_in;
                FormulaSet_p nfset = FormulaSetAlloc();
+               PushFreeVar(in->free_var_stack, nfset, FormulaSetFree);
                ClauseSet_p  nwlset = ClauseSetAlloc();
+               PushFreeVar(in->free_var_stack, nwlset, ClauseSetFree);
                new_in = ScannerParseInclude(in, &new_limit, skip_includes);
 
                if(new_in)
@@ -1588,6 +1590,7 @@ long FormulaAndClauseSetParse(Scanner_p in, FormulaSet_p fset,
 
                   DestroyScanner(new_in);
                }
+               FreeVarPopN(in->free_var_stack, 2);
                StrTreeFree(new_limit);
                FormulaSetInsertSet(fset, nfset);
                ClauseSetInsertSet(wlset, nwlset);
