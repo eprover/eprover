@@ -95,6 +95,7 @@ static Term_p parse_cons_list(Scanner_p in, Sig_p sig, VarBank_p vars)
 {
    Term_p handle;
    Term_p current;
+   int free_vars_num = 1;
 
    assert(SigSupportLists);
 
@@ -102,6 +103,7 @@ static Term_p parse_cons_list(Scanner_p in, Sig_p sig, VarBank_p vars)
 
    handle = TermDefaultCellArityAlloc(2);
    current = handle;
+   PushFreeVar(in->free_var_stack, handle, TermFree);
 
    if(!TestInpTok(in, CloseSquare))
    {
@@ -111,6 +113,8 @@ static Term_p parse_cons_list(Scanner_p in, Sig_p sig, VarBank_p vars)
       current->args[0] = TermParse(in, sig, vars);
       current->args[1] = TermDefaultCellArityAlloc(2);
       current = current->args[1];
+      PushFreeVar(in->free_var_stack, current, TermFree);
+      free_vars_num++;
 
       while(TestInpTok(in, Comma))
       {
@@ -124,6 +128,7 @@ static Term_p parse_cons_list(Scanner_p in, Sig_p sig, VarBank_p vars)
       }
    }
    AcceptInpTok(in, CloseSquare);
+   FreeVarPopN(in->free_var_stack, free_vars_num);
    current->f_code = SIG_NIL_CODE;
 
    return handle;
@@ -747,9 +752,11 @@ Term_p TermParse(Scanner_p in, Sig_p sig, VarBank_p vars)
    else
    {
       id = DStrAlloc();
+      PushFreeVar(in->free_var_stack, id, DStrFree);
       line = AktToken(in)->line;
       column = AktToken(in)->column;
       source_name = DStrGetRef(AktToken(in)->source);
+      PushFreeVar(in->free_var_stack, source_name, DStrFree);
       type_stream = AktToken(in)->stream_type;
 
       if((id_type = TermParseOperator(in, id))==FSIdentVar)
@@ -812,6 +819,7 @@ Term_p TermParse(Scanner_p in, Sig_p sig, VarBank_p vars)
             DStrFree(errpos);
          }
       }
+      FreeVarPopN(in->free_var_stack, 2);
       DStrReleaseRef(source_name);
       DStrFree(id);
    }
@@ -854,7 +862,9 @@ Term_p TermParseArgList(Scanner_p in, Sig_p sig, VarBank_p vars)
       return result;
    }
    args = PStackAlloc();
+   PushFreeVar(in->free_var_stack, args, PStackFree);
    tmp = TermParse(in, sig, vars);
+   PushFreeVar(in->free_var_stack, tmp, TermFree);
    PStackPushP(args, tmp);
 
    while(TestInpTok(in, Comma))
@@ -871,6 +881,7 @@ Term_p TermParseArgList(Scanner_p in, Sig_p sig, VarBank_p vars)
    {
       result->args[i] = PStackElementP(args,i);
    }
+   FreeVarPopN(in->free_var_stack, 2);
    PStackFree(args);
 
    return result;

@@ -470,6 +470,7 @@ bool EqnParseInfix(Scanner_p in, TB_p bank, Term_p *lref, Term_p *rref)
    }
 
    lterm = TBTermParse(in, bank);
+   PushFreeVar(in->free_var_stack, lterm, TermFree);
 
    BOOL_TERM_NORMALIZE(lterm);
 
@@ -581,6 +582,7 @@ bool EqnParseInfix(Scanner_p in, TB_p bank, Term_p *lref, Term_p *rref)
    {
       AcceptInpTok(in, CloseBracket);
    }
+   FreeVarPopN(in->free_var_stack, 1);
    return positive;
 }
 
@@ -757,6 +759,7 @@ Eqn_p EqnHOFParse(Scanner_p in, TB_p bank, bool* continue_parsing)
    bool    pure_eq  = false;
 
    lterm = TBTermParse(in, bank);
+   PushFreeVar(in->free_var_stack, lterm, TermFree);
    BOOL_TERM_NORMALIZE(lterm);
 
    *continue_parsing = true;
@@ -808,7 +811,7 @@ Eqn_p EqnHOFParse(Scanner_p in, TB_p bank, bool* continue_parsing)
       }
       rterm = bank->true_term;
    }
-
+   FreeVarPopN(in->free_var_stack, 1);
    return EqnAlloc(lterm, rterm, bank, positive);
 }
 

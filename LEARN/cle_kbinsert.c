@@ -70,6 +70,8 @@ AnnoTerm_p ParseExampleClause(Scanner_p in, TB_p parse_terms, TB_p
    PStack_p       listrep;
    AnnoTerm_p     handle = NULL;
 
+   PushFreeVar(in->free_var_stack, anno, AnnotationFree);
+
    AcceptInpTok(in,PosInt);
    AcceptInpTok(in,Colon);
 
@@ -130,6 +132,7 @@ AnnoTerm_p ParseExampleClause(Scanner_p in, TB_p parse_terms, TB_p
    {
       AnnotationFree(anno);
    }
+   FreeVarPopN(in->free_var_stack, 1);
    ClauseFree(clause);
    PatternSubstFree(subst);
    PStackFree(listrep);
@@ -187,18 +190,25 @@ void KBParseExampleFile(Scanner_p in, char* name, ExampleSet_p set,
    AnnoTerm_p  handle;
    TypeBank_p  sort_table = TypeBankAlloc();
 
+   PushFreeVar(in->free_var_stack, axioms, ClauseSetFree);
+   PushFreeVar(in->free_var_stack, sort_table, TypeBankFree);
+
    terms = TBAlloc(SigAlloc(sort_table));
+   PushFreeVar(in->free_var_stack, terms, TBFree);
+
    ClauseSetParseList(in, axioms, terms);
 
    ident = KBAxiomsInsert(set, axioms, terms->sig, name);
    ClauseSetFree(axioms);
    SigFree(terms->sig);
    terms->sig = NULL;
+   FreeVarPopN(in->free_var_stack, 1);
    TBFree(terms);
 
    AcceptInpTok(in, Fullstop);
 
    terms = TBAlloc(res_sig);
+   PushFreeVar(in->free_var_stack, terms, TBFree);
 
    while(!TestInpTok(in, NoToken))
    {
@@ -209,6 +219,8 @@ void KBParseExampleFile(Scanner_p in, char* name, ExampleSet_p set,
       }
    }
    terms->sig = NULL;
+
+   FreeVarPopN(in->free_var_stack, 3);
    TBFree(terms);
    TypeBankFree(sort_table);
 }

@@ -66,6 +66,7 @@ PCLId_p PCLIdParse(Scanner_p in)
 
    CheckInpTok(in, PosInt);
    id = PCLIdAlloc();
+   PushFreeVar(in->free_var_stack, id, PDArrayFree);
    i=0;
    PDArrayAssignInt(id,i++,AktToken(in)->numval);
    NextToken(in);
@@ -76,6 +77,7 @@ PCLId_p PCLIdParse(Scanner_p in)
       AcceptInpTok(in, PosInt);
    }
    PDArrayAssignInt(id,i,NO_PCL_ID_ELEMENT);
+   FreeVarPopN(in->free_var_stack, 1);
    return id;
 }
 

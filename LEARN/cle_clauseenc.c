@@ -255,10 +255,12 @@ Term_p ParseClauseTermRep(Scanner_p in, TB_p bank, bool flat)
 
    assert(ScannerGetFormat(in)==LOPFormat);
    list = EqnListParse(in, bank, Semicolon);
+   PushFreeVar(in->free_var_stack, list, EqnListFree);
    AcceptInpTok(in, LesserSign);
    AcceptInpTokNoSkip(in, Hyphen);
    AcceptInpTok(in, Fullstop);
    res = TermEncodeEqnList(bank, list, flat);
+   FreeVarPopN(in->free_var_stack, 1);
    EqnListFree(list);
    return res;
 }

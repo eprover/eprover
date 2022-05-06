@@ -970,6 +970,10 @@ void StartDeductionServer(BatchSpec_p spec,
                          DStrView(input),
                          true,
                          NULL, true);
+      PushFreeVar(in->free_var_stack, input, DStrFree);
+      PushFreeVar(in->free_var_stack, dummyStr, DStrFree);
+      PushFreeVar(in->free_var_stack, interactive, InteractiveSpecFree);
+      PushFreeVar(in->free_var_stack, input_command, DStrFree);
       ScannerSetFormat(in, TSTPFormat);
 
       if(TestInpId(in, STAGE_COMMAND))
@@ -1062,6 +1066,7 @@ void StartDeductionServer(BatchSpec_p spec,
       {
          print_to_outstream(ERR_UNKNOWN_COMMAND_MESSAGE, fp, sock_fd);
       }
+      FreeVarPopN(in->free_var_stack, 4);
       DestroyScanner(in);
    }
    DStrFree(dummyStr);

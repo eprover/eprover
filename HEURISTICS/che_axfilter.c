@@ -282,6 +282,7 @@ AxFilter_p GSinEParse(Scanner_p in)
 AxFilter_p ThresholdParse(Scanner_p in)
 {
    AxFilter_p res = AxFilterAlloc();
+   PushFreeVar(in->free_var_stack, res, AxFilterFree);
 
    AcceptInpId(in, "Threshold");
    res->type = AFThreshold;
@@ -291,6 +292,7 @@ AxFilter_p ThresholdParse(Scanner_p in)
    AcceptInpTok(in, PosInt);
    AcceptInpTok(in, CloseBracket);
 
+   FreeVarPopN(in->free_var_stack, 1);
    return res;
 }
 

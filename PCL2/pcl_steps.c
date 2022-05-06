@@ -178,6 +178,7 @@ PCLStepProperties PCLParseExternalType(Scanner_p in)
 PCLStep_p PCLStepParse(Scanner_p in, TB_p bank)
 {
    PCLStep_p handle = PCLStepCellAlloc();
+   PushFreeVar(in->free_var_stack, handle, PCLStepFree);
 
    assert(in);
    assert(bank);
@@ -221,6 +222,7 @@ PCLStep_p PCLStepParse(Scanner_p in, TB_p bank)
    {
       PCLStepSetProp(handle, PCLIsInitial);
    }
+   FreeVarPopN(in->free_var_stack, 1);
    return handle;
 }
 

@@ -360,6 +360,7 @@ WFormula_p WFormulaTPTPParse(Scanner_p in, TB_p terms)
    tform = TFormulaTPTPParse(in, terms);
    handle = WTFormulaAlloc(terms, tform);
    PushFreeVar(in->free_var_stack, handle, WFormulaFree);
+   PushFreeVar(in->free_var_stack, tform, TermFree);
 
    AcceptInpTok(in, CloseBracket);
    AcceptInpTok(in, Fullstop);
@@ -367,7 +368,7 @@ WFormula_p WFormulaTPTPParse(Scanner_p in, TB_p terms)
    FormulaSetProp(handle, CPInitial|CPInputFormula);
    handle->info = info;
 
-   FreeVarPopN(in->free_var_stack, 2);
+   FreeVarPopN(in->free_var_stack, 3);
 
    return handle;
 }

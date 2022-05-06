@@ -162,6 +162,7 @@ HCB_p GetHeuristic(char* source, HCBARGUMENTS)
       messages for internal strings (but the function will not be
       called with internal strings anyways...) */
    in=CreateScanner(StreamTypeOptionString, source, true, NULL, true);
+
    if(TestInpTok(in, OpenBracket))
    {
       HeuristicDefParse(control->hcbs, in, control->wfcbs,
@@ -171,12 +172,15 @@ HCB_p GetHeuristic(char* source, HCBARGUMENTS)
                                    extra ')' cutting of a heuristic
                                    early. */
       name = SecureStrdup("Default");
+      PushFreeVar(in->free_var_stack, name, free);
    }
    else
    {
       name = SecureStrdup(DStrView(AktToken(in)->literal));
+      PushFreeVar(in->free_var_stack, name, free);
       AcceptInpTok(in, Identifier);
    }
+   FreeVarPopN(in->free_var_stack, 1);
    DestroyScanner(in);
    res = HCBAdminFindHCB(control->hcbs, name);
    if(!res)

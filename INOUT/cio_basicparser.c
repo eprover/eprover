@@ -494,10 +494,11 @@ char* ParseBasicInclude(Scanner_p in)
    AcceptInpTok(in, OpenBracket);
    CheckInpTok(in, SQString);
    res = DStrCopyCore(AktToken(in)->literal);
+   PushFreeVar(in->free_var_stack, res, free);
    NextToken(in);
    AcceptInpTok(in, CloseBracket);
    AcceptInpTok(in, Fullstop);
-
+   FreeVarPopN(in->free_var_stack, 1);
    return res;
 }
 
@@ -611,6 +612,8 @@ void ParseSkipParenthesizedExpr(Scanner_p in)
    PStack_p paren_stack = PStackAlloc();
    TokenType tok;
 
+   PushFreeVar(in->free_var_stack, paren_stack, PStackFree);
+
    CheckInpTok(in, OpenBracket|OpenCurly|OpenSquare);
    PStackPushInt(paren_stack, AktTokenType(in));
    NextToken(in);
@@ -645,6 +648,7 @@ void ParseSkipParenthesizedExpr(Scanner_p in)
          NextToken(in);
       }
    }
+   FreeVarPopN(in->free_var_stack, 1);
    PStackFree(paren_stack);
 }
 

@@ -539,6 +539,8 @@ Token_p scan_token_follow_includes(Scanner_p in)
       DStr_p name = DStrAlloc();
       char*  tptp_source;
 
+      PushFreeVar(in->free_var_stack, name, DStrFree);
+
       tptp_source = getenv("TPTP");
       if(tptp_source)
       {
@@ -564,6 +566,8 @@ Token_p scan_token_follow_includes(Scanner_p in)
       }
       OpenStackedInput(&(in->source), StreamTypeFile,
                        DStrView(name), true);
+      
+      FreeVarPopN(in->free_var_stack, 1);
       DStrFree(name);
       scan_token_follow_includes(in);
    }
@@ -1501,10 +1505,12 @@ Scanner_p ScannerParseInclude(Scanner_p in, StrTree_p *name_selector,
    char* pos_rep;
 
    pos_rep = SecureStrdup(TokenPosRep(AktToken(in)));
+   PushFreeVar(in->free_var_stack, pos_rep, free);
    AcceptInpId(in, "include");
    AcceptInpTok(in, OpenBracket);
    CheckInpTok(in, SQString);
    name = DStrCopyCore(AktToken(in)->literal);
+   PushFreeVar(in->free_var_stack, name, free);
 
    if(!StrTreeFind(skip_includes, name))
    {
@@ -1519,6 +1525,8 @@ Scanner_p ScannerParseInclude(Scanner_p in, StrTree_p *name_selector,
    {
       FREE(pos_rep);
    }
+   FreeVarPopN(in->free_var_stack, 2);
+   PushFreeVar(in->free_var_stack, new_scanner, DestroyScanner);
    FREE(name);
    NextToken(in);
 
@@ -1564,7 +1572,7 @@ Scanner_p ScannerParseInclude(Scanner_p in, StrTree_p *name_selector,
    }
    AcceptInpTok(in, CloseBracket);
    AcceptInpTok(in, Fullstop);
-
+   FreeVarPopN(in->free_var_stack, 1);
    return new_scanner;
 }
 

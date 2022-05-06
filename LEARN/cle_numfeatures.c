@@ -363,6 +363,7 @@ void NumFeaturesPrint(FILE* out, Features_p features)
 Features_p NumFeaturesParse(Scanner_p in)
 {
    Features_p handle = FeaturesAlloc();
+   PushFreeVar(in->free_var_stack, handle, FeaturesFree);
    long i;
 
    AcceptInpId(in, "PA");
@@ -382,6 +383,8 @@ Features_p NumFeaturesParse(Scanner_p in)
       handle->features[i] = ParseFloat(in);
    }
    AcceptInpTok(in, CloseBracket);
+
+   FreeVarPopN(in->free_var_stack, 1);
 
    return handle;
 }

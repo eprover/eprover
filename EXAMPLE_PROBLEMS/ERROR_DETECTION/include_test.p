@@ -1,3 +1,3 @@
 # Comment
-include('./test.p').
+include'./test.p').
 fof(socratesdies,  conjecture, mortal(socrates)).

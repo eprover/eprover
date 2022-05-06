@@ -415,6 +415,7 @@ WFCB_p TSMRWeightParse(Scanner_p in, OCB_p ocb, ProofState_p state)
    NextToken(in);
    AcceptInpTok(in, Comma);
    kb = ParseFilename(in);
+   PushFreeVar(in->free_var_stack, kb, free);
    AcceptInpTok(in, Comma);
    sel_no = ParseInt(in);
    AcceptInpTok(in, Comma);
@@ -468,7 +469,7 @@ WFCB_p TSMRWeightParse(Scanner_p in, OCB_p ocb, ProofState_p state)
                         dist_part, indextype, (TSMType)tsmtype,
                         indexdepth, proofs_w, dist_w, p_simp_w,
                         f_simp_w, p_gen_w, f_gen_w);
-
+   FreeVarPopN(in->free_var_stack, 1);
    FREE(kb);
    return res;
 }

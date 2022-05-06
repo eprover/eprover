@@ -169,11 +169,14 @@ AnnoTerm_p AnnoTermParse(Scanner_p in, TB_p bank, long expected)
 
    //term = TBRawTermParse(in, bank);
    term = TBTermParse(in, bank);
+   PushFreeVar(in->free_var_stack, term, TermFree);
    AcceptInpTok(in, Colon);
    AnnotationListParse(in, &annos, expected);
+   PushFreeVar(in->free_var_stack, annos, AnnotationFree);
    AcceptInpTok(in, Fullstop);
    handle = AnnoTermAlloc(term, annos);
 
+   FreeVarPopN(in->free_var_stack, 2);
    return handle;
 }
 

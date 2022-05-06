@@ -1763,9 +1763,11 @@ Clause_p ClausePCLParse(Scanner_p in, TB_p bank)
    list = EqnListParse(in, bank, Comma);
    AcceptInpTok(in, CloseSquare);
    handle=ClauseAlloc(list);
+   PushFreeVar(in->free_var_stack, handle, ClauseFree);
    ClauseSetTPTPType(handle,
                      handle->pos_lit_no?
                      CPTypeAxiom:CPTypeConjecture);
+   FreeVarPopN(in->free_var_stack, 1);
    return handle;
 }
 

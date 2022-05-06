@@ -240,6 +240,7 @@ HCB_p HeuristicParse(Scanner_p in, WFCBAdmin_p wfcbs, OCB_p ocb,
                      ProofState_p state)
 {
    HCB_p  hcb = HCBAlloc();
+   PushFreeVar(in->free_var_stack, hcb, HCBFree);
 
    AcceptInpTok(in, OpenBracket);
 
@@ -251,6 +252,7 @@ HCB_p HeuristicParse(Scanner_p in, WFCBAdmin_p wfcbs, OCB_p ocb,
       parse_single_wfcb_item(hcb, in, wfcbs, ocb, state);
    }
    AcceptInpTok(in, CloseBracket);
+   FreeVarPopN(in->free_var_stack, 1);
    return hcb;
 }
 
@@ -277,17 +279,21 @@ long HeuristicDefParse(HCBAdmin_p set, Scanner_p in, WFCBAdmin_p
    if(TestInpTok(in, OpenBracket))
    {
       name = SecureStrdup("Default");
+      PushFreeVar(in->free_var_stack, name, free);
    }
    else
    {
       CheckInpTok(in, Identifier);
       name = SecureStrdup(DStrView(AktToken(in)->literal));
+      PushFreeVar(in->free_var_stack, name, free);
       /* All this strdup'ing is inefficient, but uncritical */
       NextToken(in);
       AcceptInpTok(in, EqualSign);
    }
+   
    hcb = HeuristicParse(in, wfcbs, ocb, state);
    res = HCBAdminAddHCB(set, name, hcb);
+   FreeVarPopN(in->free_var_stack, 1);
    FREE(name);
 
    return res;

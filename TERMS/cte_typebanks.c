@@ -201,6 +201,7 @@ Type_p parse_single_type(Scanner_p in, TypeBank_p bank)
    int            arity = 0;
 
    id = DStrAlloc();
+   PushFreeVar(in->free_var_stack, id, DStrFree);
 
    id_type = TermParseOperator(in, id);
    if(id_type != FSIdentFreeFun && id_type != FSIdentInterpreted)
@@ -272,7 +273,7 @@ Type_p parse_single_type(Scanner_p in, TypeBank_p bank)
       }
       type = AllocSimpleSort(tc_code);
    }
-
+   FreeVarPopN(in->free_var_stack, 1);
    DStrFree(id);
    return TypeBankInsertTypeShared(bank, type);
 }

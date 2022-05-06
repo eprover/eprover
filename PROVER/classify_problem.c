@@ -522,8 +522,10 @@ char* parse_raw_feature_line(Scanner_p in, RawSpecFeature_p features)
    char *res;
 
    res = ParsePlainFilename(in);
+   PushFreeVar(in->free_var_stack, res, free);
    AcceptInpTok(in, Colon);
    RawSpecFeaturesParse(in, features);
+   FreeVarPopN(in->free_var_stack, 1);
    return res;
 }
 
@@ -549,8 +551,10 @@ char* parse_feature_line(Scanner_p in, SpecFeature_p features)
    char *res;
 
    res = ParsePlainFilename(in);
+   PushFreeVar(in->free_var_stack, res, free);
    AcceptInpTok(in, Colon);
    SpecFeaturesParse(in, features);
+   FreeVarPopN(in->free_var_stack, 1);
    return res;
 }
 

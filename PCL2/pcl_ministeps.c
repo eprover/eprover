@@ -96,6 +96,7 @@ void PCLMiniStepFree(PCLMiniStep_p junk)
 PCLMiniStep_p PCLMiniStepParse(Scanner_p in, TB_p bank)
 {
    PCLMiniStep_p handle = PCLMiniStepCellAlloc();
+   PushFreeVar(in->free_var_stack, handle, PCLMiniStepFree);
 
    assert(in);
    assert(bank);
@@ -145,6 +146,7 @@ PCLMiniStep_p PCLMiniStepParse(Scanner_p in, TB_p bank)
    {
       PCLStepSetProp(handle, PCLIsInitial);
    }
+   FreeVarPopN(in->free_var_stack, 1);
    return handle;
 }
 

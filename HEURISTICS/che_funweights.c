@@ -409,6 +409,8 @@ static void init_fun_weights(FunWeightParam_p data)
 static void parse_op_weight(Scanner_p in, PStack_p res_stack)
 {
    DStr_p op = DStrAlloc();
+   PushFreeVar(in->free_var_stack, op, DStrFree);
+   
    long   weight;
 
    TermParseOperator(in, op);
@@ -418,6 +420,7 @@ static void parse_op_weight(Scanner_p in, PStack_p res_stack)
    PStackPushP(res_stack, DStrCopy(op));
    PStackPushInt(res_stack, weight);
 
+   FreeVarPopN(in->free_var_stack, 1);
    DStrFree(op);
 }
 
@@ -439,6 +442,7 @@ static void parse_op_weight(Scanner_p in, PStack_p res_stack)
 void parse_op_signweight(Scanner_p in, PStack_p res_stack)
 {
    DStr_p op = DStrAlloc();
+   PushFreeVar(in->free_var_stack, op, DStrFree);
    long   weight;
 
    TermParseOperator(in, op);
@@ -447,6 +451,7 @@ void parse_op_signweight(Scanner_p in, PStack_p res_stack)
    PStackPushP(res_stack, DStrCopy(op));
    PStackPushInt(res_stack, weight);
 
+   FreeVarPopN(in->free_var_stack, 1);
    DStrFree(op);
 }
 

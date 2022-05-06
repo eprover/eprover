@@ -95,6 +95,8 @@ static Term_p __inline__ parse_ho_atom(Scanner_p in, TB_p bank)
    Type_p type;
    Term_p head;
 
+   PushFreeVar(in->free_var_stack, id, DStrFree);
+
    if(TestInpTok(in, IteToken))
    {
       head = ParseIte(in, bank);
@@ -125,6 +127,7 @@ static Term_p __inline__ parse_ho_atom(Scanner_p in, TB_p bank)
       head = TBTermTopInsert(bank, make_head(bank->sig, DStrView(id)));
    }
 
+   FreeVarPopN(in->free_var_stack, 1);
    DStrFree(id);
    assert(TermIsShared(head));
    assert(head->type);
@@ -342,6 +345,7 @@ static TFormula_p quantified_tform_tptp_parse(Scanner_p in,
    line = AktToken(in)->line;
    column = AktToken(in)->column;
    source_name = DStrGetRef(AktToken(in)->source);
+   PushFreeVar(in->free_var_stack, source_name, DStrFree);
    type = AktToken(in)->stream_type;
 
    /* Enter a new scope for variables (exit scope before exiting function) */
@@ -358,6 +362,7 @@ static TFormula_p quantified_tform_tptp_parse(Scanner_p in,
       DStrFree(errpos);
    }
    assert(var->type);
+   FreeVarPopN(in->free_var_stack, 1);
    DStrReleaseRef(source_name);
    if(TestInpTok(in, Comma))
    {
@@ -470,6 +475,7 @@ static TFormula_p clause_tform_tstp_parse(Scanner_p in, TB_p terms)
 
    lit = EqnFOFParse(in, terms);
    head = TFormulaLitAlloc(lit);
+   PushFreeVar(in->free_var_stack, head, TermFree);
    EqnFree(lit);
    //printf("# head parsed\n");
    while(TestInpTok(in, FOFOr))
@@ -488,6 +494,7 @@ static TFormula_p clause_tform_tstp_parse(Scanner_p in, TB_p terms)
    // printf("# done:");
    //TFormulaTPTPPrint(stdout, terms, head, true, true);
    //printf("\n");
+   FreeVarPopN(in->free_var_stack, 1);
    return head;
 }
 
@@ -519,6 +526,7 @@ static TFormula_p quantified_tform_tstp_parse(Scanner_p in,
    line = AktToken(in)->line;
    column = AktToken(in)->column;
    source_name = DStrGetRef(AktToken(in)->source);
+   PushFreeVar(in->free_var_stack, source_name, DStrFree);
    type = AktToken(in)->stream_type;
 
    /* Enter a new scope for variables (exit scope before exiting function) */
@@ -534,6 +542,7 @@ static TFormula_p quantified_tform_tstp_parse(Scanner_p in,
       Error(DStrView(errpos), SYNTAX_ERROR);
       DStrFree(errpos);
    }
+   FreeVarPopN(in->free_var_stack, 1);
    DStrReleaseRef(source_name);
    if(TestInpTok(in, Comma))
    {

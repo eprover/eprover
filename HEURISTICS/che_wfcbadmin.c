@@ -354,6 +354,7 @@ char* WeightFunDefParse(WFCBAdmin_p set, Scanner_p in, OCB_p ocb,
    {
       CheckInpTok(in, Identifier);
       name = SecureStrdup(DStrView(AktToken(in)->literal));
+      PushFreeVar(in->free_var_stack, name, free);
       /* All this strdup'ing is inefficient, but uncritical */
       NextToken(in);
       AcceptInpTok(in, EqualSign);
@@ -362,9 +363,11 @@ char* WeightFunDefParse(WFCBAdmin_p set, Scanner_p in, OCB_p ocb,
    {
       sprintf(anon_name, "~$%09ld", set->anon_counter++);
       name = anon_name;
+      PushFreeVar(in->free_var_stack, name, free);
    }
    wfcb = WeightFunParse(in, ocb, state);
    res = WFCBAdminAddWFCB(set, name, wfcb);
+   FreeVarPopN(in->free_var_stack, 1);
    if(name!=anon_name)
    {
       FREE(name);

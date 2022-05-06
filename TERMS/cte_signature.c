@@ -983,6 +983,9 @@ FunCode SigParseSymbolDeclaration(Scanner_p in, Sig_p sig, bool special_id)
    source_name = DStrGetRef(AktToken(in)->source);
    type        = AktToken(in)->stream_type;
 
+   PushFreeVar(in->free_var_stack, id, DStrFree);
+   PushFreeVar(in->free_var_stack, source_name, DStrFree);
+
    FuncSymbParse(in, id);
    AcceptInpTok(in, Colon);
    arity = AktToken(in)->numval;
@@ -1004,6 +1007,7 @@ FunCode SigParseSymbolDeclaration(Scanner_p in, Sig_p sig, bool special_id)
       Error(DStrView(errpos), SYNTAX_ERROR);
       DStrFree(errpos);
    }
+   FreeVarPopN(in->free_var_stack, 2);
    DStrReleaseRef(source_name);
    DStrFree(id);
 
@@ -1744,6 +1748,7 @@ void SigParseTFFTypeDeclaration(Scanner_p in, Sig_p sig)
    bool within_paren = false;
 
    id = DStrAlloc();
+   PushFreeVar(in->free_var_stack, id, DStrFree);
 
    if(TestInpTok(in, OpenBracket))
    {
@@ -1787,7 +1792,7 @@ void SigParseTFFTypeDeclaration(Scanner_p in, Sig_p sig)
          TypeBankDefineSimpleSort(sig->type_bank, DStrView(id));
       }
    }
-
+   FreeVarPopN(in->free_var_stack, 1);
    DStrFree(id);
 }
 

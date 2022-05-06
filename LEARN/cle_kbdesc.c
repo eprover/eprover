@@ -129,6 +129,7 @@ void KBDescPrint(FILE* out, KBDesc_p desc)
 KBDesc_p KBDescParse(Scanner_p in)
 {
    KBDesc_p handle = KBDescCellAlloc();
+   PushFreeVar(in->free_var_stack, handle, KBDescFree);
 
    AcceptInpId(in, "Version");
    AcceptInpTok(in, Colon);
@@ -149,6 +150,7 @@ KBDesc_p KBDescParse(Scanner_p in)
    handle->fail_neg_examples = AktToken(in)->numval;
    AcceptInpTok(in, PosInt);
 
+   FreeVarPopN(in->free_var_stack, 2);
    return handle;
 }
 

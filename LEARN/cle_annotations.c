@@ -133,6 +133,7 @@ void AnnotationTreeFree(Annotation_p tree)
 Annotation_p AnnotationParse(Scanner_p in, long expected)
 {
    Annotation_p handle = AnnotationAlloc();
+   PushFreeVar(in->free_var_stack, handle, AnnotationFree);
    long         count = 0;
    double       value;
 
@@ -167,6 +168,7 @@ Annotation_p AnnotationParse(Scanner_p in, long expected)
    AcceptInpTok(in, CloseBracket);
    AnnotationLength(handle) = count;
 
+   FreeVarPopN(in->free_var_stack, 1);
    return handle;
 }
 

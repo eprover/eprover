@@ -100,6 +100,7 @@ void ExampleRepPrint(FILE* out, ExampleRep_p rep)
 ExampleRep_p  ExampleRepParse(Scanner_p in)
 {
    ExampleRep_p handle = ExampleRepCellAlloc();
+   PushFreeVar(in->free_var_stack, handle, ExampleRepFree);
 
    handle->ident = AktToken(in)->numval;
    AcceptInpTok(in, PosInt);
@@ -122,7 +123,7 @@ ExampleRep_p  ExampleRepParse(Scanner_p in)
    }
    NextToken(in);
    handle->features = NumFeaturesParse(in);
-
+   FreeVarPopN(in->free_var_stack, 1);
    return handle;
 }
 

@@ -501,6 +501,7 @@ BatchSpec_p BatchSpecParse(Scanner_p in, char* executable,
                            IOFormat format)
 {
    BatchSpec_p handle = BatchSpecAlloc(executable, format);
+   PushFreeVar(in->free_var_stack, handle, BatchSpecFree);
    char *dummy;
 
    handle->category  = SecureStrdup(category);
@@ -546,6 +547,7 @@ BatchSpec_p BatchSpecParse(Scanner_p in, char* executable,
       dummy = ParseFilename(in);
       PStackPushP(handle->dest_files, dummy);
    }
+   FreeVarPopN(in->free_var_stack, 1);
    return handle;
 }
 
@@ -1000,6 +1002,8 @@ void BatchProcessInteractive(BatchSpec_p spec,
                          DStrView(input),
                          true,
                          NULL, true);
+      PushFreeVar(in->free_var_stack, input, DStrFree);
+      PushFreeVar(in->free_var_stack, jobname, DStrFree);
       ScannerSetFormat(in, TSTPFormat);
       if(TestInpId(in, "quit"))
       {
@@ -1033,7 +1037,10 @@ void BatchProcessInteractive(BatchSpec_p spec,
          fprintf(fp, "\n# Processing started for %s\n", DStrView(jobname));
 
          dummy = ClauseSetAlloc();
+         PushFreeVar(in->free_var_stack, dummy, ClauseSetFree);
          fset = FormulaSetAlloc();
+         PushFreeVar(in->free_var_stack, fset, FormulaSetFree);
+
          FormulaAndClauseSetParse(in, fset, dummy, ctrl->terms,
                                   NULL,
                                   &(ctrl->parsed_includes));
@@ -1050,7 +1057,9 @@ void BatchProcessInteractive(BatchSpec_p spec,
                                    -1,
                                    true);
          fprintf(fp, "\n# Processing finished for %s\n\n", DStrView(jobname));
+         FreeVarPopN(in->free_var_stack, 2);
       }
+      FreeVarPopN(in->free_var_stack, 2);
       DestroyScanner(in);
    }
    DStrFree(jobname);
