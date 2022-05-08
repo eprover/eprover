@@ -177,9 +177,12 @@ int main(int argc, char* argv[])
    for(i=0; state->argv[i]; i++)
    {
       in = CreateScanner(StreamTypeFile, state->argv[i], true, NULL, true);
+      PushFreeVar(in->free_var_stack, state, CLStateFree);
+      PushFreeVar(in->free_var_stack, prot, PCLProtFree);
       ScannerSetFormat(in, TPTPFormat);
       steps+=PCLProtParse(in, prot);
       CheckInpTok(in, NoToken);
+      FreeVarPopN(in->free_var_stack, 2);
       DestroyScanner(in);
    }
    VERBOUT2("PCL input read\n");

@@ -336,8 +336,8 @@ PStackPointer TOPrecedenceParse(Scanner_p in, OCB_p ocb)
       res = TOSymbolComparisonChainParse(in, ocb);
       while(TestInpTok(in, Comma))
       {
-    AcceptInpTok(in, Comma);
-    res = TOSymbolComparisonChainParse(in, ocb);
+         AcceptInpTok(in, Comma);
+         res = TOSymbolComparisonChainParse(in, ocb);
       }
    }
    return res;

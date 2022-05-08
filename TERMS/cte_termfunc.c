@@ -766,8 +766,10 @@ Term_p TermParse(Scanner_p in, Sig_p sig, VarBank_p vars)
          {
             AcceptInpTok(in, Colon);
             type = TypeBankParseType(in, vars->sort_table);
+            PushFreeVar(in->free_var_stack, type, TypeFree);
             handle = VarBankExtNameAssertAllocSort(vars,
                                                    DStrView(id), type);
+            FreeVarPopN(in->free_var_stack, 1);
          }
          else
          {
@@ -852,6 +854,7 @@ Term_p TermParseArgList(Scanner_p in, Sig_p sig, VarBank_p vars)
    Term_p result;
    PStackPointer i, arity;
    PStack_p args;
+   int   fvn = 0;
 
    AcceptInpTok(in, OpenBracket);
    if(TestInpTok(in, CloseBracket))
@@ -863,14 +866,18 @@ Term_p TermParseArgList(Scanner_p in, Sig_p sig, VarBank_p vars)
    }
    args = PStackAlloc();
    PushFreeVar(in->free_var_stack, args, PStackFree);
+   fvn++;
    tmp = TermParse(in, sig, vars);
    PushFreeVar(in->free_var_stack, tmp, TermFree);
+   fvn++;
    PStackPushP(args, tmp);
 
    while(TestInpTok(in, Comma))
    {
       NextToken(in);
       tmp = TermParse(in, sig, vars);
+      PushFreeVar(in->free_var_stack, tmp, TermFree);
+      fvn++;
       PStackPushP(args, tmp);
    }
    AcceptInpTok(in, CloseBracket);
@@ -881,7 +888,7 @@ Term_p TermParseArgList(Scanner_p in, Sig_p sig, VarBank_p vars)
    {
       result->args[i] = PStackElementP(args,i);
    }
-   FreeVarPopN(in->free_var_stack, 2);
+   FreeVarPopN(in->free_var_stack, fvn);
    PStackFree(args);
 
    return result;

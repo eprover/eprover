@@ -113,9 +113,12 @@ AnnoTerm_p ParseExampleClause(Scanner_p in, TB_p parse_terms, TB_p
    AcceptInpTok(in, CloseBracket);
    AcceptInpTok(in, Colon);
    clause = ClauseParse(in, parse_terms);
+   PushFreeVar(in->free_var_stack, clause, ClauseFree);
 
    subst   = PatternDefaultSubstAlloc(parse_terms->sig);
+   PushFreeVar(in->free_var_stack, subst, PatternSubstFree);
    listrep = PStackAlloc();
+   PushFreeVar(in->free_var_stack, listrep, PStackFree);
 
    if(PatternClauseCompute(clause, &subst, &listrep))
    {
@@ -132,7 +135,7 @@ AnnoTerm_p ParseExampleClause(Scanner_p in, TB_p parse_terms, TB_p
    {
       AnnotationFree(anno);
    }
-   FreeVarPopN(in->free_var_stack, 1);
+   FreeVarPopN(in->free_var_stack, 4);
    ClauseFree(clause);
    PatternSubstFree(subst);
    PStackFree(listrep);

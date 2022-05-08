@@ -121,8 +121,10 @@ long FileVarsParse(Scanner_p in, FileVars_p vars)
    StrTree_p cell, test;
    long      res = 0;
    DStr_p    value = DStrAlloc();
+   int       fvn = 0;
 
    PushFreeVar(in->free_var_stack, value, DStrFree);
+   fvn++;
 
    assert(!PStackEmpty(vars->names));
    assert(strcmp(PStackTopP(vars->names), DStrView(Source(in))) == 0);
@@ -132,6 +134,7 @@ long FileVarsParse(Scanner_p in, FileVars_p vars)
       CheckInpTok(in, Identifier);
       name = DStrCopy(AktToken(in)->literal);
       PushFreeVar(in->free_var_stack, name, free);
+      fvn++;
       cell = StrTreeFind(&(vars->vars), name);
       if(cell)
       {
@@ -140,9 +143,13 @@ long FileVarsParse(Scanner_p in, FileVars_p vars)
       else
       {
     cell = StrTreeCellAllocEmpty();
+    PushFreeVar(in->free_var_stack, cell, StrTreeFree);
+    fvn++;
     cell->key = name;
     cell->val2.p_val = PStackTopP(vars->names);
     test = StrTreeInsert(&(vars->vars), cell);
+    PushFreeVar(in->free_var_stack, test, StrTreeFree);
+    fvn++;
          UNUSED(test); assert(test == NULL);
       }
       NextToken(in);
@@ -156,10 +163,9 @@ long FileVarsParse(Scanner_p in, FileVars_p vars)
       }
       AcceptInpTok(in, Semicolon);
       cell->val1.p_val = DStrCopy(value);
-      FreeVarPopN(in->free_var_stack, 1);
       res++;
    }
-   FreeVarPopN(in->free_var_stack, 1);
+   FreeVarPopN(in->free_var_stack, fvn);
    DStrFree(value);
    return res;
 }

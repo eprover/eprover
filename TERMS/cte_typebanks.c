@@ -199,6 +199,7 @@ Type_p parse_single_type(Scanner_p in, TypeBank_p bank)
    Type_p         type;
    Type_p*        typeArgs = NULL;
    int            arity = 0;
+   int argc = 0;
 
    id = DStrAlloc();
    PushFreeVar(in->free_var_stack, id, DStrFree);
@@ -217,6 +218,8 @@ Type_p parse_single_type(Scanner_p in, TypeBank_p bank)
       typeArgs = TypeArgArrayAlloc(allocated);
 
       Type_p arg = parse_single_type(in, bank);
+      PushFreeVar(in->free_var_stack, arg, TypeFree);
+      argc++;
       ensure_not_kind(arg, in);
 
       typeArgs[arity++] = arg;
@@ -232,6 +235,8 @@ Type_p parse_single_type(Scanner_p in, TypeBank_p bank)
          }
 
          arg = parse_single_type(in, bank);
+         PushFreeVar(in->free_var_stack, arg, TypeFree);
+         argc++;
          ensure_not_kind(arg, in);
 
          typeArgs[arity++] = arg;
@@ -273,7 +278,7 @@ Type_p parse_single_type(Scanner_p in, TypeBank_p bank)
       }
       type = AllocSimpleSort(tc_code);
    }
-   FreeVarPopN(in->free_var_stack, 1);
+   FreeVarPopN(in->free_var_stack, 1 + argc);
    DStrFree(id);
    return TypeBankInsertTypeShared(bank, type);
 }
@@ -553,6 +558,7 @@ Type_p TypeBankParseType(Scanner_p in, TypeBank_p bank)
    Type_p leftArg    = NULL;
    Type_p rightArg   = NULL;
    Type_p res        = NULL;
+   int fvn = 0;
 
 
    if(problemType == PROBLEM_FO)
@@ -577,6 +583,8 @@ Type_p TypeBankParseType(Scanner_p in, TypeBank_p bank)
          AcceptInpTok(in, Mult);
 
          rightArg = parse_single_type(in, bank);
+         PushFreeVar(in->free_var_stack, rightArg, TypeFree);
+         fvn++;
          if(arity == allocated)
          {
             type_arg_realloc(&args, allocated, allocated + REALLOC_STEP);
@@ -597,6 +605,8 @@ Type_p TypeBankParseType(Scanner_p in, TypeBank_p bank)
          AcceptInpTok(in, GreaterSign);
 
          rightArg = parse_single_type(in, bank);
+         PushFreeVar(in->free_var_stack, rightArg, TypeFree);
+         fvn++;
          if(arity == allocated)
          {
             type_arg_realloc(&args, allocated, allocated + REALLOC_STEP);
@@ -631,11 +641,15 @@ Type_p TypeBankParseType(Scanner_p in, TypeBank_p bank)
       {
          AcceptInpTok(in, OpenBracket);
          leftArg = TypeBankParseType(in, bank);
+         PushFreeVar(in->free_var_stack, leftArg, TypeFree);
+         fvn++;
          AcceptInpTok(in, CloseBracket);
       }
       else
       {
          leftArg = parse_single_type(in, bank);
+         PushFreeVar(in->free_var_stack, leftArg, TypeFree);
+         fvn++;
       }
 
       if(TestInpTok(in, CloseBracket | Fullstop | CloseSquare | Comma
@@ -664,11 +678,15 @@ Type_p TypeBankParseType(Scanner_p in, TypeBank_p bank)
                /* We can have nested arrow type */
                AcceptInpTok(in, OpenBracket);
                rightArg = TypeBankParseType(in, bank);
+               PushFreeVar(in->free_var_stack, rightArg, TypeFree);
+               fvn++;
                AcceptInpTok(in, CloseBracket);
             }
             else
             {
                rightArg = TypeBankParseType(in, bank);
+               PushFreeVar(in->free_var_stack, rightArg, TypeFree);
+               fvn++;
             }
 
 
@@ -703,7 +721,7 @@ Type_p TypeBankParseType(Scanner_p in, TypeBank_p bank)
          res = AllocArrowType(arity, args);
       }
    }
-
+   FreeVarPopN(in->free_var_stack, fvn);
    return TypeBankInsertTypeShared(bank, res);
 }
 

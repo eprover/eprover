@@ -356,8 +356,10 @@ AxFilter_p AxFilterDefParse(Scanner_p in)
    {
       CheckInpTok(in, Identifier);
       name = SecureStrdup(DStrView(AktToken(in)->literal));
+      PushFreeVar(in->free_var_stack, name, free);
       NextToken(in);
       AcceptInpTok(in, EqualSign);
+      FreeVarPopN(in->free_var_stack, 1);
    }
    else
    {

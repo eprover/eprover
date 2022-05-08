@@ -610,6 +610,7 @@ char* ParseContinous(Scanner_p in)
 void ParseSkipParenthesizedExpr(Scanner_p in)
 {
    PStack_p paren_stack = PStackAlloc();
+   PushFreeVar(in->free_var_stack, paren_stack, PStackFree);
    TokenType tok;
 
    PushFreeVar(in->free_var_stack, paren_stack, PStackFree);

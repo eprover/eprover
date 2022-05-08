@@ -290,6 +290,7 @@ static Term_p tb_parse_cons_list(Scanner_p in, TB_p bank, bool check_symb_prop)
 
 static void parse_let_typedecl(Scanner_p in, TB_p bank, PStack_p type_decls)
 {
+   int fvn = 1;
    DStr_p name = DStrAlloc();
    PushFreeVar(in->free_var_stack, name, DStrFree);
    FuncSymbType sym_type = FuncSymbParse(in, name);
@@ -297,6 +298,8 @@ static void parse_let_typedecl(Scanner_p in, TB_p bank, PStack_p type_decls)
    {
       AcceptInpTok(in, Colon);
       Type_p type = TypeBankParseType(in, bank->sig->type_bank);
+      PushFreeVar(in->free_var_stack, type, TypeFree);
+      fvn++;
 
       PStackPushP(type_decls, name);
       PStackPushInt(type_decls, SigInsertLetId(bank->sig, DStrView(name), type));
@@ -306,7 +309,7 @@ static void parse_let_typedecl(Scanner_p in, TB_p bank, PStack_p type_decls)
       AktTokenError(in, "let declaration expects a function symbol",
                     true);
    }
-   FreeVarPopN(in->free_var_stack, 1);
+   FreeVarPopN(in->free_var_stack, fvn);
 }
 
 /*-----------------------------------------------------------------------
@@ -327,6 +330,7 @@ static void parse_let_typedecl(Scanner_p in, TB_p bank, PStack_p type_decls)
 
 static Term_p parse_let_sym_def(Scanner_p in, TB_p bank, PStack_p type_decls)
 {
+   int fvn = 1;
    DStr_p name = DStrAlloc();
    PushFreeVar(in->free_var_stack, name, DStrFree);
    FuncSymbType sym_type = FuncSymbParse(in, name);
@@ -342,6 +346,8 @@ static Term_p parse_let_sym_def(Scanner_p in, TB_p bank, PStack_p type_decls)
    if(id)
    {
       Type_p type = SigGetType(bank->sig, id);
+      PushFreeVar(in->free_var_stack, type, TypeFree);
+      fvn++;
       int arity = TypeGetMaxArity(type);
       Term_p vars[arity]; // Variable length array
       IntOrP dummy = {0};
@@ -390,7 +396,7 @@ static Term_p parse_let_sym_def(Scanner_p in, TB_p bank, PStack_p type_decls)
          VarBankPopEnv(bank->vars);
       }
       lhs = TBTermTopInsert(bank, lhs);
-      FreeVarPopN(in->free_var_stack, 1);
+      FreeVarPopN(in->free_var_stack, fvn);
       DStrFree(name);
       return EqnTermsTBTermEncode(bank, lhs, rhs, true, PENormal);
    }
@@ -572,8 +578,10 @@ static Term_p tb_term_parse_arglist(Scanner_p in, TB_p bank,
       return result;
    }
    args = PStackAlloc();
+   PushFreeVar(in->free_var_stack, args, PStackFree);
 
    tmp = choose_subterm_parse_fun(check_symb_prop, type, i, in, bank);
+   PushFreeVar(in->free_var_stack, tmp, TermFree);
    normalize_boolean_terms(&tmp, bank);
    PStackPushP(args, tmp);
    i++;
@@ -582,6 +590,7 @@ static Term_p tb_term_parse_arglist(Scanner_p in, TB_p bank,
    {
       NextToken(in);
       tmp  = choose_subterm_parse_fun(check_symb_prop, type, i, in, bank);
+      PushFreeVar(in->free_var_stack, tmp, TermFree);
       normalize_boolean_terms(&tmp, bank);
       PStackPushP(args, tmp);
       i++;
@@ -596,6 +605,7 @@ static Term_p tb_term_parse_arglist(Scanner_p in, TB_p bank,
       result->args[i] = PStackElementP(args,i);
    }
 
+   FreeVarPopN(in->free_var_stack, i + 1);
    PStackFree(args);
 
    return result;
@@ -1516,6 +1526,8 @@ Term_p TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop)
    if(SigSupportLists && TestInpTok(in, OpenSquare))
    {
       handle =  tb_parse_cons_list(in, bank, check_symb_prop);
+      PushFreeVar(in->free_var_stack, handle, TermFree);
+      free_vars_num++;
    }
    else
    {
@@ -1526,10 +1538,14 @@ Term_p TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop)
       if(TestInpTok(in, LetToken))
       {
          handle = ParseLet(in, bank);
+         PushFreeVar(in->free_var_stack, handle, TermFree);
+         free_vars_num++;
       }
       else if(TestInpTok(in, IteToken))
       {
          handle = ParseIte(in, bank);
+         PushFreeVar(in->free_var_stack, handle, TermFree);
+         free_vars_num++;
       }
       else if((id_type=TermParseOperator(in, id))==FSIdentVar)
       {
@@ -1538,12 +1554,18 @@ Term_p TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop)
          {
             AcceptInpTok(in, Colon);
             type = TypeBankParseType(in, bank->sig->type_bank);
+            PushFreeVar(in->free_var_stack, type, TypeFree);
+            free_vars_num++;
             handle = VarBankExtNameAssertAllocSort(bank->vars,
                                                    DStrView(id), type);
+            PushFreeVar(in->free_var_stack, handle, TermFree);
+            free_vars_num++;
          }
          else
          {
             handle = VarBankExtNameAssertAlloc(bank->vars, DStrView(id));
+            PushFreeVar(in->free_var_stack, handle, TermFree);
+            free_vars_num++;
          }
       }
       else
@@ -1593,10 +1615,14 @@ Term_p TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop)
 
             handle = tb_term_parse_arglist(in, bank,
                                              check_symb_prop, sym_type);
+            PushFreeVar(in->free_var_stack, handle, TermFree);
+            free_vars_num++;
          }
          else
          {
             handle = TermDefaultCellAlloc();
+            PushFreeVar(in->free_var_stack, handle, TermFree);
+            free_vars_num++;
             handle->arity = 0;
          }
          handle->f_code = TermSigInsert(bank->sig, DStrView(id),
@@ -1604,8 +1630,6 @@ Term_p TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop)
          if(!handle->f_code)
          {
             errpos = DStrAlloc();
-            PushFreeVar(in->free_var_stack, id, DStrFree);
-            free_vars_num++;
             DStrAppendStr(errpos, PosRep(type_stream, source_name, line, column));
             DStrAppendStr(errpos, DStrView(id));
             DStrAppendStr(errpos, " used with arity ");
@@ -1618,6 +1642,8 @@ Term_p TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop)
             DStrFree(errpos);
          }
          handle = tb_termtop_insert(bank, handle);
+         PushFreeVar(in->free_var_stack, handle, TermFree);
+         free_vars_num++;
       }
       DStrFree(id);
    }
@@ -1652,6 +1678,7 @@ Term_p TBTermParseSimple(Scanner_p in, TB_p bank)
    StreamType    type_stream;
 
    source_name = DStrGetRef(AktToken(in)->source);
+   PushFreeVar(in->free_var_stack, source_name, DStrFree);
    type_stream = AktToken(in)->stream_type;
    line = AktToken(in)->line;
    column = AktToken(in)->column;
@@ -1659,6 +1686,7 @@ Term_p TBTermParseSimple(Scanner_p in, TB_p bank)
    /* Normal term stuff, bloated because of the nonsensical SETHEO
       syntax */
    id = DStrAlloc();
+   PushFreeVar(in->free_var_stack, id, DStrFree);
 
    if((id_type=TermParseOperator(in, id))==FSIdentVar)
    {
@@ -1667,8 +1695,10 @@ Term_p TBTermParseSimple(Scanner_p in, TB_p bank)
       {
          AcceptInpTok(in, Colon);
          type = TypeBankParseType(in, bank->sig->type_bank);
+         PushFreeVar(in->free_var_stack, type, TypeFree);
          handle = VarBankExtNameAssertAllocSort(bank->vars,
                                                 DStrView(id), type);
+         FreeVarPopN(in->free_var_stack, 1);
       }
       else
       {
@@ -1688,6 +1718,7 @@ Term_p TBTermParseSimple(Scanner_p in, TB_p bank)
          else
          {
             PStack_p args = PStackAlloc();
+            PushFreeVar(in->free_var_stack, args, PStackFree);
             int i=0;
 
             PStackPushP(args, TBTermParseSimple(in, bank));
@@ -1708,7 +1739,7 @@ Term_p TBTermParseSimple(Scanner_p in, TB_p bank)
             {
                handle->args[i] = PStackElementP(args,i);
             }
-
+            FreeVarPopN(in->free_var_stack, 1);
             PStackFree(args);
          }
       }
@@ -1735,6 +1766,7 @@ Term_p TBTermParseSimple(Scanner_p in, TB_p bank)
       }
       handle = tb_termtop_insert(bank, handle);
    }
+   FreeVarPopN(in->free_var_stack, 2);
    DStrFree(id);
    DStrReleaseRef(source_name);
 
@@ -2249,9 +2281,11 @@ Term_p ParseLet(Scanner_p in, TB_p bank)
 
    SigEnterLetScope(bank->sig, type_decls);
    Term_p body = TFormulaTSTPParse(in, bank);
+   PushFreeVar(in->free_var_stack, body, TermFree);
    SigExitLetScope(bank->sig);
 
    Term_p let_term = make_let(bank, definitions, body);
+   PushFreeVar(in->free_var_stack, let_term, TermFree);
 
    while(!(PStackEmpty(type_decls)))
    {
@@ -2260,7 +2294,7 @@ Term_p ParseLet(Scanner_p in, TB_p bank)
    }
    AcceptInpTok(in, CloseBracket);
 
-   FreeVarPopN(in->free_var_stack, 2);
+   FreeVarPopN(in->free_var_stack, 4);
    PStackFree(type_decls);
    PStackFree(definitions);
 

@@ -1299,6 +1299,7 @@ WFCB_p FunWeightParse(Scanner_p in, OCB_p ocb,
    pos_multiplier = ParseFloat(in);
 
    fweights = PStackAlloc();
+   PushFreeVar(in->free_var_stack, fweights, PStackFree);
 
    while(TestInpTok(in, Comma))
    {
@@ -1309,6 +1310,8 @@ WFCB_p FunWeightParse(Scanner_p in, OCB_p ocb,
    PARSE_OPTIONAL_AV_PENALTY(in, app_var_mult);
 
    AcceptInpTok(in, CloseBracket);
+
+   FreeVarPopN(in->free_var_stack, 1);
 
    return FunWeightInit(prio_fun,
                         ocb,
@@ -1413,6 +1416,7 @@ WFCB_p SymOffsetWeightParse(Scanner_p in, OCB_p ocb,
    pos_multiplier = ParseFloat(in);
 
    fweights = PStackAlloc();
+   PushFreeVar(in->free_var_stack, fweights, PStackFree);
 
    while(TestInpTok(in, Comma))
    {
@@ -1423,6 +1427,8 @@ WFCB_p SymOffsetWeightParse(Scanner_p in, OCB_p ocb,
    PARSE_OPTIONAL_AV_PENALTY(in, app_var_mult);
 
    AcceptInpTok(in, CloseBracket);
+
+   FreeVarPopN(in->free_var_stack, 1);
 
    return SymOffsetWeightInit(prio_fun,
                               ocb,

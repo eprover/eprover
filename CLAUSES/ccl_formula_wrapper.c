@@ -70,10 +70,12 @@ TFormula_p handle_ho_def(Scanner_p in, TB_p bank)
    }
 
    Term_p lside_term = TBTermParse(in, bank);
+   PushFreeVar(in->free_var_stack, lside_term, TermFree);
    if(TypeIsBool(lside_term->type))
    {
       TFormula_p lside = EqnTermsTBTermEncode(bank, lside_term,
                                               bank->true_term, true, PENormal);
+      PushFreeVar(in->free_var_stack, lside, TermFree);
       if(!TestInpTok(in, EqualSign))
       {
          AktTokenError(in, "E currently supports definitions of type <predicate "
@@ -88,6 +90,7 @@ TFormula_p handle_ho_def(Scanner_p in, TB_p bank)
       {
          AcceptInpTok(in, CloseBracket);
       }
+      FreeVarPopN(in->free_var_stack, 2);
       return res;
    }
    else
@@ -99,14 +102,17 @@ TFormula_p handle_ho_def(Scanner_p in, TB_p bank)
       }
       AcceptInpTok(in, EqualSign|NegEqualSign);
       Term_p rside = TBTermParse(in, bank);
+      PushFreeVar(in->free_var_stack, rside, TermFree);
       TFormula_p res = EqnTermsTBTermEncode(bank, lside_term, rside,
                                             positive, PENormal);
       if(in_parens)
       {
          AcceptInpTok(in, CloseBracket);
       }
+      FreeVarPopN(in->free_var_stack, 2);
       return res;
    }
+   FreeVarPopN(in->free_var_stack, 1);
    return NULL;
 }
 
@@ -491,7 +497,8 @@ WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms)
       SigParseTFFTypeDeclaration(in, terms->sig);
 
       tform = TFormulaPropConstantAlloc(terms, true);
-
+      PushFreeVar(in->free_var_stack, tform, TermFree);
+      added_free_vars++;
       handle = WTFormulaAlloc(terms, tform);
       PushFreeVar(in->free_var_stack, handle, WFormulaFree);
       added_free_vars++;
@@ -511,6 +518,7 @@ WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms)
       // printf("# Formula Start!\n");
 
       source_name = DStrGetRef(AktToken(in)->source);
+      PushFreeVar(in->free_var_stack, source_name, DStrFree);
       inptype     = AktToken(in)->stream_type;
       line        = AktToken(in)->line;
       column      = AktToken(in)->column;
@@ -540,7 +548,11 @@ WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms)
                SYNTAX_ERROR,
                PosRep(inptype, source_name, line, column));
       }
+      FreeVarPopN(in->free_var_stack, 1);
       DStrReleaseRef(source_name);
+
+      PushFreeVar(in->free_var_stack, tform, TermFree);
+      added_free_vars++;
 
       handle = WTFormulaAlloc(terms, tform);
       PushFreeVar(in->free_var_stack, handle, WFormulaFree);

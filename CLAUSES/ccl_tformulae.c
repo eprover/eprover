@@ -352,6 +352,8 @@ static TFormula_p quantified_tform_tptp_parse(Scanner_p in,
    VarBankPushEnv(terms->vars);
 
    var = TBTermParse(in, terms);
+   FreeVarPopN(in->free_var_stack, 1);
+   PushFreeVar(in->free_var_stack, var, TermFree);
    if(!TermIsVar(var))
    {
       errpos = DStrAlloc();
@@ -362,7 +364,6 @@ static TFormula_p quantified_tform_tptp_parse(Scanner_p in,
       DStrFree(errpos);
    }
    assert(var->type);
-   FreeVarPopN(in->free_var_stack, 1);
    DStrReleaseRef(source_name);
    if(TestInpTok(in, Comma))
    {
@@ -378,6 +379,7 @@ static TFormula_p quantified_tform_tptp_parse(Scanner_p in,
    res = TFormulaFCodeAlloc(terms, quantor, var, rest);
 
    VarBankPopEnv(terms->vars);
+   FreeVarPopN(in->free_var_stack, 1);
    return res;
 }
 
@@ -437,7 +439,9 @@ static TFormula_p elem_tform_tptp_parse(Scanner_p in, TB_p terms)
    {
       AcceptInpTok(in, OpenBracket);
       res = TFormulaTPTPParse(in, terms);
+      PushFreeVar(in->free_var_stack, res, TermFree);
       AcceptInpTok(in, CloseBracket);
+      FreeVarPopN(in->free_var_stack, 1);
    }
    else if(TestInpTok(in, TildeSign))
    {
@@ -474,6 +478,7 @@ static TFormula_p clause_tform_tstp_parse(Scanner_p in, TB_p terms)
    Eqn_p lit;
 
    lit = EqnFOFParse(in, terms);
+   PushFreeVar(in->free_var_stack, lit, EqnFree);
    head = TFormulaLitAlloc(lit);
    PushFreeVar(in->free_var_stack, head, TermFree);
    EqnFree(lit);
@@ -494,7 +499,7 @@ static TFormula_p clause_tform_tstp_parse(Scanner_p in, TB_p terms)
    // printf("# done:");
    //TFormulaTPTPPrint(stdout, terms, head, true, true);
    //printf("\n");
-   FreeVarPopN(in->free_var_stack, 1);
+   FreeVarPopN(in->free_var_stack, 2);
    return head;
 }
 
@@ -522,6 +527,7 @@ static TFormula_p quantified_tform_tstp_parse(Scanner_p in,
    DStr_p     source_name, errpos;
    long       line, column;
    StreamType type;
+   int        fvn = 0;
 
    line = AktToken(in)->line;
    column = AktToken(in)->column;
@@ -532,7 +538,10 @@ static TFormula_p quantified_tform_tstp_parse(Scanner_p in,
    /* Enter a new scope for variables (exit scope before exiting function) */
    VarBankPushEnv(terms->vars);
 
+   FreeVarPopN(in->free_var_stack, 1);
    var = TBTermParse(in, terms);
+   PushFreeVar(in->free_var_stack, var, TermFree);
+   fvn++;
    if(!TermIsVar(var))
    {
       errpos = DStrAlloc();
@@ -542,7 +551,6 @@ static TFormula_p quantified_tform_tstp_parse(Scanner_p in,
       Error(DStrView(errpos), SYNTAX_ERROR);
       DStrFree(errpos);
    }
-   FreeVarPopN(in->free_var_stack, 1);
    DStrReleaseRef(source_name);
    if(TestInpTok(in, Comma))
    {
@@ -559,6 +567,8 @@ static TFormula_p quantified_tform_tstp_parse(Scanner_p in,
          {
             AcceptInpTok(in, OpenBracket);
             rest = clause_tform_tstp_parse(in, terms);
+            PushFreeVar(in->free_var_stack, rest, TermFree);
+            fvn++;
             AcceptInpTok(in, CloseBracket);
          }
          else
@@ -574,6 +584,8 @@ static TFormula_p quantified_tform_tstp_parse(Scanner_p in,
    res = TFormulaFCodeAlloc(terms, quantor, var, rest);
 
    VarBankPopEnv(terms->vars);
+   
+   FreeVarPopN(in->free_var_stack, fvn);
    return res;
 }
 
@@ -634,6 +646,7 @@ static TFormula_p applied_tform_tstp_parse(Scanner_p in, TB_p terms, TFormula_p 
    const int max_args = TypeGetMaxArity(hd_type);
    int i = 0;
    const TermRef args = TermArgTmpArrayAlloc(max_args);
+   PushFreeVar(in->free_var_stack, &args, TermFree);
    bool head_is_logical = !TermIsVar(head) && SigQueryFuncProp(terms->sig, head->f_code, FPFOFOp);
    Term_p arg;
 
@@ -651,9 +664,11 @@ static TFormula_p applied_tform_tstp_parse(Scanner_p in, TB_p terms, TFormula_p 
       }
       AcceptInpTok(in, Application);
       arg = literal_tform_tstp_parse(in, terms);
+      PushFreeVar(in->free_var_stack, arg, TermFree);
       args[i++] = head_is_logical ? EncodePredicateAsEqn(terms, arg) : arg;
    }
 
+   FreeVarPopN(in->free_var_stack, i);
    TFormula_p res =
       EncodePredicateAsEqn(terms, normalize_head(head, args, i, terms));
    TermArgTmpArrayFree(args, max_args);
@@ -709,12 +724,15 @@ static TFormula_p literal_tform_tstp_parse(Scanner_p in, TB_p terms)
       if(log_op != -1)
       {
          res = TBTermTopInsert(terms, TermTopAlloc(log_op, 0));
+         PushFreeVar(in->free_var_stack, res, TermFree);
       }
       else
       {
          res = TFormulaTSTPParse(in, terms);
+         PushFreeVar(in->free_var_stack, res, TermFree);
       }
       AcceptInpTok(in, CloseBracket);
+      FreeVarPopN(in->free_var_stack, 1);
    }
    else if(TestInpTok(in, TildeSign))
    {

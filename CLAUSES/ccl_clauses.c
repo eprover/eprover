@@ -1761,13 +1761,14 @@ Clause_p ClausePCLParse(Scanner_p in, TB_p bank)
    }
    AcceptInpTok(in, OpenSquare);
    list = EqnListParse(in, bank, Comma);
+   PushFreeVar(in->free_var_stack, list, EqnListFree);
    AcceptInpTok(in, CloseSquare);
    handle=ClauseAlloc(list);
    PushFreeVar(in->free_var_stack, handle, ClauseFree);
    ClauseSetTPTPType(handle,
                      handle->pos_lit_no?
                      CPTypeAxiom:CPTypeConjecture);
-   FreeVarPopN(in->free_var_stack, 1);
+   FreeVarPopN(in->free_var_stack, 2);
    return handle;
 }
 

@@ -150,7 +150,7 @@ KBDesc_p KBDescParse(Scanner_p in)
    handle->fail_neg_examples = AktToken(in)->numval;
    AcceptInpTok(in, PosInt);
 
-   FreeVarPopN(in->free_var_stack, 2);
+   FreeVarPopN(in->free_var_stack, 1);
    return handle;
 }
 

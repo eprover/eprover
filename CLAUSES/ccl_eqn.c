@@ -303,7 +303,7 @@ static bool eqn_parse_prefix(Scanner_p in, TB_p bank, Term_p *lref,
    Term_p  lterm;
    Term_p  rterm;
    bool    positive = true;
-
+   int free_vars_num = 0;
 
 
    if(TestInpId(in, EQUAL_PREDICATE))
@@ -311,15 +311,21 @@ static bool eqn_parse_prefix(Scanner_p in, TB_p bank, Term_p *lref,
       NextToken(in);
       AcceptInpTok(in, OpenBracket);
       lterm = TBTermParse(in, bank);
+      PushFreeVar(in->free_var_stack, lterm, TermFree);
+      free_vars_num++;
       BOOL_TERM_NORMALIZE(lterm);
       AcceptInpTok(in, Comma);
       rterm = TBTermParse(in, bank);
+      PushFreeVar(in->free_var_stack, rterm, TermFree);
+      free_vars_num++;
       BOOL_TERM_NORMALIZE(rterm);
       AcceptInpTok(in, CloseBracket);
    }
    else
    {
       lterm = TBTermParse(in, bank);
+      PushFreeVar(in->free_var_stack, lterm, TermFree);
+      free_vars_num++;
       TypeDeclareIsPredicate(bank->sig, lterm);
       BOOL_TERM_NORMALIZE(lterm);
       rterm = bank->true_term; /* Non-Equational literal */
@@ -334,6 +340,7 @@ static bool eqn_parse_prefix(Scanner_p in, TB_p bank, Term_p *lref,
       }
       SigDeclareIsPredicate(bank->sig, lterm->f_code);
    }
+   FreeVarPopN(in->free_var_stack, free_vars_num);
    *lref = lterm;
    *rref = rterm;
 
@@ -461,6 +468,7 @@ bool EqnParseInfix(Scanner_p in, TB_p bank, Term_p *lref, Term_p *rref)
    Term_p  lterm;
    Term_p  rterm;
    bool    positive = true;
+   int     free_var_num = 0;
 
    bool in_parens = false;
    if(problemType == PROBLEM_HO && TestInpTok(in, OpenBracket))
@@ -471,6 +479,7 @@ bool EqnParseInfix(Scanner_p in, TB_p bank, Term_p *lref, Term_p *rref)
 
    lterm = TBTermParse(in, bank);
    PushFreeVar(in->free_var_stack, lterm, TermFree);
+   free_var_num++;
 
    BOOL_TERM_NORMALIZE(lterm);
 
@@ -510,6 +519,8 @@ bool EqnParseInfix(Scanner_p in, TB_p bank, Term_p *lref, Term_p *rref)
             AcceptInpTok(in, NegEqualSign|EqualSign);
 
             rterm = TBTermParse(in, bank);
+            PushFreeVar(in->free_var_stack, rterm, TermFree);
+            free_var_num++;
 
             if(!TermIsTopLevelVar(rterm))
             {
@@ -536,6 +547,8 @@ bool EqnParseInfix(Scanner_p in, TB_p bank, Term_p *lref, Term_p *rref)
          AcceptInpTok(in, NegEqualSign|EqualSign);
 
          rterm = TBTermParse(in, bank);
+         PushFreeVar(in->free_var_stack, rterm, TermFree);
+         free_var_num++;
 
          // We have to make those declarations only for FO problems
          if(lterm->f_code > bank->sig->internal_symbols && problemType == PROBLEM_FO)
@@ -582,7 +595,7 @@ bool EqnParseInfix(Scanner_p in, TB_p bank, Term_p *lref, Term_p *rref)
    {
       AcceptInpTok(in, CloseBracket);
    }
-   FreeVarPopN(in->free_var_stack, 1);
+   FreeVarPopN(in->free_var_stack, free_var_num);
    return positive;
 }
 
@@ -757,9 +770,11 @@ Eqn_p EqnHOFParse(Scanner_p in, TB_p bank, bool* continue_parsing)
    Term_p  rterm;
    bool    positive = true;
    bool    pure_eq  = false;
+   int     fvn = 0;
 
    lterm = TBTermParse(in, bank);
    PushFreeVar(in->free_var_stack, lterm, TermFree);
+   fvn++;
    BOOL_TERM_NORMALIZE(lterm);
 
    *continue_parsing = true;
@@ -792,10 +807,13 @@ Eqn_p EqnHOFParse(Scanner_p in, TB_p bank, bool* continue_parsing)
    {
       rterm = TypeIsBool(lterm->type) ?
          TFormulaTSTPParse(in, bank) : TBTermParse(in, bank);
-
+      PushFreeVar(in->free_var_stack, rterm, TermFree);
+      fvn++;
       if(TypeIsBool(lterm->type))
       {
          lterm = EqnTermsTBTermEncode(bank, lterm, bank->true_term, true, PENormal);
+         PushFreeVar(in->free_var_stack, lterm, TermFree);
+         fvn++;
       }
    }
    else
@@ -811,7 +829,7 @@ Eqn_p EqnHOFParse(Scanner_p in, TB_p bank, bool* continue_parsing)
       }
       rterm = bank->true_term;
    }
-   FreeVarPopN(in->free_var_stack, 1);
+   FreeVarPopN(in->free_var_stack, fvn);
    return EqnAlloc(lterm, rterm, bank, positive);
 }
 
