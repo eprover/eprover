@@ -1250,7 +1250,7 @@ void PrintErrorStack(PStack_p error_stack)
    {
       error = (Error_p) PStackElement(error_stack, i).p_val;
       fprintf(GlobalOut, DStrView(error->message));
-      fprintf(GlobalOut, "\n");
+      fprintf(GlobalOut, "\n\n");
    }
 
    fprintf(GlobalOut, "\n");
@@ -1282,17 +1282,26 @@ static void panic_mode(Scanner_p in)
       if (TestTok(AktToken(in), CloseBracket))
       {
          NextToken(in);
+         // fprintf(GlobalOut, "\n) READ\n");
 
          if (TestTok(AktToken(in), Fullstop))
          {
+            
+            // fprintf(GlobalOut, "\n. READ\n");
             NextToken(in);
             break;
          }
       }
 
-      // TODO: Get all.
-      if (TestId(AktToken(in), "input_formula|input_clause|fof|cnf|tff|thf|tcf|include"))
+      if (TestId(AktToken(in), "input_formula|input_clause|fof|cnf|tff|thf|tcf|include") || 
+          (in->format == LOPFormat && TestTok(AktToken(in), Fullstop)))
       {
+         if (in->format == LOPFormat) 
+         {
+            NextToken(in);
+         }
+
+         // fprintf(GlobalOut, "\nFORMULA READ\n");
          break;
       }
 
@@ -1300,6 +1309,8 @@ static void panic_mode(Scanner_p in)
    }
 
    // TODO: JUMPS
+   
+   // fprintf(GlobalOut, "\nJUMP\n");
    longjmp(in->jump_buffer, 2);
 }
 

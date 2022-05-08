@@ -771,14 +771,19 @@ WFormula_p WFormClauseParse(Scanner_p in, TB_p terms)
    WFormula_p wform  = NULL;
    TFormula_p form;
    Clause_p   handle = ClauseParse(in, terms);
+   PushFreeVar(in->free_var_stack, handle, ClauseFree);
 
    form = TFormulaClauseEncode(terms, handle);
+   PushFreeVar(in->free_var_stack, form, TermFree);
 
    wform = WTFormulaAlloc(terms, form);
+   PushFreeVar(in->free_var_stack, wform, WFormulaFree);
    wform->is_clause  = true;
    wform->properties = (FormulaProperties)handle->properties;
    wform->info = handle->info;
    handle->info = NULL;
+
+   FreeVarPopN(in->free_var_stack, 3);
    ClauseFree(handle);
 
    //printf("# WFormClauseParse: ");
