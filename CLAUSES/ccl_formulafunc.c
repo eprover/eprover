@@ -1520,7 +1520,7 @@ long FormulaAndClauseSetParse(Scanner_p in, FormulaSet_p fset,
    }
 
    long res = 0;
-
+   int fvn;
    WFormula_p form, nextform;
    Clause_p   clause, nextclause;
    StrTree_p  stand_in = NULL;
@@ -1538,6 +1538,8 @@ long FormulaAndClauseSetParse(Scanner_p in, FormulaSet_p fset,
          while(ClauseStartsMaybe(in))
          {
             form = WFormClauseParse(in, terms);
+            PushFreeVar(in->free_var_stack, form, WFormulaFree);
+            fvn++;
             // fprintf(stdout, "Parsed: ");
             // WFormulaPrint(stdout, form, true);
             // fprintf(stdout, "\n");
@@ -1556,6 +1558,7 @@ long FormulaAndClauseSetParse(Scanner_p in, FormulaSet_p fset,
 #endif
          while(TestInpId(in, "input_formula|input_clause|fof|cnf|tff|thf|tcf|include"))
          {
+            fvn = 0;
             if(TestInpId(in, "include"))
             {
                if(app_encode)
@@ -1607,6 +1610,8 @@ long FormulaAndClauseSetParse(Scanner_p in, FormulaSet_p fset,
                {
                   // printf("It's a formula\n");
                   form = WFormulaParse(in, terms);
+                  PushFreeVar(in->free_var_stack, form, WFormulaFree);
+                  fvn++;
                   // fprintf(stdout, "Parsed: ");
                   // WFormulaPrint(stdout, form, true);
                   // fprintf(stdout, "\n");
@@ -1618,11 +1623,15 @@ long FormulaAndClauseSetParse(Scanner_p in, FormulaSet_p fset,
                   //ClauseSetInsert(cset, clause);
                   SetProblemType(PROBLEM_FO);
                   form = WFormClauseParse(in, terms);
+                  PushFreeVar(in->free_var_stack, form, WFormulaFree);
+                  fvn++;
                }
                if(FormulaQueryType(form)==CPTypeWatchClause)
                {
                   assert(form->is_clause);
                   clause = WFormClauseToClause(form);
+                  PushFreeVar(in->free_var_stack, clause, ClauseFree);
+                  fvn++;
                   ClauseSetInsert(wlset, clause);
                   WFormulaFree(form);
                }
@@ -1631,6 +1640,7 @@ long FormulaAndClauseSetParse(Scanner_p in, FormulaSet_p fset,
                   FormulaSetInsert(fset, form);
                }
                res++;
+               FreeVarPopN(in->free_var_stack, fvn);
             }
          }
          break;

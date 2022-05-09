@@ -608,6 +608,7 @@ static TFormula_p assoc_tform_tstp_parse(Scanner_p in, TB_p terms, TFormula_p he
    TokenType  optok;
    FunCode    op;
    TFormula_p f2;
+   int fvn = 0;
 
    optok =  AktTokenType(in);
    op    =  tptp_operator_convert(terms->sig, optok);
@@ -616,6 +617,7 @@ static TFormula_p assoc_tform_tstp_parse(Scanner_p in, TB_p terms, TFormula_p he
    {
       AcceptInpTok(in, optok);
       f2 = literal_tform_tstp_parse(in, terms);
+      fvn++;
       head = TFormulaFCodeAlloc(terms, op, head, f2);
    }
    return head;
@@ -1432,6 +1434,7 @@ TFormula_p TFormulaTPTPParse(Scanner_p in, TB_p terms)
    TFormula_p      f1, f2, res;
    FunCode op;
    f1 = elem_tform_tptp_parse(in, terms);
+   PushFreeVar(in->free_var_stack, f1, TermFree);
    if(TestInpTok(in, FOFBinOp))
    {
       op = tptp_operator_parse(terms->sig, in);
@@ -1442,6 +1445,7 @@ TFormula_p TFormulaTPTPParse(Scanner_p in, TB_p terms)
    {
       res = f1;
    }
+   FreeVarPopN(in->free_var_stack, 1);
    return res;
 }
 
@@ -1466,6 +1470,7 @@ TFormula_p TFormulaTSTPParse(Scanner_p in, TB_p terms)
    Sig_p   sig = terms->sig;
 
    f1 = literal_tform_tstp_parse(in, terms);
+   PushFreeVar(in->free_var_stack, f1, TermFree);
    if(TestInpTok(in, FOFAssocOp))
    {
       res = assoc_tform_tstp_parse(in, terms, f1);
@@ -1501,6 +1506,7 @@ TFormula_p TFormulaTSTPParse(Scanner_p in, TB_p terms)
    {
       res = f1;
    }
+   FreeVarPopN(in->free_var_stack, 1);
    return res;
 }
 

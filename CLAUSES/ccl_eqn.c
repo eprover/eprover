@@ -615,6 +615,8 @@ bool EqnParseInfix(Scanner_p in, TB_p bank, Term_p *lref, Term_p *rref)
 
 Eqn_p EqnAlloc(Term_p lterm, Term_p rterm, TB_p bank,  bool positive)
 {
+   if (!rterm) return NULL;
+
    Eqn_p handle = EqnCellAlloc();
 
    /* printf("Handle = %p\n", handle); */
@@ -623,7 +625,7 @@ Eqn_p EqnAlloc(Term_p lterm, Term_p rterm, TB_p bank,  bool positive)
    {
       EqnSetProp(handle, EPIsPositive);
    }
-   if(rterm != bank->true_term)
+   if((rterm != bank->true_term))
    {
       assert(rterm->f_code!=SIG_TRUE_CODE);
       EqnSetProp(handle, EPIsEquLiteral);

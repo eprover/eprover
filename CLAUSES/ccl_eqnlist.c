@@ -1596,6 +1596,7 @@ Eqn_p EqnListParse(Scanner_p in, TB_p bank, TokenType sep)
 {
    Eqn_p handle = NULL,
       list = NULL;
+   int fvn = 0;
 
    if(((ScannerGetFormat(in) == TPTPFormat) &&
        TestInpTok(in, Plus|Hyphen))
@@ -1607,14 +1608,19 @@ Eqn_p EqnListParse(Scanner_p in, TB_p bank, TokenType sep)
        TestInpTok(in, TermStartToken|TildeSign)))
    {
       list = EqnParse(in, bank);
+      PushFreeVar(in->free_var_stack, list, EqnListFree);
+      fvn++;
       handle = list;
       while(TestInpTok(in,sep))
       {
          NextToken(in);
          handle->next = EqnParse(in, bank);
          handle = handle->next;
+         PushFreeVar(in->free_var_stack, handle, EqnListFree);
+         fvn++;
       }
    }
+   FreeVarPopN(in->free_var_stack, fvn);
    return list;
 }
 

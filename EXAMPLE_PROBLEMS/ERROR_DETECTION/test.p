@@ -1,0 +1,1 @@
+cnf(split_or_condense, axiom,(c=b|X3!=X4|Xü!=X2|d!=c)).
