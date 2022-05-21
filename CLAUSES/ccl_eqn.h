@@ -414,6 +414,9 @@ void    EqnAddSymbolFeatures(Eqn_p eq, PStack_p mod_stack, long *feature_array);
     TermAddFunOcc((eqn)->rterm, (f_occur), (res_stack)))
 
 long    EqnCollectSubterms(Eqn_p eqn, PStack_p collector);
+#define EqnCollectGroundTerms(eqn, res, top_only) \
+   (TermCollectGroundTerms((eqn)->lterm, (res), (top_only))+     \
+    TermCollectGroundTerms((eqn)->rterm, (res), (top_only)))
 
 void EqnAppEncode(FILE* out, Eqn_p eq, bool negated);
 bool EqnHasAppVar(Eqn_p eq);

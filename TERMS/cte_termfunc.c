@@ -8,7 +8,7 @@
 
   Most of the user-level functionality for unshared terms.
 
-  Copyright 1998-2017 by the author.
+  Copyright 1998-2021 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
@@ -2294,6 +2294,53 @@ long TermCollectVariables(Term_p term, PTree_p *tree)
    return res;
 }
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: TermCollectGroundTerms()
+//
+//   Add no-constant ground subterms of term to result. If top_only is
+//   set, only add maximal (in the subterm relation sense) terms,
+//   otherwise add all non-constant ground terms. Returns number of
+//   terms newly added.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations per PTreeInsert()
+//
+/----------------------------------------------------------------------*/
+
+long TermCollectGroundTerms(Term_p term, PTree_p *result, bool top_only)
+{
+   PStack_p stack = PStackAlloc();
+   long count = 0;
+   int i;
+
+   PStackPushP(stack, term);
+
+   while(!PStackEmpty(stack))
+   {
+      term = PStackPopP(stack);
+      if(!TermIsVar(term))
+      {
+         if(TermIsGround(term))
+         {
+            if(!TermIsConst(term) && PTreeStore(result, term))
+            {
+               count++;
+            }
+         }
+         if(!TermIsGround(term) || !top_only)
+         {
+            for(i=0; i<term->arity; i++)
+            {
+               PStackPushP(stack, term->args[i]);
+            }
+         }
+      }
+   }
+   return count;
+}
 
 
 /*-----------------------------------------------------------------------

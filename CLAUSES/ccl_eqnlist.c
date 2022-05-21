@@ -1966,6 +1966,36 @@ long EqnListCollectSubterms(Eqn_p list, PStack_p collector)
    return res;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: EqnListCollectGroundTerms()
+//
+//   Collect the non-constant ground terms of (positive/negative)
+//   equations in list into res.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations via *res.
+//
+/----------------------------------------------------------------------*/
+
+long EqnListCollectGroundTerms(Eqn_p list, PTree_p *res, bool top_only,
+                               bool pos_lits, bool neg_lits)
+{
+   long count = 0;
+
+   while(list)
+   {
+      if((EqnIsPositive(list)&&pos_lits)||(EqnIsNegative(list)&&neg_lits))
+      {
+         count += EqnCollectGroundTerms(list, res, top_only);
+      }
+      list = list->next;
+   }
+   return count;
+}
+
+
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */

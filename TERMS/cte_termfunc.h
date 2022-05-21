@@ -8,7 +8,7 @@
 
   Most of the user-level functionality for unshared terms.
 
-  Copyright 1998-2017 by the author.
+  Copyright 1998-2021 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
@@ -148,6 +148,7 @@ long    TermCollectPropVariables(Term_p term, PTree_p *tree,
                                  TermProperties prop);
 long    TermCollectVariables(Term_p term, PTree_p *tree);
 
+long    TermCollectGroundTerms(Term_p term, PTree_p *result, bool top_only);
 long    TermAddFunOcc(Term_p term, PDArray_p f_occur, PStack_p res_stack);
 
 long    TermLinearize(PStack_p stack, Term_p term);
