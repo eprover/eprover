@@ -1244,6 +1244,7 @@ void DerivationStackTSTPPrint(FILE* out, Sig_p sig, PStack_p derivation)
                        tstp_get_clauseform_id(op, 1, PStackElementP(derivation, i+1)));
                if(DCOpHasParentArg2(op))
                {
+                  /* TODO: what notation to use when printing two positions for a single argument? */
                   if (DCOpHasNumArg3(op))
                   {
                      fprintf(out, "@%ld", PStackElementInt(derivation, i+3));

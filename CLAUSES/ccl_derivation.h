@@ -143,9 +143,9 @@ typedef enum
    /* Generating inferences */
    DCParamod          = DOParamod|Arg1Cnf|Arg2Cnf|Arg3Num|Arg4Num,
    DCSimParamod       = DOSimParamod|Arg1Cnf|Arg2Cnf|Arg3Num|Arg4Num,
-   DCOrderedFactor    = DOOrderedFactor|Arg1Cnf,
-   DCEqFactor         = DOEqFactor|Arg1Cnf,
-   DCEqRes            = DOEqRes|Arg1Cnf,
+   DCOrderedFactor    = DOOrderedFactor|Arg1Cnf|Arg2Num,
+   DCEqFactor         = DOEqFactor|Arg1Cnf|Arg2Num,
+   DCEqRes            = DOEqRes|Arg1Cnf|Arg2Num,
    DCSatGen           = DOSatGen|Arg1Cnf,
    /* CNF conversion and similar */
    DCSplitEquiv       = DOSplitEquiv|Arg1Fof,
