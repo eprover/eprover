@@ -253,7 +253,7 @@ static long compute_into_pm_pos_clause(ParamodInfo_p pminfo,
                                      pminfo->into,
                                      pminfo->new_orig);
             ClausePushDerivation(clause,  pm_type==ParamodPlain?DCParamod:DCSimParamod,
-                                 pminfo->into, pminfo->new_orig);
+                                 pminfo->into, pminfo->new_orig, pminfo->from_cpos, pminfo->into_cpos);
          }
       }
       ClausePosFree(pminfo->into_pos);
@@ -470,7 +470,7 @@ static long compute_from_pm_pos_clause(ParamodInfo_p pminfo,
                                      pminfo->new_orig,
                                      pminfo->from);
             ClausePushDerivation(clause,  pm_type?DCSimParamod:DCParamod,
-                                 pminfo->new_orig, pminfo->from);
+                                 pminfo->new_orig, pminfo->from, pminfo->into_cpos, pminfo->from_cpos);
          }
       }
       ClausePosFree(pminfo->from_pos);
@@ -707,7 +707,7 @@ long ComputeClauseClauseParamodulants(TB_p bank, OCB_p ocb, Clause_p
               parent_alias);
          ClausePushDerivation(clause,
                               inf_type==inf_sim_paramod?DCSimParamod:DCParamod,
-                              with, parent_alias);
+                              with, parent_alias, PackClausePos(pos2), PackClausePos(pos1));
     ClauseSetInsert(store, paramod);
       }
       test = ClausePosNextParamodPair(pos1, pos2, false, pm_type != ParamodPlain);
@@ -752,7 +752,7 @@ long ComputeClauseClauseParamodulants(TB_p bank, OCB_p ocb, Clause_p
        DocClauseCreationDefault(paramod, inf_type, parent_alias, with);
             ClausePushDerivation(clause,
                                  inf_type==inf_sim_paramod?DCSimParamod:DCParamod,
-                                 parent_alias, with);
+                                 parent_alias, with, PackClausePos(pos1), PackClausePos(pos2));
        ClauseSetInsert(store, paramod);
     }
     test = ClausePosNextParamodPair(pos1, pos2, true, pm_type != ParamodPlain);

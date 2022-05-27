@@ -141,8 +141,8 @@ typedef enum
    DCDistDisjunctions = DODistDisjunctions,
    DCAnnoQuestion     = DOAnnoQuestion,
    /* Generating inferences */
-   DCParamod          = DOParamod |Arg1Cnf|Arg2Cnf,
-   DCSimParamod       = DOSimParamod|Arg1Cnf|Arg2Cnf,
+   DCParamod          = DOParamod|Arg1Cnf|Arg2Cnf|Arg3Num|Arg4Num,
+   DCSimParamod       = DOSimParamod|Arg1Cnf|Arg2Cnf|Arg3Num|Arg4Num,
    DCOrderedFactor    = DOOrderedFactor|Arg1Cnf,
    DCEqFactor         = DOEqFactor|Arg1Cnf,
    DCEqRes            = DOEqRes|Arg1Cnf,
