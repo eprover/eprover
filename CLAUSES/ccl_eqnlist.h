@@ -129,7 +129,8 @@ void    EqnListSignedTermDelProp(Eqn_p list, TermProperties props, bool pos, boo
 long    EqnListTBTermDelPropCount(Eqn_p list, TermProperties props);
 
 long    EqnListCollectSubterms(Eqn_p list, PStack_p collector);
-long    EqnListCollectGroundTerms(Eqn_p list, PTree_p *res, bool top_only);
+long    EqnListCollectGroundTerms(Eqn_p list, PTree_p *res, bool top_only,
+                                  bool pos_lits, bool neg_lits);
 
 #endif
 
