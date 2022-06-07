@@ -240,11 +240,11 @@ extern bool            ProofObjectRecordsGCSelection;
 #define DCOpHasParentArg4(op) ((op)&(Arg4Cnf|Arg4Fof))
 #define DCOpHasArg4(op)       ((op)&(Arg4Cnf|Arg4Fof|Arg4Num))
 
-#define DCOpHasCnfArgN(op,n)    ((op)&(Arg1Cnf<<(n)))
-#define DCOpHasFofArgN(op,n)    ((op)&(Arg1Fof<<(n)))
-#define DCOpHasNumArgN(op,n)    ((op)&(Arg1Num<<(n)))
-#define DCOpHasParentArgN(op,n) ((op)&((Arg1Cnf|Arg1Fof)<<(n)))
-#define DCOpHasArgN(op,n)       ((op)&((Arg1Cnf|Arg1Fof|Arg1Num)<<(n)))
+#define DCOpHasCnfArgN(op,n)    ((op)&(Arg1Cnf<<(n*3)))
+#define DCOpHasFofArgN(op,n)    ((op)&(Arg1Fof<<(n*3)))
+#define DCOpHasNumArgN(op,n)    ((op)&(Arg1Num<<(n*3)))
+#define DCOpHasParentArgN(op,n) ((op)&((Arg1Cnf|Arg1Fof)<<(n*3)))
+#define DCOpHasArgN(op,n)       ((op)&((Arg1Cnf|Arg1Fof|Arg1Num)<<(n*3)))
 
 #define DCOpCountArgs(op)     ((DCOpHasArg1(op) != 0) + (DCOpHasArg2(op) != 0) \
                               + (DCOpHasArg3(op) != 0) + (DCOpHasArg4(op) != 0))
