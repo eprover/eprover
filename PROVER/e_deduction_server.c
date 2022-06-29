@@ -296,11 +296,11 @@ void print_help(FILE* out)
 {
    fprintf(out, "\n"
            NAME " " VERSION " \"" E_NICKNAME "\"\n\
-\n                                                \
-Usage: " NAME " -p <port> [options] [files]\n     \
-\n                                                                      \
-The E deduction server offers deduction services based on local or\n    \
-uploaded axiom sets via network. See README.server.\n                   \
+\n\
+Usage: " NAME " -p <port> [options] [files]\n\
+\n\
+The E deduction server offers deduction services based on local or\n\
+uploaded axiom sets via network. See README.server.\n\
 \n");
    PrintOptions(stdout, opts, "Options:\n\n");
    fprintf(out, "\n\n" E_FOOTER);
