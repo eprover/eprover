@@ -706,7 +706,7 @@ CLState_p process_options(int argc, char* argv[])
       if(getrlimit(RLIMIT_CPU, &limit))
       {
          TmpErrno = errno;
-         SysError("Unable to get sytem cpu time limit", SYS_ERROR);
+         SysError("Unable to get system cpu time limit", SYS_ERROR);
       }
       SystemTimeLimit = limit.rlim_max;
       if(SoftTimeLimit!=RLIM_INFINITY)

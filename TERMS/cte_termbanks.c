@@ -445,7 +445,7 @@ static Term_p tb_subterm_parse(Scanner_p in, TB_p bank)
          if(SigIsFixedType(bank->sig, res->f_code))
          {
             AktTokenError(in,
-                          "Predicate used as function symbol in preceeding term",
+                          "Predicate used as function symbol in preceding term",
                           false);
          }
          else
@@ -2085,7 +2085,7 @@ Term_p TBGetFirstConstTerm(TB_p bank, Type_p type)
 //   Find the best (according to is_better) constant of the give sort,
 //   and return a shared term with this constant. If no suitable
 //   constant exists, returns NULL. conj_dist_array contains number of
-//   occurances for each symbol in conjecture clauses, dist_array the
+//   occurrences for each symbol in conjecture clauses, dist_array the
 //   same for all clauses.
 //
 // Global Variables: -

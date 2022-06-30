@@ -28,7 +28,7 @@
 
 char* help_message = "\
 # Note : Block commands that are of the form of \"COMMAND <NAME> ... GO\"\n\
-# should have the \"COMMAND <NAME>\" and GO each on a seperate line of\n\
+# should have the \"COMMAND <NAME>\" and GO each on a separate line of\n\
 # their own. The block should be in between these two.\n\
 #\n\
 #- ADD <NAME> ... GO : Uploads a new axiom set with the name <NAME>.\n\

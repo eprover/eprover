@@ -43,7 +43,7 @@ Options:
  can later be picked again and refined.
 
 -v
- Verbose output. The programm will print a lot of stuff while doing
+ Verbose output. The program will print a lot of stuff while doing
  its thing...
 
 -c

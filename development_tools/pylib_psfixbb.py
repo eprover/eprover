@@ -6,7 +6,7 @@
 # Set tight bounding boxes for PostScript files. The basic idea comes from
 # fixbb version 0.31 by Jeff Spirko.
 #
-# To use as a standalone programm, safe as psfixbb.py or just psfixbb.
+# To use as a standalone program, safe as psfixbb.py or just psfixbb.
 #
 # Version history:
 # 1.0 Wed Feb 16 20:24:59 CET 2005

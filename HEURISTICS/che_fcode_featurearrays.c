@@ -150,7 +150,7 @@ FCodeFeatureArray_p FCodeFeatureArrayAlloc(Sig_p sig, ClauseSet_p axioms)
 //
 // Function: FCodeFeatureArrayUpdateOccKey()
 //
-//    Update key0 based on the occurance of the symbols in axioms,
+//    Update key0 based on the occurrence of the symbols in axioms,
 //    conjectures, or both.
 //
 // Global Variables:
@@ -188,7 +188,7 @@ void FCodeFeatureArrayUpdateOccKey(FCodeFeatureArray_p array, OrderParms_p oparm
 //
 // Function: FCodeFeatureArrayUpdateSymbKey()
 //
-//    Update key0 based on the occurance of the symbols in axioms,
+//    Update key0 based on the occurrence of the symbols in axioms,
 //    conjectures, or both.
 //
 // Global Variables:

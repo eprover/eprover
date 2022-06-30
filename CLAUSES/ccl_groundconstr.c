@@ -224,7 +224,7 @@ bool LitPosAddConstraint(LitOccTable_p table, FunCode pred, int pos,
 //
 // Function: LitOccAddLitAlt()
 //
-//   Add the contraints induced by literal into the corresponding
+//   Add the constraints induced by literal into the corresponding
 //   table.
 //
 // Global Variables: -

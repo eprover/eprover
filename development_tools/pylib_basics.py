@@ -136,7 +136,7 @@ def uniq(l):
 
 def uniq_unsorted(l):
     """
-    Return a list of different elements in order of first occurance.
+    Return a list of different elements in order of first occurrence.
     """
     set = {}
     return [set.setdefault(e,e) for e in l if e not in set]

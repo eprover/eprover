@@ -768,7 +768,7 @@ Subst_p SubstGroundVarBankFirstConst(TB_p terms, bool norm_const)
 //
 // Function: SubstGroundFreqBased()
 //
-//   Generate a grounding substitution using occurance-count based
+//   Generate a grounding substitution using occurrence-count based
 //   preference functions.
 //
 // Global Variables: -

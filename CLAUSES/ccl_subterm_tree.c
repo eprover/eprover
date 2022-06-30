@@ -6,7 +6,7 @@ Author: Stephan Schulz (schulz@eprover.org)
 
 Contents
 
-  A tree-based mapping mapping subterms to occurances in clauses.
+  A tree-based mapping mapping subterms to occurrences in clauses.
 
   Copyright 2010 by the author.
   This code is released under the GNU General Public Licence and
@@ -118,7 +118,7 @@ void subterm_tree_print_dot(FILE* out, SubtermTree_p root, Sig_p sig)
 //
 // Function: SubtermOccAlloc()
 //
-//   Allocate an initialized Subterm-Occurance-Cell.
+//   Allocate an initialized Subterm-Occurrence-Cell.
 //
 // Global Variables: -
 //
@@ -142,7 +142,7 @@ SubtermOcc_p SubtermOccAlloc(Term_p term)
 //
 // Function: SubtermOccFree()
 //
-//   Free a Subtemerm-Occurance-Cell
+//   Free a Subterm-Occurrence-Cell
 //
 // Global Variables: -
 //
@@ -162,7 +162,7 @@ void SubtermOccFree(SubtermOcc_p soc)
 //
 // Function: SubtermPosFree()
 //
-//   Free a Subtemerm-Occurance-Cell with clause positions.
+//   Free a Subterm-Occurrence-Cell with clause positions.
 //
 // Global Variables: -
 //
@@ -183,7 +183,7 @@ void SubtermPosFree(SubtermOcc_p soc)
 //
 // Function: CmpSubtermCells()
 //
-//   Compare two SubtermOccurance cells via their term pointers. This
+//   Compare two SubtermOccurrence cells via their term pointers. This
 //   is a synthetic but machine-independent measure useful primarily
 //   for indexing.
 //
@@ -353,7 +353,7 @@ void SubtermTreeDeleteTerm(SubtermTree_p *root, Term_p term)
 //
 // Function: SubtermTreeInsertTermOcc()
 //
-//   Insert a term occurance into the Subterm tree. Return false if an
+//   Insert a term occurrence into the Subterm tree. Return false if an
 //   entry already exists, true otherwise.
 //
 // Global Variables: -

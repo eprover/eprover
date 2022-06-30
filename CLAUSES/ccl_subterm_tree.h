@@ -53,7 +53,7 @@ typedef struct overlap_payload
 }OverlapPayload;
 
 
-/* Cell for recording all occurances of a subterm.*/
+/* Cell for recording all occurrences of a subterm.*/
 
 typedef struct subterm_occ_cell
 {

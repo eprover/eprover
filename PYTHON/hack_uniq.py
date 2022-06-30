@@ -5,7 +5,7 @@ hack_uniq.py 0.1
 
 Usage: hack_uniq.py <file> [...]
 
-Parse a list of TPTP file name occurances and return the path to the
+Parse a list of TPTP file name occurrences and return the path to the
 last instance of each problem encountered.
 
 Options:

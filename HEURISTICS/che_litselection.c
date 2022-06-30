@@ -795,7 +795,7 @@ char* GetLitSelName(LiteralSelectionFun fun)
 // Function: LitSelAppendNames()
 //
 //   Append all valid literal selection function names
-//   (comma-seperated) to str.
+//   (comma-separated) to str.
 //
 // Global Variables: -
 //

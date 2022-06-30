@@ -196,7 +196,7 @@ simplification inference. Also read Alexandre's and Andrei's Paper!
 
 Use ordering constraints on clauses generated from unorientable
 literals or literals which are not uniquely maximal in the
-clause. If we use a unit with contraints for rewriting and the
+clause. If we use a unit with constraints for rewriting and the
 constraints to not evaluate to the trivial true case, we might need to
 drop constraints.
 

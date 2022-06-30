@@ -54,7 +54,7 @@ typedef struct def_store_cell
 #define DefStoreCellFree(junk) SizeFree(junk, sizeof(DefStoreCell))
 
 DefStore_p DefStoreAlloc(TB_p terms); /* FVIindex will be added
-                                       * seperately */
+                                       * separately */
 void       DefStoreFree(DefStore_p junk);
 
 Eqn_p      GenDefLit(TB_p bank, FunCode pred, bool positive,

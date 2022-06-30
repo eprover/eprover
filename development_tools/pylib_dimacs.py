@@ -27,7 +27,7 @@ Options:
   with -b. 
 
  -b<app>
-  Batch operation: For each input file, generate an seperate output
+  Batch operation: For each input file, generate an separate output
   file, named by appending '.<app>' to the original file name.
 
  -f

@@ -325,7 +325,7 @@ NAME " " VERSION "\n\
 Usage: " NAME " [options] [files]\n\
 \n\
 Parse a classification problem specification file and return\n\
-results. This is an experimental programm and does not have all the\n\
+results. This is an experimental program and does not have all the\n\
 usual error checking and hand holding features as E proper!\n");
    PrintOptions(stdout, opts, "Options\n\n");
    fprintf(out, "\n\n" E_FOOTER);

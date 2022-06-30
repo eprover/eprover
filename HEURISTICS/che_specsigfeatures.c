@@ -43,7 +43,7 @@
 //
 // Function: term_collect_sig_features_rek()
 //
-//    Collect information of number and depth of occurance of function
+//    Collect information of number and depth of occurrence of function
 //    symbols of different arity in term.
 //
 // Global Variables: -
@@ -105,7 +105,7 @@ void SpecSigFeatureInit(SpecSigFeature_p specftrs)
 //
 // Function: SpecSigFeaturePrint
 //
-//   Print all individual features as a coma-seperated list.
+//   Print all individual features as a coma-separated list.
 //
 // Global Variables: -
 //
@@ -130,7 +130,7 @@ void SpecSigFeaturePrint(FILE*out, SpecSigFeature_p specftrs)
 //
 // Function: TermCollectSigFeatures()
 //
-//    Collect information of number and depth of occurance of function
+//    Collect information of number and depth of occurrence of function
 //    symbols of different arity in term.
 //
 // Global Variables: -

@@ -312,7 +312,7 @@ OptCell opts[] =
     OptArg, "1",
     "Generate and process training examples from the proof search object."
     " Implies --record-gcs. The argument is a binary or of the desired "
-    "processig. Bit zero prints positive exampels. Bit 1 prints negative "
+    "processing. Bit zero prints positive exampels. Bit 1 prints negative "
     "examples. Additional selectors will be added later."},
 
    {OPT_PCL_COMPRESSED,
@@ -1061,7 +1061,7 @@ OptCell opts[] =
     "Set a weight for symbols that occur in conjectures only to determine"
     "where to place it in the precedence. This value is used for a rough"
     "pre-order, the normal schemes only sort within symbols with the same"
-    "occurance modifier."},
+    "occurrence modifier."},
 
    {OPT_TO_CONJAXIOM_PREC,
     '\0', "prec-conj-axiom",
@@ -1069,7 +1069,7 @@ OptCell opts[] =
     "Set a weight for symbols that occur in both conjectures and axioms"
     "to determine where to place it in the precedence. This value is "
     "used for a rough pre-order, the normal schemes only sort within "
-    "symbols with the same occurance modifier."},
+    "symbols with the same occurrence modifier."},
 
    {OPT_TO_AXIOMONLY_PREC,
     '\0', "prec-pure-axiom",
@@ -1077,7 +1077,7 @@ OptCell opts[] =
     "Set a weight for symbols that occur in axioms only "
     "to determine where to place it in the precedence. This value is "
     "used for a rough pre-order, the normal schemes only sort within "
-    "symbols with the same occurance modifier."},
+    "symbols with the same occurrence modifier."},
 
    {OPT_TO_SKOLEM_PREC,
     '\0', "prec-skolem",
@@ -1085,7 +1085,7 @@ OptCell opts[] =
     "Set a weight for Skolem symbols "
     "to determine where to place it in the precedence. This value is "
     "used for a rough pre-order, the normal schemes only sort within "
-    "symbols with the same occurance modifier."},
+    "symbols with the same occurrence modifier."},
 
    {OPT_TO_DEFPRED_PREC,
     '\0', "prec-defpred",
@@ -1094,7 +1094,7 @@ OptCell opts[] =
     "CNF or clause splitting) "
     "to determine where to place it in the precedence. This value is "
     "used for a rough pre-order, the normal schemes only sort within "
-    "symbols with the same occurance modifier."},
+    "symbols with the same occurrence modifier."},
 
    {OPT_TO_CONSTWEIGHT,
     'c', "order-constant-weight",

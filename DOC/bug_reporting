@@ -9,6 +9,6 @@ possible:
 .PP
 * The exact command line that leads to the unexpected behaviour.
 .PP
-* A description of what you expected and what actually happend.
+* A description of what you expected and what actually happened.
 .PP
 * If possible all input files necessary to reproduce the bug.

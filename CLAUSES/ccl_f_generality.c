@@ -43,7 +43,7 @@ Changes
 //
 // Function: init_fun_gen_cell()
 //
-//   Initi a FunGenCell for keeping track of occurances of f.
+//   Initi a FunGenCell for keeping track of occurrences of f.
 //
 // Global Variables: -
 //
@@ -347,7 +347,7 @@ void GenDistribSizeAdjust(GenDistrib_p gd, Sig_p sig)
 //
 // Function: GenDistribAddClause()
 //
-//   Add f_code occurances to dist.
+//   Add f_code occurrences to dist.
 //
 // Global Variables: -
 //

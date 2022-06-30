@@ -702,7 +702,7 @@ Eqn_p EqnListCopyDisjoint(Eqn_p list)
 // Function: EqnListCopyRepl()
 //
 //   Return a copy of the list with terms from bank, except that
-//   all occurances of "old" are replaced with repl (which has to be
+//   all occurrences of "old" are replaced with repl (which has to be
 //   in bank).
 //
 // Global Variables: -
@@ -733,7 +733,7 @@ Eqn_p EqnListCopyRepl(Eqn_p list, TB_p bank, Term_p old, Term_p repl)
 // Function: EqnListCopyReplPlain()
 //
 //   Return a copy of the list with terms from bank, except that
-//   all occurances of "old" are replaced with repl (which has to be
+//   all occurrences of "old" are replaced with repl (which has to be
 //   in bank). Terma are not instantiated.
 //
 // Global Variables: -
@@ -1779,7 +1779,7 @@ void EqnListAddSymbolFeatures(Eqn_p list, PStack_p mod_stack, long *feature_arra
 //
 // Function: EqnListComputeFunctionRanks()
 //
-//   Compute the occurance rank for all function symbols in list.
+//   Compute the occurrence rank for all function symbols in list.
 //
 // Global Variables:
 //

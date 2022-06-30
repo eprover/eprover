@@ -91,7 +91,7 @@ OptCell opts[] =
     'c', "competition-framing",
     NoArg, NULL,
     "Print special \"begin\" and \"end\"comments around the proof "
-    "object, as requiered by the CASC MIX* class."},
+    "object, as required by the CASC MIX* class."},
 
    {OPT_NO_EXTRACT,
     'n', "no-extract",

@@ -2177,7 +2177,7 @@ void TermAddSymbolFeatures(Term_p term, PStack_p mod_stack, long depth,
 //
 // Function: TermComputeFunctionRanks()
 //
-//   Assign an occurance rank to each symbol in term.
+//   Assign an occurrence rank to each symbol in term.
 //
 // Global Variables: -
 //
@@ -2873,7 +2873,7 @@ Term_p TermCopyNormalizeVars(VarBank_p vars, Term_p term,
 // Function: TermDAGWeight()
 //
 //    Compute the DAG weight of a term. More concretely: For each
-//    occurance of an already considered subterm, count
+//    occurrence of an already considered subterm, count
 //    dup_weigth. For all new termcells count fweight for function
 //    sybmbols and vweight for variables. The new_term parameter
 //    indicates if the term shall be considered individually, or if

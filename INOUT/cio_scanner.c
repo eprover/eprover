@@ -37,7 +37,7 @@ static TokenRepCell token_print_rep[] =
    {String,       "String enclosed in double quotes (\"\")"},
    {SQString,     "String enclosed in single quote ('')"},
    {PosInt,       "Integer (sequence of decimal digits) "
-    "convertable to an 'unsigned long'"},
+    "convertible to an 'unsigned long'"},
    /* May need LargePosInt here... */
    {OpenBracket,  "Opening bracket ('(')"},
    {CloseBracket, "Closing bracket (')')"},
@@ -1093,7 +1093,7 @@ bool TestIdnum(Token_p akt, char* ids)
 //
 // Global Variables: -
 //
-// Side Effects    : Terminates programm
+// Side Effects    : Terminates program
 //
 /----------------------------------------------------------------------*/
 
@@ -1123,7 +1123,7 @@ void AktTokenError(Scanner_p in, char* msg, bool syserr)
 //
 // Global Variables: -
 //
-// Side Effects    : Terminates programm
+// Side Effects    : Terminates program
 //
 /----------------------------------------------------------------------*/
 

@@ -7,7 +7,7 @@ Author: Stephan Schulz
 Contents
 
   Evaluation of a clause by DAG weight (i.e. counting multiple
-  occurances of subterms only once).
+  occurrences of subterms only once).
 
   Copyright 2021 by the author.
   This code is released under the GNU General Public Licence and

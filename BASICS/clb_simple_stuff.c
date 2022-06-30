@@ -323,7 +323,7 @@ void SetProblemType(ProblemType t)
   }
   else
   {
-     Error("Mixing of first order and higer order syntax is not allowed.",
+     Error("Mixing of first order and higher order syntax is not allowed.",
            SYNTAX_ERROR);
   }
 }

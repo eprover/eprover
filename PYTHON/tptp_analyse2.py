@@ -5,7 +5,7 @@ tptp_analyse.py 0.1
 
 Usage: tptp_analyse.py [options] <prob_file> ...
 
-Parse a list of TPTP file name occurances and File lines and generate
+Parse a list of TPTP file name occurrences and File lines and generate
 an overview of which problem is in which version of TPTP.
 
 Options:
