@@ -85,7 +85,7 @@ long ComputeAllEqnResolvents(TB_p bank, Clause_p clause, ClauseSet_p
        ClauseSetTPTPType(resolvent, ClauseQueryTPTPType(clause));
        ClauseSetProp(resolvent, ClauseGiveProps(clause, CPIsSOS));
        DocClauseCreationDefault(resolvent, inf_eres, clause, NULL);
-            ClausePushDerivation(resolvent, DCEqRes, clause, NULL);
+            ClausePushDerivation(resolvent, DCEqRes, clause, PackClausePos(pos));
        ClauseSetInsert(store, resolvent);
     }
     test = ClausePosNextEqResLiteral(pos);
