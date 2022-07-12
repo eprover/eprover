@@ -3,23 +3,19 @@ This is the required ReadMe file for the CASC competitions.
 
 For installation, follow the instructions in the main README
 file. Make sure to do a proper install, so that e_ltb_runner can find
-the executables. If you need to rebuild a StarExec version
-from the sources, run "make starexec", which should take care of
-everything. Note that THIS WILL DELETE $(STAREXECPATH), which
-is by default define as $(HOME)/StarExec. Edit Makefile.vars
-to choose a different directory for building the StarExec
-distribution.
+the executables. If you need to rebuild a StarExec version from the
+sources, run "make starexec", which should take care of
+everything. Note that THIS WILL DELETE $(STAREXECPATH), which is by
+default defined as $(HOME)/StarExec. Edit Makefile.vars to choose a
+different directory for building the StarExec distribution.
 
 The strategies for the different divisions are:
 
-FOF UEQ:     starexec_run_E---_autoschedule
-FNT EPR:     starexec_run_E---_satautoschedule
-LTB:         starexec_run_E---LTB28
-LTB (E 2.5): starexec_run_E---LTB28_25
-
-Note that the last version requires installation of eprover-25
-in the bin directory of the StarExec package.
-
+FOF UEQ: starexec_run_E---_FOF_UEQ
+THF:     starexec_run_E---_THF
+FNT:     starexec_run_E---_FNT
+SLH:     starexec_run_E---_SLH
+LTB:     starexec_run_E---_LTBJ11
 
 Distinguished strings for the results:
 
@@ -62,7 +58,6 @@ The start of solution output for models/saturations:
 The end of solution output for models/saturations:
 
 # SZS output end Saturation.
-
 
 
 LTB Problem processing:

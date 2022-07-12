@@ -2262,14 +2262,13 @@ void DerivationAnalyse(Derivation_p derivation)
 //
 /----------------------------------------------------------------------*/
 
-void DerivationPrint(FILE* out, Derivation_p derivation, char* frame)
+void DerivationPrint(FILE* out, Derivation_p derivation)
 {
    PStackPointer sp;
    Derived_p     node;
 
    assert(derivation->ordered);
 
-   fprintf(out, "# SZS output start %s\n", frame);
    for(sp=PStackGetSP(derivation->ordered_deriv)-1; sp>=0; sp--)
    {
       node = PStackElementP(derivation->ordered_deriv, sp);
@@ -2287,7 +2286,6 @@ void DerivationPrint(FILE* out, Derivation_p derivation, char* frame)
       }
       fprintf(out, "\n");
    }
-   fprintf(out, "# SZS output end %s\n", frame);
 }
 
 
@@ -2355,8 +2353,10 @@ void DerivationPrintConditional(FILE* out, char* status, Derivation_p derivation
 {
    if(print_derivation == POList)
    {
+      fprintf(out, "# SZS output start %s\n", status);
       SigPrintTypeDeclsTSTP(out, sig);
-      DerivationPrint(GlobalOut, derivation, status);
+      DerivationPrint(GlobalOut, derivation);
+      fprintf(out, "# SZS output end %s\n", status);
    }
    else if(print_derivation >= POGraph1)
    {

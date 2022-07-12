@@ -917,7 +917,7 @@ bool PTreeIsSubset(PTree_p sub, PTree_p *super)
 //
 /----------------------------------------------------------------------*/
 
-void  PTreeVisitInOrder(PTree_p t, void (*visitor)(void*, void*), void* arg)
+void PTreeVisitInOrder(PTree_p t, void (*visitor)(void*, void*), void* arg)
 {
    PStack_p iter = PTreeTraverseInit(t);
    PTree_p  handle = NULL;

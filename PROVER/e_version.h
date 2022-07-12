@@ -32,9 +32,9 @@ Contents
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-/* git tag E-2.6dev011 */
+/* git tag E-3.0pre001 */
 
-#define PVERSION      "2.6dev011"
+#define PVERSION      "3.0pre001"
 
 #include "e_gitcommit.h"
 
@@ -50,12 +50,12 @@ Contents
 #define VERSION PVERSION LFH "-DEBUG"
 #endif
 
-#define E_NICKNAME     "Floral Guranse"
+#define E_NICKNAME     "Shangri-La"
 
 #define E_URL "http://www.eprover.org"
 
 #define STS_MAIL "schulz@eprover.org"
-#define STS_COPYRIGHT "Copyright 1998-2021 by Stephan Schulz"
+#define STS_COPYRIGHT "Copyright 1998-2022 by Stephan Schulz"
 #define CTR_COPYRIGHT "and the E contributors (see DOC/CONTRIBUTORS)."
 #define STS_SNAIL "Stephan Schulz\nDHBW Stuttgart\nFakultaet Technik\nInformatik\nRotebuehlplatz 41\n70178 Stuttgart\nGermany\n"
 

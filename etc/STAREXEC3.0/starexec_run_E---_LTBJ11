@@ -1,0 +1,16 @@
+#!/bin/tcsh
+# Executable for CASC-J11 is baked-in to e_ltb_runner
+set ecmd="./e_ltb_runner --variantsj11 "$1" --output-dir="$2
+
+echo "% Command    : " $ecmd
+/home/starexec/bin/GetComputerInfo -p THIS Model CPUModel RAMPerCPU OS | \
+sed -e "s/Computer     /% Computer   /" \
+    -e "s/Model        /% Model      /" \
+    -e "s/CPUModel     /% CPU        /" \
+    -e "s/RAMPerCPU    /% Memory     /" \
+    -e "s/OS           /% OS         /"
+echo -n "% CPULimit   : " ; echo "$STAREXEC_CPU_LIMIT"
+echo -n "% WCLimit    : " ; echo "$STAREXEC_WALLCLOCK_LIMIT"
+echo -n "% DateTime   : " ; date
+echo "% CPUTime    : "
+$ecmd

@@ -117,9 +117,12 @@ void SetSoftRlimitErr(int resource, rlim_t limit, char* desc)
    switch(res)
    {
    case RLimFailed:
-         snprintf(message, 300, "Could not set limit %s to %lld (%s)",
-                  ldesc, (long long)limit, strerror(TmpErrno));
-         Warning(message);
+         if(resource != RLIMIT_DATA) // Mask MacOS bug on ARM
+         {
+            snprintf(message, 300, "Could not set limit %s to %lld (%s)",
+                     ldesc, (long long)limit, strerror(TmpErrno));
+            Warning(message);
+         }
          break;
    case RLimReduced:
          snprintf(message, 300, "Had to reduce limit %s", ldesc);
@@ -343,5 +346,3 @@ void SecureFClose(FILE* fp)
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
