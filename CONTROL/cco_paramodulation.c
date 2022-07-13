@@ -22,6 +22,7 @@ Changes
 -----------------------------------------------------------------------*/
 
 #include "cco_paramodulation.h"
+#include <cte_ho_csu.h>
 
 
 
@@ -252,7 +253,12 @@ static long compute_into_pm_pos_clause(ParamodInfo_p pminfo,
                                      pm_type==ParamodPlain?inf_paramod:inf_sim_paramod,
                                      pminfo->into,
                                      pminfo->new_orig);
-            ClausePushDerivation(clause,  pm_type==ParamodPlain?DCParamod:DCSimParamod,
+            DerivationCode dc = pm_type==ParamodPlain?DCParamod:DCSimParamod;
+            if(pminfo->subst_is_ho)
+            {
+               dc = DPSetIsHO(dc);
+            }
+            ClausePushDerivation(clause, dc,
                                  pminfo->into, pminfo->new_orig);
          }
       }
@@ -293,15 +299,15 @@ long compute_pos_into_pm_term(ParamodInfo_p pminfo,
    Subst_p            subst = SubstAlloc();
    Term_p             max_side, rep_side;
    ParamodulationType sim_pm;
-   UnificationResult  unif_res;
 
    /*printf("\n@i %ld\n", DebugCount); */
-   if(!UnifFailed((unif_res = SubstMguPossiblyPartial(olterm, into_clauses->term, subst)))
-        && CheckHOUnificationConstraints(unif_res, RightTerm, olterm, into_clauses->term))
+   CSUIterator_p unif_iter =
+      CSUIterInit(olterm, into_clauses->term, subst, pminfo->bank);
+   while(NextCSUElement(unif_iter))
    {
       max_side = ClausePosGetSide(pminfo->from_pos);
       rep_side = ClausePosGetOtherSide(pminfo->from_pos);
-      pminfo->remaining_args = unif_res.term_remaining;
+      pminfo->subst_is_ho = SubstHasHOBinding(subst);
 
       if((EqnIsOriented(pminfo->from_pos->literal) ||
           !TOGreater(pminfo->ocb, rep_side, max_side, DEREF_ALWAYS,
@@ -323,6 +329,7 @@ long compute_pos_into_pm_term(ParamodInfo_p pminfo,
          PTreeTraverseExit(iterstack);
       }
    }
+   CSUIterDestroy(unif_iter);
    SubstDelete(subst);
    return res;
 }
@@ -469,7 +476,12 @@ static long compute_from_pm_pos_clause(ParamodInfo_p pminfo,
                                      pm_type?inf_sim_paramod:inf_paramod,
                                      pminfo->new_orig,
                                      pminfo->from);
-            ClausePushDerivation(clause,  pm_type?DCSimParamod:DCParamod,
+            DerivationCode dc = pm_type?DCSimParamod:DCParamod;
+            if(pminfo->subst_is_ho)
+            {
+               dc = DPSetIsHO(dc);
+            }
+            ClausePushDerivation(clause, dc,
                                  pminfo->new_orig, pminfo->from);
          }
       }
@@ -513,15 +525,15 @@ long compute_pos_from_pm_term(ParamodInfo_p pminfo,
    PObjTree_p       cell;
    Subst_p          subst = SubstAlloc();
    Term_p           max_side, min_side;
-   UnificationResult unif_res;
 
    /*printf("\n@f %ld\n", DebugCount); */
-   if(!UnifFailed(unif_res = SubstMguPossiblyPartial(olterm, from_clauses->term, subst))
-       && (CheckHOUnificationConstraints(unif_res, LeftTerm, from_clauses->term, olterm)))
+   CSUIterator_p unif_iter =
+      CSUIterInit(olterm, from_clauses->term, subst, pminfo->bank);
+   while(NextCSUElement(unif_iter))
    {
       max_side = ClausePosGetSide(pminfo->into_pos);
       min_side = ClausePosGetOtherSide(pminfo->into_pos);
-      pminfo->remaining_args = unif_res.term_remaining;
+      pminfo->subst_is_ho = SubstHasHOBinding(subst);
 
       if((EqnIsOriented(pminfo->into_pos->literal) ||
           !TOGreater(pminfo->ocb, min_side, max_side, DEREF_ALWAYS,
@@ -547,6 +559,7 @@ long compute_pos_from_pm_term(ParamodInfo_p pminfo,
          PTreeTraverseExit(iterstack);
       }
    }
+   CSUIterDestroy(unif_iter);
    SubstDelete(subst);
    return res;
 }

@@ -70,6 +70,50 @@ ExtInferenceType str2eit(char* value)
 
 /*-----------------------------------------------------------------------
 //
+// Function: str2eit()
+//
+//    Parse the value of PrimEnumMode parameter.
+//
+// Global Variables:
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+
+PrimEnumMode str2pem(char* value)
+{
+   PrimEnumMode res = STR2PEM(value);
+   if(res == -1)
+   {
+      Error("Unknown PrimEnumMode identifier.", USAGE_ERROR);
+   }
+   return res;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: str2eit()
+//
+//    Parse the value of UnifMode parameter.
+//
+// Global Variables:
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+
+UnifMode str2um(char* value)
+{
+   UnifMode res = STR2UM(value);
+   if(res == -1)
+   {
+      Error("Unknown UnifMode identifier.", USAGE_ERROR);
+   }
+   return res;
+}
+
+/*-----------------------------------------------------------------------
+//
 // Function: get_next_clause()
 //
 //   Return the next clause from the selected EvalTreeTraverse-Stack,
@@ -122,6 +166,8 @@ void HeuristicParmsInitialize(HeuristicParms_p handle)
    handle->no_preproc                    = false;
    handle->eqdef_maxclauses              = DEFAULT_EQDEF_MAXCLAUSES;
    handle->eqdef_incrlimit               = DEFAULT_EQDEF_INCRLIMIT;
+   handle->formula_def_limit             = 24;
+   handle->sine                          = NULL;
 
    handle->add_goal_defs_pos             = false;
    handle->add_goal_defs_neg             = false;
@@ -130,6 +176,16 @@ void HeuristicParmsInitialize(HeuristicParms_p handle)
    handle->heuristic_name                = HCB_DEFAULT_HEURISTIC;
    handle->heuristic_def                 = NULL;
    handle->prefer_initial_clauses        = false;
+
+   handle->bce                           = false;
+   handle->bce_max_occs                  = DEFAULT_SYM_OCCS;
+
+   handle->pred_elim                     = false;
+   handle->pred_elim_gates               = false;
+   handle->pred_elim_max_occs            = DEFAULT_SYM_OCCS;
+   handle->pred_elim_tolerance           = 0;
+   handle->pred_elim_force_mu_decrease   = false;
+   handle->pred_elim_ignore_conj_syms    = false;
 
    handle->selection_strategy            = SelectNoLiterals;
    handle->pos_lit_sel_min               = 0;
@@ -160,6 +216,7 @@ void HeuristicParmsInitialize(HeuristicParms_p handle)
 
    handle->forward_demod                 = FullRewrite;
    handle->prefer_general                = false;
+   handle->lambda_demod                  = false;
 
    handle->er_varlit_destructive         = false;
    handle->er_strong_destructive         = false;
@@ -200,10 +257,30 @@ void HeuristicParmsInitialize(HeuristicParms_p handle)
    handle->pos_ext                       = NoLits;
    handle->inverse_recognition           = false;
    handle->replace_inj_defs              = false;
-   handle->ext_sup_max_depth             = NO_EXT_SUP;
+   handle->lift_lambdas                  = true;
+   handle->ext_rules_max_depth             = NO_EXT_SUP;
+   handle->lambda_to_forall              = true;
+   handle->unroll_only_formulas          = true;
+   handle->elim_leibniz_max_depth        = NO_ELIM_LEIBNIZ;
+   handle->prim_enum_mode                = PragmaticMode;
+   handle->prim_enum_max_depth           = -1;
+   handle->inst_choice_max_depth         = -1;
+   handle->local_rw                      = false;
+   handle->prune_args                    = false;
+   handle->preinstantiate_induction      = false;
+   handle->fool_unroll                   = true;
+
+   handle->func_proj_limit = 0;
+   handle->imit_limit = 0;
+   handle->ident_limit = 0;
+   handle->elim_limit = 0;
+
+   handle->unif_mode = SingleUnif;
+   handle->pattern_oracle = true;
+   handle->fixpoint_oracle = true;
+   handle->max_unifiers = 4;
+   handle->max_unif_steps = 256;
 }
-
-
 
 
 /*-----------------------------------------------------------------------
@@ -243,6 +320,10 @@ void HeuristicParmsFree(HeuristicParms_p junk)
    assert(junk);
 
    junk->heuristic_name = NULL;
+   if(junk->sine)
+   {
+      FREE(junk->sine);
+   }
    if(junk->heuristic_def)
    {
       FREE(junk->heuristic_def);
@@ -276,10 +357,23 @@ void HeuristicParmsPrint(FILE* out, HeuristicParms_p handle)
    fprintf(out, "   no_preproc:                     %s\n", BOOL2STR(handle->no_preproc));
    fprintf(out, "   eqdef_maxclauses:               %ld\n", handle->eqdef_maxclauses);
    fprintf(out, "   eqdef_incrlimit:                %ld\n", handle->eqdef_incrlimit);
+   fprintf(out, "   formula_def_limit:              %ld\n", handle->formula_def_limit);
 
+   fprintf(out, "   sine:                           \"%s\"\n", handle->sine ? handle->sine : "Auto");
    fprintf(out, "   add_goal_defs_pos:             %s\n", BOOL2STR(handle->add_goal_defs_pos));
    fprintf(out, "   add_goal_defs_neg:             %s\n", BOOL2STR(handle->add_goal_defs_neg));
    fprintf(out, "   add_goal_defs_subterms:        %s\n", BOOL2STR(handle->add_goal_defs_subterms));
+
+   // TEMPORARILY DISABLING BCE PRINTING AND PARSING
+//    fprintf(out, "   bce:                           %s\n", BOOL2STR(handle->bce));
+//    fprintf(out, "   bce_max_occs:                  %d\n", handle->bce_max_occs);
+
+//    fprintf(out, "   pred_elim:                     %s\n", BOOL2STR(handle->pred_elim));
+//    fprintf(out, "   pred_elim_gates:               %s\n", BOOL2STR(handle->pred_elim_gates));
+//    fprintf(out, "   pred_elim_max_occs:            %d\n", handle->pred_elim_max_occs);
+//    fprintf(out, "   pred_elim_tolerance:           %d\n", handle->pred_elim_tolerance);
+//    fprintf(out, "   pred_elim_force_mu_decrease    %s\n", BOOL2STR(handle->pred_elim_force_mu_decrease));
+//    fprintf(out, "   pred_elim_ignore_conj_syms     %s\n", BOOL2STR(handle->pred_elim_ignore_conj_syms));
 
    fprintf(out, "   heuristic_name:                %s\n", handle->heuristic_name);
    fprintf(out, "   heuristic_def:                 \"%s\"\n",
@@ -332,6 +426,8 @@ void HeuristicParmsPrint(FILE* out, HeuristicParms_p handle)
    fprintf(out, "   forward_demod:                  %d\n", handle->forward_demod);
    fprintf(out, "   prefer_general:                 %s\n",
            BOOL2STR(handle->prefer_general));
+//    fprintf(out, "   lambda_demod:                 %s\n",
+//            BOOL2STR(handle->lambda_demod));
 
    fprintf(out, "   condensing:                     %s\n",
            BOOL2STR(handle->condensing));
@@ -388,10 +484,6 @@ void HeuristicParmsPrint(FILE* out, HeuristicParms_p handle)
            BOOL2STR(handle->detsort_bw_rw));
    fprintf(out, "   detsort_tmpset:                 %s\n",
            BOOL2STR(handle->detsort_tmpset));
-   fprintf(out, "   inverse_recognition:            %s\n",
-           BOOL2STR(handle->inverse_recognition));
-   fprintf(out, "   replace_inj_defs:               %s\n",
-           BOOL2STR(handle->replace_inj_defs));
 
    fprintf(out, "   arg_cong:                       %s\n",
            EIT2STR(handle->arg_cong));
@@ -399,8 +491,54 @@ void HeuristicParmsPrint(FILE* out, HeuristicParms_p handle)
            EIT2STR(handle->neg_ext));
    fprintf(out, "   pos_ext:                        %s\n",
            EIT2STR(handle->pos_ext));
-   fprintf(out, "   ext_sup_max_depth:              %d\n",
-           handle->ext_sup_max_depth);
+   
+   fprintf(out, "   ext_rules_max_depth:            %d\n",
+           handle->ext_rules_max_depth);
+      
+   fprintf(out, "   inverse_recognition:            %s\n",
+           BOOL2STR(handle->inverse_recognition));
+   fprintf(out, "   replace_inj_defs:               %s\n",
+           BOOL2STR(handle->replace_inj_defs));
+   fprintf(out, "   lift_lambdas:                  %s\n",
+           BOOL2STR(handle->lift_lambdas));
+   fprintf(out, "   lambda_to_forall:              %s\n",
+           BOOL2STR(handle->lambda_to_forall));
+   fprintf(out, "   unroll_only_formulas:          %s\n",
+           BOOL2STR(handle->unroll_only_formulas));
+   fprintf(out, "   elim_leibniz_max_depth:        %d\n",
+           handle->elim_leibniz_max_depth);
+   fprintf(out, "   prim_enum_mode:                %s\n",
+           PEM2STR(handle->prim_enum_mode));
+   fprintf(out, "   prim_enum_max_depth:           %d\n",
+           handle->prim_enum_max_depth);
+   fprintf(out, "   inst_choice_max_depth:         %d\n",
+           handle->inst_choice_max_depth);
+   fprintf(out, "   local_rw:                      %s\n",
+           BOOL2STR(handle->local_rw));
+   fprintf(out, "   prune_args:                    %s\n",
+           BOOL2STR(handle->prune_args));
+   fprintf(out, "   preinstantiate_induction:      %s\n",
+           BOOL2STR(handle->preinstantiate_induction));
+   fprintf(out, "   fool_unroll:                   %s\n",
+           BOOL2STR(handle->fool_unroll));
+   fprintf(out, "   func_proj_limit:               %d\n",
+           handle->func_proj_limit);
+   fprintf(out, "   imit_limit:                    %d\n",
+           handle->imit_limit);
+   fprintf(out, "   ident_limit:                   %d\n",
+           handle->ident_limit);
+   fprintf(out, "   elim_limit:                    %d\n",
+           handle->elim_limit);
+   fprintf(out, "   unif_mode:                     %s\n",
+           UM2STR(handle->unif_mode));
+   fprintf(out, "   pattern_oracle:                %s\n",
+           BOOL2STR(handle->pattern_oracle));
+   fprintf(out, "   fixpoint_oracle:               %s\n",
+           BOOL2STR(handle->fixpoint_oracle));
+   fprintf(out, "   max_unifiers:                  %d\n",
+           handle->max_unifiers);
+   fprintf(out, "   max_unif_steps:                %d\n",
+           handle->max_unif_steps);
 
    fprintf(out, "}\n");
 }
@@ -432,16 +570,37 @@ bool HeuristicParmsParseInto(Scanner_p in,
    bool res = true;
 
    AcceptInpTok(in, OpenCurly);
-
-   res = OrderParmsParseInto(in, &(handle->order_params), warn_missing);
+   
+   if(TestInpTok(in, OpenCurly))
+   {
+      res = OrderParmsParseInto(in, &(handle->order_params), warn_missing);
+   }
+   else if(warn_missing)
+   {
+      Warning("Config misses %s\n", "ordering information");
+   }
 
    PARSE_BOOL(no_preproc);
    PARSE_INT(eqdef_maxclauses);
    PARSE_INT(eqdef_incrlimit);
+   
+   PARSE_INT(formula_def_limit);
+   PARSE_STRING(sine);
 
    PARSE_BOOL(add_goal_defs_pos);
    PARSE_BOOL(add_goal_defs_neg);
    PARSE_BOOL(add_goal_defs_subterms);
+
+   // temporarily ignoring BCE AND PE SETTINGS.
+//    PARSE_BOOL(bce);
+//    PARSE_INT(bce_max_occs);
+   
+//    PARSE_BOOL(pred_elim);
+//    PARSE_BOOL(pred_elim_gates);
+//    PARSE_INT(pred_elim_max_occs);
+//    PARSE_INT(pred_elim_tolerance);
+//    PARSE_BOOL(pred_elim_force_mu_decrease);
+//    PARSE_BOOL(pred_elim_ignore_conj_syms);
 
    PARSE_IDENTIFIER(heuristic_name);
    PARSE_STRING(heuristic_def);
@@ -518,6 +677,7 @@ bool HeuristicParmsParseInto(Scanner_p in,
    PARSE_BOOL(forward_subsumption_aggressive);
    PARSE_INT_LIMITED(forward_demod,0,2);
    PARSE_BOOL(prefer_general);
+   //PARSE_BOOL(lambda_demod);
    PARSE_BOOL(condensing);
    PARSE_BOOL(condensing_aggressive);
    PARSE_BOOL(er_varlit_destructive);
@@ -550,14 +710,36 @@ bool HeuristicParmsParseInto(Scanner_p in,
    PARSE_BOOL(presat_interreduction);
    PARSE_BOOL(detsort_bw_rw);
    PARSE_BOOL(detsort_tmpset);
-   PARSE_BOOL(inverse_recognition);
-   PARSE_BOOL(replace_inj_defs);
+
+
    PARSE_STRING_AND_CONVERT(arg_cong, str2eit);
    PARSE_STRING_AND_CONVERT(neg_ext, str2eit);
    PARSE_STRING_AND_CONVERT(pos_ext, str2eit);
-   PARSE_INT(ext_sup_max_depth);
+   PARSE_INT(ext_rules_max_depth);
+   PARSE_BOOL(inverse_recognition);
+   PARSE_BOOL(replace_inj_defs);
+   PARSE_BOOL(lift_lambdas);
+   PARSE_BOOL(lambda_to_forall);
+   PARSE_BOOL(unroll_only_formulas);
+   PARSE_INT(elim_leibniz_max_depth);
+   PARSE_STRING_AND_CONVERT(prim_enum_mode, str2pem);
+   PARSE_INT(prim_enum_max_depth);
+   PARSE_INT(inst_choice_max_depth);
+   PARSE_BOOL(local_rw);
+   PARSE_BOOL(prune_args);
+   PARSE_BOOL(preinstantiate_induction);
+   PARSE_BOOL(fool_unroll);
 
+   PARSE_INT(func_proj_limit);
+   PARSE_INT(imit_limit);
+   PARSE_INT(ident_limit);
+   PARSE_INT(elim_limit);
 
+   PARSE_STRING_AND_CONVERT(unif_mode, str2um);
+   PARSE_BOOL(pattern_oracle);
+   PARSE_BOOL(fixpoint_oracle);
+   PARSE_INT(max_unifiers);
+   PARSE_INT(max_unif_steps);
 
 
    AcceptInpTok(in, CloseCurly);

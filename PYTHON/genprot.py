@@ -184,7 +184,8 @@ def make_entry(lines):
             entry["Status"] = statusmap["exec failed"]
             entry["Failure"] = failuremap["exec failed"]
         elif key == "Problem":
-            entry[key] = (value.split(":", 1)[0].strip() + ".p")
+            if not value.startswith('%'):
+                entry[key] = (value.split(":", 1)[0].strip() + ".p")
         elif key == "Failure":
             entry[key] = failuremap[clean_key(value, failuremap)]
         elif value != "":
@@ -195,7 +196,7 @@ def process_file(data, features, archivename, path, fileopener, info):
     if verbose:
         print("Processing: ", path)
     problemname   = basename(dirname(path))
-    configname    = "_".join(basename(dirname(dirname(path))).split("_")[4:])
+    configname    = "_".join(basename(dirname(dirname(path))).split("___")[1:])
     mo            = version_re.search(basename(dirname(dirname(path))).split("_", 1)[0])
     if mo:
         eversion = mo.group()
@@ -204,9 +205,11 @@ def process_file(data, features, archivename, path, fileopener, info):
     fileextension = splitext(path)[-1]
     filename      = basename(path)
     if problemname and configname and fileextension == ".txt" \
-       and (("+" in problemname) or ("-" in problemname or ("_" in problemname))):
+       and (("+" in problemname) or ("-" in problemname or ("_" in problemname) or ("^" in problemname))):
         entry = make_entry(fileopener(info).readlines())
         if entry:
+           if "Problem" not in entry:
+               entry["Problem"] = problemname
            entry.update({"Configname":configname,
                          "Filename":filename,
                          "Archivename":archivename})
@@ -225,7 +228,7 @@ def process_file(data, features, archivename, path, fileopener, info):
            if entry["Failure"] == failuremap["exec failed"]:
                entry["Problem"] = problemname
                entry["Version"] = eversion
-           if entry["Problem"] in features:
+           if "Problem" in entry and entry["Problem"] in features:
                entry.update(features[entry["Problem"]])
            if not configname in data or \
               not problemname in data[configname] \

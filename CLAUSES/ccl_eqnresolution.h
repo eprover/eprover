@@ -40,8 +40,8 @@ Changes
 
 extern   bool EqResOnMaximalLiteralsOnly;
 
-Clause_p ComputeEqRes(TB_p bank, ClausePos_p pos, VarBank_p
-            freshvars);
+Clause_p ComputeEqRes(TB_p bank, ClausePos_p pos, VarBank_p freshvars, 
+                      bool* subst_is_ho, PStack_p res_cls);
 Eqn_p    ClausePosFirstEqResLiteral(Clause_p clause, ClausePos_p
                pos);
 Eqn_p    ClausePosNextEqResLiteral(ClausePos_p pos);

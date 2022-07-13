@@ -66,6 +66,7 @@ typedef enum
    OPT_SOFTCPU_LIMIT,
    OPT_RUSAGE_INFO,
    OPT_PRINT_STRATEGY,
+   OPT_PARSE_STRATEGY,
    OPT_STEP_LIMIT,
    OPT_PROC_LIMIT,
    OPT_UNPROC_LIMIT,
@@ -85,13 +86,9 @@ typedef enum
    OPT_TSTP_PRINT,
    OPT_TSTP_FORMAT,
    OPT_AUTO,
-   OPT_SATAUTO,
-   OPT_AUTODEV,
-   OPT_SATAUTODEV,
    OPT_AUTO_SCHED,
+   OPT_FORCE_PREPROC_SCHED,
    OPT_SATAUTO_SCHED,
-   OPT_AUTOSCHEDULE_KIND,
-   OPT_MULTI_CORE,
    OPT_NO_PREPROCESSING,
    OPT_EQ_UNFOLD_LIMIT,
    OPT_EQ_UNFOLD_MAXCLAUSES,
@@ -158,6 +155,7 @@ typedef enum
    OPT_BACKWARD_CSR,
    OPT_RULES_GENERAL,
    OPT_FORWARD_DEMOD,
+   OPT_DEMOD_LAMBDA,
    OPT_STRONG_RHS_INSTANCE,
    OPT_STRONGSUBSUMPTION,
    OPT_SAT_STEP_INTERVAL,
@@ -192,6 +190,7 @@ typedef enum
    OPT_FREE_OBJECTS,
    OPT_DEF_CNF_OLD,
    OPT_DEF_CNF,
+   OPT_FOOL_UNROLL,
    OPT_MINISCOPE_LIMIT,
    OPT_PRINT_TYPES,
    OPT_APP_ENCODE,
@@ -201,6 +200,39 @@ typedef enum
    OPT_EXT_SUP,
    OPT_INVERSE_RECOGNITION,
    OPT_REPLACE_INJ_DEFS,
+   OPT_BCE,
+   OPT_BCE_MAX_OCCS,
+   OPT_PRED_ELIM,
+   OPT_PRED_ELIM_GATES,
+   OPT_PRED_ELIM_FORCE_MU_DECREASE,
+   OPT_PRED_ELIM_IGNORE_CONJ_SYMS,
+   OPT_PRED_ELIM_MAX_OCCS,
+   OPT_PRED_ELIM_TOLERANCE,
+   OPT_LIFT_LAMBDAS,
+   OPT_ETA_NORMALIZE,
+   OPT_HO_ORDER_KIND,
+   OPT_LAMBDA_TO_FORALL,
+   OPT_LAM_WEIGHT,
+   OPT_DB_WEIGHT,
+   OPT_ELIM_LEIBNIZ,
+   OPT_UNROLL_FORMULAS_ONLY,
+   OPT_PRIM_ENUM_KIND,
+   OPT_PRIM_ENUM_MAX_DEPTH,
+   OPT_CHOICE_INST,
+   OPT_LOCAL_RW,
+   OPT_PRUNE_ARGS,
+   OPT_FUNC_PROJ_IMIT,
+   OPT_IMIT_LIMIT,
+   OPT_IDENT_LIMIT,
+   OPT_ELIM_LIMIT,
+   OPT_UNIF_MODE,
+   OPT_PATTERN_ORACLE,
+   OPT_FIXPOINT_ORACLE,
+   OPT_MAX_UNIFIERS,
+   OPT_MAX_UNIF_STEPS,
+   OPT_CNF_TIMEOUT_PORTION,
+   OPT_PREINSTANTIATE_INDUCTION,
+   OPT_SERIALIZE_SCHEDULE,
    OPT_DUMMY
 }OptionCodes;
 
@@ -488,6 +520,12 @@ OptCell opts[] =
     "Print a representation of all search parameters and their setting. "
     "Then terminate."},
 
+   {OPT_PARSE_STRATEGY,
+    '\0', "parse-strategy",
+    ReqArg, NULL,
+    "Parse the previously printed representation of strategy and set"
+    " all proof search parameters accordingly."},
+
    {OPT_STEP_LIMIT,
     'C', "processed-clauses-limit",
     ReqArg, NULL,
@@ -639,53 +677,32 @@ OptCell opts[] =
     "Automatically determine settings for proof search. This is "
     "equivalent to -xAuto -tAuto --sine=Auto."},
 
-   {OPT_SATAUTO,
-    '\0', "satauto",
-    NoArg, NULL,
-    "Automatically determine settings for proof/saturation search. This is "
-    "equivalent to -xAuto -tAuto."},
-
-   {OPT_AUTODEV,
-    '\0', "autodev",
-    NoArg, NULL,
-    "Automatically determine settings for proof search (development "
-    "version). This is equivalent to -xAutoDev -tAutoDev --sine=Auto."},
-
-   {OPT_SATAUTODEV,
-    '\0', "satautodev",
-    NoArg, NULL,
-    "Automatically determine settings for proof/saturation search "
-    "(development version). This is equivalent to -xAutoDev -tAutoDev."},
-
    {OPT_AUTO_SCHED,
     '\0', "auto-schedule",
-    NoArg, NULL,
+    OptArg, "1",
     "Use the (experimental) strategy scheduling. This will try several "
     "different fully specified search strategies (aka \"Auto-Modes\"), "
     "one after the other, until a proof or saturation is found, or the "
-    "time limit is exceeded."},
+    "time limit is exceeded. Optional argument is the number of CPUs on which "
+    "the schedule is going to be executed on. By default, the schedule is executed "
+    "on a single core. To execute on all cores of a system set the argument to -1"},
+
+    {OPT_FORCE_PREPROC_SCHED,
+    '\0', "force-preproc-sched",
+    ReqArg, NULL,
+    "When autoscheduling is used, make sure that preprocessing schedule is"
+    "inserted in the search categories"},
+
+    {OPT_SERIALIZE_SCHEDULE,
+    '\0', "serialize-schedule",
+    ReqArg, NULL,
+    "Convert parallel auto-schedule into serialized one."},
 
    {OPT_SATAUTO_SCHED,
     '\0', "satauto-schedule",
     NoArg, NULL,
     "Use the (experimental) strategy scheduling without SInE, thus "
     "maintaining completeness."},
-
-   {OPT_AUTOSCHEDULE_KIND,
-    '\0', "schedule-kind",
-    ReqArg, NULL,
-    "Choose a schedule kind that is more optimized for different purposes: "
-    "CASC is optimized for general-purpose theorem proving, while SH "
-    "is optimized for low-timeout theorem proving."
-    },
-
-   {OPT_MULTI_CORE,
-   '\0', "multi-core",
-   OptArg, "4",
-   "Set the number of cores to use for strategy scheduling. Currently, the "
-   "existing (originally linear) schedules will be recomputed for "
-   "(near-)optimal use of the cores. If more than one core is activated, it "
-   "is assumed that any cpu-limit is a per-core limit."},
 
    {OPT_NO_PREPROCESSING,
     '\0', "no-preprocessing",
@@ -1218,6 +1235,11 @@ OptCell opts[] =
     "(orientable equations) only, 2 indicates full rewriting with "
     "rules and instances of unorientable equations. Default behavior is 2."},
 
+   {OPT_DEMOD_LAMBDA,
+    '\0', "demod-under-lambda",
+    ReqArg, NULL,
+    "Demodulate *closed* subterms under lambdas."},
+
    {OPT_STRONG_RHS_INSTANCE,
     '\0', "strong-rw-inst",
     NoArg, NULL,
@@ -1462,6 +1484,11 @@ OptCell opts[] =
     "subformulae to avoid exponential blow-up. The optional argument "
     "is a fudge factor that determines when definitions are introduced. "
     "0 disables definitions completely. The default works well."},
+    // OPT_FOOL_UNROLL
+   {OPT_FOOL_UNROLL,
+    '\0', "fool-unroll",
+    ReqArg, NULL,
+    "Enable or disable FOOL unrolling. Useful for some SH problems."},
 
    {OPT_DEF_CNF_OLD,
     '\0', "old-cnf",
@@ -1516,7 +1543,7 @@ OptCell opts[] =
     '\0', "ext-sup-max-depth",
     ReqArg, NULL,
     "Sets the maximal proof depth of the clause which will be considered for "
-    " ExtSup inferences. Negative value disables the rule."},
+    " Ext-family of inferences. Negative value disables the rule."},
 
    {OPT_INVERSE_RECOGNITION,
     '\0', "inverse-recognition",
@@ -1531,6 +1558,171 @@ OptCell opts[] =
     "After CNF and before saturation, replaces all clauses that are definitions "
     " of injectivity by axiomatization of inverse function."},
 
+   {OPT_LIFT_LAMBDAS,
+    '\0', "lift-lambdas",
+    ReqArg, NULL,
+    "Should the lambdas be replaced by named fuctions?"},
+   
+   {OPT_ETA_NORMALIZE,
+    '\0', "eta-normalize",
+    ReqArg, NULL,
+    "Which form of eta normalization to perform?"},
+
+   {OPT_HO_ORDER_KIND,
+    '\0', "ho-order-kind",
+    ReqArg, NULL,
+    "Do we use simple LFHO order or a more advanced Boolean free lambda-KBO?"},
+
+   {OPT_LAMBDA_TO_FORALL,
+    '\0', "cnf-lambda-to-forall",
+    ReqArg, NULL,
+    "Do we turn equations of the form ^X.s (!)= ^X.t into (?)!X. s (!)= t ?"},
+
+   {OPT_LAM_WEIGHT,
+    '\0', "kbo-lam-weight",
+    ReqArg, NULL,
+    "Weight of lambda symbol in KBO."},
+
+   {OPT_DB_WEIGHT,
+    '\0', "kbo-db-weight",
+    ReqArg, NULL,
+    "Weight of DB var in KBO."},
+
+   {OPT_ELIM_LEIBNIZ,
+    '\0', "eliminate-leibniz-eq",
+    ReqArg, NULL,
+    "Maximal proof depth of the clause on which Leibniz"\
+    " equality elimination should be applied"\
+    "; -1 disaables Leibniz equality elimination altogether"},
+
+    {OPT_UNROLL_FORMULAS_ONLY,
+    '\0', "unroll-formulas-only",
+    ReqArg, NULL,
+    "Set to true if you want only formulas to be recognized as definitions"
+    " during CNF. Default is true."},
+
+    {OPT_PRIM_ENUM_KIND,
+    '\0', "prim-enum-mode",
+    ReqArg, NULL,
+    "Choose the mode of primitive enumeration "},
+
+    {OPT_PRIM_ENUM_MAX_DEPTH,
+    '\0', "prim-enum-max-depth",
+    ReqArg, NULL,
+    "Maximal proof depth of a clause on which primitive enumeration is applied."
+    " -1 disables primitive enumeration"},
+
+    {OPT_CHOICE_INST,
+    '\0', "inst-choice-max-depth",
+    ReqArg, NULL,
+    "Maximal proof depth of a clause which is going to"
+    " be scanned for occurrences of defined choice symbol"
+    " -1 disables scanning for choice symbols"},
+
+    {OPT_LOCAL_RW,
+    '\0', "local-rw",
+    ReqArg, NULL,
+    "Enable/disable local rewriting: if the clause is of the form s != t | "
+    " C, where s > t, rewrite all occurrences of s with t in C."},
+
+    {OPT_PRUNE_ARGS,
+    '\0', "prune-args",
+    ReqArg, NULL,
+    "Enable/disable pruning arguments of applied variables."},
+
+    {OPT_FUNC_PROJ_IMIT,
+    '\0', "func-proj-limit",
+    ReqArg, NULL,
+    "Maximal number of functional projections"},
+
+    {OPT_IMIT_LIMIT,
+    '\0', "imit-limit",
+    ReqArg, NULL,
+    "Maximal number of imitations"},
+
+    {OPT_IDENT_LIMIT,
+    '\0', "ident-limit",
+    ReqArg, NULL,
+    "Maximal number of identifications"},
+
+    {OPT_ELIM_LIMIT,
+    '\0', "elim-limit",
+    ReqArg, NULL,
+    "Maximal number of eliminations"},
+
+    {OPT_UNIF_MODE,
+    '\0', "unif-mode",
+    ReqArg, NULL,
+    "Set the mode of unification: either single or multi."},
+
+    {OPT_PATTERN_ORACLE,
+    '\0', "pattern-oracle",
+    ReqArg, NULL,
+    "Turn the pattern oracle on or off."},
+
+    {OPT_FIXPOINT_ORACLE,
+    '\0', "fixpoint-oracle",
+    ReqArg, NULL,
+    "Turn the pattern oracle on or off."},
+
+    {OPT_MAX_UNIFIERS,
+    '\0', "max-unifiers",
+    ReqArg, NULL,
+    "Maximal number of imitations"},
+    
+    {OPT_MAX_UNIF_STEPS,
+    '\0', "max-unif-steps",
+    ReqArg, NULL,
+    "Maximal number of variable bindings that can "
+    "be done in one single call to copmuting the next unifier."},
+
+    {OPT_CNF_TIMEOUT_PORTION,
+    '\0', "classification-timeout-portion",
+    ReqArg, NULL,
+    "Which percentage (from 1 to 99) of the total CPU time will be devoted to "
+    "problem classification?"},
+
+    {OPT_PREINSTANTIATE_INDUCTION,
+    '\0', "preinstantiate-induction",
+    ReqArg, NULL,
+    "Abstract unit clauses coming from conjecture and use the abstractions "
+    "to instantiate clauses that look like the ones coming from induction axioms."},
+
+    {OPT_BCE,
+    '\0', "bce", ReqArg, NULL, "Turn blocked clause elimination on or off"},
+
+    {OPT_BCE_MAX_OCCS,
+    '\0', "bce-max-occs", ReqArg, NULL, 
+    "Stop tracking symbol after it occurs in <arg> clauses"
+    " Set <arg> to -1 disable this limit"},
+
+    {OPT_PRED_ELIM,
+    '\0', "pred-elim", ReqArg, NULL, "Turn predicate elimination on or off"},
+
+    {OPT_PRED_ELIM_MAX_OCCS,
+    '\0', "pred-elim-max-occs", ReqArg, NULL, 
+    "Stop tracking symbol after it occurs in <arg> clauses"
+    " Set <arg> to -1 disable this limit"},
+
+    {OPT_PRED_ELIM_TOLERANCE,
+    '\0', "pred-elim-tolerance", ReqArg, NULL, 
+    "Tolerance for predicate elimination measures."},
+
+    {OPT_PRED_ELIM_GATES,
+    '\0', "pred-elim-recognize-gates", ReqArg, NULL, "Turn gate recognition for predicate elimination on or off"},
+
+    {OPT_PRED_ELIM_FORCE_MU_DECREASE,
+    '\0', "pred-elim-force-mu-decrease", ReqArg, NULL, 
+     "Require that the square number of distinct free variables "
+     "decreases when doing predicate elimination. Helps avoid "
+     "creating huge clauses."},
+
+    {OPT_PRED_ELIM_IGNORE_CONJ_SYMS,
+    '\0', "pred-elim-ignore-conj-syms", ReqArg, NULL, 
+     "Disable eliminating symbols that occur in the conjecture."},
+
+
+
    {OPT_NOOPT,
     '\0', NULL,
     NoArg, NULL,
@@ -1538,7 +1730,6 @@ OptCell opts[] =
 };
 
 #endif
-
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/

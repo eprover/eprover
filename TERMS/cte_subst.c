@@ -23,6 +23,7 @@
 
 #include "cte_subst.h"
 #include "clb_plocalstacks.h"
+#include "cte_lambda.h"
 
 
 
@@ -72,7 +73,7 @@ bool SubstBacktrackSingle(Subst_p subst)
    }
    handle = PStackPopP(subst);
 
-   assert(TermIsVar(handle));
+   assert(TermIsFreeVar(handle));
    handle->binding = NULL;
 
    return true;
@@ -155,11 +156,15 @@ PStackPointer SubstNormTerm(Term_p term, Subst_p subst, VarBank_p vars, Sig_p si
    PStackPointer ret = PStackGetSP(subst);
    PLocalStackInit(stack);
    PLocalStackPush(stack, term);
+   // assert(TermGetBank(term));
+
+   Term_p (*deref)(Term_p) = 
+      problemType == PROBLEM_HO ? WHNF_deref : TermDerefAlways;
 
    while(!PLocalStackEmpty(stack))
    {
-      term = TermDerefAlways(PLocalStackPop(stack));
-      if(TermIsVar(term))
+      term = deref(PLocalStackPop(stack));
+      if(TermIsFreeVar(term))
       {
          if(!TermCellQueryProp(term, TPSpecialFlag))
          {
@@ -195,6 +200,7 @@ PStackPointer SubstNormTerm(Term_p term, Subst_p subst, VarBank_p vars, Sig_p si
 bool SubstBindingPrint(FILE* out, Term_p var, Sig_p sig, DerefType deref)
 {
    TermPrint(out, var, sig, DEREF_NEVER);
+   // DBG_PRINT(out, " : ", TypePrintTSTP(out, sig->type_bank, var->type), " ");
    fprintf(out, "<-");
    if(var->binding)
    {
@@ -277,12 +283,12 @@ bool SubstIsRenaming(Subst_p subst)
    for(i=0; i< size; i++)
    {
       var = PStackElementP(subst,i);
-      assert(TermIsVar(var));
+      assert(TermIsFreeVar(var));
       assert(var->binding);
       deref=DEREF_ONCE;
       inst = TermDeref(var, &deref);
 
-      if(!TermIsVar(inst))
+      if(!TermIsFreeVar(inst))
       {
          return false;
       }
@@ -353,7 +359,7 @@ void SubstSkolemizeTerm(Term_p term, Subst_p subst, Sig_p sig)
 
    assert(term && subst && sig);
 
-   if(TermIsVar(term))
+   if(TermIsFreeVar(term))
    {
       if(!(term->binding))
       {
@@ -391,7 +397,7 @@ void SubstCompleteInstance(Subst_p subst, Term_p term,
 {
    int i;
 
-   if(TermIsVar(term))
+   if(TermIsFreeVar(term))
    {
       if(!(term->binding))
       {
@@ -428,7 +434,7 @@ PStackPointer SubstBindAppVar(Subst_p subst, Term_p var, Term_p to_bind, int up_
    PStackPointer ret = PStackGetSP(subst);
    assert(var);
    assert(to_bind);
-   assert(TermIsVar(var));
+   assert(TermIsFreeVar(var));
    assert(!(var->binding));
    assert(problemType == PROBLEM_HO || !TermCellQueryProp(to_bind, TPPredPos));
    assert(var->type);
@@ -443,6 +449,33 @@ PStackPointer SubstBindAppVar(Subst_p subst, Term_p var, Term_p to_bind, int up_
    PStackPushP(subst, var);
 
    return ret;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: SubstHasHOBinding()
+//
+//   Does the substitution have any bound variable that is of
+//   functional type
+//
+// Global Variables: -
+//
+// Side Effects    : Changes subst.
+//
+/----------------------------------------------------------------------*/
+
+bool SubstHasHOBinding(Subst_p subst)
+{
+   bool ans = false;
+   if(problemType == PROBLEM_HO)
+   {
+      for(PStackPointer i = 0; !ans && i<PStackGetSP(subst); i++)
+      {
+         Term_p var = PStackElementP(subst, i);
+         ans = TypeIsArrow(var->type);
+      }
+   }
+   return ans;
 }
 
 /*---------------------------------------------------------------------*/

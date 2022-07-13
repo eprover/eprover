@@ -50,6 +50,7 @@ typedef enum
    /* For simplifying inferences, the main premise is implicit */
    DOEvalGC,
    DORewrite,
+   DOLocalRewrite,
    DOUnfold,
    DOApplyDef,
    DOContextSR,
@@ -75,10 +76,12 @@ typedef enum
    DOEqFactor,
    DOEqRes,
    DOSatGen,
+   DOPEResolve,
    /* CNF conversion and similar */
    DOSplitEquiv,
    DOIntroDef,
    DOSplitConjunct,
+   DOLiftLambdas,
    DOFOOLUnroll,
    DOEliminateBVar,
    /* HO inferences */
@@ -89,7 +92,14 @@ typedef enum
    DOPosExt,
    DOExtSup,
    DOExtEqRes,
-   DOInvRec
+   DOExtEqFact,
+   DOInvRec,
+   DOChoiceAx,
+   DOLeibnizElim,
+   DOPrimEnum,
+   DOChoiceInst,
+   DOTrigger,
+   DOPruneArg
 }OpCode;
 
 
@@ -101,6 +111,7 @@ typedef enum
    Arg2Fof = 1<<11,
    Arg2Cnf = 1<<12,
    Arg2Num = 1<<13,
+   ArgIsHO = 1<<14,
 }ArgDesc;
 
 
@@ -113,6 +124,7 @@ typedef enum
    /* For simplifying inferences, the main premise is implicit */
    DCCnfEvalGC        = DOEvalGC,
    DCRewrite          = DORewrite|Arg1Cnf,
+   DCLocalRewrite     = DOLocalRewrite,
    DCUnfold           = DOUnfold|Arg1Cnf,
    DCApplyDef         = DOApplyDef|Arg1Fof,
    DCContextSR        = DOContextSR|Arg1Cnf,
@@ -138,21 +150,30 @@ typedef enum
    DCEqFactor         = DOEqFactor|Arg1Cnf,
    DCEqRes            = DOEqRes|Arg1Cnf,
    DCSatGen           = DOSatGen|Arg1Cnf,
+   DCPEResolve        = DOPEResolve|Arg1Cnf|Arg2Cnf,
    /* CNF conversion and similar */
    DCSplitEquiv       = DOSplitEquiv|Arg1Fof,
    DCIntroDef         = DOIntroDef,
    DCSplitConjunct    = DOSplitConjunct|Arg1Fof,
+   DCLiftLambdas      = DOLiftLambdas|Arg1Fof,
    DCFoolUnroll       = DOFOOLUnroll,
    DCEliminateBVar    = DOEliminateBVar,
    /* HO inferences */
-   DCDynamicCNF       = DODynamicCNF|Arg1Cnf,
-   DCFlexResolve      = DOFlexResolve,
-   DCArgCong          = DOArgCong|Arg1Cnf,
-   DCNegExt           = DONegExt|Arg1Cnf,
-   DCPosExt           = DOPosExt|Arg1Cnf,
-   DCExtSup           = DOExtSup|Arg1Cnf|Arg2Cnf,
-   DCExtEqRes         = DOExtEqRes|Arg1Cnf,
-   DCInvRec           = DOInvRec|Arg1Cnf
+   DCDynamicCNF       = DODynamicCNF|Arg1Cnf|ArgIsHO,
+   DCFlexResolve      = DOFlexResolve|ArgIsHO,
+   DCArgCong          = DOArgCong|Arg1Cnf|ArgIsHO,
+   DCNegExt           = DONegExt|Arg1Cnf|ArgIsHO,
+   DCPosExt           = DOPosExt|Arg1Cnf|ArgIsHO,
+   DCExtSup           = DOExtSup|Arg1Cnf|Arg2Cnf|ArgIsHO,
+   DCExtEqRes         = DOExtEqRes|Arg1Cnf|ArgIsHO,
+   DCExtEqFact        = DOExtEqFact|Arg1Cnf|ArgIsHO,
+   DCInvRec           = DOInvRec|Arg1Cnf|ArgIsHO,
+   DCChoiceAx         = DOChoiceAx|ArgIsHO,
+   DCLeibnizElim      = DOLeibnizElim|Arg1Cnf|ArgIsHO,
+   DCPrimEnum         = DOPrimEnum|Arg1Cnf|ArgIsHO,
+   DCChoiceInst       = DOChoiceInst|Arg1Cnf|Arg2Cnf|ArgIsHO,
+   DCTrigger          = DOTrigger|Arg1Cnf|Arg2Cnf|ArgIsHO,
+   DCPruneArg         = DOPruneArg|ArgIsHO
 }DerivationCode;
 
 
@@ -222,6 +243,8 @@ extern bool            ProofObjectRecordsGCSelection;
 #define DPOpGetOpCode(op)  ((op)&127)
 #define DCOpIsGenerating(op) ((DPOpGetOpCode(op) >= DOParamod)&&(DPOpGetOpCode(op) <= DOSatGen))
 
+#define DPSetIsHO(op) ((op) | ArgIsHO)
+#define DPGetIsHO(op) ((op) & ArgIsHO)
 
 void ClausePushDerivation(Clause_p clause, DerivationCode op,
                           void* arg1, void* arg2);
@@ -266,6 +289,7 @@ void DerivedSetInProof(Derived_p derived, bool in_proof);
 
 void DerivationStackPCLPrint(FILE* out, Sig_p sig, PStack_p derivation);
 void DerivationStackTSTPPrint(FILE* out, Sig_p sig, PStack_p derivation);
+void DerivationDebugPrint(FILE* out, PStack_p derivation);
 
 void DerivedPCLPrint(FILE* out, Sig_p sig, Derived_p derived);
 void DerivedTSTPPrint(FILE* out, Sig_p sig, Derived_p derived);

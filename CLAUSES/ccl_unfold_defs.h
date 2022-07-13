@@ -50,7 +50,7 @@
 /* We'll not export term and clause versions, because we need the
    clause information for proof output anyways */
 
-bool ClauseUnfoldEqDef(Clause_p clause, ClausePos_p demod);
+bool ClauseUnfoldEqDef(Clause_p clause, ClausePos_p demod, Term_p lside, Term_p rside);
 bool ClauseSetUnfoldEqDef(ClauseSet_p set, ClausePos_p demod);
 long ClauseSetUnfoldAllEqDefs(ClauseSet_p set, ClauseSet_p passive,
                               ClauseSet_p archive,

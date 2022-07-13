@@ -38,7 +38,6 @@ typedef void (*ObjDelFun)(void *junk);
 
 typedef PTree_p PObjTree_p;
 
-
 /*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/

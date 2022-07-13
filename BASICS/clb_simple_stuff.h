@@ -26,7 +26,9 @@
 
 #include <string.h>
 #include <clb_error.h>
-
+#include <pthread.h>
+#include <semaphore.h>
+#include <unistd.h>
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
 /*---------------------------------------------------------------------*/
@@ -89,6 +91,18 @@ long   StringArrayCardinality(char *array[]);
 long   ComputeGCD(long a, long b);
 
 void   SetProblemType(ProblemType t);
+
+#define DBG_PRINT(out, prefix, main, suffix) \
+   fprintf(out, "%s", prefix);\
+   main;\
+   fprintf(out, "%s", suffix)
+
+#define DBG_TPRINT(out, prefix, term, suffix) \
+   fprintf(out, "%s", prefix);\
+   TermPrintDbg(out, term, TermGetBank(term)->sig, DEREF_NEVER);\
+   fprintf(out, "%s", suffix)
+
+
 
 #endif
 

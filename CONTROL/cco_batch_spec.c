@@ -569,7 +569,7 @@ long BatchStructFOFSpecInit(BatchSpec_p spec,
    long res;
 
    res = StructFOFSpecParseAxioms(ctrl, spec->includes, spec->format, default_dir);
-   StructFOFSpecInitDistrib(ctrl);
+   StructFOFSpecInitDistrib(ctrl, false);
 
    return res;
 }
@@ -591,7 +591,8 @@ long BatchStructFOFSpecInit(BatchSpec_p spec,
 
 void StructFOFSpecAddProblem(StructFOFSpec_p ctrl,
                              ClauseSet_p clauses,
-                             FormulaSet_p formulas)
+                             FormulaSet_p formulas,
+                             bool trim)
 {
    GenDistribSizeAdjust(ctrl->f_distrib, ctrl->terms->sig);
    TBGCRegisterClauseSet(ctrl->terms, clauses);
@@ -600,7 +601,7 @@ void StructFOFSpecAddProblem(StructFOFSpec_p ctrl,
    PStackPushP(ctrl->formula_sets, formulas);
 
    GenDistribAddClauseSet(ctrl->f_distrib, clauses, 1);
-   GenDistribAddFormulaSet(ctrl->f_distrib, formulas, 1);
+   GenDistribAddFormulaSet(ctrl->f_distrib, formulas, 1, trim);
 }
 
 
@@ -683,6 +684,12 @@ long StructFOFSpecGetProblem(StructFOFSpec_p ctrl,
                                res_clauses,
                                res_formulas);
          break;
+   case AFLambdaDefines:
+         res = SelectDefinitions(ctrl->clause_sets,
+                                ctrl->formula_sets,
+                                res_clauses,
+                                res_formulas);
+         break;
    default:
          assert(false && "Unknown AxFilter type");
          break;
@@ -729,7 +736,8 @@ bool BatchProcessProblem(BatchSpec_p spec,
 
    StructFOFSpecAddProblem(ctrl,
                            cset,
-                           fset);
+                           fset,
+                           false);
 
    start = GetSecTime();
    end   = start+wct_limit;

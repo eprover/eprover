@@ -35,6 +35,7 @@
 #include <clb_numtrees.h>
 #include <cio_basicparser.h>
 #include <cte_varsets.h>
+#include <cte_dbvars.h>
 #include <cte_termcellstore.h>
 #include <cte_garbage_coll.h>
 
@@ -51,6 +52,9 @@ typedef struct tbcell
                                     (as a measure of work done. */
    Sig_p         sig;            /* Store sig info */
    VarBank_p     vars;           /* Information about (shared) variables */
+   DBVarBank_p   db_vars;        /* de Bruijn (shared) variable bank
+                                    All the de Bruijn variables 
+                                    are requested from here. */
    Term_p        true_term;      /* Pointer to the special term with the
                                     $true constant. */
    Term_p        false_term;     /* Pointer to the special term with the
@@ -120,7 +124,7 @@ long    TBTermNodes(TB_p bank);
    (TERMCELL_DYN_MEM*(bank)->term_store.entries         \
     +(bank)->term_store.arg_count*TERMP_MEM)
 
-#define TBCellIdent(term) (TermIsVar(term)?(term)->f_code:term->entry_no)
+#define TBCellIdent(term) (TermIsFreeVar(term)?(term)->f_code:term->entry_no)
 
 #define TermIsTrueTerm(term) ((term)->f_code==SIG_TRUE_CODE)
 
@@ -135,16 +139,14 @@ long    TBTermNodes(TB_p bank);
 Term_p  TBInsert(TB_p bank, Term_p term, DerefType deref);
 Term_p  TBInsertIgnoreVar(TB_p bank, Term_p term, DerefType deref);
 Term_p  TBInsertNoProps(TB_p bank, Term_p term, DerefType deref);
+Term_p TBInsertNoPropsCached(TB_p bank, Term_p term, DerefType deref);
 Term_p  TBInsertRepl(TB_p bank, Term_p term, DerefType deref, Term_p old, Term_p repl);
 Term_p  TBInsertReplPlain(TB_p bank, Term_p term, Term_p old, Term_p repl);
+Term_p  TBInsertInstantiatedDeref(TB_p bank, Term_p term, DerefType deref);
 Term_p  TBInsertInstantiatedFO(TB_p bank, Term_p term);
 Term_p  TBInsertInstantiatedHO(TB_p bank, Term_p term, bool follow);
-
-#ifdef ENABLE_LFHO
 Term_p  TBInsertInstantiated(TB_p bank, Term_p term);
-#else
-#define TBInsertInstantiated(bank, term) (TBInsertInstantiatedFO(bank, term))
-#endif
+
 
 Term_p  TBInsertOpt(TB_p bank, Term_p term, DerefType deref);
 Term_p  TBInsertDisjoint(TB_p bank, Term_p term);
@@ -186,6 +188,9 @@ Term_p  TBGetFreqConstTerm(TB_p terms, Type_p sort,
                            long* conj_dist_array,
                            long* dist_array, FunConstCmpFunType is_better);
 Term_p  TermMap(TB_p bank, Term_p t, TermMapper f);
+Term_p NormalizePatternAppVar(TB_p bank, Term_p s);
+#define MAYBE_NORMALIZE_APP_VAR(t) (TermIsTopLevelFreeVar(t) ? NormalizePatternAppVar(TermGetBank(t), t) : NULL)
+Term_p TermApplyArg(TypeBank_p tb, Term_p s, Term_p arg);
 
 
 #define TBGCRegisterFormulaSet(terms, set)   GCRegisterFormulaSet((terms)->gc,(set))
@@ -207,6 +212,13 @@ static inline Term_p TBRawTermParse(Scanner_p in, TB_p bank)
 {
    return TBTermParseReal(in, bank, false);
 
+}
+
+static inline Term_p TBRequestDBVar(TB_p bank, Type_p ty, int idx)
+{
+   Term_p dbvar = _RequestDBVar(bank->db_vars, ty, idx);
+   TermSetBank(dbvar, bank);
+   return dbvar;
 }
 
 #endif

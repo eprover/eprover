@@ -548,7 +548,11 @@ void ClauseSetPDTIndexedInsert(ClauseSet_p set, Clause_p newclause)
    pos->literal = newclause->literals;
    pos->side    = LeftSide;
    pos->pos     = NULL;
-   PDTreeInsert(set->demod_index, pos);
+   if(!PDTreeInsert(set->demod_index, pos))
+   {
+      // not inserted
+      ClausePosCellFree(pos);
+   }
    if(!EqnIsOriented(newclause->literals))
    {
       pos          = ClausePosCellAlloc();
@@ -556,7 +560,11 @@ void ClauseSetPDTIndexedInsert(ClauseSet_p set, Clause_p newclause)
       pos->literal = newclause->literals;
       pos->side    = RightSide;
       pos->pos     = NULL;
-      PDTreeInsert(set->demod_index, pos);
+      if(!PDTreeInsert(set->demod_index, pos))
+      {
+         // not inserted
+         ClausePosCellFree(pos);
+      }
    }
    ClauseSetProp(newclause, CPIsDIndexed);
 }
@@ -1747,13 +1755,21 @@ bool PDTreeVerifyIndex(PDTree_p tree, ClauseSet_p demods)
             }
          }
          IntMapIterFree(iter);
-         for(i=1; i<=handle->max_var; i++)
+
+         PStack_p map_iter = PStackAlloc();
+          map_iter = PObjMapTraverseInit(handle->v_alternatives, map_iter);
+         while((handle = PObjMapTraverseNext(map_iter, NULL)))
          {
-            if(PDArrayElementP(handle->v_alternatives, i))
-            {
-               PStackPushP(stack, PDArrayElementP(handle->v_alternatives, i));
-            }
+            PStackPushP(stack, handle);
          }
+         PObjMapTraverseExit(map_iter);
+         map_iter = PObjMapTraverseInit(handle->db_alternatives, map_iter);
+         while((handle = PObjMapTraverseNext(map_iter, NULL)))
+         {
+            PStackPushP(stack, handle);
+         }
+         PObjMapTraverseExit(map_iter);
+         PStackFree(map_iter);
       }
       else
       {
@@ -1764,22 +1780,14 @@ bool PDTreeVerifyIndex(PDTree_p tree, ClauseSet_p demods)
             if(!ClauseSetFind(demods, pos->clause))
             {
                res = false;
+               /* TODO: In HO it is possible that a clause will
+                  not be indexed */
                /* printf("Fehler: %d\n", (int)pos->clause);
                   ClausePrint(stdout, pos->clause, true);
                   printf("\n"); */
             }
          }
          PTreeTraverseExit(trav);
-         iter = IntMapIterAlloc(handle->f_alternatives, 0, LONG_MAX);
-         while((handle = IntMapIterNext(iter, &i)))
-         {
-            assert(!handle);
-         }
-         IntMapIterFree(iter);
-         for(i=0; i<handle->max_var; i++)
-         {
-            assert(!PDArrayElementP(handle->v_alternatives, i));
-         }
       }
    }
    PStackFree(stack);
@@ -2426,6 +2434,38 @@ long ClauseSetCountConjectures(ClauseSet_p set, long* hypos)
    return ret;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseConjectureOrder()
+//
+//   Return the maximal order of the symbols that appear in the conjecture.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+int ClauseConjectureOrder(ClauseSet_p set)
+{
+   int ord = 0;
+   Clause_p handle;
+
+   for(handle = set->anchor->succ;
+       handle != set->anchor;
+       handle = handle->succ)
+   {
+      for(Eqn_p lit = handle->literals; lit; lit = lit->next)
+      {
+         Sig_p sig = lit->bank->sig;
+         ord = MAX(ord, MAX(TermComputeOrder(sig, lit->lterm),
+                            TermComputeOrder(sig, lit->rterm)));
+      }
+
+   }
+   return ord;
+}
+
 
 /*-----------------------------------------------------------------------
 //
@@ -2451,7 +2491,6 @@ bool ClauseSetIsUntyped(ClauseSet_p set)
    }
    return true;
 }
-
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */

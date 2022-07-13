@@ -213,7 +213,7 @@ void SigInsertInternalCodes(Sig_p sig)
    SigSetPolymorphic(sig, sig->eqn_code, true);
 
    sig->neqn_code   = SigInsertId(sig, "$neq",   2, true);
-   SigSetPolymorphic(sig, sig->eqn_code, true);
+   SigSetPolymorphic(sig, sig->neqn_code, true);
 
    sig->qex_code   = SigInsertId(sig, "$qex",   2, true);
    sig->qall_code  = SigInsertId(sig, "$qall",  2, true);
@@ -1713,7 +1713,7 @@ void SigPrintTypeDeclsTSTP(FILE* out, Sig_p sig)
    for(i=sig->internal_symbols+1; i <= sig->f_count; i++)
    {
       fun = &sig->f_info[i];
-      if (fun->type && !TypeIsUntyped(fun->type))
+      if (fun->type /*&& !TypeIsUntyped(fun->type)*/)
       {
          fprintf(out, "%s(decl_%ld, type, %s: ", tag, i, fun->name);
          TypePrintTSTP(out, sig->type_bank, fun->type);
@@ -1965,6 +1965,7 @@ bool SigSymbolUnifiesWithVar(Sig_p sig, FunCode f_code)
 
    return problemType == PROBLEM_HO ||
           f_code == SIG_TRUE_CODE || f_code == SIG_FALSE_CODE ||
+          f_code != SIG_DB_LAMBDA_CODE ||
           f_code <= 0 ||
           !SigIsPredicate(sig,f_code);
 }
@@ -2049,6 +2050,30 @@ void SigExitLetScope(Sig_p sig)
 
    }
    PStackFree(scope);
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: SigHasChoiceSym()
+//
+//   Count number of symbols with a given arity. If predictates is
+//   true, count predicates, otherwise count function symbols.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+bool SigHasChoiceSym(Sig_p sig)
+{
+   FunCode i;
+
+   for(i=sig->internal_symbols+1; 
+       i<=sig->f_count && !IsChoiceType(SigGetType(sig, i)); 
+       i++)
+   {}
+   return i<=sig->f_count;
 }
 
 

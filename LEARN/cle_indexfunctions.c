@@ -391,7 +391,7 @@ long TSMIndexFind(TSMIndex_p index, Term_p term, PatternSubst_p subst)
             printf("\n");
             PatternTermPrint(stdout, subst, term,
             index->bank->sig); */
-         if(TermIsVar(term) && VarIsAltVar(term))
+         if(TermIsFreeVar(term) && VarIsAltVar(term))
          {
             key = term->f_code;
          }
@@ -481,7 +481,7 @@ long TSMIndexInsert(TSMIndex_p index, Term_p term)
             printf("\n");
             PatternTermPrint(stdout, index->subst, term,
             index->bank->sig); */
-         if(TermIsVar(term) && VarIsAltVar(term))
+         if(TermIsFreeVar(term) && VarIsAltVar(term))
          {
             key = term->f_code;
          }

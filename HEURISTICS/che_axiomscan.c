@@ -71,20 +71,26 @@ FunCode DetectCommutativity(Clause_p clause)
 
    assert(lit);
    FAIL_ON(!EqnIsPositive(lit));
-   FAIL_ON(TermIsAppliedVar(lit->lterm) || TermIsAppliedVar(lit->rterm));
-   FAIL_ON((TermStandardWeight(lit->lterm)!=
-       DEFAULT_FWEIGHT+(2*DEFAULT_VWEIGHT))||
-      (TermStandardWeight(lit->rterm)!=
-       DEFAULT_FWEIGHT+(2*DEFAULT_VWEIGHT)));
+   FAIL_ON(TermIsPhonyApp(lit->lterm) || TermIsPhonyApp(lit->rterm));
+   FAIL_ON(lit->lterm->arity != 2 || lit->rterm->arity != 2);
+   
+   FAIL_ON(!TermIsFreeVar(lit->lterm->args[0]) || !TermIsFreeVar(lit->lterm->args[1]));
+   FAIL_ON(!TermIsFreeVar(lit->rterm->args[0]) || !TermIsFreeVar(lit->rterm->args[1]));
 
    FAIL_ON((lit->lterm->arity!=2)||
       (lit->lterm->f_code!=lit->rterm->f_code));
+   // due to weight adjustment either arguement can 
+   // be a pattern applied variable.
+   FAIL_ON(TermIsLambda(lit->lterm->args[0]));
+   FAIL_ON(TermIsLambda(lit->lterm->args[1]));
+   FAIL_ON(TermIsLambda(lit->rterm->args[0]));
+   FAIL_ON(TermIsLambda(lit->rterm->args[1]));
    assert(lit->lterm->args);
-   assert(TermIsVar(lit->lterm->args[0])); /* Otherwise default weight */
-   assert(TermIsVar(lit->lterm->args[1])); /* is borked */
+   assert(TermIsFreeVar(lit->lterm->args[0])); /* Otherwise default weight */
+   assert(TermIsFreeVar(lit->lterm->args[1])); /* is borked */
    assert(lit->rterm->args);
-   assert(TermIsVar(lit->rterm->args[0]));
-   assert(TermIsVar(lit->rterm->args[1]));
+   assert(TermIsFreeVar(lit->rterm->args[0]));
+   assert(TermIsFreeVar(lit->rterm->args[1]));
 
    FAIL_ON(lit->lterm->args[0] == lit->lterm->args[1]);
    FAIL_ON((lit->lterm->args[0] != lit->rterm->args[1])||(lit->lterm->args[1] != lit->rterm->args[0]));
@@ -124,10 +130,16 @@ FunCode DetectAssociativity(Clause_p clause)
       (TermStandardWeight(lit->lterm)!=
        (2*DEFAULT_FWEIGHT+(3*DEFAULT_VWEIGHT))));
 
+   FAIL_ON(TermIsAppliedFreeVar(lit->lterm));
+   FAIL_ON(TermIsLambda(lit->lterm));
+   FAIL_ON(TermIsAppliedFreeVar(lit->rterm));
+   FAIL_ON(TermIsLambda(lit->rterm));
+
    FAIL_ON(lit->lterm->f_code!=lit->rterm->f_code);
    FAIL_ON((lit->lterm->arity!=2));
+   assert(lit->rterm->arity == 2);
 
-   if(TermIsVar(lit->lterm->args[0]))
+   if(TermIsFreeVar(lit->lterm->args[0]))
    {
       rterm=lit->lterm;
       lterm=lit->rterm;
@@ -139,9 +151,10 @@ FunCode DetectAssociativity(Clause_p clause)
    }
    f = lterm->f_code;
    FAIL_ON(f!=lterm->args[0]->f_code);
-   FAIL_ON(!TermIsVar(lterm->args[0]->args[0]));
-   FAIL_ON(!TermIsVar(lterm->args[0]->args[1]));
-   FAIL_ON(!TermIsVar(lterm->args[1]));
+   FAIL_ON(lterm->args[0]->arity != 2);
+   FAIL_ON(!TermIsFreeVar(lterm->args[0]->args[0]));
+   FAIL_ON(!TermIsFreeVar(lterm->args[0]->args[1]));
+   FAIL_ON(!TermIsFreeVar(lterm->args[1]));
    v1 = lterm->args[0]->args[0]->f_code;
    v2 = lterm->args[0]->args[1]->f_code;
    v3 = lterm->args[1]->f_code;
@@ -150,6 +163,7 @@ FunCode DetectAssociativity(Clause_p clause)
       the top symbol of the right hand side is f */
    FAIL_ON(f!=rterm->args[1]->f_code);
    FAIL_ON(v1!=rterm->args[0]->f_code);
+   FAIL_ON(rterm->args[1]->arity != 2);
    FAIL_ON(v2!=rterm->args[1]->args[0]->f_code);
    FAIL_ON(v3!=rterm->args[1]->args[1]->f_code);
 

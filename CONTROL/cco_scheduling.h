@@ -51,22 +51,30 @@ typedef struct schedule_cell
 /*---------------------------------------------------------------------*/
 
 #define DEFAULT_SCHED_TIME_LIMIT 300
+#define SCHEDULE_DONE (-1)
+#define RETRY_DEFAULT_SCHEDULE_THRESHOLD (2.0)
 
-extern ScheduleCell const* CASC_SCHEDULE;
-extern ScheduleCell const* CASC_SH_SCHEDULE;
-extern ScheduleCell* chosen_schedule;
 
 void ScheduleTimesInit(ScheduleCell sched[], double time_used);
-pid_t ExecuteSchedule(ScheduleCell strats[],
-                      HeuristicParms_p  h_parms,
-                      bool print_rusage);
 
-void ScheduleTimesInitMultiCore(ScheduleCell sched[], double time_used,
-                                int cores);
+void ScheduleTimesInitMultiCore(ScheduleCell sched[], double time_used, 
+                                double time_limit, bool preprocessing_schedule,
+                                int* cores, bool serialize);
 
-void ExecuteScheduleMultiCore(ScheduleCell strats[],
-                              HeuristicParms_p  h_parms,
-                              bool print_rusage, int cores);
+void InitializePlaceholderSearchSchedule(ScheduleCell* search_sched, 
+                                         ScheduleCell* preproc_sched,
+                                         bool force_preproc);
+
+int ExecuteScheduleMultiCore(ScheduleCell strats[],
+                             HeuristicParms_p  h_parms,
+                             bool print_rusage,
+                             int wc_time_limit,
+                             int compute_cores_per_schedule,
+                             int max_cores,
+                             bool serialize);
+
+ScheduleCell* GetFilteredDefaultSchedule(ScheduleCell* exhausted_sched);
+
 
 
 #endif

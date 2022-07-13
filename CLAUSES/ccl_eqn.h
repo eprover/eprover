@@ -132,6 +132,7 @@ extern IOFormat OutputFormat;
 #define EqnCellFree(junk) SizeFree(junk, sizeof(EqnCell))
 
 Eqn_p   EqnAlloc(Term_p lterm, Term_p rterm, TB_p bank, bool positive);
+Eqn_p   EqnAllocFlatten(Term_p lterm, TB_p bank, bool sign);
 void    EqnFree(Eqn_p junk);
 
 #define EqnCreateTrueLit(bank) (EqnAlloc((bank)->true_term, (bank)->true_term, bank, true))
@@ -152,13 +153,16 @@ void    EqnFree(Eqn_p junk);
 #define EqnIsOriented(eq) EqnQueryProp((eq), EPIsOriented)
 #define EqnIsPositive(eq) EqnQueryProp((eq), EPIsPositive)
 #define EqnIsNegative(eq) (!(EqnQueryProp((eq), EPIsPositive)))
-#define EqnIsEquLit(eq)   EqnQueryProp((eq), EPIsEquLiteral)
+#define EqnIsEquLit(eq)   (assert(EqnQueryProp((eq), EPIsEquLiteral) || (eq)->rterm == (eq)->bank->true_term),\
+                           assert(!EqnQueryProp((eq), EPIsEquLiteral) || (eq)->rterm != (eq)->bank->true_term),\
+                          EqnQueryProp((eq), EPIsEquLiteral))
 #define EqnIsMaximal(eq)  EqnQueryProp((eq), EPIsMaximal)
 #define EqnIsStrictlyMaximal(eq)                                        \
    EqnQueryProp((eq), EPIsStrictlyMaximal)
 
 #define EqnGetPredCodeFO(eq) (EqnIsEquLit(eq)?0:(eq)->lterm->f_code)
-#define EqnGetPredCodeHO(eq) (EqnIsEquLit(eq)?0:(TermIsTopLevelVar((eq)->lterm) ? 0 : (eq)->lterm->f_code))
+#define EqnGetPredCodeHO(eq) (EqnIsEquLit(eq)?0:((TermIsAnyVar((eq)->lterm) || TermIsPhonyApp((eq)->lterm)) ? \
+                                                  0 : (eq)->lterm->f_code))
 
 #ifdef ENABLE_LFHO
 #define EqnGetPredCode(eq) (problemType == PROBLEM_HO ? EqnGetPredCodeHO(eq) : EqnGetPredCodeFO(eq))
@@ -179,14 +183,14 @@ void    EqnFree(Eqn_p junk);
 #define EqnIsPropTrue(eq)  (((eq)->lterm == (eq)->rterm) && EqnIsPositive(eq))
 #define EqnIsPropFalse(eq) (((eq)->lterm == (eq)->rterm) && EqnIsNegative(eq))
 
-#define EqnIsBoolVar(eq) (TermIsVar((eq)->lterm) && ((eq)->rterm == (eq)->bank->true_term))
+#define EqnIsBoolVar(eq) (TermIsFreeVar((eq)->lterm) && ((eq)->rterm == (eq)->bank->true_term))
 
 #define EqnIsGround(eq)                                         \
    (TBTermIsGround((eq)->lterm) && TBTermIsGround((eq)->rterm))
 #define EqnIsPureVar(eq)                                \
-   (TermIsVar((eq)->lterm) && TermIsVar((eq)->rterm))
+   (TermIsFreeVar((eq)->lterm) && TermIsFreeVar((eq)->rterm))
 #define EqnIsPartVar(eq)                                \
-   (TermIsVar((eq)->lterm) || TermIsVar((eq)->rterm))
+   (TermIsFreeVar((eq)->lterm) || TermIsFreeVar((eq)->rterm))
 #define EqnIsPropositional(eq)                          \
    ((!EqnIsEquLit(eq)) && TermIsConst((eq)->lterm))
 #define EqnIsTypePred(eq)                               \
@@ -196,7 +200,7 @@ void    EqnFree(Eqn_p junk);
 #define EqnIsRealXTypePred(eq)                          \
    ((!EqnIsEquLit(eq))&&TermIsDefTerm((eq)->lterm,1))
 #define EqnIsSimpleAnswer(eq)                                   \
-   SigIsSimpleAnswerPred((eq)->bank->sig, (eq)->lterm->f_code)
+   ((!TermIsDBVar((eq)->lterm)) && SigIsSimpleAnswerPred((eq)->bank->sig, (eq)->lterm->f_code))
 
 #define EqnTermSetProp(eq,prop) TermSetProp((eq)->lterm, DEREF_NEVER, (prop));\
    TermSetProp((eq)->rterm, DEREF_NEVER, (prop))
@@ -207,6 +211,12 @@ void    EqnFree(Eqn_p junk);
 #define EqnTermDelProp(eqn, prop)                       \
    TermDelProp((eqn)->lterm, DEREF_NEVER, (prop));      \
    TermDelProp((eqn)->rterm, DEREF_NEVER, (prop))
+
+#define EqnIsClausifiable(eq) \
+   TypeIsBool((eq)->lterm->type) && \
+   ((eq)->rterm != (eq)->bank->true_term || \
+      (!TermIsAnyVar((eq)->lterm) && \
+      SigIsLogicalSymbol((eq)->bank->sig, (eq)->lterm->f_code)))
 
 bool    EqnParseInfix(Scanner_p in, TB_p bank, Term_p *lref, Term_p *rref);
 Eqn_p   EqnParse(Scanner_p in, TB_p bank);
@@ -220,6 +230,7 @@ Term_p  EqnTermsTBTermEncode(TB_p bank, Term_p lterm, Term_p rterm,
 Eqn_p   EqnTBTermDecode(TB_p terms, Term_p eqn);
 Term_p  EqnTBTermParse(Scanner_p in, TB_p bank);
 void    EqnPrint(FILE* out, Eqn_p eq, bool negated, bool fullterms);
+void    EqnPrintDBG(FILE* out, Eqn_p eq);
 #define EqnPrintOriginal(out, eq)               \
         EqnPrint((out), (eq), normal, true)
 void    EqnPrintDeref(FILE* out, Eqn_p eq, DerefType deref);
@@ -264,7 +275,13 @@ int     EqnCanonCompareRef(const void* lit1ref, const void* l2ref);
 long    EqnStructWeightLexCompare(Eqn_p l1, Eqn_p lit2);
 #define EqnEqualDirected(eq1, eq2) \
    (((eq1)->lterm == (eq2)->lterm) && ((eq1)->rterm == (eq2)->rterm))
-bool    EqnEqual(Eqn_p eq1,  Eqn_p eq2);
+#define EqnEqualDirectedDeref(eq1, eq2, d1, d2) \
+   ((d1 == DEREF_NEVER && d2 == DEREF_NEVER) ?\
+      EqnEqualDirected(eq1, eq2) :\
+      (TermStructEqualDeref((eq1)->lterm, (eq2)->lterm, d1, d2) && \
+       TermStructEqualDeref((eq1)->rterm, (eq2)->rterm, d1, d2)))
+bool    EqnEqualDeref(Eqn_p eq1,  Eqn_p eq2, DerefType d1, DerefType d2);
+#define EqnEqual(eq1, eq2) (EqnEqualDeref(eq1, eq2, DEREF_NEVER, DEREF_NEVER))
 #define LiteralEqual(eq1, eq2) \
    (PropsAreEquiv((eq1),(eq2),EPIsPositive) && EqnEqual((eq1),(eq2)))
 
@@ -420,6 +437,7 @@ long    EqnCollectSubterms(Eqn_p eqn, PStack_p collector);
 
 void EqnAppEncode(FILE* out, Eqn_p eq, bool negated);
 bool EqnHasAppVar(Eqn_p eq);
+void EqnMap(Eqn_p eq, TermMapper_p f, void* arg);
 
 /*---------------------------------------------------------------------*/
 /*                        Inline Functions                             */

@@ -31,6 +31,12 @@
 #include <cte_simpletypes.h>
 #include <cco_scheduling.h>
 #include <e_version.h>
+#include <cte_lambda.h>
+#include <cco_ho_inferences.h>
+#include <che_new_autoschedule.h>
+#include <ccl_bce.h>
+#include <ccl_pred_elim.h>
+#include <sys/mman.h>
 
 
 /*---------------------------------------------------------------------*/
@@ -50,6 +56,7 @@ PERF_CTR_DEFINE(SatTimer);
 
 char              *outname = NULL;
 char              *watchlist_filename = NULL;
+char              *parse_strategy_filename = NULL;
 HeuristicParms_p  h_parms;
 FVIndexParms_p    fvi_parms;
 bool              print_sat = false,
@@ -74,7 +81,9 @@ bool              print_sat = false,
    incomplete = false,
    conjectures_are_questions = false,
    app_encode = false,
-   strategy_scheduling = false;
+   strategy_scheduling = false,
+   serialize_schedule = false,
+   force_pre_schedule = true;
 ProofOutput       print_derivation = PONone;
 long              proc_training_data;
 
@@ -89,13 +98,17 @@ long              step_limit = LONG_MAX,
    relevance_prune_level = 0,
    miniscope_limit = 1048576;
 long long tb_insert_limit = LLONG_MAX;
+bool lift_lambdas = true;
+int num_cpus = 1;
+UnifMode unif_mode = SingleUnif;
 
 int force_deriv_output = 0;
 char  *outdesc = DEFAULT_OUTPUT_DESCRIPTOR,
       *filterdesc = DEFAULT_FILTER_DESCRIPTOR;
 PStack_p          wfcb_definitions, hcb_definitions;
-char              *sine=NULL;
 pid_t              pid = 0;
+bool               auto_conf = false;
+double             clausification_time_part=0.02;
 
 FunctionProperties free_symb_prop = FPIgnoreProps;
 
@@ -112,8 +125,41 @@ void print_help(FILE* out);
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
 
+/*-----------------------------------------------------------------------
+//
+// Function: set_limits()
+//
+//   Sets time and memory limits.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory, input, may terminate with error.
+//
+/----------------------------------------------------------------------*/
 
+void set_limits(rlim_t hard_time_limit, rlim_t soft_time_limit, rlim_t mem_limit)
+{
+   if((hard_time_limit!=RLIM_INFINITY)||(soft_time_limit!=RLIM_INFINITY))
+   {
+      if(soft_time_limit!=RLIM_INFINITY)
+      {
+         SetSoftRlimitErr(RLIMIT_CPU, SoftTimeLimit, "RLIMIT_CPU (E-Soft)");
+         TimeLimitIsSoft = true;
+      }
+      else
+      {
+         SetSoftRlimitErr(RLIMIT_CPU, hard_time_limit, "RLIMIT_CPU (E-Hard)");
+         TimeLimitIsSoft = false;
+      }
 
+      if(SetSoftRlimit(RLIMIT_CORE, 0)!=RLimSuccess)
+      {
+         perror("eprover");
+         Warning("Cannot prevent core dumps!");
+      }
+   }
+   SetMemoryLimit(mem_limit);
+}
 
 /*-----------------------------------------------------------------------
 //
@@ -263,7 +309,7 @@ static void print_proof_stats(ProofState_p proofstate,
                               long preproc_removed)
 
 {
-   if(OutputLevel||print_statistics)
+   if(OutputLevel>1||print_statistics)
    {
       fprintf(GlobalOut, "# Parsed axioms                        : %ld\n",
               parsed_ax_no);
@@ -359,7 +405,6 @@ static void print_proof_stats(ProofState_p proofstate,
 //
 /----------------------------------------------------------------------*/
 
-
 int main(int argc, char* argv[])
 {
    int              retval = NO_ERROR;
@@ -378,7 +423,10 @@ int main(int argc, char* argv[])
       parsed_ax_no,
       relevancy_pruned = 0;
    double           preproc_time;
+   SpecLimits_p limits = NULL;
    Derivation_p deriv;
+   SpecFeatureCell features;
+
 
    assert(argv[0]);
 
@@ -405,6 +453,17 @@ int main(int argc, char* argv[])
       HeuristicParmsPrint(stdout, h_parms);
       exit(NO_ERROR);
    }
+   
+   if(parse_strategy_filename)
+   {
+      Scanner_p in = CreateScanner(StreamTypeFile, parse_strategy_filename, true, NULL, true);
+      HeuristicParmsParseInto(in,h_parms,true);
+      if(h_parms->heuristic_def)
+      {
+         PStackPushP(hcb_definitions, h_parms->heuristic_def);
+      }
+      DestroyScanner(in);
+   }
 
    if(state->argc ==  0)
    {
@@ -422,19 +481,62 @@ int main(int argc, char* argv[])
       goto cleanup1;
    }
 
-   relevancy_pruned += ProofStateSinE(proofstate, sine);
+   int sched_idx = -1;
+   ScheduleCell* preproc_schedule = NULL;
+   RawSpecFeatureCell raw_features;
+   rlim_t wc_sched_limit =
+      ScheduleTimeLimit ? ScheduleTimeLimit : DEFAULT_SCHED_TIME_LIMIT;
+   if(auto_conf || strategy_scheduling)
+   {
+      limits = CreateDefaultSpecLimits(); 
+
+      RawSpecFeaturesCompute(&raw_features, proofstate);
+      RawSpecFeaturesClassify(&raw_features, limits, RAW_DEFAULT_MASK);
+      preproc_schedule = GetPreprocessingSchedule(raw_features.class);
+      fprintf(stdout, "# Preprocessing class: %s.\n", raw_features.class);
+      if(strategy_scheduling)
+      {
+         sched_idx = ExecuteScheduleMultiCore(preproc_schedule, h_parms, print_rusage,
+                                             wc_sched_limit, true,
+                                             num_cpus, serialize_schedule);
+         if (sched_idx != SCHEDULE_DONE)
+         {
+            char* preproc_conf_name = h_parms->heuristic_name;
+            GetHeuristicWithName(preproc_conf_name, h_parms);
+         }
+         else
+         {
+            TSTPOUT(GlobalOut, "GaveUp");
+            exit(RESOURCE_OUT);
+         }
+      }
+      else
+      {
+         assert(auto_conf);
+         GetHeuristicWithName(preproc_schedule->heu_name, h_parms);
+         fprintf(stderr, "# Configuration: %s\n", preproc_schedule->heu_name);
+      }
+      CLStateFree(state);
+      state = process_options(argc, argv); // refilling the h_parms with user options
+   }
+
+            
+#ifndef NDEBUG
+      fprintf(stderr, "(lift_lambdas = %d, lambda_to_forall = %d," 
+                      "unroll_only_formulas = %d, sine = %s)\n", 
+                      h_parms->lift_lambdas,
+                      h_parms->lambda_to_forall,
+                      h_parms->unroll_only_formulas,
+                      h_parms->sine);
+#endif
+
+   relevancy_pruned += ProofStateSinE(proofstate, h_parms->sine);
    relevancy_pruned += ProofStateRelevancyProcess(proofstate,
                                                   relevance_prune_level);
    if(app_encode)
    {
       FormulaSetAppEncode(stdout, proofstate->f_axioms);
       goto cleanup1;
-   }
-
-   if(strategy_scheduling)
-   {
-      // ExecuteSchedule(chosen_schedule, h_parms, print_rusage);
-      ExecuteScheduleMultiCore(chosen_schedule, h_parms, print_rusage, cores);
    }
 
    FormulaSetDocInital(GlobalOut, OutputLevel, proofstate->f_axioms);
@@ -470,7 +572,12 @@ int main(int argc, char* argv[])
                                 proofstate->axioms,
                                 proofstate->terms,
                                 proofstate->freshvars,
-                                miniscope_limit);
+                                miniscope_limit,
+                                h_parms->formula_def_limit,
+                                h_parms->lift_lambdas,
+                                h_parms->lambda_to_forall,
+                                h_parms->unroll_only_formulas,
+                                h_parms->fool_unroll);
    }
    else
    {
@@ -478,7 +585,8 @@ int main(int argc, char* argv[])
                                proofstate->f_ax_archive,
                                proofstate->axioms,
                                proofstate->terms,
-                               proofstate->freshvars);
+                               proofstate->freshvars,
+                               h_parms->formula_def_limit);
    }
    VERBOUT("Clausification done.\n");
 
@@ -508,27 +616,127 @@ int main(int argc, char* argv[])
                                             h_parms->eqdef_maxclauses);
       VERBOUT("Clausal preprocessing complete.\n");
    }
-   //HeuristicParmsPrint(stdout, h_parms);
 
-   proofcontrol = ProofControlAlloc();
-   ProofControlInit(proofstate, proofcontrol, h_parms,
-                    fvi_parms, wfcb_definitions, hcb_definitions);
-
-   /* Scanner_p hin = CreateScanner(StreamTypeFile, "bla.txt", true, NULL, true); */
-   /* HeuristicParms_p parms = HeuristicParmsParse(hin, true); */
-   /* DestroyScanner(hin); */
-   /* printf("# Parsed\n"); */
-   /* HeuristicParmsPrint(stdout, parms); */
-   /* HeuristicParmsFree(parms); */
-
-   // Unfold definitions and re-normalize
    preproc_removed += ClauseSetUnfoldEqDefNormalize(proofstate->axioms,
                                                     proofstate->watchlist,
                                                     proofstate->archive,
                                                     proofstate->tmp_terms,
                                                     h_parms->eqdef_incrlimit,
                                                     h_parms->eqdef_maxclauses);
+   if(problemType == PROBLEM_HO && h_parms->inst_choice_max_depth >= 0)
+   {
+      ClauseSetRecognizeChoice(proofstate->choice_opcodes, 
+                               proofstate->axioms, 
+                               proofstate->archive);
+   }
 
+   if(h_parms->preinstantiate_induction)
+   {
+      PreinstantiateInduction(proofstate->f_ax_archive, proofstate->axioms, 
+                              proofstate->archive, proofstate->terms);
+   }
+
+   if(problemType == PROBLEM_FO && h_parms->bce)
+   {
+      // todo: eventually check if the problem in HO syntax is FO.
+      EliminateBlockedClauses(proofstate->axioms, proofstate->archive,
+                              h_parms->bce_max_occs,
+                              proofstate->tmp_terms);
+   }
+
+   if(problemType == PROBLEM_FO && h_parms->pred_elim)
+   {
+      // todo: eventually check if the problem in HO syntax is FO.
+      PredicateElimination(proofstate->axioms, proofstate->archive,
+                           h_parms, proofstate->terms,
+                           proofstate->tmp_terms, proofstate->freshvars);
+   }
+
+   if((strategy_scheduling && sched_idx != -1) || auto_conf)
+   {
+      if(!limits)
+      {
+         limits = CreateDefaultSpecLimits(); 
+      }
+      const int choice_max_depth = h_parms->inst_choice_max_depth;
+      SpecFeaturesCompute(&features, proofstate->axioms, proofstate->f_axioms,
+                          proofstate->f_ax_archive, proofstate->terms);
+      // order info can be affected by clausification
+      // (imagine new symbols being introduced)
+      features.order = raw_features.order;
+      features.goal_order = raw_features.conj_order;
+      features.num_of_definitions = raw_features.num_of_definitions;
+      features.perc_of_form_defs = raw_features.perc_of_form_defs;
+      SpecFeaturesAddEval(&features, limits);
+      char* class = SpecTypeString(&features, DEFAULT_MASK);
+      fprintf(stdout, "# Search class: %s\n", class);
+      if (strategy_scheduling)
+      {
+         set_limits(HardTimeLimit, SoftTimeLimit, h_parms->mem_limit);
+         ScheduleCell* search_sched = GetSearchSchedule(class);
+         InitializePlaceholderSearchSchedule(search_sched, preproc_schedule+sched_idx,
+                                             force_pre_schedule);
+         int status = 
+            ExecuteScheduleMultiCore(search_sched, 
+                                     h_parms, print_rusage, 
+                                     preproc_schedule[sched_idx].time_absolute, 
+                                     false, preproc_schedule[sched_idx].cores, false);
+         if (status == SCHEDULE_DONE)
+         {
+            double total_cpu = GetTotalCPUTimeIncludingChildren();
+            double total_limit = preproc_schedule[sched_idx].time_absolute;
+            double remaining_time = total_limit - total_cpu;
+            if(remaining_time > RETRY_DEFAULT_SCHEDULE_THRESHOLD)
+            {
+               ScheduleCell* filtered_default = GetFilteredDefaultSchedule(search_sched);
+#ifdef NDEBUG
+               FILE* out = stdout;
+#else 
+               FILE* out = stderr;
+#endif
+               fprintf(out, "# executing default schedule for %g seconds.\n", remaining_time);
+               status = 
+                  ExecuteScheduleMultiCore(filtered_default, h_parms, print_rusage, 
+                                          remaining_time, false, 
+                                          preproc_schedule[sched_idx].cores, false);
+               if (status == SCHEDULE_DONE)
+               {
+                  exit(RESOURCE_OUT);
+               }
+            }
+            else
+            {
+               exit(RESOURCE_OUT);
+            }
+         }
+         GetHeuristicWithName(h_parms->heuristic_name, h_parms);
+         h_parms->inst_choice_max_depth = choice_max_depth;
+      }
+      else
+      {
+         assert(auto_conf);
+         // executing the first one from the schedule.
+         char* conf_name = GetSearchSchedule(class)->heu_name;
+         GetHeuristicWithName(conf_name, h_parms);
+         fprintf(stderr, "# Configuration: %s\n", conf_name);
+         h_parms->inst_choice_max_depth = choice_max_depth;
+      }
+      FREE(class);
+      CLStateFree(state);
+      state = process_options(argc, argv); // refilling the h_parms with user options
+      h_parms->heuristic_name = h_parms->heuristic_def;
+   }
+
+   if(limits)
+   {
+      SpecLimitsCellFree(limits);
+   }
+
+   proofcontrol = ProofControlAlloc();
+   ProofControlInit(proofstate, proofcontrol, h_parms,
+                    fvi_parms, wfcb_definitions, hcb_definitions);
+
+   // Unfold definitions and re-normalize
    PCLFullTerms = pcl_full_terms; /* Preprocessing always uses full
                                      terms, so we set the flag for
                                      the main proof search only now! */
@@ -537,7 +745,7 @@ int main(int argc, char* argv[])
                      proofcontrol->heuristic_parms.rw_bw_index_type,
                      "NoIndex",
                      "NoIndex",
-                     proofcontrol->heuristic_parms.ext_sup_max_depth);
+                     proofcontrol->heuristic_parms.ext_rules_max_depth);
    //printf("Alive (1)!\n");
 
    ProofStateInit(proofstate, proofcontrol);
@@ -549,6 +757,7 @@ int main(int argc, char* argv[])
    {
       fprintf(GlobalOut, "# Preprocessing time       : %.3f s\n", preproc_time);
    }
+
    if(proofcontrol->heuristic_parms.presat_interreduction)
    {
       LiteralSelectionFun sel_strat =
@@ -567,10 +776,6 @@ int main(int argc, char* argv[])
    }
    PERF_CTR_ENTRY(SatTimer);
 
-#ifdef ENABLE_LFHO
-   // if the problem is HO -> we have to use KBO6
-   assert(problemType != PROBLEM_HO || proofcontrol->ocb->type == KBO6);
-#endif
 
    if(SigHasUnimplementedInterpretedSymbols(proofstate->signature)||
       (proofcontrol->heuristic_parms.selection_strategy ==  SelectNoGeneration) ||
@@ -609,23 +814,25 @@ int main(int argc, char* argv[])
       {
          DocClauseQuoteDefault(2, success, "proof");
       }
+
+
       fprintf(GlobalOut, "\n# Proof found!\n");
 
       if(print_full_deriv)
       {
          ClauseSetPushClauses(proofstate->extract_roots,
-                              proofstate->processed_pos_rules);
+                                 proofstate->processed_pos_rules);
          ClauseSetPushClauses(proofstate->extract_roots,
-                              proofstate->processed_pos_eqns);
+                                 proofstate->processed_pos_eqns);
          ClauseSetPushClauses(proofstate->extract_roots,
-                              proofstate->processed_neg_units);
+                                 proofstate->processed_neg_units);
          ClauseSetPushClauses(proofstate->extract_roots,
-                              proofstate->processed_non_units);
+                                 proofstate->processed_non_units);
          ClauseSetPushClauses(proofstate->extract_roots,
-                              proofstate->unprocessed);
+                                 proofstate->unprocessed);
       }
       deriv = DerivationCompute(proofstate->extract_roots,
-                                proofstate->signature);
+                              proofstate->signature);
 
       if(!proofstate->status_reported)
       {
@@ -645,7 +852,7 @@ int main(int argc, char* argv[])
       if(PrintProofObject)
       {
          DerivationPrintConditional(GlobalOut,
-                                   "CNFRefutation",
+                                    "CNFRefutation",
                                     deriv,
                                     proofstate->signature,
                                     print_derivation,
@@ -654,7 +861,7 @@ int main(int argc, char* argv[])
          if(proc_training_data)
          {
             ProofStateTrain(proofstate, proc_training_data&TSPrintPos,
-                            proc_training_data&TSPrintNeg);
+                        proc_training_data&TSPrintNeg);
          }
       }
       DerivationFree(deriv);
@@ -721,6 +928,10 @@ int main(int argc, char* argv[])
             fprintf(GlobalOut, "\n# Failure: Out of unprocessed clauses!\n");
             if(!SilentTimeOut)
             {
+               ClauseSetPrint(stderr, proofstate->processed_pos_rules, true);
+               ClauseSetPrint(stderr, proofstate->processed_pos_eqns, true);
+               ClauseSetPrint(stderr, proofstate->processed_neg_units, true);
+               ClauseSetPrint(stderr, proofstate->processed_non_units, true);
                TSTPOUT(GlobalOut, "GaveUp");
             }
             retval = INCOMPLETE_PROOFSTATE;
@@ -1060,6 +1271,9 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_PRINT_STRATEGY:
             print_strategy = true;
             break;
+      case OPT_PARSE_STRATEGY:
+            parse_strategy_filename = arg;
+            break;
       case OPT_STEP_LIMIT:
             step_limit = CLStateGetIntArg(handle, arg);
             break;
@@ -1122,46 +1336,28 @@ CLState_p process_options(int argc, char* argv[])
             EqnUseInfix = true;
             break;
       case OPT_AUTO:
-            h_parms->heuristic_name = "Auto";
-            h_parms->order_params.ordertype = AUTO;
-            sine = "Auto";
-            break;
-      case OPT_SATAUTO:
-            h_parms->heuristic_name = "Auto";
-            h_parms->order_params.ordertype = AUTO;
-            break;
-      case OPT_AUTODEV:
-            h_parms->heuristic_name = "AutoDev";
-            h_parms->order_params.ordertype = AUTODEV;
-            sine = "Auto";
-            break;
-      case OPT_SATAUTODEV:
-            h_parms->heuristic_name = "AutoDev";
-            h_parms->order_params.ordertype = AUTODEV;
+            if(!auto_conf)
+            {
+                h_parms->sine = SecureStrdup("Auto");
+                auto_conf = true;
+            }
             break;
       case OPT_AUTO_SCHED:
-            strategy_scheduling = true;
-            sine = "Auto";
+            if(!strategy_scheduling)
+            {
+               num_cpus = CLStateGetIntArg(handle, arg);
+               h_parms->sine = SecureStrdup("Auto");
+               strategy_scheduling = true;
+            }
+            break;
+      case OPT_SERIALIZE_SCHEDULE:
+            serialize_schedule = CLStateGetBoolArg(handle, arg);
+            break;
+      case OPT_FORCE_PREPROC_SCHED:
+            force_pre_schedule = CLStateGetBoolArg(handle, arg);
             break;
       case OPT_SATAUTO_SCHED:
             strategy_scheduling = true;
-            break;
-      case OPT_AUTOSCHEDULE_KIND:
-            if(strcmp(arg, "SH")==0)
-            {
-               chosen_schedule = (ScheduleCell*)CASC_SH_SCHEDULE;
-            }
-            else if(strcmp(arg, "CASC")==0)
-            {
-               chosen_schedule = (ScheduleCell*)CASC_SCHEDULE;
-            }
-            else
-            {
-               Error("There are only two schedules available: SH and CASC", USAGE_ERROR);
-            }
-            break;
-      case OPT_MULTI_CORE:
-            cores = CLStateGetIntArgCheckRange(handle, arg, 0, INT_MAX);
             break;
       case OPT_NO_PREPROCESSING:
             h_parms->no_preproc = true;
@@ -1195,7 +1391,7 @@ CLState_p process_options(int argc, char* argv[])
             h_parms->add_goal_defs_subterms = true;
             break;
       case OPT_SINE:
-            sine = arg;
+            h_parms->sine = SecureStrdup(arg);
             break;
       case OPT_REL_PRUNE_LEVEL:
             relevance_prune_level = CLStateGetIntArg(handle, arg);
@@ -1245,7 +1441,6 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_INHERIT_CONJ_PM_LIT:
             h_parms->inherit_conj_pm_lit = true;
             break;
-
       case OPT_LITERAL_SELECT:
             h_parms->selection_strategy = GetLitSelFun(arg);
             if(!h_parms->selection_strategy)
@@ -1346,55 +1541,7 @@ CLState_p process_options(int argc, char* argv[])
             h_parms->split_fresh_defs = false;
             break;
       case OPT_ORDERING:
-            if(strcmp(arg, "Auto")==0)
-            {
-               h_parms->order_params.ordertype = AUTO;
-            }
-            else if(strcmp(arg, "AutoCASC")==0)
-            {
-               h_parms->order_params.ordertype = AUTOCASC;
-            }
-            else if(strcmp(arg, "AutoDev")==0)
-            {
-               h_parms->order_params.ordertype = AUTODEV;
-            }
-            else if(strcmp(arg, "AutoSched0")==0)
-            {
-               h_parms->order_params.ordertype = AUTOSCHED0;
-            }
-            else if(strcmp(arg, "AutoSched1")==0)
-            {
-               h_parms->order_params.ordertype = AUTOSCHED1;
-            }
-            else if(strcmp(arg, "AutoSched2")==0)
-            {
-               h_parms->order_params.ordertype = AUTOSCHED2;
-            }
-            else if(strcmp(arg, "AutoSched3")==0)
-            {
-               h_parms->order_params.ordertype = AUTOSCHED3;
-            }
-            else if(strcmp(arg, "AutoSched4")==0)
-            {
-               h_parms->order_params.ordertype = AUTOSCHED4;
-            }
-            else if(strcmp(arg, "AutoSched5")==0)
-            {
-               h_parms->order_params.ordertype = AUTOSCHED5;
-            }
-            else if(strcmp(arg, "AutoSched6")==0)
-            {
-               h_parms->order_params.ordertype = AUTOSCHED6;
-            }
-            else if(strcmp(arg, "AutoSched7")==0)
-            {
-               h_parms->order_params.ordertype = AUTOSCHED7;
-            }
-            else if(strcmp(arg, "Optimize")==0)
-            {
-               h_parms->order_params.ordertype = OPTIMIZE_AX;
-            }
-            else if(strcmp(arg, "LPO")==0)
+            if(strcmp(arg, "LPO")==0)
             {
                h_parms->order_params.ordertype = LPO;
             }
@@ -1418,15 +1565,22 @@ CLState_p process_options(int argc, char* argv[])
             {
                h_parms->order_params.ordertype = KBO6;
             }
+            else if(strcmp(arg, "Optimize")==0)
+            {
+               h_parms->order_params.ordertype = OPTIMIZE_AX;
+            }
             else
             {
-               Error("Option -t (--term-ordering) requires Auto, "
-                     "AutoCASC, AutoDev, AutoSched0, AutoSched1, "
-                     "AutoSched2, AutoSched3, AutoSched4, AutoSched5,"
-                     "AutoSched6, AutoSched7, Optimize, "
+               Error("Option -t (--term-ordering) requires Optimize, "
                      "LPO, LPO4, KBO or KBO6 as an argument",
                      USAGE_ERROR);
             }
+            break;
+      case OPT_LAM_WEIGHT:
+            h_parms->order_params.lam_w = CLStateGetIntArg(handle, arg);
+            break;
+      case OPT_DB_WEIGHT:
+            h_parms->order_params.db_w = CLStateGetIntArg(handle, arg);
             break;
       case OPT_TO_WEIGHTGEN:
             h_parms->order_params.to_weight_gen = TOTranslateWeightGenMethod(arg);
@@ -1552,6 +1706,12 @@ CLState_p process_options(int argc, char* argv[])
             break;
       case OPT_FORWARD_DEMOD:
             h_parms->forward_demod = CLStateGetIntArgCheckRange(handle, arg, 0, 2);
+            break;
+      case OPT_DEMOD_LAMBDA:
+            h_parms->lambda_demod = CLStateGetBoolArg(handle, arg);
+            break;
+      case OPT_LIFT_LAMBDAS:
+            h_parms->lift_lambdas = CLStateGetBoolArg(handle, arg);
             break;
       case OPT_STRONG_RHS_INSTANCE:
             h_parms->order_params.rewrite_strong_rhs_inst = true;
@@ -1742,7 +1902,10 @@ CLState_p process_options(int argc, char* argv[])
             new_cnf = false;
             /* Intentional fall-through */
       case OPT_DEF_CNF:
-            FormulaDefLimit = CLStateGetIntArgCheckRange(handle, arg, 0, LONG_MAX);
+            h_parms->formula_def_limit = CLStateGetIntArgCheckRange(handle, arg, 0, LONG_MAX);
+            break;
+      case OPT_FOOL_UNROLL:
+            h_parms->fool_unroll = CLStateGetBoolArg(handle, arg);
             break;
       case OPT_MINISCOPE_LIMIT:
             miniscope_limit =  CLStateGetIntArgCheckRange(handle, arg, 0, LONG_MAX);
@@ -1777,6 +1940,10 @@ CLState_p process_options(int argc, char* argv[])
             {
                h_parms->neg_ext = MaxLits;
             }
+            else if (!strcmp(arg, "off"))
+            {
+               h_parms->neg_ext = NoLits;
+            }
             else
             {
                Error("neg-ext excepts either all or max", 0);
@@ -1790,13 +1957,50 @@ CLState_p process_options(int argc, char* argv[])
             else if (!strcmp(arg, "max"))
             {
                h_parms->pos_ext = MaxLits;
-            } else
+            }
+            else if (!strcmp(arg, "off"))
+            {
+               h_parms->pos_ext = NoLits;
+            }
+            else
             {
                Error("pos-ext excepts either all or max", 0);
             }
             break;
+      case OPT_FUNC_PROJ_IMIT:
+            h_parms->func_proj_limit = CLStateGetIntArgCheckRange(handle, arg, 0, 63);
+            break;
+      case OPT_IMIT_LIMIT:
+            h_parms->imit_limit = CLStateGetIntArgCheckRange(handle, arg, 0, 63);
+            break;
+      case OPT_IDENT_LIMIT:
+            h_parms->ident_limit = CLStateGetIntArgCheckRange(handle, arg, 0, 63);
+            break;
+      case OPT_ELIM_LIMIT:
+            h_parms->elim_limit = CLStateGetIntArgCheckRange(handle, arg, 0, 63);
+            break;
+      case OPT_MAX_UNIFIERS:
+            h_parms->max_unifiers = CLStateGetIntArgCheckRange(handle, arg, 0, 1024);
+            break;
+      case OPT_MAX_UNIF_STEPS:
+            h_parms->max_unif_steps = CLStateGetIntArgCheckRange(handle, arg, 0, 100000);
+            break;
+      case OPT_UNIF_MODE:
+            unif_mode = STR2UM(arg);
+            if(unif_mode==-1)
+            {
+               Error("values of unif mode are eiter single or multi", 0);
+            }
+            h_parms->unif_mode = unif_mode;
+            break;
+      case OPT_PATTERN_ORACLE:
+            h_parms->pattern_oracle = CLStateGetBoolArg(handle, arg);
+            break;
+      case OPT_FIXPOINT_ORACLE:
+            h_parms->fixpoint_oracle = CLStateGetBoolArg(handle, arg);
+            break;
       case OPT_EXT_SUP:
-            h_parms->ext_sup_max_depth =
+            h_parms->ext_rules_max_depth =
                CLStateGetIntArgCheckRange(handle, arg, -1, INT_MAX);
             break;
       case OPT_INVERSE_RECOGNITION:
@@ -1805,6 +2009,122 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_REPLACE_INJ_DEFS:
             h_parms->replace_inj_defs = true;
             break;
+      case OPT_BCE:
+            h_parms->bce = CLStateGetBoolArg(handle, arg);
+            break;
+      case OPT_BCE_MAX_OCCS:
+            h_parms->bce_max_occs = CLStateGetIntArgCheckRange(handle, arg, -1, INT_MAX);
+            break;
+      case OPT_PRED_ELIM:
+            h_parms->pred_elim = CLStateGetBoolArg(handle, arg);
+            break;
+      case OPT_PRED_ELIM_GATES:
+            h_parms->pred_elim_gates = CLStateGetBoolArg(handle, arg);
+            break;
+      case OPT_PRED_ELIM_MAX_OCCS:
+            h_parms->pred_elim_max_occs = CLStateGetIntArgCheckRange(handle, arg, -1, INT_MAX);
+            break;
+      case OPT_PRED_ELIM_TOLERANCE:
+            h_parms->pred_elim_tolerance = CLStateGetIntArgCheckRange(handle, arg, 0, INT_MAX);
+            break;
+      case OPT_PRED_ELIM_FORCE_MU_DECREASE:
+            h_parms->pred_elim_force_mu_decrease = CLStateGetBoolArg(handle, arg);
+            break;
+      case OPT_PRED_ELIM_IGNORE_CONJ_SYMS:
+            h_parms->pred_elim_ignore_conj_syms = CLStateGetBoolArg(handle, arg);
+            break;
+      case OPT_LAMBDA_TO_FORALL:
+            h_parms->lambda_to_forall = CLStateGetBoolArg(handle, arg);
+            break;
+      case OPT_ELIM_LEIBNIZ:
+            h_parms->elim_leibniz_max_depth = CLStateGetIntArgCheckRange(handle, arg, -1, INT_MAX);
+            break;
+      case OPT_UNROLL_FORMULAS_ONLY:
+            h_parms->unroll_only_formulas = CLStateGetBoolArg(handle, arg);
+            break;
+      case OPT_PRIM_ENUM_MAX_DEPTH:
+            h_parms->prim_enum_max_depth = CLStateGetIntArgCheckRange(handle, arg, -1, INT_MAX);
+            break;
+      case OPT_PRUNE_ARGS:
+            h_parms->prune_args = CLStateGetBoolArg(handle, arg);
+            break;
+      case OPT_CHOICE_INST:
+            h_parms->inst_choice_max_depth = CLStateGetIntArgCheckRange(handle, arg, -1, INT_MAX);
+            break;
+      case OPT_LOCAL_RW:
+            h_parms->local_rw = CLStateGetBoolArg(handle, arg);
+            break;
+      case OPT_PRIM_ENUM_KIND:
+            if(strcmp(arg, "neg")==0)
+            {
+               h_parms->prim_enum_mode = NegMode;
+            }
+            else if(strcmp(arg, "and")==0)
+            {
+               h_parms->prim_enum_mode = AndMode;
+            }
+            else if(strcmp(arg, "or")==0)
+            {
+               h_parms->prim_enum_mode = OrMode;
+            }
+            else if(strcmp(arg, "eq")==0)
+            {
+               h_parms->prim_enum_mode = EqMode;
+            }
+            else if(strcmp(arg, "pragmatic")==0)
+            {
+               h_parms->prim_enum_mode = PragmaticMode;
+            }
+            else if(strcmp(arg, "full")==0)
+            {
+               h_parms->prim_enum_mode = FullMode;
+            }
+            else if(strcmp(arg, "logsym")==0)
+            {
+               h_parms->prim_enum_mode = LogSymbolMode;
+            }
+            else
+            {
+               Error("Option --prim-enum-mode excepts neg, and, or, eq, pragmatic, full, or logsym",
+                     USAGE_ERROR);
+            }
+            break;
+      case OPT_ETA_NORMALIZE:
+            if(strcmp(arg, "reduce")==0)
+            {
+               SetEtaNormalizer(LambdaEtaReduceDB);
+            }
+            else if(strcmp(arg, "expand")==0)
+            {
+               SetEtaNormalizer(LambdaEtaExpandDB);
+            }
+            else
+            {
+               Error("Option --eta-normalize requires 'reduce' or 'expand' as an argument",
+                     USAGE_ERROR);
+            }
+            break;
+      case OPT_HO_ORDER_KIND:
+            if(strcmp(arg, "lfho")==0)
+            {
+               h_parms->order_params.ho_order_kind = LFHO_ORDER;
+            }
+            else if(strcmp(arg, "lambda")==0)
+            {
+               h_parms->order_params.ho_order_kind = LAMBDA_ORDER;
+            }
+            else
+            {
+               Error("Option --ho-order-kind requires 'lfho' or 'lambda' as an argument",
+                     USAGE_ERROR);
+            }
+            break;
+      case OPT_CNF_TIMEOUT_PORTION:
+            clausification_time_part =
+               CLStateGetIntArgCheckRange(handle, arg, 1, 99) / (double) 100;
+      case OPT_PREINSTANTIATE_INDUCTION:
+            h_parms->preinstantiate_induction = CLStateGetBoolArg(handle, arg);
+            break;
       default:
             assert(false && "Unknown option");
             break;
@@ -1812,30 +2132,13 @@ CLState_p process_options(int argc, char* argv[])
    }
    if(!PStackEmpty(hcb_definitions))
    {
-      h_parms->heuristic_def = SecureStrdup(PStackTopP(hcb_definitions));
+      h_parms->heuristic_def = PStackTopP(hcb_definitions);
    }
 
-
-   if((HardTimeLimit!=RLIM_INFINITY)||(SoftTimeLimit!=RLIM_INFINITY))
+   if(!strategy_scheduling)
    {
-      if(SoftTimeLimit!=RLIM_INFINITY)
-      {
-         SetSoftRlimitErr(RLIMIT_CPU, SoftTimeLimit, "RLIMIT_CPU (E-Soft)");
-         TimeLimitIsSoft = true;
-      }
-      else
-      {
-         SetSoftRlimitErr(RLIMIT_CPU, HardTimeLimit, "RLIMIT_CPU (E-Hard)");
-         TimeLimitIsSoft = false;
-      }
-
-      if(SetSoftRlimit(RLIMIT_CORE, 0)!=RLimSuccess)
-      {
-         perror("eprover");
-         Warning("Cannot prevent core dumps!");
-      }
+      set_limits(HardTimeLimit, SoftTimeLimit, h_parms->mem_limit);
    }
-   SetMemoryLimit(h_parms->mem_limit);
 
    return state;
 }

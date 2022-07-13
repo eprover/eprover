@@ -24,6 +24,7 @@ Changes
 #include <sys/types.h>
 #include <sys/uio.h>
 #include "clb_error.h"
+#include "clb_simple_stuff.h"
 
 
 /*---------------------------------------------------------------------*/
@@ -327,6 +328,36 @@ double GetTotalCPUTime(void)
    {
       res = (usage.ru_utime.tv_sec+usage.ru_stime.tv_sec)+
          ((usage.ru_utime.tv_usec+usage.ru_stime.tv_usec)/1000000.0);
+   }
+   return res;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: GetTotalCPUTimeIncludingChildren()
+//
+//   Return the total CPU time use by the process s far, in floating
+//   point seconds - or -1.0 if this cannot be determined. Compared to
+//   GetTotalCPUTime
+//   
+//
+// Global Variables: -
+//
+// Side Effects    : May terminate with error.
+//
+/----------------------------------------------------------------------*/
+
+double GetTotalCPUTimeIncludingChildren(void)
+{
+   double res = GetTotalCPUTime();
+
+   struct rusage usage;
+
+   if((int)res != -1 && !getrusage(RUSAGE_CHILDREN, &usage))
+   {
+      
+      res += (usage.ru_utime.tv_sec+usage.ru_stime.tv_sec)+
+              ((usage.ru_utime.tv_usec+usage.ru_stime.tv_usec)/1000000.0);
    }
    return res;
 }

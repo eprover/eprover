@@ -171,7 +171,7 @@ FunCode TermAddVarDistribution(Term_p term, PDArray_p dist_array)
    {
       term = PStackPopP(stack);
 
-      if(!TermIsVar(term))
+      if(!TermIsFreeVar(term))
       {
          int i;
 

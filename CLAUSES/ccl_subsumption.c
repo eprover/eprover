@@ -63,13 +63,13 @@ long UnitClauseClauseSubsumptionCalls = 0;
 /----------------------------------------------------------------------*/
 
 static
-SimplifyRes unit_clause_set_strongsubsumes_termpair(ClauseSet_p set,
+ClausePos_p unit_clause_set_strongsubsumes_termpair(ClauseSet_p set,
                       Term_p t1, Term_p t2,
                       bool positive)
 {
    PStack_p stack = PStackAlloc();
    int      i;
-   SimplifyRes res = SIMPLIFY_FAILED;
+   ClausePos_p res = NULL;
 
    PStackPushP(stack, t1);
    PStackPushP(stack, t2);
@@ -82,7 +82,8 @@ SimplifyRes unit_clause_set_strongsubsumes_termpair(ClauseSet_p set,
 
       if(SimplifyFailed(res))
       {
-         if(TermIsAppliedVar(t1) || TermIsAppliedVar(t2) ||
+         if(TermIsAppliedFreeVar(t1) || TermIsAppliedFreeVar(t2) ||
+            TermIsLambda(t1) || TermIsLambda(t2) ||
             t1->f_code != t2->f_code || !t1->arity)
          {
             break;
@@ -96,27 +97,6 @@ SimplifyRes unit_clause_set_strongsubsumes_termpair(ClauseSet_p set,
                PStackPushP(stack, t1->args[i]);
                PStackPushP(stack, t2->args[i]);
             }
-         }
-      }
-      else
-      {
-         // put the remaining args on stack, order does not
-         // matter here.
-         int remains = res.remaining_args;
-         // if the problem is FO -> everything is matched!
-         assert(!(problemType == PROBLEM_FO) || !remains);
-         while(remains)
-         {
-            Term_p t1_arg = t1->args[t1->arity-remains];
-            Term_p t2_arg = t2->args[t2->arity-remains];
-
-            if(t1_arg != t2_arg)
-            {
-              PStackPushP(stack, t1_arg);
-              PStackPushP(stack, t2_arg);
-            }
-
-            remains--;
          }
       }
    }
@@ -142,7 +122,7 @@ Clause_p unit_clause_set_subsumes_clause(ClauseSet_p set,
                 Clause_p clause)
 {
    Eqn_p    handle = clause->literals;
-   SimplifyRes res = SIMPLIFY_FAILED;
+   ClausePos_p res = NULL;
 
    while(handle)
    {
@@ -164,14 +144,13 @@ Clause_p unit_clause_set_subsumes_clause(ClauseSet_p set,
                                             false);
       }
 
-      if(!SimplifyFailed(res) &&
-          RemainingArgsSame(handle->lterm, handle->rterm, &res))
+      if(!SimplifyFailed(res))
       {
          break;
       }
       handle = handle->next;
    }
-   return res.pos ? res.pos->clause : NULL;
+   return res ? res->clause : NULL;
 }
 
 
@@ -1309,11 +1288,11 @@ Clause_p ClauseSetFindUnitSubsumedClause(ClauseSet_p set, Clause_p
 bool ClausePositiveSimplifyReflect(ClauseSet_p set, Clause_p clause)
 {
    Eqn_p   *handle = &(clause->literals);
-   SimplifyRes res = SIMPLIFY_FAILED;
+   ClausePos_p res = NULL;
 
    while(*handle)
    {
-      res = SIMPLIFY_FAILED;
+      res = NULL;
       if(!EqnIsPositive(*handle))
       {
          res = StrongUnitForwardSubsumption?
@@ -1328,7 +1307,7 @@ bool ClausePositiveSimplifyReflect(ClauseSet_p set, Clause_p clause)
       }
       if(!SimplifyFailed(res))
       {
-         ClausePos_p pos = res.pos;
+         ClausePos_p pos = res;
          ClauseRemoveLiteralRef(clause, handle);
          if(ClauseQueryProp(pos->clause, CPIsSOS))
          {
@@ -1366,11 +1345,11 @@ bool ClausePositiveSimplifyReflect(ClauseSet_p set, Clause_p clause)
 bool ClauseNegativeSimplifyReflect(ClauseSet_p set, Clause_p clause)
 {
    Eqn_p   *handle = &(clause->literals);
-   SimplifyRes res = SIMPLIFY_FAILED;
+   ClausePos_p res = NULL;
 
    while(*handle)
    {
-      res = SIMPLIFY_FAILED;
+      res = NULL;
       if(EqnIsPositive(*handle))
       {
          res = FindSignedTopSimplifyingUnit(set,
@@ -1379,9 +1358,9 @@ bool ClauseNegativeSimplifyReflect(ClauseSet_p set, Clause_p clause)
                                             false);
       }
 
-      if(!SimplifyFailed(res) && res.remaining_args == 0)
+      if(!SimplifyFailed(res))
       {
-         ClausePos_p pos = res.pos;
+         ClausePos_p pos = res;
          ClauseRemoveLiteralRef(clause, handle);
          if(ClauseQueryProp(pos->clause, CPIsSOS))
          {

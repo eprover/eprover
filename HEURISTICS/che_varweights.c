@@ -527,11 +527,11 @@ double DepthWeightCompute(void* data, Clause_p clause)
     local->term_weight_multiplier*TermWeight(handle->lterm,
                    local->vweight,
                    local->fweight);
-      lweight = lweight*local->max_term_multiplier*(TermIsAppliedVar(handle->lterm)?local->app_var_mult:1);
+      lweight = lweight*local->max_term_multiplier*(TermIsAppliedFreeVar(handle->lterm)?local->app_var_mult:1);
       rweight = TermDepth(handle->rterm)+
     local->term_weight_multiplier*TermWeight(handle->rterm,
                    local->vweight,
-                   local->fweight)*(TermIsAppliedVar(handle->rterm)?local->app_var_mult:1);
+                   local->fweight)*(TermIsAppliedFreeVar(handle->rterm)?local->app_var_mult:1);
       if(!EqnIsOriented(handle))
       {
     rweight = rweight*local->max_term_multiplier;
@@ -656,7 +656,7 @@ double WeightLessDepthCompute(void* data, Clause_p clause)
       lweight = TermWeight(handle->lterm, local->vweight, local->fweight)
     - local->term_depth_multiplier*TermDepth(handle->lterm);
       lweight = lweight*local->max_term_multiplier
-                       *(TermIsAppliedVar(handle->lterm) ? local->app_var_mult : 1);
+                       *(TermIsAppliedFreeVar(handle->lterm) ? local->app_var_mult : 1);
 
       rweight = TermWeight(handle->rterm, local->vweight, local->fweight)
     - local->term_depth_multiplier*TermDepth(handle->rterm);
@@ -665,7 +665,7 @@ double WeightLessDepthCompute(void* data, Clause_p clause)
       {
     rweight = rweight*local->max_term_multiplier;
       }
-      weight = lweight+rweight*(TermIsAppliedVar(handle->rterm) ? local->app_var_mult : 1);
+      weight = lweight+rweight*(TermIsAppliedFreeVar(handle->rterm) ? local->app_var_mult : 1);
 
       if(EqnIsPositive(handle))
       {

@@ -487,3 +487,44 @@ Type_p TypeDropFirstArg(Type_p ty)
    }
 
 }
+
+/*-----------------------------------------------------------------------
+//
+// Function: IsChoiceType()
+//
+//  Does the type correspond a monomorphized type of a choice symbol?
+//
+// Global Variables: -
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+
+bool IsChoiceType(Type_p ty)
+{
+   bool is_choice = false;
+   if(TypeIsArrow(ty) && ty->arity>=2 &&
+      (TypeIsArrow(ty->args[0]) && ty->args[0]->arity == 2 &&
+       TypeIsPredicate(ty->args[0])))
+   {
+      // remaining checks if var type is (A -> o) -> A
+      is_choice = true;
+      Type_p a_type = ty->args[0]->args[0];
+      if(TypeIsArrow(a_type) && a_type->arity == ty->arity-1)
+      {
+         for(int i=0; is_choice && i< a_type->arity; i++)
+         {
+            is_choice = is_choice && a_type->args[i] == ty->args[i+1];
+         }
+      }
+      else if (!TypeIsArrow(a_type) && ty->arity == 2)
+      {
+         is_choice = a_type == ty->args[1];
+      }
+      else
+      {
+         is_choice = false;
+      }
+   }
+   return is_choice;
+}

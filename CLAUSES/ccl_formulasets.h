@@ -64,6 +64,8 @@ WFormula_p   FormulaSetExtractFirst(FormulaSet_p set);
 #define      FormulaSetMoveFormula(set, form) \
              FormulaSetExtractEntry(form);FormulaSetInsert((set), (form))
 
+int          FormulaConjectureOrder(FormulaSet_p set);
+
 void         FormulaSetDeleteEntry(WFormula_p form);
 
 void         FormulaSetPrint(FILE* out, FormulaSet_p set,
@@ -80,6 +82,10 @@ long         FormulaSetCollectFCode(FormulaSet_p set, FunCode f_code,
                                     PStack_p result);
 
 void FormulaSetAppEncode(FILE* out, FormulaSet_p set);
+void FormulaSetDefinitionStatistics(FormulaSet_p orig, FormulaSet_p arch, 
+                                    TB_p bank, int* num_defs, 
+                                    double* percentage_form_defs, 
+                                    int* num_lams, bool* app_var_lits);
 
 #endif
 

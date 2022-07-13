@@ -75,9 +75,21 @@ static FVPackedClause_p forward_contract_keep(ProofState_p state, ProofControl_p
 
    if(control->heuristic_parms.enable_given_forward_simpl)
    {
+      // fprintf(stderr, "before rw: ");
+      // ClausePrint(stderr, clause, true);
+      // fprintf(stderr, ".\n");
       trivial = ForwardModifyClause(state, control, clause,
                                     context_sr, condense, level);
+      // fprintf(stderr, "after rw: ");
+      // ClausePrint(stderr, clause, true);
+      // fprintf(stderr, ".\n");      
       if(trivial)
+      {
+         (*trivial_count)++;
+         return NULL;
+      }
+
+      if(BooleanSimplification(clause))
       {
          (*trivial_count)++;
          return NULL;
@@ -111,7 +123,15 @@ static FVPackedClause_p forward_contract_keep(ProofState_p state, ProofControl_p
       //printf("\n");
 
       assert(!ClauseIsTrivial(clause));
-
+      
+      if(problemType==PROBLEM_HO)
+      {
+         if(ClauseEliminateNakedBooleanVariables(clause))
+         {
+            (*trivial_count)++;
+            return NULL;  
+         }
+      }
       pclause = ForwardSubsumption(state, clause, subsumed_count,
                                    non_unit_subsumption);
       if(!pclause)
@@ -239,12 +259,22 @@ bool ForwardModifyClause(ProofState_p state,
       ClauseQueryProp(clause, CPLimitedRW) did not change any more. */
    while(!done)
    {
+      if(problemType == PROBLEM_HO)
+      {
+         NormalizeEquations(clause);
+      }
       ClauseComputeLINormalform(control->ocb,
                                 state->terms, clause,
                                 state->demods, level,
-                                control->heuristic_parms.prefer_general);
+                                control->heuristic_parms.prefer_general,
+                                control->heuristic_parms.lambda_demod);
+      if(problemType == PROBLEM_HO)
+      {
+         NormalizeEquations(clause);
+      }
 
       limited_rw = ClauseQueryProp(clause, CPLimitedRW);
+      // DBG_PRINT(stderr, "removing superflous: ", ClausePrintDBG(stderr, clause), ".\n");
       removed_lits = ClauseRemoveSuperfluousLiterals(clause);
       if(removed_lits)
       {
@@ -254,6 +284,15 @@ bool ForwardModifyClause(ProofState_p state,
       if(control->ac_handling_active)
       {
          ClauseRemoveACResolved(clause);
+      }
+
+      if(control->heuristic_parms.local_rw
+         && ClauseLocalRW(clause))
+      {
+         if(problemType == PROBLEM_HO)
+         {
+            NormalizeEquations(clause);
+         }  
       }
 
       /* Now we mark maximal terms... */
@@ -274,7 +313,17 @@ bool ForwardModifyClause(ProofState_p state,
          return true;
       }
 
+      if(problemType == PROBLEM_HO &&
+         control->heuristic_parms.prune_args)
+      {
+         ClausePruneArgs(clause);
+      }
+
       /* Still forward simplification... */
+      if(problemType == PROBLEM_HO)
+      {
+         NormalizeEquations(clause);
+      }
       if(clause->neg_lit_no)
       {
          ClausePositiveSimplifyReflect(state->processed_pos_eqns, clause);

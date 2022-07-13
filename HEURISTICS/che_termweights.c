@@ -80,7 +80,7 @@ static PStack_p compute_subterms_generalizations(
       term,vars,term_vars,fresh_var_code);
    PStackPushStack(gens, gen_vars);
 
-   if (TermIsVar(term)) 
+   if (TermIsAnyVar(term)) 
    {
       return gens;
    }
@@ -88,6 +88,7 @@ static PStack_p compute_subterms_generalizations(
    if (TermIsConst(term)) 
    {
       copy = TermTopAlloc(term->f_code,0);
+      TermSetBank(copy, TermGetBank(term));
       PStackPushP(gens,copy);
       PStackPushP(all,copy);
       copy->properties = term->properties;
@@ -118,6 +119,7 @@ static PStack_p compute_subterms_generalizations(
          break;
       }
       copy = TermTopAlloc(term->f_code,term->arity);
+      TermSetBank(copy, TermGetBank(term));
       for (i=0; i<term->arity; i++)
       {
          sgen = PDArrayElementP(sgens,i);
@@ -220,7 +222,7 @@ PStack_p ComputeTopGeneralizations(Term_p term, VarBank_p vars, Sig_p sig)
    while (!PStackEmpty(stack))
    {
       subterm = PStackPopP(stack);
-      if (TermIsVar(subterm) || TermIsConst(subterm))
+      if (TermIsFreeVar(subterm) || TermIsConst(subterm))
       {
          continue;
       }
@@ -243,6 +245,7 @@ PStack_p ComputeTopGeneralizations(Term_p term, VarBank_p vars, Sig_p sig)
       }
       
       topgen = TermTopAlloc(code, sig->f_info[code].arity);
+      TermSetBank(topgen, TermGetBank(term));
       for (i=0; i<sig->f_info[code].arity; i++)
       {
          topgen->args[i] = VarBankVarAssertAlloc(vars, -2*(i+1), vars->sort_table->i_type); 
@@ -400,7 +403,7 @@ void TBIncSubtermsFreqs(Term_p term, NumTree_p* freqs)
    while (!PStackEmpty(stack))
    {
       subterm = PStackPopP(stack);
-      if (TermIsVar(subterm))
+      if (TermIsFreeVar(subterm))
       {
          continue;
       }

@@ -24,6 +24,7 @@ Changes
 #include "cco_proofproc.h"
 #include <picosat.h>
 #include <cco_ho_inferences.h>
+#include <cte_ho_csu.h>
 
 
 
@@ -65,7 +66,8 @@ void document_processing(Clause_p clause)
       {
          putc('\n', GlobalOut);
          putc('#', GlobalOut);
-         ClausePrint(GlobalOut, clause, true);
+         ClausePrintDBG(GlobalOut, clause);
+         DerivationDebugPrint(GlobalOut, clause->derivation);
          putc('\n', GlobalOut);
       }
       DocClauseQuoteDefault(6, clause, "new_given");
@@ -121,7 +123,8 @@ static void check_ac_status(ProofState_p state, ProofControl_p
 static long remove_subsumed(GlobalIndices_p indices,
                             FVPackedClause_p subsumer,
                             ClauseSet_p set,
-                            ClauseSet_p archive)
+                            ClauseSet_p archive,
+                            bool lambda_demod)
 {
    Clause_p handle;
    long     res;
@@ -144,7 +147,7 @@ static long remove_subsumed(GlobalIndices_p indices,
          DocClauseQuote(GlobalOut, OutputLevel, 6, handle,
                         "subsumed", subsumer->clause);
       }
-      GlobalIndicesDeleteClause(indices, handle);
+      GlobalIndicesDeleteClause(indices, handle, lambda_demod);
       ClauseSetExtractEntry(handle);
       ClauseSetProp(handle, CPIsDead);
       ClauseSetInsert(archive, handle);
@@ -185,7 +188,8 @@ eliminate_backward_rewritten_clauses(ProofState_p
          min_rw = RemoveRewritableClausesIndexed(control->ocb,
                                                  state->tmp_store,
                                                  state->archive,
-                                                 clause, *date, &(state->gindices));
+                                                 clause, *date, &(state->gindices),
+                                                 control->heuristic_parms.lambda_demod);
 
       }
       else
@@ -194,25 +198,29 @@ eliminate_backward_rewritten_clauses(ProofState_p
                                           state->processed_pos_rules,
                                           state->tmp_store,
                                           state->archive,
-                                          clause, *date, &(state->gindices))
+                                          clause, *date, &(state->gindices),
+                                          control->heuristic_parms.lambda_demod)
             ||min_rw;
          min_rw = RemoveRewritableClauses(control->ocb,
                                           state->processed_pos_eqns,
                                           state->tmp_store,
                                           state->archive,
-                                          clause, *date, &(state->gindices))
+                                          clause, *date, &(state->gindices),
+                                          control->heuristic_parms.lambda_demod)
             ||min_rw;
          min_rw = RemoveRewritableClauses(control->ocb,
                                           state->processed_neg_units,
                                           state->tmp_store,
                                           state->archive,
-                                          clause, *date, &(state->gindices))
+                                          clause, *date, &(state->gindices),
+                                          control->heuristic_parms.lambda_demod)
             ||min_rw;
          min_rw = RemoveRewritableClauses(control->ocb,
                                           state->processed_non_units,
                                           state->tmp_store,
                                           state->archive,
-                                          clause, *date, &(state->gindices))
+                                          clause, *date, &(state->gindices),
+                                          control->heuristic_parms.lambda_demod)
             ||min_rw;
       }
       state->backward_rewritten_lit_count+=
@@ -246,7 +254,8 @@ eliminate_backward_rewritten_clauses(ProofState_p
 /----------------------------------------------------------------------*/
 
 static long eliminate_backward_subsumed_clauses(ProofState_p state,
-                                                FVPackedClause_p pclause)
+                                                FVPackedClause_p pclause,
+                                                bool lambda_demod)
 {
    long res = 0;
 
@@ -262,30 +271,30 @@ static long eliminate_backward_subsumed_clauses(ProofState_p state,
          {
             res += remove_subsumed(&(state->gindices), pclause,
                                    state->processed_pos_rules,
-                                   state->archive);
+                                   state->archive, lambda_demod);
             res += remove_subsumed(&(state->gindices), pclause,
                                    state->processed_pos_eqns,
-                                   state->archive);
+                                   state->archive, lambda_demod);
          }
          res += remove_subsumed(&(state->gindices), pclause,
                                 state->processed_non_units,
-                                state->archive);
+                                state->archive, lambda_demod);
       }
       else
       {
          res += remove_subsumed(&(state->gindices), pclause,
                                 state->processed_neg_units,
-                                state->archive);
+                                state->archive, lambda_demod);
          res += remove_subsumed(&(state->gindices), pclause,
                                 state->processed_non_units,
-                                state->archive);
+                                state->archive, lambda_demod);
       }
    }
    else
    {
       res += remove_subsumed(&(state->gindices), pclause,
                              state->processed_non_units,
-                             state->archive);
+                             state->archive, lambda_demod);
    }
    state->backward_subsumed_count+=res;
    return res;
@@ -306,7 +315,8 @@ static long eliminate_backward_subsumed_clauses(ProofState_p state,
 /----------------------------------------------------------------------*/
 
 static void eliminate_unit_simplified_clauses(ProofState_p state,
-                                              Clause_p clause)
+                                              Clause_p clause,
+                                              bool lambda_demod)
 {
    if(ClauseIsRWRule(clause)||!ClauseIsUnit(clause))
    {
@@ -315,24 +325,28 @@ static void eliminate_unit_simplified_clauses(ProofState_p state,
    ClauseSetUnitSimplify(state->processed_non_units, clause,
                          state->tmp_store,
                          state->archive,
-                         &(state->gindices));
+                         &(state->gindices),
+                         lambda_demod);
    if(ClauseIsPositive(clause))
    {
       ClauseSetUnitSimplify(state->processed_neg_units, clause,
                             state->tmp_store,
                             state->archive,
-                            &(state->gindices));
+                            &(state->gindices),
+                           lambda_demod);
    }
    else
    {
       ClauseSetUnitSimplify(state->processed_pos_rules, clause,
                             state->tmp_store,
                             state->archive,
-                            &(state->gindices));
+                            &(state->gindices),
+                           lambda_demod);
       ClauseSetUnitSimplify(state->processed_pos_eqns, clause,
                             state->tmp_store,
                             state->archive,
-                            &(state->gindices));
+                            &(state->gindices),
+                           lambda_demod);
    }
 }
 
@@ -352,7 +366,8 @@ static void eliminate_unit_simplified_clauses(ProofState_p state,
 
 static long eliminate_context_sr_clauses(ProofState_p state,
                                          ProofControl_p control,
-                                         Clause_p clause)
+                                         Clause_p clause,
+                                         bool lambda_demod)
 {
    if(!control->heuristic_parms.backward_context_sr)
    {
@@ -362,7 +377,8 @@ static long eliminate_context_sr_clauses(ProofState_p state,
                                     state->tmp_store,
                                     state->archive,
                                     clause,
-                                    &(state->gindices));
+                                    &(state->gindices),
+                                    lambda_demod);
 }
 
 /*-----------------------------------------------------------------------
@@ -381,7 +397,7 @@ static long eliminate_context_sr_clauses(ProofState_p state,
 
 void check_watchlist(GlobalIndices_p indices, ClauseSet_p watchlist,
                      Clause_p clause, ClauseSet_p archive,
-                     bool static_watchlist)
+                     bool static_watchlist, bool lambda_demod)
 {
    FVPackedClause_p pclause;
    long removed;
@@ -407,7 +423,7 @@ void check_watchlist(GlobalIndices_p indices, ClauseSet_p watchlist,
       }
       else
       {
-         if((removed = remove_subsumed(indices, pclause, watchlist, archive)))
+         if((removed = remove_subsumed(indices, pclause, watchlist, archive, lambda_demod)))
          {
             ClauseSetProp(clause, CPSubsumesWatch);
             if(OutputLevel == 1)
@@ -460,7 +476,8 @@ void simplify_watchlist(ProofState_p state, ProofControl_p control,
       RemoveRewritableClausesIndexed(control->ocb,
                                      tmp_set, state->archive,
                                      clause, clause->date,
-                                     &(state->wlindices));
+                                     &(state->wlindices),
+                                     control->heuristic_parms.lambda_demod);
       // printf("# Simpclause done\n");
    }
    else
@@ -468,7 +485,8 @@ void simplify_watchlist(ProofState_p state, ProofControl_p control,
       RemoveRewritableClauses(control->ocb, state->watchlist,
                               tmp_set, state->archive,
                               clause, clause->date,
-                              &(state->wlindices));
+                              &(state->wlindices),
+                              control->heuristic_parms.lambda_demod);
    }
    while((handle = ClauseSetExtractFirst(tmp_set)))
    {
@@ -479,7 +497,8 @@ void simplify_watchlist(ProofState_p state, ProofControl_p control,
                                 handle,
                                 state->demods,
                                 control->heuristic_parms.forward_demod,
-                                control->heuristic_parms.prefer_general);
+                                control->heuristic_parms.prefer_general,
+                                control->heuristic_parms.lambda_demod);
       removed_lits = ClauseRemoveSuperfluousLiterals(handle);
       if(removed_lits)
       {
@@ -493,7 +512,7 @@ void simplify_watchlist(ProofState_p state, ProofControl_p control,
       ClauseMarkMaximalTerms(control->ocb, handle);
       ClauseSetIndexedInsertClause(state->watchlist, handle);
       // printf("# WL Inserting: "); ClausePrint(stdout, handle, true); printf("\n");
-      GlobalIndicesInsertClause(&(state->wlindices), handle);
+      GlobalIndicesInsertClause(&(state->wlindices), handle, control->heuristic_parms.lambda_demod);
    }
    ClauseSetFree(tmp_set);
    // printf("# ...simplify_watchlist()\n");
@@ -516,6 +535,7 @@ void simplify_watchlist(ProofState_p state, ProofControl_p control,
 static void generate_new_clauses(ProofState_p state, ProofControl_p
                                  control, Clause_p clause, Clause_p tmp_copy)
 {
+   VarBankSetVCountsToUsed(state->terms->vars);
    ComputeHOInferences(state,control,tmp_copy,clause);
    if(control->heuristic_parms.enable_eq_factoring)
    {
@@ -634,9 +654,9 @@ static Clause_p insert_new_clauses(ProofState_p state, ProofControl_p control)
    state->generated_lit_count+=state->tmp_store->literals;
    while((handle = ClauseSetExtractFirst(state->tmp_store)))
    {
-      /* printf("Inserting: ");
-         ClausePrint(stdout, handle, true);
-         printf("\n"); */
+      // printf("Inserting: ");
+      // ClausePrint(stdout, handle, true);
+      // printf("\n");
       if(ClauseQueryProp(handle,CPIsIRVictim))
       {
          assert(ClauseQueryProp(handle, CPLimitedRW));
@@ -667,7 +687,8 @@ static Clause_p insert_new_clauses(ProofState_p state, ProofControl_p control)
 
       check_watchlist(&(state->wlindices), state->watchlist,
                       handle, state->archive,
-                      control->heuristic_parms.watchlist_is_static);
+                      control->heuristic_parms.watchlist_is_static,
+                      control->heuristic_parms.lambda_demod);
       if(ClauseIsEmpty(handle))
       {
          return handle;
@@ -773,7 +794,7 @@ Clause_p replacing_inferences(ProofState_p state, ProofControl_p
    long     clause_count;
    Clause_p res = pclause->clause;
 
-   if(problemType == PROBLEM_HO && DestructEquivalences(res, state->tmp_store, state->archive))
+   if(problemType == PROBLEM_HO && ImmediateClausification(res, state->tmp_store, state->archive, state->freshvars, control->heuristic_parms.fool_unroll))
    {
       pclause->clause = NULL;
    }
@@ -1100,9 +1121,6 @@ void ProofControlInit(ProofState_p state, ProofControl_p control,
    assert(!control->ocb);
    assert(!control->hcb);
 
-   SpecFeaturesCompute(&(control->problem_specs),
-                       state->axioms,state->signature);
-
    control->ocb = TOSelectOrdering(state, params,
                                    &(control->problem_specs));
 
@@ -1152,6 +1170,7 @@ void ProofControlInit(ProofState_p state, ProofControl_p control,
       control->fvi_parms.symbol_slack = 0;
    }
    *params = control->heuristic_parms;
+   InitUnifLimits(&control->heuristic_parms);
 }
 
 
@@ -1173,12 +1192,13 @@ void ProofStateResetProcessedSet(ProofState_p state,
 {
    Clause_p handle;
    Clause_p tmpclause;
+   bool lambda_demod = control->heuristic_parms.lambda_demod;
 
    while((handle = ClauseSetExtractFirst(set)))
    {
       if(ClauseQueryProp(handle, CPIsGlobalIndexed))
       {
-         GlobalIndicesDeleteClause(&(state->gindices), handle);
+         GlobalIndicesDeleteClause(&(state->gindices), handle, lambda_demod);
       }
       if(ProofObjectRecordsGCSelection)
       {
@@ -1197,6 +1217,37 @@ void ProofStateResetProcessedSet(ProofState_p state,
          EvalListChangePriority(handle->evaluations, -PrioLargestReasonable);
       }
       ClauseSetInsert(state->unprocessed, handle);
+   }
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: ProofStateMoveSetToTmp()
+//
+//   Lightweight version of ProofStateResetProcessedSet which simply
+//   moves all clauses from set to tmp_store without reevaluating
+//   clause evaluation features.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void ProofStateMoveSetToTmp(ProofState_p state,
+                            ProofControl_p control,
+                            ClauseSet_p set)
+{
+   Clause_p handle;
+
+   while((handle = ClauseSetExtractFirst(set)))
+   {
+      if(ClauseQueryProp(handle, CPIsGlobalIndexed))
+      {
+         GlobalIndicesDeleteClause(&(state->gindices), handle, control->heuristic_parms.lambda_demod);
+      }
+      ClauseDelProp(handle, CPIsOriented);
+      ClauseSetInsert(state->tmp_store, handle);
    }
 }
 
@@ -1219,6 +1270,26 @@ void ProofStateResetProcessed(ProofState_p state, ProofControl_p control)
    ProofStateResetProcessedSet(state, control, state->processed_pos_eqns);
    ProofStateResetProcessedSet(state, control, state->processed_neg_units);
    ProofStateResetProcessedSet(state, control, state->processed_non_units);
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: ProofStateMoveToTmpStore()
+//
+//   Move all clauses from the processed clause sets to tmp store.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void ProofStateMoveToTmpStore(ProofState_p state, ProofControl_p control)
+{
+   ProofStateMoveSetToTmp(state, control, state->processed_pos_rules);
+   ProofStateMoveSetToTmp(state, control, state->processed_pos_eqns);
+   ProofStateMoveSetToTmp(state, control, state->processed_neg_units);
+   ProofStateMoveSetToTmp(state, control, state->processed_non_units);
 }
 
 
@@ -1406,7 +1477,8 @@ void ProofStateInit(ProofState_p state, ProofControl_p control)
       ClauseSetProp(new, CPInitial);
       check_watchlist(&(state->wlindices), state->watchlist,
                       new, state->archive,
-                      control->heuristic_parms.watchlist_is_static);
+                      control->heuristic_parms.watchlist_is_static,
+                      control->heuristic_parms.lambda_demod);
       HCBClauseEvaluate(control->hcb, new);
       DocClauseQuoteDefault(6, new, "eval");
       ClausePushDerivation(new, DCCnfQuote, handle, NULL);
@@ -1443,13 +1515,13 @@ void ProofStateInit(ProofState_p state, ProofControl_p control)
       }
    }
 
+   GlobalIndicesFreeIndices(&(state->gindices)); // if we are reinstantiating
    GlobalIndicesInit(&(state->gindices),
                      state->signature,
                      control->heuristic_parms.rw_bw_index_type,
                      control->heuristic_parms.pm_from_index_type,
                      control->heuristic_parms.pm_into_index_type,
-                     control->heuristic_parms.ext_sup_max_depth);
-
+                     control->heuristic_parms.ext_rules_max_depth);
 }
 
 
@@ -1480,6 +1552,7 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control,
    {
       return NULL;
    }
+   
    //EvalListPrintComment(GlobalOut, clause->evaluations); printf("\n");
    if(OutputLevel==1)
    {
@@ -1545,19 +1618,23 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control,
 
    check_watchlist(&(state->wlindices), state->watchlist,
                       pclause->clause, state->archive,
-                      control->heuristic_parms.watchlist_is_static);
+                      control->heuristic_parms.watchlist_is_static,
+                      control->heuristic_parms.lambda_demod);
 
    /* Now on to backward simplification. */
    clausedate = ClauseSetListGetMaxDate(state->demods, FullRewrite);
 
    eliminate_backward_rewritten_clauses(state, control, pclause->clause, &clausedate);
-   eliminate_backward_subsumed_clauses(state, pclause);
-   eliminate_unit_simplified_clauses(state, pclause->clause);
-   eliminate_context_sr_clauses(state, control, pclause->clause);
+   eliminate_backward_subsumed_clauses(state, pclause,
+                                       control->heuristic_parms.lambda_demod);
+   eliminate_unit_simplified_clauses(state, pclause->clause,
+                                    control->heuristic_parms.lambda_demod);
+   eliminate_context_sr_clauses(state, control, pclause->clause,
+                                control->heuristic_parms.lambda_demod);
    ClauseSetSetProp(state->tmp_store, CPIsIRVictim);
 
    clause = pclause->clause;
-
+   
    ClauseNormalizeVars(clause, state->freshvars);
    tmp_copy = ClauseCopyDisjoint(clause);
    tmp_copy->ident = clause->ident;
@@ -1589,7 +1666,8 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control,
    {
       ClauseSetIndexedInsert(state->processed_non_units, pclause);
    }
-   GlobalIndicesInsertClause(&(state->gindices), clause);
+   GlobalIndicesInsertClause(&(state->gindices), clause,
+                             control->heuristic_parms.lambda_demod);
 
    FVUnpackClause(pclause);
    ENSURE_NULL(pclause);

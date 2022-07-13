@@ -185,7 +185,9 @@ int ACTermCompare(ACTerm_p t1, ACTerm_p t2)
 {
    assert(t1 && t2);
 
-   int res = CMP(t1->f_code, t2->f_code);
+   int res = 
+      (t1->f_code == SIG_DB_LAMBDA_CODE || t2->f_code == SIG_DB_LAMBDA_CODE) ? 
+      -1 : CMP(t1->f_code, t2->f_code);
 
    if(res == 0 && t1->f_code > 0)
    {
@@ -235,7 +237,7 @@ ACTerm_p ACTermNormalize(Sig_p sig, Term_p term)
 {
    ACTerm_p handle = ACTermAlloc(term->f_code);
 
-   if(!TermIsVar(term) && (term->arity != 0))
+   if(!TermIsAnyVar(term) && !TermIsLambda(term) && (term->arity != 0))
    {
       int i;
 
@@ -345,7 +347,7 @@ bool TermACEqual(Sig_p sig, Term_p t1, Term_p t2)
    bool res = true;
 
    if(TermStandardWeight(t1)!=TermStandardWeight(t2)
-      || TermIsAppliedVar(t1) || TermIsAppliedVar(t2))
+      || TermIsPhonyApp(t1) || TermIsPhonyApp(t2))
    {
       res = false;
    }

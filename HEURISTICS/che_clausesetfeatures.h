@@ -65,6 +65,18 @@ typedef enum
    SpecDepthShallow,
    SpecDepthMedium,
    SpecDepthDeep,
+   SpecFO,
+   SpecSO,
+   SpecHO,
+   SpecFewDefs,
+   SpecMediumDefs,
+   SpecManyDefs,
+   SpecFewFormDefs,
+   SpecMediumFormDefs,
+   SpecManyFormDefs,
+   SpecFewApplits,
+   SpecMediumApplits,
+   SpecManyApplits,
 }SpecFeatures;
 
 
@@ -100,6 +112,16 @@ typedef struct spec_limits_cell
    int    func_large_limit;
    int    fun_medium_limit;
    int    fun_large_limit;
+   int    order_medium_limit;
+   int    order_large_limit;
+   int    num_of_lams_medium_limit;
+   int    num_of_lams_large_limit;
+   int    num_of_defs_medium_limit;
+   int    num_of_defs_large_limit;
+   double perc_form_defs_medium_limit;
+   double perc_form_defs_large_limit;
+   double perc_app_lits_medium_limit;
+   double perc_app_lits_large_limit;
 }SpecLimitsCell, *SpecLimits_p;
 
 
@@ -121,6 +143,17 @@ typedef struct spec_feature_cell
    SpecFeatures avg_fun_ar_class;
    SpecFeatures sum_fun_ar_class;
    SpecFeatures max_depth_class;
+   
+   bool         has_ho_features; // has any HO feature
+   bool         quantifies_booleans; // is there any variable in whose type $o
+                                     // appears
+   bool         has_defined_choice; // there is a clause that defines choice
+   SpecFeatures order_class;
+   SpecFeatures goal_order_class;
+   SpecFeatures defs_class;
+   SpecFeatures form_defs_class;
+   SpecFeatures appvar_lits_class;
+   
    long         clauses;
    long         goals;
    long         axioms;
@@ -151,6 +184,13 @@ typedef struct spec_feature_cell
    int          fun_const_count;
    int          fun_nonconst_count;
    int          pred_nonconst_count;
+
+   /* HO features */
+   int          order; // maximal order of the problem
+   int          goal_order; // maximal order of hypothesis/conjecture
+   int          num_of_definitions; // number of formulas tagged with definition
+   double       perc_of_form_defs; // percentage of which defines formulas
+   double       perc_of_appvar_lits; // percentage of which defines formulas
 }SpecFeatureCell, *SpecFeature_p;
 
 
@@ -166,18 +206,18 @@ typedef struct spec_feature_cell
 #define GPC_ABSOLUTE           true
 #define GPC_FEW_DEFAULT        0.25
 #define GPC_MANY_DEFAULT       0.75
-#define GPC_FEW_ABSDEFAULT        1
-#define GPC_MANY_ABSDEFAULT       3
+#define GPC_FEW_ABSDEFAULT        2
+#define GPC_MANY_ABSDEFAULT       5
 #define AX_1_DEFAULT             10
 #define AX_4_DEFAULT             15
-#define AX_SOME_DEFAULT          20
-#define AX_MANY_DEFAULT         100
-#define LIT_SOME_DEFAULT         15
-#define LIT_MANY_DEFAULT        100
-#define TERM_MED_DEFAULT         60
-#define TERM_LARGE_DEFAULT     1000
-#define FAR_SUM_MED_DEFAULT      5
-#define FAR_SUM_LARGE_DEFAULT   24
+#define AX_SOME_DEFAULT        1000
+#define AX_MANY_DEFAULT       10000
+#define LIT_SOME_DEFAULT        400
+#define LIT_MANY_DEFAULT       4000
+#define TERM_MED_DEFAULT        200
+#define TERM_LARGE_DEFAULT     1500
+#define FAR_SUM_MED_DEFAULT      4
+#define FAR_SUM_LARGE_DEFAULT   29
 #define DEPTH_MEDIUM_DEFAULT     0 /* Partitioning two ways turns out
                                       to be nearly as good as 3 way on
                                       the test set */
@@ -194,7 +234,18 @@ typedef struct spec_feature_cell
 #define FUN_MEDIUM_DEFAULT       360
 #define FUN_LARGE_DEFAULT        400
 
+#define NUM_LAMS_MEDIUM_DEFAULT  2 
+#define NUM_LAMS_LARGE_DEFAULT   8 
+#define ORDER_MEDIUM_DEFAULT     2 // second order is already medium
+#define ORDER_LARGE_DEFAULT      3 // third order is already high
+#define DEFS_MEDIUM_DEFAULT      8
+#define DEFS_LARGE_DEFAULT       64
+#define DEFS_PERC_MEDIUM_DEFAULT 0.15
+#define DEFS_PERC_LARGE_DEFAULT  0.5
+#define PERC_APPLIT_MEDIUM_DEFAULT 0.1
+#define PERC_APPLIT_LARGE_DEFAULT  0.5
 
+#define SPEC_STRING_MEM          22
 
 #define DEFAULT_OUTPUT_DESCRIPTOR "eigEIG"
 #define DEFAULT_CLASS_MASK "aaaaaaaaaaaaa"
@@ -325,6 +376,8 @@ long    ClauseSetCountHornGoals(ClauseSet_p set);
         (ClauseSetCountHornGoals(set) == ClauseSetCountGoals(set))
 
 long    ClauseSetCountEquational(ClauseSet_p set);
+bool    ClauseSetHasHOFeatures(ClauseSet_p set);
+int     ClauseSetComputeMaxOrder(ClauseSet_p set, Sig_p sig);
 
 /* Are all clauses equational? */
 #define ClauseSetIsEquationalSet(set) \
@@ -377,14 +430,23 @@ long    ClauseSetCountVariables(ClauseSet_p set);
 long    ClauseSetCountSingletons(ClauseSet_p set);
 long    ClauseSetTPTPDepthInfoAdd(ClauseSet_p set, long* depthmax,
               long* depthsum, long* count);
-void    SpecFeaturesCompute(SpecFeature_p features, ClauseSet_p set,
-             Sig_p sig);
+void    ClauseSetComputeHOFeatures(ClauseSet_p set, Sig_p sig,
+                                   bool* has_ho_features,
+                                   int* order,
+                                   bool* quantifies_bools,
+                                   bool* has_defined_choice,
+                                   double* perc_appvar_lit);
+void    SpecFeaturesCompute(SpecFeature_p features, ClauseSet_p cset,
+                            FormulaSet_p fset, FormulaSet_p arch, TB_p bank);
 void    SpecFeaturesAddEval(SpecFeature_p features, SpecLimits_p limits);
 
 void    SpecFeaturesPrint(FILE* out, SpecFeature_p features);
+void    SpecLimitsPrint(FILE* out, SpecLimits_p limits);
+
 
 void    SpecFeaturesParse(Scanner_p in, SpecFeature_p features);
 
+char*    SpecTypeString(SpecFeature_p features, const char* mask);
 void    SpecTypePrint(FILE* out, SpecFeature_p features, char* mask);
 
 void    ClauseSetPrintPosUnits(FILE* out, ClauseSet_p set, bool
@@ -397,6 +459,10 @@ void    ProofStatePrintSelective(FILE* out, ProofState_p state, char*
              descriptor, bool printinfo);
 
 SpecLimits_p CreateDefaultSpecLimits(void);
+
+void ClausifyAndClassifyWTimeout(ProofState_p state, int timeout, 
+                                 char* mask,
+                                 char class[SPEC_STRING_MEM]);
 
 
 

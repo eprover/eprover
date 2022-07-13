@@ -43,27 +43,31 @@
 void     ClauseMoveSimplified(GlobalIndices_p gindices,
                               Clause_p clause,
                               ClauseSet_p tmp_set,
-                              ClauseSet_p archive);
+                              ClauseSet_p archive,
+                              bool lambda_demod);
 
 bool     RemoveRewritableClauses(OCB_p ocb, ClauseSet_p from,
                                  ClauseSet_p into,
                                  ClauseSet_p archive,
                                  Clause_p new_demod, SysDate nf_date,
-                                 GlobalIndices_p gindices);
+                                 GlobalIndices_p gindices,
+                                 bool lambda_demod);
 bool     RemoveRewritableClausesIndexed(OCB_p ocb, ClauseSet_p into,
                                         ClauseSet_p archive,
                                         Clause_p new_demod, SysDate nf_date,
-                                        GlobalIndices_p gindices);
+                                        GlobalIndices_p gindices,
+                                        bool lambda_demod);
 
 long ClauseSetUnitSimplify(ClauseSet_p set, Clause_p simplifier,
                            ClauseSet_p tmp_set, ClauseSet_p archive,
-                           GlobalIndices_p gindices);
+                           GlobalIndices_p gindices, bool lambda_demod);
 
 long     RemoveContextualSRClauses(ClauseSet_p from,
                                    ClauseSet_p into,
                                    ClauseSet_p archive,
                                    Clause_p simplifier,
-                                   GlobalIndices_p gindices);
+                                   GlobalIndices_p gindices,
+                                   bool lambda_demod);
 
 #endif
 

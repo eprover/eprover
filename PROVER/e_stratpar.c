@@ -45,7 +45,7 @@ typedef enum
    OPT_DUMMY
 }OptionCodes;
 
-
+ProblemType problemType  = PROBLEM_NOT_INIT;
 
 /*---------------------------------------------------------------------*/
 /*                        Global Variables                             */

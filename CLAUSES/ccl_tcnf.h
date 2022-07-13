@@ -62,11 +62,15 @@ TFormula_p TFormulaSkolemizeOutermost(TB_p terms, TFormula_p form);
 
 TFormula_p TFormulaDistributeDisjunctions(TB_p terms, TFormula_p form);
 
+TFormula_p TFormulaSimplifyDecoded(TB_p terms, TFormula_p form);
+
 void WTFormulaConjunctiveNF(WFormula_p form, TB_p terms);
 void WTFormulaConjunctiveNF2(WFormula_p form, TB_p terms,
-                             long miniscope_limit);
+                             long miniscope_limit,
+                             bool fool_unroll);
 void WTFormulaConjunctiveNF3(WFormula_p form, TB_p terms,
-                             long miniscope_limit);
+                             long miniscope_limit,
+                             bool fool_unroll);
 
 
 #endif

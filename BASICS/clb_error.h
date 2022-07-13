@@ -77,6 +77,7 @@ void SysError(char* message, ErrorCodes ret, ...);
 void          Warning(char* message, ...);
 void          SysWarning(char* message, ...);
 double        GetTotalCPUTime(void);
+double        GetTotalCPUTimeIncludingChildren(void);
 void          PrintRusage(FILE* out);
 void          StrideMemory(char* mem, long size);
 

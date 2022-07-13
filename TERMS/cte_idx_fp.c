@@ -96,14 +96,14 @@ static FPIndexFunction fp_index_funs[] =
 
 static void push_fcodes(PStack_p stack, Term_p t)
 {
-   if(TermIsVar(t))
+   if(TermIsFreeVar(t))
    {
       PStackPushInt(stack, ANY_VAR);
    }
    else
    {
       int i;
-      if(!TermIsAppliedVar(t))
+      if(!TermIsPhonyApp(t))
       {
          PStackPushInt(stack, t->f_code);
       }
@@ -139,7 +139,7 @@ FunCode TermFPSampleFO(Term_p term, va_list ap)
 
   for(pos = va_arg(ap, int); pos != -1;  pos = va_arg(ap, int))
   {
-     if(TermIsVar(term))
+     if(TermIsFreeVar(term))
      {
         res = BELOW_VAR;
         break;
@@ -153,7 +153,7 @@ FunCode TermFPSampleFO(Term_p term, va_list ap)
   }
   if(pos == -1)
   {
-     res = TermIsVar(term)?ANY_VAR:term->f_code;
+     res = TermIsFreeVar(term)?ANY_VAR:term->f_code;
   }
   va_end(ap);
 
@@ -178,48 +178,47 @@ FunCode TermFPSampleFO(Term_p term, va_list ap)
 /----------------------------------------------------------------------*/
 FunCode TermFPSampleHO(Term_p term, va_list ap)
 {
-   assert(problemType == PROBLEM_HO);
-   int pos = va_arg(ap, int);
-   FunCode res;
+  int pos = 0;
+  FunCode res = 0;
 
-   int arg_expansion_num = TypeGetMaxArity(term->type);
+  for(pos = va_arg(ap, int); pos != -1;  pos = va_arg(ap, int))
+  {
+    while(TermIsLambda(term))
+    {
+      term = term->args[1];
+    }
 
-   if(pos != -1 && pos < arg_expansion_num)
-   {
-      res = (va_arg(ap, int) == -1) ? ANY_VAR : BELOW_VAR;
-   }
-   else if(pos != -1)
-   {
-      pos -= arg_expansion_num;
-      for(; pos != -1; pos = va_arg(ap, int))
-      {
-         if(TermIsVar(term))
-         {
-            res = BELOW_VAR;
-            break;
-         }
+    if(TermIsTopLevelFreeVar(term))
+    {
+      res = BELOW_VAR;
+      break;
+    }
 
-         if(pos < ARG_NUM(term))
-         {
-            int actual_pos = term->arity-1 - pos;
-            term = term->args[actual_pos];
-         }
-         else
-         {
-            res = TermIsAppliedVar(term) ? BELOW_VAR : NOT_IN_TERM;
-            break;
-         }
-      }
-   }
+    if(pos < term->arity)
+    {
+      term = term->args[pos];
+    }
+    else if(pos < term->arity + TypeGetMaxArity(term->type))
+    {
+      res = SIG_DB_LAMBDA_CODE;
+      break;
+    }
+    else
+    {
+      res = NOT_IN_TERM;
+      break;
+    }
+  }
 
-   if(pos == -1)
-   {
-      res = TermIsTopLevelVar(term)?ANY_VAR:term->f_code;
-   }
+  if(pos == -1)
+  {
+     res = TermIsTopLevelFreeVar(term) ? ANY_VAR:
+            (TermIsTopLevelAnyVar(term) ? SIG_DB_LAMBDA_CODE :
+            term->f_code);
+  }
+  va_end(ap);
 
-   va_end(ap);
-
-   return res;
+  return res;
 }
 #endif
 
@@ -281,7 +280,7 @@ FunCode TermFPFlexSampleFO(Term_p term, IntOrP* *seq)
 
   while((pos=(*seq)->i_val)!=-1)
   {
-     if(TermIsVar(term))
+     if(TermIsFreeVar(term))
      {
         res = BELOW_VAR;
         break;
@@ -296,7 +295,7 @@ FunCode TermFPFlexSampleFO(Term_p term, IntOrP* *seq)
   }
   if(pos == -1)
   {
-     res = TermIsVar(term)?ANY_VAR:term->f_code;
+     res = TermIsFreeVar(term)?ANY_VAR:term->f_code;
   }
   else
   {
@@ -325,50 +324,55 @@ FunCode TermFPFlexSampleFO(Term_p term, IntOrP* *seq)
 /----------------------------------------------------------------------*/
 FunCode TermFPFlexSampleHO(Term_p term, IntOrP* *seq)
 {
-   FunCode res = 0;
-   long pos = (*seq)->i_val;
+  FunCode res = 0;
+  long pos;
 
-   if(pos != -1  && !TermIsTopLevelVar(term) && pos >= term->arity)
-   {
+  while((pos=(*seq)->i_val)!=-1)
+  {
+    while(TermIsLambda(term))
+    {
+      term = term->args[1];
+    }
+
+    if(TermIsTopLevelFreeVar(term))
+    {
       res = BELOW_VAR;
-   }
-   else
-   {
-      while((pos=(*seq)->i_val)!=-1)
-      {
-         if(TermIsTopLevelVar(term))
-         {
-            res = BELOW_VAR;
-            break;
-         }
-         if(pos >= term->arity)
-         {
-            res = NOT_IN_TERM;
-            break;
-         }
-         term = term->args[pos];
-         (*seq)++;
-      }
-
-      if(pos == -1)
-      {
-         res = TermIsVar(term) ? ANY_VAR :
-                     (TermIsAppliedVar(term) ? BELOW_VAR : term->f_code);
-      }
-      else
-      {
-        /* Find the end of the position */
-        while((pos=(*seq)->i_val)!=-1)
-        {
-           (*seq)++;
-        }
-      }
-      /* We want to point beyond the end */
-      (*seq)++;
-   }
-
-
-   return res;
+      break;
+    }
+    if(pos < term->arity)
+    {
+      term = term->args[pos];
+    }
+    else if(pos < term->arity + TypeGetMaxArity(term->type))
+    {
+      res = SIG_DB_LAMBDA_CODE;
+      break;
+    }
+    else
+    {
+      res = NOT_IN_TERM;
+      break;
+    }
+    (*seq)++;
+  }
+  
+  if(pos == -1)
+  {
+     res = TermIsTopLevelFreeVar(term) ? ANY_VAR:
+            (TermIsTopLevelAnyVar(term) ? SIG_DB_LAMBDA_CODE :
+            term->f_code);
+  }
+  else
+  {
+     /* Find the end of the position */
+     while((pos=(*seq)->i_val)!=-1)
+     {
+        (*seq)++;
+     }
+  }
+  /* We want to point beyond the end */
+  (*seq)++;
+  return res;
 }
 
 /*-----------------------------------------------------------------------

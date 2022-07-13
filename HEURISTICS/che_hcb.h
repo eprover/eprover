@@ -58,8 +58,45 @@ typedef enum
    NoLits
 }ExtInferenceType;
 
+typedef enum 
+{
+  NegMode,
+  AndMode,
+  OrMode,
+  EqMode,
+  PragmaticMode,
+  FullMode,
+  LogSymbolMode
+} PrimEnumMode;
+
+typedef enum 
+{
+  SingleUnif, // use only unification which returns a single unifier
+  MultiUnif // use unification which possibly returns a multiple unifiers
+} UnifMode;
+
 #define EIT2STR(x) (((x) == AllLits) ? ("all") : (((x) == MaxLits) ? "max" : "off"))
+#define PEM2STR(x) ((x) == NegMode ? ("neg")\
+                    : (x) == AndMode ? ("and")\
+                    : (x) == OrMode ? ("or")\
+                    : (x) == EqMode ? ("eq")\
+                    : (x) == PragmaticMode ? ("pragmatic")\
+                    : (x) == FullMode ? ("full") \
+                    : (x) == LogSymbolMode ? ("logsymbol") \
+                    : "unknown")
+#define STR2PEM(val) (!strcmp((val), "neg") ? NegMode\
+                      : !strcmp(val, "and") ? AndMode\
+                      : !strcmp(val, "or") ? OrMode\
+                      : !strcmp(val, "eq") ? EqMode\
+                      : !strcmp(val, "pragmatic") ? PragmaticMode\
+                      : !strcmp(val, "full") ? FullMode\
+                      : !strcmp(val, "logsymbol") ? LogSymbolMode\
+                      : (-1))
+#define UM2STR(x) ((x) == SingleUnif ? "single" : "multi")
+#define STR2UM(val) (!strcmp((val), "single") ? SingleUnif :\
+                     !strcmp((val), "multi") ? MultiUnif : (-1))
 #define NO_EXT_SUP (-1)
+#define NO_ELIM_LEIBNIZ (-1)
 
 
 /* External parameters for heuristics and proof control. When this is
@@ -75,9 +112,22 @@ typedef struct heuristic_parms_cell
    bool                no_preproc;
    long                eqdef_maxclauses;
    long                eqdef_incrlimit;
+   long                formula_def_limit;
+   
+   char*               sine;
    bool                add_goal_defs_pos;
    bool                add_goal_defs_neg; /* Twee-style goal rewriting */
    bool                add_goal_defs_subterms;
+
+   bool                bce;
+   int                 bce_max_occs;
+
+   bool                pred_elim;
+   bool                pred_elim_gates;
+   int                 pred_elim_max_occs;
+   int                 pred_elim_tolerance;
+   bool                pred_elim_force_mu_decrease;
+   bool                pred_elim_ignore_conj_syms;
 
 /* Clause selection elements */
    char                *heuristic_name;
@@ -116,6 +166,7 @@ typedef struct heuristic_parms_cell
 
    RewriteLevel        forward_demod;
    bool                prefer_general;
+   bool                lambda_demod;
 
    bool                condensing;
    bool                condensing_aggressive;
@@ -160,9 +211,31 @@ typedef struct heuristic_parms_cell
    ExtInferenceType    arg_cong;
    ExtInferenceType    neg_ext;
    ExtInferenceType    pos_ext;
-   int                 ext_sup_max_depth;
+   int                 ext_rules_max_depth;
    bool                inverse_recognition;
    bool                replace_inj_defs;
+   bool                lift_lambdas;
+   bool                lambda_to_forall;
+   bool                unroll_only_formulas;
+   int                 elim_leibniz_max_depth;
+   PrimEnumMode        prim_enum_mode;
+   int                 prim_enum_max_depth;
+   int                 inst_choice_max_depth;
+   bool                local_rw;
+   bool                prune_args;
+   bool                preinstantiate_induction;
+   bool                fool_unroll;
+   // unification limits
+   int                 func_proj_limit;
+   int                 imit_limit;
+   int                 ident_limit;
+   int                 elim_limit;
+   // unification options
+   UnifMode            unif_mode;
+   bool                pattern_oracle;
+   bool                fixpoint_oracle;
+   int                 max_unifiers;
+   int                 max_unif_steps;
 }HeuristicParmsCell, *HeuristicParms_p;
 
 
@@ -207,6 +280,9 @@ typedef struct hcb_cell
 }HCBCell, *HCB_p;
 
 #define HCB_DEFAULT_HEURISTIC "Default"
+
+/* Default symbol occurrences limit for BCE and PE */
+#define DEFAULT_SYM_OCCS 512
 
 #define DEFAULT_FILTER_ORPHANS_LIMIT LONG_MAX
 #define DEFAULT_FORWARD_CONTRACT_LIMIT LONG_MAX

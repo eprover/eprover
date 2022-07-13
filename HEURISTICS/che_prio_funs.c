@@ -24,6 +24,7 @@ Changes
 -----------------------------------------------------------------------*/
 
 #include "che_prio_funs.h"
+#include <ccl_derivation.h>
 
 
 /*---------------------------------------------------------------------*/
@@ -67,6 +68,13 @@ char* PrioFunNames[]=
    "PreferAppVar",
    "PreferNonAppVar",
    "ByAppVarNum",
+   "PreferHOSteps",
+   "PreferLambdas",
+   "DeferLambdas",
+   "PreferFormulas",
+   "DeferFormulas",
+   "PreferEasyHO",
+   "PreferFO",
    NULL
 };
 
@@ -108,6 +116,13 @@ static ClausePrioFun prio_fun_array[]=
    PrioFunPreferAppVar,
    PrioFunPreferNonAppVar,
    PrioFunByAppVarNum,
+   PrioFunPreferHOSteps,
+   PrioFunPreferLambdas,
+   PrioFunDeferLambdas,
+   PrioFunPreferFormulas,
+   PrioFunDeferFormulas,
+   PrioFunPreferEasyHO,
+   PrioFunPreferFO,
    NULL
 };
 
@@ -629,8 +644,8 @@ EvalPriority PrioFunByAppVarNum(Clause_p clause)
    EvalPriority res = 0;
    for(Eqn_p lit = clause->literals; lit; lit = lit->next)
    {
-      res += TermIsAppliedVar(lit->lterm) ? 1 : 0;
-      res += TermIsAppliedVar(lit->rterm) ? 1 : 0;
+      res += TermIsAppliedFreeVar(lit->lterm) ? 1 : 0;
+      res += TermIsAppliedFreeVar(lit->rterm) ? 1 : 0;
    }
    return res;
 }
@@ -1057,6 +1072,245 @@ EvalPriority PrioFunPreferNonAppVar(Clause_p clause)
       return PrioPrefer;
    }
    return PrioNormal;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: PrioFunPreferHOSteps()
+//
+//   Prefer clauses that have no applied variables.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+EvalPriority PrioFunPreferHOSteps(Clause_p clause)
+{
+   PStack_p derivation = clause->derivation;
+   EvalPriority prio = PrioNormal;
+   if(derivation && problemType == PROBLEM_HO)
+   {
+      PStackPointer sp = PStackGetSP(derivation);
+      PStackPointer i = 0;
+      DerivationCode op;
+      bool has_ho = false;
+      while(!has_ho && i<sp)
+      {
+         op = PStackElementInt(derivation, i);
+         has_ho = DPGetIsHO(op);
+         i++;
+         if(DCOpHasArg1(op))
+         {
+            i++;
+         }
+         if(DCOpHasArg2(op))
+         {
+            i++;
+         }
+      }
+   }
+   return prio;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: PrioFunPreferLambdas()
+//
+//   Prefer clauses that have lambda subterms.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+EvalPriority PrioFunPreferLambdas(Clause_p clause)
+{
+   EvalPriority prio = PrioNormal;
+   for(Eqn_p eqn=clause->literals; prio == PrioNormal && eqn; 
+       eqn = eqn->next)
+   {
+      if(TermHasLambdaSubterm(eqn->lterm) ||
+         TermHasLambdaSubterm(eqn->rterm))
+      {
+         prio = PrioPrefer;
+      }
+   }
+   return prio;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: PrioFunPreferLambdas()
+//
+//   Prefer clauses that have no lambda subterms.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+EvalPriority PrioFunDeferLambdas(Clause_p clause)
+{
+   EvalPriority prio = PrioFunPreferLambdas(clause);
+   return prio == PrioPrefer ? PrioDefer : prio;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: PrioFunPreferFormulas()
+//
+//   Prefer clauses that have formula subterms.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+EvalPriority PrioFunPreferFormulas(Clause_p clause)
+{
+   EvalPriority prio = PrioNormal;
+   PStack_p subterms = PStackAlloc();
+   for(Eqn_p eqn=clause->literals; prio == PrioNormal && eqn; 
+       eqn = eqn->next)
+   {
+      TB_p bank = eqn->bank;
+      PStackPushP(subterms, eqn->lterm);
+      if(EqnIsEquLit(eqn))
+      {
+         PStackPushP(subterms, eqn->rterm);
+      }
+
+      while(prio == PrioNormal && !PStackEmpty(subterms))
+      {
+         Term_p t = PStackPopP(subterms);
+         if(!TermIsFreeVar(t) && TypeIsBool(t->type) && 
+            t != bank->true_term && t != bank->false_term &&
+            SigIsLogicalSymbol(bank->sig, t->f_code))
+         {
+            prio = PrioPrefer;
+         }
+
+         if(prio == PrioNormal && !TermIsLambda(t))
+         {
+            for(int i=TermIsPhonyApp(t) ? 1 : 0; i<t->arity; i++)
+            {
+               PStackPushP(subterms, t->args[i]);
+            }
+         }
+      }
+   }
+   PStackFree(subterms);
+   return prio;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: PrioFunDeferFormulas()
+//
+//   Prefer clauses that have no formula subterms.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+EvalPriority PrioFunDeferFormulas(Clause_p clause)
+{
+   EvalPriority prio = PrioFunPreferFormulas(clause);
+   return prio == PrioPrefer ? PrioDefer : prio;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: PrioFunPreferEasyHO()
+//
+//   Prefer clauses that have no formula subterms.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+EvalPriority PrioFunPreferEasyHO(Clause_p clause)
+{
+   PStack_p derivation = clause->derivation;
+   EvalPriority prio = PrioNormal;
+   if(derivation && problemType == PROBLEM_HO)
+   {
+      PStackPointer sp = PStackGetSP(derivation);
+      PStackPointer i  = 0;
+      DerivationCode op;
+      while(prio == PrioNormal && i<sp)
+      {
+         op = PStackElementInt(derivation, i);
+         if(DPOpGetOpCode(op) == DOArgCong)
+         {
+            prio = PrioBest;
+         }
+         i++;
+         if(DCOpHasArg1(op))
+         {
+            i++;
+         }
+         if(DCOpHasArg2(op))
+         {
+            i++;
+         }
+      }
+   }
+   if(prio != PrioBest)
+   {
+      for(Eqn_p eqn=clause->literals; prio == PrioNormal && eqn; 
+          eqn = eqn->next)
+      {
+         if(TypeIsArrow(eqn->lterm->type) || 
+            TermIsNonFOPattern(eqn->lterm) ||
+            TermIsNonFOPattern(eqn->rterm))
+         {
+            prio = PrioPrefer;
+         }
+      }
+      if(prio == PrioNormal)
+      {
+         prio = PrioFunPreferFormulas(clause);
+      }
+      prio = PrioPrefer ? PrioNormal : PrioDefer;
+   }
+   return prio;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: PrioFunPreferEasyHO()
+//
+//   Prefer clauses that have no formula subterms.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+EvalPriority PrioFunPreferFO(Clause_p clause)
+{
+   EvalPriority prio = PrioNormal;
+
+   for(Eqn_p eqn=clause->literals; prio == PrioNormal && eqn; 
+       eqn = eqn->next)
+   {
+      if(!TermIsPattern(eqn->lterm) || !TermIsPattern(eqn->rterm))
+      {
+         prio = PrioDefer;
+      }
+   }
+   return prio;
 }
 
 

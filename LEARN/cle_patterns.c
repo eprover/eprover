@@ -922,7 +922,7 @@ bool PatternTermCompute(PatternSubst_p subst, Term_p term)
 
    for(i=0; i< term->arity; i++)
    {
-      assert(!TermIsVar(term));
+      assert(!TermIsFreeVar(term));
       assert(term->args[i]);
       tmp = PatternTermCompute(subst, term->args[i]);
       res = res||tmp;
@@ -1227,7 +1227,7 @@ void PatternTermPrint(FILE* out, PatternSubst_p subst, Term_p term,
    char new_id[27];
 
    id = PatSymbValue(subst, term->f_code);
-   if(TermIsVar(term))
+   if(TermIsFreeVar(term))
    {
       if(!id)
       {
@@ -1400,7 +1400,7 @@ Term_p PatternTranslateSig(Term_p term, PatternSubst_p subst, Sig_p
    while(!PStackEmpty(stack))
    {
       t = PStackPopP(stack);
-      if(TermIsVar(t))
+      if(TermIsFreeVar(t))
       {
          f_code = PatSymbValue(subst, t->f_code);
          if(f_code)
@@ -1417,13 +1417,13 @@ Term_p PatternTranslateSig(Term_p term, PatternSubst_p subst, Sig_p
       }
    }
 
-   new = TermCopy(term, new_vars, DEREF_ONCE);
+   new = TermCopy(term, new_vars, NULL,  DEREF_ONCE);
    /* Reset variables */
    PStackPushP(stack, term);
    while(!PStackEmpty(stack))
    {
       t = PStackPopP(stack);
-      if(TermIsVar(t))
+      if(TermIsFreeVar(t))
       {
          t->binding = NULL;
       }
@@ -1441,7 +1441,7 @@ Term_p PatternTranslateSig(Term_p term, PatternSubst_p subst, Sig_p
    while(!PStackEmpty(stack))
    {
       t = PStackPopP(stack);
-      if(TermIsVar(t))
+      if(TermIsFreeVar(t))
       {
          continue;
       }

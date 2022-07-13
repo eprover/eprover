@@ -38,8 +38,6 @@ char* UnitSimplifyNames[]=
    NULL
 };
 
-const SimplifyRes SIMPLIFY_FAILED = {.pos = NULL, .remaining_args = MATCH_FAILED};
-
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
 /*---------------------------------------------------------------------*/
@@ -70,12 +68,10 @@ const SimplifyRes SIMPLIFY_FAILED = {.pos = NULL, .remaining_args = MATCH_FAILED
 //
 /----------------------------------------------------------------------*/
 
-SimplifyRes FindTopSimplifyingUnit(ClauseSet_p units, Term_p t1,
-               Term_p t2)
+ClausePos_p FindTopSimplifyingUnit(ClauseSet_p units, Term_p t1, Term_p t2)
 {
    Subst_p     subst = SubstAlloc();
-   ClausePos_p pos;
-   SimplifyRes res = SIMPLIFY_FAILED;
+   ClausePos_p pos, res = NULL;
 
    assert(TermStandardWeight(t1) == TermWeight(t1,DEFAULT_VWEIGHT,DEFAULT_FWEIGHT));
    assert(TermStandardWeight(t2) == TermWeight(t2,DEFAULT_VWEIGHT,DEFAULT_FWEIGHT));
@@ -83,17 +79,13 @@ SimplifyRes FindTopSimplifyingUnit(ClauseSet_p units, Term_p t1,
 
    PDTreeSearchInit(units->demod_index, t1, PDTREE_IGNORE_NF_DATE, false);
 
-   MatchRes_p mi;
-   while((mi = PDTreeFindNextDemodulator(units->demod_index, subst)))
+   while((pos = PDTreeFindNextDemodulator(units->demod_index, subst)))
    {
-      pos = mi->pos;
-
-      if(mi->remaining_args == 0 && SubstMatchComplete(ClausePosGetOtherSide(pos), t2, subst))
+      if(SubstMatchComplete(ClausePosGetOtherSide(pos), t2, subst))
       {
         // if the problem is not HO, we match completely.
         assert(pos->clause->set == units);
-        res = (SimplifyRes){.pos = pos, .remaining_args = mi->remaining_args};
-        MatchResFree(mi);
+        res = pos;
         break;
       }
    }
@@ -115,12 +107,10 @@ SimplifyRes FindTopSimplifyingUnit(ClauseSet_p units, Term_p t1,
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
-SimplifyRes FindSignedTopSimplifyingUnit(ClauseSet_p units, Term_p t1,
-                Term_p t2, bool sign)
+ClausePos_p FindSignedTopSimplifyingUnit(ClauseSet_p units, Term_p t1, Term_p t2, bool sign)
 {
    Subst_p     subst = SubstAlloc();
-   ClausePos_p pos;
-   SimplifyRes res = SIMPLIFY_FAILED;
+   ClausePos_p pos, res = NULL;
 
    assert(TermStandardWeight(t1) == TermWeight(t1,DEFAULT_VWEIGHT,DEFAULT_FWEIGHT));
    assert(TermStandardWeight(t2) == TermWeight(t2,DEFAULT_VWEIGHT,DEFAULT_FWEIGHT));
@@ -128,55 +118,20 @@ SimplifyRes FindSignedTopSimplifyingUnit(ClauseSet_p units, Term_p t1,
 
    PDTreeSearchInit(units->demod_index, t1, PDTREE_IGNORE_NF_DATE, false);
 
-   MatchRes_p mi;
-   while((mi = PDTreeFindNextDemodulator(units->demod_index, subst)))
+   while((pos = PDTreeFindNextDemodulator(units->demod_index, subst)))
    {
-      pos = mi->pos;
-      if( mi->remaining_args == 0
-          && EQUIV(EqnIsPositive(pos->literal), sign)
+      if( EQUIV(EqnIsPositive(pos->literal), sign)
           && (SubstMatchComplete(ClausePosGetOtherSide(pos), t2, subst)))
       {
         // if the problem is not HO, we match completely.
         assert(pos->clause->set == units);
-        res = (SimplifyRes){.pos = pos, .remaining_args = mi->remaining_args};
-        MatchResFree(mi);
+        res = pos;
         break;
       }
-      MatchResFree(mi);
    }
    PDTreeSearchExit(units->demod_index);
    SubstDelete(subst);
    return res;
-}
-
-
-
-/*-----------------------------------------------------------------------
-//
-// Function: RemainingArgsSame()
-//
-//   Determines if the trailing arugments are the same in both of the
-//   terms. 
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-__inline__ bool RemainingArgsSame(Term_p t1, Term_p t2, SimplifyRes *res)
-{
-   int remains = res->remaining_args;
-   assert(problemType != PROBLEM_FO || !remains);
-   while(remains)
-   {
-      if(t1->args[t1->arity - remains] != t2->args[t2->arity - remains])
-      {
-         return false;
-      }
-      remains --;
-   }
-   assert(!SimplifyFailed(*res));
-   return true;
 }
 
 
@@ -193,12 +148,12 @@ __inline__ bool RemainingArgsSame(Term_p t1, Term_p t2, SimplifyRes *res)
 //
 /----------------------------------------------------------------------*/
 
-SimplifyRes FindSimplifyingUnit(ClauseSet_p set, Term_p t1, Term_p t2,
+ClausePos_p FindSimplifyingUnit(ClauseSet_p set, Term_p t1, Term_p t2,
             bool positive_only)
 {
    Term_p   tmp1, tmp2 = NULL;
    int      i;
-   SimplifyRes res = SIMPLIFY_FAILED;
+   ClausePos_p res = NULL;
 
    if(positive_only)
    {
@@ -211,12 +166,13 @@ SimplifyRes FindSimplifyingUnit(ClauseSet_p set, Term_p t1, Term_p t2,
    
    if(!SimplifyFailed(res))
    {
-      return RemainingArgsSame(t1, t2, &res) ? res : SIMPLIFY_FAILED;
+      return res;
    }
 
    while(SimplifyFailed(res))
    {
-      if(TermIsTopLevelVar(t1) || TermIsTopLevelVar(t2) || 
+      if(TermIsTopLevelFreeVar(t1) || TermIsTopLevelFreeVar(t2) ||
+         TermIsLambda(t1) || TermIsLambda(t2) ||
          t1->f_code != t2->f_code || !t1->arity)
       {
         break;
@@ -248,7 +204,7 @@ SimplifyRes FindSimplifyingUnit(ClauseSet_p set, Term_p t1, Term_p t2,
       res = FindSignedTopSimplifyingUnit(set, t1, t2, true);
       if(problemType == PROBLEM_HO && !SimplifyFailed(res))
       {
-         return RemainingArgsSame(t1, t2, &res) ? res : SIMPLIFY_FAILED;
+         return res;
       }
    }
    return res;
@@ -277,7 +233,7 @@ bool ClauseSimplifyWithUnitSet(Clause_p clause, ClauseSet_p unit_set,
                                UnitSimplifyType how)
 {
    Eqn_p *handle;
-   SimplifyRes res;
+   ClausePos_p res;
 
    assert(clause);
    assert(unit_set && unit_set->demod_index);
@@ -300,7 +256,7 @@ bool ClauseSimplifyWithUnitSet(Clause_p clause, ClauseSet_p unit_set,
       }
       if(!SimplifyFailed(res))
       {
-         ClausePos_p pos = res.pos;
+         ClausePos_p pos = res;
          assert(ClauseIsUnit(pos->clause));
          if(EQUIV(EqnIsPositive(*handle),
              EqnIsPositive(pos->literal)))

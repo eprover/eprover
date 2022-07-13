@@ -30,7 +30,6 @@ Changes
 /*---------------------------------------------------------------------*/
 
 long global_formula_counter = LONG_MIN;
-long FormulaDefLimit        = TFORM_RENAME_LIMIT;
 bool FormulasKeepInputNames = true;
 
 
@@ -297,7 +296,7 @@ char* WFormulaGetId(WFormula_p form)
       id = form->ident;
       prefix = 'c';
    }
-   sprintf(ident, "%c_0_%ld", prefix, id);
+   snprintf(ident, 31, "%c_0_%ld", prefix, id);
    return ident;
 }
 
@@ -513,7 +512,7 @@ WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms)
          // fprintf(stderr, "# TFormula parsed!: ");
          // TFormulaTPTPPrint(stderr, terms, tform, true, false);
          // fprintf(stderr, " : ");
-         // TermPrintDbgHO(stderr, tform, terms->sig, DEREF_NEVER);
+         // TermPrintDbg(stderr, tform, terms->sig, DEREF_NEVER);
          // fprintf(stderr, ";\n");
       }
 
@@ -631,6 +630,7 @@ void WFormulaTSTPPrint(FILE* out, WFormula_p form, bool fullterms,
    else
    {
       TFormulaTPTPPrint(out, form->terms, form->tformula,fullterms, false);
+      // TermPrintDbg(out, form->tformula, form->terms->sig, DEREF_NEVER);
       //fprintf(out, "");
       //fprintf(out, "<dummy %p in %p>", form->tformula, form->terms);
    }
@@ -872,7 +872,7 @@ long WFormulaReturnFCodes(WFormula_p form, PStack_p f_codes)
    {
       t = PStackElementP(stack,i);
       TermCellDelProp(t, TPOpFlag);
-      if(!TermIsVar(t))
+      if(!TermIsAnyVar(t) && !TermIsPhonyApp(t))
       {
          if(!SigQueryFuncProp(sig, t->f_code, FPOpFlag))
          {
@@ -941,6 +941,54 @@ WFormula_p WFormulaOfClause(Clause_p clause, TB_p bank)
    form = TFormulaClosure(bank, form, true);
 
    res = WTFormulaAlloc(bank, form);
+   return res;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: WFormulaGetLambdaDefinedSym
+//
+//   If the formula is an axiom tagged with 'definition' role then
+//   extract the function code of the defined symbol. In case
+//   of a format error (definition tag, but nothing is defined)
+//   or tag is not present  return -1.
+//
+//   Allocate a formula.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+FunCode WFormulaGetLambdaDefinedSym(WFormula_p form)
+{
+   FunCode res = -1;
+   if(FormulaQueryProp(form, CPIsLambdaDef))
+   {
+      Term_p tform = form->tformula;
+      Sig_p sig = form->terms->sig;
+      while (tform->f_code == sig->qall_code && tform->arity == 2)
+      {
+         tform = tform->args[1];
+      }
+
+      Term_p lhs = NULL;
+      if (tform->f_code == sig->eqn_code)
+      {
+         lhs = tform->args[0];
+      }
+      else if(tform->f_code == sig->equiv_code &&
+              tform->args[0]->f_code == sig->eqn_code)
+      {
+         lhs = tform->args[0]->args[0];
+      }
+
+      if(lhs && lhs->f_code > sig->internal_symbols)
+      {
+         res = lhs->f_code;
+      }
+   }
    return res;
 }
 

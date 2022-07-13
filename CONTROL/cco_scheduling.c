@@ -20,6 +20,9 @@ Changes
 -----------------------------------------------------------------------*/
 
 #include "cco_scheduling.h"
+#include <che_new_autoschedule.h>
+#include <unistd.h>
+#include <sys/mman.h>
 
 
 
@@ -27,39 +30,6 @@ Changes
 /*                        Global Variables                             */
 /*---------------------------------------------------------------------*/
 
-ScheduleCell _CASC_SCHEDULE[] =
-{
-   {"AutoSched0",  AUTOSCHED0,  "Auto", 0.5   , 0, 1},
-   {"AutoSched1",  AUTOSCHED1,  "Auto", 0.22  , 0, 1},
-   {"AutoSched2",  AUTOSCHED2,  "Auto", 0.0733, 0, 1},
-   {"AutoSched3",  AUTOSCHED3,  "Auto", 0.06  , 0, 1},
-   {"AutoSched4",  AUTOSCHED4,  "Auto", 0.0433, 0, 1},
-   {"AutoSched5",  AUTOSCHED5,  "Auto", 0.0366, 0, 1},
-   {"AutoSched6",  AUTOSCHED6,  "Auto", 0.0167, 0, 1},
-   {"AutoSched7",  AUTOSCHED7,  "Auto", 0.0167, 0, 1},
-   {"AutoSched8",  AUTOSCHED8,  "Auto", 0.0167, 0, 1},
-   {"AutoSched9",  AUTOSCHED9,  "Auto", 0.0167, 0, 1},
-   {NULL,          NoOrdering,  NULL  , 0.0   , 0, 1}
-};
-
-ScheduleCell _CASC_SH_SCHEDULE[] =
-{
-   {"AutoSched0",  AUTOSCHED0,  "Auto", 0.34, 0, 1},
-   {"AutoSched1",  AUTOSCHED1,  "Auto", 0.09, 0, 1},
-   {"AutoSched2",  AUTOSCHED2,  "Auto", 0.09, 0, 1},
-   {"AutoSched3",  AUTOSCHED3,  "Auto", 0.09, 0, 1},
-   {"AutoSched4",  AUTOSCHED4,  "Auto", 0.09, 0, 1},
-   {"AutoSched5",  AUTOSCHED5,  "Auto", 0.08, 0, 1},
-   {"AutoSched6",  AUTOSCHED6,  "Auto", 0.08, 0, 1},
-   {"AutoSched7",  AUTOSCHED7,  "Auto", 0.08, 0, 1},
-   {"AutoSched8",  AUTOSCHED8,  "Auto", 0.08, 0, 1},
-   {"AutoSched9",  AUTOSCHED9,  "Auto", 0.08, 0, 1},
-   {NULL,          NoOrdering,  NULL  , 0.0 , 0, 1}
-};
-
-const ScheduleCell* CASC_SCHEDULE = _CASC_SCHEDULE;
-const ScheduleCell* CASC_SH_SCHEDULE = _CASC_SH_SCHEDULE;
-ScheduleCell* chosen_schedule = _CASC_SCHEDULE;
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
 /*---------------------------------------------------------------------*/
@@ -68,6 +38,28 @@ ScheduleCell* chosen_schedule = _CASC_SCHEDULE;
 /*---------------------------------------------------------------------*/
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
+
+/*-----------------------------------------------------------------------
+//
+// Function: name_in_schedule()
+//
+//   Is the heuristic name in the schedule?
+//
+// Global Variables:
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+
+static inline bool name_in_schedule(const char* name, ScheduleCell* sched)
+{
+   bool ans = false;
+   for(int i=0; sched[i].heu_name && !ans; i++)
+   {
+      ans = !strcmp(name, sched[i].heu_name);
+   }
+   return ans;
+}
 
 
 
@@ -128,148 +120,14 @@ void ScheduleTimesInit(ScheduleCell sched[], double time_used)
 
 /*-----------------------------------------------------------------------
 //
-// Function:  ExecuteSchedule()
-//
-//   Execute the hard-coded strategy schedule.
-//
-// Global Variables: SilentTimeOut
-//
-// Side Effects    : Forks, the child runs the proof search, re-sets
-//                   time limits, sets heuristic parameters
-//
-/----------------------------------------------------------------------*/
-
-pid_t ExecuteSchedule(ScheduleCell strats[],
-                      HeuristicParms_p  h_parms,
-                      bool print_rusage)
-{
-   int raw_status, status = OTHER_ERROR, i;
-   pid_t pid       = 0, respid;
-   double run_time = GetTotalCPUTime();
-
-
-   ScheduleTimesInitMultiCore(strats, run_time, 4);
-
-   ScheduleTimesInit(strats, run_time);
-
-   for(i=0; strats[i].heu_name; i++)
-   {
-      h_parms->heuristic_name         = strats[i].heu_name;
-      h_parms->order_params.ordertype = strats[i].ordering;
-      fprintf(GlobalOut, "# Trying %s for %ld seconds\n",
-              strats[i].heu_name,
-              (long)strats[i].time_absolute);
-      fflush(GlobalOut);
-      pid = fork();
-      if(pid == 0)
-      {
-         /* Child */
-         SilentTimeOut = true;
-         if(strats[i].time_absolute!=RLIM_INFINITY)
-         {
-            SetSoftRlimit(RLIMIT_CPU, strats[i].time_absolute);
-         }
-         return pid;
-      }
-      else
-      {
-         /* Parent */
-         respid = -1;
-         while(respid == -1)
-         {
-            respid = waitpid(pid, &raw_status, 0);
-         }
-         if(WIFEXITED(raw_status))
-         {
-            status = WEXITSTATUS(raw_status);
-            if((status == SATISFIABLE) || (status == PROOF_FOUND))
-            {
-               if(print_rusage)
-               {
-                  PrintRusage(GlobalOut);
-               }
-               exit(status);
-            }
-            else
-            {
-               fprintf(GlobalOut, "# No success with %s\n",
-                       strats[i].heu_name);
-            }
-         }
-         else
-         {
-            fprintf(GlobalOut, "# Abnormal termination for %s\n",
-                    strats[i].heu_name);
-         }
-      }
-   }
-   if(print_rusage)
-   {
-      PrintRusage(GlobalOut);
-   }
-   /* The following is ugly: Because the individual strategies can
-      fail, but the whole schedule can succeed, we cannot let the
-      strategies report failure to standard out (that might confuse
-      badly-written meta-tools (and there are such ;-)). Hence, the
-      TSPT status in the failure case is suppressed and needs to be
-      added here. This is ony partially possible - we take the exit
-      status of the last strategy of the schedule. */
-   switch(status)
-   {
-   case PROOF_FOUND:
-   case SATISFIABLE:
-         /* Nothing to do, success reported by the child */
-         break;
-   case OUT_OF_MEMORY:
-         TSTPOUT(stdout, "ResourceOut");
-         break;
-   case SYNTAX_ERROR:
-         /* Should never be possible here */
-         TSTPOUT(stdout, "SyntaxError");
-         break;
-   case USAGE_ERROR:
-         /* Should never be possible here */
-         TSTPOUT(stdout, "UsageError");
-         break;
-   case FILE_ERROR:
-         /* Should never be possible here */
-         TSTPOUT(stdout, "OSError");
-         break;
-   case SYS_ERROR:
-         TSTPOUT(stdout, "OSError");
-         break;
-   case CPU_LIMIT_ERROR:
-         WriteStr(GlobalOutFD, "\n# Failure: Resource limit exceeded (time)\n");
-         TSTPOUTFD(GlobalOutFD, "ResourceOut");
-         Error("CPU time limit exceeded, terminating", CPU_LIMIT_ERROR);
-         break;
-   case RESOURCE_OUT:
-    TSTPOUT(stdout, "ResourceOut");
-         break;
-   case INCOMPLETE_PROOFSTATE:
-         TSTPOUT(GlobalOut, "GaveUp");
-         break;
-   case OTHER_ERROR:
-         TSTPOUT(stdout, "Error");
-         break;
-   case INPUT_SEMANTIC_ERROR:
-         TSTPOUT(stdout, "SemanticError");
-         break;
-   default:
-         break;
-   }
-   exit(status);
-   return pid;
-}
-
-
-
-/*-----------------------------------------------------------------------
-//
 // Function: ScheduleTimesInitMultiCore()
 //
-//    Create timings for multi-core-scheduling. This is very naive,
-//    and probably only useful for testing.
+//    If preprocessing_schedule is true (used for scheduling preprocessing)
+//    based on the time fraction the number of cores allocated to the preprocessor
+//    will be computed and stored in cores. Cores must be initialized to the
+//    prefered maximal number of cores and if this number is smaller than
+//    the number of preprocessors, then it is going to be set to the
+//    number of preprocessors. 
 //
 // Global Variables:
 //
@@ -277,57 +135,93 @@ pid_t ExecuteSchedule(ScheduleCell strats[],
 //
 /----------------------------------------------------------------------*/
 
-void ScheduleTimesInitMultiCore(ScheduleCell sched[], double time_used, int cores)
+void ScheduleTimesInitMultiCore(ScheduleCell sched[], double time_used, 
+                                double time_limit, bool preprocessing_schedule,
+                                int* cores, bool serialize)
 {
    int i;
    rlim_t sum=0, tmp, limit, total_limit;
-   double
-      nominal_sum = 0.0,
-      actual_sum = 0.0,
-      nominal_rest,
-      actual_rest,
-      frac;
+   int allocated_cores = 0;
 
-   limit = 0;
-   if(ScheduleTimeLimit)
+   int sched_size = 0;
+   while(sched[sched_size].heu_name)
    {
-      if(ScheduleTimeLimit>time_used)
+      sched_size++;
+   }
+   if (preprocessing_schedule && sched_size > *cores)
+   {
+      // shortening schedule to the num of cores.
+      sched_size = *cores;
+      sched[sched_size].heu_name = NULL;
+
+      // rescaling time fractions for lower number of cores.
+      double total_ratio = 0;
+      for(int i=0; sched[i].heu_name; i++)
       {
-         limit = ScheduleTimeLimit-time_used;
+         total_ratio += sched[i].time_fraction;
+      }
+      double factor = 1 / total_ratio;
+      for(int i=0; sched[i].heu_name; i++)
+      {
+         sched[i].time_fraction *= factor;
       }
    }
-   else
+
+   limit = ceil(time_limit-time_used);
+   total_limit = limit;
+   if(preprocessing_schedule)
    {
-      if(DEFAULT_SCHED_TIME_LIMIT > time_used)
+      if(serialize)
       {
-         limit = DEFAULT_SCHED_TIME_LIMIT-time_used;
+         for(i=0; sched[i].heu_name; i++)
+         {
+            // error in each step is at most 1 -- so we can
+            // add at most sched_size extra cores
+            sched[i].cores = 1;
+         }
+         allocated_cores = *cores = 1;
+      }
+      else
+      {
+         for(i=0; sched[i].heu_name; i++)
+         {
+            // error in each step is at most 1 -- so we can
+            // add at most sched_size extra cores
+            sched[i].cores = MAX(ceil(sched[i].time_fraction*(*cores)), 1.0);
+            allocated_cores += sched[i].cores;
+         }
+         int error = allocated_cores-(*cores);
+         assert(error <= sched_size);
+         for(i=sched_size-1; error && i >=0; i--)
+         {
+            // fixing the error in allocating cores (starting)
+            // from the least important schedule
+            // IMPORTANT: we leave at least one core per schedule
+            int to_take = MIN(sched[i].cores-1, error);
+            sched[i].cores -=  to_take;
+            error -= to_take;
+         }
+         assert(!error);
       }
    }
-   total_limit = limit*cores;
 
    for(i=0; sched[i].heu_name; i++)
    {
-      nominal_rest = 1-nominal_sum;
-      actual_rest  = 1-actual_sum;
-
-      tmp = sched[i].time_fraction*total_limit*(actual_rest/nominal_rest);
-      if(tmp>limit)
+      if (!preprocessing_schedule && (sum >= total_limit))
       {
-         tmp = limit;
+         // limiting search schedules from going crazy.
+         sched[i].heu_name = NULL;
+         break;
       }
-      sched[i].time_absolute = tmp;
-      sum += tmp;
-      frac = (float)tmp/total_limit;
-      nominal_sum += sched[i].time_fraction;
-      actual_sum  += frac;
 
-      fprintf(GlobalOut,
-              "# %s assigned %ju seconds (%f)\n",
-              sched[i].heu_name, (uintmax_t)tmp, frac);
+      tmp = ceil((preprocessing_schedule && !serialize ? 1.0 : sched[i].time_fraction)
+            *sched[i].cores*total_limit);
+      sched[i].time_absolute = preprocessing_schedule ? tmp :  MIN(tmp, limit-sum);
+      sum = sum+sched[i].time_absolute;
    }
    fprintf(GlobalOut,
-           "# Scheduled %d strats onto %d cores with %ju seconds (%ju)\n",
-           i, cores, (uintmax_t)limit, (uintmax_t)sum);
+           "# Scheduled %d strats onto %d cores with %ju seconds (%ju total)\n",
+           i, *cores, (uintmax_t)limit, (uintmax_t)sum);
 }
 
 
@@ -344,23 +238,35 @@ void ScheduleTimesInitMultiCore(ScheduleCell sched[], double time_used, int core
 //
 /----------------------------------------------------------------------*/
 
-void ExecuteScheduleMultiCore(ScheduleCell strats[],
-                              HeuristicParms_p  h_parms,
-                              bool print_rusage,
-                              int cores)
+#define TERMINATE_CHILDREN() signal(SIGQUIT, SIG_IGN); kill(0, SIGQUIT)
+
+void _catch_and_quit(int _)
+{
+   exit(RESOURCE_OUT);
+}
+
+int ExecuteScheduleMultiCore(ScheduleCell strats[],
+                             HeuristicParms_p  h_parms,
+                             bool print_rusage,
+                             int wc_time_limit,
+                             int preproc_schedule,
+                             int max_cores,
+                             bool serialize)
 {
    int i;
    double run_time = GetTotalCPUTime();
    EGPCtrl_p handle;
    EGPCtrlSet_p procs = EGPCtrlSetAlloc();
 
-   ScheduleTimesInitMultiCore(strats, run_time, cores);
+
+   ScheduleTimesInitMultiCore(strats, run_time, wc_time_limit,
+                              preproc_schedule, &max_cores, serialize);
 
    i=0;
    do
    {
       while(strats[i].heu_name &&
-            ((cores-EGPCtrlSetCoresReserved(procs)) >= strats[i].cores))
+            ((max_cores-EGPCtrlSetCoresReserved(procs)) >= strats[i].cores))
       {
          handle = EGPCtrlCreate(strats[i].heu_name,
                                 strats[i].cores,
@@ -370,11 +276,14 @@ void ExecuteScheduleMultiCore(ScheduleCell strats[],
             h_parms->heuristic_name         = strats[i].heu_name;
             h_parms->order_params.ordertype = strats[i].ordering;
             SilentTimeOut = true;
-            return;
+            signal(SIGQUIT, _catch_and_quit);
+            // EGPCtrlSetFree(procs);
+            return i; // tells the other scheduling call what is the parent
          }
          else
          {
             EGPCtrlSetAddProc(procs, handle);
+            // fprintf(stderr, "Will run %s(%d) for %ld\n", handle->name, handle->pid, strats[i].time_absolute);
          }
          i++;
       }
@@ -388,19 +297,115 @@ void ExecuteScheduleMultiCore(ScheduleCell strats[],
          {
             PrintRusage(GlobalOut);
          }
+         if(preproc_schedule)
+         {
+            TERMINATE_CHILDREN();
+         }
+         EGPCtrlSetFree(procs);
          exit(handle->exit_status);
-      }
-   }while(EGPCtrlSetCardinality(procs));
+      } 
+   }while(EGPCtrlSetCardinality(procs) || strats[i].heu_name);
 
    EGPCtrlSetFree(procs);
 
    fprintf(GlobalOut, "# Schedule exhausted\n");
-   TSTPOUT(GlobalOut, "GaveUp");
    if(print_rusage)
    {
       PrintRusage(GlobalOut);
    }
-   exit(RESOURCE_OUT);
+   if(preproc_schedule)
+   {
+      TERMINATE_CHILDREN();
+   }
+   return SCHEDULE_DONE;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function:  InitializePlaceholderSearchSchedule()
+//
+//   Find the placeholder position in search sched and replace
+//   it with NULL (terminate the schedule array) if we do not
+//   need to insert preprocessing schedule into search schedule,
+//   otherwise replace it with the name of preprocessing schedule.
+//
+// Global Variables: SilentTimeOut
+//
+// Side Effects    : Forks, the child runs the proof search, re-sets
+//                   time limits, sets heuristic parameters
+//
+/----------------------------------------------------------------------*/
+
+void InitializePlaceholderSearchSchedule(ScheduleCell* search_sched, 
+                                         ScheduleCell* preproc_sched,
+                                         bool force_preproc)
+{
+   const char* PLACEHOLDER = "<placeholder>";
+   const double PREPROC_RATIO = 0.1;
+   int i;
+   for(i=0; strcmp(search_sched[i].heu_name, PLACEHOLDER); i++)
+   {
+      if(force_preproc)
+      {
+         if(!strcmp(search_sched[i].heu_name, preproc_sched->heu_name))
+         {
+            force_preproc = false; // already found
+         }
+      }
+   }
+
+   if(!force_preproc)
+   {
+      search_sched[i].heu_name = NULL;
+   }
+   else
+   {
+      search_sched[i].heu_name = preproc_sched->heu_name;
+      search_sched[i].time_fraction = PREPROC_RATIO;
+      double rest_multipler = 1-PREPROC_RATIO;
+      for(int j=0; j<i; j++)
+      {
+         search_sched[j].time_fraction *= rest_multipler;
+      }
+      SWAP(search_sched[i], search_sched[1]);
+   }
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function:  GetDefaultSchedule()
+//
+//   After a schedule is exhausted, then turn back to the default schedule
+//   and filter the configurations that have not be run from it.
+//
+// Global Variables: SilentTimeOut
+//
+// Side Effects    : Forks, the child runs the proof search, re-sets
+//                   time limits, sets heuristic parameters
+//
+/----------------------------------------------------------------------*/
+
+ScheduleCell* GetFilteredDefaultSchedule(ScheduleCell* exhausted_sched)
+{
+   ScheduleCell* default_sch = GetDefaultSchedule();
+   int last_filtered = -1;
+   for(int i=0; default_sch[i].heu_name; i++)
+   {
+      if(!name_in_schedule(default_sch[i].heu_name, exhausted_sched))
+      {
+         last_filtered++;
+         SWAP(default_sch[last_filtered], default_sch[i]);
+      }
+   }
+
+   const double ratio = 1.0 / (last_filtered+1);
+   for(int i=0; i<last_filtered; i++)
+   {
+      default_sch[i].time_fraction = ratio;
+   }
+   default_sch[last_filtered+1].heu_name = NULL;
+
+   return default_sch;
 }
 
 

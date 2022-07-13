@@ -119,6 +119,7 @@ long ComputeAllEqualityFactors(TB_p bank, OCB_p ocb,
    Eqn_p       test;
    ClausePos_p pos1, pos2;
    long        factor_count = 0;
+   PStack_p res_cls = PStackAlloc();
 
    if(!ClauseIsHorn(clause) && !ClauseQueryProp(clause,CPNoGeneration))
    {
@@ -129,23 +130,28 @@ long ComputeAllEqualityFactors(TB_p bank, OCB_p ocb,
 
       while(test)
       {
-    factor = ComputeEqualityFactor(bank, ocb, pos1, pos2, freshvars);
-    if(factor)
-    {
-       factor_count++;
-       factor->proof_depth = clause->proof_depth+1;
-       factor->proof_size  = clause->proof_size+1;
-       ClauseSetTPTPType(factor, ClauseQueryTPTPType(clause));
-       ClauseSetProp(factor, ClauseGiveProps(clause, CPIsSOS));
-       DocClauseCreationDefault(factor, inf_efactor, clause, NULL);
-       ClausePushDerivation(factor, DCEqFactor, clause, NULL);
-       ClauseSetInsert(store, factor);
-    }
-    test = ClausePosNextEqualityFactorSides(pos1, pos2);
+         bool is_ho = false;
+         ComputeEqualityFactor(bank, ocb, pos1, pos2, freshvars, &is_ho, res_cls);
+         while(!PStackEmpty(res_cls))
+         {
+            factor = PStackPopP(res_cls);
+            assert(factor);
+            factor_count++;
+            factor->proof_depth = clause->proof_depth+1;
+            factor->proof_size  = clause->proof_size+1;
+            ClauseSetTPTPType(factor, ClauseQueryTPTPType(clause));
+            ClauseSetProp(factor, ClauseGiveProps(clause, CPIsSOS));
+            DocClauseCreationDefault(factor, inf_efactor, clause, NULL);
+            ClausePushDerivation(factor, is_ho ? DPSetIsHO(DCEqFactor) : DCEqFactor,
+                                 clause, NULL);
+            ClauseSetInsert(store, factor);
+         }
+         test = ClausePosNextEqualityFactorSides(pos1, pos2);
       }
       ClausePosFree(pos1);
       ClausePosFree(pos2);
    }
+   PStackFree(res_cls);
    return factor_count;
 }
 

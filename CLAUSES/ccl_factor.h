@@ -51,8 +51,9 @@ Eqn_p    ClausePosFirstOrderedFactorLiterals(Clause_p clause,
 Eqn_p    ClausePosNextOrderedFactorLiterals(ClausePos_p pos1,
                    ClausePos_p pos2);
 
-Clause_p ComputeEqualityFactor(TB_p bank, OCB_p ocb, ClausePos_p pos1,
-                ClausePos_p pos2, VarBank_p freshvars);
+void     ComputeEqualityFactor(TB_p bank, OCB_p ocb, ClausePos_p pos1,
+                               ClausePos_p pos2, VarBank_p freshvars,
+                               bool* is_ho, PStack_p res);
 
 Eqn_p    ClausePosFirstEqualityFactorSides(Clause_p clause,
                   ClausePos_p pos1,

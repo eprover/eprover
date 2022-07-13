@@ -19,6 +19,12 @@
   -----------------------------------------------------------------------*/
 
 #include "ccl_rewrite.h"
+#include <cte_lambda.h>
+
+typedef struct {
+   PObjMap_p* rw_sys;
+   TB_p bank;
+} local_rw_args;
 
 
 /*---------------------------------------------------------------------*/
@@ -37,7 +43,7 @@ long BWRWRwSuccesses = 0;
 /*---------------------------------------------------------------------*/
 
 static Term_p term_li_normalform(RWDesc_p desc, Term_p term,
-                                 bool restricted_rw);
+                                 bool restricted_rw, bool lambda_demod);
 
 /*---------------------------------------------------------------------*/
 /*                         Internal Functions                          */
@@ -63,7 +69,7 @@ static void subst_complete_min_instance(OCB_p ocb, TB_p bank,
 {
    int i;
 
-   if(TermIsVar(term))
+   if(TermIsFreeVar(term))
    {
       if(!(term->binding))
       {
@@ -144,8 +150,8 @@ static bool instance_is_rule(OCB_p ocb, TB_p bank,
          desc->sos_rewritten = true;
       }
 
-      assert(TOGreater(desc->ocb, term, TermRWReplaceField(term),
-                        DEREF_NEVER, DEREF_NEVER));
+      // assert(TOGreater(desc->ocb, term, TermRWReplaceField(term),
+      //                   DEREF_NEVER, DEREF_NEVER));
       term = TermRWReplaceField(term);
       assert(term);
    }
@@ -176,7 +182,7 @@ static RWResultType term_is_top_rewritable(TB_p bank, OCB_p ocb,
 
    assert(new_demod->pos_lit_no == 1);
    assert(new_demod->neg_lit_no == 0);
-   assert(!TermIsVar(term));
+   assert(!TermIsFreeVar(term));
 
    eqn = new_demod->literals;
 
@@ -293,7 +299,7 @@ static bool term_is_rewritable(TB_p bank, OCB_p ocb, Term_p term, Clause_p
      TermPrint(stdout, term, ocb->sig, DEREF_NEVER);
      printf(")...\n"); */
 
-   if(TermIsVar(term))
+   if(TermIsFreeVar(term))
    {
       return false;
    }
@@ -310,12 +316,15 @@ static bool term_is_rewritable(TB_p bank, OCB_p ocb, Term_p term, Clause_p
    {
       return false;
    }
-   for(i=0; i<term->arity; i++)
+   if(!TermIsLambda(term))
    {
-      if(term_is_rewritable(bank, ocb, term->args[i], new_demod, nf_date, false))
+      for(i=0; i<term->arity; i++)
       {
-         res = true;
-         break;
+         if(term_is_rewritable(bank, ocb, term->args[i], new_demod, nf_date, false))
+         {
+            res = true;
+            break;
+         }
       }
    }
    if(res)
@@ -457,6 +466,57 @@ static bool find_rewritable_clauses(OCB_p ocb, ClauseSet_p set,
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: replace_term()
+//
+//   Replace all subterms stored in the rw_sys.
+//
+// Global Variables: -
+//
+// Side Effects    : Instantiates
+//
+/----------------------------------------------------------------------*/
+
+Term_p replace_term(PObjMap_p* rw_sys, TB_p bank, Term_p t)
+{
+   Term_p s = PObjMapFind(rw_sys, t, PCmpFun);
+
+   if(s && s!=t)
+   {
+      s = replace_term(rw_sys, bank, s);
+   }
+   else
+   {
+      bool changed = false;
+      s = TermTopCopyWithoutArgs(t);
+      for(int i=0; i < t->arity; i++)
+      {
+         s->args[i] = replace_term(rw_sys, bank, t->args[i]);
+         assert(TermIsShared(s->args[i]) && s->args[i]->type == t->args[i]->type);
+         changed = changed || (s->args[i] != t->args[i]);
+      }
+
+      if(changed)
+      {
+         s = TBTermTopInsert(bank, s);
+      }
+      else
+      {
+         TermTopFree(s);
+         s = t;
+      }
+   }
+   return s;
+}
+
+//helper function to adhere to TermMapper interface
+Term_p local_rw_term(void* p_args, Term_p t)
+{
+   local_rw_args* args = p_args;
+   return replace_term(args->rw_sys, args->bank, t);
+}
+
 
 
 /*-----------------------------------------------------------------------
@@ -471,7 +531,7 @@ static bool find_rewritable_clauses(OCB_p ocb, ClauseSet_p set,
 //
 /----------------------------------------------------------------------*/
 
-MatchRes_p indexed_find_demodulator(OCB_p ocb, Term_p term,
+ClausePos_p indexed_find_demodulator(OCB_p ocb, Term_p term,
                                     SysDate date,
                                     ClauseSet_p demodulators,
                                     Subst_p subst,
@@ -480,7 +540,6 @@ MatchRes_p indexed_find_demodulator(OCB_p ocb, Term_p term,
 {
    Eqn_p       eqn;
    ClausePos_p pos, res = NULL;
-   MatchRes_p match_info;
 
    assert(term);
    assert(demodulators);
@@ -493,13 +552,11 @@ MatchRes_p indexed_find_demodulator(OCB_p ocb, Term_p term,
 
    PDTreeSearchInit(demodulators->demod_index, term, date, prefer_general);
 
-   while((match_info = PDTreeFindNextDemodulator(demodulators->demod_index, subst)))
+   while((pos = PDTreeFindNextDemodulator(demodulators->demod_index, subst)))
    {
-      pos = match_info->pos;
       eqn = pos->literal;
 
-      if(match_info->remaining_args != 0 ||
-         ((EqnIsOriented(eqn)&&
+      if(((EqnIsOriented(eqn)&&
           !SysDateIsEarlier(TermNFDate(term,RewriteAdr(RuleRewrite)),
                             pos->clause->date))
          ||
@@ -507,7 +564,6 @@ MatchRes_p indexed_find_demodulator(OCB_p ocb, Term_p term,
           !SysDateIsEarlier(TermNFDate(term,RewriteAdr(FullRewrite)),
                             pos->clause->date))))
       {
-         MatchResFree(match_info); // avoid memory leak -- it was alloc'd in PDTreeFindNextDemodulator
          continue;
       }
       switch(pos->side)
@@ -543,29 +599,28 @@ MatchRes_p indexed_find_demodulator(OCB_p ocb, Term_p term,
       {
          break;
       }
-      MatchResFree(match_info);
    }
    PDTreeSearchExit(demodulators->demod_index);
 
 #ifndef NDEBUG
-   if(match_info
-      && !TermStructPrefixEqual(ClausePosGetSide(match_info->pos), term, DEREF_ONCE, DEREF_NEVER,
-                                match_info->remaining_args, ocb->sig))
+   if(res
+      && !TermStructPrefixEqual(ClausePosGetSide(res), term, DEREF_ONCE, DEREF_NEVER,
+                                0, ocb->sig))
    {
       fprintf(stderr, "Term ");
-      TermPrint(stderr, ClausePosGetSide(match_info->pos), ocb->sig, DEREF_NEVER);
+      TermPrintDbg(stderr, ClausePosGetSide(res), ocb->sig, DEREF_NEVER);
       fprintf(stderr, " derefed { ");
-      TermPrint(stderr, ClausePosGetSide(match_info->pos), ocb->sig, DEREF_ONCE);
+      TermPrintDbg(stderr, ClausePosGetSide(res), ocb->sig, DEREF_ONCE);
       fprintf(stderr, " } should match ");
-      TermPrint(stderr, term, ocb->sig, DEREF_NEVER);
+      TermPrintDbg(stderr, term, ocb->sig, DEREF_NEVER);
       fprintf(stderr, ", substitution is : ");
       SubstPrint(stderr, subst, ocb->sig, DEREF_NEVER);
-      fprintf(stderr, ", trailing %d.\n", match_info->remaining_args);
+      fprintf(stderr, ".\n");
 
       assert(false);
    }
 #endif
-   return match_info;
+   return res;
 }
 
 
@@ -588,34 +643,29 @@ static Term_p rewrite_with_clause_set(OCB_p ocb, TB_p bank, Term_p term,
                                       bool restricted_rw)
 {
    Subst_p     subst = SubstAlloc();
-   MatchRes_p mi;
+   ClausePos_p pos;
    Term_p      repl;
 
    assert(demodulators->demod_index);
    assert(term);
-   assert(!TermIsVar(term));
+   assert(!TermIsFreeVar(term));
    assert(!TermIsTopRewritten(term));
 
-   mi = indexed_find_demodulator(ocb, term, date, demodulators,
-                                 subst, prefer_general, restricted_rw);
-   if(mi)
+   pos = indexed_find_demodulator(ocb, term, date, demodulators,
+                                  subst, prefer_general, restricted_rw);
+   if(pos)
    {
       RewriteSuccesses++;
-      assert(problemType == PROBLEM_HO || mi->remaining_args == 0);
 
-      repl = TBInsertInstantiated(bank, ClausePosGetOtherSide(mi->pos));
+      repl = TBInsertInstantiated(bank, ClausePosGetOtherSide(pos));
 
       if(problemType == PROBLEM_HO)
       {
-         repl = MakeRewrittenTerm(term, repl, mi->remaining_args, bank);
-         if(mi->remaining_args)
-         {
-            repl = TBTermTopInsert(bank, repl);
-         }
+         repl = MakeRewrittenTerm(term, repl, 0, bank);
       }
 
-      assert(mi->pos->clause->ident);
-      TermAddRWLink(term, repl, mi->pos->clause, ClauseIsSOS(mi->pos->clause),
+      assert(pos->clause->ident);
+      TermAddRWLink(term, repl, pos->clause, ClauseIsSOS(pos->clause),
                     restricted_rw?RWAlwaysRewritable:RWLimitedRewritable);
       // assert(TOGreater(ocb, term, repl, DEREF_NEVER, DEREF_NEVER));
       // The assertion is logically true, but in practice LPO fails on
@@ -623,7 +673,6 @@ static Term_p rewrite_with_clause_set(OCB_p ocb, TB_p bank, Term_p term,
       // implementation
 
       term = repl;
-      MatchResFree(mi);
    }
    SubstDelete(subst);
 
@@ -655,14 +704,15 @@ static Term_p rewrite_with_clause_setlist(OCB_p ocb, TB_p bank, Term_p term,
    Term_p res = term;
 
    assert(level);
-   assert(!TermIsVar(term));
+   assert(!TermIsFreeVar(term));
    assert(!TermIsTopRewritten(term));
 
    for(i=0; i<level; i++)
    {
       assert(demodulators[i]);
 
-      if(SysDateIsEarlier(TermNFDate(term,level-1), demodulators[i]->date))
+      if(TermIsDBClosed(term) &&
+         SysDateIsEarlier(TermNFDate(term,level-1), demodulators[i]->date))
       {
          res = rewrite_with_clause_set(ocb, bank, term,
                                        TermNFDate(term,level-1),
@@ -693,15 +743,21 @@ static Term_p rewrite_with_clause_setlist(OCB_p ocb, TB_p bank, Term_p term,
 //
 /----------------------------------------------------------------------*/
 
-static bool term_subterm_rewrite(RWDesc_p desc, Term_p *term)
+static bool term_subterm_rewrite(RWDesc_p desc, Term_p *term, bool lambda_demod)
 {
    bool modified = false;
    Term_p new_term = TermTopCopyWithoutArgs(*term);
    int  i;
 
+   if(!lambda_demod && TermIsLambda(*term))
+   {
+      TermTopFree(new_term);
+      return false;
+   }
+
    for(i=0; i<(*term)->arity; i++)
    {
-      new_term->args[i] = term_li_normalform(desc, (*term)->args[i], false);
+      new_term->args[i] = term_li_normalform(desc, (*term)->args[i], false, lambda_demod);
       modified = modified || (new_term->args[i]!= (*term)->args[i]);
    }
    if(modified)
@@ -735,7 +791,8 @@ static bool term_subterm_rewrite(RWDesc_p desc, Term_p *term)
 /----------------------------------------------------------------------*/
 
 static Term_p term_li_normalform(RWDesc_p desc, Term_p term,
-                                 bool restricted_rw)
+                                 bool restricted_rw,
+                                 bool lambda_demod)
 {
    bool    modified = true;
    Term_p new_term;
@@ -752,16 +809,16 @@ static Term_p term_li_normalform(RWDesc_p desc, Term_p term,
    {
       return term;
    }
-   if(TermIsVar(term))
+   if(TermIsFreeVar(term))
    {
       assert(!TermIsRewritten(term));
       return term;
    }
    while(modified)
    {
-      modified = term_subterm_rewrite(desc, &term);
+      modified = term_subterm_rewrite(desc, &term, lambda_demod);
 
-      if(!TermIsVar(term))
+      if(!TermIsFreeVar(term))
       {
          if(TermIsTopRewritten(term))
          {
@@ -814,7 +871,8 @@ static Term_p term_li_normalform(RWDesc_p desc, Term_p term,
 //
 /----------------------------------------------------------------------*/
 
-EqnSide eqn_li_normalform(RWDesc_p desc, ClausePos_p pos, bool interred_rw)
+EqnSide eqn_li_normalform(RWDesc_p desc, ClausePos_p pos, 
+                          bool interred_rw, bool lambda_demod)
 {
    Eqn_p  eqn = pos->literal;
    Term_p l_old = eqn->lterm, r_old = eqn->rterm;
@@ -822,7 +880,8 @@ EqnSide eqn_li_normalform(RWDesc_p desc, ClausePos_p pos, bool interred_rw)
       EqnIsOriented(eqn) && interred_rw;
    EqnSide res = NoSide;
 
-   eqn->lterm =  term_li_normalform(desc, eqn->lterm, restricted_rw);
+   eqn->lterm =  term_li_normalform(desc, eqn->lterm, 
+                                    restricted_rw, lambda_demod);
    if(l_old!=eqn->lterm)
    {
       EqnDelProp(eqn, EPMaxIsUpToDate);
@@ -836,9 +895,13 @@ EqnSide eqn_li_normalform(RWDesc_p desc, ClausePos_p pos, bool interred_rw)
       TermComputeRWSequence(pos->clause->derivation,
                             l_old, ClausePosGetSide(pos), DCRewrite);
    }
-   eqn->rterm = term_li_normalform(desc, eqn->rterm, false);
+   eqn->rterm = term_li_normalform(desc, eqn->rterm, false, lambda_demod);
    if(r_old!=eqn->rterm)
    {
+      if(EqnQueryProp(eqn, EPIsEquLiteral) && eqn->rterm == eqn->bank->true_term)
+      {
+         EqnDelProp(eqn, EPIsEquLiteral);
+      }
       if(EqnIsOriented(eqn))
       {
          res = res|MinSide;
@@ -965,7 +1028,7 @@ static long term_find_rw_clauses(Clause_p demod,
    Subst_p subst = SubstAlloc();
    Term_p  term = termocc->term;
 
-   assert(!TermIsVar(term));
+   assert(!TermIsFreeVar(term));
 
    BWRWMatchAttempts++;
    int remains = 0;
@@ -1121,13 +1184,13 @@ static long find_rewritable_clauses_indexed(Clause_p demod,
 Term_p TermComputeLINormalform(OCB_p ocb, TB_p bank, Term_p term,
                                ClauseSet_p *demodulators, RewriteLevel
                                level, bool prefer_general,
-                               bool restricted_rw)
+                               bool restricted_rw, bool lambda_demod)
 {
    Term_p res;
    RWDesc_p desc = rw_desc_cell_alloc(ocb, bank, demodulators, level,
                                       prefer_general);
 
-   res = term_li_normalform(desc, term, restricted_rw);
+   res = term_li_normalform(desc, term, restricted_rw, lambda_demod);
    RWDescCellFree(desc);
    return res;
 }
@@ -1147,8 +1210,8 @@ Term_p TermComputeLINormalform(OCB_p ocb, TB_p bank, Term_p term,
 /----------------------------------------------------------------------*/
 
 bool ClauseComputeLINormalform(OCB_p ocb, TB_p bank, Clause_p clause,
-                               ClauseSet_p *demodulators,
-                               RewriteLevel level, bool prefer_general)
+                               ClauseSet_p *demodulators, RewriteLevel level,
+                               bool prefer_general, bool lambda_demod)
 {
    Eqn_p handle;
    EqnSide tmp = NoSide;
@@ -1177,11 +1240,13 @@ bool ClauseComputeLINormalform(OCB_p ocb, TB_p bank, Clause_p clause,
       for(handle = clause->literals; handle; handle=handle->next)
       {
          pos.literal = handle;
-         tmp = eqn_li_normalform(desc, &pos, ClauseQueryProp(clause,CPLimitedRW));
+         tmp = eqn_li_normalform(desc, &pos, 
+                                 ClauseQueryProp(clause,CPLimitedRW),
+                                 lambda_demod);
          if((tmp&MaxSide)
             && EqnIsPositive(handle)
-            &&EqnIsMaximal(handle)
-            &&ClauseQueryProp(clause,CPLimitedRW))
+            && EqnIsMaximal(handle)
+            && ClauseQueryProp(clause,CPLimitedRW))
          {
             ClauseDelProp(clause,CPLimitedRW);
             /* We need to try everything again...*/
@@ -1221,7 +1286,7 @@ bool ClauseComputeLINormalform(OCB_p ocb, TB_p bank, Clause_p clause,
 long ClauseSetComputeLINormalform(OCB_p ocb, TB_p bank, ClauseSet_p
                                   set, ClauseSet_p *demodulators,
                                   RewriteLevel level, bool
-                                  prefer_general)
+                                  prefer_general, bool lambda_demod)
 {
    Clause_p handle;
    bool     tmp;
@@ -1236,7 +1301,8 @@ long ClauseSetComputeLINormalform(OCB_p ocb, TB_p bank, ClauseSet_p
                                       handle,
                                       demodulators,
                                       level,
-                                      prefer_general);
+                                      prefer_general,
+                                      lambda_demod);
 
       if(tmp)
       {
@@ -1328,6 +1394,64 @@ long FindRewritableClausesIndexed(OCB_p ocb, SubtermIndex_p index,
    return res;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseLocalRW()
+//
+//   Find negative literals s != t such that s > t and replace all 
+//   occurrences of s with t in the clause.
+//
+// Global Variables: -
+//
+// Side Effects    : Changes nf_dates of terms, may add rewrite
+//                   links.
+//
+/----------------------------------------------------------------------*/
+
+bool ClauseLocalRW(Clause_p clause)
+{
+   PObjMap_p rw_sys = NULL;
+
+   for(Eqn_p lit = clause->literals; lit; lit = lit->next)
+   {
+      if(EqnIsNegative(lit) && EqnIsOriented(lit))
+      {
+         PObjMapStore(&rw_sys, lit->lterm, lit->rterm, PCmpFun);
+      }
+      else if(!EqnIsEquLit(lit) && EqnIsPositive(lit))
+      {
+         assert(lit->rterm == lit->bank->true_term);
+         PObjMapStore(&rw_sys, lit->lterm, lit->bank->false_term, PCmpFun);
+      }
+   }
+
+   bool modified = false;
+   for(Eqn_p lit = clause->literals; lit; lit = lit->next)
+   {
+      if(!(EqnIsNegative(lit) && EqnIsOriented(lit))
+          && !(!EqnIsEquLit(lit) && EqnIsPositive(lit)))
+      {
+         Term_p lterm = lit->lterm, rterm = lit->rterm;
+         local_rw_args arg = {.rw_sys = &rw_sys, .bank = lit->bank };
+         EqnMap(lit, local_rw_term, &arg);
+         if(lterm != lit->lterm || rterm != lit->rterm)
+         {
+            modified = true;
+         }
+      }
+   }
+
+   if(modified)
+   {
+      ClauseRecomputeLitCounts(clause);
+      ClauseRemoveSuperfluousLiterals(clause);
+      ClausePushDerivation(clause, DCLocalRewrite, NULL, NULL);
+   }
+
+
+   PObjMapFree(rw_sys);
+   return modified;
+}
 
 
 /*---------------------------------------------------------------------*/

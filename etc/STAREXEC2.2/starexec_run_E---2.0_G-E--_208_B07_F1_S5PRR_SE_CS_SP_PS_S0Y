@@ -8,18 +8,22 @@ set heuristic=" -H(1.ConjectureRelativeSymbolWeight(SimulateSOS,0.5,100,100,100,
 set final="--cpu-limit="$STAREXEC_CPU_LIMIT" "$1
 set ecmd="./eprover ""$defaultargs $flags $satflags $heuristic $final"
 
-if ( `expr "$ProblemSPC" : "FOF.*"` || `expr "$ProblemSPC" : "CNF.*"` ) then
-	echo "% Command    : " $ecmd
-	/home/starexec/bin/GetComputerInfo -p THIS Model CPUModel RAMPerCPU OS | \
-        sed -e "s/Computer     /% Computer   /" \
-            -e "s/Model        /% Model      /" \
-            -e "s/CPUModel     /% CPU        /" \
-            -e "s/RAMPerCPU    /% Memory     /" \
-            -e "s/OS           /% OS         /"
-	echo -n "% CPULimit   : " ; echo "$STAREXEC_CPU_LIMIT"
-	echo -n "% DateTime   : " ; date
-	echo "% CPUTime    : "
-	$ecmd
+if ( "$2" == "json" ) then
+    $ecmd --print-strategy > confs/$0
 else
-    echo "% SZS status Inappropriate"
+    if ( `expr "$ProblemSPC" : "TH0.*"` ) then
+        echo "% Command    : " $ecmd
+        /home/starexec/bin/GetComputerInfo -p THIS Model CPUModel RAMPerCPU OS | \
+            sed -e "s/Computer     /% Computer   /" \
+                -e "s/Model        /% Model      /" \
+                -e "s/CPUModel     /% CPU        /" \
+                -e "s/RAMPerCPU    /% Memory     /" \
+                -e "s/OS           /% OS         /"
+        echo -n "% CPULimit   : " ; echo "$STAREXEC_CPU_LIMIT"
+        echo -n "% DateTime   : " ; date
+        echo "% CPUTime    : "
+        $ecmd
+    else
+        echo "% SZS status Inappropriate"
+    endif
 endif

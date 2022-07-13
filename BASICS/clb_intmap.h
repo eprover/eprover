@@ -184,7 +184,7 @@ static inline void* IntMapIterNext(IntMapIter_p iter, long *key)
          }
          break;
    case IMArray:
-         //printf("Case IMArray\n");
+         // printf("Case IMArray %ld\n", iter->admin_data.current);
          for(i=iter->admin_data.current; i<= iter->upper_key; i++)
          {
             res = PDRangeArrElementP(iter->map->values.array, i);
@@ -197,7 +197,7 @@ static inline void* IntMapIterNext(IntMapIter_p iter, long *key)
          iter->admin_data.current = i+1;
          break;
    case IMTree:
-         //printf("Case IMTree\n");
+         // printf("Case IMTree\n");
          while((handle = NumTreeTraverseNext(iter->admin_data.tree_iter)))
          {
             if(handle)

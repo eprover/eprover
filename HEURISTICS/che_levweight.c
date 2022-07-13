@@ -113,7 +113,7 @@ static void lev_insert_subterms(
    while (!PStackEmpty(stack))
    {
       subterm = PStackPopP(stack);
-      if(TermIsVar(subterm)) {
+      if(TermIsFreeVar(subterm)) {
          continue;
       }
       lev_insert_term(codes,subterm,vars,var_norm);

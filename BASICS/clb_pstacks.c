@@ -21,6 +21,7 @@ Changes
 -----------------------------------------------------------------------*/
 
 #include <clb_pstacks.h>
+#include "clb_simple_stuff.h"
 
 
 /*---------------------------------------------------------------------*/
@@ -330,6 +331,29 @@ void PStackPrintInt(FILE* out, char* format, PStack_p stack)
    for(i=0; i<PStackGetSP(stack); i++)
    {
       fprintf(out, format, PStackElementInt(stack, i));
+   }
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: PStackPrintP()
+//
+//   Print a stack (interpreted as pointer stack) using the format
+//   given.
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+void PStackPrintP(FILE* out, char* format, PStack_p stack)
+{
+   PStackPointer i;
+
+   for(i=0; i<PStackGetSP(stack); i++)
+   {
+      fprintf(out, format, PStackElementP(stack, i));
    }
 }
 

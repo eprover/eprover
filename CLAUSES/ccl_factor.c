@@ -24,6 +24,7 @@ Changes
 -----------------------------------------------------------------------*/
 
 #include "ccl_factor.h"
+#include <cte_ho_csu.h>
 
 
 
@@ -266,13 +267,13 @@ Eqn_p ClausePosNextOrderedFactorLiterals(ClausePos_p pos1, ClausePos_p
 //
 /----------------------------------------------------------------------*/
 
-Clause_p ComputeEqualityFactor(TB_p bank, OCB_p ocb, ClausePos_p pos1,
-                ClausePos_p pos2, VarBank_p freshvars)
+void ComputeEqualityFactor(TB_p bank, OCB_p ocb, ClausePos_p pos1,
+                           ClausePos_p pos2, VarBank_p freshvars,
+                           bool* subst_is_ho, PStack_p res_clauses)
 {
    Term_p  max_term, with_term, min_term, new_lside, new_rside;
    Eqn_p   new_condition, new_literals;
    Subst_p subst = SubstAlloc();
-   Clause_p new_clause = NULL;
 
    assert(EqnIsPositive(pos1->literal));
    assert(EqnIsMaximal(pos1->literal));
@@ -282,33 +283,38 @@ Clause_p ComputeEqualityFactor(TB_p bank, OCB_p ocb, ClausePos_p pos1,
    max_term  = ClausePosGetSide(pos1);
    with_term = ClausePosGetSide(pos2);
 
-   if((!TermIsVar(max_term)||EqnIsEquLit(pos2->literal))&&
-      (!TermIsVar(with_term)||EqnIsEquLit(pos1->literal))&&
-      SubstMguComplete(max_term, with_term, subst))
+   if((!TermIsFreeVar(max_term)||EqnIsEquLit(pos2->literal))&&
+      (!TermIsFreeVar(with_term)||EqnIsEquLit(pos1->literal)))
    {
-      min_term = ClausePosGetOtherSide(pos1);
-      if(!TOGreater(ocb, min_term, max_term, DEREF_ALWAYS, DEREF_ALWAYS)
-          &&
-          EqnListEqnIsMaximal(ocb, pos1->clause->literals,
-                    pos1->literal))
+      CSUIterator_p unif_iter = CSUIterInit(max_term, with_term, subst, bank);
+      while(NextCSUElement(unif_iter))
       {
-         NormSubstEqnListExcept(pos1->clause->literals, pos2->literal,
-                                subst, freshvars);
-         new_lside = TBInsertNoProps(bank, min_term, DEREF_ALWAYS);
-         new_rside = TBInsertNoProps(bank,
-                     ClausePosGetOtherSide(pos2),
-                     DEREF_ALWAYS);
-         new_condition = EqnAlloc(new_lside, new_rside, bank, false);
-         new_literals = EqnListCopyOptExcept(pos1->clause->literals,
-                     pos1->literal);
-         EqnListInsertFirst(&new_literals, new_condition);
-         EqnListRemoveResolved(&new_literals);
-         EqnListRemoveDuplicates(new_literals);
-         new_clause = ClauseAlloc(new_literals);
+         min_term = ClausePosGetOtherSide(pos1);
+         if(!TOGreater(ocb, min_term, max_term, DEREF_ALWAYS, DEREF_ALWAYS)
+            &&
+            EqnListEqnIsMaximal(ocb, pos1->clause->literals,
+                     pos1->literal))
+         {
+            *subst_is_ho = SubstHasHOBinding(subst);
+            NormSubstEqnListExcept(pos1->clause->literals, pos2->literal,
+                                   subst, freshvars);
+            new_lside = TBInsertNoProps(bank, min_term, DEREF_ALWAYS);
+            new_rside = TBInsertNoProps(bank,
+                        ClausePosGetOtherSide(pos2),
+                        DEREF_ALWAYS);
+            new_condition = EqnAlloc(new_lside, new_rside, bank, false);
+            new_literals = EqnListCopyOptExcept(pos1->clause->literals,
+                        pos1->literal);
+            EqnListInsertFirst(&new_literals, new_condition);
+            EqnListLambdaNormalize(new_literals);
+            EqnListRemoveResolved(&new_literals);
+            EqnListRemoveDuplicates(new_literals);
+            PStackPushP(res_clauses, ClauseAlloc(new_literals));
+         }
       }
+      CSUIterDestroy(unif_iter);
    }
    SubstDelete(subst);
-   return new_clause;
 }
 
 

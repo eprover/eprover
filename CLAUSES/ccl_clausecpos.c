@@ -72,12 +72,14 @@ CompactPos PackTermPos(TermPos_p pos)
       t = PStackElementP(pos, sp);
       p = PStackElementInt(pos, sp+1);
 
-      assert(!TermIsVar(t));
+      assert(!TermIsFreeVar(t));
+      assert(!TermIsLambda(t));
       assert(p < t->arity);
 
-      res += ((!TermIsAppliedVar(t)) ? DEFAULT_FWEIGHT : 0);
+                                    // future proofing.
+      res += ((TermIsPhonyApp(t) || TermIsLambda(t)) ? 0 : DEFAULT_FWEIGHT);
 
-      for(i=0; i<p; i++)
+      for(i=TermIsLambda(t) ? 1 : 0; i<p; i++)
       {
          res += TermStandardWeight(t->args[i]);
       }
@@ -139,13 +141,15 @@ CompactPos PackClausePos(ClausePos_p pos)
 void UnpackTermPos(TermPos_p pos, Term_p t, CompactPos cpos)
 {
    int i;
+   // if term is lambda, then we cannot go below
+   assert(!TermIsLambda(t) || cpos == 0);
 
    PStackReset(pos);
 
    while(cpos > 0)
    {
-      assert(!TermIsVar(t));
-      cpos -= DEFAULT_FWEIGHT*(TermIsAppliedVar(t) ? 0 : 1);
+      assert(!TermIsFreeVar(t));
+      cpos -= DEFAULT_FWEIGHT*((TermIsPhonyApp(t) || TermIsLambda(t)) ? 0 : 1);
       assert(cpos>=0);
 
       PStackPushP(pos, t);

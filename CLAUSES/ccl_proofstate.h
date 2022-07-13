@@ -44,6 +44,7 @@ typedef struct proofstatecell
    long          original_symbols;
    TB_p          terms;
    TB_p          tmp_terms;
+   IntMap_p      choice_opcodes;
    VarBank_p     freshvars;
    FormulaSet_p  f_ax_archive;
    FormulaSet_p  f_axioms;

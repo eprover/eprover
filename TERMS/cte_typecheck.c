@@ -145,7 +145,7 @@ bool TypeCheckConsistent(Sig_p sig, Term_p term)
    {
       term = PStackPopP(stack);
 
-      if (!TermIsVar(term))
+      if (!TermIsFreeVar(term))
       {
          /* check: same arity, same return sort, sort of arguments (pairwise)*/
          if(!SigIsPolymorphic(sig, term->f_code))
@@ -223,7 +223,7 @@ void TypeInferSort(Sig_p sig, Term_p term, Scanner_p in)
    int i;
 
 
-   if(TermIsVar(term))
+   if(TermIsFreeVar(term))
    {
       if(!term->type)
       {
@@ -238,8 +238,9 @@ void TypeInferSort(Sig_p sig, Term_p term, Scanner_p in)
       }
       else if(TermIsLambda(term))
       {
+         assert(term->f_code != SIG_DB_LAMBDA_CODE || TermIsDBVar(term->args[0]));
+         assert(term->f_code != SIG_NAMED_LAMBDA_CODE || TermIsFreeVar(term->args[0]));
          // types have to be inferred only during parsing
-         assert(term->f_code == SIG_NAMED_LAMBDA_CODE);
          assert(term->arity == 2);
          // type of lambda is 'type of variable' -> 'type of body'
          term->type =
@@ -266,14 +267,29 @@ void TypeInferSort(Sig_p sig, Term_p term, Scanner_p in)
             AktTokenError(in, "Equality must have at least one argument",
                           SYNTAX_ERROR);
          }
-         assert(TermIsVar(term->args[0]));
-         Type_p arg_type = term->args[0]->type;
-         Type_p quant_type_args[3] =
-            {arg_type,
-            sig->type_bank->bool_type,
-            sig->type_bank->bool_type};
-         type = TypeBankInsertTypeShared(sig->type_bank,
-                                         AllocArrowTypeCopyArgs(3, quant_type_args));
+         if(TermIsFreeVar(term->args[0]))
+         {
+            Type_p arg_type = term->args[0]->type;
+            Type_p quant_type_args[3] =
+               {arg_type,
+               sig->type_bank->bool_type,
+               sig->type_bank->bool_type};
+            type = TypeBankInsertTypeShared(sig->type_bank,
+                                          AllocArrowTypeCopyArgs(3, quant_type_args));
+         }
+         else
+         {
+            if(!TypeIsArrow(term->args[0]->type) || !TypeIsPredicate(term->args[0]->type))
+            {
+               in?
+                  AktTokenError(in, "Wrong encoding of quantifier arguments", false):
+                  Error("Wrong encoding of quantifier arguments", SYNTAX_ERROR);
+            }
+            Type_p quant_type_args[2] =
+               {term->args[0]->type, sig->type_bank->bool_type};
+            type = TypeBankInsertTypeShared(sig->type_bank,
+                                          AllocArrowTypeCopyArgs(2, quant_type_args));
+         }
       }
       else
       {
@@ -304,7 +320,7 @@ void TypeInferSort(Sig_p sig, Term_p term, Scanner_p in)
                   {
                      fprintf(stderr, "# Type mismatch in argument #%d of ", i+1);
 #ifdef ENABLE_LFHO
-                     TermPrintDbgHO(stderr, term, sig, DEREF_NEVER);
+                     TermPrintDbg(stderr, term, sig, DEREF_NEVER);
 #else
                      TermPrintFO(stderr, term, sig, DEREF_NEVER);
 #endif
@@ -406,7 +422,7 @@ void TypeInferSort(Sig_p sig, Term_p term, Scanner_p in)
 
 void TypeDeclareIsPredicate(Sig_p sig, Term_p term)
 {
-   assert(!TermIsVar(term));
+   assert(!TermIsFreeVar(term));
 
    SigDeclareIsPredicate(sig, term->f_code);
    term->type = sig->type_bank->bool_type;
@@ -428,7 +444,7 @@ void TypeDeclareIsPredicate(Sig_p sig, Term_p term)
 
 void TypeDeclareIsNotPredicate(Sig_p sig, Term_p term, Scanner_p in)
 {
-   if(!TermIsVar(term) && term->f_code > sig->internal_symbols)
+   if(!TermIsAnyVar(term) && term->f_code > sig->internal_symbols)
    {
       TypeInferSort(sig, term, in);
       SigDeclareIsFunction(sig, term->f_code);

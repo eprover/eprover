@@ -479,7 +479,8 @@ bool tptp_header      = false,
    parse_features   = false,
    app_encode       = false;
 long eqdef_maxclauses = DEFAULT_EQDEF_MAXCLAUSES,
-   miniscope_limit  = 1000;
+   miniscope_limit  = 1000,
+   FormulaDefLimit = 24;
 long eqdef_incrlimit  = DEFAULT_EQDEF_INCRLIMIT;
 FunctionProperties free_symb_prop = FPIgnoreProps;
 ProblemType problemType  = PROBLEM_NOT_INIT;
@@ -563,7 +564,8 @@ int main(int argc, char* argv[])
                            fstate->axioms,
                            fstate->terms,
                            fstate->freshvars,
-                           miniscope_limit);
+                           miniscope_limit, FormulaDefLimit, 
+                           true, true, true, true);
          }
          else
          {
@@ -571,7 +573,8 @@ int main(int argc, char* argv[])
                              fstate->f_ax_archive,
                              fstate->axioms,
                              fstate->terms,
-                             fstate->freshvars);
+                             fstate->freshvars,
+                             FormulaDefLimit);
          }
 
          for(clause = fstate->axioms->anchor->succ;

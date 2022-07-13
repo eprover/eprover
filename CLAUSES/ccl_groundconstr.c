@@ -206,7 +206,7 @@ PTree_p LitPosGetConstraints(LitOccTable_p table, FunCode pred, int pos)
 bool LitPosAddConstraint(LitOccTable_p table, FunCode pred, int pos,
                          Term_p term)
 {
-   if(TermIsVar(term))
+   if(TermIsFreeVar(term))
    {
       LitPosSetConstrState(table, pred, pos, false);
       return true;
@@ -398,7 +398,7 @@ void EqnCollectVarConstr(LitOccTable_p p_table, LitOccTable_p n_table,
                                                    sign! */
    for(i=0; i<lit->arity; i++)
    {
-      if(TermIsVar(lit->args[i]))
+      if(TermIsFreeVar(lit->args[i]))
       {
          if(LitPosGetConstrState(constr,lit->f_code,i))
          {

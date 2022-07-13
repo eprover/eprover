@@ -94,7 +94,7 @@ static void strc_insert_subterms(
    while (!PStackEmpty(stack))
    {
       subterm = PStackPopP(stack);
-      if (TermIsVar(subterm)) 
+      if (TermIsFreeVar(subterm)) 
       {
          continue;
       }
@@ -223,9 +223,9 @@ double strc_terms_distance(
    int i;
 
    // X == Y   or   X == f(t1,...,tn)
-   if (TermIsVar(term1)) 
+   if (TermIsFreeVar(term1)) 
    {
-      if (TermIsVar(term2)) 
+      if (TermIsFreeVar(term2)) 
       {
          // X == Y
          return (term1->f_code==term2->f_code ? 0 : MIN(inst_factor+gen_factor,
@@ -238,7 +238,7 @@ double strc_terms_distance(
    }
 
    // f(t1,...,tn) == Y
-   if (TermIsVar(term2)) 
+   if (TermIsFreeVar(term2)) 
    {
       //return gen_factor*term_struc_weight(term2,init_terms,vars,var_norm,var_mismatch,inst_factor,gen_factor);
       return gen_factor*TermWeight(term1,1,1);

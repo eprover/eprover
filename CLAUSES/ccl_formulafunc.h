@@ -43,6 +43,9 @@ Changes
 
 bool WFormulaConjectureNegate(WFormula_p wform);
 
+int  FormulaCountNonTopLevelLambdas(Sig_p sig, TFormula_p form);
+bool FormulaHasAppVarLit(Sig_p sig, TFormula_p form);
+
 TFormula_p TFormulaAnnotateQuestion(TB_p terms,
                                     TFormula_p form,
                                     NumTree_p *question_assoc);
@@ -63,15 +66,19 @@ long WFormulaCNF(WFormula_p form, ClauseSet_p set,
                  TB_p terms, VarBank_p fresh_vars);
 long WFormulaCNF2(WFormula_p form, ClauseSet_p set,
                   TB_p terms, VarBank_p fresh_vars,
-                  long miniscope_limit);
-long FormulaSetSimplify(FormulaSet_p set, TB_p terms);
+                  long miniscope_limit,
+                  bool fool_unroll);
+long FormulaSetSimplify(FormulaSet_p set, TB_p terms, bool gc);
 
 long FormulaSetCNF(FormulaSet_p set, FormulaSet_p archive,
                    ClauseSet_p clauseset, TB_p terms,
-                   VarBank_p fresh_vars);
+                   VarBank_p fresh_vars,long def_limit);
 long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive,
                     ClauseSet_p clauseset, TB_p terms,
-                    VarBank_p fresh_vars, long miniscope_limit);
+                    VarBank_p fresh_vars,
+                    long miniscope_limit, long def_limit,
+                    bool lift_lambdas, bool lambda_to_forall, bool unfold_only_form,
+                    bool unroll_fool);
 long FormulaAndClauseSetParse(Scanner_p in, FormulaSet_p fset,
                               ClauseSet_p wlset, TB_p terms,
                               StrTree_p *name_selector,
@@ -83,11 +90,11 @@ long TFormulaToCNF(WFormula_p form, FormulaProperties type, ClauseSet_p set,
 
 void TFormulaSetDelTermpProp(FormulaSet_p set, TermProperties prop);
 void TFormulaSetFindDefs(FormulaSet_p set, TB_p terms, NumXTree_p *defs,
-                         PStack_p renamed_forms);
+                         PStack_p renamed_forms, long limit);
 long TFormulaApplyDefs(WFormula_p form, TB_p terms, NumXTree_p *defs);
 long TFormulaSetIntroduceDefs(FormulaSet_p set,
                               FormulaSet_p archive,
-                              TB_p terms);
+                              TB_p terms, long limit);
 
 void FormulaSetArchive(FormulaSet_p set, FormulaSet_p archive);
 void FormulaSetDocInital(FILE* out, long level, FormulaSet_p set);
@@ -96,9 +103,11 @@ long TFormulaSetLiftItes(FormulaSet_p set, FormulaSet_p archive, TB_p terms);
 long TFormulaSetLiftLets(FormulaSet_p set, FormulaSet_p archive, TB_p terms);
 long TFormulaSetUnrollFOOL(FormulaSet_p set, FormulaSet_p archive, TB_p terms);
 long TFormulaSetLambdaNormalize(FormulaSet_p set, FormulaSet_p archive, TB_p terms);
-long TFormulaSetUnfoldLogSymbols(FormulaSet_p set, FormulaSet_p archive, TB_p terms);
+long TFormulaSetNamedToDBLambdas(FormulaSet_p set, FormulaSet_p archive, TB_p terms);
+long TFormulaSetUnfoldDefSymbols(FormulaSet_p set, FormulaSet_p archive, TB_p terms, bool only_forms);
 bool TFormulaUnrollFOOL(WFormula_p form, TB_p terms);
 long TFormulaSetLiftLambdas(FormulaSet_p set, FormulaSet_p archive, TB_p terms);
+void ClauseSetLiftLambdas(ClauseSet_p set, FormulaSet_p archive, TB_p terms, VarBank_p fresh_vars, bool unroll_fool);
 
 
 #endif

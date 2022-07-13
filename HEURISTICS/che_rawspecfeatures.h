@@ -31,6 +31,8 @@ Changes
 /*                    Data type declarations                           */
 /*---------------------------------------------------------------------*/
 
+#define NUM_RAW_FEATURES
+#define RAW_CLASS_SIZE 16
 
 
 typedef struct raw_spec_feature_cell
@@ -44,7 +46,15 @@ typedef struct raw_spec_feature_cell
    int       func_size;
    long      conjecture_count;
    long      hypothesis_count;
-   char      class[8];
+   int       num_lambdas;
+   bool      has_choice_sym; // has a symobl in the signature of the type
+                             // that fits a monomorphized choice
+   int       num_of_definitions; // number of formulas tagged with definition
+   double    perc_of_form_defs; // percentage of which defines formulas
+   int       order; // order of signature
+   int       conj_order; // order of conjecture symbols
+   bool      app_var_lits; // do the formulas have applied variable literals
+   char      class[RAW_CLASS_SIZE];
 }RawSpecFeatureCell, *RawSpecFeature_p;
 
 

@@ -119,7 +119,7 @@ static long gettermweight(OCB_p ocb, Term_p t, DerefType deref)
 
    weight = getweight(ocb, t->f_code);
 
-   if (!(TermIsVar(t)))
+   if (!(TermIsFreeVar(t)))
    {
       for (i=0; i<t->arity; i++)
       {
@@ -154,7 +154,7 @@ static CompareResult kbocomparevars(Term_p s, Term_p t, DerefType
    assert(!t->binding || deref_t == DEREF_NEVER);
    assert(!s->binding || deref_s == DEREF_NEVER);
 
-   if (TermIsVar(t))
+   if (TermIsFreeVar(t))
    {
       if(s == t)
       {
@@ -170,7 +170,7 @@ static CompareResult kbocomparevars(Term_p s, Term_p t, DerefType
    }
    else
    {               /* Note that in this case, s is a variable. */
-      assert(TermIsVar(s));
+      assert(TermIsFreeVar(s));
       if (TermIsSubterm(t, s, deref_t))
       {
     return to_lesser;
@@ -206,7 +206,7 @@ static CompareResult kbogtrnew(OCB_p ocb, Term_p s, Term_p t,
    s = TermDeref(s, &deref_s);
    t = TermDeref(t, &deref_t);
 
-   if (TermIsVar(s))
+   if (TermIsFreeVar(s))
    {
       if(s == t)
       {
@@ -214,7 +214,7 @@ static CompareResult kbogtrnew(OCB_p ocb, Term_p s, Term_p t,
       }
       return to_uncomparable;
    }
-   if(TermIsVar(t))
+   if(TermIsFreeVar(t))
    {
       if(TermIsSubterm(s, t, deref_s))
       {
@@ -327,7 +327,7 @@ CompareResult KBOCompare(OCB_p ocb, Term_p s, Term_p t,
 
    /* The cases s=x v t=x are checked separately. */
 
-   if (TermIsVar(s) || TermIsVar(t))
+   if (TermIsFreeVar(s) || TermIsFreeVar(t))
    {
       return kbocomparevars(s, t, deref_s, deref_t);
    }

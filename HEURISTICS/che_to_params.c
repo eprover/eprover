@@ -19,8 +19,6 @@
 
 #include "che_to_params.h"
 
-
-
 /*---------------------------------------------------------------------*/
 /*                        Global Variables                             */
 /*---------------------------------------------------------------------*/
@@ -143,6 +141,9 @@ void OrderParmsInitialize(OrderParms_p handle)
    handle->to_const_weight               = WConstNoWeight;
    handle->to_defs_min                   = false;
    handle->lit_cmp                       = LCNormal;
+   handle->ho_order_kind                 = LFHO_ORDER;
+   handle->lam_w                         = DEFAULT_LAMBDA_WEIGHT;
+   handle->db_w                          = DEFAULT_DB_WEIGHT;
 }
 
 
@@ -186,6 +187,9 @@ void OrderParmsPrint(FILE* out, OrderParms_p handle)
    fprintf(out, "      to_defs_min:             %s\n",
            BOOL2STR(handle->to_defs_min));
    fprintf(out, "      lit_cmp:                 %d\n", handle->lit_cmp);
+   fprintf(out, "      lam_w:                   %d\n", handle->lam_w);
+   fprintf(out, "      db_w:                    %d\n", handle->db_w);
+   fprintf(out, "      ho_order_kind:           %s\n", HOK2STR(handle->ho_order_kind));
 
    fprintf(out, "   }\n");
 }
@@ -205,6 +209,16 @@ void OrderParmsPrint(FILE* out, OrderParms_p handle)
 //
 /----------------------------------------------------------------------*/
 
+HoOrderKind str2hok(char* v)
+{
+   HoOrderKind hok = STR2HOK(v);
+   if(hok==-1)
+   {
+      Error("Unknown HOOrderKind", USAGE_ERROR);
+   }
+   return hok;
+}
+
 bool OrderParmsParseInto(Scanner_p in,
                          OrderParms_p handle,
                          bool warn_missing)
@@ -218,7 +232,7 @@ bool OrderParmsParseInto(Scanner_p in,
    PARSE_IDENT_NO(to_prec_gen, TOPrecGenNames);
    PARSE_BOOL(rewrite_strong_rhs_inst);
    PARSE_STRING(to_pre_prec);
-   if(strcmp(handle->to_pre_prec, "")==0)
+   if(handle->to_pre_prec && strcmp(handle->to_pre_prec, "")==0)
    {
       FREE(handle->to_pre_prec);
       handle->to_pre_prec = NULL;
@@ -230,7 +244,7 @@ bool OrderParmsParseInto(Scanner_p in,
    PARSE_INT(defpred_mod);
    PARSE_BOOL(force_kbo_var_weight);
    PARSE_STRING(to_pre_weights);
-   if(strcmp(handle->to_pre_weights, "")==0)
+   if(handle->to_pre_weights && strcmp(handle->to_pre_weights, "")==0)
    {
       FREE(handle->to_pre_weights);
       handle->to_pre_weights = NULL;
@@ -238,6 +252,9 @@ bool OrderParmsParseInto(Scanner_p in,
    PARSE_INT(to_const_weight);
    PARSE_BOOL(to_defs_min);
    PARSE_INT(lit_cmp);
+   PARSE_INT(lam_w);
+   PARSE_INT(db_w);
+   PARSE_STRING_AND_CONVERT(ho_order_kind, str2hok);
 
    AcceptInpTok(in, CloseCurly);
 

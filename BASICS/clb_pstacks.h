@@ -111,6 +111,7 @@ double   PStackComputeAverage(PStack_p stack, double *deviation);
 void     PStackPushStack(PStack_p target, PStack_p source);
 
 void     PStackPrintInt(FILE* out, char* format, PStack_p stack);
+void     PStackPrintP(FILE* out, char* format, PStack_p stack);
 
 void     PStackGrow(PStack_p stack);
 
@@ -421,6 +422,54 @@ static inline IntOrP *PStackElementRef(PStack_p stack, PStackPointer pos)
    assert(pos>=0);
 
    return &(stack->stack[pos]);
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: PStackFindP()
+//
+//   Find a pointer in the stack
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static inline bool PStackFindP(PStack_p stack, void* p)
+{
+   for(PStackPointer i=0; i<PStackGetSP(stack); i++)
+   {
+      if(PStackElementP(stack, i) == p)
+      {
+         return true;
+      }
+   }
+   return false;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: PStackFindInt()
+//
+//   Find an int in the stack
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static inline bool PStackFindInt(PStack_p stack, long num)
+{
+   for(PStackPointer i=0; i<PStackGetSP(stack); i++)
+   {
+      if(PStackElementInt(stack, i) == num)
+      {
+         return true;
+      }
+   }
+   return false;
 }
 
 

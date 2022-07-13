@@ -61,7 +61,7 @@ static AxFilter_p sine_get_filter(char* fname, AxFilterSet_p *filters)
 
    in = CreateScanner(StreamTypeOptionString, fname, true, NULL, true);
    CheckInpTok(in, Name);
-   if(TestTok(LookToken(in,1), NoToken))
+   if(!TestInpId(in, "LambdaDef") && TestTok(LookToken(in,1), NoToken))
    {
       *filters = AxFilterSetCreateInternal(AxFilterDefaultSet);
       filter = AxFilterSetFindFilter(*filters, fname);
@@ -145,43 +145,43 @@ static AxFilter_p sine_get_filter(char* fname, AxFilterSet_p *filters)
 /* Raw association */
 char* raw_class[] =
 {
-   "LMSSMLL",  /*      0 protokoll_X----_auto_300 */
-   "MMSSMSL",  /*      3 protokoll_X----_auto_300 */
-   "LMLSMSL",  /*     20 protokoll_X----_auto_sine16 */
-   "MMSSMSM",  /*     18 protokoll_X----_auto_300 */
-   "MSSMLSM",  /*      0 protokoll_X----_auto_300 */
-   "LMLSLLL",  /*      1 protokoll_X----_auto_sine31 */
-   "MMSMMSM",  /*     13 protokoll_X----_auto_300 */
-   "LMMSMLL",  /*     24 protokoll_X----_auto_sine03 */
-   "LLLLMLL",  /*     76 protokoll_X----_auto_sine11 */
-   "MSLMMSL",  /*     47 protokoll_X----_auto_300 */
-   "MSLSMSL",  /*    209 protokoll_X----_auto_sine11 */
-   "SSSSLSM",  /*    205 protokoll_X----_auto_300 */
-   "SSSSLSL",  /*     23 protokoll_X----_auto_300 */
-   "SSSSMSL",  /*    216 protokoll_X----_auto_300 */
-   "SSSSMSM",  /*   2302 protokoll_X----_auto_300 */
-   "SSSSMSS",  /*   6294 protokoll_X----_auto_300 */
-   "SMSSMSM",  /*      4 protokoll_X----_auto_sine16 */
-   "LSMSMSL",  /*     23 protokoll_X----_auto_sine18 */
-   "SSSSLSS",  /*    154 protokoll_X----_auto_NIX */
-   "LLLSMSL",  /*      3 protokoll_X----_auto_sine17 */
-   "MSSSMML",  /*      6 protokoll_X----_auto_sine13 */
-   "MSSSMSS",  /*     12 protokoll_X----_auto_sine17 */
-   "LMLMMLL",  /*      7 protokoll_X----_auto_sine12 */
-   "LMLMLLL",  /*     23 protokoll_X----_auto_sine13 */
-   "LSLSMSL",  /*     19 protokoll_X----_auto_sine11 */
-   "MMSSMLL",  /*      2 protokoll_X----_auto_sine31 */
-   "MSSSMSL",  /*     14 protokoll_X----_auto_sine17 */
-   "MSSSMSM",  /*    348 protokoll_X----_auto_300 */
-   "LSSSMSM",  /*      4 protokoll_X----_auto_300 */
-   "MSMSMSL",  /*     22 protokoll_X----_auto_300 */
-   "LMLLMSL",  /*     42 protokoll_X----_auto_300 */
-   "MSSSLSM",  /*     26 protokoll_X----_auto_300 */
-   "SSSSMLL",  /*      1 protokoll_X----_auto_300 */
-   "LLLMLLL",  /*     10 protokoll_X----_auto_sine31 */
-   "LMMMMLL",  /*      6 protokoll_X----_auto_sine16 */
-   "MSSSMLL",  /*     24 protokoll_X----_auto_sine12 */
-   "MMMSMLL",  /*      2 protokoll_X----_auto_sine12 */
+   "-LMSSMLL",  /*      0 protokoll_X----_auto_300 */
+   "-MMSSMSL",  /*      3 protokoll_X----_auto_300 */
+   "-LMLSMSL",  /*     20 protokoll_X----_auto_sine16 */
+   "-MMSSMSM",  /*     18 protokoll_X----_auto_300 */
+   "-MSSMLSM",  /*      0 protokoll_X----_auto_300 */
+   "-LMLSLLL",  /*      1 protokoll_X----_auto_sine31 */
+   "-MMSMMSM",  /*     13 protokoll_X----_auto_300 */
+   "-LMMSMLL",  /*     24 protokoll_X----_auto_sine03 */
+   "-LLLLMLL",  /*     76 protokoll_X----_auto_sine11 */
+   "-MSLMMSL",  /*     47 protokoll_X----_auto_300 */
+   "-MSLSMSL",  /*    209 protokoll_X----_auto_sine11 */
+   "-SSSSLSM",  /*    205 protokoll_X----_auto_300 */
+   "-SSSSLSL",  /*     23 protokoll_X----_auto_300 */
+   "-SSSSMSL",  /*    216 protokoll_X----_auto_300 */
+   "-SSSSMSM",  /*   2302 protokoll_X----_auto_300 */
+   "-SSSSMSS",  /*   6294 protokoll_X----_auto_300 */
+   "-SMSSMSM",  /*      4 protokoll_X----_auto_sine16 */
+   "-LSMSMSL",  /*     23 protokoll_X----_auto_sine18 */
+   "-SSSSLSS",  /*    154 protokoll_X----_auto_NIX */
+   "-LLLSMSL",  /*      3 protokoll_X----_auto_sine17 */
+   "-MSSSMML",  /*      6 protokoll_X----_auto_sine13 */
+   "-MSSSMSS",  /*     12 protokoll_X----_auto_sine17 */
+   "-LMLMMLL",  /*      7 protokoll_X----_auto_sine12 */
+   "-LMLMLLL",  /*     23 protokoll_X----_auto_sine13 */
+   "-LSLSMSL",  /*     19 protokoll_X----_auto_sine11 */
+   "-MMSSMLL",  /*      2 protokoll_X----_auto_sine31 */
+   "-MSSSMSL",  /*     14 protokoll_X----_auto_sine17 */
+   "-MSSSMSM",  /*    348 protokoll_X----_auto_300 */
+   "-LSSSMSM",  /*      4 protokoll_X----_auto_300 */
+   "-MSMSMSL",  /*     22 protokoll_X----_auto_300 */
+   "-LMLLMSL",  /*     42 protokoll_X----_auto_300 */
+   "-MSSSLSM",  /*     26 protokoll_X----_auto_300 */
+   "-SSSSMLL",  /*      1 protokoll_X----_auto_300 */
+   "-LLLMLLL",  /*     10 protokoll_X----_auto_sine31 */
+   "-LMMMMLL",  /*      6 protokoll_X----_auto_sine16 */
+   "-MSSSMLL",  /*     24 protokoll_X----_auto_sine12 */
+   "-MMMSMLL",  /*      2 protokoll_X----_auto_sine12 */
    NULL
 };
 char* raw_sine[] =
@@ -264,8 +264,10 @@ static char* find_auto_sine(ProofState_p state)
    limits.fun_large_limit        = 400;
 
 
+   const char* SINE_MASK = "-aaaaaaa";
+   const int SINE_CLASS_LEN = strlen(SINE_MASK);
    RawSpecFeaturesCompute(&features, state);
-   RawSpecFeaturesClassify(&features, &limits, "aaaaaaa");
+   RawSpecFeaturesClassify(&features, &limits, (char*)SINE_MASK);
 
    /* Hard-coded exception - no conjecture & no hypotheses == no
       useful SInE! */
@@ -276,7 +278,7 @@ static char* find_auto_sine(ProofState_p state)
 
    for(i=0; raw_class[i]; i++)
    {
-      if(strcmp(raw_class[i], features.class)==0)
+      if(strncmp(raw_class[i], features.class, SINE_CLASS_LEN)==0)
       {
          return raw_sine[i];
       }
@@ -536,11 +538,11 @@ long StructFOFSpecParseAxioms(StructFOFSpec_p ctrl, PStack_p axfiles,
 //
 /----------------------------------------------------------------------*/
 
-void StructFOFSpecInitDistrib(StructFOFSpec_p ctrl)
+void StructFOFSpecInitDistrib(StructFOFSpec_p ctrl, bool trim)
 {
    GenDistribSizeAdjust(ctrl->f_distrib, ctrl->terms->sig);
    GenDistribAddClauseSets(ctrl->f_distrib, ctrl->clause_sets);
-   GenDistribAddFormulaSets(ctrl->f_distrib, ctrl->formula_sets);
+   GenDistribAddFormulaSets(ctrl->f_distrib, ctrl->formula_sets, trim);
 }
 
 
@@ -599,9 +601,10 @@ long ProofStateSinE(ProofState_p state, char* fname)
    GCDeregisterClauseSet(state->terms->gc, state->axioms);
 
    spec = StructFOFSpecCreate(state->terms);
-   StructFOFSpecAddProblem(spec, state->axioms, state->f_axioms);
+   StructFOFSpecAddProblem(spec, state->axioms, state->f_axioms, filter->trim_implications);
 
-   StructFOFSpecInitDistrib(spec);
+
+   StructFOFSpecInitDistrib(spec, filter->trim_implications);
    StructFOFSpecGetProblem(spec,
                            filter,
                            clauses,
@@ -627,7 +630,7 @@ long ProofStateSinE(ProofState_p state, char* fname)
    axno = ClauseSetCardinality(state->axioms)+
       FormulaSetCardinality(state->f_axioms);
 
-   //printf("...ProofStateSinE()\n");
+   printf("# ...ProofStateSinE()=%ld/%ld\n", axno, axno_orig);
 
    return axno_orig-axno;
 }

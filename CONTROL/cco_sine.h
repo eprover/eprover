@@ -71,11 +71,12 @@ long           StructFOFSpecParseAxioms(StructFOFSpec_p ctrl,
                                         char* default_dir);
 #define       StructFOFSpecResetShared(ctrl) (ctrl)->shared_ax_sp = 0
 
-void           StructFOFSpecInitDistrib(StructFOFSpec_p ctrl);
+void           StructFOFSpecInitDistrib(StructFOFSpec_p ctrl, bool trim);
 
 void StructFOFSpecAddProblem(StructFOFSpec_p ctrl,
                              ClauseSet_p clauses,
-                             FormulaSet_p formulas);
+                             FormulaSet_p formulas,
+                             bool trim);
 
 void StructFOFSpecBacktrackToSpec(StructFOFSpec_p ctrl);
 

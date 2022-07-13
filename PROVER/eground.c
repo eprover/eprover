@@ -361,6 +361,7 @@ long   give_up = 0,
        miniscope_limit  = 1000,
        initial_literals = 0,
        initial_clauses = 0;
+long FormulaDefLimit = 24;
 ProblemType problemType  = PROBLEM_NOT_INIT;
 
 /*---------------------------------------------------------------------*/
@@ -448,7 +449,7 @@ int main(int argc, char* argv[])
       VERBOUT("Negated conjectures.\n");
    }
    freshvars = VarBankAlloc(type_bank);
-   if(FormulaSetCNF(formulas, f_ax_archive, clauses, terms, freshvars))
+   if(FormulaSetCNF(formulas, f_ax_archive, clauses, terms, freshvars,FormulaDefLimit))
    {
       VERBOUT("CNFization done\n");
    }
@@ -476,7 +477,7 @@ int main(int argc, char* argv[])
                             false);
    def_store->def_clauses->fvindex = FVIAnchorAlloc(cspec, perm);
 
-   SpecFeaturesCompute(&features, clauses, sig);
+   SpecFeaturesCompute(&features, clauses, formulas, f_ax_archive, terms);
 
    if(!SpecNoEq(&features))
    {

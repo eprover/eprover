@@ -19,6 +19,7 @@
   -----------------------------------------------------------------------*/
 
 #include "cto_ocb.h"
+#include <che_to_params.h>
 
 
 
@@ -29,19 +30,6 @@
 char* TONames[]=
 {
    "NoOrdering",
-   "Auto",
-   "AutoCASC",
-   "AutoDev",
-   "AutoSched0",
-   "AutoSched1",
-   "AutoSched2",
-   "AutoSched3",
-   "AutoSched4",
-   "AutoSched5",
-   "AutoSched6",
-   "AutoSched7",
-   "AutoSched8",
-   "AutoSched9",
    "Optimize",
    "KBO",
    "KBO6",
@@ -63,6 +51,23 @@ char* TONames[]=
 /*---------------------------------------------------------------------*/
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
+
+/*-----------------------------------------------------------------------
+//
+// Function: free_val()
+//
+//   Frees the value stored in the 
+//
+// Global Variables: -
+//
+// Side Effects    : Changes ocb->precedences
+//
+/----------------------------------------------------------------------*/
+
+void free_val(void* key, void* val)
+{
+   SizeFree(val, sizeof(long));
+}
 
 /*-----------------------------------------------------------------------
 //
@@ -163,7 +168,7 @@ static void alloc_precedence(OCB_p handle, bool prec_by_weight)
 //
 /----------------------------------------------------------------------*/
 
-OCB_p OCBAlloc(TermOrdering type, bool prec_by_weight, Sig_p sig)
+OCB_p OCBAlloc(TermOrdering type, bool prec_by_weight, Sig_p sig, HoOrderKind ho_order_kind)
 {
    OCB_p handle;
    int   i,j;
@@ -173,6 +178,7 @@ OCB_p OCBAlloc(TermOrdering type, bool prec_by_weight, Sig_p sig)
    handle->type  = type;
    handle->sig   = sig;
    handle->min_constants  = PDIntArrayAlloc(16,0);
+   handle->ho_order_kind = ho_order_kind;
    handle->weights    = NULL;
    handle->sig_size = sig->f_count;
    handle->statestack = PStackAlloc();
@@ -183,8 +189,12 @@ OCB_p OCBAlloc(TermOrdering type, bool prec_by_weight, Sig_p sig)
    handle->pos_bal = 0;
    handle->neg_bal = 0;
    handle->max_var = 0;
-   handle->vb_size = 64;
-   handle->vb      = SizeMalloc(handle->vb_size*sizeof(int));
+   handle->vb_size = ho_order_kind == LAMBDA_ORDER ? 0 : 64;
+   handle->vb      = ho_order_kind == LAMBDA_ORDER ?
+                        NULL : SizeMalloc(handle->vb_size*sizeof(int));
+   handle->db_weight = DEFAULT_DB_WEIGHT;
+   handle->lam_weight = DEFAULT_LAMBDA_WEIGHT;
+   handle->ho_vb   = NULL;
    for(size_t i=0; i<handle->vb_size; i++)
    {
       handle->vb[i] = 0;
@@ -289,10 +299,12 @@ void OCBFree(OCB_p junk)
    }
    PDArrayFree(junk->min_constants);
    assert(junk);
-   assert(junk->vb_size > 0);
-   assert(junk->vb);
-   SizeFree(junk->vb, junk->vb_size*sizeof(int));
+   if(junk->vb)
+   {
+      SizeFree(junk->vb, junk->vb_size*sizeof(int));
+   }
    PStackFree(junk->statestack);
+   PObjMapFreeWDeleter(junk->ho_vb, free_val);
    OCBCellFree(junk);
 }
 
@@ -499,7 +511,7 @@ bool OCBPrecedenceBacktrack(OCB_p ocb, PStackPointer state)
 
 FunCode OCBMinConst(OCB_p ocb, Type_p type)
 {
-   long sort = GetReturnSort(type)->type_uid;
+   long sort = type->type_uid;
    FunCode cand;
 
    cand = PDArrayElementInt(ocb->min_constants, sort);
@@ -521,7 +533,7 @@ FunCode OCBMinConst(OCB_p ocb, Type_p type)
 
 void OCBCondSetMinConst(OCB_p ocb, Type_p type, FunCode cand)
 {
-   long sort = GetReturnSort(type)->type_uid;
+   long sort = type->type_uid;
 
    if(!OCBMinConst(ocb, type))
    {
@@ -548,6 +560,7 @@ void OCBCondSetMinConst(OCB_p ocb, Type_p type, FunCode cand)
 FunCode OCBFindMinConst(OCB_p ocb, Type_p type)
 {
    FunCode i, cand=0;
+   assert(type);
 
    assert(ocb && ocb->sig);
 
@@ -601,7 +614,7 @@ FunCode OCBTermMaxFunCode(OCB_p ocb, Term_p term)
    // to change anything -- normal deref behaves the same ways
    term = TermDeref(term, &deref);
 
-   if(TermIsVar(term))
+   if(TermIsAnyVar(term))
    {
       return res;
    }
@@ -655,6 +668,23 @@ CompareResult OCBFunCompareMatrix(OCB_p ocb, FunCode f1, FunCode f2)
    return Q_TO_PART(f2-f1);
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: OCBResetHOVarMap()
+//
+//   Resets mapping of (applied) variables to number of occurrences.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void OCBResetHOVarMap(OCB_p ocb)
+{
+   PObjMapFreeWDeleter(ocb->ho_vb, free_val);
+   ocb->ho_vb = NULL;
+}
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */

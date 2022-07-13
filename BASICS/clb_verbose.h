@@ -27,6 +27,7 @@ Changes
 #define CLB_VERBOSE
 
 #include "clb_error.h"
+#include "clb_simple_stuff.h"
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */

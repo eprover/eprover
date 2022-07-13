@@ -22,6 +22,7 @@
 -----------------------------------------------------------------------*/
 
 #include "cco_gproc_ctrl.h"
+#include <sys/wait.h>
 
 
 /*---------------------------------------------------------------------*/
@@ -153,11 +154,12 @@ EGPCtrl_p EGPCtrlCreate(char *name, int cores, rlim_t cpu_limit)
    int       pipefd[2];
    pid_t     childpid;
 
-   if (pipe(pipefd) <0){
+   if (pipe(pipefd) <0)
+   {
       SysError("pipe failed", SYS_ERROR);
       exit(EXIT_FAILURE);
    }
-   fprintf(GlobalOut, "# Starting %s with %jus\n", name, (uintmax_t)cpu_limit);
+   fprintf(GlobalOut, "# Starting %s with %jus (%d) cores\n", name, (uintmax_t)cpu_limit, cores);
 
    if((childpid = fork()) <0 )
    {
@@ -215,6 +217,8 @@ bool EGPCtrlGetResult(EGPCtrl_p ctrl, char *buffer, long buf_size)
       SysError("read() failed", SYS_ERROR);
    }
    buffer[len] = '\0';
+
+   // fprintf(stdout, "# %s: [%s].\n", ctrl->name, buffer);
 
    if(len)
    {

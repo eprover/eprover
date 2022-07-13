@@ -187,9 +187,9 @@ long         ClauseSetPushClauses(PStack_p stack, ClauseSet_p set);
 void         ClauseSetDefaultWeighClauses(ClauseSet_p set);
 
 long         ClauseSetCountConjectures(ClauseSet_p set, long* hypos);
+int          ClauseConjectureOrder(ClauseSet_p set);
 
 bool         ClauseSetIsUntyped(ClauseSet_p set);
-
 #endif
 
 /*---------------------------------------------------------------------*/

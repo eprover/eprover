@@ -92,7 +92,7 @@ static void ted_insert_subterms(
    while (!PStackEmpty(stack))
    {
       subterm = PStackPopP(stack);
-      if(TermIsVar(subterm)) {
+      if(TermIsFreeVar(subterm)) {
          continue;
       }
       ted_insert_term(terms,subterm,vars,var_norm);
@@ -272,7 +272,7 @@ static long ted_lmld_kr(
    int i;
    long idx, lidx;
 
-   if (TermIsVar(term)||TermIsConst(term)) 
+   if (TermIsFreeVar(term)||TermIsConst(term)) 
    {
       idx = (*fresh)++;
       l[idx] = idx;

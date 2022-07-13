@@ -78,7 +78,8 @@ Type_p  GetReturnSort(Type_p type);
 Type_p  TypeCopy(Type_p orig);
 
 #define AllocSimpleSort(code)       TypeAlloc((code), 0, NULL)
-#define AllocArrowType(arity, args) TypeAlloc(ArrowTypeCons, (arity), (args))
+#define AllocArrowType(arity, args) ((assert((arity) > 0)),\
+   ((arity) == 1 ? (args)[0] : TypeAlloc(ArrowTypeCons, (arity), (args))))
 
 #define TypeArgArrayAlloc(n) ((Type_p*) ((n) == 0 ? NULL : SizeMalloc((n)*sizeof(Type_p))))
 #define TypeArgArrayFree(junk, n) (((n)==0) ? NULL : ( SizeFreeReal((junk),((n)*sizeof(Type_p))) ))
@@ -100,6 +101,7 @@ DStr_p TypeAppEncodedName(Type_p type);
 
 Type_p ArrowTypeFlattened(Type_p const* args, int args_num, Type_p ret);
 Type_p TypeDropFirstArg(Type_p ty);
+bool IsChoiceType(Type_p ty);
 
 
 bool TypeHasBool(Type_p t);
@@ -154,6 +156,34 @@ static inline Type_p AllocArrowTypeCopyArgs(int arity, Type_p const* args)
    }
    return AllocArrowType(arity, args_copy); //casting away the cons
 }
+
+/*-----------------------------------------------------------------------
+//
+// Function: TypeGetOrder()
+//
+//   Calculates the order of the type.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+static inline int TypeGetOrder(Type_p t)
+{
+   int order=0;
+   if(TypeIsArrow(t))
+   {
+      assert(!TypeIsArrow(t->args[t->arity-1]));
+      for(int i=0; i<t->arity; i++)
+      {
+         order = MAX(order, TypeGetOrder(t->args[i]));
+      }
+      order++;
+   }
+   return order;
+}
+
+#define VAR_ORDER(ty) (TypeGetOrder(ty) + (TypeIsArrow(ty) ? 1 : 0))
 
 #endif
 

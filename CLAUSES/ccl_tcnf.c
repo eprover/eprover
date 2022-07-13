@@ -22,6 +22,7 @@
 
 #include "ccl_tcnf.h"
 #include "ccl_formulafunc.h"
+#include "cte_lambda.h"
 
 
 
@@ -34,6 +35,7 @@
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
 /*---------------------------------------------------------------------*/
+TFormula_p do_simplify_decoded(TB_p terms, TFormula_p form, bool unroll_implications);
 
 
 /*---------------------------------------------------------------------*/
@@ -94,6 +96,129 @@ TFormula_p tprop_arg_return(Sig_p sig, TFormula_p arg1, TFormula_p arg2,
    return NULL;
 }
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: negate_form()
+//
+//   Negate the formula, and flatten the negation (only one step).
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static Term_p negate_form(TB_p bank, Term_p t)
+{
+   Sig_p sig = bank->sig; 
+   if(!TypeIsBool(t->type))
+   {
+      return t;
+   }
+   else if (TermIsDBVar(t))
+   {
+      return TFormulaFCodeAlloc(bank, sig->not_code, t, NULL);
+   }
+
+   if(t == bank->true_term)
+   {
+      return bank->false_term;
+   }
+   if(t == bank->false_term)
+   {
+      return bank->true_term;
+   }
+   if(t->f_code == sig->not_code)
+   {
+      return t->args[0];
+   }
+   else if(t->f_code == sig->eqn_code)
+   {
+      return TFormulaFCodeAlloc(bank, sig->neqn_code, t->args[0], t->args[1]);
+   }
+   else if(t->f_code == sig->neqn_code)
+   {
+      return TFormulaFCodeAlloc(bank, sig->eqn_code, t->args[0], t->args[1]);
+   }
+   else if(t->f_code == sig->equiv_code)
+   {
+      return TFormulaFCodeAlloc(bank, sig->xor_code, t->args[0], t->args[1]);
+   }
+   else if(t->f_code == sig->xor_code)
+   {
+      return TFormulaFCodeAlloc(bank, sig->equiv_code, t->args[0], t->args[1]);
+   }
+   else 
+   {
+      return TFormulaFCodeAlloc(bank, sig->not_code, t, NULL);
+   }
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: fold_and_or()
+//
+//   Make a formula which applies args to a binary symbol fc.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static Term_p fold_and_or(TB_p bank, PStack_p args, FunCode fc)
+{
+   if(PStackGetSP(args) == 1)
+   {
+      return PStackTopP(args);
+   }
+   else
+   {
+      Term_p lhs = PStackPopP(args);
+      Term_p rhs = PStackPopP(args);
+      lhs = TFormulaFCodeAlloc(bank, fc, lhs, rhs);
+      while(!PStackEmpty(args))
+      {
+         lhs = TFormulaFCodeAlloc(bank, fc, lhs, PStackPopP(args));
+      }
+      return lhs;
+   }
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: unroll_binary()
+//
+//   Puts all the arguments of binary fcode fc to args.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static void unroll_binary(Term_p form, FunCode fc, PStack_p args)
+{
+   PStack_p tasks = PStackAlloc();
+   PStackPushP(tasks, form);
+
+   while(!PStackEmpty(tasks))
+   {
+      Term_p task = PStackPopP(tasks);
+      if(!TermIsDBVar(task) && task->arity == 2 && task->f_code == fc)
+      {
+         PStackPushP(tasks, task->args[1]);
+         PStackPushP(tasks, task->args[0]);
+      }
+      else
+      {
+         PStackPushP(args, task);
+      }
+   }
+
+   PStackFree(tasks);
+}
 
 /*-----------------------------------------------------------------------
 //
@@ -246,14 +371,15 @@ TFormula_p tformula_rek_skolemize(TB_p terms, TFormula_p form,
    {
       /* All is well */
    }
-   else if(TFormulaIsLiteral(terms->sig, form))
+   else if(TFormulaIsLiteral(terms->sig, form) || 
+           TypeIsArrow(form->type))
    {
       form = TFormulaCopy(terms, form);
    }
    else if(form->f_code == terms->sig->qex_code)
    {
       var = form->args[0];
-      assert(TermIsVar(var));
+      assert(TermIsFreeVar(var));
       assert(!var->binding);
       sk_term = TBAllocNewSkolem(terms, free_vars, var->type);
       var->binding = sk_term;
@@ -264,7 +390,7 @@ TFormula_p tformula_rek_skolemize(TB_p terms, TFormula_p form,
    else if(form->f_code == terms->sig->qall_code)
    {
       var = form->args[0];
-      assert(TermIsVar(var));
+      assert(TermIsFreeVar(var));
       assert(!var->binding);
       PStackPushP(free_vars, var);
       handle = tformula_rek_skolemize(terms, form->args[1],
@@ -673,13 +799,13 @@ long tform_find_miniscopeable(Sig_p sig, TFormula_p form, long limit,
    long size;
    PTree_p lcands = NULL;
 
-   assert(!TermIsVar(form));
+   assert(!TermIsFreeVar(form));
 
    if(!form->v_count)
    {
       return LONG_MAX;
    }
-   if(TFormulaIsLiteral(sig, form))
+   if(TFormulaIsLiteral(sig, form) || TypeIsArrow(form->type))
    {
       return 1;
    }
@@ -747,8 +873,9 @@ TFormula_p tform_copy_mod(TB_p terms, TFormula_p form)
    bool changed = false;
 
    if(TFormulaIsLiteral(terms->sig, form)
+      ||TypeIsArrow(form->type)
       ||!form->v_count
-      ||TermIsVar(form))
+      ||TermIsFreeVar(form))
    {
       return form;
    }
@@ -773,6 +900,314 @@ TFormula_p tform_copy_mod(TB_p terms, TFormula_p form)
    return form;
 }
 
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: do_simplify_decoded()
+//
+//   Function that actually performs the simplification on decoded formulas.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+// lifted function that cannot be declared locally (anonymously)
+static Term_p simplify_args(TB_p bank, Term_p t, bool unroll_implications)
+{
+   if(TermIsAnyVar(t) || t->arity == 0)
+   {
+      return t;
+   }
+   else
+   {
+      Term_p res = TermTopCopyWithoutArgs(t);
+      bool changed = false;
+      for(int i=0; i<t->arity; i++)
+      {
+         res->args[i] = do_simplify_decoded(bank, t->args[i], unroll_implications);
+         changed = changed || res->args[i] != t->args[i];
+      }
+
+      if(changed)
+      {
+         res = TBTermTopInsert(bank, res);
+      }
+      else
+      {
+         TermTopFree(res);
+         res = t;
+      }
+
+      return res;
+   }
+}
+
+// lifted function that cannot be declared locally (anonymously)
+static int term_compare(const void* v1, const void* v2)
+{
+   const IntOrP* e1 = (const IntOrP*) v1;
+   const IntOrP* e2 = (const IntOrP*) v2;
+   int res = PCmp(e1->p_val, e2->p_val);
+
+   return res;
+}
+
+TFormula_p do_simplify_decoded(TB_p terms, TFormula_p form, bool unroll_implications)
+{
+   // making sure that no comparisons below
+   // will be invalid because something is DB var
+   if(TermIsDBVar(form))
+   {
+      return form;
+   }
+
+   assert(terms);
+   Sig_p sig = terms->sig;
+
+   Term_p res = form;
+   if((form->f_code == sig->or_code ||
+       form->f_code == sig->and_code))
+   {
+      Term_p neutral_element =
+         form->f_code == sig->or_code ? terms->false_term : terms->true_term;
+      Term_p asbsorbing_element =
+         form->f_code == sig->or_code ? terms->true_term : terms->false_term;
+      if(form->arity == 1)
+      {
+         form = simplify_args(terms, form, true);
+         Type_p bool_ty = terms->sig->type_bank->bool_type;
+         if (form->args[0] == neutral_element)
+         {
+            res = CloseWithDBVar(terms, bool_ty,
+                                 TBRequestDBVar(terms, bool_ty, 0));
+         }
+         else if (form->args[0] == asbsorbing_element)
+         {
+            res = CloseWithDBVar(terms, bool_ty, asbsorbing_element);
+         }
+      }
+      else if(form->arity == 2)
+      {
+         res = NULL;
+         bool changed = false;
+         PStack_p args = PStackAlloc();
+         unroll_binary(form, form->f_code, args);
+         
+         PStack_p res_args = PStackAlloc();
+         for(PStackPointer i=0; !res && i<PStackGetSP(args); i++)
+         {
+            Term_p arg = PStackElementP(args, i);
+            Term_p simplified = do_simplify_decoded(terms, arg, unroll_implications);
+            if(arg!=simplified)
+            {
+               changed=true;
+               arg = simplified;
+            }
+
+            if(arg != neutral_element)
+            {
+               if(arg != asbsorbing_element)
+               {
+                  PStackPushP(res_args, arg);
+               }
+               else
+               {
+                  res = asbsorbing_element;
+               }
+            }
+            else
+            {
+               changed = true;
+            }
+         }
+         if(!res)
+         {
+            PStackSort(res_args, term_compare);
+            if(!PStackEmpty(res_args))
+            {
+               // removing duplicates;
+               PStackReset(args);
+               PStackPushP(args, PStackElementP(res_args, 0));
+               for(PStackPointer i=1; i < PStackGetSP(res_args); i++)
+               {
+                  if(PStackElementP(res_args, i) != PStackElementP(res_args, i-1))
+                  {
+                     PStackPushP(args, PStackElementP(res_args, i));
+                  }
+                  else
+                  {
+                     changed = true;
+                  }
+               }
+               SWAP(args, res_args);
+            }
+
+
+            for(PStackPointer i=0; !res && i<PStackGetSP(res_args); i++)
+            {
+               Term_p neg_arg = negate_form(terms, PStackElementP(res_args, i));
+               IntOrP neg_arg_key = {.p_val = neg_arg};
+               Term_p found = 
+                  bsearch(&neg_arg_key, res_args->stack, res_args->current, 
+                          sizeof(IntOrP), term_compare);
+               if(found)
+               {
+                  res = asbsorbing_element;
+               }
+            }
+
+            if(!res)
+            {
+               if(!changed)
+               {
+                  res = form;
+               }
+               else
+               {
+                  if(PStackEmpty(res_args))
+                  {
+                     res = neutral_element;
+                  }
+                  else
+                  {
+                     res = fold_and_or(terms, res_args, form->f_code);
+                  }
+               }
+            }
+         }
+         PStackFree(res_args);
+         PStackFree(args);
+      }
+   }
+   else if(form->f_code == sig->not_code)
+   {
+      if(form->arity == 1)
+      {
+         res = negate_form(terms, form->args[0]);
+      }
+   }
+   else if(form->f_code == sig->impl_code)
+   {
+      form = simplify_args(terms, form,
+                           // unrolling implications only at the top level!
+                           unroll_implications &&
+                           (form->arity != 2 || 
+                            form->args[1]->f_code != sig->impl_code));
+      if(form->arity == 2)
+      {
+         res = NULL;
+         if(unroll_implications)
+         {
+            PStack_p precedent = PStackAlloc();
+            PStack_p consequent = PStackAlloc();
+
+            Term_p tmp = form;
+            while(tmp->f_code == sig->impl_code)
+            {
+               unroll_binary(tmp->args[0], sig->and_code, precedent);
+               tmp = tmp->args[1];
+            }
+
+            unroll_binary(tmp, sig->or_code, consequent);
+
+            PStackSort(precedent, term_compare);
+
+            for(long i=0; !res && i < PStackGetSP(consequent); i++)
+            {
+               IntOrP arg_key = {.p_val = PStackElementP(consequent, i)};
+               Term_p found = 
+                  bsearch(&arg_key, precedent->stack, 
+                          precedent->current, sizeof(IntOrP), term_compare);
+               if(found)
+               {
+                  res = terms->true_term;
+               }
+            }
+
+            PStackFree(precedent);
+            PStackFree(consequent);
+         }         
+
+         if(!res)
+         {
+            Term_p p = form->args[0], c = form->args[1];
+
+            if(p == c || p == terms->false_term || c == terms->true_term)
+            {
+               res = terms->true_term;
+            }
+            else if(c == negate_form(terms, p) || p == negate_form(terms, c) 
+                    || p == terms->true_term)
+            {
+               res = c;
+            }
+            else if(c == terms->false_term)
+            {
+               res = negate_form(terms, p);
+            }
+            else
+            {
+               res = form;
+            }
+         }
+      }
+   }
+   else if (form->f_code == sig->equiv_code ||
+            form->f_code == sig->xor_code ||
+            form->f_code == sig->eqn_code ||
+            form->f_code == sig->neqn_code)
+   {
+      form = simplify_args(terms, form, true);
+      if(form->arity == 2)
+      {
+         bool negative = form->f_code == sig->xor_code
+                         || form->f_code == sig->neqn_code;
+
+         if(form->args[0] == form->args[1])
+         {
+            res = negative ? terms->false_term : terms->true_term; 
+         }
+         else if(form->args[0] == terms->true_term)
+         {
+            res = negative ? negate_form(terms, form->args[1]) : form->args[1];
+         }
+         else if(form->args[1] == terms->true_term)
+         {
+            res = negative ? negate_form(terms, form->args[0]) : form->args[0];
+         }
+         else if(form->args[0] == terms->false_term)
+         {
+            res = negative ? form->args[1] : negate_form(terms, form->args[1]);
+         }
+         else if(form->args[1] == terms->false_term)
+         {
+            res = negative ? form->args[0] : negate_form(terms, form->args[0]);
+         }
+      }
+   }
+   else if (form->f_code == sig->qex_code ||
+            form->f_code == sig->qall_code)
+   {
+      form = simplify_args(terms, form, true);
+      if(form->arity == 1 && TermIsLambda(form->args[0]))
+      {
+         Term_p matrix = form->args[0]->args[1];
+         assert(TypeIsBool(matrix->type));
+         if(TermIsDBClosed(matrix))
+         {
+            res = matrix;
+         }
+      }
+   }
+   else
+   {
+      res = simplify_args(terms, form, true);
+   }
+   return res;
+}
 
 
 /*---------------------------------------------------------------------*/
@@ -808,7 +1243,9 @@ long TFormulaEstimateClauses(TB_p bank, TFormula_p form, bool pos)
    /* printf("Estimating: ");TBPrintTermFull(stdout, bank, form);*/
 
    if(TermCellQueryProp(form, TPCheckFlag) ||
-      TFormulaIsLiteral(bank->sig, form))
+      TFormulaIsLiteral(bank->sig, form) ||
+      // partially applied formula
+      TypeIsArrow(form->type))
    {
       return 1;
    }
@@ -864,7 +1301,9 @@ long TFormulaEstimateClauses(TB_p bank, TFormula_p form, bool pos)
       }
       else
       {
+#ifndef NDEBUG
          TermPrintDbg(stderr, form, bank->sig, DEREF_NEVER);
+#endif
          assert(false && "Formula not in correct simplified form");
       }
    }
@@ -1021,7 +1460,7 @@ void TFormulaFindDefs(TB_p bank, TFormula_p form, int polarity,
    assert((polarity<=1) && (polarity >=-1));
    //printf("TFormulaFindDefs(%ld)...\n",TermDepth(form));
 
-   if(TFormulaIsLiteral(bank->sig, form))
+   if(TFormulaIsLiteral(bank->sig, form) || TypeIsArrow(form->type))
    {
       return;
    }
@@ -1122,7 +1561,7 @@ TFormula_p TFormulaCopyDef(TB_p bank, TFormula_p form, long blocked,
    NumXTree_p def_entry;
    long      realdef;
 
-   if(TFormulaIsLiteral(bank->sig, form))
+   if(TFormulaIsLiteral(bank->sig, form) || TypeIsArrow(form->type))
    {
       res = form;
    }
@@ -1226,7 +1665,7 @@ TFormula_p TFormulaSimplify(TB_p terms, TFormula_p form, long quopt_limit)
 
    // printf("Simplify %p %ld: ", form, form->weight);/* TFormulaTPTPPrint(stdout, terms, form, true, false)*/;printf("\n");
 
-   if(TFormulaIsLiteral(terms->sig, form))
+   if(TFormulaIsLiteral(terms->sig, form)||TypeIsArrow(form->type))
    {
       return form;
    }
@@ -1399,6 +1838,25 @@ TFormula_p TFormulaSimplify(TB_p terms, TFormula_p form, long quopt_limit)
 
 /*-----------------------------------------------------------------------
 //
+// Function: TFormulaSimplifyDecoded()
+//
+//    Like TFromulaSimplify, but works on decoded formulas and performs
+//    some more simplifications [http://ceur-ws.org/Vol-2752/paper11.pdf]
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+TFormula_p TFormulaSimplifyDecoded(TB_p terms, TFormula_p form)
+{
+   Term_p res = do_simplify_decoded(terms, form, true);
+   return res;
+}
+
+/*-----------------------------------------------------------------------
+//
 // Function: TFormulaNNF()
 //
 //   Destructively transform a (simplified) formula into NNF.
@@ -1460,6 +1918,11 @@ TFormula_p TFormulaNNF(TB_p terms, TFormula_p form, int polarity)
       }
       else
       {
+         // if(!TFormulaIsLiteral(terms->sig, form))
+         // {
+         //    DBG_TPRINT(stderr, "error: ", form, ".\n");
+         //    DBG_PRINT(stderr, "type: ", TypePrintTSTP(stderr, terms->sig->type_bank, form->type), ".\n");
+         // }
          assert(TFormulaIsLiteral(terms->sig, form)
                 && "Top level term not in normal form");
       }
@@ -1706,7 +2169,7 @@ TFormula_p TFormulaMiniScope3(TB_p terms, TFormula_p form,
 
 TFormula_p TFormulaVarRename(TB_p terms, TFormula_p form)
 {
-   assert(!TermIsAppliedVar(form));
+   assert(!TermIsAppliedFreeVar(form));
    Term_p old_var = NULL, new_var = NULL;
    TFormula_p handle = NULL, arg1=NULL, arg2=NULL;
 
@@ -1726,7 +2189,7 @@ TFormula_p TFormulaVarRename(TB_p terms, TFormula_p form)
       }
       handle = TBTermTopInsert(terms, newform);
    }
-   else if(TFormulaIsLiteral(terms->sig, form))
+   else if(TFormulaIsLiteral(terms->sig, form) || TypeIsArrow(form->type))
    {
       handle = TFormulaCopy(terms, form);
    }
@@ -2036,7 +2499,7 @@ void WTFormulaConjunctiveNF(WFormula_p form, TB_p terms)
 /----------------------------------------------------------------------*/
 
 void WTFormulaConjunctiveNF2(WFormula_p form, TB_p terms,
-                             long miniscope_limit)
+                             long miniscope_limit, bool unroll_fool)
 {
    TFormula_p handle;
 
@@ -2123,7 +2586,10 @@ void WTFormulaConjunctiveNF2(WFormula_p form, TB_p terms,
 
    // Skolemization might have introduced Skolem predicates, which
    // we have to unroll again  -- unrolling keeps things in NNF
-   TFormulaUnrollFOOL(form,terms); // handles proof object internally
+   if(unroll_fool)
+   {
+      TFormulaUnrollFOOL(form,terms); // handles proof object internally
+   }
 
    handle = TFormulaDistributeDisjunctions(terms, form->tformula);
 
@@ -2151,7 +2617,7 @@ void WTFormulaConjunctiveNF2(WFormula_p form, TB_p terms,
 /----------------------------------------------------------------------*/
 
 void WTFormulaConjunctiveNF3(WFormula_p form, TB_p terms,
-                             long miniscope_limit)
+                             long miniscope_limit, bool unroll_fool)
 {
    TFormula_p handle;
 
@@ -2210,7 +2676,10 @@ void WTFormulaConjunctiveNF3(WFormula_p form, TB_p terms,
       WFormulaPushDerivation(form, DCShiftQuantors, NULL, NULL);
    }
 
-   TFormulaUnrollFOOL(form,terms); // handles proof object internally
+   if(unroll_fool)
+   {
+      TFormulaUnrollFOOL(form,terms); // handles proof object internally
+   }
    handle = TFormulaDistributeDisjunctions(terms, form->tformula);
 
    if(handle!=form->tformula)
@@ -2228,3 +2697,4 @@ void WTFormulaConjunctiveNF3(WFormula_p form, TB_p terms,
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
+

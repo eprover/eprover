@@ -91,7 +91,7 @@ static void termweight_insert_subterms(
    while (!PStackEmpty(stack))
    {
       subterm = PStackPopP(stack);
-      if(TermIsVar(subterm)) {
+      if(TermIsFreeVar(subterm)) {
          continue;
       }
       termweight_insert(bank,subterm,var_norm);
@@ -175,7 +175,7 @@ static void termweight_update_conjecture_freqs(
    while (!PStackEmpty(stack))
    {
       subterm = PStackPopP(stack);
-      if (TermIsVar(subterm)) 
+      if (TermIsFreeVar(subterm)) 
       {
          continue;
       }
@@ -215,7 +215,7 @@ static double termweight_term_weight(Term_p term, TermWeightParam_p data)
    termweight_update_conjecture_freqs(data->eval_bank, &data->eval_freqs, 
       repr, data->var_norm);
 
-   if (TermIsVar(repr))
+   if (TermIsFreeVar(repr))
    {
       return data->vweight;
    }

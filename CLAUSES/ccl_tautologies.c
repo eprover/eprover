@@ -21,6 +21,7 @@
 -----------------------------------------------------------------------*/
 
 #include "ccl_tautologies.h"
+#include "ccl_derivation.h"
 
 
 
@@ -174,7 +175,7 @@ static bool term_compute_top_nf(TermRef ref, Eqn_p eqns)
       if(TermStructEqualNoDeref(lside, *ref))
       {
          TermFree(*ref);
-         *ref = TermCopy(rside, handle->bank->vars, false);
+         *ref = TermCopy(rside, handle->bank->vars, handle->bank->db_vars, false);
          return true;
       }
       handle = handle->next;
@@ -234,7 +235,7 @@ static bool ground_normalize_eqn(Eqn_p eqn, Eqn_p eqns)
    bool res = false, tmp;
    Term_p term, shared;
 
-   term = TermCopy(eqn->lterm, eqn->bank->vars, false);
+   term = TermCopy(eqn->lterm, eqn->bank->vars, eqn->bank->db_vars, DEREF_NEVER);
    tmp  = term_compute_ground_NF(&term, eqns);
    if(tmp)
    {
@@ -244,7 +245,7 @@ static bool ground_normalize_eqn(Eqn_p eqn, Eqn_p eqns)
    }
    TermFree(term);
 
-   term = TermCopy(eqn->rterm, eqn->bank->vars, false);
+   term = TermCopy(eqn->rterm, eqn->bank->vars, eqn->bank->db_vars, DEREF_NEVER);
    tmp  = term_compute_ground_NF(&term, eqns);
    if(tmp)
    {
@@ -348,7 +349,7 @@ static void ground_complete_neg_eqns(EqnRef list)
 //
 //----------------------------------------------------------------------*/
 
-bool ClauseIsTautology(TB_p work_bank, Clause_p clause)
+bool ClauseIsTautologyReal(TB_p work_bank, Clause_p clause, bool copy_cl)
 {
    Eqn_p    rw_system, handle;
    Clause_p work_copy;
@@ -367,7 +368,7 @@ bool ClauseIsTautology(TB_p work_bank, Clause_p clause)
       //printf("# ClauseIsTautology() - neg_lit_no: %d\n", clause->neg_lit_no);
       return ClauseIsTrivial(clause);
    }
-   work_copy = ClauseCopy(clause, work_bank);
+   work_copy = copy_cl ? ClauseCopy(clause, work_bank) : clause;
    rw_system = EqnListExtractByProps(&(work_copy->literals),
                                      EPIsPositive, true);
    assert(rw_system);

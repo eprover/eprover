@@ -49,27 +49,27 @@ char* GeneralityMeasureNames[] =
 char* AxFilterDefaultSet ="\
    threshold010000=Threshold(10000)\
 \
-   gf500_gu_R04_F100_L20000=GSinE(CountFormulas, ,   5.0,, 4,20000,1.0)\
-   gf120_gu_RUU_F100_L00500=GSinE(CountFormulas, ,   1.2,,,  500,1.0)\
-   gf120_gu_R02_F100_L20000=GSinE(CountFormulas, ,   1.2,, 2,20000,1.0)\
-   gf150_gu_RUU_F100_L20000=GSinE(CountFormulas, ,   1.5,,,20000,1.0)\
-   gf120_gu_RUU_F100_L00100=GSinE(CountFormulas, ,   1.2,,,  100,1.0)\
-   gf200_gu_R03_F100_L20000=GSinE(CountFormulas, ,   2.0,, 3,20000,1.0)\
-   gf600_gu_R05_F100_L20000=GSinE(CountFormulas, ,   6.0,, 5,20000,1.0)\
-   gf200_gu_RUU_F100_L20000=GSinE(CountFormulas, ,   2.0,,  ,20000,1.0)\
-   gf120_gu_RUU_F100_L01000=GSinE(CountFormulas, ,   1.2,,  , 1000,1.0)\
+   gf500_gu_R04_F100_L20000=GSinE(CountFormulas, ,false,   5.0,, 4,20000,1.0)\
+   gf120_gu_RUU_F100_L00500=GSinE(CountFormulas, ,false,   1.2,,,  500,1.0)\
+   gf120_gu_R02_F100_L20000=GSinE(CountFormulas, ,false,   1.2,, 2,20000,1.0)\
+   gf150_gu_RUU_F100_L20000=GSinE(CountFormulas, ,false,   1.5,,,20000,1.0)\
+   gf120_gu_RUU_F100_L00100=GSinE(CountFormulas, ,false,   1.2,,,  100,1.0)\
+   gf200_gu_R03_F100_L20000=GSinE(CountFormulas, ,false,   2.0,, 3,20000,1.0)\
+   gf600_gu_R05_F100_L20000=GSinE(CountFormulas, ,false,   6.0,, 5,20000,1.0, false)\
+   gf200_gu_RUU_F100_L20000=GSinE(CountFormulas, ,false,   2.0,,  ,20000,1.0)\
+   gf120_gu_RUU_F100_L01000=GSinE(CountFormulas, ,false,   1.2,,  , 1000,1.0, false)\
 \
-   gf500_h_gu_R04_F100_L20000=GSinE(CountFormulas, hypos,   5.0,, 4,20000,1.0)\
-   gf120_h_gu_RUU_F100_L00500=GSinE(CountFormulas, hypos,   1.2,,,  500,1.0)\
-   gf120_h_gu_R02_F100_L20000=GSinE(CountFormulas, hypos,   1.2,, 2,20000,1.0)\
-   gf150_h_gu_RUU_F100_L20000=GSinE(CountFormulas, hypos,   1.5,,,20000,1.0)\
-   gf120_h_gu_RUU_F100_L00100=GSinE(CountFormulas, hypos,   1.2,,,  100,1.0)\
-   gf200_h_gu_R03_F100_L20000=GSinE(CountFormulas, hypos,   2.0,, 3,20000,1.0)\
-   gf600_h_gu_R05_F100_L20000=GSinE(CountFormulas, hypos,   6.0,, 5,20000,1.0)\
-   gf200_h_gu_RUU_F100_L20000=GSinE(CountFormulas, hypos,   2.0,,  ,20000,1.0)\
-   gf120_h_gu_RUU_F100_L01000=GSinE(CountFormulas, hypos,   1.2,,  , 1000,1.0)\
+   gf500_h_gu_R04_F100_L20000=GSinE(CountFormulas, hypos,false,   5.0,, 4,20000,1.0, false)\
+   gf120_h_gu_RUU_F100_L00500=GSinE(CountFormulas, hypos,false,   1.2,,,  500,1.0)\
+   gf120_h_gu_R02_F100_L20000=GSinE(CountFormulas, hypos,false,   1.2,, 2,20000,1.0)\
+   gf150_h_gu_RUU_F100_L20000=GSinE(CountFormulas, hypos,false,   1.5,,,20000,1.0)\
+   gf120_h_gu_RUU_F100_L00100=GSinE(CountFormulas, hypos,false,   1.2,,,  100,1.0)\
+   gf200_h_gu_R03_F100_L20000=GSinE(CountFormulas, hypos,false,   2.0,, 3,20000,1.0)\
+   gf600_h_gu_R05_F100_L20000=GSinE(CountFormulas, hypos,false,   6.0,, 5,20000,1.0,false)\
+   gf200_h_gu_RUU_F100_L20000=GSinE(CountFormulas, hypos,false,   2.0,,  ,20000,1.0)\
+   gf120_h_gu_RUU_F100_L01000=GSinE(CountFormulas, hypos,false,   1.2,,  , 1000,1.0)\
 \
-   gf600_gu_R05_F100_L20000add=GSinE(CountFormulas, ,   6.0,, 5,20000,1.0,addnosymb)\
+   gf600_gu_R05_F100_L20000add=GSinE(CountFormulas, ,false,   6.0,, 5,20000,1.0,addnosymb)\
 ";
 
 /*---------------------------------------------------------------------*/
@@ -136,6 +136,8 @@ AxFilter_p AxFilterAlloc(void)
                                               problematic */
    handle->max_set_fraction     = 1.0;
    handle->add_no_symbol_axioms = false;
+   handle->trim_implications    = false;
+   handle->defined_symbols_in_drel = false; // if 
 
    return handle;
 }
@@ -219,10 +221,17 @@ AxFilter_p GSinEParse(Scanner_p in)
       NextToken(in);
    }
    AcceptInpTok(in, Comma);
+   if(!TestInpTok(in, Comma) && TestInpId(in,"true|false"))
+   {
+      res->defined_symbols_in_drel = TestInpId(in, "true");
+      AcceptInpId(in, "true|false");
+      AcceptInpTok(in, Comma);
+   }
    if(!TestInpTok(in, Comma))
    {
       res->benevolence = ParseFloat(in);
    }
+   
    AcceptInpTok(in, Comma);
 
    if(!TestInpTok(in, Comma))
@@ -247,13 +256,18 @@ AxFilter_p GSinEParse(Scanner_p in)
    {
       res->max_set_fraction = ParseFloat(in);
    }
-   if(TestInpTok(in, Comma))
+   if(TestInpTok(in, Comma) && TestId(LookToken(in, 1), "addnosymb|ignorenosymb"))
    {
       AcceptInpTok(in, Comma);
       res->add_no_symbol_axioms = TestInpId(in, "addnosymb");
       AcceptInpId(in, "addnosymb|ignorenosymb");
    }
-
+   if(TestInpTok(in, Comma) && TestId(LookToken(in, 1), "true|false"))
+   {
+      AcceptInpTok(in, Comma);
+      res->trim_implications = TestInpId(in, "true");
+      AcceptInpId(in, "true|false");
+   }
 
    AcceptInpTok(in, CloseBracket);
 
@@ -293,6 +307,28 @@ AxFilter_p ThresholdParse(Scanner_p in)
    return res;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: LambdaDefParse()
+//
+//   Parse an LambdaDef filter: has no arguments
+//
+//
+// Global Variables: -
+//
+// Side Effects    : IO, memory operations.
+//
+/----------------------------------------------------------------------*/
+
+AxFilter_p LambdaDefParse(Scanner_p in)
+{
+   AxFilter_p res = AxFilterAlloc();
+
+   AcceptInpId(in, "LambdaDef");
+   res->type = AFLambdaDefines;
+   return res;
+}
+
 
 
 /*-----------------------------------------------------------------------
@@ -309,7 +345,7 @@ AxFilter_p ThresholdParse(Scanner_p in)
 
 AxFilter_p AxFilterParse(Scanner_p in)
 {
-   CheckInpId(in, "GSinE|Threshold");
+   CheckInpId(in, "GSinE|Threshold|LambdaDef");
 
    if(TestInpId(in, "GSinE"))
    {
@@ -318,6 +354,10 @@ AxFilter_p AxFilterParse(Scanner_p in)
    if(TestInpId(in, "Threshold"))
    {
       return ThresholdParse(in);
+   }
+   if(TestInpId(in, "LambdaDef"))
+   {
+      return LambdaDefParse(in);
    }
    return NULL;
 }
@@ -389,7 +429,7 @@ bool AxFilterPrintBuf(char* buf, int buflen, AxFilter_p filter)
    switch(filter->type)
    {
    case AFGSinE:
-         res = snprintf(buf, buflen, "%s(%s, %s, %f, %ld, %ld, %lld, %f)",
+         res = snprintf(buf, buflen, "%s(%s, %s, %f, %ld, %ld, %lld, %f, %d, %d, %d)",
                         "GSinE",
                         GeneralityMeasureNames[filter->gen_measure],
                         filter->use_hypotheses?"hypos":"nohypos",
@@ -397,12 +437,17 @@ bool AxFilterPrintBuf(char* buf, int buflen, AxFilter_p filter)
                         filter->generosity,
                         filter->max_recursion_depth,
                         filter->max_set_size,
-                        filter->max_set_fraction);
+                        filter->max_set_fraction,
+                        filter->add_no_symbol_axioms,
+                        filter->trim_implications,
+                        filter->defined_symbols_in_drel);
          break;
    case AFThreshold:
          res = snprintf(buf, buflen, "Threshold(%ld)",
                         filter->threshold);
          break;
+   case AFLambdaDefines:
+         res = snprintf(buf, buflen, "LambdaDef");
    default:
          assert(false && "Unknown AxFilter type");
          break;

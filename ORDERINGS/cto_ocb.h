@@ -26,6 +26,7 @@
 #define CTO_OCB
 
 #include <cte_termbanks.h>
+#include <clb_objmaps.h>
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
@@ -36,19 +37,6 @@
 typedef enum
 {
    NoOrdering,
-   AUTO,
-   AUTOCASC,
-   AUTODEV,
-   AUTOSCHED0,
-   AUTOSCHED1,
-   AUTOSCHED2,
-   AUTOSCHED3,
-   AUTOSCHED4,
-   AUTOSCHED5,
-   AUTOSCHED6,
-   AUTOSCHED7,
-   AUTOSCHED8,
-   AUTOSCHED9,
    OPTIMIZE_AX,
    KBO,
    KBO6,
@@ -81,6 +69,8 @@ typedef struct ocb_cell
    PDArray_p     min_constants; /* Indexed by sort */
    long          *weights;     /* Array of weights */
    long          var_weight;   /* Variable Weight */
+   long          lam_weight;   /* Variable Weight */
+   long          db_weight;   /* Variable Weight */
    long          *prec_weights;/* Precedence defined by weight - only
                                   for total precedences */
    CompareResult *precedence;  /* The most general case, interpreted
@@ -97,9 +87,14 @@ typedef struct ocb_cell
    long          max_var;
    long          vb_size;
    int           *vb;
+   PObjMap_p     ho_vb; // mapping (applied) vars to num of occurrences
+   HoOrderKind   ho_order_kind;
 }OCBCell, *OCB_p;
 
 #define OCB_FUN_DEFAULT_WEIGHT 1
+#define MK_HO_VB_KEY(key, x) (key) = ((long*)SizeMalloc(sizeof(long))); *(key) = x
+#define OCBLamWeight(ocb) ((const long)((ocb)->lam_weight))
+#define OCBDBWeight(ocb) ((const long)((ocb)->db_weight))
 
 /* Default weight for symbols not treated in a special way, also used
    as multiplier for other generated weights. */
@@ -117,7 +112,7 @@ typedef struct ocb_cell
 
 extern char*  TONames[];
 
-OCB_p         OCBAlloc(TermOrdering type, bool prec_by_weight, Sig_p sig);
+OCB_p         OCBAlloc(TermOrdering type, bool prec_by_weight, Sig_p sig, HoOrderKind ho_order_kind);
 void          OCBFree(OCB_p junk);
 
 void          OCBDebugPrint(FILE* out, OCB_p ocb);
@@ -160,6 +155,7 @@ static inline CompareResult OCBFunCompare(OCB_p ocb, FunCode f1, FunCode f2);
 
 CompareResult OCBFunCompareMatrix(OCB_p ocb, FunCode f1, FunCode f2);
 FunCode       OCBTermMaxFunCode(OCB_p ocb, Term_p term);
+void OCBResetHOVarMap(OCB_p ocb);
 
 
 /*---------------------------------------------------------------------*/

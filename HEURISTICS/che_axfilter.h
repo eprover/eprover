@@ -39,7 +39,8 @@ typedef enum
 {
    AFNoFilter = 0,
    AFGSinE,    /* Generalized SinE */
-   AFThreshold  /* Pass all formulas if less then N */
+   AFThreshold,  /* Pass all formulas if less then N */
+   AFLambdaDefines  /* Pass only conjecture and all definitions */
 }AxFilterType;
 
 
@@ -76,6 +77,8 @@ typedef struct
    long              threshold;
    double            max_set_fraction;
    bool              add_no_symbol_axioms;
+   bool              trim_implications;
+   bool              defined_symbols_in_drel;
 }AxFilterCell, *AxFilter_p;
 
 

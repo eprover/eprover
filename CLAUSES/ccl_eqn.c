@@ -326,12 +326,13 @@ static bool eqn_parse_prefix(Scanner_p in, TB_p bank, Term_p *lref,
    }
    if(rterm == bank->true_term)
    {
-      if(TermIsVar(lterm))
+      if(TermIsFreeVar(lterm))
       {
          AktTokenError(in, "Individual variable "
                      "used at predicate position", false);
 
       }
+      assert(!(TermIsDBVar(lterm)));
       SigDeclareIsPredicate(bank->sig, lterm->f_code);
    }
    *lref = lterm;
@@ -474,9 +475,9 @@ bool EqnParseInfix(Scanner_p in, TB_p bank, Term_p *lref, Term_p *rref)
    BOOL_TERM_NORMALIZE(lterm);
 
    /* Shortcut not to check for equality --
-         !TermIsVar guards calls against negative f_code */
-   if(problemType == PROBLEM_FO && !TermIsVar(lterm) &&
-      SigIsPredicate(bank->sig,lterm->f_code) &&
+         !TermIsFreeVar guards calls against negative f_code */
+   if(problemType == PROBLEM_FO && !TermIsFreeVar(lterm) &&
+      SigIsPredicate(bank->sig, lterm->f_code) &&
       SigIsFixedType(bank->sig, lterm->f_code))
    {
       rterm = bank->true_term; /* Non-Equational literal */
@@ -484,9 +485,9 @@ bool EqnParseInfix(Scanner_p in, TB_p bank, Term_p *lref, Term_p *rref)
    else
    {
       /* If we have a predicate variable then = might not come */
-      if((TermIsVar(lterm) && !TypeIsPredicate(lterm->type))
+      if((TermIsAnyVar(lterm) && !TypeIsPredicate(lterm->type))
               /* guarding SigIsFunction */
-          || (!TermIsVar(lterm) && SigIsFunction(bank->sig, lterm->f_code)))
+          || (!TermIsAnyVar(lterm) && SigIsFunction(bank->sig, lterm->f_code)))
       {
          if(in_parens && TestInpTok(in, CloseBracket))
          {
@@ -510,7 +511,7 @@ bool EqnParseInfix(Scanner_p in, TB_p bank, Term_p *lref, Term_p *rref)
 
             rterm = TBTermParse(in, bank);
 
-            if(!TermIsTopLevelVar(rterm))
+            if(!TermIsTopLevelAnyVar(rterm))
             {
                TypeDeclareIsNotPredicate(bank->sig, rterm, in);
             }
@@ -548,7 +549,9 @@ bool EqnParseInfix(Scanner_p in, TB_p bank, Term_p *lref, Term_p *rref)
       }
       else
       {  /* It's a predicate */
-         if(problemType == PROBLEM_HO && !TermIsTopLevelVar(lterm)
+         if(problemType == PROBLEM_HO 
+            && !TermIsAnyVar(lterm)
+            && !TermIsPhonyApp(lterm)
             && SigIsFunction(bank->sig, lterm->f_code))
          {
             DStr_p err = DStrAlloc();
@@ -558,7 +561,7 @@ bool EqnParseInfix(Scanner_p in, TB_p bank, Term_p *lref, Term_p *rref)
             AktTokenError(in, DStrView(err), SYNTAX_ERROR);
          }
          if(TypeIsBool(lterm->type) ||
-            (!TermIsVar(lterm) &&
+            (!TermIsFreeVar(lterm) &&
              lterm->f_code > bank->sig->internal_symbols &&
              !SigIsFixedType(bank->sig, lterm->f_code))) // can be special symbol like $ite and $let
          {
@@ -601,6 +604,20 @@ bool EqnParseInfix(Scanner_p in, TB_p bank, Term_p *lref, Term_p *rref)
 Eqn_p EqnAlloc(Term_p lterm, Term_p rterm, TB_p bank,  bool positive)
 {
    Eqn_p handle = EqnCellAlloc();
+   if(lterm == bank->false_term)
+   {
+      lterm = bank->true_term;
+      positive = !positive;
+   }
+   if(rterm == bank->false_term)
+   {
+      rterm = bank->true_term;
+      positive = !positive;
+   }
+   if(lterm == bank->true_term)
+   {
+      SWAP(lterm, rterm);
+   }
 
    /* printf("Handle = %p\n", handle); */
    handle->properties = EPNoProps;
@@ -621,15 +638,16 @@ Eqn_p EqnAlloc(Term_p lterm, Term_p rterm, TB_p bank,  bool positive)
                SigPrint(stdout,bank->sig);
                fflush(stdout); */
 #ifndef ENABLE_LFHO
-      //assert(!TermIsVar(lterm));
+      //assert(!TermIsFreeVar(lterm));
 #endif
       if(lterm->f_code > bank->sig->internal_symbols)
       {
+         assert(!TermIsDBVar(lterm));
          SigDeclareIsPredicate(bank->sig, lterm->f_code);
       }
 
       TermCellSetProp(lterm, TPPredPos);
-      if(!TermIsVar(lterm) && SigQueryFuncProp(bank->sig, lterm->f_code, FPPseudoPred))
+      if(!TermIsAnyVar(lterm) && SigQueryFuncProp(bank->sig, lterm->f_code, FPPseudoPred))
       {
          EqnSetProp(handle, EPPseudoLit);
       }
@@ -637,7 +655,7 @@ Eqn_p EqnAlloc(Term_p lterm, Term_p rterm, TB_p bank,  bool positive)
 
    /* Allowing predicate variables to be stored in equation */
    if(lterm->type != rterm->type &&
-         !(TypeIsPredicate(lterm->type) && rterm == bank->true_term))
+      !(TypeIsPredicate(lterm->type) && rterm == bank->true_term))
    {
       TermAssertSameSort(bank->sig, lterm, rterm);
    }
@@ -653,6 +671,42 @@ Eqn_p EqnAlloc(Term_p lterm, Term_p rterm, TB_p bank,  bool positive)
 
    return handle;
 }
+
+/*-----------------------------------------------------------------------
+//
+// Function: EqnAllocFlatten()
+//
+//   Allocates a predicate literal but makes sure that if it is
+//   a formula of the form (~)$eq(s,t) then s and t are lifted 
+//   to the literal level.
+//
+// Global Variables: -
+//
+// Side Effects    : Adds references
+//
+/----------------------------------------------------------------------*/
+
+Eqn_p EqnAllocFlatten(Term_p lterm, TB_p bank, bool sign)
+{
+   assert(TypeIsBool(lterm->type));
+   Eqn_p res;
+   if(lterm->f_code == bank->sig->eqn_code || 
+      lterm->f_code == bank->sig->neqn_code)
+   {
+      if(lterm->f_code == bank->sig->neqn_code)
+      {
+         sign = !sign;
+      }
+      res = EqnAlloc(lterm->args[0], lterm->args[1], bank, sign);
+   }
+   else
+   {
+      res = EqnAlloc(lterm, bank->true_term, bank, sign);
+   }
+   return res;
+}
+
+
 
 
 /*-----------------------------------------------------------------------
@@ -797,7 +851,8 @@ Eqn_p EqnHOFParse(Scanner_p in, TB_p bank, bool* continue_parsing)
    }
    else
    {
-      if(!TermIsTopLevelVar(lterm) && SigIsFunction(bank->sig, lterm->f_code))
+      if(!TermIsAnyVar(lterm) && !TermIsPhonyApp(lterm)
+         && SigIsFunction(bank->sig, lterm->f_code))
       {
          DStr_p err = DStrAlloc();
          DStrAppendStr(err, "Symbol ");
@@ -1020,6 +1075,25 @@ void EqnPrint(FILE* out, Eqn_p eq, bool negated,  bool fullterms)
       fprintf(out, "}");
    }
 #endif
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: EqnPrintDBG()
+//
+//   Debug printing of the equation. 
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+void EqnPrintDBG(FILE* out, Eqn_p eq)
+{
+   TermPrintDbg(out, eq->lterm, eq->bank->sig, DEREF_NEVER);
+   fprintf(out, "%s=", EqnIsPositive(eq)?"":"!");
+   TermPrintDbg(out, eq->rterm, eq->bank->sig, DEREF_NEVER);
+   fprintf(out, "%s", EqnIsMaximal(eq) ? "*" : "");
+   fprintf(out, "%s", EqnIsOriented(eq) ? ">" : "");
+   fprintf(out, "%s", EqnQueryProp(eq, EPIsEquLiteral) ? "#" : "");
 }
 
 /*-----------------------------------------------------------------------
@@ -1276,13 +1350,16 @@ Eqn_p EqnCopy(Eqn_p eq, TB_p bank)
    Eqn_p  handle;
    Term_p lterm, rterm;
 
-   lterm = TBInsertNoProps(bank, eq->lterm, DEREF_ALWAYS);
-   rterm = TBInsertNoProps(bank, eq->rterm, DEREF_ALWAYS);
+   lterm = TBInsertNoPropsCached(bank, eq->lterm, DEREF_ALWAYS);
+   rterm = TBInsertNoPropsCached(bank, eq->rterm, DEREF_ALWAYS);
 
-   handle = EqnAlloc(lterm, rterm, bank, false); /* Properties will be
-                                                    taken care of
-                                                    later! */
-   handle->properties = eq->properties;
+   /* Properties will be taken care of later! */
+   handle = EqnAlloc(lterm, rterm, bank, EqnIsPositive(eq));
+   // in HO version positivity is computed in relatively complex way,
+   // thus EPIsPositive must be preserved!
+   handle->properties = 
+      (handle->properties & EPIsPositive)
+      | (eq->properties & ~EPIsPositive);
    if(!EqnIsOriented(handle))
    {
       EqnDelProp(handle, EPMaxIsUpToDate);
@@ -1311,10 +1388,13 @@ Eqn_p EqnFlatCopy(Eqn_p eq)
    lterm = eq->lterm;
    rterm = eq->rterm;
 
-   handle = EqnAlloc(lterm, rterm, eq->bank, false); /* Properties will be
-                                                        taken care of
-                                                        later! */
-   handle->properties = eq->properties;
+   /* Properties will be taken care of later! */
+   handle = EqnAlloc(lterm, rterm, eq->bank, EqnIsPositive(eq));
+   // in HO version positivity is computed in relatively complex way,
+   // thus EPIsPositive must be preserved!
+   handle->properties = 
+      (handle->properties & EPIsPositive)
+      | (eq->properties & ~EPIsPositive);
    if(!EqnIsOriented(handle))
    {
       EqnDelProp(handle, EPMaxIsUpToDate);
@@ -1343,10 +1423,13 @@ Eqn_p EqnCopyRepl(Eqn_p eq, TB_p bank, Term_p old, Term_p repl)
    lterm = TBInsertRepl(bank, eq->lterm, DEREF_ALWAYS, old, repl);
    rterm = TBInsertRepl(bank, eq->rterm, DEREF_ALWAYS, old, repl);
 
-   handle = EqnAlloc(lterm, rterm, bank, false); /* Properties will be
-                                                    taken care of
-                                                    later! */
-   handle->properties = eq->properties;
+   /* Properties will be taken care of later! */
+   handle = EqnAlloc(lterm, rterm, bank, EqnIsPositive(eq));
+   // in HO version positivity is computed in relatively complex way,
+   // thus EPIsPositive must be preserved!
+   handle->properties = 
+      (handle->properties & EPIsPositive)
+      | (eq->properties & ~EPIsPositive);
    EqnDelProp(handle, EPMaxIsUpToDate);
    EqnDelProp(handle, EPIsOriented);
 
@@ -1375,10 +1458,13 @@ Eqn_p EqnCopyReplPlain(Eqn_p eq, TB_p bank, Term_p old, Term_p repl)
    lterm = TBInsertReplPlain(bank, eq->lterm, old, repl);
    rterm = TBInsertReplPlain(bank, eq->rterm, old, repl);
 
-   handle = EqnAlloc(lterm, rterm, bank, false); /* Properties will be
-                                                    taken care of
-                                                    later! */
-   handle->properties = eq->properties;
+   /* Properties will be taken care of later! */
+   handle = EqnAlloc(lterm, rterm, bank, EqnIsPositive(eq));
+   // in HO version positivity is computed in relatively complex way,
+   // thus EPIsPositive must be preserved!
+   handle->properties = 
+      (handle->properties & EPIsPositive)
+      | (eq->properties & ~EPIsPositive);
    EqnDelProp(handle, EPMaxIsUpToDate);
    EqnDelProp(handle, EPIsOriented);
 
@@ -1408,10 +1494,13 @@ Eqn_p EqnCopyOpt(Eqn_p eq)
    lterm = TBInsertOpt(eq->bank, eq->lterm, DEREF_ALWAYS);
    rterm = TBInsertOpt(eq->bank, eq->rterm, DEREF_ALWAYS);
 
-   handle = EqnAlloc(lterm, rterm, eq->bank, false); /* Properties will be
-                                                        taken care of
-                                                        later! */
-   handle->properties = eq->properties;
+   /* Properties will be taken care of later! */
+   handle = EqnAlloc(lterm, rterm, eq->bank, EqnIsPositive(eq));
+   // in HO version positivity is computed in relatively complex way,
+   // thus EPIsPositive must be preserved!
+   handle->properties = 
+      (handle->properties & EPIsPositive)
+      | (eq->properties & ~EPIsPositive);
    EqnDelProp(handle, EPMaxIsUpToDate);
    EqnDelProp(handle, EPIsOriented);
 
@@ -1440,10 +1529,13 @@ Eqn_p EqnCopyDisjoint(Eqn_p eq)
    lterm = TBInsertDisjoint(eq->bank, eq->lterm);
    rterm = TBInsertDisjoint(eq->bank, eq->rterm);
 
-   handle = EqnAlloc(lterm, rterm, eq->bank, false); /* Properties will be
-                                                        taken care of
-                                                        later! */
-   handle->properties = eq->properties;
+   /* Properties will be taken care of later! */
+   handle = EqnAlloc(lterm, rterm, eq->bank, EqnIsPositive(eq));
+   // in HO version positivity is computed in relatively complex way,
+   // thus EPIsPositive must be preserved!
+   handle->properties = 
+      (handle->properties & EPIsPositive)
+      | (eq->properties & ~EPIsPositive);
 
    return handle;
 }
@@ -1882,10 +1974,12 @@ long EqnStructWeightLexCompare(Eqn_p l1, Eqn_p l2)
 
 /*-----------------------------------------------------------------------
 //
-// Function: EqnEqual()
+// Function: EqnEqualDeref()
 //
 //   Test wether two equations are equivalent (modulo commutativity).
-//   Treats equations as _unsigned_ term sets.
+//   Treats equations as _unsigned_ term sets. Follows variable binding
+//   pointers as denoted by d1 and d2.
+//   
 //
 // Global Variables: -
 //
@@ -1893,18 +1987,18 @@ long EqnStructWeightLexCompare(Eqn_p l1, Eqn_p l2)
 //
 /----------------------------------------------------------------------*/
 
-bool EqnEqual(Eqn_p eq1,  Eqn_p eq2)
+bool EqnEqualDeref(Eqn_p eq1,  Eqn_p eq2, DerefType d1, DerefType d2)
 {
    bool res;
 
-   res = EqnEqualDirected(eq1, eq2);
+   res = EqnEqualDirectedDeref(eq1, eq2, d1, d2);
 
    if(res || (EqnIsOriented(eq1) && EqnIsOriented(eq2)))
    {
       return res;
    }
    EqnSwapSidesSimple(eq2);
-   res = EqnEqualDirected(eq1, eq2);
+   res = EqnEqualDirectedDeref(eq1, eq2, d1, d2);
    EqnSwapSidesSimple(eq2);
    return res;
 }
@@ -2392,7 +2486,8 @@ CompareResult tfo_literal_compare(OCB_p ocb, Eqn_p eq1, Eqn_p eq2)
       {
          return to_lesser;
       }
-      if(!EqnIsEquLit(eq1)) /* both non-equational! */
+      if(!EqnIsEquLit(eq1) && !TermIsTopLevelFreeVar(eq1->lterm) 
+                           && !TermIsTopLevelFreeVar(eq2->lterm)) /* both non-equational! */
       {
          return OCBFunCompare(ocb, eq1->lterm->f_code, eq2->lterm->f_code);
       }
@@ -2407,7 +2502,8 @@ CompareResult tfo_literal_compare(OCB_p ocb, Eqn_p eq1, Eqn_p eq2)
       {
          return to_greater;
       }
-      if(!EqnIsEquLit(eq1)) /* both non-equational! */
+      if(!EqnIsEquLit(eq1) && !TermIsTopLevelFreeVar(eq1->lterm)
+                           && !TermIsTopLevelFreeVar(eq2->lterm)) /* both non-equational! */
       {
          return OCBFunCompare(ocb, eq1->lterm->f_code, eq2->lterm->f_code);
       }
@@ -3293,7 +3389,64 @@ long EqnCollectSubterms(Eqn_p eqn, PStack_p collector)
 bool EqnHasAppVar(Eqn_p eq)
 {
    assert(eq && eq->lterm && eq->rterm);
-   return TermIsAppliedVar(eq->lterm) || TermIsAppliedVar(eq->rterm);
+   return TermIsAppliedFreeVar(eq->lterm) || TermIsAppliedFreeVar(eq->rterm);
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: EqnListMapTerms()
+//
+//   Map all terms in the equation list using f.
+//
+// Global Variables: -
+//
+// Side Effects    : Sets the OpFlag of newly collected terms.
+//
+/----------------------------------------------------------------------*/
+
+void EqnMap(Eqn_p lit, TermMapper_p f, void* arg)
+{
+   Term_p lterm = f(arg, lit->lterm);
+   Term_p rterm = f(arg, lit->rterm);
+   bool negate = false;
+   TB_p bank = lit->bank;
+
+   if(lterm == bank->false_term)
+   {
+      lterm = bank->true_term;
+      negate = !negate;
+   }
+   if(rterm == bank->false_term)
+   {
+      rterm = bank->true_term;
+      negate = !negate;
+   }
+   if(lterm == bank->true_term)
+   {
+      SWAP(lterm, rterm);
+   }
+   if(rterm != bank->true_term)
+   {
+      EqnSetProp(lit, EPIsEquLiteral);
+   }
+   else
+   {
+      EqnDelProp(lit, EPIsEquLiteral);
+   }
+
+   if(negate)
+   {
+      EqnFlipProp(lit, EPIsPositive);
+   }
+   
+   if(lterm != lit->lterm)
+   {
+      EqnDelProp(lit, EPMaxIsUpToDate);
+      EqnDelProp(lit, EPIsOriented);
+   }
+   
+   lit->lterm = lterm;
+   lit->rterm = rterm;
 }
 
 /*---------------------------------------------------------------------*/

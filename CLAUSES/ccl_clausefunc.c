@@ -91,7 +91,7 @@ PTree_p collect_free_vars(Term_p t, TB_p bank, int idx_to_skip)
 
    PTree_p res = NULL;
    TFormulaCollectFreeVars(bank, t, &res);
-   if (TermIsVar(t->args[idx_to_skip]))
+   if (TermIsFreeVar(t->args[idx_to_skip]))
    {
       bool removed = PTreeDeleteEntry(&res, t->args[idx_to_skip]);
       UNUSED(removed); // stiffle the warning in non-debug version
@@ -655,7 +655,7 @@ void PStackClausePrint(FILE* out, PStack_p stack, char* extra)
 //   If the clause containts boolean variables X and ~X, convert the
 //   clause to {$true}. If the clause C contains only X replace the
 //   clause with C[X |-> $false]. If the clause C contains only ~X replace
-//   C with C[X |-> $true].
+//   C with C[X |-> $true]. Returns true if a clause becomes a tautology.
 //
 // Global Variables: -
 //
@@ -683,7 +683,7 @@ bool ClauseEliminateNakedBooleanVariables(Clause_p clause)
 
       if(EqnIsBoolVar(lit))
       {
-         assert(TermIsVar(lit->lterm));
+         assert(TermIsFreeVar(lit->lterm));
          var = lit->lterm;
 
          if(EqnIsPositive(lit))
@@ -737,11 +737,13 @@ bool ClauseEliminateNakedBooleanVariables(Clause_p clause)
       EqnListFree(clause->literals);
       clause->literals = res;
       ClauseRemoveSuperfluousLiterals(clause);
+      ClauseRecomputeLitCounts(clause);
+      ClausePushDerivation(clause, DCNormalize, NULL, NULL);
    }
 
    PStackFree(all_lits);
    SubstDelete(subst);
-   return eliminated_var;
+   return EqnListFindTrue(clause->literals);
 }
 
 
@@ -780,10 +782,11 @@ Clause_p ClauseRecognizeInjectivity(TB_p terms, Clause_p clause)
       assert(EqnIsNegative(neg_lit));
       
       if (EqnIsEquLit(pos_lit) && EqnIsEquLit(neg_lit) &&
-          TermIsVar(pos_lit->lterm) && TermIsVar(pos_lit->rterm) && 
+          TermIsFreeVar(pos_lit->lterm) && TermIsFreeVar(pos_lit->rterm) && 
           pos_lit->lterm != pos_lit->rterm &&
-          !TermIsTopLevelVar(neg_lit->lterm) && !TermIsTopLevelVar(neg_lit->rterm)
-          && neg_lit->lterm->f_code == neg_lit->rterm->f_code 
+          !TermIsTopLevelAnyVar(neg_lit->lterm) && !TermIsTopLevelAnyVar(neg_lit->rterm)
+          && neg_lit->lterm->f_code == neg_lit->rterm->f_code
+          && neg_lit->lterm->f_code > terms->sig->internal_symbols
           && !TypeIsArrow(neg_lit->lterm->type)
           && !SigQueryFuncProp(neg_lit->bank->sig, neg_lit->lterm->f_code, FPIsInjDefSkolem)
           && TermStandardWeight(neg_lit->lterm) == TermStandardWeight(neg_lit->rterm)
@@ -823,8 +826,8 @@ Clause_p ClauseRecognizeInjectivity(TB_p terms, Clause_p clause)
             {
                Term_p lvar = neg_lit->lterm->args[i], rvar = neg_lit->rterm->args[i];
 
-               assert(TermIsVar(lvar));
-               assert(TermIsVar(rvar));
+               assert(TermIsFreeVar(lvar));
+               assert(TermIsFreeVar(rvar));
 
                if (lvar == rvar)
                {

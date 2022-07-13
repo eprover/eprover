@@ -165,10 +165,10 @@ void TermTreeFree(Term_p junk)
          {
             PStackPushP(stack, junk->rson);
          }
-    if(!TermIsVar(junk))
-    {
-       TermTopFree(junk);
-    }
+         if(!TermIsAnyVar(junk))
+         {
+            TermTopFree(junk);
+         }
       }
       PStackFree(stack);
    }
@@ -207,7 +207,16 @@ long TermTopCompare(Term_p t1, Term_p t2)
    //      printf("# Sort clash (%ld): %d vs. %d\n", t1->f_code, t1->sort, t2->sort);
    //}
    assert(problemType == PROBLEM_HO || t1->type == t2->type);
-   assert(TermIsAppliedVar(t1) || problemType == PROBLEM_HO  || t1->arity == t2->arity);
+   assert(TermIsPhonyApp(t1) || problemType == PROBLEM_HO  || t1->arity == t2->arity);
+
+   if(problemType == PROBLEM_HO)
+   {
+      res = PCmp(t1->type, t2->type);
+      if(res)
+      {
+         return res;
+      }
+   }
 
    if(t1->arity != t2->arity)
    {

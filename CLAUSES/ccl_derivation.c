@@ -39,6 +39,7 @@ char *opids[] =
    /* Simplifying */
    PCL_EVALGC,
    PCL_RW,
+   PCL_LOCAL_RW,
    PCL_RW,
    PCL_AD,
    PCL_CSR,
@@ -64,10 +65,12 @@ char *opids[] =
    PCL_EF,
    PCL_ER,
    PCL_SAT,
+   PCL_PE_RESOLVE,
    /* Others */
    PCL_SE,
    PCL_ID_DEF,
    PCL_SC,
+   PCL_LL,
    PCL_FU,
    PCL_EBV,
    /* HO inferences */
@@ -78,7 +81,14 @@ char *opids[] =
    PCL_POS_EXT,
    PCL_EXT_SUP,
    PCL_EXT_EQRES,
-   PCL_INV_REC
+   PCL_EXT_EQFACT,
+   PCL_INV_REC,
+   PCL_CHOICE_AX,
+   PCL_LEIBNIZ_ELIM,
+   PCL_PRIM_ENUM,
+   PCL_CHOICE_INST,
+   PCL_TRIGGER,
+   PCL_PRUNE_ARG
 };
 
 char *optheory [] =
@@ -87,6 +97,7 @@ char *optheory [] =
    NULL,
    "NA",
    /* Simplifying */
+   NULL,
    NULL,
    NULL,
    NULL,
@@ -114,13 +125,22 @@ char *optheory [] =
    NULL,
    NULL,
    NULL,
+   NULL,
    /* Others */
    NULL,
    NULL,
    NULL,
    NULL,
    NULL,
+   NULL,
    /* HO inferences */
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
    NULL,
    NULL,
    NULL,
@@ -149,6 +169,7 @@ char *opstatus [] =
    "thm",
    "thm",
    "thm",
+   "thm",
    /* Simplification/Modfication for FOF */
    "cth",
    "thm",
@@ -165,13 +186,22 @@ char *opstatus [] =
    "thm",
    "thm",
    "thm",
+   "thm",
    /* Others */
    "thm",
    NULL,
    "thm",
    "thm",
    "thm",
+   "thm",
    /* HO */
+   "thm",
+   "thm",
+   "thm",
+   "thm",
+   "thm",
+   "thm",
+   "thm",
    "thm",
    "thm",
    "thm",
@@ -1036,6 +1066,65 @@ Derived_p DerivedAlloc(void)
    return handle;
 }
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: DerivationStackPCLPrint()
+//
+//   Print a very short description of the derivation for debug 
+//   purposes.
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+void DerivationDebugPrint(FILE* out, PStack_p derivation)
+{
+   if(derivation)
+   {
+      PStackPointer sp = PStackGetSP(derivation);
+      PStackPointer i  = 0;
+      DerivationCode op;
+      while(i<sp)
+      {
+         op = PStackElementInt(derivation, i);
+         i++;
+         if(DCOpHasArg1(op))
+         {
+            if(DCOpHasCnfArg1(op))
+            {
+               DBG_PRINT(out, "[", ClausePrintDBG(out, PStackElementP(derivation, i)), "]");
+            }
+            else if(DCOpHasFofArg1(op))
+            {
+               WFormula_p f = PStackElementP(derivation, i);
+               DBG_PRINT(out, "[", WFormulaTSTPPrint(stderr, f, true, true), "]");
+            }
+            i++;
+         }
+         if(DCOpHasArg2(op))
+         {
+            if(DCOpHasCnfArg2(op))
+            {
+               DBG_PRINT(out, "[", ClausePrintDBG(out, PStackElementP(derivation, i)), "]");
+            }
+            else if(DCOpHasFofArg2(op))
+            {
+               WFormula_p f = PStackElementP(derivation, i);
+               DBG_PRINT(out, "[", WFormulaTSTPPrint(stderr, f, true, true), "]");
+            }
+            i++;
+         }
+         fprintf(out, "<%s%s>", opids[DPOpGetOpCode(op)], i==sp?"":",");
+      }
+   }
+   else
+   {
+      fprintf(out, " - ");
+   }
+}
 
 
 /*-----------------------------------------------------------------------

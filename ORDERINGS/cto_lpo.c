@@ -42,6 +42,7 @@ Changes
 -----------------------------------------------------------------------*/
 
 #include "cto_lpo.h"
+#include <cte_lambda.h>
 
 /*---------------------------------------------------------------------*/
 /*                        Global Variables                             */
@@ -75,6 +76,130 @@ static CompareResult lpo_greater(OCB_p ocb, Term_p s, Term_p t,
 /*                      Internal Functions LPO                         */
 /*---------------------------------------------------------------------*/
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: classify_head()
+//
+//   Depending on what the head of the term is, assign it an integer
+//   such that LAMBDA > DB > QUANTIFIERS > SYMBOLS
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+#define LAMBDA 4
+#define DB 3
+#define QUANT 2
+#define SYM 1
+
+
+static inline int classify_head(Term_p t, Sig_p sig)
+{
+#ifdef ENABLE_LFHO
+   if(TermIsPhonyApp(t))
+   {
+      t = t->args[0];
+   }
+   
+   if(TermIsLambda(t))
+   {
+      return LAMBDA;
+   }
+   else if(TermIsDBVar(t))
+   {
+      return DB;
+   }
+   else if(t->f_code == sig->qex_code || t->f_code == sig->qall_code)
+   {
+      return QUANT;
+   }
+   else
+   {
+      return SYM;
+   }
+#else
+   return SYM;
+#endif
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: adjust_ho_deref()
+//
+//   If the term has an applied variable and deref kind is deref_once,
+//   instantiate the term and set the deref to DEREF_NEVER. This is done
+//   so that the problems with DEREF_ONCE and applied variables (that part
+//   of the term are derefed and parts not) are avoided.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static inline void adjust_ho_deref(Term_p *t, DerefType* deref)
+{
+#ifdef ENABLE_LFHO
+   if(*deref == DEREF_ONCE && TermHasAppVar(*t))
+   {
+      *t = TBInsertInstantiated(TermGetBank(*t), *t);
+      *deref = DEREF_NEVER;
+   }
+#endif
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: adjust_ho_deref()
+//
+//   Implements appropriate subterm check for HO terms.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static inline bool is_ho_subterm(Term_p super, Term_p test, DerefType super_deref)
+{
+#ifdef ENABLE_LFHO
+   TB_p bank = TermGetBank(super);
+
+   super = LambdaEtaReduceDB(bank,
+      BetaNormalizeDB(bank, TermDeref(super, &super_deref)));
+   
+   if(TermIsAppliedFreeVar(super))
+   {
+      assert(super_deref == DEREF_NEVER || super_deref == DEREF_ALWAYS);
+      if(super_deref == DEREF_ALWAYS)
+      {
+         super = LambdaEtaReduceDB(bank,
+            BetaNormalizeDB(bank, TBInsert(bank, super, super_deref)));
+      }
+      // in ho we do not go below app var
+      return super == test;
+   }
+   else if(super == test)
+   {
+      return true;
+   }
+
+   for(int i=TermIsLambda(super) ? 1:0; i<super->arity; i++)
+   {
+      if(is_ho_subterm(super->args[i], test, super_deref))
+      {
+         return true;
+      }
+   }
+   return false;
+#else
+   return TermIsSubterm(super, test, super_deref);
+#endif
+}
 
 /*-----------------------------------------------------------------------
 //
@@ -221,18 +346,18 @@ static CompareResult lpo_greater(OCB_p ocb, Term_p s, Term_p t,
    }
    recursion_depth++;
 
-   if(TermIsVar(s))
+   if(TermIsFreeVar(s))
    {
       if(s == t)
       {
     res = to_equal;
       }
-      else if(TermIsVar(t))
+      else if(TermIsFreeVar(t))
       {
     res = to_uncomparable;
       }
    }
-   else if(TermIsVar(t))
+   else if(TermIsFreeVar(t))
    {
       if(TermIsSubterm(s, t, deref_s))
       {
@@ -330,11 +455,12 @@ static bool lpo4_greater(OCB_p ocb, Term_p s, Term_p t,
 static bool lpo4_alpha(OCB_p ocb, Term_p s, int pos, Term_p t,
                        DerefType deref_s, DerefType deref_t)
 {
-   for(/*Nothing*/;pos < s->arity;pos++)
+   const int s_offset = (TermIsLambda(s) || TermIsPhonyApp(s)) ? 1 : 0;
+   for(/*Nothing*/;pos + s_offset < s->arity;pos++)
    {
-      if(TermStructEqualDeref(s->args[pos], t, deref_s, deref_t)
+      if(TermStructEqualDeref(s->args[pos + s_offset], t, deref_s, deref_t)
           ||
-          lpo4_greater(ocb, s->args[pos], t, deref_s, deref_t))
+          lpo4_greater(ocb, s->args[pos + s_offset], t, deref_s, deref_t))
       {
          return true;
       }
@@ -359,6 +485,8 @@ static bool lpo4_alpha(OCB_p ocb, Term_p s, int pos, Term_p t,
 static bool lpo4_majo(OCB_p ocb, Term_p s, Term_p t, int pos,
                       DerefType deref_s, DerefType deref_t)
 {
+   const int t_offset = (TermIsLambda(t) || TermIsPhonyApp(t)) ? 1 : 0;
+   pos += t_offset;
    for(/*Nothing*/;pos < t->arity;pos++)
    {
       if(!lpo4_greater(ocb, s, t->args[pos], deref_s, deref_t))
@@ -387,21 +515,25 @@ static bool lpo4_lex_ma(OCB_p ocb, Term_p s, Term_p t, int pos,
                         DerefType deref_s, DerefType deref_t)
 {
    assert(s->f_code == t->f_code);
+   const int s_offset = (TermIsPhonyApp(s) || TermIsLambda(s)) ? 1 : 0;
+   const int t_offset = (TermIsPhonyApp(t) || TermIsLambda(t)) ? 1 : 0;
 
-   for(/* Nothing */; pos<s->arity; pos++)
+   for(/* Nothing */; pos+s_offset<s->arity; pos++)
    {
-      if(pos >= t->arity) /* s->args >_lex t->args */
+      if(pos+t_offset >= t->arity) /* s->args >_lex t->args */
       {
          return true;
       }
-      if(TermStructEqualDeref(s->args[pos], t->args[pos], deref_s, deref_t))
+      if(TermStructEqualDeref(s->args[pos+s_offset], t->args[pos+t_offset],
+                              deref_s, deref_t))
       {
          /* Next argument */
          continue;
       }
-      if(lpo4_greater(ocb, s->args[pos], t->args[pos], deref_s, deref_t))
+      if(lpo4_greater(ocb, s->args[pos+s_offset], t->args[pos+t_offset], 
+                      deref_s, deref_t))
       {
-         return lpo4_majo(ocb, s,t,pos+1, deref_s, deref_t);
+         return lpo4_majo(ocb, s, t, pos+1, deref_s, deref_t);
       }
       return lpo4_alpha(ocb, s, pos+1, t, deref_s, deref_t);
    }
@@ -424,6 +556,9 @@ static bool lpo4_lex_ma(OCB_p ocb, Term_p s, Term_p t, int pos,
 static bool lpo4_greater(OCB_p ocb, Term_p s, Term_p t,
                          DerefType deref_s, DerefType deref_t)
 {
+   assert(!TermHasAppVar(s) || deref_s != DEREF_ONCE);
+   assert(!TermHasAppVar(t) || deref_t != DEREF_ONCE);
+
    static long   recursion_depth = 0;
    CompareResult f_code_res;
    bool res;
@@ -434,20 +569,55 @@ static bool lpo4_greater(OCB_p ocb, Term_p s, Term_p t,
    }
    recursion_depth++;
 
-   s = TermDeref(s, &deref_s);
-   t = TermDeref(t, &deref_t);
+   s = LambdaEtaReduceDB(TermGetBank(s),
+         deref_s == DEREF_NEVER ? s : (deref_s == DEREF_ALWAYS ? WHNF_deref(s) : 
+                                       WHNF_step(TermGetBank(s), TermDeref(s, &deref_s))));
+   t = LambdaEtaReduceDB(TermGetBank(t),
+         deref_t == DEREF_NEVER ? t : (deref_t == DEREF_ALWAYS ? WHNF_deref(t) : 
+                                       WHNF_step(TermGetBank(t), TermDeref(t, &deref_t))));
 
-   if(TermIsVar(s))
+   if(TermIsTopLevelFreeVar(s))
    {
       res = false;
    }
-   else if(TermIsVar(t))
+   else if(TermIsTopLevelFreeVar(t))
    {
-      res = TermIsSubterm(s, t, deref_s);
+      if(TermIsAppliedFreeVar(t) && deref_t == DEREF_ALWAYS)
+      {
+         t = TBInsertInstantiatedDeref(TermGetBank(t), t, deref_t);
+      }
+      res = is_ho_subterm(s, t, deref_s);
    }
    else
    {
-      f_code_res = OCBFunCompare(ocb, s->f_code, t->f_code);
+      int s_class = classify_head(s, ocb->sig);
+      int t_class = classify_head(t, ocb->sig);
+      if(s_class != t_class)
+      {
+         f_code_res = s_class > t_class ? to_greater : to_lesser;
+      }
+      else
+      {
+         Term_p hd_s = TermIsPhonyApp(s) ? s->args[0] : s;
+         Term_p hd_t = TermIsPhonyApp(t) ? t->args[0] : t;
+         if(TermIsDBVar(hd_s))
+         {
+            f_code_res = hd_s->f_code == hd_t->f_code ? to_equal :
+                         (hd_s->f_code > hd_t->f_code ? to_greater : to_lesser);
+         }
+         else if (TermIsLambda(s))
+         {
+            f_code_res = s->args[0] == t->args[0] ? to_equal : // same type
+                         (TypesCmp(s->args[0]->type, t->args[0]->type) > 0 ? 
+                           to_greater : to_lesser);
+         }
+         else
+         {
+            assert(s->f_code > 0);
+            assert(t->f_code > 0);
+            f_code_res = OCBFunCompare(ocb, s->f_code, t->f_code);
+         }
+      }
       if(f_code_res==to_greater)
       {
          res = lpo4_majo(ocb, s, t, 0, deref_s, deref_t);
@@ -583,11 +753,11 @@ static bool lpo4_copy_greater(OCB_p ocb, Term_p s, Term_p t)
 {
    CompareResult f_code_res;
 
-   if(TermIsVar(s))
+   if(TermIsFreeVar(s))
    {
       return false;
    }
-   if(TermIsVar(t))
+   if(TermIsFreeVar(t))
    {
       return TBTermIsSubterm(s, t);
    }
@@ -711,8 +881,10 @@ CompareResult LPOCompare(OCB_p ocb, Term_p s, Term_p t,
 bool LPO4Greater(OCB_p ocb, Term_p s, Term_p t,
       DerefType deref_s, DerefType deref_t)
 {
-   assert(problemType != PROBLEM_HO); // no need to change derefs
    bool res;
+
+   adjust_ho_deref(&s, &deref_s);
+   adjust_ho_deref(&t, &deref_t);
 
    /* printf("LPO4Greater()...\n"); */
    res =  lpo4_greater(ocb, s, t, deref_s, deref_t);
@@ -737,10 +909,11 @@ bool LPO4Greater(OCB_p ocb, Term_p s, Term_p t,
 CompareResult LPO4Compare(OCB_p ocb, Term_p s, Term_p t,
                           DerefType deref_s, DerefType deref_t)
 {
-   assert(problemType != PROBLEM_HO); // no need to change derefs
    CompareResult res;
 
-   /* printf("LPO4Compare()...\n"); */
+   // printf("LPO4Compare()...\n");
+   adjust_ho_deref(&s, &deref_s);
+   adjust_ho_deref(&t, &deref_t);
 
    if(TermStructEqualDeref(s, t, deref_s, deref_t))
    {
@@ -758,7 +931,7 @@ CompareResult LPO4Compare(OCB_p ocb, Term_p s, Term_p t,
    {
       res = to_uncomparable;
    }
-   /* printf("...LPO4Compare()=%d\n", res); */
+   // printf("...LPO4Compare()=%d\n", res);
    /* assert(res == LPOCompare(ocb, s, t, deref_s, deref_t)); */
    return res;
 }

@@ -38,12 +38,17 @@ BASIC_LIB = clb_error.o clb_memory.o clb_os_wrapper.o \
             clb_floattrees.o clb_pstacks.o\
             clb_pqueue.o clb_dstacks.o clb_ptrees.o clb_quadtrees.o\
             clb_regmem.o\
-	    clb_objtrees.o clb_fixdarrays.o\
+	        clb_objtrees.o clb_objmaps.o clb_fixdarrays.o\
             clb_plist.o clb_pdarrays.o clb_pdrangearrays.o \
             clb_ddarrays.o clb_sysdate.o \
             clb_intmap.o \
             clb_simple_stuff.o clb_partial_orderings.o \
-            clb_plocalstacks.o
+            clb_plocalstacks.o clb_min_heap.o
+
+MIN_HEAP = clb_min_heap.o
+
+min_heap: $(MIN_HEAP)
+	$(LD) -o min_heap  $(BASIC_LIB) -lm
 
 $(LIB): $(BASIC_LIB)
 	$(AR) $(LIB) $(BASIC_LIB)

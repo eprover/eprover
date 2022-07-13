@@ -120,6 +120,8 @@ long        SatClauseSetMarkPure(SatClauseSet_p satset);
 ProverResult SatClauseSetCheckUnsat(SatClauseSet_p satset, Clause_p *empty,
                                     SatSolver_p solver,
                                     int sat_check_decision_level);
+bool        SatClauseSetCheckAndGetCore(SatClauseSet_p satset, SatSolver_p solver,
+                                        PStack_p unsat_core);
 
 
 

@@ -229,6 +229,8 @@ void DRelationAddFormula(DRelation_p drel,
                          GeneralityMeasure gentype,
                          double benevolence,
                          long generosity,
+                         bool trim_impl,
+                         bool force_definition,
                          WFormula_p form)
 {
    PStack_p symbols = PStackAlloc();
@@ -240,7 +242,16 @@ void DRelationAddFormula(DRelation_p drel,
                       benevolence,
                       generosity,
                       form,
-                      symbols);
+                      symbols,
+                      trim_impl);
+   if(force_definition)
+   {
+      FunCode l_fc = WFormulaGetLambdaDefinedSym(form);
+      if(l_fc != -1 && !PStackFindInt(symbols, l_fc))
+      {
+         PStackPushInt(symbols, l_fc);
+      }
+   }
    if(PStackEmpty(symbols))
    {
       rel = DRelationGetFEntry(drel, 0);
@@ -311,6 +322,8 @@ void DRelationAddFormulaSet(DRelation_p drel,
                             GeneralityMeasure gentype,
                             double benevolence,
                             long generosity,
+                            bool trim_impl,
+                            bool force_def,
                             FormulaSet_p set)
 {
    WFormula_p handle;
@@ -324,6 +337,8 @@ void DRelationAddFormulaSet(DRelation_p drel,
                           gentype,
                           benevolence,
                           generosity,
+                          trim_impl,
+                          force_def,
                           handle);
    }
 }
@@ -378,6 +393,8 @@ void DRelationAddFormulaSets(DRelation_p drel,
                              GeneralityMeasure gentype,
                              double benevolence,
                              long generosity,
+                             bool trim_impl,
+                             bool force_def,
                              PStack_p sets)
 {
    PStackPointer i;
@@ -389,6 +406,8 @@ void DRelationAddFormulaSets(DRelation_p drel,
                              gentype,
                              benevolence,
                              generosity,
+                             trim_impl,
+                             force_def,
                              PStackElementP(sets, i));
    }
 }
@@ -519,6 +538,7 @@ long SelectDefiningAxioms(DRelation_p drel,
                           Sig_p sig,
                           int max_recursion_depth,
                           long max_set_size,
+                          bool trim_implications,
                           PQueue_p axioms,
                           PStack_p res_clauses,
                           PStack_p res_formulas)
@@ -579,7 +599,10 @@ long SelectDefiningAxioms(DRelation_p drel,
             }
             FormulaSetProp(form, CPIsRelevant);
             PStackPushP(res_formulas, form);
-            TermAddSymbolDistExist(form->tformula, dist_array, symbol_stack);
+            // fprintf(stderr, "activating form: %s\n", WFormulaGetId(form));
+            TermAddSymbolDistExist((FormulaIsConjecture(form) && trim_implications) ?
+                                    TermTrimImplications(sig, form->tformula) : form->tformula,
+                                    dist_array, symbol_stack);
             res++;
             break;
       default:
@@ -587,7 +610,6 @@ long SelectDefiningAxioms(DRelation_p drel,
             break;
       }
       for(ssp=0; ssp<PStackGetSP(symbol_stack); ssp++)
-
       {
          i = PStackElementInt(symbol_stack, ssp);
          if((i > sig->internal_symbols) &&
@@ -595,6 +617,7 @@ long SelectDefiningAxioms(DRelation_p drel,
             !frel->activated)
          {
             frel->activated = true;
+            // fprintf(stderr, " > |%s|: ", SigFindName(sig, i));
             for(sp=0; sp<PStackGetSP(frel->d_clauses); sp++)
             {
                clause = PStackElementP(frel->d_clauses, sp);
@@ -603,8 +626,10 @@ long SelectDefiningAxioms(DRelation_p drel,
             for(sp=0; sp<PStackGetSP(frel->d_formulas); sp++)
             {
                form = PStackElementP(frel->d_formulas, sp);
+               // fprintf(stderr, "%s; ", WFormulaGetId(form));
                PQueueStoreFormula(axioms, form);
             }
+            // fprintf(stderr, "\n");
          }
          dist_array[i] = 0;
       }
@@ -661,9 +686,12 @@ long SelectAxioms(GenDistrib_p      f_distrib,
                            ax_filter->gen_measure,
                            ax_filter->benevolence,
                            ax_filter->generosity,
+                           ax_filter->trim_implications,
+                           ax_filter->defined_symbols_in_drel,
                            formula_sets);
    /* fprintf(GlobalOut, "# DRelation constructed (%lld)\n",
     * GetSecTimeMod()); */
+   // DRelationPrintDebug(stderr, drel, f_distrib->sig);
 
    for(i=seed_start; i<PStackGetSP(clause_sets); i++)
    {
@@ -706,11 +734,19 @@ long SelectAxioms(GenDistrib_p      f_distrib,
                                  f_distrib->sig,
                                  ax_filter->max_recursion_depth,
                                  max_result_size,
+                                 ax_filter->trim_implications,
                                  selq,
                                  res_clauses,
                                  res_formulas);
    }
    PStackFormulaDelProp(res_formulas, CPIsRelevant);
+   // fprintf(stderr, "sine selected:\n");
+   // for(PStackPointer i=0; i<PStackGetSP(res_formulas); i++)
+   // {
+   //    WFormula_p f = PStackElementP(res_formulas, i);
+   //    fprintf(stderr, "%s, ", WFormulaGetId(f));
+   // }
+   // fprintf(stderr, ".\n");
    PStackClauseDelProp(res_clauses, CPIsRelevant);
    /* fprintf(GlobalOut, "# Axioms selected (%lld)\n",
       GetSecTimeMod()); */
@@ -778,6 +814,50 @@ long SelectThreshold(PStack_p          clause_sets,
    return PStackGetSP(res_clauses)+PStackGetSP(res_formulas);
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: SelectDefinitions()
+//
+//   Select lambda definitions only 
+//
+// Global Variables: -
+//
+// Side Effects    : Only irrelevant (appart from the output to the
+//                   result stacks).
+//
+/----------------------------------------------------------------------*/
+
+long SelectDefinitions(PStack_p clause_sets, PStack_p formula_sets,
+                       PStack_p res_clauses, PStack_p res_formulas)
+{
+   PStackPointer i;
+   FormulaSet_p fset;
+   WFormula_p formula;
+
+   // ignoring clause sets because only formulas can be 
+   // tagged as definitions
+   for(i=0; i<PStackGetSP(formula_sets); i++)
+   {
+      fset = PStackElementP(formula_sets, i);
+      for(formula = fset->anchor->succ;
+          formula!=fset->anchor;
+          formula=formula->succ)
+      {
+         if(FormulaQueryProp(formula, CPIsLambdaDef))
+         {
+            PStackPushP(res_formulas, formula);
+         }
+         else if (FormulaIsConjecture(formula)||(FormulaIsHypothesis(formula)))
+         {
+            PStackPushP(res_formulas, formula);
+         }
+      }
+   }
+
+   return PStackGetSP(res_formulas);
+}
+
+
 
 /*-----------------------------------------------------------------------
 //
@@ -799,6 +879,14 @@ void DRelPrintDebug(FILE* out, DRel_p rel, Sig_p sig)
            SigFindName(sig, rel->f_code),
            PStackGetSP(rel->d_clauses),
            PStackGetSP(rel->d_formulas));
+   fprintf(out, "#formulas: ");
+   for(PStackPointer i = 0; i<PStackGetSP(rel->d_formulas); i++)
+   {
+      fprintf(out, "%s, ", 
+              WFormulaGetId(PStackElementP(rel->d_formulas, i)));
+   }
+   fputc('\n', stderr);
+
 }
 
 

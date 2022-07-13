@@ -28,6 +28,8 @@ Changes
 
 #include <cto_ocb.h>
 
+#define DEFAULT_LAMBDA_WEIGHT 20
+#define DEFAULT_DB_WEIGHT 10
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
@@ -133,8 +135,6 @@ typedef enum
    WMaxMethod = WConstantWeight /* Update as required! */
 }TOWeightGenMethod;
 
-
-
 typedef struct order_parms_cell
 {
    TermOrdering      ordertype;
@@ -160,7 +160,16 @@ typedef struct order_parms_cell
    bool              to_defs_min;
    /* How to compare literals */
    LiteralCmp        lit_cmp;
+   HoOrderKind       ho_order_kind;
+   int               lam_w;
+   int               db_w;
 }OrderParmsCell, *OrderParms_p;
+
+#define HOK2STR(x) (((x) == LFHO_ORDER) ? ("lfho") : (((x) == LAMBDA_ORDER) ? "lambda" : "unknown"))
+
+#define STR2HOK(val) (!strcmp((val), "lfho") ? LFHO_ORDER\
+                      :!strcmp((val), "lambda") ? LAMBDA_ORDER\
+                      :(-1))
 
 
 /*---------------------------------------------------------------------*/
@@ -337,7 +346,7 @@ typedef struct order_parms_cell
    {\
       NextToken(in);                            \
       AcceptInpTok(in, Colon);\
-      CheckInpTok(in, String);                            \
+      CheckInpTok(in, String|Identifier);                            \
       handle->name = converter(DStrView(AktToken(in)->literal));     \
       NextToken(in);\
    }\

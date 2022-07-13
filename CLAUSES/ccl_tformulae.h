@@ -27,6 +27,7 @@
 
 #include <ccl_clauses.h>
 #include <cte_typecheck.h>
+#include <ccl_pdtrees.h>
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
@@ -51,11 +52,15 @@ typedef Term_p TFormula_p;
 
 #define   TFormulaIsBinary(form)     ((form)->arity==2)
 #define   TFormulaIsUnary(form)      ((form)->arity==1)
+// non lambda version
+#define   TFormulaIsQuantifiedNL(sig,form)                                \
+   ((form)->f_code == sig->qex_code || (form)->f_code == sig->qall_code)
 #define   TFormulaIsQuantified(sig,form)                                \
    ((form)->f_code == sig->qex_code || (form)->f_code == sig->qall_code || \
     (form)->f_code == SIG_NAMED_LAMBDA_CODE)
 #define   TFormulaIsLiteral(sig,form)                                   \
-   ((form)->f_code == (sig)->eqn_code || (form)->f_code == (sig)->neqn_code)
+   (((form)->f_code == (sig)->eqn_code || (form)->f_code == (sig)->neqn_code) &&\
+   ((form)->arity == 2))
 
 
 bool TFormulaIsPropConst(Sig_p sig, TFormula_p form, bool positive);
@@ -77,7 +82,7 @@ TFormula_p TcfTSTPParse(Scanner_p in, TB_p terms);
 #define    TFormulaEqual(f1,f2) ((f1)==(f2))
 bool       TFormulaVarIsFree(TB_p bank, TFormula_p form, Term_p var);
 bool       TFormulaVarIsFreeCached(TB_p bank, TFormula_p form, Term_p var);
-#define    TFormulaCopy(bank, form) TBInsertNoProps(bank, form, DEREF_ALWAYS)
+#define    TFormulaCopy(bank, form) TBInsertNoPropsCached(bank, form, DEREF_ALWAYS)
 
 void       TFormulaCollectFreeVars(TB_p bank, TFormula_p form, PTree_p *vars);
 bool       TFormulaIsClosed(TB_p bank, TFormula_p form);
@@ -107,6 +112,9 @@ bool       TFormulaIsUntyped(TFormula_p form);
 
 TFormula_p TFormulaNegate(TFormula_p form, TB_p terms);
 Term_p EncodePredicateAsEqn(TB_p bank, TFormula_p f);
+TFormula_p LiftLambdas(TB_p terms, TFormula_p t, PStack_p definitions, PDTree_p liftings);
+TFormula_p LambdaToForall(TB_p terms, TFormula_p t);
+
 
 #endif
 

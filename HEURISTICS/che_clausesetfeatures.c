@@ -20,7 +20,7 @@
   -----------------------------------------------------------------------*/
 
 #include "che_clausesetfeatures.h"
-
+#include <sys/wait.h>
 
 /*---------------------------------------------------------------------*/
 /*                        Global Variables                             */
@@ -80,12 +80,12 @@ SpecLimits_p SpecLimitsAlloc(void)
       handle->gpc_few_limit          = GPC_FEW_DEFAULT;
       handle->gpc_many_limit         = GPC_MANY_DEFAULT;
    }
-   handle->ax_some_limit          = AX_SOME_DEFAULT       ;
-   handle->ax_many_limit          = AX_MANY_DEFAULT       ;
-   handle->lit_some_limit         = LIT_SOME_DEFAULT      ;
-   handle->lit_many_limit         = LIT_MANY_DEFAULT      ;
-   handle->term_medium_limit      = TERM_MED_DEFAULT      ;
-   handle->term_large_limit       = TERM_LARGE_DEFAULT    ;
+   handle->ax_some_limit          = AX_SOME_DEFAULT ;
+   handle->ax_many_limit          = AX_MANY_DEFAULT ;
+   handle->lit_some_limit         = LIT_SOME_DEFAULT;
+   handle->lit_many_limit         = LIT_MANY_DEFAULT;
+   handle->term_medium_limit      = TERM_MED_DEFAULT;
+   handle->term_large_limit       = TERM_LARGE_DEFAULT;
    handle->far_sum_medium_limit   = FAR_SUM_MED_DEFAULT  ;
    handle->far_sum_large_limit    = FAR_SUM_LARGE_DEFAULT;
    handle->depth_medium_limit     = DEPTH_MEDIUM_DEFAULT;
@@ -101,6 +101,18 @@ SpecLimits_p SpecLimitsAlloc(void)
    handle->func_large_limit       = FUNC_LARGE_DEFAULT;
    handle->fun_medium_limit       = FUN_MEDIUM_DEFAULT;
    handle->fun_large_limit        = FUN_LARGE_DEFAULT;
+
+   handle->order_medium_limit     = ORDER_MEDIUM_DEFAULT;
+   handle->order_large_limit      = ORDER_LARGE_DEFAULT;
+   handle->num_of_defs_medium_limit = DEFS_MEDIUM_DEFAULT;
+   handle->num_of_defs_large_limit = DEFS_LARGE_DEFAULT;
+   handle->perc_form_defs_medium_limit = DEFS_PERC_MEDIUM_DEFAULT;
+   handle->perc_form_defs_large_limit = DEFS_PERC_MEDIUM_DEFAULT;
+   handle->perc_app_lits_medium_limit = PERC_APPLIT_MEDIUM_DEFAULT;
+   handle->perc_app_lits_large_limit = PERC_APPLIT_LARGE_DEFAULT;
+   handle->num_of_lams_medium_limit = NUM_LAMS_MEDIUM_DEFAULT;
+   handle->num_of_lams_large_limit = NUM_LAMS_LARGE_DEFAULT;
+
 
    return handle;
 }
@@ -896,10 +908,10 @@ long ClauseSetMaxLiteralNumber(ClauseSet_p set)
 /----------------------------------------------------------------------*/
 
 void SpecFeaturesCompute(SpecFeature_p features, ClauseSet_p set,
-                         Sig_p sig)
+                         FormulaSet_p fset, FormulaSet_p farch, TB_p bank)
 {
    long tmp, count;
-
+   Sig_p sig = bank->sig;
    features->clauses          = set->members;
    features->goals            = ClauseSetCountGoals(set);
    features->axioms           = features->clauses-features->goals;
@@ -1023,7 +1035,33 @@ void SpecFeaturesCompute(SpecFeature_p features, ClauseSet_p set,
        (double)(features->positiveaxioms))
       :0.0;
 
-
+   /* all ho features computed below */
+   features->num_of_definitions = -1;
+   ClauseSetComputeHOFeatures(set, sig, 
+                              &(features->has_ho_features),
+                              &(features->order),
+                              &(features->quantifies_booleans),
+                              &(features->has_defined_choice),
+                              &(features->perc_of_appvar_lits));
+   // overwriting order as different clausifications can influence it.
+   features->order = 1;
+   features->goal_order = 1;
+   FormulaSet_p sets[2] = {farch, fset};
+   for(int i=0; i<2; i++)
+   {
+      for(WFormula_p f = sets[i]->anchor->succ; f != sets[i]->anchor; f = f->succ)   
+      {
+         int ord = TermComputeOrder(f->terms->sig, f->tformula);
+         features->order = MAX(features->order, ord);
+         if(FormulaQueryType(f) == CPTypeConjecture ||
+            FormulaQueryType(f) == CPTypeNegConjecture ||
+            FormulaQueryType(f) == CPTypeHypothesis )
+         {
+            features->goal_order = MAX(features->goal_order, ord);
+         }
+      }
+   }
+   
 }
 
 
@@ -1038,6 +1076,8 @@ void SpecFeaturesCompute(SpecFeature_p features, ClauseSet_p set,
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
+
+#define ADJUST_FOR_HO(limit, scale) (limit) 
 
 void SpecFeaturesAddEval(SpecFeature_p features, SpecLimits_p limits)
 {
@@ -1103,11 +1143,11 @@ void SpecFeaturesAddEval(SpecFeature_p features, SpecLimits_p limits)
       }
    }
 
-   if(features->clauses < limits->ax_some_limit)
+   if(features->clauses < ADJUST_FOR_HO(limits->ax_some_limit, 5))
    {
       features->set_clause_size = SpecFewAxioms;
    }
-   else if(features->clauses < limits->ax_many_limit)
+   else if(features->clauses < ADJUST_FOR_HO(limits->ax_many_limit, 7))
    {
       features->set_clause_size = SpecSomeAxioms;
    }
@@ -1116,11 +1156,11 @@ void SpecFeaturesAddEval(SpecFeature_p features, SpecLimits_p limits)
       features->set_clause_size = SpecManyAxioms;
    }
 
-   if(features->literals < limits->lit_some_limit)
+   if(features->literals < ADJUST_FOR_HO(limits->lit_some_limit, 5))
    {
       features->set_literal_size = SpecFewLiterals;
    }
-   else if(features->literals < limits->lit_many_limit)
+   else if(features->literals < ADJUST_FOR_HO(limits->lit_many_limit, 7))
    {
       features->set_literal_size = SpecSomeLiterals;
    }
@@ -1209,6 +1249,73 @@ void SpecFeaturesAddEval(SpecFeature_p features, SpecLimits_p limits)
       features->max_depth_class = SpecDepthDeep;
       /* printf("Deep %ld %ld\n", features->clause_max_depth, limits->depth_medium_limit);*/
    }
+
+   if(features->order < 2)
+   {
+      features->order_class = SpecFO;
+   }
+   else if(features->order == 2)
+   {
+      features->order_class = SpecSO;
+   }
+   else
+   {
+      assert(features->order >= 3);
+      features->order_class = SpecHO;
+   }
+
+   if(features->goal_order < 2)
+   {
+      features->goal_order_class = SpecFO;
+   }
+   else if(features->goal_order == 2)
+   {
+      features->goal_order_class = SpecSO;
+   }
+   else
+   {
+      assert(features->goal_order >= 3);
+      features->goal_order_class = SpecHO;
+   }
+
+   if(features->num_of_definitions < limits->num_of_defs_medium_limit)
+   {
+      features->defs_class = SpecFewDefs;
+   }
+   else if(features->num_of_definitions < limits->num_of_defs_large_limit)
+   {
+      features->defs_class = SpecMediumDefs;
+   }
+   else
+   {
+      features->defs_class = SpecManyDefs;
+   }
+
+   if(features->perc_of_form_defs < limits->perc_form_defs_medium_limit)
+   {
+      features->form_defs_class = SpecFewFormDefs;
+   }
+   else if(features->perc_of_form_defs < limits->perc_form_defs_large_limit)
+   {
+      features->form_defs_class = SpecMediumFormDefs;
+   }
+   else
+   {
+      features->form_defs_class = SpecManyFormDefs;
+   }
+
+   if(features->perc_of_appvar_lits < limits->perc_app_lits_medium_limit)
+   {
+      features->appvar_lits_class = SpecFewApplits;
+   }
+   else if(features->perc_of_appvar_lits < limits->perc_app_lits_large_limit)
+   {
+      features->appvar_lits_class = SpecMediumApplits;
+   }
+   else
+   {
+      features->appvar_lits_class = SpecManyApplits;
+   }
 }
 
 
@@ -1233,7 +1340,7 @@ void SpecFeaturesPrint(FILE* out, SpecFeature_p features)
    fprintf(out,
            "( %3ld, %3ld, %3ld, %3ld, %3ld, %3ld, %3ld, %3ld, %3ld,"
            " %3ld, %3ld, %3ld, %3ld, %3ld, %3ld, %8.6f, %8.6f,"
-           " %3d, %3d, %3d, %3ld, %3ld )",
+           " %3d, %3d, %3d, %3ld, %3ld, %3d, %3d, %8.6f, %8.6f, %s, %s )",
            features->goals,
            features->axioms,
            features->clauses,
@@ -1255,7 +1362,13 @@ void SpecFeaturesPrint(FILE* out, SpecFeature_p features)
            features->avg_fun_arity,
            features->sum_fun_arity,
            features->clause_max_depth,
-           features->clause_avg_depth
+           features->clause_avg_depth,
+           features->order,
+           features->num_of_definitions,
+           features->perc_of_form_defs,
+           features->perc_of_appvar_lits,
+           BOOL2STR(features->quantifies_booleans),
+           BOOL2STR(features->has_defined_choice)
       );
 }
 
@@ -1393,9 +1506,9 @@ void SpecFeaturesParse(Scanner_p in, SpecFeature_p features)
 
 /*-----------------------------------------------------------------------
 //
-// Function: SpecTypePrint()
+// Function: SpecTypeString()
 //
-//   Print the type of the problem as a n-letter code.
+//   Encode the type of the problem as a n-letter code.
 //   1) Axioms are [U]nit, [H]orn, [General]
 //   2) Goals  are [U]nit, [H]orn, [General]
 //   3) [N]o equality, [S]ome equality, [P]ure equality
@@ -1407,31 +1520,41 @@ void SpecFeaturesParse(Scanner_p in, SpecFeature_p features)
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
-
-void SpecTypePrint(FILE* out, SpecFeature_p features, char* mask)
+#define GET_ENCODING(idx) (assert((idx) < (enc_len)), encoding[(idx)])
+char* SpecTypeString(SpecFeature_p features, const char* mask)
 {
-   const char encoding[]="UHGNSPFSMFSMFSMFSMSML0123SMLSMD";
-   char       result[14]; /* Big enough for the '\0'!!!*/
+   const char encoding[]="UHGNSPFSMFSMFSMFSMSML0123SMLSMDFSHFSMFSMFSM";
+#ifndef NDEBUG
+   const int enc_len = strlen(encoding);
+#endif
+   char       result[SPEC_STRING_MEM]; /* Big enough for the '\0'!!!*/
    int        i, limit;
 
    assert(features);
-   assert(mask && (strlen(mask)==13));
+   assert(mask && (strlen(mask)>=13) && (strlen(mask)<=22));
    limit = strlen(mask);
-
-   sprintf(result, "%c%c%c%c%c%c%c%c%c%c%c%c%c",
-           encoding[features->axiomtypes],
-           encoding[features->goaltypes],
-           encoding[features->eq_content],
-           encoding[features->ng_unit_content],
+   snprintf(result, 22, "%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c",
+           problemType == PROBLEM_HO ? 'H' : 'F',
+           GET_ENCODING(features->axiomtypes),
+           GET_ENCODING(features->goaltypes),
+           GET_ENCODING(features->eq_content), 
+           GET_ENCODING(features->ng_unit_content), 
            features->goals_are_ground?'G':'N',
-           encoding[features->set_clause_size],
-           encoding[features->set_literal_size],
-           encoding[features->set_termcell_size],
-           encoding[features->ground_positive_content],
-           encoding[features->max_fun_ar_class],
-           encoding[features->avg_fun_ar_class],
-           encoding[features->sum_fun_ar_class],
-           encoding[features->max_depth_class]);
+           GET_ENCODING(features->set_clause_size), 
+           GET_ENCODING(features->set_literal_size),
+           GET_ENCODING(features->set_termcell_size), 
+           GET_ENCODING(features->ground_positive_content), 
+           GET_ENCODING(features->max_fun_ar_class), 
+           GET_ENCODING(features->avg_fun_ar_class),
+           GET_ENCODING(features->sum_fun_ar_class), 
+           GET_ENCODING(features->max_depth_class),
+           GET_ENCODING(features->order_class),
+           GET_ENCODING(features->goal_order_class),
+           GET_ENCODING(features->defs_class),
+           GET_ENCODING(features->form_defs_class),
+           GET_ENCODING(features->appvar_lits_class),
+           features->quantifies_booleans?'B':'N',
+           features->has_defined_choice?'C':'N');
    for(i=0; i<limit; i++)
    {
       if(mask[i]=='-')
@@ -1439,7 +1562,27 @@ void SpecTypePrint(FILE* out, SpecFeature_p features, char* mask)
          result[i]= '-';
       }
    }
+   return SecureStrndup(result, 21);
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: SpecTypePrint()
+//
+//   Print the string created by SpecTypeString
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void SpecTypePrint(FILE* out, SpecFeature_p features, char* mask)
+{
+   char* result = SpecTypeString(features, mask);
    fputs(result, out);
+   FREE(result);
 }
 
 /*-----------------------------------------------------------------------
@@ -1657,11 +1800,232 @@ SpecLimits_p CreateDefaultSpecLimits(void)
    limits->ngu_absolute         = true;
    limits->ngu_few_limit        = 1;
    limits->ngu_many_limit       = 3;
+   
+   limits->order_medium_limit   = ORDER_MEDIUM_DEFAULT;
+   limits->order_large_limit    = ORDER_LARGE_DEFAULT;
+   limits->num_of_defs_medium_limit = DEFS_MEDIUM_DEFAULT;
+   limits->num_of_defs_large_limit = DEFS_LARGE_DEFAULT;
+   limits->perc_form_defs_medium_limit = DEFS_PERC_MEDIUM_DEFAULT;
+   limits->perc_form_defs_large_limit = DEFS_PERC_LARGE_DEFAULT;
+   limits->num_of_lams_medium_limit = NUM_LAMS_MEDIUM_DEFAULT;
+   limits->num_of_lams_large_limit = NUM_LAMS_LARGE_DEFAULT;
+   limits->perc_app_lits_medium_limit = PERC_APPLIT_MEDIUM_DEFAULT;
+   limits->perc_app_lits_large_limit = PERC_APPLIT_LARGE_DEFAULT;
 
    return limits;
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseSetComputeHOFeatures()
+//
+//  Fill in the HO statistics such as: are there non-FO features  of the
+//  problem, what is the maximal term order in the problem, does the
+//  problem quantify booleans and does it have defined choice clauses.
+//
+// Global Variables:
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+
+#define IS_NON_FO_TERM(t) ( TermIsNonFOPattern(t) || TermHasLambdaSubterm(t) || TermHasDBSubterm(t) )
+
+void ClauseSetComputeHOFeatures(ClauseSet_p set, Sig_p sig,
+                                bool* has_ho_features,
+                                int* order,
+                                bool* quantifies_bools,
+                                bool* has_defined_choice,
+                                double* perc_app_var_lits)
+{
+   Clause_p handle;
+   bool is_fo = true;
+   bool var_has_bools = false;
+   bool has_choice = false;
+   int av_lits = 0;
+
+   int ord = 0;
+   for(FunCode i = sig->internal_symbols+1; i<=sig->f_count; i++)
+   {
+      ord = MAX(ord, TypeGetOrder(SigGetType(sig, i)));
+   }
+
+   for(handle = set->anchor->succ; handle!=set->anchor;
+       handle = handle->succ)
+   {
+      PTree_p vars = NULL;
+      ClauseCollectVariables(handle, &vars);
+      PStack_p iter = PTreeTraverseInit(vars);
+      PTree_p node;
+      while((node = PTreeTraverseNext(iter)))
+      {
+         Type_p ty = ((Term_p)node->key)->type;
+         ord = MAX(ord, VAR_ORDER(ty));
+         var_has_bools = var_has_bools || TypeHasBool(ty);
+      }
+      PTreeTraverseExit(iter);
+      PTreeFree(vars);
+      
+      bool has_app_var = false;
+      for(Eqn_p eqn = handle->literals; eqn; eqn = eqn->next)
+      {
+         is_fo = is_fo && !IS_NON_FO_TERM(eqn->lterm) 
+                       && !IS_NON_FO_TERM(eqn->rterm);
+         has_app_var = has_app_var || TermIsAppliedFreeVar(eqn->lterm) 
+                                   || TermIsAppliedFreeVar(eqn->rterm);
+      }
+
+      has_choice = has_choice || ClauseRecognizeChoice(NULL, handle);
+      av_lits += has_app_var ? 1 : 0;
+   }
+   
+   *order = ord;
+   *has_ho_features = !is_fo;
+   *quantifies_bools = var_has_bools;
+   *has_defined_choice = has_choice;
+   *perc_app_var_lits = 
+      ClauseSetCardinality(set) ? ((double)av_lits / ClauseSetCardinality(set)) : 0.0 ;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: SpecLimitsPrint()
+//
+//  Fill in the HO statistics such as: are there non-FO features  of the
+//  problem, what is the maximal term order in the problem, does the
+//  problem quantify booleans and does it have defined choice clauses.
+//
+// Global Variables:
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+
+void SpecLimitsPrint(FILE* out, SpecLimits_p limits)
+{
+   fprintf(out, "[ %d | %g | %g | %d | %g | %g |"
+                   " %ld | %ld | %ld | %ld | %ld | %ld | %ld | %ld | %ld | %ld | "
+                   " %d | %d | %d | %d | %d | %d | %d | %d | %d | %d | %d | %d | %d | %d | %d | %d | "
+                   " %g | %g | %g | %g ]\n",
+   limits->ngu_absolute,
+   limits->ngu_few_limit,
+   limits->ngu_many_limit,
+   limits->gpc_absolute,
+   limits->gpc_few_limit,
+   limits->gpc_many_limit,
+   limits->ax_some_limit,
+   limits->ax_many_limit,
+   limits->lit_some_limit,
+   limits->lit_many_limit,
+   limits->term_medium_limit,
+   limits->term_large_limit,
+   limits->far_sum_medium_limit,
+   limits->far_sum_large_limit,
+   limits->depth_medium_limit,
+   limits->depth_deep_limit,
+   limits->symbols_medium_limit,
+   limits->symbols_large_limit,
+   limits->predc_medium_limit,
+   limits->predc_large_limit,
+   limits->pred_medium_limit,
+   limits->pred_large_limit,
+   limits->func_medium_limit,
+   limits->func_large_limit,
+   limits->fun_medium_limit,
+   limits->fun_large_limit,
+   limits->order_medium_limit,
+   limits->order_large_limit,
+   limits->num_of_lams_medium_limit,
+   limits->num_of_lams_large_limit,
+   limits->num_of_defs_medium_limit,
+   limits->num_of_defs_large_limit,
+   limits->perc_form_defs_medium_limit,
+   limits->perc_form_defs_large_limit,
+   limits->perc_app_lits_medium_limit,
+   limits->perc_app_lits_large_limit);
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClausifyAndClassifyWTimeout()
+//
+//   Run the defaultclausification and get the corresponding classification
+//   string. If last three arguments are non-NULL, the full classification string
+//   with computed features will be output to stdout.
+//
+// Global Variables: Plenty, most simple flags used read-only
+//
+// Side Effects    : Does everything...
+//
+/----------------------------------------------------------------------*/
+
+void ClausifyAndClassifyWTimeout(ProofState_p state, int timeout, 
+                                 char* mask,
+                                 char class[SPEC_STRING_MEM])
+{
+   const int DEFAULT_MINISCOPE = 1048576;
+   const int DEFAULT_FORMULA_DEF_LIMIT = 24;
+   const bool DEFAULT_LIFT_LAMS = false;
+   const bool DEFAULT_LAM_TO_FORALL = true;
+   const bool DEFAULT_UNFOLD_ONLY_FORM = true;
+   const bool DEFAULT_UNROLL_FOOL = true;
+
+   int fds[2];
+   if(pipe(fds) == -1)
+   {
+      perror("pipe failed");
+      exit(1);
+   }
+
+   SpecFeatureCell features;
+   SpecLimits_p limits = CreateDefaultSpecLimits();
+
+   pid_t pid = fork();
+   if (pid == -1)
+   {
+      perror("fork failed");
+      exit(1);
+   }
+   else if (pid == 0)
+   {
+      // child
+      close(fds[0]);
+      if(SetSoftRlimit(RLIMIT_CPU, timeout) != RLimSuccess)
+      {
+         fprintf(stderr, "softrlimit call failed.\n");
+         exit(-1);
+      }
+      FormulaSetPreprocConjectures(state->f_axioms, state->f_ax_archive, false, false);
+      FormulaSetCNF2(state->f_axioms, state->f_ax_archive,
+                     state->axioms, state->terms,
+                     state->freshvars,
+                     DEFAULT_MINISCOPE, DEFAULT_FORMULA_DEF_LIMIT,
+                     DEFAULT_LIFT_LAMS, DEFAULT_LAM_TO_FORALL, 
+                     DEFAULT_UNFOLD_ONLY_FORM, DEFAULT_UNROLL_FOOL);
+      SpecFeaturesCompute(&features, state->axioms, state->f_axioms,
+                          state->f_ax_archive, state->terms);
+      SpecFeaturesAddEval(&features, limits);
+      if(write(fds[1], SpecTypeString(&features, mask), SPEC_STRING_MEM) == -1)
+      {
+         perror("could not write");
+      }
+      exit(0);
+   }
+   else
+   {
+      // parent
+      close(fds[1]);
+      int nbytes = read(fds[0], class, SPEC_STRING_MEM);
+      if(nbytes < SPEC_STRING_MEM)
+      {
+         memset(class, '-', SPEC_STRING_MEM-1);
+         class[SPEC_STRING_MEM-1]='\0';
+      }
+      SpecLimitsCellFree(limits);
+      waitpid(pid, NULL, 0); // collect exit status
+   }
+}
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/

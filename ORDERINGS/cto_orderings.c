@@ -68,8 +68,6 @@ bool TOGreater(OCB_p ocb, Term_p s, Term_p t, DerefType deref_s,
    assert(ocb);
    assert(s);
    assert(t);
-   assert(problemType != PROBLEM_HO || ocb->type == KBO6);
-
    /* OCBDebugPrint(stdout, ocb); */
    /* printf("TOGreater...\n");
    TermPrint(stdout, s, ocb->sig, deref_s);
@@ -191,6 +189,7 @@ CompareResult TOCompare(OCB_p ocb, Term_p s, Term_p t, DerefType deref_s,
     assert(false && "RPO not yet implemented!");
     break;
    case KBO:
+    assert(problemType != PROBLEM_HO);
     res = KBOCompare(ocb, s, t, deref_s, deref_t);
     break;
    case KBO6:
