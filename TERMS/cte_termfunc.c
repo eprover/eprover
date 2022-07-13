@@ -347,7 +347,7 @@ bool do_is_db_closed(Term_p t,  long depth)
 //
 // Function: do_fool_print()
 //
-//    Inner function 
+//    Inner function
 //
 // Global Variables: TermPrintLists
 //
@@ -379,7 +379,7 @@ void do_ho_print(FILE* out, TFormula_p term, Sig_p sig, DerefType deref, int dep
       return;
    }
 
-   
+
 
    if(TermIsDBVar(term))
    {
@@ -415,7 +415,7 @@ void do_ho_print(FILE* out, TFormula_p term, Sig_p sig, DerefType deref, int dep
       {
          fprintf(out, "Z%d", depth - (int)var->f_code - 1);
       }
-      
+
    }
 
    for(int i = TermIsPhonyApp(term) ? 1 : 0; i < term->arity; ++i)
@@ -448,7 +448,7 @@ void do_ho_print(FILE* out, TFormula_p term, Sig_p sig, DerefType deref, int dep
 //
 // Function: do_fool_print()
 //
-//    Inner function 
+//    Inner function
 //
 // Global Variables: TermPrintLists
 //
@@ -510,7 +510,7 @@ void do_fool_print(FILE* out, Sig_p sig, TFormula_p form, int depth)
       {
          fputs("^[", out);
       }
-      
+
       if(form->f_code == SIG_DB_LAMBDA_CODE)
       {
          fprintf(out, "Z%d", depth);
@@ -1339,8 +1339,8 @@ bool TermStructEqualDeref(Term_p t1, Term_p t2, DerefType deref_1, DerefType der
       }
       else
       {
-         t1 = 
-            deref_1 == DEREF_ONCE ? 
+         t1 =
+            deref_1 == DEREF_ONCE ?
                (TermIsFreeVar(t1) ? t1->binding : TBInsertInstantiatedDeref(bank, t1, deref_1)) : t1;
          t1 = BetaNormalizeDB(bank, t1);
          limit_1 = INT_MAX;
@@ -1360,8 +1360,8 @@ bool TermStructEqualDeref(Term_p t1, Term_p t2, DerefType deref_1, DerefType der
       }
       else
       {
-         t2 = 
-            deref_2 == DEREF_ONCE ? 
+         t2 =
+            deref_2 == DEREF_ONCE ?
                (TermIsFreeVar(t2) ? t2->binding : TBInsertInstantiatedDeref(bank, t2, deref_2)) : t2;
          t2 = BetaNormalizeDB(bank, t2);
          limit_2 = INT_MAX;
@@ -2293,7 +2293,7 @@ void  TermAddTypeDistribution(Term_p term, Sig_p sig, long* type_arr)
    {
       term = PStackPopP(stack);
       assert(term);
-      ty = GetHeadType(sig, term); 
+      ty = GetHeadType(sig, term);
       if(ty) // some polymorphic symbols have no type
       {
          type_arr[ty->type_uid]++;
@@ -2598,7 +2598,7 @@ long TermCollectGroundTerms(Term_p term, PTree_p *result, bool top_only)
    while(!PStackEmpty(stack))
    {
       term = PStackPopP(stack);
-      if(!TermIsVar(term))
+      if(!TermIsFreeVar(term))
       {
          if(TermIsGround(term))
          {
@@ -2670,7 +2670,7 @@ long TermAddFunOcc(Term_p term, PDArray_p f_occur, PStack_p res_stack)
 //
 // Function: TermArrayNoDuplicates()
 //
-//   Checks if there are no duplicates in the  
+//   Checks if there are no duplicates in the
 //
 // Global Variables: -
 //
@@ -2696,7 +2696,7 @@ bool TermArrayNoDuplicates(Term_p* args, long size)
       }
       return unique;
    }
-   
+
 }
 
 
@@ -3158,18 +3158,18 @@ bool TermIsDBClosed(Term_p term)
 //
 /----------------------------------------------------------------------*/
 
-Term_p TermApplyArg(TypeBank_p tb, Term_p s, Term_p arg) 
+Term_p TermApplyArg(TypeBank_p tb, Term_p s, Term_p arg)
 {
    assert(TypeIsArrow(s->type));
    assert(s->type->args[0] == arg->type);
-   
+
    Term_p s_arg = NULL;
    if ((!TermIsAnyVar(s) && !TermIsLambda(s)))
    {
       s_arg = TermTopAlloc(s->f_code, s->arity+1);
       for(int i=0; i<s->arity; i++)
       {
-         s_arg->args[i] = s->args[i]; 
+         s_arg->args[i] = s->args[i];
       }
       s_arg->args[s->arity] = arg;
    }
@@ -3179,9 +3179,9 @@ Term_p TermApplyArg(TypeBank_p tb, Term_p s, Term_p arg)
       s_arg->args[0] = s;
       s_arg->args[1] = arg;
    }
-   
+
    s_arg->type = TypeBankInsertTypeShared(tb, TypeDropFirstArg(s->type));
-   
+
    return s_arg;
 }
 

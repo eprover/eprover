@@ -700,7 +700,7 @@ OptCell opts[] =
 
    {OPT_SATAUTO_SCHED,
     '\0', "satauto-schedule",
-    NoArg, NULL,
+    OptArg, "1",
     "Use the (experimental) strategy scheduling without SInE, thus "
     "maintaining completeness."},
 
@@ -1562,7 +1562,7 @@ OptCell opts[] =
     '\0', "lift-lambdas",
     ReqArg, NULL,
     "Should the lambdas be replaced by named fuctions?"},
-   
+
    {OPT_ETA_NORMALIZE,
     '\0', "eta-normalize",
     ReqArg, NULL,
@@ -1669,7 +1669,7 @@ OptCell opts[] =
     '\0', "max-unifiers",
     ReqArg, NULL,
     "Maximal number of imitations"},
-    
+
     {OPT_MAX_UNIF_STEPS,
     '\0', "max-unif-steps",
     ReqArg, NULL,
@@ -1692,7 +1692,7 @@ OptCell opts[] =
     '\0', "bce", ReqArg, NULL, "Turn blocked clause elimination on or off"},
 
     {OPT_BCE_MAX_OCCS,
-    '\0', "bce-max-occs", ReqArg, NULL, 
+    '\0', "bce-max-occs", ReqArg, NULL,
     "Stop tracking symbol after it occurs in <arg> clauses"
     " Set <arg> to -1 disable this limit"},
 
@@ -1700,25 +1700,25 @@ OptCell opts[] =
     '\0', "pred-elim", ReqArg, NULL, "Turn predicate elimination on or off"},
 
     {OPT_PRED_ELIM_MAX_OCCS,
-    '\0', "pred-elim-max-occs", ReqArg, NULL, 
+    '\0', "pred-elim-max-occs", ReqArg, NULL,
     "Stop tracking symbol after it occurs in <arg> clauses"
     " Set <arg> to -1 disable this limit"},
 
     {OPT_PRED_ELIM_TOLERANCE,
-    '\0', "pred-elim-tolerance", ReqArg, NULL, 
+    '\0', "pred-elim-tolerance", ReqArg, NULL,
     "Tolerance for predicate elimination measures."},
 
     {OPT_PRED_ELIM_GATES,
     '\0', "pred-elim-recognize-gates", ReqArg, NULL, "Turn gate recognition for predicate elimination on or off"},
 
     {OPT_PRED_ELIM_FORCE_MU_DECREASE,
-    '\0', "pred-elim-force-mu-decrease", ReqArg, NULL, 
+    '\0', "pred-elim-force-mu-decrease", ReqArg, NULL,
      "Require that the square number of distinct free variables "
      "decreases when doing predicate elimination. Helps avoid "
      "creating huge clauses."},
 
     {OPT_PRED_ELIM_IGNORE_CONJ_SYMS,
-    '\0', "pred-elim-ignore-conj-syms", ReqArg, NULL, 
+    '\0', "pred-elim-ignore-conj-syms", ReqArg, NULL,
      "Disable eliminating symbols that occur in the conjecture."},
 
 

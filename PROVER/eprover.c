@@ -453,7 +453,7 @@ int main(int argc, char* argv[])
       HeuristicParmsPrint(stdout, h_parms);
       exit(NO_ERROR);
    }
-   
+
    if(parse_strategy_filename)
    {
       Scanner_p in = CreateScanner(StreamTypeFile, parse_strategy_filename, true, NULL, true);
@@ -488,7 +488,7 @@ int main(int argc, char* argv[])
       ScheduleTimeLimit ? ScheduleTimeLimit : DEFAULT_SCHED_TIME_LIMIT;
    if(auto_conf || strategy_scheduling)
    {
-      limits = CreateDefaultSpecLimits(); 
+      limits = CreateDefaultSpecLimits();
 
       RawSpecFeaturesCompute(&raw_features, proofstate);
       RawSpecFeaturesClassify(&raw_features, limits, RAW_DEFAULT_MASK);
@@ -520,10 +520,10 @@ int main(int argc, char* argv[])
       state = process_options(argc, argv); // refilling the h_parms with user options
    }
 
-            
+
 #ifndef NDEBUG
-      fprintf(stderr, "(lift_lambdas = %d, lambda_to_forall = %d," 
-                      "unroll_only_formulas = %d, sine = %s)\n", 
+      fprintf(stderr, "(lift_lambdas = %d, lambda_to_forall = %d,"
+                      "unroll_only_formulas = %d, sine = %s)\n",
                       h_parms->lift_lambdas,
                       h_parms->lambda_to_forall,
                       h_parms->unroll_only_formulas,
@@ -625,14 +625,14 @@ int main(int argc, char* argv[])
                                                     h_parms->eqdef_maxclauses);
    if(problemType == PROBLEM_HO && h_parms->inst_choice_max_depth >= 0)
    {
-      ClauseSetRecognizeChoice(proofstate->choice_opcodes, 
-                               proofstate->axioms, 
+      ClauseSetRecognizeChoice(proofstate->choice_opcodes,
+                               proofstate->axioms,
                                proofstate->archive);
    }
 
    if(h_parms->preinstantiate_induction)
    {
-      PreinstantiateInduction(proofstate->f_ax_archive, proofstate->axioms, 
+      PreinstantiateInduction(proofstate->f_ax_archive, proofstate->axioms,
                               proofstate->archive, proofstate->terms);
    }
 
@@ -656,7 +656,7 @@ int main(int argc, char* argv[])
    {
       if(!limits)
       {
-         limits = CreateDefaultSpecLimits(); 
+         limits = CreateDefaultSpecLimits();
       }
       const int choice_max_depth = h_parms->inst_choice_max_depth;
       SpecFeaturesCompute(&features, proofstate->axioms, proofstate->f_axioms,
@@ -676,10 +676,10 @@ int main(int argc, char* argv[])
          ScheduleCell* search_sched = GetSearchSchedule(class);
          InitializePlaceholderSearchSchedule(search_sched, preproc_schedule+sched_idx,
                                              force_pre_schedule);
-         int status = 
-            ExecuteScheduleMultiCore(search_sched, 
-                                     h_parms, print_rusage, 
-                                     preproc_schedule[sched_idx].time_absolute, 
+         int status =
+            ExecuteScheduleMultiCore(search_sched,
+                                     h_parms, print_rusage,
+                                     preproc_schedule[sched_idx].time_absolute,
                                      false, preproc_schedule[sched_idx].cores, false);
          if (status == SCHEDULE_DONE)
          {
@@ -691,13 +691,13 @@ int main(int argc, char* argv[])
                ScheduleCell* filtered_default = GetFilteredDefaultSchedule(search_sched);
 #ifdef NDEBUG
                FILE* out = stdout;
-#else 
+#else
                FILE* out = stderr;
 #endif
                fprintf(out, "# executing default schedule for %g seconds.\n", remaining_time);
-               status = 
-                  ExecuteScheduleMultiCore(filtered_default, h_parms, print_rusage, 
-                                          remaining_time, false, 
+               status =
+                  ExecuteScheduleMultiCore(filtered_default, h_parms, print_rusage,
+                                          remaining_time, false,
                                           preproc_schedule[sched_idx].cores, false);
                if (status == SCHEDULE_DONE)
                {
@@ -1357,7 +1357,11 @@ CLState_p process_options(int argc, char* argv[])
             force_pre_schedule = CLStateGetBoolArg(handle, arg);
             break;
       case OPT_SATAUTO_SCHED:
-            strategy_scheduling = true;
+            if(!strategy_scheduling)
+            {
+               num_cpus = CLStateGetIntArg(handle, arg);
+               strategy_scheduling = true;
+            }
             break;
       case OPT_NO_PREPROCESSING:
             h_parms->no_preproc = true;

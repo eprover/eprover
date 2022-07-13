@@ -6,7 +6,7 @@ Author: Petar Vukmirovic
 
 Contents
 
-  Implements (defined) predicate elimination as described in 
+  Implements (defined) predicate elimination as described in
   SAT-inspired eliminations for superposition
   (https://ieeexplore.ieee.org/document/9617710).
 
@@ -29,14 +29,14 @@ Changes
 /*                    Data type declarations                           */
 /*---------------------------------------------------------------------*/
 
-typedef struct 
+typedef struct
 {
    long card; // querying size in O(1)
    PTree_p set; // querying membership in O(log(card))
 } CheapClauseSet;
 typedef CheapClauseSet* CCS_p;
 
-typedef enum 
+typedef enum
 {
    IS_GATE = 1, //values important
    NOT_GATE = 2
@@ -59,7 +59,7 @@ struct PETaskCell
 
    long last_check_num_lit;
    double last_check_sq_vars;
-   
+
    long heap_idx;
 };
 typedef struct PETaskCell* PETask_p;
@@ -98,7 +98,7 @@ Term_p reassign_vars(void* bank, Term_p t)
 /*-----------------------------------------------------------------------
 //
 // Function: dbg_print()
-// 
+//
 //   Set proof object according to given arguments
 //
 // Global Variables: -
@@ -130,7 +130,7 @@ void dbg_print(FILE* out, Sig_p sig, PETask_p t)
 /*-----------------------------------------------------------------------
 //
 // Function: set_proof_object()
-// 
+//
 //   Set proof object according to given arguments
 //
 // Global Variables: -
@@ -143,8 +143,8 @@ void update_proof_object(Clause_p new_clause, Clause_p p1, Clause_p p2,
 {
    new_clause->proof_depth = MAX(p1->proof_depth, p2->proof_depth) + 1;
    new_clause->proof_size = p1->proof_size + p2->proof_size + 1;
-   
-   ClauseSetProp(new_clause, ClauseGiveProps(p1, CPIsSOS)|ClauseGiveProps(p2, CPIsSOS));  
+
+   ClauseSetProp(new_clause, ClauseGiveProps(p1, CPIsSOS)|ClauseGiveProps(p2, CPIsSOS));
    ClauseSetTPTPType(new_clause,
       TPTPTypesCombine(ClauseQueryTPTPType(p1), ClauseQueryTPTPType(p2)));
    // TODO: Clause documentation is not implemented at the moment.
@@ -155,7 +155,7 @@ void update_proof_object(Clause_p new_clause, Clause_p p1, Clause_p p2,
 /*-----------------------------------------------------------------------
 //
 // Function: mk_task()
-// 
+//
 //   Make a default task cell
 //
 // Global Variables: -
@@ -175,7 +175,7 @@ static inline CCS_p mk_ccs()
 /*-----------------------------------------------------------------------
 //
 // Function: CCSStoreCl()
-// 
+//
 //   Store a clause in the set that tracks the number of elements.
 //
 // Global Variables: -
@@ -197,7 +197,7 @@ static inline bool CCSStoreCl(CCS_p set, Clause_p cl)
 /*-----------------------------------------------------------------------
 //
 // Function: CCSRemoveCl()
-// 
+//
 //   Remove a clause from the set that tracks the number of elements.
 //
 // Global Variables: -
@@ -224,7 +224,7 @@ static inline bool CCSRemoveCl(CCS_p set, Clause_p cl)
 /*-----------------------------------------------------------------------
 //
 // Function: mk_task()
-// 
+//
 //   Make a default task cell
 //
 // Global Variables: -
@@ -237,7 +237,7 @@ static inline PETask_p mk_task(FunCode fc)
 {
    PETask_p res = SizeMalloc(sizeof(struct PETaskCell));
    res->sym = fc;
-   
+
    res->positive_singular = mk_ccs();
    res->negative_singular = mk_ccs();
    res->offending_cls = mk_ccs();
@@ -260,7 +260,7 @@ static inline PETask_p mk_task(FunCode fc)
 /*-----------------------------------------------------------------------
 //
 // Function: PETaskFree()
-// 
+//
 //   Release the memory used by task object.
 //
 // Global Variables: -
@@ -281,7 +281,7 @@ void PETaskFree(PETask_p task)
 /*-----------------------------------------------------------------------
 //
 // Function: find_fcode_except()
-// 
+//
 //   Is there a predicate litaral with the code fc in eqn list cl (ignoring)
 //   its literal exc
 //
@@ -308,7 +308,7 @@ static inline Eqn_p find_fcode_except(Eqn_p cl, Eqn_p exc, FunCode fc)
 /*-----------------------------------------------------------------------
 //
 // Function: term_vars_from_set()
-// 
+//
 //   Are all variables in t from the set vars?
 //
 // Global Variables: -
@@ -331,7 +331,7 @@ bool term_vars_from_set(Term_p t, PTree_p* vars)
          PStackPushP(subterms, t->args[i]);
       }
    }
-   
+
    PStackFree(subterms);
    return res;
 }
@@ -339,8 +339,8 @@ bool term_vars_from_set(Term_p t, PTree_p* vars)
 /*-----------------------------------------------------------------------
 //
 // Function: unique_distinct_vars()
-// 
-//   Is the term of the form p(X1, ..., Xn) where all X1...Xn are distinct 
+//
+//   Is the term of the form p(X1, ..., Xn) where all X1...Xn are distinct
 //   free variables. varset is not freed, only (possibly) modified
 //
 // Global Variables: -
@@ -362,8 +362,8 @@ bool unique_distinct_vars(Term_p t, PTree_p* varset)
 /*-----------------------------------------------------------------------
 //
 // Function: potential_gate()
-// 
-//   Is the clause of the chape (~)p(X1, ..., Xn) \/ C where all Xi are 
+//
+//   Is the clause of the chape (~)p(X1, ..., Xn) \/ C where all Xi are
 //   different and variables in C are subset of X1, ..., Xn
 //
 // Global Variables: -
@@ -373,7 +373,7 @@ bool unique_distinct_vars(Term_p t, PTree_p* varset)
 /----------------------------------------------------------------------*/
 
 bool potential_gate(Clause_p cl, Eqn_p lit)
-{  
+{
    PTree_p vars = NULL;
    Term_p pred = lit->lterm;
    bool unique_vars = unique_distinct_vars(pred, &vars);
@@ -381,7 +381,7 @@ bool potential_gate(Clause_p cl, Eqn_p lit)
    for(Eqn_p iter = cl->literals; unique_vars && iter; iter = iter->next)
    {
       unique_vars = iter == lit ||
-                    (term_vars_from_set(iter->lterm, &vars) && 
+                    (term_vars_from_set(iter->lterm, &vars) &&
                      term_vars_from_set(iter->rterm, &vars));
    }
 
@@ -392,8 +392,8 @@ bool potential_gate(Clause_p cl, Eqn_p lit)
 /*-----------------------------------------------------------------------
 //
 // Function: update_statistics()
-// 
-//   Update number of literals, clauses and \mu measure (square of the 
+//
+//   Update number of literals, clauses and \mu measure (square of the
 //   number of different variables).
 //
 // Global Variables: -
@@ -402,7 +402,7 @@ bool potential_gate(Clause_p cl, Eqn_p lit)
 //
 /----------------------------------------------------------------------*/
 
-void update_statistics(long* num_lit, long* set_size, double* mu, 
+void update_statistics(long* num_lit, long* set_size, double* mu,
                        Clause_p cl, bool negate)
 {
    const int multiplier = negate ? -1 : 1;
@@ -419,8 +419,8 @@ void update_statistics(long* num_lit, long* set_size, double* mu,
 /*-----------------------------------------------------------------------
 //
 // Function: scan_clause_for_predicates()
-// 
-//   Scans the clause for all the predicate literals and updates 
+//
+//   Scans the clause for all the predicate literals and updates
 //
 // Global Variables: -
 //
@@ -446,10 +446,11 @@ void scan_clause_for_predicates(Clause_p cl, IntMap_p sym_map, MinHeap_p queue,
             *task = mk_task(fc);
          }
 
-         int occs = (*task)->offending_cls->card + 
-                     sign ? (*task)->pos_gates->card + (*task)->positive_singular->card :
-                            (*task)->neg_gates->card + (*task)->negative_singular->card;
-         
+         int occs = (*task)->offending_cls->card +
+            sign ?
+            ((*task)->pos_gates->card + (*task)->positive_singular->card) :
+            ((*task)->neg_gates->card + (*task)->negative_singular->card);
+
          if((ignore_conj_syms && cl_is_conj) || (max_occs > 0 && occs >= max_occs))
          {
             // blocking the task
@@ -463,10 +464,10 @@ void scan_clause_for_predicates(Clause_p cl, IntMap_p sym_map, MinHeap_p queue,
             {
                if(recognize_gates && potential_gate(cl, lit))
                {
-                  clause_inserted = 
+                  clause_inserted =
                      CCSStoreCl(sign ? (*task)->pos_gates : (*task)->neg_gates, cl);
                }
-               clause_inserted = 
+               clause_inserted =
                   CCSStoreCl(sign ? (*task)->positive_singular : (*task)->negative_singular, cl) ||
                   clause_inserted;
                /* in the beginning, we store potential gate clauses in both
@@ -476,7 +477,7 @@ void scan_clause_for_predicates(Clause_p cl, IntMap_p sym_map, MinHeap_p queue,
             }
             else
             {
-               clause_inserted = 
+               clause_inserted =
                   CCSStoreCl((*task)->offending_cls, cl) || clause_inserted;
             }
             if(clause_inserted)
@@ -501,7 +502,7 @@ void scan_clause_for_predicates(Clause_p cl, IntMap_p sym_map, MinHeap_p queue,
 /*-----------------------------------------------------------------------
 //
 // Function: max_cardinality()
-// 
+//
 //   What is the maximal cardinality of the set of the clauses that would
 //   be created when the symbol is eliminated?
 //
@@ -518,7 +519,7 @@ static inline long max_cardinality(const PETask_p t)
    {
       res = t->pos_gates->card*t->negative_singular->card +
             t->neg_gates->card*t->positive_singular->card +
-            t->pos_gates->card*t->offending_cls->card + 
+            t->pos_gates->card*t->offending_cls->card +
             t->neg_gates->card*t->offending_cls->card;
    }
    else
@@ -531,12 +532,12 @@ static inline long max_cardinality(const PETask_p t)
 /*-----------------------------------------------------------------------
 //
 // Function: cmp_tasks()
-// 
+//
 //   Comparator function used for ordering the tasks in the min heap.
 //   Prefers the tasks that are eligible for PE over the ones that are not,
 //   then the ones with the smallest cardinality, then the ones that have
 //   gates.
-//   
+//
 //
 // Global Variables: -
 //
@@ -553,7 +554,7 @@ int cmp_tasks(IntOrP* ip_a, IntOrP* ip_b)
    // prefering the ones that can be scheduled
    int res = BIN(CAN_SCHEDULE(a)) - BIN(CAN_SCHEDULE(b));
    EXIT_ON_DIFF(res);
-   
+
    // prefering smaller sets
    res = CMP(max_cardinality(a), max_cardinality(b));
    EXIT_ON_DIFF(res);
@@ -568,8 +569,8 @@ int cmp_tasks(IntOrP* ip_a, IntOrP* ip_b)
 /*-----------------------------------------------------------------------
 //
 // Function: declare_not_gate()
-// 
-//   Go through all the tasks and see if their potential gates are 
+//
+//   Go through all the tasks and see if their potential gates are
 //   actually gates.
 //
 // Global Variables: -
@@ -594,7 +595,7 @@ void declare_not_gate(PETask_p task)
 /*-----------------------------------------------------------------------
 //
 // Function: find_lit_w_head()
-// 
+//
 //    Find a (predicate) literal that whose head symbol is f and return it.
 //    If such a literal is not found return NULL; Extracts the other
 //    literals in rest if rest is not NULL.
@@ -641,11 +642,11 @@ Eqn_p find_lit_w_head(Eqn_p lits, FunCode f, EqnRef rest, int sign)
 /*-----------------------------------------------------------------------
 //
 // Function: build_neq_resolvent()
-// 
+//
 //   Builds regular non-equational resolvent between p_cl and n_cl clause
 //   more precisely between their literals pos and neg where pos and neg are
-//   the first positive/negative literal that contain symbol f. Undefined 
-//   behavior if they do not contain f. If resolvent cannot be built 
+//   the first positive/negative literal that contain symbol f. Undefined
+//   behavior if they do not contain f. If resolvent cannot be built
 //   (not unifiable), return NULL
 //
 // Global Variables: -
@@ -712,8 +713,8 @@ Clause_p build_neq_resolvent(Clause_p p_cl, Clause_p n_cl, FunCode f)
 /*-----------------------------------------------------------------------
 //
 // Function: build_eq_resolvent()
-// 
-//   Like build_neq_resolvent() but (1) builds EQ resolvent and 
+//
+//   Like build_neq_resolvent() but (1) builds EQ resolvent and
 //   (2) never fails as there is no unification involved.
 //
 // Global Variables: -
@@ -739,13 +740,13 @@ Clause_p build_eq_resolvent(Clause_p p_cl, Clause_p n_cl, FunCode f)
    Eqn_p res_lits = NULL;
 
    // if we have unique distinct vars (cheap to check)
-   // -- we can do better 
+   // -- we can do better
    if(unique_distinct_vars(p_lit->lterm, &p_vars) ||
       unique_distinct_vars(n_lit->lterm, &n_vars))
    {
       Subst_p subst = SubstAlloc();
 #ifndef NDEBUG
-      bool unif = 
+      bool unif =
 #endif
       SubstComputeMgu(p_lit->lterm, n_lit->lterm, subst);
       assert(unif);
@@ -783,7 +784,7 @@ Clause_p build_eq_resolvent(Clause_p p_cl, Clause_p n_cl, FunCode f)
 /*-----------------------------------------------------------------------
 //
 // Function: check_unsat_and_tauto()
-// 
+//
 //   Checks condition (4) and (5) from Definition 13. in SAT techniques
 //   paper (https://matryoshka-project.github.io/pubs/satelimsup_paper.pdf)
 //
@@ -847,7 +848,7 @@ void check_tautologies(PETask_p task, PStack_p unsat_core, TB_p tmp_terms)
 /*-----------------------------------------------------------------------
 //
 // Function: check_unsat_and_tauto()
-// 
+//
 //   Checks condition (4) and (5) from Definition 13. in SAT techniques
 //   paper (https://matryoshka-project.github.io/pubs/satelimsup_paper.pdf)
 //
@@ -862,7 +863,7 @@ void check_unsat_and_tauto(PETask_p task, TB_p tmp_terms)
    PStack_p all_gates = PStackAlloc();
    PTreeToPStack(all_gates, task->pos_gates->set);
    PTreeToPStack(all_gates, task->neg_gates->set);
-   
+
    Clause_p pivot = PStackPopP(all_gates);
    Clause_p pivot_fresh = ClauseCopyDisjoint(pivot);
    Eqn_p rest_fresh = NULL;
@@ -888,7 +889,7 @@ void check_unsat_and_tauto(PETask_p task, TB_p tmp_terms)
       Clause_p cl = PStackPopP(all_gates);
       Eqn_p sym_lit = find_lit_w_head(cl->literals, task->sym, NULL, ANY_SIGN);
 #ifndef NDEBUG
-      bool subst_res = 
+      bool subst_res =
 #endif
       SubstComputeMatch(sym_lit->lterm, fresh_lit->lterm, subst);
       assert(subst_res); // both are distinct bound variables, just matching them
@@ -897,7 +898,7 @@ void check_unsat_and_tauto(PETask_p task, TB_p tmp_terms)
       Clause_p res_cl = ClauseAlloc(rest);
       SubstBacktrack(subst);
       SatClauseCreateAndStore(res_cl, environment);
-      PObjMapStore(&fresh_original_map, res_cl, cl, PCmpFun);   
+      PObjMapStore(&fresh_original_map, res_cl, cl, PCmpFun);
    }
    PStackFree(all_gates);
 
@@ -908,7 +909,7 @@ void check_unsat_and_tauto(PETask_p task, TB_p tmp_terms)
       for(PStackPointer i=0; i<PStackGetSP(unsat_core); i++)
       {
          PStackAssignP(unsat_core, i,
-                      PObjMapFind(&fresh_original_map, 
+                      PObjMapFind(&fresh_original_map,
                                   PStackElementP(unsat_core, i), PCmpFun));
       }
 
@@ -940,8 +941,8 @@ void check_unsat_and_tauto(PETask_p task, TB_p tmp_terms)
 /*-----------------------------------------------------------------------
 //
 // Function: update_gate_status()
-// 
-//   Go through all the tasks and see if their potential gates are 
+//
+//   Go through all the tasks and see if their potential gates are
 //   actually gates.
 //
 // Global Variables: -
@@ -974,7 +975,7 @@ void update_gate_status(IntMap_p sym_map, TB_p tmp_terms)
 /*-----------------------------------------------------------------------
 //
 // Function: PredicateElimination()
-// 
+//
 //   Preprocess the passive clause set, create corresponding predicate
 //   elimination tasks, store them in the symbol map and insert them
 //   in the task queue.
@@ -986,7 +987,7 @@ void update_gate_status(IntMap_p sym_map, TB_p tmp_terms)
 /----------------------------------------------------------------------*/
 
 void build_task_queue(ClauseSet_p passive, const HeuristicParms_p parms,
-                      IntMap_p* m_ref, MinHeap_p* q_ref, TB_p tmp_terms, 
+                      IntMap_p* m_ref, MinHeap_p* q_ref, TB_p tmp_terms,
                       bool* eqn_found)
 {
    IntMap_p sym_map = *m_ref;
@@ -1000,12 +1001,12 @@ void build_task_queue(ClauseSet_p passive, const HeuristicParms_p parms,
                                  parms->pred_elim_gates, parms->use_tptp_sos,
                                  parms->pred_elim_ignore_conj_syms, eqn_found);
    }
-   
+
    if(parms->pred_elim_gates)
    {
       update_gate_status(sym_map, tmp_terms);
    }
-   
+
    IntMapIter_p iter = IntMapIterAlloc(sym_map, 0, LONG_MAX);
    long key;
    PETask_p t;
@@ -1027,7 +1028,7 @@ void build_task_queue(ClauseSet_p passive, const HeuristicParms_p parms,
 /*-----------------------------------------------------------------------
 //
 // Function: do_singular_elimination()
-// 
+//
 //   Assuming the clauses in pos_cls tree are the ones that have the positive
 //   singular occurence of sym and the neg_cls have the negative one,
 //   compute the only possible resolvent between them.
@@ -1038,8 +1039,8 @@ void build_task_queue(ClauseSet_p passive, const HeuristicParms_p parms,
 //
 /----------------------------------------------------------------------*/
 
-void do_singular_elimination(PTree_p pos_cls_tree, PTree_p neg_cls_tree, 
-                             FunCode sym, ResolverFun_p resolver, 
+void do_singular_elimination(PTree_p pos_cls_tree, PTree_p neg_cls_tree,
+                             FunCode sym, ResolverFun_p resolver,
                              PStack_p cls, TB_p tmp_terms)
 {
    PStack_p pos_cls = PStackAlloc();
@@ -1072,7 +1073,7 @@ void do_singular_elimination(PTree_p pos_cls_tree, PTree_p neg_cls_tree,
 /*-----------------------------------------------------------------------
 //
 // Function: do_gates_against_offending()
-// 
+//
 //   Fixpoint computation in which all occurrences of sym in offending
 //   clauses are removed one by one by using the clauses in gates.
 //
@@ -1109,8 +1110,8 @@ void do_gates_against_offending(PETask_p task, PStack_p cls,
          for(PStackPointer i = 0; i<PStackGetSP(gate_set); i++)
          {
             Clause_p gate_cl = PStackElementP(gate_set, i);
-            Clause_p res = 
-               build_neq_resolvent(sign ? offending : gate_cl, 
+            Clause_p res =
+               build_neq_resolvent(sign ? offending : gate_cl,
                                    sign ? gate_cl : offending, task->sym);
             assert(res);
             if(!ClauseIsTautology(tmp_terms, res))
@@ -1140,7 +1141,7 @@ void do_gates_against_offending(PETask_p task, PStack_p cls,
 /*-----------------------------------------------------------------------
 //
 // Function: try_gate_elimination()
-// 
+//
 //   Fills cls with all the following resolvents: positive gates against
 //   singular negative clauses, negative gates against negative singular
 //   clauses and gates against all clauses in which symbol occurs multiple
@@ -1165,7 +1166,7 @@ void try_gate_elimination(PETask_p task, PStack_p cls, TB_p tmp_terms,
 /*-----------------------------------------------------------------------
 //
 // Function: try_singular_elimination()
-// 
+//
 //   Tries to eliminate the symbol described by task by performing classical
 //   singular predicate elimination.
 //
@@ -1174,17 +1175,17 @@ void try_gate_elimination(PETask_p task, PStack_p cls, TB_p tmp_terms,
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
-void try_singular_elimination(PETask_p task, PStack_p cls, 
+void try_singular_elimination(PETask_p task, PStack_p cls,
                               ResolverFun_p resolver, TB_p tmp_terms)
 {
-   do_singular_elimination(task->positive_singular->set, task->negative_singular->set, 
+   do_singular_elimination(task->positive_singular->set, task->negative_singular->set,
                            task->sym, resolver, cls, tmp_terms);
 }
 
 /*-----------------------------------------------------------------------
 //
 // Function: react_clause_added()
-// 
+//
 //   Update data structures to reflect adding of the clause.
 //
 // Global Variables: -
@@ -1201,7 +1202,7 @@ void react_clause_added(Clause_p cl, IntMap_p sym_map, MinHeap_p h, long max_occ
 /*-----------------------------------------------------------------------
 //
 // Function: react_clause_removed()
-// 
+//
 //   Update data structures to reflect removing of a clause.
 //
 // Global Variables: -
@@ -1225,7 +1226,7 @@ void react_clause_removed(Clause_p cl, IntMap_p sym_map, MinHeap_p h)
             removed = CCSRemoveCl(sign ? task->pos_gates : task->neg_gates, cl);
             if(!removed)
             {
-               removed = 
+               removed =
                   CCSRemoveCl(sign ? task->positive_singular : task->negative_singular, cl)
                   || removed;
                removed = CCSRemoveCl(task->offending_cls, cl) || removed;
@@ -1256,7 +1257,7 @@ void react_clause_removed(Clause_p cl, IntMap_p sym_map, MinHeap_p h)
                update_statistics(&(task)->num_lit, &(task)->size,
                                     &(task)->sq_vars, cl, true);
             }
-            
+
          }
       }
    }
@@ -1265,7 +1266,7 @@ void react_clause_removed(Clause_p cl, IntMap_p sym_map, MinHeap_p h)
 /*-----------------------------------------------------------------------
 //
 // Function: remove_clauses_from_state()
-// 
+//
 //   After symbol has successfully been eliminated, remove all clauses
 //   in which symbol appeared. Then check if this elimination makes
 //   elimination of some other symbol possible
@@ -1300,7 +1301,7 @@ void remove_clauses_from_state(PETask_p task, IntMap_p sym_map,
 /*-----------------------------------------------------------------------
 //
 // Function: measure_decreases()
-// 
+//
 //   Check if replacing the symbol decreases the measure.
 //
 // Global Variables: -
@@ -1332,7 +1333,7 @@ bool measure_decreases(PETask_p task, PStack_p new_cls, int tolerance,
 /*-----------------------------------------------------------------------
 //
 // Function: eliminate_predicates()
-// 
+//
 //   Driver that does actual predicate elimination.
 //
 // Global Variables: -
@@ -1342,8 +1343,8 @@ bool measure_decreases(PETask_p task, PStack_p new_cls, int tolerance,
 /----------------------------------------------------------------------*/
 
 
-void eliminate_predicates(ClauseSet_p passive, ClauseSet_p archive, 
-                          IntMap_p sym_map, MinHeap_p task_queue, 
+void eliminate_predicates(ClauseSet_p passive, ClauseSet_p archive,
+                          IntMap_p sym_map, MinHeap_p task_queue,
                           TB_p bank, TB_p tmp_bank, ResolverFun_p resolver,
                           const HeuristicParms_p parms, VarBank_p freshvars)
 {
@@ -1368,7 +1369,7 @@ void eliminate_predicates(ClauseSet_p passive, ClauseSet_p archive,
          assert(!task->offending_cls->card);
          try_singular_elimination(task, cls, resolver, tmp_bank);
       }
-      
+
       if(measure_decreases(task, cls, parms->pred_elim_tolerance,
                            parms->pred_elim_force_mu_decrease))
       {
@@ -1405,9 +1406,9 @@ void eliminate_predicates(ClauseSet_p passive, ClauseSet_p archive,
 /*-----------------------------------------------------------------------
 //
 // Function: PredicateElimination()
-// 
+//
 //   Does the elimination of predicate symbols by moving clauses with the
-//   eliminated symbol from passive to archive. New clauses are added to 
+//   eliminated symbol from passive to archive. New clauses are added to
 //   passive (with appropriately set proof object). Tracking a predicate
 //   symbol will be stopped after it reaches max_occs occurrences.
 //
@@ -1433,7 +1434,7 @@ void PredicateElimination(ClauseSet_p passive, ClauseSet_p archive,
    bool eqn_found;
    build_task_queue(passive, parms, &sym_map, &task_queue, tmp_bank, &eqn_found);
    ResolverFun_p resolver = eqn_found ? build_eq_resolvent : build_neq_resolvent;
-   eliminate_predicates(passive, archive, sym_map, task_queue, 
+   eliminate_predicates(passive, archive, sym_map, task_queue,
                         bank, tmp_bank, resolver, parms, fresh_vars);
    fprintf(stdout, "%% PE eliminated: %ld\n", pre_elimination_cnt - ClauseSetCardinality(passive));
 

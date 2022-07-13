@@ -29,14 +29,7 @@ Changes
 /*                      Forward Declarations                           */
 /*---------------------------------------------------------------------*/
 
-struct MinHeap
-{
-   PStack_p arr;
-   CmpFun cmp;
-   SetIndexFun setter;
-};
 
-typedef struct MinHeap* MinHeap_p;
 
 /*---------------------------------------------------------------------*/
 /*                         Internal Functions                          */
@@ -53,7 +46,7 @@ typedef struct MinHeap* MinHeap_p;
 //
 // Function: bubble_up()
 //
-//   If an element at child_idx was just inserted or its value has been 
+//   If an element at child_idx was just inserted or its value has been
 //   decreased then bring the element up as necessary.
 //
 // Global Variables: -
@@ -74,7 +67,7 @@ void bubble_up(MinHeap_p h, PStackPointer child_idx)
          CALL_SETTER(h, child_ref->p_val, parent_idx);
          CALL_SETTER(h, parent_ref->p_val, child_idx);
          SWAP(*child_ref, *parent_ref);
-         
+
          child_idx = parent_idx;
       }
       else
@@ -105,13 +98,13 @@ void drop_down(MinHeap_p h, PStackPointer curr_idx)
       PStackPointer min_c_idx = curr_idx;
       PStackPointer l = LEFT(curr_idx);
       PStackPointer r = RIGHT(curr_idx);
-      if(h->cmp(PStackElementRef(h->arr, l), 
+      if(h->cmp(PStackElementRef(h->arr, l),
                 PStackElementRef(h->arr, min_c_idx)) < 0)
       {
          min_c_idx = l;
       }
-      if(r < size && 
-         h->cmp(PStackElementRef(h->arr, r), 
+      if(r < size &&
+         h->cmp(PStackElementRef(h->arr, r),
                 PStackElementRef(h->arr, min_c_idx)) < 0)
       {
          min_c_idx = r;
@@ -176,7 +169,7 @@ void add(MinHeap_p h, IntOrP key)
 
 MinHeap_p MinHeapAllocWithIndex(CmpFun cmp, SetIndexFun setter)
 {
-   MinHeap_p h = SizeMalloc(sizeof(struct MinHeap));
+   MinHeap_p h = SizeMalloc(sizeof(MinHeapCell));
    h->arr = PStackAlloc();
    h->cmp = cmp;
    h->setter = setter;
@@ -321,7 +314,7 @@ void MinHeapIncrKey(MinHeap_p h, long idx)
 void MinHeapFree(MinHeap_p junk)
 {
    PStackFree(junk->arr);
-   SizeFree(junk, sizeof(struct MinHeap));
+   SizeFree(junk, sizeof(MinHeapCell));
 }
 
 /*-----------------------------------------------------------------------
@@ -373,8 +366,8 @@ void MinHeapUpdateElement(MinHeap_p h, long idx)
    if(idx >= 0)
    {
       // if element is in the heap
-      if(!IS_ROOT(idx) 
-         && h->cmp(PStackElementRef(h->arr, idx), 
+      if(!IS_ROOT(idx)
+         && h->cmp(PStackElementRef(h->arr, idx),
                    PStackElementRef(h->arr, PARENT(idx))) < 0)
       {
          bubble_up(h, idx);
@@ -411,7 +404,7 @@ void MinHeapRemoveElement(MinHeap_p h, long idx)
    }
 }
 
-// code meant for testing 
+// code meant for testing
 // ProblemType problemType  = PROBLEM_NOT_INIT;
 
 // int cmp(IntOrP* ia, IntOrP* ib)

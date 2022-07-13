@@ -53,7 +53,10 @@ static CompareResult kbo6cmp(OCB_p ocb, Term_p s, Term_p t,
 static CompareResult kbo6cmplex(OCB_p ocb, Term_p s, Term_p t,
                          DerefType deref_s, DerefType deref_t);
 
+#ifdef ENABLE_LFHO
 static CompareResult cmp_arities(Term_p s, Term_p t);
+#endif
+
 
 /*---------------------------------------------------------------------*/
 /*                         Internal Functions                          */
@@ -89,12 +92,13 @@ static void __attribute__ ((noinline)) resize_vb(OCB_p ocb, size_t index)
    }
 }
 
+#ifdef ENABLE_LFHO
 
 /*-----------------------------------------------------------------------
 //
 // Function: is_fluid()
 //
-//   Approximation the fluidity test -- see 
+//   Approximation the fluidity test -- see
 //   https://arxiv.org/abs/2102.00453 for definition
 //
 // Global Variables: -
@@ -103,11 +107,13 @@ static void __attribute__ ((noinline)) resize_vb(OCB_p ocb, size_t index)
 //
 /----------------------------------------------------------------------*/
 
-static inline bool is_fluid(Term_p t) 
+static inline bool is_fluid(Term_p t)
 {
    return TermIsTopLevelFreeVar(t) ||
           (TermIsLambda(t) && !TermIsGround(t));
 }
+
+#endif
 
 /*-----------------------------------------------------------------------
 //
@@ -146,6 +152,9 @@ static void inc_vb(OCB_p ocb, Term_p var)
    }
 }
 
+
+#ifdef ENABLE_LFHO
+
 /*-----------------------------------------------------------------------
 //
 // Function: inc_vb_ho()
@@ -172,6 +181,7 @@ static void inc_vb_ho(OCB_p ocb, Term_p var)
    ocb->wb += ocb->var_weight;
 }
 
+#endif
 
 /*-----------------------------------------------------------------------
 //
@@ -210,6 +220,7 @@ static void dec_vb(OCB_p ocb, Term_p var)
    }
 }
 
+#ifdef ENABLE_LFHO
 
 /*-----------------------------------------------------------------------
 //
@@ -236,6 +247,8 @@ static void dec_vb_ho(OCB_p ocb, Term_p var)
    **bal_ref -= 1;
    ocb->wb -= ocb->var_weight;
 }
+
+#endif
 
 /*-----------------------------------------------------------------------
 //
@@ -513,7 +526,7 @@ static void mfyvwblhs(OCB_p ocb, Term_p term, DerefType deref_t, int orig_limit)
       else
       {
          limit_t = DEREF_LIMIT(term, deref_t);
-         term = deref_t == DEREF_ALWAYS && problemType == PROBLEM_HO ? 
+         term = deref_t == DEREF_ALWAYS && problemType == PROBLEM_HO ?
                 WHNF_deref(term) : TermDeref(term, &deref_t);
       }
 
@@ -563,7 +576,7 @@ static void mfyvwbrhs(OCB_p ocb, Term_p term, DerefType deref_t, int orig_limit)
       else
       {
          limit_t = DEREF_LIMIT(term, deref_t);
-         term = deref_t == DEREF_ALWAYS && problemType == PROBLEM_HO ? 
+         term = deref_t == DEREF_ALWAYS && problemType == PROBLEM_HO ?
                 WHNF_deref(term) : TermDeref(term, &deref_t);
       }
 
@@ -582,6 +595,8 @@ static void mfyvwbrhs(OCB_p ocb, Term_p term, DerefType deref_t, int orig_limit)
    PLocalTaggedStackFree(stack);
 }
 
+#ifdef ENABLE_LFHO
+
 /*-----------------------------------------------------------------------
 //
 // Function: mfyvwblhs_ho()
@@ -597,7 +612,7 @@ static void mfyvwbrhs(OCB_p ocb, Term_p term, DerefType deref_t, int orig_limit)
 static void mfyvwb_ho(OCB_p ocb, Term_p orig, ComparisonSide side)
 {
    PLocalStackInit(stack);
-   
+
    PLocalStackPush(stack, orig);
 
    while(!PLocalStackEmpty(stack))
@@ -611,18 +626,18 @@ static void mfyvwb_ho(OCB_p ocb, Term_p orig, ComparisonSide side)
       {
          if(TermIsLambda(t))
          {
-            ocb->wb += 
+            ocb->wb +=
                ((side == LHS) ? OCBLamWeight(ocb) : -OCBLamWeight(ocb));
          }
          else if(TermIsDBVar(t))
          {
-            ocb->wb += 
+            ocb->wb +=
                ((side == LHS) ? OCBDBWeight(ocb) : -OCBDBWeight(ocb));
          }
          else if (!TermIsPhonyApp(t))
          {
-            ocb->wb += 
-               ((side == LHS) ? OCBFunWeight(ocb, t->f_code) 
+            ocb->wb +=
+               ((side == LHS) ? OCBFunWeight(ocb, t->f_code)
                             : -OCBFunWeight(ocb, t->f_code));
          }
          PLocalStackEnsureSpace(stack, (t->arity - (TermIsLambda(t) ? 1 : 0)));
@@ -632,9 +647,9 @@ static void mfyvwb_ho(OCB_p ocb, Term_p orig, ComparisonSide side)
          }
       }
    }
-
    PLocalStackFree(stack);
 }
+
 
 /*-----------------------------------------------------------------------
 //
@@ -660,6 +675,7 @@ static inline bool heads_same(Term_p s, Term_p t)
              s->args[0] == t->args[0];
    }
 }
+
 
 
 /*-----------------------------------------------------------------------
@@ -691,6 +707,7 @@ static inline int classify_head(Term_p s)
       return 1;
    }
 }
+
 
 /*-----------------------------------------------------------------------
 //
@@ -736,6 +753,8 @@ static CompareResult cmp_heads(OCB_p ocb, Term_p s, Term_p t)
       return (s_hd_class > t_hd_class) ? to_greater : to_lesser;
    }
 }
+
+#endif
 
 /*-----------------------------------------------------------------------
 //
@@ -848,6 +867,8 @@ static CompareResult kbolincmp(OCB_p ocb, Term_p s, Term_p t,
    }
    return res;
 }
+
+#ifdef ENABLE_LFHO
 
 /*-----------------------------------------------------------------------
 //
@@ -984,6 +1005,7 @@ static CompareResult kbolincmp_lambda_driver(OCB_p ocb, Term_p s, Term_p t)
    return res;
 }
 
+
 /*-----------------------------------------------------------------------
 //
 // Function: kbolincmp_lambda()
@@ -1006,19 +1028,18 @@ static CompareResult kbolincmp_lambda(OCB_p ocb, Term_p s, Term_p t,
    s = LambdaEtaReduceDB(TermGetBank(s),
          BetaNormalizeDB(TermGetBank(s),
             TBInsertInstantiatedDeref(TermGetBank(s), s, deref_s)));
-   t =  LambdaEtaReduceDB(TermGetBank(t), 
+   t =  LambdaEtaReduceDB(TermGetBank(t),
          BetaNormalizeDB(TermGetBank(t),
             TBInsertInstantiatedDeref(TermGetBank(t), t, deref_t)));
 
-   CompareResult res = 
-      s->f_code == SIG_TRUE_CODE ? 
+   CompareResult res =
+      s->f_code == SIG_TRUE_CODE ?
          (t->f_code == SIG_TRUE_CODE ? to_equal : to_lesser) :
       (t->f_code == SIG_TRUE_CODE ? to_greater : kbolincmp_lambda_driver(ocb, s, t));
 
    return res;
 }
 
-#ifdef ENABLE_LFHO
 
 /*-----------------------------------------------------------------------
 //

@@ -19,16 +19,23 @@ Changes
 <1> di  4 jan 2022 14:29:14 CET
 -----------------------------------------------------------------------*/
 
-#include <clb_pstacks.h>
 
 #ifndef CLB_MIN_HEAPS
 #define CLB_MIN_HEAPS
 
-struct MinHeap;
-typedef struct MinHeap* MinHeap_p;
+#include <clb_pstacks.h>
 
-typedef void (*SetIndexFun)(void*, int);
 typedef int (*CmpFun)(IntOrP*, IntOrP*);
+typedef void (*SetIndexFun)(void*, int);
+
+typedef struct min_heap_cell
+{
+   PStack_p arr;
+   CmpFun cmp;
+   SetIndexFun setter;
+}MinHeapCell, *MinHeap_p;
+
+
 
 MinHeap_p MinHeapAllocWithIndex(CmpFun, SetIndexFun);
 #define  MinHeapAlloc(f) (MinHeapAllocWithIndex(f, NULL))
