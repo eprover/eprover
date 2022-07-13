@@ -137,7 +137,7 @@ AxFilter_p AxFilterAlloc(void)
    handle->max_set_fraction     = 1.0;
    handle->add_no_symbol_axioms = false;
    handle->trim_implications    = false;
-   handle->defined_symbols_in_drel = false; // if 
+   handle->defined_symbols_in_drel = false; // if
 
    return handle;
 }
@@ -231,7 +231,7 @@ AxFilter_p GSinEParse(Scanner_p in)
    {
       res->benevolence = ParseFloat(in);
    }
-   
+
    AcceptInpTok(in, Comma);
 
    if(!TestInpTok(in, Comma))

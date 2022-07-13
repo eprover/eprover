@@ -222,6 +222,8 @@ int main(int argc, char* argv[])
    assert(argv[0]);
 
    InitIO(NAME);
+   signal(SIGQUIT, SIG_IGN);
+
    DocOutputFormat = tstp_format;
    OutputFormat = TSTPFormat;
 

@@ -151,8 +151,8 @@ EPCtrl_p batch_create_runner(StructFOFSpec_p ctrl,
                            ax_filter,
                            cspec,
                            fspec);
-   /* fprintf(GlobalOut, "# Spec has %d clauses and %d formulas (%lld)\n",
-      PStackGetSP(cspec), PStackGetSP(fspec), GetSecTimeMod()); */
+   //fprintf(GlobalOut, "# Spec has %ld clauses and %ld formulas (%lld)\n",
+   //PStackGetSP(cspec), PStackGetSP(fspec), GetSecTimeMod());
 
    file = TempFileName();
    fp   = SecureFOpen(file, "w");
@@ -751,11 +751,11 @@ bool BatchProcessProblem(BatchSpec_p spec,
       {
          used = now-start;
          handle = batch_create_runner(ctrl, spec->executable,
-                                      BatchStrategiesDiv[i],
+                                      BatchStrategies[i],
                                       answers,
                                       MIN((wct_limit+1)/2, wct_limit-used),
                                       AxFilterSetFindFilter(filters,
-                                                            BatchFiltersDiv[i]));
+                                                            BatchFilters[i]));
          EPCtrlSetAddProc(procs, handle);
          i++;
       }

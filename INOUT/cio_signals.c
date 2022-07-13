@@ -104,28 +104,28 @@ void ESignalHandler(int mysignal)
    switch(mysignal)
    {
    case SIGXCPU:
-    limit.rlim_max = SystemTimeLimit;
-    limit.rlim_cur = SystemTimeLimit;
-    if(setrlimit(RLIMIT_CPU, &limit))
-    {
-       TmpErrno = errno;
-       SysError("Unable to reset cpu time limit", SYS_ERROR);
-    }
+         limit.rlim_max = SystemTimeLimit;
+         limit.rlim_cur = SystemTimeLimit;
+         if(setrlimit(RLIMIT_CPU, &limit))
+         {
+            TmpErrno = errno;
+            SysError("Unable to reset cpu time limit", SYS_ERROR);
+         }
          VERBOSE(WriteStr(GlobalOutFD, "SIGXCPU caught.\n"););
-    if(TimeLimitIsSoft)
-    {
-       TimeIsUp = 1;
-       TimeLimitIsSoft = false;
-       limit.rlim_cur = MIN(HardTimeLimit, SystemTimeLimit);
-       if(setrlimit(RLIMIT_CPU, &limit))
-       {
-          TmpErrno = errno;
-          SysError("Unable to set cpu time limit to hard limit",
-         SYS_ERROR);
-       }
-       ESignalSetup(SIGXCPU); /* Reenable signal handler */
-       return;
-    }
+         if(TimeLimitIsSoft)
+         {
+            TimeIsUp = 1;
+            TimeLimitIsSoft = false;
+            limit.rlim_cur = MIN(HardTimeLimit, SystemTimeLimit);
+            if(setrlimit(RLIMIT_CPU, &limit))
+            {
+               TmpErrno = errno;
+               SysError("Unable to set cpu time limit to hard limit",
+                        SYS_ERROR);
+            }
+            ESignalSetup(SIGXCPU); /* Reenable signal handler */
+            return;
+         }
          if(SilentTimeOut)
          {
             exit(CPU_LIMIT_ERROR);
@@ -136,23 +136,23 @@ void ESignalHandler(int mysignal)
             TSTPOUTFD(GlobalOutFD, "ResourceOut");
             Error("CPU time limit exceeded, terminating", CPU_LIMIT_ERROR);
          }
-    break;
+         break;
    case SIGTERM:
    case SIGINT:
-    VERBOSE(WriteStr(GlobalOutFD, "SIGTERM/SIGINT caught.\n"););
-    if(fatal_error_in_progress)
-    {
-       signal(mysignal, SIG_DFL);
-       raise(mysignal);
-    }
-    fatal_error_in_progress = 1;
-    TempFileCleanup();
-    raise(mysignal);
-    break;
+         VERBOSE(WriteStr(GlobalOutFD, "SIGTERM/SIGINT caught.\n"););
+         if(fatal_error_in_progress)
+         {
+            signal(mysignal, SIG_DFL);
+            raise(mysignal);
+         }
+         fatal_error_in_progress = 1;
+         TempFileCleanup();
+         raise(mysignal);
+         break;
    default:
-      WriteStr(STDERR_FILENO, "Warning: ");
-      WriteStr(STDERR_FILENO, "Unexpected signal caught, continuing");
-    break;
+         WriteStr(STDERR_FILENO, "Warning: ");
+         WriteStr(STDERR_FILENO, "Unexpected signal caught, continuing");
+         break;
    }
 }
 
@@ -161,5 +161,3 @@ void ESignalHandler(int mysignal)
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
