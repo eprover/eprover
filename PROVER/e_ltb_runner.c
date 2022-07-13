@@ -192,8 +192,8 @@ char* provers28_ho[]  = {"./eprover", "./eprover", "./eprover-ho", NULL};
 char* variants28_25[] = {"+1", "_1", NULL};
 char* provers28_25[]  = {"./eprover-25", "./eprover-25", NULL};
 
-char* variantsj11[] = {"_1", "_2", "_3", "^1", NULL};
-char* proversj11[]  = {"./eprover-ho", "./eprover-ho", "./eprover-ho", "./eprover-ho", NULL};
+char* variantsj11[] = {"_1", "_3",  "^1", NULL};
+char* proversj11[]  = {"./eprover-ho", "./eprover-ho", "./eprover-ho", NULL};
 
 
 
