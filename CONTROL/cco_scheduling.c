@@ -51,7 +51,7 @@ Changes
 //
 /----------------------------------------------------------------------*/
 
-static inline bool name_in_schedule(const char* name, ScheduleCell* sched)
+static inline bool name_in_schedule(const char* name, Schedule_p sched)
 {
    bool ans = false;
    for(int i=0; sched[i].heu_name && !ans; i++)
@@ -127,7 +127,7 @@ void ScheduleTimesInit(ScheduleCell sched[], double time_used)
 //    will be computed and stored in cores. Cores must be initialized to the
 //    prefered maximal number of cores and if this number is smaller than
 //    the number of preprocessors, then it is going to be set to the
-//    number of preprocessors. 
+//    number of preprocessors.
 //
 // Global Variables:
 //
@@ -135,7 +135,7 @@ void ScheduleTimesInit(ScheduleCell sched[], double time_used)
 //
 /----------------------------------------------------------------------*/
 
-void ScheduleTimesInitMultiCore(ScheduleCell sched[], double time_used, 
+void ScheduleTimesInitMultiCore(ScheduleCell sched[], double time_used,
                                 double time_limit, bool preprocessing_schedule,
                                 int* cores, bool serialize)
 {
@@ -297,13 +297,15 @@ int ExecuteScheduleMultiCore(ScheduleCell strats[],
          {
             PrintRusage(GlobalOut);
          }
-         if(preproc_schedule)
-         {
-            TERMINATE_CHILDREN();
-         }
+         // I think this is ununnecessary - EGPCtrlSetFree() will
+         // cleanup at least the direct children.
+         //if(preproc_schedule)
+         //{
+         //TERMINATE_CHILDREN();
+         //}
          EGPCtrlSetFree(procs);
          exit(handle->exit_status);
-      } 
+      }
    }while(EGPCtrlSetCardinality(procs) || strats[i].heu_name);
 
    EGPCtrlSetFree(procs);
@@ -336,8 +338,8 @@ int ExecuteScheduleMultiCore(ScheduleCell strats[],
 //
 /----------------------------------------------------------------------*/
 
-void InitializePlaceholderSearchSchedule(ScheduleCell* search_sched, 
-                                         ScheduleCell* preproc_sched,
+void InitializePlaceholderSearchSchedule(Schedule_p search_sched,
+                                         Schedule_p preproc_sched,
                                          bool force_preproc)
 {
    const char* PLACEHOLDER = "<placeholder>";
@@ -385,9 +387,9 @@ void InitializePlaceholderSearchSchedule(ScheduleCell* search_sched,
 //
 /----------------------------------------------------------------------*/
 
-ScheduleCell* GetFilteredDefaultSchedule(ScheduleCell* exhausted_sched)
+Schedule_p GetFilteredDefaultSchedule(Schedule_p exhausted_sched)
 {
-   ScheduleCell* default_sch = GetDefaultSchedule();
+   Schedule_p default_sch = GetDefaultSchedule();
    int last_filtered = -1;
    for(int i=0; default_sch[i].heu_name; i++)
    {

@@ -57,12 +57,12 @@ typedef struct schedule_cell
 
 void ScheduleTimesInit(ScheduleCell sched[], double time_used);
 
-void ScheduleTimesInitMultiCore(ScheduleCell sched[], double time_used, 
+void ScheduleTimesInitMultiCore(ScheduleCell sched[], double time_used,
                                 double time_limit, bool preprocessing_schedule,
                                 int* cores, bool serialize);
 
-void InitializePlaceholderSearchSchedule(ScheduleCell* search_sched, 
-                                         ScheduleCell* preproc_sched,
+void InitializePlaceholderSearchSchedule(Schedule_p search_sched,
+                                         Schedule_p preproc_sched,
                                          bool force_preproc);
 
 int ExecuteScheduleMultiCore(ScheduleCell strats[],
@@ -73,7 +73,7 @@ int ExecuteScheduleMultiCore(ScheduleCell strats[],
                              int max_cores,
                              bool serialize);
 
-ScheduleCell* GetFilteredDefaultSchedule(ScheduleCell* exhausted_sched);
+Schedule_p GetFilteredDefaultSchedule(Schedule_p exhausted_sched);
 
 
 

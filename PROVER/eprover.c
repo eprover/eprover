@@ -482,7 +482,7 @@ int main(int argc, char* argv[])
    }
 
    int sched_idx = -1;
-   ScheduleCell* preproc_schedule = NULL;
+   Schedule_p preproc_schedule = NULL;
    RawSpecFeatureCell raw_features;
    rlim_t wc_sched_limit =
       ScheduleTimeLimit ? ScheduleTimeLimit : DEFAULT_SCHED_TIME_LIMIT;
