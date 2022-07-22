@@ -213,15 +213,18 @@ EPCtrl_p ECtrlCreateGeneric(char* prover, char* name,
    DStrAppendInt(cmd, cpu_limit);
    DStrAppendStr(cmd, " ");
    DStrAppendStr(cmd, file);
-   //printf("Command: %s\n", DStrView(cmd));
+   //printf("# Command: %s\n", DStrView(cmd));
 
    res->prob_time  = cpu_limit;
    res->start_time = GetSecTime();
    res->input_file = file;
-   //printf("# Executing: %s\n", DStrView(cmd));
+   printf("# Executing: %s\n", DStrView(cmd));
    res->pipe = popen(DStrView(cmd), "r");
    if(!res->pipe)
    {
+      int errno_local = errno;
+      printf("# popen failed, errno %d, errstr '%s'\n",
+             errno_local, strerror(errno_local));
       TmpErrno = errno;
       SysError("Cannot start eprover subprocess", SYS_ERROR);
    }
@@ -229,10 +232,9 @@ EPCtrl_p ECtrlCreateGeneric(char* prover, char* name,
    ret = fgets(line, 180, res->pipe);
    if(!ret || ferror(res->pipe))
    {
-      printf("Error\n");
+      printf("# Error in reading line for eprover PID from stdout\n");
    }
-
-   //fprintf(GlobalOut, "# Line = '%s'", l);
+   fprintf(GlobalOut, "# Line = %s", line);
    if(!strstr(line, "# Pid: "))
    {
       Error("Cannot get eprover PID", OTHER_ERROR);
@@ -241,6 +243,7 @@ EPCtrl_p ECtrlCreateGeneric(char* prover, char* name,
    DStrAppendStr(res->output, line);
 
    DStrFree(cmd);
+   printf("# eprover subprocess started\n");
    return res;
 }
 

@@ -29,7 +29,7 @@
 char* BatchFilters[] =
 {
    "threshold010000",
-   "gf600_h_gu_R05_F100_L20000"  ,   /* protokoll_X----_auto_sine17 */
+   "gf600_h_gu_R05_F100_L20000"  ,   /* Protokoll_X----_auto_sine17 */
    "gf120_h_gu_R02_F100_L20000"  ,   /* protokoll_X----_auto_sine13 */
    "gf200_gu_RUU_F100_L20000"    ,   /* protokoll_X----_auto_sine08 */
    "gf200_h_gu_R03_F100_L20000"  ,   /* protokoll_X----_auto_sine16 */
@@ -151,8 +151,8 @@ EPCtrl_p batch_create_runner(StructFOFSpec_p ctrl,
                            ax_filter,
                            cspec,
                            fspec);
-   //fprintf(GlobalOut, "# Spec has %ld clauses and %ld formulas (%lld)\n",
-   //PStackGetSP(cspec), PStackGetSP(fspec), GetSecTimeMod());
+   fprintf(GlobalOut, "# Spec has %ld clauses and %ld formulas (%lld)\n",
+   PStackGetSP(cspec), PStackGetSP(fspec), GetSecTimeMod());
 
    file = TempFileName();
    fp   = SecureFOpen(file, "w");
@@ -161,11 +161,10 @@ EPCtrl_p batch_create_runner(StructFOFSpec_p ctrl,
    PStackClausePrintTSTP(fp, cspec);
    PStackFormulaPrintTSTP(fp, fspec);
    SecureFClose(fp);
-   //printf("=======================================\n");
+   printf("# ====== Writing filtered file===========\n");
    //FilePrint(stdout, file);
-   //printf("=======================================\n");
-   /* fprintf(GlobalOut, "# Written new problem (%lld)\n",
-    * GetSecTimeMod()); */
+   printf("# =======Filtered file written===========\n");
+   fprintf(GlobalOut, "# Written new problem (%lld)\n", GetSecTimeMod());
 
    AxFilterPrintBuf(name, 320, ax_filter);
    pctrl = ECtrlCreateGeneric(executable, name, options, extra_options, cpu_time, file);
@@ -857,6 +856,7 @@ bool BatchProcessFile(BatchSpec_p spec,
    fflush(GlobalOut);
 
    in = CreateScanner(StreamTypeFile, source, true, default_dir, true);
+   printf("# Scanner for '%s' created\n", source);
    ScannerSetFormat(in, TSTPFormat);
 
    dummy = ClauseSetAlloc();
