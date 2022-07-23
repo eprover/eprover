@@ -845,6 +845,9 @@ Scanner_p CreateScanner(StreamType type, char *name, bool
    handle->include_key = NULL;
    handle->format = LOPFormat;
 
+   printf("# CreateScanner(%s, %s, %d, %s, %d)\n", type, name,
+          ignore_comments, default_dir, fail);
+
    if((type == StreamTypeFile && strcmp(name,"-")==0)||
       (type != StreamTypeFile))
    {
@@ -856,6 +859,7 @@ Scanner_p CreateScanner(StreamType type, char *name, bool
       assert(type == StreamTypeFile);
       if(FileNameIsAbsolute(name))
       {
+         printf("# FileNameIsAbsolute\n");
          stream = OpenStackedInput(&handle->source, type, name, fail);
          tmp_name = FileNameDirName(name);
          DStrAppendStr(handle->default_dir, tmp_name);
@@ -868,6 +872,7 @@ Scanner_p CreateScanner(StreamType type, char *name, bool
 
          if(default_dir)
          {
+            printf("# default_dir branch\n");
             DStrAppendStr(handle->default_dir, default_dir);
             assert(!DStrLen(handle->default_dir)||
                    DStrLastChar(handle->default_dir) =='/');
@@ -883,8 +888,11 @@ Scanner_p CreateScanner(StreamType type, char *name, bool
          DStrAppendStr(full_file_name,
                        tmp_name);
          FREE(tmp_name);
+         printf("# About to call OpenStackedInput()\n");
          stream = OpenStackedInput(&handle->source, type,
                                    DStrView(full_file_name), fail&&!TPTP_dir);
+         printf("# Result: %p\n", stream);
+         fflush(stdout);
          if(!stream&&TPTP_dir)
          {
             assert(TPTP_dir);

@@ -857,6 +857,7 @@ bool BatchProcessFile(BatchSpec_p spec,
 
    in = CreateScanner(StreamTypeFile, source, true, default_dir, true);
    printf("# Scanner for '%s' created\n", source);
+   fflush(stdout);
    ScannerSetFormat(in, TSTPFormat);
 
    dummy = ClauseSetAlloc();
