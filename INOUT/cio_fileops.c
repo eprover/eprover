@@ -67,9 +67,10 @@ FILE* InputOpen(char *name, bool fail)
 
    if(name && strcmp(name,"-")!= 0)
    {
-
+      fprintf(stdout, "# Trying file %s\n", name);
       VERBOUTARG2("Trying file ", name);
       in = fopen(name, "r");
+      fprintf(stdout, "# Result: %p\n", in);
 
       statres = stat (name, &stat_buf);
       if(statres != 0)
@@ -106,6 +107,7 @@ FILE* InputOpen(char *name, bool fail)
       VERBOUT("Input is coming from <stdin>\n");
       in = stdin;
    }
+   fprintf(stdout, "# InputOpen returns %p\n", in);
    return in;
 }
 
