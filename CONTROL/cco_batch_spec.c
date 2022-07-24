@@ -152,7 +152,7 @@ EPCtrl_p batch_create_runner(StructFOFSpec_p ctrl,
                            cspec,
                            fspec);
    fprintf(GlobalOut, "# Spec has %ld clauses and %ld formulas (%lld)\n",
-   PStackGetSP(cspec), PStackGetSP(fspec), GetSecTimeMod());
+           PStackGetSP(cspec), PStackGetSP(fspec), GetSecTimeMod());
 
    file = TempFileName();
    fp   = SecureFOpen(file, "w");
@@ -161,10 +161,10 @@ EPCtrl_p batch_create_runner(StructFOFSpec_p ctrl,
    PStackClausePrintTSTP(fp, cspec);
    PStackFormulaPrintTSTP(fp, fspec);
    SecureFClose(fp);
-   printf("# ====== Writing filtered file===========\n");
+   //printf("# ====== Writing filtered file===========\n");
    //FilePrint(stdout, file);
-   printf("# =======Filtered file written===========\n");
-   fprintf(GlobalOut, "# Written new problem (%lld)\n", GetSecTimeMod());
+   //printf("# =======Filtered file written===========\n");
+   //fprintf(GlobalOut, "# Written new problem (%lld)\n", GetSecTimeMod());
 
    AxFilterPrintBuf(name, 320, ax_filter);
    pctrl = ECtrlCreateGeneric(executable, name, options, extra_options, cpu_time, file);
@@ -856,7 +856,7 @@ bool BatchProcessFile(BatchSpec_p spec,
    fflush(GlobalOut);
 
    in = CreateScanner(StreamTypeFile, source, true, default_dir, true);
-   printf("# Scanner for '%s' created\n", source);
+   //printf("# Scanner for '%s' created\n", source);
    fflush(stdout);
    ScannerSetFormat(in, TSTPFormat);
 
