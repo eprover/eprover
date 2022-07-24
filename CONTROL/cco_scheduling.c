@@ -315,10 +315,10 @@ int ExecuteScheduleMultiCore(ScheduleCell strats[],
    {
       PrintRusage(GlobalOut);
    }
-   if(preproc_schedule)
-   {
-      TERMINATE_CHILDREN();
-   }
+   //if(preproc_schedule)
+   //{
+   //TERMINATE_CHILDREN();
+   //}
    return SCHEDULE_DONE;
 }
 

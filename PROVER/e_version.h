@@ -34,7 +34,7 @@ Contents
 
 /* git tag E-3.0pre004 */
 
-#define PVERSION      "3.0pre006dbg"
+#define PVERSION      "3.0pre007dbg"
 
 #include "e_gitcommit.h"
 

@@ -438,6 +438,7 @@ int main(int argc, char* argv[])
    InitIO(NAME);
 
    ESignalSetup(SIGXCPU);
+   setpgid(0, 0);
 
    h_parms = HeuristicParmsAlloc();
    fvi_parms = FVIndexParmsAlloc();
