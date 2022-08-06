@@ -8,7 +8,7 @@ Contents
 
   Define global macro for version number and meta-information.
 
-  Copyright 2009-2019 by the authors (see DOC/CONTRIBUTORS).
+  Copyright 2009-2022 by the authors (see DOC/CONTRIBUTORS).
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
@@ -32,9 +32,9 @@ Contents
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-/* git tag E-3.0pre007 */
+/* git tag E-3.0pre008 */
 
-#define PVERSION      "3.0pre007"
+#define PVERSION      "3.0pre008"
 
 #include "e_gitcommit.h"
 

@@ -19,6 +19,7 @@
   -----------------------------------------------------------------------*/
 
 #include "cco_batch_spec.h"
+#include "cco_gproc_ctrl.h"
 
 
 
@@ -851,9 +852,9 @@ bool BatchProcessFile(BatchSpec_p spec,
    FormulaSet_p fset;
    FILE* fp;
 
-   fprintf(GlobalOut, "\n# Processing %s -> %s\n", source, dest);
-   fprintf(GlobalOut, "# SZS status Started for %s\n", source);
-   fflush(GlobalOut);
+   //fprintf(GlobalOut, "\n# Processing %s -> %s\n", source, dest);
+   //fprintf(GlobalOut, "# SZS status Started for %s\n", source);
+   //fflush(GlobalOut);
 
    in = CreateScanner(StreamTypeFile, source, true, default_dir, true);
    //printf("# Scanner for '%s' created\n", source);
@@ -882,8 +883,8 @@ bool BatchProcessFile(BatchSpec_p spec,
                              false);
    SecureFClose(fp);
 
-   fprintf(GlobalOut, "# SZS status Ended for %s\n\n", source);
-   fflush(GlobalOut);
+   //fprintf(GlobalOut, "# SZS status Ended for %s\n\n", source);
+   //fflush(GlobalOut);
 
    return res;
 }
@@ -1131,13 +1132,13 @@ void BatchProcessVariants(BatchSpec_p spec, char* variants[], char* provers[],
 
       for(i=0; i<PStackGetSP(spec->source_files); i++)
       {
-         // CASC-28-Hack
+         // CASC-28/J10-Hack
          ctrl = StructFOFSpecAlloc();
          concrete_batch_struct_FOF_spec_init(spec,
                                              ctrl,
                                              default_dir,
                                              variants[variant]);
-         // CASC-28-Hack ends
+         // CASC-28/J10-Hack ends
          abstract_name = PStackElementP(spec->source_files, i);
          if(PDArrayElementInt(solved, i))
          {
@@ -1162,20 +1163,49 @@ void BatchProcessVariants(BatchSpec_p spec, char* variants[], char* provers[],
             }
             DStrAppendStr(dest_name, PStackElementP(spec->dest_files, i));
 
-            success = BatchProcessFile(spec, per_prob_time,
-                                       ctrl, default_dir,
-                                       concrete_name,
-                                       DStrView(dest_name));
+
+            fprintf(GlobalOut, "\n# Processing %s -> %s\n",
+                    concrete_name, DStrView(dest_name));
+            fprintf(GlobalOut, "# SZS status Started for %s\n", concrete_name);
+            fflush(GlobalOut);
+
+
+            EGPCtrl_p handle = EGPCtrlCreate("E-LTB wrapper", 1, 1000000);
+            char buffer[EGPCTRL_BUFSIZE];
+            if(!handle)
+            {
+               // It's the wrapped child, do work
+               success = BatchProcessFile(spec, per_prob_time,
+                                          ctrl, default_dir,
+                                          concrete_name,
+                                          DStrView(dest_name));
+               exit(success);
+            }
+            // else
+            while(!EGPCtrlGetResult(handle, buffer,EGPCTRL_BUFSIZE))
+            {
+               // Nothing
+            }
+            success = (handle->result==PRTheorem)||(handle->result==PRUnsatisfiable);
+            fprintf(GlobalOut, "%s", DStrView(handle->output));
+            EGPCtrlFree(handle);
+
             if(success)
             {
                solved_count++;
                PDArrayAssignInt(solved, i, 1);
                concrete_prob_count -= (var_count-variant);
+               //printf("# SUCCESS: %ld abstract solved, %ld concrete remaining\n",
+               //solved_count, concrete_prob_count);
             }
             else
             {
                concrete_prob_count--;
+               //printf("# FAILURE: %ld abstract solved, %ld concrete remaining\n",
+               //solved_count, concrete_prob_count);
             }
+            fprintf(GlobalOut, "# SZS status Ended for %s\n\n", concrete_name);
+            fflush(GlobalOut);
 
             FREE(concrete_name);
          }

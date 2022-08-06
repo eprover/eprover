@@ -198,7 +198,7 @@ EGPCtrl_p EGPCtrlCreate(char *name, int cores, rlim_t cpu_limit)
 //
 //   Read data from the connected subprocess. If that has terminated,
 //   determine the status and record in in the block. Return
-//   true. Otherwise rerturn false.
+//   true. Otherwise return false.
 //
 // Global Variables: -
 //
