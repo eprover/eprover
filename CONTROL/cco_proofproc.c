@@ -66,8 +66,8 @@ void document_processing(Clause_p clause)
       {
          putc('\n', GlobalOut);
          putc('#', GlobalOut);
-         ClausePrintDBG(GlobalOut, clause);
-         DerivationDebugPrint(GlobalOut, clause->derivation);
+         ClausePrint(GlobalOut, clause, true);
+         //DerivationDebugPrint(GlobalOut, clause->derivation);
          putc('\n', GlobalOut);
       }
       DocClauseQuoteDefault(6, clause, "new_given");
@@ -1552,7 +1552,7 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control,
    {
       return NULL;
    }
-   
+
    //EvalListPrintComment(GlobalOut, clause->evaluations); printf("\n");
    if(OutputLevel==1)
    {
@@ -1634,7 +1634,7 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control,
    ClauseSetSetProp(state->tmp_store, CPIsIRVictim);
 
    clause = pclause->clause;
-   
+
    ClauseNormalizeVars(clause, state->freshvars);
    tmp_copy = ClauseCopyDisjoint(clause);
    tmp_copy->ident = clause->ident;
