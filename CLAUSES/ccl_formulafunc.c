@@ -285,14 +285,14 @@ TFormula_p unencode_eqns(TB_p terms, TFormula_p t)
    {
       res = NULL;
    }
-   else if (t->f_code == terms->sig->eqn_code 
-            && t->arity == 2 
-            && t->args[1] == terms->true_term 
-            && !TermIsAnyVar(t->args[0]) 
-            && (SigQueryFuncProp(terms->sig, t->args[0]->f_code, FPFOFOp) 
-                || t->args[0]->f_code == terms->sig->qex_code 
-                || t->args[0]->f_code == terms->sig->qall_code 
-                || t->args[0]->f_code == terms->sig->eqn_code 
+   else if (t->f_code == terms->sig->eqn_code
+            && t->arity == 2
+            && t->args[1] == terms->true_term
+            && !TermIsAnyVar(t->args[0])
+            && (SigQueryFuncProp(terms->sig, t->args[0]->f_code, FPFOFOp)
+                || t->args[0]->f_code == terms->sig->qex_code
+                || t->args[0]->f_code == terms->sig->qall_code
+                || t->args[0]->f_code == terms->sig->eqn_code
                 || t->args[0]->f_code == terms->sig->neqn_code))
    {
       res = t->args[0];
@@ -759,7 +759,7 @@ static void check_all_found(Scanner_p in, StrTree_p name_selector)
 //
 // Function: fool_should_ignore()
 //
-//   Is the term a variable encoded as X = true, X!=true or a negation 
+//   Is the term a variable encoded as X = true, X!=true or a negation
 //   thereof. Or is it of the form $eq(true, true) or $eq(false, false).
 //
 // Global Variables: -
@@ -806,7 +806,7 @@ bool find_fool_subterm(TB_p bank, Term_p t, TermPos_p pos)
    int i;
    PStackPushP(pos, t);
    bool found = false;
-   
+
    if(!TermIsLambda(t) && TermHasBoolSubterm(t))
    {
       for(i=0; i<t->arity; i++)
@@ -888,7 +888,7 @@ TFormula_p do_fool_unroll(TFormula_p form, TB_p terms)
          assert(TypeIsBool(subform->type));
 
             // This is a Skolem symbol that is not yet encoded as literal
-            
+
          subform = EncodePredicateAsEqn(terms, subform);
 
          Term_p subform_t = TBTermPosReplace(terms, terms->true_term, pos,
@@ -980,7 +980,7 @@ TFormula_p do_ite_unroll(TFormula_p form, TB_p terms)
                              TBTermTopInsert(terms, true_part),
                              TBTermTopInsert(terms, false_part));
 
-      form = do_ite_unroll(TermMap(terms, unrolled, FlattenApps_driver), 
+      form = do_ite_unroll(TermMap(terms, unrolled, FlattenApps_driver),
                            terms);
    }
    else if (TFormulaIsLiteral(terms->sig, form))
@@ -1410,7 +1410,7 @@ long WFormulaCNF2(WFormula_p form, ClauseSet_p set,
       ClausePushDerivation(clause, DCFofQuote, form, NULL);
       if(problemType == PROBLEM_HO)
       {
-         EqnListMapTerms(clause->literals, 
+         EqnListMapTerms(clause->literals,
             (TermMapper_p)PostCNFEncodeFormulas, terms);
       }
       ClauseSetInsert(set, clause);
@@ -1661,7 +1661,7 @@ long FormulaAndClauseSetParse(Scanner_p in, FormulaSet_p fset,
 #ifndef ENABLE_LFHO
       if (TestInpId(in, "thf"))
       {
-         Error("To support LFHOL reasoning, recompile the E prover"
+         Error("To support HOL reasoning, recompile E"
                " using \'./configure --enable-ho && make rebuild\' \n",
                SYNTAX_ERROR);
       }
@@ -2470,7 +2470,7 @@ int FormulaCountNonTopLevelLambdas(Sig_p sig, TFormula_p form)
    PStackPushP(stack, form);
    PStackPushInt(stack, true);
    int res = 0;
-   
+
    while(!PStackEmpty(stack))
    {
       bool is_at_top = PStackPopInt(stack);
@@ -2480,7 +2480,7 @@ int FormulaCountNonTopLevelLambdas(Sig_p sig, TFormula_p form)
       {
          if(is_at_top)
          {
-            is_at_top = is_at_top && (!TermIsFreeVar(form) 
+            is_at_top = is_at_top && (!TermIsFreeVar(form)
                                       && (SigIsLogicalSymbol(sig, form->f_code)
                                           || TermIsLambda(form)));
          }
@@ -2488,7 +2488,7 @@ int FormulaCountNonTopLevelLambdas(Sig_p sig, TFormula_p form)
          {
             res++;
          }
-         
+
          for(int i=TermIsPhonyApp(form) || TermIsLambda(form) ? 1 : 0; i<form->arity; i++)
          {
             if(TermHasLambdaSubterm(form->args[i]))
@@ -2521,13 +2521,13 @@ bool FormulaHasAppVarLit(Sig_p sig, TFormula_p form)
    PStack_p stack = PStackAlloc();
    PStackPushP(stack, form);
    bool res = false;
-   
+
    while(!PStackEmpty(stack) && !res)
    {
       TFormula_p form = PStackPopP(stack);
       if(TFormulaIsLiteral(sig, form))
       {
-         res = TermIsAppliedFreeVar(form->args[0]) 
+         res = TermIsAppliedFreeVar(form->args[0])
                || TermIsAppliedFreeVar(form->args[1]);
       }
       else if(form->f_code > 0 && SigIsLogicalSymbol(sig, form->f_code))
@@ -2548,7 +2548,7 @@ bool FormulaHasAppVarLit(Sig_p sig, TFormula_p form)
 // Function: ClauseSetLiftLambdas()
 //
 //   Lift lambdas in clauses, change them in place, modify the proof object
-//   and store the lambda definitions in archive. New lambda definitions are 
+//   and store the lambda definitions in archive. New lambda definitions are
 //   clausified in turn.
 //
 // Global Variables: -
@@ -2557,7 +2557,7 @@ bool FormulaHasAppVarLit(Sig_p sig, TFormula_p form)
 //
 /----------------------------------------------------------------------*/
 
-void ClauseSetLiftLambdas(ClauseSet_p set, FormulaSet_p archive, TB_p terms, 
+void ClauseSetLiftLambdas(ClauseSet_p set, FormulaSet_p archive, TB_p terms,
                           VarBank_p fresh_vars, bool unroll_fool)
 {
    PStack_p defs = PStackAlloc();

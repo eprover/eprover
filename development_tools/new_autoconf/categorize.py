@@ -1,3 +1,73 @@
+#!/usr/bin/env python3
+
+"""
+categorize.py
+
+Usage: categorize.py [options] --out-dir=<dir> <classify_problem_binary> <problem-dir>
+
+Classify a set of problems into classes and collect the results in
+files and directories.
+
+Example: categorize.py --mask="FGHSF-FSLM21-MFFFFFNN" --raw-mask="HSLSSMSMSSMNHFA" --out-dir ~/EPROVER/CLASSES_NEWCONFIG --max-cpus=8 --binary-timeout=30 ~/SOURCES/Projects/E/PROVER/classify_problem ~/EPROVER/TPTP-v8.1.0/Problems/ 
+
+
+Options:
+
+-h  Print this help.
+
+--mask="FGHSF-FSLM21-MFFFFFNN"
+    Class mask for preprocessed CNF classes.
+
+--raw-mask="HSLSSMSMSSMNHFA"
+    Class mask for raw problems
+
+--out-dir=<dir>
+    Directory for storing results of the classification. 
+
+--max-cpus=8
+    Number of cores to use in parallel.
+
+--binary-timeout=<time>
+    Timeout for classifier. 
+
+
+Copyright 2022 Petar Vukmirovic and Stephan Schulz
+
+This code is part of the support structure for the equational
+theorem prover E. Visit
+
+ http://www.eprover.org
+
+for more information.
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program ; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place, Suite 330, Boston,
+MA  02111-1307 USA
+
+The original copyright holder can be contacted as
+
+Stephan Schulz
+DHBW Stuttgart
+Informatik
+Jaegerstrasse 56
+70174 Stuttgart
+Germany
+
+or (preferably) via email at schulz@eprover.org
+"""
+
+
 import os
 import os.path as p
 

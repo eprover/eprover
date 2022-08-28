@@ -1,3 +1,70 @@
+#!/usr/bin/env python3
+
+"""
+scheduler.py
+
+Usage:
+
+
+Example: scheduler.py --min-preproc-size=3 --max-preproc-size=8 --min-search-size=4 --max-search-size=12 --e-path ~/SOURCES/Projects/E/PROVER/eprover-ho ~/EPROVER/PETAR_TUNING/*.zip ~/EPROVER/CLASSES_NEWCONFIG  --min-cat-size=3 > ~/schedule.vars
+
+
+Options:
+
+-h  Print this help.
+
+--mask="FGHSF-FSLM21-MFFFFFNN"
+    Class mask for preprocessed CNF classes.
+
+--raw-mask="HSLSSMSMSSMNHFA"
+    Class mask for raw problems
+
+--out-dir=<dir>
+    Directory for storing results of the classification.
+
+--max-cpus=8
+    Number of cores to use in parallel.
+
+--binary-timeout=<time>
+    Timeout for classifier.
+
+
+Copyright 2022 Petar Vukmirovic and Stephan Schulz
+
+This code is part of the support structure for the equational
+theorem prover E. Visit
+
+ http://www.eprover.org
+
+for more information.
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program ; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place, Suite 330, Boston,
+MA  02111-1307 USA
+
+The original copyright holder can be contacted as
+
+Stephan Schulz
+DHBW Stuttgart
+Informatik
+Jaegerstrasse 56
+70174 Stuttgart
+Germany
+
+or (preferably) via email at schulz@eprover.org
+"""
+
 import enum
 import os.path as p
 from sys import stderr
@@ -17,7 +84,7 @@ PROTOCOL = 'protocol_'
 def parse_categories(root):
   from categorize import CATEGORIZATIONS, IGNORE_CLASSES
   cats = []
-  for cat_filename in CATEGORIZATIONS:
+  for cat_filename in CATEGORIZATIONS:q
     f_name = p.join(root, cat_filename)
     if p.exists(root) and p.isdir(root) and\
        p.exists(f_name):
@@ -56,7 +123,7 @@ def parse_jobinfo_file(_, fd, confs, __, limit):
         confs[conf_name] = conf
       if result in SUCCESS_RESULTS:
         time = float(row[JOBINFO_TIME].strip())
-        if time < limit:     
+        if time < limit:
           conf.add_solved_prob(prob, time)
         else:
           conf.add_attempted_prob(prob)
@@ -73,11 +140,11 @@ def parse_protocol_file(filename, fd, confs, e_path, limit):
     first_line = next(fd)
     if not first_line.startswith('#'):
       raise StopIteration
-    
+
     e_args = first_line[1:].strip().split(' ')[1:]
     from pathlib import Path
     conf_name = Path(filename[len(PROTOCOL):]).stem
-    
+
     if conf_name in confs:
       conf = confs[conf_name]
     else:
@@ -146,7 +213,7 @@ def parse_configurations(archives, e_path, limit, json_root=None):
         with io.TextIOWrapper(fd.open(csv_filename)) as csv_fd:
           any_success = parse_file(csv_filename, csv_fd) or any_success
     return any_success
-  
+
   import tarfile as tf
   def parse_tar(arch):
     any_success = False
@@ -172,7 +239,7 @@ def parse_configurations(archives, e_path, limit, json_root=None):
       conf_name = Path(conf).name
       if conf_name in confs and confs[conf_name].to_json() is None:
         confs[conf_name].parse_json(conf)
-  
+
   return confs
 
 
@@ -184,7 +251,7 @@ def init_args():
     to obtain the class. Then, a directory is made where each file
     has the name of the class and contains all the problems that belong to this
     class.
-  ''' 
+  '''
   parser = argparse.ArgumentParser(description=description)
   parser.add_argument('result_archives', metavar='RESULT_ARCHIVES', nargs='+',
                       help='archives containing the evaluation results')
@@ -232,7 +299,7 @@ def adjust_ratios(schedule, min_ratio):
   if total_ratio <= 0.98:
     mult = 1 / total_ratio
     schedule = list(map(lambda x: (x[0], mult*x[1]), schedule))
-  
+
   min_ratio = min(min_ratio, 1/len(schedule))
   schedule.sort(key=lambda x: x[1], reverse=True)
 
@@ -259,7 +326,7 @@ def adjust_ratios(schedule, min_ratio):
 
   return schedule
 
-def schedule(cats, confs, min_size, max_size, used_confs, 
+def schedule(cats, confs, min_size, max_size, used_confs,
              unique_preproc=False, min_ratio=0.05, dbg=False):
   cats = cats.values() if type(cats) is dict else cats
   confs = confs.values() if type(confs) is dict else confs
@@ -268,17 +335,17 @@ def schedule(cats, confs, min_size, max_size, used_confs,
   n = len(cats)
   for (i,cat) in enumerate(cats):
     print_progress_bar(i, n)
-    
+
     schedule = []
     remaining_probs = set(cat.get_problems())
     total_probs = len(remaining_probs)
     sched_size = 0
     remaining_ratio = 1
     remaining_confs = set(confs)
-    
+
     while remaining_confs and remaining_probs and sched_size<max_size:
-      best_conf, best_eval = get_best_conf(remaining_confs, 
-                                           schedule[-1][0] if schedule else None, 
+      best_conf, best_eval = get_best_conf(remaining_confs,
+                                           schedule[-1][0] if schedule else None,
                                            remaining_probs)
       if best_eval[0] == 0:
         #no problems can be solved by any of the remaining confs
@@ -293,7 +360,7 @@ def schedule(cats, confs, min_size, max_size, used_confs,
         remaining_probs.difference_update(solved_probs)
         remaining_confs.remove(best_conf)
         if unique_preproc:
-          same_preproc = set(filter(lambda x: x.get_preprocess_params() 
+          same_preproc = set(filter(lambda x: x.get_preprocess_params()
                                   == best_conf.get_preprocess_params(),
                                 remaining_confs))
           if (dbg):
@@ -301,11 +368,11 @@ def schedule(cats, confs, min_size, max_size, used_confs,
           remaining_confs.difference_update(same_preproc)
 
         sched_size += 1
-    
+
     if sched_size<min_size:
       to_add = min_size - sched_size
-      
-      # if we did not have enough configurations to fill 
+
+      # if we did not have enough configurations to fill
       # in the scheule, then we take the best ones until
       # the schedule is filled
       assert(remaining_confs)
@@ -315,17 +382,17 @@ def schedule(cats, confs, min_size, max_size, used_confs,
         return (sol, uniq, dist, succ, -time)
 
       last = schedule[-1][0] if schedule else None
-      remaining_confs = list(sorted(remaining_confs, key=lambda x: eval_probs(x, last, cat), 
+      remaining_confs = list(sorted(remaining_confs, key=lambda x: eval_probs(x, last, cat),
                                     reverse=True))
       rem_ratio = remaining_ratio / to_add
       while remaining_confs and to_add:
         chosen_conf = remaining_confs[0]
         schedule.append( (chosen_conf, rem_ratio) )
-        remaining_confs = list(filter(lambda x: x.get_preprocess_params() 
-                                                 != chosen_conf.get_preprocess_params(), 
+        remaining_confs = list(filter(lambda x: x.get_preprocess_params()
+                                                 != chosen_conf.get_preprocess_params(),
                               remaining_confs))
         to_add -= 1
-                      
+
 
     if dbg:
       final_sch =  list(map(lambda x: x[0], schedule))
@@ -334,7 +401,7 @@ def schedule(cats, confs, min_size, max_size, used_confs,
 
     used_confs.update(map(lambda x: x[0], schedule))
     res[cat] = adjust_ratios(schedule, min_ratio)
-  
+
   return res
 
 def output_used_confs(confs):
@@ -365,7 +432,7 @@ def output_schedule_map(var_prefix, schedule, extra_field=False):
     output_schedule(var_prefix, sch, extra_field)
   print('StrSchedPair {0}_sched_map[] =\n  {{'.format(var_prefix));
   for cat in schedule.keys():
-    print('{{ "{0}", {1}, {2} }}, '.format(cat.get_name(), get_sched_name(var_prefix, cat), 
+    print('{{ "{0}", {1}, {2} }}, '.format(cat.get_name(), get_sched_name(var_prefix, cat),
                                            cat.get_size()))
   print('{ NULL, NULL, 0 }');
   print('};')
@@ -379,14 +446,14 @@ def clean_small_cats(cats, limit):
 def generate_best_schedule(cat_map, confs, min_size, max_size, min_ratio=None):
   if min_ratio is None:
     min_ratio = 1.0/max_size
-  
+
   DUMMY_NAME = "DEFAULT_SCHEDULE"
   all_probs = Category(DUMMY_NAME)
   for prob_set in map(lambda x: x.get_problems(), cat_map.values()):
     for prob in prob_set:
       all_probs.add_prob(prob)
-  
-  return schedule({DUMMY_NAME: all_probs}, confs, min_size, max_size, 
+
+  return schedule({DUMMY_NAME: all_probs}, confs, min_size, max_size,
                   set(), min_ratio=min_ratio)
 
 

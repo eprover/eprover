@@ -52,7 +52,7 @@ static TFormula_p literal_tform_tstp_parse(Scanner_p in, TB_p terms);
 //
 //   Makes term that has function code that corresponds to f_name
 //   and no arguments.
-//    NB:  Term is unshared at this point!
+//   NB:  Term is unshared at this point!
 //
 // Global Variables: -
 //
@@ -62,19 +62,16 @@ static TFormula_p literal_tform_tstp_parse(Scanner_p in, TB_p terms);
 
 static Term_p make_head(Sig_p sig, const char* f_name)
 {
-   Term_p head = TermDefaultCellAlloc();
-   head->f_code = SigFindFCode(sig, f_name);
-   if(!head->f_code)
-   {
-      DStr_p msg = DStrAlloc();
-      DStrAppendStr(msg, "Function symbol ");
-      DStrAppendStr(msg, (char*)f_name);
-      DStrAppendStr(msg, " has not been defined previously.");
-      Error(DStrView(msg), SYNTAX_ERROR);
-   }
-   head->arity = 0;
-   head->type = SigGetType(sig, head->f_code);
+   Term_p head = NULL;
+   FunCode f_code = SigFindFCode(sig, f_name);
 
+   if(f_code)
+   {
+      head = TermDefaultCellAlloc();
+      head->f_code = f_code;
+      head->arity = 0;
+      head->type = SigGetType(sig, head->f_code);
+   }
    return head;
 }
 
@@ -126,9 +123,17 @@ static Term_p __inline__ parse_ho_atom(Scanner_p in, TB_p bank)
    }
    else
    {
-      head = TBTermTopInsert(bank, make_head(bank->sig, DStrView(id)));
+      head = make_head(bank->sig, DStrView(id));
+      if(!head)
+      {
+         DStr_p msg = DStrAlloc();
+         DStrAppendStr(msg, "Function symbol ");
+         DStrAppendStr(msg, DStrView(id));
+         DStrAppendStr(msg, " has not been defined previously.");
+         AktTokenError(in, DStrView(msg), false);
+      }
+      head = TBTermTopInsert(bank, head);
    }
-
    DStrFree(id);
    assert(TermIsShared(head));
    assert(head->type);
@@ -867,7 +872,7 @@ static Term_p lambda_eq_to_forall(TB_p terms, Term_p t)
       t = NULL;
    }
    else if((t->f_code == sig->eqn_code
-       || t->f_code == sig->neqn_code) 
+       || t->f_code == sig->neqn_code)
       && t->arity == 2)
    {
       if((TermIsLambda(t->args[0]) || TermIsLambda(t->args[1])))
@@ -878,7 +883,7 @@ static Term_p lambda_eq_to_forall(TB_p terms, Term_p t)
          UNUSED(UnfoldLambda(t->args[1], rhs_vars));
          assert(!PStackEmpty(lhs_vars) || !PStackEmpty(rhs_vars));
 
-         PStack_p more_vars = 
+         PStack_p more_vars =
             PStackGetSP(lhs_vars) > PStackGetSP(rhs_vars) ? lhs_vars : rhs_vars;
          PStack_p fresh_vars = PStackAlloc();
          PStack_p encoded_vars = PStackAlloc();
@@ -893,11 +898,11 @@ static Term_p lambda_eq_to_forall(TB_p terms, Term_p t)
          Term_p rhs = BetaNormalizeDB(terms, ApplyTerms(terms, t->args[1], encoded_vars));
          if(lhs->type == sig->type_bank->bool_type)
          {
-            
+
             t = TFormulaFCodeAlloc(terms,
-                                   t->f_code == sig->eqn_code 
+                                   t->f_code == sig->eqn_code
                                         ? sig->equiv_code : sig->xor_code,
-                                   EncodePredicateAsEqn(terms, lhs), 
+                                   EncodePredicateAsEqn(terms, lhs),
                                    EncodePredicateAsEqn(terms, rhs));
          }
          else
@@ -905,7 +910,7 @@ static Term_p lambda_eq_to_forall(TB_p terms, Term_p t)
             t = TFormulaFCodeAlloc(terms, t->f_code, lhs, rhs);
          }
 
-         bool universal = t->f_code == sig->eqn_code 
+         bool universal = t->f_code == sig->eqn_code
                            || t->f_code == sig->equiv_code;
          while(!PStackEmpty(fresh_vars))
          {
@@ -928,7 +933,7 @@ static Term_p lambda_eq_to_forall(TB_p terms, Term_p t)
 //   Check if there is already a name for lambda term query. If so,
 //   return the defining formula and store the name in *name. Assumes
 //   that in query fresh variables that represent loosely bound vars
-//   are bound to their corresponding DB vars. 
+//   are bound to their corresponding DB vars.
 //
 // Global Variables: -
 //
@@ -947,7 +952,7 @@ WFormula_p find_generalization(PDTree_p liftings, Term_p query, TermRef name)
    {
       //once to deref variables that matched the definition
       //to query
-      Term_p matcher_derefed = 
+      Term_p matcher_derefed =
          TBInsertInstantiated(liftings->bank, pos->literal->rterm);
 
       // to make sure that previously derefed vars are not derefed
@@ -962,12 +967,12 @@ WFormula_p find_generalization(PDTree_p liftings, Term_p query, TermRef name)
 
 
       //the second time to bind free variables to loosely bound ones
-      matcher_derefed = 
+      matcher_derefed =
          TBInsertInstantiated(liftings->bank, matcher_derefed);
 
       Term_p candidate =
          LambdaEtaReduceDB(liftings->bank,
-            BetaNormalizeDB(liftings->bank, matcher_derefed));        
+            BetaNormalizeDB(liftings->bank, matcher_derefed));
       if(!TermHasLambdaSubterm(candidate))
       {
          *name = candidate;
@@ -1048,7 +1053,7 @@ Term_p unbind_loose(TB_p terms, IntMap_p db_map, long depth, Term_p t)
          if(!*fvar_ref)
          {
             *fvar_ref = VarBankGetFreshVar(terms->vars, t->type);
-            (*fvar_ref)->binding = 
+            (*fvar_ref)->binding =
                TBRequestDBVar(terms, t->type, t->f_code-depth);
          }
          assert ((*fvar_ref)->type == t->type);
@@ -1091,7 +1096,7 @@ Term_p unbind_loose(TB_p terms, IntMap_p db_map, long depth, Term_p t)
 //
 /----------------------------------------------------------------------*/
 
-Term_p lift_lambda(TB_p terms, PStack_p bound_vars, Term_p body, 
+Term_p lift_lambda(TB_p terms, PStack_p bound_vars, Term_p body,
                    PStack_p definitions, PDTree_p liftings)
 {
    Term_p lifted; // the result holding variable
@@ -1114,16 +1119,16 @@ Term_p lift_lambda(TB_p terms, PStack_p bound_vars, Term_p body,
    }
 
    IntMap_p loosely_bound_to_fresh = IntMapAlloc();
-   Term_p body_no_loose = 
+   Term_p body_no_loose =
       unbind_loose(terms, loosely_bound_to_fresh, PStackGetSP(bound_vars), body);
    IntMapIter_p iter =  IntMapIterAlloc(loosely_bound_to_fresh, 0, LONG_MAX);
-   
+
    // closed will be like body, but all loosely bound vars are replaced by
    // fresh vars
    Term_p closed = body_no_loose;
    for(long i=PStackGetSP(bound_vars)-1; i>=0; i--)
    {
-      closed = 
+      closed =
          CloseWithDBVar(terms, ((Term_p)PStackElementP(bound_vars, i))->type,
                         closed);
    }
@@ -1162,25 +1167,25 @@ Term_p lift_lambda(TB_p terms, PStack_p bound_vars, Term_p body,
       {
          lift_sym_ty_args[i] = ((Term_p)PStackElementP(lb_stack_db_vars,i))->type;
       }
-      Type_p res_ty = 
+      Type_p res_ty =
          TypeBankInsertTypeShared(terms->sig->type_bank,
-            ArrowTypeFlattened(lift_sym_ty_args, 
+            ArrowTypeFlattened(lift_sym_ty_args,
                                PStackGetSP(lb_stack_db_vars), closed->type));
       TypeArgArrayFree(lift_sym_ty_args, PStackGetSP(lb_stack_db_vars));
 
       Term_p def_head =  TermAllocNewSkolem(terms->sig, free_var_stack, res_ty);
       def_head = TBTermTopInsert(terms, def_head);
-      
+
       Term_p repl_t = ApplyTerms(terms, def_head, lb_stack_db_vars);
       Term_p lhs_wo_bound = ApplyTerms(terms, def_head, lb_stack_fresh_vars);
-      Term_p repl_lhs = 
+      Term_p repl_lhs =
          ApplyTerms(terms, lhs_wo_bound, bound_to_fresh);
       Term_p repl_rhs = WHNF_step(terms, ApplyTerms(terms, closed, bound_to_fresh));
 
       TFormula_p def_f;
       if(TypeIsBool(body->type))
       {
-         def_f = TFormulaFCodeAlloc(terms, terms->sig->equiv_code, 
+         def_f = TFormulaFCodeAlloc(terms, terms->sig->equiv_code,
                                  EncodePredicateAsEqn(terms, repl_lhs),
                                  EncodePredicateAsEqn(terms, repl_rhs));
       }
@@ -1188,7 +1193,7 @@ Term_p lift_lambda(TB_p terms, PStack_p bound_vars, Term_p body,
       {
          def_f = TFormulaFCodeAlloc(terms, terms->sig->eqn_code, repl_lhs, repl_rhs);
       }
-      
+
       for(long i=0; i<repl_lhs->arity; i++)
       {
          def_f = TFormulaAddQuantor(terms, def_f, true, repl_lhs->args[i]);
@@ -1366,7 +1371,7 @@ TFormula_p TFormulaLitAlloc(Eqn_p literal)
    {
       Term_p lterm = DecodeFormulasForCNF(bank, literal->lterm);
       Term_p rterm = DecodeFormulasForCNF(bank, literal->rterm);
-      res = 
+      res =
          TFormulaFCodeAlloc(bank,
             EqnIsPositive(literal) ? bank->sig->equiv_code : bank->sig->xor_code,
             lterm, rterm);
@@ -1375,7 +1380,7 @@ TFormula_p TFormulaLitAlloc(Eqn_p literal)
    {
       Term_p lterm = DecodeFormulasForCNF(bank, literal->lterm);
       Term_p rterm = DecodeFormulasForCNF(bank, literal->rterm);
-      res = 
+      res =
          EqnTermsTBTermEncode(bank, lterm, rterm, EqnIsPositive(literal), PENormal);
    }
 
@@ -1874,7 +1879,7 @@ TFormula_p TFormulaTSTPParse(Scanner_p in, TB_p terms)
          // if it is bool it is either a literal ((dis)equation) or a formula
          assert(SigIsLogicalSymbol(sig, f1->f_code));
          assert(SigIsLogicalSymbol(sig, f2->f_code));
-         
+
          op = (op == sig->eqn_code) ? sig->equiv_code : sig->xor_code;
       }
 
@@ -2529,7 +2534,7 @@ TFormula_p LiftLambdas(TB_p terms, TFormula_p t, PStack_p definitions, PDTree_p 
       assert(res != t);
    }
 
-   
+
    if(vars)
    {
       res = lift_lambda(terms, vars, res, definitions, liftings);
