@@ -13,20 +13,13 @@ Options:
 
 -h  Print this help.
 
---mask="FGHSF-FSLM21-MFFFFFNN"
-    Class mask for preprocessed CNF classes.
-
---raw-mask="HSLSSMSMSSMNHFA"
-    Class mask for raw problems
-
---out-dir=<dir>
-    Directory for storing results of the classification.
-
---max-cpus=8
-    Number of cores to use in parallel.
-
---binary-timeout=<time>
-    Timeout for classifier.
+--conf-root CONF_ROOT]
+                    [--max-preproc-size MAX_PREPROC_SIZE]
+                    [--min-preproc-size MIN_PREPROC_SIZE]
+                    [--min-search-size MIN_SEARCH_SIZE]
+                    [--max-search-size MAX_SEARCH_SIZE]
+                    [--min-cat-size MIN_CAT_SIZE] [--e-path E_PATH]
+                    RESULT_ARCHIVES [RESULT_ARCHIVES ...] CATEGORY_ROOT
 
 
 Copyright 2022 Petar Vukmirovic and Stephan Schulz
@@ -84,7 +77,7 @@ PROTOCOL = 'protocol_'
 def parse_categories(root):
   from categorize import CATEGORIZATIONS, IGNORE_CLASSES
   cats = []
-  for cat_filename in CATEGORIZATIONS:q
+  for cat_filename in CATEGORIZATIONS:
     f_name = p.join(root, cat_filename)
     if p.exists(root) and p.isdir(root) and\
        p.exists(f_name):
@@ -172,20 +165,22 @@ def parse_protocol_file(filename, fd, confs, e_path, limit):
 
     for line in fd:
       values = line.split()
-      (prob, status, time) = values[columns[PROBLEM_COL]], values[columns[STATUS_COL]],\
-                             values[columns[TIME_COL]]
-      if (status != 'F'):
-        try:
-          if float(time) < limit:
-            conf.add_solved_prob(prob, float(time))
-          else:
+      try:
+        (prob, status, time) = values[columns[PROBLEM_COL]], values[columns[STATUS_COL]],\
+                               values[columns[TIME_COL]]
+        if (status != 'F'):
+          try:
+            if float(time) < limit:
+              conf.add_solved_prob(prob, float(time))
+            else:
+              conf.add_attempted_prob(prob)
+          except ValueError:
+            print('# Error with line {0} in {1}'.format(line, filename), file=stderr)
             conf.add_attempted_prob(prob)
-        except ValueError:
-          print('# Error with line {0} in {1}'.format(line, filename), file=stderr)
+        else:
           conf.add_attempted_prob(prob)
-      else:
-        conf.add_attempted_prob(prob)
-
+      except KeyError:
+        print('# Error with line {0} in {1}'.format(line, filename), file=stderr)
     return True
   except StopIteration:
     print('Iteration stopped')

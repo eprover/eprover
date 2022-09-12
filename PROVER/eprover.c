@@ -523,7 +523,7 @@ int main(int argc, char* argv[])
 
 
 #ifndef NDEBUG
-      fprintf(stderr, "(lift_lambdas = %d, lambda_to_forall = %d,"
+      fprintf(stderr, "# (lift_lambdas = %d, lambda_to_forall = %d,"
                       "unroll_only_formulas = %d, sine = %s)\n",
                       h_parms->lift_lambdas,
                       h_parms->lambda_to_forall,
