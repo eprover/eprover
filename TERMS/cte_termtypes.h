@@ -416,6 +416,10 @@ static inline Type_p GetHeadType(Sig_p sig, Term_p term)
    {
       return term->type;
    }
+   else if((term->f_code == sig->qex_code) || (term->f_code == sig->qall_code))
+   {
+      return sig->type_bank->bool_type;
+   }
 #ifdef ENABLE_LFHO
    else if(TermIsAppliedAnyVar(term))
    {

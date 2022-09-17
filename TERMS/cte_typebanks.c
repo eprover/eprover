@@ -7,19 +7,18 @@ Author: Petar Vukmirovic
 Contents
 
   This module implements type sharing invariant:
-   -Each two types that are structurally the same,
-    should be the same object in memory.
+   - Each two types that are structurally the same,
+     should be the same object in memory.
 
   Sharing is inspired by term sharing (hashing + splay trees).
 
-  Copyright 1998, 1999 by the author.
+  Copyright 2020 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Created: Tue Feb 24 01:23:24 MET 1998 - Ripped out of the now obsolete
-         cte_terms.h
+Created: ?
 
 -----------------------------------------------------------------------*/
 

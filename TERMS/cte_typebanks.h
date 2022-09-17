@@ -38,8 +38,10 @@ typedef struct typebank_cell {
    StrTree_p      name_idx;                   // Name to arity, type_identifier pair
                                               // for sorts arity is always 0
    long           names_count;                // Counter for different names inserted
-   TypeUniqueID   types_count;                // Counter for different types inserted -- Each type will
-                                              // have unique ID.
+   TypeUniqueID   types_count;                // Counter for different
+                                              // types inserted --
+                                              // Each type will have
+                                              // unique ID.
    PObjTree_p     hash_table[TYPEBANK_SIZE];  // Hash table for sharing
 
    // some types that are accessed frequently.
