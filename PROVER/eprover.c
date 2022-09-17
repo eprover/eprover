@@ -457,7 +457,8 @@ int main(int argc, char* argv[])
 
    if(parse_strategy_filename)
    {
-      Scanner_p in = CreateScanner(StreamTypeFile, parse_strategy_filename, true, NULL, true);
+      Scanner_p in = CreateScanner(StreamTypeFile, parse_strategy_filename,
+                                   true, NULL, true);
       HeuristicParmsParseInto(in,h_parms,true);
       if(h_parms->heuristic_def)
       {
@@ -523,12 +524,12 @@ int main(int argc, char* argv[])
 
 
 #ifndef NDEBUG
-      fprintf(stderr, "# (lift_lambdas = %d, lambda_to_forall = %d,"
-                      "unroll_only_formulas = %d, sine = %s)\n",
-                      h_parms->lift_lambdas,
-                      h_parms->lambda_to_forall,
-                      h_parms->unroll_only_formulas,
-                      h_parms->sine);
+   fprintf(stderr, "# (lift_lambdas = %d, lambda_to_forall = %d,"
+           "unroll_only_formulas = %d, sine = %s)\n",
+           h_parms->lift_lambdas,
+           h_parms->lambda_to_forall,
+           h_parms->unroll_only_formulas,
+           h_parms->sine);
 #endif
 
    relevancy_pruned += ProofStateSinE(proofstate, h_parms->sine);
