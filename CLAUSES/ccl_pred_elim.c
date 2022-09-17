@@ -447,9 +447,9 @@ void scan_clause_for_predicates(Clause_p cl, IntMap_p sym_map, MinHeap_p queue,
          }
 
          int occs = (*task)->offending_cls->card +
-            sign ?
+            (sign ?
             ((*task)->pos_gates->card + (*task)->positive_singular->card) :
-            ((*task)->neg_gates->card + (*task)->negative_singular->card);
+             ((*task)->neg_gates->card + (*task)->negative_singular->card));
 
          if((ignore_conj_syms && cl_is_conj) || (max_occs > 0 && occs >= max_occs))
          {
