@@ -646,7 +646,7 @@ static TFormula_p applied_tform_tstp_parse(Scanner_p in, TB_p terms, TFormula_p 
          //fprintf(stderr, "type: ");
          //TypePrintTSTP(stderr, terms->sig->type_bank, hd_type);
          //TermPrintDbg(stderr, head, terms->sig, DEREF_NEVER);
-         AktTokenError(in, " Too many arguments applied to the symbol",
+         AktTokenError(in, " Too many arguments applied to the term",
                        false);
       }
       AcceptInpTok(in, Application);
