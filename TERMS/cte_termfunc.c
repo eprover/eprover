@@ -2571,6 +2571,51 @@ long TermCollectVariables(Term_p term, PTree_p *tree)
    return res;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: TermCollectFCodes()
+//
+//   Insert all f_codes in term into
+//   tree. Return number of new f_codes found
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+long TermCollectFCodes(Term_p term, NumTree_p *tree)
+{
+   long res = 0;
+   PStack_p stack = PStackAlloc();
+   int      i;
+   IntOrP   dummy;
+
+   dummy.i_val = 0;
+   PStackPushP(stack,term);
+
+   while(!PStackEmpty(stack))
+   {
+      term = PStackPopP(stack);
+      if(term->f_code > 0)
+      {
+         if(NumTreeStore(tree, term->f_code, dummy, dummy))
+         {
+            res++;
+         }
+      }
+      for(i=0; i<term->arity; i++)
+      {
+         PStackPushP(stack,term->args[i]);
+      }
+   }
+   PStackFree(stack);
+
+   return res;
+}
+
+
+
 
 /*-----------------------------------------------------------------------
 //

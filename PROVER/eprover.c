@@ -516,7 +516,7 @@ int main(int argc, char* argv[])
       {
          assert(auto_conf);
          GetHeuristicWithName(preproc_schedule->heu_name, h_parms);
-         fprintf(stderr, "# Configuration: %s\n", preproc_schedule->heu_name);
+         fprintf(stdout, "# Configuration: %s\n", preproc_schedule->heu_name);
       }
       CLStateFree(state);
       state = process_options(argc, argv); // refilling the h_parms with user options
@@ -524,7 +524,7 @@ int main(int argc, char* argv[])
 
 
 #ifndef NDEBUG
-   fprintf(stderr, "# (lift_lambdas = %d, lambda_to_forall = %d,"
+   fprintf(stdout, "# (lift_lambdas = %d, lambda_to_forall = %d,"
            "unroll_only_formulas = %d, sine = %s)\n",
            h_parms->lift_lambdas,
            h_parms->lambda_to_forall,
@@ -720,7 +720,7 @@ int main(int argc, char* argv[])
          // executing the first one from the schedule.
          char* conf_name = GetSearchSchedule(class)->heu_name;
          GetHeuristicWithName(conf_name, h_parms);
-         fprintf(stderr, "# Configuration: %s\n", conf_name);
+         fprintf(stdout, "# Configuration: %s\n", conf_name);
          h_parms->inst_choice_max_depth = choice_max_depth;
       }
       FREE(class);

@@ -1826,6 +1826,33 @@ long EqnListCollectVariables(Eqn_p list, PTree_p *tree)
 
 /*-----------------------------------------------------------------------
 //
+// Function: EqnListCollectFCodes()
+//
+//   Add all FCodes in list to tree. Return number of distinct
+//   FCodes.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+long EqnListCollectFCodes(Eqn_p list, NumTree_p *tree)
+{
+   long res = 0;
+
+   while(list)
+   {
+      res+=EqnCollectFCodes(list, tree);
+      list = list->next;
+   }
+   return res;
+}
+
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: EqnListAddFunOccs()
 //
 //   For each symbol in literals that is not already marked in

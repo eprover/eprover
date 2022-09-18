@@ -1695,8 +1695,7 @@ void SigPrintTypes(FILE* out, Sig_p sig)
 //
 // Function: SigPrintTypeDeclsTSTP()
 //
-//   Print TPTP-3 type declarations for all real symbols.
-//
+//   Print TPTP-3 type declarations for all real symbols in sig.
 //
 // Global Variables: -
 //
@@ -1712,7 +1711,7 @@ void SigPrintTypeDeclsTSTP(FILE* out, Sig_p sig)
 
    for(i=sig->internal_symbols+1; i <= sig->f_count; i++)
    {
-      fun = &sig->f_info[i];
+      fun = &(sig->f_info[i]);
       if (fun->type /*&& !TypeIsUntyped(fun->type)*/)
       {
          fprintf(out, "%s(decl_%ld, type, %s: ", tag, i, fun->name);
@@ -1721,6 +1720,42 @@ void SigPrintTypeDeclsTSTP(FILE* out, Sig_p sig)
       }
    }
 }
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: SigPrintTypeDeclsTSTPSelective()
+//
+//   Print TPTP-3 type declarations for the symbols in sig that are
+//   also in symbols.
+//
+// Global Variables: -
+//
+// Side Effects    : IO on the file descriptor
+//
+/----------------------------------------------------------------------*/
+
+void SigPrintTypeDeclsTSTPSelective(FILE* out, Sig_p sig, NumTree_p *symbols)
+{
+   FunCode i;
+   Func_p fun;
+   const char* tag = problemType == PROBLEM_HO ? "thf" : "tff";
+
+   for(i=sig->internal_symbols+1; i <= sig->f_count; i++)
+   {
+      if(NumTreeFind(symbols,i))
+      {
+         fun = &sig->f_info[i];
+         if (fun->type /*&& !TypeIsUntyped(fun->type)*/)
+         {
+            fprintf(out, "%s(decl_%ld, type, %s: ", tag, i, fun->name);
+            TypePrintTSTP(out, sig->type_bank, fun->type);
+            fprintf(out, ").\n");
+         }
+      }
+   }
+}
+
 
 /*-----------------------------------------------------------------------
 //
@@ -2069,8 +2104,8 @@ bool SigHasChoiceSym(Sig_p sig)
 {
    FunCode i;
 
-   for(i=sig->internal_symbols+1; 
-       i<=sig->f_count && !IsChoiceType(SigGetType(sig, i)); 
+   for(i=sig->internal_symbols+1;
+       i<=sig->f_count && !IsChoiceType(SigGetType(sig, i));
        i++)
    {}
    return i<=sig->f_count;

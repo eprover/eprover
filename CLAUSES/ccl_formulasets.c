@@ -377,7 +377,7 @@ void FormulaSetAppEncode(FILE* out, FormulaSet_p set)
       PreloadTypes(handle->terms, handle->tformula);
       handle = handle->succ;
    }
-   
+
    handle = set->anchor->succ;
    if(handle->terms)
    {
@@ -393,7 +393,7 @@ void FormulaSetAppEncode(FILE* out, FormulaSet_p set)
             fputc('\n', out);
          }
 
-         handle = handle->succ;      
+         handle = handle->succ;
       }
    }
 }
@@ -622,7 +622,7 @@ long FormulaSetCollectFCode(FormulaSet_p set, FunCode f_code,
 
 /*-----------------------------------------------------------------------
 //
-// Function: FormulaSetCollectFCode()
+// Function: FormulaSetDefinitionStatistics()
 //
 //   Store information about the number of definitions and the percentage
 //   of definitions that define Boolean symbols in the arguments.
@@ -633,9 +633,9 @@ long FormulaSetCollectFCode(FormulaSet_p set, FunCode f_code,
 //
 /----------------------------------------------------------------------*/
 
-void FormulaSetDefinitionStatistics(FormulaSet_p orig, FormulaSet_p arch, 
-                                    TB_p bank, int* num_defs, 
-                                    double* percentage_form_defs, 
+void FormulaSetDefinitionStatistics(FormulaSet_p orig, FormulaSet_p arch,
+                                    TB_p bank, int* num_defs,
+                                    double* percentage_form_defs,
                                     int* num_lams, bool* has_app_var_lits)
 {
    WFormula_p handle;
@@ -655,7 +655,7 @@ void FormulaSetDefinitionStatistics(FormulaSet_p orig, FormulaSet_p arch,
       {
          _has_av_lits = _has_av_lits || FormulaHasAppVarLit(bank->sig, handle->tformula);
          _num_lams += FormulaCountNonTopLevelLambdas(bank->sig, handle->tformula);
-         
+
          if(FormulaQueryProp(handle, CPIsLambdaDef))
          {
             Term_p tform = handle->tformula;
