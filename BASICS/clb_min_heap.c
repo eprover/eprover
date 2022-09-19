@@ -1,22 +1,21 @@
 /*-----------------------------------------------------------------------
 
-File  : clb_min_heap.c
+  File  : clb_min_heap.c
 
-Author: Petar Vukmirovic
+  Author: Petar Vukmirovic
 
-Contents
+  Contents
 
   Simple minimum heap implementation.
 
-Copyright 1998-2022 by the author.
+  Copyright 2022 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
+  Created: Tue Jan 4 14:29:14 CET 2022
 
-<1> di  4 jan 2022 14:29:14 CET
 -----------------------------------------------------------------------*/
 
 #include "clb_min_heap.h"
@@ -434,3 +433,8 @@ void MinHeapRemoveElement(MinHeap_p h, long idx)
 //    MinHeapFree(h);
 //    return 0;
 // }
+
+
+/*---------------------------------------------------------------------*/
+/*                        End of File                                  */
+/*---------------------------------------------------------------------*/

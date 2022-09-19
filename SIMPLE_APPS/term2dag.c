@@ -72,7 +72,6 @@ OptCell opts[] =
 
 char *outname = NULL;
 bool app_encode = false;
-ProblemType problemType  = PROBLEM_NOT_INIT;
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */

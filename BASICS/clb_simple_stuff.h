@@ -61,6 +61,14 @@ typedef enum
    PRGaveUp
 }ProverResult;
 
+typedef enum {
+   PROBLEM_NOT_INIT = -1,
+   PROBLEM_FO,
+   PROBLEM_HO
+} ProblemType;
+
+extern ProblemType problemType;
+
 
 /*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */

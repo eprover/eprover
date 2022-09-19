@@ -187,13 +187,12 @@ OptCell opts[] =
     NoArg, NULL,
     NULL}
 };
-IOFormat          parse_format = TSTPFormat;
-char              *outname    = NULL;
-char              *filtername = NULL;
-char              *prover     = "eprover";
-int               port        = 3666;
-ProblemType problemType  = PROBLEM_NOT_INIT;
-bool app_encode = false;
+IOFormat parse_format = TSTPFormat;
+char     *outname    = NULL;
+char     *filtername = NULL;
+char     *prover     = "eprover";
+int      port        = 3666;
+bool     app_encode = false;
 
 
 /*---------------------------------------------------------------------*/

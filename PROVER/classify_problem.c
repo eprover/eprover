@@ -493,7 +493,6 @@ long eqdef_maxclauses = DEFAULT_EQDEF_MAXCLAUSES,
    miniscope_limit  = 1000;
 long eqdef_incrlimit  = DEFAULT_EQDEF_INCRLIMIT;
 FunctionProperties free_symb_prop = FPIgnoreProps;
-ProblemType problemType  = PROBLEM_NOT_INIT;
 char *sine = NULL;
 long FormulaDefLimit = 24;
 

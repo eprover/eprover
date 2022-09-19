@@ -244,7 +244,6 @@ char*    seedstr      = NULL;
 
 SubSampleMethod subsample   = SubSNone;
 long            sample_size = LONG_MAX;
-ProblemType problemType  = PROBLEM_NOT_INIT;
 
 
 /*---------------------------------------------------------------------*/

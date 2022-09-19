@@ -353,7 +353,6 @@ float      min_quality_rel   = 0.3;
 bool       min_quality_rel_p = false;
 OutputFormatType outputformat = pcl_format;
 
-ProblemType problemType  = PROBLEM_NOT_INIT;;
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */

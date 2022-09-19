@@ -135,16 +135,7 @@ static inline size_t WriteStr(int fd, const char* msg);
 #define GCC_DIAGNOSTIC_PUSH
 #endif
 
-typedef enum {
-   PROBLEM_NOT_INIT = -1,
-   PROBLEM_FO,
-   PROBLEM_HO
-} ProblemType;
-
 #define BOOL2STR(val) (val)?"true":"false"
-
-
-extern ProblemType problemType;
 
 /*-----------------------------------------------------------------------
 //

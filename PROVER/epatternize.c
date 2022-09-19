@@ -482,9 +482,7 @@ long eqdef_maxclauses = DEFAULT_EQDEF_MAXCLAUSES,
    miniscope_limit  = 1000,
    FormulaDefLimit = 24;
 long eqdef_incrlimit  = DEFAULT_EQDEF_INCRLIMIT;
-FunctionProperties free_symb_prop = FPIgnoreProps;
-ProblemType problemType  = PROBLEM_NOT_INIT;
-char *sine = NULL;
+FunctionProperties free_symb_prop = FPIgnoreProps;char *sine = NULL;
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
@@ -564,7 +562,7 @@ int main(int argc, char* argv[])
                            fstate->axioms,
                            fstate->terms,
                            fstate->freshvars,
-                           miniscope_limit, FormulaDefLimit, 
+                           miniscope_limit, FormulaDefLimit,
                            true, true, true, true);
          }
          else

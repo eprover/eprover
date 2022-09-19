@@ -136,11 +136,10 @@ OptCell opts[] =
     NULL}
 };
 
-char   *outname = NULL;
+char     *outname = NULL;
 IOFormat parse_format = LOPFormat;
-bool   dimacs_format = false;
-ProblemType problemType  = PROBLEM_NOT_INIT;
-bool   app_encode = false;
+bool     dimacs_format = false;
+bool     app_encode = false;
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */

@@ -1,23 +1,24 @@
 /*-----------------------------------------------------------------------
 
-File  : clb_min_heap.h
+  File  : clb_min_heap.h
 
-Author: Petar Vukmirovic
+  Author: Petar Vukmirovic
 
-Contents
+  Contents
 
   Simple minimum heap implementation.
 
-Copyright 1998-2022 by the author.
+  Copyright 2022 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
+  Changes
 
-<1> di  4 jan 2022 14:29:14 CET
------------------------------------------------------------------------*/
+  Created: Tue Jan 4 14:29:14 CET 2022
+
+  -----------------------------------------------------------------------*/
 
 
 #ifndef CLB_MIN_HEAPS
@@ -59,3 +60,7 @@ void MinHeapFree(MinHeap_p);
 void DBGPrintHeap(FILE* out, MinHeap_p h, bool as_ptr);
 
 #endif
+
+/*---------------------------------------------------------------------*/
+/*                        End of File                                  */
+/*---------------------------------------------------------------------*/

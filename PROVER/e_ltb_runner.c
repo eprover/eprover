@@ -177,7 +177,6 @@ bool              interactive     = false;
 bool              app_encode      = false;
 char**            use_variants    = NULL;
 char**            provers         = NULL;
-ProblemType problemType  = PROBLEM_NOT_INIT;
 
 
 char* variants27[] = {"+4", "+5", "_4", "_5", NULL};

@@ -127,8 +127,7 @@ char       *outname    = NULL;
 long       time_limit  = 10;
 char       *executable = NULL;
 ProverType prover      = EProver;
-ProblemType problemType  = PROBLEM_NOT_INIT;
-bool app_encode = false;
+bool       app_encode  = false;
 
 
 /*---------------------------------------------------------------------*/

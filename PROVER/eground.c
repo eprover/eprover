@@ -362,7 +362,6 @@ long   give_up = 0,
        initial_literals = 0,
        initial_clauses = 0;
 long FormulaDefLimit = 24;
-ProblemType problemType  = PROBLEM_NOT_INIT;
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */

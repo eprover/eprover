@@ -79,7 +79,6 @@ OptCell opts[] =
 
 char* kb_name = "E_KNOWLEDGE";
 char* ex_name;
-ProblemType problemType  = PROBLEM_NOT_INIT;
 bool app_encode = false;
 
 /*---------------------------------------------------------------------*/

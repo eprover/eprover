@@ -112,7 +112,6 @@ double             clausification_time_part=0.02;
 
 FunctionProperties free_symb_prop = FPIgnoreProps;
 
-ProblemType problemType  = PROBLEM_NOT_INIT;
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */

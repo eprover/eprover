@@ -36,6 +36,8 @@ static unsigned int xstate = 123456789,
 
 static RandStateCell rand_state = {123456789,987654321,43219876,6543217};
 
+ProblemType problemType = PROBLEM_NOT_INIT;
+
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
