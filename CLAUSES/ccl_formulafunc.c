@@ -1637,17 +1637,17 @@ long FormulaAndClauseSetParse(Scanner_p in, FormulaSet_p fset,
    Clause_p clause, nextclause;
    StrTree_p stand_in = NULL;
 
-   if (!name_selector)
+   if(!name_selector)
    {
       name_selector = &stand_in;
    }
 
-   switch (ScannerGetFormat(in))
+   switch(ScannerGetFormat(in))
    {
    case LOPFormat:
       //* LOP does not at the moment support full FOF, or inline watchlists */
       SetProblemType(PROBLEM_FO);
-      while (ClauseStartsMaybe(in))
+      while(ClauseStartsMaybe(in))
       {
          form = WFormClauseParse(in, terms);
          // fprintf(stdout, "Parsed: ");
@@ -1659,16 +1659,16 @@ long FormulaAndClauseSetParse(Scanner_p in, FormulaSet_p fset,
       break;
    default:
 #ifndef ENABLE_LFHO
-      if (TestInpId(in, "thf"))
+         if(TestInpId(in, "thf"))
       {
          Error("To support HOL reasoning, recompile E"
                " using \'./configure --enable-ho && make rebuild\' \n",
                SYNTAX_ERROR);
       }
 #endif
-      while (TestInpId(in, "input_formula|input_clause|fof|cnf|tff|thf|tcf|include"))
+      while(TestInpId(in, "input_formula|input_clause|fof|cnf|tff|thf|tcf|include"))
       {
-         if (TestInpId(in, "include"))
+         if(TestInpId(in, "include"))
          {
             if (app_encode)
             {
@@ -1703,8 +1703,12 @@ long FormulaAndClauseSetParse(Scanner_p in, FormulaSet_p fset,
          else
          {
             // printf("Parsing begins\n");
-            if (TestInpId(in, "input_formula|fof|tff|thf|tcf"))
+            if(TestInpId(in, "input_formula|fof|tff|thf|tcf"))
             {
+               if(TestInpId(in, "tff|thf|tcf"))
+               {
+                  terms->sig->typed_symbols = true;
+               }
                // printf("It's a formula\n");
                form = WFormulaParse(in, terms);
                // fprintf(stdout, "Parsed: ");
@@ -1719,7 +1723,7 @@ long FormulaAndClauseSetParse(Scanner_p in, FormulaSet_p fset,
                SetProblemType(PROBLEM_FO);
                form = WFormClauseParse(in, terms);
             }
-            if (FormulaQueryType(form) == CPTypeWatchClause)
+            if(FormulaQueryType(form) == CPTypeWatchClause)
             {
                assert(form->is_clause);
                clause = WFormClauseToClause(form);
@@ -1735,23 +1739,23 @@ long FormulaAndClauseSetParse(Scanner_p in, FormulaSet_p fset,
       }
       break;
    }
-   if (*name_selector)
+   if(*name_selector)
    {
       form = fset->anchor->succ;
-      while (form != fset->anchor)
+      while(form != fset->anchor)
       {
          nextform = form->succ;
-         if (!verify_name(name_selector, form->info))
+         if(!verify_name(name_selector, form->info))
          {
             FormulaSetDeleteEntry(form);
          }
          form = nextform;
       }
       clause = wlset->anchor->succ;
-      while (clause != wlset->anchor)
+      while(clause != wlset->anchor)
       {
          nextclause = clause->succ;
-         if (!verify_name(name_selector, clause->info))
+         if(!verify_name(name_selector, clause->info))
          {
             ClauseSetDeleteEntry(clause);
          }

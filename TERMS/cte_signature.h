@@ -143,6 +143,7 @@ typedef struct sigcell
 
    /* Sort and type banks (type => sort, but a shortcut is useful) */
    TypeBank_p  type_bank;
+   bool        typed_symbols; /* Explicit types/sorts */
 
    /* Counters for generating new symbols */
    long      skolem_count;

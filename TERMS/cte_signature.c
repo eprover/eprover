@@ -128,6 +128,7 @@ Sig_p SigAlloc(TypeBank_p bank)
    handle->ac_axioms = PStackAlloc();
 
    handle->type_bank = bank;
+   handle->typed_symbols = false;
 
    SigInsertId(handle, "$true", 0, true);
    assert(SigFindFCode(handle, "$true")==SIG_TRUE_CODE);

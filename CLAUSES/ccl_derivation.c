@@ -2498,13 +2498,16 @@ void DerivationPrintConditional(FILE* out, char* status, Derivation_p derivation
 {
    if(print_derivation == POList)
    {
-      NumTree_p symbols = NULL;
-      DerivationCollectFCodes(derivation, &symbols);
       fprintf(out, "# SZS output start %s\n", status);
-      SigPrintTypeDeclsTSTPSelective(out, sig, &symbols);
+      if(sig->typed_symbols)
+      {
+         NumTree_p symbols = NULL;
+         DerivationCollectFCodes(derivation, &symbols);
+         SigPrintTypeDeclsTSTPSelective(out, sig, &symbols);
+         NumTreeFree(symbols);
+      }
       DerivationPrint(GlobalOut, derivation);
       fprintf(out, "# SZS output end %s\n", status);
-      NumTreeFree(symbols);
    }
    else if(print_derivation >= POGraph1)
    {
