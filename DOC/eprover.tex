@@ -20,7 +20,7 @@
 
 
 \author{Stephan Schulz}
-\title{\includegraphics[width=4cm]{eicon333.png}\\[5ex]E 2.6\\[1.5ex]User Manual\\[1.5ex]{\normalsize --preliminary
+\title{\includegraphics[width=4cm]{eicon333.png}\\[5ex]E 3.0\\[1.5ex]User Manual\\[1.5ex]{\normalsize --preliminary
     version--}}
 
 \makeindex{}
@@ -29,14 +29,14 @@
 \maketitle{}
 
 \begin{abstract}
-  E is an equational theorem prover for full first-order logic (with
-  optional support for some higher-order features), based on
-  superposition and rewriting. In this perpetually preliminary manual
-  we first give a short introduction and basic usage information for
-  new users, and then cover calculus and proof procedure. The manual
-  also covers proof search control and related options, followed by
-  input and output formats. Finally, it describes some additional
-  tools that are part of the E distribution.
+  E is an equational theorem prover for full first-order logic and
+  monomorphic higher-order logic, based on superposition and
+  rewriting. In this perpetually preliminary manual we first give a
+  short introduction and basic usage information for new users, and
+  then cover calculus and proof procedure. The manual also covers
+  proof search control and related options, followed by input and
+  output formats. Finally, it describes some additional tools that are
+  part of the E distribution.
 \end{abstract}
 
 \tableofcontents{}
@@ -46,13 +46,14 @@
 
 This is a short and currently quite sketchy documentation of the
 equational theorem prover E. E is an purely equational theorem prover
-for full first-order logic with equality. It is based on
-paramodulation and rewriting. This means that E reads a set of
-formulas and/or clauses and saturates it by systematically applying a
-number of inference rules until either all possible (non-redundant)
-inferences have been performed or until the empty clause has been
-derived, i.e.\ the clause set has been found to be unsatisfiable and
-thus the conjecture has been proved.
+for full first-order logic with equality, and, as of E~3.0, for
+monomorphic higher-order logic. It is based on paramodulation and
+rewriting. This means that E reads a set of formulas and/or clauses
+and saturates it by systematically applying a number of inference
+rules until either all possible (non-redundant) inferences have been
+performed or until the empty clause has been derived, i.e.\ the clause
+set has been found to be unsatisfiable and thus the conjecture has
+been proved.
 
 Even after 20 years, E is still a moving target. However, most recent
 releases have been quite stable, and the prover is being used
@@ -73,9 +74,12 @@ The primary description of E has been published
 as~\cite{Schulz:AICOM-2002}, while the most recent published
 descriptions are~\cite{Schulz:LPAR-2013} (including the extension to
 many-sorted logic) and~\cite{SCV:CADE-2019} (including optional
-extension to LFHO and integration of PicoSAT). Most papers on E and
-much more information is available at or a few hops away from the E
-home page, \url{https://www.eprover.org}.
+extension to LFHO and integration of PicoSAT). A more extensive
+description of the LFHO extension can be found
+in~\cite{VBCS:TACAS-2019,VBCS:STTT-2021}. A paper on the full
+higher-order extension is upcoming. Most papers on E and much more
+information is available at or a few hops away from the E home page,
+\url{https://www.eprover.org}.
 
 Some other provers have influenced the design of E and may be
 referenced in the course of this manual. These include
@@ -97,7 +101,7 @@ directory of the distribution contains the necessary
 information. After configuring and building the system, you will find
 the stand-alone executable \texttt{E/PROVER/eprover}, or
 \texttt{E/PROVER/eprover-ho} if you configured the system with support
-for lambda-free higher-order logic.
+for higher-order logic.
 
 E is controlled by a very wide range of parameters. However, if you do
 not want to bother with the details, you can leave configuration for a
@@ -1669,7 +1673,7 @@ and also select a  matching output format.
 
 E originally used E-LOP, a dialect of the LOP\index{LOP} language
 designed for SETHEO\index{SETHEO}. At the moment, your best bet is to
-retrieve the LOP description from the E web site~\cite{E:WWW-04}
+retrieve the LOP description from the E web site~\cite{E:WWW-22}
 and/or check out the examples available from it.  LOP is very close to
 Prolog, and E can usually read many fully declarative Prolog files if
 they do not use arithmetic or rely on predefined symbols. Plain SETHEO
@@ -1736,16 +1740,16 @@ In either TPTP format, clauses and formulas with TPTP type
 \texttt{question} (the last two in TPTP-3 only) are considered goal
 clauses for the \texttt{--sos-uses-input-types} option.
 
-\section{Lambda-free higher-order extension}
+\section{Higher-order extension}
 
-As part of the ongoing Matryoshka project
+As part of the Matryoshka project
 (\url{http://matryoshka.gforge.inria.fr/}) E has been extended to
-optionally support lambda-free higher-order logic (LFHOL). The option
-can be enabled at compile time by passing \texttt{--enable-ho} to the
-\texttt{configure} script.
+optionally support lambda-free higher-order logic (LFHOL) and full
+monomorphic higher-order logic. The option can be enabled at compile
+time by passing \texttt{--enable-ho} to the \texttt{configure} script.
 
-In this section we give a very short introduction to LFHOL syntax and
-semantics. Detailed description (which includes semantics) can be
+In this section we give a very short introduction to (LF)HOL syntax
+and semantics. Detailed description (which includes semantics) can be
 found in a paper by Bentkamp, Blanchette, Cruanes, and
 Waldmann~\cite{BBCW:IJCAR-2018}, available at
 \url{http://matryoshka.gforge.inria.fr/pubs/lfhosup_report.pdf}. The
@@ -1760,10 +1764,11 @@ over booleans is not allowed. LFHOL is simply typed -- each type is
 either atomic or a function type.
 
 For E~2.3 and up, LFHOL formulas are expressed using a subset of TPTP
-THF syntax. More precisely, E supports a subset of THF syntax that is
-monomorphic, without lambda abstractions, without the constants
-\texttt{!!}  and \texttt{??}, and without anything else that will give
-you an error message. ;-)
+THF syntax. From E~3.0, the prover supports full (monomorphic)
+higher-order logic. More precisely, E can parse and process a subset
+of THF syntax that is monomorphic, without the constants \texttt{!!}
+and \texttt{??}, and without anything else that will give you an error
+message. ;-)
 
 As an example, LFHOL is expressive enough to reason about higher-order
 combinators such as \textsf{map} (pointwise application of a function
@@ -1894,9 +1899,10 @@ should be fairly self-explaining.
 \section{Inference Protocols}
 \label{sec:output:lots}
 
-At output levels greater that 1, E prints certain inferences in
-PCL2\index{PCL} format\footnote{PCL2 is a proof output designed as a
-  successor to PCL~\cite{DS94a,DS94b,DS96a}.} or TPTP-3 output
+THIS FEATURE IS DEPREACIATED. SEE NEXT SECTION. At output levels
+greater that 1, E prints certain inferences in PCL2\index{PCL}
+format\footnote{PCL2 is a proof output designed as a successor to
+  PCL~\cite{DS94a,DS94b,DS96a}.} or TPTP-3 output
 format\index{TPTP!language}.  At level 2, it only prints generating
 inferences. At level 4, it prints all generating and modifying
 inferences, and at level 6 it also prints PCL/TPTP-3 steps that don't
@@ -1905,7 +1911,14 @@ operation of the inference engine.  This protocol is fairly readable
 and, from level 4 on can be used to check the proof with the utility
 \texttt{checkproof} provided with the distribution.
 
+Note that this feature has been replaced by the dynamic construction
+of proof objects, and is no longer actively maintained. As a result,
+strange things may happen, and newer inferences may not be supported
+at all. It's not (yet) been removed because some people still find it
+useful for debugging.
+
 \section{Proofs Objects}
+
 
 E~1.9 and later can internally record all necessary information for
 proof output. It makes use of the DISCOUNT loop property that only
@@ -2588,7 +2601,7 @@ The parameters have the following type and meaning:
   In addition to this moral support, Martin M\"ohrmann has done some
   cleanup and optimization of the code, Simon Cruanes has implemented
   the extension to many-sorted logic, and Petar Vukmirovic has added
-  support for lambda-free higher order logic and other improvements.
+  support for higher order logic and other improvements.
 
   Nik Sultana has overhauled the manual, fixing many of my errors and
   thus making space for new ones.
@@ -2625,7 +2638,7 @@ Alexander Bentkamp, Jasmin~Christian Blanchette, Simon Cruanes, and Uwe
   Waldmann.
 \newblock Superposition for lambda-free higher-order logic.
 \newblock In Didier Galmiche, Stephan Schulz, and Roberto Sebastiani, editors,
-  {\em Proc.\ of the 9st IJCAR, Oxford}, volume 10900 of {\em LNAI}, pages
+  {\em Proc.\ of the 9th IJCAR, Oxford}, volume 10900 of {\em LNAI}, pages
   28--46. Springer, 2018.
 
 \bibitem[BDP89]{BDP89}
@@ -2814,10 +2827,10 @@ Stephan Schulz.
   Proc.\ of the 19th LPAR, Stellenbosch}, volume 8312 of {\em LNCS}, pages
   735--743. Springer, 2013.
 
-\bibitem[Sch16]{E:WWW-04}
+\bibitem[Sch22]{E:WWW-22}
 S.~Schulz.
 \newblock {The E Web Site}.
-\newblock \url{http://www.eprover.org}, 2004--2016.
+\newblock \url{https://www.eprover.org}, 2004--2022.
 
 \bibitem[Sch18]{Schulz:Vampire-2018}
 Stephan Schulz.
@@ -2886,6 +2899,13 @@ Petar Vukmirovi{\'c}, Jasmin~Christian Blanchette, Simon Cruanes, and Stephan
 \newblock In Tom{\'a}{\u s} Vojnar and Lijun Zhang, editors, {\em Proc.\ 25th
   Conference on Tools and Algorithms for the Construction and Analysis of
   Systems (TACAS'19)}, number 11427 in LNCS, pages 192--210. Springer, 2019.
+
+\bibitem[VBCS21]{VBCS:STTT-2021}
+Petar Vukmirovi{\'c}, Jasmin~Christian Blanchette, Simon Cruanes, and Stephan
+  Schulz.
+\newblock {Extending a Brainiac Prover to Lambda-free Higher-Order Logic}.
+\newblock {\em International Journal on Software Tools for Technology
+  Transfer}, August 2021.
 
 \bibitem[WAB{\etalchar{+}}99]{WABCEKTT:CADE-99}
 C.~Weidenbach, B.~Afshordel, U.~Brahm, C.~Cohrs, T.~Engel, G.~Jung, E.~Keen,

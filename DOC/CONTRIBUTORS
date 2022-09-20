@@ -29,4 +29,5 @@ Martin Moehrmann <moehrmann@eprover.org>
 Petar Vukmirovic <petar.vukmirovic2@gmail.com>
 - Improved PicoSAT integration
 - Various minor fixes
-- (Future: LFHO-E)
+- Future: LFHO-E (the future of the past is the current past)
+- Full higher-order support

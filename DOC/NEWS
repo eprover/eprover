@@ -2,7 +2,7 @@ This history describes the major differences between versions of the E
 equational theorem prover.
 
 
-Version 2.6 ->
+Version 2.6 ->3.0 Shangri-La
 
 - New option --fw-subsumption-aggressive.
 - Fixed bug in negative unit subsumption.
@@ -10,7 +10,9 @@ Version 2.6 ->
 - Fixed status for incomplete literal weight functions
 - Added support for UTF-8 in Strings and single-quoted symbols.
 - Added multicore scheduler and schedule generation
+- Replaced auto-mode code by new symbolic auto-mode
 - Various minor improvements
+- Added support for full (monomorphic) higher-order reasoning.
 
 
 Version 2.5 -> 2.6 Floral Guranse

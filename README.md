@@ -32,15 +32,15 @@ Read the rest of this file and the fine (if incomplete) manual if
 anything fails. There should be a copy of the manual in
 `DOC/eprover.pdf`.
 
-This version or E supports a fragment of higher-order logic called
-lambda-free higher-order logic (LFHOL). To build and test the
-higher-order version, use
+E 3.0 supports (monomorphic) higher-order logic. To build a
+binary that supports higher-order reasoning, use the following:
+
 
 ```sh
   ./configure --enable-ho
   make rebuild
   cd PROVER
-  eprover-ho -h
+  eprover-ho -h | more
 ```
 
 
@@ -50,7 +50,8 @@ The recommended command for running E on the file problem.p is
   eprover --auto --proof-object problem.p
 ```
 
-If you want to try the usually stronger strategy scheduling mode, use
+If you want to try the usually stronger strategy scheduling mode
+(particularly recommended for higher-order problems, use
 
 ```
   eprover --auto-schedule --proof-object problem.p
@@ -70,7 +71,7 @@ input and output formats via commandline options.
 The Equational Theorem Prover E
 ===============================
 
-This is the README file for version 2.6 "Floral Guranse" of the E
+This is the README file for version 3.0 "Shangri-La" of the E
 equational theorem prover. This version of E is free software, see the
 file COPYING for details about the license and the fact that THERE IS
 NO WARRANTY!
@@ -81,10 +82,10 @@ What is E?
 
 E is an equational theorem prover. That means it is a program that you
 can stuff a mathematical specification (in many-sorted first-order
-logic with equality) and a hypothesisconjecture into, and which will
-then run forever, using up all of your machines resources. Very
-occasionally it will find a proof for the conjecture and tell you so
-;-).
+logic with equality or in polymorphic higher-order logic) and a
+hypothesisconjecture into, and which will then run forever, using up
+all of your machines resources. Very occasionally it will find a proof
+for the conjecture and tell you so ;-).
 
 E has been created and is currently maintained by Stephan Schulz,
 <schulz@eprover.org>, now with the help of several contributors (see
