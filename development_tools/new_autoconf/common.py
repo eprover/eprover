@@ -50,13 +50,13 @@ class Configuration(object):
 
   PREPROCESSING_W_DEFAULTS =\
   {
-    # 'no_preproc': 'false', 
-    # 'eqdef_maxclauses': '20000', 
+    # 'no_preproc': 'false',
+    # 'eqdef_maxclauses': '20000',
     # 'eqdef_incrlimit': '20',
-    'formula_def_limit': '24', 
+    'formula_def_limit': '24',
     'sine': 'Auto',
     'lift_lambdas': 'true',
-    'lambda_to_forall': 'true', 
+    'lambda_to_forall': 'true',
     'unroll_only_formulas' : 'true',
     'inst_choice_max_depth' : '-1',
     'preinstantiate_induction' : 'false'
@@ -92,7 +92,7 @@ class Configuration(object):
     self._probs = {p:t for (p,t) in self._probs.items() if t < max_time}
     self._total_time = sum(self._probs.values())
     self._num_solved = len(self._probs)
-  
+
   def add_attempted_prob(self, prob):
     self._attempted.add(prob)
     if prob not in Configuration._all_attempted:
@@ -107,18 +107,21 @@ class Configuration(object):
         solved += 1
         uniqness_points += Configuration._all_attempted[prob] - Configuration._all_solved[prob]
         time += self._probs[prob]
-    # order of rating: 1) solved for problem list 2) score of uniqueness within the solved problems
-    # 3) how different this configuration is with respect to the previous one (for preprocessing)
-    # 4) ration of solved to attempted problems, 5) avg necessary time to solve a prob
+    # order of rating: 1) solved for problem list
+    # 2) score of uniqueness within the solved problems
+    # 3) how different this configuration is with respect to the
+    # previous one (for preprocessing)
+    # 4) ration of solved to attempted problems,
+    # 5) avg necessary time to solve a prob
     return (solved, uniqness_points,
             0 if prev_conf is None else self._num_diffs(prev_conf),
-            len(self._probs) / max(len(self._attempted), 1), 
+            len(self._probs) / max(len(self._attempted), 1),
             time / max(solved,1))
 
   def evaluate_category(self, category):
     if category in self._memo_eval:
-      return self._memo_eval[category]   
-    
+      return self._memo_eval[category]
+
     eval = self.evaluate_for_probs(None, category.get_problems())
     self._memo_eval[category] = eval
     category.store_evaluation(eval, self)
@@ -129,7 +132,7 @@ class Configuration(object):
     with open(path, 'r') as fd:
       import re
       self._json = re.sub(' +', ' ', fd.read()) # making the representation more compact
-  
+
   def compute_json(self, eprover_path, args):
     import subprocess as sp, re
     JSON_PRINT = ['--print-strategy']
@@ -142,12 +145,13 @@ class Configuration(object):
       return None
 
     json = self._json
-    return '#{0}\\n{1}'.format(self._name, json.replace("\n", "\\n").replace('"', '\\"'))
+    return '#{0}\\n{1}'.format(self._name,
+                               json.replace('"', '\\"').replace("\n", "\\n\"\n\"  "))
 
   def get_preprocess_params(self):
     if self._preprocess is not None:
       return self._preprocess
-    
+
     if self._json is None:
       return None
 
@@ -160,8 +164,8 @@ class Configuration(object):
           break
       if key not in self._preprocess:
         self._preprocess[key] = def_val
-    
-    return self._preprocess 
+
+    return self._preprocess
 
   def _num_diffs(self, other):
     diffs = 0
@@ -178,9 +182,9 @@ class Configuration(object):
 
   def get_num_attempted(self):
     return len(self._attempted)
-  
+
   def __str__(self):
-    return "{0} : ({1}, {2})".format(self._name, self._num_solved, 
+    return "{0} : ({1}, {2})".format(self._name, self._num_solved,
                                      self._total_time)
 
   def __repr__(self):

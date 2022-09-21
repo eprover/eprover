@@ -80,10 +80,10 @@ bool      EGPCtrlGetResult(EGPCtrl_p ctrl,
 #define EGPCtrlSetCellFree(junk) SizeFree(junk, sizeof(EGPCtrlSetCell))
 
 EGPCtrlSet_p EGPCtrlSetAlloc(void);
-void         EGPCtrlSetFree(EGPCtrlSet_p junk);
+void         EGPCtrlSetFree(EGPCtrlSet_p junk, bool kill_proc);
 void         EGPCtrlSetAddProc(EGPCtrlSet_p set, EGPCtrl_p proc);
 EGPCtrl_p    EGPCtrlSetFindProc(EGPCtrlSet_p set, int fd);
-void         EGPCtrlSetDeleteProc(EGPCtrlSet_p set, EGPCtrl_p proc);
+void         EGPCtrlSetDeleteProc(EGPCtrlSet_p set, EGPCtrl_p proc, bool kill_proc);
 #define      EGPCtrlSetEmpty(set) ((set)->procs==NULL)
 #define      EGPCtrlSetCardinality(set) NumTreeNodes((set)->procs)
 #define      EGPCtrlSetCoresReserved(set) ((set)->cores_reserved)

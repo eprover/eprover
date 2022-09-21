@@ -300,7 +300,7 @@ EGPCtrlSet_p EGPCtrlSetAlloc(void)
 //
 // Function: EGPCtrlSetFree()
 //
-//   Free an EPCtrlSet(), including the payload.Will clean up the
+//   Free an EPCtrlSet(), including the payload. Will clean up the
 //   processes.
 //
 // Global Variables: -
@@ -309,11 +309,11 @@ EGPCtrlSet_p EGPCtrlSetAlloc(void)
 //
 /----------------------------------------------------------------------*/
 
-void EGPCtrlSetFree(EGPCtrlSet_p junk)
+void EGPCtrlSetFree(EGPCtrlSet_p junk, bool kill_proc)
 {
    while(junk->procs)
    {
-      EGPCtrlSetDeleteProc(junk, junk->procs->val1.p_val);
+      EGPCtrlSetDeleteProc(junk, junk->procs->val1.p_val, kill_proc);
    }
    EGPCtrlSetCellFree(junk);
 }
@@ -379,19 +379,23 @@ EGPCtrl_p EGPCtrlSetFindProc(EGPCtrlSet_p set, int fd)
 //
 /----------------------------------------------------------------------*/
 
-void EGPCtrlSetDeleteProc(EGPCtrlSet_p set, EGPCtrl_p proc)
+void EGPCtrlSetDeleteProc(EGPCtrlSet_p set, EGPCtrl_p proc, bool kill_proc)
 {
    NumTree_p cell;
 
    cell = NumTreeExtractEntry(&(set->procs), proc->fileno);
    if(cell)
    {
-      EGPCtrlCleanup(cell->val1.p_val);
+      if(kill_proc)
+      {
+         EGPCtrlCleanup(cell->val1.p_val);
+      }
       set->cores_reserved -= proc->cores;
       EGPCtrlFree(cell->val1.p_val);
       NumTreeCellFree(cell);
    }
 }
+
 
 
 /*-----------------------------------------------------------------------
@@ -480,7 +484,7 @@ EGPCtrl_p EGPCtrlSetGetResult(EGPCtrlSet_p set)
                   break;
             case PRFailure:
                   /* Process terminates, but no result determined -> Remove it*/
-                  EGPCtrlSetDeleteProc(set, handle);
+                  EGPCtrlSetDeleteProc(set, handle, true);
                   break;
             default:
                   assert(false && "Impossible ProverResult");

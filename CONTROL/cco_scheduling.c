@@ -276,8 +276,8 @@ int ExecuteScheduleMultiCore(ScheduleCell strats[],
             h_parms->heuristic_name         = strats[i].heu_name;
             h_parms->order_params.ordertype = strats[i].ordering;
             SilentTimeOut = true;
-            signal(SIGQUIT, _catch_and_quit);
-            // EGPCtrlSetFree(procs);
+            //signal(SIGQUIT, _catch_and_quit);
+            EGPCtrlSetFree(procs, false);
             return i; // tells the other scheduling call what is the parent
          }
          else
@@ -303,12 +303,12 @@ int ExecuteScheduleMultiCore(ScheduleCell strats[],
          //{
          //TERMINATE_CHILDREN();
          //}
-         EGPCtrlSetFree(procs);
+         EGPCtrlSetFree(procs, true);
          exit(handle->exit_status);
       }
    }while(EGPCtrlSetCardinality(procs) || strats[i].heu_name);
 
-   EGPCtrlSetFree(procs);
+   EGPCtrlSetFree(procs, true);
 
    fprintf(GlobalOut, "# Schedule exhausted\n");
    if(print_rusage)
