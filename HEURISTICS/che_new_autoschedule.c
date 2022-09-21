@@ -26,33 +26,6 @@
 
 /*-----------------------------------------------------------------------
 //
-// Function: str_distance()
-//
-//   Compute distance of two strings (number of different characters,
-//   plus length of both strings).
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-int str_distance(const char* a, const char* b)
-{
-   int dist = 0;
-   while(*a && *b)
-   {
-      dist += *a == *b ? 0 : 1;
-      a++;
-      b++;
-   }
-   dist += strlen(a);
-   dist += strlen(b);
-   return dist;
-}
-
-/*-----------------------------------------------------------------------
-//
 // Function: class_to_schedule()
 //
 //   Given a class name, return a schedule. If there is an exact
@@ -74,7 +47,7 @@ ScheduleCell* class_to_schedule(const char* problem_category,
    int max_class_size = INT_MIN;
    for(int i=0; min_dist && schedules[i].key; i++)
    {
-      int dist = str_distance(schedules[i].key, problem_category);
+      int dist = StrDistance(schedules[i].key, problem_category);
       if(dist == 0)
       {
          min_idx = i;

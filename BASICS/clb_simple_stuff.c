@@ -54,6 +54,43 @@ ProblemType problemType = PROBLEM_NOT_INIT;
 /*                         Exported Functions                          */
 /*---------------------------------------------------------------------*/
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: StrDistance()
+//
+//   Compute distance of two strings (number of different characters,
+//   plus difference in length.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+int StrDistance(const char* a, const char* b)
+{
+   int dist = 0;
+   while(*a && *b)
+   {
+      dist += *a == *b ? 0 : 1;
+      a++;
+      b++;
+   }
+   while(*a)
+   {
+      a++;
+      dist++;
+   }
+   while(*b)
+   {
+      b++;
+      dist++;
+   }
+   return dist;
+}
+
+
 /*-----------------------------------------------------------------------
 //
 // Function: WeightedObjectCompareFun()

@@ -33,7 +33,7 @@
 /*                    Data type declarations                           */
 /*---------------------------------------------------------------------*/
 
-/* For sorting objects by a float key: */
+/* For sorting objects by a (double)float key: */
 
 typedef struct
 {
@@ -75,6 +75,9 @@ extern ProblemType problemType;
 /*---------------------------------------------------------------------*/
 
 #define MAXINDENTSPACES 72
+
+
+int StrDistance(const char* a, const char* b);
 
 #define WeightedObjectArrayAlloc(number) \
         SecureMalloc(number * sizeof(WeightedObjectCell))
