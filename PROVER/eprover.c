@@ -210,8 +210,6 @@ ProofState_p parse_spec(CLState_p state,
                                proofstate->terms,
                                NULL,
                                &skip_includes);
-      // exit(-1);
-      //printf("Set complete\n");
       CheckInpTok(in, NoToken);
       DestroyScanner(in);
    }
@@ -1346,7 +1344,14 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_AUTO_SCHED:
             if(!strategy_scheduling)
             {
-               num_cpus = CLStateGetIntArg(handle, arg);
+               if(strcmp(arg, "Auto")==0)
+               {
+                  num_cpus = -1;
+               }
+               else
+               {
+                  num_cpus = CLStateGetIntArg(handle, arg);
+               }
                h_parms->sine = SecureStrdup("Auto");
                strategy_scheduling = true;
             }
@@ -1360,7 +1365,14 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_SATAUTO_SCHED:
             if(!strategy_scheduling)
             {
-               num_cpus = CLStateGetIntArg(handle, arg);
+               if(strcmp(arg, "Auto")==0)
+               {
+                  num_cpus = -1;
+               }
+               else
+               {
+                  num_cpus = CLStateGetIntArg(handle, arg);
+               }
                strategy_scheduling = true;
             }
             break;
@@ -2134,6 +2146,10 @@ CLState_p process_options(int argc, char* argv[])
             assert(false && "Unknown option");
             break;
       }
+   }
+   if(num_cpus == -1)
+   {
+      num_cpus = GetCoreNumber();
    }
    if(!PStackEmpty(hcb_definitions))
    {
