@@ -294,6 +294,181 @@ long long GetUSecClock(void)
 
 /*-----------------------------------------------------------------------
 //
+// Function: GetCoreNumber()
+//
+//   Return the number of cores (via
+//   sysconf(_SC_NPROCESSORS_ONLN). Returns 1 on failure (and prints a
+//   warning), for safe continuation.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+int GetCoreNumber(void)
+{
+   long res = -1;
+
+   errno = 0;
+   res = sysconf(_SC_NPROCESSORS_ONLN);
+   if(errno)
+   {
+      assert(res==-1);
+      Warning("sysconf(_NPROCESSORS_ONLN) call to get core number failed, assuming 1 core!\n");
+      res = 1;
+   }
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: GetSystemPageSize()
+//
+//   Find and return the system page size (in bytes), if
+//   possible. Return -1 otherwise.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+long GetSystemPageSize(void)
+{
+   long res = -1;
+
+   errno = 0;
+   res = sysconf(_SC_PAGESIZE);
+   if(errno)
+   {
+      assert(res==-1);
+      Warning("sysconf() call to get page size failed!\n");
+      res = -1;
+   }
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: GetSystemPhysMemory()
+//
+//   Try to find the phyical memory installed in the machine. Return
+//   it (in MB) or -1 if no information can be obtained.
+//
+// Global Variables: -
+//
+// Side Effects    : No persistent ones
+//
+/----------------------------------------------------------------------*/
+
+#define MEM_PHRASE "Primary memory available: "
+
+long long GetSystemPhysMemory(void)
+{
+   long long res = -1;
+
+   long long tmpres = 0, pages=-1, pagesize;
+
+   pagesize = GetSystemPageSize();
+#ifdef _SC_PHYS_PAGES
+   pages = sysconf(_SC_PHYS_PAGES);
+#endif
+   if((pagesize !=-1) && (pages != -1))
+   {
+      tmpres = pagesize * pages;
+      res = tmpres / MEGA;
+   }
+   if(res==-1)
+   {
+      FILE* pipe;
+      char line[220];
+      int limit = strlen(MEM_PHRASE);
+      char *convert;
+      double resmult = 0.0;
+
+      pipe = popen("hostinfo", "r");
+      if(pipe)
+      {
+         while(fgets(line, 220, pipe))
+         {
+            if(strncmp(MEM_PHRASE, line, limit)==0)
+            {
+               resmult = strtod(line+limit, &convert);
+               if(strstr(convert, "kilobyte"))
+               {  /* Past-proof, of course */
+                  res = resmult/1024;
+               }
+               else if(strstr(convert, "megabyte"))
+               {
+                  res = resmult;
+               }
+               else if(strstr(convert, "gigabyte"))
+               {
+                  res = resmult*1024;
+               }
+               else if(strstr(convert, "terabyte"))
+               { /* Future-proof */
+                  res = resmult*(1024*1024);
+               }
+               else
+               {
+                  res = -1;
+               }
+               break;
+            }
+         }
+
+         pclose(pipe);
+      }
+   }
+   return res;
+}
+
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: StrideMemory()
+//
+//   Write an arbitrary value into memory each E_PAGE_SIZE
+//   bytes. It's used for preallocated memory reserves. Normally,
+//   allocated pages need not really be available unless written to if
+//   overallocation is being used. This should ensure that allocated
+//   pages are backed by real memory in such (broken!) cases.
+//
+// Global Variables:
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+
+void StrideMemory(char* mem, long size)
+{
+   char* stride;
+   static long e_page_size = 0;
+
+   if(!e_page_size)
+   {
+      e_page_size = GetSystemPageSize();
+   }
+   if(e_page_size==-1)
+   {
+      Warning("Could not determine page size, guessing 4096!");
+      e_page_size=4096;
+   }
+
+   for(stride = mem; stride < mem+size; stride+=e_page_size)
+   {
+      *stride = 'S'; /* Arbitrary value*/
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: SecureFOpen()
 //
 //   As fopen(), but terminate with a useful error message on failure.

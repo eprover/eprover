@@ -66,112 +66,6 @@ char* EmptyString = "";
 
 /*-----------------------------------------------------------------------
 //
-// Function: GetSystemPageSize()
-//
-//   Find and return the system page size (in bytes), if
-//   possible. Return -1 otherwise.
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-long GetSystemPageSize(void)
-{
-   long res = -1;
-
-   errno = 0;
-   res = sysconf(_SC_PAGESIZE);
-   if(errno)
-   {
-      assert(res==-1);
-      Warning("sysconf() call to get page size failed!\n");
-      res = -1;
-   }
-   return res;
-}
-
-
-/*-----------------------------------------------------------------------
-//
-// Function: GetSystemPhysMemory()
-//
-//   Try to find the phyical memory installed in the machine. Return
-//   it (in MB) or -1 if no information can be obtained.
-//
-// Global Variables: -
-//
-// Side Effects    : No persistent ones
-//
-/----------------------------------------------------------------------*/
-
-#define MEM_PHRASE "Primary memory available: "
-
-long long GetSystemPhysMemory(void)
-{
-   long long res = -1;
-
-   long long tmpres = 0, pages=-1, pagesize;
-
-   pagesize = GetSystemPageSize();
-#ifdef _SC_PHYS_PAGES
-   pages = sysconf(_SC_PHYS_PAGES);
-#endif
-   if((pagesize !=-1) && (pages != -1))
-   {
-      tmpres = pagesize * pages;
-      res = tmpres / MEGA;
-   }
-   if(res==-1)
-   {
-      FILE* pipe;
-      char line[220];
-      int limit = strlen(MEM_PHRASE);
-      char *convert;
-      double resmult = 0.0;
-
-      pipe = popen("hostinfo", "r");
-      if(pipe)
-      {
-         while(fgets(line, 220, pipe))
-         {
-            if(strncmp(MEM_PHRASE, line, limit)==0)
-            {
-               resmult = strtod(line+limit, &convert);
-               if(strstr(convert, "kilobyte"))
-               {  /* Past-proof, of course */
-                  res = resmult/1024;
-               }
-               else if(strstr(convert, "megabyte"))
-               {
-                  res = resmult;
-               }
-               else if(strstr(convert, "gigabyte"))
-               {
-                  res = resmult*1024;
-               }
-               else if(strstr(convert, "terabyte"))
-               { /* Future-proof */
-                  res = resmult*(1024*1024);
-               }
-               else
-               {
-                  res = -1;
-               }
-               break;
-            }
-         }
-
-         pclose(pipe);
-      }
-   }
-   return res;
-}
-
-
-/*-----------------------------------------------------------------------
-//
 // Function: InitError()
 //
 //   Initialize the error handling module. Currently only stores the
@@ -339,7 +233,7 @@ double GetTotalCPUTime(void)
 //   Return the total CPU time use by the process s far, in floating
 //   point seconds - or -1.0 if this cannot be determined. Compared to
 //   GetTotalCPUTime
-//   
+//
 //
 // Global Variables: -
 //
@@ -355,7 +249,7 @@ double GetTotalCPUTimeIncludingChildren(void)
 
    if((int)res != -1 && !getrusage(RUSAGE_CHILDREN, &usage))
    {
-      
+
       res += (usage.ru_utime.tv_sec+usage.ru_stime.tv_sec)+
               ((usage.ru_utime.tv_usec+usage.ru_stime.tv_usec)/1000000.0);
    }
@@ -416,43 +310,6 @@ void PrintRusage(FILE* out)
 
 /*-----------------------------------------------------------------------
 //
-// Function: StrideMemory()
-//
-//   Write an arbitrary value into memory each E_PAGE_SIZE
-//   bytes. It's used for preallocated memory reserves. Normally,
-//   allocated pages need not really be available unless written to if
-//   overallocation is being used. This should ensure that allocated
-//   pages are backed by real memory in such (broken!) cases.
-//
-// Global Variables:
-//
-// Side Effects    :
-//
-/----------------------------------------------------------------------*/
-
-void StrideMemory(char* mem, long size)
-{
-   char* stride;
-   static long e_page_size = 0;
-
-   if(!e_page_size)
-   {
-      e_page_size = GetSystemPageSize();
-   }
-   if(e_page_size==-1)
-   {
-      Warning("Could not determine page size, guessing 4096!");
-      e_page_size=4096;
-   }
-
-   for(stride = mem; stride < mem+size; stride+=e_page_size)
-   {
-      *stride = 'S'; /* Arbitrary value*/
-   }
-}
-
-/*-----------------------------------------------------------------------
-//
 // Function: TestLetterString()
 //
 //   Return true if all letters in to_check also appear in options,
@@ -488,6 +345,7 @@ bool TestLetterString(char* to_check, char* options)
    return true;
 }
 
+
 /*-----------------------------------------------------------------------
 //
 // Function: CheckOptionLetterString()
@@ -510,7 +368,6 @@ void CheckOptionLetterString(char* to_check, char* options, char *option)
       Error(msg, USAGE_ERROR);
    }
 }
-
 
 
 /*---------------------------------------------------------------------*/

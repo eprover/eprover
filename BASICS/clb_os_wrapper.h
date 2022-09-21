@@ -106,6 +106,10 @@ long long  GetUSecClock(void);
 #define    GetMSecTime() (GetUSecTime()/1000)
 #define    GetSecTime() (GetUSecTime()/1000000)
 #define    GetSecTimeMod() (GetSecTime()%1000)
+int        GetCoreNumber(void);
+long       GetSystemPageSize(void);
+long long  GetSystemPhysMemory(void);
+void       StrideMemory(char* mem, long size);
 
 FILE*      SecureFOpen(char* name, char* mode);
 void       SecureFClose(FILE* fp);
@@ -115,8 +119,3 @@ void       SecureFClose(FILE* fp);
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
-
-
-

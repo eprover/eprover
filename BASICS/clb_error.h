@@ -68,9 +68,6 @@ extern char  ErrStr[];
 extern int   TmpErrno;
 extern char* ProgName;
 
-long          GetSystemPageSize(void);
-long long     GetSystemPhysMemory(void);
-
 void          InitError(char* progname);
 void Error(char* message, ErrorCodes ret, ...);
 void SysError(char* message, ErrorCodes ret, ...);
@@ -79,7 +76,6 @@ void          SysWarning(char* message, ...);
 double        GetTotalCPUTime(void);
 double        GetTotalCPUTimeIncludingChildren(void);
 void          PrintRusage(FILE* out);
-void          StrideMemory(char* mem, long size);
 
 bool          TestLetterString(char* to_check, char* options);
 void          CheckOptionLetterString(char* to_check, char* options,
