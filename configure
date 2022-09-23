@@ -88,7 +88,7 @@ for argument in  "$@"; do
         echo "--help"
         echo "  Print this help."
         echo "--enable-ho"
-        echo "  Build E with support for (currently) lambda-free higher-order logic."
+        echo "  Build E with support for higher-order logic."
         echo "--bindir=<path>"
         echo "  Configure E for running from <path>".
         echo "--exec-prefix=<path>"
