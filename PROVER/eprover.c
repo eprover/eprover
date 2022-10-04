@@ -279,7 +279,7 @@ static void print_info(void)
 //
 /----------------------------------------------------------------------*/
 
-void strategy_io(HeuristicParms_p  h_parms, PStack_p hcb_definitions)
+void strategy_io(HeuristicParms_p h_parms, PStack_p hcb_definitions)
 {
    if(print_strategy)
    {
@@ -299,6 +299,66 @@ void strategy_io(HeuristicParms_p  h_parms, PStack_p hcb_definitions)
       DestroyScanner(in);
    }
 }
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: handle_auto_mode_preproc()
+//
+//   Handle (raw) classification and preprocessing scheduling for
+//   auto-mode and auto-schedule mode. Moved here to declutter
+//   main().
+//
+// Global Variables: print_rusage, num_cpus, serialize_schedule
+//
+// Side Effects    : Runs the raw classifier, runs the high-level
+//                   scheduler, sets the preprocessing schedule.
+//
+/----------------------------------------------------------------------*/
+
+int handle_auto_modes_preproc(ProofState_p proofstate,
+                              HeuristicParms_p h_parms,
+                              Schedule_p *preproc_schedule,
+                              SpecLimits_p *limits,
+                              RawSpecFeature_p raw_features,
+                              rlim_t wc_sched_limit)
+{
+   int sched_idx = -1;
+
+   *limits = CreateDefaultSpecLimits();
+
+   RawSpecFeaturesCompute(raw_features, proofstate);
+   RawSpecFeaturesClassify(raw_features, *limits, RAW_DEFAULT_MASK);
+   *preproc_schedule = GetPreprocessingSchedule(raw_features->class);
+   fprintf(stdout, "# Preprocessing class: %s.\n", raw_features->class);
+   if(strategy_scheduling)
+   {
+      sched_idx = ExecuteScheduleMultiCore(*preproc_schedule, h_parms,
+                                           print_rusage,
+                                           wc_sched_limit,
+                                           true,
+                                           num_cpus,
+                                           serialize_schedule);
+      if (sched_idx != SCHEDULE_DONE)
+      {
+         char* preproc_conf_name = h_parms->heuristic_name;
+         GetHeuristicWithName(preproc_conf_name, h_parms);
+      }
+      else
+      {
+         TSTPOUT(GlobalOut, "GaveUp");
+         exit(RESOURCE_OUT);
+      }
+   }
+   else
+   {
+      assert(auto_conf);
+      GetHeuristicWithName((*preproc_schedule)->heu_name, h_parms);
+      fprintf(stdout, "# Configuration: %s\n", (*preproc_schedule)->heu_name);
+   }
+   return sched_idx;
+}
+
 
 
 /*-----------------------------------------------------------------------
@@ -462,9 +522,12 @@ int main(int argc, char* argv[])
       relevancy_pruned = 0;
    double           preproc_time;
    SpecLimits_p limits = NULL;
-   Derivation_p deriv;
+   RawSpecFeatureCell raw_features;
    SpecFeatureCell features;
-
+   int sched_idx;
+   Schedule_p preproc_schedule = NULL;
+   rlim_t wc_sched_limit;
+   Derivation_p deriv;
 
    assert(argv[0]);
 
@@ -502,43 +565,18 @@ int main(int argc, char* argv[])
       goto cleanup1;
    }
 
-   int sched_idx = -1;
-   Schedule_p preproc_schedule = NULL;
-   RawSpecFeatureCell raw_features;
-   rlim_t wc_sched_limit =
-      ScheduleTimeLimit ? ScheduleTimeLimit : DEFAULT_SCHED_TIME_LIMIT;
+   wc_sched_limit = ScheduleTimeLimit ? ScheduleTimeLimit : DEFAULT_SCHED_TIME_LIMIT;
    if(auto_conf || strategy_scheduling)
    {
-      limits = CreateDefaultSpecLimits();
-
-      RawSpecFeaturesCompute(&raw_features, proofstate);
-      RawSpecFeaturesClassify(&raw_features, limits, RAW_DEFAULT_MASK);
-      preproc_schedule = GetPreprocessingSchedule(raw_features.class);
-      fprintf(stdout, "# Preprocessing class: %s.\n", raw_features.class);
-      if(strategy_scheduling)
-      {
-         sched_idx = ExecuteScheduleMultiCore(preproc_schedule, h_parms, print_rusage,
-                                             wc_sched_limit, true,
-                                             num_cpus, serialize_schedule);
-         if (sched_idx != SCHEDULE_DONE)
-         {
-            char* preproc_conf_name = h_parms->heuristic_name;
-            GetHeuristicWithName(preproc_conf_name, h_parms);
-         }
-         else
-         {
-            TSTPOUT(GlobalOut, "GaveUp");
-            exit(RESOURCE_OUT);
-         }
-      }
-      else
-      {
-         assert(auto_conf);
-         GetHeuristicWithName(preproc_schedule->heu_name, h_parms);
-         fprintf(stdout, "# Configuration: %s\n", preproc_schedule->heu_name);
-      }
+      sched_idx = handle_auto_modes_preproc(proofstate,
+                                            h_parms,
+                                            &preproc_schedule,
+                                            &limits,
+                                            &raw_features,
+                                            wc_sched_limit);
       CLStateFree(state);
-      state = process_options(argc, argv); // refilling the h_parms with user options
+      state = process_options(argc, argv); // refilling the h_parms
+                                           // with manual user options
    }
 
 
