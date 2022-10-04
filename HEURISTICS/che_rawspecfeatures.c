@@ -85,9 +85,9 @@ void RawSpecFeaturesCompute(RawSpecFeature_p features, ProofState_p state)
 
    features->order = 1;
    features->conj_order = 1;
-   for(WFormula_p f = state->f_axioms->anchor->succ; 
-       f != state->f_axioms->anchor; 
-       f = f->succ)   
+   for(WFormula_p f = state->f_axioms->anchor->succ;
+       f != state->f_axioms->anchor;
+       f = f->succ)
    {
       int ord = TermComputeOrder(f->terms->sig, f->tformula);
       features->order = MAX(features->order, ord);
@@ -105,7 +105,8 @@ void RawSpecFeaturesCompute(RawSpecFeature_p features, ProofState_p state)
                                   &(features->app_var_lits));
    features->class[0] = '\0';
 }
-#define ADJUST_FOR_HO(limit, scale) (limit) 
+
+#define ADJUST_FOR_HO(limit, scale) (limit)
 #define RAW_CLASSIFY(index, value, some, many, ho_scale_some, ho_scale_many)\
    if((value) < (ADJUST_FOR_HO(some, ho_scale_some)))\
    {                                            \
@@ -161,7 +162,7 @@ void RawSpecFeaturesClassify(RawSpecFeature_p features, SpecLimits_p limits,
                 limits->num_of_lams_medium_limit, limits->num_of_lams_large_limit, 1, 1);
    features->class[11] = features->has_choice_sym ? 'C' : 'N';
    features->class[12] = features->order == 1 ? 'F' : (features->order == 2 ? 'S' : 'H');
-   features->class[13] = features->conj_order == 0 ? 'N' : 
+   features->class[13] = features->conj_order == 0 ? 'N' :
                            (features->conj_order == 1 ? 'F' : (features->conj_order == 2 ? 'S' : 'H'));
    features->class[14] = features->app_var_lits ? 'A' : 'N';
    if(pattern)
@@ -275,5 +276,3 @@ void RawSpecFeaturesPrint(FILE* out, RawSpecFeature_p features)
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-

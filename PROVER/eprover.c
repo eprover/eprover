@@ -186,6 +186,10 @@ ProofState_p parse_spec(CLState_p state,
    StrTree_p skip_includes = NULL;
    long parsed_ax_no;
 
+   if(state->argc ==  0)
+   {
+      CLStateInsertArg(state, "-");
+   }
    proofstate = ProofStateAlloc(free_symb_prop_local);
    for(i=0; state->argv[i]; i++)
    {
@@ -259,6 +263,43 @@ static void print_info(void)
       fflush(GlobalOut);
    }
 }
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: strategy_io()
+//
+//   Write and/or read the search strategy parameters. Moved here to
+//   declutter main.
+//
+// Global Variables: hparms
+//
+// Side Effects    : I/O, may change h_parms, may terminate the
+//                   program (if print_strategy is set).
+//
+/----------------------------------------------------------------------*/
+
+void strategy_io(HeuristicParms_p  h_parms, PStack_p hcb_definitions)
+{
+   if(print_strategy)
+   {
+      HeuristicParmsPrint(stdout, h_parms);
+      exit(NO_ERROR);
+   }
+
+   if(parse_strategy_filename)
+   {
+      Scanner_p in = CreateScanner(StreamTypeFile, parse_strategy_filename,
+                                   true, NULL, true);
+      HeuristicParmsParseInto(in,h_parms,true);
+      if(h_parms->heuristic_def)
+      {
+         PStackPushP(hcb_definitions, h_parms->heuristic_def);
+      }
+      DestroyScanner(in);
+   }
+}
+
 
 /*-----------------------------------------------------------------------
 //
@@ -431,11 +472,11 @@ int main(int argc, char* argv[])
    INCREASE_STACK_SIZE;
 #endif
 
-   pid = getpid();
    InitIO(NAME);
+   pid = getpid();
+   setpgid(0, 0);
 
    ESignalSetup(SIGXCPU);
-   setpgid(0, 0);
 
    h_parms = HeuristicParmsAlloc();
    fvi_parms = FVIndexParmsAlloc();
@@ -445,29 +486,10 @@ int main(int argc, char* argv[])
    state = process_options(argc, argv);
 
    OpenGlobalOut(outname);
+
    print_info();
-   if(print_strategy)
-   {
-      HeuristicParmsPrint(stdout, h_parms);
-      exit(NO_ERROR);
-   }
 
-   if(parse_strategy_filename)
-   {
-      Scanner_p in = CreateScanner(StreamTypeFile, parse_strategy_filename,
-                                   true, NULL, true);
-      HeuristicParmsParseInto(in,h_parms,true);
-      if(h_parms->heuristic_def)
-      {
-         PStackPushP(hcb_definitions, h_parms->heuristic_def);
-      }
-      DestroyScanner(in);
-   }
-
-   if(state->argc ==  0)
-   {
-      CLStateInsertArg(state, "-");
-   }
+   strategy_io(h_parms, hcb_definitions);
 
    proofstate = parse_spec(state, parse_format,
                            error_on_empty, free_symb_prop,
