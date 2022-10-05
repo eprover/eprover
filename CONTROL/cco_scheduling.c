@@ -143,6 +143,10 @@ void ScheduleTimesInitMultiCore(ScheduleCell sched[], double time_used,
    rlim_t sum=0, tmp, limit, total_limit;
    int allocated_cores = 0;
 
+   printf("# ScheduleTimesInitMultiCore(X, time_used=%f, time_limit=%f, "
+          "preprocessing_schedule=%d, *cores=%d, serialize=%d)\n",
+          time_used, time_limit, preprocessing_schedule, *cores, serialize);
+
    int sched_size = 0;
    while(sched[sched_size].heu_name)
    {
