@@ -80,12 +80,13 @@ Term_p drop_args(TB_p bank, Term_p t, long args_to_drop)
 
       res = TermTopAlloc(t->f_code, t->arity - args_to_drop);
       res->type = TypeBankInsertTypeShared(bank->sig->type_bank,
-                                           ArrowTypeFlattened(ty_args, args_to_drop, t->type));
+                                           ArrowTypeFlattened(ty_args,
+                                                              args_to_drop,
+                                                              t->type));
       for(long i=0; i < t->arity - args_to_drop; i++)
       {
          res->args[i] = t->args[i];
       }
-
       res = TBTermTopInsert(bank, res);
    }
    return res;
@@ -143,7 +144,7 @@ Term_p FlattenApps(TB_p bank, Term_p hd, Term_p* args, long num_args,
 Term_p flatten_and_make_shared(TB_p bank, Term_p t)
 {
    assert(!TermIsShared(t));
-   if(TermIsPhonyApp(t) && 
+   if(TermIsPhonyApp(t) &&
       !(TermIsAnyVar(t->args[0]) || TermIsLambda(t->args[0])))
    {
       Term_p junk = t;
@@ -188,7 +189,7 @@ Term_p do_shift_db(TB_p bank, Term_p t, int shift_val, int depth)
    {
       assert(t->f_code == SIG_DB_LAMBDA_CODE);
       assert(t->arity == 2);
-      
+
       Term_p matrix = t->args[1];
       Term_p shifted = do_shift_db(bank, matrix, shift_val, depth+1);
       if(matrix == shifted)
@@ -233,10 +234,10 @@ Term_p do_shift_db(TB_p bank, Term_p t, int shift_val, int depth)
 // Function: replace_bound_vars()
 //
 //   1.  For DB vars that are bound, do nothing.
-//   2a. For DB vars that are loosely bound 
+//   2a. For DB vars that are loosely bound
 //       with index 0 <= idx < total_bound, replace them with the
 //       corresponding term (shifted for depth)
-//   2b. For other losely bound variables with index idx, shift them for 
+//   2b. For other losely bound variables with index idx, shift them for
 //       total_bound - idx
 //
 // Global Variables: -
@@ -259,7 +260,7 @@ Term_p replace_bound_vars(TB_p bank, Term_p t, int total_bound, int depth)
       {
          if(t->f_code - depth < total_bound)
          {
-            Term_p corresponding_db = 
+            Term_p corresponding_db =
                TBRequestDBVar(bank, t->type, t->f_code - depth);
             assert(corresponding_db->binding);
             res = ShiftDB(bank, corresponding_db->binding, depth);
@@ -379,8 +380,8 @@ Term_p reduce_eta_top_level(TB_p bank, Term_p t)
       matrix->args[matrix->arity-1]->f_code == 0)
    {  // term is of the shape %x... . ... @ x
       long last_db = matrix->arity - 1;
-      long left_limit = 
-         MAX(matrix->arity - PStackGetSP(bound_vars), 
+      long left_limit =
+         MAX(matrix->arity - PStackGetSP(bound_vars),
              TermIsPhonyApp(matrix) ? 1 : 0);
       for(; last_db >= left_limit; last_db--)
       {
@@ -395,7 +396,7 @@ Term_p reduce_eta_top_level(TB_p bank, Term_p t)
 
       assert(last_db >=0);
       assert(last_db < matrix->arity);
-      
+
       long min_db = DB_NOT_FOUND;
       for(long i=0; i<last_db; i++)
       {
@@ -419,7 +420,7 @@ Term_p reduce_eta_top_level(TB_p bank, Term_p t)
                                                : MIN(min_db, matrix->args[last_db]->f_code + 1);
 
          res = ShiftDB(bank, drop_args(bank, matrix, to_drop), -to_drop);
-         
+
          while(to_drop) // dropping leftmost binders
          {
             UNUSED(PStackPopP(bound_vars));
@@ -485,7 +486,7 @@ Term_p do_eta_expand_db(TB_p bank, Term_p t)
          res->args[i] = do_eta_expand_db(bank, t->args[i]);
          changed = changed || res->args[i] != t->args[i];
       }
-      
+
       if(changed)
       {
          res = TBTermTopInsert(bank, res);
@@ -528,7 +529,7 @@ Term_p do_eta_reduce_db(TB_p bank, Term_p t)
       Term_p reduced = do_eta_reduce_db(bank, matrix);
       if(matrix == reduced)
       {
-         res = t;  
+         res = t;
       }
       else
       {
@@ -540,7 +541,7 @@ Term_p do_eta_reduce_db(TB_p bank, Term_p t)
       }
       PStackFree(bvars);
 
-      res = reduce_eta_top_level(bank, res);         
+      res = reduce_eta_top_level(bank, res);
    }
    else
    {
@@ -556,8 +557,8 @@ Term_p do_eta_reduce_db(TB_p bank, Term_p t)
                       (TermTopFree(res), t);
    }
 
-   if((res->f_code == bank->sig->qall_code 
-         || res->f_code == bank->sig->qex_code) 
+   if((res->f_code == bank->sig->qall_code
+         || res->f_code == bank->sig->qex_code)
       && res->arity == 1
       && !TermIsLambda(res->args[0]))
    {
@@ -584,17 +585,22 @@ Term_p do_eta_reduce_db(TB_p bank, Term_p t)
 Term_p do_beta_normalize_db(TB_p bank, Term_p t)
 {
    Term_p res = NULL;
+   DBGTermCheckUnownedSubterm(stdout, t, "UnownedBN0");
+
    if(TermIsPhonyApp(t) && TermIsLambda(t->args[0]))
    {
       res = WHNF_step(bank, t);
+      DBGTermCheckUnownedSubterm(stdout, res, "UnownedBN1");
       if(TermIsBetaReducible(res))
       {
          res = do_beta_normalize_db(bank, res);
+         DBGTermCheckUnownedSubterm(stdout, res, "UnownedBN2");
       }
    }
    else if (t->arity == 0 || !TermIsBetaReducible(t))
    {
       res = t; // optimization
+      DBGTermCheckUnownedSubterm(stdout, res, "UnownedBN2.5");
    }
    else if (TermIsLambda(t))
    {
@@ -603,13 +609,16 @@ Term_p do_beta_normalize_db(TB_p bank, Term_p t)
 
       Term_p matrix = t->args[1];
       Term_p reduced_matrix = do_beta_normalize_db(bank, matrix);
+      DBGTermCheckUnownedSubterm(stdout, matrix, "UnownedBN3");
       if(matrix == reduced_matrix)
       {
          res = t;
+         DBGTermCheckUnownedSubterm(stdout, res, "UnownedBN3.5");
       }
       else
       {
          res = CloseWithDBVar(bank, t->args[0]->type, reduced_matrix);
+         DBGTermCheckUnownedSubterm(stdout, res, "UnownedBN4");
       }
    }
    else
@@ -626,13 +635,15 @@ Term_p do_beta_normalize_db(TB_p bank, Term_p t)
       {
          TermTopFree(res);
          res = t;
+         DBGTermCheckUnownedSubterm(stdout, res, "UnownedBN6");
       }
       else
       {
          res = TBTermTopInsert(bank, res);
+         DBGTermCheckUnownedSubterm(stdout, res, "UnownedBN7");
       }
    }
-
+   DBGTermCheckUnownedSubterm(stdout, res, "UnownedBNX");
    return res;
 }
 
@@ -692,7 +703,7 @@ Term_p do_named_to_db(TB_p bank, Term_p t, long depth)
       if(t->binding && TermIsDBVar(t->binding))
       {
          assert(t->binding->type == t->type);
-         res = TBRequestDBVar(bank, t->type, 
+         res = TBRequestDBVar(bank, t->type,
                               depth - t->binding->f_code - 1);
       }
       else
@@ -792,16 +803,16 @@ Term_p do_post_cnf_encode(TB_p bank, Term_p t, long depth)
          matrix = matrix->args[1];
       }
 
-      matrix = 
+      matrix =
          do_post_cnf_encode(bank,
             ShiftDB(bank, matrix, PStackGetSP(prefix) / 2), depth);
-      
+
       while(!PStackEmpty(prefix))
       {
          Term_p prev_binding = PStackPopP(prefix);
          Term_p var = PStackPopP(prefix);
          var->binding = prev_binding;
-         
+
          Term_p quantified = TermTopAlloc(quant, 1);
          quantified->args[0] = CloseWithDBVar(bank, var->type, matrix);
 #ifdef NDEBUG
@@ -838,7 +849,7 @@ Term_p do_post_cnf_encode(TB_p bank, Term_p t, long depth)
          res = t;
       }
    }
-
+   DBGTermCheckUnownedSubterm(stdout, res, "do_post_cnf_encodeX");
    return res;
 }
 
@@ -926,7 +937,7 @@ Term_p replace_fvars (TB_p bank, Term_p t, long depth)
 Term_p CloseWithDBVar(TB_p bank, Type_p ty, Term_p body)
 {
    assert(TermIsShared(body));
-   
+
    Term_p res = TermTopAlloc(SIG_DB_LAMBDA_CODE, 2);
    res->args[0] = TBRequestDBVar(bank, ty, 0);
    res->args[1] = body;
@@ -998,7 +1009,7 @@ inline TermNormalizer GetEtaNormalizer()
 // Function: NamedToDB()
 //
 //   Given *closed* lambda in the named representation,
-//   return the corresponding 
+//   return the corresponding
 //
 // Global Variables: -
 //
@@ -1008,9 +1019,10 @@ inline TermNormalizer GetEtaNormalizer()
 
 Term_p NamedToDB(TB_p bank, Term_p lambda)
 {
-   Term_p res = BetaNormalizeDB(bank, 
-                            TermHasLambdaSubterm(lambda) ? 
-                              do_named_to_db(bank, lambda, 0) : lambda);
+   Term_p res = BetaNormalizeDB(bank,
+                                TermHasLambdaSubterm(lambda) ?
+                                do_named_to_db(bank, lambda, 0) : lambda);
+   DBGTermCheckUnownedSubterm(stdout, res, "NamedToDBX");
    return res;
 }
 
@@ -1045,7 +1057,7 @@ Term_p ShiftDB(TB_p bank, Term_p term, int shift_val)
 //
 // Function: AbstractVars()
 //
-//   Abstract var_prefix over matrix. Variable at the top of the stack 
+//   Abstract var_prefix over matrix. Variable at the top of the stack
 //   is the first one to abstract.
 //
 //
@@ -1063,13 +1075,13 @@ Term_p AbstractVars(TB_p terms, Term_p matrix, PStack_p var_prefix)
    {
       Term_p v = PStackElementP(var_prefix, i);
       assert(v->binding == NULL);
-      SubstAddBinding(subst, v, 
+      SubstAddBinding(subst, v,
          TBRequestDBVar(terms, v->type, PStackGetSP(var_prefix)-i-1));
    }
    matrix = replace_fvars(terms, matrix, 0);
    for(long i=PStackGetSP(var_prefix)-1; i>=0; i--)
    {
-      matrix = 
+      matrix =
          CloseWithDBVar(terms, ((Term_p)PStackElementP(var_prefix,i))->type, matrix);
    }
    SubstDelete(subst);
@@ -1141,7 +1153,7 @@ Term_p whnf_step_uncached(TB_p bank, Term_p t)
 
    // res = do_beta_normalize_db(bank, new_matrix);
    res = new_matrix;
-  
+
    PStackFree(to_bind_stack);
    TermSetCache(t, res);
    return res;
@@ -1152,7 +1164,7 @@ Term_p whnf_step_uncached(TB_p bank, Term_p t)
 // Function: WHNF_step()
 //
 //   Given a term of the form (%XYZ. body) x1 x2 x3 x4 ...
-//   Computes the term (body[X -> x1, Y -> x2; Z -> x3]) x4 ... 
+//   Computes the term (body[X -> x1, Y -> x2; Z -> x3]) x4 ...
 //
 // Global Variables: -
 //
@@ -1239,9 +1251,12 @@ Term_p WHNF_deref(Term_p t)
 Term_p BetaNormalizeDB(TB_p bank, Term_p term)
 {
    Term_p res = term;
+
+   DBGTermCheckUnownedSubterm(stdout, term, "UnownedBNDB0");
    if(TermIsBetaReducible(term))
    {
       res = do_beta_normalize_db(bank, term);
+      DBGTermCheckUnownedSubterm(stdout, res, "UnownedBNDB1");
       if(res->f_code == bank->sig->eqn_code &&
          res->arity==2 &&
          res->args[1] == bank->true_term &&
@@ -1250,9 +1265,11 @@ Term_p BetaNormalizeDB(TB_p bank, Term_p term)
          SigIsLogicalSymbol(bank->sig, res->args[0]->f_code))
       {
          res = res->args[0];
+         DBGTermCheckUnownedSubterm(stdout, res, "UnownedBNDB2");
       }
    }
    assert(!TermIsBetaReducible(res));
+   DBGTermCheckUnownedSubterm(stdout, res, "UnownedBNDBX");
    return res;
 }
 
@@ -1298,13 +1315,14 @@ Term_p DecodeFormulasForCNF(TB_p bank, Term_p t)
       assert(TypeIsArrow(t->args[0]->type));
       assert(t->args[0]->type->arity == 2);
       assert(TypeIsPredicate(t->args[0]->type));
-      Term_p fresh_var = 
+      Term_p fresh_var =
          VarBankGetFreshVar(bank->vars, t->args[0]->type->args[0]);
+      TermSetBank(fresh_var, bank);
       Term_p new_matrix =
          WHNF_step(bank,
             TBTermTopInsert(bank,
                TermApplyArg(bank->sig->type_bank, t->args[0], fresh_var)));
-      res = TFormulaQuantorAlloc(bank, t->f_code, fresh_var, 
+      res = TFormulaQuantorAlloc(bank, t->f_code, fresh_var,
                                  DecodeFormulasForCNF(bank, new_matrix));
    }
    else if (TermIsAnyVar(t) || t->arity == 0)
@@ -1368,11 +1386,11 @@ Term_p LambdaEtaExpandDBTopLevel(TB_p bank, Term_p t)
       for(long i=0; i<num_args; i++)
       {
          Term_p fresh_db = TBRequestDBVar(bank, t->type->args[i], num_args-i-1);
-         PStackPushP(db_args, 
-                     TypeIsArrow(fresh_db->type) ? 
+         PStackPushP(db_args,
+                     TypeIsArrow(fresh_db->type) ?
                         do_eta_expand_db(bank, fresh_db) : fresh_db);
       }
-      
+
       t = ApplyTerms(bank, ShiftDB(bank, t, num_args), db_args);
       while(!PStackEmpty(db_args))
       {
@@ -1452,7 +1470,10 @@ Term_p LambdaEtaExpandDB(TB_p bank, Term_p term)
 
 Term_p LambdaNormalizeDB(TB_p bank, Term_p term)
 {
-   return GetEtaNormalizer()(bank, BetaNormalizeDB(bank, term));
+   DBGTermCheckUnownedSubterm(stdout, term, "LambdaNormalizeDB0");
+   Term_p res = GetEtaNormalizer()(bank, BetaNormalizeDB(bank, term));
+   DBGTermCheckUnownedSubterm(stdout, res, "LambdaNormalizeDBX");
+   return res;
 }
 
 

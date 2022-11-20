@@ -371,6 +371,10 @@ void    TermStackDelProps(PStack_p stack, TermProperties prop);
 #define TermSetCache(t,c)  ((t)->binding_cache = (c))
 #define TermGetBank(t)     ((t)->owner_bank)
 #define TermSetBank(t,b)   ((t)->owner_bank = (b))
+Term_p TermFindUnownedSubterm(Term_p term);
+#define DBGTermCheckUnownedSubterm(out, t, location)     \
+   DBGTermCheckUnownedSubtermReal((out), (t), (location))
+void DBGTermCheckUnownedSubtermReal(FILE* out, Term_p t, char* location);
 
 #define TermIsBetaReducible(t) TermCellQueryProp((t), TPIsBetaReducible)
 #define TermIsEtaReducible(t)  TermCellQueryProp((t), TPIsEtaReducible)
@@ -378,6 +382,8 @@ void    TermStackDelProps(PStack_p stack, TermProperties prop);
 #define TermGetCache(t)    (UNUSED(t), NULL)
 #define TermSetCache(t,c)  (UNUSED(t), UNUSED(c), UNUSED(NULL))
 #define TermGetBank(t)     (UNUSED(t), NULL)
+#define TermFindUnownedSubterm(t) (UNUSED(t), NULL)
+#define DBGTermCheckUnownedSubterm(f, t, l) (UNUSED(f) (UNUSED(t), UNUSED(location))
 #define TermSetBank(t,b)   (UNUSED(t), UNUSED(b), UNUSED(NULL))
 #define TermIsBetaReducible(t) false
 #define TermIsEtaReducible(t)  false

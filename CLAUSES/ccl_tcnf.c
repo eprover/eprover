@@ -111,7 +111,7 @@ TFormula_p tprop_arg_return(Sig_p sig, TFormula_p arg1, TFormula_p arg2,
 
 static Term_p negate_form(TB_p bank, Term_p t)
 {
-   Sig_p sig = bank->sig; 
+   Sig_p sig = bank->sig;
    if(!TypeIsBool(t->type))
    {
       return t;
@@ -149,7 +149,7 @@ static Term_p negate_form(TB_p bank, Term_p t)
    {
       return TFormulaFCodeAlloc(bank, sig->equiv_code, t->args[0], t->args[1]);
    }
-   else 
+   else
    {
       return TFormulaFCodeAlloc(bank, sig->not_code, t, NULL);
    }
@@ -371,7 +371,7 @@ TFormula_p tformula_rek_skolemize(TB_p terms, TFormula_p form,
    {
       /* All is well */
    }
-   else if(TFormulaIsLiteral(terms->sig, form) || 
+   else if(TFormulaIsLiteral(terms->sig, form) ||
            TypeIsArrow(form->type))
    {
       form = TFormulaCopy(terms, form);
@@ -995,7 +995,7 @@ TFormula_p do_simplify_decoded(TB_p terms, TFormula_p form, bool unroll_implicat
          bool changed = false;
          PStack_p args = PStackAlloc();
          unroll_binary(form, form->f_code, args);
-         
+
          PStack_p res_args = PStackAlloc();
          for(PStackPointer i=0; !res && i<PStackGetSP(args); i++)
          {
@@ -1050,8 +1050,8 @@ TFormula_p do_simplify_decoded(TB_p terms, TFormula_p form, bool unroll_implicat
             {
                Term_p neg_arg = negate_form(terms, PStackElementP(res_args, i));
                IntOrP neg_arg_key = {.p_val = neg_arg};
-               Term_p found = 
-                  bsearch(&neg_arg_key, res_args->stack, res_args->current, 
+               Term_p found =
+                  bsearch(&neg_arg_key, res_args->stack, res_args->current,
                           sizeof(IntOrP), term_compare);
                if(found)
                {
@@ -1094,7 +1094,7 @@ TFormula_p do_simplify_decoded(TB_p terms, TFormula_p form, bool unroll_implicat
       form = simplify_args(terms, form,
                            // unrolling implications only at the top level!
                            unroll_implications &&
-                           (form->arity != 2 || 
+                           (form->arity != 2 ||
                             form->args[1]->f_code != sig->impl_code));
       if(form->arity == 2)
       {
@@ -1118,8 +1118,8 @@ TFormula_p do_simplify_decoded(TB_p terms, TFormula_p form, bool unroll_implicat
             for(long i=0; !res && i < PStackGetSP(consequent); i++)
             {
                IntOrP arg_key = {.p_val = PStackElementP(consequent, i)};
-               Term_p found = 
-                  bsearch(&arg_key, precedent->stack, 
+               Term_p found =
+                  bsearch(&arg_key, precedent->stack,
                           precedent->current, sizeof(IntOrP), term_compare);
                if(found)
                {
@@ -1129,7 +1129,7 @@ TFormula_p do_simplify_decoded(TB_p terms, TFormula_p form, bool unroll_implicat
 
             PStackFree(precedent);
             PStackFree(consequent);
-         }         
+         }
 
          if(!res)
          {
@@ -1139,7 +1139,7 @@ TFormula_p do_simplify_decoded(TB_p terms, TFormula_p form, bool unroll_implicat
             {
                res = terms->true_term;
             }
-            else if(c == negate_form(terms, p) || p == negate_form(terms, c) 
+            else if(c == negate_form(terms, p) || p == negate_form(terms, c)
                     || p == terms->true_term)
             {
                res = c;
@@ -1168,7 +1168,7 @@ TFormula_p do_simplify_decoded(TB_p terms, TFormula_p form, bool unroll_implicat
 
          if(form->args[0] == form->args[1])
          {
-            res = negative ? terms->false_term : terms->true_term; 
+            res = negative ? terms->false_term : terms->true_term;
          }
          else if(form->args[0] == terms->true_term)
          {
@@ -2177,6 +2177,7 @@ TFormula_p TFormulaVarRename(TB_p terms, TFormula_p form)
    {
       old_var = form->args[0]->binding;
       new_var = VarBankGetFreshVar(terms->vars, form->args[0]->type);
+      TermSetBank(new_var, terms);
       assert(new_var != form->args[0]);
       form->args[0]->binding = new_var;
    }
@@ -2697,4 +2698,3 @@ void WTFormulaConjunctiveNF3(WFormula_p form, TB_p terms,
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-

@@ -105,9 +105,9 @@ static inline Term_p ApplyTerms(TB_p terms, Term_p head, PStack_p args)
 //
 // Function: UnfoldLambda()
 //
-//   Fills var_stack with abstracted variables and returns the body of lambda
-//   For example, given ^[X]:(^[Y]:s), varstack = [Y, X] and s is returned
-//
+//   Fills var_stack with abstracted variables and returns the body of
+//   lambda. For example, given ^[X]:(^[Y]:s), varstack = [Y, X] and s
+//   is returned
 //
 // Global Variables: -
 //

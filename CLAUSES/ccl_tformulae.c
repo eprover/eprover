@@ -872,8 +872,8 @@ static Term_p lambda_eq_to_forall(TB_p terms, Term_p t)
       t = NULL;
    }
    else if((t->f_code == sig->eqn_code
-       || t->f_code == sig->neqn_code)
-      && t->arity == 2)
+            || t->f_code == sig->neqn_code)
+           && t->arity == 2)
    {
       if((TermIsLambda(t->args[0]) || TermIsLambda(t->args[1])))
       {
@@ -891,6 +891,7 @@ static Term_p lambda_eq_to_forall(TB_p terms, Term_p t)
          {
             Term_p db = PStackElementP(more_vars, i);
             Term_p fvar = VarBankGetFreshVar(terms->vars, db->type);
+            TermSetBank(fvar, terms);
             PStackPushP(fresh_vars, fvar);
             PStackPushP(encoded_vars, EncodePredicateAsEqn(terms, fvar));
          }
@@ -901,7 +902,7 @@ static Term_p lambda_eq_to_forall(TB_p terms, Term_p t)
 
             t = TFormulaFCodeAlloc(terms,
                                    t->f_code == sig->eqn_code
-                                        ? sig->equiv_code : sig->xor_code,
+                                   ? sig->equiv_code : sig->xor_code,
                                    EncodePredicateAsEqn(terms, lhs),
                                    EncodePredicateAsEqn(terms, rhs));
          }
@@ -911,7 +912,7 @@ static Term_p lambda_eq_to_forall(TB_p terms, Term_p t)
          }
 
          bool universal = t->f_code == sig->eqn_code
-                           || t->f_code == sig->equiv_code;
+            || t->f_code == sig->equiv_code;
          while(!PStackEmpty(fresh_vars))
          {
             t = TFormulaAddQuantor(terms, t, universal, PStackPopP(fresh_vars));
@@ -977,6 +978,7 @@ WFormula_p find_generalization(PDTree_p liftings, Term_p query, TermRef name)
       {
          *name = candidate;
          res = pos->data;
+         DBGTermCheckUnownedSubterm(stdout, res->tformula, "find_generalization");
       }
       else
       {
@@ -1053,6 +1055,7 @@ Term_p unbind_loose(TB_p terms, IntMap_p db_map, long depth, Term_p t)
          if(!*fvar_ref)
          {
             *fvar_ref = VarBankGetFreshVar(terms->vars, t->type);
+            TermSetBank(*fvar_ref, terms);
             (*fvar_ref)->binding =
                TBRequestDBVar(terms, t->type, t->f_code-depth);
          }
@@ -1115,7 +1118,9 @@ Term_p lift_lambda(TB_p terms, PStack_p bound_vars, Term_p body,
    for(long i=0; i<PStackGetSP(bound_vars); i++)
    {
       Type_p fresh_ty = ((Term_p)PStackElementP(bound_vars,i))->type;
-      PStackPushP(bound_to_fresh, VarBankGetFreshVar(terms->vars, fresh_ty));
+      Term_p tmp = VarBankGetFreshVar(terms->vars, fresh_ty);
+      TermSetBank(tmp, terms);
+      PStackPushP(bound_to_fresh, tmp);
    }
 
    IntMap_p loosely_bound_to_fresh = IntMapAlloc();
@@ -1186,8 +1191,8 @@ Term_p lift_lambda(TB_p terms, PStack_p bound_vars, Term_p body,
       if(TypeIsBool(body->type))
       {
          def_f = TFormulaFCodeAlloc(terms, terms->sig->equiv_code,
-                                 EncodePredicateAsEqn(terms, repl_lhs),
-                                 EncodePredicateAsEqn(terms, repl_rhs));
+                                    EncodePredicateAsEqn(terms, repl_lhs),
+                                    EncodePredicateAsEqn(terms, repl_rhs));
       }
       else
       {
@@ -1198,7 +1203,7 @@ Term_p lift_lambda(TB_p terms, PStack_p bound_vars, Term_p body,
       {
          def_f = TFormulaAddQuantor(terms, def_f, true, repl_lhs->args[i]);
       }
-
+      DBGTermCheckUnownedSubterm(stdout, def_f, "lift_lambda(def)");
       WFormula_p def = WTFormulaAlloc(terms, def_f);
       DocFormulaCreationDefault(def, inf_fof_intro_def, NULL, NULL);
       WFormulaPushDerivation(def, DCIntroDef, NULL, NULL);
@@ -1218,7 +1223,7 @@ Term_p lift_lambda(TB_p terms, PStack_p bound_vars, Term_p body,
    IntMapFree(loosely_bound_to_fresh);
    PStackFree(free_var_stack);
    PStackFree(bound_to_fresh);
-
+   DBGTermCheckUnownedSubterm(stdout, lifted, "lift_lambdaX");
    return lifted;
 }
 
@@ -2510,8 +2515,10 @@ TFormula_p TFormulaNegate(TFormula_p form, TB_p terms)
 TFormula_p LiftLambdas(TB_p terms, TFormula_p t, PStack_p definitions, PDTree_p liftings)
 {
    Term_p res;
+
    PStack_p vars = NULL;
    t = BetaNormalizeDB(terms, t);
+   DBGTermCheckUnownedSubterm(stdout, t, "UnownedLL");
    if(TermIsLambda(t))
    {
       vars = PStackAlloc();
@@ -2540,7 +2547,6 @@ TFormula_p LiftLambdas(TB_p terms, TFormula_p t, PStack_p definitions, PDTree_p 
       res = lift_lambda(terms, vars, res, definitions, liftings);
       PStackFree(vars);
    }
-
    return res;
 }
 

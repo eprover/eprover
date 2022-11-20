@@ -1255,14 +1255,14 @@ void NextToken(Scanner_p in)
 {
    scan_real_token(in);
    in->current = TOKENREALPOS(in->current+1);
-   /*
-     printf("Current token:\n");
-     PrintToken(stdout, AktToken(in));
-     printf("Next token:\n");
-     PrintToken(stdout, LookToken(in,1));
-     printf("SuperNext token:\n");
-     PrintToken(stdout, LookToken(in,2));
-     printf("\n");*/
+
+   /*printf("Current token:\n");
+   PrintToken(stdout, AktToken(in));
+   printf("Next token:\n");
+   PrintToken(stdout, LookToken(in,1));
+   printf("SuperNext token:\n");
+   PrintToken(stdout, LookToken(in,2));
+   printf("\n");*/
 }
 
 

@@ -123,7 +123,7 @@ static void* pdt_select_alt_ref(PDTree_p tree, PDTNode_p node, Term_p term)
       res = IntMapGetRef(node->f_alternatives, term->f_code);
       tree->arr_storage_est += IntMapStorage(node->f_alternatives);
    }
-   
+
    tree->arr_storage_est += added_objmap_node ? SizeOfPObjNode() : 0;
 
    return res;
@@ -194,7 +194,7 @@ static PStack_p pdt_node_succ_stack_create(PDTNode_p node)
       PStackPushP(result, next);
    }
    IntMapIterFree(iter);
-   
+
    PStack_p objmap_iter = PStackAlloc();
    objmap_iter = PObjMapTraverseInit(node->v_alternatives, objmap_iter);
    while((next = PObjMapTraverseNext(objmap_iter, NULL)))
@@ -583,7 +583,7 @@ static void pdtree_forward(PDTree_p tree, Subst_p subst)
          }
          if(!TermIsTopLevelFreeVar(term))
          {
-            Term_p query = 
+            Term_p query =
                TermIsPhonyApp(term) ? (assert(TermIsDBVar(term->args[0])), term->args[0]):
                                       term;
             // using nested DB symbol for indentifying Lambda expression
@@ -639,11 +639,26 @@ static void pdtree_forward(PDTree_p tree, Subst_p subst)
                   }
                   else
                   {
+                     if(!next->variable->owner_bank)
+                     {
+                        printf("Evil term 1: ");
+                        TermPrint(stdout, next->variable, tree->bank->sig, DEREF_NEVER);
+                        printf("\n");
+                     }
                      success = SubstMatchComplete(next->variable, term, subst);
                   }
                }
                else
                {
+                  if(!next->variable->owner_bank)
+                  {
+                     printf("Evil term 2: ");
+                     TermPrint(stdout, next->variable, tree->bank->sig, DEREF_NEVER);
+                     printf(" in ");
+                     TermPrint(stdout, tree->term, tree->bank->sig, DEREF_NEVER);
+                     printf("\n");
+                     //TermSetBank(next->variable, tree->bank);
+                  }
                   success = SubstMatchComplete(next->variable, term, subst);
                }
 
@@ -700,7 +715,7 @@ static void pdtree_backtrack(PDTree_p tree, Subst_p subst)
    if(handle->variable && TermIsTopLevelFreeVar(handle->variable))
    {
       assert(!TermIsFreeVar(handle->variable) || handle->variable->binding);
-      assert(!TermIsAppliedFreeVar(handle->variable) || 
+      assert(!TermIsAppliedFreeVar(handle->variable) ||
                handle->variable->args[0]->binding);
       tree->term_weight  += (TermStandardWeight((Term_p)PStackTopP(tree->term_proc)) -
                               TermStandardWeight(handle->variable));
@@ -1009,7 +1024,7 @@ Term_p TermLRTraverseNext(PStack_p stack)
    {
       // phony DB variable gets skipped over for lambdas
       // and the head DB variable gets skipped for applied db vars
-      for(i = handle->arity-1; 
+      for(i = handle->arity-1;
           i >= (TermIsLambda(handle) || TermIsAppliedDBVar(handle)) ? 1 : 0; i--)
       {
          PStackPushP(stack, handle->args[i]);
@@ -1038,7 +1053,7 @@ Term_p TermLRTraversePrev(PStack_p stack, Term_p term)
    Term_p tmp;
    int    i;
 
-   for(i = (TermIsLambda(term) || TermIsAppliedDBVar(term) ? 1 : 0); 
+   for(i = (TermIsLambda(term) || TermIsAppliedDBVar(term) ? 1 : 0);
        i < term->arity; i++)
    {
       tmp = PStackPopP(stack);
@@ -1066,7 +1081,7 @@ Term_p TermLRTraversePrev(PStack_p stack, Term_p term)
 bool PDTreeInsert(PDTree_p tree, ClausePos_p demod_side)
 {
    Term_p term;
-   
+
    assert(demod_side);
    term = ClausePosGetSide(demod_side);
    bool ans = PDTreeInsertTerm(tree, term, demod_side, true);
@@ -1085,7 +1100,7 @@ bool PDTreeInsert(PDTree_p tree, ClausePos_p demod_side)
 //
 /----------------------------------------------------------------------*/
 
-bool PDTreeInsertTerm(PDTree_p tree, Term_p term, ClausePos_p demod_side, 
+bool PDTreeInsertTerm(PDTree_p tree, Term_p term, ClausePos_p demod_side,
                       bool store_data)
 {
    Term_p    curr;
@@ -1123,6 +1138,10 @@ bool PDTreeInsertTerm(PDTree_p tree, Term_p term, ClausePos_p demod_side,
 
    while(curr)
    {
+      /* printf("Inserting: "); */
+      /* TermPrint(stdout, curr, tree->bank->sig, DEREF_NEVER); */
+      /* printf("\n"); */
+
       next = pdt_select_alt_ref(tree, node, curr);
 
       if(!(*next))
@@ -1153,7 +1172,7 @@ bool PDTreeInsertTerm(PDTree_p tree, Term_p term, ClausePos_p demod_side,
       curr = TermLRTraverseNext(tree->term_stack);
    }
    assert(node);
-   if (store_data) 
+   if (store_data)
    {
       res = PTreeStore(&(node->entries), demod_side);
       UNUSED(res); assert(res);
@@ -1175,7 +1194,7 @@ bool PDTreeInsertTerm(PDTree_p tree, Term_p term, ClausePos_p demod_side,
 //
 /----------------------------------------------------------------------*/
 
-PDTNode_p PDTreeMatchPrefix(PDTree_p tree, Term_p term, 
+PDTNode_p PDTreeMatchPrefix(PDTree_p tree, Term_p term,
    long* matched, long* remains)
 {
    Term_p    curr;
@@ -1192,11 +1211,11 @@ PDTNode_p PDTreeMatchPrefix(PDTree_p tree, Term_p term,
    curr = TermLRTraverseNext(tree->term_stack);
    while (curr)
    {
-      if (!node) 
+      if (!node)
       {
          (*remains)++;
       }
-      else 
+      else
       {
          next = pdt_select_next(tree, node, curr);
          if (!(next))
@@ -1265,7 +1284,7 @@ long PDTreeDelete(PDTree_p tree, Term_p term, Clause_p clause)
       // assert(node);
       curr = TermLRTraverseNext(tree->term_stack);
    }
-   
+
    if (node)
    {
       res = delete_clause_entries(&(node->entries), clause, tree->deleter);
@@ -1293,12 +1312,12 @@ long PDTreeDelete(PDTree_p tree, Term_p term, Clause_p clause)
             tree->node_count--;
             if(TermIsTopLevelAnyVar(del_term) || TermIsLambda(del_term))
             {
-               PObjMap_p* to_del = 
+               PObjMap_p* to_del =
                   TermIsTopLevelFreeVar(del_term) ? &(prev->v_alternatives) :
                                                    &(prev->db_alternatives);
-               void* deleted = 
-                  PObjMapExtract(to_del, 
-                                 (TermIsLambda(del_term) || TermIsAppliedDBVar(del_term)) 
+               void* deleted =
+                  PObjMapExtract(to_del,
+                                 (TermIsLambda(del_term) || TermIsAppliedDBVar(del_term))
                                     ? del_term->args[0] : del_term,
                                  TermPCompare);
                UNUSED(deleted); assert(deleted);

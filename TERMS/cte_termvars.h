@@ -67,7 +67,7 @@ typedef struct varbankcell
    FunCode     max_var;     /* Largest variable ever created */
    PDArray_p   varstacks;   /* Maps each sort to a bank of variables
                              * of these sort (these are e.g. used
-                             * in-order to represent * external
+                             * in-order to represent external
                              * variables. */
    PDArray_p   v_counts;   /* Number of fresh variables of a given
                             * sort already used. */
@@ -177,7 +177,7 @@ static inline VarBankStack_p  VarBankGetStack(VarBank_p bank, TypeUniqueID sort)
 /----------------------------------------------------------------------*/
 
 static inline Term_p VarBankVarAssertAlloc(VarBank_p bank, FunCode f_code,
-                                               Type_p type)
+                                           Type_p type)
 {
    Term_p var;
 

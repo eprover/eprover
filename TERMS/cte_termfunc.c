@@ -379,8 +379,6 @@ void do_ho_print(FILE* out, TFormula_p term, Sig_p sig, DerefType deref, int dep
       return;
    }
 
-
-
    if(TermIsDBVar(term))
    {
       fprintf(out, "Z%d", depth - (int)term->f_code - 1);
@@ -514,6 +512,7 @@ void do_fool_print(FILE* out, Sig_p sig, TFormula_p form, int depth)
       if(form->f_code == SIG_DB_LAMBDA_CODE)
       {
          fprintf(out, "Z%d", depth);
+         fprintf(out, "/* %ld */", form->args[1]->f_code);
          depth++;
       }
       else

@@ -207,7 +207,6 @@ ProofState_p parse_spec(CLState_p state,
       {
          DocOutputFormat = pcl_format;
       }
-
       FormulaAndClauseSetParse(in,
                                proofstate->f_axioms,
                                proofstate->watchlist,

@@ -150,6 +150,7 @@ Term_p do_abstract(Term_p t, Term_p arg, TB_p bank, int depth, Subst_p refresh)
       else
       {
          Term_p fvar = VarBankGetFreshVar(bank->vars, t->type);
+         TermSetBank(fvar, bank);
          SubstAddBinding(refresh, t, fvar);
          res = fvar;
       }
@@ -273,6 +274,7 @@ void store_abstraction_form(WFormula_p wform, ClauseSet_p archive, PObjMap_p* st
          Term_p lambda = quantified->args[0];
          add_abs_to_store(store, lambda, cl);
          Term_p fvar = VarBankGetFreshVar(bank->vars, lambda->args[0]->type);
+         TermSetBank(fvar, bank);
          quantified =
             WHNF_step(bank,
               TBTermTopInsert(bank, TermApplyArg(sig->type_bank, lambda, fvar)));
@@ -2104,7 +2106,11 @@ bool ImmediateClausification(Clause_p cl, ClauseSet_p store, ClauseSet_p archive
          while (!FormulaSetEmpty(work_set))
          {
             WFormula_p handle = FormulaSetExtractFirst(work_set);
-            WFormulaCNF2(handle, res_set, bank, fresh_vars, 100, fool_unroll); // low miniscope limit for efficiency
+            DBGTermCheckUnownedSubterm(stdout,
+                                       handle->tformula,
+                                       "ImmediateClausification");
+            WFormulaCNF2(handle, res_set, bank, fresh_vars, 100, fool_unroll);
+            // low miniscope limit for efficiency
             WFormulaFree(handle);
          }
 
