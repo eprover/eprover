@@ -639,26 +639,25 @@ static void pdtree_forward(PDTree_p tree, Subst_p subst)
                   }
                   else
                   {
-                     if(!next->variable->owner_bank)
-                     {
-                        printf("Evil term 1: ");
-                        TermPrint(stdout, next->variable, tree->bank->sig, DEREF_NEVER);
-                        printf("\n");
-                     }
+                     /* if(!next->variable->owner_bank) */
+                     /* { */
+                     /*    printf("Evil term 1: "); */
+                     /*    TermPrint(stdout, next->variable, tree->bank->sig, DEREF_NEVER); */
+                     /*    printf("\n"); */
+                     /* } */
                      success = SubstMatchComplete(next->variable, term, subst);
                   }
                }
                else
                {
-                  if(!next->variable->owner_bank)
-                  {
-                     printf("Evil term 2: ");
-                     TermPrint(stdout, next->variable, tree->bank->sig, DEREF_NEVER);
-                     printf(" in ");
-                     TermPrint(stdout, tree->term, tree->bank->sig, DEREF_NEVER);
-                     printf("\n");
-                     //TermSetBank(next->variable, tree->bank);
-                  }
+                  /* if(!next->variable->owner_bank) */
+                  /* { */
+                  /*    printf("Evil term 2: "); */
+                  /*    TermPrint(stdout, next->variable, tree->bank->sig, DEREF_NEVER); */
+                  /*    printf(" in "); */
+                  /*    TermPrint(stdout, tree->term, tree->bank->sig, DEREF_NEVER); */
+                  /*    printf("\n"); */
+                  /* } */
                   success = SubstMatchComplete(next->variable, term, subst);
                }
 

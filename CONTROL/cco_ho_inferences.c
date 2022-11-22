@@ -150,7 +150,6 @@ Term_p do_abstract(Term_p t, Term_p arg, TB_p bank, int depth, Subst_p refresh)
       else
       {
          Term_p fvar = VarBankGetFreshVar(bank->vars, t->type);
-         TermSetBank(fvar, bank);
          SubstAddBinding(refresh, t, fvar);
          res = fvar;
       }
@@ -274,7 +273,6 @@ void store_abstraction_form(WFormula_p wform, ClauseSet_p archive, PObjMap_p* st
          Term_p lambda = quantified->args[0];
          add_abs_to_store(store, lambda, cl);
          Term_p fvar = VarBankGetFreshVar(bank->vars, lambda->args[0]->type);
-         TermSetBank(fvar, bank);
          quantified =
             WHNF_step(bank,
               TBTermTopInsert(bank, TermApplyArg(sig->type_bank, lambda, fvar)));
@@ -1497,7 +1495,6 @@ FunCode mk_new_choice(TB_p bank, ClauseSet_p archive, IntMap_p choice_syms, Type
    PStackFree(vars);
 
    Term_p p_var = VarBankGetFreshVar(bank->vars, a_to_o);
-   TermSetBank(p_var, bank);
 
    Term_p ch_p =
       TBTermTopInsert(bank, TermApplyArg(bank->sig->type_bank, ch_const, p_var));
@@ -1509,8 +1506,6 @@ FunCode mk_new_choice(TB_p bank, ClauseSet_p archive, IntMap_p choice_syms, Type
    Type_p a = ty->args[0]->args[0];
 
    Term_p x_var = VarBankGetFreshVar(bank->vars, a);
-   TermSetBank(x_var, bank);
-
    Term_p p_x =
       TBTermTopInsert(bank, TermApplyArg(bank->sig->type_bank, p_var, x_var));
 

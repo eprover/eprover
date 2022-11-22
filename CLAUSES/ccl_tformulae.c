@@ -891,7 +891,6 @@ static Term_p lambda_eq_to_forall(TB_p terms, Term_p t)
          {
             Term_p db = PStackElementP(more_vars, i);
             Term_p fvar = VarBankGetFreshVar(terms->vars, db->type);
-            TermSetBank(fvar, terms);
             PStackPushP(fresh_vars, fvar);
             PStackPushP(encoded_vars, EncodePredicateAsEqn(terms, fvar));
          }
@@ -1055,7 +1054,6 @@ Term_p unbind_loose(TB_p terms, IntMap_p db_map, long depth, Term_p t)
          if(!*fvar_ref)
          {
             *fvar_ref = VarBankGetFreshVar(terms->vars, t->type);
-            TermSetBank(*fvar_ref, terms);
             (*fvar_ref)->binding =
                TBRequestDBVar(terms, t->type, t->f_code-depth);
          }
@@ -1119,7 +1117,6 @@ Term_p lift_lambda(TB_p terms, PStack_p bound_vars, Term_p body,
    {
       Type_p fresh_ty = ((Term_p)PStackElementP(bound_vars,i))->type;
       Term_p tmp = VarBankGetFreshVar(terms->vars, fresh_ty);
-      TermSetBank(tmp, terms);
       PStackPushP(bound_to_fresh, tmp);
    }
 

@@ -1171,6 +1171,7 @@ Term_p TermCopy(Term_p source, VarBank_p vars, DBVarBank_p dbvars, DerefType der
       else
       {
          handle = _RequestDBVar(dbvars, source->type, source->f_code);
+         TermSetBank(handle, vars->term_bank);
       }
    }
    else

@@ -1317,7 +1317,6 @@ Term_p DecodeFormulasForCNF(TB_p bank, Term_p t)
       assert(TypeIsPredicate(t->args[0]->type));
       Term_p fresh_var =
          VarBankGetFreshVar(bank->vars, t->args[0]->type->args[0]);
-      TermSetBank(fresh_var, bank);
       Term_p new_matrix =
          WHNF_step(bank,
             TBTermTopInsert(bank,

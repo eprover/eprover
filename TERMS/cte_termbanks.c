@@ -754,6 +754,7 @@ TB_p TBAlloc(Sig_p sig)
    handle->gc = GCAdminAlloc();
    handle->sig = sig;
    handle->vars = VarBankAlloc(sig->type_bank);
+   handle->vars->term_bank = handle;
    handle->db_vars = DBVarBankAlloc();
    TermCellStoreInit(&(handle->term_store));
 
@@ -872,12 +873,10 @@ Term_p TBInsert(TB_p bank, Term_p term, DerefType deref)
    if(TermIsFreeVar(term))
    {
       t = VarBankVarAssertAlloc(bank->vars, term->f_code, term->type);
-      TermSetBank(t, bank);
    }
    else if (TermIsDBVar(term))
    {
       t = TBRequestDBVar(bank, term->type, term->f_code);
-      TermSetBank(t, bank);
    }
    else
    {
@@ -1017,12 +1016,10 @@ Term_p TBInsertNoProps(TB_p bank, Term_p term, DerefType deref)
    if(TermIsFreeVar(term))
    {
       t = VarBankVarAssertAlloc(bank->vars, term->f_code, term->type);
-      TermSetBank(t, bank);
    }
    else if (TermIsDBVar(term))
    {
       t = TBRequestDBVar(bank, term->type, term->f_code);
-      TermSetBank(t, bank);
    }
    else
    {
@@ -1106,12 +1103,10 @@ Term_p  TBInsertRepl(TB_p bank, Term_p term, DerefType deref, Term_p old, Term_p
    if(TermIsFreeVar(term))
    {
       t = VarBankVarAssertAlloc(bank->vars, term->f_code, term->type);
-      TermSetBank(t, bank);
    }
    else if (TermIsDBVar(term))
    {
       t = TBRequestDBVar(bank, term->type, term->f_code);
-      TermSetBank(t, bank);
    }
    else
    {
@@ -1236,12 +1231,10 @@ Term_p TBInsertInstantiatedFO(TB_p bank, Term_p term)
    if(TermIsFreeVar(term))
    {
       t = VarBankVarAssertAlloc(bank->vars, term->f_code, term->type);
-      TermSetBank(t, bank);
    }
    else if (TermIsDBVar(term))
    {
       t = TBRequestDBVar(bank, term->type, term->f_code);
-      TermSetBank(t, bank);
    }
    else
    {
@@ -1295,7 +1288,6 @@ Term_p TBInsertInstantiatedHO(TB_p bank, Term_p term, bool follow_bind)
    else if (TermIsDBVar(term))
    {
       t = TBRequestDBVar(bank, term->type, term->f_code);
-      TermSetBank(t, bank);
       return t;
    }
 
@@ -1312,7 +1304,6 @@ Term_p TBInsertInstantiatedHO(TB_p bank, Term_p term, bool follow_bind)
    if(TermIsFreeVar(term))
    {
       t = VarBankVarAssertAlloc(bank->vars, term->f_code, term->type);
-      TermSetBank(t, bank);
    }
    else
    {
@@ -1391,12 +1382,10 @@ Term_p TBInsertOpt(TB_p bank, Term_p term, DerefType deref)
    if(TermIsFreeVar(term))
    {
       t = VarBankVarAssertAlloc(bank->vars, term->f_code, term->type);
-      TermSetBank(t, bank);
    }
    else if (TermIsDBVar(term))
    {
       t = TBRequestDBVar(bank, term->type, term->f_code);
-      TermSetBank(t, bank);
    }
    else
    {
@@ -1445,13 +1434,11 @@ Term_p  TBInsertDisjoint(TB_p bank, Term_p term)
    if(TermIsFreeVar(term))
    {
       t = VarBankGetAltVar(bank->vars, term);
-      TermSetBank(t, bank);
       // t = VarBankVarAssertAlloc(bank->vars, term->f_code+1, term->sort);
    }
    else if (TermIsDBVar(term))
    {
       t = TBRequestDBVar(bank, term->type, term->f_code);
-      TermSetBank(t, bank);
    }
    else
    {
@@ -1754,12 +1741,10 @@ Term_p TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop)
             type = TypeBankParseType(in, bank->sig->type_bank);
             handle = VarBankExtNameAssertAllocSort(bank->vars,
                                                    DStrView(id), type);
-            TermSetBank(handle, bank);
          }
          else
          {
             handle = VarBankExtNameAssertAlloc(bank->vars, DStrView(id));
-            TermSetBank(handle, bank);
          }
       }
       else

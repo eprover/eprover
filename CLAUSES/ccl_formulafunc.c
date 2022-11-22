@@ -333,7 +333,6 @@ Term_p refresh_qvars(TB_p terms, Term_p form)
    {
       Term_p prev_binding = form->args[0]->binding;
       Term_p fresh_var = VarBankGetFreshVar(terms->vars, form->args[0]->type);
-      TermSetBank(fresh_var, terms);
       form->args[0]->binding = fresh_var;
       res = TFormulaFCodeAlloc(terms, form->f_code,
                                fresh_var, refresh_qvars(terms, form->args[1]));
@@ -479,7 +478,6 @@ PTree_p create_sym_map(FormulaSet_p set, IntMap_p sym_def_map, bool unfold_only_
       {
          Type_p ty = ((Term_p)PStackElementP(bvars, i))->type;
          Term_p tmp = VarBankGetFreshVar(bank->vars, ty);
-         TermSetBank(tmp, bank);
          PStackAssignP(bvars, i, tmp);
       }
       lhs_body = BetaNormalizeDB(bank, ApplyTerms(bank, lhs, bvars));

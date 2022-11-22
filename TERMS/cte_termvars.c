@@ -140,6 +140,7 @@ VarBank_p VarBankAlloc(TypeBank_p type_bank)
    handle->ext_index   = NULL;
    handle->env         = PStackAlloc();
    handle->shadow      = NULL;
+   handle->term_bank   = NULL;
    return handle;
 }
 
@@ -217,10 +218,12 @@ void VarBankPairShadow(VarBank_p primary, VarBank_p secondary)
    assert(secondary);
    assert(secondary->var_count == 0);
 
-   primary->shadow   = secondary;
-   secondary->shadow = primary;
-   primary->id       = "Primary";
-   secondary->id     = "Secondary";
+   primary->shadow      = secondary;
+   secondary->shadow    = primary;
+   primary->id          = "Primary";
+   secondary->id        = "Secondary";
+   secondary->term_bank = primary->term_bank;
+   assert(primary->term_bank);
 
    // Create primary vars in secondary
    for(sort=0; sort < PDArraySize(primary->varstacks); sort++)
@@ -502,6 +505,7 @@ Term_p var_bank_var_alloc(VarBank_p bank, FunCode f_code, Type_p type)
    }
    bank->max_var = MAX(-f_code, bank->max_var);
    bank->var_count++;
+   TermSetBank(var, bank->term_bank);
 
    assert(var->type);
    return var;

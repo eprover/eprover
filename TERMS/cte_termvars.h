@@ -78,6 +78,7 @@ typedef struct varbankcell
                             * external variables */
    struct varbankcell *shadow; /* Alternative varbank that needs the
                                 * same id/type associations */
+   struct tbcell *term_bank;   /* Assoziated term bank, if any */
 }VarBankCell, *VarBank_p;
 
 
@@ -186,6 +187,7 @@ static inline Term_p VarBankVarAssertAlloc(VarBank_p bank, FunCode f_code,
    if(UNLIKELY(!var))
    {
       var = VarBankVarAlloc(bank, f_code, type);
+      TermSetBank(var, bank->term_bank);
    }
    assert(var->v_count==1);
    assert(var->type);

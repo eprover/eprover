@@ -22,8 +22,6 @@
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-  Changes
-
   Created: Mon Sep 22 00:15:39 MET DST 1997
 
   -----------------------------------------------------------------------*/
@@ -53,7 +51,7 @@ typedef struct tbcell
    Sig_p         sig;            /* Store sig info */
    VarBank_p     vars;           /* Information about (shared) variables */
    DBVarBank_p   db_vars;        /* de Bruijn (shared) variable bank
-                                    All the de Bruijn variables 
+                                    All the de Bruijn variables
                                     are requested from here. */
    Term_p        true_term;      /* Pointer to the special term with the
                                     $true constant. */

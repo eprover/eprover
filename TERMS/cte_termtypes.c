@@ -855,7 +855,9 @@ bool TermIsPrefix(Term_p cand, Term_p term)
 //
 /----------------------------------------------------------------------*/
 
-__inline__ Term_p MakeRewrittenTerm(Term_p orig, Term_p new, int remaining_orig, struct tbcell* bank)
+__inline__ Term_p MakeRewrittenTerm(Term_p orig, Term_p new,
+                                    int remaining_orig,
+                                    struct tbcell* bank)
 {
    if(remaining_orig)
    {
@@ -878,7 +880,9 @@ __inline__ Term_p MakeRewrittenTerm(Term_p orig, Term_p new, int remaining_orig,
       {
          new_term->args[i] = new->args[i];
       }
-      for(int i=orig->arity - remaining_orig, j=TermIsFreeVar(new) ? 1 : 0; i < orig->arity; i++, j++)
+      for(int i=orig->arity - remaining_orig, j=TermIsFreeVar(new) ? 1 : 0;
+          i < orig->arity;
+          i++, j++)
       {
          new_term->args[j + new->arity] = orig->args[i];
       }
