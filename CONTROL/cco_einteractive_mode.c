@@ -96,7 +96,7 @@ char* add_command(InteractiveSpec_p interactive,
 char* stage_command(InteractiveSpec_p interactive, DStr_p axiom_set);
 char* list_command(InteractiveSpec_p interactive);
 void  quit_command(InteractiveSpec_p interactive);
-char* remove_commad(InteractiveSpec_p interactive, DStr_p axiom_set);
+char* remove_command(InteractiveSpec_p interactive, DStr_p axiom_set);
 char* download_command(InteractiveSpec_p interactive, DStr_p axiom_set);
 char* unstage_command(InteractiveSpec_p interactive, DStr_p axiom_set);
 char* load_command(InteractiveSpec_p interactive, DStr_p filename);
@@ -438,7 +438,7 @@ void quit_command(InteractiveSpec_p interactive)
 //
 /----------------------------------------------------------------------*/
 
-char* remove_commad(InteractiveSpec_p interactive, DStr_p axiom_set)
+char* remove_command(InteractiveSpec_p interactive, DStr_p axiom_set)
 {
    AxiomSet_p    handle;
    PStack_p spare_stack;
@@ -991,7 +991,7 @@ void StartDeductionServer(BatchSpec_p spec,
          AcceptInpId(in, REMOVE_COMMAND);
          DStrReset(dummyStr);
          AcceptAxiomSetName(in, dummyStr);
-         print_to_outstream(remove_commad(interactive, dummyStr), fp, sock_fd);
+         print_to_outstream(remove_command(interactive, dummyStr), fp, sock_fd);
       }
       else if(TestInpId(in, DOWNLOAD_COMMAND))
       {
