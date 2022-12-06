@@ -551,7 +551,7 @@ int main(int argc, char* argv[])
 
    print_info();
 
-   strategy_io(h_parms, hcb_definitions);
+//   strategy_io(h_parms, hcb_definitions);
 
    proofstate = parse_spec(state, parse_format,
                            error_on_empty, free_symb_prop,
@@ -577,7 +577,6 @@ int main(int argc, char* argv[])
       state = process_options(argc, argv); // refilling the h_parms
                                            // with manual user options
    }
-
 
 #ifndef NDEBUG
    fprintf(stdout, "# (lift_lambdas = %d, lambda_to_forall = %d,"

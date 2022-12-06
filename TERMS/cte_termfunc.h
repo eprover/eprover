@@ -188,6 +188,62 @@ Term_p TrimImplication(Sig_p sig, Term_p f);
 
 /*-----------------------------------------------------------------------
 //
+// Function: GetHeadType()
+//
+//   Returns the type of the head term symbol.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static inline Type_p GetHeadType(Sig_p sig, Term_p term)
+{
+   if(term->f_code == SIG_ITE_CODE)
+   {
+      assert(term->arity==3);
+      return term->type;
+   }
+   else if(term->f_code == SIG_LET_CODE)
+   {
+      return term->type;
+   }
+   else if((term->f_code == sig->qex_code) || (term->f_code == sig->qall_code))
+   {
+      return sig->type_bank->bool_type;
+   }
+#ifdef ENABLE_LFHO
+   else if(TermIsAppliedAnyVar(term))
+   {
+      assert(!sig || term->f_code == SIG_PHONY_APP_CODE);
+      return term->args[0]->type;
+   }
+   else if(TermIsAnyVar(term) || TermIsLambda(term))
+   {
+      assert(!TermIsAnyVar(term) || term->arity == 0);
+      return term->type;
+   }
+   else
+   {
+      if(term->f_code == SIG_PHONY_APP_CODE)
+      {
+         printf("Here\n");
+         printf("Evil: ");
+         TermPrint(stdout, term, sig, DEREF_NEVER);
+         printf("\n");
+      }
+      assert(term->f_code != SIG_PHONY_APP_CODE);
+      return SigGetType(sig, term->f_code);
+   }
+#else
+   return SigGetType(sig, term->f_code);
+#endif
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: TermEquivCellAlloc()
 //
 //   Return a pointer to a unshared termcell equivalent to source. If

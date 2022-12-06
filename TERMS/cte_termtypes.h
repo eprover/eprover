@@ -383,8 +383,8 @@ void DBGTermCheckUnownedSubtermReal(FILE* out, Term_p t, char* location);
 #define TermSetCache(t,c)  (UNUSED(t), UNUSED(c), UNUSED(NULL))
 #define TermGetBank(t)     (UNUSED(t), NULL)
 #define TermFindUnownedSubterm(t) (UNUSED(t), NULL)
-#define DBGTermCheckUnownedSubterm(f, t, l) (UNUSED(f) (UNUSED(t), UNUSED(location))
-#define TermSetBank(t,b)   (UNUSED(t), UNUSED(b), UNUSED(NULL))
+#define DBGTermCheckUnownedSubterm(f, t, l) (UNUSED(f), UNUSED(t), UNUSED(l))
+#define TermSetBank(t,b)   (UNUSED(t), UNUSED(b), NULL)
 #define TermIsBetaReducible(t) false
 #define TermIsEtaReducible(t)  false
 #endif
@@ -399,53 +399,7 @@ void DBGTermCheckUnownedSubtermReal(FILE* out, Term_p t, char* location);
 Term_p applied_var_deref(Term_p orig);
 #endif
 
-/*-----------------------------------------------------------------------
-//
-// Function: GetHeadType()
-//
-//   Returns the type of the head term symbol.
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
 
-static inline Type_p GetHeadType(Sig_p sig, Term_p term)
-{
-   if(term->f_code == SIG_ITE_CODE)
-   {
-      assert(term->arity==3);
-      return term->type;
-   }
-   else if(term->f_code == SIG_LET_CODE)
-   {
-      return term->type;
-   }
-   else if((term->f_code == sig->qex_code) || (term->f_code == sig->qall_code))
-   {
-      return sig->type_bank->bool_type;
-   }
-#ifdef ENABLE_LFHO
-   else if(TermIsAppliedAnyVar(term))
-   {
-      assert(!sig || term->f_code == SIG_PHONY_APP_CODE);
-      return term->args[0]->type;
-   }
-   else if(TermIsAnyVar(term) || TermIsLambda(term))
-   {
-      assert(!TermIsAnyVar(term) || term->arity == 0);
-      return term->type;
-   }
-   else
-   {
-      assert(term->f_code != SIG_PHONY_APP_CODE);
-      return SigGetType(sig, term->f_code);
-   }
-#else
-   return SigGetType(sig, term->f_code);
-#endif
-}
 
 /*-----------------------------------------------------------------------
 //
