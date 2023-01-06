@@ -233,6 +233,7 @@ static inline Type_p GetHeadType(Sig_p sig, Term_p term)
          TermPrint(stdout, term, sig, DEREF_NEVER);
          printf("\n");
       }
+      /* This fails. Do we need to recurse here? */
       assert(term->f_code != SIG_PHONY_APP_CODE);
       return SigGetType(sig, term->f_code);
    }

@@ -629,6 +629,7 @@ static TFormula_p applied_tform_tstp_parse(Scanner_p in, TB_p terms, TFormula_p 
 {
    assert(TestInpTok(in, Application));
 
+   printf("applied_tform_tstp_parse()...\n");
    const Type_p hd_type = GetHeadType(terms->sig, head);
    assert(hd_type);
    const int max_args = TypeGetMaxArity(hd_type);
@@ -657,6 +658,7 @@ static TFormula_p applied_tform_tstp_parse(Scanner_p in, TB_p terms, TFormula_p 
    TFormula_p res =
       EncodePredicateAsEqn(terms, normalize_head(head, args, i, terms));
    TermArgTmpArrayFree(args, max_args);
+   printf("...applied_tform_tstp_parse()\n");
    return res;
 }
 
