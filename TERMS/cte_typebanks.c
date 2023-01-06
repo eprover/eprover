@@ -355,7 +355,7 @@ TypeBank_p TypeBankAlloc()
 //
 // Function: TypeBankInsertTypeShared()
 //
-//  Insert type t to type bank to make it shared. If the term t was not
+//  Insert type t to type bank to make it shared. If the type t was not
 //  present in the bank, return new type and free the original type.
 //
 // Global Variables: -

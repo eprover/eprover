@@ -3,7 +3,7 @@
 #
 # File: configure
 #
-# Copyright 2008 Stephan Schulz, schulz@eprover.org
+# Copyright 2008-2023 Stephan Schulz, schulz@eprover.org
 #
 # Configuration script for the equational theorem prover E.
 #
@@ -106,6 +106,10 @@ for argument in  "$@"; do
         elif [ "$argument" = "--enable-ho" ] ; then
             enable_ho='             -DENABLE_LFHO \\'
             build_eprover="EPROVER_BIN = eprover-ho"
+        elif [ "$argument" = "--enable-lfho" ] ; then
+            enable_ho='             -DENABLE_LFHO \\'
+            build_eprover="EPROVER_BIN = eprover-ho"
+            echo "Obsolete option tolerated. Use --enable-ho in the future."
         elif [ "$opt" = "--exec-prefix" ] ; then
            EXECPATH=$arg/bin
         elif [ "$opt" = "--man-prefix" ] ; then

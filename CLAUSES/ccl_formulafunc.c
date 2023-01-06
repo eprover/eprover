@@ -1703,17 +1703,16 @@ long FormulaAndClauseSetParse(Scanner_p in, FormulaSet_p fset,
             }
             else
             {
-               printf("Parsing begins\n");
                if(TestInpId(in, "input_formula|fof|tff|thf|tcf"))
                {
                   if(TestInpId(in, "tff|thf|tcf"))
                   {
                      terms->sig->typed_symbols = true;
                   }
-                  printf("It's a formula\n");
+                  //printf("It's a formula\n");
                   form = WFormulaParse(in, terms);
-                  fprintf(stdout, "Parsed: ");
-                  WFormulaPrint(stdout, form, true);
+                  //fprintf(stdout, "Parsed: ");
+                  //WFormulaPrint(stdout, form, true);
                }
                else
                {

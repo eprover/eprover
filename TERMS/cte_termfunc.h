@@ -224,16 +224,20 @@ static inline Type_p GetHeadType(Sig_p sig, Term_p term)
       assert(!TermIsAnyVar(term) || term->arity == 0);
       return term->type;
    }
+   else if(term->f_code == SIG_PHONY_APP_CODE)
+   {
+      Term_p head = term->args[0];
+      Type_p head_type = GetHeadType(sig, head);
+      assert(TypeIsArrow(head_type));
+      //printf("# head_type->arity = %d\n", head_type->arity);
+      //printf("# head_type: "); TypePrintTSTP(stdout, sig->type_bank, head_type);
+      //printf("\n");
+      assert(head_type->arity >= 2);
+      Type_p res = TypeBankInsertTypeShared(sig->type_bank, TypeDropFirstArg(head_type));
+      return res;
+   }
    else
    {
-      if(term->f_code == SIG_PHONY_APP_CODE)
-      {
-         printf("Here\n");
-         printf("Evil: ");
-         TermPrint(stdout, term, sig, DEREF_NEVER);
-         printf("\n");
-      }
-      /* This fails. Do we need to recurse here? */
       assert(term->f_code != SIG_PHONY_APP_CODE);
       return SigGetType(sig, term->f_code);
    }

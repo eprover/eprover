@@ -629,13 +629,14 @@ static TFormula_p applied_tform_tstp_parse(Scanner_p in, TB_p terms, TFormula_p 
 {
    assert(TestInpTok(in, Application));
 
-   printf("applied_tform_tstp_parse()...\n");
+   // printf("applied_tform_tstp_parse()...\n");
    const Type_p hd_type = GetHeadType(terms->sig, head);
    assert(hd_type);
    const int max_args = TypeGetMaxArity(hd_type);
    int i = 0;
    const TermRef args = TermArgTmpArrayAlloc(max_args);
-   bool head_is_logical = !TermIsFreeVar(head) && SigQueryFuncProp(terms->sig, head->f_code, FPFOFOp);
+   bool head_is_logical = !TermIsFreeVar(head) &&
+      SigQueryFuncProp(terms->sig, head->f_code, FPFOFOp);
    Term_p arg;
 
 
@@ -658,7 +659,7 @@ static TFormula_p applied_tform_tstp_parse(Scanner_p in, TB_p terms, TFormula_p 
    TFormula_p res =
       EncodePredicateAsEqn(terms, normalize_head(head, args, i, terms));
    TermArgTmpArrayFree(args, max_args);
-   printf("...applied_tform_tstp_parse()\n");
+   // printf("...applied_tform_tstp_parse()\n");
    return res;
 }
 
