@@ -337,7 +337,7 @@ int handle_auto_modes_preproc(ProofState_p proofstate,
                                            wc_sched_limit,
                                            true,
                                            num_cpus,
-                                           serialize_schedule);
+                                           serialize_schedule||(num_cpus==1));
       if (sched_idx != SCHEDULE_DONE)
       {
          char* preproc_conf_name = h_parms->heuristic_name;
