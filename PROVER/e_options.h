@@ -740,14 +740,14 @@ OptCell opts[] =
     OptArg, "All",
     "Introduce Twee-style equational definitions for ground terms "
     "in conjecture clauses. The argument can be All or Neg, which will"
-    " only consider ground terms from negative literals."},
+    " only consider ground terms from negative literals (to be implemented)."},
 
    {OPT_FINE_GOAL_DEFS,
     '\0', "goal-subterm-defs",
     NoArg, NULL,
     "Introduce goal definitions for all conjecture ground subterms. "
     "The default is to only introduce them for the maximal (with respect "
-    "to the subterm relation) ground terms in conjecture clauses."},
+    "to the subterm relation) ground terms in conjecture clauses (to be implemented)."},
 
    {OPT_SINE,
     '\0', "sine",
