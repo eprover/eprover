@@ -1,6 +1,7 @@
-**NOTE**: The CASC ReadMe file is in `DOC/Readme`.
+**NOTE**: The CASC ReadMe file with information for the CADE ATP
+System Competition is in `DOC/Readme`.
 
-Short Installation Instructions for the impatient
+Short Installation Instructions for the Impatient
 =================================================
 
 This assumes that you have GNU tar, sh and gawk in your search path!
@@ -32,8 +33,8 @@ Read the rest of this file and the fine (if incomplete) manual if
 anything fails. There should be a copy of the manual in
 `DOC/eprover.pdf`.
 
-E 3.0 supports (monomorphic) higher-order logic. To build a
-binary that supports higher-order reasoning, use the following:
+E 3.0 supports (monomorphic) higher-order logic. To build a binary
+that supports higher-order reasoning, use the following:
 
 
 ```sh
@@ -55,6 +56,11 @@ If you want to try the usually stronger strategy scheduling mode
 
 ```
   eprover --auto-schedule --proof-object problem.p
+```
+
+To use more than one CPU, use something like
+```
+  eprover --auto-schedule=8 --proof-object problem.p
 ```
 
 Replace `eprover` by `eprover-ho` for the higher-order-enabled
@@ -250,7 +256,9 @@ or
 the prover will try a series of strategies on the problem. It assumes
 a 300 second run time - if you impose a different one externally, it
 is important to let E know via the `--cpu-limit=XXX` option so that it
-can adjust the schedule.
+can adjust the schedule. You can also enable usage of multiple cores
+with the variant `--auto-schedule=n` (where `n` is the number of
+cores), or `--auto-schedule=Auto` to use all available cores.
 
 One of the features of E is the ability to produce semi-readable
 proofs. To use this, type
@@ -286,6 +294,6 @@ information:
 - The input file(s) that lead to the unexpected behaviour
 
 Most bug reports should be send to <schulz@eprover.org>. Bug reports
-with respect to the LFHO-version should be send to
-<petar.vukmirovic2@gmail.com>. Please remember that this is an unpaid
+with respect to the HO-version should be send to
+<jasmin.blanchette@gmail.com>. Please remember that this is an unpaid
 volunteer service ;-).

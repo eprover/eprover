@@ -28,7 +28,7 @@ Options:
 --verbose    print processed file names
 
 Copyright 2015 Martin Möhrmann, moehrmann@eprover.org,
-          2019 Stephan Schulz, schulz@eprover.org
+          2019-23 Stephan Schulz, schulz@eprover.org
 
 This code is part of the support structure for the equational
 theorem prover E. Visit
@@ -139,13 +139,16 @@ def remove_timestamp(line):
         return split[1].strip()
     else:
         split = line.split("#", 1)
-        if len(split) == 2 and len(split[0])<25:
-            return split[1].strip()
+        if len(split) == 2 and len(split[0])<25 and split[0].find('(')==-1:
+            return "# "+split[1].strip()
         else:
             # might be: 0.00/0.00   exec failed: No such file or directory
             split = line.split("\t", 1)
             if len(split) == 2 and split[1].startswith("exec failed"):
                 return split[1].strip()
+            if len(split) == 2 and split[1].startswith("Alarm clock"):
+                # print("Found", "# "+ split[1].strip())
+                return "# "+ split[1].strip()
             else:
                 # line with only timestamp or other data
                 return ""
@@ -166,19 +169,34 @@ def clean_key(entry, keymap):
 def make_entry(lines):
     entry = dict()
     for line in lines:
+        status = False
         line = line.decode()
+        # print(line)
         line = remove_timestamp(line)
         line = line.replace("eprover: CPU time limit exceeded, terminating", "", 1)
 
+        if not line.startswith("#"):
+            continue
+        else:
+            # print(line)            
+            line = line[2:]
+        # print(line)            
         split = line.split(":", 1)
         key   = split[0].strip()
         # Correct for TPTP errors causing E parse error mistaken for a result
         if(key.startswith("Type mismatch")):
             continue
+        if(key.startswith("partial match")):
+            continue
         value = clean_value(split[1]) if len(split) == 2 else ""
         if key.startswith("SZS status Inappropriate"):
             return None
-        if key.startswith("SZS status"):
+        if key.startswith("Schedule exhausted") or key.startswith("Alarm clock"):
+            # print("Here", key)
+            entry["Status"] = "F"
+            entry["Failure"] = "maxtime"
+            status = True
+        elif not status and key.startswith("SZS status"):
             entry["Status"] = statusmap[clean_key(key, statusmap)]
         elif key.startswith("exec failed"):
             entry["Status"] = statusmap["exec failed"]

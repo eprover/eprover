@@ -692,7 +692,7 @@ OptCell opts[] =
     {OPT_FORCE_PREPROC_SCHED,
     '\0', "force-preproc-sched",
     ReqArg, NULL,
-    "When autoscheduling is used, make sure that preprocessing schedule is"
+    "When autoscheduling is used, make sure that preprocessing schedule is "
     "inserted in the search categories"},
 
     {OPT_SERIALIZE_SCHEDULE,
