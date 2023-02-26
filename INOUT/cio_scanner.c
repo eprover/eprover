@@ -68,7 +68,11 @@ static TokenRepCell token_print_rep[] =
    {FOFEquiv,     "Equivalence/Double arrow ('<=>')"},
    {FOFXor,       "Negated Equivalence/Xor ('<~>')"},
    {FOFNand,      "Nand ('~&')"},
-   {FOFNor,       "Nor ('~|'')"},
+   {FOFNor,       "Nor ('~|')"},
+   {Application,  "Application ('@')",},
+   {LambdaQuantor,"Lambda ('^')",},
+   {LetToken,     "Let ('$let')"},
+   {IteToken,     "Ite ('$ite')"},
    {NoToken,      NULL}
 
 };
@@ -782,7 +786,7 @@ char* DescribeToken(TokenType tok)
    }
    if(!found)
    {
-      DStrAppendStr(res, token_print_rep[0].rep);
+      DStrAppendStr(res, "Unknown token (this should not happen)");
    }
    help = DStrCopy(res);
    DStrFree(res);
