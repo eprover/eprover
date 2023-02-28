@@ -378,6 +378,19 @@ void do_ho_print(FILE* out, TFormula_p term, Sig_p sig, DerefType deref, int dep
       do_fool_print(out, sig, term, depth);
       return;
    }
+   if(term->f_code == SIG_ITE_CODE)
+   {
+      assert(term->arity==3);
+      fprintf(out, "$ite(");
+      do_ho_print(out, term->args[0], sig, deref, depth);
+      fprintf(out, ", ");
+      do_ho_print(out, term->args[1], sig, deref, depth);
+      fprintf(out, ", ");
+      do_ho_print(out, term->args[0], sig, deref, depth);
+      fprintf(out, ")");
+      return;
+   }
+
 
    if(TermIsDBVar(term))
    {
