@@ -2073,7 +2073,7 @@ long TFormulaSetLiftItes(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
    long res = 0;
    for (WFormula_p formula = set->anchor->succ; formula != set->anchor; formula = formula->succ)
    {
-      if (map_formula(formula, terms, do_ite_unroll, DCFoolUnroll))
+      if (map_formula(formula, terms, do_ite_unroll, DCLiftIte))
       {
          res++;
       }

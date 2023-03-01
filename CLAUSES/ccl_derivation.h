@@ -82,7 +82,8 @@ typedef enum
    DOIntroDef,
    DOSplitConjunct,
    DOLiftLambdas,
-   DOFOOLUnroll,
+   DOFoolUnroll,
+   DOLiftIte,
    DOEliminateBVar,
    /* HO inferences */
    DODynamicCNF,
@@ -156,7 +157,8 @@ typedef enum
    DCIntroDef         = DOIntroDef,
    DCSplitConjunct    = DOSplitConjunct|Arg1Fof,
    DCLiftLambdas      = DOLiftLambdas|Arg1Fof,
-   DCFoolUnroll       = DOFOOLUnroll,
+   DCFoolUnroll       = DOFoolUnroll,
+   DCLiftIte          = DOLiftIte,
    DCEliminateBVar    = DOEliminateBVar,
    /* HO inferences */
    DCDynamicCNF       = DODynamicCNF|Arg1Cnf|ArgIsHO,

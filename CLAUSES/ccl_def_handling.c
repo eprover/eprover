@@ -7,7 +7,7 @@ Author: Stephan Schulz (schulz@eprover.org)
 Contents
 
   Handling of clausal definitons as used (up to now
-  implicietely) in splitting, i.e. data structures associating a
+  implicitely) in splitting, i.e. data structures associating a
   clause with a fresh constant predicate symbol or literal.
 
   Copyright 2006 by the author.

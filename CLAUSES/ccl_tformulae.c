@@ -2206,7 +2206,9 @@ TFormula_p TFormulaCreateDef(TB_p bank, TFormula_p def_atom, TFormula_p defined,
          assert(false && "Illegal polarity");
          break;
    }
+   // This is correct - the atom is already created with the proper vars
    TermCollectVariables(def_atom, &vars);
+   //TFormulaCollectFreeVars(bank, def_atom, &vars);
    res = TFormulaAddQuantors(bank, res, true, vars);
    PTreeFree(vars);
 
