@@ -70,6 +70,7 @@ char *opids[] =
    PCL_SE,
    PCL_ID_DEF,
    PCL_SC,
+   PCL_EQ_TO_EQ,
    PCL_LL,
    PCL_FU,
    PCL_LIFT_ITE,

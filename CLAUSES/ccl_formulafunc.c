@@ -1971,7 +1971,7 @@ bool TFormulaUnrollFOOL(WFormula_p form, TB_p terms)
 
 bool TFormulaReplaceEqnWithEquiv(WFormula_p form, TB_p terms)
 {
-   return map_formula(form, terms, do_bool_eqn_replace, DCFoolUnroll);
+   return map_formula(form, terms, do_bool_eqn_replace, DOEqToEq);
 }
 
 /*-----------------------------------------------------------------------
