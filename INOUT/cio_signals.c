@@ -36,6 +36,7 @@ rlim_t                SoftTimeLimit     = RLIM_INFINITY;
 rlim_t                HardTimeLimit     = RLIM_INFINITY;
 sig_atomic_t TimeIsUp          = 0;
 sig_atomic_t TimeLimitIsSoft   = 0;
+sig_atomic_t SigTermCaught     = 0;
 static sig_atomic_t fatal_error_in_progress = 0;
 bool                  SilentTimeOut     = false;
 
@@ -155,6 +156,29 @@ void ESignalHandler(int mysignal)
          break;
    }
 }
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: ESigTermSchedHandler()
+//
+//   Record a caught SIGTERM.
+//
+// Global Variables:
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+
+void ESigTermSchedHandler(int mysignal)
+{
+   if(mysignal == SIGTERM)
+   {
+      SigTermCaught++;
+      signal(SIGTERM, SIG_DFL);
+   }
+}
+
 
 
 

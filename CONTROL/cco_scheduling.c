@@ -267,6 +267,8 @@ int ExecuteScheduleMultiCore(ScheduleCell strats[],
                               preproc_schedule, &max_cores, serialize);
 
    i=0;
+
+   signal(SIGTERM, ESigTermSchedHandler);
    do
    {
       while(strats[i].heu_name &&
@@ -287,7 +289,8 @@ int ExecuteScheduleMultiCore(ScheduleCell strats[],
          else
          {
             EGPCtrlSetAddProc(procs, handle);
-            // fprintf(stderr, "Will run %s(%d) for %ld\n", handle->name, handle->pid, strats[i].time_absolute);
+            // fprintf(stderr, "Will run %s(%d) for %ld\n",
+            // handle->name, handle->pid, strats[i].time_absolute);
          }
          i++;
       }
@@ -310,7 +313,13 @@ int ExecuteScheduleMultiCore(ScheduleCell strats[],
          EGPCtrlSetFree(procs, true);
          exit(handle->exit_status);
       }
+      if(SigTermCaught)
+      {
+         EGPCtrlSetFree(procs, true);
+         exit(PARENT_REQUEST);
+      }
    }while(EGPCtrlSetCardinality(procs) || strats[i].heu_name);
+   signal(SIGTERM, SIG_DFL);
 
    EGPCtrlSetFree(procs, true);
 

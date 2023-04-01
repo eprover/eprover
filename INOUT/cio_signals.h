@@ -59,10 +59,13 @@ extern rlim_t                HardTimeLimit;   /* Exit now! */
 extern sig_atomic_t TimeIsUp;
 extern sig_atomic_t TimeLimitIsSoft; /* Have we hit hard or
                    soft? */
-extern bool                  SilentTimeOut;
+extern sig_atomic_t SigTermCaught;
+extern bool         SilentTimeOut;
 
 void ESignalSetup(int mysignal);
 void ESignalHandler(int mysignal);
+
+void ESigTermSchedHandler(int mysignal);
 
 
 #endif
@@ -70,8 +73,3 @@ void ESignalHandler(int mysignal);
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
-
-
-

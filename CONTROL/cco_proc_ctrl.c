@@ -481,6 +481,7 @@ EPCtrl_p EPCtrlSetGetResult(EPCtrlSet_p set, bool delete_files)
    int maxfd = 0,i;
    EPCtrl_p handle, res = NULL;
    struct timeval waittime;
+   int sel_success;
 
    FD_ZERO(&readfds);
    FD_ZERO(&writefds);
@@ -490,35 +491,38 @@ EPCtrl_p EPCtrlSetGetResult(EPCtrlSet_p set, bool delete_files)
 
    maxfd = EPCtrlSetFDSet(set, &readfds);
 
-   select(maxfd+1, &readfds, &writefds, &errorfds, &waittime);
+   sel_success = select(maxfd+1, &readfds, &writefds, &errorfds, &waittime);
 
-   for(i=0; i<=maxfd; i++)
+   if(sel_success !=-1)
    {
-      if(FD_ISSET(i, &readfds))
+      for(i=0; i<=maxfd; i++)
       {
-         handle = EPCtrlSetFindProc(set, i);
-         eof = EPCtrlGetResult(handle, set->buffer, EPCTRL_BUFSIZE);
-         if(eof)
+         if(FD_ISSET(i, &readfds))
          {
-            switch(handle->result)
+            handle = EPCtrlSetFindProc(set, i);
+            eof = EPCtrlGetResult(handle, set->buffer, EPCTRL_BUFSIZE);
+            if(eof)
             {
-            case PRNoResult:
-                  break;
-            case PRTheorem:
-            case PRUnsatisfiable:
-                  res = handle;
-               break;
-            case PRSatisfiable:
-            case PRCounterSatisfiable:
-            case PRFailure:
-                  /* Process terminates, but no proof found -> Remove it*/
-                  fprintf(GlobalOut, "# No proof found by %s\n",
-                          handle->name);
+               switch(handle->result)
+               {
+               case PRNoResult:
+                     break;
+               case PRTheorem:
+               case PRUnsatisfiable:
+                     res = handle;
+                     break;
+               case PRSatisfiable:
+               case PRCounterSatisfiable:
+               case PRFailure:
+                     /* Process terminates, but no proof found -> Remove it*/
+                     fprintf(GlobalOut, "# No proof found by %s\n",
+                             handle->name);
 
-                  EPCtrlSetDeleteProc(set, handle, delete_files);
-                  break;
-            default:
-                  assert(false && "Impossible ProverResult");
+                     EPCtrlSetDeleteProc(set, handle, delete_files);
+                     break;
+               default:
+                     assert(false && "Impossible ProverResult");
+               }
             }
          }
       }

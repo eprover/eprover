@@ -24,6 +24,7 @@
 
 #define CCO_GPROC_CTRL
 
+#include <cio_signals.h>
 #include <cco_proc_ctrl.h>
 #include <unistd.h>
 #include <sys/wait.h>

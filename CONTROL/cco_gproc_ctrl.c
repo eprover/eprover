@@ -168,6 +168,7 @@ EGPCtrl_p EGPCtrlCreate(char *name, int cores, rlim_t cpu_limit)
 
    if(childpid == 0)
    {  // child process
+      signal(SIGTERM, SIG_DFL);
       dup2(pipefd[1], STDOUT_FILENO);
       close(pipefd[0]);
       close(pipefd[1]);
@@ -450,6 +451,7 @@ EGPCtrl_p EGPCtrlSetGetResult(EGPCtrlSet_p set)
    int maxfd = 0,i;
    EGPCtrl_p handle, res = NULL;
    struct timeval waittime;
+   int sel_success;
 
    FD_ZERO(&readfds);
    FD_ZERO(&writefds);
@@ -459,39 +461,46 @@ EGPCtrl_p EGPCtrlSetGetResult(EGPCtrlSet_p set)
 
    maxfd = EGPCtrlSetFDSet(set, &readfds);
 
-   select(maxfd+1, &readfds, &writefds, &errorfds, &waittime);
-
-   for(i=0; i<= maxfd && !res; i++)
+   //ELog("Before select (TERM: %d)\n", SigTermCaught);
+   sel_success = select(maxfd+1, &readfds, &writefds, &errorfds, &waittime);
+   //ELog("After select (TERM: %d)\n", SigTermCaught);
+   if(sel_success !=-1)
    {
-      if(FD_ISSET(i, &readfds))
+      for(i=0; i<= maxfd && !res; i++)
       {
-         handle = EGPCtrlSetFindProc(set, i);
-         eof = EGPCtrlGetResult(handle, set->buffer, EGPCTRL_BUFSIZE);
-         if(eof)
+         //ELog("Loop %d\n", i);
+         if(FD_ISSET(i, &readfds))
          {
-            switch(handle->result)
+            //ELog("Readable:\n", i);
+            handle = EGPCtrlSetFindProc(set, i);
+            eof = EGPCtrlGetResult(handle, set->buffer, EGPCTRL_BUFSIZE);
+            if(eof)
             {
-            case PRNoResult:
-                  /* No result (yet) -> should not really happen! */
-                  assert(false);
-                  break;
-            case PRSatisfiable:
-            case PRCounterSatisfiable:
-            case PRTheorem:
-            case PRUnsatisfiable:
-                  res = handle;
-                  //printf("res: %p\n", res);
-                  break;
-            case PRFailure:
-                  /* Process terminates, but no result determined -> Remove it*/
-                  EGPCtrlSetDeleteProc(set, handle, true);
-                  break;
-            default:
-                  assert(false && "Impossible ProverResult");
+               switch(handle->result)
+               {
+               case PRNoResult:
+                     /* No result (yet) -> should not really happen! */
+                     assert(false);
+                     break;
+               case PRSatisfiable:
+               case PRCounterSatisfiable:
+               case PRTheorem:
+               case PRUnsatisfiable:
+                     res = handle;
+                     //printf("res: %p\n", res);
+                     break;
+               case PRFailure:
+                     /* Process terminates, but no result determined -> Remove it*/
+                     EGPCtrlSetDeleteProc(set, handle, true);
+                     break;
+               default:
+                     assert(false && "Impossible ProverResult");
+               }
             }
          }
       }
    }
+   //ELog("After Loop (TERM: %d)\n", SigTermCaught);
    return res;
 }
 
