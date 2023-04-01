@@ -196,6 +196,34 @@ void SysWarning(char* message, ...)
    va_end(ap);
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: ELog()
+//
+//   Write a message to a logfile.
+//
+// Global Variables:
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+
+void ELog(char* message, ...)
+{
+   va_list ap;
+   va_start(ap, message);
+
+   FILE *logfile;
+   sprintf(ErrStr, "elog%d.log", getpid());
+   logfile = fopen(ErrStr, "a");
+
+   fprintf(logfile, "%d: %4.9f: ", getpid(), GetTotalCPUTime());
+   vfprintf(logfile, message, ap);
+   fprintf(stderr, "\n");
+   va_end(ap);
+   fclose(logfile);
+}
+
 
 
 

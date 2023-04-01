@@ -56,6 +56,8 @@ typedef int ErrorCodes;
 #define OTHER_ERROR           10
 #define INPUT_SEMANTIC_ERROR  11
 #define INTERFACE_ERROR       12
+#define PARENT_REQUEST        13
+
 
 /*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */
@@ -73,6 +75,7 @@ void Error(char* message, ErrorCodes ret, ...);
 void SysError(char* message, ErrorCodes ret, ...);
 void          Warning(char* message, ...);
 void          SysWarning(char* message, ...);
+void          ELog(char* message, ...);
 double        GetTotalCPUTime(void);
 double        GetTotalCPUTimeIncludingChildren(void);
 void          PrintRusage(FILE* out);
