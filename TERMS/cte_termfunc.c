@@ -386,7 +386,7 @@ void do_ho_print(FILE* out, TFormula_p term, Sig_p sig, DerefType deref, int dep
       fprintf(out, ", ");
       do_ho_print(out, term->args[1], sig, deref, depth);
       fprintf(out, ", ");
-      do_ho_print(out, term->args[0], sig, deref, depth);
+      do_ho_print(out, term->args[2], sig, deref, depth);
       fprintf(out, ")");
       return;
    }

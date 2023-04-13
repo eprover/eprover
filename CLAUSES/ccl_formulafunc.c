@@ -45,7 +45,7 @@ typedef TFormula_p (*FormulaMapper)(TFormula_p, TB_p);
 
 /*-----------------------------------------------------------------------
 //
-// Function: FlattenApps()
+// Function: FlattenApps_driver()
 //
 //   Apply additional arguments to hd assuming hd needs to be flattened.
 //
@@ -54,6 +54,7 @@ typedef TFormula_p (*FormulaMapper)(TFormula_p, TB_p);
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
+
 Term_p FlattenApps_driver(TB_p terms, Term_p t)
 {
    if(TermIsPhonyApp(t) && !TermIsPhonyAppTarget(t->args[0]))
@@ -962,6 +963,8 @@ TFormula_p do_fool_unroll(TFormula_p form, TB_p terms)
 
 TFormula_p do_ite_unroll(TFormula_p form, TB_p terms)
 {
+   TFormula_p safe = form;
+
    if (form->f_code == SIG_ITE_CODE)
    {
       assert(form->arity == 3);
@@ -976,11 +979,19 @@ TFormula_p do_ite_unroll(TFormula_p form, TB_p terms)
       false_part->args[0] = cond;
       false_part->args[1] = form->args[2];
 
+      true_part = TBTermTopInsert(terms, true_part);
+      false_part = TBTermTopInsert(terms, false_part);
+
       TFormula_p unrolled =
           TFormulaFCodeAlloc(terms, terms->sig->and_code,
-                             TBTermTopInsert(terms, true_part),
-                             TBTermTopInsert(terms, false_part));
+                             true_part,
+                             false_part);
 
+      printf("# ITE-Form case: ");
+      TermPrint(stdout, safe, terms->sig, DEREF_NEVER);
+      printf("\n# =>             ");
+      TermPrint(stdout, form, terms->sig, DEREF_NEVER);
+      printf("\n");
       form = do_ite_unroll(TermMap(terms, unrolled, FlattenApps_driver),
                            terms);
    }
@@ -989,11 +1000,13 @@ TFormula_p do_ite_unroll(TFormula_p form, TB_p terms)
       TermPos_p pos = PStackAlloc();
       PStackPushP(pos, form);
       PStackPushInt(pos, 0);
-      if (form->args[0]->f_code != SIG_ITE_CODE && !TermFindIteSubterm(form->args[0], pos))
+      if (form->args[0]->f_code != SIG_ITE_CODE
+          && !TermFindIteSubterm(form->args[0], pos))
       {
          PStackDiscardTop(pos);
          PStackPushInt(pos, 1);
-         if (form->args[1]->f_code != SIG_ITE_CODE && !TermFindIteSubterm(form->args[1], pos))
+         if (form->args[1]->f_code != SIG_ITE_CODE
+             && !TermFindIteSubterm(form->args[1], pos))
          {
             PStackReset(pos);
          }
@@ -1007,6 +1020,19 @@ TFormula_p do_ite_unroll(TFormula_p form, TB_p terms)
 
          Term_p repl_t = TBTermPosReplace(terms, ite_term->args[1], pos,
                                           DEREF_NEVER, 0, ite_term);
+
+         printf("# ite_term: ");
+         TermPrint(stdout, ite_term, terms->sig, DEREF_NEVER);
+         printf("\n");
+         printf("# ite_term->args[0]: ");
+         TermPrint(stdout, ite_term->args[0], terms->sig, DEREF_NEVER);
+         printf("\n");
+         printf("# ite_term->args[1]: ");
+         TermPrint(stdout, ite_term->args[1], terms->sig, DEREF_NEVER);
+         printf("\n");
+         printf("# ite_term->args[2]: ");
+         TermPrint(stdout, ite_term->args[2], terms->sig, DEREF_NEVER);
+         printf("\n");
          Term_p repl_f = TBTermPosReplace(terms, ite_term->args[2], pos,
                                           DEREF_NEVER, 0, ite_term);
 
@@ -1024,6 +1050,19 @@ TFormula_p do_ite_unroll(TFormula_p form, TB_p terms)
          form = TFormulaFCodeAlloc(terms, terms->sig->and_code,
                                    do_ite_unroll(if_true_impl, terms),
                                    do_ite_unroll(if_false_impl, terms));
+         printf("# ite_term: ");
+         TermPrint(stdout, ite_term, terms->sig, DEREF_NEVER);
+         printf("\n");
+         printf("# ITE-Term case: ");
+         TermPrint(stdout, safe, terms->sig, DEREF_NEVER);
+         printf("\n# =>             ");
+         TermPrint(stdout, form, terms->sig, DEREF_NEVER);
+         printf("\n");
+         printf("# repl_t: ");
+         TermPrint(stdout, repl_t, terms->sig, DEREF_NEVER);
+         printf("\n# repl_f: ");
+         TermPrint(stdout, repl_f, terms->sig, DEREF_NEVER);
+         printf("\n");
       }
       PStackFree(pos);
    }
@@ -1046,6 +1085,11 @@ TFormula_p do_ite_unroll(TFormula_p form, TB_p terms)
          TermTopFree(new);
       }
    }
+   printf("# do_ite_unroll: ");
+   TermPrint(stdout, safe, terms->sig, DEREF_NEVER);
+   printf("\n# =>             ");
+   TermPrint(stdout, form, terms->sig, DEREF_NEVER);
+   printf("\n");
 
    return form;
 }
@@ -2071,7 +2115,9 @@ long TFormulaSetLiftLets(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
 long TFormulaSetLiftItes(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
 {
    long res = 0;
-   for (WFormula_p formula = set->anchor->succ; formula != set->anchor; formula = formula->succ)
+   for (WFormula_p formula = set->anchor->succ;
+        formula != set->anchor;
+        formula = formula->succ)
    {
       if (map_formula(formula, terms, do_ite_unroll, DCLiftIte))
       {
