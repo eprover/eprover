@@ -87,6 +87,7 @@ typedef struct proofstatecell
    unsigned long backward_subsumed_count;
    unsigned long backward_rewritten_count;
    unsigned long backward_rewritten_lit_count;
+   unsigned long rw_count;
    unsigned long generated_count;
    unsigned long aggressive_forward_subsumed_count;
    unsigned long generated_lit_count;

@@ -82,7 +82,7 @@ static FVPackedClause_p forward_contract_keep(ProofState_p state, ProofControl_p
                                     context_sr, condense, level);
       // fprintf(stderr, "after rw: ");
       // ClausePrint(stderr, clause, true);
-      // fprintf(stderr, ".\n");      
+      // fprintf(stderr, ".\n");
       if(trivial)
       {
          (*trivial_count)++;
@@ -123,13 +123,13 @@ static FVPackedClause_p forward_contract_keep(ProofState_p state, ProofControl_p
       //printf("\n");
 
       assert(!ClauseIsTrivial(clause));
-      
+
       if(problemType==PROBLEM_HO)
       {
          if(ClauseEliminateNakedBooleanVariables(clause))
          {
             (*trivial_count)++;
-            return NULL;  
+            return NULL;
          }
       }
       pclause = ForwardSubsumption(state, clause, subsumed_count,
@@ -263,11 +263,12 @@ bool ForwardModifyClause(ProofState_p state,
       {
          NormalizeEquations(clause);
       }
-      ClauseComputeLINormalform(control->ocb,
-                                state->terms, clause,
-                                state->demods, level,
-                                control->heuristic_parms.prefer_general,
-                                control->heuristic_parms.lambda_demod);
+      state->rw_count +=
+         ClauseComputeLINormalform(control->ocb,
+                                   state->terms, clause,
+                                   state->demods, level,
+                                   control->heuristic_parms.prefer_general,
+                                   control->heuristic_parms.lambda_demod);
       if(problemType == PROBLEM_HO)
       {
          NormalizeEquations(clause);
@@ -292,7 +293,7 @@ bool ForwardModifyClause(ProofState_p state,
          if(problemType == PROBLEM_HO)
          {
             NormalizeEquations(clause);
-         }  
+         }
       }
 
       /* Now we mark maximal terms... */

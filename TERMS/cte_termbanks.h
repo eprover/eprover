@@ -60,12 +60,6 @@ typedef struct tbcell
    PDArray_p      min_terms;     /* A small (ideally the minimal
                                     possible) term, to be used for RHS
                                     instantiation for each sort. */
-   unsigned long rewrite_steps;  /* How many calls to TBTermReplace? */
-   //VarSetStore_p freevarsets;    /* Associates a term (or Tformula)
-                                   /* with the set of its free
-                                  * variables. Only initalized for
-                                  * specific operations and then reset
-                                  * again */
    TermProperties garbage_state; /* For the mark-and sweep garbage
                                     collection. This is flipped at
                                     each sweep, and all new term cell

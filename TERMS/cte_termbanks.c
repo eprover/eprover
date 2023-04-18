@@ -748,7 +748,6 @@ TB_p TBAlloc(Sig_p sig)
 
    handle->in_count = 0;
    handle->insertions = 0;
-   handle->rewrite_steps = 0;
    handle->ext_index = PDIntArrayAlloc(1,100000);
    handle->garbage_state = TPIgnoreProps;
    handle->gc = GCAdminAlloc();

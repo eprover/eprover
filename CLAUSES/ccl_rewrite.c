@@ -871,7 +871,7 @@ static Term_p term_li_normalform(RWDesc_p desc, Term_p term,
 //
 /----------------------------------------------------------------------*/
 
-EqnSide eqn_li_normalform(RWDesc_p desc, ClausePos_p pos, 
+EqnSide eqn_li_normalform(RWDesc_p desc, ClausePos_p pos,
                           bool interred_rw, bool lambda_demod)
 {
    Eqn_p  eqn = pos->literal;
@@ -880,7 +880,7 @@ EqnSide eqn_li_normalform(RWDesc_p desc, ClausePos_p pos,
       EqnIsOriented(eqn) && interred_rw;
    EqnSide res = NoSide;
 
-   eqn->lterm =  term_li_normalform(desc, eqn->lterm, 
+   eqn->lterm =  term_li_normalform(desc, eqn->lterm,
                                     restricted_rw, lambda_demod);
    if(l_old!=eqn->lterm)
    {
@@ -1200,8 +1200,8 @@ Term_p TermComputeLINormalform(OCB_p ocb, TB_p bank, Term_p term,
 //
 // Function: ClauseComputeLINormalform()
 //
-//   Compute the normal form of terms in a clause. Return true if a
-//   term was rewritten.
+//   Compute the normal form of terms in a clause. Return number of
+//   rewrite steps performed.
 //
 // Global Variables: -
 //
@@ -1209,13 +1209,14 @@ Term_p TermComputeLINormalform(OCB_p ocb, TB_p bank, Term_p term,
 //
 /----------------------------------------------------------------------*/
 
-bool ClauseComputeLINormalform(OCB_p ocb, TB_p bank, Clause_p clause,
+long ClauseComputeLINormalform(OCB_p ocb, TB_p bank, Clause_p clause,
                                ClauseSet_p *demodulators, RewriteLevel level,
                                bool prefer_general, bool lambda_demod)
 {
    Eqn_p handle;
    EqnSide tmp = NoSide;
-   bool res=false;
+   long res = 0;
+   PStackPointer old_deriv_sp, new_deriv_sp;
    RWDesc_p desc = rw_desc_cell_alloc(ocb, bank, demodulators, level,
                                       prefer_general);
    ClausePosCell pos;
@@ -1224,6 +1225,8 @@ bool ClauseComputeLINormalform(OCB_p ocb, TB_p bank, Clause_p clause,
    assert(demodulators);
    assert(desc->demods);
    assert(!ClauseIsAnyPropSet(clause, CPIsDIndexed|CPIsSIndexed));
+
+   old_deriv_sp =  clause->derivation?PStackGetSP(clause->derivation):0;
 
    /* printf("# ClauseComputeLINormalform(%ld)...\n",clause->ident); */
    /* if(prefer_general!=0)
@@ -1240,7 +1243,7 @@ bool ClauseComputeLINormalform(OCB_p ocb, TB_p bank, Clause_p clause,
       for(handle = clause->literals; handle; handle=handle->next)
       {
          pos.literal = handle;
-         tmp = eqn_li_normalform(desc, &pos, 
+         tmp = eqn_li_normalform(desc, &pos,
                                  ClauseQueryProp(clause,CPLimitedRW),
                                  lambda_demod);
          if((tmp&MaxSide)
@@ -1252,13 +1255,15 @@ bool ClauseComputeLINormalform(OCB_p ocb, TB_p bank, Clause_p clause,
             /* We need to try everything again...*/
             done = false;
          }
-         res = res || tmp;
       }
    }
    if(desc->sos_rewritten)
    {
       ClauseSetProp(clause, CPIsSOS);
    }
+   new_deriv_sp =  clause->derivation?PStackGetSP(clause->derivation):0;
+   res = (new_deriv_sp-old_deriv_sp)/2;
+
    if(res)
    {
       ClauseDelProp(clause, CPInitial);
@@ -1275,7 +1280,7 @@ bool ClauseComputeLINormalform(OCB_p ocb, TB_p bank, Clause_p clause,
 //
 //   Compute a normal form for terms in all clauses in set with
 //   respect to clauses in demodulators up to level. Returns number of
-//   clauses rewritten. Updates weights of rewritten clauses.
+//   rewrite steps. Updates weights of rewritten clauses.
 //
 // Global Variables: -
 //
@@ -1289,7 +1294,7 @@ long ClauseSetComputeLINormalform(OCB_p ocb, TB_p bank, ClauseSet_p
                                   prefer_general, bool lambda_demod)
 {
    Clause_p handle;
-   bool     tmp;
+   long     tmp;
    long     res = 0;
 
    assert(demodulators);
@@ -1307,8 +1312,8 @@ long ClauseSetComputeLINormalform(OCB_p ocb, TB_p bank, ClauseSet_p
       if(tmp)
       {
          handle->weight = ClauseStandardWeight(handle);
-         res++;
       }
+      res+=tmp;
       /* assert(handle->weight == ClauseStandardWeight(handle)); */
    }
    return res;
@@ -1398,7 +1403,7 @@ long FindRewritableClausesIndexed(OCB_p ocb, SubtermIndex_p index,
 //
 // Function: ClauseLocalRW()
 //
-//   Find negative literals s != t such that s > t and replace all 
+//   Find negative literals s != t such that s > t and replace all
 //   occurrences of s with t in the clause.
 //
 // Global Variables: -

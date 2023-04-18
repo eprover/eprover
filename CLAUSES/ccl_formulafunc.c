@@ -2122,6 +2122,9 @@ long TFormulaSetLiftItes(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
       if (map_formula(formula, terms, do_ite_unroll, DCLiftIte))
       {
          res++;
+         printf("Ite-expanded %p: ", formula);
+         WFormulaTSTPPrint(stdout, formula, true, true);
+         printf("\n");
       }
    }
    return res;
@@ -2182,7 +2185,8 @@ long TFormulaSetLambdaNormalize(FormulaSet_p set, FormulaSet_p archive, TB_p ter
 //
 /----------------------------------------------------------------------*/
 
-long TFormulaSetUnfoldDefSymbols(FormulaSet_p set, FormulaSet_p archive, TB_p terms, bool unfold_only_forms)
+long TFormulaSetUnfoldDefSymbols(FormulaSet_p set, FormulaSet_p archive,
+                                 TB_p terms, bool unfold_only_forms)
 {
    long res = 0;
    if (problemType == PROBLEM_HO)
@@ -2439,7 +2443,13 @@ long TFormulaSetIntroduceDefs(FormulaSet_p set, FormulaSet_p archive, TB_p terms
    // printf("About to apply defs\n");
    for (formula = set->anchor->succ; formula != set->anchor; formula = formula->succ)
    {
+      printf("# Before Def-appl %p: ", formula);
+      WFormulaTSTPPrint(stdout, formula, true, true);
+      printf("\n");
       TFormulaApplyDefs(formula, terms, &defs);
+      printf("# After Def-appl  %p: ", formula);
+      WFormulaTSTPPrint(stdout, formula, true, true);
+      printf("\n");
    }
    NumXTreeFree(defs);
    return res;

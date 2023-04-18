@@ -300,17 +300,17 @@ bool TermComputeRWSequence(PStack_p stack, Term_p from, Term_p to,
       tmp = TermRWReplaceField(from);
       if(!demod)
       {
-    int i;
-    assert(from->f_code == tmp->f_code);
-    assert(from->arity);
+         int i;
+         assert(from->f_code == tmp->f_code);
+         assert(from->arity);
 
-    for(i=0; i<from->arity; i++)
-    {
-       TermComputeRWSequence(stack,
+         for(i=0; i<from->arity; i++)
+         {
+            TermComputeRWSequence(stack,
                                   from->args[i],
                                   tmp->args[i],
                                   inject_op);
-    }
+         }
       }
       else
       {
@@ -318,7 +318,7 @@ bool TermComputeRWSequence(PStack_p stack, Term_p from, Term_p to,
          {
             PStackPushInt(stack, inject_op);
          }
-    PStackPushP(stack, demod);
+         PStackPushP(stack, demod);
       }
       from = tmp;
       assert(from);

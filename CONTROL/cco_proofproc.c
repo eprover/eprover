@@ -492,13 +492,14 @@ void simplify_watchlist(ProofState_p state, ProofControl_p control,
    {
       // printf("# WL simplify: "); ClausePrint(stdout, handle, true);
       // printf("\n");
-      ClauseComputeLINormalform(control->ocb,
-                                state->terms,
-                                handle,
-                                state->demods,
-                                control->heuristic_parms.forward_demod,
-                                control->heuristic_parms.prefer_general,
-                                control->heuristic_parms.lambda_demod);
+      state->rw_count +=
+         ClauseComputeLINormalform(control->ocb,
+                                   state->terms,
+                                   handle,
+                                   state->demods,
+                                   control->heuristic_parms.forward_demod,
+                                   control->heuristic_parms.prefer_general,
+                                   control->heuristic_parms.lambda_demod);
       removed_lits = ClauseRemoveSuperfluousLiterals(handle);
       if(removed_lits)
       {

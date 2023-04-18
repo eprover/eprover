@@ -212,6 +212,7 @@ ProofState_p ProofStateAlloc(FunctionProperties free_symb_prop)
    handle->backward_subsumed_count      = 0;
    handle->backward_rewritten_count     = 0;
    handle->backward_rewritten_lit_count = 0;
+   handle->rw_count                     = 0;
    handle->generated_count              = 0;
    handle->aggressive_forward_subsumed_count  = 0;
    handle->generated_lit_count          = 0;
@@ -633,6 +634,8 @@ void ProofStateStatisticsPrint(FILE* out, ProofState_p state)
            state->neg_ext_count);
    fprintf(out, "# Equation resolutions                 : %ld\n",
            state->resolv_count);
+   fprintf(out, "# Total rewrite steps                  : %lu\n",
+           state->rw_count);
    fprintf(out, "# Propositional unsat checks           : %ld\n",
            state->satcheck_count);
    fprintf(out, "#    Propositional check models        : %ld\n",
@@ -710,9 +713,6 @@ void ProofStateStatisticsPrint(FILE* out, ProofState_p state)
               ClauseSetGetTermNodes(state->processed_neg_units)+
               ClauseSetGetTermNodes(state->processed_non_units)+
               ClauseSetGetTermNodes(state->unprocessed));
-      fprintf(out,
-         "# Shared rewrite steps                 : %lu\n",
-              state->terms->rewrite_steps);
       fprintf(out,
               "# Match attempts with oriented units   : %lu\n"
               "# Match attempts with unoriented units : %lu\n",
