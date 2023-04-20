@@ -329,7 +329,7 @@ OptCell opts[] =
     "Force output of the derivation even in cases where the prover "
     "terminates in an indeterminate state. By default, the deriviation "
     "of all processed clauses is included in the derivation object. "
-    "With value 2, derivation of all clauses will be printed"},
+    "With argument 2, the derivation of all clauses will be printed."},
 
    {OPT_RECORD_GIVEN_CLAUSES,
     '\0', "record-gcs",
