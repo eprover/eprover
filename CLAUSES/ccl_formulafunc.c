@@ -2036,10 +2036,16 @@ long TFormulaSetUnrollFOOL(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
    for (WFormula_p formula = set->anchor->succ; formula != set->anchor; formula = formula->succ)
    {
       TFormulaReplaceEqnWithEquiv(formula, terms);
+      printf("# Eqn2Equiv  %p: ", formula);
+      WFormulaTSTPPrintDeriv(stdout, formula);
+      printf("\n");
       if (TFormulaUnrollFOOL(formula, terms))
       {
          res++;
       }
+      printf("# Foolunroll %p: ", formula);
+      WFormulaTSTPPrintDeriv(stdout, formula);
+      printf("\n");
    }
    return res;
 }
@@ -2086,6 +2092,9 @@ long TFormulaSetLiftLets(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
             PStackAssignP(lifted_lets, i, wdef);
          }
       }
+      printf("# Let-lifted %p: ", form);
+      WFormulaTSTPPrintDeriv(stdout, form);
+      printf("\n");
    }
 
    while (!PStackEmpty(lifted_lets))
@@ -2123,7 +2132,7 @@ long TFormulaSetLiftItes(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
       {
          res++;
          printf("Ite-expanded %p: ", formula);
-         WFormulaTSTPPrint(stdout, formula, true, true);
+         WFormulaTSTPPrintDeriv(stdout, formula);
          printf("\n");
       }
    }
@@ -2405,9 +2414,12 @@ long TFormulaSetIntroduceDefs(FormulaSet_p set, FormulaSet_p archive, TB_p terms
       assert(cell);
       polarity = TFormulaDecodePolarity(terms, form);
       def = cell->vals[1].p_val;
-      newdef = TFormulaCreateDef(terms, def, form,
-                                 0);
+      newdef = TFormulaCreateDef(terms, def, form, 0);
       w_def = WTFormulaAlloc(terms, newdef);
+      printf("# New definition: ");
+      WFormulaTSTPPrint(stdout, w_def, true, true);
+      printf("\n");
+
       DocFormulaCreationDefault(w_def, inf_fof_intro_def, NULL, NULL);
       cell->vals[0].i_val = w_def->ident; /* Replace polarity with
                                            * definition id */
@@ -2444,7 +2456,7 @@ long TFormulaSetIntroduceDefs(FormulaSet_p set, FormulaSet_p archive, TB_p terms
    for (formula = set->anchor->succ; formula != set->anchor; formula = formula->succ)
    {
       printf("# Before Def-appl %p: ", formula);
-      WFormulaTSTPPrint(stdout, formula, true, true);
+      WFormulaTSTPPrintDeriv(stdout, formula);
       printf("\n");
       TFormulaApplyDefs(formula, terms, &defs);
       printf("# After Def-appl  %p: ", formula);

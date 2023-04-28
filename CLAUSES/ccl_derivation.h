@@ -1,6 +1,6 @@
 /*-----------------------------------------------------------------------
 
-  File  : ccl_derivations.h
+  File  : ccl_derivation.h
 
   Author: Stephan Schulz (schulz@eprover.org)
 

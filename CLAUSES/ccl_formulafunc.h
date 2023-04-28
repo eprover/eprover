@@ -42,6 +42,12 @@ Changes
 #define TFORMULA_GC_LIMIT 1.5
 
 bool WFormulaConjectureNegate(WFormula_p wform);
+#define WFormulaTSTPPrintDeriv(out, form) \
+   WFormulaTSTPPrint((out),(form), true, false);        \
+   fprintf((out), ", ");                                                \
+   DerivationStackTSTPPrint((out), (form)->terms->sig, (form)->derivation); \
+   fprintf(out, ").");
+
 
 int  FormulaCountNonTopLevelLambdas(Sig_p sig, TFormula_p form);
 bool FormulaHasAppVarLit(Sig_p sig, TFormula_p form);
