@@ -98,7 +98,7 @@ Term_p reassign_vars(void* bank, Term_p t)
 //
 // Function: dbg_print()
 //
-//   Set proof object according to given arguments
+//   Print the given clause to the given output stream.
 //
 // Global Variables: -
 //
@@ -106,24 +106,45 @@ Term_p reassign_vars(void* bank, Term_p t)
 //
 /----------------------------------------------------------------------*/
 
-void print_node(FILE* out, Clause_p cl)
+void print_node(void* vout, void* vcl)
 {
-   ClausePrint(stderr, cl, true);
+   FILE* out = vout;
+   Clause_p cl = vcl;
+
+   ClausePrint(out, cl, true);
    fputs("; ", out);
 }
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: dbg_print()
+//
+//
+//
+// Global Variables:
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
 
 void dbg_print(FILE* out, Sig_p sig, PETask_p t)
 {
    fprintf(out, "%s(%ld):\n", SigFindName(sig, t->sym), t->size);
 
-   DBG_PRINT(out, "+singular:\n >", PTreeVisitInOrder(t->positive_singular->set, (void (*)(void *, void *))print_node, out), ".\n");
-   DBG_PRINT(out, "-singular:\n >", PTreeVisitInOrder(t->negative_singular->set, (void (*)(void *, void *))print_node, out), ".\n");
+   DBG_PRINT(out, "+singular:\n >", PTreeVisitInOrder(t->positive_singular->set,
+                                                      print_node, out), ".\n");
+   DBG_PRINT(out, "-singular:\n >", PTreeVisitInOrder(t->negative_singular->set,
+                                                      print_node, out), ".\n");
    if(t->g_status == IS_GATE)
    {
-      DBG_PRINT(out, "+gate:\n >", PTreeVisitInOrder(t->neg_gates->set, (void (*)(void *, void *))print_node, out), ".\n");
-      DBG_PRINT(out, "-gate:\n >", PTreeVisitInOrder(t->pos_gates->set, (void (*)(void *, void *))print_node, out), ".\n");
+      DBG_PRINT(out, "+gate:\n >", PTreeVisitInOrder(t->neg_gates->set,
+                                                     print_node, out), ".\n");
+      DBG_PRINT(out, "-gate:\n >", PTreeVisitInOrder(t->pos_gates->set,
+                                                     print_node, out), ".\n");
    }
-   DBG_PRINT(out, "offending:\n >", PTreeVisitInOrder(t->offending_cls->set, (void (*)(void *, void *))print_node, out), ".\n");
+   DBG_PRINT(out, "offending:\n >", PTreeVisitInOrder(t->offending_cls->set,
+                                                      print_node, out), ".\n");
 }
 
 /*-----------------------------------------------------------------------
@@ -137,6 +158,7 @@ void dbg_print(FILE* out, Sig_p sig, PETask_p t)
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
+
 void update_proof_object(Clause_p new_clause, Clause_p p1, Clause_p p2,
                          DerivationCode dc)
 {
@@ -1402,6 +1424,24 @@ void eliminate_predicates(ClauseSet_p passive, ClauseSet_p archive,
 /*---------------------------------------------------------------------*/
 
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: idx_setter()
+//
+//
+//
+// Global Variables:
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+
+void idx_setter(void* task, int idx)
+{
+   ((PETask_p)task)->heap_idx = idx;
+}
+
 /*-----------------------------------------------------------------------
 //
 // Function: PredicateElimination()
@@ -1417,11 +1457,6 @@ void eliminate_predicates(ClauseSet_p passive, ClauseSet_p archive,
 //
 /----------------------------------------------------------------------*/
 
-void idx_setter(void* task, int idx)
-{
-   ((PETask_p)task)->heap_idx = idx;
-}
-
 void PredicateElimination(ClauseSet_p passive, ClauseSet_p archive,
                           const HeuristicParms_p parms,  TB_p bank,
                           TB_p tmp_bank, VarBank_p fresh_vars)
@@ -1435,7 +1470,8 @@ void PredicateElimination(ClauseSet_p passive, ClauseSet_p archive,
    ResolverFun_p resolver = eqn_found ? build_eq_resolvent : build_neq_resolvent;
    eliminate_predicates(passive, archive, sym_map, task_queue,
                         bank, tmp_bank, resolver, parms, fresh_vars);
-   fprintf(stdout, "%% PE eliminated: %ld\n", pre_elimination_cnt - ClauseSetCardinality(passive));
+   fprintf(stdout, "%% PE eliminated: %ld\n",
+           pre_elimination_cnt - ClauseSetCardinality(passive));
 
    MinHeapFree(task_queue);
    IntMapIter_p iter = IntMapIterAlloc(sym_map, 0, LONG_MAX);
