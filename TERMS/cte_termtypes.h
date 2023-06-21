@@ -231,9 +231,6 @@ typedef Term_p (*TermMapper_p)(void*, Term_p);
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-/* Functions which take two terms and return a boolean, i.e. test for
-   equality */
-
 #define TERMS_INITIAL_ARGS 10
 
 #define RewriteAdr(level) (assert(level),(level)-1)

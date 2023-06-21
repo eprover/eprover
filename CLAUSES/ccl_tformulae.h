@@ -62,6 +62,9 @@ typedef Term_p TFormula_p;
    (((form)->f_code == (sig)->eqn_code || (form)->f_code == (sig)->neqn_code) &&\
    ((form)->arity == 2))
 
+#define TFormulaIsComplexBool(sig, form) (!TermIsAnyVar(form) &&        \
+                                          SigIsLogicalSymbol(sig, (form)->f_code) && \
+                                          TypeIsBool(form))
 
 bool TFormulaIsPropConst(Sig_p sig, TFormula_p form, bool positive);
 

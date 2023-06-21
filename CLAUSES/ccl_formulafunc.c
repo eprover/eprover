@@ -1108,7 +1108,7 @@ TFormula_p do_ite_unroll(TFormula_p form, TB_p terms)
 //
 /----------------------------------------------------------------------*/
 
-TFormula_p do_bool_eqn_replace(TFormula_p form, TB_p terms)
+TFormula_p do_bool_eqn_replace_old(TFormula_p form, TB_p terms)
 {
    const Sig_p sig = terms->sig;
    assert(sig);
@@ -1131,8 +1131,8 @@ TFormula_p do_bool_eqn_replace(TFormula_p form, TB_p terms)
          // Our boolean equalities are <formula> = <formula>
          form = TFormulaFCodeAlloc(terms,
                                    (form->f_code == terms->sig->eqn_code ? terms->sig->equiv_code : terms->sig->xor_code),
-                                   do_bool_eqn_replace(form->args[0], terms),
-                                   do_bool_eqn_replace(form->args[1], terms));
+                                   do_bool_eqn_replace_old(form->args[0], terms),
+                                   do_bool_eqn_replace_old(form->args[1], terms));
          changed = true;
       }
    }
@@ -1142,12 +1142,111 @@ TFormula_p do_bool_eqn_replace(TFormula_p form, TB_p terms)
       tmp->type = form->type;
       for (int i = 0; i < form->arity; i++)
       {
-         tmp->args[i] = do_bool_eqn_replace(form->args[i], terms);
+         tmp->args[i] = do_bool_eqn_replace_old(form->args[i], terms);
       }
       form = TBTermTopInsert(terms, tmp);
    }
    return form;
 }
+
+/*-----------------------------------------------------------------------
+//
+// Function: do_bool_eqn_replace()
+//
+//   Replace boolean equations with equivalences. Goes inside literals
+//   as well. For example, "f(a, p = q) = b" will be translated to
+//   "f(a, p <=> q) = b".
+//
+//   We don't want to lift "true" atoms, but we do want to lift
+//   proper Boolean formulas. So with t as a non-logical term, f as a
+//   non-trivial formula:
+//   eq(t, $true) => eq(t, $true)
+//   eq(f, $true) => f
+//
+//   We also don't want to lift equations of the form (n)eq(f, var) (why
+//   not?)
+//
+// Global Variables: -
+//
+// Side Effects    : Changes enclosed formula
+//
+/----------------------------------------------------------------------*/
+
+TFormula_p do_bool_eqn_replace(TFormula_p form, TB_p terms)
+{
+   const Sig_p sig = terms->sig;
+   Term_p orig = form;
+   assert(sig);
+
+   printf("# do_bool_eqn_replace %p: ", form);
+   TermPrintDbg(stdout, form, terms->sig, DEREF_NEVER);
+   printf("\n");
+
+
+   if (TermIsDBVar(form) || !TermHasEqNeq(form) || TermIsAnyVar(form))
+   {
+      printf("# exit %p\n", form);
+      return form;
+   }
+
+   TFormula_p tmp = TermTopAlloc(form->f_code, form->arity);
+   tmp->type = form->type;
+   for (int i = 0; i < form->arity; i++)
+   {
+      tmp->args[i] = do_bool_eqn_replace(form->args[i], terms);
+   }
+   form = TBTermTopInsert(terms, tmp);
+
+   printf("# returned from recursion %p: ", orig);
+   TermPrintDbg(stdout, form, terms->sig, DEREF_NEVER);
+   printf("\n");
+
+   if ((form->f_code == sig->eqn_code) && form->arity == 2)
+   {  // Case $eqn(t1, t2) (may be terms, may be formulas)
+      printf("# case $eqn %p\n", orig);
+      if (TFormulaIsComplexBool(terms->sig, form->args[0]) &&
+          TFormulaIsComplexBool(terms->sig, form->args[1]))
+      { // Case $eqn(f1,f2) (two proper formulas)
+         if(form->args[1] != terms->true_term)
+         { // Case $eqn(f1,f2) and f2 is not $true
+            // DAS literal is encoded as <predicate> = $true
+            // Our boolean equalities are <formula> = <formula>
+            // What is DAS?!? (StS)
+            form = TFormulaFCodeAlloc(terms,
+                                      terms->sig->equiv_code,
+                                      form->args[0],
+                                      form->args[1]);
+         }
+         else if(form->args[0] != terms->true_term)
+         { // It's $eqn(f1, $true) and f1 is a complex formula
+            form = form->args[0];
+         }
+      }
+   }
+   else if ((form->f_code == sig->neqn_code) && form->arity == 2)
+   { // Case $neqn(t1, t2) (may be terms, may be formulas)
+      if (TFormulaIsComplexBool(terms->sig, form->args[0]) &&
+          TFormulaIsComplexBool(terms->sig, form->args[1]))
+      { // Case $neqn(f1,f2) (two proper formulas)
+         if(form->args[1] != terms->true_term)
+         {  // Case $neqn(f1,f2) and f2 is not $true
+            form = TFormulaFCodeAlloc(terms,
+                                      terms->sig->xor_code,
+                                      form->args[0],
+                                      form->args[1]);
+         }
+         else if(form->args[0] != terms->true_term)
+         { // It's $neqn(f1, $true) and f1 is a complex formula
+            form = TFormulaFCodeAlloc(terms,
+                                      terms->sig->not_code,
+                                      form->args[0],
+                                      NULL);
+         }
+      }
+   }
+   return form;
+}
+
 
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
@@ -2035,9 +2134,15 @@ long TFormulaSetUnrollFOOL(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
    long res = 0;
    for (WFormula_p formula = set->anchor->succ; formula != set->anchor; formula = formula->succ)
    {
+      printf("# Before Eqn2Equiv  %p: ", formula);
+      WFormulaTSTPPrintDeriv(stdout, formula);
+      printf("\n");
       TFormulaReplaceEqnWithEquiv(formula, terms);
       printf("# Eqn2Equiv  %p: ", formula);
       WFormulaTSTPPrintDeriv(stdout, formula);
+      printf("\n");
+      printf("# As term     :");
+      TermPrintDbg(stdout, formula->tformula, terms->sig, DEREF_NEVER);
       printf("\n");
       if (TFormulaUnrollFOOL(formula, terms))
       {
@@ -2045,6 +2150,9 @@ long TFormulaSetUnrollFOOL(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
       }
       printf("# Foolunroll %p: ", formula);
       WFormulaTSTPPrintDeriv(stdout, formula);
+      printf("\n");
+      printf("# As term     :");
+      TermPrintDbg(stdout, formula->tformula, terms->sig, DEREF_NEVER);
       printf("\n");
    }
    return res;
