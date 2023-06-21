@@ -41,7 +41,7 @@ const StateTag_t DECOMPOSED_VAR = 3;
 
 #define BT_STEP_SIZE 4
 
-struct csu_iter 
+struct csu_iter
 {
    PQueue_p constraints; // pairs of terms to unify
    // quadruples (old constraints, state, limits, pointer)
@@ -168,7 +168,7 @@ PQueue_p build_new_queue(PQueue_p old, Term_p lhs, Term_p rhs)
 //
 /----------------------------------------------------------------------*/
 
-void prepare_backtrack(CSUIterator_p iter, Term_p lhs, Term_p rhs, StateTag_t next_state, 
+void prepare_backtrack(CSUIterator_p iter, Term_p lhs, Term_p rhs, StateTag_t next_state,
                        Limits_t next_limits, PStackPointer subst_ptr)
 {
    PStackPushP(iter->backtrack_info, build_new_queue(iter->constraints, lhs, rhs));
@@ -226,7 +226,6 @@ FunCode unroll_fcode(Term_p t)
 #define STORE_KIND 1
 void move_stack(PQueue_p new, PStack_p old, int move_kind)
 {
-   int i=0;
    while(!PStackEmpty(old))
    {
       Term_p t = PStackPopP(old);
@@ -239,7 +238,6 @@ void move_stack(PQueue_p new, PStack_p old, int move_kind)
       {
          PQueueStoreP(new, t);
       }
-      i++;
    }
 }
 
@@ -247,7 +245,7 @@ void move_stack(PQueue_p new, PStack_p old, int move_kind)
 //
 // Function: schedule_args()
 //
-//   Put the arguments on the constraints stack in the order which 
+//   Put the arguments on the constraints stack in the order which
 //   improves the performance of unif algorithm: first rigid-rigid
 //   of different values, then other rigid-rigid and then flex-flex-pairs
 //
@@ -290,7 +288,7 @@ void schedule_args(CSUIterator_p iter, Term_p* l_args, Term_p* r_args, int size)
 //
 // Function: forward_iter()
 //
-//   After the iterator has successfully been backtracked, 
+//   After the iterator has successfully been backtracked,
 //   try to find the solution.
 //
 // Global Variables: -
@@ -368,8 +366,8 @@ bool forward_iter(CSUIterator_p iter)
                iter->steps++; // something is going to be applied to variable
                bool moved_forward;
                Limits_t next_limits = iter->current_limits;
-               StateTag_t next_state = 
-                  ComputeNextBinding(lhs, rhs, iter->current_state, 
+               StateTag_t next_state =
+                  ComputeNextBinding(lhs, rhs, iter->current_state,
                                      &next_limits, iter->bank,
                                      iter->subst, params, &moved_forward);
                if(moved_forward)
@@ -461,7 +459,7 @@ bool forward_iter(CSUIterator_p iter)
 // Function: backtrack_iter()
 //
 //   After the call to CSUIterInit or successful call to NextCSUElement,
-//   set the state of the iterator so that it is ready to advance to 
+//   set the state of the iterator so that it is ready to advance to
 //   the next iterator. If false is returned, there are no more solutions
 //   and the iterator shall be destroyed.
 //
@@ -510,7 +508,7 @@ bool backtrack_iter(CSUIterator_p iter)
 // Function: NextCSUElement()
 //
 //   Given a (previously initialized) iterator if there exists a next
-//   unifier return true and set the substitution of the iterator 
+//   unifier return true and set the substitution of the iterator
 //   to the unifier. If there is no unifier, all the variables are
 //   unbound and false is returned. When false is returned, CSUIterator
 //   is destroyed an is no longer to be used.
@@ -566,7 +564,7 @@ bool NextCSUElement(CSUIterator_p iter)
 // Function: CSUIterInit()
 //
 //   Given a (previously initialized) iterator if there exists a next
-//   unifier return true and set the substitution of the iterator 
+//   unifier return true and set the substitution of the iterator
 //   to the unifier. If there is no unifier, all the variables are
 //   unbound and false is returned. When false is returned, CSUIterator
 //   is destroyed an is no longer to be used.
@@ -631,7 +629,7 @@ Subst_p CSUIterGetCurrentSubst(CSUIterator_p iter)
 //
 // Function: InitUnifLimits()
 //
-//   Store heuristic parameters locally and use them to pick up the 
+//   Store heuristic parameters locally and use them to pick up the
 //   limits for unification.
 //
 // Global Variables: -
