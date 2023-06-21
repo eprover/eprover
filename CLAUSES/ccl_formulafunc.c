@@ -963,7 +963,7 @@ TFormula_p do_fool_unroll(TFormula_p form, TB_p terms)
 
 TFormula_p do_ite_unroll(TFormula_p form, TB_p terms)
 {
-   TFormula_p safe = form;
+   //TFormula_p safe = form;
 
    if (form->f_code == SIG_ITE_CODE)
    {
@@ -987,11 +987,11 @@ TFormula_p do_ite_unroll(TFormula_p form, TB_p terms)
                              true_part,
                              false_part);
 
-      printf("# ITE-Form case: ");
-      TermPrint(stdout, safe, terms->sig, DEREF_NEVER);
-      printf("\n# =>             ");
-      TermPrint(stdout, form, terms->sig, DEREF_NEVER);
-      printf("\n");
+      /* printf("# ITE-Form case: "); */
+      /* TermPrint(stdout, safe, terms->sig, DEREF_NEVER); */
+      /* printf("\n# =>             "); */
+      /* TermPrint(stdout, form, terms->sig, DEREF_NEVER); */
+      /* printf("\n"); */
       form = do_ite_unroll(TermMap(terms, unrolled, FlattenApps_driver),
                            terms);
    }
@@ -1021,18 +1021,18 @@ TFormula_p do_ite_unroll(TFormula_p form, TB_p terms)
          Term_p repl_t = TBTermPosReplace(terms, ite_term->args[1], pos,
                                           DEREF_NEVER, 0, ite_term);
 
-         printf("# ite_term: ");
-         TermPrint(stdout, ite_term, terms->sig, DEREF_NEVER);
-         printf("\n");
-         printf("# ite_term->args[0]: ");
-         TermPrint(stdout, ite_term->args[0], terms->sig, DEREF_NEVER);
-         printf("\n");
-         printf("# ite_term->args[1]: ");
-         TermPrint(stdout, ite_term->args[1], terms->sig, DEREF_NEVER);
-         printf("\n");
-         printf("# ite_term->args[2]: ");
-         TermPrint(stdout, ite_term->args[2], terms->sig, DEREF_NEVER);
-         printf("\n");
+         /* printf("# ite_term: "); */
+         /* TermPrint(stdout, ite_term, terms->sig, DEREF_NEVER); */
+         /* printf("\n"); */
+         /* printf("# ite_term->args[0]: "); */
+         /* TermPrint(stdout, ite_term->args[0], terms->sig, DEREF_NEVER); */
+         /* printf("\n"); */
+         /* printf("# ite_term->args[1]: "); */
+         /* TermPrint(stdout, ite_term->args[1], terms->sig, DEREF_NEVER); */
+         /* printf("\n"); */
+         /* printf("# ite_term->args[2]: "); */
+         /* TermPrint(stdout, ite_term->args[2], terms->sig, DEREF_NEVER); */
+         /* printf("\n"); */
          Term_p repl_f = TBTermPosReplace(terms, ite_term->args[2], pos,
                                           DEREF_NEVER, 0, ite_term);
 
@@ -1050,19 +1050,19 @@ TFormula_p do_ite_unroll(TFormula_p form, TB_p terms)
          form = TFormulaFCodeAlloc(terms, terms->sig->and_code,
                                    do_ite_unroll(if_true_impl, terms),
                                    do_ite_unroll(if_false_impl, terms));
-         printf("# ite_term: ");
-         TermPrint(stdout, ite_term, terms->sig, DEREF_NEVER);
-         printf("\n");
-         printf("# ITE-Term case: ");
-         TermPrint(stdout, safe, terms->sig, DEREF_NEVER);
-         printf("\n# =>             ");
-         TermPrint(stdout, form, terms->sig, DEREF_NEVER);
-         printf("\n");
-         printf("# repl_t: ");
-         TermPrint(stdout, repl_t, terms->sig, DEREF_NEVER);
-         printf("\n# repl_f: ");
-         TermPrint(stdout, repl_f, terms->sig, DEREF_NEVER);
-         printf("\n");
+         /* printf("# ite_term: "); */
+         /* TermPrint(stdout, ite_term, terms->sig, DEREF_NEVER); */
+         /* printf("\n"); */
+         /* printf("# ITE-Term case: "); */
+         /* TermPrint(stdout, safe, terms->sig, DEREF_NEVER); */
+         /* printf("\n# =>             "); */
+         /* TermPrint(stdout, form, terms->sig, DEREF_NEVER); */
+         /* printf("\n"); */
+         /* printf("# repl_t: "); */
+         /* TermPrint(stdout, repl_t, terms->sig, DEREF_NEVER); */
+         /* printf("\n# repl_f: "); */
+         /* TermPrint(stdout, repl_f, terms->sig, DEREF_NEVER); */
+         /* printf("\n"); */
       }
       PStackFree(pos);
    }
@@ -1085,11 +1085,11 @@ TFormula_p do_ite_unroll(TFormula_p form, TB_p terms)
          TermTopFree(new);
       }
    }
-   printf("# do_ite_unroll: ");
-   TermPrint(stdout, safe, terms->sig, DEREF_NEVER);
-   printf("\n# =>             ");
-   TermPrint(stdout, form, terms->sig, DEREF_NEVER);
-   printf("\n");
+   /* printf("# do_ite_unroll: "); */
+   /* TermPrint(stdout, safe, terms->sig, DEREF_NEVER); */
+   /* printf("\n# =>             "); */
+   /* TermPrint(stdout, form, terms->sig, DEREF_NEVER); */
+   /* printf("\n"); */
 
    return form;
 }
@@ -1108,7 +1108,7 @@ TFormula_p do_ite_unroll(TFormula_p form, TB_p terms)
 //
 /----------------------------------------------------------------------*/
 
-TFormula_p do_bool_eqn_replace_old(TFormula_p form, TB_p terms)
+TFormula_p do_bool_eqn_replace1(TFormula_p form, TB_p terms)
 {
    const Sig_p sig = terms->sig;
    assert(sig);
@@ -1131,8 +1131,8 @@ TFormula_p do_bool_eqn_replace_old(TFormula_p form, TB_p terms)
          // Our boolean equalities are <formula> = <formula>
          form = TFormulaFCodeAlloc(terms,
                                    (form->f_code == terms->sig->eqn_code ? terms->sig->equiv_code : terms->sig->xor_code),
-                                   do_bool_eqn_replace_old(form->args[0], terms),
-                                   do_bool_eqn_replace_old(form->args[1], terms));
+                                   do_bool_eqn_replace1(form->args[0], terms),
+                                   do_bool_eqn_replace1(form->args[1], terms));
          changed = true;
       }
    }
@@ -1142,7 +1142,7 @@ TFormula_p do_bool_eqn_replace_old(TFormula_p form, TB_p terms)
       tmp->type = form->type;
       for (int i = 0; i < form->arity; i++)
       {
-         tmp->args[i] = do_bool_eqn_replace_old(form->args[i], terms);
+         tmp->args[i] = do_bool_eqn_replace1(form->args[i], terms);
       }
       form = TBTermTopInsert(terms, tmp);
    }
@@ -1175,17 +1175,17 @@ TFormula_p do_bool_eqn_replace_old(TFormula_p form, TB_p terms)
 TFormula_p do_bool_eqn_replace(TFormula_p form, TB_p terms)
 {
    const Sig_p sig = terms->sig;
-   Term_p orig = form;
+   //Term_p orig = form;
    assert(sig);
 
-   printf("# do_bool_eqn_replace %p: ", form);
-   TermPrintDbg(stdout, form, terms->sig, DEREF_NEVER);
-   printf("\n");
+   /* printf("# do_bool_eqn_replace %p: ", form); */
+   /* TermPrintDbg(stdout, form, terms->sig, DEREF_NEVER); */
+   /* printf("\n"); */
 
 
    if (TermIsDBVar(form) || !TermHasEqNeq(form) || TermIsAnyVar(form))
    {
-      printf("# exit %p\n", form);
+      //printf("# exit %p\n", form);
       return form;
    }
 
@@ -1197,13 +1197,13 @@ TFormula_p do_bool_eqn_replace(TFormula_p form, TB_p terms)
    }
    form = TBTermTopInsert(terms, tmp);
 
-   printf("# returned from recursion %p: ", orig);
-   TermPrintDbg(stdout, form, terms->sig, DEREF_NEVER);
-   printf("\n");
+   /* printf("# returned from recursion %p: ", orig); */
+   /* TermPrintDbg(stdout, form, terms->sig, DEREF_NEVER); */
+   /* printf("\n"); */
 
    if ((form->f_code == sig->eqn_code) && form->arity == 2)
    {  // Case $eqn(t1, t2) (may be terms, may be formulas)
-      printf("# case $eqn %p\n", orig);
+      //printf("# case $eqn %p\n", orig);
       if (TFormulaIsComplexBool(terms->sig, form->args[0]) &&
           TFormulaIsComplexBool(terms->sig, form->args[1]))
       { // Case $eqn(f1,f2) (two proper formulas)
@@ -2134,26 +2134,26 @@ long TFormulaSetUnrollFOOL(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
    long res = 0;
    for (WFormula_p formula = set->anchor->succ; formula != set->anchor; formula = formula->succ)
    {
-      printf("# Before Eqn2Equiv  %p: ", formula);
-      WFormulaTSTPPrintDeriv(stdout, formula);
-      printf("\n");
-      TFormulaReplaceEqnWithEquiv(formula, terms);
-      printf("# Eqn2Equiv  %p: ", formula);
-      WFormulaTSTPPrintDeriv(stdout, formula);
-      printf("\n");
-      printf("# As term     :");
-      TermPrintDbg(stdout, formula->tformula, terms->sig, DEREF_NEVER);
-      printf("\n");
+      /* printf("# Before Eqn2Equiv  %p: ", formula); */
+      /* WFormulaTSTPPrintDeriv(stdout, formula); */
+      /* printf("\n"); */
+      /* TFormulaReplaceEqnWithEquiv(formula, terms); */
+      /* printf("# Eqn2Equiv  %p: ", formula); */
+      /* WFormulaTSTPPrintDeriv(stdout, formula); */
+      /* printf("\n"); */
+      /* printf("# As term     :"); */
+      /* TermPrintDbg(stdout, formula->tformula, terms->sig, DEREF_NEVER); */
+      /* printf("\n"); */
       if (TFormulaUnrollFOOL(formula, terms))
       {
          res++;
       }
-      printf("# Foolunroll %p: ", formula);
-      WFormulaTSTPPrintDeriv(stdout, formula);
-      printf("\n");
-      printf("# As term     :");
-      TermPrintDbg(stdout, formula->tformula, terms->sig, DEREF_NEVER);
-      printf("\n");
+      /* printf("# Foolunroll %p: ", formula); */
+      /* WFormulaTSTPPrintDeriv(stdout, formula); */
+      /* printf("\n"); */
+      /* printf("# As term     :"); */
+      /* TermPrintDbg(stdout, formula->tformula, terms->sig, DEREF_NEVER); */
+      /* printf("\n"); */
    }
    return res;
 }
@@ -2200,9 +2200,9 @@ long TFormulaSetLiftLets(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
             PStackAssignP(lifted_lets, i, wdef);
          }
       }
-      printf("# Let-lifted %p: ", form);
-      WFormulaTSTPPrintDeriv(stdout, form);
-      printf("\n");
+      /* printf("# Let-lifted %p: ", form); */
+      /* WFormulaTSTPPrintDeriv(stdout, form); */
+      /* printf("\n"); */
    }
 
    while (!PStackEmpty(lifted_lets))
@@ -2239,9 +2239,9 @@ long TFormulaSetLiftItes(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
       if (map_formula(formula, terms, do_ite_unroll, DCLiftIte))
       {
          res++;
-         printf("Ite-expanded %p: ", formula);
-         WFormulaTSTPPrintDeriv(stdout, formula);
-         printf("\n");
+         /* printf("Ite-expanded %p: ", formula); */
+         /* WFormulaTSTPPrintDeriv(stdout, formula); */
+         /* printf("\n"); */
       }
    }
    return res;
@@ -2524,9 +2524,9 @@ long TFormulaSetIntroduceDefs(FormulaSet_p set, FormulaSet_p archive, TB_p terms
       def = cell->vals[1].p_val;
       newdef = TFormulaCreateDef(terms, def, form, 0);
       w_def = WTFormulaAlloc(terms, newdef);
-      printf("# New definition: ");
-      WFormulaTSTPPrint(stdout, w_def, true, true);
-      printf("\n");
+      /* printf("# New definition: "); */
+      /* WFormulaTSTPPrint(stdout, w_def, true, true); */
+      /* printf("\n"); */
 
       DocFormulaCreationDefault(w_def, inf_fof_intro_def, NULL, NULL);
       cell->vals[0].i_val = w_def->ident; /* Replace polarity with
@@ -2563,13 +2563,13 @@ long TFormulaSetIntroduceDefs(FormulaSet_p set, FormulaSet_p archive, TB_p terms
    // printf("About to apply defs\n");
    for (formula = set->anchor->succ; formula != set->anchor; formula = formula->succ)
    {
-      printf("# Before Def-appl %p: ", formula);
-      WFormulaTSTPPrintDeriv(stdout, formula);
-      printf("\n");
+      /* printf("# Before Def-appl %p: ", formula); */
+      /* WFormulaTSTPPrintDeriv(stdout, formula); */
+      /* printf("\n"); */
       TFormulaApplyDefs(formula, terms, &defs);
-      printf("# After Def-appl  %p: ", formula);
-      WFormulaTSTPPrint(stdout, formula, true, true);
-      printf("\n");
+      /* printf("# After Def-appl  %p: ", formula); */
+      /* WFormulaTSTPPrint(stdout, formula, true, true); */
+      /* printf("\n"); */
    }
    NumXTreeFree(defs);
    return res;
