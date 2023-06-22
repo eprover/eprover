@@ -11,10 +11,10 @@ different directory for building the StarExec distribution.
 
 The strategies for the different divisions are:
 
-THF SLH:      starexec_run_E---_THF
-TFA FOF UEQ:  starexec_run_E---_FOF_UEQ
-TFN FNT:      starexec_run_E---_FNT
-
+THF:           starexec_run_E---_THF
+SLH:           starexec_run_E---_SLH
+FOF UEQ:       starexec_run_E---_FOF_UEQ
+TFN FNT:       starexec_run_E---_FNT
 
 Distinguished strings for the results:
 
