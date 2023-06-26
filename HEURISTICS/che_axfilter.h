@@ -74,11 +74,11 @@ typedef struct
    long              generosity;
    long              max_recursion_depth;
    long long         max_set_size;
-   long              threshold;
    double            max_set_fraction;
    bool              add_no_symbol_axioms;
    bool              trim_implications;
    bool              defined_symbols_in_drel;
+   long              threshold; // for Threshold filter only
 }AxFilterCell, *AxFilter_p;
 
 
@@ -125,8 +125,3 @@ void          AxFilterSetAddNames(DStr_p res, AxFilterSet_p filters);
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
-
-
-

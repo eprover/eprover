@@ -429,18 +429,18 @@ bool AxFilterPrintBuf(char* buf, int buflen, AxFilter_p filter)
    switch(filter->type)
    {
    case AFGSinE:
-         res = snprintf(buf, buflen, "%s(%s, %s, %f, %ld, %ld, %lld, %f, %d, %d, %d)",
+         res = snprintf(buf, buflen, "%s(%s, %s, %s, %f, %ld, %ld, %lld, %f, %s, %s)",
                         "GSinE",
                         GeneralityMeasureNames[filter->gen_measure],
                         filter->use_hypotheses?"hypos":"nohypos",
+                        filter->defined_symbols_in_drel?"true":"false",
                         filter->benevolence,
                         filter->generosity,
                         filter->max_recursion_depth,
                         filter->max_set_size,
                         filter->max_set_fraction,
-                        filter->add_no_symbol_axioms,
-                        filter->trim_implications,
-                        filter->defined_symbols_in_drel);
+                        filter->add_no_symbol_axioms?"addnosymb":"ignorenosymb",
+                        filter->trim_implications?"true":"false");
          break;
    case AFThreshold:
          res = snprintf(buf, buflen, "Threshold(%ld)",
