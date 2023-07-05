@@ -1726,6 +1726,7 @@ Clause_p ClauseParse(Scanner_p in, TB_p bank)
    else
    {
       concl = EqnListParse(in, bank, Semicolon);
+      printf("Parsed EqnList\n");
       if(TestInpTok(in, Colon))
       {
          if(EqnListLength(concl)>1)

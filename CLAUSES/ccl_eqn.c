@@ -497,9 +497,18 @@ bool EqnParseInfix(Scanner_p in, TB_p bank, Term_p *lref, Term_p *rref)
 
          if(!TestInpTok(in, NegEqualSign|EqualSign))
          {
+#ifdef ENABLE_LFHO
             // type is known but it is inside $let
             // or $ite and is not in an equation
-            rterm = NULL;
+            // (StS):I would think this is an actual parse
+            // error...Petar set this to NULL, which crashes on some
+            // garbage input in LOP format.
+            rterm = bank->true_term;
+#else
+            CheckInpTok(in, NegEqualSign|EqualSign);
+            rterm = NULL; //Stiffle warning
+#endif
+
          }
          else
          {
@@ -659,12 +668,12 @@ Eqn_p EqnAlloc(Term_p lterm, Term_p rterm, TB_p bank,  bool positive)
    {
       TermAssertSameSort(bank->sig, lterm, rterm);
    }
-
    handle->bank = bank;
    handle->next = NULL;
 
    handle->lterm = lterm;
    handle->rterm = rterm;
+
 
    /* EqnPrint(stdout, handle, false, true);
       printf("\n"); */
