@@ -280,12 +280,6 @@ static void print_info(void)
 
 void strategy_io(HeuristicParms_p h_parms, PStack_p hcb_definitions)
 {
-   if(print_strategy)
-   {
-      HeuristicParmsPrint(stdout, h_parms);
-      exit(NO_ERROR);
-   }
-
    if(parse_strategy_filename)
    {
       Scanner_p in = CreateScanner(StreamTypeFile, parse_strategy_filename,
@@ -296,6 +290,12 @@ void strategy_io(HeuristicParms_p h_parms, PStack_p hcb_definitions)
          PStackPushP(hcb_definitions, h_parms->heuristic_def);
       }
       DestroyScanner(in);
+   }
+
+   if(print_strategy)
+   {
+      HeuristicParmsPrint(stdout, h_parms);
+      exit(NO_ERROR);
    }
 }
 
