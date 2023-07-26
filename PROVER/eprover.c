@@ -780,7 +780,7 @@ int main(int argc, char* argv[])
       FREE(class);
       CLStateFree(state);
       state = process_options(argc, argv); // refilling the h_parms with user options
-      h_parms->heuristic_name = h_parms->heuristic_def;
+      //h_parms->heuristic_name = h_parms->heuristic_def;
    }
 
    strategy_io(h_parms, hcb_definitions);
