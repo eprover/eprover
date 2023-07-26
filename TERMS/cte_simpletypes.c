@@ -253,17 +253,16 @@ int TypesCmp(Type_p t1, Type_p t2)
 
    // if it is not arrow type cons -> same nr of args
    assert(!(t1->f_code == t2->f_code && t1->f_code != ArrowTypeCons)
-            || t1->arity == t2->arity);
+          || t1->arity == t2->arity);
 
    if(!res)
    {
-     res = t1->arity - t2->arity;
-     for(int i=0; i<t1->arity && !res; i++)
-     {
-        res = PCmp(t1->args[i], t2->args[i]);
-     }
+      res = t1->arity - t2->arity; // Should be 0? (StS)
+      for(int i=0; i<t1->arity && !res; i++)
+      {
+         res = PCmp(t1->args[i], t2->args[i]);
+      }
    }
-
    return res;
 }
 

@@ -1763,7 +1763,7 @@ void SigPrintTypeDeclsTSTPSelective(FILE* out, Sig_p sig, NumTree_p *symbols)
 // Function: SigParseTFFTypeDeclaration()
 //
 //    Parses a type declaration, and update the signature if it is a
-//    symbol declaration (ignores type declarations)
+//    symbol declaration.
 //
 // Global Variables: -
 //
@@ -1791,7 +1791,7 @@ void SigParseTFFTypeDeclaration(Scanner_p in, Sig_p sig)
    symbtype = FuncSymbParse(in, id);
    if(symbtype == FSIdentVar || symbtype == FSNone)
    {
-      Error("expected symbol in type declaration", OTHER_ERROR);
+      Error("expected type name in type declaration", OTHER_ERROR);
    }
 
    /* parse type */
@@ -1803,7 +1803,6 @@ void SigParseTFFTypeDeclaration(Scanner_p in, Sig_p sig)
       AcceptInpTok(in, CloseBracket);
    }
 
-   /* we only keep declarations of symbols, not declaration of types */
    if(!TypeIsTypeConstructor(type))
    {
       int arity = TypeIsArrow(type) ? type->arity - 1 : 0;
@@ -1853,6 +1852,61 @@ bool SigHasUnimplementedInterpretedSymbols(Sig_p sig)
    }
    return false;
 }
+
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: SigFCodesCollectTypes()
+//
+//   Collect all types of symbols in fcodes (and their proper subtypes
+//   in the first-order sense) into types.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+long SigFCodesCollectTypes(Sig_p sig, NumTree_p fcodes, PTree_p *types)
+{
+   long res = 0;
+   PStack_p to_process = PStackAlloc(), iter;
+   NumTree_p handle;
+   Type_p type;
+
+   iter = NumTreeTraverseInit(fcodes);
+   while((handle = NumTreeTraverseNext(iter)))
+   {
+      type = SigGetType(sig, handle->key);
+      //printf("# Symbol %ld = %s has type %p\n", handle->key,
+      //SigFindName(sig, handle->key), type);
+      if(type)
+      {
+         PStackPushP(to_process, type);
+      }
+   }
+   NumTreeTraverseExit(iter);
+
+   while(!PStackEmpty(to_process))
+   {
+      type = PStackPopP(to_process);
+      if(!PTreeFind(types, type))
+      {
+         res++;
+         PTreeStore(types, type);
+         for(int i=0; i<type->arity; i++)
+         {
+            PStackPushP(to_process, type->args[i]);
+         }
+      }
+   }
+   PTreeTraverseExit(to_process);
+   return res;
+}
+
+
+
 
 /*-----------------------------------------------------------------------
 //

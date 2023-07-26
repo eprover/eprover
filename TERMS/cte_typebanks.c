@@ -347,11 +347,51 @@ TypeBank_p TypeBankAlloc()
    handle->real_type       = TypeBankInsertTypeShared(handle, AllocSimpleSort(STReal));
 
    handle->default_type = handle->i_type;
+   handle->max_predefined_count = handle->types_count;
 
    return handle;
 }
 
+
 /*-----------------------------------------------------------------------
+//
+// Function: TypeBankFree()
+//
+//    Frees the whole typebank.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void TypeBankFree(TypeBank_p bank)
+{
+   for(int i=0; i<PStackGetSP(bank->back_idx); i++)
+   {
+      back_idx_info* bii = PStackElementP(bank->back_idx, i);
+
+      void* ptr_to_free = (void*)bii->name;
+
+      FREE(ptr_to_free); // stiffing warnings
+      SizeFree(bii, sizeof(back_idx_info));
+   }
+
+   PStackFree(bank->back_idx);
+
+   StrTreeFree(bank->name_idx);
+   for(int i=0; i<TYPEBANK_SIZE; i++)
+   {
+      PObjTreeFree(bank->hash_table[i], tree_free_fun);
+      bank->hash_table[i] = NULL;
+   }
+
+   SizeFree(bank, sizeof(*bank));
+}
+
+
+
+/*----------------------------------------------------------------------
 //
 // Function: TypeBankInsertTypeShared()
 //
@@ -412,7 +452,8 @@ Type_p TypeBankInsertTypeShared(TypeBank_p bank, Type_p t)
 //
 /----------------------------------------------------------------------*/
 
-TypeConsCode TypeBankDefineTypeConstructor(TypeBank_p bank, const char* name, int arity)
+TypeConsCode TypeBankDefineTypeConstructor(TypeBank_p bank, const char* name,
+                                           int arity)
 {
    assert(bank);
    StrTree_p node = StrTreeFind(&bank->name_idx, name);
@@ -425,12 +466,13 @@ TypeConsCode TypeBankDefineTypeConstructor(TypeBank_p bank, const char* name, in
       else
       {
          DStr_p err_msg = DStrAlloc();
-         DStrAppendStr(err_msg, (char*)"Redefinition of type constructor ");
-         DStrAppendStr(err_msg, (char*)name);
+         DStrAppendStr(err_msg, "Redefinition of type constructor ");
+         DStrAppendStr(err_msg, name);
 
          if (Verbose > 1)
          {
-            fprintf(stderr, "# previous arity was %ld, now it is %d.\n", GetArity(node), arity);
+            fprintf(stderr, "# previous arity was %ld, now it is %d.\n",
+                    GetArity(node), arity);
          }
 
          Error(DStrView(err_msg), SYNTAX_ERROR);
@@ -488,6 +530,7 @@ TypeConsCode TypeBankFindTCCode(TypeBank_p bank, const char* name)
    return node ? GetNameId(node) : NAME_NOT_FOUND;
 }
 
+
 /*-----------------------------------------------------------------------
 //
 // Function: TypeBankFindTCArity()
@@ -510,6 +553,7 @@ int TypeBankFindTCArity(TypeBank_p bank, TypeConsCode tc_code)
    return ((back_idx_info*)PStackElementP(bank->back_idx, tc_code))->arity;
 }
 
+
 /*-----------------------------------------------------------------------
 //
 // Function: TypeBankFindTCName()
@@ -531,6 +575,7 @@ const char* TypeBankFindTCName(TypeBank_p bank, TypeConsCode tc_code)
 
    return ((back_idx_info*)PStackElementP(bank->back_idx, tc_code))->name;
 }
+
 
 /*-----------------------------------------------------------------------
 //
@@ -701,9 +746,9 @@ Type_p TypeBankParseType(Scanner_p in, TypeBank_p bank)
          res = AllocArrowType(arity, args);
       }
    }
-
    return TypeBankInsertTypeShared(bank, res);
 }
+
 
 /*-----------------------------------------------------------------------
 //
@@ -782,10 +827,45 @@ void TypePrintTSTP(FILE* out, TypeBank_p bank, Type_p type)
    }
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: TypeBankPrintSelectedSortDefs()
+//
+//   Print type declarations for the types in selector that correspond
+//   to simple sorts. Selector is a PTree of Type_p keys.
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+void TypeBankPrintSelectedSortDefs(FILE* out, TypeBank_p bank, PTree_p selector)
+{
+   PStack_p iter = PTreeTraverseInit(selector);
+   PTree_p handle;
+   Type_p type;
+   long count = 0;
+   const char* tag = problemType == PROBLEM_HO ? "thf" : "tff";
+
+   while((handle = PTreeTraverseNext(iter)))
+   {
+      type = handle->key;
+      if(type->arity == 0 && TypeBankTypeIsUserDefined(bank, type))
+      {
+         count++;
+         fprintf(out, "%s(decl_sort%ld, type, ", tag, count);
+         TypePrintTSTP(out, bank, handle->key);
+         fprintf(out, ": $tType).\n");
+      }
+   }
+   PStackFree(iter);
+}
+
 
 /*-----------------------------------------------------------------------
 //
-// Function: TypePrintTSTP()
+// Function: TypeChangeReturnType()
 //
 //    Changes return type of the given type to new_ret and returns newly
 //    generated type.
@@ -815,43 +895,6 @@ Type_p TypeChangeReturnType(TypeBank_p bank, Type_p type, Type_p new_ret)
 
    return res;
 
-}
-
-
-/*-----------------------------------------------------------------------
-//
-// Function: TypeBankFree()
-//
-//    Frees the whole typebank.
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-void TypeBankFree(TypeBank_p bank)
-{
-   for(int i=0; i<PStackGetSP(bank->back_idx); i++)
-   {
-      back_idx_info* bii = PStackElementP(bank->back_idx, i);
-
-      void* ptr_to_free = (void*)bii->name;
-
-      FREE(ptr_to_free); // stiffing warnings
-      SizeFree(bii, sizeof(back_idx_info));
-   }
-
-   PStackFree(bank->back_idx);
-
-   StrTreeFree(bank->name_idx);
-   for(int i=0; i<TYPEBANK_SIZE; i++)
-   {
-      PObjTreeFree(bank->hash_table[i], tree_free_fun);
-      bank->hash_table[i] = NULL;
-   }
-
-   SizeFree(bank, sizeof(*bank));
 }
 
 
@@ -890,7 +933,8 @@ void TypeBankAppEncodeTypes(FILE* out, TypeBank_p tb, bool print_type_comment)
                TypePrintTSTP(out, tb, type);
                fprintf(out, ".\n");
             }
-            fprintf(out, "tff(typedecl%d, type, %s: $tType).\n", total_types, DStrView(type_name));
+            fprintf(out, "tff(typedecl%d, type, %s: $tType).\n",
+                    total_types, DStrView(type_name));
             DStrFree(type_name);
          }
       }

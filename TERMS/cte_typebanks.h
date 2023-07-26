@@ -42,17 +42,17 @@ typedef struct typebank_cell {
                                               // types inserted --
                                               // Each type will have
                                               // unique ID.
+   TypeUniqueID   max_predefined_count;       // Maximum built-in type id
    PObjTree_p     hash_table[TYPEBANK_SIZE];  // Hash table for sharing
 
    // some types that are accessed frequently.
-   Type_p bool_type;
-   Type_p i_type;
-   Type_p kind_type;
-   Type_p integer_type;
-   Type_p rational_type;
-   Type_p real_type;
-
-   Type_p default_type;
+   Type_p         bool_type;
+   Type_p         i_type;
+   Type_p         kind_type;
+   Type_p         integer_type;
+   Type_p         rational_type;
+   Type_p         real_type;
+   Type_p         default_type;
 } TypeBank, *TypeBank_p;
 
 /*---------------------------------------------------------------------*/
@@ -62,7 +62,7 @@ typedef struct typebank_cell {
 #define TypeBankCellAlloc()   SizeMalloc(sizeof(TypeBank));
 void    TypeBankFree(TypeBank_p junk);
 
-TypeBank_p TypeBankAlloc(void);
+TypeBank_p   TypeBankAlloc(void);
 
 Type_p       TypeBankInsertTypeShared(TypeBank_p bank, Type_p t);
 TypeConsCode TypeBankDefineTypeConstructor(TypeBank_p bank, const char* name, int arity);
@@ -73,12 +73,15 @@ int          TypeBankFindTCArity(TypeBank_p bank, TypeConsCode tc_code);
 const char*  TypeBankFindTCName(TypeBank_p bank, TypeConsCode tc_code);
 Type_p       TypeBankParseType(Scanner_p in, TypeBank_p bank);
 void         TypePrintTSTP(FILE* out, TypeBank_p bank, Type_p type);
-Type_p       TypeChangeReturnType(TypeBank_p bank, Type_p type, Type_p new_ret);
-void         TypeBankPrintSimpleTypes(FILE* out, TypeBank_p bank);
+void         TypeBankPrintSelectedSortDefs(FILE* out, TypeBank_p bank,
+                                           PTree_p selector);
 
+Type_p       TypeChangeReturnType(TypeBank_p bank, Type_p type, Type_p new_ret);
 
 void         TypeBankAppEncodeTypes(FILE* out, TypeBank_p tb, bool print_type_comment);
 
+#define      TypeBankTypeIsUserDefined(bank, type) \
+             ((type)->type_uid > (bank)->max_predefined_count)
 
 
 #endif

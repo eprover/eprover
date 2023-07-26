@@ -292,6 +292,7 @@ void    SigPrintTypeDeclsTSTP(FILE* out, Sig_p sig);
 void    SigParseTFFTypeDeclaration(Scanner_p in, Sig_p sig);
 void    SigPrintTypeDeclsTSTPSelective(FILE* out, Sig_p sig, NumTree_p *symbols);
 bool    SigHasUnimplementedInterpretedSymbols(Sig_p sig);
+long    SigFCodesCollectTypes(Sig_p sig, NumTree_p fcodes, PTree_p *types);
 void    SigUpdateFeatureOffset(Sig_p sig, FunCode f);
 void    SigEnterLetScope(Sig_p sig, PStack_p type_decls);
 void    SigExitLetScope(Sig_p sig);
