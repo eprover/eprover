@@ -99,6 +99,22 @@ typedef long (*IntMapFreeFunc)(void *junk_node);
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
+
+//DF-STOP
+#ifdef MEASURE_INT
+extern long countInt;
+#endif
+
+#ifdef MEASURE_ARRAY
+extern long countArray;
+#endif
+
+#ifdef MEASURE_TREE
+extern long countTree;
+#endif
+//DF-START
+
+
 #define IntMapCellAlloc() (IntMapCell*)SizeMalloc(sizeof(IntMapCell))
 #define IntMapCellFree(junk) SizeFree(junk, sizeof(IntMapCell))
 

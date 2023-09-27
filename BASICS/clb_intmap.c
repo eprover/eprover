@@ -30,6 +30,19 @@ Changes
 /*                        Global Variables                             */
 /*---------------------------------------------------------------------*/
 
+//DF-STOP
+#ifdef MEASURE_INT
+long countInt = 0;
+#endif
+
+#ifdef MEASURE_ARRAY
+long countArray = 0;
+#endif
+
+#ifdef MEASURE_TREE
+long countTree = 0;
+#endif
+//DF-START
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
@@ -364,11 +377,24 @@ void** IntMapGetRef(IntMap_p map, long key)
          map->values.value = NULL;
          res = &(map->values.value);
          map->entry_no = 1;
+
+         //DF-START
+         #ifdef MEASURE_INT
+         countInt++;
+         #endif
+         //DF-STOP
          break;
    case IMSingle:
          if(key == map->max_key)
          {
             res = &(map->values.value);
+
+            //DF-START
+            #ifdef MEASURE_INT
+            countInt++;
+            #endif
+            //DF-STOP
+
          }
          else if(switch_to_array(key, map->min_key, map->max_key, 2))
          {
@@ -380,6 +406,13 @@ void** IntMapGetRef(IntMap_p map, long key)
             PDRangeArrAssignP(map->values.array, key, NULL);
             res = &(PDRangeArrElementP(map->values.array, key));
             map->entry_no = 2;
+
+            //DF-START
+            #ifdef MEASURE_ARRAY
+            countArray++;
+            #endif
+            //DF-STOP
+
          }
          else
          {
@@ -391,6 +424,12 @@ void** IntMapGetRef(IntMap_p map, long key)
             handle = add_new_tree_node(map, key, NULL);
             res = &(handle->val1.p_val);
             map->entry_no = 2;
+
+            //DF-START
+            #ifdef MEASURE_TREE
+            countTree++;
+            #endif
+            //DF-STOP
          }
          map->min_key = MIN(map->min_key, key);
          map->max_key = MAX(key, map->max_key);
@@ -401,6 +440,12 @@ void** IntMapGetRef(IntMap_p map, long key)
          {
             array_to_tree(map);
             res = IntMapGetRef(map, key);
+
+            //DF-START
+            #ifdef MEASURE_TREE
+            countTree++;
+            #endif
+            //DF-STOP
          }
          else
          {
@@ -408,6 +453,13 @@ void** IntMapGetRef(IntMap_p map, long key)
             if(!(*res))
             {
                map->entry_no++;
+
+               //DF-START
+               #ifdef MEASURE_ARRAY
+               countArray++;
+               #endif
+               //DF-STOP
+
             }
          }
          map->min_key=MIN(map->min_key, key);
@@ -425,6 +477,13 @@ void** IntMapGetRef(IntMap_p map, long key)
             {
                tree_to_array(map);
                res = IntMapGetRef(map, key);
+
+               //DF-START
+               #ifdef MEASURE_ARRAY
+               countArray++;
+               #endif
+               //DF-STOP
+
             }
             else
             {
@@ -432,6 +491,12 @@ void** IntMapGetRef(IntMap_p map, long key)
                map->max_key=MAX(map->max_key, key);
                map->min_key=MIN(map->min_key, key);
                res = &(handle->val1.p_val);
+
+               //DF-START
+               #ifdef MEASURE_TREE
+               countTree++;
+               #endif
+               //DF-STOP
             }
          }
          break;
