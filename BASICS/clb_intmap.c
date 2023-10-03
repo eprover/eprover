@@ -379,9 +379,9 @@ void** IntMapGetRef(IntMap_p map, long key)
          map->entry_no = 1;
 
          //DF-START
-         #ifdef MEASURE_INT
+#ifdef MEASURE_INT
          countInt++;
-         #endif
+#endif
          //DF-STOP
          break;
    case IMSingle:
@@ -390,9 +390,9 @@ void** IntMapGetRef(IntMap_p map, long key)
             res = &(map->values.value);
 
             //DF-START
-            #ifdef MEASURE_INT
+#ifdef MEASURE_INT
             countInt++;
-            #endif
+#endif
             //DF-STOP
 
          }
@@ -408,9 +408,9 @@ void** IntMapGetRef(IntMap_p map, long key)
             map->entry_no = 2;
 
             //DF-START
-            #ifdef MEASURE_ARRAY
+#ifdef MEASURE_ARRAY
             countArray++;
-            #endif
+#endif
             //DF-STOP
 
          }
@@ -426,9 +426,9 @@ void** IntMapGetRef(IntMap_p map, long key)
             map->entry_no = 2;
 
             //DF-START
-            #ifdef MEASURE_TREE
+#ifdef MEASURE_TREE
             countTree++;
-            #endif
+#endif
             //DF-STOP
          }
          map->min_key = MIN(map->min_key, key);
@@ -442,9 +442,9 @@ void** IntMapGetRef(IntMap_p map, long key)
             res = IntMapGetRef(map, key);
 
             //DF-START
-            #ifdef MEASURE_TREE
+#ifdef MEASURE_TREE
             countTree++;
-            #endif
+#endif
             //DF-STOP
          }
          else
@@ -455,9 +455,9 @@ void** IntMapGetRef(IntMap_p map, long key)
                map->entry_no++;
 
                //DF-START
-               #ifdef MEASURE_ARRAY
+#ifdef MEASURE_ARRAY
                countArray++;
-               #endif
+#endif
                //DF-STOP
 
             }
@@ -479,9 +479,9 @@ void** IntMapGetRef(IntMap_p map, long key)
                res = IntMapGetRef(map, key);
 
                //DF-START
-               #ifdef MEASURE_ARRAY
+#ifdef MEASURE_ARRAY
                countArray++;
-               #endif
+#endif
                //DF-STOP
 
             }
@@ -493,9 +493,9 @@ void** IntMapGetRef(IntMap_p map, long key)
                res = &(handle->val1.p_val);
 
                //DF-START
-               #ifdef MEASURE_TREE
+#ifdef MEASURE_TREE
                countTree++;
-               #endif
+#endif
                //DF-STOP
             }
          }
