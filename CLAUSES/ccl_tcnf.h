@@ -50,6 +50,12 @@ void TFormulaFindDefs(TB_p bank, TFormula_p form, int polarity,
                       PStack_p renamed_forms);
 TFormula_p TFormulaCopyDef(TB_p bank, TFormula_p form, long blocked,
                            NumXTree_p *defs, PStack_p defs_used);
+
+TFormula_p TFormulaNegAlloc(TB_p terms, TFormula_p form);
+
+TFormula_p TFormulaExpandLiterals(TB_p terms, TFormula_p form);
+TFormula_p TFormulaReEncodeLiterals(TB_p terms, TFormula_p form);
+
 TFormula_p TFormulaSimplify(TB_p terms, TFormula_p form, long quopt_limit);
 
 TFormula_p TFormulaNNF(TB_p terms, TFormula_p form, int polarity);

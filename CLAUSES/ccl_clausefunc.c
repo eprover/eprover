@@ -665,17 +665,20 @@ void PStackClausePrint(FILE* out, PStack_p stack, char* extra)
 
 bool ClauseEliminateNakedBooleanVariables(Clause_p clause)
 {
-   assert(!ClauseIsEmpty(clause));
+   if(ClauseIsEmpty(clause))
+   {
+      return false;
+   }
 
    PStack_p all_lits       = ClauseToStack(clause);
    Eqn_p    lit            = NULL;
    Term_p   var            = NULL;
    bool     eliminated_var = false;
+   Eqn_p    res            = NULL;
+   Subst_p  subst          = SubstAlloc();
    const TB_p   bank       = clause->literals->bank;
    const Term_p true_term  = bank->true_term;
    const Term_p false_term = bank->false_term;
-   Eqn_p    res            = NULL;
-   Subst_p  subst          = SubstAlloc();
 
    while(!PStackEmpty(all_lits))
    {

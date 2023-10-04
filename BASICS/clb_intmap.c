@@ -387,7 +387,7 @@ void** IntMapGetRef(IntMap_p map, long key)
             val = map->values.value;
             map->values.tree = NULL;
             tmp.p_val = val;
-            NumTreeStore(&(map->values.tree),map->max_key, tmp, tmp);
+            NumTreeStore(&(map->values.tree), map->max_key, tmp, tmp);
             handle = add_new_tree_node(map, key, NULL);
             res = &(handle->val1.p_val);
             map->entry_no = 2;
@@ -673,5 +673,3 @@ void IntMapDebugPrint(FILE* out, IntMap_p map)
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-

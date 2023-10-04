@@ -869,6 +869,17 @@ TFormula_p do_fool_unroll(TFormula_p form, TB_p terms)
    TFormula_p unrolled2 = NULL;
    if (TFormulaIsLiteral(terms->sig, form))
    {
+      /* printf("f_code: %ld  arity: %d   sig->eqn_code: %ld  sig->negn_code: %ld\n", */
+      /*        form->f_code, form->arity, terms->sig->eqn_code, terms->sig->neqn_code); */
+      /* printf("This is a literal %p %p: ", form->args[0], form->args[1]); */
+      /* TermPrettyPrintSimple(stdout, form, terms->sig, 0); */
+      /* printf("\n"); */
+      /* printf("arg[0]: %p\n", form->args[0]); */
+      /* TBPrintTerm(stdout, terms,  form->args[0], true); */
+      /* printf("\n"); */
+      /* printf("arg[1]: "); */
+      /* TBPrintTerm(stdout, terms,  form->args[1], true); */
+      /* printf("\n"); */
       form = LambdaEtaReduceDB(terms, form);
       TermPos_p pos = PStackAlloc();
       PStackPushP(pos, form);
@@ -945,6 +956,9 @@ TFormula_p do_fool_unroll(TFormula_p form, TB_p terms)
    }
    return form;
 }
+
+
+
 
 /*-----------------------------------------------------------------------
 //
@@ -1096,7 +1110,7 @@ TFormula_p do_ite_unroll(TFormula_p form, TB_p terms)
 
 /*-----------------------------------------------------------------------
 //
-// Function: do_bool_eqn_replace ()
+// Function: do_bool_eqn_replace1 ()
 //
 //   Replace boolean equations with equivalences. Goes inside literals
 //   as well. For example, "f(a, p = q) = b" will be translated to
@@ -1130,7 +1144,8 @@ TFormula_p do_bool_eqn_replace1(TFormula_p form, TB_p terms)
          // DAS literal is encoded as <predicate> = TRUE.
          // Our boolean equalities are <formula> = <formula>
          form = TFormulaFCodeAlloc(terms,
-                                   (form->f_code == terms->sig->eqn_code ? terms->sig->equiv_code : terms->sig->xor_code),
+                                   (form->f_code == terms->sig->eqn_code ?
+                                    terms->sig->equiv_code : terms->sig->xor_code),
                                    do_bool_eqn_replace1(form->args[0], terms),
                                    do_bool_eqn_replace1(form->args[1], terms));
          changed = true;
@@ -1718,7 +1733,6 @@ long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive,
    {
       TFormulaSetUnrollFOOL(set, archive, terms);
    }
-   //printf("# Fool unrolled\n");
    FormulaSetSimplify(set, terms, true);
 
    //printf("# Introducing definitions\n");
@@ -2074,6 +2088,12 @@ long TFormulaApplyDefs(WFormula_p form, TB_p terms, NumXTree_p *defs)
    }
 
    PStackFree(defs_used);
+   /* if(TFormulaHasFreeVars(terms, form->tformula)) */
+   /* { */
+   /*    printf("# ApplyDefs Free Variable: "); */
+   /*    WFormulaPrint(stdout, form, true); */
+   /*    printf("\n"); */
+   /* } */
    return res;
 }
 
@@ -2095,7 +2115,40 @@ long TFormulaApplyDefs(WFormula_p form, TB_p terms, NumXTree_p *defs)
 
 bool TFormulaUnrollFOOL(WFormula_p form, TB_p terms)
 {
-   return map_formula(form, terms, do_fool_unroll, DCFoolUnroll);
+   /* Term_p free_var; */
+   /* if((free_var = TFormulaHasFreeVars(terms, form->tformula))) */
+   /* { */
+   /*    printf("# Before UnrollFOOL Free Variable "); */
+   /*    TermPrintSimple(stdout, free_var, terms->sig); */
+   /*    printf(" :"); */
+   /*    WFormulaPrint(stdout, form, true); */
+   /*    printf("\n"); */
+   /*    TermPrettyPrintSimple(stdout, form->tformula, form->terms->sig, 0); */
+   /* } */
+   /* printf("# Before UnrollFOOL: "); */
+   /* WFormulaPrint(stdout, form, true); */
+   /* printf("\n"); */
+   /* TermPrettyPrintSimple(stdout, form->tformula, form->terms->sig, 0); */
+   /* printf("\n"); */
+   form->tformula = TFormulaExpandLiterals(terms, form->tformula);
+   /* printf("# Expanded:\n# "); */
+   /* WFormulaPrint(stdout, form, true); */
+   /* printf("\n"); */
+   /* TermPrettyPrintSimple(stdout, form->tformula, form->terms->sig, 0); */
+   /* printf("\n"); */
+
+   bool res = map_formula(form, terms, do_fool_unroll, DCFoolUnroll);
+
+   /* if(TFormulaHasFreeVars(terms, form->tformula)) */
+   /* { */
+   /*    printf("# UnrollFOOL Free Variable: "); */
+   /*    WFormulaPrint(stdout, form, true); */
+   /*    printf("\n"); */
+   /* } */
+   /* printf("# Unrolled: \n# "); */
+   /* WFormulaPrint(stdout, form, true); */
+   /* printf("\n"); */
+   return res;
 }
 
 /*-----------------------------------------------------------------------
@@ -2114,7 +2167,15 @@ bool TFormulaUnrollFOOL(WFormula_p form, TB_p terms)
 
 bool TFormulaReplaceEqnWithEquiv(WFormula_p form, TB_p terms)
 {
-   return map_formula(form, terms, do_bool_eqn_replace, DCEqToEq);
+   bool res = map_formula(form, terms, do_bool_eqn_replace, DCEqToEq);
+
+   /* if(TFormulaHasFreeVars(terms, form->tformula)) */
+   /* { */
+   /*    printf("# Eqn->Equiv Free Variable: "); */
+   /*    WFormulaPrint(stdout, form, true); */
+   /*    printf("\n"); */
+   /* } */
+   return res;
 }
 
 /*-----------------------------------------------------------------------
@@ -2132,7 +2193,9 @@ bool TFormulaReplaceEqnWithEquiv(WFormula_p form, TB_p terms)
 long TFormulaSetUnrollFOOL(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
 {
    long res = 0;
-   for (WFormula_p formula = set->anchor->succ; formula != set->anchor; formula = formula->succ)
+   for (WFormula_p formula = set->anchor->succ;
+        formula != set->anchor;
+        formula = formula->succ)
    {
       /* printf("# Before Eqn2Equiv  %p: ", formula); */
       /* WFormulaTSTPPrintDeriv(stdout, formula); */
@@ -2239,6 +2302,12 @@ long TFormulaSetLiftItes(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
       if (map_formula(formula, terms, do_ite_unroll, DCLiftIte))
       {
          res++;
+         /* if(TFormulaHasFreeVars(terms, formula->tformula)) */
+         /* { */
+         /*    printf("# LiftItes Free Variable: "); */
+         /*    WFormulaPrint(stdout, formula, true); */
+         /*    printf("\n"); */
+         /* } */
          /* printf("Ite-expanded %p: ", formula); */
          /* WFormulaTSTPPrintDeriv(stdout, formula); */
          /* printf("\n"); */
@@ -2278,6 +2347,12 @@ long TFormulaSetLambdaNormalize(FormulaSet_p set, FormulaSet_p archive, TB_p ter
             WFormulaPushDerivation(form, DCFofSimplify, NULL, NULL);
             DBGTermCheckUnownedSubterm(stdout, handle, "LambdaNormUnowned2");
             res++;
+            /* if(TFormulaHasFreeVars(terms, form->tformula)) */
+            /* { */
+            /*    printf("# LambdaNormalize Free Variable: "); */
+            /*    WFormulaPrint(stdout, form, true); */
+            /*    printf("\n"); */
+            /* } */
          }
       }
       return res;
@@ -2338,6 +2413,12 @@ long TFormulaSetUnfoldDefSymbols(FormulaSet_p set, FormulaSet_p archive,
                res++;
             }
             PTreeFree(used_defs);
+            /* if(TFormulaHasFreeVars(terms, form->tformula)) */
+            /* { */
+            /*    printf("# UnfoldDef Free Variable: "); */
+            /*    WFormulaPrint(stdout, form, true); */
+            /*    printf("\n"); */
+            /* } */
          }
       }
 
@@ -2570,6 +2651,12 @@ long TFormulaSetIntroduceDefs(FormulaSet_p set, FormulaSet_p archive, TB_p terms
       /* printf("# After Def-appl  %p: ", formula); */
       /* WFormulaTSTPPrint(stdout, formula, true, true); */
       /* printf("\n"); */
+      /* if(TFormulaHasFreeVars(terms, formula->tformula)) */
+      /* { */
+      /*    printf("# ApplyDefs Free Variable: "); */
+      /*    WFormulaPrint(stdout, formula, true); */
+      /*    printf("\n"); */
+      /* } */
    }
    NumXTreeFree(defs);
    return res;

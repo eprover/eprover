@@ -136,6 +136,7 @@ char *optheory [] =
    NULL,
    NULL,
    NULL,
+   NULL,
    /* HO inferences */
    NULL,
    NULL,
@@ -193,6 +194,8 @@ char *opstatus [] =
    /* Others */
    "thm",
    NULL,
+   "thm",
+   "thm",
    "thm",
    "thm",
    "thm",

@@ -106,7 +106,7 @@ typedef enum
 
 typedef enum  /* See CLAUSES/ccl_rewrite.c for more */
 {
-   NoRewrite = 0,     /* Just for completness */
+   NoRewrite = 0,     /* Just for completeness */
    RuleRewrite = 1,   /* Rewrite with rules only */
    FullRewrite = 2    /* Rewrite with rules and equations */
 }RewriteLevel;

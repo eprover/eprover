@@ -493,7 +493,8 @@ static void print_proof_stats(ProofState_p proofstate,
 //
 // Function: main()
 //
-//   Main entry point of the prover.
+//   Main entry point of the prover. This is where all the cruft
+//   accumulates - sorry!
 //
 // Global Variables: Plenty, mostly flags shared with
 //                   process_options. See list above.
@@ -775,6 +776,7 @@ int main(int argc, char* argv[])
          char* conf_name = GetSearchSchedule(class)->heu_name;
          GetHeuristicWithName(conf_name, h_parms);
          fprintf(stdout, "# Configuration: %s\n", conf_name);
+         // STS: ASK PV About this!
          h_parms->inst_choice_max_depth = choice_max_depth;
       }
       FREE(class);
@@ -974,7 +976,9 @@ int main(int argc, char* argv[])
             }
             retval = INCOMPLETE_PROOFSTATE;
          }
-         else if(problemType != PROBLEM_HO && proofstate->state_is_complete && inf_sys_complete)
+         else if(problemType != PROBLEM_HO
+                 && proofstate->state_is_complete
+                 && inf_sys_complete)
          {
             fprintf(GlobalOut, "\n# No proof found!\n");
             TSTPOUT(GlobalOut, neg_conjectures?"CounterSatisfiable":"Satisfiable");

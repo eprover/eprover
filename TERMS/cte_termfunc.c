@@ -859,7 +859,7 @@ void TermPrintArgList(FILE* out, Term_p *args, int arity, Sig_p sig,
 //   Print a FO term without giving any special semantics to
 //   symbols -- basically prints the serialized syntax tree.
 //
-// Global Variables: TermPrintLists
+// Global Variables:
 //
 // Side Effects    : Output
 //
@@ -898,6 +898,116 @@ void TermPrintSimple(FILE* out, Term_p term, Sig_p sig)
       }
    }
 }
+
+/*-----------------------------------------------------------------------
+//
+// Function: TermIsFlat()
+//
+//   Return true if the term has no nested subterms.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+----------------------------------------------------------------------*/
+
+bool TermIsFlat(Term_p t)
+{
+   int i;
+
+   if(TermIsConst(t) || TermIsFreeVar(t))
+   {
+      return true;
+   }
+   for(i=0; i<t->arity; i++)
+   {
+      if(!TermIsConst(t->args[i]) && !TermIsFreeVar(t->args[i]))
+      {
+         return false;
+      }
+   }
+   return true;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: TermPrettyPrintSimple()
+//
+//   Print a FO term without giving any special semantics to
+//   symbols -- basically prints the serialized syntax tree in a
+//   nicely formatted manner.
+//
+// Global Variables:
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+void TermPrettyPrintSimple(FILE* out, Term_p term, Sig_p sig, int level)
+{
+   int i;
+   assert(term);
+   assert(sig||TermIsAnyVar(term));
+   // no need to change derefs here -- FOL
+
+   for(i=0; i<level; i++)
+   {
+      fputs("  ", out);
+   }
+
+   TypePrintTSTP(out, sig->type_bank, term->type);
+   fprintf(out, ":");
+   if(TermIsFreeVar(term))
+   {
+      VarPrint(out, term->f_code);
+      fputs(":", out);
+      TypePrintTSTP(out, sig->type_bank, term->type);
+
+   }
+   else
+   {
+      fputs(SigFindName(sig, term->f_code), out);
+      if(!TermIsConst(term))
+      {
+         assert(term->args);
+         assert(term->arity>=1);
+         if(TermIsFlat(term))
+         {
+            fputc('(', out);
+
+            TermPrettyPrintSimple(out, term->args[0], sig, 0);
+
+            for(i=1; i<term->arity; i++)
+            {
+               fputc(',', out);
+               TermPrettyPrintSimple(out, term->args[i], sig, 0);
+            }
+            fputc(')', out);
+         }
+         else
+         {
+            fputs("(\n", out);
+
+            TermPrettyPrintSimple(out, term->args[0], sig, level+1);
+
+            for(i=1; i<term->arity; i++)
+            {
+               fputs(",\n", out);
+               TermPrettyPrintSimple(out, term->args[i], sig, level+1);
+            }
+            fputc('\n', out);
+            for(i=0; i<level; i++)
+            {
+               fputs("  ", out);
+            }
+            putc(')', out);
+         }
+      }
+   }
+}
+
+
+
 
 
 /*-----------------------------------------------------------------------

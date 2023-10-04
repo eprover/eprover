@@ -59,7 +59,7 @@ typedef Term_p TFormula_p;
    ((form)->f_code == sig->qex_code || (form)->f_code == sig->qall_code || \
     (form)->f_code == SIG_NAMED_LAMBDA_CODE)
 #define   TFormulaIsLiteral(sig,form)                                   \
-   (((form)->f_code == (sig)->eqn_code || (form)->f_code == (sig)->neqn_code) &&\
+   ((((form)->f_code == (sig)->eqn_code) || ((form)->f_code == (sig)->neqn_code)) && \
    ((form)->arity == 2))
 
 #define TFormulaIsComplexBool(sig, form) (!TermIsAnyVar(form) &&        \
@@ -89,7 +89,7 @@ bool       TFormulaVarIsFreeCached(TB_p bank, TFormula_p form, Term_p var);
 
 void       TFormulaCollectFreeVars(TB_p bank, TFormula_p form, PTree_p *vars);
 bool       TFormulaIsClosed(TB_p bank, TFormula_p form);
-bool       TFormulaHasFreeVars(TB_p bank, TFormula_p form);
+TFormula_p TFormulaHasFreeVars(TB_p bank, TFormula_p form);
 
 TFormula_p TFormulaAddQuantor(TB_p bank, TFormula_p form, bool universal, Term_p var);
 TFormula_p TFormulaAddQuantors(TB_p bank, TFormula_p form, bool universal,

@@ -1575,6 +1575,10 @@ void TFormulaTPTPPrint(FILE* out, TB_p bank, TFormula_p form, bool fullterms, bo
       TFormulaTPTPPrint(out, bank, form->args[0], fullterms, pcl);
       fputs(")", out);
    }
+   else if(form->arity == 0)
+   {
+      fprintf(out, "%s", SigFindName(bank->sig, form->f_code));
+   }
    else
    {
       char* oprep = "XXX";
@@ -2070,7 +2074,8 @@ bool TFormulaIsClosed(TB_p bank, TFormula_p form)
 //
 // Function: TFormulaHasFreeVars()
 //
-//   Check if the formula has at least one free variable.
+//   Check if the formula has at least one free variable. If so,
+//   return one of them, otherweise NULL.
 //
 // Global Variables: -
 //
@@ -2078,13 +2083,16 @@ bool TFormulaIsClosed(TB_p bank, TFormula_p form)
 //
 /----------------------------------------------------------------------*/
 
-bool TFormulaHasFreeVars(TB_p bank, TFormula_p form)
+TFormula_p TFormulaHasFreeVars(TB_p bank, TFormula_p form)
 {
-   bool res;
+   TFormula_p res = NULL;
    PTree_p dummy = NULL;
 
    TFormulaCollectFreeVars(bank, form, &dummy);
-   res = (dummy!=NULL);
+   if (dummy!=NULL)
+   {
+      res = dummy->key;
+   }
    PTreeFree(dummy);
    return res;
 }
@@ -2418,9 +2426,19 @@ Clause_p TFormulaCollectClause(TFormula_p form, TB_p terms,
       }
       else
       {
-         assert(TFormulaIsLiteral(terms->sig, form));
-         lit = EqnTBTermDecode(terms, form);
-         PStackPushP(lit_stack, lit);
+         if(TFormulaIsLiteral(terms->sig, form))
+         {
+            lit = EqnTBTermDecode(terms, form);
+            PStackPushP(lit_stack, lit);
+         }
+         else if(TermIsTrueTerm(form))
+         {
+            lit = EqnAlloc(form, form, terms, true);
+         }
+         else if(TermIsFalseTerm(form))
+         {
+            // Nothing to do - drop trivial literal
+         }
       }
    }
    PStackFree(stack);
