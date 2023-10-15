@@ -42,6 +42,10 @@ long countArray = 0;
 #ifdef MEASURE_TREE
 long countTree = 0;
 #endif
+
+#ifdef MEASURE_DELETE
+long countDelete = 0;
+#endif
 //DF-START
 
 /*---------------------------------------------------------------------*/
@@ -275,9 +279,19 @@ void IntMapFree(IntMap_p map)
          break;
    case IMArray:
          PDRangeArrFree(map->values.array);
+         //DF-START
+#ifdef MEASURE_DELETE
+         countDelete++;
+#endif
+         //DF-STOP
          break;
    case IMTree:
          NumTreeFree(map->values.tree);
+         //DF-START
+#ifdef MEASURE_DELETE
+         countDelete++;
+#endif
+         //DF-STOP
          break;
    default:
          assert(false && "Unknown IntMap type.");

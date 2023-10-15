@@ -112,6 +112,10 @@ extern long countArray;
 #ifdef MEASURE_TREE
 extern long countTree;
 #endif
+
+#ifdef MEASURE_DELETE
+extern long countDelete;
+#endif
 //DF-START
 
 

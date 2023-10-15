@@ -489,22 +489,26 @@ static void print_proof_stats(ProofState_p proofstate,
       fprintf(GlobalOut, "\n");
       fprintf(GlobalOut, "# Int invoked times                        : %ld\n",
               countInt);
-      fprintf(GlobalOut, "\n");
 #endif
 
 #ifdef MEASURE_ARRAY
-      fprintf(GlobalOut, "\n");
       fprintf(GlobalOut, "# Array invoked times                        : %ld\n",
               countArray);
-      fprintf(GlobalOut, "\n");
 #endif
 
 #ifdef MEASURE_TREE
-      fprintf(GlobalOut, "\n");
       fprintf(GlobalOut, "# Tree invoked times                        : %ld\n",
               countTree);
       fprintf(GlobalOut, "\n");
 #endif
+
+#ifdef MEASURE_DELETE
+      fprintf(GlobalOut, "\n");
+      fprintf(GlobalOut, "# Map deleted times                        : %ld\n",
+              countDelete);
+      fprintf(GlobalOut, "\n");
+#endif
+
       //DF-STOP
       // PDTreePrint(GlobalOut, proofstate->processed_pos_rules->demod_index);
    }
