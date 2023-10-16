@@ -222,7 +222,7 @@ PDRangeArr_p PDIntRangeArrAlloc(long idx, long grow)
 
    assert(grow >= 0);
 
-   handle->integer = false;
+   handle->integer = true;
    handle->offset = idx;
 
    handle->size  = grow?grow:1;
@@ -408,5 +408,3 @@ long PDRangeArrElementIncInt(PDRangeArr_p array, long idx, long value)
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-

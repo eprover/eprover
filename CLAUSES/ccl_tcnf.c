@@ -1713,7 +1713,7 @@ TFormula_p TFormulaExpandLiterals(TB_p terms, TFormula_p form)
       (form->args[0]->type == terms->sig->type_bank->bool_type))
    {
       // Don't expand real literals
-      if(form->args[1] != terms->true_term)
+      if(!TermIsFreeVar(form->args[0]) && form->args[1] != terms->true_term)
       {
          form = TFormulaFCodeAlloc(terms, terms->sig->equiv_code,
                                    form->args[0], form->args[1]);
