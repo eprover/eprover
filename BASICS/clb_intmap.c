@@ -278,20 +278,41 @@ void IntMapFree(IntMap_p map)
    case IMSingle:
          break;
    case IMArray:
+//DF-START
+#ifdef MEASURE_INTMAP_STATS
+         printf("# IntMap-Type: \t IMArray(%p)\n", map);
+         printf("# Executed function IntMapGetVal (IMArray %p): \t %d\n", map, map->countGetVal);
+         printf("# Executed function IntMapGetRef (IMArray %p): \t %d\n", map, map->countGetRef);
+         printf("# Executed function IntMapAssign (IMArray %p): \t %d\n", map, map->countAssign);
+         printf("# Executed function IntMapDelKey (IMArray %p): \t %d\n", map, map->countDelKey);
+#endif
+//DF-STOP
          PDRangeArrFree(map->values.array);
-         //DF-START
+//DF-START
 #ifdef MEASURE_DELETE
          countDelete++;
 #endif
-         //DF-STOP
+//DF-STOP
          break;
    case IMTree:
+//DF-START
+#ifdef MEASURE_INTMAP_STATS
+         //IntMap_p surrogate_map = &(map->values.tree);
+         printf("# IntMap-Type: \t IMTree(%p)\n", map);
+         printf("# Executed function IntMapGetVal (IMTree %p): \t %d\n", map, map->countGetVal);
+         printf("# Executed function IntMapGetRef (IMTree %p): \t %d\n", map, map->countGetRef);
+         printf("# Executed function IntMapAssign (IMTree %p): \t %d\n", map, map->countAssign);
+         printf("# Executed function IntMapDelKey (IMTree %p): \t %d\n", map, map->countDelKey);
+         //printf("# Nodes inside of Map (IMTree %p): \t %d\n", map->values.tree, NumTreeNodes(map->values.tree));
+#endif
+//DF-STOP
          NumTreeFree(map->values.tree);
-         //DF-START
+//DF-START
 #ifdef MEASURE_DELETE
          countDelete++;
 #endif
-         //DF-STOP
+//DF-STOP
+
          break;
    default:
          assert(false && "Unknown IntMap type.");
@@ -350,6 +371,13 @@ void* IntMapGetVal(IntMap_p map, long key)
    default:
          assert(false && "Unknown IntMap type.");
    }
+
+//DF-START
+#ifdef MEASURE_INTMAP_STATS
+   map->countGetVal++;
+#endif
+//DF-STOP
+
    return res;
 }
 
@@ -519,8 +547,16 @@ void** IntMapGetRef(IntMap_p map, long key)
    }
 
    assert(res);
+
+//DF-START
+#ifdef MEASURE_INTMAP_STATS
+   map->countGetRef++;
+#endif
+//DF-STOP
+
    return res;
 }
+
 
 
 /*-----------------------------------------------------------------------
@@ -543,6 +579,14 @@ void IntMapAssign(IntMap_p map, long key, void* value)
 
    ref  = IntMapGetRef(map, key);
    *ref = value;
+
+
+//DF-START
+#ifdef MEASURE_INTMAP_STATS
+   map->countAssign++;
+#endif
+//DF-STOP
+
 }
 
 
@@ -628,8 +672,16 @@ void* IntMapDelKey(IntMap_p map, long key)
          assert(false && "Unknown IntMap type.");
          break;
    }
+
+//DF-START
+#ifdef MEASURE_INTMAP_STATS
+   map->countDelKey++;
+#endif
+//DF-STOP
+
    return res;
 }
+
 
 /*-----------------------------------------------------------------------
 //

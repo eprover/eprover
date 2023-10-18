@@ -189,6 +189,19 @@ def string_select(input_string):
     sub_string_inv_tree = '# Tree invoked times'
     sub_string_deleted = '# Map deleted times'
 
+    sub_string_type_array = '# IntMap-Type: \\t IMArray'
+    sub_string_getval_array = '# Executed function IntMapGetVal (IMArray '
+    sub_string_getref_array = '# Executed function IntMapGetRef (IMArray '
+    sub_string_assign_array = '# Executed function IntMapAssign (IMArray '
+    sub_string_delkey_array = '# Executed function IntMapDelKey (IMArray '
+
+    sub_string_type_tree = '# IntMap-Type: \\t IMTree'
+    sub_string_getval_tree = '# Executed function IntMapGetVal (IMTree '
+    sub_string_getref_tree = '# Executed function IntMapGetRef (IMTree '
+    sub_string_assign_tree = '# Executed function IntMapAssign (IMTree '
+    sub_string_delkey_tree = '# Executed function IntMapDelKey (IMTree '
+    sub_string_nodes_tree = '# Nodes inside of Map (IMTree'
+
     if(sub_string_no_proof in input_string):
         return True
     elif(sub_string_found_proof in input_string):
@@ -202,6 +215,28 @@ def string_select(input_string):
     elif(sub_string_inv_tree in input_string):
         return True
     elif(sub_string_deleted in input_string):
+        return True
+    elif(sub_string_type_array in input_string):
+        return True
+    elif(sub_string_getval_array in input_string):
+        return True
+    elif(sub_string_getref_array in input_string):
+        return True
+    elif(sub_string_assign_array in input_string):
+        return True
+    elif(sub_string_delkey_array in input_string):
+        return True
+    elif(sub_string_type_tree in input_string):
+        return True
+    elif(sub_string_getval_tree in input_string):
+        return True
+    elif(sub_string_getref_tree in input_string):
+        return True
+    elif(sub_string_assign_tree in input_string):
+        return True
+    elif(sub_string_delkey_tree in input_string):
+        return True
+    elif(sub_string_nodes_tree in input_string):
         return True
     else:
         return False
@@ -279,7 +314,7 @@ for problem in problem_lst:
 
 print('../EXAMPLE_PROBLEMS/SMOKETEST/ALL_RULES.p')
 line = lines['../EXAMPLE_PROBLEMS/SMOKETEST/ALL_RULES.p']
-print(line)
+print(*line, sep='\n')
 """
 print(next((s for s in line if sub_string_inv_int in s), None))
 print(next((s for s in line if sub_string_inv_arr in s), None))
@@ -289,7 +324,7 @@ print(next((s for s in line if sub_string_deleted in s), None))
 
 print('../EXAMPLE_PROBLEMS/SMOKETEST/socrates.p')
 line = lines['../EXAMPLE_PROBLEMS/SMOKETEST/socrates.p']
-print(line)
+print(*line, sep='\n')
 """
 print(next((s for s in line if sub_string_inv_int in s), None))
 print(next((s for s in line if sub_string_inv_arr in s), None))

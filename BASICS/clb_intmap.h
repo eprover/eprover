@@ -69,6 +69,17 @@ typedef struct intmap_cell
                             * may be an overestimate, as we do not
                             * always correct this if a key is deleted
                             * from an array. */
+//DF-STOP
+#ifdef MEASURE_INTMAP_STATS
+   long countGetVal;       /* Count the times IntMapGetVal() is executed*/
+   long countGetRef;       /* Count the times IntMapGetRef() is executed*/
+   long countAssign;       /* Count the times IntMapAssign() is executed*/
+   long countDelKey;       /* Count the times IntMapDelKey() is executed*/
+#endif
+//DF-STOP
+/*
+ * bei Delete Zählen, ausgeben (printf) mit der Größe des jeweiligen Datentyps - benutze hierfür den Datentyp
+ */
    union
    {
       void*        value;   /* For IMSingle */
@@ -100,7 +111,7 @@ typedef long (*IntMapFreeFunc)(void *junk_node);
 /*---------------------------------------------------------------------*/
 
 
-//DF-STOP
+//DF-START
 #ifdef MEASURE_INT
 extern long countInt;
 #endif
@@ -116,7 +127,7 @@ extern long countTree;
 #ifdef MEASURE_DELETE
 extern long countDelete;
 #endif
-//DF-START
+//DF-STOP
 
 
 #define IntMapCellAlloc() (IntMapCell*)SizeMalloc(sizeof(IntMapCell))
@@ -129,7 +140,6 @@ void*    IntMapGetVal(IntMap_p map, long key);
 void**   IntMapGetRef(IntMap_p map, long key);
 void     IntMapAssign(IntMap_p map, long key, void* value);
 void*    IntMapDelKey(IntMap_p map, long key);
-
 
 #define IntMapIterCellAlloc() (IntMapIterCell*)SizeMalloc(sizeof(IntMapIterCell))
 #define IntMapIterCellFree(junk) SizeFree(junk, sizeof(IntMapIterCell))
