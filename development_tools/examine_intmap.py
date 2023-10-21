@@ -172,10 +172,10 @@ def build_list(eprover_path, eprover_options, problem_path):
 
 
 def string_select(input_string):
-    """xxxxxxxxxxxxxxx
+    """ Select the string according to searched pattern
 
     Args:
-        input_string: xxx
+        input_string: Given string from standard-input
     Returns:
         Boolean
     """
@@ -189,18 +189,30 @@ def string_select(input_string):
     sub_string_inv_tree = '# Tree invoked times'
     sub_string_deleted = '# Map deleted times'
 
-    sub_string_type_array = '# IntMap-Type: \\t IMArray'
-    sub_string_getval_array = '# Executed function IntMapGetVal (IMArray '
-    sub_string_getref_array = '# Executed function IntMapGetRef (IMArray '
-    sub_string_assign_array = '# Executed function IntMapAssign (IMArray '
-    sub_string_delkey_array = '# Executed function IntMapDelKey (IMArray '
+    sub_string_type = "# IntMap-Type: \\t "
+    sub_string_exec_func = "# Executed function "
+    sub_string_map_traits = "# Map-Traits "
+    sub_string_values_traits = "# Values-Traits "
+    sub_string_number_items = "# Number of items"
 
-    sub_string_type_tree = '# IntMap-Type: \\t IMTree'
-    sub_string_getval_tree = '# Executed function IntMapGetVal (IMTree '
-    sub_string_getref_tree = '# Executed function IntMapGetRef (IMTree '
-    sub_string_assign_tree = '# Executed function IntMapAssign (IMTree '
-    sub_string_delkey_tree = '# Executed function IntMapDelKey (IMTree '
-    sub_string_nodes_tree = '# Nodes inside of Map (IMTree'
+    sub_string_value_single = "# Value (IMSingle"
+
+    #sub_string_type_single = "# IntMap-Type: \\t IMSingle";
+    #sub_string_type_array = '# IntMap-Type: \\t IMArray'
+    #sub_string_getval_array = '# Executed function IntMapGetVal (IMArray '
+    #sub_string_getref_array = '# Executed function IntMapGetRef (IMArray '
+    #sub_string_assign_array = '# Executed function IntMapAssign (IMArray '
+    #sub_string_delkey_array = '# Executed function IntMapDelKey (IMArray '
+    #sub_string_nodes_array = '# Nodes inside of Map (IMArray'
+
+    #sub_string_type_tree = '# IntMap-Type: \\t IMTree'
+    #sub_string_getval_tree = '# Executed function IntMapGetVal (IMTree '
+    #sub_string_getref_tree = '# Executed function IntMapGetRef (IMTree '
+    #sub_string_assign_tree = '# Executed function IntMapAssign (IMTree '
+    #sub_string_delkey_tree = '# Executed function IntMapDelKey (IMTree '
+    #sub_string_nodes_tree = '# Nodes inside of Map (IMTree'
+
+    anzahl = '# Anzahl'
 
     if(sub_string_no_proof in input_string):
         return True
@@ -216,27 +228,19 @@ def string_select(input_string):
         return True
     elif(sub_string_deleted in input_string):
         return True
-    elif(sub_string_type_array in input_string):
+    elif(sub_string_type in input_string):
         return True
-    elif(sub_string_getval_array in input_string):
+    elif(sub_string_exec_func in input_string):
         return True
-    elif(sub_string_getref_array in input_string):
+    elif(sub_string_map_traits in input_string):
         return True
-    elif(sub_string_assign_array in input_string):
+    elif(sub_string_values_traits in input_string):
         return True
-    elif(sub_string_delkey_array in input_string):
+    elif(sub_string_number_items in input_string):
         return True
-    elif(sub_string_type_tree in input_string):
+    elif(sub_string_value_single in input_string):
         return True
-    elif(sub_string_getval_tree in input_string):
-        return True
-    elif(sub_string_getref_tree in input_string):
-        return True
-    elif(sub_string_assign_tree in input_string):
-        return True
-    elif(sub_string_delkey_tree in input_string):
-        return True
-    elif(sub_string_nodes_tree in input_string):
+    elif(anzahl in input_string):
         return True
     else:
         return False
@@ -300,7 +304,13 @@ eprover_options = select_options()
 
 
 for problem in problem_lst:
-    if(problem == '../EXAMPLE_PROBLEMS/SMOKETEST/ALL_RULES.p' or problem == '../EXAMPLE_PROBLEMS/SMOKETEST/socrates.p'):
+    if(#problem == '../EXAMPLE_PROBLEMS/SMOKETEST/ALL_RULES.p' or problem == '../EXAMPLE_PROBLEMS/SMOKETEST/socrates.p'
+       #or problem == '../EXAMPLE_PROBLEMS/SMOKETEST/BOO020-1.p' #or
+       problem == '../EXAMPLE_PROBLEMS/TPTP/BOO006-1.p'
+       #or problem == '../EXAMPLE_PROBLEMS/SMOKETEST/GROUP1st.p' or problem == '../EXAMPLE_PROBLEMS/SMOKETEST/LUSK6.lop'
+       #or problem == '../EXAMPLE_PROBLEMS/TPTP/BOO010-2.p' or problem == '../EXAMPLE_PROBLEMS/SMOKETEST/LUSK6ext.lop'
+       #or problem == '../EXAMPLE_PROBLEMS/SMOKETEST/ans_test06.p' or problem == '../EXAMPLE_PROBLEMS/SMOKETEST/CNFTest.p'
+       ):
         #statement_lst = build_list(eprover_path, eprover_options, problem)
         statement_lst = []
         statement_lst.append(eprover_path)
@@ -310,11 +320,54 @@ for problem in problem_lst:
 
 
 
-
-
+"""
 print('../EXAMPLE_PROBLEMS/SMOKETEST/ALL_RULES.p')
 line = lines['../EXAMPLE_PROBLEMS/SMOKETEST/ALL_RULES.p']
 print(*line, sep='\n')
+
+print('../EXAMPLE_PROBLEMS/SMOKETEST/socrates.p')
+line = lines['../EXAMPLE_PROBLEMS/SMOKETEST/socrates.p']
+print(*line, sep='\n')
+
+
+print('../EXAMPLE_PROBLEMS/SMOKETEST/ans_test06.p')
+line = lines['../EXAMPLE_PROBLEMS/SMOKETEST/ans_test06.p']
+print(*line, sep='\n')
+
+print('../EXAMPLE_PROBLEMS/SMOKETEST/CNFTest.p')
+line = lines['../EXAMPLE_PROBLEMS/SMOKETEST/CNFTest.p']
+print(*line, sep='\n')
+"""
+
+print('../EXAMPLE_PROBLEMS/SMOKETEST/BOO020-1.p')
+line = lines['../EXAMPLE_PROBLEMS/SMOKETEST/BOO020-1.p']
+print(*line, sep='\n')
+
+
+#print('../EXAMPLE_PROBLEMS/TPTP/BOO006-1.p')
+#line = lines['../EXAMPLE_PROBLEMS/TPTP/BOO006-1.p']
+#print(*line, sep='\n')
+
+#print('../EXAMPLE_PROBLEMS/SMOKETEST/GROUP1st.p')
+#line = lines['../EXAMPLE_PROBLEMS/SMOKETEST/GROUP1st.p']
+#print(*line, sep='\n')
+
+#print('../EXAMPLE_PROBLEMS/SMOKETEST/LUSK6.lop')
+#line = lines['../EXAMPLE_PROBLEMS/SMOKETEST/LUSK6.lop']
+#print(*line, sep='\n')
+
+#print('../EXAMPLE_PROBLEMS/SMOKETEST/LUSK6ext.lop')
+#line = lines['../EXAMPLE_PROBLEMS/SMOKETEST/LUSK6ext.lop']
+#print(*line, sep='\n')
+
+#print('../EXAMPLE_PROBLEMS/TPTP/BOO010-2.p')
+#line = lines['../EXAMPLE_PROBLEMS/TPTP/BOO010-2.p']
+#print(*line, sep='\n')
+
+
+
+
+
 """
 print(next((s for s in line if sub_string_inv_int in s), None))
 print(next((s for s in line if sub_string_inv_arr in s), None))
@@ -322,9 +375,6 @@ print(next((s for s in line if sub_string_inv_tree in s), None))
 print(next((s for s in line if sub_string_deleted in s), None))
 """
 
-print('../EXAMPLE_PROBLEMS/SMOKETEST/socrates.p')
-line = lines['../EXAMPLE_PROBLEMS/SMOKETEST/socrates.p']
-print(*line, sep='\n')
 """
 print(next((s for s in line if sub_string_inv_int in s), None))
 print(next((s for s in line if sub_string_inv_arr in s), None))
@@ -359,101 +409,4 @@ for b_file in exec_files:
     os.execl( b_file, ' -e ')
     #os.system('.' + b_file)
 """
-"""
-function process_result(job,    file, tmp,  time, status, reason, name)
-{
-   time = time_limit;
-   status = "F";
-   reason = "unknown";
-   file = cwd "/__prvout__" procid "_" global_hostname "__";
-   name = job;
-   processed = 0;
-   generated = 0;
-   rewrite_steps = 0;
-   shared_terms = 0;
-   raw_terms = 0;
-   r_matches = 0;
-   e_matches = 0;
-   literals = 0;
-   gen_literals = 0;
 
-   while((getline tmp < file)>0)
-   {
-      if(index(tmp, "# No proof found!"))
-      {
-	 status = "N";
-	 reason = "success";
-      }
-      else if(index(tmp, "# Proof found!"))
-      {
-	 status = "T";
-	 reason = "success";
-      }
-      else if(index(tmp, "# Failure: Out of unprocessed clauses!"))
-      {
-	 status = "F";
-	 reason = "incomplete";
-      }
-      else if(index(tmp, "# Failure: Resource limit exceeded (memory)"))
-      {
-	 reason = "maxmem ";
-      }
-      else if(index(tmp, "# Failure: Resource limit exceeded (time)"))
-      {
-	 reason = "maxtime ";
-      }
-      else if(index(tmp, "# Failure: User resource limit exceeded"))
-      {
-	 reason = "maxres";
-      }
-      else if(index(tmp, "# Processed clauses                    :"))
-      {
-	 processed = substr(tmp, 42);
-      }
-      else if(index(tmp, "# Generated clauses                    :"))
-      {
-	 generated = substr(tmp, 42);
-      }
-      else if(index(tmp, "# Shared term nodes                    :"))
-      {
-	 shared_terms = substr(tmp, 42);
-      }
-      else if(index(tmp, "# ...corresponding unshared nodes      :"))
-      {
-	 raw_terms = substr(tmp, 42);
-      }
-      else if(index(tmp, "# ...number of literals in the above   :"))
-      {
-	 literals = substr(tmp, 42);
-      }
-      else if(index(tmp, "# Shared rewrite steps                 :"))
-      {
-	 rewrite_steps = substr(tmp, 42);
-      }
-      else if(index(tmp, "# Match attempts with oriented units   :"))
-      {
-	 r_matches = substr(tmp, 42);
-      }
-      else if(index(tmp, "# Match attempts with unoriented units :"))
-      {
-	 e_matches = substr(tmp, 42);
-      }
-      else if(index(tmp, "# Total literals in generated clauses  :"))
-      {
-	 gen_literals = substr(tmp, 42);
-      }
-      else if(index(tmp, "# Total time"))
-      {
-	 time = substr(tmp, 30);
-      }
-   }
-   close(file);
-   printf("%-29s " status " %8.3f  %-10s %10d %10d %10d %10d %10d %10d %10d %10d %10d\n", \
-	  name, 0+time, reason, generated, processed,shared_terms,raw_terms,\
-	  rewrite_steps, r_matches, e_matches, gen_literals,literals) >> logfile;
-   printf("%-29s " status " %8.3f  %-10s\n", \
-	  name, 0+time, reason);
-   system("rm " file);
-}
-
-"""
