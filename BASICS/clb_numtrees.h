@@ -75,6 +75,8 @@ NumTree_p NumTreeExtractRoot(NumTree_p *root);
 bool      NumTreeDeleteEntry(NumTree_p *root, long key);
 long      NumTreeNodes(NumTree_p root);
 NumTree_p NumTreeMaxNode(NumTree_p root);
+
+//long     countLeaves(NumTree_p *whole_tree);
 #define   NumTreeMaxKey(tree) (NumTreeMaxNode(tree)->key)
 
 PStack_p NumTreeLimitedTraverseInit(NumTree_p root, long limit);

@@ -502,6 +502,39 @@ long NumTreeNodes(NumTree_p root)
 }
 
 
+//DF-START
+/*-----------------------------------------------------------------------
+//
+//  Function: countLeaves()
+//
+//  Count the amount of leaves inside the binary tree
+//
+//  Global Variables: -
+//
+//  Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+/*----------------------------------------------------------------------
+long countLeaves(NumTree_p *whole_tree) {
+    long a, b;
+    NumTree_p w_tree = *whole_tree;
+
+    //Return 0 if the pointer is empty
+    if(w_tree == NULL) {
+        return 0;
+    }
+
+    //Get down the branches and save the returned value inside a and b
+    a = countLeaves(&(w_tree->rson));
+    b = countLeaves(&(w_tree->lson));
+
+    return a+b+1;
+}
+/----------------------------------------------------------------------*/
+//DF-STOP
+
+
+
 /*-----------------------------------------------------------------------
 //
 // Function: NumTreeMaxNode()

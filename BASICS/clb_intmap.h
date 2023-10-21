@@ -69,7 +69,7 @@ typedef struct intmap_cell
                             * may be an overestimate, as we do not
                             * always correct this if a key is deleted
                             * from an array. */
-//DF-STOP
+//DF-START
 #ifdef MEASURE_INTMAP_STATS
    long countGetVal;       /* Count the times IntMapGetVal() is executed*/
    long countGetRef;       /* Count the times IntMapGetRef() is executed*/
