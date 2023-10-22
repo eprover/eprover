@@ -8,7 +8,7 @@ Contents
 
   Define global macro for version number and meta-information.
 
-  Copyright 2009-2022 by the authors (see DOC/CONTRIBUTORS).
+  Copyright 2009-2023 by the authors (see DOC/CONTRIBUTORS).
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
@@ -21,7 +21,6 @@ Contents
 #define E_VERSION
 
 
-
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
 /*---------------------------------------------------------------------*/
@@ -32,9 +31,9 @@ Contents
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-/* git tag E-3.1pre001 */
+/* git tag E-3.1pre002 */
 
-#define PVERSION      "3.1pre001"
+#define PVERSION      "3.1pre002"
 
 #include "e_gitcommit.h"
 

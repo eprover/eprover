@@ -1670,7 +1670,6 @@ TFormula_p TFormulaNegAlloc(TB_p terms, TFormula_p form)
 //   - Make all negation signs explicit  - $neqn(a,b)=> ~$eqn(a,b)
 //   - Expand literals with Boolean operands - $eqn(x,y) => x <=> y.
 //
-//
 //   This is used before FOOL-Unrolling, to clearly identify Boolean
 //   positions and make sure that unrolling happens at the right
 //   polarity.
@@ -1728,6 +1727,7 @@ TFormula_p TFormulaExpandLiterals(TB_p terms, TFormula_p form)
    return form;
 }
 
+#ifdef NEVER_DEFINED
 /*-----------------------------------------------------------------------
 //
 // Function: TFormulaReEncodeLiterals()
@@ -1743,10 +1743,9 @@ TFormula_p TFormulaExpandLiterals(TB_p terms, TFormula_p form)
 
 TFormula_p TFormulaReEncodeLiterals(TB_p terms, TFormula_p form)
 {
-
    return form;
 }
-
+#endif
 
 /*-----------------------------------------------------------------------
 //
