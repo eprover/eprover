@@ -1718,7 +1718,8 @@ TFormula_p TFormulaExpandLiterals(TB_p terms, TFormula_p form)
          form = TFormulaFCodeAlloc(terms, terms->sig->equiv_code,
                                    form->args[0], form->args[1]);
       }
-      else if(form->args[0]->f_code < terms->sig->internal_symbols)
+      else if(!TermIsFreeVar(form->args[0]) &&
+              (form->args[0]->f_code < terms->sig->internal_symbols))
       {
          form = form->args[1];
       }
