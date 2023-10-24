@@ -2457,8 +2457,6 @@ TFormula_p TFormulaShiftQuantors2(TB_p terms, TFormula_p form)
 }
 
 
-
-
 /*-----------------------------------------------------------------------
 //
 // Function: TFormulaDistributeDisjunctions()

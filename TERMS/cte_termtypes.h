@@ -237,10 +237,10 @@ typedef Term_p (*TermMapper_p)(void*, Term_p);
 #define TermIsFreeVar(t) ((t)->f_code < 0)
 #define TermIsConst(t)(!TermIsAnyVar(t) && ((t)->arity==0))
 #define TermHasEqNeq(t)(QueryProp((t), (TPHasEqNeqSym)))
+#define TermHasBoolSubterm(t)(QueryProp((t), (TPHasBoolSubterm)))
 
 #ifdef ENABLE_LFHO
 #define TermIsDBVar(term) (QueryProp((term), (TPIsDBVar)))
-#define TermHasBoolSubterm(t)(QueryProp((t), (TPHasBoolSubterm)))
 #define TermIsPhonyApp(term) (!TermIsDBVar(term) && (term)->f_code == SIG_PHONY_APP_CODE)
 #define TermIsAppliedFreeVar(term) (!TermIsDBVar(term) && (term)->f_code == SIG_PHONY_APP_CODE && \
                                     TermIsFreeVar((term)->args[0]))
@@ -267,7 +267,6 @@ typedef Term_p (*TermMapper_p)(void*, Term_p);
 #else
 #define TermIsPhonyApp(term) (false)
 #define TermIsAppliedFreeVar(term) (false)
-#define TermHasBoolSubterm(t)(false)
 #define TermIsAppliedDBVar(term) (false)
 #define TermIsAppliedAnyVar(term) (false)
 #define TermIsDBLambda(term) (false)
