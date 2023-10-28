@@ -1,0 +1,11 @@
+#!/bin/tcsh
+
+tar xzvf E.tgz
+cd E
+./configure --prefix=".."
+make
+make install
+./configure --enable-ho --prefix=".."
+make rebuild
+make install
+cp etc/STAREXEC3.0/starexec_run* ../bin

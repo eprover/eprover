@@ -13,7 +13,7 @@
 #
 #------------------------------------------------------------------------
 
-.PHONY: all depend remove_links clean cleandist default_config debug_config distrib fulldistrib top links tags rebuild install config remake documentation E man
+.PHONY: all depend remove_links clean cleandist default_config debug_config distrib fulldistrib top links tags rebuild install config remake documentation E man starexec starexec-src
 
 include Makefile.vars
 
@@ -111,6 +111,26 @@ starexec:
 	cp etc/STAREXEC3.0/starexec_run* $(STAREXECPATH)/bin
 	$(eval E_VERSION=`$$(STAREXECPATH)/bin/eprover --version | cut -d' ' -f1-2| sed -e 's/ /-/'`)
 	cd $(STAREXECPATH); zip -r $(E_VERSION).zip bin man
+
+starexec-src:
+	echo $(STAREXECPATH)
+	rm -rf $(STAREXECPATH)
+	mkdir $(STAREXECPATH)
+	find . -name ".#*"  -exec rm {} \;
+	make distrib
+	cp ../E.tgz $(STAREXECPATH)
+	make clean
+	./configure --bindir="."
+	make
+	./configure --prefix=$(STAREXECPATH)
+	make install
+
+	cp etc/STAREXEC3.0/starexec_run* $(STAREXECPATH)/bin
+	cp etc/starexec_build $(STAREXECPATH)
+	$(eval E_VERSION=`$$(STAREXECPATH)/bin/eprover --version | cut -d' ' -f1-2| sed -e 's/ /-/'`)
+	cd $(STAREXECPATH); zip -r $(E_VERSION)_src.zip bin man
+
+
 
 # Make all library parts
 top: E
