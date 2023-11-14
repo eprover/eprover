@@ -2001,25 +2001,35 @@ This is the announcement for E 3.0
 From: schulz@eprover.org (Stephan Schulz)
 Subject: E Equational Theorem Prover 3.0 "Shangri-La" available
 
-After a long integration phase, we have finally ironed out all
+After a long integration phase, we have finally ironed out all known
 problems and bugs in E, in particular the integration of support for
-the TFX and TF0 logic, thus allowing reasoning in higher-order logic.
+the TFX and TF0 logics, allowing reasoning in higher-order logic.
 
-E 3.3 "Shangri-La" is an automated theorem prover for many-sorted
+E 3.0 "Shangri-La" is an automated theorem prover for many-sorted
 first-order and monomorphic higher-order logic with equality.  It has
 successfully competed in several CASC competitions and is generally
 considered a friendly and powerful system (as automated theorem
 provers go). E has won the "overall best system" special award at
-CASC-J5 and the CNF category at CASC-23. It won the UEQ at CASC-27,
-both UEQ and LTB at CASC-J10 in 2020, and SLH in both 2022 and
-2023. It also is used a component in several other winning and
-high-scoring systems.
+CASC-J5 and the CNF category at CASC-23. It won UEQ at CASC-27, both
+UEQ and LTB at CASC-J10 in 2020, and SLH in both 2022 and 2023. It
+also is used a component in several other winning and high-scoring
+systems.
 
 The main changes compared to the previous version are support for full
 higher-order logic (largely thanks to Petar Vukmirovic), and a much
 improved multi-core scheduler and automatic schedule modes. In
 relation to the pre-release versions competing in CASC, the system now
 should be a lot more stable.
+
+Several people have contributed to this release. As mentioned, most of
+the new functionality is due to Petar. Particular thanks goes to
+Jasmin Blanchette, who co-supervised Petar and also found some
+critical bugs. Similarly, Geoff Sutcliffe reported some bugs, and did
+so following the suggestions in the README file. Finally, Josef Urban
+and the gang in Prague reported several bugs, and also helped fixing
+them. Among these, Chad Brown was incredibly helpful fixing one of the
+deeper problems with typing. I probably forgot other contributions -
+sorry, a big thanks to all unlisted supporters!
 
 E is available as a source distribution for UNIX-like systems.
 Historically, it installed cleanly under all UNIX variants I could get
@@ -2030,7 +2040,7 @@ have also reported successful builds on a large number of other
 operating systems, including Windows/Cygwin.
 
 You can find installation instructions in the README file. Building
-the prover with LFHO-support is as easy as
+the prover with HO-support is as easy as
 
     ./configure --enable-ho
     make
