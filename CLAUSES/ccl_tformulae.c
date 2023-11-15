@@ -1525,6 +1525,16 @@ void TFormulaTPTPPrint(FILE* out, TB_p bank, TFormula_p form, bool fullterms, bo
       EqnFOFPrint(out, tmp, form->f_code == bank->sig->neqn_code, fullterms, pcl);
       EqnFree(tmp);
    }
+   else if(TermIsFreeVar(form))
+   {
+      TermPrint(out, form, bank->sig, DEREF_NEVER);
+   }
+   else if(form->f_code == SIG_PHONY_APP_CODE)
+   {
+      fprintf(out, "(");
+      TermPrint(out, form, bank->sig, DEREF_NEVER);
+      fprintf(out, ")");
+   }
    else if(TFormulaIsQuantified(bank->sig,form))
    {
       if(form->arity==2)
@@ -1968,6 +1978,10 @@ bool TFormulaVarIsFree(TB_p bank, TFormula_p form, Term_p var)
    if(!form->v_count)
    {
       return false;
+   }
+   if(form==var)
+   {
+      return true;
    }
    if(TFormulaIsLiteral(bank->sig, form))
    {

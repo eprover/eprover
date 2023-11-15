@@ -34,8 +34,8 @@
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
 /*---------------------------------------------------------------------*/
-TFormula_p do_simplify_decoded(TB_p terms, TFormula_p form, bool unroll_implications);
 
+TFormula_p do_simplify_decoded(TB_p terms, TFormula_p form, bool unroll_implications);
 
 /*---------------------------------------------------------------------*/
 /*                         Internal Functions                          */
@@ -958,6 +958,18 @@ static Term_p simplify_args(TB_p bank, Term_p t, bool unroll_implications)
    }
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function:
+//
+//
+//
+// Global Variables:
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+
 // lifted function that cannot be declared locally (anonymously)
 static int term_compare(const void* v1, const void* v2)
 {
@@ -967,6 +979,18 @@ static int term_compare(const void* v1, const void* v2)
 
    return res;
 }
+
+/*-----------------------------------------------------------------------
+//
+// Function:
+//
+//
+//
+// Global Variables:
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
 
 TFormula_p do_simplify_decoded(TB_p terms, TFormula_p form, bool unroll_implications)
 {
