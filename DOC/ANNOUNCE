@@ -2025,11 +2025,12 @@ Several people have contributed to this release. As mentioned, most of
 the new functionality is due to Petar. Particular thanks goes to
 Jasmin Blanchette, who co-supervised Petar and also found some
 critical bugs. Similarly, Geoff Sutcliffe reported some bugs, and did
-so following the suggestions in the README file. Finally, Josef Urban
-and the gang in Prague reported several bugs, and also helped fixing
+so following the suggestions in the README file! Josef Urban and the
+gang in Prague reported several bugs, and also helped fixing
 them. Among these, Chad Brown was incredibly helpful fixing one of the
-deeper problems with typing. I probably forgot other contributions -
-sorry, a big thanks to all unlisted supporters!
+deeper problems with typing. Finally, Martin Desharnais found a
+critical bug just before the release. I probably forgot other
+contributions - sorry, a big thanks to all unlisted supporters!
 
 E is available as a source distribution for UNIX-like systems.
 Historically, it installed cleanly under all UNIX variants I could get
