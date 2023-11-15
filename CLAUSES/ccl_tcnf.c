@@ -1271,6 +1271,10 @@ long TFormulaEstimateClauses(TB_p bank, TFormula_p form, bool pos)
    {
       return 1;
    }
+   if(TermIsAppliedFreeVar(form))
+   {
+      return 1;
+   }
    if(pos)
    {
       if(form->f_code == bank->sig->and_code)
@@ -1592,6 +1596,7 @@ TFormula_p TFormulaCopyDef(TB_p bank, TFormula_p form, long blocked,
    long      realdef;
 
    if(TFormulaIsLiteral(bank->sig, form) ||
+      TermIsAppliedFreeVar(form) ||
       TypeIsArrow(form->type) ||
       TermIsTrueTerm(form) ||
       TermIsFalseTerm(form))
@@ -1720,7 +1725,8 @@ TFormula_p TFormulaExpandLiterals(TB_p terms, TFormula_p form)
       else if(!TermIsFreeVar(form->args[0]) &&
               (form->args[0]->f_code < terms->sig->internal_symbols))
       {
-         form = form->args[1];
+         assert(form->args[1] == terms->true_term);
+         form = form->args[0];
       }
    }
 
@@ -2039,6 +2045,10 @@ TFormula_p TFormulaNNF(TB_p terms, TFormula_p form, int polarity)
       else if(TermIsFalseTerm(form))
       {
          form = TFormulaFCodeAlloc(terms, terms->sig->neqn_code, form, form);
+      }
+      else if(TermIsAppliedFreeVar(form))
+      {
+         form = TFormulaFCodeAlloc(terms, terms->sig->eqn_code, form, terms->true_term);
       }
       else
       {

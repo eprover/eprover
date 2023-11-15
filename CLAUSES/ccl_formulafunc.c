@@ -1606,13 +1606,13 @@ long FormulaSetSimplify(FormulaSet_p set, TB_p terms, bool do_garbage_collect)
    handle = set->anchor->succ;
    while (handle != set->anchor)
    {
-      // printf("Simplifying: \n");
-      // WFormulaPrint(stdout, handle, true);
-      // printf("\n");
+      //printf("Simplifying: \n");
+      //WFormulaPrint(stdout, handle, true);
+      //printf("\n");
       changed = WFormulaSimplify(handle, terms);
-      // printf("Simplified %d\n", changed);
-      // WFormulaPrint(stdout, handle, true);
-      // printf("\n");
+      //printf("Simplified %d\n", changed);
+      //WFormulaPrint(stdout, handle, true);
+      //printf("\n");
       if (changed)
       {
          res++;
