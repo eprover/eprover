@@ -128,7 +128,7 @@ starexec-src:
 	cp etc/STAREXEC3.0/starexec_run* $(STAREXECPATH)/bin
 	cp etc/starexec_build $(STAREXECPATH)
 	$(eval E_VERSION=`$$(STAREXECPATH)/bin/eprover --version | cut -d' ' -f1-2| sed -e 's/ /-/'`)
-	cd $(STAREXECPATH); zip -r $(E_VERSION)_src.zip bin man
+	cd $(STAREXECPATH); zip -r $(E_VERSION)_src.zip bin man E.tgz starexec_build
 
 
 
