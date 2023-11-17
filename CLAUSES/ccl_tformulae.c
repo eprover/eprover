@@ -1983,11 +1983,7 @@ bool TFormulaVarIsFree(TB_p bank, TFormula_p form, Term_p var)
    {
       return true;
    }
-   if(TFormulaIsLiteral(bank->sig, form))
-   {
-      res = TBTermIsSubterm(form, var);
-   }
-   else if((form->f_code == bank->sig->qex_code) ||
+   if((form->f_code == bank->sig->qex_code) ||
            (form->f_code == bank->sig->qall_code))
    {
       if(form->args[0] == var)

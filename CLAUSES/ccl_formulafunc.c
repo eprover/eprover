@@ -494,7 +494,9 @@ PTree_p create_sym_map(FormulaSet_p set, IntMap_p sym_def_map, bool unfold_only_
       for (long i = 0; is_def && i < lhs_body->arity; i++)
       {
          Term_p arg = lhs_body->args[i];
-         if (arg->f_code == sig->eqn_code && arg->arity == 2 && arg->args[1] == bank->true_term)
+         if (arg->f_code == sig->eqn_code &&
+             arg->arity == 2 &&
+             arg->args[1] == bank->true_term)
          {
             arg = arg->args[0];
          }
@@ -956,8 +958,6 @@ TFormula_p do_fool_unroll(TFormula_p form, TB_p terms)
    }
    return form;
 }
-
-
 
 
 /*-----------------------------------------------------------------------

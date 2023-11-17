@@ -75,7 +75,7 @@ Version 2.2 -> 2.3pre Gielle
 
 - Merged support for lambda-free higher-order logic.
 - Improved fingerprint indexing by excluding one more subcase for
-  finging instances
+  finding instances
 
 Version 2.1 -> 2.2 Thurbo Moonlight
 
