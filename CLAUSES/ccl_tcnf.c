@@ -1715,6 +1715,10 @@ TFormula_p TFormulaExpandLiterals(TB_p terms, TFormula_p form)
    TFormula_p handle, arg;
    bool changed = false;
 
+   /* printf("TFormulaExpandLiterals ["); */
+   /* TermPrettyPrintSimple(stdout, form, terms->sig, 0); */
+   /* printf(" ]\n"); */
+
    if(form->f_code == terms->sig->neqn_code)
    {
       handle = TermTopCopy(form);
@@ -1737,7 +1741,8 @@ TFormula_p TFormulaExpandLiterals(TB_p terms, TFormula_p form)
    {
       TermTopFree(handle);
    }
-   if((form->f_code == terms->sig->eqn_code) &&
+   if((form->arity==2)&&
+      (form->f_code == terms->sig->eqn_code) &&
       (form->args[0]->type == terms->sig->type_bank->bool_type))
    {
       // Don't expand real literals
@@ -1753,7 +1758,6 @@ TFormula_p TFormulaExpandLiterals(TB_p terms, TFormula_p form)
          form = form->args[0];
       }
    }
-
    return form;
 }
 

@@ -580,8 +580,8 @@ static inline Term_p TermTopCopyWithoutArgs(restrict Term_p source)
    {
       handle->arity = source->arity;
    }
-
-   TermSetBank(handle, TermGetBank(source));
+   //TermSetBank(handle, TermGetBank(source));
+   TermSetBank(handle,0);
 
    return handle;
 }

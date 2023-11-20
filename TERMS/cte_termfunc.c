@@ -967,9 +967,9 @@ void TermPrettyPrintSimple(FILE* out, Term_p term, Sig_p sig, int level)
    else
    {
       fputs(SigFindName(sig, term->f_code), out);
-      if(!TermIsConst(term))
+      if(term->arity)
       {
-         assert(term->args);
+         //assert(term->args);
          assert(term->arity>=1);
          if(TermIsFlat(term))
          {

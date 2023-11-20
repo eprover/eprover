@@ -357,6 +357,10 @@ static inline int SigFindArity(Sig_p sig, FunCode f_code)
 
 static inline char*  SigFindName(Sig_p sig, FunCode f_code)
 {
+   if(!f_code)
+   {
+      return "UNNAMED_DB";
+   }
    assert(f_code > 0);
    assert(f_code <= sig->f_count);
 
