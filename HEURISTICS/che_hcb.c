@@ -173,7 +173,7 @@ void HeuristicParmsInitialize(HeuristicParms_p handle)
    handle->add_goal_defs_neg             = false;
    handle->add_goal_defs_subterms        = false;
 
-   handle->heuristic_name                = HCB_DEFAULT_HEURISTIC;
+   handle->heuristic_name                = SecureStrdup(HCB_DEFAULT_HEURISTIC);
    handle->heuristic_def                 = NULL;
    handle->prefer_initial_clauses        = false;
 
@@ -319,19 +319,21 @@ void HeuristicParmsFree(HeuristicParms_p junk)
 {
    assert(junk);
 
-   junk->heuristic_name = NULL;
+   if(junk->heuristic_name)
+   {
+      FREE(junk->heuristic_name);
+      junk->heuristic_name = NULL;
+   }
    if(junk->sine)
    {
       FREE(junk->sine);
+      junk->sine = NULL;
    }
    if(junk->heuristic_def)
    {
       FREE(junk->heuristic_def);
       junk->heuristic_def = NULL;
    }
-   /* PStackFree(junk->wfcb_definitions);
-      PStackFree(junk->hcb_definitions);*/
-
    HeuristicParmsCellFree(junk);
 }
 
@@ -491,10 +493,10 @@ void HeuristicParmsPrint(FILE* out, HeuristicParms_p handle)
            EIT2STR(handle->neg_ext));
    fprintf(out, "   pos_ext:                        %s\n",
            EIT2STR(handle->pos_ext));
-   
+
    fprintf(out, "   ext_rules_max_depth:            %d\n",
            handle->ext_rules_max_depth);
-      
+
    fprintf(out, "   inverse_recognition:            %s\n",
            BOOL2STR(handle->inverse_recognition));
    fprintf(out, "   replace_inj_defs:               %s\n",
@@ -570,7 +572,7 @@ bool HeuristicParmsParseInto(Scanner_p in,
    bool res = true;
 
    AcceptInpTok(in, OpenCurly);
-   
+
    if(TestInpTok(in, OpenCurly))
    {
       res = OrderParmsParseInto(in, &(handle->order_params), warn_missing);
@@ -583,7 +585,7 @@ bool HeuristicParmsParseInto(Scanner_p in,
    PARSE_BOOL(no_preproc);
    PARSE_INT(eqdef_maxclauses);
    PARSE_INT(eqdef_incrlimit);
-   
+
    PARSE_INT(formula_def_limit);
    PARSE_STRING(sine);
 
@@ -594,7 +596,7 @@ bool HeuristicParmsParseInto(Scanner_p in,
    // temporarily ignoring BCE AND PE SETTINGS.
 //    PARSE_BOOL(bce);
 //    PARSE_INT(bce_max_occs);
-   
+
 //    PARSE_BOOL(pred_elim);
 //    PARSE_BOOL(pred_elim_gates);
 //    PARSE_INT(pred_elim_max_occs);

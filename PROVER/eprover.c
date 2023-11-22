@@ -271,7 +271,7 @@ static void print_info(void)
 //   Write and/or read the search strategy parameters. Moved here to
 //   declutter main.
 //
-// Global Variables: hparms
+// Global Variables: -
 //
 // Side Effects    : I/O, may change h_parms, may terminate the
 //                   program (if print_strategy is set).
@@ -521,7 +521,7 @@ int main(int argc, char* argv[])
       parsed_ax_no,
       relevancy_pruned = 0;
    double           preproc_time;
-   SpecLimits_p limits = NULL;
+   SpecLimits_p spec_limits = NULL;
    RawSpecFeatureCell raw_features;
    SpecFeatureCell features;
    int sched_idx;
@@ -552,7 +552,6 @@ int main(int argc, char* argv[])
 
    print_info();
 
-
    proofstate = parse_spec(state, parse_format,
                            error_on_empty, free_symb_prop,
                            &parsed_ax_no);
@@ -563,14 +562,13 @@ int main(int argc, char* argv[])
       TSTPOUT(GlobalOut, "Unknown");
       goto cleanup1;
    }
-
    wc_sched_limit = ScheduleTimeLimit ? ScheduleTimeLimit : DEFAULT_SCHED_TIME_LIMIT;
    if(auto_conf || strategy_scheduling)
    {
       sched_idx = handle_auto_modes_preproc(proofstate,
                                             h_parms,
                                             &preproc_schedule,
-                                            &limits,
+                                            &spec_limits,
                                             &raw_features,
                                             wc_sched_limit);
       CLStateFree(state);
@@ -651,7 +649,6 @@ int main(int argc, char* argv[])
    {
       VERBOUT("CNFization done\n");
    }
-
    raw_clause_no = proofstate->axioms->members;
    ProofStateLoadWatchlist(proofstate, watchlist_filename, parse_format);
 
@@ -708,12 +705,11 @@ int main(int argc, char* argv[])
                            h_parms, proofstate->terms,
                            proofstate->tmp_terms, proofstate->freshvars);
    }
-
    if((strategy_scheduling && sched_idx != -1) || auto_conf)
    {
-      if(!limits)
+      if(!spec_limits)
       {
-         limits = CreateDefaultSpecLimits();
+         spec_limits = CreateDefaultSpecLimits();
       }
       const int choice_max_depth = h_parms->inst_choice_max_depth;
       SpecFeaturesCompute(&features, proofstate->axioms, proofstate->f_axioms,
@@ -724,7 +720,7 @@ int main(int argc, char* argv[])
       features.goal_order = raw_features.conj_order;
       features.num_of_definitions = raw_features.num_of_definitions;
       features.perc_of_form_defs = raw_features.perc_of_form_defs;
-      SpecFeaturesAddEval(&features, limits);
+      SpecFeaturesAddEval(&features, spec_limits);
       char* class = SpecTypeString(&features, DEFAULT_MASK);
       fprintf(stdout, "# Search class: %s\n", class);
       if (strategy_scheduling)
@@ -782,16 +778,13 @@ int main(int argc, char* argv[])
       FREE(class);
       CLStateFree(state);
       state = process_options(argc, argv); // refilling the h_parms with user options
-      //h_parms->heuristic_name = h_parms->heuristic_def;
    }
-
    strategy_io(h_parms, hcb_definitions);
 
-   if(limits)
+   if(spec_limits)
    {
-      SpecLimitsCellFree(limits);
+      SpecLimitsCellFree(spec_limits);
    }
-
    proofcontrol = ProofControlAlloc();
    ProofControlInit(proofstate, proofcontrol, h_parms,
                     fvi_parms, wfcb_definitions, hcb_definitions);
@@ -1400,8 +1393,8 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_AUTO:
             if(!auto_conf)
             {
-                h_parms->sine = SecureStrdup("Auto");
-                auto_conf = true;
+               STR_ASSIGN(h_parms->sine, "Auto");
+               auto_conf = true;
             }
             break;
       case OPT_AUTO_SCHED:
@@ -1415,7 +1408,7 @@ CLState_p process_options(int argc, char* argv[])
                {
                   num_cpus = CLStateGetIntArg(handle, arg);
                }
-               h_parms->sine = SecureStrdup("Auto");
+               STR_ASSIGN(h_parms->sine, "Auto");
                strategy_scheduling = true;
             }
             break;
@@ -1471,7 +1464,7 @@ CLState_p process_options(int argc, char* argv[])
             h_parms->add_goal_defs_subterms = true;
             break;
       case OPT_SINE:
-            h_parms->sine = SecureStrdup(arg);
+            STR_ASSIGN(h_parms->sine, "Auto");
             break;
       case OPT_REL_PRUNE_LEVEL:
             relevance_prune_level = CLStateGetIntArg(handle, arg);
@@ -1645,13 +1638,13 @@ CLState_p process_options(int argc, char* argv[])
             {
                h_parms->order_params.ordertype = KBO6;
             }
-            else if(strcmp(arg, "Optimize")==0)
-            {
-               h_parms->order_params.ordertype = OPTIMIZE_AX;
-            }
+            /* else if(strcmp(arg, "Optimize")==0) */
+            /* { */
+            /*    h_parms->order_params.ordertype = OPTIMIZE_AX; */
+            /* } */
             else
             {
-               Error("Option -t (--term-ordering) requires Optimize, "
+               Error("Option -t (--term-ordering) requires "
                      "LPO, LPO4, KBO or KBO6 as an argument",
                      USAGE_ERROR);
             }

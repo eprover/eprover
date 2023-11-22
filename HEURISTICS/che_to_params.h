@@ -1,24 +1,21 @@
 /*-----------------------------------------------------------------------
 
-File  : che_to_parans.h
+  File  : che_to_params.h
 
-Author: Stephan Schulz
+  Author: Stephan Schulz
 
-Contents
+  Contents
 
   Data types and auxilliary functions for describing orderig
   parameters.
 
-  Copyright 2020 by the author.
+  Copyright 2020-2023 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
-
-<1> Thu Dec 31 17:39:46 MET 1998
-    New
+  Created: Thu Dec 31 17:39:46 MET 1998
 
 -----------------------------------------------------------------------*/
 
@@ -189,6 +186,9 @@ typedef struct order_parms_cell
 //
 /----------------------------------------------------------------------*/
 
+#define STR_ASSIGN(dest, src)\
+   if(dest){FREE(dest);}(dest) = SecureStrdup(src)
+
 
 #define PARSE_BOOL(name)\
    if(TestInpId(in, #name))\
@@ -262,6 +262,7 @@ typedef struct order_parms_cell
       NextToken(in);\
       AcceptInpTok(in, Colon);\
       CheckInpTok(in, Identifier);\
+      if(handle->name){FREE(handle->name);} \
       handle->name = DStrCopy(AktToken(in)->literal);     \
       NextToken(in);\
    }\

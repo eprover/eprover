@@ -8,16 +8,13 @@
 
   Functions realizing the proof procedure.
 
-  Copyright 1998--2018 by the author.
+  Copyright 1998--2023 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
-
-<1> Mon Jun  8 11:47:44 MET DST 1998
-    New
+  Created: Mon Jun  8 11:47:44 MET DST 1998-2023
 
 -----------------------------------------------------------------------*/
 
@@ -1146,9 +1143,20 @@ void ProofControlInit(ProofState_p state, ProofControl_p control,
                          control->ocb, state);
    AcceptInpTok(in, Fullstop);
    DestroyScanner(in);
-   if(!PStackEmpty(hcb_defs))
+
+   // If there is a heuristic evaluation function in
+   // params->heuristic_def (from loading a strategy from file or via
+   // auto mode), make it the default (by putting it on top of the
+   // definition stack). Otherwise, if there already are HEFs on the
+   // stack, record the default one in the heuristic params for
+   // potential printing later.
+   if(params->heuristic_def)
    {
-      params->heuristic_def = SecureStrdup(PStackTopP(hcb_defs));
+      PStackPushP(hcb_defs, params->heuristic_def);
+   }
+   else if(!PStackEmpty(hcb_defs))
+   {
+      params->heuristic_def = PStackTopP(hcb_defs);
    }
    for(sp = 0; sp < PStackGetSP(hcb_defs); sp++)
    {
@@ -1159,6 +1167,7 @@ void ProofControlInit(ProofState_p state, ProofControl_p control,
                             control->ocb, state);
       DestroyScanner(in);
    }
+   FREE(control->heuristic_parms.heuristic_name);
    control->heuristic_parms     = *params;
 
    control->hcb = GetHeuristic(params->heuristic_name,

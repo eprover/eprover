@@ -279,6 +279,7 @@ int ExecuteScheduleMultiCore(ScheduleCell strats[],
                                 strats[i].time_absolute);
          if(!handle)
          { /* Child - get out, do work! */
+            printf("Hier!XXX\n");
             h_parms->heuristic_name         = strats[i].heu_name;
             h_parms->order_params.ordertype = strats[i].ordering;
             SilentTimeOut = true;

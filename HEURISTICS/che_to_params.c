@@ -1,6 +1,6 @@
 /*-----------------------------------------------------------------------
 
-  File  : che_te_params.c
+  File  : che_to_params.c
 
   Author: Stephan Schulz (schulz@eprover.org)
 
@@ -13,7 +13,7 @@
   See the file COPYING in the main CLIB directory for details.
   Run "eprover -h" for contact information.
 
-  Created:
+  Created: Thu Dec 31 17:42:46 MET 1998
 
   -----------------------------------------------------------------------*/
 

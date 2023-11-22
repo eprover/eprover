@@ -133,9 +133,6 @@ void GetHeuristicWithName(const char* name, HeuristicParms_p target)
          Scanner_p in = CreateScanner(StreamTypeInternalString,
                                       (char*)conf_map[i].value,
                                       true, NULL, true);
-         target->heuristic_def = NULL; // because the code below tries
-                                       // to free it, even when it
-                                       // should not be freed.
          HeuristicParmsParseInto(in, target, false);
          DestroyScanner(in);
          return;

@@ -143,7 +143,7 @@ typedef struct spec_feature_cell
    SpecFeatures avg_fun_ar_class;
    SpecFeatures sum_fun_ar_class;
    SpecFeatures max_depth_class;
-   
+
    bool         has_ho_features; // has any HO feature
    bool         quantifies_booleans; // is there any variable in whose type $o
                                      // appears
@@ -153,7 +153,7 @@ typedef struct spec_feature_cell
    SpecFeatures defs_class;
    SpecFeatures form_defs_class;
    SpecFeatures appvar_lits_class;
-   
+
    long         clauses;
    long         goals;
    long         axioms;
@@ -234,8 +234,8 @@ typedef struct spec_feature_cell
 #define FUN_MEDIUM_DEFAULT       360
 #define FUN_LARGE_DEFAULT        400
 
-#define NUM_LAMS_MEDIUM_DEFAULT  2 
-#define NUM_LAMS_LARGE_DEFAULT   8 
+#define NUM_LAMS_MEDIUM_DEFAULT  2
+#define NUM_LAMS_LARGE_DEFAULT   8
 #define ORDER_MEDIUM_DEFAULT     2 // second order is already medium
 #define ORDER_LARGE_DEFAULT      3 // third order is already high
 #define DEFS_MEDIUM_DEFAULT      8
@@ -460,7 +460,7 @@ void    ProofStatePrintSelective(FILE* out, ProofState_p state, char*
 
 SpecLimits_p CreateDefaultSpecLimits(void);
 
-void ClausifyAndClassifyWTimeout(ProofState_p state, int timeout, 
+void ClausifyAndClassifyWTimeout(ProofState_p state, int timeout,
                                  char* mask,
                                  char class[SPEC_STRING_MEM]);
 
