@@ -389,6 +389,11 @@ TFormula_p tformula_rek_skolemize(TB_p terms, TFormula_p form,
    {
       form = TFormulaCopy(terms, form);
    }
+   else if(!SigIsLogicalSymbol(terms->sig, form->f_code) &&
+           form->type == terms->sig->type_bank->bool_type)
+   {
+      handle = TFormulaCopy(terms, form);
+   }
    else if(form->f_code == terms->sig->qex_code)
    {
       var = form->args[0];
@@ -1351,6 +1356,7 @@ long TFormulaEstimateClauses(TB_p bank, TFormula_p form, bool pos)
       }
       else
       {
+         return 1;
 #ifndef NDEBUG
          fprintf(stdout, "# Error in ");
          TermPrintDbg(stdout, form, bank->sig, DEREF_NEVER);
@@ -1413,6 +1419,7 @@ long TFormulaEstimateClauses(TB_p bank, TFormula_p form, bool pos)
       }
       else
       {
+         return 1;
 #ifndef NDEBUG
          fprintf(stdout, "# Error in ");
          TermPrintDbg(stdout, form, bank->sig, DEREF_NEVER);
@@ -1623,7 +1630,8 @@ TFormula_p TFormulaCopyDef(TB_p bank, TFormula_p form, long blocked,
       TermIsAppliedFreeVar(form) ||
       TypeIsArrow(form->type) ||
       TermIsTrueTerm(form) ||
-      TermIsFalseTerm(form))
+      TermIsFalseTerm(form) ||
+      !SigIsLogicalSymbol(bank->sig, form->f_code))
    {
       res = form;
    }
@@ -2080,13 +2088,14 @@ TFormula_p TFormulaNNF(TB_p terms, TFormula_p form, int polarity)
       }
       else
       {
+         form = EncodePredicateAsEqn(terms, form);
          // if(!TFormulaIsLiteral(terms->sig, form))
          // {
          //    DBG_TPRINT(stderr, "error: ", form, ".\n");
          //    DBG_PRINT(stderr, "type: ", TypePrintTSTP(stderr, terms->sig->type_bank, form->type), ".\n");
          // }
-         assert(TFormulaIsLiteral(terms->sig, form)
-                && "Top level term not in normal form");
+         /* assert(TFormulaIsLiteral(terms->sig, form) */
+         /*        && "Top level term not in normal form"); */
       }
    }
    assert(form);
@@ -2355,6 +2364,11 @@ TFormula_p TFormulaVarRename(TB_p terms, TFormula_p form)
    {
       handle = TFormulaCopy(terms, form);
    }
+   else if(!SigIsLogicalSymbol(terms->sig, form->f_code) &&
+           form->type == terms->sig->type_bank->bool_type)
+   {
+      handle = TFormulaCopy(terms, form);
+   }
    else
    {
       if(TFormulaIsQuantified(terms->sig, form))
@@ -2514,8 +2528,6 @@ TFormula_p TFormulaDistributeDisjunctions(TB_p terms, TFormula_p form)
    bool change = false;
    // formula is in NNF
 
-   //TermPrettyPrintSimple(stdout, form, terms->sig, 0);
-   //printf("\n");
    assert(TFormulaIsQuantified(terms->sig, form) ||
           form->f_code == terms->sig->or_code ||
           form->f_code == terms->sig->and_code ||

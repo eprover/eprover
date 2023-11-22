@@ -1248,12 +1248,12 @@ Term_p lift_lambda(TB_p terms, PStack_p bound_vars, Term_p body,
 Term_p EncodePredicateAsEqn(TB_p bank, TFormula_p f)
 {
    Sig_p sig = bank->sig;
-   if((f->f_code > sig->internal_symbols ||
+   if((TermIsAnyVar(f) ||
+       !SigIsLogicalSymbol(bank->sig, f->f_code) ||
        f->f_code == SIG_TRUE_CODE ||
        f->f_code == SIG_FALSE_CODE ||
        f->f_code == SIG_ITE_CODE ||
        f->f_code == SIG_LET_CODE ||
-       TermIsAnyVar(f) ||
        TermIsPhonyApp(f)) &&
       f->type == sig->type_bank->bool_type)
    {

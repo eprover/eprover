@@ -361,7 +361,7 @@ void HeuristicParmsPrint(FILE* out, HeuristicParms_p handle)
    fprintf(out, "   eqdef_incrlimit:                %ld\n", handle->eqdef_incrlimit);
    fprintf(out, "   formula_def_limit:              %ld\n", handle->formula_def_limit);
 
-   fprintf(out, "   sine:                           \"%s\"\n", handle->sine ? handle->sine : "Auto");
+   fprintf(out, "   sine:                           \"%s\"\n", handle->sine ? handle->sine : "None");
    fprintf(out, "   add_goal_defs_pos:             %s\n", BOOL2STR(handle->add_goal_defs_pos));
    fprintf(out, "   add_goal_defs_neg:             %s\n", BOOL2STR(handle->add_goal_defs_neg));
    fprintf(out, "   add_goal_defs_subterms:        %s\n", BOOL2STR(handle->add_goal_defs_subterms));

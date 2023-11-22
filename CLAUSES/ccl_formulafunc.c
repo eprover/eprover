@@ -664,6 +664,7 @@ TFormula_p answer_lit_alloc(TB_p terms, PStack_p varstack)
    handle = TBAllocNewSkolem(terms, varstack, NULL);
    res = TermTopAlloc(terms->sig->answer_code, 1);
    res->args[0] = handle;
+   res->type = terms->sig->type_bank->bool_type;
    res = TBTermTopInsert(terms, res);
    res = EqnTermsTBTermEncode(terms, res, terms->true_term, false, PENormal);
 
@@ -1383,12 +1384,12 @@ TFormula_p TFormulaAnnotateQuestion(TB_p terms,
    PStack_p varstack = PStackAlloc();
 
    handle = form;
-   while (handle->f_code == terms->sig->qex_code)
+   while(handle->f_code == terms->sig->qex_code)
    {
       PStackPushP(varstack, handle->args[0]);
       handle = handle->args[1];
    }
-   if (PStackEmpty(varstack))
+   if(PStackEmpty(varstack))
    {
       /* Not a "real" question, nothing to do */
       res = form;
@@ -1397,7 +1398,7 @@ TFormula_p TFormulaAnnotateQuestion(TB_p terms,
    {
       tmp = answer_lit_alloc(terms, varstack);
       res = TFormulaFCodeAlloc(terms, terms->sig->and_code, handle, tmp);
-      while (!PStackEmpty(varstack))
+      while(!PStackEmpty(varstack))
       {
          handle = PStackPopP(varstack);
          res = TFormulaFCodeAlloc(terms, terms->sig->qex_code, handle, res);
