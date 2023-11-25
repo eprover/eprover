@@ -66,6 +66,12 @@ typedef int ErrorCodes;
 #define MAX_ERRMSG_ADD   512
 #define MAX_ERRMSG_LEN   MAX_ERRMSG_ADD+MAXPATHLEN
 
+#ifdef ENABLE_LFHO
+#define LFHO_ASSERT(check) assert(check)
+#else
+#define LFHO_ASSERT(check) assert(true)
+#endif
+
 extern char  ErrStr[];
 extern int   TmpErrno;
 extern char* ProgName;

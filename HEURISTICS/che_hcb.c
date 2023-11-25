@@ -173,7 +173,7 @@ void HeuristicParmsInitialize(HeuristicParms_p handle)
    handle->add_goal_defs_neg             = false;
    handle->add_goal_defs_subterms        = false;
 
-   handle->heuristic_name                = SecureStrdup(HCB_DEFAULT_HEURISTIC);
+   handle->heuristic_name                = HCB_DEFAULT_HEURISTIC;
    handle->heuristic_def                 = NULL;
    handle->prefer_initial_clauses        = false;
 
@@ -319,21 +319,6 @@ void HeuristicParmsFree(HeuristicParms_p junk)
 {
    assert(junk);
 
-   if(junk->heuristic_name)
-   {
-      FREE(junk->heuristic_name);
-      junk->heuristic_name = NULL;
-   }
-   if(junk->sine)
-   {
-      FREE(junk->sine);
-      junk->sine = NULL;
-   }
-   if(junk->heuristic_def)
-   {
-      FREE(junk->heuristic_def);
-      junk->heuristic_def = NULL;
-   }
    HeuristicParmsCellFree(junk);
 }
 

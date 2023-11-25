@@ -234,7 +234,6 @@ bool OrderParmsParseInto(Scanner_p in,
    PARSE_STRING(to_pre_prec);
    if(handle->to_pre_prec && strcmp(handle->to_pre_prec, "")==0)
    {
-      FREE(handle->to_pre_prec);
       handle->to_pre_prec = NULL;
    }
    PARSE_INT(conj_only_mod);
@@ -246,7 +245,6 @@ bool OrderParmsParseInto(Scanner_p in,
    PARSE_STRING(to_pre_weights);
    if(handle->to_pre_weights && strcmp(handle->to_pre_weights, "")==0)
    {
-      FREE(handle->to_pre_weights);
       handle->to_pre_weights = NULL;
    }
    PARSE_INT(to_const_weight);

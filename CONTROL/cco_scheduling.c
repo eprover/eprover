@@ -242,13 +242,6 @@ void ScheduleTimesInitMultiCore(ScheduleCell sched[], double time_used,
 //
 /----------------------------------------------------------------------*/
 
-#define TERMINATE_CHILDREN() signal(SIGQUIT, SIG_IGN); kill(0, SIGQUIT)
-
-void _catch_and_quit(int _)
-{
-   exit(RESOURCE_OUT);
-}
-
 int ExecuteScheduleMultiCore(ScheduleCell strats[],
                              HeuristicParms_p  h_parms,
                              bool print_rusage,
@@ -279,11 +272,9 @@ int ExecuteScheduleMultiCore(ScheduleCell strats[],
                                 strats[i].time_absolute);
          if(!handle)
          { /* Child - get out, do work! */
-            printf("Hier!XXX\n");
-            h_parms->heuristic_name         = strats[i].heu_name;
+            h_parms->heuristic_name = strats[i].heu_name;
             h_parms->order_params.ordertype = strats[i].ordering;
             SilentTimeOut = true;
-            //signal(SIGQUIT, _catch_and_quit);
             EGPCtrlSetFree(procs, false);
             return i; // tells the other scheduling call what is the parent
          }
@@ -305,12 +296,6 @@ int ExecuteScheduleMultiCore(ScheduleCell strats[],
          {
             PrintRusage(GlobalOut);
          }
-         // I think this is ununnecessary - EGPCtrlSetFree() will
-         // cleanup at least the direct children.
-         //if(preproc_schedule)
-         //{
-         //TERMINATE_CHILDREN();
-         //}
          EGPCtrlSetFree(procs, true);
          exit(handle->exit_status);
       }
@@ -329,10 +314,6 @@ int ExecuteScheduleMultiCore(ScheduleCell strats[],
    {
       PrintRusage(GlobalOut);
    }
-   //if(preproc_schedule)
-   //{
-   //TERMINATE_CHILDREN();
-   //}
    return SCHEDULE_DONE;
 }
 

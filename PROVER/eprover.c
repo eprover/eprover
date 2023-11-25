@@ -1092,6 +1092,7 @@ cleanup1:
    PStackFree(wfcb_definitions);
    FVIndexParmsFree(fvi_parms);
    HeuristicParmsFree(h_parms);
+   PermaStringsFree();
 #ifdef FULL_MEM_STATS
    MemFreeListPrint(GlobalOut);
 #endif
@@ -1393,7 +1394,7 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_AUTO:
             if(!auto_conf)
             {
-               STR_ASSIGN(h_parms->sine, "Auto");
+               h_parms->sine = "Auto";
                auto_conf = true;
             }
             break;
@@ -1408,7 +1409,7 @@ CLState_p process_options(int argc, char* argv[])
                {
                   num_cpus = CLStateGetIntArg(handle, arg);
                }
-               STR_ASSIGN(h_parms->sine, "Auto");
+               h_parms->sine = "Auto";
                strategy_scheduling = true;
             }
             break;
@@ -1464,7 +1465,7 @@ CLState_p process_options(int argc, char* argv[])
             h_parms->add_goal_defs_subterms = true;
             break;
       case OPT_SINE:
-            STR_ASSIGN(h_parms->sine, "Auto");
+            h_parms->sine = "Auto";
             break;
       case OPT_REL_PRUNE_LEVEL:
             relevance_prune_level = CLStateGetIntArg(handle, arg);

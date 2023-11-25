@@ -1005,12 +1005,17 @@ Term_p TBInsertNoProps(TB_p bank, Term_p term, DerefType deref)
 {
    int    i;
    Term_p t;
+   TB_p tmp_bank = TermGetBank(term);
 
    assert(term);
 
+   TermSetBank(term, bank); //Cheat because WHNF_deref() needs it, God
+                            //knows for what!
    const int limit = DEREF_LIMIT(term, deref);
-   term = problemType == PROBLEM_HO && deref == DEREF_ALWAYS ?
-            WHNF_deref(term) : TermDeref(term, &deref);
+   t = problemType == PROBLEM_HO && deref == DEREF_ALWAYS ?
+      WHNF_deref(term) : TermDeref(term, &deref);
+   TermSetBank(term, tmp_bank);
+   term = t;
 
    if(TermIsFreeVar(term))
    {
@@ -2510,7 +2515,7 @@ Term_p ParseIte(Scanner_p in, TB_p bank)
 // Function: NormalizePatternAppVar()
 //
 //   Tries to normalize applied variable so that all of its arguments
-//   are
+//   are (?!?)
 //
 // Global Variables: -
 //

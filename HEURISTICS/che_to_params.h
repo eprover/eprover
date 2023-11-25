@@ -23,6 +23,7 @@
 
 #define CHE_TO_PARAMS
 
+#include <clb_permastrings.h>
 #include <cto_ocb.h>
 
 #define DEFAULT_LAMBDA_WEIGHT 20
@@ -186,9 +187,6 @@ typedef struct order_parms_cell
 //
 /----------------------------------------------------------------------*/
 
-#define STR_ASSIGN(dest, src)\
-   if(dest){FREE(dest);}(dest) = SecureStrdup(src)
-
 
 #define PARSE_BOOL(name)\
    if(TestInpId(in, #name))\
@@ -262,8 +260,7 @@ typedef struct order_parms_cell
       NextToken(in);\
       AcceptInpTok(in, Colon);\
       CheckInpTok(in, Identifier);\
-      if(handle->name){FREE(handle->name);} \
-      handle->name = DStrCopy(AktToken(in)->literal);     \
+      handle->name = PermaString(DStrView(AktToken(in)->literal)); \
       NextToken(in);\
    }\
    else\
@@ -321,15 +318,13 @@ typedef struct order_parms_cell
    }
 
 
-
 #define PARSE_STRING(name)\
    if(TestInpId(in, #name))\
    {\
       NextToken(in);                            \
       AcceptInpTok(in, Colon);\
       CheckInpTok(in, String);                            \
-      if(handle->name){FREE(handle->name);} \
-      handle->name = DStrCopyCore(AktToken(in)->literal);     \
+      handle->name = PermaStringStore(DStrCopyCore(AktToken(in)->literal)); \
       NextToken(in);\
    }\
    else\

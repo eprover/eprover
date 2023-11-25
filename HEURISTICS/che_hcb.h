@@ -24,6 +24,7 @@
 #define CHE_HCB
 
 #include <clb_dstacks.h>
+#include <clb_permastrings.h>
 #include <ccl_paramod.h>
 #include <ccl_splitting.h>
 #include <ccl_condensation.h>

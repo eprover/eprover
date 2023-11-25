@@ -1167,7 +1167,6 @@ void ProofControlInit(ProofState_p state, ProofControl_p control,
                             control->ocb, state);
       DestroyScanner(in);
    }
-   FREE(control->heuristic_parms.heuristic_name);
    control->heuristic_parms     = *params;
 
    control->hcb = GetHeuristic(params->heuristic_name,
