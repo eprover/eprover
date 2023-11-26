@@ -1091,6 +1091,8 @@ result in an extremely incomplete prover).
   symbol, and \texttt{fweight} is a non-negative integer. The extra
   weight assignments will overwrite the default weight for the listed
   function symbol.
+
+
 \end{sloppypar}
 
 \medskip
@@ -1102,6 +1104,15 @@ result in an extremely incomplete prover).
   both positive and negative values, and are used as once-off weight
   modifiers added to the weight of all clauses that contain the
   defined symbol.
+
+  \begin{example}
+    (see next section for more context)
+\begin{verbatim}
+  eprover -D "myfunw =
+     FunWeight(ConstPrio,2,1,1,1,1,f:2,g:5,j:3,a:0,b:0)" ...
+\end{verbatim}
+  \end{example}
+
 \end{sloppypar}
 
 
@@ -1110,7 +1121,7 @@ result in an extremely incomplete prover).
 
 A clause evaluation function is constructed by instantiating a generic
 weight function. It can either be specified directly, or specified and
-given a name for later reference at once:
+immediately given a name for later reference :
 
  \begin{verbatim}
 <eval-fun>          ::= <ident>         ||
@@ -1126,7 +1137,7 @@ possible to define the value of an identifier more than once, in which
 case later definitions take precedence to former ones.
 
 Clause evaluation functions can be be defined on the command line with
-the \texttt{-D} (\texttt--{define-weight-function}) option, followed
+the \texttt{-D} (\texttt{--define-weight-function}) option, followed
 by a \texttt{<eval-fun-def-list>}.
 
 \begin{example}
@@ -1154,7 +1165,8 @@ A heuristic defines how many selections are to be made according to
 one of several clause evaluation functions. Syntactically,
 
 \begin{verbatim}
-<heu-element>   ::= <int> '*' <eval-fun>
+<heu-element>   ::= <int> '*' <eval-fun>||
+                    <int> '.' <eval-fun>
 <heuristic>     ::= '(' <heu-element> (,<heu-element>)* ')' ||
                     <ident>
 <heuristic-def> ::= <ident> = <heuristic> ||
@@ -1162,11 +1174,16 @@ one of several clause evaluation functions. Syntactically,
 \end{verbatim}
 
 As above, a single identifier is only a valid heuristic if it has been
-defined in \texttt{<heuristic-def>} previously. A
+defined in \texttt{<heuristic-def>} previously (although a number of
+such named heuristics are predefined by the prover). A
 \texttt{<heuristic-def>} which degenerates to a simple heuristic
 defines a heuristic with name \texttt{Default} (which the prover will
 automatically choose if no other heuristic is selected with
-\texttt{-x} (\texttt{--expert-heuristic}).
+\texttt{-x} (\texttt{--expert-heuristic}). E allows both the
+multiplication operator (\texttt{*}) and a simple full stop to specify
+the weight given to a single evaluation function.\footnote{\texttt{*}
+  is the original syntax, but is hard to escape in some shells,
+  especially if parameter are handed through several shell scripts.}
 
 \begin{example}
   To continue the above example,
