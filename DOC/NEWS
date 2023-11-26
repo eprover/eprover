@@ -1,6 +1,15 @@
 This history describes the major differences between versions of the E
 equational theorem prover.
 
+Version 3.0 ->3.0.03 Shangri-La
+
+- Fixed bug in activating clause selection heuristics
+- Fixed several bugs in the higher-order module, mostly related to the
+  difference between shared and unshare terms. This will need further
+  work to catch all corner cases.
+- Fixed several minor memory leaks and simlified management of parsed
+  strings with the clb_permastrings module.
+
 Version 3.0 (pre-release) ->3.0 Shangri-La
 
 - Fixed various bugs in the HO preprocessor
