@@ -29,6 +29,7 @@ Changes
 
 #include <limits.h>
 #include <clb_numtrees.h>
+#include <clb_ptrees.h>
 #include <clb_pdrangearrays.h>
 
 
@@ -71,15 +72,18 @@ typedef struct intmap_cell
                             * from an array. */
 //DF-START
 #ifdef MEASURE_INTMAP_STATS
+/* print these variables during deletion with the size of the
+ * corresponding datatype
+ */
    long countGetVal;       /* Count the times IntMapGetVal() is executed*/
    long countGetRef;       /* Count the times IntMapGetRef() is executed*/
    long countAssign;       /* Count the times IntMapAssign() is executed*/
    long countDelKey;       /* Count the times IntMapDelKey() is executed*/
+   long countArrayToTree;  /* Count the times array_to_tree() is executed*/
+   long countTreeToArray;  /* Count the times tree_to_array() is executed*/
 #endif
 //DF-STOP
-/*
- * bei Delete Zählen, ausgeben (printf) mit der Größe des jeweiligen Datentyps - benutze hierfür den Datentyp
- */
+
    union
    {
       void*        value;   /* For IMSingle */
@@ -112,6 +116,10 @@ typedef long (*IntMapFreeFunc)(void *junk_node);
 
 
 //DF-START
+#ifdef MEASURE_EMPTY
+extern long countEmpty;
+#endif
+
 #ifdef MEASURE_INT
 extern long countInt;
 #endif
@@ -164,7 +172,11 @@ static inline void* IntMapIterNext(IntMapIter_p iter, long *key);
 void     IntMapDebugPrint(FILE* out, IntMap_p map);
 
 
-
+//DF-START
+#ifdef MEASURE_INTMAP_STATS
+extern PTree_p intmaps;
+#endif
+//DF-STOP
 
 /*---------------------------------------------------------------------*/
 /*                      Inline Functions                               */

@@ -306,7 +306,9 @@ eprover_options = select_options()
 for problem in problem_lst:
     if(#problem == '../EXAMPLE_PROBLEMS/SMOKETEST/ALL_RULES.p' or problem == '../EXAMPLE_PROBLEMS/SMOKETEST/socrates.p'
        #or problem == '../EXAMPLE_PROBLEMS/SMOKETEST/BOO020-1.p' #or
-       problem == '../EXAMPLE_PROBLEMS/TPTP/BOO006-1.p'
+       #problem == '../EXAMPLE_PROBLEMS/TPTP/BOO006-1.p'
+       #problem == '../EXAMPLE_PROBLEMS/TPTP/SET183-6.p'
+       problem == '../EXAMPLE_PROBLEMS/TPTP/SWV851-1.p'
        #or problem == '../EXAMPLE_PROBLEMS/SMOKETEST/GROUP1st.p' or problem == '../EXAMPLE_PROBLEMS/SMOKETEST/LUSK6.lop'
        #or problem == '../EXAMPLE_PROBLEMS/TPTP/BOO010-2.p' or problem == '../EXAMPLE_PROBLEMS/SMOKETEST/LUSK6ext.lop'
        #or problem == '../EXAMPLE_PROBLEMS/SMOKETEST/ans_test06.p' or problem == '../EXAMPLE_PROBLEMS/SMOKETEST/CNFTest.p'
@@ -339,9 +341,18 @@ line = lines['../EXAMPLE_PROBLEMS/SMOKETEST/CNFTest.p']
 print(*line, sep='\n')
 """
 
-print('../EXAMPLE_PROBLEMS/SMOKETEST/BOO020-1.p')
-line = lines['../EXAMPLE_PROBLEMS/SMOKETEST/BOO020-1.p']
-print(*line, sep='\n')
+print('../EXAMPLE_PROBLEMS/TPTP/SWV851-1.p')
+line = lines['../EXAMPLE_PROBLEMS/TPTP/SWV851-1.p']
+#print('../EXAMPLE_PROBLEMS/TPTP/SET183-6.p')
+#line = lines['../EXAMPLE_PROBLEMS/TPTP/SET183-6.p']
+
+#print('../EXAMPLE_PROBLEMS/SMOKETEST/BOO020-1.p')
+#line = lines['../EXAMPLE_PROBLEMS/SMOKETEST/BOO020-1.p']
+#print(*line, sep='\n')
+
+
+with open('test.txt', 'w') as out_file:
+    out_file.write('{0}\n'.format('\n '.join(str(n) for n in line)))
 
 
 #print('../EXAMPLE_PROBLEMS/TPTP/BOO006-1.p')

@@ -485,8 +485,13 @@ static void print_proof_stats(ProofState_p proofstate,
       fprintf(GlobalOut, "\n");
 #endif
       //DF-START
-#ifdef MEASURE_INT
+#ifdef MEASURE_EMPTY
       fprintf(GlobalOut, "\n");
+      fprintf(GlobalOut, "# Empty invoked times                        : %ld\n",
+              countEmpty);
+#endif
+
+#ifdef MEASURE_INT
       fprintf(GlobalOut, "# Int invoked times                        : %ld\n",
               countInt);
 #endif
@@ -1000,7 +1005,9 @@ int main(int argc, char* argv[])
             }
             retval = INCOMPLETE_PROOFSTATE;
          }
-         else if(problemType != PROBLEM_HO && proofstate->state_is_complete && inf_sys_complete)
+         else if(problemType != PROBLEM_HO
+               && proofstate->state_is_complete
+               && inf_sys_complete)
          {
             fprintf(GlobalOut, "\n# No proof found!\n");
             TSTPOUT(GlobalOut, neg_conjectures?"CounterSatisfiable":"Satisfiable");
@@ -1088,6 +1095,18 @@ int main(int argc, char* argv[])
                      relevancy_pruned,
                      raw_clause_no,
                      preproc_removed);
+
+
+//DF-START
+#ifdef MEASURE_INTMAP_STATS
+      printf("intmapTree hat %ld Eintraege\n", PTreeNodes(intmaps));
+      printf("intmapTree hat %ld Eintraege\n", PTreeNodes(intmaps->lson));
+      printf("intmapTree hat %ld Eintraege\n", PTreeNodes(intmaps->rson));
+      printf("Badabumm hat %ld \n", intmaps->key); //No access of intmap attributes like Type, so intmap is propably deleted earlier
+      IntMapDebugPrint(stdout, intmaps->rson->key);
+#endif
+//DF-STOP
+
 #ifndef FAST_EXIT
 #ifdef FULL_MEM_STATS
    fprintf(GlobalOut,

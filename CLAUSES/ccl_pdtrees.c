@@ -1358,6 +1358,13 @@ long PDTreeDelete(PDTree_p tree, Term_p term, Clause_p clause)
 
    // printf("DSizeConstr %p: %ld\n", tree, pdt_verify_size_constraint(tree->tree));
    // printf("DDateConstr %p: %ld\n", tree, pdt_verify_age_constraint(tree->tree));
+
+//DF-START
+#ifdef MEASURE_INTMAP_STATS
+   printf("Tree (%p): %ld\n", tree->tree, res);
+#endif
+//DF-STOP
+
    return res;
 }
 
