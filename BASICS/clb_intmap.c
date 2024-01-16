@@ -25,7 +25,6 @@ Changes
 #include "clb_intmap.h"
 
 
-
 /*---------------------------------------------------------------------*/
 /*                        Global Variables                             */
 /*---------------------------------------------------------------------*/
@@ -278,6 +277,7 @@ IntMap_p IntMapAlloc(void)
 //DF-START
 #ifdef MEASURE_INTMAP_STATS
    PTreeStore(&intmaps, handle);
+   //IMPTreeStore(&intmaps_tree, handle); //Where is your fucking problem???
 #endif
 //DF-STOP
 
@@ -320,6 +320,7 @@ void IntMapFree(IntMap_p map)
 #ifdef MEASURE_INTMAP_STATS
 
          printf("# IntMap-Type: \t IMArray(%p)\n", map);
+         printf("# Map-Traits (IMArray %p): \t Entry-No:%d \t Min:%d \t Max:%d\n", map, map->entry_no, map->min_key, map->max_key);
          printf("# Executed function IntMapGetVal (IMArray %p): \t %d\n", map, map->countGetVal);
          printf("# Executed function IntMapGetRef (IMArray %p): \t %d\n", map, map->countGetRef);
          printf("# Executed function IntMapAssign (IMArray %p): \t %d\n", map, map->countAssign);

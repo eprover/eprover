@@ -175,6 +175,7 @@ void     IntMapDebugPrint(FILE* out, IntMap_p map);
 //DF-START
 #ifdef MEASURE_INTMAP_STATS
 extern PTree_p intmaps;
+
 #endif
 //DF-STOP
 

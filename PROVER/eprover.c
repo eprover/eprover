@@ -1097,12 +1097,33 @@ int main(int argc, char* argv[])
                      preproc_removed);
 
 
+
 //DF-START
 #ifdef MEASURE_INTMAP_STATS
+      //print_something();
       printf("intmapTree hat %ld Eintraege\n", PTreeNodes(intmaps));
       printf("intmapTree hat %ld Eintraege\n", PTreeNodes(intmaps->lson));
       printf("intmapTree hat %ld Eintraege\n", PTreeNodes(intmaps->rson));
-      printf("Badabumm hat %ld \n", intmaps->key); //No access of intmap attributes like Type, so intmap is propably deleted earlier
+
+      printf("Badabumm hat %ld \n", ((IntMap_p)intmaps->key)->entry_no); //No access of intmap attributes like Type, so intmap is propably deleted earlier
+      switch(((IntMap_p)intmaps->key)->type)
+      {
+            case IMEmpty:
+                  printf("IMEmpty \n");
+                  break;
+            case IMSingle:
+                  printf("IMSingle \n");
+                  break;
+            case IMArray:
+                  printf("IMArray \n");
+                  break;
+            case IMTree:
+                  printf("IMTree \n");
+                  break;
+      }
+      print_intmap_stats(intmaps);
+      printf("Min-Key: %ld \n", ((IntMap_p)intmaps->lson->key)->min_key);
+      printf("Max-Key: %ld \n", ((IntMap_p)intmaps->lson->key)->max_key);
       IntMapDebugPrint(stdout, intmaps->rson->key);
 #endif
 //DF-STOP
@@ -2281,6 +2302,104 @@ Read a set of first-order clauses and formulae and try to refute it.\n\
    fprintf(out, "\n\n" E_FOOTER);
 }
 
+
+//DF-START
+#ifdef MEASURE_INTMAP_STATS
+void print_first_array_item(IntMap_p intmap_key) {
+      if(intmap_key->values.array->integer) {
+            printf("Integer: ");
+            printf("%d\n", intmap_key->values.array->array[0].i_val);
+      } else {
+            printf("Pointer: ");
+            printf("%d\n", intmap_key->values.array->array[0].p_val);
+      }
+
+}
+
+void print_first_tree_item(IntMap_p intmap_key){
+      long a = NumTreeNodes( intmap_key->values.tree );
+      printf("NumTreeNodes: \t %ld\n", a );
+}
+
+long PDRangeArrEmptyMembers(PDRangeArr_p array) {
+   long i, res =0;
+   assert(array);
+   for(i=PDRangeArrLowKey(array); i<PDRangeArrLimitKey(array); i++) {
+      if(!PDRangeArrElementP(array, i)) {
+	res++;
+      }
+   }
+   return res;
+}
+
+void return_intamp_type(PTree_p root) {
+      IntMap_p intmap_key = (IntMap_p)root->key;
+      switch(intmap_key->type)
+      {
+            case IMEmpty:
+                  printf("IMEmpty \n");
+                  break;
+            case IMSingle:
+                  printf("# IntMap-Type: \t IMSingle(%p)\n", intmap_key);
+                  printf("# Map-Traits (IMSingle %p): \t Entry-No:%d \t Min:%d \t Max:%d\n", intmap_key, intmap_key->entry_no, intmap_key->min_key, intmap_key->max_key);
+                  printf("# Value (IMSingle %p): \tValue:%d\n",  intmap_key, intmap_key->values.value);
+                  break;
+            case IMArray:
+                  printf("# IntMap-Type: \t IMArray(%p)\n", intmap_key);
+                  printf("# Map-Traits (IMArray %p): \t Entry-No:%d \t Min:%d \t Max:%d\n", intmap_key, intmap_key->entry_no, intmap_key->min_key, intmap_key->max_key);
+                  printf("# Executed function IntMapGetVal (IMArray %p): \t %d\n", intmap_key, intmap_key->countGetVal);
+                  printf("# Executed function IntMapGetRef (IMArray %p): \t %d\n", intmap_key, intmap_key->countGetRef);
+                  printf("# Executed function IntMapAssign (IMArray %p): \t %d\n", intmap_key, intmap_key->countAssign);
+                  printf("# Executed function IntMapDelKey (IMArray %p): \t %d\n", intmap_key, intmap_key->countDelKey);
+                  printf("# Executed function array_to_tree (IMArray %p): \t %d\n", intmap_key, intmap_key->countArrayToTree);
+                  printf("# Executed function tree_to_array (IMArray %p): \t %d\n", intmap_key, intmap_key->countTreeToArray);
+                  printf("# Values-Traits (IMArray %p): \t Offset:%d \t Size:%d \t Grow:%d \t Integer:%s \n", intmap_key, intmap_key->values.array->offset, intmap_key->values.array->size, intmap_key->values.array->grow, intmap_key->values.array->integer? "True":"False" );
+                  printf("# Number of items (IMArray %p): \t %d \t %d\n", intmap_key, PDRangeArrMembers(intmap_key->values.array), PDRangeArrEmptyMembers(intmap_key->values.array) );
+                  print_first_array_item(intmap_key);
+                  break;
+            case IMTree:
+                  printf("# IntMap-Type: \t IMTree(%p)\n", intmap_key);
+                  printf("# Map-Traits (IMTree %p): \t Entry-No:%d \t Min:%d \t Max:%d\n", intmap_key, intmap_key->entry_no, intmap_key->min_key, intmap_key->max_key);
+                  printf("# Values-Traits (IMTree %p): \t key:%d\n", intmap_key, intmap_key->values.tree->key);
+                  printf("# Executed function IntMapGetVal (IMTree %p): \t %d\n", intmap_key, intmap_key->countGetVal);
+                  printf("# Executed function IntMapGetRef (IMTree %p): \t %d\n", intmap_key, intmap_key->countGetRef);
+                  printf("# Executed function IntMapAssign (IMTree %p): \t %d\n", intmap_key, intmap_key->countAssign);
+                  printf("# Executed function IntMapDelKey (IMTree %p): \t %d\n", intmap_key, intmap_key->countDelKey);
+                  printf("# Executed function array_to_tree (IMArray %p): \t %d\n", intmap_key, intmap_key->countArrayToTree);
+                  printf("# Executed function tree_to_array (IMArray %p): \t %d\n", intmap_key, intmap_key->countTreeToArray);
+                  printf("# Number of items (IMTree %p): \t %d\n", intmap_key, NumTreeNodes(intmap_key->values.tree));
+                  break;
+      }
+}
+
+void print_intmap_stats(PTree_p root) {
+
+   PStack_p stack = PStackAlloc();
+
+   PStackPushP(stack, root);
+   int i = 0;
+
+   while(!PStackEmpty(stack))
+   {
+
+      if(root) {
+      printf("%d\n", i);
+            i++;
+            return_intamp_type(root);
+      }
+
+      root = PStackPopP(stack);
+      if(root)
+      {
+         PStackPushP(stack, root->lson);
+         PStackPushP(stack, root->rson);
+      }
+   }
+   PStackFree(stack);
+
+}
+#endif
+//DF-STOP
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
