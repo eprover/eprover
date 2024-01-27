@@ -254,14 +254,14 @@ TFormula_p troot_nnf(TB_p terms, TFormula_p form, int polarity)
          }
          else if(TermIsTrueTerm(form->args[0]))
          {
-            handle = TFormulaFCodeAlloc(terms, terms->sig->eqn_code,
+            handle = TFormulaFCodeAlloc(terms, terms->sig->neqn_code,
                                         form->args[0],
                                         form->args[0]);
 
          }
          else if(TermIsFalseTerm(form->args[0]))
          {
-            handle = TFormulaFCodeAlloc(terms, terms->sig->neqn_code,
+            handle = TFormulaFCodeAlloc(terms, terms->sig->eqn_code,
                                         form->args[0],
                                         form->args[0]);
 
