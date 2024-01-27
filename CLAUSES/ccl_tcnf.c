@@ -8,13 +8,11 @@
 
   Functions for CNF conversion of a term-encoded FOF formula.
 
-  Copyright 2003-2019 by the author.
+  Copyright 2003-2024 by the author(s).
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
-
-  Changes
 
   Created: Thu Feb 26 00:21:17 CET 2004
 
