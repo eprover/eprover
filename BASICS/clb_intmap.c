@@ -305,7 +305,7 @@ void IntMapFree(IntMap_p map)
    {
    case IMEmpty:
    case IMSingle:
-//DF-START
+//DF-START TODO: DELETE!
 #ifdef MEASURE_INTMAP_STATS
 /*
          printf("# IntMap-Type: \t IMSingle(%p)\n", map);
@@ -316,9 +316,9 @@ void IntMapFree(IntMap_p map)
 //DF-STOP
          break;
    case IMArray:
-//DF-START
+//DF-START TODO: DELETE!
 #ifdef MEASURE_INTMAP_STATS
-
+         /*
          printf("# IntMap-Type: \t IMArray(%p)\n", map);
          printf("# Map-Traits (IMArray %p): \t Entry-No:%d \t Min:%d \t Max:%d\n", map, map->entry_no, map->min_key, map->max_key);
          printf("# Executed function IntMapGetVal (IMArray %p): \t %d\n", map, map->countGetVal);
@@ -327,14 +327,14 @@ void IntMapFree(IntMap_p map)
          printf("# Executed function IntMapDelKey (IMArray %p): \t %d\n", map, map->countDelKey);
          printf("# Executed function array_to_tree (IMArray %p): \t %d\n", map, map->countArrayToTree);
          printf("# Executed function tree_to_array (IMArray %p): \t %d\n", map, map->countTreeToArray);
-
+         */
          //printf("# Map-Traits (IMArray %p): \t Entry-No:%d \t Min:%d \t Max:%d\n", map, map->entry_no, map->min_key, map->max_key);
         // printf("# Values-Traits (IMArray %p): \t Offset:%d \t Size:%d \t Grow:%d \t Integer:%s \n", map, map->values.array->offset, map->values.array->size, map->values.array->grow, map->values.array->integer? "True":"False" );
          //PDRangeArrLimitKey = offset
 
          //PDRangeArrMembers(
          //printf("# Anzahl %p \t %d\n", map->values.array->array,  map->values.array->array.i_val );
-
+         /*
          PDRangeArr_p  tmp_arr;                 //temporary Array
          IntOrP        tmp_val;                 //Value
          long          i;                       //Iterator
@@ -354,9 +354,7 @@ void IntMapFree(IntMap_p map)
                printf("# Anzahl i:%d Nummer:%d lower_key: %d\n", i, tmp_val.i_val, PDRangeArrLowKey(tmp_arr));
             }
          }
-
-
-
+         */
 #endif
 //DF-STOP
          PDRangeArrFree(map->values.array);
@@ -367,9 +365,9 @@ void IntMapFree(IntMap_p map)
 //DF-STOP
          break;
    case IMTree:
-//DF-START
+//DF-START TODO: DELETE!
 #ifdef MEASURE_INTMAP_STATS
-
+         /*
          printf("# IntMap-Type: \t IMTree(%p)\n", map);
          printf("# Executed function IntMapGetVal (IMTree %p): \t %d\n", map, map->countGetVal);
          printf("# Executed function IntMapGetRef (IMTree %p): \t %d\n", map, map->countGetRef);
@@ -381,7 +379,7 @@ void IntMapFree(IntMap_p map)
          //printf("# Map-Traits (IMTree %p): \t Entry-No:%d \t Min:%d \t Max:%d\n", map, map->entry_no, map->min_key, map->max_key);
          //printf("# Values-Traits (IMTree %p): \t key:%d\n", map, map->values.tree->key);
          //printf("# Number of items (IMTree %p): \t %d\n", map, NumTreeNodes(map->values.tree));
-
+         */
 #endif
 //DF-STOP
          NumTreeFree(map->values.tree);

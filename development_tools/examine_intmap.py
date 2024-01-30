@@ -180,10 +180,14 @@ def string_select(input_string):
         Boolean
     """
 
+    sub_string_immap_stats = "# INTMAP STATS\\n"
+    sub_string_imtree_stats = "# STATS-"
+    sub_string_imtree_count = "# Intmap-Tree hat"
 
     sub_string_no_proof = "# No proof found!"
     sub_string_found_proof = "# Proof found!"
     sub_string_total_time = "# Total time"
+    sub_string_inv_emp = '# Empty invoked times'
     sub_string_inv_int = '# Int invoked times'
     sub_string_inv_arr = '# Array invoked times'
     sub_string_inv_tree = '# Tree invoked times'
@@ -194,8 +198,12 @@ def string_select(input_string):
     sub_string_map_traits = "# Map-Traits "
     sub_string_values_traits = "# Values-Traits "
     sub_string_number_items = "# Number of items"
-
     sub_string_value_single = "# Value (IMSingle"
+
+    sub_string_empty_cells = "# Number of empty cells (IMArray"
+    sub_string_structure = "# Structure of "
+    sub_string_tree_height = "# Tree height (IMTree"
+
 
     #sub_string_type_single = "# IntMap-Type: \\t IMSingle";
     #sub_string_type_array = '# IntMap-Type: \\t IMArray'
@@ -214,11 +222,19 @@ def string_select(input_string):
 
     anzahl = '# Anzahl'
 
-    if(sub_string_no_proof in input_string):
+    if(sub_string_immap_stats in input_string):
+        return True
+    elif(sub_string_imtree_stats in input_string):
+        return True
+    elif(sub_string_imtree_count in input_string):
+        return True
+    elif(sub_string_no_proof in input_string):
         return True
     elif(sub_string_found_proof in input_string):
         return True
     elif(sub_string_total_time in input_string):
+        return True
+    elif(sub_string_inv_emp in input_string):
         return True
     elif(sub_string_inv_int in input_string):
         return True
@@ -240,12 +256,16 @@ def string_select(input_string):
         return True
     elif(sub_string_value_single in input_string):
         return True
+    elif(sub_string_empty_cells in input_string):
+        return True
+    elif(sub_string_structure in input_string):
+        return True
+    elif(sub_string_tree_height in input_string):
+        return True
     elif(anzahl in input_string):
         return True
     else:
         return False
-
-
 
 
 def string_clean():
@@ -304,14 +324,14 @@ eprover_options = select_options()
 
 
 for problem in problem_lst:
-    if(#problem == '../EXAMPLE_PROBLEMS/SMOKETEST/ALL_RULES.p' or problem == '../EXAMPLE_PROBLEMS/SMOKETEST/socrates.p'
-       #or problem == '../EXAMPLE_PROBLEMS/SMOKETEST/BOO020-1.p' #or
+    if(problem == '../EXAMPLE_PROBLEMS/SMOKETEST/ALL_RULES.p' or problem == '../EXAMPLE_PROBLEMS/SMOKETEST/socrates.p'
+       or problem == '../EXAMPLE_PROBLEMS/SMOKETEST/BOO020-1.p' or
        #problem == '../EXAMPLE_PROBLEMS/TPTP/BOO006-1.p'
        #problem == '../EXAMPLE_PROBLEMS/TPTP/SET183-6.p'
-       problem == '../EXAMPLE_PROBLEMS/TPTP/SWV851-1.p'
+       #problem == '../EXAMPLE_PROBLEMS/TPTP/SWV851-1.p'
        #or problem == '../EXAMPLE_PROBLEMS/SMOKETEST/GROUP1st.p' or problem == '../EXAMPLE_PROBLEMS/SMOKETEST/LUSK6.lop'
        #or problem == '../EXAMPLE_PROBLEMS/TPTP/BOO010-2.p' or problem == '../EXAMPLE_PROBLEMS/SMOKETEST/LUSK6ext.lop'
-       #or problem == '../EXAMPLE_PROBLEMS/SMOKETEST/ans_test06.p' or problem == '../EXAMPLE_PROBLEMS/SMOKETEST/CNFTest.p'
+       problem == '../EXAMPLE_PROBLEMS/SMOKETEST/ans_test06.p' or problem == '../EXAMPLE_PROBLEMS/SMOKETEST/CNFTest.p'
        ):
         #statement_lst = build_list(eprover_path, eprover_options, problem)
         statement_lst = []
@@ -322,16 +342,32 @@ for problem in problem_lst:
 
 
 
-"""
 print('../EXAMPLE_PROBLEMS/SMOKETEST/ALL_RULES.p')
-line = lines['../EXAMPLE_PROBLEMS/SMOKETEST/ALL_RULES.p']
+line = ['../EXAMPLE_PROBLEMS/SMOKETEST/ALL_RULES.p']
+line.extend(lines['../EXAMPLE_PROBLEMS/SMOKETEST/ALL_RULES.p'])
 print(*line, sep='\n')
 
 print('../EXAMPLE_PROBLEMS/SMOKETEST/socrates.p')
-line = lines['../EXAMPLE_PROBLEMS/SMOKETEST/socrates.p']
+line.extend(['../EXAMPLE_PROBLEMS/SMOKETEST/socrates.p'])
+line.extend(lines['../EXAMPLE_PROBLEMS/SMOKETEST/socrates.p'])
+print(*line, sep='\n')
+
+print('../EXAMPLE_PROBLEMS/SMOKETEST/ans_test06.p')
+line.extend(['../EXAMPLE_PROBLEMS/SMOKETEST/ans_test06.p'])
+line.extend(lines['../EXAMPLE_PROBLEMS/SMOKETEST/ans_test06.p'])
+print(*line, sep='\n')
+
+print('../EXAMPLE_PROBLEMS/SMOKETEST/BOO020-1.p')
+line.extend(['../EXAMPLE_PROBLEMS/SMOKETEST/BOO020-1.p'])
+line.extend(lines['../EXAMPLE_PROBLEMS/SMOKETEST/BOO020-1.p'])
 print(*line, sep='\n')
 
 
+print('../EXAMPLE_PROBLEMS/SMOKETEST/CNFTest.p')
+line.extend(['../EXAMPLE_PROBLEMS/SMOKETEST/CNFTest.p'])
+line.extend(lines['../EXAMPLE_PROBLEMS/SMOKETEST/CNFTest.p'])
+print(*line, sep='\n')
+"""
 print('../EXAMPLE_PROBLEMS/SMOKETEST/ans_test06.p')
 line = lines['../EXAMPLE_PROBLEMS/SMOKETEST/ans_test06.p']
 print(*line, sep='\n')
@@ -341,8 +377,8 @@ line = lines['../EXAMPLE_PROBLEMS/SMOKETEST/CNFTest.p']
 print(*line, sep='\n')
 """
 
-print('../EXAMPLE_PROBLEMS/TPTP/SWV851-1.p')
-line = lines['../EXAMPLE_PROBLEMS/TPTP/SWV851-1.p']
+#print('../EXAMPLE_PROBLEMS/TPTP/SWV851-1.p')
+#line = lines['../EXAMPLE_PROBLEMS/TPTP/SWV851-1.p']
 #print('../EXAMPLE_PROBLEMS/TPTP/SET183-6.p')
 #line = lines['../EXAMPLE_PROBLEMS/TPTP/SET183-6.p']
 
