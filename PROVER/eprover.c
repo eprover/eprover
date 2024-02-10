@@ -487,30 +487,36 @@ static void print_proof_stats(ProofState_p proofstate,
       //DF-START
 #ifdef MEASURE_EMPTY
       fprintf(GlobalOut, "\n");
-      fprintf(GlobalOut, "# Empty invoked times                        : %ld\n",
+      fprintf(GlobalOut, "# Empty invoked times                  : %ld\n",
               countEmpty);
 #endif
 
 #ifdef MEASURE_INT
-      fprintf(GlobalOut, "# Int invoked times                        : %ld\n",
+      fprintf(GlobalOut, "# Int invoked times                    : %ld\n",
               countInt);
 #endif
 
 #ifdef MEASURE_ARRAY
-      fprintf(GlobalOut, "# Array invoked times                        : %ld\n",
+      fprintf(GlobalOut, "# Array invoked times                  : %ld\n",
               countArray);
 #endif
 
 #ifdef MEASURE_TREE
-      fprintf(GlobalOut, "# Tree invoked times                        : %ld\n",
+      fprintf(GlobalOut, "# Tree invoked times                   : %ld\n",
               countTree);
-      fprintf(GlobalOut, "\n");
 #endif
 
 #ifdef MEASURE_DELETE
-      fprintf(GlobalOut, "\n");
-      fprintf(GlobalOut, "# Map deleted times                        : %ld\n",
+      fprintf(GlobalOut, "# Map deleted times                    : %ld\n",
               countDelete);
+      fprintf(GlobalOut, "# Empty deleted times                  : %ld\n",
+              countDeleteEmpty);
+      fprintf(GlobalOut, "# Int deleted times                    : %ld\n",
+              countDeleteInt);
+      fprintf(GlobalOut, "# Array deleted times                  : %ld\n",
+              countDeleteArray);
+      fprintf(GlobalOut, "# Tree deleted times                   : %ld\n",
+              countDeleteTree);
       fprintf(GlobalOut, "\n");
 #endif
 
@@ -1102,34 +1108,10 @@ int main(int argc, char* argv[])
 #ifdef MEASURE_INTMAP_STATS
       printf("# INTMAP STATS\n");
       printf("# STATS-BEGIN\n");
-      printf("# Intmap-Tree hat %ld Eintraege\n", PTreeNodes(intmaps));
+      printf("# Intmap-Tree items                    : %ld \n", PTreeNodes(intmaps));
       print_intmap_stats(intmaps);
       printf("# STATS-END\n");
 
-      /* TODO: DELETE
-      //print_something();
-      printf("intmapTree hat %ld Eintraege\n", PTreeNodes(intmaps->lson));
-      printf("intmapTree hat %ld Eintraege\n", PTreeNodes(intmaps->rson));
-      printf("Badabumm hat %ld \n", ((IntMap_p)intmaps->key)->entry_no); //No access of intmap attributes like Type, so intmap is propably deleted earlier
-      switch(((IntMap_p)intmaps->key)->type)
-      {
-            case IMEmpty:
-                  printf("IMEmpty \n");
-                  break;
-            case IMSingle:
-                  printf("IMSingle \n");
-                  break;
-            case IMArray:
-                  printf("IMArray \n");
-                  break;
-            case IMTree:
-                  printf("IMTree \n");
-                  break;
-      }
-      //printf("Min-Key: %ld \n", ((IntMap_p)intmaps->lson->key)->min_key);
-      //printf("Max-Key: %ld \n", ((IntMap_p)intmaps->lson->key)->max_key);
-      //IntMapDebugPrint(stdout, intmaps);
-      */
 #endif
 //DF-STOP
 
@@ -2310,52 +2292,10 @@ Read a set of first-order clauses and formulae and try to refute it.\n\
 
 //DF-START
 #ifdef MEASURE_INTMAP_STATS
-/*
-void  print_array_item(PDRangeArr_p intmap_array, long i) {
-
-      if(intmap_array->integer) {
-            //Integer
-            if(intmap_array->array[i].i_val == NULL) {
-                  printf("X\n");
-            } else {
-                  printf("U\n");
-            }
-      } else {
-            //Pointer
-            if(intmap_array->array[i].p_val == NULL) {
-                  printf("0");
-            } else {
-                  printf("1");
-            }
-      }
-
-}
-
-void alt_array_density(IntMap_p intmap_key) {
-      PDRangeArr_p intmap_array = intmap_key->values.array;
-      long   size, offset, i;
-      size   = intmap_array->size;
-      offset = intmap_array->offset;
-
-      for(i=offset; i < size-offset; i++) {
-            print_array_item(intmap_array, i);
-      }
-}
-
-
-//tree_to_array(map);
-
-
-void print_tree_as_array(IntMap_p intmap_key) {
-      //tree_to_array(intmap_key);
-      //array_density(intmap_key);
-}
-*/
-
 // Printing out Tree Elements Breadth First
-void print_breadth_first(IntMap_p intmap_key) {
+void print_breadth_first(IntMap_p intmap) {
       NumTree_p temp_tree;
-      NumTree_p intmap_tree = intmap_key->values.tree;
+      NumTree_p intmap_tree = intmap->values.tree;
       PQueue_p tree_queue;
       tree_queue = PQueueAlloc();
 
@@ -2386,36 +2326,13 @@ void print_breadth_first(IntMap_p intmap_key) {
       PQueueFree(tree_queue);
 }
 
-
-int get_tree_height(NumTree_p intmap_tree) {
-      if (intmap_tree == NULL) {
-            return 0;
-      } else {
-            int max_subtree_height;
-
-            // Find height of the subtrees
-            int l_depth = get_tree_height(intmap_tree->lson);
-            int r_depth = get_tree_height(intmap_tree->rson);
-
-            // Determine current max subtree-height
-            if(l_depth > r_depth) {
-               max_subtree_height = l_depth;
-            } else {
-               max_subtree_height = r_depth;
-            }
-
-            //return+ 1 to get the height of the tree
-            return max_subtree_height + 1;
-      }
-}
-
-void print_tree_structure(IntMap_p intmap_key) {
-      if(intmap_key == NULL) {
-            printf("0\n");
+void print_tree_structure(IntMap_p intmap) {
+      if(intmap == NULL) {
+            printf("O\n");
       }
       // Get height of the tree
-      NumTree_p intmap_tree = intmap_key->values.tree;
-      int height = get_tree_height(intmap_tree) - 1;
+      NumTree_p intmap_tree = intmap->values.tree;
+      int height = NumTreeGetHeight(intmap_tree) - 1;
 
       //Allocate Array with height and initialize with root
       NumTree_p tree_level[1<<height];
@@ -2429,9 +2346,9 @@ void print_tree_structure(IntMap_p intmap_key) {
 
                   // Print 1 if node and pointer exists
                   if(temp_tree != NULL && temp_tree->val1.p_val != NULL) {
-                        printf("1");
+                        printf("X");
                   } else {
-                        printf("0");
+                        printf("O");
                   }
 
                   //
@@ -2454,24 +2371,20 @@ void print_tree_structure(IntMap_p intmap_key) {
 }
 
 
-void print_array_structure(IntMap_p intmap_key) {
-      PDRangeArr_p intmap_array = intmap_key->values.array;
+void print_array_structure(IntMap_p intmap) {
+      PDRangeArr_p intmap_array = intmap->values.array;
       long  i;
 
       for(i=PDRangeArrLowKey(intmap_array); i<PDRangeArrLimitKey(intmap_array); i++)
       {
             if(PDRangeArrElementP(intmap_array, i)) {
-                  printf("1");
+                  printf("X");
             } else {
-                  printf("0");
+                  printf("O");
             }
       }
 }
 
-void print_first_tree_item(IntMap_p intmap_key){
-      long a = NumTreeNodes( intmap_key->values.tree );
-      printf("NumTreeNodes: \t %ld\n", a );
-}
 
 long PDRangeArrEmptyMembers(PDRangeArr_p array) {
    long i, res =0;
@@ -2484,57 +2397,58 @@ long PDRangeArrEmptyMembers(PDRangeArr_p array) {
    return res;
 }
 
-void return_intamp_type(PTree_p root) {
+
+//Integer
+void print_stat_header() {
+      printf("IntMapType;Address;EntryNo;MinKey;MaxKey;Offset;Size;Grow;CountGetVal;CountGetRef;");
+      printf("CountAssign;CountDelKey;CountArrayToTree;CountTreeToArray;NumberOfItems;NumberOfEmptyCells;");
+      printf("TreeHeight;MinNode;MaxNode;MinMaxDistance;Linearity;Density;Structure;Index\n");
+}
+
+
+void print_intmap_stat_line(PTree_p root) {
       IntMap_p intmap_key = (IntMap_p)root->key;
+      long int number_values, number_empty, tree_height, min_key, max_key;
+      double density, linearity;
+
       switch(intmap_key->type)
       {
             case IMEmpty:
-                  //printf("IMEmpty \n");
-                  printf("# IntMap-Type: \t IMEmpty(%p)\n", intmap_key);
-                  //IntMapDebugPrint(stdout, intmap_key);
+                  printf("\"IMEmpty\";\"P:%p\";;;;;;;;;;;;;;;;;;;;;;", intmap_key);
                   break;
             case IMSingle:
-                  printf("# IntMap-Type: \t IMSingle(%p)\n", intmap_key);
-                  printf("# Map-Traits (IMSingle %p): \t Entry-No:%d \t Min:%d \t Max:%d\n", intmap_key, intmap_key->entry_no, intmap_key->min_key, intmap_key->max_key);
-                  printf("# Value (IMSingle %p): \tValue:%d\n",  intmap_key, intmap_key->values.value);
-                  //IntMapDebugPrint(stdout, intmap_key);
+                  printf("\"IMSingle\";\"P:%p\";", intmap_key);
+                  printf("%ld;%ld;%ld;", intmap_key->entry_no, intmap_key->min_key, intmap_key->max_key);
+                  printf(";;;;;;;;;;;;;;;;;;");
                   break;
             case IMArray:
-                  printf("# IntMap-Type: \t IMArray(%p)\n", intmap_key);
-                  printf("# Map-Traits (IMArray %p): \t Entry-No:%d \t Min:%d \t Max:%d\n", intmap_key, intmap_key->entry_no, intmap_key->min_key, intmap_key->max_key);
-                  printf("# Values-Traits (IMArray %p): \t Offset:%d \t Size:%d \t Grow:%d \t Integer:%s \n", intmap_key, intmap_key->values.array->offset, intmap_key->values.array->size, intmap_key->values.array->grow, intmap_key->values.array->integer? "True":"False" );
-                  printf("# Executed function IntMapGetVal (IMArray %p): \t %d\n", intmap_key, intmap_key->countGetVal);
-                  printf("# Executed function IntMapGetRef (IMArray %p): \t %d\n", intmap_key, intmap_key->countGetRef);
-                  printf("# Executed function IntMapAssign (IMArray %p): \t %d\n", intmap_key, intmap_key->countAssign);
-                  printf("# Executed function IntMapDelKey (IMArray %p): \t %d\n", intmap_key, intmap_key->countDelKey);
-                  printf("# Executed function array_to_tree (IMArray %p): \t %d\n", intmap_key, intmap_key->countArrayToTree);
-                  printf("# Executed function tree_to_array (IMArray %p): \t %d\n", intmap_key, intmap_key->countTreeToArray);
-                  printf("# Number of items (IMArray %p): \t %d\n", intmap_key, PDRangeArrMembers(intmap_key->values.array));
-                  printf("# Number of empty cells (IMArray %p): \t %d\n", intmap_key, PDRangeArrEmptyMembers(intmap_key->values.array));
-                  printf("# Structure of Array (IMArray %p): \t", intmap_key);
+                  printf("\"IMArray\";\"P:%p\";", intmap_key);
+                  printf("%ld;%ld;%ld;", intmap_key->entry_no, intmap_key->min_key, intmap_key->max_key);
+                  printf("%ld;%ld;%d;", intmap_key->values.array->offset, intmap_key->values.array->size, intmap_key->values.array->grow);
+                  printf("%ld;%ld;%ld;%ld;%ld;%ld;", intmap_key->countGetVal, intmap_key->countGetRef, intmap_key->countAssign, intmap_key->countDelKey, intmap_key->countArrayToTree, intmap_key->countTreeToArray);
+                  number_values = PDRangeArrMembers(intmap_key->values.array);
+                  number_empty = PDRangeArrEmptyMembers(intmap_key->values.array);
+                  density = (double)number_values/(double)(number_empty+number_values);
+                  printf("%ld;%ld;;%ld;%ld;%ld;;%f;\"", number_values, number_empty, intmap_key->min_key, intmap_key->max_key, intmap_key->max_key - intmap_key->min_key, density);
                   print_array_structure(intmap_key);
-                  printf("\n");
-                  //IntMapDebugPrint(stdout, intmap_key);
+                  printf("\";");
                   break;
             case IMTree:
-                  printf("# IntMap-Type: \t IMTree(%p)\n", intmap_key);
-                  printf("# Map-Traits (IMTree %p): \t Entry-No:%d \t Min:%d \t Max:%d\n", intmap_key, intmap_key->entry_no, intmap_key->min_key, intmap_key->max_key);
-                  //printf("# Values-Traits (IMTree %p): \t key:%d\n", intmap_key, intmap_key->values.tree->key);
-                  printf("# Executed function IntMapGetVal (IMTree %p): \t %d\n", intmap_key, intmap_key->countGetVal);
-                  printf("# Executed function IntMapGetRef (IMTree %p): \t %d\n", intmap_key, intmap_key->countGetRef);
-                  printf("# Executed function IntMapAssign (IMTree %p): \t %d\n", intmap_key, intmap_key->countAssign);
-                  printf("# Executed function IntMapDelKey (IMTree %p): \t %d\n", intmap_key, intmap_key->countDelKey);
-                  printf("# Executed function array_to_tree (IMTree %p): \t %d\n", intmap_key, intmap_key->countArrayToTree);
-                  printf("# Executed function tree_to_array (IMTree %p): \t %d\n", intmap_key, intmap_key->countTreeToArray);
-                  printf("# Number of items (IMTree %p): \t %d\n", intmap_key, NumTreeNodes(intmap_key->values.tree));
-                  printf("# Tree height (IMTree %p): \t %d\n", intmap_key, get_tree_height(intmap_key->values.tree));
-                  printf("# Structure of Tree (IMTree %p): \t ", intmap_key);
+                  printf("\"IMTree\";\"P:%p\";", intmap_key);
+                  printf("%ld;%ld;%ld;;;;", intmap_key->entry_no, intmap_key->min_key, intmap_key->max_key);
+                  printf("%ld;%ld;%ld;%ld;%ld;%ld;", intmap_key->countGetVal, intmap_key->countGetRef, intmap_key->countAssign, intmap_key->countDelKey, intmap_key->countArrayToTree, intmap_key->countTreeToArray);
+                  number_values = NumTreeNodes(intmap_key->values.tree);
+                  tree_height = NumTreeGetHeight(intmap_key->values.tree);
+                  min_key = NumTreeMinKey(intmap_key->values.tree);
+                  max_key = NumTreeMaxKey(intmap_key->values.tree);
+                  printf("%ld;;%ld;%ld;%ld;%ld;", number_values, tree_height, min_key, max_key, max_key - min_key );
+                  printf("%f;%f;\"", (double)number_values / (double)tree_height, (double)number_values / (double)((2<<tree_height) - 1 ));
                   print_tree_structure(intmap_key);
-                  printf("\n");
-                  //IntMapDebugPrint(stdout, intmap_key);
+                  printf("\";");
                   break;
       }
 }
+
 
 void print_intmap_stats(PTree_p root) {
 
@@ -2543,13 +2457,15 @@ void print_intmap_stats(PTree_p root) {
    PStackPushP(stack, root);
    int i = 0;
 
+   print_stat_header();
+
    while(!PStackEmpty(stack))
    {
 
       if(root) {
-      printf("%d\n", i);
+            print_intmap_stat_line(root);
+            printf("%d\n", i);
             i++;
-            return_intamp_type(root);
       }
 
       root = PStackPopP(stack);

@@ -134,6 +134,11 @@ extern long countTree;
 
 #ifdef MEASURE_DELETE
 extern long countDelete;
+
+extern long countDeleteEmpty;
+extern long countDeleteInt;
+extern long countDeleteArray;
+extern long countDeleteTree;
 #endif
 //DF-STOP
 

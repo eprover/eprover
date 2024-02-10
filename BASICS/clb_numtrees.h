@@ -76,8 +76,14 @@ bool      NumTreeDeleteEntry(NumTree_p *root, long key);
 long      NumTreeNodes(NumTree_p root);
 NumTree_p NumTreeMaxNode(NumTree_p root);
 
-//long     countLeaves(NumTree_p *whole_tree);
 #define   NumTreeMaxKey(tree) (NumTreeMaxNode(tree)->key)
+
+//DF-START
+NumTree_p NumTreeMinNode(NumTree_p root);
+#define   NumTreeMinKey(tree) (NumTreeMinNode(tree)->key)
+
+int NumTreeGetHeight(NumTree_p root);
+//DF-STOP
 
 PStack_p NumTreeLimitedTraverseInit(NumTree_p root, long limit);
 

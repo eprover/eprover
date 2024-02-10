@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python3.10
 # ----------------------------------
 #
 # examine_intmap.py
@@ -7,24 +7,32 @@
 # of the current intMap-datatype.
 #
 # Version history:
-# 0.1 Wed Oct  11 21:10:30 CEST 2006
+# 0.1 Wed Oct  11 19:33:30 CEST 2023
 #     Draft version
+# 0.2 Wed Jan  10 00:00:30 CEST 2024
+#     Productive version
 
 """
 examine_intmap.py
 
 Usage: examine_intmap.py [Options]
 
-Read an input file, determine the problem class, select a suitable
-schedule and run E accordingly.
-
-?Restriction: The initial version only reads a fixed format and does
-?not support extra options.
+Read a single or multiple directories, select problem-files as input for E.
+Filters and uses the output to create CSV-Files.
 
 Options:
 
 -h
  Print this information and exit.
+
+<url_1> <url_2>
+url_1 -> problem path; instead of a link 'default' can be used
+url_2 -> target path; instead of a link 'default' can be used
+
+<url_1> <url_2> <mode>
+url_1 -> problem path; instead of a link 'default' can be used
+url_2 -> target path; instead of a link 'default' can be used
+mode -> mode, optional; default is multiple
 
 ?Copyright 2023 ???Denis Feuerstein, schulz@eprover.org???
 
@@ -53,47 +61,154 @@ Germany
 or via email (address above).
 """
 
-#function to select directories                     X
-#function to select problem-files                   X
-#function to select options                         X
-#function to build list -> return(statement_lst)    X
-#function to run the statement                      X
-#function to filter the returned lines
-#function to clean string
-#function to build csv file
-#function to throw out documentation-string
 
-
-
-
-###########
-# Imports #
-###########
-
+####################################
+# IMPORTS
+####################################
 import re
 import os
+import sys
 from subprocess import Popen, PIPE
 
 
+####################################
+# SET GLOBAL VARIABLES
+####################################
+# HELP-TEXT
+help_text = "examine_intmap.py\n\n"
+help_text = help_text + "Usage: examine_intmap.py [Options]\n\n"
+help_text = help_text + "Read a single or multiple directories, "
+help_text = help_text + "select problem-files as input for E."
+help_text = help_text + "Filters and uses the output to create CSV-Files.\n\n"
+help_text = help_text + "Options:\n\n"
+help_text = help_text + "-h\nPrint this information and exit.\n\n"
+help_text = help_text + "<url_1> <url_2>\n"
+help_text = help_text + "url_1 -> problem path; instead of a "
+help_text = help_text + "link 'default' can be used\n"
+help_text = help_text + "url_2 -> target path; instead of a "
+help_text = help_text + "link 'default' can be used\n\n"
+help_text = help_text + "<url_1> <url_2> <mode>\n"
+help_text = help_text + "url_1 -> problem path; instead of a link"
+help_text = help_text + " 'default' can be used\n"
+help_text = help_text + "url_2 -> target path; instead of a link"
+help_text = help_text + " 'default' can be used\n"
+help_text = help_text + "mode -> mode, optional; default is multiple\n"
 
-
-#############
-# Variables #
-#############
-
+# ARGUMENT-VARIABLES
 eprover_path = './../PROVER/eprover'
 problem_path = '../EXAMPLE_PROBLEMS'
+target_path = '../../'
+mode = "m"  # multi or single directory mode
+# ./eprover --auto --memory-limit=2000
+# ../../TPTP-v8.2.0/Problems/COL/COL002-1.p
+# ../../TPTP-v8.2.0/Problems/HWC
+
 statement_lst = []
 directories_lst = []
 problem_lst = []
 lines = {}
+csv_lines = {}
+
+keyword_common_stats_lst = [
+ "Status",
+ "Reason",
+ "ParsedAxioms",
+ "RemovedByRelevancyPruning",
+ "InitialClauses",
+ "RemovedClausePreprocessing",
+ "InitialClausesInSaturation",
+ "ProcessedClauses",
+ "ProcClausTrivial",
+ "ProcClausSubsumed",
+ "ProcClausRemaining",
+ "EmptyInvoked",
+ "IntInvoked",
+ "ArrayInvoked",
+ "TreeInvoked",
+ "MapDeleted",
+ "EmptyDeleted",
+ "IntDeleted",
+ "ArrayDeleted",
+ "TreeDeleted",
+ "IntmapItems",
+ "UserTime",
+ "SystemTime",
+ "TotalTime"]
+common_stats_dct = {}
+
+# CONDITIONS FOR COMMON STATS
+sub_str_status_1 = "# No proof found!"
+sub_str_status_2 = "# Proof found!"
+sub_str_status_3 = "# Failure: Out of unprocessed clauses!"
+sub_str_status_4 = "# Failure: Resource limit exceeded (memory)"
+sub_str_status_5 = "# Failure: Resource limit exceeded (time)"
+sub_str_status_6 = "# Failure: User resource limit exceeded"
+sub_str_parsed_axioms = "# Parsed axioms "
+sub_str_removed_pruning = "# Removed by relevancy pruning/SinE"
+sub_str_init_clauses = "# Initial clauses  "
+sub_str_removed_preproc = "# Removed in clause preprocessing"
+sub_str_init_clauses_sat = "# Initial clauses in saturation"
+sub_str_proc_clauses = "# Processed clauses"
+sub_str_proc_clauses_triv = "# ...of these trivial"
+sub_str_proc_clauses_sub = "# ...subsumed"
+sub_str_proc_clauses_rem = "# ...remaining for further processing"
+sub_str_empty_invoked = "# Empty invoked times"
+sub_str_int_invoked = "# Int invoked times"
+sub_str_array_invoked = "# Array invoked times"
+sub_str_tree_invoked = "# Tree invoked times"
+sub_str_map_deleted = "# Map deleted times"
+sub_str_empty_deleted = "# Empty deleted times"
+sub_str_int_deleted = "# Int deleted times"
+sub_str_array_deleted = "# Array deleted times"
+sub_str_tree_deleted = "# Tree deleted times"
+sub_str_map_items = "# Intmap-Tree items"
+sub_str_user_time = "# User time"
+sub_str_system_time = "# System time"
+sub_str_total_time = "# Total time"
+
+# CONDITIONS FOR SPECIFIC STATS
+sub_string_header = "IntMapType;Address"
+sub_string_IMEmpty = '"IMEmpty";'
+sub_string_IMSingle = '"IMSingle";'
+sub_string_IMArray = '"IMArray";'
+sub_string_IMTree = '"IMTree";'
 
 
+####################################
+# ARGUMENTS
+####################################
+arr_len = len(sys.argv)
 
-#############
-# Functions #
-#############
+if(arr_len == 2):
+    if(sys.argv[1] == '-h'):
+        print(help_text)
+        exit()
+elif (2 < arr_len and arr_len < 5):
+    if(sys.argv[1] == 'default'):
+        target_path = sys.argv[2] + '/'
+    elif(sys.argv[2] == 'default'):
+        problem_path = sys.argv[1]
+    elif(sys.argv[1] != 'default' and sys.argv[2] != 'default'):
+        problem_path = sys.argv[1]
+        target_path = sys.argv[2] + '/'
+    if(arr_len == 4):
+        if(sys.argv[3] == "s"):
+            mode = sys.argv[3]
+else:
+    print("Too many/few arguments! Going on with default setting.")
 
+print(sys.argv)
+
+
+####################################
+####################################
+###### FUNCTION DEFINITION #########
+####################################
+####################################
+
+####################################
+# GET FILES AND DIRECTORIES
+####################################
 def select_directories(problem_path):
     """Select sub-directories according to given problem-path
 
@@ -103,10 +218,10 @@ def select_directories(problem_path):
         List
     """
 
-    #list files and directories
+    # list files and directories
     example_directories = os.listdir(problem_path)
 
-    #remove every list-item, that is not a directory
+    # remove every list-item, that is not a directory
     for directory in example_directories:
         if(not(os.path.isdir(problem_path + '/' + directory))):
             example_directories.remove(directory)
@@ -114,6 +229,21 @@ def select_directories(problem_path):
     return example_directories
 
 
+def return_directories(problem_path, mode):
+    """Returns either a list of directories or the given
+    problem_path-String as list
+
+    Args:
+        problem_path: Name of the path to the problems
+        mode: controls if directory-list or problem_path-String as list
+    Returns:
+        List
+    """
+
+    if(mode == 'm'):
+        return select_directories(problem_path)
+    elif(mode == 's'):
+        return [problem_path]
 
 
 def select_files(problem_path, directories_lst):
@@ -128,21 +258,54 @@ def select_files(problem_path, directories_lst):
 
     problem_lst = []
 
-    #Select directory-items, find out if they are files or not and add them to the list
+    # Select directory-items, find out if they are files or not and add them to the list
     for directory in directories_lst:
         files_lst = []
         files_lst.extend(os.listdir(problem_path + '/' + directory))
 
         for problem_file in files_lst:
-            if(os.path.isfile(problem_path + '/' + directory + '/' + problem_file) and ('.lop' in problem_file or  '.p' in problem_file or '.tptp' in problem_file )):
-               problem_lst.append(problem_path + '/' + directory + '/' + problem_file)
+            if(os.path.isfile(problem_path + '/' + directory + '/' + problem_file)
+             and ('.p' in problem_file or '.tptp' in problem_file )):
+                # '.lop' in problem_file or
+                # print(problem_path + '/' + directory + '/' + problem_file)
+                problem_lst.append(problem_path + '/' + directory + '/' + problem_file)
 
     return problem_lst
 
 
+def return_files(problem_path, directories_lst, mode):
+    """Select problem-files according to given path and mode
+
+    Args:
+        problem_path: Name of the path to the problems
+        directories_lst: Sub-directories to the given problem_path
+        mode: controls if only one directory or multiple
+        directories are scanned
+    Returns:
+        List
+    """
+
+    if(mode == 'm'):
+        return select_files(problem_path, directories_lst)
+    elif(mode == 's'):
+        problem_lst = []
+        files_lst = []
+        # print(problem_path)
+        files_lst.extend(os.listdir(problem_path))
+        # print(files_lst)
+        for problem_file in files_lst:
+            if(os.path.isfile(problem_path + '/' + problem_file)
+             and ('.p' in problem_file or '.tptp' in problem_file)):
+                # '.lop' in problem_file or
+                # print(problem_path + '/' + problem_file)
+                problem_lst.append(problem_path + '/' + problem_file)
+        return problem_lst
 
 
-def select_options ():
+####################################
+# BUILD EPROVER CALL
+####################################
+def select_options():
     """Select options ...
 
     Args:
@@ -151,13 +314,11 @@ def select_options ():
         List
     """
 
-    eprover_options = ['--print-statistics', '--auto', '--memory-limit=2000']
+    eprover_options = ['--print-statistics', '--auto', '-R', '--memory-limit=2000']
     return eprover_options
 
 
-
-
-####function to build list -> return(statement_lst)
+# function to build list -> return(statement_lst)
 def build_list(eprover_path, eprover_options, problem_path):
     statement = []
 
@@ -170,7 +331,9 @@ def build_list(eprover_path, eprover_options, problem_path):
 #####
 
 
-
+####################################
+# STRING EXTRACT FUNCTIONS
+####################################
 def string_select(input_string):
     """ Select the string according to searched pattern
 
@@ -180,110 +343,255 @@ def string_select(input_string):
         Boolean
     """
 
-    sub_string_immap_stats = "# INTMAP STATS\\n"
-    sub_string_imtree_stats = "# STATS-"
-    sub_string_imtree_count = "# Intmap-Tree hat"
-
-    sub_string_no_proof = "# No proof found!"
-    sub_string_found_proof = "# Proof found!"
-    sub_string_total_time = "# Total time"
-    sub_string_inv_emp = '# Empty invoked times'
-    sub_string_inv_int = '# Int invoked times'
-    sub_string_inv_arr = '# Array invoked times'
-    sub_string_inv_tree = '# Tree invoked times'
-    sub_string_deleted = '# Map deleted times'
-
-    sub_string_type = "# IntMap-Type: \\t "
-    sub_string_exec_func = "# Executed function "
-    sub_string_map_traits = "# Map-Traits "
-    sub_string_values_traits = "# Values-Traits "
-    sub_string_number_items = "# Number of items"
-    sub_string_value_single = "# Value (IMSingle"
-
-    sub_string_empty_cells = "# Number of empty cells (IMArray"
-    sub_string_structure = "# Structure of "
-    sub_string_tree_height = "# Tree height (IMTree"
-
-
-    #sub_string_type_single = "# IntMap-Type: \\t IMSingle";
-    #sub_string_type_array = '# IntMap-Type: \\t IMArray'
-    #sub_string_getval_array = '# Executed function IntMapGetVal (IMArray '
-    #sub_string_getref_array = '# Executed function IntMapGetRef (IMArray '
-    #sub_string_assign_array = '# Executed function IntMapAssign (IMArray '
-    #sub_string_delkey_array = '# Executed function IntMapDelKey (IMArray '
-    #sub_string_nodes_array = '# Nodes inside of Map (IMArray'
-
-    #sub_string_type_tree = '# IntMap-Type: \\t IMTree'
-    #sub_string_getval_tree = '# Executed function IntMapGetVal (IMTree '
-    #sub_string_getref_tree = '# Executed function IntMapGetRef (IMTree '
-    #sub_string_assign_tree = '# Executed function IntMapAssign (IMTree '
-    #sub_string_delkey_tree = '# Executed function IntMapDelKey (IMTree '
-    #sub_string_nodes_tree = '# Nodes inside of Map (IMTree'
-
-    anzahl = '# Anzahl'
-
-    if(sub_string_immap_stats in input_string):
+    if(sub_string_header in input_string):
         return True
-    elif(sub_string_imtree_stats in input_string):
+    elif(sub_string_IMEmpty in input_string):
         return True
-    elif(sub_string_imtree_count in input_string):
+    elif(sub_string_IMSingle in input_string):
         return True
-    elif(sub_string_no_proof in input_string):
+    elif(sub_string_IMArray in input_string):
         return True
-    elif(sub_string_found_proof in input_string):
-        return True
-    elif(sub_string_total_time in input_string):
-        return True
-    elif(sub_string_inv_emp in input_string):
-        return True
-    elif(sub_string_inv_int in input_string):
-        return True
-    elif(sub_string_inv_arr in input_string):
-        return True
-    elif(sub_string_inv_tree in input_string):
-        return True
-    elif(sub_string_deleted in input_string):
-        return True
-    elif(sub_string_type in input_string):
-        return True
-    elif(sub_string_exec_func in input_string):
-        return True
-    elif(sub_string_map_traits in input_string):
-        return True
-    elif(sub_string_values_traits in input_string):
-        return True
-    elif(sub_string_number_items in input_string):
-        return True
-    elif(sub_string_value_single in input_string):
-        return True
-    elif(sub_string_empty_cells in input_string):
-        return True
-    elif(sub_string_structure in input_string):
-        return True
-    elif(sub_string_tree_height in input_string):
-        return True
-    elif(anzahl in input_string):
+    elif(sub_string_IMTree in input_string):
         return True
     else:
         return False
 
 
-def string_clean():
-    """gets a list,  returns a data frame
+def select_csv_lines(input_string):
+    """ Select the string according to searched pattern
 
     Args:
-        input_string: xxx
+        input_string: incomming string
     Returns:
         Boolean
     """
-    #re.find(r'\d', string)
-    pass
+
+    if(sub_str_status_1 in input_string):
+        return True
+    elif(sub_str_status_2 in input_string):
+        return True
+    elif(sub_str_status_3 in input_string):
+        return True
+    elif(sub_str_status_4 in input_string):
+        return True
+    elif(sub_str_status_5 in input_string):
+        return True
+    elif(sub_str_status_6 in input_string):
+        return True
+    elif(sub_str_parsed_axioms in input_string):
+        return True
+    elif(sub_str_removed_pruning in input_string):
+        return True
+    elif(sub_str_init_clauses in input_string):
+        return True
+    elif(sub_str_removed_preproc in input_string):
+        return True
+    elif(sub_str_init_clauses_sat in input_string):
+        return True
+    elif(sub_str_proc_clauses in input_string):
+        return True
+    elif(sub_str_proc_clauses_triv in input_string):
+        return True
+    elif(sub_str_proc_clauses_sub in input_string):
+        return True
+    elif(sub_str_proc_clauses_rem in input_string):
+        return True
+    elif(sub_str_empty_invoked in input_string):
+        return True
+    elif(sub_str_int_invoked in input_string):
+        return True
+    elif(sub_str_array_invoked in input_string):
+        return True
+    elif(sub_str_tree_invoked in input_string):
+        return True
+    elif(sub_str_map_deleted in input_string):
+        return True
+    elif(sub_str_empty_deleted in input_string):
+        return True
+    elif(sub_str_int_deleted in input_string):
+        return True
+    elif(sub_str_array_deleted in input_string):
+        return True
+    elif(sub_str_tree_deleted in input_string):
+        return True
+    elif(sub_str_map_items in input_string):
+        return True
+    elif(sub_str_user_time in input_string):
+        return True
+    elif(sub_str_system_time in input_string):
+        return True
+    elif(sub_str_total_time in input_string):
+        return True
+    else:
+        return False
 
 
+def extract_values_into_dict(common_stats_line_dct, stats):
+    """Filters the incomming string, extracts the value
+    and puts it in the corresponding cell of the dictionary
+
+    Args:
+        common_stats_line_dct: dictionary, later used to build CSV-line
+        stats: incomming string
+    Returns:
+        None
+    """
+
+    if(sub_str_status_1 in stats):
+        common_stats_line_dct["Status"] = "N"
+        common_stats_line_dct["Reason"] = "success"
+    elif(sub_str_status_2 in stats):
+        common_stats_line_dct["Status"] = "T"
+        common_stats_line_dct["Reason"] = "success"
+    elif(sub_str_status_3 in stats):
+        common_stats_line_dct["Status"] = "F"
+        common_stats_line_dct["Reason"] = "incomplete"
+    elif(sub_str_status_4 in stats):
+        common_stats_line_dct["Status"] = "U"
+        common_stats_line_dct["Reason"] = "maxmem"
+    elif(sub_str_status_5 in stats):
+        common_stats_line_dct["Status"] = "U"
+        common_stats_line_dct["Reason"] = "maxtime"
+    elif(sub_str_status_6 in stats):
+        common_stats_line_dct["Status"] = "U"
+        common_stats_line_dct["Reason"] = "maxres"
+    elif(sub_str_parsed_axioms in stats):
+        common_stats_line_dct["ParsedAxioms"] = stats[stats.rfind(': ')+2:]
+    elif(sub_str_removed_pruning in stats):
+        common_stats_line_dct["RemovedByRelevancyPruning"] = stats[stats.rfind(': ')+2:]
+    elif(sub_str_init_clauses in stats):
+        common_stats_line_dct["InitialClauses"] = stats[stats.rfind(': ')+2:]
+    elif(sub_str_removed_preproc in stats):
+        common_stats_line_dct["RemovedClausePreprocessing"] = stats[stats.rfind(': ')+2:]
+    elif(sub_str_init_clauses_sat in stats):
+        common_stats_line_dct["InitialClausesInSaturation"] = stats[stats.rfind(': ')+2:]
+    elif(sub_str_proc_clauses in stats):
+        common_stats_line_dct["ProcessedClauses"] = stats[stats.rfind(': ')+2:]
+    elif(sub_str_proc_clauses_triv in stats):
+        common_stats_line_dct["ProcClausTrivial"] = stats[stats.rfind(': ')+2:]
+    elif(sub_str_proc_clauses_sub in stats):
+        common_stats_line_dct["ProcClausSubsumed"] = stats[stats.rfind(': ')+2:]
+    elif(sub_str_proc_clauses_rem in stats):
+        common_stats_line_dct["ProcClausRemaining"] = stats[stats.rfind(': ')+2:]
+    elif(sub_str_empty_invoked in stats):
+        common_stats_line_dct["EmptyInvoked"] = stats[stats.rfind(': ')+2:]
+    elif(sub_str_int_invoked in stats):
+        common_stats_line_dct["IntInvoked"] = stats[stats.rfind(': ')+2:]
+    elif(sub_str_array_invoked in stats):
+        common_stats_line_dct["ArrayInvoked"] = stats[stats.rfind(': ')+2:]
+    elif(sub_str_tree_invoked in stats):
+        common_stats_line_dct["TreeInvoked"] = stats[stats.rfind(': ')+2:]
+    elif(sub_str_map_deleted in stats):
+        common_stats_line_dct["MapDeleted"] = stats[stats.rfind(': ')+2:]
+    elif(sub_str_empty_deleted in stats):
+        common_stats_line_dct["EmptyDeleted"] = stats[stats.rfind(': ')+2:]
+    elif(sub_str_int_deleted in stats):
+        common_stats_line_dct["IntDeleted"] = stats[stats.rfind(': ')+2:]
+    elif(sub_str_array_deleted in stats):
+        common_stats_line_dct["ArrayDeleted"] = stats[stats.rfind(': ')+2:]
+    elif(sub_str_tree_deleted in stats):
+        common_stats_line_dct["TreeDeleted"] = stats[stats.rfind(': ')+2:]
+    elif(sub_str_map_items in stats):
+        common_stats_line_dct["IntmapItems"] = stats[stats.rfind(': ')+2:]
+    elif(sub_str_user_time in stats):
+        common_stats_line_dct["UserTime"] = re.sub(" s", "", stats[stats.rfind(': ')+2:])
+    elif(sub_str_system_time in stats):
+        common_stats_line_dct["SystemTime"] = re.sub(" s", "", stats[stats.rfind(': ')+2:])
+    elif(sub_str_total_time in stats):
+        common_stats_line_dct["TotalTime"] = re.sub(" s", "", stats[stats.rfind(': ')+2:])
 
 
+####################################
+# STRING MANIPULATION FUNCTIONS
+####################################
+def string_clean(line_str):
+    """gets a line as a string and cleans it from unwanted bi-products
+
+    Args:
+        line_str: String to clean
+    Returns:
+        String
+    """
+
+    return re.sub("b'|'|\\\\n", "", line_str)
+
+
+def return_problem_name(problem):
+    """Returns problem-name
+
+    Args:
+        problem: problem-path with problem-filename
+    Returns:
+        String
+    """
+
+    return re.sub("|\.p|\.lop|\.tptp", "", problem[problem.rfind('/')+1:])
+
+
+def return_file_name(target_path, problem):
+    """Returns file-path with problem-filename
+
+    Args:
+        target_path: path to directory
+        problem: problem-path with problem-filename
+    Returns:
+        String
+    """
+
+    if (target_path == "../../"):
+        file_name = target_path + return_problem_name(problem) + ".csv"
+        return file_name
+    else:
+        if(os.path.isdir(target_path)):
+            file_name = target_path + return_problem_name(problem) + ".csv"
+            return file_name
+        else:
+            print("Directory not found - using default directory")
+            file_name = "../../" + return_problem_name(problem) + ".csv"
+            return file_name
+
+
+####################################
+# CONVERT INTO CSV FUNCTIONS
+####################################
+def build_header(keyword_common_stats_lst):
+    """Builds the header for the CSV-file based on input-list
+
+    Args:
+        keyword_common_stats_lst: list of keywords
+    Returns:
+        String
+    """
+    header_str = "Problem"
+    for keyword in keyword_common_stats_lst:
+        header_str = header_str + ";" + keyword
+
+    return header_str
+
+
+def convert_dict_into_str(prob_str, common_stats_line_dct):
+    """Converts Dictionary into a String to be used as a line
+    for the CSV-File
+
+    Args:
+        prob_str: name of the processed problem
+        common_stats_line_dct: dictionary with collected data
+    Returns:
+        String
+    """
+    csv_str = prob_str
+    for stat in common_stats_line_dct:
+        csv_str = csv_str + ";" + common_stats_line_dct[stat]
+
+    return csv_str
+
+
+####################################
+# EXECUTION FUNCTIONS
+####################################
 def execute_statement(statement_lst):
-    """Executes the statement, described by the arguments given in the list, since Popen() awaits a list of arguments
+    """Executes the statement, described by the arguments
+    given in the list, since Popen() awaits a list of arguments
 
     Args:
         statement_lst: list of arguments
@@ -293,6 +601,7 @@ def execute_statement(statement_lst):
 
     str_not_empty = True
     lines = []
+    csv_lines = []
 
     #Open subprocess with list of arguments and pipe it
     process = Popen(statement_lst, shell=False, stdout=PIPE, stdin=PIPE)
@@ -305,155 +614,101 @@ def execute_statement(statement_lst):
             str_not_empty = False
         else:
             if(string_select(str(line))):
-                lines.append(str(line))
+                lines.append(string_clean(str(line)))
+            elif(select_csv_lines(str(line))):
+                csv_lines.append(string_clean(str(line)))
 
     process.kill()
 
-    return lines
+    return [lines, csv_lines]
 
 
+####################################
+####################################
+####### EXECUTION DIVISION #########
+####################################
+####################################
 
-###############
-# Run Program #
-###############
+####################################
+# SET VARIABLES AND OPTIONS
+####################################
 
-directories_lst = select_directories(problem_path)
-problem_lst = select_files(problem_path, directories_lst)
+directories_lst = return_directories(problem_path, mode)
+problem_lst = return_files(problem_path, directories_lst, mode)
 eprover_options = select_options()
-#problem_path = '../EXAMPLE_PROBLEMS/SMOKETEST/ALL_RULES.p'
 
+
+####################################
+# CALL E AND SCAN OUTPUT
+####################################
 
 for problem in problem_lst:
-    if(problem == '../EXAMPLE_PROBLEMS/SMOKETEST/ALL_RULES.p' or problem == '../EXAMPLE_PROBLEMS/SMOKETEST/socrates.p'
-       or problem == '../EXAMPLE_PROBLEMS/SMOKETEST/BOO020-1.p' or
-       #problem == '../EXAMPLE_PROBLEMS/TPTP/BOO006-1.p'
-       #problem == '../EXAMPLE_PROBLEMS/TPTP/SET183-6.p'
-       #problem == '../EXAMPLE_PROBLEMS/TPTP/SWV851-1.p'
-       #or problem == '../EXAMPLE_PROBLEMS/SMOKETEST/GROUP1st.p' or problem == '../EXAMPLE_PROBLEMS/SMOKETEST/LUSK6.lop'
-       #or problem == '../EXAMPLE_PROBLEMS/TPTP/BOO010-2.p' or problem == '../EXAMPLE_PROBLEMS/SMOKETEST/LUSK6ext.lop'
-       problem == '../EXAMPLE_PROBLEMS/SMOKETEST/ans_test06.p' or problem == '../EXAMPLE_PROBLEMS/SMOKETEST/CNFTest.p'
-       ):
-        #statement_lst = build_list(eprover_path, eprover_options, problem)
+    if(problem == '../EXAMPLE_PROBLEMS/SMOKETEST/ALL_RULES.p'
+       or problem == '../EXAMPLE_PROBLEMS/SMOKETEST/socrates.p'
+       or problem == '../EXAMPLE_PROBLEMS/SMOKETEST/BOO020-1.p'
+       or problem == '../../TPTP-v8.2.0/Problems/HWC/HWC003-1.p'
+       # or problem == '../EXAMPLE_PROBLEMS/TPTP/BOO006-1.p'
+       # or problem == '../EXAMPLE_PROBLEMS/TPTP/SET183-6.p'
+       # or problem == '../EXAMPLE_PROBLEMS/TPTP/SWV851-1.p'
+       or problem == '../EXAMPLE_PROBLEMS/SMOKETEST/GROUP1st.p'
+       or problem == '../EXAMPLE_PROBLEMS/SMOKETEST/LUSK6.lop'
+       # or problem == '../EXAMPLE_PROBLEMS/TPTP/BOO010-2.p'
+       # or problem == '../EXAMPLE_PROBLEMS/SMOKETEST/LUSK6ext.lop'
+       or problem == '../EXAMPLE_PROBLEMS/SMOKETEST/ans_test06.p'
+       or problem == '../EXAMPLE_PROBLEMS/SMOKETEST/CNFTest.p'):
+        # statement_lst = build_list(eprover_path, eprover_options, problem)
         statement_lst = []
         statement_lst.append(eprover_path)
         statement_lst.extend(eprover_options)
         statement_lst.append(problem)
-        lines[problem] = execute_statement(statement_lst)
+        temp_lines = execute_statement(statement_lst)
+        lines[problem] = temp_lines[0]
+        csv_lines[problem] = temp_lines[1]
 
 
+####################################
+# BUILD CSV-FILES
+####################################
 
-print('../EXAMPLE_PROBLEMS/SMOKETEST/ALL_RULES.p')
-line = ['../EXAMPLE_PROBLEMS/SMOKETEST/ALL_RULES.p']
-line.extend(lines['../EXAMPLE_PROBLEMS/SMOKETEST/ALL_RULES.p'])
-print(*line, sep='\n')
+for p in problem_lst:
+    file_name = return_file_name(target_path, p)
 
-print('../EXAMPLE_PROBLEMS/SMOKETEST/socrates.p')
-line.extend(['../EXAMPLE_PROBLEMS/SMOKETEST/socrates.p'])
-line.extend(lines['../EXAMPLE_PROBLEMS/SMOKETEST/socrates.p'])
-print(*line, sep='\n')
+    if(p == '../EXAMPLE_PROBLEMS/SMOKETEST/ALL_RULES.p'
+       or p == '../EXAMPLE_PROBLEMS/SMOKETEST/socrates.p'
+       or p == '../EXAMPLE_PROBLEMS/SMOKETEST/BOO020-1.p'
+       or p == '../EXAMPLE_PROBLEMS/SMOKETEST/ans_test06.p'
+       or p == '../EXAMPLE_PROBLEMS/SMOKETEST/CNFTest.p'
+       or p == '../../TPTP-v8.2.0/Problems/HWC/HWC003-1.p'
+       ):
+        common_stats_dct[p] = dict.fromkeys(keyword_common_stats_lst, " ")
+        for stat_line in csv_lines[p]:
+            extract_values_into_dict(common_stats_dct[p], stat_line)
 
-print('../EXAMPLE_PROBLEMS/SMOKETEST/ans_test06.p')
-line.extend(['../EXAMPLE_PROBLEMS/SMOKETEST/ans_test06.p'])
-line.extend(lines['../EXAMPLE_PROBLEMS/SMOKETEST/ans_test06.p'])
-print(*line, sep='\n')
-
-print('../EXAMPLE_PROBLEMS/SMOKETEST/BOO020-1.p')
-line.extend(['../EXAMPLE_PROBLEMS/SMOKETEST/BOO020-1.p'])
-line.extend(lines['../EXAMPLE_PROBLEMS/SMOKETEST/BOO020-1.p'])
-print(*line, sep='\n')
-
-
-print('../EXAMPLE_PROBLEMS/SMOKETEST/CNFTest.p')
-line.extend(['../EXAMPLE_PROBLEMS/SMOKETEST/CNFTest.p'])
-line.extend(lines['../EXAMPLE_PROBLEMS/SMOKETEST/CNFTest.p'])
-print(*line, sep='\n')
-"""
-print('../EXAMPLE_PROBLEMS/SMOKETEST/ans_test06.p')
-line = lines['../EXAMPLE_PROBLEMS/SMOKETEST/ans_test06.p']
-print(*line, sep='\n')
-
-print('../EXAMPLE_PROBLEMS/SMOKETEST/CNFTest.p')
-line = lines['../EXAMPLE_PROBLEMS/SMOKETEST/CNFTest.p']
-print(*line, sep='\n')
-"""
-
-#print('../EXAMPLE_PROBLEMS/TPTP/SWV851-1.p')
-#line = lines['../EXAMPLE_PROBLEMS/TPTP/SWV851-1.p']
-#print('../EXAMPLE_PROBLEMS/TPTP/SET183-6.p')
-#line = lines['../EXAMPLE_PROBLEMS/TPTP/SET183-6.p']
-
-#print('../EXAMPLE_PROBLEMS/SMOKETEST/BOO020-1.p')
-#line = lines['../EXAMPLE_PROBLEMS/SMOKETEST/BOO020-1.p']
-#print(*line, sep='\n')
+        with open(file_name, 'w') as out_file:
+            out_file.write('{0}\n'.format('\n '.join(str(n) for n in lines[p])))
 
 
-with open('test.txt', 'w') as out_file:
-    out_file.write('{0}\n'.format('\n '.join(str(n) for n in line)))
+####################################
+# BUILD COMMON-CSV-FILE
+####################################
 
+csv_input_lst = [build_header(keyword_common_stats_lst)]
 
-#print('../EXAMPLE_PROBLEMS/TPTP/BOO006-1.p')
-#line = lines['../EXAMPLE_PROBLEMS/TPTP/BOO006-1.p']
-#print(*line, sep='\n')
+for p in problem_lst:
+    if(p == '../EXAMPLE_PROBLEMS/SMOKETEST/ALL_RULES.p'
+       or p == '../EXAMPLE_PROBLEMS/SMOKETEST/socrates.p'
+       or p == '../EXAMPLE_PROBLEMS/SMOKETEST/BOO020-1.p'
+       or p == '../EXAMPLE_PROBLEMS/SMOKETEST/ans_test06.p'
+       or p == '../EXAMPLE_PROBLEMS/SMOKETEST/CNFTest.p'
+       or p == '../../TPTP-v8.2.0/Problems/HWC/HWC003-1.p'):
+        csv_input_lst.append(convert_dict_into_str(return_problem_name(p), common_stats_dct[p]))
 
-#print('../EXAMPLE_PROBLEMS/SMOKETEST/GROUP1st.p')
-#line = lines['../EXAMPLE_PROBLEMS/SMOKETEST/GROUP1st.p']
-#print(*line, sep='\n')
+with open(target_path + "common_stats.csv", 'w') as out_file:
+    out_file.write('{0}\n'.format('\n '.join(str(n) for n in csv_input_lst)))
 
-#print('../EXAMPLE_PROBLEMS/SMOKETEST/LUSK6.lop')
-#line = lines['../EXAMPLE_PROBLEMS/SMOKETEST/LUSK6.lop']
-#print(*line, sep='\n')
-
-#print('../EXAMPLE_PROBLEMS/SMOKETEST/LUSK6ext.lop')
-#line = lines['../EXAMPLE_PROBLEMS/SMOKETEST/LUSK6ext.lop']
-#print(*line, sep='\n')
-
-#print('../EXAMPLE_PROBLEMS/TPTP/BOO010-2.p')
-#line = lines['../EXAMPLE_PROBLEMS/TPTP/BOO010-2.p']
-#print(*line, sep='\n')
-
-
-
-
-
-"""
-print(next((s for s in line if sub_string_inv_int in s), None))
-print(next((s for s in line if sub_string_inv_arr in s), None))
-print(next((s for s in line if sub_string_inv_tree in s), None))
-print(next((s for s in line if sub_string_deleted in s), None))
-"""
-
-"""
-print(next((s for s in line if sub_string_inv_int in s), None))
-print(next((s for s in line if sub_string_inv_arr in s), None))
-print(next((s for s in line if sub_string_inv_tree in s), None))
-print(next((s for s in line if sub_string_deleted in s), None))
-"""
-
-"""
-In Operator ist schneller als RegEx
-"""
-
-
-"""
-if __name__ == '__main__':
-    for option in get_options():
-        if option == "-h":
-            print __doc__
-            sys.exit()
-        else:
-            sys.exit("Unknown option "+ option)
-"""
-
-#Search all files
-"""
-if(os.name == 'nt'):
-    pass # Windows
-elif(os.name == 'posix'):
-    pass # Linux
-
-for b_file in exec_files:
-    print(b_file)
-    os.execl( b_file, ' -e ')
-    #os.system('.' + b_file)
-"""
-
+# TODO:
+### Axiom -> Symlink doesn't work (Argument, SED)
+### Pruning?
+## delete filtering for problem files. (if () elif())
+## make more efficient - Single responsibility principle
+## Get MinMax from Int, Array ... set min max key array switch to array

@@ -561,6 +561,70 @@ NumTree_p NumTreeMaxNode(NumTree_p root)
 }
 
 
+//DF-START
+/*-----------------------------------------------------------------------
+//
+// Function: NumTreeMinNode()
+//
+//   Return the node with the smallest key in the tree (or NULL if tree
+//   is empty). Non-destructive/non-reorganizing.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+NumTree_p NumTreeMinNode(NumTree_p root)
+{
+   if(root)
+   {
+      while(root->lson)
+      {
+         root = root->lson;
+      }
+   }
+   return root;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: NumTreeGetHeight()
+//
+//   Return the height of the tree (0 if tree
+//   is empty). Non-destructive/non-reorganizing.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+int NumTreeGetHeight(NumTree_p root) {
+      if (root == NULL) {
+            return 0;
+      } else {
+            int max_subtree_height;
+
+            // Find height of the subtrees
+            int l_depth = NumTreeGetHeight(root->lson);
+            int r_depth = NumTreeGetHeight(root->rson);
+
+            // Determine current max subtree-height
+            if(l_depth > r_depth) {
+               max_subtree_height = l_depth;
+            } else {
+               max_subtree_height = r_depth;
+            }
+
+            //return+ 1 to get the height of the tree
+            return max_subtree_height + 1;
+      }
+}
+//DF-STOP
+
+
 /*-----------------------------------------------------------------------
 //
 // Function: NumTreeLimitedTraverseInit()
