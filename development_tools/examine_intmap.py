@@ -306,15 +306,17 @@ def return_files(problem_path, directories_lst, mode):
 # BUILD EPROVER CALL
 ####################################
 def select_options():
-    """Select options ...
+    """Returns the options for the eprover. In future implementations
+    will dynamically return the parameters according to input
 
     Args:
-        ...
+        None
     Returns:
         List
     """
 
-    eprover_options = ['--print-statistics', '--auto', '-R', '--memory-limit=2000']
+    eprover_options = ['--print-statistics', '--auto', '-R', '--soft-cpu-limit=10', '--memory-limit=Auto']
+    #eprover_options = ['--print-statistics', '--auto', '-R', '--memory-limit=2000']
     return eprover_options
 
 
@@ -551,6 +553,39 @@ def return_file_name(target_path, problem):
             return file_name
 
 
+def get_problem_directory(problem_path, mode):
+    """Returns the problem-directory without path and with underscore
+
+    Args:
+        problem_path: path to problem-directory
+        mode: single or multiple
+    Returns:
+        String
+    """
+
+    if(mode == 's'):
+        return (problem_path[problem_path[:-1].rfind('/')+1:-1] + "_")
+    else:
+        return ""
+
+
+def get_target_path(target_path, mode):
+    """Returns the target-path and according to mode with added
+    directory - Attention: only worrks if the directory exists!
+
+    Args:
+        target_path: path to target-directory
+        mode: single or multiple
+    Returns:
+        String
+    """
+
+    if(os.path.exists(target_path + "/common_stats") and mode == 's'):
+        return target_path + "common_stats/"
+    else:
+        return target_path
+
+
 ####################################
 # CONVERT INTO CSV FUNCTIONS
 ####################################
@@ -584,6 +619,7 @@ def convert_dict_into_str(prob_str, common_stats_line_dct):
         csv_str = csv_str + ";" + common_stats_line_dct[stat]
 
     return csv_str
+
 
 
 ####################################
@@ -643,20 +679,7 @@ eprover_options = select_options()
 ####################################
 
 for problem in problem_lst:
-    if(problem == '../EXAMPLE_PROBLEMS/SMOKETEST/ALL_RULES.p'
-       or problem == '../EXAMPLE_PROBLEMS/SMOKETEST/socrates.p'
-       or problem == '../EXAMPLE_PROBLEMS/SMOKETEST/BOO020-1.p'
-       or problem == '../../TPTP-v8.2.0/Problems/HWC/HWC003-1.p'
-       # or problem == '../EXAMPLE_PROBLEMS/TPTP/BOO006-1.p'
-       # or problem == '../EXAMPLE_PROBLEMS/TPTP/SET183-6.p'
-       # or problem == '../EXAMPLE_PROBLEMS/TPTP/SWV851-1.p'
-       or problem == '../EXAMPLE_PROBLEMS/SMOKETEST/GROUP1st.p'
-       or problem == '../EXAMPLE_PROBLEMS/SMOKETEST/LUSK6.lop'
-       # or problem == '../EXAMPLE_PROBLEMS/TPTP/BOO010-2.p'
-       # or problem == '../EXAMPLE_PROBLEMS/SMOKETEST/LUSK6ext.lop'
-       or problem == '../EXAMPLE_PROBLEMS/SMOKETEST/ans_test06.p'
-       or problem == '../EXAMPLE_PROBLEMS/SMOKETEST/CNFTest.p'):
-        # statement_lst = build_list(eprover_path, eprover_options, problem)
+    if(problem_path != "../EXAMPLE_PROBLEMS/SMOKETEST/tffex01.p"):
         statement_lst = []
         statement_lst.append(eprover_path)
         statement_lst.extend(eprover_options)
@@ -671,15 +694,9 @@ for problem in problem_lst:
 ####################################
 
 for p in problem_lst:
-    file_name = return_file_name(target_path, p)
+    if(problem_path != "../EXAMPLE_PROBLEMS/SMOKETEST/tffex01.p"):
+        file_name = return_file_name(target_path, p)
 
-    if(p == '../EXAMPLE_PROBLEMS/SMOKETEST/ALL_RULES.p'
-       or p == '../EXAMPLE_PROBLEMS/SMOKETEST/socrates.p'
-       or p == '../EXAMPLE_PROBLEMS/SMOKETEST/BOO020-1.p'
-       or p == '../EXAMPLE_PROBLEMS/SMOKETEST/ans_test06.p'
-       or p == '../EXAMPLE_PROBLEMS/SMOKETEST/CNFTest.p'
-       or p == '../../TPTP-v8.2.0/Problems/HWC/HWC003-1.p'
-       ):
         common_stats_dct[p] = dict.fromkeys(keyword_common_stats_lst, " ")
         for stat_line in csv_lines[p]:
             extract_values_into_dict(common_stats_dct[p], stat_line)
@@ -695,20 +712,16 @@ for p in problem_lst:
 csv_input_lst = [build_header(keyword_common_stats_lst)]
 
 for p in problem_lst:
-    if(p == '../EXAMPLE_PROBLEMS/SMOKETEST/ALL_RULES.p'
-       or p == '../EXAMPLE_PROBLEMS/SMOKETEST/socrates.p'
-       or p == '../EXAMPLE_PROBLEMS/SMOKETEST/BOO020-1.p'
-       or p == '../EXAMPLE_PROBLEMS/SMOKETEST/ans_test06.p'
-       or p == '../EXAMPLE_PROBLEMS/SMOKETEST/CNFTest.p'
-       or p == '../../TPTP-v8.2.0/Problems/HWC/HWC003-1.p'):
+    if(problem_path != "../EXAMPLE_PROBLEMS/SMOKETEST/tffex01.p"):
         csv_input_lst.append(convert_dict_into_str(return_problem_name(p), common_stats_dct[p]))
 
-with open(target_path + "common_stats.csv", 'w') as out_file:
+with open(get_target_path(target_path, mode) + get_problem_directory(problem_path, mode) + "common_stats.csv", 'w') as out_file:
     out_file.write('{0}\n'.format('\n '.join(str(n) for n in csv_input_lst)))
 
+print(problem_path)
+get_problem_directory(problem_path, mode)
+
 # TODO:
-### Axiom -> Symlink doesn't work (Argument, SED)
 ### Pruning?
-## delete filtering for problem files. (if () elif())
 ## make more efficient - Single responsibility principle
 ## Get MinMax from Int, Array ... set min max key array switch to array
