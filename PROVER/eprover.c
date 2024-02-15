@@ -2400,9 +2400,9 @@ long PDRangeArrEmptyMembers(PDRangeArr_p array) {
 
 //Integer
 void print_stat_header() {
-      printf("IntMapType;Address;EntryNo;MinKey;MaxKey;Offset;Size;Grow;CountGetVal;CountGetRef;");
-      printf("CountAssign;CountDelKey;CountArrayToTree;CountTreeToArray;NumberOfItems;NumberOfEmptyCells;");
-      printf("TreeHeight;MinNode;MaxNode;MinMaxDistance;Linearity;Density;Structure;Index\n");
+      printf("IntMapType;EntryNo;MinKey;MaxKey;Offset;Size;Grow;CountGetVal;CountGetRef;");
+      printf("CountAssign;CountDelKey;CountArrayToTree;CountTreeToArray;NumberOfItems;");
+      printf("NumberOfEmptyCells;TreeHeight;MinNode;MaxNode;MinMaxDistance;Linearity;Density\n");
 }
 
 
@@ -2414,37 +2414,35 @@ void print_intmap_stat_line(PTree_p root) {
       switch(intmap_key->type)
       {
             case IMEmpty:
-                  printf("\"IMEmpty\";\"P:%p\";;;;;;;;;;;;;;;;;;;;;;", intmap_key);
+                  //printf("\"IMEmpty\";\"P:%p\";;;;;;;;;;;;;;;;;;;;;;", intmap_key);
                   break;
             case IMSingle:
-                  printf("\"IMSingle\";\"P:%p\";", intmap_key);
-                  printf("%ld;%ld;%ld;", intmap_key->entry_no, intmap_key->min_key, intmap_key->max_key);
-                  printf(";;;;;;;;;;;;;;;;;;");
+                  //printf("\"IMSingle\";\"P:%p\";", intmap_key);
+                  //printf("%ld;%ld;%ld;", intmap_key->entry_no, intmap_key->min_key, intmap_key->max_key);
+                  //printf(";;;;;;;;;;;;;;;;;;");
                   break;
             case IMArray:
-                  printf("\"IMArray\";\"P:%p\";", intmap_key);
-                  printf("%ld;%ld;%ld;", intmap_key->entry_no, intmap_key->min_key, intmap_key->max_key);
+                  printf("\"IMArray\";%ld;%ld;%ld;", intmap_key->entry_no, intmap_key->min_key, intmap_key->max_key);
                   printf("%ld;%ld;%d;", intmap_key->values.array->offset, intmap_key->values.array->size, intmap_key->values.array->grow);
                   printf("%ld;%ld;%ld;%ld;%ld;%ld;", intmap_key->countGetVal, intmap_key->countGetRef, intmap_key->countAssign, intmap_key->countDelKey, intmap_key->countArrayToTree, intmap_key->countTreeToArray);
                   number_values = PDRangeArrMembers(intmap_key->values.array);
                   number_empty = PDRangeArrEmptyMembers(intmap_key->values.array);
                   density = (double)number_values/(double)(number_empty+number_values);
-                  printf("%ld;%ld;;%ld;%ld;%ld;;%f;\"", number_values, number_empty, intmap_key->min_key, intmap_key->max_key, intmap_key->max_key - intmap_key->min_key, density);
-                  print_array_structure(intmap_key);
-                  printf("\";");
+                  printf("%ld;%ld;;%ld;%ld;%ld;;%f\n", number_values, number_empty, intmap_key->min_key, intmap_key->max_key, intmap_key->max_key - intmap_key->min_key, density);
+                  //print_array_structure(intmap_key);
+                  //printf("\"\n");
                   break;
             case IMTree:
-                  printf("\"IMTree\";\"P:%p\";", intmap_key);
-                  printf("%ld;%ld;%ld;;;;", intmap_key->entry_no, intmap_key->min_key, intmap_key->max_key);
+                  printf("\"IMTree\";%ld;%ld;%ld;;;;", intmap_key->entry_no, intmap_key->min_key, intmap_key->max_key);
                   printf("%ld;%ld;%ld;%ld;%ld;%ld;", intmap_key->countGetVal, intmap_key->countGetRef, intmap_key->countAssign, intmap_key->countDelKey, intmap_key->countArrayToTree, intmap_key->countTreeToArray);
                   number_values = NumTreeNodes(intmap_key->values.tree);
                   tree_height = NumTreeGetHeight(intmap_key->values.tree);
                   min_key = NumTreeMinKey(intmap_key->values.tree);
                   max_key = NumTreeMaxKey(intmap_key->values.tree);
                   printf("%ld;;%ld;%ld;%ld;%ld;", number_values, tree_height, min_key, max_key, max_key - min_key );
-                  printf("%f;%f;\"", (double)number_values / (double)tree_height, (double)number_values / (double)((2<<tree_height) - 1 ));
-                  print_tree_structure(intmap_key);
-                  printf("\";");
+                  printf("%f;%f\n", (double)number_values / (double)tree_height, (double)number_values / (double)((2<<tree_height) - 1 )); //Linearity, Density
+                  //print_tree_structure(intmap_key);
+                  //printf("\"\n");
                   break;
       }
 }
@@ -2464,7 +2462,7 @@ void print_intmap_stats(PTree_p root) {
 
       if(root) {
             print_intmap_stat_line(root);
-            printf("%d\n", i);
+            //printf("%d\n", i);
             i++;
       }
 
