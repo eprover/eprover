@@ -348,7 +348,7 @@ def select_options():
         List
     """
 
-    eprover_options = ['--print-statistics', '--auto', '--detsort-rw', '--detsort-new', '-R', '--soft-cpu-limit=5', '--cpu-limit=10', '--memory-limit=2048']
+    eprover_options = ['--print-statistics', '--auto', '--detsort-rw', '--detsort-new', '-R', '--soft-cpu-limit=30', '--cpu-limit=300', '--memory-limit=2048']
     return eprover_options
 
 
