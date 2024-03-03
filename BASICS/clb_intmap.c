@@ -280,8 +280,14 @@ IntMap_p IntMapAlloc(void)
 
 //DF-START
 #ifdef MEASURE_INTMAP_STATS
+   handle->countGetVal = 0;
+   handle->countGetRef = 0;
+   handle->countAssign = 0;
+   handle->countDelKey = 0;
+   handle->countArrayToTree = 0;
+   handle->countTreeToArray = 0;
+
    PTreeStore(&intmaps, handle);
-   //IMPTreeStore(&intmaps_tree, handle); //Where is your fucking problem???
 #endif
 //DF-STOP
 

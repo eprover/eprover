@@ -192,9 +192,15 @@ elif (2 < arr_len and arr_len < 5):
     if(sys.argv[1] == 'default'):
         target_path = sys.argv[2] + '/'
     elif(sys.argv[2] == 'default'):
-        problem_path = sys.argv[1]
+        if(sys.argv[1][-1] == '/'):
+            problem_path = sys.argv[1][:-1]
+        else:
+            problem_path = sys.argv[1]
     elif(sys.argv[1] != 'default' and sys.argv[2] != 'default'):
-        problem_path = sys.argv[1]
+        if(sys.argv[1][-1] == '/'):
+            problem_path = sys.argv[1][:-1]
+        else:
+            problem_path = sys.argv[1]
         target_path = sys.argv[2] + '/'
 
     # setting mode
@@ -342,7 +348,7 @@ def select_options():
         List
     """
 
-    eprover_options = ['--print-statistics', '--auto', '--detsort-rw', '--detsort-new', '-R', '--soft-cpu-limit=30', '--cpu-limit=300', '--memory-limit=2048']
+    eprover_options = ['--print-statistics', '--auto', '--detsort-rw', '--detsort-new', '-R', '--soft-cpu-limit=5', '--cpu-limit=10', '--memory-limit=2048']
     return eprover_options
 
 
