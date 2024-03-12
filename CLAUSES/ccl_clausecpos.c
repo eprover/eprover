@@ -1,23 +1,20 @@
 /*-----------------------------------------------------------------------
 
-File  : ccl_clausecpos.c
+  File  : ccl_clausecpos.c
 
-Author: Stephan Schulz (schulz@eprover.org)
+  Author: Stephan Schulz (schulz@eprover.org)
 
-Contents
+  Contents
 
   Code for handling full and compact clause positions.
 
-  Copyright 2010 by the author.
+  Copyright 2010-2024 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
-
-<1> Fri Feb 19 01:24:59 EET 2010
-    New
+  Created: Fri Feb 19 01:24:59 EET 2010
 
 -----------------------------------------------------------------------*/
 
@@ -194,12 +191,8 @@ void UnpackClausePosInto(CompactPos cpos, Clause_p clause,
    handle = clause->literals;
    assert(handle);
 
-   while(EqnStandardWeight(handle) <= cpos)
-   {
-      cpos -= EqnStandardWeight(handle);
-      handle = handle->next;
-      assert(handle);
-   }
+   handle = ClauseCPosSplit(clause, &cpos);
+
    pos->literal = handle;
    if(cpos >= TermStandardWeight(handle->lterm))
    {
@@ -263,9 +256,82 @@ Term_p ClauseCPosGetSubterm(Clause_p clause, CompactPos cpos)
    return res;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseCPosFirstLit()
+//
+//   Return the first literal of a clause and the correcponding
+//   compact position. Returns NULL/0 for the empty clause.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+Eqn_p ClauseCPosFirstLit(Clause_p clause, CompactPos *cpos)
+{
+   cpos = 0;
+
+   return clause->literals ? clause->literals:NULL;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseCPosNextLit()
+//
+//   Given clause literal lit at compact position *cpos, return the
+//   next literal and update *cpos to the corresponding compact
+//   position. Return NULL/0 if there is no empty clause.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+Eqn_p ClauseCPosNextLit(Eqn_p lit, CompactPos *cpos)
+{
+   if(lit->next)
+   {
+      *cpos += EqnStandardWeight(lit);
+      return lit->next;
+   }
+   *cpos = 0;
+   return NULL;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseCPosSplit()
+//
+//   Given a clause and a compact position *cpos, determine the
+//   literal of the position, and return it. Also update *cpos to
+//   denote the position relative to that literal.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+Eqn_p ClauseCPosSplit(Clause_p clause, CompactPos *cpos)
+{
+   Eqn_p handle = clause->literals;
+
+   while(handle && (EqnStandardWeight(handle) <= *cpos))
+   {
+      *cpos -= EqnStandardWeight(handle);
+      handle = handle->next;
+      assert(handle);
+   }
+   return handle;
+}
+
+
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
