@@ -216,7 +216,7 @@ typedef uintptr_t DerefType, *DerefType_p;
                            ((TermIsFreeVar((t)->args[0]->binding)) ? 1 : 0)) \
                            : 0)
 /* Sets derefs according to the previous comment and expects i to be an index
-   into arugment array, l to be DEREF_LIMIT and d wanted deref mode*/
+   into argument array, l to be DEREF_LIMIT and d wanted deref mode*/
 #define CONVERT_DEREF(i, l, d) (((i) < (l) && (d) == DEREF_ONCE) ? DEREF_NEVER : (d))
 #else
 /* making sure no compiler warnings are produced */
