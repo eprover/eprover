@@ -28,7 +28,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program ; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston,
-MA  02111-1307 USA 
+MA  02111-1307 USA
 
 The original copyright holder can be contacted as
 
@@ -84,7 +84,7 @@ Port:               %d
 Job directory:      %s
 Result directory:   %s
 """
-    
+
     def __init__(self, config=None):
         homedir = pylib_io.get_homedir()
 
@@ -94,7 +94,7 @@ Result directory:   %s
         self.protdir      = homedir+"/"+DEFAULT_TESTDIR
         self.auto_sync    = DEFAULT_SYNC_COUNT
         self.mode         = "active"
-        
+
         if not config:
             return
 
@@ -122,10 +122,10 @@ Result directory:   %s
         except pylib_io.ECconfigSyntaxError, inst:
             sys.stderr.write(str(inst)+"\n")
             sys.exit(1)
-        
-    def __str__(self):        
+
+    def __str__(self):
         return e_mconfig.template%(self.port, self.specdir, self.protdir)
-        
+
 
 if __name__ == '__main__':
     opts, args = getopt.gnu_getopt(sys.argv[1:], "h")

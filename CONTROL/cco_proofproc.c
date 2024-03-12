@@ -545,6 +545,13 @@ static void generate_new_clauses(ProofState_p state, ProofControl_p
       ComputeAllEqnResolvents(state->terms, clause, state->tmp_store,
                               state->freshvars);
 
+   state->disequ_deco_count+=
+      ComputeDisEqDecompositions(state->terms, clause, state->tmp_store,
+                                 control->heuristic_parms.diseq_decomposition,
+                                 control->heuristic_parms.diseq_decomp_maxarity);
+
+
+
    if(control->heuristic_parms.enable_neg_unit_paramod
       ||!ClauseIsUnit(clause)
       ||!ClauseIsNegative(clause))

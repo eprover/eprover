@@ -30,6 +30,7 @@
 #include <che_to_autoselect.h>
 #include <cco_clausesplitting.h>
 #include <cco_forward_contraction.h>
+#include <cco_diseq_decomp.h>
 #include <cco_interpreted.h>
 #include <ccl_satinterface.h>
 

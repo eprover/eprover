@@ -64,6 +64,7 @@ char *opids[] =
    PCL_OF,
    PCL_EF,
    PCL_ER,
+   PCL_DDC,
    PCL_SAT,
    PCL_PE_RESOLVE,
    /* Others */
@@ -128,6 +129,7 @@ char *optheory [] =
    NULL,
    NULL,
    NULL,
+   NULL,
    /* Others */
    NULL,
    NULL,
@@ -184,6 +186,7 @@ char *opstatus [] =
    "thm",
    "thm",
    /* Generating */
+   "thm",
    "thm",
    "thm",
    "thm",

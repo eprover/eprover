@@ -97,6 +97,7 @@ typedef struct proofstatecell
    unsigned long factor_count;
    unsigned long neg_ext_count;
    unsigned long resolv_count;
+   unsigned long disequ_deco_count;
    unsigned long satcheck_count;
    unsigned long satcheck_success;
    unsigned long satcheck_satisfiable;

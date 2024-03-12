@@ -81,6 +81,7 @@ typedef enum
 #define PCL_QUOTE  NULL
 #define PCL_EVALGC "evalgc"
 #define PCL_ER     "er"
+#define PCL_DDC    "diseq_decomp"
 #define PCL_PM     "pm"
 #define PCL_SPM    "spm"
 #define PCL_EF     "ef"

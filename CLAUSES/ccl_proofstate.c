@@ -222,6 +222,7 @@ ProofState_p ProofStateAlloc(FunctionProperties free_symb_prop)
    handle->factor_count         = 0;
    handle->neg_ext_count        = 0;
    handle->resolv_count         = 0;
+   handle->disequ_deco_count    = 0;
    handle->satcheck_count       = 0;
    handle->satcheck_success     = 0;
    handle->satcheck_satisfiable = 0;
@@ -634,6 +635,8 @@ void ProofStateStatisticsPrint(FILE* out, ProofState_p state)
            state->neg_ext_count);
    fprintf(out, "# Equation resolutions                 : %ld\n",
            state->resolv_count);
+   fprintf(out, "# Disequality decompositions           : %ld\n",
+           state->disequ_deco_count);
    fprintf(out, "# Total rewrite steps                  : %lu\n",
            state->rw_count);
    fprintf(out, "# Propositional unsat checks           : %ld\n",

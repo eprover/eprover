@@ -58,7 +58,7 @@ Clause_p build_resolvent(ClausePos_p pos, Subst_p subst, VarBank_p freshvars)
    NormSubstEqnListExcept(pos->clause->literals, pos->literal,
             subst, freshvars);
    Eqn_p new_literals = EqnListCopyOptExcept(pos->clause->literals,
-                                       pos->literal);
+                                             pos->literal);
    EqnListLambdaNormalize(new_literals);
    EqnListRemoveResolved(&new_literals);
    EqnListRemoveDuplicates(new_literals);
@@ -76,7 +76,7 @@ Clause_p build_resolvent(ClausePos_p pos, Subst_p subst, VarBank_p freshvars)
 // Function: ComputeEqRes()
 //
 //   Given a clause and a position, try to perform equality
-//   resolution and return the resulting clause. 
+//   resolution and return the resulting clause.
 //   If res_cls is NULL, then it assumes that you want to enumerate
 //   only single clause which is returned! Else, it returns NULL
 //   but fills res_cls with all clauses
@@ -87,7 +87,7 @@ Clause_p build_resolvent(ClausePos_p pos, Subst_p subst, VarBank_p freshvars)
 //
 /----------------------------------------------------------------------*/
 
-Clause_p ComputeEqRes(TB_p bank, ClausePos_p pos, VarBank_p freshvars, 
+Clause_p ComputeEqRes(TB_p bank, ClausePos_p pos, VarBank_p freshvars,
                       bool* subst_is_ho, PStack_p res_cls)
 {
    Subst_p  subst;
@@ -99,7 +99,7 @@ Clause_p ComputeEqRes(TB_p bank, ClausePos_p pos, VarBank_p freshvars,
    VarBankResetVCounts(freshvars);
    if(res_cls)
    {
-      CSUIterator_p unif_iter = 
+      CSUIterator_p unif_iter =
          CSUIterInit(pos->literal->lterm, pos->literal->rterm, subst, bank);
       while(NextCSUElement(unif_iter))
       {
@@ -121,7 +121,7 @@ Clause_p ComputeEqRes(TB_p bank, ClausePos_p pos, VarBank_p freshvars,
          res = build_resolvent(pos, subst, freshvars);
       }
    }
-   
+
    SubstDelete(subst);
    return res;
 }
@@ -191,5 +191,3 @@ Eqn_p ClausePosNextEqResLiteral(ClausePos_p pos)
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-

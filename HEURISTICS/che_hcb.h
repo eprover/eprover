@@ -181,6 +181,9 @@ typedef struct heuristic_parms_cell
    bool                split_aggressive;
    bool                split_fresh_defs;
 
+   long                diseq_decomposition;
+   long                diseq_decomp_maxarity;
+
    /* Global indexing */
    char                rw_bw_index_type[MAX_PM_INDEX_NAME_LEN];
    char                pm_from_index_type[MAX_PM_INDEX_NAME_LEN];

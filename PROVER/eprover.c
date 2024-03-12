@@ -1614,6 +1614,12 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_SPLIT_REUSE_DEFS:
             h_parms->split_fresh_defs = false;
             break;
+      case OPT_DISEQ_DECOMPOSITION:
+            h_parms->diseq_decomposition = CLStateGetIntArg(handle, arg);
+            break;
+      case OPT_DISEQ_DECOMP_MAXARITY:
+            h_parms->diseq_decomp_maxarity = CLStateGetIntArg(handle, arg);
+            break;
       case OPT_ORDERING:
             if(strcmp(arg, "LPO")==0)
             {

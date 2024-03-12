@@ -132,6 +132,8 @@ typedef enum
    OPT_SPLIT_HOW,
    OPT_SPLIT_AGGRESSIVE,
    OPT_SPLIT_REUSE_DEFS,
+   OPT_DISEQ_DECOMPOSITION,
+   OPT_DISEQ_DECOMP_MAXARITY,
    OPT_ORDERING,
    OPT_TO_WEIGHTGEN,
    OPT_TO_WEIGHTS,
@@ -1036,6 +1038,19 @@ OptCell opts[] =
     '\0', "split-reuse-defs",
     NoArg, NULL,
     "If possible, reuse previous definitions for splitting."},
+
+   {OPT_DISEQ_DECOMPOSITION,
+    '\0', "disequality-decomposition",
+    OptArg, "1024",
+    "Enable the disequality decomposition inference. The optional "
+    "argument is the maximal literal number of clauses considered "
+    "for the inference."},
+
+   {OPT_DISEQ_DECOMP_MAXARITY,
+    '\0', "disequality-decomp-maxarity",
+    OptArg, "1",
+    "Limit disequality decomposition to function symbols of at most "
+    "the given arity."},
 
    {OPT_ORDERING,
     't', "term-ordering",

@@ -75,6 +75,7 @@ typedef enum
    DOOrderedFactor,
    DOEqFactor,
    DOEqRes,
+   DODisEqDecompose,
    DOSatGen,
    DOPEResolve,
    /* CNF conversion and similar */
@@ -151,6 +152,7 @@ typedef enum
    DCOrderedFactor    = DOOrderedFactor|Arg1Cnf,
    DCEqFactor         = DOEqFactor|Arg1Cnf,
    DCEqRes            = DOEqRes|Arg1Cnf,
+   DCDisEqDecompose   = DODisEqDecompose|Arg1Cnf,
    DCSatGen           = DOSatGen|Arg1Cnf,
    DCPEResolve        = DOPEResolve|Arg1Cnf|Arg2Cnf,
    /* CNF conversion and similar */
