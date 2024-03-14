@@ -870,6 +870,7 @@ TFormula_p do_fool_unroll(TFormula_p form, TB_p terms)
 {
    TFormula_p unrolled1 = NULL;
    TFormula_p unrolled2 = NULL;
+
    if (TFormulaIsLiteral(terms->sig, form))
    {
       /* printf("f_code: %ld  arity: %d   sig->eqn_code: %ld  sig->negn_code: %ld\n", */

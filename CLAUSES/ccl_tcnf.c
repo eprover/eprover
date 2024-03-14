@@ -1764,6 +1764,9 @@ TFormula_p TFormulaExpandLiterals(TB_p terms, TFormula_p form)
          form = form->args[0];
       }
    }
+   /* printf("TFormulaExpandLiterals end ["); */
+   /* TermPrettyPrintSimple(stdout, form, terms->sig, 0); */
+   /* printf(" ]\n"); */
    return form;
 }
 

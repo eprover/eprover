@@ -2444,6 +2444,7 @@ Clause_p TFormulaCollectClause(TFormula_p form, TB_p terms,
          else if(TermIsTrueTerm(form))
          {
             lit = EqnAlloc(form, form, terms, true);
+            PStackPushP(lit_stack, lit);
          }
          else if(TermIsFalseTerm(form))
          {

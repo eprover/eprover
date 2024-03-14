@@ -784,6 +784,7 @@ WFormula_p WFormClauseParse(Scanner_p in, TB_p terms)
 Clause_p WFormClauseToClause(WFormula_p form)
 {
    Clause_p res  = TFormulaCollectClause(form->tformula, form->terms, NULL);
+
    res->properties = form->properties;
    if(form->info)
    {
