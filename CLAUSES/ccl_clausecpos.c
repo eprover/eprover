@@ -271,7 +271,7 @@ Term_p ClauseCPosGetSubterm(Clause_p clause, CompactPos cpos)
 
 Eqn_p ClauseCPosFirstLit(Clause_p clause, CompactPos *cpos)
 {
-   cpos = 0;
+   *cpos = 0;
 
    return clause->literals ? clause->literals:NULL;
 }
