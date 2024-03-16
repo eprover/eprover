@@ -2408,7 +2408,7 @@ void print_stat_header() {
 
 void print_intmap_stat_line(PTree_p root) {
       IntMap_p intmap_key = (IntMap_p)root->key;
-      long int number_values, number_empty, tree_height, min_key, max_key;
+      long int number_values, number_empty, tree_height, min_key, max_key, min_max_distance;
       double density, linearity;
 
       switch(intmap_key->type)
@@ -2439,10 +2439,12 @@ void print_intmap_stat_line(PTree_p root) {
                   tree_height = NumTreeGetHeight(intmap_key->values.tree);
                   min_key = NumTreeMinKey(intmap_key->values.tree);
                   max_key = NumTreeMaxKey(intmap_key->values.tree);
-                  printf("%ld;;%ld;%ld;%ld;%ld;", number_values, tree_height, min_key, max_key, max_key - min_key );
-                  printf("%f;\n", (double)number_values / (double)tree_height); //Linearity, Density // (double)number_values / (double)((2<<tree_height) - 1 )
+                  min_max_distance = max_key - min_key;
+                  printf("%ld;;%ld;%ld;%ld;%ld;", number_values, tree_height, min_key, max_key, min_max_distance);
+                  printf("%f;%f\n", (double)number_values / tree_height, min_max_distance == 0 ? 1 : (double)number_values / min_max_distance); //Linearity, Density
+                  // (double)number_values / (double)((2<<tree_height) - 1 )
                   //print_tree_structure(intmap_key);
-                  //printf("\"\n");
+                  //printf("\"\n"); ;
                   break;
       }
 }
