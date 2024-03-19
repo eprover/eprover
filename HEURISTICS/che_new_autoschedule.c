@@ -115,8 +115,7 @@ ScheduleCell* GetSearchSchedule(const char* problem_category)
 //
 // Function: GetHeuristicWithName()
 //
-//   Given a name, find and parse a heuristic and return the
-//   corresponding cell.
+//   Given a name, find and parse a heuristic into the provided cell.
 //
 // Global Variables: conf_map (from schedule.vars)
 //
@@ -138,7 +137,7 @@ void GetHeuristicWithName(const char* name, HeuristicParms_p target)
          return;
       }
    }
-   Error("Internal error -- configuration name %s not found.",
+   Error("Error: Configuration name %s not found.",
          OTHER_ERROR, name);
 }
 

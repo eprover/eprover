@@ -518,9 +518,9 @@ OptCell opts[] =
 
    {OPT_PRINT_STRATEGY,
     '\0', "print-strategy",
-    NoArg, NULL,
-    "Print a representation of all search parameters and their setting. "
-    "Then terminate."},
+    OptArg, ">current-strategy<",
+    "Print a representation of all search parameters and their setting, "
+    "then terminate."},
 
    {OPT_PARSE_STRATEGY,
     '\0', "parse-strategy",

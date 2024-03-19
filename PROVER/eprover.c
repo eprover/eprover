@@ -8,7 +8,7 @@
 
   Main program for the E equational theorem prover.
 
-  Copyright 1998-2021 by the authors.
+  Copyright 1998-2024 by the authors.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
@@ -57,6 +57,7 @@ PERF_CTR_DEFINE(SatTimer);
 char              *outname = NULL;
 char              *watchlist_filename = NULL;
 char              *parse_strategy_filename = NULL;
+char              *print_strategy = NULL;
 HeuristicParms_p  h_parms;
 FVIndexParms_p    fvi_parms;
 bool              print_sat = false,
@@ -65,7 +66,6 @@ bool              print_sat = false,
    proof_statistics = false,
    filter_sat = false,
    print_rusage = false,
-   print_strategy = false,
    print_pid = false,
    print_version = false,
    outinfo = false,
@@ -294,6 +294,10 @@ void strategy_io(HeuristicParms_p h_parms, PStack_p hcb_definitions)
 
    if(print_strategy)
    {
+      if(strcmp(print_strategy, ">current-strategy<")!=0)
+      {
+         GetHeuristicWithName(print_strategy, h_parms);
+      }
       HeuristicParmsPrint(stdout, h_parms);
       exit(NO_ERROR);
    }
@@ -1325,7 +1329,7 @@ CLState_p process_options(int argc, char* argv[])
             print_rusage = true;
             break;
       case OPT_PRINT_STRATEGY:
-            print_strategy = true;
+            print_strategy = arg;
             break;
       case OPT_PARSE_STRATEGY:
             parse_strategy_filename = arg;
