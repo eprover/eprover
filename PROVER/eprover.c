@@ -2441,7 +2441,7 @@ void print_intmap_stat_line(PTree_p root) {
                   max_key = NumTreeMaxKey(intmap_key->values.tree);
                   min_max_distance = max_key - min_key;
                   printf("%ld;;%ld;%ld;%ld;%ld;", number_values, tree_height, min_key, max_key, min_max_distance);
-                  printf("%f;%f\n", (double)number_values / tree_height, min_max_distance == 0 ? 1 : (double)number_values / min_max_distance); //Linearity, Density
+                  printf("%f;%f\n", (double)number_values / tree_height, (double)number_values / (min_max_distance + 1) ); //Linearity, Density
                   // (double)number_values / (double)((2<<tree_height) - 1 )
                   //print_tree_structure(intmap_key);
                   //printf("\"\n"); ;
