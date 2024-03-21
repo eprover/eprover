@@ -294,11 +294,18 @@ void strategy_io(HeuristicParms_p h_parms, PStack_p hcb_definitions)
 
    if(print_strategy)
    {
-      if(strcmp(print_strategy, ">current-strategy<")!=0)
+      if(strcmp(print_strategy, ">all-strats<")==0)
       {
-         GetHeuristicWithName(print_strategy, h_parms);
+         StrategiesPrintPredefined(GlobalOut);
       }
-      HeuristicParmsPrint(stdout, h_parms);
+      else
+      {
+         if(strcmp(print_strategy, ">current-strategy<")!=0)
+         {
+            GetHeuristicWithName(print_strategy, h_parms);
+         }
+         HeuristicParmsPrint(GlobalOut, h_parms);
+      }
       exit(NO_ERROR);
    }
 }

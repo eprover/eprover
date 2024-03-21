@@ -75,6 +75,29 @@ ScheduleCell* class_to_schedule(const char* problem_category,
    return schedules[min_idx].value;
 }
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: StrategiesPrintPredefined()
+//
+//   Print all predefined strategies.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void StrategiesPrintPredefined(FILE* out)
+{
+   int i;
+   for(i=0; conf_map[i].key; i++)
+   {
+      fprintf(out, "%s = \n%s\n", conf_map[i].key, conf_map[i].value);
+   }
+}
+
+
 /*-----------------------------------------------------------------------
 //
 // Function: GetPreprocessingSchedule()
@@ -140,6 +163,9 @@ void GetHeuristicWithName(const char* name, HeuristicParms_p target)
    Error("Error: Configuration name %s not found.",
          OTHER_ERROR, name);
 }
+
+
+
 
 /*-----------------------------------------------------------------------
 //

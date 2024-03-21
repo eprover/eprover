@@ -519,8 +519,10 @@ OptCell opts[] =
    {OPT_PRINT_STRATEGY,
     '\0', "print-strategy",
     OptArg, ">current-strategy<",
-    "Print a representation of all search parameters and their setting, "
-    "then terminate."},
+    "Print a representation of all search parameters and their setting "
+    "of a given strategy, then terminate. If no argument is given, "
+    "the current strategy is printed. Use the reserved name '>all-strats<'"
+    "to get a description of all built-in strategies."},
 
    {OPT_PARSE_STRATEGY,
     '\0', "parse-strategy",
