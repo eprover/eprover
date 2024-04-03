@@ -459,6 +459,8 @@ static void print_proof_stats(ProofState_p proofstate,
 #endif
       fprintf(GlobalOut, "# Termbank termtop insertions          : %lld\n",
               proofstate->terms->insertions);
+      fprintf(GlobalOut, "# Garbage collected termcells          : %lld\n",
+              proofstate->terms->recovered);
       PERF_CTR_PRINT(GlobalOut, MguTimer);
       PERF_CTR_PRINT(GlobalOut, SatTimer);
       PERF_CTR_PRINT(GlobalOut, ParamodTimer);

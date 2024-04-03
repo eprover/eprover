@@ -29,6 +29,7 @@
 #include <ccl_def_handling.h>
 #include <ccl_garbage_coll.h>
 #include <ccl_global_indices.h>
+#include <ccl_rewrite.h>
 #include <picosat.h>
 
 /*---------------------------------------------------------------------*/

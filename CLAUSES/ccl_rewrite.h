@@ -60,11 +60,12 @@ typedef struct rw_desc_cell
 #define RWDescCellFree(junk) SizeFree(junk, sizeof(RWDescCell))
 
 
-extern long RewriteAttempts;
-extern long RewriteSuccesses;
-extern long RewriteUnboundVarFails;
-extern long BWRWMatchAttempts;
-extern long BWRWMatchSuccesses;
+extern unsigned long RewriteAttempts;
+extern unsigned long RewriteSuccesses;
+extern unsigned long RewriteUnboundVarFails;
+extern unsigned long RewriteUncached;
+extern unsigned long BWRWMatchAttempts;
+extern unsigned long BWRWMatchSuccesses;
 
 
 Term_p TermComputeLINormalform(OCB_p ocb, TB_p bank, Term_p term,

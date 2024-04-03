@@ -639,6 +639,8 @@ void ProofStateStatisticsPrint(FILE* out, ProofState_p state)
            state->disequ_deco_count);
    fprintf(out, "# Total rewrite steps                  : %lu\n",
            state->rw_count);
+   fprintf(out, "# ...of those cached                   : %lu\n",
+           state->rw_count-RewriteUncached);
    fprintf(out, "# Propositional unsat checks           : %ld\n",
            state->satcheck_count);
    fprintf(out, "#    Propositional check models        : %ld\n",

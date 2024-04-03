@@ -31,12 +31,13 @@ typedef struct {
 /*                        Global Variables                             */
 /*---------------------------------------------------------------------*/
 
-long RewriteAttempts    = 0;
-long RewriteSuccesses   = 0;
-long RewriteUnboundVarFails = 0;
-long BWRWMatchAttempts  = 0;
-long BWRWMatchSuccesses = 0;
-long BWRWRwSuccesses = 0;
+unsigned long RewriteAttempts        = 0;
+unsigned long RewriteSuccesses       = 0;
+unsigned long RewriteUnboundVarFails = 0;
+unsigned long RewriteUncached        = 0;
+unsigned long BWRWMatchAttempts      = 0;
+unsigned long BWRWMatchSuccesses     = 0;
+unsigned long BWRWRwSuccesses        = 0;
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
@@ -224,6 +225,7 @@ static RWResultType term_is_top_rewritable(TB_p bank, OCB_p ocb,
                }
             }
             TermAddRWLink(term, repl, new_demod, ClauseIsSOS(new_demod), res);
+            RewriteUncached++;
          }
       }
       SubstBacktrack(subst);
@@ -255,6 +257,7 @@ static RWResultType term_is_top_rewritable(TB_p bank, OCB_p ocb,
             }
 
             TermAddRWLink(term, repl, new_demod, ClauseIsSOS(new_demod), res);
+            RewriteUncached++;
          }
       }
    }
@@ -667,6 +670,7 @@ static Term_p rewrite_with_clause_set(OCB_p ocb, TB_p bank, Term_p term,
       assert(pos->clause->ident);
       TermAddRWLink(term, repl, pos->clause, ClauseIsSOS(pos->clause),
                     restricted_rw?RWAlwaysRewritable:RWLimitedRewritable);
+      RewriteUncached++;
       // assert(TOGreater(ocb, term, repl, DEREF_NEVER, DEREF_NEVER));
       // The assertion is logically true, but in practice LPO fails on
       // too deep terms, so l > r, but sigma(l) !> sigma(r) w.r.t. the
@@ -683,7 +687,7 @@ static Term_p rewrite_with_clause_set(OCB_p ocb, TB_p bank, Term_p term,
 
 /*-----------------------------------------------------------------------
 //
-// Function: rewrite_with_clause_setlist()
+// Function: rewrite_with_clause_set_list()
 //
 //   Rewrite a term at top level with the sets of
 //   demodulators. Returns new term.
@@ -694,7 +698,7 @@ static Term_p rewrite_with_clause_set(OCB_p ocb, TB_p bank, Term_p term,
 //
 /----------------------------------------------------------------------*/
 
-static Term_p rewrite_with_clause_setlist(OCB_p ocb, TB_p bank, Term_p term,
+static Term_p rewrite_with_clause_set_list(OCB_p ocb, TB_p bank, Term_p term,
                                           ClauseSet_p* demodulators,
                                           RewriteLevel level, bool
                                           prefer_general,
@@ -826,7 +830,7 @@ static Term_p term_li_normalform(RWDesc_p desc, Term_p term,
          }
          else
          {
-            rewrite_with_clause_setlist(desc->ocb, desc->bank,
+            rewrite_with_clause_set_list(desc->ocb, desc->bank,
                                         term, desc->demods,
                                         desc->level,
                                         desc->prefer_general,
@@ -1064,6 +1068,7 @@ static long term_find_rw_clauses(Clause_p demod,
                }
             }
             TermAddRWLink(term, repl, demod, ClauseIsSOS(demod), rwres);
+            RewriteUncached++;
             //TermDeleteRWLink(term);
          }
       }

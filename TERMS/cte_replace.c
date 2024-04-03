@@ -63,8 +63,8 @@ extern TB_p bank;
 //
 /----------------------------------------------------------------------*/
 
-void TermAddRWLink(Term_p term, Term_p replace, struct clause_cell *demod, bool sos,
-                   RWResultType type)
+void TermAddRWLink(Term_p term, Term_p replace, struct clause_cell *demod,
+                   bool sos, RWResultType type)
 {
    assert(term);
    assert(replace);
@@ -154,8 +154,8 @@ Term_p TermFollowRWChain(Term_p term)
 //   and its superterms should now be dereferenced only once.
 //
 //   New in E/HO: If we have to replace top-level term and some arguments
-//   are remaining in it, we need the pointer to the original term 
-//   since we are replacing a (prefix) subterm. 
+//   are remaining in it, we need the pointer to the original term
+//   since we are replacing a (prefix) subterm.
 //
 // Global Variables: -
 //
@@ -163,7 +163,7 @@ Term_p TermFollowRWChain(Term_p term)
 //
 /----------------------------------------------------------------------*/
 
-Term_p TBTermPosReplace(TB_p bank, Term_p repl, TermPos_p pos, 
+Term_p TBTermPosReplace(TB_p bank, Term_p repl, TermPos_p pos,
                         DerefType deref, int remains, Term_p old_into)
 {
    Term_p        handle, old;
@@ -195,7 +195,7 @@ Term_p TBTermPosReplace(TB_p bank, Term_p repl, TermPos_p pos,
 #ifdef ENABLE_LFHO
       if(remains != -1)
       {
-         Term_p tmp_repl = MakeRewrittenTerm(TermDerefAlways(handle->args[subscript]), 
+         Term_p tmp_repl = MakeRewrittenTerm(TermDerefAlways(handle->args[subscript]),
                                              TermDerefAlways(repl), remains, bank);
 
          handle->args[subscript] = remains ? TBTermTopInsert(bank, tmp_repl) : tmp_repl;
@@ -209,14 +209,14 @@ Term_p TBTermPosReplace(TB_p bank, Term_p repl, TermPos_p pos,
 #else
       handle->args[subscript] = repl;
 #endif
-      
+
       PStackPushP(store, handle);
       repl = handle;
    }
 
    if(remains > 0)
    {
-      Term_p repl_tmp = MakeRewrittenTerm(TermDerefAlways(old_into), 
+      Term_p repl_tmp = MakeRewrittenTerm(TermDerefAlways(old_into),
                                           TermDerefAlways(repl), remains, bank);
       repl_tmp = TBTermTopInsert(bank, repl_tmp);
       repl = TBInsertNoProps(bank, repl_tmp, deref);
@@ -225,7 +225,7 @@ Term_p TBTermPosReplace(TB_p bank, Term_p repl, TermPos_p pos,
    {
       repl  = TBInsertNoProps(bank, repl, deref);
    }
-   
+
    while(!PStackEmpty(store))
    {
       handle = PStackPopP(store);
@@ -240,5 +240,3 @@ Term_p TBTermPosReplace(TB_p bank, Term_p repl, TermPos_p pos,
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
