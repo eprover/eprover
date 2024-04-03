@@ -48,6 +48,8 @@ typedef struct tbcell
                                     inserted into the term bank? This
                                     counts all attempted insertions
                                     (as a measure of work done. */
+   unsigned long long recovered; /* How many terms have been recovered
+                                    by garbage collection? */
    Sig_p         sig;            /* Store sig info */
    VarBank_p     vars;           /* Information about (shared) variables */
    DBVarBank_p   db_vars;        /* de Bruijn (shared) variable bank
@@ -66,7 +68,7 @@ typedef struct tbcell
                                     get the new value, so that marking
                                     can be done by flipping in the
                                     term cell. */
-   GCAdmin_p      gc;     /* Higher level code can register
+   GCAdmin_p      gc;            /* Higher level code can register
                                   * garbage collection information
                                   * here. This is only a convenience
                                   * link, memory needs to be managed

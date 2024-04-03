@@ -748,6 +748,7 @@ TB_p TBAlloc(Sig_p sig)
 
    handle->in_count = 0;
    handle->insertions = 0;
+   handle->recovered = 0;
    handle->ext_index = PDIntArrayAlloc(1,100000);
    handle->garbage_state = TPIgnoreProps;
    handle->gc = GCAdminAlloc();
@@ -2138,7 +2139,7 @@ long TBGCSweep(TB_p bank)
 #endif
    bank->garbage_state =
       bank->garbage_state?TPIgnoreProps:TPGarbageFlag;
-
+   bank->recovered+=recovered;
    return recovered;
 }
 
