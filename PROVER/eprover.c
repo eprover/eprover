@@ -459,8 +459,16 @@ static void print_proof_stats(ProofState_p proofstate,
 #endif
       fprintf(GlobalOut, "# Termbank termtop insertions          : %lld\n",
               proofstate->terms->insertions);
-      fprintf(GlobalOut, "# Garbage collected termcells          : %lld\n",
+      fprintf(GlobalOut, "# Search garbage collected termcells   : %lld\n",
               proofstate->terms->recovered);
+      if(TBPrintDetails)
+      {
+         TBGCCollect(proofstate->terms);
+         fprintf(GlobalOut, "# Final garbage collected termcells    : %lld\n",
+                 proofstate->terms->recovered);
+         fprintf(GlobalOut, "# Final shared term nodes              : %ld\n",
+                 TBTermNodes(proofstate->terms));
+      }
       PERF_CTR_PRINT(GlobalOut, MguTimer);
       PERF_CTR_PRINT(GlobalOut, SatTimer);
       PERF_CTR_PRINT(GlobalOut, ParamodTimer);
@@ -1248,6 +1256,7 @@ CLState_p process_options(int argc, char* argv[])
             break;
       case OPT_EXPENSIVE_DETAILS:
             TBPrintDetails = true;
+            print_statistics = true;
             break;
       case OPT_PRINT_SATURATED:
             outdesc = arg;

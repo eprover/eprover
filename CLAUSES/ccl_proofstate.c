@@ -390,7 +390,6 @@ void ProofStateResetClauseSets(ProofState_p state, bool term_gc)
    if(term_gc)
    {
       TBGCCollect(state->terms);
-      //GCCollect(state->gc_original_terms);
    }
 }
 

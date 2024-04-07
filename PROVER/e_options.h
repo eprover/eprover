@@ -379,7 +379,7 @@ OptCell opts[] =
     NoArg, NULL,
     "Print data about the proof state that is potentially expensive "
     "to collect. Includes number of term cells and number of "
-    "rewrite steps."},
+    "rewrite steps. This implies the previous option."},
 
    {OPT_PRINT_SATURATED,
     'S', "print-saturated",
