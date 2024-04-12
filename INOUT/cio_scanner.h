@@ -40,70 +40,76 @@ Changes
    unsigned long long, we can accomodate at least 64 tokens.
 
    Note that it is possible to define additional classes consisting of
-   more than one particular token (see e.g. SkipToken). If this list
-   is extended, you also need to extend token_print_rep[] in
-   cio_scanner.c. */
+   more than one particular token (see e.g. SkipToken). */
 
+
+/* All Tokens are defined using X-macros (https://en.wikipedia.org/wiki/X_macro). 
+   T is T(token, value, description) where:
+      token: Name of token.
+      value: Numeric value of token.
+      description: Description of token used in token_print_rep.
+                   If no description is needed, use NULL. */
 typedef unsigned long long TokenType;
 
-#define NoToken       1LL
-#define WhiteSpace    (2*NoToken)
-#define Comment       (2*WhiteSpace)
-#define Ident         (2*Comment)
-#define Idnum         (2*Ident)
-#define SemIdent      (2*Idnum)
-#define String        (2*SemIdent)
-#define SQString      (2*String)
-#define PosInt        (2*SQString)
-#define OpenBracket   (2*PosInt)
-#define CloseBracket  (2*OpenBracket)
-#define OpenCurly     (2*CloseBracket)
-#define CloseCurly    (2*OpenCurly)
-#define OpenSquare    (2*CloseCurly)
-#define CloseSquare   (2*OpenSquare)
-#define LesserSign    (2*CloseSquare)
-#define GreaterSign   (2*LesserSign)
-#define EqualSign     (2*GreaterSign)
-#define NegEqualSign  (2*EqualSign)
-#define TildeSign     (2*NegEqualSign)
-#define Exclamation   (2*TildeSign)
-#define UnivQuantor   (Exclamation)
-#define QuestionMark  (2*Exclamation)
-#define ExistQuantor  (QuestionMark)
-#define Comma         (2*QuestionMark)
-#define Semicolon     (2*Comma)
-#define Colon         (2*Semicolon)
-#define Hyphen        (2*Colon)
-#define Plus          (2*Hyphen)
-#define Mult          (2*Plus)
-#define Fullstop      (2*Mult)
-#define Dollar        (2*Fullstop)
-#define Slash         (2*Dollar)
-#define Pipe          (2*Slash)
-#define FOFOr         (Pipe)
-#define Ampersand     (2*Pipe)
-#define FOFAnd        (Ampersand)
-#define FOFLRImpl     (2*Ampersand)
-#define FOFRLImpl     (2*FOFLRImpl)
-#define FOFEquiv      (2*FOFRLImpl)
-#define FOFXor        (2*FOFEquiv)
-#define FOFNand       (2*FOFXor)
-#define FOFNor        (2*FOFNand)
-#define Application   (2*FOFNor)
-#define Carret        (2*Application)
-#define LambdaQuantor (Carret)
-#define LetToken      (2*LambdaQuantor)
-#define IteToken      (2*LetToken)
+#define TOKENS \
+   T(NoToken       , 1LL,                  "No token (probably EOF)") \
+   T(WhiteSpace    , 2*NoToken,            "White space (spaces, tabs, newlines...)") \
+   T(Comment       , 2*WhiteSpace,         "Comment") \
+   T(Ident         , 2*Comment,            "Identifier not terminating in a number") \
+   T(Idnum         , 2*Ident,              "Identifier terminating in a number") \
+   T(SemIdent      , 2*Idnum,              "Interpreted function/predicate name ('$name')") \
+   T(String        , 2*SemIdent,           "String enclosed in double quotes (\"\")") \
+   T(SQString      , 2*String,             "String enclosed in single quote ('')") \
+   T(PosInt        , 2*SQString,           "Integer (sequence of decimal digits) convertible to an 'unsigned long'") \
+   T(OpenBracket   , 2*PosInt,             "Opening bracket ('(')") \
+   T(CloseBracket  , 2*OpenBracket,        "Closing bracket (')')") \
+   T(OpenCurly     , 2*CloseBracket,       "Opening curly brace ('{')") \
+   T(CloseCurly    , 2*OpenCurly,          "Closing curly brace ('}')") \
+   T(OpenSquare    , 2*CloseCurly,         "Opening square brace ('[')") \
+   T(CloseSquare   , 2*OpenSquare,         "Closing square brace (']')") \
+   T(LesserSign    , 2*CloseSquare,        "\"Lesser than\" sign ('<')") \
+   T(GreaterSign   , 2*LesserSign,         "\"Greater than\" sign ('>')") \
+   T(EqualSign     , 2*GreaterSign,        "Equal Predicate/Sign ('=')") \
+   T(NegEqualSign  , 2*EqualSign,          "Negated Equal Predicate ('!=')") \
+   T(TildeSign     , 2*NegEqualSign,       "Tilde ('~')") \
+   T(Exclamation   , 2*TildeSign,          "Exclamation mark ('!')") \
+   T(UnivQuantor   , Exclamation,          NULL) \
+   T(QuestionMark  , 2*Exclamation,        "Question mark ('?')") \
+   T(ExistQuantor  , QuestionMark,         NULL) \
+   T(Comma         , 2*QuestionMark,       "Comma (',')") \
+   T(Semicolon     , 2*Comma,              "Semicolon (';')") \
+   T(Colon         , 2*Semicolon,          "Colon (':')") \
+   T(Hyphen        , 2*Colon,              "Hyphen ('-')") \
+   T(Plus          , 2*Hyphen,             "Plus sign ('+')") \
+   T(Mult          , 2*Plus,               "Multiplication sign ('*')") \
+   T(Fullstop      , 2*Mult,               "Fullstop ('.')") \
+   T(Dollar        , 2*Fullstop,           "Dollar sign ('$')") \
+   T(Slash         , 2*Dollar,             "Slash ('/')") \
+   T(Pipe          , 2*Slash,              "Vertical bar ('|')") \
+   T(FOFOr         , Pipe,                 NULL) \
+   T(Ampersand     , 2*Pipe,               "Ampersand ('&')") \
+   T(FOFAnd        , Ampersand,            NULL) \
+   T(FOFLRImpl     , 2*Ampersand,          "Implication/LRArrow ('=>')") \
+   T(FOFRLImpl     , 2*FOFLRImpl,          "Back Implicatin/RLArrow ('<=')") \
+   T(FOFEquiv      , 2*FOFRLImpl,          "Equivalence/Double arrow ('<=>')") \
+   T(FOFXor        , 2*FOFEquiv,           "Negated Equivalence/Xor ('<~>')") \
+   T(FOFNand       , 2*FOFXor,             "Nand ('~&')") \
+   T(FOFNor        , 2*FOFNand,            "Nor ('~|')") \
+   T(Application   , 2*FOFNor,             "Application ('@')") \
+   T(Carret        , 2*Application,        "Lambda ('^')") \
+   T(LambdaQuantor , Carret,               NULL) \
+   T(LetToken      , 2*LambdaQuantor,      "Let ('$let')") \
+   T(IteToken      , 2*LetToken,           "Ite ('$ite')") \
+   T(SkipToken     , WhiteSpace | Comment, NULL) \
+   T(Identifier    , Ident | Idnum,        NULL) \
+   T(Name          , Identifier | String,  NULL) \
+   T(FOFBinOp      , FOFAnd|FOFOr|FOFLRImpl|FOFRLImpl|FOFEquiv|FOFXor|FOFNand|FOFNor|EqualSign|NegEqualSign, NULL) \
+   T(FOFAssocOp    , FOFAnd|FOFOr, NULL) 
 
-
-#define SkipToken     (WhiteSpace | Comment)
-#define Identifier    (Ident | Idnum)
-#define Name          (Identifier | String)
-//                                                                                     FOOL additions
-#define FOFBinOp      (FOFAnd|FOFOr|FOFLRImpl|FOFRLImpl|FOFEquiv|FOFXor|FOFNand|FOFNor|EqualSign|NegEqualSign)
-#define FOFAssocOp    (FOFAnd|FOFOr)
-
-
+/* Generate the tokens as const values. */
+#define T(token, value, description) static const TokenType token = value;
+TOKENS
+#undef T
 
 /* If your application parses multiple format you can use this to
    distinguish them: */

@@ -23,6 +23,7 @@ PROVER/epcllemma
 PROVER/eprover
 PROVER/termprops
 PROVER/tsm_classify
+PROVER/epatternize
 SIMPLE_APPS/ex_commandline
 SIMPLE_APPS/term2dag
 TEST/cl_test
@@ -66,4 +67,3 @@ CONTRIB/picosat-965/*
 # Build and setup files
 setup.sh
 build.sh
-

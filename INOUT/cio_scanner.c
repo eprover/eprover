@@ -26,56 +26,15 @@
 /*                        Global Variables                             */
 /*---------------------------------------------------------------------*/
 
+/* Using X-macro TOKENS to generate TokenRepCell table. */
+
+#define T(token, value, description) {token, description},
 static TokenRepCell token_print_rep[] =
 {
-   {NoToken,      "No token (probably EOF)"},
-   {WhiteSpace,   "White space (spaces, tabs, newlines...)"},
-   {Comment,      "Comment"},
-   {Ident,        "Identifier not terminating in a number"},
-   {Idnum,        "Identifier terminating in a number"},
-   {SemIdent,     "Interpreted function/predicate name ('$name')"},
-   {String,       "String enclosed in double quotes (\"\")"},
-   {SQString,     "String enclosed in single quote ('')"},
-   {PosInt,       "Integer (sequence of decimal digits) "
-    "convertible to an 'unsigned long'"},
-   /* May need LargePosInt here... */
-   {OpenBracket,  "Opening bracket ('(')"},
-   {CloseBracket, "Closing bracket (')')"},
-   {OpenCurly,    "Opening curly brace ('{')"},
-   {CloseCurly,   "Closing curly brace ('}')"},
-   {OpenSquare,   "Opening square brace ('[')"},
-   {CloseSquare,  "Closing square brace (']')"},
-   {LesserSign,   "\"Lesser than\" sign ('<')"},
-   {GreaterSign,  "\"Greater than\" sign ('>')"},
-   {EqualSign,    "Equal Predicate/Sign ('=')"},
-   {NegEqualSign, "Negated Equal Predicate ('!=')"},
-   {TildeSign,    "Tilde ('~')"},
-   {Exclamation,  "Exclamation mark ('!')"},
-   {QuestionMark, "Question mark ('?')"},
-   {Comma,        "Comma (',')"},
-   {Semicolon,    "Semicolon (';')"},
-   {Colon,        "Colon (':')"},
-   {Hyphen,       "Hyphen ('-')"},
-   {Plus,         "Plus sign ('+')"},
-   {Mult,         "Multiplication sign ('*')"},
-   {Fullstop,     "Fullstop ('.')"},
-   {Dollar,       "Dollar sign ('$')"},
-   {Slash,        "Slash ('/')"},
-   {Pipe,         "Vertical bar ('|')"},
-   {Ampersand,    "Ampersand ('&')"},
-   {FOFLRImpl,    "Implication/LRArrow ('=>')"},
-   {FOFRLImpl,    "Back Implicatin/RLArrow ('<=')"},
-   {FOFEquiv,     "Equivalence/Double arrow ('<=>')"},
-   {FOFXor,       "Negated Equivalence/Xor ('<~>')"},
-   {FOFNand,      "Nand ('~&')"},
-   {FOFNor,       "Nor ('~|')"},
-   {Application,  "Application ('@')",},
-   {LambdaQuantor,"Lambda ('^')",},
-   {LetToken,     "Let ('$let')"},
-   {IteToken,     "Ite ('$ite')"},
-   {NoToken,      NULL}
-
+   TOKENS
 };
+static const size_t token_print_rep_size = sizeof(token_print_rep) / sizeof(token_print_rep[0]);
+#undef T
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
@@ -775,13 +734,16 @@ char* DescribeToken(TokenType tok)
    DStr_p res = DStrAlloc();
    bool   found = false;
 
-   for(i=0; token_print_rep[i].rep; i++)
+   for(i=0; i < token_print_rep_size; i++)
    {
       if(tok & token_print_rep[i].key)
       {
-         DStrAppendStr(res, found ? " or " : "");
-         DStrAppendStr(res, token_print_rep[i].rep);
-         found = true;
+         if (token_print_rep[i].rep) 
+         {
+            DStrAppendStr(res, found ? " or " : "");
+            DStrAppendStr(res, token_print_rep[i].rep);
+            found = true;
+         }
       }
    }
    if(!found)
