@@ -487,23 +487,23 @@ static void print_proof_stats(ProofState_p proofstate,
       //DF-START
 #ifdef MEASURE_EMPTY
       fprintf(GlobalOut, "\n");
-      fprintf(GlobalOut, "# Empty invoked times                  : %ld\n",
-              countEmpty);
+/*      fprintf(GlobalOut, "# Empty invoked times                  : %ld\n",
+              countEmpty);*/
 #endif
 
 #ifdef MEASURE_INT
-      fprintf(GlobalOut, "# Int invoked times                    : %ld\n",
-              countInt);
+/*      fprintf(GlobalOut, "# Int invoked times                    : %ld\n",
+              countInt);*/
 #endif
 
 #ifdef MEASURE_ARRAY
-      fprintf(GlobalOut, "# Array invoked times                  : %ld\n",
-              countArray);
+/*      fprintf(GlobalOut, "# Array invoked times                  : %ld\n",
+              countArray);*/
 #endif
 
 #ifdef MEASURE_TREE
-      fprintf(GlobalOut, "# Tree invoked times                   : %ld\n",
-              countTree);
+/*      fprintf(GlobalOut, "# Tree invoked times                   : %ld\n",
+              countTree);*/
 #endif
 
 #ifdef MEASURE_DELETE
@@ -1108,8 +1108,10 @@ int main(int argc, char* argv[])
 #ifdef MEASURE_INTMAP_STATS
       printf("# INTMAP STATS\n");
       printf("# STATS-BEGIN\n");
+      print_number_of_invocations(intmaps);
       printf("# Intmap-Tree items                    : %ld \n", PTreeNodes(intmaps));
       print_intmap_stats(intmaps);
+
       printf("# STATS-END\n");
 
 #endif
@@ -2478,6 +2480,88 @@ void print_intmap_stats(PTree_p root) {
    PStackFree(stack);
 
 }
+
+//Testing ....
+long get_number_of_invocations_by_type(PTree_p root, IntMapType type) {
+   PStack_p stack = PStackAlloc();
+   long     res   = 0;
+
+   PStackPushP(stack, root);
+
+   while(!PStackEmpty(stack))
+   {
+      root = PStackPopP(stack);
+      if(root)
+      {
+         PStackPushP(stack, root->lson);
+         PStackPushP(stack, root->rson);
+
+         IntMap_p intmap_key = (IntMap_p)root->key;
+
+         if(intmap_key->type == type) {
+            res++;
+         }
+
+      }
+   }
+   PStackFree(stack);
+
+   return res;
+}
+
+void print_number_of_invocations(PTree_p root) {
+      printf("# Empty invoked times                  : %ld\n", get_number_of_invocations_by_type(root, IMEmpty));
+      printf("# Int invoked times                    : %ld\n", get_number_of_invocations_by_type(root, IMSingle));
+      printf("# Array invoked times                  : %ld\n", get_number_of_invocations_by_type(root, IMArray));
+      printf("# Tree invoked times                   : %ld\n", get_number_of_invocations_by_type(root, IMTree));
+}
+
+/*
+##########
+    typedef enum
+    {
+        IMEmpty,
+        IMSingle,
+        IMArray,
+        IMTree
+    } IntMapType;
+
+    void print_line_out(IntMapType type);
+
+int main() {
+    // Write C code here
+
+
+    IntMapType type = IMEmpty;
+
+    print_line_out(type);
+
+    return 0;
+}
+
+void print_line_out(IntMapType type){
+    switch(type)
+    {
+            case IMEmpty:
+            printf("Zero: %d", type);
+            break;
+            case IMSingle:
+            printf("One: %d", type);
+            break;
+            case IMArray:
+            printf("Two: %d", type);
+            break;
+            case IMTree:
+            printf("Three: %d", type);
+            break;
+    }
+
+}
+##########
+
+ */
+
+
 #endif
 //DF-STOP
 
