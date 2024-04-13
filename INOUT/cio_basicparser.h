@@ -61,6 +61,8 @@ char*      ParseContinous(Scanner_p in);
 
 void       ParseSkipParenthesizedExpr(Scanner_p in);
 
+void       ParseError(Scanner_p in);
+
 #endif
 
 /*---------------------------------------------------------------------*/

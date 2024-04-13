@@ -112,6 +112,17 @@ void Error(char* message, ErrorCodes ret, ...)
 }
 
 
+void PrintError(char* message, ErrorCodes ret, ...) 
+{
+   va_list ap;
+   va_start(ap, ret);
+
+   fprintf(stderr, "%s: ", ProgName);
+   vfprintf(stderr, message, ap);
+   fprintf(stderr, "\n");
+   va_end(ap);
+}
+
 /*-----------------------------------------------------------------------
 //
 // Function: SysError()

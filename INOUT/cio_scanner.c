@@ -151,7 +151,7 @@ static void scan_int(Scanner_p in)
       //char* term=strncpy(buff, DStrView(AktToken(in)->literal), 29);
       //*term = '\0';
       //strtol(buff, NULL, 10);
-      Warning("Number truncated while reading %s. If this happens on 32 bit systems while parsing internal strings, it is harmless and can be ignored",  DStrView(AktToken(in)->literal));
+      CreateTokenWarning(in, "Number truncated. If this happens on 32 bit systems while parsing internal strings, it is harmless and can be ignored");
    }
 }
 
@@ -235,9 +235,10 @@ static void scan_string(Scanner_p in, char delim)
    {
       if(!isprint(curr) && curr<=127)
       {
-         AktTokenError(in,
+         _CreateTokenError(in,
                        "Non-printable character in string constant",
                        false);
+         return;
       }
       if(curr=='\\')
       {
@@ -471,8 +472,10 @@ static Token_p scan_token(Scanner_p in)
             break;
       default:
             DStrAppendChar(AktToken(in)->literal, CurrChar(in));
-            AktTokenError(in, "Illegal character", false);
-            break;
+            /* Skip bad character. */
+            NextChar(in);
+            _CreateTokenError(in, "Illegal character", false);
+            return;
       }
       DStrAppendChar(AktToken(in)->literal, CurrChar(in));
       NextChar(in);
@@ -894,6 +897,7 @@ Scanner_p CreateScanner(StreamType type, char *name, bool
    }
    handle->current = 0;
    handle->include_pos = NULL;
+   handle->panic_mode = false;
    return handle;
 }
 
@@ -1067,7 +1071,7 @@ bool TestIdnum(Token_p akt, char* ids)
 //
 /----------------------------------------------------------------------*/
 
-void AktTokenError(Scanner_p in, char* msg, bool syserr)
+void _JAN_OLD_AktTokenError(Scanner_p in, char* msg, bool syserr)
 {
    DStr_p err = DStrAlloc();
 
@@ -1083,26 +1087,57 @@ void AktTokenError(Scanner_p in, char* msg, bool syserr)
    DStrFree(err); /* Just for symmetry reasons */
 }
 
-
-/*-----------------------------------------------------------------------
-//
-// Function: AktTokenWarning()
-//
-//   Produce a warning at the current token with the given
-//   message.
-//
-// Global Variables: -
-//
-// Side Effects    : Terminates program
-//
-/----------------------------------------------------------------------*/
-
-void AktTokenWarning(Scanner_p in, char* msg)
+static void _token_error_at(Token_p token, char* msg, TokenErrorType err_type) 
 {
-   DStr_p err = DStrAlloc();
+   assert(token);
+   assert(msg);
 
+   DStr_p err = DStrAlloc();
    compose_errmsg(err, in, msg);
-   Warning(DStrView(err));
+
+   /* Free the literal, it will be replaced by err. */
+   DStrFree(AktToken(in)->literal);
+
+   AktToken(in)->tok = ErrorToken;
+   AktToken(in)->error.error_message = err;
+   AktToken(in)->error.err_type = err_type;
+}
+
+void _CreateTokenError(Scanner_p in, char* msg, bool syserr) 
+{
+   assert(in);
+   assert(msg);
+
+   _token_error_at(AktToken(in), msg, syserr ? TokenSysError : TokenSyntaxError);
+}
+
+void _CreateTokenWarning(Scanner_p in, char* msg) 
+{
+   assert(in);
+   assert(msg);
+
+   _token_error_at(AktToken(in), msg, TokenWarning);
+}
+
+void _ParseError(Scanner_p in, char* msg, bool syserr) 
+{
+   assert(in);
+   assert(msg);
+
+   /* Create error message. */
+   DStr_p err = DStrAlloc();
+   compose_errmsg(err, in, msg);
+
+   if(syserr)
+   {
+      SysError(DStrView(err), SYNTAX_ERROR);
+   }
+   else
+   {
+      Error(DStrView(err), SYNTAX_ERROR);
+   }
+
+   DStrFree(err); /* Just for symmetry reasons */
 }
 
 
@@ -1119,8 +1154,10 @@ void AktTokenWarning(Scanner_p in, char* msg)
 //
 /----------------------------------------------------------------------*/
 
-void CheckInpTok(Scanner_p in, TokenType toks)
+bool _CheckInpTok(Scanner_p in, TokenType toks)
 {
+   assert(in);
+
    if(!TestInpTok(in, toks))
    {
       char* tmp;
@@ -1135,7 +1172,23 @@ void CheckInpTok(Scanner_p in, TokenType toks)
       FREE(tmp);
       DStrAppendStr(in->accu, " read ");
       AktTokenError(in, DStrView(in->accu), false);
+      return false;
    }
+
+   return true;
+}
+
+bool _ConsumeInpTok(Scanner_p in, TokenType toks) 
+{
+   assert(in);
+
+   if (!_CheckInpTok(in, toks)) 
+   {
+      return false;
+   }
+
+   NextToken(in);
+   return true;
 }
 
 
@@ -1152,8 +1205,10 @@ void CheckInpTok(Scanner_p in, TokenType toks)
 //
 /----------------------------------------------------------------------*/
 
-void CheckInpTokNoSkip(Scanner_p in, TokenType toks)
+bool _CheckInpTokNoSkip(Scanner_p in, TokenType toks)
 {
+   assert(in);
+
    if(AktToken(in)->skipped)
    {
       char* tmp;
@@ -1167,11 +1222,26 @@ void CheckInpTokNoSkip(Scanner_p in, TokenType toks)
       DStrAppendStr(in->accu, tmp);
       FREE(tmp);
       DStrAppendStr(in->accu, " read ");
+      // TODO: THIS HERE IS A FUCKING PARSE ERROR.
       AktTokenError(in, DStrView(in->accu), false);
+      return false;
    }
-   CheckInpTok(in, toks);
+
+   return _CheckInpTok(in, toks);
 }
 
+bool _ConsumeInpTokNoSkip(Scanner_p in, TokenType toks) 
+{
+   assert(in);
+
+   if (!_CheckInpTokNoSkip(in, toks)) 
+   {
+      return false;
+   }
+
+   NextToken(in);
+   return true;
+}
 
 /*-----------------------------------------------------------------------
 //
@@ -1186,8 +1256,10 @@ void CheckInpTokNoSkip(Scanner_p in, TokenType toks)
 //
 /----------------------------------------------------------------------*/
 
-void CheckInpId(Scanner_p in, char* ids)
+bool _CheckInpId(Scanner_p in, char* ids)
 {
+   assert(in);
+
    if(!TestInpId(in, ids))
    {
       char* tmp;
@@ -1202,7 +1274,23 @@ void CheckInpId(Scanner_p in, char* ids)
       DStrAppendStr(in->accu, DStrView(AktToken(in)->literal));
       DStrAppendStr(in->accu, "') read ");
       AktTokenError(in, DStrView(in->accu), false);
+      return false;
    }
+
+   return true;
+}
+
+bool _ConsumeInpId(Scanner_p in, char* ids) 
+{
+   assert(in);
+
+   if (!_CheckInpId(in, ids)) 
+   {
+      return false;
+   }
+
+   NextToken(in);
+   return true;
 }
 
 /*-----------------------------------------------------------------------

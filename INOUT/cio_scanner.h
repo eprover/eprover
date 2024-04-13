@@ -100,6 +100,7 @@ typedef unsigned long long TokenType;
    T(LambdaQuantor , Carret,               NULL) \
    T(LetToken      , 2*LambdaQuantor,      "Let ('$let')") \
    T(IteToken      , 2*LetToken,           "Ite ('$ite')") \
+   T(ErrorToken    , 2*IteToken,           NULL) \
    T(SkipToken     , WhiteSpace | Comment, NULL) \
    T(Identifier    , Ident | Idnum,        NULL) \
    T(Name          , Identifier | String,  NULL) \
@@ -122,18 +123,33 @@ typedef enum
    AutoFormat
 }IOFormat;
 
-
 typedef struct tokenrepcell
 {
    TokenType key;
    char*     rep;
 }TokenRepCell, *TokenRep_p;
 
+typedef enum 
+{
+   TokenSyntaxError,
+   TokenSysError,
+   TokenWarning
+}TokenErrorType;
+
+typedef struct tokenerrorinfo 
+{
+   DStr_p         error_message;
+   TokenErrorType err_type;
+}TokenErrorInfo;
 
 typedef struct tokencell
 {
    TokenType     tok;         /* Type for AcceptTok(), TestTok() ...   */
-   DStr_p        literal;     /* Verbatim copy of input for the token  */
+   union 
+   {
+      DStr_p    literal;        /* Verbatim copy of input for the token  */
+      TokenErrorInfo error;
+   };
    uintmax_t     numval;      /* Numerical value (if any) of the token */
    DStr_p        comment;     /* Accumulated preceding comments        */
    bool          skipped;     /* Was this token preceded by SkipSpace? */
@@ -160,6 +176,7 @@ typedef struct scannercell
    TokenCell   tok_sequence[MAXTOKENLOOKAHEAD]; /* Need help? Bozo! */
    int         current; /* Pointer to current token in tok_sequence */
    char*       include_pos; /* If created by "include", by which one? */
+   bool        panic_mode;
 }ScannerCell, *Scanner_p;
 
 
@@ -218,21 +235,18 @@ bool TestIdnum(Token_p akt, char* ids);
 #define TestInpTokNoSkip(in, toks) \
         (TestInpNoSkip(in) && TestInpTok(in, toks))
 
-void AktTokenError(Scanner_p in, char* msg, bool syserr);
-void AktTokenWarning(Scanner_p in, char* msg);
+void _JAN_OLD_AktTokenError(Scanner_p in, char* msg, bool syserr);
 
-void CheckInpTok(Scanner_p in, TokenType toks);
-void CheckInpTokNoSkip(Scanner_p in, TokenType toks);
-void CheckInpId(Scanner_p in, char* ids);
+void _CreateTokenError(Scanner_p in, char* msg, bool syserr);
+void _CreateTokenWarning(Scanner_p in, char* msg);
+void _ParseError(Scanner_p in, char* msg, bool syserr);
 
-
-#define AcceptInpTok(in, toks) CheckInpTok((in), (toks));\
-                               NextToken(in)
-#define AcceptInpTokNoSkip(in, toks) \
-                               CheckInpTokNoSkip((in), (toks));\
-                               NextToken(in)
-#define AcceptInpId(in, ids)   CheckInpId((in), (ids));\
-                               NextToken(in)
+bool _CheckInpTok(Scanner_p in, TokenType toks);
+bool _CheckInpTokNoSkip(Scanner_p in, TokenType toks);
+bool _CheckInpId(Scanner_p in, char* ids);
+bool _ConsumeInpTok(Scanner_p in, TokenType toks);
+bool _ConsumeInpTokNoSkip(Scanner_p in, TokenType toks);
+bool _ConsumeInpId(Scanner_p in, char* ids);
 
 void NextToken(Scanner_p in);
 

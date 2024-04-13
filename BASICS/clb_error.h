@@ -77,6 +77,7 @@ extern int   TmpErrno;
 extern char* ProgName;
 
 void          InitError(char* progname);
+void PrintError(char* message, ErrorCodes ret, ...);
 void Error(char* message, ErrorCodes ret, ...);
 void SysError(char* message, ErrorCodes ret, ...);
 void          Warning(char* message, ...);
