@@ -382,7 +382,7 @@ void DBGTermCheckUnownedSubtermReal(FILE* out, Term_p t, char* location);
 #define TermGetBank(t)     (UNUSED(t), NULL)
 #define TermFindUnownedSubterm(t) (UNUSED(t), NULL)
 #define DBGTermCheckUnownedSubterm(f, t, l) (UNUSED(f), UNUSED(t), UNUSED(l))
-#define TermSetBank(t,b)   (UNUSED(t), UNUSED(b), NULL)
+#define TermSetBank(t,b)   (UNUSED(t), UNUSED(b), UNUSED(NULL))
 #define TermIsBetaReducible(t) false
 #define TermIsEtaReducible(t)  false
 #endif
