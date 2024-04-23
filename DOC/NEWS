@@ -4,6 +4,7 @@ equational theorem prover.
 Version 3.0.03 ->
 
 - Added disequality decomposition inference
+- Fixed various bugs (e.g. in local rewriting)
 
 
 Version 3.0 ->3.0.03 Shangri-La
@@ -12,7 +13,7 @@ Version 3.0 ->3.0.03 Shangri-La
 - Fixed several bugs in the higher-order module, mostly related to the
   difference between shared and unshared terms. This will need further
   work to catch all corner cases.
-- Fixed several minor memory leaks and simlified management of parsed
+- Fixed several minor memory leaks and simplified management of parsed
   strings with the clb_permastrings module.
 
 Version 3.0 (pre-release) ->3.0 Shangri-La
