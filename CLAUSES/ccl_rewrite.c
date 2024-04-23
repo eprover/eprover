@@ -1423,8 +1423,7 @@ bool ClauseLocalRW(OCB_p ocb, Clause_p clause)
 {
    PObjMap_p rw_sys = NULL;
 
-   ClauseCondMarkMaximalTerms(ocb, clause);
-
+   ClauseOrientLiterals(ocb, clause);
    for(Eqn_p lit = clause->literals; lit; lit = lit->next)
    {
       if(EqnIsNegative(lit) && EqnIsOriented(lit))
@@ -1437,7 +1436,12 @@ bool ClauseLocalRW(OCB_p ocb, Clause_p clause)
          PObjMapStore(&rw_sys, lit->lterm, lit->bank->false_term, PCmpFun);
       }
    }
-
+   /* if(rw_sys) */
+   /* { */
+   /*    printf("Clause: "); */
+   /*    ClausePrint(stdout, clause, true); */
+   /*    printf("\n"); */
+   /* } */
    bool modified = false;
    for(Eqn_p lit = clause->literals; lit; lit = lit->next)
    {
