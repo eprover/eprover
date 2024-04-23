@@ -473,11 +473,12 @@ static bool find_rewritable_clauses(OCB_p ocb, ClauseSet_p set,
 //
 // Function: replace_term()
 //
-//   Replace all subterms stored in the rw_sys.
+//   Replace all subterms stored in the rw_sys by their respective
+//   associated partners.
 //
 // Global Variables: -
 //
-// Side Effects    : Instantiates
+// Side Effects    : Instantiates (Really? StS)
 //
 /----------------------------------------------------------------------*/
 
@@ -1418,9 +1419,11 @@ long FindRewritableClausesIndexed(OCB_p ocb, SubtermIndex_p index,
 //
 /----------------------------------------------------------------------*/
 
-bool ClauseLocalRW(Clause_p clause)
+bool ClauseLocalRW(OCB_p ocb, Clause_p clause)
 {
    PObjMap_p rw_sys = NULL;
+
+   ClauseCondMarkMaximalTerms(ocb, clause);
 
    for(Eqn_p lit = clause->literals; lit; lit = lit->next)
    {
@@ -1455,6 +1458,7 @@ bool ClauseLocalRW(Clause_p clause)
    {
       ClauseRecomputeLitCounts(clause);
       ClauseRemoveSuperfluousLiterals(clause);
+      ClauseDelProp(clause, CPIsOriented);
       ClausePushDerivation(clause, DCLocalRewrite, NULL, NULL);
    }
 

@@ -286,9 +286,8 @@ bool ForwardModifyClause(ProofState_p state,
       {
          ClauseRemoveACResolved(clause);
       }
-
       if(control->heuristic_parms.local_rw
-         && ClauseLocalRW(clause))
+         && ClauseLocalRW(control->ocb, clause))
       {
          if(problemType == PROBLEM_HO)
          {
