@@ -686,11 +686,12 @@ OptCell opts[] =
     "Use the (experimental) strategy scheduling. This will try several "
     "different fully specified search strategies (aka \"Auto-Modes\"), "
     "one after the other, until a proof or saturation is found, or the "
-    "time limit is exceeded. Optional argument is the number of CPUs "
+    "time limit is exceeded. The optional argument is the number of CPUs "
     "on which the schedule is going to be executed on. By default, "
     "the schedule is executed on a single core. To execute on all "
-    "cores of a system set the argument to 'Auto', but note that this"
-    "will use all reported cores (even efficiency cores, if available)."},
+    "cores of a system, set the argument to 'Auto', but note that this "
+    "will use all reported cores (even low-performance efficiency "
+    "cores, if available on the hardware platform and reported by the OS)."},
 
     {OPT_FORCE_PREPROC_SCHED,
     '\0', "force-preproc-sched",
