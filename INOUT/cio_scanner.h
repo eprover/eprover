@@ -235,8 +235,6 @@ bool TestIdnum(Token_p akt, char* ids);
 #define TestInpTokNoSkip(in, toks) \
         (TestInpNoSkip(in) && TestInpTok(in, toks))
 
-void _JAN_OLD_AktTokenError(Scanner_p in, char* msg, bool syserr);
-
 void _CreateTokenError(Scanner_p in, char* msg, bool syserr);
 void _CreateTokenWarning(Scanner_p in, char* msg);
 void _ParseError(Scanner_p in, char* msg, bool syserr);
@@ -250,8 +248,21 @@ bool _ConsumeInpId(Scanner_p in, char* ids);
 
 void NextToken(Scanner_p in);
 
-Scanner_p ScannerParseInclude(Scanner_p in, StrTree_p *name_selector,
-                              StrTree_p *skip_includes);
+#define DEFINE_RESULT(name, return_type) \
+typedef struct \
+{ \
+   bool result; \
+   return_type ret; \
+} name;
+
+#define MAKE_ERR(result, value) result.result = false; result.ret = value; return result;
+#define MAKE_OK(result, value) result.result = true; result.ret = value; return result;
+
+DEFINE_RESULT(ScannerParseIncludeResult, Scanner_p)
+
+ScannerParseIncludeResult ScannerParseInclude(Scanner_p in, 
+                                              StrTree_p *name_selector,
+                                              StrTree_p *skip_includes);
 
 #ifdef ENABLE_LFHO
 #define PARSE_OPTIONAL_AV_PENALTY(in, var_name) \

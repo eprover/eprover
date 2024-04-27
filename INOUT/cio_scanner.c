@@ -36,6 +36,13 @@ static TokenRepCell token_print_rep[] =
 static const size_t token_print_rep_size = sizeof(token_print_rep) / sizeof(token_print_rep[0]);
 #undef T
 
+
+/*---------------------------------------------------------------------*/
+/*                            Local Types                              */
+/*---------------------------------------------------------------------*/
+
+DEFINE_RESULT(ScanTokenFollowIncludesResult, Token_p)
+
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
 /*---------------------------------------------------------------------*/
@@ -151,7 +158,7 @@ static void scan_int(Scanner_p in)
       //char* term=strncpy(buff, DStrView(AktToken(in)->literal), 29);
       //*term = '\0';
       //strtol(buff, NULL, 10);
-      CreateTokenWarning(in, "Number truncated. If this happens on 32 bit systems while parsing internal strings, it is harmless and can be ignored");
+      _CreateTokenWarning(in, "Number truncated. If this happens on 32 bit systems while parsing internal strings, it is harmless and can be ignored");
    }
 }
 
@@ -475,7 +482,7 @@ static Token_p scan_token(Scanner_p in)
             /* Skip bad character. */
             NextChar(in);
             _CreateTokenError(in, "Illegal character", false);
-            return;
+            return AktToken(in);
       }
       DStrAppendChar(AktToken(in)->literal, CurrChar(in));
       NextChar(in);
@@ -497,8 +504,10 @@ static Token_p scan_token(Scanner_p in)
 //
 /----------------------------------------------------------------------*/
 
-Token_p scan_token_follow_includes(Scanner_p in)
+static ScanTokenFollowIncludesResult scan_token_follow_includes(Scanner_p in)
 {
+   ScanTokenFollowIncludesResult result;
+
    scan_token(in);
    if(in->include_key && (TestInpId(in, in->include_key)))
    {
@@ -516,9 +525,18 @@ Token_p scan_token_follow_includes(Scanner_p in)
       }
 
       scan_token(in);
-      CheckInpTok(in, OpenBracket);
+      if (false == _CheckInpTok(in, OpenBracket)) 
+      {
+         DStrFree(name);
+         MAKE_ERR(result, NULL)
+      }
+
       scan_token(in);
-      CheckInpTok(in, Identifier|String|SQString);
+      if (false == _CheckInpTok(in, Identifier|String|SQString)) 
+      {
+         DStrFree(name);
+         MAKE_ERR(result, NULL)
+      }
       if(TestInpTok(in, Identifier))
       {
          DStrAppendDStr(name, AktToken(in)->literal);
@@ -539,13 +557,19 @@ Token_p scan_token_follow_includes(Scanner_p in)
       {
          CloseStackedInput(&(in->source));
          scan_token(in);
-         CheckInpTok(in, CloseBracket);
+         if (false == _CheckInpTok(in, CloseBracket)) 
+         {
+            MAKE_ERR(result, NULL)
+         }
          scan_token(in);
-         CheckInpTok(in, Fullstop);
+         if (false == _CheckInpTok(in, Fullstop)) 
+         {
+            MAKE_ERR(result, NULL)
+         }
          scan_token_follow_includes(in);
       }
    }
-   return AktToken(in);
+   MAKE_OK(result, AktToken(in))
 }
 
 /*-----------------------------------------------------------------------
@@ -1056,40 +1080,9 @@ bool TestIdnum(Token_p akt, char* ids)
    return str_n_element(DStrView(akt->literal), ids, len);
 }
 
-
-/*-----------------------------------------------------------------------
-//
-// Function: AktTokenError()
-//
-//   Produce a syntax error at the current token with the given
-//   message. If syserror is true, this will also print the C library
-//   error message corresponding to the current value of errno.
-//
-// Global Variables: -
-//
-// Side Effects    : Terminates program
-//
-/----------------------------------------------------------------------*/
-
-void _JAN_OLD_AktTokenError(Scanner_p in, char* msg, bool syserr)
+static void _token_error_at(Scanner_p in, char* msg, TokenErrorType err_type) 
 {
-   DStr_p err = DStrAlloc();
-
-   compose_errmsg(err, in, msg);
-   if(syserr)
-   {
-      SysError(DStrView(err), SYNTAX_ERROR);
-   }
-   else
-   {
-      Error(DStrView(err), SYNTAX_ERROR);
-   }
-   DStrFree(err); /* Just for symmetry reasons */
-}
-
-static void _token_error_at(Token_p token, char* msg, TokenErrorType err_type) 
-{
-   assert(token);
+   assert(in);
    assert(msg);
 
    DStr_p err = DStrAlloc();
@@ -1108,7 +1101,7 @@ void _CreateTokenError(Scanner_p in, char* msg, bool syserr)
    assert(in);
    assert(msg);
 
-   _token_error_at(AktToken(in), msg, syserr ? TokenSysError : TokenSyntaxError);
+   _token_error_at(in, msg, syserr ? TokenSysError : TokenSyntaxError);
 }
 
 void _CreateTokenWarning(Scanner_p in, char* msg) 
@@ -1116,7 +1109,7 @@ void _CreateTokenWarning(Scanner_p in, char* msg)
    assert(in);
    assert(msg);
 
-   _token_error_at(AktToken(in), msg, TokenWarning);
+   _token_error_at(in, msg, TokenWarning);
 }
 
 void _ParseError(Scanner_p in, char* msg, bool syserr) 
@@ -1124,20 +1117,30 @@ void _ParseError(Scanner_p in, char* msg, bool syserr)
    assert(in);
    assert(msg);
 
+   /* Do not print errors if in panic mode. */
+   if (true == in->panic_mode) 
+   {
+      return;
+   }
+
    /* Create error message. */
    DStr_p err = DStrAlloc();
    compose_errmsg(err, in, msg);
 
    if(syserr)
    {
+      /* System errors are critical enough to exit. */
       SysError(DStrView(err), SYNTAX_ERROR);
    }
    else
    {
-      Error(DStrView(err), SYNTAX_ERROR);
+      /* "Normal" parse errors get printed. No exit. */
+      _PrintError(DStrView(err), SYNTAX_ERROR);
    }
 
-   DStrFree(err); /* Just for symmetry reasons */
+   /* Free error message after printing. Enter panic mode. */
+   in->panic_mode = true;
+   DStrFree(err);
 }
 
 
@@ -1171,7 +1174,7 @@ bool _CheckInpTok(Scanner_p in, TokenType toks)
       DStrAppendStr(in->accu, tmp);
       FREE(tmp);
       DStrAppendStr(in->accu, " read ");
-      AktTokenError(in, DStrView(in->accu), false);
+      _ParseError(in, DStrView(in->accu), false);
       return false;
    }
 
@@ -1222,8 +1225,7 @@ bool _CheckInpTokNoSkip(Scanner_p in, TokenType toks)
       DStrAppendStr(in->accu, tmp);
       FREE(tmp);
       DStrAppendStr(in->accu, " read ");
-      // TODO: THIS HERE IS A FUCKING PARSE ERROR.
-      AktTokenError(in, DStrView(in->accu), false);
+      _ParseError(in, DStrView(in->accu), false);
       return false;
    }
 
@@ -1259,6 +1261,7 @@ bool _ConsumeInpTokNoSkip(Scanner_p in, TokenType toks)
 bool _CheckInpId(Scanner_p in, char* ids)
 {
    assert(in);
+   assert(ids);
 
    if(!TestInpId(in, ids))
    {
@@ -1273,7 +1276,7 @@ bool _CheckInpId(Scanner_p in, char* ids)
       DStrAppendStr(in->accu, "('");
       DStrAppendStr(in->accu, DStrView(AktToken(in)->literal));
       DStrAppendStr(in->accu, "') read ");
-      AktTokenError(in, DStrView(in->accu), false);
+      _ParseError(in, DStrView(in->accu), false);
       return false;
    }
 
@@ -1283,6 +1286,7 @@ bool _CheckInpId(Scanner_p in, char* ids)
 bool _ConsumeInpId(Scanner_p in, char* ids) 
 {
    assert(in);
+   assert(ids);
 
    if (!_CheckInpId(in, ids)) 
    {
@@ -1335,25 +1339,44 @@ void NextToken(Scanner_p in)
 //
 /----------------------------------------------------------------------*/
 
-Scanner_p ScannerParseInclude(Scanner_p in, StrTree_p *name_selector,
-                              StrTree_p *skip_includes)
+ScannerParseIncludeResult ScannerParseInclude(Scanner_p in, 
+                                              StrTree_p *name_selector,
+                                              StrTree_p *skip_includes)
 {
+   /* Initialize result. */
+   ScannerParseIncludeResult result;
    Scanner_p new_scanner = NULL;
+
    char* name;
    char* pos_rep;
 
    pos_rep = SecureStrdup(TokenPosRep(AktToken(in)));
-   AcceptInpId(in, "include");
-   AcceptInpTok(in, OpenBracket);
-   CheckInpTok(in, SQString);
+   if (false == _ConsumeInpId(in, "include")) 
+   {
+      FREE(pos_rep);
+      MAKE_ERR(result, NULL)
+   }
+
+   if (false == _ConsumeInpTok(in, OpenBracket)) 
+   {
+      FREE(pos_rep);
+      MAKE_ERR(result, NULL)
+   }
+
+   if (false == _CheckInpTok(in, SQString)) 
+   {
+      FREE(pos_rep);
+      MAKE_ERR(result, NULL)
+   }
+
    name = DStrCopyCore(AktToken(in)->literal);
 
    if(!StrTreeFind(skip_includes, name))
    {
       new_scanner = CreateScanner(StreamTypeFile, name,
-                                  in->ignore_comments,
-                                  ScannerGetDefaultDir(in),
-                                  true);
+                                         in->ignore_comments,
+                                         ScannerGetDefaultDir(in),
+                                         true);
       ScannerSetFormat(new_scanner, ScannerGetFormat(in));
       new_scanner->include_pos = pos_rep;
    }
@@ -1370,7 +1393,14 @@ Scanner_p ScannerParseInclude(Scanner_p in, StrTree_p *name_selector,
 
       dummy.i_val = 0;
       NextToken(in);
-      CheckInpTok(in, Name|PosInt|OpenSquare);
+      if (false == _ConsumeInpTok(in, Name|PosInt|OpenSquare))
+      {
+         if (NULL != new_scanner) 
+         {
+            DestroyScanner(new_scanner);
+         }
+      MAKE_ERR(result, NULL)
+      }
 
       if(TestInpTok(in, Name|PosInt))
       {
@@ -1380,18 +1410,40 @@ Scanner_p ScannerParseInclude(Scanner_p in, StrTree_p *name_selector,
       }
       else
       {
-         AcceptInpTok(in, OpenSquare);
+         if (false == _ConsumeInpTok(in, OpenSquare)) 
+         {
+            if (NULL != new_scanner) 
+            {
+               DestroyScanner(new_scanner);
+            }
+            MAKE_ERR(result, NULL)
+         }
+
          if(!TestInpTok(in, CloseSquare))
          {
             StrTreeStore(name_selector, DStrView(AktToken(in)->literal),
                          dummy, dummy);
-            AcceptInpTok(in, Name|PosInt);
+            if (false == _ConsumeInpTok(in, Name|PosInt))
+            {
+               if (NULL != new_scanner) 
+               {
+                  DestroyScanner(new_scanner);
+               }
+               MAKE_ERR(result, NULL)
+            }
             while(TestInpTok(in, Comma))
             {
                NextToken(in);
                StrTreeStore(name_selector, DStrView(AktToken(in)->literal),
                             dummy, dummy);
-               AcceptInpTok(in, Name|PosInt);
+               if (false == _ConsumeInpTok(in, Name|PosInt))
+               {
+                  if (NULL != new_scanner) 
+                  {
+                     DestroyScanner(new_scanner);
+                  }
+                  MAKE_ERR(result, NULL)
+               }
             }
          }
          else /* Empty list - insert full dummy */
@@ -1401,13 +1453,35 @@ Scanner_p ScannerParseInclude(Scanner_p in, StrTree_p *name_selector,
                          dummy, dummy);
 
          }
-         AcceptInpTok(in, CloseSquare);
+         if (false == _ConsumeInpTok(in, CloseSquare)) 
+         {
+            if (NULL != new_scanner) 
+            {
+               DestroyScanner(new_scanner);
+            }
+            MAKE_ERR(result, NULL)
+         }
       }
    }
-   AcceptInpTok(in, CloseBracket);
-   AcceptInpTok(in, Fullstop);
+   if (false == _ConsumeInpTok(in, CloseBracket))
+   {
+      if (NULL != new_scanner) 
+      {
+         DestroyScanner(new_scanner);
+      }
+      MAKE_ERR(result, NULL)
+   }
+   
+   if (false == _ConsumeInpTok(in, Fullstop)) 
+   {
+      if (NULL != new_scanner) 
+      {
+         DestroyScanner(new_scanner);
+      }
+      MAKE_ERR(result, NULL)
+   }
 
-   return new_scanner;
+   MAKE_OK(result, new_scanner)
 }
 
 

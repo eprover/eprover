@@ -112,15 +112,15 @@ void Error(char* message, ErrorCodes ret, ...)
 }
 
 
-void PrintError(char* message, ErrorCodes ret, ...) 
+void _PrintError(char* format, ...) 
 {
-   va_list ap;
-   va_start(ap, ret);
+   va_list args;
+   va_start(args, format);
 
    fprintf(stderr, "%s: ", ProgName);
-   vfprintf(stderr, message, ap);
+   vfprintf(stderr, format, args);
    fprintf(stderr, "\n");
-   va_end(ap);
+   va_end(args);
 }
 
 /*-----------------------------------------------------------------------
