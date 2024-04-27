@@ -244,7 +244,7 @@ static void scan_string(Scanner_p in, char delim)
       {
          _CreateTokenError(in,
                        "Non-printable character in string constant",
-                       false);
+                       TokenError);
          return;
       }
       if(curr=='\\')
@@ -481,8 +481,8 @@ static Token_p scan_token(Scanner_p in)
             DStrAppendChar(AktToken(in)->literal, CurrChar(in));
             /* Skip bad character. */
             NextChar(in);
-            _CreateTokenError(in, "Illegal character", false);
-            return AktToken(in);
+            _CreateTokenError(in, "Illegal character", TokenError);
+            break;
       }
       DStrAppendChar(AktToken(in)->literal, CurrChar(in));
       NextChar(in);
@@ -1080,28 +1080,24 @@ bool TestIdnum(Token_p akt, char* ids)
    return str_n_element(DStrView(akt->literal), ids, len);
 }
 
-static void _token_error_at(Scanner_p in, char* msg, TokenErrorType err_type) 
+static void _token_error_at(Scanner_p in, char* msg, TokenErrorType error_type) 
 {
    assert(in);
    assert(msg);
 
-   DStr_p err = DStrAlloc();
-   compose_errmsg(err, in, msg);
+   /* Print the error. */
+   _ParseError(in, msg, error_type);
 
-   /* Free the literal, it will be replaced by err. */
-   DStrFree(AktToken(in)->literal);
-
+   /* Set token type to error. */
    AktToken(in)->tok = ErrorToken;
-   AktToken(in)->error.error_message = err;
-   AktToken(in)->error.err_type = err_type;
 }
 
-void _CreateTokenError(Scanner_p in, char* msg, bool syserr) 
+void _CreateTokenError(Scanner_p in, char* msg, TokenErrorType error_type) 
 {
    assert(in);
    assert(msg);
 
-   _token_error_at(in, msg, syserr ? TokenSysError : TokenSyntaxError);
+   _token_error_at(in, msg, error_type);
 }
 
 void _CreateTokenWarning(Scanner_p in, char* msg) 
@@ -1112,7 +1108,7 @@ void _CreateTokenWarning(Scanner_p in, char* msg)
    _token_error_at(in, msg, TokenWarning);
 }
 
-void _ParseError(Scanner_p in, char* msg, bool syserr) 
+void _ParseError(Scanner_p in, char* msg, TokenErrorType error_type) 
 {
    assert(in);
    assert(msg);
@@ -1127,15 +1123,28 @@ void _ParseError(Scanner_p in, char* msg, bool syserr)
    DStr_p err = DStrAlloc();
    compose_errmsg(err, in, msg);
 
-   if(syserr)
+   switch (error_type) 
    {
-      /* System errors are critical enough to exit. */
-      SysError(DStrView(err), SYNTAX_ERROR);
-   }
-   else
-   {
-      /* "Normal" parse errors get printed. No exit. */
-      _PrintError(DStrView(err), SYNTAX_ERROR);
+      case TokenError: 
+      {
+         /* "Normal" parse errors get printed. No exit. */
+         _PrintError(DStrView(err), SYNTAX_ERROR);
+      }
+      break;
+
+      case TokenWarning: 
+      {
+         /* Warnings get printed. No exit. */
+         Warning(DStrView(err));
+      }
+      break;
+
+      case TokenSysError: 
+      {
+         /* System errors are critical enough to exit. */
+         SysError(DStrView(err), SYNTAX_ERROR);
+      }
+      break;
    }
 
    /* Free error message after printing. Enter panic mode. */
@@ -1174,7 +1183,7 @@ bool _CheckInpTok(Scanner_p in, TokenType toks)
       DStrAppendStr(in->accu, tmp);
       FREE(tmp);
       DStrAppendStr(in->accu, " read ");
-      _ParseError(in, DStrView(in->accu), false);
+      _ParseError(in, DStrView(in->accu), TokenError);
       return false;
    }
 
@@ -1225,7 +1234,7 @@ bool _CheckInpTokNoSkip(Scanner_p in, TokenType toks)
       DStrAppendStr(in->accu, tmp);
       FREE(tmp);
       DStrAppendStr(in->accu, " read ");
-      _ParseError(in, DStrView(in->accu), false);
+      _ParseError(in, DStrView(in->accu), TokenError);
       return false;
    }
 
@@ -1276,7 +1285,7 @@ bool _CheckInpId(Scanner_p in, char* ids)
       DStrAppendStr(in->accu, "('");
       DStrAppendStr(in->accu, DStrView(AktToken(in)->literal));
       DStrAppendStr(in->accu, "') read ");
-      _ParseError(in, DStrView(in->accu), false);
+      _ParseError(in, DStrView(in->accu), TokenError);
       return false;
    }
 

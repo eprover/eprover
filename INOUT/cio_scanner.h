@@ -129,27 +129,10 @@ typedef struct tokenrepcell
    char*     rep;
 }TokenRepCell, *TokenRep_p;
 
-typedef enum 
-{
-   TokenSyntaxError,
-   TokenSysError,
-   TokenWarning
-}TokenErrorType;
-
-typedef struct tokenerrorinfo 
-{
-   DStr_p         error_message;
-   TokenErrorType err_type;
-}TokenErrorInfo;
-
 typedef struct tokencell
 {
    TokenType     tok;         /* Type for AcceptTok(), TestTok() ...   */
-   union 
-   {
-      DStr_p    literal;        /* Verbatim copy of input for the token  */
-      TokenErrorInfo error;
-   };
+   DStr_p        literal;      /* Verbatim copy of input for the token  */
    uintmax_t     numval;      /* Numerical value (if any) of the token */
    DStr_p        comment;     /* Accumulated preceding comments        */
    bool          skipped;     /* Was this token preceded by SkipSpace? */
@@ -159,6 +142,13 @@ typedef struct tokencell
    long          column;      /*  "               "                    */
 
 }TokenCell, *Token_p;
+
+typedef enum 
+{
+   TokenError,
+   TokenWarning,
+   TokenSysError
+}TokenErrorType;
 
 #define MAXTOKENLOOKAHEAD 4
 
@@ -235,9 +225,9 @@ bool TestIdnum(Token_p akt, char* ids);
 #define TestInpTokNoSkip(in, toks) \
         (TestInpNoSkip(in) && TestInpTok(in, toks))
 
-void _CreateTokenError(Scanner_p in, char* msg, bool syserr);
+void _CreateTokenError(Scanner_p in, char* msg, TokenErrorType error_type);
 void _CreateTokenWarning(Scanner_p in, char* msg);
-void _ParseError(Scanner_p in, char* msg, bool syserr);
+void _ParseError(Scanner_p in, char* msg, TokenErrorType error_type);
 
 bool _CheckInpTok(Scanner_p in, TokenType toks);
 bool _CheckInpTokNoSkip(Scanner_p in, TokenType toks);
