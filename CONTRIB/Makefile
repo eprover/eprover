@@ -20,7 +20,7 @@ all: picosat
 
 # Remove all automatically generated files
 
-clean: $(PICOSAT)/Makefile
+clean: $(PICOSAT)/makefile
 	cd $(PICOSAT); $(MAKE) clean
 	@rm  -f *.a
 
