@@ -638,8 +638,12 @@ void ProofStateStatisticsPrint(FILE* out, ProofState_p state)
            state->disequ_deco_count);
    fprintf(out, "# Total rewrite steps                  : %lu\n",
            state->rw_count);
+   /* RewriteUncached strictly counts possible rw-steps put into the
+      cache. In some rare situations, proof search can terminate
+      before they are realised, leading to more uncached steps than
+      actual steps. We correct that here. */
    fprintf(out, "# ...of those cached                   : %lu\n",
-           state->rw_count-RewriteUncached);
+           MAX(0,(long)state->rw_count-(long)RewriteUncached));
    fprintf(out, "# Propositional unsat checks           : %ld\n",
            state->satcheck_count);
    fprintf(out, "#    Propositional check models        : %ld\n",

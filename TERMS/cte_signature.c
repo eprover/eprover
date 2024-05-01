@@ -443,6 +443,7 @@ bool SigIsFixedType(Sig_p sig, FunCode f_code)
 // Side Effects    : Modifiy signature
 //
 /----------------------------------------------------------------------*/
+
 void SigFixType(Sig_p sig, FunCode f_code)
 {
    assert(f_code > 0);
@@ -462,6 +463,7 @@ void SigFixType(Sig_p sig, FunCode f_code)
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
+
 bool SigIsPolymorphic(Sig_p sig, FunCode f_code)
 {
    assert(f_code > 0);
@@ -481,6 +483,7 @@ bool SigIsPolymorphic(Sig_p sig, FunCode f_code)
 // Side Effects    : modifies the signature
 //
 /----------------------------------------------------------------------*/
+
 void SigSetPolymorphic(Sig_p sig, FunCode f_code, bool value)
 {
    assert(f_code > 0);
@@ -501,6 +504,7 @@ void SigSetPolymorphic(Sig_p sig, FunCode f_code, bool value)
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
+
 bool SigQueryProp(Sig_p sig, FunCode f_code, FunctionProperties prop)
 {
    assert(f_code > 0);
@@ -535,7 +539,6 @@ void SigSetSpecial(Sig_p sig, FunCode f_code, bool value)
       SigDelFuncProp(sig,f_code,FPSpecial);
    }
 }
-
 
 
 /*-----------------------------------------------------------------------
@@ -681,6 +684,7 @@ FunCode SigInsertId(Sig_p sig, const char* name, int arity, bool special_id)
    sig->f_info[sig->f_count].properties = FPIgnoreProps;
    sig->f_info[sig->f_count].type = NULL;
    sig->f_info[sig->f_count].feature_offset = -1;
+   sig->f_info[sig->f_count].poly_typecheck = NULL;
    new = StrTreeCellAllocEmpty();
    new->key = sig->f_info[sig->f_count].name;
    new->val1.i_val = sig->f_count;

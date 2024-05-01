@@ -8,7 +8,7 @@
 
   Type checking and inference for Simple types
 
-  Copyright 2011-2020 by the author.
+  Copyright 2011-2024 by the authors.
   This code is released under the GNU General Public Licence.
   See the file COPYING in the main CLIB directory for details.
   Run "eprover -h" for contact information.
@@ -77,14 +77,14 @@ Type_p term_determine_type(Term_p term, Type_p type, TypeBank_p bank)
 //
 // Function: infer_return_sort
 //
-//   infer the return sort of the given function symbol, given the signature.
+//   Infer the default return sort of the given function symbol, given
+//   the signature. This is probably out of date. (StS)
 //
 // Global Variables: -
 //
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
-
 
 
 Type_p infer_return_sort(Sig_p sig, FunCode f_code)
@@ -208,7 +208,7 @@ bool TypeCheckConsistent(Sig_p sig, Term_p term)
 #define TI_ERROR(msg) do{ \
    if(in)                                       \
    {\
-      AktTokenError(in, msg, false);\
+      AktTokenError(in, msg, false);            \
    }\
    else\
    {\
@@ -221,7 +221,6 @@ void TypeInferSort(Sig_p sig, Term_p term, Scanner_p in)
    Type_p type = NULL;
    Type_p sort, *args;
    int i;
-
 
    if(TermIsFreeVar(term))
    {
@@ -252,8 +251,7 @@ void TypeInferSort(Sig_p sig, Term_p term, Scanner_p in)
       {
          if(term->arity == 0)
          {
-            AktTokenError(in, "Equality must have at least one argument",
-                          SYNTAX_ERROR);
+            TI_ERROR("Equality must have at least one argument");
          }
          Type_p arg_type = term->args[0]->type;
          Type_p eq_type_args[3] = {arg_type, arg_type, sig->type_bank->bool_type};
@@ -264,8 +262,7 @@ void TypeInferSort(Sig_p sig, Term_p term, Scanner_p in)
       {
          if(term->arity == 0)
          {
-            AktTokenError(in, "Equality must have at least one argument",
-                          SYNTAX_ERROR);
+            TI_ERROR("Quantifiers must have at least one argument");
          }
          if(TermIsFreeVar(term->args[0]))
          {
@@ -281,9 +278,7 @@ void TypeInferSort(Sig_p sig, Term_p term, Scanner_p in)
          {
             if(!TypeIsArrow(term->args[0]->type) || !TypeIsPredicate(term->args[0]->type))
             {
-               in?
-                  AktTokenError(in, "Wrong encoding of quantifier arguments", false):
-                  Error("Wrong encoding of quantifier arguments", SYNTAX_ERROR);
+               TI_ERROR("Wrong encoding of quantifier arguments");
             }
             Type_p quant_type_args[2] =
                {term->args[0]->type, sig->type_bank->bool_type};
@@ -361,7 +356,7 @@ void TypeInferSort(Sig_p sig, Term_p term, Scanner_p in)
                fprintf(stderr, "# too many arguments supplied for %s\n",
                        SigFindName(sig, term->f_code));
                assert(false);
-               in?AktTokenError(in, "Type error", false):Error("Type error", SYNTAX_ERROR);
+               TI_ERROR("Type error");
             }
          }
          else

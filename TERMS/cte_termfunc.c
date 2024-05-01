@@ -683,23 +683,6 @@ void TermPrintFO(FILE* out, Term_p term, Sig_p sig, DerefType deref)
       return;
    }
 
-#ifdef NEVER_DEFINED
-   if(TermCellQueryProp(term, TPRestricted))
-   {
-      fprintf(out, "*");
-   }
-   if(TermCellQueryProp(term, TPIsRewritten))
-   {
-      if(TermIsTopRewritten(term))
-      {
-         fprintf(out, "=");
-      }
-      else
-      {
-         fprintf(out, "+");
-      }
-   }
-#endif
    if(SigSupportLists && TermPrintLists &&
       ((term->f_code == SIG_NIL_CODE)||
        (term->f_code == SIG_CONS_CODE)))

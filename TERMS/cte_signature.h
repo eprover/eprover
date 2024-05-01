@@ -74,6 +74,21 @@ typedef enum
 }FunctionProperties;
 
 
+struct sigcell;
+struct termcell;
+
+/* These function are defined in cte_typecheck.c and return the return
+ * sort of the term, or NULL if the typecheck fails. Polymorphic
+ * symbols have no fixed type! */
+
+typedef Type_p (*PolyTypeCheckFun)(struct sigcell *sig, struct termcell *t);
+
+Type_p TypeCheckEq(struct sigcell *sig, struct termcell *t);
+Type_p TypeCheckDistinct(struct sigcell *sig, struct termcell *t);
+Type_p TypeCheckArithBinop(struct sigcell *sig, struct termcell *t);
+Type_p TypeCheckArithConv(struct sigcell *sig, struct termcell *t);
+
+
 /* Keep information about function symbols: Access external name and
    arity (and possibly additional information at a later time) by
    internal numerical code for function symbol. */
@@ -88,6 +103,7 @@ typedef struct funccell
    int    feature_offset; /* For use with (heuristic) term features,
                              based on arity and function/predicate
                              distinction. */
+   PolyTypeCheckFun poly_typecheck;
    Type_p type;       /* Simple type of the symbol */
    FunctionProperties properties;
 }FuncCell, *Func_p;
@@ -388,7 +404,7 @@ static inline FunCode SigGetEqnCode(Sig_p sig, bool positive)
    {
       if(sig->eqn_code)
       {
-    return sig->eqn_code;
+         return sig->eqn_code;
       }
       sig->eqn_code = SigInsertId(sig, "$eq", 2, true);
       assert(sig->eqn_code);
@@ -399,7 +415,7 @@ static inline FunCode SigGetEqnCode(Sig_p sig, bool positive)
    {
       if(sig->neqn_code)
       {
-    return sig->neqn_code;
+         return sig->neqn_code;
       }
       sig->neqn_code = SigInsertId(sig, "$neq", 2, true);
       assert(sig->neqn_code);

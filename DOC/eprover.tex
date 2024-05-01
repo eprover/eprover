@@ -20,7 +20,7 @@
 
 
 \author{Stephan Schulz}
-\title{\includegraphics[width=4cm]{eicon333.png}\\[5ex]E 3.0\\[1.5ex]User Manual\\[1.5ex]{\normalsize --preliminary
+\title{\includegraphics[width=4cm]{eicon333.png}\\[5ex]E 3.1\\[1.5ex]User Manual\\[1.5ex]{\normalsize --preliminary
     version--}}
 
 \makeindex{}
@@ -76,10 +76,10 @@ descriptions are~\cite{Schulz:LPAR-2013} (including the extension to
 many-sorted logic) and~\cite{SCV:CADE-2019} (including optional
 extension to LFHO and integration of PicoSAT). A more extensive
 description of the LFHO extension can be found
-in~\cite{VBCS:TACAS-2019,VBCS:STTT-2021}. A paper on the full
-higher-order extension is upcoming. Most papers on E and much more
-information is available at or a few hops away from the E home page,
-\url{https://www.eprover.org}.
+in~\cite{VBCS:TACAS-2019,VBCS:STTT-2021}. Extensions to full higher
+order logic are covered in~\cite{VBS:TACAS-2023}. Most papers on E and
+much more information is available at or a few hops away from the E
+home page, \url{https://www.eprover.org}.
 
 Some other provers have influenced the design of E and may be
 referenced in the course of this manual. These include
@@ -2185,7 +2185,7 @@ problem, and tries to convert it into an equisatisfiable propositional
 problem. It does so by clausification and instantiation of the the
 clausal problem. The resulting propositional problem can than be
 handed to a propositional reasoner (e.g. Chaff~\cite{MMZZM:DAC-2001}
-or MiniSAT~\cite{ES:SAT-2004}). One pre-packaged system build on this
+or MiniSAT~\cite{ES:SAT-2003}). One pre-packaged system build on this
 principles is GrAnDe~\cite{SS:CADE-2002}.
 
 \texttt{Eground} uses a number of techniques to reduce the number of
@@ -2713,13 +2713,13 @@ J{\"o}rg Denzinger and Stephan Schulz.
   Processes}.
 \newblock {\em Journal of Symbolic Computation}, 21(4/5):523--541, 1996.
 
-\bibitem[ES04]{ES:SAT-2004}
+\bibitem[ES03]{ES:SAT-2003}
 Niklas E{\'e}n and Niklas S{\"o}rensson.
 \newblock {An extensible SAT-solver}.
 \newblock In Enrico Giunchiglia and Armando Tacchella, editors, {\em Proc.\ of
   the Sixth International Conference on Theory and Applications of
   Satisfiability Testing}, volume 2919 of {\em LNCS}, pages 502--518. Springer,
-  2004.
+  2003.
 
 \bibitem[HBF96]{BHF96}
 Th. Hillenbrand, A.~Buch, and R.~Fettig.
@@ -2844,11 +2844,6 @@ Stephan Schulz.
   Proc.\ of the 19th LPAR, Stellenbosch}, volume 8312 of {\em LNCS}, pages
   735--743. Springer, 2013.
 
-\bibitem[Sch22]{E:WWW-22}
-S.~Schulz.
-\newblock {The E Web Site}.
-\newblock \url{https://www.eprover.org}, 2004--2022.
-
 \bibitem[Sch18]{Schulz:Vampire-2018}
 Stephan Schulz.
 \newblock Light-weight integration of {SAT} solving into first-order reasoners
@@ -2856,6 +2851,11 @@ Stephan Schulz.
 \newblock In Laura Kov{\'a}cs and Andrei Voronkov, editors, {\em Vampire 2017.
   Proceedings of the 4th Vampire Workshop}, volume~53 of {\em EPiC Series in
   Computing}, pages 9--19. EasyChair, 2018.
+
+\bibitem[Sch22]{E:WWW-22}
+S.~Schulz.
+\newblock {The E Web Site}.
+\newblock \url{https://www.eprover.org}, 2022.
 
 \bibitem[SCV19]{SCV:CADE-2019}
 Stephan Schulz, Simon Cruanes, and Petar Vukmirovi{\'c}.
@@ -2923,6 +2923,14 @@ Petar Vukmirovi{\'c}, Jasmin~Christian Blanchette, Simon Cruanes, and Stephan
 \newblock {Extending a Brainiac Prover to Lambda-free Higher-Order Logic}.
 \newblock {\em International Journal on Software Tools for Technology
   Transfer}, August 2021.
+
+\bibitem[VBS23]{VBS:TACAS-2023}
+Petar Vukmirovi{\'c}, Jasmin~Christian Blanchette, and Stephan Schulz.
+\newblock Extending a high-performance prover to higher-order logic.
+\newblock In Natasha Sharygina and Sriram Sankaranarayanan, editors, {\em
+  Proc.\ 29th Conference on Tools and Algorithms for the Construction and
+  Analysis of Systems (TACAS'23), Paris, France}, number 13994(2) in LNCS,
+  pages 111--132. Springer, 2023.
 
 \bibitem[WAB{\etalchar{+}}99]{WABCEKTT:CADE-99}
 C.~Weidenbach, B.~Afshordel, U.~Brahm, C.~Cohrs, T.~Engel, G.~Jung, E.~Keen,

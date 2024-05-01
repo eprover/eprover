@@ -46,7 +46,6 @@ Created: Tue Feb 24 01:23:24 MET 1998 - Ripped out of the now obsolete
 typedef enum
 {
    TPIgnoreProps      =      0, /* For masking properties out */
-   TPRestricted       =      1, /* Rewriting is restricted on this term */
    TPTopPos           =      2, /* This cell is a entry point */
    TPIsGround         =      4, /* Shared term is ground */
    TPPredPos          =      8, /* This is an original predicate
@@ -120,7 +119,6 @@ typedef struct
    struct {
       struct termcell*   replace;         /* ...otherwise, it has been
                                              rewritten to this term */
-      // long               demod_id;        /* 0 means subterm! */
       struct clause_cell *demod;          /* NULL means subterm! */
    }rw_desc;
 }RewriteState;

@@ -1,10 +1,12 @@
 This history describes the major differences between versions of the E
 equational theorem prover.
 
-Version 3.0.03 ->
+Version 3.0.03 -> 3.1.0
 
 - Added disequality decomposition inference
 - Fixed various bugs (e.g. in local rewriting)
+- Added support for additional statistics
+- Enabled printout of all built-in search strategies
 
 
 Version 3.0 ->3.0.03 Shangri-La
