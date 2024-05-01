@@ -1,5 +1,8 @@
 **NOTE**: The CASC ReadMe file with information for the CADE ATP
 System Competition is in `DOC/Readme`.
+**NOTE**: The ultimate source is now README.md. Don't edit the plain
+README!
+
 
 Short Installation Instructions for the Impatient
 =================================================
@@ -33,7 +36,7 @@ Read the rest of this file and the fine (if incomplete) manual if
 anything fails. There should be a copy of the manual in
 `DOC/eprover.pdf`.
 
-E 3.0 supports (monomorphic) higher-order logic. To build a binary
+E 3.1 supports (monomorphic) higher-order logic. To build a binary
 that supports higher-order reasoning, use the following:
 
 
@@ -77,7 +80,7 @@ input and output formats via commandline options.
 The Equational Theorem Prover E
 ===============================
 
-This is the README file for version 3.0 "Shangri-La" of the E
+This is the README file for version 3.1 "Singbulli" of the E
 equational theorem prover. This version of E is free software, see the
 file COPYING for details about the license and the fact that THERE IS
 NO WARRANTY!
