@@ -482,17 +482,13 @@ OptCell opts[] =
    {OPT_CPU_LIMIT,
     '\0', "cpu-limit",
     OptArg, "300",
-    "Limit the cpu time the prover should run. The optional argument "
-    "is the CPU time in seconds. The prover will terminate immediately"
-    " after reaching the time limit, regardless of internal state. This"
-    " option may not work "
-    "everywhere, due to broken and/or strange behaviour of setrlimit() "
-    "in some UNIX implementations. It does work under all tested "
-    "versions of Solaris, HP-UX, MacOS-X, and GNU/Linux. As a side "
-    "effect, this "
-    "option will inhibit core file writing. Please note that if you"
-    " use both --cpu-limit and --soft-cpu-limit, the soft limit has to"
-    " be smaller than the hard limit to have any effect. "},
+    "Limit the (per core) cpu time the prover should run. The optional "
+    "argument is the CPU time in seconds. The prover will terminate "
+    "immediately after reaching the time limit, regardless of internal "
+    "state. As a side effect, this option will inhibit core file "
+    "writing. Please note that if you use both --cpu-limit and "
+    "--soft-cpu-limit, the soft limit has to"
+    "be smaller than the hard limit to have any effect. "},
 
    {OPT_SOFTCPU_LIMIT,
     '\0', "soft-cpu-limit",
