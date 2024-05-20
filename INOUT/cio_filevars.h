@@ -25,6 +25,7 @@ Changes
 
 #define CIO_FILEVARS
 
+#include "cio_scanner.h"
 #include <clb_stringtrees.h>
 #include <clb_pstacks.h>
 #include <cio_basicparser.h>
@@ -52,8 +53,8 @@ typedef struct filevarscell
 
 FileVars_p FileVarsAlloc(void);
 void       FileVarsFree(FileVars_p handle);
-long       FileVarsParse(Scanner_p in, FileVars_p vars);
-long       FileVarsReadFromFile(char* file, FileVars_p vars);
+ScannerLongResult FileVarsParse(Scanner_p in, FileVars_p vars);
+ScannerLongResult FileVarsReadFromFile(char* file, FileVars_p vars);
 bool       FileVarsGetBool(FileVars_p vars, char* name, bool *value);
 bool       FileVarsGetInt(FileVars_p vars, char* name,  long *value);
 bool       FileVarsGetStr(FileVars_p vars, char* name,  char **value);

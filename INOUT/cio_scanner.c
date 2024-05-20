@@ -41,7 +41,7 @@ static const size_t token_print_rep_size = sizeof(token_print_rep) / sizeof(toke
 /*                            Local Types                              */
 /*---------------------------------------------------------------------*/
 
-DEFINE_RESULT(ScanTokenFollowIncludesResult, Token_p)
+DEFINE_RESULT(ScanTokenFollowIncludesResult, Token_p);
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */

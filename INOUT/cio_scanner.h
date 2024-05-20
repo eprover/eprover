@@ -243,13 +243,23 @@ typedef struct \
 { \
    bool result; \
    return_type ret; \
-} name;
+} name
 
-#define MAKE_ERR(result, value) result.result = false; result.ret = value; return result;
-#define MAKE_OK(result, value) result.result = true; result.ret = value; return result;
+#define ERR(r, v) r.result = false; r.ret = v
+#define MAKE_ERR(r, v) ERR(r, v); return r;
+#define IS_ERR(r) false == r.result
 
-DEFINE_RESULT(ScannerParseIncludeResult, Scanner_p)
+#define OK(r, v) r.result = true; r.ret = v
+#define MAKE_OK(r, v) OK(r, v); return r;
+#define IS_OK(r) false != r.result
 
+/* Some basic result types. */
+DEFINE_RESULT(ScannerBoolResult, bool);
+DEFINE_RESULT(ScannerLongResult, long);
+DEFINE_RESULT(ScannerDoubleResult, double);
+DEFINE_RESULT(ScannerCharPResult, char*);
+
+DEFINE_RESULT(ScannerParseIncludeResult, Scanner_p);
 ScannerParseIncludeResult ScannerParseInclude(Scanner_p in, 
                                               StrTree_p *name_selector,
                                               StrTree_p *skip_includes);

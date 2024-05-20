@@ -62,7 +62,8 @@ typedef long FunCode;
 extern TokenType FuncSymbToken;
 extern TokenType FuncSymbStartToken;
 
-FuncSymbType FuncSymbParse(Scanner_p in, DStr_p id);
+DEFINE_RESULT(FuncSymbParseResult, FuncSymbType);
+FuncSymbParseResult FuncSymbParse(Scanner_p in, DStr_p id);
 
 
 #endif

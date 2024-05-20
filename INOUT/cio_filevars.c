@@ -23,6 +23,7 @@ Changes
 
 
 #include "cio_filevars.h"
+#include "cio_scanner.h"
 
 
 /*---------------------------------------------------------------------*/
@@ -115,11 +116,12 @@ void FileVarsFree(FileVars_p handle)
 //
 /----------------------------------------------------------------------*/
 
-long FileVarsParse(Scanner_p in, FileVars_p vars)
+ScannerLongResult FileVarsParse(Scanner_p in, FileVars_p vars)
 {
    char*     name;
    StrTree_p cell, test;
-   long      res = 0;
+   ScannerLongResult res;
+   long i = 0;
    DStr_p    value = DStrAlloc();
 
    assert(!PStackEmpty(vars->names));
@@ -127,7 +129,12 @@ long FileVarsParse(Scanner_p in, FileVars_p vars)
 
    while(!TestInpTok(in, NoToken))
    {
-      CheckInpTok(in, Identifier);
+      if (false == _CheckInpTok(in, Identifier)) 
+      {
+         DStrFree(value);
+         MAKE_ERR(res, i)
+      }
+
       name = DStrCopy(AktToken(in)->literal);
       cell = StrTreeFind(&(vars->vars), name);
       if(cell)
@@ -143,7 +150,15 @@ long FileVarsParse(Scanner_p in, FileVars_p vars)
          UNUSED(test); assert(test == NULL);
       }
       NextToken(in);
-      AcceptInpTok(in, EqualSign);
+      if (false == _ConsumeInpTok(in, EqualSign)) 
+      {
+         DStrFree(value);
+         if (cell) 
+         {
+            StrTreeCellFree(cell);
+         }
+         MAKE_ERR(res, i)
+      }
 
       DStrReset(value);
       while(!TestInpTok(in, Semicolon))
@@ -151,12 +166,22 @@ long FileVarsParse(Scanner_p in, FileVars_p vars)
          DStrAppendDStr(value, AktToken(in)->literal);
          NextToken(in);
       }
-      AcceptInpTok(in, Semicolon);
+
+      if (false == _ConsumeInpTok(in, Semicolon)) 
+      {
+         DStrFree(value);
+         if (cell) 
+         {
+            StrTreeCellFree(cell);
+         }
+         MAKE_ERR(res, i)
+      }
+
       cell->val1.p_val = DStrCopy(value);
-      res++;
+      i++;
    }
    DStrFree(value);
-   return res;
+   MAKE_OK(res, i)
 }
 
 /*-----------------------------------------------------------------------
@@ -172,9 +197,9 @@ long FileVarsParse(Scanner_p in, FileVars_p vars)
 //
 /----------------------------------------------------------------------*/
 
-long FileVarsReadFromFile(char* file, FileVars_p vars)
+ScannerLongResult FileVarsReadFromFile(char* file, FileVars_p vars)
 {
-   long res;
+   ScannerLongResult res;
    Scanner_p in;
 
    in = CreateScanner(StreamTypeFile, file, true, NULL, true);

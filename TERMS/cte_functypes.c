@@ -230,12 +230,15 @@ static void normalize_float_rep(DStr_p float_rep)
 //
 /----------------------------------------------------------------------*/
 
-FuncSymbType FuncSymbParse(Scanner_p in, DStr_p id)
+FuncSymbParseResult FuncSymbParse(Scanner_p in, DStr_p id)
 {
-   FuncSymbType res = FSNone;
-   StrNumType numtype;
+   FuncSymbParseResult res;
+   ParseNumStringResult numtype;
 
-   CheckInpTok(in, FuncSymbStartToken);
+   if (false == _CheckInpTok(in, FuncSymbStartToken)) 
+   {
+      MAKE_ERR(res, FSNone)
+   }
 
    if(TestInpTok(in, FuncSymbToken))
    {
@@ -247,11 +250,11 @@ FuncSymbType FuncSymbParse(Scanner_p in, DStr_p id)
              ||
              DStrView(AktToken(in)->literal)[0] == '_'))
          {
-            res = FSIdentVar;
+            OK(res, FSIdentVar);
          }
          else
          {
-            res = FSIdentFreeFun;
+            OK(res, FSIdentFreeFun);
          }
       }
       else
@@ -259,47 +262,58 @@ FuncSymbType FuncSymbParse(Scanner_p in, DStr_p id)
          switch(AktTokenType(in))
          {
          case SemIdent:
-               res = FSIdentInterpreted;
+               OK(res, FSIdentInterpreted);
                break;
          case SQString:
-               res = FSIdentFreeFun;
+               OK(res, FSIdentFreeFun);
                break;
          case String:
-               res = FSIdentObject;
+               OK(res, FSIdentObject);
                break;
          default:
-               assert(false && "Unexpected token in FuncSymbParse()");
-               break;
+               _CreateTokenError(in, "Unexpected token in FuncSymbParse()", TokenError);
+               MAKE_ERR(res, FSNone)
          }
       }
-      AcceptInpTok(in, FuncSymbToken);
+      if (false == _ConsumeInpTok(in, FuncSymbToken)) 
+      {
+         MAKE_ERR(res, FSNone)
+      }
    }
    else
    {
-      CheckInpTok(in, PosInt|Plus|Hyphen);
+      if (false == _CheckInpTok(in, PosInt|Plus|Hyphen)) 
+      {
+         MAKE_ERR(res, FSNone)
+      }
 
       numtype = ParseNumString(in);
-      switch(numtype)
+      if (IS_ERR(numtype)) 
+      {
+         MAKE_ERR(res, FSNone)
+      }
+
+      switch(numtype.ret)
       {
       case SNInteger:
             normalize_int_rep(in->accu);
             DStrAppendStr(id, DStrView(in->accu));
-            res = FSIdentInt;
+            OK(res, FSIdentInt);
             break;
       case SNRational:
             /* Division by zero is caught in ParseNumString() */
             normalize_rational_rep(in->accu);
             DStrAppendStr(id, DStrView(in->accu));
-            res = FSIdentRational;
+            OK(res, FSIdentRational);
             break;
       case SNFloat:
             normalize_float_rep(in->accu);
             DStrAppendStr(id, DStrView(in->accu));
-            res = FSIdentFloat;
+            OK(res, FSIdentFloat);
             break;
       default:
-            assert(false);
-            break;
+            _CreateTokenError(in, "Unexpected token in FuncSymbParse()", TokenError);
+            MAKE_ERR(res, FSNone)
       }
    }
    return res;

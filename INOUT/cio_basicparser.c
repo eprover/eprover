@@ -57,9 +57,9 @@
 //
 /----------------------------------------------------------------------*/
 
-ParseBoolResult ParseBool(Scanner_p in)
+ScannerBoolResult ParseBool(Scanner_p in)
 {
-   ParseBoolResult result;
+   ScannerBoolResult result;
    bool res = false;
 
    if (false == _CheckInpId(in, "true|false")) 
@@ -134,9 +134,9 @@ ParseIntMaxResult ParseIntMax(Scanner_p in)
 //
 /----------------------------------------------------------------------*/
 
-ParseIntLimitedResult ParseIntLimited(Scanner_p in, long lower, long upper)
+ScannerLongResult ParseIntLimited(Scanner_p in, long lower, long upper)
 {
-   ParseIntLimitedResult result;
+   ScannerLongResult result;
    long value = 0;
 
    if(TestInpTok(in, Hyphen))
@@ -189,19 +189,9 @@ ParseIntLimitedResult ParseIntLimited(Scanner_p in, long lower, long upper)
 //
 /----------------------------------------------------------------------*/
 
-ParseIntResult ParseInt(Scanner_p in)
+ScannerLongResult ParseInt(Scanner_p in)
 {
-   ParseIntResult result;
-   ParseIntLimitedResult temp = ParseIntLimited(in, LONG_MIN, LONG_MAX);
-
-   if (false == temp.result) 
-   {
-      MAKE_ERR(result, temp.ret)
-   } 
-   else 
-   {
-      MAKE_OK(result, temp.ret)
-   }
+   return ParseIntLimited(in, LONG_MIN, LONG_MAX);
 }
 
 
@@ -255,9 +245,9 @@ ParseUIntMaxResult ParseUIntMax(Scanner_p in)
 #define DECIMAL_DOT Fullstop|Comma
 #endif
 
-ParseFloatResult ParseFloat(Scanner_p in)
+ScannerDoubleResult ParseFloat(Scanner_p in)
 {
-   ParseFloatResult result;
+   ScannerDoubleResult result;
    double value = 0.0;
 
    DStrReset(in->accu);
@@ -479,11 +469,11 @@ ParseNumStringResult ParseNumString(Scanner_p in)
 //
 /----------------------------------------------------------------------*/
 
-DDArrayParseResult DDArrayParse(Scanner_p in, DDArray_p array, bool brackets)
+ScannerLongResult DDArrayParse(Scanner_p in, DDArray_p array, bool brackets)
 {
-   DDArrayParseResult result;
+   ScannerLongResult result;
    long i=0;
-   ParseFloatResult temp;
+   ScannerDoubleResult temp;
 
    if(brackets)
    {
@@ -496,7 +486,7 @@ DDArrayParseResult DDArrayParse(Scanner_p in, DDArray_p array, bool brackets)
    if(TestInpTok(in, Hyphen|Plus|PosInt))
    {
       temp = ParseFloat(in);
-      if (false == temp.result) 
+      if (IS_ERR(temp)) 
       {
          MAKE_ERR(result, i)
       }
@@ -509,7 +499,7 @@ DDArrayParseResult DDArrayParse(Scanner_p in, DDArray_p array, bool brackets)
          NextToken(in); /* We know it's a comma */
 
          temp = ParseFloat(in);
-         if (false == temp.result) 
+         if (IS_ERR(temp)) 
          {
             MAKE_ERR(result, i)
          }
@@ -548,9 +538,9 @@ DDArrayParseResult DDArrayParse(Scanner_p in, DDArray_p array, bool brackets)
 
 #define PLAIN_FILE_TOKENS String|Name|PosInt|Fullstop|Plus|Hyphen|EqualSign
 
-ParseFilenameResult ParseFilename(Scanner_p in)
+ScannerCharPResult ParseFilename(Scanner_p in)
 {
-   ParseFilenameResult result;
+   ScannerCharPResult result;
    bool first_tok = true;
 
    DStrReset(in->accu);
@@ -580,9 +570,9 @@ ParseFilenameResult ParseFilename(Scanner_p in)
 //
 /----------------------------------------------------------------------*/
 
-ParsePlainFilenameResult ParsePlainFilename(Scanner_p in)
+ScannerCharPResult ParsePlainFilename(Scanner_p in)
 {
-   ParsePlainFilenameResult result;
+   ScannerCharPResult result;
    bool first_tok = true;
    DStrReset(in->accu);
 
@@ -610,9 +600,9 @@ ParsePlainFilenameResult ParsePlainFilename(Scanner_p in)
 //
 /----------------------------------------------------------------------*/
 
-ParseBasicIncludeResult ParseBasicInclude(Scanner_p in)
+ScannerCharPResult ParseBasicInclude(Scanner_p in)
 {
-   ParseBasicIncludeResult result;
+   ScannerCharPResult result;
    char* value = NULL;
 
    if (false == _ConsumeInpId(in, "include")) 
@@ -662,9 +652,9 @@ ParseBasicIncludeResult ParseBasicInclude(Scanner_p in)
 //
 /----------------------------------------------------------------------*/
 
-ParseDottedIdResult ParseDottedId(Scanner_p in)
+ScannerCharPResult ParseDottedId(Scanner_p in)
 {
-   ParseDottedIdResult result;
+   ScannerCharPResult result;
    DStrReset(in->accu);
 
    DStrAppendDStr(in->accu, AktToken(in)->literal);
@@ -711,9 +701,9 @@ ParseDottedIdResult ParseDottedId(Scanner_p in)
 bool _ConsumeDottedId(Scanner_p in, char* expected)
 {
    char* posrep = TokenPosRep(AktToken(in));
-   ParseDottedIdResult temp = ParseDottedId(in);
+   ScannerCharPResult temp = ParseDottedId(in);
 
-   if (false == temp.result) 
+   if (IS_ERR(temp)) 
    {
       return false;
    }
@@ -751,9 +741,9 @@ bool _ConsumeDottedId(Scanner_p in, char* expected)
 //
 /----------------------------------------------------------------------*/
 
-ParseContinousResult ParseContinous(Scanner_p in)
+ScannerCharPResult ParseContinous(Scanner_p in)
 {
-   ParseContinousResult result;
+   ScannerCharPResult result;
    DStrReset(in->accu);
 
    DStrAppendDStr(in->accu, AktToken(in)->literal);
