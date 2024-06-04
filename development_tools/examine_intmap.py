@@ -125,12 +125,12 @@ keyword_common_stats_lst = [
  "EmptyInvoked",
  "IntInvoked",
  "ArrayInvoked",
- "TreeInvoked",
+ "ListInvoked",
  "MapDeleted",
  "EmptyDeleted",
  "IntDeleted",
  "ArrayDeleted",
- "TreeDeleted",
+ "ListDeleted",
  "IntmapItems",
  "UserTime",
  "SystemTime",
@@ -156,12 +156,12 @@ sub_str_proc_clauses_rem = "# ...remaining for further processing"
 sub_str_empty_invoked = "# Empty invoked times"
 sub_str_int_invoked = "# Int invoked times"
 sub_str_array_invoked = "# Array invoked times"
-sub_str_tree_invoked = "# Tree invoked times"
+sub_str_list_invoked = "# List invoked times"
 sub_str_map_deleted = "# Map deleted times"
 sub_str_empty_deleted = "# Empty deleted times"
 sub_str_int_deleted = "# Int deleted times"
 sub_str_array_deleted = "# Array deleted times"
-sub_str_tree_deleted = "# Tree deleted times"
+sub_str_list_deleted = "# List deleted times"
 sub_str_map_items = "# Intmap-Tree items"
 sub_str_user_time = "# User time"
 sub_str_system_time = "# System time"
@@ -172,7 +172,7 @@ sub_string_header = "IntMapType;"
 #sub_string_IMEmpty = '"IMEmpty";'
 #sub_string_IMSingle = '"IMSingle";'
 sub_string_IMArray = '"IMArray";'
-sub_string_IMTree = '"IMTree";'
+sub_string_IMList = '"IMList";'
 
 
 ####################################
@@ -385,7 +385,7 @@ def string_select(input_string):
         # return True
     elif(sub_string_IMArray in input_string):
         return True
-    elif(sub_string_IMTree in input_string):
+    elif(sub_string_IMList in input_string):
         return True
     else:
         return False
@@ -436,7 +436,7 @@ def select_csv_lines(input_string):
         return True
     elif(sub_str_array_invoked in input_string):
         return True
-    elif(sub_str_tree_invoked in input_string):
+    elif(sub_str_list_invoked in input_string):
         return True
     elif(sub_str_map_deleted in input_string):
         return True
@@ -446,7 +446,7 @@ def select_csv_lines(input_string):
         return True
     elif(sub_str_array_deleted in input_string):
         return True
-    elif(sub_str_tree_deleted in input_string):
+    elif(sub_str_list_deleted in input_string):
         return True
     elif(sub_str_map_items in input_string):
         return True
@@ -513,8 +513,8 @@ def extract_values_into_dict(common_stats_line_dct, stats):
         common_stats_line_dct["IntInvoked"] = stats[stats.rfind(': ')+2:]
     elif(sub_str_array_invoked in stats):
         common_stats_line_dct["ArrayInvoked"] = stats[stats.rfind(': ')+2:]
-    elif(sub_str_tree_invoked in stats):
-        common_stats_line_dct["TreeInvoked"] = stats[stats.rfind(': ')+2:]
+    elif(sub_str_list_invoked in stats):
+        common_stats_line_dct["ListInvoked"] = stats[stats.rfind(': ')+2:]
     elif(sub_str_map_deleted in stats):
         common_stats_line_dct["MapDeleted"] = stats[stats.rfind(': ')+2:]
     elif(sub_str_empty_deleted in stats):
@@ -523,8 +523,8 @@ def extract_values_into_dict(common_stats_line_dct, stats):
         common_stats_line_dct["IntDeleted"] = stats[stats.rfind(': ')+2:]
     elif(sub_str_array_deleted in stats):
         common_stats_line_dct["ArrayDeleted"] = stats[stats.rfind(': ')+2:]
-    elif(sub_str_tree_deleted in stats):
-        common_stats_line_dct["TreeDeleted"] = stats[stats.rfind(': ')+2:]
+    elif(sub_str_list_deleted in stats):
+        common_stats_line_dct["ListDeleted"] = stats[stats.rfind(': ')+2:]
     elif(sub_str_map_items in stats):
         common_stats_line_dct["IntmapItems"] = stats[stats.rfind(': ')+2:]
     elif(sub_str_user_time in stats):

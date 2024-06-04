@@ -28,7 +28,7 @@ Changes
 #define CLB_INTMAP
 
 #include <limits.h>
-#include <clb_numtrees.h>
+#include <clb_skiplists.h>
 #include <clb_ptrees.h>
 #include <clb_pdrangearrays.h>
 
@@ -42,19 +42,19 @@ typedef enum
    IMEmpty,
    IMSingle,
    IMArray,
-   IMTree
+   IMList
 }IntMapType;
 
-#define MAX_TREE_DENSITY 8
-#define MIN_TREE_DENSITY 4
-#define IM_ARRAY_SIZE MAX_TREE_DENSITY
+#define MAX_LIST_DENSITY 8
+#define MIN_LIST_DENSITY 4
+#define IM_ARRAY_SIZE MAX_LIST_DENSITY
 
 /* This is the main thing - a datatype that keeps key/value pairs and
  * allows inserting, updating, deleting, and ordered iteration. I
  * expect additons to be frequent and deletions to be rare. Element
  * access and iteration are the most frequent operations. We want this
  * time- and space efficient for many different key distributions. */
-
+//
 typedef struct intmap_cell
 {
    IntMapType type;
@@ -79,8 +79,8 @@ typedef struct intmap_cell
    long countGetRef;       /* Count the times IntMapGetRef() is executed*/
    long countAssign;       /* Count the times IntMapAssign() is executed*/
    long countDelKey;       /* Count the times IntMapDelKey() is executed*/
-   long countArrayToTree;  /* Count the times array_to_tree() is executed*/
-   long countTreeToArray;  /* Count the times tree_to_array() is executed*/
+   long countArrayToList;  /* Count the times array_to_list() is executed*/
+   long countListToArray;  /* Count the times list_to_array() is executed*/
 #endif
 //DF-STOP
 
@@ -88,11 +88,11 @@ typedef struct intmap_cell
    {
       void*        value;   /* For IMSingle */
       PDRangeArr_p array;   /* For IMArray  */
-      NumTree_p    tree;    /* For IMTree   */
+      SkipList_p   list;    /* For IMList   */
    }values;
 }IntMapCell, *IntMap_p;
 
-
+/////////////////////////////////////////
 
 typedef struct intmap_iter_cell
 {
@@ -103,7 +103,7 @@ typedef struct intmap_iter_cell
    {
       bool      seen;      /* For IMSingle */
       long      current;   /* For IMArray  */
-      PStack_p  tree_iter; /* For IMTree */
+      node_p    list_iter; /* For IMList */
    }admin_data;
 }IntMapIterCell, *IntMapIter_p;
 
@@ -128,8 +128,8 @@ extern long countInt;
 extern long countArray;
 #endif
 
-#ifdef MEASURE_TREE
-extern long countTree;
+#ifdef MEASURE_LIST
+extern long countList;
 #endif
 
 #ifdef MEASURE_DELETE
@@ -138,7 +138,7 @@ extern long countDelete;
 extern long countDeleteEmpty;
 extern long countDeleteInt;
 extern long countDeleteArray;
-extern long countDeleteTree;
+extern long countDeleteList;
 #endif
 //DF-STOP
 
@@ -165,8 +165,8 @@ void*    IntMapDelKey(IntMap_p map, long key);
 
 #define IntMapDStorage(map) (((map)->type == IMArray)?\
                              PDArrayStorage((map)->values.array):\
-                             (((map)->type == IMTree)?\
-                              ((map)->entry_no*NUMTREECELL_MEM):0))
+                             (((map)->type == IMList)?\
+                              ((map)->entry_no*SKIPLISTNODE_MEM):0))
 
 #define IntMapStorage(map) (INTMAPCELL_MEM+IntMapDStorage(map))
 
@@ -180,7 +180,6 @@ void     IntMapDebugPrint(FILE* out, IntMap_p map);
 //DF-START
 #ifdef MEASURE_INTMAP_STATS
 extern PTree_p intmaps;
-
 #endif
 //DF-STOP
 
@@ -207,7 +206,7 @@ static inline void* IntMapIterNext(IntMapIter_p iter, long *key)
 {
    void* res = NULL;
    long  i;
-   NumTree_p handle;
+   node_p handle;
 
    assert(iter);
    assert(key);
@@ -244,32 +243,22 @@ static inline void* IntMapIterNext(IntMapIter_p iter, long *key)
          }
          iter->admin_data.current = i+1;
          break;
-   case IMTree:
-         // printf("Case IMTree\n");
-         while((handle = NumTreeTraverseNext(iter->admin_data.tree_iter)))
+   case IMList:
+         if(handle && handle->next[1] != iter->map->values.list->header)
          {
-            if(handle)
+            if(handle->value.p_val)
             {
-               if(handle->key > iter->upper_key)
-               {
-                  /* Overrun limit */
-                  break;
-               }
-               if(handle->val1.p_val)
-               {
-                  /* Found real value */
-                  *key = handle->key;
-                  res = handle->val1.p_val;
-                  break;
-               }
+               *key = handle->key;
+               res = handle->value.p_val;
+               handle = handle->next[1];
             }
          }
+         iter->admin_data.list_iter = handle;
          break;
    default:
          assert(false && "Unknown IntMap type.");
          break;
    }
-   //printf("...IntMapIterNext()\n");
    return res;
 }
 
@@ -279,8 +268,4 @@ static inline void* IntMapIterNext(IntMapIter_p iter, long *key)
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
-
-
 
