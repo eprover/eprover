@@ -2433,8 +2433,8 @@ void print_intmap_stat_line(PTree_p root) {
                   printf("\"IMList\";%ld;%ld;%ld;;;", intmap_key->entry_no, intmap_key->min_key, intmap_key->max_key);
                   printf("%ld;%ld;%ld;%ld;%ld;%ld;", intmap_key->countGetVal, intmap_key->countGetRef, intmap_key->countAssign, intmap_key->countDelKey, intmap_key->countArrayToList, intmap_key->countListToArray);
                   number_values = SkipListNodes(intmap_key->values.list);
-                  min_key = SkipListMinNode(intmap_key->values.list);
-                  max_key = SkipListMaxNode(intmap_key->values.list);
+                  min_key = SkipListMinNode(intmap_key->values.list)->key;
+                  max_key = SkipListMaxNode(intmap_key->values.list)->key;
                   min_max_distance = max_key - min_key;
                   printf("%ld;;%ld;%ld;%ld;%f\n", number_values, min_key, max_key, min_max_distance, (double)number_values / (min_max_distance + 1));
                   break;
