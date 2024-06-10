@@ -299,15 +299,10 @@ OptCell opts[] =
     "positions, and level 3 will expand this to a proof object where "
     "all intermediate results are explicit. This feature is under "
     "development, so far only level 0 and 1 are operational. "
-    "By default The proof object will be provided in TPTP-3 or LOP "
+    "The proof object will be provided in TPTP-3 or PCL "
     "syntax, depending on input format and explicit settings. The "
-    "following option will suppress normal output of the proof "
+    "--proof-graph option will suppress normal output of the proof "
     "object in favour of a graphial representation."},
-
-   {OPT_PROOF_STATS,
-    '\0', "proof-statistics",
-    NoArg, NULL,
-    "Print various statistics of the proof object."},
 
    {OPT_PROOF_GRAPH,
     '\0', "proof-graph",
@@ -318,6 +313,11 @@ OptCell opts[] =
     "2 (nodes are "
     "labelled with the TPTP clause/formula) or 3  (nodes "
     "also labelled with source/inference record."},
+
+   {OPT_PROOF_STATS,
+    '\0', "proof-statistics",
+    NoArg, NULL,
+    "Print various statistics of the proof object."},
 
    {OPT_FULL_DERIV,
     'd', "full-deriv",
@@ -640,9 +640,9 @@ OptCell opts[] =
    {OPT_TSTP_PARSE,
     '\0', "tstp-in",
     NoArg, NULL,
-    "Set TPTP-3 as the input format (Note that TPTP-3 syntax "
-    "is still under development, and the version in E may not be "
-    "fully conforming at all times. E works on all TPTP 6.3.0 FOF "
+    "Set TPTP-3 as the input format TPTP-3 syntax is still under "
+    "development, and any given version in E may not be "
+    "fully conforming at all times. E works on all TPTP 8.2.0 FOF "
     "and CNF files (including includes)."},
 
    {OPT_TSTP_PRINT,

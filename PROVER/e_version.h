@@ -31,9 +31,9 @@ Contents
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-/* git tag E-3.1.0 */
+/* git tag E-3.2.0 */
 
-#define PVERSION      "3.1.0"
+#define PVERSION      "3.2.0"
 
 #include "e_gitcommit.h"
 
@@ -49,7 +49,7 @@ Contents
 #define VERSION PVERSION LFH "-DEBUG"
 #endif
 
-#define E_NICKNAME     "Singbulli"
+#define E_NICKNAME     "Seeyok"
 
 #define E_URL "http://www.eprover.org"
 

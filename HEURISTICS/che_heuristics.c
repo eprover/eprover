@@ -79,7 +79,7 @@ void finalize_auto_parms(char* modename, char* hname,
 false // true
 #else
 false
-#endif   
+#endif
    )
    {
       fprintf(GlobalOut, "Selected heuristic:\n");
@@ -108,7 +108,7 @@ false
 //
 // Function: HCBCreate()
 //
-//   Given a name and the necessary parameters, return a HCB. HCB's
+//   Given a name and the necessary parameters, return a HCB. HCBs
 //   must be registered in control->hcbs!
 //
 // Global Variables: -
@@ -123,11 +123,7 @@ HCB_p HCBCreate(char* name, HCBARGUMENTS)
    DStr_p err;
 
    assert(control->ocb);
-
-   if(strstr(name, "AutoNewSched_"))
-   {
-      return HCBAutoModeCreate(state,control,parms);
-   }
+   printf("HCBCreate(%s, ...)\n", name);
 
    for(i=0; HeuristicsTable[i].heuristic; i++)
    {
@@ -166,6 +162,8 @@ HCB_p GetHeuristic(char* source, HCBARGUMENTS)
    Scanner_p in;
    HCB_p     res;
 
+   printf("GetHeuristic(%s, ...)\n", source);
+
    /* StreamTypeOptionString is a hack here...it will give wrong error
       messages for internal strings (but the function will not be
       called with internal strings anyways...) */
@@ -176,7 +174,7 @@ HCB_p GetHeuristic(char* source, HCBARGUMENTS)
                         control->ocb, state);
       CheckInpTok(in, NoToken); /* Make sure there is no trailing
                                    material - I've been bitten by an
-                                   extra ')' cutting of a heuristic
+                                   extra ')' cutting off a heuristic
                                    early. */
       name = SecureStrdup("Default");
    }
