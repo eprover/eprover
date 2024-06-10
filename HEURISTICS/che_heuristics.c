@@ -162,7 +162,7 @@ HCB_p GetHeuristic(char* source, HCBARGUMENTS)
    Scanner_p in;
    HCB_p     res;
 
-   printf("GetHeuristic(%s, ...)\n", source);
+   //printf("GetHeuristic(%s, ...)\n", source);
 
    /* StreamTypeOptionString is a hack here...it will give wrong error
       messages for internal strings (but the function will not be
