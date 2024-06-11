@@ -54,6 +54,7 @@ SkipList_p initSkiplist()
     int i;
 
     /*
+    //CODE FOR SENTINEL
     node_p sentinel = (node_p)malloc(sizeof(node_p));
     root->sentinel = sentinel;
     sentinel->key = INT_MIN;
@@ -78,7 +79,7 @@ SkipList_p initSkiplist()
 //
 //  Function: randomLevel()
 //
-//  Returns a random level ? Doesn't it get better?
+//  Returns a random level
 //
 //  Global Variables: -
 //
@@ -524,7 +525,12 @@ bool SkipListDeleteEntry(SkipList_p root, long key)
 /----------------------------------------------------------------------*/
 
 node_p SkipListMinNode(SkipList_p root) {
+    //if(root->header->next[1] != root->header)
+    //{
     return root->header->next[1];
+    /*} else {
+        return NULL;
+    }*/
 }
 
 /*-----------------------------------------------------------------------
@@ -625,7 +631,7 @@ static int print_all_levels(SkipList_p root)
     int size = 0;
 
 
-    printf("List: %p\n", root);
+    printf("\nList: %p\n", root);
 
     // Printe table header
     printf("Key\tCurrent\t");
@@ -633,6 +639,7 @@ static int print_all_levels(SkipList_p root)
     {
         printf("\t\tLevel_%d\t", i);
     }
+    printf("\t sizeof \t");
     printf("\n");
 
     // Print Nodes
@@ -654,6 +661,7 @@ static int print_all_levels(SkipList_p root)
             printf("\t%p\t", currentNode->next[i]);
         }
 
+        printf("\t%ld\t", sizeof(currentNode->next));
         size++;
         printf("\n");
         currentNode = currentNode->next[1];
@@ -734,7 +742,7 @@ static int print_only_keys(SkipList_p root)
 //
 /----------------------------------------------------------------------*/
 
-static long skiplist_print(FILE* out, SkipList_p root, bool keys_only)
+/*static long skiplist_print(FILE* out, SkipList_p root, bool keys_only)
 {
    int i, size;
 
@@ -757,8 +765,33 @@ static long skiplist_print(FILE* out, SkipList_p root, bool keys_only)
    }
 
    return size;
-}
+}*/
 
+
+static long skiplist_print(SkipList_p root, bool keys_only)
+{
+   int i, size;
+
+   if(!root)
+   {
+      printf("\n");
+      size = 0;
+   }
+   else
+   {
+      if(keys_only)
+      {
+         size = print_only_keys(root);
+      }
+      else
+      {
+         size = print_all_levels(root);
+      }
+
+   }
+   printf("\n");
+   return size;
+}
 
 /*-----------------------------------------------------------------------
 //
@@ -772,7 +805,7 @@ static long skiplist_print(FILE* out, SkipList_p root, bool keys_only)
 //
 /----------------------------------------------------------------------*/
 
-long SkipListDebugPrint(FILE* out, SkipList_p root, bool keys_only)
+/*long SkipListDebugPrint(FILE* out, SkipList_p root, bool keys_only)
 {
    long size;
    int level;
@@ -786,7 +819,21 @@ long SkipListDebugPrint(FILE* out, SkipList_p root, bool keys_only)
 
    return size;
 }
+*/
 
+long SkipListDebugPrint(SkipList_p root, bool keys_only)
+{
+   long size;
+   int level;
+
+   size = skiplist_print(root, keys_only);
+   level = SkipListGetLevel();
+
+   printf("\nSkip list size: %ld\n", size);
+   printf("Skip list levels: %d\n", level);
+
+   return size;
+}
 
 
 /*---------------------------------------------------------------------*/

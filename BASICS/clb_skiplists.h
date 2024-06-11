@@ -49,12 +49,6 @@ Changes
 /*                    Data type declarations                           */
 /*---------------------------------------------------------------------*/
 
-/*#define      InitOutput() GlobalOut=stdout;GlobalOutFD=STDOUT_FILENO
-void         OpenGlobalOut(char* outname);
-FILE*        OutOpen(char* name);
-void         OutClose(FILE* file);*/
-
-
 //skiplist structure
 typedef struct node_t {
     long                key;
@@ -63,6 +57,7 @@ typedef struct node_t {
 } node_t, *node_p;
 
 
+//anchor element
 typedef struct skiplist {
     int level;
     struct node_t *header;
@@ -76,7 +71,7 @@ typedef struct skiplist {
 
 
 #ifdef CONSTANT_MEM_ESTIMATE
-#define SKIPLISTNODE_MEM 24
+#define SKIPLISTNODE_MEM 8
 #else
 #define SKIPLISTNODE_MEM MEMSIZE(node_t)
 #endif
@@ -110,7 +105,8 @@ bool SkipListDeleteEntry(SkipList_p root, long key);
 
 //////////////////////
 // Analyze functions
-long SkipListDebugPrint(FILE* out, SkipList_p list, bool keys_only);
+//long SkipListDebugPrint(FILE* out, SkipList_p list, bool keys_only);
+long SkipListDebugPrint(SkipList_p list, bool keys_only);
 static int print_all_levels(SkipList_p list);
 static int print_only_keys(SkipList_p list);
 long SkipListNodes(SkipList_p list);
@@ -120,53 +116,8 @@ node_p SkipListMaxNode(SkipList_p list);
 #define   SkipListMinKey(list) (SkipListMinNode(list)->key)
 #define   SkipListMaxKey(list) (SkipListMaxNode(list)->key)
 
-//////////////////////
-//Test Functions
-/*
-void testSkipListInsert(SkipList_p list, long key);
-void testSkipListFree(SkipList_p list);
-void testSkipListDeleteNode(SkipList_p list);
-void testSkipListFind(SkipList_p list);
-*/
 
 #endif
-
-
-
-/*
-Weil nicht alle Seiteneffekte bekannt sind
-besser das Vorgehen diese Funktionen nachzubilden
-und dann einzufügen.
-Da nicht alle Seiteneffekte des bisherigen Datentyps bekannt sind,
-um unvorhergesehenen Problemen zuvor zu kommen.
-*/
-
-/*
-NumTreeTraverseInit -> Gehe Datenstruktur bis zum gegebenen Limit durch und
-sollte Schlüssel kleiner als limit sein, dann gehe rechten Teilbaum durch,
-Andernfalls, ist der Schlüssel entweder gleich dem aktuellen Schlüssel oder größer
-Nur für letztere beide Fälle wird ein Elemenet im Stack angelegt
-*/
-
-
-/*
-// KOMPILIERUNG
-gcc skipList.c -o skipList
-./skipList
-
-// INTERNE FUNKTIONEN
---Initializierung der Liste
---Einfügen
-(--Löschen der Liste)
---Löschen eines Nodes
---Suchen
-(--Iteration (asc)?)
---Zählen der Knoten
---Darstellung der Liste
-
-// TESTFUNKTIONEN
-
-*/
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */

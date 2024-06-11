@@ -162,6 +162,9 @@ static node_p add_new_list_node(IntMap_p map, long key, void* val)
 
 static void array_to_list(IntMap_p map)
 {
+   printf("/array_to_list/\n");
+   printf("-init-");
+
    PDRangeArr_p  tmp_arr;
    IntOrP        tmp_val;
    long          i;
@@ -170,6 +173,7 @@ static void array_to_list(IntMap_p map)
 
    assert(map->type == IMArray);
    tmp_arr = map->values.array;
+   printf("Minkey: %ld \t Maxkey: %ld\n", map->min_key, map->max_key);
 
    map->values.list = initSkiplist();
    map->type = IMList;
@@ -178,19 +182,30 @@ static void array_to_list(IntMap_p map)
    for(i=PDRangeArrLowKey(tmp_arr); i<=map->max_key; i++)
    {
       tmp_val.p_val = PDRangeArrElementP(tmp_arr, i);
+      printf( "# %5ld : %p\n", i, tmp_val);
       if(tmp_val.p_val)
       {
 //         printf("\t Array to tree \t :%d\n", i);
+         printf("%ld \t -> \t %p\n", i, tmp_val.p_val);
          SkipListStore(map->values.list, i, tmp_val);
+         printf("p:%p\n", SkipListFind(map->values.list, i)->value);
          map->entry_no++;
          max_key = i;
          min_key = MIN(min_key, i);
       }
    }
+
+
+
+
+   printf("\n-Debug-A:\n");
+   printf("Minkey: %ld \t Maxkey: %ld\n", map->min_key, map->max_key);
+   SkipListDebugPrint(map->values.list, false);
    map->max_key = max_key;
    map->min_key = MIN(min_key, max_key);
    PDRangeArrFree(tmp_arr);
 
+   printf("END\n");
 //DF-START
 #ifdef MEASURE_INTMAP_STATS
    map->countArrayToList++;
@@ -214,6 +229,7 @@ static void array_to_list(IntMap_p map)
 
 static void list_to_array(IntMap_p map)
 {
+   printf("#list_to_array#\n");
    PDRangeArr_p  tmp_arr;
    long          max_key = map->min_key;
    long          min_key = map->max_key;
@@ -221,28 +237,62 @@ static void list_to_array(IntMap_p map)
 
    assert(map->type == IMList);
    map->entry_no = 0;
+
    tmp_arr = PDRangeArrAlloc(map->min_key, IM_ARRAY_SIZE);
    handle = SkipListMinNode(map->values.list);
+   printf("-handle:%ld\n", handle->key);
+   printf("-debug:\n");
+   printf("Minkey: %ld \t Maxkey: %ld\n", map->min_key, map->max_key);
+   SkipListDebugPrint(map->values.list, false);
 
    while(handle && handle->next[1] != map->values.list->header)
    {
+      printf("-loop-");
       if(handle->value.p_val)
       {
+         printf("-i-p_val:%p-",handle->value.p_val);
+         printf("-i-assign:%ld-", handle->key);
          PDRangeArrAssignP(tmp_arr, handle->key, handle->value.p_val);
          map->entry_no++;
          max_key = handle->key;
          min_key = MIN(min_key, handle->key);
-         handle = handle->next[1];
+
       }
+      printf("-l-p_val:%p-",handle->value.p_val);
+      printf("-l-assign:%ld-", handle->key);
+      handle = handle->next[1];
    }
 
+   //ARRAY-START
+   printf("Minkey: %ld \t Maxkey: %ld\n", map->min_key, map->max_key);
+   IntMapIter_p iter = IntMapIterAlloc(map, LONG_MIN, LONG_MAX);
+   void* val;
+   long  key = 0;
+
+   printf("# ==== IntMapType %d Size = %ld\n", map->type, IntMapStorage(map));
+   for(val=IntMapIterNext(iter, &key); val; val=IntMapIterNext(iter, &key))
+   {
+      printf( "# %5ld : %p\n", key, val);
+   }
+   printf("# ==== IntMap End\n");
+
+   IntMapIterFree(iter);
+   //ARRAY-END
+
+   //ARRAY - Empty because no values are transmitted
+
+   printf("-assign:%ld-", handle->key);
    //freeNode(handle);
+   printf("-debug:\n");
+   SkipListDebugPrint(map->values.list, false);
+   printf("-free-");
    SkipListFree(map->values.list);
+   printf("-set-", handle->key);
    map->max_key = max_key;
    map->min_key = MIN(min_key, max_key);
    map->values.array = tmp_arr;
    map->type = IMArray;
-
+   printf("-end\n", handle->key);
 //DF-START
 #ifdef MEASURE_INTMAP_STATS
    map->countListToArray++;
@@ -458,9 +508,9 @@ void** IntMapGetRef(IntMap_p map, long key)
          map->max_key = key;
          map->min_key = key;
          map->values.value = NULL;
-         res = map->values.value;
+         res = &(map->values.value);
          map->entry_no = 1;
-
+         //printf("%p \t %p \t %p \n", map, map->values.value, res);
          //DF-START
 #ifdef MEASURE_EMPTY
          countEmpty++;
@@ -470,7 +520,7 @@ void** IntMapGetRef(IntMap_p map, long key)
    case IMSingle:
          if(key == map->max_key)
          {
-            res = map->values.value;
+            res = &(map->values.value);
 
             //DF-START
 #ifdef MEASURE_INT
@@ -487,7 +537,7 @@ void** IntMapGetRef(IntMap_p map, long key)
                                                 IM_ARRAY_SIZE);
             PDRangeArrAssignP(map->values.array, map->max_key, val);
             PDRangeArrAssignP(map->values.array, key, NULL);
-            res = PDRangeArrElementP(map->values.array, key);
+            res = &(PDRangeArrElementP(map->values.array, key));
             map->entry_no = 2;
 
             //DF-START
@@ -499,13 +549,15 @@ void** IntMapGetRef(IntMap_p map, long key)
          }
          else
          {
+            printf("IMSingle ");
+            printf("Z\n");
             map->type = IMList;
             val = map->values.value;
             map->values.list = initSkiplist();;
             tmp.p_val = val;
             SkipListStore(map->values.list, map->max_key, tmp);
             handle = add_new_list_node(map, key, NULL);
-            res = handle->value.p_val;
+            res = &(handle->value.p_val);
             map->entry_no = 2;
 
             //DF-START
@@ -518,10 +570,11 @@ void** IntMapGetRef(IntMap_p map, long key)
          map->max_key = MAX(key, map->max_key);
          break;
    case IMArray:
-
          if(((key > map->max_key)||(key<map->min_key)) &&
             switch_to_list(map->min_key, map->max_key, key, map->entry_no+1))
          {
+            printf("IMArray ");
+            printf("X\n");
             array_to_list(map);
             res = IntMapGetRef(map, key);
 
@@ -533,7 +586,7 @@ void** IntMapGetRef(IntMap_p map, long key)
          }
          else
          {
-            res = PDRangeArrElementP(map->values.array, key);
+            res = &(PDRangeArrElementP(map->values.array, key));
             if(!(*res))
             {
                map->entry_no++;
@@ -550,15 +603,19 @@ void** IntMapGetRef(IntMap_p map, long key)
          map->max_key=MAX(map->max_key, key);
          break;
    case IMList:
+
          handle = SkipListFind(map->values.list, key);
          if(handle)
          {
-            res = handle->value.p_val;
+            res = &(handle->value.p_val);
          }
          else
          {
+
             if(switch_to_array(map->min_key, map->max_key, key, map->entry_no+1))
             {
+               printf("IMList ");
+               printf("X\n");
                list_to_array(map);
                res = IntMapGetRef(map, key);
 
@@ -574,7 +631,7 @@ void** IntMapGetRef(IntMap_p map, long key)
                handle = add_new_list_node(map, key, NULL);
                map->max_key=MAX(map->max_key, key);
                map->min_key=MIN(map->min_key, key);
-               res = handle->value.p_val;
+               res = &(handle->value.p_val);
 
                //DF-START
 #ifdef MEASURE_LIST
@@ -587,7 +644,7 @@ void** IntMapGetRef(IntMap_p map, long key)
    default:
          assert(false && "Unknown IntMap type.");
    }
-
+   //printf("%p \t %p \t %p \n", map, map->values.value, res);
    assert(res);
 
 //DF-START
@@ -764,8 +821,8 @@ IntMapIter_p IntMapIterAlloc(IntMap_p map, long lower_key, long upper_key)
             handle->admin_data.current = lower_key;
             break;
       case IMList:
-            printf("B\n");
-            handle->admin_data.list_iter = SkipListMinNode(map->values.list); //header? header->next[1]
+         handle->admin_data.list_iter = SkipListFind(map->values.list, lower_key); //header? header->next[1]
+            //handle->admin_data.list_iter = SkipListMinNode(map->values.list); //header? header->next[1]
             //NumTreeLimitedTraverseInit(map->values.tree, lower_key);
             /**/
             break;
