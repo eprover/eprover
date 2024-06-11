@@ -49,7 +49,7 @@ Contents
 #define VERSION PVERSION LFH "-DEBUG"
 #endif
 
-#define E_NICKNAME     "Seeyok"
+#define E_NICKNAME     "Puttabong Moondrop"
 
 #define E_URL "http://www.eprover.org"
 

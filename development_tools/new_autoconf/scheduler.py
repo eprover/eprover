@@ -134,7 +134,8 @@ def parse_protocol_file(filename, fd, confs, e_path, limit):
     if not first_line.startswith('#'):
       raise StopIteration
 
-    e_args = first_line[1:].strip().split(' ')[1:]
+    e_args = first_line[1:].strip().split(' ')[1:-1]
+    e_args.append("/Users/schulz/dummy.p")
     from pathlib import Path
     conf_name = Path(filename[len(PROTOCOL):]).stem
 
