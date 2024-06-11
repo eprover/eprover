@@ -4,10 +4,10 @@ This is the required ReadMe file for the CASC competitions.
 For installation, follow the instructions in the main README
 file. Make sure to do a proper install, so that e_ltb_runner can find
 the executables. If you need to rebuild a StarExec version from the
-sources, run "make starexec", which should take care of
+sources, run "make starexec-src", which should take care of
 everything. Note that THIS WILL DELETE $(STAREXECPATH), which is by
-default defined as $(HOME)/StarExec. Edit Makefile.vars to choose a
-different directory for building the StarExec distribution.
+default defined as $(HOME)/StarExecEBuild. Edit Makefile.vars to
+choose a different directory for building the StarExec distribution.
 
 The strategies for the different divisions are:
 
@@ -26,7 +26,7 @@ Problem is CNF and satisfiable:
 
 # SZS status Satisfiable
 
-Problem is FOF and a theorem:
+Problem is FOF/THF and a theorem:
 
 # SZS status Theorem
 or
