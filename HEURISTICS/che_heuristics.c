@@ -123,7 +123,7 @@ HCB_p HCBCreate(char* name, HCBARGUMENTS)
    DStr_p err;
 
    assert(control->ocb);
-   printf("HCBCreate(%s, ...)\n", name);
+   //printf("HCBCreate(%s, ...)\n", name);
 
    for(i=0; HeuristicsTable[i].heuristic; i++)
    {
