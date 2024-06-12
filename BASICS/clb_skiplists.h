@@ -116,7 +116,6 @@ node_p SkipListMaxNode(SkipList_p list);
 #define   SkipListMinKey(list) (SkipListMinNode(list)->key)
 #define   SkipListMaxKey(list) (SkipListMaxNode(list)->key)
 
-
 #endif
 
 /*---------------------------------------------------------------------*/

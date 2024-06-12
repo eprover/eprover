@@ -119,32 +119,15 @@ static void* pdt_select_alt_ref(PDTree_p tree, PDTNode_p node, Term_p term)
    }
    else
    {
-      //DF-START
-      printf("///Z#%ld; min:%ld, max:%ld, term:%ld\n", node->f_alternatives->type, node->f_alternatives->min_key, node->f_alternatives->max_key, term->f_code);
-      printf("BEFORE\n");
-      if(node->f_alternatives->type == IMList) {
-         SkipListDebugPrint(node->f_alternatives->values.list, false);
-      }
-      printf("///Z#OldTreeStore:%ld\t", tree->arr_storage_est);
-      //DF-END
       tree->arr_storage_est -= IntMapStorage(node->f_alternatives);
-      //DF-START
-      printf("IntmapStore:%ld\tNewTreeStore:%ld\n", IntMapStorage(node->f_alternatives), tree->arr_storage_est);
-      //DF-END
+
       res = IntMapGetRef(node->f_alternatives, term->f_code);
-      //DF-START
-      printf("AFTER\n");
-      if(node->f_alternatives->type == IMList) {
-         SkipListDebugPrint(node->f_alternatives->values.list, false);
-      }
-      printf("res:%p\n", res);
-      //DF-END
+
       tree->arr_storage_est += IntMapStorage(node->f_alternatives);
    }
 
    tree->arr_storage_est += added_objmap_node ? SizeOfPObjNode() : 0;
 
-   printf("res:%p\n", res);
    return res;
 }
 
@@ -1271,7 +1254,7 @@ long PDTreeDelete(PDTree_p tree, Term_p term, Clause_p clause)
    long res=0;
    //DF-START
    //void *res=NULL;
-   long it=0;
+   //long it=0;
    //DF-END
    Term_p    curr;
    PDTNode_p node, prev, *next;
@@ -1296,33 +1279,33 @@ long PDTreeDelete(PDTree_p tree, Term_p term, Clause_p clause)
    node = tree->tree; //type = 3
    curr = TermLRTraverseNext(tree->term_stack);
    //DF-START
-   printf("///A#%ld #%ld\n", node->f_alternatives->type, res);
+   //printf("///A#%ld #%ld\n", node->f_alternatives->type, res);
    //DF-END
 
    while(node && curr)
    {
       next = pdt_select_alt_ref(tree, node, curr);
       //DF-START
-   printf("///B%ld#%ld #%ld\n", it, node->f_alternatives->type, res);
-   //DF-END
+      //printf("///B%ld#%ld #%ld\n", it, node->f_alternatives->type, res);
+      //DF-END
       assert(next);
       //DF-START
-   printf("///B%ld#%ld #%ld\n", it, node->f_alternatives->type, res);
-   //DF-END
+      //printf("///B%ld#%ld #%ld\n", it, node->f_alternatives->type, res);
+      //DF-END
       PStackPushP(del_stack, curr);
       //DF-START
-   printf("///B%ld#%ld #%ld\n", it, node->f_alternatives->type, res);
-   //DF-END
+      //printf("///B%ld#%ld #%ld\n", it, node->f_alternatives->type, res);
+      //DF-END
       node = *next;
       // assert(node);
       //DF-START
-   printf("///B%ld#%p #%p\n", it, node, next);
-   //DF-END
+      //printf("///B%ld#%p #%p\n", it, node, next);
+      //DF-END
       curr = TermLRTraverseNext(tree->term_stack);
-   //DF-START
-      printf("///B%ld#%p #%p\n", it, node, next);
+      //DF-START
+      //printf("///B%ld#%p #%p\n", it, node, next);
       //printf("///B%ld#%ld #%p\n", it, node->f_alternatives->type, res);
-      it++;
+      //it++;
       //DF-END
    }
 
@@ -1334,7 +1317,7 @@ long PDTreeDelete(PDTree_p tree, Term_p term, Clause_p clause)
       //DF-END
       res = delete_clause_entries(&(node->entries), clause, tree->deleter); //1289
       //DF-START
-      printf("///D#%p #%ld\n", node, res);
+      //printf("///D#%p #%ld\n", node, res);
       //DF-END
       assert(res); //1290
 

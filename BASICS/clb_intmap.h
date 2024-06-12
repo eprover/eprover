@@ -216,13 +216,11 @@ static inline void* IntMapIterNext(IntMapIter_p iter, long *key)
       return NULL;
    }
 
-   //printf("IntMapIterNext()...\n");
    switch(iter->map->type)
    {
    case IMEmpty:
          break;
    case IMSingle:
-         //printf("Case IMSingle\n");
          if(!iter->admin_data.seen)
          {
             iter->admin_data.seen = true;
@@ -231,7 +229,6 @@ static inline void* IntMapIterNext(IntMapIter_p iter, long *key)
          }
          break;
    case IMArray:
-         // printf("Case IMArray %ld\n", iter->admin_data.current);
          for(i=iter->admin_data.current; i<= iter->upper_key; i++)
          {
             res = PDRangeArrElementP(iter->map->values.array, i);

@@ -525,12 +525,9 @@ bool SkipListDeleteEntry(SkipList_p root, long key)
 /----------------------------------------------------------------------*/
 
 node_p SkipListMinNode(SkipList_p root) {
-    //if(root->header->next[1] != root->header)
-    //{
+
     return root->header->next[1];
-    /*} else {
-        return NULL;
-    }*/
+
 }
 
 /*-----------------------------------------------------------------------
@@ -579,7 +576,8 @@ node_p SkipListMaxNode(SkipList_p root)
 //
 /----------------------------------------------------------------------*/
 
-int SkipListGetLevel() {
+int SkipListGetLevel()
+{
     return MAXLEVEL;
 }
 
@@ -601,11 +599,11 @@ long SkipListNodes(SkipList_p root){
     //temp-variable for root-adress
     node_p currentNode = root->header;
 
-    while (currentNode && currentNode->next[1] != root->header) { //? Eins fehlt
+    while (currentNode && currentNode->next[1] != root->header)
+    {
         ++i;
         currentNode = currentNode->next[1];
     }
-
     return i;
 
 }
@@ -674,10 +672,10 @@ static int print_all_levels(SkipList_p root)
     {
         printf("\t%p\t", currentNode->next[i]);
     }
-
     return size;
 
 }
+
 
 /*-----------------------------------------------------------------------
 //
@@ -690,7 +688,6 @@ static int print_all_levels(SkipList_p root)
 //  Side Effects    : -
 //
 /----------------------------------------------------------------------*/
-
 
 //static int print_only_keys(FILE* out, skiplist *root)
 static int print_only_keys(SkipList_p root)
@@ -742,32 +739,6 @@ static int print_only_keys(SkipList_p root)
 //
 /----------------------------------------------------------------------*/
 
-/*static long skiplist_print(FILE* out, SkipList_p root, bool keys_only)
-{
-   int i, size;
-
-   if(!root)
-   {
-      fprintf(out, "\n");
-      size = 0;
-   }
-   else
-   {
-      if(keys_only)
-      {
-         size = print_only_keys(root);
-      }
-      else
-      {
-         size = print_all_levels(root);
-      }
-
-   }
-
-   return size;
-}*/
-
-
 static long skiplist_print(SkipList_p root, bool keys_only)
 {
    int i, size;
@@ -793,6 +764,7 @@ static long skiplist_print(SkipList_p root, bool keys_only)
    return size;
 }
 
+
 /*-----------------------------------------------------------------------
 //
 //  Function: SkipListDebugPrint()
@@ -804,22 +776,6 @@ static long skiplist_print(SkipList_p root, bool keys_only)
 //  Side Effects    : -
 //
 /----------------------------------------------------------------------*/
-
-/*long SkipListDebugPrint(FILE* out, SkipList_p root, bool keys_only)
-{
-   long size;
-   int level;
-
-   size = skiplist_print(out, root, keys_only);
-   level = SkipListGetLevel();
-   print_all_levels(root);
-
-   fprintf(out, "Skip list size: %ld\n", size);
-   fprintf(out, "Skip list levels: %d\n", level);
-
-   return size;
-}
-*/
 
 long SkipListDebugPrint(SkipList_p root, bool keys_only)
 {
@@ -834,147 +790,6 @@ long SkipListDebugPrint(SkipList_p root, bool keys_only)
 
    return size;
 }
-
-
-/*---------------------------------------------------------------------*/
-/*                         Test Functions                              */
-/*---------------------------------------------------------------------*/
-
-/*-----------------------------------------------------------------------
-//
-//  Function: testSkipListInsert()
-//
-//  Test the time to append a node to the end of the list
-//
-//  Global Variables: -
-//
-//  Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-/*
-void testSkipListInsert(SkipList_p root, long key) {
-    int i;
-    int arr[20] = {0,1,2,3,4,5,6,7,8,9, 10,11, 12, 13, 14, 15,16, 17, 18, 19};
-    //node_p latestNode = list;
-    clock_t begin, end;
-    begin = clock();
-
-    for(i = 0; i < key; i++) {
-        //SkipListStore(root, arr[i], NULL);
-    }
-
-    end = clock();
-
-    printf("\nTime to append a node:\n");
-    printf("Start \t | \t End \t | \t Dif \n");
-    printf("%ld \t | \t %ld \t | \t %ld\n", begin, end, end-begin);
-
-}
-*/
-
-
-/*-----------------------------------------------------------------------
-//
-//  Function: testSkipListFree()
-//
-//  Test the time to delete the entire list
-//
-//  Global Variables: -
-//
-//  Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-/*
-void testSkipListFree(SkipList_p root) {
-    clock_t begin, end;
-    begin = clock();
-
-    SkipListFree(root);
-
-    end = clock();
-
-    printf("\nTime to delete a list:\n");
-    printf("Start \t | \t End \t | \t Dif \n");
-    printf("%ld \t | \t %ld \t | \t %ld\n", begin, end, end-begin);
-
-}
-*/
-
-
-/*-----------------------------------------------------------------------
-//
-//  Function: testSkipListDeleteNode()
-//
-//  Test the time to delete a node from the list
-//
-//  Global Variables: -
-//
-//  Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-/*
-void testSkipListDeleteNode(SkipList_p root) {
-    int r;
-    clock_t begin, end;
-    time_t t;
-
-    srand((unsigned) time(&t));
-    //r = (rand()+3)%SkipListNodes(list);
-    r = 14;
-
-    begin = clock();
-    printf("\nDelete key: %d\n", r);
-    SkipListDeleteNode(root, r);
-
-    end = clock();
-
-    printf("Time to delete a node:\n");
-    printf("Start \t | \t End \t | \t Dif \n");
-    printf("%ld \t | \t %ld \t | \t %ld\n", begin, end, end-begin);
-
-}
-*/
-
-
-/*-----------------------------------------------------------------------
-//
-//  Function: testSkipListFind()
-//
-//  Test the time to search a node in the list
-//
-//  Global Variables: -
-//
-//  Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-/*
-void testSkipListFind(SkipList_p root) {
-    long r;
-    clock_t begin, end;
-    time_t t;
-
-    srand((unsigned) time(&t));
-    //r = rand()%SkipListNodes(list);
-    r = 17;
-
-    begin = clock();
-
-    printf("\nSearched key: \t %ld \n", r);
-    SkipListFind(root, r);
-
-    end = clock();
-
-    printf("Time to search a node:\n");
-    printf("Start \t | \t End \t | \t Dif \n");
-    printf("%ld \t | \t %ld \t | \t %ld\n", begin, end, end-begin);
-
-}
-*/
-
 
 
 /*---------------------------------------------------------------------*/
