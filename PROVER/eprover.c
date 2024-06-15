@@ -1835,13 +1835,13 @@ CLState_p process_options(int argc, char* argv[])
             break;
       case OPT_SATCHECK:
             tmp = StringIndex(arg, GroundingStratNames);
-            if(tmp <= 0)
+            if(tmp < 0)
             {
                DStr_p err = DStrAlloc();
                DStrAppendStr(err,
                              "Wrong argument to option --sat-check. Possible "
                              "values: ");
-               DStrAppendStrArray(err, GroundingStratNames+1, ", ");
+               DStrAppendStrArray(err, GroundingStratNames, ", ");
                Error(DStrView(err), USAGE_ERROR);
                DStrFree(err);
             }
