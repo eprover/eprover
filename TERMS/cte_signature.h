@@ -63,7 +63,7 @@ typedef enum
    FPPseudoPred   = 8192, /* Pseudo-predicate used for side effects
                            * only, does not conceptually contribute to
                            * truth of clause */
-   FPTypedApplication = FPPseudoPred * 2, /* Symbol used to represtend typed
+   FPTypedApplication = FPPseudoPred * 2, /* Symbol used to represent typed
                                              first-order binary application symbol */
    FPIsInjDefSkolem = FPTypedApplication * 2, /* Symbol is Skolem for injective function */
    FPSkolemSymbol = FPIsInjDefSkolem * 2, /* Obvious ;-) */
@@ -156,6 +156,7 @@ typedef struct sigcell
    FunCode   xor_code;
    /* And here are codes for interpreted symbols */
    FunCode   answer_code;       /* For answer literals */
+   FunCode   distinct_code;     /* $distinct */
 
    /* Sort and type banks (type => sort, but a shortcut is useful) */
    TypeBank_p  type_bank;

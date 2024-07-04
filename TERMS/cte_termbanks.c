@@ -1798,7 +1798,7 @@ Term_p TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop)
             Type_p  sym_type = sym_code ? SigGetType(bank->sig, sym_code) : NULL;
 
             handle = tb_term_parse_arglist(in, bank,
-                                             check_symb_prop, sym_type);
+                                           check_symb_prop, sym_type);
          }
          else
          {

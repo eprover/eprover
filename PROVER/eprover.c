@@ -218,6 +218,10 @@ ProofState_p parse_spec(CLState_p state,
    }
    VERBOUT2("Specification read\n");
 
+   ProofStateProcessDistinct(proofstate);
+
+   VERBOUT2("$distinct directives processed\n");
+
    proofstate->has_interpreted_symbols =
       FormulaSetHasInterpretedSymbol(proofstate->f_axioms);
    parsed_ax_no = ProofStateAxNo(proofstate);

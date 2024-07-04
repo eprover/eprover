@@ -146,8 +146,6 @@ Sig_p SigAlloc(TypeBank_p bank)
       SigInsertId(handle, "$cons", 2, true);
       assert(SigFindFCode(handle, "$cons")==SIG_CONS_CODE);
    }
-
-
    handle->internal_symbols = handle->f_count;
 
    handle->eqn_code      = 0;
@@ -168,6 +166,7 @@ Sig_p SigAlloc(TypeBank_p bank)
    handle->bimpl_code        = 0;
    handle->xor_code          = 0;
    handle->answer_code       = 0;
+   handle->distinct_code     = 0;
 
    handle->skolem_count      = 0;
    handle->newpred_count     = 0;
@@ -239,7 +238,6 @@ void SigInsertInternalCodes(Sig_p sig)
    SigDeclareFinalType(sig, sig->bimpl_code, binary_log_op_type);
    sig->xor_code   = SigInsertFOFOp(sig, "$xor",   2);
    SigDeclareFinalType(sig, sig->xor_code, binary_log_op_type);
-
    sig->answer_code =  SigInsertId(sig, "$answer", 1, true);
    SigSetFuncProp(sig, sig->answer_code, FPInterpreted|FPPseudoPred);
 
@@ -280,6 +278,9 @@ void SigInsertInternalCodes(Sig_p sig)
       TypeBankInsertTypeShared(sig->type_bank, AllocArrowType(2, args));
 
    SigDeclareFinalType(sig, sig->answer_code, answer_type);
+
+   sig->distinct_code = SigInsertId(sig, "$distinct", -1, true);
+   SigSetPolymorphic(sig, sig->distinct_code, true);
 
    sig->internal_symbols = sig->f_count;
 }

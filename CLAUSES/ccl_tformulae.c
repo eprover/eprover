@@ -1589,6 +1589,10 @@ void TFormulaTPTPPrint(FILE* out, TB_p bank, TFormula_p form, bool fullterms, bo
    {
       fprintf(out, "%s", SigFindName(bank->sig, form->f_code));
    }
+   else if(form->f_code == bank->sig->distinct_code)
+   {
+      TBPrintTerm(out, bank, form, fullterms);
+   }
    else
    {
       char* oprep = "XXX";
@@ -1956,6 +1960,122 @@ TFormula_p TcfTSTPParse(Scanner_p in, TB_p terms)
    }
    return res;
 }
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: parse_constant_term()
+//
+//   Parse a constant term (only constants allowed).
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+Term_p parse_constant_term(Scanner_p in, TB_p terms)
+{
+   Term_p       handle;
+   DStr_p       id = DStrAlloc();
+   DStr_p       source_name = DStrGetRef(AktToken(in)->source);
+   StreamType   type_stream = AktToken(in)->stream_type;
+   long
+      line   = AktToken(in)->line,
+      column = AktToken(in)->column;
+
+   FuncSymbType id_type = FuncSymbParse(in, id);
+   FunCode      f_code = TermSigInsert(terms->sig,
+                                       DStrView(id),
+                                       0,
+                                       false, id_type);
+   if(!f_code)
+   {
+      Error("%s: constant expected but %s registered with arity %d",
+            SYNTAX_ERROR,
+            PosRep(type_stream, source_name, line, column),
+            DStrView(id),
+            (terms->sig)->
+            f_info[SigFindFCode(terms->sig, DStrView(id))].arity);
+   }
+   DStrReleaseRef(source_name);
+
+   handle = TermDefaultCellAlloc();
+   handle->arity = 0;
+   handle->f_code = f_code;
+   handle = TBTermTopInsert(terms, handle);
+   DStrFree(id);
+   return handle;
+}
+
+
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: TSTPDistinctParse()
+//
+//   Parse a $distinct()-pseudo-term.
+//
+// Global Variables: -
+//
+// Side Effects    : I/O, memory operation
+//
+/----------------------------------------------------------------------*/
+
+TFormula_p TSTPDistinctParse(Scanner_p in, TB_p terms)
+{
+   Term_p        handle, arg;
+   DStr_p        id = DStrAlloc();
+   PStack_p      args = PStackAlloc();
+   int           arity, i;
+   Type_p        type;
+
+   AcceptInpId(in, "$distinct");
+   AcceptInpTok(in, OpenBracket);
+
+   arg = parse_constant_term(in, terms);
+   type = arg->type;
+   PStackPushP(args, arg);
+
+   DStrReset(id);
+   while(TestInpTok(in, Comma))
+   {
+      NextToken(in);
+
+      DStr_p       source_name = DStrGetRef(AktToken(in)->source);
+      StreamType   type_stream = AktToken(in)->stream_type;
+      long
+         line   = AktToken(in)->line,
+         column = AktToken(in)->column;
+
+      arg = parse_constant_term(in, terms);
+      if(arg->type!=type)
+      {
+         Error("%s All $distinct arguments have to be of the same type",
+               SYNTAX_ERROR,
+               PosRep(type_stream, source_name, line, column));
+      }
+      PStackPushP(args, arg);
+      DStrReleaseRef(source_name);
+      DStrReset(id);
+   }
+   AcceptInpTok(in, CloseBracket);
+   arity = PStackGetSP(args);
+   handle = TermDefaultCellArityAlloc(arity);
+   handle->f_code = terms->sig->distinct_code;
+
+   for(i=0;i<arity;i++)
+   {
+      handle->args[i] = PStackElementP(args,i);
+   }
+   handle = TBTermTopInsert(terms, handle);
+
+   PStackFree(args);
+   DStrFree(id);
+   return handle;
+}
+
 
 
 /*-----------------------------------------------------------------------
@@ -2530,6 +2650,77 @@ TFormula_p TFormulaNegate(TFormula_p form, TB_p terms)
 
    return res;
 }
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: TFormulaStackToForm()
+//
+//   Given a stack of formulas, combine them into a formula conjoined
+//   by the given op. I'm to tired to think about structure, so better
+//   use only conjunction and disjunction here ;-)
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+TFormula_p TFormulaStackToForm(TB_p bank, PStack_p stack, FunCode op)
+{
+   TFormula_p res, handle;
+
+   if(PStackEmpty(stack))
+   {
+      return bank->true_term;
+   }
+   res = PStackPopP(stack);
+   while(!PStackEmpty(stack))
+   {
+      handle = PStackPopP(stack);
+      res = TFormulaFCodeAlloc(bank, op, handle, res);
+   }
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: TFormulaExpandDistinct()
+//
+//   Create a conjunction of disequations expressing a $distinct
+//   statment: $distinct(a,b,c) => neqn(a,b)&neqn(b,c)&neqn(a,c).
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+TFormula_p TFormulaExpandDistinct(TB_p bank, TFormula_p distinct)
+{
+   int i,j;
+   PStack_p disequs = PStackAlloc();
+   TFormula_p handle;
+
+   for(i=0; i<distinct->arity; i++)
+   {
+      for(j=i+1; j<distinct->arity; j++)
+      {
+         handle = TFormulaFCodeAlloc(bank, bank->sig->neqn_code,
+                                     distinct->args[i],
+                                     distinct->args[j]);
+
+         PStackPushP(disequs, handle);
+      }
+   }
+   handle = TFormulaStackToForm(bank, disequs, bank->sig->and_code);
+   PStackFree(disequs);
+
+   return handle;
+}
+
+
 
 /*-----------------------------------------------------------------------
 //

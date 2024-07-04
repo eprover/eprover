@@ -1054,26 +1054,29 @@ FunCode TermSigInsert(Sig_p sig, const char* name, int arity, bool
    FunCode res;
 
    res = SigInsertId(sig, name, arity, special_id);
-   switch(type)
+   if(res)
    {
-   case FSIdentInt:
-         SigSetFuncProp(sig, res, FPIsInteger);
-         break;
-   case FSIdentFloat:
-         SigSetFuncProp(sig, res, FPIsFloat);
-         break;
-   case FSIdentRational:
-         SigSetFuncProp(sig, res, FPIsRational);
-         break;
-   case FSIdentObject:
+      switch(type)
+      {
+      case FSIdentInt:
+            SigSetFuncProp(sig, res, FPIsInteger);
+            break;
+      case FSIdentFloat:
+            SigSetFuncProp(sig, res, FPIsFloat);
+            break;
+      case FSIdentRational:
+            SigSetFuncProp(sig, res, FPIsRational);
+            break;
+      case FSIdentObject:
          SigSetFuncProp(sig, res, FPIsObject);
          break;
-   case FSIdentInterpreted:
-         SigSetFuncProp(sig, res, FPInterpreted);
-         break;
-   default:
-         /* Nothing */
-         break;
+      case FSIdentInterpreted:
+            SigSetFuncProp(sig, res, FPInterpreted);
+            break;
+      default:
+            /* Nothing */
+            break;
+      }
    }
    return res;
 }

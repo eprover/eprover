@@ -1046,7 +1046,7 @@ bool TestTok(Token_p akt, TokenType toks)
 
 bool TestId(Token_p akt, char* ids)
 {
-   if(!TestTok(akt, Identifier))
+   if(!TestTok(akt, Identifier|SemIdent))
    {
       return false;
    }

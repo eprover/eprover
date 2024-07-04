@@ -8,7 +8,7 @@ Contents
 
   Wrapped formula set code.
 
-Copyright 1998-2011 by the author.
+Copyright 1998-2024 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
@@ -692,8 +692,6 @@ void FormulaSetDefinitionStatistics(FormulaSet_p orig, FormulaSet_p arch,
    *num_lams = _num_lams;
    *has_app_var_lits = _has_av_lits;
 }
-
-
 
 
 /*---------------------------------------------------------------------*/

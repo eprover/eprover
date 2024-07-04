@@ -81,6 +81,7 @@ void       TFormulaTPTPPrint(FILE* out, TB_p bank, TFormula_p form, bool fullter
 TFormula_p TFormulaTPTPParse(Scanner_p in, TB_p terms);
 TFormula_p TFormulaTSTPParse(Scanner_p in, TB_p terms);
 TFormula_p TcfTSTPParse(Scanner_p in, TB_p terms);
+TFormula_p TSTPDistinctParse(Scanner_p in, TB_p terms);
 
 #define    TFormulaEqual(f1,f2) ((f1)==(f2))
 bool       TFormulaVarIsFree(TB_p bank, TFormula_p form, Term_p var);
@@ -111,6 +112,8 @@ Clause_p   TFormulaCollectClause(TFormula_p form, TB_p terms,
 void TFormulaAppEncode(FILE* out, TB_p bank, TFormula_p form);
 void PreloadTypes(TB_p bank, TFormula_p form);
 
+TFormula_p TFormulaStackToForm(TB_p bank, PStack_p stack, FunCode op);
+TFormula_p TFormulaExpandDistinct(TB_p bank, TFormula_p distinct);
 bool       TFormulaIsUntyped(TFormula_p form);
 
 TFormula_p TFormulaNegate(TFormula_p form, TB_p terms);
