@@ -934,7 +934,7 @@ FunCode SigParseKnownOperator(Scanner_p in, Sig_p sig)
 {
    FunCode       res;
    int           line, column;
-   DStr_p        id, source_name, errpos;
+   DStr_p        id, source_name;
    StreamType    type;
 
    line = AktToken(in)->line;
@@ -949,14 +949,9 @@ FunCode SigParseKnownOperator(Scanner_p in, Sig_p sig)
 
    if(!res)
    {
-      errpos = DStrAlloc();
-
-      DStrAppendStr(errpos, PosRep(type, source_name, line, column));
-      DStrAppendChar(errpos, ' ');
-      DStrAppendStr(errpos, DStrView(id));
-      DStrAppendStr(errpos, " undeclared!");
-      Error(DStrView(errpos), SYNTAX_ERROR);
-      DStrFree(errpos);
+      Error("%s %s undeclared", SYNTAX_ERROR,
+            PosRep(type, source_name, line, column),
+            DStrView(id));
    }
    DStrReleaseRef(source_name);
    DStrFree(id);
@@ -980,7 +975,7 @@ FunCode SigParseKnownOperator(Scanner_p in, Sig_p sig)
 FunCode SigParseSymbolDeclaration(Scanner_p in, Sig_p sig, bool special_id)
 {
    int        arity, line, column;
-   DStr_p     id = DStrAlloc(), source_name, errpos;
+   DStr_p     id = DStrAlloc(), source_name;
    FunCode    res;
    StreamType type;
 
@@ -997,18 +992,12 @@ FunCode SigParseSymbolDeclaration(Scanner_p in, Sig_p sig, bool special_id)
    res = SigInsertId(sig, DStrView(id), arity, special_id);
    if(!res)
    {
-      errpos = DStrAlloc();
-
-      DStrAppendStr(errpos, PosRep(type, source_name, line, column));
-      DStrAppendChar(errpos, ' ');
-      DStrAppendStr(errpos, DStrView(id));
-      DStrAppendStr(errpos, " declared with arity ");
-      DStrAppendInt(errpos, (long)arity);
-      DStrAppendStr(errpos, " but registered with arity ");
-      DStrAppendInt(errpos,
-                    (long)SigFindArity(sig, SigFindFCode(sig, DStrView(id))));
-      Error(DStrView(errpos), SYNTAX_ERROR);
-      DStrFree(errpos);
+      Error("%s %s declared with arity %d but registered with arity %d",
+            SYNTAX_ERROR,
+            PosRep(type, source_name, line, column),
+            DStrView(id),
+            arity,
+            SigFindArity(sig, SigFindFCode(sig, DStrView(id))));
    }
    DStrReleaseRef(source_name);
    DStrFree(id);
@@ -1778,26 +1767,38 @@ void SigPrintTypeDeclsTSTPSelective(FILE* out, Sig_p sig, NumTree_p *symbols)
 
 void SigParseTFFTypeDeclaration(Scanner_p in, Sig_p sig)
 {
-   DStr_p id;
+   DStr_p id, source_name;
    FuncSymbType symbtype;
    FunCode f;
    Type_p type;
    bool within_paren = false;
+   StreamType type_stream;
+   long line, column;
 
    id = DStrAlloc();
-
    if(TestInpTok(in, OpenBracket))
    {
       NextToken(in);
       within_paren = true;
    }
-
    /* parse symbol */
+   source_name = DStrGetRef(AktToken(in)->source);
+   type_stream = AktToken(in)->stream_type;
+   line   = AktToken(in)->line;
+   column = AktToken(in)->column;
+
    symbtype = FuncSymbParse(in, id);
-   if(symbtype == FSIdentVar || symbtype == FSNone)
+
+   if(symbtype != FSIdentFreeFun
+      && symbtype != FSIdentInterpreted
+      && symbtype != FSIdentObject)
    {
-      Error("expected type name in type declaration", OTHER_ERROR);
+      Error("%s Type name expected in type declaration, but got %s",
+            SYNTAX_ERROR,
+            PosRep(type_stream, source_name, line, column),
+            DStrView(id));
    }
+   DStrReleaseRef(source_name);
 
    /* parse type */
    AcceptInpTok(in, Colon);
