@@ -344,7 +344,7 @@ static TFormula_p quantified_tform_tptp_parse(Scanner_p in,
 {
    Term_p     var;
    TFormula_p  rest, res;
-   DStr_p     source_name, errpos;
+   DStr_p     source_name;
    long       line, column;
    StreamType type;
 
@@ -359,12 +359,9 @@ static TFormula_p quantified_tform_tptp_parse(Scanner_p in,
    var = TBTermParse(in, terms);
    if(!TermIsFreeVar(var))
    {
-      errpos = DStrAlloc();
-
-      DStrAppendStr(errpos, PosRep(type, source_name, line, column));
-      DStrAppendStr(errpos, " Variable expected, non-variable term found");
-      Error(DStrView(errpos), SYNTAX_ERROR);
-      DStrFree(errpos);
+      Error("%s Variable expected, non-variable term found",
+            SYNTAX_ERROR,
+            PosRep(type, source_name, line, column));
    }
    assert(var->type);
    DStrReleaseRef(source_name);
@@ -521,7 +518,7 @@ static TFormula_p quantified_tform_tstp_parse(Scanner_p in,
 {
    Term_p     var;
    TFormula_p  rest, res;
-   DStr_p     source_name, errpos;
+   DStr_p     source_name;
    long       line, column;
    StreamType type;
 
@@ -536,12 +533,9 @@ static TFormula_p quantified_tform_tstp_parse(Scanner_p in,
    var = TBTermParse(in, terms);
    if(!TermIsFreeVar(var))
    {
-      errpos = DStrAlloc();
-
-      DStrAppendStr(errpos, PosRep(type, source_name, line, column));
-      DStrAppendStr(errpos, " Variable expected, non-variable term found");
-      Error(DStrView(errpos), SYNTAX_ERROR);
-      DStrFree(errpos);
+      Error("%s Variable expected, non-variable term found",
+            SYNTAX_ERROR,
+            PosRep(type, source_name, line, column));
    }
    DStrReleaseRef(source_name);
    if(TestInpTok(in, Comma))

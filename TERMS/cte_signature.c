@@ -1524,7 +1524,7 @@ void SigDeclareType(Sig_p sig, FunCode f, Type_p type)
                TypePrintTSTP(stderr, sig->type_bank, type);
                fprintf(stderr, "\n");
             }
-            Error("type error", INPUT_SEMANTIC_ERROR);
+            Error("type error", TYPE_ERROR);
          }
          else
          {

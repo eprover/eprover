@@ -1,23 +1,20 @@
 /*-----------------------------------------------------------------------
 
-File  : cio_filevars.h
+  File  : cio_filevars.h
 
-Author: Stephan Schulz
+  Author: Stephan Schulz
 
-Contents
+  Contents
 
   Functions for managing file-stored "variable = value;" pairs.
 
-  Copyright 1998, 1999 by the author.
+  Copyright 1998, 1999, 2024 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
-
-<1> Thu Apr  8 16:00:49 MET DST 1999
-    New
+  Created: Thu Apr  8 16:00:49 MET DST 1999
 
 -----------------------------------------------------------------------*/
 
@@ -218,17 +215,9 @@ bool FileVarsGetBool(FileVars_p vars, char* name, bool *value)
    }
    else
    {
-      DStr_p errpos = DStrAlloc();
-
-      DStrAppendStr(errpos,
-                    "Boolean value requested for file variable ");
-      DStrAppendStr(errpos, name);
-      DStrAppendStr(errpos, "read from \"");
-      DStrAppendStr(errpos, cell->val2.p_val);
-      DStrAppendStr(errpos,
-                    "\", but no boolean value present.");
-      Error(DStrView(errpos), SYNTAX_ERROR);
-      DStrFree(errpos);
+      Error("Boolean value requested for file variable %s read "
+            "from \"%s\", but no Boolean value present",
+            INPUT_SEMANTIC_ERROR, name, cell->val2.p_val);
    }
    return true;
 }
@@ -263,26 +252,19 @@ bool FileVarsGetInt(FileVars_p vars, char* name,  long *value)
 
    if(errno || *eoarg)
    {
-      DStr_p errpos = DStrAlloc();
-
-      TmpErrno = errno;
-      DStrAppendStr(errpos,
-                    "Integer value requested for file variable ");
-      DStrAppendStr(errpos, name);
-      DStrAppendStr(errpos, "read from \"");
-      DStrAppendStr(errpos, cell->val2.p_val);
-      DStrAppendStr(errpos,
-                    "\", but no integer value present.");
-
-      if(TmpErrno)
+      if(errno)
       {
-         SysError(DStrView(errpos), SYNTAX_ERROR);
+         TmpErrno = errno;
+         SysError("Integer value requested for file variable %s read "
+                  "from \"%s\", but no Integer value present",
+                  INPUT_SEMANTIC_ERROR, name, cell->val2.p_val);
       }
-      else
+      else if(*eoarg)
       {
-         Error(DStrView(errpos), SYNTAX_ERROR);
+         Error("Integer value requested for file variable %s read "
+               "from \"%s\", but no Integer value present",
+               INPUT_SEMANTIC_ERROR, name, cell->val2.p_val);
       }
-      DStrFree(errpos);
    }
    return true;
 }
@@ -309,7 +291,6 @@ bool FileVarsGetStr(FileVars_p vars, char* name,  char **value)
    {
       return false;
    }
-
    *value = cell->val1.p_val;
 
    return true;
@@ -345,17 +326,9 @@ bool FileVarsGetIdentifier(FileVars_p vars, char* name,  char **value)
                       true, NULL, true);
    if(!TestInpTok(in, Identifier))
    {
-      DStr_p errpos = DStrAlloc();
-
-      DStrAppendStr(errpos,
-                    "Identifier value requested for file variable ");
-      DStrAppendStr(errpos, name);
-      DStrAppendStr(errpos, "read from \"");
-      DStrAppendStr(errpos, cell->val2.p_val);
-      DStrAppendStr(errpos,
-                    "\", but no such value present.");
-      Error(DStrView(errpos), SYNTAX_ERROR);
-      DStrFree(errpos);
+      Error("Identifier value requested for file variable %s read "
+            "from \"%s\", but no identifier present",
+            INPUT_SEMANTIC_ERROR, name, cell->val2.p_val);
    }
    DestroyScanner(in);
    *value = cell->val1.p_val;
