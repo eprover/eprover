@@ -47,16 +47,17 @@ typedef int ErrorCodes;
 #define SATISFIABLE           1
 #define OUT_OF_MEMORY         2
 #define SYNTAX_ERROR          3
-#define USAGE_ERROR           4
-#define FILE_ERROR            5
-#define SYS_ERROR             6
-#define CPU_LIMIT_ERROR       7
-#define RESOURCE_OUT          8
-#define INCOMPLETE_PROOFSTATE 9
-#define OTHER_ERROR           10
-#define INPUT_SEMANTIC_ERROR  11
-#define INTERFACE_ERROR       12
-#define PARENT_REQUEST        13
+#define TYPE_ERROR            4
+#define USAGE_ERROR           5
+#define FILE_ERROR            6
+#define SYS_ERROR             7
+#define CPU_LIMIT_ERROR       8
+#define RESOURCE_OUT          9
+#define INCOMPLETE_PROOFSTATE 10
+#define OTHER_ERROR           11
+#define INPUT_SEMANTIC_ERROR  12
+#define INTERFACE_ERROR       13
+#define PARENT_REQUEST        14
 
 
 /*---------------------------------------------------------------------*/

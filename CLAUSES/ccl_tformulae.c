@@ -2052,8 +2052,8 @@ TFormula_p TSTPDistinctParse(Scanner_p in, TB_p terms)
       arg = parse_constant_term(in, terms);
       if(arg->type!=type)
       {
-         Error("%s All $distinct arguments have to be of the same type",
-               SYNTAX_ERROR,
+         Error("%s All $distinct arguments have to be constants of the same type",
+               TYPE_ERROR,
                PosRep(type_stream, source_name, line, column));
       }
       PStackPushP(args, arg);
