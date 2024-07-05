@@ -2260,7 +2260,9 @@ E " VERSION " \"" E_NICKNAME "\"\n\
 \n\
 Usage: " NAME " [options] [files]\n\
 \n\
-Read a set of first-order clauses and formulae and try to refute it.\n\
+Read a set of first-order (or, in the -ho-version, higher-order)\n\
+clauses and formulae and try to prove the conjecture (if given)\n\
+or show the set unsatisfiable.\n\
 \n");
    PrintOptions(stdout, opts, "Options:\n\n");
    fprintf(out, "\n\n" E_FOOTER);
