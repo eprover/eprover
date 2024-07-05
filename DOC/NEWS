@@ -1,9 +1,9 @@
 This history describes the major differences between versions of the E
 equational theorem prover.
 
-Version 3.1.0 -> 3.2.0
+Version 3.1.0 -> 3.2.0 Puttabong Moondrop
 
-- Added support for $distict
+- Added support for $distinct
 
 Version 3.0.03 -> 3.1.0
 
