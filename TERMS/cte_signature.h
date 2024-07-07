@@ -96,7 +96,8 @@ Type_p TypeCheckArithConv(struct sigcell *sig, struct termcell *t);
 typedef struct funccell
 {
    /* f_code is implicit by position in the array */
-   char*  name;
+   char*  name;     // "real" name
+   char*  pname;    // Used for external printing
    int    arity;
    int    alpha_rank; /* We sometimes need an arbitrary but stable
                          order on symbols and use alphabetic. */
@@ -372,7 +373,7 @@ static inline int SigFindArity(Sig_p sig, FunCode f_code)
 //
 /----------------------------------------------------------------------*/
 
-static inline char*  SigFindName(Sig_p sig, FunCode f_code)
+static inline char* SigFindName(Sig_p sig, FunCode f_code)
 {
    if(!f_code)
    {
@@ -381,7 +382,7 @@ static inline char*  SigFindName(Sig_p sig, FunCode f_code)
    assert(f_code > 0);
    assert(f_code <= sig->f_count);
 
-   return (sig->f_info[f_code]).name;
+   return (sig->f_info[f_code]).pname;
 }
 
 

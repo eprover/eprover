@@ -303,9 +303,17 @@ void SigFree(Sig_p junk)
 {
    assert(junk);
    assert(junk->f_info);
+   FunCode i;
 
    /* names are shared with junk->f_index and are free()ed by the
       StrTreeFree() call below! */
+   for(i=0; i< junk->f_count; i++)
+   {
+      if(junk->f_info[i].pname)
+      {
+         FREE(junk->f_info[i].pname);
+      }
+   }
    FREE(junk->f_info);
    StrTreeFree(junk->f_index);
    PStackFree(junk->ac_axioms);
@@ -633,39 +641,51 @@ FunCode SigInsertId(Sig_p sig, const char* name, int arity, bool special_id)
 {
    long      pos;
    StrTree_p new, test;
-   DStr_p    fix_name = NULL;
+   DStr_p    raw_name = DStrAlloc(), fix_name = DStrAlloc();
+   const char *rawname, *prtname;
 
-   pos = SigFindFCode(sig, name);
+   prtname = name;
+   rawname = name;
+
+   if(name[0]=='\'')
+   {
+      DStrAppendStr(raw_name, name+1);
+      DStrDeleteLastChar(raw_name);
+      rawname = DStrView(raw_name);
+      prtname = name;
+   }
+
+   pos = SigFindFCode(sig, rawname);
 
    if(pos) /* name is already known */
    {
       if(sig->f_info[pos].arity != arity && problemType == PROBLEM_FO)
       {
-         //printf("Problem: %s %d != %d\n", name, arity, sig->f_info[pos].arity);
+         //printf("Problem: %s %d != %d\n", rawname, arity, sig->f_info[pos].arity);
 #ifdef MULTI_ARITY_HACK
-         fix_name = DStrAlloc();
          DStrAppendStr(fix_name, name);
          DStrAppendStr(fix_name, "_ARITYFIX");
          DStrAppendInt(fix_name, arity);
          DStrAppendStr(fix_name, " ");  /* Trailing space should ensure that it
-                               * cannot come from the real parser */
-         name = DStrView(fix_name);
-         pos = SigFindFCode(sig, name);
+                                         * cannot come from the real parser */
+         prtname = rawname;
+         rawname = DStrView(fix_name);
+         pos = SigFindFCode(sig, rawname);
 #else
+         DStrFree(raw_name);
+         DStrFree(fix_name);
          return 0; /* ...but incompatible */
 #endif
       }
    }
    if(pos)
    {
-      if(fix_name)
-      {
-         DStrFree(fix_name);
-      }
       if(special_id)
       {
          SigSetSpecial(sig, pos, true);
       }
+      DStrFree(raw_name);
+      DStrFree(fix_name);
       return pos; /* all is fine... */
    }
    /* Now insert the new name...ensure that there is space */
@@ -680,7 +700,9 @@ FunCode SigInsertId(Sig_p sig, const char* name, int arity, bool special_id)
    /* Insert the element in f_index and f_info */
    sig->f_count++;
    sig->f_info[sig->f_count].name
-      = SecureStrdup(name);
+      = SecureStrdup(rawname);
+   sig->f_info[sig->f_count].pname
+      = SecureStrdup(prtname);
    sig->f_info[sig->f_count].arity = arity;
    sig->f_info[sig->f_count].properties = FPIgnoreProps;
    sig->f_info[sig->f_count].type = NULL;
@@ -694,11 +716,8 @@ FunCode SigInsertId(Sig_p sig, const char* name, int arity, bool special_id)
    UNUSED(test); assert(test == NULL);
    SigSetSpecial(sig,sig->f_count,special_id);
    sig->alpha_ranks_valid = false;
-
-   if(fix_name)
-   {
-      DStrFree(fix_name);
-   }
+   DStrFree(raw_name);
+   DStrFree(fix_name);
    return sig->f_count;
 }
 
