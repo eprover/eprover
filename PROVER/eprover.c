@@ -549,7 +549,7 @@ int main(int argc, char* argv[])
    SpecLimits_p spec_limits = NULL;
    RawSpecFeatureCell raw_features;
    SpecFeatureCell features;
-   int sched_idx;
+   int sched_idx = -1;
    Schedule_p preproc_schedule = NULL;
    rlim_t wc_sched_limit;
    Derivation_p deriv;

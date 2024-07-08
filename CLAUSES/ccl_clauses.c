@@ -155,11 +155,11 @@ static void clause_collect_posneg_vars(Clause_p clause,
    {
       if(EqnIsPositive(handle))
       {
-         EqnCollectVariables(handle, pos_vars);
+         (void)EqnCollectVariables(handle, pos_vars);
       }
       else
       {
-         EqnCollectVariables(handle, neg_vars);
+         (void)EqnCollectVariables(handle, neg_vars);
       }
    }
 }
