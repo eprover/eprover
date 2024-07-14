@@ -57,6 +57,7 @@ PERF_CTR_DEFINE(SatTimer);
 char              *outname = NULL;
 char              *watchlist_filename = NULL;
 char              *parse_strategy_filename = NULL;
+char              *select_strategy = NULL;
 char              *print_strategy = NULL;
 HeuristicParms_p  h_parms;
 FVIndexParms_p    fvi_parms;
@@ -295,12 +296,20 @@ void strategy_io(HeuristicParms_p h_parms, PStack_p hcb_definitions)
       }
       DestroyScanner(in);
    }
+   if(select_strategy)
+   {
+      GetHeuristicWithName(select_strategy, h_parms);
+   }
 
    if(print_strategy)
    {
       if(strcmp(print_strategy, ">all-strats<")==0)
       {
-         StrategiesPrintPredefined(GlobalOut);
+         StrategiesPrintPredefined(GlobalOut, false);
+      }
+      else if(strcmp(print_strategy, ">all-names<")==0)
+      {
+         StrategiesPrintPredefined(GlobalOut, true);
       }
       else
       {
@@ -1349,6 +1358,9 @@ CLState_p process_options(int argc, char* argv[])
             break;
       case OPT_RUSAGE_INFO:
             print_rusage = true;
+            break;
+      case OPT_SELECT_STRATEGY:
+            select_strategy = arg;
             break;
       case OPT_PRINT_STRATEGY:
             print_strategy = arg;

@@ -51,7 +51,7 @@ typedef struct
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-void          StrategiesPrintPredefined(FILE* out);
+void          StrategiesPrintPredefined(FILE* out, bool name_only);
 ScheduleCell* GetPreprocessingSchedule(const char* problem_category);
 ScheduleCell* GetSearchSchedule(const char* problem_category);
 ScheduleCell* GetDefaultSchedule();

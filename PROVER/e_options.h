@@ -65,6 +65,7 @@ typedef enum
    OPT_CPU_LIMIT,
    OPT_SOFTCPU_LIMIT,
    OPT_RUSAGE_INFO,
+   OPT_SELECT_STRATEGY,
    OPT_PRINT_STRATEGY,
    OPT_PARSE_STRATEGY,
    OPT_STEP_LIMIT,
@@ -512,13 +513,20 @@ OptCell opts[] =
     "more information with the rusage() system call, you will also "
     "get information about memory consumption."},
 
+   {OPT_SELECT_STRATEGY,
+    '\0', "select-strategy",
+    ReqArg, NULL,
+    "Select one of the built-in strategies and set all proof search "
+    "parameters accordingly."},
+
    {OPT_PRINT_STRATEGY,
     '\0', "print-strategy",
     OptArg, ">current-strategy<",
     "Print a representation of all search parameters and their setting "
     "of a given strategy, then terminate. If no argument is given, "
     "the current strategy is printed. Use the reserved name '>all-strats<'"
-    "to get a description of all built-in strategies."},
+    "to get a description of all built-in strategies,  '>all-names<' "
+    "to get a list of all names of strategies."},
 
    {OPT_PARSE_STRATEGY,
     '\0', "parse-strategy",
