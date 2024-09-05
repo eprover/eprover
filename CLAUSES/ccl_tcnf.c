@@ -1725,6 +1725,11 @@ TFormula_p TFormulaExpandLiterals(TB_p terms, TFormula_p form)
    /* TermPrettyPrintSimple(stdout, form, terms->sig, 0); */
    /* printf(" ]\n"); */
 
+   if(TermIsDBVar(form))
+   {
+      return form;
+   }
+
    if(form->f_code == terms->sig->neqn_code)
    {
       handle = TermTopCopy(form);

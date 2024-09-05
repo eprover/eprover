@@ -13,7 +13,7 @@ Options:
 
 -h Print this help.
 
-Copyright 2019 Stephan Schulz, schulz@eprover.org
+Copyright 2019-2024 Stephan Schulz, schulz@eprover.org
 
 This code is part of the support structure for the equational
 theorem prover E. Visit
@@ -74,7 +74,7 @@ class id(object):
 homeDir = os.path.expanduser("~")
 eRunDir = homeDir+"/EPROVER/RUNDIR"
 eResDir = eRunDir
-eFlatTPTP = homeDir+"/EPROVER/TPTP_7.5.0_FLAT"
+eFlatTPTP = homeDir+"/EPROVER/TPTP_9.0.0_FLAT"
 
 class etask(object):
     ids = id("t")

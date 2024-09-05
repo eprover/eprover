@@ -488,7 +488,7 @@ OptCell opts[] =
     "immediately after reaching the time limit, regardless of internal "
     "state. As a side effect, this option will inhibit core file "
     "writing. Please note that if you use both --cpu-limit and "
-    "--soft-cpu-limit, the soft limit has to"
+    "--soft-cpu-limit, the soft limit has to "
     "be smaller than the hard limit to have any effect. "},
 
    {OPT_SOFTCPU_LIMIT,

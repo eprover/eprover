@@ -2199,26 +2199,30 @@ long TFormulaSetUnrollFOOL(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
         formula != set->anchor;
         formula = formula->succ)
    {
-      /* printf("# Before Eqn2Equiv  %p: ", formula); */
-      /* WFormulaTSTPPrintDeriv(stdout, formula); */
-      /* printf("\n"); */
-      /* TFormulaReplaceEqnWithEquiv(formula, terms); */
-      /* printf("# Eqn2Equiv  %p: ", formula); */
-      /* WFormulaTSTPPrintDeriv(stdout, formula); */
-      /* printf("\n"); */
-      /* printf("# As term     :"); */
-      /* TermPrintDbg(stdout, formula->tformula, terms->sig, DEREF_NEVER); */
-      /* printf("\n"); */
+      //printf("# Before Eqn2Equiv  %p: ", formula);
+      //WFormulaTSTPPrintDeriv(stdout, formula);
+      //printf("\n");
+      TFormulaReplaceEqnWithEquiv(formula, terms);
+      //printf("# Eqn2Equiv  %p: ", formula);
+      //WFormulaTSTPPrintDeriv(stdout, formula);
+      //printf("\n");
+      //printf("# As term     :");
+      //TermPrintDbg(stdout, formula->tformula, terms->sig, DEREF_NEVER);
+      //printf("\n");
+      //printf("# As pretty term     :\n");
+      //TermPrettyPrintSimple(stdout, formula->tformula, terms->sig, 0);
+      //printf("\n");
+
       if (TFormulaUnrollFOOL(formula, terms))
       {
          res++;
       }
-      /* printf("# Foolunroll %p: ", formula); */
-      /* WFormulaTSTPPrintDeriv(stdout, formula); */
-      /* printf("\n"); */
-      /* printf("# As term     :"); */
-      /* TermPrintDbg(stdout, formula->tformula, terms->sig, DEREF_NEVER); */
-      /* printf("\n"); */
+      //printf("# Foolunroll %p: ", formula);
+      //WFormulaTSTPPrintDeriv(stdout, formula);
+      //printf("\n");
+      //printf("# As term     :");
+      //TermPrintDbg(stdout, formula->tformula, terms->sig, DEREF_NEVER);
+      //printf("\n======\n");
    }
    return res;
 }

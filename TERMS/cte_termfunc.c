@@ -784,7 +784,9 @@ void TermPrintDbgHO(FILE* out, Term_p term, Sig_p sig, DerefType deref)
 #endif
       DerefType c_deref = CONVERT_DEREF(i, limit, deref);
       if(term->args[i]->arity ||
-         (c_deref != DEREF_NEVER && term->args[i]->binding && term->args[i]->binding->arity))
+         (c_deref != DEREF_NEVER &&
+          term->args[i]->binding &&
+          term->args[i]->binding->arity))
       {
          fputs("(", out);
          TermPrintDbgHO(out, term->args[i], sig, c_deref);
@@ -939,12 +941,16 @@ void TermPrettyPrintSimple(FILE* out, Term_p term, Sig_p sig, int level)
 
    TypePrintTSTP(out, sig->type_bank, term->type);
    fprintf(out, ":");
-   if(TermIsFreeVar(term))
+   if(TermIsDBVar(term))
+   {
+      // assert(term->arity == 0);
+      fprintf(out, "db(%ld)", term->f_code);
+   }
+   else if(TermIsFreeVar(term))
    {
       VarPrint(out, term->f_code);
       fputs(":", out);
       TypePrintTSTP(out, sig->type_bank, term->type);
-
    }
    else
    {
