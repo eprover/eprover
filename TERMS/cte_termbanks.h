@@ -78,14 +78,7 @@ typedef struct tbcell
                                     for parsing of term bank terms. For
                                     critical cases (full protocolls) this
                                     is bound to be densly poulated -> we
-                                    use an array. Please note that term
-                                    replacing does not invalidate entries
-                                    in ext_index
-                                    (it would be pretty expensive in
-                                    terms of time and memory), so higher
-                                    layers have to take care of this if
-                                    they want to both access terms via
-                                    references and do replacing! */
+                                    use an array. */
    TermCellStoreCell term_store; /* Here are the terms */
 }TBCell, *TB_p;
 

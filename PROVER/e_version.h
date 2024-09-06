@@ -6,7 +6,7 @@ Author: Stephan Schulz (schulz@eprover.org)
 
 Contents
 
-  Define global macro for version number and meta-information.
+  Define global macros for version number and meta-information.
 
   Copyright 2009-2024 by the authors (see DOC/CONTRIBUTORS).
   This code is released under the GNU General Public Licence and
@@ -31,9 +31,9 @@ Contents
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-/* git tag E-3.2.1 */
+/* git tag E-3.2.2 */
 
-#define PVERSION      "3.2.1"
+#define PVERSION      "3.2.2"
 
 #include "e_gitcommit.h"
 
