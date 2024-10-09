@@ -54,10 +54,11 @@ typedef Term_p TFormula_p;
 #define   TFormulaIsUnary(form)      ((form)->arity==1)
 // non lambda version
 #define   TFormulaIsQuantifiedNL(sig,form)                                \
-   ((form)->f_code == sig->qex_code || (form)->f_code == sig->qall_code)
+   (!TermIsDBVar(form) && ((form)->f_code == sig->qex_code || (form)->f_code == sig->qall_code))
 #define   TFormulaIsQuantified(sig,form)                                \
-   ((form)->f_code == sig->qex_code || (form)->f_code == sig->qall_code || \
-    (form)->f_code == SIG_NAMED_LAMBDA_CODE)
+   (!TermIsDBVar(form) && \
+    ((form)->f_code == sig->qex_code || (form)->f_code == sig->qall_code || \
+     (form)->f_code == SIG_NAMED_LAMBDA_CODE))
 #define   TFormulaIsLiteral(sig,form)                                   \
    ((((form)->f_code == (sig)->eqn_code) || ((form)->f_code == (sig)->neqn_code)) && \
    ((form)->arity == 2))

@@ -352,9 +352,21 @@ void SigFree(Sig_p junk)
 FunCode SigFindFCode(Sig_p sig, const char* name)
 {
    StrTree_p entry;
+   DStr_p raw_name = NULL;
 
+
+   if(name[0]=='\'')
+   {
+      raw_name = DStrAlloc();
+      DStrAppendStr(raw_name, name+1);
+      DStrDeleteLastChar(raw_name);
+      name = DStrView(raw_name);
+   }
    entry = StrTreeFind(&(sig->f_index), name);
-
+   if(raw_name)
+   {
+      DStrFree(raw_name);
+   }
    if(entry)
    {
       return entry->val1.i_val;

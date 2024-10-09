@@ -2534,12 +2534,20 @@ TFormula_p TFormulaDistributeDisjunctions(TB_p terms, TFormula_p form)
    bool change = false;
    // formula is in NNF
 
+   if(TermIsDBVar(form))
+   {
+      return form;
+   }
    assert(TFormulaIsQuantified(terms->sig, form) ||
           form->f_code == terms->sig->or_code ||
           form->f_code == terms->sig->and_code ||
           TFormulaIsLiteral(terms->sig, form) ||
           TermIsTrueTerm(form) ||
           TermIsFalseTerm(form));
+
+   //printf("TFormulaDistributeDisjunctions: ");
+   //TFormulaTPTPPrint(GlobalOut, terms, form, true, false);
+   //printf("\n");
 
    if(TFormulaHasSubForm1(terms->sig, form))
    {
@@ -2563,7 +2571,8 @@ TFormula_p TFormulaDistributeDisjunctions(TB_p terms, TFormula_p form)
 
    if(form->f_code == terms->sig->or_code)
    {
-      if(form->args[0]->f_code == terms->sig->and_code)
+      if(!TermIsDBVar(form->args[0]) &&
+         form->args[0]->f_code == terms->sig->and_code)
       {  /* or(and(f1,f2), f3) -> and(or(f1,f3), or(f2, f3) */
          narg1 = TFormulaFCodeAlloc(terms, terms->sig->or_code,
                                     form->args[0]->args[0], form->args[1]);
@@ -2573,7 +2582,8 @@ TFormula_p TFormulaDistributeDisjunctions(TB_p terms, TFormula_p form)
                                      narg1, narg2);
          form = TFormulaDistributeDisjunctions(terms, handle);
       }
-      else if(form->args[1]->f_code == terms->sig->and_code)
+      else if(!TermIsDBVar(form->args[1]) &&
+              form->args[1]->f_code == terms->sig->and_code)
       {
          narg2 = TFormulaFCodeAlloc(terms, terms->sig->or_code,
                                     form->args[1]->args[1], form->args[0]);
@@ -2811,9 +2821,9 @@ void WTFormulaConjunctiveNF3(WFormula_p form, TB_p terms,
 {
    TFormula_p handle;
 
-   /*printf("Start: ");
+   printf("Start: ");
    WFormulaPrint(GlobalOut, form, true);
-   printf("\n");*/
+   printf("\n");
 
    handle = TFormulaSimplify(terms, form->tformula, 1000);
 
@@ -2834,6 +2844,7 @@ void WTFormulaConjunctiveNF3(WFormula_p form, TB_p terms,
 
    handle = TFormulaMiniScope3(terms, form->tformula, miniscope_limit);
    //handle = TFormulaMiniScope(terms, form->tformula);
+   printf("Miniscoping done\n");
 
    if(handle!=form->tformula)
    {
@@ -2865,6 +2876,7 @@ void WTFormulaConjunctiveNF3(WFormula_p form, TB_p terms,
       DocFormulaModificationDefault(form, inf_shift_quantors);
       WFormulaPushDerivation(form, DCShiftQuantors, NULL, NULL);
    }
+   printf("SNF\n");
 
    if(unroll_fool)
    {
@@ -2877,7 +2889,11 @@ void WTFormulaConjunctiveNF3(WFormula_p form, TB_p terms,
       DocFormulaModificationDefault(form, inf_fof_nnf);
       WFormulaPushDerivation(form, DCFNNF, NULL, NULL);
    }
+   printf("Fool unrolled: \n");
+   WFormulaPrint(GlobalOut, form, true);
+   printf("\n");
    handle = TFormulaDistributeDisjunctions(terms, form->tformula);
+   printf("Disjunctions Distributed\n");
 
    if(handle!=form->tformula)
    {
