@@ -643,7 +643,7 @@ int main(int argc, char* argv[])
       proofstate->state_is_complete = false;
    }
    FormulaSetArchive(proofstate->f_axioms, proofstate->f_ax_archive);
-   printf("Alive (-2)!\n");
+   //printf("Alive (-2)!\n");
    if((neg_conjectures =
        FormulaSetPreprocConjectures(proofstate->f_axioms,
                                     proofstate->f_ax_archive,

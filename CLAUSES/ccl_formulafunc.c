@@ -1737,9 +1737,9 @@ long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive,
    }
    FormulaSetSimplify(set, terms, true);
 
-   printf("# Introducing definitions\n");
+   // printf("# Introducing definitions\n");
    TFormulaSetIntroduceDefs(set, archive, terms, def_limit);
-   printf("# Definitions introduced\n");
+   // printf("# Definitions introduced\n");
    while (!FormulaSetEmpty(set))
    {
       handle = FormulaSetExtractFirst(set);
@@ -1748,10 +1748,10 @@ long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive,
       FormulaSetInsert(archive, handle);
       WFormulaPushDerivation(form, DCFofQuote, handle, NULL);
       handle = form;
-      printf("# vor WFormulaCNF2()..\n");
+      // printf("# vor WFormulaCNF2()..\n");
       res += WFormulaCNF2(handle, clauseset, terms, fresh_vars,
                           miniscope_limit, fool_unroll);
-      printf("# ...nach WFormulaCNF2()\n");
+      // printf("# ...nach WFormulaCNF2()\n");
       FormulaSetInsert(archive, handle);
       if (handle->tformula &&
           (TBNonVarTermNodes(terms) > gc_threshold))

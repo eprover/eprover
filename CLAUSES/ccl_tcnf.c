@@ -2821,9 +2821,9 @@ void WTFormulaConjunctiveNF3(WFormula_p form, TB_p terms,
 {
    TFormula_p handle;
 
-   printf("Start: ");
-   WFormulaPrint(GlobalOut, form, true);
-   printf("\n");
+   /* printf("Start: "); */
+   /* WFormulaPrint(GlobalOut, form, true); */
+   /* printf("\n"); */
 
    handle = TFormulaSimplify(terms, form->tformula, 1000);
 
@@ -2844,7 +2844,7 @@ void WTFormulaConjunctiveNF3(WFormula_p form, TB_p terms,
 
    handle = TFormulaMiniScope3(terms, form->tformula, miniscope_limit);
    //handle = TFormulaMiniScope(terms, form->tformula);
-   printf("Miniscoping done\n");
+   //printf("Miniscoping done\n");
 
    if(handle!=form->tformula)
    {
@@ -2876,7 +2876,7 @@ void WTFormulaConjunctiveNF3(WFormula_p form, TB_p terms,
       DocFormulaModificationDefault(form, inf_shift_quantors);
       WFormulaPushDerivation(form, DCShiftQuantors, NULL, NULL);
    }
-   printf("SNF\n");
+   //printf("SNF\n");
 
    if(unroll_fool)
    {
@@ -2889,11 +2889,11 @@ void WTFormulaConjunctiveNF3(WFormula_p form, TB_p terms,
       DocFormulaModificationDefault(form, inf_fof_nnf);
       WFormulaPushDerivation(form, DCFNNF, NULL, NULL);
    }
-   printf("Fool unrolled: \n");
-   WFormulaPrint(GlobalOut, form, true);
-   printf("\n");
+   /* printf("Fool unrolled: \n"); */
+   /* WFormulaPrint(GlobalOut, form, true); */
+   /* printf("\n"); */
    handle = TFormulaDistributeDisjunctions(terms, form->tformula);
-   printf("Disjunctions Distributed\n");
+   //printf("Disjunctions Distributed\n");
 
    if(handle!=form->tformula)
    {
