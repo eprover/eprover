@@ -75,7 +75,6 @@ bool              print_sat = false,
    indexed_subsumption = true,
    syntax_only = false,
    prune_only = false,
-   new_cnf = true,
    cnf_only = false,
    inf_sys_complete = true,
    assume_inf_sys_complete = false,
@@ -96,8 +95,7 @@ long              step_limit = LONG_MAX,
    total_limit = LONG_MAX,
    cores       = 1,
    generated_limit = LONG_MAX,
-   relevance_prune_level = 0,
-   miniscope_limit = 1048576;
+   relevance_prune_level = 0;
 long long tb_insert_limit = LLONG_MAX;
 bool lift_lambdas = true;
 int num_cpus = 1;
@@ -654,29 +652,17 @@ int main(int argc, char* argv[])
    }
 
    VERBOUT("Clausification started.\n");
-   if(new_cnf)
-   {
-      cnf_size = FormulaSetCNF2(proofstate->f_axioms,
-                                proofstate->f_ax_archive,
-                                proofstate->axioms,
-                                proofstate->terms,
-                                proofstate->freshvars,
-                                miniscope_limit,
-                                h_parms->formula_def_limit,
-                                h_parms->lift_lambdas,
-                                h_parms->lambda_to_forall,
-                                h_parms->unroll_only_formulas,
-                                h_parms->fool_unroll);
-   }
-   else
-   {
-      cnf_size = FormulaSetCNF(proofstate->f_axioms,
-                               proofstate->f_ax_archive,
-                               proofstate->axioms,
-                               proofstate->terms,
-                               proofstate->freshvars,
-                               h_parms->formula_def_limit);
-   }
+   cnf_size = FormulaSetCNF2(proofstate->f_axioms,
+                             proofstate->f_ax_archive,
+                             proofstate->axioms,
+                             proofstate->terms,
+                             proofstate->freshvars,
+                             h_parms->miniscope_limit,
+                             h_parms->formula_def_limit,
+                             h_parms->lift_lambdas,
+                             h_parms->lambda_to_forall,
+                             h_parms->unroll_only_formulas,
+                             h_parms->fool_unroll);
    VERBOUT("Clausification done.\n");
 
    if(cnf_size)
@@ -739,7 +725,7 @@ int main(int argc, char* argv[])
                            h_parms, proofstate->terms,
                            proofstate->tmp_terms, proofstate->freshvars);
    }
-   if((strategy_scheduling && sched_idx != -1) || auto_conf)
+   if((strategy_scheduling && sched_idx != -1) || (auto_conf && !cnf_only))
    {
       if(!spec_limits)
       {
@@ -1509,7 +1495,7 @@ CLState_p process_options(int argc, char* argv[])
             relevance_prune_level = CLStateGetIntArg(handle, arg);
             break;
       case OPT_PRESAT_SIMPLIY:
-            h_parms->presat_interreduction = true;
+            h_parms->presat_interreduction = CLStateGetBoolArg(handle, arg);
             break;
       case OPT_AC_HANDLING:
             if(strcmp(arg, "None")==0)
@@ -2016,17 +2002,16 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_FREE_OBJECTS:
             free_symb_prop = free_symb_prop|FPIsObject;
             break;
-      case OPT_DEF_CNF_OLD:
-            new_cnf = false;
-            /* Intentional fall-through */
       case OPT_DEF_CNF:
-            h_parms->formula_def_limit = CLStateGetIntArgCheckRange(handle, arg, 0, LONG_MAX);
+            h_parms->formula_def_limit =
+               CLStateGetIntArgCheckRange(handle, arg, 0, LONG_MAX);
             break;
       case OPT_FOOL_UNROLL:
             h_parms->fool_unroll = CLStateGetBoolArg(handle, arg);
             break;
       case OPT_MINISCOPE_LIMIT:
-            miniscope_limit =  CLStateGetIntArgCheckRange(handle, arg, 0, LONG_MAX);
+            h_parms->miniscope_limit =
+               CLStateGetIntArgCheckRange(handle, arg, 0, LONG_MAX);
             break;
       case OPT_PRINT_TYPES:
             TermPrintTypes = true;

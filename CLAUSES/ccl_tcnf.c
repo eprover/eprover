@@ -2209,8 +2209,9 @@ TFormula_p TFormulaMiniScope(TB_p terms, TFormula_p form)
 // Function: TFormulaMiniScope2()
 //
 //   Perform mini-scoping, i.e. move quantors inward as far as
-//   possible. Assumes that variables for each quantor are unique, and
-//   that the formula is in NNF.
+//   possible. Assumes that variables for each quantifier are unique,
+//   and that the formula is in NNF. Only a finite amount of work is
+//   spent on the formula (as defined by miniscope_limit).
 //
 // Global Variables: -
 //
@@ -2275,8 +2276,8 @@ TFormula_p TFormulaMiniScope2(TB_p terms, TFormula_p form,
 //
 //   Perform (conditional) mini-scoping, i.e. move quantors inward as
 //   far as possible if there are "small" subformulas that might
-//   profit from miniskoping. Assumes that variables for each quantor
-//   are unique, and that the formula is in NNF.
+//   profit from miniscoping. Assumes that variables for each
+//   quantifier are unique, and that the formula is in NNF.
 //
 // Global Variables: -
 //
@@ -2300,7 +2301,6 @@ TFormula_p TFormulaMiniScope3(TB_p terms, TFormula_p form,
       PStack_p iter;
 
       // printf("# Found %ld positions\n", PTreeNodes(ms_forms));
-
       iter = PTreeTraverseInit(ms_forms);
       while((entry = PTreeTraverseNext(iter)))
       {
@@ -2679,128 +2679,128 @@ void WTFormulaConjunctiveNF(WFormula_p form, TB_p terms)
 
 
 
-/*-----------------------------------------------------------------------
-//
-// Function: WTFormulaConjunctiveNF2()
-//
-//   Transform a formula into Conjunctive Normal Form.
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
+/* /\*----------------------------------------------------------------------- */
+/* // */
+/* // Function: WTFormulaConjunctiveNF2() */
+/* // */
+/* //   Transform a formula into Conjunctive Normal Form. */
+/* // */
+/* // Global Variables: - */
+/* // */
+/* // Side Effects    : - */
+/* // */
+/* /----------------------------------------------------------------------*\/ */
 
-void WTFormulaConjunctiveNF2(WFormula_p form, TB_p terms,
-                             long miniscope_limit, bool unroll_fool)
-{
-   TFormula_p handle;
+/* void WTFormulaConjunctiveNF2(WFormula_p form, TB_p terms, */
+/*                              long miniscope_limit, bool unroll_fool) */
+/* { */
+/*    TFormula_p handle; */
 
-   // printf("# Start: "); WFormulaPrint(GlobalOut, form, true); printf("\n");
+/*    // printf("# Start: "); WFormulaPrint(GlobalOut, form, true); printf("\n"); */
 
-   handle = TFormulaSimplify(terms, form->tformula, 0);
+/*    handle = TFormulaSimplify(terms, form->tformula, 0); */
 
-   if(handle!=form->tformula)
-   {
-      form->tformula = handle;
-      DocFormulaModificationDefault(form, inf_fof_simpl);
-      WFormulaPushDerivation(form, DCFofSimplify, NULL, NULL);
-   }
-   // printf("# Simplified\n");
+/*    if(handle!=form->tformula) */
+/*    { */
+/*       form->tformula = handle; */
+/*       DocFormulaModificationDefault(form, inf_fof_simpl); */
+/*       WFormulaPushDerivation(form, DCFofSimplify, NULL, NULL); */
+/*    } */
+/*    // printf("# Simplified\n"); */
 
-   handle = TFormulaNNF(terms, form->tformula, 1);
-   if(handle!=form->tformula)
-   {
-      form->tformula = handle;
-      DocFormulaModificationDefault(form, inf_fof_nnf);
-      WFormulaPushDerivation(form, DCFNNF, NULL, NULL);
-   }
-   //printf("# NNFed\n");
-
-
-   TFormulaFindMaxVarCode(form->tformula);
-   VarBankSetVCountsToUsed(terms->vars);
-   handle = TFormulaVarRename(terms, form->tformula);
-
-   if(handle!=form->tformula)
-   {
-      form->tformula = handle;
-      DocFormulaModificationDefault(form, inf_var_rename);
-      WFormulaPushDerivation(form, DCVarRename, NULL, NULL);
-   }
-   //printf("# Renamed\n");
-
-   handle = TFormulaShiftQuantors2(terms, form->tformula);
-   if(handle!=form->tformula)
-   {
-      form->tformula = handle;
-      DocFormulaModificationDefault(form, inf_shift_quantors);
-      WFormulaPushDerivation(form, DCShiftQuantors, NULL, NULL);
-   }
-
-   //printf("# Prenexed\n");
-
-   handle = TFormulaSimplify(terms, form->tformula, 100);
-
-   if(handle!=form->tformula)
-   {
-      form->tformula = handle;
-      DocFormulaModificationDefault(form, inf_fof_simpl);
-      WFormulaPushDerivation(form, DCFofSimplify, NULL, NULL);
-   }
-   //printf("# Resimplified\n");
-
-   // Here efficient miniscoping
-   handle = TFormulaMiniScope2(terms, form->tformula, miniscope_limit);
-
-   if(handle!=form->tformula)
-   {
-      form->tformula = handle;
-      DocFormulaModificationDefault(form, inf_shift_quantors);
-      WFormulaPushDerivation(form, DCShiftQuantors, NULL, NULL);
-   }
-
-   handle = TFormulaSkolemizeOutermost(terms, form->tformula);
-   if(handle!=form->tformula)
-   {
-      form->tformula = handle;
-      DocFormulaModificationDefault(form, inf_skolemize_out);
-      WFormulaPushDerivation(form, DCSkolemize, NULL, NULL);
-   }
+/*    handle = TFormulaNNF(terms, form->tformula, 1); */
+/*    if(handle!=form->tformula) */
+/*    { */
+/*       form->tformula = handle; */
+/*       DocFormulaModificationDefault(form, inf_fof_nnf); */
+/*       WFormulaPushDerivation(form, DCFNNF, NULL, NULL); */
+/*    } */
+/*    //printf("# NNFed\n"); */
 
 
-   handle = TFormulaShiftQuantors(terms, form->tformula);
-   if(handle!=form->tformula)
-   {
-      form->tformula = handle;
-      DocFormulaModificationDefault(form, inf_shift_quantors);
-      WFormulaPushDerivation(form, DCShiftQuantors, NULL, NULL);
-   }
+/*    TFormulaFindMaxVarCode(form->tformula); */
+/*    VarBankSetVCountsToUsed(terms->vars); */
+/*    handle = TFormulaVarRename(terms, form->tformula); */
 
-   // Skolemization might have introduced Skolem predicates, which
-   // we have to unroll again  -- unrolling keeps things in NNF
-   if(unroll_fool)
-   {
-      TFormulaUnrollFOOL(form,terms); // handles proof object internally
-   }
-   handle = TFormulaNNF(terms, form->tformula, 1);
-   if(handle!=form->tformula)
-   {
-      form->tformula = handle;
-      DocFormulaModificationDefault(form, inf_fof_nnf);
-      WFormulaPushDerivation(form, DCFNNF, NULL, NULL);
-   }
+/*    if(handle!=form->tformula) */
+/*    { */
+/*       form->tformula = handle; */
+/*       DocFormulaModificationDefault(form, inf_var_rename); */
+/*       WFormulaPushDerivation(form, DCVarRename, NULL, NULL); */
+/*    } */
+/*    //printf("# Renamed\n"); */
 
-   handle = TFormulaDistributeDisjunctions(terms, form->tformula);
+/*    handle = TFormulaShiftQuantors2(terms, form->tformula); */
+/*    if(handle!=form->tformula) */
+/*    { */
+/*       form->tformula = handle; */
+/*       DocFormulaModificationDefault(form, inf_shift_quantors); */
+/*       WFormulaPushDerivation(form, DCShiftQuantors, NULL, NULL); */
+/*    } */
+
+/*    //printf("# Prenexed\n"); */
+
+/*    handle = TFormulaSimplify(terms, form->tformula, 100); */
+
+/*    if(handle!=form->tformula) */
+/*    { */
+/*       form->tformula = handle; */
+/*       DocFormulaModificationDefault(form, inf_fof_simpl); */
+/*       WFormulaPushDerivation(form, DCFofSimplify, NULL, NULL); */
+/*    } */
+/*    //printf("# Resimplified\n"); */
+
+/*    // Here efficient miniscoping */
+/*    handle = TFormulaMiniScope2(terms, form->tformula, miniscope_limit); */
+
+/*    if(handle!=form->tformula) */
+/*    { */
+/*       form->tformula = handle; */
+/*       DocFormulaModificationDefault(form, inf_shift_quantors); */
+/*       WFormulaPushDerivation(form, DCShiftQuantors, NULL, NULL); */
+/*    } */
+
+/*    handle = TFormulaSkolemizeOutermost(terms, form->tformula); */
+/*    if(handle!=form->tformula) */
+/*    { */
+/*       form->tformula = handle; */
+/*       DocFormulaModificationDefault(form, inf_skolemize_out); */
+/*       WFormulaPushDerivation(form, DCSkolemize, NULL, NULL); */
+/*    } */
 
 
-   if(handle!=form->tformula)
-   {
-      form->tformula = handle;
-      DocFormulaModificationDefault(form, inf_fof_distrib);
-      WFormulaPushDerivation(form, DCDistDisjunctions, NULL, NULL);
-   }
-}
+/*    handle = TFormulaShiftQuantors(terms, form->tformula); */
+/*    if(handle!=form->tformula) */
+/*    { */
+/*       form->tformula = handle; */
+/*       DocFormulaModificationDefault(form, inf_shift_quantors); */
+/*       WFormulaPushDerivation(form, DCShiftQuantors, NULL, NULL); */
+/*    } */
+
+/*    // Skolemization might have introduced Skolem predicates, which */
+/*    // we have to unroll again  -- unrolling keeps things in NNF */
+/*    if(unroll_fool) */
+/*    { */
+/*       TFormulaUnrollFOOL(form,terms); // handles proof object internally */
+/*    } */
+/*    handle = TFormulaNNF(terms, form->tformula, 1); */
+/*    if(handle!=form->tformula) */
+/*    { */
+/*       form->tformula = handle; */
+/*       DocFormulaModificationDefault(form, inf_fof_nnf); */
+/*       WFormulaPushDerivation(form, DCFNNF, NULL, NULL); */
+/*    } */
+
+/*    handle = TFormulaDistributeDisjunctions(terms, form->tformula); */
+
+
+/*    if(handle!=form->tformula) */
+/*    { */
+/*       form->tformula = handle; */
+/*       DocFormulaModificationDefault(form, inf_fof_distrib); */
+/*       WFormulaPushDerivation(form, DCDistDisjunctions, NULL, NULL); */
+/*    } */
+/* } */
 
 
 
@@ -2882,6 +2882,9 @@ void WTFormulaConjunctiveNF3(WFormula_p form, TB_p terms,
    {
       TFormulaUnrollFOOL(form,terms); // handles proof object internally
    }
+   /* printf("Fool unrolled: \n"); */
+   /* WFormulaPrint(GlobalOut, form, true); */
+   /* printf("\n"); */
    handle = TFormulaNNF(terms, form->tformula, 1);
    if(handle!=form->tformula)
    {
@@ -2889,11 +2892,11 @@ void WTFormulaConjunctiveNF3(WFormula_p form, TB_p terms,
       DocFormulaModificationDefault(form, inf_fof_nnf);
       WFormulaPushDerivation(form, DCFNNF, NULL, NULL);
    }
-   /* printf("Fool unrolled: \n"); */
+   /* printf("NNF: \n"); */
    /* WFormulaPrint(GlobalOut, form, true); */
    /* printf("\n"); */
    handle = TFormulaDistributeDisjunctions(terms, form->tformula);
-   //printf("Disjunctions Distributed\n");
+   //printf("Disjunctions distributed\n");
 
    if(handle!=form->tformula)
    {

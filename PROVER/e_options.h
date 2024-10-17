@@ -191,7 +191,6 @@ typedef enum
    OPT_HEURISTIC,
    OPT_FREE_NUMBERS,
    OPT_FREE_OBJECTS,
-   OPT_DEF_CNF_OLD,
    OPT_DEF_CNF,
    OPT_FOOL_UNROLL,
    OPT_MINISCOPE_LIMIT,
@@ -770,7 +769,7 @@ OptCell opts[] =
 
    {OPT_PRESAT_SIMPLIY,
     '\0', "presat-simplify",
-    NoArg, NULL,
+    OptArg, "true",
     "Before proper saturation do a complete interreduction of "
     "the proof state."},
 
@@ -1506,20 +1505,11 @@ OptCell opts[] =
     "subformulae to avoid exponential blow-up. The optional argument "
     "is a fudge factor that determines when definitions are introduced. "
     "0 disables definitions completely. The default works well."},
-    // OPT_FOOL_UNROLL
+
    {OPT_FOOL_UNROLL,
     '\0', "fool-unroll",
     ReqArg, NULL,
     "Enable or disable FOOL unrolling. Useful for some SH problems."},
-
-   {OPT_DEF_CNF_OLD,
-    '\0', "old-cnf",
-    OptArg, TFORM_RENAME_LIMIT_STR,
-    "As the previous option, but use the classical, well-tested "
-    "clausification algorithm as opposed to the newewst one which "
-    "avoides some algorithmic pitfalls and hence works better on "
-    "some exotic formulae. The two may produce slightly different "
-    "(but equisatisfiable) clause normal forms."},
 
    {OPT_MINISCOPE_LIMIT,
     '\0', "miniscope-limit",
