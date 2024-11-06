@@ -468,7 +468,7 @@ int main(int argc, char* argv[])
                             false);
    def_store->def_clauses->fvindex = FVIAnchorAlloc(cspec, perm);
 
-   SpecFeaturesCompute(&features, clauses, formulas, f_ax_archive, terms);
+   SpecFeaturesCompute(&features, clauses, NULL, NULL, terms);
 
    if(!SpecNoEq(&features))
    {
@@ -483,7 +483,6 @@ int main(int argc, char* argv[])
             "universe and there are non-ground clauses in the "
             "specification!", INPUT_SEMANTIC_ERROR);
    }
-
    if(add_single_instance)
    {
       selected_symbol = ClauseSetFindFreqSymbol(clauses, terms->sig,
@@ -502,7 +501,6 @@ int main(int argc, char* argv[])
       ClauseSetFree(clauses);
       clauses = tmpset;
    }
-
    ClauseSetSort(clauses, ClauseCmpByLen);
 
    groundset = GroundSetAlloc(terms);

@@ -1037,7 +1037,7 @@ void SpecFeaturesCompute(SpecFeature_p features, ClauseSet_p set,
 
    /* all ho features computed below */
    features->num_of_definitions = -1;
-   ClauseSetComputeHOFeatures(set, sig, 
+   ClauseSetComputeHOFeatures(set, sig,
                               &(features->has_ho_features),
                               &(features->order),
                               &(features->quantifies_booleans),
@@ -1049,19 +1049,21 @@ void SpecFeaturesCompute(SpecFeature_p features, ClauseSet_p set,
    FormulaSet_p sets[2] = {farch, fset};
    for(int i=0; i<2; i++)
    {
-      for(WFormula_p f = sets[i]->anchor->succ; f != sets[i]->anchor; f = f->succ)   
+      if(sets[i])
       {
-         int ord = TermComputeOrder(f->terms->sig, f->tformula);
-         features->order = MAX(features->order, ord);
-         if(FormulaQueryType(f) == CPTypeConjecture ||
-            FormulaQueryType(f) == CPTypeNegConjecture ||
-            FormulaQueryType(f) == CPTypeHypothesis )
+         for(WFormula_p f = sets[i]->anchor->succ; f != sets[i]->anchor; f = f->succ)
          {
-            features->goal_order = MAX(features->goal_order, ord);
+            int ord = TermComputeOrder(f->terms->sig, f->tformula);
+            features->order = MAX(features->order, ord);
+            if(FormulaQueryType(f) == CPTypeConjecture ||
+               FormulaQueryType(f) == CPTypeNegConjecture ||
+               FormulaQueryType(f) == CPTypeHypothesis )
+            {
+               features->goal_order = MAX(features->goal_order, ord);
+            }
          }
       }
    }
-   
 }
 
 
@@ -1077,7 +1079,7 @@ void SpecFeaturesCompute(SpecFeature_p features, ClauseSet_p set,
 //
 /----------------------------------------------------------------------*/
 
-#define ADJUST_FOR_HO(limit, scale) (limit) 
+#define ADJUST_FOR_HO(limit, scale) (limit)
 
 void SpecFeaturesAddEval(SpecFeature_p features, SpecLimits_p limits)
 {
@@ -1537,16 +1539,16 @@ char* SpecTypeString(SpecFeature_p features, const char* mask)
            problemType == PROBLEM_HO ? 'H' : 'F',
            GET_ENCODING(features->axiomtypes),
            GET_ENCODING(features->goaltypes),
-           GET_ENCODING(features->eq_content), 
-           GET_ENCODING(features->ng_unit_content), 
+           GET_ENCODING(features->eq_content),
+           GET_ENCODING(features->ng_unit_content),
            features->goals_are_ground?'G':'N',
-           GET_ENCODING(features->set_clause_size), 
+           GET_ENCODING(features->set_clause_size),
            GET_ENCODING(features->set_literal_size),
-           GET_ENCODING(features->set_termcell_size), 
-           GET_ENCODING(features->ground_positive_content), 
-           GET_ENCODING(features->max_fun_ar_class), 
+           GET_ENCODING(features->set_termcell_size),
+           GET_ENCODING(features->ground_positive_content),
+           GET_ENCODING(features->max_fun_ar_class),
            GET_ENCODING(features->avg_fun_ar_class),
-           GET_ENCODING(features->sum_fun_ar_class), 
+           GET_ENCODING(features->sum_fun_ar_class),
            GET_ENCODING(features->max_depth_class),
            GET_ENCODING(features->order_class),
            GET_ENCODING(features->goal_order_class),
@@ -1800,7 +1802,7 @@ SpecLimits_p CreateDefaultSpecLimits(void)
    limits->ngu_absolute         = true;
    limits->ngu_few_limit        = 1;
    limits->ngu_many_limit       = 3;
-   
+
    limits->order_medium_limit   = ORDER_MEDIUM_DEFAULT;
    limits->order_large_limit    = ORDER_LARGE_DEFAULT;
    limits->num_of_defs_medium_limit = DEFS_MEDIUM_DEFAULT;
@@ -1866,25 +1868,25 @@ void ClauseSetComputeHOFeatures(ClauseSet_p set, Sig_p sig,
       }
       PTreeTraverseExit(iter);
       PTreeFree(vars);
-      
+
       bool has_app_var = false;
       for(Eqn_p eqn = handle->literals; eqn; eqn = eqn->next)
       {
-         is_fo = is_fo && !IS_NON_FO_TERM(eqn->lterm) 
+         is_fo = is_fo && !IS_NON_FO_TERM(eqn->lterm)
                        && !IS_NON_FO_TERM(eqn->rterm);
-         has_app_var = has_app_var || TermIsAppliedFreeVar(eqn->lterm) 
+         has_app_var = has_app_var || TermIsAppliedFreeVar(eqn->lterm)
                                    || TermIsAppliedFreeVar(eqn->rterm);
       }
 
       has_choice = has_choice || ClauseRecognizeChoice(NULL, handle);
       av_lits += has_app_var ? 1 : 0;
    }
-   
+
    *order = ord;
    *has_ho_features = !is_fo;
    *quantifies_bools = var_has_bools;
    *has_defined_choice = has_choice;
-   *perc_app_var_lits = 
+   *perc_app_var_lits =
       ClauseSetCardinality(set) ? ((double)av_lits / ClauseSetCardinality(set)) : 0.0 ;
 }
 
@@ -1960,7 +1962,7 @@ void SpecLimitsPrint(FILE* out, SpecLimits_p limits)
 //
 /----------------------------------------------------------------------*/
 
-void ClausifyAndClassifyWTimeout(ProofState_p state, int timeout, 
+void ClausifyAndClassifyWTimeout(ProofState_p state, int timeout,
                                  char* mask,
                                  char class[SPEC_STRING_MEM])
 {
@@ -2001,7 +2003,7 @@ void ClausifyAndClassifyWTimeout(ProofState_p state, int timeout,
                      state->axioms, state->terms,
                      state->freshvars,
                      DEFAULT_MINISCOPE, DEFAULT_FORMULA_DEF_LIMIT,
-                     DEFAULT_LIFT_LAMS, DEFAULT_LAM_TO_FORALL, 
+                     DEFAULT_LIFT_LAMS, DEFAULT_LAM_TO_FORALL,
                      DEFAULT_UNFOLD_ONLY_FORM, DEFAULT_UNROLL_FOOL);
       SpecFeaturesCompute(&features, state->axioms, state->f_axioms,
                           state->f_ax_archive, state->terms);
