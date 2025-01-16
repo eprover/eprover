@@ -1,20 +1,23 @@
 /*-----------------------------------------------------------------------
 
-  File  : cle_annotations.c
+File  : cle_annotations.c
 
-  Author: Stephan Schulz
+Author: Stephan Schulz
 
-  Contents
+Contents
 
   Functions for dealing with annotaions and lists of annotations.
 
-  Copyright 1998, 1999, 2024 by the author.
+  Copyright 1998, 1999 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-  Created: Mon Jul 19 11:27:10 MET DST 1999
+Changes
+
+<1> Mon Jul 19 11:27:10 MET DST 1999
+    New
 
 -----------------------------------------------------------------------*/
 
@@ -56,15 +59,17 @@
 
 Annotation_p AnnotationAlloc(void)
 {
-   Annotation_p handle = NumTreeCellAllocEmpty();
+    Annotation_p handle = malloc(sizeof(ArrayTreeNode));
+    assert(handle);
 
-   handle->val1.p_val =
-      DDArrayAlloc(ANNOTATION_DEFAULT_SIZE,
-         ANNOTATION_DEFAULT_SIZE);
-   handle->val2.p_val = NULL;
+    handle->key = 0;
+    handle->array = PDRangeArrAlloc(0, ANNOTATION_DEFAULT_SIZE);
+    handle->left = NULL;
+    handle->right = NULL;
 
-   return handle;
+    return handle;
 }
+
 
 
 /*-----------------------------------------------------------------------
@@ -81,11 +86,11 @@ Annotation_p AnnotationAlloc(void)
 
 void AnnotationFree(Annotation_p junk)
 {
-   assert(junk);
-   assert(junk->val1.p_val);
+    assert(junk);
+    assert(junk->array);
 
-   DDArrayFree(junk->val1.p_val);
-   NumTreeCellFree(junk);
+    PDRangeArrFree(junk->array);
+    ArrayTreeNodeFree(junk);
 }
 
 
@@ -101,18 +106,26 @@ void AnnotationFree(Annotation_p junk)
 //
 /----------------------------------------------------------------------*/
 
-void AnnotationTreeFree(Annotation_p tree)
-{
-   PStack_p stack = NumTreeTraverseInit(tree);
-   NumTree_p handle;
+void AnnotationTreeFree(ArrayTree_p tree) {
+    PStack_p stack = ArrayTreeTraverseInit(tree);
+    ArrayTree_p handle;
 
-   while((handle = NumTreeTraverseNext(stack)))
-   {
-      DDArrayFree(handle->val1.p_val);
-   }
-   NumTreeTraverseExit(stack);
-   NumTreeFree(tree);
+    while ((handle = ArrayTreeTraverseNext(stack))) {
+        PDRangeArr_p array = handle->array;
+        if (array) {
+            for (long i = 0; i < array->size; i++) {
+                if (array->array[i].p_val) {
+                    DDArrayFree(array->array[i].p_val);
+                }
+            }
+            PDRangeArrFree(array);
+        }
+    }
+
+    ArrayTreeTraverseExit(stack);
+    ArrayTreeFree(tree);
 }
+
 
 /*-----------------------------------------------------------------------
 //
@@ -129,42 +142,38 @@ void AnnotationTreeFree(Annotation_p tree)
 
 Annotation_p AnnotationParse(Scanner_p in, long expected)
 {
-   Annotation_p handle = AnnotationAlloc();
-   long         count = 0;
-   double       value;
+    Annotation_p handle = AnnotationAlloc();
+    long count = 0;
+    double value;
 
-   assert(expected >=0 );
-   handle->key = AktToken(in)->numval;
-   AcceptInpTok(in, PosInt);
-   AcceptInpTok(in, Colon);
-   AcceptInpTok(in, OpenBracket);
+    assert(expected >= 0);
+    handle->key = AktToken(in)->numval;
+    AcceptInpTok(in, PosInt);
+    AcceptInpTok(in, Colon);
+    AcceptInpTok(in, OpenBracket);
 
-   while(!TestInpTok(in, CloseBracket))
-   {
-      if(count == expected)
-      {
-         AktTokenError(in,
-                       "Annotation has more elements than expected",
-                       false);
-      }
-      value = ParseFloat(in);
-      DDArrayAssign(handle->val1.p_val, count, value);
-      count++;
-      if(!TestInpTok(in, CloseBracket))
-      {
-         AcceptInpTok(in, Comma);
-      }
-   }
-   if(count < expected)
-   {
-      AktTokenError(in,
-                    "Annotation has fewer elements than expected",
-                    false);
-   }
-   AcceptInpTok(in, CloseBracket);
-   AnnotationLength(handle) = count;
+    while (!TestInpTok(in, CloseBracket))
+    {
+        if (count == expected)
+        {
+            AktTokenError(in, "Annotation has more elements than expected", false);
+        }
+        value = ParseFloat(in);
+        PDRangeArrAssignD(handle->array, count, value);
+        count++;
+        if (!TestInpTok(in, CloseBracket))
+        {
+            AcceptInpTok(in, Comma);
+        }
+    }
+    if (count < expected)
+    {
+        AktTokenError(in, "Annotation has fewer elements than expected", false);
+    }
+    AcceptInpTok(in, CloseBracket);
 
-   return handle;
+    PDRangeArrSetSize(handle->array, count);
+    return handle;
 }
 
 
@@ -181,38 +190,45 @@ Annotation_p AnnotationParse(Scanner_p in, long expected)
 //
 /----------------------------------------------------------------------*/
 
-long AnnotationListParse(Scanner_p in, Annotation_p *tree, long
-                         expected)
+long AnnotationListParse(Scanner_p in, Annotation_p *tree, long expected)
 {
-   DStr_p     source_name;
-   long       line, column;
-   StreamType type;
-   long i=0;
-   Annotation_p handle;
+    DStr_p source_name, errpos;
+    long line, column;
+    StreamType type;
+    long i = 0;
+    Annotation_p handle;
 
-   while(TestInpTok(in, PosInt))
-   {
-      line = AktToken(in)->line;
-      column = AktToken(in)->column;
-      source_name = DStrGetRef(AktToken(in)->source);
-      type = AktToken(in)->stream_type;
-      handle = AnnotationParse(in, expected);
-      handle = NumTreeInsert(tree, handle);
-      if(handle)
-      {
-         AnnotationFree(handle);
-         Error("%s Only one annotation for each proof example allowed",
-               SYNTAX_ERROR,
-               PosRep(type, source_name, line, column));
-      }
-      DStrReleaseRef(source_name);
-      i++;
-      if(TestInpTok(in, Comma))
-      {
-         NextToken(in);
-      }
-   }
-   return i;
+    while (TestInpTok(in, PosInt))
+    {
+        line = AktToken(in)->line;
+        column = AktToken(in)->column;
+        source_name = DStrGetRef(AktToken(in)->source);
+        type = AktToken(in)->stream_type;
+
+        handle = AnnotationParse(in, expected);
+        if (ArrayTreeFind(tree, handle->key))
+        {
+            AnnotationFree(handle);
+            errpos = DStrAlloc();
+            DStrAppendStr(errpos, PosRep(type, source_name, line, column));
+            DStrAppendStr(errpos, " Only one annotation for each proof example allowed");
+            Error(DStrView(errpos), SYNTAX_ERROR);
+            DStrFree(errpos);
+        }
+        else
+        {
+            ArrayTreeInsert(tree, handle->key, handle);
+        }
+
+        DStrReleaseRef(source_name);
+        i++;
+
+        if (TestInpTok(in, Comma))
+        {
+            NextToken(in);
+        }
+    }
+    return i;
 }
 
 
@@ -230,17 +246,17 @@ long AnnotationListParse(Scanner_p in, Annotation_p *tree, long
 
 void AnnotationPrint(FILE* out, Annotation_p anno)
 {
-   long i;
-   char* sep = "";
+    long i;
+    char* sep = "";
 
-   fprintf(out, "%ld:(", anno->key);
-   for(i=0; i< anno->val2.i_val; i++)
-   {
-      fputs(sep, out);
-      fprintf(out, "%f", DDArrayElement(anno->val1.p_val, i));
-      sep = ",";
-   }
-   fputc(')', out);
+    fprintf(out, "%ld:(", anno->key);
+    for (i = 0; i < PDRangeArrSize(anno->array); i++)
+    {
+        fputs(sep, out);
+        fprintf(out, "%f", PDRangeArrElementD(anno->array, i));
+        sep = ",";
+    }
+    fputc(')', out);
 }
 
 
@@ -258,16 +274,17 @@ void AnnotationPrint(FILE* out, Annotation_p anno)
 
 void AnnotationListPrint(FILE* out, Annotation_p tree)
 {
-   char* sep = "";
-   PStack_p stack = NumTreeTraverseInit(tree);
-   Annotation_p handle;
+    char* sep = "";
+    PStack_p stack = ArrayTreeTraverseInit(tree);
+    Annotation_p handle;
 
-   while((handle = NumTreeTraverseNext(stack)))
-   {
-      fputs(sep, out);
-      AnnotationPrint(out, handle);
-   }
-   NumTreeTraverseExit(stack);
+    while ((handle = ArrayTreeTraverseNext(stack)))
+    {
+        fputs(sep, out);
+        AnnotationPrint(out, handle);
+        sep = ", ";
+    }
+    ArrayTreeTraverseExit(stack);
 }
 
 
@@ -290,27 +307,26 @@ void AnnotationCombine(Annotation_p res, Annotation_p new_anno)
    double resval, resw, newval, neww;
    long length;
 
-   /* printf("Combining: ");AnnotationPrint(stdout, res);printf("\n");
-      printf("           ");AnnotationPrint(stdout, new_anno);printf("\n");*/
+   /* Combine annotations */
    resw = AnnotationCount(res);
    neww = AnnotationCount(new_anno);
 
-   /* Res can be newly allocated... */
-   length =  AnnotationLength(new_anno);
-   assert(AnnotationLength(res)<=length);
+   /* Get length of new_anno */
+   length = AnnotationLength(new_anno);
+   assert(AnnotationLength(res) <= length);
 
-   for(i=1;i<=length;i++)
+   for (i = 1; i <= length; i++)
    {
-      resval = DDArrayElement(AnnotationValues(res),i);
-      newval = DDArrayElement(AnnotationValues(new_anno),i);
-      resval = (resval*resw+newval*neww)/(resw+neww);
-      DDArrayAssign(AnnotationValues(res),i,resval);
+      resval = DDArrayElement(AnnotationValues(res), i);
+      newval = DDArrayElement(AnnotationValues(new_anno), i);
+      resval = (resval * resw + newval * neww) / (resw + neww);
+      DDArrayAssign(AnnotationValues(res), i, resval);
    }
-   AnnotationCount(res) = resw+neww;
-   AnnotationLength(res) = length;
-   /* printf("Combined: ");AnnotationPrint(stdout, res);printf("\n"); */
-}
 
+   /* Update annotation metadata */
+   AnnotationCount(res) = resw + neww;
+   AnnotationLength(res) = length;
+}
 
 
 /*-----------------------------------------------------------------------
@@ -327,37 +343,36 @@ void AnnotationCombine(Annotation_p res, Annotation_p new_anno)
 //
 /----------------------------------------------------------------------*/
 
-long AnnotationMerge(Annotation_p *tree, Annotation_p collect,
-           PStack_p sources)
+long AnnotationMerge(Annotation_p *tree, Annotation_p collect, PStack_p sources)
 {
-   PStackPointer i;
-   long          count = 0;
-   Annotation_p  handle;
+    PStackPointer i;
+    long count = 0;
+    Annotation_p handle;
 
-   if(sources == ANNOTATIONS_MERGE_ALL)
-   {
-      PStack_p stack = NumTreeTraverseInit(*tree);
-
-      while((handle = NumTreeTraverseNext(stack)))
-      {
-    AnnotationCombine(collect, handle);
-    count++;
-      }
-      NumTreeTraverseExit(stack);
-   }
-   else
-   {
-      for(i=0; i< PStackGetSP(sources); i++)
-      {
-    handle = NumTreeFind(tree, PStackElementInt(sources, i));
-    if(handle)
+    if (sources == ANNOTATIONS_MERGE_ALL)
     {
-       AnnotationCombine(collect, handle);
-       count++;
+        PStack_p stack = ArrayTreeTraverseInit(*tree);
+
+        while ((handle = ArrayTreeTraverseNext(stack)))
+        {
+            AnnotationCombine(collect, handle);
+            count++;
+        }
+        ArrayTreeTraverseExit(stack);
     }
-      }
-   }
-   return count;
+    else
+    {
+        for (i = 0; i < PStackGetSP(sources); i++)
+        {
+            handle = ArrayTreeFind(tree, PStackElementInt(sources, i));
+            if (handle)
+            {
+                AnnotationCombine(collect, handle);
+                count++;
+            }
+        }
+    }
+    return count;
 }
 
 
@@ -396,3 +411,5 @@ double AnnotationEval(Annotation_p anno, double weights[])
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
+
+

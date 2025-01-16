@@ -199,78 +199,70 @@ static long compute_into_pm_pos_clause(ParamodInfo_p pminfo,
                                        ClauseSet_p store,
                                        ParamodulationType pm_type)
 {
-   long res = 0;
-   PStack_p iterstack;
-   NumTree_p cell;
-   Term_p    lside, rside;
-   Clause_p  clause;
+    long res = 0;
+    PStack_p iterstack;
+    ArrayTree_p node;
+    Term_p lside, rside;
+    Clause_p clause;
 
-   pminfo->into = into_clause_pos->clause;
+    pminfo->into = into_clause_pos->clause;
 
-   iterstack = NumTreeTraverseInit(into_clause_pos->pos);
-   while ((cell = NumTreeTraverseNext(iterstack)))
-   {
-      clause = NULL;
-      pminfo->into_cpos = cell->key;
-#ifdef NEVER_DEFINED
-      if((pminfo->new_orig == pminfo->into)
-         &&(pminfo->into_cpos == pminfo->from_cpos))
-      {
-         /* Optimization for the case that from and into are the same
-            - consider only those where into_pos != from_pos ("=" results
-            in a tautology. Note that for
-            the _from_ case, we can discard the c/c case completely
-            (or can we?) */
-         break;
-      } - this is wrong for the case of unbound variables! */
-#endif
-      pminfo->into_pos  = UnpackClausePos(cell->key, pminfo->into);
-      lside = ClausePosGetSide(pminfo->into_pos);
-      rside = ClausePosGetOtherSide(pminfo->into_pos);
-
-      if((EqnIsOriented(pminfo->into_pos->literal)
-          ||!TOGreater(pminfo->ocb, rside, lside, DEREF_ALWAYS, DEREF_ALWAYS))
-         &&
-         ((EqnIsPositive(pminfo->into_pos->literal)&&
-           EqnListEqnIsStrictlyMaximal(pminfo->ocb,
-                                       pminfo->into->literals,
-                                       pminfo->into_pos->literal))
-     ||
-          (EqnIsNegative(pminfo->into_pos->literal)
-           &&
-           EqnListEqnIsMaximal(pminfo->ocb,
-                               pminfo->into->literals,
-                               pminfo->into_pos->literal))))
-      {
-         /* printf("# compute_into_pm_pos_clause\n");  */
-         clause = ClauseParamodConstruct(pminfo, pm_type);
-         if(clause)
-         {
-            ClauseSetInsert(store, clause);
-            res++;
-            update_clause_info(clause, pminfo->into, pminfo->new_orig);
-            DocClauseCreationDefault(clause,
-                                     pm_type==ParamodPlain?inf_paramod:inf_sim_paramod,
-                                     pminfo->into,
-                                     pminfo->new_orig);
-            DerivationCode dc = pm_type==ParamodPlain?DCParamod:DCSimParamod;
-            if(pminfo->subst_is_ho)
+    iterstack = ArrayTreeTraverseInit(into_clause_pos->pos);
+    while ((node = ArrayTreeTraverseNext(iterstack)))
+    {
+        for (long i = PDRangeArrLowKey(node->array);
+             i < PDRangeArrLimitKey(node->array);
+             i++)
+        {
+            if (PDRangeArrElementInt(node->array, i))
             {
-               dc = DPSetIsHO(dc);
-            }
-            ClausePushDerivation(clause, dc,
-                                 pminfo->into, pminfo->new_orig);
-         }
-      }
-      ClausePosFree(pminfo->into_pos);
-      if(clause && pm_type!=ParamodPlain)
-      {
-         break;
-      }
-   }
-   NumTreeTraverseExit(iterstack);
+                clause = NULL;
+                pminfo->into_cpos = i;
 
-   return res;
+                pminfo->into_pos = UnpackClausePos(i, pminfo->into);
+                lside = ClausePosGetSide(pminfo->into_pos);
+                rside = ClausePosGetOtherSide(pminfo->into_pos);
+
+                if ((EqnIsOriented(pminfo->into_pos->literal) ||
+                     !TOGreater(pminfo->ocb, rside, lside, DEREF_ALWAYS, DEREF_ALWAYS)) &&
+                    ((EqnIsPositive(pminfo->into_pos->literal) &&
+                      EqnListEqnIsStrictlyMaximal(pminfo->ocb,
+                                                  pminfo->into->literals,
+                                                  pminfo->into_pos->literal)) ||
+                     (EqnIsNegative(pminfo->into_pos->literal) &&
+                      EqnListEqnIsMaximal(pminfo->ocb,
+                                          pminfo->into->literals,
+                                          pminfo->into_pos->literal))))
+                {
+                    clause = ClauseParamodConstruct(pminfo, pm_type);
+                    if (clause)
+                    {
+                        ClauseSetInsert(store, clause);
+                        res++;
+                        update_clause_info(clause, pminfo->into, pminfo->new_orig);
+                        DocClauseCreationDefault(clause,
+                                                 pm_type == ParamodPlain ? inf_paramod : inf_sim_paramod,
+                                                 pminfo->into,
+                                                 pminfo->new_orig);
+                        DerivationCode dc = pm_type == ParamodPlain ? DCParamod : DCSimParamod;
+                        if (pminfo->subst_is_ho)
+                        {
+                            dc = DPSetIsHO(dc);
+                        }
+                        ClausePushDerivation(clause, dc, pminfo->into, pminfo->new_orig);
+                    }
+                }
+                ClausePosFree(pminfo->into_pos);
+                if (clause && pm_type != ParamodPlain)
+                {
+                    break;
+                }
+            }
+        }
+    }
+    ArrayTreeTraverseExit(iterstack);
+
+    return res;
 }
 
 
@@ -433,72 +425,69 @@ static long compute_from_pm_pos_clause(ParamodInfo_p pminfo,
                                        ClauseTPos_p from_clause_pos,
                                        ClauseSet_p store)
 {
-   long res = 0;
-   PStack_p iterstack;
-   NumTree_p cell;
-   Term_p    lside, rside;
-   Clause_p  clause;
-   ParamodulationType pm_type;
+    long res = 0;
+    PStack_p iterstack;
+    ArrayTree_p node;
+    Term_p lside, rside;
+    Clause_p clause;
+    ParamodulationType pm_type;
 
-   pminfo->from = from_clause_pos->clause;
+    pminfo->from = from_clause_pos->clause;
 
-   iterstack = NumTreeTraverseInit(from_clause_pos->pos);
-   while ((cell = NumTreeTraverseNext(iterstack)))
-   {
-      clause = NULL;
-      pminfo->from_cpos = cell->key;
-      if(pminfo->new_orig == pminfo->from)
-      {
-         /* Optimization for the case that from and into are the same
-          * - these are already handled in the "into" case */
-         break;
-      }
-      pminfo->from_pos  = UnpackClausePos(cell->key, pminfo->from);
-      pm_type = sim_paramod_q(pminfo->ocb, pminfo->from_pos, type);
-      lside = ClausePosGetSide(pminfo->from_pos);
-      rside = ClausePosGetOtherSide(pminfo->from_pos);
-
-      if((EqnIsOriented(pminfo->from_pos->literal)
-          ||!TOGreater(pminfo->ocb, rside, lside, DEREF_ALWAYS, DEREF_ALWAYS))
-         &&
-         (EqnListEqnIsStrictlyMaximal(pminfo->ocb,
-                                      pminfo->from->literals,
-                                      pminfo->from_pos->literal)))
-      {
-         /* printf("# compute_from_pm_pos_clause\n");  */
-         clause = ClauseParamodConstruct(pminfo, pm_type);
-         if(clause)
-         {
-            ClauseSetInsert(store, clause);
-            res++;
-            update_clause_info(clause, pminfo->from, pminfo->new_orig);
-            DocClauseCreationDefault(clause,
-                                     pm_type?inf_sim_paramod:inf_paramod,
-                                     pminfo->new_orig,
-                                     pminfo->from);
-            DerivationCode dc = pm_type?DCSimParamod:DCParamod;
-            if(pminfo->subst_is_ho)
+    iterstack = ArrayTreeTraverseInit(from_clause_pos->pos);
+    while ((node = ArrayTreeTraverseNext(iterstack)))
+    {
+        for (long i = PDRangeArrLowKey(node->array);
+             i < PDRangeArrLimitKey(node->array);
+             i++)
+        {
+            if (PDRangeArrElementInt(node->array, i))
             {
-               dc = DPSetIsHO(dc);
+                clause = NULL;
+                pminfo->from_cpos = i;
+
+                if (pminfo->new_orig == pminfo->from)
+                {
+                    break;
+                }
+
+                pminfo->from_pos = UnpackClausePos(i, pminfo->from);
+                pm_type = sim_paramod_q(pminfo->ocb, pminfo->from_pos, type);
+                lside = ClausePosGetSide(pminfo->from_pos);
+                rside = ClausePosGetOtherSide(pminfo->from_pos);
+
+                if ((EqnIsOriented(pminfo->from_pos->literal) ||
+                     !TOGreater(pminfo->ocb, rside, lside, DEREF_ALWAYS, DEREF_ALWAYS)) &&
+                    EqnListEqnIsStrictlyMaximal(pminfo->ocb,
+                                                pminfo->from->literals,
+                                                pminfo->from_pos->literal))
+                {
+                    clause = ClauseParamodConstruct(pminfo, pm_type);
+                    if (clause)
+                    {
+                        ClauseSetInsert(store, clause);
+                        res++;
+                        update_clause_info(clause, pminfo->from, pminfo->new_orig);
+                        DocClauseCreationDefault(clause,
+                                                 pm_type ? inf_sim_paramod : inf_paramod,
+                                                 pminfo->new_orig,
+                                                 pminfo->from);
+                        DerivationCode dc = pm_type ? DCSimParamod : DCParamod;
+                        if (pminfo->subst_is_ho)
+                        {
+                            dc = DPSetIsHO(dc);
+                        }
+                        ClausePushDerivation(clause, dc, pminfo->new_orig, pminfo->from);
+                    }
+                }
+                ClausePosFree(pminfo->from_pos);
             }
-            ClausePushDerivation(clause, dc,
-                                 pminfo->new_orig, pminfo->from);
-         }
-      }
-      ClausePosFree(pminfo->from_pos);
-      /* Unfortunately, this optimization is wrong here - we iterate
-         over positions in the from-clause!
-         if(clause && sim_pm)
-         {
-         break;
-         }*/
-   }
-   NumTreeTraverseExit(iterstack);
+        }
+    }
+    ArrayTreeTraverseExit(iterstack);
 
-   return res;
+    return res;
 }
-
-
 
 
 /*-----------------------------------------------------------------------

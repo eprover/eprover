@@ -38,7 +38,7 @@ typedef struct termweightparamcell
    RelatedTermSet rel_terms;
 
    TB_p   eval_bank;
-   NumTree_p eval_freqs;
+   ArrayTree_p eval_freqs;
    long   vweight;
    long   fweight;
    long   cweight;

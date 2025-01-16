@@ -40,7 +40,7 @@ typedef struct annotermcell
 typedef struct annosetcell
 {
    TB_p           terms; /* Of real terms */
-   NumTree_p      set;   /* Of AnnoTerms, indexed by term->entry_no */
+   ArrayTree_p    set;   /* Of AnnoTerms, indexed by term->entry_no */
    PatternSubst_p subst; /* Usually shared among all terms in set */
    long           annotation_no;
 }AnnoSetCell, *AnnoSet_p;

@@ -54,11 +54,11 @@ bool FormulaHasAppVarLit(Sig_p sig, TFormula_p form);
 
 TFormula_p TFormulaAnnotateQuestion(TB_p terms,
                                     TFormula_p form,
-                                    NumTree_p *question_assoc);
+                                    ArrayTree_p *question_assoc);
 
 bool WFormulaAnnotateQuestion(WFormula_p wform, bool add_answer_lits,
                               bool conjectures_are_questions,
-                              NumTree_p *question_assoc);
+                              ArrayTree_p *question_assoc);
 
 long FormulaSetPreprocConjectures(FormulaSet_p set,
                                   FormulaSet_p archive,

@@ -456,52 +456,6 @@ void ProofStateFree(ProofState_p junk)
 
 /*-----------------------------------------------------------------------
 //
-// Function: ProofStateProcessDistinct()
-//
-//   Process $distinct directives in state->f_axioms. Return number of
-//   $distincts processed.
-//
-// Global Variables: -
-//
-// Side Effects    : Processes archives $distinct formulas
-//
-/----------------------------------------------------------------------*/
-
-long ProofStateProcessDistinct(ProofState_p state)
-{
-   long res = 0;
-   WFormula_p distinct, handle;
-   PStack_p stack = PStackAlloc();
-   TFormula_p diseq_form;
-
-   for(handle = state->f_axioms->anchor->succ;
-       handle != state->f_axioms->anchor;
-       handle = handle->succ)
-   {
-      if(handle->tformula->f_code == state->signature->distinct_code)
-      {
-         PStackPushP(stack, handle);
-      }
-   }
-   while(!PStackEmpty(stack))
-   {
-      distinct = PStackPopP(stack);
-      FormulaSetExtractEntry(distinct);
-      FormulaSetInsert(state->f_ax_archive, distinct);
-      diseq_form = TFormulaExpandDistinct(state->terms, distinct->tformula);
-      handle = WTFormulaAlloc(state->terms, diseq_form);
-      WFormulaPushDerivation(handle, DCExpandDistinct,
-                             distinct, NULL);
-      FormulaSetInsert(state->f_axioms, handle);
-      res++;
-   }
-   PStackFree(stack);
-   return res;
-}
-
-
-/*-----------------------------------------------------------------------
-//
 // Function: ProofStateIsUntyped()
 //
 //   Return true if all clauses in the proof state are untyped. Does

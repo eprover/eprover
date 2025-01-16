@@ -312,11 +312,24 @@ EGPCtrlSet_p EGPCtrlSetAlloc(void)
 
 void EGPCtrlSetFree(EGPCtrlSet_p junk, bool kill_proc)
 {
-   while(junk->procs)
-   {
-      EGPCtrlSetDeleteProc(junk, junk->procs->val1.p_val, kill_proc);
-   }
-   EGPCtrlSetCellFree(junk);
+    ArrayTree_p node;
+    PStack_p stack = ArrayTreeTraverseInit(junk->procs);
+
+    while ((node = ArrayTreeTraverseNext(stack)))
+    {
+        for (long i = 0; i < node->array->size; i++)
+        {
+            if (PDRangeArrIndexIsCovered(node->array, i))
+            {
+                EGPCtrl_p ctrl = PDRangeArrElementP(node->array, i);
+                EGPCtrlSetDeleteProc(junk, ctrl, kill_proc);
+            }
+        }
+    }
+
+    ArrayTreeTraverseExit(stack);
+    ArrayTreeFree(junk->procs);
+    EGPCtrlSetCellFree(junk);
 }
 
 
@@ -334,12 +347,15 @@ void EGPCtrlSetFree(EGPCtrlSet_p junk, bool kill_proc)
 
 void EGPCtrlSetAddProc(EGPCtrlSet_p set, EGPCtrl_p proc)
 {
-   IntOrP tmp;
-
-   tmp.p_val = proc;
-   NumTreeStore(&(set->procs), proc->fileno, tmp, tmp);
-   set->cores_reserved += proc->cores;
+    ArrayTree_p node = ArrayTreeFind(&(set->procs), proc->fileno);
+    if (!node)
+    {
+        node = add_new_arraytree_node(&(set->procs), proc->fileno, NULL);
+    }
+    PDRangeArrAssignP(node->array, proc->fileno, proc);
+    set->cores_reserved += proc->cores;
 }
+
 
 
 /*-----------------------------------------------------------------------
@@ -356,16 +372,14 @@ void EGPCtrlSetAddProc(EGPCtrlSet_p set, EGPCtrl_p proc)
 
 EGPCtrl_p EGPCtrlSetFindProc(EGPCtrlSet_p set, int fd)
 {
-   NumTree_p cell;
-
-   cell = NumTreeFind(&(set->procs), fd);
-
-   if(cell)
-   {
-      return cell->val1.p_val;
-   }
-   return NULL;
+    ArrayTree_p node = ArrayTreeFind(&(set->procs), fd);
+    if (node)
+    {
+        return PDRangeArrElementP(node->array, fd);
+    }
+    return NULL;
 }
+
 
 
 /*-----------------------------------------------------------------------
@@ -382,21 +396,27 @@ EGPCtrl_p EGPCtrlSetFindProc(EGPCtrlSet_p set, int fd)
 
 void EGPCtrlSetDeleteProc(EGPCtrlSet_p set, EGPCtrl_p proc, bool kill_proc)
 {
-   NumTree_p cell;
+    ArrayTree_p node = ArrayTreeFind(&(set->procs), proc->fileno);
+    if (node && PDRangeArrIndexIsCovered(node->array, proc->fileno))
+    {
+        EGPCtrl_p ctrl = PDRangeArrElementP(node->array, proc->fileno);
 
-   cell = NumTreeExtractEntry(&(set->procs), proc->fileno);
-   if(cell)
-   {
-      if(kill_proc)
-      {
-         EGPCtrlCleanup(cell->val1.p_val);
-      }
-      set->cores_reserved -= proc->cores;
-      EGPCtrlFree(cell->val1.p_val);
-      NumTreeCellFree(cell);
-   }
+        if (kill_proc)
+        {
+            EGPCtrlCleanup(ctrl);
+        }
+
+        set->cores_reserved -= proc->cores;
+        EGPCtrlFree(ctrl);
+
+        PDRangeArrAssignP(node->array, proc->fileno, NULL);
+
+        if (PDRangeArrMembers(node->array) == 0)
+        {
+            ArrayTreeDeleteNode(&(set->procs), proc->fileno);
+        }
+    }
 }
-
 
 
 /*-----------------------------------------------------------------------
@@ -414,21 +434,25 @@ void EGPCtrlSetDeleteProc(EGPCtrlSet_p set, EGPCtrl_p proc, bool kill_proc)
 
 int EGPCtrlSetFDSet(EGPCtrlSet_p set, fd_set *rd_fds)
 {
-   PStack_p trav_stack;
-   int maxfd = 0;
-   EGPCtrl_p handle;
-   NumTree_p cell;
+    PStack_p trav_stack = ArrayTreeTraverseInit(set->procs);
+    int maxfd = 0;
+    ArrayTree_p node;
 
-   trav_stack = NumTreeTraverseInit(set->procs);
-   while((cell = NumTreeTraverseNext(trav_stack)))
-   {
-      handle = cell->val1.p_val;
-      FD_SET(handle->fileno, rd_fds);
-      maxfd = MAX(maxfd, handle->fileno);
-   }
-   NumTreeTraverseExit(trav_stack);
+    while ((node = ArrayTreeTraverseNext(trav_stack)))
+    {
+        for (long i = PDRangeArrLowKey(node->array); i < PDRangeArrLimitKey(node->array); i++)
+        {
+            EGPCtrl_p handle = PDRangeArrElementP(node->array, i);
+            if (handle)
+            {
+                FD_SET(handle->fileno, rd_fds);
+                maxfd = MAX(maxfd, handle->fileno);
+            }
+        }
+    }
 
-   return maxfd;
+    ArrayTreeTraverseExit(trav_stack);
+    return maxfd;
 }
 
 

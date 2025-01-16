@@ -37,7 +37,7 @@ Changes
 typedef struct clause_tpos_cell
 {
    Clause_p  clause;
-   NumTree_p pos;
+   ArrayTree_p pos;
 }ClauseTPosCell, *ClauseTPos_p;
 
 

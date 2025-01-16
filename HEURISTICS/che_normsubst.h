@@ -26,7 +26,7 @@ Changes
 
 #define CLE_NORMSUBST
 
-#include <clb_numtrees.h>
+#include <clb_arraytrees.h>
 #include <cte_signature.h>
 
 
@@ -36,9 +36,9 @@ Changes
 
 typedef struct normsubstcell
 {
-   NumTree_p used_ids;
-   NumTree_p norm_funs;
-   NumTree_p norm_vars;
+   ArrayTree_p used_ids;
+   ArrayTree_p norm_funs;
+   ArrayTree_p norm_vars;
 }NormSubstCell, *NormSubst_p;
 
 

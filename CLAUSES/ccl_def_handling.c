@@ -90,10 +90,10 @@ DefStore_p DefStoreAlloc(TB_p terms)
 
 void DefStoreFree(DefStore_p junk)
 {
-   ClauseSetFree(junk->def_clauses);
-   NumTreeFree(junk->def_assocs);
-   FormulaSetFree(junk->def_archive);
-   DefStoreCellFree(junk);
+    ClauseSetFree(junk->def_clauses);
+    ArrayTreeFree(junk->def_assocs);
+    FormulaSetFree(junk->def_archive);
+    DefStoreCellFree(junk);
 }
 
 
@@ -252,68 +252,70 @@ FunCode GetDefinitions(DefStore_p store, Eqn_p litlist,
                        WFormula_p* res_form, Clause_p* res_clause,
                        bool fresh)
 {
-   Clause_p   def_clause;
-   FunCode    def_pred = 0;
+    Clause_p   def_clause;
+    FunCode    def_pred = 0;
 
-   assert(litlist);
+    assert(litlist);
 
-   *res_form   = NULL;
-   *res_clause = NULL;
+    *res_form   = NULL;
+    *res_clause = NULL;
 
-   if(fresh)
-   {
-      def_pred    = SigGetNewPredicateCode(store->terms->sig, 0);
-      SigDeclareType(store->terms->sig, def_pred, store->terms->sig->type_bank->bool_type);
+    if (fresh)
+    {
+        def_pred    = SigGetNewPredicateCode(store->terms->sig, 0);
+        SigDeclareType(store->terms->sig, def_pred, store->terms->sig->type_bank->bool_type);
 
-      *res_form = GetFormulaDefinition(litlist, def_pred);
-      FormulaSetInsert(store->def_archive, *res_form);
-      *res_clause = GetClauseDefinition(litlist, def_pred, *res_form);
-   }
-   else
-   {
-      Clause_p variant;
+        *res_form = GetFormulaDefinition(litlist, def_pred);
+        FormulaSetInsert(store->def_archive, *res_form);
+        *res_clause = GetClauseDefinition(litlist, def_pred, *res_form);
+    }
+    else
+    {
+        Clause_p variant;
 
-      def_clause = ClauseAlloc(EqnListFlatCopy(litlist));
-      def_clause->weight = ClauseStandardWeight(def_clause);
-      ClauseSubsumeOrderSortLits(def_clause);
+        def_clause = ClauseAlloc(EqnListFlatCopy(litlist));
+        def_clause->weight = ClauseStandardWeight(def_clause);
+        ClauseSubsumeOrderSortLits(def_clause);
 
-      variant = ClauseSetFindVariantClause(store->def_clauses,
-                                           def_clause);
-      if(variant)
-      {
-         NumTree_p assoc = NumTreeFind(&(store->def_assocs),
-                                       variant->ident);
-         assert(assoc);
-         *res_clause = NULL; /* Clause already exists */
-         *res_form = assoc->val2.p_val;
-         def_pred = assoc->val1.i_val;
-         ClauseFree(def_clause);
-         EqnListFree(litlist);
-      }
-      else
-      {
-         IntOrP def_pred_store, def_form_store;
+        variant = ClauseSetFindVariantClause(store->def_clauses, def_clause);
+        if (variant)
+        {
+            ArrayTree_p assoc = ArrayTreeFind(&(store->def_assocs), variant->ident);
+            assert(assoc);
+            *res_clause = NULL; /* Clause already exists */
+            *res_form = PDRangeArrElementP(assoc->array, variant->ident);
+            def_pred = PDRangeArrElementInt(assoc->array, variant->ident);
+            ClauseFree(def_clause);
+            EqnListFree(litlist);
+        }
+        else
+        {
+            IntOrP def_pred_store, def_form_store;
 
-         def_pred = SigGetNewPredicateCode(store->terms->sig, 0);
-         SigDeclareType(store->terms->sig, def_pred, store->terms->sig->type_bank->bool_type);
-         *res_form = GetFormulaDefinition(litlist, def_pred);
-         FormulaSetInsert(store->def_archive, *res_form);
-         *res_clause = GetClauseDefinition(litlist, def_pred, *res_form);
+            def_pred = SigGetNewPredicateCode(store->terms->sig, 0);
+            SigDeclareType(store->terms->sig, def_pred, store->terms->sig->type_bank->bool_type);
+            *res_form = GetFormulaDefinition(litlist, def_pred);
+            FormulaSetInsert(store->def_archive, *res_form);
+            *res_clause = GetClauseDefinition(litlist, def_pred, *res_form);
 
-         def_pred_store.i_val = def_pred;
-         def_form_store.p_val = *res_form;
-         NumTreeStore(&(store->def_assocs),
-                      def_clause->ident,
-                      def_pred_store,
-                      def_form_store);
-         assert(def_clause->weight == ClauseStandardWeight(def_clause));
-         ClauseSetIndexedInsertClause(store->def_clauses,
-                                      def_clause);
-      }
-   }
-   return def_pred;
+            ArrayTree_p assoc = ArrayTreeFind(&(store->def_assocs), def_clause->ident);
+            if (!assoc)
+            {
+                assoc = add_new_arraytree_node(&(store->def_assocs), def_clause->ident, PStackAlloc());
+            }
+
+            def_pred_store.i_val = def_pred;
+            def_form_store.p_val = *res_form;
+
+            PDRangeArrAssignInt(assoc->array, def_clause->ident, def_pred_store.i_val);
+            PDRangeArrAssignP(assoc->array, def_clause->ident, def_form_store.p_val);
+
+            assert(def_clause->weight == ClauseStandardWeight(def_clause));
+            ClauseSetIndexedInsertClause(store->def_clauses, def_clause);
+        }
+    }
+    return def_pred;
 }
-
 
 
 /*---------------------------------------------------------------------*/

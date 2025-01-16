@@ -202,39 +202,33 @@ Term_p discard_last(Term_p term)
 //
 /----------------------------------------------------------------------*/
 
-NumTree_p create_var_renaming_de_bruin(VarBank_p vars, Term_p term)
+ArrayTree_p create_var_renaming_de_bruin(VarBank_p vars, Term_p term)
 {
    int i;
-   NumTree_p node;
-   NumTree_p root;
-   PStack_p open;
-   long fresh_var_code;
-
-   open = PStackAlloc();
-   fresh_var_code = -2;
-   root = NULL;
+   ArrayTree_p root = NULL;
+   PStack_p open = PStackAlloc();
+   long fresh_var_code = -2;
 
    PStackPushP(open, term);
-   while(!PStackEmpty(open))
+   while (!PStackEmpty(open))
    {
       term = PStackPopP(open);
-      if(TermIsFreeVar(term))
+      if (TermIsFreeVar(term))
       {
-         if (!NumTreeFind(&root, term->f_code)) {
-            node = NumTreeCellAllocEmpty();
-            node->key = term->f_code;
-            node->val1.p_val = VarBankVarAssertAlloc(vars, fresh_var_code, term->type);
-            //node->val1.p_val = VarBankVarAssertAlloc(vars, fresh_var_code, STIndividuals);
+         if (!ArrayTreeFind(&root, term->f_code))
+         {
+            IntOrP val;
+            val.p_val = VarBankVarAssertAlloc(vars, fresh_var_code, term->type);
             fresh_var_code -= 2;
 
-            NumTreeInsert(&root, node);
+            ArrayTreeInsert(&root, term->f_code, val.p_val);
          }
       }
       else
       {
-         for(i=0; i<term->arity; i++)
+         for (i = 0; i < term->arity; i++)
          {
-            PStackPushP(open, term->args[term->arity-1-i]);
+            PStackPushP(open, term->args[term->arity - 1 - i]);
          }
       }
    }
@@ -242,6 +236,7 @@ NumTree_p create_var_renaming_de_bruin(VarBank_p vars, Term_p term)
 
    return root;
 }
+
 
 /*-----------------------------------------------------------------------
 //
@@ -390,6 +385,7 @@ void do_ho_print(FILE* out, TFormula_p term, Sig_p sig, DerefType deref, int dep
       fprintf(out, ")");
       return;
    }
+
 
    if(TermIsDBVar(term))
    {
@@ -784,9 +780,7 @@ void TermPrintDbgHO(FILE* out, Term_p term, Sig_p sig, DerefType deref)
 #endif
       DerefType c_deref = CONVERT_DEREF(i, limit, deref);
       if(term->args[i]->arity ||
-         (c_deref != DEREF_NEVER &&
-          term->args[i]->binding &&
-          term->args[i]->binding->arity))
+         (c_deref != DEREF_NEVER && term->args[i]->binding && term->args[i]->binding->arity))
       {
          fputs("(", out);
          TermPrintDbgHO(out, term->args[i], sig, c_deref);
@@ -941,16 +935,12 @@ void TermPrettyPrintSimple(FILE* out, Term_p term, Sig_p sig, int level)
 
    TypePrintTSTP(out, sig->type_bank, term->type);
    fprintf(out, ":");
-   if(TermIsDBVar(term))
-   {
-      // assert(term->arity == 0);
-      fprintf(out, "db(%ld)", term->f_code);
-   }
-   else if(TermIsFreeVar(term))
+   if(TermIsFreeVar(term))
    {
       VarPrint(out, term->f_code);
       fputs(":", out);
       TypePrintTSTP(out, sig->type_bank, term->type);
+
    }
    else
    {
@@ -1059,29 +1049,26 @@ FunCode TermSigInsert(Sig_p sig, const char* name, int arity, bool
    FunCode res;
 
    res = SigInsertId(sig, name, arity, special_id);
-   if(res)
+   switch(type)
    {
-      switch(type)
-      {
-      case FSIdentInt:
-            SigSetFuncProp(sig, res, FPIsInteger);
-            break;
-      case FSIdentFloat:
-            SigSetFuncProp(sig, res, FPIsFloat);
-            break;
-      case FSIdentRational:
-            SigSetFuncProp(sig, res, FPIsRational);
-            break;
-      case FSIdentObject:
+   case FSIdentInt:
+         SigSetFuncProp(sig, res, FPIsInteger);
+         break;
+   case FSIdentFloat:
+         SigSetFuncProp(sig, res, FPIsFloat);
+         break;
+   case FSIdentRational:
+         SigSetFuncProp(sig, res, FPIsRational);
+         break;
+   case FSIdentObject:
          SigSetFuncProp(sig, res, FPIsObject);
          break;
-      case FSIdentInterpreted:
-            SigSetFuncProp(sig, res, FPInterpreted);
-            break;
-      default:
-            /* Nothing */
-            break;
-      }
+   case FSIdentInterpreted:
+         SigSetFuncProp(sig, res, FPInterpreted);
+         break;
+   default:
+         /* Nothing */
+         break;
    }
    return res;
 }
@@ -1105,7 +1092,7 @@ Term_p TermParse(Scanner_p in, Sig_p sig, VarBank_p vars)
    Term_p        handle;
    DStr_p        id;
    FuncSymbType id_type;
-   DStr_p        source_name;
+   DStr_p        source_name, errpos;
    Type_p        type;
    long          line, column;
    StreamType    type_stream;
@@ -1168,13 +1155,18 @@ Term_p TermParse(Scanner_p in, Sig_p sig, VarBank_p vars)
                                         handle->arity, false, id_type);
          if(!handle->f_code)
          {
-            Error("%s %s used with arity %d but registered with arity %d",
-                  SYNTAX_ERROR,
-                  PosRep(type_stream, source_name, line, column),
-                  DStrView(id),
-                  handle->arity,
-                  SigFindArity(sig, SigFindFCode(sig, DStrView(id))));
+            errpos = DStrAlloc();
 
+            DStrAppendStr(errpos, PosRep(type_stream, source_name, line, column));
+            DStrAppendChar(errpos, ' ');
+            DStrAppendStr(errpos, DStrView(id));
+            DStrAppendStr(errpos, " used with arity ");
+            DStrAppendInt(errpos, (long)handle->arity);
+            DStrAppendStr(errpos, " but registered with arity ");
+            DStrAppendInt(errpos,
+                          (long)SigFindArity(sig, SigFindFCode(sig, DStrView(id))));
+            Error(DStrView(errpos), SYNTAX_ERROR);
+            DStrFree(errpos);
          }
       }
       DStrReleaseRef(source_name);
@@ -1551,7 +1543,7 @@ bool TermStructPrefixEqual(Term_p l, Term_p r, DerefType d_l, DerefType d_r,
                            int remaining, Sig_p sig)
 {
    bool res = true;
-   if(remaining == 0)
+   if (remaining == 0)
    {
       res = TermStructEqualDeref(l, r, d_l, d_r);
    }
@@ -1562,23 +1554,23 @@ bool TermStructPrefixEqual(Term_p l, Term_p r, DerefType d_l, DerefType d_r,
       l = TermDeref(l, &d_l);
       r = TermDeref(r, &d_r);
 
-      if(TermIsAppliedAnyVar(r) && (r->arity - remaining == 1))
+      if (TermIsAppliedAnyVar(r) && (r->arity - remaining == 1))
       {
          // f-code comparisons would fail without this hack.
          r = r->args[0];
       }
 
-      if(l->f_code != r->f_code || (!TermIsAnyVar(r) && r->arity < remaining))
+      if (l->f_code != r->f_code || (!TermIsAnyVar(r) && r->arity < remaining))
       {
          res = false;
       }
       else
       {
-         assert((TermIsAnyVar(l) && TermIsAnyVar(r)) || l->arity == r->arity-remaining);
+         assert((TermIsAnyVar(l) && TermIsAnyVar(r)) || l->arity == r->arity - remaining);
 
-         for(int i=0; i<l->arity; i++)
+         for (int i = 0; i < l->arity; i++)
          {
-            if(!TermStructEqualDeref(l->args[i], r->args[i],
+            if (!TermStructEqualDeref(l->args[i], r->args[i],
                                       CONVERT_DEREF(i, limit_l, d_l),
                                       CONVERT_DEREF(i, limit_r, d_r)))
             {
@@ -1591,6 +1583,7 @@ bool TermStructPrefixEqual(Term_p l, Term_p r, DerefType d_l, DerefType d_r,
 
    return res;
 }
+
 /*-----------------------------------------------------------------------
 //
 // Function: TermStructWeightCompare()
@@ -2693,37 +2686,35 @@ long TermCollectVariables(Term_p term, PTree_p *tree)
 //
 /----------------------------------------------------------------------*/
 
-long TermCollectFCodes(Term_p term, NumTree_p *tree)
+long TermCollectFCodes(Term_p term, ArrayTree_p *tree)
 {
    long res = 0;
    PStack_p stack = PStackAlloc();
-   int      i;
-   IntOrP   dummy;
+   int i;
+   IntOrP dummy;
 
    dummy.i_val = 0;
-   PStackPushP(stack,term);
+   PStackPushP(stack, term);
 
-   while(!PStackEmpty(stack))
+   while (!PStackEmpty(stack))
    {
       term = PStackPopP(stack);
-      if(term->f_code > 0)
+      if (term->f_code > 0)
       {
-         if(NumTreeStore(tree, term->f_code, dummy, dummy))
+         if (ArrayTreeStore(tree, term->f_code, &dummy))
          {
             res++;
          }
       }
-      for(i=0; i<term->arity; i++)
+      for (i = 0; i < term->arity; i++)
       {
-         PStackPushP(stack,term->args[i]);
+         PStackPushP(stack, term->args[i]);
       }
    }
    PStackFree(stack);
 
    return res;
 }
-
-
 
 
 /*-----------------------------------------------------------------------
@@ -3102,17 +3093,17 @@ void TermFOOLPrint(FILE* out, Sig_p sig, TFormula_p form)
 //
 /*----------------------------------------------------------------------*/
 
-Term_p TermCopyRenameVars(NumTree_p* renaming, Term_p term)
+Term_p TermCopyRenameVars(ArrayTree_p *renaming, Term_p term)
 {
     int i;
     Term_p copy;
-    NumTree_p entry;
+    ArrayTree_p entry;
 
     if (TermIsFreeVar(term))
     {
-        entry = NumTreeFind(renaming, term->f_code);
+        entry = ArrayTreeFind(renaming, term->f_code);
         assert(entry);
-        copy = (Term_p)(entry->val1.p_val);
+        copy = (Term_p)(PDRangeArrElementP(entry->array, term->f_code));
     }
     else if (TermIsDBVar(term))
     {
@@ -3122,7 +3113,7 @@ Term_p TermCopyRenameVars(NumTree_p* renaming, Term_p term)
     {
         copy = TermTopCopy(term);
         copy->type = term->type;
-        for (i=0; i<term->arity; i++)
+        for (i = 0; i < term->arity; i++)
         {
             copy->args[i] = TermCopyRenameVars(renaming, term->args[i]);
         }
@@ -3131,6 +3122,7 @@ Term_p TermCopyRenameVars(NumTree_p* renaming, Term_p term)
     assert(copy);
     return copy;
 }
+
 
 /*-----------------------------------------------------------------------
 //
@@ -3147,14 +3139,15 @@ Term_p TermCopyRenameVars(NumTree_p* renaming, Term_p term)
 Term_p TermCopyNormalizeVarsAlpha(VarBank_p vars, Term_p term)
 {
     Term_p copy;
-    NumTree_p renaming;
+    ArrayTree_p renaming;
 
     renaming = create_var_renaming_de_bruin(vars, term);
     copy = TermCopyRenameVars(&renaming, term);
-    NumTreeFree(renaming);
+    ArrayTreeFree(renaming);
 
     return copy;
 }
+
 
 /*-----------------------------------------------------------------------
 //

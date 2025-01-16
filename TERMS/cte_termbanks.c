@@ -69,52 +69,51 @@ typedef Term_p (*TermParseFun)(Scanner_p in, TB_p bank);
 //
 /----------------------------------------------------------------------*/
 
-static void tb_print_dag(FILE *out, NumTree_p in_index, Sig_p sig)
-{
-   Term_p term;
+static void tb_print_dag(FILE *out, ArrayTree_p in_index, Sig_p sig) {
+    Term_p term;
 
-   if(!in_index)
-   {
-      return;
-   }
-   tb_print_dag(out, in_index->lson, sig);
-   term = in_index->val1.p_val;
-   fprintf(out, "*%ld : ", term->entry_no);
+    if (!in_index) {
+        return;
+    }
+    // Traverse the left subtree
+    tb_print_dag(out, in_index->left, sig);
 
-   if(TermIsFreeVar(term))
-   {
-      VarPrint(out, term->f_code);
-   }
-   else
-   {
-      fputs(SigFindName(sig, term->f_code), out);
-      if(!TermIsConst(term))
-      {
-         int i;
+    // Process the current node
+    term = (Term_p)(in_index->array ? PDRangeArrElement(in_index->array, 0).p_val : NULL);
+    if (term) {
+        fprintf(out, "*%ld : ", term->entry_no);
 
-         assert(term->arity>=1);
-         assert(term->args);
-         putc('(', out);
+        if (TermIsFreeVar(term)) {
+            VarPrint(out, term->f_code);
+        } else {
+            fputs(SigFindName(sig, term->f_code), out);
+            if (!TermIsConst(term)) {
+                int i;
 
-         fprintf(out, "*%ld", TBCellIdent(term->args[0]));
-         for(i=1; i<term->arity; i++)
-         {
-            putc(',', out);
-            fprintf(out, "*%ld", TBCellIdent(term->args[i]));
-         }
-         putc(')', out);
-      }
-      fprintf(out, "   =   ");
-      TermPrint(out, term, sig, DEREF_NEVER);
-   }
-   if(TBPrintInternalInfo)
-   {
-      fprintf(out, "\t/*  Properties: %10d */",
-              term->properties);
-   }
-   fprintf(out, "\n");
-   tb_print_dag(out, in_index->rson, sig);
+                assert(term->arity >= 1);
+                assert(term->args);
+                putc('(', out);
+
+                fprintf(out, "*%ld", TBCellIdent(term->args[0]));
+                for (i = 1; i < term->arity; i++) {
+                    putc(',', out);
+                    fprintf(out, "*%ld", TBCellIdent(term->args[i]));
+                }
+                putc(')', out);
+            }
+            fprintf(out, "   =   ");
+            TermPrint(out, term, sig, DEREF_NEVER);
+        }
+        if (TBPrintInternalInfo) {
+            fprintf(out, "\t/*  Properties: %10d */", term->properties);
+        }
+        fprintf(out, "\n");
+    }
+
+    // Traverse the right subtree
+    tb_print_dag(out, in_index->right, sig);
 }
+
 
 /*-----------------------------------------------------------------------
 //
@@ -1547,25 +1546,26 @@ Term_p TBFind(TB_p bank, Term_p term)
 
 void TBPrintBankInOrder(FILE* out, TB_p bank)
 {
-   NumTree_p tree = NULL;
-   long i;
-   PStack_p stack;
-   Term_p   cell;
-   IntOrP   dummy;
+    ArrayTree_p tree = NULL;
+    long i;
+    PStack_p stack;
+    Term_p cell;
 
-   for(i=0; i<TERM_STORE_HASH_SIZE; i++)
-   {
-      stack = TermTreeTraverseInit(bank->term_store.store[i]);
-      while((cell = TermTreeTraverseNext(stack)))
-      {
-         dummy.p_val = cell;
-         NumTreeStore(&tree, cell->entry_no,dummy, dummy);
-      }
-      TermTreeTraverseExit(stack);
-   }
-   tb_print_dag(out, tree, bank->sig);
-   NumTreeFree(tree);
+    for (i = 0; i < TERM_STORE_HASH_SIZE; i++)
+    {
+        stack = TermTreeTraverseInit(bank->term_store.store[i]);
+        while ((cell = TermTreeTraverseNext(stack)))
+        {
+            void *value = (void *)cell;
+            ArrayTreeStore(&tree, cell->entry_no, value);
+        }
+        TermTreeTraverseExit(stack);
+    }
+
+    tb_print_dag(out, tree, bank->sig);
+    ArrayTreeFree(tree);
 }
+
 
 /*-----------------------------------------------------------------------
 //
@@ -1708,7 +1708,7 @@ Term_p TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop)
    Term_p        handle;
    DStr_p        id;
    FuncSymbType  id_type;
-   DStr_p        source_name;
+   DStr_p        source_name, errpos;
    Type_p        type;
    long          line, column;
    StreamType    type_stream;
@@ -1798,7 +1798,7 @@ Term_p TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop)
             Type_p  sym_type = sym_code ? SigGetType(bank->sig, sym_code) : NULL;
 
             handle = tb_term_parse_arglist(in, bank,
-                                           check_symb_prop, sym_type);
+                                             check_symb_prop, sym_type);
          }
          else
          {
@@ -1809,12 +1809,17 @@ Term_p TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop)
                                         handle->arity, false, id_type);
          if(!handle->f_code)
          {
-            Error("%s %s used with arity %d but registered with arity %d",
-                  TYPE_ERROR,
-                  PosRep(type_stream, source_name, line, column),
-                  DStrView(id),
-                  handle->arity,
-                  SigFindArity(bank->sig, SigFindFCode(bank->sig, DStrView(id))));
+            errpos = DStrAlloc();
+            DStrAppendStr(errpos, PosRep(type_stream, source_name, line, column));
+            DStrAppendStr(errpos, DStrView(id));
+            DStrAppendStr(errpos, " used with arity ");
+            DStrAppendInt(errpos, (long)handle->arity);
+            DStrAppendStr(errpos, ", but registered with arity ");
+            DStrAppendInt(errpos,
+                          (long)(bank->sig)->
+                          f_info[SigFindFCode(bank->sig, DStrView(id))].arity);
+            Error(DStrView(errpos), SYNTAX_ERROR);
+            DStrFree(errpos);
          }
          handle = tb_termtop_insert(bank, handle);
       }
@@ -1843,7 +1848,7 @@ Term_p TBTermParseSimple(Scanner_p in, TB_p bank)
    Term_p        handle;
    DStr_p        id;
    FuncSymbType  id_type;
-   DStr_p        source_name;
+   DStr_p        source_name, errpos;
    Type_p        type;
    long          line, column;
    StreamType    type_stream;
@@ -1918,13 +1923,17 @@ Term_p TBTermParseSimple(Scanner_p in, TB_p bank)
                                        handle->arity, false, id_type);
       if(!handle->f_code)
       {
-         Error("%s %s used with arity %d but registered with arity %d",
-               TYPE_ERROR,
-               PosRep(type_stream, source_name, line, column),
-               DStrView(id),
-               handle->arity,
-               SigFindArity(bank->sig, SigFindFCode(bank->sig, DStrView(id))));
-
+         errpos = DStrAlloc();
+         DStrAppendStr(errpos, PosRep(type_stream, source_name, line, column));
+         DStrAppendStr(errpos, DStrView(id));
+         DStrAppendStr(errpos, " used with arity ");
+         DStrAppendInt(errpos, (long)handle->arity);
+         DStrAppendStr(errpos, ", but registered with arity ");
+         DStrAppendInt(errpos,
+                        (long)(bank->sig)->
+                        f_info[SigFindFCode(bank->sig, DStrView(id))].arity);
+         Error(DStrView(errpos), SYNTAX_ERROR);
+         DStrFree(errpos);
       }
       handle = tb_termtop_insert(bank, handle);
    }

@@ -6,7 +6,7 @@
 
   -----------------------------------------------------------------------*/
 
-#include "arraytrees.h"
+#include "clb_arraytrees.h"
 
 /*---------------------------------------------------------------------*/
 /*                        Global Variables                             */
@@ -106,6 +106,7 @@ static ArrayTree_p splay(ArrayTree_p root, long key)
 //
 /----------------------------------------------------------------------*/
 
+// Replace this function with a define in the header file??
 ArrayTree_p ArrayTreeAlloc(void)
 {
     return NULL; /* An empty tree is a NULL-Pointer */
@@ -256,4 +257,287 @@ void ArrayTreeDebugPrint(FILE *out, ArrayTree_p tree)
     fprintf(out, "\n");
     ArrayTreeDebugPrint(out, tree->left);
     ArrayTreeDebugPrint(out, tree->right);
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: ArrayTreeDebugPrint()
+//
+//   Print the tree for debugging.
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+ArrayTree_p ArrayTreeTraverseNext(PStack_p state)
+{
+    ArrayTree_p handle, result;
+
+    if (PStackEmpty(state))
+    {
+        return NULL;
+    }
+
+    /* Pop next node from stack */
+    result = PStackPopP(state);
+
+    /* Traverse the right subtree */
+    handle = result->right;
+    while (handle)
+    {
+        PStackPushP(state, handle);
+        handle = handle->left;
+    }
+
+    return result;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: ArrayTreeDebugPrint()
+//
+//   Initialize the traverse.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+PStack_p ArrayTreeTraverseInit(ArrayTree_p root)
+{
+    PStack_p stack = PStackAlloc();
+
+    /* Move as far as possible to the left and add all nodes to the stack */
+    while (root)
+    {
+        PStackPushP(stack, root);
+        root = root->left;
+    }
+
+    return stack;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: ArrayTreeDebugPrint()
+//
+//   Free the stack which was needed for the traverse
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void ArrayTreeTraverseExit(PStack_p stack)
+{
+    PStackFree(stack);
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: ArrayTreeDebugPrint()
+//
+//   Initialize the traverse which is limited by the value of limit.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+PStack_p ArrayTreeLimitedTraverseInit(ArrayTree_p root, long limit)
+{
+    PStack_p stack = PStackAlloc();
+
+    while (root)
+    {
+        if (root->key < limit)
+        {
+            root = root->right;
+        }
+        else
+        {
+            PStackPushP(stack, root);
+            if (root->key == limit)
+            {
+                root = NULL;
+            }
+            else
+            {
+                root = root->left;
+            }
+        }
+    }
+
+    return stack;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: ArrayTreeStore()
+//
+//   Add a new element to the ArrayTree. Check whether a key is existing
+//   and override it eventually.
+//
+// Global Variables: -
+//
+// Side Effects    : Changes tree
+//
+/----------------------------------------------------------------------*/
+
+bool ArrayTreeStore(ArrayTree_p *root, long key, void *value)
+{
+    assert(root);
+
+    if (!*root)
+    {
+        /* New node */
+        *root = malloc(sizeof(ArrayTreeNode));
+        (*root)->key = key;
+        (*root)->array = PDRangeArrAlloc(key, MAX_ARRAYTREE_NODE_SIZE);
+        (*root)->left = NULL;
+        (*root)->right = NULL;
+        PDRangeArrAssignP((*root)->array, key, value);
+        return true;
+    }
+
+    *root = splay(*root, key);
+
+    /* Check if key fits in an existing array */
+    if (PDRangeArrIndexIsCovered((*root)->array, key) || PDRangeArrMembers((*root)->array) < MAX_ARRAYTREE_NODE_SIZE)
+    {
+        PDRangeArrAssignP((*root)->array, key, value);
+        return true;
+    }
+    else
+    {
+        /* New node necessary */
+        ArrayTree_p new_node = malloc(sizeof(ArrayTreeNode));
+        new_node->key = key;
+        new_node->array = PDRangeArrAlloc(key, MAX_ARRAYTREE_NODE_SIZE);
+        PDRangeArrAssignP(new_node->array, key, value);
+
+        if (key < (*root)->key)
+        {
+            new_node->left = (*root)->left;
+            new_node->right = *root;
+            (*root)->left = NULL;
+        }
+        else
+        {
+            new_node->right = (*root)->right;
+            new_node->left = *root;
+            (*root)->right = NULL;
+        }
+        *root = new_node;
+        return true;
+    }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: ArrayTreeNodeFree()
+//
+//   Initialize the traverse which is limited by the value of limit.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void ArrayTreeNodeFree(ArrayTree_p *tree)
+{
+    ArrayTreeTraverseInit(tree);
+    while (ArrayTreeTraverseNext(tree))
+    {
+        if (node->val1.p_val) free(node->val1.p_val);
+        if (node->val2.p_val) free(node->val2.p_val);
+    }
+    ArrayTreeTraverseExit(tree);
+
+    free(tree);
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: ArrayTreeDeleteNode()
+//
+//   Delete a single node from the array tree while ensure the consistency
+//   of the tree.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void ArrayTreeDeleteNode(ArrayTree_p *tree, long key) {
+    if (!tree || !(*tree)) {
+        return;
+    }
+
+    ArrayTree_p parent = NULL, current = *tree, replacement = NULL;
+
+    while (current && current->key != key) {
+        parent = current;
+        if (key < current->key) {
+            current = current->left;
+        } else {
+            current = current->right;
+        }
+    }
+
+    if (!current) {
+        return;
+    }
+
+    if (!current->left && !current->right) {
+        replacement = NULL;
+    }
+
+    else if (!current->left) {
+        replacement = current->right;
+    } else if (!current->right) {
+        replacement = current->left;
+    }
+
+    else {
+        ArrayTree_p successor_parent = current;
+        ArrayTree_p successor = current->right;
+
+        while (successor->left) {
+            successor_parent = successor;
+            successor = successor->left;
+        }
+
+        if (successor_parent != current) {
+            successor_parent->left = successor->right;
+        } else {
+            successor_parent->right = successor->right;
+        }
+
+        replacement = successor;
+        replacement->left = current->left;
+        replacement->right = current->right;
+    }
+
+    if (!parent) {
+        *tree = replacement;
+    } else if (parent->left == current) {
+        parent->left = replacement;
+    } else {
+        parent->right = replacement;
+    }
+
+    if (current->array) {
+        PDRangeArrFree(current->array);
+    }
+    free(current);
 }

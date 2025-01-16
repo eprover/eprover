@@ -29,7 +29,7 @@ Changes
 
 #include <sys/select.h>
 #include <signal.h>
-#include <clb_numtrees.h>
+#include <clb_arraytrees.h>
 #include <clb_simple_stuff.h>
 #include <cio_tempfile.h>
 
@@ -58,8 +58,8 @@ typedef struct e_pctrl_cell
 
 typedef struct e_pctrl_set_cell
 {
-   NumTree_p procs;  /* Indexed by fileno() */
-   char      buffer[EPCTRL_BUFSIZE];
+   ArrayTree_p procs;  /* Indexed by fileno() */
+   char        buffer[EPCTRL_BUFSIZE];
 }EPCtrlSetCell, *EPCtrlSet_p;
 
 /*---------------------------------------------------------------------*/
@@ -110,7 +110,7 @@ EPCtrl_p    EPCtrlSetFindProc(EPCtrlSet_p set, int fd);
 void        EPCtrlSetDeleteProc(EPCtrlSet_p set,
                                 EPCtrl_p proc, bool delete_file);
 #define     EPCtrlSetEmpty(set) ((set)->procs==NULL)
-#define     EPCtrlSetCardinality(set) NumTreeNodes((set)->procs)
+#define EPCtrlSetCardinality(set) ArrayTreeNodes((set)->procs)
 
 int         EPCtrlSetFDSet(EPCtrlSet_p set, fd_set *rd_fds);
 

@@ -160,81 +160,84 @@ static void termweight_init(TermWeightParam_p data)
 }
 
 static void termweight_update_conjecture_freqs(
-   TB_p bank, NumTree_p* freqs, Term_p term, VarNormStyle var_norm)
+    TB_p bank, ArrayTree_p* freqs, Term_p term, VarNormStyle var_norm)
 {
-   int i;
-   PStack_p stack;
-   Term_p subterm;
-   Term_p subnorm;
-   Term_p subrepr;
-   NumTree_p cell;
+    int i;
+    PStack_p stack;
+    Term_p subterm;
+    Term_p subnorm;
+    Term_p subrepr;
+    ArrayTree_p node;
 
-   stack = PStackAlloc();
+    stack = PStackAlloc();
+    PStackPushP(stack, term);
 
-   PStackPushP(stack, term);
-   while (!PStackEmpty(stack))
-   {
-      subterm = PStackPopP(stack);
-      if (TermIsFreeVar(subterm)) 
-      {
-         continue;
-      }
-      subnorm = TermCopyNormalizeVars(bank->vars, subterm, var_norm);
-      subrepr = TBFindRepr(bank, subnorm);
-      if (subrepr) 
-      {
-         cell = NumTreeFind(freqs, subrepr->entry_no);
-         if (cell && cell->val1.i_val > 0)
-         {
-            NumTreeStore(freqs, subterm->entry_no, cell->val1, cell->val2);
-         }
-      }
+    while (!PStackEmpty(stack))
+    {
+        subterm = PStackPopP(stack);
+        if (TermIsFreeVar(subterm))
+        {
+            continue;
+        }
+        subnorm = TermCopyNormalizeVars(bank->vars, subterm, var_norm);
+        subrepr = TBFindRepr(bank, subnorm);
 
-      //if (subrepr && (subrepr->freq>0)) 
-      //{
-      //   subterm->freq = subrepr->freq;
-      //}
-      TermFree(subnorm);
+        if (subrepr)
+        {
+            node = ArrayTreeFind(freqs, subrepr->entry_no);
+            if (node && PDRangeArrElementInt(node->array, subrepr->entry_no) > 0)
+            {
+                PDRangeArrAssignP(node->array, subterm->entry_no,
+                                  PDRangeArrElementP(node->array, subrepr->entry_no));
+            }
+        }
 
-      for (i=0; i<subterm->arity; i++)
-      {
-         PStackPushP(stack, subterm->args[i]);
-      }
-   }
+        TermFree(subnorm);
 
-   PStackFree(stack);
+        for (i = 0; i < subterm->arity; i++)
+        {
+            PStackPushP(stack, subterm->args[i]);
+        }
+    }
+
+    PStackFree(stack);
 }
 
 static double termweight_term_weight(Term_p term, TermWeightParam_p data)
 {
-   Term_p repr;
-   long freq;
-   NumTree_p cell;
+    Term_p repr;
+    long freq = 0;
+    ArrayTree_p node;
 
-   repr = termweight_insert(data->eval_bank, term, data->var_norm);
-   termweight_update_conjecture_freqs(data->eval_bank, &data->eval_freqs, 
-      repr, data->var_norm);
+    repr = termweight_insert(data->eval_bank, term, data->var_norm);
+    termweight_update_conjecture_freqs(data->eval_bank, &data->eval_freqs,
+                                       repr, data->var_norm);
 
-   if (TermIsFreeVar(repr))
-   {
-      return data->vweight;
-   }
+    if (TermIsFreeVar(repr))
+    {
+        return data->vweight;
+    }
 
-   cell = NumTreeFind(&data->eval_freqs, repr->entry_no);
-   freq = cell ? (cell->val1.i_val) : 0;
-   if (TermIsConst(repr)) 
-   {
-      return (freq>0) ? data->conj_cweight : data->cweight;
-   }
-   if (TermCellQueryProp(repr, TPPredPos))
-   {
-      return (freq>0) ? data->conj_pweight : data->pweight;
-   }
-   else
-   {
-      return (freq>0) ? data->conj_fweight : data->fweight;
-   }
+    node = ArrayTreeFind(&data->eval_freqs, repr->entry_no);
+    if (node)
+    {
+        freq = PDRangeArrElementInt(node->array, repr->entry_no);
+    }
+
+    if (TermIsConst(repr))
+    {
+        return (freq > 0) ? data->conj_cweight : data->cweight;
+    }
+    if (TermCellQueryProp(repr, TPPredPos))
+    {
+        return (freq > 0) ? data->conj_pweight : data->pweight;
+    }
+    else
+    {
+        return (freq > 0) ? data->conj_fweight : data->fweight;
+    }
 }
+
 
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
@@ -324,15 +327,16 @@ TermWeightParam_p TermWeightParamAlloc(void)
 
 void TermWeightParamFree(TermWeightParam_p junk)
 {
-   if (junk->eval_bank) 
-   {
-      junk->eval_bank->sig = NULL;
-      TBFree(junk->eval_bank);
-      junk->eval_bank = NULL;
-      NumTreeFree(junk->eval_freqs);
-   }
-   TermWeightParamCellFree(junk);
+    if (junk->eval_bank)
+    {
+        junk->eval_bank->sig = NULL;
+        TBFree(junk->eval_bank);
+        junk->eval_bank = NULL;
+        ArrayTreeFree(junk->eval_freqs);
+    }
+    TermWeightParamCellFree(junk);
 }
+
  
 /*-----------------------------------------------------------------------
 //

@@ -23,7 +23,7 @@
 
 #define CTE_TERMFUNC
 
-#include <clb_numtrees.h>
+#include <clb_arraytrees.h>
 #include <cte_termvars.h>
 #include <cte_dbvars.h>
 
@@ -154,7 +154,7 @@ void    TermComputeFunctionRanks(Term_p term, long *rank_array, long *count);
 long    TermCollectPropVariables(Term_p term, PTree_p *tree,
                                  TermProperties prop);
 long    TermCollectVariables(Term_p term, PTree_p *tree);
-long    TermCollectFCodes(Term_p term, NumTree_p *tree);
+long    TermCollectFCodes(Term_p term, ArrayTree_p *tree);
 
 long    TermCollectGroundTerms(Term_p term, PTree_p *result, bool top_only);
 long    TermAddFunOcc(Term_p term, PDArray_p f_occur, PStack_p res_stack);
@@ -178,7 +178,7 @@ Term_p TermTrimImplications(Sig_p sig, Term_p f);
 #define PRINT_HO_PAREN(out, ch) ((problemType == PROBLEM_HO) ? \
                                     (fputc((ch), (out))) : 0)
 Term_p TermCopyUnifyVars(VarBank_p vars, Term_p term);
-Term_p TermCopyRenameVars(NumTree_p* renaming, Term_p term);
+Term_p TermCopyRenameVars(ArrayTree_p* renaming, Term_p term);
 Term_p TermCopyNormalizeVarsAlpha(VarBank_p vars, Term_p term);
 Term_p TermCopyNormalizeVars(VarBank_p vars, Term_p term,
                              VarNormStyle var_norm);

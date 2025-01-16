@@ -50,7 +50,7 @@ typedef struct flatannotermcell
 
 typedef struct flatannosetcell
 {
-   NumTree_p      set;   /* Of FlatAnnoTerms, indexed by
+   ArrayTree_p      set;   /* Of FlatAnnoTerms, indexed by
              term->entry_no */
 }FlatAnnoSetCell, *FlatAnnoSet_p;
 

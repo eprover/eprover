@@ -1,20 +1,23 @@
 /*-----------------------------------------------------------------------
 
-  File  : cle_examplerep.c
+File  : cle_examplerep.c
 
-  Author: Stephan Schulz
+Author: Stephan Schulz
 
-  Contents
+Contents
 
   Functions for dealing with (sets of) example representations.
 
-  Copyright 1998, 1999, 2024 by the author.
+  Copyright 1998, 1999 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-  Created: Tue Jul 27 11:46:29 MET DST 1999
+Changes
+
+<1> Tue Jul 27 11:46:29 MET DST 1999
+    New
 
 -----------------------------------------------------------------------*/
 
@@ -159,20 +162,23 @@ ExampleSet_p ExampleSetAlloc(void)
 //
 /----------------------------------------------------------------------*/
 
-void ExampleSetFree(ExampleSet_p junk)
-{
-   PStack_p stack;
-   NumTree_p handle;
+void ExampleSetFree(ExampleSet_p junk) {
+    PStack_p stack;
+    ArrayTree_p handle;
 
-   stack = NumTreeTraverseInit(junk->ident_index);
-   while((handle = NumTreeTraverseNext(stack)))
-   {
-      ExampleRepFree(handle->val1.p_val);
-   }
-   PStackFree(stack);
-   NumTreeFree(junk->ident_index);
-   StrTreeFree(junk->name_index);
-   ExampleSetCellFree(junk);
+    stack = ArrayTreeTraverseInit(junk->ident_index);
+    while ((handle = ArrayTreeTraverseNext(stack))) {
+        PDRangeArr_p array = handle->array;
+        if (array) {
+            for (long i = 0; i < array->size; i++) {
+                ExampleRepFree(array->array[i].p_val);
+            }
+        }
+    }
+    ArrayTreeTraverseExit(stack);
+    ArrayTreeFree(junk->ident_index);
+    StrTreeFree(junk->name_index);
+    ExampleSetCellFree(junk);
 }
 
 
@@ -212,26 +218,28 @@ ExampleRep_p  ExampleSetFindName(ExampleSet_p set, char* name)
 //
 /----------------------------------------------------------------------*/
 
-bool ExampleSetInsert(ExampleSet_p set, ExampleRep_p rep)
-{
-   IntOrP tmp;
-   StrTree_p res;
-   bool res1;
+bool ExampleSetInsert(ExampleSet_p set, ExampleRep_p rep) {
+    IntOrP tmp;
+    StrTree_p res;
+    tmp.p_val = rep;
 
-   tmp.p_val = rep;
+    // Insert the entry into the ident_index tree
+    ArrayTreeInsert(&(set->ident_index), rep->ident, (void *)rep);
 
-   res1 = NumTreeStore(&(set->ident_index), rep->ident, tmp, tmp);
-   if(!res1)
-   {
-      return false;
-   }
-   res = StrTreeStore(&(set->name_index), rep->name, tmp, tmp);
-   if(!res)
-   {
-      return false;
-   }
-   set->count = MAX(set->count, rep->ident);
-   return true;
+    // Verify the entry was successfully inserted
+    if (!ArrayTreeFind(&(set->ident_index), rep->ident)) {
+        return false;
+    }
+
+    // Insert the entry into the name_index tree
+    res = StrTreeStore(&(set->name_index), rep->name, tmp, tmp);
+    if (!res) {
+        return false;
+    }
+
+    // Update the maximum identifier count
+    set->count = MAX(set->count, rep->ident);
+    return true;
 }
 
 
@@ -248,23 +256,26 @@ bool ExampleSetInsert(ExampleSet_p set, ExampleRep_p rep)
 //
 /----------------------------------------------------------------------*/
 
-ExampleRep_p ExampleSetExtract(ExampleSet_p set, ExampleRep_p rep)
-{
-   ExampleRep_p handle;
-   NumTree_p    cell;
-   bool         res;
+ExampleRep_p ExampleSetExtract(ExampleSet_p set, ExampleRep_p rep) {
+    ExampleRep_p handle = NULL;
+    ArrayTree_p cell;
 
-   cell = NumTreeExtractEntry(&(set->ident_index), rep->ident);
-   if(!cell)
-   {
-      return NULL;
-   }
-   handle = cell->val1.p_val;
-   NumTreeCellFree(cell);
-   res = StrTreeDeleteEntry(&(set->name_index), rep->name);
-   UNUSED(res); assert(res);
+    cell = ArrayTreeExtractEntry(&(set->ident_index), rep->ident);
+    if (!cell) {
+        return NULL;
+    }
 
-   return handle;
+    PDRangeArr_p array = cell->array;
+    if (array && array->size > 0) {
+        handle = array->array[0].p_val;     // Only first value necessary?
+    }
+
+    ArrayTreeNodeFree(cell);
+    bool res = StrTreeDeleteEntry(&(set->name_index), rep->name);
+    UNUSED(res);
+    assert(res);
+
+    return handle;
 }
 
 
@@ -280,21 +291,26 @@ ExampleRep_p ExampleSetExtract(ExampleSet_p set, ExampleRep_p rep)
 //
 /----------------------------------------------------------------------*/
 
-bool ExampleSetDeleteId(ExampleSet_p set, long ident)
-{
-   ExampleRep_p handle;
-   NumTree_p    cell;
+bool ExampleSetDeleteId(ExampleSet_p set, long ident) {
+    ExampleRep_p handle;
+    ArrayTree_p cell;
 
-   cell = NumTreeFind(&(set->ident_index), ident);
-   if(!cell)
-   {
-      return false;
-   }
-   handle = ExampleSetExtract(set, cell->val1.p_val);
-   assert(handle);
-   ExampleRepFree(handle);
-   return true;
+    cell = ArrayTreeFind(&(set->ident_index), ident);
+    if (!cell) {
+        return false;
+    }
+
+    PDRangeArr_p array = cell->array;
+    if (array && array->size > 0) {
+        handle = ExampleSetExtract(set, array->array[0].p_val);
+        assert(handle);
+        ExampleRepFree(handle);
+        return true;
+    }
+
+    return false;
 }
+
 
 /*-----------------------------------------------------------------------
 //
@@ -336,17 +352,20 @@ bool ExampleSetDeleteName(ExampleSet_p set, char* name)
 //
 /----------------------------------------------------------------------*/
 
-void ExampleSetPrint(FILE* out, ExampleSet_p set)
-{
-   PStack_p  stack;
-   NumTree_p handle;
+void ExampleSetPrint(FILE* out, ExampleSet_p set) {
+    PStack_p stack;
+    ArrayTree_p handle;
 
-   stack = NumTreeTraverseInit(set->ident_index);
-   while((handle = NumTreeTraverseNext(stack)))
-   {
-      ExampleRepPrint(out, handle->val1.p_val);
-   }
-   NumTreeTraverseExit(stack);
+    stack = ArrayTreeTraverseInit(set->ident_index);
+    while ((handle = ArrayTreeTraverseNext(stack))) {
+        PDRangeArr_p array = handle->array;
+        if (array) {
+            for (long i = 0; i < array->size; i++) {
+                ExampleRepPrint(out, array->array[i].p_val);
+            }
+        }
+    }
+    ArrayTreeTraverseExit(stack);
 }
 
 
@@ -367,7 +386,7 @@ long ExampleSetParse(Scanner_p in, ExampleSet_p set)
 {
    long         count = 0;
    ExampleRep_p handle;
-   DStr_p       source_name;
+   DStr_p       source_name, errpos;
    long         line, column;
    StreamType   type;
    bool         res;
@@ -382,10 +401,15 @@ long ExampleSetParse(Scanner_p in, ExampleSet_p set)
       res =  ExampleSetInsert(set, handle);
       if(!res)
       {
-         Error("%s Entry %s conficts with existing entries",
-               SYNTAX_ERROR,
-               PosRep(type, source_name, line, column),
-               handle->ident);
+    errpos = DStrAlloc();
+
+    DStrAppendStr(errpos, PosRep(type, source_name, line,
+                  column));
+    DStrAppendStr(errpos, "Entry ");
+    DStrAppendInt(errpos, handle->ident);
+    DStrAppendStr(errpos, " conflicts with existing entries");
+    Error(DStrView(errpos), SYNTAX_ERROR);
+    DStrFree(errpos);
       }
       count++;
       DStrReleaseRef(source_name);
@@ -411,54 +435,52 @@ long ExampleSetParse(Scanner_p in, ExampleSet_p set)
 /----------------------------------------------------------------------*/
 
 long ExampleSetSelectByDist(PStack_p results, ExampleSet_p set,
-             Features_p target, double pred_w, double
-             func_w, double *weights, long sel_no,
-             double set_part, double dist_part)
-{
-   long             set_size = NumTreeNodes(set->ident_index),
-      i, climit;
-   double           dlimit, dist, avg;
-   WeightedObject_p tmp_array = WeightedObjectArrayAlloc(set_size);
-   PStack_p     stack;
-   NumTree_p    cell;
-   ExampleRep_p current;
+                            Features_p target, double pred_w, double func_w,
+                            double *weights, long sel_no, double set_part, double dist_part) {
+    long set_size = ArrayTreeNodes(set->ident_index), i, climit;
+    double dlimit, dist, avg;
+    WeightedObject_p tmp_array = WeightedObjectArrayAlloc(set_size);
+    PStack_p stack;
+    ArrayTree_p cell;
+    ExampleRep_p current;
 
-   i = 0;
-   avg = 0;
-   stack = NumTreeTraverseInit(set->ident_index);
-   while((cell = NumTreeTraverseNext(stack)))
-   {
-      current = cell->val1.p_val;
-      dist = NumFeatureDistance(target, current->features, pred_w,
-                                func_w, weights);
-      tmp_array[i].weight       = dist;
-      tmp_array[i].object.p_val = current;
-      avg += dist;
-      i++;
-   }
-   assert(i == set_size);
-   NumTreeTraverseExit(stack);
-   avg = avg /(double)set_size;
+    i = 0;
+    avg = 0;
+    stack = ArrayTreeTraverseInit(set->ident_index);
+    while ((cell = ArrayTreeTraverseNext(stack))) {
+        PDRangeArr_p array = cell->array;
+        if (array) {
+            for (long j = 0; j < array->size; j++) {
+                current = array->array[j].p_val;
+                dist = NumFeatureDistance(target, current->features, pred_w, func_w, weights);
+                tmp_array[i].weight = dist;
+                tmp_array[i].object.p_val = current;
+                avg += dist;
+                i++;
+            }
+        }
+    }
+    assert(i == set_size);
+    ArrayTreeTraverseExit(stack);
+    avg = avg / (double)set_size;
 
-   WeightedObjectArraySort(tmp_array, set_size);
-   climit = MIN(sel_no, set_part*set_size);
-   dlimit = dist_part*avg;
-   assert(climit <= set_size);
-   for(i=0; i<climit && tmp_array[i].weight <= dlimit; i++)
-   {
-      current = tmp_array[i].object.p_val;
-      if(Verbose)
-      {
-         fprintf(stderr, "Selected problem %ld: %s\n", current->ident,
-                 current->name);
-      }
-      PStackPushInt(results, current->ident);
-   }
-   WeightedObjectArrayFree(tmp_array);
-   return i;
+    WeightedObjectArraySort(tmp_array, set_size);
+    climit = MIN(sel_no, set_part * set_size);
+    dlimit = dist_part * avg;
+    assert(climit <= set_size);
+    for (i = 0; i < climit && tmp_array[i].weight <= dlimit; i++) {
+        current = tmp_array[i].object.p_val;
+        if (Verbose) {
+            fprintf(stderr, "Selected problem %ld: %s\n", current->ident, current->name);
+        }
+        PStackPushInt(results, current->ident);
+    }
+    WeightedObjectArrayFree(tmp_array);
+    return i;
 }
 
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
+

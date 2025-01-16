@@ -39,7 +39,7 @@ typedef struct def_store_cell
 {
    TB_p         terms;       /* Where to build new literals. */
    ClauseSet_p  def_clauses; /* The clauses we have definitions for. */
-   NumTree_p    def_assocs;  /* Association of clause id and new symbol. */
+   ArrayTree_p  def_assocs;  /* Association of clause id and new symbol. */
    FormulaSet_p def_archive;
 }DefStoreCell, *DefStore_p;
 

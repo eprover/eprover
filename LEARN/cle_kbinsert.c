@@ -58,83 +58,78 @@ Changes
 //
 /----------------------------------------------------------------------*/
 
-AnnoTerm_p ParseExampleClause(Scanner_p in, TB_p parse_terms, TB_p
-               internal_terms, long ident)
-{
-   Term_p         clauserep, newrep, tmp;
-   Clause_p       clause;
-   Annotation_p   anno = AnnotationAlloc();
-   long           i;
-   double         value;
-   PatternSubst_p subst;
-   PStack_p       listrep;
-   AnnoTerm_p     handle = NULL;
+AnnoTerm_p ParseExampleClause(Scanner_p in, TB_p parse_terms, TB_p internal_terms, long ident) {
+    Term_p clauserep, newrep, tmp;
+    Clause_p clause;
+    Annotation_p anno = AnnotationAlloc();
+    long i;
+    double value;
+    PatternSubst_p subst;
+    PStack_p listrep;
+    AnnoTerm_p handle = NULL;
 
-   AcceptInpTok(in,PosInt);
-   AcceptInpTok(in,Colon);
+    AcceptInpTok(in, PosInt);
+    AcceptInpTok(in, Colon);
 
-   anno->key = ident;
-   AcceptInpTok(in, OpenBracket);
+    // Assign the identifier to the annotation key
+    anno->key = ident;
+    AcceptInpTok(in, OpenBracket);
 
-   /* The 0th position of the annotation vector always has the number
-      of original annotations merged into it -> as the annotation is
-      newly created, it's always 1 here. */
+    /* The 0th position of the annotation vector always has the number
+       of original annotations merged into it -> as the annotation is
+       newly created, it's always 1 here. */
+    AnnotationCount(anno) = 1;
 
-   AnnotationCount(anno) = 1;
+    /* The first value is special! */
+    if (AktToken(in)->numval == 0) {
+        DDArrayAssign(AnnotationValues(anno), 1, 1); // Distance from proof
+    } else {
+        DDArrayAssign(AnnotationValues(anno), 1, 0); // Not used in proof
+    }
 
-   /* The first value is special! -> In the annotation, it is used
-      twice: For the number of proofs in which the clause was used
-      (position 1) and, as in the example
-      file, as the distance from the proof (position 2). */
-   if(AktToken(in)->numval == 0)
-   {
-      DDArrayAssign(anno->val1.p_val, 1, 1);
-   }
-   else
-   {
-      DDArrayAssign(anno->val1.p_val, 1, 0);
-   }
-   DDArrayAssign(anno->val1.p_val, 2, (float)AktToken(in)->numval);
+    // Assign the second value for proof distance
+    DDArrayAssign(AnnotationValues(anno), 2, (float)AktToken(in)->numval);
 
-   AcceptInpTok(in, PosInt);
+    AcceptInpTok(in, PosInt);
 
-   i=3;
-   while(TestInpTok(in, Comma))
-   {
-      AcceptInpTok(in, Comma);
-      value = ParseFloat(in);
-      DDArrayAssign(anno->val1.p_val, i, value);
-      i++;
-   }
-   anno->val2.i_val = i;
+    // Process remaining values
+    i = 3;
+    while (TestInpTok(in, Comma)) {
+        AcceptInpTok(in, Comma);
+        value = ParseFloat(in);
+        DDArrayAssign(AnnotationValues(anno), i, value);
+        i++;
+    }
 
-   AcceptInpTok(in, CloseBracket);
-   AcceptInpTok(in, Colon);
-   clause = ClauseParse(in, parse_terms);
+    // Store the length of the annotation
+    AnnotationLength(anno) = i;
 
-   subst   = PatternDefaultSubstAlloc(parse_terms->sig);
-   listrep = PStackAlloc();
+    AcceptInpTok(in, CloseBracket);
+    AcceptInpTok(in, Colon);
 
-   if(PatternClauseCompute(clause, &subst, &listrep))
-   {
-      clauserep = RecEncodeClauseListRep(parse_terms, listrep);
-      tmp = PatternTranslateSig(clauserep, subst, parse_terms->sig,
-            internal_terms->sig,
-            internal_terms->vars);
-      newrep = TBInsert(internal_terms, tmp, DEREF_NEVER);
-      TermFree(tmp);
-      /* TBDelete(parse_terms, clauserep); */
-      handle = AnnoTermAlloc(newrep, anno);
-   }
-   else
-   {
-      AnnotationFree(anno);
-   }
-   ClauseFree(clause);
-   PatternSubstFree(subst);
-   PStackFree(listrep);
+    clause = ClauseParse(in, parse_terms);
 
-   return handle;
+    // Allocate substitution and clause list
+    subst = PatternDefaultSubstAlloc(parse_terms->sig);
+    listrep = PStackAlloc();
+
+    if (PatternClauseCompute(clause, &subst, &listrep)) {
+        clauserep = RecEncodeClauseListRep(parse_terms, listrep);
+        tmp = PatternTranslateSig(clauserep, subst, parse_terms->sig,
+                                  internal_terms->sig, internal_terms->vars);
+        newrep = TBInsert(internal_terms, tmp, DEREF_NEVER);
+        TermFree(tmp);
+
+        handle = AnnoTermAlloc(newrep, anno);
+    } else {
+        AnnotationFree(anno);
+    }
+
+    ClauseFree(clause);
+    PatternSubstFree(subst);
+    PStackFree(listrep);
+
+    return handle;
 }
 
 

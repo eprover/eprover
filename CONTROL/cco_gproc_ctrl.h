@@ -53,7 +53,7 @@ typedef struct e_gpctrl_cell
 typedef struct e_gpctrl_set_cell
 {
    int       cores_reserved;
-   NumTree_p procs;  /* Indexed by fileno() */
+   ArrayTree_p procs;  /* Indexed by fileno() */
    char      buffer[EGPCTRL_BUFSIZE];
 }EGPCtrlSetCell, *EGPCtrlSet_p;
 
@@ -86,7 +86,7 @@ void         EGPCtrlSetAddProc(EGPCtrlSet_p set, EGPCtrl_p proc);
 EGPCtrl_p    EGPCtrlSetFindProc(EGPCtrlSet_p set, int fd);
 void         EGPCtrlSetDeleteProc(EGPCtrlSet_p set, EGPCtrl_p proc, bool kill_proc);
 #define      EGPCtrlSetEmpty(set) ((set)->procs==NULL)
-#define      EGPCtrlSetCardinality(set) NumTreeNodes((set)->procs)
+#define      EGPCtrlSetCardinality(set) ArrayTreeNodes((set)->procs)
 #define      EGPCtrlSetCoresReserved(set) ((set)->cores_reserved)
 
 int          EGPCtrlSetFDSet(EGPCtrlSet_p set, fd_set *rd_fds);

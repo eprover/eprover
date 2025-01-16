@@ -134,8 +134,7 @@ def parse_protocol_file(filename, fd, confs, e_path, limit):
     if not first_line.startswith('#'):
       raise StopIteration
 
-    e_args = first_line[1:].strip().split(' ')[1:-1]
-    e_args.append("/Users/schulz/dummy.p")
+    e_args = first_line[1:].strip().split(' ')[1:]
     from pathlib import Path
     conf_name = Path(filename[len(PROTOCOL):]).stem
 
@@ -338,7 +337,6 @@ def schedule(cats, confs, min_size, max_size, used_confs,
     sched_size = 0
     remaining_ratio = 1
     remaining_confs = set(confs)
-    raw_confs = set(confs)
 
     while remaining_confs and remaining_probs and sched_size<max_size:
       best_conf, best_eval = get_best_conf(remaining_confs,
@@ -356,7 +354,6 @@ def schedule(cats, confs, min_size, max_size, used_confs,
         schedule.append( (best_conf, ratio) )
         remaining_probs.difference_update(solved_probs)
         remaining_confs.remove(best_conf)
-        raw_confs.remove(best_conf)
         if unique_preproc:
           same_preproc = set(filter(lambda x: x.get_preprocess_params()
                                   == best_conf.get_preprocess_params(),
@@ -373,16 +370,14 @@ def schedule(cats, confs, min_size, max_size, used_confs,
       # if we did not have enough configurations to fill
       # in the scheule, then we take the best ones until
       # the schedule is filled
-
-      assert(raw_confs)
-      #assert(remaining_confs)
+      assert(remaining_confs)
 
       def eval_probs(conf, last, cat):
         (sol, uniq, dist, succ, time) = conf.evaluate_for_probs(last, cat.get_problems())
         return (sol, uniq, dist, succ, -time)
 
       last = schedule[-1][0] if schedule else None
-      remaining_confs = list(sorted(raw_confs, key=lambda x: eval_probs(x, last, cat),
+      remaining_confs = list(sorted(remaining_confs, key=lambda x: eval_probs(x, last, cat),
                                     reverse=True))
       rem_ratio = remaining_ratio / to_add
       while remaining_confs and to_add:

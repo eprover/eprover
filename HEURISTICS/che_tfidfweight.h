@@ -38,7 +38,7 @@ typedef struct tfidfweightparamcell
    RelatedTermSet rel_terms;
 
    TB_p eval_bank;
-   NumTree_p eval_freqs;
+   ArrayTree_p eval_freqs;
    PDTree_p documents;
    int update_docs;
    double tf_fact;

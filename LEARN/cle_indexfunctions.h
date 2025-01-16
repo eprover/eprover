@@ -76,7 +76,7 @@ typedef struct tsmindexcell
    union
    {
       PTree_p     t_index;    /* Map IndexTerms onto index number */
-      NumTree_p   n_index;    /* Map f_codes onto number */
+      ArrayTree_p   n_index;    /* Map f_codes onto number */
    }              tree;
 }TSMIndexCell, *TSMIndex_p;
 

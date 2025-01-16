@@ -57,7 +57,6 @@ PERF_CTR_DEFINE(SatTimer);
 char              *outname = NULL;
 char              *watchlist_filename = NULL;
 char              *parse_strategy_filename = NULL;
-char              *select_strategy = NULL;
 char              *print_strategy = NULL;
 HeuristicParms_p  h_parms;
 FVIndexParms_p    fvi_parms;
@@ -219,10 +218,6 @@ ProofState_p parse_spec(CLState_p state,
    }
    VERBOUT2("Specification read\n");
 
-   ProofStateProcessDistinct(proofstate);
-
-   VERBOUT2("$distinct directives processed\n");
-
    proofstate->has_interpreted_symbols =
       FormulaSetHasInterpretedSymbol(proofstate->f_axioms);
    parsed_ax_no = ProofStateAxNo(proofstate);
@@ -296,20 +291,12 @@ void strategy_io(HeuristicParms_p h_parms, PStack_p hcb_definitions)
       }
       DestroyScanner(in);
    }
-   if(select_strategy)
-   {
-      GetHeuristicWithName(select_strategy, h_parms);
-   }
 
    if(print_strategy)
    {
       if(strcmp(print_strategy, ">all-strats<")==0)
       {
-         StrategiesPrintPredefined(GlobalOut, false);
-      }
-      else if(strcmp(print_strategy, ">all-names<")==0)
-      {
-         StrategiesPrintPredefined(GlobalOut, true);
+         StrategiesPrintPredefined(GlobalOut);
       }
       else
       {
@@ -558,7 +545,7 @@ int main(int argc, char* argv[])
    SpecLimits_p spec_limits = NULL;
    RawSpecFeatureCell raw_features;
    SpecFeatureCell features;
-   int sched_idx = -1;
+   int sched_idx;
    Schedule_p preproc_schedule = NULL;
    rlim_t wc_sched_limit;
    Derivation_p deriv;
@@ -1359,9 +1346,6 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_RUSAGE_INFO:
             print_rusage = true;
             break;
-      case OPT_SELECT_STRATEGY:
-            select_strategy = arg;
-            break;
       case OPT_PRINT_STRATEGY:
             print_strategy = arg;
             break;
@@ -1851,13 +1835,13 @@ CLState_p process_options(int argc, char* argv[])
             break;
       case OPT_SATCHECK:
             tmp = StringIndex(arg, GroundingStratNames);
-            if(tmp < 0)
+            if(tmp <= 0)
             {
                DStr_p err = DStrAlloc();
                DStrAppendStr(err,
                              "Wrong argument to option --sat-check. Possible "
                              "values: ");
-               DStrAppendStrArray(err, GroundingStratNames, ", ");
+               DStrAppendStrArray(err, GroundingStratNames+1, ", ");
                Error(DStrView(err), USAGE_ERROR);
                DStrFree(err);
             }
@@ -2272,9 +2256,7 @@ E " VERSION " \"" E_NICKNAME "\"\n\
 \n\
 Usage: " NAME " [options] [files]\n\
 \n\
-Read a set of first-order (or, in the -ho-version, higher-order)\n\
-clauses and formulae and try to prove the conjecture (if given)\n\
-or show the set unsatisfiable.\n\
+Read a set of first-order clauses and formulae and try to refute it.\n\
 \n");
    PrintOptions(stdout, opts, "Options:\n\n");
    fprintf(out, "\n\n" E_FOOTER);

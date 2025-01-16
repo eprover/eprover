@@ -118,7 +118,7 @@ void    EqnListAddSymbolDistExist(Eqn_p list, long *dist_array, PStack_p exist);
 void    EqnListAddSymbolFeatures(Eqn_p list, PStack_p mod_stack, long *feature_array);
 void    EqnListComputeFunctionRanks(Eqn_p list, long *rank_array, long* count);
 long    EqnListCollectVariables(Eqn_p list, PTree_p *tree);
-long    EqnListCollectFCodes(Eqn_p list, NumTree_p *tree);
+long    EqnListCollectFCodes(Eqn_p list, ArrayTree_p *tree);
 long    EqnListAddFunOccs(Eqn_p list, PDArray_p f_occur, PStack_p res_stack);
 
 void    EqnListSignedTermSetProp(Eqn_p list, TermProperties props, bool pos, bool neg);

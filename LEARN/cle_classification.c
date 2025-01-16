@@ -102,35 +102,37 @@ bool TSMClassifiedTermCheck(TSMAdmin_p admin, FlatAnnoTerm_p term)
 //
 /----------------------------------------------------------------------*/
 
-long TSMClassifySet(TSMAdmin_p admin, FlatAnnoSet_p set)
-{
-   NumTree_p      handle;
-   PStack_p       stack;
-   FlatAnnoTerm_p term;
-   long           res = 0;
+long TSMClassifySet(TSMAdmin_p admin, FlatAnnoSet_p set) {
+    ArrayTree_p handle;
+    PStack_p stack;
+    FlatAnnoTerm_p term;
+    long res = 0;
 
-   stack = NumTreeTraverseInit(set->set);
+    stack = ArrayTreeTraverseInit(set->set);
 
-   while((handle = NumTreeTraverseNext(stack)))
-   {
-      term = handle->val1.p_val;
-      if(TSMClassifiedTermCheck(admin, term))
-      {
-    printf("OKOK ");
-    res+=term->sources;
-      }
-      else
-      {
-    printf("FAIL ");
-      }
-      TermPrint(stdout, term->term, admin->index_bank->sig,
-      DEREF_NEVER);
-      printf("\n");
-   }
-   NumTreeTraverseExit(stack);
-   return res;
+    while ((handle = ArrayTreeTraverseNext(stack))) {
+        PDRangeArr_p array = handle->array;
+        if (array) {
+            for (long i = 0; i < array->size; i++) {
+                term = array->array[i].p_val;
+                if (term) {
+                    if (TSMClassifiedTermCheck(admin, term)) {
+                        printf("OKOK ");
+                        res += term->sources;
+                    } else {
+                        printf("FAIL ");
+                    }
+                    TermPrint(stdout, term->term, admin->index_bank->sig, DEREF_NEVER);
+                    printf("\n");
+                }
+            }
+        }
+    }
+
+    ArrayTreeTraverseExit(stack);
+
+    return res;
 }
-
 
 
 /*---------------------------------------------------------------------*/

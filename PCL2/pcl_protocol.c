@@ -1,20 +1,23 @@
 /*-----------------------------------------------------------------------
 
-  File  : pcl_protocol.c
+File  : pcl_protocol.c
 
-  Author: Stephan Schulz
+Author: Stephan Schulz
 
-  Contents
+Contents
 
   Protocols (=trees) of PCL steps, all inclusive ;-)
 
-  Copyright 1998, 1999, 2024 by the author.
+  Copyright 1998, 1999 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-  Created: Sun Apr  2 01:49:33 GMT 2000
+Changes
+
+<1> Sun Apr  2 01:49:33 GMT 2000
+    New
 
 -----------------------------------------------------------------------*/
 
@@ -247,7 +250,7 @@ long PCLProtParse(Scanner_p in, PCLProt_p prot)
    long       res = 0;
    PCLStep_p  step;
    PTree_p    cell;
-   DStr_p     source_name;
+   DStr_p     source_name, errpos;
    long       line, column;
    StreamType type;
 
@@ -267,9 +270,12 @@ long PCLProtParse(Scanner_p in, PCLProt_p prot)
       cell = PCLProtInsertStep(prot, step);
       if(cell)
       {
-         Error("%s duplicate PCL identifier",
-               SYNTAX_ERROR,
-               PosRep(type, source_name, line, column));
+    errpos = DStrAlloc();
+
+    DStrAppendStr(errpos, PosRep(type, source_name, line, column));
+    DStrAppendStr(errpos, " duplicate PCL identifier");
+    Error(DStrView(errpos), SYNTAX_ERROR);
+    DStrFree(errpos);
       }
       DStrReleaseRef(source_name);
       res++;
@@ -755,3 +761,7 @@ void PCLProtPrintExamples(FILE* out, PCLProt_p prot)
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
+
+
+
+

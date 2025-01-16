@@ -69,7 +69,6 @@ typedef enum
    DOSkolemize,
    DODistDisjunctions,
    DOAnnoQuestion,
-   DOExpandDistinct,
    /* Generating inferences */
    DOParamod,
    DOSimParamod,
@@ -147,7 +146,6 @@ typedef enum
    DCSkolemize        = DOSkolemize,
    DCDistDisjunctions = DODistDisjunctions,
    DCAnnoQuestion     = DOAnnoQuestion,
-   DCExpandDistinct   = DOExpandDistinct |Arg1Fof,
    /* Generating inferences */
    DCParamod          = DOParamod |Arg1Cnf|Arg2Cnf,
    DCSimParamod       = DOSimParamod|Arg1Cnf|Arg2Cnf,
@@ -294,7 +292,7 @@ Derived_p DerivedAlloc(void);
 
 bool DerivedInProof(Derived_p derived);
 void DerivedSetInProof(Derived_p derived, bool in_proof);
-long DerivedCollectFCodes(Derived_p derived, NumTree_p *tree);
+long DerivedCollectFCodes(Derived_p derived, ArrayTree_p *tree);
 
 void DerivationStackPCLPrint(FILE* out, Sig_p sig, PStack_p derivation);
 void DerivationStackTSTPPrint(FILE* out, Sig_p sig, PStack_p derivation);
@@ -325,7 +323,7 @@ void DerivationRenumber(Derivation_p derivation);
 Derivation_p DerivationCompute(PStack_p root_clauses, Sig_p sig);
 
 void DerivationAnalyse(Derivation_p derivationt);
-long DerivationCollectFCodes(Derivation_p derived, NumTree_p *tree);
+long DerivationCollectFCodes(Derivation_p derived, ArrayTree_p *tree);
 
 void DerivationPrint(FILE* out, Derivation_p derivation);
 void DerivationDotPrint(FILE* out, Derivation_p derivation,

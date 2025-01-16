@@ -25,13 +25,13 @@ name. The following rule names are defined for the main proof search:
      and thus also performs resolution by a combination of top-level
      paramodulation and (implicit) clause normalization.
 <DT> spm
-<DD> Simultaneous Paramodulation. This is similar to paramodulation,
+<DD> Simultaneous Paramodulation. This is similr to paramodulation,
      but replaces all instances of the same term in the original
      clause in one step.
 <DT> ef
-<DD> Equality factoring (factor equations on one side only, move the
+<DD> Equality factoring (factor equations on one side only, move the 
      remaining disequation into the precondition): x=a v b=c v x=d ==>
-     a!=c v b=c vb=d
+     a!=c v b=c vb=d 
 <DT> apply_def
 <DD> Apply a definition, usually replacing a complex formula by a
      single literal.
@@ -43,7 +43,7 @@ name. The following rule names are defined for the main proof search:
      unfolding.
 <DT> sr
 <DD> Simplify-reflect: An (equational) version of unit-cutting. As as
-      example, see this positive simplify-reflect step:
+      example, see this positive simplify-reflect step:  
       [a=b], [f(a)!=f(b)] => [].
 <DT> csr
 <DD> Contextual simplify-reflect (also known as contextual literal
@@ -87,7 +87,7 @@ Additionally, the clausification will use additional rule names:
      to create a clause.
 <DT> fof_simplification
 <DD> Perform standard simplification steps on the formula. This may
-     also replace back implications and exclusive-or with equivalent
+     also replaces back implications and exclusive or with equivalent
      constructs using implications and equivalences.
 </DL>
 <P>

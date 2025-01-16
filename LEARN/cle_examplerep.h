@@ -29,6 +29,7 @@ Changes
 #include <clb_simple_stuff.h>
 #include <clb_stringtrees.h>
 #include <cle_numfeatures.h>
+#include "clb_arraytrees.h"
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
@@ -53,8 +54,8 @@ typedef struct examplesetcell
 {
    long      count; /* For ident generation, _not_ number of examples
            */
-   NumTree_p ident_index;
-   StrTree_p name_index;
+   ArrayTree_p ident_index;
+   StrTree_p   name_index;
 }ExampleSetCell, *ExampleSet_p;
 
 

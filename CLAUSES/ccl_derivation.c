@@ -58,7 +58,6 @@ char *opids[] =
    PCL_SK,
    PCL_DSTR,
    PCL_ANNOQ,
-   PCL_EXPDISTICT,
    /* Generating */
    PCL_PM,
    PCL_SPM,
@@ -122,7 +121,6 @@ char *optheory [] =
    NULL,
    NULL,
    "answers",
-   "distinct",
    /* Generating */
    NULL,
    NULL,
@@ -185,7 +183,6 @@ char *opstatus [] =
    "thm",
    "thm",
    "esa",
-   "thm",
    "thm",
    "thm",
    /* Generating */
@@ -573,18 +570,17 @@ void DerivedSetInProof(Derived_p derived, bool in_proof)
 //
 /----------------------------------------------------------------------*/
 
-long DerivedCollectFCodes(Derived_p derived, NumTree_p *tree)
+long DerivedCollectFCodes(Derived_p derived, ArrayTree_p *tree)
 {
-   if(derived->clause)
-   {
-      return ClauseCollectFCodes(derived->clause, tree);
-   }
-   else
-   {
-      return TermCollectFCodes(derived->formula->tformula, tree);
-   }
+    if (derived->clause)
+    {
+        return ClauseCollectFCodes(derived->clause, tree);
+    }
+    else
+    {
+        return TermCollectFCodes(derived->formula->tformula, tree);
+    }
 }
-
 
 
 /*-----------------------------------------------------------------------
@@ -2387,23 +2383,26 @@ void DerivationAnalyse(Derivation_p derivation)
 //
 /----------------------------------------------------------------------*/
 
-long DerivationCollectFCodes(Derivation_p derivation, NumTree_p *tree)
+long DerivationCollectFCodes(Derivation_p derivation, ArrayTree_p *tree)
 {
-   PStackPointer sp;
-   Derived_p     handle;
-   long          res = 0;
+    PStackPointer sp;
+    Derived_p handle;
+    long res = 0;
 
-   if(!derivation->ordered)
-   {
-      DerivationTopoSort(derivation);
-   }
-   for(sp=0; sp<PStackGetSP(derivation->ordered_deriv); sp++)
-   {
-      handle = PStackElementP(derivation->ordered_deriv, sp);
-      res += DerivedCollectFCodes(handle, tree);
-   }
-   return res;
+    if (!derivation->ordered)
+    {
+        DerivationTopoSort(derivation);
+    }
+
+    for (sp = 0; sp < PStackGetSP(derivation->ordered_deriv); sp++)
+    {
+        handle = PStackElementP(derivation->ordered_deriv, sp);
+        res += DerivedCollectFCodes(handle, tree);
+    }
+
+    return res;
 }
+
 
 
 /*-----------------------------------------------------------------------
@@ -2503,56 +2502,56 @@ void DerivationDotPrint(FILE* out, Derivation_p derivation,
 //
 /----------------------------------------------------------------------*/
 
-void DerivationPrintConditional(FILE* out, char* status, Derivation_p derivation,
+void DerivationPrintConditional(FILE *out, char *status, Derivation_p derivation,
                                 Sig_p sig, ProofOutput print_derivation,
                                 bool print_analysis)
 {
-   if(print_derivation == POList)
-   {
-      fprintf(out, "# SZS output start %s\n", status);
-      if(sig->typed_symbols)
-      {
-         NumTree_p symbols = NULL;
-         PTree_p types = NULL;
+    if (print_derivation == POList)
+    {
+        fprintf(out, "# SZS output start %s\n", status);
+        if (sig->typed_symbols)
+        {
+            ArrayTree_p symbols = NULL;
+            PTree_p types = NULL;
 
-         DerivationCollectFCodes(derivation, &symbols);
-         SigFCodesCollectTypes(sig, symbols, &types);
-         TypeBankPrintSelectedSortDefs(out, sig->type_bank, types);
-         SigPrintTypeDeclsTSTPSelective(out, sig, &symbols);
-         NumTreeFree(symbols);
-         PTreeFree(types);
-      }
-      DerivationPrint(GlobalOut, derivation);
-      fprintf(out, "# SZS output end %s\n", status);
-   }
-   else if(print_derivation >= POGraph1)
-   {
-      DerivationDotPrint(GlobalOut, derivation, print_derivation);
-   }
-   DerivationAnalyse(derivation);
-   if(print_analysis)
-   {
-      fprintf(GlobalOut, "# Proof object total steps             : %lu\n",
-              derivation->clause_step_count+derivation->formula_step_count);
-      fprintf(GlobalOut, "# Proof object clause steps            : %lu\n",
-              derivation->clause_step_count);
-      fprintf(GlobalOut, "# Proof object formula steps           : %lu\n",
-              derivation->formula_step_count);
-      fprintf(GlobalOut, "# Proof object conjectures             : %lu\n",
-              derivation->clause_conjecture_count+derivation->formula_conjecture_count);
-      fprintf(GlobalOut, "# Proof object clause conjectures      : %lu\n",
-              derivation->clause_conjecture_count);
-      fprintf(GlobalOut, "# Proof object formula conjectures     : %lu\n",
-              derivation->formula_conjecture_count);
-      fprintf(GlobalOut, "# Proof object initial clauses used    : %lu\n",
-              derivation->initial_clause_count);
-      fprintf(GlobalOut, "# Proof object initial formulas used   : %lu\n",
-              derivation->initial_formula_count);
-      fprintf(GlobalOut, "# Proof object generating inferences   : %lu\n",
-              derivation->generating_inf_count);
-      fprintf(GlobalOut, "# Proof object simplifying inferences  : %lu\n",
-              derivation->simplifying_inf_count);
-   }
+            DerivationCollectFCodes(derivation, &symbols);
+            SigFCodesCollectTypes(sig, symbols, &types);
+            TypeBankPrintSelectedSortDefs(out, sig->type_bank, types);
+            SigPrintTypeDeclsTSTPSelective(out, sig, &symbols);
+            ArrayTreeFree(symbols);
+            PTreeFree(types);
+        }
+        DerivationPrint(GlobalOut, derivation);
+        fprintf(out, "# SZS output end %s\n", status);
+    }
+    else if (print_derivation >= POGraph1)
+    {
+        DerivationDotPrint(GlobalOut, derivation, print_derivation);
+    }
+    DerivationAnalyse(derivation);
+    if (print_analysis)
+    {
+        fprintf(GlobalOut, "# Proof object total steps             : %lu\n",
+                derivation->clause_step_count + derivation->formula_step_count);
+        fprintf(GlobalOut, "# Proof object clause steps            : %lu\n",
+                derivation->clause_step_count);
+        fprintf(GlobalOut, "# Proof object formula steps           : %lu\n",
+                derivation->formula_step_count);
+        fprintf(GlobalOut, "# Proof object conjectures             : %lu\n",
+                derivation->clause_conjecture_count + derivation->formula_conjecture_count);
+        fprintf(GlobalOut, "# Proof object clause conjectures      : %lu\n",
+                derivation->clause_conjecture_count);
+        fprintf(GlobalOut, "# Proof object formula conjectures     : %lu\n",
+                derivation->formula_conjecture_count);
+        fprintf(GlobalOut, "# Proof object initial clauses used    : %lu\n",
+                derivation->initial_clause_count);
+        fprintf(GlobalOut, "# Proof object initial formulas used   : %lu\n",
+                derivation->initial_formula_count);
+        fprintf(GlobalOut, "# Proof object generating inferences   : %lu\n",
+                derivation->generating_inf_count);
+        fprintf(GlobalOut, "# Proof object simplifying inferences  : %lu\n",
+                derivation->simplifying_inf_count);
+    }
 }
 
 

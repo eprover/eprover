@@ -28,7 +28,7 @@ Changes
 #define CLB_INTMAP
 
 #include <limits.h>
-#include <clb_numtrees.h>
+#include <clb_arraytrees.h>
 #include <clb_pdrangearrays.h>
 
 
@@ -41,7 +41,7 @@ typedef enum
    IMEmpty,
    IMSingle,
    IMArray,
-   IMTree
+   IMArrayTree
 }IntMapType;
 
 #define MAX_TREE_DENSITY 8
@@ -73,7 +73,7 @@ typedef struct intmap_cell
    {
       void*        value;   /* For IMSingle */
       PDRangeArr_p array;   /* For IMArray  */
-      NumTree_p    tree;    /* For IMTree   */
+      ArrayTree_p  arrayTree;    /* For IMTree   */
    }values;
 }IntMapCell, *IntMap_p;
 
@@ -88,7 +88,7 @@ typedef struct intmap_iter_cell
    {
       bool      seen;      /* For IMSingle */
       long      current;   /* For IMArray  */
-      PStack_p  tree_iter; /* For IMTree */
+      PStack_p  tree_iter; /* For IMArrayTree */
    }admin_data;
 }IntMapIterCell, *IntMapIter_p;
 
@@ -109,6 +109,7 @@ void*    IntMapGetVal(IntMap_p map, long key);
 void**   IntMapGetRef(IntMap_p map, long key);
 void     IntMapAssign(IntMap_p map, long key, void* value);
 void*    IntMapDelKey(IntMap_p map, long key);
+static   ArrayTree_p add_new_arraytree_node(IntMap_p map, long key, void *val);
 
 
 #define IntMapIterCellAlloc() (IntMapIterCell*)SizeMalloc(sizeof(IntMapIterCell))
@@ -122,8 +123,8 @@ void*    IntMapDelKey(IntMap_p map, long key);
 
 #define IntMapDStorage(map) (((map)->type == IMArray)?\
                              PDArrayStorage((map)->values.array):\
-                             (((map)->type == IMTree)?\
-                              ((map)->entry_no*NUMTREECELL_MEM):0))
+                             (((map)->type == IMArrayTree)?\
+                              ((map)->entry_no*ARRAYTREECELL_MEM):0))
 
 #define IntMapStorage(map) (INTMAPCELL_MEM+IntMapDStorage(map))
 
@@ -159,7 +160,7 @@ static inline void* IntMapIterNext(IntMapIter_p iter, long *key)
 {
    void* res = NULL;
    long  i;
-   NumTree_p handle;
+   ArrayTree_p handle;
 
    assert(iter);
    assert(key);
@@ -196,27 +197,26 @@ static inline void* IntMapIterNext(IntMapIter_p iter, long *key)
          }
          iter->admin_data.current = i+1;
          break;
-   case IMTree:
+   case IMArrayTree:
          // printf("Case IMTree\n");
-         while((handle = NumTreeTraverseNext(iter->admin_data.tree_iter)))
-         {
-            if(handle)
+        while ((handle = ArrayTreeTraverseNext(iter->admin_data.tree_iter)))
+        {
+            for (i = PDRangeArrLowKey(handle->array); i < PDRangeArrLimitKey(handle->array); i++)
             {
-               if(handle->key > iter->upper_key)
-               {
-                  /* Overrun limit */
-                  break;
-               }
-               if(handle->val1.p_val)
-               {
-                  /* Found real value */
-                  *key = handle->key;
-                  res = handle->val1.p_val;
-                  break;
-               }
+                if (i > iter->upper_key)
+                {
+                    /* Überschreite das Limit */
+                    break;
+                }
+                res = PDRangeArrElementP(handle->array, i);
+                if (res)
+                {
+                    *key = i;
+                    return res;
+                }
             }
-         }
-         break;
+        }
+        break;
    default:
          assert(false && "Unknown IntMap type.");
          break;

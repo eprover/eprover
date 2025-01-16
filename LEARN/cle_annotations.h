@@ -28,7 +28,7 @@ Changes
 
 
 #include <clb_pdarrays.h>
-#include <clb_numtrees.h>
+#include <clb_arraytrees.h>
 #include <cio_basicparser.h>
 
 /*---------------------------------------------------------------------*/
@@ -58,7 +58,7 @@ Changes
 #define ANNOTATION_DEFAULT_SIZE 7
 #define ANNOTATIONS_MERGE_ALL NULL
 
-typedef NumTree_p Annotation_p;
+typedef ArrayTree_p Annotation_p;
 
 /*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */
@@ -66,10 +66,10 @@ typedef NumTree_p Annotation_p;
 
 Annotation_p AnnotationAlloc(void);
 void         AnnotationFree(Annotation_p junk);
-#define      AnnotationValues(anno) ((anno)->val1.p_val)
+#define      AnnotationValues(anno) ((anno)->array)
 #define      AnnotationCount(anno)\
-             DDArrayElement(((anno)->val1.p_val), 0)
-#define      AnnotationLength(anno) ((anno)->val2.i_val)
+             DDArrayElement(((anno)->array[0].array->p_val), 0)
+#define AnnotationLength(anno) (*(long *)PDRangeArrElementRef((anno)->array, 0))
 void         AnnotationTreeFree(Annotation_p tree);
 Annotation_p AnnotationParse(Scanner_p in, long expected);
 long         AnnotationListParse(Scanner_p in, Annotation_p *tree,

@@ -1,22 +1,25 @@
 /*-----------------------------------------------------------------------
 
-  File  : ekb_create.c
+File  : ekb_create.c
 
-  Author: Stephan Schulz
+Author: Stephan Schulz
 
-  Contents
+Contents
 
   Create a new, empty knowledge base for E.
 
-  Copyright 1998, 1999, 2024 by the author.
+  Copyright 1998, 1999 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-  Created: Fri Jul 23 17:46:15 MET DST 1999
+Changes
 
-  -----------------------------------------------------------------------*/
+<1> Fri Jul 23 17:46:15 MET DST 1999
+    New
+
+-----------------------------------------------------------------------*/
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -133,10 +136,14 @@ int main(int argc, char* argv[])
 
    if(mkdir(basename,S_IRWXU|S_IRWXG))
    {
+      DStr_p errpos = DStrAlloc();
       TmpErrno = errno;
-      SysError("Cannot create base directory '%s'",
-               SYNTAX_ERROR,
-               basename);
+
+      DStrAppendStr(errpos, "Cannot create base directory '");
+      DStrAppendStr(errpos, basename);
+      DStrAppendStr(errpos, "'");
+      SysError(DStrView(errpos), FILE_ERROR);
+      DStrFree(errpos);
    }
    VERBOUT("...successful.\nCreating files...\n");
 
@@ -151,28 +158,32 @@ int main(int argc, char* argv[])
 
    out = OutOpen(KBFileName(name, basename, "signature"));
    fprintf(out,
-           "# Special function symbols that are not generalized.\n"
-           "# You need to hand-hack this at the moment.\n");
+      "# Special function symbols that are not generalized.\n"
+      "# You need to hand-hack this at the moment.\n");
    OutClose(out);
 
    out = OutOpen(KBFileName(name, basename, "problems"));
    fprintf(out,
-           "# Example names and features. \n");
+      "# Example names and features. \n");
    OutClose(out);
 
    out = OutOpen(KBFileName(name, basename, "clausepatterns"));
    fprintf(out,
-           "# Individual annotated patterns. \n");
+      "# Individual annotated patterns. \n");
    OutClose(out);
 
    VERBOUT("...done.\nCreating subdirectory FILES...\n");
 
    if(mkdir(KBFileName(name, basename, "FILES"), S_IRWXU|S_IRWXG))
    {
-      SysError("Cannot create base directory '%s'",
-               FILE_ERROR,
-               basename);
+      DStr_p errpos = DStrAlloc();
       TmpErrno = errno;
+
+      DStrAppendStr(errpos, "Cannot create base directory '");
+      DStrAppendStr(errpos, DStrView(name));
+      DStrAppendStr(errpos, "'");
+      SysError(DStrView(errpos), FILE_ERROR);
+      DStrFree(errpos);
    }
    VERBOUT("...done.\nNew knowledge base complete.\n");
 
@@ -184,6 +195,7 @@ int main(int argc, char* argv[])
    MemFlushFreeList();
    MemDebugPrintStats(stdout);
 #endif
+
    return 0;
 }
 

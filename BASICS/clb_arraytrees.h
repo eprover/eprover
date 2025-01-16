@@ -2,6 +2,8 @@
 #define ARRAYTREES_H
 
 #include <clb_pdrangearrays.h>
+#include <clb_dstrings.h>
+#include <clb_avlgeneric.h>
 
 /*---------------------------------------------------------------------*/
 /*                       Data type declarations                        */
@@ -21,11 +23,21 @@ typedef struct arraytree_node
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
+#define ARRAYTREECELL_MEM 24
+
 ArrayTree_p ArrayTreeAlloc(void);
 void ArrayTreeFree(ArrayTree_p tree);
 void ArrayTreeInsert(ArrayTree_p *root, long key, void *value);
 void* ArrayTreeFind(ArrayTree_p *root, long key);
 void ArrayTreeDebugPrint(FILE *out, ArrayTree_p tree);
+ArrayTree_p ArrayTreeTraverseNext(PStack_p state);
+PStack_p ArrayTreeTraverseInit(ArrayTree_p root);
+PStack_p ArrayTreeLimitedTraverseInit(ArrayTree_p root, long limit);
+void ArrayTreeTraverseExit(PStack_p stack);
+PStack_p ArrayTreeLimitedTraverseInit(ArrayTree_p root, long limit);
+bool ArrayTreeStore(ArrayTree_p *root, long key, void *value);
+void ArrayTreeNodeFree(ArrayTree_p *tree);
+
 
 #endif
 

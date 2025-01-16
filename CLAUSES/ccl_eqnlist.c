@@ -1837,7 +1837,7 @@ long EqnListCollectVariables(Eqn_p list, PTree_p *tree)
 //
 /----------------------------------------------------------------------*/
 
-long EqnListCollectFCodes(Eqn_p list, NumTree_p *tree)
+long EqnListCollectFCodes(Eqn_p list, ArrayTree_p *tree)
 {
    long res = 0;
 
@@ -1848,7 +1848,6 @@ long EqnListCollectFCodes(Eqn_p list, NumTree_p *tree)
    }
    return res;
 }
-
 
 
 /*-----------------------------------------------------------------------

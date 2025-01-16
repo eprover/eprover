@@ -136,7 +136,6 @@ class Configuration(object):
   def compute_json(self, eprover_path, args):
     import subprocess as sp, re
     JSON_PRINT = ['--print-strategy']
-
     proc_res = sp.run(args=[eprover_path] + args + JSON_PRINT, capture_output=True)
     raw_res = proc_res.stdout.decode(encoding='ascii', errors='ignore')
     self._json = re.sub(' +', ' ', raw_res)

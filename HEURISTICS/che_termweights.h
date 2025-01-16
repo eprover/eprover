@@ -56,8 +56,8 @@ int TupleInit(FixedDArray_p cur);
 int TupleNext(FixedDArray_p cur, FixedDArray_p max);
 void TuplePrint(FixedDArray_p t);
 
-void TBIncSubtermsFreqs(Term_p term, NumTree_p* freqs);
-NumTree_p TBCountTermFreqs(TB_p bank);
+void TBIncSubtermsFreqs(Term_p term, ArrayTree_p* freqs);
+ArrayTree_p TBCountTermFreqs(TB_p bank);
 
 #endif
 

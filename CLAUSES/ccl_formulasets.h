@@ -8,7 +8,7 @@ Contents
 
   Data type for (wrapped) formula sets.
 
-Copyright 1998-2024 by the author.
+Copyright 1998-2011 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
@@ -82,11 +82,10 @@ long         FormulaSetCollectFCode(FormulaSet_p set, FunCode f_code,
                                     PStack_p result);
 
 void FormulaSetAppEncode(FILE* out, FormulaSet_p set);
-void FormulaSetDefinitionStatistics(FormulaSet_p orig, FormulaSet_p arch,
-                                    TB_p bank, int* num_defs,
-                                    double* percentage_form_defs,
+void FormulaSetDefinitionStatistics(FormulaSet_p orig, FormulaSet_p arch, 
+                                    TB_p bank, int* num_defs, 
+                                    double* percentage_form_defs, 
                                     int* num_lams, bool* app_var_lits);
-
 
 #endif
 

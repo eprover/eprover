@@ -24,6 +24,8 @@ Changes
 #define CCL_BCE
 
 #include <ccl_clausesets.h>
+#include "clb_intmap.h"
+#include "clb_arraytrees.h"
 
 void EliminateBlockedClauses(ClauseSet_p set, ClauseSet_p archive, 
                              int max_occs, TB_p tmp_bank);

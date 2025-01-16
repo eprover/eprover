@@ -152,9 +152,6 @@ void         ProofStateLoadWatchlist(ProofState_p state,
 void         ProofStateInitWatchlist(ProofState_p state, OCB_p ocb);
 void         ProofStateResetClauseSets(ProofState_p state, bool term_gc);
 void         ProofStateFree(ProofState_p junk);
-
-long         ProofStateProcessDistinct(ProofState_p state);
-
 //void         ProofStateGCMarkTerms(ProofState_p state);
 //long         ProofStateGCSweepTerms(ProofState_p state);
 
