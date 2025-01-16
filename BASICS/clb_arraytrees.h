@@ -37,6 +37,9 @@ void ArrayTreeTraverseExit(PStack_p stack);
 PStack_p ArrayTreeLimitedTraverseInit(ArrayTree_p root, long limit);
 bool ArrayTreeStore(ArrayTree_p *root, long key, void *value);
 void ArrayTreeNodeFree(ArrayTree_p *tree);
+void ArrayTreeDeleteNode(ArrayTree_p *tree, long key);
+ArrayTree_p ArrayTreeLeftChild(ArrayTree_p node);
+ArrayTree_p ArrayTreeRightChild(ArrayTree_p node);
 
 
 #endif

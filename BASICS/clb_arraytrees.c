@@ -474,7 +474,7 @@ void ArrayTreeNodeFree(ArrayTree_p *tree)
 //
 // Global Variables: -
 //
-// Side Effects    : -
+// Side Effects    : Changes tree
 //
 /----------------------------------------------------------------------*/
 
@@ -540,4 +540,42 @@ void ArrayTreeDeleteNode(ArrayTree_p *tree, long key) {
         PDRangeArrFree(current->array);
     }
     free(current);
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: ArrayTreeLeftChild()
+//
+//   Fetch left tree node.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+ArrayTree_p ArrayTreeLeftChild(ArrayTree_p node) {
+    if (!node) {
+        return NULL;
+    }
+    return node->left;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: ArrayTreeRightChild()
+//
+//   Fetch right tree node.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+ArrayTree_p ArrayTreeRightChild(ArrayTree_p node) {
+    if (!node) {
+        return NULL;
+    }
+    return node->right;
 }

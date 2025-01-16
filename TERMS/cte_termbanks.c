@@ -69,17 +69,17 @@ typedef Term_p (*TermParseFun)(Scanner_p in, TB_p bank);
 //
 /----------------------------------------------------------------------*/
 
-static void tb_print_dag(FILE *out, ArrayTree_p in_index, Sig_p sig) {
+void tb_print_dag(FILE *out, ArrayTree_p in_index, Sig_p sig) {
     Term_p term;
 
     if (!in_index) {
         return;
     }
-    // Traverse the left subtree
-    tb_print_dag(out, in_index->left, sig);
 
-    // Process the current node
-    term = (Term_p)(in_index->array ? PDRangeArrElement(in_index->array, 0).p_val : NULL);
+    tb_print_dag(out, ArrayTreeLeftChild(in_index), sig);
+
+    term = (Term_p)(in_index->array ? PDRangeArrElementRef(in_index->array, 0)->p_val : NULL);
+
     if (term) {
         fprintf(out, "*%ld : ", term->entry_no);
 
@@ -110,8 +110,7 @@ static void tb_print_dag(FILE *out, ArrayTree_p in_index, Sig_p sig) {
         fprintf(out, "\n");
     }
 
-    // Traverse the right subtree
-    tb_print_dag(out, in_index->right, sig);
+    tb_print_dag(out, ArrayTreeRightChild(in_index), sig);
 }
 
 
