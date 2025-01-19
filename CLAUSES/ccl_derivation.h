@@ -24,6 +24,9 @@
 
 #define CCL_DERIVATION
 
+#include <stdarg.h>
+
+#include "ccl_clausecpos.h"
 #include <ccl_inferencedoc.h>
 #include <ccl_clauses.h>
 #include <ccl_formula_wrapper.h>
@@ -115,7 +118,13 @@ typedef enum
    Arg2Fof = 1<<11,
    Arg2Cnf = 1<<12,
    Arg2Num = 1<<13,
-   ArgIsHO = 1<<14,
+   Arg3Fof = 1<<14,
+   Arg3Cnf = 1<<15,
+   Arg3Num = 1<<16,
+   Arg4Fof = 1<<17,
+   Arg4Cnf = 1<<18,
+   Arg4Num = 1<<19,
+   ArgIsHO = 1<<20,
 }ArgDesc;
 
 
@@ -149,11 +158,11 @@ typedef enum
    DCAnnoQuestion     = DOAnnoQuestion,
    DCExpandDistinct   = DOExpandDistinct |Arg1Fof,
    /* Generating inferences */
-   DCParamod          = DOParamod |Arg1Cnf|Arg2Cnf,
-   DCSimParamod       = DOSimParamod|Arg1Cnf|Arg2Cnf,
-   DCOrderedFactor    = DOOrderedFactor|Arg1Cnf,
-   DCEqFactor         = DOEqFactor|Arg1Cnf,
-   DCEqRes            = DOEqRes|Arg1Cnf,
+   DCParamod          = DOParamod|Arg1Cnf|Arg2Cnf|Arg3Num|Arg4Num,
+   DCSimParamod       = DOSimParamod|Arg1Cnf|Arg2Cnf|Arg3Num|Arg4Num,
+   DCOrderedFactor    = DOOrderedFactor|Arg1Cnf|Arg2Num|Arg3Num,
+   DCEqFactor         = DOEqFactor|Arg1Cnf|Arg2Num|Arg3Num,
+   DCEqRes            = DOEqRes|Arg1Cnf|Arg2Num,
    DCDisEqDecompose   = DODisEqDecompose|Arg1Cnf,
    DCSatGen           = DOSatGen|Arg1Cnf,
    DCPEResolve        = DOPEResolve|Arg1Cnf|Arg2Cnf,
@@ -248,14 +257,34 @@ extern bool            ProofObjectRecordsGCSelection;
 #define DCOpHasParentArg2(op) ((op)&(Arg2Cnf|Arg2Fof))
 #define DCOpHasArg2(op)       ((op)&(Arg2Cnf|Arg2Fof|Arg2Num))
 
+#define DCOpHasCnfArg3(op)    ((op)&Arg3Cnf)
+#define DCOpHasFofArg3(op)    ((op)&Arg3Fof)
+#define DCOpHasNumArg3(op)    ((op)&Arg3Num)
+#define DCOpHasParentArg3(op) ((op)&(Arg3Cnf|Arg3Fof))
+#define DCOpHasArg3(op)       ((op)&(Arg3Cnf|Arg3Fof|Arg3Num))
+
+#define DCOpHasCnfArg4(op)    ((op)&Arg4Cnf)
+#define DCOpHasFofArg4(op)    ((op)&Arg4Fof)
+#define DCOpHasNumArg4(op)    ((op)&Arg4Num)
+#define DCOpHasParentArg4(op) ((op)&(Arg4Cnf|Arg4Fof))
+#define DCOpHasArg4(op)       ((op)&(Arg4Cnf|Arg4Fof|Arg4Num))
+
+#define DCOpHasCnfArgN(op,n)    ((op)&(Arg1Cnf<<(n*3)))
+#define DCOpHasFofArgN(op,n)    ((op)&(Arg1Fof<<(n*3)))
+#define DCOpHasNumArgN(op,n)    ((op)&(Arg1Num<<(n*3)))
+#define DCOpHasParentArgN(op,n) ((op)&((Arg1Cnf|Arg1Fof)<<(n*3)))
+#define DCOpHasArgN(op,n)       ((op)&((Arg1Cnf|Arg1Fof|Arg1Num)<<(n*3)))
+
+#define DCOpCountArgs(op)     ((DCOpHasArg1(op) != 0) + (DCOpHasArg2(op) != 0) \
+                              + (DCOpHasArg3(op) != 0) + (DCOpHasArg4(op) != 0))
+
 #define DPOpGetOpCode(op)  ((op)&127)
 #define DCOpIsGenerating(op) ((DPOpGetOpCode(op) >= DOParamod)&&(DPOpGetOpCode(op) <= DOSatGen))
 
 #define DPSetIsHO(op) ((op) | ArgIsHO)
 #define DPGetIsHO(op) ((op) & ArgIsHO)
 
-void ClausePushDerivation(Clause_p clause, DerivationCode op,
-                          void* arg1, void* arg2);
+void ClausePushDerivation(Clause_p clause, DerivationCode op, ...);
 
 void ClausePushACResDerivation(Clause_p clause, Sig_p sig);
 

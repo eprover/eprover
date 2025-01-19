@@ -90,7 +90,7 @@ long ComputeAllEqnResolvents(TB_p bank, Clause_p clause, ClauseSet_p
             ClauseSetProp(resolvent, ClauseGiveProps(clause, CPIsSOS));
             DocClauseCreationDefault(resolvent, inf_eres, clause, NULL);
             ClausePushDerivation(resolvent, inf_is_ho ? DPSetIsHO(DCEqRes) : DCEqRes, 
-                                 clause, NULL);
+                                 clause, PackClausePos(pos));
             ClauseSetInsert(store, resolvent);
          }
          test = ClausePosNextEqResLiteral(pos);

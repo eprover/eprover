@@ -600,28 +600,36 @@ long DerivedCollectFCodes(Derived_p derived, NumTree_p *tree)
 //
 /----------------------------------------------------------------------*/
 
-void ClausePushDerivation(Clause_p clause, DerivationCode op,
-                          void* arg1, void* arg2)
+void ClausePushDerivation(Clause_p clause, DerivationCode op, ...)
 {
    assert(clause);
    assert(op);
 
    CLAUSE_ENSURE_DERIVATION(clause);
-   assert(DCOpHasCnfArg1(op)||DCOpHasFofArg1(op)||!arg1);
-   assert(DCOpHasCnfArg2(op)||DCOpHasFofArg2(op)||!arg2);
-   assert(DCOpHasCnfArg1(op)||!DCOpHasCnfArg2(op));
+
+   int arg_cnt = DCOpCountArgs(op);
 
    PStackPushInt(clause->derivation, op);
-   if(arg1)
+
+   va_list argp;
+   va_start(argp, op);
+
+   for(int i = 0; i < arg_cnt; ++i)
    {
-      PStackPushP(clause->derivation, arg1);
-      if(arg2)
+      if(DCOpHasParentArgN(op, i))
       {
-         PStackPushP(clause->derivation, arg2);
+         void* arg = va_arg(argp, void*);
+         PStackPushP(clause->derivation, arg);
+      }
+      else if(DCOpHasNumArgN(op, i))
+      {
+         CompactPos pos = va_arg(argp, CompactPos);
+         PStackPushInt(clause->derivation, pos);
       }
    }
-}
 
+   va_end(argp);
+}
 
 /*-----------------------------------------------------------------------
 //
@@ -996,6 +1004,14 @@ long DerivStackExtractOptParents(PStack_p derivation,
          {
             i++;
          }
+         if(DCOpHasArg3(op))
+         {
+            i++;
+         }
+         if(DCOpHasArg4(op))
+         {
+            i++;
+         }
          if(op==DCACRes)
          {
             //printf("ACRes: Numarg1: %ld\n", numarg1);
@@ -1040,15 +1056,7 @@ void DerivStackCountSearchInferences(PStack_p derivation,
       while(i<sp)
       {
          op = PStackElementInt(derivation, i);
-         i++;
-         if(DCOpHasArg1(op))
-         {
-            i++;
-         }
-         if(DCOpHasArg2(op))
-         {
-            i++;
-         }
+         i += DCOpCountArgs(op) + 1;
          switch(op)
          {
          case DCParamod:
@@ -1198,15 +1206,7 @@ void DerivationStackPCLPrint(FILE* out, Sig_p sig, PStack_p derivation)
          PStackPushInt(subexpr_stack, i);
 
          op = PStackElementInt(derivation, i);
-         i++;
-         if(DCOpHasArg1(op))
-         {
-            i++;
-         }
-         if(DCOpHasArg2(op))
-         {
-            i++;
-         }
+         i += DCOpCountArgs(op) + 1;
       }
       /* Print the beginning of the subexpressions */
 
@@ -1294,6 +1294,9 @@ void DerivationStackPCLPrint(FILE* out, Sig_p sig, PStack_p derivation)
 // Function: DerivationStackTSTPPrint()
 //
 //   Print the derivation stack as a TSTP expression.
+//   As an extension, positional information for the arguments is
+//   appended when provided, i.e. parent arg 1 + num arg 2, or
+//   parent arg 1 + parent arg 2 + num arg 3 + num arg 4.
 //
 // Global Variables: -
 //
@@ -1322,15 +1325,7 @@ void DerivationStackTSTPPrint(FILE* out, Sig_p sig, PStack_p derivation)
          PStackPushInt(subexpr_stack, i);
 
          op = PStackElementInt(derivation, i);
-         i++;
-         if(DCOpHasArg1(op))
-         {
-            i++;
-         }
-         if(DCOpHasArg2(op))
-         {
-            i++;
-         }
+         i += DCOpCountArgs(op) + 1;
       }
       /* Print the beginning of the subexpressions */
 
@@ -1376,8 +1371,35 @@ void DerivationStackTSTPPrint(FILE* out, Sig_p sig, PStack_p derivation)
                        tstp_get_clauseform_id(op, 1, PStackElementP(derivation, i+1)));
                if(DCOpHasParentArg2(op))
                {
+                  /* Position for argument 1 */
+                  if (DCOpHasNumArg3(op))
+                  {
+                     fprintf(out, "@{%ld}", PStackElementInt(derivation, i+3));
+                  }
+
                   fprintf(out, ", %s",
                           tstp_get_clauseform_id(op, 2, PStackElementP(derivation, i+2)));
+                  
+                  /* Position for argument 2 */
+                  if (DCOpHasNumArg4(op))
+                  {
+                     fprintf(out, "@{%ld}", PStackElementInt(derivation, i+4));
+                  }
+               }
+               else if(DCOpHasNumArg2(op))
+               {
+                  /* Position 1 for argument 1 */
+                  fprintf(out, "@{%ld", PStackElementInt(derivation, i+2));
+
+                  /* Position 2 for argument 1 */
+                  if(DCOpHasNumArg3(op))
+                  {
+                     fprintf(out, ",%ld}", PStackElementInt(derivation, i+3));
+                  }
+                  else
+                  {
+                     fprintf(out, "}");
+                  }
                }
             }
             while(!PStackEmpty(arg_stack))
