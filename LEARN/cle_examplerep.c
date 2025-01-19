@@ -267,10 +267,11 @@ ExampleRep_p ExampleSetExtract(ExampleSet_p set, ExampleRep_p rep) {
 
     PDRangeArr_p array = cell->array;
     if (array && array->size > 0) {
-        handle = array->array[0].p_val;     // Only first value necessary?
+        handle = (ExampleRep_p)PDRangeArrElementRef(array, 0)->p_val;
     }
 
-    ArrayTreeNodeFree(cell);
+    ArrayTreeNodeFree(&cell);
+
     bool res = StrTreeDeleteEntry(&(set->name_index), rep->name);
     UNUSED(res);
     assert(res);
@@ -446,12 +447,13 @@ long ExampleSetSelectByDist(PStack_p results, ExampleSet_p set,
 
     i = 0;
     avg = 0;
+
     stack = ArrayTreeTraverseInit(set->ident_index);
     while ((cell = ArrayTreeTraverseNext(stack))) {
         PDRangeArr_p array = cell->array;
         if (array) {
             for (long j = 0; j < array->size; j++) {
-                current = array->array[j].p_val;
+                current = (ExampleRep_p)(PDRangeArrElementRef(array, j)->p_val);
                 dist = NumFeatureDistance(target, current->features, pred_w, func_w, weights);
                 tmp_array[i].weight = dist;
                 tmp_array[i].object.p_val = current;
@@ -460,14 +462,18 @@ long ExampleSetSelectByDist(PStack_p results, ExampleSet_p set,
             }
         }
     }
+
     assert(i == set_size);
     ArrayTreeTraverseExit(stack);
+
     avg = avg / (double)set_size;
 
     WeightedObjectArraySort(tmp_array, set_size);
+
     climit = MIN(sel_no, set_part * set_size);
     dlimit = dist_part * avg;
     assert(climit <= set_size);
+
     for (i = 0; i < climit && tmp_array[i].weight <= dlimit; i++) {
         current = tmp_array[i].object.p_val;
         if (Verbose) {
@@ -475,6 +481,7 @@ long ExampleSetSelectByDist(PStack_p results, ExampleSet_p set,
         }
         PStackPushInt(results, current->ident);
     }
+
     WeightedObjectArrayFree(tmp_array);
     return i;
 }

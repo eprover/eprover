@@ -215,7 +215,8 @@ bool FlatAnnoSetAddTerm(FlatAnnoSet_p set, FlatAnnoTerm_p term) {
     }
 
     PDRangeArr_p new_array = PDRangeArrAlloc(term->term->entry_no, 1);
-    PDRangeArrInsert(new_array, 0, (void *)term);
+    PDRangeArrAssignP(new_array, 0, (void *)term);
+
     ArrayTreeInsert(&(set->set), term->term->entry_no, new_array);
     return true;
 }

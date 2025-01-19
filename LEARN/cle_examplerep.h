@@ -29,7 +29,7 @@ Changes
 #include <clb_simple_stuff.h>
 #include <clb_stringtrees.h>
 #include <cle_numfeatures.h>
-#include "clb_arraytrees.h"
+#include <clb_arraytrees.h>
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */

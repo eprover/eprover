@@ -29,6 +29,7 @@ Changes
 
 #include <clb_pdarrays.h>
 #include <clb_arraytrees.h>
+#include <clb_pdrangearrays.h>
 #include <cio_basicparser.h>
 
 /*---------------------------------------------------------------------*/

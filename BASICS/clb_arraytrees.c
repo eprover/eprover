@@ -6,7 +6,7 @@
 
   -----------------------------------------------------------------------*/
 
-#include "clb_arraytrees.h"
+#include <clb_arraytrees.h>
 
 /*---------------------------------------------------------------------*/
 /*                        Global Variables                             */
@@ -454,14 +454,26 @@ bool ArrayTreeStore(ArrayTree_p *root, long key, void *value)
 
 void ArrayTreeNodeFree(ArrayTree_p *tree)
 {
-    ArrayTreeTraverseInit(tree);
-    while (ArrayTreeTraverseNext(tree))
-    {
-        if (node->val1.p_val) free(node->val1.p_val);
-        if (node->val2.p_val) free(node->val2.p_val);
-    }
-    ArrayTreeTraverseExit(tree);
+    PStack_p stack;
 
+    if (!tree || !(*tree))
+    {
+        return;
+    }
+
+    stack = ArrayTreeTraverseInit(*tree);
+
+    ArrayTree_p node;
+    while ((node = ArrayTreeTraverseNext(stack)))
+    {
+        if (node->array)
+        {
+            PDRangeArrFree(node->array);
+        }
+        free(node);
+    }
+
+    ArrayTreeTraverseExit(stack);
     free(tree);
 }
 
@@ -474,13 +486,13 @@ void ArrayTreeNodeFree(ArrayTree_p *tree)
 //
 // Global Variables: -
 //
-// Side Effects    : Changes tree
+// Side Effects    : -
 //
 /----------------------------------------------------------------------*/
 
-void ArrayTreeDeleteNode(ArrayTree_p *tree, long key) {
+ArrayTree_p ArrayTreeDeleteNode(ArrayTree_p *tree, long key) {
     if (!tree || !(*tree)) {
-        return;
+        return NULL;
     }
 
     ArrayTree_p parent = NULL, current = *tree, replacement = NULL;
@@ -495,20 +507,16 @@ void ArrayTreeDeleteNode(ArrayTree_p *tree, long key) {
     }
 
     if (!current) {
-        return;
+        return *tree; // Return the original tree if the key is not found
     }
 
     if (!current->left && !current->right) {
         replacement = NULL;
-    }
-
-    else if (!current->left) {
+    } else if (!current->left) {
         replacement = current->right;
     } else if (!current->right) {
         replacement = current->left;
-    }
-
-    else {
+    } else {
         ArrayTree_p successor_parent = current;
         ArrayTree_p successor = current->right;
 
@@ -529,7 +537,7 @@ void ArrayTreeDeleteNode(ArrayTree_p *tree, long key) {
     }
 
     if (!parent) {
-        *tree = replacement;
+        *tree = replacement; // Update the root of the tree
     } else if (parent->left == current) {
         parent->left = replacement;
     } else {
@@ -540,6 +548,8 @@ void ArrayTreeDeleteNode(ArrayTree_p *tree, long key) {
         PDRangeArrFree(current->array);
     }
     free(current);
+
+    return *tree; // Return the updated tree
 }
 
 /*-----------------------------------------------------------------------
@@ -578,4 +588,65 @@ ArrayTree_p ArrayTreeRightChild(ArrayTree_p node) {
         return NULL;
     }
     return node->right;
+}
+
+ArrayTree_p ArrayTreeExtractEntry(ArrayTree_p *root, long key) {
+    ArrayTree_p x, extracted;
+
+    if (!(*root)) {
+        return NULL;
+    }
+
+    *root = splay(*root, key);
+
+    if ((*root)->key == key) {
+        if (!(*root)->left) {
+            x = (*root)->right;
+        } else {
+            x = splay((*root)->left, key);
+            x->right = (*root)->right;
+        }
+        extracted = *root;
+        extracted->left = extracted->right = NULL;
+        *root = x;
+        return extracted;
+    }
+
+    return NULL;
+}
+
+long ArrayTreeNodes(ArrayTree_p root) {
+    if (!root) {
+        return 0;
+    }
+
+    PStack_p stack = PStackAlloc();
+    long count = 0;
+
+    PStackPushP(stack, root);
+
+    while (!PStackEmpty(stack)) {
+        ArrayTree_p node = PStackPopP(stack);
+        if (node) {
+            count++;
+            PStackPushP(stack, node->left);
+            PStackPushP(stack, node->right);
+        }
+    }
+
+    PStackFree(stack);
+    return count;
+}
+
+ArrayTree_p ArrayTreeExtractRoot(ArrayTree_p *root) {
+    ArrayTree_p extracted_node = NULL;
+
+    if (*root) {
+        extracted_node = *root;
+
+        // Splay the root to ensure it is at the top
+        *root = ArrayTreeDeleteNode(root, extracted_node->key);
+    }
+
+    return extracted_node;
 }

@@ -341,25 +341,23 @@ EPCtrlSet_p EPCtrlSetAlloc(void)
 //
 /----------------------------------------------------------------------*/
 
-void EPCtrlSetFree(EPCtrlSet_p junk, bool delete_files)
-{
+void EPCtrlSetFree(EPCtrlSet_p junk, bool delete_files) {
     ArrayTree_p node;
 
-    while (junk->procs)
-    {
+    while (junk->procs) {
         node = ArrayTreeExtractRoot(&(junk->procs));
-        for (long i = PDRangeArrLowKey(node->array);
-             i < PDRangeArrLimitKey(node->array);
-             i++)
-        {
-            EPCtrl_p ctrl = PDRangeArrElementP(node->array, i);
-            if (ctrl)
-            {
-                EPCtrlCleanup(ctrl, delete_files);
-                EPCtrlFree(ctrl);
+        if (node) {
+            for (long i = PDRangeArrLowKey(node->array);
+                 i < PDRangeArrLimitKey(node->array);
+                 i++) {
+                EPCtrl_p ctrl = PDRangeArrElementP(node->array, i);
+                if (ctrl) {
+                    EPCtrlCleanup(ctrl, delete_files);
+                    EPCtrlFree(ctrl);
+                }
             }
+            ArrayTreeNodeFree(node);
         }
-        ArrayTreeNodeFree(node);
     }
     EPCtrlSetCellFree(junk);
 }

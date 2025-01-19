@@ -26,6 +26,7 @@
 #include <clb_objtrees.h>
 #include <cle_patterns.h>
 #include <cle_termtops.h>
+#include <clb_pdrangearrays.h>
 
 
 /*---------------------------------------------------------------------*/

@@ -478,7 +478,9 @@ long TSMIndexInsert(TSMIndex_p index, Term_p term) {
             PDRangeArr_p new_array = PDRangeArrAlloc(0, 1); // Start index 0, grow by 1
             IntOrP val;
             val.i_val = index->count;
-            PDRangeArrInsert(new_array, 0, val);
+            // Assign the value to the array, properly casting to void*
+            PDRangeArrAssignP(new_array, 0, (void*)(long)val.i_val);
+
 
             // Insert the new array into the ArrayTree
             ArrayTreeInsert(&(index->tree.n_index), key, new_array);

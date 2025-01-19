@@ -22,7 +22,7 @@ Changes
 
 -----------------------------------------------------------------------*/
 
-#include "clb_intmap.h"
+#include <clb_intmap.h>
 
 
 
@@ -107,7 +107,7 @@ static bool switch_to_arraytree(long old_min, long old_max, long new_key, long e
 //
 /----------------------------------------------------------------------*/
 
-static ArrayTree_p add_new_arraytree_node(IntMap_p map, long key, void *val)
+ArrayTree_p add_new_arraytree_node(IntMap_p map, long key, void *val)
 {
     ArrayTree_p handle;
     assert(map->type == IMArrayTree);

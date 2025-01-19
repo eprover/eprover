@@ -26,6 +26,7 @@ Changes
 #define CLE_FLATANNOTERMS
 
 #include <clb_ddarrays.h>
+#include <clb_pdrangearrays.h>
 #include <cle_annoterms.h>
 
 /*---------------------------------------------------------------------*/

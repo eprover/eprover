@@ -158,21 +158,33 @@ Annotation_p AnnotationParse(Scanner_p in, long expected)
         {
             AktTokenError(in, "Annotation has more elements than expected", false);
         }
+
+        // Parse the value
         value = ParseFloat(in);
-        PDRangeArrAssignD(handle->array, count, value);
+
+        // Allocate memory for the value and assign it to the array
+        double* value_ptr = malloc(sizeof(double));
+        *value_ptr = value;
+        PDRangeArrAssignP(handle->array, count, value_ptr);
+
         count++;
         if (!TestInpTok(in, CloseBracket))
         {
             AcceptInpTok(in, Comma);
         }
     }
+
     if (count < expected)
     {
         AktTokenError(in, "Annotation has fewer elements than expected", false);
     }
     AcceptInpTok(in, CloseBracket);
 
-    PDRangeArrSetSize(handle->array, count);
+    // Set the limits of the PDRangeArr
+    long new_low_key = 0;
+    long new_high_key = expected - 1;
+    PDRangeArrSetLimits(handle->array, new_low_key, new_high_key);
+
     return handle;
 }
 
@@ -250,10 +262,12 @@ void AnnotationPrint(FILE* out, Annotation_p anno)
     char* sep = "";
 
     fprintf(out, "%ld:(", anno->key);
-    for (i = 0; i < PDRangeArrSize(anno->array); i++)
+    size_t size = PDRangeArrLimitKey(anno->array) - PDRangeArrLowKey(anno->array);
+    for (i = 0; i < size; i++)
     {
         fputs(sep, out);
-        fprintf(out, "%f", PDRangeArrElementD(anno->array, i));
+        double* element = (double*)PDRangeArrElementP(anno->array, i);
+        fprintf(out, "%f", element);
         sep = ",";
     }
     fputc(')', out);

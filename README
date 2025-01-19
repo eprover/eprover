@@ -12,25 +12,21 @@ This assumes that you have GNU tar, sh and gawk in your search path!
 Simple installation of the first-order version (will install
 executables):
 
-```sh
   tar -xzf E.tgz
   cd E
   ./configure --bindir=/path/to/EXECDIR
   make
   make install
   /path/to/EXECDIR/eprover -h | more
-```
 
 Simplest installation (in-place):
 
-```sh
   tar -xzf E.tgz
   cd E
   ./configure
   make rebuild
   cd PROVER
   ./eprover -h | more
-```
 
 Read the rest of this file and the fine (if incomplete) manual if
 anything fails. There should be a copy of the manual in
@@ -40,31 +36,23 @@ E 3.1 supports (monomorphic) higher-order logic. To build a binary
 that supports higher-order reasoning, use the following:
 
 
-```sh
   ./configure --enable-ho
   make rebuild
   cd PROVER
   eprover-ho -h | more
-```
 
 
 The recommended command for running E on the file problem.p is
 
-```
   eprover --auto --proof-object problem.p
-```
 
 If you want to try the usually stronger strategy scheduling mode
 (particularly recommended for higher-order problems, use
 
-```
   eprover --auto-schedule --proof-object problem.p
-```
 
 To use more than one CPU, use something like
-```
   eprover --auto-schedule=8 --proof-object problem.p
-```
 
 Replace `eprover` by `eprover-ho` for the higher-order-enabled
 version.
@@ -114,15 +102,11 @@ be compiled as a version that supports first-order logic only.
 To install the package, unpack the distribution (if you are reading
 this, you probably already did):
 
-```sh
    gunzip -c E.tgz|tar -xvf -
-```
 
 or
 
-```sh
    (g)tar -xzf E.tgz
-```
 (if you have GNU tar)
 
 This should create a directory named E. After unpacking, optionally
@@ -130,48 +114,34 @@ edit `E/Makefile.vars` to your liking. In particular, if building for
 HPUX, comment out the suitable CFLAGS definition (for most systems,
 the default definition should be ok). Then change to the E directory:
 
-```sh
    cd E
-```
 
 Determine if you want to run E from its own build directory or wether
 you want to install the executables in some other directory
 EXECDIR. In the first case, run
 
-```sh
    ./configure
-```
 
 otherwise
 
-```sh
    ./configure --bindir=EXECDIR
-```
 
 or, if you also want to install the man-pages into MANDIR,
 
-```sh
    ./configure --bindir=EXECDIR --man-prefix=MANDIR
-```
 
 To enable higher-order-support, add the option `--enable-ho`, e.g.
 
-```sh
    ./configure --enable-ho
-```
 
 Then type
 
-```sh
    make
-```
 
 to compile the libraries and all included programs under the E
 directory. If you want to install E in a particular EXECDIR, type
 
-```sh
    make install
-```
 
 You must have write permission in the EXECDIR, so if you install E
 outside your own home directory, you may need to become root or use
@@ -180,18 +150,14 @@ sudo.
 If you have changed the configuration, you need to rebuild all object
 and binary files. Run
 
-```sh
    make rebuild
-```
 
 instead of plain make.
 
 
 Type
 
-```sh
    make documentation
-```
 
 to translate the LaTeX documentation (this requires LaTeX2e, pdflatex,
 and the packages theorem, amssymb and epsfig, which are included in
@@ -205,32 +171,24 @@ E/DOC/PORTING.
 
 If you get into trouble,
 
-```sh
    make rebuild
-```
 
 will rebuild E completely to your current configuration.
 
 After installation, go to E/PROVER and type
 
-```sh
    ./eprover BOO001-1+rm_eq_rstfp.lop
-```
 
 to see the prover in action. Type
 
-```sh
    ./eprover LUSK6.lop
-```
 
 for a harder example. `./eprover -h` will give you some information and
 a list of options.
 
 For impatient people who do not want to read anything:
 
-```sh
    eprover --auto --memory-limit=<80%_of_your_main_memory> <problem-file>
-```
 
 should give a reasonable performance on a large class of problems
 (unless your main memory is really small).
@@ -239,22 +197,16 @@ The auto mode will perform a heuristic pruning of the axiom set which
 may result in incompleteness for very large problems (many thousands
 of axioms). If you need completeness, use
 
-```sh
   eprover --satauto --memory-limit=<80%_of_your_main_memory> <problem-file>
-```
 
 In general, different proof problems are easy for different
 strategies. If you run
 
-```sh
   eprover --auto-schedule --memory-limit=<80%_of_your_main_memory> <problem-file>
-```
 
 or
 
-```sh
   eprover --satauto-schedule --memory-limit=<80%_of_your_main_memory> <problem-file>
-```
 
 the prover will try a series of strategies on the problem. It assumes
 a 300 second run time - if you impose a different one externally, it
@@ -266,9 +218,7 @@ cores), or `--auto-schedule=Auto` to use all available cores.
 One of the features of E is the ability to produce semi-readable
 proofs. To use this, type
 
-```sh
   eprover --proof-object <other-stuff>
-```
 
 By default, E will now automatically detect the input format (LOP,
 TPTP-2 or TPTP-3), and will select the matching output format (PCL2

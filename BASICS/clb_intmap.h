@@ -109,7 +109,7 @@ void*    IntMapGetVal(IntMap_p map, long key);
 void**   IntMapGetRef(IntMap_p map, long key);
 void     IntMapAssign(IntMap_p map, long key, void* value);
 void*    IntMapDelKey(IntMap_p map, long key);
-static   ArrayTree_p add_new_arraytree_node(IntMap_p map, long key, void *val);
+ArrayTree_p add_new_arraytree_node(IntMap_p map, long key, void *val);
 
 
 #define IntMapIterCellAlloc() (IntMapIterCell*)SizeMalloc(sizeof(IntMapIterCell))
