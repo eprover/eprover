@@ -341,25 +341,18 @@ EPCtrlSet_p EPCtrlSetAlloc(void)
 //
 /----------------------------------------------------------------------*/
 
-void EPCtrlSetFree(EPCtrlSet_p junk, bool delete_files) {
-    ArrayTree_p node;
+void EPCtrlSetFree(EPCtrlSet_p junk, bool delete_files)
+{
+   ArrayTree_p cell;
 
-    while (junk->procs) {
-        node = ArrayTreeExtractRoot(&(junk->procs));
-        if (node) {
-            for (long i = PDRangeArrLowKey(node->array);
-                 i < PDRangeArrLimitKey(node->array);
-                 i++) {
-                EPCtrl_p ctrl = PDRangeArrElementP(node->array, i);
-                if (ctrl) {
-                    EPCtrlCleanup(ctrl, delete_files);
-                    EPCtrlFree(ctrl);
-                }
-            }
-            ArrayTreeNodeFree(node);
-        }
-    }
-    EPCtrlSetCellFree(junk);
+   while(junk->procs)
+   {
+      cell = ArrayTreeExtractRoot(&(junk->procs));
+      EPCtrlCleanup(cell->entries[0].val1.p_val, delete_files);
+      EPCtrlFree(cell->entries[0].val1.p_val);
+      ArrayTreeNodeFree(cell);
+   }
+   EPCtrlSetCellFree(junk);
 }
 
 
@@ -377,12 +370,10 @@ void EPCtrlSetFree(EPCtrlSet_p junk, bool delete_files) {
 
 void EPCtrlSetAddProc(EPCtrlSet_p set, EPCtrl_p proc)
 {
-    ArrayTree_p node = ArrayTreeFind(&(set->procs), proc->fileno);
-    if (!node)
-    {
-        node = add_new_arraytree_node(&(set->procs), proc->fileno, NULL);
-    }
-    PDRangeArrAssignP(node->array, proc->fileno, proc);
+   IntOrP tmp;
+
+   tmp.p_val = proc;
+   ArrayTreeStore(&(set->procs), proc->fileno, tmp, tmp);
 }
 
 
@@ -400,12 +391,15 @@ void EPCtrlSetAddProc(EPCtrlSet_p set, EPCtrl_p proc)
 
 EPCtrl_p EPCtrlSetFindProc(EPCtrlSet_p set, int fd)
 {
-    ArrayTree_p node = ArrayTreeFind(&(set->procs), fd);
-    if (node)
-    {
-        return PDRangeArrElementP(node->array, fd);
-    }
-    return NULL;
+   ArrayTree_p cell;
+
+   cell = ArrayTreeFind(&(set->procs), fd);
+
+   if(cell)
+   {
+      return cell->entries[0].val1.p_val;
+   }
+   return NULL;
 }
 
 
@@ -423,22 +417,15 @@ EPCtrl_p EPCtrlSetFindProc(EPCtrlSet_p set, int fd)
 
 void EPCtrlSetDeleteProc(EPCtrlSet_p set, EPCtrl_p proc, bool delete_file)
 {
-    ArrayTree_p node = ArrayTreeFind(&(set->procs), proc->fileno);
-    if (node)
-    {
-        EPCtrl_p ctrl = PDRangeArrElementP(node->array, proc->fileno);
-        if (ctrl)
-        {
-            EPCtrlCleanup(ctrl, delete_file);
-            EPCtrlFree(ctrl);
-            PDRangeArrAssignP(node->array, proc->fileno, NULL);
+   ArrayTree_p cell;
 
-            if (PDRangeArrMembers(node->array) == 0)
-            {
-                ArrayTreeDeleteNode(&(set->procs), proc->fileno);
-            }
-        }
-    }
+   cell = ArrayTreeExtractEntry(&(set->procs), proc->fileno);
+   if(cell)
+   {
+      EPCtrlCleanup(cell->entries[0].val1.p_val, delete_file);
+      EPCtrlFree(cell->entries[0].val1.p_val);
+      ArrayTreeNodeFree(cell);
+   }
 }
 
 
@@ -457,27 +444,21 @@ void EPCtrlSetDeleteProc(EPCtrlSet_p set, EPCtrl_p proc, bool delete_file)
 
 int EPCtrlSetFDSet(EPCtrlSet_p set, fd_set *rd_fds)
 {
-    PStack_p trav_stack = ArrayTreeTraverseInit(set->procs);
-    int maxfd = 0;
-    ArrayTree_p node;
+   PStack_p trav_stack;
+   int maxfd = 0;
+   EPCtrl_p handle;
+   ArrayTree_p cell;
 
-    while ((node = ArrayTreeTraverseNext(trav_stack)))
-    {
-        for (long i = PDRangeArrLowKey(node->array);
-             i < PDRangeArrLimitKey(node->array);
-             i++)
-        {
-            EPCtrl_p ctrl = PDRangeArrElementP(node->array, i);
-            if (ctrl)
-            {
-                FD_SET(ctrl->fileno, rd_fds);
-                maxfd = MAX(maxfd, ctrl->fileno);
-            }
-        }
-    }
-    ArrayTreeTraverseExit(trav_stack);
+   trav_stack = ArrayTreeTraverseInit(set->procs);
+   while((cell = ArrayTreeTraverseNext(trav_stack)))
+   {
+      handle = cell->entries[0].val1.p_val;
+      FD_SET(handle->fileno, rd_fds);
+      maxfd = handle->fileno;
+   }
+   ArrayTreeTraverseExit(trav_stack);
 
-    return maxfd;
+   return maxfd;
 }
 
 

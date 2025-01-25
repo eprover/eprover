@@ -100,8 +100,8 @@ ClauseTPos_p ClauseTPosAlloc(Clause_p clause)
 
 void ClauseTPosFree(ClauseTPos_p soc)
 {
-    ArrayTreeFree(soc->pos);
-    ClauseTPosCellFree(soc);
+   ArrayTreeFree(soc->pos);
+   ClauseTPosCellFree(soc);
 }
 
 
@@ -179,27 +179,18 @@ void ClauseTPosTreeFreeWrapper(void *junk)
 void ClauseTPosTreeInsertPos(ClauseTPosTree_p *tree, Clause_p clause,
                              CompactPos pos)
 {
-    ClauseTPos_p old, newnode = ClauseTPosAlloc(clause);
-    ArrayTree_p node;
+   ClauseTPos_p old, newnode = ClauseTPosAlloc(clause);
+   IntOrP dummy;
 
-    old = PTreeObjStore(tree, newnode, CmpClauseTPosCells);
+   dummy.i_val = 0;
+   old = PTreeObjStore(tree, newnode, CmpClauseTPosCells);
 
-    if (old)
-    {
-        ClauseTPosFree(newnode);
-        newnode = old;
-    }
-
-    node = ArrayTreeFind(&(newnode->pos), pos);
-    if (!node)
-    {
-        ArrayTree_p new_node = add_new_arraytree_node(&(newnode->pos), pos, NULL);
-        PDRangeArrAssignInt(new_node->array, pos, 1);
-    }
-    else
-    {
-        PDRangeArrAssignInt(node->array, pos, 1);
-    }
+   if(old)
+   {
+      ClauseTPosFree(newnode);
+      newnode = old;
+   }
+   ArrayTreeStore(&(newnode->pos), pos, dummy, dummy);
 }
 
 
@@ -216,39 +207,27 @@ void ClauseTPosTreeInsertPos(ClauseTPosTree_p *tree, Clause_p clause,
 //
 /----------------------------------------------------------------------*/
 
-void ClauseTPosTreeDeletePos(ClauseTPosTree_p *tree, Clause_p clause,
+void ClauseTPosTreeDeletePos(ClauseTPosTree_p *tree , Clause_p clause,
                              CompactPos pos)
 {
-    ClauseTPos_p found, key = ClauseTPosAlloc(clause);
-    PObjTree_p cell;
+   ClauseTPos_p found, key = ClauseTPosAlloc(clause);
+   PObjTree_p cell;
 
-    cell = PTreeObjFind(tree, key, CmpClauseTPosCells);
-    ClauseTPosFree(key);
+   cell = PTreeObjFind(tree, key, CmpClauseTPosCells);
+   ClauseTPosFree(key);
 
-    if (cell)
-    {
-        found = cell->key;
-        ArrayTree_p node = ArrayTreeFind(&(found->pos), pos);
-
-        if (node && PDRangeArrIndexIsCovered(node->array, pos))
-        {
-            PDRangeArrAssignInt(node->array, pos, 0);
-
-            /* Prüfen, ob der Knoten leer ist */
-            if (PDRangeArrMembers(node->array) == 0)
-            {
-                ArrayTreeDeleteNode(&(found->pos), pos);
-            }
-        }
-
-        if (!found->pos)
-        {
-            found = PTreeObjExtractObject(tree, found, CmpClauseTPosCells);
-            ClauseTPosFree(found);
-        }
-    }
+   if(cell)
+   {
+      found = cell->key;
+      ArrayTreeDeleteEntry(&(found->pos), pos);
+      if(!found->pos)
+      {
+         found = PTreeObjExtractObject(tree, found,
+                                       CmpClauseTPosCells);
+         ClauseTPosFree(found);
+      }
+   }
 }
-
 
 /*-----------------------------------------------------------------------
 //
@@ -288,29 +267,15 @@ void ClauseTPosTreeDeleteClause(ClauseTPosTree_p *tree, Clause_p clause)
 //
 /----------------------------------------------------------------------*/
 
-void ClauseTPosTreePrint(FILE *out, ClauseTPos_p tree)
+void ClauseTPosTreePrint(FILE* out, ClauseTPos_p tree)
 {
-    fprintf(out, "OLs: ");
-    ClausePrint(out, tree->clause, true);
-    fprintf(out, "\nocc: ");
-
-    PStack_p iter = ArrayTreeTraverseInit(tree->pos);
-    ArrayTree_p node;
-
-    while ((node = ArrayTreeTraverseNext(iter)))
-    {
-        for (long i = PDRangeArrLowKey(node->array); i < PDRangeArrLimitKey(node->array); i++)
-        {
-            if (PDRangeArrElementInt(node->array, i) != 0)
-            {
-                fprintf(out, "%ld ", i);
-            }
-        }
-    }
-
-    ArrayTreeTraverseExit(iter);
-    fprintf(out, "\n");
+   fprintf(out, "OLs: ");
+   ClausePrint(out, tree->clause, true);
+   fprintf(out, "\nocc: ");
+   ArrayTreeDebugPrint(out, tree->pos, true);
+   fprintf(out, "\n");
 }
+
 
 
 /*---------------------------------------------------------------------*/

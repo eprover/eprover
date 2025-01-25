@@ -54,16 +54,16 @@ static double selection_weights[] = SEL_FEATURE_WEIGHTS;
 //
 /----------------------------------------------------------------------*/
 
-static double get_default_eval(AnnoSet_p annoset, double evalweights[])
+static double get_default_eval(AnnoSet_p annoset,double evalweights[])
 {
    Annotation_p anno = AnnotationAlloc();
-   PStack_p stack;
-   ArrayTree_p handle;
-   int i;
-   long count = 0, currentcount;
-   DDArray_p currentvalues, old;
+   PStack_p   stack;
+   ArrayTree_p  handle;
+   int        i;
+   long       count = 0, currentcount;
+   DDArray_p  currentvalues, old;
    AnnoTerm_p current;
-   double oldval, result;
+   double     oldval, result;
 
    assert(annoset);
    assert(evalweights);
@@ -71,40 +71,35 @@ static double get_default_eval(AnnoSet_p annoset, double evalweights[])
    AnnotationLength(anno) = KB_ANNOTATION_NO;
    old = AnnotationValues(anno);
    stack = ArrayTreeTraverseInit(annoset->set);
-
-   while ((handle = ArrayTreeTraverseNext(stack)))
+   while((handle = ArrayTreeTraverseNext(stack)))
    {
-      if (handle->array && handle->array->size > 0)
-      {
-         current = (AnnoTerm_p)(handle->array->array[0].p_val);
-         currentvalues = AnnotationValues(current->annotation);
-         currentcount = AnnotationCount(current->annotation);
-         for (i = 3; i <= KB_ANNOTATION_NO; i++)
-         {
-            oldval = DDArrayElement(old, i);
-            oldval += DDArrayElement(currentvalues, i) * currentcount;
-            DDArrayAssign(old, i, oldval);
-         }
-         oldval = DDArrayElement(old, 2);
-         oldval = MAX(oldval, DDArrayElement(currentvalues, 2));
-         DDArrayAssign(old, 2, oldval);
-         count += currentcount;
-      }
+       current = handle->entries[0].val1.p_val;
+       currentvalues = AnnotationValues(current->annotation);
+       currentcount = AnnotationCount(current->annotation);
+       for(i=3; i<=KB_ANNOTATION_NO; i++)
+       {
+     oldval = DDArrayElement(old, i);
+     oldval+= DDArrayElement(currentvalues,i)*currentcount;
+     DDArrayAssign(old, i, oldval);
+       }
+       oldval = DDArrayElement(old, 2);
+       oldval = MAX(oldval, DDArrayElement(currentvalues,2));
+       DDArrayAssign(old, 2, oldval);
+       count += currentcount;
    }
    ArrayTreeTraverseExit(stack);
-
-   if (count != 0)
+   if(count!=0)
    {
-      for (i = 3; i <= KB_ANNOTATION_NO; i++)
+      for(i=3; i<=KB_ANNOTATION_NO; i++)
       {
-         oldval = DDArrayElement(old, i);
-         oldval = oldval / (double)count;
-         DDArrayAssign(old, i, oldval);
+    oldval = DDArrayElement(old, i);
+    oldval = oldval/(double)count;
+    DDArrayAssign(old, i, oldval);
       }
    }
-   DDArrayAssign(old, 2, DDArrayElement(old, 2) + 1);
+   DDArrayAssign(old, 2, DDArrayElement(old, 2)+1);
 
-   result = AnnotationEval(anno, evalweights);
+   result = AnnotationEval(anno,evalweights);
    /* printf("# ");AnnotationPrint(stdout, anno);
       printf(" -> %f\n",result); */
    AnnotationFree(anno);

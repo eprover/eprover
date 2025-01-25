@@ -82,36 +82,32 @@ Term_p FlattenApps_driver(TB_p terms, Term_p t)
 
 static void close_let_def(TB_p bank, ArrayTree_p *closed_defs, Term_p def)
 {
-    assert(def->f_code == bank->sig->eqn_code);
-    PTree_p free_vars = NULL;
-    Term_p lhs = def->args[0], rhs = def->args[1];
-    TFormulaCollectFreeVars(bank, rhs, &free_vars);
+   assert(def->f_code == bank->sig->eqn_code);
+   PTree_p free_vars = NULL;
+   Term_p lhs = def->args[0], rhs = def->args[1];
+   TFormulaCollectFreeVars(bank, rhs, &free_vars);
 
-    for (int i = 0; i < lhs->arity; i++)
-    {
-        Term_p arg = lhs->args[i];
-        assert(TermIsFreeVar(arg));
-        PTreeDeleteEntry(&free_vars, arg);
-    }
+   for (int i = 0; i < lhs->arity; i++)
+   {
+      Term_p arg = lhs->args[i];
+      assert(TermIsFreeVar(arg));
+      PTreeDeleteEntry(&free_vars, arg);
+   }
 
-    PStack_p all_vars = PStackAlloc();
-    PTreeToPStack(all_vars, free_vars);
-    for (int i = 0; i < lhs->arity; i++)
-    {
-        PStackPushP(all_vars, lhs->args[i]);
-    }
-    Term_p fresh_sym = TermAllocNewSkolem(bank->sig, all_vars, lhs->type);
-    fresh_sym = TBTermTopInsert(bank, fresh_sym);
+   PStack_p all_vars = PStackAlloc();
+   PTreeToPStack(all_vars, free_vars);
+   for (int i = 0; i < lhs->arity; i++)
+   {
+      PStackPushP(all_vars, lhs->args[i]);
+   }
+   Term_p fresh_sym = TermAllocNewSkolem(bank->sig, all_vars, lhs->type);
+   fresh_sym = TBTermTopInsert(bank, fresh_sym);
 
-    ArrayTree_p node = ArrayTreeFind(closed_defs, lhs->f_code);
-    if (!node)
-    {
-        node = add_new_arraytree_node(closed_defs, lhs->f_code, NULL);
-    }
-    PDRangeArrAssignP(node->array, lhs->f_code, fresh_sym);
+   IntOrP orig_def = {.p_val = lhs}, new_def = {.p_val = fresh_sym};
+   ArrayTreeStore(closed_defs, lhs->f_code, orig_def, new_def);
 
-    PTreeFree(free_vars);
-    PStackFree(all_vars);
+   PTreeFree(free_vars);
+   PStackFree(all_vars);
 }
 
 /*-----------------------------------------------------------------------
@@ -128,43 +124,42 @@ static void close_let_def(TB_p bank, ArrayTree_p *closed_defs, Term_p def)
 
 static Term_p replace_body(TB_p bank, ArrayTree_p *closed_defs, Term_p t)
 {
-    ArrayTree_p node = ArrayTreeFind(closed_defs, t->f_code);
-    Term_p new = TermTopCopyWithoutArgs(t);
-    bool changed = false;
-    for (long i = 0; i < t->arity; i++)
-    {
-        new->args[i] = replace_body(bank, closed_defs, t->args[i]);
-        changed = changed || new->args[i] != t->args[i];
-    }
+   ArrayTree_p node = ArrayTreeFind(closed_defs, t->f_code);
+   Term_p new = TermTopCopyWithoutArgs(t);
+   bool changed = false;
+   for (long i = 0; i < t->arity; i++)
+   {
+      new->args[i] = replace_body(bank, closed_defs, t->args[i]);
+      changed = changed || new->args[i] != t->args[i];
+   }
 
-    if (!changed)
-    {
-        TermTopFree(new);
-        new = t;
-    }
-    else
-    {
-        new = TBTermTopInsert(bank, new);
-    }
+   if (!changed)
+   {
+      TermTopFree(new);
+      new = t;
+   }
+   else
+   {
+      new = TBTermTopInsert(bank, new);
+   }
 
-    if (node)
-    {
-        Term_p old_def = PDRangeArrElementP(node->array, t->f_code);
-        Term_p new_def = PDRangeArrElementP(node->array, t->f_code);
+   if (node)
+   {
+      Term_p old_def = node->entries[0].val1.p_val;
+      Term_p new_def = node->entries[0].val2.p_val;
 
-        Subst_p subst = SubstAlloc();
-        for (long i = 0; i < new->arity; i++)
-        {
-            SubstAddBinding(subst, old_def->args[i], new->args[i]);
-        }
+      Subst_p subst = SubstAlloc();
+      for (long i = 0; i < new->arity; i++)
+      {
+         SubstAddBinding(subst, old_def->args[i], new->args[i]);
+      }
 
-        new = TBInsertInstantiated(bank, new_def);
-        SubstDelete(subst);
-    }
+      new = TBInsertInstantiated(bank, new_def);
+      SubstDelete(subst);
+   }
 
-    return new;
+   return new;
 }
-
 
 /*-----------------------------------------------------------------------
 //
@@ -180,35 +175,33 @@ static Term_p replace_body(TB_p bank, ArrayTree_p *closed_defs, Term_p t)
 
 void make_fresh_defs(TB_p bank, Term_p let_t, ArrayTree_p *defs, PStack_p res)
 {
-    assert(let_t->f_code == SIG_LET_CODE);
-    long num_def = let_t->arity - 1;
-    Sig_p sig = bank->sig;
+   assert(let_t->f_code == SIG_LET_CODE);
+   long num_def = let_t->arity - 1;
+   Sig_p sig = bank->sig;
+   for (long i = 0; i < num_def; i++)
+   {
+      assert(let_t->args[i]->f_code == bank->sig->eqn_code);
+      FunCode old_lhs_fc = let_t->args[i]->args[0]->f_code;
+      Term_p rhs = let_t->args[i]->args[1];
+      ArrayTree_p node = ArrayTreeFind(defs, old_lhs_fc);
+      assert(node);
+      Term_p new_lhs = node->entries[0].val2.p_val;
+      TFormula_p matrix;
 
-    for (long i = 0; i < num_def; i++)
-    {
-        assert(let_t->args[i]->f_code == bank->sig->eqn_code);
-        FunCode old_lhs_fc = let_t->args[i]->args[0]->f_code;
-        Term_p rhs = let_t->args[i]->args[1];
-        ArrayTree_p node = ArrayTreeFind(defs, old_lhs_fc);
-        assert(node);
-        Term_p new_lhs = PDRangeArrElementP(node->array, old_lhs_fc);
-        TFormula_p matrix;
+      if (TypeIsBool(rhs->type))
+      {
+         matrix = TFormulaFCodeAlloc(bank, sig->equiv_code,
+                                     EncodePredicateAsEqn(bank, new_lhs),
+                                     EncodePredicateAsEqn(bank, rhs));
+      }
+      else
+      {
+         matrix = TFormulaFCodeAlloc(bank, sig->eqn_code, new_lhs, rhs);
+      }
 
-        if (TypeIsBool(rhs->type))
-        {
-            matrix = TFormulaFCodeAlloc(bank, sig->equiv_code,
-                                         EncodePredicateAsEqn(bank, new_lhs),
-                                         EncodePredicateAsEqn(bank, rhs));
-        }
-        else
-        {
-            matrix = TFormulaFCodeAlloc(bank, sig->eqn_code, new_lhs, rhs);
-        }
-
-        PStackPushP(res, TFormulaClosure(bank, matrix, true));
-    }
+      PStackPushP(res, TFormulaClosure(bank, matrix, true));
+   }
 }
-
 
 /*-----------------------------------------------------------------------
 //
@@ -224,60 +217,55 @@ void make_fresh_defs(TB_p bank, Term_p let_t, ArrayTree_p *defs, PStack_p res)
 
 TFormula_p lift_lets(TB_p terms, TFormula_p t, PStack_p fresh_defs)
 {
-    if (TermIsAnyVar(t))
-    {
-        return t;
-    }
-    else if (t->f_code == SIG_LET_CODE)
-    {
-        Term_p new = TermTopCopyWithoutArgs(t);
-        ArrayTree_p closed_defs = NULL;
-        long num_defs = t->arity - 1;
+   if (TermIsAnyVar(t))
+   {
+      return t;
+   }
+   else if (t->f_code == SIG_LET_CODE)
+   {
+      Term_p new = TermTopCopyWithoutArgs(t);
+      ArrayTree_p closed_defs = NULL;
+      long num_defs = t->arity - 1;
+      for (long i = 0; i < num_defs; i++)
+      {
+         new->args[i] = lift_lets(terms, t->args[i], fresh_defs);
+         close_let_def(terms, &closed_defs, new->args[i]);
+      }
+      make_fresh_defs(terms, new, &closed_defs, fresh_defs);
+      TermTopFree(new);
+      Term_p res = replace_body(terms, &closed_defs, t->args[num_defs]);
+      ArrayTreeFree(closed_defs);
+      return lift_lets(terms, res, fresh_defs);
+   }
+   else
+   {
+      Term_p new = TermTopCopyWithoutArgs(t);
+      bool changed = false;
+      for (int i = 0; i < new->arity; i++)
+      {
+         new->args[i] = lift_lets(terms, t->args[i], fresh_defs);
+         changed = changed || new->args[i] != t->args[i];
+      }
 
-        for (long i = 0; i < num_defs; i++)
-        {
-            new->args[i] = lift_lets(terms, t->args[i], fresh_defs);
-            close_let_def(terms, &closed_defs, new->args[i]);
-        }
-
-        make_fresh_defs(terms, new, &closed_defs, fresh_defs);
-        TermTopFree(new);
-        Term_p res = replace_body(terms, &closed_defs, t->args[num_defs]);
-        ArrayTreeFree(closed_defs);
-
-        return lift_lets(terms, res, fresh_defs);
-    }
-    else
-    {
-        Term_p new = TermTopCopyWithoutArgs(t);
-        bool changed = false;
-
-        for (int i = 0; i < new->arity; i++)
-        {
-            new->args[i] = lift_lets(terms, t->args[i], fresh_defs);
-            changed = changed || new->args[i] != t->args[i];
-        }
-
-        if (changed)
-        {
-            if (TermIsPhonyApp(new) && !TermIsPhonyAppTarget(new->args[0]))
-            {
-                Term_p flat = FlattenApps(terms, new->args[0], new->args + 1,
-                                          new->arity - 1, new->type);
-                TermTopFree(new);
-                new = flat;
-            }
-            new = TBTermTopInsert(terms, new);
-        }
-        else
-        {
+      if (changed)
+      {
+         if(TermIsPhonyApp(new) && !TermIsPhonyAppTarget(new->args[0]))
+         {
+            Term_p flat = FlattenApps(terms, new->args[0], new->args+1, new->arity-1, new->type);
             TermTopFree(new);
-            new = t;
-        }
-        return new;
-    }
-}
+            new = flat;
+         }
+         new = TBTermTopInsert(terms, new);
 
+      }
+      else
+      {
+         TermTopFree(new);
+         new = t;
+      }
+      return new;
+   }
+}
 
 /*-----------------------------------------------------------------------
 //

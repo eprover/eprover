@@ -1,12 +1,5 @@
-/*-----------------------------------------------------------------------
-
-  This code is an initial attempts to implement a self-arranging array
-  tree using the generic array 'PDRangeArray'. This code has not been
-  tested yet.
-
-  -----------------------------------------------------------------------*/
-
-#include <clb_arraytrees.h>
+#include "clb_arraytrees.h"
+#include "clb_simple_stuff.h"
 
 /*---------------------------------------------------------------------*/
 /*                        Global Variables                             */
@@ -22,631 +15,553 @@
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
 
-
-/*-----------------------------------------------------------------------
-//
-// Function: splay()
-//
-//   Perform the splay operation on tree at node with key.
-//
-// Global Variables: -
-//
-// Side Effects    : Changes tree
-//
-/----------------------------------------------------------------------*/
-
-static ArrayTree_p splay(ArrayTree_p root, long key)
+static ArrayTree_p splay_tree(ArrayTree_p tree, long key)
 {
-    if (!root)
-        return NULL;
+    ArrayTree_p left, right, tmp;
+    ArrayTreeNode newnode; // Placeholder node for tree manipulation
+    long cmpres;
+    uint8_t i;
 
-    ArrayTreeNode dummy = {0, NULL, NULL, NULL};
-    ArrayTree_p left = &dummy, right = &dummy;
-    while (1)
+    // Return if the tree is empty
+    if (!tree)
     {
-        if (key < root->key)
+        return tree;
+    }
+
+    // Initialize the temporary nodes
+    newnode.lson = NULL;
+    newnode.rson = NULL;
+    left = &newnode;
+    right = &newnode;
+
+    for (;;)
+    {
+        // Compare the key with all entries in the current node
+        bool found = false;
+        for (i = 0; i < tree->entry_count; i++)
         {
-            if (!root->left)
-                break;
-            if (key < root->left->key)
+            cmpres = key - tree->entries[i].key;
+            if (cmpres == 0)
             {
-                ArrayTree_p tmp = root->left;
-                root->left = tmp->right;
-                tmp->right = root;
-                root = tmp;
-                if (!root->left)
-                    break;
+                found = true;
+                break;
             }
-            right->left = root;
-            right = root;
-            root = root->left;
         }
-        else if (key > root->key)
+
+        if (found)
         {
-            if (!root->right)
-                break;
-            if (key > root->right->key)
+            // Key found in the current node
+            tree->last_access_index = i; // Update last accessed index
+            break;
+        }
+
+        // Navigate left or right based on the first or last key in the node
+        cmpres = (key < tree->entries[0].key) ? -1 : (key > tree->entries[tree->entry_count - 1].key) ? 1 : 0;
+
+        if (cmpres < 0)
+        {
+            // Key is smaller, move to the left subtree
+            if (!tree->lson)
             {
-                ArrayTree_p tmp = root->right;
-                root->right = tmp->left;
-                tmp->left = root;
-                root = tmp;
-                if (!root->right)
-                    break;
+                break;
             }
-            left->right = root;
-            left = root;
-            root = root->right;
+            if (key < tree->lson->entries[0].key)
+            {
+                // Perform a right rotation
+                tmp = tree->lson;
+                tree->lson = tmp->rson;
+                tmp->rson = tree;
+                tree = tmp;
+                if (!tree->lson)
+                {
+                    break;
+                }
+            }
+            right->lson = tree;
+            right = tree;
+            tree = tree->lson;
+        }
+        else if (cmpres > 0)
+        {
+            // Key is larger, move to the right subtree
+            if (!tree->rson)
+            {
+                break;
+            }
+            if (key > tree->rson->entries[tree->rson->entry_count - 1].key)
+            {
+                // Perform a left rotation
+                tmp = tree->rson;
+                tree->rson = tmp->lson;
+                tmp->lson = tree;
+                tree = tmp;
+                if (!tree->rson)
+                {
+                    break;
+                }
+            }
+            left->rson = tree;
+            left = tree;
+            tree = tree->rson;
         }
         else
         {
+            // Key is within the range of the current node but not found
             break;
         }
     }
-    left->right = root->left;
-    right->left = root->right;
-    root->left = dummy.right;
-    root->right = dummy.left;
-    return root;
+
+    // Reassemble the tree
+    left->rson = tree->lson;
+    right->lson = tree->rson;
+    tree->lson = newnode.rson;
+    tree->rson = newnode.lson;
+
+    return tree;
 }
 
-/*---------------------------------------------------------------------*/
-/*                       Exported Functions                            */
-/*---------------------------------------------------------------------*/
-
-/*-----------------------------------------------------------------------
-//
-// Function: ArrayTreeAlloc()
-//
-//   Allocate a empty, initialized ArrayTree.
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-// Replace this function with a define in the header file??
-ArrayTree_p ArrayTreeAlloc(void)
+static long arraytree_print(FILE* out, ArrayTree_p tree, bool keys_only, int indent)
 {
-    return NULL; /* An empty tree is a NULL-Pointer */
-}
+    DStr_p indstr;
+    int i, size;
 
-
-/*-----------------------------------------------------------------------
-//
-// Function: ArrayTreeFree()
-//
-//   Free a arraytree.
-//
-// Global Variables: -
-//
-// Side Effects    : Memory operations
-//
-/----------------------------------------------------------------------*/
-
-void ArrayTreeFree(ArrayTree_p tree)
-{
-    if (!tree)
-        return;
-
-    ArrayTreeFree(tree->left);
-    ArrayTreeFree(tree->right);
-    PDRangeArrFree(tree->array);
-    free(tree);
-}
-
-
-/*-----------------------------------------------------------------------
-//
-// Function: ArrayTreeInsert()
-//
-//   Insert a new value to the PDRangeArray in the respective tree node.
-//
-// Global Variables: -
-//
-// Side Effects    : Changes the tree
-//
-/----------------------------------------------------------------------*/
-
-void ArrayTreeInsert(ArrayTree_p *root, long key, void *value)
-{
-    assert(root);
-
-    if (!*root)
+    // Allocate a dynamic string for indentation
+    indstr = DStrAlloc();
+    for (i = 0; i < indent; i++)
     {
-        /* New node */
-        *root = malloc(sizeof(ArrayTreeNode));
-        (*root)->key = key;
-        (*root)->array = PDRangeArrAlloc(key, MAX_ARRAYTREE_NODE_SIZE);
-        (*root)->left = NULL;
-        (*root)->right = NULL;
-        PDRangeArrAssignP((*root)->array, key, value);
-        return;
+        DStrAppendStr(indstr, "  ");
     }
 
-    *root = splay(*root, key);
-
-    /* Check if key fits in an existing array */
-    if (PDRangeArrIndexIsCovered((*root)->array, key) || PDRangeArrMembers((*root)->array) < MAX_ARRAYTREE_NODE_SIZE)
+    // Handle empty tree
+    if (!tree)
     {
-        PDRangeArrAssignP((*root)->array, key, value);
+        fprintf(out, "%s[]\n", DStrView(indstr));
+        size = 0;
     }
     else
     {
-        /* New node necessary */
-        ArrayTree_p new_node = malloc(sizeof(ArrayTreeNode));
-        new_node->key = key;
-        new_node->array = PDRangeArrAlloc(key, MAX_ARRAYTREE_NODE_SIZE);
-        PDRangeArrAssignP(new_node->array, key, value);
+        // Print all entries in the current node
+        for (uint8_t j = 0; j < tree->entry_count; j++)
+        {
+            if (keys_only)
+            {
+                fprintf(out, "%sKey: %ld\n", DStrView(indstr), tree->entries[j].key);
+            }
+            else
+            {
+                fprintf(out, "%sKey: %ld\n", DStrView(indstr), tree->entries[j].key);
+                fprintf(out, "%s  Val1: %ld  Val2: %ld\n", DStrView(indstr),
+                        tree->entries[j].val1.i_val, tree->entries[j].val2.i_val);
+            }
+        }
 
-        if (key < (*root)->key)
+        // Print pointers to child nodes if keys_only is false
+        if (!keys_only)
         {
-            new_node->left = (*root)->left;
-            new_node->right = *root;
-            (*root)->left = NULL;
+            fprintf(out, "%sLeft child: %p  Right child: %p\n", DStrView(indstr),
+                    (void*)tree->lson, (void*)tree->rson);
         }
-        else
+
+        // Initialize size counter
+        size = tree->entry_count;
+
+        // Recursively print left and right subtrees
+        if (tree->lson || tree->rson)
         {
-            new_node->right = (*root)->right;
-            new_node->left = *root;
-            (*root)->right = NULL;
+            size += arraytree_print(out, tree->lson, keys_only, indent + 2);
+            size += arraytree_print(out, tree->rson, keys_only, indent + 2);
         }
-        *root = new_node;
     }
+
+    // Free the indentation string
+    DStrFree(indstr);
+
+    return size;
 }
 
 
-/*-----------------------------------------------------------------------
-//
-// Function: ArrayTreeFind()
-//
-//   Find the entry with key key in the array tree and return it.
-//   Return NULL if no such key exists.
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
+/*---------------------------------------------------------------------*/
+/*                         Exported Functions                          */
+/*---------------------------------------------------------------------*/
 
-void* ArrayTreeFind(ArrayTree_p *root, long key)
+ArrayTree_p ArrayTreeNodeAllocEmpty(void)
 {
-    if (!*root)
-        return NULL;
-
-    *root = splay(*root, key);
-
-    if (PDRangeArrIndexIsCovered((*root)->array, key))
+    // Allocate memory for a new ArrayTree node
+    ArrayTree_p handle = (ArrayTree_p)malloc(sizeof(ArrayTreeNode));
+    if (!handle)
     {
-        return PDRangeArrElementP((*root)->array, key);
+        // Allocation failed, return NULL
+        return NULL;
+    }
+
+    // Initialize the first entry of the array
+    handle->entries[0].key = 0;
+    handle->entries[0].val1.i_val = 0;
+    handle->entries[0].val2.i_val = 0;
+
+    // Initialize metadata
+    handle->entry_count = 0;         // No entries initially
+    handle->last_access_index = 0;   // Default to 0 (no access yet)
+
+    // Initialize child pointers
+    handle->lson = NULL;
+    handle->rson = NULL;
+
+    return handle;
+}
+
+void ArrayTreeFree(ArrayTree_p junk)
+{
+    if (junk)
+    {
+        // Allocate a stack for iterative traversal of the tree
+        PStack_p stack = PStackAlloc();
+
+        // Push the root node onto the stack
+        PStackPushP(stack, junk);
+
+        // Process nodes iteratively until the stack is empty
+        while (!PStackEmpty(stack))
+        {
+            // Pop a node from the stack
+            junk = PStackPopP(stack);
+
+            // If the left child exists, push it onto the stack
+            if (junk->lson)
+            {
+                PStackPushP(stack, junk->lson);
+            }
+
+            // If the right child exists, push it onto the stack
+            if (junk->rson)
+            {
+                PStackPushP(stack, junk->rson);
+            }
+            free(junk);
+        }
+
+        // Free the stack used for traversal
+        PStackFree(stack);
+    }
+}
+
+ArrayTree_p ArrayTreeInsert(ArrayTree_p *root, ArrayTree_p newnode)
+{
+    // If the tree is empty, make the new node the root
+    if (!*root)
+    {
+        newnode->lson = newnode->rson = NULL;
+        *root = newnode;
+        return NULL;
+    }
+
+    // Splay the tree to bring the closest key to the root
+    *root = splay_tree(*root, newnode->entries[0].key);
+
+    // Compare the key of the new node with the root's first key
+    long cmpres = newnode->entries[0].key - (*root)->entries[0].key;
+
+    if (cmpres < 0)
+    {
+        // Check if the root node has space in its array
+        if ((*root)->entry_count < MAX_NODE_ARRAY_SIZE)
+        {
+            // Insert the new key into the existing node
+            (*root)->entries[(*root)->entry_count] = newnode->entries[0];
+            (*root)->entry_count++;
+            return NULL;
+        }
+
+        // Create a new node and attach it as the left child
+        newnode->lson = (*root)->lson;
+        newnode->rson = *root;
+        (*root)->lson = NULL;
+        *root = newnode;
+        return NULL;
+    }
+    else if(cmpres > 0)
+    {
+        // Check if the root node has space in its array
+        if ((*root)->entry_count < MAX_NODE_ARRAY_SIZE)
+        {
+            // Insert the new key into the existing node
+            (*root)->entries[(*root)->entry_count] = newnode->entries[0];
+            (*root)->entry_count++;
+            return NULL;
+        }
+
+        // Create a new node and attach it as the right child
+        newnode->rson = (*root)->rson;
+        newnode->lson = *root;
+        (*root)->rson = NULL;
+        *root = newnode;
+        return NULL;
+    }
+    // The key already exists, return the existing root
+    return *root;
+}
+
+bool ArrayTreeStore(ArrayTree_p *root, long key, IntOrP val1, IntOrP val2)
+{
+    // Allocate a new node for the key-value pair
+    ArrayTree_p handle = (ArrayTree_p)malloc(sizeof(ArrayTreeNode));
+    if (!handle)
+    {
+        return false;
+    }
+
+    // Initialize the first entry in the new node
+    handle->entries[0].key = key;
+    handle->entries[0].val1 = val1;
+    handle->entries[0].val2 = val2;
+
+    // Initialize metadata for the new node
+    handle->entry_count = 1;         // Only one entry initially
+    handle->last_access_index = 0;  // This entry is the most recently used
+    handle->lson = NULL;
+    handle->rson = NULL;
+
+    // Try to insert the node into the tree
+    ArrayTree_p newnode = ArrayTreeInsert(root, handle);
+
+    if (newnode)
+    {
+        // If the key already exists, free the allocated node and return false
+        free(handle);
+        return false;
+    }
+    return true;
+}
+
+
+long ArrayTreeDebugPrint(FILE* out, ArrayTree_p tree, bool keys_only)
+{
+    long size = 0;
+
+    if (!tree)
+    {
+        fprintf(out, "Empty tree.\n");
+        return size;
+    }
+
+    // Print the current node's entries
+    fprintf(out, "Node: [\n");
+    for (uint8_t i = 0; i < tree->entry_count; i++)
+    {
+        fprintf(out, "  Entry %d: Key = %ld", i, tree->entries[i].key);
+        if (!keys_only)
+        {
+            fprintf(out, ", Val1 = %ld, Val2 = %ld",
+                    tree->entries[i].val1.i_val,
+                    tree->entries[i].val2.i_val);
+        }
+        fprintf(out, "\n");
+    }
+    fprintf(out, "]\n");
+    size++;
+
+    // Recursively print the left and right subtrees
+    if (tree->lson)
+    {
+        fprintf(out, "Left subtree:\n");
+        size += ArrayTreeDebugPrint(out, tree->lson, keys_only);
+    }
+    if (tree->rson)
+    {
+        fprintf(out, "Right subtree:\n");
+        size += ArrayTreeDebugPrint(out, tree->rson, keys_only);
+    }
+    fprintf(out, "Total size at this level: %ld\n", size);
+
+    return size;
+}
+
+ArrayTree_p ArrayTreeFind(ArrayTree_p *root, long key)
+{
+    // Check if the tree is empty
+    if (*root)
+    {
+        // Perform the splay operation to bring the closest key to the root
+        *root = splay_tree(*root, key);
+
+        // Search for the key in the root's entries array
+        for (uint8_t i = 0; i < (*root)->entry_count; i++)
+        {
+            if ((*root)->entries[i].key == key)
+            {
+                // Key found, return the root
+                (*root)->last_access_index = i; // Update the last accessed index
+                return *root;
+            }
+        }
+    }
+
+    // Key not found
+    return NULL;
+}
+
+ArrayTree_p ArrayTreeExtractEntry(ArrayTree_p *root, long key)
+{
+    ArrayTree_p x, cell = NULL;
+
+    // Return NULL if the tree is empty
+    if (!(*root))
+    {
+        return NULL;
+    }
+
+    // Perform the splay operation to bring the closest key to the root
+    *root = splay_tree(*root, key);
+
+    // Search for the key in the root's entries array
+    for (uint8_t i = 0; i < (*root)->entry_count; i++)
+    {
+        if ((*root)->entries[i].key == key)
+        {
+            // Key found, remove it from the array
+            cell = (ArrayTree_p)malloc(sizeof(ArrayTreeNode));
+            if (!cell)
+            {
+                return NULL;
+            }
+
+            // Copy the removed entry to the returned cell
+            cell->entries[0] = (*root)->entries[i];
+            cell->entry_count = 1;
+            cell->last_access_index = 0;
+            cell->lson = NULL;
+            cell->rson = NULL;
+
+            // Shift the remaining entries in the array
+            for (uint8_t j = i; j < (*root)->entry_count - 1; j++)
+            {
+                (*root)->entries[j] = (*root)->entries[j + 1];
+            }
+            (*root)->entry_count--;
+
+            // Check if the node is now empty
+            if ((*root)->entry_count == 0)
+            {
+                // Reorganize the tree if the root is empty
+                if (!(*root)->lson)
+                {
+                    x = (*root)->rson;
+                }
+                else
+                {
+                    x = splay_tree((*root)->lson, key);
+                    x->rson = (*root)->rson;
+                }
+
+                // Free the empty root node
+                free(*root);
+                *root = x;
+            }
+
+            return cell;
+        }
     }
     return NULL;
 }
 
-
-/*-----------------------------------------------------------------------
-//
-// Function: ArrayTreeDebugPrint()
-//
-//   Print the tree for debugging.
-//
-// Global Variables: -
-//
-// Side Effects    : Output
-//
-/----------------------------------------------------------------------*/
-
-void ArrayTreeDebugPrint(FILE *out, ArrayTree_p tree)
+ArrayTree_p ArrayTreeExtractRoot(ArrayTree_p *root)
 {
-    if (!tree)
+    if (*root)
     {
-        fprintf(out, "NULL\n");
-        return;
+        // Extract the first entry (key at the first index) from the root
+        return ArrayTreeExtractEntry(root, (*root)->entries[0].key);
     }
+    return NULL;
+}
 
-    fprintf(out, "Key: %ld, Values: ", tree->key);
-    for (long i = PDRangeArrLowKey(tree->array); i < PDRangeArrLimitKey(tree->array); i++)
+bool ArrayTreeDeleteEntry(ArrayTree_p *root, long key)
+{
+    ArrayTree_p cell;
+
+    // Extract the entry associated with the key
+    cell = ArrayTreeExtractEntry(root, key);
+    if (cell)
     {
-        void* value = PDRangeArrElementP(tree->array, i);
-        if (value)
+        ArrayTreeFree(cell);
+        return true;
+    }
+    return false;
+}
+
+long ArrayTreeNodes(ArrayTree_p root)
+{
+    // Allocate a stack for iterative traversal
+    PStack_p stack = PStackAlloc();
+    long     res   = 0; // Counter for the total number of entries
+
+    PStackPushP(stack, root);
+
+    // Process nodes iteratively until the stack is empty
+    while (!PStackEmpty(stack))
+    {
+        root = PStackPopP(stack);
+
+        if (root)
         {
-            fprintf(out, "[%ld: %p] ", i, value);
+            // Add the number of entries in the current node to the result
+            res += root->entry_count;
+
+            // Push the left and right children onto the stack
+            if (root->lson)
+            {
+                PStackPushP(stack, root->lson);
+            }
+            if (root->rson)
+            {
+                PStackPushP(stack, root->rson);
+            }
         }
     }
-    fprintf(out, "\n");
-    ArrayTreeDebugPrint(out, tree->left);
-    ArrayTreeDebugPrint(out, tree->right);
-}
-
-/*-----------------------------------------------------------------------
-//
-// Function: ArrayTreeDebugPrint()
-//
-//   Print the tree for debugging.
-//
-// Global Variables: -
-//
-// Side Effects    : Output
-//
-/----------------------------------------------------------------------*/
-
-ArrayTree_p ArrayTreeTraverseNext(PStack_p state)
-{
-    ArrayTree_p handle, result;
-
-    if (PStackEmpty(state))
-    {
-        return NULL;
-    }
-
-    /* Pop next node from stack */
-    result = PStackPopP(state);
-
-    /* Traverse the right subtree */
-    handle = result->right;
-    while (handle)
-    {
-        PStackPushP(state, handle);
-        handle = handle->left;
-    }
-
-    return result;
-}
-
-
-/*-----------------------------------------------------------------------
-//
-// Function: ArrayTreeDebugPrint()
-//
-//   Initialize the traverse.
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-PStack_p ArrayTreeTraverseInit(ArrayTree_p root)
-{
-    PStack_p stack = PStackAlloc();
-
-    /* Move as far as possible to the left and add all nodes to the stack */
-    while (root)
-    {
-        PStackPushP(stack, root);
-        root = root->left;
-    }
-
-    return stack;
-}
-
-/*-----------------------------------------------------------------------
-//
-// Function: ArrayTreeDebugPrint()
-//
-//   Free the stack which was needed for the traverse
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-void ArrayTreeTraverseExit(PStack_p stack)
-{
     PStackFree(stack);
+
+    return res;
 }
 
-/*-----------------------------------------------------------------------
-//
-// Function: ArrayTreeDebugPrint()
-//
-//   Initialize the traverse which is limited by the value of limit.
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
+ArrayTree_p ArrayTreeMaxNode(ArrayTree_p root)
+{
+    // Traverse to the rightmost node
+    while (root && root->rson)
+    {
+        root = root->rson;
+    }
+
+    // Return the rightmost node (if it exists)
+    return root;
+}
 
 PStack_p ArrayTreeLimitedTraverseInit(ArrayTree_p root, long limit)
 {
     PStack_p stack = PStackAlloc();
 
+    // Traverse the tree to find nodes within the limit
     while (root)
     {
-        if (root->key < limit)
+        // Check if the largest key in the current node is smaller than the limit
+        if (root->entry_count > 0 && root->entries[root->entry_count - 1].key < limit)
         {
-            root = root->right;
+            root = root->rson;
         }
         else
         {
             PStackPushP(stack, root);
-            if (root->key == limit)
+
+            // If the smallest key in the current node equals or exceeds the limit, stop traversing
+            if (root->entries[0].key >= limit)
             {
                 root = NULL;
             }
             else
             {
-                root = root->left;
+                root = root->lson;
             }
         }
     }
-
     return stack;
 }
 
-/*-----------------------------------------------------------------------
-//
-// Function: ArrayTreeStore()
-//
-//   Add a new element to the ArrayTree. Check whether a key is existing
-//   and override it eventually.
-//
-// Global Variables: -
-//
-// Side Effects    : Changes tree
-//
-/----------------------------------------------------------------------*/
-
-bool ArrayTreeStore(ArrayTree_p *root, long key, void *value)
-{
-    assert(root);
-
-    if (!*root)
-    {
-        /* New node */
-        *root = malloc(sizeof(ArrayTreeNode));
-        (*root)->key = key;
-        (*root)->array = PDRangeArrAlloc(key, MAX_ARRAYTREE_NODE_SIZE);
-        (*root)->left = NULL;
-        (*root)->right = NULL;
-        PDRangeArrAssignP((*root)->array, key, value);
-        return true;
-    }
-
-    *root = splay(*root, key);
-
-    /* Check if key fits in an existing array */
-    if (PDRangeArrIndexIsCovered((*root)->array, key) || PDRangeArrMembers((*root)->array) < MAX_ARRAYTREE_NODE_SIZE)
-    {
-        PDRangeArrAssignP((*root)->array, key, value);
-        return true;
-    }
-    else
-    {
-        /* New node necessary */
-        ArrayTree_p new_node = malloc(sizeof(ArrayTreeNode));
-        new_node->key = key;
-        new_node->array = PDRangeArrAlloc(key, MAX_ARRAYTREE_NODE_SIZE);
-        PDRangeArrAssignP(new_node->array, key, value);
-
-        if (key < (*root)->key)
-        {
-            new_node->left = (*root)->left;
-            new_node->right = *root;
-            (*root)->left = NULL;
-        }
-        else
-        {
-            new_node->right = (*root)->right;
-            new_node->left = *root;
-            (*root)->right = NULL;
-        }
-        *root = new_node;
-        return true;
-    }
-}
-
-
-/*-----------------------------------------------------------------------
-//
-// Function: ArrayTreeNodeFree()
-//
-//   Initialize the traverse which is limited by the value of limit.
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-void ArrayTreeNodeFree(ArrayTree_p *tree)
-{
-    PStack_p stack;
-
-    if (!tree || !(*tree))
-    {
-        return;
-    }
-
-    stack = ArrayTreeTraverseInit(*tree);
-
-    ArrayTree_p node;
-    while ((node = ArrayTreeTraverseNext(stack)))
-    {
-        if (node->array)
-        {
-            PDRangeArrFree(node->array);
-        }
-        free(node);
-    }
-
-    ArrayTreeTraverseExit(stack);
-    free(tree);
-}
-
-/*-----------------------------------------------------------------------
-//
-// Function: ArrayTreeDeleteNode()
-//
-//   Delete a single node from the array tree while ensure the consistency
-//   of the tree.
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-ArrayTree_p ArrayTreeDeleteNode(ArrayTree_p *tree, long key) {
-    if (!tree || !(*tree)) {
-        return NULL;
-    }
-
-    ArrayTree_p parent = NULL, current = *tree, replacement = NULL;
-
-    while (current && current->key != key) {
-        parent = current;
-        if (key < current->key) {
-            current = current->left;
-        } else {
-            current = current->right;
-        }
-    }
-
-    if (!current) {
-        return *tree; // Return the original tree if the key is not found
-    }
-
-    if (!current->left && !current->right) {
-        replacement = NULL;
-    } else if (!current->left) {
-        replacement = current->right;
-    } else if (!current->right) {
-        replacement = current->left;
-    } else {
-        ArrayTree_p successor_parent = current;
-        ArrayTree_p successor = current->right;
-
-        while (successor->left) {
-            successor_parent = successor;
-            successor = successor->left;
-        }
-
-        if (successor_parent != current) {
-            successor_parent->left = successor->right;
-        } else {
-            successor_parent->right = successor->right;
-        }
-
-        replacement = successor;
-        replacement->left = current->left;
-        replacement->right = current->right;
-    }
-
-    if (!parent) {
-        *tree = replacement; // Update the root of the tree
-    } else if (parent->left == current) {
-        parent->left = replacement;
-    } else {
-        parent->right = replacement;
-    }
-
-    if (current->array) {
-        PDRangeArrFree(current->array);
-    }
-    free(current);
-
-    return *tree; // Return the updated tree
-}
-
-/*-----------------------------------------------------------------------
-//
-// Function: ArrayTreeLeftChild()
-//
-//   Fetch left tree node.
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-ArrayTree_p ArrayTreeLeftChild(ArrayTree_p node) {
-    if (!node) {
-        return NULL;
-    }
-    return node->left;
-}
-
-/*-----------------------------------------------------------------------
-//
-// Function: ArrayTreeRightChild()
-//
-//   Fetch right tree node.
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-ArrayTree_p ArrayTreeRightChild(ArrayTree_p node) {
-    if (!node) {
-        return NULL;
-    }
-    return node->right;
-}
-
-ArrayTree_p ArrayTreeExtractEntry(ArrayTree_p *root, long key) {
-    ArrayTree_p x, extracted;
-
-    if (!(*root)) {
-        return NULL;
-    }
-
-    *root = splay(*root, key);
-
-    if ((*root)->key == key) {
-        if (!(*root)->left) {
-            x = (*root)->right;
-        } else {
-            x = splay((*root)->left, key);
-            x->right = (*root)->right;
-        }
-        extracted = *root;
-        extracted->left = extracted->right = NULL;
-        *root = x;
-        return extracted;
-    }
-
-    return NULL;
-}
-
-long ArrayTreeNodes(ArrayTree_p root) {
-    if (!root) {
-        return 0;
-    }
-
-    PStack_p stack = PStackAlloc();
-    long count = 0;
-
-    PStackPushP(stack, root);
-
-    while (!PStackEmpty(stack)) {
-        ArrayTree_p node = PStackPopP(stack);
-        if (node) {
-            count++;
-            PStackPushP(stack, node->left);
-            PStackPushP(stack, node->right);
-        }
-    }
-
-    PStackFree(stack);
-    return count;
-}
-
-ArrayTree_p ArrayTreeExtractRoot(ArrayTree_p *root) {
-    ArrayTree_p extracted_node = NULL;
-
-    if (*root) {
-        extracted_node = *root;
-
-        // Splay the root to ensure it is at the top
-        *root = ArrayTreeDeleteNode(root, extracted_node->key);
-    }
-
-    return extracted_node;
-}
+AVL_TRAVERSE_DEFINITION(ArrayTree, ArrayTree_p)

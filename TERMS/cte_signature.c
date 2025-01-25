@@ -1746,9 +1746,9 @@ void SigPrintTypeDeclsTSTPSelective(FILE* out, Sig_p sig, ArrayTree_p *symbols)
    Func_p fun;
    const char* tag = problemType == PROBLEM_HO ? "thf" : "tff";
 
-   for (i = sig->internal_symbols + 1; i <= sig->f_count; i++)
+   for(i=sig->internal_symbols+1; i <= sig->f_count; i++)
    {
-      if (ArrayTreeFind(symbols, i))
+      if(ArrayTreeFind(symbols,i))
       {
          fun = &sig->f_info[i];
          if (fun->type /*&& !TypeIsUntyped(fun->type)*/)
@@ -1880,34 +1880,36 @@ long SigFCodesCollectTypes(Sig_p sig, ArrayTree_p fcodes, PTree_p *types)
    Type_p type;
 
    iter = ArrayTreeTraverseInit(fcodes);
-   while ((handle = ArrayTreeTraverseNext(iter)))
+   while((handle = ArrayTreeTraverseNext(iter)))
    {
-      type = SigGetType(sig, handle->key);
+      type = SigGetType(sig, handle->entries[0].key);
       //printf("# Symbol %ld = %s has type %p\n", handle->key,
       //SigFindName(sig, handle->key), type);
-      if (type)
+      if(type)
       {
          PStackPushP(to_process, type);
       }
    }
    ArrayTreeTraverseExit(iter);
 
-   while (!PStackEmpty(to_process))
+   while(!PStackEmpty(to_process))
    {
       type = PStackPopP(to_process);
-      if (!PTreeFind(types, type))
+      if(!PTreeFind(types, type))
       {
          res++;
          PTreeStore(types, type);
-         for (int i = 0; i < type->arity; i++)
+         for(int i=0; i<type->arity; i++)
          {
             PStackPushP(to_process, type->args[i]);
          }
       }
    }
-   PStackFree(to_process);
+   PTreeTraverseExit(to_process);
    return res;
 }
+
+
 
 
 /*-----------------------------------------------------------------------

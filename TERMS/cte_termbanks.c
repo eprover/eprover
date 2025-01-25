@@ -69,50 +69,52 @@ typedef Term_p (*TermParseFun)(Scanner_p in, TB_p bank);
 //
 /----------------------------------------------------------------------*/
 
-void tb_print_dag(FILE *out, ArrayTree_p in_index, Sig_p sig) {
-    Term_p term;
+static void tb_print_dag(FILE *out, ArrayTree_p in_index, Sig_p sig)
+{
+   Term_p term;
 
-    if (!in_index) {
-        return;
-    }
+   if(!in_index)
+   {
+      return;
+   }
+   tb_print_dag(out, in_index->lson, sig);
+   term = in_index->entries[0].val1.p_val;
+   fprintf(out, "*%ld : ", term->entry_no);
 
-    tb_print_dag(out, ArrayTreeLeftChild(in_index), sig);
+   if(TermIsFreeVar(term))
+   {
+      VarPrint(out, term->f_code);
+   }
+   else
+   {
+      fputs(SigFindName(sig, term->f_code), out);
+      if(!TermIsConst(term))
+      {
+         int i;
 
-    term = (Term_p)(in_index->array ? PDRangeArrElementRef(in_index->array, 0)->p_val : NULL);
+         assert(term->arity>=1);
+         assert(term->args);
+         putc('(', out);
 
-    if (term) {
-        fprintf(out, "*%ld : ", term->entry_no);
-
-        if (TermIsFreeVar(term)) {
-            VarPrint(out, term->f_code);
-        } else {
-            fputs(SigFindName(sig, term->f_code), out);
-            if (!TermIsConst(term)) {
-                int i;
-
-                assert(term->arity >= 1);
-                assert(term->args);
-                putc('(', out);
-
-                fprintf(out, "*%ld", TBCellIdent(term->args[0]));
-                for (i = 1; i < term->arity; i++) {
-                    putc(',', out);
-                    fprintf(out, "*%ld", TBCellIdent(term->args[i]));
-                }
-                putc(')', out);
-            }
-            fprintf(out, "   =   ");
-            TermPrint(out, term, sig, DEREF_NEVER);
-        }
-        if (TBPrintInternalInfo) {
-            fprintf(out, "\t/*  Properties: %10d */", term->properties);
-        }
-        fprintf(out, "\n");
-    }
-
-    tb_print_dag(out, ArrayTreeRightChild(in_index), sig);
+         fprintf(out, "*%ld", TBCellIdent(term->args[0]));
+         for(i=1; i<term->arity; i++)
+         {
+            putc(',', out);
+            fprintf(out, "*%ld", TBCellIdent(term->args[i]));
+         }
+         putc(')', out);
+      }
+      fprintf(out, "   =   ");
+      TermPrint(out, term, sig, DEREF_NEVER);
+   }
+   if(TBPrintInternalInfo)
+   {
+      fprintf(out, "\t/*  Properties: %10d */",
+              term->properties);
+   }
+   fprintf(out, "\n");
+   tb_print_dag(out, in_index->rson, sig);
 }
-
 
 /*-----------------------------------------------------------------------
 //
@@ -1545,26 +1547,25 @@ Term_p TBFind(TB_p bank, Term_p term)
 
 void TBPrintBankInOrder(FILE* out, TB_p bank)
 {
-    ArrayTree_p tree = NULL;
-    long i;
-    PStack_p stack;
-    Term_p cell;
+   ArrayTree_p tree = NULL;
+   long i;
+   PStack_p stack;
+   Term_p   cell;
+   IntOrP   dummy;
 
-    for (i = 0; i < TERM_STORE_HASH_SIZE; i++)
-    {
-        stack = TermTreeTraverseInit(bank->term_store.store[i]);
-        while ((cell = TermTreeTraverseNext(stack)))
-        {
-            void *value = (void *)cell;
-            ArrayTreeStore(&tree, cell->entry_no, value);
-        }
-        TermTreeTraverseExit(stack);
-    }
-
-    tb_print_dag(out, tree, bank->sig);
-    ArrayTreeFree(tree);
+   for(i=0; i<TERM_STORE_HASH_SIZE; i++)
+   {
+      stack = TermTreeTraverseInit(bank->term_store.store[i]);
+      while((cell = TermTreeTraverseNext(stack)))
+      {
+         dummy.p_val = cell;
+         ArrayTreeStore(&tree, cell->entry_no,dummy, dummy);
+      }
+      TermTreeTraverseExit(stack);
+   }
+   tb_print_dag(out, tree, bank->sig);
+   ArrayTreeFree(tree);
 }
-
 
 /*-----------------------------------------------------------------------
 //

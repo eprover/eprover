@@ -264,21 +264,21 @@ AnnoSet_p AnnoSetAlloc(TB_p bank)
 
 void AnnoSetFree(AnnoSet_p junk)
 {
-    ArrayTree_p handle;
-    PStack_p stack;
+   ArrayTree_p handle;
+   PStack_p stack;
 
-    stack = ArrayTreeTraverseInit(junk->set);
+   stack = ArrayTreeTraverseInit(junk->set);
 
-    while ((handle = ArrayTreeTraverseNext(stack)))
-    {
-        AnnoTermFree(junk->terms, 
-                     (AnnoTerm_p)(PDRangeArrElementRef(handle->array, 0)->p_val));
-    }
-    ArrayTreeTraverseExit(stack);
+   while((handle = ArrayTreeTraverseNext(stack)))
+   {
+      AnnoTermFree(junk->terms, handle->entries[0].val1.p_val);
+   }
+   ArrayTreeTraverseExit(stack);
 
-    ArrayTreeFree(junk->set);
-    assert(junk->subst == NULL);
-    AnnoSetCellFree(junk);
+   ArrayTreeFree(junk->set);
+   /* Keep in mind that bank is external! */
+   assert(junk->subst == NULL);
+   AnnoSetCellFree(junk);
 }
 
 
@@ -297,51 +297,38 @@ void AnnoSetFree(AnnoSet_p junk)
 
 bool AnnoSetAddTerm(AnnoSet_p set, AnnoTerm_p term)
 {
-    ArrayTree_p exists, handle;
-    AnnoTerm_p existing_term;
-    ArrayTree_p conflict;
-    IntOrP tmp;
-    bool res = true;
+   ArrayTree_p exists, handle, conflict;
+   AnnoTerm_p existing_term;
+   IntOrP    tmp;
+   bool res = true;
 
-    assert(TBFind(set->terms, term->term));
+   assert(TBFind(set->terms, term->term));
 
-    exists = ArrayTreeFind(&(set->set), term->term->entry_no);
-    if (exists)
-    {
-        res = false;
-        existing_term = (AnnoTerm_p)(PDRangeArrElementRef(exists->array, 0)->p_val);
-
-        while (term->annotation)
-        {
-            handle = ArrayTreeExtractEntry(&term->annotation, term->annotation->key);
-
-            // Check for conflict
-            conflict = ArrayTreeFind(&(existing_term->annotation), handle->key);
-            if (conflict)
-            {
-                AnnotationCombine(
-                    (Annotation_p)(PDRangeArrElementRef(conflict->array, 0)->p_val),
-                    (Annotation_p)(PDRangeArrElementRef(handle->array, 0)->p_val));
-                AnnotationFree((Annotation_p)(PDRangeArrElementRef(handle->array, 0)->p_val));
-                ArrayTreeNodeFree(handle);
-            }
-            else
-            {
-                ArrayTreeInsert(&(existing_term->annotation), handle->key, handle);
-            }
-        }
-
-        AnnoTermFree(set->terms, term);
-    }
-    else
-    {
-        tmp.p_val = term;
-        ArrayTreeInsert(&(set->set), term->term->entry_no, tmp.p_val);
-    }
-
-    return res;
+   exists = ArrayTreeFind(&(set->set), term->term->entry_no);
+   if(exists)
+   {
+      res = false;
+      existing_term = exists->entries[0].val1.p_val;
+      while(term->annotation)
+      {
+         handle = ArrayTreeExtractEntry(&term->annotation,
+                                      term->annotation->entries[0].key);
+         conflict = ArrayTreeInsert(&(existing_term->annotation), handle);
+         if(conflict)
+         {
+            AnnotationCombine(conflict, handle);
+            AnnotationFree(handle);
+         }
+      }
+      AnnoTermFree(set->terms, term);
+   }
+   else
+   {
+      tmp.p_val = term;
+      ArrayTreeStore(&(set->set), term->term->entry_no, tmp, tmp);
+   }
+   return res;
 }
-
 
 
 /*-----------------------------------------------------------------------
@@ -385,22 +372,19 @@ AnnoSet_p AnnoSetParse(Scanner_p in, TB_p bank, long expected)
 
 void AnnoSetPrint(FILE* out, AnnoSet_p set)
 {
-    PStack_p stack;
-    ArrayTree_p handle;
+   PStack_p stack;
+   ArrayTree_p handle;
 
-    fprintf(out, "\n# Annotated terms:\n");
+   fprintf(out, "\n# Annotated terms:\n");
 
-    stack = ArrayTreeTraverseInit(set->set);
-    while ((handle = ArrayTreeTraverseNext(stack)))
-    {
-        AnnoTermPrint(out, set->terms, 
-                      (AnnoTerm_p)(PDRangeArrElementRef(handle->array, 0)->p_val), 
-                      true);
-        fputc('\n', out);
-    }
-    ArrayTreeTraverseExit(stack);
+   stack = ArrayTreeTraverseInit(set->set);
+   while((handle = ArrayTreeTraverseNext(stack)))
+   {
+      AnnoTermPrint(out, set->terms, handle->entries[0].val1.p_val, true);
+      fputc('\n', out);
+   }
+   ArrayTreeTraverseExit(stack);
 }
-
 
 /*-----------------------------------------------------------------------
 //
@@ -417,25 +401,24 @@ void AnnoSetPrint(FILE* out, AnnoSet_p set)
 
 bool AnnoSetComputePatternSubst(PatternSubst_p subst, AnnoSet_p set)
 {
-    PStack_p stack;
-    ArrayTree_p handle;
-    AnnoTerm_p current;
-    bool res = false, tmp;
+   PStack_p       stack;
+   ArrayTree_p    handle;
+   AnnoTerm_p     current;
+   bool           res = false, tmp;
 
-    assert(set);
+   assert(set);
 
-    stack = ArrayTreeTraverseInit(set->set);
-    while ((handle = ArrayTreeTraverseNext(stack)))
-    {
-        current = (AnnoTerm_p)(PDRangeArrElementRef(handle->array, 0)->p_val);
-        assert(current);
-        tmp = PatternTermCompute(subst, current->term);
-        res = res || tmp;
-    }
-    ArrayTreeTraverseExit(stack);
-    return res;
+   stack = ArrayTreeTraverseInit(set->set);
+   while((handle = ArrayTreeTraverseNext(stack)))
+   {
+      current =  handle->entries[0].val1.p_val;
+      assert(current);
+      tmp = PatternTermCompute(subst,current->term);
+      res = res || tmp;
+   }
+   ArrayTreeTraverseExit(stack);
+   return res;
 }
-
 
 /*-----------------------------------------------------------------------
 //
@@ -453,44 +436,43 @@ bool AnnoSetComputePatternSubst(PatternSubst_p subst, AnnoSet_p set)
 
 long AnnoSetRemoveByIdent(AnnoSet_p set, long set_ident)
 {
-    long count = 0;
-    PStack_p stack, to_delete = PStackAlloc();
-    Annotation_p anno;
-    AnnoTerm_p current;
-    ArrayTree_p handle;
+   long          count = 0;
+   PStack_p      stack, to_delete = PStackAlloc();
+   Annotation_p  anno;
+   AnnoTerm_p    current;
+   ArrayTree_p   handle;
 
-    assert(set);
+   assert(set);
 
-    stack = ArrayTreeTraverseInit(set->set);
-    while ((handle = ArrayTreeTraverseNext(stack)))
-    {
-        current = (AnnoTerm_p)(PDRangeArrElementRef(handle->array, 0)->p_val);
-        anno = ArrayTreeExtractEntry(&(current->annotation), set_ident);
-        if (anno)
-        {
-            AnnotationFree(anno);
-        }
-        if (!current->annotation)
-        {
-            PStackPushInt(to_delete, handle->key);
-        }
-    }
-    ArrayTreeTraverseExit(stack);
+   stack = ArrayTreeTraverseInit(set->set);
+   while((handle = ArrayTreeTraverseNext(stack)))
+   {
+      current = handle->entries[0].val1.p_val;
+      anno = ArrayTreeExtractEntry(&(current->annotation), set_ident);
+      if(anno)
+      {
+         AnnotationFree(anno);
+      }
+      if(!current->annotation)
+      {
+         PStackPushInt(to_delete, handle->entries[0].key);
+      }
+   }
+   ArrayTreeTraverseExit(stack);
 
-    while (!PStackEmpty(to_delete))
-    {
-        handle = ArrayTreeExtractEntry(&(set->set), PStackPopInt(to_delete));
-        assert(handle);
-        AnnoTermFree(set->terms, 
-                     (AnnoTerm_p)(PDRangeArrElementRef(handle->array, 0)->p_val));
-        ArrayTreeNodeFree(handle);
-        count++;
-    }
-    PStackFree(to_delete);
+   while(!PStackEmpty(to_delete))
+   {
+      handle = ArrayTreeExtractEntry(&(set->set),
+                                   PStackPopInt(to_delete));
+      assert(handle);
+      AnnoTermFree(set->terms, handle->entries[0].val1.p_val);
+      ArrayTreeNodeFree(handle);
+      count++;
+   }
+   PStackFree(to_delete);
 
-    return count;
+   return count;
 }
-
 
 /*-----------------------------------------------------------------------
 //
@@ -509,62 +491,59 @@ long AnnoSetRemoveByIdent(AnnoSet_p set, long set_ident)
 
 long AnnoSetRemoveExceptIdentList(AnnoSet_p set, PStack_p set_idents)
 {
-    long count = 0;
-    PStack_p stack, to_delete;
-    Annotation_p anno;
-    AnnoTerm_p current;
-    ArrayTree_p handle, tmptree;
-    PStackPointer i;
+   long          count = 0;
+   PStack_p      stack, to_delete;
+   Annotation_p  anno;
+   AnnoTerm_p    current;
+   ArrayTree_p   handle, tmptree, check;
+   PStackPointer i;
 
-    assert(set);
+   assert(set);
 
-    if (set_idents == ANNOTATIONS_MERGE_ALL)
-    {
-        return 0;
-    }
+   if(set_idents == ANNOTATIONS_MERGE_ALL)
+   {
+      return 0;
+   }
+   assert(set);
 
-    to_delete = PStackAlloc();
-    stack = ArrayTreeTraverseInit(set->set);
+   to_delete = PStackAlloc();
+   stack = ArrayTreeTraverseInit(set->set);
+   while((handle = ArrayTreeTraverseNext(stack)))
+   {
+      tmptree = NULL;
+      current = handle->entries[0].val1.p_val;
+      for(i=0; i<PStackGetSP(stack); i++)
+      {
+         anno = ArrayTreeExtractEntry(&(current->annotation),
+                                    PStackElementInt(set_idents, i));
+         if(anno)
+         {
+            check = ArrayTreeInsert(&tmptree, anno);
+            UNUSED(check); assert(!check);
+         }
+      }
+      AnnotationTreeFree(current->annotation);
+      current->annotation = tmptree;
+      if(!current->annotation)
+      {
+         PStackPushInt(to_delete, handle->entries[0].key);
+      }
+   }
+   ArrayTreeTraverseExit(stack);
 
-    while ((handle = ArrayTreeTraverseNext(stack)))
-    {
-        tmptree = ArrayTreeAlloc();
-        current = (AnnoTerm_p)(PDRangeArrElementRef(handle->array, 0)->p_val);
+   while(!PStackEmpty(to_delete))
+   {
+      handle = ArrayTreeExtractEntry(&(set->set),
+                                   PStackPopInt(to_delete));
+      assert(handle);
+      AnnoTermFree(set->terms, handle->entries[0].val1.p_val);
+      ArrayTreeNodeFree(handle);
+      count++;
+   }
+   PStackFree(to_delete);
 
-        for (i = 0; i < PStackGetSP(set_idents); i++)
-        {
-            anno = ArrayTreeExtractEntry(&(current->annotation), PStackElementInt(set_idents, i));
-            if (anno)
-            {
-                ArrayTreeInsert(&tmptree, anno->key, anno);
-            }
-        }
-
-        AnnotationTreeFree(current->annotation);
-        current->annotation = tmptree;
-
-        if (!current->annotation)
-        {
-            PStackPushInt(to_delete, handle->key);
-        }
-    }
-
-    ArrayTreeTraverseExit(stack);
-
-    while (!PStackEmpty(to_delete))
-    {
-        handle = ArrayTreeExtractEntry(&(set->set), PStackPopInt(to_delete));
-        assert(handle);
-        AnnoTermFree(set->terms, (AnnoTerm_p)(PDRangeArrElementRef(handle->array, 0)->p_val));
-        ArrayTreeNodeFree(handle);
-        count++;
-    }
-
-    PStackFree(to_delete);
-
-    return count;
+   return count;
 }
-
 
 /*-----------------------------------------------------------------------
 //
@@ -583,51 +562,49 @@ long AnnoSetRemoveExceptIdentList(AnnoSet_p set, PStack_p set_idents)
 
 long AnnoSetFlatten(AnnoSet_p set, PStack_p set_idents)
 {
-    long count = 0, annos_found;
-    PStack_p stack, to_delete = PStackAlloc();
-    Annotation_p anno;
-    AnnoTerm_p current;
-    ArrayTree_p handle;
+   long          count = 0, annos_found;
+   PStack_p      stack, to_delete = PStackAlloc();
+   Annotation_p  anno;
+   AnnoTerm_p    current;
+   ArrayTree_p   handle;
 
-    assert(set);
+   assert(set);
 
-    // Traverse the ArrayTree
-    stack = ArrayTreeTraverseInit(set->set);
-    while ((handle = ArrayTreeTraverseNext(stack)))
-    {
-        // Access the current AnnoTerm
-        current = (AnnoTerm_p)(PDRangeArrElementRef(handle->array, 0)->p_val);
-        anno = AnnotationAlloc();
-        anno->key = 0;
+   stack = ArrayTreeTraverseInit(set->set);
+   while((handle = ArrayTreeTraverseNext(stack)))
+   {
+      current = handle->entries[0].val1.p_val;
+      anno = AnnotationAlloc();
+      anno->entries[0].key = 0;
+      annos_found = AnnotationMerge(&(current->annotation),
+                                    anno, set_idents);
+      if(annos_found)
+      {
+         assert(current->annotation);
+         AnnotationLength(anno) =
+            AnnotationLength(current->annotation);
+         AnnotationTreeFree(current->annotation);
+         current->annotation = anno;
+      }
+      else
+      {
+         AnnotationFree(anno);
+         PStackPushInt(to_delete, handle->entries[0].key);
+      }
+   }
+   ArrayTreeTraverseExit(stack);
 
-        // Merge annotations
-        annos_found = AnnotationMerge(&(current->annotation), anno, set_idents);
-        if (annos_found)
-        {
-            assert(current->annotation);
-            AnnotationLength(anno) = AnnotationLength(current->annotation);
-            AnnotationTreeFree(current->annotation);
-            current->annotation = anno;
-        }
-        else
-        {
-            AnnotationFree(anno);
-            PStackPushInt(to_delete, handle->key);
-        }
-    }
-    ArrayTreeTraverseExit(stack);
+   while(!PStackEmpty(to_delete))
+   {
+      handle = ArrayTreeExtractEntry(&(set->set),
+                                   PStackPopInt(to_delete));
+      assert(handle);
+      AnnoTermFree(set->terms, handle->entries[0].val1.p_val);
+      ArrayTreeNodeFree(handle);
+   }
+   PStackFree(to_delete);
 
-    // Delete unused entries
-    while (!PStackEmpty(to_delete))
-    {
-        handle = ArrayTreeExtractEntry(&(set->set), PStackPopInt(to_delete));
-        assert(handle);
-        AnnoTermFree(set->terms, (AnnoTerm_p)(PDRangeArrElementRef(handle->array, 0)->p_val));
-        ArrayTreeNodeFree(handle);
-    }
-    PStackFree(to_delete);
-
-    return count;
+   return count;
 }
 
 
@@ -646,32 +623,34 @@ long AnnoSetFlatten(AnnoSet_p set, PStack_p set_idents)
 
 void AnnoSetNormalizeFlatAnnos(AnnoSet_p set)
 {
-    PStack_p stack;
-    ArrayTree_p cell;
-    AnnoTerm_p current;
-    DDArray_p max_values = DDArrayAlloc(ANNOTATION_DEFAULT_SIZE, ANNOTATION_DEFAULT_SIZE);
+   PStack_p   stack;
+   ArrayTree_p  cell;
+   AnnoTerm_p current;
+   DDArray_p  max_values =  DDArrayAlloc(ANNOTATION_DEFAULT_SIZE,
+                                         ANNOTATION_DEFAULT_SIZE);
 
-    assert(set);
+   assert(set);
 
-    stack = ArrayTreeTraverseInit(set->set);
-    while ((cell = ArrayTreeTraverseNext(stack)))
-    {
-        current = (AnnoTerm_p)(PDRangeArrElementRef(cell->array, 0)->p_val);
-        assert(current);
-        annotation_collect_max(max_values, current->annotation);
-    }
-    ArrayTreeTraverseExit(stack);
+   stack = ArrayTreeTraverseInit(set->set);
+   while((cell = ArrayTreeTraverseNext(stack)))
+   {
+      current = cell->entries[0].val1.p_val;
+      assert(current);
+      annotation_collect_max(max_values, current->annotation);
+   }
+   ArrayTreeTraverseExit(stack);
 
-    stack = ArrayTreeTraverseInit(set->set);
-    while ((cell = ArrayTreeTraverseNext(stack)))
-    {
-        current = (AnnoTerm_p)(PDRangeArrElementRef(cell->array, 0)->p_val);
-        assert(current);
-        annotation_normalize(current->annotation, max_values);
-    }
-    ArrayTreeTraverseExit(stack);
-    DDArrayFree(max_values);
+   stack = ArrayTreeTraverseInit(set->set);
+   while((cell = ArrayTreeTraverseNext(stack)))
+   {
+      current = cell->entries[0].val1.p_val;
+      assert(current);
+      annotation_normalize(current->annotation, max_values);
+   }
+   ArrayTreeTraverseExit(stack);
+   DDArrayFree(max_values);
 }
+
 
 
 /*-----------------------------------------------------------------------
@@ -689,27 +668,26 @@ void AnnoSetNormalizeFlatAnnos(AnnoSet_p set)
 
 long AnnoSetRecToFlatEnc(TB_p bank, AnnoSet_p set)
 {
-    long res = 0;
-    PStack_p stack;
-    ArrayTree_p cell;
-    AnnoTerm_p current;
+   long      res = 0;
+   PStack_p  stack;
+   ArrayTree_p cell;
+   AnnoTerm_p    current;
 
-    assert(set);
-    assert(bank);
+   assert(set);
+   assert(bank);
 
-    stack = ArrayTreeTraverseInit(set->set);
-    while ((cell = ArrayTreeTraverseNext(stack)))
-    {
-        current = (AnnoTerm_p)(PDRangeArrElementRef(cell->array, 0)->p_val);
-        assert(current);
-        AnnoTermRecToFlatEnc(bank, current);
-        res++;
-    }
-    ArrayTreeTraverseExit(stack);
+   stack = ArrayTreeTraverseInit(set->set);
+   while((cell = ArrayTreeTraverseNext(stack)))
+   {
+      current = cell->entries[0].val1.p_val;
+      assert(current);
+      AnnoTermRecToFlatEnc(bank, current);
+      res++;
+   }
+   ArrayTreeTraverseExit(stack);
 
-    return res;
+   return res;
 }
-
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */

@@ -170,28 +170,27 @@ static void tfidf_init(TfIdfWeightParam_p data)
 
 static double tfidf_term_weight(Term_p term, TfIdfWeightParam_p data)
 {
-    long matched, remains;
-    double tf, df;
-    double idf, tfidf;
-    Term_p norm, repr;
-    PDTNode_p node;
-    ArrayTree_p array_node;
+   long matched, remains;
+   double tf, df;
+   double idf, tfidf;
+   Term_p norm, repr;
+   PDTNode_p node;
+   ArrayTree_p cell;
 
-    norm = TermCopyNormalizeVars(data->eval_bank->vars, term, data->var_norm);
-    repr = TBFindRepr(data->eval_bank, norm);
-    array_node = repr ? ArrayTreeFind(&data->eval_freqs, repr->entry_no) : NULL;
+   norm = TermCopyNormalizeVars(data->eval_bank->vars,term,data->var_norm);
+   repr = TBFindRepr(data->eval_bank,norm);
+   cell = repr ? ArrayTreeFind(&data->eval_freqs, repr->entry_no) : NULL;
+   tf = cell ? (cell->entries[0].val1.i_val) : 0;
+   tf = (data->tf_fact*(tf-1))+1; // make tf=1 when tf_fact=0 ("disable tf")
 
-    tf = array_node ? PDRangeArrElementInt(array_node->array, repr->entry_no) : 0;
-    tf = (data->tf_fact * (tf - 1)) + 1; // make tf=1 when tf_fact=0 ("disable tf")
+   node = PDTreeMatchPrefix(data->documents,norm,&matched,&remains);
+   df = (remains==0)?node->ref_count:0;
 
-    node = PDTreeMatchPrefix(data->documents, norm, &matched, &remains);
-    df = (remains == 0) ? node->ref_count : 0;
+   idf = log((1+data->documents->clause_count)/(1+df));
+   tfidf = tf*idf; 
+   TermFree(norm);
 
-    idf = log((1 + data->documents->clause_count) / (1 + df));
-    tfidf = tf * idf;
-    TermFree(norm);
-
-    return 1 / (1 + tfidf);
+   return 1/(1+tfidf);
 }
 
 /*---------------------------------------------------------------------*/
@@ -231,20 +230,18 @@ TfIdfWeightParam_p TfIdfWeightParamAlloc(void)
 
 void TfIdfWeightParamFree(TfIdfWeightParam_p junk)
 {
-    if (junk->eval_bank)
-    {
-        PDTreeFree(junk->documents);
-        junk->documents = NULL;
-
-        // hack to avoid assertion in TBFree: sig is freed later
-        junk->eval_bank->sig = NULL;
-        TBFree(junk->eval_bank);
-        junk->eval_bank = NULL;
-
-        ArrayTreeFree(junk->eval_freqs);
-        junk->eval_freqs = NULL;
-    }
-    TfIdfWeightParamCellFree(junk);
+   if (junk->eval_bank) 
+   {
+      PDTreeFree(junk->documents);
+      junk->documents = NULL;
+      // hack to avoid assertion in TBFree: sig is freed later
+      junk->eval_bank->sig = NULL; 
+      TBFree(junk->eval_bank);
+      junk->eval_bank = NULL;
+      ArrayTreeFree(junk->eval_freqs);
+      junk->eval_freqs = NULL;
+   }
+   TfIdfWeightParamCellFree(junk);
 }
 
 /*-----------------------------------------------------------------------

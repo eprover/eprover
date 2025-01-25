@@ -205,30 +205,36 @@ Term_p discard_last(Term_p term)
 ArrayTree_p create_var_renaming_de_bruin(VarBank_p vars, Term_p term)
 {
    int i;
-   ArrayTree_p root = NULL;
-   PStack_p open = PStackAlloc();
-   long fresh_var_code = -2;
+   ArrayTree_p node;
+   ArrayTree_p root;
+   PStack_p open;
+   long fresh_var_code;
+
+   open = PStackAlloc();
+   fresh_var_code = -2;
+   root = NULL;
 
    PStackPushP(open, term);
-   while (!PStackEmpty(open))
+   while(!PStackEmpty(open))
    {
       term = PStackPopP(open);
-      if (TermIsFreeVar(term))
+      if(TermIsFreeVar(term))
       {
-         if (!ArrayTreeFind(&root, term->f_code))
-         {
-            IntOrP val;
-            val.p_val = VarBankVarAssertAlloc(vars, fresh_var_code, term->type);
+         if (!ArrayTreeFind(&root, term->f_code)) {
+            node = ArrayTreeNodeAllocEmpty();
+            node->entries[0].key = term->f_code;
+            node->entries[0].val1.p_val = VarBankVarAssertAlloc(vars, fresh_var_code, term->type);
+            //node->val1.p_val = VarBankVarAssertAlloc(vars, fresh_var_code, STIndividuals);
             fresh_var_code -= 2;
 
-            ArrayTreeInsert(&root, term->f_code, val.p_val);
+            ArrayTreeInsert(&root, node);
          }
       }
       else
       {
-         for (i = 0; i < term->arity; i++)
+         for(i=0; i<term->arity; i++)
          {
-            PStackPushP(open, term->args[term->arity - 1 - i]);
+            PStackPushP(open, term->args[term->arity-1-i]);
          }
       }
    }
@@ -236,7 +242,6 @@ ArrayTree_p create_var_renaming_de_bruin(VarBank_p vars, Term_p term)
 
    return root;
 }
-
 
 /*-----------------------------------------------------------------------
 //
@@ -1543,7 +1548,7 @@ bool TermStructPrefixEqual(Term_p l, Term_p r, DerefType d_l, DerefType d_r,
                            int remaining, Sig_p sig)
 {
    bool res = true;
-   if (remaining == 0)
+   if(remaining == 0)
    {
       res = TermStructEqualDeref(l, r, d_l, d_r);
    }
@@ -1554,23 +1559,23 @@ bool TermStructPrefixEqual(Term_p l, Term_p r, DerefType d_l, DerefType d_r,
       l = TermDeref(l, &d_l);
       r = TermDeref(r, &d_r);
 
-      if (TermIsAppliedAnyVar(r) && (r->arity - remaining == 1))
+      if(TermIsAppliedAnyVar(r) && (r->arity - remaining == 1))
       {
          // f-code comparisons would fail without this hack.
          r = r->args[0];
       }
 
-      if (l->f_code != r->f_code || (!TermIsAnyVar(r) && r->arity < remaining))
+      if(l->f_code != r->f_code || (!TermIsAnyVar(r) && r->arity < remaining))
       {
          res = false;
       }
       else
       {
-         assert((TermIsAnyVar(l) && TermIsAnyVar(r)) || l->arity == r->arity - remaining);
+         assert((TermIsAnyVar(l) && TermIsAnyVar(r)) || l->arity == r->arity-remaining);
 
-         for (int i = 0; i < l->arity; i++)
+         for(int i=0; i<l->arity; i++)
          {
-            if (!TermStructEqualDeref(l->args[i], r->args[i],
+            if(!TermStructEqualDeref(l->args[i], r->args[i],
                                       CONVERT_DEREF(i, limit_l, d_l),
                                       CONVERT_DEREF(i, limit_r, d_r)))
             {
@@ -1583,7 +1588,6 @@ bool TermStructPrefixEqual(Term_p l, Term_p r, DerefType d_l, DerefType d_r,
 
    return res;
 }
-
 /*-----------------------------------------------------------------------
 //
 // Function: TermStructWeightCompare()
@@ -2690,31 +2694,33 @@ long TermCollectFCodes(Term_p term, ArrayTree_p *tree)
 {
    long res = 0;
    PStack_p stack = PStackAlloc();
-   int i;
-   IntOrP dummy;
+   int      i;
+   IntOrP   dummy;
 
    dummy.i_val = 0;
-   PStackPushP(stack, term);
+   PStackPushP(stack,term);
 
-   while (!PStackEmpty(stack))
+   while(!PStackEmpty(stack))
    {
       term = PStackPopP(stack);
-      if (term->f_code > 0)
+      if(term->f_code > 0)
       {
-         if (ArrayTreeStore(tree, term->f_code, &dummy))
+         if(ArrayTreeStore(tree, term->f_code, dummy, dummy))
          {
             res++;
          }
       }
-      for (i = 0; i < term->arity; i++)
+      for(i=0; i<term->arity; i++)
       {
-         PStackPushP(stack, term->args[i]);
+         PStackPushP(stack,term->args[i]);
       }
    }
    PStackFree(stack);
 
    return res;
 }
+
+
 
 
 /*-----------------------------------------------------------------------
@@ -3093,7 +3099,7 @@ void TermFOOLPrint(FILE* out, Sig_p sig, TFormula_p form)
 //
 /*----------------------------------------------------------------------*/
 
-Term_p TermCopyRenameVars(ArrayTree_p *renaming, Term_p term)
+Term_p TermCopyRenameVars(ArrayTree_p* renaming, Term_p term)
 {
     int i;
     Term_p copy;
@@ -3103,7 +3109,7 @@ Term_p TermCopyRenameVars(ArrayTree_p *renaming, Term_p term)
     {
         entry = ArrayTreeFind(renaming, term->f_code);
         assert(entry);
-        copy = (Term_p)(PDRangeArrElementP(entry->array, term->f_code));
+        copy = (Term_p)(entry->entries[0].val1.p_val);
     }
     else if (TermIsDBVar(term))
     {
@@ -3113,7 +3119,7 @@ Term_p TermCopyRenameVars(ArrayTree_p *renaming, Term_p term)
     {
         copy = TermTopCopy(term);
         copy->type = term->type;
-        for (i = 0; i < term->arity; i++)
+        for (i=0; i<term->arity; i++)
         {
             copy->args[i] = TermCopyRenameVars(renaming, term->args[i]);
         }
@@ -3122,7 +3128,6 @@ Term_p TermCopyRenameVars(ArrayTree_p *renaming, Term_p term)
     assert(copy);
     return copy;
 }
-
 
 /*-----------------------------------------------------------------------
 //
@@ -3147,7 +3152,6 @@ Term_p TermCopyNormalizeVarsAlpha(VarBank_p vars, Term_p term)
 
     return copy;
 }
-
 
 /*-----------------------------------------------------------------------
 //

@@ -59,7 +59,7 @@ typedef struct e_pctrl_cell
 typedef struct e_pctrl_set_cell
 {
    ArrayTree_p procs;  /* Indexed by fileno() */
-   char        buffer[EPCTRL_BUFSIZE];
+   char      buffer[EPCTRL_BUFSIZE];
 }EPCtrlSetCell, *EPCtrlSet_p;
 
 /*---------------------------------------------------------------------*/
@@ -110,7 +110,7 @@ EPCtrl_p    EPCtrlSetFindProc(EPCtrlSet_p set, int fd);
 void        EPCtrlSetDeleteProc(EPCtrlSet_p set,
                                 EPCtrl_p proc, bool delete_file);
 #define     EPCtrlSetEmpty(set) ((set)->procs==NULL)
-#define EPCtrlSetCardinality(set) ArrayTreeNodes((set)->procs)
+#define     EPCtrlSetCardinality(set) NumTreeNodes((set)->procs)
 
 int         EPCtrlSetFDSet(EPCtrlSet_p set, fd_set *rd_fds);
 

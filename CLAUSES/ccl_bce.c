@@ -23,8 +23,8 @@ Changes
 #include "ccl_bce.h"
 #include <clb_min_heap.h>
 
-#define OCC_CNT(n) ((n) ? PStackGetSP((PStack_p) PDRangeArrElement((n)->array, 0)) : 0)
-#define IS_BLOCKED(n) ((n) && PStackGetSP((PStack_p) PDRangeArrElement((n)->array, 0)) == 0)
+#define OCC_CNT(n) ((n) ? PStackGetSP( (PStack_p) ((n)->entries[0].val1.p_val)) : 0)
+#define IS_BLOCKED(n) ((n) && PStackGetSP((PStack_p) ((n)->entries[0].val1.p_val)) == 0)
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
@@ -118,58 +118,69 @@ int compare_taks(IntOrP* ip_a, IntOrP* ip_b)
 //
 /----------------------------------------------------------------------*/
 
-ArrayTree_p make_sym_map(ClauseSet_p set, int occ_limit, bool *eq_found) {
-    ArrayTree_p res = NULL;
+ArrayTree_p make_sym_map(ClauseSet_p set, int occ_limit, bool* eq_found)
+{
+   ArrayTree_p res = NULL;
+   IntOrP dummy = {.p_val = NULL};
+   for(Clause_p cl = set->anchor->succ; cl!=set->anchor; cl = cl->succ)
+   {
+      for(Eqn_p lit=cl->literals; lit; lit = lit->next)
+      {
+         if(!EqnIsEquLit(lit))
+         {
+            FunCode fc = lit->lterm->f_code * (EqnIsPositive(lit) ? 1 : -1);
+            // NB: Because of internal working of IntMap, it is VERY important
+            // that GetVal is called before GetRef
+            ArrayTree_p other_fc_cls = ArrayTreeFind(&res, -fc);
+            ArrayTree_p fc_cls = ArrayTreeFind(&res, fc);
+            if(!IS_BLOCKED(fc_cls))
+            {
+               if( occ_limit > 0 && // limiting enabled
+                  ((OCC_CNT(fc_cls) + OCC_CNT(other_fc_cls)) >= occ_limit))
+               {
+                  // removing all elements  -- essentially blocking tracking of symbol
+                  if(fc_cls)
+                  {
+                     PStackReset(fc_cls->entries[0].val1.p_val);
+                  }
+                  else
+                  {
+                     ArrayTreeStore(&res, fc, ((IntOrP){.p_val = PStackAlloc()}), dummy);
+                  }
 
-    for (Clause_p cl = set->anchor->succ; cl != set->anchor; cl = cl->succ) {
-        for (Eqn_p lit = cl->literals; lit; lit = lit->next) {
-            if (!EqnIsEquLit(lit)) {
-                FunCode fc = lit->lterm->f_code * (EqnIsPositive(lit) ? 1 : -1);
-                ArrayTree_p other_fc_cls = ArrayTreeFind(&res, -fc);
-                ArrayTree_p fc_cls = ArrayTreeFind(&res, fc);
-
-                // Extract stacks from the nodes, if available
-                PStack_p fc_stack = (fc_cls && fc_cls->array)
-                                        ? (PStack_p)((PDRangeArrElement(fc_cls->array, 0)).p_val)
-                                        : NULL;
-                PStack_p other_fc_stack = (other_fc_cls && other_fc_cls->array)
-                                              ? (PStack_p)((PDRangeArrElement(other_fc_cls->array, 0)).p_val)
-                                              : NULL;
-
-                // If blocked or limit exceeded
-                if (!fc_stack || PStackGetSP(fc_stack) == 0) {
-                    if (occ_limit > 0 &&
-                        ((fc_stack ? PStackGetSP(fc_stack) : 0) +
-                         (other_fc_stack ? PStackGetSP(other_fc_stack) : 0)) >= occ_limit) {
-                        if (fc_cls) {
-                            PStackReset(fc_stack);
-                        } else {
-                            fc_cls = add_new_arraytree_node(&res, fc, PStackAlloc());
-                        }
-
-                        if (other_fc_cls) {
-                            PStackReset(other_fc_stack);
-                        } else {
-                            other_fc_cls = add_new_arraytree_node(&res, -fc, PStackAlloc());
-                        }
-                    } else {
-                        if (!fc_cls) {
-                            ArrayTree_p new_node = add_new_arraytree_node(&res, fc, PStackAlloc());
-                            PStackPushP((PStack_p)((PDRangeArrElement(new_node->array, 0)).p_val), cl);
-                        } else if (PStackTopP(fc_stack) != cl) {
-                            PStackPushP(fc_stack, cl);
-                        }
-                    }
-                }
-            } else {
-                *eq_found = true;
+                  if(other_fc_cls)
+                  {
+                     PStackReset(other_fc_cls->entries[0].val1.p_val);
+                  }
+                  else
+                  {
+                     ArrayTreeStore(&res, -fc, ((IntOrP){.p_val = PStackAlloc()}), dummy);
+                  }
+               }
+               else
+               {
+                  if(!fc_cls)
+                  {
+                     IntOrP new = {.p_val = PStackAlloc()};
+                     PStackPushP(new.p_val, cl);
+                     ArrayTreeStore(&res, fc, new, dummy);
+                  }
+                  else if(PStackTopP(fc_cls->entries[0].val1.p_val) != cl)
+                  {
+                     // putting only one copy of a clause
+                     PStackPushP(fc_cls->entries[0].val1.p_val, cl);
+                  }
+               }
             }
-        }
-    }
-
-    return res;
+         }
+         else
+         {
+            *eq_found = true;
+         }
+      }
+   }
+   return res;
 }
-
 
 /*-----------------------------------------------------------------------
 //
@@ -185,34 +196,31 @@ ArrayTree_p make_sym_map(ClauseSet_p set, int occ_limit, bool *eq_found) {
 //
 /----------------------------------------------------------------------*/
 
-MinHeap_p make_bce_queue(ClauseSet_p set, ArrayTree_p *sym_map, PStack_p fresh_clauses) {
-    MinHeap_p res = MinHeapAlloc(compare_taks);
-
-    for (Clause_p cl = set->anchor->succ; cl != set->anchor; cl = cl->succ) {
-        assert(cl->set);
-        Clause_p f_cl = ClauseCopyDisjoint(cl);
-        PStackPushP(fresh_clauses, f_cl);
-
-        for (Eqn_p lit = f_cl->literals; lit; lit = lit->next) {
-            if (!EqnIsEquLit(lit)) {
-                FunCode fc = lit->lterm->f_code * (EqnIsPositive(lit) ? 1 : -1);
-                ArrayTree_p cands_node = ArrayTreeFind(sym_map, -fc);
-
-                PStack_p cands_stack = (cands_node && cands_node->array)
-                                           ? (PStack_p)((PDRangeArrElement(cands_node->array, 0)).p_val)
-                                           : NULL;
-
-                if (!cands_stack || PStackGetSP(cands_stack) == 0) { // IS_BLOCKED
-                    BCE_task_p t = make_task(cl, f_cl, lit, cands_stack);
-                    MinHeapAddP(res, t);
-                }
+MinHeap_p make_bce_queue(ClauseSet_p set, ArrayTree_p* sym_map, PStack_p fresh_clauses)
+{
+   MinHeap_p res = MinHeapAlloc(compare_taks);
+   for(Clause_p cl = set->anchor->succ; cl!=set->anchor; cl = cl->succ)
+   {
+      assert(cl->set);
+      Clause_p f_cl = ClauseCopyDisjoint(cl);
+      PStackPushP(fresh_clauses, f_cl);
+      for(Eqn_p lit=f_cl->literals; lit; lit = lit->next)
+      {
+         if(!EqnIsEquLit(lit))
+         {
+            FunCode fc = lit->lterm->f_code * (EqnIsPositive(lit) ? 1 : -1);
+            ArrayTree_p cands_node = ArrayTreeFind(sym_map, -fc);
+            if(!IS_BLOCKED(cands_node))
+            {
+               BCE_task_p t = make_task(cl, f_cl, lit, 
+                                        cands_node ? cands_node->entries[0].val1.p_val : NULL);
+               MinHeapAddP(res, t);
             }
-        }
-    }
-
-    return res;
+         }
+      }  
+   }
+   return res;
 }
-
 
 /*-----------------------------------------------------------------------
 //
@@ -590,36 +598,35 @@ long do_eliminate_clauses(MinHeap_p task_queue, ClauseSet_p archive,
 void EliminateBlockedClauses(ClauseSet_p passive, ClauseSet_p archive,
                              int max_occs, TB_p tmp_bank)
 {
-    fprintf(stdout, "%% BCE start: %ld\n", ClauseSetCardinality(passive));
+   fprintf(stdout, "%% BCE start: %ld\n", ClauseSetCardinality(passive));
 
-    bool eq_found = false;
-    ArrayTree_p sym_occs = make_sym_map(passive, max_occs, &eq_found);
-    PStack_p fresh_cls = PStackAlloc();
-    MinHeap_p task_queue = make_bce_queue(passive, &sym_occs, fresh_cls);
-    long num_eliminated =
-        do_eliminate_clauses(task_queue, archive, eq_found, tmp_bank);
+   bool eq_found = false;
+   ArrayTree_p sym_occs = make_sym_map(passive, max_occs, &eq_found);
+   PStack_p fresh_cls = PStackAlloc();
+   MinHeap_p task_queue = make_bce_queue(passive, &sym_occs, fresh_cls);
+   long num_eliminated = 
+      do_eliminate_clauses(task_queue, archive, eq_found, tmp_bank);
+   
+   fprintf(stdout, "%% BCE eliminated: %ld.\n", num_eliminated);
 
-    fprintf(stdout, "%% BCE eliminated: %ld.\n", num_eliminated);
+   while(!PStackEmpty(fresh_cls))
+   {
+      ClauseFree(PStackPopP(fresh_cls));
+   }
 
-    while (!PStackEmpty(fresh_cls))
-    {
-        ClauseFree(PStackPopP(fresh_cls));
-    }
+   PStack_p iter = ArrayTreeTraverseInit(sym_occs);
+   ArrayTree_p n = NULL;
+   while( (n = ArrayTreeTraverseNext(iter)) )
+   {
+      PStack_p cls = n->entries[0].val1.p_val;
+      PStackFree(cls);
+   }
+   ArrayTreeTraverseExit(iter);
+   ArrayTreeFree(sym_occs);
 
-    PStack_p iter = ArrayTreeTraverseInit(sym_occs);
-    ArrayTree_p node = NULL;
-    while ((node = ArrayTreeTraverseNext(iter)))
-    {
-        PStack_p cls = node->array;
-        PStackFree(cls);
-    }
-    ArrayTreeTraverseExit(iter);
-    ArrayTreeFree(sym_occs);
-
-    PStackFree(fresh_cls);
-    MinHeapFree(task_queue);
+   PStackFree(fresh_cls);
+   MinHeapFree(task_queue);
 }
-
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */

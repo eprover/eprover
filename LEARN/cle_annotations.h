@@ -29,7 +29,6 @@ Changes
 
 #include <clb_pdarrays.h>
 #include <clb_arraytrees.h>
-#include <clb_pdrangearrays.h>
 #include <cio_basicparser.h>
 
 /*---------------------------------------------------------------------*/
@@ -67,10 +66,10 @@ typedef ArrayTree_p Annotation_p;
 
 Annotation_p AnnotationAlloc(void);
 void         AnnotationFree(Annotation_p junk);
-#define      AnnotationValues(anno) ((anno)->array)
+#define      AnnotationValues(anno) ((anno)->entries[0].val1.p_val)
 #define      AnnotationCount(anno)\
-             DDArrayElement(((anno)->array[0].array->p_val), 0)
-#define AnnotationLength(anno) (*(long *)PDRangeArrElementRef((anno)->array, 0))
+             DDArrayElement(((anno)->entries[0].val1.p_val), 0)
+#define      AnnotationLength(anno) ((anno)->entries[0].val2.i_val)
 void         AnnotationTreeFree(Annotation_p tree);
 Annotation_p AnnotationParse(Scanner_p in, long expected);
 long         AnnotationListParse(Scanner_p in, Annotation_p *tree,

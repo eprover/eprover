@@ -18,7 +18,6 @@ Contents
 -----------------------------------------------------------------------*/
 
 #include <che_proofcontrol.h>
-#include "clb_arraytrees.h"
 
 bool ImmediateClausification(Clause_p cl, ClauseSet_p store, 
                              ClauseSet_p archive, VarBank_p fresh_vars,

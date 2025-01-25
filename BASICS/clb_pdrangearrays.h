@@ -70,7 +70,6 @@ PDRangeArr_p PDIntRangeArrAlloc(long idx, long grow);
 void         PDRangeArrFree(PDRangeArr_p junk);
 void         PDRangeArrEnlarge(PDRangeArr_p array, long idx);
 PDRangeArr_p PDRangeArrCopy(PDRangeArr_p array);
-void         PDRangeArrSetLimits(PDRangeArr_p array, long low_key, long high_key);
 
 static inline IntOrP*   PDRangeArrElementRef(PDRangeArr_p array, long idx);
 

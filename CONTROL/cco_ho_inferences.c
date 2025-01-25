@@ -1228,54 +1228,45 @@ void do_ext_sup(ClausePos_p from_pos, ClausePos_p into_pos, ClauseSet_p store,
 
 void do_ext_sup_from(Clause_p renamed_cl, Clause_p orig_cl, ProofState_p state)
 {
-    PStack_p from_pos_stack = PStackAlloc();
-    CollectExtSupFromPos(renamed_cl, from_pos_stack);
-    ClausePos_p from_pos = ClausePosAlloc(), into_pos = ClausePosAlloc();
+   PStack_p from_pos_stack = PStackAlloc();
+   CollectExtSupFromPos(renamed_cl, from_pos_stack);
+   ClausePos_p from_pos = ClausePosAlloc(), into_pos = ClausePosAlloc();
 #ifdef ENABLE_LFHO
-    ExtIndex_p into_idx = state->gindices.ext_sup_into_index;
+   ExtIndex_p into_idx = state->gindices.ext_sup_into_index;
 #else
-    ExtIndex_p into_idx = NULL;
+   ExtIndex_p into_idx = NULL;
 #endif
 
-    while (!PStackEmpty(from_pos_stack))
-    {
-        CompactPos cpos_from = PStackPopInt(from_pos_stack);
-        UnpackClausePosInto(cpos_from, renamed_cl, from_pos);
+   while (!PStackEmpty(from_pos_stack))
+   {
+      CompactPos cpos_from = PStackPopInt(from_pos_stack);
+      UnpackClausePosInto(cpos_from, renamed_cl, from_pos);
 
-        FunCode fc = PStackPopInt(from_pos_stack);
-        ClauseTPosTree_p into_partners = IntMapGetVal(into_idx, fc);
+      FunCode fc = PStackPopInt(from_pos_stack);
+      ClauseTPosTree_p into_partners = IntMapGetVal(into_idx, fc);
 
-        PStack_p iter = PTreeTraverseInit(into_partners);
-        PTree_p node = NULL;
-        while ((node = PTreeTraverseNext(iter)))
-        {
-            ClauseTPos_p cl_cpos = node->key;
-            PStack_p niter = ArrayTreeTraverseInit(cl_cpos->pos);
-            ArrayTree_p array_node;
-            while ((array_node = ArrayTreeTraverseNext(niter)))
-            {
-                for (long i = PDRangeArrLowKey(array_node->array);
-                     i < PDRangeArrLimitKey(array_node->array);
-                     i++)
-                {
-                    if (PDRangeArrElementInt(array_node->array, i))
-                    {
-                        UnpackClausePosInto(i, cl_cpos->clause, into_pos);
-                        do_ext_sup(from_pos, into_pos, state->tmp_store,
-                                   state->terms, state->freshvars, orig_cl);
-                    }
-                }
-            }
-            ArrayTreeTraverseExit(niter);
-        }
-        PTreeTraverseExit(iter);
-    }
+      PStack_p iter = PTreeTraverseInit(into_partners);
+      PTree_p node = NULL;
+      while ((node = PTreeTraverseNext(iter)))
+      {
+         ClauseTPos_p cl_cpos = node->key;
+         PStack_p niter = ArrayTreeTraverseInit(cl_cpos->pos);
+         ArrayTree_p node;
+         while ((node = ArrayTreeTraverseNext(niter)))
+         {
+            UnpackClausePosInto(node->entries[0].key, cl_cpos->clause, into_pos);
+            do_ext_sup(from_pos, into_pos, state->tmp_store,
+                       state->terms, state->freshvars, orig_cl);
+         }
+         NumXTreeTraverseExit(niter);
+      }
+      PTreeTraverseExit(iter);
+   }
 
-    ClausePosFree(from_pos);
-    ClausePosFree(into_pos);
-    PStackFree(from_pos_stack);
+   ClausePosFree(from_pos);
+   ClausePosFree(into_pos);
+   PStackFree(from_pos_stack);
 }
-
 
 /*-----------------------------------------------------------------------
 //
@@ -1291,54 +1282,47 @@ void do_ext_sup_from(Clause_p renamed_cl, Clause_p orig_cl, ProofState_p state)
 
 void do_ext_sup_into(Clause_p renamed_cl, Clause_p orig_cl, ProofState_p state)
 {
-    PStack_p into_pos_stack = PStackAlloc();
-    CollectExtSupIntoPos(renamed_cl, into_pos_stack);
-    ClausePos_p from_pos = ClausePosAlloc(), into_pos = ClausePosAlloc();
+   PStack_p into_pos_stack = PStackAlloc();
+   CollectExtSupIntoPos(renamed_cl, into_pos_stack);
+   ClausePos_p from_pos = ClausePosAlloc(), into_pos = ClausePosAlloc();
 #ifdef ENABLE_LFHO
-    ExtIndex_p from_idx = state->gindices.ext_sup_from_index;
+   ExtIndex_p from_idx = state->gindices.ext_sup_from_index;
 #else
-    ExtIndex_p from_idx = NULL;
+   ExtIndex_p from_idx = NULL;
 #endif
 
-    while (!PStackEmpty(into_pos_stack))
-    {
-        CompactPos cpos_into = PStackPopInt(into_pos_stack);
-        UnpackClausePosInto(cpos_into, renamed_cl, into_pos);
+   while (!PStackEmpty(into_pos_stack))
+   {
+      CompactPos cpos_into = PStackPopInt(into_pos_stack);
+      UnpackClausePosInto(cpos_into, renamed_cl, into_pos);
 
-        FunCode fc = PStackPopInt(into_pos_stack);
-        ClauseTPosTree_p from_partners = IntMapGetVal(from_idx, fc);
+      FunCode fc = PStackPopInt(into_pos_stack);
+      // assert(fc > state->signature->internal_symbols);
+      ClauseTPosTree_p from_partners = IntMapGetVal(from_idx, fc);
 
-        PStack_p iter = PTreeTraverseInit(from_partners);
-        PTree_p node = NULL;
-        while ((node = PTreeTraverseNext(iter)))
-        {
-            ClauseTPos_p cl_cpos = node->key;
-            PStack_p niter = ArrayTreeTraverseInit(cl_cpos->pos);
-            ArrayTree_p array_node;
-            while ((array_node = ArrayTreeTraverseNext(niter)))
-            {
-                for (long i = PDRangeArrLowKey(array_node->array);
-                     i < PDRangeArrLimitKey(array_node->array);
-                     i++)
-                {
-                    if (PDRangeArrElementInt(array_node->array, i))
-                    {
-                        UnpackClausePosInto(i, cl_cpos->clause, from_pos);
-                        do_ext_sup(from_pos, into_pos, state->tmp_store,
-                                   state->terms, state->freshvars, orig_cl);
-                    }
-                }
-            }
-            ArrayTreeTraverseExit(niter);
-        }
-        PTreeTraverseExit(iter);
-    }
+      PStack_p iter = PTreeTraverseInit(from_partners);
+      PTree_p node = NULL;
+      while ((node = PTreeTraverseNext(iter)))
+      {
+         ClauseTPos_p cl_cpos = node->key;
+         PStack_p niter = ArrayTreeTraverseInit(cl_cpos->pos);
+         ArrayTree_p node;
+         while ((node = ArrayTreeTraverseNext(niter)))
+         {
 
-    ClausePosFree(from_pos);
-    ClausePosFree(into_pos);
-    PStackFree(into_pos_stack);
+            UnpackClausePosInto(node->entries[0].key, cl_cpos->clause, from_pos);
+            do_ext_sup(from_pos, into_pos, state->tmp_store,
+                       state->terms, state->freshvars, orig_cl);
+         }
+         NumXTreeTraverseExit(niter);
+      }
+      PTreeTraverseExit(iter);
+   }
+
+   ClausePosFree(from_pos);
+   ClausePosFree(into_pos);
+   PStackFree(into_pos_stack);
 }
-
 
 /*-----------------------------------------------------------------------
 //

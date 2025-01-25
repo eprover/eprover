@@ -404,23 +404,6 @@ long PDRangeArrElementIncInt(PDRangeArr_p array, long idx, long value)
    return ref->i_val;
 }
 
-void PDRangeArrSetLimits(PDRangeArr_p array, long low_key, long high_key)
-{
-    if (!array)
-    {
-        return;
-    }
-
-    long new_size = high_key - low_key + 1;
-    assert(new_size >= 0);
-
-    array->offset = low_key;
-    array->size = new_size;
-
-    array->array = realloc(array->array, new_size * sizeof(IntOrP));
-    assert(array->array);
-}
-
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
