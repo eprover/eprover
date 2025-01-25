@@ -1,10 +1,9 @@
 /*-----------------------------------------------------------------------
   File    : clb_arraytrees.h
-  Author  : Anpassung von Stephan Schulz' NumTree
-  Purpose : Definition eines Array-basierten Splay-Baums (ArrayTree),
-            bei dem jeder Knoten ein Array für mehrere Schlüssel-Wert-Paare enthält.
-            Optimiert für schnellen Zugriff auf den zuletzt verwendeten Schlüssel
-            und speichereffizient durch den Datentyp uint8_t.
+  Purpose : Definition of an array-based splay tree (ArrayTree),
+            where each node contains an array for multiple key-value pairs.
+            Optimized for quick access to the last used key
+            and memory-efficient due to the uint8_t data type.
 -----------------------------------------------------------------------*/
 
 #ifndef CLB_ARRAYTREES_H
@@ -13,25 +12,25 @@
 #include <clb_dstrings.h>
 #include <clb_avlgeneric.h>
 
-/* Maximal erlaubte Größe des Arrays pro Knoten */
+/* Maximum allowed size of the array per node */
 #define MAX_NODE_ARRAY_SIZE 8
 
-/* Struktur zur Darstellung eines Schlüssel-Wert-Paares */
+/* Structure for displaying a key-value pair */
 typedef struct
 {
-    long key;    // Der Schlüssel
+    long key;
     IntOrP val1;
     IntOrP val2;
 } ArrayEntry;
 
-/* Array-basierter Knoten im Baum */
+/* Array-based node in the tree */
 typedef struct arraytree_node
 {
-    ArrayEntry entries[MAX_NODE_ARRAY_SIZE]; // Array für Schlüssel-Wert-Paare
-    uint8_t entry_count;                     // Anzahl der belegten Einträge (max. 255)
-    uint8_t last_access_index;               // Index des zuletzt verwendeten Eintrags (max. 255)
-    struct arraytree_node* lson;             // Zeiger auf den linken Kindknoten
-    struct arraytree_node* rson;             // Zeiger auf den rechten Kindknoten
+    ArrayEntry entries[MAX_NODE_ARRAY_SIZE]; // Array for key-value pairs
+    uint8_t entry_count;                     // Number of assigned entries (max. 255)
+    uint8_t last_access_index;               // Index of the last used entry (max. 255)
+    struct arraytree_node* lson;             // Pointer to the left child node
+    struct arraytree_node* rson;             // Pointer to the right child node
 } ArrayTreeNode, *ArrayTree_p;
 
 

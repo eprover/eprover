@@ -389,8 +389,18 @@ ArrayTree_p ArrayTreeFind(ArrayTree_p *root, long key)
         {
             if ((*root)->entries[i].key == key)
             {
-                // Key found, return the root
-                (*root)->last_access_index = i; // Update the last accessed index
+                // Key found: Swap it with the entry at index 0
+                if (i != 0)
+                {
+                    ArrayEntry temp = (*root)->entries[0];
+                    (*root)->entries[0] = (*root)->entries[i];
+                    (*root)->entries[i] = temp;
+                }
+
+                // Update the last accessed index
+                (*root)->last_access_index = 0;
+
+                // Return the root
                 return *root;
             }
         }
@@ -469,7 +479,7 @@ ArrayTree_p ArrayTreeExtractRoot(ArrayTree_p *root)
     if (*root)
     {
         // Extract the first entry (key at the first index) from the root
-        return ArrayTreeExtractEntry(root, (*root)->entries[0].key);
+        return (root, (*root)->entries[0].key);
     }
     return NULL;
 }
