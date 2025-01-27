@@ -392,9 +392,17 @@ ArrayTree_p ArrayTreeFind(ArrayTree_p *root, long key)
                 // Key found: Swap it with the entry at index 0
                 if (i != 0)
                 {
-                    ArrayEntry temp = (*root)->entries[0];
-                    (*root)->entries[0] = (*root)->entries[i];
-                    (*root)->entries[i] = temp;
+                    ArrayTree_p cell = (ArrayTree_p)malloc(sizeof(ArrayTreeNode));
+                    if (!cell)
+                    {
+                        return NULL;
+                    }
+                    cell->entries[0] = (*root)->entries[i];
+                    cell->entry_count = 1;
+                    cell->last_access_index = 0;
+                    cell->lson = (*root)->lson;
+                    cell->rson = (*root)->rson;
+                    return cell;
                 }
 
                 // Update the last accessed index
@@ -479,7 +487,7 @@ ArrayTree_p ArrayTreeExtractRoot(ArrayTree_p *root)
     if (*root)
     {
         // Extract the first entry (key at the first index) from the root
-        return (root, (*root)->entries[0].key);
+        return ArrayTreeExtractEntry(root, (*root)->entries[0].key);
     }
     return NULL;
 }
