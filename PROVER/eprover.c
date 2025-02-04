@@ -569,7 +569,7 @@ int main(int argc, char* argv[])
 
    InitIO(NAME);
    pid = getpid();
-   setpgid(0, 0);
+   //setpgid(0, 0);
 
    ESignalSetup(SIGXCPU);
 
