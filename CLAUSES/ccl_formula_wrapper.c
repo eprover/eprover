@@ -77,7 +77,7 @@ TFormula_p handle_ho_def(Scanner_p in, TB_p bank)
       {
          AktTokenError(in, "E currently supports definitions of type <predicate "
                            " symbol> = <closed LFHOL formula>",
-                       SYNTAX_ERROR);
+                       false);
       }
 
       AcceptInpTok(in, EqualSign);
