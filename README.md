@@ -80,7 +80,7 @@ input and output formats via commandline options.
 The Equational Theorem Prover E
 ===============================
 
-This is the README file for version 3.2 "Singbulli" of the E
+This is the README file for version 3.2 "Puttabong Moondrop" of the E
 equational theorem prover. This version of E is free software, see the
 file COPYING for details about the license and the fact that THERE IS
 NO WARRANTY!
