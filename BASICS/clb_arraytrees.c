@@ -195,9 +195,11 @@ ArrayTree_p ArrayTreeNodeAllocEmpty(void)
     }
 
     // Initialize the first entry of the array
-    handle->entries[0].key = 0;
-    handle->entries[0].val1.i_val = 0;
-    handle->entries[0].val2.i_val = 0;
+    for (uint8_t i = 0; i < MAX_NODE_ARRAY_SIZE; i++) {
+        handle->entries[0].key = 0;
+        handle->entries[0].val1.i_val = 0;
+        handle->entries[0].val2.i_val = 0;
+    }
 
     // Initialize metadata
     handle->entry_count = 0;         // No entries initially
@@ -257,54 +259,53 @@ ArrayTree_p ArrayTreeInsert(ArrayTree_p *root, ArrayTree_p newnode)
 
     // Splay the tree to bring the closest key to the root
     *root = splay_tree(*root, newnode->entries[0].key);
+    ArrayTree_p current = *root;
 
-    // Compare the key of the new node with the root's first key
-    long cmpres = newnode->entries[0].key - (*root)->entries[0].key;
+    // Base key of the current root node
+    long basekey = current->entries[0].key;
+    long newkey = newnode->entries[0].key;
 
-    if (cmpres < 0)
-    {
-        // Check if the root node has space in its array
-        if ((*root)->entry_count < MAX_NODE_ARRAY_SIZE)
-        {
-            // Insert the new key into the existing node
-            (*root)->entries[(*root)->entry_count] = newnode->entries[0];
-            (*root)->entry_count++;
+    // Decide in which node the key has to be inserted
+    long diff = newkey - basekey;
+    if (diff > 0) {
+        // Same Array or right node
+        if (diff < MAX_NODE_ARRAY_SIZE) {
+            // Same Array
+            current->entries[diff].key = newnode->entries[0].key;
+            current->entries[diff].val1 = newnode->entries[0].val1;
+            current->entries[diff].val2 = newnode->entries[0].val2;
+            current->last_access_index = diff;
+            if (current->entry_count <= diff) {current->entry_count = diff + 1;}
+            return NULL;
+        } else {
+            // Right node
+            if (current->rson) {
+                return ArrayTreeInsert(&current->rson, newnode);
+            } else {
+                current->rson = newnode;
+                newnode->lson = newnode->rson = NULL;
+                return NULL;
+            }
+        }
+    } else if (diff < 0) {
+        // Left node
+        if (current->lson) {
+            return ArrayTreeInsert(&current->lson, newnode);
+        } else {
+            current->lson = newnode;
+            newnode->lson = newnode->rson = NULL;
             return NULL;
         }
-
-        // Create a new node and attach it as the left child
-        newnode->lson = (*root)->lson;
-        newnode->rson = *root;
-        (*root)->lson = NULL;
-        *root = newnode;
-        return NULL;
+    } else {
+        // Key exists
+        return *root;
     }
-    else if(cmpres > 0)
-    {
-        // Check if the root node has space in its array
-        if ((*root)->entry_count < MAX_NODE_ARRAY_SIZE)
-        {
-            // Insert the new key into the existing node
-            (*root)->entries[(*root)->entry_count] = newnode->entries[0];
-            (*root)->entry_count++;
-            return NULL;
-        }
-
-        // Create a new node and attach it as the right child
-        newnode->rson = (*root)->rson;
-        newnode->lson = *root;
-        (*root)->rson = NULL;
-        *root = newnode;
-        return NULL;
-    }
-    // The key already exists, return the existing root
-    return *root;
 }
 
 bool ArrayTreeStore(ArrayTree_p *root, long key, IntOrP val1, IntOrP val2)
 {
     // Allocate a new node for the key-value pair
-    ArrayTree_p handle = (ArrayTree_p)malloc(sizeof(ArrayTreeNode));
+    ArrayTree_p handle = ArrayTreeNodeAllocEmpty();
     if (!handle)
     {
         return false;
@@ -333,46 +334,11 @@ bool ArrayTreeStore(ArrayTree_p *root, long key, IntOrP val1, IntOrP val2)
     return true;
 }
 
-
 long ArrayTreeDebugPrint(FILE* out, ArrayTree_p tree, bool keys_only)
 {
-    long size = 0;
-
-    if (!tree)
-    {
-        fprintf(out, "Empty tree.\n");
-        return size;
-    }
-
-    // Print the current node's entries
-    fprintf(out, "Node: [\n");
-    for (uint8_t i = 0; i < tree->entry_count; i++)
-    {
-        fprintf(out, "  Entry %d: Key = %ld", i, tree->entries[i].key);
-        if (!keys_only)
-        {
-            fprintf(out, ", Val1 = %ld, Val2 = %ld",
-                    tree->entries[i].val1.i_val,
-                    tree->entries[i].val2.i_val);
-        }
-        fprintf(out, "\n");
-    }
-    fprintf(out, "]\n");
-    size++;
-
-    // Recursively print the left and right subtrees
-    if (tree->lson)
-    {
-        fprintf(out, "Left subtree:\n");
-        size += ArrayTreeDebugPrint(out, tree->lson, keys_only);
-    }
-    if (tree->rson)
-    {
-        fprintf(out, "Right subtree:\n");
-        size += ArrayTreeDebugPrint(out, tree->rson, keys_only);
-    }
-    fprintf(out, "Total size at this level: %ld\n", size);
-
+    long size;
+    size = arraytree_print(out, tree, keys_only, 0);
+    fprintf(out, "Tree size: %ld\n", size);
     return size;
 }
 
