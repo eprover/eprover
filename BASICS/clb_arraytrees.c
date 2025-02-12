@@ -20,7 +20,6 @@ static ArrayTree_p splay_tree(ArrayTree_p tree, long key)
     ArrayTree_p left, right, tmp;
     ArrayTreeNode newnode; // Placeholder node for tree manipulation
     long cmpres;
-    uint8_t i;
 
     // Return if the tree is empty
     if (!tree)
@@ -37,23 +36,29 @@ static ArrayTree_p splay_tree(ArrayTree_p tree, long key)
     for (;;)
     {
         // Compare the key with all entries in the current node
-        bool found = false;
-        for (i = 0; i <= tree->last_used_index; i++)
-        {
-            cmpres = key - tree->entries[i].key;
-            if (cmpres == 0)
-            {
-                found = true;
-                break;
-            }
-        }
+        // bool found = false;
+        // for (uint8_t i = 0; i <= tree->last_used_index; i++)
+        // {
+        //     cmpres = key - tree->entries[i].key;
+        //     if (cmpres == 0)
+        //     {
+        //         found = true;
+        //         break;
+        //     }
+        // }
 
-        if (found)
-        {
-            // Key found in the current node
-            tree->last_access_index = i; // Update last accessed index
+        uint8_t diff = key - tree->entries[0].key;
+        if (tree->entries[diff].key == key) {
+            tree->last_access_index = diff;
             break;
         }
+
+        // if (found)
+        // {
+        //     // Key found in the current node
+        //     tree->last_access_index = i; // Update last accessed index
+        //     break;
+        // }
 
         // Navigate left or right based on the first or last key in the node
         cmpres = (key < tree->entries[0].key) ? -1 : (key > tree->entries[tree->last_used_index].key) ? 1 : 0;
