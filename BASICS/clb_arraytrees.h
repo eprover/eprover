@@ -28,6 +28,7 @@ typedef struct arraytree_node
 {
     ArrayEntry entries[MAX_NODE_ARRAY_SIZE]; // Array for key-value pairs
     uint8_t entry_count;                     // Number of assigned entries (max. 255)
+    uint8_t last_used_index;                 // Highest used index of the array
     uint8_t last_access_index;               // Index of the last used entry (max. 255)
     struct arraytree_node* lson;             // Pointer to the left child node
     struct arraytree_node* rson;             // Pointer to the right child node
