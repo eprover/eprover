@@ -645,6 +645,37 @@ static void compose_errmsg(DStr_p err, Scanner_p in, char* msg)
 
 /*-----------------------------------------------------------------------
 //
+// Function: panic_mode()
+//
+//    If a synchronization token is expected, skip input until one is hit.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static void panic_mode(Scanner_p in, TokenType toks)
+{
+   /* Read input until the token is hit. */
+   if (toks & SyncTokens)
+   {
+      while(!TestInpTok(in, toks))
+      {
+         NextToken(in);
+      }
+
+      /* Skip the sync token. */
+      NextToken(in);
+
+      /* Leave the panic mode. */
+      in->panic_mode = false;
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: str_n_element()
 //
 //   Test whether the len lenght start of str is contained in the set
@@ -848,6 +879,8 @@ Scanner_p CreateScanner(StreamType type, char *name, bool
    handle->ignore_comments = ignore_comments;
    handle->include_key = NULL;
    handle->format = LOPFormat;
+   handle->panic_mode = false;
+   handle->had_error = false;
 
    //printf("# CreateScanner(%s, %s, %d, %s, %d)\n", type, name,
    //ignore_comments, default_dir, fail);
@@ -1101,24 +1134,24 @@ bool TestIdnum(Token_p akt, char* ids)
 //
 // Global Variables: -
 //
-// Side Effects    : Terminates program
+// Side Effects    : -
 //
 /----------------------------------------------------------------------*/
 
 void AktTokenError(Scanner_p in, char* msg, bool syserr)
 {
+   /* Do not throw new errors while in panic mode. */
+   if (in->panic_mode) return;
+
+   /* Enter panic mode. */
+   in->panic_mode = true;
+   in->had_error = true;
+
    DStr_p err = DStrAlloc();
 
    compose_errmsg(err, in, msg);
-   if(syserr)
-   {
-      SysError(DStrView(err), SYNTAX_ERROR);
-   }
-   else
-   {
-      Error(DStrView(err), SYNTAX_ERROR);
-   }
-   DStrFree(err); /* Just for symmetry reasons */
+   PrintError(DStrView(err), SYNTAX_ERROR);
+   DStrFree(err);
 }
 
 
@@ -1131,12 +1164,19 @@ void AktTokenError(Scanner_p in, char* msg, bool syserr)
 //
 // Global Variables: -
 //
-// Side Effects    : Terminates program
+// Side Effects    : -
 //
 /----------------------------------------------------------------------*/
 
 void AktTokenWarning(Scanner_p in, char* msg)
 {
+   /* Do not throw new errors while in panic mode. */
+   if (in->panic_mode) return;
+
+   /* Enter panic mode. */
+   in->panic_mode = true;
+   in->had_error = true;
+
    DStr_p err = DStrAlloc();
 
    compose_errmsg(err, in, msg);
@@ -1153,7 +1193,7 @@ void AktTokenWarning(Scanner_p in, char* msg)
 //
 // Global Variables: -
 //
-// Side Effects    : Memory operations, may terminate program.
+// Side Effects    : -
 //
 /----------------------------------------------------------------------*/
 
@@ -1186,7 +1226,7 @@ void CheckInpTok(Scanner_p in, TokenType toks)
 //
 // Global Variables: -
 //
-// Side Effects    : As CheckInpTok()
+// Side Effects    : -
 //
 /----------------------------------------------------------------------*/
 
@@ -1220,7 +1260,7 @@ void CheckInpTokNoSkip(Scanner_p in, TokenType toks)
 //
 // Global Variables: -
 //
-// Side Effects    : Memory operations, may terminate program.
+// Side Effects    : -
 //
 /----------------------------------------------------------------------*/
 
@@ -1240,6 +1280,64 @@ void CheckInpId(Scanner_p in, char* ids)
       DStrAppendStr(in->accu, DStrView(AktToken(in)->literal));
       DStrAppendStr(in->accu, "') read ");
       AktTokenError(in, DStrView(in->accu), false);
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function:  AcceptInpTok()
+//
+//   Checks with CheckInpTok(in) if the current token is one of the
+//   desired types. Consumes the token if it is. Also handles error 
+//   recovery.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void AcceptInpTok(Scanner_p in, TokenType toks)
+{
+   CheckInpTok(in, toks);
+
+   /* Handle panic mode. */
+   if(in->panic_mode)
+   {
+      panic_mode(in, toks);
+   }
+   else
+   {
+      NextToken(in);
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function:  AcceptInpTokNoSkip()
+//
+//   Same as AcceptInpTok() but with CheckInpTokNoSkip().
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void AcceptInpTokNoSkip(Scanner_p in, TokenType toks)
+{
+   CheckInpTokNoSkip(in, toks);
+
+   /* Handle panic mode. */
+   if(in->panic_mode)
+   {
+      panic_mode(in, toks);
+   }
+   else
+   {
+      NextToken(in);
    }
 }
 
