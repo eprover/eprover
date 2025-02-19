@@ -211,8 +211,8 @@ static inline void* IntMapIterNext(IntMapIter_p iter, long *key)
                   if(handle->entries[i].val1.p_val)
                   {
                      /* Found real value */
-                     *key = handle->entries[0].key;
-                     res = handle->entries[0].val1.p_val;
+                     *key = handle->entries[i].key;
+                     res = handle->entries[i].val1.p_val;
                      break;
                   }
                }
