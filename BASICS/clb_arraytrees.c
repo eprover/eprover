@@ -532,7 +532,50 @@ PStack_p ArrayTreeLimitedTraverseInit(ArrayTree_p root, long limit)
         }
         else
         {
-            PStackPushP(stack, root);
+            // Devide the array if necessary -> array can contain values above the limit
+            uint8_t split_index = root->last_used_index;
+            for (uint8_t i = 0; i < root->last_used_index; i++)
+            {
+                if (root->entries[i].key >= limit)
+                {
+                    split_index = i;
+                    break;
+                }
+            }
+
+            if (split_index == root->last_used_index)
+            {
+                // All values below limit
+                PStackPushP(stack, root);
+            }
+            else
+            {
+                // Divide node in two
+                ArrayTree_p new_node = ArrayTreeNodeAllocEmpty();
+                if (!new_node)
+                {
+                    return NULL;
+                }
+
+                new_node->last_used_index = split_index;
+                for (uint8_t i = 0; i < split_index; i++)
+                {
+                    new_node->entries[i] = root->entries[i];
+                }
+
+                new_node->lson = root->lson;
+                new_node->rson = NULL;
+                new_node->last_access_index = 0;
+
+                // Change old node
+                root->last_used_index -= split_index;
+                for (uint8_t i = 0; i < root->last_used_index; i++)
+                {
+                    root->entries[i] = root->entries[i + split_index];
+                }
+
+                PStackPushP(stack, new_node);
+            }
 
             // If the smallest key in the current node equals or exceeds the limit, stop traversing
             if (root->entries[0].key >= limit)
