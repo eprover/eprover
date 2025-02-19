@@ -110,7 +110,7 @@ EPCtrl_p    EPCtrlSetFindProc(EPCtrlSet_p set, int fd);
 void        EPCtrlSetDeleteProc(EPCtrlSet_p set,
                                 EPCtrl_p proc, bool delete_file);
 #define     EPCtrlSetEmpty(set) ((set)->procs==NULL)
-#define     EPCtrlSetCardinality(set) NumTreeNodes((set)->procs)
+#define     EPCtrlSetCardinality(set) ArrayTreeNodes((set)->procs)
 
 int         EPCtrlSetFDSet(EPCtrlSet_p set, fd_set *rd_fds);
 

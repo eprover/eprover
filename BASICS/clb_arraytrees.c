@@ -36,29 +36,13 @@ static ArrayTree_p splay_tree(ArrayTree_p tree, long key)
     for (;;)
     {
         // Compare the key with all entries in the current node
-        // bool found = false;
-        // for (uint8_t i = 0; i <= tree->last_used_index; i++)
-        // {
-        //     cmpres = key - tree->entries[i].key;
-        //     if (cmpres == 0)
-        //     {
-        //         found = true;
-        //         break;
-        //     }
-        // }
-
-        uint8_t diff = key - tree->entries[0].key;
-        if (tree->entries[diff].key == key) {
-            tree->last_access_index = diff;
-            break;
+        long diff = key - tree->entries[0].key;
+        if (diff >= 0) {
+            if (tree->entries[diff].key == key) {
+                tree->last_access_index = diff;
+                break;
+            }
         }
-
-        // if (found)
-        // {
-        //     // Key found in the current node
-        //     tree->last_access_index = i; // Update last accessed index
-        //     break;
-        // }
 
         // Navigate left or right based on the first or last key in the node
         cmpres = (key < tree->entries[0].key) ? -1 : (key > tree->entries[tree->last_used_index].key) ? 1 : 0;
@@ -168,7 +152,7 @@ static long arraytree_print(FILE* out, ArrayTree_p tree, bool keys_only, int ind
         }
 
         // Initialize size counter
-        size = tree->entry_count;       // Updated!
+        size = tree->entry_count;
 
         // Recursively print left and right subtrees
         if (tree->lson || tree->rson)
@@ -199,10 +183,12 @@ ArrayTree_p ArrayTreeNodeAllocEmpty(void)
         return NULL;
     }
 
-    // Initialize the first entry of the array
-    handle->entries[0].key = 0;
-    handle->entries[0].val1.i_val = 0;
-    handle->entries[0].val2.i_val = 0;
+    // Initialize the entries of the array
+    for (uint8_t i = 0; i < MAX_NODE_ARRAY_SIZE; i++) {
+        handle->entries[i].key = -3;            // Valid keys: [-2; LONG_MAX]
+        handle->entries[i].val1.i_val = 0;
+        handle->entries[i].val2.i_val = 0;
+    }
 
     // Initialize metadata
     handle->last_used_index = 0;     // No entries initially
@@ -280,7 +266,7 @@ ArrayTree_p ArrayTreeInsert(ArrayTree_p *root, ArrayTree_p newnode)
             current->entries[diff].val2 = newnode->entries[0].val2;
             current->last_access_index = diff;
             current->entry_count++;
-            if (current->last_used_index <= diff) {current->last_used_index = diff + 1;}
+            if (current->last_used_index < diff) current->last_used_index = diff;
             return NULL;
         } else {
             // Right node
@@ -355,13 +341,12 @@ ArrayTree_p ArrayTreeFind(ArrayTree_p *root, long key)
     {
         // Perform the splay operation to bring the closest key to the root
         *root = splay_tree(*root, key);
-
         // Search for the key in the root's entries array
         for (uint8_t i = 0; i <= (*root)->last_used_index; i++)
         {
             if ((*root)->entries[i].key == key)
             {
-                // Key found: Swap it with the entry at index 0
+                // Key found: return cell containing the requested values
                 if (i != 0)
                 {
                     ArrayTree_p cell = ArrayTreeNodeAllocEmpty();
@@ -425,7 +410,7 @@ ArrayTree_p ArrayTreeExtractEntry(ArrayTree_p *root, long key)
             cell->rson = NULL;
 
             // Remove entry from the array
-            (*root)->entries[i].key = 0;
+            (*root)->entries[i].key = -3;
             (*root)->entries[i].val1.i_val = 0;
             (*root)->entries[i].val2.i_val = 0;
             (*root)->entry_count--;
@@ -503,7 +488,7 @@ long ArrayTreeNodes(ArrayTree_p root)
         if (root)
         {
             // Add the number of entries in the current node to the result
-            res += root->entry_count;       //Updated!
+            res += root->entry_count;
 
             // Push the left and right children onto the stack
             if (root->lson)

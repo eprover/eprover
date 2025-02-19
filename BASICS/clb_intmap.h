@@ -202,17 +202,19 @@ static inline void* IntMapIterNext(IntMapIter_p iter, long *key)
          {
             if(handle)
             {
-               if(handle->entries[0].key > iter->upper_key)
-               {
-                  /* Overrun limit */
-                  break;
-               }
-               if(handle->entries[0].val1.p_val)
-               {
-                  /* Found real value */
-                  *key = handle->entries[0].key;
-                  res = handle->entries[0].val1.p_val;
-                  break;
+               for (i = 0; i < handle->last_used_index; i++) {
+                  if(handle->entries[i].key > iter->upper_key)
+                  {
+                     /* Overrun limit */
+                     break;
+                  }
+                  if(handle->entries[i].val1.p_val)
+                  {
+                     /* Found real value */
+                     *key = handle->entries[0].key;
+                     res = handle->entries[0].val1.p_val;
+                     break;
+                  }
                }
             }
          }
