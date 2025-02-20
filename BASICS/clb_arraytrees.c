@@ -176,7 +176,7 @@ static long arraytree_print(FILE* out, ArrayTree_p tree, bool keys_only, int ind
 ArrayTree_p ArrayTreeNodeAllocEmpty(void)
 {
     // Allocate memory for a new ArrayTree node
-    ArrayTree_p handle = (ArrayTree_p)malloc(sizeof(ArrayTreeNode));
+    ArrayTree_p handle = ArrayTreeNodeAlloc();
     if (!handle)
     {
         // Allocation failed, return NULL
@@ -193,7 +193,7 @@ ArrayTree_p ArrayTreeNodeAllocEmpty(void)
     // Initialize metadata
     handle->last_used_index = 0;     // No entries initially
     handle->last_access_index = 0;   // Default to 0 (no access yet)
-    handle->entry_count = 1;         // Array contains one entry
+    handle->entry_count = 0;         // All entries are not valid
 
     // Initialize child pointers
     handle->lson = NULL;
@@ -561,6 +561,9 @@ PStack_p ArrayTreeLimitedTraverseInit(ArrayTree_p root, long limit)
                 for (uint8_t i = 0; i < split_index; i++)
                 {
                     new_node->entries[i] = root->entries[i];
+                    if (new_node->entries[i].key >= -2) {
+                        new_node->entry_count++;
+                    }
                 }
 
                 new_node->lson = root->lson;
@@ -573,6 +576,7 @@ PStack_p ArrayTreeLimitedTraverseInit(ArrayTree_p root, long limit)
                 {
                     root->entries[i] = root->entries[i + split_index];
                 }
+                root->entry_count -= new_node->entry_count;
 
                 PStackPushP(stack, new_node);
             }
