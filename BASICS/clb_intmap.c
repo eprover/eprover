@@ -196,12 +196,13 @@ static void tree_to_array(IntMap_p map)
    tree_iterator = ArrayTreeTraverseInit(map->values.tree);
    while((handle = ArrayTreeTraverseNext(tree_iterator)))
    {
-      if(handle->entries[0].val1.p_val)
-      {
-         PDRangeArrAssignP(tmp_arr, handle->entries[0].key, handle->entries[0].val1.p_val);
-         map->entry_no++;
-         max_key = handle->entries[0].key;
-         min_key = MIN(min_key, handle->entries[0].key);
+      for (uint8_t i = 0; i < handle->last_used_index; i++) {
+         if(handle->entries[i].val1.p_val) {
+            PDRangeArrAssignP(tmp_arr, handle->entries[i].key, handle->entries[i].val1.p_val);
+            map->entry_no++;
+            max_key = handle->entries[i].key;
+            min_key = MIN(min_key, handle->entries[i].key);
+         }
       }
    }
    ArrayTreeTraverseExit(tree_iterator);
