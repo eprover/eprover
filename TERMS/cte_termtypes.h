@@ -153,7 +153,7 @@ typedef struct termcell
 #ifdef ENABLE_LFHO
    struct termcell* binding_cache; /* For caching the term applied variable
                                       expands to. */
-   struct tbcell* owner_bank;                /* Bank that owns this term cell and that
+   struct tbcell* owner_bank;      /* Bank that owns this term cell and that
                                       is responsible for lifetime management
                                       of the term */
 #endif
