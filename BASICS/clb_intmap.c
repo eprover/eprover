@@ -115,6 +115,8 @@ static ArrayTree_p add_new_tree_node(IntMap_p map, long key, void* val)
    if (!handle) {
       return NULL;
    }
+   handle->entries[0].key = key;
+   handle->entries[0].val1.p_val = val;
    check = ArrayTreeInsert(&(map->values.tree), handle);
    UNUSED(check); assert(!check);
    map->entry_no++;
@@ -187,7 +189,7 @@ static void tree_to_array(IntMap_p map)
    long          max_key = map->min_key;
    long          min_key = map->max_key;
    PStack_p      tree_iterator;
-   ArrayTree_p     handle;
+   ArrayTree_p   handle;
 
    assert(map->type == IMTree);
 
