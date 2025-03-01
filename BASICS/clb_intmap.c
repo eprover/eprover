@@ -112,10 +112,8 @@ static ArrayTree_p add_new_tree_node(IntMap_p map, long key, void* val)
    assert(map->type == IMTree);
 
    handle = ArrayTreeNodeAllocEmpty();
-   if (!handle) {
-      return NULL;
-   }
-   handle->entries[0].key = key;
+   assert(handle && "Out of memory in ArrayTreeNodeAllocEmpty");
+   handle->key = key;
    handle->entries[0].val1.p_val = val;
    handle->entry_count = 1;
    check = ArrayTreeInsert(&(map->values.tree), handle);
@@ -200,11 +198,11 @@ static void tree_to_array(IntMap_p map)
    while((handle = ArrayTreeTraverseNext(tree_iterator)))
    {
       for (uint8_t i = 0; i < handle->last_used_index; i++) {
-         if(handle->entries[i].key > -3 && handle->entries[i].val1.p_val) {
-            PDRangeArrAssignP(tmp_arr, handle->entries[i].key, handle->entries[i].val1.p_val);
+         if(handle->entries[i].val1.p_val) {
+            PDRangeArrAssignP(tmp_arr, (handle->key + i), handle->entries[i].val1.p_val);
             map->entry_no++;
-            max_key = handle->entries[i].key;
-            min_key = MIN(min_key, handle->entries[i].key);
+            max_key = (handle->key + i);
+            min_key = MIN(min_key, (handle->key + i));
          }
       }
    }

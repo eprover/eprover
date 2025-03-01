@@ -203,7 +203,7 @@ static inline void* IntMapIterNext(IntMapIter_p iter, long *key)
             if(handle)
             {
                for (i = 0; i < handle->last_used_index; i++) {
-                  if(handle->entries[i].key > iter->upper_key)
+                  if((handle->key + i) > iter->upper_key)
                   {
                      /* Overrun limit */
                      break;
@@ -211,7 +211,7 @@ static inline void* IntMapIterNext(IntMapIter_p iter, long *key)
                   if(handle->entries[i].val1.p_val)
                   {
                      /* Found real value */
-                     *key = handle->entries[i].key;
+                     *key = (handle->key + i);
                      res = handle->entries[i].val1.p_val;
                      break;
                   }
