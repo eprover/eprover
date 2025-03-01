@@ -530,7 +530,7 @@ void* IntMapDelKey(IntMap_p map, long key)
          {
             map->entry_no--;
             res = handle->entries[0].val1.p_val;
-            if(handle->entries[0].key == map->max_key)
+            if(handle->key == map->max_key)
             {
                if(map->values.tree)
                {

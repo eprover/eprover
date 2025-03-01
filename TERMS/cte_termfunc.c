@@ -222,7 +222,7 @@ ArrayTree_p create_var_renaming_de_bruin(VarBank_p vars, Term_p term)
       {
          if (!ArrayTreeFind(&root, term->f_code)) {
             node = ArrayTreeNodeAllocEmpty();
-            node->entries[0].key = term->f_code;
+            node->key = term->f_code;
             node->entries[0].val1.p_val = VarBankVarAssertAlloc(vars, fresh_var_code, term->type);
             //node->val1.p_val = VarBankVarAssertAlloc(vars, fresh_var_code, STIndividuals);
             fresh_var_code -= 2;

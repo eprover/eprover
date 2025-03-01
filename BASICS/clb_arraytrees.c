@@ -359,9 +359,10 @@ ArrayTree_p ArrayTreeExtractEntry(ArrayTree_p *root, long key) {
             // Reset last used index, if last entry was extracted
             if (diff >= (*root)->last_used_index) {
                 // Find the last used index of the array
-                for (uint8_t j = diff - 1; j >= 0; j--) {
-                    if ((*root)->entries[j].val1.p_val != NULL || (*root)->entries[j].val2.p_val != NULL) {
-                        (*root)->last_used_index = j;
+                for (i = diff - 1; i >= 0; i--) {
+                    if ((*root)->entries[i].val1.p_val != NULL
+                        || (*root)->entries[i].val2.p_val != NULL) {
+                        (*root)->last_used_index = i;
                         break;
                     }
                 }

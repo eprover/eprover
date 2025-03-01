@@ -55,7 +55,7 @@ ArrayTree_p ArrayTreeExtractRoot(ArrayTree_p* root);
 long        ArrayTreeNodes(ArrayTree_p root);
 ArrayTree_p ArrayTreeMaxNode(ArrayTree_p root);
 #define     ArrayTreeMaxKey(tree) ((tree && ArrayTreeMaxNode(tree)) ? \
-                                  ArrayTreeMaxNode(tree)->entries[tree->last_used_index - 1].key : 0)
+                                  ArrayTreeMaxNode(tree)->key + ArrayTreeMaxNode(tree)->last_used_index : 0)
 
 /* Traversal functions for ArrayTree */
 PStack_p    ArrayTreeLimitedTraverseInit(ArrayTree_p root, long limit);

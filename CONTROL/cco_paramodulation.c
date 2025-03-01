@@ -211,9 +211,9 @@ static long compute_into_pm_pos_clause(ParamodInfo_p pminfo,
    while ((cell = ArrayTreeTraverseNext(iterstack)))
    {
       for (uint8_t i = 0; i <= cell->last_used_index; i++) {
-         if (cell->entries[i].key > -3) {
+         if (cell->entries[i].val1.p_val || cell->entries[i].val2.p_val) {
       clause = NULL;
-      pminfo->into_cpos = cell->entries[i].key;
+      pminfo->into_cpos = (cell->key + i);
 #ifdef NEVER_DEFINED
       if((pminfo->new_orig == pminfo->into)
          &&(pminfo->into_cpos == pminfo->from_cpos))
@@ -226,7 +226,7 @@ static long compute_into_pm_pos_clause(ParamodInfo_p pminfo,
          break;
       } - this is wrong for the case of unbound variables! */
 #endif
-      pminfo->into_pos  = UnpackClausePos(cell->entries[i].key, pminfo->into);
+      pminfo->into_pos  = UnpackClausePos((cell->key + i), pminfo->into);
       lside = ClausePosGetSide(pminfo->into_pos);
       rside = ClausePosGetOtherSide(pminfo->into_pos);
 
@@ -450,16 +450,16 @@ static long compute_from_pm_pos_clause(ParamodInfo_p pminfo,
    while ((cell = ArrayTreeTraverseNext(iterstack)))
    {
       for (uint8_t i = 0; i <= cell->last_used_index; i++) {
-         if (cell->entries[i].key > -3) {
+         if (cell->entries[i].val1.p_val || cell->entries[i].val2.p_val) {
       clause = NULL;
-      pminfo->from_cpos = cell->entries[i].key;
+      pminfo->from_cpos = (cell->key + i);
       if(pminfo->new_orig == pminfo->from)
       {
          /* Optimization for the case that from and into are the same
           * - these are already handled in the "into" case */
          break;
       }
-      pminfo->from_pos  = UnpackClausePos(cell->entries[i].key, pminfo->from);
+      pminfo->from_pos  = UnpackClausePos((cell->key + i), pminfo->from);
       pm_type = sim_paramod_q(pminfo->ocb, pminfo->from_pos, type);
       lside = ClausePosGetSide(pminfo->from_pos);
       rside = ClausePosGetOtherSide(pminfo->from_pos);

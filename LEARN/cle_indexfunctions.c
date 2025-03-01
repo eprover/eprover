@@ -491,7 +491,7 @@ long TSMIndexInsert(TSMIndex_p index, Term_p term)
             assert(key);
          }
          cell = ArrayTreeNodeAlloc();
-         cell->entries[0].key = key;
+         cell->key = key;
          cell->entries[0].val1.i_val = index->count;
          cell->entries[0].val2.i_val = index->count;
          old = ArrayTreeInsert(&(index->tree.n_index), cell);
@@ -606,12 +606,12 @@ void TSMIndexPrint(FILE* out, TSMIndex_p index, int depth)
          while((ncell = ArrayTreeTraverseNext(stack)))
          {
             for (uint8_t j = 0; j <= ncell->last_used_index; j++) {
-                  if (ncell->entries[j].key > -3) {
+                  if (ncell->entries[j].val1.i_val) {
                         f_code = PatternSubstGetOriginalSymbol(index->subst,
-                              ncell->entries[j].key);
+                              (ncell->key + j));
 
                         fprintf(out, "# %s#%10ld :%7ld  %7ld     %s\n", pattern2,
-                        ncell->entries[j].key,
+                        (ncell->key + j),
                         ncell->entries[j].val1.i_val,
                         f_code,
                         ((f_code > 0))&&(f_code<=index->bank->sig->f_count)?
@@ -620,10 +620,10 @@ void TSMIndexPrint(FILE* out, TSMIndex_p index, int depth)
                   }
             }
             // f_code = PatternSubstGetOriginalSymbol(index->subst,
-            //                                        ncell->entries[0].key);
+            //                                        ncell->key);
 
             // fprintf(out, "# %s#%10ld :%7ld  %7ld     %s\n", pattern2,
-            //         ncell->entries[0].key,
+            //         ncell->key,
             //         ncell->entries[0].val1.i_val,
             //         f_code,
             //         ((f_code > 0))&&(f_code<=index->bank->sig->f_count)?

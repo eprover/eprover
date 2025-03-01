@@ -112,7 +112,7 @@ void AnnotationTreeFree(Annotation_p tree)
    while((handle = ArrayTreeTraverseNext(stack)))
    {
       for (uint8_t i = 0; i <= handle->last_used_index; i++) {
-         if (handle->entries[i].key > -3) {
+         if (handle->entries[i].val1.p_val) {
             DDArrayFree(handle->entries[i].val1.p_val);
          }
       }
@@ -142,7 +142,7 @@ Annotation_p AnnotationParse(Scanner_p in, long expected)
    double       value;
 
    assert(expected >=0 );
-   handle->entries[0].key = AktToken(in)->numval;
+   handle->key = AktToken(in)->numval;
    AcceptInpTok(in, PosInt);
    AcceptInpTok(in, Colon);
    AcceptInpTok(in, OpenBracket);
@@ -244,7 +244,7 @@ void AnnotationPrint(FILE* out, Annotation_p anno)
    long i;
    char* sep = "";
 
-   fprintf(out, "%ld:(", anno->entries[0].key);
+   fprintf(out, "%ld:(", anno->key);
    for(i=0; i< anno->entries[0].val2.i_val; i++)
    {
       fputs(sep, out);

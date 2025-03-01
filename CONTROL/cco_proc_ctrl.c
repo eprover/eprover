@@ -453,7 +453,7 @@ int EPCtrlSetFDSet(EPCtrlSet_p set, fd_set *rd_fds)
    while((cell = ArrayTreeTraverseNext(trav_stack)))
    {
       for (uint8_t i = 0; i <= cell->last_used_index; i++) {
-         if (cell->entries[i].key > -3) {
+         if (cell->entries[i].val1.p_val) {
             handle = cell->entries[i].val1.p_val;
             FD_SET(handle->fileno, rd_fds);
             maxfd = handle->fileno;

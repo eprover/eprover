@@ -619,7 +619,7 @@ void EliminateBlockedClauses(ClauseSet_p passive, ClauseSet_p archive,
    while( (n = ArrayTreeTraverseNext(iter)) )
    {
       for (uint8_t i = 0; i <= n->last_used_index; i++) {
-         if (n->entries[i].key > -3) {
+         if (n->entries[i].val1.p_val) {
             PStack_p cls = n->entries[i].val1.p_val;
             PStackFree(cls);
          }

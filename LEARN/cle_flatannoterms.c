@@ -138,7 +138,7 @@ void FlatAnnoSetFree(FlatAnnoSet_p junk)
    while((handle = ArrayTreeTraverseNext(stack)))
    {
       for (uint8_t i = 0; i <= handle->last_used_index; i++) {
-         if (handle->entries[i].key > -3) {
+         if (handle->entries[i].val1.p_val) {
             FlatAnnoTermFree(handle->entries[i].val1.p_val);
          }
       }
@@ -250,7 +250,7 @@ long FlatAnnoSetTranslate(FlatAnnoSet_p flatset, AnnoSet_p set, double
    while((handle = ArrayTreeTraverseNext(stack)))
    {
       for (uint8_t i = 0; i <= handle->last_used_index; i++) {
-         if (handle->entries[i].key > -3) {
+         if (handle->entries[i].val1.p_val) {
             old = handle->entries[i].val1.p_val;
             assert(old->annotation);
             assert(!old->annotation->lson);
@@ -316,7 +316,7 @@ long FlatAnnoSetSize(FlatAnnoSet_p fset)
    while((handle = ArrayTreeTraverseNext(stack)))
    {
       for (uint8_t i = 0; i <= handle->last_used_index; i++) {
-         if (handle->entries[i].key > -3) {
+         if (handle->entries[i].val1.p_val) {
             term = handle->entries[i].val1.p_val;
             res+=term->sources;
          }
@@ -396,7 +396,7 @@ long FlatAnnoSetFlatten(FlatAnnoSet_p set, FlatAnnoSet_p to_flatten)
    while((handle = ArrayTreeTraverseNext(stack)))
    {
       for (uint8_t i = 0; i <= handle->last_used_index; i++) {
-         if (handle->entries[i].key > -3) {
+         if (handle->entries[i].val1.p_val) {
             res+=FlatAnnoTermFlatten(set, handle->entries[i].val1.p_val);
          }
       }
@@ -437,7 +437,7 @@ double FlatAnnoSetEvalAverage(FlatAnnoSet_p set)
    while((handle = ArrayTreeTraverseNext(stack)))
    {
       for (uint8_t i = 0; i <= handle->last_used_index; i++) {
-         if (handle->entries[i].key > -3) {
+         if (handle->entries[i].val1.p_val) {
             term = handle->entries[i].val1.p_val;
             res+=term->eval;
             sources+=term->sources;
@@ -483,7 +483,7 @@ double FlatAnnoSetEvalWeightedAverage(FlatAnnoSet_p set)
    while((handle = ArrayTreeTraverseNext(stack)))
    {
       for (uint8_t i = 0; i <= handle->last_used_index; i++) {
-         if (handle->entries[i].key > -3) {
+         if (handle->entries[i].val1.p_val) {
             term = handle->entries[i].val1.p_val;
             res+=term->eval_weight*term->eval;
             weight+=term->eval_weight;

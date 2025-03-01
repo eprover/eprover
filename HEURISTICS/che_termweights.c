@@ -44,7 +44,7 @@ static PStack_p get_subterm_generalizing_vars(
    if (!entry) 
    {
       entry = ArrayTreeNodeAllocEmpty();
-      entry->entries[0].key = term->entry_no;
+      entry->key = term->entry_no;
       entry->entries[0].val1.p_val = PStackAlloc();
       ArrayTreeInsert(term_vars, entry);
    }
@@ -183,7 +183,7 @@ PStack_p ComputeSubtermsGeneralizations(Term_p term, VarBank_p vars)
    while ((item=ArrayTreeTraverseNext(stack)))
    {
       for (uint8_t i = 0; i <= item->last_used_index; i++) {
-         if (item->entries[i].key > -3) {
+         if (item->entries[i].val1.p_val) {
             PStackFree(item->entries[i].val1.p_val);
          }
       }

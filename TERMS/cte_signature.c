@@ -1882,7 +1882,7 @@ long SigFCodesCollectTypes(Sig_p sig, ArrayTree_p fcodes, PTree_p *types)
    iter = ArrayTreeTraverseInit(fcodes);
    while((handle = ArrayTreeTraverseNext(iter)))
    {
-      type = SigGetType(sig, handle->entries[0].key);
+      type = SigGetType(sig, handle->key);
       //printf("# Symbol %ld = %s has type %p\n", handle->key,
       //SigFindName(sig, handle->key), type);
       if(type)

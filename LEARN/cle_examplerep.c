@@ -171,7 +171,7 @@ void ExampleSetFree(ExampleSet_p junk)
    while((handle = ArrayTreeTraverseNext(stack)))
    {
       for (uint8_t i = 0; i <= handle->last_used_index; i++) {
-         if (handle->entries[i].key > -3) {
+         if (handle->entries[i].val1.p_val) {
             ExampleRepFree(handle->entries[i].val1.p_val);
          }
       }
@@ -445,7 +445,7 @@ long ExampleSetSelectByDist(PStack_p results, ExampleSet_p set,
    while((cell = ArrayTreeTraverseNext(stack)))
    {
       for (uint8_t j = 0; j <= cell->last_used_index; j++) {
-         if (cell->entries[j].key > -3) {
+         if (cell->entries[j].val1.p_val) {
             current = cell->entries[j].val1.p_val;
             dist = NumFeatureDistance(target, current->features, pred_w,
                   func_w, weights);

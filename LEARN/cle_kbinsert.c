@@ -73,7 +73,7 @@ AnnoTerm_p ParseExampleClause(Scanner_p in, TB_p parse_terms, TB_p
    AcceptInpTok(in,PosInt);
    AcceptInpTok(in,Colon);
 
-   anno->entries[0].key = ident;
+   anno->key = ident;
    AcceptInpTok(in, OpenBracket);
 
    /* The 0th position of the annotation vector always has the number

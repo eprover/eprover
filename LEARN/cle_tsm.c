@@ -568,7 +568,7 @@ double TSMFlatAnnoSetEntropy(FlatAnnoSet_p set, double limit)
    while((handle = ArrayTreeTraverseNext(stack)))
    {
       for (uint8_t i = 0; i <= handle->last_used_index; i++) {
-         if (handle->entries[i].key > -3) {
+         if (handle->entries[i].val1.p_val) {
             term = handle->entries[i].val1.p_val;
             if(TSMEvalNormalize(term->eval, limit) == -1)
             {
@@ -635,7 +635,7 @@ long TSMPartitionSet(PDArray_p partition, TSMIndex_p index,
    while((handle = ArrayTreeTraverseNext(stack)))
    {
       for (uint8_t i = 0; i <= handle->last_used_index; i++) {
-         if (handle->entries[i].key > -3) {
+         if (handle->entries[i].val1.p_val) {
             current = handle->entries[i].val1.p_val;
             if(cache)
             {
@@ -1281,7 +1281,7 @@ double TSMComputeClassificationLimit(TSMAdmin_p admin,  FlatAnnoSet_p
    while((handle = ArrayTreeTraverseNext(setstack)))
    {
       for (uint8_t i = 0; i <= handle->last_used_index; i++) {
-         if (handle->entries[i].key > -3) {
+         if (handle->entries[i].val1.p_val) {
             fterm = handle->entries[i].val1.p_val;
             eval = TSMEvalTerm(admin, fterm->term, admin->subst);
             if(fterm->eval < admin->limit)
@@ -1360,7 +1360,7 @@ double TSMComputeAverageEval(TSMAdmin_p admin,  FlatAnnoSet_p set)
    while((handle = ArrayTreeTraverseNext(setstack)))
    {
       for (uint8_t i = 0; i <= handle->last_used_index; i++) {
-         if (handle->entries[i].key > -3) {
+         if (handle->entries[i].val1.p_val) {
             fterm = handle->entries[i].val1.p_val;
             eval += TSMEvalTerm(admin, fterm->term, admin->subst)*fterm->sources;
             count+=fterm->sources;

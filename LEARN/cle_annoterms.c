@@ -272,7 +272,7 @@ void AnnoSetFree(AnnoSet_p junk)
    while((handle = ArrayTreeTraverseNext(stack)))
    {
       for (uint8_t i = 0; i <= handle->last_used_index; i++) {
-         if (handle->entries[i].key > -3) {
+         if (handle->entries[i].val1.p_val) {
             AnnoTermFree(junk->terms, handle->entries[i].val1.p_val);
          }
       }
@@ -317,7 +317,7 @@ bool AnnoSetAddTerm(AnnoSet_p set, AnnoTerm_p term)
       while(term->annotation)
       {
          handle = ArrayTreeExtractEntry(&term->annotation,
-                                      term->annotation->entries[0].key);
+                                      term->annotation->key);
          conflict = ArrayTreeInsert(&(existing_term->annotation), handle);
          if(conflict)
          {
@@ -420,7 +420,7 @@ bool AnnoSetComputePatternSubst(PatternSubst_p subst, AnnoSet_p set)
    while((handle = ArrayTreeTraverseNext(stack)))
    {
       for (uint8_t i = 0; i <= handle->last_used_index; i++) {
-         if (handle->entries[i].key > -3) {
+         if (handle->entries[i].val1.p_val) {
             current =  handle->entries[i].val1.p_val;
             assert(current);
             tmp = PatternTermCompute(subst,current->term);
@@ -464,7 +464,7 @@ long AnnoSetRemoveByIdent(AnnoSet_p set, long set_ident)
    while((handle = ArrayTreeTraverseNext(stack)))
    {
       for (uint8_t i = 0; i <= handle->last_used_index; i++) {
-         if (handle->entries[i].key > -3) {
+         if (handle->entries[i].val1.p_val) {
             current = handle->entries[i].val1.p_val;
             anno = ArrayTreeExtractEntry(&(current->annotation), set_ident);
             if(anno)
@@ -473,7 +473,7 @@ long AnnoSetRemoveByIdent(AnnoSet_p set, long set_ident)
             }
             if(!current->annotation)
             {
-               PStackPushInt(to_delete, handle->entries[0].key);
+               PStackPushInt(to_delete, handle->key);
             }
          }
       }
@@ -485,7 +485,7 @@ long AnnoSetRemoveByIdent(AnnoSet_p set, long set_ident)
       // }
       // if(!current->annotation)
       // {
-      //    PStackPushInt(to_delete, handle->entries[0].key);
+      //    PStackPushInt(to_delete, handle->key);
       // }
    }
    ArrayTreeTraverseExit(stack);
@@ -541,7 +541,7 @@ long AnnoSetRemoveExceptIdentList(AnnoSet_p set, PStack_p set_idents)
    while((handle = ArrayTreeTraverseNext(stack)))
    {
       for (uint8_t j = 0; j <= handle->last_used_index; j++) {
-         if (handle->entries[j].key > -3) {
+         if (handle->entries[j].val1.p_val) {
             tmptree = NULL;
             current = handle->entries[j].val1.p_val;
             for(i=0; i<PStackGetSP(stack); i++)
@@ -558,7 +558,7 @@ long AnnoSetRemoveExceptIdentList(AnnoSet_p set, PStack_p set_idents)
             current->annotation = tmptree;
             if(!current->annotation)
             {
-               PStackPushInt(to_delete, handle->entries[j].key);
+               PStackPushInt(to_delete, (handle->key + j));
             }
          }
       }
@@ -578,7 +578,7 @@ long AnnoSetRemoveExceptIdentList(AnnoSet_p set, PStack_p set_idents)
       // current->annotation = tmptree;
       // if(!current->annotation)
       // {
-      //    PStackPushInt(to_delete, handle->entries[0].key);
+      //    PStackPushInt(to_delete, handle->key);
       // }
    }
    ArrayTreeTraverseExit(stack);
@@ -626,10 +626,10 @@ long AnnoSetFlatten(AnnoSet_p set, PStack_p set_idents)
    while((handle = ArrayTreeTraverseNext(stack)))
    {
       for (uint8_t i = 0; i <= handle->last_used_index; i++) {
-         if (handle->entries[i].key > -3) {
+         if (handle->entries[i].val1.p_val) {
             current = handle->entries[i].val1.p_val;
             anno = AnnotationAlloc();
-            anno->entries[i].key = 0;
+            anno->key = 0;
             annos_found = AnnotationMerge(&(current->annotation),
                                           anno, set_idents);
             if(annos_found)
@@ -643,13 +643,13 @@ long AnnoSetFlatten(AnnoSet_p set, PStack_p set_idents)
             else
             {
                AnnotationFree(anno);
-               PStackPushInt(to_delete, handle->entries[i].key);
+               PStackPushInt(to_delete, (handle->key + i));
             }
          }
       }
       // current = handle->entries[0].val1.p_val;
       // anno = AnnotationAlloc();
-      // anno->entries[0].key = 0;
+      // anno->key = 0;
       // annos_found = AnnotationMerge(&(current->annotation),
       //                               anno, set_idents);
       // if(annos_found)
@@ -663,7 +663,7 @@ long AnnoSetFlatten(AnnoSet_p set, PStack_p set_idents)
       // else
       // {
       //    AnnotationFree(anno);
-      //    PStackPushInt(to_delete, handle->entries[0].key);
+      //    PStackPushInt(to_delete, handle->key);
       // }
    }
    ArrayTreeTraverseExit(stack);
@@ -709,7 +709,7 @@ void AnnoSetNormalizeFlatAnnos(AnnoSet_p set)
    while((cell = ArrayTreeTraverseNext(stack)))
    {
       for (uint8_t i = 0; i <= cell->last_used_index; i++) {
-         if (cell->entries[i].key > -3) {
+         if (cell->entries[i].val1.p_val) {
             current = cell->entries[i].val1.p_val;
             assert(current);
             annotation_collect_max(max_values, current->annotation);
@@ -725,7 +725,7 @@ void AnnoSetNormalizeFlatAnnos(AnnoSet_p set)
    while((cell = ArrayTreeTraverseNext(stack)))
    {
       for (uint8_t i = 0; i <= cell->last_used_index; i++) {
-         if (cell->entries[i].key > -3) {
+         if (cell->entries[i].val1.p_val) {
             current = cell->entries[i].val1.p_val;
             assert(current);
             annotation_normalize(current->annotation, max_values);
@@ -768,7 +768,7 @@ long AnnoSetRecToFlatEnc(TB_p bank, AnnoSet_p set)
    while((cell = ArrayTreeTraverseNext(stack)))
    {
       for (uint8_t i = 0; i <= cell->last_used_index; i++) {
-         if (cell->entries[i].key > -3) {
+         if (cell->entries[i].val1.p_val) {
             current = cell->entries[i].val1.p_val;
             assert(current);
             AnnoTermRecToFlatEnc(bank, current);
