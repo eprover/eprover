@@ -1254,9 +1254,16 @@ void do_ext_sup_from(Clause_p renamed_cl, Clause_p orig_cl, ProofState_p state)
          ArrayTree_p node;
          while ((node = ArrayTreeTraverseNext(niter)))
          {
-            UnpackClausePosInto(node->entries[0].key, cl_cpos->clause, into_pos);
-            do_ext_sup(from_pos, into_pos, state->tmp_store,
-                       state->terms, state->freshvars, orig_cl);
+            for (uint8_t i = 0; i <= node->last_used_index; i++) {
+               if (node->entries[i].key > -3) {
+                  UnpackClausePosInto(node->entries[i].key, cl_cpos->clause, into_pos);
+                  do_ext_sup(from_pos, into_pos, state->tmp_store,
+                           state->terms, state->freshvars, orig_cl);
+               }
+            }
+            // UnpackClausePosInto(node->entries[0].key, cl_cpos->clause, into_pos);
+            // do_ext_sup(from_pos, into_pos, state->tmp_store,
+            //            state->terms, state->freshvars, orig_cl);
          }
          NumXTreeTraverseExit(niter);
       }
@@ -1309,10 +1316,16 @@ void do_ext_sup_into(Clause_p renamed_cl, Clause_p orig_cl, ProofState_p state)
          ArrayTree_p node;
          while ((node = ArrayTreeTraverseNext(niter)))
          {
-
-            UnpackClausePosInto(node->entries[0].key, cl_cpos->clause, from_pos);
-            do_ext_sup(from_pos, into_pos, state->tmp_store,
-                       state->terms, state->freshvars, orig_cl);
+            for (uint8_t i = 0; i <= node->last_used_index; i++) {
+               if (node->entries[i].key > -3) {
+                  UnpackClausePosInto(node->entries[i].key, cl_cpos->clause, from_pos);
+                  do_ext_sup(from_pos, into_pos, state->tmp_store,
+                           state->terms, state->freshvars, orig_cl);
+               }
+            }
+            // UnpackClausePosInto(node->entries[0].key, cl_cpos->clause, from_pos);
+            // do_ext_sup(from_pos, into_pos, state->tmp_store,
+            //            state->terms, state->freshvars, orig_cl);
          }
          NumXTreeTraverseExit(niter);
       }

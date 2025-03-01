@@ -111,7 +111,12 @@ void AnnotationTreeFree(Annotation_p tree)
 
    while((handle = ArrayTreeTraverseNext(stack)))
    {
-      DDArrayFree(handle->entries[0].val1.p_val);
+      for (uint8_t i = 0; i <= handle->last_used_index; i++) {
+         if (handle->entries[i].key > -3) {
+            DDArrayFree(handle->entries[i].val1.p_val);
+         }
+      }
+      // DDArrayFree(handle->entries[0].val1.p_val);
    }
    ArrayTreeTraverseExit(stack);
    ArrayTreeFree(tree);
@@ -200,6 +205,7 @@ long AnnotationListParse(Scanner_p in, Annotation_p *tree, long
       source_name = DStrGetRef(AktToken(in)->source);
       type = AktToken(in)->stream_type;
       handle = AnnotationParse(in, expected);
+      printf("\nDebug Flag\nnum entries: %d", handle->entry_count);
       handle = ArrayTreeInsert(tree, handle);
       if(handle)
       {

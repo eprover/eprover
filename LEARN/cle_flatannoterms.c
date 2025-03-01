@@ -137,7 +137,12 @@ void FlatAnnoSetFree(FlatAnnoSet_p junk)
 
    while((handle = ArrayTreeTraverseNext(stack)))
    {
-      FlatAnnoTermFree(handle->entries[0].val1.p_val);
+      for (uint8_t i = 0; i <= handle->last_used_index; i++) {
+         if (handle->entries[i].key > -3) {
+            FlatAnnoTermFree(handle->entries[i].val1.p_val);
+         }
+      }
+      // FlatAnnoTermFree(handle->entries[0].val1.p_val);
    }
    ArrayTreeTraverseExit(stack);
 
@@ -165,8 +170,12 @@ void FlatAnnoSetPrint(FILE* out, FlatAnnoSet_p set, Sig_p sig)
 
    while((cell = ArrayTreeTraverseNext(stack)))
    {
-      FlatAnnoTermPrint(out, cell->entries[0].val1.p_val, sig);
-      fputc('\n', out);
+      for (uint8_t i = 0; i <= cell->last_used_index; i++) {
+         FlatAnnoTermPrint(out, cell->entries[i].val1.p_val, sig);
+         fputc('\n', out);
+      }
+      // FlatAnnoTermPrint(out, cell->entries[0].val1.p_val, sig);
+      // fputc('\n', out);
    }
    ArrayTreeTraverseExit(stack);
 }
@@ -240,23 +249,44 @@ long FlatAnnoSetTranslate(FlatAnnoSet_p flatset, AnnoSet_p set, double
 
    while((handle = ArrayTreeTraverseNext(stack)))
    {
-      old = handle->entries[0].val1.p_val;
-      assert(old->annotation);
-      assert(!old->annotation->lson);
-      assert(!old->annotation->lson);
-      term = FlatAnnoTermAlloc(old->term,
-                AnnotationEval(old->annotation,
-                     weights),
-                (double)AnnotationCount(old->annotation)
-                /*
-             /(double)TermWeight(old->term, 1, 1)
-                */
-                ,
-                AnnotationCount(old->annotation));
+      for (uint8_t i = 0; i <= handle->last_used_index; i++) {
+         if (handle->entries[i].key > -3) {
+            old = handle->entries[i].val1.p_val;
+            assert(old->annotation);
+            assert(!old->annotation->lson);
+            assert(!old->annotation->lson);
+            term = FlatAnnoTermAlloc(old->term,
+                     AnnotationEval(old->annotation,
+                           weights),
+                     (double)AnnotationCount(old->annotation)
+                     /*
+                  /(double)TermWeight(old->term, 1, 1)
+                     */
+                     ,
+                     AnnotationCount(old->annotation));
 
-      check = FlatAnnoSetAddTerm(flatset, term);
-      UNUSED(check); assert(check);
-      res++;
+            check = FlatAnnoSetAddTerm(flatset, term);
+            UNUSED(check); assert(check);
+            res++;
+         }
+      }
+      // old = handle->entries[0].val1.p_val;
+      // assert(old->annotation);
+      // assert(!old->annotation->lson);
+      // assert(!old->annotation->lson);
+      // term = FlatAnnoTermAlloc(old->term,
+      //           AnnotationEval(old->annotation,
+      //                weights),
+      //           (double)AnnotationCount(old->annotation)
+      //           /*
+      //        /(double)TermWeight(old->term, 1, 1)
+      //           */
+      //           ,
+      //           AnnotationCount(old->annotation));
+
+      // check = FlatAnnoSetAddTerm(flatset, term);
+      // UNUSED(check); assert(check);
+      // res++;
    }
    ArrayTreeTraverseExit(stack);
    return res;
@@ -285,8 +315,14 @@ long FlatAnnoSetSize(FlatAnnoSet_p fset)
 
    while((handle = ArrayTreeTraverseNext(stack)))
    {
-      term = handle->entries[0].val1.p_val;
-      res+=term->sources;
+      for (uint8_t i = 0; i <= handle->last_used_index; i++) {
+         if (handle->entries[i].key > -3) {
+            term = handle->entries[i].val1.p_val;
+            res+=term->sources;
+         }
+      }
+      // term = handle->entries[0].val1.p_val;
+      // res+=term->sources;
    }
    ArrayTreeTraverseExit(stack);
 
@@ -359,7 +395,12 @@ long FlatAnnoSetFlatten(FlatAnnoSet_p set, FlatAnnoSet_p to_flatten)
 
    while((handle = ArrayTreeTraverseNext(stack)))
    {
-      res+=FlatAnnoTermFlatten(set, handle->entries[0].val1.p_val);
+      for (uint8_t i = 0; i <= handle->last_used_index; i++) {
+         if (handle->entries[i].key > -3) {
+            res+=FlatAnnoTermFlatten(set, handle->entries[i].val1.p_val);
+         }
+      }
+      // res+=FlatAnnoTermFlatten(set, handle->entries[0].val1.p_val);
    }
    ArrayTreeTraverseExit(stack);
 
@@ -395,9 +436,16 @@ double FlatAnnoSetEvalAverage(FlatAnnoSet_p set)
 
    while((handle = ArrayTreeTraverseNext(stack)))
    {
-      term = handle->entries[0].val1.p_val;
-      res+=term->eval;
-      sources+=term->sources;
+      for (uint8_t i = 0; i <= handle->last_used_index; i++) {
+         if (handle->entries[i].key > -3) {
+            term = handle->entries[i].val1.p_val;
+            res+=term->eval;
+            sources+=term->sources;
+         }
+      }
+      // term = handle->entries[0].val1.p_val;
+      // res+=term->eval;
+      // sources+=term->sources;
    }
    ArrayTreeTraverseExit(stack);
 
@@ -434,9 +482,16 @@ double FlatAnnoSetEvalWeightedAverage(FlatAnnoSet_p set)
 
    while((handle = ArrayTreeTraverseNext(stack)))
    {
-      term = handle->entries[0].val1.p_val;
-      res+=term->eval_weight*term->eval;
-      weight+=term->eval_weight;
+      for (uint8_t i = 0; i <= handle->last_used_index; i++) {
+         if (handle->entries[i].key > -3) {
+            term = handle->entries[i].val1.p_val;
+            res+=term->eval_weight*term->eval;
+            weight+=term->eval_weight;
+         }
+      }
+      // term = handle->entries[0].val1.p_val;
+      // res+=term->eval_weight*term->eval;
+      // weight+=term->eval_weight;
    }
    ArrayTreeTraverseExit(stack);
 

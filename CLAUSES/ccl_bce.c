@@ -618,8 +618,14 @@ void EliminateBlockedClauses(ClauseSet_p passive, ClauseSet_p archive,
    ArrayTree_p n = NULL;
    while( (n = ArrayTreeTraverseNext(iter)) )
    {
-      PStack_p cls = n->entries[0].val1.p_val;
-      PStackFree(cls);
+      for (uint8_t i = 0; i <= n->last_used_index; i++) {
+         if (n->entries[i].key > -3) {
+            PStack_p cls = n->entries[i].val1.p_val;
+            PStackFree(cls);
+         }
+      }
+      // PStack_p cls = n->entries[0].val1.p_val;
+      // PStackFree(cls);
    }
    ArrayTreeTraverseExit(iter);
    ArrayTreeFree(sym_occs);

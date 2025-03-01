@@ -73,19 +73,36 @@ static double get_default_eval(AnnoSet_p annoset,double evalweights[])
    stack = ArrayTreeTraverseInit(annoset->set);
    while((handle = ArrayTreeTraverseNext(stack)))
    {
-       current = handle->entries[0].val1.p_val;
-       currentvalues = AnnotationValues(current->annotation);
-       currentcount = AnnotationCount(current->annotation);
-       for(i=3; i<=KB_ANNOTATION_NO; i++)
-       {
-     oldval = DDArrayElement(old, i);
-     oldval+= DDArrayElement(currentvalues,i)*currentcount;
-     DDArrayAssign(old, i, oldval);
-       }
-       oldval = DDArrayElement(old, 2);
-       oldval = MAX(oldval, DDArrayElement(currentvalues,2));
-       DDArrayAssign(old, 2, oldval);
-       count += currentcount;
+      for (uint8_t j = 0; j <= handle->last_used_index; j++) {
+         if (handle->entries[j].key > -3) {
+            current = handle->entries[j].val1.p_val;
+            currentvalues = AnnotationValues(current->annotation);
+            currentcount = AnnotationCount(current->annotation);
+            for(i=3; i<=KB_ANNOTATION_NO; i++)
+            {
+         oldval = DDArrayElement(old, i);
+         oldval+= DDArrayElement(currentvalues,i)*currentcount;
+         DDArrayAssign(old, i, oldval);
+            }
+            oldval = DDArrayElement(old, 2);
+            oldval = MAX(oldval, DDArrayElement(currentvalues,2));
+            DDArrayAssign(old, 2, oldval);
+            count += currentcount;
+         }
+      }
+   //     current = handle->entries[0].val1.p_val;
+   //     currentvalues = AnnotationValues(current->annotation);
+   //     currentcount = AnnotationCount(current->annotation);
+   //     for(i=3; i<=KB_ANNOTATION_NO; i++)
+   //     {
+   //   oldval = DDArrayElement(old, i);
+   //   oldval+= DDArrayElement(currentvalues,i)*currentcount;
+   //   DDArrayAssign(old, i, oldval);
+   //     }
+   //     oldval = DDArrayElement(old, 2);
+   //     oldval = MAX(oldval, DDArrayElement(currentvalues,2));
+   //     DDArrayAssign(old, 2, oldval);
+   //     count += currentcount;
    }
    ArrayTreeTraverseExit(stack);
    if(count!=0)

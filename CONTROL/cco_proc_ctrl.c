@@ -452,9 +452,16 @@ int EPCtrlSetFDSet(EPCtrlSet_p set, fd_set *rd_fds)
    trav_stack = ArrayTreeTraverseInit(set->procs);
    while((cell = ArrayTreeTraverseNext(trav_stack)))
    {
-      handle = cell->entries[0].val1.p_val;
-      FD_SET(handle->fileno, rd_fds);
-      maxfd = handle->fileno;
+      for (uint8_t i = 0; i <= cell->last_used_index; i++) {
+         if (cell->entries[i].key > -3) {
+            handle = cell->entries[i].val1.p_val;
+            FD_SET(handle->fileno, rd_fds);
+            maxfd = handle->fileno;
+         }
+      }
+      // handle = cell->entries[0].val1.p_val;
+      // FD_SET(handle->fileno, rd_fds);
+      // maxfd = handle->fileno;
    }
    ArrayTreeTraverseExit(trav_stack);
 

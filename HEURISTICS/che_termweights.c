@@ -182,7 +182,12 @@ PStack_p ComputeSubtermsGeneralizations(Term_p term, VarBank_p vars)
    stack = ArrayTreeTraverseInit(term_vars);
    while ((item=ArrayTreeTraverseNext(stack)))
    {
-      PStackFree(item->entries[0].val1.p_val);
+      for (uint8_t i = 0; i <= item->last_used_index; i++) {
+         if (item->entries[i].key > -3) {
+            PStackFree(item->entries[i].val1.p_val);
+         }
+      }
+      // PStackFree(item->entries[0].val1.p_val);
    }
    ArrayTreeTraverseExit(stack);
    ArrayTreeFree(term_vars); 

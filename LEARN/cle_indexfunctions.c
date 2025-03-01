@@ -605,16 +605,30 @@ void TSMIndexPrint(FILE* out, TSMIndex_p index, int depth)
          i=0;
          while((ncell = ArrayTreeTraverseNext(stack)))
          {
-            f_code = PatternSubstGetOriginalSymbol(index->subst,
-                                                   ncell->entries[0].key);
+            for (uint8_t j = 0; j <= ncell->last_used_index; j++) {
+                  if (ncell->entries[j].key > -3) {
+                        f_code = PatternSubstGetOriginalSymbol(index->subst,
+                              ncell->entries[j].key);
 
-            fprintf(out, "# %s#%10ld :%7ld  %7ld     %s\n", pattern2,
-                    ncell->entries[0].key,
-                    ncell->entries[0].val1.i_val,
-                    f_code,
-                    ((f_code > 0))&&(f_code<=index->bank->sig->f_count)?
-                    SigFindName(index->bank->sig, f_code):"variable");
-            i++;
+                        fprintf(out, "# %s#%10ld :%7ld  %7ld     %s\n", pattern2,
+                        ncell->entries[j].key,
+                        ncell->entries[j].val1.i_val,
+                        f_code,
+                        ((f_code > 0))&&(f_code<=index->bank->sig->f_count)?
+                        SigFindName(index->bank->sig, f_code):"variable");
+                        i++;
+                  }
+            }
+            // f_code = PatternSubstGetOriginalSymbol(index->subst,
+            //                                        ncell->entries[0].key);
+
+            // fprintf(out, "# %s#%10ld :%7ld  %7ld     %s\n", pattern2,
+            //         ncell->entries[0].key,
+            //         ncell->entries[0].val1.i_val,
+            //         f_code,
+            //         ((f_code > 0))&&(f_code<=index->bank->sig->f_count)?
+            //         SigFindName(index->bank->sig, f_code):"variable");
+            // i++;
          }
          ArrayTreeTraverseExit(stack);
          fprintf(out, "# %s%ld alternatives in the index\n",

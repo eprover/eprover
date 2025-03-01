@@ -567,15 +567,28 @@ double TSMFlatAnnoSetEntropy(FlatAnnoSet_p set, double limit)
 
    while((handle = ArrayTreeTraverseNext(stack)))
    {
-      term = handle->entries[0].val1.p_val;
-      if(TSMEvalNormalize(term->eval, limit) == -1)
-      {
-         neg += term->sources;
+      for (uint8_t i = 0; i <= handle->last_used_index; i++) {
+         if (handle->entries[i].key > -3) {
+            term = handle->entries[i].val1.p_val;
+            if(TSMEvalNormalize(term->eval, limit) == -1)
+            {
+               neg += term->sources;
+            }
+            else
+            {
+               pos += term->sources;
+            }
+         }
       }
-      else
-      {
-         pos += term->sources;
-      }
+      // term = handle->entries[0].val1.p_val;
+      // if(TSMEvalNormalize(term->eval, limit) == -1)
+      // {
+      //    neg += term->sources;
+      // }
+      // else
+      // {
+      //    pos += term->sources;
+      // }
    }
    ArrayTreeTraverseExit(stack);
 
@@ -621,27 +634,52 @@ long TSMPartitionSet(PDArray_p partition, TSMIndex_p index,
    stack = ArrayTreeTraverseInit(set->set);
    while((handle = ArrayTreeTraverseNext(stack)))
    {
-      current = handle->entries[0].val1.p_val;
-      if(cache)
-      {
-         key = PDArrayElementInt(cache, current->term->entry_no);
-         if(key)
-         {
-            key--;
-         }
-         else
-         {
-            key = TSMIndexInsert(index,  current->term);
-            PDArrayAssignInt(cache, current->term->entry_no, key+1);
+      for (uint8_t i = 0; i <= handle->last_used_index; i++) {
+         if (handle->entries[i].key > -3) {
+            current = handle->entries[i].val1.p_val;
+            if(cache)
+            {
+               key = PDArrayElementInt(cache, current->term->entry_no);
+               if(key)
+               {
+                  key--;
+               }
+               else
+               {
+                  key = TSMIndexInsert(index,  current->term);
+                  PDArrayAssignInt(cache, current->term->entry_no, key+1);
+               }
+            }
+            else
+            {
+               key = TSMIndexInsert(index,  current->term);
+            }
+            res = MAX(res, key);
+            current->next = PDArrayElementP(partition, key);
+            PDArrayAssignP(partition, key, current);
          }
       }
-      else
-      {
-         key = TSMIndexInsert(index,  current->term);
-      }
-      res = MAX(res, key);
-      current->next = PDArrayElementP(partition, key);
-      PDArrayAssignP(partition, key, current);
+      // current = handle->entries[0].val1.p_val;
+      // if(cache)
+      // {
+      //    key = PDArrayElementInt(cache, current->term->entry_no);
+      //    if(key)
+      //    {
+      //       key--;
+      //    }
+      //    else
+      //    {
+      //       key = TSMIndexInsert(index,  current->term);
+      //       PDArrayAssignInt(cache, current->term->entry_no, key+1);
+      //    }
+      // }
+      // else
+      // {
+      //    key = TSMIndexInsert(index,  current->term);
+      // }
+      // res = MAX(res, key);
+      // current->next = PDArrayElementP(partition, key);
+      // PDArrayAssignP(partition, key, current);
    }
    ArrayTreeTraverseExit(stack);
 
@@ -1242,18 +1280,34 @@ double TSMComputeClassificationLimit(TSMAdmin_p admin,  FlatAnnoSet_p
 
    while((handle = ArrayTreeTraverseNext(setstack)))
    {
-      fterm = handle->entries[0].val1.p_val;
-      eval = TSMEvalTerm(admin, fterm->term, admin->subst);
-      if(fterm->eval < admin->limit)
-      {
-         poseval+=eval*fterm->sources;
-         pos+=fterm->sources;
+      for (uint8_t i = 0; i <= handle->last_used_index; i++) {
+         if (handle->entries[i].key > -3) {
+            fterm = handle->entries[i].val1.p_val;
+            eval = TSMEvalTerm(admin, fterm->term, admin->subst);
+            if(fterm->eval < admin->limit)
+            {
+               poseval+=eval*fterm->sources;
+               pos+=fterm->sources;
+            }
+            else
+            {
+               negeval+=eval*fterm->sources;
+               neg+=fterm->sources;
+            }
+         }
       }
-      else
-      {
-         negeval+=eval*fterm->sources;
-         neg+=fterm->sources;
-      }
+      // fterm = handle->entries[0].val1.p_val;
+      // eval = TSMEvalTerm(admin, fterm->term, admin->subst);
+      // if(fterm->eval < admin->limit)
+      // {
+      //    poseval+=eval*fterm->sources;
+      //    pos+=fterm->sources;
+      // }
+      // else
+      // {
+      //    negeval+=eval*fterm->sources;
+      //    neg+=fterm->sources;
+      // }
    }
    ArrayTreeTraverseExit(setstack);
 
@@ -1305,9 +1359,16 @@ double TSMComputeAverageEval(TSMAdmin_p admin,  FlatAnnoSet_p set)
 
    while((handle = ArrayTreeTraverseNext(setstack)))
    {
-      fterm = handle->entries[0].val1.p_val;
-      eval += TSMEvalTerm(admin, fterm->term, admin->subst)*fterm->sources;
-      count+=fterm->sources;
+      for (uint8_t i = 0; i <= handle->last_used_index; i++) {
+         if (handle->entries[i].key > -3) {
+            fterm = handle->entries[i].val1.p_val;
+            eval += TSMEvalTerm(admin, fterm->term, admin->subst)*fterm->sources;
+            count+=fterm->sources;
+         }
+      }
+      // fterm = handle->entries[0].val1.p_val;
+      // eval += TSMEvalTerm(admin, fterm->term, admin->subst)*fterm->sources;
+      // count+=fterm->sources;
    }
    ArrayTreeTraverseExit(setstack);
 

@@ -210,8 +210,10 @@ static long compute_into_pm_pos_clause(ParamodInfo_p pminfo,
    iterstack = ArrayTreeTraverseInit(into_clause_pos->pos);
    while ((cell = ArrayTreeTraverseNext(iterstack)))
    {
+      for (uint8_t i = 0; i <= cell->last_used_index; i++) {
+         if (cell->entries[i].key > -3) {
       clause = NULL;
-      pminfo->into_cpos = cell->entries[0].key;
+      pminfo->into_cpos = cell->entries[i].key;
 #ifdef NEVER_DEFINED
       if((pminfo->new_orig == pminfo->into)
          &&(pminfo->into_cpos == pminfo->from_cpos))
@@ -224,7 +226,7 @@ static long compute_into_pm_pos_clause(ParamodInfo_p pminfo,
          break;
       } - this is wrong for the case of unbound variables! */
 #endif
-      pminfo->into_pos  = UnpackClausePos(cell->entries[0].key, pminfo->into);
+      pminfo->into_pos  = UnpackClausePos(cell->entries[i].key, pminfo->into);
       lside = ClausePosGetSide(pminfo->into_pos);
       rside = ClausePosGetOtherSide(pminfo->into_pos);
 
@@ -266,6 +268,8 @@ static long compute_into_pm_pos_clause(ParamodInfo_p pminfo,
       if(clause && pm_type!=ParamodPlain)
       {
          break;
+      }
+         }
       }
    }
    ArrayTreeTraverseExit(iterstack);
@@ -445,15 +449,17 @@ static long compute_from_pm_pos_clause(ParamodInfo_p pminfo,
    iterstack = ArrayTreeTraverseInit(from_clause_pos->pos);
    while ((cell = ArrayTreeTraverseNext(iterstack)))
    {
+      for (uint8_t i = 0; i <= cell->last_used_index; i++) {
+         if (cell->entries[i].key > -3) {
       clause = NULL;
-      pminfo->from_cpos = cell->entries[0].key;
+      pminfo->from_cpos = cell->entries[i].key;
       if(pminfo->new_orig == pminfo->from)
       {
          /* Optimization for the case that from and into are the same
           * - these are already handled in the "into" case */
          break;
       }
-      pminfo->from_pos  = UnpackClausePos(cell->entries[0].key, pminfo->from);
+      pminfo->from_pos  = UnpackClausePos(cell->entries[i].key, pminfo->from);
       pm_type = sim_paramod_q(pminfo->ocb, pminfo->from_pos, type);
       lside = ClausePosGetSide(pminfo->from_pos);
       rside = ClausePosGetOtherSide(pminfo->from_pos);
@@ -492,6 +498,8 @@ static long compute_from_pm_pos_clause(ParamodInfo_p pminfo,
          {
          break;
          }*/
+         }
+      }
    }
    ArrayTreeTraverseExit(iterstack);
 

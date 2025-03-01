@@ -200,7 +200,7 @@ static void tree_to_array(IntMap_p map)
    while((handle = ArrayTreeTraverseNext(tree_iterator)))
    {
       for (uint8_t i = 0; i < handle->last_used_index; i++) {
-         if(handle->entries[i].val1.p_val) {
+         if(handle->entries[i].key > -3 && handle->entries[i].val1.p_val) {
             PDRangeArrAssignP(tmp_arr, handle->entries[i].key, handle->entries[i].val1.p_val);
             map->entry_no++;
             max_key = handle->entries[i].key;

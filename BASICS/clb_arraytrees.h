@@ -16,20 +16,17 @@
 #define MAX_NODE_ARRAY_SIZE 8
 
 /* Structure for displaying a key-value pair */
-typedef struct
-{
-    long key;
+typedef struct {
     IntOrP val1;
     IntOrP val2;
 } ArrayEntry;
 
 /* Array-based node in the tree */
-typedef struct arraytree_node
-{
+typedef struct arraytree_node {
+    long key;                                // key of the first entry
     ArrayEntry entries[MAX_NODE_ARRAY_SIZE]; // Array for key-value pairs
     uint8_t entry_count;                     // Number of assigned entries (max. 255)
     uint8_t last_used_index;                 // Highest used index of the array
-    uint8_t last_access_index;               // Index of the last used entry (max. 255)
     struct arraytree_node* lson;             // Pointer to the left child node
     struct arraytree_node* rson;             // Pointer to the right child node
 } ArrayTreeNode, *ArrayTree_p;
@@ -40,7 +37,7 @@ typedef struct arraytree_node
 #define ArrayTreeNodeFree(junk) SizeFree(junk, sizeof(ArrayTreeNode))
 
 #ifdef CONSTANT_MEM_ESTIMATE
-#define ARRAYTREECELL_MEM (8 + (MAX_NODE_ARRAY_SIZE * sizeof(ArrayEntry)))
+#define ARRAYTREECELL_MEM (sizeof(uint8_t) * 2 + sizeof(void*) * 2 + (MAX_NODE_ARRAY_SIZE * sizeof(ArrayEntry)))
 #else
 #define ARRAYTREECELL_MEM MEMSIZE(ArrayTreeNode)
 #endif
@@ -58,7 +55,7 @@ ArrayTree_p ArrayTreeExtractRoot(ArrayTree_p* root);
 long        ArrayTreeNodes(ArrayTree_p root);
 ArrayTree_p ArrayTreeMaxNode(ArrayTree_p root);
 #define     ArrayTreeMaxKey(tree) ((tree && ArrayTreeMaxNode(tree)) ? \
-                                  ArrayTreeMaxNode(tree)->entries[tree->entry_count - 1].key : 0)
+                                  ArrayTreeMaxNode(tree)->entries[tree->last_used_index - 1].key : 0)
 
 /* Traversal functions for ArrayTree */
 PStack_p    ArrayTreeLimitedTraverseInit(ArrayTree_p root, long limit);

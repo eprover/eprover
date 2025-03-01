@@ -170,7 +170,12 @@ void ExampleSetFree(ExampleSet_p junk)
    stack = ArrayTreeTraverseInit(junk->ident_index);
    while((handle = ArrayTreeTraverseNext(stack)))
    {
-      ExampleRepFree(handle->entries[0].val1.p_val);
+      for (uint8_t i = 0; i <= handle->last_used_index; i++) {
+         if (handle->entries[i].key > -3) {
+            ExampleRepFree(handle->entries[i].val1.p_val);
+         }
+      }
+      // ExampleRepFree(handle->entries[0].val1.p_val);
    }
    PStackFree(stack);
    ArrayTreeFree(junk->ident_index);
@@ -347,7 +352,10 @@ void ExampleSetPrint(FILE* out, ExampleSet_p set)
    stack = ArrayTreeTraverseInit(set->ident_index);
    while((handle = ArrayTreeTraverseNext(stack)))
    {
-      ExampleRepPrint(out, handle->entries[0].val1.p_val);
+      for (uint8_t i = 0; i <= handle->last_used_index; i++) {
+         ExampleRepPrint(out, handle->entries[i].val1.p_val);
+      }
+      // ExampleRepPrint(out, handle->entries[0].val1.p_val);
    }
    ArrayTreeTraverseExit(stack);
 }
@@ -436,13 +444,24 @@ long ExampleSetSelectByDist(PStack_p results, ExampleSet_p set,
    stack = ArrayTreeTraverseInit(set->ident_index);
    while((cell = ArrayTreeTraverseNext(stack)))
    {
-      current = cell->entries[0].val1.p_val;
-      dist = NumFeatureDistance(target, current->features, pred_w,
-            func_w, weights);
-      tmp_array[i].weight       = dist;
-      tmp_array[i].object.p_val = current;
-      avg += dist;
-      i++;
+      for (uint8_t j = 0; j <= cell->last_used_index; j++) {
+         if (cell->entries[j].key > -3) {
+            current = cell->entries[j].val1.p_val;
+            dist = NumFeatureDistance(target, current->features, pred_w,
+                  func_w, weights);
+            tmp_array[i].weight       = dist;
+            tmp_array[i].object.p_val = current;
+            avg += dist;
+            i++;
+         }
+      }
+      // current = cell->entries[0].val1.p_val;
+      // dist = NumFeatureDistance(target, current->features, pred_w,
+      //       func_w, weights);
+      // tmp_array[i].weight       = dist;
+      // tmp_array[i].object.p_val = current;
+      // avg += dist;
+      // i++;
    }
    assert(i == set_size);
    ArrayTreeTraverseExit(stack);
