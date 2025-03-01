@@ -33,8 +33,8 @@ static ArrayTree_p splay_tree(ArrayTree_p tree, long key) {
 
     for (;;) {
         // Navigate left or right based on the first or last key in the node
-        cmpres = key - tree->key;
-        if (cmpres < 0) {
+        cmpres = KeyCmp(key, tree->key);
+        if (CmpLessVal(cmpres, 0)) {
             // Key is smaller, move to the left subtree
             if (!tree->lson) {
                 break;
@@ -53,13 +53,13 @@ static ArrayTree_p splay_tree(ArrayTree_p tree, long key) {
             right = tree;
             tree = tree->lson;
         }
-        else if (cmpres >= MAX_NODE_ARRAY_SIZE) {
+        else if (CmpGreaterEqual(cmpres, MAX_NODE_ARRAY_SIZE)) {
             if (!tree->rson) {
                 // Tree is already shifted to the most right node
                 break;
             }
             // Key is larger, move to the right subtree
-            if (key >= (tree->rson->key + MAX_NODE_ARRAY_SIZE)) {
+            if (CmpGreaterEqual(key, (tree->rson->key + MAX_NODE_ARRAY_SIZE))) {
                 // Perform a left rotation
                 tmp = tree->rson;
                 tree->rson = tmp->lson;
@@ -209,8 +209,8 @@ ArrayTree_p ArrayTreeInsert(ArrayTree_p *root, ArrayTree_p newnode) {
     printf("\n");
 
     // Decide in which node the key has to be inserted
-    long diff = newnode->key - (*root)->key;
-    if (diff < 0) {
+    long diff = KeyCmp(newnode->key, (*root)->key);
+    if (CmpLessVal(diff, 0)) {
         // Add entry in left subtree
         newnode->lson = (*root)->lson;
         newnode->rson = *root;
@@ -218,7 +218,7 @@ ArrayTree_p ArrayTreeInsert(ArrayTree_p *root, ArrayTree_p newnode) {
         *root = newnode;
         return NULL;
     }
-    else if (diff >= MAX_NODE_ARRAY_SIZE) {
+    else if (CmpGreaterEqual(diff, MAX_NODE_ARRAY_SIZE)) {
         // Add entry in right subtree
         newnode->rson = (*root)->rson;
         newnode->lson = *root;
@@ -226,7 +226,7 @@ ArrayTree_p ArrayTreeInsert(ArrayTree_p *root, ArrayTree_p newnode) {
         *root = newnode;
         return NULL;
     }
-    else if (diff == 0) {
+    else if (CmpEqual(diff, 0)) {
         // Entry exists
         return *root;
     }
@@ -235,7 +235,7 @@ ArrayTree_p ArrayTreeInsert(ArrayTree_p *root, ArrayTree_p newnode) {
         (*root)->entries[diff].val1 = newnode->entries[0].val1;
         (*root)->entries[diff].val2 = newnode->entries[0].val2;
         (*root)->entry_count++;
-        if ((*root)->last_used_index < diff) (*root)->last_used_index = diff;
+        if (CmpLessVal((*root)->last_used_index, diff)) (*root)->last_used_index = diff;
         return NULL;
     }
 }
@@ -281,14 +281,14 @@ ArrayTree_p ArrayTreeFind(ArrayTree_p *root, long key) {
     if (*root) {
         // Perform the splay operation to bring the closest key to the root
         *root = splay_tree(*root, key);
-        diff = key - (*root)->key;
-        if (diff >= MAX_NODE_ARRAY_SIZE || diff < 0) {
+        diff = KeyCmp(key, (*root)->key);
+        if (CmpGreaterEqual(diff, MAX_NODE_ARRAY_SIZE) || CmpLessVal(diff, 0)) {
             return NULL;
         }
         // Search for the key in the root's entries array
-        if (((*root)->key + diff) == key) {
+        if (CmpEqual(((*root)->key + diff), key)) {
             // Key found: return cell containing the requested values
-            if (diff != 0) {
+            if (!CmpEqual(diff, 0)) {
                 ArrayTree_p cell = ArrayTreeNodeAllocEmpty();
                 cell->entries[0] = (*root)->entries[diff];
                 cell->entry_count = 1;
@@ -319,13 +319,13 @@ ArrayTree_p ArrayTreeExtractEntry(ArrayTree_p *root, long key) {
 
     // Perform the splay operation to bring the closest key to the root
     *root = splay_tree(*root, key);
-    diff = key - (*root)->key;
-    if (diff >= MAX_NODE_ARRAY_SIZE || diff < 0) {
+    diff = KeyCmp(key, (*root)->key);
+    if (CmpGreaterEqual(diff, MAX_NODE_ARRAY_SIZE) || CmpLessVal(diff, 0)) {
         return NULL;
     }
 
     // Search for the key in the root's entries array
-    if (((*root)->key + diff) == key) {
+    if (CmpEqual(((*root)->key + diff), key)) {
         // Key found, remove it from the array
         ArrayTree_p cell = ArrayTreeNodeAllocEmpty();
         assert(cell && "Out of memory in ArrayTreeNodeAllocEmpty");
@@ -342,7 +342,7 @@ ArrayTree_p ArrayTreeExtractEntry(ArrayTree_p *root, long key) {
         (*root)->entry_count--;
 
         // Check if the node is now empty
-        if ((*root)->entry_count == 0) {
+        if (CmpEqual((*root)->entry_count, 0)) {
             // Reorganize the tree if the root is empty
             if (!(*root)->lson) {
                 x = (*root)->rson;
@@ -357,7 +357,7 @@ ArrayTree_p ArrayTreeExtractEntry(ArrayTree_p *root, long key) {
         }
         else {
             // Reset last used index, if last entry was extracted
-            if (diff >= (*root)->last_used_index) {
+            if (CmpGreaterEqual(diff, (*root)->last_used_index)) {
                 // Find the last used index of the array
                 for (i = diff - 1; i >= 0; i--) {
                     if ((*root)->entries[i].val1.p_val != NULL
@@ -437,20 +437,21 @@ PStack_p ArrayTreeLimitedTraverseInit(ArrayTree_p root, long limit) {
     // Traverse the tree to find nodes within the limit
     while (root) {
         // Check if the largest key in the current node is smaller than the limit
-        if (root->last_used_index >= 0 && (root->key + root->last_used_index) < limit) {
+        if (CmpGreaterEqual(root->last_used_index, 0)
+            && CmpLessVal((root->key + root->last_used_index), limit)) {
             root = root->rson;
         }
         else {
             // Devide the array if necessary -> array can contain values above the limit
             uint8_t split_index = root->last_used_index;
             for (uint8_t i = 0; i < root->last_used_index; i++) {
-                if ((root->key + i)>= limit) {
+                if (CmpGreaterEqual((root->key + i), limit)) {
                     split_index = i;
                     break;
                 }
             }
 
-            if (split_index == root->last_used_index) {
+            if (CmpEqual(split_index, root->last_used_index)) {
                 // All values below limit
                 PStackPushP(stack, root);
             }
@@ -482,7 +483,7 @@ PStack_p ArrayTreeLimitedTraverseInit(ArrayTree_p root, long limit) {
             }
 
             // If the smallest key in the current node equals or exceeds the limit, stop traversing
-            if (root->key >= limit) {
+            if (CmpGreaterEqual(root->key, limit)) {
                 root = NULL;
             }
             else {

@@ -42,6 +42,13 @@ typedef struct arraytree_node {
 #define ARRAYTREECELL_MEM MEMSIZE(ArrayTreeNode)
 #endif
 
+#define KeyCmp(k1, k2)           KeyCmpFun(k1, k2)
+#define CmpEqual(cmp,val)        ((long)(cmp))==((long)(val))
+#define CmpGreaterEqual(cmp,val) ((long)(cmp))>=((long)(val))
+#define CmpLessVal(cmp,val)      ((long)(cmp))< ((long)(val))
+
+static inline int KeyCmpFun(long k1, long k2);
+
 /* Core functions for ArrayTree */
 ArrayTree_p ArrayTreeNodeAllocEmpty(void);
 void        ArrayTreeFree(ArrayTree_p root);
@@ -62,6 +69,10 @@ PStack_p    ArrayTreeLimitedTraverseInit(ArrayTree_p root, long limit);
 
 AVL_TRAVERSE_DECLARATION(ArrayTree, ArrayTree_p)
 #define ArrayTreeTraverseExit(stack) PStackFree(stack)
+
+static inline int KeyCmpFun(long k1, long k2) {
+   return k1 - k2;
+}
 
 #endif
 
