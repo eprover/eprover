@@ -138,6 +138,42 @@ static long arraytree_print(FILE* out, ArrayTree_p tree, bool keys_only, int ind
     return size;
 }
 
+static ArrayTree_p split_node(ArrayTree_p *root, long split_idx) {
+    ArrayTree_p handle = ArrayTreeNodeAllocEmpty();
+    uint8_t i;
+
+    // Reorganize tree
+    handle->lson = (*root)->lson;
+    (*root)->lson = handle;
+
+    // Split node -> make split_key new key of the root
+    handle->key = (*root)->key;
+    for (i = 0; i < split_idx; i++) {
+        handle->entries[i] = (*root)->entries[i];
+        if (handle->entries[i].val1.p_val || handle->entries[i].val2.p_val) {
+            handle->entry_count++;
+            handle->last_used_index = i;
+        }
+    }
+    
+    // Shift the values of the root
+    (*root)->key += split_idx;
+    (*root)->entry_count -= handle->entry_count;
+    for (i = 0; i < MAX_NODE_ARRAY_SIZE; i++) {
+        if (CmpLessVal((split_idx + i), MAX_NODE_ARRAY_SIZE)) {
+            (*root)->entries[i] = (*root)->entries[split_idx + i];
+            if ((*root)->entries[i].val1.p_val || (*root)->entries[i].val2.p_val) {
+                (*root)->last_used_index = (split_idx + i);
+            }
+        }
+        else {
+            (*root)->entries[i].val1.p_val = NULL;
+            (*root)->entries[i].val2.p_val = NULL;
+        }
+    }
+    return *root;
+}
+
 
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
@@ -289,17 +325,11 @@ ArrayTree_p ArrayTreeFind(ArrayTree_p *root, long key) {
         if (CmpEqual(((*root)->key + diff), key)) {
             // Key found: return cell containing the requested values
             if (!CmpEqual(diff, 0)) {
-                ArrayTree_p cell = ArrayTreeNodeAllocEmpty();
-                cell->entries[0] = (*root)->entries[diff];
-                cell->entry_count = 1;
-                cell->last_used_index = 0;
-                cell->lson = cell->rson = NULL;
-                return cell;
+                (*root) = split_node(&(*root), diff);
             }
-            else {
-                // Return the root
-                return *root;
-            }
+
+            // Return the root
+            return *root;
         }
     }
 
@@ -353,6 +383,7 @@ ArrayTree_p ArrayTreeExtractEntry(ArrayTree_p *root, long key) {
             }
 
             // Free the empty root node
+            ArrayTreeNodeFree(*root);
             *root = x;
         }
         else {
@@ -457,29 +488,9 @@ PStack_p ArrayTreeLimitedTraverseInit(ArrayTree_p root, long limit) {
             }
             else {
                 // Divide node in two
-                ArrayTree_p new_node = ArrayTreeNodeAllocEmpty();
-                assert(new_node && "Out of memory in ArrayTreeNodeAllocEmpty");
+                root = split_node(&root, split_index);
 
-                new_node->last_used_index = split_index;
-                for (uint8_t i = 0; i < split_index; i++) {
-                    new_node->entries[i] = root->entries[i];
-                    if (new_node->entries[i].val1.p_val != NULL
-                        || new_node->entries[i].val2.p_val != NULL) {
-                        new_node->entry_count++;
-                    }
-                }
-
-                new_node->lson = root->lson;
-                new_node->rson = NULL;
-
-                // Change old node
-                root->last_used_index -= split_index;
-                for (uint8_t i = 0; i < root->last_used_index; i++) {
-                    root->entries[i] = root->entries[i + split_index];
-                }
-                root->entry_count -= new_node->entry_count;
-
-                PStackPushP(stack, new_node);
+                PStackPushP(stack, root);
             }
 
             // If the smallest key in the current node equals or exceeds the limit, stop traversing
