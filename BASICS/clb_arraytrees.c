@@ -272,6 +272,7 @@ ArrayTree_p ArrayTreeInsert(ArrayTree_p *root, ArrayTree_p newnode) {
         (*root)->entries[diff].val2 = newnode->entries[0].val2;
         (*root)->entry_count++;
         if (CmpLessVal((*root)->last_used_index, diff)) (*root)->last_used_index = diff;
+        ArrayTreeNodeFree(newnode);
         return NULL;
     }
 }
