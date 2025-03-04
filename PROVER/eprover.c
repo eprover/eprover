@@ -549,6 +549,8 @@ int main2() {
             printf("root ...\n");
             ArrayTreeDebugPrint(stdout, root, false);
       }
+      char* filename = "test";
+      ArrayTreePrintGV(root, filename);
 
       // printf("Geben Sie Schlüssel-Werte-Paare ein (99 beendet):\n");
       // while (1) {

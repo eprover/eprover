@@ -13,7 +13,7 @@
 #include <clb_avlgeneric.h>
 
 /* Maximum allowed size of the array per node */
-#define MAX_NODE_ARRAY_SIZE 1
+#define MAX_NODE_ARRAY_SIZE 8
 
 /* Structure for displaying a key-value pair */
 typedef struct {
