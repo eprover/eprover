@@ -174,6 +174,34 @@ static ArrayTree_p split_node(ArrayTree_p *root, long split_idx) {
     return *root;
 }
 
+static void arraytree_print_gv(FILE* out, ArrayTree_p tree) {
+    if (!tree) {
+        return;
+    }
+
+    // Create node in GrpahViz
+    fprintf(out, "    Node%p [label=\"", (void*)tree);
+    for (uint8_t j = 0; j <= tree->last_used_index; j++) {
+        fprintf(out, "%ld", (tree->key + j));
+        if (j < tree->last_used_index) {
+            fprintf(out, " | ");
+        }
+    }
+    fprintf(out, "\"];\n");
+
+    // If left child exists, create edge
+    if (tree->lson) {
+        fprintf(out, "    Node%p -> Node%p [label=\"L\"];\n", (void*)tree, (void*)tree->lson);
+        arraytree_print_gv(out, tree->lson);
+    }
+
+    // If left right exists, create edge
+    if (tree->rson) {
+        fprintf(out, "    Node%p -> Node%p [label=\"R\"];\n", (void*)tree, (void*)tree->rson);
+        arraytree_print_gv(out, tree->rson);
+    }
+}
+
 
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
@@ -240,9 +268,6 @@ ArrayTree_p ArrayTreeInsert(ArrayTree_p *root, ArrayTree_p newnode) {
 
     // Splay the tree to bring the closest key to the root
     *root = splay_tree(*root, newnode->key);
-    printf("\nsplay\n");
-    ArrayTreeDebugPrint(stdout, (*root), false);
-    printf("\n");
 
     // Decide in which node the key has to be inserted
     long diff = KeyCmp(newnode->key, (*root)->key);
@@ -309,6 +334,26 @@ long ArrayTreeDebugPrint(FILE* out, ArrayTree_p tree, bool keys_only) {
     size = arraytree_print(out, tree, keys_only, 0);
     fprintf(out, "Tree size: %ld\n", size);
     return size;
+}
+
+void ArrayTreePrintGV(ArrayTree_p tree, const char* filename) {
+    FILE* out = fopen(filename, "w");
+    if (!out) {
+        fprintf(stderr, "Error: Could not open file %s for writing.\n", filename);
+        return;
+    }
+
+    // Write GraphViz Header
+    fprintf(out, "digraph ArrayTree {\n");
+    fprintf(out, "    node [shape=record, style=filled, fillcolor=lightgrey];\n");
+
+    // Recursive writing of the nodes
+    arraytree_print_gv(out, tree);
+
+    // Write resume into the file
+    fprintf(out, "}\n");
+
+    fclose(out);
 }
 
 ArrayTree_p ArrayTreeFind(ArrayTree_p *root, long key) {

@@ -61,6 +61,7 @@ ArrayTree_p ArrayTreeExtractEntry(ArrayTree_p* root, long key);
 ArrayTree_p ArrayTreeExtractRoot(ArrayTree_p* root);
 long        ArrayTreeNodes(ArrayTree_p root);
 ArrayTree_p ArrayTreeMaxNode(ArrayTree_p root);
+void        ArrayTreePrintGV(ArrayTree_p tree, const char* filename);
 #define     ArrayTreeMaxKey(tree) ((tree && ArrayTreeMaxNode(tree)) ? \
                                   ArrayTreeMaxNode(tree)->key + ArrayTreeMaxNode(tree)->last_used_index : 0)
 
