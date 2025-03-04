@@ -1,5 +1,7 @@
 #include "clb_arraytrees.h"
 #include "clb_simple_stuff.h"
+#include <sys/stat.h>
+#include <sys/types.h>
 
 /*---------------------------------------------------------------------*/
 /*                        Global Variables                             */
@@ -182,11 +184,11 @@ static void arraytree_print_gv(FILE* out, ArrayTree_p tree) {
     // Create node in GrpahViz
     fprintf(out, "    Node%p [label=\"", (void*)tree);
     for (uint8_t j = 0; j <= tree->last_used_index; j++) {
-        fprintf(out, "%ld", (tree->key + j));
-        if (j < tree->last_used_index) {
-            fprintf(out, " | ");
-        }
+        fprintf(out, "Key: %ld (1: %ld, 2: %ld)\n", (tree->key + j),
+                tree->entries[j].val1.i_val, tree->entries[j].val2.i_val);
     }
+    fprintf(out, "last_used_index: %d\n", tree->last_used_index);
+    fprintf(out, "entry_count: %d\n", tree->entry_count);
     fprintf(out, "\"];\n");
 
     // If left child exists, create edge
@@ -337,9 +339,20 @@ long ArrayTreeDebugPrint(FILE* out, ArrayTree_p tree, bool keys_only) {
 }
 
 void ArrayTreePrintGV(ArrayTree_p tree, const char* filename) {
-    FILE* out = fopen(filename, "w");
+    // Create target directory, if not existing yet
+    const char* dir_name = "trees";
+    struct stat st = {0};
+    if (stat(dir_name, &st) == -1) {
+        mkdir(dir_name, 0777);  // Create folder with permission r/w
+    }
+
+    // Create filepath: "trees/filename"
+    char filepath[256];
+    snprintf(filepath, sizeof(filepath), "%s/%s.gv", dir_name, filename);
+
+    FILE* out = fopen(filepath, "w");
     if (!out) {
-        fprintf(stderr, "Error: Could not open file %s for writing.\n", filename);
+        fprintf(stderr, "Error: Could not open file %s for writing.\n", filepath);
         return;
     }
 
@@ -347,13 +360,21 @@ void ArrayTreePrintGV(ArrayTree_p tree, const char* filename) {
     fprintf(out, "digraph ArrayTree {\n");
     fprintf(out, "    node [shape=record, style=filled, fillcolor=lightgrey];\n");
 
-    // Recursive writing of the nodes
+    // Recursive writing of all nodes
     arraytree_print_gv(out, tree);
 
-    // Write resume into the file
+    // Finalize Graph
     fprintf(out, "}\n");
-
     fclose(out);
+
+    // Generate PNG file from printed output
+    char command[512];
+    snprintf(command, sizeof(command), "dot -Tpng %s -o %s/%s.png", filepath, dir_name, filename);
+    
+    int result = system(command);  // Run shell command
+    if (result != 0) {
+        fprintf(stderr, "Error: GraphViz command failed.\n");
+    }
 }
 
 ArrayTree_p ArrayTreeFind(ArrayTree_p *root, long key) {
