@@ -184,11 +184,11 @@ static void arraytree_print_gv(FILE* out, ArrayTree_p tree) {
     // Create node in GrpahViz
     fprintf(out, "    Node%p [label=\"", (void*)tree);
     for (uint8_t j = 0; j <= tree->last_used_index; j++) {
-        fprintf(out, "Key: %ld (1: %ld, 2: %ld)\n", (tree->key + j),
+        fprintf(out, "Key: %ld (1: %ld, 2: %ld)\\n", (tree->key + j),
                 tree->entries[j].val1.i_val, tree->entries[j].val2.i_val);
     }
-    fprintf(out, "last_used_index: %d\n", tree->last_used_index);
-    fprintf(out, "entry_count: %d\n", tree->entry_count);
+    fprintf(out, "last_used_index: %d\\n", tree->last_used_index);
+    fprintf(out, "entry_count: %d\\n", tree->entry_count);
     fprintf(out, "\"];\n");
 
     // If left child exists, create edge
