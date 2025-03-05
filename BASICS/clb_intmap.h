@@ -120,6 +120,9 @@ void*    IntMapDelKey(IntMap_p map, long key);
 #define INTMAPCELL_MEM MEMSIZE(IntMapCell)
 #endif
 
+extern long IterCount;
+
+
 #define IntMapDStorage(map) (((map)->type == IMArray)?\
                              PDArrayStorage((map)->values.array):\
                              (((map)->type == IMTree)?\
@@ -233,8 +236,3 @@ static inline void* IntMapIterNext(IntMapIter_p iter, long *key)
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
-
-
-

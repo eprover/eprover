@@ -30,6 +30,8 @@ Changes
 /*                        Global Variables                             */
 /*---------------------------------------------------------------------*/
 
+long IterCount = 0;
+
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
@@ -573,6 +575,14 @@ IntMapIter_p IntMapIterAlloc(IntMap_p map, long lower_key, long upper_key)
 {
    IntMapIter_p handle = IntMapIterCellAlloc();
 
+   if(map->type == IMTree)
+   {
+      IterCount++;
+      if(IterCount==5)
+      {
+         ArrayTreePrintGV(map->values.tree, "debugtree.gv");
+      }
+   }
    handle->map = map;
    if(map)
    {

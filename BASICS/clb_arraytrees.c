@@ -157,7 +157,7 @@ static ArrayTree_p split_node(ArrayTree_p *root, long split_idx) {
             handle->last_used_index = i;
         }
     }
-    
+
     // Shift the values of the root
     (*root)->key += split_idx;
     (*root)->entry_count -= handle->entry_count;
@@ -370,7 +370,7 @@ void ArrayTreePrintGV(ArrayTree_p tree, const char* filename) {
     // Generate PNG file from printed output
     char command[512];
     snprintf(command, sizeof(command), "dot -Tpng %s -o %s/%s.png", filepath, dir_name, filename);
-    
+
     int result = system(command);  // Run shell command
     if (result != 0) {
         fprintf(stderr, "Error: GraphViz command failed.\n");
@@ -472,10 +472,10 @@ ArrayTree_p ArrayTreeExtractEntry(ArrayTree_p *root, long key) {
 }
 
 ArrayTree_p ArrayTreeExtractRoot(ArrayTree_p *root) {
-    if (*root) {
-        return ArrayTreeExtractEntry(root, (*root)->key);
-    }
-    return NULL;
+   if (*root) {
+      return ArrayTreeExtractEntry(root, (*root)->key);
+   }
+   return NULL;
 }
 
 bool ArrayTreeDeleteEntry(ArrayTree_p *root, long key) {

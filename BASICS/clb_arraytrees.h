@@ -43,9 +43,9 @@ typedef struct arraytree_node {
 #endif
 
 #define KeyCmp(k1, k2)           KeyCmpFun(k1, k2)
-#define CmpEqual(cmp,val)        ((long)(cmp))==((long)(val))
-#define CmpGreaterEqual(cmp,val) ((long)(cmp))>=((long)(val))
-#define CmpLessVal(cmp,val)      ((long)(cmp))< ((long)(val))
+#define CmpEqual(cmp,val)        (((long)(cmp))==((long)(val)))
+#define CmpGreaterEqual(cmp,val) (((long)(cmp))>=((long)(val)))
+#define CmpLessVal(cmp,val)      (((long)(cmp))< ((long)(val)))
 
 static inline int KeyCmpFun(long k1, long k2);
 
