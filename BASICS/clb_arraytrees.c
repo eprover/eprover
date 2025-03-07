@@ -389,7 +389,9 @@ ArrayTree_p ArrayTreeFind(ArrayTree_p *root, long key) {
             return NULL;
         }
         // Search for the key in the root's entries array
-        if (CmpEqual(((*root)->key + diff), key)) {
+        if (CmpEqual(((*root)->key + diff), key) &&
+            ((*root)->entries[diff].val1.p_val ||
+            (*root)->entries[diff].val2.p_val)) {
             // Key found: return cell containing the requested values
             if (!CmpEqual(diff, 0)) {
                 (*root) = split_node(&(*root), diff);
