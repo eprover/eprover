@@ -58,6 +58,7 @@ long IterCount = 0;
 
 static bool switch_to_array(long old_min, long old_max, long new_key, long entries)
 {
+   fprintf(stdout, "switch_to_array\n");
    long max_key = MAX(old_max, new_key);
    long min_key = MIN(old_min, new_key);
 
@@ -84,6 +85,7 @@ static bool switch_to_array(long old_min, long old_max, long new_key, long entri
 
 static bool switch_to_tree(long old_min, long old_max, long new_key, long entries)
 {
+   fprintf(stdout, "switch_to_tree\n");
    long max_key = MAX(old_max, new_key);
    long min_key = MIN(old_min, new_key);
 
@@ -110,6 +112,7 @@ static bool switch_to_tree(long old_min, long old_max, long new_key, long entrie
 
 static ArrayTree_p add_new_tree_node(IntMap_p map, long key, void* val)
 {
+   fprintf(stdout, "add_new_tree_node -> key: %ld\n", key);
    ArrayTree_p handle, check;
    assert(map->type == IMTree);
 
@@ -118,9 +121,14 @@ static ArrayTree_p add_new_tree_node(IntMap_p map, long key, void* val)
    handle->key = key;
    handle->entries[0].val1.p_val = val;
    handle->entry_count = 1;
+   handle->last_used_index = 0;
    check = ArrayTreeInsert(&(map->values.tree), handle);
    UNUSED(check); assert(!check);
-   map->entry_no++;
+   if (check) {
+      ArrayTreeNodeFree(check);
+   } else {
+      map->entry_no++;
+   }
 
    return handle;
 }
@@ -141,6 +149,7 @@ static ArrayTree_p add_new_tree_node(IntMap_p map, long key, void* val)
 
 static void array_to_tree(IntMap_p map)
 {
+   fprintf(stdout, "array_to_tree\n");
    PDRangeArr_p  tmp_arr;
    IntOrP        tmp_val;
    long          i;
@@ -578,9 +587,13 @@ IntMapIter_p IntMapIterAlloc(IntMap_p map, long lower_key, long upper_key)
    if(map->type == IMTree)
    {
       IterCount++;
-      if(IterCount==5)
+      if(IterCount<=10)
       {
-         ArrayTreePrintGV(map->values.tree, "debugtree.gv");
+         char filename[20];
+         snprintf(filename, sizeof(filename), "debugtree%ld", IterCount);
+         ArrayTreePrintGV(map->values.tree, filename);
+         printf("IterCount: %ld\n", IterCount);
+         ArrayTreeDebugPrint(stdout, map->values.tree,false);
       }
    }
    handle->map = map;

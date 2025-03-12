@@ -18,6 +18,7 @@
 /*---------------------------------------------------------------------*/
 
 static ArrayTree_p splay_tree(ArrayTree_p tree, long key) {
+    fprintf(stdout, "splay_tree -> key: %ld\n", key);
     ArrayTree_p left, right, tmp;
     ArrayTreeNode newnode; // Placeholder node for tree manipulation
     long cmpres;
@@ -141,6 +142,7 @@ static long arraytree_print(FILE* out, ArrayTree_p tree, bool keys_only, int ind
 }
 
 static ArrayTree_p split_node(ArrayTree_p *root, long split_idx) {
+    fprintf(stdout, "split_node -> split_idx: %ld\n", split_idx);
     ArrayTree_p handle = ArrayTreeNodeAllocEmpty();
     uint8_t i;
 
@@ -210,6 +212,7 @@ static void arraytree_print_gv(FILE* out, ArrayTree_p tree) {
 /*---------------------------------------------------------------------*/
 
 ArrayTree_p ArrayTreeNodeAllocEmpty(void) {
+    fprintf(stdout, "ArrayTreeNodeAllocEmpty\n");
     // Allocate memory for a new ArrayTree node
     ArrayTree_p handle = ArrayTreeNodeAlloc();
 
@@ -231,6 +234,7 @@ ArrayTree_p ArrayTreeNodeAllocEmpty(void) {
 }
 
 void ArrayTreeFree(ArrayTree_p junk) {
+    fprintf(stdout, "ArrayTreeFree\n");
     if (junk) {
         // Allocate a stack for iterative traversal of the tree
         PStack_p stack = PStackAlloc();
@@ -261,6 +265,7 @@ void ArrayTreeFree(ArrayTree_p junk) {
 }
 
 ArrayTree_p ArrayTreeInsert(ArrayTree_p *root, ArrayTree_p newnode) {
+    fprintf(stdout, "ArrayTreeInsert -> newnode->key: %ld\n", newnode->key);
     // If the tree is empty, make the new node the root
     if (!*root) {
         newnode->lson = newnode->rson = NULL;
@@ -305,6 +310,7 @@ ArrayTree_p ArrayTreeInsert(ArrayTree_p *root, ArrayTree_p newnode) {
 }
 
 bool ArrayTreeStore(ArrayTree_p *root, long key, IntOrP val1, IntOrP val2) {
+    fprintf(stdout, "ArrayTreeStore -> key: %ld\n", key);
     // Allocate a new node for the key-value pair
     ArrayTree_p handle = ArrayTreeNodeAllocEmpty();
     assert(handle && "Out of memory in ArrayTreeNodeAllocEmpty");
@@ -339,6 +345,7 @@ long ArrayTreeDebugPrint(FILE* out, ArrayTree_p tree, bool keys_only) {
 }
 
 void ArrayTreePrintGV(ArrayTree_p tree, const char* filename) {
+    fprintf(stdout, "ArrayTreePrintGV\n");
     // Create target directory, if not existing yet
     const char* dir_name = "trees";
     struct stat st = {0};
@@ -378,6 +385,7 @@ void ArrayTreePrintGV(ArrayTree_p tree, const char* filename) {
 }
 
 ArrayTree_p ArrayTreeFind(ArrayTree_p *root, long key) {
+    fprintf(stdout, "ArrayTreeFind -> key: %ld\n", key);
     long diff;
 
     // Check if the tree is empty
@@ -389,12 +397,13 @@ ArrayTree_p ArrayTreeFind(ArrayTree_p *root, long key) {
             return NULL;
         }
         // Search for the key in the root's entries array
-        if (CmpEqual(((*root)->key + diff), key) &&
-            ((*root)->entries[diff].val1.p_val ||
-            (*root)->entries[diff].val2.p_val)) {
-            // Key found: return cell containing the requested values
-            if (!CmpEqual(diff, 0)) {
-                (*root) = split_node(&(*root), diff);
+        if (CmpEqual(((*root)->key + diff), key)) {
+            if ((*root)->entries[diff].val1.p_val ||
+            (*root)->entries[diff].val2.p_val) {
+                // Key found: return cell containing the requested values
+                if (!CmpEqual(diff, 0)) {
+                    (*root) = split_node(&(*root), diff);
+                }
             }
 
             // Return the root
@@ -407,6 +416,7 @@ ArrayTree_p ArrayTreeFind(ArrayTree_p *root, long key) {
 }
 
 ArrayTree_p ArrayTreeExtractEntry(ArrayTree_p *root, long key) {
+    fprintf(stdout, "ArrayTreeExtractEntry -> key: %ld\n", key);
     ArrayTree_p x = NULL;
     long diff;
     uint8_t i = 0;
@@ -474,13 +484,15 @@ ArrayTree_p ArrayTreeExtractEntry(ArrayTree_p *root, long key) {
 }
 
 ArrayTree_p ArrayTreeExtractRoot(ArrayTree_p *root) {
-   if (*root) {
-      return ArrayTreeExtractEntry(root, (*root)->key);
-   }
-   return NULL;
+    fprintf(stdout, "ArrayTreeExtractRoot\n");
+    if (*root) {
+        return ArrayTreeExtractEntry(root, (*root)->key);
+    }
+    return NULL;
 }
 
 bool ArrayTreeDeleteEntry(ArrayTree_p *root, long key) {
+    fprintf(stdout, "ArrayTreeDeleteEntry -> key: %ld\n", key);
     ArrayTree_p cell;
 
     // Extract the entry associated with the key
@@ -493,6 +505,7 @@ bool ArrayTreeDeleteEntry(ArrayTree_p *root, long key) {
 }
 
 long ArrayTreeNodes(ArrayTree_p root) {
+    fprintf(stdout, "ArrayTreeNodes\n");
     // Allocate a stack for iterative traversal
     PStack_p stack = PStackAlloc();
     long     res   = 0; // Counter for the total number of entries
@@ -522,6 +535,7 @@ long ArrayTreeNodes(ArrayTree_p root) {
 }
 
 ArrayTree_p ArrayTreeMaxNode(ArrayTree_p root) {
+    fprintf(stdout, "ArrayTreeMaxNode\n");
     // Traverse to the rightmost node
     while (root && root->rson) {
         root = root->rson;
@@ -532,6 +546,7 @@ ArrayTree_p ArrayTreeMaxNode(ArrayTree_p root) {
 }
 
 PStack_p ArrayTreeLimitedTraverseInit(ArrayTree_p root, long limit) {
+    fprintf(stdout, "ArrayTreeLimitedTraverseInit -> limit: %ld\n", limit);
     PStack_p stack = PStackAlloc();
 
     // Traverse the tree to find nodes within the limit

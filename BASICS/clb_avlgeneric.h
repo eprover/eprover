@@ -92,6 +92,7 @@ type     name##TraverseNext(PStack_p state);
 #define AVL_TRAVERSE_DEFINITION(name,type)\
 PStack_p name##TraverseInit(type root)\
 {\
+   fprintf(stdout, "...TraverseInit\n");\
    PStack_p stack = PStackAlloc();\
 \
    while(root)\
@@ -105,6 +106,7 @@ PStack_p name##TraverseInit(type root)\
 \
 type name##TraverseNext(PStack_p state)\
 {\
+   fprintf(stdout, "...TraverseNext\n");\
    type handle, res;\
 \
    if(PStackEmpty(state))\
