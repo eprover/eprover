@@ -201,25 +201,23 @@ static inline void* IntMapIterNext(IntMapIter_p iter, long *key)
          break;
    case IMTree:
          // printf("Case IMTree\n");
-         while((handle = ArrayTreeTraverseNext(iter->admin_data.tree_iter)))
-         {
-            if(handle)
-            {
-               for (i = 0; i < handle->last_used_index; i++) {
-                  if((handle->key + i) > iter->upper_key)
-                  {
-                     /* Overrun limit */
-                     break;
-                  }
-                  if(handle->entries[i].val1.p_val)
-                  {
-                     /* Found real value */
-                     *key = (handle->key + i);
-                     res = handle->entries[i].val1.p_val;
-                     break;
-                  }
+         handle = iter->admin_data.tree_iter;
+         while(handle) {
+            for (i = 0; i < handle->last_used_index; i++) {
+               if((handle->key + i) > iter->upper_key)
+               {
+                  /* Overrun limit */
+                  break;
+               }
+               if(handle->entries[i].val1.p_val)
+               {
+                  /* Found real value */
+                  *key = (handle->key + i);
+                  res = handle->entries[i].val1.p_val;
+                  break;
                }
             }
+            handle = ArrayTreeTraverseNext(iter->admin_data.tree_iter);
          }
          break;
    default:
