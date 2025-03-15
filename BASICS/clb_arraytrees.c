@@ -78,6 +78,13 @@ static ArrayTree_p splay_tree(ArrayTree_p tree, long key) {
         }
         else {
             // If cmpres >= 0 and cmpres < MAX_NODE_ARRAY_SIZE the key is part of the current node
+            if (tree->rson) {
+                if (CmpGreaterEqual(key, tree->rson->key)) {
+                    left->rson = tree;
+                    left = tree;
+                    tree = tree->rson;
+                }
+            }
             break;
         }
     }
@@ -167,7 +174,7 @@ static ArrayTree_p split_node(ArrayTree_p *root, long split_idx) {
         if (CmpLessVal((split_idx + i), MAX_NODE_ARRAY_SIZE)) {
             (*root)->entries[i] = (*root)->entries[split_idx + i];
             if ((*root)->entries[i].val1.p_val || (*root)->entries[i].val2.p_val) {
-                (*root)->last_used_index = (split_idx + i);
+                (*root)->last_used_index = i;
             }
         }
         else {
