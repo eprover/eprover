@@ -524,60 +524,12 @@ static void print_proof_stats(ProofState_p proofstate,
 //
 /----------------------------------------------------------------------*/
 #include <clb_arraytrees.h>
-int main2() {
-      ArrayTree_p root, ext = NULL;
-      long key;
-      IntOrP val1, val2;
-
-      for (uint8_t i = 1; i < 20; i += 3) {
-            val1.i_val = i;
-            val2.i_val = i;
-            ArrayTreeStore(&root, i, val1, val2);
-      }
-      printf("Initialer Baum:\n");
-      ArrayTreeDebugPrint(stdout, root, false);
-      printf("Gebe Key ein, der extrahiert werden soll! (99 beendet)\n");
-      while (1) {
-            printf("Key: ");
-            scanf("%ld", &key);
-            if (key == 99) break;
-
-            printf("extract ...\n");
-            // ext = ArrayTreeExtractEntry(&root, key);
-            ext = ArrayTreeFind(&root, key);
-            ArrayTreeDebugPrint(stdout, ext, false);
-            printf("root ...\n");
-            ArrayTreeDebugPrint(stdout, root, false);
-      }
-      char* filename = "test";
-      ArrayTreePrintGV(root, filename);
-
-      // printf("Geben Sie Schlüssel-Werte-Paare ein (99 beendet):\n");
-      // while (1) {
-      //       printf("Schlüssel: ");
-      //       scanf("%ld", &key);
-      //       if (key == 99) break;
-            
-      //       printf("Wert 1: ");
-      //       scanf("%ld", &val1.i_val);
-      //       printf("Wert 2: ");
-      //       scanf("%ld", &val2.i_val);
-            
-      //       if (ArrayTreeStore(&root, key, val1, val2)) {
-      //             printf("Eingefügt: %ld\n", key);
-      //       } else {
-      //             printf("Fehler beim Einfügen von %ld!\n", key);
-      //       }
-            
-      //       printf("Aktueller Baum:\n");
-      //       ArrayTreeDebugPrint(stdout, root, false);
-      // }
-
-      ArrayTreeFree(root);
-      return 0;
+int main() {
+    ArrayTreeDebug();
+    return 0;
 }
 
-int main(int argc, char* argv[])
+int main2(int argc, char* argv[])
 {
    int              retval = NO_ERROR;
    CLState_p        state;

@@ -206,6 +206,14 @@ static void arraytree_print_gv(FILE* out, ArrayTree_p tree) {
     }
 }
 
+int readInteger() {
+    int number;
+    printf("Bitte geben Sie den key ein: ");
+    scanf("%d", &number);
+    while (getchar() != '\n');
+    return number;
+}
+
 
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
@@ -335,6 +343,80 @@ bool ArrayTreeStore(ArrayTree_p *root, long key, IntOrP val1, IntOrP val2) {
         return false;
     }
     return true;
+}
+
+void ArrayTreeDebug() {
+    ArrayTree_p root, ext = NULL;
+    IntOrP val1, val2;
+    char input;
+    int running = 1, key;
+    
+    while (running) {
+        printf("\nGeben Sie ein Zeichen ein (c, d, e, f, l, i, p, r, s, t, p oder z zum Beenden):\nc: free, d: delete, e: extract, f: find, i: store, l: traverseLimit, p: print, r: root, s: splay, t: split, z: quit\nEingabe: ");
+        scanf("%c", &input);
+        
+        switch (input) {
+            case 'f':   // ArrayTreeFind
+                key = readInteger();
+                root = ArrayTreeFind(&root, key);
+                ArrayTreeDebugPrint(stdout, root, false);
+                break;
+            case 'd':   // ArrayTreeDeleteNode
+                key = readInteger();
+                ArrayTreeDeleteEntry(&root, key);
+                ArrayTreeDebugPrint(stdout, root, false);
+                break;
+            case 'i':   // ArrayTreeStore
+                key = readInteger();
+                val1.i_val = key;
+                val2.i_val = key;
+                ArrayTreeStore(&root, key, val1, val2);
+                ArrayTreeDebugPrint(stdout, root, false);
+                break;
+            case 'r':   // ArrayTreeExtractRoot
+                ext = ArrayTreeExtractRoot(&root);
+                ArrayTreeDebugPrint(stdout, root, false);
+                printf("extracted:\n");
+                ArrayTreeDebugPrint(stdout, ext, false);
+                break;
+            case 'c':   // ArrayTreeFree
+                ArrayTreeFree(root);
+                ArrayTreeDebugPrint(stdout, root, false);
+                break;
+            case 'l':   // ArrayTreeTraverseLimit
+                key = readInteger();
+                ArrayTreeLimitedTraverseInit(root, key);
+                ArrayTreeDebugPrint(stdout, root, false);
+                break;
+            case 'e':   // ArrayTreeExtractNode
+                key = readInteger();
+                ext = ArrayTreeExtractEntry(&root, key);
+                ArrayTreeDebugPrint(stdout, root, false);
+                printf("extracted:\n");
+                ArrayTreeDebugPrint(stdout, ext, false);
+                break;
+            case 'p':   // ArrayTreeDebugPrint
+                ArrayTreeDebugPrint(stdout, root, false);
+                break;
+            case 't':    // split_node
+                key = readInteger();
+                root = split_node(&root, key);
+                ArrayTreeDebugPrint(stdout, root, false);
+                break;
+            case 's':    // splay_tree
+                key = readInteger();
+                root = splay_tree(root, key);
+                ArrayTreeDebugPrint(stdout, root, false);
+                break;
+            case 'z':
+                running = 0;
+                printf("Programm wird beendet.\n");
+                break;
+            default:
+                printf("Ungültige Eingabe, bitte erneut versuchen.\n");
+                break;
+        }
+    }
 }
 
 long ArrayTreeDebugPrint(FILE* out, ArrayTree_p tree, bool keys_only) {

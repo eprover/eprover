@@ -68,6 +68,8 @@ void        ArrayTreePrintGV(ArrayTree_p tree, const char* filename);
 /* Traversal functions for ArrayTree */
 PStack_p    ArrayTreeLimitedTraverseInit(ArrayTree_p root, long limit);
 
+void        ArrayTreeDebug();
+
 AVL_TRAVERSE_DECLARATION(ArrayTree, ArrayTree_p)
 #define ArrayTreeTraverseExit(stack) PStackFree(stack)
 
