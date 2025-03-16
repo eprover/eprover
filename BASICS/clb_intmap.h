@@ -77,6 +77,10 @@ typedef struct intmap_cell
    }values;
 }IntMapCell, *IntMap_p;
 
+typedef struct tree_iterator {
+   uint8_t  current;
+   PStack_p tree_iter;
+}TreeIterator, TreeIter_p;
 
 
 typedef struct intmap_iter_cell
@@ -86,9 +90,9 @@ typedef struct intmap_iter_cell
    long     upper_key;
    union
    {
-      bool      seen;      /* For IMSingle */
-      long      current;   /* For IMArray  */
-      PStack_p  tree_iter; /* For IMTree */
+      bool        seen;      /* For IMSingle */
+      long        current;   /* For IMArray  */
+      TreeIter_p  tree_mark; /* For IMTree */
    }admin_data;
 }IntMapIterCell, *IntMapIter_p;
 
@@ -201,24 +205,30 @@ static inline void* IntMapIterNext(IntMapIter_p iter, long *key)
          break;
    case IMTree:
          // printf("Case IMTree\n");
-         handle = iter->admin_data.tree_iter;
-         while(handle) {
-            for (i = 0; i < handle->last_used_index; i++) {
-               if((handle->key + i) > iter->upper_key)
-               {
-                  /* Overrun limit */
-                  break;
-               }
-               if(handle->entries[i].val1.p_val)
-               {
-                  /* Found real value */
-                  *key = (handle->key + i);
-                  res = handle->entries[i].val1.p_val;
-                  break;
-               }
-            }
+         uint8_t current = iter->admin_data.tree_mark.current;
+         if (current > (MAX_NODE_ARRAY_SIZE - 1)) {
+            // Current node contains unprocessed entries
+            handle = iter->admin_data.tree_mark.tree_iter;
+         } else {
             handle = ArrayTreeTraverseNext(iter->admin_data.tree_iter);
+            current = 0;
          }
+
+         for (i = current; i < handle->last_used_index; i++) {
+            if((handle->key + i) > iter->upper_key)
+            {
+               /* Overrun limit */
+               break;
+            }
+            if(handle->entries[i].val1.p_val)
+            {
+               /* Found real value */
+               *key = (handle->key + i);
+               res = handle->entries[i].val1.p_val;
+               break;
+            }
+         }
+         
          break;
    default:
          assert(false && "Unknown IntMap type.");
