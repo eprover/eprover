@@ -524,12 +524,12 @@ static void print_proof_stats(ProofState_p proofstate,
 //
 /----------------------------------------------------------------------*/
 #include <clb_arraytrees.h>
-int main() {
+int main2() {
     ArrayTreeDebug();
     return 0;
 }
 
-int main2(int argc, char* argv[])
+int main(int argc, char* argv[])
 {
    int              retval = NO_ERROR;
    CLState_p        state;

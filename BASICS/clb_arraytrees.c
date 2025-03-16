@@ -182,6 +182,7 @@ static ArrayTree_p split_node(ArrayTree_p *root, long split_idx) {
             (*root)->entries[i].val2.p_val = NULL;
         }
     }
+
     return *root;
 }
 
@@ -407,7 +408,10 @@ void ArrayTreeDebug() {
                 break;
             case 't':    // split_node
                 key = readInteger();
-                root = split_node(&root, key);
+                long diff = KeyCmp(key, root->key);
+                if (!CmpEqual(diff, root->key)) {
+                    root = split_node(&root, diff);
+                }
                 ArrayTreeDebugPrint(stdout, root, false);
                 break;
             case 's':    // splay_tree
@@ -659,11 +663,13 @@ PStack_p ArrayTreeLimitedTraverseInit(ArrayTree_p root, long limit) {
                 // All values below limit
                 PStackPushP(stack, root);
             }
-            else {
+            
+            if (!CmpEqual(split_index, 0)) {
                 // Divide node in two
+                root = splay_tree(root, split_index);
                 root = split_node(&root, split_index);
 
-                PStackPushP(stack, root);
+                PStackPushP(stack, root->lson);
             }
 
             // If the smallest key in the current node equals or exceeds the limit, stop traversing

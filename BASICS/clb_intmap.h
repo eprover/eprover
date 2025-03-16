@@ -77,6 +77,8 @@ typedef struct intmap_cell
    }values;
 }IntMapCell, *IntMap_p;
 
+// This "bookmark" stores the current entry of the current node which has
+// to be processed next
 typedef struct tree_iterator {
    uint8_t  current;
    PStack_p tree_iter;
@@ -206,15 +208,17 @@ static inline void* IntMapIterNext(IntMapIter_p iter, long *key)
    case IMTree:
          // printf("Case IMTree\n");
          uint8_t current = iter->admin_data.tree_mark.current;
-         if (current > (MAX_NODE_ARRAY_SIZE - 1)) {
+         if (current > MAX_NODE_ARRAY_SIZE) {
             // Current node contains unprocessed entries
-            handle = iter->admin_data.tree_mark.tree_iter;
+            handle = (ArrayTree_p) iter->admin_data.tree_mark.tree_iter;
          } else {
-            handle = ArrayTreeTraverseNext(iter->admin_data.tree_iter);
+            // Here is a SegFault ...
+            handle = ArrayTreeTraverseNext(iter->admin_data.tree_mark.tree_iter);
             current = 0;
          }
 
-         for (i = current; i < handle->last_used_index; i++) {
+         // What if current > last_used_index??
+         for (i = current; i <= handle->last_used_index; i++) {
             if((handle->key + i) > iter->upper_key)
             {
                /* Overrun limit */
@@ -228,7 +232,8 @@ static inline void* IntMapIterNext(IntMapIter_p iter, long *key)
                break;
             }
          }
-         
+         iter->admin_data.tree_mark.current = i + 1;
+
          break;
    default:
          assert(false && "Unknown IntMap type.");

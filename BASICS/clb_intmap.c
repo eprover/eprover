@@ -617,7 +617,7 @@ IntMapIter_p IntMapIterAlloc(IntMap_p map, long lower_key, long upper_key)
             handle->admin_data.current = lower_key;
             break;
       case IMTree:
-            handle->admin_data.tree_iter =
+            handle->admin_data.tree_mark.tree_iter =
                ArrayTreeLimitedTraverseInit(map->values.tree, lower_key);
             break;
       default:
@@ -653,7 +653,7 @@ void IntMapIterFree(IntMapIter_p junk)
       case IMArray:
             break;
       case IMTree:
-            PStackFree(junk->admin_data.tree_iter);
+            PStackFree(junk->admin_data.tree_mark.tree_iter);
          break;
       default:
             assert(false && "Unknown IntMap type.");
