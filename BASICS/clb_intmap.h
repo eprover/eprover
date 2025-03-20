@@ -213,6 +213,7 @@ static inline void* IntMapIterNext(IntMapIter_p iter, long *key)
             handle = (ArrayTree_p) iter->admin_data.tree_mark.tree_iter;
          } else {
             // Here is a SegFault ...
+            ArrayTreeDebugPrint(stdout, iter->admin_data.tree_mark.tree_iter, false);
             handle = ArrayTreeTraverseNext(iter->admin_data.tree_mark.tree_iter);
             current = 0;
          }
