@@ -656,6 +656,7 @@ PStack_p ArrayTreeLimitedTraverseInit(ArrayTree_p root, long limit) {
             for (uint8_t i = 0; i < root->last_used_index; i++) {
                 if (CmpLessVal((root->key + i), limit)) {
                     split_index = i;
+                } else {
                     break;
                 }
             }

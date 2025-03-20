@@ -589,7 +589,7 @@ IntMapIter_p IntMapIterAlloc(IntMap_p map, long lower_key, long upper_key)
       IterCount++;
       if(IterCount<=10)
       {
-         char filename[20];
+         char filename[40];
          snprintf(filename, sizeof(filename), "debugtree%ld", IterCount);
          ArrayTreePrintGV(map->values.tree, filename);
          printf("IterCount: %ld\n", IterCount);

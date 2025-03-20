@@ -208,13 +208,17 @@ static inline void* IntMapIterNext(IntMapIter_p iter, long *key)
    case IMTree:
          // printf("Case IMTree\n");
          uint8_t current = iter->admin_data.tree_mark.current;
-         if (current > MAX_NODE_ARRAY_SIZE) {
+         if (current < MAX_NODE_ARRAY_SIZE) {
             // Current node contains unprocessed entries
             handle = (ArrayTree_p) iter->admin_data.tree_mark.tree_iter;
          } else {
             // Here is a SegFault ...
-            ArrayTreeDebugPrint(stdout, iter->admin_data.tree_mark.tree_iter, false);
+            // ArrayTreeDebugPrint(stdout, iter->admin_data.tree_mark.tree_iter, false);
             handle = ArrayTreeTraverseNext(iter->admin_data.tree_mark.tree_iter);
+            if (!handle) {
+               return NULL;
+            }
+            ArrayTreeDebugPrint(stdout, handle, false);
             current = 0;
          }
 
