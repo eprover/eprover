@@ -432,6 +432,7 @@ void ArrayTreeDebug() {
 
 long ArrayTreeDebugPrint(FILE* out, ArrayTree_p tree, bool keys_only) {
     long size;
+    fprintf(out, "root: %p\n", tree);
     size = arraytree_print(out, tree, keys_only, 0);
     fprintf(out, "Tree size: %ld\n", size);
     return size;
