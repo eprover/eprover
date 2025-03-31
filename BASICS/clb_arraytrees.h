@@ -23,12 +23,12 @@ typedef struct {
 
 /* Array-based node in the tree */
 typedef struct arraytree_node {
-    long key;                                // key of the first entry
-    ArrayEntry entries[MAX_NODE_ARRAY_SIZE]; // Array for key-value pairs
-    uint8_t entry_count;                     // Number of assigned entries (max. 255)
-    uint8_t last_used_index;                 // Highest used index of the array
-    struct arraytree_node* lson;             // Pointer to the left child node
-    struct arraytree_node* rson;             // Pointer to the right child node
+   long key;                                // key of the first entry
+   ArrayEntry entries[MAX_NODE_ARRAY_SIZE]; // Array for key-value pairs
+   uint8_t entry_count;                     // Number of assigned entries (max. 255)
+   uint8_t last_used_index;                 // Highest used index of the array
+   struct arraytree_node* lson;             // Pointer to the left child node
+   struct arraytree_node* rson;             // Pointer to the right child node
 } ArrayTreeNode, *ArrayTree_p;
 
 

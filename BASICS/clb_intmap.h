@@ -169,6 +169,7 @@ static inline void* IntMapIterNext(IntMapIter_p iter, long *key)
    void* res = NULL;
    long  i;
    ArrayTree_p handle;
+   uint8_t current;
 
    assert(iter);
    assert(key);
@@ -207,7 +208,7 @@ static inline void* IntMapIterNext(IntMapIter_p iter, long *key)
          break;
    case IMTree:
          // printf("Case IMTree\n");
-         uint8_t current = iter->admin_data.tree_mark.current;
+         current = iter->admin_data.tree_mark.current;
          if (current < MAX_NODE_ARRAY_SIZE) {
             // Current node contains unprocessed entries
             handle = (ArrayTree_p) iter->admin_data.tree_mark.tree_iter;

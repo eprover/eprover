@@ -149,30 +149,32 @@ static long arraytree_print(FILE* out, ArrayTree_p tree, bool keys_only, int ind
 }
 
 static ArrayTree_p split_node(ArrayTree_p *root, long split_idx) {
-    fprintf(stdout, "split_node -> split_idx: %ld\n", split_idx);
-    ArrayTree_p handle = ArrayTreeNodeAllocEmpty();
-    uint8_t i;
+   fprintf(stdout, "split_node -> split_idx: %ld\n", split_idx);
+   ArrayTree_p handle = ArrayTreeNodeAllocEmpty();
+   uint8_t i;
 
-    // Reorganize tree
-    handle->lson = (*root)->lson;
+   // Reorganize tree
+   handle->lson = (*root)->lson;
     (*root)->lson = handle;
 
     // Split node -> make split_key new key of the root
     handle->key = (*root)->key;
     for (i = 0; i < split_idx; i++) {
-        handle->entries[i] = (*root)->entries[i];
-        if (handle->entries[i].val1.p_val || handle->entries[i].val2.p_val) {
-            handle->entry_count++;
-            handle->last_used_index = i;
-        }
+       assert(i<MAX_NODE_ARRAY_SIZE);
+       handle->entries[i] = (*root)->entries[i];
+       if (handle->entries[i].val1.p_val || handle->entries[i].val2.p_val) {
+          handle->entry_count++;
+          handle->last_used_index = i;
+       }
     }
 
     // Shift the values of the root
     (*root)->key += split_idx;
     (*root)->entry_count -= handle->entry_count;
     for (i = 0; i < MAX_NODE_ARRAY_SIZE; i++) {
-        if (CmpLessVal((split_idx + i), MAX_NODE_ARRAY_SIZE)) {
-            (*root)->entries[i] = (*root)->entries[split_idx + i];
+       if (CmpLessVal((split_idx + i), MAX_NODE_ARRAY_SIZE)) {
+          assert(i<MAX_NODE_ARRAY_SIZE);
+          (*root)->entries[i] = (*root)->entries[split_idx + i];
             if ((*root)->entries[i].val1.p_val || (*root)->entries[i].val2.p_val) {
                 (*root)->last_used_index = i;
             }
@@ -234,8 +236,9 @@ ArrayTree_p ArrayTreeNodeAllocEmpty(void) {
 
     handle->key = -3;            // Valid keys: [-2; LONG_MAX]
     for (uint8_t i = 0; i < MAX_NODE_ARRAY_SIZE; i++) {
-        handle->entries[i].val1.p_val = NULL;
-        handle->entries[i].val2.p_val = NULL;
+       assert(i<MAX_NODE_ARRAY_SIZE);
+       handle->entries[i].val1.p_val = NULL;
+       handle->entries[i].val2.p_val = NULL;
     }
 
     // Initialize metadata
@@ -354,15 +357,15 @@ bool ArrayTreeStore(ArrayTree_p *root, long key, IntOrP val1, IntOrP val2) {
 }
 
 void ArrayTreeDebug() {
-    ArrayTree_p root, ext = NULL;
+    ArrayTree_p root = NULL, ext = NULL;
     IntOrP val1, val2;
     char input;
     int running = 1, key;
-    
+
     while (running) {
         printf("\nGeben Sie ein Zeichen ein (c, d, e, f, l, i, p, r, s, t, p oder z zum Beenden):\nc: free, d: delete, e: extract, f: find, i: store, l: traverseLimit, p: print, r: root, s: splay, t: split, z: quit\nEingabe: ");
         scanf("%c", &input);
-        
+
         switch (input) {
             case 'f':   // ArrayTreeFind
                 key = readInteger();
@@ -389,6 +392,7 @@ void ArrayTreeDebug() {
                 break;
             case 'c':   // ArrayTreeFree
                 ArrayTreeFree(root);
+                root = NULL;
                 ArrayTreeDebugPrint(stdout, root, false);
                 break;
             case 'l':   // ArrayTreeTraverseLimit
@@ -671,7 +675,7 @@ PStack_p ArrayTreeLimitedTraverseInit(ArrayTree_p root, long limit) {
             if (CmpEqual(split_index, -1)) {
                 PStackPushP(stack, root);
             }
-            
+
             if (CmpGreaterEqual(split_index, 0)) {
                 // Divide node in two
                 root = splay_tree(root, split_index);
