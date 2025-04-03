@@ -77,15 +77,25 @@ static ArrayTree_p splay_tree(ArrayTree_p tree, long key) {
             tree = tree->rson;
         }
         else {
-            // If cmpres >= 0 and cmpres < MAX_NODE_ARRAY_SIZE the key is part of the current node
+            // If cmpres >= 0 and cmpres < MAX_NODE_ARRAY_SIZE the key fits in the
+            // range of the current node
+
+            // Check the range of the following node
             if (tree->rson) {
                 if (CmpGreaterEqual(key, tree->rson->key)) {
                     left->rson = tree;
                     left = tree;
                     tree = tree->rson;
                 }
+
+                if (CmpLessVal(key, tree->rson->key)) {
+                    break;
+                }
+            } 
+            else {
+                // Reached node with highest key
+                break;
             }
-            break;
         }
     }
 
@@ -538,6 +548,7 @@ ArrayTree_p ArrayTreeExtractEntry(ArrayTree_p *root, long key) {
         assert(cell && "Out of memory in ArrayTreeNodeAllocEmpty");
 
         // Copy the removed entry to the returned cell
+        cell->key = key;
         cell->entries[0] = (*root)->entries[diff];
         cell->entry_count = 1;
         cell->last_used_index = 0;
