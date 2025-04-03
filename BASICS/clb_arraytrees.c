@@ -375,6 +375,7 @@ void ArrayTreeDebug() {
     while (running) {
         printf("\nGeben Sie ein Zeichen ein (c, d, e, f, l, i, p, r, s, t, p oder z zum Beenden):\nc: free, d: delete, e: extract, f: find, i: store, l: traverseLimit, p: print, r: root, s: splay, t: split, z: quit\nEingabe: ");
         scanf("%c", &input);
+        while (getchar() != '\n');
 
         switch (input) {
             case 'f':   // ArrayTreeFind
@@ -657,6 +658,7 @@ ArrayTree_p ArrayTreeMaxNode(ArrayTree_p root) {
 PStack_p ArrayTreeLimitedTraverseInit(ArrayTree_p root, long limit) {
     fprintf(stdout, "ArrayTreeLimitedTraverseInit -> limit: %ld\n", limit);
     PStack_p stack = PStackAlloc();
+    fprintf(stdout, "PStack size: %ld\n", stack->size);
 
     // Traverse the tree to find nodes within the limit
     while (root) {
