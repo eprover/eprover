@@ -307,6 +307,7 @@ ArrayTree_p ArrayTreeInsert(ArrayTree_p *root, ArrayTree_p newnode) {
 
     // Decide in which node the key has to be inserted
     long diff = KeyCmp(newnode->key, (*root)->key);
+    assert(diff<MAX_NODE_ARRAY_SIZE);
     if (CmpLessVal(diff, 0)) {
         // Add entry in left subtree
         newnode->lson = (*root)->lson;
@@ -502,6 +503,7 @@ ArrayTree_p ArrayTreeFind(ArrayTree_p *root, long key) {
         // Perform the splay operation to bring the closest key to the root
         *root = splay_tree(*root, key);
         diff = KeyCmp(key, (*root)->key);
+        assert(diff<MAX_NODE_ARRAY_SIZE);
         if (CmpGreaterEqual(diff, MAX_NODE_ARRAY_SIZE) || CmpLessVal(diff, 0)) {
             return NULL;
         }
@@ -538,6 +540,7 @@ ArrayTree_p ArrayTreeExtractEntry(ArrayTree_p *root, long key) {
     // Perform the splay operation to bring the closest key to the root
     *root = splay_tree(*root, key);
     diff = KeyCmp(key, (*root)->key);
+    assert(diff<MAX_NODE_ARRAY_SIZE);
     if (CmpGreaterEqual(diff, MAX_NODE_ARRAY_SIZE) || CmpLessVal(diff, 0)) {
         return NULL;
     }
@@ -580,6 +583,7 @@ ArrayTree_p ArrayTreeExtractEntry(ArrayTree_p *root, long key) {
             if (CmpGreaterEqual(diff, (*root)->last_used_index)) {
                 // Find the last used index of the array
                 for (i = diff - 1; i >= 0; i--) {
+                    assert(i<MAX_NODE_ARRAY_SIZE);
                     if ((*root)->entries[i].val1.p_val != NULL
                         || (*root)->entries[i].val2.p_val != NULL) {
                         (*root)->last_used_index = i;
