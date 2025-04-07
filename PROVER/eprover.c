@@ -34,8 +34,7 @@
 #include <cte_lambda.h>
 #include <cco_ho_inferences.h>
 #include <che_new_autoschedule.h>
-#include <ccl_bce.h>
-#include <ccl_pred_elim.h>
+#include <cco_preprocessing.h>
 #include <sys/mman.h>
 
 
@@ -672,59 +671,8 @@ int main(int argc, char* argv[])
    raw_clause_no = proofstate->axioms->members;
    ProofStateLoadWatchlist(proofstate, watchlist_filename, parse_format);
 
-   ClauseSetArchiveCopy(proofstate->ax_archive, proofstate->axioms);
-   if(!h_parms->no_preproc)
-   {
-      //if(proofstate->watchlist)
-      //{
-      //   ClauseSetArchiveCopy(proofstate->ax_archive, proofstate->watchlist);
-      //}
-      VERBOUT("Clausal preprocessing started.\n");
-      preproc_removed = ClauseSetPreprocess(proofstate->axioms,
-                                            proofstate->watchlist,
-                                            proofstate->archive,
-                                            proofstate->tmp_terms,
-                                            proofstate->terms,
-                                            h_parms->replace_inj_defs,
-                                            h_parms->eqdef_incrlimit,
-                                            h_parms->eqdef_maxclauses);
-      VERBOUT("Clausal preprocessing complete.\n");
-   }
+   preproc_removed = PreprocessClauseSets(proofstate, h_parms);
 
-   preproc_removed += ClauseSetUnfoldEqDefNormalize(proofstate->axioms,
-                                                    proofstate->watchlist,
-                                                    proofstate->archive,
-                                                    proofstate->tmp_terms,
-                                                    h_parms->eqdef_incrlimit,
-                                                    h_parms->eqdef_maxclauses);
-   if(problemType == PROBLEM_HO && h_parms->inst_choice_max_depth >= 0)
-   {
-      ClauseSetRecognizeChoice(proofstate->choice_opcodes,
-                               proofstate->axioms,
-                               proofstate->archive);
-   }
-
-   if(h_parms->preinstantiate_induction)
-   {
-      PreinstantiateInduction(proofstate->f_ax_archive, proofstate->axioms,
-                              proofstate->archive, proofstate->terms);
-   }
-
-   if(problemType == PROBLEM_FO && h_parms->bce)
-   {
-      // todo: eventually check if the problem in HO syntax is FO.
-      EliminateBlockedClauses(proofstate->axioms, proofstate->archive,
-                              h_parms->bce_max_occs,
-                              proofstate->tmp_terms);
-   }
-
-   if(problemType == PROBLEM_FO && h_parms->pred_elim)
-   {
-      // todo: eventually check if the problem in HO syntax is FO.
-      PredicateElimination(proofstate->axioms, proofstate->archive,
-                           h_parms, proofstate->terms,
-                           proofstate->tmp_terms, proofstate->freshvars);
-   }
    if((strategy_scheduling && sched_idx != -1) || (auto_conf && !cnf_only))
    {
       if(!spec_limits)
@@ -1470,18 +1418,24 @@ CLState_p process_options(int argc, char* argv[])
             h_parms->eqdef_incrlimit = LONG_MIN;
             break;
       case OPT_INTRO_GOAL_DEFS:
-            if(strcmp(arg, "All")==0)
+            if(strcmp(arg, "None")==0)
+            {
+               h_parms->add_goal_defs_pos = false;
+               h_parms->add_goal_defs_neg = false;
+            }
+            else if(strcmp(arg, "All")==0)
             {
                h_parms->add_goal_defs_pos = true;
                h_parms->add_goal_defs_neg = true;
             }
             else if(strcmp(arg, "Neg")==0)
             {
+               h_parms->add_goal_defs_pos = false;
                h_parms->add_goal_defs_neg = true;
             }
             else
             {
-                Error("Option --goal-defs accepts only All or Neg.",
+                Error("Option --goal-defs accepts only None, All, or Neg",
                      USAGE_ERROR);
             }
             break;
