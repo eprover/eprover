@@ -113,18 +113,16 @@ static bool switch_to_tree(long old_min, long old_max, long new_key, long entrie
 static ArrayTree_p add_new_tree_node(IntMap_p map, long key, void* val)
 {
    fprintf(stdout, "add_new_tree_node -> key: %ld\n", key);
-   long idx;
    ArrayTree_p handle, check;
    assert(map->type == IMTree);
 
    handle = ArrayTreeNodeAllocEmpty();
    assert(handle && "Out of memory in ArrayTreeNodeAllocEmpty");
-   handle->key = CalcKey(key);
-   idx = KeyCmp(key, handle->key);
-   handle->entries[idx].p_val = val;
+   handle->key = key;
+   handle->entries[0].p_val = val;
    handle->entry_count = 1;
-   handle->highest_index = idx;
-   check = ArrayTreeInsert(&(map->values.tree), handle);
+   handle->highest_index = 0;
+   check = ArrayTreeInsert(&(map->values.tree), handle, 0);
    UNUSED(check); assert(!check);
    if (check) {
       ArrayTreeNodeFree(check);
@@ -170,7 +168,7 @@ static void array_to_tree(IntMap_p map)
       tmp_val.p_val = PDRangeArrElementP(tmp_arr, i);
       if(tmp_val.p_val)
       {
-         ArrayTreeStore(&(map->values.tree), i, tmp_val, tmp_val);
+         ArrayTreeStore(&(map->values.tree), i, tmp_val);
          map->entry_no++;
          max_key = i;
          min_key = MIN(min_key, i);
@@ -210,9 +208,9 @@ static void tree_to_array(IntMap_p map)
    tree_iterator = ArrayTreeTraverseInit(map->values.tree);
    while((handle = ArrayTreeTraverseNext(tree_iterator)))
    {
-      for (uint8_t i = 0; i < handle->last_used_index; i++) {
-         if(handle->entries[i].val1.p_val) {
-            PDRangeArrAssignP(tmp_arr, (handle->key + i), handle->entries[i].val1.p_val);
+      for (uint8_t i = 0; i < handle->highest_index; i++) {
+         if(handle->entries[i].p_val) {
+            PDRangeArrAssignP(tmp_arr, (handle->key + i), handle->entries[i].p_val);
             map->entry_no++;
             max_key = (handle->key + i);
             min_key = MIN(min_key, (handle->key + i));
@@ -332,7 +330,7 @@ void* IntMapGetVal(IntMap_p map, long key)
             ArrayTree_p entry = ArrayTreeFind(&(map->values.tree), key);
             if(entry)
             {
-               res = entry->entries[0].val1.p_val;
+               res = entry->entries[0].p_val;
             }
          }
          break;
@@ -403,9 +401,9 @@ void** IntMapGetRef(IntMap_p map, long key)
             val = map->values.value;
             map->values.tree = NULL;
             tmp.p_val = val;
-            ArrayTreeStore(&(map->values.tree), map->max_key, tmp, tmp);
+            ArrayTreeStore(&(map->values.tree), map->max_key, tmp);
             handle = add_new_tree_node(map, key, NULL);
-            res = &(handle->entries[0].val1.p_val);
+            res = &(handle->entries[0].p_val);
             map->entry_no = 2;
          }
          map->min_key = MIN(map->min_key, key);
@@ -433,7 +431,7 @@ void** IntMapGetRef(IntMap_p map, long key)
          handle = ArrayTreeFind(&(map->values.tree), key);
          if(handle)
          {
-            res = &(handle->entries[0].val1.p_val);
+            res = &(handle->entries[0].p_val);
          }
          else
          {
@@ -447,7 +445,7 @@ void** IntMapGetRef(IntMap_p map, long key)
                handle = add_new_tree_node(map, key, NULL);
                map->max_key=MAX(map->max_key, key);
                map->min_key=MIN(map->min_key, key);
-               res = &(handle->entries[0].val1.p_val);
+               res = &(handle->entries[0].p_val);
             }
          }
          break;
@@ -542,7 +540,7 @@ void* IntMapDelKey(IntMap_p map, long key)
          if(handle)
          {
             map->entry_no--;
-            res = handle->entries[0].val1.p_val;
+            res = handle->entries[0].p_val;
             if(handle->key == map->max_key)
             {
                if(map->values.tree)

@@ -25,11 +25,6 @@ typedef struct arraytree_node {
    struct arraytree_node* rson;             // Pointer to the right child node
 } ArrayTreeNode, *ArrayTree_p;
 
-typedef struct node_return {
-    ArrayTree_p node;
-    uint8_t     idx;
-} NodeReturn, *Node_p;
-
 
 /* Allocation macros for ArrayTree nodes */
 #define ArrayTreeNodeAlloc() (ArrayTree_p)SizeMalloc(sizeof(ArrayTreeNode))
@@ -51,18 +46,18 @@ static inline int KeyCmpFun(long k1, long k2);
 /* Core functions for ArrayTree */
 ArrayTree_p ArrayTreeNodeAllocEmpty(void);
 void        ArrayTreeFree(ArrayTree_p root);
-ArrayTree_p ArrayTreeInsert(ArrayTree_p *root, ArrayTree_p newnode);
-bool        ArrayTreeStore(ArrayTree_p *root, long key, IntOrP val1, IntOrP val2);
-Node_p      ArrayTreeFind(ArrayTree_p *root, long key);
+ArrayTree_p ArrayTreeInsert(ArrayTree_p *root, ArrayTree_p newnode, long idx);
+bool        ArrayTreeStore(ArrayTree_p *root, long key, IntOrP val1);
+ArrayTree_p ArrayTreeFind(ArrayTree_p *root, long key);
 bool        ArrayTreeDeleteEntry(ArrayTree_p *root, long key);
 long        ArrayTreeDebugPrint(FILE* out, ArrayTree_p tree, bool keys_only);
-Node_p      ArrayTreeExtractEntry(ArrayTree_p* root, long key);
+ArrayTree_p ArrayTreeExtractEntry(ArrayTree_p* root, long key);
 ArrayTree_p ArrayTreeExtractRoot(ArrayTree_p* root);
 long        ArrayTreeNodes(ArrayTree_p root);
 ArrayTree_p ArrayTreeMaxNode(ArrayTree_p root);
 void        ArrayTreePrintGV(ArrayTree_p tree, const char* filename);
 #define     ArrayTreeMaxKey(tree) ((tree && ArrayTreeMaxNode(tree)) ? \
-                                  ArrayTreeMaxNode(tree)->key + ArrayTreeMaxNode(tree)->last_used_index : 0)
+                                  ArrayTreeMaxNode(tree)->key + ArrayTreeMaxNode(tree)->highest_index : 0)
 
 /* Traversal functions for ArrayTree */
 PStack_p    ArrayTreeLimitedTraverseInit(ArrayTree_p root, long limit);

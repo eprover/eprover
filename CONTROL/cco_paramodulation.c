@@ -210,8 +210,8 @@ static long compute_into_pm_pos_clause(ParamodInfo_p pminfo,
    iterstack = ArrayTreeTraverseInit(into_clause_pos->pos);
    while ((cell = ArrayTreeTraverseNext(iterstack)))
    {
-      for (uint8_t i = 0; i <= cell->last_used_index; i++) {
-         if (cell->entries[i].val1.p_val || cell->entries[i].val2.p_val) {
+      for (uint8_t i = 0; i <= cell->highest_index; i++) {
+         if (cell->entries[i].p_val) {
       clause = NULL;
       pminfo->into_cpos = (cell->key + i);
 #ifdef NEVER_DEFINED
@@ -449,8 +449,8 @@ static long compute_from_pm_pos_clause(ParamodInfo_p pminfo,
    iterstack = ArrayTreeTraverseInit(from_clause_pos->pos);
    while ((cell = ArrayTreeTraverseNext(iterstack)))
    {
-      for (uint8_t i = 0; i <= cell->last_used_index; i++) {
-         if (cell->entries[i].val1.p_val || cell->entries[i].val2.p_val) {
+      for (uint8_t i = 0; i <= cell->highest_index; i++) {
+         if (cell->entries[i].p_val) {
       clause = NULL;
       pminfo->from_cpos = (cell->key + i);
       if(pminfo->new_orig == pminfo->from)

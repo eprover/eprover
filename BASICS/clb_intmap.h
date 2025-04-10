@@ -224,17 +224,17 @@ static inline void* IntMapIterNext(IntMapIter_p iter, long *key)
          }
 
          // What if current > last_used_index??
-         for (i = current; i <= handle->last_used_index; i++) {
+         for (i = current; i <= handle->highest_index; i++) {
             if((handle->key + i) > iter->upper_key)
             {
                /* Overrun limit */
                break;
             }
-            if(handle->entries[i].val1.p_val)
+            if(handle->entries[i].p_val)
             {
                /* Found real value */
                *key = (handle->key + i);
-               res = handle->entries[i].val1.p_val;
+               res = handle->entries[i].p_val;
                break;
             }
          }

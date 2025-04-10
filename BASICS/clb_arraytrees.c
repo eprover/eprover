@@ -234,8 +234,23 @@ void ArrayTreeFree(ArrayTree_p junk) {
     }
 }
 
-ArrayTree_p ArrayTreeInsert(ArrayTree_p *root, ArrayTree_p newnode) {
+ArrayTree_p ArrayTreeInsert(ArrayTree_p *root, ArrayTree_p newnode, long idx) {
     fprintf(stdout, "ArrayTreeInsert -> newnode->key: %ld\n", newnode->key);
+    long diff, nodeKey, validIdx;
+
+    // Check if the value is inserted in the correct place
+    // There are a few cases where a value is inserted in the wrong place
+    // ex: node is inserted by add_new_tree_node (clb_intmap.c)
+    //     extracted node is inserted again
+    //     functions from other folders insert into the tree (compare annotations etc)
+    nodeKey = CalcKey(newnode->key);
+    validIdx = KeyCmp(newnode->key, nodeKey);
+    if (!(nodeKey == newnode->key && validIdx == idx)) {
+        newnode->key = nodeKey;
+        newnode->entries[validIdx] = newnode->entries[idx];
+        newnode->entries[idx].p_val = NULL;
+    }
+
     // If the tree is empty, make the new node the root
     if (!*root) {
         newnode->lson = newnode->rson = NULL;
@@ -243,20 +258,10 @@ ArrayTree_p ArrayTreeInsert(ArrayTree_p *root, ArrayTree_p newnode) {
         return NULL;
     }
 
-    long key, idx, diff;
-
-    // Calulate the key of the respective array
-    key = CalcKey(newnode->key);        // Aktuell unnötig !!!!
-
-    // Kann nicht funktionieren !! ArrayTreeStore löschen???
-
     // Splay the tree to bring the closest key to the root
-    *root = splay_tree(*root, key);
-
-    // Calculate index of the new entry
-    long idx = KeyCmp(newnode->key, key);
+    *root = splay_tree(*root, newnode->key);
     // Check key of the current tree
-    long diff = KeyCmp(newnode->key, (*root)->key);
+    diff = KeyCmp(newnode->key, (*root)->key);
 
     // Node exists
     if (CmpEqual(idx, diff)) {
@@ -310,7 +315,7 @@ bool ArrayTreeStore(ArrayTree_p *root, long key, IntOrP val) {
     handle->rson = NULL;
 
     // Try to insert the node into the tree
-    ArrayTree_p newnode = ArrayTreeInsert(root, handle);
+    ArrayTree_p newnode = ArrayTreeInsert(root, handle, idx);
 
     if (newnode) {
         // If the key already exists, free the allocated node and return false
@@ -327,7 +332,7 @@ void ArrayTreeDebug() {
     int running = 1, key;
 
     while (running) {
-        printf("\nGeben Sie ein Zeichen ein (c, d, e, f, l, i, p, r, s, t, p oder z zum Beenden):\nc: free, d: delete, e: extract, f: find, i: store, l: traverseLimit, p: print, r: root, s: splay, t: split, z: quit\nEingabe: ");
+        printf("\nGeben Sie ein Zeichen ein (c, d, e, f, l, i, p, r, s, p oder z zum Beenden):\nc: free, d: delete, e: extract, f: find, i: store, l: traverseLimit, p: print, r: root, s: splay, t: split, z: quit\nEingabe: ");
         scanf("%c", &input);
         while (getchar() != '\n');
 
@@ -372,14 +377,6 @@ void ArrayTreeDebug() {
                 ArrayTreeDebugPrint(stdout, ext, false);
                 break;
             case 'p':   // ArrayTreeDebugPrint
-                ArrayTreeDebugPrint(stdout, root, false);
-                break;
-            case 't':    // split_node
-                key = readInteger();
-                long diff = KeyCmp(key, root->key);
-                if (!CmpEqual(diff, root->key)) {
-                    root = split_node(&root, diff);
-                }
                 ArrayTreeDebugPrint(stdout, root, false);
                 break;
             case 's':    // splay_tree
@@ -446,10 +443,10 @@ void ArrayTreePrintGV(ArrayTree_p tree, const char* filename) {
     }
 }
 
-Node_p ArrayTreeFind(ArrayTree_p *root, long key) {
+ArrayTree_p ArrayTreeFind(ArrayTree_p *root, long key) {
     fprintf(stdout, "ArrayTreeFind -> key: %ld\n", key);
     long nodeKey, idx;
-    Node_p handle;
+    ArrayTree_p handle;
 
     // Check if the tree is empty
     if (*root) {
@@ -462,8 +459,6 @@ Node_p ArrayTreeFind(ArrayTree_p *root, long key) {
             return NULL;
         }
         if ((*root)->entries[idx].p_val) {
-            handle->idx = idx;
-            handle->node = *root;
             return handle;
         }
     }
@@ -472,10 +467,9 @@ Node_p ArrayTreeFind(ArrayTree_p *root, long key) {
     return NULL;
 }
 
-Node_p ArrayTreeExtractEntry(ArrayTree_p *root, long key) {
+ArrayTree_p ArrayTreeExtractEntry(ArrayTree_p *root, long key) {
     fprintf(stdout, "ArrayTreeExtractEntry -> key: %ld\n", key);
-    ArrayTree_p x = NULL, cell;
-    Node_p handle;
+    ArrayTree_p x = NULL, cell, handle;
     long idx, nodeKey;
     uint8_t i = 0;
 
@@ -538,6 +532,7 @@ Node_p ArrayTreeExtractEntry(ArrayTree_p *root, long key) {
 
 ArrayTree_p ArrayTreeExtractRoot(ArrayTree_p *root) {
     fprintf(stdout, "ArrayTreeExtractRoot\n");
+
     if (*root) {
         return ArrayTreeExtractEntry(root, (*root)->key);
     }

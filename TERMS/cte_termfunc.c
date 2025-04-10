@@ -208,7 +208,7 @@ ArrayTree_p create_var_renaming_de_bruin(VarBank_p vars, Term_p term)
    ArrayTree_p node;
    ArrayTree_p root;
    PStack_p open;
-   long fresh_var_code;
+   long fresh_var_code, idx;
 
    open = PStackAlloc();
    fresh_var_code = -2;
@@ -222,12 +222,16 @@ ArrayTree_p create_var_renaming_de_bruin(VarBank_p vars, Term_p term)
       {
          if (!ArrayTreeFind(&root, term->f_code)) {
             node = ArrayTreeNodeAllocEmpty();
-            node->key = term->f_code;
-            node->entries[0].val1.p_val = VarBankVarAssertAlloc(vars, fresh_var_code, term->type);
+            node->key = CalcKey(term->f_code);
+            idx = KeyCmp(term->f_code, node->key);
+            node->entry_count++;
+            node->highest_index = idx;
+            node->lson = node->rson = NULL;
+            node->entries[idx].p_val = VarBankVarAssertAlloc(vars, fresh_var_code, term->type);
             //node->val1.p_val = VarBankVarAssertAlloc(vars, fresh_var_code, STIndividuals);
             fresh_var_code -= 2;
 
-            ArrayTreeInsert(&root, node);
+            ArrayTreeInsert(&root, node, idx);
          }
       }
       else
@@ -2705,7 +2709,7 @@ long TermCollectFCodes(Term_p term, ArrayTree_p *tree)
       term = PStackPopP(stack);
       if(term->f_code > 0)
       {
-         if(ArrayTreeStore(tree, term->f_code, dummy, dummy))
+         if(ArrayTreeStore(tree, term->f_code, dummy))
          {
             res++;
          }
@@ -3109,7 +3113,7 @@ Term_p TermCopyRenameVars(ArrayTree_p* renaming, Term_p term)
     {
         entry = ArrayTreeFind(renaming, term->f_code);
         assert(entry);
-        copy = (Term_p)(entry->entries[0].val1.p_val);
+        copy = (Term_p)(entry->entries[0].p_val);
     }
     else if (TermIsDBVar(term))
     {

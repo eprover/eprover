@@ -190,7 +190,7 @@ void ClauseTPosTreeInsertPos(ClauseTPosTree_p *tree, Clause_p clause,
       ClauseTPosFree(newnode);
       newnode = old;
    }
-   ArrayTreeStore(&(newnode->pos), pos, dummy, dummy);
+   ArrayTreeStore(&(newnode->pos), pos, dummy);
 }
 
 

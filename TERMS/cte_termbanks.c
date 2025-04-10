@@ -78,7 +78,7 @@ static void tb_print_dag(FILE *out, ArrayTree_p in_index, Sig_p sig)
       return;
    }
    tb_print_dag(out, in_index->lson, sig);
-   term = in_index->entries[0].val1.p_val;
+   term = in_index->entries[0].p_val;
    fprintf(out, "*%ld : ", term->entry_no);
 
    if(TermIsFreeVar(term))
@@ -1559,7 +1559,7 @@ void TBPrintBankInOrder(FILE* out, TB_p bank)
       while((cell = TermTreeTraverseNext(stack)))
       {
          dummy.p_val = cell;
-         ArrayTreeStore(&tree, cell->entry_no,dummy, dummy);
+         ArrayTreeStore(&tree, cell->entry_no,dummy);
       }
       TermTreeTraverseExit(stack);
    }

@@ -271,9 +271,9 @@ void AnnoSetFree(AnnoSet_p junk)
 
    while((handle = ArrayTreeTraverseNext(stack)))
    {
-      for (uint8_t i = 0; i <= handle->last_used_index; i++) {
-         if (handle->entries[i].val1.p_val) {
-            AnnoTermFree(junk->terms, handle->entries[i].val1.p_val);
+      for (uint8_t i = 0; i <= handle->highest_index; i++) {
+         if (handle->entries[i].p_val) {
+            AnnoTermFree(junk->terms, handle->entries[i].p_val);
          }
       }
       // AnnoTermFree(junk->terms, handle->entries[0].val1.p_val);
@@ -313,7 +313,7 @@ bool AnnoSetAddTerm(AnnoSet_p set, AnnoTerm_p term)
    if(exists)
    {
       res = false;
-      existing_term = exists->entries[0].val1.p_val;
+      existing_term = exists->entries[0].p_val;
       while(term->annotation)
       {
          handle = ArrayTreeExtractEntry(&term->annotation,
@@ -330,7 +330,7 @@ bool AnnoSetAddTerm(AnnoSet_p set, AnnoTerm_p term)
    else
    {
       tmp.p_val = term;
-      ArrayTreeStore(&(set->set), term->term->entry_no, tmp, tmp);
+      ArrayTreeStore(&(set->set), term->term->entry_no, tmp);
    }
    return res;
 }
@@ -385,8 +385,8 @@ void AnnoSetPrint(FILE* out, AnnoSet_p set)
    stack = ArrayTreeTraverseInit(set->set);
    while((handle = ArrayTreeTraverseNext(stack)))
    {
-      for (uint8_t i = 0; i <= handle->last_used_index; i++) {
-         AnnoTermPrint(out, set->terms, handle->entries[i].val1.p_val, true);
+      for (uint8_t i = 0; i <= handle->highest_index; i++) {
+         AnnoTermPrint(out, set->terms, handle->entries[i].p_val, true);
       }
       // AnnoTermPrint(out, set->terms, handle->entries[0].val1.p_val, true);
       fputc('\n', out);
@@ -419,9 +419,9 @@ bool AnnoSetComputePatternSubst(PatternSubst_p subst, AnnoSet_p set)
    stack = ArrayTreeTraverseInit(set->set);
    while((handle = ArrayTreeTraverseNext(stack)))
    {
-      for (uint8_t i = 0; i <= handle->last_used_index; i++) {
-         if (handle->entries[i].val1.p_val) {
-            current =  handle->entries[i].val1.p_val;
+      for (uint8_t i = 0; i <= handle->highest_index; i++) {
+         if (handle->entries[i].p_val) {
+            current =  handle->entries[i].p_val;
             assert(current);
             tmp = PatternTermCompute(subst,current->term);
             res = res || tmp;
@@ -463,9 +463,9 @@ long AnnoSetRemoveByIdent(AnnoSet_p set, long set_ident)
    stack = ArrayTreeTraverseInit(set->set);
    while((handle = ArrayTreeTraverseNext(stack)))
    {
-      for (uint8_t i = 0; i <= handle->last_used_index; i++) {
-         if (handle->entries[i].val1.p_val) {
-            current = handle->entries[i].val1.p_val;
+      for (uint8_t i = 0; i <= handle->highest_index; i++) {
+         if (handle->entries[i].p_val) {
+            current = handle->entries[i].p_val;
             anno = ArrayTreeExtractEntry(&(current->annotation), set_ident);
             if(anno)
             {
@@ -495,7 +495,7 @@ long AnnoSetRemoveByIdent(AnnoSet_p set, long set_ident)
       handle = ArrayTreeExtractEntry(&(set->set),
                                    PStackPopInt(to_delete));
       assert(handle);
-      AnnoTermFree(set->terms, handle->entries[0].val1.p_val);
+      AnnoTermFree(set->terms, handle->entries[0].p_val);
       ArrayTreeNodeFree(handle);
       count++;
    }
@@ -540,17 +540,17 @@ long AnnoSetRemoveExceptIdentList(AnnoSet_p set, PStack_p set_idents)
    stack = ArrayTreeTraverseInit(set->set);
    while((handle = ArrayTreeTraverseNext(stack)))
    {
-      for (uint8_t j = 0; j <= handle->last_used_index; j++) {
-         if (handle->entries[j].val1.p_val) {
+      for (uint8_t j = 0; j <= handle->highest_index; j++) {
+         if (handle->entries[j].p_val) {
             tmptree = NULL;
-            current = handle->entries[j].val1.p_val;
+            current = handle->entries[j].p_val;
             for(i=0; i<PStackGetSP(stack); i++)
             {
                anno = ArrayTreeExtractEntry(&(current->annotation),
                                           PStackElementInt(set_idents, i));
                if(anno)
                {
-                  check = ArrayTreeInsert(&tmptree, anno);
+                  check = ArrayTreeInsert(&tmptree, anno, 0);
                   UNUSED(check); assert(!check);
                }
             }
@@ -588,7 +588,7 @@ long AnnoSetRemoveExceptIdentList(AnnoSet_p set, PStack_p set_idents)
       handle = ArrayTreeExtractEntry(&(set->set),
                                    PStackPopInt(to_delete));
       assert(handle);
-      AnnoTermFree(set->terms, handle->entries[0].val1.p_val);
+      AnnoTermFree(set->terms, handle->entries[0].p_val);
       ArrayTreeNodeFree(handle);
       count++;
    }
@@ -625,9 +625,9 @@ long AnnoSetFlatten(AnnoSet_p set, PStack_p set_idents)
    stack = ArrayTreeTraverseInit(set->set);
    while((handle = ArrayTreeTraverseNext(stack)))
    {
-      for (uint8_t i = 0; i <= handle->last_used_index; i++) {
-         if (handle->entries[i].val1.p_val) {
-            current = handle->entries[i].val1.p_val;
+      for (uint8_t i = 0; i <= handle->highest_index; i++) {
+         if (handle->entries[i].p_val) {
+            current = handle->entries[i].p_val;
             anno = AnnotationAlloc();
             anno->key = 0;
             annos_found = AnnotationMerge(&(current->annotation),
@@ -673,7 +673,7 @@ long AnnoSetFlatten(AnnoSet_p set, PStack_p set_idents)
       handle = ArrayTreeExtractEntry(&(set->set),
                                    PStackPopInt(to_delete));
       assert(handle);
-      AnnoTermFree(set->terms, handle->entries[0].val1.p_val);
+      AnnoTermFree(set->terms, handle->entries[0].p_val);
       ArrayTreeNodeFree(handle);
    }
    PStackFree(to_delete);
@@ -708,9 +708,9 @@ void AnnoSetNormalizeFlatAnnos(AnnoSet_p set)
    stack = ArrayTreeTraverseInit(set->set);
    while((cell = ArrayTreeTraverseNext(stack)))
    {
-      for (uint8_t i = 0; i <= cell->last_used_index; i++) {
-         if (cell->entries[i].val1.p_val) {
-            current = cell->entries[i].val1.p_val;
+      for (uint8_t i = 0; i <= cell->highest_index; i++) {
+         if (cell->entries[i].p_val) {
+            current = cell->entries[i].p_val;
             assert(current);
             annotation_collect_max(max_values, current->annotation);
          }
@@ -724,9 +724,9 @@ void AnnoSetNormalizeFlatAnnos(AnnoSet_p set)
    stack = ArrayTreeTraverseInit(set->set);
    while((cell = ArrayTreeTraverseNext(stack)))
    {
-      for (uint8_t i = 0; i <= cell->last_used_index; i++) {
-         if (cell->entries[i].val1.p_val) {
-            current = cell->entries[i].val1.p_val;
+      for (uint8_t i = 0; i <= cell->highest_index; i++) {
+         if (cell->entries[i].p_val) {
+            current = cell->entries[i].p_val;
             assert(current);
             annotation_normalize(current->annotation, max_values);
          }
@@ -767,9 +767,9 @@ long AnnoSetRecToFlatEnc(TB_p bank, AnnoSet_p set)
    stack = ArrayTreeTraverseInit(set->set);
    while((cell = ArrayTreeTraverseNext(stack)))
    {
-      for (uint8_t i = 0; i <= cell->last_used_index; i++) {
-         if (cell->entries[i].val1.p_val) {
-            current = cell->entries[i].val1.p_val;
+      for (uint8_t i = 0; i <= cell->highest_index; i++) {
+         if (cell->entries[i].p_val) {
+            current = cell->entries[i].p_val;
             assert(current);
             AnnoTermRecToFlatEnc(bank, current);
             res++;

@@ -104,7 +104,8 @@ static void close_let_def(TB_p bank, ArrayTree_p *closed_defs, Term_p def)
    fresh_sym = TBTermTopInsert(bank, fresh_sym);
 
    IntOrP orig_def = {.p_val = lhs}, new_def = {.p_val = fresh_sym};
-   ArrayTreeStore(closed_defs, lhs->f_code, orig_def, new_def);
+   // ArrayTreeStore(closed_defs, lhs->f_code, orig_def, new_def);
+   ArrayTreeStore(closed_defs, lhs->f_code, orig_def);
 
    PTreeFree(free_vars);
    PStackFree(all_vars);
@@ -145,8 +146,9 @@ static Term_p replace_body(TB_p bank, ArrayTree_p *closed_defs, Term_p t)
 
    if (node)
    {
-      Term_p old_def = node->entries[0].val1.p_val;
-      Term_p new_def = node->entries[0].val2.p_val;
+      Term_p old_def = node->entries[0].p_val;
+      // Term_p new_def = node->entries[0].val2.p_val;
+      Term_p new_def = NULL;
 
       Subst_p subst = SubstAlloc();
       for (long i = 0; i < new->arity; i++)
@@ -185,7 +187,8 @@ void make_fresh_defs(TB_p bank, Term_p let_t, ArrayTree_p *defs, PStack_p res)
       Term_p rhs = let_t->args[i]->args[1];
       ArrayTree_p node = ArrayTreeFind(defs, old_lhs_fc);
       assert(node);
-      Term_p new_lhs = node->entries[0].val2.p_val;
+      // Term_p new_lhs = node->entries[0].val2.p_val;
+      Term_p new_lhs = NULL;
       TFormula_p matrix;
 
       if (TypeIsBool(rhs->type))

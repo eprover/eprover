@@ -61,10 +61,9 @@ Annotation_p AnnotationAlloc(void)
 {
    Annotation_p handle = ArrayTreeNodeAllocEmpty();
 
-   handle->entries[0].val1.p_val =
+   handle->entries[0].p_val =
       DDArrayAlloc(ANNOTATION_DEFAULT_SIZE,
          ANNOTATION_DEFAULT_SIZE);
-   handle->entries[0].val2.p_val = NULL;
 
    return handle;
 }
@@ -85,9 +84,9 @@ Annotation_p AnnotationAlloc(void)
 void AnnotationFree(Annotation_p junk)
 {
    assert(junk);
-   assert(junk->entries[0].val1.p_val);
+   assert(junk->entries[0].p_val);
 
-   DDArrayFree(junk->entries[0].val1.p_val);
+   DDArrayFree(junk->entries[0].p_val);
    ArrayTreeNodeFree(junk);
 }
 
@@ -111,9 +110,9 @@ void AnnotationTreeFree(Annotation_p tree)
 
    while((handle = ArrayTreeTraverseNext(stack)))
    {
-      for (uint8_t i = 0; i <= handle->last_used_index; i++) {
-         if (handle->entries[i].val1.p_val) {
-            DDArrayFree(handle->entries[i].val1.p_val);
+      for (uint8_t i = 0; i <= handle->highest_index; i++) {
+         if (handle->entries[i].p_val) {
+            DDArrayFree(handle->entries[i].p_val);
          }
       }
       // DDArrayFree(handle->entries[0].val1.p_val);
@@ -156,7 +155,7 @@ Annotation_p AnnotationParse(Scanner_p in, long expected)
              false);
       }
       value = ParseFloat(in);
-      DDArrayAssign(handle->entries[0].val1.p_val, count, value);
+      DDArrayAssign(handle->entries[0].p_val, count, value);
       count++;
       if(!TestInpTok(in, CloseBracket))
       {
@@ -205,8 +204,12 @@ long AnnotationListParse(Scanner_p in, Annotation_p *tree, long
       source_name = DStrGetRef(AktToken(in)->source);
       type = AktToken(in)->stream_type;
       handle = AnnotationParse(in, expected);
-      printf("\nDebug Flag\nnum entries: %d", handle->entry_count);
-      handle = ArrayTreeInsert(tree, handle);
+      assert(handle->entry_count < 2);
+      uint8_t idx = 0;
+      while (!handle->entries[i].p_val) {
+         idx++;
+      }
+      handle = ArrayTreeInsert(tree, handle, idx);
       if(handle)
       {
     AnnotationFree(handle);
@@ -245,10 +248,10 @@ void AnnotationPrint(FILE* out, Annotation_p anno)
    char* sep = "";
 
    fprintf(out, "%ld:(", anno->key);
-   for(i=0; i< anno->entries[0].val2.i_val; i++)
+   for(i=0; i< anno->entries[0].i_val; i++)
    {
       fputs(sep, out);
-      fprintf(out, "%f", DDArrayElement(anno->entries[0].val1.p_val, i));
+      fprintf(out, "%f", DDArrayElement(anno->entries[0].p_val, i));
       sep = ",";
    }
    fputc(')', out);

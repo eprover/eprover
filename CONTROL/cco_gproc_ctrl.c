@@ -314,7 +314,7 @@ void EGPCtrlSetFree(EGPCtrlSet_p junk, bool kill_proc)
 {
    while(junk->procs)
    {
-      EGPCtrlSetDeleteProc(junk, junk->procs->entries[0].val1.p_val, kill_proc);
+      EGPCtrlSetDeleteProc(junk, junk->procs->entries[0].p_val, kill_proc);
    }
    EGPCtrlSetCellFree(junk);
 }
@@ -337,7 +337,7 @@ void EGPCtrlSetAddProc(EGPCtrlSet_p set, EGPCtrl_p proc)
    IntOrP tmp;
 
    tmp.p_val = proc;
-   ArrayTreeStore(&(set->procs), proc->fileno, tmp, tmp);
+   ArrayTreeStore(&(set->procs), proc->fileno, tmp);
    set->cores_reserved += proc->cores;
 }
 
@@ -362,7 +362,7 @@ EGPCtrl_p EGPCtrlSetFindProc(EGPCtrlSet_p set, int fd)
 
    if(cell)
    {
-      return cell->entries[0].val1.p_val;
+      return cell->entries[0].p_val;
    }
    return NULL;
 }
@@ -389,10 +389,10 @@ void EGPCtrlSetDeleteProc(EGPCtrlSet_p set, EGPCtrl_p proc, bool kill_proc)
    {
       if(kill_proc)
       {
-         EGPCtrlCleanup(cell->entries[0].val1.p_val);
+         EGPCtrlCleanup(cell->entries[0].p_val);
       }
       set->cores_reserved -= proc->cores;
-      EGPCtrlFree(cell->entries[0].val1.p_val);
+      EGPCtrlFree(cell->entries[0].p_val);
       ArrayTreeNodeFree(cell);
    }
 }
