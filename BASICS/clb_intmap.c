@@ -113,15 +113,17 @@ static bool switch_to_tree(long old_min, long old_max, long new_key, long entrie
 static ArrayTree_p add_new_tree_node(IntMap_p map, long key, void* val)
 {
    fprintf(stdout, "add_new_tree_node -> key: %ld\n", key);
+   long idx;
    ArrayTree_p handle, check;
    assert(map->type == IMTree);
 
    handle = ArrayTreeNodeAllocEmpty();
    assert(handle && "Out of memory in ArrayTreeNodeAllocEmpty");
-   handle->key = key;
-   handle->entries[0].val1.p_val = val;
+   handle->key = CalcKey(key);
+   idx = KeyCmp(key, handle->key);
+   handle->entries[idx].p_val = val;
    handle->entry_count = 1;
-   handle->last_used_index = 0;
+   handle->highest_index = idx;
    check = ArrayTreeInsert(&(map->values.tree), handle);
    UNUSED(check); assert(!check);
    if (check) {

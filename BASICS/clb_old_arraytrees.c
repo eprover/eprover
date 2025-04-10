@@ -77,7 +77,25 @@ static ArrayTree_p splay_tree(ArrayTree_p tree, long key) {
             tree = tree->rson;
         }
         else {
-            break;
+            // If cmpres >= 0 and cmpres < MAX_NODE_ARRAY_SIZE the key fits in the
+            // range of the current node
+
+            // Check the range of the following node
+            if (tree->rson) {
+                if (CmpGreaterEqual(key, tree->rson->key)) {
+                    left->rson = tree;
+                    left = tree;
+                    tree = tree->rson;
+                }
+
+                if (CmpLessVal(key, tree->rson->key)) {
+                    break;
+                }
+            } 
+            else {
+                // Reached node with highest key
+                break;
+            }
         }
     }
 
@@ -107,14 +125,14 @@ static long arraytree_print(FILE* out, ArrayTree_p tree, bool keys_only, int ind
     }
     else {
         // Print all entries in the current node
-        for (uint8_t j = 0; j <= tree->highest_index; j++) {
+        for (uint8_t j = 0; j <= tree->last_used_index; j++) {
             if (keys_only) {
                 fprintf(out, "%sKey: %ld\n", DStrView(indstr), (tree->key + j));
             }
             else {
                 fprintf(out, "%sKey: %ld\n", DStrView(indstr), (tree->key + j));
-                fprintf(out, "%s  Val: %ld\n", DStrView(indstr),
-                        tree->entries[j].i_val);
+                fprintf(out, "%s  Val1: %ld  Val2: %ld\n", DStrView(indstr),
+                        tree->entries[j].val1.i_val, tree->entries[j].val2.i_val);
             }
         }
 
@@ -140,6 +158,46 @@ static long arraytree_print(FILE* out, ArrayTree_p tree, bool keys_only, int ind
     return size;
 }
 
+static ArrayTree_p split_node(ArrayTree_p *root, long split_idx) {
+   fprintf(stdout, "split_node -> split_idx: %ld\n", split_idx);
+   ArrayTree_p handle = ArrayTreeNodeAllocEmpty();
+   uint8_t i;
+
+   // Reorganize tree
+   handle->lson = (*root)->lson;
+    (*root)->lson = handle;
+
+    // Split node -> make split_key new key of the root
+    handle->key = (*root)->key;
+    for (i = 0; i < split_idx; i++) {
+       assert(i<MAX_NODE_ARRAY_SIZE);
+       handle->entries[i] = (*root)->entries[i];
+       if (handle->entries[i].val1.p_val || handle->entries[i].val2.p_val) {
+          handle->entry_count++;
+          handle->last_used_index = i;
+       }
+    }
+
+    // Shift the values of the root
+    (*root)->key += split_idx;
+    (*root)->entry_count -= handle->entry_count;
+    for (i = 0; i < MAX_NODE_ARRAY_SIZE; i++) {
+       if (CmpLessVal((split_idx + i), MAX_NODE_ARRAY_SIZE)) {
+          assert(i<MAX_NODE_ARRAY_SIZE);
+          (*root)->entries[i] = (*root)->entries[split_idx + i];
+            if ((*root)->entries[i].val1.p_val || (*root)->entries[i].val2.p_val) {
+                (*root)->last_used_index = i;
+            }
+        }
+        else {
+            (*root)->entries[i].val1.p_val = NULL;
+            (*root)->entries[i].val2.p_val = NULL;
+        }
+    }
+
+    return *root;
+}
+
 static void arraytree_print_gv(FILE* out, ArrayTree_p tree) {
     if (!tree) {
         return;
@@ -147,11 +205,11 @@ static void arraytree_print_gv(FILE* out, ArrayTree_p tree) {
 
     // Create node in GrpahViz
     fprintf(out, "    Node%p [label=\"", (void*)tree);
-    for (uint8_t j = 0; j <= tree->highest_index; j++) {
-        fprintf(out, "Key: %ld (Val: %ld)\\n", (tree->key + j),
-                tree->entries[j].i_val);
+    for (uint8_t j = 0; j <= tree->last_used_index; j++) {
+        fprintf(out, "Key: %ld (1: %ld, 2: %ld)\\n", (tree->key + j),
+                tree->entries[j].val1.i_val, tree->entries[j].val2.i_val);
     }
-    fprintf(out, "highest_index: %d\\n", tree->highest_index);
+    fprintf(out, "last_used_index: %d\\n", tree->last_used_index);
     fprintf(out, "entry_count: %d\\n", tree->entry_count);
     fprintf(out, "\"];\n");
 
@@ -189,11 +247,12 @@ ArrayTree_p ArrayTreeNodeAllocEmpty(void) {
     handle->key = -3;            // Valid keys: [-2; LONG_MAX]
     for (uint8_t i = 0; i < MAX_NODE_ARRAY_SIZE; i++) {
        assert(i<MAX_NODE_ARRAY_SIZE);
-       handle->entries[i].p_val = NULL;
+       handle->entries[i].val1.p_val = NULL;
+       handle->entries[i].val2.p_val = NULL;
     }
 
     // Initialize metadata
-    handle->highest_index = 0;       // No entries initially
+    handle->last_used_index = 0;     // No entries initially
     handle->entry_count = 0;         // All entries are not valid
 
     // Initialize child pointers
@@ -243,69 +302,61 @@ ArrayTree_p ArrayTreeInsert(ArrayTree_p *root, ArrayTree_p newnode) {
         return NULL;
     }
 
-    long key, idx, diff;
-
-    // Calulate the key of the respective array
-    key = CalcKey(newnode->key);        // Aktuell unnötig !!!!
-
-    // Kann nicht funktionieren !! ArrayTreeStore löschen???
-
     // Splay the tree to bring the closest key to the root
-    *root = splay_tree(*root, key);
+    *root = splay_tree(*root, newnode->key);
 
-    // Calculate index of the new entry
-    long idx = KeyCmp(newnode->key, key);
-    // Check key of the current tree
+    // Decide in which node the key has to be inserted
     long diff = KeyCmp(newnode->key, (*root)->key);
-
-    // Node exists
-    if (CmpEqual(idx, diff)) {
-        // Check if entry exists
-        if ((*root)->entries[idx].p_val) {
-            return newnode;
-        } else {
-            (*root)->entries[idx] = newnode->entries[idx];
-            if (CmpLessVal((*root)->highest_index, idx)) (*root)->highest_index = idx;
-            ArrayTreeNodeFree(newnode);
-            (*root)->entry_count++;
-            return NULL;
-        }
-    // Node is not existing
-    } else if (CmpLessVal(diff, 0)) {
+    if (CmpLessVal(diff, 0)) {
         // Add entry in left subtree
         newnode->lson = (*root)->lson;
         newnode->rson = *root;
         (*root)->lson = NULL;
         *root = newnode;
         return NULL;
-    } else if (CmpGreaterEqual(diff, MAX_NODE_ARRAY_SIZE)) {
+    }
+    else if (CmpGreaterEqual(diff, MAX_NODE_ARRAY_SIZE)) {
         // Add entry in right subtree
         newnode->rson = (*root)->rson;
         newnode->lson = *root;
         (*root)->rson = NULL;
         *root = newnode;
         return NULL;
-    } else {
-        assert(newnode && "Out of memory in ArrayTreeNodeAllocEmpty");
-        return newnode;
+    }
+    else if (CmpEqual(diff, 0)) {
+        // Entry exists
+        return *root;
+    }
+    else {
+        if ((*root)->entries[diff].val1.p_val ||
+            (*root)->entries[diff].val2.p_val) {
+                return *root;
+        } else {
+            // Add entry to the current node
+            (*root)->entries[diff].val1 = newnode->entries[0].val1;
+            (*root)->entries[diff].val2 = newnode->entries[0].val2;
+            (*root)->entry_count++;
+            if (CmpLessVal((*root)->last_used_index, diff)) (*root)->last_used_index = diff;
+            ArrayTreeNodeFree(newnode);
+            return NULL;
+        }
     }
 }
 
-bool ArrayTreeStore(ArrayTree_p *root, long key, IntOrP val) {
+bool ArrayTreeStore(ArrayTree_p *root, long key, IntOrP val1, IntOrP val2) {
     fprintf(stdout, "ArrayTreeStore -> key: %ld\n", key);
-    long idx;
     // Allocate a new node for the key-value pair
     ArrayTree_p handle = ArrayTreeNodeAllocEmpty();
     assert(handle && "Out of memory in ArrayTreeNodeAllocEmpty");
 
     // Initialize the first entry in the new node
-    handle->key = CalcKey(key);
-    idx = KeyCmp(key, handle->key);
-    handle->entries[idx] = val;
+    handle->key = key;
+    handle->entries[0].val1 = val1;
+    handle->entries[0].val2 = val2;
 
     // Initialize metadata for the new node
     handle->entry_count = 1;        // Only one entry initially
-    handle->highest_index = idx;
+    handle->last_used_index = 0;
     handle->lson = NULL;
     handle->rson = NULL;
 
@@ -322,7 +373,7 @@ bool ArrayTreeStore(ArrayTree_p *root, long key, IntOrP val) {
 
 void ArrayTreeDebug() {
     ArrayTree_p root = NULL, ext = NULL;
-    IntOrP val;
+    IntOrP val1, val2;
     char input;
     int running = 1, key;
 
@@ -344,8 +395,9 @@ void ArrayTreeDebug() {
                 break;
             case 'i':   // ArrayTreeStore
                 key = readInteger();
-                val.i_val = key;
-                ArrayTreeStore(&root, key, val);
+                val1.i_val = key;
+                val2.i_val = key;
+                ArrayTreeStore(&root, key, val1, val2);
                 ArrayTreeDebugPrint(stdout, root, false);
                 break;
             case 'r':   // ArrayTreeExtractRoot
@@ -446,25 +498,31 @@ void ArrayTreePrintGV(ArrayTree_p tree, const char* filename) {
     }
 }
 
-Node_p ArrayTreeFind(ArrayTree_p *root, long key) {
+ArrayTree_p ArrayTreeFind(ArrayTree_p *root, long key) {
     fprintf(stdout, "ArrayTreeFind -> key: %ld\n", key);
-    long nodeKey, idx;
-    Node_p handle;
+    long diff;
 
     // Check if the tree is empty
     if (*root) {
         // Perform the splay operation to bring the closest key to the root
-        nodeKey = CalcKey(key);
-        *root = splay_tree(*root, nodeKey);
-        idx = KeyCmp(key, (*root)->key);
-        assert(idx<MAX_NODE_ARRAY_SIZE);
-        if (CmpGreaterEqual(idx, MAX_NODE_ARRAY_SIZE) || CmpLessVal(idx, 0)) {
+        *root = splay_tree(*root, key);
+        diff = KeyCmp(key, (*root)->key);
+        assert(diff<MAX_NODE_ARRAY_SIZE);
+        if (CmpGreaterEqual(diff, MAX_NODE_ARRAY_SIZE) || CmpLessVal(diff, 0)) {
             return NULL;
         }
-        if ((*root)->entries[idx].p_val) {
-            handle->idx = idx;
-            handle->node = *root;
-            return handle;
+        // Search for the key in the root's entries array
+        if (CmpEqual(((*root)->key + diff), key)) {
+            if ((*root)->entries[diff].val1.p_val ||
+            (*root)->entries[diff].val2.p_val) {
+                // Key found: return cell containing the requested values
+                if (!CmpEqual(diff, 0)) {
+                    (*root) = split_node(&(*root), diff);
+                }
+            }
+
+            // Return the root
+            return *root;
         }
     }
 
@@ -472,11 +530,10 @@ Node_p ArrayTreeFind(ArrayTree_p *root, long key) {
     return NULL;
 }
 
-Node_p ArrayTreeExtractEntry(ArrayTree_p *root, long key) {
+ArrayTree_p ArrayTreeExtractEntry(ArrayTree_p *root, long key) {
     fprintf(stdout, "ArrayTreeExtractEntry -> key: %ld\n", key);
-    ArrayTree_p x = NULL, cell;
-    Node_p handle;
-    long idx, nodeKey;
+    ArrayTree_p x = NULL;
+    long diff;
     uint8_t i = 0;
 
     // Return NULL if the tree is empty
@@ -484,56 +541,71 @@ Node_p ArrayTreeExtractEntry(ArrayTree_p *root, long key) {
         return NULL;
     }
 
-    // Rework function here
-    nodeKey = CalcKey(key);
-    *root = splay_tree(*root, nodeKey);
-    idx = KeyCmp(key, (*root)->key);
-    assert(idx<MAX_NODE_ARRAY_SIZE);
-    if (CmpGreaterEqual(idx, MAX_NODE_ARRAY_SIZE) || CmpLessVal(idx, 0)) {
+    // Perform the splay operation to bring the closest key to the root
+    *root = splay_tree(*root, key);
+    diff = KeyCmp(key, (*root)->key);
+    assert(diff<MAX_NODE_ARRAY_SIZE);
+    if (CmpGreaterEqual(diff, MAX_NODE_ARRAY_SIZE) || CmpLessVal(diff, 0)) {
         return NULL;
     }
 
-    // Check if entry is valid
-    if ((*root)->entries[idx].p_val) {
-        cell = ArrayTreeNodeAllocEmpty();
-        cell->key = nodeKey;
-        cell->entries[idx] = (*root)->entries[idx];
-        cell->entry_count++;
-        cell->highest_index = idx;
-        cell->lson = cell->rson = NULL;
+    // Search for the key in the root's entries array
+    if (CmpEqual(((*root)->key + diff), key)) {
+        if ((*root)->entries[i].val1.p_val != NULL
+            || (*root)->entries[i].val2.p_val != NULL) {
+            // Key found, remove it from the array
+            ArrayTree_p cell = ArrayTreeNodeAllocEmpty();
+            assert(cell && "Out of memory in ArrayTreeNodeAllocEmpty");
 
-        // Check if original node is empty
-        (*root)->entry_count--;
-        if (CmpEqual((*root)->entry_count, 0)) {
-            // Reorganize the tree if the root is empty
-            if (!(*root)->lson) {
-                x = (*root)->rson;
+            // Copy the removed entry to the returned cell
+            cell->key = key;
+            cell->entries[0] = (*root)->entries[diff];
+            cell->entry_count = 1;
+            cell->last_used_index = 0;
+            cell->lson = cell->rson = NULL;
+
+            // Remove entry from the array
+            (*root)->entries[diff].val1.p_val = NULL;
+            (*root)->entries[diff].val2.p_val = NULL;
+            (*root)->entry_count--;
+
+            // Check if the node is now empty
+            if (CmpEqual((*root)->entry_count, 0)) {
+                // Reorganize the tree if the root is empty
+                if (!(*root)->lson) {
+                    x = (*root)->rson;
+                }
+                else {
+                    x = splay_tree((*root)->lson, key);
+                    x->rson = (*root)->rson;
+                }
+
+                // Free the empty root node
+                ArrayTreeNodeFree(*root);
+                *root = x;
             }
             else {
-                x = splay_tree((*root)->lson, key);
-                x->rson = (*root)->rson;
-            }
-
-            // Free the empty root node
-            ArrayTreeNodeFree(*root);
-            *root = x;
-        } else {
-            // Reset last used index, if last entry was extracted
-            if (CmpGreaterEqual(idx, (*root)->highest_index)) {
-                // Find the last used index of the array
-                for (i = idx - 1; i >= 0; i--) {
-                    assert(i<MAX_NODE_ARRAY_SIZE);
-                    if ((*root)->entries[i].p_val != NULL) {
-                        (*root)->highest_index = i;
-                        break;
+                // Reset last used index, if last entry was extracted
+                if (CmpGreaterEqual(diff, (*root)->last_used_index)) {
+                    // Find the last used index of the array
+                    for (i = diff - 1; i >= 0; i--) {
+                        assert(i<MAX_NODE_ARRAY_SIZE);
+                        if ((*root)->entries[i].val1.p_val != NULL
+                            || (*root)->entries[i].val2.p_val != NULL) {
+                            (*root)->last_used_index = i;
+                            break;
+                        }
                     }
                 }
             }
+            return cell;
+        } else {
+            // node with respective key exists, but entry is empty
+            return NULL;
         }
-        return cell;
-    } else {
-        return NULL;
+        
     }
+    return NULL;
 }
 
 ArrayTree_p ArrayTreeExtractRoot(ArrayTree_p *root) {
@@ -551,7 +623,7 @@ bool ArrayTreeDeleteEntry(ArrayTree_p *root, long key) {
     // Extract the entry associated with the key
     cell = ArrayTreeExtractEntry(root, key);
     if (cell) {
-        ArrayTreeNodeFree(cell);
+        ArrayTreeFree(cell);
         return true;
     }
     return false;
@@ -600,50 +672,53 @@ ArrayTree_p ArrayTreeMaxNode(ArrayTree_p root) {
 
 PStack_p ArrayTreeLimitedTraverseInit(ArrayTree_p root, long limit) {
     fprintf(stdout, "ArrayTreeLimitedTraverseInit -> limit: %ld\n", limit);
-    uint8_t i, idx = 0;
-    ArrayTree_p handle;
     PStack_p stack = PStackAlloc();
-    
+    fprintf(stdout, "PStack size: %ld\n", stack->size);
+
+    // Traverse the tree to find nodes within the limit
     while (root) {
-        if (CmpLessVal((root->key + root->highest_index), limit)) {
-            // Highest existing key is lower than limit
+        // Check if the largest key in the current node is smaller than the limit
+        if (CmpGreaterEqual(root->last_used_index, 0)
+            && CmpLessVal((root->key + root->last_used_index), limit)) {
             root = root->rson;
-        } else if (CmpGreaterEqual(root->key, limit)) {
-            // All keys are at least matching the limit
-            PStackPushP(stack, root);
-            if (CmpEqual(root->key, limit)) {
-                root = NULL;
-            } else {
-                root = root->lson;
-            }
-        } else if (CmpGreaterEqual((root->key + root->highest_index), limit)) {
-            // Not all keys are greater than the limit
-            for (i = 0; i <= root->highest_index; i++) {
-                if (root->entries[i].p_val &&
-                    CmpGreaterEqual((root->key + i), limit)) {
-                    idx = i;
+        }
+        else {
+            // Devide the array if necessary -> array can contain values below the limit
+            int8_t split_index = -1;
+            for (uint8_t i = 0; i < root->last_used_index; i++) {
+                if (CmpLessVal((root->key + i), limit)) {
+                    split_index = i;
+                } else {
                     break;
                 }
             }
 
-            handle->key = root->key;
-            handle->lson = root->lson;
-            handle->rson = root->rson;
-            for (i = idx; i <= root->highest_index; i++) {
-                if (root->entries[i].p_val) {
-                    handle->entries[i] = root->entries[i];
-                    handle->entry_count++;
-                }
+            // All values below limit
+            if (split_index >= MAX_NODE_ARRAY_SIZE
+                || CmpEqual(split_index, root->last_used_index)) {
+                root = root->rson;
             }
-            handle->highest_index = root->highest_index;
-            PStackPushP(stack, handle);
-            if (CmpEqual((handle->key + idx), limit)) {
+
+            // All values above or equal limit
+            if (CmpEqual(split_index, -1)) {
+                PStackPushP(stack, root);
+            }
+
+            if (CmpGreaterEqual(split_index, 0)) {
+                // Divide node in two
+                root = splay_tree(root, split_index);
+                root = split_node(&root, split_index);
+
+                PStackPushP(stack, root);
+            }
+
+            // If the smallest key in the current node equals or exceeds the limit, stop traversing
+            if (CmpGreaterEqual(root->key, limit)) {
                 root = NULL;
-            } else {
+            }
+            else {
                 root = root->lson;
             }
-        } else {
-            printf("Warning LimitedTraverse: Edge case reached!");
         }
     }
     return stack;

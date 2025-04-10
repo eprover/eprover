@@ -15,20 +15,21 @@
 /* Maximum allowed size of the array per node */
 #define MAX_NODE_ARRAY_SIZE 8
 
+/* Structure for displaying a key-value pair */
+typedef struct {
+    IntOrP val1;
+    IntOrP val2;
+} ArrayEntry;
+
 /* Array-based node in the tree */
 typedef struct arraytree_node {
    long key;                                // key of the first entry
-   IntOrP entries[MAX_NODE_ARRAY_SIZE];     // Array for key-value pairs
+   ArrayEntry entries[MAX_NODE_ARRAY_SIZE]; // Array for key-value pairs
    uint8_t entry_count;                     // Number of assigned entries (max. 255)
-   uint8_t highest_index;                   // Highest used index of the array
+   uint8_t last_used_index;                 // Highest used index of the array
    struct arraytree_node* lson;             // Pointer to the left child node
    struct arraytree_node* rson;             // Pointer to the right child node
 } ArrayTreeNode, *ArrayTree_p;
-
-typedef struct node_return {
-    ArrayTree_p node;
-    uint8_t     idx;
-} NodeReturn, *Node_p;
 
 
 /* Allocation macros for ArrayTree nodes */
@@ -53,10 +54,10 @@ ArrayTree_p ArrayTreeNodeAllocEmpty(void);
 void        ArrayTreeFree(ArrayTree_p root);
 ArrayTree_p ArrayTreeInsert(ArrayTree_p *root, ArrayTree_p newnode);
 bool        ArrayTreeStore(ArrayTree_p *root, long key, IntOrP val1, IntOrP val2);
-Node_p      ArrayTreeFind(ArrayTree_p *root, long key);
+ArrayTree_p ArrayTreeFind(ArrayTree_p *root, long key);
 bool        ArrayTreeDeleteEntry(ArrayTree_p *root, long key);
 long        ArrayTreeDebugPrint(FILE* out, ArrayTree_p tree, bool keys_only);
-Node_p      ArrayTreeExtractEntry(ArrayTree_p* root, long key);
+ArrayTree_p ArrayTreeExtractEntry(ArrayTree_p* root, long key);
 ArrayTree_p ArrayTreeExtractRoot(ArrayTree_p* root);
 long        ArrayTreeNodes(ArrayTree_p root);
 ArrayTree_p ArrayTreeMaxNode(ArrayTree_p root);
@@ -74,10 +75,6 @@ AVL_TRAVERSE_DECLARATION(ArrayTree, ArrayTree_p)
 
 static inline int KeyCmpFun(long k1, long k2) {
    return k1 - k2;
-}
-
-static inline int CalcKey(long key) {
-    return key / MAX_NODE_ARRAY_SIZE * MAX_NODE_ARRAY_SIZE;
 }
 
 #endif
