@@ -403,7 +403,8 @@ long TSMIndexFind(TSMIndex_p index, Term_p term, PatternSubst_p subst)
          cell1 = ArrayTreeFind(&(index->tree.n_index), key);
          if(cell1)
          {
-            res = cell1->entries[0].val1.i_val;
+            res = cell1->entries[0].i_val;
+            ArrayTreeNodeFree(cell1);
          }
          /* printf("\n===Key: %ld Res: %ld\n", key, res);  */
          break;
@@ -492,13 +493,12 @@ long TSMIndexInsert(TSMIndex_p index, Term_p term)
          }
          cell = ArrayTreeNodeAlloc();
          cell->key = key;
-         cell->entries[0].val1.i_val = index->count;
-         cell->entries[0].val2.i_val = index->count;
-         old = ArrayTreeInsert(&(index->tree.n_index), cell);
+         cell->entries[0].i_val = index->count;
+         old = ArrayTreeInsert(&(index->tree.n_index), cell, key);
          if(old)
          {
             ArrayTreeNodeFree(cell);
-            res = old->entries[0].val1.i_val;
+            res = old->entries[0].i_val;
          }
          else /* key was unknown, association stays...*/
          {
@@ -605,14 +605,14 @@ void TSMIndexPrint(FILE* out, TSMIndex_p index, int depth)
          i=0;
          while((ncell = ArrayTreeTraverseNext(stack)))
          {
-            for (uint8_t j = 0; j <= ncell->last_used_index; j++) {
-                  if (ncell->entries[j].val1.i_val) {
+            for (uint8_t j = 0; j <= ncell->highest_index; j++) {
+                  if (ncell->entries[j].i_val) {
                         f_code = PatternSubstGetOriginalSymbol(index->subst,
                               (ncell->key + j));
 
                         fprintf(out, "# %s#%10ld :%7ld  %7ld     %s\n", pattern2,
                         (ncell->key + j),
-                        ncell->entries[j].val1.i_val,
+                        ncell->entries[j].i_val,
                         f_code,
                         ((f_code > 0))&&(f_code<=index->bank->sig->f_count)?
                         SigFindName(index->bank->sig, f_code):"variable");

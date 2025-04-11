@@ -190,6 +190,10 @@ static double tfidf_term_weight(Term_p term, TfIdfWeightParam_p data)
    tfidf = tf*idf; 
    TermFree(norm);
 
+   if (cell) {
+      ArrayTreeNodeFree(cell);
+   }
+
    return 1/(1+tfidf);
 }
 

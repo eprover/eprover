@@ -325,6 +325,21 @@ bool ArrayTreeStore(ArrayTree_p *root, long key, IntOrP val) {
     return true;
 }
 
+bool ArrayTreeIncrement(ArrayTree_p *root, long key) {
+    long nodeKey, idx;
+
+    nodeKey = CalcKey(key);
+    *root = splay_tree(*root, nodeKey);
+    idx = KeyCmp(key, (*root)->key);
+
+    if ((*root)->entries[idx].i_val) {
+        (*root)->entries[idx].i_val++;
+        return true;
+    } else {
+        return false;
+    }
+}
+
 void ArrayTreeDebug() {
     ArrayTree_p root = NULL, ext = NULL;
     IntOrP val;
@@ -454,11 +469,16 @@ ArrayTree_p ArrayTreeFind(ArrayTree_p *root, long key) {
         nodeKey = CalcKey(key);
         *root = splay_tree(*root, nodeKey);
         idx = KeyCmp(key, (*root)->key);
-        assert(idx<MAX_NODE_ARRAY_SIZE);
         if (CmpGreaterEqual(idx, MAX_NODE_ARRAY_SIZE) || CmpLessVal(idx, 0)) {
             return NULL;
         }
         if ((*root)->entries[idx].p_val) {
+            handle = ArrayTreeNodeAllocEmpty();
+            handle->key = key;
+            handle->entries[0] = (*root)->entries[idx];
+            handle->highest_index = 0;
+            handle->entry_count++;
+            handle->lson = handle->rson = NULL;
             return handle;
         }
     }
@@ -469,7 +489,7 @@ ArrayTree_p ArrayTreeFind(ArrayTree_p *root, long key) {
 
 ArrayTree_p ArrayTreeExtractEntry(ArrayTree_p *root, long key) {
     fprintf(stdout, "ArrayTreeExtractEntry -> key: %ld\n", key);
-    ArrayTree_p x = NULL, cell, handle;
+    ArrayTree_p x = NULL, cell;
     long idx, nodeKey;
     uint8_t i = 0;
 
@@ -490,10 +510,10 @@ ArrayTree_p ArrayTreeExtractEntry(ArrayTree_p *root, long key) {
     // Check if entry is valid
     if ((*root)->entries[idx].p_val) {
         cell = ArrayTreeNodeAllocEmpty();
-        cell->key = nodeKey;
-        cell->entries[idx] = (*root)->entries[idx];
+        cell->key = key;
+        cell->entries[0] = (*root)->entries[idx];
         cell->entry_count++;
-        cell->highest_index = idx;
+        cell->highest_index = 0;
         cell->lson = cell->rson = NULL;
 
         // Check if original node is empty
@@ -621,6 +641,7 @@ PStack_p ArrayTreeLimitedTraverseInit(ArrayTree_p root, long limit) {
                 }
             }
 
+            handle = ArrayTreeNodeAllocEmpty();
             handle->key = root->key;
             handle->lson = root->lson;
             handle->rson = root->rson;

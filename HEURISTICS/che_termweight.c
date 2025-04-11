@@ -184,9 +184,9 @@ static void termweight_update_conjecture_freqs(
       if (subrepr) 
       {
          cell = ArrayTreeFind(freqs, subrepr->entry_no);
-         if (cell && cell->entries[0].val1.i_val > 0)
+         if (cell && cell->entries[0].i_val > 0)
          {
-            ArrayTreeStore(freqs, subterm->entry_no, cell->entries[0].val1, cell->entries[0].val2);
+            ArrayTreeStore(freqs, subterm->entry_no, cell->entries[0]);
          }
       }
 
@@ -221,7 +221,8 @@ static double termweight_term_weight(Term_p term, TermWeightParam_p data)
    }
 
    cell = ArrayTreeFind(&data->eval_freqs, repr->entry_no);
-   freq = cell ? (cell->entries[0].val1.i_val) : 0;
+   freq = cell ? (cell->entries[0].i_val) : 0;
+   ArrayTreeNodeFree(cell);
    if (TermIsConst(repr)) 
    {
       return (freq>0) ? data->conj_cweight : data->cweight;

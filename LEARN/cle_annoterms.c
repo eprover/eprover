@@ -318,7 +318,8 @@ bool AnnoSetAddTerm(AnnoSet_p set, AnnoTerm_p term)
       {
          handle = ArrayTreeExtractEntry(&term->annotation,
                                       term->annotation->key);
-         conflict = ArrayTreeInsert(&(existing_term->annotation), handle);
+         conflict = ArrayTreeInsert(&(existing_term->annotation), handle,
+                                                   term->annotation->key);
          if(conflict)
          {
             AnnotationCombine(conflict, handle);
@@ -326,6 +327,7 @@ bool AnnoSetAddTerm(AnnoSet_p set, AnnoTerm_p term)
          }
       }
       AnnoTermFree(set->terms, term);
+      ArrayTreeNodeFree(exists);
    }
    else
    {

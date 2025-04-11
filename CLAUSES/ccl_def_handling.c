@@ -285,10 +285,13 @@ FunCode GetDefinitions(DefStore_p store, Eqn_p litlist,
                                        variant->ident);
          assert(assoc);
          *res_clause = NULL; /* Clause already exists */
-         *res_form = assoc->entries[0].val2.p_val;
-         def_pred = assoc->entries[0].val1.i_val;
+         *res_form = assoc->entries[0].p_val;
+         def_pred = assoc->entries[0].i_val;
          ClauseFree(def_clause);
          EqnListFree(litlist);
+         if (assoc) {
+            ArrayTreeNodeFree(assoc);
+         }
       }
       else
       {
@@ -304,8 +307,7 @@ FunCode GetDefinitions(DefStore_p store, Eqn_p litlist,
          def_form_store.p_val = *res_form;
          ArrayTreeStore(&(store->def_assocs),
                       def_clause->ident,
-                      def_pred_store,
-                      def_form_store);
+                      def_pred_store);
          assert(def_clause->weight == ClauseStandardWeight(def_clause));
          ClauseSetIndexedInsertClause(store->def_clauses,
                                       def_clause);

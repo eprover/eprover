@@ -1254,8 +1254,8 @@ void do_ext_sup_from(Clause_p renamed_cl, Clause_p orig_cl, ProofState_p state)
          ArrayTree_p node;
          while ((node = ArrayTreeTraverseNext(niter)))
          {
-            for (uint8_t i = 0; i <= node->last_used_index; i++) {
-               if (node->entries[i].val1.p_val || node->entries[i].val2.p_val) {
+            for (uint8_t i = 0; i <= node->highest_index; i++) {
+               if (node->entries[i].p_val) {
                   UnpackClausePosInto((node->key + i), cl_cpos->clause, into_pos);
                   do_ext_sup(from_pos, into_pos, state->tmp_store,
                            state->terms, state->freshvars, orig_cl);
@@ -1316,8 +1316,8 @@ void do_ext_sup_into(Clause_p renamed_cl, Clause_p orig_cl, ProofState_p state)
          ArrayTree_p node;
          while ((node = ArrayTreeTraverseNext(niter)))
          {
-            for (uint8_t i = 0; i <= node->last_used_index; i++) {
-               if (node->entries[i].val1.p_val || node->entries[i].val2.p_val) {
+            for (uint8_t i = 0; i <= node->highest_index; i++) {
+               if (node->entries[i].p_val) {
                   UnpackClausePosInto((node->key + i), cl_cpos->clause, from_pos);
                   do_ext_sup(from_pos, into_pos, state->tmp_store,
                            state->terms, state->freshvars, orig_cl);

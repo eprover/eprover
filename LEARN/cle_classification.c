@@ -113,9 +113,9 @@ long TSMClassifySet(TSMAdmin_p admin, FlatAnnoSet_p set)
 
    while((handle = ArrayTreeTraverseNext(stack)))
    {
-      for (uint8_t i = 0; i <= handle->last_used_index; i++) {
-         if (handle->entries[i].val1.p_val) {
-            term = handle->entries[i].val1.p_val;
+      for (uint8_t i = 0; i <= handle->highest_index; i++) {
+         if (handle->entries[i].p_val) {
+            term = handle->entries[i].p_val;
             if(TSMClassifiedTermCheck(admin, term))
             {
          printf("OKOK ");

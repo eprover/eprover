@@ -48,6 +48,7 @@ ArrayTree_p ArrayTreeNodeAllocEmpty(void);
 void        ArrayTreeFree(ArrayTree_p root);
 ArrayTree_p ArrayTreeInsert(ArrayTree_p *root, ArrayTree_p newnode, long idx);
 bool        ArrayTreeStore(ArrayTree_p *root, long key, IntOrP val1);
+bool        ArrayTreeIncrement(ArrayTree_p *root, long key);
 ArrayTree_p ArrayTreeFind(ArrayTree_p *root, long key);
 bool        ArrayTreeDeleteEntry(ArrayTree_p *root, long key);
 long        ArrayTreeDebugPrint(FILE* out, ArrayTree_p tree, bool keys_only);

@@ -348,8 +348,8 @@ void EPCtrlSetFree(EPCtrlSet_p junk, bool delete_files)
    while(junk->procs)
    {
       cell = ArrayTreeExtractRoot(&(junk->procs));
-      EPCtrlCleanup(cell->entries[0].val1.p_val, delete_files);
-      EPCtrlFree(cell->entries[0].val1.p_val);
+      EPCtrlCleanup(cell->entries[0].p_val, delete_files);
+      EPCtrlFree(cell->entries[0].p_val);
       ArrayTreeNodeFree(cell);
    }
    EPCtrlSetCellFree(junk);
@@ -373,7 +373,7 @@ void EPCtrlSetAddProc(EPCtrlSet_p set, EPCtrl_p proc)
    IntOrP tmp;
 
    tmp.p_val = proc;
-   ArrayTreeStore(&(set->procs), proc->fileno, tmp, tmp);
+   ArrayTreeStore(&(set->procs), proc->fileno, tmp);
 }
 
 
@@ -392,12 +392,15 @@ void EPCtrlSetAddProc(EPCtrlSet_p set, EPCtrl_p proc)
 EPCtrl_p EPCtrlSetFindProc(EPCtrlSet_p set, int fd)
 {
    ArrayTree_p cell;
+   void* val;
 
    cell = ArrayTreeFind(&(set->procs), fd);
 
    if(cell)
    {
-      return cell->entries[0].val1.p_val;
+      val = cell->entries[0].p_val;
+      ArrayTreeNodeFree(cell);
+      return val;
    }
    return NULL;
 }
@@ -422,8 +425,8 @@ void EPCtrlSetDeleteProc(EPCtrlSet_p set, EPCtrl_p proc, bool delete_file)
    cell = ArrayTreeExtractEntry(&(set->procs), proc->fileno);
    if(cell)
    {
-      EPCtrlCleanup(cell->entries[0].val1.p_val, delete_file);
-      EPCtrlFree(cell->entries[0].val1.p_val);
+      EPCtrlCleanup(cell->entries[0].p_val, delete_file);
+      EPCtrlFree(cell->entries[0].p_val);
       ArrayTreeNodeFree(cell);
    }
 }
@@ -452,9 +455,9 @@ int EPCtrlSetFDSet(EPCtrlSet_p set, fd_set *rd_fds)
    trav_stack = ArrayTreeTraverseInit(set->procs);
    while((cell = ArrayTreeTraverseNext(trav_stack)))
    {
-      for (uint8_t i = 0; i <= cell->last_used_index; i++) {
-         if (cell->entries[i].val1.p_val) {
-            handle = cell->entries[i].val1.p_val;
+      for (uint8_t i = 0; i <= cell->highest_index; i++) {
+         if (cell->entries[i].p_val) {
+            handle = cell->entries[i].p_val;
             FD_SET(handle->fileno, rd_fds);
             maxfd = handle->fileno;
          }

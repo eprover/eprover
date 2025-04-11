@@ -357,12 +357,15 @@ void EGPCtrlSetAddProc(EGPCtrlSet_p set, EGPCtrl_p proc)
 EGPCtrl_p EGPCtrlSetFindProc(EGPCtrlSet_p set, int fd)
 {
    ArrayTree_p cell;
+   void* val;
 
    cell = ArrayTreeFind(&(set->procs), fd);
 
    if(cell)
    {
-      return cell->entries[0].p_val;
+      val = cell->entries[0].p_val;
+      ArrayTreeNodeFree(cell);
+      return val;
    }
    return NULL;
 }
@@ -422,9 +425,9 @@ int EGPCtrlSetFDSet(EGPCtrlSet_p set, fd_set *rd_fds)
    trav_stack = ArrayTreeTraverseInit(set->procs);
    while((cell = ArrayTreeTraverseNext(trav_stack)))
    {
-      for (uint8_t i = 0; i <= cell->last_used_index; i++) {
-         if (cell->entries[i].val1.p_val) {
-            handle = cell->entries[i].val1.p_val;
+      for (uint8_t i = 0; i <= cell->highest_index; i++) {
+         if (cell->entries[i].p_val) {
+            handle = cell->entries[i].p_val;
             FD_SET(handle->fileno, rd_fds);
             maxfd = MAX(maxfd, handle->fileno);
          }

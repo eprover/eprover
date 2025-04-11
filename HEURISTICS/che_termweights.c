@@ -45,11 +45,15 @@ static PStack_p get_subterm_generalizing_vars(
    {
       entry = ArrayTreeNodeAllocEmpty();
       entry->key = term->entry_no;
-      entry->entries[0].val1.p_val = PStackAlloc();
-      ArrayTreeInsert(term_vars, entry);
+      entry->entries[0].p_val = PStackAlloc();
+      ArrayTreeInsert(term_vars, entry, entry->key);
+      gen_vars = entry->entries[0].p_val;
+   } else {
+      gen_vars = entry->entries[0].p_val;
+      ArrayTreeNodeFree(entry);
    }
 
-   gen_vars = entry->entries[0].val1.p_val;
+   gen_vars = entry->entries[0].p_val;
    fresh_var = VarBankVarAssertAlloc(vars, *fresh_var_code, vars->sort_table->i_type);
    (*fresh_var_code) -= 2;
    PStackPushP(gen_vars, fresh_var);
@@ -182,9 +186,9 @@ PStack_p ComputeSubtermsGeneralizations(Term_p term, VarBank_p vars)
    stack = ArrayTreeTraverseInit(term_vars);
    while ((item=ArrayTreeTraverseNext(stack)))
    {
-      for (uint8_t i = 0; i <= item->last_used_index; i++) {
-         if (item->entries[i].val1.p_val) {
-            PStackFree(item->entries[i].val1.p_val);
+      for (uint8_t i = 0; i <= item->highest_index; i++) {
+         if (item->entries[i].p_val) {
+            PStackFree(item->entries[i].p_val);
          }
       }
       // PStackFree(item->entries[0].val1.p_val);
@@ -417,13 +421,13 @@ void TBIncSubtermsFreqs(Term_p term, ArrayTree_p* freqs)
       cell = ArrayTreeFind(freqs, subterm->entry_no);
       if (cell)
       {
-         cell->entries[0].val1.i_val++;
+         ArrayTreeIncrement(freqs, subterm->entry_no);
       }
       else 
       {
          IntOrP val1;
          val1.i_val = 1;
-         ArrayTreeStore(freqs, subterm->entry_no, val1, val1);
+         ArrayTreeStore(freqs, subterm->entry_no, val1);
       }
       
       for(i=0; i<subterm->arity; i++)

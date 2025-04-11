@@ -23,8 +23,8 @@ Changes
 #include "ccl_bce.h"
 #include <clb_min_heap.h>
 
-#define OCC_CNT(n) ((n) ? PStackGetSP( (PStack_p) ((n)->entries[0].val1.p_val)) : 0)
-#define IS_BLOCKED(n) ((n) && PStackGetSP((PStack_p) ((n)->entries[0].val1.p_val)) == 0)
+#define OCC_CNT(n) ((n) ? PStackGetSP( (PStack_p) ((n)->entries[0].p_val)) : 0)
+#define IS_BLOCKED(n) ((n) && PStackGetSP((PStack_p) ((n)->entries[0].p_val)) == 0)
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
@@ -141,20 +141,22 @@ ArrayTree_p make_sym_map(ClauseSet_p set, int occ_limit, bool* eq_found)
                   // removing all elements  -- essentially blocking tracking of symbol
                   if(fc_cls)
                   {
-                     PStackReset(fc_cls->entries[0].val1.p_val);
+                     PStackReset(fc_cls->entries[0].p_val);
+                     ArrayTreeNodeFree(fc_cls);
                   }
                   else
                   {
-                     ArrayTreeStore(&res, fc, ((IntOrP){.p_val = PStackAlloc()}), dummy);
+                     ArrayTreeStore(&res, fc, ((IntOrP){.p_val = PStackAlloc()}));
                   }
 
                   if(other_fc_cls)
                   {
-                     PStackReset(other_fc_cls->entries[0].val1.p_val);
+                     PStackReset(other_fc_cls->entries[0].p_val);
+                     ArrayTreeNodeFree(other_fc_cls);
                   }
                   else
                   {
-                     ArrayTreeStore(&res, -fc, ((IntOrP){.p_val = PStackAlloc()}), dummy);
+                     ArrayTreeStore(&res, -fc, ((IntOrP){.p_val = PStackAlloc()}));
                   }
                }
                else
@@ -163,12 +165,12 @@ ArrayTree_p make_sym_map(ClauseSet_p set, int occ_limit, bool* eq_found)
                   {
                      IntOrP new = {.p_val = PStackAlloc()};
                      PStackPushP(new.p_val, cl);
-                     ArrayTreeStore(&res, fc, new, dummy);
+                     ArrayTreeStore(&res, fc, new);
                   }
-                  else if(PStackTopP(fc_cls->entries[0].val1.p_val) != cl)
+                  else if(PStackTopP(fc_cls->entries[0].p_val) != cl)
                   {
                      // putting only one copy of a clause
-                     PStackPushP(fc_cls->entries[0].val1.p_val, cl);
+                     PStackPushP(fc_cls->entries[0].p_val, cl);
                   }
                }
             }
@@ -213,8 +215,11 @@ MinHeap_p make_bce_queue(ClauseSet_p set, ArrayTree_p* sym_map, PStack_p fresh_c
             if(!IS_BLOCKED(cands_node))
             {
                BCE_task_p t = make_task(cl, f_cl, lit, 
-                                        cands_node ? cands_node->entries[0].val1.p_val : NULL);
+                                        cands_node ? cands_node->entries[0].p_val : NULL);
                MinHeapAddP(res, t);
+            }
+            if (cands_node) {
+               ArrayTreeNodeFree(cands_node);
             }
          }
       }  
@@ -618,9 +623,9 @@ void EliminateBlockedClauses(ClauseSet_p passive, ClauseSet_p archive,
    ArrayTree_p n = NULL;
    while( (n = ArrayTreeTraverseNext(iter)) )
    {
-      for (uint8_t i = 0; i <= n->last_used_index; i++) {
-         if (n->entries[i].val1.p_val) {
-            PStack_p cls = n->entries[i].val1.p_val;
+      for (uint8_t i = 0; i <= n->highest_index; i++) {
+         if (n->entries[i].p_val) {
+            PStack_p cls = n->entries[i].p_val;
             PStackFree(cls);
          }
       }

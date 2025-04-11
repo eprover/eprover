@@ -158,6 +158,7 @@ static Term_p replace_body(TB_p bank, ArrayTree_p *closed_defs, Term_p t)
 
       new = TBInsertInstantiated(bank, new_def);
       SubstDelete(subst);
+      ArrayTreeNodeFree(node);
    }
 
    return new;
@@ -203,6 +204,9 @@ void make_fresh_defs(TB_p bank, Term_p let_t, ArrayTree_p *defs, PStack_p res)
       }
 
       PStackPushP(res, TFormulaClosure(bank, matrix, true));
+      if (node) {
+         ArrayTreeNodeFree(node);
+      }
    }
 }
 

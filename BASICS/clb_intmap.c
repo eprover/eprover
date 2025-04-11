@@ -332,6 +332,7 @@ void* IntMapGetVal(IntMap_p map, long key)
             {
                res = entry->entries[0].p_val;
             }
+            ArrayTreeNodeFree(entry);
          }
          break;
    default:
@@ -432,6 +433,7 @@ void** IntMapGetRef(IntMap_p map, long key)
          if(handle)
          {
             res = &(handle->entries[0].p_val);
+            ArrayTreeNodeFree(handle);
          }
          else
          {

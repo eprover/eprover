@@ -567,9 +567,9 @@ double TSMFlatAnnoSetEntropy(FlatAnnoSet_p set, double limit)
 
    while((handle = ArrayTreeTraverseNext(stack)))
    {
-      for (uint8_t i = 0; i <= handle->last_used_index; i++) {
-         if (handle->entries[i].val1.p_val) {
-            term = handle->entries[i].val1.p_val;
+      for (uint8_t i = 0; i <= handle->highest_index; i++) {
+         if (handle->entries[i].p_val) {
+            term = handle->entries[i].p_val;
             if(TSMEvalNormalize(term->eval, limit) == -1)
             {
                neg += term->sources;
@@ -634,9 +634,9 @@ long TSMPartitionSet(PDArray_p partition, TSMIndex_p index,
    stack = ArrayTreeTraverseInit(set->set);
    while((handle = ArrayTreeTraverseNext(stack)))
    {
-      for (uint8_t i = 0; i <= handle->last_used_index; i++) {
-         if (handle->entries[i].val1.p_val) {
-            current = handle->entries[i].val1.p_val;
+      for (uint8_t i = 0; i <= handle->highest_index; i++) {
+         if (handle->entries[i].p_val) {
+            current = handle->entries[i].p_val;
             if(cache)
             {
                key = PDArrayElementInt(cache, current->term->entry_no);
@@ -1280,9 +1280,9 @@ double TSMComputeClassificationLimit(TSMAdmin_p admin,  FlatAnnoSet_p
 
    while((handle = ArrayTreeTraverseNext(setstack)))
    {
-      for (uint8_t i = 0; i <= handle->last_used_index; i++) {
-         if (handle->entries[i].val1.p_val) {
-            fterm = handle->entries[i].val1.p_val;
+      for (uint8_t i = 0; i <= handle->highest_index; i++) {
+         if (handle->entries[i].p_val) {
+            fterm = handle->entries[i].p_val;
             eval = TSMEvalTerm(admin, fterm->term, admin->subst);
             if(fterm->eval < admin->limit)
             {
@@ -1359,9 +1359,9 @@ double TSMComputeAverageEval(TSMAdmin_p admin,  FlatAnnoSet_p set)
 
    while((handle = ArrayTreeTraverseNext(setstack)))
    {
-      for (uint8_t i = 0; i <= handle->last_used_index; i++) {
-         if (handle->entries[i].val1.p_val) {
-            fterm = handle->entries[i].val1.p_val;
+      for (uint8_t i = 0; i <= handle->highest_index; i++) {
+         if (handle->entries[i].p_val) {
+            fterm = handle->entries[i].p_val;
             eval += TSMEvalTerm(admin, fterm->term, admin->subst)*fterm->sources;
             count+=fterm->sources;
          }

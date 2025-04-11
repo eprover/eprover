@@ -88,13 +88,13 @@ AnnoTerm_p ParseExampleClause(Scanner_p in, TB_p parse_terms, TB_p
       file, as the distance from the proof (position 2). */
    if(AktToken(in)->numval == 0)
    {
-      DDArrayAssign(anno->entries[0].val1.p_val, 1, 1);
+      DDArrayAssign(anno->entries[0].p_val, 1, 1);
    }
    else
    {
-      DDArrayAssign(anno->entries[0].val1.p_val, 1, 0);
+      DDArrayAssign(anno->entries[0].p_val, 1, 0);
    }
-   DDArrayAssign(anno->entries[0].val1.p_val, 2, (float)AktToken(in)->numval);
+   DDArrayAssign(anno->entries[0].p_val, 2, (float)AktToken(in)->numval);
 
    AcceptInpTok(in, PosInt);
 
@@ -103,10 +103,10 @@ AnnoTerm_p ParseExampleClause(Scanner_p in, TB_p parse_terms, TB_p
    {
       AcceptInpTok(in, Comma);
       value = ParseFloat(in);
-      DDArrayAssign(anno->entries[0].val1.p_val, i, value);
+      DDArrayAssign(anno->entries[0].p_val, i, value);
       i++;
    }
-   anno->entries[0].val2.i_val = i;
+   anno->entries[0].i_val = i;
 
    AcceptInpTok(in, CloseBracket);
    AcceptInpTok(in, Colon);

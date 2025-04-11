@@ -137,9 +137,9 @@ void FlatAnnoSetFree(FlatAnnoSet_p junk)
 
    while((handle = ArrayTreeTraverseNext(stack)))
    {
-      for (uint8_t i = 0; i <= handle->last_used_index; i++) {
-         if (handle->entries[i].val1.p_val) {
-            FlatAnnoTermFree(handle->entries[i].val1.p_val);
+      for (uint8_t i = 0; i <= handle->highest_index; i++) {
+         if (handle->entries[i].p_val) {
+            FlatAnnoTermFree(handle->entries[i].p_val);
          }
       }
       // FlatAnnoTermFree(handle->entries[0].val1.p_val);
@@ -170,8 +170,8 @@ void FlatAnnoSetPrint(FILE* out, FlatAnnoSet_p set, Sig_p sig)
 
    while((cell = ArrayTreeTraverseNext(stack)))
    {
-      for (uint8_t i = 0; i <= cell->last_used_index; i++) {
-         FlatAnnoTermPrint(out, cell->entries[i].val1.p_val, sig);
+      for (uint8_t i = 0; i <= cell->highest_index; i++) {
+         FlatAnnoTermPrint(out, cell->entries[i].p_val, sig);
          fputc('\n', out);
       }
       // FlatAnnoTermPrint(out, cell->entries[0].val1.p_val, sig);
@@ -204,7 +204,7 @@ bool FlatAnnoSetAddTerm(FlatAnnoSet_p set, FlatAnnoTerm_p term)
    if(exists)
    {
       res = false;
-      existing_term = exists->entries[0].val1.p_val;
+      existing_term = exists->entries[0].p_val;
       existing_term->eval = (term->eval * term->eval_weight +
               existing_term->eval *
               existing_term->eval_weight)/
@@ -212,11 +212,12 @@ bool FlatAnnoSetAddTerm(FlatAnnoSet_p set, FlatAnnoTerm_p term)
       existing_term->eval_weight += term->eval_weight;
       existing_term->sources += term->sources;
       FlatAnnoTermFree(term);
+      ArrayTreeNodeFree(exists);
    }
    else
    {
       tmp.p_val = term;
-      ArrayTreeStore(&(set->set), term->term->entry_no, tmp, tmp);
+      ArrayTreeStore(&(set->set), term->term->entry_no, tmp);
    }
    return res;
 }
@@ -249,9 +250,9 @@ long FlatAnnoSetTranslate(FlatAnnoSet_p flatset, AnnoSet_p set, double
 
    while((handle = ArrayTreeTraverseNext(stack)))
    {
-      for (uint8_t i = 0; i <= handle->last_used_index; i++) {
-         if (handle->entries[i].val1.p_val) {
-            old = handle->entries[i].val1.p_val;
+      for (uint8_t i = 0; i <= handle->highest_index; i++) {
+         if (handle->entries[i].p_val) {
+            old = handle->entries[i].p_val;
             assert(old->annotation);
             assert(!old->annotation->lson);
             assert(!old->annotation->lson);
@@ -315,9 +316,9 @@ long FlatAnnoSetSize(FlatAnnoSet_p fset)
 
    while((handle = ArrayTreeTraverseNext(stack)))
    {
-      for (uint8_t i = 0; i <= handle->last_used_index; i++) {
-         if (handle->entries[i].val1.p_val) {
-            term = handle->entries[i].val1.p_val;
+      for (uint8_t i = 0; i <= handle->highest_index; i++) {
+         if (handle->entries[i].p_val) {
+            term = handle->entries[i].p_val;
             res+=term->sources;
          }
       }
@@ -395,9 +396,9 @@ long FlatAnnoSetFlatten(FlatAnnoSet_p set, FlatAnnoSet_p to_flatten)
 
    while((handle = ArrayTreeTraverseNext(stack)))
    {
-      for (uint8_t i = 0; i <= handle->last_used_index; i++) {
-         if (handle->entries[i].val1.p_val) {
-            res+=FlatAnnoTermFlatten(set, handle->entries[i].val1.p_val);
+      for (uint8_t i = 0; i <= handle->highest_index; i++) {
+         if (handle->entries[i].p_val) {
+            res+=FlatAnnoTermFlatten(set, handle->entries[i].p_val);
          }
       }
       // res+=FlatAnnoTermFlatten(set, handle->entries[0].val1.p_val);
@@ -436,9 +437,9 @@ double FlatAnnoSetEvalAverage(FlatAnnoSet_p set)
 
    while((handle = ArrayTreeTraverseNext(stack)))
    {
-      for (uint8_t i = 0; i <= handle->last_used_index; i++) {
-         if (handle->entries[i].val1.p_val) {
-            term = handle->entries[i].val1.p_val;
+      for (uint8_t i = 0; i <= handle->highest_index; i++) {
+         if (handle->entries[i].p_val) {
+            term = handle->entries[i].p_val;
             res+=term->eval;
             sources+=term->sources;
          }
@@ -482,9 +483,9 @@ double FlatAnnoSetEvalWeightedAverage(FlatAnnoSet_p set)
 
    while((handle = ArrayTreeTraverseNext(stack)))
    {
-      for (uint8_t i = 0; i <= handle->last_used_index; i++) {
-         if (handle->entries[i].val1.p_val) {
-            term = handle->entries[i].val1.p_val;
+      for (uint8_t i = 0; i <= handle->highest_index; i++) {
+         if (handle->entries[i].p_val) {
+            term = handle->entries[i].p_val;
             res+=term->eval_weight*term->eval;
             weight+=term->eval_weight;
          }

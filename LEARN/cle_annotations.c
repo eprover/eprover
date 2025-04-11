@@ -368,6 +368,7 @@ long AnnotationMerge(Annotation_p *tree, Annotation_p collect,
     {
        AnnotationCombine(collect, handle);
        count++;
+       ArrayTreeNodeFree(handle);
     }
       }
    }

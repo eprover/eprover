@@ -170,9 +170,9 @@ void ExampleSetFree(ExampleSet_p junk)
    stack = ArrayTreeTraverseInit(junk->ident_index);
    while((handle = ArrayTreeTraverseNext(stack)))
    {
-      for (uint8_t i = 0; i <= handle->last_used_index; i++) {
-         if (handle->entries[i].val1.p_val) {
-            ExampleRepFree(handle->entries[i].val1.p_val);
+      for (uint8_t i = 0; i <= handle->highest_index; i++) {
+         if (handle->entries[i].p_val) {
+            ExampleRepFree(handle->entries[i].p_val);
          }
       }
       // ExampleRepFree(handle->entries[0].val1.p_val);
@@ -228,7 +228,7 @@ bool ExampleSetInsert(ExampleSet_p set, ExampleRep_p rep)
 
    tmp.p_val = rep;
 
-   res1 = ArrayTreeStore(&(set->ident_index), rep->ident, tmp, tmp);
+   res1 = ArrayTreeStore(&(set->ident_index), rep->ident, tmp);
    if(!res1)
    {
       return false;
@@ -267,7 +267,7 @@ ExampleRep_p ExampleSetExtract(ExampleSet_p set, ExampleRep_p rep)
    {
       return NULL;
    }
-   handle = cell->entries[0].val1.p_val;
+   handle = cell->entries[0].p_val;
    ArrayTreeNodeFree(cell);
    res = StrTreeDeleteEntry(&(set->name_index), rep->name);
    UNUSED(res); assert(res);
@@ -298,9 +298,10 @@ bool ExampleSetDeleteId(ExampleSet_p set, long ident)
    {
       return false;
    }
-   handle = ExampleSetExtract(set, cell->entries[0].val1.p_val);
+   handle = ExampleSetExtract(set, cell->entries[0].p_val);
    assert(handle);
    ExampleRepFree(handle);
+   ArrayTreeNodeFree(cell);
    return true;
 }
 
@@ -352,8 +353,8 @@ void ExampleSetPrint(FILE* out, ExampleSet_p set)
    stack = ArrayTreeTraverseInit(set->ident_index);
    while((handle = ArrayTreeTraverseNext(stack)))
    {
-      for (uint8_t i = 0; i <= handle->last_used_index; i++) {
-         ExampleRepPrint(out, handle->entries[i].val1.p_val);
+      for (uint8_t i = 0; i <= handle->highest_index; i++) {
+         ExampleRepPrint(out, handle->entries[i].p_val);
       }
       // ExampleRepPrint(out, handle->entries[0].val1.p_val);
    }
@@ -444,9 +445,9 @@ long ExampleSetSelectByDist(PStack_p results, ExampleSet_p set,
    stack = ArrayTreeTraverseInit(set->ident_index);
    while((cell = ArrayTreeTraverseNext(stack)))
    {
-      for (uint8_t j = 0; j <= cell->last_used_index; j++) {
-         if (cell->entries[j].val1.p_val) {
-            current = cell->entries[j].val1.p_val;
+      for (uint8_t j = 0; j <= cell->highest_index; j++) {
+         if (cell->entries[j].p_val) {
+            current = cell->entries[j].p_val;
             dist = NumFeatureDistance(target, current->features, pred_w,
                   func_w, weights);
             tmp_array[i].weight       = dist;

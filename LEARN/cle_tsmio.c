@@ -73,9 +73,9 @@ static double get_default_eval(AnnoSet_p annoset,double evalweights[])
    stack = ArrayTreeTraverseInit(annoset->set);
    while((handle = ArrayTreeTraverseNext(stack)))
    {
-      for (uint8_t j = 0; j <= handle->last_used_index; j++) {
-         if (handle->entries[j].val1.p_val) {
-            current = handle->entries[j].val1.p_val;
+      for (uint8_t j = 0; j <= handle->highest_index; j++) {
+         if (handle->entries[j].p_val) {
+            current = handle->entries[j].p_val;
             currentvalues = AnnotationValues(current->annotation);
             currentcount = AnnotationCount(current->annotation);
             for(i=3; i<=KB_ANNOTATION_NO; i++)
