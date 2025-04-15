@@ -73,7 +73,7 @@ static inline int KeyCmpFun(long k1, long k2) {
 }
 
 static inline int CalcKey(long key) {
-    return key / MAX_NODE_ARRAY_SIZE * MAX_NODE_ARRAY_SIZE;
+   return key < 0 ? -2 : (key / MAX_NODE_ARRAY_SIZE * MAX_NODE_ARRAY_SIZE);
 }
 
 #endif

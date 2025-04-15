@@ -245,6 +245,7 @@ ArrayTree_p ArrayTreeInsert(ArrayTree_p *root, ArrayTree_p newnode, long idx) {
     //     functions from other folders insert into the tree (compare annotations etc)
     nodeKey = CalcKey(newnode->key);
     if (!(nodeKey == newnode->key)) {
+        printf("nodeKey: %ld, key: %ld\n", nodeKey, newnode->key);
         validIdx = KeyCmp(newnode->key, nodeKey);
         newnode->key = nodeKey;
         newnode->entries[validIdx] = newnode->entries[idx];
@@ -261,10 +262,12 @@ ArrayTree_p ArrayTreeInsert(ArrayTree_p *root, ArrayTree_p newnode, long idx) {
     // Splay the tree to bring the closest key to the root
     *root = splay_tree(*root, newnode->key);
     // Check key of the current tree
+    printf("newnode->key: %ld, (*root)->key: %ld\n", newnode->key, (*root)->key);
     diff = KeyCmp(newnode->key, (*root)->key);
+    printf("diff: %ld, idx: %ld\n", diff, idx);
 
     // Node exists
-    if (CmpEqual(idx, diff)) {
+    if (CmpEqual(0, diff)) {
         // Check if entry exists
         if ((*root)->entries[idx].p_val) {
             return newnode;
@@ -283,7 +286,8 @@ ArrayTree_p ArrayTreeInsert(ArrayTree_p *root, ArrayTree_p newnode, long idx) {
         (*root)->lson = NULL;
         *root = newnode;
         return NULL;
-    } else if (CmpGreaterEqual(diff, MAX_NODE_ARRAY_SIZE)) {
+    } else if (CmpGreaterEqual(diff, MAX_NODE_ARRAY_SIZE) ||
+               ((*root)->key < 0 && CmpGreaterEqual(diff, 0))) {
         // Add entry in right subtree
         newnode->rson = (*root)->rson;
         newnode->lson = *root;
@@ -305,6 +309,7 @@ bool ArrayTreeStore(ArrayTree_p *root, long key, IntOrP val) {
 
     // Initialize the first entry in the new node
     handle->key = CalcKey(key);
+    printf("CalcKey: %ld, key: %ld\n", handle->key, key);
     idx = KeyCmp(key, handle->key);
     handle->entries[idx] = val;
 
