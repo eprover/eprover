@@ -223,8 +223,8 @@ void ArrayTreeFree(ArrayTree_p junk) {
 ArrayTree_p ArrayTreeInsert(ArrayTree_p *root, ArrayTree_p newnode, long idx) {
     fprintf(stdout, "ArrayTreeInsert -> newnode->key: %ld\n", newnode->key);
     long diff, nodeKey, validIdx;
-    //printf("newnode:\n");
-    //ArrayTreeDebugPrint(stdout, newnode, false);
+    printf("newnode:\n");
+    ArrayTreeDebugPrint(stdout, newnode, false);
 
     // Check if the value is inserted in the correct place
     // There are a few cases where a value is inserted in the wrong place
@@ -255,7 +255,7 @@ ArrayTree_p ArrayTreeInsert(ArrayTree_p *root, ArrayTree_p newnode, long idx) {
     printf("newnode->key: %ld, (*root)->key: %ld\n", newnode->key, (*root)->key);
     diff = KeyCmp(newnode->key, (*root)->key);
     printf("diff: %ld, idx: %ld\n", diff, idx);
-    //ArrayTreeDebugPrint(stdout, (*root), false);
+    ArrayTreeDebugPrint(stdout, (*root), false);
 
     // Node exists
     if (CmpEqual(0, diff)) {
@@ -263,10 +263,10 @@ ArrayTree_p ArrayTreeInsert(ArrayTree_p *root, ArrayTree_p newnode, long idx) {
         if ((*root)->entries[idx].p_val) {
             return newnode;
         } else {
-            //printf("newnode:\n");
-            //ArrayTreeDebugPrint(stdout, newnode, false);
+            printf("newnode:\n");
+            ArrayTreeDebugPrint(stdout, newnode, false);
             (*root)->entries[idx] = newnode->entries[idx];
-            //ArrayTreeDebugPrint(stdout, (*root), false);
+            ArrayTreeDebugPrint(stdout, (*root), false);
             if (CmpLessVal((*root)->highest_index, idx)) (*root)->highest_index = idx;
             ArrayTreeNodeFree(newnode);
             (*root)->entry_count++;
