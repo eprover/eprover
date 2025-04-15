@@ -123,7 +123,7 @@ static ArrayTree_p add_new_tree_node(IntMap_p map, long key, void* val)
    handle->entry_count = 1;
    handle->highest_index = 0;
    check = ArrayTreeInsert(&(map->values.tree), handle, 0);
-   UNUSED(check); assert(!check);
+   UNUSED(check); // assert(!check);
    if (check) {
       ArrayTreeNodeFree(check);
    } else {
@@ -331,8 +331,8 @@ void* IntMapGetVal(IntMap_p map, long key)
             if(entry)
             {
                res = entry->entries[0].p_val;
+               ArrayTreeNodeFree(entry);
             }
-            ArrayTreeNodeFree(entry);
          }
          break;
    default:

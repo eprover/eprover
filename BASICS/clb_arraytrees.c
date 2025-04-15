@@ -244,8 +244,8 @@ ArrayTree_p ArrayTreeInsert(ArrayTree_p *root, ArrayTree_p newnode, long idx) {
     //     extracted node is inserted again
     //     functions from other folders insert into the tree (compare annotations etc)
     nodeKey = CalcKey(newnode->key);
-    validIdx = KeyCmp(newnode->key, nodeKey);
-    if (!(nodeKey == newnode->key && validIdx == idx)) {
+    if (!(nodeKey == newnode->key)) {
+        validIdx = KeyCmp(newnode->key, nodeKey);
         newnode->key = nodeKey;
         newnode->entries[validIdx] = newnode->entries[idx];
         newnode->entries[idx].p_val = NULL;
