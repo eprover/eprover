@@ -19,69 +19,55 @@
 
 static ArrayTree_p splay_tree(ArrayTree_p tree, long key) {
     fprintf(stdout, "splay_tree -> key: %ld\n", key);
+
+    if (!tree) return NULL;
+
     ArrayTree_p left, right, tmp;
-    ArrayTreeNode newnode; // Placeholder node for tree manipulation
+    ArrayTreeNode newnode; // Dummy root
     long cmpres;
 
-    // Return if the tree is empty
-    if (!tree) {
-        return tree;
-    }
-
-    // Initialize the temporary nodes
     newnode.lson = NULL;
     newnode.rson = NULL;
     left = &newnode;
     right = &newnode;
 
     for (;;) {
-        // Navigate left or right based on the first or last key in the node
-        cmpres = KeyCmp(key, tree->key);
-        if (CmpLessVal(cmpres, 0)) {
-            // Key is smaller, move to the left subtree
-            if (!tree->lson) {
-                break;
-            }
+        cmpres = key - tree->key;
+
+        if (cmpres < 0) {
+            if (!tree->lson) break;
             if (key < tree->lson->key) {
-                // Perform a right rotation
+                // Zig-Zig (Right Rotation)
                 tmp = tree->lson;
                 tree->lson = tmp->rson;
                 tmp->rson = tree;
                 tree = tmp;
-                if (!tree->lson) {
-                    break;
-                }
+                if (!tree->lson) break;
             }
             right->lson = tree;
             right = tree;
             tree = tree->lson;
-        }
-        else if (CmpGreaterEqual(cmpres, MAX_NODE_ARRAY_SIZE)) {
-            if (!tree->rson) {
-                // Tree is already shifted to the most right node
-                break;
-            }
-            // Key is larger, move to the right subtree
-            if (CmpGreaterEqual(key, (tree->rson->key + MAX_NODE_ARRAY_SIZE))) {
-                // Perform a left rotation
+
+        } else if (cmpres > 0) {
+            if (!tree->rson) break;
+            if (key > tree->rson->key) {
+                // Zag-Zag (Left Rotation)
                 tmp = tree->rson;
                 tree->rson = tmp->lson;
                 tmp->lson = tree;
                 tree = tmp;
-                if (!tree->rson) {
-                    break;
-                }
+                if (!tree->rson) break;
             }
             left->rson = tree;
             left = tree;
             tree = tree->rson;
-        }
-        else {
+
+        } else {
             break;
         }
     }
 
-    // Reassemble the tree
+    // Reassemble
     left->rson = tree->lson;
     right->lson = tree->rson;
     tree->lson = newnode.rson;
@@ -237,6 +223,8 @@ void ArrayTreeFree(ArrayTree_p junk) {
 ArrayTree_p ArrayTreeInsert(ArrayTree_p *root, ArrayTree_p newnode, long idx) {
     fprintf(stdout, "ArrayTreeInsert -> newnode->key: %ld\n", newnode->key);
     long diff, nodeKey, validIdx;
+    //printf("newnode:\n");
+    //ArrayTreeDebugPrint(stdout, newnode, false);
 
     // Check if the value is inserted in the correct place
     // There are a few cases where a value is inserted in the wrong place
@@ -250,6 +238,8 @@ ArrayTree_p ArrayTreeInsert(ArrayTree_p *root, ArrayTree_p newnode, long idx) {
         newnode->key = nodeKey;
         newnode->entries[validIdx] = newnode->entries[idx];
         newnode->entries[idx].p_val = NULL;
+        newnode->highest_index = validIdx;
+        idx = validIdx;
     }
 
     // If the tree is empty, make the new node the root
@@ -265,6 +255,7 @@ ArrayTree_p ArrayTreeInsert(ArrayTree_p *root, ArrayTree_p newnode, long idx) {
     printf("newnode->key: %ld, (*root)->key: %ld\n", newnode->key, (*root)->key);
     diff = KeyCmp(newnode->key, (*root)->key);
     printf("diff: %ld, idx: %ld\n", diff, idx);
+    //ArrayTreeDebugPrint(stdout, (*root), false);
 
     // Node exists
     if (CmpEqual(0, diff)) {
@@ -272,7 +263,10 @@ ArrayTree_p ArrayTreeInsert(ArrayTree_p *root, ArrayTree_p newnode, long idx) {
         if ((*root)->entries[idx].p_val) {
             return newnode;
         } else {
+            //printf("newnode:\n");
+            //ArrayTreeDebugPrint(stdout, newnode, false);
             (*root)->entries[idx] = newnode->entries[idx];
+            //ArrayTreeDebugPrint(stdout, (*root), false);
             if (CmpLessVal((*root)->highest_index, idx)) (*root)->highest_index = idx;
             ArrayTreeNodeFree(newnode);
             (*root)->entry_count++;
@@ -359,8 +353,10 @@ void ArrayTreeDebug() {
         switch (input) {
             case 'f':   // ArrayTreeFind
                 key = readInteger();
-                root = ArrayTreeFind(&root, key);
+                ext = ArrayTreeFind(&root, key);
                 ArrayTreeDebugPrint(stdout, root, false);
+                printf("found:\n");
+                ArrayTreeDebugPrint(stdout, ext, false);
                 break;
             case 'd':   // ArrayTreeDeleteNode
                 key = readInteger();
