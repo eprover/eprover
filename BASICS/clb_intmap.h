@@ -28,7 +28,7 @@ Changes
 #define CLB_INTMAP
 
 #include <limits.h>
-#include <clb_numtrees.h>
+#include <clb_arraytrees.h>
 #include <clb_pdrangearrays.h>
 
 
@@ -73,7 +73,7 @@ typedef struct intmap_cell
    {
       void*        value;   /* For IMSingle */
       PDRangeArr_p array;   /* For IMArray  */
-      NumTree_p    tree;    /* For IMTree   */
+      ArrayTree_p    tree;    /* For IMTree   */
    }values;
 }IntMapCell, *IntMap_p;
 
@@ -86,9 +86,9 @@ typedef struct intmap_iter_cell
    long     upper_key;
    union
    {
-      bool      seen;      /* For IMSingle */
-      long      current;   /* For IMArray  */
-      PStack_p  tree_iter; /* For IMTree */
+      bool        seen;      /* For IMSingle */
+      long        current;   /* For IMArray  */
+      TreeIter_p  arrTree_iter; /* For IMTree */
    }admin_data;
 }IntMapIterCell, *IntMapIter_p;
 
@@ -123,7 +123,7 @@ void*    IntMapDelKey(IntMap_p map, long key);
 #define IntMapDStorage(map) (((map)->type == IMArray)?\
                              PDArrayStorage((map)->values.array):\
                              (((map)->type == IMTree)?\
-                              ((map)->entry_no*NUMTREECELL_MEM):0))
+                              ((map)->entry_no*ARRAYTREECELL_MEM):0))
 
 #define IntMapStorage(map) (INTMAPCELL_MEM+IntMapDStorage(map))
 
@@ -132,8 +132,6 @@ void         IntMapIterFree(IntMapIter_p junk);
 static inline void* IntMapIterNext(IntMapIter_p iter, long *key);
 
 void     IntMapDebugPrint(FILE* out, IntMap_p map);
-
-
 
 
 /*---------------------------------------------------------------------*/
@@ -159,7 +157,7 @@ static inline void* IntMapIterNext(IntMapIter_p iter, long *key)
 {
    void* res = NULL;
    long  i;
-   NumTree_p handle;
+   ArrayTree_p handle;
 
    assert(iter);
    assert(key);
@@ -198,21 +196,22 @@ static inline void* IntMapIterNext(IntMapIter_p iter, long *key)
          break;
    case IMTree:
          // printf("Case IMTree\n");
-         while((handle = NumTreeTraverseNext(iter->admin_data.tree_iter)))
+         while((handle = ArrayTreeTraverseNext(iter->admin_data.arrTree_iter->tree_iter)))
          {
             if(handle)
             {
-               if(handle->key > iter->upper_key)
-               {
-                  /* Overrun limit */
-                  break;
-               }
-               if(handle->val1.p_val)
-               {
-                  /* Found real value */
-                  *key = handle->key;
-                  res = handle->val1.p_val;
-                  break;
+               for (uint8_t i = iter->admin_data.arrTree_iter->key; i < MAX_NODE_ARRAY_SIZE; i++) {
+                  iter->admin_data.arrTree_iter->key = i;
+                  if ((handle->key + i) > iter->upper_key) {
+                     /* Overrun limit */
+                     break;
+                  }
+                  if (handle->entries[i].p_val) {
+                     /* Found real value */
+                     *key = (handle->key + i);
+                     res = handle->entries[i].p_val;
+                     break;
+                  }
                }
             }
          }
