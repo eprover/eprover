@@ -671,7 +671,7 @@ int main(int argc, char* argv[])
    raw_clause_no = proofstate->axioms->members;
    ProofStateLoadWatchlist(proofstate, watchlist_filename, parse_format);
 
-   preproc_removed = PreprocessClauseSets(proofstate, h_parms);
+   preproc_removed = ProofStateClausalPreproc(proofstate, h_parms);
 
    if((strategy_scheduling && sched_idx != -1) || (auto_conf && !cnf_only))
    {

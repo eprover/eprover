@@ -71,6 +71,8 @@ typedef enum
                                         * but hopefully only for split
                                         * literals and Tseitin defined
                                         * predicates */
+   FPDefFun       = FPDefPred *2, /* Used for edef()s, currently not
+                                   * useful ;-) */
 }FunctionProperties;
 
 
@@ -166,6 +168,7 @@ typedef struct sigcell
    /* Counters for generating new symbols */
    long      skolem_count;
    long      newpred_count;
+   long      newdef_count;
    /* Which properties are used for recognizing implicit distinctness?*/
    FunctionProperties distinct_props;
    PStack_p let_scopes;
@@ -294,9 +297,17 @@ FunCode SigGetOtherEqnCode(Sig_p sig, FunCode f_code);
 static inline FunCode SigGetOrCode(Sig_p sig);
 static inline FunCode SigGetCNilCode(Sig_p sig);
 FunCode SigGetOrNCode(Sig_p sig, int arity);
+
+FunCode SigGetNewFCode(Sig_p sig, int arity, char *prefix,
+                       long *counter, FunctionProperties props);
+#define SigGetNewSkolemCode(sig, arity) \
+   SigGetNewFCode((sig), (arity),"esk", &(sig)->skolem_count, FPSkolemSymbol)
+#define SigGetNewPredicateCode(sig, arity) \
+   SigGetNewFCode((sig), (arity),"epred", &(sig)->newpred_count, FPDefPred)
+#define SigGetNewDefCode(sig, arity) \
+   SigGetNewFCode((sig), (arity),"edef", &(sig)->newdef_count, FPDefFun)
+
 FunCode SigGetNewTypedSkolem(Sig_p sig, Type_p *args, int num_args, Type_p ret_type);
-FunCode SigGetNewSkolemCode(Sig_p sig, int arity);
-FunCode SigGetNewPredicateCode(Sig_p sig, int arity);
 
 /* Types */
 #define SigDefaultSort(sig)  ((sig)->type_bank->default_type)

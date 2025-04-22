@@ -41,7 +41,7 @@
 /*---------------------------------------------------------------------*/
 
 
-long PreprocessClauseSets(ProofState_p proofstate, HeuristicParms_p h_parms);
+long ProofStateClausalPreproc(ProofState_p proofstate, HeuristicParms_p h_parms);
 
 
 #endif

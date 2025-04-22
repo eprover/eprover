@@ -42,8 +42,60 @@
 /*                         Exported Functions                          */
 /*---------------------------------------------------------------------*/
 
-long PreprocessClauseSets(ProofState_p proofstate,
-                          HeuristicParms_p h_parms)
+
+/*-----------------------------------------------------------------------
+//
+// Function: ProofStateIntroduceGroundTermDefs()
+//
+//
+//
+// Global Variables:
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+
+long ProofStateIntroduceGroundTermDefs(ProofState_p proofstate,
+                                       HeuristicParms_p h_parms)
+{
+   long res = 0;
+   Clause_p handle;
+   PTree_p terms_to_define;
+
+   for(handle = proofstate->axioms->anchor->succ;
+       handle!=proofstate->axioms->anchor;
+       handle = handle->succ)
+   {
+      if(ClauseIsConjecture(handle))
+      {
+         ClauseCollectGroundTerms(handle, &terms_to_define,
+                                  h_parms->add_goal_defs_subterms,
+                                  h_parms->add_goal_defs_pos,
+                                  h_parms->add_goal_defs_neg);
+      }
+   }
+
+
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: ProofStateClausalPreproc()
+//
+//   Perform various (optional) preprocessing steps on the proof state
+//   unprocessed clauses.
+//
+// Global Variables: -
+//
+// Side Effects    : Archives original clauses, may modify a lot of
+//                   the proof state in various ways
+//
+/----------------------------------------------------------------------*/
+
+long ProofStateClausalPreproc(ProofState_p proofstate,
+                              HeuristicParms_p h_parms)
 {
    long preproc_removed = 0;
 
