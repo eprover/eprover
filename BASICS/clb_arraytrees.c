@@ -4,7 +4,7 @@
 static ArrayTree_p splay_tree(ArrayTree_p tree, long key) {
     fprintf(stdout, "splay_tree -> key: %ld\n", key);
 
-    if (key < 0) ArrayTreeDebugPrint(stdout, tree, false);
+    ArrayTreeDebugPrint(stdout, tree, false);
 
     if (!tree) return NULL;
 
@@ -112,6 +112,14 @@ void array_init(ArrayTree_p node) {
     }
 }
 
+// int readInteger() {
+//     int number;
+//     printf("Bitte geben Sie den key ein: ");
+//     scanf("%d", &number);
+//     while (getchar() != '\n');
+//     return number;
+// }
+
 // limited_entry_clear() -> ArrayTreeLimitedTraverseInit()
 // returns node whitout entries below limit
 // Which functions call ArrayTreeLimitedTraverseInit()?
@@ -142,6 +150,65 @@ void ArrayTreeDebugPrint(FILE* out, ArrayTree_p tree, bool keys_only) {
     fprintf(out, "root: %p\n", tree);
     arraytree_print(out, tree, keys_only, 0);
 }
+
+// void ArrayTreeDebug() {
+//     ArrayTree_p root = NULL;
+//     IntOrP val, res;
+//     char input;
+//     int running = 1, key;
+
+//     while (running) {
+//         printf("\nGeben Sie ein Zeichen ein (c, e, f, l, i, p, s oder z zum Beenden):\nc: free, d: delete, e: extract, f: find, i: store, l: traverseLimit, p: print, r: root, s: splay, t: split, z: quit\nEingabe: ");
+//         scanf("%c", &input);
+//         while (getchar() != '\n');
+
+//         switch (input) {
+//             case 'f':   // ArrayTreeFind
+//                 key = readInteger();
+//                 res = ArrayTreeFind(&root, key);
+//                 ArrayTreeDebugPrint(stdout, root, false);
+//                 printf("found:\nres: %ld, %p\n", res.i_val, res.p_val);
+//                 break;
+//             case 'i':   // ArrayTreeStore
+//                 key = readInteger();
+//                 val.i_val = key;
+//                 ArrayTreeStore(&root, key, val);
+//                 ArrayTreeDebugPrint(stdout, root, false);
+//                 break;
+//             case 'c':   // ArrayTreeFree
+//                 ArrayTreeFree(root);
+//                 root = NULL;
+//                 ArrayTreeDebugPrint(stdout, root, false);
+//                 break;
+//             // case 'l':   // ArrayTreeTraverseLimit
+//             //     key = readInteger();
+//             //     ArrayTreeLimitedTraverseInit(root, key);
+//             //     ArrayTreeDebugPrint(stdout, root, false);
+//             //     break;
+//             case 'e':   // ArrayTreeExtractNode
+//                 key = readInteger();
+//                 res = ArrayTreeExtractEntry(&root, key);
+//                 ArrayTreeDebugPrint(stdout, root, false);
+//                 printf("extracted:\nres: %ld, %p\n", res.i_val, res.p_val);
+//                 break;
+//             case 'p':   // ArrayTreeDebugPrint
+//                 ArrayTreeDebugPrint(stdout, root, false);
+//                 break;
+//             case 's':    // splay_tree
+//                 key = readInteger();
+//                 root = splay_tree(root, key);
+//                 ArrayTreeDebugPrint(stdout, root, false);
+//                 break;
+//             case 'z':
+//                 running = 0;
+//                 printf("Programm wird beendet.\n");
+//                 break;
+//             default:
+//                 printf("Ungültige Eingabe, bitte erneut versuchen.\n");
+//                 break;
+//         }
+//     }
+// }
 
 // ArrayTreeFree() -> IntMapFree()
 // Delete the entire tree (also empty the arrays of all nodes)
@@ -200,6 +267,8 @@ ArrayTree_p ArrayTreeNodeInsert(ArrayTree_p root, long key) {
     handle = ArrayTreeNodeAllocEmpty();
     handle->key = CalcKey(key);
 
+    if (!root) return handle;
+
     root = splay_tree(root, handle->key);
     if (root->key == handle->key) {
         ArrayTreeCellFree(handle);
@@ -241,89 +310,105 @@ ArrayTree_p ArrayTreeNodeAllocEmpty(void) {
 // Search for a specific value in the tree
 // Return of the p_val of the entry
 
-IntOrP ArrayTreeFind(ArrayTree_p root, long key) {
+IntOrP ArrayTreeFind(ArrayTree_p *root, long key) {
     printf("ArrayTreeFind -> key: %ld\n", key);
     IntOrP val;
     long nodeKey, idx;
+
+    val.p_val = NULL;
+    if (!(*root)) return val;
     // Check if key is valid -> use inline function
     nodeKey = CalcKey(key);
     idx = key - nodeKey;
-    root = splay_tree(root, nodeKey);
+    assert(idx > -1 && idx < MAX_NODE_ARRAY_SIZE);
+    (*root) = splay_tree((*root), nodeKey);
     // Find entry
-    if (root->key == nodeKey && root->entries[idx].p_val) {
-        return root->entries[idx];
+    if ((*root)->key == nodeKey && (*root)->entries[idx].p_val) {
+        return (*root)->entries[idx];
     } else {
-        val.p_val = NULL;
         return val;
     }
 }
 
-void** ArrayTreeFindRef(ArrayTree_p root, long key) {
-    printf("ArrayTreeFindRef -> key: %ld\n", key);
-    long nodeKey, idx;
+// void** ArrayTreeFindRef(ArrayTree_p root, long key) {
+//     printf("ArrayTreeFindRef -> key: %ld\n", key);
+//     long nodeKey, idx;
 
-    // Check if key is valid -> use inline function
-    nodeKey = CalcKey(key);
-    idx = key - nodeKey;
+//     if (!root) return NULL;
 
-    root = splay_tree(root, nodeKey);
+//     // Check if key is valid -> use inline function
+//     nodeKey = CalcKey(key);
+//     idx = key - nodeKey;
 
-    // Find entry
-    if (root && root->key == nodeKey) {
-        return &(root->entries[idx].p_val);
-    }
+//     root = splay_tree(root, nodeKey);
+//     // ArrayTreeDebugPrint(stdout, root, false);
 
-    return NULL;
-}
+//     // Find entry
+//     if (root->key == nodeKey) {
+//         return &(root->entries[idx].p_val);
+//     }
+
+//     return NULL;
+// }
 
 
 // ArrayTreeStore() -> IntMapGetRef(), add_new_tree_node()
 // Add a value to the array of the corresponding node
 // Theoretically does not require a return value
 
-IntOrP ArrayTreeStore(ArrayTree_p root, long key, IntOrP val) {
-    printf("ArrayTreeStore -> key: %ld\n", key);
+IntOrP ArrayTreeStore(ArrayTree_p *root, long key, IntOrP val) {
     long nodeKey, idx;
-    // Check if key is valid -> use inline function
+
     nodeKey = CalcKey(key);
     idx = key - nodeKey;
-    root = splay_tree(root, nodeKey);
-    if (root) {
-        if (root->key == key && !root->entries[idx].p_val) {
-            root->entries[idx] = val;
-            if (root->highest_index < idx) root->highest_index = idx;
-        }
+    assert(idx > -1 && idx < MAX_NODE_ARRAY_SIZE);
+
+    if (!(*root)) {
+        (*root) = ArrayTreeNodeInsert((*root), nodeKey);
     } else {
-        ArrayTreeNodeInsert(root, nodeKey);
-        ArrayTreeStore(root, key, val);
+        (*root) = splay_tree((*root), nodeKey);
+        if ((*root)->key != nodeKey) {
+            (*root) = ArrayTreeNodeInsert((*root), nodeKey);
+        }
     }
+
+    if (!(*root)->entries[idx].p_val) {
+        (*root)->entries[idx] = val;
+        if ((*root)->highest_index < idx) (*root)->highest_index = idx;
+    }
+
     return val;
 }
+
 
 // ArrayTreeExtractEntry() -> IntMapDelKey()
 // Delete the value of a corresponding node
 // Return value, the key of the node is necessary but given inside IntMapDelKey()
 
-IntOrP ArrayTreeExtractEntry(ArrayTree_p root, long key) {
+IntOrP ArrayTreeExtractEntry(ArrayTree_p *root, long key) {
     printf("ArrayTreeExtractEntry -> key: %ld\n", key);
     IntOrP val;
     long nodeKey, idx;
 
+    val.p_val = NULL;
+    if (!(*root)) return val;
+
     nodeKey = CalcKey(key);
     idx = key - nodeKey;
-    root = splay_tree(root, nodeKey);
+    assert(idx > -1 && idx < MAX_NODE_ARRAY_SIZE);
+    (*root) = splay_tree((*root), nodeKey);
 
-    if (root->key == nodeKey && root->entries[idx].p_val) {
-        val = root->entries[idx];
-        root->entries[idx].p_val = NULL;
-        if (root->highest_index == idx) {
-            for (idx = root->highest_index; idx >= -1; idx --) {
-                if (root->entries[idx].p_val) break;
+    if ((*root)->key == nodeKey && (*root)->entries[idx].p_val) {
+        val = (*root)->entries[idx];
+        (*root)->entries[idx].p_val = NULL;
+        if ((*root)->highest_index == idx) {
+            for (idx = (*root)->highest_index; idx >= -1; idx --) {
+                if ((*root)->entries[idx].p_val) break;
             }
-            root->highest_index = idx;
+            (*root)->highest_index = idx;
         }
         // Optional: Check if node is empty
-        if (root->highest_index < 0) ArrayTreeNodeFree(root);
+        if ((*root)->highest_index < 0) ArrayTreeNodeFree((*root));
         return val;
     } else {
         val.p_val = NULL;

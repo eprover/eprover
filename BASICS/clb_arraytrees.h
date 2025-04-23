@@ -30,10 +30,10 @@ void        ArrayTreeFree(ArrayTree_p tree);
 void        ArrayTreeNodeFree(ArrayTree_p node);
 ArrayTree_p ArrayTreeNodeInsert(ArrayTree_p root, long key) ;
 ArrayTree_p ArrayTreeNodeAllocEmpty(void);
-IntOrP      ArrayTreeFind(ArrayTree_p root, long key);
+IntOrP      ArrayTreeFind(ArrayTree_p *root, long key);
 void**      ArrayTreeFindRef(ArrayTree_p root, long key);
-IntOrP      ArrayTreeStore(ArrayTree_p root, long key, IntOrP val);
-IntOrP      ArrayTreeExtractEntry(ArrayTree_p root, long key);
+IntOrP      ArrayTreeStore(ArrayTree_p *root, long key, IntOrP val);
+IntOrP      ArrayTreeExtractEntry(ArrayTree_p *root, long key);
 TreeIter_p  ArrayTreeLimitedTraverseInit(ArrayTree_p root,
                                          TreeIter_p iterator, long limit);
 long        ArrayTreeMaxNode(ArrayTree_p root);
