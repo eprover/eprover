@@ -25,6 +25,7 @@ typedef struct arraytree_node {
 #define ARRAYTREECELL_MEM MEMSIZE(ArrayTreeNode)
 #endif
 
+void        ArrayTreeDebugPrint(FILE* out, ArrayTree_p tree, bool keys_only);
 void        ArrayTreeFree(ArrayTree_p tree);
 void        ArrayTreeNodeFree(ArrayTree_p node);
 ArrayTree_p ArrayTreeNodeInsert(ArrayTree_p root, long key) ;
@@ -38,7 +39,7 @@ TreeIter_p  ArrayTreeLimitedTraverseInit(ArrayTree_p root,
 long        ArrayTreeMaxNode(ArrayTree_p root);
 
 static inline int CalcKey(long key) {
-    return key / MAX_NODE_ARRAY_SIZE * MAX_NODE_ARRAY_SIZE;
+    return key < 0 ? -2 : (key / MAX_NODE_ARRAY_SIZE * MAX_NODE_ARRAY_SIZE);
 }
 
 AVL_TRAVERSE_DECLARATION(ArrayTree, ArrayTree_p)
