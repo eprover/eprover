@@ -4,7 +4,7 @@
 static ArrayTree_p splay_tree(ArrayTree_p tree, long key) {
     fprintf(stdout, "splay_tree -> key: %ld\n", key);
 
-    ArrayTreeDebugPrint(stdout, tree, false);
+    // ArrayTreeDebugPrint(stdout, tree, false);
 
     if (!tree) return NULL;
 
@@ -260,29 +260,32 @@ void ArrayTreeNodeFree(ArrayTree_p node) {
 // Insert new, single node (if necessary)
 // Returns the memory address of the new node
 
-ArrayTree_p ArrayTreeNodeInsert(ArrayTree_p root, long key) {
+ArrayTree_p ArrayTreeNodeInsert(ArrayTree_p *root, long key) {
     printf("ArrayTreeNodeInsert -> key: %ld\n", key);
     ArrayTree_p handle;
 
     handle = ArrayTreeNodeAllocEmpty();
     handle->key = CalcKey(key);
 
-    if (!root) return handle;
-
-    root = splay_tree(root, handle->key);
-    if (root->key == handle->key) {
-        ArrayTreeCellFree(handle);
-        return root;
+    if (!(*root)) {
+        (*root) = handle;
+        return (*root);
     }
-    printf("root->key: %ld, key: %ld\n", root->key, key);
-    if (handle->key < root->key) {
-        handle->lson = root->lson;
-        handle->rson = root;
-        root->lson = NULL;
+
+    (*root) = splay_tree((*root), handle->key);
+    if ((*root)->key == handle->key) {
+        ArrayTreeCellFree(handle);
+        return (*root);
+    }
+    printf("root->key: %ld, key: %ld\n", (*root)->key, key);
+    if (handle->key < (*root)->key) {
+        handle->lson = (*root)->lson;
+        handle->rson = (*root);
+        (*root)->lson = NULL;
     } else {
-        handle->rson = root->rson;
-        handle->lson = root;
-        root->rson = NULL;
+        handle->rson = (*root)->rson;
+        handle->lson = (*root);
+        (*root)->rson = NULL;
     }
     return handle;
 }
@@ -364,11 +367,11 @@ IntOrP ArrayTreeStore(ArrayTree_p *root, long key, IntOrP val) {
     assert(idx > -1 && idx < MAX_NODE_ARRAY_SIZE);
 
     if (!(*root)) {
-        (*root) = ArrayTreeNodeInsert((*root), nodeKey);
+        (*root) = ArrayTreeNodeInsert(&(*root), nodeKey);
     } else {
         (*root) = splay_tree((*root), nodeKey);
         if ((*root)->key != nodeKey) {
-            (*root) = ArrayTreeNodeInsert((*root), nodeKey);
+            (*root) = ArrayTreeNodeInsert(&(*root), nodeKey);
         }
     }
 

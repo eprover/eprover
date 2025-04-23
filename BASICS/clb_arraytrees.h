@@ -28,7 +28,7 @@ typedef struct arraytree_node {
 void        ArrayTreeDebugPrint(FILE* out, ArrayTree_p tree, bool keys_only);
 void        ArrayTreeFree(ArrayTree_p tree);
 void        ArrayTreeNodeFree(ArrayTree_p node);
-ArrayTree_p ArrayTreeNodeInsert(ArrayTree_p root, long key) ;
+ArrayTree_p ArrayTreeNodeInsert(ArrayTree_p *root, long key) ;
 ArrayTree_p ArrayTreeNodeAllocEmpty(void);
 IntOrP      ArrayTreeFind(ArrayTree_p *root, long key);
 void**      ArrayTreeFindRef(ArrayTree_p root, long key);
