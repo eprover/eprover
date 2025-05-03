@@ -57,7 +57,6 @@ PERF_CTR_DEFINE(SatTimer);
 char              *outname = NULL;
 char              *watchlist_filename = NULL;
 char              *parse_strategy_filename = NULL;
-char              *select_strategy = NULL;
 char              *print_strategy = NULL;
 HeuristicParms_p  h_parms;
 FVIndexParms_p    fvi_parms;
@@ -75,6 +74,7 @@ bool              print_sat = false,
    indexed_subsumption = true,
    syntax_only = false,
    prune_only = false,
+   new_cnf = true,
    cnf_only = false,
    inf_sys_complete = true,
    assume_inf_sys_complete = false,
@@ -95,7 +95,8 @@ long              step_limit = LONG_MAX,
    total_limit = LONG_MAX,
    cores       = 1,
    generated_limit = LONG_MAX,
-   relevance_prune_level = 0;
+   relevance_prune_level = 0,
+   miniscope_limit = 1048576;
 long long tb_insert_limit = LLONG_MAX;
 bool lift_lambdas = true;
 int num_cpus = 1;
@@ -217,10 +218,6 @@ ProofState_p parse_spec(CLState_p state,
    }
    VERBOUT2("Specification read\n");
 
-   ProofStateProcessDistinct(proofstate);
-
-   VERBOUT2("$distinct directives processed\n");
-
    proofstate->has_interpreted_symbols =
       FormulaSetHasInterpretedSymbol(proofstate->f_axioms);
    parsed_ax_no = ProofStateAxNo(proofstate);
@@ -294,20 +291,12 @@ void strategy_io(HeuristicParms_p h_parms, PStack_p hcb_definitions)
       }
       DestroyScanner(in);
    }
-   if(select_strategy)
-   {
-      GetHeuristicWithName(select_strategy, h_parms);
-   }
 
    if(print_strategy)
    {
       if(strcmp(print_strategy, ">all-strats<")==0)
       {
-         StrategiesPrintPredefined(GlobalOut, false);
-      }
-      else if(strcmp(print_strategy, ">all-names<")==0)
-      {
-         StrategiesPrintPredefined(GlobalOut, true);
+         StrategiesPrintPredefined(GlobalOut);
       }
       else
       {
@@ -534,8 +523,20 @@ static void print_proof_stats(ProofState_p proofstate,
 // Side Effects    : Yes ;-)
 //
 /----------------------------------------------------------------------*/
+#include <clb_intmap.h>
+int main() {
+      int mode = 1;
+      if (mode == 0) {
+            // Debug the tree related functions
+            TreeDebug();
+      } else {
+            // Debug the array related functions
+            ArrayDebug();
+      }
+      return 0;
+}
 
-int main(int argc, char* argv[])
+int main2(int argc, char* argv[])
 {
    int              retval = NO_ERROR;
    CLState_p        state;
@@ -556,7 +557,7 @@ int main(int argc, char* argv[])
    SpecLimits_p spec_limits = NULL;
    RawSpecFeatureCell raw_features;
    SpecFeatureCell features;
-   int sched_idx = -1;
+   int sched_idx;
    Schedule_p preproc_schedule = NULL;
    rlim_t wc_sched_limit;
    Derivation_p deriv;
@@ -569,7 +570,7 @@ int main(int argc, char* argv[])
 
    InitIO(NAME);
    pid = getpid();
-   //setpgid(0, 0);
+   setpgid(0, 0);
 
    ESignalSetup(SIGXCPU);
 
@@ -652,17 +653,29 @@ int main(int argc, char* argv[])
    }
 
    VERBOUT("Clausification started.\n");
-   cnf_size = FormulaSetCNF2(proofstate->f_axioms,
-                             proofstate->f_ax_archive,
-                             proofstate->axioms,
-                             proofstate->terms,
-                             proofstate->freshvars,
-                             h_parms->miniscope_limit,
-                             h_parms->formula_def_limit,
-                             h_parms->lift_lambdas,
-                             h_parms->lambda_to_forall,
-                             h_parms->unroll_only_formulas,
-                             h_parms->fool_unroll);
+   if(new_cnf)
+   {
+      cnf_size = FormulaSetCNF2(proofstate->f_axioms,
+                                proofstate->f_ax_archive,
+                                proofstate->axioms,
+                                proofstate->terms,
+                                proofstate->freshvars,
+                                miniscope_limit,
+                                h_parms->formula_def_limit,
+                                h_parms->lift_lambdas,
+                                h_parms->lambda_to_forall,
+                                h_parms->unroll_only_formulas,
+                                h_parms->fool_unroll);
+   }
+   else
+   {
+      cnf_size = FormulaSetCNF(proofstate->f_axioms,
+                               proofstate->f_ax_archive,
+                               proofstate->axioms,
+                               proofstate->terms,
+                               proofstate->freshvars,
+                               h_parms->formula_def_limit);
+   }
    VERBOUT("Clausification done.\n");
 
    if(cnf_size)
@@ -725,7 +738,7 @@ int main(int argc, char* argv[])
                            h_parms, proofstate->terms,
                            proofstate->tmp_terms, proofstate->freshvars);
    }
-   if((strategy_scheduling && sched_idx != -1) || (auto_conf && !cnf_only))
+   if((strategy_scheduling && sched_idx != -1) || auto_conf)
    {
       if(!spec_limits)
       {
@@ -1345,9 +1358,6 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_RUSAGE_INFO:
             print_rusage = true;
             break;
-      case OPT_SELECT_STRATEGY:
-            select_strategy = arg;
-            break;
       case OPT_PRINT_STRATEGY:
             print_strategy = arg;
             break;
@@ -1495,7 +1505,7 @@ CLState_p process_options(int argc, char* argv[])
             relevance_prune_level = CLStateGetIntArg(handle, arg);
             break;
       case OPT_PRESAT_SIMPLIY:
-            h_parms->presat_interreduction = CLStateGetBoolArg(handle, arg);
+            h_parms->presat_interreduction = true;
             break;
       case OPT_AC_HANDLING:
             if(strcmp(arg, "None")==0)
@@ -1837,13 +1847,13 @@ CLState_p process_options(int argc, char* argv[])
             break;
       case OPT_SATCHECK:
             tmp = StringIndex(arg, GroundingStratNames);
-            if(tmp < 0)
+            if(tmp <= 0)
             {
                DStr_p err = DStrAlloc();
                DStrAppendStr(err,
                              "Wrong argument to option --sat-check. Possible "
                              "values: ");
-               DStrAppendStrArray(err, GroundingStratNames, ", ");
+               DStrAppendStrArray(err, GroundingStratNames+1, ", ");
                Error(DStrView(err), USAGE_ERROR);
                DStrFree(err);
             }
@@ -2002,16 +2012,17 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_FREE_OBJECTS:
             free_symb_prop = free_symb_prop|FPIsObject;
             break;
+      case OPT_DEF_CNF_OLD:
+            new_cnf = false;
+            /* Intentional fall-through */
       case OPT_DEF_CNF:
-            h_parms->formula_def_limit =
-               CLStateGetIntArgCheckRange(handle, arg, 0, LONG_MAX);
+            h_parms->formula_def_limit = CLStateGetIntArgCheckRange(handle, arg, 0, LONG_MAX);
             break;
       case OPT_FOOL_UNROLL:
             h_parms->fool_unroll = CLStateGetBoolArg(handle, arg);
             break;
       case OPT_MINISCOPE_LIMIT:
-            h_parms->miniscope_limit =
-               CLStateGetIntArgCheckRange(handle, arg, 0, LONG_MAX);
+            miniscope_limit =  CLStateGetIntArgCheckRange(handle, arg, 0, LONG_MAX);
             break;
       case OPT_PRINT_TYPES:
             TermPrintTypes = true;
@@ -2257,9 +2268,7 @@ E " VERSION " \"" E_NICKNAME "\"\n\
 \n\
 Usage: " NAME " [options] [files]\n\
 \n\
-Read a set of first-order (or, in the -ho-version, higher-order)\n\
-clauses and formulae and try to prove the conjecture (if given)\n\
-or show the set unsatisfiable.\n\
+Read a set of first-order clauses and formulae and try to refute it.\n\
 \n");
    PrintOptions(stdout, opts, "Options:\n\n");
    fprintf(out, "\n\n" E_FOOTER);
