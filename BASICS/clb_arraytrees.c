@@ -268,12 +268,12 @@ void TreeDebug() {
 
 
 void ArrayDebug() {
-    ArrayTree_p root = NULL;
+    ArrayTree_p root = NULL, handle = NULL;
     IntOrP val;
     char input;
     int running = 1, key, nodeKey;
     long maxKey;
-    TreeIter_p iter;
+    TreeIter_p iter = malloc(sizeof(ArrayTreeIter));
     void **ref;
     void *entry;
 
@@ -309,7 +309,7 @@ void ArrayDebug() {
                 key = readInteger();
                 nodeKey = CalcKey(key);
                 root = splay_tree(root, nodeKey);
-                entry = ArrayTreeExtractEntry(root, key);
+                entry = ArrayTreeExtractEntry(&root, key);
                 printf("tree:\n");
                 ArrayTreeDebugPrint(stdout, root, false);
                 printf("entry: %p\n", entry);
@@ -318,11 +318,14 @@ void ArrayDebug() {
                 maxKey = ArrayTreeMaxKey(root);
                 printf("maxKey: %ld\n", maxKey);
                 break;
-            // case 'l':   // ArrayTreeLimitedTraverseInit
-            //     key = readInteger();
-            //     ArrayTreeLimitedTraverseInit(root, &iter, key);
-            //     printf("Start Key: %ld\n", iter->key);
-            //     break;
+            case 'l':   // ArrayTreeLimitedTraverseInit
+                key = readInteger();
+                ArrayTreeLimitedTraverseInit(root, &iter, key);
+                printf("limit: %ld\n", iter->limit);
+                while ((handle = ArrayTreeTraverseNext(iter->tree_iter))) {
+                    ArrayTreeDebugPrint(stdout, handle, false);
+                }
+                break;
             case 'p':   // ArrayTreeDebugPrint
                 ArrayTreeDebugPrint(stdout, root, false);
                 break;
@@ -335,6 +338,7 @@ void ArrayDebug() {
                 break;
         }
     }
+    free(iter);
 }
 
 
@@ -377,7 +381,7 @@ void ArrayTreeNodeFree(ArrayTree_p *root, long key) {
     printf("ArrayTreeNodeFree -> key: %ld\n", key);
     if (!root || !(*root)) return;
 
-    //key = CalcKey(key);
+    key = CalcKey(key);
     *root = splay_tree(*root, key);
     if ((*root)->key != key) return;
 
@@ -540,24 +544,24 @@ ArrayTree_p ArrayTreeStore(ArrayTree_p *root, long key, IntOrP val) {
 // Delete the value of a corresponding node
 // Return value, the key of the node is necessary but given inside IntMapDelKey()
 
-void* ArrayTreeExtractEntry(ArrayTree_p node, long key) {
+void* ArrayTreeExtractEntry(ArrayTree_p *node, long key) {
     printf("ArrayTreeExtractEntry -> key: %ld\n", key);
     long idx;
     void* val = NULL;
+    
+    if (!(*node)) return NULL;
 
-    if (!node) return NULL;
-
-    idx = key - node->key;
+    idx = key - (*node)->key;
     assert(idx > -1 && idx < MAX_NODE_ARRAY_SIZE);
 
-    if (node->entries[idx].p_val) {
-        val = node->entries[idx].p_val;
-        node->entries[idx].p_val = NULL;
+    if ((*node)->entries[idx].p_val) {
+        val = (*node)->entries[idx].p_val;
+        (*node)->entries[idx].p_val = NULL;
     }
 
-    // if (ArrayTreeCheckEmpty(node, key)) {
-    //     ArrayTreeNodeFree(&node, key);
-    // }
+    if (ArrayTreeCheckEmpty(*node, key)) {
+        ArrayTreeNodeFree(&(*node), key);
+    }
 
     return val;
 }
@@ -566,9 +570,8 @@ void* ArrayTreeExtractEntry(ArrayTree_p node, long key) {
 // Return a PStack of all nodes/values that are greater than a limit
 
 TreeIter_p ArrayTreeLimitedTraverseInit(ArrayTree_p root,
-                                        TreeIter_p iterator, long limit) {
+                                        TreeIter_p *iterator, long limit) {
     printf("ArrayTreeLimitedTraverseInit -> limit: %ld\n", limit);
-    long     key = 0;
     PStack_p stack = PStackAlloc();
     uint8_t  maxIdx;
 
@@ -583,16 +586,16 @@ TreeIter_p ArrayTreeLimitedTraverseInit(ArrayTree_p root,
                 root = root->lson;
             } else if (root->key == limit) {
                 root = NULL;
-            } else { // root->key < limit
-                key = limited_entry_find(root, limit);
+            } else if (root->key < limit && (root->key + maxIdx) >= limit) { 
+                //idx = limited_entry_find(root, limit);
                 root = NULL;
             }
         }
     }
 
-    iterator->key = key;
-    iterator->tree_iter = stack;
-    return iterator;
+    (*iterator)->limit = limit;
+    (*iterator)->tree_iter = stack;
+    return *iterator;
 }
 
 

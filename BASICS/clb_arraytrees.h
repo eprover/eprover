@@ -5,6 +5,7 @@
 
 typedef struct arraytree_iter {
     long key;
+    long limit;
     PStack_p tree_iter;
  } ArrayTreeIter, *TreeIter_p;
 
@@ -63,11 +64,11 @@ bool        ArrayTreeCheckEmpty(ArrayTree_p root, long key);
 ArrayTree_p ArrayTreeStore(ArrayTree_p *root, long key, IntOrP val);
 void*       ArrayTreeGetEntry(ArrayTree_p node, long key);
 void**      ArrayTreeGetEntryRef(ArrayTree_p *node, long key);
-void*       ArrayTreeExtractEntry(ArrayTree_p node, long key);
+void*       ArrayTreeExtractEntry(ArrayTree_p *node, long key);
 long        ArrayTreeMaxKey(ArrayTree_p root);
 
 TreeIter_p  ArrayTreeLimitedTraverseInit(ArrayTree_p root,
-                                        TreeIter_p iterator, long limit);
+                                        TreeIter_p *iterator, long limit);
 void ArrayDebug();
 void TreeDebug();
 

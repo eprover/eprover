@@ -117,6 +117,8 @@ static ArrayTree_p add_new_tree_node(IntMap_p map, long key, void* val) {
    assert(map->type == IMTree);
 
    handle = ArrayTreeStore(&(map->values.tree), key, container);
+   ArrayTreeDebugPrint(stdout, handle, false);
+   //getchar();
    map->entry_no++;
 
    return handle;
@@ -166,6 +168,8 @@ static void array_to_tree(IntMap_p map)
    map->max_key = max_key;
    map->min_key = MIN(min_key, max_key);
    PDRangeArrFree(tmp_arr);
+   ArrayTreeDebugPrint(stdout, map->values.tree, false);
+   //getchar();
 }
 
 
@@ -196,6 +200,8 @@ static void tree_to_array(IntMap_p map)
 
    map->entry_no = 0;
    tmp_arr = PDRangeArrAlloc(map->min_key, IM_ARRAY_SIZE);
+   ArrayTreeDebugPrint(stdout, map->values.tree, false);
+   //getchar();
    tree_iterator = ArrayTreeTraverseInit(map->values.tree);
    while((handle = ArrayTreeTraverseNext(tree_iterator))) {
       for (i = 0; i < MAX_NODE_ARRAY_SIZE; i++) {
@@ -208,8 +214,13 @@ static void tree_to_array(IntMap_p map)
          }
       }
    }
+   printf("Array:\n");
+   for (int i = 0; i < sizeof(tmp_arr); i++) {
+      printf("i: %d\tvalue: %p\n", i, tmp_arr->array[i]);
+   }
+   //getchar();
    ArrayTreeTraverseExit(tree_iterator);
-   ArrayTreeFree(map->values.tree);
+   ArrayTreeFree(&map->values.tree);
    map->max_key = max_key;
    map->min_key = MIN(min_key, max_key);
    map->values.array = tmp_arr;
@@ -271,7 +282,7 @@ void IntMapFree(IntMap_p map)
          PDRangeArrFree(map->values.array);
          break;
    case IMTree:
-         ArrayTreeFree(map->values.tree);
+         ArrayTreeFree(&map->values.tree);
          break;
    default:
          assert(false && "Unknown IntMap type.");
@@ -296,12 +307,14 @@ void IntMapFree(IntMap_p map)
 void* IntMapGetVal(IntMap_p map, long key)
 {
    printf("IntMapGetVal -> key: %ld\n", key);
+   printf("map: %p\n", map);
    void* res = NULL;
 
    if(!map)
    {
       return NULL;
    }
+   printf("Map type: %d\n", (int)map->type);
    switch(map->type)
    {
    case IMEmpty:
@@ -315,10 +328,12 @@ void* IntMapGetVal(IntMap_p map, long key)
    case IMArray:
          if(key <= map->max_key)
          {
+            printf("IMArray: %p\n", map->values.array);
             res = PDRangeArrElementP(map->values.array, key);
          }
          break;
    case IMTree:
+   ArrayTreeDebugPrint(stdout, map->values.tree, false);
          if(key <= map->max_key)
          {
             ArrayTree_p entry = ArrayTreeFind(&(map->values.tree), key);
@@ -326,6 +341,8 @@ void* IntMapGetVal(IntMap_p map, long key)
                res = ArrayTreeGetEntry(entry, key);
             }
          }
+   printf("res: %p\n", res);
+   //getchar();
          break;
    default:
          assert(false && "Unknown IntMap type.");
@@ -356,7 +373,6 @@ void** IntMapGetRef(IntMap_p map, long key)
    void      *val;
    ArrayTree_p handle;
    IntOrP tmp;
-   uint8_t idx;
 
    assert(map);
 
@@ -397,9 +413,10 @@ void** IntMapGetRef(IntMap_p map, long key)
             map->values.tree = NULL;
             tmp.p_val = val;
             ArrayTreeStore(&(map->values.tree), map->max_key, tmp);
+            ArrayTreeDebugPrint(stdout, map->values.tree, false);
+            //getchar();
             handle = add_new_tree_node(map, key, NULL);
-            idx = CalcIdx(key, handle->key);
-            res = &(handle->entries[idx].p_val);
+            res = ArrayTreeGetEntryRef(&handle, key);
             map->entry_no = 2;
          }
          map->min_key = MIN(map->min_key, key);
@@ -424,6 +441,8 @@ void** IntMapGetRef(IntMap_p map, long key)
          map->max_key=MAX(map->max_key, key);
          break;
    case IMTree:
+   ArrayTreeDebugPrint(stdout, map->values.tree, false);
+   //getchar();
          handle = ArrayTreeFind(&(map->values.tree), key);
          if(handle) {
             res = ArrayTreeGetEntryRef(&handle, key);
@@ -440,15 +459,14 @@ void** IntMapGetRef(IntMap_p map, long key)
                handle = add_new_tree_node(map, key, NULL);
                map->max_key=MAX(map->max_key, key);
                map->min_key=MIN(map->min_key, key);
-               idx = CalcIdx(key, handle->key);
-               res = &(handle->entries[idx].p_val);
+               res = ArrayTreeGetEntryRef(&handle, key);
             }
          }
          break;
    default:
          assert(false && "Unknown IntMap type.");
    }
-
+printf("res: %p\n", res);
    assert(res);
    return res;
 }
@@ -534,14 +552,16 @@ void* IntMapDelKey(IntMap_p map, long key)
       }
       break;
    case IMTree:
+   ArrayTreeDebugPrint(stdout, map->values.tree, false);
       handle = ArrayTreeFind(&(map->values.tree), key);
       if(handle) {
-         res = ArrayTreeExtractEntry(handle, key);
+         res = ArrayTreeExtractEntry(&handle, key);
          if (res) {
             map->entry_no--;
             if(key == map->max_key) {
                if(map->values.tree) {
                   map->max_key = ArrayTreeMaxKey(map->values.tree);
+                  printf("maxKey: %ld", map->max_key);
                }
                else {
                   map->max_key = map->min_key;
@@ -553,16 +573,14 @@ void* IntMapDelKey(IntMap_p map, long key)
                }
             }
          }
-         
-         if (ArrayTreeCheckEmpty(handle, handle->key)) {
-            ArrayTreeNodeFree(&handle, handle->key);
-         }
       }
       break;
    default:
          assert(false && "Unknown IntMap type.");
          break;
    }
+   printf("res: %p\n", res);
+   //getchar();
    return res;
 }
 
@@ -584,7 +602,10 @@ IntMapIter_p IntMapIterAlloc(IntMap_p map, long lower_key, long upper_key)
 {
    printf("IntMapIterAlloc -> lower_key: %ld, upper_key: %ld\n", lower_key, upper_key);
    IntMapIter_p handle = IntMapIterCellAlloc();
+
    TreeIter_p iter = malloc(sizeof(ArrayTreeIter));
+   iter->limit = 0;
+   iter->key = 0;
 
    handle->map = map;
    if(map)
@@ -607,9 +628,13 @@ IntMapIter_p IntMapIterAlloc(IntMap_p map, long lower_key, long upper_key)
             handle->admin_data.current = lower_key;
             break;
       case IMTree:
+      ArrayTreeDebugPrint(stdout, map->values.tree, false);
             handle->admin_data.iterator =
-               ArrayTreeLimitedTraverseInit(map->values.tree, iter, lower_key);
+               ArrayTreeLimitedTraverseInit(map->values.tree, &iter, lower_key);
                printf("Leaved ArrTreeLimited");
+      printf("iterator:\tkey: %ld\tStack: %p", handle->admin_data.iterator->key,
+                              handle->admin_data.iterator->tree_iter);
+      //getchar();
             break;
       default:
             assert(false && "Unknown IntMap type.");

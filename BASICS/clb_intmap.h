@@ -160,6 +160,7 @@ static inline void* IntMapIterNext(IntMapIter_p iter, long *key)
    void* res = NULL;
    long  i;
    ArrayTree_p handle;
+   bool found = false;
 
    assert(iter);
    assert(key);
@@ -197,22 +198,25 @@ static inline void* IntMapIterNext(IntMapIter_p iter, long *key)
             for (i = iter->admin_data.iterator->key;
                      i < MAX_NODE_ARRAY_SIZE; i++) {
                if (handle->entries[i].p_val) {
-                  if((handle->key + i) > iter->upper_key) {
-                     /* Overrun limit */
-                     iter->admin_data.iterator->key = i;
-                     break;
-                  }
-                  if(handle->entries[i].p_val) {
+                  if ((handle->key + i) >= iter->admin_data.iterator->limit) {
+                     if((handle->key + i) > iter->upper_key) {
+                        /* Overrun limit */
+                        iter->admin_data.iterator->key = i;
+                        found = true;
+                        break;
+                     }
+   
                      /* Found real value */
                      *key = handle->key;
                      res = handle->entries[i].p_val;
                      iter->admin_data.iterator->key = i;
+                     found = true;
                      break;
                   }
                }
-               
             }
          }
+         if (found) break;
          iter->admin_data.iterator->key = 0;
       }
       break;
