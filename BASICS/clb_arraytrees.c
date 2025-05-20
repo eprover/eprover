@@ -1,5 +1,7 @@
 #include "clb_arraytrees.h"
 #include "clb_simple_stuff.h"
+#include <sys/stat.h>
+#include <sys/types.h>
 
 /*---------------------------------------------------------------------*/
 /*                        Global Variables                             */
@@ -143,6 +145,34 @@ static void arraytree_print(FILE* out, ArrayTree_p tree, bool keys_only, int ind
 
     // Free the indentation string
     DStrFree(indstr);
+}
+
+static void arraytree_print_gv(FILE* out, ArrayTree_p tree) {
+    if (!tree) {
+        return;
+    }
+
+    // Create node in GrpahViz
+    fprintf(out, "    Node%p [label=\"", (void*)tree);
+    for (uint8_t j = 0; j < MAX_NODE_ARRAY_SIZE; j++) {
+        fprintf(out, "Key: %ld (Val: %ld)\\n", (tree->key + j),
+                tree->entries[j].i_val);
+    }
+    //fprintf(out, "highest_index: %d\\n", tree->highest_index);
+    //fprintf(out, "entry_count: %d\\n", tree->entry_count);
+    fprintf(out, "\"];\n");
+
+    // If left child exists, create edge
+    if (tree->lson) {
+        fprintf(out, "    Node%p -> Node%p [label=\"L\"];\n", (void*)tree, (void*)tree->lson);
+        arraytree_print_gv(out, tree->lson);
+    }
+
+    // If left right exists, create edge
+    if (tree->rson) {
+        fprintf(out, "    Node%p -> Node%p [label=\"R\"];\n", (void*)tree, (void*)tree->rson);
+        arraytree_print_gv(out, tree->rson);
+    }
 }
 
 
@@ -347,6 +377,47 @@ void ArrayDebug() {
 void ArrayTreeDebugPrint(FILE* out, ArrayTree_p tree, bool keys_only) {
     fprintf(out, "root: %p\n", tree);
     arraytree_print(out, tree, keys_only, 0);
+}
+
+void ArrayTreePrintGV(ArrayTree_p tree) {
+    // Create target directory, if not existing yet
+    char label[64];
+    snprintf(label, sizeof(label), "tree_%p", (void*)tree);
+    const char* dir_name = "trees";
+    struct stat st = {0};
+    if (stat(dir_name, &st) == -1) {
+        mkdir(dir_name, 0777);  // Create folder with permission r/w
+    }
+
+    // Create filepath: "trees/filename"
+    char filepath[256];
+    snprintf(filepath, sizeof(filepath), "%s/%s.gv", dir_name, label);
+
+    FILE* out = fopen(filepath, "w");
+    if (!out) {
+        fprintf(stderr, "Error: Could not open file %s for writing.\n", filepath);
+        return;
+    }
+
+    // Write GraphViz Header
+    fprintf(out, "digraph ArrayTree {\n");
+    fprintf(out, "    node [shape=record, style=filled, fillcolor=lightgrey];\n");
+
+    // Recursive writing of all nodes
+    arraytree_print_gv(out, tree);
+
+    // Finalize Graph
+    fprintf(out, "}\n");
+    fclose(out);
+
+    // Generate PNG file from printed output
+    char command[512];
+    snprintf(command, sizeof(command), "dot -Tpng %s -o %s/%s.png", filepath, dir_name, label);
+
+    int result = system(command);  // Run shell command
+    if (result != 0) {
+        fprintf(stderr, "Error: GraphViz command failed.\n");
+    }
 }
 
 

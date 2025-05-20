@@ -71,6 +71,7 @@ TreeIter_p  ArrayTreeLimitedTraverseInit(ArrayTree_p root,
                                         TreeIter_p *iterator, long limit);
 void ArrayDebug();
 void TreeDebug();
+void ArrayTreePrintGV(ArrayTree_p tree);
 
 static inline int CalcKey(long key) {
     if (key >= 0) return (key / MAX_NODE_ARRAY_SIZE) * MAX_NODE_ARRAY_SIZE;
@@ -83,4 +84,3 @@ static inline uint8_t CalcIdx(long val1, long val2) {
 
 AVL_TRAVERSE_DECLARATION(ArrayTree, ArrayTree_p)
 #define ArrayTreeTraverseExit(stack) PStackFree(stack)
-
