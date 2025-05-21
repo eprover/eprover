@@ -1,7 +1,7 @@
 #include <clb_dstrings.h>
 #include <clb_avlgeneric.h>
 
-#define MAX_NODE_ARRAY_SIZE 1
+#define MAX_NODE_ARRAY_SIZE 8
 
 typedef struct arraytree_iter {
     long key;

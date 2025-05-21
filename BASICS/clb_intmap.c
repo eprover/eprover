@@ -56,7 +56,6 @@ Changes
 
 static bool switch_to_array(long old_min, long old_max, long new_key, long entries)
 {
-   printf("switch_to_array\n");
    long max_key = MAX(old_max, new_key);
    long min_key = MIN(old_min, new_key);
 
@@ -83,7 +82,6 @@ static bool switch_to_array(long old_min, long old_max, long new_key, long entri
 
 static bool switch_to_tree(long old_min, long old_max, long new_key, long entries)
 {
-   printf("switch_to_tree\n");
    long max_key = MAX(old_max, new_key);
    long min_key = MIN(old_min, new_key);
 
@@ -139,7 +137,6 @@ static bool switch_to_tree(long old_min, long old_max, long new_key, long entrie
 
 static void array_to_tree(IntMap_p map)
 {
-   printf("array_to_tree\n");
    PDRangeArr_p  tmp_arr;
    IntOrP        tmp_val;
    long          i;
@@ -167,8 +164,6 @@ static void array_to_tree(IntMap_p map)
    map->max_key = max_key;
    map->min_key = MIN(min_key, max_key);
    PDRangeArrFree(tmp_arr);
-   ArrayTreeDebugPrint(stdout, map->values.tree, false);
-   //getchar();
 }
 
 
@@ -187,7 +182,6 @@ static void array_to_tree(IntMap_p map)
 
 static void tree_to_array(IntMap_p map)
 {
-   printf("tree_to_array\n");
    PDRangeArr_p  tmp_arr;
    long          max_key = map->min_key;
    long          min_key = map->max_key;
@@ -199,8 +193,6 @@ static void tree_to_array(IntMap_p map)
 
    map->entry_no = 0;
    tmp_arr = PDRangeArrAlloc(map->min_key, IM_ARRAY_SIZE);
-   ArrayTreeDebugPrint(stdout, map->values.tree, false);
-   //getchar();
    tree_iterator = ArrayTreeTraverseInit(map->values.tree);
    while((handle = ArrayTreeTraverseNext(tree_iterator))) {
       for (i = 0; i < MAX_NODE_ARRAY_SIZE; i++) {
@@ -213,11 +205,6 @@ static void tree_to_array(IntMap_p map)
          }
       }
    }
-   // printf("Array:\n");
-   // for (int i = 0; i < sizeof(tmp_arr); i++) {
-   //    printf("i: %d\tvalue: %p\n", i, tmp_arr->array[i]);
-   // }
-   //  getchar();
    ArrayTreeTraverseExit(tree_iterator);
    ArrayTreeFree(map->values.tree);
    map->max_key = max_key;
@@ -245,7 +232,6 @@ static void tree_to_array(IntMap_p map)
 
 IntMap_p IntMapAlloc(void)
 {
-   printf("IntMapAlloc\n");
    IntMap_p handle = IntMapCellAlloc();
 
    handle->type = IMEmpty;
@@ -268,7 +254,6 @@ IntMap_p IntMapAlloc(void)
 
 void IntMapFree(IntMap_p map)
 {
-   printf("IntMapFree\n");
    assert(map);
 
    switch(map->type)
@@ -304,7 +289,6 @@ void IntMapFree(IntMap_p map)
 
 void* IntMapGetVal(IntMap_p map, long key)
 {
-   printf("IntMapGetVal -> key: %ld\n", key);
    void* res = NULL;
 
    if(!map)
@@ -360,7 +344,6 @@ void* IntMapGetVal(IntMap_p map, long key)
 
 void** IntMapGetRef(IntMap_p map, long key)
 {
-   printf("IntMapGetRef -> key: %ld\n", key);
    void        **res = NULL;
    void        *val;
    ArrayTree_p handle;
@@ -432,7 +415,6 @@ void** IntMapGetRef(IntMap_p map, long key)
          break;
    case IMTree:
       handle = ArrayTreeFind(&(map->values.tree), key);
-      ArrayTreeDebugPrint(stdout, handle, false);
       if (handle) {
          if (ArrayTreeGetEntry(handle, key)) {
             res = ArrayTreeGetEntryRef(&handle, key);
@@ -478,7 +460,6 @@ void** IntMapGetRef(IntMap_p map, long key)
 
 void IntMapAssign(IntMap_p map, long key, void* value)
 {
-   printf("IntMapAssign -> key: %ld\n", key);
    void** ref;
 
    assert(map);
@@ -506,7 +487,6 @@ void IntMapAssign(IntMap_p map, long key, void* value)
 
 void* IntMapDelKey(IntMap_p map, long key)
 {
-   printf("IntMapDelKey -> key: %ld\n", key);
    void* res = NULL;
    ArrayTree_p handle;
 
@@ -555,7 +535,6 @@ void* IntMapDelKey(IntMap_p map, long key)
             if(key == map->max_key) {
                if(map->values.tree) {
                   map->max_key = ArrayTreeMaxKey(map->values.tree);
-                  printf("maxKey: %ld\n", map->max_key);
                }
                else {
                   map->max_key = map->min_key;
@@ -592,7 +571,6 @@ void* IntMapDelKey(IntMap_p map, long key)
 
 IntMapIter_p IntMapIterAlloc(IntMap_p map, long lower_key, long upper_key)
 {
-   printf("IntMapIterAlloc -> lower_key: %ld, upper_key: %ld\n", lower_key, upper_key);
    IntMapIter_p handle = IntMapIterCellAlloc();
    TreeIter_p iter = malloc(sizeof(ArrayTreeIter));
    iter->limit = 0;
@@ -644,7 +622,6 @@ IntMapIter_p IntMapIterAlloc(IntMap_p map, long lower_key, long upper_key)
 
 void IntMapIterFree(IntMapIter_p junk)
 {
-   printf("IntMapIterFree\n");
    assert(junk);
 
    if(junk->map)

@@ -157,7 +157,6 @@ void     IntMapDebugPrint(FILE* out, IntMap_p map);
 
 static inline void* IntMapIterNext(IntMapIter_p iter, long *key)
 {
-   printf("IntMapIterNext -> key: %ld\n", *key);
    void* res = NULL;
    long  i;
    ArrayTree_p handle;
