@@ -868,8 +868,7 @@ static Term_p term_li_normalform(RWDesc_p desc, Term_p term,
 // Function: eqn_li_normalform()
 //
 //   Compute the normal form of maximal, minimal or both terms in an
-//   equation. Return rewritten sides (truth value is true if any side
-//   was rewritten).
+//   equation. Return true if a term was rewritten.
 //
 // Global Variables: -
 //

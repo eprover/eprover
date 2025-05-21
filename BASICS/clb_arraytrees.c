@@ -31,7 +31,7 @@
 /----------------------------------------------------------------------*/
 
 static ArrayTree_p splay_tree(ArrayTree_p tree, long key) {
-    fprintf(stdout, "splay_tree -> key: %ld\n", key);
+    fprintf(stdout, "splay_tree -> root: %p\tkey: %ld\n", tree, key);
 
     if (!tree) return NULL;
 
@@ -195,7 +195,7 @@ void array_init(ArrayTree_p node) {
 //      cell needs to be freed!
 
 uint8_t limited_entry_find(ArrayTree_p root, long limit) {
-    printf("limited_entry_find -> limit: %ld\n", limit);
+    printf("limited_entry_find -> root: %p\tlimit: %ld\n", root, limit);
     // ArrayTree_p cell;
     uint8_t i;
 
@@ -208,7 +208,7 @@ uint8_t limited_entry_find(ArrayTree_p root, long limit) {
 }
 
 void clear_all_entries(ArrayTree_p node) {
-    printf("clear_all_entries\n");
+    printf("clear_all_entries -> root: %p\n", node);
     uint8_t i;
     // Clean up all entries
     for (i = 0; i < MAX_NODE_ARRAY_SIZE; i++) {
@@ -217,7 +217,7 @@ void clear_all_entries(ArrayTree_p node) {
 }
 
 uint8_t get_highest_index(ArrayTree_p root) {
-    printf("get_highest_index\n");
+    printf("get_highest_index -> root: %p\n", root);
     uint8_t i;
 
     for (i = MAX_NODE_ARRAY_SIZE - 1; i >= 0; i--) {
@@ -264,7 +264,7 @@ void TreeDebug() {
                 ArrayTreeDebugPrint(stdout, root, false);
                 break;
             case 'c':   // ArrayTreeFree
-                ArrayTreeFree(&root);
+                ArrayTreeFree(root);
                 ArrayTreeDebugPrint(stdout, root, false);
                 break;
             case 'n':
@@ -425,31 +425,33 @@ void ArrayTreePrintGV(ArrayTree_p tree) {
 // Delete the entire tree (also empty the arrays of all nodes)
 // No return value required
 
-void ArrayTreeFree(ArrayTree_p *tree) {
-    printf("ArrayTreeFree\n");
+void ArrayTreeFree(ArrayTree_p tree) {
+    printf("ArrayTreeFree -> root: %p\n", tree);
+    ArrayTreeDebugPrint(stdout, tree, false);
 
-    if (*tree) {
+    if (tree) {
         PStack_p stack = PStackAlloc();
-        PStackPushP(stack, *tree);
+        PStackPushP(stack, tree);
 
         while (!PStackEmpty(stack)) {
-            *tree = PStackPopP(stack);
-            if ((*tree)->lson) {
-                PStackPushP(stack, (*tree)->lson);
+            tree = PStackPopP(stack);
+            if (tree->lson) {
+                PStackPushP(stack, tree->lson);
             }
-            if ((*tree)->rson) {
-                PStackPushP(stack, (*tree)->rson);
+            if (tree->rson) {
+                PStackPushP(stack, tree->rson);
             }
-            clear_all_entries(*tree);
-            ArrayTreeCellFree(*tree);
-            *tree = NULL;
+            clear_all_entries(tree);
+            ArrayTreeCellFree(tree);
+            tree = NULL;
         }
         PStackFree(stack);
     }
 }
 
 void ArrayTreeNodeFree(ArrayTree_p *root, long key) {
-    printf("ArrayTreeNodeFree -> key: %ld\n", key);
+    printf("ArrayTreeNodeFree -> root: %p\tkey: %ld\n", root, key);
+    printf("*root: %p\n", *root);
     if (!root || !(*root)) return;
 
     key = CalcKey(key);
@@ -476,7 +478,7 @@ void ArrayTreeNodeFree(ArrayTree_p *root, long key) {
 // Returns the memory address of the new node
 
 ArrayTree_p ArrayTreeNodeInsert(ArrayTree_p root, long key) {
-    printf("ArrayTreeNodeInsert -> key: %ld\n", key);
+    printf("ArrayTreeNodeInsert -> root %p\tkey: %ld\n", root, key);
     ArrayTree_p handle;
 
     handle = ArrayTreeNodeAllocEmpty();
@@ -523,7 +525,8 @@ ArrayTree_p ArrayTreeNodeAllocEmpty(void) {
 // Return of the p_val of the entry
 
 ArrayTree_p ArrayTreeFind(ArrayTree_p *root, long key) {
-    printf("ArrayTreeFind -> key: %ld\n", key);
+    printf("ArrayTreeFind -> root: %p\tkey: %ld\n", root, key);
+    printf("*root: %p\n", *root);
     long nodeKey;
 
     if(*root) {
@@ -559,7 +562,7 @@ void** ArrayTreeGetEntryRef(ArrayTree_p *node, long key) {
 }
 
 bool ArrayTreeCheckEmpty(ArrayTree_p root, long key) {
-    printf("ArrayTreeCheckEmpty -> key: %ld\n", key);
+    printf("ArrayTreeCheckEmpty -> root: %p\tkey: %ld\n", root, key);
     long nodeKey = CalcKey(key);
 
     if (!root) return true;
@@ -642,29 +645,26 @@ void* ArrayTreeExtractEntry(ArrayTree_p *node, long key) {
 
 TreeIter_p ArrayTreeLimitedTraverseInit(ArrayTree_p root,
                                         TreeIter_p *iterator, long limit) {
-    printf("ArrayTreeLimitedTraverseInit -> limit: %ld\n", limit);
+    printf("ArrayTreeLimitedTraverseInit -> root: %p\tlimit: %ld\n", root, limit);
     PStack_p stack = PStackAlloc();
     uint8_t  maxIdx;
 
-    while (root) {
-        maxIdx = get_highest_index(root);
-        if ((root->key + maxIdx) < limit) {
+    while(root) {
+        if(root->key<limit) {
+            (*iterator)->limit = root->key;
             root = root->rson;
         } else {
             PStackPushP(stack, root);
-
-            if (root->key > limit) {
+            if(root->key == limit) {
+                (*iterator)->limit = limit;
+                root = NULL;
+            } else {
+                (*iterator)->limit = (root->key + (long)get_highest_index(root));
                 root = root->lson;
-            } else if (root->key == limit) {
-                root = NULL;
-            } else if (root->key < limit && (root->key + maxIdx) >= limit) { 
-                //idx = limited_entry_find(root, limit);
-                root = NULL;
             }
         }
     }
 
-    (*iterator)->limit = limit;
     (*iterator)->tree_iter = stack;
     return *iterator;
 }
@@ -674,7 +674,7 @@ TreeIter_p ArrayTreeLimitedTraverseInit(ArrayTree_p root,
 // Return the highest existing key
 
 long ArrayTreeMaxKey(ArrayTree_p root) {
-    printf("ArrayTreeMaxNode\n");
+    printf("ArrayTreeMaxKey -> root: %p\n", root);
     uint8_t i;
 
     if(root)
@@ -688,7 +688,7 @@ long ArrayTreeMaxKey(ArrayTree_p root) {
     for (i = MAX_NODE_ARRAY_SIZE - 1; i >= 0; i--) {
         if (root->entries[i].p_val) break;
     }
-    
+    if (i < 0) return root->key;
     return (root->key + i);
 }
 

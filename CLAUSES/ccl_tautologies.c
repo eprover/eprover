@@ -18,7 +18,7 @@
 
   Created:  Tue May  4 17:41:06 MEST 1999
 
-  -----------------------------------------------------------------------*/
+-----------------------------------------------------------------------*/
 
 #include "ccl_tautologies.h"
 #include "ccl_derivation.h"
@@ -338,7 +338,7 @@ static void ground_complete_neg_eqns(EqnRef list)
 
 /*-----------------------------------------------------------------------
 //
-// Function: ClauseIsTautologyReal()
+// Function: ClauseIsTautology()
 //
 //   Return true if clause certainly is a tautology, false if this
 //   cannot be shown at the accepted expense.

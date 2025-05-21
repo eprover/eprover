@@ -567,7 +567,7 @@ bool EqnParseInfix(Scanner_p in, TB_p bank, Term_p *lref, Term_p *rref)
             DStrAppendStr(err, "Symbol ");
             DStrAppendStr(err, SigFindName(bank->sig, lterm->f_code));
             DStrAppendStr(err, " interpreted both as function and predicate (check parentheses).");
-            AktTokenError(in, DStrView(err), false);
+            AktTokenError(in, DStrView(err), SYNTAX_ERROR);
          }
          if(TypeIsBool(lterm->type) ||
             (!TermIsFreeVar(lterm) &&
@@ -868,7 +868,7 @@ Eqn_p EqnHOFParse(Scanner_p in, TB_p bank, bool* continue_parsing)
          DStrAppendStr(err, SigFindName(bank->sig, lterm->f_code));
          DStrAppendStr(err, " interpreted both as function and"
                        " predicate (check parentheses).");
-         AktTokenError(in, DStrView(err), false);
+         AktTokenError(in, DStrView(err), SYNTAX_ERROR);
       }
       rterm = bank->true_term;
    }

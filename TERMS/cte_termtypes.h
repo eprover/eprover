@@ -352,6 +352,7 @@ void    TermVarDelProp(Term_p term, DerefType deref, TermProperties prop);
 bool    TermHasInterpretedSymbol(Term_p term);
 
 bool    TermIsPrefix(Term_p needle, Term_p haystack);
+static inline Type_p GetHeadType(Sig_p sig, Term_p term);
 
 static inline Term_p  TermDerefAlways(Term_p term);
 static inline Term_p  TermDeref(Term_p term, DerefType_p deref);

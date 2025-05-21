@@ -43,7 +43,6 @@ Changes
 #define MAX_EQ_TAUTOLOGY_CHECK_LITNO 1000
 
 bool ClauseIsTautologyReal(TB_p work_bank, Clause_p clause, bool copy);
-
 #define ClauseIsTautology(b,c) (ClauseIsTautologyReal(b, c, true))
 
 #endif

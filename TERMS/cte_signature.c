@@ -146,6 +146,8 @@ Sig_p SigAlloc(TypeBank_p bank)
       SigInsertId(handle, "$cons", 2, true);
       assert(SigFindFCode(handle, "$cons")==SIG_CONS_CODE);
    }
+
+
    handle->internal_symbols = handle->f_count;
 
    handle->eqn_code      = 0;
@@ -166,7 +168,6 @@ Sig_p SigAlloc(TypeBank_p bank)
    handle->bimpl_code        = 0;
    handle->xor_code          = 0;
    handle->answer_code       = 0;
-   handle->distinct_code     = 0;
 
    handle->skolem_count      = 0;
    handle->newpred_count     = 0;
@@ -238,6 +239,7 @@ void SigInsertInternalCodes(Sig_p sig)
    SigDeclareFinalType(sig, sig->bimpl_code, binary_log_op_type);
    sig->xor_code   = SigInsertFOFOp(sig, "$xor",   2);
    SigDeclareFinalType(sig, sig->xor_code, binary_log_op_type);
+
    sig->answer_code =  SigInsertId(sig, "$answer", 1, true);
    SigSetFuncProp(sig, sig->answer_code, FPInterpreted|FPPseudoPred);
 
@@ -279,9 +281,6 @@ void SigInsertInternalCodes(Sig_p sig)
 
    SigDeclareFinalType(sig, sig->answer_code, answer_type);
 
-   sig->distinct_code = SigInsertId(sig, "$distinct", -1, true);
-   SigSetPolymorphic(sig, sig->distinct_code, true);
-
    sig->internal_symbols = sig->f_count;
 }
 
@@ -303,17 +302,9 @@ void SigFree(Sig_p junk)
 {
    assert(junk);
    assert(junk->f_info);
-   FunCode i;
 
    /* names are shared with junk->f_index and are free()ed by the
       StrTreeFree() call below! */
-   for(i=0; i< junk->f_count; i++)
-   {
-      if(junk->f_info[i].pname)
-      {
-         FREE(junk->f_info[i].pname);
-      }
-   }
    FREE(junk->f_info);
    StrTreeFree(junk->f_index);
    PStackFree(junk->ac_axioms);
@@ -352,21 +343,9 @@ void SigFree(Sig_p junk)
 FunCode SigFindFCode(Sig_p sig, const char* name)
 {
    StrTree_p entry;
-   DStr_p raw_name = NULL;
 
-
-   if(name[0]=='\'')
-   {
-      raw_name = DStrAlloc();
-      DStrAppendStr(raw_name, name+1);
-      DStrDeleteLastChar(raw_name);
-      name = DStrView(raw_name);
-   }
    entry = StrTreeFind(&(sig->f_index), name);
-   if(raw_name)
-   {
-      DStrFree(raw_name);
-   }
+
    if(entry)
    {
       return entry->val1.i_val;
@@ -653,51 +632,39 @@ FunCode SigInsertId(Sig_p sig, const char* name, int arity, bool special_id)
 {
    long      pos;
    StrTree_p new, test;
-   DStr_p    raw_name = DStrAlloc(), fix_name = DStrAlloc();
-   const char *rawname, *prtname;
+   DStr_p    fix_name = NULL;
 
-   prtname = name;
-   rawname = name;
-
-   if(name[0]=='\'')
-   {
-      DStrAppendStr(raw_name, name+1);
-      DStrDeleteLastChar(raw_name);
-      rawname = DStrView(raw_name);
-      prtname = name;
-   }
-
-   pos = SigFindFCode(sig, rawname);
+   pos = SigFindFCode(sig, name);
 
    if(pos) /* name is already known */
    {
       if(sig->f_info[pos].arity != arity && problemType == PROBLEM_FO)
       {
-         //printf("Problem: %s %d != %d\n", rawname, arity, sig->f_info[pos].arity);
+         //printf("Problem: %s %d != %d\n", name, arity, sig->f_info[pos].arity);
 #ifdef MULTI_ARITY_HACK
+         fix_name = DStrAlloc();
          DStrAppendStr(fix_name, name);
          DStrAppendStr(fix_name, "_ARITYFIX");
          DStrAppendInt(fix_name, arity);
          DStrAppendStr(fix_name, " ");  /* Trailing space should ensure that it
-                                         * cannot come from the real parser */
-         prtname = rawname;
-         rawname = DStrView(fix_name);
-         pos = SigFindFCode(sig, rawname);
+                               * cannot come from the real parser */
+         name = DStrView(fix_name);
+         pos = SigFindFCode(sig, name);
 #else
-         DStrFree(raw_name);
-         DStrFree(fix_name);
          return 0; /* ...but incompatible */
 #endif
       }
    }
    if(pos)
    {
+      if(fix_name)
+      {
+         DStrFree(fix_name);
+      }
       if(special_id)
       {
          SigSetSpecial(sig, pos, true);
       }
-      DStrFree(raw_name);
-      DStrFree(fix_name);
       return pos; /* all is fine... */
    }
    /* Now insert the new name...ensure that there is space */
@@ -712,9 +679,7 @@ FunCode SigInsertId(Sig_p sig, const char* name, int arity, bool special_id)
    /* Insert the element in f_index and f_info */
    sig->f_count++;
    sig->f_info[sig->f_count].name
-      = SecureStrdup(rawname);
-   sig->f_info[sig->f_count].pname
-      = SecureStrdup(prtname);
+      = SecureStrdup(name);
    sig->f_info[sig->f_count].arity = arity;
    sig->f_info[sig->f_count].properties = FPIgnoreProps;
    sig->f_info[sig->f_count].type = NULL;
@@ -728,8 +693,11 @@ FunCode SigInsertId(Sig_p sig, const char* name, int arity, bool special_id)
    UNUSED(test); assert(test == NULL);
    SigSetSpecial(sig,sig->f_count,special_id);
    sig->alpha_ranks_valid = false;
-   DStrFree(raw_name);
-   DStrFree(fix_name);
+
+   if(fix_name)
+   {
+      DStrFree(fix_name);
+   }
    return sig->f_count;
 }
 
@@ -965,7 +933,7 @@ FunCode SigParseKnownOperator(Scanner_p in, Sig_p sig)
 {
    FunCode       res;
    int           line, column;
-   DStr_p        id, source_name;
+   DStr_p        id, source_name, errpos;
    StreamType    type;
 
    line = AktToken(in)->line;
@@ -980,9 +948,14 @@ FunCode SigParseKnownOperator(Scanner_p in, Sig_p sig)
 
    if(!res)
    {
-      Error("%s %s undeclared", SYNTAX_ERROR,
-            PosRep(type, source_name, line, column),
-            DStrView(id));
+      errpos = DStrAlloc();
+
+      DStrAppendStr(errpos, PosRep(type, source_name, line, column));
+      DStrAppendChar(errpos, ' ');
+      DStrAppendStr(errpos, DStrView(id));
+      DStrAppendStr(errpos, " undeclared!");
+      Error(DStrView(errpos), SYNTAX_ERROR);
+      DStrFree(errpos);
    }
    DStrReleaseRef(source_name);
    DStrFree(id);
@@ -1006,7 +979,7 @@ FunCode SigParseKnownOperator(Scanner_p in, Sig_p sig)
 FunCode SigParseSymbolDeclaration(Scanner_p in, Sig_p sig, bool special_id)
 {
    int        arity, line, column;
-   DStr_p     id = DStrAlloc(), source_name;
+   DStr_p     id = DStrAlloc(), source_name, errpos;
    FunCode    res;
    StreamType type;
 
@@ -1023,12 +996,18 @@ FunCode SigParseSymbolDeclaration(Scanner_p in, Sig_p sig, bool special_id)
    res = SigInsertId(sig, DStrView(id), arity, special_id);
    if(!res)
    {
-      Error("%s %s declared with arity %d but registered with arity %d",
-            SYNTAX_ERROR,
-            PosRep(type, source_name, line, column),
-            DStrView(id),
-            arity,
-            SigFindArity(sig, SigFindFCode(sig, DStrView(id))));
+      errpos = DStrAlloc();
+
+      DStrAppendStr(errpos, PosRep(type, source_name, line, column));
+      DStrAppendChar(errpos, ' ');
+      DStrAppendStr(errpos, DStrView(id));
+      DStrAppendStr(errpos, " declared with arity ");
+      DStrAppendInt(errpos, (long)arity);
+      DStrAppendStr(errpos, " but registered with arity ");
+      DStrAppendInt(errpos,
+                    (long)SigFindArity(sig, SigFindFCode(sig, DStrView(id))));
+      Error(DStrView(errpos), SYNTAX_ERROR);
+      DStrFree(errpos);
    }
    DStrReleaseRef(source_name);
    DStrFree(id);
@@ -1555,7 +1534,7 @@ void SigDeclareType(Sig_p sig, FunCode f, Type_p type)
                TypePrintTSTP(stderr, sig->type_bank, type);
                fprintf(stderr, "\n");
             }
-            Error("type error", TYPE_ERROR);
+            Error("type error", INPUT_SEMANTIC_ERROR);
          }
          else
          {
@@ -1798,38 +1777,26 @@ void SigPrintTypeDeclsTSTPSelective(FILE* out, Sig_p sig, NumTree_p *symbols)
 
 void SigParseTFFTypeDeclaration(Scanner_p in, Sig_p sig)
 {
-   DStr_p id, source_name;
+   DStr_p id;
    FuncSymbType symbtype;
    FunCode f;
    Type_p type;
    bool within_paren = false;
-   StreamType type_stream;
-   long line, column;
 
    id = DStrAlloc();
+
    if(TestInpTok(in, OpenBracket))
    {
       NextToken(in);
       within_paren = true;
    }
+
    /* parse symbol */
-   source_name = DStrGetRef(AktToken(in)->source);
-   type_stream = AktToken(in)->stream_type;
-   line   = AktToken(in)->line;
-   column = AktToken(in)->column;
-
    symbtype = FuncSymbParse(in, id);
-
-   if(symbtype != FSIdentFreeFun
-      && symbtype != FSIdentInterpreted
-      && symbtype != FSIdentObject)
+   if(symbtype == FSIdentVar || symbtype == FSNone)
    {
-      Error("%s Type name expected in type declaration, but got %s",
-            SYNTAX_ERROR,
-            PosRep(type_stream, source_name, line, column),
-            DStrView(id));
+      Error("expected type name in type declaration", OTHER_ERROR);
    }
-   DStrReleaseRef(source_name);
 
    /* parse type */
    AcceptInpTok(in, Colon);

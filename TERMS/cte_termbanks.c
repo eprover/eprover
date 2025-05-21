@@ -1708,7 +1708,7 @@ Term_p TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop)
    Term_p        handle;
    DStr_p        id;
    FuncSymbType  id_type;
-   DStr_p        source_name;
+   DStr_p        source_name, errpos;
    Type_p        type;
    long          line, column;
    StreamType    type_stream;
@@ -1798,7 +1798,7 @@ Term_p TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop)
             Type_p  sym_type = sym_code ? SigGetType(bank->sig, sym_code) : NULL;
 
             handle = tb_term_parse_arglist(in, bank,
-                                           check_symb_prop, sym_type);
+                                             check_symb_prop, sym_type);
          }
          else
          {
@@ -1809,12 +1809,17 @@ Term_p TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop)
                                         handle->arity, false, id_type);
          if(!handle->f_code)
          {
-            Error("%s %s used with arity %d but registered with arity %d",
-                  TYPE_ERROR,
-                  PosRep(type_stream, source_name, line, column),
-                  DStrView(id),
-                  handle->arity,
-                  SigFindArity(bank->sig, SigFindFCode(bank->sig, DStrView(id))));
+            errpos = DStrAlloc();
+            DStrAppendStr(errpos, PosRep(type_stream, source_name, line, column));
+            DStrAppendStr(errpos, DStrView(id));
+            DStrAppendStr(errpos, " used with arity ");
+            DStrAppendInt(errpos, (long)handle->arity);
+            DStrAppendStr(errpos, ", but registered with arity ");
+            DStrAppendInt(errpos,
+                          (long)(bank->sig)->
+                          f_info[SigFindFCode(bank->sig, DStrView(id))].arity);
+            Error(DStrView(errpos), SYNTAX_ERROR);
+            DStrFree(errpos);
          }
          handle = tb_termtop_insert(bank, handle);
       }
@@ -1843,7 +1848,7 @@ Term_p TBTermParseSimple(Scanner_p in, TB_p bank)
    Term_p        handle;
    DStr_p        id;
    FuncSymbType  id_type;
-   DStr_p        source_name;
+   DStr_p        source_name, errpos;
    Type_p        type;
    long          line, column;
    StreamType    type_stream;
@@ -1918,13 +1923,17 @@ Term_p TBTermParseSimple(Scanner_p in, TB_p bank)
                                        handle->arity, false, id_type);
       if(!handle->f_code)
       {
-         Error("%s %s used with arity %d but registered with arity %d",
-               TYPE_ERROR,
-               PosRep(type_stream, source_name, line, column),
-               DStrView(id),
-               handle->arity,
-               SigFindArity(bank->sig, SigFindFCode(bank->sig, DStrView(id))));
-
+         errpos = DStrAlloc();
+         DStrAppendStr(errpos, PosRep(type_stream, source_name, line, column));
+         DStrAppendStr(errpos, DStrView(id));
+         DStrAppendStr(errpos, " used with arity ");
+         DStrAppendInt(errpos, (long)handle->arity);
+         DStrAppendStr(errpos, ", but registered with arity ");
+         DStrAppendInt(errpos,
+                        (long)(bank->sig)->
+                        f_info[SigFindFCode(bank->sig, DStrView(id))].arity);
+         Error(DStrView(errpos), SYNTAX_ERROR);
+         DStrFree(errpos);
       }
       handle = tb_termtop_insert(bank, handle);
    }

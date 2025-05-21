@@ -1520,32 +1520,32 @@ bool WFormulaSimplify(WFormula_p form, TB_p terms)
    return res;
 }
 
-/* /\*----------------------------------------------------------------------- */
-/* // */
-/* // Function: WFormulaCNF() */
-/* // */
-/* //   Transform the formula of a wrapped formula into CNF. */
-/* // */
-/* // Global Variables: - */
-/* // */
-/* // Side Effects    : Changes formula, memory operations */
-/* // */
-/* /----------------------------------------------------------------------*\/ */
+/*-----------------------------------------------------------------------
+//
+// Function: WFormulaCNF()
+//
+//   Transform the formula of a wrapped formula into CNF.
+//
+// Global Variables: -
+//
+// Side Effects    : Changes formula, memory operations
+//
+/----------------------------------------------------------------------*/
 
-/* long WFormulaCNF(WFormula_p form, ClauseSet_p set, */
-/*                  TB_p terms, VarBank_p fresh_vars) */
-/* { */
-/*    if (form->is_clause) */
-/*    { */
-/*       Clause_p clause = WFormClauseToClause(form); */
-/*       ClausePushDerivation(clause, DCFofQuote, form, NULL); */
-/*       ClauseSetInsert(set, clause); */
-/*       return 1; */
-/*    } */
-/*    WTFormulaConjunctiveNF(form, terms); */
-/*    return TFormulaToCNF(form, FormulaQueryType(form), */
-/*                         set, terms, fresh_vars); */
-/* } */
+long WFormulaCNF(WFormula_p form, ClauseSet_p set,
+                 TB_p terms, VarBank_p fresh_vars)
+{
+   if (form->is_clause)
+   {
+      Clause_p clause = WFormClauseToClause(form);
+      ClausePushDerivation(clause, DCFofQuote, form, NULL);
+      ClauseSetInsert(set, clause);
+      return 1;
+   }
+   WTFormulaConjunctiveNF(form, terms);
+   return TFormulaToCNF(form, FormulaQueryType(form),
+                        set, terms, fresh_vars);
+}
 
 /*-----------------------------------------------------------------------
 //
@@ -1579,9 +1579,6 @@ long WFormulaCNF2(WFormula_p form, ClauseSet_p set,
 
       return 1;
    }
-   /* printf("# Clausifying: "); */
-   /* WFormulaPrint(stdout, form, true); */
-   /* printf("\n"); */
    WTFormulaConjunctiveNF3(form, terms, miniscope_limit, fool_unroll);
    return TFormulaToCNF(form, FormulaQueryType(form),
                         set, terms, fresh_vars);
@@ -1640,59 +1637,59 @@ long FormulaSetSimplify(FormulaSet_p set, TB_p terms, bool do_garbage_collect)
    return res;
 }
 
-/* /\*----------------------------------------------------------------------- */
-/* // */
-/* // Function: FormulaSetCNF() */
-/* // */
-/* //   Transform all formulae in set into CNF. Return number of clauses */
-/* //   generated. */
-/* // */
-/* // Global Variables: - */
-/* // */
-/* // Side Effects    : Plenty of memory stuff. */
-/* // */
-/* /----------------------------------------------------------------------*\/ */
+/*-----------------------------------------------------------------------
+//
+// Function: FormulaSetCNF()
+//
+//   Transform all formulae in set into CNF. Return number of clauses
+//   generated.
+//
+// Global Variables: -
+//
+// Side Effects    : Plenty of memory stuff.
+//
+/----------------------------------------------------------------------*/
 
-/* long FormulaSetCNF(FormulaSet_p set, FormulaSet_p archive, */
-/*                    ClauseSet_p clauseset, TB_p terms, */
-/*                    VarBank_p fresh_vars, long def_limit) */
-/* { */
-/*    WFormula_p form, handle; */
-/*    long res = 0; */
-/*    long old_nodes = TBNonVarTermNodes(terms); */
-/*    long gc_threshold = old_nodes * TFORMULA_GC_LIMIT; */
+long FormulaSetCNF(FormulaSet_p set, FormulaSet_p archive,
+                   ClauseSet_p clauseset, TB_p terms,
+                   VarBank_p fresh_vars, long def_limit)
+{
+   WFormula_p form, handle;
+   long res = 0;
+   long old_nodes = TBNonVarTermNodes(terms);
+   long gc_threshold = old_nodes * TFORMULA_GC_LIMIT;
 
-/*    FormulaSetSimplify(set, terms, true); */
-/*    // printf("FormulaSetSimplify done\n"); */
-/*    TFormulaSetIntroduceDefs(set, archive, terms, def_limit); */
-/*    // printf("Definitions introduced\n"); */
+   FormulaSetSimplify(set, terms, true);
+   // printf("FormulaSetSimplify done\n");
+   TFormulaSetIntroduceDefs(set, archive, terms, def_limit);
+   // printf("Definitions introduced\n");
 
-/*    while (!FormulaSetEmpty(set)) */
-/*    { */
-/*       handle = FormulaSetExtractFirst(set); */
-/*       // WFormulaPrint(stdout, handle, true); */
-/*       // fprintf(stdout, "\n"); */
-/*       form = WFormulaFlatCopy(handle); */
-/*       FormulaSetInsert(archive, handle); */
-/*       WFormulaPushDerivation(form, DCFofQuote, handle, NULL); */
-/*       handle = form; */
-/*       res += WFormulaCNF(handle, clauseset, terms, fresh_vars); */
-/*       FormulaSetInsert(archive, handle); */
-/*       if (handle->tformula && */
-/*           (TBNonVarTermNodes(terms) > gc_threshold)) */
-/*       { */
-/*          assert(terms == handle->terms); */
-/*          TBGCCollect(terms); */
-/*          old_nodes = TBNonVarTermNodes(terms); */
-/*          gc_threshold = old_nodes * TFORMULA_GC_LIMIT; */
-/*       } */
-/*    } */
-/*    if (TBNonVarTermNodes(terms) != old_nodes) */
-/*    { */
-/*       TBGCCollect(terms); */
-/*    } */
-/*    return res; */
-/* } */
+   while (!FormulaSetEmpty(set))
+   {
+      handle = FormulaSetExtractFirst(set);
+      // WFormulaPrint(stdout, handle, true);
+      // fprintf(stdout, "\n");
+      form = WFormulaFlatCopy(handle);
+      FormulaSetInsert(archive, handle);
+      WFormulaPushDerivation(form, DCFofQuote, handle, NULL);
+      handle = form;
+      res += WFormulaCNF(handle, clauseset, terms, fresh_vars);
+      FormulaSetInsert(archive, handle);
+      if (handle->tformula &&
+          (TBNonVarTermNodes(terms) > gc_threshold))
+      {
+         assert(terms == handle->terms);
+         TBGCCollect(terms);
+         old_nodes = TBNonVarTermNodes(terms);
+         gc_threshold = old_nodes * TFORMULA_GC_LIMIT;
+      }
+   }
+   if (TBNonVarTermNodes(terms) != old_nodes)
+   {
+      TBGCCollect(terms);
+   }
+   return res;
+}
 
 /*-----------------------------------------------------------------------
 //
@@ -1751,10 +1748,8 @@ long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive,
       FormulaSetInsert(archive, handle);
       WFormulaPushDerivation(form, DCFofQuote, handle, NULL);
       handle = form;
-      // printf("# vor WFormulaCNF2()..\n");
       res += WFormulaCNF2(handle, clauseset, terms, fresh_vars,
                           miniscope_limit, fool_unroll);
-      // printf("# ...nach WFormulaCNF2()\n");
       FormulaSetInsert(archive, handle);
       if (handle->tformula &&
           (TBNonVarTermNodes(terms) > gc_threshold))
@@ -2204,30 +2199,26 @@ long TFormulaSetUnrollFOOL(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
         formula != set->anchor;
         formula = formula->succ)
    {
-      //printf("# Before Eqn2Equiv  %p: ", formula);
-      //WFormulaTSTPPrintDeriv(stdout, formula);
-      //printf("\n");
-      TFormulaReplaceEqnWithEquiv(formula, terms);
-      //printf("# Eqn2Equiv  %p: ", formula);
-      //WFormulaTSTPPrintDeriv(stdout, formula);
-      //printf("\n");
-      //printf("# As term     :");
-      //TermPrintDbg(stdout, formula->tformula, terms->sig, DEREF_NEVER);
-      //printf("\n");
-      //printf("# As pretty term     :\n");
-      //TermPrettyPrintSimple(stdout, formula->tformula, terms->sig, 0);
-      //printf("\n");
-
+      /* printf("# Before Eqn2Equiv  %p: ", formula); */
+      /* WFormulaTSTPPrintDeriv(stdout, formula); */
+      /* printf("\n"); */
+      /* TFormulaReplaceEqnWithEquiv(formula, terms); */
+      /* printf("# Eqn2Equiv  %p: ", formula); */
+      /* WFormulaTSTPPrintDeriv(stdout, formula); */
+      /* printf("\n"); */
+      /* printf("# As term     :"); */
+      /* TermPrintDbg(stdout, formula->tformula, terms->sig, DEREF_NEVER); */
+      /* printf("\n"); */
       if (TFormulaUnrollFOOL(formula, terms))
       {
          res++;
       }
-      //printf("# Foolunroll %p: ", formula);
-      //WFormulaTSTPPrintDeriv(stdout, formula);
-      //printf("\n");
-      //printf("# As term     :");
-      //TermPrintDbg(stdout, formula->tformula, terms->sig, DEREF_NEVER);
-      //printf("\n======\n");
+      /* printf("# Foolunroll %p: ", formula); */
+      /* WFormulaTSTPPrintDeriv(stdout, formula); */
+      /* printf("\n"); */
+      /* printf("# As term     :"); */
+      /* TermPrintDbg(stdout, formula->tformula, terms->sig, DEREF_NEVER); */
+      /* printf("\n"); */
    }
    return res;
 }
@@ -2616,9 +2607,9 @@ long TFormulaSetIntroduceDefs(FormulaSet_p set, FormulaSet_p archive, TB_p terms
       def = cell->vals[1].p_val;
       newdef = TFormulaCreateDef(terms, def, form, 0);
       w_def = WTFormulaAlloc(terms, newdef);
-      //printf("# New definition: ");
-      //WFormulaTSTPPrint(stdout, w_def, true, true);
-      //printf("\n");
+      /* printf("# New definition: "); */
+      /* WFormulaTSTPPrint(stdout, w_def, true, true); */
+      /* printf("\n"); */
 
       DocFormulaCreationDefault(w_def, inf_fof_intro_def, NULL, NULL);
       cell->vals[0].i_val = w_def->ident; /* Replace polarity with
@@ -2670,7 +2661,6 @@ long TFormulaSetIntroduceDefs(FormulaSet_p set, FormulaSet_p archive, TB_p terms
       /* } */
    }
    NumXTreeFree(defs);
-   //printf("# %ld definitions introduced\n", res);
    return res;
 }
 

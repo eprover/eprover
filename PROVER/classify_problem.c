@@ -485,11 +485,12 @@ bool tptp_header      = false,
    raw_classify     = false,
    specsig_classify = false,
    no_preproc       = false,
+   new_cnf          = true,
    parse_features   = false,
    app_encode       = false;
 int cnf_timeout = -1;
 long eqdef_maxclauses = DEFAULT_EQDEF_MAXCLAUSES,
-   miniscope_limit    = DEFAULT_MINISCOPE_LIMIT;
+   miniscope_limit  = 1000;
 long eqdef_incrlimit  = DEFAULT_EQDEF_INCRLIMIT;
 FunctionProperties free_symb_prop = FPIgnoreProps;
 char *sine = NULL;
@@ -866,13 +867,25 @@ int main(int argc, char* argv[])
             RawSpecFeaturesClassify(&raw_features, limits, RAW_DEFAULT_MASK);
             FormulaSetPreprocConjectures(fstate->f_axioms, fstate->f_ax_archive,
                                          false, false);
-            FormulaSetCNF2(fstate->f_axioms,
-                           fstate->f_ax_archive,
-                           fstate->axioms,
-                           fstate->terms,
-                           fstate->freshvars,
-                           miniscope_limit, FormulaDefLimit,
-                           true, true, true, true);
+            if(new_cnf)
+            {
+               FormulaSetCNF2(fstate->f_axioms,
+                              fstate->f_ax_archive,
+                              fstate->axioms,
+                              fstate->terms,
+                              fstate->freshvars,
+                              miniscope_limit, FormulaDefLimit,
+                              true, true, true, true);
+            }
+            else
+            {
+               FormulaSetCNF(fstate->f_axioms,
+                             fstate->f_ax_archive,
+                             fstate->axioms,
+                             fstate->terms,
+                             fstate->freshvars,
+                             FormulaDefLimit);
+            }
             if(!no_preproc)
             {
                ClauseSetPreprocess(fstate->axioms,
@@ -1038,6 +1051,9 @@ CLState_p process_options(int argc, char* argv[], SpecLimits_p limits)
       case OPT_FREE_OBJECTS:
             free_symb_prop = free_symb_prop|FPIsObject;
             break;
+      case OPT_DEF_CNF_OLD:
+            new_cnf = false;
+            /* Intentional fall-through */
       case OPT_DEF_CNF:
             FormulaDefLimit     = CLStateGetIntArg(handle, arg);
             break;

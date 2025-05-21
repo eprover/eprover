@@ -63,7 +63,7 @@ typedef enum
    FPPseudoPred   = 8192, /* Pseudo-predicate used for side effects
                            * only, does not conceptually contribute to
                            * truth of clause */
-   FPTypedApplication = FPPseudoPred * 2, /* Symbol used to represent typed
+   FPTypedApplication = FPPseudoPred * 2, /* Symbol used to represtend typed
                                              first-order binary application symbol */
    FPIsInjDefSkolem = FPTypedApplication * 2, /* Symbol is Skolem for injective function */
    FPSkolemSymbol = FPIsInjDefSkolem * 2, /* Obvious ;-) */
@@ -96,8 +96,7 @@ Type_p TypeCheckArithConv(struct sigcell *sig, struct termcell *t);
 typedef struct funccell
 {
    /* f_code is implicit by position in the array */
-   char*  name;     // "real" name
-   char*  pname;    // Used for external printing
+   char*  name;
    int    arity;
    int    alpha_rank; /* We sometimes need an arbitrary but stable
                          order on symbols and use alphabetic. */
@@ -157,7 +156,6 @@ typedef struct sigcell
    FunCode   xor_code;
    /* And here are codes for interpreted symbols */
    FunCode   answer_code;       /* For answer literals */
-   FunCode   distinct_code;     /* $distinct */
 
    /* Sort and type banks (type => sort, but a shortcut is useful) */
    TypeBank_p  type_bank;
@@ -373,7 +371,7 @@ static inline int SigFindArity(Sig_p sig, FunCode f_code)
 //
 /----------------------------------------------------------------------*/
 
-static inline char* SigFindName(Sig_p sig, FunCode f_code)
+static inline char*  SigFindName(Sig_p sig, FunCode f_code)
 {
    if(!f_code)
    {
@@ -382,7 +380,7 @@ static inline char* SigFindName(Sig_p sig, FunCode f_code)
    assert(f_code > 0);
    assert(f_code <= sig->f_count);
 
-   return (sig->f_info[f_code]).pname;
+   return (sig->f_info[f_code]).name;
 }
 
 

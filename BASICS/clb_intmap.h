@@ -73,7 +73,7 @@ typedef struct intmap_cell
    {
       void*        value;   /* For IMSingle */
       PDRangeArr_p array;   /* For IMArray  */
-      ArrayTree_p    tree;    /* For IMTree   */
+      ArrayTree_p  tree;    /* For IMTree   */
    }values;
 }IntMapCell, *IntMap_p;
 
@@ -86,9 +86,9 @@ typedef struct intmap_iter_cell
    long     upper_key;
    union
    {
-      bool        seen;      /* For IMSingle */
-      long        current;   /* For IMArray  */
-      TreeIter_p  iterator;  /* For IMTree */
+      bool       seen;       /* For IMSingle */
+      long       current;    /* For IMArray  */
+      TreeIter_p iterator;   /* For IMTree */
    }admin_data;
 }IntMapIterCell, *IntMapIter_p;
 
@@ -157,43 +157,52 @@ void     IntMapDebugPrint(FILE* out, IntMap_p map);
 
 static inline void* IntMapIterNext(IntMapIter_p iter, long *key)
 {
+   printf("IntMapIterNext -> key: %ld\n", *key);
    void* res = NULL;
    long  i;
    ArrayTree_p handle;
-   bool found = false;
+   bool found;
 
    assert(iter);
    assert(key);
 
-   if(!iter->map) return NULL;
+   if(!iter->map)
+   {
+      return NULL;
+   }
 
    //printf("IntMapIterNext()...\n");
-   switch(iter->map->type) {
+   switch(iter->map->type)
+   {
    case IMEmpty:
-      break;
+         break;
    case IMSingle:
-      //printf("Case IMSingle\n");
-      if(!iter->admin_data.seen) {
-         iter->admin_data.seen = true;
-         *key = iter->map->max_key;
-         res = iter->map->values.value;
-      }
-      break;
-   case IMArray:
-      // printf("Case IMArray %ld\n", iter->admin_data.current);
-      for(i = iter->admin_data.current; i <= iter->upper_key; i++) {
-         res = PDRangeArrElementP(iter->map->values.array, i);
-         if(res) {
-            *key = i;
-            break;
+         //printf("Case IMSingle\n");
+         if(!iter->admin_data.seen)
+         {
+            iter->admin_data.seen = true;
+            *key = iter->map->max_key;
+            res = iter->map->values.value;
          }
-      }
-      iter->admin_data.current = i+1;
-      break;
+         break;
+   case IMArray:
+         // printf("Case IMArray %ld\n", iter->admin_data.current);
+         for(i=iter->admin_data.current; i<= iter->upper_key; i++)
+         {
+            res = PDRangeArrElementP(iter->map->values.array, i);
+            if(res)
+            {
+               *key = i;
+               break;
+            }
+         }
+         iter->admin_data.current = i+1;
+         break;
    case IMTree:
       // printf("Case IMTree\n");
       while((handle =
-            ArrayTreeTraverseNext(iter->admin_data.iterator->tree_iter))) {
+         ArrayTreeTraverseNext(iter->admin_data.iterator->tree_iter))) {
+            
          if(handle) {
             for (i = iter->admin_data.iterator->key;
                      i < MAX_NODE_ARRAY_SIZE; i++) {
@@ -205,7 +214,7 @@ static inline void* IntMapIterNext(IntMapIter_p iter, long *key)
                         found = true;
                         break;
                      }
-   
+      
                      /* Found real value */
                      *key = handle->key;
                      res = handle->entries[i].p_val;
@@ -217,12 +226,12 @@ static inline void* IntMapIterNext(IntMapIter_p iter, long *key)
             }
          }
          if (found) break;
-         iter->admin_data.iterator->key = 0;
+         iter->admin_data.iterator->key = 0;            
       }
       break;
    default:
-      assert(false && "Unknown IntMap type.");
-      break;
+         assert(false && "Unknown IntMap type.");
+         break;
    }
    //printf("...IntMapIterNext()\n");
    return res;

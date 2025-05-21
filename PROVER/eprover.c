@@ -523,20 +523,8 @@ static void print_proof_stats(ProofState_p proofstate,
 // Side Effects    : Yes ;-)
 //
 /----------------------------------------------------------------------*/
-#include <clb_intmap.h>
-int main() {
-      int mode = 1;
-      if (mode == 0) {
-            // Debug the tree related functions
-            TreeDebug();
-      } else {
-            // Debug the array related functions
-            ArrayDebug();
-      }
-      return 0;
-}
 
-int main2(int argc, char* argv[])
+int main(int argc, char* argv[])
 {
    int              retval = NO_ERROR;
    CLState_p        state;

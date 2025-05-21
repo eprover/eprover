@@ -26,7 +26,6 @@
 #include <ccl_splitting.h>
 #include <ccl_grounding.h>
 #include <che_clausesetfeatures.h>
-#include <che_hcb.h>
 #include <ccl_formulafunc.h>
 #include <e_version.h>
 
@@ -57,6 +56,7 @@ typedef enum
    OPT_TSTP_PARSE,
    OPT_TSTP_PRINT,
    OPT_TSTP_FORMAT,
+   OPT_DEF_CNF_OLD,
    OPT_DEF_CNF,
    OPT_MINISCOPE_LIMIT,
    OPT_DIMACS_PRINT,
@@ -226,6 +226,15 @@ OptCell opts[] =
     "is a fudge factor that determines when definitions are introduced. "
     "0 disables definitions completely. The default works well."},
 
+   {OPT_DEF_CNF_OLD,
+    '\0', "old-cnf",
+    OptArg, TFORM_RENAME_LIMIT_STR,
+    "As the previous option, but use the classical, well-tested "
+    "clausification algorithm as opposed to the newewst one which "
+    "avoides some algorithmic pitfalls and hence works better on "
+    "some exotic formulae. The two may produce slightly different "
+    "(but equisatisfiable) clause normal forms."},
+
    {OPT_MINISCOPE_LIMIT,
     '\0', "miniscope-limit",
     OptArg, TFORM_MINISCOPE_LIMIT_STR,
@@ -336,7 +345,8 @@ char   *outname = NULL;
 IOFormat parse_format = AutoFormat;
 bool   dimacs_format = false;
 int    split_tries = 0;
-bool   unit_sub = true,
+bool   new_cnf          = true,
+       unit_sub = true,
        unit_res = true,
        taut_check = true,
        add_single_instance = false,
@@ -348,7 +358,7 @@ bool   unit_sub = true,
        fix_minisat = false,
        app_encode = false;
 long   give_up = 0,
-       miniscope_limit  = DEFAULT_MINISCOPE_LIMIT,
+       miniscope_limit  = 1000,
        initial_literals = 0,
        initial_clauses = 0;
 long FormulaDefLimit = 24;
@@ -438,9 +448,7 @@ int main(int argc, char* argv[])
       VERBOUT("Negated conjectures.\n");
    }
    freshvars = VarBankAlloc(type_bank);
-   if(FormulaSetCNF2(formulas, f_ax_archive, clauses, terms, freshvars,
-                     1048576, FormulaDefLimit,
-                     true, true, true, true))
+   if(FormulaSetCNF(formulas, f_ax_archive, clauses, terms, freshvars,FormulaDefLimit))
    {
       VERBOUT("CNFization done\n");
    }
@@ -468,7 +476,7 @@ int main(int argc, char* argv[])
                             false);
    def_store->def_clauses->fvindex = FVIAnchorAlloc(cspec, perm);
 
-   SpecFeaturesCompute(&features, clauses, NULL, NULL, terms);
+   SpecFeaturesCompute(&features, clauses, formulas, f_ax_archive, terms);
 
    if(!SpecNoEq(&features))
    {
@@ -483,6 +491,7 @@ int main(int argc, char* argv[])
             "universe and there are non-ground clauses in the "
             "specification!", INPUT_SEMANTIC_ERROR);
    }
+
    if(add_single_instance)
    {
       selected_symbol = ClauseSetFindFreqSymbol(clauses, terms->sig,
@@ -501,6 +510,7 @@ int main(int argc, char* argv[])
       ClauseSetFree(clauses);
       clauses = tmpset;
    }
+
    ClauseSetSort(clauses, ClauseCmpByLen);
 
    groundset = GroundSetAlloc(terms);
@@ -712,6 +722,9 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_DIMACS_PRINT:
             dimacs_format = true;
             break;
+      case OPT_DEF_CNF_OLD:
+            new_cnf = false;
+            /* Intentional fall-through */
       case OPT_DEF_CNF:
             FormulaDefLimit     = CLStateGetIntArg(handle, arg);
             break;

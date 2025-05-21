@@ -36,7 +36,7 @@ Read the rest of this file and the fine (if incomplete) manual if
 anything fails. There should be a copy of the manual in
 `DOC/eprover.pdf`.
 
-E 3.2 supports (monomorphic) higher-order logic. To build a binary
+E 3.1 supports (monomorphic) higher-order logic. To build a binary
 that supports higher-order reasoning, use the following:
 
 
@@ -80,7 +80,7 @@ input and output formats via commandline options.
 The Equational Theorem Prover E
 ===============================
 
-This is the README file for version 3.2 "Puttabong Moondrop" of the E
+This is the README file for version 3.1 "Singbulli" of the E
 equational theorem prover. This version of E is free software, see the
 file COPYING for details about the license and the fact that THERE IS
 NO WARRANTY!
@@ -101,7 +101,7 @@ E has been created and is currently maintained by Stephan Schulz,
 `DOC/CONTRIBUTORS`). It is developed and distributed under the GNU
 General Public License.
 
-The E homepage can be found at <https://www.eprover.org>
+The E homepage can be found at <http://www.eprover.org>
 
 
 Installation
@@ -297,6 +297,6 @@ information:
 - The input file(s) that lead to the unexpected behaviour
 
 Most bug reports should be send to <schulz@eprover.org>. Bug reports
-with respect to the HO-version should also be send to
+with respect to the HO-version should be send to
 <jasmin.blanchette@gmail.com>. Please remember that this is an unpaid
 volunteer service ;-).

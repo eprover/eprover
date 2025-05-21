@@ -1,20 +1,23 @@
 /*-----------------------------------------------------------------------
 
-  File  : cle_examplerep.c
+File  : cle_examplerep.c
 
-  Author: Stephan Schulz
+Author: Stephan Schulz
 
-  Contents
+Contents
 
   Functions for dealing with (sets of) example representations.
 
-  Copyright 1998, 1999, 2024 by the author.
+  Copyright 1998, 1999 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-  Created: Tue Jul 27 11:46:29 MET DST 1999
+Changes
+
+<1> Tue Jul 27 11:46:29 MET DST 1999
+    New
 
 -----------------------------------------------------------------------*/
 
@@ -367,7 +370,7 @@ long ExampleSetParse(Scanner_p in, ExampleSet_p set)
 {
    long         count = 0;
    ExampleRep_p handle;
-   DStr_p       source_name;
+   DStr_p       source_name, errpos;
    long         line, column;
    StreamType   type;
    bool         res;
@@ -382,10 +385,15 @@ long ExampleSetParse(Scanner_p in, ExampleSet_p set)
       res =  ExampleSetInsert(set, handle);
       if(!res)
       {
-         Error("%s Entry %s conficts with existing entries",
-               SYNTAX_ERROR,
-               PosRep(type, source_name, line, column),
-               handle->ident);
+    errpos = DStrAlloc();
+
+    DStrAppendStr(errpos, PosRep(type, source_name, line,
+                  column));
+    DStrAppendStr(errpos, "Entry ");
+    DStrAppendInt(errpos, handle->ident);
+    DStrAppendStr(errpos, " conflicts with existing entries");
+    Error(DStrView(errpos), SYNTAX_ERROR);
+    DStrFree(errpos);
       }
       count++;
       DStrReleaseRef(source_name);
@@ -416,7 +424,7 @@ long ExampleSetSelectByDist(PStack_p results, ExampleSet_p set,
              double set_part, double dist_part)
 {
    long             set_size = NumTreeNodes(set->ident_index),
-      i, climit;
+                    i, climit;
    double           dlimit, dist, avg;
    WeightedObject_p tmp_array = WeightedObjectArrayAlloc(set_size);
    PStack_p     stack;
@@ -430,7 +438,7 @@ long ExampleSetSelectByDist(PStack_p results, ExampleSet_p set,
    {
       current = cell->val1.p_val;
       dist = NumFeatureDistance(target, current->features, pred_w,
-                                func_w, weights);
+            func_w, weights);
       tmp_array[i].weight       = dist;
       tmp_array[i].object.p_val = current;
       avg += dist;
@@ -449,8 +457,8 @@ long ExampleSetSelectByDist(PStack_p results, ExampleSet_p set,
       current = tmp_array[i].object.p_val;
       if(Verbose)
       {
-         fprintf(stderr, "Selected problem %ld: %s\n", current->ident,
-                 current->name);
+    fprintf(stderr, "Selected problem %ld: %s\n", current->ident,
+       current->name);
       }
       PStackPushInt(results, current->ident);
    }
@@ -462,3 +470,4 @@ long ExampleSetSelectByDist(PStack_p results, ExampleSet_p set,
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
+

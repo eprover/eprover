@@ -1,20 +1,23 @@
 /*-----------------------------------------------------------------------
 
-  File  : cle_annotations.c
+File  : cle_annotations.c
 
-  Author: Stephan Schulz
+Author: Stephan Schulz
 
-  Contents
+Contents
 
   Functions for dealing with annotaions and lists of annotations.
 
-  Copyright 1998, 1999, 2024 by the author.
+  Copyright 1998, 1999 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-  Created: Mon Jul 19 11:27:10 MET DST 1999
+Changes
+
+<1> Mon Jul 19 11:27:10 MET DST 1999
+    New
 
 -----------------------------------------------------------------------*/
 
@@ -143,23 +146,23 @@ Annotation_p AnnotationParse(Scanner_p in, long expected)
    {
       if(count == expected)
       {
-         AktTokenError(in,
-                       "Annotation has more elements than expected",
-                       false);
+    AktTokenError(in,
+             "Annotation has more elements than expected",
+             false);
       }
       value = ParseFloat(in);
       DDArrayAssign(handle->val1.p_val, count, value);
       count++;
       if(!TestInpTok(in, CloseBracket))
       {
-         AcceptInpTok(in, Comma);
+    AcceptInpTok(in, Comma);
       }
    }
    if(count < expected)
    {
       AktTokenError(in,
-                    "Annotation has fewer elements than expected",
-                    false);
+          "Annotation has fewer elements than expected",
+          false);
    }
    AcceptInpTok(in, CloseBracket);
    AnnotationLength(handle) = count;
@@ -182,9 +185,9 @@ Annotation_p AnnotationParse(Scanner_p in, long expected)
 /----------------------------------------------------------------------*/
 
 long AnnotationListParse(Scanner_p in, Annotation_p *tree, long
-                         expected)
+          expected)
 {
-   DStr_p     source_name;
+   DStr_p     source_name, errpos;
    long       line, column;
    StreamType type;
    long i=0;
@@ -200,16 +203,18 @@ long AnnotationListParse(Scanner_p in, Annotation_p *tree, long
       handle = NumTreeInsert(tree, handle);
       if(handle)
       {
-         AnnotationFree(handle);
-         Error("%s Only one annotation for each proof example allowed",
-               SYNTAX_ERROR,
-               PosRep(type, source_name, line, column));
+    AnnotationFree(handle);
+    errpos = DStrAlloc();
+    DStrAppendStr(errpos, PosRep(type, source_name, line, column));
+    DStrAppendStr(errpos, " Only one annotation for each proof example allowed");
+    Error(DStrView(errpos), SYNTAX_ERROR);
+    DStrFree(errpos);
       }
       DStrReleaseRef(source_name);
       i++;
       if(TestInpTok(in, Comma))
       {
-         NextToken(in);
+    NextToken(in);
       }
    }
    return i;
@@ -396,3 +401,5 @@ double AnnotationEval(Annotation_p anno, double weights[])
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
+
+

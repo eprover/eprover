@@ -1,0 +1,95 @@
+\indexentry{SETHEO}{3}
+\indexentry{Otter}{3}
+\indexentry{SPASS}{3}
+\indexentry{Vampire}{3}
+\indexentry{xyzzy}{5}
+\indexentry{sort}{6}
+\indexentry{variable}{6}
+\indexentry{type}{6}
+\indexentry{term}{6}
+\indexentry{subterm}{7}
+\indexentry{equation}{7}
+\indexentry{literal}{7}
+\indexentry{ordering}{7}
+\indexentry{reduction ordering}{7}
+\indexentry{substitution}{7}
+\indexentry{mgu}{7}
+\indexentry{most general unifier}{7}
+\indexentry{selection functions}{7}
+\indexentry{literal!eligible}{8}
+\indexentry{eligible for paramodulation|see{literal, eligible}}{8}
+\indexentry{eligible for resolution|see{literal, eligible}}{8}
+\indexentry{eligible literals|see{literal, eligible}}{8}
+\indexentry{literal!eligible}{8}
+\indexentry{SP@\textbf{SP} (calculus)}{8}
+\indexentry{equality resolution}{8}
+\indexentry{superposition!inference rule}{9}
+\indexentry{superposition!inference rule}{9}
+\indexentry{simultaneous superposition}{9}
+\indexentry{simultaneous superposition}{9}
+\indexentry{equality factoring}{9}
+\indexentry{rewriting}{10}
+\indexentry{rewriting}{10}
+\indexentry{subsumption}{10}
+\indexentry{subsumption}{10}
+\indexentry{simplify-reflect}{10}
+\indexentry{simplify-reflect}{10}
+\indexentry{E (theorem prover)}{10}
+\indexentry{SPASS}{10}
+\indexentry{tautology deletion}{11}
+\indexentry{equality      resolution}{11}
+\indexentry{contextual literal      cutting}{11}
+\indexentry{condensing}{11}
+\indexentry{clause splitting}{11}
+\indexentry{clause splitting}{12}
+\indexentry{DISCOUNT}{12}
+\indexentry{SPASS}{12}
+\indexentry{relevancy pruning}{12}
+\indexentry{SInE}{12}
+\indexentry{TPTP}{13}
+\indexentry{clausification}{14}
+\indexentry{TPTP!language}{14}
+\indexentry{equational definition}{14}
+\indexentry{interreduction}{14}
+\indexentry{given clause}{15}
+\indexentry{term   ordering}{15}
+\indexentry{literal!selection}{15}
+\indexentry{propositional   reasoning}{15}
+\indexentry{PicoSAT}{15}
+\indexentry{proof procedure}{16}
+\indexentry{term ordering}{17}
+\indexentry{given clause}{17}
+\indexentry{literal!selection}{17}
+\indexentry{clause evaluation}{21}
+\indexentry{term ordering}{23}
+\indexentry{literal!comparison}{27}
+\indexentry{literal!selection}{28}
+\indexentry{PicoSAT}{29}
+\indexentry{LOP}{30}
+\indexentry{TPTP!language}{30}
+\indexentry{LOP}{33}
+\indexentry{SETHEO}{33}
+\indexentry{SETHEO}{33}
+\indexentry{TPTP}{34}
+\indexentry{TPTP!language}{34}
+\indexentry{PCL}{36}
+\indexentry{Otter}{37}
+\indexentry{PCL}{38}
+\indexentry{TPTP!language}{38}
+\indexentry{answer}{39}
+\indexentry{question}{39}
+\indexentry{common options}{42}
+\indexentry{eground|texttt}{42}
+\indexentry{enormalizer|texttt}{44}
+\indexentry{e\_ltb\_runner|texttt}{44}
+\indexentry{batch processing}{44}
+\indexentry{batch specifications}{45}
+\indexentry{interactive queries}{47}
+\indexentry{e\_axfilter|texttt}{47}
+\indexentry{SInE}{49}
+\indexentry{Acknowledgements}{51}
+\indexentry{License}{52}
+\indexentry{GPL}{52}
+\indexentry{GNU General Public     License}{52}
+\indexentry{LGPL}{52}
+\indexentry{GNU Lesser General Public License}{52}

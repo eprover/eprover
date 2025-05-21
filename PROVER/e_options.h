@@ -65,7 +65,6 @@ typedef enum
    OPT_CPU_LIMIT,
    OPT_SOFTCPU_LIMIT,
    OPT_RUSAGE_INFO,
-   OPT_SELECT_STRATEGY,
    OPT_PRINT_STRATEGY,
    OPT_PARSE_STRATEGY,
    OPT_STEP_LIMIT,
@@ -191,6 +190,7 @@ typedef enum
    OPT_HEURISTIC,
    OPT_FREE_NUMBERS,
    OPT_FREE_OBJECTS,
+   OPT_DEF_CNF_OLD,
    OPT_DEF_CNF,
    OPT_FOOL_UNROLL,
    OPT_MINISCOPE_LIMIT,
@@ -299,10 +299,15 @@ OptCell opts[] =
     "positions, and level 3 will expand this to a proof object where "
     "all intermediate results are explicit. This feature is under "
     "development, so far only level 0 and 1 are operational. "
-    "The proof object will be provided in TPTP-3 or PCL "
+    "By default The proof object will be provided in TPTP-3 or LOP "
     "syntax, depending on input format and explicit settings. The "
-    "--proof-graph option will suppress normal output of the proof "
+    "following option will suppress normal output of the proof "
     "object in favour of a graphial representation."},
+
+   {OPT_PROOF_STATS,
+    '\0', "proof-statistics",
+    NoArg, NULL,
+    "Print various statistics of the proof object."},
 
    {OPT_PROOF_GRAPH,
     '\0', "proof-graph",
@@ -313,11 +318,6 @@ OptCell opts[] =
     "2 (nodes are "
     "labelled with the TPTP clause/formula) or 3  (nodes "
     "also labelled with source/inference record."},
-
-   {OPT_PROOF_STATS,
-    '\0', "proof-statistics",
-    NoArg, NULL,
-    "Print various statistics of the proof object."},
 
    {OPT_FULL_DERIV,
     'd', "full-deriv",
@@ -482,13 +482,17 @@ OptCell opts[] =
    {OPT_CPU_LIMIT,
     '\0', "cpu-limit",
     OptArg, "300",
-    "Limit the (per core) cpu time the prover should run. The optional "
-    "argument is the CPU time in seconds. The prover will terminate "
-    "immediately after reaching the time limit, regardless of internal "
-    "state. As a side effect, this option will inhibit core file "
-    "writing. Please note that if you use both --cpu-limit and "
-    "--soft-cpu-limit, the soft limit has to "
-    "be smaller than the hard limit to have any effect. "},
+    "Limit the cpu time the prover should run. The optional argument "
+    "is the CPU time in seconds. The prover will terminate immediately"
+    " after reaching the time limit, regardless of internal state. This"
+    " option may not work "
+    "everywhere, due to broken and/or strange behaviour of setrlimit() "
+    "in some UNIX implementations. It does work under all tested "
+    "versions of Solaris, HP-UX, MacOS-X, and GNU/Linux. As a side "
+    "effect, this "
+    "option will inhibit core file writing. Please note that if you"
+    " use both --cpu-limit and --soft-cpu-limit, the soft limit has to"
+    " be smaller than the hard limit to have any effect. "},
 
    {OPT_SOFTCPU_LIMIT,
     '\0', "soft-cpu-limit",
@@ -512,20 +516,13 @@ OptCell opts[] =
     "more information with the rusage() system call, you will also "
     "get information about memory consumption."},
 
-   {OPT_SELECT_STRATEGY,
-    '\0', "select-strategy",
-    ReqArg, NULL,
-    "Select one of the built-in strategies and set all proof search "
-    "parameters accordingly."},
-
    {OPT_PRINT_STRATEGY,
     '\0', "print-strategy",
     OptArg, ">current-strategy<",
     "Print a representation of all search parameters and their setting "
     "of a given strategy, then terminate. If no argument is given, "
     "the current strategy is printed. Use the reserved name '>all-strats<'"
-    "to get a description of all built-in strategies,  '>all-names<' "
-    "to get a list of all names of strategies."},
+    "to get a description of all built-in strategies."},
 
    {OPT_PARSE_STRATEGY,
     '\0', "parse-strategy",
@@ -647,9 +644,9 @@ OptCell opts[] =
    {OPT_TSTP_PARSE,
     '\0', "tstp-in",
     NoArg, NULL,
-    "Set TPTP-3 as the input format TPTP-3 syntax is still under "
-    "development, and any given version in E may not be "
-    "fully conforming at all times. E works on all TPTP 8.2.0 FOF "
+    "Set TPTP-3 as the input format (Note that TPTP-3 syntax "
+    "is still under development, and the version in E may not be "
+    "fully conforming at all times. E works on all TPTP 6.3.0 FOF "
     "and CNF files (including includes)."},
 
    {OPT_TSTP_PRINT,
@@ -769,7 +766,7 @@ OptCell opts[] =
 
    {OPT_PRESAT_SIMPLIY,
     '\0', "presat-simplify",
-    OptArg, "true",
+    NoArg, NULL,
     "Before proper saturation do a complete interreduction of "
     "the proof state."},
 
@@ -1505,11 +1502,20 @@ OptCell opts[] =
     "subformulae to avoid exponential blow-up. The optional argument "
     "is a fudge factor that determines when definitions are introduced. "
     "0 disables definitions completely. The default works well."},
-
+    // OPT_FOOL_UNROLL
    {OPT_FOOL_UNROLL,
     '\0', "fool-unroll",
     ReqArg, NULL,
     "Enable or disable FOOL unrolling. Useful for some SH problems."},
+
+   {OPT_DEF_CNF_OLD,
+    '\0', "old-cnf",
+    OptArg, TFORM_RENAME_LIMIT_STR,
+    "As the previous option, but use the classical, well-tested "
+    "clausification algorithm as opposed to the newewst one which "
+    "avoides some algorithmic pitfalls and hence works better on "
+    "some exotic formulae. The two may produce slightly different "
+    "(but equisatisfiable) clause normal forms."},
 
    {OPT_MINISCOPE_LIMIT,
     '\0', "miniscope-limit",

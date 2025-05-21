@@ -114,7 +114,6 @@ typedef struct heuristic_parms_cell
    long                eqdef_maxclauses;
    long                eqdef_incrlimit;
    long                formula_def_limit;
-   long                miniscope_limit;
 
    char                *sine;
    bool                add_goal_defs_pos;
@@ -288,8 +287,6 @@ typedef struct hcb_cell
 
 /* Default symbol occurrences limit for BCE and PE */
 #define DEFAULT_SYM_OCCS 512
-
-#define DEFAULT_MINISCOPE_LIMIT 1048576
 
 #define DEFAULT_FILTER_ORPHANS_LIMIT LONG_MAX
 #define DEFAULT_FORWARD_CONTRACT_LIMIT LONG_MAX
