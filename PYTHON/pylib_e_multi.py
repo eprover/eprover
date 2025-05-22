@@ -74,7 +74,7 @@ class id(object):
 homeDir = os.path.expanduser("~")
 eRunDir = homeDir+"/EPROVER/RUNDIR"
 eResDir = eRunDir
-eFlatTPTP = homeDir+"/EPROVER/TPTP_9.0.0_FLAT"
+eFlatTPTP = homeDir+"/EPROVER/TPTP_8.2.0_FLAT"
 
 class etask(object):
     ids = id("t")

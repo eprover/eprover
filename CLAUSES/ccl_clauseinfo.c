@@ -131,6 +131,10 @@ void ClauseInfoFree(ClauseInfo_p info)
 
 void ClauseSourceInfoPrint(FILE* out, ClauseInfo_p info, char *inf_lit, char* delim)
 {
+   if(!info)
+   {
+      return;
+   }
    DStr_p source_accu = DStrAlloc();
    char *source = "unknown";
    char *name;
