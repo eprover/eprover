@@ -88,7 +88,8 @@ long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive,
 long FormulaAndClauseSetParse(Scanner_p in, FormulaSet_p fset,
                               ClauseSet_p wlset, TB_p terms,
                               StrTree_p *name_selector,
-                              StrTree_p *skip_includes);
+                              StrTree_p *skip_includes,
+                              short recursion_depth);
 long FormulaToCNF(WFormula_p form, FormulaProperties type,
                   ClauseSet_p set, TB_p terms, VarBank_p fresh_vars);
 long TFormulaToCNF(WFormula_p form, FormulaProperties type, ClauseSet_p set,
