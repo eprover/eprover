@@ -3,12 +3,6 @@
 
 #define MAX_NODE_ARRAY_SIZE 8
 
-typedef struct arraytree_iter {
-    long key;
-    long limit;
-    PStack_p tree_iter;
- } ArrayTreeIter, *TreeIter_p;
-
 typedef struct arraytree_node {
     long key;
     // uint8_t highest_index;
@@ -16,6 +10,14 @@ typedef struct arraytree_node {
     struct arraytree_node* lson;
     struct arraytree_node* rson;
 } ArrayTreeNode, *ArrayTree_p;
+
+typedef struct arraytree_iter {
+    long key;
+    long lower_bound;
+    long upper_bound;
+    ArrayTree_p node;
+    PStack_p tree_iter;
+ } ArrayTreeIter, *TreeIter_p;
 
 #define ArrayTreeCellAlloc() (ArrayTree_p)SizeMalloc(sizeof(ArrayTreeNode))
 #define ArrayTreeCellFree(junk) SizeFree(junk, sizeof(ArrayTreeNode))
@@ -25,21 +27,6 @@ typedef struct arraytree_node {
 #else
 #define ARRAYTREECELL_MEM MEMSIZE(ArrayTreeNode)
 #endif
-
-// ------------------------------
-//
-// Benötigte Funktionen:
-// NumTreeInsert              -> NumTree_p  : Baum -> Store
-// NumTreeStore               -> bool       : Baum
-// NumTreeTraverseInit        -> PStack_p   : Makro
-// NumTreeTraverseNext        -> NumTree_p  : Makro
-// NumTreeTraverseExit        -> void?      : Makro
-// NumTreeFree                -> void       : Baum
-// NumTreeFind                -> NumTree_p  : Baum
-// NumTreeExtractEntry        -> NumTree_p  : Baum -> Find
-// NumTreeLimitedTraverseInit -> PStack_p   : Baum
-//
-// ------------------------------
 
 /*-----------------------------------------------------------------------
 //

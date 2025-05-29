@@ -58,14 +58,13 @@ static bool switch_to_array(long old_min, long old_max, long new_key, long entri
 {
    long max_key = MAX(old_max, new_key);
    long min_key = MIN(old_min, new_key);
+   long key_range = max_key - min_key + 1;
 
-   if((entries * MIN_TREE_DENSITY) > (max_key-min_key))
-   {
-      return true;
-   }
-   return false;
+   // Calculate effective slots of the array
+   long slot_count = (key_range + MAX_NODE_ARRAY_SIZE - 1) / MAX_NODE_ARRAY_SIZE;
+
+   return (entries * MIN_TREE_DENSITY) > slot_count;
 }
-
 
 /*-----------------------------------------------------------------------
 //
@@ -84,12 +83,12 @@ static bool switch_to_tree(long old_min, long old_max, long new_key, long entrie
 {
    long max_key = MAX(old_max, new_key);
    long min_key = MIN(old_min, new_key);
+   long key_range = max_key - min_key + 1;
 
-   if((entries * MAX_TREE_DENSITY) < (max_key-min_key))
-   {
-      return true;
-   }
-   return false;
+   // Calculate effective slots of the array
+   long slot_count = (key_range + MAX_NODE_ARRAY_SIZE - 1) / MAX_NODE_ARRAY_SIZE;
+
+   return (entries * MAX_TREE_DENSITY) < slot_count;
 }
 
 /*-----------------------------------------------------------------------
@@ -137,6 +136,7 @@ static bool switch_to_tree(long old_min, long old_max, long new_key, long entrie
 
 static void array_to_tree(IntMap_p map)
 {
+   printf("array_to_tree\n");
    PDRangeArr_p  tmp_arr;
    IntOrP        tmp_val;
    long          i;
@@ -164,6 +164,8 @@ static void array_to_tree(IntMap_p map)
    map->max_key = max_key;
    map->min_key = MIN(min_key, max_key);
    PDRangeArrFree(tmp_arr);
+   ArrayTreeDebugPrint(stdout, map->values.tree, false);
+   //getchar();
 }
 
 
@@ -182,6 +184,9 @@ static void array_to_tree(IntMap_p map)
 
 static void tree_to_array(IntMap_p map)
 {
+   printf("tree_to_array\n");
+   ArrayTreeDebugPrint(stdout, map->values.tree, false);
+   //getchar();
    PDRangeArr_p  tmp_arr;
    long          max_key = map->min_key;
    long          min_key = map->max_key;
@@ -232,6 +237,7 @@ static void tree_to_array(IntMap_p map)
 
 IntMap_p IntMapAlloc(void)
 {
+   printf("IntMapAlloc\n");
    IntMap_p handle = IntMapCellAlloc();
 
    handle->type = IMEmpty;
@@ -254,6 +260,7 @@ IntMap_p IntMapAlloc(void)
 
 void IntMapFree(IntMap_p map)
 {
+   printf("IntMapFree\n");
    assert(map);
 
    switch(map->type)
@@ -289,6 +296,7 @@ void IntMapFree(IntMap_p map)
 
 void* IntMapGetVal(IntMap_p map, long key)
 {
+   printf("IntMapGetVal -> key: %ld\n", key);
    void* res = NULL;
 
    if(!map)
@@ -313,13 +321,17 @@ void* IntMapGetVal(IntMap_p map, long key)
          }
          break;
    case IMTree:
-         if(key <= map->max_key)
-         {
-            ArrayTree_p entry = ArrayTreeFind(&(map->values.tree), key);
-            if(entry) {
-               res = ArrayTreeGetEntry(entry, key);
-            }
+      ArrayTreeDebugPrint(stdout, map->values.tree, false);
+      if(key <= map->max_key)
+      {
+         ArrayTree_p entry = ArrayTreeFind(&(map->values.tree), key);
+         if(entry) {
+            res = ArrayTreeGetEntry(entry, key);
          }
+      }
+      printf("res: %p\t &res %ld\n", res, &res);
+      //getchar();
+      break;
    default:
          assert(false && "Unknown IntMap type.");
    }
@@ -344,6 +356,7 @@ void* IntMapGetVal(IntMap_p map, long key)
 
 void** IntMapGetRef(IntMap_p map, long key)
 {
+   printf("IntMapGetRef -> key: %ld\n", key);
    void        **res = NULL;
    void        *val;
    ArrayTree_p handle;
@@ -414,6 +427,7 @@ void** IntMapGetRef(IntMap_p map, long key)
          map->max_key=MAX(map->max_key, key);
          break;
    case IMTree:
+      ArrayTreeDebugPrint(stdout, map->values.tree, false);
       handle = ArrayTreeFind(&(map->values.tree), key);
       if (handle) {
          if (ArrayTreeGetEntry(handle, key)) {
@@ -436,6 +450,8 @@ void** IntMapGetRef(IntMap_p map, long key)
             map->entry_no++;
          }
       }
+      printf("res: %p\n", res);
+      //getchar();
       break;
    default:
          assert(false && "Unknown IntMap type.");
@@ -460,6 +476,7 @@ void** IntMapGetRef(IntMap_p map, long key)
 
 void IntMapAssign(IntMap_p map, long key, void* value)
 {
+   printf("IntMapAssign -> key: %ld\n", key);
    void** ref;
 
    assert(map);
@@ -487,6 +504,7 @@ void IntMapAssign(IntMap_p map, long key, void* value)
 
 void* IntMapDelKey(IntMap_p map, long key)
 {
+   printf("IntMapDelKey -> key: %ld\n", key);
    void* res = NULL;
    ArrayTree_p handle;
 
@@ -524,6 +542,7 @@ void* IntMapDelKey(IntMap_p map, long key)
          }
          break;
    case IMTree:
+      ArrayTreeDebugPrint(stdout, map->values.tree, false);
       handle = ArrayTreeFind(&(map->values.tree), key);
       if(handle) {
          res = ArrayTreeExtractEntry(&handle, key);
@@ -547,6 +566,7 @@ void* IntMapDelKey(IntMap_p map, long key)
             }
          }
       }
+      printf("res: %p\t&res: %ld", res, &res);
       break;
    default:
          assert(false && "Unknown IntMap type.");
@@ -571,10 +591,9 @@ void* IntMapDelKey(IntMap_p map, long key)
 
 IntMapIter_p IntMapIterAlloc(IntMap_p map, long lower_key, long upper_key)
 {
+   printf("IntMapIterAlloc -> lowerK: %ld\tupperK: %ld\n", lower_key, upper_key);
    IntMapIter_p handle = IntMapIterCellAlloc();
    TreeIter_p iter = malloc(sizeof(ArrayTreeIter));
-   iter->limit = 0;
-   iter->key = 0;
 
    handle->map = map;
    if(map)
@@ -597,9 +616,9 @@ IntMapIter_p IntMapIterAlloc(IntMap_p map, long lower_key, long upper_key)
             handle->admin_data.current = lower_key;
             break;
       case IMTree:
-            handle->admin_data.iterator =
-               ArrayTreeLimitedTraverseInit(map->values.tree, &iter, lower_key);
-            break;
+         handle->admin_data.iterator =
+            ArrayTreeLimitedTraverseInit(map->values.tree, &iter, lower_key);
+         break;
       default:
             assert(false && "Unknown IntMap type.");
             break;
@@ -622,6 +641,7 @@ IntMapIter_p IntMapIterAlloc(IntMap_p map, long lower_key, long upper_key)
 
 void IntMapIterFree(IntMapIter_p junk)
 {
+   printf("IntMapIterFree\n");
    assert(junk);
 
    if(junk->map)
