@@ -157,7 +157,6 @@ void     IntMapDebugPrint(FILE* out, IntMap_p map);
 
 static inline void* IntMapIterNext(IntMapIter_p iter, long *key)
 {
-   printf("IntMapIterNext -> key: %ln\n", key);
    void* res = NULL;
    long  i;
    ArrayTree_p handle;
@@ -186,7 +185,6 @@ static inline void* IntMapIterNext(IntMapIter_p iter, long *key)
          }
          break;
    case IMArray:
-         // printf("Case IMArray %ld\n", iter->admin_data.current);
          for(i=iter->admin_data.current; i<= iter->upper_key; i++)
          {
             res = PDRangeArrElementP(iter->map->values.array, i);
@@ -203,25 +201,18 @@ static inline void* IntMapIterNext(IntMapIter_p iter, long *key)
       while (iter->admin_data.iterator->node) {
          found = false;
          handle = iter->admin_data.iterator->node;
-         printf("current node: %p\tkey: %ld\n", handle, handle->key);
-         printf("lower_key: %ld\tupper_key: %ld\n", iter->lower_key, iter->upper_key);
-         printf("upper_bound: %ld\n", iter->admin_data.iterator->upper_bound);
-         //getchar();
          for (i = iter->admin_data.iterator->key;
                      i < MAX_NODE_ARRAY_SIZE; i++) {
             printf("i: %ld\n", i);
             if (handle->entries[i].p_val &&
                 (handle->key + i) >= iter->admin_data.iterator->lower_bound) {
                if((handle->key + i) > iter->admin_data.iterator->upper_bound) {
-                  printf("run over limit\n");
                   /* Overrun limit */
-                  //iter->admin_data.iterator->key = i + 1;
                   found = true;
                   break;
                }
 
                /* Found real value */
-               printf("found real value\n");
                *key = handle->key + i;
                res = handle->entries[i].p_val;
                iter->admin_data.iterator->key = i + 1;
@@ -229,20 +220,17 @@ static inline void* IntMapIterNext(IntMapIter_p iter, long *key)
                break;
             }
          }
-         printf("for loop ended: i = %ld\n", i);
-         printf("iterator->key: %ld\n", iter->admin_data.iterator->key);
+
          if (iter->admin_data.iterator->key >= MAX_NODE_ARRAY_SIZE 
              || i >= MAX_NODE_ARRAY_SIZE
              || (handle->key + iter->admin_data.iterator->key - 1)
              >= iter->admin_data.iterator->upper_bound) {
-            printf("next one\n");
             iter->admin_data.iterator->node =
                ArrayTreeTraverseNext(iter->admin_data.iterator->tree_iter);
             iter->admin_data.iterator->key = 0;
          }
-         printf("debug flag\n");
+
          if (found) {
-            printf("found\n");
             break;
          }
       }

@@ -31,7 +31,6 @@
 /----------------------------------------------------------------------*/
 
 static ArrayTree_p splay_tree(ArrayTree_p tree, long key) {
-    printf("splay_tree -> key: %ld\n", key);
     if (!tree) return NULL;
 
     ArrayTree_p left, right, tmp;
@@ -146,6 +145,19 @@ static void arraytree_print(FILE* out, ArrayTree_p tree, bool keys_only, int ind
     DStrFree(indstr);
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: arraytree_print_gv()
+//
+//   Print the tree with the appropriate indent level and return the
+//   number of nodes.
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
 static void arraytree_print_gv(FILE* out, ArrayTree_p tree) {
     if (!tree) {
         return;
@@ -174,9 +186,17 @@ static void arraytree_print_gv(FILE* out, ArrayTree_p tree) {
     }
 }
 
-
-// ArrayInit() -> ArrayTreeNodeAlloc()
-// Initialize all values of the array
+/*-----------------------------------------------------------------------
+//
+// Function: array_init()
+//
+//   Set all entries of the array of the given node to NULL
+//
+// Global Variables: -
+//
+// Side Effects    : Inits node
+//
+/----------------------------------------------------------------------*/
 
 void array_init(ArrayTree_p node) {
     uint8_t i;
@@ -186,23 +206,17 @@ void array_init(ArrayTree_p node) {
     }
 }
 
-
-// limited_entry_clear() -> ArrayTreeLimitedTraverseInit()
-// returns node whitout entries below limit
-// Which functions call ArrayTreeLimitedTraverseInit()?
-//      cell needs to be freed!
-
-// uint8_t limited_entry_find(ArrayTree_p root, long limit) {
-//     // ArrayTree_p cell;
-//     uint8_t i;
-
-//     i = MAX_NODE_ARRAY_SIZE;
-//     while ((root->key + i) >= limit) {
-//         // cell->entries[i] = root->entries[i];
-//         i--;
-//     }
-//     return i;
-// }
+/*-----------------------------------------------------------------------
+//
+// Function: clear_all_entries()
+//
+//   Reset all entries of the array of the given node to NULL
+//
+// Global Variables: -
+//
+// Side Effects    : Removes all values
+//
+/----------------------------------------------------------------------*/
 
 void clear_all_entries(ArrayTree_p node) {
     uint8_t i;
@@ -212,166 +226,40 @@ void clear_all_entries(ArrayTree_p node) {
     }
 }
 
-// uint8_t get_highest_index(ArrayTree_p root) {
-//     uint8_t i;
-
-//     for (i = MAX_NODE_ARRAY_SIZE - 1; i >= 0; i--) {
-//         if (root->entries[i].p_val) break;
-//     }
-//     return i;
-// }
-
-int readInteger() {
-    int number;
-    printf("Bitte geben Sie den key ein: ");
-    scanf("%d", &number);
-    while (getchar() != '\n');
-    return number;
-}
-
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
 /*---------------------------------------------------------------------*/
 
-void TreeDebug() {
-    ArrayTree_p root = NULL;
-    char input;
-    int running = 1, key;
-    bool empty;
-
-    while (running) {
-        printf("\nGeben Sie ein Zeichen ein (c, f, i, n, p, s oder z zum Beenden):\n"
-               "c: free, e: checkEmpty, f: find, i: insert, n: nodeFree, p: print, s: splay, z: quit\n"
-               "Eingabe: ");
-        scanf("%c", &input);
-        while (getchar() != '\n');
-
-        switch (input) {
-            case 'e':   // ArrayTreeCheckEmpty
-                key = readInteger();
-                empty = ArrayTreeCheckEmpty(root, key);
-                printf("Node %d is %s\n", key, empty ? "empty" : "not empty");
-                break;
-            case 'f':   // ArrayTreeFind
-                key = readInteger();
-                root = ArrayTreeFind(&root, key);
-                ArrayTreeDebugPrint(stdout, root, false);
-                break;
-            case 'c':   // ArrayTreeFree
-                ArrayTreeFree(root);
-                ArrayTreeDebugPrint(stdout, root, false);
-                break;
-            case 'n':
-                key = readInteger();
-                ArrayTreeNodeFree(&root, key);
-                ArrayTreeDebugPrint(stdout, root, false);
-                break;
-            case 'i':
-                key = readInteger();
-                root = ArrayTreeNodeInsert(root, key);
-                ArrayTreeDebugPrint(stdout, root, false);
-                break;
-            case 'p':   // ArrayTreeDebugPrint
-                ArrayTreeDebugPrint(stdout, root, false);
-                break;
-            case 's':    // splay_tree
-                key = readInteger();
-                root = splay_tree(root, key);
-                ArrayTreeDebugPrint(stdout, root, false);
-                break;
-            case 'z':
-                running = 0;
-                printf("Programm wird beendet.\n");
-                break;
-            default:
-                printf("Ungültige Eingabe, bitte erneut versuchen.\n");
-                break;
-        }
-    }
-}
-
-
-void ArrayDebug() {
-    ArrayTree_p root = NULL, handle = NULL;
-    IntOrP val;
-    char input;
-    int running = 1, key, nodeKey;
-    long maxKey;
-    TreeIter_p iter = malloc(sizeof(ArrayTreeIter));
-    void **ref;
-    void *entry;
-
-    while (running) {
-        printf("\nGeben Sie ein Zeichen ein:\n"
-               "e: extract, g: get, i: insert, l: traverseLimit, m: maxKey, p: print, r: getRef, z: quit\n"
-               "Eingabe: ");
-        scanf(" %c", &input);
-        while (getchar() != '\n');
-
-        switch (input) {
-            case 'i':   // ArrayTreeStore
-                key = readInteger();
-                val.p_val = 0x400;
-                ArrayTreeStore(&root, key, val);
-                ArrayTreeDebugPrint(stdout, root, false);
-                break;
-            case 'g':   // ArrayTreeGetEntry
-                key = readInteger();
-                nodeKey = CalcKey(key);
-                root = splay_tree(root, nodeKey);
-                entry = ArrayTreeGetEntry(root, key);
-                printf("entry: %p\n", entry);
-                break;
-            case 'r':   // ArrayTreeGetEntryRef
-                key = readInteger();
-                nodeKey = CalcKey(key);
-                root = splay_tree(root, nodeKey);
-                ref = ArrayTreeGetEntryRef(&root, key);
-                printf("ref: %p\n", ref);
-                break;
-            case 'e':   // ArrayTreeExtractEntry
-                key = readInteger();
-                nodeKey = CalcKey(key);
-                root = splay_tree(root, nodeKey);
-                entry = ArrayTreeExtractEntry(&root, key);
-                printf("tree:\n");
-                ArrayTreeDebugPrint(stdout, root, false);
-                printf("entry: %p\n", entry);
-                break;
-            case 'm':   // ArrayTreeMaxKey
-                maxKey = ArrayTreeMaxKey(root);
-                printf("maxKey: %ld\n", maxKey);
-                break;
-            case 'l':   // ArrayTreeLimitedTraverseInit
-                key = readInteger();
-                ArrayTreeLimitedTraverseInit(root, &iter, key);
-                printf("limit: %ld\n", iter->lower_bound);
-                while ((handle = ArrayTreeTraverseNext(iter->tree_iter))) {
-                    ArrayTreeDebugPrint(stdout, handle, false);
-                }
-                break;
-            case 'p':   // ArrayTreeDebugPrint
-                ArrayTreeDebugPrint(stdout, root, false);
-                break;
-            case 'z':
-                running = 0;
-                printf("Programm wird beendet.\n");
-                break;
-            default:
-                printf("Ungültige Eingabe.\n");
-                break;
-        }
-    }
-    free(iter);
-}
-
-
-// FUNCTIONS TREE
+/*-----------------------------------------------------------------------
+//
+// Function: ArrayTreeDebugPrint()
+//
+//   Print the tree in an unattractive but debug-friendly way.
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
 
 void ArrayTreeDebugPrint(FILE* out, ArrayTree_p tree, bool keys_only) {
     fprintf(out, "root: %p\n", tree);
     arraytree_print(out, tree, keys_only, 0);
 }
+
+/*-----------------------------------------------------------------------
+//
+// Function: ArrayTreePrintGV()
+//
+//   Print the tree in an attractive and debug-friendly way via GraphViz.
+//   Make sure the application is installed. The printed files can be
+//   found in ../PROVER/trees/
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
 
 void ArrayTreePrintGV(ArrayTree_p tree) {
     // Create target directory, if not existing yet
@@ -414,13 +302,26 @@ void ArrayTreePrintGV(ArrayTree_p tree) {
     }
 }
 
+/*-----------------------------------------------------------------------
+//
+//  Tree-related functions
+//
+/----------------------------------------------------------------------*/
 
-// ArrayTreeFree() -> IntMapFree()
-// Delete the entire tree (also empty the arrays of all nodes)
-// No return value required
+/*-----------------------------------------------------------------------
+//
+// Function: ArrayTreeFree()
+//
+//   Free an arraytree (including all entries, but not potential objects
+//   pointed to in the val fields
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
 
 void ArrayTreeFree(ArrayTree_p tree) {
-    printf("ArrayTreeFree\n");
     if (tree) {
         PStack_p stack = PStackAlloc();
         PStackPushP(stack, tree);
@@ -441,8 +342,21 @@ void ArrayTreeFree(ArrayTree_p tree) {
     }
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: ArrayTreeNodeFree()
+//
+//   Free a single node of an arraytree (including all entries, but not
+//   potential objects pointed to in the val fields. It extracts the
+//   respective node and reconstructs the arraytree
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations and changes the tree
+//
+/----------------------------------------------------------------------*/
+
 void ArrayTreeNodeFree(ArrayTree_p *root, long key) {
-    printf("ArrayTreeNodeFree -> key: %ld\n", key);
     if (!root || !(*root)) return;
 
     key = CalcKey(key);
@@ -463,13 +377,19 @@ void ArrayTreeNodeFree(ArrayTree_p *root, long key) {
     *root = temp;
 }
 
-
-// ArrayTreeNodeInsert() -> ArrayTreeStore()
-// Insert new, single node (if necessary)
-// Returns the memory address of the new node
+/*-----------------------------------------------------------------------
+//
+// Function: ArrayTreeNodeInsert()
+//
+//   If necessary add a new node to the tree
+//
+// Global Variables: -
+//
+// Side Effects    : Changes the tree
+//
+/----------------------------------------------------------------------*/
 
 ArrayTree_p ArrayTreeNodeInsert(ArrayTree_p root, long key) {
-    printf("ArrayTreeNodeInsert -> key: %ld\n", key);
     ArrayTree_p handle;
 
     handle = ArrayTreeNodeAllocEmpty();
@@ -495,13 +415,22 @@ ArrayTree_p ArrayTreeNodeInsert(ArrayTree_p root, long key) {
     return handle;
 }
 
-
-// ArrayTreeNodeAllocEmpty() -> ArrayTreeNodeInsert()
-// Allocate an empty node
-// Return the memory address of the new node
+/*-----------------------------------------------------------------------
+//
+// Function: ArrayTreeNodeAllocEmpty()
+//
+//   Allocate a empty, initialized ArrayTreeCell. Pointers to children
+//   are NULL, int values are 0 (and pointer values in ANSI-World
+//   undefined, in practice NULL on 32 bit machines)(This comment is
+//   superfluous!). The balance field is (correctly) set to 0.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
 
 ArrayTree_p ArrayTreeNodeAllocEmpty(void) {
-    printf("ArrayTreeNodeAllocEmpty\n");
     // Allocate the new node
     ArrayTree_p handle;
 
@@ -511,12 +440,20 @@ ArrayTree_p ArrayTreeNodeAllocEmpty(void) {
     return handle;
 }
 
-// ArrayTreeFind() -> IntMapGetVal(), IntMapGetRef()
-// Search for a specific value in the tree
-// Return of the p_val of the entry
+/*-----------------------------------------------------------------------
+//
+// Function: ArrayTreeFind()
+//
+//   Find the node containing key key in the tree and return it. Return
+//   NULL if no such key exists.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
 
 ArrayTree_p ArrayTreeFind(ArrayTree_p *root, long key) {
-    printf("ArrayTreeFind -> key: %ld\n", key);
     long nodeKey;
 
     if(*root) {
@@ -529,30 +466,64 @@ ArrayTree_p ArrayTreeFind(ArrayTree_p *root, long key) {
     return NULL;
 }
 
-// FUNCTIONS ARRAY
+/*-----------------------------------------------------------------------
+//
+//  Array-related functions
+//
+/----------------------------------------------------------------------*/
 
-// ArrayTreeGetEntry() -> IntMapGetVal()
-// Find Entry of given node
-// return IntOrP
+/*-----------------------------------------------------------------------
+//
+// Function: ArrayTreeGetEntry()
+//
+//   Find the entry inside the respective node and return its value
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
 
 void* ArrayTreeGetEntry(ArrayTree_p node, long key) {
-    printf("ArrayTreeGetEntry -> key: %ld\n", key);
     uint8_t idx;
 
     idx = CalcIdx(key, node->key);
     return node->entries[idx].p_val;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: ArrayTreeGetEntryRef()
+//
+//   Find the entry inside the respective node and return the adress of
+//   its value
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
 void** ArrayTreeGetEntryRef(ArrayTree_p *node, long key) {
-    printf("ArrayTreeGetEntryRef -> key: %ld\n", key);
     uint8_t idx;
 
     idx = CalcIdx(key, (*node)->key);
     return &(*node)->entries[idx].p_val;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: ArrayTreeCheckEmpty()
+//
+//   Check if an array of a given node is completely empty
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
 bool ArrayTreeCheckEmpty(ArrayTree_p root, long key) {
-    printf("ArrayTreeCheckEmpty -> key: %ld\n", key);
     long nodeKey = CalcKey(key);
 
     if (!root) return true;
@@ -570,14 +541,20 @@ bool ArrayTreeCheckEmpty(ArrayTree_p root, long key) {
     return true;
 }
 
-
-
-// ArrayTreeStore() -> IntMapGetRef(), add_new_tree_node()
-// Add a value to the array of the corresponding node
-// Theoretically does not require a return value
+/*-----------------------------------------------------------------------
+//
+// Function: ArrayTreeStore()
+//
+//   Insert a node associating key with val into the tree. If necessary
+//   insert a new node aswell.
+//
+// Global Variables: -
+//
+// Side Effects    : Changes tree
+//
+/----------------------------------------------------------------------*/
 
 ArrayTree_p ArrayTreeStore(ArrayTree_p *root, long key, IntOrP val) {
-    printf("ArrayTreeStore -> key: %ld\n", key);
     long nodeKey, idx;
 
     nodeKey = CalcKey(key);
@@ -600,14 +577,21 @@ ArrayTree_p ArrayTreeStore(ArrayTree_p *root, long key, IntOrP val) {
     return *root;
 }
 
-
-
-// ArrayTreeExtractEntry() -> IntMapDelKey()
-// Delete the value of a corresponding node
-// Return value, the key of the node is necessary but given inside IntMapDelKey()
+/*-----------------------------------------------------------------------
+//
+// Function: ArrayTreeExtractEntry()
+//
+//   Find the entry with key key, remove it from the array, rebalance
+//   the tree if node is empty, and return the pointer to the removed
+//   value. Return NULL if no matching element exists.
+//
+// Global Variables: -
+//
+// Side Effects    : Changes the tree
+//
+/----------------------------------------------------------------------*/
 
 void* ArrayTreeExtractEntry(ArrayTree_p *node, long key) {
-    printf("ArrayTreeExtractEntry -> key: %ld\n", key);
     long idx;
     void* val = NULL;
     
@@ -628,13 +612,21 @@ void* ArrayTreeExtractEntry(ArrayTree_p *node, long key) {
     return val;
 }
 
-// ArrayTreeLimitedTraverseInit() -> IntMapIterAlloc()
-// Return a PStack of all nodes/values that are greater than a limit
+/*-----------------------------------------------------------------------
+//
+// Function: ArrayTreeLimitedTraverseInit()
+//
+//   Return a stack containing the path to the smallest element
+//   smaller than or equal to limit in the tree.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
 
 TreeIter_p ArrayTreeLimitedTraverseInit(ArrayTree_p root,
                                         TreeIter_p *iterator, long limit) {
-    printf("LimitedInit -> limit: %ld\n", limit);
-    ArrayTreeDebugPrint(stdout, root, false);
     PStack_p stack = PStackAlloc();
     ArrayTree_p handle;
     (*iterator)->key = 0;
@@ -663,8 +655,6 @@ TreeIter_p ArrayTreeLimitedTraverseInit(ArrayTree_p root,
     if (stack->current > 0) {
         (*iterator)->node = stack->stack[--stack->current].p_val;
     }
-    printf("node: %p\n", (*iterator)->node);
-    printf("current: %ld\n", stack->current);
     handle = stack->stack[0].p_val;
     for (uint8_t i = 0; i < MAX_NODE_ARRAY_SIZE; i++) {
         if (handle->entries[i].p_val) {
@@ -677,12 +667,20 @@ TreeIter_p ArrayTreeLimitedTraverseInit(ArrayTree_p root,
     return *iterator;
 }
 
-
-// ArrayTreeMaxNode() -> IntMapDelKey()
-// Return the highest existing key
+/*-----------------------------------------------------------------------
+//
+// Function: ArrayTreeMaxKey()
+//
+//   Return the the largest key in the tree (or NULL if tree is empty).
+//   Non-destructive/non-reorganizing.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
 
 long ArrayTreeMaxKey(ArrayTree_p root) {
-    printf("ArrayTreeMaxKey\n");
     int i;
 
     if(root)

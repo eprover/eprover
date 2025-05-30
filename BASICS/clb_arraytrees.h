@@ -5,7 +5,6 @@
 
 typedef struct arraytree_node {
     long key;
-    // uint8_t highest_index;
     IntOrP entries[MAX_NODE_ARRAY_SIZE];
     struct arraytree_node* lson;
     struct arraytree_node* rson;
