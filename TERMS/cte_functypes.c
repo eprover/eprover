@@ -223,8 +223,7 @@ static void normalize_float_rep(DStr_p float_rep)
 //   - Reals, potentially signed
 //   - Rationals (fractions)
 //
-//
-// Global Variables: SigIdentToken
+// Global Variables: FuncSymbStartToken,FuncSymbToken
 //
 // Side Effects    : Reads input, changes id
 //

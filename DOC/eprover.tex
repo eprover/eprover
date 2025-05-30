@@ -18,9 +18,11 @@
 \usepackage{url}
 \usepackage{graphicx}
 
+\renewcommand{\textfraction}{.1}
+\renewcommand{\topfraction}{.9}
 
 \author{Stephan Schulz}
-\title{\includegraphics[width=4cm]{eicon333.png}\\[5ex]E 3.1\\[1.5ex]User Manual\\[1.5ex]{\normalsize --preliminary
+\title{\includegraphics[width=4cm]{eicon333.png}\\[5ex]E 3.2\\[1.5ex]User Manual\\[1.5ex]{\normalsize --preliminary
     version--}}
 
 \makeindex{}
@@ -47,13 +49,13 @@
 This is a short and currently quite sketchy documentation of the
 equational theorem prover E. E is an purely equational theorem prover
 for full first-order logic with equality, and, as of E~3.0, for
-monomorphic higher-order logic. It is based on paramodulation and
-rewriting. This means that E reads a set of formulas and/or clauses
-and saturates it by systematically applying a number of inference
-rules until either all possible (non-redundant) inferences have been
-performed or until the empty clause has been derived, i.e.\ the clause
-set has been found to be unsatisfiable and thus the conjecture has
-been proved.
+monomorphic higher-order logic. It is primarily based on
+paramodulation and rewriting. This means that E reads a set of
+formulas and/or clauses and saturates it by systematically applying a
+number of inference rules until either all possible (non-redundant)
+inferences have been performed or until the empty clause has been
+derived, i.e.\ the clause set has been found to be unsatisfiable and
+thus the conjecture has been proved.
 
 Even after 20 years, E is still a moving target. However, most recent
 releases have been quite stable, and the prover is being used
@@ -103,40 +105,49 @@ the stand-alone executable \texttt{E/PROVER/eprover}, or
 \texttt{E/PROVER/eprover-ho} if you configured the system with support
 for higher-order logic.
 
-E is controlled by a very wide range of parameters. However, if you do
-not want to bother with the details, you can leave configuration for a
-problem to the prover. To use this feature, use the following command
-line options:
-
-\bigskip
-\noindent
-\begin{tabular}{lp{7.5cm}}
-  \texttt{--satauto}
-  & Choose literal selection strategy,  clause
-    evaluation heuristic, term ordering and other search parameters
-    automagically\index{xyzzy}, based on problem features.\\
-  \texttt{--auto}
-  & As \texttt{--satauto}, but add heuristic
-    specification pruning using one of several instantiation of the SInE
-    algorithm~\cite{HV:CADE-2011} for large specifications. This makes
-    the prover potentially incomplete.\\
-  \texttt{--auto-schedule}
-  & As \texttt{--auto}, but try not one, but
-    several different strategies. \\
-  \texttt{--memory-limit=xx}
-  & Tell the prover how much memory
-    (measured in MB) to use at most. In automatic mode E will optimize
-    its behaviour for this amount (32~MB will work, 128~MB is
-    reasonable, 1024~MB is what I use. \emph{More is
-    better}\footnotemark, but if you go over
-    your physical memory, you will probably experience \emph{very} heavy
-    swapping.) Due to limitations of \texttt{rlim\_t}, values over 2047
-    may not work on all platforms. If you have ab up-to-date machine
-    and plan on running the prover for a few minutes at most, this has
-    become a lot less critical than in the past.\\
-\end{tabular}
+\begin{table}[h!]
+  \centering
+  \small
+  \begin{tabular}{lp{8cm}}
+    \hline
+    \texttt{--satauto}
+    & Choose literal selection strategy,  clause
+      evaluation heuristic, term ordering and other search parameters
+      automagically\index{xyzzy}, based on problem features.\\
+    \texttt{--auto}
+    & As \texttt{--satauto}, but add heuristic
+      specification pruning using one of several instantiation of the SInE
+      algorithm~\cite{HV:CADE-2011} for large specifications. This makes
+      the prover potentially incomplete.\\
+    \texttt{--auto-schedule[=k]}
+    & As \texttt{--auto}, but try not one, but
+      several different strategies. If the optional argument is given, E
+      will uses up to that number of cores to run the schedule in
+      parallel.\\
+    \texttt{--memory-limit=xx}
+    & Tell the prover how much memory
+      (measured in MB) to use at most. In automatic mode E will optimize
+      its behaviour for this amount (3 2~MB will work, 256~MB is
+      reasonable, 1024~MB is what I use. \emph{More is
+      better}\footnotemark, but if you go over
+      your physical memory, you will probably experience \emph{very} heavy
+      swapping.) Due to limitations of \texttt{rlim\_t}, values over 2047
+      may not work on all platforms. If you have ab up-to-date machine
+      and plan on running the prover for a few minutes at most, this has
+      become a lot less critical than in the past.\\
+    \hline
+  \end{tabular}
+  \normalsize
+  \caption{Suggested options for \emph{automatic mode}}
+  \label{tab:auto_options}
+\end{table}
 \footnotetext{Emphasis added for E~0.7 and up, which globally cache
   rewrite steps.}
+
+E is controlled by a very wide range of parameters. However, if you do
+not want to bother with the details, you can leave configuration for a
+problem to the prover. To use this feature, use the command
+line options from Table~\ref{tab:auto_options}.
 
 \begin{example}
   If you happen to have a workstation with 64 MB RAM\footnote{Yes,
@@ -472,7 +483,7 @@ variables.
  \item \emph{Negative simplify-reflect\index{simplify-reflect}}
 
    \bigskip (NS) \CInferenz{\neqn{s}{t} \phantom{ae}
-     \neqn{\sigma(s)}{\sigma(t)\vee R}}{\neqn{s}{t} \phantom{aee} R}{}
+     \eqn{\sigma(s)}{\sigma(t)\vee R}}{\neqn{s}{t} \phantom{aee} R}{}
 
 % \item \emph{Contextual (top level) simplify-reflect\index{contextual
 %       simplify-reflect}}
@@ -487,12 +498,9 @@ variables.
  \item \emph{Tautology deletion}\index{tautology deletion}:
 
    \bigskip (TD) \CInferenz{C}{}{if C is a tautology\footnotemark{}}
-   \footnotetext{This rule can only be implemented approximately, as
-     the problem of recognizing tautologies is only semi-decidable in
-     equational logic. Current versions of
-     E try to detect tautologies by checking if the ground-completed
-     negative literals imply at least one of the positive literals, as
-     suggested in~\cite{NN:RTA-93}.}
+   \footnotetext{Current versions of E detect tautologies by checking
+     if the ground-completed negative literals imply at least one of
+     the positive literals, as suggested in~\cite{NN:RTA-93}.}
 
  \item \emph{Deletion of duplicate literals}:
 

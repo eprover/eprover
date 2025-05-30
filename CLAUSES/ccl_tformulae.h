@@ -54,10 +54,11 @@ typedef Term_p TFormula_p;
 #define   TFormulaIsUnary(form)      ((form)->arity==1)
 // non lambda version
 #define   TFormulaIsQuantifiedNL(sig,form)                                \
-   ((form)->f_code == sig->qex_code || (form)->f_code == sig->qall_code)
+   (!TermIsDBVar(form) && ((form)->f_code == sig->qex_code || (form)->f_code == sig->qall_code))
 #define   TFormulaIsQuantified(sig,form)                                \
-   ((form)->f_code == sig->qex_code || (form)->f_code == sig->qall_code || \
-    (form)->f_code == SIG_NAMED_LAMBDA_CODE)
+   (!TermIsDBVar(form) && \
+    ((form)->f_code == sig->qex_code || (form)->f_code == sig->qall_code || \
+     (form)->f_code == SIG_NAMED_LAMBDA_CODE))
 #define   TFormulaIsLiteral(sig,form)                                   \
    ((((form)->f_code == (sig)->eqn_code) || ((form)->f_code == (sig)->neqn_code)) && \
    ((form)->arity == 2))
@@ -81,6 +82,7 @@ void       TFormulaTPTPPrint(FILE* out, TB_p bank, TFormula_p form, bool fullter
 TFormula_p TFormulaTPTPParse(Scanner_p in, TB_p terms);
 TFormula_p TFormulaTSTPParse(Scanner_p in, TB_p terms);
 TFormula_p TcfTSTPParse(Scanner_p in, TB_p terms);
+TFormula_p TSTPDistinctParse(Scanner_p in, TB_p terms);
 
 #define    TFormulaEqual(f1,f2) ((f1)==(f2))
 bool       TFormulaVarIsFree(TB_p bank, TFormula_p form, Term_p var);
@@ -111,6 +113,8 @@ Clause_p   TFormulaCollectClause(TFormula_p form, TB_p terms,
 void TFormulaAppEncode(FILE* out, TB_p bank, TFormula_p form);
 void PreloadTypes(TB_p bank, TFormula_p form);
 
+TFormula_p TFormulaStackToForm(TB_p bank, PStack_p stack, FunCode op);
+TFormula_p TFormulaExpandDistinct(TB_p bank, TFormula_p distinct);
 bool       TFormulaIsUntyped(TFormula_p form);
 
 TFormula_p TFormulaNegate(TFormula_p form, TB_p terms);

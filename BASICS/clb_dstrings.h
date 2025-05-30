@@ -34,7 +34,7 @@ Author: Stephan Schulz
 
 #define CLB_DSTRINGS
 
-#include "clb_memory.h"
+#include <clb_memory.h>
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */

@@ -1,0 +1,28 @@
+* Terms
+
+** Symbol representation
+
+- Term cells carry an f_code
+- Positive f_codes represent function and predicate symbols, and are
+  indices into the signature tables (but see below for DB-Vars)
+- Negative f_codes represent variables, and index into a VarBank.
+  Permanent clauses only use odd f_codes (-2, -4, ..)
+  Every normal variable is paired with a "fresh" variable (-1, -3,
+  ...)
+  These are only used in the copy of the given clause used as the
+  "new" premise of inferences (the other clause being a "permanent"
+  clause)
+
+** Higher-Order terms
+
+*** Flat-Spine-Notation
+
+- Terms are _not_ fully curried, but as flat as possible.
+  f @ a @ b @ c is represented as f(a,b,c) (even if arity(f)=5!)
+- Applied variables use the apply-Operator
+  X @ a @ b @c is represented as @(X, a, b, c)
+
+*** Lambdas
+
+- De-Bruin-Variables are represented in a second variable bank, and
+  use positive (!) f_codes

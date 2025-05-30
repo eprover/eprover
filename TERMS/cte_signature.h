@@ -63,7 +63,7 @@ typedef enum
    FPPseudoPred   = 8192, /* Pseudo-predicate used for side effects
                            * only, does not conceptually contribute to
                            * truth of clause */
-   FPTypedApplication = FPPseudoPred * 2, /* Symbol used to represtend typed
+   FPTypedApplication = FPPseudoPred * 2, /* Symbol used to represent typed
                                              first-order binary application symbol */
    FPIsInjDefSkolem = FPTypedApplication * 2, /* Symbol is Skolem for injective function */
    FPSkolemSymbol = FPIsInjDefSkolem * 2, /* Obvious ;-) */
@@ -71,6 +71,8 @@ typedef enum
                                         * but hopefully only for split
                                         * literals and Tseitin defined
                                         * predicates */
+   FPDefFun       = FPDefPred *2, /* Used for edef()s, currently not
+                                   * useful ;-) */
 }FunctionProperties;
 
 
@@ -96,7 +98,8 @@ Type_p TypeCheckArithConv(struct sigcell *sig, struct termcell *t);
 typedef struct funccell
 {
    /* f_code is implicit by position in the array */
-   char*  name;
+   char*  name;     // "real" name
+   char*  pname;    // Used for external printing
    int    arity;
    int    alpha_rank; /* We sometimes need an arbitrary but stable
                          order on symbols and use alphabetic. */
@@ -156,6 +159,7 @@ typedef struct sigcell
    FunCode   xor_code;
    /* And here are codes for interpreted symbols */
    FunCode   answer_code;       /* For answer literals */
+   FunCode   distinct_code;     /* $distinct */
 
    /* Sort and type banks (type => sort, but a shortcut is useful) */
    TypeBank_p  type_bank;
@@ -164,6 +168,7 @@ typedef struct sigcell
    /* Counters for generating new symbols */
    long      skolem_count;
    long      newpred_count;
+   long      newdef_count;
    /* Which properties are used for recognizing implicit distinctness?*/
    FunctionProperties distinct_props;
    PStack_p let_scopes;
@@ -292,9 +297,17 @@ FunCode SigGetOtherEqnCode(Sig_p sig, FunCode f_code);
 static inline FunCode SigGetOrCode(Sig_p sig);
 static inline FunCode SigGetCNilCode(Sig_p sig);
 FunCode SigGetOrNCode(Sig_p sig, int arity);
+
+FunCode SigGetNewFCode(Sig_p sig, int arity, char *prefix,
+                       long *counter, FunctionProperties props);
+#define SigGetNewSkolemCode(sig, arity) \
+   SigGetNewFCode((sig), (arity),"esk", &(sig)->skolem_count, FPSkolemSymbol)
+#define SigGetNewPredicateCode(sig, arity) \
+   SigGetNewFCode((sig), (arity),"epred", &(sig)->newpred_count, FPDefPred)
+#define SigGetNewDefCode(sig, arity) \
+   SigGetNewFCode((sig), (arity),"edef", &(sig)->newdef_count, FPDefFun)
+
 FunCode SigGetNewTypedSkolem(Sig_p sig, Type_p *args, int num_args, Type_p ret_type);
-FunCode SigGetNewSkolemCode(Sig_p sig, int arity);
-FunCode SigGetNewPredicateCode(Sig_p sig, int arity);
 
 /* Types */
 #define SigDefaultSort(sig)  ((sig)->type_bank->default_type)
@@ -371,7 +384,7 @@ static inline int SigFindArity(Sig_p sig, FunCode f_code)
 //
 /----------------------------------------------------------------------*/
 
-static inline char*  SigFindName(Sig_p sig, FunCode f_code)
+static inline char* SigFindName(Sig_p sig, FunCode f_code)
 {
    if(!f_code)
    {
@@ -380,7 +393,7 @@ static inline char*  SigFindName(Sig_p sig, FunCode f_code)
    assert(f_code > 0);
    assert(f_code <= sig->f_count);
 
-   return (sig->f_info[f_code]).name;
+   return (sig->f_info[f_code]).pname;
 }
 
 

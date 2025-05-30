@@ -97,7 +97,6 @@ void      PDRangeArrElementDeleteInt(PDRangeArr_p array, long idx);
    (((idx)>=PDRangeArrLowKey(array))&&(((idx)<PDRangeArrLimitKey(array))))
 
 long      PDRangeArrElementIncInt(PDRangeArr_p array, long idx, long value);
-void printPDRangeArray(const PDRangeArrCell *cell);
 
 /*---------------------------------------------------------------------*/
 /*                     Inline functions                                */
@@ -133,6 +132,8 @@ static inline IntOrP* PDRangeArrElementRef(PDRangeArr_p array, long idx)
    assert((idx-array->offset)<array->size);
    return &(array->array[idx-(array->offset)]);
 }
+
+
 
 #endif
 

@@ -26,6 +26,7 @@
 #include <cle_patterns.h>
 #include <cle_clauseenc.h>
 #include <che_clausesetfeatures.h>
+#include <che_hcb.h>
 #include <che_specsigfeatures.h>
 #include <che_rawspecfeatures.h>
 #include <cco_sine.h>
@@ -272,15 +273,6 @@ OptCell opts[] =
     "is a fudge factor that determines when definitions are introduced. "
     "0 disables definitions completely. The default works well."},
 
-   {OPT_DEF_CNF_OLD,
-    '\0', "old-cnf",
-    OptArg, TFORM_RENAME_LIMIT_STR,
-    "As the previous option, but use the classical, well-tested "
-    "clausification algorithm as opposed to the newewst one which "
-    "avoides some algorithmic pitfalls and hence works better on "
-    "some exotic formulae. The two may produce slightly different "
-    "(but equisatisfiable) clause normal forms."},
-
    {OPT_MINISCOPE_LIMIT,
     '\0', "miniscope-limit",
     OptArg, TFORM_MINISCOPE_LIMIT_STR,
@@ -475,11 +467,10 @@ bool tptp_header      = false,
    raw_classify     = false,
    specsig_classify = false,
    no_preproc       = false,
-   new_cnf          = true,
    parse_features   = false,
    app_encode       = false;
 long eqdef_maxclauses = DEFAULT_EQDEF_MAXCLAUSES,
-   miniscope_limit  = 1000,
+   miniscope_limit  = DEFAULT_MINISCOPE_LIMIT,
    FormulaDefLimit = 24;
 long eqdef_incrlimit  = DEFAULT_EQDEF_INCRLIMIT;
 FunctionProperties free_symb_prop = FPIgnoreProps;char *sine = NULL;
@@ -555,25 +546,13 @@ int main(int argc, char* argv[])
       {
          FormulaSetPreprocConjectures(fstate->f_axioms, fstate->f_ax_archive,
                                       false, false);
-         if(new_cnf)
-         {
-            FormulaSetCNF2(fstate->f_axioms,
-                           fstate->f_ax_archive,
-                           fstate->axioms,
-                           fstate->terms,
-                           fstate->freshvars,
-                           miniscope_limit, FormulaDefLimit,
-                           true, true, true, true);
-         }
-         else
-         {
-               FormulaSetCNF(fstate->f_axioms,
-                             fstate->f_ax_archive,
-                             fstate->axioms,
-                             fstate->terms,
-                             fstate->freshvars,
-                             FormulaDefLimit);
-         }
+         FormulaSetCNF2(fstate->f_axioms,
+                        fstate->f_ax_archive,
+                        fstate->axioms,
+                        fstate->terms,
+                        fstate->freshvars,
+                        miniscope_limit, FormulaDefLimit,
+                        true, true, true, true);
 
          for(clause = fstate->axioms->anchor->succ;
              clause != fstate->axioms->anchor;
@@ -714,9 +693,6 @@ CLState_p process_options(int argc, char* argv[], SpecLimits_p limits)
       case OPT_FREE_OBJECTS:
             free_symb_prop = free_symb_prop|FPIsObject;
             break;
-      case OPT_DEF_CNF_OLD:
-            new_cnf = false;
-            /* Intentional fall-through */
       case OPT_DEF_CNF:
             FormulaDefLimit     = CLStateGetIntArg(handle, arg);
             break;

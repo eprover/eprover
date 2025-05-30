@@ -397,7 +397,10 @@ void TypeInferSort(Sig_p sig, Term_p term, Scanner_p in)
             : sort;
 
          /* Declare the inferred type */
-         SigDeclareType(sig, term->f_code, type);
+         if(!SigIsPolymorphic(sig, term->f_code))
+         {
+            SigDeclareType(sig, term->f_code, type);
+         }
          term->type = sort;
       }
    }

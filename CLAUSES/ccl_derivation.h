@@ -69,6 +69,7 @@ typedef enum
    DOSkolemize,
    DODistDisjunctions,
    DOAnnoQuestion,
+   DOExpandDistinct,
    /* Generating inferences */
    DOParamod,
    DOSimParamod,
@@ -146,6 +147,7 @@ typedef enum
    DCSkolemize        = DOSkolemize,
    DCDistDisjunctions = DODistDisjunctions,
    DCAnnoQuestion     = DOAnnoQuestion,
+   DCExpandDistinct   = DOExpandDistinct |Arg1Fof,
    /* Generating inferences */
    DCParamod          = DOParamod |Arg1Cnf|Arg2Cnf,
    DCSimParamod       = DOSimParamod|Arg1Cnf|Arg2Cnf,

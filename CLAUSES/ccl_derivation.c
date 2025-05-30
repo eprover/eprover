@@ -58,6 +58,7 @@ char *opids[] =
    PCL_SK,
    PCL_DSTR,
    PCL_ANNOQ,
+   PCL_EXPDISTICT,
    /* Generating */
    PCL_PM,
    PCL_SPM,
@@ -121,6 +122,7 @@ char *optheory [] =
    NULL,
    NULL,
    "answers",
+   "distinct",
    /* Generating */
    NULL,
    NULL,
@@ -183,6 +185,7 @@ char *opstatus [] =
    "thm",
    "thm",
    "esa",
+   "thm",
    "thm",
    "thm",
    /* Generating */

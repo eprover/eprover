@@ -447,7 +447,6 @@ Type_p ArrowTypeFlattened(Type_p const* args, int args_num, Type_p ret)
       {
          TypeFree(args_ret_ty);
       }
-
       return res;
    }
 }

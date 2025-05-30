@@ -90,7 +90,7 @@ then
   [ $rcode = yes ] && CFLAGS="$CFLAGS -DRCODE"
   case X"$CC" in
     X*gcc*)
-      CFLAGS="$CFLAGS -Wall -Wextra"
+      CFLAGS="$CFLAGS -Wall -Wextra -Wno-unused-but-set-variable"
       [ $thirtytwobit = yes ] && CFLAGS="$CFLAGS -m32"
       if [ $debug = yes ]
       then

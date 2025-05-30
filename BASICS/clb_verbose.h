@@ -26,8 +26,8 @@ Changes
 
 #define CLB_VERBOSE
 
-#include "clb_error.h"
-#include "clb_simple_stuff.h"
+#include <clb_error.h>
+#include <clb_simple_stuff.h>
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
@@ -67,8 +67,3 @@ extern int Verbose;
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
-
-
-

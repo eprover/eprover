@@ -2007,7 +2007,7 @@ long EqnListCollectSubterms(Eqn_p list, PStack_p collector)
 //
 /----------------------------------------------------------------------*/
 
-long EqnListCollectGroundTerms(Eqn_p list, PTree_p *res, bool top_only,
+long EqnListCollectGroundTerms(Eqn_p list, PTree_p *res, bool all_subterms,
                                bool pos_lits, bool neg_lits)
 {
    long count = 0;
@@ -2016,7 +2016,7 @@ long EqnListCollectGroundTerms(Eqn_p list, PTree_p *res, bool top_only,
    {
       if((EqnIsPositive(list)&&pos_lits)||(EqnIsNegative(list)&&neg_lits))
       {
-         count += EqnCollectGroundTerms(list, res, top_only);
+         count += EqnCollectGroundTerms(list, res, all_subterms);
       }
       list = list->next;
    }

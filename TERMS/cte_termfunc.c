@@ -391,7 +391,6 @@ void do_ho_print(FILE* out, TFormula_p term, Sig_p sig, DerefType deref, int dep
       return;
    }
 
-
    if(TermIsDBVar(term))
    {
       fprintf(out, "Z%d", depth - (int)term->f_code - 1);
@@ -785,7 +784,9 @@ void TermPrintDbgHO(FILE* out, Term_p term, Sig_p sig, DerefType deref)
 #endif
       DerefType c_deref = CONVERT_DEREF(i, limit, deref);
       if(term->args[i]->arity ||
-         (c_deref != DEREF_NEVER && term->args[i]->binding && term->args[i]->binding->arity))
+         (c_deref != DEREF_NEVER &&
+          term->args[i]->binding &&
+          term->args[i]->binding->arity))
       {
          fputs("(", out);
          TermPrintDbgHO(out, term->args[i], sig, c_deref);
@@ -940,12 +941,16 @@ void TermPrettyPrintSimple(FILE* out, Term_p term, Sig_p sig, int level)
 
    TypePrintTSTP(out, sig->type_bank, term->type);
    fprintf(out, ":");
-   if(TermIsFreeVar(term))
+   if(TermIsDBVar(term))
+   {
+      // assert(term->arity == 0);
+      fprintf(out, "db(%ld)", term->f_code);
+   }
+   else if(TermIsFreeVar(term))
    {
       VarPrint(out, term->f_code);
       fputs(":", out);
       TypePrintTSTP(out, sig->type_bank, term->type);
-
    }
    else
    {
@@ -1019,6 +1024,12 @@ void TermPrettyPrintSimple(FILE* out, Term_p term, Sig_p sig, int level)
 
 FuncSymbType TermParseOperator(Scanner_p in, DStr_p id)
 {
+   if(TestInpId(in, "$distinct"))
+   {
+      AktTokenError(in,
+                    "$distinct is only allowed as the sole predicate symbol of an atomic formula",
+                    false);
+   }
    FuncSymbType res = FuncSymbParse(in, id);
 
 #ifndef STRICT_TPTP
@@ -1054,26 +1065,29 @@ FunCode TermSigInsert(Sig_p sig, const char* name, int arity, bool
    FunCode res;
 
    res = SigInsertId(sig, name, arity, special_id);
-   switch(type)
+   if(res)
    {
-   case FSIdentInt:
-         SigSetFuncProp(sig, res, FPIsInteger);
-         break;
-   case FSIdentFloat:
-         SigSetFuncProp(sig, res, FPIsFloat);
-         break;
-   case FSIdentRational:
-         SigSetFuncProp(sig, res, FPIsRational);
-         break;
-   case FSIdentObject:
+      switch(type)
+      {
+      case FSIdentInt:
+            SigSetFuncProp(sig, res, FPIsInteger);
+            break;
+      case FSIdentFloat:
+            SigSetFuncProp(sig, res, FPIsFloat);
+            break;
+      case FSIdentRational:
+            SigSetFuncProp(sig, res, FPIsRational);
+            break;
+      case FSIdentObject:
          SigSetFuncProp(sig, res, FPIsObject);
          break;
-   case FSIdentInterpreted:
-         SigSetFuncProp(sig, res, FPInterpreted);
-         break;
-   default:
-         /* Nothing */
-         break;
+      case FSIdentInterpreted:
+            SigSetFuncProp(sig, res, FPInterpreted);
+            break;
+      default:
+            /* Nothing */
+            break;
+      }
    }
    return res;
 }
@@ -1097,7 +1111,7 @@ Term_p TermParse(Scanner_p in, Sig_p sig, VarBank_p vars)
    Term_p        handle;
    DStr_p        id;
    FuncSymbType id_type;
-   DStr_p        source_name, errpos;
+   DStr_p        source_name;
    Type_p        type;
    long          line, column;
    StreamType    type_stream;
@@ -1160,18 +1174,13 @@ Term_p TermParse(Scanner_p in, Sig_p sig, VarBank_p vars)
                                         handle->arity, false, id_type);
          if(!handle->f_code)
          {
-            errpos = DStrAlloc();
+            Error("%s %s used with arity %d but registered with arity %d",
+                  SYNTAX_ERROR,
+                  PosRep(type_stream, source_name, line, column),
+                  DStrView(id),
+                  handle->arity,
+                  SigFindArity(sig, SigFindFCode(sig, DStrView(id))));
 
-            DStrAppendStr(errpos, PosRep(type_stream, source_name, line, column));
-            DStrAppendChar(errpos, ' ');
-            DStrAppendStr(errpos, DStrView(id));
-            DStrAppendStr(errpos, " used with arity ");
-            DStrAppendInt(errpos, (long)handle->arity);
-            DStrAppendStr(errpos, " but registered with arity ");
-            DStrAppendInt(errpos,
-                          (long)SigFindArity(sig, SigFindFCode(sig, DStrView(id))));
-            Error(DStrView(errpos), SYNTAX_ERROR);
-            DStrFree(errpos);
          }
       }
       DStrReleaseRef(source_name);
@@ -2738,7 +2747,7 @@ long TermCollectFCodes(Term_p term, NumTree_p *tree)
 //
 /----------------------------------------------------------------------*/
 
-long TermCollectGroundTerms(Term_p term, PTree_p *result, bool top_only)
+long TermCollectGroundTerms(Term_p term, PTree_p *result, bool all_subterms)
 {
    PStack_p stack = PStackAlloc();
    long count = 0;
@@ -2758,7 +2767,7 @@ long TermCollectGroundTerms(Term_p term, PTree_p *result, bool top_only)
                count++;
             }
          }
-         if(!TermIsGround(term) || !top_only)
+         if(!TermIsGround(term) || all_subterms)
          {
             for(i=0; i<term->arity; i++)
             {

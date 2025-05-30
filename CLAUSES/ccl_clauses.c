@@ -155,11 +155,11 @@ static void clause_collect_posneg_vars(Clause_p clause,
    {
       if(EqnIsPositive(handle))
       {
-         EqnCollectVariables(handle, pos_vars);
+         (void)EqnCollectVariables(handle, pos_vars);
       }
       else
       {
-         EqnCollectVariables(handle, neg_vars);
+         (void)EqnCollectVariables(handle, neg_vars);
       }
    }
 }
@@ -2665,6 +2665,32 @@ bool ClauseRecognizeChoice(IntMap_p choice_symbols_map, Clause_p cl)
    }
    return true;
 }
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseCollectGroundTerms()
+//
+//   Add no-constant ground subterms of the terms in certain literals
+//   (positive and/or negative, as per the selection parameters) in
+//   the clause to result. If top_only is set, only add maximal (in
+//   the subterm relation sense) terms, otherwise add all non-constant
+//   ground terms. Returns number of terms newly added.
+//
+// Global Variables:
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+
+long ClauseCollectGroundTerms(Clause_p clause, PTree_p *res, bool all_subterms,
+                              bool pos_lits, bool neg_lits)
+{
+
+   return EqnListCollectGroundTerms(clause->literals, res, all_subterms,
+                                    pos_lits, neg_lits);
+}
+
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */

@@ -405,30 +405,6 @@ long PDRangeArrElementIncInt(PDRangeArr_p array, long idx, long value)
 }
 
 
-void printPDRangeArray(const PDRangeArrCell *cell) {
-    if (cell == NULL || cell->array == NULL) {
-        printf("Array is NULL or empty.\n");
-        return;
-    }
-
-    printf("PDRangeArrCell (%p):\n", &(cell->array));
-    printf("  Type: %s\n", cell->integer ? "Integer" : "Pointer");
-    printf("  Offset: %ld\t", cell->offset);
-    printf("Size: %ld\n", cell->size);
-    printf("  Grow: %ld\n", cell->grow);
-    printf("  Values:\n");
-
-    for (long i = 0; i < cell->size; i++) {
-        long index = cell->offset + i;
-        if (cell->integer) {
-            printf("    [%ld] = %ld\t", index, cell->array[i].i_val);
-        } else {
-            printf("    [%ld] = %p\t", index, cell->array[i].p_val);
-        }
-    }
-    printf("\n");
-}
-
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/

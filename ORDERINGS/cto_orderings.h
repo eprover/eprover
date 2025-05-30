@@ -1,10 +1,10 @@
 /*-----------------------------------------------------------------------
 
-File  : cto_orderings.h
+  File  : cto_orderings.h
 
-Author: Stephan Schulz
+  Author: Stephan Schulz
 
-Contents
+  Contents
 
   Generic Interface to the term comparison routines.
 
@@ -14,10 +14,7 @@ Contents
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
-
-<1> Mon May  4 23:24:41 MET DST 1998
-    New
+  Created: Mon May  4 23:24:41 MET DST 1998
 
 -----------------------------------------------------------------------*/
 
@@ -27,7 +24,6 @@ Changes
 
 #include <cto_lpo.h>
 #include <cto_lpo_debug.h>
-/* #include <cto_rpo.h> */
 #include <cto_kbo.h>
 #include <cto_kbolin.h>
 
@@ -45,9 +41,9 @@ Changes
 
 
 bool          TOGreater(OCB_p ocb, Term_p s, Term_p t, DerefType
-         deref_s, DerefType deref_t);
+                        deref_s, DerefType deref_t);
 CompareResult TOCompare(OCB_p ocb, Term_p s, Term_p t, DerefType
-         deref_s, DerefType deref_t);
+                        deref_s, DerefType deref_t);
 
 CompareResult TOCompareSymbolParse(Scanner_p in);
 PStackPointer TOSymbolComparisonChainParse(Scanner_p in, OCB_p ocb);

@@ -167,6 +167,7 @@ void HeuristicParmsInitialize(HeuristicParms_p handle)
    handle->eqdef_maxclauses              = DEFAULT_EQDEF_MAXCLAUSES;
    handle->eqdef_incrlimit               = DEFAULT_EQDEF_INCRLIMIT;
    handle->formula_def_limit             = 24;
+   handle->miniscope_limit               = DEFAULT_MINISCOPE_LIMIT;
    handle->sine                          = NULL;
 
    handle->add_goal_defs_pos             = false;
@@ -261,7 +262,7 @@ void HeuristicParmsInitialize(HeuristicParms_p handle)
    handle->inverse_recognition           = false;
    handle->replace_inj_defs              = false;
    handle->lift_lambdas                  = true;
-   handle->ext_rules_max_depth             = NO_EXT_SUP;
+   handle->ext_rules_max_depth           = NO_EXT_SUP;
    handle->lambda_to_forall              = true;
    handle->unroll_only_formulas          = true;
    handle->elim_leibniz_max_depth        = NO_ELIM_LEIBNIZ;
@@ -348,6 +349,7 @@ void HeuristicParmsPrint(FILE* out, HeuristicParms_p handle)
    fprintf(out, "   eqdef_maxclauses:               %ld\n", handle->eqdef_maxclauses);
    fprintf(out, "   eqdef_incrlimit:                %ld\n", handle->eqdef_incrlimit);
    fprintf(out, "   formula_def_limit:              %ld\n", handle->formula_def_limit);
+   fprintf(out, "   miniscope_limit:                %ld\n", handle->miniscope_limit);
 
    fprintf(out, "   sine:                           \"%s\"\n", handle->sine ? handle->sine : "None");
    fprintf(out, "   add_goal_defs_pos:             %s\n", BOOL2STR(handle->add_goal_defs_pos));
@@ -578,6 +580,7 @@ bool HeuristicParmsParseInto(Scanner_p in,
    PARSE_INT(eqdef_incrlimit);
 
    PARSE_INT(formula_def_limit);
+   PARSE_INT(miniscope_limit);
    PARSE_STRING(sine);
 
    PARSE_BOOL(add_goal_defs_pos);

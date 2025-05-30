@@ -77,7 +77,7 @@ TFormula_p handle_ho_def(Scanner_p in, TB_p bank)
       {
          AktTokenError(in, "E currently supports definitions of type <predicate "
                            " symbol> = <closed LFHOL formula>",
-                       SYNTAX_ERROR);
+                       false);
       }
 
       AcceptInpTok(in, EqualSign);
@@ -499,7 +499,16 @@ WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms)
       line        = AktToken(in)->line;
       column      = AktToken(in)->column;
 
-      if(is_tcf)
+      if(TestInpId(in, "$distinct"))
+      {
+         tform = TSTPDistinctParse(in, terms);
+         // fprintf(stderr, "# $distinct parsed!: ");
+         // TFormulaTPTPPrint(stderr, terms, tform, true, false);
+         // fprintf(stderr, " : ");
+         // TermPrintDbg(stderr, tform, terms->sig, DEREF_NEVER);
+         // fprintf(stderr, ";\n");
+      }
+      else if(is_tcf)
       {
          // printf("# Tcf Start!\n");
          tform = TcfTSTPParse(in, terms);

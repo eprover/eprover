@@ -1,23 +1,22 @@
 /*-----------------------------------------------------------------------
 
-File  : clb_objmaps.h
+  File  : clb_bce.h
 
-Author: Petar Vukmirovic
+  Author: Petar Vukmirovic
 
-Contents
+  Contents
 
-  Implements blocked clause elimination as described in 
+  Implements blocked clause elimination as described in
   Blocked Clauses in First-Order Logic (https://doi.org/10.29007/c3wq).
 
-Copyright 1998-2022 by the author.
+  Copyright 1998-2022 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
+  Created: Di 4 jan 2022 13:00:10 CET
 
-<1> di  4 jan 2022 13:00:10 CET
 -----------------------------------------------------------------------*/
 
 #include "ccl_bce.h"
@@ -30,7 +29,7 @@ Changes
 /*                    Data type declarations                           */
 /*---------------------------------------------------------------------*/
 
-typedef struct 
+typedef struct
 {
    Clause_p orig_cl; // original clause that is potentially removed
    Clause_p parent; // renamed clause used for resulutons -- for efficiency
@@ -62,7 +61,7 @@ typedef bool (*BlockednessChecker)(BCE_task_p, Clause_p, TB_p);
 /*-----------------------------------------------------------------------
 //
 // Function: make_task()
-// 
+//
 //   Makes the task for BCE.
 //
 // Global Variables: -
@@ -85,7 +84,7 @@ BCE_task_p make_task(Clause_p orig_cl, Clause_p cl, Eqn_p lit, PStack_p cands)
 /*-----------------------------------------------------------------------
 //
 // Function: compare_taks()
-// 
+//
 //   Function used to order tasks inside the task queue.
 //
 // Global Variables: -
@@ -107,7 +106,7 @@ int compare_taks(IntOrP* ip_a, IntOrP* ip_b)
 /*-----------------------------------------------------------------------
 //
 // Function: make_sym_map()
-// 
+//
 //   Performs the elimination of blocked clauses by moving them
 //   from passive to archive. Tracking a predicate symbol will be stopped
 //   after it reaches max_occs occurrences.
@@ -185,7 +184,7 @@ NumTree_p make_sym_map(ClauseSet_p set, int occ_limit, bool* eq_found)
 /*-----------------------------------------------------------------------
 //
 // Function: make_bce_queue()
-// 
+//
 //   For each literal in a clause build an object encapsulating
 //   all the candidates (and how far we are in checking them), then
 //   store it in a queue ordered by number of candidates to check.
@@ -212,12 +211,12 @@ MinHeap_p make_bce_queue(ClauseSet_p set, NumTree_p* sym_map, PStack_p fresh_cla
             NumTree_p cands_node = NumTreeFind(sym_map, -fc);
             if(!IS_BLOCKED(cands_node))
             {
-               BCE_task_p t = make_task(cl, f_cl, lit, 
+               BCE_task_p t = make_task(cl, f_cl, lit,
                                         cands_node ? cands_node->val1.p_val : NULL);
                MinHeapAddP(res, t);
             }
          }
-      }  
+      }
    }
    return res;
 }
@@ -225,7 +224,7 @@ MinHeap_p make_bce_queue(ClauseSet_p set, NumTree_p* sym_map, PStack_p fresh_cla
 /*-----------------------------------------------------------------------
 //
 // Function: split_partner_literals()
-// 
+//
 //   Splits the literals in partner clause into those that unify and
 //   those that do not unify with "lit".
 //
@@ -242,7 +241,7 @@ void split_partner_literals(Eqn_p lit, Clause_p partner,
    for(Eqn_p part_lit = partner->literals; part_lit; part_lit = part_lit->next)
    {
       if(EqnIsPositive(lit) != EqnIsPositive(part_lit) &&
-         !EqnIsEquLit(part_lit) && 
+         !EqnIsEquLit(part_lit) &&
          SubstMguComplete(lit->lterm, part_lit->lterm, subst))
       {
          PStackPushP(unif, part_lit);
@@ -260,7 +259,7 @@ void split_partner_literals(Eqn_p lit, Clause_p partner,
 /*-----------------------------------------------------------------------
 //
 // Function: check_blockedness_eq()
-// 
+//
 //   Check if clause all equational L-resolvents between literal
 //   described by task and b are tautologies.
 //
@@ -277,7 +276,7 @@ bool check_l_resolvents_neq(Clause_p cl, Eqn_p lit, PStack_p unif,
    Subst_p subst = SubstAlloc();
    Eqn_p part_lit = PStackElementP(unif, PStackTopInt(processed));
 #ifndef NDEBUG
-   bool unif_res = 
+   bool unif_res =
 #endif
       SubstMguComplete(lit->lterm, part_lit->lterm, subst)
    ;
@@ -289,11 +288,11 @@ bool check_l_resolvents_neq(Clause_p cl, Eqn_p lit, PStack_p unif,
       bool comp_found = false;
       for(PStackPointer i=0; !comp_found && i<PStackGetSP(non_unif); i++)
       {
-         comp_found = EqnListFindCompLitExcept(cl->literals, lit, 
+         comp_found = EqnListFindCompLitExcept(cl->literals, lit,
                                                PStackElementP(non_unif, i),
                                                DEREF_ALWAYS, DEREF_ALWAYS);
       }
-      
+
       if(comp_found)
       {
          // found complementing literals outside L-group of literals,
@@ -313,7 +312,7 @@ bool check_l_resolvents_neq(Clause_p cl, Eqn_p lit, PStack_p unif,
       {
          if(!PStackFindInt(processed, i))
          {
-            if(EqnListFindCompLitExcept(cl->literals, lit, 
+            if(EqnListFindCompLitExcept(cl->literals, lit,
                                         PStackElementP(unif, i),
                                         DEREF_ALWAYS, DEREF_ALWAYS))
             {
@@ -327,7 +326,7 @@ bool check_l_resolvents_neq(Clause_p cl, Eqn_p lit, PStack_p unif,
          // not extended, did not find complementary literals
          break;
       }
-      
+
       bool unifiable = true;
       for(; unifiable && prev_try < PStackGetSP(processed); prev_try++)
       {
@@ -350,7 +349,7 @@ bool check_l_resolvents_neq(Clause_p cl, Eqn_p lit, PStack_p unif,
 /*-----------------------------------------------------------------------
 //
 // Function: check_blockedness_neq()
-// 
+//
 //   Check if clause all L-resolvents between literal described by task
 //   and b are tautologies.
 //
@@ -365,7 +364,7 @@ bool check_blockedness_neq(BCE_task_p task, Clause_p partner, TB_p _)
    assert(!EqnIsEquLit(task->lit));
    Eqn_p lit = task->lit;
    bool res;
-   
+
    PStack_p unifiable = PStackAlloc();
    PStack_p nonunifiable = PStackAlloc();
    split_partner_literals(lit, partner, unifiable, nonunifiable);
@@ -379,18 +378,18 @@ bool check_blockedness_neq(BCE_task_p task, Clause_p partner, TB_p _)
       res = check_l_resolvents_neq(task->parent, lit, unifiable,
                                     nonunifiable, processed);
    }
-   
+
    PStackFree(processed);
    PStackFree(unifiable);
    PStackFree(nonunifiable);
-   
+
    return res;
 }
 
 /*-----------------------------------------------------------------------
 //
 // Function: check_blockedness_eq()
-// 
+//
 //   Check if clause all equational L-resolvents between literal
 //   described by task and b are tautologies.
 //
@@ -436,7 +435,7 @@ bool check_blockedness_eq(BCE_task_p task, Clause_p partner, TB_p tmp_bank)
                               p_lit->bank, false);
          EqnListInsertFirst(&cond, neq);
       }
-      Eqn_p orig_cl = EqnListCopyExcept(task->parent->literals, 
+      Eqn_p orig_cl = EqnListCopyExcept(task->parent->literals,
                                         task->lit, task->lit->bank);
       cond = EqnListAppend(&cond, orig_cl);
       cond = EqnListAppend(&cond, EqnListCopy(others, bank));
@@ -453,7 +452,7 @@ bool check_blockedness_eq(BCE_task_p task, Clause_p partner, TB_p tmp_bank)
 /*-----------------------------------------------------------------------
 //
 // Function: check_candidates()
-// 
+//
 //   Forwards the task either to the first clause that makes it non-blocked.
 //   Otherwise, forwards it to the end of the candidates list.
 //
@@ -463,7 +462,7 @@ bool check_blockedness_eq(BCE_task_p task, Clause_p partner, TB_p tmp_bank)
 //
 /----------------------------------------------------------------------*/
 
-void check_candidates(BCE_task_p t, ClauseSet_p archive, 
+void check_candidates(BCE_task_p t, ClauseSet_p archive,
                       BlockednessChecker f, TB_p tmp_bank)
 {
    assert(!t->candidates || !PStackEmpty(t->candidates));
@@ -484,7 +483,7 @@ void check_candidates(BCE_task_p t, ClauseSet_p archive,
 /*-----------------------------------------------------------------------
 //
 // Function: resume_task()
-// 
+//
 //   Forwards to the next candidate and reinserts the task into the queue.
 //
 // Global Variables: -
@@ -502,7 +501,7 @@ void resume_task(MinHeap_p task_queue, BCE_task_p task)
 /*-----------------------------------------------------------------------
 //
 // Function: do_eliminate_clauses()
-// 
+//
 //   Performs actual clause elimination
 //
 // Global Variables: -
@@ -522,11 +521,11 @@ void free_blocker(void *key, void* val)
    PStackFree(blocked_tasks);
 }
 
-long do_eliminate_clauses(MinHeap_p task_queue, ClauseSet_p archive, 
+long do_eliminate_clauses(MinHeap_p task_queue, ClauseSet_p archive,
                           bool has_eq, TB_p tmp_bank)
 {
    PObjMap_p blocker_map = NULL;
-   BlockednessChecker checker = 
+   BlockednessChecker checker =
       has_eq ? check_blockedness_eq : check_blockedness_neq;
    long eliminated = 0;
    while(MinHeapSize(task_queue))
@@ -584,7 +583,7 @@ long do_eliminate_clauses(MinHeap_p task_queue, ClauseSet_p archive,
 /*-----------------------------------------------------------------------
 //
 // Function: EliminateBlockedClauses()
-// 
+//
 //   Performs the elimination of blocked clauses by moving them
 //   from passive to archive. Tracking a predicate symbol will be stopped
 //   after it reaches max_occs occurrences.
@@ -604,9 +603,9 @@ void EliminateBlockedClauses(ClauseSet_p passive, ClauseSet_p archive,
    NumTree_p sym_occs = make_sym_map(passive, max_occs, &eq_found);
    PStack_p fresh_cls = PStackAlloc();
    MinHeap_p task_queue = make_bce_queue(passive, &sym_occs, fresh_cls);
-   long num_eliminated = 
+   long num_eliminated =
       do_eliminate_clauses(task_queue, archive, eq_found, tmp_bank);
-   
+
    fprintf(stdout, "%% BCE eliminated: %ld.\n", num_eliminated);
 
    while(!PStackEmpty(fresh_cls))
@@ -631,6 +630,3 @@ void EliminateBlockedClauses(ClauseSet_p passive, ClauseSet_p archive,
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
-
