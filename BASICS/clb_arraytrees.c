@@ -218,13 +218,7 @@ void array_init(ArrayTree_p node) {
 //
 /----------------------------------------------------------------------*/
 
-void clear_all_entries(ArrayTree_p node) {
-    uint8_t i;
-    // Clean up all entries
-    for (i = 0; i < MAX_NODE_ARRAY_SIZE; i++) {
-        node->entries[i].p_val = NULL;
-    }
-}
+#define clear_all_entries(node) array_init(node)
 
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */

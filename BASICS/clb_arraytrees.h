@@ -55,8 +55,7 @@ long        ArrayTreeMaxKey(ArrayTree_p root);
 
 TreeIter_p  ArrayTreeLimitedTraverseInit(ArrayTree_p root,
                                         TreeIter_p *iterator, long limit);
-void ArrayDebug();
-void TreeDebug();
+                                        
 void ArrayTreePrintGV(ArrayTree_p tree);
 
 static inline int CalcKey(long key) {

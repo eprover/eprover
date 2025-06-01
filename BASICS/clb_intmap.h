@@ -203,7 +203,6 @@ static inline void* IntMapIterNext(IntMapIter_p iter, long *key)
          handle = iter->admin_data.iterator->node;
          for (i = iter->admin_data.iterator->key;
                      i < MAX_NODE_ARRAY_SIZE; i++) {
-            printf("i: %ld\n", i);
             if (handle->entries[i].p_val &&
                 (handle->key + i) >= iter->admin_data.iterator->lower_bound) {
                if((handle->key + i) > iter->admin_data.iterator->upper_bound) {
