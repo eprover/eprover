@@ -11,7 +11,7 @@ typedef struct arraytree_node {
 } ArrayTreeNode, *ArrayTree_p;
 
 typedef struct arraytree_iter {
-    long key;
+    long idx;
     long lower_bound;
     long upper_bound;
     ArrayTree_p node;
@@ -55,7 +55,7 @@ long        ArrayTreeMaxKey(ArrayTree_p root);
 
 TreeIter_p  ArrayTreeLimitedTraverseInit(ArrayTree_p root,
                                         TreeIter_p *iterator, long limit);
-                                        
+
 void ArrayTreePrintGV(ArrayTree_p tree);
 
 static inline int CalcKey(long key) {

@@ -591,8 +591,7 @@ void* ArrayTreeExtractEntry(ArrayTree_p *node, long key) {
     
     if (!(*node)) return NULL;
 
-    idx = key - (*node)->key;
-    assert(idx > -1 && idx < MAX_NODE_ARRAY_SIZE);
+    idx = CalcIdx(key, (*node)->key);
 
     if ((*node)->entries[idx].p_val) {
         val = (*node)->entries[idx].p_val;
@@ -623,7 +622,7 @@ TreeIter_p ArrayTreeLimitedTraverseInit(ArrayTree_p root,
                                         TreeIter_p *iterator, long limit) {
     PStack_p stack = PStackAlloc();
     ArrayTree_p handle;
-    (*iterator)->key = 0;
+    (*iterator)->idx = 0;
     (*iterator)->lower_bound = limit;
     (*iterator)->node = NULL;
 

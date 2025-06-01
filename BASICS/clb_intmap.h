@@ -201,32 +201,28 @@ static inline void* IntMapIterNext(IntMapIter_p iter, long *key)
       while (iter->admin_data.iterator->node) {
          found = false;
          handle = iter->admin_data.iterator->node;
-         for (i = iter->admin_data.iterator->key;
-                     i < MAX_NODE_ARRAY_SIZE; i++) {
+         uint8_t max_i = MIN(MAX_NODE_ARRAY_SIZE, iter->admin_data.iterator->upper_bound - handle->key + 1);
+         for (i = iter->admin_data.iterator->idx;
+                     i < max_i; i++) {
             if (handle->entries[i].p_val &&
                 (handle->key + i) >= iter->admin_data.iterator->lower_bound) {
-               if((handle->key + i) > iter->admin_data.iterator->upper_bound) {
-                  /* Overrun limit */
-                  found = true;
-                  break;
-               }
 
                /* Found real value */
                *key = handle->key + i;
                res = handle->entries[i].p_val;
-               iter->admin_data.iterator->key = i + 1;
+               iter->admin_data.iterator->idx = i + 1;
                found = true;
                break;
             }
          }
 
-         if (iter->admin_data.iterator->key >= MAX_NODE_ARRAY_SIZE 
+         if (iter->admin_data.iterator->idx >= MAX_NODE_ARRAY_SIZE 
              || i >= MAX_NODE_ARRAY_SIZE
-             || (handle->key + iter->admin_data.iterator->key - 1)
+             || (handle->key + iter->admin_data.iterator->idx - 1)
              >= iter->admin_data.iterator->upper_bound) {
             iter->admin_data.iterator->node =
                ArrayTreeTraverseNext(iter->admin_data.iterator->tree_iter);
-            iter->admin_data.iterator->key = 0;
+            iter->admin_data.iterator->idx = 0;
          }
 
          if (found) {
