@@ -136,7 +136,7 @@ typedef enum
    DCCnfAddArg        = DOAddCnfArg|Arg1Cnf,
    /* For simplifying inferences, the main premise is implicit */
    DCCnfEvalGC        = DOEvalGC,
-   DCRewrite          = DORewrite|Arg1Num|Arg2Num,
+   DCRewrite          = DORewrite|Arg1Cnf|Arg2Num|Arg3Num,
    DCLocalRewrite     = DOLocalRewrite,
    DCUnfold           = DOUnfold|Arg1Cnf,
    DCApplyDef         = DOApplyDef|Arg1Fof,

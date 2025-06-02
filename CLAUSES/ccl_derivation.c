@@ -643,16 +643,6 @@ void ClausePushRWSequence(ClausePos_p pos, Term_p from, Term_p to, TB_p bank, in
       demod = TermRWDemod(from);
       tmp = TermRWReplaceField(from);
 
-      // for (int tab = 0; tab < indent; ++tab)
-      //       {
-      //          fprintf(stdout, "\t");
-      //       }
-      // fprintf(stdout, "it: ");
-      // TBPrintTerm(stdout, bank, from, true);
-      // fprintf(stdout, " -> ");
-      // TBPrintTerm(stdout, bank, tmp, true);
-      // fprintf(stdout, "\n");
-
       if(!demod)
       {
          int i;
@@ -664,18 +654,6 @@ void ClausePushRWSequence(ClausePos_p pos, Term_p from, Term_p to, TB_p bank, in
          for(i=0; i<from->arity; i++)
          {
 
-            // for (int tab = 0; tab < indent; ++tab)
-            // {
-            //    fprintf(stdout, "\t");
-            // }
-            // fprintf(stdout, "\t");
-            // TBPrintTerm(stdout, bank, from->args[i], true);
-            // fprintf(stdout, " -> ");
-            // TBPrintTerm(stdout, bank, tmp->args[i], true);
-            // fprintf(stdout, " weigth %ld:", 
-            //         TermStandardWeight(from->args[i]));
-            // fprintf(stdout, " at term %d:\n", i);
-
             ClausePushRWSequence(pos,
                                   from->args[i],
                                   tmp->args[i], bank, weigth+2+tmp_weigth);
@@ -684,22 +662,9 @@ void ClausePushRWSequence(ClausePos_p pos, Term_p from, Term_p to, TB_p bank, in
          }
       }
       else
-      { 
-
-         // for (int tab = 0; tab < indent; ++tab)
-         //    {
-         //       fprintf(stdout, "\t");
-         //    }
-         // fprintf(stdout, "\tpush: ");
-         // TBPrintTerm(stdout, bank, from, true);
-         // fprintf(stdout, " -> ");
-         // TBPrintTerm(stdout, bank, tmp, true);
-         // fprintf(stdout, " at pos: %d\n", weigth); 
-
-         ClausePushDerivation(demod, DCRewrite, weigth, TermRWEqnSideField(from));    
+      {
+         ClausePushDerivation(pos->clause, DCRewrite, demod, weigth, TermRWEqnSideField(from));    
       }
-
-      fprintf(stdout, "\n");
 
       from = tmp;
       assert(from);
