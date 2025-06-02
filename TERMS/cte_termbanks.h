@@ -77,7 +77,7 @@ typedef struct tbcell
                                     entry_no's with term nodes, necessary
                                     for parsing of term bank terms. For
                                     critical cases (full protocolls) this
-                                    is bound to be densly poulated -> we
+                                    is bound to be densely poulated -> we
                                     use an array. */
    TermCellStoreCell term_store; /* Here are the terms */
 }TBCell, *TB_p;

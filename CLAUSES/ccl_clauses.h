@@ -418,8 +418,6 @@ Clause_p ClauseNormalizeVars(Clause_p clause, VarBank_p fresh_vars);
    EqnListAddFunOccs((clause)->literals, (f_occur), (res_stack))
 
 long     ClauseCollectSubterms(Clause_p clause, PStack_p collector);
-#define ClauseCollectGroundTerms(clause, res, top_only, neg_lits, pos_lits)\
-   EqnListCollectGroundTerms((clause)->literals, (res), (top_only), (neg_lits), (pos_lits))
 
 long     ClauseReturnFCodes(Clause_p clause, PStack_p f_codes);
 
@@ -430,6 +428,10 @@ bool    ClauseIsUntyped(Clause_p clause);
 
 bool    ClauseQueryLiteral(Clause_p clause, bool (*query_fun)(Eqn_p));
 bool    ClauseRecognizeChoice(IntMap_p choice_symbols_map, Clause_p cl);
+long    ClauseCollectGroundTerms(Clause_p clause, PTree_p *res, bool top_only, bool pos_lits, bool neg_lits);
+
+
+
 #endif
 
 /*---------------------------------------------------------------------*/

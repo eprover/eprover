@@ -483,7 +483,7 @@ variables.
  \item \emph{Negative simplify-reflect\index{simplify-reflect}}
 
    \bigskip (NS) \CInferenz{\neqn{s}{t} \phantom{ae}
-     \neqn{\sigma(s)}{\sigma(t)\vee R}}{\neqn{s}{t} \phantom{aee} R}{}
+     \eqn{\sigma(s)}{\sigma(t)\vee R}}{\neqn{s}{t} \phantom{aee} R}{}
 
 % \item \emph{Contextual (top level) simplify-reflect\index{contextual
 %       simplify-reflect}}
@@ -498,12 +498,9 @@ variables.
  \item \emph{Tautology deletion}\index{tautology deletion}:
 
    \bigskip (TD) \CInferenz{C}{}{if C is a tautology\footnotemark{}}
-   \footnotetext{This rule can only be implemented approximately, as
-     the problem of recognizing tautologies is only semi-decidable in
-     equational logic. Current versions of
-     E try to detect tautologies by checking if the ground-completed
-     negative literals imply at least one of the positive literals, as
-     suggested in~\cite{NN:RTA-93}.}
+   \footnotetext{Current versions of E detect tautologies by checking
+     if the ground-completed negative literals imply at least one of
+     the positive literals, as suggested in~\cite{NN:RTA-93}.}
 
  \item \emph{Deletion of duplicate literals}:
 

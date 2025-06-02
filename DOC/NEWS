@@ -1,7 +1,9 @@
 This history describes the major differences between versions of the E
 equational theorem prover.
 
-Version 3.1.0 -> 3.2.X Puttabong Moondrop
+
+
+Version 3.1.0 -> 3.2.5 Puttabong Moondrop
 
 - Added support for $distinct
 - Disabled -xAuto and cut out most of the relics of the old auto-mode

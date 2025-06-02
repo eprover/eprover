@@ -1024,6 +1024,12 @@ void TermPrettyPrintSimple(FILE* out, Term_p term, Sig_p sig, int level)
 
 FuncSymbType TermParseOperator(Scanner_p in, DStr_p id)
 {
+   if(TestInpId(in, "$distinct"))
+   {
+      AktTokenError(in,
+                    "$distinct is only allowed as the sole predicate symbol of an atomic formula",
+                    false);
+   }
    FuncSymbType res = FuncSymbParse(in, id);
 
 #ifndef STRICT_TPTP
@@ -2741,7 +2747,7 @@ long TermCollectFCodes(Term_p term, NumTree_p *tree)
 //
 /----------------------------------------------------------------------*/
 
-long TermCollectGroundTerms(Term_p term, PTree_p *result, bool top_only)
+long TermCollectGroundTerms(Term_p term, PTree_p *result, bool all_subterms)
 {
    PStack_p stack = PStackAlloc();
    long count = 0;
@@ -2761,7 +2767,7 @@ long TermCollectGroundTerms(Term_p term, PTree_p *result, bool top_only)
                count++;
             }
          }
-         if(!TermIsGround(term) || !top_only)
+         if(!TermIsGround(term) || all_subterms)
          {
             for(i=0; i<term->arity; i++)
             {

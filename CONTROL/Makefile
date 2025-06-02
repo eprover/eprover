@@ -39,7 +39,7 @@ CONTROL_LIB = cco_simplification.o cco_factoring.o\
               cco_proofproc.o cco_proc_ctrl.o cco_gproc_ctrl.o\
               cco_batch_spec.o cco_einteractive_mode.o\
 	      cco_sine.o cco_esession.o cco_eserver.o cco_scheduling.o\
-	      cco_ho_inferences.o
+	      cco_ho_inferences.o cco_preprocessing.o
 
 $(LIB): $(CONTROL_LIB)
 	$(AR) $(LIB) $(CONTROL_LIB)

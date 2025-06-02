@@ -170,6 +170,7 @@ Sig_p SigAlloc(TypeBank_p bank)
 
    handle->skolem_count      = 0;
    handle->newpred_count     = 0;
+   handle->newdef_count      = 0;
 
    handle->distinct_props = FPDistinctProp;
    handle->let_scopes = PStackAlloc();
@@ -1424,41 +1425,42 @@ FunCode SigGetOtherEqnCode(Sig_p sig, FunCode f_code)
 }
 
 
-
 /*-----------------------------------------------------------------------
 //
-// Function: SigGetNewSkolemCode()
+// Function: SigCetNewFCode()
 //
-//   Return a new skolem symbol with arity n. The symbol will be of
-//   the form esk<count>_<ar>, and is guaranteed to be new to sig.
+//   Return an fcode for a new identifier (based on prefix) with the
+//   given arity and properties. The symbol is guaranteed to be new to
+//   sig.
 //
-// Global Variables: -
+// Global Variables:
 //
-// Side Effects    : Extends signature
+// Side Effects    :
 //
 /----------------------------------------------------------------------*/
 
-FunCode SigGetNewSkolemCode(Sig_p sig, int arity)
+FunCode SigGetNewFCode(Sig_p sig, int arity, char *prefix,
+                       long *counter, FunctionProperties props)
 {
    FunCode res;
    char    new_symbol[48];
 
-   sig->skolem_count++;
-   sprintf(new_symbol,"esk%ld_%d",sig->skolem_count,arity);
+   (*counter)++;
+   sprintf(new_symbol,"%s%ld_%d", prefix, *counter, arity);
    while(SigFindFCode(sig,new_symbol))
    {
-      sig->skolem_count++;
-      sprintf(new_symbol,"esk%ld_%d",sig->skolem_count,arity);
+      (*counter)++;
+      sprintf(new_symbol,"esk%ld_%d", *counter, arity);
    }
    res = SigInsertId(sig, new_symbol, arity, false);
-   SigSetFuncProp(sig, res, FPSkolemSymbol);
+   SigSetFuncProp(sig, res, props);
    return res;
 }
 
 
 /*-----------------------------------------------------------------------
 //
-// Function: SigGetNewTypedSkolem ()
+// Function: SigGetNewTypedSkolem()
 //
 //   Return a new typed Skolem symbol based on the type of
 //   given free variables and return type.
@@ -1485,38 +1487,6 @@ FunCode SigGetNewTypedSkolem(Sig_p sig, Type_p* args, int num_args, Type_p ret_t
    {
       SigDeclareIsFunction(sig, res);
    }
-   return res;
-}
-
-
-/*-----------------------------------------------------------------------
-//
-// Function: SigGetNewPredicateCode()
-//
-//   Return a new predicate symbol with arity n. The symbol will be of
-//   the form epred<count>_<ar>, and is guaranteed to be new to sig.
-//
-// Global Variables: -
-//
-// Side Effects    : Extends signature
-//
-/----------------------------------------------------------------------*/
-
-FunCode SigGetNewPredicateCode(Sig_p sig, int arity)
-{
-   FunCode res;
-   char    new_symbol[48];
-
-   sig->newpred_count++;
-   sprintf(new_symbol,"epred%ld_%d",sig->newpred_count,arity);
-   while(SigFindFCode(sig,new_symbol))
-   {
-      sig->newpred_count++;
-      sprintf(new_symbol,"epred%ld_%d",sig->newpred_count,arity);
-   }
-   res = SigInsertId(sig, new_symbol, arity, false);
-   SigSetFuncProp(sig, res, FPDefPred);
-
    return res;
 }
 
