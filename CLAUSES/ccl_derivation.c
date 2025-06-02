@@ -630,6 +630,81 @@ void ClausePushDerivation(Clause_p clause, DerivationCode op, ...)
 
    va_end(argp);
 }
+   
+
+void ClausePushRWSequence(ClausePos_p pos, Term_p from, Term_p to, TB_p bank, int weigth) // position # beim push position mit pushen, position des teilterms berechnen
+{
+   Clause_p demod;
+   Term_p   tmp;
+
+   while(from != to)
+   {
+      assert(TermIsRewritten(from));
+      demod = TermRWDemod(from);
+      tmp = TermRWReplaceField(from);
+
+      // for (int tab = 0; tab < indent; ++tab)
+      //       {
+      //          fprintf(stdout, "\t");
+      //       }
+      // fprintf(stdout, "it: ");
+      // TBPrintTerm(stdout, bank, from, true);
+      // fprintf(stdout, " -> ");
+      // TBPrintTerm(stdout, bank, tmp, true);
+      // fprintf(stdout, "\n");
+
+      if(!demod)
+      {
+         int i;
+         assert(from->f_code == tmp->f_code);
+         assert(from->arity);
+
+         int tmp_weigth = 0;
+
+         for(i=0; i<from->arity; i++)
+         {
+
+            // for (int tab = 0; tab < indent; ++tab)
+            // {
+            //    fprintf(stdout, "\t");
+            // }
+            // fprintf(stdout, "\t");
+            // TBPrintTerm(stdout, bank, from->args[i], true);
+            // fprintf(stdout, " -> ");
+            // TBPrintTerm(stdout, bank, tmp->args[i], true);
+            // fprintf(stdout, " weigth %ld:", 
+            //         TermStandardWeight(from->args[i]));
+            // fprintf(stdout, " at term %d:\n", i);
+
+            ClausePushRWSequence(pos,
+                                  from->args[i],
+                                  tmp->args[i], bank, weigth+2+tmp_weigth);
+
+            tmp_weigth = TermStandardWeight(tmp->args[i]);
+         }
+      }
+      else
+      { 
+
+         // for (int tab = 0; tab < indent; ++tab)
+         //    {
+         //       fprintf(stdout, "\t");
+         //    }
+         // fprintf(stdout, "\tpush: ");
+         // TBPrintTerm(stdout, bank, from, true);
+         // fprintf(stdout, " -> ");
+         // TBPrintTerm(stdout, bank, tmp, true);
+         // fprintf(stdout, " at pos: %d\n", weigth); 
+
+         ClausePushDerivation(demod, DCRewrite, weigth, TermRWEqnSideField(from));    
+      }
+
+      fprintf(stdout, "\n");
+
+      from = tmp;
+      assert(from);
+   }
+}
 
 /*-----------------------------------------------------------------------
 //
@@ -1361,6 +1436,14 @@ void DerivationStackTSTPPrint(FILE* out, Sig_p sig, PStack_p derivation)
          opc = DPOpGetOpCode(op);
          if(op != DCCnfAddArg)
          {
+            if(DCOpHasNumArg1(op) && DCOpHasNumArg2(op) && !DCOpHasParentArg1(op))
+            {
+               fprintf(out, "@{%ld,%ld}", PStackElementInt(derivation, i+1),PStackElementInt(derivation, i+2));
+            }
+            else if(DCOpHasNumArg1(op))
+            {
+               fprintf(out, "@{%ld}", PStackElementInt(derivation, i+1));
+            }
             if(DCOpHasParentArg1(op))
             {
                if(i!=0)

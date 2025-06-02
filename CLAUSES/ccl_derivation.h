@@ -136,7 +136,7 @@ typedef enum
    DCCnfAddArg        = DOAddCnfArg|Arg1Cnf,
    /* For simplifying inferences, the main premise is implicit */
    DCCnfEvalGC        = DOEvalGC,
-   DCRewrite          = DORewrite|Arg1Cnf,
+   DCRewrite          = DORewrite|Arg1Num|Arg2Num,
    DCLocalRewrite     = DOLocalRewrite,
    DCUnfold           = DOUnfold|Arg1Cnf,
    DCApplyDef         = DOApplyDef|Arg1Fof,
@@ -285,6 +285,8 @@ extern bool            ProofObjectRecordsGCSelection;
 #define DPGetIsHO(op) ((op) & ArgIsHO)
 
 void ClausePushDerivation(Clause_p clause, DerivationCode op, ...);
+
+void ClausePushRWSequence(ClausePos_p pos, Term_p from, Term_p to, TB_p bank, int weigth);
 
 void ClausePushACResDerivation(Clause_p clause, Sig_p sig);
 

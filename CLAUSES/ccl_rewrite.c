@@ -224,7 +224,7 @@ static RWResultType term_is_top_rewritable(TB_p bank, OCB_p ocb,
                   repl = TBTermTopInsert(bank, repl);
                }
             }
-            TermAddRWLink(term, repl, new_demod, ClauseIsSOS(new_demod), res);
+            TermAddRWLink(term, repl, new_demod, ClauseIsSOS(new_demod), res, LeftSide);
             RewriteUncached++;
          }
       }
@@ -256,7 +256,7 @@ static RWResultType term_is_top_rewritable(TB_p bank, OCB_p ocb,
                }
             }
 
-            TermAddRWLink(term, repl, new_demod, ClauseIsSOS(new_demod), res);
+            TermAddRWLink(term, repl, new_demod, ClauseIsSOS(new_demod), res, RightSide);
             RewriteUncached++;
          }
       }
@@ -670,7 +670,7 @@ static Term_p rewrite_with_clause_set(OCB_p ocb, TB_p bank, Term_p term,
 
       assert(pos->clause->ident);
       TermAddRWLink(term, repl, pos->clause, ClauseIsSOS(pos->clause),
-                    restricted_rw?RWAlwaysRewritable:RWLimitedRewritable);
+                    restricted_rw?RWAlwaysRewritable:RWLimitedRewritable, pos->side);
       RewriteUncached++;
       // assert(TOGreater(ocb, term, repl, DEREF_NEVER, DEREF_NEVER));
       // The assertion is logically true, but in practice LPO fails on
@@ -770,7 +770,7 @@ static bool term_subterm_rewrite(RWDesc_p desc, Term_p *term, bool lambda_demod)
       new_term = TBTermTopInsert(desc->bank, new_term);
       assert(new_term!=*term);
       TermAddRWLink(*term, new_term, REWRITE_AT_SUBTERM, false,
-                    RWAlwaysRewritable);
+                    RWAlwaysRewritable, NoSide);
       *term = new_term;
    }
    else
@@ -897,8 +897,8 @@ EqnSide eqn_li_normalform(RWDesc_p desc, ClausePos_p pos,
          DocClauseRewriteDefault(pos, l_old);
       }
       CLAUSE_ENSURE_DERIVATION(pos->clause);
-      TermComputeRWSequence(pos->clause->derivation,
-                            l_old, ClausePosGetSide(pos), DCRewrite);
+      ClausePushRWSequence(pos,
+                            l_old, ClausePosGetSide(pos), eqn->bank, 0);
    }
    eqn->rterm = term_li_normalform(desc, eqn->rterm, false, lambda_demod);
    if(r_old!=eqn->rterm)
@@ -925,8 +925,8 @@ EqnSide eqn_li_normalform(RWDesc_p desc, ClausePos_p pos,
          DocClauseRewriteDefault(pos, r_old);
       }
       CLAUSE_ENSURE_DERIVATION(pos->clause);
-      TermComputeRWSequence(pos->clause->derivation,
-                            r_old, ClausePosGetSide(pos), DCRewrite);
+      ClausePushRWSequence(pos,
+                            r_old, ClausePosGetSide(pos), eqn->bank, 0);
    }
    return res;
 }
@@ -1068,7 +1068,7 @@ static long term_find_rw_clauses(Clause_p demod,
                   repl = TBTermTopInsert(eqn->bank, repl);
                }
             }
-            TermAddRWLink(term, repl, demod, ClauseIsSOS(demod), rwres);
+            TermAddRWLink(term, repl, demod, ClauseIsSOS(demod), rwres, NoSide);
             RewriteUncached++;
             //TermDeleteRWLink(term);
          }
@@ -1242,6 +1242,7 @@ long ClauseComputeLINormalform(OCB_p ocb, TB_p bank, Clause_p clause,
       } */
 
    pos.clause = clause;
+   pos.pos = PStackAlloc();
 
    while(!done)
    {
@@ -1263,6 +1264,9 @@ long ClauseComputeLINormalform(OCB_p ocb, TB_p bank, Clause_p clause,
          }
       }
    }
+
+   PStackFree(pos.pos);
+
    if(desc->sos_rewritten)
    {
       ClauseSetProp(clause, CPIsSOS);
