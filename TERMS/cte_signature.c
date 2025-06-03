@@ -56,13 +56,13 @@ static void sig_print_operator(FILE* out, Sig_p sig, FunCode op, bool comments)
    if(comments)
    {
       fprintf(out, "   %-13s : %2d    #  %2ld %2d \n",
-              sig->f_info[op].name, sig->f_info[op].arity, op,
+              sig->f_info[op].pname, sig->f_info[op].arity, op,
               sig->f_info[op].properties);
    }
    else
    {
       fprintf(out, "   %-13s : %2d\n",
-              sig->f_info[op].name, sig->f_info[op].arity);
+              sig->f_info[op].pname, sig->f_info[op].arity);
    }
 }
 
@@ -1744,7 +1744,7 @@ void SigPrintTypeDeclsTSTPSelective(FILE* out, Sig_p sig, NumTree_p *symbols)
          fun = &sig->f_info[i];
          if (fun->type /*&& !TypeIsUntyped(fun->type)*/)
          {
-            fprintf(out, "%s(decl_%ld, type, %s: ", tag, i, fun->name);
+            fprintf(out, "%s(decl_%ld, type, %s: ", tag, i, fun->pname);
             TypePrintTSTP(out, sig->type_bank, fun->type);
             fprintf(out, ").\n");
          }
