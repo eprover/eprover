@@ -1744,7 +1744,7 @@ void DerivedDotPrint(FILE* out, Sig_p sig, Derived_p derived,
       }
       else
       {
-         fprintf(out, "c%ld", derived->formula->ident);
+         fprintf(out, "%s", WFormulaGetId(derived->formula));
       }
    }
    if(print_derivation >= POGraph2)
@@ -1759,10 +1759,10 @@ void DerivedDotPrint(FILE* out, Sig_p sig, Derived_p derived,
          fprintf(out, ",\\n");
          ClauseSourceInfoPrintTSTP(out, info);
       }
-   }
-   if(print_derivation >= POGraph1)
-   {
-      fprintf(out, ").\n");
+      if(print_derivation >= POGraph1)
+      {
+         fprintf(out, ").");
+      }
    }
    fprintf(out, "\"]\n");
 
