@@ -865,7 +865,8 @@ bool BatchProcessFile(BatchSpec_p spec,
    fset = FormulaSetAlloc();
    FormulaAndClauseSetParse(in, fset, dummy, ctrl->terms,
                             NULL,
-                            &(ctrl->parsed_includes));
+                            &(ctrl->parsed_includes),
+                            0);
    DestroyScanner(in);
 
    fp = SecureFOpen(dest, "w");
@@ -1046,7 +1047,8 @@ void BatchProcessInteractive(BatchSpec_p spec,
          fset = FormulaSetAlloc();
          FormulaAndClauseSetParse(in, fset, dummy, ctrl->terms,
                                   NULL,
-                                  &(ctrl->parsed_includes));
+                                  &(ctrl->parsed_includes),
+                                  0);
 
          // cset and fset are handed over to BatchProcessProblem and are
          // freed there (via StructFOFSpecBacktrackToSpec()).
