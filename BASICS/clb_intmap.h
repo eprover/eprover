@@ -201,7 +201,8 @@ static inline void* IntMapIterNext(IntMapIter_p iter, long *key)
       while (iter->admin_data.iterator->node) {
          found = false;
          handle = iter->admin_data.iterator->node;
-         uint8_t max_i = MIN(MAX_NODE_ARRAY_SIZE, iter->admin_data.iterator->upper_bound - handle->key + 1);
+         uint8_t max_i = MIN(MAX_NODE_ARRAY_SIZE,
+            iter->admin_data.iterator->upper_bound - handle->key + 1);
          for (i = iter->admin_data.iterator->idx;
                      i < max_i; i++) {
             if (handle->entries[i].p_val &&

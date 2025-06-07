@@ -542,7 +542,7 @@ void* IntMapDelKey(IntMap_p map, long key)
 IntMapIter_p IntMapIterAlloc(IntMap_p map, long lower_key, long upper_key)
 {
    IntMapIter_p handle = IntMapIterCellAlloc();
-   TreeIter_p iter = malloc(sizeof(ArrayTreeIter));
+   TreeIter_p iter = NULL;
 
    handle->map = map;
    if(map)
@@ -565,6 +565,7 @@ IntMapIter_p IntMapIterAlloc(IntMap_p map, long lower_key, long upper_key)
             handle->admin_data.current = lower_key;
             break;
       case IMTree:
+         iter = SizeMalloc(sizeof(ArrayTreeIter));
          handle->admin_data.iterator =
             ArrayTreeLimitedTraverseInit(map->values.tree, &iter, lower_key);
          break;
@@ -601,8 +602,8 @@ void IntMapIterFree(IntMapIter_p junk)
       case IMArray:
             break;
       case IMTree:
-            PStackFree(junk->admin_data.iterator->tree_iter);
-            free(junk->admin_data.iterator);
+         PStackFree(junk->admin_data.iterator->tree_iter);
+         SizeFree(junk->admin_data.iterator, sizeof(ArrayTreeIter));
          break;
       default:
             assert(false && "Unknown IntMap type.");
