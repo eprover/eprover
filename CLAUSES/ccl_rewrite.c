@@ -886,6 +886,8 @@ EqnSide eqn_li_normalform(RWDesc_p desc, ClausePos_p pos,
       EqnIsOriented(eqn) && interred_rw;
    EqnSide res = NoSide;
 
+   assert(pos->clause && pos->literal && PStackEmpty(pos->pos));
+
    eqn->lterm =  term_li_normalform(desc, eqn->lterm,
                                     restricted_rw, lambda_demod);
    if(l_old!=eqn->lterm)
@@ -898,8 +900,9 @@ EqnSide eqn_li_normalform(RWDesc_p desc, ClausePos_p pos,
          DocClauseRewriteDefault(pos, l_old);
       }
       CLAUSE_ENSURE_DERIVATION(pos->clause);
+
       ClausePushRWSequence(pos,
-                            l_old, ClausePosGetSide(pos), eqn->bank, 0);
+                            l_old, ClausePosGetSide(pos), eqn->bank, PackClausePos(pos));
    }
    eqn->rterm = term_li_normalform(desc, eqn->rterm, false, lambda_demod);
    if(r_old!=eqn->rterm)
@@ -927,7 +930,7 @@ EqnSide eqn_li_normalform(RWDesc_p desc, ClausePos_p pos,
       }
       CLAUSE_ENSURE_DERIVATION(pos->clause);
       ClausePushRWSequence(pos,
-                            r_old, ClausePosGetSide(pos), eqn->bank, 0);
+                            r_old, ClausePosGetSide(pos), eqn->bank, PackClausePos(pos));
    }
    return res;
 }

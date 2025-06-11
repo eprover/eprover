@@ -632,7 +632,7 @@ void ClausePushDerivation(Clause_p clause, DerivationCode op, ...)
 }
    
 
-void ClausePushRWSequence(ClausePos_p pos, Term_p from, Term_p to, TB_p bank, int weigth) // position # beim push position mit pushen, position des teilterms berechnen
+void ClausePushRWSequence(ClausePos_p pos, Term_p from, Term_p to, TB_p bank, int weight)
 {
    Clause_p demod;
    Term_p   tmp;
@@ -649,21 +649,21 @@ void ClausePushRWSequence(ClausePos_p pos, Term_p from, Term_p to, TB_p bank, in
          assert(from->f_code == tmp->f_code);
          assert(from->arity);
 
-         int tmp_weigth = 0;
+         int tmp_weight = 0;
 
          for(i=0; i<from->arity; i++)
          {
 
             ClausePushRWSequence(pos,
                                   from->args[i],
-                                  tmp->args[i], bank, weigth+2+tmp_weigth);
+                                  tmp->args[i], bank, weight+tmp_weight+DEFAULT_FWEIGHT);
 
-            tmp_weigth = TermStandardWeight(tmp->args[i]);
+            tmp_weight = TermStandardWeight(tmp->args[i]);
          }
       }
       else
       {
-         ClausePushDerivation(pos->clause, DCRewrite, demod, weigth, TermRWEqnSideField(from));    
+         ClausePushDerivation(pos->clause, DCRewrite, demod, weight, TermRWEqnSideField(from));    
       }
 
       from = tmp;
@@ -1401,14 +1401,6 @@ void DerivationStackTSTPPrint(FILE* out, Sig_p sig, PStack_p derivation)
          opc = DPOpGetOpCode(op);
          if(op != DCCnfAddArg)
          {
-            if(DCOpHasNumArg1(op) && DCOpHasNumArg2(op) && !DCOpHasParentArg1(op))
-            {
-               fprintf(out, "@{%ld,%ld}", PStackElementInt(derivation, i+1),PStackElementInt(derivation, i+2));
-            }
-            else if(DCOpHasNumArg1(op))
-            {
-               fprintf(out, "@{%ld}", PStackElementInt(derivation, i+1));
-            }
             if(DCOpHasParentArg1(op))
             {
                if(i!=0)

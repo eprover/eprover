@@ -286,7 +286,7 @@ extern bool            ProofObjectRecordsGCSelection;
 
 void ClausePushDerivation(Clause_p clause, DerivationCode op, ...);
 
-void ClausePushRWSequence(ClausePos_p pos, Term_p from, Term_p to, TB_p bank, int weigth);
+void ClausePushRWSequence(ClausePos_p pos, Term_p from, Term_p to, TB_p bank, int weight);
 
 void ClausePushACResDerivation(Clause_p clause, Sig_p sig);
 
