@@ -484,7 +484,6 @@ long StructFOFSpecParseAxioms(StructFOFSpec_p ctrl, PStack_p axfiles,
    static IntOrP dummy = {0};
 
    //printf("# XXX Called with %ld axiom files\n", PStackGetSP(axfiles));
-
    for(i=0; i<PStackGetSP(axfiles); i++)
    {
       iname = PStackElementP(axfiles, i);
@@ -508,10 +507,14 @@ long StructFOFSpecParseAxioms(StructFOFSpec_p ctrl, PStack_p axfiles,
             assert(ClauseSetCardinality(cset)==0);
             PStackPushP(ctrl->clause_sets, cset);
             PStackPushP(ctrl->formula_sets, fset);
+            // printf("# %s has %ld formulas\n", iname, FormulaSetCardinality(fset));
             StrTreeStore(&(ctrl->parsed_includes), iname, dummy, dummy);
 
             DestroyScanner(in);
-         }
+            //GenDistribSizeAdjust(ctrl->f_distrib, ctrl->terms->sig);
+            //GenDistribAddClauseSet(ctrl->f_distrib, clauses, 1);
+            //GenDistribAddFormulaSet(ctrl->f_distrib, formulas, trim, 1);
+        }
          else
          {
             fprintf(GlobalOut, "# Could not find %s\n", iname);
@@ -604,7 +607,9 @@ long ProofStateSinE(ProofState_p state, char* fname)
    StructFOFSpecAddProblem(spec, state->axioms, state->f_axioms, filter->trim_implications);
 
 
-   StructFOFSpecInitDistrib(spec, filter->trim_implications);
+   //StructFOFSpecInitDistrib(spec, filter->trim_implications);
+
+   //GenDistribPrint(stdout, spec->f_distrib, 10);
    StructFOFSpecGetProblem(spec,
                            filter,
                            clauses,

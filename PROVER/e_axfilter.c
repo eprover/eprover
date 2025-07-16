@@ -856,6 +856,7 @@ int main(int argc, char* argv[])
    ctrl = StructFOFSpecAlloc();
    StructFOFSpecParseAxioms(ctrl, prob_names, parse_format, NULL);
    StructFOFSpecInitDistrib(ctrl, false);
+   //GenDistribPrint(stdout, ctrl->f_distrib, 10);
    StructFOFSpecResetShared(ctrl);
 
    if(seed_preds || seed_funs || seed_consts || seedstr)

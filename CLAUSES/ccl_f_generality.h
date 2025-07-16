@@ -105,7 +105,7 @@ void         GenDistribAddFormulaSetStack(GenDistrib_p dist,
    GenDistribAddFormulaSetStack((dist), (stack), (sp), false, -1)
 
 
-void         GenDistPrint(FILE* out, GenDistrib_p dist);
+void         GenDistribPrint(FILE* out, GenDistrib_p dist, long limit);
 
 int          FunGenTGCmp(const FunGen_p fg1, const FunGen_p fg2);
 int          FunGenCGCmp(const FunGen_p fg1, const FunGen_p fg2);
@@ -129,8 +129,3 @@ void        FormulaComputeDRel(GenDistrib_p generality,
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
-
-
-

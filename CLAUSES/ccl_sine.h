@@ -169,6 +169,7 @@ long SelectDefinitions(PStack_p clause_sets, PStack_p formula_sets,
 
 void DRelPrintDebug(FILE* out, DRel_p rel, Sig_p sig);
 void DRelationPrintDebug(FILE* out, DRelation_p rel, Sig_p sig);
+long DRelationTotalEntries(DRelation_p rel);
 
 void PStackClauseDelProp(PStack_p stack, FormulaProperties prop);
 void PStackFormulaDelProp(PStack_p stack, FormulaProperties prop);

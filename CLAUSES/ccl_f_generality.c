@@ -239,15 +239,14 @@ static void compute_d_rel(GenDistrib_p      generality,
          //    i,
          //    SigFindName(generality->sig, gen->f_code),
          //    extract_generality(gen, gentype));
-         
+
          if(extract_generality(gen, gentype)>gen_limit)
          {
             break;
          }
          PStackPushInt(res, gen->f_code);
       }
-      /* printf("Selected %d symbols including %ld\n",
-         PStackGetSP(res), PStackTopInt(res)); */
+      //printf("Selected %ld symbols including %ld\n", PStackGetSP(res), PStackTopInt(res));
    }
    PStackFree(sort_stack);
 }
@@ -424,9 +423,10 @@ void GenDistribAddFormula(GenDistrib_p dist,
    Sig_p sig = form->terms->sig;
 
    TermAddSymbolDistExist((FormulaIsConjecture(form) && trim) ?
-                           TermTrimImplications(sig, form->tformula) : form->tformula,
-                           dist->f_distrib,
-                           symbol_stack);
+                          TermTrimImplications(sig, form->tformula) :
+                          form->tformula,
+                          dist->f_distrib,
+                          symbol_stack);
    gd_merge_single_res(dist, symbol_stack, factor);
 
    while(!PStackEmpty(symbol_stack))
@@ -460,7 +460,7 @@ void GenDistribAddFormulaSet(GenDistrib_p dist,
        handle!=set->anchor;
        handle=handle->succ)
    {
-      GenDistribAddFormula(dist, handle, factor, trim);
+      GenDistribAddFormula(dist, handle, trim, factor);
    }
 }
 
@@ -520,7 +520,7 @@ void GenDistribAddFormulaSetStack(GenDistrib_p dist, PStack_p stack,
 
 /*-----------------------------------------------------------------------
 //
-// Function: GenDistPrint()
+// Function: GenDistribPrint()
 //
 //   Print the symbol distribution.
 //
@@ -530,13 +530,22 @@ void GenDistribAddFormulaSetStack(GenDistrib_p dist, PStack_p stack,
 //
 /----------------------------------------------------------------------*/
 
-void GenDistPrint(FILE* out, GenDistrib_p dist)
+void GenDistribPrint(FILE* out, GenDistrib_p dist, long limit)
 {
    FunCode i;
+   long term_freq_total = 0,
+      fc_freq_total = 0;
 
    for(i=dist->sig->internal_symbols+1; i<dist->size; i++)
    {
-      fprintf(out, "# %-20s (%8ld = %8ld): %8ld  %8ld\n",
+      term_freq_total+= dist->dist_array[i].term_freq;
+      fc_freq_total  += dist->dist_array[i].fc_freq;
+   }
+   fprintf(out, "# GenDist %p %ld %ld\n", dist, term_freq_total, fc_freq_total);
+
+   for(i=dist->sig->internal_symbols+1; i<MIN(dist->size,dist->sig->internal_symbols+limit); i++)
+   {
+      fprintf(out, "# %-30s (%8ld = %8ld): %8ld  %8ld\n",
               SigFindName(dist->sig, i),
               i,
               dist->dist_array[i].f_code,
@@ -681,15 +690,14 @@ void FormulaComputeDRel(GenDistrib_p generality,
    PStack_p      symbol_stack = PStackAlloc();
    Sig_p sig = form->terms->sig;
 
-   /* memset(generality->f_distrib, 0, generality->size*sizeof(long)); */
-   TermAddSymbolDistExist(FormulaIsConjecture(form) && trim_impl ? 
+   // memset(generality->f_distrib, 0, generality->size*sizeof(long));
+   TermAddSymbolDistExist(FormulaIsConjecture(form) && trim_impl ?
                           TermTrimImplications(sig,  form->tformula) : form->tformula,
                           generality->f_distrib,
                           symbol_stack);
 
-   /* printf("Symbolstack has %d elements\n",
-      PStackGetSP(symbol_stack)); */
-   // fprintf(stderr, "sine(%s)=\n", WFormulaGetId(form));
+   //printf("Symbolstack has %ld elements\n", PStackGetSP(symbol_stack));
+   //fprintf(stdout, "sine(%s)=\n", WFormulaGetId(form));
    compute_d_rel(generality, gentype, benevolence, generosity, symbol_stack, res);
 
    while(!PStackEmpty(symbol_stack))
@@ -704,5 +712,3 @@ void FormulaComputeDRel(GenDistrib_p generality,
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-

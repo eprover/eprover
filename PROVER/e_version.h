@@ -31,9 +31,9 @@ Contents
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-/* git tag E-3.2.5 */
+/* git tag E-3.0.0 */
 
-#define PVERSION      "3.2.5"
+#define PVERSION      "3.0.0"
 
 #include "e_gitcommit.h"
 
@@ -49,7 +49,7 @@ Contents
 #define VERSION PVERSION LFH "-DEBUG"
 #endif
 
-#define E_NICKNAME     "Puttabong Moondrop"
+#define E_NICKNAME     "Countess Grey"
 
 #define E_URL "http://www.eprover.org"
 

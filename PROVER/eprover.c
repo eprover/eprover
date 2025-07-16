@@ -1443,7 +1443,8 @@ CLState_p process_options(int argc, char* argv[])
             h_parms->add_goal_defs_subterms = true;
             break;
       case OPT_SINE:
-            h_parms->sine = "Auto";
+            //h_parms->sine = "Auto";
+            h_parms->sine = arg;
             break;
       case OPT_REL_PRUNE_LEVEL:
             relevance_prune_level = CLStateGetIntArg(handle, arg);

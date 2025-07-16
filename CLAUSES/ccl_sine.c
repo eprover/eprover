@@ -328,6 +328,8 @@ void DRelationAddFormulaSet(DRelation_p drel,
 {
    WFormula_p handle;
 
+   //printf("# Adding formula set with %ld formulas (fd:%d)\n", FormulaSetCardinality(set),force_def);
+
    for(handle = set->anchor->succ;
        handle != set->anchor;
        handle = handle->succ)
@@ -557,12 +559,15 @@ long SelectDefiningAxioms(DRelation_p drel,
    memset(dist_array, 0, (sig->f_count+1)*sizeof(long));
    PQueueStoreInt(axioms, ATNoType);
 
+   //printf("Drel has %ld elements\n", PDArrayMembers(drel->relation));
+   //DRelationPrintDebug(stdout, drel, sig);
+
    while(!PQueueEmpty(axioms))
    {
-      /* printf("Selecting %ld from %ld at %d\n",
-         res,
-         PQueueCardinality(axioms),
-         recursion_level); */
+      //printf("Selecting %ld from %ld at %d\n",
+      //res,
+      //PQueueCardinality(axioms),
+      //recursion_level);
 
       if((res > max_set_size) ||
          (recursion_level > max_recursion_depth))
@@ -601,14 +606,17 @@ long SelectDefiningAxioms(DRelation_p drel,
             PStackPushP(res_formulas, form);
             // fprintf(stderr, "activating form: %s\n", WFormulaGetId(form));
             TermAddSymbolDistExist((FormulaIsConjecture(form) && trim_implications) ?
-                                    TermTrimImplications(sig, form->tformula) : form->tformula,
-                                    dist_array, symbol_stack);
+                                   TermTrimImplications(sig, form->tformula) :
+                                   form->tformula,
+                                   dist_array, symbol_stack);
             res++;
             break;
       default:
             assert(false && "Unknown axiom type!");
             break;
       }
+      //printf("# SymbolstackSP: %ld\n", PStackGetSP(symbol_stack));
+      //printf("# DRel total entries: %ld\n", DRelationTotalEntries(drel));
       for(ssp=0; ssp<PStackGetSP(symbol_stack); ssp++)
       {
          i = PStackElementInt(symbol_stack, ssp);
@@ -616,8 +624,9 @@ long SelectDefiningAxioms(DRelation_p drel,
             (frel = PDArrayElementP(drel->relation, i)) &&
             !frel->activated)
          {
+            //printf("!frel->activated [%ld]\n", i);
             frel->activated = true;
-            // fprintf(stderr, " > |%s|: ", SigFindName(sig, i));
+            //fprintf(stdout, " > |%s|: ", SigFindName(sig, i));
             for(sp=0; sp<PStackGetSP(frel->d_clauses); sp++)
             {
                clause = PStackElementP(frel->d_clauses, sp);
@@ -626,10 +635,14 @@ long SelectDefiningAxioms(DRelation_p drel,
             for(sp=0; sp<PStackGetSP(frel->d_formulas); sp++)
             {
                form = PStackElementP(frel->d_formulas, sp);
-               // fprintf(stderr, "%s; ", WFormulaGetId(form));
+               //fprintf(stdout, "%s; ", WFormulaGetId(form));
                PQueueStoreFormula(axioms, form);
             }
-            // fprintf(stderr, "\n");
+            //fprintf(stdout, "\n");
+         }
+         else
+         {
+            //printf("frel->activated [%ld]\n", i);
          }
          dist_array[i] = 0;
       }
@@ -675,8 +688,10 @@ long SelectAxioms(GenDistrib_p      f_distrib,
 
    assert(PStackGetSP(clause_sets)==PStackGetSP(formula_sets));
 
-   /* fprintf(GlobalOut, "# Axiom selection starts (%lld)\n",
-      GetSecTimeMod()); */
+   //fprintf(GlobalOut, "# Axiom selection starts (%ld, %lld)\n",
+   //seed_start, GetSecTimeMod());
+
+   //GenDistribPrint(stdout, f_distrib, 10);
    DRelationAddClauseSets(drel, f_distrib,
                           ax_filter->gen_measure,
                           ax_filter->benevolence,
@@ -692,7 +707,6 @@ long SelectAxioms(GenDistrib_p      f_distrib,
    /* fprintf(GlobalOut, "# DRelation constructed (%lld)\n",
     * GetSecTimeMod()); */
    // DRelationPrintDebug(stderr, drel, f_distrib->sig);
-
    for(i=seed_start; i<PStackGetSP(clause_sets); i++)
    {
       seeds += ClauseSetFindAxSelectionSeeds(PStackElementP(clause_sets, i),
@@ -702,8 +716,8 @@ long SelectAxioms(GenDistrib_p      f_distrib,
                                               selq,
                                               ax_filter->use_hypotheses);
    }
-   /* fprintf(GlobalOut, "# Hypotheses found (%lld)\n",
-      GetSecTimeMod()); */
+   //fprintf(GlobalOut, "# Hypotheses found %ld (%lld)\n", seeds,
+   //GetSecTimeMod());
    VERBOSE(fprintf(stderr, "# Found %ld seed clauses/formulas\n", seeds););
    if(!seeds)
    {
@@ -719,6 +733,7 @@ long SelectAxioms(GenDistrib_p      f_distrib,
       {
          max_result_size = ax_filter->max_set_size;
       }
+      //printf("# max_result_size = %ld\n", max_result_size);
       if(true)
          /* "true" may be exported as an option eventually */
       {
@@ -730,6 +745,7 @@ long SelectAxioms(GenDistrib_p      f_distrib,
          }
          res = PStackGetSP(res_clauses)+PStackGetSP(res_formulas);
       }
+      //GenDistribPrint(stdout, f_distrib, 10);
       res += SelectDefiningAxioms(drel,
                                  f_distrib->sig,
                                  ax_filter->max_recursion_depth,
@@ -818,7 +834,7 @@ long SelectThreshold(PStack_p          clause_sets,
 //
 // Function: SelectDefinitions()
 //
-//   Select lambda definitions only 
+//   Select lambda definitions only
 //
 // Global Variables: -
 //
@@ -834,7 +850,7 @@ long SelectDefinitions(PStack_p clause_sets, PStack_p formula_sets,
    FormulaSet_p fset;
    WFormula_p formula;
 
-   // ignoring clause sets because only formulas can be 
+   // ignoring clause sets because only formulas can be
    // tagged as definitions
    for(i=0; i<PStackGetSP(formula_sets); i++)
    {
@@ -882,7 +898,7 @@ void DRelPrintDebug(FILE* out, DRel_p rel, Sig_p sig)
    fprintf(out, "#formulas: ");
    for(PStackPointer i = 0; i<PStackGetSP(rel->d_formulas); i++)
    {
-      fprintf(out, "%s, ", 
+      fprintf(out, "%s, ",
               WFormulaGetId(PStackElementP(rel->d_formulas, i)));
    }
    fputc('\n', stderr);
@@ -915,6 +931,38 @@ void DRelationPrintDebug(FILE* out, DRelation_p rel, Sig_p sig)
       }
    }
 }
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: DRelationTotalEntries()
+//
+//   Return the total number of clause/formula references in the
+//   D-Relation.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+long DRelationTotalEntries(DRelation_p rel)
+{
+   long i, res = 0;
+   DRel_p handle;
+
+   for(i=1; i<rel->relation->size; i++)
+   {
+      if(PDArrayElementP(rel->relation, i))
+      {
+         handle = PDArrayElementP(rel->relation, i);
+         res += PStackGetSP(handle->d_clauses);
+         res += PStackGetSP(handle->d_formulas);
+      }
+   }
+   return res;
+}
+
 
 
 

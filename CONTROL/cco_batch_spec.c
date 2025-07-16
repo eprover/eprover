@@ -165,7 +165,7 @@ EPCtrl_p batch_create_runner(StructFOFSpec_p ctrl,
    //printf("# ====== Writing filtered file===========\n");
    //FilePrint(stdout, file);
    //printf("# =======Filtered file written===========\n");
-   //fprintf(GlobalOut, "# Written new problem (%lld)\n", GetSecTimeMod());
+   fprintf(GlobalOut, "# Written new problem (%lld)\n", GetSecTimeMod());
 
    AxFilterPrintBuf(name, 320, ax_filter);
    pctrl = ECtrlCreateGeneric(executable, name, options, extra_options, cpu_time, file);
@@ -536,6 +536,7 @@ BatchSpec_p BatchSpecParse(Scanner_p in, char* executable,
    {
       dummy = ParseBasicInclude(in);
       PStackPushP(handle->includes, dummy);
+      printf("# Accepted %s for parsing\n", dummy);
    }
 
    /* This is ugly! Fix the LTB format! */
@@ -570,7 +571,7 @@ long BatchStructFOFSpecInit(BatchSpec_p spec,
 
    res = StructFOFSpecParseAxioms(ctrl, spec->includes, spec->format, default_dir);
    StructFOFSpecInitDistrib(ctrl, false);
-
+   //GenDistribPrint(stdout, ctrl->f_distrib, 10);
    return res;
 }
 
@@ -601,7 +602,7 @@ void StructFOFSpecAddProblem(StructFOFSpec_p ctrl,
    PStackPushP(ctrl->formula_sets, formulas);
 
    GenDistribAddClauseSet(ctrl->f_distrib, clauses, 1);
-   GenDistribAddFormulaSet(ctrl->f_distrib, formulas, 1, trim);
+   GenDistribAddFormulaSet(ctrl->f_distrib, formulas, trim, 1);
 }
 
 
@@ -676,6 +677,8 @@ long StructFOFSpecGetProblem(StructFOFSpec_p ctrl,
                             ax_filter,
                             res_clauses,
                             res_formulas);
+         //printf("# AFGSinE selected %ld/%ld clauses/formulas\n",
+         //PStackGetSP(res_clauses), PStackGetSP(res_formulas));
          break;
    case AFThreshold:
          res = SelectThreshold(ctrl->clause_sets,
@@ -1123,7 +1126,7 @@ void BatchProcessVariants(BatchSpec_p spec, char* variants[], char* provers[],
               prob_count-solved_count, var_count-variant, concrete_prob_count);
 
       // Loading axioms here!
-      // DISABLED FOR CASC-28 - no shared axioms. Inconsisten Spec!
+      // DISABLED FOR CASC-28 - no shared axioms. Inconsistent Spec!
       //ctrl = StructFOFSpecAlloc();
       //concrete_batch_struct_FOF_spec_init(spec,
       //                                   ctrl,
