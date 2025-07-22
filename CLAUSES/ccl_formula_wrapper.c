@@ -562,12 +562,14 @@ WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms)
 
 
 
+
 /*-----------------------------------------------------------------------
 //
-// Function: WFormulaTSTPPrint()
+// Function: WFormulaTSTPPrintFlex()
 //
 //   Print a formula in TSTP format. If !complete, leave of the
-//   trailing ")." for adding optional stuff.
+//   trailing ")." for adding optional stuff. If "as_formula" is true,
+//   print clauses as (universally quantified) formulas.
 //
 // Global Variables: -
 //
@@ -575,19 +577,19 @@ WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms)
 //
 /----------------------------------------------------------------------*/
 
-void WFormulaTSTPPrint(FILE* out, WFormula_p form, bool fullterms,
-             bool complete)
+void WFormulaTSTPPrintFlex(FILE* out, WFormula_p form, bool fullterms,
+                           bool complete, bool as_formula)
 {
    char *typename = "plain", *formula_kind = "fof";
    bool is_untyped = TFormulaIsUntyped(form->tformula);
 
    if(problemType == PROBLEM_FO)
    {
-      if(form->is_clause && is_untyped)
+      if(form->is_clause && is_untyped && !as_formula)
       {
          formula_kind = "cnf";
       }
-      else if(form->is_clause)
+      else if(form->is_clause && !as_formula)
       {
          formula_kind = "tcf";
       }
@@ -632,9 +634,17 @@ void WFormulaTSTPPrint(FILE* out, WFormula_p form, bool fullterms,
 
    if(form->is_clause)
    {
-      Clause_p clause = WFormClauseToClause(form);
-      ClauseTSTPCorePrint(out, clause, fullterms);
-      ClauseFree(clause);
+      if(as_formula)
+      {
+         TFormula_p closure =  TFormulaClosure(form->terms, form->tformula, true);
+         TFormulaTPTPPrint(out, form->terms, closure, fullterms, false);
+      }
+      else
+      {
+         Clause_p clause = WFormClauseToClause(form);
+         ClauseTSTPCorePrint(out, clause, fullterms);
+         ClauseFree(clause);
+      }
    }
    else
    {
@@ -648,7 +658,6 @@ void WFormulaTSTPPrint(FILE* out, WFormula_p form, bool fullterms,
       fprintf(out, ").");
    }
 }
-
 
 /*-----------------------------------------------------------------------
 //

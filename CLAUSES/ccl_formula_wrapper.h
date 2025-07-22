@@ -84,6 +84,8 @@ extern bool FormulaTermEncoding;
 WFormula_p DefaultWFormulaAlloc(void);
 WFormula_p WTFormulaAlloc(TB_p terms, TFormula_p formula);
 void       WFormulaFree(WFormula_p form);
+#define    WFormulaIsUntyped(form) TFormulaIsUntyped((form)->tformula)
+
 WFormula_p WFormulaFlatCopy(WFormula_p form);
 
 void       WFormulaGCMarkCells(WFormula_p form);
@@ -95,8 +97,10 @@ WFormula_p WFormulaTPTPParse(Scanner_p in, TB_p terms);
 void       WFormulaTPTPPrint(FILE* out, WFormula_p form, bool fullterms);
 
 WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms);
-void       WFormulaTSTPPrint(FILE* out, WFormula_p form, bool fullterms,
-                             bool complete);
+#define  WFormulaTSTPPrint(out, form, fullterms, complete)\
+   WFormulaTSTPPrintFlex((out), (form), (fullterms), (complete), true)
+void       WFormulaTSTPPrintFlex(FILE* out, WFormula_p form, bool fullterms,
+                                 bool complete, bool as_formula);
 
 WFormula_p WFormulaParse(Scanner_p in, TB_p terms);
 WFormula_p WFormClauseParse(Scanner_p in, TB_p terms);

@@ -589,6 +589,8 @@ int main(int argc, char* argv[])
 
    if(syntax_only)
    {
+      FormulaSetPrettyPrintTSTP(GlobalOut, proofstate->f_axioms, true);
+
       fprintf(GlobalOut, "\n# Parsing successful!\n");
       TSTPOUT(GlobalOut, "Unknown");
       goto cleanup1;

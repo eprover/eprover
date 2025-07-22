@@ -326,6 +326,34 @@ void FormulaSetDeleteEntry(WFormula_p form)
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: FormulaSetIsUntyped()
+//
+//   Return true if the formulaset is untyped, false otherwise.
+//
+// Global Variables:
+//
+// Side Effects    :
+//
+/----------------------------------------------------------------------*/
+
+bool FormulaSetIsUntyped(FormulaSet_p set)
+{
+   WFormula_p handle;
+
+   handle = set->anchor->succ;
+
+   while(handle!=set->anchor)
+   {
+      if(!WFormulaIsUntyped(handle))
+      {
+         return false;
+      }
+   }
+   return true;
+}
+
 
 /*-----------------------------------------------------------------------
 //
@@ -348,6 +376,38 @@ void FormulaSetPrint(FILE* out, FormulaSet_p set, bool fullterms)
    while(handle!=set->anchor)
    {
       WFormulaPrint(out, handle, fullterms);
+      fputc('\n', out);
+      handle = handle->succ;
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: FormulaSetPrintPrettyPrintTSTP()
+//
+//   Print a set of formulae.
+//
+// Global Variables: OutputFormat
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void FormulaSetPrettyPrintTSTP(FILE* out, FormulaSet_p set, bool fullterms)
+{
+   WFormula_p handle;
+
+   handle = set->anchor->succ;
+
+   if(!FormulaSetIsUntyped(set)) //Implies at least one formula!
+   {
+      assert(set->anchor->succ != set->anchor);
+      SigPrintTypeDeclsTSTP(out, set->anchor->succ->terms->sig);
+   }
+   while(handle!=set->anchor)
+   {
+      WFormulaTSTPPrintFlex(out, handle, fullterms, true, true);
       fputc('\n', out);
       handle = handle->succ;
    }

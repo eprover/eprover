@@ -67,9 +67,11 @@ WFormula_p   FormulaSetExtractFirst(FormulaSet_p set);
 int          FormulaConjectureOrder(FormulaSet_p set);
 
 void         FormulaSetDeleteEntry(WFormula_p form);
+bool         FormulaSetIsUntyped(FormulaSet_p set);
 
 void         FormulaSetPrint(FILE* out, FormulaSet_p set,
                              bool fullterms);
+void         FormulaSetPrettyPrintTSTP(FILE* out, FormulaSet_p set, bool fullterms);
 bool         FormulaSetHasInterpretedSymbol(FormulaSet_p set);
 long         FormulaSetSplitConjectures(FormulaSet_p set,
                                         PList_p conjectures,
