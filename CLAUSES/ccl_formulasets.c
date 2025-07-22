@@ -350,6 +350,7 @@ bool FormulaSetIsUntyped(FormulaSet_p set)
       {
          return false;
       }
+      handle = handle->succ;
    }
    return true;
 }

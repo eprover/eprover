@@ -73,6 +73,7 @@ bool              print_sat = false,
    pcl_full_terms = true,
    indexed_subsumption = true,
    syntax_only = false,
+   print_formulas = false,
    prune_only = false,
    cnf_only = false,
    inf_sys_complete = true,
@@ -589,10 +590,15 @@ int main(int argc, char* argv[])
 
    if(syntax_only)
    {
-      FormulaSetPrettyPrintTSTP(GlobalOut, proofstate->f_axioms, true);
-
-      fprintf(GlobalOut, "\n# Parsing successful!\n");
-      TSTPOUT(GlobalOut, "Unknown");
+      if(print_formulas)
+      {
+         FormulaSetPrettyPrintTSTP(GlobalOut, proofstate->f_axioms, true);
+      }
+      else
+      {
+         fprintf(GlobalOut, "\n# Parsing successful!\n");
+         TSTPOUT(GlobalOut, "Unknown");
+      }
       goto cleanup1;
    }
    wc_sched_limit = ScheduleTimeLimit ? ScheduleTimeLimit : DEFAULT_SCHED_TIME_LIMIT;
@@ -1222,6 +1228,10 @@ CLState_p process_options(int argc, char* argv[])
             break;
       case OPT_SYNTAX_ONLY:
             syntax_only = true;
+            break;
+      case OPT_PRINT_FORMULAS:
+            syntax_only = true;
+            print_formulas = true;
             break;
       case OPT_PRUNE_ONLY:
             OutputLevel = 4;

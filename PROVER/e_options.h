@@ -44,6 +44,7 @@ typedef enum
    OPT_PRINT_SAT_INFO,
    OPT_FILTER_SATURATED,
    OPT_SYNTAX_ONLY,
+   OPT_PRINT_FORMULAS,
    OPT_PRUNE_ONLY,
    OPT_CNF_ONLY,
    OPT_PRINT_PID,
@@ -422,6 +423,11 @@ OptCell opts[] =
     NoArg, NULL,
     "Stop after parsing, i.e. only check if the input can be parsed "
     "correcly."},
+   {OPT_PRINT_FORMULAS,
+    '\0', "print-formulas",
+    NoArg, NULL,
+    "If the syntax checks out, print back an include-expanded all "
+    "formula-version of the peoblem, then terminate."},
 
    {OPT_PRUNE_ONLY,
     '\0', "prune",
