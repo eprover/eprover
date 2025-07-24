@@ -489,7 +489,7 @@ int main(int argc, char* argv[])
       ScannerSetFormat(in, parse_format);
       /* ClauseSetParseList(in, clauses, terms); */
       FormulaAndClauseSetParse(in, formulas, dummy, terms,
-                               NULL, &skip_includes);
+                               NULL, &skip_includes, 0);
       CheckInpTok(in, NoToken);
       DestroyScanner(in);
    }
