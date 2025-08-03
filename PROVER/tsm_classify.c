@@ -272,7 +272,7 @@ CLState_p process_options(int argc, char* argv[])
        break;
       case OPT_INDEXFUN:
        index_type = GetIndexType(arg);
-       printf("# Index type: %d\n", index_type);
+       printf(COMCHAR" Index type: %d\n", index_type);
        if(index_type == -1)
        {
           DStr_p err = DStrAlloc();

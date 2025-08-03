@@ -524,7 +524,7 @@ int main(int argc, char* argv[])
    GCDeregisterClauseSet(terms->gc, clauses);
    ClauseSetFree(clauses);
 
-   VERBOUT("# Demodulators\n");
+   VERBOUT(COMCHAR" Demodulators\n");
    VERBOSE(ClauseSetPrint(stderr, demodulators[0], true););
 
    ocb = OCBAlloc(EMPTY, false, terms->sig, LFHO_ORDER);

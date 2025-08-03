@@ -104,7 +104,7 @@ void GCRegisterFormulaSet(GCAdmin_p gc, void* set)
 {
    assert(gc);
    assert(set);
-   //printf("# GCRegisterFormulaSet(%p, %p)\n", gc, set);
+   //printf(COMCHAR" GCRegisterFormulaSet(%p, %p)\n", gc, set);
    PTreeStore(&(gc->formula_sets), set);
 }
 
@@ -125,7 +125,7 @@ void GCRegisterClauseSet(GCAdmin_p gc, void* set)
 {
    assert(gc);
    assert(set);
-   //printf("# GCRegisterClauseSet(%p, %p)\n", gc, set);
+   //printf(COMCHAR" GCRegisterClauseSet(%p, %p)\n", gc, set);
    PTreeStore(&(gc->clause_sets), set);
 }
 
@@ -146,7 +146,7 @@ void GCDeregisterFormulaSet(GCAdmin_p gc, void* set)
 {
    assert(gc);
    assert(set);
-   //printf("# GCDeregisterFormulaSet(%p, %p)\n", gc, set);
+   //printf(COMCHAR" GCDeregisterFormulaSet(%p, %p)\n", gc, set);
    PTreeDeleteEntry(&(gc->formula_sets), set);
 }
 
@@ -168,7 +168,7 @@ void GCDeregisterClauseSet(GCAdmin_p gc, void* set)
    assert(gc);
    assert(set);
 
-   //printf("# GCDeregisterClauseSet(%p, %p)\n", gc, set);
+   //printf(COMCHAR" GCDeregisterClauseSet(%p, %p)\n", gc, set);
    PTreeDeleteEntry(&(gc->clause_sets), set);
 }
 

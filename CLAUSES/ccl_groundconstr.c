@@ -357,7 +357,7 @@ long SigCollectConstantTerms(TB_p bank, PStack_p stack, FunCode uniq)
    }
    if(!res)
    {
-      OUTPRINT(1, "# No constant in specification, "
+      OUTPRINT(1, COMCHAR" No constant in specification, "
                "added new Skolem constant\n");
       i = SigGetNewSkolemCode(bank->sig, 0);
       tmp = TermConstCellAlloc(i);

@@ -593,7 +593,7 @@ long PTreeDebugPrint(FILE* out, PTree_p root)
       {
          if(res % 10 == 0)
          {
-            fprintf(out, "\n#");
+            fprintf(out, "\n"COMCHAR);
          }
          fprintf(out, " %7p", root->key);
          PStackPushP(stack, root->lson);

@@ -421,7 +421,7 @@ Type_p TypeBankInsertTypeShared(TypeBank_p bank, Type_p t)
          res->type_uid = ++bank->types_count;
          if (Verbose > 1)
          {
-            fprintf(stderr, "# Type ");
+            fprintf(stderr, COMCHAR" Type ");
             TypePrintTSTP(stderr, bank, t);
             fprintf(stderr, " is inserted.\n");
          }
@@ -471,7 +471,7 @@ TypeConsCode TypeBankDefineTypeConstructor(TypeBank_p bank, const char* name,
 
          if (Verbose > 1)
          {
-            fprintf(stderr, "# previous arity was %ld, now it is %d.\n",
+            fprintf(stderr, COMCHAR" previous arity was %ld, now it is %d.\n",
                     GetArity(node), arity);
          }
 

@@ -642,7 +642,7 @@ Eqn_p EqnAlloc(Term_p lterm, Term_p rterm, TB_p bank,  bool positive)
    else
    {
       assert(TermCellQueryProp(rterm,TPPredPos));
-      /*printf("# lterm->f_code: %ld <%s>\n", lterm->f_code,
+      /*printf(COMCHAR" lterm->f_code: %ld <%s>\n", lterm->f_code,
                SigFindName(bank->sig,lterm->f_code));
                SigPrint(stdout,bank->sig);
                fflush(stdout); */
@@ -1102,7 +1102,7 @@ void EqnPrintDBG(FILE* out, Eqn_p eq)
    TermPrintDbg(out, eq->rterm, eq->bank->sig, DEREF_NEVER);
    fprintf(out, "%s", EqnIsMaximal(eq) ? "*" : "");
    fprintf(out, "%s", EqnIsOriented(eq) ? ">" : "");
-   fprintf(out, "%s", EqnQueryProp(eq, EPIsEquLiteral) ? "#" : "");
+   fprintf(out, "%s", EqnQueryProp(eq, EPIsEquLiteral) ? COMCHAR : "");
 }
 
 /*-----------------------------------------------------------------------
@@ -2399,7 +2399,7 @@ bool EqnOrient(OCB_p ocb, Eqn_p eq)
    {
       /* printf("EqnOrient: ");
          TermPrint(stdout, eq->lterm, eq->bank->sig, DEREF_ALWAYS);
-         printf(" # ");
+         printf(" "COMCHAR" ");
          TermPrint(stdout, eq->rterm, eq->bank->sig, DEREF_ALWAYS);
          printf("\n");*/
       relation = TOCompare(ocb, eq->lterm, eq->rterm, DEREF_ALWAYS, DEREF_ALWAYS);

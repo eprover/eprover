@@ -317,15 +317,15 @@ void FreqVectorPrint(FILE* out, FreqVector_p vec)
    assert(vec);
    if(vec->clause)
    {
-      fprintf(out, "# FV for: ");
+      fprintf(out, COMCHAR" FV for: ");
       ClausePrint(out, vec->clause, true);
       fprintf(out, "\n");
    }
    else
    {
-      fprintf(out, "# FV, no clause given.\n");
+      fprintf(out, COMCHAR" FV, no clause given.\n");
    }
-   fprintf(out, "# FV(len=%ld):", vec->size);
+   fprintf(out, COMCHAR" FV(len=%ld):", vec->size);
    for(i=0; i<vec->size; i++)
 
    {

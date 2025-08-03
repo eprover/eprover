@@ -195,7 +195,7 @@ static void print_initial(FILE* out, Clause_p clause, char* comment)
          tstp_print_end(out, comment, clause);
          break;
    default:
-         fprintf(out, "# Output format not implemented.\n");
+         fprintf(out, COMCHAR" Output format not implemented.\n");
     break;
    }
 }
@@ -236,7 +236,7 @@ static void print_paramod(FILE* out, Clause_p clause, Clause_p
     tstp_print_end(out, comment, clause);
     break;
    default:
-    fprintf(out, "# Output format not implemented.\n");
+    fprintf(out, COMCHAR" Output format not implemented.\n");
     break;
    }
 }
@@ -272,7 +272,7 @@ static void print_eres(FILE* out, Clause_p clause, Clause_p
     tstp_print_end(out, comment, clause);
     break;
    default:
-    fprintf(out, "# Output format not implemented.\n");
+    fprintf(out, COMCHAR" Output format not implemented.\n");
     break;
    }
 }
@@ -308,7 +308,7 @@ static void print_des_eres(FILE* out, Clause_p clause, long old_id,
     tstp_print_end(out, comment, clause);
     break;
    default:
-    fprintf(out, "# Output format not implemented.\n");
+    fprintf(out, COMCHAR" Output format not implemented.\n");
     break;
    }
 }
@@ -344,7 +344,7 @@ static void print_efactor(FILE* out, Clause_p clause, Clause_p
     tstp_print_end(out, comment, clause);
     break;
    default:
-    fprintf(out, "# Output format not implemented.\n");
+    fprintf(out, COMCHAR" Output format not implemented.\n");
     break;
    }
 }
@@ -381,7 +381,7 @@ static void print_factor(FILE* out, Clause_p clause, Clause_p
     tstp_print_end(out, comment, clause);
     break;
    default:
-    fprintf(out, "# Output format not implemented.\n");
+    fprintf(out, COMCHAR" Output format not implemented.\n");
     break;
    }
 }
@@ -421,7 +421,7 @@ static void print_split(FILE* out, Clause_p clause, Clause_p
     tstp_print_end(out, comment, clause);
     break;
     default:
-    fprintf(out, "# Output format not implemented.\n");
+    fprintf(out, COMCHAR" Output format not implemented.\n");
     break;
    }
 }
@@ -458,7 +458,7 @@ static void print_simplify_reflect(FILE* out, Clause_p clause, long
     tstp_print_end(out, comment, clause);
     break;
    default:
-    fprintf(out, "# Output format not implemented.\n");
+    fprintf(out, COMCHAR" Output format not implemented.\n");
     break;
    }
 }
@@ -496,7 +496,7 @@ static void print_context_simplify_reflect(FILE* out, Clause_p clause, long
     tstp_print_end(out, comment, clause);
     break;
    default:
-    fprintf(out, "# Output format not implemented.\n");
+    fprintf(out, COMCHAR" Output format not implemented.\n");
     break;
    }
 }
@@ -551,7 +551,7 @@ static void print_ac_res(FILE* out, Clause_p clause, long
     tstp_print_end(out, comment, clause);
     break;
    default:
-    fprintf(out, "# Output format not implemented.\n");
+    fprintf(out, COMCHAR" Output format not implemented.\n");
     break;
    }
 }
@@ -589,7 +589,7 @@ static void print_minimize(FILE* out, Clause_p clause, long
          tstp_print_end(out, comment, clause);
          break;
    default:
-    fprintf(out, "# Output format not implemented.\n");
+    fprintf(out, COMCHAR" Output format not implemented.\n");
     break;
    }
 }
@@ -626,7 +626,7 @@ static void print_condense(FILE* out, Clause_p clause, long
          tstp_print_end(out, comment, clause);
          break;
    default:
-    fprintf(out, "# Output format not implemented.\n");
+    fprintf(out, COMCHAR" Output format not implemented.\n");
     break;
    }
 }
@@ -661,7 +661,7 @@ static void print_eval_answer(FILE* out, Clause_p clause, long
          tstp_print_end(out, comment, clause);
          break;
    default:
-    fprintf(out, "# Output format not implemented.\n");
+    fprintf(out, COMCHAR" Output format not implemented.\n");
     break;
    }
 }
@@ -730,7 +730,7 @@ static void print_rewrite(FILE* out, ClausePos_p rewritten, long
     tstp_print_end(out, comment, rewritten->clause);
     break;
    default:
-    fprintf(out, "# Output format not implemented.\n");
+    fprintf(out, COMCHAR" Output format not implemented.\n");
     break;
    }
    PStackFree(rwsteps);
@@ -786,7 +786,7 @@ static void print_eq_unfold(FILE* out, Clause_p rewritten,
     tstp_print_end(out, "Unfolding", rewritten);
     break;
     default:
-    fprintf(out, "# Output format not implemented.\n");
+    fprintf(out, COMCHAR" Output format not implemented.\n");
     break;
    }
 }
@@ -896,7 +896,7 @@ static void print_formula_initial(FILE* out, WFormula_p form, char* comment)
          tstp_formula_print_end(out, comment);
          break;
    default:
-         fprintf(out, "# Output format not implemented.\n");
+         fprintf(out, COMCHAR" Output format not implemented.\n");
          break;
    }
 }
@@ -931,7 +931,7 @@ static void print_fof_intro_def(FILE* out, WFormula_p form, char* comment)
     tstp_formula_print_end(out, comment);
     break;
    default:
-    fprintf(out, "# Output format not implemented.\n");
+    fprintf(out, COMCHAR" Output format not implemented.\n");
     break;
    }
 }
@@ -970,7 +970,7 @@ static void print_fof_split_equiv(FILE* out, WFormula_p form,
     tstp_formula_print_end(out, comment);
     break;
    default:
-    fprintf(out, "# Output format not implemented.\n");
+    fprintf(out, COMCHAR" Output format not implemented.\n");
     break;
    }
 }
@@ -1005,7 +1005,7 @@ static void print_fof_simpl(FILE* out, WFormula_p form,
          tstp_formula_print_end(out, comment);
     break;
    default:
-    fprintf(out, "# Output format not implemented.\n");
+    fprintf(out, COMCHAR" Output format not implemented.\n");
     break;
    }
 }
@@ -1039,7 +1039,7 @@ static void print_neg_conj(FILE* out, WFormula_p form,
          tstp_formula_print_end(out, comment);
     break;
    default:
-    fprintf(out, "# Output format not implemented.\n");
+    fprintf(out, COMCHAR" Output format not implemented.\n");
     break;
    }
 }
@@ -1073,7 +1073,7 @@ static void print_fof_nnf(FILE* out, WFormula_p form,
          tstp_formula_print_end(out, comment);
     break;
    default:
-    fprintf(out, "# Output format not implemented.\n");
+    fprintf(out, COMCHAR" Output format not implemented.\n");
     break;
    }
 }
@@ -1108,7 +1108,7 @@ static void print_shift_quantors(FILE* out, WFormula_p form,
          tstp_formula_print_end(out, comment);
     break;
    default:
-    fprintf(out, "# Output format not implemented.\n");
+    fprintf(out, COMCHAR" Output format not implemented.\n");
     break;
    }
 }
@@ -1143,7 +1143,7 @@ static void print_skolemize(FILE* out, WFormula_p form,
          tstp_formula_print_end(out, comment);
     break;
    default:
-    fprintf(out, "# Output format not implemented.\n");
+    fprintf(out, COMCHAR" Output format not implemented.\n");
     break;
    }
 }
@@ -1177,7 +1177,7 @@ static void print_distribute(FILE* out, WFormula_p form,
          tstp_formula_print_end(out, comment);
     break;
    default:
-    fprintf(out, "# Output format not implemented.\n");
+    fprintf(out, COMCHAR" Output format not implemented.\n");
     break;
    }
 }
@@ -1210,7 +1210,7 @@ static void print_annotate_question(FILE* out, WFormula_p form,
          tstp_formula_print_end(out, comment);
     break;
    default:
-    fprintf(out, "# Output format not implemented.\n");
+    fprintf(out, COMCHAR" Output format not implemented.\n");
     break;
    }
 }
@@ -1246,7 +1246,7 @@ static void print_var_rename(FILE* out, WFormula_p form,
          tstp_formula_print_end(out, comment);
     break;
    default:
-    fprintf(out, "# Output format not implemented.\n");
+    fprintf(out, COMCHAR" Output format not implemented.\n");
     break;
    }
 }
@@ -1363,7 +1363,7 @@ void DocClauseFromForm(FILE* out, long level, Clause_p clause,
             tstp_print_end(out, NULL, clause);
             break;
       default:
-            fprintf(out, "# Output format not implemented.\n");
+            fprintf(out, COMCHAR" Output format not implemented.\n");
             break;
       }
    }
@@ -1441,7 +1441,7 @@ void DocClauseModification(FILE* out, long level, Clause_p clause, InfType
        break;
          /* inf_rewrite is special and handled below !*/
       default:
-       fprintf(out, "# Clause modification %d not yet implemented.\n",op);
+       fprintf(out, COMCHAR" Clause modification %d not yet implemented.\n",op);
        break;
       }
    }
@@ -1510,7 +1510,7 @@ void DocClauseQuote(FILE* out, long level, long target_level,
        break;
 
       default:
-       fprintf(out, "# Output format not implemented.\n");
+       fprintf(out, COMCHAR" Output format not implemented.\n");
        break;
       }
    }
@@ -1733,7 +1733,7 @@ void DocFormulaIntroDefs(FILE* out, long level, WFormula_p form,
             tstp_formula_print_end(out, comment);
             break;
       default:
-            fprintf(out, "# Output format not implemented.\n");
+            fprintf(out, COMCHAR" Output format not implemented.\n");
             break;
       }
    }
@@ -1807,7 +1807,7 @@ void DocIntroSplitDefRest(FILE* out, long level, Clause_p clause,
             tstp_print_end(out, NULL, clause);
             break;
       default:
-            fprintf(out, "# Output format not implemented.\n");
+            fprintf(out, COMCHAR" Output format not implemented.\n");
             break;
       }
    }
@@ -1869,7 +1869,7 @@ void DocClauseApplyDefs(FILE* out, long level, Clause_p clause,
             tstp_print_end(out, "split", clause);
             break;
       default:
-            fprintf(out, "# Output format not implemented.\n");
+            fprintf(out, COMCHAR" Output format not implemented.\n");
             break;
       }
    }

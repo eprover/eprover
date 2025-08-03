@@ -157,9 +157,9 @@ int main(int argc, char* argv[])
    proof_steps = PCLProtCountProp(prot, PCLIsProofStep);
    neg_steps = proof_steps?neg_proportion*proof_steps:neg_examples;
    PCLProtSelectExamples(prot, neg_steps);
-   fprintf(GlobalOut, "# Axioms:\n");
+   fprintf(GlobalOut, COMCHAR" Axioms:\n");
    PCLProtPrintPropClauses(GlobalOut, prot, PCLIsInitial, lop_format);
-   fprintf(GlobalOut, ".\n\n# Examples:\n");
+   fprintf(GlobalOut, ".\n\n"COMCHAR" Examples:\n");
    PCLProtPrintExamples(GlobalOut, prot);
 
    PCLProtFree(prot);

@@ -660,7 +660,7 @@ static bool tform_mark_varocc(TFormula_p form, Term_p var, TermProperties proc)
    }
    res = TermCellQueryProp(form, TPCheckFlag);
 
-   //printf("# FCode: %ld VCode: %ld, Mark: %d  Real: %d\n",
+   //printf(COMCHAR" FCode: %ld VCode: %ld, Mark: %d  Real: %d\n",
    //       form->f_code, var->f_code,
    //       res, TBTermIsSubterm(form, var));
    assert(res == TBTermIsSubterm(form,var));
@@ -1356,7 +1356,7 @@ long TFormulaEstimateClauses(TB_p bank, TFormula_p form, bool pos)
       {
          return 1;
 #ifndef NDEBUG
-         fprintf(stdout, "# Error in ");
+         fprintf(stdout, COMCHAR" Error in ");
          TermPrintDbg(stdout, form, bank->sig, DEREF_NEVER);
          fprintf(stdout, "\n");
          TermPrettyPrintSimple(stdout, form, bank->sig, 0);
@@ -1419,7 +1419,7 @@ long TFormulaEstimateClauses(TB_p bank, TFormula_p form, bool pos)
       {
          return 1;
 #ifndef NDEBUG
-         fprintf(stdout, "# Error in ");
+         fprintf(stdout, COMCHAR" Error in ");
          TermPrintDbg(stdout, form, bank->sig, DEREF_NEVER);
          fprintf(stdout, "\n");
          TermPrettyPrintSimple(stdout, form, bank->sig, 0);
@@ -1477,7 +1477,7 @@ TFormula_p TFormulaDefRename(TB_p bank, TFormula_p form, int polarity,
       VarBankVarsSetProp(bank->vars, TPIsFreeVar);
       TFormulaCollectFreeVars(bank, form, &free_vars);
       PTreeToPStack(var_stack, free_vars);
-      /* printf("# Found %d free variables\n", PStackGetSP(var_stack)); */
+      /* printf(COMCHAR" Found %d free variables\n", PStackGetSP(var_stack)); */
 
       rename_atom = TBAllocNewSkolem(bank, var_stack, bank->sig->type_bank->bool_type);
       rename_atom = EqnTermsTBTermEncode(bank, rename_atom,
@@ -2235,7 +2235,7 @@ TFormula_p TFormulaMiniScope2(TB_p terms, TFormula_p form,
    while(!PStackEmpty(prenex))
    {
       var = PStackPopP(prenex);
-      //printf("# MiniScope ");TermPrint(stdout, var, terms->sig, DEREF_NEVER);printf("\n");
+      //printf(COMCHAR" MiniScope ");TermPrint(stdout, var, terms->sig, DEREF_NEVER);printf("\n");
       quantor = PStackPopInt(prenex);
 
       if(miniscope_limit)
@@ -2300,7 +2300,7 @@ TFormula_p TFormulaMiniScope3(TB_p terms, TFormula_p form,
       assert(exq);
       PStack_p iter;
 
-      // printf("# Found %ld positions\n", PTreeNodes(ms_forms));
+      // printf(COMCHAR" Found %ld positions\n", PTreeNodes(ms_forms));
       iter = PTreeTraverseInit(ms_forms);
       while((entry = PTreeTraverseNext(iter)))
       {
@@ -2696,7 +2696,7 @@ void WTFormulaConjunctiveNF(WFormula_p form, TB_p terms)
 /* { */
 /*    TFormula_p handle; */
 
-/*    // printf("# Start: "); WFormulaPrint(GlobalOut, form, true); printf("\n"); */
+/*    // printf(COMCHAR" Start: "); WFormulaPrint(GlobalOut, form, true); printf("\n"); */
 
 /*    handle = TFormulaSimplify(terms, form->tformula, 0); */
 
@@ -2706,7 +2706,7 @@ void WTFormulaConjunctiveNF(WFormula_p form, TB_p terms)
 /*       DocFormulaModificationDefault(form, inf_fof_simpl); */
 /*       WFormulaPushDerivation(form, DCFofSimplify, NULL, NULL); */
 /*    } */
-/*    // printf("# Simplified\n"); */
+/*    // printf(COMCHAR" Simplified\n"); */
 
 /*    handle = TFormulaNNF(terms, form->tformula, 1); */
 /*    if(handle!=form->tformula) */
@@ -2715,7 +2715,7 @@ void WTFormulaConjunctiveNF(WFormula_p form, TB_p terms)
 /*       DocFormulaModificationDefault(form, inf_fof_nnf); */
 /*       WFormulaPushDerivation(form, DCFNNF, NULL, NULL); */
 /*    } */
-/*    //printf("# NNFed\n"); */
+/*    //printf(COMCHAR" NNFed\n"); */
 
 
 /*    TFormulaFindMaxVarCode(form->tformula); */
@@ -2728,7 +2728,7 @@ void WTFormulaConjunctiveNF(WFormula_p form, TB_p terms)
 /*       DocFormulaModificationDefault(form, inf_var_rename); */
 /*       WFormulaPushDerivation(form, DCVarRename, NULL, NULL); */
 /*    } */
-/*    //printf("# Renamed\n"); */
+/*    //printf(COMCHAR" Renamed\n"); */
 
 /*    handle = TFormulaShiftQuantors2(terms, form->tformula); */
 /*    if(handle!=form->tformula) */
@@ -2738,7 +2738,7 @@ void WTFormulaConjunctiveNF(WFormula_p form, TB_p terms)
 /*       WFormulaPushDerivation(form, DCShiftQuantors, NULL, NULL); */
 /*    } */
 
-/*    //printf("# Prenexed\n"); */
+/*    //printf(COMCHAR" Prenexed\n"); */
 
 /*    handle = TFormulaSimplify(terms, form->tformula, 100); */
 
@@ -2748,7 +2748,7 @@ void WTFormulaConjunctiveNF(WFormula_p form, TB_p terms)
 /*       DocFormulaModificationDefault(form, inf_fof_simpl); */
 /*       WFormulaPushDerivation(form, DCFofSimplify, NULL, NULL); */
 /*    } */
-/*    //printf("# Resimplified\n"); */
+/*    //printf(COMCHAR" Resimplified\n"); */
 
 /*    // Here efficient miniscoping */
 /*    handle = TFormulaMiniScope2(terms, form->tformula, miniscope_limit); */

@@ -217,7 +217,7 @@ static double evaluate_index_desc(TSMAdmin_p admin, FlatAnnoSet_p set,
 
    if(OutputLevel)
    {
-      printf("# Index type = %2d, depth = %2ld, relative gain = %f\n",
+      printf(COMCHAR" Index type = %2d, depth = %2ld, relative gain = %f\n",
              indextype, depth, relgain);
    }
    return relgain;
@@ -763,7 +763,7 @@ IndexType TSMFindOptimalIndex(TSMAdmin_p admin, FlatAnnoSet_p set,
    *depth = best_depth;
    if(OutputLevel)
    {
-      fprintf(GlobalOut, "# Selected: %2d  depth: %2ld\n", best_index,
+      fprintf(GlobalOut, COMCHAR" Selected: %2d  depth: %2ld\n", best_index,
               best_depth);
    }
    return best_index;
@@ -1011,13 +1011,13 @@ TSM_p TSMCreate(TSMAdmin_p admin, FlatAnnoSet_p set)
    if(admin->local_limit)
    {
       limit = FlatAnnoSetEvalWeightedAverage(set);
-      /* printf("# Limit: %f\n", limit); */
+      /* printf(COMCHAR" Limit: %f\n", limit); */
    }
    indextype = TSMFindOptimalIndex(admin, set, &depth,
                                    admin->index_type, limit);
    /* printf("Selected: Index type = %d, depth = %ld\n", indextype,
       depth);  */
-   /* printf("# TSMCreate: %ld patterns\n", NumTreeNodes(set->set));
+   /* printf(COMCHAR" TSMCreate: %ld patterns\n", NumTreeNodes(set->set));
       FlatAnnoSetPrint(stdout, set, admin->index_bank->sig);*/
 
    tsm = tsmbasealloc(admin, indextype, depth);
@@ -1337,7 +1337,7 @@ void TSMPrintFlat(FILE* out, TSM_p tsm)
       tsa = PDArrayElementP(tsm->tsas, i);
       if(tsa)
       {
-         fprintf(out, "# %3ld: Weight = %6.3f EvalWeight = %6.3f\n",
+         fprintf(out, COMCHAR" %3ld: Weight = %6.3f EvalWeight = %6.3f\n",
                  i, tsa->eval, tsa->eval_weight);
       }
    }
@@ -1363,7 +1363,7 @@ void TSMPrintRek(FILE* out, TSMAdmin_p admin, TSM_p tsm, int depth)
    char pattern[70];
 
    sprintf(pattern,
-           "# %%%ds%%4ld: Weight = %%7.5f EvalWeight = %%7.5f\n",
+           COMCHAR" %%%ds%%4ld: Weight = %%7.5f EvalWeight = %%7.5f\n",
            3*depth);
    TSMIndexPrint(stdout, tsm->index, depth);
    for(i=0; i<=tsm->maxindex;i++)

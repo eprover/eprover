@@ -55,7 +55,7 @@ static void sig_print_operator(FILE* out, Sig_p sig, FunCode op, bool comments)
 {
    if(comments)
    {
-      fprintf(out, "   %-13s : %2d    #  %2ld %2d \n",
+      fprintf(out, "   %-13s : %2d    "COMCHAR"  %2ld %2d \n",
               sig->f_info[op].pname, sig->f_info[op].arity, op,
               sig->f_info[op].properties);
    }
@@ -873,9 +873,9 @@ void SigPrint(FILE* out, Sig_p sig)
 {
    FunCode i;
 
-   fprintf(out, "# Signature (%2ld symbols out of %2ld allocated):\n",
+   fprintf(out, COMCHAR" Signature (%2ld symbols out of %2ld allocated):\n",
            sig->f_count, sig->size);
-   fprintf(out, "#     -Symbol-    -Arity- -Encoding-\n");
+   fprintf(out, COMCHAR"     -Symbol-    -Arity- -Encoding-\n");
 
    for(i=1; i<=sig->f_count; i++)
    {
@@ -900,7 +900,7 @@ void SigPrintSpecial(FILE* out, Sig_p sig)
 {
    FunCode i;
 
-   fputs("# Special symbols:\n", out);
+   fputs(COMCHAR" Special symbols:\n", out);
    for(i=1; i<=sig->f_count; i++)
    {
       if(SigIsSpecial(sig, i))
@@ -931,17 +931,17 @@ void SigPrintACStatus(FILE* out, Sig_p sig)
    {
       if(SigQueryFuncProp(sig, i, FPIsAC))
       {
-         fprintf(out, "# %s is AC\n", sig->f_info[i].name);
+         fprintf(out, COMCHAR" %s is AC\n", sig->f_info[i].name);
          continue;
       }
       if(SigQueryFuncProp(sig, i, FPAssociative))
       {
-         fprintf(out, "# %s is associative\n", sig->f_info[i].name);
+         fprintf(out, COMCHAR" %s is associative\n", sig->f_info[i].name);
          continue;
       }
       if(SigQueryFuncProp(sig, i, FPCommutative))
       {
-         fprintf(out, "# %s is commutative\n", sig->f_info[i].name);
+         fprintf(out, COMCHAR" %s is commutative\n", sig->f_info[i].name);
          continue;
       }
    }
@@ -1518,7 +1518,7 @@ void SigDeclareType(Sig_p sig, FunCode f, Type_p type)
          {
             if(Verbose>=3)
             {
-               fprintf(stderr, "# Type conflict for %s between ",
+               fprintf(stderr, COMCHAR" Type conflict for %s between ",
                        SigFindName(sig, f));
                TypePrintTSTP(stderr, sig->type_bank, fun->type);
                fprintf(stderr, " and ");
@@ -1531,7 +1531,7 @@ void SigDeclareType(Sig_p sig, FunCode f, Type_p type)
          {
             if(Verbose >= 2)
             {
-               fprintf(stderr, "# type re-declaration %s: ", SigFindName(sig, f));
+               fprintf(stderr, COMCHAR" type re-declaration %s: ", SigFindName(sig, f));
                TypePrintTSTP(stderr, sig->type_bank, type);
                fprintf(stderr, "\n");
             }
@@ -1543,7 +1543,7 @@ void SigDeclareType(Sig_p sig, FunCode f, Type_p type)
    {
       if(Verbose >= 2)
       {
-         fprintf(stderr, "# type declaration %s: ", SigFindName(sig, f));
+         fprintf(stderr, COMCHAR" type declaration %s: ", SigFindName(sig, f));
          TypePrintTSTP(stderr, sig->type_bank, type);
          fprintf(stderr, "\n");
       }
@@ -1886,7 +1886,7 @@ long SigFCodesCollectTypes(Sig_p sig, NumTree_p fcodes, PTree_p *types)
    while((handle = NumTreeTraverseNext(iter)))
    {
       type = SigGetType(sig, handle->key);
-      //printf("# Symbol %ld = %s has type %p\n", handle->key,
+      //printf(COMCHAR" Symbol %ld = %s has type %p\n", handle->key,
       //SigFindName(sig, handle->key), type);
       if(type)
       {

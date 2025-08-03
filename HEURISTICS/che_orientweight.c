@@ -111,9 +111,9 @@ WFCB_p ClauseOrientWeightParse(Scanner_p in, OCB_p ocb, ProofState_p
    max_literal_multiplier = ParseFloat(in);
    AcceptInpTok(in, Comma);
    pos_multiplier = ParseFloat(in);
-   
+
    PARSE_OPTIONAL_AV_PENALTY(in, app_var_mult);
-   
+
    AcceptInpTok(in, CloseBracket);
 
    return ClauseOrientWeightInit(prio_fun, fweight, vweight, ocb,
@@ -216,9 +216,9 @@ WFCB_p OrientLMaxWeightParse(Scanner_p in, OCB_p ocb, ProofState_p
    max_literal_multiplier = ParseFloat(in);
    AcceptInpTok(in, Comma);
    pos_multiplier = ParseFloat(in);
-   
+
    PARSE_OPTIONAL_AV_PENALTY(in, app_var_mult);
-   
+
    AcceptInpTok(in, CloseBracket);
 
    return OrientLMaxWeightInit(prio_fun, fweight, vweight, ocb,
@@ -251,15 +251,15 @@ double OrientLMaxWeightCompute(void* data, Clause_p clause)
       tmp = EqnMaxWeight(handle, local->vweight, local->fweight, local->app_var_mult);
       if(EqnIsPositive(handle))
       {
-    tmp = tmp*local->pos_multiplier;
+         tmp = tmp*local->pos_multiplier;
       }
       if(EqnIsMaximal(handle))
       {
-    tmp = tmp*local->max_literal_multiplier;
+         tmp = tmp*local->max_literal_multiplier;
       }
       if(!EqnIsOriented(handle))
       {
-    tmp = tmp*local->unorientable_literal_multiplier;
+         tmp = tmp*local->unorientable_literal_multiplier;
       }
       res += tmp;
    }
@@ -288,5 +288,3 @@ void ClauseOrientWeightExit(void* data)
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-

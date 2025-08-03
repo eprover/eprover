@@ -151,18 +151,18 @@ int main(int argc, char* argv[])
 
    out = OutOpen(KBFileName(name, basename, "signature"));
    fprintf(out,
-           "# Special function symbols that are not generalized.\n"
-           "# You need to hand-hack this at the moment.\n");
+           COMCHAR" Special function symbols that are not generalized.\n"
+           COMCHAR" You need to hand-hack this at the moment.\n");
    OutClose(out);
 
    out = OutOpen(KBFileName(name, basename, "problems"));
    fprintf(out,
-           "# Example names and features. \n");
+           COMCHAR" Example names and features. \n");
    OutClose(out);
 
    out = OutOpen(KBFileName(name, basename, "clausepatterns"));
    fprintf(out,
-           "# Individual annotated patterns. \n");
+           COMCHAR" Individual annotated patterns. \n");
    OutClose(out);
 
    VERBOUT("...done.\nCreating subdirectory FILES...\n");

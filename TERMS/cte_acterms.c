@@ -185,8 +185,8 @@ int ACTermCompare(ACTerm_p t1, ACTerm_p t2)
 {
    assert(t1 && t2);
 
-   int res = 
-      (t1->f_code == SIG_DB_LAMBDA_CODE || t2->f_code == SIG_DB_LAMBDA_CODE) ? 
+   int res =
+      (t1->f_code == SIG_DB_LAMBDA_CODE || t2->f_code == SIG_DB_LAMBDA_CODE) ?
       -1 : CMP(t1->f_code, t2->f_code);
 
    if(res == 0 && t1->f_code > 0)
@@ -358,20 +358,20 @@ bool TermACEqual(Sig_p sig, Term_p t1, Term_p t2)
       nt1 = ACTermNormalize(sig, t1);
       nt2 = ACTermNormalize(sig, t2);
 
-      /* printf("\n# T-1: ");
+      /* printf("\n"COMCHAR" T-1: ");
          TermPrint(stdout, t1, sig, DEREF_NEVER);
-         printf("\n# T-2: ");
+         printf("\n"COMCHAR" T-2: ");
          TermPrint(stdout, t2, sig, DEREF_NEVER);
 
-         printf("\n# AC1: ");
+         printf("\n"COMCHAR" AC1: ");
          ACTermPrint(stdout, nt1, sig);
-         printf("\n# AC2: ");
+         printf("\n"COMCHAR" AC2: ");
          ACTermPrint(stdout, nt2, sig);*/
       if(ACTermCompare(nt1, nt2)!=0)
       {
          res = false;
       }
-      /* printf("\n# RES: %d\n", res); */
+      /* printf("\n"COMCHAR" RES: %d\n", res); */
       ACTermFree(nt2);
       ACTermFree(nt1);
    }

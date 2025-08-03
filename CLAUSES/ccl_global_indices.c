@@ -92,7 +92,7 @@ void GlobalIndicesInit(GlobalIndices_p indices,
 {
    FPIndexFunction indexfun;
 
-   // fprintf(GlobalOut, "# GlobalIndicesInit(%p, <>, %s, %s, %s)\n", indices, rw_bw_index_type, pm_from_index_type, pm_into_index_type);
+   // fprintf(GlobalOut, COMCHAR" GlobalIndicesInit(%p, <>, %s, %s, %s)\n", indices, rw_bw_index_type, pm_from_index_type, pm_into_index_type);
 
    indices->sig = sig;
    indexfun = GetFPIndexFunction(rw_bw_index_type);
@@ -119,7 +119,7 @@ void GlobalIndicesInit(GlobalIndices_p indices,
    {
       indices->pm_negp_index = FPIndexAlloc(indexfun, sig, SubtermOLTreeFreeWrapper);
    }
-   
+
    assert(problemType != PROBLEM_NOT_INIT);
    if(problemType == PROBLEM_HO)
    {
@@ -168,7 +168,7 @@ void GlobalIndicesFreeIndices(GlobalIndices_p indices)
    {
       ExtIndexFree(GetExtIntoIdx(indices));
       SetExtIntoIdx(indices, NULL);
-      
+
       assert(GetExtFromIdx(indices));
       ExtIndexFree(GetExtFromIdx(indices));
       SetExtFromIdx(indices, NULL);
@@ -220,7 +220,7 @@ void GlobalIndicesInsertClause(GlobalIndices_p indices, Clause_p clause,
 
    ClauseSetProp(clause, CPIsGlobalIndexed);
 
-   // printf("# Inserting clause %p in index %p: ", clause, indices);ClausePrint(stdout, clause, true); printf("\n");
+   // printf(COMCHAR" Inserting clause %p in index %p: ", clause, indices);ClausePrint(stdout, clause, true); printf("\n");
 
    if(indices->bw_rw_index)
    {
@@ -268,7 +268,7 @@ void GlobalIndicesInsertClause(GlobalIndices_p indices, Clause_p clause,
 
 void GlobalIndicesDeleteClause(GlobalIndices_p indices, Clause_p clause, bool lambda_demod)
 {
-   //printf("# XXX GlobalIndicesDeleteClause()... (set=%p): ", clause->set);ClausePrint(GlobalOut, clause, true);printf("\n");
+   //printf(COMCHAR" XXX GlobalIndicesDeleteClause()... (set=%p): ", clause->set);ClausePrint(GlobalOut, clause, true);printf("\n");
 
    assert(ClauseQueryProp(clause, CPIsGlobalIndexed));
 
@@ -302,7 +302,7 @@ void GlobalIndicesDeleteClause(GlobalIndices_p indices, Clause_p clause, bool la
       ExtIndexDeleteIntoClause(GetExtIntoIdx(indices), clause);
       ExtIndexDeleteFromClause(GetExtFromIdx(indices), clause);
    }
-   // printf("# ...GlobalIndicesDeleteClause()\n");
+   // printf(COMCHAR" ...GlobalIndicesDeleteClause()\n");
 }
 
 

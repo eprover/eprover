@@ -190,11 +190,11 @@ void PropSigPrint(FILE* out, PropSig_p psig)
 {
    long i;
 
-   fprintf(out, "# Propositional signature:\n");
-   fprintf(out, "# ------------------------\n");
+   fprintf(out, COMCHAR" Propositional signature:\n");
+   fprintf(out, COMCHAR" ------------------------\n");
    for(i=1; i<PropSigAtomNumber(psig); i++)
    {
-      fprintf(out, "# %6ld : %s\n", i, PropSigGetAtomName(psig,i));
+      fprintf(out, COMCHAR" %6ld : %s\n", i, PropSigGetAtomName(psig,i));
    }
    fprintf(out, "\n");
 }
@@ -203,5 +203,3 @@ void PropSigPrint(FILE* out, PropSig_p psig)
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-

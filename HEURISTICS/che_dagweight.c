@@ -194,7 +194,7 @@ double DAGWeightCompute(void* data, Clause_p clause)
          }
       }
    }
-   // printf("\n# Eval: %6.2f: ", res);
+   // printf("\n"COMCHAR" Eval: %6.2f: ", res);
    // ClauseTSTPPrint(stdout, clause, true,true);
    // printf("\n");
    return res;
@@ -342,7 +342,7 @@ double RDAGWeightCompute(void* data, Clause_p clause)
                       local->dup_weight,
                       true, true);
    }
-   //printf("\n# Eval: %6.2f: ", res);
+   //printf("\n"COMCHAR" Eval: %6.2f: ", res);
    //ClauseTSTPPrint(stdout, clause, true,true);
    //printf("\n");
    return res;
@@ -480,7 +480,7 @@ double RDAGWeight2Compute(void* data, Clause_p clause)
                       local->fweight,
                       local->dup_weight);
    }
-   //printf("\n# Eval: %6.2f: ", res);
+   //printf("\n"COMCHAR" Eval: %6.2f: ", res);
    //ClauseTSTPPrint(stdout, clause, true,true);
    //printf("\n");
    return res;

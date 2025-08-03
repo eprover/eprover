@@ -101,7 +101,7 @@ PStackPointer SubstAddBinding(Subst_p subst, Term_p var, Term_p bind)
    assert(bind->type);
    assert(var->type == bind->type);
 
-   /* printf("# %ld <- %ld \n", var->f_code, bind->f_code); */
+   /* printf(COMCHAR" %ld <- %ld \n", var->f_code, bind->f_code); */
    var->binding = bind;
    PStackPushP(subst, var);
 

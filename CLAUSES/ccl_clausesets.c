@@ -1613,7 +1613,7 @@ ClausePos_p ClauseSetFindEqDefinition(ClauseSet_p set, int min_arity,
    }
    /* if(res)
       {
-      printf("# EqDef found: ");
+      printf(COMCHAR" EqDef found: ");
       ClausePrint(stdout, res->clause, true);
       printf(" Side %d\n", res->side);
       } */
@@ -2341,10 +2341,10 @@ void ClauseSetDerivationStackStatistics(ClauseSet_p set)
    }
    for(i=0; i<PDArraySize(dist); i++)
    {
-      printf("# %5ld: %6ld\n", i, PDArrayElementInt(dist,i));
+      printf(COMCHAR" %5ld: %6ld\n", i, PDArrayElementInt(dist,i));
       sum += PDArrayElementInt(dist,i)*i;
    }
-   printf("# Average over %ld clauses: %f\n",
+   printf(COMCHAR" Average over %ld clauses: %f\n",
           ClauseSetCardinality(set),
           sum/ClauseSetCardinality(set));
    PDArrayFree(dist);

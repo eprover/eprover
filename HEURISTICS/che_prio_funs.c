@@ -954,7 +954,7 @@ EvalPriority PrioFunPreferWatchlist(Clause_p clause)
 
    if(ClauseQueryProp(clause, CPSubsumesWatch))
    {
-      //printf("# Found: ");
+      //printf(COMCHAR" Found: ");
       //ClausePrint(stdout, clause, true);
       //printf("\n");
       return PrioPrefer;
@@ -1129,7 +1129,7 @@ EvalPriority PrioFunPreferHOSteps(Clause_p clause)
 EvalPriority PrioFunPreferLambdas(Clause_p clause)
 {
    EvalPriority prio = PrioNormal;
-   for(Eqn_p eqn=clause->literals; prio == PrioNormal && eqn; 
+   for(Eqn_p eqn=clause->literals; prio == PrioNormal && eqn;
        eqn = eqn->next)
    {
       if(TermHasLambdaSubterm(eqn->lterm) ||
@@ -1175,7 +1175,7 @@ EvalPriority PrioFunPreferFormulas(Clause_p clause)
 {
    EvalPriority prio = PrioNormal;
    PStack_p subterms = PStackAlloc();
-   for(Eqn_p eqn=clause->literals; prio == PrioNormal && eqn; 
+   for(Eqn_p eqn=clause->literals; prio == PrioNormal && eqn;
        eqn = eqn->next)
    {
       TB_p bank = eqn->bank;
@@ -1188,7 +1188,7 @@ EvalPriority PrioFunPreferFormulas(Clause_p clause)
       while(prio == PrioNormal && !PStackEmpty(subterms))
       {
          Term_p t = PStackPopP(subterms);
-         if(!TermIsFreeVar(t) && TypeIsBool(t->type) && 
+         if(!TermIsFreeVar(t) && TypeIsBool(t->type) &&
             t != bank->true_term && t != bank->false_term &&
             SigIsLogicalSymbol(bank->sig, t->f_code))
          {
@@ -1267,10 +1267,10 @@ EvalPriority PrioFunPreferEasyHO(Clause_p clause)
    }
    if(prio != PrioBest)
    {
-      for(Eqn_p eqn=clause->literals; prio == PrioNormal && eqn; 
+      for(Eqn_p eqn=clause->literals; prio == PrioNormal && eqn;
           eqn = eqn->next)
       {
-         if(TypeIsArrow(eqn->lterm->type) || 
+         if(TypeIsArrow(eqn->lterm->type) ||
             TermIsNonFOPattern(eqn->lterm) ||
             TermIsNonFOPattern(eqn->rterm))
          {
@@ -1302,7 +1302,7 @@ EvalPriority PrioFunPreferFO(Clause_p clause)
 {
    EvalPriority prio = PrioNormal;
 
-   for(Eqn_p eqn=clause->literals; prio == PrioNormal && eqn; 
+   for(Eqn_p eqn=clause->literals; prio == PrioNormal && eqn;
        eqn = eqn->next)
    {
       if(!TermIsPattern(eqn->lterm) || !TermIsPattern(eqn->rterm))

@@ -505,7 +505,7 @@ void SatClauseSetFree(SatClauseSet_p junk)
 // Function: SatClauseCreateAndStore()
 //
 //    Encode the instantiated clause as a SatClause, store it in set,
-//    and return it. 
+//    and return it.
 // Global Variables:
 //
 // Side Effects    :
@@ -521,7 +521,7 @@ SatClause_p SatClauseCreateAndStore(Clause_p clause, SatClauseSet_p set)
    assert(clause);
    assert(set);
 
-   if(set->set_size_limit != -1 && 
+   if(set->set_size_limit != -1 &&
          PStackGetSP(set->set) >= set->set_size_limit)
    {
       return NULL;
@@ -677,19 +677,19 @@ Subst_p SubstPseudoGroundVarBank(VarBank_p vars)
    for (i=0; i < PDArraySize(vars->varstacks); i++)
    {
       varstack = PDArrayElementP(vars->varstacks, i);
-      // printf("# varstack: %p\n", varstack);
+      // printf(COMCHAR" varstack: %p\n", varstack);
       if(varstack)
       {
          size = PStackGetSP(varstack);
-         // printf("# varstack size: %ld\n", size);
+         // printf(COMCHAR" varstack size: %ld\n", size);
          if(size)
          {
             norm = PStackElementP(varstack,0);
-            // printf("# varstack[1]: %p\n", norm);
+            // printf(COMCHAR" varstack[1]: %p\n", norm);
             for(j=0; j< size; j++)
             {
                current = PStackElementP(varstack,j);
-               // printf("# varstack[%ld]: %p\n", j, current);
+               // printf(COMCHAR" varstack[%ld]: %p\n", j, current);
                if(current && !current->binding)
                {
                   SubstAddBinding(subst, current, norm);
@@ -728,11 +728,11 @@ Subst_p SubstGroundVarBankFirstConst(TB_p terms, bool norm_const)
    for (i=0; i < PDArraySize(vars->varstacks); i++)
    {
       varstack = PDArrayElementP(vars->varstacks, i);
-      //printf("# varstack: %p\n", varstack);
+      //printf(COMCHAR" varstack: %p\n", varstack);
       if (varstack)
       {
          size = PStackGetSP(varstack);
-         //printf("# varstack size: %ld\n", size);
+         //printf(COMCHAR" varstack size: %ld\n", size);
          if(size)
          {
             backup = PStackElementP(varstack,0);
@@ -747,11 +747,11 @@ Subst_p SubstGroundVarBankFirstConst(TB_p terms, bool norm_const)
             {
                norm = TermFollowRWChain(norm);
             }
-            // printf("# varstack[1]: %p\n", norm);
+            // printf(COMCHAR" varstack[1]: %p\n", norm);
             for(j=0; j< size; j++)
             {
                current = PStackElementP(varstack,j);
-               // printf("# varstack[%ld]: %p\n", j, current);
+               // printf(COMCHAR" varstack[%ld]: %p\n", j, current);
                if(current && !current->binding)
                {
                   SubstAddBinding(subst, current, norm);
@@ -801,17 +801,17 @@ Subst_p SubstGroundFreqBased(TB_p terms, ClauseSet_p clauses,
    for (sort=0; sort < PDArraySize(vars->varstacks); sort++)
    {
       varstack = PDArrayElementP(vars->varstacks, sort);
-      //printf("# varstack: %p\n", varstack);
+      //printf(COMCHAR" varstack: %p\n", varstack);
       if (varstack)
       {
          size = PStackGetSP(varstack);
-         //printf("# varstack size: %ld\n", size);
+         //printf(COMCHAR" varstack size: %ld\n", size);
          if(size)
          {
             backup = PStackElementP(varstack,0);
             assert(backup->type->type_uid == sort);
 
-            norm = TBGetFreqConstTerm(terms, backup->type, 
+            norm = TBGetFreqConstTerm(terms, backup->type,
                                       conj_dist_array, dist_array, is_better);
             if(!norm)
             {
@@ -821,11 +821,11 @@ Subst_p SubstGroundFreqBased(TB_p terms, ClauseSet_p clauses,
             {
                norm = TermFollowRWChain(norm);
             }
-            // printf("# varstack[1]: %p\n", norm);
+            // printf(COMCHAR" varstack[1]: %p\n", norm);
             for(j=0; j< size; j++)
             {
                current = PStackElementP(varstack,j);
-               // printf("# varstack[%ld]: %p\n", j, current);
+               // printf(COMCHAR" varstack[%ld]: %p\n", j, current);
                if(current)
                {
                   SubstAddBinding(subst, current, norm);
@@ -879,7 +879,7 @@ long SatClauseSetImportProofState(SatClauseSet_p satset, ProofState_p state,
    assert(satset);
    assert(state);
 
-   //printf("# SatClauseSetImportProofState()\n");
+   //printf(COMCHAR" SatClauseSetImportProofState()\n");
 
    switch(strat)
    {
@@ -930,7 +930,7 @@ long SatClauseSetImportProofState(SatClauseSet_p satset, ProofState_p state,
          assert(false && "Unimplemented grounding strategy");
          break;
    }
-   // printf("# Pseudogrounded()\n");
+   // printf(COMCHAR" Pseudogrounded()\n");
 
    res += SatClauseSetImportClauseSet(satset, state->processed_pos_rules);
    res += SatClauseSetImportClauseSet(satset, state->processed_pos_eqns);
@@ -995,7 +995,7 @@ long SatClauseSetMarkPure(SatClauseSet_p satset)
 //
 // Function: sat_extract_core()
 //
-//   Extracts the original clauses pointing to the unsatisfiable core 
+//   Extracts the original clauses pointing to the unsatisfiable core
 //   and pushes them onto core.
 //
 // Global Variables: -
@@ -1047,9 +1047,9 @@ ProverResult SatClauseSetCheckUnsat(SatClauseSet_p satset, Clause_p *empty,
    SatClauseSetMarkPure(satset);
    SatClauseSetExportToSolverNonPure(solver, satset);
 
-   //printf("# XXXXX Decision level: %d\n", sat_check_decision_limit);
+   //printf(COMCHAR" XXXXX Decision level: %d\n", sat_check_decision_limit);
    solverres = picosat_sat(solver, sat_check_decision_limit);
-   //printf("# YYYYY Solver done\n");
+   //printf(COMCHAR" YYYYY Solver done\n");
 
    switch(solverres)
    {
@@ -1066,7 +1066,7 @@ ProverResult SatClauseSetCheckUnsat(SatClauseSet_p satset, Clause_p *empty,
    if(res == PRUnsatisfiable)
    {
       PStack_p unsat_core = PStackAlloc();
-      fprintf(GlobalOut, "# SatCheck found unsatisfiable ground set\n");
+      fprintf(GlobalOut, COMCHAR" SatCheck found unsatisfiable ground set\n");
       *empty = EmptyClauseAlloc();
       sat_extract_core(satset, unsat_core, solver);
       satset->core_size = PStackGetSP(unsat_core);

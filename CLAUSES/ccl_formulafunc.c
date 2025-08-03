@@ -1003,9 +1003,9 @@ TFormula_p do_ite_unroll(TFormula_p form, TB_p terms)
                              true_part,
                              false_part);
 
-      /* printf("# ITE-Form case: "); */
+      /* printf(COMCHAR" ITE-Form case: "); */
       /* TermPrint(stdout, safe, terms->sig, DEREF_NEVER); */
-      /* printf("\n# =>             "); */
+      /* printf("\n"COMCHAR" =>             "); */
       /* TermPrint(stdout, form, terms->sig, DEREF_NEVER); */
       /* printf("\n"); */
       form = do_ite_unroll(TermMap(terms, unrolled, FlattenApps_driver),
@@ -1037,16 +1037,16 @@ TFormula_p do_ite_unroll(TFormula_p form, TB_p terms)
          Term_p repl_t = TBTermPosReplace(terms, ite_term->args[1], pos,
                                           DEREF_NEVER, 0, ite_term);
 
-         /* printf("# ite_term: "); */
+         /* printf(COMCHAR" ite_term: "); */
          /* TermPrint(stdout, ite_term, terms->sig, DEREF_NEVER); */
          /* printf("\n"); */
-         /* printf("# ite_term->args[0]: "); */
+         /* printf(COMCHAR" ite_term->args[0]: "); */
          /* TermPrint(stdout, ite_term->args[0], terms->sig, DEREF_NEVER); */
          /* printf("\n"); */
-         /* printf("# ite_term->args[1]: "); */
+         /* printf(COMCHAR" ite_term->args[1]: "); */
          /* TermPrint(stdout, ite_term->args[1], terms->sig, DEREF_NEVER); */
          /* printf("\n"); */
-         /* printf("# ite_term->args[2]: "); */
+         /* printf(COMCHAR" ite_term->args[2]: "); */
          /* TermPrint(stdout, ite_term->args[2], terms->sig, DEREF_NEVER); */
          /* printf("\n"); */
          Term_p repl_f = TBTermPosReplace(terms, ite_term->args[2], pos,
@@ -1066,17 +1066,17 @@ TFormula_p do_ite_unroll(TFormula_p form, TB_p terms)
          form = TFormulaFCodeAlloc(terms, terms->sig->and_code,
                                    do_ite_unroll(if_true_impl, terms),
                                    do_ite_unroll(if_false_impl, terms));
-         /* printf("# ite_term: "); */
+         /* printf(COMCHAR" ite_term: "); */
          /* TermPrint(stdout, ite_term, terms->sig, DEREF_NEVER); */
          /* printf("\n"); */
-         /* printf("# ITE-Term case: "); */
+         /* printf(COMCHAR" ITE-Term case: "); */
          /* TermPrint(stdout, safe, terms->sig, DEREF_NEVER); */
-         /* printf("\n# =>             "); */
+         /* printf("\n"COMCHAR" =>             "); */
          /* TermPrint(stdout, form, terms->sig, DEREF_NEVER); */
          /* printf("\n"); */
-         /* printf("# repl_t: "); */
+         /* printf(COMCHAR" repl_t: "); */
          /* TermPrint(stdout, repl_t, terms->sig, DEREF_NEVER); */
-         /* printf("\n# repl_f: "); */
+         /* printf("\n"COMCHAR" repl_f: "); */
          /* TermPrint(stdout, repl_f, terms->sig, DEREF_NEVER); */
          /* printf("\n"); */
       }
@@ -1101,9 +1101,9 @@ TFormula_p do_ite_unroll(TFormula_p form, TB_p terms)
          TermTopFree(new);
       }
    }
-   /* printf("# do_ite_unroll: "); */
+   /* printf(COMCHAR" do_ite_unroll: "); */
    /* TermPrint(stdout, safe, terms->sig, DEREF_NEVER); */
-   /* printf("\n# =>             "); */
+   /* printf("\n"COMCHAR" =>             "); */
    /* TermPrint(stdout, form, terms->sig, DEREF_NEVER); */
    /* printf("\n"); */
 
@@ -1195,14 +1195,14 @@ TFormula_p do_bool_eqn_replace(TFormula_p form, TB_p terms)
    //Term_p orig = form;
    assert(sig);
 
-   /* printf("# do_bool_eqn_replace %p: ", form); */
+   /* printf(COMCHAR" do_bool_eqn_replace %p: ", form); */
    /* TermPrintDbg(stdout, form, terms->sig, DEREF_NEVER); */
    /* printf("\n"); */
 
 
    if (TermIsDBVar(form) || !TermHasEqNeq(form) || TermIsAnyVar(form))
    {
-      //printf("# exit %p\n", form);
+      //printf(COMCHAR" exit %p\n", form);
       return form;
    }
 
@@ -1214,13 +1214,13 @@ TFormula_p do_bool_eqn_replace(TFormula_p form, TB_p terms)
    }
    form = TBTermTopInsert(terms, tmp);
 
-   /* printf("# returned from recursion %p: ", orig); */
+   /* printf(COMCHAR" returned from recursion %p: ", orig); */
    /* TermPrintDbg(stdout, form, terms->sig, DEREF_NEVER); */
    /* printf("\n"); */
 
    if ((form->f_code == sig->eqn_code) && form->arity == 2)
    {  // Case $eqn(t1, t2) (may be terms, may be formulas)
-      //printf("# case $eqn %p\n", orig);
+      //printf(COMCHAR" case $eqn %p\n", orig);
       if (TFormulaIsComplexBool(terms->sig, form->args[0]) &&
           TFormulaIsComplexBool(terms->sig, form->args[1]))
       { // Case $eqn(f1,f2) (two proper formulas)
@@ -1579,7 +1579,7 @@ long WFormulaCNF2(WFormula_p form, ClauseSet_p set,
 
       return 1;
    }
-   /* printf("# Clausifying: "); */
+   /* printf(COMCHAR" Clausifying: "); */
    /* WFormulaPrint(stdout, form, true); */
    /* printf("\n"); */
    WTFormulaConjunctiveNF3(form, terms, miniscope_limit, fool_unroll);
@@ -1740,9 +1740,9 @@ long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive,
    }
    FormulaSetSimplify(set, terms, true);
 
-   //printf("# Introducing definitions\n");
+   //printf(COMCHAR" Introducing definitions\n");
    TFormulaSetIntroduceDefs(set, archive, terms, def_limit);
-   //printf("# Definitions introduced\n");
+   //printf(COMCHAR" Definitions introduced\n");
    while (!FormulaSetEmpty(set))
    {
       handle = FormulaSetExtractFirst(set);
@@ -1751,10 +1751,10 @@ long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive,
       FormulaSetInsert(archive, handle);
       WFormulaPushDerivation(form, DCFofQuote, handle, NULL);
       handle = form;
-      // printf("# vor WFormulaCNF2()..\n");
+      // printf(COMCHAR" vor WFormulaCNF2()..\n");
       res += WFormulaCNF2(handle, clauseset, terms, fresh_vars,
                           miniscope_limit, fool_unroll);
-      // printf("# ...nach WFormulaCNF2()\n");
+      // printf(COMCHAR" ...nach WFormulaCNF2()\n");
       FormulaSetInsert(archive, handle);
       if (handle->tformula &&
           (TBNonVarTermNodes(terms) > gc_threshold))
@@ -2097,7 +2097,7 @@ long TFormulaApplyDefs(WFormula_p form, TB_p terms, NumXTree_p *defs)
    PStackFree(defs_used);
    /* if(TFormulaHasFreeVars(terms, form->tformula)) */
    /* { */
-   /*    printf("# ApplyDefs Free Variable: "); */
+   /*    printf(COMCHAR" ApplyDefs Free Variable: "); */
    /*    WFormulaPrint(stdout, form, true); */
    /*    printf("\n"); */
    /* } */
@@ -2125,20 +2125,20 @@ bool TFormulaUnrollFOOL(WFormula_p form, TB_p terms)
    /* Term_p free_var; */
    /* if((free_var = TFormulaHasFreeVars(terms, form->tformula))) */
    /* { */
-   /*    printf("# Before UnrollFOOL Free Variable "); */
+   /*    printf(COMCHAR" Before UnrollFOOL Free Variable "); */
    /*    TermPrintSimple(stdout, free_var, terms->sig); */
    /*    printf(" :"); */
    /*    WFormulaPrint(stdout, form, true); */
    /*    printf("\n"); */
    /*    TermPrettyPrintSimple(stdout, form->tformula, form->terms->sig, 0); */
    /* } */
-   /* printf("# Before UnrollFOOL: "); */
+   /* printf(COMCHAR" Before UnrollFOOL: "); */
    /* WFormulaPrint(stdout, form, true); */
    /* printf("\n"); */
    /* TermPrettyPrintSimple(stdout, form->tformula, form->terms->sig, 0); */
    /* printf("\n"); */
    form->tformula = TFormulaExpandLiterals(terms, form->tformula);
-   /* printf("# Expanded:\n# "); */
+   /* printf(COMCHAR" Expanded:\n"COMCHAR" "); */
    /* WFormulaPrint(stdout, form, true); */
    /* printf("\n"); */
    /* TermPrettyPrintSimple(stdout, form->tformula, form->terms->sig, 0); */
@@ -2148,11 +2148,11 @@ bool TFormulaUnrollFOOL(WFormula_p form, TB_p terms)
 
    /* if(TFormulaHasFreeVars(terms, form->tformula)) */
    /* { */
-   /*    printf("# UnrollFOOL Free Variable: "); */
+   /*    printf(COMCHAR" UnrollFOOL Free Variable: "); */
    /*    WFormulaPrint(stdout, form, true); */
    /*    printf("\n"); */
    /* } */
-   /* printf("# Unrolled: \n# "); */
+   /* printf(COMCHAR" Unrolled: \n"COMCHAR" "); */
    /* WFormulaPrint(stdout, form, true); */
    /* printf("\n"); */
    return res;
@@ -2178,7 +2178,7 @@ bool TFormulaReplaceEqnWithEquiv(WFormula_p form, TB_p terms)
 
    /* if(TFormulaHasFreeVars(terms, form->tformula)) */
    /* { */
-   /*    printf("# Eqn->Equiv Free Variable: "); */
+   /*    printf(COMCHAR" Eqn->Equiv Free Variable: "); */
    /*    WFormulaPrint(stdout, form, true); */
    /*    printf("\n"); */
    /* } */
@@ -2204,17 +2204,17 @@ long TFormulaSetUnrollFOOL(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
         formula != set->anchor;
         formula = formula->succ)
    {
-      //printf("# Before Eqn2Equiv  %p: ", formula);
+      //printf(COMCHAR" Before Eqn2Equiv  %p: ", formula);
       //WFormulaTSTPPrintDeriv(stdout, formula);
       //printf("\n");
       TFormulaReplaceEqnWithEquiv(formula, terms);
-      //printf("# Eqn2Equiv  %p: ", formula);
+      //printf(COMCHAR" Eqn2Equiv  %p: ", formula);
       //WFormulaTSTPPrintDeriv(stdout, formula);
       //printf("\n");
-      //printf("# As term     :");
+      //printf(COMCHAR" As term     :");
       //TermPrintDbg(stdout, formula->tformula, terms->sig, DEREF_NEVER);
       //printf("\n");
-      //printf("# As pretty term     :\n");
+      //printf(COMCHAR" As pretty term     :\n");
       //TermPrettyPrintSimple(stdout, formula->tformula, terms->sig, 0);
       //printf("\n");
 
@@ -2222,10 +2222,10 @@ long TFormulaSetUnrollFOOL(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
       {
          res++;
       }
-      //printf("# Foolunroll %p: ", formula);
+      //printf(COMCHAR" Foolunroll %p: ", formula);
       //WFormulaTSTPPrintDeriv(stdout, formula);
       //printf("\n");
-      //printf("# As term     :");
+      //printf(COMCHAR" As term     :");
       //TermPrintDbg(stdout, formula->tformula, terms->sig, DEREF_NEVER);
       //printf("\n======\n");
    }
@@ -2274,7 +2274,7 @@ long TFormulaSetLiftLets(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
             PStackAssignP(lifted_lets, i, wdef);
          }
       }
-      /* printf("# Let-lifted %p: ", form); */
+      /* printf(COMCHAR" Let-lifted %p: ", form); */
       /* WFormulaTSTPPrintDeriv(stdout, form); */
       /* printf("\n"); */
    }
@@ -2315,7 +2315,7 @@ long TFormulaSetLiftItes(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
          res++;
          /* if(TFormulaHasFreeVars(terms, formula->tformula)) */
          /* { */
-         /*    printf("# LiftItes Free Variable: "); */
+         /*    printf(COMCHAR" LiftItes Free Variable: "); */
          /*    WFormulaPrint(stdout, formula, true); */
          /*    printf("\n"); */
          /* } */
@@ -2360,7 +2360,7 @@ long TFormulaSetLambdaNormalize(FormulaSet_p set, FormulaSet_p archive, TB_p ter
             res++;
             /* if(TFormulaHasFreeVars(terms, form->tformula)) */
             /* { */
-            /*    printf("# LambdaNormalize Free Variable: "); */
+            /*    printf(COMCHAR" LambdaNormalize Free Variable: "); */
             /*    WFormulaPrint(stdout, form, true); */
             /*    printf("\n"); */
             /* } */
@@ -2426,7 +2426,7 @@ long TFormulaSetUnfoldDefSymbols(FormulaSet_p set, FormulaSet_p archive,
             PTreeFree(used_defs);
             /* if(TFormulaHasFreeVars(terms, form->tformula)) */
             /* { */
-            /*    printf("# UnfoldDef Free Variable: "); */
+            /*    printf(COMCHAR" UnfoldDef Free Variable: "); */
             /*    WFormulaPrint(stdout, form, true); */
             /*    printf("\n"); */
             /* } */
@@ -2616,7 +2616,7 @@ long TFormulaSetIntroduceDefs(FormulaSet_p set, FormulaSet_p archive, TB_p terms
       def = cell->vals[1].p_val;
       newdef = TFormulaCreateDef(terms, def, form, 0);
       w_def = WTFormulaAlloc(terms, newdef);
-      //printf("# New definition: ");
+      //printf(COMCHAR" New definition: ");
       //WFormulaTSTPPrint(stdout, w_def, true, true);
       //printf("\n");
 
@@ -2655,22 +2655,22 @@ long TFormulaSetIntroduceDefs(FormulaSet_p set, FormulaSet_p archive, TB_p terms
    // printf("About to apply defs\n");
    for (formula = set->anchor->succ; formula != set->anchor; formula = formula->succ)
    {
-      /* printf("# Before Def-appl %p: ", formula); */
+      /* printf(COMCHAR" Before Def-appl %p: ", formula); */
       /* WFormulaTSTPPrintDeriv(stdout, formula); */
       /* printf("\n"); */
       TFormulaApplyDefs(formula, terms, &defs);
-      /* printf("# After Def-appl  %p: ", formula); */
+      /* printf(COMCHAR" After Def-appl  %p: ", formula); */
       /* WFormulaTSTPPrint(stdout, formula, true, true); */
       /* printf("\n"); */
       /* if(TFormulaHasFreeVars(terms, formula->tformula)) */
       /* { */
-      /*    printf("# ApplyDefs Free Variable: "); */
+      /*    printf(COMCHAR" ApplyDefs Free Variable: "); */
       /*    WFormulaPrint(stdout, formula, true); */
       /*    printf("\n"); */
       /* } */
    }
    NumXTreeFree(defs);
-   //printf("# %ld definitions introduced\n", res);
+   //printf(COMCHAR" %ld definitions introduced\n", res);
    return res;
 }
 

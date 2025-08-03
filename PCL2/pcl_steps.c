@@ -63,7 +63,7 @@ static void print_shell_pcl_warning(FILE* out, PCLStep_p step)
    {
       Warning("Shell PCL step encountered where "
               "full PCL step was required");
-      fprintf(out, "# Step ");
+      fprintf(out, COMCHAR" Step ");
       PCLIdPrint(out, step->id);
       fprintf(out, " omitted (Shell)\n");
    }
@@ -648,5 +648,3 @@ void PCLStepResetTreeData(PCLStep_p step, bool just_weights)
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-

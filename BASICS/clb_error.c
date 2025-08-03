@@ -319,19 +319,19 @@ void PrintRusage(FILE* out)
    usage.ru_stime.tv_usec += cusage.ru_stime.tv_usec;
 
    fprintf(out,
-      "\n# -------------------------------------------------\n");
+      "\n"COMCHAR" -------------------------------------------------\n");
    fprintf(out,
-      "# User time                : %.3f s\n",
+      COMCHAR" User time                : %.3f s\n",
       (usage.ru_utime.tv_sec)+(usage.ru_utime.tv_usec)/1000000.0);
    fprintf(out,
-      "# System time              : %.3f s\n",
+      COMCHAR" System time              : %.3f s\n",
       (usage.ru_stime.tv_sec)+(usage.ru_stime.tv_usec)/1000000.0);
    fprintf(out,
-      "# Total time               : %.3f s\n",
+      COMCHAR" Total time               : %.3f s\n",
       (usage.ru_utime.tv_sec+usage.ru_stime.tv_sec)+
       ((usage.ru_utime.tv_usec+usage.ru_stime.tv_usec)/1000000.0));
    fprintf(out,
-      "# Maximum resident set size: %ld pages\n",
+      COMCHAR" Maximum resident set size: %ld pages\n",
       usage.ru_maxrss);
 }
 

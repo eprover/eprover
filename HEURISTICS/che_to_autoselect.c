@@ -87,16 +87,16 @@ void print_oparms(OrderParms_p oparms)
 
    if(OutputLevel)
    {
-      fprintf(GlobalOut, "# Auto-mode selected ordering type %s\n",
+      fprintf(GlobalOut, COMCHAR" Auto-mode selected ordering type %s\n",
               TONames[oparms->ordertype]);
-      fprintf(GlobalOut, "# Auto-mode selected ordering precedence scheme <%s>\n",
+      fprintf(GlobalOut, COMCHAR" Auto-mode selected ordering precedence scheme <%s>\n",
               TOGetPrecGenName(oparms->to_prec_gen));
       if(oparms->ordertype == KBO || oparms->ordertype == KBO6)
       {
-         fprintf(GlobalOut, "# Auto-mode selected weight ordering scheme <%s>\n",
+         fprintf(GlobalOut, COMCHAR" Auto-mode selected weight ordering scheme <%s>\n",
                  TOGetWeightGenName(oparms->to_weight_gen));
       }
-      fputs("#\n", GlobalOut);
+      fputs(COMCHAR"\n", GlobalOut);
    }
 }
 
@@ -129,7 +129,7 @@ OCB_p generate_auto_ordering(ProofState_p state, SpecFeature_p spec, HoOrderKind
 
    init_oparms(&oparms);
    oparms.ho_order_kind = order_kind;
-   OUTPRINT(1, "\n# Auto-Ordering is analysing problem.\n");
+   OUTPRINT(1, "\n"COMCHAR" Auto-Ordering is analysing problem.\n");
 
    print_oparms(&oparms);
    SpecLimitsCellFree(limits);
@@ -189,22 +189,22 @@ OCB_p generate_autocasc_ordering(ProofState_p state, SpecFeature_p spec, HoOrder
    oparms.to_prec_gen     = PUnaryFirst;
    oparms.lit_cmp         = LCNormal;
    oparms.ho_order_kind  = order_kind;
-   OUTPRINT(1, "\n# Auto-Ordering is analysing problem.\n");
+   OUTPRINT(1, "\n"COMCHAR" Auto-Ordering is analysing problem.\n");
 
 
 
    if(OutputLevel)
    {
-      fprintf(GlobalOut, "# Auto-mode selected ordering type %s\n",
+      fprintf(GlobalOut, COMCHAR" Auto-mode selected ordering type %s\n",
               TONames[oparms.ordertype]);
-      fprintf(GlobalOut, "# Auto-mode selected ordering precedence scheme <%s>\n",
+      fprintf(GlobalOut, COMCHAR" Auto-mode selected ordering precedence scheme <%s>\n",
               TOGetPrecGenName(oparms.to_prec_gen));
       if(oparms.ordertype == KBO || oparms.ordertype == KBO6)
       {
-         fprintf(GlobalOut, "# Auto-mode selected weight ordering scheme <%s>\n",
+         fprintf(GlobalOut, COMCHAR" Auto-mode selected weight ordering scheme <%s>\n",
                  TOGetWeightGenName(oparms.to_weight_gen));
       }
-      fputs("#\n", GlobalOut);
+      fputs(COMCHAR"\n", GlobalOut);
    }
    SpecLimitsCellFree(limits);
    return TOCreateOrdering(state, &oparms, NULL, NULL);
@@ -247,21 +247,21 @@ OCB_p generate_autodev_ordering(ProofState_p state, SpecFeature_p spec, HoOrderK
    oparms.lit_cmp         = LCNormal;
    oparms.ho_order_kind   = order_kind;
 
-   OUTPRINT(1, "\n# Auto-Ordering is analysing problem.\n");
+   OUTPRINT(1, "\n"COMCHAR" Auto-Ordering is analysing problem.\n");
 
 
    if(OutputLevel)
    {
-      fprintf(GlobalOut, "# Auto-mode (Dev) selected ordering type %s\n",
+      fprintf(GlobalOut, COMCHAR" Auto-mode (Dev) selected ordering type %s\n",
               TONames[oparms.ordertype]);
-      fprintf(GlobalOut, "# Auto-mode (Dev) selected ordering precedence scheme <%s>\n",
+      fprintf(GlobalOut, COMCHAR" Auto-mode (Dev) selected ordering precedence scheme <%s>\n",
               TOGetPrecGenName(oparms.to_prec_gen));
       if(oparms.ordertype == KBO || oparms.ordertype == KBO6)
       {
-         fprintf(GlobalOut, "# Auto-mode (Dev) selected weight ordering scheme <%s>\n",
+         fprintf(GlobalOut, COMCHAR" Auto-mode (Dev) selected weight ordering scheme <%s>\n",
                  TOGetWeightGenName(oparms.to_weight_gen));
       }
-      fputs("#\n", GlobalOut);
+      fputs(COMCHAR"\n", GlobalOut);
    }
    SpecLimitsCellFree(limits);
    return TOCreateOrdering(state, &oparms, NULL, NULL);
@@ -306,7 +306,7 @@ OCB_p generate_autosched0_ordering(ProofState_p state, SpecFeature_p spec, HoOrd
 
    init_oparms(&oparms);
    oparms.ho_order_kind = ho_order_kind;
-   OUTPRINT(1, "\n# AutoSched0-Ordering is analysing problem.\n");
+   OUTPRINT(1, "\n"COMCHAR" AutoSched0-Ordering is analysing problem.\n");
 
    print_oparms(&oparms);
    SpecLimitsCellFree(limits);
@@ -330,7 +330,7 @@ OCB_p generate_autosched1_ordering(ProofState_p state, SpecFeature_p spec, HoOrd
 
    init_oparms(&oparms);
    oparms.ho_order_kind = ho_order_kind;
-   OUTPRINT(1, "\n# AutoSched1-Ordering is analysing problem.\n");
+   OUTPRINT(1, "\n"COMCHAR" AutoSched1-Ordering is analysing problem.\n");
 
    print_oparms(&oparms);
    SpecLimitsCellFree(limits);
@@ -354,7 +354,7 @@ OCB_p generate_autosched2_ordering(ProofState_p state, SpecFeature_p spec, HoOrd
 
    init_oparms(&oparms);
    oparms.ho_order_kind = ho_order_kind;
-   OUTPRINT(1, "\n# AutoSched2-Ordering is analysing problem.\n");
+   OUTPRINT(1, "\n"COMCHAR" AutoSched2-Ordering is analysing problem.\n");
 
    print_oparms(&oparms);
    SpecLimitsCellFree(limits);
@@ -378,7 +378,7 @@ OCB_p generate_autosched3_ordering(ProofState_p state, SpecFeature_p spec, HoOrd
 
    init_oparms(&oparms);
    oparms.ho_order_kind = ho_order_kind;
-   OUTPRINT(1, "\n# AutoSched3-Ordering is analysing problem.\n");
+   OUTPRINT(1, "\n"COMCHAR" AutoSched3-Ordering is analysing problem.\n");
 
    print_oparms(&oparms);
    SpecLimitsCellFree(limits);
@@ -402,7 +402,7 @@ OCB_p generate_autosched4_ordering(ProofState_p state, SpecFeature_p spec, HoOrd
 
    init_oparms(&oparms);
    oparms.ho_order_kind = ho_order_kind;
-   OUTPRINT(1, "\n# AutoSched4-Ordering is analysing problem.\n");
+   OUTPRINT(1, "\n"COMCHAR" AutoSched4-Ordering is analysing problem.\n");
 
    print_oparms(&oparms);
    SpecLimitsCellFree(limits);
@@ -426,7 +426,7 @@ OCB_p generate_autosched5_ordering(ProofState_p state, SpecFeature_p spec, HoOrd
 
    init_oparms(&oparms);
    oparms.ho_order_kind = ho_order_kind;
-   OUTPRINT(1, "\n# AutoSched5-Ordering is analysing problem.\n");
+   OUTPRINT(1, "\n"COMCHAR" AutoSched5-Ordering is analysing problem.\n");
 
    print_oparms(&oparms);
    SpecLimitsCellFree(limits);
@@ -450,7 +450,7 @@ OCB_p generate_autosched6_ordering(ProofState_p state, SpecFeature_p spec, HoOrd
 
    init_oparms(&oparms);
    oparms.ho_order_kind = ho_order_kind;
-   OUTPRINT(1, "\n# AutoSched6-Ordering is analysing problem.\n");
+   OUTPRINT(1, "\n"COMCHAR" AutoSched6-Ordering is analysing problem.\n");
 
    print_oparms(&oparms);
    SpecLimitsCellFree(limits);
@@ -474,7 +474,7 @@ OCB_p generate_autosched7_ordering(ProofState_p state, SpecFeature_p spec, HoOrd
 
    init_oparms(&oparms);
    oparms.ho_order_kind = ho_order_kind;
-   OUTPRINT(1, "\n# AutoSched7-Ordering is analysing problem.\n");
+   OUTPRINT(1, "\n"COMCHAR" AutoSched7-Ordering is analysing problem.\n");
 
    print_oparms(&oparms);
    SpecLimitsCellFree(limits);
@@ -499,7 +499,7 @@ OCB_p generate_autosched8_ordering(ProofState_p state, SpecFeature_p spec, HoOrd
 
    init_oparms(&oparms);
    oparms.ho_order_kind = ho_order_kind;
-   OUTPRINT(1, "\n# AutoSched8-Ordering is analysing problem.\n");
+   OUTPRINT(1, "\n"COMCHAR" AutoSched8-Ordering is analysing problem.\n");
 
    print_oparms(&oparms);
    SpecLimitsCellFree(limits);
@@ -523,7 +523,7 @@ OCB_p generate_autosched9_ordering(ProofState_p state, SpecFeature_p spec, HoOrd
 
    init_oparms(&oparms);
    oparms.ho_order_kind = ho_order_kind;
-   OUTPRINT(1, "\n# AutoSched9-Ordering is analysing problem.\n");
+   OUTPRINT(1, "\n"COMCHAR" AutoSched9-Ordering is analysing problem.\n");
 
    print_oparms(&oparms);
    SpecLimitsCellFree(limits);

@@ -610,15 +610,15 @@ static bool clause_subsumes_clause(Clause_p subsumer, Clause_p
 
    /* if(!ClauseIsSubsumeOrdered(sub_candidate)) */
    /* { */
-   /*    printf("# sub_candidate %p: ", sub_candidate->set);ClausePrint(stdout, sub_candidate, true); */
-   /*    printf("\n# subsumer     %p: ", subsumer->set);ClausePrint(stdout, subsumer, true); */
+   /*    printf(COMCHAR" sub_candidate %p: ", sub_candidate->set);ClausePrint(stdout, sub_candidate, true); */
+   /*    printf("\n"COMCHAR" subsumer     %p: ", subsumer->set);ClausePrint(stdout, subsumer, true); */
    /*    printf("\n"); */
 
-   /*    printf("# %ld, %ld\n", EqnStandardWeight(sub_candidate->literals),EqnStandardWeight(sub_candidate->literals->next)); */
-   /*    printf("# EqnSubsumeInverseCompareRef()=%d\n", EqnSubsumeInverseCompareRef(&(sub_candidate->literals), &(sub_candidate->literals->next))); */
-   /*    printf("# EqnSubsumeQOrderCompare()=%d\n", EqnSubsumeQOrderCompare(sub_candidate->literals, sub_candidate->literals->next)); */
+   /*    printf(COMCHAR" %ld, %ld\n", EqnStandardWeight(sub_candidate->literals),EqnStandardWeight(sub_candidate->literals->next)); */
+   /*    printf(COMCHAR" EqnSubsumeInverseCompareRef()=%d\n", EqnSubsumeInverseCompareRef(&(sub_candidate->literals), &(sub_candidate->literals->next))); */
+   /*    printf(COMCHAR" EqnSubsumeQOrderCompare()=%d\n", EqnSubsumeQOrderCompare(sub_candidate->literals, sub_candidate->literals->next)); */
    /*    ClauseSubsumeOrderSortLits(sub_candidate); */
-   /*    printf("# sub_candidate %p: ", sub_candidate->set);ClausePrint(stdout, sub_candidate, true); */
+   /*    printf(COMCHAR" sub_candidate %p: ", sub_candidate->set);ClausePrint(stdout, sub_candidate, true); */
    /*    printf("\n"); */
    /* } */
    assert(ClauseIsSubsumeOrdered(subsumer));
@@ -634,8 +634,8 @@ static bool clause_subsumes_clause(Clause_p subsumer, Clause_p
       PERF_CTR_EXIT(SubsumeTimer);
       return UnitClauseSubsumesClause(subsumer, sub_candidate);
    }
-   /*fprintf(stderr, "# sub_candidate:");ClausePrint(stderr, sub_candidate, true);
-   fprintf(stderr, "\n# subsumer:");ClausePrint(stderr, subsumer, true);
+   /*fprintf(stderr, COMCHAR" sub_candidate:");ClausePrint(stderr, sub_candidate, true);
+   fprintf(stderr, "\n"COMCHAR" subsumer:");ClausePrint(stderr, subsumer, true);
    fprintf(stderr, "\n");*/
 
    assert(sub_candidate->weight == ClauseStandardWeight(sub_candidate));

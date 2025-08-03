@@ -145,9 +145,9 @@ int main(int argc, char* argv[])
    }
 
    fprintf(GlobalOut,
-      "# Terms: %ld  ASize: %f MSize: %ld, ADepth: %f MDepth: %ld\n",
-      count, size_sum/(float)count, size_max,
-      depth_sum/(float)count, depth_max);
+           COMCHAR" Terms: %ld  ASize: %f MSize: %ld, ADepth: %f MDepth: %ld\n",
+           count, size_sum/(float)count, size_max,
+           depth_sum/(float)count, depth_max);
    bank->sig = NULL;
    TBFree(bank);
    SigFree(sig);
@@ -226,5 +226,3 @@ Read a set of terms and print it with size and depth information.\n\
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-

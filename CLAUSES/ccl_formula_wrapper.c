@@ -454,7 +454,7 @@ WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms)
    AcceptInpTok(in, OpenBracket);
    CheckInpTok(in, Name|PosInt|SQString);
    info->name = DStrCopy(AktToken(in)->literal);
-   // printf("# Parsing: %s\n", info->name);
+   // printf(COMCHAR" Parsing: %s\n", info->name);
    NextToken(in);
    AcceptInpTok(in, Comma);
 
@@ -492,7 +492,7 @@ WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms)
                          "plain|unknown");
       AcceptInpTok(in, Comma);
 
-      // printf("# Formula Start!\n");
+      // printf(COMCHAR" Formula Start!\n");
 
       source_name = DStrGetRef(AktToken(in)->source);
       inptype     = AktToken(in)->stream_type;
@@ -502,7 +502,7 @@ WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms)
       if(TestInpId(in, "$distinct"))
       {
          tform = TSTPDistinctParse(in, terms);
-         // fprintf(stderr, "# $distinct parsed!: ");
+         // fprintf(stderr, COMCHAR" $distinct parsed!: ");
          // TFormulaTPTPPrint(stderr, terms, tform, true, false);
          // fprintf(stderr, " : ");
          // TermPrintDbg(stderr, tform, terms->sig, DEREF_NEVER);
@@ -510,15 +510,15 @@ WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms)
       }
       else if(is_tcf)
       {
-         // printf("# Tcf Start!\n");
+         // printf(COMCHAR" Tcf Start!\n");
          tform = TcfTSTPParse(in, terms);
-         // printf("# Tcf Done!\n");
+         // printf(COMCHAR" Tcf Done!\n");
       }
       else
       {
-         //fprintf(stderr, "# TFormula Start!\n");
+         //fprintf(stderr, COMCHAR" TFormula Start!\n");
          tform = TFormulaTSTPParse(in, terms);
-         //fprintf(stderr, "# TFormula parsed!: ");
+         //fprintf(stderr, COMCHAR" TFormula parsed!: ");
          //TFormulaTPTPPrint(stderr, terms, tform, true, false);
          //fprintf(stderr, " : ");
          //TermPrintDbg(stderr, tform, terms->sig, DEREF_NEVER);
@@ -555,7 +555,7 @@ WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms)
    FormulaSetProp(handle, initial|CPInitial);
    handle->info = info;
 
-   // printf("# Formula complete!\n");
+   // printf(COMCHAR" Formula complete!\n");
    return handle;
 }
 
@@ -780,7 +780,7 @@ WFormula_p WFormClauseParse(Scanner_p in, TB_p terms)
    handle->info = NULL;
    ClauseFree(handle);
 
-   //printf("# WFormClauseParse: ");
+   //printf(COMCHAR" WFormClauseParse: ");
    //WFormulaPrint(stdout, wform, true);
    //printf("\n");
    return wform;

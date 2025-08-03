@@ -234,15 +234,15 @@ int main(int argc, char* argv[])
    {
       if(no_extract)
       {
-         fprintf(GlobalOut, "# SZS output start Derivation.\n");
+         fprintf(GlobalOut, COMCHAR" SZS output start Derivation.\n");
       }
       else if(empty_clause)
       {
-         fprintf(GlobalOut, "# SZS output start CNFRefutation.\n");
+         fprintf(GlobalOut, COMCHAR" SZS output start CNFRefutation.\n");
       }
       else
       {
-         fprintf(GlobalOut, "# SZS output start Saturation.\n");
+         fprintf(GlobalOut, COMCHAR" SZS output start Saturation.\n");
       }
    }
    if(fast_extract)
@@ -257,15 +257,15 @@ int main(int argc, char* argv[])
    {
       if(no_extract)
       {
-         fprintf(GlobalOut, "# SZS output end Derivation.\n");
+         fprintf(GlobalOut, COMCHAR" SZS output end Derivation.\n");
       }
       else if(empty_clause)
       {
-         fprintf(GlobalOut, "# SZS output end CNFRefutation\n");
+         fprintf(GlobalOut, COMCHAR" SZS output end CNFRefutation\n");
       }
       else
       {
-         fprintf(GlobalOut, "# SZS output end Saturation.\n");
+         fprintf(GlobalOut, COMCHAR" SZS output end Saturation.\n");
       }
    }
 #ifdef FAST_EXIT

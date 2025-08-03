@@ -407,7 +407,7 @@ static long fp_index_rek_find_matchable(FPTree_p index, IndexFP_p key,
 void fp_index_leaf_prt_size(FILE* out, PStack_p stack, FPTree_p leaf)
 {
    long tmp;
-   fprintf(out, "# ");
+   fprintf(out, COMCHAR" ");
    PStackPrintInt(out, "%4ld.", stack);
    tmp =  PObjTreeNodes(leaf->payload);
    fprintf(out, ":%ld terms\n", tmp);
@@ -1328,7 +1328,7 @@ void FPIndexDistribPrint(FILE* out, FPIndex_p index)
 
    leaves = fp_index_tree_print(out, index->index, path, fp_index_leaf_prt_size,
                                 &entries);
-   fprintf(out, "# %ld entries, %ld leaves, %f entries/leaf\n",
+   fprintf(out, COMCHAR" %ld entries, %ld leaves, %f entries/leaf\n",
            entries, leaves, (double)entries/leaves);
 
    PStackFree(path);

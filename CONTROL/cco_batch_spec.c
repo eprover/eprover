@@ -145,14 +145,14 @@ EPCtrl_p batch_create_runner(StructFOFSpec_p ctrl,
    PStack_p cspec = PStackAlloc();
    PStack_p fspec = PStackAlloc();
 
-   fprintf(GlobalOut, "# Filtering for ");
+   fprintf(GlobalOut, COMCHAR" Filtering for ");
    AxFilterPrint(GlobalOut, ax_filter);
    fprintf(GlobalOut, " (%lld)\n", GetSecTimeMod());
    StructFOFSpecGetProblem(ctrl,
                            ax_filter,
                            cspec,
                            fspec);
-   fprintf(GlobalOut, "# Spec has %ld clauses and %ld formulas (%lld)\n",
+   fprintf(GlobalOut, COMCHAR" Spec has %ld clauses and %ld formulas (%lld)\n",
            PStackGetSP(cspec), PStackGetSP(fspec), GetSecTimeMod());
 
    file = TempFileName();
@@ -162,10 +162,10 @@ EPCtrl_p batch_create_runner(StructFOFSpec_p ctrl,
    PStackClausePrintTSTP(fp, cspec);
    PStackFormulaPrintTSTP(fp, fspec);
    SecureFClose(fp);
-   //printf("# ====== Writing filtered file===========\n");
+   //printf(COMCHAR" ====== Writing filtered file===========\n");
    //FilePrint(stdout, file);
-   //printf("# =======Filtered file written===========\n");
-   fprintf(GlobalOut, "# Written new problem (%lld)\n", GetSecTimeMod());
+   //printf(COMCHAR" =======Filtered file written===========\n");
+   fprintf(GlobalOut, COMCHAR" Written new problem (%lld)\n", GetSecTimeMod());
 
    AxFilterPrintBuf(name, 320, ax_filter);
    pctrl = ECtrlCreateGeneric(executable, name, options, extra_options, cpu_time, file);
@@ -536,7 +536,7 @@ BatchSpec_p BatchSpecParse(Scanner_p in, char* executable,
    {
       dummy = ParseBasicInclude(in);
       PStackPushP(handle->includes, dummy);
-      printf("# Accepted %s for parsing\n", dummy);
+      printf(COMCHAR" Accepted %s for parsing\n", dummy);
    }
 
    /* This is ugly! Fix the LTB format! */
@@ -677,7 +677,7 @@ long StructFOFSpecGetProblem(StructFOFSpec_p ctrl,
                             ax_filter,
                             res_clauses,
                             res_formulas);
-         //printf("# AFGSinE selected %ld/%ld clauses/formulas\n",
+         //printf(COMCHAR" AFGSinE selected %ld/%ld clauses/formulas\n",
          //PStackGetSP(res_clauses), PStackGetSP(res_formulas));
          break;
    case AFThreshold:
@@ -777,7 +777,7 @@ bool BatchProcessProblem(BatchSpec_p spec,
       used = now - handle->start_time;
       remaining = handle->prob_time - used;
       fprintf(GlobalOut,
-              "# Solution found by %s (started %lld, remaining %lld)\n",
+              COMCHAR" Solution found by %s (started %lld, remaining %lld)\n",
               handle->name, handle->start_time, remaining);
       if(out!=GlobalOut)
       {
@@ -800,12 +800,12 @@ bool BatchProcessProblem(BatchSpec_p spec,
    }
    else
    {
-      fprintf(GlobalOut, "# SZS status GaveUp for %s\n", jobname);
+      fprintf(GlobalOut, COMCHAR" SZS status GaveUp for %s\n", jobname);
       if(out!=GlobalOut)
       {
 
          char buffer[512];
-         sprintf(buffer, "# SZS status GaveUp for %s\n", jobname);
+         sprintf(buffer, COMCHAR" SZS status GaveUp for %s\n", jobname);
          if(sock_fd != -1)
          {
             TCPStringSendX(sock_fd, buffer);
@@ -855,12 +855,12 @@ bool BatchProcessFile(BatchSpec_p spec,
    FormulaSet_p fset;
    FILE* fp;
 
-   //fprintf(GlobalOut, "\n# Processing %s -> %s\n", source, dest);
-   //fprintf(GlobalOut, "# SZS status Started for %s\n", source);
+   //fprintf(GlobalOut, "\n"COMCHAR" Processing %s -> %s\n", source, dest);
+   //fprintf(GlobalOut, COMCHAR" SZS status Started for %s\n", source);
    //fflush(GlobalOut);
 
    in = CreateScanner(StreamTypeFile, source, true, default_dir, true);
-   //printf("# Scanner for '%s' created\n", source);
+   //printf(COMCHAR" Scanner for '%s' created\n", source);
    fflush(stdout);
    ScannerSetFormat(in, TSTPFormat);
 
@@ -886,7 +886,7 @@ bool BatchProcessFile(BatchSpec_p spec,
                              false);
    SecureFClose(fp);
 
-   //fprintf(GlobalOut, "# SZS status Ended for %s\n\n", source);
+   //fprintf(GlobalOut, COMCHAR" SZS status Ended for %s\n\n", source);
    //fflush(GlobalOut);
 
    return res;
@@ -941,7 +941,7 @@ long BatchProcessProblems(BatchSpec_p spec, StructFOFSpec_p ctrl,
       {
          wct_limit = spec->per_prob_limit;
       }
-      /* printf("######### Remaining %d probs, %ld secs, limit %ld\n",
+      /* printf(COMCHAR"######## Remaining %d probs, %ld secs, limit %ld\n",
          sp-i, rest, wct_limit); */
 
       DStrReset(dest_name);
@@ -1001,11 +1001,11 @@ void BatchProcessInteractive(BatchSpec_p spec,
    {
       DStrReset(input);
 
-      fprintf(fp, "# Enter job, 'help' or 'quit', followed by 'go.' on a line of its own:\n");
+      fprintf(fp, COMCHAR" Enter job, 'help' or 'quit', followed by 'go.' on a line of its own:\n");
       fflush(fp);
       if(!ReadTextBlock(input, stdin, "go.\n"))
       {
-         fprintf(fp, "# Error: Read failed (probably EOF)\n");
+         fprintf(fp, COMCHAR" Error: Read failed (probably EOF)\n");
          break;
       }
 
@@ -1021,13 +1021,13 @@ void BatchProcessInteractive(BatchSpec_p spec,
       else if(TestInpId(in, "help"))
       {
          fprintf(fp, "\
-# Enter a job, 'help' or 'quit'. Finish any action with 'go.' on a line\n\
-# of its own. A job consists of an optional job name specifier of the\n\
-# form 'job <ident>.', followed by a specification of a first-order\n\
-# problem in TPTP-3 syntax (including any combination of 'cnf', 'fof' and\n\
-# 'include' statements. The system then tries to solve the specified\n\
-# problem (including the constant background theory) and prints the\n\
-# results of this attempt.\n");
+"COMCHAR" Enter a job, 'help' or 'quit'. Finish any action with 'go.' on a line\n\
+"COMCHAR" of its own. A job consists of an optional job name specifier of the\n\
+"COMCHAR" form 'job <ident>.', followed by a specification of a first-order\n\
+"COMCHAR" problem in TPTP-3 syntax (including any combination of 'cnf', 'fof' and\n\
+"COMCHAR" 'include' statements. The system then tries to solve the specified\n\
+"COMCHAR" problem (including the constant background theory) and prints the\n\
+"COMCHAR" results of this attempt.\n");
       }
       else
       {
@@ -1043,7 +1043,7 @@ void BatchProcessInteractive(BatchSpec_p spec,
          {
             DStrAppendStr(jobname, "unnamed_job");
          }
-         fprintf(fp, "\n# Processing started for %s\n", DStrView(jobname));
+         fprintf(fp, "\n"COMCHAR" Processing started for %s\n", DStrView(jobname));
 
          dummy = ClauseSetAlloc();
          fset = FormulaSetAlloc();
@@ -1062,7 +1062,7 @@ void BatchProcessInteractive(BatchSpec_p spec,
                                    fp,
                                    -1,
                                    true);
-         fprintf(fp, "\n# Processing finished for %s\n\n", DStrView(jobname));
+         fprintf(fp, "\n"COMCHAR" Processing finished for %s\n\n", DStrView(jobname));
       }
       DestroyScanner(in);
    }
@@ -1108,7 +1108,7 @@ void BatchProcessVariants(BatchSpec_p spec, char* variants[], char* provers[],
 
    concrete_prob_count = prob_count*var_count;
    fprintf(GlobalOut,
-           "# Initial: %ld abstract problems, %ld variants, %ld concrete problems\n",
+           COMCHAR" Initial: %ld abstract problems, %ld variants, %ld concrete problems\n",
            prob_count, var_count, concrete_prob_count);
    for(variant = 0; variants[variant]; variant++)
    {
@@ -1118,10 +1118,10 @@ void BatchProcessVariants(BatchSpec_p spec, char* variants[], char* provers[],
       remaining = spec->total_wtc_limit-(now-start);
       concrete_prob_count = (prob_count-solved_count)*(var_count-variant);
 
-      fprintf(GlobalOut, "# Round %ld, working on variant %s, remaining time %lds\n",
+      fprintf(GlobalOut, COMCHAR" Round %ld, working on variant %s, remaining time %lds\n",
               variant, variants[variant], remaining);
 
-      fprintf(GlobalOut, "# %ld unsolved abstract problems, %ld remaining variants,"
+      fprintf(GlobalOut, COMCHAR" %ld unsolved abstract problems, %ld remaining variants,"
               " %ld concrete problems\n",
               prob_count-solved_count, var_count-variant, concrete_prob_count);
 
@@ -1145,7 +1145,7 @@ void BatchProcessVariants(BatchSpec_p spec, char* variants[], char* provers[],
          abstract_name = PStackElementP(spec->source_files, i);
          if(PDArrayElementInt(solved, i))
          {
-            fprintf(GlobalOut, "# Abstract problem %s already solved\n",
+            fprintf(GlobalOut, COMCHAR" Abstract problem %s already solved\n",
                     abstract_name);
          }
          else
@@ -1155,7 +1155,7 @@ void BatchProcessVariants(BatchSpec_p spec, char* variants[], char* provers[],
             per_prob_time = (remaining/concrete_prob_count)+1;
 
             concrete_name = abstract_to_concrete(abstract_name, variants[variant], ".p");
-            fprintf(GlobalOut, "# Trying abstract problem %s via %s for %lds\n",
+            fprintf(GlobalOut, COMCHAR" Trying abstract problem %s via %s for %lds\n",
                     abstract_name, concrete_name, per_prob_time);
 
             DStrReset(dest_name);
@@ -1167,9 +1167,9 @@ void BatchProcessVariants(BatchSpec_p spec, char* variants[], char* provers[],
             DStrAppendStr(dest_name, PStackElementP(spec->dest_files, i));
 
 
-            fprintf(GlobalOut, "\n# Processing %s -> %s\n",
+            fprintf(GlobalOut, "\n"COMCHAR" Processing %s -> %s\n",
                     concrete_name, DStrView(dest_name));
-            fprintf(GlobalOut, "# SZS status Started for %s\n", concrete_name);
+            fprintf(GlobalOut, COMCHAR" SZS status Started for %s\n", concrete_name);
             fflush(GlobalOut);
 
 
@@ -1198,16 +1198,16 @@ void BatchProcessVariants(BatchSpec_p spec, char* variants[], char* provers[],
                solved_count++;
                PDArrayAssignInt(solved, i, 1);
                concrete_prob_count -= (var_count-variant);
-               //printf("# SUCCESS: %ld abstract solved, %ld concrete remaining\n",
+               //printf(COMCHAR" SUCCESS: %ld abstract solved, %ld concrete remaining\n",
                //solved_count, concrete_prob_count);
             }
             else
             {
                concrete_prob_count--;
-               //printf("# FAILURE: %ld abstract solved, %ld concrete remaining\n",
+               //printf(COMCHAR" FAILURE: %ld abstract solved, %ld concrete remaining\n",
                //solved_count, concrete_prob_count);
             }
-            fprintf(GlobalOut, "# SZS status Ended for %s\n\n", concrete_name);
+            fprintf(GlobalOut, COMCHAR" SZS status Ended for %s\n\n", concrete_name);
             fflush(GlobalOut);
 
             FREE(concrete_name);

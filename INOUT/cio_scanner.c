@@ -659,7 +659,7 @@ static void compose_errmsg(DStr_p err, Scanner_p in, char* msg)
 
 bool str_n_element(char* str, char* ids, int len)
 {
-   //printf("# str_n_element(%s, %s) = ", str, ids);
+   //printf(COMCHAR" str_n_element(%s, %s) = ", str, ids);
 
    if(strncmp(str, ids, len)==0)
    {
@@ -849,7 +849,7 @@ Scanner_p CreateScanner(StreamType type, char *name, bool
    handle->include_key = NULL;
    handle->format = LOPFormat;
 
-   //printf("# CreateScanner(%s, %s, %d, %s, %d)\n", type, name,
+   //printf(COMCHAR" CreateScanner(%s, %s, %d, %s, %d)\n", type, name,
    //ignore_comments, default_dir, fail);
 
    if((type == StreamTypeFile && strcmp(name,"-")==0)||
@@ -990,17 +990,17 @@ void ScannerSetFormat(Scanner_p scanner, IOFormat fmt)
    {
       if(TestInpId(scanner, "fof|cnf|tff|thf|tcf|include"))
       {
-         //printf("# TSTP!\n");
+         //printf(COMCHAR" TSTP!\n");
          fmt = TSTPFormat;
       }
       else if(TestInpId(scanner, "input_clause|input_formula"))
       {
-         //printf("# TPTP!\n");
+         //printf(COMCHAR" TPTP!\n");
          fmt = TPTPFormat;
       }
       else
       {
-         //printf("# LOP!\n");
+         //printf(COMCHAR" LOP!\n");
          fmt = LOPFormat;
       }
    }

@@ -239,7 +239,7 @@ void DBGTermCheckUnownedSubtermReal(FILE* out, Term_p t, char* location)
 {
    if(TermFindUnownedSubterm(t))
    {
-      fprintf(out, "# UnknownSubterm(%s): ", location);
+      fprintf(out, COMCHAR" UnknownSubterm(%s): ", location);
       TermPrint(stdout, t, t->owner_bank->sig, DEREF_NEVER);
       fprintf(stdout, "\n");
    }
@@ -644,7 +644,7 @@ bool TermHasInterpretedSymbol(Term_p term)
    while(!PStackEmpty(stack))
    {
       term  = PStackPopP(stack);
-      /* printf("#Fcode: %ld  Sort: %d\n", term->f_code, term->sort); */
+      /* printf(COMCHAR"Fcode: %ld  Sort: %d\n", term->f_code, term->sort); */
       if(SortIsInterpreted(term->type->f_code))
       {
          res = true;

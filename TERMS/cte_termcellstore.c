@@ -354,13 +354,10 @@ void TermCellStorePrintDistrib(FILE* out, TermCellStore_p store)
 
    for(i=0; i<TERM_STORE_HASH_SIZE; i++)
    {
-      fprintf(out, "# Hash %4d: %6ld\n", i, TermTreeNodes(store->store[i]));
+      fprintf(out, COMCHAR" Hash %4d: %6ld\n", i, TermTreeNodes(store->store[i]));
    }
 }
 
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
-

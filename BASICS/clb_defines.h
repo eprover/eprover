@@ -69,6 +69,10 @@ typedef int (*ComparisonFunctionType)(const void*, const void*);
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
+// Character used to introduce comments
+#define COMCHAR "%%"
+
+
 #undef MAX
 #define MAX(x,y) ({ __typeof__ (x) _x = (x);    \
          __typeof__ (y) _y = (y);               \
@@ -115,9 +119,9 @@ static inline size_t WriteStr(int fd, const char* msg);
 
 
 #ifdef PRINT_TSTP_STATUS
-#define TSTPOUT(file,msg) fprintf(file, "# SZS status %s\n", msg); fflush(file)
+#define TSTPOUT(file,msg) fprintf(file, COMCHAR" SZS status %s\n", msg); fflush(file)
 #define TSTPOUTFD(fd,msg) do{                                   \
-      WriteStr(fd, "# SZS status ");                            \
+      WriteStr(fd, COMCHAR" SZS status ");                            \
       WriteStr(fd, msg);                                        \
       WriteStr(fd, "\n");                                       \
    }while(0)

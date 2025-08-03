@@ -2096,9 +2096,9 @@ bool ImmediateClausification(Clause_p cl, ClauseSet_p store, ClauseSet_p archive
             TFormulaSetUnrollFOOL(work_set, archive, bank);
          }
          FormulaSetSimplify(work_set, bank, false);
-         //printf("# TFormulaSetIntroduceDefs called from ImmediateClausification\n");
+         //printf(COMCHAR" TFormulaSetIntroduceDefs called from ImmediateClausification\n");
          TFormulaSetIntroduceDefs(work_set, archive, bank, DEFAULT_RENAMING_LIMIT);
-         //printf("# TFormulaSetIntroduceDefs call from ImmediateClausification end\n");
+         //printf(COMCHAR" TFormulaSetIntroduceDefs call from ImmediateClausification end\n");
 
          while (!FormulaSetEmpty(work_set))
          {

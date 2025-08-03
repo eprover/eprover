@@ -564,7 +564,7 @@ Term_p  VarBankGetFreshVar(VarBank_p bank, Type_p t)
    assert(stack);
    if(UNLIKELY(PStackGetSP(stack)<=v_count))
    {
-      //printf("# XXX %s %ld %d  ", bank->id, PStackGetSP(stack), v_count);
+      //printf(COMCHAR" XXX %s %ld %d  ", bank->id, PStackGetSP(stack), v_count);
       bank->fresh_count+=2;
       res = VarBankVarAssertAlloc(bank, -(bank->fresh_count), t);
       //printf("=> %ld %d\n", PStackGetSP(stack), v_count);
@@ -647,7 +647,7 @@ Term_p VarBankExtNameAssertAllocSort(VarBank_p bank, char* name, Type_p type)
 
    if(Verbose>=5)
    {
-      fprintf(stderr, "# Alloc variable %s with sort ", name);
+      fprintf(stderr, COMCHAR" Alloc variable %s with sort ", name);
       TypePrintTSTP(stderr, bank->sort_table, type);
       fputc('\n', stderr);
    }

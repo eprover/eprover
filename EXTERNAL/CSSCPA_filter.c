@@ -145,7 +145,7 @@ int main(int argc, char* argv[])
       CSSCPALoop(in, procstate);
       DestroyScanner(in);
    }
-   fprintf(GlobalOut, "\n# Resulting clause set:\n");
+   fprintf(GlobalOut, "\n"COMCHAR" Resulting clause set:\n");
    ClauseSetTSTPPrint(GlobalOut, procstate->pos_units, true);
    ClauseSetTSTPPrint(GlobalOut, procstate->neg_units, true);
    ClauseSetTSTPPrint(GlobalOut, procstate->non_units, true);

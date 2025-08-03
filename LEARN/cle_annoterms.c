@@ -375,7 +375,7 @@ void AnnoSetPrint(FILE* out, AnnoSet_p set)
    PStack_p stack;
    NumTree_p handle;
 
-   fprintf(out, "\n# Annotated terms:\n");
+   fprintf(out, "\n"COMCHAR" Annotated terms:\n");
 
    stack = NumTreeTraverseInit(set->set);
    while((handle = NumTreeTraverseNext(stack)))

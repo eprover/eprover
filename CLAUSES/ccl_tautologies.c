@@ -365,7 +365,7 @@ bool ClauseIsTautologyReal(TB_p work_bank, Clause_p clause, bool copy_cl)
    }
    if(clause->neg_lit_no > MAX_EQ_TAUTOLOGY_CHECK_LITNO)
    { /* Emergency exit for large clauses! */
-      //printf("# ClauseIsTautology() - neg_lit_no: %d\n", clause->neg_lit_no);
+      //printf(COMCHAR" ClauseIsTautology() - neg_lit_no: %d\n", clause->neg_lit_no);
       return ClauseIsTrivial(clause);
    }
    work_copy = copy_cl ? ClauseCopy(clause, work_bank) : clause;

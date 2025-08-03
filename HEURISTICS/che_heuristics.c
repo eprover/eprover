@@ -76,7 +76,7 @@ false
    if(SpecNoEq(spec))
    {
       control->heuristic_parms.ac_handling = NoACHandling;
-      OUTPRINT(1, "# No equality, disabling AC handling.\n#\n");
+      OUTPRINT(1, COMCHAR" No equality, disabling AC handling.\n#\n");
    }
 }
 

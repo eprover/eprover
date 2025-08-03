@@ -70,7 +70,7 @@ static void print_weight_array(FILE* out,OCB_p ocb)
 {
    FunCode i;
 
-   fprintf(out, "# Ordering weights: ");
+   fprintf(out, COMCHAR" Ordering weights: ");
    for(i = 1; i<=ocb->sig->f_count; i++)
    {
       if(!SigIsSpecial(ocb->sig, i))

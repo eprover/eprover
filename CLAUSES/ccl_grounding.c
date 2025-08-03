@@ -936,11 +936,12 @@ bool ClauseCreateGroundInstances(TB_p bank, Clause_p clause,
 
    if(OutputLevel == 1)
    {
-      fputc('#', GlobalOut);fflush(GlobalOut);
+      fprintf(GlobalOut, COMCHAR);
+      fflush(GlobalOut);
    }
    else if(OutputLevel >=2)
    {
-      fputs("# ", GlobalOut);
+      fputs(COMCHAR" ", GlobalOut);
       ClausePrint(GlobalOut, clause, true);
       fputc('\n', GlobalOut);
    }
@@ -1025,7 +1026,7 @@ bool ClauseSetCreateGroundInstances(TB_p bank, ClauseSet_p set,
          est_inst = est_inst*tmp;
          if(est_inst > give_up)
          {
-            fprintf(GlobalOut, "\n# Failure: User resource limit"
+            fprintf(GlobalOut, "\n"COMCHAR" Failure: User resource limit"
                     " exceeded (estimated number of instances)!\n");
             exit(NO_ERROR);
          }
@@ -1123,7 +1124,7 @@ bool ClauseSetCreateConstrGroundInstances(TB_p bank, ClauseSet_p set,
          clause_estimate = varinstestimate(inst);
          if((GroundSetMembers(groundset)+clause_estimate) > give_up)
          {
-            fprintf(GlobalOut, "\n# Failure: User resource limit"
+            fprintf(GlobalOut, "\n"COMCHAR" Failure: User resource limit"
                     " exceeded (estimated number of instances)!\n");
             exit(NO_ERROR);
          }

@@ -2437,7 +2437,7 @@ void DerivationPrint(FILE* out, Derivation_p derivation)
             DerivedTSTPPrint(out, derivation->sig, node);
             break;
       default:
-            fprintf(out, "# Output format not implemented.");
+            fprintf(out, COMCHAR" Output format not implemented.");
             break;
       }
       fprintf(out, "\n");
@@ -2509,7 +2509,7 @@ void DerivationPrintConditional(FILE* out, char* status, Derivation_p derivation
 {
    if(print_derivation == POList)
    {
-      fprintf(out, "# SZS output start %s\n", status);
+      fprintf(out, COMCHAR" SZS output start %s\n", status);
       if(sig->typed_symbols)
       {
          NumTree_p symbols = NULL;
@@ -2523,7 +2523,7 @@ void DerivationPrintConditional(FILE* out, char* status, Derivation_p derivation
          PTreeFree(types);
       }
       DerivationPrint(GlobalOut, derivation);
-      fprintf(out, "# SZS output end %s\n", status);
+      fprintf(out, COMCHAR" SZS output end %s\n", status);
    }
    else if(print_derivation >= POGraph1)
    {
@@ -2532,25 +2532,25 @@ void DerivationPrintConditional(FILE* out, char* status, Derivation_p derivation
    DerivationAnalyse(derivation);
    if(print_analysis)
    {
-      fprintf(GlobalOut, "# Proof object total steps             : %lu\n",
+      fprintf(GlobalOut, COMCHAR" Proof object total steps             : %lu\n",
               derivation->clause_step_count+derivation->formula_step_count);
-      fprintf(GlobalOut, "# Proof object clause steps            : %lu\n",
+      fprintf(GlobalOut, COMCHAR" Proof object clause steps            : %lu\n",
               derivation->clause_step_count);
-      fprintf(GlobalOut, "# Proof object formula steps           : %lu\n",
+      fprintf(GlobalOut, COMCHAR" Proof object formula steps           : %lu\n",
               derivation->formula_step_count);
-      fprintf(GlobalOut, "# Proof object conjectures             : %lu\n",
+      fprintf(GlobalOut, COMCHAR" Proof object conjectures             : %lu\n",
               derivation->clause_conjecture_count+derivation->formula_conjecture_count);
-      fprintf(GlobalOut, "# Proof object clause conjectures      : %lu\n",
+      fprintf(GlobalOut, COMCHAR" Proof object clause conjectures      : %lu\n",
               derivation->clause_conjecture_count);
-      fprintf(GlobalOut, "# Proof object formula conjectures     : %lu\n",
+      fprintf(GlobalOut, COMCHAR" Proof object formula conjectures     : %lu\n",
               derivation->formula_conjecture_count);
-      fprintf(GlobalOut, "# Proof object initial clauses used    : %lu\n",
+      fprintf(GlobalOut, COMCHAR" Proof object initial clauses used    : %lu\n",
               derivation->initial_clause_count);
-      fprintf(GlobalOut, "# Proof object initial formulas used   : %lu\n",
+      fprintf(GlobalOut, COMCHAR" Proof object initial formulas used   : %lu\n",
               derivation->initial_formula_count);
-      fprintf(GlobalOut, "# Proof object generating inferences   : %lu\n",
+      fprintf(GlobalOut, COMCHAR" Proof object generating inferences   : %lu\n",
               derivation->generating_inf_count);
-      fprintf(GlobalOut, "# Proof object simplifying inferences  : %lu\n",
+      fprintf(GlobalOut, COMCHAR" Proof object simplifying inferences  : %lu\n",
               derivation->simplifying_inf_count);
    }
 }

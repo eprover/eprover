@@ -772,7 +772,7 @@ void OverlapIndexFPLeafPrint(FILE* out, PStack_p stack, FPTree_p leaf)
 {
    PStack_p iter = PStackAlloc();
 
-   fprintf(out, "# ");
+   fprintf(out, COMCHAR" ");
    PStackPrintInt(out, "%4ld.", stack);
    fprintf(out, ":%ld terms\n", PObjTreeNodes(leaf->payload));
    OverlapIndexSubtermTreePrint(out, leaf->payload);
@@ -935,5 +935,3 @@ void OverlapIndexDeleteIntoClause2(OverlapIndex_p tindex,
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-

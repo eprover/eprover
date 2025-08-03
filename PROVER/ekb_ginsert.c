@@ -223,9 +223,9 @@ int main(int argc, char* argv[])
    neg_steps = proof_steps?kb_desc->neg_proportion*proof_steps:
       kb_desc->fail_neg_examples;
    PCLProtSelectExamples(prot, neg_steps);
-   fprintf(out, "# Axioms:\n");
+   fprintf(out, COMCHAR" Axioms:\n");
    PCLProtPrintPropClauses(out, prot, PCLIsInitial, lop_format);
-   fprintf(out, ".\n\n# Examples:\n");
+   fprintf(out, ".\n\n"COMCHAR" Examples:\n");
    PCLProtPrintExamples(out, prot);
    PCLProtFree(prot);
    OutClose(out);

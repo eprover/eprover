@@ -328,7 +328,7 @@ void DRelationAddFormulaSet(DRelation_p drel,
 {
    WFormula_p handle;
 
-   //printf("# Adding formula set with %ld formulas (fd:%d)\n", FormulaSetCardinality(set),force_def);
+   //printf(COMCHAR" Adding formula set with %ld formulas (fd:%d)\n", FormulaSetCardinality(set),force_def);
 
    for(handle = set->anchor->succ;
        handle != set->anchor;
@@ -615,8 +615,8 @@ long SelectDefiningAxioms(DRelation_p drel,
             assert(false && "Unknown axiom type!");
             break;
       }
-      //printf("# SymbolstackSP: %ld\n", PStackGetSP(symbol_stack));
-      //printf("# DRel total entries: %ld\n", DRelationTotalEntries(drel));
+      //printf(COMCHAR" SymbolstackSP: %ld\n", PStackGetSP(symbol_stack));
+      //printf(COMCHAR" DRel total entries: %ld\n", DRelationTotalEntries(drel));
       for(ssp=0; ssp<PStackGetSP(symbol_stack); ssp++)
       {
          i = PStackElementInt(symbol_stack, ssp);
@@ -688,7 +688,7 @@ long SelectAxioms(GenDistrib_p      f_distrib,
 
    assert(PStackGetSP(clause_sets)==PStackGetSP(formula_sets));
 
-   //fprintf(GlobalOut, "# Axiom selection starts (%ld, %lld)\n",
+   //fprintf(GlobalOut, COMCHAR" Axiom selection starts (%ld, %lld)\n",
    //seed_start, GetSecTimeMod());
 
    //GenDistribPrint(stdout, f_distrib, 10);
@@ -704,7 +704,7 @@ long SelectAxioms(GenDistrib_p      f_distrib,
                            ax_filter->trim_implications,
                            ax_filter->defined_symbols_in_drel,
                            formula_sets);
-   /* fprintf(GlobalOut, "# DRelation constructed (%lld)\n",
+   /* fprintf(GlobalOut, COMCHAR" DRelation constructed (%lld)\n",
     * GetSecTimeMod()); */
    // DRelationPrintDebug(stderr, drel, f_distrib->sig);
    for(i=seed_start; i<PStackGetSP(clause_sets); i++)
@@ -716,9 +716,9 @@ long SelectAxioms(GenDistrib_p      f_distrib,
                                               selq,
                                               ax_filter->use_hypotheses);
    }
-   //fprintf(GlobalOut, "# Hypotheses found %ld (%lld)\n", seeds,
+   //fprintf(GlobalOut, COMCHAR" Hypotheses found %ld (%lld)\n", seeds,
    //GetSecTimeMod());
-   VERBOSE(fprintf(stderr, "# Found %ld seed clauses/formulas\n", seeds););
+   VERBOSE(fprintf(stderr, COMCHAR" Found %ld seed clauses/formulas\n", seeds););
    if(!seeds)
    {
       /* No goals-> the empty set contains all relevant clauses */
@@ -733,7 +733,7 @@ long SelectAxioms(GenDistrib_p      f_distrib,
       {
          max_result_size = ax_filter->max_set_size;
       }
-      //printf("# max_result_size = %ld\n", max_result_size);
+      //printf(COMCHAR" max_result_size = %ld\n", max_result_size);
       if(true)
          /* "true" may be exported as an option eventually */
       {
@@ -764,7 +764,7 @@ long SelectAxioms(GenDistrib_p      f_distrib,
    // }
    // fprintf(stderr, ".\n");
    PStackClauseDelProp(res_clauses, CPIsRelevant);
-   /* fprintf(GlobalOut, "# Axioms selected (%lld)\n",
+   /* fprintf(GlobalOut, COMCHAR" Axioms selected (%lld)\n",
       GetSecTimeMod()); */
    PQueueFree(selq);
    DRelationFree(drel);
@@ -890,12 +890,12 @@ long SelectDefinitions(PStack_p clause_sets, PStack_p formula_sets,
 
 void DRelPrintDebug(FILE* out, DRel_p rel, Sig_p sig)
 {
-   fprintf(out, "# %6ld %-15s: %6ld clauses, %6ld formulas\n",
+   fprintf(out, COMCHAR" %6ld %-15s: %6ld clauses, %6ld formulas\n",
            rel->f_code,
            SigFindName(sig, rel->f_code),
            PStackGetSP(rel->d_clauses),
            PStackGetSP(rel->d_formulas));
-   fprintf(out, "#formulas: ");
+   fprintf(out, COMCHAR"formulas: ");
    for(PStackPointer i = 0; i<PStackGetSP(rel->d_formulas); i++)
    {
       fprintf(out, "%s, ",

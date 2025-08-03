@@ -264,7 +264,7 @@ void ClauseSetCollectSigFeatures(Sig_p sig, ClauseSet_p set,
    for(i=sig->internal_symbols+1; i<=sig->f_count; i++)
    {
       specftrs->features[SPECSIG_GLOBAL_SIG+SigGetFeatureOffset(sig, i)]++;
-      //printf("# %s : %d -> %d\n", sig->f_info[i].name, sig->f_info[i].arity,
+      //printf(COMCHAR" %s : %d -> %d\n", sig->f_info[i].name, sig->f_info[i].arity,
       //SigGetFeatureOffset(sig, i));
    }
 }

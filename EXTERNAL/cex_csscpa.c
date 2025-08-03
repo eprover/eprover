@@ -84,7 +84,7 @@ static void print_csscpa_state(CSSCPAState_p state,
                 ClauseStatusType clause_status,
                 Clause_p clause)
 {
-   fprintf(GlobalOut,"# CSSCPAState: %-10s",ClauseStatusString(clause_status));
+   fprintf(GlobalOut,COMCHAR" CSSCPAState: %-10s",ClauseStatusString(clause_status));
    fprintf(GlobalOut,
       " by %d, %ld, %ld, %ld (system, clauses,literals,weight)\n",
       clause ? ClauseQueryCSSCPASource(clause) : 0,
@@ -289,7 +289,7 @@ bool CSSCPAProcessClause(CSSCPAState_p state, Clause_p clause,
       clause_status = rejected;
       if(OutputLevel)
       {
-    fprintf(GlobalOut, "# Clause %ld rejected (Tautology)\n",
+    fprintf(GlobalOut, COMCHAR" Clause %ld rejected (Tautology)\n",
        clause->ident);
       }
       ClauseFree(clause);
@@ -309,7 +309,7 @@ bool CSSCPAProcessClause(CSSCPAState_p state, Clause_p clause,
       {
          if(OutputLevel)
          {
-       fprintf(GlobalOut, "# Clause %ld rejected (subsumed by %ld)\n",
+       fprintf(GlobalOut, COMCHAR" Clause %ld rejected (subsumed by %ld)\n",
           clause->ident,handle->ident);
          }
          clause_status = rejected;
@@ -351,7 +351,7 @@ bool CSSCPAProcessClause(CSSCPAState_p state, Clause_p clause,
        {
 /*----Added by Geoff */
           clause_status = contradicts;
-          OUTPRINT(1, "# Unit contradiction found!\n");
+          OUTPRINT(1, COMCHAR" Unit contradiction found!\n");
        }
     }
       }
@@ -368,7 +368,7 @@ bool CSSCPAProcessClause(CSSCPAState_p state, Clause_p clause,
             if(OutputLevel)
             {
           fprintf(GlobalOut,
-             "# Clause %ld removed from list (subsumed by %ld)\n",
+             COMCHAR" Clause %ld removed from list (subsumed by %ld)\n",
              handle->ident, clause->ident);
             }
        ClauseSetDeleteEntry(handle);
@@ -392,7 +392,7 @@ bool CSSCPAProcessClause(CSSCPAState_p state, Clause_p clause,
          if(OutputLevel)
          {
        fprintf(GlobalOut,
-          "# Clause %ld accepted from %d (%s)\n",
+          COMCHAR" Clause %ld accepted from %d (%s)\n",
           clause->ident, ClauseQueryCSSCPASource(clause),
             ClauseStatusString(clause_status));
          }
@@ -401,7 +401,7 @@ bool CSSCPAProcessClause(CSSCPAState_p state, Clause_p clause,
       {
          if(OutputLevel)
          {
-       fprintf(GlobalOut, "# Clause %ld rejected (weighty)\n",
+       fprintf(GlobalOut, COMCHAR" Clause %ld rejected (weighty)\n",
           clause->ident);
          }
          clause_status = rejected;

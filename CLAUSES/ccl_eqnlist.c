@@ -1025,7 +1025,7 @@ bool EqnListIsTrivial(Eqn_p list)
 {
    Eqn_p handle;
 
-   //printf("# EqnListIsTrivial(%d)\n", EqnListLength(list));
+   //printf(COMCHAR" EqnListIsTrivial(%d)\n", EqnListLength(list));
 
    while(list)
    {
@@ -1041,7 +1041,7 @@ bool EqnListIsTrivial(Eqn_p list)
       }
       list = list->next;
    }
-   //printf("# Done\n");
+   //printf(COMCHAR" Done\n");
    return false;
 }
 
@@ -1329,7 +1329,6 @@ int EqnListMaximalLiterals(OCB_p ocb, Eqn_p list)
 
    res = EqnListSetProp(list, EPIsStrictlyMaximal);
    EqnListDelProp(list, EPIsMaximal);
-   //printf("# Drinnen %d\n", res);
 
    while(list)
    {
@@ -1374,7 +1373,6 @@ int EqnListMaximalLiterals(OCB_p ocb, Eqn_p list)
    res = EqnListSetProp(maxlits, EPIsMaximal);
    list = EqnListFromStack(archive);
 
-   //printf("# Draussen\n");
    return res;
 }
 

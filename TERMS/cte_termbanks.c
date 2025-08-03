@@ -2124,7 +2124,7 @@ long TBGCSweep(TB_p bank)
    if(OutputLevel)
    {
       fprintf(GlobalOut,
-              "# Garbage collection reclaimed %ld unused term cells.\n",
+              COMCHAR" Garbage collection reclaimed %ld unused term cells.\n",
               recovered);
    }
 #endif

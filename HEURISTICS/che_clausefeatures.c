@@ -475,7 +475,7 @@ void ClauseLinePrint(FILE* out, Clause_p clause, bool printinfo)
    ClausePrint(out, clause, true);
    if(printinfo)
    {
-      fputs(" # ", out);
+      fputs(" "COMCHAR" ", out);
       ClauseInfoPrint(out, clause);
    }
    fputc('\n', out);
@@ -499,20 +499,20 @@ void ClausePropInfoPrint(FILE* out, Clause_p clause)
 {
    assert(clause);
 
-   fprintf(out, "# ");
+   fprintf(out, COMCHAR" ");
    ClausePCLPrint(out, clause, true);
    fprintf(out,
       "\n"
-      "# Standardweight: %6ld\n"
-      "# Symbol count  : %6ld\n"
-      "#    F. symbols : %6ld\n"
-      "#    Variables  : %6ld\n"
-      "#    Constants  : %6ld\n"
-      "#    P. symbols : %6ld\n"
-      "# Depth         : %6ld\n"
-           "# Literals      : %6d\n"
-           "#    ...positive: %6d\n"
-           "#    ...negative: %6d\n",
+      COMCHAR" Standardweight: %6ld\n"
+      COMCHAR" Symbol count  : %6ld\n"
+      COMCHAR"    F. symbols : %6ld\n"
+      COMCHAR"    Variables  : %6ld\n"
+      COMCHAR"    Constants  : %6ld\n"
+      COMCHAR"    P. symbols : %6ld\n"
+      COMCHAR" Depth         : %6ld\n"
+           COMCHAR" Literals      : %6d\n"
+           COMCHAR"    ...positive: %6d\n"
+           COMCHAR"    ...negative: %6d\n",
       (long)ClauseStandardWeight(clause),
       (long)ClauseSymTypeWeight(clause, 1,1,1,1,1,1,1,1),
       (long)ClauseSymTypeWeight(clause, 1,1,1,0,1,0,0,1),
@@ -529,11 +529,3 @@ void ClausePropInfoPrint(FILE* out, Clause_p clause)
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
-
-
-
-
-
-

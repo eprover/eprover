@@ -389,22 +389,22 @@ void PCLProtPropDataPrint(FILE* out, PCLPropData_p data)
       data->pos_clauses+data->neg_clauses+data->mix_clauses;
 
    fprintf(out,
-      "# Protocol properties\n"
-      "# ===================\n"
-      "# Number of clauses                  : %6ld\n"
-      "# ...of those positive               : %6ld\n"
-      "# ...of those negative               : %6ld\n"
-      "# ...of those mixed                  : %6ld\n"
-      "# Average number of literals         : %6.4f\n"
-      "# ...in positive clauses             : %6.4f\n"
-      "# ...in negative clauses             : %6.4f\n"
-      "# ...in mixed clauses                : %6.4f\n"
-      "# ...positive literals only          : %6.4f\n"
-      "# ...negative literals only          : %6.4f\n"
-      "# Average number of function  symbols: %6.4f\n"
-      "# Average number of variable  symbols: %6.4f\n"
-      "# Average number of constant  symbols: %6.4f\n"
-      "# Average number of predicate symbols: %6.4f\n",
+      COMCHAR" Protocol properties\n"
+      COMCHAR" ===================\n"
+      COMCHAR" Number of clauses                  : %6ld\n"
+      COMCHAR" ...of those positive               : %6ld\n"
+      COMCHAR" ...of those negative               : %6ld\n"
+      COMCHAR" ...of those mixed                  : %6ld\n"
+      COMCHAR" Average number of literals         : %6.4f\n"
+      COMCHAR" ...in positive clauses             : %6.4f\n"
+      COMCHAR" ...in negative clauses             : %6.4f\n"
+      COMCHAR" ...in mixed clauses                : %6.4f\n"
+      COMCHAR" ...positive literals only          : %6.4f\n"
+      COMCHAR" ...negative literals only          : %6.4f\n"
+      COMCHAR" Average number of function  symbols: %6.4f\n"
+      COMCHAR" Average number of variable  symbols: %6.4f\n"
+      COMCHAR" Average number of constant  symbols: %6.4f\n"
+      COMCHAR" Average number of predicate symbols: %6.4f\n",
       clauses,
       data->pos_clauses,
       data->neg_clauses,
@@ -419,14 +419,14 @@ void PCLProtPropDataPrint(FILE* out, PCLPropData_p data)
       (double)(data->var_count)/clauses,
       (double)(data->const_count)/clauses,
       (double)(data->pred_count)/clauses);
-   fprintf(out, "# Longest Clause (if any): \n");
+   fprintf(out, COMCHAR" Longest Clause (if any): \n");
    PCLStepPrint(out, data->longest_clause);
-   fprintf(out, "\n# Largest Clause (if any): \n");
+   fprintf(out, "\n"COMCHAR" Largest Clause (if any): \n");
    PCLStepPrint(out, data->max_symbol_clause);
-   fprintf(out, "\n# Heaviest Clause (if any): \n");
+   fprintf(out, "\n"COMCHAR" Heaviest Clause (if any): \n");
    ClausePropInfoPrint(out, data->max_standard_weight_clause->logic.clause);
    PCLStepPrint(out, data->max_standard_weight_clause);
-   fprintf(out, "\n# Deepest Clause (if any): \n");
+   fprintf(out, "\n"COMCHAR" Deepest Clause (if any): \n");
    PCLStepPrint(out, data->max_depth_clause);
    fprintf(out, "\n");
 }
@@ -435,19 +435,3 @@ void PCLProtPropDataPrint(FILE* out, PCLPropData_p data)
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

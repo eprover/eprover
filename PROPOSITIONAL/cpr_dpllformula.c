@@ -163,7 +163,7 @@ void DPLLFormulaPrint(FILE* out,DPLLFormula_p form, DPLLOutputFormat format,
       {
     if(form->atoms[i].pos_occur || form->atoms[i].neg_occur)
     {
-       fprintf(out, "# %4ld: %4ld %4ld\n", i,
+       fprintf(out, COMCHAR" %4ld: %4ld %4ld\n", i,
           form->atoms[i].pos_occur,
           form->atoms[i].pos_occur);
     }
@@ -294,5 +294,3 @@ void DPLLFormulaParseLOP(Scanner_p in, Sig_p sig, DPLLFormula_p form)
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-

@@ -100,7 +100,7 @@ static double get_default_eval(AnnoSet_p annoset,double evalweights[])
    DDArrayAssign(old, 2, DDArrayElement(old, 2)+1);
 
    result = AnnotationEval(anno,evalweights);
-   /* printf("# ");AnnotationPrint(stdout, anno);
+   /* printf(COMCHAR" ");AnnotationPrint(stdout, anno);
       printf(" -> %f\n",result); */
    AnnotationFree(anno);
    return result;

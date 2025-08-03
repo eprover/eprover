@@ -1235,7 +1235,7 @@ long ClauseComputeLINormalform(OCB_p ocb, TB_p bank, Clause_p clause,
 
    old_deriv_sp =  clause->derivation?PStackGetSP(clause->derivation):0;
 
-   /* printf("# ClauseComputeLINormalform(%ld)...\n",clause->ident); */
+   /* printf(COMCHAR" ClauseComputeLINormalform(%ld)...\n",clause->ident); */
    /* if(prefer_general!=0)
       {
       printf("ClauseComputeLINormalform(level=%d prefer_general=%d)\n",

@@ -103,11 +103,11 @@ void KBDescFree(KBDesc_p desc)
 void KBDescPrint(FILE* out, KBDesc_p desc)
 {
    fprintf(out,
-      "# E theorem prover knowledge base description\n"
+      COMCHAR" E theorem prover knowledge base description\n"
       "Version     : \"%s\"\n"
-      "NegProp     : %8f  # "
+      "NegProp     : %8f  "COMCHAR" "
       "Negative example proportion (successful proof search)\n"
-      "FailExamples: %8ld  # "
+      "FailExamples: %8ld  "COMCHAR" "
       "Number of clauses from a failed proof search\n",
       desc->version,
       desc->neg_proportion,
@@ -179,5 +179,3 @@ char* KBFileName(DStr_p name, char *basename, char* file)
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-

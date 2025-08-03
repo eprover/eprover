@@ -133,7 +133,7 @@ void ESignalHandler(int mysignal)
          }
          else
          {
-            WriteStr(GlobalOutFD, "\n# Failure: Resource limit exceeded (time)\n");
+            WriteStr(GlobalOutFD, "\n"COMCHAR" Failure: Resource limit exceeded (time)\n");
             TSTPOUTFD(GlobalOutFD, "ResourceOut");
             Error("CPU time limit exceeded, terminating", CPU_LIMIT_ERROR);
          }

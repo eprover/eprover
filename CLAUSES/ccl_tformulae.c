@@ -470,28 +470,28 @@ static TFormula_p elem_tform_tptp_parse(Scanner_p in, TB_p terms)
 
 static TFormula_p clause_tform_tstp_parse(Scanner_p in, TB_p terms)
 {
-   //printf("# clause_tform_tstp_parse()\n");
+   //printf(COMCHAR" clause_tform_tstp_parse()\n");
    TFormula_p head, rest;
    Eqn_p lit;
 
    lit = EqnFOFParse(in, terms);
    head = TFormulaLitAlloc(lit);
    EqnFree(lit);
-   //printf("# head parsed\n");
+   //printf(COMCHAR" head parsed\n");
    while(TestInpTok(in, FOFOr))
    {
       AcceptInpTok(in, FOFOr);
       lit = EqnFOFParse(in, terms);
-      //printf("# lit parsed:");
+      //printf(COMCHAR" lit parsed:");
       //EqnPrint(stdout, lit, false, true);
       //printf("\n");
       rest = TFormulaLitAlloc(lit);
       EqnFree(lit);
-      //printf("# rest allocated\n");
+      //printf(COMCHAR" rest allocated\n");
       head = TFormulaFCodeAlloc(terms, terms->sig->or_code, head, rest);
-      //printf("# allocated\n");
+      //printf(COMCHAR" allocated\n");
    }
-   // printf("# done:");
+   // printf(COMCHAR" done:");
    //TFormulaTPTPPrint(stdout, terms, head, true, true);
    //printf("\n");
    return head;
@@ -1941,7 +1941,7 @@ TFormula_p TcfTSTPParse(Scanner_p in, TB_p terms)
       FunCode quantor;
       quantor = tptp_quantor_parse(terms->sig,in);
       AcceptInpTok(in, OpenSquare);
-      // printf("# Begin  quantified_tform_tstp_parse()\n");
+      // printf(COMCHAR" Begin  quantified_tform_tstp_parse()\n");
       res = quantified_tform_tstp_parse(in, terms, quantor, true);
    }
    else
@@ -2481,7 +2481,7 @@ int TFormulaDecodePolarity(TB_p bank, TFormula_p form)
    {
       return -1;
    }
-   //printf("# Formula without polarity: ");
+   //printf(COMCHAR" Formula without polarity: ");
    //TFormulaTPTPPrint(stdout, bank, form, true, false);
    //printf("\n");
    assert(false && "Formula without polarity !?!");

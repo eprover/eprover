@@ -213,12 +213,12 @@ EPCtrl_p ECtrlCreateGeneric(char* prover, char* name,
    DStrAppendInt(cmd, cpu_limit);
    DStrAppendStr(cmd, " ");
    DStrAppendStr(cmd, file);
-   //printf("# Command: %s\n", DStrView(cmd));
+   //printf(COMCHAR" Command: %s\n", DStrView(cmd));
 
    res->prob_time  = cpu_limit;
    res->start_time = GetSecTime();
    res->input_file = file;
-   //printf("# Executing: %s\n", DStrView(cmd));
+   //printf(COMCHAR" Executing: %s\n", DStrView(cmd));
    res->pipe = popen(DStrView(cmd), "r");
    if(!res->pipe)
    {
@@ -231,8 +231,8 @@ EPCtrl_p ECtrlCreateGeneric(char* prover, char* name,
    {
       Error("Cannot read eprover PID line", OTHER_ERROR);
    }
-   // fprintf(GlobalOut, "# Line = %s", line);
-   if(!strstr(line, "# Pid: "))
+   // fprintf(GlobalOut, COMCHAR" Line = %s", line);
+   if(!strstr(line, COMCHAR" Pid: "))
    {
       Error("Cannot get eprover PID", OTHER_ERROR);
    }
@@ -240,7 +240,7 @@ EPCtrl_p ECtrlCreateGeneric(char* prover, char* name,
    DStrAppendStr(res->output, line);
 
    DStrFree(cmd);
-   //printf("# eprover subprocess started\n");
+   //printf(COMCHAR" eprover subprocess started\n");
    return res;
 }
 
@@ -515,7 +515,7 @@ EPCtrl_p EPCtrlSetGetResult(EPCtrlSet_p set, bool delete_files)
                case PRCounterSatisfiable:
                case PRFailure:
                      /* Process terminates, but no proof found -> Remove it*/
-                     fprintf(GlobalOut, "# No proof found by %s\n",
+                     fprintf(GlobalOut, COMCHAR" No proof found by %s\n",
                              handle->name);
 
                      EPCtrlSetDeleteProc(set, handle, delete_files);

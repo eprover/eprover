@@ -388,7 +388,7 @@ double AnnotationEval(Annotation_p anno, double weights[])
    {
       res += DDArrayElement(array, i+1)*weights[i];
    }
-   /* printf("# ");AnnotationPrint(stdout, anno); printf(" --> %f\n", res); */
+   /* printf(COMCHAR" ");AnnotationPrint(stdout, anno); printf(" --> %f\n", res); */
    return res;
 }
 

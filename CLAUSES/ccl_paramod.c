@@ -206,11 +206,11 @@ ParamodulationType ParamodType(char *pm_str)
 
 void ParamodInfoPrint(FILE* out, ParamodInfo_p info)
 {
-   fprintf(out, "# From: %6ld |%6ld\n# ", info->from->ident, info->from_cpos);
+   fprintf(out, COMCHAR" From: %6ld |%6ld\n"COMCHAR" ", info->from->ident, info->from_cpos);
    ClausePrint(out, info->from, true);
-   fprintf(out, "\n#Into: %6ld |%6ld\n#", info->into->ident, info->into_cpos);
+   fprintf(out, "\n"COMCHAR"Into: %6ld |%6ld\n"COMCHAR"", info->into->ident, info->into_cpos);
    ClausePrint(out, info->into, true);
-   fprintf(out, "\n#Orig: %6ld\n#", info->new_orig->ident);
+   fprintf(out, "\n"COMCHAR"Orig: %6ld\n"COMCHAR, info->new_orig->ident);
    ClausePrint(out, info->new_orig, true);
    fprintf(out, "\n");
 }
@@ -453,7 +453,7 @@ Clause_p ClauseSuperSimParamodConstruct(ParamodInfo_p ol_desc)
          EqnListSetProp(from_copy, EPFromClauseLit);
 
          into_copy = EqnListAppend(&into_copy, from_copy);
-         
+
          EqnListLambdaNormalize(into_copy);
          EqnListRemoveResolved(&into_copy);
          EqnListRemoveDuplicates(into_copy);

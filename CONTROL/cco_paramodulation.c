@@ -242,7 +242,7 @@ static long compute_into_pm_pos_clause(ParamodInfo_p pminfo,
                                pminfo->into->literals,
                                pminfo->into_pos->literal))))
       {
-         /* printf("# compute_into_pm_pos_clause\n");  */
+         /* printf(COMCHAR" compute_into_pm_pos_clause\n");  */
          clause = ClauseParamodConstruct(pminfo, pm_type);
          if(clause)
          {
@@ -465,7 +465,7 @@ static long compute_from_pm_pos_clause(ParamodInfo_p pminfo,
                                       pminfo->from->literals,
                                       pminfo->from_pos->literal)))
       {
-         /* printf("# compute_from_pm_pos_clause\n");  */
+         /* printf(COMCHAR" compute_from_pm_pos_clause\n");  */
          clause = ClauseParamodConstruct(pminfo, pm_type);
          if(clause)
          {

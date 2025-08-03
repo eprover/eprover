@@ -66,11 +66,11 @@ long TBGCCollect(TB_p bank)
    assert(bank);
    assert(bank->gc);
 
-   //printf("# GCCollect(%p)\n", gc);
+   //printf(COMCHAR" GCCollect(%p)\n", gc);
    trav = PTreeTraverseInit(bank->gc->clause_sets);
    while((entry = PTreeTraverseNext(trav)))
    {
-      //printf("# Marking clause set %p\n", entry->key);
+      //printf(COMCHAR" Marking clause set %p\n", entry->key);
       ClauseSetGCMarkTerms(entry->key);
    }
    PTreeTraverseExit(trav);
@@ -78,7 +78,7 @@ long TBGCCollect(TB_p bank)
    trav = PTreeTraverseInit(bank->gc->formula_sets);
    while((entry = PTreeTraverseNext(trav)))
    {
-      //printf("# Marking formula set %p\n", entry->key);
+      //printf(COMCHAR" Marking formula set %p\n", entry->key);
       FormulaSetGCMarkCells(entry->key);
    }
    PTreeTraverseExit(trav);

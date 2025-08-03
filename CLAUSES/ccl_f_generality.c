@@ -541,11 +541,11 @@ void GenDistribPrint(FILE* out, GenDistrib_p dist, long limit)
       term_freq_total+= dist->dist_array[i].term_freq;
       fc_freq_total  += dist->dist_array[i].fc_freq;
    }
-   fprintf(out, "# GenDist %p %ld %ld\n", dist, term_freq_total, fc_freq_total);
+   fprintf(out, COMCHAR" GenDist %p %ld %ld\n", dist, term_freq_total, fc_freq_total);
 
    for(i=dist->sig->internal_symbols+1; i<MIN(dist->size,dist->sig->internal_symbols+limit); i++)
    {
-      fprintf(out, "# %-30s (%8ld = %8ld): %8ld  %8ld\n",
+      fprintf(out, COMCHAR" %-30s (%8ld = %8ld): %8ld  %8ld\n",
               SigFindName(dist->sig, i),
               i,
               dist->dist_array[i].f_code,

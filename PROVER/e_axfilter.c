@@ -294,12 +294,12 @@ void filter_problem(StructFOFSpec_p ctrl,
                            clauses,
                            formulas);
 
-   fprintf(GlobalOut, "# Filter: %s goes into file %s\n",
+   fprintf(GlobalOut, COMCHAR" Filter: %s goes into file %s\n",
            filter->name,
            DStrView(filename));
 
    fp = fopen(DStrView(filename), "w");
-   fprintf(fp, "%% Filter %s on file %s\n",
+   fprintf(fp, COMCHAR" Filter %s on file %s\n",
            filter->name, corename);
    if(desc)
    {

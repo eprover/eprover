@@ -60,7 +60,7 @@ static bool pcl_run_prover(char* command, char*success)
 
    if(OutputLevel>1)
    {
-      fprintf(GlobalOut, "# Running %s\n", command);
+      fprintf(GlobalOut, COMCHAR" Running %s\n", command);
    }
    ppipe=popen(command, "r");
    if(!ppipe)
@@ -76,7 +76,7 @@ static bool pcl_run_prover(char* command, char*success)
       }
       if(OutputLevel >= 3)
       {
-         fprintf(GlobalOut, "#> %s", line);
+         fprintf(GlobalOut, COMCHAR"> %s", line);
       }
    }
    pclose(ppipe);
@@ -121,13 +121,13 @@ static bool pcl_verify_eprover(ClauseSet_p problem,char *executable,
    DStrAppendChar(command, ' ');
    DStrAppendStr(command, name);
 
-   res = pcl_run_prover(DStrView(command),"# Proof found!");
+   res = pcl_run_prover(DStrView(command),COMCHAR" Proof found!");
 
    if(!res)
    {
-      fprintf(GlobalOut, "# ------------Problem begin--------------\n");
+      fprintf(GlobalOut, COMCHAR" ------------Problem begin--------------\n");
       FilePrint(GlobalOut, name);
-      fprintf(GlobalOut, "# ------------Problem end----------------\n");
+      fprintf(GlobalOut, COMCHAR" ------------Problem end----------------\n");
    }
 
    TempFileRemove(name);
@@ -310,9 +310,9 @@ static bool pcl_verify_otter(ClauseSet_p problem,char *executable,
 
    if(!res)
    {
-      fprintf(GlobalOut, "# ------------Problem begin--------------\n");
+      fprintf(GlobalOut, COMCHAR" ------------Problem begin--------------\n");
       FilePrint(GlobalOut, name);
-      fprintf(GlobalOut, "# ------------Problem end----------------\n");
+      fprintf(GlobalOut, COMCHAR" ------------Problem end----------------\n");
    }
 
    TempFileRemove(name);
@@ -544,9 +544,9 @@ static bool pcl_verify_spass(ClauseSet_p problem,char *executable,
    res = pcl_run_prover(DStrView(command), "Proof found.");
    if(!res)
    {
-      fprintf(GlobalOut, "# ------------Problem begin--------------\n");
+      fprintf(GlobalOut, COMCHAR" ------------Problem begin--------------\n");
       FilePrint(GlobalOut, name);
-      fprintf(GlobalOut, "# ------------Problem end----------------\n");
+      fprintf(GlobalOut, COMCHAR" ------------Problem end----------------\n");
    }
 
    TempFileRemove(name);
@@ -775,7 +775,7 @@ long PCLProtCheck(PCLProt_p prot, ProverType prover, char* executable,
       step = PStackElementP(stack,i);
       if(OutputLevel)
       {
-         fprintf(GlobalOut, "# Checking ");
+         fprintf(GlobalOut, COMCHAR" Checking ");
          PCLStepPrint(GlobalOut, step);
          fputc('\n', GlobalOut);
       }
@@ -784,18 +784,18 @@ long PCLProtCheck(PCLProt_p prot, ProverType prover, char* executable,
       switch(check)
       {
       case CheckByAssumption:
-            OUTPRINT(1,"# Checked (by assumption)\n\n");
+            OUTPRINT(1,COMCHAR" Checked (by assumption)\n\n");
             res++;
             break;
       case CheckOk:
-            OUTPRINT(1,"# Checked (by prover)\n\n");
+            OUTPRINT(1,COMCHAR" Checked (by prover)\n\n");
             res++;
             break;
       case CheckFail:
-            OUTPRINT(1,"# FAILED\n\n");
+            OUTPRINT(1,COMCHAR" FAILED\n\n");
             break;
       case CheckNotImplemented:
-            OUTPRINT(1,"# Check not implemented, assuming true!\n\n");
+            OUTPRINT(1,COMCHAR" Check not implemented, assuming true!\n\n");
             (*unchecked)++;
             break;
       default:

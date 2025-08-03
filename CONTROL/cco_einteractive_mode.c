@@ -27,21 +27,20 @@
 /*---------------------------------------------------------------------*/
 
 char* help_message = "\
-# Note : Block commands that are of the form of \"COMMAND <NAME> ... GO\"\n\
-# should have the \"COMMAND <NAME>\" and GO each on a separate line of\n\
-# their own. The block should be in between these two.\n\
-#\n\
-#- ADD <NAME> ... GO : Uploads a new axiom set with the name <NAME>.\n\
-#- LOAD <NAME>       : Loads a server-side axiom set with the name <NAME>. \n\
-#- STAGE <NAME>      : Stages the axiom set <NAME>.\n\
-#- UNSTAGE <NAME>    : Unstages the axiom set <NAME>.\n\
-#- REMOVE <NAME>     : Removes the axiom set <NAME> from the memory.\n\
-#- DOWNLOAD <NAME>   : Prints the axiom set <NAME>.\n\
-#- RUN <NAME> ... GO : Runs a job with the name <NAME>.\n\
-#- LIST              : Prints the status of the axiom sets.\n\
-#- HELP              : Prints the help message.\n\
-#- QUIT              : Closes the connection with the server.\n\
-# results of this attempt.\n";
+"COMCHAR" Note : Block commands that are of the form of \"COMMAND <NAME> ... GO\"\n\
+"COMCHAR" should have the \"COMMAND <NAME>\" and GO each on a separate line of\n\
+"COMCHAR" their own. The block should be in between these two.\n\
+"COMCHAR"\n\
+"COMCHAR"- ADD <NAME> ... GO : Uploads a new axiom set with the name <NAME>.\n\
+"COMCHAR"- LOAD <NAME>       : Loads a server-side axiom set with the name <NAME>. \n\
+"COMCHAR"- STAGE <NAME>      : Stages the axiom set <NAME>.\n\
+"COMCHAR"- UNSTAGE <NAME>    : Unstages the axiom set <NAME>.\n\
+"COMCHAR"- REMOVE <NAME>     : Removes the axiom set <NAME> from the memory.\n\
+"COMCHAR"- DOWNLOAD <NAME>   : Prints the axiom set <NAME>.\n\
+"COMCHAR"- RUN <NAME> ... GO : Runs a job with the name <NAME>.\n\
+"COMCHAR"- LIST              : Prints the status of the axiom sets.\n\
+"COMCHAR"- HELP              : Prints the help message.\n\
+"COMCHAR"- QUIT              : Closes the connection with the server.\n";
 
 
 // Defining commands used
@@ -150,7 +149,7 @@ char* run_command(InteractiveSpec_p interactive,
       fprintf(stdout, "%s", DStrView(jobname));
       fflush(stdout);
 
-      sprintf(buffer, "\n# Processing started for %s\n", DStrView(jobname));
+      sprintf(buffer, "\n"COMCHAR" Processing started for %s\n", DStrView(jobname));
       message = buffer;
 
       print_to_outstream(message, interactive->fp, interactive->sock_fd);
@@ -177,7 +176,7 @@ char* run_command(InteractiveSpec_p interactive,
                                 interactive->fp,
                                 interactive->sock_fd,
                                 true);
-      sprintf(buffer, "\n# Processing finished for %s\n\n", DStrView(jobname));
+      sprintf(buffer, "\n"COMCHAR" Processing finished for %s\n\n", DStrView(jobname));
       message = buffer;
       print_to_outstream(message, interactive->fp, interactive->sock_fd);
 

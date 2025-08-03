@@ -1195,11 +1195,11 @@ long PatternClauseCompute(Clause_p clause, PatternSubst_p* subst,
 
    res = lit_list_rep_pattern(clause->literals, subst, listrep);
 
-   /* printf("# %d literals, %ld tries\n", ClauseLiteralNumber(clause),
+   /* printf(COMCHAR" %d literals, %ld tries\n", ClauseLiteralNumber(clause),
       res);
       if(res > 500)
       {
-      printf("# Large clause: ");
+      printf(COMCHAR" Large clause: ");
       ClausePrint(stdout, clause, true);
       printf("\n");
       } */

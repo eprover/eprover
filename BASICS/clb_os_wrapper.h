@@ -86,7 +86,7 @@ typedef enum
 #define PERF_CTR_RESET(name)   name = 0
 #define PERF_CTR_ENTRY(name)   name##_store = GETTIME()
 #define PERF_CTR_EXIT(name)    name+=(GETTIME()-(name##_store));name##_store=0
-#define PERF_CTR_PRINT(out, name) fprintf((out), "# PC%-34s : %f\n", "(" #name ")", ((float)name)/1000000.0)
+#define PERF_CTR_PRINT(out, name) fprintf((out), COMCHAR" PC%-34s : %f\n", "(" #name ")", ((float)name)/1000000.0)
 #else
 #define PERF_CTR_DEFINE(name)  enum { name##_store } // Used to silence compiler warnings
 #define PERF_CTR_DECL(name)    enum { name }         // about extra semicolons.

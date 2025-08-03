@@ -154,7 +154,7 @@ void tcp_msg_wait(int sock, char* reply)
       msg = TCPStringRecvX(sock);
       if(msg)
       {
-         fprintf(GlobalOut, "# Server: %s\n", msg);
+         fprintf(GlobalOut, COMCHAR" Server: %s\n", msg);
          if(strcmp(msg, reply)==0)
          {
             FREE(msg);

@@ -236,7 +236,7 @@ void FixedDArrayPrint(FILE* out, FixedDArray_p array)
 {
    long i;
 
-   fprintf(out, "# Size %ld:", array->size);
+   fprintf(out, COMCHAR" Size %ld:", array->size);
    for(i=0; i<array->size; i++)
    {
       fprintf(out, " %4ld", array->array[i]);

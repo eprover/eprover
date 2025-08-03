@@ -343,7 +343,7 @@ void FVIAnchorFree(FVIAnchor_p junk)
    assert(junk);
 
    /* fprintf(GlobalOut,
-      "# Freeing FVIndex. %ld leaves, %ld empty. Total nodes: %ld. Mem: %ld\n",
+      COMCHAR" Freeing FVIndex. %ld leaves, %ld empty. Total nodes: %ld. Mem: %ld\n",
       FVIndexCountNodes(junk->index, true, false),
       FVIndexCountNodes(junk->index, true, true),
       FVIndexCountNodes(junk->index, false, false),

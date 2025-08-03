@@ -566,15 +566,15 @@ int main(int argc, char* argv[])
       {
       case cpl_complete:
             fprintf(GlobalOut,
-                    "# Full and complete proof state written!\n");
+                    COMCHAR" Full and complete proof state written!\n");
             break;
       case cpl_lowmem:
             fprintf(GlobalOut,
-                    "# Out of memory: Proof state incomplete!\n");
+                    COMCHAR" Out of memory: Proof state incomplete!\n");
             break;
       case cpl_timeout:
             fprintf(GlobalOut,
-                    "# Timeout: Proof state incomplete!\n");
+                    COMCHAR" Timeout: Proof state incomplete!\n");
             break;
       default:
             assert(false && "Unknown incompleteness?!?");
@@ -582,16 +582,16 @@ int main(int argc, char* argv[])
    }
    else
    {
-      fprintf(GlobalOut, "# Success!\n");
+      fprintf(GlobalOut, COMCHAR" Success!\n");
    }
    if(print_statistics)
    {
       fprintf(GlobalOut,
               "\n"
-              "# Initial clauses                      : %ld\n"
-              "# Initial literals                     : %ld\n"
-              "# Generated clauses                    : %ld\n"
-              "# Generated literals                   : %ld\n",
+              COMCHAR" Initial clauses                      : %ld\n"
+              COMCHAR" Initial literals                     : %ld\n"
+              COMCHAR" Generated clauses                    : %ld\n"
+              COMCHAR" Generated literals                   : %ld\n",
               initial_clauses, initial_literals,
               GroundSetMembers(groundset),
               GroundSetLiterals(groundset));

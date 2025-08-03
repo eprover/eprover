@@ -61,8 +61,7 @@ void document_processing(Clause_p clause)
    {
       if(OutputLevel == 1)
       {
-         putc('\n', GlobalOut);
-         putc('#', GlobalOut);
+         fprintf(GlobalOut, "\n"COMCHAR);
          ClausePrint(GlobalOut, clause, true);
          //DerivationDebugPrint(GlobalOut, clause->derivation);
          putc('\n', GlobalOut);
@@ -97,7 +96,7 @@ static void check_ac_status(ProofState_p state, ProofControl_p
          if(OutputLevel)
          {
             SigPrintACStatus(GlobalOut, state->signature);
-            fprintf(GlobalOut, "# AC handling enabled dynamically\n");
+            fprintf(GlobalOut, COMCHAR" AC handling enabled dynamically\n");
          }
       }
    }
@@ -132,7 +131,7 @@ static long remove_subsumed(GlobalIndices_p indices,
    while(!PStackEmpty(stack))
    {
       handle = PStackPopP(stack);
-      //printf("# XXX Removing (remove_subumed()) %p from %p = %p\n", handle, set, handle->set);
+      //printf(COMCHAR" XXX Removing (remove_subumed()) %p from %p = %p\n", handle, set, handle->set);
       if(ClauseQueryProp(handle, CPWatchOnly))
       {
          DocClauseQuote(GlobalOut, OutputLevel, 6, handle,
@@ -231,7 +230,7 @@ eliminate_backward_rewritten_clauses(ProofState_p
       }
    }
    PERF_CTR_EXIT(BWRWTimer);
-   /*printf("# Removed %ld clauses\n",
+   /*printf(COMCHAR" Removed %ld clauses\n",
      (state->tmp_store->members-old_clause_count)); */
    return min_rw;
 }
@@ -402,7 +401,7 @@ void check_watchlist(GlobalIndices_p indices, ClauseSet_p watchlist,
    if(watchlist)
    {
       pclause = FVIndexPackClause(clause, watchlist->fvindex);
-      // printf("# check_watchlist(%p)...\n", indices);
+      // printf(COMCHAR" check_watchlist(%p)...\n", indices);
       ClauseSubsumeOrderSortLits(clause);
       // assert(ClauseIsSubsumeOrdered(clause));
 
@@ -425,7 +424,7 @@ void check_watchlist(GlobalIndices_p indices, ClauseSet_p watchlist,
             ClauseSetProp(clause, CPSubsumesWatch);
             if(OutputLevel == 1)
             {
-               fprintf(GlobalOut,"# Watchlist reduced by %ld clause%s\n",
+               fprintf(GlobalOut,COMCHAR" Watchlist reduced by %ld clause%s\n",
                        removed,removed==1?"":"s");
             }
             // ClausePrint(GlobalOut, clause, true); printf("\n");
@@ -433,7 +432,7 @@ void check_watchlist(GlobalIndices_p indices, ClauseSet_p watchlist,
                            "extract_subsumed_watched", NULL);   }
       }
       FVUnpackClause(pclause);
-      // printf("# ...check_watchlist()\n");
+      // printf(COMCHAR" ...check_watchlist()\n");
    }
 }
 
@@ -464,18 +463,18 @@ void simplify_watchlist(ProofState_p state, ProofControl_p control,
    {
       return;
    }
-   // printf("# simplify_watchlist()...\n");
+   // printf(COMCHAR" simplify_watchlist()...\n");
    tmp_set = ClauseSetAlloc();
 
    if(state->wlindices.bw_rw_index)
    {
-      // printf("# Simpclause: "); ClausePrint(stdout, clause, true); printf("\n");
+      // printf(COMCHAR" Simpclause: "); ClausePrint(stdout, clause, true); printf("\n");
       RemoveRewritableClausesIndexed(control->ocb,
                                      tmp_set, state->archive,
                                      clause, clause->date,
                                      &(state->wlindices),
                                      control->heuristic_parms.lambda_demod);
-      // printf("# Simpclause done\n");
+      // printf(COMCHAR" Simpclause done\n");
    }
    else
    {
@@ -487,7 +486,7 @@ void simplify_watchlist(ProofState_p state, ProofControl_p control,
    }
    while((handle = ClauseSetExtractFirst(tmp_set)))
    {
-      // printf("# WL simplify: "); ClausePrint(stdout, handle, true);
+      // printf(COMCHAR" WL simplify: "); ClausePrint(stdout, handle, true);
       // printf("\n");
       state->rw_count +=
          ClauseComputeLINormalform(control->ocb,
@@ -509,11 +508,11 @@ void simplify_watchlist(ProofState_p state, ProofControl_p control,
       handle->weight = ClauseStandardWeight(handle);
       ClauseMarkMaximalTerms(control->ocb, handle);
       ClauseSetIndexedInsertClause(state->watchlist, handle);
-      // printf("# WL Inserting: "); ClausePrint(stdout, handle, true); printf("\n");
+      // printf(COMCHAR" WL Inserting: "); ClausePrint(stdout, handle, true); printf("\n");
       GlobalIndicesInsertClause(&(state->wlindices), handle, control->heuristic_parms.lambda_demod);
    }
    ClauseSetFree(tmp_set);
-   // printf("# ...simplify_watchlist()\n");
+   // printf(COMCHAR" ...simplify_watchlist()\n");
 }
 
 
@@ -875,7 +874,7 @@ static Clause_p cleanup_unprocessed_clauses(ProofState_p state,
       if(OutputLevel)
       {
          fprintf(GlobalOut,
-                 "# Deleted %ld orphaned clauses (remaining: %ld)\n",
+                 COMCHAR" Deleted %ld orphaned clauses (remaining: %ld)\n",
                  tmp, state->unprocessed->members);
       }
       state->other_redundant_count += tmp;
@@ -898,7 +897,7 @@ static Clause_p cleanup_unprocessed_clauses(ProofState_p state,
       if(OutputLevel)
       {
          fprintf(GlobalOut,
-                 "# Special forward-contraction deletes %ld clauses"
+                 COMCHAR" Special forward-contraction deletes %ld clauses"
                  "(remaining: %ld) \n",
                  tmp - state->unprocessed->members,
                  state->unprocessed->members);
@@ -909,7 +908,7 @@ static Clause_p cleanup_unprocessed_clauses(ProofState_p state,
          return unsatisfiable;
       }
       state->forward_contract_base = state->processed_count;
-      OUTPRINT(1, "# Reweighting unprocessed clauses...\n");
+      OUTPRINT(1, COMCHAR" Reweighting unprocessed clauses...\n");
       ClauseSetReweight(control->hcb,  state->unprocessed);
    }
 
@@ -925,7 +924,7 @@ static Clause_p cleanup_unprocessed_clauses(ProofState_p state,
       if(OutputLevel)
       {
          fprintf(GlobalOut,
-                 "# Deleted %ld orphaned clauses and %ld bad "
+                 COMCHAR" Deleted %ld orphaned clauses and %ld bad "
                  "clauses (prover may be incomplete now)\n",
                  tmp, tmp2);
       }
@@ -964,20 +963,20 @@ Clause_p SATCheck(ProofState_p state, ProofControl_p control)
 
    if(control->heuristic_parms.sat_check_normalize)
    {
-      //printf("# Cardinality of unprocessed: %ld\n",
+      //printf(COMCHAR" Cardinality of unprocessed: %ld\n",
       //        ClauseSetCardinality(state->unprocessed));
       base_time = GetTotalCPUTime();
       empty = ForwardContractSetReweight(state, control, state->unprocessed,
                                        false, 2,
                                        &(state->proc_trivial_count));
-      // printf("# ForwardContraction done\n");
+      // printf(COMCHAR" ForwardContraction done\n");
       preproc_time = (GetTotalCPUTime()-base_time);
    }
    if(!empty)
    {
       SatClauseSet_p set = SatClauseSetAlloc();
 
-      // printf("# SatCheck() %ld, %ld..\n",
+      // printf(COMCHAR" SatCheck() %ld, %ld..\n",
       //state->proc_non_trivial_count,
       //ProofStateCardinality(state));
 
@@ -987,7 +986,7 @@ Clause_p SATCheck(ProofState_p state, ProofControl_p control)
                                    control->heuristic_parms.sat_check_normconst);
 
       enc_time = (GetTotalCPUTime()-base_time);
-      //printf("# SatCheck()..imported\n");
+      //printf(COMCHAR" SatCheck()..imported\n");
 
       base_time = GetTotalCPUTime();
       res = SatClauseSetCheckUnsat(set, &empty, control->solver,
@@ -1046,9 +1045,9 @@ static void print_sharing_factor(ProofState_p state)
       ClauseSetGetTermNodes(state->processed_non_units)+
       ClauseSetGetTermNodes(state->unprocessed);
 
-   fprintf(GlobalOut, "\n#        GClauses   NClauses    NShared  "
+   fprintf(GlobalOut, "\n"COMCHAR"        GClauses   NClauses    NShared  "
            "NUnshared    TShared  TUnshared TSharinF   \n");
-   fprintf(GlobalOut, "# grep %10ld %10ld %10ld %10ld %10ld %10ld %10.3f\n",
+   fprintf(GlobalOut, COMCHAR" grep %10ld %10ld %10ld %10ld %10ld %10ld %10.3f\n",
            state->generated_count - state->backward_rewritten_count,
            state->tmp_store->members,
            ClauseSetGetSharedTermNodes(state->tmp_store),
@@ -1334,7 +1333,7 @@ void fvi_param_init(ProofState_p state, ProofControl_p control)
    symbols = MIN(state->original_symbols+control->fvi_parms.symbol_slack,
                  control->fvi_parms.max_symbols);
 
-   // printf("### Symbols: %ld\n", symbols);
+   // printf(COMCHAR COMCHAR COMCHAR" Symbols: %ld\n", symbols);
    switch(control->fvi_parms.cspec.features)
    {
    case FVIBillFeatures:
@@ -1344,7 +1343,7 @@ void fvi_param_init(ProofState_p state, ProofControl_p control)
          cspec = BillPlusFeaturesCollectAlloc(state->signature, symbols*2+4);
          break;
    case FVIACFold:
-         // printf("# FVIACFold\n");
+         // printf(COMCHAR" FVIACFold\n");
          cspec = FVCollectAlloc(FVICollectFeatures,
                                 true,
                                 0,
@@ -1465,7 +1464,7 @@ void ProofStateInit(ProofState_p state, ProofControl_p control)
    PStack_p traverse;
    Eval_p   cell;
 
-   OUTPRINT(1, "# Initializing proof state\n");
+   OUTPRINT(1, COMCHAR" Initializing proof state\n");
 
    assert(ClauseSetEmpty(state->processed_pos_rules));
    assert(ClauseSetEmpty(state->processed_pos_eqns));
@@ -1508,7 +1507,7 @@ void ProofStateInit(ProofState_p state, ProofControl_p control)
       }
       ClauseSetInsert(state->unprocessed, new);
    }
-   //OUTPRINT(1, "# Initializing proof state (3)\n");
+   //OUTPRINT(1, COMCHAR" Initializing proof state (3)\n");
    ClauseSetMarkSOS(state->unprocessed, control->heuristic_parms.use_tptp_sos);
    // printf("Before EvalTreeTraverseExit\n");
    EvalTreeTraverseExit(traverse);
@@ -1517,7 +1516,7 @@ void ProofStateInit(ProofState_p state, ProofControl_p control)
    {
       if(OutputLevel)
       {
-         fprintf(GlobalOut, "# Scanning for AC axioms\n");
+         fprintf(GlobalOut, COMCHAR" Scanning for AC axioms\n");
       }
       control->ac_handling_active = ClauseSetScanAC(state->signature,
                                                     state->unprocessed);
@@ -1526,7 +1525,7 @@ void ProofStateInit(ProofState_p state, ProofControl_p control)
          SigPrintACStatus(GlobalOut, state->signature);
          if(control->ac_handling_active)
          {
-            fprintf(GlobalOut, "# AC handling enabled\n");
+            fprintf(GlobalOut, COMCHAR" AC handling enabled\n");
          }
       }
    }
@@ -1572,7 +1571,7 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control,
    //EvalListPrintComment(GlobalOut, clause->evaluations); printf("\n");
    if(OutputLevel==1)
    {
-      putc('#', GlobalOut);
+      fprintf(GlobalOut, COMCHAR);
    }
    assert(clause);
 

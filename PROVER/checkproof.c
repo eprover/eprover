@@ -186,7 +186,7 @@ int main(int argc, char* argv[])
    res = PCLProtCheck(prot,prover,executable,time_limit, &unchecked);
 
    fprintf(GlobalOut,
-         "# Successfully checked %ld of %ld steps (%ld unchecked): ",
+         COMCHAR" Successfully checked %ld of %ld steps (%ld unchecked): ",
          res, steps, unchecked);
 
    if(res==steps)
