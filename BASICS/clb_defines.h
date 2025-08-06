@@ -70,7 +70,16 @@ typedef int (*ComparisonFunctionType)(const void*, const void*);
 /*---------------------------------------------------------------------*/
 
 // Character used to introduce comments
+
+#ifdef UNIXCOMMENTS
+// Doubled for printf...
 #define COMCHAR "%%"
+#define COMCHARRAW "%"
+#else
+#define COMCHAR "#"
+#define COMCHARRAW "#"
+#endif
+
 
 
 #undef MAX

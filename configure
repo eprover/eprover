@@ -78,6 +78,7 @@ EXECPATH=`pwd`/PROVER
 MANPATH=`pwd`/DOC/man
 
 enable_ho='             # -DENABLE_LFHO \\'
+unix_comments='             # -DUNIX_COMMENTS \\'
 build_eprover="EPROVER_BIN = eprover"
 
 for argument in  "$@"; do
@@ -89,6 +90,8 @@ for argument in  "$@"; do
         echo "  Print this help."
         echo "--enable-ho"
         echo "  Build E with support for higher-order logic."
+        echo "--unix-comments"
+        echo "  Build E to use # as the start comment character."
         echo "--bindir=<path>"
         echo "  Configure E for running from <path>".
         echo "--exec-prefix=<path>"
@@ -110,6 +113,8 @@ for argument in  "$@"; do
             enable_ho='             -DENABLE_LFHO \\'
             build_eprover="EPROVER_BIN = eprover-ho"
             echo "Obsolete option tolerated. Use --enable-ho in the future."
+        elif [ "$argument" = "--unix-comments" ] ; then
+            unix-comments='             -DUNIX_COMMENTS \\'
         elif [ "$opt" = "--exec-prefix" ] ; then
            EXECPATH=$arg/bin
         elif [ "$opt" = "--man-prefix" ] ; then
@@ -131,6 +136,7 @@ echo $enable_ho
 sed -e "/^EXECPATH =.*/s|.*|EXECPATH = $EXECPATH|" \
     -e "/^MANPATH =.*/s|.*|MANPATH = $MANPATH|" \
     -e "/^.*DENABLE_LFHO/s|.*|$enable_ho|"  \
+    -e "/^.*DUNIX_COMMENTS/s|.*|$unix_comments|"  \
     -e "/^EPROVER_BIN/s|.*|$build_eprover|" \
     Makefile.vars > tmpfile
 mv tmpfile Makefile.vars

@@ -66,13 +66,13 @@ typedef struct e_pctrl_set_cell
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-#define SZS_THEOREM_STR    COMCHAR" SZS status Theorem"
-#define SZS_CONTRAAX_STR   COMCHAR" SZS status ContradictoryAxioms"
-#define SZS_UNSAT_STR      COMCHAR" SZS status Unsatisfiable"
-#define SZS_SATSTR_STR     COMCHAR" SZS status Satisfiable"
-#define SZS_COUNTERSAT_STR COMCHAR" SZS status CounterSatisfiable"
-#define SZS_GAVEUP_STR     COMCHAR" SZS status GaveUp"
-#define SZS_FAILURE_STR    COMCHAR" Failure:"
+#define SZS_THEOREM_STR    COMCHARRAW" SZS status Theorem"
+#define SZS_CONTRAAX_STR   COMCHARRAW" SZS status ContradictoryAxioms"
+#define SZS_UNSAT_STR      COMCHARRAW" SZS status Unsatisfiable"
+#define SZS_SATSTR_STR     COMCHARRAW" SZS status Satisfiable"
+#define SZS_COUNTERSAT_STR COMCHARRAW" SZS status CounterSatisfiable"
+#define SZS_GAVEUP_STR     COMCHARRAW" SZS status GaveUp"
+#define SZS_FAILURE_STR    COMCHARRAW" Failure:"
 
 
 #define E_OPTIONS_BASE " --print-pid -s -R  --memory-limit=2048 --proof-object "
