@@ -5,6 +5,8 @@ Version 3.2.5 -> 3.3.0 Countess Grey
 
 - Some beautification
 - Debugged problems with axiom filtering
+- Changed default comment character  from # to %. Use
+  'configure --unix-comments' to restore the old behaviour.
 
 Version 3.1.0 -> 3.2.5 Puttabong Moondrop
 

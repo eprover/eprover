@@ -475,7 +475,7 @@ void ClauseLinePrint(FILE* out, Clause_p clause, bool printinfo)
    ClausePrint(out, clause, true);
    if(printinfo)
    {
-      fputs(" "COMCHAR" ", out);
+      fputs(" "COMCHARRAW" ", out);
       ClauseInfoPrint(out, clause);
    }
    fputc('\n', out);

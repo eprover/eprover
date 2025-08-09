@@ -96,7 +96,7 @@ void print_oparms(OrderParms_p oparms)
          fprintf(GlobalOut, COMCHAR" Auto-mode selected weight ordering scheme <%s>\n",
                  TOGetWeightGenName(oparms->to_weight_gen));
       }
-      fputs(COMCHAR"\n", GlobalOut);
+      fputs(COMCHARRAW"\n", GlobalOut);
    }
 }
 
@@ -204,7 +204,7 @@ OCB_p generate_autocasc_ordering(ProofState_p state, SpecFeature_p spec, HoOrder
          fprintf(GlobalOut, COMCHAR" Auto-mode selected weight ordering scheme <%s>\n",
                  TOGetWeightGenName(oparms.to_weight_gen));
       }
-      fputs(COMCHAR"\n", GlobalOut);
+      fputs(COMCHARRAW"\n", GlobalOut);
    }
    SpecLimitsCellFree(limits);
    return TOCreateOrdering(state, &oparms, NULL, NULL);
@@ -261,7 +261,7 @@ OCB_p generate_autodev_ordering(ProofState_p state, SpecFeature_p spec, HoOrderK
          fprintf(GlobalOut, COMCHAR" Auto-mode (Dev) selected weight ordering scheme <%s>\n",
                  TOGetWeightGenName(oparms.to_weight_gen));
       }
-      fputs(COMCHAR"\n", GlobalOut);
+      fputs(COMCHARRAW"\n", GlobalOut);
    }
    SpecLimitsCellFree(limits);
    return TOCreateOrdering(state, &oparms, NULL, NULL);

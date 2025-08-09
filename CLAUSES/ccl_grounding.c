@@ -941,7 +941,7 @@ bool ClauseCreateGroundInstances(TB_p bank, Clause_p clause,
    }
    else if(OutputLevel >=2)
    {
-      fputs(COMCHAR" ", GlobalOut);
+      fputs(COMCHARRAW" ", GlobalOut);
       ClausePrint(GlobalOut, clause, true);
       fputc('\n', GlobalOut);
    }

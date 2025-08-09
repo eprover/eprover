@@ -900,7 +900,7 @@ void SigPrintSpecial(FILE* out, Sig_p sig)
 {
    FunCode i;
 
-   fputs(COMCHAR" Special symbols:\n", out);
+   fputs(COMCHARRAW" Special symbols:\n", out);
    for(i=1; i<=sig->f_count; i++)
    {
       if(SigIsSpecial(sig, i))
