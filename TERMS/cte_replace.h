@@ -51,7 +51,7 @@ typedef enum
 
 void   TermAddRWLink(Term_p term, Term_p replace,
                      struct clause_cell *demod,
-                     bool sos, RWResultType type);
+                     bool sos, RWResultType type, int side);
 
 void   TermDeleteRWLink(Term_p term);
 Term_p TermFollowRWChain(Term_p term);
