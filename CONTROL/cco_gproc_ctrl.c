@@ -119,9 +119,9 @@ void EGPCtrlCleanup(EGPCtrl_p ctrl)
    {
       if(kill(ctrl->pid, SIGTERM) == 0)
       {
-         while(respid == -1)
+         //while(respid == -1)  // Overkill?
          {
-            respid = waitpid(ctrl->pid, &raw_status, 0);
+            UNUSED(respid = waitpid(ctrl->pid, &raw_status, 0));
          }
       }
       ctrl->pid = 0;
