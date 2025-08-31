@@ -524,7 +524,7 @@ void do_fool_print(FILE* out, Sig_p sig, TFormula_p form, int depth)
       if(form->f_code == SIG_DB_LAMBDA_CODE)
       {
          fprintf(out, "Z%d", depth);
-         fprintf(out, "/* %ld */", form->args[1]->f_code);
+         //fprintf(out, "/* %ld */", form->args[1]->f_code);
          depth++;
       }
       else
