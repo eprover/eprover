@@ -1179,11 +1179,18 @@ Term_p WHNF_step(TB_p bank, Term_p t)
       return t;
    }
 
-   Term_p res = TermGetCache(t);
+   Term_p res = false;
+   res = TermGetCache(t);
    if(!res)
    {
       res = whnf_step_uncached(bank, t);
    }
+   //printf("### WHNF: ");
+   //TermPrintDbg(stdout, t, bank->sig, DEREF_NEVER);
+   //printf(" => ");
+   //TermPrintDbg(stdout, res, bank->sig, DEREF_NEVER);
+   //printf("\n");
+
    return res;
 }
 
@@ -1310,6 +1317,11 @@ Term_p DecodeFormulasForCNF(TB_p bank, Term_p t)
 {
    Sig_p sig = bank->sig;
    Term_p res = NULL;
+
+   //printf("### DecodeFormulasForCNF(): ");
+   //TermPrintDbg(stdout, t, bank->sig, DEREF_NEVER);
+   //printf("\n");
+
    if((t->f_code == sig->qall_code || t->f_code == sig->qex_code) && t->arity == 1)
    {
       assert(TypeIsArrow(t->args[0]->type));
@@ -1360,6 +1372,9 @@ Term_p DecodeFormulasForCNF(TB_p bank, Term_p t)
          res = t;
       }
    }
+   //printf("### End DecodeFormulasForCNF(): ");
+   //TermPrintDbg(stdout, res, bank->sig, DEREF_NEVER);
+   //printf("\n");
 
    return EncodePredicateAsEqn(bank, res);
 }

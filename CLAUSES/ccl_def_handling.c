@@ -6,7 +6,7 @@ Author: Stephan Schulz (schulz@eprover.org)
 
 Contents
 
-  Handling of clausal definitons as used (up to now
+  Handling of clausal definitions as used (up to now
   implicitely) in splitting, i.e. data structures associating a
   clause with a fresh constant predicate symbol or literal.
 

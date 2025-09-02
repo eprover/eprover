@@ -6,7 +6,7 @@ Author: Stephan Schulz (schulz@eprover.org)
 
 Contents
 
-  Datatypes for handling clausal definitons as used (up to now
+  Datatypes for handling clausal definitions as used (up to now
   implicitly) in splitting, i.e. data structures associating a clause
   with a fresh constant predicate symbol or literal.
 
@@ -72,8 +72,3 @@ FunCode GetDefinitions(DefStore_p store, Eqn_p litlist,
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
-
-
-

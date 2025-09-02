@@ -1,24 +1,21 @@
 /*-----------------------------------------------------------------------
 
-File  : ccl_formulafunc.c
+  File  : ccl_formulafunc.c
 
-Author: Stephan Schulz
+  Author: Stephan Schulz
 
-Contents
+  Contents
 
   Higher level formula functions that need to know about sets (and
   CNFing).
 
-  Copyright 2004 by the author.
+  Copyright 2004-2025 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
-
-<1> Sun Apr  4 14:12:05 CEST 2004
-    New
+  Created: Sun Apr  4 14:12:05 CEST 2004
 
 -----------------------------------------------------------------------*/
 
@@ -251,7 +248,8 @@ TFormula_p lift_lets(TB_p terms, TFormula_p t, PStack_p fresh_defs)
       {
          if(TermIsPhonyApp(new) && !TermIsPhonyAppTarget(new->args[0]))
          {
-            Term_p flat = FlattenApps(terms, new->args[0], new->args+1, new->arity-1, new->type);
+            Term_p flat = FlattenApps(terms, new->args[0], new->args+1,
+                                      new->arity-1, new->type);
             TermTopFree(new);
             new = flat;
          }
@@ -330,7 +328,8 @@ Term_p refresh_qvars(TB_p terms, Term_p form)
    {
       res = form;
    }
-   else if ((form->f_code == sig->qall_code || form->f_code == sig->qex_code) && form->arity == 2)
+   else if ((form->f_code == sig->qall_code || form->f_code == sig->qex_code)
+            && form->arity == 2)
    {
       Term_p prev_binding = form->args[0]->binding;
       Term_p fresh_var = VarBankGetFreshVar(terms->vars, form->args[0]->type);
@@ -597,7 +596,8 @@ void intersimplify_definitions(TB_p terms, IntMap_p sym_def_map)
 //
 /----------------------------------------------------------------------*/
 
-bool map_formula(WFormula_p form, TB_p terms, FormulaMapper processor, DerivationCode dc)
+bool map_formula(WFormula_p form, TB_p terms, FormulaMapper processor,
+                 DerivationCode dc)
 {
    TFormula_p original = form->tformula;
    bool changed = false;
@@ -2381,7 +2381,6 @@ long TFormulaSetLambdaNormalize(FormulaSet_p set, FormulaSet_p archive, TB_p ter
 //    Rewrites all formulas using defined symbols of the form
 //    sym = \vars. body where return type of sym is Bool
 //
-//
 // Global Variables: -
 //
 // Side Effects    : -
@@ -2496,6 +2495,7 @@ long TFormulaSetLiftLambdas(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
       PDTree_p liftings = PDTreeAllocWDeleter(terms, deleter);
       for (WFormula_p form = set->anchor->succ; form != set->anchor; form = form->succ)
       {
+         //printf("### TFormulaSetLiftLambdas()\n");
          TFormula_p handle = LiftLambdas(terms, form->tformula, defs, liftings);
          if (handle != form->tformula)
          {
@@ -2503,7 +2503,8 @@ long TFormulaSetLiftLambdas(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
             while (!(PStackEmpty(defs)))
             {
                WFormula_p def = PStackPopP(defs);
-               WFormulaPushDerivation(form, DCApplyDef, def, NULL);
+               //WFormulaPushDerivation(form, DCApplyDef, def, NULL);
+               WFormulaPushDerivation(form, DCIntroDef, def, NULL);
                PTreeStore(&all_defs, def);
                res++;
             }
@@ -2838,6 +2839,26 @@ bool FormulaHasAppVarLit(Sig_p sig, TFormula_p form)
 //
 /----------------------------------------------------------------------*/
 
+
+Term_p cond_lift_lambda(TB_p terms, Term_p term,
+                        PStack_p defs, PDTree_p liftings)
+{
+   Term_p res = term, tmp;
+
+   if(!TermIsLambda(term) && TermHasLambdaSubterm(term))
+   {
+      //printf("### cond_lift_lambda lterm: ");
+      //TermPrintDbg(stdout, term, terms->sig, DEREF_NEVER);
+      tmp = DecodeFormulasForCNF(terms, term);
+      //printf(" => ");
+      //TermPrintDbg(stdout, tmp, terms->sig, DEREF_NEVER);
+      //printf("\n");
+      res = LiftLambdas(terms, tmp, defs, liftings);
+   }
+   return res;
+}
+
+
 void ClauseSetLiftLambdas(ClauseSet_p set, FormulaSet_p archive, TB_p terms,
                           VarBank_p fresh_vars, bool unroll_fool)
 {
@@ -2855,12 +2876,10 @@ void ClauseSetLiftLambdas(ClauseSet_p set, FormulaSet_p archive, TB_p terms,
       {
          DBGTermCheckUnownedSubterm(stdout, lit->lterm, "UnownedCSLift1L");
          DBGTermCheckUnownedSubterm(stdout, lit->rterm, "UnownedCSLift1R");
-         lterm = !TermIsLambda(lit->lterm) && TermHasLambdaSubterm(lit->lterm) ?
-            LiftLambdas(terms, DecodeFormulasForCNF(terms, lit->lterm), defs, liftings)
-            : lit->lterm;
-         rterm = !TermIsLambda(lit->rterm) && TermHasLambdaSubterm(lit->rterm) ?
-            LiftLambdas(terms, DecodeFormulasForCNF(terms, lit->rterm), defs, liftings)
-            : lit->rterm;
+
+         lterm = cond_lift_lambda(terms, lit->lterm, defs, liftings);
+         rterm = cond_lift_lambda(terms, lit->rterm, defs, liftings);
+
          DBGTermCheckUnownedSubterm(stdout, lit->lterm, "UnownedCSLift2L");
          DBGTermCheckUnownedSubterm(stdout, lit->rterm, "UnownedCSLift2R");
          cl_changed = cl_changed || lit->lterm != lterm || lit->rterm != rterm;

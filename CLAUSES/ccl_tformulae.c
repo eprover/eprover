@@ -1097,6 +1097,9 @@ Term_p unbind_loose(TB_p terms, IntMap_p db_map, long depth, Term_p t)
 Term_p lift_lambda(TB_p terms, PStack_p bound_vars, Term_p body,
                    PStack_p definitions, PDTree_p liftings)
 {
+   //printf("### body (original): ");
+   //TermPrintDbg(stdout, body, terms->sig, DEREF_NEVER);
+   //printf("\n");
    Term_p lifted; // the result holding variable
    assert(!TermHasLambdaSubterm(body)); // LiftLambda recursively called before
 
@@ -1125,6 +1128,11 @@ Term_p lift_lambda(TB_p terms, PStack_p bound_vars, Term_p body,
    // closed will be like body, but all loosely bound vars are replaced by
    // fresh vars
    Term_p closed = body_no_loose;
+
+   //printf("### closed (fresh): ");
+   //TermPrintDbg(stdout, closed, terms->sig, DEREF_NEVER);
+   //printf("\n");
+
    for(long i=PStackGetSP(bound_vars)-1; i>=0; i--)
    {
       closed =
@@ -1177,9 +1185,17 @@ Term_p lift_lambda(TB_p terms, PStack_p bound_vars, Term_p body,
 
       Term_p repl_t = ApplyTerms(terms, def_head, lb_stack_db_vars);
       Term_p lhs_wo_bound = ApplyTerms(terms, def_head, lb_stack_fresh_vars);
-      Term_p repl_lhs =
-         ApplyTerms(terms, lhs_wo_bound, bound_to_fresh);
+      Term_p repl_lhs = ApplyTerms(terms, lhs_wo_bound, bound_to_fresh);
+
+      //printf("### closed: ");
+      //TermPrintDbg(stdout, closed, terms->sig, DEREF_NEVER);
+      //printf("\n");
       Term_p repl_rhs = WHNF_step(terms, ApplyTerms(terms, closed, bound_to_fresh));
+
+      //printf("### repl_rhs: ");
+      //TermPrintDbg(stdout, repl_rhs, terms->sig, DEREF_NEVER);
+      //printf("\n");
+
 
       TFormula_p def_f;
       if(TypeIsBool(body->type))
@@ -1242,6 +1258,8 @@ Term_p lift_lambda(TB_p terms, PStack_p bound_vars, Term_p body,
 Term_p EncodePredicateAsEqn(TB_p bank, TFormula_p f)
 {
    Sig_p sig = bank->sig;
+   bool positive;
+
    if((TermIsAnyVar(f) ||
        !SigIsLogicalSymbol(bank->sig, f->f_code) ||
        f->f_code == SIG_TRUE_CODE ||
@@ -1251,10 +1269,22 @@ Term_p EncodePredicateAsEqn(TB_p bank, TFormula_p f)
        TermIsPhonyApp(f)) &&
       f->type == sig->type_bank->bool_type)
    {
+      Term_p lside, rside;
+
+      if(TermIsAnyVar(f))
+      {
+         lside = f;
+         positive = true;
+      }
+      else
+      {
+         lside = f->f_code == SIG_FALSE_CODE ? bank->true_term : f;
+         positive = f->f_code != SIG_FALSE_CODE;
+      }
+      rside = bank->true_term;
+
       // making sure we encode $false as $true!=$true
-      bool positive = f->f_code != SIG_FALSE_CODE;
-      f = EqnTermsTBTermEncode(bank, (f->f_code == SIG_FALSE_CODE ? bank->true_term : f),
-                               bank->true_term, positive, PENormal);
+      f = EqnTermsTBTermEncode(bank, lside, rside, positive, PENormal);
    }
    return f;
 }
@@ -2733,7 +2763,15 @@ TFormula_p LiftLambdas(TB_p terms, TFormula_p t, PStack_p definitions, PDTree_p 
    Term_p res;
 
    PStack_p vars = NULL;
+   //printf("### LiftLambdas: ");
+   //TermPrintDbg(stdout, t, terms->sig, DEREF_NEVER);
+
    t = BetaNormalizeDB(terms, t);
+
+   //fprintf(stdout, " => ");
+   //TermPrintDbg(stdout, t, terms->sig, DEREF_NEVER);
+   //fprintf(stdout, "\n");
+
    DBGTermCheckUnownedSubterm(stdout, t, "UnownedLL");
    if(TermIsLambda(t))
    {
