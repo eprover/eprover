@@ -1470,11 +1470,11 @@ long FormulaSetPreprocConjectures(FormulaSet_p set,
    WFormula_p handle;
 
    handle = set->anchor->succ;
-
    // fprintf(stderr, "sine formulas: ");
    while (handle != set->anchor)
    {
-      // DBG_PRINT(stderr, WFormulaGetId(handle), DerivationDebugPrint(stderr, handle->derivation), "\n");
+      // DBG_PRINT(stderr, WFormulaGetId(handle),
+      // DerivationDebugPrint(stderr, handle->derivation), "\n");
       WFormulaAnnotateQuestion(handle, add_answer_lits,
                                conjectures_are_questions,
                                NULL);
@@ -1505,6 +1505,7 @@ bool WFormulaSimplify(WFormula_p form, TB_p terms)
 {
    TFormula_p simplified;
    bool res = false;
+
 
    //assert(!terms->freevarsets);
    simplified = TFormulaSimplify(terms, form->tformula, 0);
@@ -1736,7 +1737,7 @@ long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive,
 #endif
    if(fool_unroll)
    {
-      TFormulaSetUnrollFOOL(set, archive, terms);
+      WFormulaSetUnrollFOOL(set, archive, terms);
    }
    FormulaSetSimplify(set, terms, true);
 
@@ -1746,6 +1747,7 @@ long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive,
    while (!FormulaSetEmpty(set))
    {
       handle = FormulaSetExtractFirst(set);
+
       DBGTermCheckUnownedSubterm(stdout, handle->tformula, "UnownedCNF");
       form = WFormulaFlatCopy(handle);
       FormulaSetInsert(archive, handle);
@@ -2160,7 +2162,7 @@ bool TFormulaUnrollFOOL(WFormula_p form, TB_p terms)
 
 /*-----------------------------------------------------------------------
 //
-// Function: TFormulaReplaceEqnWithEquiv()
+// Function: WFormulaReplaceEqnWithEquiv()
 //
 //   If input formula contains subformulas of type \alpha = \beta,
 //   replace those subformulas with \alpha <=> \beta and alter
@@ -2172,22 +2174,16 @@ bool TFormulaUnrollFOOL(WFormula_p form, TB_p terms)
 //
 /----------------------------------------------------------------------*/
 
-bool TFormulaReplaceEqnWithEquiv(WFormula_p form, TB_p terms)
+bool WFormulaReplaceEqnWithEquiv(WFormula_p form, TB_p terms)
 {
    bool res = map_formula(form, terms, do_bool_eqn_replace, DCEqToEq);
 
-   /* if(TFormulaHasFreeVars(terms, form->tformula)) */
-   /* { */
-   /*    printf(COMCHAR" Eqn->Equiv Free Variable: "); */
-   /*    WFormulaPrint(stdout, form, true); */
-   /*    printf("\n"); */
-   /* } */
    return res;
 }
 
 /*-----------------------------------------------------------------------
 //
-// Function: TFormulaSetUnrollFOOL()
+// Function: WFormulaSetUnrollFOOL()
 //
 //   Unrolls FOOL features for the set of formulas.
 //
@@ -2197,37 +2193,19 @@ bool TFormulaReplaceEqnWithEquiv(WFormula_p form, TB_p terms)
 //
 /----------------------------------------------------------------------*/
 
-long TFormulaSetUnrollFOOL(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
+long WFormulaSetUnrollFOOL(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
 {
    long res = 0;
    for (WFormula_p formula = set->anchor->succ;
         formula != set->anchor;
         formula = formula->succ)
    {
-      //printf(COMCHAR" Before Eqn2Equiv  %p: ", formula);
-      //WFormulaTSTPPrintDeriv(stdout, formula);
-      //printf("\n");
-      TFormulaReplaceEqnWithEquiv(formula, terms);
-      //printf(COMCHAR" Eqn2Equiv  %p: ", formula);
-      //WFormulaTSTPPrintDeriv(stdout, formula);
-      //printf("\n");
-      //printf(COMCHAR" As term     :");
-      //TermPrintDbg(stdout, formula->tformula, terms->sig, DEREF_NEVER);
-      //printf("\n");
-      //printf(COMCHAR" As pretty term     :\n");
-      //TermPrettyPrintSimple(stdout, formula->tformula, terms->sig, 0);
-      //printf("\n");
+      WFormulaReplaceEqnWithEquiv(formula, terms);
 
       if (TFormulaUnrollFOOL(formula, terms))
       {
          res++;
       }
-      //printf(COMCHAR" Foolunroll %p: ", formula);
-      //WFormulaTSTPPrintDeriv(stdout, formula);
-      //printf("\n");
-      //printf(COMCHAR" As term     :");
-      //TermPrintDbg(stdout, formula->tformula, terms->sig, DEREF_NEVER);
-      //printf("\n======\n");
    }
    return res;
 }

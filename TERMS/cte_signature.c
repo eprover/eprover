@@ -55,9 +55,18 @@ static void sig_print_operator(FILE* out, Sig_p sig, FunCode op, bool comments)
 {
    if(comments)
    {
-      fprintf(out, "   %-13s : %2d    "COMCHAR"  %2ld %2d \n",
+      fprintf(out, "   %-13s : %2d    "COMCHAR"  %2ld %2d ",
               sig->f_info[op].pname, sig->f_info[op].arity, op,
               sig->f_info[op].properties);
+      if(sig->f_info[op].type)
+      {
+         TypePrintTSTP(out, sig->type_bank, sig->f_info[op].type);
+      }
+      else
+      {
+               fprintf(stdout,"(no type)");
+      }
+      fprintf(stdout,"\n");
    }
    else
    {

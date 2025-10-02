@@ -67,6 +67,7 @@ void TermPrintDbgHO(FILE* out, Term_p term, Sig_p sig, DerefType deref);
 #endif
 
 void TermPrintSimple(FILE* out, Term_p term, Sig_p sig);
+void TermPrintSExpr(FILE* out, Term_p term, Sig_p sig);
 bool TermIsFlat(Term_p t);
 void TermPrettyPrintSimple(FILE* out, Term_p term, Sig_p sig, int level);
 

@@ -62,6 +62,8 @@ long ProofStateIntroduceGroundTermDefs(ProofState_p proofstate,
    Clause_p handle;
    PTree_p terms_to_define;
 
+   printf("ProofStateIntroduceGroundTermDefs()...\n");
+
    for(handle = proofstate->axioms->anchor->succ;
        handle!=proofstate->axioms->anchor;
        handle = handle->succ)
@@ -75,7 +77,7 @@ long ProofStateIntroduceGroundTermDefs(ProofState_p proofstate,
       }
    }
 
-
+   printf("...ProofStateIntroduceGroundTermDefs()\n");
    return res;
 }
 

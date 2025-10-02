@@ -1260,8 +1260,16 @@ Term_p EncodePredicateAsEqn(TB_p bank, TFormula_p f)
    Sig_p sig = bank->sig;
    bool positive;
 
+   if(f->f_code == bank->sig->answer_code)
+   {
+      printf("#X# %d: ", f->type == sig->type_bank->bool_type);
+      TermPrint(stdout, f, bank->sig, DEREF_NEVER);
+      printf("\n");
+   }
+
    if((TermIsAnyVar(f) ||
        !SigIsLogicalSymbol(bank->sig, f->f_code) ||
+       f->f_code == bank->sig->answer_code ||
        f->f_code == SIG_TRUE_CODE ||
        f->f_code == SIG_FALSE_CODE ||
        f->f_code == SIG_ITE_CODE ||
@@ -1285,6 +1293,9 @@ Term_p EncodePredicateAsEqn(TB_p bank, TFormula_p f)
 
       // making sure we encode $false as $true!=$true
       f = EqnTermsTBTermEncode(bank, lside, rside, positive, PENormal);
+      printf("xxx %ld - %ld: ", f->f_code, bank->sig->eqn_code);
+      TermPrint(stdout, f, bank->sig, DEREF_NEVER);
+      printf("\n");
    }
    return f;
 }
@@ -1604,6 +1615,9 @@ void TFormulaTPTPPrint(FILE* out, TB_p bank, TFormula_p form, bool fullterms, bo
    }
    else if(TFormulaIsUnary(form))
    {
+      printf("#### ");
+      TermPrintSExpr(out, form, bank->sig);
+      printf("\n");
       assert(form->f_code == bank->sig->not_code);
       fputs("~(", out);
       TFormulaTPTPPrint(out, bank, form->args[0], fullterms, pcl);

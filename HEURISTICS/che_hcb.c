@@ -440,8 +440,8 @@ void HeuristicParmsPrint(FILE* out, HeuristicParms_p handle)
    fprintf(out, "   split_fresh_defs:               %s\n",
            BOOL2STR(handle->split_fresh_defs));
 
-   fprintf(out, "   diseq_decomposition             %ld\n", handle->diseq_decomposition);
-   fprintf(out, "   diseq_decomp_maxarity           %ld\n", handle->diseq_decomp_maxarity);
+   fprintf(out, "   diseq_decomposition:            %ld\n", handle->diseq_decomposition);
+   fprintf(out, "   diseq_decomp_maxarity:          %ld\n", handle->diseq_decomp_maxarity);
 
    fprintf(out, "   rw_bw_index_type:               %s\n", handle->rw_bw_index_type);
    fprintf(out, "   pm_from_index_type:             %s\n", handle->pm_from_index_type);

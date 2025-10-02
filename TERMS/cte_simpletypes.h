@@ -1,26 +1,27 @@
 /*-----------------------------------------------------------------------
 
-File  : cte_simpletypes.c
+  File  : cte_simpletypes.c
 
-Author: Simon Cruanes (simon.cruanes@inria.fr)
+  Author: Simon Cruanes (simon.cruanes@inria.fr),  Petar Vukmirovic,
+  Stephan Schulz
 
-Contents
+  Contents
 
-  Implementation of simple types for the TSTP TFF format
+  Implementation of simple types for the TSTP TFF (and THF) format.
 
-  Copyright 2013 by the author.
+  A complex ("arrow") type is an array [t1,...,tn, t], representing
+  the type t1 -> ... -> tn -> t or (t1, ... tn) -> tn, depending on
+  yout viewpoint. In particular, the last element in the array is the
+  return sort.
+
+  Copyright 2013-2025 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
-
-<2> Somewhere at the end of 2017. Completely rewritten
-    by Petar Vukmirovic.
-
-<1> Sat Jul  6 09:45:14 CEST 2013
-    New
+  Created: Sat Jul  6 09:45:14 CEST 2013
+  Completely rewritten by Petar Vukmirovic around the end of 2017.
 
 -----------------------------------------------------------------------*/
 
@@ -42,7 +43,7 @@ Changes
 #define STInteger     4     /* Integer numbers */
 #define STRational    5     /* Rational numbers */
 #define STReal        6     /* Reals */
-#define STPredefined  STReal
+#define STPredefined  STReal /* Greatest pre-defined type encoding */
 
 typedef long TypeUniqueID;
 typedef long TypeConsCode;

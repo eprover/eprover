@@ -985,7 +985,7 @@ static int term_compare(const void* v1, const void* v2)
 
 /*-----------------------------------------------------------------------
 //
-// Function:
+// Function: do_simplify_decoded()
 //
 //
 //
@@ -1763,7 +1763,8 @@ TFormula_p TFormulaExpandLiterals(TB_p terms, TFormula_p form)
                                    form->args[0], form->args[1]);
       }
       else if(!TermIsFreeVar(form->args[0]) &&
-              (form->args[0]->f_code < terms->sig->internal_symbols))
+              (form->args[0]->f_code < terms->sig->internal_symbols) &&
+              (form->args[0]->f_code != terms->sig->answer_code))
       {
          assert(form->args[1] == terms->true_term);
          form = form->args[0];

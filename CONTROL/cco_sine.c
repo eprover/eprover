@@ -61,6 +61,32 @@ static AxFilter_p sine_get_filter(char* fname, AxFilterSet_p *filters)
 
    in = CreateScanner(StreamTypeOptionString, fname, true, NULL, true);
    CheckInpTok(in, Name);
+   *filters = AxFilterSetCreateInternal(AxFilterDefaultSet);
+   filter = AxFilterSetFindFilter(*filters, fname);
+   if(!filter)
+   {
+      DStr_p fstring = DStrAlloc();
+
+      AxFilterSetAddNames(fstring, *filters);
+      Error("Unknown SinE-filter '%s' selected (valid choices: %s)",
+            USAGE_ERROR,
+            fname,
+            DStrView(fstring));
+      DStrFree(fstring);
+   }
+   DestroyScanner(in);
+   return filter;
+}
+
+#ifdef NEVER_DEFINED
+
+static AxFilter_p sine_get_filter(char* fname, AxFilterSet_p *filters)
+{
+   AxFilter_p    filter;
+   Scanner_p     in;
+
+   in = CreateScanner(StreamTypeOptionString, fname, true, NULL, true);
+   CheckInpTok(in, Name);
    if(!TestInpId(in, "LambdaDef") && TestTok(LookToken(in,1), NoToken))
    {
       *filters = AxFilterSetCreateInternal(AxFilterDefaultSet);
@@ -87,6 +113,7 @@ static AxFilter_p sine_get_filter(char* fname, AxFilterSet_p *filters)
    return filter;
 }
 
+#endif
 
 /*-----------------------------------------------------------------------
 //
@@ -583,10 +610,10 @@ long ProofStateSinE(ProofState_p state, char* fname)
 
    if(!fname)
    {
-      printf(COMCHAR" No SInE strategy applied\n");
+      fprintf(GlobalOut, COMCHAR" No SInE strategy applied\n");
       return 0;
    }
-   printf(COMCHAR" SinE strategy is %s\n", fname);
+   fprintf(GlobalOut, COMCHAR" SinE strategy is %s\n", fname);
 
    filter = sine_get_filter(fname, &filters);
 

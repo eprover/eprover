@@ -345,15 +345,16 @@ bool do_is_db_closed(Term_p t,  long depth)
 
 /*-----------------------------------------------------------------------
 //
-// Function: do_fool_print()
+// Function: do_ho_print()
 //
 //    Inner function
 //
-// Global Variables: TermPrintLists
+// Global Variables:
 //
 // Side Effects    : Output
 //
 /----------------------------------------------------------------------*/
+
 void do_ho_print(FILE* out, TFormula_p term, Sig_p sig, DerefType deref, int depth)
 {
    if (problemType == PROBLEM_FO)
@@ -460,7 +461,7 @@ void do_ho_print(FILE* out, TFormula_p term, Sig_p sig, DerefType deref, int dep
 //
 //    Inner function
 //
-// Global Variables: TermPrintLists
+// Global Variables:
 //
 // Side Effects    : Output
 //
@@ -574,7 +575,10 @@ void do_fool_print(FILE* out, Sig_p sig, TFormula_p form, int depth)
       if(!TermIsFreeVar(form) && SigQueryFuncProp(sig, form->f_code, FPFOFOp) && form->arity == 2)
       {
          fputs("(", out);
+         PRINT_HO_PAREN(out, '(');
          do_fool_print(out, sig, form->args[0], depth);
+         PRINT_HO_PAREN(out, ')');
+
          if(form->f_code == sig->and_code)
          {
             oprep = "&";
@@ -608,7 +612,9 @@ void do_fool_print(FILE* out, Sig_p sig, TFormula_p form, int depth)
             oprep = "<~>";
          }
          fputs(oprep, out);
+         PRINT_HO_PAREN(out, '(');
          do_fool_print(out, sig, form->args[1], depth);
+         PRINT_HO_PAREN(out, ')');
          fputs(")", out);
       }
       else
@@ -802,6 +808,7 @@ void TermPrintDbgHO(FILE* out, Term_p term, Sig_p sig, DerefType deref)
 #endif
 
 
+
 /*--------------------------------------------------------------------
 //
 // Function: TermPrintArgList()
@@ -882,6 +889,58 @@ void TermPrintSimple(FILE* out, Term_p term, Sig_p sig)
       }
    }
 }
+
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: TermPrintSExpr()
+//
+//   Prints the (uninstantiated) term as an s-expression,
+//   with symbols/formula as naked ans possible.
+//
+// Global Variables: TermPrintLists
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+void TermPrintSExpr(FILE* out, Term_p term, Sig_p sig)
+{
+   assert(term);
+   assert(sig||TermIsFreeVar(term));
+
+   if(term->arity)
+   {
+      fprintf(out, "(");
+   }
+
+   if(TermIsDBVar(term))
+   {
+      fprintf(out, "db(%ld)", term->f_code);
+   }
+   else if(TermIsFreeVar(term))
+   {
+      VarPrint(out, term->f_code);
+   }
+   else
+   {
+      fputs(SigFindName(sig, term->f_code), out);
+   }
+
+   for(int i = 0; i < term->arity; ++i)
+   {
+      fprintf(out, "   ");
+      TermPrintSExpr(out, term->args[i], sig);
+   }
+   if(term->arity)
+   {
+      fprintf(out, ")");
+   }
+}
+
+
+
 
 /*-----------------------------------------------------------------------
 //
@@ -2753,6 +2812,7 @@ long TermCollectGroundTerms(Term_p term, PTree_p *result, bool all_subterms)
    long count = 0;
    int i;
 
+
    PStackPushP(stack, term);
 
    while(!PStackEmpty(stack))
@@ -2776,6 +2836,8 @@ long TermCollectGroundTerms(Term_p term, PTree_p *result, bool all_subterms)
          }
       }
    }
+   PStackFree(stack);
+
    return count;
 }
 

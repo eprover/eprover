@@ -1484,6 +1484,7 @@ void ProofStateInit(ProofState_p state, ProofControl_p control)
    traverse =
       EvalTreeTraverseInit(PDArrayElementP(state->axioms->eval_indices,0),0);
 
+   //OUTPRINT(1, COMCHAR" Initializing proof state (2)\n");
    while((cell = EvalTreeTraverseNext(traverse, 0)))
    {
       handle = cell->object;
@@ -1494,13 +1495,16 @@ void ProofStateInit(ProofState_p state, ProofControl_p control)
                       new, state->archive,
                       control->heuristic_parms.watchlist_is_static,
                       control->heuristic_parms.lambda_demod);
+      //OUTPRINT(1, COMCHAR" Initializing proof state (2a)\n");
       HCBClauseEvaluate(control->hcb, new);
+      //OUTPRINT(1, COMCHAR" Initializing proof state (2b)\n");
       DocClauseQuoteDefault(6, new, "eval");
       ClausePushDerivation(new, DCCnfQuote, handle, NULL);
       if(ProofObjectRecordsGCSelection)
       {
          ClausePushDerivation(new, DCCnfEvalGC, NULL, NULL);
       }
+      //OUTPRINT(1, COMCHAR" Initializing proof state (2c)\n");
       if(control->heuristic_parms.prefer_initial_clauses)
       {
          EvalListChangePriority(new->evaluations, -PrioLargestReasonable);
@@ -1509,7 +1513,6 @@ void ProofStateInit(ProofState_p state, ProofControl_p control)
    }
    //OUTPRINT(1, COMCHAR" Initializing proof state (3)\n");
    ClauseSetMarkSOS(state->unprocessed, control->heuristic_parms.use_tptp_sos);
-   // printf("Before EvalTreeTraverseExit\n");
    EvalTreeTraverseExit(traverse);
 
    if(control->heuristic_parms.ac_handling!=NoACHandling)

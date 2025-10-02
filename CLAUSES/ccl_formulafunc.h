@@ -107,7 +107,8 @@ void FormulaSetDocInital(FILE* out, long level, FormulaSet_p set);
 
 long TFormulaSetLiftItes(FormulaSet_p set, FormulaSet_p archive, TB_p terms);
 long TFormulaSetLiftLets(FormulaSet_p set, FormulaSet_p archive, TB_p terms);
-long TFormulaSetUnrollFOOL(FormulaSet_p set, FormulaSet_p archive, TB_p terms);
+bool WFormulaReplaceEqnWithEquiv(WFormula_p form, TB_p terms);
+long WFormulaSetUnrollFOOL(FormulaSet_p set, FormulaSet_p archive, TB_p terms);
 long TFormulaSetLambdaNormalize(FormulaSet_p set, FormulaSet_p archive, TB_p terms);
 long TFormulaSetNamedToDBLambdas(FormulaSet_p set, FormulaSet_p archive, TB_p terms);
 long TFormulaSetUnfoldDefSymbols(FormulaSet_p set, FormulaSet_p archive, TB_p terms, bool only_forms);

@@ -554,7 +554,8 @@ WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms)
    FormulaSetType(handle, type);
    FormulaSetProp(handle, initial|CPInitial);
    handle->info = info;
-
+   //WFormulaTSTPPrintFlex(stdout, handle, true, true, false);
+   //printf("\n");
    // printf(COMCHAR" Formula complete!\n");
    return handle;
 }
@@ -582,6 +583,8 @@ void WFormulaTSTPPrintFlex(FILE* out, WFormula_p form, bool fullterms,
 {
    char *typename = "plain", *formula_kind = "fof";
    bool is_untyped = TFormulaIsUntyped(form->tformula);
+
+   //SigPrint(stdout, form->terms->sig);
 
    if(problemType == PROBLEM_FO)
    {
@@ -649,8 +652,6 @@ void WFormulaTSTPPrintFlex(FILE* out, WFormula_p form, bool fullterms,
    else
    {
       TFormulaTPTPPrint(out, form->terms, form->tformula,fullterms, false);
-      // TermPrintDbg(out, form->tformula, form->terms->sig, DEREF_NEVER);
-      //fprintf(out, "");
       //fprintf(out, "<dummy %p in %p>", form->tformula, form->terms);
    }
    if(complete)

@@ -49,6 +49,8 @@ char* GeneralityMeasureNames[] =
 char* AxFilterDefaultSet ="\
    threshold010000=Threshold(10000)\
 \
+   LambdaDef=LambdaDef\
+\
    gf500_gu_R04_F100_L20000=GSinE(CountFormulas, ,false,   5.0,, 4,20000,1.0)\
    gf120_gu_RUU_F100_L00500=GSinE(CountFormulas, ,false,   1.2,,,  500,1.0)\
    gf120_gu_R02_F100_L20000=GSinE(CountFormulas, ,false,   1.2,, 2,20000,1.0)\

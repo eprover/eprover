@@ -1143,7 +1143,6 @@ void EqnFOFPrint(FILE* out, Eqn_p eq, bool negated,  bool fullterms, bool pcl)
    bool positive = XOR(EqnIsPositive(eq), negated);
    bool infix = false;
 
-
    switch(OutputFormat)
    {
    case TPTPFormat:
@@ -2397,11 +2396,11 @@ bool EqnOrient(OCB_p ocb, Eqn_p eq)
    }
    else
    {
-      /* printf("EqnOrient: ");
-         TermPrint(stdout, eq->lterm, eq->bank->sig, DEREF_ALWAYS);
-         printf(" "COMCHAR" ");
-         TermPrint(stdout, eq->rterm, eq->bank->sig, DEREF_ALWAYS);
-         printf("\n");*/
+      /*printf("EqnOrient: ");
+        TermPrint(stdout, eq->lterm, eq->bank->sig, DEREF_ALWAYS);
+        printf(" "COMCHAR" ");
+        TermPrint(stdout, eq->rterm, eq->bank->sig, DEREF_ALWAYS);
+        printf("\n");*/
       relation = TOCompare(ocb, eq->lterm, eq->rterm, DEREF_ALWAYS, DEREF_ALWAYS);
    }
    switch(relation)

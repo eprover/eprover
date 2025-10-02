@@ -2093,7 +2093,7 @@ bool ImmediateClausification(Clause_p cl, ClauseSet_p store, ClauseSet_p archive
 
          if(fool_unroll)
          {
-            TFormulaSetUnrollFOOL(work_set, archive, bank);
+            WFormulaSetUnrollFOOL(work_set, archive, bank);
          }
          FormulaSetSimplify(work_set, bank, false);
          //printf(COMCHAR" TFormulaSetIntroduceDefs called from ImmediateClausification\n");

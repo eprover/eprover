@@ -615,14 +615,14 @@ int main(int argc, char* argv[])
                                            // with manual user options
    }
 
-#ifndef NDEBUG
+//#ifndef NDEBUG
    fprintf(stdout, COMCHAR" (lift_lambdas = %d, lambda_to_forall = %d,"
            "unroll_only_formulas = %d, sine = %s)\n",
            h_parms->lift_lambdas,
            h_parms->lambda_to_forall,
            h_parms->unroll_only_formulas,
            h_parms->sine);
-#endif
+//#endif
 
    relevancy_pruned += ProofStateSinE(proofstate, h_parms->sine);
    relevancy_pruned += ProofStateRelevancyProcess(proofstate,

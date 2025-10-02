@@ -189,9 +189,8 @@ OCB_p OCBAlloc(TermOrdering type, bool prec_by_weight, Sig_p sig, HoOrderKind ho
    handle->pos_bal = 0;
    handle->neg_bal = 0;
    handle->max_var = 0;
-   handle->vb_size = ho_order_kind == LAMBDA_ORDER ? 0 : 64;
-   handle->vb      = ho_order_kind == LAMBDA_ORDER ?
-                        NULL : SizeMalloc(handle->vb_size*sizeof(int));
+   handle->vb_size = ho_order_kind == LAMBDA_ORDER ? 1 : 64;
+   handle->vb      = handle->vb_size? SizeMalloc(handle->vb_size*sizeof(int)):NULL;
    handle->db_weight = DEFAULT_DB_WEIGHT;
    handle->lam_weight = DEFAULT_LAMBDA_WEIGHT;
    handle->ho_vb   = NULL;

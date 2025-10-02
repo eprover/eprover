@@ -770,7 +770,7 @@ static CompareResult cmp_heads(OCB_p ocb, Term_p s, Term_p t)
 
 
 static CompareResult kbolincmp(OCB_p ocb, Term_p s, Term_p t,
-                             DerefType deref_s, DerefType deref_t)
+                               DerefType deref_s, DerefType deref_t)
 {
    assert(problemType != PROBLEM_HO); // no need to change derefs
    CompareResult res = to_equal;
@@ -1217,11 +1217,13 @@ static CompareResult kbolincmp_ho(OCB_p ocb, Term_p s, Term_p t,
 
 static void __inline__ kbo6reset(OCB_p ocb)
 {
+#ifdef ENABLE_LFHO
    if(ocb->ho_order_kind == LAMBDA_ORDER)
    {
       OCBResetHOVarMap(ocb);
    }
    else
+#endif
    {
       for(size_t i=0; i<=ocb->max_var; i++)
       {
@@ -1269,10 +1271,21 @@ CompareResult KBO6Compare(OCB_p ocb, Term_p s, Term_p t,
    assert(ocb->ho_vb == NULL);
 
 #ifdef ENABLE_LFHO
-   res = problemType == PROBLEM_HO ?
-            (ocb->ho_order_kind == LFHO_ORDER ? kbolincmp_ho : kbolincmp_lambda)(ocb, s, t, deref_s, deref_t)
-            : kbolincmp(ocb, s, t, deref_s, deref_t);
-   //res = kbolincmp(ocb, s, t, deref_s, deref_t);
+   if(problemType == PROBLEM_HO)
+   {
+      if(ocb->ho_order_kind == LFHO_ORDER)
+      {
+         res = kbolincmp_ho(ocb, s, t, deref_s, deref_t);
+      }
+      else
+      {
+         res = kbolincmp_lambda(ocb, s, t, deref_s, deref_t);
+      }
+   }
+   else
+   {
+      res = kbolincmp(ocb, s, t, deref_s, deref_t);
+   }
 #else
    res = kbolincmp(ocb, s, t, deref_s, deref_t);
    assert((kbo6reset(ocb), res == kbo6cmp(ocb, s, t, deref_s, deref_t)));
