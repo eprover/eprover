@@ -120,7 +120,7 @@
    }while(0)
 
 #define PLocalTaggedStackPush(stack, val, tag)     do{                  \
-      assert(sizeof(tag) =< sizeof(void*));                             \
+      assert(sizeof(tag) <= sizeof(void*));                             \
       assert(((__typeof__(tag))((void*)tag)) == tag);                   \
       stack##_##data[stack##_##current++] = val;                        \
       stack##_##data[stack##_##current++] = (void*)tag;                 \
