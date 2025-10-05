@@ -1260,12 +1260,12 @@ Term_p EncodePredicateAsEqn(TB_p bank, TFormula_p f)
    Sig_p sig = bank->sig;
    bool positive;
 
-   if(f->f_code == bank->sig->answer_code)
-   {
-      printf("#X# %d: ", f->type == sig->type_bank->bool_type);
-      TermPrint(stdout, f, bank->sig, DEREF_NEVER);
-      printf("\n");
-   }
+   /* if(f->f_code == bank->sig->answer_code) */
+   /* { */
+   /*    printf("#X# %d: ", f->type == sig->type_bank->bool_type); */
+   /*    TermPrint(stdout, f, bank->sig, DEREF_NEVER); */
+   /*    printf("\n"); */
+   /* } */
 
    if((TermIsAnyVar(f) ||
        !SigIsLogicalSymbol(bank->sig, f->f_code) ||
