@@ -102,7 +102,7 @@ for argument in  "$@"; do
         echo "  Equivalent to --bindir=<path>/bin --mandir=<path>/man".
         exit 0
     else
-        opt=`echo "$argument"|cut -d= -f1`
+        # opt=`echo "$argument"|cut -d= -f1`
         arg=`echo "$argument"|cut -d= -f2-`
         if [ "$opt" = "--bindir" ] ; then
            EXECPATH=$arg
@@ -130,9 +130,8 @@ for argument in  "$@"; do
 done
 
 echo "Configuring with executable path "$EXECPATH
-
-echo $MANPATH
-echo $enable_ho
+echo "Configuring with man path "$MANPATH
+# echo $enable_ho
 sed -e "/^EXECPATH =.*/s|.*|EXECPATH = $EXECPATH|" \
     -e "/^MANPATH =.*/s|.*|MANPATH = $MANPATH|" \
     -e "/^.*DENABLE_LFHO/s|.*|$enable_ho|" \
@@ -154,6 +153,6 @@ sort tmpfile4 > tmpfile5
 cat tmpfile1 tmpfile5 tmpfile2 > resfile
 
 mv resfile Makefile.vars
-rm tmpfile*
+rm tmpfile tmpfile1 tmpfile2 tmpfile3 tmpfile4 tmpfile5
 
 make config
