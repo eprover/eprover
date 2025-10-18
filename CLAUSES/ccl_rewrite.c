@@ -143,8 +143,13 @@ static bool instance_is_rule(OCB_p ocb, TB_p bank,
 {
    assert(term);
 
+   //printf("### Start\n");
    while(TermIsTopRewritten(term)&&(!restricted_rw||TermIsRRewritten(term)))
    {
+      //printf("### Term: %p: ", term);
+      //TermPrintSExpr(stdout, term, term->owner_bank->sig);
+      //printf("\n");
+
       assert(term);
       if(TermCellQueryProp(term, TPIsSOSRewritten))
       {
@@ -156,6 +161,9 @@ static bool instance_is_rule(OCB_p ocb, TB_p bank,
       term = TermRWReplaceField(term);
       assert(term);
    }
+   //printf("### Final: %p: ", term);
+   //TermPrintSExpr(stdout, term, term->owner_bank->sig);
+   //printf("\n");
    return term;
 }
 
