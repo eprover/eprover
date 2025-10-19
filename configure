@@ -77,8 +77,8 @@
 EXECPATH=`pwd`/PROVER
 MANPATH=`pwd`/DOC/man
 
-enable_ho='             # -DENABLE_LFHO \\'
-unix_comments='             # -DUNIX_COMMENTS \\'
+enable_ho=' # -DENABLE_LFHO'
+unix_comments=' # -DUNIX_COMMENTS'
 build_eprover="EPROVER_BIN = eprover"
 
 for argument in  "$@"; do
@@ -107,14 +107,14 @@ for argument in  "$@"; do
         if [ "$opt" = "--bindir" ] ; then
            EXECPATH=$arg
         elif [ "$argument" = "--enable-ho" ] ; then
-            enable_ho='             -DENABLE_LFHO \\'
+            enable_ho=' -DENABLE_LFHO'
             build_eprover="EPROVER_BIN = eprover-ho"
         elif [ "$argument" = "--enable-lfho" ] ; then
-            enable_ho='             -DENABLE_LFHO \\'
+            enable_ho=' -DENABLE_LFHO'
             build_eprover="EPROVER_BIN = eprover-ho"
             echo "Obsolete option tolerated. Use --enable-ho in the future."
         elif [ "$argument" = "--unix-comments" ] ; then
-            unix_comments='             -DUNIX_COMMENTS \\'
+            unix_comments=' -DUNIX_COMMENTS'
         elif [ "$opt" = "--exec-prefix" ] ; then
            EXECPATH=$arg/bin
         elif [ "$opt" = "--man-prefix" ] ; then
@@ -131,28 +131,14 @@ done
 
 echo "Configuring with executable path "$EXECPATH
 echo "Configuring with man path "$MANPATH
-# echo $enable_ho
+#echo $enable_ho
 sed -e "/^EXECPATH =.*/s|.*|EXECPATH = $EXECPATH|" \
     -e "/^MANPATH =.*/s|.*|MANPATH = $MANPATH|" \
-    -e "/^.*DENABLE_LFHO/s|.*|$enable_ho|" \
-    -e "/^.*DUNIX_COMMENTS/s|.*|$unix_comments|" \
+    -e "/^ENABLE_LFHO =.*/s|.*|ENABLE_LFHO = $enable_ho|" \
+    -e "/^UNIX_COMMENTS = .*/s|.*|UNIX_COMMENTS = $unix_comments|" \
     -e "/^EPROVER_BIN/s|.*|$build_eprover|" \
     Makefile.vars > tmpfile
-optstart=`grep -n ^BUILDFLAGS Makefile.vars | cut -d: -f1`
-optstart2=`expr $optstart + 1`
-optend=`grep -n '^# BUILDFLAGS END' Makefile.vars | cut -d: -f1`
-optend2=`expr $optend + 1`
 
-head -n$optstart tmpfile > tmpfile1
-tail -n+$optend2   tmpfile > tmpfile2
-
-tail -n+$optstart2 tmpfile > tmpfile3
-optendnew=`grep -n '^# BUILDFLAGS END' tmpfile3 | cut -d: -f1`
-head -n$optendnew tmpfile3 > tmpfile4
-sort tmpfile4 > tmpfile5
-cat tmpfile1 tmpfile5 tmpfile2 > resfile
-
-mv resfile Makefile.vars
-rm tmpfile tmpfile1 tmpfile2 tmpfile3 tmpfile4 tmpfile5
+mv tmpfile Makefile.vars
 
 make config
