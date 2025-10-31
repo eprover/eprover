@@ -81,6 +81,7 @@ void          InitError(char* progname);
 void          Error(char* message, ErrorCodes ret, ...);
 void          SysError(char* message, ErrorCodes ret, ...);
 void          Warning(char* message, ...);
+void          PrintError(char* message, ErrorCodes ret, ...);
 void          SysWarning(char* message, ...);
 void          ELog(char* message, ...);
 double        GetTotalCPUTime(void);

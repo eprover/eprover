@@ -530,7 +530,8 @@ long StructFOFSpecParseAxioms(StructFOFSpec_p ctrl, PStack_p axfiles,
             TBGCRegisterClauseSet(ctrl->terms, cset);
             res += FormulaAndClauseSetParse(in, fset, cset, ctrl->terms,
                                             NULL,
-                                            &(ctrl->parsed_includes));
+                                            &(ctrl->parsed_includes),
+                                            0);
             assert(ClauseSetCardinality(cset)==0);
             PStackPushP(ctrl->clause_sets, cset);
             PStackPushP(ctrl->formula_sets, fset);

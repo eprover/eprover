@@ -163,7 +163,8 @@ char* run_command(InteractiveSpec_p interactive,
       fset = FormulaSetAlloc();
       FormulaAndClauseSetParse(job_scanner, fset, dummy, interactive->ctrl->terms,
                                NULL,
-                               &(interactive->ctrl->parsed_includes));
+                               &(interactive->ctrl->parsed_includes),
+                               0);
 
       // cset and fset are handed over to BatchProcessProblem and are
       // freed there (via StructFOFSpecBacktrackToSpec()).
@@ -226,7 +227,8 @@ char* add_command(InteractiveSpec_p interactive,
    fset = FormulaSetAlloc();
    FormulaAndClauseSetParse(axioms_scanner, fset, dummy, interactive->ctrl->terms,
                             NULL,
-                            &(interactive->ctrl->parsed_includes));
+                            &(interactive->ctrl->parsed_includes),
+                            0);
    DestroyScanner(axioms_scanner);
    DStrAppendDStr(dummy->identifier, axiomsname);
    DStrAppendDStr(fset->identifier, axiomsname);

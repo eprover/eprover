@@ -1797,7 +1797,8 @@ long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive,
 long FormulaAndClauseSetParse(Scanner_p in, FormulaSet_p fset,
                               ClauseSet_p wlset, TB_p terms,
                               StrTree_p *name_selector,
-                              StrTree_p *skip_includes)
+                              StrTree_p *skip_includes,
+                              short recursion_depth)
 {
    long res = 0;
    WFormula_p form, nextform;
@@ -1856,7 +1857,10 @@ long FormulaAndClauseSetParse(Scanner_p in, FormulaSet_p fset,
                                                   nwlset,
                                                   terms,
                                                   &new_limit,
-                                                  skip_includes);
+                                                  skip_includes,
+                                                  recursion_depth + 1);
+                  // Inherit had_error flag
+                  in->had_error |= new_in->had_error;
                   DestroyScanner(new_in);
                }
                StrTreeFree(new_limit);
@@ -1927,6 +1931,11 @@ long FormulaAndClauseSetParse(Scanner_p in, FormulaSet_p fset,
          clause = nextclause;
       }
       check_all_found(in, *name_selector);
+   }
+
+   if (0 == recursion_depth && in->had_error)
+   {
+      Error("Parse error occured", SYNTAX_ERROR);
    }
    return res;
 }

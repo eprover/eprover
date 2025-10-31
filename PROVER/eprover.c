@@ -211,7 +211,8 @@ ProofState_p parse_spec(CLState_p state,
                                proofstate->watchlist,
                                proofstate->terms,
                                NULL,
-                               &skip_includes);
+                               &skip_includes,
+                               0);
       CheckInpTok(in, NoToken);
       DestroyScanner(in);
    }
