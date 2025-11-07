@@ -64,7 +64,7 @@ extern TB_p bank;
 /----------------------------------------------------------------------*/
 
 void TermAddRWLink(Term_p term, Term_p replace, struct clause_cell *demod,
-                   bool sos, RWResultType type)
+                   bool sos, RWResultType type, int side)
 {
    assert(term);
    assert(replace);
@@ -79,6 +79,7 @@ void TermAddRWLink(Term_p term, Term_p replace, struct clause_cell *demod,
 
    TermRWReplaceField(term) = replace;
    TermRWDemodField(term)   = demod;
+   TermRWEqnSideField(term) = side;
 
    if(sos)
    {

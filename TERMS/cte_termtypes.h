@@ -119,6 +119,8 @@ typedef struct
    struct {
       struct termcell*   replace;         /* ...otherwise, it has been
                                              rewritten to this term */
+      int                eqn_side;         /* ...and this is the side of
+                                             the equation that was used */
       struct clause_cell *demod;          /* NULL means subterm! */
    }rw_desc;
 }RewriteState;
@@ -323,6 +325,7 @@ Term_p  MakeRewrittenTerm(Term_p orig, Term_p new, int orig_remains, struct tbce
 /* Absolutely get the value of the replace and demod fields */
 #define TermRWReplaceField(term) ((term)->rw_data.rw_desc.replace)
 #define TermRWDemodField(term)   ((term)->rw_data.rw_desc.demod)
+#define TermRWEqnSideField(term) ((term)->rw_data.rw_desc.eqn_side)
 #define REWRITE_AT_SUBTERM 0
 
 /* Get the logical value of the replaced term / demodulator */
