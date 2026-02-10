@@ -29,6 +29,7 @@
 
 bool EqnUseInfix = true;
 bool EqnFullEquationalRep = false;
+bool EqnPrintOriented = false;
 IOFormat OutputFormat =LOPFormat;
 
 
@@ -1049,8 +1050,8 @@ void EqnPrint(FILE* out, Eqn_p eq, bool negated,  bool fullterms)
          {
             fputc('!', out);
          }
-         /* fprintf(out, EqnIsOriented(eq)?"=>":"="); */
-         fprintf(out, "=");
+         fprintf(out, (EqnIsOriented(eq)&EqnPrintOriented)?"->":"=");
+         /* fprintf(out, "="); */
          TBPrintTerm(out, eq->bank, eq->rterm, fullterms);
          PRINT_HO_PAREN(out, ')');
       }
@@ -1275,7 +1276,14 @@ void EqnTSTPPrint(FILE* out, Eqn_p eq, bool fullterms)
       if(EqnIsEquLit(eq))
       {
          TBPrintTerm(out, eq->bank, eq->lterm, fullterms);
-         fprintf(out, "%s", EqnIsNegative(eq)?"!=":"=");
+         if(EqnPrintOriented)
+         {
+            fprintf(out, "%s>", EqnIsNegative(eq)?"!-":"-");
+         }
+         else
+         {
+            fprintf(out, "%s", EqnIsNegative(eq)?"!=":"=");
+         }
          TBPrintTerm(out, eq->bank, eq->rterm, fullterms);
       }
       else
