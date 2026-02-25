@@ -54,7 +54,7 @@ Contents
 #define E_URL "http://www.eprover.org"
 
 #define STS_MAIL "schulz@eprover.org"
-#define STS_COPYRIGHT "Copyright 1998-2025 by Stephan Schulz"
+#define STS_COPYRIGHT "Copyright 1998-2026 by Stephan Schulz"
 #define CTR_COPYRIGHT "and the E contributors (see DOC/CONTRIBUTORS)."
 #define STS_SNAIL "Stephan Schulz\nDHBW Stuttgart\nFakultaet Technik\nInformatik\nLerchenstrasse 1\n70174 Stuttgart\nGermany\n"
 #define HO_MAIL "jasmin.blanchette@gmail.com"

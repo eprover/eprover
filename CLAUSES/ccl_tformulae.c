@@ -1293,9 +1293,9 @@ Term_p EncodePredicateAsEqn(TB_p bank, TFormula_p f)
 
       // making sure we encode $false as $true!=$true
       f = EqnTermsTBTermEncode(bank, lside, rside, positive, PENormal);
-      printf("xxx %ld - %ld: ", f->f_code, bank->sig->eqn_code);
-      TermPrint(stdout, f, bank->sig, DEREF_NEVER);
-      printf("\n");
+      //printf("xxx %ld - %ld: ", f->f_code, bank->sig->eqn_code);
+      //TermPrint(stdout, f, bank->sig, DEREF_NEVER);
+      //printf("\n");
    }
    return f;
 }

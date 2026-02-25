@@ -555,6 +555,7 @@ long SelectDefiningAxioms(DRelation_p drel,
    PStackPointer sp, ssp;
    PStack_p   symbol_stack = PStackAlloc();
    int        recursion_level = 0;
+   //bool       pick_all = false;
 
    memset(dist_array, 0, (sig->f_count+1)*sizeof(long));
    PQueueStoreInt(axioms, ATNoType);
@@ -564,10 +565,11 @@ long SelectDefiningAxioms(DRelation_p drel,
 
    while(!PQueueEmpty(axioms))
    {
-      //printf("Selecting %ld from %ld at %d\n",
-      //res,
-      //PQueueCardinality(axioms),
-      //recursion_level);
+      /* printf(COMCHAR" Selecting %ld from %ld at %d (%ld symbols)\n", */
+      /*        res, */
+      /*        PQueueCardinality(axioms), */
+      /*        recursion_level, */
+      /*        PStackGetSP(symbol_stack)); */
 
       if((res > max_set_size) ||
          (recursion_level > max_recursion_depth))
@@ -617,6 +619,11 @@ long SelectDefiningAxioms(DRelation_p drel,
       }
       //printf(COMCHAR" SymbolstackSP: %ld\n", PStackGetSP(symbol_stack));
       //printf(COMCHAR" DRel total entries: %ld\n", DRelationTotalEntries(drel));
+      //if(recursion_level == 1)
+      //{
+      //fprintf(GlobalOut,
+      //COMCHAR" No seed symols in spec, switching critieria\n");
+      //}
       for(ssp=0; ssp<PStackGetSP(symbol_stack); ssp++)
       {
          i = PStackElementInt(symbol_stack, ssp);
