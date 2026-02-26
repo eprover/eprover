@@ -317,7 +317,7 @@ void SigFree(Sig_p junk)
 
    /* names are shared with junk->f_index and are free()ed by the
       StrTreeFree() call below! */
-   for(i=0; i< junk->f_count; i++)
+   for(i=0; i<= junk->f_count; i++)
    {
       if(junk->f_info[i].pname)
       {
@@ -768,8 +768,10 @@ FunCode SigPopId(Sig_p sig)
    {
       res = sig->f_count;
       StrTreeDeleteEntry(&(sig->f_index), sig->f_info[sig->f_count].name);
-      // Identifier is freed (unexpectedly?) in StrTreeDeleteEntry()
-      //FREE(sig->f_info[sig->f_count].name);
+      if(sig->f_info[sig->f_count].pname)
+      {
+         FREE(sig->f_info[sig->f_count].pname);
+      }
       sig->f_count--;
    }
    return res;
@@ -830,8 +832,11 @@ FunCode SigInsertLetId(Sig_p sig, const char* name, Type_p type)
 
    /* Insert the element in f_index and f_info */
    sig->f_count++;
-   sig->f_info[sig->f_count].name
-      = SecureStrdup(name);
+   sig->f_info[sig->f_count].name = SecureStrdup(name);
+   sig->f_info[sig->f_count].pname = SecureStrdup(name);
+   //printf("Name = '%s'\n", name);
+   //printf("Name copy = '%s'\n", sig->f_info[sig->f_count].name);
+   //printf("PName copy = '%s'\n", sig->f_info[sig->f_count].pname);
    PStackPushP(sig->let_names, sig->f_info[sig->f_count].name);
    sig->f_info[sig->f_count].arity = TypeGetMaxArity(type);
    sig->f_info[sig->f_count].properties = FPIgnoreProps;
