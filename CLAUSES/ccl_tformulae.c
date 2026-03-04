@@ -1615,10 +1615,10 @@ void TFormulaTPTPPrint(FILE* out, TB_p bank, TFormula_p form, bool fullterms, bo
    }
    else if(TFormulaIsUnary(form))
    {
-      printf("#### ");
-      TermPrintSExpr(out, form, bank->sig);
-      printf("\n");
-      assert(form->f_code == bank->sig->not_code);
+      ///printf("#### ");
+      ///TermPrintSExpr(out, form, bank->sig);
+      /// printf("\n");
+      ///assert(form->f_code == bank->sig->not_code);
       fputs("~(", out);
       TFormulaTPTPPrint(out, bank, form->args[0], fullterms, pcl);
       fputs(")", out);
