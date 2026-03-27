@@ -616,6 +616,7 @@ ClausePos_p indexed_find_demodulator(OCB_p ocb, Term_p term,
 
 #ifndef NDEBUG
    if(res
+      && problemType != PROBLEM_HO
       && !TermStructPrefixEqual(ClausePosGetSide(res), term, DEREF_ONCE, DEREF_NEVER,
                                 0, ocb->sig))
    {
