@@ -1155,6 +1155,7 @@ Term_p whnf_step_uncached(TB_p bank, Term_p t)
    res = new_matrix;
 
    PStackFree(to_bind_stack);
+   assert(TermIsShared(res));
    TermSetCache(t, res);
    return res;
 }
@@ -1185,12 +1186,6 @@ Term_p WHNF_step(TB_p bank, Term_p t)
    {
       res = whnf_step_uncached(bank, t);
    }
-   //printf("### WHNF: ");
-   //TermPrintDbg(stdout, t, bank->sig, DEREF_NEVER);
-   //printf(" => ");
-   //TermPrintDbg(stdout, res, bank->sig, DEREF_NEVER);
-   //printf("\n");
-
    return res;
 }
 
