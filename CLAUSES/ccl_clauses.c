@@ -185,10 +185,17 @@ static void clause_collect_posneg_vars(Clause_p clause,
 
 void TSTPSkipSource(Scanner_p in)
 {
-   AcceptInpTok(in, Identifier|PosInt);
-   if(TestInpTok(in, OpenBracket))
+   if(TestInpTok(in, OpenSquare))
    {
       ParseSkipParenthesizedExpr(in);
+   }
+   else
+   {
+      AcceptInpTok(in, Identifier|PosInt);
+      if(TestInpTok(in, OpenBracket))
+      {
+         ParseSkipParenthesizedExpr(in);
+      }
    }
 }
 

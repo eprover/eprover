@@ -15,7 +15,7 @@ f(X,i(X))=null.
 f(f(X,Y),Z)=f(X,f(Y,Z)).
 
 # Possible Hypothesis: Right inverse is also left inverse
-# <- f(i(a),a) = null.
+<- f(i(a),a) = null.
 
 # A nother possible hypothesis: Multiplication with inverse element is
 # commutative.
