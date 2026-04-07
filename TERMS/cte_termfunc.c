@@ -3190,6 +3190,7 @@ Term_p TermCopyRenameVars(NumTree_p* renaming, Term_p term)
     {
         copy = TermTopCopy(term);
         copy->type = term->type;
+        TermSetBank(copy, TermGetBank(term));
         for (i=0; i<term->arity; i++)
         {
             copy->args[i] = TermCopyRenameVars(renaming, term->args[i]);
@@ -3250,6 +3251,7 @@ Term_p TermCopyUnifyVars(VarBank_p vars, Term_p term)
     }
 
     Term_p new = TermTopCopy(term);
+    TermSetBank(new, TermGetBank(term));
     for (i=0; i<term->arity; i++)
     {
         new->args[i] = TermCopyUnifyVars(vars, term->args[i]);
