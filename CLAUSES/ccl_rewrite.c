@@ -232,8 +232,16 @@ static RWResultType term_is_top_rewritable(TB_p bank, OCB_p ocb,
                   repl = TBTermTopInsert(bank, repl);
                }
             }
-            TermAddRWLink(term, repl, new_demod, ClauseIsSOS(new_demod), res);
-            RewriteUncached++;
+            if(repl == term)
+            {
+               TermCellDelProp(term, TPIsRRewritable|TPIsRewritable);
+               res = RWNotRewritable;
+            }
+            else
+            {
+               TermAddRWLink(term, repl, new_demod, ClauseIsSOS(new_demod), res);
+               RewriteUncached++;
+            }
          }
       }
       SubstBacktrack(subst);
@@ -264,8 +272,16 @@ static RWResultType term_is_top_rewritable(TB_p bank, OCB_p ocb,
                }
             }
 
-            TermAddRWLink(term, repl, new_demod, ClauseIsSOS(new_demod), res);
-            RewriteUncached++;
+            if(repl == term)
+            {
+               TermCellDelProp(term, TPIsRRewritable|TPIsRewritable);
+               res = RWNotRewritable;
+            }
+            else
+            {
+               TermAddRWLink(term, repl, new_demod, ClauseIsSOS(new_demod), res);
+               RewriteUncached++;
+            }
          }
       }
    }
@@ -677,6 +693,12 @@ static Term_p rewrite_with_clause_set(OCB_p ocb, TB_p bank, Term_p term,
          repl = MakeRewrittenTerm(term, repl, 0, bank);
       }
 
+      if(repl == term)
+      {
+         SubstDelete(subst);
+         return term;
+      }
+
       assert(pos->clause->ident);
       TermAddRWLink(term, repl, pos->clause, ClauseIsSOS(pos->clause),
                     restricted_rw?RWAlwaysRewritable:RWLimitedRewritable);
@@ -1078,9 +1100,17 @@ static long term_find_rw_clauses(Clause_p demod,
                   repl = TBTermTopInsert(eqn->bank, repl);
                }
             }
-            TermAddRWLink(term, repl, demod, ClauseIsSOS(demod), rwres);
-            RewriteUncached++;
-            //TermDeleteRWLink(term);
+            if(repl == term)
+            {
+               TermCellDelProp(term, TPIsRRewritable|TPIsRewritable);
+               rwres = RWNotRewritable;
+            }
+            else
+            {
+               TermAddRWLink(term, repl, demod, ClauseIsSOS(demod), rwres);
+               RewriteUncached++;
+               //TermDeleteRWLink(term);
+            }
          }
       }
       /* We cannot set the NF date here, since we have no indication
