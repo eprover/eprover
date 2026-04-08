@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 
-"""
-genprot 0.2
+"""genprot 0.2
 
 Usage: genprot.py <archive_1> ... <archive_n>
 
-Read a list of compressed or unpacked output archives
-from the StarExec cluster logic solving service (https://www.starexec.org/)
-and convert the data into a protocol format (csv) usable by other tools for performance analyses within E.
-For each parameter set a separate protocol file is generated.
+Read a list of compressed or unpacked output archives from the
+StarExec cluster logic solving service (https://www.starexec.org/) and
+convert the data into a protocol format (csv) usable by other tools
+for performance analyses within E. For each parameter set a separate
+protocol file is generated.
 
 Output files to be processed within the archives or paths need to be in the form:
 proverversion/problemname/somefile.txt
@@ -28,7 +28,7 @@ Options:
 --verbose    print processed file names
 
 Copyright 2015 Martin Möhrmann, moehrmann@eprover.org,
-          2019-23 Stephan Schulz, schulz@eprover.org
+          2019-26 Stephan Schulz, schulz@eprover.org
 
 This code is part of the support structure for the equational
 theorem prover E. Visit
@@ -61,6 +61,7 @@ Raum: 0.01
 Germany
 
 or via email (address above).
+
 """
 
 
@@ -136,7 +137,7 @@ def remove_timestamp(line):
     # split prefixed timestamp X.XX/X.XX % or X.XX/X.XX #
     split = line.split("%", 1)
     if len(split) == 2 and len(split[0])<25:
-        return split[1].strip()
+        return "% "+split[1].strip()
     else:
         split = line.split("#", 1)
         if len(split) == 2 and len(split[0])<25 and split[0].find('(')==-1:
@@ -171,16 +172,17 @@ def make_entry(lines):
     for line in lines:
         status = False
         line = line.decode()
-        # print(line)
         line = remove_timestamp(line)
         line = line.replace("eprover: CPU time limit exceeded, terminating", "", 1)
 
-        if not line.startswith("#"):
+        # print(line)
+        if not (line.startswith("#") or line.startswith("%")):
+            #print("cont")
             continue
         else:
-            # print(line)            
+            #print("Yes:", line)
             line = line[2:]
-        # print(line)            
+        # print(line)
         split = line.split(":", 1)
         key   = split[0].strip()
         # Correct for TPTP errors causing E parse error mistaken for a result

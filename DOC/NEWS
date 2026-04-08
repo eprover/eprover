@@ -369,7 +369,7 @@ Version 0.82 -> 0.9 Soom
   variables in potential right hand sides)
 - Implemented TPTP style includes for TPTP/TSTP syntax
 - Made groundness a stored invariant in term banks (enables more
-  efficient inserting of gorund terms, also helps with literal
+  efficient inserting of ground terms, also helps with literal
   selection).
 - Reworked the watchlist (needs more work).
 - Reworked subsumption by ordering clauses (still need to look at the
