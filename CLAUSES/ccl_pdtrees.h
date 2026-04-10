@@ -37,7 +37,7 @@
 /*---------------------------------------------------------------------*/
 
 /* Information about how far are we in the traversal
-   of neighbors of the current node */
+   of children of the current node */
 typedef enum {
    TRAVERSING_SYMBOLS = 0,
    TRAVERSING_VARIABLES = 1,
@@ -175,10 +175,10 @@ Term_p    TermLRTraverseNext(PStack_p stack);
 Term_p    TermLRTraversePrev(PStack_p stack, Term_p term);
 
 bool      PDTreeInsert(PDTree_p tree, ClausePos_p demod_side);
-bool      PDTreeInsertTerm(PDTree_p tree, Term_p term, 
+bool      PDTreeInsertTerm(PDTree_p tree, Term_p term,
                            ClausePos_p demod_side, bool store_data);
 long      PDTreeDelete(PDTree_p tree, Term_p term, Clause_p clause);
-PDTNode_p PDTreeMatchPrefix(PDTree_p tree, Term_p term,  
+PDTNode_p PDTreeMatchPrefix(PDTree_p tree, Term_p term,
                             long* matched, long* remains);
 
 void      PDTreeSearchInit(PDTree_p tree, Term_p term, SysDate

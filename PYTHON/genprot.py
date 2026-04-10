@@ -87,6 +87,7 @@ featurekeys = ["Type", "Equational"]
 version_re = re.compile("[0-9]+[.][0-9]+")
 
 failuremap = {"User resource limit exceeded"    :"maxres",
+              "Schedule exhausted":"incomplete",
               "Out of unprocessed clauses!" :"incomplete",
               "Resource limit exceeded (memory)":"maxmem",
               "Resource limit exceeded (time)"  :"maxtime",
@@ -196,7 +197,7 @@ def make_entry(lines):
         if key.startswith("Schedule exhausted") or key.startswith("Alarm clock"):
             # print("Here", key)
             entry["Status"] = "F"
-            entry["Failure"] = "maxtime"
+            entry["Failure"] = "incomplete"
             status = True
         elif not status and key.startswith("SZS status"):
             entry["Status"] = statusmap[clean_key(key, statusmap)]
