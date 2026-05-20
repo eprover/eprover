@@ -1,10 +1,10 @@
 /*-----------------------------------------------------------------------
 
-File  : che_clauseweight.c
+  File  : che_clauseweight.c
 
-Author: Stephan Schulz
+  Author: Stephan Schulz
 
-Contents
+  Contents
 
   Functions realising clause evaluation with clause weights.
 
@@ -14,12 +14,9 @@ Contents
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
+  Created: Fri Jun  5 22:51:52 MET DST 1998
 
-<1> Fri Jun  5 22:51:52 MET DST 1998
-    New
-
------------------------------------------------------------------------*/
+  -----------------------------------------------------------------------*/
 
 #include "che_clauseweight.h"
 
@@ -120,7 +117,7 @@ WFCB_p ClauseWeightInit(ClausePrioFun prio_fun, int fweight, int
    data->app_var_mult           = app_var_mult;
 
    return WFCBAlloc(ClauseWeightCompute, prio_fun,
-          ClauseWeightExit, data);
+                    ClauseWeightExit, data);
 }
 
 

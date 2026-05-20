@@ -1,25 +1,24 @@
 /*-----------------------------------------------------------------------
 
-File  : che_clauseweight.h
+  File  : che_clauseweight.h
 
-Author: Stephan Schulz
+  Author: Stephan Schulz
 
-Contents
+  Contents
 
   Evaluation of a clause by clause weight, also an example for setting
   up an evaluation function. Contains some additional evaluation
   functions as well.
 
-  Copyright 1998, 1999 by the author.
+  Copyright 1998-1999 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
+  Changes
 
-<1> Sat Jul  5 02:28:25 MET DST 1997
-    New
+  Created: Sat Jul  5 02:28:25 MET DST 1997
 
 -----------------------------------------------------------------------*/
 
