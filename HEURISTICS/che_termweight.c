@@ -5,21 +5,21 @@
   Author: Stephan Schulz, yan
 
   Contents
- 
+
   Iplementation of conjecture subterm weight (Term) from [CICM'16/Sec.3].
-  
+
   Syntax
-   
+
   ConjectureRelativeTermWeight(
    prio,      // priority function
    varnorm,   // variable normalization:
-              // 0: universal variable, 
+              // 0: universal variable,
               // 1: alhpa normalization
-   relterm,   // related terms: 
-              // 0: conjecture terms, 
-              // 1: conjecture subterms, 
+   relterm,   // related terms:
+              // 0: conjecture terms,
+              // 1: conjecture subterms,
               // 2: conjecture subterms and top-level generalizations,
-              // 3: conjecture subterms and subterm generalizations. 
+              // 3: conjecture subterms and subterm generalizations.
    conj_mult, // conjecture multiplier (float)
    fweight,   // function symbol weight (int)
    cweight,   // constant symbol weight (int)
@@ -35,7 +35,7 @@
 
   References
 
-  [CICM'16]: Jan Jakubův and Josef Urban: "Extending E Prover with 
+  [CICM'16]: Jan Jakubův and Josef Urban: "Extending E Prover with
     Similarity Based Clause Selection Strategies", CICM, 2016.
     https://doi.org/10.1007/978-3-319-42547-4_11
 
@@ -64,14 +64,13 @@
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
 
-static Term_p termweight_insert(
-   TB_p bank, Term_p term, VarNormStyle var_norm)
+static Term_p termweight_insert(TB_p bank, Term_p term, VarNormStyle var_norm)
 {
    Term_p copy;
    Term_p repr;
-   
+
    copy = TermCopyNormalizeVars(bank->vars,term,var_norm);
-   repr = TBInsert(bank,copy,DEREF_NEVER); 
+   repr = TBInsert(bank,copy,DEREF_NEVER);
    TermCellSetProp(repr,TPTopPos);
    TermFree(copy);
 
@@ -139,7 +138,7 @@ static void termweight_init(TermWeightParam_p data)
    Clause_p clause;
    Clause_p anchor;
 
-   if (data->eval_bank) 
+   if (data->eval_bank)
    {
       return;
    }
@@ -155,7 +154,7 @@ static void termweight_init(TermWeightParam_p data)
       TBInsertClauseTermsNormalized(
          data->eval_bank,clause,data->var_norm,data->rel_terms);
    }
-   
+
    data->eval_freqs = TBCountTermFreqs(data->eval_bank);
 }
 
@@ -175,13 +174,13 @@ static void termweight_update_conjecture_freqs(
    while (!PStackEmpty(stack))
    {
       subterm = PStackPopP(stack);
-      if (TermIsFreeVar(subterm)) 
+      if (TermIsFreeVar(subterm))
       {
          continue;
       }
       subnorm = TermCopyNormalizeVars(bank->vars, subterm, var_norm);
       subrepr = TBFindRepr(bank, subnorm);
-      if (subrepr) 
+      if (subrepr)
       {
          cell = NumTreeFind(freqs, subrepr->entry_no);
          if (cell && cell->val1.i_val > 0)
@@ -190,7 +189,7 @@ static void termweight_update_conjecture_freqs(
          }
       }
 
-      //if (subrepr && (subrepr->freq>0)) 
+      //if (subrepr && (subrepr->freq>0))
       //{
       //   subterm->freq = subrepr->freq;
       //}
@@ -212,7 +211,7 @@ static double termweight_term_weight(Term_p term, TermWeightParam_p data)
    NumTree_p cell;
 
    repr = termweight_insert(data->eval_bank, term, data->var_norm);
-   termweight_update_conjecture_freqs(data->eval_bank, &data->eval_freqs, 
+   termweight_update_conjecture_freqs(data->eval_bank, &data->eval_freqs,
       repr, data->var_norm);
 
    if (TermIsFreeVar(repr))
@@ -222,7 +221,7 @@ static double termweight_term_weight(Term_p term, TermWeightParam_p data)
 
    cell = NumTreeFind(&data->eval_freqs, repr->entry_no);
    freq = cell ? (cell->val1.i_val) : 0;
-   if (TermIsConst(repr)) 
+   if (TermIsConst(repr))
    {
       return (freq>0) ? data->conj_cweight : data->cweight;
    }
@@ -244,7 +243,7 @@ static double termweight_term_weight(Term_p term, TermWeightParam_p data)
 //
 // Function: TBInsertClauseTermsNormalized()
 //
-//   Insert clause related terms into the term bank with a given 
+//   Insert clause related terms into the term bank with a given
 //   normalizations.
 //
 // Global Variables: -
@@ -254,9 +253,9 @@ static double termweight_term_weight(Term_p term, TermWeightParam_p data)
 /----------------------------------------------------------------------*/
 
 void TBInsertClauseTermsNormalized(
-   TB_p bank, 
-   Clause_p clause, 
-   VarNormStyle var_norm, 
+   TB_p bank,
+   Clause_p clause,
+   VarNormStyle var_norm,
    RelatedTermSet rel_terms)
 {
    Eqn_p lit;
@@ -324,7 +323,7 @@ TermWeightParam_p TermWeightParamAlloc(void)
 
 void TermWeightParamFree(TermWeightParam_p junk)
 {
-   if (junk->eval_bank) 
+   if (junk->eval_bank)
    {
       junk->eval_bank->sig = NULL;
       TBFree(junk->eval_bank);
@@ -333,7 +332,7 @@ void TermWeightParamFree(TermWeightParam_p junk)
    }
    TermWeightParamCellFree(junk);
 }
- 
+
 /*-----------------------------------------------------------------------
 //
 // Function: ConjectureRelativeTermWeightParse()
@@ -347,10 +346,10 @@ void TermWeightParamFree(TermWeightParam_p junk)
 /----------------------------------------------------------------------*/
 
 WFCB_p ConjectureRelativeTermWeightParse(
-   Scanner_p in,  
-   OCB_p ocb, 
+   Scanner_p in,
+   OCB_p ocb,
    ProofState_p state)
-{   
+{
    ClausePrioFun prio_fun;
    double pos_multiplier, max_term_multiplier, max_literal_multiplier;
    int fweight, pweight, cweight, vweight;
@@ -378,7 +377,7 @@ WFCB_p ConjectureRelativeTermWeightParse(
    AcceptInpTok(in, Comma);
    vweight = ParseInt(in);
    AcceptInpTok(in, Comma);
-   
+
    ext_style = (TermWeightExtenstionStyle)ParseInt(in);
    AcceptInpTok(in, Comma);
    max_term_multiplier = ParseFloat(in);
@@ -387,9 +386,9 @@ WFCB_p ConjectureRelativeTermWeightParse(
    AcceptInpTok(in, Comma);
    pos_multiplier = ParseFloat(in);
    AcceptInpTok(in, CloseBracket);
-   
+
    return ConjectureRelativeTermWeightInit(
-      prio_fun, 
+      prio_fun,
       ocb,
       state,
       var_norm,
@@ -420,7 +419,7 @@ WFCB_p ConjectureRelativeTermWeightParse(
 /----------------------------------------------------------------------*/
 
 WFCB_p ConjectureRelativeTermWeightInit(
-   ClausePrioFun prio_fun, 
+   ClausePrioFun prio_fun,
    OCB_p ocb,
    ProofState_p proofstate,
    VarNormStyle var_norm,
@@ -445,7 +444,7 @@ WFCB_p ConjectureRelativeTermWeightInit(
    data->var_norm   = var_norm;
    data->rel_terms  = rel_terms;
    data->eval_freqs = NULL;
-   
+
    data->vweight      = vweight;
    data->fweight      = fweight;
    data->cweight      = cweight;
@@ -461,11 +460,11 @@ WFCB_p ConjectureRelativeTermWeightInit(
       ext_style,
       (TermWeightFun)termweight_term_weight,
       data);
-   
+
    return WFCBAlloc(
-      ConjectureRelativeTermWeightCompute, 
+      ConjectureRelativeTermWeightCompute,
       prio_fun,
-      ConjectureRelativeTermWeightExit, 
+      ConjectureRelativeTermWeightExit,
       data);
 }
 
@@ -485,7 +484,7 @@ double ConjectureRelativeTermWeightCompute(void* data, Clause_p clause)
 {
    TermWeightParam_p local;
    double res;
-   
+
    local = data;
    local->init_fun(data);
 
@@ -510,7 +509,7 @@ double ConjectureRelativeTermWeightCompute(void* data, Clause_p clause)
 void ConjectureRelativeTermWeightExit(void* data)
 {
    TermWeightParam_p junk = data;
-   
+
    TermWeightExtensionFree(junk->twe);
    TermWeightParamFree(junk);
 }
@@ -518,4 +517,3 @@ void ConjectureRelativeTermWeightExit(void* data)
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-

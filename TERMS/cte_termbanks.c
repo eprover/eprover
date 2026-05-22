@@ -2045,6 +2045,46 @@ long TBTermDelPropCount(Term_p term, TermProperties prop)
    return count;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: TBTermSetPropCount()
+//
+//   Set properties prop in term, return number of term cells changed.
+//   Does assume that all subterms of a term with this property
+//   already not carry it!
+//
+// Global Variables: -
+//
+// Side Effects    : See above
+//
+/----------------------------------------------------------------------*/
+
+long TBTermSetPropCount(Term_p term, TermProperties prop)
+{
+   long count = 0;
+   int i;
+   PStack_p stack = PStackAlloc();
+
+   PStackPushP(stack, term);
+   while(!PStackEmpty(stack))
+   {
+      term = PStackPopP(stack);
+      if(!TermCellQueryProp(term, prop))
+      {
+         TermCellSetProp(term, prop);
+         count++;
+         for(i=0; i<term->arity; i++)
+         {
+            PStackPushP(stack, term->args[i]);
+         }
+      }
+   }
+   PStackFree(stack);
+   return count;
+}
+
+
+
 
 /*-----------------------------------------------------------------------
 //

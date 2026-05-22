@@ -26,6 +26,7 @@ Changes
 #define CHE_WFCB_ADMIN
 
 #include <che_clauseweight.h>
+#include <che_gdweight.h>
 #include <che_dagweight.h>
 #include <che_varweights.h>
 #include <che_funweights.h>

@@ -99,6 +99,7 @@ typedef enum
    TPHasAppVar = 1<<28,    /* Term has an applied variable*/
    TPHasEqNeqSym = 1<<29,    /* Term contains eq or neq symbol*/
    TPHasBoolSubterm = 1<<30,    /* Term has Boolean subterms or is a Boolean term itself*/
+   TPIsConjectureTerm = 1<<31, /* Term occurs in a conjecture. */
 }TermProperties;
 
 

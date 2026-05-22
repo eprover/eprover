@@ -172,8 +172,8 @@ static void init_conj_t_vector(FunWeightParam_p data)
 //   Initialize the function weight vector based on the data in data
 //   ;-). Factored out so it can be called from the weight
 //   function(s). Initializes function symbol weights to be equal
-//   to the inverse of occurence of symbol's type  + 
-//   2*occurence of symbol in the conjecture(s). 
+//   to the inverse of occurence of symbol's type  +
+//   2*occurence of symbol in the conjecture(s).
 //   Leaves type data in the data->type_freqs.
 //
 // Global Variables: -
@@ -219,7 +219,7 @@ static void init_conj_typeweight_vector(FunWeightParam_p data)
       for(i=1;i<data->flimit; i++)
       {
          TypeUniqueID type_uid = SigGetType(sig, i) ? (SigGetType(sig, i))->type_uid : 0;
-         max_occurrence = MAX(max_occurrence, data->type_freqs[type_uid] + 2*data->fweights[i]); 
+         max_occurrence = MAX(max_occurrence, data->type_freqs[type_uid] + 2*data->fweights[i]);
       }
       max_occurrence++;
 
@@ -237,7 +237,7 @@ static void init_conj_typeweight_vector(FunWeightParam_p data)
       }
       for(i=0;i<data->ocb->sig->type_bank->types_count+1;i++)
       {
-         // app vars are going to use this array 
+         // app vars are going to use this array
          data->type_freqs[i] = max_occurrence - data->type_freqs[i];
       }
    }
@@ -525,7 +525,7 @@ void FunWeightParamFree(FunWeightParam_p junk)
    }
    if(junk->type_freqs)
    {
-      SizeFree(junk->type_freqs, 
+      SizeFree(junk->type_freqs,
                (junk->ocb->sig->type_bank->types_count+1)*sizeof(long));
    }
    FunWeightParamCellFree(junk);
@@ -585,7 +585,7 @@ WFCB_p ConjectureSymbolWeightInit(ClausePrioFun prio_fun,
    data->app_var_mult        = app_var_mult;
 
    /* Weight vector is computed on first call of weight function to
-      avoid overhead is many funweigh-based functions are predefined
+      avoid overhead if many funweigh-based functions are predefined
       */
    return WFCBAlloc(GenericFunWeightCompute, prio_fun,
                     GenericFunWeightExit, data);
@@ -670,7 +670,7 @@ WFCB_p RelevanceLevelWeightInit2(ClausePrioFun prio_fun,
                                  OCB_p ocb,
                                  ProofState_p state,
                                  double max_term_multiplier,
-                                double max_literal_multiplier,
+                                 double max_literal_multiplier,
                                  double pos_multiplier,
                                  long   vweight,
                                  long   fweight,
@@ -944,7 +944,7 @@ WFCB_p ConjectureTypeBasedWeightParse(Scanner_p in, OCB_p ocb, ProofState_p
 
    vweight = ParseInt(in);
    AcceptInpTok(in, Comma);
-   
+
    max_term_multiplier = ParseFloat(in);
    AcceptInpTok(in, Comma);
    max_literal_multiplier = ParseFloat(in);
@@ -968,8 +968,8 @@ WFCB_p ConjectureTypeBasedWeightParse(Scanner_p in, OCB_p ocb, ProofState_p
 //   As above, but give the weight of conjecture symbols as a
 //   multiple of non-conjecture symbols weight. Note that all weights
 //   are rounded down to the next integer! NOTE: Symbol is considered
-//   a conjecture symbol if a symbol of the same type appears in the 
-//   conjecture -- difference from above functions. 
+//   a conjecture symbol if a symbol of the same type appears in the
+//   conjecture -- difference from above functions.
 //
 // Global Variables:
 //
@@ -1534,5 +1534,3 @@ void GenericFunWeightExit(void* data)
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-

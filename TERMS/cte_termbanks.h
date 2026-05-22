@@ -124,6 +124,9 @@ long    TBTermNodes(TB_p bank);
    (term->arity && ((term)->weight==(DEFAULT_FWEIGHT+(term)->arity*DEFAULT_VWEIGHT)))
 #define TBTermIsGround(t) TermCellQueryProp((t), TPIsGround)
 
+#define  TBTermIsConjectureGroundTerm(term) \
+   (TermCellQueryProp((term), TPIsConjectureTerm)&&TBTermIsGround(term))
+
 Term_p  TBInsert(TB_p bank, Term_p term, DerefType deref);
 Term_p  TBInsertIgnoreVar(TB_p bank, Term_p term, DerefType deref);
 Term_p  TBInsertNoProps(TB_p bank, Term_p term, DerefType deref);
@@ -162,6 +165,7 @@ void    TBRefSetProp(TB_p bank, TermRef ref, TermProperties prop);
 void    TBRefDelProp(TB_p bank, TermRef ref, TermProperties prop);
 
 long    TBTermDelPropCount(Term_p term, TermProperties prop);
+long    TBTermSetPropCount(Term_p term, TermProperties prop);
 
 #define TBTermCellIsMarked(bank, term)                                  \
    (GiveProps((term),TPGarbageFlag)!=(bank)->garbage_state)
