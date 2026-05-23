@@ -252,7 +252,7 @@ WFCB_p GDClauseWeightInit(ClausePrioFun prio_fun, ClauseSet_p axioms,
 
 /*-----------------------------------------------------------------------
 //
-// Function: ClauseWeightParse()
+// Function: GDClauseWeightParse()
 //
 //   Parse a clauseweight-definition.
 //
