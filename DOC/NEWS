@@ -1,12 +1,16 @@
 This history describes the major differences between versions of the E
 equational theorem prover.
 
-Version 3.2.5 -> 3.3.0 Countess Grey
+Version 3.2.5 -> 3.3.3 Countess Grey
 
 - Some beautification
 - Debugged problems with axiom filtering
 - Changed default comment character  from # to %. Use
   'configure --unix-comments' to restore the old behaviour.
+- Fixed various bugs in the higher-order code (mostly due to Jan
+  Jakubuv)
+- Implemented TWEE-inspired GDWeight() evaluation function, apparently
+  to good effect.
 
 Version 3.1.0 -> 3.2.5 Puttabong Moondrop
 
@@ -24,7 +28,6 @@ Version 3.0.03 -> 3.1.0
 - Fixed various bugs (e.g. in local rewriting)
 - Added support for additional statistics
 - Enabled printout of all built-in search strategies
-
 
 Version 3.0 ->3.0.03 Shangri-La
 
