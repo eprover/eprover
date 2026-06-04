@@ -1464,7 +1464,7 @@ FunCode SigGetNewFCode(Sig_p sig, int arity, char *prefix,
    while(SigFindFCode(sig,new_symbol))
    {
       (*counter)++;
-      sprintf(new_symbol,"esk%ld_%d", *counter, arity);
+      sprintf(new_symbol,"%s%ld_%d", prefix, *counter, arity);
    }
    res = SigInsertId(sig, new_symbol, arity, false);
    SigSetFuncProp(sig, res, props);
