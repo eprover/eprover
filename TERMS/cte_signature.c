@@ -1485,13 +1485,48 @@ FunCode SigGetNewFCode(Sig_p sig, int arity, char *prefix,
 //
 /----------------------------------------------------------------------*/
 
-FunCode SigGetNewTypedSkolem(Sig_p sig, Type_p* args, int num_args, Type_p ret_type)
+/* FunCode SigGetNewTypedSkolem(Sig_p sig, Type_p* args, int num_args, Type_p ret_type) */
+/* { */
+/*    Type_p sk_type = */
+/*       TypeBankInsertTypeShared(sig->type_bank, */
+/*                                ArrowTypeFlattened(args, num_args, ret_type)); */
+/*    int max_arity = TypeGetMaxArity(sk_type); */
+/*    FunCode res = SigGetNewSkolemCode(sig, max_arity); */
+/*    SigDeclareType(sig,res,sk_type); */
+/*    if (UNLIKELY(TypeIsPredicate(sk_type))) */
+/*    { */
+/*       SigDeclareIsPredicate(sig, res); */
+/*    } */
+/*    else */
+/*    { */
+/*       SigDeclareIsFunction(sig, res); */
+/*    } */
+/*    return res; */
+/* } */
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: SigGetNewTypedFCode()
+//
+//   Return a new typed symbol based on the type of
+//   given arguments and the return type.
+//
+// Global Variables: -
+//
+// Side Effects    : Extends signature
+//
+/----------------------------------------------------------------------*/
+
+FunCode SigGetNewTypedFCode(Sig_p sig, char* prefix, Type_p* args,
+                            int num_args, long* counter, Type_p ret_type,
+                            FunctionProperties props)
 {
    Type_p sk_type =
       TypeBankInsertTypeShared(sig->type_bank,
                                ArrowTypeFlattened(args, num_args, ret_type));
    int max_arity = TypeGetMaxArity(sk_type);
-   FunCode res = SigGetNewSkolemCode(sig, max_arity);
+   FunCode res = SigGetNewFCode(sig, max_arity, prefix, counter, props);
    SigDeclareType(sig,res,sk_type);
    if (UNLIKELY(TypeIsPredicate(sk_type)))
    {
