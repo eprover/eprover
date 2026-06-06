@@ -2690,12 +2690,13 @@ bool ClauseRecognizeChoice(IntMap_p choice_symbols_map, Clause_p cl)
 //
 /----------------------------------------------------------------------*/
 
-long ClauseCollectGroundTerms(Clause_p clause, PTree_p *res, bool all_subterms,
-                              bool pos_lits, bool neg_lits)
+long ClauseCollectGroundTerms(Clause_p clause, PTree_p *res,
+                              bool pos_lits, bool neg_lits,
+                              bool all_subterms)
 {
-
-   return EqnListCollectGroundTerms(clause->literals, res, all_subterms,
-                                    pos_lits, neg_lits);
+   return EqnListCollectGroundTerms(clause->literals, res,
+                                    pos_lits, neg_lits,
+                                    all_subterms);
 }
 
 

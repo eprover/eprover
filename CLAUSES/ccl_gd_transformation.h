@@ -1,33 +1,32 @@
 /*-----------------------------------------------------------------------
 
-  File  : cco_preprocessing.h
+  File  : ccl_gd_transformation.h
 
   Author: Stephan Schulz (schulz@eprover.org)
 
   Contents
 
-  This module encapsulates some of the main proofstate preprocessing,
-  mostly to keep the complexity of eprover.c under control.
+  Definitions for function implementing a TWEE-style direct goal
+  transformation (by adding equational definitions that reduce goal
+  ground terms to (usually new) constants.
 
-  Copyright 2025 by the authors.
+  This goes from clause level to signature level - I put it together
+  here to keep things under control...
+
+  Copyright 2026 by the authors.
   This code is released under the GNU General Public Licence.
   See the file COPYING in the main CLIB directory for details.
   Run "eprover -h" for contact information.
 
-  Created:
+  Created: Sun May 31 17:42:01 CEST 2026
 
 -----------------------------------------------------------------------*/
 
-#ifndef CCO_PREPROCESSING
+#ifndef CCL_GD_TRANSFORMATION
 
-#define CCO_PREPROCESSING
+#define CCL_GD_TRANSFORMATION
 
-#include <ccl_proofstate.h>
-#include <che_hcb.h>
-#include <cco_ho_inferences.h>
-#include <ccl_bce.h>
-#include <ccl_pred_elim.h>
-#include <ccl_gd_transformation.h>
+#include <ccl_formulafunc.h>
 
 
 /*---------------------------------------------------------------------*/
@@ -42,7 +41,12 @@
 /*---------------------------------------------------------------------*/
 
 
-long ProofStateClausalPreproc(ProofState_p proofstate, HeuristicParms_p h_parms);
+
+long ClauseSetGDTransform(TB_p terms,
+                          ClauseSet_p clauses,
+                          bool add_goal_defs_pos,
+                          bool add_goal_defs_neg,
+                          bool add_goal_defs_subterms);
 
 
 #endif

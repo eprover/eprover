@@ -2795,10 +2795,10 @@ long TermCollectFCodes(Term_p term, NumTree_p *tree)
 //
 // Function: TermCollectGroundTerms()
 //
-//   Add no-constant ground subterms of term to result. If top_only is
-//   set, only add maximal (in the subterm relation sense) terms,
-//   otherwise add all non-constant ground terms. Returns number of
-//   terms newly added.
+//   Add non-constant ground subterms of term to result. If
+//   all_subterm is false, set, only add maximal (in the subterm
+//   relation sense) terms, otherwise add all non-constant ground
+//   terms. Returns number of terms newly added.
 //
 // Global Variables: -
 //

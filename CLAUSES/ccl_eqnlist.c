@@ -2005,8 +2005,8 @@ long EqnListCollectSubterms(Eqn_p list, PStack_p collector)
 //
 /----------------------------------------------------------------------*/
 
-long EqnListCollectGroundTerms(Eqn_p list, PTree_p *res, bool all_subterms,
-                               bool pos_lits, bool neg_lits)
+long EqnListCollectGroundTerms(Eqn_p list, PTree_p *res, bool pos_lits,
+                               bool neg_lits, bool all_subterms)
 {
    long count = 0;
 

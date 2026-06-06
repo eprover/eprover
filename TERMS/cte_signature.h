@@ -317,7 +317,7 @@ FunCode SigGetNewTypedFCode(Sig_p sig, char* prefix, Type_p* args,
                        &(sig)->newpred_count, ret_type, FPDefPred)
 #define SigGetNewTypedDefCode(sig, args, num_args, ret_type) \
    SigGetNewTypedFCode(sig, "edef", args, num_args, \
-                       &(sig)->newdef_count, ret_type, FPDefPre
+                       &(sig)->newdef_count, ret_type, FPDefFun)
 
 /* Types */
 #define SigDefaultSort(sig)  ((sig)->type_bank->default_type)

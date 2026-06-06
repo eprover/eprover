@@ -43,44 +43,6 @@
 /*---------------------------------------------------------------------*/
 
 
-/*-----------------------------------------------------------------------
-//
-// Function: ProofStateIntroduceGroundTermDefs()
-//
-//
-//
-// Global Variables:
-//
-// Side Effects    :
-//
-/----------------------------------------------------------------------*/
-
-long ProofStateIntroduceGroundTermDefs(ProofState_p proofstate,
-                                       HeuristicParms_p h_parms)
-{
-   long res = 0;
-   Clause_p handle;
-   PTree_p terms_to_define;
-
-   printf("ProofStateIntroduceGroundTermDefs()...\n");
-
-   for(handle = proofstate->axioms->anchor->succ;
-       handle!=proofstate->axioms->anchor;
-       handle = handle->succ)
-   {
-      if(ClauseIsConjecture(handle))
-      {
-         ClauseCollectGroundTerms(handle, &terms_to_define,
-                                  h_parms->add_goal_defs_subterms,
-                                  h_parms->add_goal_defs_pos,
-                                  h_parms->add_goal_defs_neg);
-      }
-   }
-
-   printf("...ProofStateIntroduceGroundTermDefs()\n");
-   return res;
-}
-
 
 /*-----------------------------------------------------------------------
 //
@@ -150,6 +112,14 @@ long ProofStateClausalPreproc(ProofState_p proofstate,
       PredicateElimination(proofstate->axioms, proofstate->archive,
                            h_parms, proofstate->terms,
                            proofstate->tmp_terms, proofstate->freshvars);
+   }
+   if(h_parms->add_goal_defs_pos || h_parms->add_goal_defs_neg)
+   {
+      ClauseSetGDTransform(proofstate->terms,
+                           proofstate->axioms,
+                           h_parms->add_goal_defs_pos,
+                           h_parms->add_goal_defs_neg,
+                           h_parms->add_goal_defs_subterms);
    }
    return preproc_removed;
 }
