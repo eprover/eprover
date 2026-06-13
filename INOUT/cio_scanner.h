@@ -103,6 +103,9 @@ typedef unsigned long long TokenType;
 #define FOFBinOp      (FOFAnd|FOFOr|FOFLRImpl|FOFRLImpl|FOFEquiv|FOFXor|FOFNand|FOFNor|EqualSign|NegEqualSign)
 #define FOFAssocOp    (FOFAnd|FOFOr)
 
+/* Tokens used to synchronize error recovery (panic mode): */
+#define SyncTokens    (Fullstop)
+
 
 
 /* If your application parses multiple format you can use this to
@@ -154,6 +157,8 @@ typedef struct scannercell
    TokenCell   tok_sequence[MAXTOKENLOOKAHEAD]; /* Need help? Bozo! */
    int         current; /* Pointer to current token in tok_sequence */
    char*       include_pos; /* If created by "include", by which one? */
+   bool        panic_mode; /* Currently in panic mode? */
+   bool        had_error; /* Has there been a parsing error? */
 }ScannerCell, *Scanner_p;
 
 
@@ -218,13 +223,9 @@ void AktTokenWarning(Scanner_p in, char* msg);
 void CheckInpTok(Scanner_p in, TokenType toks);
 void CheckInpTokNoSkip(Scanner_p in, TokenType toks);
 void CheckInpId(Scanner_p in, char* ids);
+void AcceptInpTok(Scanner_p in, TokenType toks);
+void AcceptInpTokNoSkip(Scanner_p in, TokenType toks);
 
-
-#define AcceptInpTok(in, toks) CheckInpTok((in), (toks));\
-                               NextToken(in)
-#define AcceptInpTokNoSkip(in, toks) \
-                               CheckInpTokNoSkip((in), (toks));\
-                               NextToken(in)
 #define AcceptInpId(in, ids)   CheckInpId((in), (ids));\
                                NextToken(in)
 
