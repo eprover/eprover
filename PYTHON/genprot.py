@@ -205,6 +205,7 @@ def make_entry(lines):
             entry["Status"] = statusmap["exec failed"]
             entry["Failure"] = failuremap["exec failed"]
         elif key == "Problem":
+            # Note to self: This will be overwritten later!
             if not value.startswith('%'):
                 entry[key] = (value.split(":", 1)[0].strip() + ".p")
         elif key == "Failure":
@@ -217,6 +218,10 @@ def process_file(data, features, archivename, path, fileopener, info):
     if verbose:
         print("Processing: ", path)
     problemname   = basename(dirname(path))
+    if problemname.endswith(".rm"):
+        if verbose:
+            print(f"Skipping {problemname}")
+        return
     configname    = "_".join(basename(dirname(dirname(path))).split("___")[1:])
     mo            = version_re.search(basename(dirname(dirname(path))).split("_", 1)[0])
     if mo:
@@ -228,16 +233,13 @@ def process_file(data, features, archivename, path, fileopener, info):
     if problemname and configname and fileextension == ".txt" \
        and (("+" in problemname) or ("-" in problemname or ("_" in problemname) or ("^" in problemname))):
         entry = make_entry(fileopener(info).readlines())
+        # print(entry)
         if entry:
-           if "Problem" not in entry:
-               entry["Problem"] = problemname
+            # if "Problem" not in entry:
+           entry["Problem"] = problemname
            entry.update({"Configname":configname,
                          "Filename":filename,
                          "Archivename":archivename})
-           if int(entry.get("Proof object given clauses", 0)) > \
-              int(entry.get("Proof search given clauses", 0)):
-              #fix output error in e version 1.9.1pre005
-              swap(entry, "Proof object given clauses", "Proof search given clauses")
            if "Status" not in entry:
                entry["Status"] = statusmap["unknown"]
                if "Failure" not in entry:
@@ -307,7 +309,7 @@ if __name__ == "__main__":
     features = read_features(args.features) if args.features else defaultdict(dict)
 
     for infile in args.infile:
-        print("processing %s" % infile)
+        print(f"Processing {infile}")
         if isdir(infile):
             for root, _, files in os.walk(infile):
                 for filename in files:
@@ -343,6 +345,7 @@ if __name__ == "__main__":
     if args.features:
         fieldnames += featurekeys
     for configname, problems in data.items():
+        print(f"Generating {configname}")
         with open(protfile(configname), "w") as report:
             try:
                 report.write("# {0[Command]} \n".format(firstvalue(problems)))
@@ -354,6 +357,7 @@ if __name__ == "__main__":
                 report.write("#")
             report.write(args.delimiter.join(fieldnames)+"\n")
             for entrykey in sorted(problems.keys()):
+                # print(entrykey)
                 if args.compact:
                     values = [problems[entrykey].get(key,
                                    args.default)
@@ -361,4 +365,5 @@ if __name__ == "__main__":
                 else:
                     values = [adjustmap[key](problems[entrykey].get(key, args.default))
                               for key in fieldnames]
+                    # print(entrykey, values)
                 report.write(args.delimiter.join(values)+"\n")

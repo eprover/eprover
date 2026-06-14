@@ -19,7 +19,7 @@ BEGIN{
    {
       ARGV[2] = "-";
       ARGC++;
-   }   
+   }
 }
 
 function get_basename(name,     tmp)
@@ -27,7 +27,7 @@ function get_basename(name,     tmp)
    if(!match(name, /\.[a-z]*( |$)/))
    {
       print "filter_results.awk: Cannot find problem basename in '" name "'";
-   }   
+   }
    return substr(name, 0 , RSTART-1);
 }
 

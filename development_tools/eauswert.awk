@@ -1,4 +1,4 @@
-#!/usr/bin/gawk -f
+#!/opt/local/bin/gawk -f
 
 # Usage: eauswert.awk <result_file>
 #
