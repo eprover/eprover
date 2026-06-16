@@ -4,7 +4,7 @@ This repo contains the sourcecode to build E with the adjusted version
 of IntMap that is implemented with a tree of arrays containing key/value
 pairs.
 
-To adjust the Arraysize either change the `NUMMARRTREEVALUES` variable
+To adjust the Arraysize either change the `NUMARRTREEVALUES` variable
 in `Makefile.vars` or set it in `BASICS/clb_numarrtrees.h` directly.
 
 Benchmarking to compare different array sizes for the datastructure 
