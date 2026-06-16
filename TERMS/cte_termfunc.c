@@ -2795,8 +2795,8 @@ long TermCollectFCodes(Term_p term, NumTree_p *tree)
 //
 // Function: TermCollectGroundTerms()
 //
-//   Add non-constant ground subterms of term to result. If
-//   all_subterm is false, set, only add maximal (in the subterm
+//   Add non-constant (non-boolean) ground subterms of term to
+//   result. If all_subterm is false, only add maximal (in the subterm
 //   relation sense) terms, otherwise add all non-constant ground
 //   terms. Returns number of terms newly added.
 //
@@ -2812,9 +2812,7 @@ long TermCollectGroundTerms(Term_p term, PTree_p *result, bool all_subterms)
    long count = 0;
    int i;
 
-
    PStackPushP(stack, term);
-
    while(!PStackEmpty(stack))
    {
       term = PStackPopP(stack);
@@ -2822,7 +2820,11 @@ long TermCollectGroundTerms(Term_p term, PTree_p *result, bool all_subterms)
       {
          if(TermIsGround(term))
          {
-            if(!TermIsConst(term) && PTreeStore(result, term))
+            // printf("Term %p bool %d PredPos %d\n", term,
+            // TypeIsBool(term), TermCellQueryProp(term, TPPredPos));
+            if(!TermIsConst(term) &&
+               !TermCellQueryProp(term, TPPredPos) &&
+               PTreeStore(result, term))
             {
                count++;
             }
