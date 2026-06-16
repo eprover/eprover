@@ -504,37 +504,8 @@ PStack_p NumXTreeLimitedTraverseInit(NumXTree_p root, long limit)
 
 
 
-// AVL_TRAVERSE_DEFINITION(NumXTree, NumXTree_p)   INCLUDE THIS WHEN BUILDING NORMAL PROJECT
-PStack_p NumXTreeTraverseInit(NumXTree_p root)
-{
-   PStack_p stack = PStackAlloc();
+AVL_TRAVERSE_DEFINITION(NumXTree, NumXTree_p)
 
-   while(root)
-   {
-      PStackPushP(stack, root);
-      root = root->lson;
-   }
-   return stack;
-}
-
-
-NumXTree_p NumXTreeTraverseNext(PStack_p state)
-{
-   NumXTree_p handle, res;
-
-   if(PStackEmpty(state))
-   {
-      return NULL;
-   }
-   res = PStackPopP(state);
-   handle = res->rson;
-   while(handle)
-   {
-      PStackPushP(state, handle);
-      handle = handle->lson;
-   }
-   return res;
-}
 
 
 /*---------------------------------------------------------------------*/

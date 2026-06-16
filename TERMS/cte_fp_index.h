@@ -27,12 +27,7 @@ Changes
 
 #define CTE_FP_INDEX
 
-#if USE_INTMAPTWO
-   #include <clb_intmap2.h>
-#else
-   #include <clb_intmap.h>
-#endif
-
+#include <clb_intmap.h>
 #include <clb_objtrees.h>
 #include <cte_idx_fp.h>
 

@@ -16,12 +16,7 @@ Changes
 
 -----------------------------------------------------------------------*/
 
-#if USE_INTMAPTWO
-   #include <clb_intmap2.h>
-#else
-   #include <clb_intmap.h>
-#endif
-
+#include <clb_intmap.h>
 #include <ccl_clauses.h>
 
 #ifndef CCL_EXT_DEC_IDX

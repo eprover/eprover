@@ -1,15 +1,14 @@
 /*-----------------------------------------------------------------------
 
-File  : clb_numxtrees2.c
+File  : clb_numarrtrees.c
 
-Author: Stephan Schulz
+Author: Albert Eisfeld
 
 Contents
 
-  Functions for long-indexed splay trees with fixed-sized array of
-  values.
+  Functions for long-indexed splay trees with arrays of values.
 
-Copyright 1998-2011 by the author.
+Copyright 2026 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
@@ -18,11 +17,11 @@ Copyright 1998-2011 by the author.
 Changes (vastly incomplete, see CVS log)
 
 <1> Mon Aug  1 11:03:32 CEST 2011
-    New from clb_numtree.h
+    New from clb_numtxrees.h
 
 -----------------------------------------------------------------------*/
 
-#include "clb_numxtrees2.h"
+#include "clb_numarrtrees.h"
 
 /*---------------------------------------------------------------------*/
 /*                        Global Variables                             */
@@ -50,10 +49,10 @@ Changes (vastly incomplete, see CVS log)
 //
 /----------------------------------------------------------------------*/
 
-static NumXTree2_p splay_tree(NumXTree2_p tree, long key)
+static NumArrTree_p splay_tree(NumArrTree_p tree, long key)
 {
-   NumXTree2_p   left, right, tmp;
-   NumXTree2Cell newnode;
+   NumArrTree_p   left, right, tmp;
+   NumArrTreeCell newnode;
 
    if (!tree)
    {
@@ -130,9 +129,9 @@ static NumXTree2_p splay_tree(NumXTree2_p tree, long key)
 
 /*-----------------------------------------------------------------------
 //
-// Function: NumXTree2CellAllocEmpty()
+// Function: NumArrTreeCellAllocEmpty()
 //
-//   Allocate a empty, initialized NumXTree2Cell. Pointers to children
+//   Allocate a empty, initialized NumArrTreeCell. Pointers to children
 //   are NULL, int values are 0 (and pointer values in ANSI-World
 //   undefined, in practice NULL on 32 bit machines)(This comment is
 //   superfluous!). The balance field is (correctly) set to 0.
@@ -143,12 +142,12 @@ static NumXTree2_p splay_tree(NumXTree2_p tree, long key)
 //
 /----------------------------------------------------------------------*/
 
-NumXTree2_p NumXTree2CellAllocEmpty(void)
+NumArrTree_p NumArrTreeCellAllocEmpty(void)
 {
-   NumXTree2_p handle = NumXTree2CellAlloc();
+   NumArrTree_p handle = NumArrTreeCellAlloc();
    int i;
 
-   for(i=0; i<NUMXTREEVALUES; i++)
+   for(i=0; i<NUMARRTREEVALUES; i++)
    {
       handle->vals[i].i_val = 0;
    }
@@ -159,7 +158,7 @@ NumXTree2_p NumXTree2CellAllocEmpty(void)
 
 /*-----------------------------------------------------------------------
 //
-// Function: NumXTree2Free()
+// Function: NumArrTreeFree()
 //
 //   Free a numtree (including the keys, but not potential objects
 //   pointed to in the val fields
@@ -170,7 +169,7 @@ NumXTree2_p NumXTree2CellAllocEmpty(void)
 //
 /----------------------------------------------------------------------*/
 
-void NumXTree2Free(NumXTree2_p junk)
+void NumArrTreeFree(NumArrTree_p junk)
 {
    if(junk)
    {
@@ -189,7 +188,7 @@ void NumXTree2Free(NumXTree2_p junk)
          {
             PStackPushP(stack, junk->rson);
          }
-         NumXTree2CellFree(junk);
+         NumArrTreeCellFree(junk);
       }
       PStackFree(stack);
    }
@@ -198,7 +197,7 @@ void NumXTree2Free(NumXTree2_p junk)
 
 /*-----------------------------------------------------------------------
 //
-// Function: NumXTreeNodeEmpty()
+// Function: NumArrTreeNodeEmpty()
 //
 //   Return true if the elements of node->vals of node are NULL.
 //
@@ -208,9 +207,9 @@ void NumXTree2Free(NumXTree2_p junk)
 //
 /----------------------------------------------------------------------*/
 
-bool NumXTreeNodeEmpty(NumXTree2_p node)
+bool NumArrTreeNodeEmpty(NumArrTree_p node)
 {
-   for(int i = 0; i < NUMXTREEVALUES; i++) 
+   for(int i = 0; i < NUMARRTREEVALUES; i++) 
    {
       if (node->vals[i].p_val) 
       {
@@ -223,7 +222,7 @@ bool NumXTreeNodeEmpty(NumXTree2_p node)
 
 /*-----------------------------------------------------------------------
 //
-// Function: NumXTreeNodeSingleElement()
+// Function: NumArrTreeNodeSingleton()
 //
 //   Return true if the elements of node->vals of node would be NULL
 //   After removing the element at index
@@ -234,9 +233,9 @@ bool NumXTreeNodeEmpty(NumXTree2_p node)
 //
 /----------------------------------------------------------------------*/
 
-bool NumXTreeNodeSingleElement(NumXTree2_p node, int index)
+bool NumArrTreeNodeSingleton(NumArrTree_p node, int index)
 {
-   for(int i=0; i < NUMXTREEVALUES; i++)
+   for(int i=0; i < NUMARRTREEVALUES; i++)
    {
       if(i == index) continue;
       if(node->vals[i].p_val != NULL)
@@ -250,7 +249,7 @@ bool NumXTreeNodeSingleElement(NumXTree2_p node, int index)
 
 /*-----------------------------------------------------------------------
 //
-// Function: NumXTree2InsertNode()
+// Function: NumArrTreeInsertNode()
 //
 //   If an entry with key *newnode->key exists in the tree return a
 //   pointer to it. Otherwise insert *newnode in the tree and return
@@ -262,7 +261,7 @@ bool NumXTreeNodeSingleElement(NumXTree2_p node, int index)
 //
 /----------------------------------------------------------------------*/
 
-NumXTree2_p NumXTree2InsertNode(NumXTree2_p *root, NumXTree2_p newnode)
+NumArrTree_p NumArrTreeInsertNode(NumArrTree_p *root, NumArrTree_p newnode)
 {
    if (!*root)
    {
@@ -296,7 +295,7 @@ NumXTree2_p NumXTree2InsertNode(NumXTree2_p *root, NumXTree2_p newnode)
 
 /*-----------------------------------------------------------------------
 //
-// Function: NumXTreeInsertKeyValPair()
+// Function: NumArrTreeInsertKeyValPair()
 //    
 //   If a val at key exists in the tree return NULL. Otherwise insert val
 //   in the tree and return a pointer to the node of the array containing
@@ -308,15 +307,15 @@ NumXTree2_p NumXTree2InsertNode(NumXTree2_p *root, NumXTree2_p newnode)
 //
 /----------------------------------------------------------------------*/
 
-NumXTree2_p NumXTreeInsertKeyValPair(NumXTree2_p *root, long key, void* val)
+NumArrTree_p NumArrTreeInsertKeyValPair(NumArrTree_p *root, long key, void* val)
 {
-   NumXTree2_p handle, newnode;
+   NumArrTree_p handle, newnode;
    long index, nodekey;
 
-   index = key & (NUMXTREEVALUES - 1);
+   index = key & (NUMARRTREEVALUES - 1);
    nodekey = key - index;
 
-   handle = NumXTree2Find(root, nodekey);
+   handle = NumArrTreeFindNode(root, nodekey);
    if (handle)
    {
       if (!handle->vals[index].p_val)
@@ -327,7 +326,7 @@ NumXTree2_p NumXTreeInsertKeyValPair(NumXTree2_p *root, long key, void* val)
       return NULL;
    }
 
-   newnode = NumXTree2CellAllocEmpty();
+   newnode = NumArrTreeCellAllocEmpty();
    newnode->key = nodekey;
    newnode->vals[index].p_val = val;
 
@@ -364,7 +363,7 @@ NumXTree2_p NumXTreeInsertKeyValPair(NumXTree2_p *root, long key, void* val)
 
 /*-----------------------------------------------------------------------
 //
-// Function: NumXTree2StoreNode()
+// Function: NumArrTreeStoreNode()
 //
 //   Insert a cell associating key with val into the
 //   tree. Return false if an entry for this key exists, true
@@ -376,19 +375,19 @@ NumXTree2_p NumXTreeInsertKeyValPair(NumXTree2_p *root, long key, void* val)
 //
 /----------------------------------------------------------------------*/
 
-bool NumXTree2StoreNode(NumXTree2_p *root, long key, IntOrP val)
+bool NumArrTreeStoreNode(NumArrTree_p *root, long key, IntOrP val)
 {
-   NumXTree2_p handle, newnode;
+   NumArrTree_p handle, newnode;
 
-   handle = NumXTree2CellAllocEmpty();
-   handle->key = key & ~(NUMXTREEVALUES - 1);
-   handle->vals[key & (NUMXTREEVALUES - 1)] = val;
+   handle = NumArrTreeCellAllocEmpty();
+   handle->key = key & ~(NUMARRTREEVALUES - 1);
+   handle->vals[key & (NUMARRTREEVALUES - 1)] = val;
 
-   newnode = NumXTree2InsertNode(root, handle);
+   newnode = NumArrTreeInsertNode(root, handle);
 
    if(newnode)
    {
-      NumXTree2CellFree(handle);
+      NumArrTreeCellFree(handle);
       return false;
    }
    return true;
@@ -397,7 +396,7 @@ bool NumXTree2StoreNode(NumXTree2_p *root, long key, IntOrP val)
 
 /*-----------------------------------------------------------------------
 //
-// Function: NumXTree2Find()
+// Function: NumArrTreeFindNode()
 //
 //   Find the node containing the val with key key in the tree and return
 //   it. Return NULL if no such key exists.
@@ -408,13 +407,13 @@ bool NumXTree2StoreNode(NumXTree2_p *root, long key, IntOrP val)
 //
 /----------------------------------------------------------------------*/
 
-NumXTree2_p NumXTree2Find(NumXTree2_p *root, long key)
+NumArrTree_p NumArrTreeFindNode(NumArrTree_p *root, long key)
 {
    if (*root)
    {
       /* Modulo workaround with bitwise AND so negative numbers are
        * treated correctly */
-      long nodekey = key & ~(NUMXTREEVALUES - 1);
+      long nodekey = key & ~(NUMARRTREEVALUES - 1);
 
       *root = splay_tree(*root, nodekey);
 
@@ -428,11 +427,11 @@ NumXTree2_p NumXTree2Find(NumXTree2_p *root, long key)
 
 /*-----------------------------------------------------------------------
 //
-// Function: NumXTree2ExtractValue()
+// Function: NumArrTreePrepDel()
 //
 //   Find the entry with key, rebalance the tree and return the pointer
 //   to the node that shall be removed. 
-//   ! This function alone does not remove the node from the tree !
+//   _This function alone does not remove the node from the tree_
 //   If the node containing it is
 //   empty, remove the node from the tree and rebalance the tree.
 //   Return NULL if no matching element exists.
@@ -443,16 +442,16 @@ NumXTree2_p NumXTree2Find(NumXTree2_p *root, long key)
 //
 /----------------------------------------------------------------------*/
 
-NumXTree2_p NumXTree2ExtractValue(NumXTree2_p *root, long key)
+NumArrTree_p NumArrTreePrepDel(NumArrTree_p *root, long key)
 {
-   NumXTree2_p x, cell;
+   NumArrTree_p x, cell;
 
    if (!(*root))
    {
       return NULL;
    }
 
-   long index = key & (NUMXTREEVALUES - 1);
+   long index = key & (NUMARRTREEVALUES - 1);
    long nodekey = key - index;
 
    *root = splay_tree(*root, nodekey);
@@ -464,7 +463,7 @@ NumXTree2_p NumXTree2ExtractValue(NumXTree2_p *root, long key)
 
    if((nodekey-(*root)->key)==0)
    {
-      if (NumXTreeNodeSingleElement(*root, index))
+      if (NumArrTreeNodeSingleton(*root, index))
       {         
          if (!(*root)->lson)
          {
@@ -483,7 +482,7 @@ NumXTree2_p NumXTree2ExtractValue(NumXTree2_p *root, long key)
       /*Important notice: in this step, the value is not
       extracted yet, but only when called in IntMapDelKey().
       This is so that the Caller of IntMapDelKey knows what
-      value got deleted and NumXTree2ExtractValue() does not
+      value got deleted and NumArrTreePrepDel() does not
       have to clone the node*/
       return *root;
    }
@@ -493,68 +492,7 @@ NumXTree2_p NumXTree2ExtractValue(NumXTree2_p *root, long key)
 
 /*-----------------------------------------------------------------------
 //
-// Function: NumXTree2DeleteEntry()
-//
-//   Delete the entry with key key from the tree.
-//
-// Global Variables: -
-//
-// Side Effects    : By NumXTreeExtract(), memory operations
-//
-/----------------------------------------------------------------------*/
-
-bool NumXTree2DeleteEntry(NumXTree2_p *root, long key)
-{
-   NumXTree2_p cell;
-
-   cell = NumXTree2ExtractValue(root, key);
-   if(cell)
-   {
-      NumXTree2Free(cell);
-      return true;
-   }
-   return false;
-}
-
-
-/*-----------------------------------------------------------------------
-//
-// Function: NumXTree2Nodes()
-//
-//   Return the number of nodes in the tree.
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-long NumXTree2Nodes(NumXTree2_p root)
-{
-   PStack_p stack = PStackAlloc();
-   long     res   = 0;
-
-   PStackPushP(stack, root);
-
-   while(!PStackEmpty(stack))
-   {
-      root = PStackPopP(stack);
-      if(root)
-      {
-    PStackPushP(stack, root->lson);
-    PStackPushP(stack, root->rson);
-    res++;
-      }
-   }
-   PStackFree(stack);
-
-   return res;
-}
-
-
-/*-----------------------------------------------------------------------
-//
-// Function: NumXTree2MaxNode()
+// Function: NumArrTreeMaxNode()
 //
 //   Return the node with the largest key in the tree (or NULL if tree
 //   is empty). Non-destructive/non-reorganizing.
@@ -565,7 +503,7 @@ long NumXTree2Nodes(NumXTree2_p root)
 //
 /----------------------------------------------------------------------*/
 
-NumXTree2_p NumXTree2MaxNode(NumXTree2_p root)
+NumArrTree_p NumArrTreeMaxNode(NumArrTree_p root)
 {
    if(root)
    {
@@ -580,7 +518,7 @@ NumXTree2_p NumXTree2MaxNode(NumXTree2_p root)
 
 /*-----------------------------------------------------------------------
 //
-// Function: NumXTree2MaxKey()
+// Function: NumArrTreeMaxKey()
 //
 //   Return the node with the largest key in the node (or NULL if tree
 //   is empty). Non-destructive/non-reorganizing.
@@ -591,10 +529,10 @@ NumXTree2_p NumXTree2MaxNode(NumXTree2_p root)
 //
 /----------------------------------------------------------------------*/
 
-long NumXTree2MaxKey(NumXTree2_p node)
+long NumArrTreeMaxKey(NumArrTree_p node)
 {
    long index;
-   for(int i = 0; i < NUMXTREEVALUES; i++) 
+   for(int i = 0; i < NUMARRTREEVALUES; i++) 
    {
       if (node->vals[i].p_val) 
       {
@@ -607,7 +545,7 @@ long NumXTree2MaxKey(NumXTree2_p node)
 
 /*-----------------------------------------------------------------------
 //
-// Function: NumXTree2LimitedTraverseInit()
+// Function: NumArrTreeLimitedTraverseInit()
 //
 //   Return a stack containing the path to the smallest element
 //   smaller than or equal to limit in the tree.
@@ -618,7 +556,7 @@ long NumXTree2MaxKey(NumXTree2_p node)
 //
 /----------------------------------------------------------------------*/
 
-PStack_p NumXTree2LimitedTraverseInit(NumXTree2_p root, long limit)
+PStack_p NumArrTreeLimitedTraverseInit(NumArrTree_p root, long limit)
 {
    PStack_p stack = PStackAlloc();
 
@@ -626,7 +564,7 @@ PStack_p NumXTree2LimitedTraverseInit(NumXTree2_p root, long limit)
    {
       /* limit is not super strict, key/val pairs exceeding the limit 
        * are handled in the IntMap */
-      if(root->key < (limit & ~(NUMXTREEVALUES - 1)))
+      if(root->key < (limit & ~(NUMARRTREEVALUES - 1)))
       {
          root = root->rson;
       }
@@ -646,12 +584,9 @@ PStack_p NumXTree2LimitedTraverseInit(NumXTree2_p root, long limit)
    return stack;
 }
 
-
-// AVL_TRAVERSE_DEFINITION(NumXTree, NumXTree2_p)
-
 /*----------------------------------------------------------------------
 //
-// Function: NumXTree2TraverseNext()
+// Function: NumArrTreeTraverseNext()
 //
 //   Given a stack describing a traversal state, return the next key/val
 //   pair and update the stack.
@@ -662,9 +597,9 @@ PStack_p NumXTree2LimitedTraverseInit(NumXTree2_p root, long limit)
 //
 /---------------------------------------------------------------------*/
 
-NumXTree2_p NumXTree2TraverseNext(PStack_p state, long* last_seen_key)
+NumArrTree_p NumArrTreeTraverseNext(PStack_p state, long* last_seen_key)
 {
-   NumXTree2_p handle, res;
+   NumArrTree_p handle, res;
 
    if(PStackEmpty(state))
    {
@@ -672,7 +607,7 @@ NumXTree2_p NumXTree2TraverseNext(PStack_p state, long* last_seen_key)
    }
    res = PStackTopP(state);
 
-   for(int i = ((*last_seen_key & (NUMXTREEVALUES - 1)) + 1) & (NUMXTREEVALUES - 1); i < NUMXTREEVALUES - 1; i++) 
+   for(int i = ((*last_seen_key & (NUMARRTREEVALUES - 1)) + 1) & (NUMARRTREEVALUES - 1); i < NUMARRTREEVALUES - 1; i++) 
    {
       if(res->vals[i].p_val)
       {  
