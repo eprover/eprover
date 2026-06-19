@@ -4,6 +4,10 @@ This repo contains the sourcecode to build E with the adjusted version
 of IntMap that is implemented with a tree of arrays containing key/value
 pairs.
 
+To toggle, which version of IntMap is used, set the `USE_INTMAPOLD`
+variable in `Makefile.vars` accordingly. This changes, what IntMap is
+included for all files which are using IntMap simultaneously.
+
 To adjust the Arraysize either change the `NUMMARRTREEVALUES` variable
 in `Makefile.vars` or set it in `BASICS/clb_numarrtrees.h` directly.
 

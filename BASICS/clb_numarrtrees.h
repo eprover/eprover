@@ -61,11 +61,7 @@ typedef struct numarrtreecell
 #define NumArrTreeCellAlloc() (NumArrTreeCell*)SizeMalloc(sizeof(NumArrTreeCell))
 #define NumArrTreeCellFree(junk)        SizeFree(junk, sizeof(NumArrTreeCell))
 
-#ifdef CONSTANT_MEM_ESTIMATE
-#define NUMARRTREECELL_MEM 16 + NUMARRTREEVALUES*4
-#else
 #define NUMARRTREECELL_MEM MEMSIZE(NumArrTreeCell)
-#endif
 
 
 bool      NumArrTreeNodeSingleton(NumArrTree_p node, int index);
