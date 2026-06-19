@@ -8,7 +8,7 @@ To toggle, which version of IntMap is used, set the `USE_INTMAPOLD`
 variable in `Makefile.vars` accordingly. This changes, what IntMap is
 included for all files which are using IntMap simultaneously.
 
-To adjust the Arraysize either change the `NUMMARRTREEVALUES` variable
+To adjust the Arraysize either change the `NUMARRTREEVALUES` variable
 in `Makefile.vars` or set it in `BASICS/clb_numarrtrees.h` directly.
 
 Benchmarking to compare different array sizes for the datastructure 
