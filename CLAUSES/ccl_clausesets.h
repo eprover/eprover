@@ -53,7 +53,7 @@ typedef struct clausesetcell
    DStr_p     identifier;
 }ClauseSetCell, *ClauseSet_p;
 
-
+typedef long (*ClauseFunType)(Clause_p);
 
 /*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */
@@ -120,6 +120,7 @@ SysDate     ClauseSetListGetMaxDate(ClauseSet_p *demodulators, int
                 limit);
 Clause_p    ClauseSetFind(ClauseSet_p set, Clause_p clause);
 Clause_p    ClauseSetFindById(ClauseSet_p set, long ident);
+long        ClauseSetApplyFun(ClauseSet_p set, ClauseFunType fun);
 void        ClauseSetRemoveEvaluations(ClauseSet_p set);
 long        ClauseSetFilterTrivial(ClauseSet_p set);
 long        ClauseSetFilterTautologies(ClauseSet_p set, TB_p work_bank);

@@ -62,17 +62,25 @@ static AxFilter_p sine_get_filter(char* fname, AxFilterSet_p *filters)
    in = CreateScanner(StreamTypeOptionString, fname, true, NULL, true);
    CheckInpTok(in, Name);
    *filters = AxFilterSetCreateInternal(AxFilterDefaultSet);
-   filter = AxFilterSetFindFilter(*filters, fname);
-   if(!filter)
+   if(TestTok(LookToken(in,1), OpenBracket))
    {
-      DStr_p fstring = DStrAlloc();
+      filter  = AxFilterDefParse(in);
+      AxFilterSetAddFilter(*filters, filter);
+   }
+   else
+   {
+      filter = AxFilterSetFindFilter(*filters, fname);
+      if(!filter)
+      {
+         DStr_p fstring = DStrAlloc();
 
-      AxFilterSetAddNames(fstring, *filters);
-      Error("Unknown SinE-filter '%s' selected (valid choices: %s)",
-            USAGE_ERROR,
-            fname,
-            DStrView(fstring));
-      DStrFree(fstring);
+         AxFilterSetAddNames(fstring, *filters);
+         Error("Unknown SinE-filter '%s' selected (valid choices: %s)",
+               USAGE_ERROR,
+               fname,
+               DStrView(fstring));
+         DStrFree(fstring);
+      }
    }
    DestroyScanner(in);
    return filter;

@@ -511,7 +511,7 @@ bool backtrack_iter(CSUIterator_p iter)
 //   unifier return true and set the substitution of the iterator
 //   to the unifier. If there is no unifier, all the variables are
 //   unbound and false is returned. When false is returned, CSUIterator
-//   is destroyed an is no longer to be used.
+//   is destroyed and is no longer to be used.
 //
 // Global Variables: -
 //
@@ -525,10 +525,12 @@ bool NextCSUElement(CSUIterator_p iter)
    iter->steps = 0;
    if(res)
    {
-      if(params->unif_mode == SingleUnif && iter->unifiers_returned == 0)
+      if(((problemType != PROBLEM_HO)||(params->unif_mode == SingleUnif))
+         && iter->unifiers_returned == 0)
       {
-         res = SubstMguComplete(PQueueGetLastP(iter->constraints), PQueueGetLastP(iter->constraints),
-                               iter->subst);
+         res = SubstMguComplete(PQueueGetLastP(iter->constraints),
+                                PQueueGetLastP(iter->constraints),
+                                iter->subst);
          // on the next call we destroy the iterator
          PStackReset(iter->backtrack_info);
          iter->unifiers_returned = 1;
@@ -539,19 +541,6 @@ bool NextCSUElement(CSUIterator_p iter)
          iter->unifiers_returned += res ? 1 : 0;
       }
    }
-   // fprintf(stderr, "problem(%d): ", iter->unifiers_returned);
-   // DBG_PRINT(stderr, "", TermPrint(stderr, iter->orig_lhs, iter->bank->sig, DEREF_NEVER), " <> ");
-   // DBG_PRINT(stderr, "", TermPrint(stderr, iter->orig_rhs, iter->bank->sig, DEREF_NEVER), ".\n");
-   // DBG_PRINT(stderr, res ? "subst:" : "fail:", SubstPrint(stderr, iter->subst, iter->bank->sig, DEREF_NEVER), ".\n");
-#ifndef NDEBUG
-   if(!(!res || TermStructEqualDeref(iter->orig_lhs, iter->orig_rhs, DEREF_ALWAYS, DEREF_ALWAYS)))
-   {
-      DBG_PRINT(stderr, "", TermPrint(stderr, iter->orig_lhs, iter->bank->sig, DEREF_NEVER), " <> ");
-      DBG_PRINT(stderr, "", TermPrint(stderr, iter->orig_rhs, iter->bank->sig, DEREF_NEVER), ".\n");
-      DBG_PRINT(stderr, "subst: ", SubstPrint(stderr, iter->subst, iter->bank->sig, DEREF_NEVER), ".\n");
-      assert(false);
-   }
-#endif
    if(!res)
    {
       SubstBacktrackToPos(iter->subst, iter->init_pos);

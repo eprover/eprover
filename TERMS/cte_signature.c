@@ -317,7 +317,7 @@ void SigFree(Sig_p junk)
 
    /* names are shared with junk->f_index and are free()ed by the
       StrTreeFree() call below! */
-   for(i=0; i< junk->f_count; i++)
+   for(i=0; i<= junk->f_count; i++)
    {
       if(junk->f_info[i].pname)
       {
@@ -768,8 +768,10 @@ FunCode SigPopId(Sig_p sig)
    {
       res = sig->f_count;
       StrTreeDeleteEntry(&(sig->f_index), sig->f_info[sig->f_count].name);
-      // Identifier is freed (unexpectedly?) in StrTreeDeleteEntry()
-      //FREE(sig->f_info[sig->f_count].name);
+      if(sig->f_info[sig->f_count].pname)
+      {
+         FREE(sig->f_info[sig->f_count].pname);
+      }
       sig->f_count--;
    }
    return res;
@@ -830,8 +832,11 @@ FunCode SigInsertLetId(Sig_p sig, const char* name, Type_p type)
 
    /* Insert the element in f_index and f_info */
    sig->f_count++;
-   sig->f_info[sig->f_count].name
-      = SecureStrdup(name);
+   sig->f_info[sig->f_count].name = SecureStrdup(name);
+   sig->f_info[sig->f_count].pname = SecureStrdup(name);
+   //printf("Name = '%s'\n", name);
+   //printf("Name copy = '%s'\n", sig->f_info[sig->f_count].name);
+   //printf("PName copy = '%s'\n", sig->f_info[sig->f_count].pname);
    PStackPushP(sig->let_names, sig->f_info[sig->f_count].name);
    sig->f_info[sig->f_count].arity = TypeGetMaxArity(type);
    sig->f_info[sig->f_count].properties = FPIgnoreProps;
@@ -1459,7 +1464,7 @@ FunCode SigGetNewFCode(Sig_p sig, int arity, char *prefix,
    while(SigFindFCode(sig,new_symbol))
    {
       (*counter)++;
-      sprintf(new_symbol,"esk%ld_%d", *counter, arity);
+      sprintf(new_symbol,"%s%ld_%d", prefix, *counter, arity);
    }
    res = SigInsertId(sig, new_symbol, arity, false);
    SigSetFuncProp(sig, res, props);
@@ -1480,13 +1485,48 @@ FunCode SigGetNewFCode(Sig_p sig, int arity, char *prefix,
 //
 /----------------------------------------------------------------------*/
 
-FunCode SigGetNewTypedSkolem(Sig_p sig, Type_p* args, int num_args, Type_p ret_type)
+/* FunCode SigGetNewTypedSkolem(Sig_p sig, Type_p* args, int num_args, Type_p ret_type) */
+/* { */
+/*    Type_p sk_type = */
+/*       TypeBankInsertTypeShared(sig->type_bank, */
+/*                                ArrowTypeFlattened(args, num_args, ret_type)); */
+/*    int max_arity = TypeGetMaxArity(sk_type); */
+/*    FunCode res = SigGetNewSkolemCode(sig, max_arity); */
+/*    SigDeclareType(sig,res,sk_type); */
+/*    if (UNLIKELY(TypeIsPredicate(sk_type))) */
+/*    { */
+/*       SigDeclareIsPredicate(sig, res); */
+/*    } */
+/*    else */
+/*    { */
+/*       SigDeclareIsFunction(sig, res); */
+/*    } */
+/*    return res; */
+/* } */
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: SigGetNewTypedFCode()
+//
+//   Return a new typed symbol based on the type of
+//   given arguments and the return type.
+//
+// Global Variables: -
+//
+// Side Effects    : Extends signature
+//
+/----------------------------------------------------------------------*/
+
+FunCode SigGetNewTypedFCode(Sig_p sig, char* prefix, Type_p* args,
+                            int num_args, long* counter, Type_p ret_type,
+                            FunctionProperties props)
 {
    Type_p sk_type =
       TypeBankInsertTypeShared(sig->type_bank,
                                ArrowTypeFlattened(args, num_args, ret_type));
    int max_arity = TypeGetMaxArity(sk_type);
-   FunCode res = SigGetNewSkolemCode(sig, max_arity);
+   FunCode res = SigGetNewFCode(sig, max_arity, prefix, counter, props);
    SigDeclareType(sig,res,sk_type);
    if (UNLIKELY(TypeIsPredicate(sk_type)))
    {

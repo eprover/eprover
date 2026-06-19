@@ -2795,10 +2795,10 @@ long TermCollectFCodes(Term_p term, NumTree_p *tree)
 //
 // Function: TermCollectGroundTerms()
 //
-//   Add no-constant ground subterms of term to result. If top_only is
-//   set, only add maximal (in the subterm relation sense) terms,
-//   otherwise add all non-constant ground terms. Returns number of
-//   terms newly added.
+//   Add non-constant (non-boolean) ground subterms of term to
+//   result. If all_subterm is false, only add maximal (in the subterm
+//   relation sense) terms, otherwise add all non-constant ground
+//   terms. Returns number of terms newly added.
 //
 // Global Variables: -
 //
@@ -2812,9 +2812,7 @@ long TermCollectGroundTerms(Term_p term, PTree_p *result, bool all_subterms)
    long count = 0;
    int i;
 
-
    PStackPushP(stack, term);
-
    while(!PStackEmpty(stack))
    {
       term = PStackPopP(stack);
@@ -2822,7 +2820,11 @@ long TermCollectGroundTerms(Term_p term, PTree_p *result, bool all_subterms)
       {
          if(TermIsGround(term))
          {
-            if(!TermIsConst(term) && PTreeStore(result, term))
+            // printf("Term %p bool %d PredPos %d\n", term,
+            // TypeIsBool(term), TermCellQueryProp(term, TPPredPos));
+            if(!TermIsConst(term) &&
+               !TermCellQueryProp(term, TPPredPos) &&
+               PTreeStore(result, term))
             {
                count++;
             }
@@ -3190,6 +3192,7 @@ Term_p TermCopyRenameVars(NumTree_p* renaming, Term_p term)
     {
         copy = TermTopCopy(term);
         copy->type = term->type;
+        TermSetBank(copy, TermGetBank(term));
         for (i=0; i<term->arity; i++)
         {
             copy->args[i] = TermCopyRenameVars(renaming, term->args[i]);
@@ -3250,6 +3253,7 @@ Term_p TermCopyUnifyVars(VarBank_p vars, Term_p term)
     }
 
     Term_p new = TermTopCopy(term);
+    TermSetBank(new, TermGetBank(term));
     for (i=0; i<term->arity; i++)
     {
         new->args[i] = TermCopyUnifyVars(vars, term->args[i]);

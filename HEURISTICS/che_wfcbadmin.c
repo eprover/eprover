@@ -76,6 +76,7 @@ char* WeightFunParseFunNames[]=
    "ConjectureTreeDistanceWeight",
    "ConjectureTermPrefixWeight",
    "ConjectureStrucDistanceWeight",
+   "GDWeight",
    NULL
 };
 
@@ -126,6 +127,7 @@ static WeightFunParseFun parse_fun_array[]=
    ConjectureTreeDistanceWeightParse,
    ConjectureTermPrefixWeightParse,
    ConjectureStrucDistanceWeightParse,
+   GDClauseWeightParse,
    (WeightFunParseFun)NULL
 };
 

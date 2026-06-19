@@ -307,7 +307,17 @@ FunCode SigGetNewFCode(Sig_p sig, int arity, char *prefix,
 #define SigGetNewDefCode(sig, arity) \
    SigGetNewFCode((sig), (arity),"edef", &(sig)->newdef_count, FPDefFun)
 
-FunCode SigGetNewTypedSkolem(Sig_p sig, Type_p *args, int num_args, Type_p ret_type);
+// FunCode SigGetNewTypedSkolem(Sig_p sig, Type_p *args, int num_args, Type_p ret_type);
+FunCode SigGetNewTypedFCode(Sig_p sig, char* prefix, Type_p* args,
+                            int num_args, long* counter, Type_p ret_type,
+                            FunctionProperties props);
+
+#define SigGetNewTypedSkolem(sig, args, num_args, ret_type) \
+   SigGetNewTypedFCode(sig, "esk", args, num_args, \
+                       &(sig)->newpred_count, ret_type, FPDefPred)
+#define SigGetNewTypedDefCode(sig, args, num_args, ret_type) \
+   SigGetNewTypedFCode(sig, "edef", args, num_args, \
+                       &(sig)->newdef_count, ret_type, FPDefFun)
 
 /* Types */
 #define SigDefaultSort(sig)  ((sig)->type_bank->default_type)

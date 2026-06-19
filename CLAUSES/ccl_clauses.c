@@ -185,10 +185,17 @@ static void clause_collect_posneg_vars(Clause_p clause,
 
 void TSTPSkipSource(Scanner_p in)
 {
-   AcceptInpTok(in, Identifier|PosInt);
-   if(TestInpTok(in, OpenBracket))
+   if(TestInpTok(in, OpenSquare))
    {
       ParseSkipParenthesizedExpr(in);
+   }
+   else
+   {
+      AcceptInpTok(in, Identifier|PosInt);
+      if(TestInpTok(in, OpenBracket))
+      {
+         ParseSkipParenthesizedExpr(in);
+      }
    }
 }
 
@@ -2683,12 +2690,13 @@ bool ClauseRecognizeChoice(IntMap_p choice_symbols_map, Clause_p cl)
 //
 /----------------------------------------------------------------------*/
 
-long ClauseCollectGroundTerms(Clause_p clause, PTree_p *res, bool all_subterms,
-                              bool pos_lits, bool neg_lits)
+long ClauseCollectGroundTerms(Clause_p clause, PTree_p *res,
+                              bool pos_lits, bool neg_lits,
+                              bool all_subterms)
 {
-
-   return EqnListCollectGroundTerms(clause->literals, res, all_subterms,
-                                    pos_lits, neg_lits);
+   return EqnListCollectGroundTerms(clause->literals, res,
+                                    pos_lits, neg_lits,
+                                    all_subterms);
 }
 
 

@@ -157,7 +157,7 @@ long    TermCollectPropVariables(Term_p term, PTree_p *tree,
 long    TermCollectVariables(Term_p term, PTree_p *tree);
 long    TermCollectFCodes(Term_p term, NumTree_p *tree);
 
-long    TermCollectGroundTerms(Term_p term, PTree_p *result, bool top_only);
+long    TermCollectGroundTerms(Term_p term, PTree_p *result, bool all_subtems);
 long    TermAddFunOcc(Term_p term, PDArray_p f_occur, PStack_p res_stack);
 
 long    TermLinearize(PStack_p stack, Term_p term);

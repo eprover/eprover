@@ -126,6 +126,7 @@ typedef enum
 
 extern bool EqnUseInfix; /* s = t or EQ(s = t)  ? */
 extern bool EqnFullEquationalRep; /* P(x) = $true ? */
+extern bool EqnPrintOriented;
 extern IOFormat OutputFormat;
 
 #define EqnCellAlloc()    (EqnCell*)SizeMalloc(sizeof(EqnCell))

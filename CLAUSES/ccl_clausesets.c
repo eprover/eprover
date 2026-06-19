@@ -1457,6 +1457,34 @@ void ClauseSetRemoveEvaluations(ClauseSet_p set)
    }
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseSetApplyFun()
+//
+//   Apply fun to all clauses in set. Return the sum of the return
+//   values.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+long ClauseSetApplyFun(ClauseSet_p set, ClauseFunType fun)
+{
+   bool res = 0;
+   Clause_p handle;
+
+   assert(set);
+
+   for(handle = set->anchor->succ; handle!=set->anchor;
+       handle=handle->succ)
+   {
+      res += fun(handle);
+   }
+   return res;
+}
+
 
 /*-----------------------------------------------------------------------
 //

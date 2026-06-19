@@ -2805,11 +2805,12 @@ bool FormulaHasAppVarLit(Sig_p sig, TFormula_p form)
 
 /*-----------------------------------------------------------------------
 //
-// Function: ClauseSetLiftLambdas()
+// Function: cond_lift_lambda()
 //
-//   Lift lambdas in clauses, change them in place, modify the proof object
-//   and store the lambda definitions in archive. New lambda definitions are
-//   clausified in turn.
+//   If a term-(encoded formula) is not a lambda-term, but has a
+//   proper lambda-subterm, bring it into the encoding needed for
+//   CNFization (e.q. encode    literals as $eq(t1, t2)) and lift the
+//   lambda into a universal.
 //
 // Global Variables: -
 //
@@ -2836,6 +2837,20 @@ Term_p cond_lift_lambda(TB_p terms, Term_p term,
    return res;
 }
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseSetLiftLambdas()
+//
+//   Lift lambdas in clauses, change them in place, modify the proof object
+//   and store the lambda definitions in archive. New lambda definitions are
+//   clausified in turn.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
 
 void ClauseSetLiftLambdas(ClauseSet_p set, FormulaSet_p archive, TB_p terms,
                           VarBank_p fresh_vars, bool unroll_fool)

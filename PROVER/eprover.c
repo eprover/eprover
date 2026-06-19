@@ -1344,6 +1344,9 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_FULL_EQ_REP:
             EqnFullEquationalRep = true;
             break;
+      case OPT_PRINT_ORIENTED:
+            EqnPrintOriented = true;
+            break;
       case OPT_LOP_PARSE:
             parse_format = LOPFormat;
             break;

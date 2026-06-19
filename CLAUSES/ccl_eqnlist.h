@@ -132,8 +132,8 @@ void    EqnListSignedTermDelProp(Eqn_p list, TermProperties props, bool pos, boo
 long    EqnListTBTermDelPropCount(Eqn_p list, TermProperties props);
 
 long    EqnListCollectSubterms(Eqn_p list, PStack_p collector);
-long    EqnListCollectGroundTerms(Eqn_p list, PTree_p *res, bool top_only,
-                                  bool pos_lits, bool neg_lits);
+long    EqnListCollectGroundTerms(Eqn_p list, PTree_p *res, bool pos_lits,
+                                  bool neg_lits, bool all_subterms);
 void    EqnListLambdaNormalize(Eqn_p list);
 
 bool    EqnListFindCompLitExcept(Eqn_p xs, Eqn_p exc, Eqn_p ys,

@@ -27,6 +27,7 @@
 #include <cco_ho_inferences.h>
 #include <ccl_bce.h>
 #include <ccl_pred_elim.h>
+#include <ccl_gd_transformation.h>
 
 
 /*---------------------------------------------------------------------*/

@@ -382,9 +382,9 @@ Term_p TermAllocNewSkolem(Sig_p sig, PStack_p variables, Type_p ret_type)
 //
 // Function: TermSetProp()
 //
-//   Set the properties in all term cells belonging to term.
-//   NB: The function is never called with deref once -- no changes
-//       to DEREF_ONCE
+//   Set the properties in all term cells belonging to term.  NB: The
+//   function is never called with deref once -- no changes to
+//   DEREF_ONCE
 //
 // Global Variables: -
 //

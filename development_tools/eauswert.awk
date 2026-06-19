@@ -13,7 +13,7 @@ BEGIN{
   ttime = 0.0;
   if(!ARGV[2])
   {
-    proc_limit = int(1000000); /* Large enough */
+    proc_limit = int(1000000); #/* Large enough */
   }
   else
   {
@@ -21,10 +21,10 @@ BEGIN{
     sub("0*", "" , proc_limit);
     proc_limit = int(proc_limit);
   }
-  
+
   if(!ARGV[3])
   {
-     timelimit = 1000000.0; /* Large enough */
+     timelimit = 1000000.0; #/* Large enough */
   }
   else
   {
@@ -38,7 +38,7 @@ BEGIN{
   nomem = 0;
   incomplete=0;
   ARGC=2;
-  
+
   if(ARGV[1]=="-")
     {
       ARGV[1]="";
@@ -46,7 +46,7 @@ BEGIN{
 
   if(ARGV[1])
     {
-      test1 = getline < ARGV[1];      
+      test1 = getline < ARGV[1];
       close(ARGV[1]);
       if(test1 == -1)
 	{
@@ -89,7 +89,7 @@ function float(x)
       }
       else
       {
-	 /* if(($2 == "N")) */
+	 # /* if(($2 == "N")) */
 	 {
 	    succ++;
 	    ttime+=$3;
@@ -99,6 +99,6 @@ function float(x)
 }
 
 END{
-  printf "Total : %4d S/F/I/N/B: %5d/%5d/%3d/%3d/%3d Time: %f\n", 
+  printf "Total : %4d S/F/I/N/B: %5d/%5d/%3d/%3d/%3d Time: %f\n",
          total, succ, total-succ, incomplete, nomem, bugs, ttime;
 }

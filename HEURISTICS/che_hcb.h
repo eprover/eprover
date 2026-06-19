@@ -131,7 +131,7 @@ typedef struct heuristic_parms_cell
    bool                pred_elim_force_mu_decrease;
    bool                pred_elim_ignore_conj_syms;
 
-/* Clause selection elements */
+   /* Clause selection elements */
    char                *heuristic_name;
    char                *heuristic_def;
    bool                prefer_initial_clauses;

@@ -29,6 +29,7 @@
 
 bool EqnUseInfix = true;
 bool EqnFullEquationalRep = false;
+bool EqnPrintOriented = false;
 IOFormat OutputFormat =LOPFormat;
 
 
@@ -984,7 +985,7 @@ Term_p EqnTBTermParse(Scanner_p in, TB_p bank)
 //   equation. If TPTPFormatPrint is true, print TPTPFormat.
 //
 // Global Variables: EqnUseInfix, EqnFullEquationalRep,
-//                   TPTPFormatPrint
+//                   TPTPFormatPrint, EqnPrintOriented
 //
 // Side Effects    : Output
 //
@@ -1049,8 +1050,8 @@ void EqnPrint(FILE* out, Eqn_p eq, bool negated,  bool fullterms)
          {
             fputc('!', out);
          }
-         /* fprintf(out, EqnIsOriented(eq)?"=>":"="); */
-         fprintf(out, "=");
+         fprintf(out, (EqnIsOriented(eq)&EqnPrintOriented)?"->":"=");
+         /* fprintf(out, "="); */
          TBPrintTerm(out, eq->bank, eq->rterm, fullterms);
          PRINT_HO_PAREN(out, ')');
       }
@@ -1258,7 +1259,7 @@ void EqnAppEncode(FILE* out, Eqn_p eq, bool negated)
 //
 //   Print a literal in TSTP format.
 //
-// Global Variables: -
+// Global Variables: EqnPrintOriented
 //
 // Side Effects    : Output
 //
@@ -1275,7 +1276,14 @@ void EqnTSTPPrint(FILE* out, Eqn_p eq, bool fullterms)
       if(EqnIsEquLit(eq))
       {
          TBPrintTerm(out, eq->bank, eq->lterm, fullterms);
-         fprintf(out, "%s", EqnIsNegative(eq)?"!=":"=");
+         if(EqnPrintOriented & EqnIsOriented(eq))
+         {
+            fprintf(out, "%s>", EqnIsNegative(eq)?"!-":"-");
+         }
+         else
+         {
+            fprintf(out, "%s", EqnIsNegative(eq)?"!=":"=");
+         }
          TBPrintTerm(out, eq->bank, eq->rterm, fullterms);
       }
       else

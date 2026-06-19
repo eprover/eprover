@@ -1016,6 +1016,16 @@ Term_p TBInsertNoProps(TB_p bank, Term_p term, DerefType deref)
    t = problemType == PROBLEM_HO && deref == DEREF_ALWAYS ?
       WHNF_deref(term) : TermDeref(term, &deref);
    TermSetBank(term, tmp_bank);
+#ifdef ENABLE_LFHO
+   // Clear WHNF cache if WHNF_deref set it using the temporary bank (cross-bank
+   // pollution). The term lives in tmp_bank but the cached result is allocated in
+   // bank. If bank is GC-swept independently (e.g. tmp_terms sweep), the cache
+   // pointer becomes dangling and causes a use-after-free.
+   if(bank != tmp_bank)
+   {
+      TermSetCache(term, NULL);
+   }
+#endif
    term = t;
 
    if(TermIsFreeVar(term))
@@ -2035,6 +2045,46 @@ long TBTermDelPropCount(Term_p term, TermProperties prop)
    return count;
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: TBTermSetPropCount()
+//
+//   Set properties prop in term, return number of term cells changed.
+//   Does assume that all subterms of a term with this property
+//   already not carry it!
+//
+// Global Variables: -
+//
+// Side Effects    : See above
+//
+/----------------------------------------------------------------------*/
+
+long TBTermSetPropCount(Term_p term, TermProperties prop)
+{
+   long count = 0;
+   int i;
+   PStack_p stack = PStackAlloc();
+
+   PStackPushP(stack, term);
+   while(!PStackEmpty(stack))
+   {
+      term = PStackPopP(stack);
+      if(!TermCellQueryProp(term, prop))
+      {
+         TermCellSetProp(term, prop);
+         count++;
+         for(i=0; i<term->arity; i++)
+         {
+            PStackPushP(stack, term->args[i]);
+         }
+      }
+   }
+   PStackFree(stack);
+   return count;
+}
+
+
+
 
 /*-----------------------------------------------------------------------
 //
@@ -2072,7 +2122,7 @@ void TBGCMarkTerm(TB_p bank, Term_p term)
             PStackPushP(stack, TermRWReplaceField(term));
          }
 
-         if(TermIsAppliedFreeVar(term) && TermGetCache(term))
+         if(TermGetCache(term))
          {
             PStackPushP(stack, TermGetCache(term));
          }

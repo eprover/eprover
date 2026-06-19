@@ -79,6 +79,7 @@ typedef enum
    OPT_CONJ_ARE_QUEST,
    OPT_NO_INFIX,
    OPT_FULL_EQ_REP,
+   OPT_PRINT_ORIENTED,
    OPT_LOP_PARSE,
    OPT_PCL_PRINT,
    OPT_TPTP_PARSE,
@@ -603,6 +604,10 @@ OptCell opts[] =
     NoArg, NULL,
     "In LOP. print all literals as equations, even non-equational ones."},
 
+   {OPT_PRINT_ORIENTED,
+    '\0', "print-oriented-eqlits-as-rules",
+    NoArg, NULL,
+    "Print oriented equational literals as rules, using -> in place of =."},
    {OPT_LOP_PARSE,
     '\0', "lop-in",
     NoArg, NULL,
