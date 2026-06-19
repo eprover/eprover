@@ -1,22 +1,3 @@
-Fork of E with adjusted IntMap
-=================================================
-This repo contains the sourcecode to build E with the adjusted version
-of IntMap that is implemented with a tree of arrays containing key/value
-pairs.
-
-To toggle, which version of IntMap is used, set the `USE_INTMAPOLD`
-variable in `Makefile.vars` accordingly. This changes, what IntMap is
-included for all files which are using IntMap simultaneously.
-
-To adjust the Arraysize either change the `NUMARRTREEVALUES` variable
-in `Makefile.vars` or set it in `BASICS/clb_numarrtrees.h` directly.
-
-Benchmarking to compare different array sizes for the datastructure 
-can be done with the shell scripts in the `benchmark` directory.
-
-Enjoy :)
--------------------------------------------------
-
 **NOTE**: The CASC ReadMe file with information for the CADE ATP
 System Competition is in `DOC/Readme`.
 **NOTE**: The ultimate source is now README.md. Don't edit the plain
