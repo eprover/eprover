@@ -540,7 +540,7 @@ int main(int argc, char* argv[])
       ScannerSetFormat(in, parse_format);
 
       FormulaAndClauseSetParse(in, fstate->f_axioms, fstate->watchlist,
-                               fstate->terms, NULL, &skip_includes);
+                               fstate->terms, NULL, &skip_includes, 0);
       ProofStateSinE(fstate, sine);
 
       {
