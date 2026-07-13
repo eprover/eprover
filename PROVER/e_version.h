@@ -31,9 +31,9 @@ Contents
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-/* git tag E-3.3.5 */
+/* git tag E-3.3.6 */
 
-#define PVERSION      "3.3.5"
+#define PVERSION      "3.3.6"
 
 #include "e_gitcommit.h"
 
