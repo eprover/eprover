@@ -102,7 +102,7 @@ void ScheduleTimesInit(ScheduleCell sched[], double time_used)
 
    for(i=0; sched[i+1].heu_name; i++)
    {
-      tmp = sched[i].time_fraction*limit;
+      tmp = sched[i].time_fraction*(limit/1.1);
       sched[i].time_absolute = tmp;
       sum += tmp;
    }
