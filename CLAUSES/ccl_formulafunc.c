@@ -1481,6 +1481,13 @@ long FormulaSetPreprocConjectures(FormulaSet_p set,
 
       if (WFormulaConjectureNegate(handle))
       {
+         WFormula_p tmpform;
+
+         tmpform =  WFormulaFlatCopy(handle);
+         WFormulaPushDerivation(tmpform, DCFofQuote, handle, NULL);
+         FormulaSetReplace(handle, tmpform);
+         FormulaSetInsert(archive, handle);
+         handle = tmpform;
          res++;
       }
       handle = handle->succ;
