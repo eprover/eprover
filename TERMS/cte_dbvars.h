@@ -24,8 +24,13 @@
 
 #define CTE_DBVARS
 
+#if USE_INTMAPOLD
+   #include <clb_intmap_old.h>
+#else
+   #include <clb_intmap.h>
+#endif
+
 #include <clb_objtrees.h>
-#include <clb_intmap.h>
 #include <cte_termtypes.h>
 
 /*---------------------------------------------------------------------*/

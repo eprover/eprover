@@ -32,16 +32,23 @@ include ../Makefile.services
 
 # Build the  library
 
+ifeq ($(USE_INTMAPOLD), 1)
+   INTMAP_OBJ = clb_intmap_old.o
+else
+   INTMAP_OBJ = clb_intmap.o
+endif
+
+
 BASIC_LIB = clb_error.o clb_memory.o clb_os_wrapper.o \
             clb_dstrings.o clb_verbose.o\
-            clb_stringtrees.o clb_numtrees.o clb_numxtrees.o \
+            clb_stringtrees.o clb_numtrees.o clb_numxtrees.o clb_numarrtrees.o\
             clb_floattrees.o clb_pstacks.o\
             clb_pqueue.o clb_dstacks.o clb_ptrees.o clb_quadtrees.o\
             clb_regmem.o clb_permastrings.o \
 	    clb_objtrees.o clb_objmaps.o clb_fixdarrays.o\
             clb_plist.o clb_pdarrays.o clb_pdrangearrays.o \
             clb_ddarrays.o clb_sysdate.o \
-            clb_intmap.o \
+            $(INTMAP_OBJ) \
             clb_simple_stuff.o clb_partial_orderings.o \
             clb_plocalstacks.o clb_min_heap.o
 
