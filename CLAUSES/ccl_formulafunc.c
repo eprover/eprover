@@ -1271,68 +1271,6 @@ TFormula_p do_bool_eqn_replace(TFormula_p form, TB_p terms)
 
 /*-----------------------------------------------------------------------
 //
-// Function: TformulaCollectClause()
-//
-//   Given a term-encoded formula that is a disjunction of literals,
-//   transform it into a clause.
-//
-// Global Variables: -
-//
-// Side Effects    : Same as in TFormulaConjunctiveToCNF() below.
-//
-/----------------------------------------------------------------------*/
-
-/* Clause_p TformulaCollectClause(TFormula_p form, TB_p terms, */
-/*                                VarBank_p fresh_vars) */
-/* { */
-/*    Clause_p res; */
-/*    Eqn_p lit_list = NULL, tmp_list = NULL, lit; */
-/*    PStack_p stack, lit_stack; */
-/*    Subst_p  normsubst = SubstAlloc(); */
-
-/*    /\*printf("tformula_collect_clause(): "); */
-/*      TFormulaTPTPPrint(GlobalOut, terms, form, true); */
-/*      printf("\n"); *\/ */
-
-/*    litstack = PStackAlloc(); */
-/*    stack = PStackAlloc(); */
-
-/*    PStackPushP(stack, form); */
-/*    while(!PStackEmpty(stack)) */
-/*    { */
-/*       form = PStackPopP(stack); */
-/*       if(form->f_code == terms->sig->or_code) */
-/*       { */
-/*          PStackPushP(stack, form->args[0]); */
-/*          PStackPushP(stack, form->args[1]); */
-/*       } */
-/*       else */
-/*       { */
-/*          assert(TFormulaIsLiteral(terms->sig, form)); */
-/*          lit = EqnTBTermDecode(terms, form); */
-/*          PStackPushP(lit_stack, lit); */
-
-/*       } */
-/*    } */
-/*    PStackFree(stack); */
-/*    while(!PStackEmpty(lit_stack)) */
-/*    { */
-/*       lit = PStackPopP(lit_stack); */
-/*       EqnListInsertFirst(&lit_list, lit); */
-/*    } */
-/*    PStackFree(lit_stack); */
-
-/*    VarBankResetVCounts(fresh_vars); */
-/*    NormSubstEqnList(lit_list, normsubst, fresh_vars); */
-/*    tmp_list = EqnListCopy(lit_list, terms); */
-/*    res = ClauseAlloc(tmp_list); */
-/*    EqnListFree(lit_list); /\* Created just for this *\/ */
-/*    SubstDelete(normsubst); */
-/*    return res; */
-/* } */
-
-/*-----------------------------------------------------------------------
-//
 // Function: WFormulaConjectureNegate()
 //
 //   If formula is a conjecture, negate it and delete that property
@@ -1528,32 +1466,6 @@ bool WFormulaSimplify(WFormula_p form, TB_p terms)
    return res;
 }
 
-/* /\*----------------------------------------------------------------------- */
-/* // */
-/* // Function: WFormulaCNF() */
-/* // */
-/* //   Transform the formula of a wrapped formula into CNF. */
-/* // */
-/* // Global Variables: - */
-/* // */
-/* // Side Effects    : Changes formula, memory operations */
-/* // */
-/* /----------------------------------------------------------------------*\/ */
-
-/* long WFormulaCNF(WFormula_p form, ClauseSet_p set, */
-/*                  TB_p terms, VarBank_p fresh_vars) */
-/* { */
-/*    if (form->is_clause) */
-/*    { */
-/*       Clause_p clause = WFormClauseToClause(form); */
-/*       ClausePushDerivation(clause, DCFofQuote, form, NULL); */
-/*       ClauseSetInsert(set, clause); */
-/*       return 1; */
-/*    } */
-/*    WTFormulaConjunctiveNF(form, terms); */
-/*    return TFormulaToCNF(form, FormulaQueryType(form), */
-/*                         set, terms, fresh_vars); */
-/* } */
 
 /*-----------------------------------------------------------------------
 //
