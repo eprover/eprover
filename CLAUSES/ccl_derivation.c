@@ -31,198 +31,266 @@
 ProofObjectType PrintProofObject = 0;
 bool            ProofObjectRecordsGCSelection = false;
 
-char *opids[] =
+typedef struct
 {
-   "NOP",
-   "QUOTE",
-   "AddArg",
-   /* Simplifying */
-   PCL_EVALGC,
-   PCL_RW,
-   PCL_LOCAL_RW,
-   PCL_RW,
-   PCL_AD,
-   PCL_CSR,
-   PCL_ER,
-   PCL_SR,
-   PCL_ACRES,
-   PCL_CONDENSE,
-   PCL_CN,
-   PCL_EVANS,
-   /* Simplification/Modfication for FOF */
-   PCL_NC,
-   PCL_FS,
-   PCL_NNF,
-   PCL_SQ,
-   PCL_VR,
-   PCL_SK,
-   PCL_DSTR,
-   PCL_ANNOQ,
-   PCL_EXPDISTICT,
-   /* Generating */
-   PCL_PM,
-   PCL_SPM,
-   PCL_OF,
-   PCL_EF,
-   PCL_ER,
-   PCL_DDC,
-   PCL_SAT,
-   PCL_PE_RESOLVE,
-   /* Others */
-   PCL_SE,
-   PCL_ID_DEF,
-   PCL_SC,
-   PCL_EQ_TO_EQ,
-   PCL_LL,
-   PCL_FU,
-   PCL_LIFT_ITE,
-   PCL_EBV,
-   /* HO inferences */
-   PCL_DYN_CNF,
-   PCL_FLEX_RESOLVE,
-   PCL_ARG_CONG,
-   PCL_NEG_EXT,
-   PCL_POS_EXT,
-   PCL_EXT_SUP,
-   PCL_EXT_EQRES,
-   PCL_EXT_EQFACT,
-   PCL_INV_REC,
-   PCL_CHOICE_AX,
-   PCL_LEIBNIZ_ELIM,
-   PCL_PRIM_ENUM,
-   PCL_CHOICE_INST,
-   PCL_TRIGGER,
-   PCL_PRUNE_ARG
-};
+   char* opid;
+   char* optheory;
+   char* opstatus;
+}op_info;
 
-char *optheory [] =
+op_info opinfo[] =
 {
-   NULL,
-   NULL,
-   "NA",
-   /* Simplifying */
-   NULL,
-   NULL,
-   NULL,
-   NULL,
-   NULL,
-   NULL,
-   NULL,
-   NULL,
-   NULL,
-   NULL,
-   NULL,
-   "answers",
-   /* Simplification/Modfication for FOF */
-   NULL,
-   NULL,
-   NULL,
-   NULL,
-   NULL,
-   NULL,
-   NULL,
-   "answers",
-   "distinct",
-   /* Generating */
-   NULL,
-   NULL,
-   NULL,
-   NULL,
-   NULL,
-   NULL,
-   NULL,
-   NULL,
-   /* Others */
-   NULL,
-   NULL,
-   NULL,
-   NULL,
-   NULL,
-   NULL,
-   NULL,
-   NULL,
-   /* HO inferences */
-   NULL,
-   NULL,
-   NULL,
-   NULL,
-   NULL,
-   NULL,
-   NULL,
-   NULL,
-   NULL,
-   NULL,
-   NULL,
-   NULL,
-   NULL,
-   NULL,
-   NULL
+   {"NOP"                    , NULL      , NULL   },
+   {"QUOTE"                  , NULL      , NULL   },
+   {"AddArg"                 , "NA"      , "NA"   },
+   {"evalgc"                 , NULL      , "thm"  },
+   {"rw"                     , NULL      , "thm"  },
+   {"local_rw"               , NULL      , "thm"  },
+   {"rw"                     , NULL      , "thm"  },
+   {"apply_def"              , NULL      , "thm"  },
+   {"csr"                    , NULL      , "thm"  },
+   {"er"                     , NULL      , "thm"  },
+   {"sr"                     , NULL      , "thm"  },
+   {"ar"                     , NULL      , "thm"  },
+   {"condense"               , NULL      , "thm"  },
+   {"cn"                     , NULL      , "thm"  },
+   {"eval_answer_literal"    , "answers" , "thm"  },
+   {"assume_negation"        , NULL      , "cth"  },
+   {"fof_simplification"     , NULL      , "thm"  },
+   {"fof_nnf"                , NULL      , "thm"  },
+   {"shift_quantors"         , NULL      , "thm"  },
+   {"variable_rename"        , NULL      , "thm"  },
+   {"skolemize"              , NULL      , "esa"  },
+   {"distribute"             , NULL      , "thm"  },
+   {"add_answer_literal"     , "answers" , "thm"  },
+   {"epxand_distinct"        , "distinct", "thm"  },
+   {"pm"                     , NULL      , "thm"  },
+   {"spm"                    , NULL      , "thm"  },
+   {"of"                     , NULL      , "thm"  },
+   {"ef"                     , NULL      , "thm"  },
+   {"er"                     , NULL      , "thm"  },
+   {"diseq_decomp"           , NULL      , "thm"  },
+   {"cdclpropres"            , NULL      , "thm"  },
+   {"pred_elim_resolve"      , NULL      , "thm"  },
+   {"split_equiv"            , NULL      , "thm"  },
+   {"introduced(definition)" , NULL      , "esa"  },
+   {"split_conjunct"         , NULL      , "thm"  },
+   {"lift_bool_eq"           , NULL      , "thm"  },
+   {"lift_lambdas"           , NULL      , "thm"  },
+   {"fool_unroll"            , NULL      , "thm"  },
+   {"lift_ite"               , NULL      , "thm"  },
+   {"eliminate_boolean_vars" , NULL      , "thm"  },
+   {"dynamic_cnf"            , NULL      , "thm"  },
+   {"flex_resolve"           , NULL      , "thm"  },
+   {"arg_cong"               , NULL      , "thm"  },
+   {"neg_ext"                , NULL      , "thm"  },
+   {"pos_ext"                , NULL      , "thm"  },
+   {"ext_sup"                , NULL      , "thm"  },
+   {"ext_eqres"              , NULL      , "thm"  },
+   {"ext_eqfact"             , NULL      , "thm"  },
+   {"recognize_injectivity"  , NULL      , "thm"  },
+   {"introduce_choice_axiom" , NULL      , "thm"  },
+   {"eliminate_leibniz_eq"   , NULL      , "thm"  },
+   {"primitive_enumeration"  , NULL      , "thm"  },
+   {"choice_inst"            , NULL      , "thm"  },
+   {"trigger"                , NULL      , "thm"  },
+   {"prune_arg"              , NULL      , "thm"  },
 };
 
 
-char *opstatus [] =
-{
-   NULL,
-   NULL,
-   "NA",
-   /* Simplifying */
-   "thm",
-   "thm",
-   "thm",
-   "thm",
-   "thm",
-   "thm",
-   "thm",
-   "thm",
-   "thm",
-   "thm",
-   "thm",
-   "thm",
-   /* Simplification/Modfication for FOF */
-   "cth",
-   "thm",
-   "thm",
-   "thm",
-   "thm",
-   "esa",
-   "thm",
-   "thm",
-   "thm",
-   /* Generating */
-   "thm",
-   "thm",
-   "thm",
-   "thm",
-   "thm",
-   "thm",
-   "thm",
-   "thm",
-   /* Others */
-   "thm",
-   NULL,
-   "thm",
-   "thm",
-   "thm",
-   "thm",
-   "thm",
-   "thm",
-   /* HO */
-   "thm",
-   "thm",
-   "thm",
-   "thm",
-   "thm",
-   "thm",
-   "thm",
-   "thm",
-   "thm",
-   "thm",
-   "thm",
-   "thm",
-   "thm",
-   "thm",
-   "thm"
-};
+/* char *opids[] = */
+/* { */
+/*    "NOP", */
+/*    "QUOTE", */
+/*    "AddArg", */
+/*    /\* Simplifying *\/ */
+/*    PCL_EVALGC, */
+/*    PCL_RW, */
+/*    PCL_LOCAL_RW, */
+/*    PCL_RW, */
+/*    PCL_AD, */
+/*    PCL_CSR, */
+/*    PCL_ER, */
+/*    PCL_SR, */
+/*    PCL_ACRES, */
+/*    PCL_CONDENSE, */
+/*    PCL_CN, */
+/*    PCL_EVANS, */
+/*    /\* Simplification/Modfication for FOF *\/ */
+/*    PCL_NC, */
+/*    PCL_FS, */
+/*    PCL_NNF, */
+/*    PCL_SQ, */
+/*    PCL_VR, */
+/*    PCL_SK, */
+/*    PCL_DSTR, */
+/*    PCL_ANNOQ, */
+/*    PCL_EXPDISTICT, */
+/*    /\* Generating *\/ */
+/*    PCL_PM, */
+/*    PCL_SPM, */
+/*    PCL_OF, */
+/*    PCL_EF, */
+/*    PCL_ER, */
+/*    PCL_DDC, */
+/*    PCL_SAT, */
+/*    PCL_PE_RESOLVE, */
+/*    /\* Others *\/ */
+/*    PCL_SE, */
+/*    PCL_ID_DEF, */
+/*    PCL_SC, */
+/*    PCL_EQ_TO_EQ, */
+/*    PCL_LL, */
+/*    PCL_FU, */
+/*    PCL_LIFT_ITE, */
+/*    PCL_EBV, */
+/*    /\* HO inferences *\/ */
+/*    PCL_DYN_CNF, */
+/*    PCL_FLEX_RESOLVE, */
+/*    PCL_ARG_CONG, */
+/*    PCL_NEG_EXT, */
+/*    PCL_POS_EXT, */
+/*    PCL_EXT_SUP, */
+/*    PCL_EXT_EQRES, */
+/*    PCL_EXT_EQFACT, */
+/*    PCL_INV_REC, */
+/*    PCL_CHOICE_AX, */
+/*    PCL_LEIBNIZ_ELIM, */
+/*    PCL_PRIM_ENUM, */
+/*    PCL_CHOICE_INST, */
+/*    PCL_TRIGGER, */
+/*    PCL_PRUNE_ARG, */
+/*    NULL */
+/* }; */
+
+/* char *optheory [] = */
+/* { */
+/*    NULL, */
+/*    NULL, */
+/*    "NA", */
+/*    /\* Simplifying *\/ */
+/*    NULL, */
+/*    NULL, */
+/*    NULL, */
+/*    NULL, */
+/*    NULL, */
+/*    NULL, */
+/*    NULL, */
+/*    NULL, */
+/*    NULL, */
+/*    NULL, */
+/*    NULL, */
+/*    "answers", */
+/*    /\* Simplification/Modfication for FOF *\/ */
+/*    NULL, */
+/*    NULL, */
+/*    NULL, */
+/*    NULL, */
+/*    NULL, */
+/*    NULL, */
+/*    NULL, */
+/*    "answers", */
+/*    "distinct", */
+/*    /\* Generating *\/ */
+/*    NULL, */
+/*    NULL, */
+/*    NULL, */
+/*    NULL, */
+/*    NULL, */
+/*    NULL, */
+/*    NULL, */
+/*    NULL, */
+/*    /\* Others *\/ */
+/*    NULL, */
+/*    NULL, */
+/*    NULL, */
+/*    NULL, */
+/*    NULL, */
+/*    NULL, */
+/*    NULL, */
+/*    NULL, */
+/*    /\* HO inferences *\/ */
+/*    NULL, */
+/*    NULL, */
+/*    NULL, */
+/*    NULL, */
+/*    NULL, */
+/*    NULL, */
+/*    NULL, */
+/*    NULL, */
+/*    NULL, */
+/*    NULL, */
+/*    NULL, */
+/*    NULL, */
+/*    NULL, */
+/*    NULL, */
+/*    NULL */
+/* }; */
+
+
+/* char *opstatus [] = */
+/* { */
+/*    NULL, */
+/*    NULL, */
+/*    "NA", */
+/*    /\* Simplifying *\/ */
+/*    "thm", */
+/*    "thm", */
+/*    "thm", */
+/*    "thm", */
+/*    "thm", */
+/*    "thm", */
+/*    "thm", */
+/*    "thm", */
+/*    "thm", */
+/*    "thm", */
+/*    "thm", */
+/*    "thm", */
+/*    /\* Simplification/Modfication for FOF *\/ */
+/*    "cth", */
+/*    "thm", */
+/*    "thm", */
+/*    "thm", */
+/*    "thm", */
+/*    "esa", */
+/*    "thm", */
+/*    "thm", */
+/*    "thm", */
+/*    /\* Generating *\/ */
+/*    "thm", */
+/*    "thm", */
+/*    "thm", */
+/*    "thm", */
+/*    "thm", */
+/*    "thm", */
+/*    "thm", */
+/*    "thm", */
+/*    /\* Others *\/ */
+/*    "thm", */
+/*    NULL, */
+/*    "thm", */
+/*    "thm", */
+/*    "thm", */
+/*    "thm", */
+/*    "thm", */
+/*    "thm", */
+/*    /\* HO *\/ */
+/*    "thm", */
+/*    "thm", */
+/*    "thm", */
+/*    "thm", */
+/*    "thm", */
+/*    "thm", */
+/*    "thm", */
+/*    "thm", */
+/*    "thm", */
+/*    "thm", */
+/*    "thm", */
+/*    "thm", */
+/*    "thm", */
+/*    "thm", */
+/*    "thm" */
+/* }; */
 
 
 static char *node_gray = ",color=gray, fillcolor=gray",
@@ -235,6 +303,52 @@ static char *node_gray = ",color=gray, fillcolor=gray",
    *node_blue    = ",color=blue,fillcolor=lightskyblue1",
    *node_axblue  = ",color=blue,fillcolor=dodgerblue";
 
+
+/*-----------------------------------------------------------------------
+//
+// One-time-functions to get the op-thing into a more maintainable
+// form ;-)
+//
+/----------------------------------------------------------------------*/
+
+/* void cond_print_str(FILE* out, char* str, int padding) */
+/* { */
+/*    int len; */
+/*    if(str) */
+/*    { */
+/*       len = fprintf(out, "\"%s\"", str); */
+/*    } */
+/*    else */
+/*    { */
+/*       len = fprintf(out, "NULL"); */
+/*    } */
+/*    while(len++<padding) */
+/*    { */
+/*       printf(" "); */
+/*    } */
+/* } */
+
+/* void print_opdata_line(FILE* out, int i) */
+/* { */
+/*    fprintf(out, "   {"); */
+/*    cond_print_str(out, opids[i], 25); */
+/*    fprintf(out, ", "); */
+/*    cond_print_str(out, optheory[i], 10); */
+/*    fprintf(out, ", "); */
+/*    cond_print_str(out, opstatus[i], 7); */
+/*    fprintf(out, "},\n"); */
+/* } */
+
+/* void print_opdata(FILE* out) */
+/* { */
+/*    int i; */
+/*    fprintf(out, "op_info opinfo[] = {\n"); */
+/*    for(i=0; opids[i]; i++) */
+/*    { */
+/*       print_opdata_line(out, i); */
+/*    } */
+/*    fprintf(out, "};\n"); */
+/* } */
 
 
 
@@ -1155,7 +1269,7 @@ void DerivationDebugPrint(FILE* out, PStack_p derivation)
             }
             i++;
          }
-         fprintf(out, "<%s%s>", opids[DPOpGetOpCode(op)], i==sp?"":",");
+         fprintf(out, "<%s%s>", opinfo[DPOpGetOpCode(op)].opid, i==sp?"":",");
       }
    }
    else
@@ -1226,7 +1340,7 @@ void DerivationStackPCLPrint(FILE* out, Sig_p sig, PStack_p derivation)
                PStackPushP(arg_stack, PStackElementP(derivation, i+1));
                break;
          default:
-               fprintf(out, "%s(", opids[DPOpGetOpCode(op)]);
+               fprintf(out, "%s(", opinfo[DPOpGetOpCode(op)].opid);
                break;
          }
       }
@@ -1345,15 +1459,15 @@ void DerivationStackTSTPPrint(FILE* out, Sig_p sig, PStack_p derivation)
          case DCFofQuote:
                break;
          case DCIntroDef:
-               fprintf(out, "%s", opids[DPOpGetOpCode(op)]);
+               fprintf(out, "%s", opinfo[DPOpGetOpCode(op)].opid);
                break;
          case DCCnfAddArg:
                PStackPushP(arg_stack, PStackElementP(derivation, i+1));
                break;
          default:
                fprintf(out, "inference(%s,[status(%s)],[",
-                       opids[opc],
-                       opstatus[opc]);
+                       opinfo[opc].opid,
+                       opinfo[opc].opstatus);
                break;
          }
       }
@@ -1399,16 +1513,16 @@ void DerivationStackTSTPPrint(FILE* out, Sig_p sig, PStack_p derivation)
                      ax = PStackElementP(sig->ac_axioms, j);
                      fprintf(out, ", c_0_%ld", ax->ident);
                   }
-                  if(optheory[opc])
+                  if(opinfo[opc].optheory)
                   {
-                     fprintf(out, ", theory(%s)",optheory[opc]);
+                     fprintf(out, ", theory(%s)",opinfo[opc].optheory);
                   }
                   fprintf(out, "])");
                   break;
             default:
-                  if(optheory[opc])
+                  if(opinfo[opc].optheory)
                   {
-                     fprintf(out, ", theory(%s)",optheory[opc]);
+                     fprintf(out, ", theory(%s)",opinfo[opc].optheory);
                   }
                   fprintf(out, "])");
                   break;

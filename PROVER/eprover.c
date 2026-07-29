@@ -568,6 +568,9 @@ int main(int argc, char* argv[])
 #endif
 
    InitIO(NAME);
+
+   //print_opdata(stdout); exit(0);
+
    pid = getpid();
    //setpgid(0, 0);
 

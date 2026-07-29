@@ -159,7 +159,7 @@ typedef enum
    DCPEResolve        = DOPEResolve|Arg1Cnf|Arg2Cnf,
    /* CNF conversion and similar */
    DCSplitEquiv       = DOSplitEquiv|Arg1Fof,
-   DCIntroDef         = DOIntroDef,
+   DCIntroDef         = DOIntroDef|Arg1Num,
    DCSplitConjunct    = DOSplitConjunct|Arg1Fof,
    DCEqToEq           = DOEqToEq,
    DCLiftLambdas      = DOLiftLambdas|Arg1Fof,
@@ -339,6 +339,7 @@ void DerivationComputeAndPrint(FILE* out, char* status, PStack_p root_clauses,
                                Sig_p sig, ProofOutput print_derivation,
                                bool print_analysis);
 
+//void print_opdata(FILE* out);
 
 #endif
 
