@@ -500,6 +500,60 @@ static TFormula_p clause_tform_tstp_parse(Scanner_p in, TB_p terms)
 
 /*-----------------------------------------------------------------------
 //
+// Function: absorb_infix_eqn_tstp_parse()
+//
+//   If the next token is '=' or '!=', parse the right hand side and
+//   combine it with lhs into the corresponding (dis)equation.
+//   Otherwise return lhs unchanged.
+//
+//   This is used for the body of a binder only. Per the TPTP BNF, the
+//   body of a quantification is a <thf_unit_formula>, and one of its
+//   alternatives is <thf_defined_infix>, i.e. "s = t". So the equation
+//   has to be pulled into the scope of the binder: "![X]:X=a" is
+//   "![X]:(X=a)", not "(![X]:X)=a". Only a single infix step is
+//   absorbed, so anything after it still associates outside the binder:
+//   "![X]:X=a & q" is "(![X]:(X=a)) & q".
+//
+//   This applies to every TPTP syntax (FOF/TFF/TFX/THF). In most FO cases
+//   it is simply inert: EqnParseInfix() has already consumed the equation
+//   while parsing the body, so no '=' is left to absorb. It does fire for
+//   a body that EqnParseInfix() returns without looking for '=', namely a
+//   predicate with fixed type (see the shortcut in ccl_eqn.c) and a
+//   parenthesized formula -- these are the TFX cases, e.g.
+//   "? [X:$o] : p = X".
+//
+// Global Variables: -
+//
+// Side Effects    : Input, memory operations
+//
+/----------------------------------------------------------------------*/
+
+static TFormula_p absorb_infix_eqn_tstp_parse(Scanner_p in, TB_p terms,
+                                              TFormula_p lhs)
+{
+   Sig_p      sig = terms->sig;
+   TFormula_p rhs;
+   FunCode    op;
+
+   if(!TestInpTok(in, EqualSign|NegEqualSign))
+   {
+      return lhs;
+   }
+   op  = tptp_operator_parse(sig, in);
+   rhs = literal_tform_tstp_parse(in, terms);
+
+   /* Same encoding as in TFormulaTSTPParse(): an equation between two
+      formulas is an equivalence, a disequation an exclusive or. */
+   if(lhs->type == sig->type_bank->bool_type)
+   {
+      op = (op == sig->eqn_code) ? sig->equiv_code : sig->xor_code;
+   }
+   return TFormulaFCodeAlloc(terms, op, lhs, rhs);
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: quantified_tform_tstp_parse()
 //
 //   Parse a quantified TSTP formula. At this point, the quantor
@@ -563,6 +617,7 @@ static TFormula_p quantified_tform_tstp_parse(Scanner_p in,
       else
       {
          rest = literal_tform_tstp_parse(in, terms);
+         rest = absorb_infix_eqn_tstp_parse(in, terms, rest);
       }
    }
    res = TFormulaFCodeAlloc(terms, quantor, var, rest);
