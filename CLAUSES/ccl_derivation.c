@@ -2686,8 +2686,13 @@ void DerivationComputeAndPrint(FILE* out, char* status, PStack_p root_clauses,
                                Sig_p sig, ProofOutput print_derivation,
                                bool print_analysis)
 {
-   assert(sizeof(opids) / sizeof(char*) == sizeof(optheory) / sizeof(char*));
-   assert(sizeof(opids) / sizeof(char*) == sizeof(opstatus) / sizeof(char*));
+   /* The parallel arrays opids[]/optheory[]/opstatus[] these assertions
+      checked have been replaced by the opinfo[] struct array (see above),
+      which keeps the three fields consistent by construction. The
+      assertions are dead code -- they only compiled because NDEBUG
+      normally removes them before the undeclared names are looked up. */
+   /* assert(sizeof(opids) / sizeof(char*) == sizeof(optheory) / sizeof(char*)); */
+   /* assert(sizeof(opids) / sizeof(char*) == sizeof(opstatus) / sizeof(char*)); */
 
    Derivation_p derivation = DerivationCompute(root_clauses, sig);
 
