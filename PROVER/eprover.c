@@ -298,7 +298,6 @@ void strategy_io(HeuristicParms_p h_parms, PStack_p hcb_definitions)
    {
       GetHeuristicWithName(select_strategy, h_parms);
    }
-
    if(print_strategy)
    {
       if(strcmp(print_strategy, ">all-strats<")==0)
@@ -613,9 +612,9 @@ int main(int argc, char* argv[])
                                             &spec_limits,
                                             &raw_features,
                                             wc_sched_limit);
-      CLStateFree(state);
-      state = process_options(argc, argv); // refilling the h_parms
-                                           // with manual user options
+
+      CLStateFree(process_options(argc, argv)); // refilling the h_parms
+                                                // with manual user options
    }
 
 //#ifndef NDEBUG
@@ -626,6 +625,10 @@ int main(int argc, char* argv[])
            h_parms->unroll_only_formulas,
            h_parms->sine);
 //#endif
+   strategy_io(h_parms, hcb_definitions);
+   CLStateFree(process_options(argc, argv)); // refilling the h_parms
+                                             // with manual user options
+   //HeuristicParmsPrint(GlobalOut, h_parms);
 
    relevancy_pruned += ProofStateSinE(proofstate, h_parms->sine);
    relevancy_pruned += ProofStateRelevancyProcess(proofstate,
@@ -755,11 +758,9 @@ int main(int argc, char* argv[])
          h_parms->inst_choice_max_depth = choice_max_depth;
       }
       FREE(class);
-      CLStateFree(state);
-      state = process_options(argc, argv); // refilling the h_parms with user options
+      CLStateFree(process_options(argc, argv)); // refilling the h_parms
+                                                // with manual user options
    }
-   strategy_io(h_parms, hcb_definitions);
-
    if(spec_limits)
    {
       SpecLimitsCellFree(spec_limits);
@@ -864,7 +865,7 @@ int main(int argc, char* argv[])
                                  proofstate->unprocessed);
       }
       deriv = DerivationCompute(proofstate->extract_roots,
-                              proofstate->signature);
+                                proofstate->signature);
 
       if(!proofstate->status_reported)
       {
