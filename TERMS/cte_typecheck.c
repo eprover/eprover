@@ -324,7 +324,6 @@ void TypeInferSort(Sig_p sig, Term_p term, Scanner_p in)
                      fprintf(stderr, " but got ");
                      TypePrintTSTP(stderr, sig->type_bank, term->args[i]->type);
                      fprintf(stderr, "\n");
-                     assert(false);
                      TI_ERROR("Type error");
                   }
                }
@@ -345,7 +344,6 @@ void TypeInferSort(Sig_p sig, Term_p term, Scanner_p in)
                      fprintf(stderr, " but got ");
                      TypePrintTSTP(stderr, sig->type_bank, term->args[i]->type);
                      fprintf(stderr, "\n");
-                     assert(false);
                      TI_ERROR("Type error");
                   }
                }
@@ -355,7 +353,6 @@ void TypeInferSort(Sig_p sig, Term_p term, Scanner_p in)
             {
                fprintf(stderr, COMCHAR" too many arguments supplied for %s\n",
                        SigFindName(sig, term->f_code));
-               assert(false);
                TI_ERROR("Type error");
             }
          }
@@ -368,7 +365,6 @@ void TypeInferSort(Sig_p sig, Term_p term, Scanner_p in)
                fprintf(stderr, " and type ");
                TypePrintTSTP(stderr, sig->type_bank, type);
                fprintf(stderr, "\n");
-               assert(false);
                TI_ERROR("Type error");
             }
             else
