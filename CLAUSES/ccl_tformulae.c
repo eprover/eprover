@@ -680,7 +680,15 @@ static TFormula_p applied_tform_tstp_parse(Scanner_p in, TB_p terms, TFormula_p 
 
    // printf("applied_tform_tstp_parse()...\n");
    const Type_p hd_type = GetHeadType(terms->sig, head);
-   assert(hd_type);
+   if(!hd_type)
+   {
+      /* GetHeadType() has no type to return for a polymorphic head, i.e.
+         for an equation - including one that EncodePredicateAsEqn() has
+         just built out of a Boolean atom, as in "p @ q". Such a head is
+         saturated by construction, so applying anything to it is an
+         error rather than something to compute a max arity from. */
+      AktTokenError(in, " Too many arguments applied to the term", false);
+   }
    const int max_args = TypeGetMaxArity(hd_type);
    int i = 0;
    const TermRef args = TermArgTmpArrayAlloc(max_args);
