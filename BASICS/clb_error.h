@@ -58,6 +58,7 @@ typedef int ErrorCodes;
 #define INPUT_SEMANTIC_ERROR  12
 #define INTERFACE_ERROR       13
 #define PARENT_REQUEST        14
+#define INTERNAL_ERROR        15
 
 
 /*---------------------------------------------------------------------*/

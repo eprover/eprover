@@ -9,7 +9,7 @@
   Functions related to the construction, manipulation, and printing of
   explicit proof objects in E.
 
-  Copyright 2013-2018 by the author.
+  Copyright 2013-2026 by the author.
   This code is released under the GNU General Public Licence.
   See the file COPYING in the main E directory for details.
   Run "eprover -h" for contact information.
@@ -73,7 +73,7 @@ op_info opinfo[] =
    {"cdclpropres"            , NULL      , "thm"  },
    {"pred_elim_resolve"      , NULL      , "thm"  },
    {"split_equiv"            , NULL      , "thm"  },
-   {"introduced(definition)" , NULL      , "esa"  },
+   {"*UNUSED*"               , NULL      , NULL   },
    {"split_conjunct"         , NULL      , "thm"  },
    {"lift_bool_eq"           , NULL      , "thm"  },
    {"lift_lambdas"           , NULL      , "thm"  },
@@ -364,6 +364,69 @@ static char *node_gray = ",color=gray, fillcolor=gray",
 
 /*-----------------------------------------------------------------------
 //
+// Function: push_derivation()
+//
+//   Push the derivation items (op-code and suitable number of
+//   arguments) onto the stack.
+//
+// Global Variables: 0
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void push_derivation(PStack_p stack, DerivationCode op, va_list args)
+{
+   Clause_p   carg;
+   WFormula_p farg;
+   long       iarg;
+
+   assert(stack);
+   assert(op);
+   assert(DCOpHasArg1(op)||!DCOpHasArg2(op));
+
+   PStackPushInt(stack, op);
+
+   if(DCOpHasCnfArg1(op))
+   {
+      carg = va_arg(args, Clause_p);
+      assert(carg);
+      PStackPushP(stack, carg);
+   }
+   else if(DCOpHasFofArg1(op))
+   {
+      farg = va_arg(args, WFormula_p);
+      assert(farg);
+      PStackPushP(stack, farg);
+   }
+   else if(DCOpHasNumArg1(op))
+   {
+      iarg = va_arg(args, long);
+      PStackPushInt(stack, iarg);
+   }
+
+   if(DCOpHasCnfArg2(op))
+   {
+      carg = va_arg(args, Clause_p);
+      assert(carg);
+      PStackPushP(stack, carg);
+   }
+   else if(DCOpHasFofArg2(op))
+   {
+      farg = va_arg(args, WFormula_p);
+      assert(farg);
+      PStackPushP(stack, farg);
+   }
+   else if(DCOpHasNumArg2(op))
+   {
+      iarg = va_arg(args, long);
+      PStackPushInt(stack, iarg);
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: derived_free_wrapper()
 //
 //   Free a Derived cell (for PObjTreeFree).
@@ -431,7 +494,6 @@ PStack_p derived_get_derivation(Derived_p derived)
       return derived->formula->derivation;
    }
 }
-
 
 
 /*-----------------------------------------------------------------------
@@ -587,6 +649,9 @@ static long derivation_find_max_id(Derivation_p derivation)
       node = PStackElementP(derivation->ordered_deriv, sp);
       if(!node->clause)
       {
+         assert(node->formula);
+         //WFormulaTSTPPrintFlex(stderr, node->formula, true, true, false);
+         //printf("\n");
          tmp = ClauseInfoGetIdCounter(node->formula->info);
          if(tmp > max_ident)
          {
@@ -700,7 +765,6 @@ long DerivedCollectFCodes(Derived_p derived, NumTree_p *tree)
 }
 
 
-
 /*-----------------------------------------------------------------------
 //
 // Function: ClausePushDerivation()
@@ -714,27 +778,20 @@ long DerivedCollectFCodes(Derived_p derived, NumTree_p *tree)
 //
 /----------------------------------------------------------------------*/
 
-void ClausePushDerivation(Clause_p clause, DerivationCode op,
-                          void* arg1, void* arg2)
+void ClausePushDerivation(Clause_p clause, DerivationCode op, ...)
 {
    assert(clause);
    assert(op);
 
-   CLAUSE_ENSURE_DERIVATION(clause);
-   assert(DCOpHasCnfArg1(op)||DCOpHasFofArg1(op)||!arg1);
-   assert(DCOpHasCnfArg2(op)||DCOpHasFofArg2(op)||!arg2);
-   assert(DCOpHasCnfArg1(op)||!DCOpHasCnfArg2(op));
+   va_list args;
+   va_start(args, op);
 
-   PStackPushInt(clause->derivation, op);
-   if(arg1)
-   {
-      PStackPushP(clause->derivation, arg1);
-      if(arg2)
-      {
-         PStackPushP(clause->derivation, arg2);
-      }
-   }
+   FORMULA_OR_CLAUSE_ENSURE_DERIVATION(clause);
+   push_derivation(clause->derivation, op, args);
+   va_end(args);
 }
+
+
 
 
 /*-----------------------------------------------------------------------
@@ -754,7 +811,7 @@ void ClausePushACResDerivation(Clause_p clause, Sig_p sig)
 {
    assert(clause);
 
-   CLAUSE_ENSURE_DERIVATION(clause);
+   FORMULA_OR_CLAUSE_ENSURE_DERIVATION(clause);
 
    PStackPushInt(clause->derivation, DCACRes);
    PStackPushInt(clause->derivation, PStackGetSP(sig->ac_axioms));
@@ -774,29 +831,17 @@ void ClausePushACResDerivation(Clause_p clause, Sig_p sig)
 //
 /----------------------------------------------------------------------*/
 
-void WFormulaPushDerivation(WFormula_p form, DerivationCode op,
-                            void* arg1, void* arg2)
+void WFormulaPushDerivation(WFormula_p form, DerivationCode op, ...)
 {
    assert(form);
    assert(op);
 
-   if(!form->derivation)
-   {
-      form->derivation = PStackVarAlloc(3);
-   }
-   assert(DCOpHasCnfArg1(op)||DCOpHasFofArg1(op)||!arg1);
-   assert(DCOpHasCnfArg2(op)||DCOpHasFofArg2(op)||!arg2);
-   assert(DCOpHasCnfArg1(op)||!DCOpHasCnfArg2(op));
+   va_list args;
+   va_start(args, op);
 
-   PStackPushInt(form->derivation, op);
-   if(arg1)
-   {
-      PStackPushP(form->derivation, arg1);
-      if(arg2)
-      {
-         PStackPushP(form->derivation, arg2);
-      }
-   }
+   FORMULA_OR_CLAUSE_ENSURE_DERIVATION(form);
+   push_derivation(form->derivation, op, args);
+   va_end(args);
 }
 
 
@@ -1459,7 +1504,9 @@ void DerivationStackTSTPPrint(FILE* out, Sig_p sig, PStack_p derivation)
          case DCFofQuote:
                break;
          case DCIntroDef:
-               fprintf(out, "%s", opinfo[DPOpGetOpCode(op)].opid);
+               fprintf(out,
+                       "introduced(definition, [new_symbols(definition,[%s])],[])",
+                       SigFindName(sig, PStackElementInt(derivation, i+1)));
                break;
          case DCCnfAddArg:
                PStackPushP(arg_stack, PStackElementP(derivation, i+1));
@@ -1478,7 +1525,7 @@ void DerivationStackTSTPPrint(FILE* out, Sig_p sig, PStack_p derivation)
          i = PStackElementInt(subexpr_stack, sp);
          op  = PStackElementInt(derivation, i);
          opc = DPOpGetOpCode(op);
-         if(op != DCCnfAddArg)
+         if((op != DCCnfAddArg) && (op!=DCIntroDef))
          {
             if(DCOpHasParentArg1(op))
             {

@@ -928,7 +928,7 @@ EqnSide eqn_li_normalform(RWDesc_p desc, ClausePos_p pos,
       {
          DocClauseRewriteDefault(pos, l_old);
       }
-      CLAUSE_ENSURE_DERIVATION(pos->clause);
+      FORMULA_OR_CLAUSE_ENSURE_DERIVATION(pos->clause);
       TermComputeRWSequence(pos->clause->derivation,
                             l_old, ClausePosGetSide(pos), DCRewrite);
    }
@@ -956,7 +956,7 @@ EqnSide eqn_li_normalform(RWDesc_p desc, ClausePos_p pos,
       {
          DocClauseRewriteDefault(pos, r_old);
       }
-      CLAUSE_ENSURE_DERIVATION(pos->clause);
+      FORMULA_OR_CLAUSE_ENSURE_DERIVATION(pos->clause);
       TermComputeRWSequence(pos->clause->derivation,
                             r_old, ClausePosGetSide(pos), DCRewrite);
    }
@@ -1503,7 +1503,7 @@ bool ClauseLocalRW(OCB_p ocb, Clause_p clause)
       ClauseRecomputeLitCounts(clause);
       ClauseRemoveSuperfluousLiterals(clause);
       ClauseDelProp(clause, CPIsOriented);
-      ClausePushDerivation(clause, DCLocalRewrite, NULL, NULL);
+      ClausePushDerivation(clause, DCLocalRewrite);
    }
 
 

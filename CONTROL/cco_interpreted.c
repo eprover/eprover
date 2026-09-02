@@ -186,7 +186,7 @@ int ClauseEvaluateAnswerLits(Clause_p clause)
             clause->set->literals-=res;
          }
          DocClauseModificationDefault(clause, inf_eval_answers, NULL);
-         ClausePushDerivation(clause, DCEvalAnswers, NULL, NULL);
+         ClausePushDerivation(clause, DCEvalAnswers);
       }
    }
    return res;

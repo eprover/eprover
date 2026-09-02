@@ -1143,6 +1143,8 @@ Term_p unbind_loose(TB_p terms, IntMap_p db_map, long depth, Term_p t)
 //   Convert lambda term: ^[...bound vars...]:s[...free vars...]
 //   into a definiton f ..free vars.. ..bound vars.. = s
 //
+//   StS: This function is much to long!
+//
 // Global Variables: -
 //
 // Side Effects    : -
@@ -1235,7 +1237,8 @@ Term_p lift_lambda(TB_p terms, PStack_p bound_vars, Term_p body,
                                PStackGetSP(lb_stack_db_vars), closed->type));
       TypeArgArrayFree(lift_sym_ty_args, PStackGetSP(lb_stack_db_vars));
 
-      Term_p def_head =  TermAllocNewSkolem(terms->sig, free_var_stack, res_ty);
+      Term_p def_head = TermAllocNewSkolem(terms->sig, free_var_stack, res_ty);
+      FunCode def_symbol = def_head->f_code;
       def_head = TBTermTopInsert(terms, def_head);
 
       Term_p repl_t = ApplyTerms(terms, def_head, lb_stack_db_vars);
@@ -1271,7 +1274,9 @@ Term_p lift_lambda(TB_p terms, PStack_p bound_vars, Term_p body,
       DBGTermCheckUnownedSubterm(stdout, def_f, "lift_lambda(def)");
       WFormula_p def = WTFormulaAlloc(terms, def_f);
       DocFormulaCreationDefault(def, inf_fof_intro_def, NULL, NULL);
-      WFormulaPushDerivation(def, DCIntroDef, NULL, NULL);
+      FORMULA_OR_CLAUSE_ENSURE_DERIVATION(def);
+      PStackPushInt(def->derivation, DCIntroDef);
+      PStackPushInt(def->derivation, def_symbol);
 
       // NB: we are storing the definition of the kind
       // lift_name(FREE_VARS, LOOSE_BOUND_VARS) = %x. BODY
@@ -2423,7 +2428,7 @@ TFormula_p TFormulaCreateDef(TB_p bank, TFormula_p def_atom, TFormula_p defined,
    switch(polarity)
    {
    case -1:
-         res = TFormulaFCodeAlloc(bank, bank->sig->impl_code, defined, def_atom);
+         res = TFormulaFCodeAlloc(bank, bank->sig->bimpl_code, def_atom, defined);
          assert(!TermCellQueryProp(defined, TPPosPolarity));
          break;
    case 0:
@@ -2445,6 +2450,66 @@ TFormula_p TFormulaCreateDef(TB_p bank, TFormula_p def_atom, TFormula_p defined,
 
    return res;
 }
+
+/*-----------------------------------------------------------------------
+//
+// Function: TFormulaFindDefSymbol()
+//
+//   Given a definition (a universally quantified =, ->, <- or <=>
+//   formula, return the top symbol of the left argument term or
+//   formula.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+FunCode TFormulaFindDefSymbol(TB_p bank, TFormula_p definition)
+{
+   TFormula_p def = definition;
+   FunCode res = 0;
+
+   while(def->f_code == bank->sig->qall_code)
+   {
+      def = def->args[1];
+   }
+   if(def->f_code==bank->sig->eqn_code ||
+      def->f_code==bank->sig->equiv_code||
+      def->f_code==bank->sig->impl_code||
+      def->f_code==bank->sig->bimpl_code)
+   {
+      if(def->args[0]->f_code == bank->sig->eqn_code)
+      { /* Literal encoded as an equation */
+         res = def->args[0]->args[0]->f_code;
+      }
+      else
+      {
+         res = def->args[0]->f_code;
+      }
+      /* printf("%% Hack %ld, %s, %ld, %s: ", */
+      /*        res, */
+      /*        SigFindName(bank->sig, res), */
+      /*        def->args[1]->f_code, */
+      /*        SigFindName(bank->sig, def->args[1]->f_code)); */
+      /* TFormulaTPTPPrint(stdout, bank, def, true, false); */
+      /* printf("\n"); */
+      /* printf("%% %ld ", def->args[0]->f_code); */
+      /* TFormulaTPTPPrint(stdout, bank, def->args[0], true, false); */
+      /* printf("\n"); */
+   }
+   else
+   {
+      fprintf(stderr, "Internal error: ");
+      TFormulaTPTPPrint(stderr, bank, definition, true, false);
+      fprintf(stderr, " is not a proper definition\n");
+      exit(INTERNAL_ERROR);
+   }
+   return res;
+}
+
+
+
 
 
 /*-----------------------------------------------------------------------

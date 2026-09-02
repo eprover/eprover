@@ -963,13 +963,13 @@ static Term_p simplify_args(TB_p bank, Term_p t, bool unroll_implications)
 
 /*-----------------------------------------------------------------------
 //
-// Function:
+// Function: term_compare()
 //
+//   Compare two pointers stored at *v1 and *v2) (I think).
 //
+// Global Variables: -
 //
-// Global Variables:
-//
-// Side Effects    :
+// Side Effects    : -
 //
 /----------------------------------------------------------------------*/
 
@@ -1003,7 +1003,6 @@ TFormula_p do_simplify_decoded(TB_p terms, TFormula_p form, bool unroll_implicat
    {
       return form;
    }
-
    assert(terms);
    Sig_p sig = terms->sig;
 
@@ -2539,16 +2538,20 @@ TFormula_p TFormulaDistributeDisjunctions(TB_p terms, TFormula_p form)
    {
       return form;
    }
+   //fprintf(stderr, "%% TFormulaDistributeDisjunctions: ");
+   //TFormulaTPTPPrint(stderr, terms, form, true, false);
+   //fprintf(stderr, "\n");
    assert(TFormulaIsQuantified(terms->sig, form) ||
           form->f_code == terms->sig->or_code ||
           form->f_code == terms->sig->and_code ||
           TFormulaIsLiteral(terms->sig, form) ||
           TermIsTrueTerm(form) ||
-          TermIsFalseTerm(form));
-
-   //printf("TFormulaDistributeDisjunctions: ");
-   //TFormulaTPTPPrint(GlobalOut, terms, form, true, false);
-   //printf("\n");
+          TermIsFalseTerm(form)||
+          (form->f_code == terms->sig->not_code &&
+           form->args[0]->f_code == terms->sig->eqn_code &&
+           form->args[0]->arity == 0) ||
+          (form->f_code == terms->sig->eqn_code &&
+           form->arity == 0));
 
    if(TFormulaHasSubForm1(terms->sig, form))
    {
@@ -2626,7 +2629,7 @@ void WTFormulaConjunctiveNF(WFormula_p form, TB_p terms)
    {
       form->tformula = handle;
       DocFormulaModificationDefault(form, inf_fof_simpl);
-      WFormulaPushDerivation(form, DCFofSimplify, NULL, NULL);
+      WFormulaPushDerivation(form, DCFofSimplify);
    }
 
    handle = TFormulaNNF(terms, form->tformula, 1);
@@ -2634,14 +2637,14 @@ void WTFormulaConjunctiveNF(WFormula_p form, TB_p terms)
    {
       form->tformula = handle;
       DocFormulaModificationDefault(form, inf_fof_nnf);
-      WFormulaPushDerivation(form, DCFNNF, NULL, NULL);
+      WFormulaPushDerivation(form, DCFNNF);
    }
    handle = TFormulaMiniScope(terms, form->tformula);
    if(handle!=form->tformula)
    {
       form->tformula = handle;
       DocFormulaModificationDefault(form, inf_shift_quantors);
-      WFormulaPushDerivation(form, DCShiftQuantors, NULL, NULL);
+      WFormulaPushDerivation(form, DCShiftQuantors);
    }
    TFormulaFindMaxVarCode(form->tformula);
    VarBankSetVCountsToUsed(terms->vars);
@@ -2651,21 +2654,21 @@ void WTFormulaConjunctiveNF(WFormula_p form, TB_p terms)
    {
       form->tformula = handle;
       DocFormulaModificationDefault(form, inf_var_rename);
-      WFormulaPushDerivation(form, DCVarRename, NULL, NULL);
+      WFormulaPushDerivation(form, DCVarRename);
    }
    handle = TFormulaSkolemizeOutermost(terms, form->tformula);
    if(handle!=form->tformula)
    {
       form->tformula = handle;
       DocFormulaModificationDefault(form, inf_skolemize_out);
-      WFormulaPushDerivation(form, DCSkolemize, NULL, NULL);
+      WFormulaPushDerivation(form, DCSkolemize);
    }
    handle = TFormulaShiftQuantors(terms, form->tformula);
    if(handle!=form->tformula)
    {
       form->tformula = handle;
       DocFormulaModificationDefault(form, inf_shift_quantors);
-      WFormulaPushDerivation(form, DCShiftQuantors, NULL, NULL);
+      WFormulaPushDerivation(form, DCShiftQuantors);
    }
 
    handle = TFormulaDistributeDisjunctions(terms, form->tformula);
@@ -2674,7 +2677,7 @@ void WTFormulaConjunctiveNF(WFormula_p form, TB_p terms)
    {
       form->tformula = handle;
       DocFormulaModificationDefault(form, inf_fof_distrib);
-      WFormulaPushDerivation(form, DCDistDisjunctions, NULL, NULL);
+      WFormulaPushDerivation(form, DCDistDisjunctions);
    }
 }
 
@@ -2832,7 +2835,7 @@ void WTFormulaConjunctiveNF3(WFormula_p form, TB_p terms,
    {
       form->tformula = handle;
       DocFormulaModificationDefault(form, inf_fof_simpl);
-      WFormulaPushDerivation(form, DCFofSimplify, NULL, NULL);
+      WFormulaPushDerivation(form, DCFofSimplify);
    }
 
    handle = TFormulaNNF(terms, form->tformula, 1);
@@ -2840,7 +2843,7 @@ void WTFormulaConjunctiveNF3(WFormula_p form, TB_p terms,
    {
       form->tformula = handle;
       DocFormulaModificationDefault(form, inf_fof_nnf);
-      WFormulaPushDerivation(form, DCFNNF, NULL, NULL);
+      WFormulaPushDerivation(form, DCFNNF);
    }
 
    handle = TFormulaMiniScope3(terms, form->tformula, miniscope_limit);
@@ -2851,7 +2854,7 @@ void WTFormulaConjunctiveNF3(WFormula_p form, TB_p terms,
    {
       form->tformula = handle;
       DocFormulaModificationDefault(form, inf_shift_quantors);
-      WFormulaPushDerivation(form, DCShiftQuantors, NULL, NULL);
+      WFormulaPushDerivation(form, DCShiftQuantors);
    }
    TFormulaFindMaxVarCode(form->tformula);
    VarBankSetVCountsToUsed(terms->vars);
@@ -2861,21 +2864,21 @@ void WTFormulaConjunctiveNF3(WFormula_p form, TB_p terms,
    {
       form->tformula = handle;
       DocFormulaModificationDefault(form, inf_var_rename);
-      WFormulaPushDerivation(form, DCVarRename, NULL, NULL);
+      WFormulaPushDerivation(form, DCVarRename);
    }
    handle = TFormulaSkolemizeOutermost(terms, form->tformula);
    if(handle!=form->tformula)
    {
       form->tformula = handle;
       DocFormulaModificationDefault(form, inf_skolemize_out);
-      WFormulaPushDerivation(form, DCSkolemize, NULL, NULL);
+      WFormulaPushDerivation(form, DCSkolemize);
    }
    handle = TFormulaShiftQuantors(terms, form->tformula);
    if(handle!=form->tformula)
    {
       form->tformula = handle;
       DocFormulaModificationDefault(form, inf_shift_quantors);
-      WFormulaPushDerivation(form, DCShiftQuantors, NULL, NULL);
+      WFormulaPushDerivation(form, DCShiftQuantors);
    }
    //printf("SNF\n");
 
@@ -2891,7 +2894,7 @@ void WTFormulaConjunctiveNF3(WFormula_p form, TB_p terms,
    {
       form->tformula = handle;
       DocFormulaModificationDefault(form, inf_fof_nnf);
-      WFormulaPushDerivation(form, DCFNNF, NULL, NULL);
+      WFormulaPushDerivation(form, DCFNNF);
    }
    /* printf("NNF: \n"); */
    /* WFormulaPrint(GlobalOut, form, true); */
@@ -2903,7 +2906,7 @@ void WTFormulaConjunctiveNF3(WFormula_p form, TB_p terms,
    {
       form->tformula = handle;
       DocFormulaModificationDefault(form, inf_fof_distrib);
-      WFormulaPushDerivation(form, DCDistDisjunctions, NULL, NULL);
+      WFormulaPushDerivation(form, DCDistDisjunctions);
    }
 }
 

@@ -688,7 +688,7 @@ long ComputeClauseClauseParamodulants(TB_p bank, OCB_p ocb, Clause_p
    pos2 = ClausePosAlloc();
 
    test = ClausePosFirstParamodPair(clause, pos1, with, pos2,
-                false, pm_type != ParamodPlain);
+                                    false, pm_type != ParamodPlain);
    while(test)
    {
       assert(TermPosIsTopPos(pos1->pos));
@@ -699,29 +699,29 @@ long ComputeClauseClauseParamodulants(TB_p bank, OCB_p ocb, Clause_p
 
       if(paramod)
       {
-    paramod_count++;
-    paramod->proof_size  =
+         paramod_count++;
+         paramod->proof_size  =
        parent_alias->proof_size+with->proof_size+1;
-    paramod->proof_depth = MAX(parent_alias->proof_depth,
-                with->proof_depth)+1;
-    ClauseSetTPTPType(paramod,
-            ClauseQueryTPTPType(parent_alias));
-    ClauseSetProp(paramod,
-             ClauseGiveProps(parent_alias, CPIsSOS)|
-             ClauseGiveProps(with, CPIsSOS));
-    if(parent_alias!=with)
-    {
-       ClauseSetTPTPType(paramod,
-               TPTPTypesCombine(
-             ClauseQueryTPTPType(paramod),
-             ClauseQueryTPTPType(with)));
-    }
-    DocClauseCreationDefault(paramod, inf_type, with,
-              parent_alias);
+         paramod->proof_depth = MAX(parent_alias->proof_depth,
+                                    with->proof_depth)+1;
+         ClauseSetTPTPType(paramod,
+                           ClauseQueryTPTPType(parent_alias));
+         ClauseSetProp(paramod,
+                       ClauseGiveProps(parent_alias, CPIsSOS)|
+                       ClauseGiveProps(with, CPIsSOS));
+         if(parent_alias!=with)
+         {
+            ClauseSetTPTPType(paramod,
+                              TPTPTypesCombine(
+                                 ClauseQueryTPTPType(paramod),
+                                 ClauseQueryTPTPType(with)));
+         }
+         DocClauseCreationDefault(paramod, inf_type, with,
+                                  parent_alias);
          ClausePushDerivation(clause,
-                              inf_type==inf_sim_paramod?DCSimParamod:DCParamod,
+                         inf_type==inf_sim_paramod?DCSimParamod:DCParamod,
                               with, parent_alias);
-    ClauseSetInsert(store, paramod);
+         ClauseSetInsert(store, paramod);
       }
       test = ClausePosNextParamodPair(pos1, pos2, false, pm_type != ParamodPlain);
    }
@@ -730,7 +730,7 @@ long ComputeClauseClauseParamodulants(TB_p bank, OCB_p ocb, Clause_p
    if(parent_alias==with)
    {
       /* Both clauses are identical, i.e. both cases are
-    symmetric. Ergo do nothing... */
+         symmetric. Ergo do nothing... */
    }
    else
    {
@@ -739,36 +739,36 @@ long ComputeClauseClauseParamodulants(TB_p bank, OCB_p ocb, Clause_p
 
       while(test)
       {
-    assert(TermPosIsTopPos(pos1->pos));
+         assert(TermPosIsTopPos(pos1->pos));
          /*printf("\n@f %ld\n", DebugCount);*/
          paramod = variable_paramod(bank, ocb, pos1, pos2,
                                     freshvars, pm_type, &inf_type);
-    if(paramod)
-    {
-       paramod_count++;
-       paramod->proof_size  =
-          parent_alias->proof_size+with->proof_size+1;
-       paramod->proof_depth = MAX(parent_alias->proof_depth,
-                   with->proof_depth)+1;
-       ClauseSetTPTPType(paramod,
-               ClauseQueryTPTPType(with));
-       ClauseSetProp(paramod,
-           ClauseGiveProps(parent_alias, CPIsSOS)|
-           ClauseGiveProps(with, CPIsSOS));
-       if(parent_alias!=with)
-       {
-          ClauseSetTPTPType(paramod,
-             TPTPTypesCombine(
-                ClauseQueryTPTPType(paramod),
-                ClauseQueryTPTPType(parent_alias)));
-       }
-       DocClauseCreationDefault(paramod, inf_type, parent_alias, with);
+         if(paramod)
+         {
+            paramod_count++;
+            paramod->proof_size  =
+               parent_alias->proof_size+with->proof_size+1;
+            paramod->proof_depth = MAX(parent_alias->proof_depth,
+                                       with->proof_depth)+1;
+            ClauseSetTPTPType(paramod,
+                              ClauseQueryTPTPType(with));
+            ClauseSetProp(paramod,
+                     ClauseGiveProps(parent_alias, CPIsSOS)|
+                          ClauseGiveProps(with, CPIsSOS));
+            if(parent_alias!=with)
+            {
+               ClauseSetTPTPType(paramod,
+                                 TPTPTypesCombine(
+                                    ClauseQueryTPTPType(paramod),
+                                    ClauseQueryTPTPType(parent_alias)));
+            }
+            DocClauseCreationDefault(paramod, inf_type, parent_alias, with);
             ClausePushDerivation(clause,
                                  inf_type==inf_sim_paramod?DCSimParamod:DCParamod,
                                  parent_alias, with);
-       ClauseSetInsert(store, paramod);
-    }
-    test = ClausePosNextParamodPair(pos1, pos2, true, pm_type != ParamodPlain);
+            ClauseSetInsert(store, paramod);
+         }
+         test = ClausePosNextParamodPair(pos1, pos2, true, pm_type != ParamodPlain);
       }
    }
    ClausePosFree(pos1);

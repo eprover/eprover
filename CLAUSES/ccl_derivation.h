@@ -254,14 +254,11 @@ extern bool            ProofObjectRecordsGCSelection;
 #define DPSetIsHO(op) ((op) | ArgIsHO)
 #define DPGetIsHO(op) ((op) & ArgIsHO)
 
-void ClausePushDerivation(Clause_p clause, DerivationCode op,
-                          void* arg1, void* arg2);
+void ClausePushDerivation(Clause_p clause, DerivationCode op, ...);
 
 void ClausePushACResDerivation(Clause_p clause, Sig_p sig);
 
-
-void WFormulaPushDerivation(WFormula_p form, DerivationCode op,
-                            void* arg1, void* arg2);
+void WFormulaPushDerivation(WFormula_p form, DerivationCode op, ...);
 
 bool ClauseIsEvalGC(Clause_p clause);
 

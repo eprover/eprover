@@ -89,7 +89,7 @@ int ClauseContextualSimplifyReflect(ClauseSet_p set, Clause_p clause)
                                       inf_context_simplify_reflect,
                                       subsumer);
          res++;
-         ClausePushDerivation(clause, DCContextSR, subsumer, NULL);
+         ClausePushDerivation(clause, DCContextSR, subsumer);
       }
       else
       {

@@ -264,7 +264,7 @@ void store_abstraction_form(WFormula_p wform, ClauseSet_p archive, PObjMap_p* st
       Term_p encoded = PostCNFEncodeFormulas(bank, wform->tformula);
       Eqn_p lit = EqnAlloc(encoded, bank->true_term, bank, true);
       Clause_p cl = ClauseAlloc(lit);
-      ClausePushDerivation(cl, DCFofQuote, wform, NULL);
+      ClausePushDerivation(cl, DCFofQuote, wform);
       ClauseSetInsert(archive, cl);
 
       Term_p quantified = encoded;
@@ -1085,7 +1085,7 @@ void do_ext_eq_fact(ClausePos_p main_pos, ClausePos_p partner_pos,
       res->proof_size = main_pos->clause->proof_size + 1;
       res->proof_depth = main_pos->clause->proof_depth + 1;
       ClauseSetProp(res, (ClauseGiveProps(main_pos->clause, CPIsSOS)));
-      ClausePushDerivation(res, DCExtEqFact, main_pos->clause, NULL);
+      ClausePushDerivation(res, DCExtEqFact, main_pos->clause);
       ClauseSetInsert(cl_store, res);
    }
 
@@ -1516,7 +1516,7 @@ FunCode mk_new_choice(TB_p bank, ClauseSet_p archive, IntMap_p choice_syms, Type
    Clause_p res = ClauseAlloc(not_p_x_lit);
    // TODO: Clause documentation is not implemented at the moment.
    // DocClauseCreationDefault(clause, inf_efactor, clause, NULL);
-   ClausePushDerivation(res, DCChoiceAx, NULL, NULL);
+   ClausePushDerivation(res, DCChoiceAx);
    ClauseSetInsert(archive, res);
 
    assert(!IntMapGetVal(choice_syms, ch_const->f_code));
@@ -2053,7 +2053,7 @@ bool NormalizeEquations(Clause_p cl)
    {
       ClauseRecomputeLitCounts(cl);
       ClauseRemoveSuperfluousLiterals(cl);
-      ClausePushDerivation(cl, DCNormalize, NULL, NULL);
+      ClausePushDerivation(cl, DCNormalize);
    }
 
    return normalized;
@@ -2299,7 +2299,7 @@ bool BooleanSimplification(Clause_p cl)
    {
       ClauseRecomputeLitCounts(cl);
       ClauseRemoveSuperfluousLiterals(cl);
-      ClausePushDerivation(cl, DCNormalize, NULL, NULL);
+      ClausePushDerivation(cl, DCNormalize);
    }
 
    return is_tautology;
@@ -2376,7 +2376,7 @@ bool ResolveFlexClause(Clause_p cl)
       EqnListFree(cl->literals);
       cl->literals = NULL;
       ClauseRecomputeLitCounts(cl);
-      ClausePushDerivation(cl, DCFlexResolve, NULL, NULL);
+      ClausePushDerivation(cl, DCFlexResolve);
    }
 
    IntMapFree(ids_to_sign);
@@ -2483,7 +2483,7 @@ void ClausePruneArgs(Clause_p cl)
       EqnListLambdaNormalize(cl->literals);
       EqnListRemoveResolved(&cl->literals);
       EqnListRemoveDuplicates(cl->literals);
-      ClausePushDerivation(cl, DCPruneArg, NULL, NULL);
+      ClausePushDerivation(cl, DCPruneArg);
    }
    SubstDelete(subst);
 

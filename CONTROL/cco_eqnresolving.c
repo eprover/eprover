@@ -89,8 +89,9 @@ long ComputeAllEqnResolvents(TB_p bank, Clause_p clause, ClauseSet_p
             ClauseSetTPTPType(resolvent, ClauseQueryTPTPType(clause));
             ClauseSetProp(resolvent, ClauseGiveProps(clause, CPIsSOS));
             DocClauseCreationDefault(resolvent, inf_eres, clause, NULL);
-            ClausePushDerivation(resolvent, inf_is_ho ? DPSetIsHO(DCEqRes) : DCEqRes, 
-                                 clause, NULL);
+            ClausePushDerivation(resolvent,
+                                 inf_is_ho ? DPSetIsHO(DCEqRes) : DCEqRes,
+                                 clause);
             ClauseSetInsert(store, resolvent);
          }
          test = ClausePosNextEqResLiteral(pos);
@@ -152,9 +153,8 @@ long ClauseERNormalizeVar(TB_p bank, Clause_p clause, ClauseSet_p
                   handle->literals = NULL;
                   ClauseFree(handle);
                   DocClauseModificationDefault(clause, inf_eres, clause);
-                  ClausePushDerivation(clause, 
-                                       is_ho ? DPSetIsHO(DCDesEqRes) : DCDesEqRes, 
-                                       NULL, NULL);
+                  ClausePushDerivation(clause,
+                                       is_ho ? DPSetIsHO(DCDesEqRes) : DCDesEqRes);
                   break;
                }
             }

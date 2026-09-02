@@ -170,7 +170,6 @@ static void clause_collect_posneg_vars(Clause_p clause,
 /*                         Exported Functions                          */
 /*---------------------------------------------------------------------*/
 
-
 /*-----------------------------------------------------------------------
 //
 // Function: TSTPSkipSource()
@@ -216,6 +215,54 @@ void ClauseSetTPTPType(Clause_p clause, FormulaProperties type)
    ClauseDelProp(clause,CPTypeMask);
    ClauseSetProp(clause, type);
 }
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: TPTPtpesCombine()
+//
+//   Given the types of two clauses/formulas, determine the type of
+//   the clause/formula resulting (usually ;-) from their combination.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+FormulaProperties TPTPTypesCombine(FormulaProperties type1,
+                                   FormulaProperties type2)
+{
+   FormulaProperties res = 0;
+
+   switch(type1)
+   {
+   case CPTypeNegConjecture:
+   case CPTypeConjecture:
+   case CPTypeQuestion:
+         /* Conjecture-like types dominate */
+         res = type1;
+         break;
+   case CPTypeDefinition:
+   case CPTypeLemma:
+         /* Definition/Lemma are never inherited */
+         if((type2 == CPTypeDefinition)||(type2 == CPTypeLemma))
+         {
+            res = CPTypeAxiom; //plain
+         }
+         else
+         {
+            res = type2;
+         }
+         break;
+   default:
+         /* If type1 is boring, type2 dominates */
+         res = type2;
+         break;
+   }
+   return res;
+}
+
 
 
 /*-----------------------------------------------------------------------
@@ -1491,6 +1538,9 @@ void ClauseTSTPPrint(FILE* out, Clause_p clause, bool fullterms, bool complete)
             typename = "axiom";
          }
          break;
+   case CPTypeDefinition:
+         typename = "definition";
+         break;
    case CPTypeHypothesis:
          typename = "hypothesis";
          break;
@@ -1597,11 +1647,14 @@ FormulaProperties ClauseTypeParse(Scanner_p in, char *legal_types)
 
    CheckInpId(in, legal_types);
 
-   if(TestInpId(in,
-                "axiom|definition|theorem"))
+   if(TestInpId(in, "axiom|theorem"))
    {
       res = CPTypeAxiom;
-      if(problemType == PROBLEM_HO && TestInpId(in, "definition"))
+   }
+   else if(TestInpId(in, "definition"))
+   {
+      res = CPTypeDefinition;
+      if(problemType == PROBLEM_HO)
       {
          res = res | CPIsLambdaDef;
       }

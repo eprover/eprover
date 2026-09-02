@@ -606,7 +606,7 @@ long ProofStateSinE(ProofState_p state, char* fname)
    StructFOFSpec_p spec;
    PStack_p        clauses, formulas;
 
-   if(!fname)
+   if(!fname || strcmp(fname,"None")==0)
    {
       return 0;
    }

@@ -8,7 +8,7 @@
 
   Clause functions that need to know about sets.
 
-  Copyright 1998-2018 by the author.
+  Copyright 1998-2026 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
@@ -267,7 +267,7 @@ int ClauseRemoveSuperfluousLiterals(Clause_p clause)
    }
    if(removed)
    {
-      ClausePushDerivation(clause, DCNormalize, NULL, NULL);
+      ClausePushDerivation(clause, DCNormalize);
    }
    return removed;
 }
@@ -435,7 +435,7 @@ Clause_p ClauseArchive(ClauseSet_p archive, Clause_p clause)
    assert(clause);
 
    newclause = ClauseFlatCopy(clause);
-   ClausePushDerivation(newclause, DCCnfQuote, clause, NULL);
+   ClausePushDerivation(newclause, DCCnfQuote, clause);
 
    ClauseSetInsert(archive, clause);
 
@@ -471,7 +471,7 @@ Clause_p ClauseArchiveCopy(ClauseSet_p archive, Clause_p clause)
    archclause->derivation = clause->derivation;
    clause->info       = NULL;
    clause->derivation = NULL;
-   ClausePushDerivation(clause, DCCnfQuote, archclause, NULL);
+   ClausePushDerivation(clause, DCCnfQuote, archclause);
    ClauseSetInsert(archive, archclause);
 
    return archclause;
@@ -741,7 +741,7 @@ bool ClauseEliminateNakedBooleanVariables(Clause_p clause)
       clause->literals = res;
       ClauseRemoveSuperfluousLiterals(clause);
       ClauseRecomputeLitCounts(clause);
-      ClausePushDerivation(clause, DCNormalize, NULL, NULL);
+      ClausePushDerivation(clause, DCNormalize);
    }
 
    PStackFree(all_lits);
@@ -930,7 +930,7 @@ Clause_p ClauseRecognizeInjectivity(TB_p terms, Clause_p clause)
                ClauseSetProp(res, CPIsPureInjectivity);
                // TODO: Clause documentation is not implemented at the moment.
                // DocClauseCreationDefault(clause, inf_efactor, clause, NULL);
-               ClausePushDerivation(res, DCInvRec, clause, NULL);
+               ClausePushDerivation(res, DCInvRec, clause);
             }
 
             PStackFree(skolem_vars);

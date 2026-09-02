@@ -490,8 +490,7 @@ long ProofStateProcessDistinct(ProofState_p state)
       FormulaSetInsert(state->f_ax_archive, distinct);
       diseq_form = TFormulaExpandDistinct(state->terms, distinct->tformula);
       handle = WTFormulaAlloc(state->terms, diseq_form);
-      WFormulaPushDerivation(handle, DCExpandDistinct,
-                             distinct, NULL);
+      WFormulaPushDerivation(handle, DCExpandDistinct, distinct);
       FormulaSetInsert(state->f_axioms, handle);
       res++;
    }

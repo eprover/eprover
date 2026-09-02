@@ -250,7 +250,7 @@ bool ClauseUnfoldEqDef(Clause_p clause, ClausePos_p demod, Term_p lside, Term_p 
                         pos_stack);
       for(i=0; i<PStackGetSP(pos_stack); i++)
       {
-         ClausePushDerivation(clause, DCUnfold, demod->clause, NULL);
+         ClausePushDerivation(clause, DCUnfold, demod->clause);
       }
    }
    PStackFree(pos_stack);

@@ -438,6 +438,7 @@ Term_p do_rw_with_defs(TB_p terms, Term_p t, IntMap_p def_map,
 PTree_p create_sym_map(FormulaSet_p set, IntMap_p sym_def_map, bool unfold_only_forms)
 {
    PTree_p recognized_definitions = NULL;
+
    for (WFormula_p form = set->anchor->succ; form != set->anchor; form = form->succ)
    {
       if (!(FormulaQueryProp(form, CPIsLambdaDef)))
@@ -524,8 +525,11 @@ PTree_p create_sym_map(FormulaSet_p set, IntMap_p sym_def_map, bool unfold_only_
 
             TFormula_p def = TFormulaFCodeAlloc(bank, sig->eqn_code, lhs, rhs);
             WFormula_p def_wform = WFormulaFlatCopy(form);
+            FormulaSetType(def_wform,
+                           TPTPTypesCombine(FormulaQueryType(def),
+                                            FormulaQueryType(def_wform)));
             def_wform->tformula = def;
-            WFormulaPushDerivation(def_wform, DCFofQuote, form, NULL);
+            WFormulaPushDerivation(def_wform, DCFofQuote, form);
             IntMapAssign(sym_def_map, lhs->f_code, def_wform);
 
             PTreeStore(&recognized_definitions, form);
@@ -574,7 +578,7 @@ void intersimplify_definitions(TB_p terms, IntMap_p sym_def_map)
          PTree_p node = NULL;
          while ((node = PTreeTraverseNext(ptiter)))
          {
-            WFormulaPushDerivation(next, DCApplyDef, node->key, NULL);
+            WFormulaPushDerivation(next, DCApplyDef, node->key);
          }
          PTreeTraverseExit(ptiter);
       }
@@ -601,15 +605,14 @@ bool map_formula(WFormula_p form, TB_p terms, FormulaMapper processor,
 {
    TFormula_p original = form->tformula;
    bool changed = false;
-
+   assert(!DCOpHasArg1(dc)&&!DCOpHasArg2(dc));
    form->tformula = processor(original, terms);
 
    if (form->tformula != original)
    {
-      WFormulaPushDerivation(form, dc, NULL, NULL);
+      WFormulaPushDerivation(form, dc);
       changed = true;
    }
-
    return changed;
 }
 
@@ -1295,7 +1298,7 @@ bool WFormulaConjectureNegate(WFormula_p wform)
                                            NULL);
       FormulaSetType(wform, CPTypeNegConjecture);
       DocFormulaModificationDefault(wform, inf_neg_conjecture);
-      WFormulaPushDerivation(wform, DCNegateConjecture, NULL, NULL);
+      WFormulaPushDerivation(wform, DCNegateConjecture);
       return true;
    }
    return false;
@@ -1377,7 +1380,7 @@ bool WFormulaAnnotateQuestion(WFormula_p wform, bool add_answer_lits,
       }
       FormulaSetType(wform, CPTypeConjecture);
       DocFormulaModificationDefault(wform, inf_annotate_question);
-      WFormulaPushDerivation(wform, DCAnnoQuestion, NULL, NULL);
+      WFormulaPushDerivation(wform, DCAnnoQuestion);
       return true;
    }
    return false;
@@ -1422,7 +1425,7 @@ long FormulaSetPreprocConjectures(FormulaSet_p set,
          WFormula_p tmpform;
 
          tmpform =  WFormulaFlatCopy(handle);
-         WFormulaPushDerivation(tmpform, DCFofQuote, handle, NULL);
+         WFormulaPushDerivation(tmpform, DCFofQuote, handle);
          FormulaSetReplace(handle, tmpform);
          FormulaSetInsert(archive, handle);
          handle = tmpform;
@@ -1460,7 +1463,7 @@ bool WFormulaSimplify(WFormula_p form, TB_p terms)
    {
       form->tformula = simplified;
       DocFormulaModificationDefault(form, inf_fof_simpl);
-      WFormulaPushDerivation(form, DCFofSimplify, NULL, NULL);
+      WFormulaPushDerivation(form, DCFofSimplify);
       res = true;
    }
    return res;
@@ -1489,7 +1492,7 @@ long WFormulaCNF2(WFormula_p form, ClauseSet_p set,
    if (form->is_clause)
    {
       Clause_p clause = WFormClauseToClause(form);
-      ClausePushDerivation(clause, DCFofQuote, form, NULL);
+      ClausePushDerivation(clause, DCFofQuote, form);
       if(problemType == PROBLEM_HO)
       {
          EqnListMapTerms(clause->literals,
@@ -1594,7 +1597,7 @@ long FormulaSetSimplify(FormulaSet_p set, TB_p terms, bool do_garbage_collect)
 /*       // fprintf(stdout, "\n"); */
 /*       form = WFormulaFlatCopy(handle); */
 /*       FormulaSetInsert(archive, handle); */
-/*       WFormulaPushDerivation(form, DCFofQuote, handle, NULL); */
+/*       WFormulaPushDerivation(form, DCFofQuote, handle); */
 /*       handle = form; */
 /*       res += WFormulaCNF(handle, clauseset, terms, fresh_vars); */
 /*       FormulaSetInsert(archive, handle); */
@@ -1669,8 +1672,12 @@ long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive,
 
       DBGTermCheckUnownedSubterm(stdout, handle->tformula, "UnownedCNF");
       form = WFormulaFlatCopy(handle);
+      FormulaSetType(form,
+                     TPTPTypesCombine(FormulaQueryType(form),
+                                      FormulaQueryType(handle)));
+      WFormulaPushDerivation(form, DCFofQuote, handle);
+
       FormulaSetInsert(archive, handle);
-      WFormulaPushDerivation(form, DCFofQuote, handle, NULL);
       handle = form;
       // printf(COMCHAR" vor WFormulaCNF2()..\n");
       res += WFormulaCNF2(handle, clauseset, terms, fresh_vars,
@@ -1895,11 +1902,11 @@ long TFormulaToCNF(WFormula_p form, FormulaProperties type, ClauseSet_p set,
          clause = TFormulaCollectClause(handle, terms, fresh_vars);
          ClauseSetTPTPType(clause, type);
          DocClauseFromForm(GlobalOut, OutputLevel, clause, form);
-         ClausePushDerivation(clause, DCSplitConjunct, form, NULL);
+         ClausePushDerivation(clause, DCSplitConjunct, form);
 
          if (ClauseEliminateNakedBooleanVariables(clause))
          {
-            ClausePushDerivation(clause, DCEliminateBVar, NULL, NULL);
+            ClausePushDerivation(clause, DCEliminateBVar);
          }
 
          if(problemType == PROBLEM_HO)
@@ -2006,8 +2013,7 @@ long TFormulaApplyDefs(WFormula_p form, TB_p terms, NumXTree_p *defs)
       {
          WFormulaPushDerivation(form,
                                 DCApplyDef,
-                                PStackElementP(defs_used, i),
-                                NULL);
+                                PStackElementP(defs_used, i));
       }
    }
    else
@@ -2166,8 +2172,11 @@ long TFormulaSetLiftLets(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
          {
             TFormula_p def = PStackElementP(lifted_lets, i);
             WFormula_p wdef = WTFormulaAlloc(terms, def);
-            WFormulaPushDerivation(wdef, DCIntroDef, NULL, NULL);
-            WFormulaPushDerivation(form, DCApplyDef, wdef, NULL);
+            FunCode def_pred  = TFormulaFindDefSymbol(terms, def);
+
+            FormulaSetType(wdef,CPTypeDefinition);
+            WFormulaPushDerivation(wdef, DCIntroDef, def_pred);
+            WFormulaPushDerivation(form, DCApplyDef, wdef);
             PStackAssignP(lifted_lets, i, wdef);
          }
       }
@@ -2252,7 +2261,7 @@ long TFormulaSetLambdaNormalize(FormulaSet_p set, FormulaSet_p archive, TB_p ter
             assert(!TermIsBetaReducible(handle));
             form->tformula = handle;
             DocFormulaModificationDefault(form, inf_fof_simpl);
-            WFormulaPushDerivation(form, DCFofSimplify, NULL, NULL);
+            WFormulaPushDerivation(form, DCFofSimplify);
             DBGTermCheckUnownedSubterm(stdout, handle, "LambdaNormUnowned2");
             res++;
             /* if(TFormulaHasFreeVars(terms, form->tformula)) */
@@ -2314,7 +2323,7 @@ long TFormulaSetUnfoldDefSymbols(FormulaSet_p set, FormulaSet_p archive,
                PTree_p node = NULL;
                while ((node = PTreeTraverseNext(ptiter)))
                {
-                  WFormulaPushDerivation(form, DCApplyDef, node->key, NULL);
+                  WFormulaPushDerivation(form, DCApplyDef, node->key);
                }
                PTreeTraverseExit(ptiter);
                res++;
@@ -2400,8 +2409,11 @@ long TFormulaSetLiftLambdas(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
             while (!(PStackEmpty(defs)))
             {
                WFormula_p def = PStackPopP(defs);
-               //WFormulaPushDerivation(form, DCApplyDef, def, NULL);
-               WFormulaPushDerivation(form, DCIntroDef, def, NULL);
+               FunCode def_pred  = TFormulaFindDefSymbol(terms, def->tformula);
+
+               FormulaSetType(def,CPTypeDefinition);
+               WFormulaPushDerivation(def, DCIntroDef, def_pred);
+               //WFormulaPushDerivation(form, DCApplyDef, def);
                PTreeStore(&all_defs, def);
                res++;
             }
@@ -2446,7 +2458,7 @@ long TFormulaSetNamedToDBLambdas(FormulaSet_p set, FormulaSet_p archive, TB_p te
          {
             form->tformula = handle;
             DocFormulaModificationDefault(form, inf_fof_simpl);
-            WFormulaPushDerivation(form, DCFofSimplify, NULL, NULL);
+            WFormulaPushDerivation(form, DCFofSimplify);
             res++;
             DBGTermCheckUnownedSubterm(stdout, handle, "UnownedToDBLambdas");
          }
@@ -2522,9 +2534,11 @@ long TFormulaSetIntroduceDefs(FormulaSet_p set, FormulaSet_p archive, TB_p terms
       cell->vals[0].i_val = w_def->ident; /* Replace polarity with
                                            * definition id */
       arch_form = WFormulaFlatCopy(w_def);
-      WFormulaPushDerivation(arch_form, DCIntroDef, NULL, NULL);
+      FormulaSetType(arch_form, CPTypeDefinition);
+      WFormulaPushDerivation(arch_form, DCIntroDef,
+                             TFormulaFindDefSymbol(terms, arch_form->tformula));
+      WFormulaPushDerivation(w_def, DCFofQuote, arch_form);
       FormulaSetInsert(archive, arch_form);
-      WFormulaPushDerivation(w_def, DCFofQuote, arch_form, NULL);
 
       cell->vals[3].p_val = arch_form;
       if (polarity == 0)
@@ -2543,7 +2557,7 @@ long TFormulaSetIntroduceDefs(FormulaSet_p set, FormulaSet_p archive, TB_p terms
          cell->vals[2].i_val = c_def->ident; /* ..and this is the
                                                 blocking id of the actual
                                                 definition.*/
-         WFormulaPushDerivation(c_def, DCSplitEquiv, arch_form, NULL);
+         WFormulaPushDerivation(c_def, DCSplitEquiv, arch_form);
          FormulaSetInsert(set, c_def);
          WFormulaFree(w_def);
       }
@@ -2805,7 +2819,7 @@ void ClauseSetLiftLambdas(ClauseSet_p set, FormulaSet_p archive, TB_p terms,
          {
             WFormula_p def = PStackPopP(defs);
             DBGTermCheckUnownedSubterm(stdout, def->tformula, "ClauseSetLiftLambdas2");
-            ClausePushDerivation(handle, DCLiftLambdas, def, NULL);
+            ClausePushDerivation(handle, DCLiftLambdas, def);
             PTreeStore(&all_defs, def);
          }
       }
@@ -2818,6 +2832,10 @@ void ClauseSetLiftLambdas(ClauseSet_p set, FormulaSet_p archive, TB_p terms,
       WFormula_p handle = node->key;
       DBGTermCheckUnownedSubterm(stdout, handle->tformula, "ClauseSetLiftLambdas3");
       WFormula_p copy = WFormulaFlatCopy(handle);
+      FormulaSetType(copy,
+                     TPTPTypesCombine(FormulaQueryType(copy),
+                                      FormulaQueryType(handle)));
+      WFormulaPushDerivation(copy, DCFofQuote, handle);
       DBGTermCheckUnownedSubterm(stdout, copy->tformula, "ClauseSetLiftLambdas4");
       FormulaSetInsert(archive, handle);
       if(unroll_fool)

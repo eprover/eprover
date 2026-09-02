@@ -119,13 +119,12 @@ long gd_term_define(TB_p terms, Term_p term,
    NumTreeStore(defs, lhs->entry_no,
                 ((IntOrP){.p_val=rhs}),
                 ((IntOrP){.p_val=NULL}));
-   def_eqn = EqnAlloc(lhs, rhs, terms, true);
-   /* fprintf(GlobalOut, "New definition: "); */
-   /* EqnPrint(GlobalOut,def_eqn,false,true); */
-   /* fprintf(GlobalOut, "\n"); */
+   def_eqn = EqnAlloc(rhs, lhs, terms, true);
+   // Order changed to make Geoff happy - defined symbols on the left
    assert(!def_eqn->next);
    clause = ClauseAlloc(def_eqn);
-   ClausePushDerivation(clause, DCIntroDef, NULL, NULL);
+   ClauseSetTPTPType(clause, CPTypeDefinition);
+   ClausePushDerivation(clause, DCIntroDef, new_const);
    ClauseSetInsert(clauses, clause);
 
    return 1;

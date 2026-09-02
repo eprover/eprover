@@ -756,7 +756,7 @@ static Clause_p insert_new_clauses(ProofState_p state, ProofControl_p control)
       handle->create_date = state->proc_non_trivial_count;
       if(ProofObjectRecordsGCSelection)
       {
-         ClausePushDerivation(handle, DCCnfEvalGC, NULL, NULL);
+         ClausePushDerivation(handle, DCCnfEvalGC);
       }
 //      HCBClauseEvaluate(control->hcb, handle);
 
@@ -1217,10 +1217,10 @@ void ProofStateResetProcessedSet(ProofState_p state,
       }
       if(ProofObjectRecordsGCSelection)
       {
-         ClausePushDerivation(handle, DCCnfEvalGC, NULL, NULL);
+         ClausePushDerivation(handle, DCCnfEvalGC);
       }
       tmpclause = ClauseFlatCopy(handle);
-      ClausePushDerivation(tmpclause, DCCnfQuote, handle, NULL);
+      ClausePushDerivation(tmpclause, DCCnfQuote, handle);
       ClauseSetInsert(state->archive, handle);
       handle = tmpclause;
       HCBClauseEvaluate(control->hcb, handle);
@@ -1499,10 +1499,10 @@ void ProofStateInit(ProofState_p state, ProofControl_p control)
       HCBClauseEvaluate(control->hcb, new);
       //OUTPRINT(1, COMCHAR" Initializing proof state (2b)\n");
       DocClauseQuoteDefault(6, new, "eval");
-      ClausePushDerivation(new, DCCnfQuote, handle, NULL);
+      ClausePushDerivation(new, DCCnfQuote, handle);
       if(ProofObjectRecordsGCSelection)
       {
-         ClausePushDerivation(new, DCCnfEvalGC, NULL, NULL);
+         ClausePushDerivation(new, DCCnfEvalGC);
       }
       //OUTPRINT(1, COMCHAR" Initializing proof state (2c)\n");
       if(control->heuristic_parms.prefer_initial_clauses)
