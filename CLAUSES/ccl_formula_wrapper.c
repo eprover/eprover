@@ -423,6 +423,7 @@ void WFormulaTPTPPrint(FILE* out, WFormula_p form, bool fullterms)
 WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms)
 {
    TFormula_p        tform;
+   TFormula_p        nonbool;
    FormulaProperties type = CPTypeAxiom;
    FormulaProperties initial = CPInputFormula;
    WFormula_p        handle;
@@ -529,6 +530,22 @@ WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms)
       if(TFormulaHasFreeVars(terms, tform))
       {
          Error("%s Formula has free variables (check parentheses "
+               "and quantifier precedence)",
+               SYNTAX_ERROR,
+               PosRep(inptype, source_name, line, column));
+      }
+      nonbool = TFormulaHasNonBoolSubForm(terms->sig, tform);
+      if(nonbool)
+      {
+         /* Do not try to print the offending subformula itself - the
+            formula printers assume a well-typed formula skeleton. */
+         if(nonbool->type)
+         {
+            fprintf(stderr, COMCHAR" Subformula has type ");
+            TypePrintTSTP(stderr, terms->sig->type_bank, nonbool->type);
+            fprintf(stderr, ", but a formula must have type $o\n");
+         }
+         Error("%s Formula is not Boolean (check parentheses "
                "and quantifier precedence)",
                SYNTAX_ERROR,
                PosRep(inptype, source_name, line, column));
