@@ -1,8 +1,8 @@
 /*-----------------------------------------------------------------------
 
-File  : clb_intmap.h
+File  : clb_intmap_old.h
 
-Authors: Stephan Schulz (schulz@eprover.org), Albert Eisfeld
+Author: Stephan Schulz (schulz@eprover.org)
 
 Contents
 
@@ -10,7 +10,7 @@ Contents
   (including 0) to void* pointers, supporting assignments, retrieval,
   deletion, and iteration.
 
-  Copyright 2004, 2026 by the author.
+  Copyright 2004 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
@@ -23,12 +23,13 @@ Changes
 
 -----------------------------------------------------------------------*/
 
-#ifndef CLB_INTMAP
+#ifndef CLB_INTMAP_OLD
 
-#define CLB_INTMAP
+#define CLB_INTMAP_OLD
 
 #include <limits.h>
-#include <clb_numarrtrees.h>
+#include <clb_numtrees.h>
+#include <clb_pdrangearrays.h>
 
 
 /*---------------------------------------------------------------------*/
@@ -39,8 +40,13 @@ typedef enum
 {
    IMEmpty,
    IMSingle,
-   IMArrTree
+   IMArray,
+   IMTree
 }IntMapType;
+
+#define MAX_TREE_DENSITY 8
+#define MIN_TREE_DENSITY 4
+#define IM_ARRAY_SIZE MAX_TREE_DENSITY
 
 /* This is the main thing - a datatype that keeps key/value pairs and
  * allows inserting, updating, deleting, and ordered iteration. I
@@ -65,8 +71,9 @@ typedef struct intmap_cell
                             * from an array. */
    union
    {
-      void*         value; /* For IMSingle */
-      NumArrTree_p   tree;
+      void*        value;   /* For IMSingle */
+      PDRangeArr_p array;   /* For IMArray  */
+      NumTree_p    tree;    /* For IMTree   */
    }values;
 }IntMapCell, *IntMap_p;
 
@@ -77,11 +84,11 @@ typedef struct intmap_iter_cell
    IntMap_p map;
    long     lower_key;
    long     upper_key;
-   long     last_seen_key;
    union
    {
       bool      seen;      /* For IMSingle */
-      PStack_p  tree_iter; /* For IMArrTree */
+      long      current;   /* For IMArray  */
+      PStack_p  tree_iter; /* For IMTree */
    }admin_data;
 }IntMapIterCell, *IntMapIter_p;
 
@@ -113,8 +120,10 @@ void*    IntMapDelKey(IntMap_p map, long key);
 #define INTMAPCELL_MEM MEMSIZE(IntMapCell)
 #endif
 
-#define IntMapDStorage(map) ((((map)->type == IMArrTree)?\
-                              ((map)->entry_no*NUMARRTREECELL_MEM):0))
+#define IntMapDStorage(map) (((map)->type == IMArray)?\
+                             PDArrayStorage((map)->values.array):\
+                             (((map)->type == IMTree)?\
+                              ((map)->entry_no*NUMTREECELL_MEM):0))
 
 #define IntMapStorage(map) (INTMAPCELL_MEM+IntMapDStorage(map))
 
@@ -149,7 +158,8 @@ void     IntMapDebugPrint(FILE* out, IntMap_p map);
 static inline void* IntMapIterNext(IntMapIter_p iter, long *key)
 {
    void* res = NULL;
-   NumArrTree_p handle;
+   long  i;
+   NumTree_p handle;
 
    assert(iter);
    assert(key);
@@ -159,11 +169,13 @@ static inline void* IntMapIterNext(IntMapIter_p iter, long *key)
       return NULL;
    }
 
+   //printf("IntMapIterNext()...\n");
    switch(iter->map->type)
    {
    case IMEmpty:
          break;
    case IMSingle:
+         //printf("Case IMSingle\n");
          if(!iter->admin_data.seen)
          {
             iter->admin_data.seen = true;
@@ -171,28 +183,36 @@ static inline void* IntMapIterNext(IntMapIter_p iter, long *key)
             res = iter->map->values.value;
          }
          break;
-   case IMArrTree:
-         while((handle = NumArrTreeTraverseNext(iter->admin_data.tree_iter, &(iter->last_seen_key))))
+   case IMArray:
+         // printf("Case IMArray %ld\n", iter->admin_data.current);
+         for(i=iter->admin_data.current; i<= iter->upper_key; i++)
+         {
+            res = PDRangeArrElementP(iter->map->values.array, i);
+            if(res)
+            {
+               *key = i;
+               break;
+            }
+         }
+         iter->admin_data.current = i+1;
+         break;
+   case IMTree:
+         // printf("Case IMTree\n");
+         while((handle = NumTreeTraverseNext(iter->admin_data.tree_iter)))
          {
             if(handle)
             {
-               if(handle->key + ((iter->last_seen_key + 1) & (NUMARRTREEVALUES - 1)) > iter->upper_key)
+               if(handle->key > iter->upper_key)
                {
                   /* Overrun limit */
                   break;
                }
-               for(int i = ((iter->last_seen_key & (NUMARRTREEVALUES - 1)) + 1) & (NUMARRTREEVALUES - 1);
-                  i < NUMARRTREEVALUES; i++)
+               if(handle->val1.p_val)
                {
-                  iter->last_seen_key = handle->key + i;
-                  /* Searching for the next non-NULL value in the node*/
-                  if(handle->vals[i].p_val)
-                  {
-                     /* Found real value */
-                     *key = handle->key + i;
-                     res = handle->vals[i].p_val;
-                     return res;
-                  }
+                  /* Found real value */
+                  *key = handle->key;
+                  res = handle->val1.p_val;
+                  break;
                }
             }
          }
