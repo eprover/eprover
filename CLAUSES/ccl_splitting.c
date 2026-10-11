@@ -23,6 +23,7 @@ Changes
 -----------------------------------------------------------------------*/
 
 #include "ccl_splitting.h"
+#include <ccl_clausefunc.h>
 
 
 
@@ -239,6 +240,55 @@ Eqn_p assemble_part_literals(LitSplitDesc_p lit_table, int lit_no, int part)
 
 /*-----------------------------------------------------------------------
 //
+// Function: archive_split_step()
+//
+//   For a full proof object, archive clause as it is before the
+//   definition of part is applied, so that each application is a
+//   separate step. The clause then consists of the definition
+//   literals of the earlier parts, in join, and the literals of part
+//   and the later parts, which are still in lit_table.
+//
+// Global Variables: PrintProofObject
+//
+// Side Effects    : Memory operations, the literal counts of clause
+//                   follow the archived literals
+//
+/----------------------------------------------------------------------*/
+
+static void archive_split_step(Clause_p clause, LitSplitDesc_p lit_table,
+                               int lit_no, int part, Eqn_p join)
+{
+   Eqn_p lits, *tail;
+   int j;
+
+   if(PrintProofObject < POSingleStepDerivation)
+   {
+      return;
+   }
+   lits = EqnListFlatCopy(join);
+   tail = &lits;
+   while(*tail)
+   {
+      tail = &((*tail)->next);
+   }
+   for(j=0; j<lit_no; j++)
+   {
+      if(lit_table[j].part >= part)
+      {
+         *tail = EqnFlatCopy(lit_table[j].literal);
+         tail = &((*tail)->next);
+      }
+   }
+   clause->literals = lits;
+   ClauseRecomputeLitCounts(clause);
+   ClauseArchiveStep(clause);
+   EqnListFree(clause->literals);
+   clause->literals = NULL;
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: clause_split_general()
 //
 //   Try to split clause into different clauses according to the
@@ -340,6 +390,7 @@ int clause_split_general(DefStore_p store, Clause_p clause,
          else
          {
             WFormula_p new_form;
+            archive_split_step(clause, lit_table, lit_no, i, join);
             /* Create definition clause (for maintaining completeness) */
             handle = assemble_part_literals(lit_table, lit_no, i);
 
