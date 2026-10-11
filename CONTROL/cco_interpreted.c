@@ -160,7 +160,9 @@ int ClauseEvaluateAnswerLits(Clause_p clause)
 
    if(ClauseIsSemFalse(clause))
    {
+      Clause_p before = ClauseArchiveStepBegin(clause);
       res = EqnListRemoveSimpleAnswers(&(clause->literals));
+      ClauseArchiveStepEnd(clause, before, res);
 
       if(res)
       {

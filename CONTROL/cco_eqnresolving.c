@@ -145,6 +145,7 @@ long ClauseERNormalizeVar(TB_p bank, Clause_p clause, ClauseSet_p
                {
                   found = true;
                   count++;
+                  ClauseArchiveStep(clause);
                   clause->proof_depth++;
                   clause->proof_size++;
                   EqnListFree(clause->literals);

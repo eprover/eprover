@@ -233,6 +233,7 @@ typedef struct derivation_cell
 
 
 extern ProofObjectType PrintProofObject;
+extern PStack_p        ProofObjectSides;
 extern bool            ProofObjectRecordsGCSelection;
 
 

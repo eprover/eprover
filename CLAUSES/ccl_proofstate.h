@@ -59,6 +59,14 @@ typedef struct proofstatecell
    ClauseSet_p   tmp_store;
    ClauseSet_p   eval_store;
    ClauseSet_p   archive;
+   ClauseSet_p   step_archive;    /* The clause before each
+                                     simplification step, for
+                                     --proof-object=3 only. Not part
+                                     of ProofStateStorage(), so it
+                                     does not change the search */
+   PStack_p      step_sides;      /* Sides in step_archive that get
+                                     their terms only for the proof
+                                     output */
    FormulaSet_p  f_archive;
    PStack_p      extract_roots;
    GlobalIndices gindices;

@@ -48,8 +48,16 @@ int  ClauseRemoveACResolved(Clause_p clause);
 bool ClauseUnitSimplifyTest(Clause_p clause, Clause_p simplifier);
 int  ClauseCanonCompareRef(const void *clause1ref, const void* clause2ref);
 
+extern ClauseSet_p ProofObjectArchive;
+
 Clause_p ClauseArchive(ClauseSet_p archive, Clause_p clause);
 Clause_p ClauseArchiveCopy(ClauseSet_p archive, Clause_p clause);
+void     ClauseArchiveStep(Clause_p clause);
+Clause_p ClauseArchiveStepBegin(Clause_p clause);
+void     ClauseArchiveStepEnd(Clause_p clause, Clause_p before, bool changed);
+void     ClauseArchiveSteps(Clause_p clause, Term_p *side, Term_p nf,
+                            PStack_p steps, DerivationCode op);
+Clause_p ClauseStepParent(Clause_p clause);
 void     ClauseSetArchiveCopy(ClauseSet_p archive, ClauseSet_p set);
 bool     ClauseIsOrphaned(Clause_p clause);
 long     ClauseSetDeleteOrphans(ClauseSet_p set);

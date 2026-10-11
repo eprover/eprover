@@ -161,12 +161,14 @@ bool Condense(Clause_p clause)
 
    if((clause->pos_lit_no > 1) || (clause->neg_lit_no >1))
    {
+      Clause_p before = ClauseArchiveStepBegin(clause);
       clause->weight = ClauseStandardWeight(clause);
       ClauseSubsumeOrderSortLits(clause);
       while(CondenseOnce(clause))
       {
          res = true;
       }
+      ClauseArchiveStepEnd(clause, before, res);
       if(res)
       {
          CondensationSuccesses++;

@@ -31,6 +31,13 @@
 ProofObjectType PrintProofObject = 0;
 bool            ProofObjectRecordsGCSelection = false;
 
+/* The sides of archived clauses that get their terms only for the
+   proof output, see ClauseArchiveSteps(). Each entry is the copy, its
+   side, the side of the copy before it and the position of the step,
+   given as its length and the argument indices. Set by the proof
+   state */
+PStack_p ProofObjectSides = NULL;
+
 typedef struct
 {
    char* opid;
@@ -465,6 +472,83 @@ int derived_compare(const void* p1, const void* p2)
    key2 = d2->clause? (void*)d2->clause: (void*)d2->formula;
 
    return PCmp(key1, key2);
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: term_replace_at()
+//
+//   Return term with the subterm at the position given by the
+//   argument indices path[i] to path[end-1] replaced by repl.
+//
+// Global Variables: -
+//
+// Side Effects    : May add terms to the bank
+//
+/----------------------------------------------------------------------*/
+
+static Term_p term_replace_at(TB_p bank, Term_p term, PStack_p path,
+                              PStackPointer i, PStackPointer end,
+                              Term_p repl)
+{
+   Term_p res;
+   int arg;
+
+   if(i == end)
+   {
+      return repl;
+   }
+   arg = PStackElementInt(path, i);
+   res = TermTopCopy(term);
+   res->args[arg] = term_replace_at(bank, term->args[arg], path, i+1,
+                                    end, repl);
+   return TBTermTopInsert(bank, res);
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: derivation_complete_sides()
+//
+//   ClauseArchiveSteps() leaves some archived clauses with only the
+//   subterm of a step in place of a side. Each of them in derivation
+//   gets its full term, the term of the copy before it with that
+//   subterm put at the recorded position. The others are dropped, as
+//   they are not printed.
+//
+// Global Variables: ProofObjectSides
+//
+// Side Effects    : Changes archived clauses, may add terms to the
+//                   bank
+//
+/----------------------------------------------------------------------*/
+
+static void derivation_complete_sides(Derivation_p derivation)
+{
+   DerivedCell key = {0};
+   Term_p *copy_side, *prev_side;
+   PStackPointer i = 0, end;
+
+   if(!ProofObjectSides)
+   {
+      return;
+   }
+   while(i < PStackGetSP(ProofObjectSides))
+   {
+      key.clause = PStackElementP(ProofObjectSides, i);
+      copy_side  = PStackElementP(ProofObjectSides, i+1);
+      prev_side  = PStackElementP(ProofObjectSides, i+2);
+      end        = i+4+PStackElementInt(ProofObjectSides, i+3);
+      if(PTreeObjFindObj(&(derivation->deriv), &key, derived_compare))
+      {
+         *copy_side = term_replace_at(key.clause->literals->bank,
+                                      *prev_side, ProofObjectSides,
+                                      i+4, end, *copy_side);
+      }
+      i = end;
+   }
+   PStackReset(ProofObjectSides);
 }
 
 /*-----------------------------------------------------------------------
@@ -2448,7 +2532,8 @@ void DerivationRenumber(Derivation_p derivation)
 // Function: DerivationCompute()
 //
 //   Given a set (stack) of final clauses, generate an ordered
-//   derivation from it.
+//   derivation from it. Archived clauses of a full proof object get
+//   their terms here, see ClauseArchiveSteps().
 //
 // Global Variables: -
 //
@@ -2472,6 +2557,7 @@ Derivation_p DerivationCompute(PStack_p root_clauses, Sig_p sig)
       PStackPushP(res->roots, node);
    }
    DerivationExtract(res, root_clauses);
+   derivation_complete_sides(res);
    DerivationMarkProofSteps(res);
    DerivationTopoSort(res);
    DerivationRenumber(res);
