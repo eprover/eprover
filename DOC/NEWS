@@ -13,11 +13,11 @@ Version 3.2.5 -> 3.3.3 Countess Grey
   to good effect.
 - Made --proof-object=3 operational for simplifications. The clause
   before each rewriting, unfolding, simplify-reflect, condensation,
-  normalization and destructive equality resolution step is printed,
-  so each step is a separate inference. These clauses are kept apart
-  from the search state, and the terms between rewrite steps are only
-  built for the proof output, so level 3 does not influence the
-  search.
+  normalization, destructive equality resolution and clause splitting
+  step is printed, so each step is a separate inference. These clauses
+  are kept apart from the search state, and the terms between rewrite
+  steps are only built for the proof output, so level 3 does not
+  influence the search.
 
 Version 3.1.0 -> 3.2.5 Puttabong Moondrop
 
