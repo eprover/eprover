@@ -83,6 +83,12 @@ int ClauseContextualSimplifyReflect(ClauseSet_p set, Clause_p clause)
             ClauseSetProp(clause, CPIsSOS);
          }
          ClauseDelProp(clause, CPInitial|CPLimitedRW);
+         /* The literal was negated above to look for a subsuming
+            clause, so it gets its sign back while the clause is
+            archived */
+         ClauseFlipLiteralSign(clause, handle);
+         ClauseArchiveStep(clause);
+         ClauseFlipLiteralSign(clause, handle);
          ClauseRemoveLiteral(clause, handle);
          assert(clause->weight == ClauseStandardWeight(clause));
          DocClauseModificationDefault(clause,

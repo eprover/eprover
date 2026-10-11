@@ -45,6 +45,7 @@ typedef struct rw_desc_cell
    SysDate      demod_date;
    RewriteLevel level;
    bool         prefer_general;
+   long         rw_steps;      /* Return value, rewrite steps done */
    bool         sos_rewritten; /* Return value! */
 }RWDescCell, *RWDesc_p;
 

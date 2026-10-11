@@ -1973,6 +1973,7 @@ void ComputeExtEqFact(ProofState_p state, ProofControl_p control, Clause_p cl)
 bool NormalizeEquations(Clause_p cl)
 {
    bool normalized = false;
+   Clause_p before = ClauseArchiveStepBegin(cl);
    for (Eqn_p lit = cl->literals; lit; lit = lit->next)
    {
       TB_p bank = lit->bank;
@@ -2049,6 +2050,7 @@ bool NormalizeEquations(Clause_p cl)
       }
    }
 
+   ClauseArchiveStepEnd(cl, before, normalized);
    if (normalized)
    {
       ClauseRecomputeLitCounts(cl);
@@ -2281,6 +2283,7 @@ bool BooleanSimplification(Clause_p cl)
 {
    bool changed = false;
    bool is_tautology = false;
+   Clause_p before = ClauseArchiveStepBegin(cl);
    for(Eqn_p lit = cl->literals; !is_tautology && lit; lit = lit->next)
    {
       Term_p old_lterm = lit->lterm, old_rterm = lit->rterm;
@@ -2295,6 +2298,7 @@ bool BooleanSimplification(Clause_p cl)
       }
    }
 
+   ClauseArchiveStepEnd(cl, before, changed);
    if(changed)
    {
       ClauseRecomputeLitCounts(cl);

@@ -1308,6 +1308,7 @@ bool ClausePositiveSimplifyReflect(ClauseSet_p set, Clause_p clause)
       if(!SimplifyFailed(res))
       {
          ClausePos_p pos = res;
+         ClauseArchiveStep(clause);
          ClauseRemoveLiteralRef(clause, handle);
          if(ClauseQueryProp(pos->clause, CPIsSOS))
          {
@@ -1361,6 +1362,7 @@ bool ClauseNegativeSimplifyReflect(ClauseSet_p set, Clause_p clause)
       if(!SimplifyFailed(res))
       {
          ClausePos_p pos = res;
+         ClauseArchiveStep(clause);
          ClauseRemoveLiteralRef(clause, handle);
          if(ClauseQueryProp(pos->clause, CPIsSOS))
          {

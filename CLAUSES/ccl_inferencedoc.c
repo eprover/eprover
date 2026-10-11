@@ -751,20 +751,20 @@ static void print_rewrite(FILE* out, ClausePos_p rewritten, long
 
 static void print_eq_unfold(FILE* out, Clause_p rewritten,
              long old_id, ClausePos_p demod,
-             PStack_p demod_pos)
+             long steps)
 {
-   PStackPointer i;
+   long i;
 
    switch(DocOutputFormat)
    {
    case pcl_format:
     pcl_print_start(out, rewritten, PCLShellLevel<1);
-    for(i=0; i<PStackGetSP(demod_pos); i++)
+    for(i=0; i<steps; i++)
     {
        fputs(PCL_RW"(", out);
     }
     fprintf(out, "%ld", old_id);
-    for(i=0; i<PStackGetSP(demod_pos); i++)
+    for(i=0; i<steps; i++)
     {
        fprintf(out, ",%ld)", demod->clause->ident);
     }
@@ -773,12 +773,12 @@ static void print_eq_unfold(FILE* out, Clause_p rewritten,
    case tstp_format:
     ClauseTSTPPrint(out, rewritten, PCLFullTerms, false);
     fputc(',', out);
-    for(i=0; i<PStackGetSP(demod_pos); i++)
+    for(i=0; i<steps; i++)
     {
        fprintf(out,"inference("PCL_RW", [status(thm)],[");
     }
     fprintf(out, "c_0_%ld", old_id);
-    for(i=0; i<PStackGetSP(demod_pos); i++)
+    for(i=0; i<steps; i++)
     {
        fprintf(out, ",c_0_%ld])",
           demod->clause->ident);
@@ -1562,7 +1562,7 @@ void DocClauseRewrite(FILE* out, long level, ClausePos_p rewritten,
 /----------------------------------------------------------------------*/
 
 void DocClauseEqUnfold(FILE* out, long level, Clause_p rewritten,
-             ClausePos_p demod, PStack_p demod_pos)
+             ClausePos_p demod, long steps)
 {
    long old_id;
 
@@ -1572,7 +1572,7 @@ void DocClauseEqUnfold(FILE* out, long level, Clause_p rewritten,
       assert(rewritten);
       old_id = rewritten->ident;
       rewritten->ident = ++ClauseIdentCounter;
-      print_eq_unfold(out, rewritten, old_id, demod, demod_pos);
+      print_eq_unfold(out, rewritten, old_id, demod, steps);
    }
 
 }
