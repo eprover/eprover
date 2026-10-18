@@ -1277,7 +1277,8 @@ Clause_p ClauseSetFindUnitSubsumedClause(ClauseSet_p set, Clause_p
 //   Remove all negative literals subsumed by the positive unit
 //   clauses in set from clause. Return true if clause is empty, false
 //   otherwise. Set has to be indexed and should contain only positive
-//   units!
+//   units! A full proof object keeps the clause before each step in
+//   step_archive.
 //
 // Global Variables: -
 //
@@ -1285,7 +1286,8 @@ Clause_p ClauseSetFindUnitSubsumedClause(ClauseSet_p set, Clause_p
 //
 /----------------------------------------------------------------------*/
 
-bool ClausePositiveSimplifyReflect(ClauseSet_p set, Clause_p clause)
+bool ClausePositiveSimplifyReflect(ClauseSet_p set, Clause_p clause,
+                                   ClauseSet_p step_archive)
 {
    Eqn_p   *handle = &(clause->literals);
    ClausePos_p res = NULL;
@@ -1308,7 +1310,7 @@ bool ClausePositiveSimplifyReflect(ClauseSet_p set, Clause_p clause)
       if(!SimplifyFailed(res))
       {
          ClausePos_p pos = res;
-         ClauseArchiveStep(clause);
+         ClauseArchiveStep(step_archive, clause);
          ClauseRemoveLiteralRef(clause, handle);
          if(ClauseQueryProp(pos->clause, CPIsSOS))
          {
@@ -1335,7 +1337,8 @@ bool ClausePositiveSimplifyReflect(ClauseSet_p set, Clause_p clause)
 //   Remove all positive literals subsumed by negative unit clauses
 //   in set from clause. Return true if clause is empty, false
 //   otherwise. Set has to be indexed and contain negative units
-//   only.
+//   only. A full proof object keeps the clause before each step in
+//   step_archive.
 //
 // Global Variables: -
 //
@@ -1343,7 +1346,8 @@ bool ClausePositiveSimplifyReflect(ClauseSet_p set, Clause_p clause)
 //
 /----------------------------------------------------------------------*/
 
-bool ClauseNegativeSimplifyReflect(ClauseSet_p set, Clause_p clause)
+bool ClauseNegativeSimplifyReflect(ClauseSet_p set, Clause_p clause,
+                                   ClauseSet_p step_archive)
 {
    Eqn_p   *handle = &(clause->literals);
    ClausePos_p res = NULL;
@@ -1362,7 +1366,7 @@ bool ClauseNegativeSimplifyReflect(ClauseSet_p set, Clause_p clause)
       if(!SimplifyFailed(res))
       {
          ClausePos_p pos = res;
-         ClauseArchiveStep(clause);
+         ClauseArchiveStep(step_archive, clause);
          ClauseRemoveLiteralRef(clause, handle);
          if(ClauseQueryProp(pos->clause, CPIsSOS))
          {

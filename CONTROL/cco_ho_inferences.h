@@ -21,13 +21,14 @@ Contents
 
 bool ImmediateClausification(Clause_p cl, ClauseSet_p store, 
                              ClauseSet_p archive, VarBank_p fresh_vars,
-                             bool fool_unroll);
+                             bool fool_unroll, ClauseSet_p step_archive);
 bool ResolveFlexClause(Clause_p cl);
-bool NormalizeEquations(Clause_p cl);
+bool NormalizeEquations(Clause_p cl, ClauseSet_p step_archive);
 void ComputeHOInferences(ProofState_p state, ProofControl_p control, 
                          Clause_p renamed_clause, Clause_p orig_clause);
-bool BooleanSimplification(Clause_p cl);
+bool BooleanSimplification(Clause_p cl, ClauseSet_p step_archive);
 void ClausePruneArgs(Clause_p cl);
-void PreinstantiateInduction(FormulaSet_p forms, ClauseSet_p cls, ClauseSet_p archive, TB_p bank);
+void PreinstantiateInduction(FormulaSet_p forms, ClauseSet_p cls, ClauseSet_p archive, TB_p bank,
+                             ClauseSet_p step_archive);
 void ClauseSetRecognizeChoice(IntMap_p choice_syms, ClauseSet_p set, 
                               ClauseSet_p archive);

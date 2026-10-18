@@ -89,7 +89,7 @@ static FVPackedClause_p forward_contract_keep(ProofState_p state, ProofControl_p
          return NULL;
       }
 
-      if(BooleanSimplification(clause))
+      if(BooleanSimplification(clause, state->step_archive))
       {
          (*trivial_count)++;
          return NULL;
@@ -126,7 +126,7 @@ static FVPackedClause_p forward_contract_keep(ProofState_p state, ProofControl_p
 
       if(problemType==PROBLEM_HO)
       {
-         if(ClauseEliminateNakedBooleanVariables(clause))
+         if(ClauseEliminateNakedBooleanVariables(clause, state->step_archive))
          {
             (*trivial_count)++;
             return NULL;
@@ -142,7 +142,7 @@ static FVPackedClause_p forward_contract_keep(ProofState_p state, ProofControl_p
       {
          state->context_sr_count +=
             ClauseContextualSimplifyReflect(state->processed_non_units,
-                                            clause);
+                                            clause, state->step_archive);
          ClauseSubsumeOrderSortLits(clause);
          pclause = FVIndexPackClause(FVUnpackClause(pclause),
                                 state->processed_non_units->fvindex);
@@ -261,22 +261,24 @@ bool ForwardModifyClause(ProofState_p state,
    {
       if(problemType == PROBLEM_HO)
       {
-         NormalizeEquations(clause);
+         NormalizeEquations(clause, state->step_archive);
       }
       state->rw_count +=
          ClauseComputeLINormalform(control->ocb,
                                    state->terms, clause,
                                    state->demods, level,
                                    control->heuristic_parms.prefer_general,
-                                   control->heuristic_parms.lambda_demod);
+                                   control->heuristic_parms.lambda_demod,
+                                   state->step_archive, state->step_sides);
       if(problemType == PROBLEM_HO)
       {
-         NormalizeEquations(clause);
+         NormalizeEquations(clause, state->step_archive);
       }
 
       limited_rw = ClauseQueryProp(clause, CPLimitedRW);
       // DBG_PRINT(stderr, "removing superflous: ", ClausePrintDBG(stderr, clause), ".\n");
-      removed_lits = ClauseRemoveSuperfluousLiterals(clause);
+      removed_lits = ClauseRemoveSuperfluousLiterals(clause,
+                                                     state->step_archive);
       if(removed_lits)
       {
          DocClauseModificationDefault(clause, inf_minimize, NULL);
@@ -284,14 +286,14 @@ bool ForwardModifyClause(ProofState_p state,
 
       if(control->ac_handling_active)
       {
-         ClauseRemoveACResolved(clause);
+         ClauseRemoveACResolved(clause, state->step_archive);
       }
       if(control->heuristic_parms.local_rw
-         && ClauseLocalRW(control->ocb, clause))
+         && ClauseLocalRW(control->ocb, clause, state->step_archive))
       {
          if(problemType == PROBLEM_HO)
          {
-            NormalizeEquations(clause);
+            NormalizeEquations(clause, state->step_archive);
          }
       }
 
@@ -300,7 +302,7 @@ bool ForwardModifyClause(ProofState_p state,
 
       if(condense)
       {
-         condensed = Condense(clause);
+         condensed = Condense(clause, state->step_archive);
          if(condensed)
          {
             ClauseOrientLiterals(control->ocb, clause);
@@ -322,15 +324,17 @@ bool ForwardModifyClause(ProofState_p state,
       /* Still forward simplification... */
       if(problemType == PROBLEM_HO)
       {
-         NormalizeEquations(clause);
+         NormalizeEquations(clause, state->step_archive);
       }
       if(clause->neg_lit_no)
       {
-         ClausePositiveSimplifyReflect(state->processed_pos_eqns, clause);
+         ClausePositiveSimplifyReflect(state->processed_pos_eqns, clause,
+                                       state->step_archive);
       }
       if(clause->pos_lit_no)
       {
-         ClauseNegativeSimplifyReflect(state->processed_neg_units, clause);
+         ClauseNegativeSimplifyReflect(state->processed_neg_units, clause,
+                                       state->step_archive);
       }
       done = ClauseQueryProp(clause, CPLimitedRW)==limited_rw;
    }

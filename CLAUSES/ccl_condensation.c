@@ -145,7 +145,8 @@ bool CondenseOnce(Clause_p clause)
 // Function: Condense()
 //
 //   Condense a clause as much as possible. Return true if the clause
-//   was changed, false otherwise.
+//   was changed, false otherwise. A full proof object keeps the clause
+//   before the step in step_archive.
 //
 // Global Variables:
 //
@@ -153,7 +154,7 @@ bool CondenseOnce(Clause_p clause)
 //
 /----------------------------------------------------------------------*/
 
-bool Condense(Clause_p clause)
+bool Condense(Clause_p clause, ClauseSet_p step_archive)
 {
    bool res = false;
 
@@ -161,14 +162,14 @@ bool Condense(Clause_p clause)
 
    if((clause->pos_lit_no > 1) || (clause->neg_lit_no >1))
    {
-      Clause_p before = ClauseArchiveStepBegin(clause);
+      Clause_p before = ClauseArchiveStepBegin(step_archive, clause);
       clause->weight = ClauseStandardWeight(clause);
       ClauseSubsumeOrderSortLits(clause);
       while(CondenseOnce(clause))
       {
          res = true;
       }
-      ClauseArchiveStepEnd(clause, before, res);
+      ClauseArchiveStepEnd(step_archive, clause, before, res);
       if(res)
       {
          CondensationSuccesses++;

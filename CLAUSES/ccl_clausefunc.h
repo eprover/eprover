@@ -41,27 +41,29 @@
 void ClauseRemoveLiteralRef(Clause_p clause, Eqn_p *lit);
 void ClauseRemoveLiteral(Clause_p clause, Eqn_p lit);
 void ClauseFlipLiteralSign(Clause_p clause, Eqn_p lit);
-int  ClauseRemoveSuperfluousLiterals(Clause_p clause);
-long ClauseSetRemoveSuperfluousLiterals(ClauseSet_p set);
-void ClauseSetCanonize(ClauseSet_p set);
-int  ClauseRemoveACResolved(Clause_p clause);
+int  ClauseRemoveSuperfluousLiterals(Clause_p clause, ClauseSet_p step_archive);
+long ClauseSetRemoveSuperfluousLiterals(ClauseSet_p set,
+                                        ClauseSet_p step_archive);
+void ClauseSetCanonize(ClauseSet_p set, ClauseSet_p step_archive);
+int  ClauseRemoveACResolved(Clause_p clause, ClauseSet_p step_archive);
 bool ClauseUnitSimplifyTest(Clause_p clause, Clause_p simplifier);
 int  ClauseCanonCompareRef(const void *clause1ref, const void* clause2ref);
 
-extern ClauseSet_p ProofObjectArchive;
-
 Clause_p ClauseArchive(ClauseSet_p archive, Clause_p clause);
 Clause_p ClauseArchiveCopy(ClauseSet_p archive, Clause_p clause);
-void     ClauseArchiveStep(Clause_p clause);
-Clause_p ClauseArchiveStepBegin(Clause_p clause);
-void     ClauseArchiveStepEnd(Clause_p clause, Clause_p before, bool changed);
-void     ClauseArchiveSteps(Clause_p clause, Term_p *side, Term_p nf,
+void     ClauseArchiveStep(ClauseSet_p step_archive, Clause_p clause);
+Clause_p ClauseArchiveStepBegin(ClauseSet_p step_archive, Clause_p clause);
+void     ClauseArchiveStepEnd(ClauseSet_p step_archive, Clause_p clause,
+                              Clause_p before, bool changed);
+void     ClauseArchiveSteps(ClauseSet_p step_archive, PStack_p step_sides,
+                            Clause_p clause, Term_p *side, Term_p nf,
                             PStack_p steps, DerivationCode op);
 Clause_p ClauseStepParent(Clause_p clause);
 void     ClauseSetArchiveCopy(ClauseSet_p archive, ClauseSet_p set);
 bool     ClauseIsOrphaned(Clause_p clause);
 long     ClauseSetDeleteOrphans(ClauseSet_p set);
-bool     ClauseEliminateNakedBooleanVariables(Clause_p clause);
+bool     ClauseEliminateNakedBooleanVariables(Clause_p clause,
+                                              ClauseSet_p step_archive);
 Clause_p ClauseRecognizeInjectivity(TB_p terms, Clause_p clause);
 long ClauseSetReplaceInjectivityDefs(ClauseSet_p set, ClauseSet_p archive, TB_p terms);
 

@@ -53,8 +53,10 @@ bool     LiteralSubsumesClause(Eqn_p literal, Clause_p clause);
 bool     UnitClauseSubsumesClause(Clause_p unit, Clause_p clause);
 Clause_p UnitClauseSetSubsumesClause(ClauseSet_p set, Clause_p
                                      clause);
-bool     ClausePositiveSimplifyReflect(ClauseSet_p set, Clause_p clause);
-bool     ClauseNegativeSimplifyReflect(ClauseSet_p set, Clause_p clause);
+bool     ClausePositiveSimplifyReflect(ClauseSet_p set, Clause_p clause,
+                                       ClauseSet_p step_archive);
+bool     ClauseNegativeSimplifyReflect(ClauseSet_p set, Clause_p clause,
+                                       ClauseSet_p step_archive);
 Clause_p ClauseSetFindUnitSubsumedClause(ClauseSet_p set, Clause_p
                                          set_position, Clause_p
                                          subsumer);

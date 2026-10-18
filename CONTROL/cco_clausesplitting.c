@@ -51,7 +51,8 @@ Changes
 //
 //   Check if the clause meets one of the criteria for splitting, if
 //   yes try to split it. Return number of new clauses if splitting
-//   occurs, 0 otherwise.
+//   occurs, 0 otherwise. A full proof object keeps the clause before
+//   each definition is applied in step_archive.
 //
 // Global Variables: -
 //
@@ -62,7 +63,7 @@ Changes
 
 int  ControlledClauseSplit(DefStore_p store, Clause_p clause, ClauseSet_p set,
             SplitClassType which, SplitType how,
-                           bool fresh_defs)
+                           bool fresh_defs, ClauseSet_p step_archive)
 {
    /* Make the common case fast: */
 
@@ -78,7 +79,7 @@ int  ControlledClauseSplit(DefStore_p store, Clause_p clause, ClauseSet_p set,
       (ClauseIsMixed(clause)&&QuerySplitClass(which,SplitMixed))
       )
    {
-      return ClauseSplit(store, clause, set, how, fresh_defs);
+      return ClauseSplit(store, clause, set, how, fresh_defs, step_archive);
    }
    return 0;
 }

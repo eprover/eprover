@@ -47,7 +47,7 @@ extern long CondensationSuccesses;
 
 
 bool CondenseOnce(Clause_p clause);
-bool Condense(Clause_p clause);
+bool Condense(Clause_p clause, ClauseSet_p step_archive);
 
 
 #endif
