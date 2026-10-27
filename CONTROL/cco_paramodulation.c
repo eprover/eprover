@@ -718,7 +718,7 @@ long ComputeClauseClauseParamodulants(TB_p bank, OCB_p ocb, Clause_p
          }
          DocClauseCreationDefault(paramod, inf_type, with,
                                   parent_alias);
-         ClausePushDerivation(clause,
+         ClausePushDerivation(paramod,
                          inf_type==inf_sim_paramod?DCSimParamod:DCParamod,
                               with, parent_alias);
          ClauseSetInsert(store, paramod);
@@ -763,7 +763,7 @@ long ComputeClauseClauseParamodulants(TB_p bank, OCB_p ocb, Clause_p
                                     ClauseQueryTPTPType(parent_alias)));
             }
             DocClauseCreationDefault(paramod, inf_type, parent_alias, with);
-            ClausePushDerivation(clause,
+            ClausePushDerivation(paramod,
                                  inf_type==inf_sim_paramod?DCSimParamod:DCParamod,
                                  parent_alias, with);
             ClauseSetInsert(store, paramod);
