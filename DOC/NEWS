@@ -1,7 +1,7 @@
 This history describes the major differences between versions of the E
 equational theorem prover.
 
-Version 3.2.5 -> 3.3.3 Countess Grey
+Version 3.2.5 -> 3.5.X Countess Grey
 
 - Some beautification
 - Debugged problems with axiom filtering
