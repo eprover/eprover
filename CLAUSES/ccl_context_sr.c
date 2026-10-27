@@ -50,7 +50,8 @@ Changes
 // Function: ClauseContextualSimplifyReflect()
 //
 //   Perform contextial-simplify-reflect with all clauses in set on
-//   clause. Return number of literals deleted.
+//   clause. Return number of literals deleted. A full proof object
+//   keeps the clause before each step in step_archive.
 //
 // Global Variables: -
 //
@@ -58,7 +59,8 @@ Changes
 //
 /----------------------------------------------------------------------*/
 
-int ClauseContextualSimplifyReflect(ClauseSet_p set, Clause_p clause)
+int ClauseContextualSimplifyReflect(ClauseSet_p set, Clause_p clause,
+                                    ClauseSet_p step_archive)
 {
    Eqn_p handle;
    int res = 0;
@@ -87,7 +89,7 @@ int ClauseContextualSimplifyReflect(ClauseSet_p set, Clause_p clause)
             clause, so it gets its sign back while the clause is
             archived */
          ClauseFlipLiteralSign(clause, handle);
-         ClauseArchiveStep(clause);
+         ClauseArchiveStep(step_archive, clause);
          ClauseFlipLiteralSign(clause, handle);
          ClauseRemoveLiteral(clause, handle);
          assert(clause->weight == ClauseStandardWeight(clause));

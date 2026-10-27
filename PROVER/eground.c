@@ -440,7 +440,7 @@ int main(int argc, char* argv[])
    freshvars = VarBankAlloc(type_bank);
    if(FormulaSetCNF2(formulas, f_ax_archive, clauses, terms, freshvars,
                      1048576, FormulaDefLimit,
-                     true, true, true, true))
+                     true, true, true, true, NULL))
    {
       VERBOUT("CNFization done\n");
    }
@@ -451,7 +451,7 @@ int main(int argc, char* argv[])
    TBGCDeregisterFormulaSet(terms, f_ax_archive);
    FormulaSetFree(f_ax_archive);
 
-   ClauseSetRemoveSuperfluousLiterals(clauses);
+   ClauseSetRemoveSuperfluousLiterals(clauses, NULL);
 
    cspec = FVCollectAlloc(FVIACFeatures,
                           0,

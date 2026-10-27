@@ -143,7 +143,8 @@ void ClausePrintAnswer(FILE* out, Clause_p clause, ProofState_p state)
 //
 //   "Evaluate" the answer literals, i.e. remove all single-answer
 //   lits if the clause is otherwise empty. Return number of removed
-//   literals.
+//   literals. A full proof object keeps the clause before the step in
+//   step_archive.
 //
 // Global Variables: -
 //
@@ -151,7 +152,7 @@ void ClausePrintAnswer(FILE* out, Clause_p clause, ProofState_p state)
 //
 /----------------------------------------------------------------------*/
 
-int ClauseEvaluateAnswerLits(Clause_p clause)
+int ClauseEvaluateAnswerLits(Clause_p clause, ClauseSet_p step_archive)
 {
    Eqn_p handle;
    int res = 0;
@@ -160,9 +161,9 @@ int ClauseEvaluateAnswerLits(Clause_p clause)
 
    if(ClauseIsSemFalse(clause))
    {
-      Clause_p before = ClauseArchiveStepBegin(clause);
+      Clause_p before = ClauseArchiveStepBegin(step_archive, clause);
       res = EqnListRemoveSimpleAnswers(&(clause->literals));
-      ClauseArchiveStepEnd(clause, before, res);
+      ClauseArchiveStepEnd(step_archive, clause, before, res);
 
       if(res)
       {

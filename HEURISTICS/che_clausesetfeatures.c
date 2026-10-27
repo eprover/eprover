@@ -2004,7 +2004,8 @@ void ClausifyAndClassifyWTimeout(ProofState_p state, int timeout,
                      state->freshvars,
                      DEFAULT_MINISCOPE, DEFAULT_FORMULA_DEF_LIMIT,
                      DEFAULT_LIFT_LAMS, DEFAULT_LAM_TO_FORALL,
-                     DEFAULT_UNFOLD_ONLY_FORM, DEFAULT_UNROLL_FOOL);
+                     DEFAULT_UNFOLD_ONLY_FORM, DEFAULT_UNROLL_FOOL,
+                     state->step_archive);
       SpecFeaturesCompute(&features, state->axioms, state->f_axioms,
                           state->f_ax_archive, state->terms);
       SpecFeaturesAddEval(&features, limits);

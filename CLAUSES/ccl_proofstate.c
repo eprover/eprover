@@ -167,8 +167,6 @@ ProofState_p ProofStateAlloc(FunctionProperties free_symb_prop)
    handle->archive              = ClauseSetAlloc();
    handle->step_archive         = ClauseSetAlloc();
    handle->step_sides           = PStackAlloc();
-   ProofObjectArchive           = handle->step_archive;
-   ProofObjectSides             = handle->step_sides;
    handle->watchlist            = ClauseSetAlloc();
    handle->f_archive            = FormulaSetAlloc();
    handle->extract_roots        = PStackAlloc();
@@ -427,11 +425,6 @@ void ProofStateFree(ProofState_p junk)
    ClauseSetFree(junk->unprocessed);
    ClauseSetFree(junk->tmp_store);
    ClauseSetFree(junk->eval_store);
-   if(ProofObjectArchive == junk->step_archive)
-   {
-      ProofObjectArchive = NULL;
-      ProofObjectSides   = NULL;
-   }
    ClauseSetFree(junk->archive);
    ClauseSetFree(junk->step_archive);
    PStackFree(junk->step_sides);

@@ -39,7 +39,8 @@ Changes
 
 int  ControlledClauseSplit(DefStore_p store, Clause_p clause,
                            ClauseSet_p set, SplitClassType which,
-                           SplitType how, bool fresh_defs);
+                           SplitType how, bool fresh_defs,
+                           ClauseSet_p step_archive);
 
 
 

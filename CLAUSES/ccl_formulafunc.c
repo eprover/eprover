@@ -1474,7 +1474,9 @@ bool WFormulaSimplify(WFormula_p form, TB_p terms)
 //
 // Function: WFormulaCNF2()
 //
-//   Transform the formula of a wrapped formula into CNF.
+//   Transform the formula of a wrapped formula into CNF. A full proof
+//   object keeps each clause before naked Boolean variables are
+//   eliminated in step_archive.
 //
 // Global Variables: -
 //
@@ -1485,7 +1487,7 @@ bool WFormulaSimplify(WFormula_p form, TB_p terms)
 long WFormulaCNF2(WFormula_p form, ClauseSet_p set,
                   TB_p terms, VarBank_p fresh_vars,
                   long miniscope_limit,
-                  bool fool_unroll)
+                  bool fool_unroll, ClauseSet_p step_archive)
 {
    DBGTermCheckUnownedSubterm(stdout, form->tformula, "WFormulaCNF2_0");
    form->tformula = LambdaNormalizeDB(terms, form->tformula);
@@ -1507,7 +1509,7 @@ long WFormulaCNF2(WFormula_p form, ClauseSet_p set,
    /* printf("\n"); */
    WTFormulaConjunctiveNF3(form, terms, miniscope_limit, fool_unroll);
    return TFormulaToCNF(form, FormulaQueryType(form),
-                        set, terms, fresh_vars);
+                        set, terms, fresh_vars, step_archive);
 }
 
 /*-----------------------------------------------------------------------
@@ -1622,7 +1624,8 @@ long FormulaSetSimplify(FormulaSet_p set, TB_p terms, bool do_garbage_collect)
 // Function: FormulaSetCNF2()
 //
 //   Transform all formulae in set into CNF. Return number of clauses
-//   generated.
+//   generated. A full proof object keeps each clause before naked
+//   Boolean variables are eliminated in step_archive.
 //
 // Global Variables: -
 //
@@ -1638,7 +1641,8 @@ long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive,
                     bool lift_lambdas,
                     bool lambda_to_forall,
                     bool unfold_only_forms,
-                    bool fool_unroll)
+                    bool fool_unroll,
+                    ClauseSet_p step_archive)
 {
    WFormula_p form, handle;
    long res = 0;
@@ -1681,7 +1685,7 @@ long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive,
       handle = form;
       // printf(COMCHAR" vor WFormulaCNF2()..\n");
       res += WFormulaCNF2(handle, clauseset, terms, fresh_vars,
-                          miniscope_limit, fool_unroll);
+                          miniscope_limit, fool_unroll, step_archive);
       // printf(COMCHAR" ...nach WFormulaCNF2()\n");
       FormulaSetInsert(archive, handle);
       if (handle->tformula &&
@@ -1695,7 +1699,8 @@ long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive,
    }
    if(lift_lambdas)
    {
-      ClauseSetLiftLambdas(clauseset, archive, terms, fresh_vars, fool_unroll);
+      ClauseSetLiftLambdas(clauseset, archive, terms, fresh_vars, fool_unroll,
+                           step_archive);
    }
    if (TBNonVarTermNodes(terms) != old_nodes)
    {
@@ -1863,7 +1868,8 @@ long FormulaAndClauseSetParse(Scanner_p in, FormulaSet_p fset,
 //
 //   Convert a term-encoded formula from conjunctive normal form into
 //   a set of (variable-normalized) clauses. Return number of clauses
-//   generated.
+//   generated. A full proof object keeps each clause before naked
+//   Boolean variables are eliminated in step_archive.
 //
 // Global Variables: -
 //
@@ -1874,7 +1880,7 @@ long FormulaAndClauseSetParse(Scanner_p in, FormulaSet_p fset,
 /----------------------------------------------------------------------*/
 
 long TFormulaToCNF(WFormula_p form, FormulaProperties type, ClauseSet_p set,
-                   TB_p terms, VarBank_p fresh_vars)
+                   TB_p terms, VarBank_p fresh_vars, ClauseSet_p step_archive)
 {
    TFormula_p handle;
    long old_clause_number = set->members;
@@ -1904,7 +1910,7 @@ long TFormulaToCNF(WFormula_p form, FormulaProperties type, ClauseSet_p set,
          DocClauseFromForm(GlobalOut, OutputLevel, clause, form);
          ClausePushDerivation(clause, DCSplitConjunct, form);
 
-         if (ClauseEliminateNakedBooleanVariables(clause))
+         if (ClauseEliminateNakedBooleanVariables(clause, step_archive))
          {
             ClausePushDerivation(clause, DCEliminateBVar);
          }
@@ -2777,7 +2783,8 @@ Term_p cond_lift_lambda(TB_p terms, Term_p term,
 //
 //   Lift lambdas in clauses, change them in place, modify the proof object
 //   and store the lambda definitions in archive. New lambda definitions are
-//   clausified in turn.
+//   clausified in turn. A full proof object keeps each of their clauses
+//   before naked Boolean variables are eliminated in step_archive.
 //
 // Global Variables: -
 //
@@ -2786,7 +2793,8 @@ Term_p cond_lift_lambda(TB_p terms, Term_p term,
 /----------------------------------------------------------------------*/
 
 void ClauseSetLiftLambdas(ClauseSet_p set, FormulaSet_p archive, TB_p terms,
-                          VarBank_p fresh_vars, bool unroll_fool)
+                          VarBank_p fresh_vars, bool unroll_fool,
+                          ClauseSet_p step_archive)
 {
    PStack_p defs = PStackAlloc();
    PTree_p all_defs = NULL;
@@ -2844,7 +2852,8 @@ void ClauseSetLiftLambdas(ClauseSet_p set, FormulaSet_p archive, TB_p terms,
       }
       WFormulaSimplify(copy, terms);
       DBGTermCheckUnownedSubterm(stdout, copy->tformula, "ClauseSetLiftLambdas5");
-      WFormulaCNF2(copy, set, terms, fresh_vars, 100, unroll_fool);
+      WFormulaCNF2(copy, set, terms, fresh_vars, 100, unroll_fool,
+                   step_archive);
       FormulaSetInsert(archive, copy);
    }
    PTreeTraverseExit(def_iter);

@@ -45,6 +45,9 @@ typedef struct rw_desc_cell
    SysDate      demod_date;
    RewriteLevel level;
    bool         prefer_general;
+   ClauseSet_p  step_archive;  /* Copies before each step for a full
+                                  proof object, or NULL */
+   PStack_p     step_sides;    /* The sides of these copies */
    long         rw_steps;      /* Return value, rewrite steps done */
    bool         sos_rewritten; /* Return value! */
 }RWDescCell, *RWDesc_p;
@@ -79,12 +82,14 @@ Term_p TermComputeLINormalform(OCB_p ocb, TB_p bank, Term_p term,
 long ClauseComputeLINormalform(OCB_p ocb, TB_p bank, Clause_p
                                clause, ClauseSet_p *demodulators,
                                RewriteLevel level, bool prefer_general,
-                               bool lambda_demod);
+                               bool lambda_demod, ClauseSet_p step_archive,
+                               PStack_p step_sides);
 
 long ClauseSetComputeLINormalform(OCB_p ocb, TB_p bank, ClauseSet_p
               set, ClauseSet_p *demodulators,
               RewriteLevel level, bool prefer_general,
-              bool lambda_demod);
+              bool lambda_demod, ClauseSet_p step_archive,
+              PStack_p step_sides);
 
 bool FindRewritableClauses(OCB_p ocb, ClauseSet_p set,
             PStack_p results, Clause_p
@@ -94,7 +99,7 @@ long FindRewritableClausesIndexed(OCB_p ocb, SubtermIndex_p index,
                                   PStack_p stack, Clause_p new_demod,
                                   SysDate nf_date);
 
-bool ClauseLocalRW(OCB_p ocb, Clause_p clause);
+bool ClauseLocalRW(OCB_p ocb, Clause_p clause, ClauseSet_p step_archive);
 
 #endif
 

@@ -675,7 +675,8 @@ int main(int argc, char* argv[])
                              h_parms->lift_lambdas,
                              h_parms->lambda_to_forall,
                              h_parms->unroll_only_formulas,
-                             h_parms->fool_unroll);
+                             h_parms->fool_unroll,
+                             proofstate->step_archive);
    VERBOUT("Clausification done.\n");
 
    if(cnf_size)
@@ -865,7 +866,8 @@ int main(int argc, char* argv[])
                                  proofstate->unprocessed);
       }
       deriv = DerivationCompute(proofstate->extract_roots,
-                                proofstate->signature);
+                                proofstate->signature,
+                                proofstate->step_sides);
 
       if(!proofstate->status_reported)
       {
@@ -1004,6 +1006,7 @@ int main(int argc, char* argv[])
                                    sat_status,
                                    proofstate->extract_roots,
                                    proofstate->signature,
+                                   proofstate->step_sides,
                                    print_derivation,
                                    proof_statistics);
       }

@@ -31,13 +31,6 @@
 ProofObjectType PrintProofObject = 0;
 bool            ProofObjectRecordsGCSelection = false;
 
-/* The sides of archived clauses that get their terms only for the
-   proof output, see ClauseArchiveSteps(). Each entry is the copy, its
-   side, the side of the copy before it and the position of the step,
-   given as its length and the argument indices. Set by the proof
-   state */
-PStack_p ProofObjectSides = NULL;
-
 typedef struct
 {
    char* opid;
@@ -102,6 +95,7 @@ op_info opinfo[] =
    {"choice_inst"            , NULL      , "thm"  },
    {"trigger"                , NULL      , "thm"  },
    {"prune_arg"              , NULL      , "thm"  },
+   {"QUOTE"                  , NULL      , NULL   },
 };
 
 
@@ -512,43 +506,44 @@ static Term_p term_replace_at(TB_p bank, Term_p term, PStack_p path,
 // Function: derivation_complete_sides()
 //
 //   ClauseArchiveSteps() leaves some archived clauses with only the
-//   subterm of a step in place of a side. Each of them in derivation
-//   gets its full term, the term of the copy before it with that
-//   subterm put at the recorded position. The others are dropped, as
-//   they are not printed.
+//   subterm of a step in place of a side, and records them in
+//   step_sides. Each of them in derivation gets its full term, the
+//   term of the copy before it with that subterm put at the recorded
+//   position. The others are dropped, as they are not printed.
 //
-// Global Variables: ProofObjectSides
+// Global Variables: -
 //
 // Side Effects    : Changes archived clauses, may add terms to the
 //                   bank
 //
 /----------------------------------------------------------------------*/
 
-static void derivation_complete_sides(Derivation_p derivation)
+static void derivation_complete_sides(Derivation_p derivation,
+                                      PStack_p step_sides)
 {
    DerivedCell key = {0};
    Term_p *copy_side, *prev_side;
    PStackPointer i = 0, end;
 
-   if(!ProofObjectSides)
+   if(!step_sides)
    {
       return;
    }
-   while(i < PStackGetSP(ProofObjectSides))
+   while(i < PStackGetSP(step_sides))
    {
-      key.clause = PStackElementP(ProofObjectSides, i);
-      copy_side  = PStackElementP(ProofObjectSides, i+1);
-      prev_side  = PStackElementP(ProofObjectSides, i+2);
-      end        = i+4+PStackElementInt(ProofObjectSides, i+3);
+      key.clause = PStackElementP(step_sides, i);
+      copy_side  = PStackElementP(step_sides, i+1);
+      prev_side  = PStackElementP(step_sides, i+2);
+      end        = i+4+PStackElementInt(step_sides, i+3);
       if(PTreeObjFindObj(&(derivation->deriv), &key, derived_compare))
       {
          *copy_side = term_replace_at(key.clause->literals->bank,
-                                      *prev_side, ProofObjectSides,
+                                      *prev_side, step_sides,
                                       i+4, end, *copy_side);
       }
       i = end;
    }
-   PStackReset(ProofObjectSides);
+   PStackReset(step_sides);
 }
 
 /*-----------------------------------------------------------------------
@@ -973,7 +968,8 @@ bool ClauseIsDummyQuote(Clause_p clause)
    if(clause->derivation)
    {
       if((PStackGetSP(clause->derivation)==2) &&
-         (PStackElementInt(clause->derivation, 0)==DCCnfQuote))
+         (PStackElementInt(clause->derivation, 0)==DCCnfQuote ||
+          PStackElementInt(clause->derivation, 0)==DCCnfStepQuote))
       {
          return true;
       }
@@ -1460,6 +1456,7 @@ void DerivationStackPCLPrint(FILE* out, Sig_p sig, PStack_p derivation)
          switch(op)
          {
          case DCCnfQuote:
+         case DCCnfStepQuote:
          case DCFofQuote:
                break;
          case DCIntroDef:
@@ -1503,6 +1500,7 @@ void DerivationStackPCLPrint(FILE* out, Sig_p sig, PStack_p derivation)
             switch(op)
             {
             case DCCnfQuote:
+            case DCCnfStepQuote:
             case DCFofQuote:
                   break;
             case DCIntroDef:
@@ -1585,6 +1583,7 @@ void DerivationStackTSTPPrint(FILE* out, Sig_p sig, PStack_p derivation)
          switch(op)
          {
          case DCCnfQuote:
+         case DCCnfStepQuote:
          case DCFofQuote:
                break;
          case DCIntroDef:
@@ -1633,6 +1632,7 @@ void DerivationStackTSTPPrint(FILE* out, Sig_p sig, PStack_p derivation)
             switch(op)
             {
             case DCCnfQuote:
+            case DCCnfStepQuote:
             case DCFofQuote:
                   break;
             case DCIntroDef:
@@ -2533,7 +2533,7 @@ void DerivationRenumber(Derivation_p derivation)
 //
 //   Given a set (stack) of final clauses, generate an ordered
 //   derivation from it. Archived clauses of a full proof object get
-//   their terms here, see ClauseArchiveSteps().
+//   their terms here from step_sides, see ClauseArchiveSteps().
 //
 // Global Variables: -
 //
@@ -2541,7 +2541,8 @@ void DerivationRenumber(Derivation_p derivation)
 //
 /----------------------------------------------------------------------*/
 
-Derivation_p DerivationCompute(PStack_p root_clauses, Sig_p sig)
+Derivation_p DerivationCompute(PStack_p root_clauses, Sig_p sig,
+                               PStack_p step_sides)
 {
    Derivation_p  res = DerivationAlloc(sig);
    PStackPointer sp;
@@ -2557,7 +2558,7 @@ Derivation_p DerivationCompute(PStack_p root_clauses, Sig_p sig)
       PStackPushP(res->roots, node);
    }
    DerivationExtract(res, root_clauses);
-   derivation_complete_sides(res);
+   derivation_complete_sides(res, step_sides);
    DerivationMarkProofSteps(res);
    DerivationTopoSort(res);
    DerivationRenumber(res);
@@ -2816,7 +2817,8 @@ void DerivationPrintConditional(FILE* out, char* status, Derivation_p derivation
 /----------------------------------------------------------------------*/
 
 void DerivationComputeAndPrint(FILE* out, char* status, PStack_p root_clauses,
-                               Sig_p sig, ProofOutput print_derivation,
+                               Sig_p sig, PStack_p step_sides,
+                               ProofOutput print_derivation,
                                bool print_analysis)
 {
    /* The parallel arrays opids[]/optheory[]/opstatus[] these assertions
@@ -2827,7 +2829,7 @@ void DerivationComputeAndPrint(FILE* out, char* status, PStack_p root_clauses,
    /* assert(sizeof(opids) / sizeof(char*) == sizeof(optheory) / sizeof(char*)); */
    /* assert(sizeof(opids) / sizeof(char*) == sizeof(opstatus) / sizeof(char*)); */
 
-   Derivation_p derivation = DerivationCompute(root_clauses, sig);
+   Derivation_p derivation = DerivationCompute(root_clauses, sig, step_sides);
 
    DerivationPrintConditional(out, status, derivation, sig,
                               print_derivation, print_analysis);

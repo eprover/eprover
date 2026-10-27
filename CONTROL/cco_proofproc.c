@@ -495,15 +495,17 @@ void simplify_watchlist(ProofState_p state, ProofControl_p control,
                                    state->demods,
                                    control->heuristic_parms.forward_demod,
                                    control->heuristic_parms.prefer_general,
-                                   control->heuristic_parms.lambda_demod);
-      removed_lits = ClauseRemoveSuperfluousLiterals(handle);
+                                   control->heuristic_parms.lambda_demod,
+                                   state->step_archive, state->step_sides);
+      removed_lits = ClauseRemoveSuperfluousLiterals(handle,
+                                                     state->step_archive);
       if(removed_lits)
       {
          DocClauseModificationDefault(handle, inf_minimize, NULL);
       }
       if(control->ac_handling_active)
       {
-         ClauseRemoveACResolved(handle);
+         ClauseRemoveACResolved(handle, state->step_archive);
       }
       handle->weight = ClauseStandardWeight(handle);
       ClauseMarkMaximalTerms(control->ocb, handle);
@@ -725,7 +727,8 @@ static Clause_p insert_new_clauses(ProofState_p state, ProofControl_p control)
                                handle,
                                state->tmp_store,
                                state->freshvars,
-                               control->heuristic_parms.er_strong_destructive)))
+                               control->heuristic_parms.er_strong_destructive,
+                               state->step_archive)))
       {
          state->other_redundant_count += clause_count;
          state->resolv_count += clause_count;
@@ -738,7 +741,8 @@ static Clause_p insert_new_clauses(ProofState_p state, ProofControl_p control)
                                                state->tmp_store,
                                                control->heuristic_parms.split_clauses,
                                                control->heuristic_parms.split_method,
-                                               control->heuristic_parms.split_fresh_defs)))
+                                               control->heuristic_parms.split_fresh_defs,
+                                               state->step_archive)))
       {
          state->generated_count += clause_count;
          continue;
@@ -798,7 +802,7 @@ Clause_p replacing_inferences(ProofState_p state, ProofControl_p
    long     clause_count;
    Clause_p res = pclause->clause;
 
-   if(problemType == PROBLEM_HO && ImmediateClausification(res, state->tmp_store, state->archive, state->freshvars, control->heuristic_parms.fool_unroll))
+   if(problemType == PROBLEM_HO && ImmediateClausification(res, state->tmp_store, state->archive, state->freshvars, control->heuristic_parms.fool_unroll, state->step_archive))
    {
       pclause->clause = NULL;
    }
@@ -809,7 +813,8 @@ Clause_p replacing_inferences(ProofState_p state, ProofControl_p
                             pclause->clause,
                             state->tmp_store,
                             state->freshvars,
-                            control->heuristic_parms.er_strong_destructive)))
+                            control->heuristic_parms.er_strong_destructive,
+                            state->step_archive)))
    {
       state->other_redundant_count += clause_count;
       state->resolv_count += clause_count;
@@ -819,7 +824,8 @@ Clause_p replacing_inferences(ProofState_p state, ProofControl_p
                                  pclause->clause, state->tmp_store,
                                  control->heuristic_parms.split_clauses,
                                  control->heuristic_parms.split_method,
-                                 control->heuristic_parms.split_fresh_defs))
+                                 control->heuristic_parms.split_fresh_defs,
+                                 state->step_archive))
    {
       pclause->clause = NULL;
    }
@@ -1614,7 +1620,7 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control,
          state->answer_count>=answer_limit)
       {
          clause = FVUnpackClause(pclause);
-         ClauseEvaluateAnswerLits(clause);
+         ClauseEvaluateAnswerLits(clause, state->step_archive);
          return clause;
       }
    }

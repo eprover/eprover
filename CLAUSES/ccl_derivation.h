@@ -103,7 +103,9 @@ typedef enum
    DOPrimEnum,
    DOChoiceInst,
    DOTrigger,
-   DOPruneArg
+   DOPruneArg,
+   DOStepQuote  /* A quote of the copy that --proof-object=3 keeps
+                   before a simplification step */
 }OpCode;
 
 
@@ -181,7 +183,8 @@ typedef enum
    DCPrimEnum         = DOPrimEnum|Arg1Cnf|ArgIsHO,
    DCChoiceInst       = DOChoiceInst|Arg1Cnf|Arg2Cnf|ArgIsHO,
    DCTrigger          = DOTrigger|Arg1Cnf|Arg2Cnf|ArgIsHO,
-   DCPruneArg         = DOPruneArg|ArgIsHO
+   DCPruneArg         = DOPruneArg|ArgIsHO,
+   DCCnfStepQuote     = DOStepQuote|Arg1Cnf
 }DerivationCode;
 
 
@@ -233,7 +236,6 @@ typedef struct derivation_cell
 
 
 extern ProofObjectType PrintProofObject;
-extern PStack_p        ProofObjectSides;
 extern bool            ProofObjectRecordsGCSelection;
 
 
@@ -320,7 +322,8 @@ long DerivationMarkProofSteps(Derivation_p derivation);
 long DerivationTopoSort(Derivation_p derivation);
 void DerivationRenumber(Derivation_p derivation);
 
-Derivation_p DerivationCompute(PStack_p root_clauses, Sig_p sig);
+Derivation_p DerivationCompute(PStack_p root_clauses, Sig_p sig,
+                               PStack_p step_sides);
 
 void DerivationAnalyse(Derivation_p derivationt);
 long DerivationCollectFCodes(Derivation_p derived, NumTree_p *tree);
@@ -334,7 +337,8 @@ void DerivationPrintConditional(FILE* out, char* status, Derivation_p derivation
                                 bool print_analysis);
 
 void DerivationComputeAndPrint(FILE* out, char* status, PStack_p root_clauses,
-                               Sig_p sig, ProofOutput print_derivation,
+                               Sig_p sig, PStack_p step_sides,
+                               ProofOutput print_derivation,
                                bool print_analysis);
 
 //void print_opdata(FILE* out);

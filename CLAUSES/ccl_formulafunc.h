@@ -73,7 +73,7 @@ bool WFormulaSimplify(WFormula_p form, TB_p terms);
 long WFormulaCNF2(WFormula_p form, ClauseSet_p set,
                   TB_p terms, VarBank_p fresh_vars,
                   long miniscope_limit,
-                  bool fool_unroll);
+                  bool fool_unroll, ClauseSet_p step_archive);
 long FormulaSetSimplify(FormulaSet_p set, TB_p terms, bool gc);
 
 /* long FormulaSetCNF(FormulaSet_p set, FormulaSet_p archive, */
@@ -84,7 +84,7 @@ long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive,
                     VarBank_p fresh_vars,
                     long miniscope_limit, long def_limit,
                     bool lift_lambdas, bool lambda_to_forall, bool unfold_only_form,
-                    bool unroll_fool);
+                    bool unroll_fool, ClauseSet_p step_archive);
 long FormulaAndClauseSetParse(Scanner_p in, FormulaSet_p fset,
                               ClauseSet_p wlset, TB_p terms,
                               StrTree_p *name_selector,
@@ -92,7 +92,7 @@ long FormulaAndClauseSetParse(Scanner_p in, FormulaSet_p fset,
 long FormulaToCNF(WFormula_p form, FormulaProperties type,
                   ClauseSet_p set, TB_p terms, VarBank_p fresh_vars);
 long TFormulaToCNF(WFormula_p form, FormulaProperties type, ClauseSet_p set,
-                   TB_p terms, VarBank_p fresh_vars);
+                   TB_p terms, VarBank_p fresh_vars, ClauseSet_p step_archive);
 
 void TFormulaSetDelTermpProp(FormulaSet_p set, TermProperties prop);
 void TFormulaSetFindDefs(FormulaSet_p set, TB_p terms, NumXTree_p *defs,
@@ -114,7 +114,8 @@ long TFormulaSetNamedToDBLambdas(FormulaSet_p set, FormulaSet_p archive, TB_p te
 long TFormulaSetUnfoldDefSymbols(FormulaSet_p set, FormulaSet_p archive, TB_p terms, bool only_forms);
 bool TFormulaUnrollFOOL(WFormula_p form, TB_p terms);
 long TFormulaSetLiftLambdas(FormulaSet_p set, FormulaSet_p archive, TB_p terms);
-void ClauseSetLiftLambdas(ClauseSet_p set, FormulaSet_p archive, TB_p terms, VarBank_p fresh_vars, bool unroll_fool);
+void ClauseSetLiftLambdas(ClauseSet_p set, FormulaSet_p archive, TB_p terms, VarBank_p fresh_vars, bool unroll_fool,
+                          ClauseSet_p step_archive);
 
 
 #endif

@@ -50,21 +50,28 @@
 /* We'll not export term and clause versions, because we need the
    clause information for proof output anyways */
 
-bool ClauseUnfoldEqDef(Clause_p clause, ClausePos_p demod, Term_p lside, Term_p rside);
-bool ClauseSetUnfoldEqDef(ClauseSet_p set, ClausePos_p demod);
+bool ClauseUnfoldEqDef(Clause_p clause, ClausePos_p demod, Term_p lside,
+                       Term_p rside, ClauseSet_p step_archive,
+                       PStack_p step_sides);
+bool ClauseSetUnfoldEqDef(ClauseSet_p set, ClausePos_p demod,
+                          ClauseSet_p step_archive, PStack_p step_sides);
 long ClauseSetUnfoldAllEqDefs(ClauseSet_p set, ClauseSet_p passive,
                               ClauseSet_p archive,
-                              int min_arity, long eqdef_incrlimit);
+                              int min_arity, long eqdef_incrlimit,
+                              ClauseSet_p step_archive, PStack_p step_sides);
 
 long ClauseSetPreprocess(ClauseSet_p set, ClauseSet_p passive,
                          ClauseSet_p archive, TB_p tmp_terms, TB_p terms,
                          bool replace_inj_defs,
-                         int eqdef_incrlimit, long eqdef_maxclauses);
+                         int eqdef_incrlimit, long eqdef_maxclauses,
+                         ClauseSet_p step_archive);
 
 long ClauseSetUnfoldEqDefNormalize(ClauseSet_p set, ClauseSet_p passive,
                                    ClauseSet_p archive, TB_p tmp_terms,
                                    long eqdef_incrlimit,
-                                   long eqdef_maxclauses);
+                                   long eqdef_maxclauses,
+                                   ClauseSet_p step_archive,
+                                   PStack_p step_sides);
 
 
 #endif
