@@ -28,6 +28,9 @@
 /*                        Global Variables                             */
 /*---------------------------------------------------------------------*/
 
+/* The archive that keeps the clause before each simplification step
+   for a full proof object, set by the proof state */
+ClauseSet_p ProofObjectArchive = NULL;
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
@@ -37,6 +40,83 @@
 /*---------------------------------------------------------------------*/
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
+
+/*-----------------------------------------------------------------------
+//
+// Function: archive_copy()
+//
+//   Create a copy of clause that takes over its info and
+//   derivation. The clause gets a new derivation that points to the
+//   copy. Returns the copy, which is not yet in any set.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+static Clause_p archive_copy(Clause_p clause)
+{
+   Clause_p archclause = ClauseFlatCopy(clause);
+
+   archclause->info = clause->info;
+   archclause->derivation = clause->derivation;
+   clause->info       = NULL;
+   clause->derivation = NULL;
+   ClausePushDerivation(clause, DCCnfQuote, archclause);
+
+   return archclause;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: step_wanted()
+//
+//   Return true if a full proof object asks for the clause to be
+//   archived before a further simplification step. A clause whose
+//   derivation is only a reference to its parent needs no copy,
+//   since that parent already is the premise of the step.
+//
+// Global Variables: ProofObjectArchive, PrintProofObject
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static bool step_wanted(Clause_p clause)
+{
+   return ProofObjectArchive && PrintProofObject >= POSingleStepDerivation
+      && clause->derivation && !PStackEmpty(clause->derivation)
+      && !ClauseIsDummyQuote(clause);
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: side_in_copy()
+//
+//   Return the place in copy, a flat copy of clause, that corresponds
+//   to side, a side of a literal of clause.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static Term_p* side_in_copy(Clause_p copy, Clause_p clause, Term_p *side)
+{
+   Eqn_p lit = clause->literals, copy_lit = copy->literals;
+
+   while(side != &(lit->lterm) && side != &(lit->rterm))
+   {
+      lit = lit->next;
+      copy_lit = copy_lit->next;
+   }
+   return side == &(lit->lterm)?&(copy_lit->lterm):&(copy_lit->rterm);
+}
+
 
 /*-----------------------------------------------------------------------
 //
@@ -234,6 +314,7 @@ int ClauseRemoveSuperfluousLiterals(Clause_p clause)
 {
    Eqn_p handle;
    int   removed = 0;
+   Clause_p before = ClauseArchiveStepBegin(clause);
 
    assert(!ClauseIsAnyPropSet(clause, CPIsDIndexed|CPIsSIndexed));
 
@@ -265,6 +346,7 @@ int ClauseRemoveSuperfluousLiterals(Clause_p clause)
          clause->set->literals-=removed;
       }
    }
+   ClauseArchiveStepEnd(clause, before, removed);
    if(removed)
    {
       ClausePushDerivation(clause, DCNormalize);
@@ -346,14 +428,17 @@ int ClauseRemoveACResolved(Clause_p clause)
 {
    int   removed = 0;
    Sig_p sig;
+   Clause_p before;
 
    if(clause->neg_lit_no==0)
    {
       return 0;
    }
    sig = clause->literals->bank->sig;
+   before = ClauseArchiveStepBegin(clause);
    removed += EqnListRemoveACResolved(&(clause->literals));
    clause->neg_lit_no -= removed ;
+   ClauseArchiveStepEnd(clause, before, removed);
    if(removed)
    {
       ClauseDelProp(clause, CPInitial|CPLimitedRW);
@@ -465,16 +550,181 @@ Clause_p ClauseArchiveCopy(ClauseSet_p archive, Clause_p clause)
    assert(archive);
    assert(clause);
 
-   archclause = ClauseFlatCopy(clause);
-
-   archclause->info = clause->info;
-   archclause->derivation = clause->derivation;
-   clause->info       = NULL;
-   clause->derivation = NULL;
-   ClausePushDerivation(clause, DCCnfQuote, archclause);
+   archclause = archive_copy(clause);
    ClauseSetInsert(archive, archclause);
 
    return archclause;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseArchiveStep()
+//
+//   Before a simplification step changes clause, keep the clause as
+//   it is in the proof object archive if a full proof object asks
+//   for it, so that the step has an explicit premise.
+//
+// Global Variables: ProofObjectArchive
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+void ClauseArchiveStep(Clause_p clause)
+{
+   if(step_wanted(clause))
+   {
+      ClauseArchiveCopy(ProofObjectArchive, clause);
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseArchiveStepBegin()
+//
+//   As ClauseArchiveStep(), for a simplification whose effect is
+//   not yet known. Returns the copy, to be passed to
+//   ClauseArchiveStepEnd(), or NULL if none is wanted.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+Clause_p ClauseArchiveStepBegin(Clause_p clause)
+{
+   return step_wanted(clause)?archive_copy(clause):NULL;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseArchiveStepEnd()
+//
+//   Finish what ClauseArchiveStepBegin() started. If the clause
+//   changed, the copy goes to the archive. Otherwise the copy gives
+//   back what it took over and is freed.
+//
+// Global Variables: ProofObjectArchive
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+void ClauseArchiveStepEnd(Clause_p clause, Clause_p before, bool changed)
+{
+   if(!before)
+   {
+      return;
+   }
+   if(changed)
+   {
+      ClauseSetInsert(ProofObjectArchive, before);
+   }
+   else
+   {
+      PStackFree(clause->derivation);
+      clause->derivation = before->derivation;
+      clause->info       = before->info;
+      before->derivation = NULL;
+      before->info       = NULL;
+      ClauseFree(before);
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseArchiveSteps()
+//
+//   Record the steps that took side, a side of a literal of clause,
+//   to nf as inferences with code op, and set side to nf. steps
+//   holds three entries per step, its demodulator, the subterm it
+//   produced and the position of that subterm as a stack of argument
+//   indices. These stacks are freed here.
+//
+//   For a full proof object, the clause is archived before each
+//   step. New terms in the bank would change the search, so a copy
+//   only gets the subterm of the step before it, and
+//   DerivationCompute() builds its term if the copy is printed. The
+//   first copy is made even if clause only quotes its parent, since
+//   the next copy builds on it.
+//
+// Global Variables: ProofObjectArchive, ProofObjectSides,
+//                   PrintProofObject
+//
+// Side Effects    : Changes clause, memory operations
+//
+/----------------------------------------------------------------------*/
+
+void ClauseArchiveSteps(Clause_p clause, Term_p *side, Term_p nf,
+                        PStack_p steps, DerivationCode op)
+{
+   bool stepwise = ProofObjectArchive &&
+      PrintProofObject >= POSingleStepDerivation;
+   Term_p *copy_side, *prev_side = NULL;
+   Clause_p copy;
+   PStack_p path;
+   PStackPointer i;
+
+   for(i=0; i<PStackGetSP(steps); i+=3)
+   {
+      if(stepwise)
+      {
+         copy = ClauseArchiveCopy(ProofObjectArchive, clause);
+         copy_side = side_in_copy(copy, clause, side);
+         if(prev_side)
+         {
+            *copy_side = PStackElementP(steps, i-2);
+            path = PStackElementP(steps, i-1);
+            PStackPushP(ProofObjectSides, copy);
+            PStackPushP(ProofObjectSides, copy_side);
+            PStackPushP(ProofObjectSides, prev_side);
+            PStackPushInt(ProofObjectSides, PStackGetSP(path));
+            PStackPushStack(ProofObjectSides, path);
+         }
+         prev_side = copy_side;
+      }
+      ClausePushDerivation(clause, op, PStackElementP(steps, i));
+   }
+   for(i=2; i<PStackGetSP(steps); i+=3)
+   {
+      PStackFree(PStackElementP(steps, i));
+   }
+   *side = nf;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseStepParent()
+//
+//   If the derivation of clause starts with a reference to a copy
+//   that a full proof object archived before a simplification step,
+//   return that copy, else NULL. The search follows these copies to
+//   see the derivation clause would have without them.
+//
+// Global Variables: ProofObjectArchive
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+Clause_p ClauseStepParent(Clause_p clause)
+{
+   Clause_p parent;
+
+   if(!ProofObjectArchive || !clause->derivation ||
+      PStackGetSP(clause->derivation) < 2 ||
+      PStackElementInt(clause->derivation, 0) != DCCnfQuote)
+   {
+      return NULL;
+   }
+   parent = PStackElementP(clause->derivation, 1);
+   return parent->set == ProofObjectArchive?parent:NULL;
 }
 
 
@@ -513,7 +763,8 @@ void ClauseSetArchiveCopy(ClauseSet_p archive, ClauseSet_p set)
 //
 //   Return true if the clause is orphaned, i.e. if one of the direct
 //   premises of the original generating inferences that generated it
-//   has been back-simplified.
+//   has been back-simplified. Copies archived for a full proof object
+//   are looked through, see ClauseStepParent().
 //
 // Global Variables: -
 //
@@ -529,7 +780,10 @@ bool ClauseIsOrphaned(Clause_p clause)
 
    assert(clause);
 
-   //clause = follow_quote_chain(clause);
+   while((parent = ClauseStepParent(clause)))
+   {
+      clause = parent;
+   }
 
    if(!clause->derivation)
    {
@@ -671,6 +925,7 @@ bool ClauseEliminateNakedBooleanVariables(Clause_p clause)
    }
 
    PStack_p all_lits       = ClauseToStack(clause);
+   Clause_p before         = ClauseArchiveStepBegin(clause);
    Eqn_p    lit            = NULL;
    Term_p   var            = NULL;
    bool     eliminated_var = false;
@@ -734,6 +989,7 @@ bool ClauseEliminateNakedBooleanVariables(Clause_p clause)
       }
    }
 
+   ClauseArchiveStepEnd(clause, before, eliminated_var);
    if(eliminated_var)
    {
       res = EqnListCopyOpt(clause->literals);

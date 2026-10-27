@@ -25,6 +25,7 @@ Changes
 
 #include "che_prio_funs.h"
 #include <ccl_derivation.h>
+#include <ccl_clausefunc.h>
 
 
 /*---------------------------------------------------------------------*/
@@ -1240,11 +1241,15 @@ EvalPriority PrioFunDeferFormulas(Clause_p clause)
 
 EvalPriority PrioFunPreferEasyHO(Clause_p clause)
 {
-   PStack_p derivation = clause->derivation;
+   Clause_p handle;
    EvalPriority prio = PrioNormal;
-   if(derivation && problemType == PROBLEM_HO)
+   /* Copies archived for a full proof object hold the start of the
+      derivation */
+   for(handle = clause; handle && problemType == PROBLEM_HO;
+       handle = ClauseStepParent(handle))
    {
-      PStackPointer sp = PStackGetSP(derivation);
+      PStack_p derivation = handle->derivation;
+      PStackPointer sp = derivation?PStackGetSP(derivation):0;
       PStackPointer i  = 0;
       DerivationCode op;
       while(prio == PrioNormal && i<sp)

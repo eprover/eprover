@@ -165,6 +165,10 @@ ProofState_p ProofStateAlloc(FunctionProperties free_symb_prop)
    handle->tmp_store            = ClauseSetAlloc();
    handle->eval_store           = ClauseSetAlloc();
    handle->archive              = ClauseSetAlloc();
+   handle->step_archive         = ClauseSetAlloc();
+   handle->step_sides           = PStackAlloc();
+   ProofObjectArchive           = handle->step_archive;
+   ProofObjectSides             = handle->step_sides;
    handle->watchlist            = ClauseSetAlloc();
    handle->f_archive            = FormulaSetAlloc();
    handle->extract_roots        = PStackAlloc();
@@ -195,6 +199,7 @@ ProofState_p ProofStateAlloc(FunctionProperties free_symb_prop)
    TBGCRegisterClauseSet(handle->terms, handle->tmp_store);
    TBGCRegisterClauseSet(handle->terms, handle->eval_store);
    TBGCRegisterClauseSet(handle->terms, handle->archive);
+   TBGCRegisterClauseSet(handle->terms, handle->step_archive);
    TBGCRegisterClauseSet(handle->terms, handle->watchlist);
    TBGCRegisterClauseSet(handle->terms, handle->definition_store->def_clauses);
    TBGCRegisterFormulaSet(handle->terms, handle->definition_store->def_archive);
@@ -379,6 +384,8 @@ void ProofStateResetClauseSets(ProofState_p state, bool term_gc)
    ClauseSetFreeClauses(state->tmp_store);
    ClauseSetFreeClauses(state->eval_store);
    ClauseSetFreeClauses(state->archive);
+   ClauseSetFreeClauses(state->step_archive);
+   PStackReset(state->step_sides);
    ClauseSetFreeClauses(state->ax_archive);
    FormulaSetFreeFormulas(state->f_ax_archive);
    GlobalIndicesReset(&(state->gindices));
@@ -420,7 +427,14 @@ void ProofStateFree(ProofState_p junk)
    ClauseSetFree(junk->unprocessed);
    ClauseSetFree(junk->tmp_store);
    ClauseSetFree(junk->eval_store);
+   if(ProofObjectArchive == junk->step_archive)
+   {
+      ProofObjectArchive = NULL;
+      ProofObjectSides   = NULL;
+   }
    ClauseSetFree(junk->archive);
+   ClauseSetFree(junk->step_archive);
+   PStackFree(junk->step_sides);
    ClauseSetFree(junk->ax_archive);
    FormulaSetFree(junk->f_archive);
    PStackFree(junk->extract_roots);
