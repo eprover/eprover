@@ -1639,7 +1639,7 @@ CLState_p process_options(int argc, char* argv[])
             break;
       case OPT_FILTER_SATURATED:
             filterdesc = arg;
-            CheckOptionLetterString(filterdesc, "eigEIGaA", "--filter-saturated");
+            CheckOptionLetterString(filterdesc, "ucnNrRfF", "--filter-saturated");
             filter_sat = true;
             break;
       case OPT_SYNTAX_ONLY:
