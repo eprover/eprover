@@ -7,7 +7,7 @@ README!
 Short Installation Instructions for the Impatient
 =================================================
 
-This assumes that you have GNU tar, sh and gawk in your search path!
+This assumes that you have GNU tar, sh and a POSIX awk in your search path!
 
 Simple installation of the first-order version (will install
 executables):
