@@ -42,7 +42,6 @@ typedef enum
    OPT_SELECT_EVAL
 }OptionCodes;
 
-ProblemType problemType  = PROBLEM_NOT_INIT;
 
 
 
