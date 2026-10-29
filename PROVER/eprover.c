@@ -984,203 +984,298 @@ static void run_saturation(ProverRun_p run)
 
 /*-----------------------------------------------------------------------
 //
+// Function: push_saturated_clauses()
+//
+//   Push all processed clauses (and, if with_unprocessed is true, all
+//   unprocessed clauses) onto proofstate->extract_roots, so that
+//   their derivations become part of the derivation output.
+//
+// Global Variables: -
+//
+// Side Effects    : Changes extract_roots
+//
+/----------------------------------------------------------------------*/
+
+static void push_saturated_clauses(ProofState_p proofstate,
+                                   bool with_unprocessed)
+{
+   ClauseSetPushClauses(proofstate->extract_roots,
+                        proofstate->processed_pos_rules);
+   ClauseSetPushClauses(proofstate->extract_roots,
+                        proofstate->processed_pos_eqns);
+   ClauseSetPushClauses(proofstate->extract_roots,
+                        proofstate->processed_neg_units);
+   ClauseSetPushClauses(proofstate->extract_roots,
+                        proofstate->processed_non_units);
+   if(with_unprocessed)
+   {
+      ClauseSetPushClauses(proofstate->extract_roots,
+                           proofstate->unprocessed);
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: report_proof()
+//
+//   Report a successful proof search (empty clause or answers):
+//   print the SZS status and, if requested, the proof object. Return
+//   the exit code.
+//
+// Global Variables: print_full_deriv, PrintProofObject,
+//                   print_derivation, proof_statistics,
+//                   proc_training_data
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+static int report_proof(ProverRun_p run)
+{
+   ProofState_p proofstate = run->proofstate;
+   int          retval = NO_ERROR;
+   Derivation_p deriv;
+
+   assert(!PStackEmpty(proofstate->extract_roots));
+   if(run->success)
+   {
+      DocClauseQuoteDefault(2, run->success, "proof");
+   }
+
+   fprintf(GlobalOut, "\n"COMCHAR" Proof found!\n");
+
+   if(print_full_deriv)
+   {
+      push_saturated_clauses(proofstate, true);
+   }
+   deriv = DerivationCompute(proofstate->extract_roots,
+                             proofstate->signature,
+                             proofstate->step_sides);
+
+   if(!proofstate->status_reported)
+   {
+      if(run->neg_conjectures)
+      {
+         TSTPOUT(GlobalOut, deriv->has_conjecture?"Theorem":"ContradictoryAxioms");
+      }
+      else
+      {
+         TSTPOUT(GlobalOut, "Unsatisfiable");
+      }
+      proofstate->status_reported = true;
+      retval = PROOF_FOUND;
+   }
+
+   if(PrintProofObject)
+   {
+      DerivationPrintConditional(GlobalOut,
+                                 "CNFRefutation",
+                                 deriv,
+                                 proofstate->signature,
+                                 print_derivation,
+                                 proof_statistics);
+      ProofStateAnalyseGC(proofstate);
+      if(proc_training_data)
+      {
+         ProofStateTrain(proofstate, proc_training_data&TSPrintPos,
+                         proc_training_data&TSPrintNeg);
+      }
+   }
+   DerivationFree(deriv);
+   return retval;
+}
+
+
+/* Possible results of a proof search that found no proof (and did
+   not stop on an empty watchlist) */
+
+typedef enum
+{
+   NPCNFOnly,              /* Only clausification was requested */
+   NPRestrictedCalculus,   /* Saturated, but calculus incomplete */
+   NPInterpretedTheories,  /* Saturated up to interpreted symbols */
+   NPSatisfiable,          /* Saturated, complete: no proof exists */
+   NPOutOfClauses,         /* Out of clauses, but state incomplete */
+   NPResourceOut           /* Stopped by a user resource limit */
+}NoProofOutcome;
+
+/* Message, SZS status, whether the status is suppressed by
+   SilentTimeOut, and exit code for each NoProofOutcome. For
+   NPSatisfiable, the status is "CounterSatisfiable" if there was a
+   conjecture. */
+
+static struct
+{
+   char *message;
+   char *status;
+   bool  silenceable;
+   int   retval;
+}no_proof_report[] =
+{
+   {"CNFization successful!", "Unknown", false, NO_ERROR},
+   {"Clause set closed under restricted calculus!", "GaveUp", true,
+    INCOMPLETE_PROOFSTATE},
+   {"Clause set saturated up to interpreted theories!", "GaveUp", true,
+    INCOMPLETE_PROOFSTATE},
+   {"No proof found!", "Satisfiable", false, SATISFIABLE},
+   {"Failure: Out of unprocessed clauses!", "GaveUp", true,
+    INCOMPLETE_PROOFSTATE},
+   {"Failure: User resource limit exceeded!", "ResourceOut", true,
+    RESOURCE_OUT}
+};
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: classify_no_proof()
+//
+//   Determine why the proof search ended without a proof.
+//
+// Global Variables: cnf_only, inf_sys_complete,
+//                   assume_inf_sys_complete, problemType
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static NoProofOutcome classify_no_proof(ProverRun_p run)
+{
+   ProofState_p proofstate = run->proofstate;
+
+   if(cnf_only)
+   {
+      return NPCNFOnly;
+   }
+   if(!run->out_of_clauses)
+   {
+      return NPResourceOut;
+   }
+   if(!(inf_sys_complete || assume_inf_sys_complete))
+   {
+      return NPRestrictedCalculus;
+   }
+   if(proofstate->state_is_complete &&
+      inf_sys_complete &&
+      proofstate->has_interpreted_symbols)
+   {
+      return NPInterpretedTheories;
+   }
+   if(problemType != PROBLEM_HO
+      && proofstate->state_is_complete
+      && inf_sys_complete)
+   {
+      return NPSatisfiable;
+   }
+   return NPOutOfClauses;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: report_no_proof()
+//
+//   Report a proof search that ended without a proof: document the
+//   final state, print the SZS status and, if requested, the
+//   derivation of the saturated set. Return the exit code.
+//
+// Global Variables: inf_sys_complete, assume_inf_sys_complete,
+//                   SilentTimeOut, PrintProofObject,
+//                   force_deriv_output, cnf_only, print_derivation,
+//                   proof_statistics, print_sat
+//
+// Side Effects    : Output, may reset print_sat.
+//
+/----------------------------------------------------------------------*/
+
+static int report_no_proof(ProverRun_p run)
+{
+   ProofState_p   proofstate = run->proofstate;
+   char           *finals_state = "exists",
+      *sat_status = "Derivation";
+   NoProofOutcome outcome;
+   int            retval;
+
+   if(run->out_of_clauses&&
+      proofstate->state_is_complete&&
+      (inf_sys_complete || assume_inf_sys_complete))
+   {
+      finals_state = "final";
+   }
+   ProofStatePropDocQuote(GlobalOut, OutputLevel, CPIgnoreProps,
+                          proofstate, finals_state);
+
+   outcome = classify_no_proof(run);
+   retval  = no_proof_report[outcome].retval;
+   if(outcome == NPSatisfiable)
+   {
+      sat_status = "Saturation";
+   }
+   fprintf(GlobalOut, "\n");
+   CommentPrint(GlobalOut, " %s\n", no_proof_report[outcome].message);
+   if(!(no_proof_report[outcome].silenceable && SilentTimeOut))
+   {
+      /* No status variable - TSTPOUT() may expand to nothing */
+      TSTPOUT(GlobalOut,
+              (outcome == NPSatisfiable && run->neg_conjectures)?
+              "CounterSatisfiable":no_proof_report[outcome].status);
+   }
+
+   if(PrintProofObject &&
+      (((retval!=INCOMPLETE_PROOFSTATE)&&
+        (retval!=RESOURCE_OUT))
+       || force_deriv_output))
+   {
+      bool with_unprocessed = cnf_only || (force_deriv_output>=2);
+
+      push_saturated_clauses(proofstate, with_unprocessed);
+      if(with_unprocessed)
+      {
+         print_sat = false;
+      }
+      DerivationComputeAndPrint(GlobalOut,
+                                sat_status,
+                                proofstate->extract_roots,
+                                proofstate->signature,
+                                proofstate->step_sides,
+                                print_derivation,
+                                proof_statistics);
+   }
+   return retval;
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: report_result()
 //
 //   Report the result of the proof search (SZS status, proof object
 //   or saturation derivation) and return the exit code.
 //
-// Global Variables: print_full_deriv, PrintProofObject,
-//                   print_derivation, proof_statistics,
-//                   proc_training_data, inf_sys_complete,
-//                   assume_inf_sys_complete, cnf_only, SilentTimeOut,
-//                   problemType, force_deriv_output, print_sat
+// Global Variables: -
 //
-// Side Effects    : Output, may reset print_sat.
+// Side Effects    : Output
 //
 /----------------------------------------------------------------------*/
 
 static int report_result(ProverRun_p run)
 {
    ProofState_p proofstate = run->proofstate;
-   Clause_p     success    = run->success;
-   bool         out_of_clauses = run->out_of_clauses;
-   int          retval = NO_ERROR;
-   char         *finals_state = "exists",
-      *sat_status = "Derivation";
-   Derivation_p deriv;
 
-   if(success||proofstate->answer_count)
+   if(run->success||proofstate->answer_count)
    {
-      assert(!PStackEmpty(proofstate->extract_roots));
-      if(success)
-      {
-         DocClauseQuoteDefault(2, success, "proof");
-      }
-
-
-      fprintf(GlobalOut, "\n"COMCHAR" Proof found!\n");
-
-      if(print_full_deriv)
-      {
-         ClauseSetPushClauses(proofstate->extract_roots,
-                                 proofstate->processed_pos_rules);
-         ClauseSetPushClauses(proofstate->extract_roots,
-                                 proofstate->processed_pos_eqns);
-         ClauseSetPushClauses(proofstate->extract_roots,
-                                 proofstate->processed_neg_units);
-         ClauseSetPushClauses(proofstate->extract_roots,
-                                 proofstate->processed_non_units);
-         ClauseSetPushClauses(proofstate->extract_roots,
-                                 proofstate->unprocessed);
-      }
-      deriv = DerivationCompute(proofstate->extract_roots,
-                                proofstate->signature,
-                                proofstate->step_sides);
-
-      if(!proofstate->status_reported)
-      {
-         if(run->neg_conjectures)
-         {
-            TSTPOUT(GlobalOut, deriv->has_conjecture?"Theorem":"ContradictoryAxioms");
-         }
-         else
-         {
-            TSTPOUT(GlobalOut, "Unsatisfiable");
-         }
-         proofstate->status_reported = true;
-         retval = PROOF_FOUND;
-      }
-
-
-      if(PrintProofObject)
-      {
-         DerivationPrintConditional(GlobalOut,
-                                    "CNFRefutation",
-                                    deriv,
-                                    proofstate->signature,
-                                    print_derivation,
-                                    proof_statistics);
-         ProofStateAnalyseGC(proofstate);
-         if(proc_training_data)
-         {
-            ProofStateTrain(proofstate, proc_training_data&TSPrintPos,
-                        proc_training_data&TSPrintNeg);
-         }
-      }
-      DerivationFree(deriv);
+      return report_proof(run);
    }
-   else if(proofstate->watchlist && ClauseSetEmpty(proofstate->watchlist))
+   if(proofstate->watchlist && ClauseSetEmpty(proofstate->watchlist))
    {
       ProofStatePropDocQuote(GlobalOut, OutputLevel,
                              CPSubsumesWatch, proofstate,
                              "final_subsumes_wl");
       fprintf(GlobalOut, "\n"COMCHAR" Watchlist is empty!\n");
       TSTPOUT(GlobalOut, "ResourceOut");
-      retval = RESOURCE_OUT;
+      return RESOURCE_OUT;
    }
-   else
-   {
-      if(out_of_clauses&&
-         proofstate->state_is_complete&&
-         (inf_sys_complete || assume_inf_sys_complete))
-      {
-         finals_state = "final";
-      }
-      ProofStatePropDocQuote(GlobalOut, OutputLevel, CPIgnoreProps,
-                             proofstate, finals_state);
-
-      if(cnf_only)
-      {
-         fprintf(GlobalOut, "\n"COMCHAR" CNFization successful!\n");
-         TSTPOUT(GlobalOut, "Unknown");
-      }
-      else if(out_of_clauses)
-      {
-         if(!(inf_sys_complete || assume_inf_sys_complete))
-         {
-            fprintf(GlobalOut,
-                    "\n"COMCHAR" Clause set closed under "
-                    "restricted calculus!\n");
-            if(!SilentTimeOut)
-            {
-               TSTPOUT(GlobalOut, "GaveUp");
-            }
-            retval = INCOMPLETE_PROOFSTATE;
-         }
-         else if(proofstate->state_is_complete &&
-                 inf_sys_complete &&
-                 proofstate->has_interpreted_symbols)
-         {
-            fprintf(GlobalOut,
-                    "\n"COMCHAR" Clause set saturated up to interpreted theories!\n");
-            if(!SilentTimeOut)
-            {
-               TSTPOUT(GlobalOut, "GaveUp");
-            }
-            retval = INCOMPLETE_PROOFSTATE;
-         }
-         else if(problemType != PROBLEM_HO
-                 && proofstate->state_is_complete
-                 && inf_sys_complete)
-         {
-            fprintf(GlobalOut, "\n"COMCHAR" No proof found!\n");
-            TSTPOUT(GlobalOut, run->neg_conjectures?"CounterSatisfiable":"Satisfiable");
-            sat_status = "Saturation";
-            retval = SATISFIABLE;
-         }
-         else
-         {
-            fprintf(GlobalOut, "\n"COMCHAR" Failure: Out of unprocessed clauses!\n");
-            if(!SilentTimeOut)
-            {
-               //ClauseSetPrint(stderr, proofstate->processed_pos_rules, true);
-               //ClauseSetPrint(stderr, proofstate->processed_pos_eqns, true);
-               //ClauseSetPrint(stderr, proofstate->processed_neg_units, true);
-               //ClauseSetPrint(stderr, proofstate->processed_non_units, true);
-               TSTPOUT(GlobalOut, "GaveUp");
-            }
-            retval = INCOMPLETE_PROOFSTATE;
-         }
-      }
-      else
-      {
-         fprintf(GlobalOut, "\n"COMCHAR" Failure: User resource limit exceeded!\n");
-         if(!SilentTimeOut)
-         {
-            TSTPOUT(GlobalOut, "ResourceOut");
-         }
-         retval = RESOURCE_OUT;
-      }
-      if(PrintProofObject &&
-         (((retval!=INCOMPLETE_PROOFSTATE)&&
-           (retval!=RESOURCE_OUT))
-          |force_deriv_output))
-      {
-         ClauseSetPushClauses(proofstate->extract_roots,
-                              proofstate->processed_pos_rules);
-         ClauseSetPushClauses(proofstate->extract_roots,
-                              proofstate->processed_pos_eqns);
-         ClauseSetPushClauses(proofstate->extract_roots,
-                              proofstate->processed_neg_units);
-         ClauseSetPushClauses(proofstate->extract_roots,
-                              proofstate->processed_non_units);
-         if(cnf_only|(force_deriv_output>=2))
-         {
-            ClauseSetPushClauses(proofstate->extract_roots,
-                                 proofstate->unprocessed);
-            print_sat = false;
-         }
-         DerivationComputeAndPrint(GlobalOut,
-                                   sat_status,
-                                   proofstate->extract_roots,
-                                   proofstate->signature,
-                                   proofstate->step_sides,
-                                   print_derivation,
-                                   proof_statistics);
-      }
-
-   }
-   return retval;
+   return report_no_proof(run);
 }
 
 
