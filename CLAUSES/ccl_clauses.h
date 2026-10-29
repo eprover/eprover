@@ -136,10 +136,8 @@ typedef struct clause_cell
    long                  ident;       /* Hopefully unique ident for
                                          all clauses created during
                                          proof run */
-#ifdef CLAUSE_PERM_IDENT
    long                  perm_ident;  /* Running number, given on
                                          alloc, never modified */
-#endif
    SysDate               date;        /* ...at which this clause
                                          became a demodulator */
    Eqn_p                 literals;    /* List of literals */
@@ -381,10 +379,8 @@ bool     ClauseNotGreaterEqual(OCB_p ocb,
 
 int      ClauseCompareFun(const void *c1, const void* c2);
 int      ClauseCmpById(const void* clause1, const void* clause2);
-#ifdef CLAUSE_PERM_IDENT
 int      ClauseCmpByPermId(const void* clause1, const void* clause2);
 int      ClauseCmpByPermIdR(const void* clause1, const void* clause2);
-#endif
 int      ClauseCmpByStructWeight(const void* clause1, const void* clause2);
 
 int      ClauseCmpByPtr(const void* clause1, const void* clause2);

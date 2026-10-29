@@ -50,11 +50,9 @@ long ClauseIdentCounter = 0; /* Used to generate new clause idents on
                                 the fly. */
 
 
-#ifdef CLAUSE_PERM_IDENT
 static long clause_perm_ident_counter = 0; /* Used to generate new
                                               permanent idents on
                                               the fly. */
-#endif
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
@@ -282,9 +280,7 @@ Clause_p ClauseCellAlloc(void)
 {
    Clause_p handle = ClauseCellAllocRaw();
 
-#ifdef CLAUSE_PERM_IDENT
    handle->perm_ident = clause_perm_ident_counter++;
-#endif
 
 
    return handle;
@@ -2376,7 +2372,6 @@ int ClauseCmpById(const void* clause1, const void* clause2)
 }
 
 
-#ifdef CLAUSE_PERM_IDENT
 /*-----------------------------------------------------------------------
 //
 // Function: ClauseCmpByPermId()
@@ -2432,7 +2427,6 @@ int ClauseCmpByPermIdR(const void* clause1, const void* clause2)
    }
    return 0;
 }
-#endif
 
 
 
