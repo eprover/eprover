@@ -79,7 +79,7 @@ static FVPackedClause_p forward_contract_keep(ProofState_p state, ProofControl_p
       // ClausePrint(stderr, clause, true);
       // fprintf(stderr, ".\n");
       trivial = ForwardModifyClause(state, control, clause,
-                                    context_sr, condense, level);
+                                    context_sr, condense, true, level);
       // fprintf(stderr, "after rw: ");
       // ClausePrint(stderr, clause, true);
       // fprintf(stderr, ".\n");
@@ -231,7 +231,9 @@ FVPackedClause_p ForwardSubsumption(ProofState_p state,
 // Function: ForwardModifyClause()
 //
 //   Apply all modifying forward-inferences to clause (unless it
-//   becomes trivial). Return true if it does become trivial.
+//   becomes trivial). Return true if it does become trivial. AC
+//   resolution is only applied if ac_resolve is true (and AC
+//   handling is active).
 //
 // Global Variables: -
 //
@@ -244,6 +246,7 @@ bool ForwardModifyClause(ProofState_p state,
                          Clause_p clause,
                          bool context_sr,
                          bool condense,
+                         bool ac_resolve,
                          RewriteLevel level)
 {
    int removed_lits;
@@ -284,7 +287,7 @@ bool ForwardModifyClause(ProofState_p state,
          DocClauseModificationDefault(clause, inf_minimize, NULL);
       }
 
-      if(control->ac_handling_active)
+      if(control->ac_handling_active && ac_resolve)
       {
          ClauseRemoveACResolved(clause, state->step_archive);
       }

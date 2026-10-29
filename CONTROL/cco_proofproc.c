@@ -671,6 +671,7 @@ static Clause_p insert_new_clauses(ProofState_p state, ProofControl_p control)
                              (control->heuristic_parms.backward_context_sr&&
                               ClauseQueryProp(handle,CPIsProcessed)),
                              control->heuristic_parms.condensing_aggressive,
+                             control->heuristic_parms.ac_res_aggressive,
                              FullRewrite);
          ClauseDelProp(handle,CPIsIRVictim);
       }
@@ -679,6 +680,7 @@ static Clause_p insert_new_clauses(ProofState_p state, ProofControl_p control)
                           (control->heuristic_parms.backward_context_sr&&
                            ClauseQueryProp(handle,CPIsProcessed)),
                           control->heuristic_parms.condensing_aggressive,
+                          control->heuristic_parms.ac_res_aggressive,
                           control->heuristic_parms.forward_demod);
 
 

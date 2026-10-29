@@ -19,6 +19,11 @@ Version 3.2.5 -> 3.5.X Countess Grey
   only built for the proof output, so level 3 does not influence the
   search. Their memory counts towards --delete-bad-limit, so with that
   limit level 3 deletes bad clauses earlier.
+- Made --ac-non-aggressive (strategy parameter ac_res_aggressive)
+  operational. By default, AC resolution is applied to newly generated
+  clauses before they are added to the unprocessed set (as before). With
+  ac_res_aggressive set to false, it is only applied when a clause is
+  processed (or when the unprocessed set is explicitly contracted).
 
 Version 3.1.0 -> 3.2.5 Puttabong Moondrop
 
