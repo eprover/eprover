@@ -57,7 +57,7 @@ typedef struct fv_index_cell
    union
    {
       IntMap_p successors;
-      PTree_p  clauses;
+      OrdSet_p  clauses;
    }u1;
 }FVIndexCell, *FVIndex_p;
 

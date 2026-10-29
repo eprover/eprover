@@ -1932,7 +1932,7 @@ bool SigHasUnimplementedInterpretedSymbols(Sig_p sig)
 //
 /----------------------------------------------------------------------*/
 
-long SigFCodesCollectTypes(Sig_p sig, NumTree_p fcodes, PTree_p *types)
+long SigFCodesCollectTypes(Sig_p sig, NumTree_p fcodes, OrdSet_p *types)
 {
    long res = 0;
    PStack_p to_process = PStackAlloc(), iter;
@@ -1955,17 +1955,17 @@ long SigFCodesCollectTypes(Sig_p sig, NumTree_p fcodes, PTree_p *types)
    while(!PStackEmpty(to_process))
    {
       type = PStackPopP(to_process);
-      if(!PTreeFind(types, type))
+      if(!OrdSetFind(types, type))
       {
          res++;
-         PTreeStore(types, type);
+         OrdSetStore(types, type);
          for(int i=0; i<type->arity; i++)
          {
             PStackPushP(to_process, type->args[i]);
          }
       }
    }
-   PTreeTraverseExit(to_process);
+   OrdSetTraverseExit(to_process);
    return res;
 }
 

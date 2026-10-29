@@ -60,28 +60,28 @@ Changes
 
 long TBGCCollect(TB_p bank)
 {
-   PTree_p entry;
-   PStack_p trav;
+   OrdSet_p entry;
+   OrdSetIter_p trav;
 
    assert(bank);
    assert(bank->gc);
 
    //printf(COMCHAR" GCCollect(%p)\n", gc);
-   trav = PTreeTraverseInit(bank->gc->clause_sets);
-   while((entry = PTreeTraverseNext(trav)))
+   trav = OrdSetTraverseInit(bank->gc->clause_sets);
+   while((entry = OrdSetTraverseNext(trav)))
    {
       //printf(COMCHAR" Marking clause set %p\n", entry->key);
       ClauseSetGCMarkTerms(entry->key);
    }
-   PTreeTraverseExit(trav);
+   OrdSetTraverseExit(trav);
 
-   trav = PTreeTraverseInit(bank->gc->formula_sets);
-   while((entry = PTreeTraverseNext(trav)))
+   trav = OrdSetTraverseInit(bank->gc->formula_sets);
+   while((entry = OrdSetTraverseNext(trav)))
    {
       //printf(COMCHAR" Marking formula set %p\n", entry->key);
       FormulaSetGCMarkCells(entry->key);
    }
-   PTreeTraverseExit(trav);
+   OrdSetTraverseExit(trav);
 
    return TBGCSweep(bank);
 }

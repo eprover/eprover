@@ -370,7 +370,7 @@ long ClauseSetEqlitRecode(ClauseSet_p set)
 
 VarSetInst_p VarSetInstAlloc(Clause_p clause)
 {
-   PTree_p      tree = 0;
+   OrdSet_p      tree = 0;
    VarSetInst_p handle = VarSetInstCellAlloc();
    long         i;
    Term_p       var;
@@ -384,7 +384,7 @@ VarSetInst_p VarSetInstAlloc(Clause_p clause)
       {
          assert(tree);
 
-         var = PTreeExtractRootKey(&tree);
+         var = OrdSetExtractFirst(&tree);
          assert(var);
          handle->cells[i].variable = var;
          handle->cells[i].alternatives = NULL;
@@ -445,9 +445,9 @@ void VarSetInstFree(VarSetInst_p junk)
 
 VarSetInst_p VarSetConstrInstAlloc(LitOccTable_p p_table,
                                    LitOccTable_p n_table, Clause_p
-                                   clause, PTree_p ground_terms)
+                                   clause, OrdSet_p ground_terms)
 {
-   PTree_p      tree = NULL, tmp;
+   OrdSet_p      tree = NULL, tmp;
    VarSetInst_p handle = VarSetInstCellAlloc();
    long         i;
    Term_p       var;
@@ -466,10 +466,10 @@ VarSetInst_p VarSetConstrInstAlloc(LitOccTable_p p_table,
       {
          assert(tree);
 
-         var = PTreeExtractRootKey(&tree);
+         var = OrdSetExtractFirst(&tree);
          assert(var);
          assert(TermIsFreeVar(var));
-         tmp = PTreeCopy(ground_terms);
+         tmp = OrdSetCopy(ground_terms);
          PDArrayAssignP(var_constr, -var->f_code, tmp);
 
          handle->cells[i].variable = var;
@@ -483,8 +483,8 @@ VarSetInst_p VarSetConstrInstAlloc(LitOccTable_p p_table,
       {
          tmp = PDArrayElementP(var_constr,
                                -(handle->cells[i].variable->f_code));
-         PTreeToPStack(handle->cells[i].alternatives, tmp);
-         PTreeFree(tmp);
+         OrdSetToPStack(handle->cells[i].alternatives, tmp);
+         OrdSetFree(tmp);
       }
       PDArrayFree(var_constr);
    }
@@ -1092,7 +1092,7 @@ bool ClauseSetCreateConstrGroundInstances(TB_p bank, ClauseSet_p set,
                                           long just_one_instance)
 {
    PStack_p     default_terms = PStackAlloc();
-   PTree_p      default_term_tree = NULL;
+   OrdSet_p      default_term_tree = NULL;
    Clause_p     handle;
    VarSetInst_p inst;
    LitOccTable_p p_table, n_table;
@@ -1107,7 +1107,7 @@ bool ClauseSetCreateConstrGroundInstances(TB_p bank, ClauseSet_p set,
    {
       SigCollectConstantTerms(bank, default_terms, 0);
    }
-   PStackToPTree(&default_term_tree, default_terms);
+   PStackToOrdSet(&default_term_tree, default_terms);
    p_table = LitOccTableAlloc(bank->sig);
    n_table = LitOccTableAlloc(bank->sig);
    LitOccAddClauseSetAlt(p_table, n_table, set);
@@ -1154,7 +1154,7 @@ bool ClauseSetCreateConstrGroundInstances(TB_p bank, ClauseSet_p set,
    LitOccTableFree(p_table);
    LitOccTableFree(n_table);
    PStackFree(default_terms);
-   PTreeFree(default_term_tree);
+   OrdSetFree(default_term_tree);
 
    return res;
 }

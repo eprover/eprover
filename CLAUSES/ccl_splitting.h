@@ -68,7 +68,7 @@ typedef struct lit_split_desc
 {
    Eqn_p   literal;
    int     part;
-   PTree_p varset;  /* Initially: Varset of literal, later either
+   OrdSet_p varset;  /* Initially: Varset of literal, later either
              empty (in subsequent literals) or varset of
              partition (for first literal of partition) */
 }LitSplitDescCell, *LitSplitDesc_p;

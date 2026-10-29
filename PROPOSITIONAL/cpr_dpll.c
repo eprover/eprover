@@ -52,7 +52,7 @@ Changes
 //
 /----------------------------------------------------------------------*/
 
-long deactivate_clauses(DPLLState_p state, PTree_p *clauses)
+long deactivate_clauses(DPLLState_p state, OrdSet_p *clauses)
 {
    long res = 0;
 
@@ -72,7 +72,7 @@ long deactivate_clauses(DPLLState_p state, PTree_p *clauses)
 //
 /----------------------------------------------------------------------*/
 
-long shorten_clauses(DPLLState_p state, PTree_p *clauses)
+long shorten_clauses(DPLLState_p state, OrdSet_p *clauses)
 {
    long res = 0;
 

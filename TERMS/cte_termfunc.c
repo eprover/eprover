@@ -145,7 +145,7 @@ static Term_p parse_cons_list(Scanner_p in, Sig_p sig, VarBank_p vars)
 //
 /----------------------------------------------------------------------*/
 
-static Term_p term_check_consistency_rek(Term_p term, PTree_p *branch,
+static Term_p term_check_consistency_rek(Term_p term, OrdSet_p *branch,
                                          DerefType deref)
 {
    int      i;
@@ -155,7 +155,7 @@ static Term_p term_check_consistency_rek(Term_p term, PTree_p *branch,
    term = TermDeref(term, &deref);
    putc('.', stdout);
 
-   if(!PTreeStore(branch, term))
+   if(!OrdSetStore(branch, term))
    {
       return term;
    }
@@ -167,7 +167,7 @@ static Term_p term_check_consistency_rek(Term_p term, PTree_p *branch,
          break;
       }
    }
-   PTreeDeleteEntry(branch, term);
+   OrdSetDeleteEntry(branch, term);
    return res;
 }
 
@@ -2665,7 +2665,7 @@ void TermComputeFunctionRanks(Term_p term, long *rank_array, long *count)
 //
 /----------------------------------------------------------------------*/
 
-long TermCollectPropVariables(Term_p term, PTree_p *tree,
+long TermCollectPropVariables(Term_p term, OrdSet_p *tree,
                               TermProperties prop)
 {
    long res = 0;
@@ -2680,7 +2680,7 @@ long TermCollectPropVariables(Term_p term, PTree_p *tree,
       if(TermIsFreeVar(term) &&
          TermCellQueryProp(term,prop))
       {
-         if(PTreeStore(tree, term))
+         if(OrdSetStore(tree, term))
          {
             res++;
          }
@@ -2711,7 +2711,7 @@ long TermCollectPropVariables(Term_p term, PTree_p *tree,
 //
 /----------------------------------------------------------------------*/
 
-long TermCollectVariables(Term_p term, PTree_p *tree)
+long TermCollectVariables(Term_p term, OrdSet_p *tree)
 {
    long res = 0;
    PStack_p stack = PStackAlloc();
@@ -2724,7 +2724,7 @@ long TermCollectVariables(Term_p term, PTree_p *tree)
       term = PStackPopP(stack);
       if(TermIsFreeVar(term))
       {
-         if(PTreeStore(tree, term))
+         if(OrdSetStore(tree, term))
          {
             res++;
          }
@@ -2806,7 +2806,7 @@ long TermCollectFCodes(Term_p term, NumTree_p *tree)
 //
 /----------------------------------------------------------------------*/
 
-long TermCollectGroundTerms(Term_p term, PTree_p *result, bool all_subterms)
+long TermCollectGroundTerms(Term_p term, OrdSet_p *result, bool all_subterms)
 {
    PStack_p stack = PStackAlloc();
    long count = 0;
@@ -2824,7 +2824,7 @@ long TermCollectGroundTerms(Term_p term, PTree_p *result, bool all_subterms)
             // TypeIsBool(term), TermCellQueryProp(term, TPPredPos));
             if(!TermIsConst(term) &&
                !TermCellQueryProp(term, TPPredPos) &&
-               PTreeStore(result, term))
+               OrdSetStore(result, term))
             {
                count++;
             }
@@ -2969,7 +2969,7 @@ long TermLinearize(PStack_p stack, Term_p term)
 Term_p TermCheckConsistency(Term_p term, DerefType deref)
 {
    Term_p   res;
-   PTree_p  branch = NULL;
+   OrdSet_p  branch = NULL;
 
    printf("TermCheckConsistency...\n");
    res = term_check_consistency_rek(term, &branch, deref);
@@ -3472,10 +3472,10 @@ void visitor(void* sig, void* tp)
 
 void TermPrintDbgVarBinds(Sig_p sig, Term_p t)
 {
-   PTree_p vars = NULL;
+   OrdSet_p vars = NULL;
    TermCollectVariables(t, &vars);
-   PTreeVisitInOrder(vars, visitor, sig);
-   PTreeFree(vars);
+   OrdSetVisit(vars, visitor, sig);
+   OrdSetFree(vars);
 }
 
 /*-----------------------------------------------------------------------

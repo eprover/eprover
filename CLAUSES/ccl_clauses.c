@@ -146,8 +146,8 @@ Clause_p clause_copy_meta(Clause_p clause)
 /----------------------------------------------------------------------*/
 
 static void clause_collect_posneg_vars(Clause_p clause,
-                                PTree_p *pos_vars,
-                                PTree_p *neg_vars)
+                                OrdSet_p *pos_vars,
+                                OrdSet_p *neg_vars)
 {
    Eqn_p handle;
 
@@ -826,7 +826,7 @@ bool ClauseIsSemEmpty(Clause_p clause)
 
 bool ClauseIsRangeRestricted(Clause_p clause)
 {
-   PTree_p pos_vars = NULL, neg_vars = NULL;
+   OrdSet_p pos_vars = NULL, neg_vars = NULL;
    bool    res;
 
    //printf("RR: "); ClausePrintAxiom(stdout, clause, true);
@@ -842,10 +842,10 @@ bool ClauseIsRangeRestricted(Clause_p clause)
    }
    clause_collect_posneg_vars(clause, &pos_vars, &neg_vars);
 
-   res = PTreeIsSubset(neg_vars, &pos_vars);
+   res = OrdSetIsSubset(neg_vars, &pos_vars);
 
-   PTreeFree(pos_vars);
-   PTreeFree(neg_vars);
+   OrdSetFree(pos_vars);
+   OrdSetFree(neg_vars);
 
    //printf("=> %s\n", res?"true":"false");
    return res;
@@ -868,7 +868,7 @@ bool ClauseIsRangeRestricted(Clause_p clause)
 
 bool ClauseIsAntiRangeRestricted(Clause_p clause)
 {
-   PTree_p pos_vars = NULL, neg_vars = NULL;
+   OrdSet_p pos_vars = NULL, neg_vars = NULL;
    bool    res;
 
    if(ClauseIsNegative(clause) || ClauseIsGround(clause))
@@ -881,10 +881,10 @@ bool ClauseIsAntiRangeRestricted(Clause_p clause)
    }
 
    clause_collect_posneg_vars(clause, &pos_vars, &neg_vars);
-   res = PTreeIsSubset(pos_vars, &neg_vars);
+   res = OrdSetIsSubset(pos_vars, &neg_vars);
 
-   PTreeFree(pos_vars);
-   PTreeFree(neg_vars);
+   OrdSetFree(pos_vars);
+   OrdSetFree(neg_vars);
 
    return res;
 }
@@ -905,7 +905,7 @@ bool ClauseIsAntiRangeRestricted(Clause_p clause)
 
 bool ClauseIsStronglyRangeRestricted(Clause_p clause)
 {
-   PTree_p pos_vars = NULL, neg_vars = NULL;
+   OrdSet_p pos_vars = NULL, neg_vars = NULL;
    bool res;
 
    //printf("StrongRR: "); ClausePrintAxiom(stdout, clause, true);
@@ -927,10 +927,10 @@ bool ClauseIsStronglyRangeRestricted(Clause_p clause)
    assert(clause->literals);
 
    clause_collect_posneg_vars(clause, &pos_vars, &neg_vars);
-   res = PTreeEquiv(pos_vars, neg_vars);
+   res = OrdSetEquiv(pos_vars, neg_vars);
 
-   PTreeFree(pos_vars);
-   PTreeFree(neg_vars);
+   OrdSetFree(pos_vars);
+   OrdSetFree(neg_vars);
    //printf("=> %s\n", res?"true":"false");
    return res;
 }
@@ -2743,7 +2743,7 @@ bool ClauseRecognizeChoice(IntMap_p choice_symbols_map, Clause_p cl)
 //
 /----------------------------------------------------------------------*/
 
-long ClauseCollectGroundTerms(Clause_p clause, PTree_p *res,
+long ClauseCollectGroundTerms(Clause_p clause, OrdSet_p *res,
                               bool pos_lits, bool neg_lits,
                               bool all_subterms)
 {

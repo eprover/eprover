@@ -62,7 +62,7 @@ typedef struct pdt_node_cell
                                            towards the root */
    long               ref_count;        /* How many entries share this
                                            node? */
-   PTree_p            entries;          /* Clauses that are indexed
+   OrdSet_p            entries;          /* Clauses that are indexed
                                            - this should be NULL at
                                            all but leaf nodes. */
    Term_p             variable;         /* If this  node corresponds
@@ -91,7 +91,7 @@ typedef struct pd_tree_cell
    PStack_p  term_stack;     /* For flattening the term */
    PStack_p  term_proc;      /* Store traversed terms for backtracking */
    PDTNode_p tree_pos;       /* For traversing the tree */
-   PStack_p  store_stack;    /* For traversing entries in leaves */
+   OrdSetIter_p store_stack; /* For traversing entries in leaves */
    Term_p    term;           /* ...used as a key during search */
    SysDate   term_date;      /* Temporarily bound during matching */
    long      term_weight;    /* Ditto */

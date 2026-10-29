@@ -51,7 +51,7 @@ Changes
 //
 /----------------------------------------------------------------------*/
 
-long term_collect_into_terms(Term_p t, PTree_p *terms)
+long term_collect_into_terms(Term_p t, OrdSet_p *terms)
 {
    long res = 0;
    int  i;
@@ -60,7 +60,7 @@ long term_collect_into_terms(Term_p t, PTree_p *terms)
    {
       return res;
    }
-   PTreeStore(terms, t);
+   OrdSetStore(terms, t);
    res++;
    for(i=0; i<t->arity; i++)
    {
@@ -82,7 +82,7 @@ long term_collect_into_terms(Term_p t, PTree_p *terms)
 //
 /----------------------------------------------------------------------*/
 
-long term_collect_into_terms2(Term_p t, PTree_p *terms, PTree_p *natoms)
+long term_collect_into_terms2(Term_p t, OrdSet_p *terms, OrdSet_p *natoms)
 {
    long res = 0;
    int  i;
@@ -91,7 +91,7 @@ long term_collect_into_terms2(Term_p t, PTree_p *terms, PTree_p *natoms)
    {
       return res;
    }
-   PTreeStore(natoms, t);
+   OrdSetStore(natoms, t);
    res++;
    for(i=0; i<t->arity; i++)
    {
@@ -112,7 +112,7 @@ long term_collect_into_terms2(Term_p t, PTree_p *terms, PTree_p *natoms)
 //
 /----------------------------------------------------------------------*/
 
-long eqn_collect_into_terms(Eqn_p lit, PTree_p *terms)
+long eqn_collect_into_terms(Eqn_p lit, OrdSet_p *terms)
 {
    long res;
 
@@ -137,7 +137,7 @@ long eqn_collect_into_terms(Eqn_p lit, PTree_p *terms)
 //
 /----------------------------------------------------------------------*/
 
-long eqn_collect_into_terms2(Eqn_p lit, PTree_p *terms, PTree_p *natoms)
+long eqn_collect_into_terms2(Eqn_p lit, OrdSet_p *terms, OrdSet_p *natoms)
 {
    long res;
 
@@ -447,7 +447,7 @@ void OverlapIndexDeleteClauseOcc(OverlapIndex_p index,
 //
 /----------------------------------------------------------------------*/
 
-long ClauseCollectIntoTerms(Clause_p clause, PTree_p *terms)
+long ClauseCollectIntoTerms(Clause_p clause, OrdSet_p *terms)
 {
    long  res = 0;
    Eqn_p handle;
@@ -508,7 +508,7 @@ long ClauseCollectIntoTermsPos(Clause_p clause, PStack_p terms)
 //
 /----------------------------------------------------------------------*/
 
-long ClauseCollectFromTerms(Clause_p clause, PTree_p *terms)
+long ClauseCollectFromTerms(Clause_p clause, OrdSet_p *terms)
 {
    long  res = 0;
    Eqn_p handle;
@@ -518,11 +518,11 @@ long ClauseCollectFromTerms(Clause_p clause, PTree_p *terms)
       if(EqnIsMaximal(handle) && EqnIsPositive(handle) && !EqnIsSelected(handle))
       {
          res++;
-         PTreeStore(terms, handle->lterm);
+         OrdSetStore(terms, handle->lterm);
          if(!EqnIsOriented(handle))
          {
             res++;
-            PTreeStore(terms, handle->rterm);
+            OrdSetStore(terms, handle->rterm);
          }
       }
    }
@@ -614,20 +614,20 @@ void OverlapIndexInsertIntoClause(OverlapIndex_p index, Clause_p clause)
 
 void OverlapIndexDeleteIntoClause(OverlapIndex_p index, Clause_p clause)
 {
-   PStack_p trans;
+   OrdSetIter_p trans;
    Term_p   term;
-   PTree_p  collector = NULL, cell;
+   OrdSet_p  collector = NULL, cell;
 
    ClauseCollectIntoTerms(clause, &collector);
 
-   trans = PTreeTraverseInit(collector);
-   while((cell = PTreeTraverseNext(trans)))
+   trans = OrdSetTraverseInit(collector);
+   while((cell = OrdSetTraverseNext(trans)))
    {
       term = cell->key;
       OverlapIndexDeleteClauseOcc(index, clause, term);
    }
-   PTreeTraverseExit(trans);
-   PTreeFree(collector);
+   OrdSetTraverseExit(trans);
+   OrdSetFree(collector);
 }
 
 
@@ -675,20 +675,20 @@ void OverlapIndexInsertFromClause(OverlapIndex_p index, Clause_p clause)
 
 void OverlapIndexDeleteFromClause(OverlapIndex_p index, Clause_p clause)
 {
-   PStack_p trans;
+   OrdSetIter_p trans;
    Term_p   term;
-   PTree_p  collector = NULL, cell;
+   OrdSet_p  collector = NULL, cell;
 
    ClauseCollectFromTerms(clause, &collector);
 
-   trans = PTreeTraverseInit(collector);
-   while((cell = PTreeTraverseNext(trans)))
+   trans = OrdSetTraverseInit(collector);
+   while((cell = OrdSetTraverseNext(trans)))
    {
       term = cell->key;
       OverlapIndexDeleteClauseOcc(index, clause, term);
    }
-   PTreeTraverseExit(trans);
-   PTreeFree(collector);
+   OrdSetTraverseExit(trans);
+   OrdSetFree(collector);
 }
 
 
@@ -797,7 +797,7 @@ void OverlapIndexFPLeafPrint(FILE* out, PStack_p stack, FPTree_p leaf)
 //
 /----------------------------------------------------------------------*/
 
-long ClauseCollectIntoTerms2(Clause_p clause, PTree_p *terms, PTree_p *natoms)
+long ClauseCollectIntoTerms2(Clause_p clause, OrdSet_p *terms, OrdSet_p *natoms)
 {
    long  res = 0;
    Eqn_p handle;
@@ -903,31 +903,31 @@ void OverlapIndexDeleteIntoClause2(OverlapIndex_p tindex,
                                    OverlapIndex_p naindex,
                                    Clause_p clause)
 {
-   PStack_p trans;
+   OrdSetIter_p trans;
    Term_p   term;
-   PTree_p  terms = NULL,
+   OrdSet_p  terms = NULL,
       natoms= NULL,
       cell;
 
    ClauseCollectIntoTerms2(clause, &terms, &natoms);
 
-   trans = PTreeTraverseInit(terms);
-   while((cell = PTreeTraverseNext(trans)))
+   trans = OrdSetTraverseInit(terms);
+   while((cell = OrdSetTraverseNext(trans)))
    {
       term = cell->key;
       OverlapIndexDeleteClauseOcc(tindex, clause, term);
    }
-   PTreeTraverseExit(trans);
-   PTreeFree(terms);
+   OrdSetTraverseExit(trans);
+   OrdSetFree(terms);
 
-   trans = PTreeTraverseInit(natoms);
-   while((cell = PTreeTraverseNext(trans)))
+   trans = OrdSetTraverseInit(natoms);
+   while((cell = OrdSetTraverseNext(trans)))
    {
       term = cell->key;
       OverlapIndexDeleteClauseOcc(naindex, clause, term);
    }
-   PTreeTraverseExit(trans);
-   PTreeFree(natoms);
+   OrdSetTraverseExit(trans);
+   OrdSetFree(natoms);
 }
 
 

@@ -1856,18 +1856,18 @@ void ClauseSetComputeHOFeatures(ClauseSet_p set, Sig_p sig,
    for(handle = set->anchor->succ; handle!=set->anchor;
        handle = handle->succ)
    {
-      PTree_p vars = NULL;
+      OrdSet_p vars = NULL;
       ClauseCollectVariables(handle, &vars);
-      PStack_p iter = PTreeTraverseInit(vars);
-      PTree_p node;
-      while((node = PTreeTraverseNext(iter)))
+      OrdSetIter_p iter = OrdSetTraverseInit(vars);
+      OrdSet_p node;
+      while((node = OrdSetTraverseNext(iter)))
       {
          Type_p ty = ((Term_p)node->key)->type;
          ord = MAX(ord, VAR_ORDER(ty));
          var_has_bools = var_has_bools || TypeHasBool(ty);
       }
-      PTreeTraverseExit(iter);
-      PTreeFree(vars);
+      OrdSetTraverseExit(iter);
+      OrdSetFree(vars);
 
       bool has_app_var = false;
       for(Eqn_p eqn = handle->literals; eqn; eqn = eqn->next)

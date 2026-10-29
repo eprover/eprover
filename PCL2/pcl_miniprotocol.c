@@ -316,7 +316,7 @@ void PCLMiniProtPrint(FILE* out, PCLMiniProt_p prot,
 //
 /----------------------------------------------------------------------*/
 
-void PCLMiniExprCollectPreconds(PCLMiniProt_p prot, PCLExpr_p expr, PTree_p *tree)
+void PCLMiniExprCollectPreconds(PCLMiniProt_p prot, PCLExpr_p expr, OrdSet_p *tree)
 {
    PCLMiniStep_p step;
    int       i;
@@ -339,7 +339,7 @@ void PCLMiniExprCollectPreconds(PCLMiniProt_p prot, PCLExpr_p expr, PTree_p *tre
             Error("Dangling reference in PCL protocol!",
                   SYNTAX_ERROR);
          }
-         PTreeStore(tree, step);
+         OrdSetStore(tree, step);
          break;
    default:
          for(i=0; i<expr->arg_no; i++)
@@ -370,7 +370,7 @@ bool PCLMiniProtMarkProofClauses(PCLMiniProt_p prot, bool fast)
    long i;
    PStack_p to_proc = PStackAlloc();
    PCLMiniStep_p step;
-   PTree_p root = NULL;
+   OrdSet_p root = NULL;
 
    if(fast)
    {
@@ -419,7 +419,7 @@ bool PCLMiniProtMarkProofClauses(PCLMiniProt_p prot, bool fast)
          PCLMiniExprCollectPreconds(prot, step->just, &root);
          while(root)
          {
-            step = PTreeExtractRootKey(&root);
+            step = OrdSetExtractFirst(&root);
             PStackPushP(to_proc, step);
          }
       }

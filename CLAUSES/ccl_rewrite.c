@@ -1100,16 +1100,16 @@ static __inline__ RWDesc_p rw_desc_cell_alloc(OCB_p ocb, TB_p bank,
 //
 /----------------------------------------------------------------------*/
 
-long clause_tree_push(PStack_p stack, PTree_p clausetree)
+long clause_tree_push(PStack_p stack, OrdSet_p clausetree)
 {
-   PStack_p iterstack;
-   PTree_p  cell;
+   OrdSetIter_p iterstack;
+   OrdSet_p  cell;
    Clause_p clause;
    long     res = 0;
 
-   iterstack = PTreeTraverseInit(clausetree);
+   iterstack = OrdSetTraverseInit(clausetree);
 
-   while((cell = PTreeTraverseNext(iterstack)))
+   while((cell = OrdSetTraverseNext(iterstack)))
    {
       clause = cell->key;
       if(!ClauseQueryProp(clause, CPRWDetected))
@@ -1119,7 +1119,7 @@ long clause_tree_push(PStack_p stack, PTree_p clausetree)
          res++;
       }
    }
-   PTreeTraverseExit(iterstack);
+   OrdSetTraverseExit(iterstack);
    return res;
 }
 

@@ -34,7 +34,7 @@ Changes
 /*                        Global Variables                             */
 /*---------------------------------------------------------------------*/
 
-static PTree_p reg_mem_tree = NULL;
+static OrdSet_p reg_mem_tree = NULL;
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
@@ -67,7 +67,7 @@ void* RegMemAlloc(size_t size)
 {
    void *res = SecureMalloc(size);
 
-   PTreeStore(&reg_mem_tree, res);
+   OrdSetStore(&reg_mem_tree, res);
 
    return res;
 }
@@ -89,9 +89,9 @@ void* RegMemRealloc(void* mem, size_t size)
 {
    void *res;
 
-   PTreeDeleteEntry(&reg_mem_tree, mem);
+   OrdSetDeleteEntry(&reg_mem_tree, mem);
    res = SecureRealloc(mem,size);
-   PTreeStore(&reg_mem_tree, res);
+   OrdSetStore(&reg_mem_tree, res);
 
    return res;
 }
@@ -111,7 +111,7 @@ void* RegMemRealloc(void* mem, size_t size)
 
 void  RegMemFree(void* mem)
 {
-   PTreeDeleteEntry(&reg_mem_tree, mem);
+   OrdSetDeleteEntry(&reg_mem_tree, mem);
    FREE(mem);
 }
 
@@ -172,7 +172,7 @@ void  RegMemCleanUp(void)
 
    while(reg_mem_tree)
    {
-      mem = PTreeExtractRootKey(&reg_mem_tree);
+      mem = OrdSetExtractFirst(&reg_mem_tree);
       FREE(mem);
    }
 }

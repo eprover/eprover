@@ -193,11 +193,11 @@ static void build_part(LitSplitDesc_p lit_table, int lit_no, int
       {
     if(!lit_table[i].part)
     {
-       if(PTreeSharedElement(&(lit_table[lit_index].varset),
+       if(OrdSetSharedElement(&(lit_table[lit_index].varset),
               lit_table[i].varset))
        {
           lit_table[i].part = part;
-          new_vars = PTreeMerge(&(lit_table[lit_index].varset),
+          new_vars = OrdSetMerge(&(lit_table[lit_index].varset),
                  lit_table[i].varset)||new_vars;
           lit_table[i].varset = NULL;
        }
@@ -442,7 +442,7 @@ int clause_split_general(DefStore_p store, Clause_p clause,
    }
    for(i=0; i<lit_no; i++)
    {
-      PTreeFree(lit_table[i].varset);
+      OrdSetFree(lit_table[i].varset);
    }
    SizeFree(lit_table, size);
 
@@ -606,7 +606,7 @@ int ClauseSplitGeneral(DefStore_p store, bool fresh_defs,
    int res, var_no, set_size;
    PStackPointer i;
    PStack_p vars, split_vars, permute_stack;
-   PTree_p  vars_tree = NULL;
+   OrdSet_p  vars_tree = NULL;
 
    res =  ClauseSplit(store, clause, set, SplitGroundOne, fresh_defs, NULL);
    if(res)
@@ -617,15 +617,15 @@ int ClauseSplitGeneral(DefStore_p store, bool fresh_defs,
    var_no = ClauseCollectVariables(clause, &vars_tree);
    if(var_no<=2) /* Non-ground splitting is useless here */
    {
-      PTreeFree(vars_tree);
+      OrdSetFree(vars_tree);
       return 0;
    }
    vars = PStackAlloc();
    split_vars = PStackAlloc();
    permute_stack = PStackAlloc();
 
-   PTreeToPStack(vars, vars_tree);
-   PTreeFree(vars_tree);
+   OrdSetToPStack(vars, vars_tree);
+   OrdSetFree(vars_tree);
 
    set_size = 1;
 

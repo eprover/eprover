@@ -79,7 +79,7 @@ Term_p FlattenApps_driver(TB_p terms, Term_p t)
 static void close_let_def(TB_p bank, NumTree_p *closed_defs, Term_p def)
 {
    assert(def->f_code == bank->sig->eqn_code);
-   PTree_p free_vars = NULL;
+   OrdSet_p free_vars = NULL;
    Term_p lhs = def->args[0], rhs = def->args[1];
    TFormulaCollectFreeVars(bank, rhs, &free_vars);
 
@@ -87,11 +87,11 @@ static void close_let_def(TB_p bank, NumTree_p *closed_defs, Term_p def)
    {
       Term_p arg = lhs->args[i];
       assert(TermIsFreeVar(arg));
-      PTreeDeleteEntry(&free_vars, arg);
+      OrdSetDeleteEntry(&free_vars, arg);
    }
 
    PStack_p all_vars = PStackAlloc();
-   PTreeToPStack(all_vars, free_vars);
+   OrdSetToPStack(all_vars, free_vars);
    for (int i = 0; i < lhs->arity; i++)
    {
       PStackPushP(all_vars, lhs->args[i]);
@@ -102,7 +102,7 @@ static void close_let_def(TB_p bank, NumTree_p *closed_defs, Term_p def)
    IntOrP orig_def = {.p_val = lhs}, new_def = {.p_val = fresh_sym};
    NumTreeStore(closed_defs, lhs->f_code, orig_def, new_def);
 
-   PTreeFree(free_vars);
+   OrdSetFree(free_vars);
    PStackFree(all_vars);
 }
 
@@ -375,7 +375,7 @@ Term_p refresh_qvars(TB_p terms, Term_p form)
 /----------------------------------------------------------------------*/
 
 Term_p do_rw_with_defs(TB_p terms, Term_p t, IntMap_p def_map,
-                       PTree_p *used_defs, int *steps, bool snf)
+                       OrdSet_p *used_defs, int *steps, bool snf)
 {
    if (*steps <= 0)
    {
@@ -411,7 +411,7 @@ Term_p do_rw_with_defs(TB_p terms, Term_p t, IntMap_p def_map,
       }
       new = snf ? BetaNormalizeDB(terms, ApplyTerms(terms, rhs, args))
                 : ApplyTerms(terms, rhs, args);
-      PTreeStore(used_defs, wform);
+      OrdSetStore(used_defs, wform);
       new = do_rw_with_defs(terms, new,
                             def_map, used_defs, steps, snf);
       *steps = *steps - 1; //forgot the precedence :)
@@ -434,9 +434,9 @@ Term_p do_rw_with_defs(TB_p terms, Term_p t, IntMap_p def_map,
 //
 /----------------------------------------------------------------------*/
 
-PTree_p create_sym_map(FormulaSet_p set, IntMap_p sym_def_map, bool unfold_only_forms)
+OrdSet_p create_sym_map(FormulaSet_p set, IntMap_p sym_def_map, bool unfold_only_forms)
 {
-   PTree_p recognized_definitions = NULL;
+   OrdSet_p recognized_definitions = NULL;
 
    for (WFormula_p form = set->anchor->succ; form != set->anchor; form = form->succ)
    {
@@ -531,7 +531,7 @@ PTree_p create_sym_map(FormulaSet_p set, IntMap_p sym_def_map, bool unfold_only_
             WFormulaPushDerivation(def_wform, DCFofQuote, form);
             IntMapAssign(sym_def_map, lhs->f_code, def_wform);
 
-            PTreeStore(&recognized_definitions, form);
+            OrdSetStore(&recognized_definitions, form);
          }
       }
 
@@ -564,7 +564,7 @@ void intersimplify_definitions(TB_p terms, IntMap_p sym_def_map)
    WFormula_p next = NULL;
    while ((next = IntMapIterNext(iter, &i)))
    {
-      PTree_p used_defs = NULL;
+      OrdSet_p used_defs = NULL;
       int max_steps = MAX_RW_STEPS;
       Term_p new_rhs = do_rw_with_defs(terms, next->tformula->args[1],
                                        sym_def_map, &used_defs,
@@ -573,15 +573,15 @@ void intersimplify_definitions(TB_p terms, IntMap_p sym_def_map)
       {
          assert(used_defs);
          next->tformula->args[1] = new_rhs;
-         PStack_p ptiter = PTreeTraverseInit(used_defs);
-         PTree_p node = NULL;
-         while ((node = PTreeTraverseNext(ptiter)))
+         OrdSetIter_p ptiter = OrdSetTraverseInit(used_defs);
+         OrdSet_p node = NULL;
+         while ((node = OrdSetTraverseNext(ptiter)))
          {
             WFormulaPushDerivation(next, DCApplyDef, node->key);
          }
-         PTreeTraverseExit(ptiter);
+         OrdSetTraverseExit(ptiter);
       }
-      PTreeFree(used_defs);
+      OrdSetFree(used_defs);
    }
    IntMapIterFree(iter);
 }
@@ -2271,14 +2271,14 @@ long TFormulaSetUnfoldDefSymbols(FormulaSet_p set, FormulaSet_p archive,
    {
       VarBankSetVCountsToUsed(terms->vars);
       IntMap_p sym_def_map = IntMapAlloc();
-      PTree_p def_wforms = create_sym_map(set, sym_def_map, unfold_only_forms);
+      OrdSet_p def_wforms = create_sym_map(set, sym_def_map, unfold_only_forms);
       intersimplify_definitions(terms, sym_def_map);
 
       for (WFormula_p form = set->anchor->succ; form != set->anchor; form = form->succ)
       {
-         if (!PTreeFind(&def_wforms, form))
+         if (!OrdSetFind(&def_wforms, form))
          {
-            PTree_p used_defs = NULL;
+            OrdSet_p used_defs = NULL;
             int max_steps = MAX_RW_STEPS;
             TFormula_p handle = do_rw_with_defs(terms, form->tformula,
                                                 sym_def_map, &used_defs,
@@ -2289,16 +2289,16 @@ long TFormulaSetUnfoldDefSymbols(FormulaSet_p set, FormulaSet_p archive,
                form->tformula = TermMap(terms, handle, unencode_eqns);
 
                DocFormulaModificationDefault(form, inf_fof_simpl);
-               PStack_p ptiter = PTreeTraverseInit(used_defs);
-               PTree_p node = NULL;
-               while ((node = PTreeTraverseNext(ptiter)))
+               OrdSetIter_p ptiter = OrdSetTraverseInit(used_defs);
+               OrdSet_p node = NULL;
+               while ((node = OrdSetTraverseNext(ptiter)))
                {
                   WFormulaPushDerivation(form, DCApplyDef, node->key);
                }
-               PTreeTraverseExit(ptiter);
+               OrdSetTraverseExit(ptiter);
                res++;
             }
-            PTreeFree(used_defs);
+            OrdSetFree(used_defs);
             /* if(TFormulaHasFreeVars(terms, form->tformula)) */
             /* { */
             /*    printf(COMCHAR" UnfoldDef Free Variable: "); */
@@ -2317,18 +2317,18 @@ long TFormulaSetUnfoldDefSymbols(FormulaSet_p set, FormulaSet_p archive,
       }
       IntMapIterFree(iter);
 
-      PStack_p titer = PTreeTraverseInit(def_wforms);
-      PTree_p node;
-      while ((node = PTreeTraverseNext(titer)))
+      OrdSetIter_p titer = OrdSetTraverseInit(def_wforms);
+      OrdSet_p node;
+      while ((node = OrdSetTraverseNext(titer)))
       {
          next = node->key;
          FormulaSetExtractEntry(next);
          FormulaSetInsert(archive, next);
       }
-      PTreeTraverseExit(titer);
+      OrdSetTraverseExit(titer);
 
       IntMapFree(sym_def_map);
-      PTreeFree(def_wforms);
+      OrdSetFree(def_wforms);
 
       return res;
    }
@@ -2367,7 +2367,7 @@ long TFormulaSetLiftLambdas(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
    if (problemType == PROBLEM_HO)
    {
       PStack_p defs = PStackAlloc();
-      PTree_p all_defs = NULL;
+      OrdSet_p all_defs = NULL;
       PDTree_p liftings = PDTreeAllocWDeleter(terms, deleter);
       for (WFormula_p form = set->anchor->succ; form != set->anchor; form = form->succ)
       {
@@ -2384,16 +2384,16 @@ long TFormulaSetLiftLambdas(FormulaSet_p set, FormulaSet_p archive, TB_p terms)
                FormulaSetType(def,CPTypeDefinition);
                WFormulaPushDerivation(def, DCIntroDef, def_pred);
                //WFormulaPushDerivation(form, DCApplyDef, def);
-               PTreeStore(&all_defs, def);
+               OrdSetStore(&all_defs, def);
                res++;
             }
          }
       }
 
-      PTreeVisitInOrder(all_defs, insert_to_set, set);
+      OrdSetVisit(all_defs, insert_to_set, set);
 
       PStackFree(defs);
-      PTreeFree(all_defs);
+      OrdSetFree(all_defs);
       PDTreeFree(liftings);
       return res;
    }
@@ -2761,7 +2761,7 @@ void ClauseSetLiftLambdas(ClauseSet_p set, FormulaSet_p archive, TB_p terms,
                           ClauseSet_p step_archive)
 {
    PStack_p defs = PStackAlloc();
-   PTree_p all_defs = NULL;
+   OrdSet_p all_defs = NULL;
    PDTree_p liftings = PDTreeAllocWDeleter(terms, deleter);
    Term_p lterm, rterm;
 
@@ -2792,14 +2792,14 @@ void ClauseSetLiftLambdas(ClauseSet_p set, FormulaSet_p archive, TB_p terms,
             WFormula_p def = PStackPopP(defs);
             DBGTermCheckUnownedSubterm(stdout, def->tformula, "ClauseSetLiftLambdas2");
             ClausePushDerivation(handle, DCLiftLambdas, def);
-            PTreeStore(&all_defs, def);
+            OrdSetStore(&all_defs, def);
          }
       }
    }
 
-   PStack_p def_iter = PTreeTraverseInit(all_defs);
-   PTree_p node;
-   while((node = PTreeTraverseNext(def_iter)))
+   OrdSetIter_p def_iter = OrdSetTraverseInit(all_defs);
+   OrdSet_p node;
+   while((node = OrdSetTraverseNext(def_iter)))
    {
       WFormula_p handle = node->key;
       DBGTermCheckUnownedSubterm(stdout, handle->tformula, "ClauseSetLiftLambdas3");
@@ -2820,10 +2820,10 @@ void ClauseSetLiftLambdas(ClauseSet_p set, FormulaSet_p archive, TB_p terms,
                    step_archive);
       FormulaSetInsert(archive, copy);
    }
-   PTreeTraverseExit(def_iter);
+   OrdSetTraverseExit(def_iter);
 
    PStackFree(defs);
-   PTreeFree(all_defs);
+   OrdSetFree(all_defs);
    PDTreeFree(liftings);
 }
 

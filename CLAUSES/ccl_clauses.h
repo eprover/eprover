@@ -426,7 +426,7 @@ bool    ClauseIsUntyped(Clause_p clause);
 
 bool    ClauseQueryLiteral(Clause_p clause, bool (*query_fun)(Eqn_p));
 bool    ClauseRecognizeChoice(IntMap_p choice_symbols_map, Clause_p cl);
-long    ClauseCollectGroundTerms(Clause_p clause, PTree_p *res, bool pos_lits,
+long    ClauseCollectGroundTerms(Clause_p clause, OrdSet_p *res, bool pos_lits,
                                  bool neg_lits, bool all_subterms);
 
 

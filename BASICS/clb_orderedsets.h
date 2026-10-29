@@ -62,7 +62,7 @@ typedef struct ordsetcell
 typedef struct ordsetitercell
 {
    OrdSet_p anchor;
-   OrdSet_p next;   /* Next element to return, or anchor at the end */
+   OrdSet_p next;   /* Next element in the list, anchor at the end */
 }OrdSetIterCell, *OrdSetIter_p;
 
 

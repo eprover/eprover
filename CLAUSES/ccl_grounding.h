@@ -100,7 +100,7 @@ void         VarSetInstFree(VarSetInst_p junk);
 
 VarSetInst_p VarSetConstrInstAlloc(LitOccTable_p p_table,
                                    LitOccTable_p n_table, Clause_p
-                                   clause, PTree_p ground_terms);
+                                   clause, OrdSet_p ground_terms);
 
 void VarSetConstrInstFree(VarSetInst_p junk);
 

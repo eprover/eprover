@@ -162,15 +162,15 @@ bool unif_all_pairs(PStack_p pairs, Subst_p subst)
 //
 /----------------------------------------------------------------------*/
 
-PTree_p collect_free_vars(Term_p t, TB_p bank, int idx_to_skip)
+OrdSet_p collect_free_vars(Term_p t, TB_p bank, int idx_to_skip)
 {
    assert(idx_to_skip < t->arity);
 
-   PTree_p res = NULL;
+   OrdSet_p res = NULL;
    TFormulaCollectFreeVars(bank, t, &res);
    if (TermIsFreeVar(t->args[idx_to_skip]))
    {
-      bool removed = PTreeDeleteEntry(&res, t->args[idx_to_skip]);
+      bool removed = OrdSetDeleteEntry(&res, t->args[idx_to_skip]);
       UNUSED(removed); // stiffle the warning in non-debug version
       assert(removed);
    }

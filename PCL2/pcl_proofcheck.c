@@ -423,8 +423,8 @@ static void eqn_print_dfg(FILE* out, Eqn_p eqn)
 static void clause_print_dfg(FILE* out, Clause_p clause)
 {
    Eqn_p    handle;
-   PTree_p  variables = NULL, cell;
-   PStack_p stack;
+   OrdSet_p  variables = NULL, cell;
+   OrdSetIter_p stack;
    Term_p   var;
    long     var_no;
 
@@ -433,22 +433,22 @@ static void clause_print_dfg(FILE* out, Clause_p clause)
    if(var_no)
    {
       fprintf(out, "forall([");
-      stack=PTreeTraverseInit(variables);
-      cell = PTreeTraverseNext(stack);
+      stack=OrdSetTraverseInit(variables);
+      cell = OrdSetTraverseNext(stack);
       if(cell)
       {
          assert(clause->literals);
          var = cell->key;
          TBPrintTerm(out, clause->literals->bank, var, true);
-         while((cell=PTreeTraverseNext(stack)))
+         while((cell=OrdSetTraverseNext(stack)))
          {
             fputc(',', out);
             var = cell->key;
             TBPrintTerm(out, clause->literals->bank, var, true);
          }
       }
-      PTreeTraverseExit(stack);
-      PTreeFree(variables);
+      OrdSetTraverseExit(stack);
+      OrdSetFree(variables);
       fprintf(out, "],");
    }
    fprintf(out, "or(");
@@ -576,7 +576,7 @@ static bool pcl_verify_spass(ClauseSet_p problem,char *executable,
 long PCLCollectPreconds(PCLProt_p prot, PCLStep_p step, ClauseSet_p
                         set)
 {
-   PTree_p   tree = NULL;
+   OrdSet_p   tree = NULL;
    PCLStep_p handle;
    Clause_p  clause;
    long      res = 0;
@@ -586,7 +586,7 @@ long PCLCollectPreconds(PCLProt_p prot, PCLStep_p step, ClauseSet_p
    PCLExprCollectPreconds(prot, step->just, &tree);
    while(tree)
    {
-      handle = PTreeExtractRootKey(&tree);
+      handle = OrdSetExtractFirst(&tree);
       if(PCLStepIsClausal(handle))
       {
          clause = ClauseCopy(handle->logic.clause, prot->terms);

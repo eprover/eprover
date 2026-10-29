@@ -809,11 +809,11 @@ static TFormula_p miniscope_qall(TB_p terms, TFormula_p form, Term_p var,
 /----------------------------------------------------------------------*/
 
 long tform_find_miniscopeable(Sig_p sig, TFormula_p form, long limit,
-                              PTree_p *candidates, bool *exq)
+                              OrdSet_p *candidates, bool *exq)
 {
    bool lexq = false;
    long size;
-   PTree_p lcands = NULL;
+   OrdSet_p lcands = NULL;
 
    assert(!TermIsFreeVar(form));
 
@@ -831,18 +831,18 @@ long tform_find_miniscopeable(Sig_p sig, TFormula_p form, long limit,
       if(form->f_code == sig->qex_code)
       {
          *exq = true;
-         PTreeMerge(candidates, lcands);
+         OrdSetMerge(candidates, lcands);
       }
       else /* Universal quantifier */
       {
          if(size<=limit && lexq)
          {
-            PTreeFree(lcands);
-            PTreeStore(candidates, form);
+            OrdSetFree(lcands);
+            OrdSetStore(candidates, form);
          }
          else
          {
-            PTreeMerge(candidates, lcands);
+            OrdSetMerge(candidates, lcands);
          }
          *exq = lexq;
       }
@@ -854,7 +854,7 @@ long tform_find_miniscopeable(Sig_p sig, TFormula_p form, long limit,
       {
          size += size+tform_find_miniscopeable(sig, form->args[0],
                                                limit, &lcands,  &lexq);
-         PTreeMerge(candidates, lcands);
+         OrdSetMerge(candidates, lcands);
          lcands = NULL;
          *exq |= lexq;
       }
@@ -862,7 +862,7 @@ long tform_find_miniscopeable(Sig_p sig, TFormula_p form, long limit,
       {
          size += size+tform_find_miniscopeable(sig, form->args[1],
                                                limit, &lcands,  &lexq);
-         PTreeMerge(candidates, lcands);
+         OrdSetMerge(candidates, lcands);
          *exq |= lexq;
       }
    }
@@ -1469,20 +1469,20 @@ TFormula_p TFormulaDefRename(TB_p bank, TFormula_p form, int polarity,
    }
    else
    {
-      PTree_p free_vars = NULL;
+      OrdSet_p free_vars = NULL;
       PStack_p var_stack = PStackAlloc();
       TFormula_p rename_atom;
 
       VarBankVarsSetProp(bank->vars, TPIsFreeVar);
       TFormulaCollectFreeVars(bank, form, &free_vars);
-      PTreeToPStack(var_stack, free_vars);
+      OrdSetToPStack(var_stack, free_vars);
       /* printf(COMCHAR" Found %d free variables\n", PStackGetSP(var_stack)); */
 
       rename_atom = TBAllocNewSkolem(bank, var_stack, bank->sig->type_bank->bool_type);
       rename_atom = EqnTermsTBTermEncode(bank, rename_atom,
                                          bank->true_term, true, PENormal);
       PStackFree(var_stack);
-      PTreeFree(free_vars);
+      OrdSetFree(free_vars);
 
       def = NumXTreeCellAlloc();
       def->key = form->entry_no;
@@ -2288,7 +2288,7 @@ TFormula_p TFormulaMiniScope2(TB_p terms, TFormula_p form,
 TFormula_p TFormulaMiniScope3(TB_p terms, TFormula_p form,
                               long miniscope_limit)
 {
-   PTree_p    ms_forms = NULL, entry;
+   OrdSet_p    ms_forms = NULL, entry;
    bool       exq = false;
    TFormula_p cand;
 
@@ -2298,29 +2298,29 @@ TFormula_p TFormulaMiniScope3(TB_p terms, TFormula_p form,
    if(ms_forms)
    {
       assert(exq);
-      PStack_p iter;
+      OrdSetIter_p iter;
 
       // printf(COMCHAR" Found %ld positions\n", PTreeNodes(ms_forms));
-      iter = PTreeTraverseInit(ms_forms);
-      while((entry = PTreeTraverseNext(iter)))
+      iter = OrdSetTraverseInit(ms_forms);
+      while((entry = OrdSetTraverseNext(iter)))
       {
          cand = entry->key;
          assert(!cand->binding);
          cand->binding = TFormulaMiniScope(terms, cand);
       }
-      PTreeTraverseExit(iter);
+      OrdSetTraverseExit(iter);
 
       form = tform_copy_mod(terms, form);
 
-      iter = PTreeTraverseInit(ms_forms);
-      while((entry = PTreeTraverseNext(iter)))
+      iter = OrdSetTraverseInit(ms_forms);
+      while((entry = OrdSetTraverseNext(iter)))
       {
          cand = entry->key;
          cand->binding = NULL;
       }
-      PTreeTraverseExit(iter);
+      OrdSetTraverseExit(iter);
    }
-   PTreeFree(ms_forms);
+   OrdSetFree(ms_forms);
 
    return form;
 }
@@ -2419,7 +2419,7 @@ TFormula_p TFormulaVarRename(TB_p terms, TFormula_p form)
 TFormula_p TFormulaSkolemizeOutermost(TB_p terms, TFormula_p form)
 {
    TFormula_p res = NULL;
-   PTree_p   free_vars = NULL;
+   OrdSet_p   free_vars = NULL;
    PStack_p  var_stack = PStackAlloc();
    Term_p    var;
 
@@ -2428,7 +2428,7 @@ TFormula_p TFormulaSkolemizeOutermost(TB_p terms, TFormula_p form)
    TFormulaCollectFreeVars(terms, form, &free_vars);
    while(free_vars)
    {
-      var = PTreeExtractRootKey(&free_vars);
+      var = OrdSetExtractFirst(&free_vars);
       PStackPushP(var_stack, var);
    }
    res = tformula_rek_skolemize(terms, form, var_stack);

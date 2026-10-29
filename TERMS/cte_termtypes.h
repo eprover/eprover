@@ -29,6 +29,7 @@ Created: Tue Feb 24 01:23:24 MET 1998 - Ripped out of the now obsolete
 #include <cte_signature.h>
 #include <clb_sysdate.h>
 #include <clb_ptrees.h>
+#include <clb_orderedsets.h>
 #include <clb_properties.h>
 #include <cte_simpletypes.h>
 

@@ -31,6 +31,7 @@
 
 #include "cio_scanner.h"
 #include <clb_ptrees.h>
+#include <clb_orderedsets.h>
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */

@@ -788,15 +788,15 @@ int prim_enum_var(ClauseSet_p store, Clause_p cl, PrimEnumMode mode, Term_p app_
    }
    if(mode == EqMode || mode == FullMode)
    {
-      PTree_p ret_types = NULL;
+      OrdSet_p ret_types = NULL;
       for(int i=1; i<app_var->arity; i++)
       {
-         PTreeStore(&ret_types, app_var->args[i]->type);
+         OrdSetStore(&ret_types, app_var->args[i]->type);
       }
 
-      PStack_p tys = PTreeTraverseInit(ret_types);
-      PTree_p next = NULL;
-      while((next=PTreeTraverseNext(tys)))
+      OrdSetIter_p tys = OrdSetTraverseInit(ret_types);
+      OrdSet_p next = NULL;
+      while((next=OrdSetTraverseNext(tys)))
       {
          Type_p ret_ty = next->key;
          Term_p eq_matrix =
@@ -809,8 +809,8 @@ int prim_enum_var(ClauseSet_p store, Clause_p cl, PrimEnumMode mode, Term_p app_
                            step_archive);
          generated_cls++;
       }
-      PTreeTraverseExit(tys);
-      PTreeFree(ret_types);
+      OrdSetTraverseExit(tys);
+      OrdSetFree(ret_types);
 
 
    }
@@ -1426,14 +1426,14 @@ void do_mk_choice_inst(ClauseSet_p store, IntMap_p choice_syms, Clause_p cl,
 
    Clause_p choice_def = IntMapGetVal(choice_syms, choice_code);
 #ifndef NDEBUG
-   PTree_p cl_vars = NULL, trig_vars = NULL;
+   OrdSet_p cl_vars = NULL, trig_vars = NULL;
    ClauseCollectVariables(choice_def, &cl_vars);
    TFormulaCollectFreeVars(choice_def->literals->bank, trigger, &trig_vars);
-   PTree_p intersection = PTreeIntersection(cl_vars, trig_vars);
+   OrdSet_p intersection = OrdSetIntersection(cl_vars, trig_vars);
    assert(intersection == NULL);
-   PTreeFree(cl_vars);
-   PTreeFree(trig_vars);
-   PTreeFree(intersection);
+   OrdSetFree(cl_vars);
+   OrdSetFree(trig_vars);
+   OrdSetFree(intersection);
 #endif
    Eqn_p neg_lit =
       EqnIsNegative(choice_def->literals)
@@ -1664,11 +1664,11 @@ void ComputeNegExt(ProofState_p state, ProofControl_p control, Clause_p clause)
 
       if (EqnIsNegative(lit) && lit_filter && needed_args > 0)
       {
-         PTree_p free_var_tree = NULL;
+         OrdSet_p free_var_tree = NULL;
          UNUSED(EqnCollectVariables(lit, &free_var_tree));
 
          PStack_p free_vars_stack = PStackAlloc();
-         PTreeToPStack(free_vars_stack, free_var_tree);
+         OrdSetToPStack(free_vars_stack, free_var_tree);
 
          int num_vars = PStackGetSP(free_vars_stack);
          Term_p *vars = TermArgTmpArrayAlloc(num_vars);
@@ -1713,7 +1713,7 @@ void ComputeNegExt(ProofState_p state, ProofControl_p control, Clause_p clause)
          TypeArgArrayFree(vars_types, num_vars);
          TermArgTmpArrayFree(vars, num_vars);
          PStackFree(free_vars_stack);
-         PTreeFree(free_var_tree);
+         OrdSetFree(free_var_tree);
       }
    }
 }
@@ -2684,19 +2684,19 @@ void PreinstantiateInduction(FormulaSet_p forms, ClauseSet_p cls, ClauseSet_p ar
    for(Clause_p handle = cls->anchor->succ; handle != cls->anchor;
        handle = handle->succ)
    {
-      PTree_p vars = NULL;
+      OrdSet_p vars = NULL;
       ClauseCollectVariables(handle, &vars);
 
-      PStack_p iter = PTreeTraverseInit(vars);
-      PTree_p node = NULL;
-      while((node = PTreeTraverseNext(iter)))
+      OrdSetIter_p iter = OrdSetTraverseInit(vars);
+      OrdSet_p node = NULL;
+      while((node = OrdSetTraverseNext(iter)))
       {
          instantiate_w_abstractions(node->key, handle, &terms_by_type, res,
                                     step_archive);
       }
 
-      PTreeFree(vars);
-      PStackFree(iter);
+      OrdSetFree(vars);
+      OrdSetTraverseExit(iter);
    }
 
    while(!PStackEmpty(res))

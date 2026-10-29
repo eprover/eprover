@@ -89,14 +89,14 @@ bool       TFormulaVarIsFree(TB_p bank, TFormula_p form, Term_p var);
 bool       TFormulaVarIsFreeCached(TB_p bank, TFormula_p form, Term_p var);
 #define    TFormulaCopy(bank, form) TBInsertNoPropsCached(bank, form, DEREF_ALWAYS)
 
-void       TFormulaCollectFreeVars(TB_p bank, TFormula_p form, PTree_p *vars);
+void       TFormulaCollectFreeVars(TB_p bank, TFormula_p form, OrdSet_p *vars);
 bool       TFormulaIsClosed(TB_p bank, TFormula_p form);
 TFormula_p TFormulaHasFreeVars(TB_p bank, TFormula_p form);
 TFormula_p TFormulaHasNonBoolSubForm(Sig_p sig, TFormula_p form);
 
 TFormula_p TFormulaAddQuantor(TB_p bank, TFormula_p form, bool universal, Term_p var);
 TFormula_p TFormulaAddQuantors(TB_p bank, TFormula_p form, bool universal,
-                               PTree_p vars);
+                               OrdSet_p vars);
 TFormula_p TFormulaClosure(TB_p bank, TFormula_p form, bool universal);
 TFormula_p TFormulaCreateDef(TB_p bank, TFormula_p def_atom, TFormula_p defined,
                              int polarity);

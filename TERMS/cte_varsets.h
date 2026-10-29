@@ -41,7 +41,7 @@ typedef struct var_set_cell
 {
    Term_p  t;           /* Term or formula covered by this structure */
    bool    valid;       /* Is it up-to-date? */
-   PTree_p vars;
+   OrdSet_p vars;
 }VarSetCell, *VarSet_p;
 
 

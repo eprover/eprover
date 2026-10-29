@@ -868,7 +868,7 @@ static TFormula_p literal_tform_tstp_parse(Scanner_p in, TB_p terms)
 //
 /----------------------------------------------------------------------*/
 
-static void tformula_collect_freevars(TB_p bank, TFormula_p form, PTree_p *vars)
+static void tformula_collect_freevars(TB_p bank, TFormula_p form, OrdSet_p *vars)
 {
    TermProperties old_prop;
 
@@ -891,7 +891,7 @@ static void tformula_collect_freevars(TB_p bank, TFormula_p form, PTree_p *vars)
    {
       if(TermCellQueryProp(form, TPIsFreeVar))
       {
-         PTreeStore(vars, form);
+         OrdSetStore(vars, form);
       }
    }
    else
@@ -901,7 +901,7 @@ static void tformula_collect_freevars(TB_p bank, TFormula_p form, PTree_p *vars)
          if(TermIsFreeVar(form->args[i]) &&
             TermCellQueryProp(form->args[i], TPIsFreeVar))
          {
-            PTreeStore(vars, form->args[i]);
+            OrdSetStore(vars, form->args[i]);
          }
          else
          {
@@ -1169,11 +1169,11 @@ Term_p lift_lambda(TB_p terms, PStack_p bound_vars, Term_p body,
    assert(!TermHasLambdaSubterm(body)); // LiftLambda recursively called before
 
    // storing all free variables of body in free_var_stack
-   PTree_p free_vars = NULL;
+   OrdSet_p free_vars = NULL;
    TFormulaCollectFreeVars(terms, body, &free_vars);
    PStack_p free_var_stack = PStackAlloc();
-   PTreeToPStack(free_var_stack, free_vars);
-   PTreeFree(free_vars);
+   OrdSetToPStack(free_var_stack, free_vars);
+   OrdSetFree(free_vars);
 
    // creating a stack of fresh variables that correspond to the
    // the lambda prefix of the term
@@ -2278,7 +2278,7 @@ bool TFormulaVarIsFree(TB_p bank, TFormula_p form, Term_p var)
 //
 /----------------------------------------------------------------------*/
 
-void TFormulaCollectFreeVars(TB_p bank, TFormula_p form, PTree_p *vars)
+void TFormulaCollectFreeVars(TB_p bank, TFormula_p form, OrdSet_p *vars)
 {
    VarBankVarsSetProp(bank->vars, TPIsFreeVar);
    tformula_collect_freevars(bank, form, vars);
@@ -2298,10 +2298,10 @@ void TFormulaCollectFreeVars(TB_p bank, TFormula_p form, PTree_p *vars)
 
 bool TFormulaIsClosed(TB_p bank, TFormula_p form)
 {
-   PTree_p vars = NULL;
+   OrdSet_p vars = NULL;
    TFormulaCollectFreeVars(bank, form, &vars);
    bool ans  = vars == NULL;
-   PTreeFree(vars);
+   OrdSetFree(vars);
    return ans;
 }
 
@@ -2322,14 +2322,14 @@ bool TFormulaIsClosed(TB_p bank, TFormula_p form)
 TFormula_p TFormulaHasFreeVars(TB_p bank, TFormula_p form)
 {
    TFormula_p res = NULL;
-   PTree_p dummy = NULL;
+   OrdSet_p dummy = NULL;
 
    TFormulaCollectFreeVars(bank, form, &dummy);
    if (dummy!=NULL)
    {
-      res = dummy->key;
+      res = OrdSetFirst(dummy)->key;
    }
-   PTreeFree(dummy);
+   OrdSetFree(dummy);
    return res;
 }
 
@@ -2470,14 +2470,15 @@ TFormula_p TFormulaAddQuantor(TB_p bank, TFormula_p form, bool universal, Term_p
 /----------------------------------------------------------------------*/
 
 TFormula_p TFormulaAddQuantors(TB_p bank, TFormula_p form, bool universal,
-                               PTree_p vars)
+                               OrdSet_p vars)
 {
    PStack_p var_stack = PStackAlloc();
    PStackPointer i;
    Term_p var;
 
-   PTreeToPStack(var_stack,vars);
-   for(i=0; i<PStackGetSP(var_stack); i++)
+   OrdSetToPStack(var_stack,vars);
+   /* Innermost quantor first, so that X1 ends up outermost */
+   for(i=PStackGetSP(var_stack)-1; i>=0; i--)
    {
       var = PStackElementP(var_stack, i);
       form = TFormulaAddQuantor(bank, form, universal, var);
@@ -2501,12 +2502,12 @@ TFormula_p TFormulaAddQuantors(TB_p bank, TFormula_p form, bool universal,
 
 TFormula_p TFormulaClosure(TB_p bank, TFormula_p form, bool universal)
 {
-   PTree_p vars = NULL;
+   OrdSet_p vars = NULL;
 
    VarBankVarsSetProp(bank->vars, TPIsFreeVar);
    TFormulaCollectFreeVars(bank, form, &vars);
    form = TFormulaAddQuantors(bank, form, universal, vars);
-   PTreeFree(vars);
+   OrdSetFree(vars);
 
    return form;
 }
@@ -2528,7 +2529,7 @@ TFormula_p TFormulaClosure(TB_p bank, TFormula_p form, bool universal)
 TFormula_p TFormulaCreateDef(TB_p bank, TFormula_p def_atom, TFormula_p defined,
                              int polarity)
 {
-   PTree_p vars=NULL;
+   OrdSet_p vars=NULL;
    TFormula_p res = NULL;
 
    switch(polarity)
@@ -2552,7 +2553,7 @@ TFormula_p TFormulaCreateDef(TB_p bank, TFormula_p def_atom, TFormula_p defined,
    TermCollectVariables(def_atom, &vars);
    //TFormulaCollectFreeVars(bank, def_atom, &vars);
    res = TFormulaAddQuantors(bank, res, true, vars);
-   PTreeFree(vars);
+   OrdSetFree(vars);
 
    return res;
 }

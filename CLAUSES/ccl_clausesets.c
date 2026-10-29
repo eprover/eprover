@@ -1758,12 +1758,13 @@ bool ClauseSetVerifyDemod(ClauseSet_p demods, ClausePos_p pos)
 
 bool PDTreeVerifyIndex(PDTree_p tree, ClauseSet_p demods)
 {
-   PStack_p stack = PStackAlloc(), trav;
+   PStack_p stack = PStackAlloc();
+   OrdSetIter_p trav;
    PDTNode_p handle;
    long             i;
    IntMapIter_p     iter;
    ClausePos_p      pos;
-   PTree_p          entry;
+   OrdSet_p          entry;
    bool             res = true;
 
    PStackPushP(stack, tree->tree);
@@ -1801,8 +1802,8 @@ bool PDTreeVerifyIndex(PDTree_p tree, ClauseSet_p demods)
       }
       else
       {
-         trav = PTreeTraverseInit(handle->entries);
-         while((entry = PTreeTraverseNext(trav)))
+         trav = OrdSetTraverseInit(handle->entries);
+         while((entry = OrdSetTraverseNext(trav)))
          {
             pos = entry->key;
             if(!ClauseSetFind(demods, pos->clause))
@@ -1815,7 +1816,7 @@ bool PDTreeVerifyIndex(PDTree_p tree, ClauseSet_p demods)
                   printf("\n"); */
             }
          }
-         PTreeTraverseExit(trav);
+         OrdSetTraverseExit(trav);
       }
    }
    PStackFree(stack);
@@ -2088,7 +2089,7 @@ FunCode ClauseSetFindFreqSymbol(ClauseSet_p set, Sig_p sig, int arity,
 long ClauseSetMaxVarNumber(ClauseSet_p set)
 {
    long res=0, tmp;
-   PTree_p tree;
+   OrdSet_p tree;
    Clause_p handle;
 
    for(handle = set->anchor->succ; handle!= set->anchor; handle =
@@ -2096,7 +2097,7 @@ long ClauseSetMaxVarNumber(ClauseSet_p set)
    {
       tree = NULL;
       tmp = ClauseCollectVariables(handle, &tree);
-      PTreeFree(tree);
+      OrdSetFree(tree);
       res = MAX(res, tmp);
    }
    return res;

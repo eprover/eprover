@@ -121,7 +121,7 @@ void find_level_fcodes(Relevance_p reldata, long level)
 void extract_new_core(Relevance_p reldata)
 {
    FunCode f;
-   PTree_p root;
+   OrdSet_p root;
    PList_p entry;
 
    while(!PStackEmpty(reldata->new_codes))
@@ -130,14 +130,14 @@ void extract_new_core(Relevance_p reldata)
 
       while((root = PDArrayElementP(reldata->clauses_index->index, f)))
       {
-         entry = root->key;
+         entry = OrdSetFirst(root)->key;
          FIndexRemovePLClause(reldata->clauses_index, entry);
          PListExtract(entry);
          PListInsert(reldata->clauses_core, entry);
       }
       while((root = PDArrayElementP(reldata->formulas_index->index, f)))
       {
-         entry = root->key;
+         entry = OrdSetFirst(root)->key;
          FIndexRemovePLFormula(reldata->formulas_index, entry);
          PListExtract(entry);
          PListInsert(reldata->formulas_core, entry);

@@ -101,13 +101,13 @@ void print_lvl(FILE* out, int level)
 //
 /----------------------------------------------------------------------*/
 
-void print_clauses(FILE* out, PTree_p clauses, int level, bool fullterms)
+void print_clauses(FILE* out, OrdSet_p clauses, int level, bool fullterms)
 {
-   PStack_p stack = PTreeTraverseInit(clauses);
-   PTree_p  node  = NULL;
+   OrdSetIter_p stack = OrdSetTraverseInit(clauses);
+   OrdSet_p  node  = NULL;
    Clause_p cl_handle   = NULL;
 
-   while((node = PTreeTraverseNext(stack)))
+   while((node = OrdSetTraverseNext(stack)))
    {
       cl_handle = node->key;
       print_lvl(out, level);
@@ -115,7 +115,7 @@ void print_clauses(FILE* out, PTree_p clauses, int level, bool fullterms)
       fprintf(stderr, " \n");
    }
 
-   PTreeTraverseExit(stack);
+   OrdSetTraverseExit(stack);
 }
 
 
@@ -283,7 +283,7 @@ void FVIndexFree(FVIndex_p junk)
    {
       if(junk->final)
       {
-         PTreeFree(junk->u1.clauses);
+         OrdSetFree(junk->u1.clauses);
       }
       else if(junk->u1.successors)
       {
@@ -428,7 +428,7 @@ void FVIndexInsert(FVIAnchor_p index, FreqVector_p vec_clause)
       handle->clause_count++;
    }
    handle->final = true;
-   PTreeStore(&(handle->u1.clauses), vec_clause->clause);
+   OrdSetStore(&(handle->u1.clauses), vec_clause->clause);
    /* ClauseSetProp(vec_clause->clause, CPIsSIndexed); */
    PERF_CTR_EXIT(FVIndexTimer);
 }
@@ -475,7 +475,7 @@ bool FVIndexDelete(FVIAnchor_p index, Clause_p clause)
    }
    FreqVectorFree(vec);
    /* ClauseDelProp(clause, CPIsSIndexed); */
-   res = handle?PTreeDeleteEntry(&(handle->u1.clauses), clause):false;
+   res = handle?OrdSetDeleteEntry(&(handle->u1.clauses), clause):false;
    PERF_CTR_EXIT(FVIndexTimer);
    return res;
 }

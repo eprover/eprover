@@ -38,8 +38,8 @@ typedef struct atom_cell
 {
    long pos_occur;
    long neg_occur;
-   PTree_p pos_active;
-   PTree_p neg_active;
+   OrdSet_p pos_active;
+   OrdSet_p neg_active;
 }AtomCell, *Atom_p;
 
 typedef struct dpllrep_cell

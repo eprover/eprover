@@ -124,8 +124,8 @@ void DPLLFormulaFree(DPLLFormula_p junk)
 
    for(i=0; i<junk->atom_no; i++)
    {
-      PTreeFree(junk->atoms[i].pos_active);
-      PTreeFree(junk->atoms[i].neg_active);
+      OrdSetFree(junk->atoms[i].pos_active);
+      OrdSetFree(junk->atoms[i].neg_active);
    }
    FREE(junk->atoms);
    while(!PStackEmpty(junk->clauses))
@@ -213,13 +213,13 @@ void DPLLRegisterClauseLiteral(DPLLFormula_p form,
    if(lit>0)
    {
       form->atoms[atom].pos_occur++;
-      res = PTreeStore(&(form->atoms[atom].pos_active), clause);
+      res = OrdSetStore(&(form->atoms[atom].pos_active), clause);
       UNUSED(res); assert(res && "Duplicate entry of a clause!");
    }
    else
    {
       form->atoms[atom].neg_occur++;
-      res = PTreeStore(&(form->atoms[atom].neg_active), clause);
+      res = OrdSetStore(&(form->atoms[atom].neg_active), clause);
       UNUSED(res); assert(res && "Duplicate entry of a clause!");
    }
 }

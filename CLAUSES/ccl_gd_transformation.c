@@ -199,8 +199,8 @@ long ClauseSetGDTransform(TB_p terms,
 {
    long res = 0;
    Clause_p handle;
-   PTree_p goal_terms = NULL, cell;
-   PStack_p iter_stack;
+   OrdSet_p goal_terms = NULL, cell;
+   OrdSetIter_p iter_stack;
    Term_p term;
    NumTree_p defs = NULL;
 
@@ -216,9 +216,9 @@ long ClauseSetGDTransform(TB_p terms,
                                   add_goal_defs_subterms);
       }
    }
-   iter_stack = PTreeTraverseInit(goal_terms);
+   iter_stack = OrdSetTraverseInit(goal_terms);
 
-   while((cell = PTreeTraverseNext(iter_stack)))
+   while((cell = OrdSetTraverseNext(iter_stack)))
    {
       term = cell->key;
       assert(TermIsGround(term));
@@ -234,8 +234,8 @@ long ClauseSetGDTransform(TB_p terms,
          }
       }
    }
-   PTreeTraverseExit(iter_stack);
-   PTreeFree(goal_terms);
+   OrdSetTraverseExit(iter_stack);
+   OrdSetFree(goal_terms);
    NumTreeFree(defs);
 
    return res;
