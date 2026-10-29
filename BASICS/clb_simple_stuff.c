@@ -367,6 +367,38 @@ void SetProblemType(ProblemType t)
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: CommentPrint()
+//
+//   Like fprintf(), but print the comment character (COMCHARRAW)
+//   first. Return the number of characters printed, or a negative
+//   value on error (as fprintf()).
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+int CommentPrint(FILE* out, const char* format, ...)
+{
+   va_list ap;
+   int     res;
+
+   /* COMCHAR is format-escaped ("%%"), so print the raw version */
+   if(fputs(COMCHARRAW, out) < 0)
+   {
+      return -1;
+   }
+   va_start(ap, format);
+   res = vfprintf(out, format, ap);
+   va_end(ap);
+
+   return res < 0 ? res : res + (int)strlen(COMCHARRAW);
+}
+
+
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/

@@ -103,6 +103,9 @@ long   ComputeGCD(long a, long b);
 
 void   SetProblemType(ProblemType t);
 
+int    CommentPrint(FILE* out, const char* format, ...)
+   __attribute__((format(printf, 2, 3)));
+
 #define DBG_PRINT(out, prefix, main, suffix) \
    fprintf(out, "%s", prefix);\
    main;\
