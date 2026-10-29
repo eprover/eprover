@@ -540,6 +540,25 @@ static void print_proof_stats(ProverRun_p run)
 
 /*-----------------------------------------------------------------------
 //
+// Function: reapply_user_options()
+//
+//   Process the command line again, so that options given by the
+//   user override the values of a strategy just loaded into h_parms.
+//
+// Global Variables: All set by process_options()
+//
+// Side Effects    : Sets option variables and h_parms.
+//
+/----------------------------------------------------------------------*/
+
+static void reapply_user_options(int argc, char* argv[])
+{
+   CLStateFree(process_options(argc, argv));
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: prover_init()
 //
 //   Initialize I/O, signals and parameter cells, process the command
@@ -647,8 +666,7 @@ static void select_preproc_strategy(int argc, char* argv[], ProverRun_p run)
                                                  &(run->raw_features),
                                                  wc_sched_limit);
 
-      CLStateFree(process_options(argc, argv)); // refilling the h_parms
-                                                // with manual user options
+      reapply_user_options(argc, argv);
    }
 
 //#ifndef NDEBUG
@@ -660,8 +678,7 @@ static void select_preproc_strategy(int argc, char* argv[], ProverRun_p run)
                 h_parms->sine);
 //#endif
    strategy_io(h_parms, hcb_definitions);
-   CLStateFree(process_options(argc, argv)); // refilling the h_parms
-                                             // with manual user options
+   reapply_user_options(argc, argv);
    //HeuristicParmsPrint(GlobalOut, h_parms);
 }
 
@@ -846,8 +863,7 @@ static void select_search_strategy(int argc, char* argv[], ProverRun_p run)
          h_parms->inst_choice_max_depth = choice_max_depth;
       }
       FREE(class);
-      CLStateFree(process_options(argc, argv)); // refilling the h_parms
-                                                // with manual user options
+      reapply_user_options(argc, argv);
    }
    if(run->spec_limits)
    {
@@ -1523,9 +1539,13 @@ bool check_fp_index_arg(char* arg, char* opt)
 // Function: process_options()
 //
 //   Read and process the command line option, return (the pointer to)
-//   a CLState object containing the remaining arguments.
+//   a CLState object containing the remaining arguments. This is
+//   called again (via reapply_user_options()) after each strategy
+//   change. Weight function and heuristic definitions are only
+//   collected on the first call.
 //
-// Global Variables: opts, Verbose, TBPrintInternalInfo
+// Global Variables: opts, Verbose, TBPrintInternalInfo,
+//                   wfcb_definitions, hcb_definitions
 //
 // Side Effects    : Sets variables, may terminate with program
 //                   description if option -h or --help was present
@@ -1534,6 +1554,7 @@ bool check_fp_index_arg(char* arg, char* opt)
 
 CLState_p process_options(int argc, char* argv[])
 {
+   static bool first_pass = true;
    Opt_p handle;
    CLState_p state;
    char*  arg;
@@ -2355,11 +2376,17 @@ CLState_p process_options(int argc, char* argv[])
             h_parms->detsort_tmpset = true;
             break;
       case OPT_DEFINE_WFUN:
-            PStackPushP(wfcb_definitions, arg);
+            if(first_pass)
+            {
+               PStackPushP(wfcb_definitions, arg);
+            }
             break;
       case OPT_DEFINE_HEURISTIC:
             /* Note that we postprocess this at the end */
-            PStackPushP(hcb_definitions, arg);
+            if(first_pass)
+            {
+               PStackPushP(hcb_definitions, arg);
+            }
             break;
       case OPT_FREE_NUMBERS:
             free_symb_prop = free_symb_prop|FPIsInteger|FPIsRational|FPIsFloat;
@@ -2611,6 +2638,7 @@ CLState_p process_options(int argc, char* argv[])
    {
       set_limits(HardTimeLimit, SoftTimeLimit, h_parms->mem_limit);
    }
+   first_pass = false;
 
    return state;
 }
