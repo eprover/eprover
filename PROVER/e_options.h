@@ -660,9 +660,9 @@ OptCell opts[] =
    {OPT_TSTP_PARSE,
     '\0', "tstp-in",
     NoArg, NULL,
-    "Set TPTP-3 as the input format TPTP-3 syntax is still under "
+    "Set TPTP-3 as the input format. TPTP-3 syntax is under ongoing "
     "development, and any given version in E may not be "
-    "fully conforming at all times. E works on all TPTP 8.2.0 FOF "
+    "fully conforming at all times. E works on all TPTP 9.2.1 FOF "
     "and CNF files (including includes)."},
 
    {OPT_TSTP_PRINT,
