@@ -647,7 +647,7 @@ Term_p VarBankExtNameAssertAllocSort(VarBank_p bank, char* name, Type_p type)
 
    if(Verbose>=5)
    {
-      fprintf(stderr, COMCHAR" Alloc variable %s with sort ", name);
+      CommentPrint(stderr, " Alloc variable %s with sort ", name);
       TypePrintTSTP(stderr, bank->sort_table, type);
       fputc('\n', stderr);
    }

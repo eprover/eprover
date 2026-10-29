@@ -149,19 +149,19 @@ int main(int argc, char* argv[])
    KBDescFree(handle);
 
    out = OutOpen(KBFileName(name, basename, "signature"));
-   fprintf(out,
-           COMCHAR" Special function symbols that are not generalized.\n"
-           COMCHAR" You need to hand-hack this at the moment.\n");
+   CommentPrint(out,
+                " Special function symbols that are not generalized.\n"
+                COMCHAR" You need to hand-hack this at the moment.\n");
    OutClose(out);
 
    out = OutOpen(KBFileName(name, basename, "problems"));
-   fprintf(out,
-           COMCHAR" Example names and features. \n");
+   CommentPrint(out,
+                " Example names and features. \n");
    OutClose(out);
 
    out = OutOpen(KBFileName(name, basename, "clausepatterns"));
-   fprintf(out,
-           COMCHAR" Individual annotated patterns. \n");
+   CommentPrint(out,
+                " Individual annotated patterns. \n");
    OutClose(out);
 
    VERBOUT("...done.\nCreating subdirectory FILES...\n");

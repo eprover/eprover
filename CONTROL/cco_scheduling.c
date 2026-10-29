@@ -223,9 +223,9 @@ void ScheduleTimesInitMultiCore(ScheduleCell sched[], double time_used,
       sched[i].time_absolute = preprocessing_schedule ? tmp :  MIN(tmp, limit-sum);
       sum = sum+sched[i].time_absolute;
    }
-   fprintf(GlobalOut,
-           COMCHAR" Scheduled %d strats onto %d cores with %ju seconds (%ju total)\n",
-           i, *cores, (uintmax_t)limit, (uintmax_t)sum);
+   CommentPrint(GlobalOut,
+                " Scheduled %d strats onto %d cores with %ju seconds (%ju total)\n",
+                i, *cores, (uintmax_t)limit, (uintmax_t)sum);
 }
 
 
@@ -294,7 +294,7 @@ int ExecuteScheduleMultiCore(ScheduleCell strats[],
       handle = EGPCtrlSetGetResult(procs);
       if(handle)
       {
-         fprintf(GlobalOut, COMCHAR" Result found by %s\n", handle->name);
+         CommentPrint(GlobalOut, " Result found by %s\n", handle->name);
          fputs(DStrView(handle->output), GlobalOut);
          fflush(GlobalOut);
          if(print_rusage)
@@ -314,7 +314,7 @@ int ExecuteScheduleMultiCore(ScheduleCell strats[],
 
    EGPCtrlSetFree(procs, true);
 
-   fprintf(GlobalOut, COMCHAR" Schedule exhausted\n");
+   CommentPrint(GlobalOut, " Schedule exhausted\n");
    if(print_rusage)
    {
       PrintRusage(GlobalOut);

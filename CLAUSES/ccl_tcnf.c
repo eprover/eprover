@@ -1355,7 +1355,7 @@ long TFormulaEstimateClauses(TB_p bank, TFormula_p form, bool pos)
       {
          return 1;
 #ifndef NDEBUG
-         fprintf(stdout, COMCHAR" Error in ");
+         CommentPrint(stdout, " Error in ");
          TermPrintDbg(stdout, form, bank->sig, DEREF_NEVER);
          fprintf(stdout, "\n");
          TermPrettyPrintSimple(stdout, form, bank->sig, 0);
@@ -1418,7 +1418,7 @@ long TFormulaEstimateClauses(TB_p bank, TFormula_p form, bool pos)
       {
          return 1;
 #ifndef NDEBUG
-         fprintf(stdout, COMCHAR" Error in ");
+         CommentPrint(stdout, " Error in ");
          TermPrintDbg(stdout, form, bank->sig, DEREF_NEVER);
          fprintf(stdout, "\n");
          TermPrettyPrintSimple(stdout, form, bank->sig, 0);

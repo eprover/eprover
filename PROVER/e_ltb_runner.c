@@ -282,7 +282,7 @@ int main(int argc, char* argv[])
          now = GetSecTime();
          fprintf(GlobalOut, "\n\n"COMCHAR" == WCT: %4lds, Solved: %4ld/%4ld    ==\n",
                  now-start, res, BatchSpecProblemNo(spec));
-         fprintf(GlobalOut, COMCHAR" =============== Batch done ===========\n\n");
+         CommentPrint(GlobalOut, " =============== Batch done ===========\n\n");
          if(interactive)
          {
             BatchProcessInteractive(spec, ctrl, stdout);
@@ -294,7 +294,7 @@ int main(int argc, char* argv[])
          BatchProcessVariants(spec, use_variants,
                               provers, start, ScannerGetDefaultDir(in),
                               outdir);
-         fprintf(GlobalOut, COMCHAR" =============== Variant batch done ===========\n\n");
+         CommentPrint(GlobalOut, " =============== Variant batch done ===========\n\n");
       }
       BatchSpecFree(spec);
    }

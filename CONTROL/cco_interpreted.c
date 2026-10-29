@@ -117,7 +117,7 @@ void ClausePrintAnswer(FILE* out, Clause_p clause, ProofState_p state)
          TSTPOUT(GlobalOut, "Theorem");
          state->status_reported = true;
       }
-      fprintf(out, COMCHAR" SZS answers Tuple [");
+      CommentPrint(out, " SZS answers Tuple [");
       fprintf(out, "%s", ClauseLiteralNumber(clause)>1?"(":"");
       handle = clause->literals;
       if(handle)

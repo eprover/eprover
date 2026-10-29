@@ -131,10 +131,10 @@ void TermPosDebugPrint(FILE* out, Sig_p sig, TermPos_p pos)
 {
    PStackPointer i;
 
-   fprintf(out, COMCHAR" TermPos--\n");
+   CommentPrint(out, " TermPos--\n");
    for(i=0; i<PStackGetSP(pos); i+=2)
    {
-      fprintf(out, COMCHAR" ");
+      CommentPrint(out, " ");
       if(sig)
       {
     TermPrint(out, PStackElementP(pos, i), sig, DEREF_NEVER);
@@ -147,7 +147,7 @@ void TermPosDebugPrint(FILE* out, Sig_p sig, TermPos_p pos)
       }
       fprintf(out, " Subterm %ld\n", PStackElementInt(pos, i+1));
    }
-   fprintf(out, COMCHAR" --TermPos\n");
+   CommentPrint(out, " --TermPos\n");
 }
 
 /*---------------------------------------------------------------------*/

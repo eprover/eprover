@@ -531,7 +531,7 @@ long StructFOFSpecParseAxioms(StructFOFSpec_p ctrl, PStack_p axfiles,
          {
             ScannerSetFormat(in, parse_format);
 
-            fprintf(GlobalOut, COMCHAR" Parsing %s\n", iname);
+            CommentPrint(GlobalOut, " Parsing %s\n", iname);
             cset = ClauseSetAlloc();
             fset = FormulaSetAlloc();
             TBGCRegisterFormulaSet(ctrl->terms, fset);
@@ -552,7 +552,7 @@ long StructFOFSpecParseAxioms(StructFOFSpec_p ctrl, PStack_p axfiles,
         }
          else
          {
-            fprintf(GlobalOut, COMCHAR" Could not find %s\n", iname);
+            CommentPrint(GlobalOut, " Could not find %s\n", iname);
          }
       }
    }
@@ -618,10 +618,10 @@ long ProofStateSinE(ProofState_p state, char* fname)
 
    if(!fname)
    {
-      fprintf(GlobalOut, COMCHAR" No SInE strategy applied\n");
+      CommentPrint(GlobalOut, " No SInE strategy applied\n");
       return 0;
    }
-   fprintf(GlobalOut, COMCHAR" SinE strategy is %s\n", fname);
+   CommentPrint(GlobalOut, " SinE strategy is %s\n", fname);
 
    filter = sine_get_filter(fname, &filters);
 

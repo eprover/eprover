@@ -60,7 +60,7 @@ static bool pcl_run_prover(char* command, char*success)
 
    if(OutputLevel>1)
    {
-      fprintf(GlobalOut, COMCHAR" Running %s\n", command);
+      CommentPrint(GlobalOut, " Running %s\n", command);
    }
    ppipe=popen(command, "r");
    if(!ppipe)
@@ -76,7 +76,7 @@ static bool pcl_run_prover(char* command, char*success)
       }
       if(OutputLevel >= 3)
       {
-         fprintf(GlobalOut, COMCHAR"> %s", line);
+         CommentPrint(GlobalOut, "> %s", line);
       }
    }
    pclose(ppipe);
@@ -125,9 +125,9 @@ static bool pcl_verify_eprover(ClauseSet_p problem,char *executable,
 
    if(!res)
    {
-      fprintf(GlobalOut, COMCHAR" ------------Problem begin--------------\n");
+      CommentPrint(GlobalOut, " ------------Problem begin--------------\n");
       FilePrint(GlobalOut, name);
-      fprintf(GlobalOut, COMCHAR" ------------Problem end----------------\n");
+      CommentPrint(GlobalOut, " ------------Problem end----------------\n");
    }
 
    TempFileRemove(name);
@@ -310,9 +310,9 @@ static bool pcl_verify_otter(ClauseSet_p problem,char *executable,
 
    if(!res)
    {
-      fprintf(GlobalOut, COMCHAR" ------------Problem begin--------------\n");
+      CommentPrint(GlobalOut, " ------------Problem begin--------------\n");
       FilePrint(GlobalOut, name);
-      fprintf(GlobalOut, COMCHAR" ------------Problem end----------------\n");
+      CommentPrint(GlobalOut, " ------------Problem end----------------\n");
    }
 
    TempFileRemove(name);
@@ -544,9 +544,9 @@ static bool pcl_verify_spass(ClauseSet_p problem,char *executable,
    res = pcl_run_prover(DStrView(command), "Proof found.");
    if(!res)
    {
-      fprintf(GlobalOut, COMCHAR" ------------Problem begin--------------\n");
+      CommentPrint(GlobalOut, " ------------Problem begin--------------\n");
       FilePrint(GlobalOut, name);
-      fprintf(GlobalOut, COMCHAR" ------------Problem end----------------\n");
+      CommentPrint(GlobalOut, " ------------Problem end----------------\n");
    }
 
    TempFileRemove(name);
@@ -775,7 +775,7 @@ long PCLProtCheck(PCLProt_p prot, ProverType prover, char* executable,
       step = PStackElementP(stack,i);
       if(OutputLevel)
       {
-         fprintf(GlobalOut, COMCHAR" Checking ");
+         CommentPrint(GlobalOut, " Checking ");
          PCLStepPrint(GlobalOut, step);
          fputc('\n', GlobalOut);
       }

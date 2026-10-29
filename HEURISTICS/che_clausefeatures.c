@@ -499,7 +499,7 @@ void ClausePropInfoPrint(FILE* out, Clause_p clause)
 {
    assert(clause);
 
-   fprintf(out, COMCHAR" ");
+   CommentPrint(out, " ");
    ClausePCLPrint(out, clause, true);
    fprintf(out,
       "\n"

@@ -2369,12 +2369,12 @@ void ClauseSetDerivationStackStatistics(ClauseSet_p set)
    }
    for(i=0; i<PDArraySize(dist); i++)
    {
-      printf(COMCHAR" %5ld: %6ld\n", i, PDArrayElementInt(dist,i));
+      CommentPrint(stdout, " %5ld: %6ld\n", i, PDArrayElementInt(dist,i));
       sum += PDArrayElementInt(dist,i)*i;
    }
-   printf(COMCHAR" Average over %ld clauses: %f\n",
-          ClauseSetCardinality(set),
-          sum/ClauseSetCardinality(set));
+   CommentPrint(stdout, " Average over %ld clauses: %f\n",
+                ClauseSetCardinality(set),
+                sum/ClauseSetCardinality(set));
    PDArrayFree(dist);
 }
 

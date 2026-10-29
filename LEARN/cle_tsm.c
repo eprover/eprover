@@ -217,8 +217,9 @@ static double evaluate_index_desc(TSMAdmin_p admin, FlatAnnoSet_p set,
 
    if(OutputLevel)
    {
-      printf(COMCHAR" Index type = %2d, depth = %2ld, relative gain = %f\n",
-             indextype, depth, relgain);
+      CommentPrint(stdout,
+                   " Index type = %2d, depth = %2ld, relative gain = %f\n",
+                   indextype, depth, relgain);
    }
    return relgain;
 }
@@ -763,8 +764,8 @@ IndexType TSMFindOptimalIndex(TSMAdmin_p admin, FlatAnnoSet_p set,
    *depth = best_depth;
    if(OutputLevel)
    {
-      fprintf(GlobalOut, COMCHAR" Selected: %2d  depth: %2ld\n", best_index,
-              best_depth);
+      CommentPrint(GlobalOut, " Selected: %2d  depth: %2ld\n", best_index,
+                   best_depth);
    }
    return best_index;
 }
@@ -1337,8 +1338,8 @@ void TSMPrintFlat(FILE* out, TSM_p tsm)
       tsa = PDArrayElementP(tsm->tsas, i);
       if(tsa)
       {
-         fprintf(out, COMCHAR" %3ld: Weight = %6.3f EvalWeight = %6.3f\n",
-                 i, tsa->eval, tsa->eval_weight);
+         CommentPrint(out, " %3ld: Weight = %6.3f EvalWeight = %6.3f\n",
+                      i, tsa->eval, tsa->eval_weight);
       }
    }
 }

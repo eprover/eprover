@@ -410,14 +410,14 @@ int main(int argc, char* argv[])
    {
       max_lemmas = PCLProtStepNo(prot) * max_lemmas_rel +0.99;
    }
-   printf(COMCHAR" Selecting at most %ld lemmas\n", max_lemmas);
+   CommentPrint(stdout, " Selecting at most %ld lemmas\n", max_lemmas);
    if(min_quality_rel_p)
    {
       PCLProtComputeProofSize(prot, iw, false);
       step = PCLProtComputeLemmaWeights(prot, lp);
       min_quality = step?(step->lemma_quality*min_quality_rel):0;
    }
-   printf(COMCHAR" Minimum lemma quality: %f\n", min_quality);
+   CommentPrint(stdout, " Minimum lemma quality: %f\n", min_quality);
 
    switch(algo)
    {

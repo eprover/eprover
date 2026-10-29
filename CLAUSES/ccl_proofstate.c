@@ -616,19 +616,19 @@ void ProofStateTrain(ProofState_p state, bool print_pos, bool print_neg)
 
    ProofStatePickTrainingExamples(state, pos_examples, neg_examples);
 
-   fprintf(GlobalOut, COMCHAR" Training examples: %ld positive, %ld negative\n",
-           PStackGetSP(pos_examples), PStackGetSP(neg_examples));
+   CommentPrint(GlobalOut, " Training examples: %ld positive, %ld negative\n",
+                PStackGetSP(pos_examples), PStackGetSP(neg_examples));
    if(print_pos)
    {
-      fprintf(GlobalOut, COMCHAR" Training: Positive examples begin\n");
+      CommentPrint(GlobalOut, " Training: Positive examples begin\n");
       PStackClausePrint(GlobalOut, pos_examples, COMCHAR" trainpos");
-      fprintf(GlobalOut, COMCHAR" Training: Positive examples end\n");
+      CommentPrint(GlobalOut, " Training: Positive examples end\n");
    }
    if(print_neg)
    {
-      fprintf(GlobalOut, COMCHAR" Training: Negative examples begin\n");
+      CommentPrint(GlobalOut, " Training: Negative examples begin\n");
       PStackClausePrint(GlobalOut, neg_examples, COMCHAR"trainneg");
-      fprintf(GlobalOut, COMCHAR" Training: Negative examples end\n");
+      CommentPrint(GlobalOut, " Training: Negative examples end\n");
    }
 
    PStackFree(pos_examples);
@@ -652,138 +652,138 @@ void ProofStateTrain(ProofState_p state, bool print_pos, bool print_neg)
 
 void ProofStateStatisticsPrint(FILE* out, ProofState_p state)
 {
-   fprintf(out, COMCHAR" Initial clauses in saturation        : %ld\n",
-           state->axioms->members);
-   fprintf(out, COMCHAR" Processed clauses                    : %ld\n",
-           state->processed_count);
-   fprintf(out, COMCHAR" ...of these trivial                  : %ld\n",
-           state->proc_trivial_count);
-   fprintf(out, COMCHAR" ...subsumed                          : %ld\n",
-           state->proc_forward_subsumed_count);
-   fprintf(out, COMCHAR" ...remaining for further processing  : %ld\n",
-           state->proc_non_trivial_count);
-   fprintf(out, COMCHAR" Other redundant clauses eliminated   : %ld\n",
-           state->other_redundant_count);
-   fprintf(out, COMCHAR" Clauses deleted for lack of memory   : %ld\n",
-           state->non_redundant_deleted);
-   fprintf(out, COMCHAR" Backward-subsumed                    : %ld\n",
-           state->backward_subsumed_count);
-   fprintf(out, COMCHAR" Backward-rewritten                   : %ld\n",
-           state->backward_rewritten_count);
-   fprintf(out, COMCHAR" Generated clauses                    : %ld\n",
-           state->generated_count - state->backward_rewritten_count);
-   fprintf(out, COMCHAR" ...of the previous two non-redundant : %ld\n",
-           state->non_trivial_generated_count);
-   fprintf(out, COMCHAR" ...aggressively subsumed             : %ld\n",
-           state->aggressive_forward_subsumed_count);
-   fprintf(out, COMCHAR" Contextual simplify-reflections      : %ld\n",
-           state->context_sr_count);
-   fprintf(out, COMCHAR" Paramodulations                      : %ld\n",
-           state->paramod_count);
-   fprintf(out, COMCHAR" Factorizations                       : %ld\n",
-           state->factor_count);
-   fprintf(out, COMCHAR" NegExts                              : %ld\n",
-           state->neg_ext_count);
-   fprintf(out, COMCHAR" Equation resolutions                 : %ld\n",
-           state->resolv_count);
-   fprintf(out, COMCHAR" Disequality decompositions           : %ld\n",
-           state->disequ_deco_count);
-   fprintf(out, COMCHAR" Total rewrite steps                  : %lu\n",
-           state->rw_count);
+   CommentPrint(out, " Initial clauses in saturation        : %ld\n",
+                state->axioms->members);
+   CommentPrint(out, " Processed clauses                    : %ld\n",
+                state->processed_count);
+   CommentPrint(out, " ...of these trivial                  : %ld\n",
+                state->proc_trivial_count);
+   CommentPrint(out, " ...subsumed                          : %ld\n",
+                state->proc_forward_subsumed_count);
+   CommentPrint(out, " ...remaining for further processing  : %ld\n",
+                state->proc_non_trivial_count);
+   CommentPrint(out, " Other redundant clauses eliminated   : %ld\n",
+                state->other_redundant_count);
+   CommentPrint(out, " Clauses deleted for lack of memory   : %ld\n",
+                state->non_redundant_deleted);
+   CommentPrint(out, " Backward-subsumed                    : %ld\n",
+                state->backward_subsumed_count);
+   CommentPrint(out, " Backward-rewritten                   : %ld\n",
+                state->backward_rewritten_count);
+   CommentPrint(out, " Generated clauses                    : %ld\n",
+                state->generated_count - state->backward_rewritten_count);
+   CommentPrint(out, " ...of the previous two non-redundant : %ld\n",
+                state->non_trivial_generated_count);
+   CommentPrint(out, " ...aggressively subsumed             : %ld\n",
+                state->aggressive_forward_subsumed_count);
+   CommentPrint(out, " Contextual simplify-reflections      : %ld\n",
+                state->context_sr_count);
+   CommentPrint(out, " Paramodulations                      : %ld\n",
+                state->paramod_count);
+   CommentPrint(out, " Factorizations                       : %ld\n",
+                state->factor_count);
+   CommentPrint(out, " NegExts                              : %ld\n",
+                state->neg_ext_count);
+   CommentPrint(out, " Equation resolutions                 : %ld\n",
+                state->resolv_count);
+   CommentPrint(out, " Disequality decompositions           : %ld\n",
+                state->disequ_deco_count);
+   CommentPrint(out, " Total rewrite steps                  : %lu\n",
+                state->rw_count);
    /* RewriteUncached strictly counts possible rw-steps put into the
       cache. In some rare situations, proof search can terminate
       before they are realised, leading to more uncached steps than
       actual steps. We correct that here. */
-   fprintf(out, COMCHAR" ...of those cached                   : %lu\n",
-           MAX(0,(long)state->rw_count-(long)RewriteUncached));
-   fprintf(out, COMCHAR" Propositional unsat checks           : %ld\n",
-           state->satcheck_count);
-   fprintf(out, COMCHAR"    Propositional check models        : %ld\n",
-           state->satcheck_satisfiable);
-   fprintf(out, COMCHAR"    Propositional check unsatisfiable : %ld\n",
-           state->satcheck_success);
-   fprintf(out, COMCHAR"    Propositional clauses             : %ld\n",
-           state->satcheck_full_size);
-   fprintf(out, COMCHAR"    Propositional clauses after purity: %ld\n",
-           state->satcheck_actual_size);
-   fprintf(out, COMCHAR"    Propositional unsat core size     : %ld\n",
-           state->satcheck_core_size);
-   fprintf(out, COMCHAR"    Propositional preprocessing time  : %.3f\n",
-           state->satcheck_preproc_time);
-   fprintf(out, COMCHAR"    Propositional encoding time       : %.3f\n",
-           state->satcheck_encoding_time);
-   fprintf(out, COMCHAR"    Propositional solver time         : %.3f\n",
-           state->satcheck_solver_time);
-   fprintf(out, COMCHAR"    Success case prop preproc time    : %.3f\n",
-           state->satcheck_preproc_stime);
-   fprintf(out, COMCHAR"    Success case prop encoding time   : %.3f\n",
-           state->satcheck_encoding_stime);
-   fprintf(out, COMCHAR"    Success case prop solver time     : %.3f\n",
-           state->satcheck_solver_stime);
+   CommentPrint(out, " ...of those cached                   : %lu\n",
+                MAX(0,(long)state->rw_count-(long)RewriteUncached));
+   CommentPrint(out, " Propositional unsat checks           : %ld\n",
+                state->satcheck_count);
+   CommentPrint(out, "    Propositional check models        : %ld\n",
+                state->satcheck_satisfiable);
+   CommentPrint(out, "    Propositional check unsatisfiable : %ld\n",
+                state->satcheck_success);
+   CommentPrint(out, "    Propositional clauses             : %ld\n",
+                state->satcheck_full_size);
+   CommentPrint(out, "    Propositional clauses after purity: %ld\n",
+                state->satcheck_actual_size);
+   CommentPrint(out, "    Propositional unsat core size     : %ld\n",
+                state->satcheck_core_size);
+   CommentPrint(out, "    Propositional preprocessing time  : %.3f\n",
+                state->satcheck_preproc_time);
+   CommentPrint(out, "    Propositional encoding time       : %.3f\n",
+                state->satcheck_encoding_time);
+   CommentPrint(out, "    Propositional solver time         : %.3f\n",
+                state->satcheck_solver_time);
+   CommentPrint(out, "    Success case prop preproc time    : %.3f\n",
+                state->satcheck_preproc_stime);
+   CommentPrint(out, "    Success case prop encoding time   : %.3f\n",
+                state->satcheck_encoding_stime);
+   CommentPrint(out, "    Success case prop solver time     : %.3f\n",
+                state->satcheck_solver_stime);
 
-   fprintf(out,
-           COMCHAR" Current number of processed clauses  : %ld\n"
-           COMCHAR"    Positive orientable unit clauses  : %ld\n"
-           COMCHAR"    Positive unorientable unit clauses: %ld\n"
-           COMCHAR"    Negative unit clauses             : %ld\n"
-           COMCHAR"    Non-unit-clauses                  : %ld\n",
-           state->processed_pos_rules->members+
-           state->processed_pos_eqns->members+
-           state->processed_neg_units->members+
-           state->processed_non_units->members,
-           state->processed_pos_rules->members,
-           state->processed_pos_eqns->members,
-           state->processed_neg_units->members,
-           state->processed_non_units->members);
-   fprintf(out,
-           COMCHAR" Current number of unprocessed clauses: %ld\n",
-           state->unprocessed->members);
-   fprintf(out,
-           COMCHAR" ...number of literals in the above   : %ld\n",
-           state->unprocessed->literals);
-   fprintf(out,
-           COMCHAR" Current number of archived formulas  : %ld\n",
-           state->f_archive->members);
-   fprintf(out,
-           COMCHAR" Current number of archived clauses   : %ld\n",
-           state->archive->members);
+   CommentPrint(out,
+                " Current number of processed clauses  : %ld\n"
+                COMCHAR"    Positive orientable unit clauses  : %ld\n"
+                COMCHAR"    Positive unorientable unit clauses: %ld\n"
+                COMCHAR"    Negative unit clauses             : %ld\n"
+                COMCHAR"    Non-unit-clauses                  : %ld\n",
+                state->processed_pos_rules->members+
+                state->processed_pos_eqns->members+
+                state->processed_neg_units->members+
+                state->processed_non_units->members,
+                state->processed_pos_rules->members,
+                state->processed_pos_eqns->members,
+                state->processed_neg_units->members,
+                state->processed_non_units->members);
+   CommentPrint(out,
+                " Current number of unprocessed clauses: %ld\n",
+                state->unprocessed->members);
+   CommentPrint(out,
+                " ...number of literals in the above   : %ld\n",
+                state->unprocessed->literals);
+   CommentPrint(out,
+                " Current number of archived formulas  : %ld\n",
+                state->f_archive->members);
+   CommentPrint(out,
+                " Current number of archived clauses   : %ld\n",
+                state->archive->members);
    if(ProofObjectRecordsGCSelection)
    {
-      fprintf(out,
-              COMCHAR" Proof object given clauses           : %ld\n",
-              state->gc_used_count);
-      fprintf(out,
-              COMCHAR" Proof search given clauses           : %ld\n",
-              state->gc_count);
+      CommentPrint(out,
+                   " Proof object given clauses           : %ld\n",
+                   state->gc_used_count);
+      CommentPrint(out,
+                   " Proof search given clauses           : %ld\n",
+                   state->gc_count);
    }
    if(TBPrintDetails)
    {
-      fprintf(out,
-              COMCHAR" Total literals in generated clauses  : %ld\n",
-              state->generated_lit_count -
-              state->backward_rewritten_lit_count);
-      fprintf(out,
-              COMCHAR" Shared term nodes                    : %ld\n"
-              COMCHAR" ...corresponding unshared nodes      : %ld\n",
-              TBTermNodes(state->terms),
-              ClauseSetGetTermNodes(state->tmp_store)+
-              ClauseSetGetTermNodes(state->eval_store)+
-              ClauseSetGetTermNodes(state->processed_pos_rules)+
-              ClauseSetGetTermNodes(state->processed_pos_eqns)+
-              ClauseSetGetTermNodes(state->processed_neg_units)+
-              ClauseSetGetTermNodes(state->processed_non_units)+
-              ClauseSetGetTermNodes(state->unprocessed));
-      fprintf(out,
-              COMCHAR" Match attempts with oriented units   : %lu\n"
-              COMCHAR" Match attempts with unoriented units : %lu\n",
-              state->processed_pos_rules->demod_index->match_count,
-              state->processed_pos_eqns->demod_index->match_count);
+      CommentPrint(out,
+                   " Total literals in generated clauses  : %ld\n",
+                   state->generated_lit_count -
+                   state->backward_rewritten_lit_count);
+      CommentPrint(out,
+                   " Shared term nodes                    : %ld\n"
+                   COMCHAR" ...corresponding unshared nodes      : %ld\n",
+                   TBTermNodes(state->terms),
+                   ClauseSetGetTermNodes(state->tmp_store)+
+                   ClauseSetGetTermNodes(state->eval_store)+
+                   ClauseSetGetTermNodes(state->processed_pos_rules)+
+                   ClauseSetGetTermNodes(state->processed_pos_eqns)+
+                   ClauseSetGetTermNodes(state->processed_neg_units)+
+                   ClauseSetGetTermNodes(state->processed_non_units)+
+                   ClauseSetGetTermNodes(state->unprocessed));
+      CommentPrint(out,
+                   " Match attempts with oriented units   : %lu\n"
+                   COMCHAR" Match attempts with unoriented units : %lu\n",
+                   state->processed_pos_rules->demod_index->match_count,
+                   state->processed_pos_eqns->demod_index->match_count);
 #ifdef MEASURE_EXPENSIVE
-      fprintf(out,
-              COMCHAR" Oriented PDT nodes visited           : %lu\n"
-              COMCHAR" Unoriented PDT nodes visited         : %lu\n",
-              state->processed_pos_rules->demod_index->visited_count,
-              state->processed_pos_eqns->demod_index->visited_count);
+      CommentPrint(out,
+                   " Oriented PDT nodes visited           : %lu\n"
+                   COMCHAR" Unoriented PDT nodes visited         : %lu\n",
+                   state->processed_pos_rules->demod_index->visited_count,
+                   state->processed_pos_eqns->demod_index->visited_count);
 #endif
    }
    /* TermCellStorePrintDistrib(out, &(state->terms->term_store)); */

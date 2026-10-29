@@ -541,7 +541,7 @@ WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms)
             formula printers assume a well-typed formula skeleton. */
          if(nonbool->type)
          {
-            fprintf(stderr, COMCHAR" Subformula has type ");
+            CommentPrint(stderr, " Subformula has type ");
             TypePrintTSTP(stderr, terms->sig->type_bank, nonbool->type);
             fprintf(stderr, ", but a formula must have type $o\n");
          }

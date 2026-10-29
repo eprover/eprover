@@ -388,8 +388,8 @@ void PCLProtPropDataPrint(FILE* out, PCLPropData_p data)
    long clauses =
       data->pos_clauses+data->neg_clauses+data->mix_clauses;
 
-   fprintf(out,
-      COMCHAR" Protocol properties\n"
+   CommentPrint(out,
+      " Protocol properties\n"
       COMCHAR" ===================\n"
       COMCHAR" Number of clauses                  : %6ld\n"
       COMCHAR" ...of those positive               : %6ld\n"
@@ -419,7 +419,7 @@ void PCLProtPropDataPrint(FILE* out, PCLPropData_p data)
       (double)(data->var_count)/clauses,
       (double)(data->const_count)/clauses,
       (double)(data->pred_count)/clauses);
-   fprintf(out, COMCHAR" Longest Clause (if any): \n");
+   CommentPrint(out, " Longest Clause (if any): \n");
    PCLStepPrint(out, data->longest_clause);
    fprintf(out, "\n"COMCHAR" Largest Clause (if any): \n");
    PCLStepPrint(out, data->max_symbol_clause);

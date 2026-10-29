@@ -657,12 +657,12 @@ void IntMapDebugPrint(FILE* out, IntMap_p map)
    void* val;
    long  key = 0;
 
-   fprintf(out, COMCHAR" ==== IntMapType %d Size = %ld\n", map->type, IntMapStorage(map));
+   CommentPrint(out, " ==== IntMapType %d Size = %ld\n", map->type, IntMapStorage(map));
    for(val=IntMapIterNext(iter, &key); val; val=IntMapIterNext(iter, &key))
    {
-      fprintf(out, COMCHAR" %5ld : %p\n", key, val);
+      CommentPrint(out, " %5ld : %p\n", key, val);
    }
-   fprintf(out, COMCHAR" ==== IntMap End\n");
+   CommentPrint(out, " ==== IntMap End\n");
 
    IntMapIterFree(iter);
 }

@@ -320,18 +320,18 @@ void PrintRusage(FILE* out)
 
    fprintf(out,
       "\n"COMCHAR" -------------------------------------------------\n");
-   fprintf(out,
-      COMCHAR" User time                : %.3f s\n",
+   CommentPrint(out,
+      " User time                : %.3f s\n",
       (usage.ru_utime.tv_sec)+(usage.ru_utime.tv_usec)/1000000.0);
-   fprintf(out,
-      COMCHAR" System time              : %.3f s\n",
+   CommentPrint(out,
+      " System time              : %.3f s\n",
       (usage.ru_stime.tv_sec)+(usage.ru_stime.tv_usec)/1000000.0);
-   fprintf(out,
-      COMCHAR" Total time               : %.3f s\n",
+   CommentPrint(out,
+      " Total time               : %.3f s\n",
       (usage.ru_utime.tv_sec+usage.ru_stime.tv_sec)+
       ((usage.ru_utime.tv_usec+usage.ru_stime.tv_usec)/1000000.0));
-   fprintf(out,
-      COMCHAR" Maximum resident set size: %ld pages\n",
+   CommentPrint(out,
+      " Maximum resident set size: %ld pages\n",
       usage.ru_maxrss);
 }
 

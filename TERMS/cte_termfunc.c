@@ -2365,7 +2365,7 @@ FunCode VarBankCheckBindings(FILE* out, VarBank_p bank, Sig_p sig)
    long      res = 0;
    int       i;
 
-   fprintf(out, COMCHAR"  VarBankCheckBindings() started...\n");
+   CommentPrint(out, "  VarBankCheckBindings() started...\n");
    for(i=1; i<PDArraySize(bank->variables); i++)
    {
       term = PDArrayElementP(bank->variables, i);
@@ -2377,7 +2377,7 @@ FunCode VarBankCheckBindings(FILE* out, VarBank_p bank, Sig_p sig)
             res++;
             if(sig)
             {
-               fprintf(out, COMCHAR" %ld: ", term->f_code);
+               CommentPrint(out, " %ld: ", term->f_code);
                TermPrint(out, term, sig, DEREF_NEVER);
                fprintf(out, " <--- ");
                TermPrint(out, term, sig, DEREF_ONCE);
@@ -2385,14 +2385,14 @@ FunCode VarBankCheckBindings(FILE* out, VarBank_p bank, Sig_p sig)
             }
             else
             {
-               fprintf(out, COMCHAR" Var%ld <---- %p\n",
-                       term->f_code,
-                       (void*)term->binding);
+               CommentPrint(out, " Var%ld <---- %p\n",
+                            term->f_code,
+                            (void*)term->binding);
             }
          }
       }
    }
-   fprintf(out, COMCHAR"  ...VarBankCheckBindings() completed\n");
+   CommentPrint(out, "  ...VarBankCheckBindings() completed\n");
    return res;
 }
 
@@ -2996,7 +2996,7 @@ void TermAssertSameSort(Sig_p sig, Term_p t1, Term_p t2)
 {
    if(t1->type != t2->type)
    {
-      fprintf(stderr, COMCHAR" Error: terms ");
+      CommentPrint(stderr, " Error: terms ");
       TermPrintDbg(stderr, t1, sig, DEREF_NEVER);
       fprintf(stderr, ": ");
       TypePrintTSTP(stderr, sig->type_bank, t1->type);

@@ -565,16 +565,16 @@ int main(int argc, char* argv[])
       switch(groundset->complete)
       {
       case cpl_complete:
-            fprintf(GlobalOut,
-                    COMCHAR" Full and complete proof state written!\n");
+            CommentPrint(GlobalOut,
+                         " Full and complete proof state written!\n");
             break;
       case cpl_lowmem:
-            fprintf(GlobalOut,
-                    COMCHAR" Out of memory: Proof state incomplete!\n");
+            CommentPrint(GlobalOut,
+                         " Out of memory: Proof state incomplete!\n");
             break;
       case cpl_timeout:
-            fprintf(GlobalOut,
-                    COMCHAR" Timeout: Proof state incomplete!\n");
+            CommentPrint(GlobalOut,
+                         " Timeout: Proof state incomplete!\n");
             break;
       default:
             assert(false && "Unknown incompleteness?!?");
@@ -582,7 +582,7 @@ int main(int argc, char* argv[])
    }
    else
    {
-      fprintf(GlobalOut, COMCHAR" Success!\n");
+      CommentPrint(GlobalOut, " Success!\n");
    }
    if(print_statistics)
    {

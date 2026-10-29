@@ -725,7 +725,7 @@ long SelectAxioms(GenDistrib_p      f_distrib,
    }
    //fprintf(GlobalOut, COMCHAR" Hypotheses found %ld (%lld)\n", seeds,
    //GetSecTimeMod());
-   VERBOSE(fprintf(stderr, COMCHAR" Found %ld seed clauses/formulas\n", seeds););
+   VERBOSE(CommentPrint(stderr, " Found %ld seed clauses/formulas\n", seeds););
    if(!seeds)
    {
       /* No goals-> the empty set contains all relevant clauses */
@@ -897,12 +897,12 @@ long SelectDefinitions(PStack_p clause_sets, PStack_p formula_sets,
 
 void DRelPrintDebug(FILE* out, DRel_p rel, Sig_p sig)
 {
-   fprintf(out, COMCHAR" %6ld %-15s: %6ld clauses, %6ld formulas\n",
-           rel->f_code,
-           SigFindName(sig, rel->f_code),
-           PStackGetSP(rel->d_clauses),
-           PStackGetSP(rel->d_formulas));
-   fprintf(out, COMCHAR"formulas: ");
+   CommentPrint(out, " %6ld %-15s: %6ld clauses, %6ld formulas\n",
+                rel->f_code,
+                SigFindName(sig, rel->f_code),
+                PStackGetSP(rel->d_clauses),
+                PStackGetSP(rel->d_formulas));
+   CommentPrint(out, "formulas: ");
    for(PStackPointer i = 0; i<PStackGetSP(rel->d_formulas); i++)
    {
       fprintf(out, "%s, ",

@@ -96,7 +96,7 @@ static void check_ac_status(ProofState_p state, ProofControl_p
          if(OutputLevel)
          {
             SigPrintACStatus(GlobalOut, state->signature);
-            fprintf(GlobalOut, COMCHAR" AC handling enabled dynamically\n");
+            CommentPrint(GlobalOut, " AC handling enabled dynamically\n");
          }
       }
    }
@@ -424,8 +424,8 @@ void check_watchlist(GlobalIndices_p indices, ClauseSet_p watchlist,
             ClauseSetProp(clause, CPSubsumesWatch);
             if(OutputLevel == 1)
             {
-               fprintf(GlobalOut,COMCHAR" Watchlist reduced by %ld clause%s\n",
-                       removed,removed==1?"":"s");
+               CommentPrint(GlobalOut," Watchlist reduced by %ld clause%s\n",
+                            removed,removed==1?"":"s");
             }
             // ClausePrint(GlobalOut, clause, true); printf("\n");
             DocClauseQuote(GlobalOut, OutputLevel, 6, clause,
@@ -881,9 +881,9 @@ static Clause_p cleanup_unprocessed_clauses(ProofState_p state,
       tmp = ClauseSetDeleteOrphans(state->unprocessed);
       if(OutputLevel)
       {
-         fprintf(GlobalOut,
-                 COMCHAR" Deleted %ld orphaned clauses (remaining: %ld)\n",
-                 tmp, state->unprocessed->members);
+         CommentPrint(GlobalOut,
+                      " Deleted %ld orphaned clauses (remaining: %ld)\n",
+                      tmp, state->unprocessed->members);
       }
       state->other_redundant_count += tmp;
       state->filter_orphans_base = back_simplified;
@@ -904,11 +904,11 @@ static Clause_p cleanup_unprocessed_clauses(ProofState_p state,
       }
       if(OutputLevel)
       {
-         fprintf(GlobalOut,
-                 COMCHAR" Special forward-contraction deletes %ld clauses"
-                 "(remaining: %ld) \n",
-                 tmp - state->unprocessed->members,
-                 state->unprocessed->members);
+         CommentPrint(GlobalOut,
+                      " Special forward-contraction deletes %ld clauses"
+                      "(remaining: %ld) \n",
+                      tmp - state->unprocessed->members,
+                      state->unprocessed->members);
       }
 
       if(unsatisfiable)
@@ -931,10 +931,10 @@ static Clause_p cleanup_unprocessed_clauses(ProofState_p state,
       state->non_redundant_deleted += tmp;
       if(OutputLevel)
       {
-         fprintf(GlobalOut,
-                 COMCHAR" Deleted %ld orphaned clauses and %ld bad "
-                 "clauses (prover may be incomplete now)\n",
-                 tmp, tmp2);
+         CommentPrint(GlobalOut,
+                      " Deleted %ld orphaned clauses and %ld bad "
+                      "clauses (prover may be incomplete now)\n",
+                      tmp, tmp2);
       }
       if(tmp2)
       {
@@ -1055,14 +1055,14 @@ static void print_sharing_factor(ProofState_p state)
 
    fprintf(GlobalOut, "\n"COMCHAR"        GClauses   NClauses    NShared  "
            "NUnshared    TShared  TUnshared TSharinF   \n");
-   fprintf(GlobalOut, COMCHAR" grep %10ld %10ld %10ld %10ld %10ld %10ld %10.3f\n",
-           state->generated_count - state->backward_rewritten_count,
-           state->tmp_store->members,
-           ClauseSetGetSharedTermNodes(state->tmp_store),
-           ClauseSetGetTermNodes(state->tmp_store),
-           shared,
-           unshared,
-           (float)unshared/shared);
+   CommentPrint(GlobalOut, " grep %10ld %10ld %10ld %10ld %10ld %10ld %10.3f\n",
+                state->generated_count - state->backward_rewritten_count,
+                state->tmp_store->members,
+                ClauseSetGetSharedTermNodes(state->tmp_store),
+                ClauseSetGetTermNodes(state->tmp_store),
+                shared,
+                unshared,
+                (float)unshared/shared);
 }
 #endif
 
@@ -1527,7 +1527,7 @@ void ProofStateInit(ProofState_p state, ProofControl_p control)
    {
       if(OutputLevel)
       {
-         fprintf(GlobalOut, COMCHAR" Scanning for AC axioms\n");
+         CommentPrint(GlobalOut, " Scanning for AC axioms\n");
       }
       control->ac_handling_active = ClauseSetScanAC(state->signature,
                                                     state->unprocessed);
@@ -1536,7 +1536,7 @@ void ProofStateInit(ProofState_p state, ProofControl_p control)
          SigPrintACStatus(GlobalOut, state->signature);
          if(control->ac_handling_active)
          {
-            fprintf(GlobalOut, COMCHAR" AC handling enabled\n");
+            CommentPrint(GlobalOut, " AC handling enabled\n");
          }
       }
    }

@@ -515,8 +515,8 @@ EPCtrl_p EPCtrlSetGetResult(EPCtrlSet_p set, bool delete_files)
                case PRCounterSatisfiable:
                case PRFailure:
                      /* Process terminates, but no proof found -> Remove it*/
-                     fprintf(GlobalOut, COMCHAR" No proof found by %s\n",
-                             handle->name);
+                     CommentPrint(GlobalOut, " No proof found by %s\n",
+                                  handle->name);
 
                      EPCtrlSetDeleteProc(set, handle, delete_files);
                      break;

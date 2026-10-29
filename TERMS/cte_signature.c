@@ -887,9 +887,9 @@ void SigPrint(FILE* out, Sig_p sig)
 {
    FunCode i;
 
-   fprintf(out, COMCHAR" Signature (%2ld symbols out of %2ld allocated):\n",
-           sig->f_count, sig->size);
-   fprintf(out, COMCHAR"     -Symbol-    -Arity- -Encoding-\n");
+   CommentPrint(out, " Signature (%2ld symbols out of %2ld allocated):\n",
+                sig->f_count, sig->size);
+   CommentPrint(out, "     -Symbol-    -Arity- -Encoding-\n");
 
    for(i=1; i<=sig->f_count; i++)
    {
@@ -945,17 +945,17 @@ void SigPrintACStatus(FILE* out, Sig_p sig)
    {
       if(SigQueryFuncProp(sig, i, FPIsAC))
       {
-         fprintf(out, COMCHAR" %s is AC\n", sig->f_info[i].name);
+         CommentPrint(out, " %s is AC\n", sig->f_info[i].name);
          continue;
       }
       if(SigQueryFuncProp(sig, i, FPAssociative))
       {
-         fprintf(out, COMCHAR" %s is associative\n", sig->f_info[i].name);
+         CommentPrint(out, " %s is associative\n", sig->f_info[i].name);
          continue;
       }
       if(SigQueryFuncProp(sig, i, FPCommutative))
       {
-         fprintf(out, COMCHAR" %s is commutative\n", sig->f_info[i].name);
+         CommentPrint(out, " %s is commutative\n", sig->f_info[i].name);
          continue;
       }
    }
@@ -1567,8 +1567,8 @@ void SigDeclareType(Sig_p sig, FunCode f, Type_p type)
          {
             if(Verbose>=3)
             {
-               fprintf(stderr, COMCHAR" Type conflict for %s between ",
-                       SigFindName(sig, f));
+               CommentPrint(stderr, " Type conflict for %s between ",
+                            SigFindName(sig, f));
                TypePrintTSTP(stderr, sig->type_bank, fun->type);
                fprintf(stderr, " and ");
                TypePrintTSTP(stderr, sig->type_bank, type);
@@ -1580,7 +1580,7 @@ void SigDeclareType(Sig_p sig, FunCode f, Type_p type)
          {
             if(Verbose >= 2)
             {
-               fprintf(stderr, COMCHAR" type re-declaration %s: ", SigFindName(sig, f));
+               CommentPrint(stderr, " type re-declaration %s: ", SigFindName(sig, f));
                TypePrintTSTP(stderr, sig->type_bank, type);
                fprintf(stderr, "\n");
             }
@@ -1592,7 +1592,7 @@ void SigDeclareType(Sig_p sig, FunCode f, Type_p type)
    {
       if(Verbose >= 2)
       {
-         fprintf(stderr, COMCHAR" type declaration %s: ", SigFindName(sig, f));
+         CommentPrint(stderr, " type declaration %s: ", SigFindName(sig, f));
          TypePrintTSTP(stderr, sig->type_bank, type);
          fprintf(stderr, "\n");
       }

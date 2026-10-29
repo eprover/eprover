@@ -63,7 +63,7 @@ static void print_shell_pcl_warning(FILE* out, PCLStep_p step)
    {
       Warning("Shell PCL step encountered where "
               "full PCL step was required");
-      fprintf(out, COMCHAR" Step ");
+      CommentPrint(out, " Step ");
       PCLIdPrint(out, step->id);
       fprintf(out, " omitted (Shell)\n");
    }
