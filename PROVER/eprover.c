@@ -51,6 +51,8 @@ typedef struct prover_run_cell
    CLState_p          state;
    ProofState_p       proofstate;
    ProofControl_p     proofcontrol;
+   int                retval;         /* Exit code of the run */
+   bool               rusage_printed; /* By the scheduler already */
    Clause_p           success;
    bool               out_of_clauses;
    bool               inf_sys_complete; /* Calculus used is complete */
@@ -293,16 +295,17 @@ static void print_info(void)
 // Function: strategy_io()
 //
 //   Write and/or read the search strategy parameters. Moved here to
-//   declutter main.
+//   declutter main. Return false if a strategy was printed (the run
+//   is then complete), true otherwise.
 //
-// Global Variables: -
+// Global Variables: parse_strategy_filename, select_strategy,
+//                   print_strategy
 //
-// Side Effects    : I/O, may change h_parms, may terminate the
-//                   program (if print_strategy is set).
+// Side Effects    : I/O, may change h_parms
 //
 /----------------------------------------------------------------------*/
 
-void strategy_io(HeuristicParms_p h_parms, PStack_p hcb_definitions)
+bool strategy_io(HeuristicParms_p h_parms, PStack_p hcb_definitions)
 {
    if(parse_strategy_filename)
    {
@@ -337,8 +340,9 @@ void strategy_io(HeuristicParms_p h_parms, PStack_p hcb_definitions)
          }
          HeuristicParmsPrint(GlobalOut, h_parms);
       }
-      exit(NO_ERROR);
+      return false;
    }
+   return true;
 }
 
 
@@ -348,7 +352,10 @@ void strategy_io(HeuristicParms_p h_parms, PStack_p hcb_definitions)
 //
 //   Handle (raw) classification and preprocessing scheduling for
 //   auto-mode and auto-schedule mode. Moved here to declutter
-//   main().
+//   main(). Sets *sched_idx to the preprocessing strategy selected by
+//   the scheduler (or leaves it alone if not scheduling). Return
+//   false if the preprocessing schedule was exhausted without
+//   result, true otherwise.
 //
 // Global Variables: print_rusage, num_cpus, serialize_schedule
 //
@@ -357,15 +364,14 @@ void strategy_io(HeuristicParms_p h_parms, PStack_p hcb_definitions)
 //
 /----------------------------------------------------------------------*/
 
-int handle_auto_modes_preproc(ProofState_p proofstate,
-                              HeuristicParms_p h_parms,
-                              Schedule_p *preproc_schedule,
-                              SpecLimits_p *limits,
-                              RawSpecFeature_p raw_features,
-                              rlim_t wc_sched_limit)
+bool handle_auto_modes_preproc(ProofState_p proofstate,
+                               HeuristicParms_p h_parms,
+                               Schedule_p *preproc_schedule,
+                               SpecLimits_p *limits,
+                               RawSpecFeature_p raw_features,
+                               rlim_t wc_sched_limit,
+                               int *sched_idx)
 {
-   int sched_idx = -1;
-
    *limits = CreateDefaultSpecLimits();
 
    RawSpecFeaturesCompute(raw_features, proofstate);
@@ -374,13 +380,13 @@ int handle_auto_modes_preproc(ProofState_p proofstate,
    CommentPrint(stdout, " Preprocessing class: %s.\n", raw_features->class);
    if(strategy_scheduling)
    {
-      sched_idx = ExecuteScheduleMultiCore(*preproc_schedule, h_parms,
-                                           print_rusage,
-                                           wc_sched_limit,
-                                           true,
-                                           num_cpus,
-                                           serialize_schedule||(num_cpus==1));
-      if (sched_idx != SCHEDULE_DONE)
+      *sched_idx = ExecuteScheduleMultiCore(*preproc_schedule, h_parms,
+                                            print_rusage,
+                                            wc_sched_limit,
+                                            true,
+                                            num_cpus,
+                                            serialize_schedule||(num_cpus==1));
+      if (*sched_idx != SCHEDULE_DONE)
       {
          char* preproc_conf_name = h_parms->heuristic_name;
          GetHeuristicWithName(preproc_conf_name, h_parms);
@@ -388,7 +394,7 @@ int handle_auto_modes_preproc(ProofState_p proofstate,
       else
       {
          TSTPOUT(GlobalOut, "GaveUp");
-         exit(RESOURCE_OUT);
+         return false;
       }
    }
    else
@@ -397,7 +403,7 @@ int handle_auto_modes_preproc(ProofState_p proofstate,
       GetHeuristicWithName((*preproc_schedule)->heu_name, h_parms);
       CommentPrint(stdout, " Configuration: %s\n", (*preproc_schedule)->heu_name);
    }
-   return sched_idx;
+   return true;
 }
 
 
@@ -643,29 +649,36 @@ static bool handle_syntax_only(ProverRun_p run)
 //   schedule mode by raw classification (and, for scheduling, by
 //   running the preprocessing schedule), then apply a loaded or
 //   selected strategy and re-apply the user's command line options.
+//   Return false if the run is complete (preprocessing schedule
+//   exhausted, or strategy printed), with run->retval set, true
+//   otherwise.
 //
 // Global Variables: auto_conf, strategy_scheduling,
 //                   ScheduleTimeLimit, h_parms, hcb_definitions
 //
-// Side Effects    : Sets h_parms, may fork and exit (scheduling,
-//                   --print-strategy).
+// Side Effects    : Sets h_parms, may fork (scheduling).
 //
 /----------------------------------------------------------------------*/
 
-static void select_preproc_strategy(int argc, char* argv[], ProverRun_p run)
+static bool select_preproc_strategy(int argc, char* argv[], ProverRun_p run)
 {
    rlim_t wc_sched_limit;
 
    wc_sched_limit = ScheduleTimeLimit ? ScheduleTimeLimit : DEFAULT_SCHED_TIME_LIMIT;
    if(auto_conf || strategy_scheduling)
    {
-      run->sched_idx = handle_auto_modes_preproc(run->proofstate,
-                                                 h_parms,
-                                                 &(run->preproc_schedule),
-                                                 &(run->spec_limits),
-                                                 &(run->raw_features),
-                                                 wc_sched_limit);
-
+      if(!handle_auto_modes_preproc(run->proofstate,
+                                    h_parms,
+                                    &(run->preproc_schedule),
+                                    &(run->spec_limits),
+                                    &(run->raw_features),
+                                    wc_sched_limit,
+                                    &(run->sched_idx)))
+      {
+         run->rusage_printed = true; /* By the scheduler */
+         run->retval = RESOURCE_OUT;
+         return false;
+      }
       reapply_user_options(argc, argv);
    }
 
@@ -677,9 +690,14 @@ static void select_preproc_strategy(int argc, char* argv[], ProverRun_p run)
                 h_parms->unroll_only_formulas,
                 h_parms->sine);
 //#endif
-   strategy_io(h_parms, hcb_definitions);
+   if(!strategy_io(h_parms, hcb_definitions))
+   {
+      run->retval = NO_ERROR;
+      return false;
+   }
    reapply_user_options(argc, argv);
    //HeuristicParmsPrint(GlobalOut, h_parms);
+   return true;
 }
 
 
@@ -773,22 +791,24 @@ static bool preprocess_problem(ProverRun_p run)
 //
 //   In auto and schedule mode, classify the preprocessed problem and
 //   select the search strategy. In schedule mode this runs the
-//   search schedule (forking one child per strategy); the parent
-//   exits if no strategy succeeds. Finally, re-apply the user's
-//   command line options.
+//   search schedule (forking one child per strategy). Finally,
+//   re-apply the user's command line options. Return false (with
+//   run->retval set) if the schedule was exhausted without result,
+//   true otherwise (including in each child).
 //
 // Global Variables: auto_conf, strategy_scheduling, cnf_only,
 //                   h_parms, HardTimeLimit, SoftTimeLimit,
 //                   print_rusage, force_pre_schedule
 //
-// Side Effects    : Sets h_parms, may fork and exit.
+// Side Effects    : Sets h_parms, may fork.
 //
 /----------------------------------------------------------------------*/
 
-static void select_search_strategy(int argc, char* argv[], ProverRun_p run)
+static bool select_search_strategy(int argc, char* argv[], ProverRun_p run)
 {
    ProofState_p    proofstate = run->proofstate;
    SpecFeatureCell features;
+   bool            exhausted = false;
 
    if((strategy_scheduling && run->sched_idx != -1) || (auto_conf && !cnf_only))
    {
@@ -839,18 +859,17 @@ static void select_search_strategy(int argc, char* argv[], ProverRun_p run)
                   ExecuteScheduleMultiCore(filtered_default, h_parms, print_rusage,
                                           remaining_time, false,
                                           preproc_sched->cores, false);
-               if (status == SCHEDULE_DONE)
-               {
-                  exit(RESOURCE_OUT);
-               }
-            }
-            else
-            {
-               exit(RESOURCE_OUT);
             }
          }
-         GetHeuristicWithName(h_parms->heuristic_name, h_parms);
-         h_parms->inst_choice_max_depth = choice_max_depth;
+         if(status == SCHEDULE_DONE)
+         {
+            exhausted = true;
+         }
+         else
+         { /* Child process: set up the strategy assigned to it */
+            GetHeuristicWithName(h_parms->heuristic_name, h_parms);
+            h_parms->inst_choice_max_depth = choice_max_depth;
+         }
       }
       else
       {
@@ -863,13 +882,23 @@ static void select_search_strategy(int argc, char* argv[], ProverRun_p run)
          h_parms->inst_choice_max_depth = choice_max_depth;
       }
       FREE(class);
-      reapply_user_options(argc, argv);
+      if(!exhausted)
+      {
+         reapply_user_options(argc, argv);
+      }
    }
    if(run->spec_limits)
    {
       SpecLimitsCellFree(run->spec_limits);
       run->spec_limits = NULL;
    }
+   if(exhausted)
+   {
+      run->rusage_printed = true; /* By the scheduler */
+      run->retval = RESOURCE_OUT;
+      return false;
+   }
+   return true;
 }
 
 
@@ -1413,7 +1442,8 @@ static void print_final_stats(ProverRun_p run)
 // Function: prover_cleanup()
 //
 //   Free all data (unless FAST_EXIT is set), print resource usage if
-//   requested and close the output.
+//   requested (and not done by the scheduler already) and close the
+//   output. All runs of main() end here.
 //
 // Global Variables: h_parms, fvi_parms, wfcb_definitions,
 //                   hcb_definitions, print_rusage, SilentTimeOut
@@ -1425,6 +1455,10 @@ static void print_final_stats(ProverRun_p run)
 static void prover_cleanup(ProverRun_p run)
 {
 #ifndef FAST_EXIT
+   if(run->spec_limits)
+   {  /* Left over if the run stopped during strategy selection */
+      SpecLimitsCellFree(run->spec_limits);
+   }
    if(run->proofcontrol)
    {
       ProofControlFree(run->proofcontrol);
@@ -1440,7 +1474,7 @@ static void prover_cleanup(ProverRun_p run)
    MemFreeListPrint(GlobalOut);
 #endif
 #endif
-   if(print_rusage && !SilentTimeOut)
+   if(print_rusage && !SilentTimeOut && !run->rusage_printed)
    {
       PrintRusage(GlobalOut);
    }
@@ -1458,8 +1492,12 @@ static void prover_cleanup(ProverRun_p run)
 // Function: main()
 //
 //   Main entry point of the prover. Runs the phases of a proof
-//   attempt in order. The phases communicate via the ProverRunCell
-//   and the global option variables set by process_options().
+//   attempt in order, until one of them completes the run (or the
+//   proof search is done). The phases communicate via the
+//   ProverRunCell and the global option variables set by
+//   process_options(). Apart from --help/--version and the parent of
+//   a successful strategy schedule, every run ends in
+//   prover_cleanup().
 //
 // Global Variables: Plenty, mostly flags shared with
 //                   process_options. See list above.
@@ -1471,7 +1509,6 @@ static void prover_cleanup(ProverRun_p run)
 int main(int argc, char* argv[])
 {
    ProverRunCell run;
-   int           retval = NO_ERROR;
 
    assert(argv[0]);
 
@@ -1480,21 +1517,19 @@ int main(int argc, char* argv[])
 #endif
 
    prover_init(argc, argv, &run);
-   if(!handle_syntax_only(&run))
+   if(!handle_syntax_only(&run) &&
+      select_preproc_strategy(argc, argv, &run) &&
+      preprocess_problem(&run) &&
+      select_search_strategy(argc, argv, &run))
    {
-      select_preproc_strategy(argc, argv, &run);
-      if(preprocess_problem(&run))
-      {
-         select_search_strategy(argc, argv, &run);
-         setup_search(&run);
-         run_saturation(&run);
-         retval = report_result(&run);
-         print_saturated_state(&run);
-         print_final_stats(&run);
-      }
+      setup_search(&run);
+      run_saturation(&run);
+      run.retval = report_result(&run);
+      print_saturated_state(&run);
+      print_final_stats(&run);
    }
    prover_cleanup(&run);
-   return retval;
+   return run.retval;
 }
 
 
