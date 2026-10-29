@@ -204,6 +204,18 @@ typedef struct order_parms_cell
       }\
    }
 
+/* Accept and ignore an obsolete boolean parameter, so that strategies
+   written by older versions can still be read. It is not missed if
+   absent. */
+
+#define PARSE_OBSOLETE_BOOL(name)\
+   if(TestInpId(in, #name))\
+   {\
+      NextToken(in);\
+      AcceptInpTok(in, Colon);\
+      (void)ParseBool(in);\
+   }
+
 #define PARSE_INTMAX(name)\
    if(TestInpId(in, #name))\
    {\

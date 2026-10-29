@@ -253,8 +253,6 @@ void HeuristicParmsInitialize(HeuristicParms_p handle)
    handle->watchlist_is_static           = false;
    handle->use_tptp_sos                  = false;
    handle->presat_interreduction         = false;
-   handle->detsort_bw_rw                 = false;
-   handle->detsort_tmpset                = false;
 
    handle->arg_cong                      = AllLits;
    handle->neg_ext                       = NoLits;
@@ -475,10 +473,6 @@ void HeuristicParmsPrint(FILE* out, HeuristicParms_p handle)
            BOOL2STR(handle->use_tptp_sos));
    fprintf(out, "   presat_interreduction:          %s\n",
            BOOL2STR(handle->presat_interreduction));
-   fprintf(out, "   detsort_bw_rw:                  %s\n",
-           BOOL2STR(handle->detsort_bw_rw));
-   fprintf(out, "   detsort_tmpset:                 %s\n",
-           BOOL2STR(handle->detsort_tmpset));
 
    fprintf(out, "   arg_cong:                       %s\n",
            EIT2STR(handle->arg_cong));
@@ -707,8 +701,9 @@ bool HeuristicParmsParseInto(Scanner_p in,
    PARSE_BOOL(watchlist_is_static);
    PARSE_BOOL(use_tptp_sos);
    PARSE_BOOL(presat_interreduction);
-   PARSE_BOOL(detsort_bw_rw);
-   PARSE_BOOL(detsort_tmpset);
+   /* Obsolete, still accepted in strategies from older versions */
+   PARSE_OBSOLETE_BOOL(detsort_bw_rw);
+   PARSE_OBSOLETE_BOOL(detsort_tmpset);
 
 
    PARSE_STRING_AND_CONVERT(arg_cong, str2eit);

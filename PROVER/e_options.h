@@ -1475,14 +1475,17 @@ OptCell opts[] =
    {OPT_DETSORT_RW,
     '\0', "detsort-rw",
     NoArg, NULL,
-    "Sort set of clauses eliminated by backward rewriting using a total "
-    "syntactic ordering."},
+    "Obsolete, has no effect (accepted for compatibility). It used to "
+    "sort the set of clauses eliminated by backward rewriting to make "
+    "the proof search more reproducible, which it now is by default."},
 
    {OPT_DETSORT_NEW,
     '\0', "detsort-new",
     NoArg, NULL,
-    "Sort set of newly generated and backward simplified clauses using "
-    "a total syntactic ordering."},
+    "Obsolete, has no effect (accepted for compatibility). It used to "
+    "sort the set of newly generated and backward simplified clauses to "
+    "make the proof search more reproducible, which it now is by "
+    "default."},
 
    {OPT_DEFINE_WFUN,
     'D', "define-weight-function",

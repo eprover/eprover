@@ -28,6 +28,16 @@ Version 3.2.5 -> 3.5.X Countess Grey
   closure (the output was not a closed formula before), included files
   are expanded instead of being copied as unencoded include directives,
   and memory leaks in the encoding are fixed.
+- Proof search is now reproducible: repeated runs on the same problem
+  give the same result, the same proof and the same statistics. Before,
+  they could differ because some sets were iterated in the order of
+  object addresses, which change from run to run (address space layout
+  randomization). Pointer sets now iterate in insertion order (new
+  ordered sets in BASICS/clb_orderedsets), and the paramodulation
+  indices are ordered by term and clause numbers. The options
+  --detsort-rw and --detsort-new (and the strategy parameters
+  detsort_bw_rw and detsort_tmpset) are obsolete and have no effect;
+  they are still accepted for compatibility.
 
 Version 3.1.0 -> 3.2.5 Puttabong Moondrop
 

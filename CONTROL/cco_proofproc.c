@@ -223,11 +223,6 @@ eliminate_backward_rewritten_clauses(ProofState_p
          (state->tmp_store->literals-old_lit_count);
       state->backward_rewritten_count+=
          (state->tmp_store->members-old_clause_count);
-
-      if(control->heuristic_parms.detsort_bw_rw)
-      {
-         ClauseSetSort(state->tmp_store, ClauseCmpByStructWeight);
-      }
    }
    PERF_CTR_EXIT(BWRWTimer);
    /*printf(COMCHAR" Removed %ld clauses\n",
@@ -1716,10 +1711,6 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control,
 #ifdef PRINT_RW_STATE
    print_rw_state(state);
 #endif
-   if(control->heuristic_parms.detsort_tmpset)
-   {
-      ClauseSetSort(state->tmp_store, ClauseCmpByStructWeight);
-   }
    if((empty = insert_new_clauses(state, control)))
    {
       PStackPushP(state->extract_roots, empty);

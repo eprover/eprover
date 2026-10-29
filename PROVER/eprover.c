@@ -2405,10 +2405,14 @@ CLState_p process_options(int argc, char* argv[])
             PDTreeUseAgeConstraints = false;
             break;
       case OPT_DETSORT_RW:
-            h_parms->detsort_bw_rw = true;
-            break;
       case OPT_DETSORT_NEW:
-            h_parms->detsort_tmpset = true;
+            if(first_pass)
+            {
+               Warning("Option %s is obsolete and has no effect "
+                       "(proof search is deterministic now)",
+                       handle->option_code == OPT_DETSORT_RW?
+                       "--detsort-rw":"--detsort-new");
+            }
             break;
       case OPT_DEFINE_WFUN:
             if(first_pass)
