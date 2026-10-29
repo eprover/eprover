@@ -1537,7 +1537,7 @@ int main(int argc, char* argv[])
 //
 // Function: check_fp_index_arg()
 //
-//   Check in arg is a valid term describing a FP-index function. If
+//   Check if arg is a valid term describing a FP-index function. If
 //   yes, return true. If no, print error (nominally return false).
 //
 // Global Variables: -
