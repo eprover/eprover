@@ -44,6 +44,26 @@
 
 #define NAME         "eprover"
 
+/* State handed from one phase of main() to the next */
+
+typedef struct prover_run_cell
+{
+   CLState_p          state;
+   ProofState_p       proofstate;
+   ProofControl_p     proofcontrol;
+   Clause_p           success;
+   bool               out_of_clauses;
+   long               parsed_ax_no;
+   long               relevancy_pruned;
+   long               neg_conjectures;
+   long               raw_clause_no;
+   long               preproc_removed;
+   int                sched_idx;
+   Schedule_p         preproc_schedule;
+   SpecLimits_p       spec_limits;
+   RawSpecFeatureCell raw_features;
+}ProverRunCell, *ProverRun_p;
+
 PERF_CTR_DEFINE(SatTimer);
 
 #include <e_options.h>
@@ -420,23 +440,20 @@ int handle_auto_modes_preproc(ProofState_p proofstate,
 //
 /----------------------------------------------------------------------*/
 
-static void print_proof_stats(ProofState_p proofstate,
-                              long parsed_ax_no,
-                              long relevancy_pruned,
-                              long raw_clause_no,
-                              long preproc_removed)
-
+static void print_proof_stats(ProverRun_p run)
 {
+   ProofState_p proofstate = run->proofstate;
+
    if(OutputLevel>1||print_statistics)
    {
       CommentPrint(GlobalOut, " Parsed axioms                        : %ld\n",
-                   parsed_ax_no);
+                   run->parsed_ax_no);
       CommentPrint(GlobalOut, " Removed by relevancy pruning/SinE    : %ld\n",
-                   relevancy_pruned);
+                   run->relevancy_pruned);
       CommentPrint(GlobalOut, " Initial clauses                      : %ld\n",
-                   raw_clause_no);
+                   run->raw_clause_no);
       CommentPrint(GlobalOut, " Removed in clause preprocessing      : %ld\n",
-                   preproc_removed);
+                   run->preproc_removed);
       ProofStateStatisticsPrint(GlobalOut, proofstate);
       CommentPrint(GlobalOut, " Clause-clause subsumption calls (NU) : %ld\n",
                    ClauseClauseSubsumptionCalls);
@@ -522,49 +539,23 @@ static void print_proof_stats(ProofState_p proofstate,
 
 /*-----------------------------------------------------------------------
 //
-// Function: main()
+// Function: prover_init()
 //
-//   Main entry point of the prover. This is where all the cruft
-//   accumulates - sorry!
+//   Initialize I/O, signals and parameter cells, process the command
+//   line, open the output and parse the problem.
 //
-// Global Variables: Plenty, mostly flags shared with
-//                   process_options. See list above.
+// Global Variables: pid, h_parms, fvi_parms, wfcb_definitions,
+//                   hcb_definitions, outname, parse_format,
+//                   error_on_empty, free_symb_prop
 //
-// Side Effects    : Yes ;-)
+// Side Effects    : Everything above, memory, input, output.
 //
 /----------------------------------------------------------------------*/
 
-int main(int argc, char* argv[])
+static void prover_init(int argc, char* argv[], ProverRun_p run)
 {
-   int              retval = NO_ERROR;
-   CLState_p        state;
-   ProofState_p     proofstate;
-   ProofControl_p   proofcontrol;
-   Clause_p         success = NULL,
-      filter_success;
-   bool             out_of_clauses;
-   char             *finals_state = "exists",
-      *sat_status = "Derivation";
-   long             cnf_size = 0,
-      raw_clause_no,
-      preproc_removed=0,
-      neg_conjectures,
-      parsed_ax_no,
-      relevancy_pruned = 0;
-   double           preproc_time;
-   SpecLimits_p spec_limits = NULL;
-   RawSpecFeatureCell raw_features;
-   SpecFeatureCell features;
-   int sched_idx = -1;
-   Schedule_p preproc_schedule = NULL;
-   rlim_t wc_sched_limit;
-   Derivation_p deriv;
-
-   assert(argv[0]);
-
-#ifdef STACK_SIZE
-   INCREASE_STACK_SIZE;
-#endif
+   memset(run, 0, sizeof(*run));
+   run->sched_idx = -1;
 
    InitIO(NAME);
 
@@ -580,38 +571,80 @@ int main(int argc, char* argv[])
    wfcb_definitions = PStackAlloc();
    hcb_definitions = PStackAlloc();
 
-   state = process_options(argc, argv);
+   run->state = process_options(argc, argv);
 
    OpenGlobalOut(outname);
 
    print_info();
 
-   proofstate = parse_spec(state, parse_format,
-                           error_on_empty, free_symb_prop,
-                           &parsed_ax_no);
+   run->proofstate = parse_spec(run->state, parse_format,
+                                error_on_empty, free_symb_prop,
+                                &(run->parsed_ax_no));
+}
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: handle_syntax_only()
+//
+//   If only a syntax check was requested, report the result and
+//   return true. Otherwise return false.
+//
+// Global Variables: syntax_only, print_formulas
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+static bool handle_syntax_only(ProverRun_p run)
+{
    if(syntax_only)
    {
       if(print_formulas)
       {
-         FormulaSetPrettyPrintTSTP(GlobalOut, proofstate->f_axioms, true);
+         FormulaSetPrettyPrintTSTP(GlobalOut, run->proofstate->f_axioms, true);
       }
       else
       {
          fprintf(GlobalOut, "\n"COMCHAR" Parsing successful!\n");
          TSTPOUT(GlobalOut, "Unknown");
       }
-      goto cleanup1;
+      return true;
    }
+   return false;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: select_preproc_strategy()
+//
+//   Determine the strategy used for preprocessing: in auto and
+//   schedule mode by raw classification (and, for scheduling, by
+//   running the preprocessing schedule), then apply a loaded or
+//   selected strategy and re-apply the user's command line options.
+//
+// Global Variables: auto_conf, strategy_scheduling,
+//                   ScheduleTimeLimit, h_parms, hcb_definitions
+//
+// Side Effects    : Sets h_parms, may fork and exit (scheduling,
+//                   --print-strategy).
+//
+/----------------------------------------------------------------------*/
+
+static void select_preproc_strategy(int argc, char* argv[], ProverRun_p run)
+{
+   rlim_t wc_sched_limit;
+
    wc_sched_limit = ScheduleTimeLimit ? ScheduleTimeLimit : DEFAULT_SCHED_TIME_LIMIT;
    if(auto_conf || strategy_scheduling)
    {
-      sched_idx = handle_auto_modes_preproc(proofstate,
-                                            h_parms,
-                                            &preproc_schedule,
-                                            &spec_limits,
-                                            &raw_features,
-                                            wc_sched_limit);
+      run->sched_idx = handle_auto_modes_preproc(run->proofstate,
+                                                 h_parms,
+                                                 &(run->preproc_schedule),
+                                                 &(run->spec_limits),
+                                                 &(run->raw_features),
+                                                 wc_sched_limit);
 
       CLStateFree(process_options(argc, argv)); // refilling the h_parms
                                                 // with manual user options
@@ -629,14 +662,39 @@ int main(int argc, char* argv[])
    CLStateFree(process_options(argc, argv)); // refilling the h_parms
                                              // with manual user options
    //HeuristicParmsPrint(GlobalOut, h_parms);
+}
 
-   relevancy_pruned += ProofStateSinE(proofstate, h_parms->sine);
-   relevancy_pruned += ProofStateRelevancyProcess(proofstate,
-                                                  relevance_prune_level);
+
+/*-----------------------------------------------------------------------
+//
+// Function: preprocess_problem()
+//
+//   Run relevancy pruning, conjecture handling, clausification and
+//   clausal preprocessing. Return false if one of the modes that stop
+//   after (part of) preprocessing has finished (--app-encode,
+//   --prune), true if the proof search should go ahead.
+//
+// Global Variables: h_parms, relevance_prune_level, app_encode,
+//                   prune_only, incomplete, answer_limit,
+//                   conjectures_are_questions, watchlist_filename,
+//                   parse_format
+//
+// Side Effects    : Changes the proof state, output.
+//
+/----------------------------------------------------------------------*/
+
+static bool preprocess_problem(ProverRun_p run)
+{
+   ProofState_p proofstate = run->proofstate;
+   long         cnf_size = 0;
+
+   run->relevancy_pruned += ProofStateSinE(proofstate, h_parms->sine);
+   run->relevancy_pruned += ProofStateRelevancyProcess(proofstate,
+                                                       relevance_prune_level);
    if(app_encode)
    {
       FormulaSetAppEncode(stdout, proofstate->f_axioms);
-      goto cleanup1;
+      return false;
    }
 
    FormulaSetDocInital(GlobalOut, OutputLevel, proofstate->f_axioms);
@@ -646,16 +704,16 @@ int main(int argc, char* argv[])
    {
       fprintf(GlobalOut, "\n"COMCHAR" Pruning successful!\n");
       TSTPOUT(GlobalOut, "Unknown");
-      goto cleanup1;
+      return false;
    }
 
-   if(relevancy_pruned || incomplete)
+   if(run->relevancy_pruned || incomplete)
    {
       proofstate->state_is_complete = false;
    }
    FormulaSetArchive(proofstate->f_axioms, proofstate->f_ax_archive);
    //printf("Alive (-2)!\n");
-   if((neg_conjectures =
+   if((run->neg_conjectures =
        FormulaSetPreprocConjectures(proofstate->f_axioms,
                                     proofstate->f_ax_archive,
                                     answer_limit>0,
@@ -683,44 +741,72 @@ int main(int argc, char* argv[])
    {
       VERBOUT("CNFization done\n");
    }
-   raw_clause_no = proofstate->axioms->members;
+   run->raw_clause_no = proofstate->axioms->members;
    ProofStateLoadWatchlist(proofstate, watchlist_filename, parse_format);
 
-   preproc_removed = ProofStateClausalPreproc(proofstate, h_parms);
+   run->preproc_removed = ProofStateClausalPreproc(proofstate, h_parms);
+   return true;
+}
 
-   if((strategy_scheduling && sched_idx != -1) || (auto_conf && !cnf_only))
+
+/*-----------------------------------------------------------------------
+//
+// Function: select_search_strategy()
+//
+//   In auto and schedule mode, classify the preprocessed problem and
+//   select the search strategy. In schedule mode this runs the
+//   search schedule (forking one child per strategy); the parent
+//   exits if no strategy succeeds. Finally, re-apply the user's
+//   command line options.
+//
+// Global Variables: auto_conf, strategy_scheduling, cnf_only,
+//                   h_parms, HardTimeLimit, SoftTimeLimit,
+//                   print_rusage, force_pre_schedule
+//
+// Side Effects    : Sets h_parms, may fork and exit.
+//
+/----------------------------------------------------------------------*/
+
+static void select_search_strategy(int argc, char* argv[], ProverRun_p run)
+{
+   ProofState_p    proofstate = run->proofstate;
+   SpecFeatureCell features;
+
+   if((strategy_scheduling && run->sched_idx != -1) || (auto_conf && !cnf_only))
    {
-      if(!spec_limits)
+      if(!run->spec_limits)
       {
-         spec_limits = CreateDefaultSpecLimits();
+         run->spec_limits = CreateDefaultSpecLimits();
       }
       const int choice_max_depth = h_parms->inst_choice_max_depth;
       SpecFeaturesCompute(&features, proofstate->axioms, proofstate->f_axioms,
                           proofstate->f_ax_archive, proofstate->terms);
       // order info can be affected by clausification
       // (imagine new symbols being introduced)
-      features.order = raw_features.order;
-      features.goal_order = raw_features.conj_order;
-      features.num_of_definitions = raw_features.num_of_definitions;
-      features.perc_of_form_defs = raw_features.perc_of_form_defs;
-      SpecFeaturesAddEval(&features, spec_limits);
+      features.order = run->raw_features.order;
+      features.goal_order = run->raw_features.conj_order;
+      features.num_of_definitions = run->raw_features.num_of_definitions;
+      features.perc_of_form_defs = run->raw_features.perc_of_form_defs;
+      SpecFeaturesAddEval(&features, run->spec_limits);
       char* class = SpecTypeString(&features, DEFAULT_MASK);
       CommentPrint(stdout, " Search class: %s\n", class);
       if (strategy_scheduling)
       {
+         Schedule_p preproc_sched = run->preproc_schedule+run->sched_idx;
+
          set_limits(HardTimeLimit, SoftTimeLimit, h_parms->mem_limit);
          ScheduleCell* search_sched = GetSearchSchedule(class);
-         InitializePlaceholderSearchSchedule(search_sched, preproc_schedule+sched_idx,
+         InitializePlaceholderSearchSchedule(search_sched, preproc_sched,
                                              force_pre_schedule);
          int status =
             ExecuteScheduleMultiCore(search_sched,
                                      h_parms, print_rusage,
-                                     preproc_schedule[sched_idx].time_absolute,
-                                     false, preproc_schedule[sched_idx].cores, false);
+                                     preproc_sched->time_absolute,
+                                     false, preproc_sched->cores, false);
          if (status == SCHEDULE_DONE)
          {
             double total_cpu = GetTotalCPUTimeIncludingChildren();
-            double total_limit = preproc_schedule[sched_idx].time_absolute;
+            double total_limit = preproc_sched->time_absolute;
             double remaining_time = total_limit - total_cpu;
             if(remaining_time > RETRY_DEFAULT_SCHEDULE_THRESHOLD)
             {
@@ -734,7 +820,7 @@ int main(int argc, char* argv[])
                status =
                   ExecuteScheduleMultiCore(filtered_default, h_parms, print_rusage,
                                           remaining_time, false,
-                                          preproc_schedule[sched_idx].cores, false);
+                                          preproc_sched->cores, false);
                if (status == SCHEDULE_DONE)
                {
                   exit(RESOURCE_OUT);
@@ -762,11 +848,37 @@ int main(int argc, char* argv[])
       CLStateFree(process_options(argc, argv)); // refilling the h_parms
                                                 // with manual user options
    }
-   if(spec_limits)
+   if(run->spec_limits)
    {
-      SpecLimitsCellFree(spec_limits);
+      SpecLimitsCellFree(run->spec_limits);
+      run->spec_limits = NULL;
    }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: setup_search()
+//
+//   Build the proof control (ordering, heuristic, ...) and initialize
+//   the proof state for the search.
+//
+// Global Variables: h_parms, fvi_parms, wfcb_definitions,
+//                   hcb_definitions, PCLFullTerms, pcl_full_terms,
+//                   print_rusage
+//
+// Side Effects    : Memory, changes the proof state, output.
+//
+/----------------------------------------------------------------------*/
+
+static void setup_search(ProverRun_p run)
+{
+   ProofState_p   proofstate = run->proofstate;
+   ProofControl_p proofcontrol;
+   double         preproc_time;
+
    proofcontrol = ProofControlAlloc();
+   run->proofcontrol = proofcontrol;
    ProofControlInit(proofstate, proofcontrol, h_parms,
                     fvi_parms, wfcb_definitions, hcb_definitions);
 
@@ -791,6 +903,32 @@ int main(int argc, char* argv[])
    {
       CommentPrint(GlobalOut, " Preprocessing time       : %.3f s\n", preproc_time);
    }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: run_saturation()
+//
+//   Run the (optional) presaturation interreduction and the main
+//   saturation, then the optional filtering of the unprocessed
+//   clauses. Stores the empty clause (if any) in run->success.
+//
+// Global Variables: inf_sys_complete, h_parms, step_limit,
+//                   proc_limit, unproc_limit, total_limit,
+//                   generated_limit, tb_insert_limit, answer_limit,
+//                   filter_sat, filterdesc
+//
+// Side Effects    : The proof search, sets inf_sys_complete.
+//
+/----------------------------------------------------------------------*/
+
+static void run_saturation(ProverRun_p run)
+{
+   ProofState_p   proofstate   = run->proofstate;
+   ProofControl_p proofcontrol = run->proofcontrol;
+   Clause_p       success      = NULL,
+      filter_success;
 
    if(proofcontrol->heuristic_parms.presat_interreduction)
    {
@@ -828,7 +966,7 @@ int main(int argc, char* argv[])
    }
    PERF_CTR_EXIT(SatTimer);
 
-   out_of_clauses = ClauseSetEmpty(proofstate->unprocessed);
+   run->out_of_clauses = ClauseSetEmpty(proofstate->unprocessed);
    if(filter_sat)
    {
       filter_success = ProofStateFilterUnprocessed(proofstate,
@@ -840,6 +978,36 @@ int main(int argc, char* argv[])
          PStackPushP(proofstate->extract_roots, success);
       }
    }
+   run->success = success;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: report_result()
+//
+//   Report the result of the proof search (SZS status, proof object
+//   or saturation derivation) and return the exit code.
+//
+// Global Variables: print_full_deriv, PrintProofObject,
+//                   print_derivation, proof_statistics,
+//                   proc_training_data, inf_sys_complete,
+//                   assume_inf_sys_complete, cnf_only, SilentTimeOut,
+//                   problemType, force_deriv_output, print_sat
+//
+// Side Effects    : Output, may reset print_sat.
+//
+/----------------------------------------------------------------------*/
+
+static int report_result(ProverRun_p run)
+{
+   ProofState_p proofstate = run->proofstate;
+   Clause_p     success    = run->success;
+   bool         out_of_clauses = run->out_of_clauses;
+   int          retval = NO_ERROR;
+   char         *finals_state = "exists",
+      *sat_status = "Derivation";
+   Derivation_p deriv;
 
    if(success||proofstate->answer_count)
    {
@@ -871,7 +1039,7 @@ int main(int argc, char* argv[])
 
       if(!proofstate->status_reported)
       {
-         if(neg_conjectures)
+         if(run->neg_conjectures)
          {
             TSTPOUT(GlobalOut, deriv->has_conjecture?"Theorem":"ContradictoryAxioms");
          }
@@ -956,7 +1124,7 @@ int main(int argc, char* argv[])
                  && inf_sys_complete)
          {
             fprintf(GlobalOut, "\n"COMCHAR" No proof found!\n");
-            TSTPOUT(GlobalOut, neg_conjectures?"CounterSatisfiable":"Satisfiable");
+            TSTPOUT(GlobalOut, run->neg_conjectures?"CounterSatisfiable":"Satisfiable");
             sat_status = "Saturation";
             retval = SATISFIABLE;
          }
@@ -1012,6 +1180,26 @@ int main(int argc, char* argv[])
       }
 
    }
+   return retval;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: print_saturated_state()
+//
+//   If requested, print the (semi-)saturated clause set.
+//
+// Global Variables: print_sat, outdesc, outinfo
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+static void print_saturated_state(ProverRun_p run)
+{
+   ProofState_p proofstate = run->proofstate;
+
    /* ClauseSetDerivationStackStatistics(proofstate->unprocessed); */
    if(print_sat)
    {
@@ -1019,10 +1207,10 @@ int main(int argc, char* argv[])
       {
          fprintf(GlobalOut, "\n"COMCHAR" Saturated system is incomplete!\n");
       }
-      if(success)
+      if(run->success)
       {
          CommentPrint(GlobalOut, " Saturated system contains the empty clause:\n");
-         ClausePrint(GlobalOut, success, true);
+         ClausePrint(GlobalOut, run->success, true);
          fputc('\n',GlobalOut);
          fputc('\n',GlobalOut);
       }
@@ -1030,18 +1218,31 @@ int main(int argc, char* argv[])
                                outinfo);
       fprintf(GlobalOut, "\n");
    }
+}
 
-   if(success)
+
+/*-----------------------------------------------------------------------
+//
+// Function: print_final_stats()
+//
+//   Free the empty clause and print the statistics of the run.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory, output.
+//
+/----------------------------------------------------------------------*/
+
+static void print_final_stats(ProverRun_p run)
+{
+   if(run->success)
    {
-      ClauseFree(success);
+      ClauseFree(run->success);
+      run->success = NULL;
    }
    fflush(GlobalOut);
 
-   print_proof_stats(proofstate,
-                     parsed_ax_no,
-                     relevancy_pruned,
-                     raw_clause_no,
-                     preproc_removed);
+   print_proof_stats(run);
 #ifndef FAST_EXIT
 #ifdef FULL_MEM_STATS
    CommentPrint(GlobalOut,
@@ -1062,15 +1263,36 @@ int main(int argc, char* argv[])
                 sizeof(ClausePosCell),
                 sizeof(PDArrayCell));
    CommentPrint(GlobalOut, "Estimated memory usage: %ld\n",
-                ProofStateStorage(proofstate));
+                ProofStateStorage(run->proofstate));
    MemFreeListPrint(GlobalOut);
 #endif
-   ProofControlFree(proofcontrol);
 #endif
-cleanup1:
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: prover_cleanup()
+//
+//   Free all data (unless FAST_EXIT is set), print resource usage if
+//   requested and close the output.
+//
+// Global Variables: h_parms, fvi_parms, wfcb_definitions,
+//                   hcb_definitions, print_rusage, SilentTimeOut
+//
+// Side Effects    : Memory, output.
+//
+/----------------------------------------------------------------------*/
+
+static void prover_cleanup(ProverRun_p run)
+{
 #ifndef FAST_EXIT
-   ProofStateFree(proofstate);
-   CLStateFree(state);
+   if(run->proofcontrol)
+   {
+      ProofControlFree(run->proofcontrol);
+   }
+   ProofStateFree(run->proofstate);
+   CLStateFree(run->state);
    PStackFree(hcb_definitions);
    PStackFree(wfcb_definitions);
    FVIndexParmsFree(fvi_parms);
@@ -1090,6 +1312,50 @@ cleanup1:
    MemDebugPrintStats(stdout);
 #endif
    OutClose(GlobalOut);
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: main()
+//
+//   Main entry point of the prover. Runs the phases of a proof
+//   attempt in order. The phases communicate via the ProverRunCell
+//   and the global option variables set by process_options().
+//
+// Global Variables: Plenty, mostly flags shared with
+//                   process_options. See list above.
+//
+// Side Effects    : Yes ;-)
+//
+/----------------------------------------------------------------------*/
+
+int main(int argc, char* argv[])
+{
+   ProverRunCell run;
+   int           retval = NO_ERROR;
+
+   assert(argv[0]);
+
+#ifdef STACK_SIZE
+   INCREASE_STACK_SIZE;
+#endif
+
+   prover_init(argc, argv, &run);
+   if(!handle_syntax_only(&run))
+   {
+      select_preproc_strategy(argc, argv, &run);
+      if(preprocess_problem(&run))
+      {
+         select_search_strategy(argc, argv, &run);
+         setup_search(&run);
+         run_saturation(&run);
+         retval = report_result(&run);
+         print_saturated_state(&run);
+         print_final_stats(&run);
+      }
+   }
+   prover_cleanup(&run);
    return retval;
 }
 
