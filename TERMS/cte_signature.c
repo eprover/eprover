@@ -316,12 +316,20 @@ void SigFree(Sig_p junk)
    FunCode i;
 
    /* names are shared with junk->f_index and are free()ed by the
-      StrTreeFree() call below! */
-   for(i=0; i<= junk->f_count; i++)
+      StrTreeFree() call below! Entry 0 is unused (and
+      uninitialized). */
+   for(i=1; i<= junk->f_count; i++)
    {
       if(junk->f_info[i].pname)
       {
          FREE(junk->f_info[i].pname);
+      }
+      /* Types of app-encoding symbols are not shared via the type
+         bank, but owned by the signature (see SigGetTypedApp()). */
+      if(SigQueryFuncProp(junk, i, FPTypedApplication) &&
+         junk->f_info[i].type)
+      {
+         TypeFree(junk->f_info[i].type);
       }
    }
    FREE(junk->f_info);
@@ -2032,13 +2040,15 @@ FunCode SigGetTypedApp(Sig_p sig, Type_p arg1, Type_p arg2, Type_p ret)
    FunCode ret_fcode = SigInsertId(sig, DStrView(typed_app_name), 2, false);
    if(!sig->f_info[ret_fcode].type)
    {
+      /* app_type is not shared via the type bank, so the signature
+         owns it (see SigFree()). */
       sig->f_info[ret_fcode].type = app_type;
+      SigSetFuncProp(sig, ret_fcode, FPTypedApplication);
    }
    else
    {
       TypeFree(app_type);
    }
-   SigSetFuncProp(sig, ret_fcode, FPTypedApplication);
 
    DStrFree(typed_app_name);
 
@@ -2084,6 +2094,7 @@ void SigPrintAppEncodedDecls(FILE* out, Sig_p sig)
          DStr_p typename = TypeAppEncodedName(t);
 
          fprintf(out, "%s", DStrView(typename));
+         DStrFree(typename);
       }
       fprintf(out, ").\n");
    }

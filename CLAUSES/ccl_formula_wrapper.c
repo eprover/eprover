@@ -681,17 +681,19 @@ void WFormulaTSTPPrintFlex(FILE* out, WFormula_p form, bool fullterms,
 // Function: WFormulaAppEncode()
 //
 //   Encodes terms in wrapped formula's literals using app encoding.
-//   Initial WFormula is not changed.
+//   Initial WFormula is not changed. Clauses are printed as their
+//   universal closure, so that the result is a closed formula.
 //
 // Global Variables: -
 //
-// Side Effects    : Output
+// Side Effects    : Output, may create the closure in form->terms
 //
 /----------------------------------------------------------------------*/
 
 void WFormulaAppEncode(FILE* out, WFormula_p form)
 {
    char *typename = "plain", *formula_kind = "tff";
+   TFormula_p tform;
 
    switch(FormulaQueryType(form))
    {
@@ -722,8 +724,12 @@ void WFormulaAppEncode(FILE* out, WFormula_p form)
    fprintf(out, "%s(%s, %s", formula_kind, WFormulaGetId(form), typename);
    fprintf(out, ", ");
 
-   assert(!form->is_clause);
-   TFormulaAppEncode(out, form->terms, form->tformula);
+   tform = form->tformula;
+   if(form->is_clause)
+   {  /* Clause variables are implicitly universally quantified */
+      tform = TFormulaClosure(form->terms, tform, true);
+   }
+   TFormulaAppEncode(out, form->terms, tform);
    fprintf(out, ").");
 }
 
