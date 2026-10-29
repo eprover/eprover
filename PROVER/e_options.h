@@ -1540,7 +1540,8 @@ OptCell opts[] =
     '\0', "app-encode",
     NoArg, NULL,
     "Encodes terms in the proof state using applicative encoding, "
-    "prints encoded input problem and exits."},
+    "prints encoded input problem and exits. Included files are "
+    "expanded, so the output is self-contained."},
 
    {OPT_ARG_CONG,
     '\0', "arg-cong",

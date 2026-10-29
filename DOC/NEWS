@@ -24,6 +24,10 @@ Version 3.2.5 -> 3.5.X Countess Grey
   clauses before they are added to the unprocessed set (as before). With
   ac_res_aggressive set to false, it is only applied when a clause is
   processed (or when the unprocessed set is explicitly contracted).
+- Fixed --app-encode: clauses are now encoded as their universal
+  closure (the output was not a closed formula before), included files
+  are expanded instead of being copied as unencoded include directives,
+  and memory leaks in the encoding are fixed.
 
 Version 3.1.0 -> 3.2.5 Puttabong Moondrop
 

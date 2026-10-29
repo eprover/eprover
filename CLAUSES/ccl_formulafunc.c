@@ -28,7 +28,6 @@
 /*---------------------------------------------------------------------*/
 /*                        Global Variables                             */
 /*---------------------------------------------------------------------*/
-extern bool app_encode;
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
@@ -614,35 +613,6 @@ bool map_formula(WFormula_p form, TB_p terms, FormulaMapper processor,
       changed = true;
    }
    return changed;
-}
-
-/*-----------------------------------------------------------------------
-//
-// Function: ignore_include()
-//
-//   Ignore includes and echoes the ignored declaration. Used for
-//   app encoding only.
-//
-// Global Variables: -
-//
-// Side Effects    :
-//
-/----------------------------------------------------------------------*/
-
-void ignore_include(Scanner_p in)
-{
-   assert(app_encode);
-
-   AcceptInpId(in, "include");
-   AcceptInpTok(in, OpenBracket);
-   CheckInpTok(in, SQString);
-   char *name = DStrCopyCore(AktToken(in)->literal);
-   NextToken(in);
-   AcceptInpTok(in, CloseBracket);
-   AcceptInpTok(in, Fullstop);
-
-   fprintf(stdout, "include('%s').\n", name);
-   FREE(name);
 }
 
 /*-----------------------------------------------------------------------
@@ -1768,12 +1738,6 @@ long FormulaAndClauseSetParse(Scanner_p in, FormulaSet_p fset,
          {
             if(TestInpId(in, "include"))
             {
-               if (app_encode)
-               {
-                  ignore_include(in);
-                  continue;
-               }
-
                StrTree_p new_limit = NULL;
                Scanner_p new_in;
                FormulaSet_p nfset = FormulaSetAlloc();
