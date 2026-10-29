@@ -53,6 +53,7 @@ typedef struct prover_run_cell
    ProofControl_p     proofcontrol;
    Clause_p           success;
    bool               out_of_clauses;
+   bool               inf_sys_complete; /* Calculus used is complete */
    long               parsed_ax_no;
    long               relevancy_pruned;
    long               neg_conjectures;
@@ -908,18 +909,52 @@ static void setup_search(ProverRun_p run)
 
 /*-----------------------------------------------------------------------
 //
+// Function: inference_system_complete()
+//
+//   Return true if the calculus used for the search is refutationally
+//   complete, i.e. if a saturated clause set without the empty clause
+//   shows satisfiability. It is not if the user disabled parts of it
+//   (inf_sys_complete), if the strategy does not generate clauses or
+//   uses an incomplete literal comparison, or if the signature has
+//   interpreted symbols E does not implement.
+//
+// Global Variables: inf_sys_complete, h_parms
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static bool inference_system_complete(ProverRun_p run)
+{
+   ProofControl_p proofcontrol = run->proofcontrol;
+
+   if(!inf_sys_complete ||
+      SigHasUnimplementedInterpretedSymbols(run->proofstate->signature)||
+      (proofcontrol->heuristic_parms.selection_strategy ==  SelectNoGeneration) ||
+      (proofcontrol->heuristic_parms.order_params.lit_cmp == LCTFOEqMax)||
+      (!h_parms->enable_eq_factoring)||
+      (!h_parms->enable_neg_unit_paramod))
+   {
+      return false;
+   }
+   return true;
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: run_saturation()
 //
 //   Run the (optional) presaturation interreduction and the main
 //   saturation, then the optional filtering of the unprocessed
-//   clauses. Stores the empty clause (if any) in run->success.
+//   clauses. Stores the empty clause (if any) in run->success and
+//   the completeness of the calculus in run->inf_sys_complete.
 //
-// Global Variables: inf_sys_complete, h_parms, step_limit,
-//                   proc_limit, unproc_limit, total_limit,
-//                   generated_limit, tb_insert_limit, answer_limit,
-//                   filter_sat, filterdesc
+// Global Variables: h_parms, step_limit, proc_limit, unproc_limit,
+//                   total_limit, generated_limit, tb_insert_limit,
+//                   answer_limit, filter_sat, filterdesc
 //
-// Side Effects    : The proof search, sets inf_sys_complete.
+// Side Effects    : The proof search
 //
 /----------------------------------------------------------------------*/
 
@@ -948,15 +983,7 @@ static void run_saturation(ProverRun_p run)
    }
    PERF_CTR_ENTRY(SatTimer);
 
-
-   if(SigHasUnimplementedInterpretedSymbols(proofstate->signature)||
-      (proofcontrol->heuristic_parms.selection_strategy ==  SelectNoGeneration) ||
-      (proofcontrol->heuristic_parms.order_params.lit_cmp == LCTFOEqMax)||
-      (!h_parms->enable_eq_factoring)||
-      (!h_parms->enable_neg_unit_paramod))
-   {
-      inf_sys_complete = false;
-   }
+   run->inf_sys_complete = inference_system_complete(run);
 
    if(!success)
    {
@@ -1132,7 +1159,7 @@ static struct
 //
 //   Determine why the proof search ended without a proof.
 //
-// Global Variables: cnf_only, inf_sys_complete,
+// Global Variables: cnf_only,
 //                   assume_inf_sys_complete, problemType
 //
 // Side Effects    : -
@@ -1151,19 +1178,19 @@ static NoProofOutcome classify_no_proof(ProverRun_p run)
    {
       return NPResourceOut;
    }
-   if(!(inf_sys_complete || assume_inf_sys_complete))
+   if(!(run->inf_sys_complete || assume_inf_sys_complete))
    {
       return NPRestrictedCalculus;
    }
    if(proofstate->state_is_complete &&
-      inf_sys_complete &&
+      run->inf_sys_complete &&
       proofstate->has_interpreted_symbols)
    {
       return NPInterpretedTheories;
    }
    if(problemType != PROBLEM_HO
       && proofstate->state_is_complete
-      && inf_sys_complete)
+      && run->inf_sys_complete)
    {
       return NPSatisfiable;
    }
@@ -1179,7 +1206,7 @@ static NoProofOutcome classify_no_proof(ProverRun_p run)
 //   final state, print the SZS status and, if requested, the
 //   derivation of the saturated set. Return the exit code.
 //
-// Global Variables: inf_sys_complete, assume_inf_sys_complete,
+// Global Variables: assume_inf_sys_complete,
 //                   SilentTimeOut, PrintProofObject,
 //                   force_deriv_output, cnf_only, print_derivation,
 //                   proof_statistics, print_sat
@@ -1198,7 +1225,7 @@ static int report_no_proof(ProverRun_p run)
 
    if(run->out_of_clauses&&
       proofstate->state_is_complete&&
-      (inf_sys_complete || assume_inf_sys_complete))
+      (run->inf_sys_complete || assume_inf_sys_complete))
    {
       finals_state = "final";
    }
