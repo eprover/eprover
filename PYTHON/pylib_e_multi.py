@@ -23,7 +23,8 @@ new_config: Configuration lines, as in the config file:
                     from <dir>/Problems/XXX/XXXnnn.p, and TPTP is set
                     to <dir> for E to find included axioms (default
                     $TPTP, or /opt/tptp/current if that is not set)
-  quit              Terminate the server
+  quit              Terminate the server (after the running tasks are
+                    finished, queued tasks are dropped)
   # ...             Comment, printed
 
 new_jobs: One job per line, "<problem_list> <script>". <problem_list>
@@ -73,15 +74,13 @@ or (preferably) via email (address above).
 
 import sys
 import re
-import string
 import os
 import os.path
 import getopt
 import subprocess
-import zipfile
 import shutil
+import concurrent.futures
 from time import sleep
-import selectors
 
 
 class id(object):
@@ -113,60 +112,59 @@ class etask(object):
         self.script = script
         self.problem = problem
         self.id = etask.ids.newId()
-        self.status = "new"
-        self.output = b""
-        self.proc = None
+        self.cmd = None
+        self.output = None
 
     def __str__(self):
-        return "<%s, %s, %s, %s>"%(self.id, self.script,
-        self.problem, self.status)
+        return "<%s, %s, %s>"%(self.id, self.script, self.problem)
 
     def getId(self):
         return self.id
 
-    def run(self, time = 5, tptp = eTPTP):
-        if self.status !="new":
-            return None
-
+    def execute(self, time = 5, tptp = eTPTP):
+        """
+        Run the task in eRunDir and wait for it to finish. Return (and
+        store) its output (stdout and stderr together). This is
+        called in a worker thread of the scheduler.
+        """
+        problem = tptpProblemPath(tptp, self.problem)
         # TPTP is needed by E to find included axiom files
-        cmd = "(export STAREXEC_CPU_LIMIT=%d; export TPTP=%s; cd %s; ./%s %s)"% (
-            time, tptp, eRunDir, self.script,
-            tptpProblemPath(tptp, self.problem))
-
-        self.cmd = cmd
-        self.proc = subprocess.Popen(cmd, stdin=None,
-                                     stdout=subprocess.PIPE,
-                                     stderr=subprocess.STDOUT,
-                                     shell=True,
-                                     close_fds=True)
-        self.status = "run"
-        return self.fileno()
-
-    def fileno(self):
-        """
-        Return the pipe's fileno to support select.
-        """
-        if self.status!="run":
-            return None
-        return self.proc.stdout.fileno()
+        env = dict(os.environ, STAREXEC_CPU_LIMIT=str(time), TPTP=tptp)
+        self.cmd = "STAREXEC_CPU_LIMIT=%d TPTP=%s ./%s %s"%(
+            time, tptp, self.script, problem)
+        try:
+            res = subprocess.run([os.path.join(eRunDir, self.script), problem],
+                                 cwd=eRunDir, env=env,
+                                 stdin=subprocess.DEVNULL,
+                                 stdout=subprocess.PIPE,
+                                 stderr=subprocess.STDOUT)
+            self.output = res.stdout.decode("ASCII", errors="replace")
+        except Exception as err:
+            # Recognized by genprot.py
+            self.output = "exec failed: %s\n"%(err,)
+        return self.output
 
     def getRes(self):
-        if self.status=="run":
-            tmp = self.proc.stdout.read()
-            self.output = self.output+tmp
-            if tmp != b"":
-                return None
-            self.status = "done"
-        return self.output.decode("ASCII")
+        """
+        Return the output of the finished task (None before).
+        """
+        return self.output
 
 
 class job(object):
     ids = id("j")
 
     def __init__(self, script, problist):
-        self.id = job.ids.newId()
+        # Ids restart with every server start, so skip ids whose
+        # results (from earlier runs) still exist
+        while True:
+            self.id = job.ids.newId()
+            self.containerdir = "Job"+self.getId()+"_output"
+            containerpath = eResDir+"/"+self.containerdir
+            if not (os.path.exists(containerpath) or
+                    os.path.exists(containerpath+".zip")):
+                break
 
-        self.containerdir = "Job"+self.getId()+"_output"
         self.logdir = self.containerdir+"/Problems"
         self.script = script
         self.stratname = "EFake__E_"+script[len("starexec_run_"):]
@@ -246,6 +244,9 @@ class job(object):
 
 class scheduler(object):
     ids = id("s")
+    # Upper bound for max_running. Worker threads are only created
+    # when needed, so this costs nothing.
+    max_workers = 1024
 
     def __init__(self, max_running=32, time_limit=5, tptp=eTPTP):
         self.id = scheduler.ids.newId()
@@ -253,8 +254,11 @@ class scheduler(object):
         self.max_running = max_running
         self.time_limit = time_limit
         self.tptp = tptp
-        self.running  = 0
-        self.tasks    = {}
+        # Future of each running task -> (task, job it belongs to)
+        self.running  = {}
+        self.pool = concurrent.futures.ThreadPoolExecutor(
+            max_workers=scheduler.max_workers)
+        self.quit_requested = False
         self.filecount = 0
         self.blockfiles = [
             os.path.expanduser("~sschulz")+"/CPU_REQUEST",
@@ -290,8 +294,8 @@ class scheduler(object):
             elif l == "":
                 pass
             elif l.startswith("quit"):
-                print("Exit requested, terminating")
-                sys.exit(1)
+                print("# Exit requested, terminating after running tasks")
+                self.quit_requested = True
             else:
                 # Split at the first colon only (paths may contain one)
                 todo = [p.strip() for p in l.split(":", 1)]
@@ -300,6 +304,10 @@ class scheduler(object):
                         try:
                             print("# Processing: "+l)
                             self.max_running = int(todo[1])
+                            if self.max_running > scheduler.max_workers:
+                                print("# Warning: max_running limited to %d"%(
+                                    scheduler.max_workers,))
+                                self.max_running = scheduler.max_workers
                         except:
                             print("# Warning: Failed to process "+l)
                     elif todo[0] == "time_limit":
@@ -360,61 +368,65 @@ class scheduler(object):
                 return True
         return False
 
-    def schedule(self):
-        sel_tasks = selectors.DefaultSelector()
-        sleeptime = 2
+    def startTasks(self):
+        """
+        Hand queued tasks to the thread pool until max_running tasks
+        are running.
+        """
+        while self.queue and len(self.running) < self.max_running:
+            task, source = self.queue.pop(0)
+            future = self.pool.submit(task.execute,
+                                      self.time_limit, self.tptp)
+            self.running[future] = (task, source)
 
+    def finishTask(self, future):
+        """
+        Process the result of a finished task (in the main thread, so
+        that results are filed and zipped one at a time).
+        """
+        task, source = self.running.pop(future)
+        if source:
+            source.returnTask(task)
+        else:
+            print("# Orphan task "+task.getId()+" complete")
+
+    def schedule(self):
         while True:
             self.updateConfig()
+            if self.quit_requested:
+                break
             self.updateJobs()
             if self.checkCPURequest():
                 sleeptime = 10
             else:
                 sleeptime = 2
-                while (self.running < self.max_running):
-                    try:
-                        job, source = self.queue.pop(0)
-                        self.tasks[job] = source
-                        job.run(self.time_limit, self.tptp)
-                        sel_tasks.register(job, selectors.EVENT_READ)
-                        self.running += 1
-                    except IndexError:
-                        break
+                self.startTasks()
 
-            print("# Jobs running: ", self.running)
+            print("# Jobs running: ", len(self.running))
             print("# Queue:        ", len(self.queue), flush=True)
 
-            if self.running == 0:
+            if not self.running:
                 print("# ...ZZZ...")
                 sleep(sleeptime)
             else:
-                events = sel_tasks.select(timeout=2)
-                for task, mask in events:
-                    res = task.fileobj.getRes()
-                    if res!=None:
-                        sel_tasks.unregister(task.fileobj)
-                        self.running -= 1
-                        source = self.tasks[task.fileobj]
-                        del(self.tasks[task.fileobj])
-                        if source:
-                            source.returnTask(task.fileobj)
-                        else:
-                            print("# Orphan job" +
-                                  task.fileobj.getId()+
-                                  " complete")
+                done, _ = concurrent.futures.wait(
+                    self.running, timeout=2,
+                    return_when=concurrent.futures.FIRST_COMPLETED)
+                for future in done:
+                    self.finishTask(future)
 
-
+        # Quit: Drop the queue, but keep the results of running tasks
+        self.queue = []
+        if self.running:
+            print("# Waiting for %d running tasks"%(len(self.running),),
+                  flush=True)
+            for future in concurrent.futures.as_completed(list(self.running)):
+                self.finishTask(future)
+        self.pool.shutdown()
+        print("# Terminated")
 
 
 if __name__ == '__main__':
-    #t1 = etask("starexec_run_E---2.0_G-E--_208_C41_F1_AE_CS_SP_PS_S00", "BOO001-1.p")
-    #t2 = etask("starexec_run_E---2.0_G-E--_208_C41_F1_AE_CS_SP_PS_S00", "GRP382-1.p")
-
-    #testjob = job(
-    #    "starexec_run_E---2.0_G-E--_208_C41_F1_AE_CS_SP_PS_S00",
-    #    "BOO001-1.p\nGRP382-1.p\nALG002-1.p\nALG004-1.p\n"+
-    #    "ALG011-1.p\nALG024+1.p\nALG007-1.p\n")
-
     try:
         opts, args = getopt.gnu_getopt(sys.argv[1:], "h")
     except getopt.GetoptError as err:
@@ -434,7 +446,6 @@ if __name__ == '__main__':
     os.makedirs(eRunDir+"/LOG", exist_ok=True)
 
     worker = scheduler()
-    # testjob.submitTasks(worker)
 
     if args:
         try:
