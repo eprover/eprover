@@ -27,7 +27,12 @@
 
 #define CCL_PDTREES
 
-#include <clb_intmap.h>
+#if USE_INTMAPOLD
+   #include <clb_intmap_old.h>
+#else
+   #include <clb_intmap.h>
+#endif
+
 #include <ccl_clausepos.h>
 #include <clb_simple_stuff.h>
 #include <clb_objmaps.h>

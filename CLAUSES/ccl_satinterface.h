@@ -27,6 +27,7 @@
 
 #include <ccl_proofstate.h>
 #include <cio_tempfile.h>
+#include <clb_pdrangearrays.h>
 #include <picosat.h>
 
 /*---------------------------------------------------------------------*/
