@@ -3,11 +3,33 @@
 """
 pylib_e_multi.py
 
-Usage: pylib_e_multi.py <config_file>
+Usage: pylib_e_multi.py [-h] [<config_file>]
 
 Run a server process accepting and processing jobs for E. This is a
 fairly specific hack allowing us to run starexec scripts locally and
 to process the result with the genprot.py script.
+
+The optional config file is read once at startup. While running, the
+server polls the directory ~/EPROVER/RUNDIR for two files, which are
+processed and then moved to ~/EPROVER/RUNDIR/LOG:
+
+new_config: Configuration lines, as in the config file:
+  max_running: <n>  Maximal number of tasks running in parallel
+                    (default 32)
+  time_limit: <n>   CPU time limit (in seconds) for tasks started from
+                    now on (default 5)
+  tptp: <dir>       Root of the (standard) TPTP installation for tasks
+                    started from now on. A problem XXXnnn.p is taken
+                    from <dir>/Problems/XXX/XXXnnn.p, and TPTP is set
+                    to <dir> for E to find included axioms (default
+                    $TPTP, or /opt/tptp/current if that is not set)
+  quit              Terminate the server
+  # ...             Comment, printed
+
+new_jobs: One job per line, "<problem_list> <script>". <problem_list>
+  is a file in ~/EPROVER/RUNDIR with one problem name per line, and
+  <script> a starexec_run_* script in ~/EPROVER/RUNDIR. Lines starting
+  with # are printed.
 
 Options:
 
@@ -74,7 +96,15 @@ class id(object):
 homeDir = os.path.expanduser("~")
 eRunDir = homeDir+"/EPROVER/RUNDIR"
 eResDir = eRunDir
-eFlatTPTP = homeDir+"/EPROVER/TPTP_8.2.0_FLAT"
+eTPTP = os.environ.get("TPTP", "/opt/tptp/current")
+
+
+def tptpProblemPath(tptp, problem):
+    """
+    Return the path of problem (e.g. GRP001-1.p) in the standard
+    TPTP installation at tptp (i.e. tptp/Problems/GRP/GRP001-1.p).
+    """
+    return "%s/Problems/%s/%s"%(tptp, problem[0:3], problem)
 
 class etask(object):
     ids = id("t")
@@ -94,12 +124,14 @@ class etask(object):
     def getId(self):
         return self.id
 
-    def run(self, time = 5):
+    def run(self, time = 5, tptp = eTPTP):
         if self.status !="new":
             return None
 
-        cmd = "(export STAREXEC_CPU_LIMIT=%d; cd %s; ./%s %s/%s)"% (
-            time, eRunDir, self.script, eFlatTPTP, self.problem)
+        # TPTP is needed by E to find included axiom files
+        cmd = "(export STAREXEC_CPU_LIMIT=%d; export TPTP=%s; cd %s; ./%s %s)"% (
+            time, tptp, eRunDir, self.script,
+            tptpProblemPath(tptp, self.problem))
 
         self.cmd = cmd
         self.proc = subprocess.Popen(cmd, stdin=None,
@@ -175,14 +207,19 @@ class job(object):
             fp.close()
 
 
+    def summaryLines(self, result):
+        """
+        Return the SZS status and total time lines of E's output. E
+        uses % as the comment character (# for old versions or
+        --unix-comments).
+        """
+        return [l for l in result.split("\n")
+                if re.match(r"[#%] (SZS|Total time)", l)]
+
     def returnTask(self, task):
         print("# Task "+task.getId()+" complete")
-        res = task.getRes().split("\n")
-        for l in res:
-            if l.startswith("# SZS"):
-                print(l)
-            if l.startswith("# Total time"):
-                print(l)
+        for l in self.summaryLines(task.getRes()):
+            print(l)
         self.processResult(task.getRes())
         self.cardinality -= 1
         if self.cardinality == 0:
@@ -198,10 +235,12 @@ class job(object):
 class scheduler(object):
     ids = id("s")
 
-    def __init__(self, max_running=32):
+    def __init__(self, max_running=32, time_limit=5, tptp=eTPTP):
         self.id = scheduler.ids.newId()
         self.queue    = []
         self.max_running = max_running
+        self.time_limit = time_limit
+        self.tptp = tptp
         self.running  = 0
         self.tasks    = {}
         self.filecount = 0
@@ -228,16 +267,22 @@ class scheduler(object):
             os.rename(fullname, newname)
         return res
 
-    def updateConfig(self):
-        conf = self.consumeFile("new_config")
+    def processConfig(self, conf):
+        """
+        Process configuration lines (from new_config or the config
+        file given on the command line).
+        """
         for l in conf:
             if l.startswith("#"):
                 print(l)
+            elif l == "":
+                pass
             elif l.startswith("quit"):
                 print("Exit requested, terminating")
                 sys.exit(1)
             else:
-                todo = [p.strip() for p in l.split(":")]
+                # Split at the first colon only (paths may contain one)
+                todo = [p.strip() for p in l.split(":", 1)]
                 if len(todo):
                     if todo[0] == "max_running":
                         try:
@@ -245,8 +290,33 @@ class scheduler(object):
                             self.max_running = int(todo[1])
                         except:
                             print("# Warning: Failed to process "+l)
+                    elif todo[0] == "time_limit":
+                        try:
+                            print("# Processing: "+l)
+                            self.time_limit = int(todo[1])
+                        except:
+                            print("# Warning: Failed to process "+l)
+                    elif todo[0] == "tptp":
+                        if len(todo) == 2 and todo[1] != "":
+                            print("# Processing: "+l)
+                            self.tptp = todo[1]
+                        else:
+                            print("# Warning: Failed to process "+l)
                     else:
                         print("# Warning: Don't know what to do with "+l)
+
+    def updateConfig(self):
+        self.processConfig(self.consumeFile("new_config"))
+
+    def readConfigFile(self, name):
+        """
+        Read the config file name (which, unlike new_config, is left
+        in place).
+        """
+        fp = open(name, "r")
+        conf = [l.strip() for l in fp.readlines()]
+        fp.close()
+        self.processConfig(conf)
 
     def updateJobs(self):
         jobs = self.consumeFile("new_jobs")
@@ -273,13 +343,9 @@ class scheduler(object):
 
     def checkCPURequest(self):
         for file in self.blockfiles:
-            try:
-                res = os.path.isfile(file)
-            except:
-                pass
-            if res:
+            if os.path.isfile(file):
                 print("Stopped scheduling due to "+file)
-                return res
+                return True
         return False
 
     def schedule(self):
@@ -297,7 +363,7 @@ class scheduler(object):
                     try:
                         job, source = self.queue.pop(0)
                         self.tasks[job] = source
-                        job.run()
+                        job.run(self.time_limit, self.tptp)
                         sel_tasks.register(job, selectors.EVENT_READ)
                         self.running += 1
                     except IndexError:
@@ -337,7 +403,29 @@ if __name__ == '__main__':
     #    "BOO001-1.p\nGRP382-1.p\nALG002-1.p\nALG004-1.p\n"+
     #    "ALG011-1.p\nALG024+1.p\nALG007-1.p\n")
 
+    try:
+        opts, args = getopt.gnu_getopt(sys.argv[1:], "h")
+    except getopt.GetoptError as err:
+        print(err)
+        sys.exit(1)
+
+    for option, optarg in opts:
+        if option == "-h":
+            print(__doc__)
+            sys.exit()
+
+    if len(args) > 1:
+        print(__doc__)
+        sys.exit(1)
+
     worker = scheduler()
     # testjob.submitTasks(worker)
+
+    if args:
+        try:
+            worker.readConfigFile(args[0])
+        except OSError as err:
+            print("Cannot read config file: "+str(err))
+            sys.exit(1)
 
     worker.schedule()
