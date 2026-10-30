@@ -193,11 +193,16 @@ class job(object):
         res = result.split("\n")
         probname = None
         for l in res:
-            if l.startswith("% Problem"):
+            # Older run scripts print %% (or #) instead of %
+            if re.match(r"(%%?|#) Problem", l):
                 tmp = l.split(":")
                 probname = tmp[1].strip()
                 domname = probname[0:3]
-        if probname != None:
+        if probname == None:
+            print("# Warning: No Problem line in task output, discarded:")
+            for l in res[:5]:
+                print("#   "+l)
+        else:
             dirpath = eResDir+"/"+self.logdir+"/"+domname+"/"+self.stratname+"/"+probname
             filepath = dirpath+"/"+"%07d.txt"%(self.filecounter,)
             self.filecounter += 1
@@ -224,11 +229,18 @@ class job(object):
         self.cardinality -= 1
         if self.cardinality == 0:
             print("# Job "+self.getId()+" "+self.script+" complete")
-            shutil.make_archive(self.containerdir,
-                                "zip",
-                                base_dir=self.containerdir)
-            shutil.rmtree(self.containerdir)
-            print("# Job "+self.getId()+" zipped")
+            # Results are in eResDir, independent of the working directory
+            containerpath = eResDir+"/"+self.containerdir
+            if os.path.isdir(containerpath):
+                shutil.make_archive(containerpath,
+                                    "zip",
+                                    root_dir=eResDir,
+                                    base_dir=self.containerdir)
+                shutil.rmtree(containerpath)
+                print("# Job "+self.getId()+" zipped")
+            else:
+                print("# Warning: Job "+self.getId()+
+                      " produced no results (no % Problem lines)")
 
 
 
@@ -417,6 +429,9 @@ if __name__ == '__main__':
     if len(args) > 1:
         print(__doc__)
         sys.exit(1)
+
+    # consumeFile() moves processed files here
+    os.makedirs(eRunDir+"/LOG", exist_ok=True)
 
     worker = scheduler()
     # testjob.submitTasks(worker)
