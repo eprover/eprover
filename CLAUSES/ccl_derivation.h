@@ -147,6 +147,9 @@ typedef enum
    DCShiftQuantors    = DOShiftQuantors,
    DCVarRename        = DOVarRename,
    DCSkolemize        = DOSkolemize,
+   /* A single Skolemization step with its premise and the new Skolem
+      symbol */
+   DCSkolemizeSym     = DOSkolemize|Arg1Fof|Arg2Num,
    DCDistDisjunctions = DODistDisjunctions,
    DCAnnoQuestion     = DOAnnoQuestion,
    DCExpandDistinct   = DOExpandDistinct |Arg1Fof,

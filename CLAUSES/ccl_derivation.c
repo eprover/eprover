@@ -1594,6 +1594,12 @@ void DerivationStackTSTPPrint(FILE* out, Sig_p sig, PStack_p derivation)
          case DCCnfAddArg:
                PStackPushP(arg_stack, PStackElementP(derivation, i+1));
                break;
+         case DCSkolemizeSym:
+               fprintf(out, "inference(%s,[status(%s),new_symbols(skolem,[%s])],[",
+                       opinfo[opc].opid,
+                       opinfo[opc].opstatus,
+                       SigFindName(sig, PStackElementInt(derivation, i+2)));
+               break;
          default:
                fprintf(out, "inference(%s,[status(%s)],[",
                        opinfo[opc].opid,

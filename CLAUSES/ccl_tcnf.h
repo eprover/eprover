@@ -28,6 +28,7 @@
 #include <clb_numxtrees.h>
 #include <ccl_tformulae.h>
 #include <ccl_clausesets.h>
+#include <ccl_formulasets.h>
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
@@ -64,6 +65,8 @@ TFormula_p TFormulaMiniScope(TB_p terms,  TFormula_p form);
 TFormula_p TFormulaVarRename(TB_p terms, TFormula_p form);
 
 TFormula_p TFormulaSkolemizeOutermost(TB_p terms, TFormula_p form);
+void       WTFormulaSkolemizeSteps(WFormula_p form, TB_p terms,
+                                   FormulaSet_p archive);
 
 TFormula_p TFormulaDistributeDisjunctions(TB_p terms, TFormula_p form);
 
@@ -75,7 +78,8 @@ void WTFormulaConjunctiveNF(WFormula_p form, TB_p terms);
 /*                              bool fool_unroll); */
 void WTFormulaConjunctiveNF3(WFormula_p form, TB_p terms,
                              long miniscope_limit,
-                             bool fool_unroll);
+                             bool fool_unroll,
+                             FormulaSet_p archive);
 
 
 #endif
