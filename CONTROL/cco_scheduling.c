@@ -69,57 +69,6 @@ static inline bool name_in_schedule(const char* name, Schedule_p sched)
 
 /*-----------------------------------------------------------------------
 //
-// Function: ScheduleTimesInit()
-//
-//
-//
-// Global Variables:
-//
-// Side Effects    :
-//
-/----------------------------------------------------------------------*/
-
-void ScheduleTimesInit(ScheduleCell sched[], double time_used)
-{
-   int i;
-   rlim_t sum = 0, tmp, limit;
-
-   limit = 0;
-   if(ScheduleTimeLimit)
-   {
-      if(ScheduleTimeLimit>time_used)
-      {
-         limit = ScheduleTimeLimit-time_used;
-      }
-   }
-   else
-   {
-      if(DEFAULT_SCHED_TIME_LIMIT > time_used)
-      {
-         limit = DEFAULT_SCHED_TIME_LIMIT-time_used;
-      }
-   }
-
-   for(i=0; sched[i+1].heu_name; i++)
-   {
-      tmp = sched[i].time_fraction*(limit/1.1);
-      sched[i].time_absolute = tmp;
-      sum += tmp;
-   }
-   if(ScheduleTimeLimit)
-   {
-      tmp = limit - sum;
-      sched[i].time_absolute = tmp;
-   }
-   else
-   {
-      sched[i].time_absolute = RLIM_INFINITY;
-   }
-}
-
-
-/*-----------------------------------------------------------------------
-//
 // Function: ScheduleTimesInitMultiCore()
 //
 //    If preprocessing_schedule is true (used for scheduling preprocessing)
