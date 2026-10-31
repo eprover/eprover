@@ -446,7 +446,8 @@ TFormula_p tformula_rek_skolemize(TB_p terms, TFormula_p form,
 //   repeated application yields the same formula and the same Skolem
 //   symbols). free_vars are the universally quantified variables in
 //   scope. If a quantor has been eliminated, set *done and return the
-//   new Skolem symbol in *sk_fcode. Otherwise return form unchanged.
+//   eliminated variable in *sk_var and the Skolem term replacing it in
+//   *sk_term. Otherwise return form unchanged.
 //
 // Global Variables: -
 //
@@ -457,9 +458,10 @@ TFormula_p tformula_rek_skolemize(TB_p terms, TFormula_p form,
 
 static TFormula_p tformula_skolemize_first(TB_p terms, TFormula_p form,
                                            PStack_p free_vars,
-                                           FunCode *sk_fcode, bool *done)
+                                           Term_p *sk_var, Term_p *sk_term,
+                                           bool *done)
 {
-   Term_p sk_term, var;
+   Term_p var;
    TFormula_p handle, handle2=NULL;
 
    if(TermIsGround(form) ||
@@ -475,10 +477,10 @@ static TFormula_p tformula_skolemize_first(TB_p terms, TFormula_p form,
       var = form->args[0];
       assert(TermIsFreeVar(var));
       assert(!var->binding);
-      sk_term = TBAllocNewSkolem(terms, free_vars, var->type);
-      *sk_fcode = sk_term->f_code;
+      *sk_term = TBAllocNewSkolem(terms, free_vars, var->type);
+      *sk_var  = var;
       *done = true;
-      var->binding = sk_term;
+      var->binding = *sk_term;
       form = TFormulaCopy(terms, form->args[1]);
       var->binding = NULL;
    }
@@ -489,7 +491,7 @@ static TFormula_p tformula_skolemize_first(TB_p terms, TFormula_p form,
       assert(!var->binding);
       PStackPushP(free_vars, var);
       handle = tformula_skolemize_first(terms, form->args[1],
-                                        free_vars, sk_fcode, done);
+                                        free_vars, sk_var, sk_term, done);
       (void)PStackPopP(free_vars);
       if(*done)
       {
@@ -501,14 +503,14 @@ static TFormula_p tformula_skolemize_first(TB_p terms, TFormula_p form,
    {
       assert(TFormulaHasSubForm1(terms->sig, form));
       handle = tformula_skolemize_first(terms, form->args[0],
-                                        free_vars, sk_fcode, done);
+                                        free_vars, sk_var, sk_term, done);
       if(TFormulaHasSubForm2(terms->sig, form))
       {
          handle2 = form->args[1];
          if(!*done)
          {
             handle2 = tformula_skolemize_first(terms, form->args[1],
-                                               free_vars, sk_fcode, done);
+                                               free_vars, sk_var, sk_term, done);
          }
       }
       if(*done)
@@ -2569,7 +2571,8 @@ TFormula_p TFormulaSkolemizeOutermost(TB_p terms, TFormula_p form)
 //   Skolemize form in an outermost manner (as
 //   TFormulaSkolemizeOutermost()) and record the derivation. With a
 //   proof object, each existential quantor is eliminated in a step of
-//   its own (with the new Skolem symbol), and the intermediate
+//   its own (recording the variable and the Skolem term replacing
+//   it), and the intermediate
 //   formulas are put into archive. The result of the last step is
 //   archived as well, so that later steps build on it. Without proof
 //   object (or archive), all quantors are eliminated in a single
@@ -2589,7 +2592,7 @@ void WTFormulaSkolemizeSteps(WFormula_p form, TB_p terms,
    WFormula_p parent;
    OrdSet_p   free_vars = NULL;
    PStack_p   var_stack;
-   FunCode    sk_fcode;
+   Term_p     sk_var, sk_term;
    bool       done;
    long       steps = 0;
 
@@ -2616,7 +2619,7 @@ void WTFormulaSkolemizeSteps(WFormula_p form, TB_p terms,
    {
       done = false;
       handle = tformula_skolemize_first(terms, form->tformula, var_stack,
-                                        &sk_fcode, &done);
+                                        &sk_var, &sk_term, &done);
       if(!done)
       {
          break;
@@ -2624,7 +2627,7 @@ void WTFormulaSkolemizeSteps(WFormula_p form, TB_p terms,
       parent = wformula_archive_state(form, archive);
       form->tformula = handle;
       DocFormulaModificationDefault(form, inf_skolemize_out);
-      WFormulaPushDerivation(form, DCSkolemizeSym, parent, (long)sk_fcode);
+      WFormulaPushDerivation(form, DCSkolemizeSym, parent, sk_var, sk_term);
       steps++;
    }
    PStackFree(var_stack);

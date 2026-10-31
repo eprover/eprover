@@ -44,9 +44,10 @@ Version 3.2.5 -> 3.5.X Countess Grey
   from, with "-dirty" appended for builds from a modified tree.
 - Skolemization is now documented as one step per eliminated
   existential quantifier in proof objects, each with its own
-  intermediate formula and the new Skolem symbol
-  (new_symbols(skolem,[...])), as required for checkable TPTP-3
-  proofs. The clausal normal form itself is unchanged.
+  intermediate formula, the new Skolem symbol
+  (new_symbols(skolem,[...])) and the eliminated variable with the
+  Skolem term replacing it (skolemize(X,sk(...))), as required for
+  checkable TPTP-3 proofs. The clausal normal form itself is unchanged.
 
 Version 3.1.0 -> 3.2.5 Puttabong Moondrop
 

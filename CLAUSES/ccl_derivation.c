@@ -380,6 +380,7 @@ void push_derivation(PStack_p stack, DerivationCode op, va_list args)
 {
    Clause_p   carg;
    WFormula_p farg;
+   Term_p     targ;
    long       iarg;
 
    assert(stack);
@@ -422,6 +423,19 @@ void push_derivation(PStack_p stack, DerivationCode op, va_list args)
    {
       iarg = va_arg(args, long);
       PStackPushInt(stack, iarg);
+   }
+   else if(DCOpHasTermArg2(op))
+   {
+      targ = va_arg(args, Term_p);
+      assert(targ);
+      PStackPushP(stack, targ);
+   }
+
+   if(DCOpHasTermArg3(op))
+   {
+      targ = va_arg(args, Term_p);
+      assert(targ);
+      PStackPushP(stack, targ);
    }
 }
 
@@ -861,6 +875,9 @@ void ClausePushDerivation(Clause_p clause, DerivationCode op, ...)
 {
    assert(clause);
    assert(op);
+   /* Clause derivations are not GC-marked, so they must not hold
+      terms (see DerivStackGCMarkTerms()) */
+   assert(!DCOpHasTermArg2(op) && !DCOpHasTermArg3(op));
 
    va_list args;
    va_start(args, op);
@@ -1134,7 +1151,11 @@ long DerivStackExtractParents(PStack_p derivation,
             i++;
             res++;
          }
-         else if(DCOpHasNumArg2(op))
+         else if(DCOpHasNumArg2(op) || DCOpHasTermArg2(op))
+         {
+            i++;
+         }
+         if(DCOpHasArg3(op))
          {
             i++;
          }
@@ -1231,7 +1252,11 @@ long DerivStackExtractOptParents(PStack_p derivation,
             i++;
             res++;
          }
-         else if(DCOpHasNumArg2(op))
+         else if(DCOpHasNumArg2(op) || DCOpHasTermArg2(op))
+         {
+            i++;
+         }
+         if(DCOpHasArg3(op))
          {
             i++;
          }
@@ -1288,6 +1313,10 @@ void DerivStackCountSearchInferences(PStack_p derivation,
          {
             i++;
          }
+         if(DCOpHasArg3(op))
+         {
+            i++;
+         }
          switch(op)
          {
          case DCParamod:
@@ -1312,6 +1341,61 @@ void DerivStackCountSearchInferences(PStack_p derivation,
          default:
                break;
          }
+      }
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: DerivStackGCMarkTerms()
+//
+//   Mark the term arguments in derivation (e.g. the Skolem term of a
+//   Skolemization step) for garbage collection in bank. They may not
+//   occur anywhere else (e.g. for a vacuous existential quantor).
+//
+// Global Variables: -
+//
+// Side Effects    : Marks terms
+//
+/----------------------------------------------------------------------*/
+
+void DerivStackGCMarkTerms(TB_p bank, PStack_p derivation)
+{
+   PStackPointer i, sp;
+   DerivationCode op;
+   Term_p term;
+
+   sp = PStackGetSP(derivation);
+   i  = 0;
+   while(i<sp)
+   {
+      op = PStackElementInt(derivation, i);
+      i++;
+      if(DCOpHasArg1(op))
+      {
+         i++;
+      }
+      if(DCOpHasArg2(op))
+      {
+         if(DCOpHasTermArg2(op))
+         {
+            term = PStackElementP(derivation, i);
+            if(!TermIsFreeVar(term))
+            {
+               TBGCMarkTerm(bank, term);
+            }
+         }
+         i++;
+      }
+      if(DCOpHasArg3(op))
+      {
+         term = PStackElementP(derivation, i);
+         if(!TermIsFreeVar(term))
+         {
+            TBGCMarkTerm(bank, term);
+         }
+         i++;
       }
    }
 }
@@ -1394,6 +1478,10 @@ void DerivationDebugPrint(FILE* out, PStack_p derivation)
             }
             i++;
          }
+         if(DCOpHasArg3(op))
+         {
+            i++;
+         }
          fprintf(out, "<%s%s>", opinfo[DPOpGetOpCode(op)].opid, i==sp?"":",");
       }
    }
@@ -1443,6 +1531,10 @@ void DerivationStackPCLPrint(FILE* out, Sig_p sig, PStack_p derivation)
             i++;
          }
          if(DCOpHasArg2(op))
+         {
+            i++;
+         }
+         if(DCOpHasArg3(op))
          {
             i++;
          }
@@ -1549,6 +1641,7 @@ void DerivationStackTSTPPrint(FILE* out, Sig_p sig, PStack_p derivation)
    PStackPointer i, j, sp, ac_limit;
    DerivationCode op, opc;
    Clause_p        ax;
+   Term_p          sk_var, sk_term;
 
    if(derivation)
    {
@@ -1569,6 +1662,10 @@ void DerivationStackTSTPPrint(FILE* out, Sig_p sig, PStack_p derivation)
             i++;
          }
          if(DCOpHasArg2(op))
+         {
+            i++;
+         }
+         if(DCOpHasArg3(op))
          {
             i++;
          }
@@ -1595,10 +1692,16 @@ void DerivationStackTSTPPrint(FILE* out, Sig_p sig, PStack_p derivation)
                PStackPushP(arg_stack, PStackElementP(derivation, i+1));
                break;
          case DCSkolemizeSym:
-               fprintf(out, "inference(%s,[status(%s),new_symbols(skolem,[%s])],[",
+               sk_var  = PStackElementP(derivation, i+2);
+               sk_term = PStackElementP(derivation, i+3);
+               fprintf(out, "inference(%s,[status(%s),new_symbols(skolem,[%s]),skolemize(",
                        opinfo[opc].opid,
                        opinfo[opc].opstatus,
-                       SigFindName(sig, PStackElementInt(derivation, i+2)));
+                       SigFindName(sig, sk_term->f_code));
+               TermPrint(out, sk_var, sig, DEREF_NEVER);
+               fprintf(out, ",");
+               TermPrint(out, sk_term, sig, DEREF_NEVER);
+               fprintf(out, ")],[");
                break;
          default:
                fprintf(out, "inference(%s,[status(%s)],[",
@@ -2103,6 +2206,10 @@ bool DerivStackIndicatesInitialClause(PStack_p deriv)
             return false;
          }
          else if(DCOpHasArg2(op))
+         {
+            i++;
+         }
+         if(DCOpHasArg3(op))
          {
             i++;
          }

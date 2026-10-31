@@ -1110,6 +1110,10 @@ EvalPriority PrioFunPreferHOSteps(Clause_p clause)
          {
             i++;
          }
+         if(DCOpHasArg3(op))
+         {
+            i++;
+         }
       }
    }
    return prio;
@@ -1265,6 +1269,10 @@ EvalPriority PrioFunPreferEasyHO(Clause_p clause)
             i++;
          }
          if(DCOpHasArg2(op))
+         {
+            i++;
+         }
+         if(DCOpHasArg3(op))
          {
             i++;
          }

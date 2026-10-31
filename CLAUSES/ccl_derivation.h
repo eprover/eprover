@@ -118,6 +118,8 @@ typedef enum
    Arg2Cnf = 1<<12,
    Arg2Num = 1<<13,
    ArgIsHO = 1<<14,
+   Arg2Term = 1<<15,
+   Arg3Term = 1<<16, /* Only a few operations have a third argument */
 }ArgDesc;
 
 
@@ -147,9 +149,9 @@ typedef enum
    DCShiftQuantors    = DOShiftQuantors,
    DCVarRename        = DOVarRename,
    DCSkolemize        = DOSkolemize,
-   /* A single Skolemization step with its premise and the new Skolem
-      symbol */
-   DCSkolemizeSym     = DOSkolemize|Arg1Fof|Arg2Num,
+   /* A single Skolemization step with its premise, the eliminated
+      variable and the Skolem term replacing it */
+   DCSkolemizeSym     = DOSkolemize|Arg1Fof|Arg2Term|Arg3Term,
    DCDistDisjunctions = DODistDisjunctions,
    DCAnnoQuestion     = DOAnnoQuestion,
    DCExpandDistinct   = DOExpandDistinct |Arg1Fof,
@@ -251,8 +253,13 @@ extern bool            ProofObjectRecordsGCSelection;
 #define DCOpHasCnfArg2(op)    ((op)&Arg2Cnf)
 #define DCOpHasFofArg2(op)    ((op)&Arg2Fof)
 #define DCOpHasNumArg2(op)    ((op)&Arg2Num)
+#define DCOpHasTermArg2(op)   ((op)&Arg2Term)
 #define DCOpHasParentArg2(op) ((op)&(Arg2Cnf|Arg2Fof))
-#define DCOpHasArg2(op)       ((op)&(Arg2Cnf|Arg2Fof|Arg2Num))
+#define DCOpHasArg2(op)       ((op)&(Arg2Cnf|Arg2Fof|Arg2Num|Arg2Term))
+
+/* The third argument is never a parent */
+#define DCOpHasTermArg3(op)   ((op)&Arg3Term)
+#define DCOpHasArg3(op)       ((op)&Arg3Term)
 
 #define DPOpGetOpCode(op)  ((op)&127)
 #define DCOpIsGenerating(op) ((DPOpGetOpCode(op) >= DOParamod)&&(DPOpGetOpCode(op) <= DOSatGen))
@@ -283,6 +290,7 @@ long DerivStackExtractOptParents(PStack_p derivation,
                                  PStack_p res_formulas);
 
 
+void DerivStackGCMarkTerms(TB_p bank, PStack_p derivation);
 void DerivStackCountSearchInferences(PStack_p derivation,
                                      unsigned long *generating_count,
                                      unsigned long *simplifying_count);
