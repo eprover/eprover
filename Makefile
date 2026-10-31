@@ -187,7 +187,6 @@ install:
 	-sh -c 'development_tools/e_install PROVER/ekb_delete     $(EXECPATH)'
 	-sh -c 'development_tools/e_install PROVER/ekb_ginsert    $(EXECPATH)'
 	-sh -c 'development_tools/e_install PROVER/ekb_insert     $(EXECPATH)'
-	-sh -c 'development_tools/e_install CONTRIB/picosat-965/picosat $(EXECPATH)'
 	-sh -c 'mkdir -p $(MANPATH)'
 	-sh -c 'development_tools/e_install DOC/man/eprover.1      $(MANPATH)'
 	-sh -c 'development_tools/e_install DOC/man/epclextract.1  $(MANPATH)'
