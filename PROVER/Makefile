@@ -21,10 +21,20 @@ PROJECT = $(EPROVER_BIN) e_ltb_runner e_stratpar e_deduction_server e_axfilter \
           enormalizer edpll epcllemma \
           ekb_create ekb_insert ekb_ginsert ekb_delete $(EHOH)
 LIB     = $(PROJECT)
-all: $(LIB)
+# e_gitcommit.h first, so that it is current before the objects
+# (which depend on it as ../include/e_gitcommit.h) are checked
+all: e_gitcommit.h $(LIB)
 
-depend: *.c
+depend: *.c e_gitcommit.h
 	$(MAKEDEPEND)
+
+# The commit id for --version. The script only rewrites the file if
+# the id changes, so this does not cause needless recompilation.
+
+e_gitcommit.h: FORCE
+	@sh ../development_tools/e_gitcommit e_gitcommit.h
+
+FORCE:
 
 # Remove all automatically generated files
 

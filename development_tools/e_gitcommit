@@ -1,0 +1,35 @@
+#! /bin/sh
+#
+# Usage: e_gitcommit <file>
+#
+# Write '#define ECOMMITID "<id>"' to <file>, where <id> is the git
+# commit E is built from, with "-dirty" appended if tracked files are
+# modified. The file is only rewritten if its content changes, so
+# that dependent objects are only recompiled when the id changes.
+#
+# Outside a git checkout of E (e.g. in a distribution tarball) an
+# existing file is kept (make distrib puts one into the tarball). If
+# there is none, the id is "unknown".
+#
+
+out=$1
+eroot=`cd "\`dirname "$0"\`/.." && pwd -P`
+
+# Only use git if E itself is the checkout (not, say, an unpacked
+# tarball inside some other repository)
+if gitroot=`cd "$eroot" && git rev-parse --show-toplevel 2>/dev/null` && \
+   test "`cd "$gitroot" && pwd -P`" = "$eroot" ; then
+    id=`cd "$eroot" && git rev-parse HEAD`
+    if ! (cd "$eroot" && git diff --quiet HEAD --) ; then
+        id="$id-dirty"
+    fi
+elif test -f "$out" ; then
+    exit 0
+else
+    id="unknown"
+fi
+
+new="#define ECOMMITID \"$id\""
+if test ! -f "$out" || test "`cat "$out"`" != "$new" ; then
+    echo "$new" > "$out"
+fi

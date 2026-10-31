@@ -38,6 +38,10 @@ Version 3.2.5 -> 3.5.X Countess Grey
   --detsort-rw and --detsort-new (and the strategy parameters
   detsort_bw_rw and detsort_tmpset) are obsolete and have no effect;
   they are still accepted for compatibility.
+- The commit id shown by --version is now determined at build time
+  (PROVER/e_gitcommit.h is generated and no longer under version
+  control), so it is always that of the commit the binary was built
+  from, with "-dirty" appended for builds from a modified tree.
 
 Version 3.1.0 -> 3.2.5 Puttabong Moondrop
 

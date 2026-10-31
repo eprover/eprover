@@ -67,3 +67,4 @@ CONTRIB/picosat-965/*
 setup.sh
 build.sh
 
+PROVER/e_gitcommit.h

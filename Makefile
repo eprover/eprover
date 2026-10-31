@@ -69,7 +69,7 @@ debug_config:
 	$(AWK) '/^NODEBUG/{print "NODEBUG    = # -DNDEBUG -DFAST_EXIT";next}/^MEMDEBUG/{print "MEMDEBUG   = -DCLB_MEMORY_DEBUG # -DCLB_MEMORY_DEBUG2";next}{print}' > __tmpmake__;mv __tmpmake__ Makefile.vars
 
 commit_id:
-	echo '#define ECOMMITID "'`git rev-parse HEAD`'"' > PROVER/e_gitcommit.h
+	@cd PROVER; sh ../development_tools/e_gitcommit e_gitcommit.h
 
 
 # Build a distribution
@@ -135,8 +135,9 @@ starexec-src:
 # Make all library parts
 top: E
 
-# Create symbolic links
-links: remove_links
+# Create symbolic links (the generated PROVER/e_gitcommit.h has to
+# exist for its link)
+links: remove_links commit_id
 	@mkdir -p include
 	@cd include; find .. -not -path '../include/*' -name "[^.]*.h" -exec $(LN) {} \;
 	@mkdir -p lib
