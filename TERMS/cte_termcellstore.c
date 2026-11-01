@@ -214,13 +214,14 @@ Term_p  TermCellStoreExtract(TermCellStore_p store, Term_p term)
 bool TermCellStoreDelete(TermCellStore_p store, Term_p term)
 {
    bool ret;
+   int  arity = term->arity; /* term may be freed below */
 
    ret = TermTreeDelete(&(store->store[TermCellHash(term)]), term);
 
    if(ret)
    {
       store->entries--;
-      store->arg_count-=term->arity;
+      store->arg_count-=arity;
    }
    assert(store->entries>=0);
    return ret;
