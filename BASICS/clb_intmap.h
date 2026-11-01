@@ -84,7 +84,7 @@ typedef struct intmap_iter_cell
       {
          PStack_p     tree_iter; /* Nodes still to visit */
          NumArrTree_p node;      /* Node being scanned, or NULL */
-         int          slot;      /* Next slot to look at in node */
+         long         slot;      /* Next slot to look at in node */
       }arr;                      /* For IMArrTree */
    }admin_data;
 }IntMapIterCell, *IntMapIter_p;
@@ -188,8 +188,13 @@ static inline void* IntMapIterNext(IntMapIter_p iter, long *key)
                }
                iter->admin_data.arr.node = handle;
                iter->admin_data.arr.slot = 0;
+               if(handle->key < iter->lower_key)
+               {
+                  /* Skip the part of the node below the range */
+                  iter->admin_data.arr.slot = iter->lower_key - handle->key;
+               }
             }
-            for(int i = iter->admin_data.arr.slot; i < NUMARRTREEVALUES; i++)
+            for(long i = iter->admin_data.arr.slot; i < handle->size; i++)
             {
                if(handle->key + i > iter->upper_key)
                {
@@ -198,7 +203,7 @@ static inline void* IntMapIterNext(IntMapIter_p iter, long *key)
                   iter->admin_data.arr.node = NULL;
                   return NULL;
                }
-               if(handle->key + i >= iter->lower_key && handle->vals[i].p_val)
+               if(handle->vals[i].p_val)
                {
                   iter->admin_data.arr.slot = i+1;
                   *key = handle->key + i;

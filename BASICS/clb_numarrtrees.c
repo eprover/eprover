@@ -39,9 +39,40 @@ Changes (vastly incomplete, see CVS log)
 
 /*-----------------------------------------------------------------------
 //
+// Function: node_cmp()
+//
+//   Compare key with the key range of node. Return a negative value
+//   if key is smaller than all keys in the node, a positive value if
+//   it is larger, and 0 if the node holds key.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static inline int node_cmp(NumArrTree_p node, long key)
+{
+   if(key < node->key)
+   {
+      return -1;
+   }
+   /* Unsigned difference, so that this cannot overflow */
+   if((unsigned long)key - (unsigned long)node->key >= (unsigned long)node->size)
+   {
+      return 1;
+   }
+   return 0;
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: splay_tree()
 //
-//   Perform the splay operation on tree at node with key.
+//   Perform the splay operation on tree at node with key. Afterwards,
+//   the root is the node holding key, or, if there is none, a node
+//   adjacent to key in key order.
 //
 // Global Variables: -
 //
@@ -66,14 +97,14 @@ static NumArrTree_p splay_tree(NumArrTree_p tree, long key)
 
    for (;;)
    {
-      long cmpres = key-tree->key;
+      int cmpres = node_cmp(tree, key);
       if (cmpres < 0)
       {
          if(!tree->lson)
          {
             break;
          }
-         if((key- tree->lson->key) < 0)
+         if(node_cmp(tree->lson, key) < 0)
          {
             tmp = tree->lson;
             tree->lson = tmp->rson;
@@ -94,7 +125,7 @@ static NumArrTree_p splay_tree(NumArrTree_p tree, long key)
          {
             break;
          }
-         if((key-tree->rson->key) > 0)
+         if(node_cmp(tree->rson, key) > 0)
          {
             tmp = tree->rson;
             tree->rson = tmp->lson;
@@ -123,6 +154,128 @@ static NumArrTree_p splay_tree(NumArrTree_p tree, long key)
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: tree_insert_root()
+//
+//   Insert node, whose key range must not overlap with that of any
+//   node in tree, into tree. Return the new tree, with node at the
+//   root.
+//
+// Global Variables: -
+//
+// Side Effects    : Changes tree
+//
+/----------------------------------------------------------------------*/
+
+static NumArrTree_p tree_insert_root(NumArrTree_p tree, NumArrTree_p node)
+{
+   if(!tree)
+   {
+      node->lson = node->rson = NULL;
+      return node;
+   }
+   tree = splay_tree(tree, node->key);
+   assert(node_cmp(tree, node->key) != 0);
+
+   if(node->key < tree->key)
+   {
+      node->lson = tree->lson;
+      node->rson = tree;
+      tree->lson = NULL;
+   }
+   else
+   {
+      node->rson = tree->rson;
+      node->lson = tree;
+      tree->rson = NULL;
+   }
+   return node;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: tree_remove_root()
+//
+//   Unlink the root from tree and return the remaining tree. The
+//   root itself is not freed.
+//
+// Global Variables: -
+//
+// Side Effects    : Changes tree
+//
+/----------------------------------------------------------------------*/
+
+static NumArrTree_p tree_remove_root(NumArrTree_p root)
+{
+   NumArrTree_p res;
+
+   if(!root->lson)
+   {
+      return root->rson;
+   }
+   /* All keys in the left subtree are smaller, so this splays its
+      maximum to the top, which has no right son */
+   res = splay_tree(root->lson, root->key);
+   assert(!res->rson);
+   res->rson = root->rson;
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: merge_buddies()
+//
+//   node is in the tree at *root. As long as node has a buddy (the
+//   node of the same size that together with node covers an aligned
+//   key range of twice the size), replace both by a single node, up
+//   to NUMARRTREEMAXVALUES values. Return the resulting node.
+//
+// Global Variables: -
+//
+// Side Effects    : Changes tree, memory operations
+//
+/----------------------------------------------------------------------*/
+
+static NumArrTree_p merge_buddies(NumArrTree_p *root, NumArrTree_p node)
+{
+   NumArrTree_p buddy, low, high, merged;
+   long size, buddy_key;
+
+   while(node->size < NUMARRTREEMAXVALUES)
+   {
+      size      = node->size;
+      buddy_key = node->key ^ size;
+      buddy     = splay_tree(*root, buddy_key);
+      *root     = buddy;
+      if(buddy->key != buddy_key || buddy->size != size)
+      {
+         break;
+      }
+      *root = tree_remove_root(buddy);
+      *root = splay_tree(*root, node->key);
+      assert(*root == node);
+      *root = tree_remove_root(node);
+
+      low  = (buddy->key < node->key)? buddy : node;
+      high = (buddy->key < node->key)? node  : buddy;
+      merged = NumArrTreeCellAlloc(2*size);
+      merged->key  = low->key;
+      merged->size = 2*size;
+      memcpy(merged->vals, low->vals, size*sizeof(IntOrP));
+      memcpy(merged->vals+size, high->vals, size*sizeof(IntOrP));
+      NumArrTreeCellFree(low);
+      NumArrTreeCellFree(high);
+
+      *root = tree_insert_root(*root, merged);
+      node  = merged;
+   }
+   return node;
+}
+
+
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
 /*---------------------------------------------------------------------*/
@@ -131,10 +284,9 @@ static NumArrTree_p splay_tree(NumArrTree_p tree, long key)
 //
 // Function: NumArrTreeCellAllocEmpty()
 //
-//   Allocate a empty, initialized NumArrTreeCell. Pointers to children
-//   are NULL, int values are 0 (and pointer values in ANSI-World
-//   undefined, in practice NULL on 32 bit machines)(This comment is
-//   superfluous!). The balance field is (correctly) set to 0.
+//   Allocate an empty, initialized NumArrTreeCell for the size keys
+//   starting at key. Pointers to children are NULL, all values are
+//   0/NULL.
 //
 // Global Variables: -
 //
@@ -142,16 +294,18 @@ static NumArrTree_p splay_tree(NumArrTree_p tree, long key)
 //
 /----------------------------------------------------------------------*/
 
-NumArrTree_p NumArrTreeCellAllocEmpty(void)
+NumArrTree_p NumArrTreeCellAllocEmpty(long key, long size)
 {
-   NumArrTree_p handle = NumArrTreeCellAlloc();
-   int i;
+   NumArrTree_p handle = NumArrTreeCellAlloc(size);
 
-   for(i=0; i<NUMARRTREEVALUES; i++)
+   assert((key & (size - 1)) == 0);
+   handle->key  = key;
+   handle->size = size;
+   for(long i=0; i<size; i++)
    {
-      handle->vals[i].i_val = 0;
+      handle->vals[i].p_val = NULL;
    }
-   handle->lson = handle->rson       = NULL;
+   handle->lson = handle->rson = NULL;
 
    return handle;
 }
@@ -209,9 +363,9 @@ void NumArrTreeFree(NumArrTree_p junk)
 
 bool NumArrTreeNodeEmpty(NumArrTree_p node)
 {
-   for(int i = 0; i < NUMARRTREEVALUES; i++) 
+   for(long i = 0; i < node->size; i++)
    {
-      if (node->vals[i].p_val) 
+      if (node->vals[i].p_val)
       {
          return false;
       }
@@ -222,57 +376,12 @@ bool NumArrTreeNodeEmpty(NumArrTree_p node)
 
 /*-----------------------------------------------------------------------
 //
-// Function: NumArrTreeInsertNode()
-//
-//   If an entry with key *newnode->key exists in the tree return a
-//   pointer to it. Otherwise insert *newnode in the tree and return
-//   NULL.
-//
-// Global Variables: -
-//
-// Side Effects    : Changes the tree
-//
-/----------------------------------------------------------------------*/
-
-NumArrTree_p NumArrTreeInsertNode(NumArrTree_p *root, NumArrTree_p newnode)
-{
-   if (!*root)
-   {
-      newnode->lson = newnode->rson = NULL;
-      *root = newnode;
-      return NULL;
-   }
-   *root = splay_tree(*root, newnode->key);
-
-   long cmpres = newnode->key-(*root)->key;
-
-   if (cmpres < 0)
-   {
-      newnode->lson = (*root)->lson;
-      newnode->rson = *root;
-      (*root)->lson = NULL;
-      *root = newnode;
-      return NULL;
-   }
-   else if(cmpres > 0)
-   {
-      newnode->rson = (*root)->rson;
-      newnode->lson = *root;
-      (*root)->rson = NULL;
-      *root = newnode;
-      return NULL;
-   }
-   return *root;
-}
-
-
-/*-----------------------------------------------------------------------
-//
 // Function: NumArrTreeInsertKeyValPair()
-//    
+//
 //   If a val at key exists in the tree return NULL. Otherwise insert val
 //   in the tree and return a pointer to the node of the array containing
-//   it.
+//   it. If this creates a new node, it is merged with its buddies
+//   where possible.
 //
 // Global Variables: -
 //
@@ -283,54 +392,23 @@ NumArrTree_p NumArrTreeInsertNode(NumArrTree_p *root, NumArrTree_p newnode)
 NumArrTree_p NumArrTreeInsertKeyValPair(NumArrTree_p *root, long key, void* val)
 {
    NumArrTree_p handle, newnode;
-   long index, nodekey;
 
-   index = key & (NUMARRTREEVALUES - 1);
-   nodekey = key - index;
-
-   handle = NumArrTreeFindNode(root, nodekey);
+   handle = NumArrTreeFindNode(root, key);
    if (handle)
    {
-      if (!handle->vals[index].p_val)
+      if (!handle->vals[NumArrTreeSlot(handle, key)].p_val)
       {
-         handle->vals[index].p_val = val;
+         handle->vals[NumArrTreeSlot(handle, key)].p_val = val;
          return handle;
       }
       return NULL;
    }
 
-   newnode = NumArrTreeCellAllocEmpty();
-   newnode->key = nodekey;
-   newnode->vals[index].p_val = val;
+   newnode = NumArrTreeCellAllocEmpty(NumArrTreeNodeKey(key), NUMARRTREEVALUES);
+   newnode->vals[NumArrTreeSlot(newnode, key)].p_val = val;
+   *root = tree_insert_root(*root, newnode);
 
-   if (!*root)
-   {
-      newnode->lson = newnode->rson = NULL;
-      *root = newnode;
-      return *root;
-   }
-
-   *root = splay_tree(*root, nodekey);
-
-   long cmpres = nodekey - (*root)->key;
-
-   if (cmpres < 0)
-   {
-      newnode->lson = (*root)->lson;
-      newnode->rson = *root;
-      (*root)->lson = NULL;
-      *root = newnode;
-      return newnode;
-   }
-   else if(cmpres > 0)
-   {
-      newnode->rson = (*root)->rson;
-      newnode->lson = *root;
-      (*root)->rson = NULL;
-      *root = newnode;
-      return newnode;
-   }
-   return *root;
+   return merge_buddies(root, newnode);
 }
 
 
@@ -343,7 +421,7 @@ NumArrTree_p NumArrTreeInsertKeyValPair(NumArrTree_p *root, long key, void* val)
 //
 // Global Variables: -
 //
-// Side Effects    : -
+// Side Effects    : Reorganizes the tree
 //
 /----------------------------------------------------------------------*/
 
@@ -351,13 +429,9 @@ NumArrTree_p NumArrTreeFindNode(NumArrTree_p *root, long key)
 {
    if (*root)
    {
-      /* Modulo workaround with bitwise AND so negative numbers are
-       * treated correctly */
-      long nodekey = key & ~(NUMARRTREEVALUES - 1);
+      *root = splay_tree(*root, key);
 
-      *root = splay_tree(*root, nodekey);
-
-      if ((*root)->key - nodekey == 0)
+      if (node_cmp(*root, key) == 0)
       {
          return *root;
       }
@@ -371,7 +445,7 @@ NumArrTree_p NumArrTreeFindNode(NumArrTree_p *root, long key)
 //
 //   Remove the value stored for key from the tree and return it (NULL
 //   if there is none). If this empties the node, remove the node from
-//   the tree and free it.
+//   the tree and free it. Nodes are never split.
 //
 // Global Variables: -
 //
@@ -381,36 +455,19 @@ NumArrTree_p NumArrTreeFindNode(NumArrTree_p *root, long key)
 
 void* NumArrTreeDeleteKey(NumArrTree_p *root, long key)
 {
-   NumArrTree_p x, cell;
-   long  slot    = NumArrTreeSlot(key);
-   long  nodekey = NumArrTreeNodeKey(key);
+   NumArrTree_p cell = NumArrTreeFindNode(root, key);
    void* res;
 
-   if(!(*root))
+   if(!cell)
    {
       return NULL;
    }
-   *root = splay_tree(*root, nodekey);
-   if((*root)->key != nodekey)
-   {
-      return NULL;
-   }
-   res = (*root)->vals[slot].p_val;
-   (*root)->vals[slot].p_val = NULL;
+   res = cell->vals[NumArrTreeSlot(cell, key)].p_val;
+   cell->vals[NumArrTreeSlot(cell, key)].p_val = NULL;
 
-   if(res && NumArrTreeNodeEmpty(*root))
+   if(res && NumArrTreeNodeEmpty(cell))
    {
-      cell = *root;
-      if(!cell->lson)
-      {
-         x = cell->rson;
-      }
-      else
-      {
-         x = splay_tree(cell->lson, nodekey);
-         x->rson = cell->rson;
-      }
-      *root = x;
+      *root = tree_remove_root(cell);
       NumArrTreeCellFree(cell);
    }
    return res;
@@ -461,14 +518,14 @@ long NumArrTreeMaxKey(NumArrTree_p node)
 {
    assert(node);
 
-   for(int i = NUMARRTREEVALUES-1; i >= 0; i--)
+   for(long i = node->size-1; i >= 0; i--)
    {
       if(node->vals[i].p_val)
       {
          return node->key + i;
       }
    }
-   return node->key + NUMARRTREEVALUES - 1;
+   return node->key + node->size - 1;
 }
 
 
@@ -477,9 +534,9 @@ long NumArrTreeMaxKey(NumArrTree_p node)
 // Function: NumArrTreeLimitedTraverseInit()
 //
 //   Return a stack containing the path to the first node that may
-//   hold keys >= limit, i.e. the node with the smallest key >=
-//   NumArrTreeNodeKey(limit). Keys in that node that are smaller than
-//   limit have to be skipped by the caller.
+//   hold keys >= limit, i.e. the first node in key order that does
+//   not lie completely below limit. Keys in that node that are
+//   smaller than limit have to be skipped by the caller.
 //
 // Global Variables: -
 //
@@ -490,25 +547,19 @@ long NumArrTreeMaxKey(NumArrTree_p node)
 PStack_p NumArrTreeLimitedTraverseInit(NumArrTree_p root, long limit)
 {
    PStack_p stack = PStackAlloc();
-   long     nodekey = NumArrTreeNodeKey(limit);
+   int      cmpres;
 
    while(root)
    {
-      if(root->key < nodekey)
+      cmpres = node_cmp(root, limit);
+      if(cmpres > 0)
       {
          root = root->rson;
       }
       else
       {
          PStackPushP(stack, root);
-         if(root->key == nodekey)
-         {
-            root = NULL;
-         }
-         else
-         {
-            root = root->lson;
-         }
+         root = (cmpres == 0)? NULL : root->lson;
       }
    }
    return stack;

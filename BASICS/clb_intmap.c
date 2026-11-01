@@ -162,7 +162,7 @@ void* IntMapGetVal(IntMap_p map, long key)
             NumArrTree_p entry = NumArrTreeFindNode(&(map->values.tree), key);
             if(entry)
             {
-               res = entry->vals[key & (NUMARRTREEVALUES - 1)].p_val; 
+               res = entry->vals[NumArrTreeSlot(entry, key)].p_val;
             }
          }
          break;
@@ -193,7 +193,6 @@ void** IntMapGetRef(IntMap_p map, long key)
    void      **res = NULL;
    void      *val;
    NumArrTree_p handle;
-   long index = key & (NUMARRTREEVALUES - 1);
 
    assert(map);
 
@@ -219,7 +218,7 @@ void** IntMapGetRef(IntMap_p map, long key)
             map->values.tree = NULL;
             NumArrTreeInsertKeyValPair(&(map->values.tree), map->max_key, val);
             handle = add_new_tree_node(map, key, NULL);
-            res = &(handle->vals[index].p_val);
+            res = &(handle->vals[NumArrTreeSlot(handle, key)].p_val);
             map->entry_no = 2;
          }
          map->min_key = MIN(map->min_key, key);
@@ -229,7 +228,7 @@ void** IntMapGetRef(IntMap_p map, long key)
          handle = NumArrTreeFindNode(&(map->values.tree), key);
          if(handle)
          {
-            res = &(handle->vals[index].p_val);
+            res = &(handle->vals[NumArrTreeSlot(handle, key)].p_val);
             /* if key/value pair does not exist yet, treat it like you are 
                creating a pair */
             if(!(*res)) 
@@ -244,7 +243,7 @@ void** IntMapGetRef(IntMap_p map, long key)
             handle = add_new_tree_node(map, key, NULL);
             map->max_key=MAX(map->max_key, key);
             map->min_key=MIN(map->min_key, key);
-            res = &(handle->vals[index].p_val);
+            res = &(handle->vals[NumArrTreeSlot(handle, key)].p_val);
          }
          break;
    default:

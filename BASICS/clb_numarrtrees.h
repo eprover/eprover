@@ -34,16 +34,27 @@ TODO change date on all relevant files
 /*                    Data type declarations                           */
 /*---------------------------------------------------------------------*/
 
+/* Size of newly created nodes. Two adjacent nodes of the same size
+   whose union is aligned to twice that size (buddies) are merged, up
+   to NUMARRTREEMAXVALUES values per node. Node sizes are always
+   powers of two and a node of size s starts at a multiple of s, so
+   keys are split into node key and slot with bit masks. */
+
 #ifndef NUMARRTREEVALUES
 #define NUMARRTREEVALUES 8
 #endif
 
-/* Keys are split into node key and slot with bit masks */
+#ifndef NUMARRTREEMAXVALUES
+#define NUMARRTREEMAXVALUES 4096
+#endif
+
 #if (NUMARRTREEVALUES < 1) || (NUMARRTREEVALUES & (NUMARRTREEVALUES - 1))
 #error "NUMARRTREEVALUES must be a power of two"
 #endif
+#if (NUMARRTREEMAXVALUES < NUMARRTREEVALUES) || (NUMARRTREEMAXVALUES & (NUMARRTREEMAXVALUES - 1))
+#error "NUMARRTREEMAXVALUES must be a power of two >= NUMARRTREEVALUES"
+#endif
 
-#define NumArrTreeSlot(key)    ((key) & (NUMARRTREEVALUES - 1))
 #define NumArrTreeNodeKey(key) ((key) & ~(long)(NUMARRTREEVALUES - 1))
 
 /* General purpose data structure for indexing objects by a numerical
@@ -51,31 +62,37 @@ TODO change date on all relevant files
    pointers can be used (and need to be casted carefully by the
    wrapper functions). Objects pointed to by the value fields are not
    part of the data stucture and will not be touched by deallocating
-   trees or tree nodes. */
+   trees or tree nodes. Each node holds the values for the keys
+   key..key+size-1. */
 
 typedef struct numarrtreecell
 {
    long                key;
-   IntOrP              vals[NUMARRTREEVALUES];
+   long                size;
    struct numarrtreecell *lson;
    struct numarrtreecell *rson;
+   IntOrP              vals[];
 }NumArrTreeCell, *NumArrTree_p;
 
+#define NumArrTreeSlot(node, key) ((key) & ((node)->size - 1))
 
 /*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-#define NumArrTreeCellAlloc() (NumArrTreeCell*)SizeMalloc(sizeof(NumArrTreeCell))
-#define NumArrTreeCellFree(junk)        SizeFree(junk, sizeof(NumArrTreeCell))
+#define NumArrTreeCellMem(size) (sizeof(NumArrTreeCell)+(size)*sizeof(IntOrP))
+#define NumArrTreeCellAlloc(size) \
+   (NumArrTreeCell*)SizeMalloc(NumArrTreeCellMem(size))
+#define NumArrTreeCellFree(junk) SizeFree(junk, NumArrTreeCellMem((junk)->size))
 
-#define NUMARRTREECELL_MEM MEMSIZE(NumArrTreeCell)
+/* Estimated memory per value, for the IntMap storage estimate */
+#define NUMARRTREECELL_MEM \
+   (MEMSIZE(NumArrTreeCell)+NUMARRTREEVALUES*sizeof(IntOrP))
 
 
 bool      NumArrTreeNodeEmpty(NumArrTree_p node);
-NumArrTree_p NumArrTreeCellAllocEmpty(void);
+NumArrTree_p NumArrTreeCellAllocEmpty(long key, long size);
 void      NumArrTreeFree(NumArrTree_p junk);
-NumArrTree_p NumArrTreeInsertNode(NumArrTree_p *root, NumArrTree_p newnode);
 NumArrTree_p NumArrTreeInsertKeyValPair(NumArrTree_p *root, long key, void* val);
 NumArrTree_p NumArrTreeFindNode(NumArrTree_p *root, long key);
 void*     NumArrTreeDeleteKey(NumArrTree_p *root, long key);
