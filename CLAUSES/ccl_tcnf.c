@@ -1856,7 +1856,9 @@ TFormula_p TFormulaExpandLiterals(TB_p terms, TFormula_p form)
       return form;
    }
 
-   if(form->f_code == terms->sig->neqn_code)
+   /* A $neq without arguments is the (eta-reduced) disequality
+      function, not a literal */
+   if(form->f_code == terms->sig->neqn_code && form->arity == 2)
    {
       handle = TermTopCopy(form);
       handle->f_code = terms->sig->eqn_code;
