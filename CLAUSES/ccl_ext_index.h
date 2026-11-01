@@ -16,8 +16,13 @@ Changes
 
 -----------------------------------------------------------------------*/
 
+#if USE_INTMAPOLD
+   #include <clb_intmap_old.h>
+#else
+   #include <clb_intmap.h>
+#endif
+
 #include <ccl_clauses.h>
-#include <clb_intmap.h>
 
 #ifndef CCL_EXT_DEC_IDX
 
