@@ -1079,9 +1079,10 @@ EvalPriority PrioFunPreferNonAppVar(Clause_p clause)
 //
 // Function: PrioFunPreferHOSteps()
 //
-//   Prefer clauses that have no applied variables.
+//   Prefer clauses with at least one higher-order inference in
+//   their derivation.
 //
-// Global Variables: -
+// Global Variables: problemType
 //
 // Side Effects    : -
 //
@@ -1089,18 +1090,24 @@ EvalPriority PrioFunPreferNonAppVar(Clause_p clause)
 
 EvalPriority PrioFunPreferHOSteps(Clause_p clause)
 {
-   PStack_p derivation = clause->derivation;
+   Clause_p handle;
    EvalPriority prio = PrioNormal;
-   if(derivation && problemType == PROBLEM_HO)
+   /* Copies archived for a full proof object hold the start of the
+      derivation */
+   for(handle = clause; handle && problemType == PROBLEM_HO;
+       handle = ClauseStepParent(handle))
    {
-      PStackPointer sp = PStackGetSP(derivation);
-      PStackPointer i = 0;
+      PStack_p derivation = handle->derivation;
+      PStackPointer sp = derivation?PStackGetSP(derivation):0;
+      PStackPointer i  = 0;
       DerivationCode op;
-      bool has_ho = false;
-      while(!has_ho && i<sp)
+      while(prio == PrioNormal && i<sp)
       {
          op = PStackElementInt(derivation, i);
-         has_ho = DPGetIsHO(op);
+         if(DPGetIsHO(op))
+         {
+            prio = PrioPrefer;
+         }
          i++;
          i += DCOpArgCount(op);
       }

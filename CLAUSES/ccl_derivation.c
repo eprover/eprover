@@ -1185,7 +1185,8 @@ void DerivStackCountSearchInferences(PStack_p derivation,
          op = PStackElementInt(derivation, i);
          i++;
          i += DCOpArgCount(op);
-         switch(op)
+         /* Inferences that used HO unification count as well */
+         switch(DPClearIsHO(op))
          {
          case DCParamod:
          case DCSimParamod:

@@ -48,6 +48,12 @@ Version 3.2.5 -> 3.5.X Countess Grey
   (new_symbols(skolem,[...])) and the eliminated variable with the
   Skolem term replacing it (skolemize(X,sk(...))), as required for
   checkable TPTP-3 proofs. The clausal normal form itself is unchanged.
+- The priority function PreferHOSteps now actually prefers clauses
+  with a higher-order inference in their derivation (it used to have
+  no effect). The built-in strategies that used it now use ConstPrio
+  instead, so their behaviour is unchanged. Inferences that used
+  higher-order unification are now included in the "Proof object
+  generating/simplifying inferences" statistics.
 
 Version 3.1.0 -> 3.2.5 Puttabong Moondrop
 

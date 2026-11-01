@@ -289,6 +289,7 @@ extern bool            ProofObjectRecordsGCSelection;
 
 #define DPSetIsHO(op) ((op) | ArgIsHO)
 #define DPGetIsHO(op) ((op) & ArgIsHO)
+#define DPClearIsHO(op) ((op) & ~ArgIsHO)
 
 void ClausePushDerivation(Clause_p clause, DerivationCode op, ...);
 
