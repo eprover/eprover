@@ -439,6 +439,133 @@ TFormula_p tformula_rek_skolemize(TB_p terms, TFormula_p form,
 
 /*-----------------------------------------------------------------------
 //
+// Function: tformula_skolemize_first()
+//
+//   Skolemize only the first existential quantor in form (in the
+//   order in which tformula_rek_skolemize() handles them, so that
+//   repeated application yields the same formula and the same Skolem
+//   symbols). free_vars are the universally quantified variables in
+//   scope. If a quantor has been eliminated, set *done and return the
+//   eliminated variable in *sk_var and the Skolem term replacing it in
+//   *sk_term. Otherwise return form unchanged.
+//
+// Global Variables: -
+//
+// Side Effects    : Adds a Skolem term to term bank, modifies
+//                   signature.
+//
+/----------------------------------------------------------------------*/
+
+static TFormula_p tformula_skolemize_first(TB_p terms, TFormula_p form,
+                                           PStack_p free_vars,
+                                           Term_p *sk_var, Term_p *sk_term,
+                                           bool *done)
+{
+   Term_p var;
+   TFormula_p handle, handle2=NULL;
+
+   if(TermIsGround(form) ||
+      TFormulaIsLiteral(terms->sig, form) ||
+      TypeIsArrow(form->type) ||
+      (!SigIsLogicalSymbol(terms->sig, form->f_code) &&
+       form->type == terms->sig->type_bank->bool_type))
+   {
+      /* No quantors to eliminate */
+   }
+   else if(form->f_code == terms->sig->qex_code)
+   {
+      var = form->args[0];
+      assert(TermIsFreeVar(var));
+      assert(!var->binding);
+      *sk_term = TBAllocNewSkolem(terms, free_vars, var->type);
+      *sk_var  = var;
+      *done = true;
+      var->binding = *sk_term;
+      form = TFormulaCopy(terms, form->args[1]);
+      var->binding = NULL;
+   }
+   else if(form->f_code == terms->sig->qall_code)
+   {
+      var = form->args[0];
+      assert(TermIsFreeVar(var));
+      assert(!var->binding);
+      PStackPushP(free_vars, var);
+      handle = tformula_skolemize_first(terms, form->args[1],
+                                        free_vars, sk_var, sk_term, done);
+      (void)PStackPopP(free_vars);
+      if(*done)
+      {
+         form = TFormulaFCodeAlloc(terms, terms->sig->qall_code,
+                                   var, handle);
+      }
+   }
+   else
+   {
+      assert(TFormulaHasSubForm1(terms->sig, form));
+      handle = tformula_skolemize_first(terms, form->args[0],
+                                        free_vars, sk_var, sk_term, done);
+      if(TFormulaHasSubForm2(terms->sig, form))
+      {
+         handle2 = form->args[1];
+         if(!*done)
+         {
+            handle2 = tformula_skolemize_first(terms, form->args[1],
+                                               free_vars, sk_var, sk_term, done);
+         }
+      }
+      if(*done)
+      {
+         form = TFormulaFCodeAlloc(terms, form->f_code,
+                                   handle, handle2);
+      }
+   }
+   return form;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: wformula_archive_state()
+//
+//   Make the current state of form available as the premise of the
+//   next inference step on form and return it: Either the formula
+//   form only quotes, or a copy of form, which takes over its
+//   derivation and is put into archive. In both cases, form is left
+//   with an empty derivation.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations, changes archive
+//
+/----------------------------------------------------------------------*/
+
+static WFormula_p wformula_archive_state(WFormula_p form,
+                                         FormulaSet_p archive)
+{
+   WFormula_p parent;
+
+   if(form->derivation &&
+      PStackGetSP(form->derivation) == 2 &&
+      PStackElementInt(form->derivation, 0) == DCFofQuote &&
+      ((WFormula_p)PStackElementP(form->derivation, 1))->tformula ==
+      form->tformula)
+   {
+      parent = PStackElementP(form->derivation, 1);
+      PStackReset(form->derivation);
+   }
+   else
+   {
+      parent = WFormulaFlatCopy(form);
+      parent->derivation = form->derivation;
+      form->derivation = NULL;
+      FormulaSetInsert(archive, parent);
+   }
+   return parent;
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: tformula_rename_test()
 //
 //   Return true if the formula at argument position i should be
@@ -2439,6 +2566,81 @@ TFormula_p TFormulaSkolemizeOutermost(TB_p terms, TFormula_p form)
 
 /*-----------------------------------------------------------------------
 //
+// Function: WTFormulaSkolemizeSteps()
+//
+//   Skolemize form in an outermost manner (as
+//   TFormulaSkolemizeOutermost()) and record the derivation. With a
+//   proof object, each existential quantor is eliminated in a step of
+//   its own (recording the variable and the Skolem term replacing
+//   it), and the intermediate
+//   formulas are put into archive. The result of the last step is
+//   archived as well, so that later steps build on it. Without proof
+//   object (or archive), all quantors are eliminated in a single
+//   step.
+//
+// Global Variables: PrintProofObject
+//
+// Side Effects    : Changes form, adds Skolem symbols, may add
+//                   formulas to archive.
+//
+/----------------------------------------------------------------------*/
+
+void WTFormulaSkolemizeSteps(WFormula_p form, TB_p terms,
+                             FormulaSet_p archive)
+{
+   TFormula_p handle;
+   WFormula_p parent;
+   OrdSet_p   free_vars = NULL;
+   PStack_p   var_stack;
+   Term_p     sk_var, sk_term;
+   bool       done;
+   long       steps = 0;
+
+   if(!archive || !PrintProofObject)
+   {
+      handle = TFormulaSkolemizeOutermost(terms, form->tformula);
+      if(handle!=form->tformula)
+      {
+         form->tformula = handle;
+         DocFormulaModificationDefault(form, inf_skolemize_out);
+         WFormulaPushDerivation(form, DCSkolemize);
+      }
+      return;
+   }
+   /* As in TFormulaSkolemizeOutermost(), globally free variables are
+      Skolem function arguments */
+   var_stack = PStackAlloc();
+   TFormulaCollectFreeVars(terms, form->tformula, &free_vars);
+   while(free_vars)
+   {
+      PStackPushP(var_stack, OrdSetExtractFirst(&free_vars));
+   }
+   while(true)
+   {
+      done = false;
+      handle = tformula_skolemize_first(terms, form->tformula, var_stack,
+                                        &sk_var, &sk_term, &done);
+      if(!done)
+      {
+         break;
+      }
+      parent = wformula_archive_state(form, archive);
+      form->tformula = handle;
+      DocFormulaModificationDefault(form, inf_skolemize_out);
+      WFormulaPushDerivation(form, DCSkolemizeSym, parent, sk_var, sk_term);
+      steps++;
+   }
+   PStackFree(var_stack);
+   if(steps)
+   {
+      parent = wformula_archive_state(form, archive);
+      WFormulaPushDerivation(form, DCFofQuote, parent);
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: TFormulaShiftQuantors()
 //
 //   Shift all remaining all-quantors outward. This has several
@@ -2821,7 +3023,8 @@ void WTFormulaConjunctiveNF(WFormula_p form, TB_p terms)
 /----------------------------------------------------------------------*/
 
 void WTFormulaConjunctiveNF3(WFormula_p form, TB_p terms,
-                             long miniscope_limit, bool unroll_fool)
+                             long miniscope_limit, bool unroll_fool,
+                             FormulaSet_p archive)
 {
    TFormula_p handle;
 
@@ -2866,13 +3069,7 @@ void WTFormulaConjunctiveNF3(WFormula_p form, TB_p terms,
       DocFormulaModificationDefault(form, inf_var_rename);
       WFormulaPushDerivation(form, DCVarRename);
    }
-   handle = TFormulaSkolemizeOutermost(terms, form->tformula);
-   if(handle!=form->tformula)
-   {
-      form->tformula = handle;
-      DocFormulaModificationDefault(form, inf_skolemize_out);
-      WFormulaPushDerivation(form, DCSkolemize);
-   }
+   WTFormulaSkolemizeSteps(form, terms, archive);
    handle = TFormulaShiftQuantors(terms, form->tformula);
    if(handle!=form->tformula)
    {

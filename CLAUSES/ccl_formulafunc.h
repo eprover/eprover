@@ -73,7 +73,8 @@ bool WFormulaSimplify(WFormula_p form, TB_p terms);
 long WFormulaCNF2(WFormula_p form, ClauseSet_p set,
                   TB_p terms, VarBank_p fresh_vars,
                   long miniscope_limit,
-                  bool fool_unroll, ClauseSet_p step_archive);
+                  bool fool_unroll, FormulaSet_p archive,
+                  ClauseSet_p step_archive);
 long FormulaSetSimplify(FormulaSet_p set, TB_p terms, bool gc);
 
 /* long FormulaSetCNF(FormulaSet_p set, FormulaSet_p archive, */

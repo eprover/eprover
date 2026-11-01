@@ -22,6 +22,7 @@ Changes
 -----------------------------------------------------------------------*/
 
 #include "ccl_formula_wrapper.h"
+#include "ccl_derivation.h"
 #include <clb_simple_stuff.h>
 
 
@@ -229,7 +230,8 @@ WFormula_p WFormulaFlatCopy(WFormula_p form)
 //
 // Function: WFormulaGCMarkCells()
 //
-//   If formula is a term formula, mark the terms. Otherwise a noop.
+//   If formula is a term formula, mark the terms (including the
+//   terms recorded in its derivation). Otherwise a noop.
 //
 // Global Variables: -
 //
@@ -239,7 +241,11 @@ WFormula_p WFormulaFlatCopy(WFormula_p form)
 
 void WFormulaGCMarkCells(WFormula_p form)
 {
-      TFormulaGCMarkCells(form->terms, form->tformula);
+   TFormulaGCMarkCells(form->terms, form->tformula);
+   if(form->derivation)
+   {
+      DerivStackGCMarkTerms(form->terms, form->derivation);
+   }
 }
 
 /*-----------------------------------------------------------------------

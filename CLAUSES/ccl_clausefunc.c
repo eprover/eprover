@@ -777,6 +777,7 @@ void ClauseSetArchiveCopy(ClauseSet_p archive, ClauseSet_p set)
 bool ClauseIsOrphaned(Clause_p clause)
 {
    PStackPointer i = 1;
+   int n;
    DerivationCode op;
    Clause_p parent;
 
@@ -802,23 +803,16 @@ bool ClauseIsOrphaned(Clause_p clause)
    {
       return false;
    }
-   if(DCOpHasCnfArg1(op))
+   for(n=1; n<=DC_MAX_ARGS && DCOpHasArg(op,n); n++, i++)
    {
-      parent = PStackElementP(clause->derivation, 1);
-      if(ClauseQueryProp(parent,CPIsDead))
+      if(DCOpHasCnfArg(op,n))
       {
-         return true;
+         parent = PStackElementP(clause->derivation, i);
+         if(ClauseQueryProp(parent,CPIsDead))
+         {
+            return true;
+         }
       }
-      i++;
-   }
-   if(DCOpHasCnfArg2(op))
-   {
-      parent = PStackElementP(clause->derivation, 2);
-      if(ClauseQueryProp(parent,CPIsDead))
-      {
-         return true;
-      }
-      i++;
    }
    while(i<PStackGetSP(clause->derivation) &&
          ((op = PStackElementInt(clause->derivation, i))==DCCnfAddArg))

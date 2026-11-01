@@ -604,7 +604,7 @@ bool map_formula(WFormula_p form, TB_p terms, FormulaMapper processor,
 {
    TFormula_p original = form->tformula;
    bool changed = false;
-   assert(!DCOpHasArg1(dc)&&!DCOpHasArg2(dc));
+   assert(!DCOpHasArg(dc,1));
    form->tformula = processor(original, terms);
 
    if (form->tformula != original)
@@ -1444,9 +1444,10 @@ bool WFormulaSimplify(WFormula_p form, TB_p terms)
 //
 // Function: WFormulaCNF2()
 //
-//   Transform the formula of a wrapped formula into CNF. A full proof
-//   object keeps each clause before naked Boolean variables are
-//   eliminated in step_archive.
+//   Transform the formula of a wrapped formula into CNF. With a proof
+//   object, the intermediate formulas of the Skolemization steps go
+//   to archive. A full proof object keeps each clause before naked
+//   Boolean variables are eliminated in step_archive.
 //
 // Global Variables: -
 //
@@ -1457,7 +1458,8 @@ bool WFormulaSimplify(WFormula_p form, TB_p terms)
 long WFormulaCNF2(WFormula_p form, ClauseSet_p set,
                   TB_p terms, VarBank_p fresh_vars,
                   long miniscope_limit,
-                  bool fool_unroll, ClauseSet_p step_archive)
+                  bool fool_unroll, FormulaSet_p archive,
+                  ClauseSet_p step_archive)
 {
    DBGTermCheckUnownedSubterm(stdout, form->tformula, "WFormulaCNF2_0");
    form->tformula = LambdaNormalizeDB(terms, form->tformula);
@@ -1477,7 +1479,8 @@ long WFormulaCNF2(WFormula_p form, ClauseSet_p set,
    /* printf(COMCHAR" Clausifying: "); */
    /* WFormulaPrint(stdout, form, true); */
    /* printf("\n"); */
-   WTFormulaConjunctiveNF3(form, terms, miniscope_limit, fool_unroll);
+   WTFormulaConjunctiveNF3(form, terms, miniscope_limit, fool_unroll,
+                           archive);
    return TFormulaToCNF(form, FormulaQueryType(form),
                         set, terms, fresh_vars, step_archive);
 }
@@ -1655,7 +1658,8 @@ long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive,
       handle = form;
       // printf(COMCHAR" vor WFormulaCNF2()..\n");
       res += WFormulaCNF2(handle, clauseset, terms, fresh_vars,
-                          miniscope_limit, fool_unroll, step_archive);
+                          miniscope_limit, fool_unroll, archive,
+                          step_archive);
       // printf(COMCHAR" ...nach WFormulaCNF2()\n");
       FormulaSetInsert(archive, handle);
       if (handle->tformula &&
@@ -2817,7 +2821,7 @@ void ClauseSetLiftLambdas(ClauseSet_p set, FormulaSet_p archive, TB_p terms,
       WFormulaSimplify(copy, terms);
       DBGTermCheckUnownedSubterm(stdout, copy->tformula, "ClauseSetLiftLambdas5");
       WFormulaCNF2(copy, set, terms, fresh_vars, 100, unroll_fool,
-                   step_archive);
+                   archive, step_archive);
       FormulaSetInsert(archive, copy);
    }
    OrdSetTraverseExit(def_iter);

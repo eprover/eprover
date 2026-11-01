@@ -2131,7 +2131,7 @@ bool ImmediateClausification(Clause_p cl, ClauseSet_p store, ClauseSet_p archive
                                        handle->tformula,
                                        "ImmediateClausification");
             WFormulaCNF2(handle, res_set, bank, fresh_vars, 100, fool_unroll,
-                         step_archive);
+                         archive, step_archive);
             // low miniscope limit for efficiency
             WFormulaFree(handle);
          }

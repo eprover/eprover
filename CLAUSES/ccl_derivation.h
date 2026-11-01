@@ -109,15 +109,43 @@ typedef enum
 }OpCode;
 
 
+/* A DerivationCode is an OpCode (bits 0-7), a 4 bit kind field for
+   each of up to DC_MAX_ARGS arguments (bits 8-23), and the HO flag
+   (bit 24). Arguments are used in order (argument n implies
+   argument n-1). Only formulas and clauses are parents. */
+
+#define DC_MAX_ARGS    4
+#define DC_OPCODE_MASK 0xFF
+#define DCArgShift(n)  (4*(n)+4)
+
 typedef enum
 {
-   Arg1Fof = 1<<8,
-   Arg1Cnf = 1<<9,
-   Arg1Num = 1<<10,
-   Arg2Fof = 1<<11,
-   Arg2Cnf = 1<<12,
-   Arg2Num = 1<<13,
-   ArgIsHO = 1<<14,
+   ArgFof  = 1,
+   ArgCnf  = 2,
+   ArgNum  = 4,
+   ArgTerm = 8,
+   ArgKindMask = ArgFof|ArgCnf|ArgNum|ArgTerm
+}ArgKind;
+
+typedef enum
+{
+   Arg1Fof  = ArgFof<<DCArgShift(1),
+   Arg1Cnf  = ArgCnf<<DCArgShift(1),
+   Arg1Num  = ArgNum<<DCArgShift(1),
+   Arg1Term = ArgTerm<<DCArgShift(1),
+   Arg2Fof  = ArgFof<<DCArgShift(2),
+   Arg2Cnf  = ArgCnf<<DCArgShift(2),
+   Arg2Num  = ArgNum<<DCArgShift(2),
+   Arg2Term = ArgTerm<<DCArgShift(2),
+   Arg3Fof  = ArgFof<<DCArgShift(3),
+   Arg3Cnf  = ArgCnf<<DCArgShift(3),
+   Arg3Num  = ArgNum<<DCArgShift(3),
+   Arg3Term = ArgTerm<<DCArgShift(3),
+   Arg4Fof  = ArgFof<<DCArgShift(4),
+   Arg4Cnf  = ArgCnf<<DCArgShift(4),
+   Arg4Num  = ArgNum<<DCArgShift(4),
+   Arg4Term = ArgTerm<<DCArgShift(4),
+   ArgIsHO  = 1<<DCArgShift(DC_MAX_ARGS+1)
 }ArgDesc;
 
 
@@ -147,6 +175,9 @@ typedef enum
    DCShiftQuantors    = DOShiftQuantors,
    DCVarRename        = DOVarRename,
    DCSkolemize        = DOSkolemize,
+   /* A single Skolemization step with its premise, the eliminated
+      variable and the Skolem term replacing it */
+   DCSkolemizeSym     = DOSkolemize|Arg1Fof|Arg2Term|Arg3Term,
    DCDistDisjunctions = DODistDisjunctions,
    DCAnnoQuestion     = DOAnnoQuestion,
    DCExpandDistinct   = DOExpandDistinct |Arg1Fof,
@@ -239,23 +270,26 @@ extern ProofObjectType PrintProofObject;
 extern bool            ProofObjectRecordsGCSelection;
 
 
-#define DCOpHasCnfArg1(op)   ((op)&Arg1Cnf)
-#define DCOpHasFofArg1(op)   ((op)&Arg1Fof)
-#define DCOpHasNumArg1(op)    ((op)&Arg1Num)
-#define DCOpHasParentArg1(op) ((op)&(Arg1Cnf|Arg1Fof))
-#define DCOpHasArg1(op)    ((op)&(Arg1Cnf|Arg1Fof|Arg1Num))
+/* Argument n (1..DC_MAX_ARGS) of a derivation code */
+#define DCOpArgKind(op,n)       (((op)>>DCArgShift(n))&ArgKindMask)
+#define DCOpHasArg(op,n)        (DCOpArgKind(op,n)!=0)
+#define DCOpHasFofArg(op,n)     (DCOpArgKind(op,n)&ArgFof)
+#define DCOpHasCnfArg(op,n)     (DCOpArgKind(op,n)&ArgCnf)
+#define DCOpHasNumArg(op,n)     (DCOpArgKind(op,n)&ArgNum)
+#define DCOpHasTermArg(op,n)    (DCOpArgKind(op,n)&ArgTerm)
+#define DCOpHasParentArg(op,n)  (DCOpArgKind(op,n)&(ArgFof|ArgCnf))
 
-#define DCOpHasCnfArg2(op)    ((op)&Arg2Cnf)
-#define DCOpHasFofArg2(op)    ((op)&Arg2Fof)
-#define DCOpHasNumArg2(op)    ((op)&Arg2Num)
-#define DCOpHasParentArg2(op) ((op)&(Arg2Cnf|Arg2Fof))
-#define DCOpHasArg2(op)       ((op)&(Arg2Cnf|Arg2Fof|Arg2Num))
+/* Number of stack slots taken by the arguments */
+#define DCOpArgCount(op) (DCOpHasArg(op,1)+DCOpHasArg(op,2)+   \
+                          DCOpHasArg(op,3)+DCOpHasArg(op,4))
+#define DCOpHasTermArgs(op) ((op)&(Arg1Term|Arg2Term|Arg3Term|Arg4Term))
 
-#define DPOpGetOpCode(op)  ((op)&127)
+#define DPOpGetOpCode(op)  ((op)&DC_OPCODE_MASK)
 #define DCOpIsGenerating(op) ((DPOpGetOpCode(op) >= DOParamod)&&(DPOpGetOpCode(op) <= DOSatGen))
 
 #define DPSetIsHO(op) ((op) | ArgIsHO)
 #define DPGetIsHO(op) ((op) & ArgIsHO)
+#define DPClearIsHO(op) ((op) & ~ArgIsHO)
 
 void ClausePushDerivation(Clause_p clause, DerivationCode op, ...);
 
@@ -280,6 +314,7 @@ long DerivStackExtractOptParents(PStack_p derivation,
                                  PStack_p res_formulas);
 
 
+void DerivStackGCMarkTerms(TB_p bank, PStack_p derivation);
 void DerivStackCountSearchInferences(PStack_p derivation,
                                      unsigned long *generating_count,
                                      unsigned long *simplifying_count);
