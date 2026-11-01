@@ -108,7 +108,7 @@ void LitOccTableFree(LitOccTable_p junk)
    {
       for(j=0; j<junk->maxarity; j++)
       {
-         PTreeFree(LIT_OCC_TABLE_ENTRY(junk, i, j).constraints);
+         OrdSetFree(LIT_OCC_TABLE_ENTRY(junk, i, j).constraints);
       }
    }
    SizeFree(junk->matrix,((junk->sig_size)
@@ -178,7 +178,7 @@ void LitPosSetConstrState(LitOccTable_p table, FunCode pred, int pos,
 //
 /----------------------------------------------------------------------*/
 
-PTree_p LitPosGetConstraints(LitOccTable_p table, FunCode pred, int pos)
+OrdSet_p LitPosGetConstraints(LitOccTable_p table, FunCode pred, int pos)
 {
    assert(table);
    assert(pred < table->sig_size);
@@ -213,7 +213,7 @@ bool LitPosAddConstraint(LitOccTable_p table, FunCode pred, int pos,
    }
    else
    {
-      PTreeStore(&(LIT_OCC_TABLE_ENTRY(table, pred, pos).constraints),
+      OrdSetStore(&(LIT_OCC_TABLE_ENTRY(table, pred, pos).constraints),
                  term);
       return false;
    }
@@ -387,7 +387,7 @@ void EqnCollectVarConstr(LitOccTable_p p_table, LitOccTable_p n_table,
                          PDArray_p var_constr, Eqn_p eqn)
 {
    int     i;
-   PTree_p tree;
+   OrdSet_p tree;
    LitOccTable_p constr;
    Term_p lit = eqn->lterm;
 
@@ -404,7 +404,7 @@ void EqnCollectVarConstr(LitOccTable_p p_table, LitOccTable_p n_table,
          {
             tree = PDArrayElementP(var_constr,
                                    -(lit->args[i]->f_code));
-            (void)PTreeDestrIntersection(&tree,
+            (void)OrdSetDestrIntersection(&tree,
                                          LitPosGetConstraints(constr,
                                                               lit->f_code,
                                                               i));
@@ -437,7 +437,7 @@ void EqnCollectVarConstr(LitOccTable_p p_table, LitOccTable_p n_table,
 /----------------------------------------------------------------------*/
 
 void ClauseCollectVarConstr(LitOccTable_p p_table, LitOccTable_p
-                            n_table, Clause_p clause, PTree_p
+                            n_table, Clause_p clause, OrdSet_p
                             ground_terms, PDArray_p var_constr)
 {
    Eqn_p handle;

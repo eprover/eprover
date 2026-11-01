@@ -896,6 +896,96 @@ static Term_p term_li_normalform(RWDesc_p desc, Term_p term,
 
 /*-----------------------------------------------------------------------
 //
+// Function: collect_rw_steps()
+//
+//   Follow the rewrite links that rewrote from into to and push each
+//   step as its demodulator, the subterm it produced and a copy of
+//   path, the position of from in the side.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+static void collect_rw_steps(PStack_p steps, PStack_p path, Term_p from,
+                             Term_p to)
+{
+   Term_p next;
+   int i;
+
+   while(from != to)
+   {
+      assert(TermIsRewritten(from));
+      next = TermRWReplaceField(from);
+      if(TermRWDemod(from))
+      {
+         PStackPushP(steps, TermRWDemod(from));
+         PStackPushP(steps, next);
+         PStackPushP(steps, PStackCopy(path));
+      }
+      else
+      {
+         assert(from->f_code == next->f_code && from->arity == next->arity);
+         for(i=0; i<from->arity; i++)
+         {
+            PStackPushInt(path, i);
+            collect_rw_steps(steps, path, from->args[i], next->args[i]);
+            PStackDiscardTop(path);
+         }
+      }
+      from = next;
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: record_rw_steps()
+//
+//   Set the designated side of the literal at pos to its normal
+//   form nf and record the rewrite steps that led there in the
+//   derivation of the clause. For a full proof object, each step
+//   becomes a separate inference, see ClauseArchiveSteps().
+//
+// Global Variables: PrintProofObject
+//
+// Side Effects    : Changes the literal and the derivation
+//
+/----------------------------------------------------------------------*/
+
+static void record_rw_steps(RWDesc_p desc, ClausePos_p pos, Term_p nf)
+{
+   Clause_p clause = pos->clause;
+   Eqn_p eqn = pos->literal;
+   Term_p *side = pos->side == LeftSide?&(eqn->lterm):&(eqn->rterm);
+   PStack_p steps, path;
+   PStackPointer sp;
+
+   FORMULA_OR_CLAUSE_ENSURE_DERIVATION(clause);
+   if(PrintProofObject < POSingleStepDerivation)
+   {
+      sp = PStackGetSP(clause->derivation);
+      TermComputeRWSequence(clause->derivation, *side, nf, DCRewrite);
+      desc->rw_steps += (PStackGetSP(clause->derivation)-sp)/2;
+      *side = nf;
+   }
+   else
+   {
+      steps = PStackAlloc();
+      path  = PStackAlloc();
+      collect_rw_steps(steps, path, *side, nf);
+      desc->rw_steps += PStackGetSP(steps)/3;
+      ClauseArchiveSteps(desc->step_archive, desc->step_sides, clause,
+                         side, nf, steps, DCRewrite);
+      PStackFree(path);
+      PStackFree(steps);
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: eqn_li_normalform()
 //
 //   Compute the normal form of maximal, minimal or both terms in an
@@ -912,29 +1002,28 @@ EqnSide eqn_li_normalform(RWDesc_p desc, ClausePos_p pos,
                           bool interred_rw, bool lambda_demod)
 {
    Eqn_p  eqn = pos->literal;
-   Term_p l_old = eqn->lterm, r_old = eqn->rterm;
+   Term_p l_old = eqn->lterm, r_old = eqn->rterm, nf;
    bool   restricted_rw = EqnIsMaximal(eqn) && EqnIsPositive(eqn) &&
       EqnIsOriented(eqn) && interred_rw;
    EqnSide res = NoSide;
 
-   eqn->lterm =  term_li_normalform(desc, eqn->lterm,
-                                    restricted_rw, lambda_demod);
-   if(l_old!=eqn->lterm)
+   nf = term_li_normalform(desc, eqn->lterm, restricted_rw, lambda_demod);
+   if(l_old!=nf)
    {
       EqnDelProp(eqn, EPMaxIsUpToDate);
       res = MaxSide;
       pos->side = LeftSide;
+      record_rw_steps(desc, pos, nf);
       if(OutputLevel>=4)
       {
          DocClauseRewriteDefault(pos, l_old);
       }
-      CLAUSE_ENSURE_DERIVATION(pos->clause);
-      TermComputeRWSequence(pos->clause->derivation,
-                            l_old, ClausePosGetSide(pos), DCRewrite);
    }
-   eqn->rterm = term_li_normalform(desc, eqn->rterm, false, lambda_demod);
-   if(r_old!=eqn->rterm)
+   nf = term_li_normalform(desc, eqn->rterm, false, lambda_demod);
+   if(r_old!=nf)
    {
+      pos->side = RightSide;
+      record_rw_steps(desc, pos, nf);
       if(EqnQueryProp(eqn, EPIsEquLiteral) && eqn->rterm == eqn->bank->true_term)
       {
          EqnDelProp(eqn, EPIsEquLiteral);
@@ -951,14 +1040,10 @@ EqnSide eqn_li_normalform(RWDesc_p desc, ClausePos_p pos,
       {
          EqnDelProp(eqn, EPMaxIsUpToDate);
       }
-      pos->side = RightSide;
       if(OutputLevel>=4)
       {
          DocClauseRewriteDefault(pos, r_old);
       }
-      CLAUSE_ENSURE_DERIVATION(pos->clause);
-      TermComputeRWSequence(pos->clause->derivation,
-                            r_old, ClausePosGetSide(pos), DCRewrite);
    }
    return res;
 }
@@ -967,7 +1052,9 @@ EqnSide eqn_li_normalform(RWDesc_p desc, ClausePos_p pos,
 //
 // Function: rw_desc_cell_alloc()
 //
-//   Allocate an initialized RWDescCell.
+//   Allocate an initialized RWDescCell. A full proof object keeps
+//   the clause before each step in step_archive, and step_sides
+//   records the sides of these copies. Both may be NULL.
 //
 // Global Variables: -
 //
@@ -979,7 +1066,9 @@ static __inline__ RWDesc_p rw_desc_cell_alloc(OCB_p ocb, TB_p bank,
                                               ClauseSet_p
                                               *demodulators,
                                               RewriteLevel level, bool
-                                              prefer_general)
+                                              prefer_general,
+                                              ClauseSet_p step_archive,
+                                              PStack_p step_sides)
 {
    RWDesc_p desc = RWDescCellAlloc();
 
@@ -989,6 +1078,9 @@ static __inline__ RWDesc_p rw_desc_cell_alloc(OCB_p ocb, TB_p bank,
    desc->demod_date     = ClauseSetListGetMaxDate(demodulators, level);
    desc->level          = level;
    desc->prefer_general = prefer_general;
+   desc->step_archive   = step_archive;
+   desc->step_sides     = step_sides;
+   desc->rw_steps       = 0;
    desc->sos_rewritten  = false;
 
    return desc;
@@ -1008,16 +1100,16 @@ static __inline__ RWDesc_p rw_desc_cell_alloc(OCB_p ocb, TB_p bank,
 //
 /----------------------------------------------------------------------*/
 
-long clause_tree_push(PStack_p stack, PTree_p clausetree)
+long clause_tree_push(PStack_p stack, OrdSet_p clausetree)
 {
-   PStack_p iterstack;
-   PTree_p  cell;
+   OrdSetIter_p iterstack;
+   OrdSet_p  cell;
    Clause_p clause;
    long     res = 0;
 
-   iterstack = PTreeTraverseInit(clausetree);
+   iterstack = OrdSetTraverseInit(clausetree);
 
-   while((cell = PTreeTraverseNext(iterstack)))
+   while((cell = OrdSetTraverseNext(iterstack)))
    {
       clause = cell->key;
       if(!ClauseQueryProp(clause, CPRWDetected))
@@ -1027,7 +1119,7 @@ long clause_tree_push(PStack_p stack, PTree_p clausetree)
          res++;
       }
    }
-   PTreeTraverseExit(iterstack);
+   OrdSetTraverseExit(iterstack);
    return res;
 }
 
@@ -1234,7 +1326,7 @@ Term_p TermComputeLINormalform(OCB_p ocb, TB_p bank, Term_p term,
 {
    Term_p res;
    RWDesc_p desc = rw_desc_cell_alloc(ocb, bank, demodulators, level,
-                                      prefer_general);
+                                      prefer_general, NULL, NULL);
 
    res = term_li_normalform(desc, term, restricted_rw, lambda_demod);
    RWDescCellFree(desc);
@@ -1247,7 +1339,8 @@ Term_p TermComputeLINormalform(OCB_p ocb, TB_p bank, Term_p term,
 // Function: ClauseComputeLINormalform()
 //
 //   Compute the normal form of terms in a clause. Return number of
-//   rewrite steps performed.
+//   rewrite steps performed. A full proof object keeps the clause
+//   before each step in step_archive and its sides in step_sides.
 //
 // Global Variables: -
 //
@@ -1257,22 +1350,21 @@ Term_p TermComputeLINormalform(OCB_p ocb, TB_p bank, Term_p term,
 
 long ClauseComputeLINormalform(OCB_p ocb, TB_p bank, Clause_p clause,
                                ClauseSet_p *demodulators, RewriteLevel level,
-                               bool prefer_general, bool lambda_demod)
+                               bool prefer_general, bool lambda_demod,
+                               ClauseSet_p step_archive, PStack_p step_sides)
 {
    Eqn_p handle;
    EqnSide tmp = NoSide;
    long res = 0;
-   PStackPointer old_deriv_sp, new_deriv_sp;
    RWDesc_p desc = rw_desc_cell_alloc(ocb, bank, demodulators, level,
-                                      prefer_general);
+                                      prefer_general, step_archive,
+                                      step_sides);
    ClausePosCell pos;
    bool done = false;
 
    assert(demodulators);
    assert(desc->demods);
    assert(!ClauseIsAnyPropSet(clause, CPIsDIndexed|CPIsSIndexed));
-
-   old_deriv_sp =  clause->derivation?PStackGetSP(clause->derivation):0;
 
    /* printf(COMCHAR" ClauseComputeLINormalform(%ld)...\n",clause->ident); */
    /* if(prefer_general!=0)
@@ -1307,8 +1399,7 @@ long ClauseComputeLINormalform(OCB_p ocb, TB_p bank, Clause_p clause,
    {
       ClauseSetProp(clause, CPIsSOS);
    }
-   new_deriv_sp =  clause->derivation?PStackGetSP(clause->derivation):0;
-   res = (new_deriv_sp-old_deriv_sp)/2;
+   res = desc->rw_steps;
 
    if(res)
    {
@@ -1326,7 +1417,9 @@ long ClauseComputeLINormalform(OCB_p ocb, TB_p bank, Clause_p clause,
 //
 //   Compute a normal form for terms in all clauses in set with
 //   respect to clauses in demodulators up to level. Returns number of
-//   rewrite steps. Updates weights of rewritten clauses.
+//   rewrite steps. Updates weights of rewritten clauses. A full proof
+//   object keeps each clause before each step in step_archive and its
+//   sides in step_sides.
 //
 // Global Variables: -
 //
@@ -1337,7 +1430,9 @@ long ClauseComputeLINormalform(OCB_p ocb, TB_p bank, Clause_p clause,
 long ClauseSetComputeLINormalform(OCB_p ocb, TB_p bank, ClauseSet_p
                                   set, ClauseSet_p *demodulators,
                                   RewriteLevel level, bool
-                                  prefer_general, bool lambda_demod)
+                                  prefer_general, bool lambda_demod,
+                                  ClauseSet_p step_archive,
+                                  PStack_p step_sides)
 {
    Clause_p handle;
    long     tmp;
@@ -1353,7 +1448,9 @@ long ClauseSetComputeLINormalform(OCB_p ocb, TB_p bank, ClauseSet_p
                                       demodulators,
                                       level,
                                       prefer_general,
-                                      lambda_demod);
+                                      lambda_demod,
+                                      step_archive,
+                                      step_sides);
 
       if(tmp)
       {
@@ -1450,7 +1547,8 @@ long FindRewritableClausesIndexed(OCB_p ocb, SubtermIndex_p index,
 // Function: ClauseLocalRW()
 //
 //   Find negative literals s != t such that s > t and replace all
-//   occurrences of s with t in the clause.
+//   occurrences of s with t in the clause. A full proof object keeps
+//   the clause before the step in step_archive.
 //
 // Global Variables: -
 //
@@ -1459,7 +1557,7 @@ long FindRewritableClausesIndexed(OCB_p ocb, SubtermIndex_p index,
 //
 /----------------------------------------------------------------------*/
 
-bool ClauseLocalRW(OCB_p ocb, Clause_p clause)
+bool ClauseLocalRW(OCB_p ocb, Clause_p clause, ClauseSet_p step_archive)
 {
    PObjMap_p rw_sys = NULL;
 
@@ -1483,6 +1581,7 @@ bool ClauseLocalRW(OCB_p ocb, Clause_p clause)
    /*    printf("\n"); */
    /* } */
    bool modified = false;
+   Clause_p before = ClauseArchiveStepBegin(step_archive, clause);
    for(Eqn_p lit = clause->literals; lit; lit = lit->next)
    {
       if(!(EqnIsNegative(lit) && EqnIsOriented(lit))
@@ -1498,12 +1597,13 @@ bool ClauseLocalRW(OCB_p ocb, Clause_p clause)
       }
    }
 
+   ClauseArchiveStepEnd(step_archive, clause, before, modified);
    if(modified)
    {
       ClauseRecomputeLitCounts(clause);
-      ClauseRemoveSuperfluousLiterals(clause);
+      ClauseRemoveSuperfluousLiterals(clause, step_archive);
       ClauseDelProp(clause, CPIsOriented);
-      ClausePushDerivation(clause, DCLocalRewrite, NULL, NULL);
+      ClausePushDerivation(clause, DCLocalRewrite);
    }
 
 

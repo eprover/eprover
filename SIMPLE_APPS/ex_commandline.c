@@ -64,7 +64,6 @@ OptCell opts[] =
     NULL}
 };
 
-ProblemType problemType  = PROBLEM_NOT_INIT;
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */

@@ -300,7 +300,9 @@ OptCell opts[] =
     "inferences are unambiguously described by giving inference "
     "positions, and level 3 will expand this to a proof object where "
     "all intermediate results are explicit. This feature is under "
-    "development, so far only level 0 and 1 are operational. "
+    "development. Level 2 is not yet operational. Level 3 prints the "
+    "clause after each simplification step, so that each step is a "
+    "separate inference. "
     "The proof object will be provided in TPTP-3 or PCL "
     "syntax, depending on input format and explicit settings. The "
     "--proof-graph option will suppress normal output of the proof "
@@ -658,9 +660,9 @@ OptCell opts[] =
    {OPT_TSTP_PARSE,
     '\0', "tstp-in",
     NoArg, NULL,
-    "Set TPTP-3 as the input format TPTP-3 syntax is still under "
+    "Set TPTP-3 as the input format. TPTP-3 syntax is under ongoing "
     "development, and any given version in E may not be "
-    "fully conforming at all times. E works on all TPTP 8.2.0 FOF "
+    "fully conforming at all times. E works on all TPTP 9.2.1 FOF "
     "and CNF files (including includes)."},
 
    {OPT_TSTP_PRINT,
@@ -757,7 +759,7 @@ OptCell opts[] =
     OptArg, "All",
     "Introduce Twee-style equational definitions for ground terms "
     "in conjecture clauses. The argument can be None, All or Neg, which will "
-    "only consider ground terms from negative literals in the CNF (to be implemented)."},
+    "only consider ground terms from negative literals in the CNF."},
 
    {OPT_FINE_GOAL_DEFS,
     '\0', "goal-subterm-defs",
@@ -1473,14 +1475,17 @@ OptCell opts[] =
    {OPT_DETSORT_RW,
     '\0', "detsort-rw",
     NoArg, NULL,
-    "Sort set of clauses eliminated by backward rewriting using a total "
-    "syntactic ordering."},
+    "Obsolete, has no effect (accepted for compatibility). It used to "
+    "sort the set of clauses eliminated by backward rewriting to make "
+    "the proof search more reproducible, which it now is by default."},
 
    {OPT_DETSORT_NEW,
     '\0', "detsort-new",
     NoArg, NULL,
-    "Sort set of newly generated and backward simplified clauses using "
-    "a total syntactic ordering."},
+    "Obsolete, has no effect (accepted for compatibility). It used to "
+    "sort the set of newly generated and backward simplified clauses to "
+    "make the proof search more reproducible, which it now is by "
+    "default."},
 
    {OPT_DEFINE_WFUN,
     'D', "define-weight-function",
@@ -1538,7 +1543,8 @@ OptCell opts[] =
     '\0', "app-encode",
     NoArg, NULL,
     "Encodes terms in the proof state using applicative encoding, "
-    "prints encoded input problem and exits."},
+    "prints encoded input problem and exits. Included files are "
+    "expanded, so the output is self-contained."},
 
    {OPT_ARG_CONG,
     '\0', "arg-cong",

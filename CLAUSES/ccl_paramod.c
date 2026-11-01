@@ -206,7 +206,7 @@ ParamodulationType ParamodType(char *pm_str)
 
 void ParamodInfoPrint(FILE* out, ParamodInfo_p info)
 {
-   fprintf(out, COMCHAR" From: %6ld |%6ld\n"COMCHAR" ", info->from->ident, info->from_cpos);
+   CommentPrint(out, " From: %6ld |%6ld\n"COMCHAR" ", info->from->ident, info->from_cpos);
    ClausePrint(out, info->from, true);
    fprintf(out, "\n"COMCHAR"Into: %6ld |%6ld\n"COMCHAR"", info->into->ident, info->into_cpos);
    ClausePrint(out, info->into, true);

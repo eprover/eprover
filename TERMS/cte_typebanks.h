@@ -74,7 +74,7 @@ const char*  TypeBankFindTCName(TypeBank_p bank, TypeConsCode tc_code);
 Type_p       TypeBankParseType(Scanner_p in, TypeBank_p bank);
 void         TypePrintTSTP(FILE* out, TypeBank_p bank, Type_p type);
 void         TypeBankPrintSelectedSortDefs(FILE* out, TypeBank_p bank,
-                                           PTree_p selector);
+                                           OrdSet_p selector);
 
 Type_p       TypeChangeReturnType(TypeBank_p bank, Type_p type, Type_p new_ret);
 

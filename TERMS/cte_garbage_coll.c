@@ -81,8 +81,8 @@ void GCAdminFree(GCAdmin_p junk)
 {
    assert(junk);
 
-   PTreeFree(junk->clause_sets);
-   PTreeFree(junk->formula_sets);
+   OrdSetFree(junk->clause_sets);
+   OrdSetFree(junk->formula_sets);
 
    GCAdminCellFree(junk);
 }
@@ -105,7 +105,7 @@ void GCRegisterFormulaSet(GCAdmin_p gc, void* set)
    assert(gc);
    assert(set);
    //printf(COMCHAR" GCRegisterFormulaSet(%p, %p)\n", gc, set);
-   PTreeStore(&(gc->formula_sets), set);
+   OrdSetStore(&(gc->formula_sets), set);
 }
 
 
@@ -126,7 +126,7 @@ void GCRegisterClauseSet(GCAdmin_p gc, void* set)
    assert(gc);
    assert(set);
    //printf(COMCHAR" GCRegisterClauseSet(%p, %p)\n", gc, set);
-   PTreeStore(&(gc->clause_sets), set);
+   OrdSetStore(&(gc->clause_sets), set);
 }
 
 
@@ -138,7 +138,7 @@ void GCRegisterClauseSet(GCAdmin_p gc, void* set)
 //
 // Global Variables: -
 //
-// Side Effects    : Via PTreeDeleteEntry()
+// Side Effects    : Via OrdSetDeleteEntry()
 //
 /----------------------------------------------------------------------*/
 
@@ -147,7 +147,7 @@ void GCDeregisterFormulaSet(GCAdmin_p gc, void* set)
    assert(gc);
    assert(set);
    //printf(COMCHAR" GCDeregisterFormulaSet(%p, %p)\n", gc, set);
-   PTreeDeleteEntry(&(gc->formula_sets), set);
+   OrdSetDeleteEntry(&(gc->formula_sets), set);
 }
 
 
@@ -159,7 +159,7 @@ void GCDeregisterFormulaSet(GCAdmin_p gc, void* set)
 //
 // Global Variables: -
 //
-// Side Effects    : Via PTreeDeleteEntry()
+// Side Effects    : Via OrdSetDeleteEntry()
 //
 /----------------------------------------------------------------------*/
 
@@ -169,7 +169,7 @@ void GCDeregisterClauseSet(GCAdmin_p gc, void* set)
    assert(set);
 
    //printf(COMCHAR" GCDeregisterClauseSet(%p, %p)\n", gc, set);
-   PTreeDeleteEntry(&(gc->clause_sets), set);
+   OrdSetDeleteEntry(&(gc->clause_sets), set);
 }
 
 

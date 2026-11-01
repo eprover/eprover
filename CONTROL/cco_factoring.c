@@ -86,7 +86,7 @@ long ComputeAllOrderedFactors(TB_p bank, OCB_p ocb,
        ClauseSetTPTPType(factor, ClauseQueryTPTPType(clause));
        ClauseSetProp(factor, ClauseGiveProps(clause, CPIsSOS));
        DocClauseCreationDefault(factor, inf_factor,clause,NULL);
-            ClausePushDerivation(factor, DCOrderedFactor, clause, NULL);
+       ClausePushDerivation(factor, DCOrderedFactor, clause);
        ClauseSetInsert(store, factor);
     }
     test = ClausePosNextOrderedFactorLiterals(pos1, pos2);
@@ -142,8 +142,9 @@ long ComputeAllEqualityFactors(TB_p bank, OCB_p ocb,
             ClauseSetTPTPType(factor, ClauseQueryTPTPType(clause));
             ClauseSetProp(factor, ClauseGiveProps(clause, CPIsSOS));
             DocClauseCreationDefault(factor, inf_efactor, clause, NULL);
-            ClausePushDerivation(factor, is_ho ? DPSetIsHO(DCEqFactor) : DCEqFactor,
-                                 clause, NULL);
+            ClausePushDerivation(factor,
+                                 is_ho ? DPSetIsHO(DCEqFactor) : DCEqFactor,
+                                 clause);
             ClauseSetInsert(store, factor);
          }
          test = ClausePosNextEqualityFactorSides(pos1, pos2);

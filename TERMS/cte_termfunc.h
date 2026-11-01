@@ -152,12 +152,12 @@ void    TermAddSymbolFeatures(Term_p term, PStack_p mod_stack,
                               long depth, long *feature_array, long offset);
 
 void    TermComputeFunctionRanks(Term_p term, long *rank_array, long *count);
-long    TermCollectPropVariables(Term_p term, PTree_p *tree,
+long    TermCollectPropVariables(Term_p term, OrdSet_p *tree,
                                  TermProperties prop);
-long    TermCollectVariables(Term_p term, PTree_p *tree);
+long    TermCollectVariables(Term_p term, OrdSet_p *tree);
 long    TermCollectFCodes(Term_p term, NumTree_p *tree);
 
-long    TermCollectGroundTerms(Term_p term, PTree_p *result, bool all_subtems);
+long    TermCollectGroundTerms(Term_p term, OrdSet_p *result, bool all_subtems);
 long    TermAddFunOcc(Term_p term, PDArray_p f_occur, PStack_p res_stack);
 
 long    TermLinearize(PStack_p stack, Term_p term);

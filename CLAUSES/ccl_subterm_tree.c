@@ -152,8 +152,8 @@ SubtermOcc_p SubtermOccAlloc(Term_p term)
 
 void SubtermOccFree(SubtermOcc_p soc)
 {
-   PTreeFree(soc->pl.occs.rw_rest);
-   PTreeFree(soc->pl.occs.rw_full);
+   OrdSetFree(soc->pl.occs.rw_rest);
+   OrdSetFree(soc->pl.occs.rw_full);
    SubtermOccCellFree(soc);
 }
 
@@ -183,9 +183,12 @@ void SubtermPosFree(SubtermOcc_p soc)
 //
 // Function: CmpSubtermCells()
 //
-//   Compare two SubtermOccurrence cells via their term pointers. This
-//   is a synthetic but machine-independent measure useful primarily
-//   for indexing.
+//   Compare two SubtermOccurrence cells via the term bank entry
+//   numbers of their (shared) terms. This is a synthetic measure
+//   useful primarily for indexing. Unlike the term addresses, it does
+//   not depend on the memory layout, so traversals of the tree
+//   (e.g. the order in which paramodulation partners are found) are
+//   reproducible.
 //
 // Global Variables: -
 //
@@ -198,7 +201,8 @@ int CmpSubtermCells(const void *soc1, const void *soc2)
    const SubtermOcc_p s1 = (const SubtermOcc_p) soc1;
    const SubtermOcc_p s2 = (const SubtermOcc_p) soc2;
 
-   return PCmp(s1->term, s2->term);
+   return (s1->term->entry_no > s2->term->entry_no) -
+      (s1->term->entry_no < s2->term->entry_no);
 }
 
 
@@ -369,9 +373,9 @@ bool SubtermTreeInsertTermOcc(SubtermTree_p *root, Term_p term,
 
    if(restricted)
    {
-      return PTreeStore(&(handle->pl.occs.rw_rest), clause);
+      return OrdSetStore(&(handle->pl.occs.rw_rest), clause);
    }
-   return PTreeStore(&(handle->pl.occs.rw_full), clause);
+   return OrdSetStore(&(handle->pl.occs.rw_full), clause);
 }
 
 
@@ -401,11 +405,11 @@ bool SubtermTreeDeleteTermOcc(SubtermTree_p *root, Term_p term,
       old = oldnode->key;
       if(restricted)
       {
-         res = PTreeDeleteEntry(&(old->pl.occs.rw_rest), clause);
+         res = OrdSetDeleteEntry(&(old->pl.occs.rw_rest), clause);
       }
       else
       {
-         res = PTreeDeleteEntry(&(old->pl.occs.rw_full), clause);
+         res = OrdSetDeleteEntry(&(old->pl.occs.rw_full), clause);
       }
       if((old->pl.occs.rw_rest == NULL) && (old->pl.occs.rw_full == NULL))
       {

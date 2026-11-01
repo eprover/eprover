@@ -7,7 +7,7 @@ README!
 Short Installation Instructions for the Impatient
 =================================================
 
-This assumes that you have GNU tar, sh and gawk in your search path!
+This assumes that you have GNU tar, sh and a POSIX awk in your search path!
 
 Simple installation of the first-order version (will install
 executables):
@@ -80,7 +80,7 @@ input and output formats via commandline options.
 The Equational Theorem Prover E
 ===============================
 
-This is the README file for version 3.2 "Puttabong Moondrop" of the E
+This is the README file for version 3.5 "Countess Grey" of the E
 equational theorem prover. This version of E is free software, see the
 file COPYING for details about the license and the fact that THERE IS
 NO WARRANTY!

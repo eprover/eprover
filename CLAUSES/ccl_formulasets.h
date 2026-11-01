@@ -58,6 +58,7 @@ long         FormulaSetStackCardinality(PStack_p stack);
 void         FormulaSetGCMarkCells(FormulaSet_p set);
 void         FormulaSetMarkPolarity(FormulaSet_p set);
 void         FormulaSetInsert(FormulaSet_p set, WFormula_p newform);
+void         FormulaSetReplace(WFormula_p form, WFormula_p newform);
 long         FormulaSetInsertSet(FormulaSet_p set, FormulaSet_p from);
 WFormula_p   FormulaSetExtractEntry(WFormula_p form);
 WFormula_p   FormulaSetExtractFirst(FormulaSet_p set);

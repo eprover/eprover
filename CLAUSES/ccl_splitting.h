@@ -68,7 +68,7 @@ typedef struct lit_split_desc
 {
    Eqn_p   literal;
    int     part;
-   PTree_p varset;  /* Initially: Varset of literal, later either
+   OrdSet_p varset;  /* Initially: Varset of literal, later either
              empty (in subsequent literals) or varset of
              partition (for first literal of partition) */
 }LitSplitDescCell, *LitSplitDesc_p;
@@ -81,11 +81,11 @@ typedef struct lit_split_desc
 
 bool ClauseHasSplitLiteral(Clause_p clause);
 int  ClauseSplit(DefStore_p store, Clause_p clause, ClauseSet_p set,
-                 SplitType how, bool fresh_defs);
+                 SplitType how, bool fresh_defs, ClauseSet_p step_archive);
 
 long ClauseSetSplitClauses(DefStore_p store, ClauseSet_p from_set,
                            ClauseSet_p to_set, SplitType how,
-                           bool fresh_defs);
+                           bool fresh_defs, ClauseSet_p step_archive);
 
 long ClauseSetSplitClausesGeneral(DefStore_p store, bool fresh_defs,
                                   ClauseSet_p from_set,

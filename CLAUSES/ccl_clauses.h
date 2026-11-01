@@ -47,10 +47,10 @@ typedef enum
                                            * marks the actual
                                            * archived clause object,
                                            * while ClauseIsIRVictim
-                                           * blow marks the logical
+                                           * marks the logical
                                            * clause (i.e. it is
                                            * inherited by the alive
-                                           * copy.  */
+                                           * copy. */
    CPIsProcessed       = 2*CPIsDead ,     /* Clause has been processed
                                             * previously */
    CPIsOriented        = 2*CPIsProcessed, /* Term and literal
@@ -68,32 +68,31 @@ typedef enum
                                                  property. */
    CPDeleteClause      = 2*CPRWDetected,  /* Clause should be deleted
                                            * for some reason */
-   CPType1             = 2*CPDeleteClause,/* Three bits used to encode
+   CPType1             = 2*CPDeleteClause,/* Four bits used to encode
                                            * the Clause type, taken
                                            * from TPTP or  TSTP input
                                            * format or assumed */
    CPType2             = 2*CPType1,
    CPType3             = 2*CPType2,
-   CPTypeMask          = CPType1|CPType2|CPType3,
+   CPType4             = 2*CPType3,
+   CPTypeMask          = CPType1|CPType2|CPType3|CPType4,
    CPTypeUnknown       = 0,               /* Also used as wildcard */
    CPTypeAxiom         = CPType1,         /* Clause is Axiom */
-   // CPTypeHoDefinition  = CPType1|CPType4, /* Clause is a higher-order definition */
    CPTypeHypothesis    = CPType2,         /* Clause is Hypothesis */
    CPTypeConjecture    = CPType1|CPType2, /* Clause is Conjecture */
    CPTypeLemma         = CPType3,         /* Clause is Lemma */
    CPTypeNegConjecture = CPType1|CPType3, /* Clause is an negated
                                            * conjecture (used for
                                            * refutation) */
-   CPTypeQuestion      = CPType2|CPType3, /* `Clause is a question -
+   CPTypeQuestion      = CPType2|CPType3, /* Clause is a question -
                                            * only used for FOF, really. */
-   CPTypeWatchClause   = CPType1|CPType2|CPType3,
-   /* Clause is intended as a
-    * watch list clause */
-   CPIsIRVictim        = 2*CPType3,       /* Clause has just been
+   CPTypeWatchClause   = CPType1|CPType2|CPType3, /* Clause is intended as a
+                                                   * watch list clause */
+   CPTypeDefinition    = CPType4,         /* Clause is a definition */
+   CPIsIRVictim        = 2*CPType4,       /* Clause has just been
                                              simplified in
                                              interreduction */
-   CPOpFlag            = 2*CPIsIRVictim,  /* Temporary marker */
-   CPIsSelected        = 2*CPOpFlag,      /* For analysis of selected
+   CPIsSelected        = 2*CPIsIRVictim,  /* For analysis of selected
                                            * clauses only */
    CPIsFinal           = 2*CPIsSelected,  /* Clause is a final clause,
                                              i.e. a clause that
@@ -137,10 +136,8 @@ typedef struct clause_cell
    long                  ident;       /* Hopefully unique ident for
                                          all clauses created during
                                          proof run */
-#ifdef CLAUSE_PERM_IDENT
    long                  perm_ident;  /* Running number, given on
                                          alloc, never modified */
-#endif
    SysDate               date;        /* ...at which this clause
                                          became a demodulator */
    Eqn_p                 literals;    /* List of literals */
@@ -196,9 +193,8 @@ void ClauseSetTPTPType(Clause_p clause, FormulaProperties type);
 #define ClauseQueryTPTPType(clause)             \
    ((clause)->properties&CPTypeMask)
 
-#define TPTPTypesCombine(type1, type2)          \
-   ((type1)==CPTypeAxiom?(type2):                               \
-    ((type2)==CPTypeConjecture?CPTypeConjecture:(type1)))
+FormulaProperties TPTPTypesCombine(FormulaProperties type1,
+                                   FormulaProperties type2);
 
 #define ClauseSetCSSCPASource(clause,prop)      \
    ClauseDelProp((clause),CP_CSSCPA_Mask);              \
@@ -383,10 +379,8 @@ bool     ClauseNotGreaterEqual(OCB_p ocb,
 
 int      ClauseCompareFun(const void *c1, const void* c2);
 int      ClauseCmpById(const void* clause1, const void* clause2);
-#ifdef CLAUSE_PERM_IDENT
 int      ClauseCmpByPermId(const void* clause1, const void* clause2);
 int      ClauseCmpByPermIdR(const void* clause1, const void* clause2);
-#endif
 int      ClauseCmpByStructWeight(const void* clause1, const void* clause2);
 
 int      ClauseCmpByPtr(const void* clause1, const void* clause2);
@@ -421,14 +415,14 @@ long     ClauseCollectSubterms(Clause_p clause, PStack_p collector);
 
 long     ClauseReturnFCodes(Clause_p clause, PStack_p f_codes);
 
-#define CLAUSE_ENSURE_DERIVATION(clause)                                \
-   {if(!(clause)->derivation){(clause)->derivation=PStackVarAlloc(3);}}
+#define FORMULA_OR_CLAUSE_ENSURE_DERIVATION(for_cl)                                \
+   {if(!(for_cl)->derivation){(for_cl)->derivation=PStackVarAlloc(3);}}
 
 bool    ClauseIsUntyped(Clause_p clause);
 
 bool    ClauseQueryLiteral(Clause_p clause, bool (*query_fun)(Eqn_p));
 bool    ClauseRecognizeChoice(IntMap_p choice_symbols_map, Clause_p cl);
-long    ClauseCollectGroundTerms(Clause_p clause, PTree_p *res, bool pos_lits,
+long    ClauseCollectGroundTerms(Clause_p clause, OrdSet_p *res, bool pos_lits,
                                  bool neg_lits, bool all_subterms);
 
 

@@ -178,7 +178,7 @@ void    DocClauseRewrite(FILE* out, long level, ClausePos_p rewritten,
         DocClauseRewrite(GlobalOut, OutputLevel, (rewritten),\
           (old_term), NULL);
 void    DocClauseEqUnfold(FILE* out, long level, Clause_p rewritten,
-           ClausePos_p demod, PStack_p demod_pos);
+           ClausePos_p demod, long steps);
 
 
 void    DocFormulaCreation(FILE* out, long level, WFormula_p formula,

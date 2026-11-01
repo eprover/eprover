@@ -59,7 +59,7 @@ typedef long (*ClauseFunType)(Clause_p);
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-#define CLAUSECELL_DYN_MEM (CLAUSECELL_MEM+3*PTREE_CELL_MEM)
+#define CLAUSECELL_DYN_MEM (CLAUSECELL_MEM+3*ORDSET_CELL_MEM)
 
 #define ClauseSetCellAlloc()    (ClauseSetCell*)SizeMalloc(sizeof(ClauseSetCell))
 #define ClauseSetCellFree(junk) SizeFree(junk, sizeof(ClauseSetCell))

@@ -595,12 +595,12 @@ void TSMIndexPrint(FILE* out, TSMIndex_p index, int depth)
    switch(index->type)
    {
    case IndexArity:
-         fprintf(out, COMCHAR" %sIndex %ld is arity index!\n", pattern2, index->ident);
+         CommentPrint(out, " %sIndex %ld is arity index!\n", pattern2, index->ident);
          break;
    case IndexSymbol:
-         fprintf(out, COMCHAR" %sIndex %ld is symbol index!\n",
-                 pattern2,index->ident);
-         fprintf(out, COMCHAR" %sPSymbol         Index  FCode     (Symbol)\n", pattern2);
+         CommentPrint(out, " %sIndex %ld is symbol index!\n",
+                      pattern2,index->ident);
+         CommentPrint(out, " %sPSymbol         Index  FCode     (Symbol)\n", pattern2);
          stack = NumTreeTraverseInit(index->tree.n_index);
          i=0;
          while((ncell = NumTreeTraverseNext(stack)))
@@ -608,31 +608,31 @@ void TSMIndexPrint(FILE* out, TSMIndex_p index, int depth)
             f_code = PatternSubstGetOriginalSymbol(index->subst,
                                                    ncell->key);
 
-            fprintf(out, COMCHAR" %s#%10ld :%7ld  %7ld     %s\n", pattern2,
-                    ncell->key,
-                    ncell->val1.i_val,
-                    f_code,
-                    ((f_code > 0))&&(f_code<=index->bank->sig->f_count)?
-                    SigFindName(index->bank->sig, f_code):"variable");
+            CommentPrint(out, " %s#%10ld :%7ld  %7ld     %s\n", pattern2,
+                         ncell->key,
+                         ncell->val1.i_val,
+                         f_code,
+                         ((f_code > 0))&&(f_code<=index->bank->sig->f_count)?
+                         SigFindName(index->bank->sig, f_code):"variable");
             i++;
          }
          NumTreeTraverseExit(stack);
-         fprintf(out, COMCHAR" %s%ld alternatives in the index\n",
-                 pattern2, i);
+         CommentPrint(out, " %s%ld alternatives in the index\n",
+                      pattern2, i);
          break;
    case IndexTop:
    case IndexAltTop:
    case IndexCSTop:
    case IndexESTop:
    case IndexIdentity:
-         fprintf(out, COMCHAR" Index is %s index!\n",
-                 GetIndexName(index->type));
+         CommentPrint(out, " Index is %s index!\n",
+                      GetIndexName(index->type));
          stack = PTreeTraverseInit(index->tree.t_index);
          i=0;
          while((pcell = PTreeTraverseNext(stack)))
          {
             current = pcell->key;
-            fprintf(out, COMCHAR" %3ld : ", current->key);
+            CommentPrint(out, " %3ld : ", current->key);
             PatternTermPrint(out, index->subst, current->term, index->bank->sig);
             /* TermPrint(out, current->term, index->bank->sig,
                DEREF_NEVER); */
@@ -640,10 +640,10 @@ void TSMIndexPrint(FILE* out, TSMIndex_p index, int depth)
             i++;
          }
          PTreeTraverseExit(stack);
-         fprintf(out, COMCHAR" %ld alternatives in the index\n", i);
+         CommentPrint(out, " %ld alternatives in the index\n", i);
          break;
    case IndexEmpty:
-         fprintf(out, COMCHAR" Index is empty index!\n");
+         CommentPrint(out, " Index is empty index!\n");
          break;
    default:
          assert(false && "Unknown index type");

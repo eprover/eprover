@@ -35,7 +35,7 @@
 typedef struct lit_constr_cell
 {
    bool    constrained;
-   PTree_p constraints;
+   OrdSet_p constraints;
 }LitConstrCell;
 
 typedef struct lit_occ_table
@@ -67,7 +67,7 @@ bool    LitPosGetConstrState(LitOccTable_p table, FunCode pred, int pos);
 void    LitPosSetConstrState(LitOccTable_p table, FunCode pred, int
                              pos, bool value);
 
-PTree_p LitPosGetConstraints(LitOccTable_p table, FunCode pred, int pos);
+OrdSet_p LitPosGetConstraints(LitOccTable_p table, FunCode pred, int pos);
 bool    LitPosAddConstraint(LitOccTable_p table, FunCode pred, int
                             pos, Term_p term);
 
@@ -86,7 +86,7 @@ void    EqnCollectVarConstr(LitOccTable_p p_table, LitOccTable_p
                             n_table, PDArray_p var_constr, Eqn_p
                             eqn);
 void    ClauseCollectVarConstr(LitOccTable_p p_table, LitOccTable_p
-                               n_table, Clause_p clause, PTree_p
+                               n_table, Clause_p clause, OrdSet_p
                                ground_terms, PDArray_p var_constr);
 
 #endif

@@ -3,11 +3,34 @@
 """
 pylib_e_multi.py
 
-Usage: pylib_e_multi.py <config_file>
+Usage: pylib_e_multi.py [-h] [<config_file>]
 
 Run a server process accepting and processing jobs for E. This is a
 fairly specific hack allowing us to run starexec scripts locally and
 to process the result with the genprot.py script.
+
+The optional config file is read once at startup. While running, the
+server polls the directory ~/EPROVER/RUNDIR for two files, which are
+processed and then moved to ~/EPROVER/RUNDIR/LOG:
+
+new_config: Configuration lines, as in the config file:
+  max_running: <n>  Maximal number of tasks running in parallel
+                    (default 32)
+  time_limit: <n>   CPU time limit (in seconds) for tasks started from
+                    now on (default 5)
+  tptp: <dir>       Root of the (standard) TPTP installation for tasks
+                    started from now on. A problem XXXnnn.p is taken
+                    from <dir>/Problems/XXX/XXXnnn.p, and TPTP is set
+                    to <dir> for E to find included axioms (default
+                    $TPTP, or /opt/tptp/current if that is not set)
+  quit              Terminate the server (after the running tasks are
+                    finished, queued tasks are dropped)
+  # ...             Comment, printed
+
+new_jobs: One job per line, "<problem_list> <script>". <problem_list>
+  is a file in ~/EPROVER/RUNDIR with one problem name per line, and
+  <script> a starexec_run_* script in ~/EPROVER/RUNDIR. Lines starting
+  with # are printed.
 
 Options:
 
@@ -51,15 +74,13 @@ or (preferably) via email (address above).
 
 import sys
 import re
-import string
 import os
 import os.path
 import getopt
 import subprocess
-import zipfile
 import shutil
+import concurrent.futures
 from time import sleep
-import selectors
 
 
 class id(object):
@@ -74,7 +95,15 @@ class id(object):
 homeDir = os.path.expanduser("~")
 eRunDir = homeDir+"/EPROVER/RUNDIR"
 eResDir = eRunDir
-eFlatTPTP = homeDir+"/EPROVER/TPTP_8.2.0_FLAT"
+eTPTP = os.environ.get("TPTP", "/opt/tptp/current")
+
+
+def tptpProblemPath(tptp, problem):
+    """
+    Return the path of problem (e.g. GRP001-1.p) in the standard
+    TPTP installation at tptp (i.e. tptp/Problems/GRP/GRP001-1.p).
+    """
+    return "%s/Problems/%s/%s"%(tptp, problem[0:3], problem)
 
 class etask(object):
     ids = id("t")
@@ -83,58 +112,59 @@ class etask(object):
         self.script = script
         self.problem = problem
         self.id = etask.ids.newId()
-        self.status = "new"
-        self.output = b""
-        self.proc = None
+        self.cmd = None
+        self.output = None
 
     def __str__(self):
-        return "<%s, %s, %s, %s>"%(self.id, self.script,
-        self.problem, self.status)
+        return "<%s, %s, %s>"%(self.id, self.script, self.problem)
 
     def getId(self):
         return self.id
 
-    def run(self, time = 5):
-        if self.status !="new":
-            return None
-
-        cmd = "(export STAREXEC_CPU_LIMIT=%d; cd %s; ./%s %s/%s)"% (
-            time, eRunDir, self.script, eFlatTPTP, self.problem)
-
-        self.cmd = cmd
-        self.proc = subprocess.Popen(cmd, stdin=None,
-                                     stdout=subprocess.PIPE,
-                                     stderr=subprocess.STDOUT,
-                                     shell=True,
-                                     close_fds=True)
-        self.status = "run"
-        return self.fileno()
-
-    def fileno(self):
+    def execute(self, time = 5, tptp = eTPTP):
         """
-        Return the pipe's fileno to support select.
+        Run the task in eRunDir and wait for it to finish. Return (and
+        store) its output (stdout and stderr together). This is
+        called in a worker thread of the scheduler.
         """
-        if self.status!="run":
-            return None
-        return self.proc.stdout.fileno()
+        problem = tptpProblemPath(tptp, self.problem)
+        # TPTP is needed by E to find included axiom files
+        env = dict(os.environ, STAREXEC_CPU_LIMIT=str(time), TPTP=tptp)
+        self.cmd = "STAREXEC_CPU_LIMIT=%d TPTP=%s ./%s %s"%(
+            time, tptp, self.script, problem)
+        try:
+            res = subprocess.run([os.path.join(eRunDir, self.script), problem],
+                                 cwd=eRunDir, env=env,
+                                 stdin=subprocess.DEVNULL,
+                                 stdout=subprocess.PIPE,
+                                 stderr=subprocess.STDOUT)
+            self.output = res.stdout.decode("ASCII", errors="replace")
+        except Exception as err:
+            # Recognized by genprot.py
+            self.output = "exec failed: %s\n"%(err,)
+        return self.output
 
     def getRes(self):
-        if self.status=="run":
-            tmp = self.proc.stdout.read()
-            self.output = self.output+tmp
-            if tmp != b"":
-                return None
-            self.status = "done"
-        return self.output.decode("ASCII")
+        """
+        Return the output of the finished task (None before).
+        """
+        return self.output
 
 
 class job(object):
     ids = id("j")
 
     def __init__(self, script, problist):
-        self.id = job.ids.newId()
+        # Ids restart with every server start, so skip ids whose
+        # results (from earlier runs) still exist
+        while True:
+            self.id = job.ids.newId()
+            self.containerdir = "Job"+self.getId()+"_output"
+            containerpath = eResDir+"/"+self.containerdir
+            if not (os.path.exists(containerpath) or
+                    os.path.exists(containerpath+".zip")):
+                break
 
-        self.containerdir = "Job"+self.getId()+"_output"
         self.logdir = self.containerdir+"/Problems"
         self.script = script
         self.stratname = "EFake__E_"+script[len("starexec_run_"):]
@@ -161,11 +191,16 @@ class job(object):
         res = result.split("\n")
         probname = None
         for l in res:
-            if l.startswith("% Problem"):
+            # Older run scripts print %% (or #) instead of %
+            if re.match(r"(%%?|#) Problem", l):
                 tmp = l.split(":")
                 probname = tmp[1].strip()
                 domname = probname[0:3]
-        if probname != None:
+        if probname == None:
+            print("# Warning: No Problem line in task output, discarded:")
+            for l in res[:5]:
+                print("#   "+l)
+        else:
             dirpath = eResDir+"/"+self.logdir+"/"+domname+"/"+self.stratname+"/"+probname
             filepath = dirpath+"/"+"%07d.txt"%(self.filecounter,)
             self.filecounter += 1
@@ -175,35 +210,55 @@ class job(object):
             fp.close()
 
 
+    def summaryLines(self, result):
+        """
+        Return the SZS status and total time lines of E's output. E
+        uses % as the comment character (# for old versions or
+        --unix-comments).
+        """
+        return [l for l in result.split("\n")
+                if re.match(r"[#%] (SZS|Total time)", l)]
+
     def returnTask(self, task):
         print("# Task "+task.getId()+" complete")
-        res = task.getRes().split("\n")
-        for l in res:
-            if l.startswith("# SZS"):
-                print(l)
-            if l.startswith("# Total time"):
-                print(l)
+        for l in self.summaryLines(task.getRes()):
+            print(l)
         self.processResult(task.getRes())
         self.cardinality -= 1
         if self.cardinality == 0:
             print("# Job "+self.getId()+" "+self.script+" complete")
-            shutil.make_archive(self.containerdir,
-                                "zip",
-                                base_dir=self.containerdir)
-            shutil.rmtree(self.containerdir)
-            print("# Job "+self.getId()+" zipped")
+            # Results are in eResDir, independent of the working directory
+            containerpath = eResDir+"/"+self.containerdir
+            if os.path.isdir(containerpath):
+                shutil.make_archive(containerpath,
+                                    "zip",
+                                    root_dir=eResDir,
+                                    base_dir=self.containerdir)
+                shutil.rmtree(containerpath)
+                print("# Job "+self.getId()+" zipped")
+            else:
+                print("# Warning: Job "+self.getId()+
+                      " produced no results (no % Problem lines)")
 
 
 
 class scheduler(object):
     ids = id("s")
+    # Upper bound for max_running. Worker threads are only created
+    # when needed, so this costs nothing.
+    max_workers = 1024
 
-    def __init__(self, max_running=32):
+    def __init__(self, max_running=32, time_limit=5, tptp=eTPTP):
         self.id = scheduler.ids.newId()
         self.queue    = []
         self.max_running = max_running
-        self.running  = 0
-        self.tasks    = {}
+        self.time_limit = time_limit
+        self.tptp = tptp
+        # Future of each running task -> (task, job it belongs to)
+        self.running  = {}
+        self.pool = concurrent.futures.ThreadPoolExecutor(
+            max_workers=scheduler.max_workers)
+        self.quit_requested = False
         self.filecount = 0
         self.blockfiles = [
             os.path.expanduser("~sschulz")+"/CPU_REQUEST",
@@ -228,25 +283,60 @@ class scheduler(object):
             os.rename(fullname, newname)
         return res
 
-    def updateConfig(self):
-        conf = self.consumeFile("new_config")
+    def processConfig(self, conf):
+        """
+        Process configuration lines (from new_config or the config
+        file given on the command line).
+        """
         for l in conf:
             if l.startswith("#"):
                 print(l)
+            elif l == "":
+                pass
             elif l.startswith("quit"):
-                print("Exit requested, terminating")
-                sys.exit(1)
+                print("# Exit requested, terminating after running tasks")
+                self.quit_requested = True
             else:
-                todo = [p.strip() for p in l.split(":")]
+                # Split at the first colon only (paths may contain one)
+                todo = [p.strip() for p in l.split(":", 1)]
                 if len(todo):
                     if todo[0] == "max_running":
                         try:
                             print("# Processing: "+l)
                             self.max_running = int(todo[1])
+                            if self.max_running > scheduler.max_workers:
+                                print("# Warning: max_running limited to %d"%(
+                                    scheduler.max_workers,))
+                                self.max_running = scheduler.max_workers
                         except:
+                            print("# Warning: Failed to process "+l)
+                    elif todo[0] == "time_limit":
+                        try:
+                            print("# Processing: "+l)
+                            self.time_limit = int(todo[1])
+                        except:
+                            print("# Warning: Failed to process "+l)
+                    elif todo[0] == "tptp":
+                        if len(todo) == 2 and todo[1] != "":
+                            print("# Processing: "+l)
+                            self.tptp = todo[1]
+                        else:
                             print("# Warning: Failed to process "+l)
                     else:
                         print("# Warning: Don't know what to do with "+l)
+
+    def updateConfig(self):
+        self.processConfig(self.consumeFile("new_config"))
+
+    def readConfigFile(self, name):
+        """
+        Read the config file name (which, unlike new_config, is left
+        in place).
+        """
+        fp = open(name, "r")
+        conf = [l.strip() for l in fp.readlines()]
+        fp.close()
+        self.processConfig(conf)
 
     def updateJobs(self):
         jobs = self.consumeFile("new_jobs")
@@ -273,71 +363,95 @@ class scheduler(object):
 
     def checkCPURequest(self):
         for file in self.blockfiles:
-            try:
-                res = os.path.isfile(file)
-            except:
-                pass
-            if res:
+            if os.path.isfile(file):
                 print("Stopped scheduling due to "+file)
-                return res
+                return True
         return False
 
-    def schedule(self):
-        sel_tasks = selectors.DefaultSelector()
-        sleeptime = 2
+    def startTasks(self):
+        """
+        Hand queued tasks to the thread pool until max_running tasks
+        are running.
+        """
+        while self.queue and len(self.running) < self.max_running:
+            task, source = self.queue.pop(0)
+            future = self.pool.submit(task.execute,
+                                      self.time_limit, self.tptp)
+            self.running[future] = (task, source)
 
+    def finishTask(self, future):
+        """
+        Process the result of a finished task (in the main thread, so
+        that results are filed and zipped one at a time).
+        """
+        task, source = self.running.pop(future)
+        if source:
+            source.returnTask(task)
+        else:
+            print("# Orphan task "+task.getId()+" complete")
+
+    def schedule(self):
         while True:
             self.updateConfig()
+            if self.quit_requested:
+                break
             self.updateJobs()
             if self.checkCPURequest():
                 sleeptime = 10
             else:
                 sleeptime = 2
-                while (self.running < self.max_running):
-                    try:
-                        job, source = self.queue.pop(0)
-                        self.tasks[job] = source
-                        job.run()
-                        sel_tasks.register(job, selectors.EVENT_READ)
-                        self.running += 1
-                    except IndexError:
-                        break
+                self.startTasks()
 
-            print("# Jobs running: ", self.running)
+            print("# Jobs running: ", len(self.running))
             print("# Queue:        ", len(self.queue), flush=True)
 
-            if self.running == 0:
+            if not self.running:
                 print("# ...ZZZ...")
                 sleep(sleeptime)
             else:
-                events = sel_tasks.select(timeout=2)
-                for task, mask in events:
-                    res = task.fileobj.getRes()
-                    if res!=None:
-                        sel_tasks.unregister(task.fileobj)
-                        self.running -= 1
-                        source = self.tasks[task.fileobj]
-                        del(self.tasks[task.fileobj])
-                        if source:
-                            source.returnTask(task.fileobj)
-                        else:
-                            print("# Orphan job" +
-                                  task.fileobj.getId()+
-                                  " complete")
+                done, _ = concurrent.futures.wait(
+                    self.running, timeout=2,
+                    return_when=concurrent.futures.FIRST_COMPLETED)
+                for future in done:
+                    self.finishTask(future)
 
-
+        # Quit: Drop the queue, but keep the results of running tasks
+        self.queue = []
+        if self.running:
+            print("# Waiting for %d running tasks"%(len(self.running),),
+                  flush=True)
+            for future in concurrent.futures.as_completed(list(self.running)):
+                self.finishTask(future)
+        self.pool.shutdown()
+        print("# Terminated")
 
 
 if __name__ == '__main__':
-    #t1 = etask("starexec_run_E---2.0_G-E--_208_C41_F1_AE_CS_SP_PS_S00", "BOO001-1.p")
-    #t2 = etask("starexec_run_E---2.0_G-E--_208_C41_F1_AE_CS_SP_PS_S00", "GRP382-1.p")
+    try:
+        opts, args = getopt.gnu_getopt(sys.argv[1:], "h")
+    except getopt.GetoptError as err:
+        print(err)
+        sys.exit(1)
 
-    #testjob = job(
-    #    "starexec_run_E---2.0_G-E--_208_C41_F1_AE_CS_SP_PS_S00",
-    #    "BOO001-1.p\nGRP382-1.p\nALG002-1.p\nALG004-1.p\n"+
-    #    "ALG011-1.p\nALG024+1.p\nALG007-1.p\n")
+    for option, optarg in opts:
+        if option == "-h":
+            print(__doc__)
+            sys.exit()
+
+    if len(args) > 1:
+        print(__doc__)
+        sys.exit(1)
+
+    # consumeFile() moves processed files here
+    os.makedirs(eRunDir+"/LOG", exist_ok=True)
 
     worker = scheduler()
-    # testjob.submitTasks(worker)
+
+    if args:
+        try:
+            worker.readConfigFile(args[0])
+        except OSError as err:
+            print("Cannot read config file: "+str(err))
+            sys.exit(1)
 
     worker.schedule()

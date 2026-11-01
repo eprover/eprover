@@ -209,9 +209,6 @@ typedef struct heuristic_parms_cell
    bool                use_tptp_sos;
    bool                presat_interreduction;
 
-   bool                detsort_bw_rw;
-   bool                detsort_tmpset;
-
    /* Higher-order settings */
    ExtInferenceType    arg_cong;
    ExtInferenceType    neg_ext;

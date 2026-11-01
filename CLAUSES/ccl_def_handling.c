@@ -1,27 +1,24 @@
 /*-----------------------------------------------------------------------
 
-File  : ccl_def_handling.c
+  File  : ccl_def_handling.c
 
-Author: Stephan Schulz (schulz@eprover.org)
+  Author: Stephan Schulz (schulz@eprover.org)
 
-Contents
+  Contents
 
   Handling of clausal definitions as used (up to now
   implicitely) in splitting, i.e. data structures associating a
   clause with a fresh constant predicate symbol or literal.
 
-  Copyright 2006 by the author.
+  Copyright 2006-2026 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
+  Created: Sun Jun  4 20:31:23 EEST 2006
 
-<1> Sun Jun  4 20:31:23 EEST 2006
-    New
-
------------------------------------------------------------------------*/
+  -----------------------------------------------------------------------*/
 
 #include "ccl_def_handling.h"
 
@@ -176,7 +173,7 @@ Clause_p GetClauseDefinition(Eqn_p litlist, FunCode def_pred, WFormula_p parent)
    def_lit->next = litlist;
    res           = ClauseAlloc(def_lit);
 
-   ClausePushDerivation(res, DCSplitEquiv, parent, NULL);
+   ClausePushDerivation(res, DCSplitEquiv, parent);
 
    DocIntroSplitDefRestDefault(res, parent);
 
@@ -218,11 +215,11 @@ WFormula_p GetFormulaDefinition(Eqn_p litlist, FunCode def_pred)
    def = TFormulaClauseClosedEncode(litlist->bank, def_clause);
    def = TFormulaFCodeAlloc(litlist->bank, litlist->bank->sig->equiv_code, lit, def);
    res = WTFormulaAlloc(litlist->bank, def);
-
+   FormulaSetType(res,CPTypeDefinition);
    ClauseFree(def_clause);
 
    DocIntroSplitDefDefault(res);
-   WFormulaPushDerivation(res, DCIntroDef, NULL, NULL);
+   WFormulaPushDerivation(res, DCIntroDef, def_pred);
 
    return res;
 }

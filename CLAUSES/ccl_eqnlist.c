@@ -1809,7 +1809,7 @@ void EqnListComputeFunctionRanks(Eqn_p list, long *rank_array,
 //
 /----------------------------------------------------------------------*/
 
-long EqnListCollectVariables(Eqn_p list, PTree_p *tree)
+long EqnListCollectVariables(Eqn_p list, OrdSet_p *tree)
 {
    long res = 0;
 
@@ -2005,7 +2005,7 @@ long EqnListCollectSubterms(Eqn_p list, PStack_p collector)
 //
 /----------------------------------------------------------------------*/
 
-long EqnListCollectGroundTerms(Eqn_p list, PTree_p *res, bool pos_lits,
+long EqnListCollectGroundTerms(Eqn_p list, OrdSet_p *res, bool pos_lits,
                                bool neg_lits, bool all_subterms)
 {
    long count = 0;

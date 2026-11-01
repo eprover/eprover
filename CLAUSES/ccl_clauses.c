@@ -50,11 +50,9 @@ long ClauseIdentCounter = 0; /* Used to generate new clause idents on
                                 the fly. */
 
 
-#ifdef CLAUSE_PERM_IDENT
 static long clause_perm_ident_counter = 0; /* Used to generate new
                                               permanent idents on
                                               the fly. */
-#endif
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
@@ -146,8 +144,8 @@ Clause_p clause_copy_meta(Clause_p clause)
 /----------------------------------------------------------------------*/
 
 static void clause_collect_posneg_vars(Clause_p clause,
-                                PTree_p *pos_vars,
-                                PTree_p *neg_vars)
+                                OrdSet_p *pos_vars,
+                                OrdSet_p *neg_vars)
 {
    Eqn_p handle;
 
@@ -169,7 +167,6 @@ static void clause_collect_posneg_vars(Clause_p clause,
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
 /*---------------------------------------------------------------------*/
-
 
 /*-----------------------------------------------------------------------
 //
@@ -220,6 +217,54 @@ void ClauseSetTPTPType(Clause_p clause, FormulaProperties type)
 
 /*-----------------------------------------------------------------------
 //
+// Function: TPTPtpesCombine()
+//
+//   Given the types of two clauses/formulas, determine the type of
+//   the clause/formula resulting (usually ;-) from their combination.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+FormulaProperties TPTPTypesCombine(FormulaProperties type1,
+                                   FormulaProperties type2)
+{
+   FormulaProperties res = 0;
+
+   switch(type1)
+   {
+   case CPTypeNegConjecture:
+   case CPTypeConjecture:
+   case CPTypeQuestion:
+         /* Conjecture-like types dominate */
+         res = type1;
+         break;
+   case CPTypeDefinition:
+   case CPTypeLemma:
+         /* Definition/Lemma are never inherited */
+         if((type2 == CPTypeDefinition)||(type2 == CPTypeLemma))
+         {
+            res = CPTypeAxiom; //plain
+         }
+         else
+         {
+            res = type2;
+         }
+         break;
+   default:
+         /* If type1 is boring, type2 dominates */
+         res = type2;
+         break;
+   }
+   return res;
+}
+
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: ClauseCellAlloc()
 //
 //   Allocate a clause cell. This is a thin wrapper only relevant when
@@ -235,9 +280,7 @@ Clause_p ClauseCellAlloc(void)
 {
    Clause_p handle = ClauseCellAllocRaw();
 
-#ifdef CLAUSE_PERM_IDENT
    handle->perm_ident = clause_perm_ident_counter++;
-#endif
 
 
    return handle;
@@ -779,7 +822,7 @@ bool ClauseIsSemEmpty(Clause_p clause)
 
 bool ClauseIsRangeRestricted(Clause_p clause)
 {
-   PTree_p pos_vars = NULL, neg_vars = NULL;
+   OrdSet_p pos_vars = NULL, neg_vars = NULL;
    bool    res;
 
    //printf("RR: "); ClausePrintAxiom(stdout, clause, true);
@@ -795,10 +838,10 @@ bool ClauseIsRangeRestricted(Clause_p clause)
    }
    clause_collect_posneg_vars(clause, &pos_vars, &neg_vars);
 
-   res = PTreeIsSubset(neg_vars, &pos_vars);
+   res = OrdSetIsSubset(neg_vars, &pos_vars);
 
-   PTreeFree(pos_vars);
-   PTreeFree(neg_vars);
+   OrdSetFree(pos_vars);
+   OrdSetFree(neg_vars);
 
    //printf("=> %s\n", res?"true":"false");
    return res;
@@ -821,7 +864,7 @@ bool ClauseIsRangeRestricted(Clause_p clause)
 
 bool ClauseIsAntiRangeRestricted(Clause_p clause)
 {
-   PTree_p pos_vars = NULL, neg_vars = NULL;
+   OrdSet_p pos_vars = NULL, neg_vars = NULL;
    bool    res;
 
    if(ClauseIsNegative(clause) || ClauseIsGround(clause))
@@ -834,10 +877,10 @@ bool ClauseIsAntiRangeRestricted(Clause_p clause)
    }
 
    clause_collect_posneg_vars(clause, &pos_vars, &neg_vars);
-   res = PTreeIsSubset(pos_vars, &neg_vars);
+   res = OrdSetIsSubset(pos_vars, &neg_vars);
 
-   PTreeFree(pos_vars);
-   PTreeFree(neg_vars);
+   OrdSetFree(pos_vars);
+   OrdSetFree(neg_vars);
 
    return res;
 }
@@ -858,7 +901,7 @@ bool ClauseIsAntiRangeRestricted(Clause_p clause)
 
 bool ClauseIsStronglyRangeRestricted(Clause_p clause)
 {
-   PTree_p pos_vars = NULL, neg_vars = NULL;
+   OrdSet_p pos_vars = NULL, neg_vars = NULL;
    bool res;
 
    //printf("StrongRR: "); ClausePrintAxiom(stdout, clause, true);
@@ -880,10 +923,10 @@ bool ClauseIsStronglyRangeRestricted(Clause_p clause)
    assert(clause->literals);
 
    clause_collect_posneg_vars(clause, &pos_vars, &neg_vars);
-   res = PTreeEquiv(pos_vars, neg_vars);
+   res = OrdSetEquiv(pos_vars, neg_vars);
 
-   PTreeFree(pos_vars);
-   PTreeFree(neg_vars);
+   OrdSetFree(pos_vars);
+   OrdSetFree(neg_vars);
    //printf("=> %s\n", res?"true":"false");
    return res;
 }
@@ -1491,6 +1534,9 @@ void ClauseTSTPPrint(FILE* out, Clause_p clause, bool fullterms, bool complete)
             typename = "axiom";
          }
          break;
+   case CPTypeDefinition:
+         typename = "definition";
+         break;
    case CPTypeHypothesis:
          typename = "hypothesis";
          break;
@@ -1597,11 +1643,14 @@ FormulaProperties ClauseTypeParse(Scanner_p in, char *legal_types)
 
    CheckInpId(in, legal_types);
 
-   if(TestInpId(in,
-                "axiom|definition|theorem"))
+   if(TestInpId(in, "axiom|theorem"))
    {
       res = CPTypeAxiom;
-      if(problemType == PROBLEM_HO && TestInpId(in, "definition"))
+   }
+   else if(TestInpId(in, "definition"))
+   {
+      res = CPTypeDefinition;
+      if(problemType == PROBLEM_HO)
       {
          res = res | CPIsLambdaDef;
       }
@@ -2323,7 +2372,6 @@ int ClauseCmpById(const void* clause1, const void* clause2)
 }
 
 
-#ifdef CLAUSE_PERM_IDENT
 /*-----------------------------------------------------------------------
 //
 // Function: ClauseCmpByPermId()
@@ -2379,7 +2427,6 @@ int ClauseCmpByPermIdR(const void* clause1, const void* clause2)
    }
    return 0;
 }
-#endif
 
 
 
@@ -2690,7 +2737,7 @@ bool ClauseRecognizeChoice(IntMap_p choice_symbols_map, Clause_p cl)
 //
 /----------------------------------------------------------------------*/
 
-long ClauseCollectGroundTerms(Clause_p clause, PTree_p *res,
+long ClauseCollectGroundTerms(Clause_p clause, OrdSet_p *res,
                               bool pos_lits, bool neg_lits,
                               bool all_subterms)
 {

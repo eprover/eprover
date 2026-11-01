@@ -163,7 +163,7 @@ double DiversityWeightCompute(void* data, Clause_p clause)
    DiversityWeightParam_p local = data;
    double res;
    PStack_p stack;
-   PTree_p tree;
+   OrdSet_p tree;
    long f_diversity, v_diversity;
 
    ClauseCondMarkMaximalTerms(local->ocb, clause);
@@ -182,7 +182,7 @@ double DiversityWeightCompute(void* data, Clause_p clause)
 
    tree = NULL;
    v_diversity = ClauseCollectVariables(clause, &tree);
-   PTreeFree(tree);
+   OrdSetFree(tree);
 
    res += f_diversity*(local->fdiff2weight*f_diversity+local->fdiff1weight);
    res += v_diversity*(local->vdiff2weight*v_diversity+local->vdiff1weight);

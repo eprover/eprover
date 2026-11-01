@@ -55,7 +55,6 @@ typedef struct schedule_cell
 #define RETRY_DEFAULT_SCHEDULE_THRESHOLD (2.0)
 
 
-void ScheduleTimesInit(ScheduleCell sched[], double time_used);
 
 void ScheduleTimesInitMultiCore(ScheduleCell sched[], double time_used,
                                 double time_limit, bool preprocessing_schedule,

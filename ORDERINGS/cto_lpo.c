@@ -514,7 +514,10 @@ static bool lpo4_majo(OCB_p ocb, Term_p s, Term_p t, int pos,
 static bool lpo4_lex_ma(OCB_p ocb, Term_p s, Term_p t, int pos,
                         DerefType deref_s, DerefType deref_t)
 {
-   assert(s->f_code == t->f_code);
+   /* s and t have the same head, which for a phony application is
+      its first argument (e.g. s = db(0) @ db(1) and t = db(0)) */
+   assert((TermIsPhonyApp(s)?s->args[0]:s)->f_code ==
+          (TermIsPhonyApp(t)?t->args[0]:t)->f_code);
    const int s_offset = (TermIsPhonyApp(s) || TermIsLambda(s)) ? 1 : 0;
    const int t_offset = (TermIsPhonyApp(t) || TermIsLambda(t)) ? 1 : 0;
 

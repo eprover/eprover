@@ -119,13 +119,12 @@ long gd_term_define(TB_p terms, Term_p term,
    NumTreeStore(defs, lhs->entry_no,
                 ((IntOrP){.p_val=rhs}),
                 ((IntOrP){.p_val=NULL}));
-   def_eqn = EqnAlloc(lhs, rhs, terms, true);
-   /* fprintf(GlobalOut, "New definition: "); */
-   /* EqnPrint(GlobalOut,def_eqn,false,true); */
-   /* fprintf(GlobalOut, "\n"); */
+   def_eqn = EqnAlloc(rhs, lhs, terms, true);
+   // Order changed to make Geoff happy - defined symbols on the left
    assert(!def_eqn->next);
    clause = ClauseAlloc(def_eqn);
-   ClausePushDerivation(clause, DCIntroDef, NULL, NULL);
+   ClauseSetTPTPType(clause, CPTypeDefinition);
+   ClausePushDerivation(clause, DCIntroDef, new_const);
    ClauseSetInsert(clauses, clause);
 
    return 1;
@@ -200,8 +199,8 @@ long ClauseSetGDTransform(TB_p terms,
 {
    long res = 0;
    Clause_p handle;
-   PTree_p goal_terms = NULL, cell;
-   PStack_p iter_stack;
+   OrdSet_p goal_terms = NULL, cell;
+   OrdSetIter_p iter_stack;
    Term_p term;
    NumTree_p defs = NULL;
 
@@ -217,9 +216,9 @@ long ClauseSetGDTransform(TB_p terms,
                                   add_goal_defs_subterms);
       }
    }
-   iter_stack = PTreeTraverseInit(goal_terms);
+   iter_stack = OrdSetTraverseInit(goal_terms);
 
-   while((cell = PTreeTraverseNext(iter_stack)))
+   while((cell = OrdSetTraverseNext(iter_stack)))
    {
       term = cell->key;
       assert(TermIsGround(term));
@@ -235,8 +234,8 @@ long ClauseSetGDTransform(TB_p terms,
          }
       }
    }
-   PTreeTraverseExit(iter_stack);
-   PTreeFree(goal_terms);
+   OrdSetTraverseExit(iter_stack);
+   OrdSetFree(goal_terms);
    NumTreeFree(defs);
 
    return res;

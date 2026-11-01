@@ -1066,16 +1066,16 @@ ProverResult SatClauseSetCheckUnsat(SatClauseSet_p satset, Clause_p *empty,
    if(res == PRUnsatisfiable)
    {
       PStack_p unsat_core = PStackAlloc();
-      fprintf(GlobalOut, COMCHAR" SatCheck found unsatisfiable ground set\n");
+      CommentPrint(GlobalOut, " SatCheck found unsatisfiable ground set\n");
       *empty = EmptyClauseAlloc();
       sat_extract_core(satset, unsat_core, solver);
       satset->core_size = PStackGetSP(unsat_core);
       parent = PStackPopP(unsat_core);
-      ClausePushDerivation(*empty, DCSatGen, parent, NULL);
+      ClausePushDerivation(*empty, DCSatGen, parent);
       while(!PStackEmpty(unsat_core))
       {
          parent = PStackPopP(unsat_core);
-         ClausePushDerivation(*empty, DCCnfAddArg, parent, NULL);
+         ClausePushDerivation(*empty, DCCnfAddArg, parent);
       }
       PStackFree(unsat_core);
    }

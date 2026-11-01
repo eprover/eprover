@@ -377,7 +377,7 @@ void process_clauses(char* infile, TB_p terms, OCB_p ocb, ClauseSet_p *demodulat
          ClausePrint(GlobalOut, clause, true);
          ClauseComputeLINormalform(ocb, terms, clause,
                                       demodulators,
-                                      1, false, false);
+                                      1, false, false, NULL, NULL);
          fprintf(GlobalOut, " ==> ");
          ClausePrint(GlobalOut, clause, true);
          fprintf(GlobalOut, "\n");
@@ -503,7 +503,7 @@ int main(int argc, char* argv[])
    freshvars = VarBankAlloc(typebank);
    if(FormulaSetCNF2(formulas, f_ax_archive,
                      clauses, terms, freshvars,
-                     1000, 24, true, true, true, true))
+                     1000, 24, true, true, true, true, NULL))
    {
       VERBOUT("CNFization done\n");
    }

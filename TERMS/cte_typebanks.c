@@ -421,7 +421,7 @@ Type_p TypeBankInsertTypeShared(TypeBank_p bank, Type_p t)
          res->type_uid = ++bank->types_count;
          if (Verbose > 1)
          {
-            fprintf(stderr, COMCHAR" Type ");
+            CommentPrint(stderr, " Type ");
             TypePrintTSTP(stderr, bank, t);
             fprintf(stderr, " is inserted.\n");
          }
@@ -471,8 +471,8 @@ TypeConsCode TypeBankDefineTypeConstructor(TypeBank_p bank, const char* name,
 
          if (Verbose > 1)
          {
-            fprintf(stderr, COMCHAR" previous arity was %ld, now it is %d.\n",
-                    GetArity(node), arity);
+            CommentPrint(stderr, " previous arity was %ld, now it is %d.\n",
+                         GetArity(node), arity);
          }
 
          Error(DStrView(err_msg), SYNTAX_ERROR);
@@ -840,15 +840,15 @@ void TypePrintTSTP(FILE* out, TypeBank_p bank, Type_p type)
 //
 /----------------------------------------------------------------------*/
 
-void TypeBankPrintSelectedSortDefs(FILE* out, TypeBank_p bank, PTree_p selector)
+void TypeBankPrintSelectedSortDefs(FILE* out, TypeBank_p bank, OrdSet_p selector)
 {
-   PStack_p iter = PTreeTraverseInit(selector);
-   PTree_p handle;
+   OrdSetIter_p iter = OrdSetTraverseInit(selector);
+   OrdSet_p handle;
    Type_p type;
    long count = 0;
    const char* tag = problemType == PROBLEM_HO ? "thf" : "tff";
 
-   while((handle = PTreeTraverseNext(iter)))
+   while((handle = OrdSetTraverseNext(iter)))
    {
       type = handle->key;
       if(type->arity == 0 && TypeBankTypeIsUserDefined(bank, type))
@@ -859,7 +859,7 @@ void TypeBankPrintSelectedSortDefs(FILE* out, TypeBank_p bank, PTree_p selector)
          fprintf(out, ": $tType).\n");
       }
    }
-   PStackFree(iter);
+   OrdSetTraverseExit(iter);
 }
 
 

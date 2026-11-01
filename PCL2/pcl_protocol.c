@@ -327,15 +327,15 @@ void PCLProtPrintExtra(FILE* out, PCLProt_p prot, bool data,
 
 bool PCLStepHasFOFParent(PCLProt_p prot, PCLStep_p step)
 {
-   PTree_p parents = NULL, cell;
+   OrdSet_p parents = NULL, cell;
    PCLStep_p parent;
-   PStack_p iter_stack;
+   OrdSetIter_p iter_stack;
    bool res = false;
 
    PCLStepCollectPreconds(prot, step, &parents);
 
-   iter_stack = PTreeTraverseInit(parents);
-   while((cell = PTreeTraverseNext(iter_stack)))
+   iter_stack = OrdSetTraverseInit(parents);
+   while((cell = OrdSetTraverseNext(iter_stack)))
    {
       parent = cell->key;
       if(PCLStepQueryProp(parent, PCLIsFOFStep))
@@ -344,8 +344,8 @@ bool PCLStepHasFOFParent(PCLProt_p prot, PCLStep_p step)
          break;
       }
    }
-   PTreeTraverseExit(iter_stack);
-   PTreeFree(parents);
+   OrdSetTraverseExit(iter_stack);
+   OrdSetFree(parents);
    return res;
 }
 
@@ -446,7 +446,7 @@ void PCLProtResetTreeData(PCLProt_p prot, bool just_weights)
 //
 /----------------------------------------------------------------------*/
 
-void PCLExprCollectPreconds(PCLProt_p prot, PCLExpr_p expr, PTree_p *tree)
+void PCLExprCollectPreconds(PCLProt_p prot, PCLExpr_p expr, OrdSet_p *tree)
 {
    PCLStep_p step;
    int       i;
@@ -462,7 +462,7 @@ void PCLExprCollectPreconds(PCLProt_p prot, PCLExpr_p expr, PTree_p *tree)
     break;
    case PCLOpQuote:
     step = PCLProtFindStep(prot,PCLExprArg(expr,0));
-    PTreeStore(tree, step);
+    OrdSetStore(tree, step);
     break;
    default:
     for(i=0; i<expr->arg_no; i++)
@@ -523,7 +523,7 @@ bool PCLProtMarkProofClauses(PCLProt_p prot)
 {
    bool res = false;
    PStack_p to_proc = PStackAlloc();
-   PTree_p root = NULL;
+   OrdSet_p root = NULL;
    PCLStep_p step;
    PStackPointer i;
 
@@ -556,7 +556,7 @@ bool PCLProtMarkProofClauses(PCLProt_p prot)
     PCLExprCollectPreconds(prot, step->just, &root);
     while(root)
     {
-       step = PTreeExtractRootKey(&root);
+       step = OrdSetExtractFirst(&root);
        PStackPushP(to_proc, step);
     }
       }

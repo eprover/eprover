@@ -1103,7 +1103,7 @@ void EqnPrintDBG(FILE* out, Eqn_p eq)
    TermPrintDbg(out, eq->rterm, eq->bank->sig, DEREF_NEVER);
    fprintf(out, "%s", EqnIsMaximal(eq) ? "*" : "");
    fprintf(out, "%s", EqnIsOriented(eq) ? ">" : "");
-   fprintf(out, "%s", EqnQueryProp(eq, EPIsEquLiteral) ? COMCHAR : "");
+   fprintf(out, "%s", EqnQueryProp(eq, EPIsEquLiteral) ? COMCHARRAW : "");
 }
 
 /*-----------------------------------------------------------------------

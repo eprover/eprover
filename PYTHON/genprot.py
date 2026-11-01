@@ -15,6 +15,12 @@ proverversion/problemname/somefile.txt
 e.g.
 E 1.9.1pre005___E---1.9.1_0007_rw2121/ALG001-1.p/172496804.txt
 
+Archives from pylib_e_multi.py use the form
+EFake__E_<script name without starexec_run_>/problemname/somefile.txt
+e.g.
+EFake__E_E---_208_C09_12_F1_SE_CS_SP_PS_S070I/ALG001-1/0000000.txt
+and result in the configuration name 208_C09_12_F1_SE_CS_SP_PS_S070I.
+
 Options:
 
 -h Print help.
@@ -214,7 +220,32 @@ def make_entry(lines):
             entry[key] = value
     return entry
 
+def config_name(proverdir):
+    """
+    Return the configuration name encoded in the name of the prover
+    directory, or "" if there is none:
+    - StarExec: "<prover>___<config>", e.g.
+      "E 1.9.1pre005___E---1.9.1_0007_rw2121"
+    - pylib_e_multi.py: "EFake__E_<script name without starexec_run_>",
+      e.g. "EFake__E_E---_208_C09_12_F1_SE_CS_SP_PS_S070I" (the config
+      name is everything after the first four "_"-separated fields,
+      here "208_C09_12_F1_SE_CS_SP_PS_S070I", as in older versions of
+      this script)
+    - Anything else: The directory name itself
+    """
+    if "___" in proverdir:
+        return "_".join(proverdir.split("___")[1:])
+    if proverdir.startswith("EFake__"):
+        res = "_".join(proverdir.split("_")[4:])
+        if res:
+            return res
+    return proverdir
+
+
+skipped = 0
+
 def process_file(data, features, archivename, path, fileopener, info):
+    global skipped
     if verbose:
         print("Processing: ", path)
     problemname   = basename(dirname(path))
@@ -222,7 +253,7 @@ def process_file(data, features, archivename, path, fileopener, info):
         if verbose:
             print(f"Skipping {problemname}")
         return
-    configname    = "_".join(basename(dirname(dirname(path))).split("___")[1:])
+    configname    = config_name(basename(dirname(dirname(path))))
     mo            = version_re.search(basename(dirname(dirname(path))).split("_", 1)[0])
     if mo:
         eversion = mo.group()
@@ -257,6 +288,10 @@ def process_file(data, features, archivename, path, fileopener, info):
               not problemname in data[configname] \
               or entry["Failure"]!=failuremap["unknown"]:
                data[configname][problemname] = entry
+    elif fileextension == ".txt":
+        skipped += 1
+        if verbose:
+            print(f"Skipping {path} (no problem or configuration name)")
 
 def swap(d,key1,key2):
     d[key1],d[key2] = d[key2],d[key1]
@@ -332,6 +367,10 @@ if __name__ == "__main__":
                                  zfile.open, zinfo)
         else:
             print("Do not know how to open {}.".format(infile))
+
+    if skipped:
+        print(f"Warning: Skipped {skipped} .txt files without problem or "
+              "configuration name in their path (use --verbose to list them)")
 
     keys = set(chain.from_iterable(entry.keys()
                                    for problems in data.values()

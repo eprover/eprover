@@ -78,7 +78,7 @@ long      PCLProtStripFOF(PCLProt_p prot);
 void      PCLProtResetTreeData(PCLProt_p prot, bool just_weights);
 
 void      PCLExprCollectPreconds(PCLProt_p prot, PCLExpr_p expr,
-             PTree_p *tree);
+             OrdSet_p *tree);
 #define   PCLStepCollectPreconds(prot, step, tree)\
           PCLExprCollectPreconds((prot), (step)->just, (tree))
 PCLStep_p PCLExprGetQuotedArg(PCLProt_p prot, PCLExpr_p expr, int arg);

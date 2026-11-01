@@ -23,6 +23,7 @@ Changes
 -----------------------------------------------------------------------*/
 
 #include "ccl_splitting.h"
+#include <ccl_clausefunc.h>
 
 
 
@@ -192,11 +193,11 @@ static void build_part(LitSplitDesc_p lit_table, int lit_no, int
       {
     if(!lit_table[i].part)
     {
-       if(PTreeSharedElement(&(lit_table[lit_index].varset),
+       if(OrdSetSharedElement(&(lit_table[lit_index].varset),
               lit_table[i].varset))
        {
           lit_table[i].part = part;
-          new_vars = PTreeMerge(&(lit_table[lit_index].varset),
+          new_vars = OrdSetMerge(&(lit_table[lit_index].varset),
                  lit_table[i].varset)||new_vars;
           lit_table[i].varset = NULL;
        }
@@ -239,6 +240,57 @@ Eqn_p assemble_part_literals(LitSplitDesc_p lit_table, int lit_no, int part)
 
 /*-----------------------------------------------------------------------
 //
+// Function: archive_split_step()
+//
+//   For a full proof object, archive clause in step_archive as it is
+//   before the definition of part is applied, so that each
+//   application is a separate step. The clause then consists of the
+//   definition literals of the earlier parts, in join, and the
+//   literals of part and the later parts, which are still in
+//   lit_table.
+//
+// Global Variables: PrintProofObject
+//
+// Side Effects    : Memory operations, the literal counts of clause
+//                   follow the archived literals
+//
+/----------------------------------------------------------------------*/
+
+static void archive_split_step(ClauseSet_p step_archive, Clause_p clause,
+                               LitSplitDesc_p lit_table, int lit_no,
+                               int part, Eqn_p join)
+{
+   Eqn_p lits, *tail;
+   int j;
+
+   if(!step_archive || PrintProofObject < POSingleStepDerivation)
+   {
+      return;
+   }
+   lits = EqnListFlatCopy(join);
+   tail = &lits;
+   while(*tail)
+   {
+      tail = &((*tail)->next);
+   }
+   for(j=0; j<lit_no; j++)
+   {
+      if(lit_table[j].part >= part)
+      {
+         *tail = EqnFlatCopy(lit_table[j].literal);
+         tail = &((*tail)->next);
+      }
+   }
+   clause->literals = lits;
+   ClauseRecomputeLitCounts(clause);
+   ClauseArchiveStep(step_archive, clause);
+   EqnListFree(clause->literals);
+   clause->literals = NULL;
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: clause_split_general()
 //
 //   Try to split clause into different clauses according to the
@@ -257,7 +309,8 @@ Eqn_p assemble_part_literals(LitSplitDesc_p lit_table, int lit_no, int part)
 //
 //   If fresh_defs is false (and split_vars is empty), try if an
 //   existing definition already covers any of the parts and reuse it,
-//   otherwise always use fresh definitions.
+//   otherwise always use fresh definitions. A full proof object keeps
+//   the clause before each definition is applied in step_archive.
 //
 // Global Variables: -
 //
@@ -268,7 +321,8 @@ Eqn_p assemble_part_literals(LitSplitDesc_p lit_table, int lit_no, int part)
 
 int clause_split_general(DefStore_p store, Clause_p clause,
                          ClauseSet_p set, SplitType how,
-                         bool fresh_defs, PStack_p split_vars)
+                         bool fresh_defs, PStack_p split_vars,
+                         ClauseSet_p step_archive)
 {
    int               res = 0, part = 0,i,size, lit_no, split_var_no;
    LitSplitDesc_p    lit_table;
@@ -340,6 +394,8 @@ int clause_split_general(DefStore_p store, Clause_p clause,
          else
          {
             WFormula_p new_form;
+            archive_split_step(step_archive, clause, lit_table, lit_no, i,
+                               join);
             /* Create definition clause (for maintaining completeness) */
             handle = assemble_part_literals(lit_table, lit_no, i);
 
@@ -349,7 +405,7 @@ int clause_split_general(DefStore_p store, Clause_p clause,
             if(new_form)
             {
                def_id = new_form->ident;
-               ClausePushDerivation(clause, DCApplyDef, new_form, NULL);
+               ClausePushDerivation(clause, DCApplyDef, new_form);
             }
          }
          PStackPushInt(def_stack, def_id);
@@ -386,7 +442,7 @@ int clause_split_general(DefStore_p store, Clause_p clause,
    }
    for(i=0; i<lit_no; i++)
    {
-      PTreeFree(lit_table[i].varset);
+      OrdSetFree(lit_table[i].varset);
    }
    SizeFree(lit_table, size);
 
@@ -504,7 +560,8 @@ bool ClauseHasSplitLiteral(Clause_p clause)
 //   T1 v T2 v T3 ...., ~T1 v L1, ~T2 v L2, ~T3 v L3, ...
 //
 //   if the Li are variable-disjoint subsets of the clause and the Ti
-//   are _new_ propositional variables.
+//   are _new_ propositional variables. A full proof object keeps the
+//   clause before each definition is applied in step_archive.
 //
 // Global Variables: -
 //
@@ -514,12 +571,13 @@ bool ClauseHasSplitLiteral(Clause_p clause)
 /----------------------------------------------------------------------*/
 
 int ClauseSplit(DefStore_p store, Clause_p clause, ClauseSet_p set,
-                SplitType how, bool fresh_defs)
+                SplitType how, bool fresh_defs, ClauseSet_p step_archive)
 {
    int res ;
    PStack_p dummy = PStackAlloc();
 
-   res = clause_split_general(store, clause, set, how, fresh_defs, dummy);
+   res = clause_split_general(store, clause, set, how, fresh_defs, dummy,
+                              step_archive);
    PStackFree(dummy);
    return res;
 }
@@ -532,7 +590,8 @@ int ClauseSplit(DefStore_p store, Clause_p clause, ClauseSet_p set,
 //   Wrapper for clause_split_general(). Tries tries different
 //   variable subsets (partially ordered by cardinality) to find a
 //   subset that splits the clause. Only used for eground, so I skimp
-//   on options.
+//   on options. Eground prints no full proof object, so no step is
+//   archived.
 //
 // Global Variables: -
 //
@@ -547,9 +606,9 @@ int ClauseSplitGeneral(DefStore_p store, bool fresh_defs,
    int res, var_no, set_size;
    PStackPointer i;
    PStack_p vars, split_vars, permute_stack;
-   PTree_p  vars_tree = NULL;
+   OrdSet_p  vars_tree = NULL;
 
-   res =  ClauseSplit(store, clause, set, SplitGroundOne, fresh_defs);
+   res =  ClauseSplit(store, clause, set, SplitGroundOne, fresh_defs, NULL);
    if(res)
    {
       return res;
@@ -558,15 +617,15 @@ int ClauseSplitGeneral(DefStore_p store, bool fresh_defs,
    var_no = ClauseCollectVariables(clause, &vars_tree);
    if(var_no<=2) /* Non-ground splitting is useless here */
    {
-      PTreeFree(vars_tree);
+      OrdSetFree(vars_tree);
       return 0;
    }
    vars = PStackAlloc();
    split_vars = PStackAlloc();
    permute_stack = PStackAlloc();
 
-   PTreeToPStack(vars, vars_tree);
-   PTreeFree(vars_tree);
+   OrdSetToPStack(vars, vars_tree);
+   OrdSetFree(vars_tree);
 
    set_size = 1;
 
@@ -582,7 +641,7 @@ int ClauseSplitGeneral(DefStore_p store, bool fresh_defs,
                 PStackElementInt(permute_stack, i)));
       }
       res = clause_split_general(store, clause, set, SplitGroundNone,
-                                 fresh_defs, split_vars);
+                                 fresh_defs, split_vars, NULL);
       if(res)
       {
     break;
@@ -609,7 +668,9 @@ int ClauseSplitGeneral(DefStore_p store, bool fresh_defs,
 //
 // Function: ClauseSetSplitClauses()
 //
-//   Split all clauses in from_set and put the result into to_set.
+//   Split all clauses in from_set and put the result into to_set. A
+//   full proof object keeps each clause before each definition is
+//   applied in step_archive.
 //
 // Global Variables: -
 //
@@ -618,7 +679,8 @@ int ClauseSplitGeneral(DefStore_p store, bool fresh_defs,
 /----------------------------------------------------------------------*/
 
 long ClauseSetSplitClauses(DefStore_p store, ClauseSet_p from_set,
-                           ClauseSet_p to_set, SplitType how, bool fresh_defs)
+                           ClauseSet_p to_set, SplitType how, bool fresh_defs,
+                           ClauseSet_p step_archive)
 {
    long res=0, tmp;
    Clause_p handle;
@@ -628,7 +690,7 @@ long ClauseSetSplitClauses(DefStore_p store, ClauseSet_p from_set,
    while(!ClauseSetEmpty(from_set))
    {
       handle = ClauseSetExtractFirst(from_set);
-      tmp = ClauseSplit(store, handle, to_set, how, fresh_defs);
+      tmp = ClauseSplit(store, handle, to_set, how, fresh_defs, step_archive);
       if(!tmp)
       {
     ClauseSetInsert(to_set, handle);

@@ -552,7 +552,7 @@ int main(int argc, char* argv[])
                         fstate->terms,
                         fstate->freshvars,
                         miniscope_limit, FormulaDefLimit,
-                        true, true, true, true);
+                        true, true, true, true, fstate->step_archive);
 
          for(clause = fstate->axioms->anchor->succ;
              clause != fstate->axioms->anchor;

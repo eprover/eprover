@@ -52,7 +52,7 @@ void   XXXFree(XXX_p junk);
 
 
 void ClausePrintAnswer(FILE* out, Clause_p clause, ProofState_p state);
-int ClauseEvaluateAnswerLits(Clause_p clause);
+int ClauseEvaluateAnswerLits(Clause_p clause, ClauseSet_p step_archive);
 
 
 #endif

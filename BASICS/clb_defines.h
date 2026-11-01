@@ -130,7 +130,7 @@ static inline size_t WriteStr(int fd, const char* msg);
 #ifdef PRINT_TSTP_STATUS
 #define TSTPOUT(file,msg) fprintf(file, COMCHAR" SZS status %s\n", msg); fflush(file)
 #define TSTPOUTFD(fd,msg) do{                                   \
-      WriteStr(fd, COMCHAR" SZS status ");                            \
+      WriteStr(fd, COMCHARRAW" SZS status ");                         \
       WriteStr(fd, msg);                                        \
       WriteStr(fd, "\n");                                       \
    }while(0)

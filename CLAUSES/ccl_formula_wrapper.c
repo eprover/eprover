@@ -22,6 +22,7 @@ Changes
 -----------------------------------------------------------------------*/
 
 #include "ccl_formula_wrapper.h"
+#include "ccl_derivation.h"
 #include <clb_simple_stuff.h>
 
 
@@ -229,7 +230,8 @@ WFormula_p WFormulaFlatCopy(WFormula_p form)
 //
 // Function: WFormulaGCMarkCells()
 //
-//   If formula is a term formula, mark the terms. Otherwise a noop.
+//   If formula is a term formula, mark the terms (including the
+//   terms recorded in its derivation). Otherwise a noop.
 //
 // Global Variables: -
 //
@@ -239,7 +241,11 @@ WFormula_p WFormulaFlatCopy(WFormula_p form)
 
 void WFormulaGCMarkCells(WFormula_p form)
 {
-      TFormulaGCMarkCells(form->terms, form->tformula);
+   TFormulaGCMarkCells(form->terms, form->tformula);
+   if(form->derivation)
+   {
+      DerivStackGCMarkTerms(form->terms, form->derivation);
+   }
 }
 
 /*-----------------------------------------------------------------------
@@ -368,7 +374,7 @@ WFormula_p WFormulaTPTPParse(Scanner_p in, TB_p terms)
 
 /*-----------------------------------------------------------------------
 //
-// Function: FormulaTPTPPrint()
+// Function: WFormulaTPTPPrint()
 //
 //   Print a formula in TPTP format.
 //
@@ -386,20 +392,20 @@ void WFormulaTPTPPrint(FILE* out, WFormula_p form, bool fullterms)
    {
    case CPTypeAxiom:
          typename = "axiom";
-    break;
+         break;
    case CPTypeHypothesis:
-    typename = "hypothesis";
-    break;
+         typename = "hypothesis";
+         break;
    case CPTypeConjecture:
    case CPTypeNegConjecture:
-    typename = "conjecture";
-    break;
+         typename = "conjecture";
+         break;
    case CPTypeQuestion:
          typename = "question";
          break;
    default:
-    typename = "unknown";
-    break;
+         typename = "unknown";
+         break;
    }
    fprintf(out, "input_formula(%s,%s,", WFormulaGetId(form), typename);
 
@@ -423,6 +429,7 @@ void WFormulaTPTPPrint(FILE* out, WFormula_p form, bool fullterms)
 WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms)
 {
    TFormula_p        tform;
+   TFormula_p        nonbool;
    FormulaProperties type = CPTypeAxiom;
    FormulaProperties initial = CPInputFormula;
    WFormula_p        handle;
@@ -533,6 +540,22 @@ WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms)
                SYNTAX_ERROR,
                PosRep(inptype, source_name, line, column));
       }
+      nonbool = TFormulaHasNonBoolSubForm(terms->sig, tform);
+      if(nonbool)
+      {
+         /* Do not try to print the offending subformula itself - the
+            formula printers assume a well-typed formula skeleton. */
+         if(nonbool->type)
+         {
+            CommentPrint(stderr, " Subformula has type ");
+            TypePrintTSTP(stderr, terms->sig->type_bank, nonbool->type);
+            fprintf(stderr, ", but a formula must have type $o\n");
+         }
+         Error("%s Formula is not Boolean (check parentheses "
+               "and quantifier precedence)",
+               SYNTAX_ERROR,
+               PosRep(inptype, source_name, line, column));
+      }
       DStrReleaseRef(source_name);
 
       handle = WTFormulaAlloc(terms, tform);
@@ -561,9 +584,6 @@ WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms)
 }
 
 
-
-
-
 /*-----------------------------------------------------------------------
 //
 // Function: WFormulaTSTPPrintFlex()
@@ -583,7 +603,6 @@ void WFormulaTSTPPrintFlex(FILE* out, WFormula_p form, bool fullterms,
 {
    char *typename = "plain", *formula_kind = "fof";
    bool is_untyped = TFormulaIsUntyped(form->tformula);
-
    //SigPrint(stdout, form->terms->sig);
 
    if(problemType == PROBLEM_FO)
@@ -619,6 +638,9 @@ void WFormulaTSTPPrintFlex(FILE* out, WFormula_p form, bool fullterms,
          break;
    case CPTypeConjecture:
          typename = "conjecture";
+         break;
+   case CPTypeDefinition:
+         typename = "definition";
          break;
    case CPTypeQuestion:
          typename = "question";
@@ -665,17 +687,19 @@ void WFormulaTSTPPrintFlex(FILE* out, WFormula_p form, bool fullterms,
 // Function: WFormulaAppEncode()
 //
 //   Encodes terms in wrapped formula's literals using app encoding.
-//   Initial WFormula is not changed.
+//   Initial WFormula is not changed. Clauses are printed as their
+//   universal closure, so that the result is a closed formula.
 //
 // Global Variables: -
 //
-// Side Effects    : Output
+// Side Effects    : Output, may create the closure in form->terms
 //
 /----------------------------------------------------------------------*/
 
 void WFormulaAppEncode(FILE* out, WFormula_p form)
 {
    char *typename = "plain", *formula_kind = "tff";
+   TFormula_p tform;
 
    switch(FormulaQueryType(form))
    {
@@ -706,8 +730,12 @@ void WFormulaAppEncode(FILE* out, WFormula_p form)
    fprintf(out, "%s(%s, %s", formula_kind, WFormulaGetId(form), typename);
    fprintf(out, ", ");
 
-   assert(!form->is_clause);
-   TFormulaAppEncode(out, form->terms, form->tformula);
+   tform = form->tformula;
+   if(form->is_clause)
+   {  /* Clause variables are implicitly universally quantified */
+      tform = TFormulaClosure(form->terms, tform, true);
+   }
+   TFormulaAppEncode(out, form->terms, tform);
    fprintf(out, ").");
 }
 

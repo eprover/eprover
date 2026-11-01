@@ -59,6 +59,12 @@ typedef struct proofstatecell
    ClauseSet_p   tmp_store;
    ClauseSet_p   eval_store;
    ClauseSet_p   archive;
+   ClauseSet_p   step_archive;    /* The clause before each
+                                     simplification step, for
+                                     --proof-object=3 only */
+   PStack_p      step_sides;      /* Sides in step_archive that get
+                                     their terms only for the proof
+                                     output */
    FormulaSet_p  f_archive;
    PStack_p      extract_roots;
    GlobalIndices gindices;
@@ -165,6 +171,7 @@ long         ProofStateProcessDistinct(ProofState_p state);
     ClauseSetStorage((state)->processed_neg_units)+     \
     ClauseSetStorage((state)->processed_non_units)+     \
     ClauseSetStorage((state)->archive)+                 \
+    ClauseSetStorage((state)->step_archive)+            \
     TBStorage((state)->terms))
 
 #define      ProofStateProcCardinality(state)          \

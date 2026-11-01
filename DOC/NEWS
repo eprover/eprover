@@ -1,7 +1,7 @@
 This history describes the major differences between versions of the E
 equational theorem prover.
 
-Version 3.2.5 -> 3.3.3 Countess Grey
+Version 3.2.5 -> 3.5.X Countess Grey
 
 - Some beautification
 - Debugged problems with axiom filtering
@@ -11,6 +11,49 @@ Version 3.2.5 -> 3.3.3 Countess Grey
   Jakubuv)
 - Implemented TWEE-inspired GDWeight() evaluation function, apparently
   to good effect.
+- Made --proof-object=3 operational for simplifications. The clause
+  before each rewriting, unfolding, simplify-reflect, condensation,
+  normalization, destructive equality resolution and clause splitting
+  step is printed, so each step is a separate inference. These clauses
+  take no part in the search, and the terms between rewrite steps are
+  only built for the proof output, so level 3 does not influence the
+  search. Their memory counts towards --delete-bad-limit, so with that
+  limit level 3 deletes bad clauses earlier.
+- Made --ac-non-aggressive (strategy parameter ac_res_aggressive)
+  operational. By default, AC resolution is applied to newly generated
+  clauses before they are added to the unprocessed set (as before). With
+  ac_res_aggressive set to false, it is only applied when a clause is
+  processed (or when the unprocessed set is explicitly contracted).
+- Fixed --app-encode: clauses are now encoded as their universal
+  closure (the output was not a closed formula before), included files
+  are expanded instead of being copied as unencoded include directives,
+  and memory leaks in the encoding are fixed.
+- Proof search is now reproducible: repeated runs on the same problem
+  give the same result, the same proof and the same statistics. Before,
+  they could differ because some sets were iterated in the order of
+  object addresses, which change from run to run (address space layout
+  randomization). Pointer sets now iterate in insertion order (new
+  ordered sets in BASICS/clb_orderedsets), and the paramodulation
+  indices are ordered by term and clause numbers. The options
+  --detsort-rw and --detsort-new (and the strategy parameters
+  detsort_bw_rw and detsort_tmpset) are obsolete and have no effect;
+  they are still accepted for compatibility.
+- The commit id shown by --version is now determined at build time
+  (PROVER/e_gitcommit.h is generated and no longer under version
+  control), so it is always that of the commit the binary was built
+  from, with "-dirty" appended for builds from a modified tree.
+- Skolemization is now documented as one step per eliminated
+  existential quantifier in proof objects, each with its own
+  intermediate formula, the new Skolem symbol
+  (new_symbols(skolem,[...])) and the eliminated variable with the
+  Skolem term replacing it (skolemize(X,sk(...))), as required for
+  checkable TPTP-3 proofs. The clausal normal form itself is unchanged.
+- The priority function PreferHOSteps now actually prefers clauses
+  with a higher-order inference in their derivation (it used to have
+  no effect). The built-in strategies that used it now use ConstPrio
+  instead, so their behaviour is unchanged. Inferences that used
+  higher-order unification are now included in the "Proof object
+  generating/simplifying inferences" statistics.
 
 Version 3.1.0 -> 3.2.5 Puttabong Moondrop
 

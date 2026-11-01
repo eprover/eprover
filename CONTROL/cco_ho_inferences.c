@@ -82,7 +82,7 @@ static inline PtrPair_p mk_ptr_pair(void* x, void* y)
 /----------------------------------------------------------------------*/
 
 void instantiate_w_abstractions(Term_p var, Clause_p orig_cl, PObjMap_p* store,
-                                PStack_p res)
+                                PStack_p res, ClauseSet_p step_archive)
 {
    PStack_p hits = PObjMapFind(store, var->type, PCmpFun);
 
@@ -101,9 +101,9 @@ void instantiate_w_abstractions(Term_p var, Clause_p orig_cl, PObjMap_p* store,
       EqnListRemoveResolved(&res_lits);
       EqnListRemoveDuplicates(res_lits);
       Clause_p res_cl = ClauseAlloc(res_lits);
-      NormalizeEquations(res_cl);
+      NormalizeEquations(res_cl, step_archive);
       set_proof_object(res_cl, orig_cl, other_cl, DCTrigger, 1);
-      BooleanSimplification(res_cl);
+      BooleanSimplification(res_cl, step_archive);
       PStackPushP(res, res_cl);
       var->binding = NULL;
    }
@@ -264,7 +264,7 @@ void store_abstraction_form(WFormula_p wform, ClauseSet_p archive, PObjMap_p* st
       Term_p encoded = PostCNFEncodeFormulas(bank, wform->tformula);
       Eqn_p lit = EqnAlloc(encoded, bank->true_term, bank, true);
       Clause_p cl = ClauseAlloc(lit);
-      ClausePushDerivation(cl, DCFofQuote, wform, NULL);
+      ClausePushDerivation(cl, DCFofQuote, wform);
       ClauseSetInsert(archive, cl);
 
       Term_p quantified = encoded;
@@ -539,7 +539,8 @@ Term_p apply_pattern_vars(TB_p bank, Term_p head, Term_p appvar)
 //
 /----------------------------------------------------------------------*/
 
-void mk_prim_enum_inst(ClauseSet_p store, Clause_p cl, Term_p var, Term_p target)
+void mk_prim_enum_inst(ClauseSet_p store, Clause_p cl, Term_p var, Term_p target,
+                       ClauseSet_p step_archive)
 {
    assert(!var->binding);
    assert(var->type == target->type);
@@ -551,9 +552,9 @@ void mk_prim_enum_inst(ClauseSet_p store, Clause_p cl, Term_p var, Term_p target
    EqnListRemoveResolved(&res_lits);
    EqnListRemoveDuplicates(res_lits);
    Clause_p res = ClauseAlloc(res_lits);
-   NormalizeEquations(res);
+   NormalizeEquations(res, step_archive);
    store_result(res, cl, NULL, store, DCPrimEnum, 1);
-   BooleanSimplification(res);
+   BooleanSimplification(res, step_archive);
 
    var->binding = NULL;
 }
@@ -744,7 +745,8 @@ bool compute_removal_subst(PObjMap_p* var_removed_args, Subst_p subst,
 //
 /----------------------------------------------------------------------*/
 
-int prim_enum_var(ClauseSet_p store, Clause_p cl, PrimEnumMode mode, Term_p app_var)
+int prim_enum_var(ClauseSet_p store, Clause_p cl, PrimEnumMode mode, Term_p app_var,
+                  ClauseSet_p step_archive)
 {
    assert(TermIsAppliedFreeVar(app_var));
    assert(TypeIsBool(app_var->type));
@@ -758,7 +760,8 @@ int prim_enum_var(ClauseSet_p store, Clause_p cl, PrimEnumMode mode, Term_p app_
          TFormulaFCodeAlloc(bank, sig->not_code,
                             fresh_pattern(bank, app_var), NULL);
       mk_prim_enum_inst(store, cl, app_var->args[0],
-                        close_for_appvar(bank, app_var, neg_matrix));
+                        close_for_appvar(bank, app_var, neg_matrix),
+                        step_archive);
       generated_cls++;
    }
    if(mode == AndMode || mode == FullMode)
@@ -768,7 +771,8 @@ int prim_enum_var(ClauseSet_p store, Clause_p cl, PrimEnumMode mode, Term_p app_
                             fresh_pattern(bank, app_var),
                             fresh_pattern(bank, app_var));
       mk_prim_enum_inst(store, cl, app_var->args[0],
-                        close_for_appvar(bank, app_var, and_matrix));
+                        close_for_appvar(bank, app_var, and_matrix),
+                        step_archive);
       generated_cls++;
    }
    if(mode == OrMode || mode == FullMode)
@@ -778,20 +782,21 @@ int prim_enum_var(ClauseSet_p store, Clause_p cl, PrimEnumMode mode, Term_p app_
                             fresh_pattern(bank, app_var),
                             fresh_pattern(bank, app_var));
       mk_prim_enum_inst(store, cl, app_var->args[0],
-                        close_for_appvar(bank, app_var, or_matrix));
+                        close_for_appvar(bank, app_var, or_matrix),
+                        step_archive);
       generated_cls++;
    }
    if(mode == EqMode || mode == FullMode)
    {
-      PTree_p ret_types = NULL;
+      OrdSet_p ret_types = NULL;
       for(int i=1; i<app_var->arity; i++)
       {
-         PTreeStore(&ret_types, app_var->args[i]->type);
+         OrdSetStore(&ret_types, app_var->args[i]->type);
       }
 
-      PStack_p tys = PTreeTraverseInit(ret_types);
-      PTree_p next = NULL;
-      while((next=PTreeTraverseNext(tys)))
+      OrdSetIter_p tys = OrdSetTraverseInit(ret_types);
+      OrdSet_p next = NULL;
+      while((next=OrdSetTraverseNext(tys)))
       {
          Type_p ret_ty = next->key;
          Term_p eq_matrix =
@@ -800,18 +805,21 @@ int prim_enum_var(ClauseSet_p store, Clause_p cl, PrimEnumMode mode, Term_p app_
                                fresh_pattern_w_ty(bank, app_var, ret_ty),
                                fresh_pattern_w_ty(bank, app_var, ret_ty));
          mk_prim_enum_inst(store, cl, app_var->args[0],
-                           close_for_appvar(bank, app_var, eq_matrix));
+                           close_for_appvar(bank, app_var, eq_matrix),
+                           step_archive);
          generated_cls++;
       }
-      PTreeTraverseExit(tys);
-      PTreeFree(ret_types);
+      OrdSetTraverseExit(tys);
+      OrdSetFree(ret_types);
 
 
    }
    mk_prim_enum_inst(store, cl, app_var->args[0],
-                      close_for_appvar(bank, app_var, bank->true_term));
+                      close_for_appvar(bank, app_var, bank->true_term),
+                      step_archive);
    mk_prim_enum_inst(store, cl, app_var->args[0],
-                      close_for_appvar(bank, app_var, bank->false_term));
+                      close_for_appvar(bank, app_var, bank->false_term),
+                      step_archive);
    generated_cls += 2;
    if(mode == PragmaticMode)
    {
@@ -829,9 +837,11 @@ int prim_enum_var(ClauseSet_p store, Clause_p cl, PrimEnumMode mode, Term_p app_
                Term_p eq_matrix = TFormulaFCodeAlloc(bank, pos_code, db_i, db_j);
                Term_p neq_matrix = TFormulaFCodeAlloc(bank, neg_code, db_i, db_j);
                mk_prim_enum_inst(store, cl, app_var->args[0],
-                                 close_for_appvar(bank, app_var, eq_matrix));
+                                 close_for_appvar(bank, app_var, eq_matrix),
+                                 step_archive);
                mk_prim_enum_inst(store, cl, app_var->args[0],
-                                 close_for_appvar(bank, app_var, neq_matrix));
+                                 close_for_appvar(bank, app_var, neq_matrix),
+                                 step_archive);
                generated_cls += 2;
 
                if(TypeIsPredicate(ty))
@@ -843,9 +853,11 @@ int prim_enum_var(ClauseSet_p store, Clause_p cl, PrimEnumMode mode, Term_p app_
                   Term_p or_matrix =
                      TFormulaFCodeAlloc(bank, sig->or_code, proj_i, proj_j);
                   mk_prim_enum_inst(store, cl, app_var->args[0],
-                                    close_for_appvar(bank, app_var, and_matrix));
+                                    close_for_appvar(bank, app_var, and_matrix),
+                                    step_archive);
                   mk_prim_enum_inst(store, cl, app_var->args[0],
-                                    close_for_appvar(bank, app_var, or_matrix));
+                                    close_for_appvar(bank, app_var, or_matrix),
+                                    step_archive);
                   generated_cls += 2;
                }
             }
@@ -863,7 +875,7 @@ int prim_enum_var(ClauseSet_p store, Clause_p cl, PrimEnumMode mode, Term_p app_
             Term_p not_matrix = TermTopAlloc(sig->not_code, 0);
             not_matrix->type = var_ty;
             mk_prim_enum_inst(store, cl, app_var->args[0],
-                              TBTermTopInsert(bank, not_matrix));
+                              TBTermTopInsert(bank, not_matrix), step_archive);
             generated_cls++;
          }
          else if(var_ty->arity == 3 &&
@@ -875,9 +887,9 @@ int prim_enum_var(ClauseSet_p store, Clause_p cl, PrimEnumMode mode, Term_p app_
             Term_p or_matrix = TermTopAlloc(sig->or_code, 0);
             or_matrix->type = var_ty;
             mk_prim_enum_inst(store, cl, app_var->args[0],
-                              TBTermTopInsert(bank, and_matrix));
+                              TBTermTopInsert(bank, and_matrix), step_archive);
             mk_prim_enum_inst(store, cl, app_var->args[0],
-                              TBTermTopInsert(bank, or_matrix));
+                              TBTermTopInsert(bank, or_matrix), step_archive);
             generated_cls += 2;
          }
 
@@ -893,9 +905,9 @@ int prim_enum_var(ClauseSet_p store, Clause_p cl, PrimEnumMode mode, Term_p app_
             Term_p neqn_matrix = TermTopAlloc(neg_code, 0);
             neqn_matrix->type = var_ty;
             mk_prim_enum_inst(store, cl, app_var->args[0],
-                              TBTermTopInsert(bank, eqn_matrix));
+                              TBTermTopInsert(bank, eqn_matrix), step_archive);
             mk_prim_enum_inst(store, cl, app_var->args[0],
-                              TBTermTopInsert(bank, neqn_matrix));
+                              TBTermTopInsert(bank, neqn_matrix), step_archive);
             generated_cls += 2;
          }
          if(var_ty->arity == 2 &&
@@ -914,9 +926,11 @@ int prim_enum_var(ClauseSet_p store, Clause_p cl, PrimEnumMode mode, Term_p app_
             ex_matrix->type = sig->type_bank->bool_type;
             ex_matrix = TBTermTopInsert(bank, ex_matrix);
             mk_prim_enum_inst(store, cl, app_var->args[0],
-                              CloseWithDBVar(bank, var_ty->args[0], all_matrix));
+                              CloseWithDBVar(bank, var_ty->args[0], all_matrix),
+                              step_archive);
             mk_prim_enum_inst(store, cl, app_var->args[0],
-                              CloseWithDBVar(bank, var_ty->args[0], ex_matrix));
+                              CloseWithDBVar(bank, var_ty->args[0], ex_matrix),
+                              step_archive);
             generated_cls += 2;
          }
       }
@@ -1085,7 +1099,7 @@ void do_ext_eq_fact(ClausePos_p main_pos, ClausePos_p partner_pos,
       res->proof_size = main_pos->clause->proof_size + 1;
       res->proof_depth = main_pos->clause->proof_depth + 1;
       ClauseSetProp(res, (ClauseGiveProps(main_pos->clause, CPIsSOS)));
-      ClausePushDerivation(res, DCExtEqFact, main_pos->clause, NULL);
+      ClausePushDerivation(res, DCExtEqFact, main_pos->clause);
       ClauseSetInsert(cl_store, res);
    }
 
@@ -1403,7 +1417,8 @@ void find_choice_triggers(IntMap_p choice_syms, PStack_p triggers, Term_p t)
 /----------------------------------------------------------------------*/
 
 void do_mk_choice_inst(ClauseSet_p store, IntMap_p choice_syms, Clause_p cl,
-                       FunCode choice_code, Term_p trigger)
+                       FunCode choice_code, Term_p trigger,
+                       ClauseSet_p step_archive)
 {
    assert(TypeIsArrow(trigger->type));
    assert(TypeIsPredicate(trigger->type));
@@ -1411,14 +1426,14 @@ void do_mk_choice_inst(ClauseSet_p store, IntMap_p choice_syms, Clause_p cl,
 
    Clause_p choice_def = IntMapGetVal(choice_syms, choice_code);
 #ifndef NDEBUG
-   PTree_p cl_vars = NULL, trig_vars = NULL;
+   OrdSet_p cl_vars = NULL, trig_vars = NULL;
    ClauseCollectVariables(choice_def, &cl_vars);
    TFormulaCollectFreeVars(choice_def->literals->bank, trigger, &trig_vars);
-   PTree_p intersection = PTreeIntersection(cl_vars, trig_vars);
+   OrdSet_p intersection = OrdSetIntersection(cl_vars, trig_vars);
    assert(intersection == NULL);
-   PTreeFree(cl_vars);
-   PTreeFree(trig_vars);
-   PTreeFree(intersection);
+   OrdSetFree(cl_vars);
+   OrdSetFree(trig_vars);
+   OrdSetFree(intersection);
 #endif
    Eqn_p neg_lit =
       EqnIsNegative(choice_def->literals)
@@ -1434,9 +1449,9 @@ void do_mk_choice_inst(ClauseSet_p store, IntMap_p choice_syms, Clause_p cl,
    EqnListRemoveResolved(&res_lits);
    EqnListRemoveDuplicates(res_lits);
    Clause_p res = ClauseAlloc(res_lits);
-   NormalizeEquations(res);
+   NormalizeEquations(res, step_archive);
    store_result(res, cl, choice_def, store, DCChoiceInst, 1);
-   BooleanSimplification(res);
+   BooleanSimplification(res, step_archive);
 
    var->binding = NULL;
 }
@@ -1454,11 +1469,12 @@ void do_mk_choice_inst(ClauseSet_p store, IntMap_p choice_syms, Clause_p cl,
 /----------------------------------------------------------------------*/
 
 int inst_choice(ClauseSet_p store, IntMap_p choice_syms, Clause_p cl,
-                 FunCode choice_code, Term_p trigger)
+                 FunCode choice_code, Term_p trigger, ClauseSet_p step_archive)
 {
    assert(cl->literals);
    TB_p bank = cl->literals->bank;
-   do_mk_choice_inst(store, choice_syms, cl, choice_code, trigger);
+   do_mk_choice_inst(store, choice_syms, cl, choice_code, trigger,
+                     step_archive);
 
    Term_p neg_trigger =
       TermTopCopy(LambdaEtaExpandDBTopLevel(bank, trigger));
@@ -1467,7 +1483,8 @@ int inst_choice(ClauseSet_p store, IntMap_p choice_syms, Clause_p cl,
    neg_trigger->args[1] =
       TFormulaFCodeAlloc(bank, bank->sig->not_code, neg_trigger->args[1], NULL);
    do_mk_choice_inst(store, choice_syms, cl,
-                     choice_code, TBTermTopInsert(bank, neg_trigger));
+                     choice_code, TBTermTopInsert(bank, neg_trigger),
+                     step_archive);
    return 2;
 }
 
@@ -1516,7 +1533,7 @@ FunCode mk_new_choice(TB_p bank, ClauseSet_p archive, IntMap_p choice_syms, Type
    Clause_p res = ClauseAlloc(not_p_x_lit);
    // TODO: Clause documentation is not implemented at the moment.
    // DocClauseCreationDefault(clause, inf_efactor, clause, NULL);
-   ClausePushDerivation(res, DCChoiceAx, NULL, NULL);
+   ClausePushDerivation(res, DCChoiceAx);
    ClauseSetInsert(archive, res);
 
    assert(!IntMapGetVal(choice_syms, ch_const->f_code));
@@ -1593,7 +1610,8 @@ Term_p term_drop_last_arg(TypeBank_p tb, Term_p s)
 /----------------------------------------------------------------------*/
 
 void mk_leibniz_instance(ClauseSet_p store, Clause_p cl,
-                         Eqn_p lit, Term_p var, Term_p binding)
+                         Eqn_p lit, Term_p var, Term_p binding,
+                         ClauseSet_p step_archive)
 {
    assert(!var->binding);
 
@@ -1604,7 +1622,7 @@ void mk_leibniz_instance(ClauseSet_p store, Clause_p cl,
    EqnListRemoveResolved(&res_lits);
    EqnListRemoveDuplicates(res_lits);
    Clause_p res = ClauseAlloc(res_lits);
-   NormalizeEquations(res);
+   NormalizeEquations(res, step_archive);
    store_result(res, cl, NULL, store, DCLeibnizElim, 1);
 
    var->binding = NULL;
@@ -1646,11 +1664,11 @@ void ComputeNegExt(ProofState_p state, ProofControl_p control, Clause_p clause)
 
       if (EqnIsNegative(lit) && lit_filter && needed_args > 0)
       {
-         PTree_p free_var_tree = NULL;
+         OrdSet_p free_var_tree = NULL;
          UNUSED(EqnCollectVariables(lit, &free_var_tree));
 
          PStack_p free_vars_stack = PStackAlloc();
-         PTreeToPStack(free_vars_stack, free_var_tree);
+         OrdSetToPStack(free_vars_stack, free_var_tree);
 
          int num_vars = PStackGetSP(free_vars_stack);
          Term_p *vars = TermArgTmpArrayAlloc(num_vars);
@@ -1695,7 +1713,7 @@ void ComputeNegExt(ProofState_p state, ProofControl_p control, Clause_p clause)
          TypeArgArrayFree(vars_types, num_vars);
          TermArgTmpArrayFree(vars, num_vars);
          PStackFree(free_vars_stack);
-         PTreeFree(free_var_tree);
+         OrdSetFree(free_var_tree);
       }
    }
 }
@@ -1963,16 +1981,18 @@ void ComputeExtEqFact(ProofState_p state, ProofControl_p control, Clause_p cl)
 // Function: NormalizeEquations()
 //
 //   Lifts nested equalities to the literal equality level, and removes
-//   nested $nots.
+//   nested $nots. A full proof object keeps the clause before the step
+//   in step_archive.
 //
 // Global Variables: -
 //
 // Side Effects    : -
 //
 /----------------------------------------------------------------------*/
-bool NormalizeEquations(Clause_p cl)
+bool NormalizeEquations(Clause_p cl, ClauseSet_p step_archive)
 {
    bool normalized = false;
+   Clause_p before = ClauseArchiveStepBegin(step_archive, cl);
    for (Eqn_p lit = cl->literals; lit; lit = lit->next)
    {
       TB_p bank = lit->bank;
@@ -2049,11 +2069,12 @@ bool NormalizeEquations(Clause_p cl)
       }
    }
 
+   ClauseArchiveStepEnd(step_archive, cl, before, normalized);
    if (normalized)
    {
       ClauseRecomputeLitCounts(cl);
-      ClauseRemoveSuperfluousLiterals(cl);
-      ClausePushDerivation(cl, DCNormalize, NULL, NULL);
+      ClauseRemoveSuperfluousLiterals(cl, step_archive);
+      ClausePushDerivation(cl, DCNormalize);
    }
 
    return normalized;
@@ -2063,7 +2084,9 @@ bool NormalizeEquations(Clause_p cl)
 //
 // Function: ImmediateClausification()
 //
-//   Performs dynamic clausfication of equivalences.
+//   Performs dynamic clausfication of equivalences. A full proof
+//   object keeps each clause before naked Boolean variables are
+//   eliminated in step_archive.
 //
 // Global Variables: -
 //
@@ -2072,7 +2095,8 @@ bool NormalizeEquations(Clause_p cl)
 /----------------------------------------------------------------------*/
 #define DEFAULT_RENAMING_LIMIT 24
 bool ImmediateClausification(Clause_p cl, ClauseSet_p store, ClauseSet_p archive,
-                             VarBank_p fresh_vars, bool fool_unroll)
+                             VarBank_p fresh_vars, bool fool_unroll,
+                             ClauseSet_p step_archive)
 {
    bool clausified = false;
    for (Eqn_p lit = cl->literals; !clausified && lit; lit = lit->next)
@@ -2106,7 +2130,8 @@ bool ImmediateClausification(Clause_p cl, ClauseSet_p store, ClauseSet_p archive
             DBGTermCheckUnownedSubterm(stdout,
                                        handle->tformula,
                                        "ImmediateClausification");
-            WFormulaCNF2(handle, res_set, bank, fresh_vars, 100, fool_unroll);
+            WFormulaCNF2(handle, res_set, bank, fresh_vars, 100, fool_unroll,
+                         archive, step_archive);
             // low miniscope limit for efficiency
             WFormulaFree(handle);
          }
@@ -2142,7 +2167,8 @@ bool ImmediateClausification(Clause_p cl, ClauseSet_p store, ClauseSet_p archive
 //
 //   Find a subclause of C of the form X sn | ~X tn and generate two
 //   series of instances C{X |-> %xn. x_i != s_i} and
-//   C{X |-> %xn. x_i = t_i}.
+//   C{X |-> %xn. x_i = t_i}. A full proof object keeps each instance
+//   before its normalization in step_archive.
 //
 // Global Variables: -
 //
@@ -2150,7 +2176,8 @@ bool ImmediateClausification(Clause_p cl, ClauseSet_p store, ClauseSet_p archive
 //
 /----------------------------------------------------------------------*/
 
-long EliminateLeibnizEquality(ClauseSet_p store, Clause_p cl, int limit)
+long EliminateLeibnizEquality(ClauseSet_p store, Clause_p cl, int limit,
+                              ClauseSet_p step_archive)
 {
    if(cl->proof_depth > limit)
    {
@@ -2203,7 +2230,7 @@ long EliminateLeibnizEquality(ClauseSet_p store, Clause_p cl, int limit)
                   }
 
                   assert(var->type == res->type);
-                  mk_leibniz_instance(store, cl, lit, var, res);
+                  mk_leibniz_instance(store, cl, lit, var, res, step_archive);
                   num_eliminations++;
                }
             }
@@ -2221,7 +2248,8 @@ long EliminateLeibnizEquality(ClauseSet_p store, Clause_p cl, int limit)
 // Function: PrimitiveEnumeration()
 //
 //   Instantiate clauses with primitive substitutions -- imitations
-//   of logical symbols.
+//   of logical symbols. A full proof object keeps each instance before
+//   its normalization in step_archive.
 //
 // Global Variables: -
 //
@@ -2229,7 +2257,8 @@ long EliminateLeibnizEquality(ClauseSet_p store, Clause_p cl, int limit)
 //
 /----------------------------------------------------------------------*/
 
-long PrimitiveEnumeration(ClauseSet_p store, Clause_p cl, PrimEnumMode mode, int limit)
+long PrimitiveEnumeration(ClauseSet_p store, Clause_p cl, PrimEnumMode mode,
+                          int limit, ClauseSet_p step_archive)
 {
    if(cl->proof_depth > limit)
    {
@@ -2246,14 +2275,14 @@ long PrimitiveEnumeration(ClauseSet_p store, Clause_p cl, PrimEnumMode mode, int
          if(TermIsAppliedFreeVar(lit->lterm)
             && !IntMapGetVal(processed_vars, lit->lterm->args[0]->f_code))
          {
-            new_cls += prim_enum_var(store, cl, mode, lit->lterm);
+            new_cls += prim_enum_var(store, cl, mode, lit->lterm, step_archive);
             IntMapAssign(processed_vars, lit->lterm->args[0]->f_code, cl);
          }
 
          if(TermIsAppliedFreeVar(lit->rterm)
             && !IntMapGetVal(processed_vars, lit->rterm->args[0]->f_code))
          {
-            new_cls += prim_enum_var(store, cl, mode, lit->rterm);
+            new_cls += prim_enum_var(store, cl, mode, lit->rterm, step_archive);
             IntMapAssign(processed_vars, lit->rterm->args[0]->f_code, cl);
          }
       }
@@ -2269,7 +2298,8 @@ long PrimitiveEnumeration(ClauseSet_p store, Clause_p cl, PrimEnumMode mode, int
 // Function: BooleanSimplification()
 //
 //   Performs boolean simplification and returns true if formula becomes
-//   redundant.
+//   redundant. A full proof object keeps the clause before the step in
+//   step_archive.
 //
 // Global Variables: -
 //
@@ -2277,10 +2307,11 @@ long PrimitiveEnumeration(ClauseSet_p store, Clause_p cl, PrimEnumMode mode, int
 //
 /----------------------------------------------------------------------*/
 
-bool BooleanSimplification(Clause_p cl)
+bool BooleanSimplification(Clause_p cl, ClauseSet_p step_archive)
 {
    bool changed = false;
    bool is_tautology = false;
+   Clause_p before = ClauseArchiveStepBegin(step_archive, cl);
    for(Eqn_p lit = cl->literals; !is_tautology && lit; lit = lit->next)
    {
       Term_p old_lterm = lit->lterm, old_rterm = lit->rterm;
@@ -2295,11 +2326,12 @@ bool BooleanSimplification(Clause_p cl)
       }
    }
 
+   ClauseArchiveStepEnd(step_archive, cl, before, changed);
    if(changed)
    {
       ClauseRecomputeLitCounts(cl);
-      ClauseRemoveSuperfluousLiterals(cl);
-      ClausePushDerivation(cl, DCNormalize, NULL, NULL);
+      ClauseRemoveSuperfluousLiterals(cl, step_archive);
+      ClausePushDerivation(cl, DCNormalize);
    }
 
    return is_tautology;
@@ -2376,7 +2408,7 @@ bool ResolveFlexClause(Clause_p cl)
       EqnListFree(cl->literals);
       cl->literals = NULL;
       ClauseRecomputeLitCounts(cl);
-      ClausePushDerivation(cl, DCFlexResolve, NULL, NULL);
+      ClausePushDerivation(cl, DCFlexResolve);
    }
 
    IntMapFree(ids_to_sign);
@@ -2483,7 +2515,7 @@ void ClausePruneArgs(Clause_p cl)
       EqnListLambdaNormalize(cl->literals);
       EqnListRemoveResolved(&cl->literals);
       EqnListRemoveDuplicates(cl->literals);
-      ClausePushDerivation(cl, DCPruneArg, NULL, NULL);
+      ClausePushDerivation(cl, DCPruneArg);
    }
    SubstDelete(subst);
 
@@ -2519,7 +2551,9 @@ void ClauseSetRecognizeChoice(IntMap_p choice_syms,
 // Function: InstantiateChoiceClauses()
 //
 //   Scan the clause for term of the form (f t) where f is a defined choice
-//   symbol and instantiate the saved choice axioms with t and negation thereof
+//   symbol and instantiate the saved choice axioms with t and negation thereof.
+//   A full proof object keeps each instance before its normalization
+//   in step_archive.
 //
 // Global Variables: -
 //
@@ -2531,7 +2565,8 @@ void ClauseSetRecognizeChoice(IntMap_p choice_syms,
 
 int InstantiateChoiceClauses(ClauseSet_p store, ClauseSet_p archive,
                              IntMap_p choice_syms, Clause_p renamed_cl,
-                             Clause_p orig_cl, int limit)
+                             Clause_p orig_cl, int limit,
+                             ClauseSet_p step_archive)
 {
    if(orig_cl->proof_depth > limit)
    {
@@ -2554,7 +2589,8 @@ int InstantiateChoiceClauses(ClauseSet_p store, ClauseSet_p archive,
             FunCode choice_code = trigger->f_code;
             trigger = trigger->args[0];
 
-            new_cls += inst_choice(store, choice_syms, orig_cl, choice_code, trigger);
+            new_cls += inst_choice(store, choice_syms, orig_cl, choice_code, trigger,
+                                   step_archive);
          }
          else
          {
@@ -2584,7 +2620,8 @@ int InstantiateChoiceClauses(ClauseSet_p store, ClauseSet_p archive,
             while(!PStackEmpty(choice_codes))
             {
                new_cls += inst_choice(store, choice_syms, orig_cl,
-                                      PStackPopInt(choice_codes), trigger);
+                                      PStackPopInt(choice_codes), trigger,
+                                      step_archive);
             }
             PStackFree(choice_codes);
          }
@@ -2599,7 +2636,9 @@ int InstantiateChoiceClauses(ClauseSet_p store, ClauseSet_p archive,
 // Function: PreinstantiateInduction()
 //
 //   Compute all induction triggers from the original clause set and
-//   instantiate clauses that have variables of the correct type.
+//   instantiate clauses that have variables of the correct type. A
+//   full proof object keeps each instance before its normalization in
+//   step_archive.
 //
 // Global Variables: -
 //
@@ -2618,7 +2657,8 @@ void del_node(void* key, void* val)
    PStackFree(triggers);
 }
 
-void PreinstantiateInduction(FormulaSet_p forms, ClauseSet_p cls, ClauseSet_p archive, TB_p bank)
+void PreinstantiateInduction(FormulaSet_p forms, ClauseSet_p cls, ClauseSet_p archive, TB_p bank,
+                             ClauseSet_p step_archive)
 {
    VarBankSetVCountsToUsed(bank->vars);
    PObjMap_p terms_by_type = NULL;
@@ -2644,18 +2684,19 @@ void PreinstantiateInduction(FormulaSet_p forms, ClauseSet_p cls, ClauseSet_p ar
    for(Clause_p handle = cls->anchor->succ; handle != cls->anchor;
        handle = handle->succ)
    {
-      PTree_p vars = NULL;
+      OrdSet_p vars = NULL;
       ClauseCollectVariables(handle, &vars);
 
-      PStack_p iter = PTreeTraverseInit(vars);
-      PTree_p node = NULL;
-      while((node = PTreeTraverseNext(iter)))
+      OrdSetIter_p iter = OrdSetTraverseInit(vars);
+      OrdSet_p node = NULL;
+      while((node = OrdSetTraverseNext(iter)))
       {
-         instantiate_w_abstractions(node->key, handle, &terms_by_type, res);
+         instantiate_w_abstractions(node->key, handle, &terms_by_type, res,
+                                    step_archive);
       }
 
-      PTreeFree(vars);
-      PStackFree(iter);
+      OrdSetFree(vars);
+      OrdSetTraverseExit(iter);
    }
 
    while(!PStackEmpty(res))
@@ -2709,19 +2750,22 @@ void ComputeHOInferences(ProofState_p state, ProofControl_p control,
       if (control->heuristic_parms.elim_leibniz_max_depth >= 0)
       {
          EliminateLeibnizEquality(state->tmp_store, orig_clause,
-                                  control->heuristic_parms.elim_leibniz_max_depth);
+                                  control->heuristic_parms.elim_leibniz_max_depth,
+                                  state->step_archive);
       }
       if (control->heuristic_parms.prim_enum_max_depth >= 0)
       {
          PrimitiveEnumeration(state->tmp_store, orig_clause,
                               control->heuristic_parms.prim_enum_mode,
-                              control->heuristic_parms.prim_enum_max_depth);
+                              control->heuristic_parms.prim_enum_max_depth,
+                              state->step_archive);
       }
       if (control->heuristic_parms.inst_choice_max_depth >=0)
       {
          InstantiateChoiceClauses(state->tmp_store, state->archive, state->choice_opcodes,
                                   renamed_cl, orig_clause,
-                                  control->heuristic_parms.inst_choice_max_depth);
+                                  control->heuristic_parms.inst_choice_max_depth,
+                                  state->step_archive);
       }
    }
 }

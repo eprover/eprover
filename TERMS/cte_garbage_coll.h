@@ -27,6 +27,7 @@
 
 
 #include <clb_ptrees.h>
+#include <clb_orderedsets.h>
 
 
 /*---------------------------------------------------------------------*/
@@ -36,8 +37,8 @@
 
 typedef struct gc_admin_cell
 {
-   PTree_p clause_sets;
-   PTree_p formula_sets;
+   OrdSet_p clause_sets;
+   OrdSet_p formula_sets;
 }GCAdminCell, *GCAdmin_p;
 
 

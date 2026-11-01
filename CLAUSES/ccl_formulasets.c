@@ -226,6 +226,34 @@ void FormulaSetInsert(FormulaSet_p set, WFormula_p newform)
 
 /*-----------------------------------------------------------------------
 //
+// Function: FormulaSetReplace()
+//
+//   Replace form (presumably in set) by newform.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+void FormulaSetReplace(WFormula_p form, WFormula_p newform)
+{
+   assert(form->set);
+
+   newform->succ = form->succ;
+   newform->pred = form->pred;
+   form->pred->succ = newform;
+   form->succ->pred = newform;
+   newform->set = form->set;
+   form->succ = NULL;
+   form->pred = NULL;
+   form->set = NULL;
+}
+
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: FormulaSetInsertSet()
 //
 //   Move all formulas from from into set (leaving from empty, but not
@@ -250,7 +278,6 @@ long FormulaSetInsertSet(FormulaSet_p set, FormulaSet_p from)
    }
    return res;
 }
-
 
 
 /*-----------------------------------------------------------------------

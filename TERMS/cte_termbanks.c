@@ -2173,9 +2173,9 @@ long TBGCSweep(TB_p bank)
 #ifdef NEVER_DEFINED
    if(OutputLevel)
    {
-      fprintf(GlobalOut,
-              COMCHAR" Garbage collection reclaimed %ld unused term cells.\n",
-              recovered);
+      CommentPrint(GlobalOut,
+                   " Garbage collection reclaimed %ld unused term cells.\n",
+                   recovered);
    }
 #endif
    bank->garbage_state =

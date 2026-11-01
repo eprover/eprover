@@ -57,7 +57,7 @@ static void findex_add_instance(FIndex_p index, FunCode i, void* inst)
    void *tmp;
 
    tmp = &(PDArrayElementP(index->index, i));
-   PTreeStore(tmp, inst);
+   OrdSetStore(tmp, inst);
 }
 
 /*-----------------------------------------------------------------------
@@ -78,7 +78,7 @@ static void findex_remove_instance(FIndex_p index, FunCode i, void* inst)
    void *tmp;
 
    tmp = &(PDArrayElementP(index->index, i));
-   PTreeDeleteEntry(tmp, inst);
+   OrdSetDeleteEntry(tmp, inst);
 }
 
 
@@ -125,12 +125,12 @@ FIndex_p FIndexAlloc(void)
 void FIndexFree(FIndex_p junk)
 {
    long i;
-   PTree_p tmp;
+   OrdSet_p tmp;
 
    for(i = 0; i<junk->index->size; i++)
    {
       tmp = PDArrayElementP(junk->index, i);
-      PTreeFree(tmp);
+      OrdSetFree(tmp);
    }
    PDArrayFree(junk->index);
    FIndexCellFree(junk);

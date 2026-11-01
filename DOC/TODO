@@ -1,7 +1,7 @@
 FVIndexing will not work that well for _very_ large signatures (in
 fact, it does not deal nicely with growing signatures now. But we can
 _group_ function symbols and count/position them (easiest done using
-modulo on the FunCode!) and use them. 
+modulo on the FunCode!) and use them.
 
 I've changed the rewrite system and eliminated the use for
 TPRestricted. Detection of rewritable processed clauses now takes the
@@ -9,7 +9,7 @@ restriction into account, however, actual rewriting does not, i.e. the
 first rewrite will always win, even if it is a non-intantiated top
 level step. This is of course sound - is it also complete? It _should_
 be, by the same argument that unrestricted rewriting of unprocessed
-clauses is ok...think & test!  
+clauses is ok...think & test!
 * In this context: Clean up the mess by removing dead code!
 -> No, it didn't, but I've now fixed it.
 
@@ -29,13 +29,13 @@ Detect definitions and make defined symbols large in the precedence
 
 Beautify the handling of FVIndexing somehow (the trouble is that the
 index can only be computed when the preprocessed clause set is
-there...hmmm). 
+there...hmmm).
 
 Evaluate --inherit-conjecture-pm-literals.
 
 
 Purity. For the equational case, use non-E-unifiability as the
-criterion (approximate it with universal equality). 
+criterion (approximate it with universal equality).
 
 Condensing.
 
@@ -50,7 +50,7 @@ multiplexer, error measure: Difference from wanted result (-1 for bad,
 neurons. Can e.g. finally encode the UEQ <= HEQ <= GEQ (if that makes
 sense...). Do a Python prototype soon!
 
-Rippling-like annotated terms for E. 
+Rippling-like annotated terms for E.
 
 Split only if clause has multiple inference literals. -> See below,
 stupid!
@@ -78,7 +78,7 @@ Caching term orderings:
   other terms with comparison (key: (term, instatiation)).
 - After comparisons for a given instantiation are done, call
   "ClearCache": Pop stack, delete cache entry for term, until stack is
-  empty. 
+  empty.
 
 Replace VarHash with simple PDArrays if time critical. As variables
 idents are small in practice, should work with little memory overhead,
@@ -93,7 +93,7 @@ place in the command line, store logfile with job -> We can run
 multiple test runs in one call of the script, and do not have to wait
 for late jobs before starting the next parameter set.
 
-Generate Term Orderings: 
+Generate Term Orderings:
 a) Try to orient axioms (perhaps try to orient pos-units from larger
    to smaller terms, all other literals smaller to larger terms?)
    - partially done, without preferred orientations.
@@ -103,7 +103,7 @@ c) For non-unit clauses: Only (or primarily) take positive literals
    (=potential rewrite rules) into account.
 
 New Idea: Use "Trigger equations" with weight and ordering
-constraints! 
+constraints!
 
 Dynamically addjustable pick-given-ratio (test with Scheme first -->
 test done, successful)
@@ -174,7 +174,7 @@ separate these.
 
 Implement weight function that uses different penalties for
 unorientability of positive and negative literals -> Done, needs more
-testing 
+testing
 
 For orientable rewrite-rules, give a higher weight to minimal sides
 than to maximal ones (prefer rules that decrease term size).
@@ -183,7 +183,7 @@ For split clauses, give the split literal the (default) weight of the
 split off literals. Requires quite some work, as it touches most
 evaluation functions, but should be worth it. -> Done for some
 evaluation functions, thrown out again. To complex, doesn't seem to
-help. 
+help.
 
 Always select positive split literals if we select at all! Then
 negative units can resolve against them...or we'd rather need a
@@ -224,7 +224,7 @@ ungrounded system, instantiating everything to some constant (the most
 frequent constant?) and copying the set. (partially done)
 
 Literal sharing (with external sign?)! We can share lots of
-operations: 
+operations:
  - Unit subsumption and Simplify-Reflect
  - Select the same literal throughout the proof state (we can have
    local selection as well!). Problem: What happens if multiple
@@ -267,3 +267,5 @@ For eground:
 
 
 
+- Add cprintf(....) with signature as fprintf(), but printing COMMENTCHAR first
+- Maybe give WFormulaPushDerivation a type string argument ("fcl") and make it variadic

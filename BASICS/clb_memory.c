@@ -166,7 +166,7 @@ void* SecureMalloc(size_t size)
       {   /*  Still nothing...*/
 #ifdef PRINT_SOMEERRORS_STDOUT
          SetMemoryLimit(RLIM_INFINITY);
-         fprintf(stdout, COMCHAR" Failure: Resource limit exceeded (memory)\n");
+         CommentPrint(stdout, " Failure: Resource limit exceeded (memory)\n");
          TSTPOUT(stdout, "ResourceOut");
          fflush(stdout);
          PrintRusage(stdout);
@@ -221,7 +221,7 @@ void* SecureRealloc(void *ptr, size_t size)
       {   /*  Still nothing...*/
 #ifdef PRINT_SOMEERRORS_STDOUT
          SetMemoryLimit(RLIM_INFINITY);
-         fprintf(stdout, COMCHAR" Failure: Resource limit exceeded (memory)\n");
+         CommentPrint(stdout, " Failure: Resource limit exceeded (memory)\n");
          fflush(stdout);
          PrintRusage(stdout);
 #endif
@@ -354,29 +354,29 @@ void MemDebugPrintStats(FILE* out)
 {
    fprintf(out,
            "\n"COMCHAR" -------------------------------------------------\n");
-   fprintf(out,
-           COMCHAR" Total SizeMalloc()ed memory: %ld Bytes (%ld requests)\n",
-           size_malloc_mem, size_malloc_count);
-   fprintf(out,
-           COMCHAR" Total SizeFree()ed   memory: %ld Bytes (%ld requests)\n",
-           size_free_mem, size_free_count);
-   fprintf(out,
-           COMCHAR" New requests: %6ld (%6ld by SecureMalloc(), %6ld by SecureRealloc())\n",
-           secure_malloc_count+secure_realloc_m_count,
-           secure_malloc_count, secure_realloc_m_count);
-   fprintf(out,
-           COMCHAR" Total SecureMalloc()ed memory: %ld Bytes\n", secure_malloc_mem);
-   fprintf(out,
-           COMCHAR" Returned:    %6ld (%6ld by FREE(),         %6ld by SecureRealloc())\n",
-           clb_free_count+secure_realloc_f_count,
-           clb_free_count , secure_realloc_f_count);
-   fprintf(out,
-           COMCHAR" SecureRealloc(ptr): %6ld (%6ld Allocs, %6ld Frees, %6ld Reallocs)\n",
-           secure_realloc_count, secure_realloc_m_count,
-           secure_realloc_f_count,
-           secure_realloc_count-(secure_realloc_m_count+secure_realloc_f_count));
-   fprintf(out,
-           COMCHAR" -------------------------------------------------\n\n");
+   CommentPrint(out,
+                " Total SizeMalloc()ed memory: %ld Bytes (%ld requests)\n",
+                size_malloc_mem, size_malloc_count);
+   CommentPrint(out,
+                " Total SizeFree()ed   memory: %ld Bytes (%ld requests)\n",
+                size_free_mem, size_free_count);
+   CommentPrint(out,
+                " New requests: %6ld (%6ld by SecureMalloc(), %6ld by SecureRealloc())\n",
+                secure_malloc_count+secure_realloc_m_count,
+                secure_malloc_count, secure_realloc_m_count);
+   CommentPrint(out,
+                " Total SecureMalloc()ed memory: %ld Bytes\n", secure_malloc_mem);
+   CommentPrint(out,
+                " Returned:    %6ld (%6ld by FREE(),         %6ld by SecureRealloc())\n",
+                clb_free_count+secure_realloc_f_count,
+                clb_free_count , secure_realloc_f_count);
+   CommentPrint(out,
+                " SecureRealloc(ptr): %6ld (%6ld Allocs, %6ld Frees, %6ld Reallocs)\n",
+                secure_realloc_count, secure_realloc_m_count,
+                secure_realloc_f_count,
+                secure_realloc_count-(secure_realloc_m_count+secure_realloc_f_count));
+   CommentPrint(out,
+                " -------------------------------------------------\n\n");
 }
 
 
@@ -396,20 +396,20 @@ void MemFreeListPrint(FILE* out)
 {
    long i, sum =0, count=0, tmp;
 
-   fprintf(out, COMCHAR" MemFreeListPrint()\n");
-   fprintf(out, COMCHAR" ===============================\n");
+   CommentPrint(out, " MemFreeListPrint()\n");
+   CommentPrint(out, " ===============================\n");
    for(i=0; i< MEM_ARR_SIZE; i++)
    {
       tmp = free_list_size(free_mem_list[i]);
       if(tmp)
       {
-         fprintf(out, COMCHAR" %4ld: %ld\n", i, tmp);
+         CommentPrint(out, " %4ld: %ld\n", i, tmp);
          sum += tmp*(i);
          count += tmp;
       }
    }
-   fprintf(out, COMCHAR" ===============================\n");
-   fprintf(out, COMCHAR" %6ld blocks with %ld bytes \n", count, sum);
+   CommentPrint(out, " ===============================\n");
+   CommentPrint(out, " %6ld blocks with %ld bytes \n", count, sum);
 }
 
 

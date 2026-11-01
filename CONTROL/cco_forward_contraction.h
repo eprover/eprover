@@ -56,6 +56,7 @@ bool ForwardModifyClause(ProofState_p state,
                          Clause_p clause,
                          bool context_sr,
                          bool condense,
+                         bool ac_resolve,
                          RewriteLevel level);
 
 FVPackedClause_p ForwardContractClause(ProofState_p state,

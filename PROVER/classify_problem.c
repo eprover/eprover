@@ -872,7 +872,7 @@ int main(int argc, char* argv[])
                            fstate->terms,
                            fstate->freshvars,
                            miniscope_limit, FormulaDefLimit,
-                           true, true, true, true);
+                           true, true, true, true, fstate->step_archive);
             if(!no_preproc)
             {
                ClauseSetPreprocess(fstate->axioms,
@@ -882,7 +882,8 @@ int main(int argc, char* argv[])
                                    fstate->terms,
                                    false,
                                    eqdef_incrlimit,
-                                   eqdef_maxclauses);
+                                   eqdef_maxclauses,
+                                   fstate->step_archive);
             }
             if(!specsig_classify)
             {

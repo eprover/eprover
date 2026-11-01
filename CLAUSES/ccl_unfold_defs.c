@@ -126,9 +126,9 @@ static Term_p term_top_unfold_def_ho(TB_p bank, Term_p term, Term_p lside, Term_
 //
 //   Apply demod everywhere in term. One-traversal leftmost-innermost
 //   is complete, because we know that the top symbol of the
-//   demodulator cannot occur in demodulated terms. pos_stack is
-//   intended to keep positions, at the moment it just counts
-//   applications in a very expensive way ;-)
+//   demodulator cannot occur in demodulated terms. Each application
+//   is pushed onto steps as demod, the subterm it produced and a copy
+//   of path, the position of term in the side.
 //
 // Global Variables: -
 //
@@ -136,8 +136,9 @@ static Term_p term_top_unfold_def_ho(TB_p bank, Term_p term, Term_p lside, Term_
 //
 /----------------------------------------------------------------------*/
 
-static Term_p term_unfold_def(TB_p bank, Term_p term, PStack_p
-                              pos_stack, Term_p demod_l, Term_p demod_r)
+static Term_p term_unfold_def(TB_p bank, Term_p term, PStack_p steps,
+                              PStack_p path, Clause_p demod,
+                              Term_p demod_l, Term_p demod_r)
 {
    Term_p res, tmp = NULL;
    int i;
@@ -147,8 +148,10 @@ static Term_p term_unfold_def(TB_p bank, Term_p term, PStack_p
 
    for(i=0; i<res->arity; i++)
    {
-      res->args[i] = term_unfold_def(bank, term->args[i], pos_stack,
-                                     demod_l, demod_r);
+      PStackPushInt(path, i);
+      res->args[i] = term_unfold_def(bank, term->args[i], steps, path,
+                                     demod, demod_l, demod_r);
+      PStackDiscardTop(path);
       if(res->args[i] != term->args[i])
       {
          changed = true;
@@ -167,41 +170,40 @@ static Term_p term_unfold_def(TB_p bank, Term_p term, PStack_p
             (bank, tmp, demod_l, demod_r);
    if(res!=tmp)
    {
-      PStackPushP(pos_stack, term);
+      PStackPushP(steps, demod);
+      PStackPushP(steps, res);
+      PStackPushP(steps, PStackCopy(path));
    }
    return res;
 }
 
 /*-----------------------------------------------------------------------
 //
-// Function: eqn_unfold_def()
+// Function: side_unfold_def()
 //
-//   Apply demod everywhere in the literal. See above. Return true if
-//   one term changes.
+//   Apply demod everywhere in one side of a literal of clause and
+//   record each application as an unfolding step, see
+//   ClauseArchiveSteps(). Return the number of steps.
 //
 // Global Variables: -
 //
-// Side Effects    : Changes termbank.
+// Side Effects    : Changes clause and termbank.
 //
 /----------------------------------------------------------------------*/
 
-static bool eqn_unfold_def(Eqn_p eqn, PStack_p pos_stack, Term_p lside, Term_p rside)
+static long side_unfold_def(Clause_p clause, TB_p bank, Term_p *side,
+                            ClausePos_p demod, Term_p lside, Term_p rside,
+                            ClauseSet_p step_archive, PStack_p step_sides)
 {
-   bool res = false;
-   Term_p tmp;
+   PStack_p steps = PStackAlloc(), path = PStackAlloc();
+   Term_p nf = term_unfold_def(bank, *side, steps, path, demod->clause,
+                               lside, rside);
+   long res = PStackGetSP(steps)/3;
 
-   tmp = term_unfold_def(eqn->bank, eqn->lterm, pos_stack, lside, rside);
-   if(tmp != eqn->lterm)
-   {
-      res = true;
-      eqn->lterm = tmp;
-   }
-   tmp = term_unfold_def(eqn->bank, eqn->rterm, pos_stack, lside, rside);
-   if(tmp != eqn->rterm)
-   {
-      res = true;
-      eqn->rterm = tmp;
-   }
+   ClauseArchiveSteps(step_archive, step_sides, clause, side, nf, steps,
+                      DCUnfold);
+   PStackFree(path);
+   PStackFree(steps);
    return res;
 }
 
@@ -218,7 +220,9 @@ static bool eqn_unfold_def(Eqn_p eqn, PStack_p pos_stack, Term_p lside, Term_p r
 //   rewrite steps. Return true if clause changed. NB: In case of HO
 //   unfolding lside and rside can be transformed into a lambda equation.
 //   Thus, they might be different in shape from what is stored in demod.
-//   Demod is still used to build proof object.
+//   Demod is still used to build proof object. A full proof object
+//   keeps the clause before each step in step_archive and its sides
+//   in step_sides.
 //
 // Global Variables: -
 //
@@ -226,35 +230,32 @@ static bool eqn_unfold_def(Eqn_p eqn, PStack_p pos_stack, Term_p lside, Term_p r
 //
 /----------------------------------------------------------------------*/
 
-bool ClauseUnfoldEqDef(Clause_p clause, ClausePos_p demod, Term_p lside, Term_p rside)
+bool ClauseUnfoldEqDef(Clause_p clause, ClausePos_p demod, Term_p lside,
+                       Term_p rside, ClauseSet_p step_archive,
+                       PStack_p step_sides)
 {
-   bool res = false;
-   PStack_p pos_stack = PStackAlloc();
+   long steps = 0;
    Eqn_p handle;
-   PStackPointer i;
 
    for(handle = clause->literals; handle; handle = handle->next)
    {
-      eqn_unfold_def(handle, pos_stack, lside, rside);
+      steps += side_unfold_def(clause, handle->bank, &(handle->lterm),
+                               demod, lside, rside, step_archive,
+                               step_sides);
+      steps += side_unfold_def(clause, handle->bank, &(handle->rterm),
+                               demod, lside, rside, step_archive,
+                               step_sides);
    }
 
-   if(!PStackEmpty(pos_stack))
+   if(steps)
    {
-      res = true;
-
       if(ClauseQueryTPTPType(demod->clause) == CPTypeConjecture)
       {
          ClauseSetTPTPType(clause, CPTypeConjecture);
       }
-      DocClauseEqUnfold(GlobalOut, OutputLevel, clause, demod,
-                        pos_stack);
-      for(i=0; i<PStackGetSP(pos_stack); i++)
-      {
-         ClausePushDerivation(clause, DCUnfold, demod->clause, NULL);
-      }
+      DocClauseEqUnfold(GlobalOut, OutputLevel, clause, demod, steps);
    }
-   PStackFree(pos_stack);
-   return res;
+   return steps > 0;
 }
 
 
@@ -262,7 +263,9 @@ bool ClauseUnfoldEqDef(Clause_p clause, ClausePos_p demod, Term_p lside, Term_p 
 //
 // Function: ClauseSetUnfoldEqDef()
 //
-//   Apply demod to all clauses in set.
+//   Apply demod to all clauses in set. A full proof object keeps each
+//   clause before each step in step_archive and its sides in
+//   step_sides.
 //
 // Global Variables: -
 //
@@ -271,7 +274,8 @@ bool ClauseUnfoldEqDef(Clause_p clause, ClausePos_p demod, Term_p lside, Term_p 
 /----------------------------------------------------------------------*/
 
 
-bool ClauseSetUnfoldEqDef(ClauseSet_p set, ClausePos_p demod)
+bool ClauseSetUnfoldEqDef(ClauseSet_p set, ClausePos_p demod,
+                          ClauseSet_p step_archive, PStack_p step_sides)
 {
    Clause_p handle;
    bool
@@ -290,10 +294,11 @@ bool ClauseSetUnfoldEqDef(ClauseSet_p set, ClausePos_p demod)
        handle!=set->anchor;
        handle = handle->succ)
    {
-      if(ClauseUnfoldEqDef(handle, demod, lside, rside))
+      if(ClauseUnfoldEqDef(handle, demod, lside, rside, step_archive,
+                           step_sides))
       {
          res = true;
-         ClauseRemoveSuperfluousLiterals(handle);
+         ClauseRemoveSuperfluousLiterals(handle, step_archive);
          /* If a non-conjecture clause is rewritten here, we make the
             result a conjecture - it's the right thing to do for
             e.g. SoS. */
@@ -312,7 +317,9 @@ bool ClauseSetUnfoldEqDef(ClauseSet_p set, ClausePos_p demod)
 //
 //   While there are equational definitions where the right hand side
 //   is not to much (eqdef_incrlimit) bigger than the left hand side,
-//   apply them and remove them. Returns number of removed clauses.
+//   apply them and remove them. Returns number of removed clauses. A
+//   full proof object keeps each clause before each step in
+//   step_archive and its sides in step_sides.
 //
 // Global Variables: -
 //
@@ -323,7 +330,8 @@ bool ClauseSetUnfoldEqDef(ClauseSet_p set, ClausePos_p demod)
 
 long ClauseSetUnfoldAllEqDefs(ClauseSet_p set, ClauseSet_p passive,
                               ClauseSet_p archive,
-                              int min_arity, long eqdef_incrlimit)
+                              int min_arity, long eqdef_incrlimit,
+                              ClauseSet_p step_archive, PStack_p step_sides)
 {
    ClausePos_p demod;
    long res = false;
@@ -336,10 +344,10 @@ long ClauseSetUnfoldAllEqDefs(ClauseSet_p set, ClauseSet_p passive,
           TermStandardWeight(ClausePosGetSide(demod)))<=eqdef_incrlimit)
       {
          ClauseSetExtractEntry(demod->clause);
-         ClauseSetUnfoldEqDef(set, demod);
+         ClauseSetUnfoldEqDef(set, demod, step_archive, step_sides);
          if(passive)
          {
-            ClauseSetUnfoldEqDef(passive, demod);
+            ClauseSetUnfoldEqDef(passive, demod, step_archive, step_sides);
          }
          ClauseSetInsert(archive, demod->clause);
          res++;
@@ -357,7 +365,8 @@ long ClauseSetUnfoldAllEqDefs(ClauseSet_p set, ClauseSet_p passive,
 //   Perform preprocessing on the clause set: Removing tautologies,
 //   definition unfolding and canonization. Returns number of clauses
 //   removed. If passive is true, potential unfolding is applied to
-//   clauses in that set as well.
+//   clauses in that set as well. A full proof object keeps each clause
+//   before it loses literals in step_archive.
 //
 // Global Variables: -
 //
@@ -368,17 +377,18 @@ long ClauseSetUnfoldAllEqDefs(ClauseSet_p set, ClauseSet_p passive,
 long ClauseSetPreprocess(ClauseSet_p set, ClauseSet_p passive,
                          ClauseSet_p archive, TB_p tmp_terms, TB_p terms,
                          bool replace_injectivity_defs,
-                         int eqdef_incrlimit, long eqdef_maxclauses)
+                         int eqdef_incrlimit, long eqdef_maxclauses,
+                         ClauseSet_p step_archive)
 {
    long res;
 
-   ClauseSetRemoveSuperfluousLiterals(set);
+   ClauseSetRemoveSuperfluousLiterals(set, step_archive);
    res = ClauseSetFilterTautologies(set, tmp_terms);
    if (replace_injectivity_defs)
    {
       ClauseSetReplaceInjectivityDefs(set,archive,terms);
    }
-   ClauseSetCanonize(set);
+   ClauseSetCanonize(set, step_archive);
    return res;
 }
 
@@ -386,7 +396,9 @@ long ClauseSetPreprocess(ClauseSet_p set, ClauseSet_p passive,
 //
 // Function: ClauseSetUnfoldEqDefNormalize()
 //
-//    Unfold definitions and renormalize clause set.
+//    Unfold definitions and renormalize clause set. A full proof
+//    object keeps each clause before each step in step_archive and
+//    its sides in step_sides.
 //
 // Global Variables: -
 //
@@ -396,7 +408,9 @@ long ClauseSetPreprocess(ClauseSet_p set, ClauseSet_p passive,
 
 long ClauseSetUnfoldEqDefNormalize(ClauseSet_p set, ClauseSet_p passive,
                                    ClauseSet_p archive, TB_p tmp_terms,
-                                   long eqdef_incrlimit, long eqdef_maxclauses)
+                                   long eqdef_incrlimit, long eqdef_maxclauses,
+                                   ClauseSet_p step_archive,
+                                   PStack_p step_sides)
 {
    long res = 0, tmp;
 
@@ -404,11 +418,12 @@ long ClauseSetUnfoldEqDefNormalize(ClauseSet_p set, ClauseSet_p passive,
    {
       return res;
    }
-   if((tmp = ClauseSetUnfoldAllEqDefs(set, passive, archive, 1, eqdef_incrlimit)))
+   if((tmp = ClauseSetUnfoldAllEqDefs(set, passive, archive, 1, eqdef_incrlimit,
+                                      step_archive, step_sides)))
    {
       res += tmp;
       res += ClauseSetFilterTautologies(set, tmp_terms);
-      ClauseSetCanonize(set);
+      ClauseSetCanonize(set, step_archive);
    }
    return res;
 }

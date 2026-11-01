@@ -325,20 +325,20 @@ void OCBDebugPrint(FILE* out, OCB_p ocb)
 {
    long i,j;
 
-   fprintf(out, COMCHAR" ==============OCB-Debug-Information============\n");
-   fprintf(out, COMCHAR" ===============================================\n");
+   CommentPrint(out, " ==============OCB-Debug-Information============\n");
+   CommentPrint(out, " ===============================================\n");
    if(ocb->sig)
    {
       SigPrint(out, ocb->sig);
    }
    else
    {
-      fprintf(out, COMCHAR" No sig!\n");
+      CommentPrint(out, " No sig!\n");
    }
-   fprintf(out, COMCHAR" -----------------------------------------------\n");
+   CommentPrint(out, " -----------------------------------------------\n");
    if(ocb->weights)
    {
-      fprintf(out, COMCHAR" Weights:");
+      CommentPrint(out, " Weights:");
       for(i=1; i<=ocb->sig_size;i++)
       {
          if(!((i-1)%8))
@@ -358,12 +358,12 @@ void OCBDebugPrint(FILE* out, OCB_p ocb)
    }
    else
    {
-      fprintf(out, COMCHAR" No weights!\n");
+      CommentPrint(out, " No weights!\n");
    }
-   fprintf(out, COMCHAR" -----------------------------------------------\n");
+   CommentPrint(out, " -----------------------------------------------\n");
    if(ocb->precedence)
    {
-      fprintf(out, COMCHAR" Precedence Matrix:\n"COMCHAR"       ");
+      CommentPrint(out, " Precedence Matrix:\n"COMCHAR"       ");
       for(j=1; j<=ocb->sig_size; j++)
       {
          fprintf(out, " %2ld ", j);
@@ -371,7 +371,7 @@ void OCBDebugPrint(FILE* out, OCB_p ocb)
       fprintf(out, "\n");
       for(i=1; i<=ocb->sig_size; i++)
       {
-         fprintf(out, COMCHAR" %2ld  | ", i);
+         CommentPrint(out, " %2ld  | ", i);
          fflush(stdout);
          for(j=1; j<=ocb->sig_size; j++)
          {
@@ -386,9 +386,9 @@ void OCBDebugPrint(FILE* out, OCB_p ocb)
    }
    else
    {
-      fprintf(out, COMCHAR" No precedence!\n");
+      CommentPrint(out, " No precedence!\n");
    }
-   fprintf(out, COMCHAR" ===============================================\n");
+   CommentPrint(out, " ===============================================\n");
 }
 
 

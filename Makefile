@@ -61,15 +61,15 @@ cleandist: clean
 default_config:
 	./configure
 	@cat Makefile.vars| \
-	gawk '/^NODEBUG/{print "NODEBUG    = -DNDEBUG -DFAST_EXIT";next}/^MEMDEBUG/{print "MEMDEBUG   = # -DCLB_MEMORY_DEBUG # -DCLB_MEMORY_DEBUG2";next}/^DEBUGGER/{print "DEBUGGER   = # -g -ggdb";next}/^PROFFLAGS/{print "PROFFLAGS  = # -pg";next}{print}' > __tmpmake__;mv __tmpmake__ Makefile.vars
+	$(AWK) '/^NODEBUG/{print "NODEBUG    = -DNDEBUG -DFAST_EXIT";next}/^MEMDEBUG/{print "MEMDEBUG   = # -DCLB_MEMORY_DEBUG # -DCLB_MEMORY_DEBUG2";next}/^DEBUGGER/{print "DEBUGGER   = # -g -ggdb";next}/^PROFFLAGS/{print "PROFFLAGS  = # -pg";next}{print}' > __tmpmake__;mv __tmpmake__ Makefile.vars
 
 
 debug_config:
 	@cat Makefile.vars| \
-	gawk '/^NODEBUG/{print "NODEBUG    = # -DNDEBUG -DFAST_EXIT";next}/^MEMDEBUG/{print "MEMDEBUG   = -DCLB_MEMORY_DEBUG # -DCLB_MEMORY_DEBUG2";next}{print}' > __tmpmake__;mv __tmpmake__ Makefile.vars
+	$(AWK) '/^NODEBUG/{print "NODEBUG    = # -DNDEBUG -DFAST_EXIT";next}/^MEMDEBUG/{print "MEMDEBUG   = -DCLB_MEMORY_DEBUG # -DCLB_MEMORY_DEBUG2";next}{print}' > __tmpmake__;mv __tmpmake__ Makefile.vars
 
 commit_id:
-	echo '#define ECOMMITID "'`git rev-parse HEAD`'"' > PROVER/e_gitcommit.h
+	@cd PROVER; sh ../development_tools/e_gitcommit e_gitcommit.h
 
 
 # Build a distribution
@@ -135,8 +135,9 @@ starexec-src:
 # Make all library parts
 top: E
 
-# Create symbolic links
-links: remove_links
+# Create symbolic links (the generated PROVER/e_gitcommit.h has to
+# exist for its link)
+links: remove_links commit_id
 	@mkdir -p include
 	@cd include; find .. -not -path '../include/*' -name "[^.]*.h" -exec $(LN) {} \;
 	@mkdir -p lib
@@ -186,7 +187,6 @@ install:
 	-sh -c 'development_tools/e_install PROVER/ekb_delete     $(EXECPATH)'
 	-sh -c 'development_tools/e_install PROVER/ekb_ginsert    $(EXECPATH)'
 	-sh -c 'development_tools/e_install PROVER/ekb_insert     $(EXECPATH)'
-	-sh -c 'development_tools/e_install CONTRIB/picosat-965/picosat $(EXECPATH)'
 	-sh -c 'mkdir -p $(MANPATH)'
 	-sh -c 'development_tools/e_install DOC/man/eprover.1      $(MANPATH)'
 	-sh -c 'development_tools/e_install DOC/man/epclextract.1  $(MANPATH)'

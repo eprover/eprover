@@ -239,7 +239,7 @@ void DBGTermCheckUnownedSubtermReal(FILE* out, Term_p t, char* location)
 {
    if(TermFindUnownedSubterm(t))
    {
-      fprintf(out, COMCHAR" UnknownSubterm(%s): ", location);
+      CommentPrint(out, " UnknownSubterm(%s): ", location);
       TermPrint(stdout, t, t->owner_bank->sig, DEREF_NEVER);
       fprintf(stdout, "\n");
    }

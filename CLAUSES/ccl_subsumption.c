@@ -722,8 +722,8 @@ Clause_p clause_set_subsumes_clause(ClauseSet_p set, Clause_p sub_candidate)
 //
 // Function: clause_tree_find_subsuming_clause()
 //
-//   Given a PTree of clauses and a clause, return a subsuming clause
-//   or NULL
+//   Given a set of clauses and a clause, return the first subsuming
+//   clause (in the order of the set) or NULL
 //
 // Global Variables: -
 //
@@ -732,31 +732,26 @@ Clause_p clause_set_subsumes_clause(ClauseSet_p set, Clause_p sub_candidate)
 /----------------------------------------------------------------------*/
 
 static
-Clause_p clause_tree_find_subsuming_clause(PTree_p tree, Clause_p sub_candidate)
+Clause_p clause_tree_find_subsuming_clause(OrdSet_p tree, Clause_p sub_candidate)
 {
+   OrdSet_p handle;
    Clause_p clause;
 
    assert(sub_candidate->weight == ClauseStandardWeight(sub_candidate));
 
-   if(!tree)
+   for(handle = OrdSetFirst(tree); handle; handle = OrdSetNext(tree, handle))
    {
-      return NULL;
+      clause = handle->key;
+      if(clause_subsumes_clause(clause,sub_candidate))
+      {
+         /* DocClauseQuote(GlobalOut, OutputLevel, 6, sub_candidate,
+            "subsumed", clause); */
+         //ClauseSetProp(clause, ClauseQueryProp(sub_candidate,CPIsSOS));
+         // Not a SOS clause!
+         return clause;
+      }
    }
-   clause = tree->key;
-   if(clause_subsumes_clause(clause,sub_candidate))
-   {
-      /* DocClauseQuote(GlobalOut, OutputLevel, 6, sub_candidate,
-         "subsumed", clause); */
-      //ClauseSetProp(clause, ClauseQueryProp(sub_candidate,CPIsSOS));
-      // Not a SOS clause!
-      return clause;
-   }
-   clause =  clause_tree_find_subsuming_clause(tree->lson, sub_candidate);
-   if(clause)
-   {
-      return clause;
-   }
-   return clause_tree_find_subsuming_clause(tree->rson, sub_candidate);
+   return NULL;
 }
 
 
@@ -811,8 +806,8 @@ Clause_p clause_set_subsumes_clause_indexed(FVIndex_p index,
 //
 // Function: clause_tree_find_subsumed_clauses()
 //
-//   Given a PTree of clauses and a clause, push all subsumed clauses
-//   onto res.
+//   Given a set of clauses and a clause, push all subsumed clauses
+//   onto res (in the order of the set).
 //
 // Global Variables: -
 //
@@ -821,36 +816,34 @@ Clause_p clause_set_subsumes_clause_indexed(FVIndex_p index,
 /----------------------------------------------------------------------*/
 
 static
-void clause_tree_find_subsumed_clauses(PTree_p tree, Clause_p subsumer,
+void clause_tree_find_subsumed_clauses(OrdSet_p tree, Clause_p subsumer,
                                        PStack_p res)
 {
+   OrdSet_p handle;
    Clause_p clause;
 
    assert(subsumer->weight == ClauseStandardWeight(subsumer));
 
-   if(!tree)
+   for(handle = OrdSetFirst(tree); handle; handle = OrdSetNext(tree, handle))
    {
-      return;
+      clause = handle->key;
+      if(clause_subsumes_clause(subsumer, clause))
+      {
+         /* DocClauseQuote(GlobalOut, OutputLevel, 6, clause,
+            "subsumed", subsumer);*/
+         //ClauseSetProp(subsumer, ClauseQueryProp(clause,CPIsSOS));
+         // Not a SOS clause!
+         PStackPushP(res, clause);
+      }
    }
-   clause = tree->key;
-   if(clause_subsumes_clause(subsumer, clause))
-   {
-      /* DocClauseQuote(GlobalOut, OutputLevel, 6, clause,
-         "subsumed", subsumer);*/
-      //ClauseSetProp(subsumer, ClauseQueryProp(clause,CPIsSOS));
-      // Not a SOS clause!
-      PStackPushP(res, clause);
-   }
-   clause_tree_find_subsumed_clauses(tree->lson, subsumer, res);
-   clause_tree_find_subsumed_clauses(tree->rson, subsumer, res);
 }
 
 /*-----------------------------------------------------------------------
 //
 // Function: clause_tree_find_first_subsumed_clause()
 //
-//   Given a PTree of clauses and a clause, return the first clause in
-//   the tree subsumed by the clause, or NULL.
+//   Given a set of clauses and a clause, return the first clause in
+//   the set (in its order) subsumed by the clause, or NULL.
 //
 // Global Variables: -
 //
@@ -859,32 +852,27 @@ void clause_tree_find_subsumed_clauses(PTree_p tree, Clause_p subsumer,
 /----------------------------------------------------------------------*/
 
 static
-Clause_p clause_tree_find_first_subsumed_clause(PTree_p tree,
+Clause_p clause_tree_find_first_subsumed_clause(OrdSet_p tree,
                                             Clause_p subsumer)
 {
+   OrdSet_p handle;
    Clause_p clause;
 
    assert(subsumer->weight == ClauseStandardWeight(subsumer));
 
-   if(!tree)
+   for(handle = OrdSetFirst(tree); handle; handle = OrdSetNext(tree, handle))
    {
-      return NULL;
+      clause = handle->key;
+      if(clause_subsumes_clause(subsumer, clause))
+      {
+         /* DocClauseQuote(GlobalOut, OutputLevel, 6, clause,
+            "subsumed", subsumer);*/
+         //ClauseSetProp(subsumer, ClauseQueryProp(clause,CPIsSOS));
+         // Not a SOS clause!
+         return clause;
+      }
    }
-   clause = tree->key;
-   if(clause_subsumes_clause(subsumer, clause))
-   {
-      /* DocClauseQuote(GlobalOut, OutputLevel, 6, clause,
-         "subsumed", subsumer);*/
-      //ClauseSetProp(subsumer, ClauseQueryProp(clause,CPIsSOS));
-      // Not a SOS clause!
-      return clause;
-   }
-   clause = clause_tree_find_first_subsumed_clause(tree->lson, subsumer);
-   if(!clause)
-   {
-      clause = clause_tree_find_first_subsumed_clause(tree->rson, subsumer);
-   }
-   return clause;
+   return NULL;
 }
 
 
@@ -1054,8 +1042,8 @@ Clause_p clauseset_find_first_subsumed_clause_indexed(FVIndex_p index,
 //
 // Function: clause_tree_find_variant_clause()
 //
-//   Given a PTree of clauses and a clause, return a variant clause
-//   or NULL
+//   Given a set of clauses and a clause, return the first variant
+//   clause (in the order of the set) or NULL
 //
 // Global Variables: -
 //
@@ -1064,28 +1052,23 @@ Clause_p clauseset_find_first_subsumed_clause_indexed(FVIndex_p index,
 /----------------------------------------------------------------------*/
 
 static
-Clause_p clause_tree_find_variant_clause(PTree_p tree, Clause_p cand)
+Clause_p clause_tree_find_variant_clause(OrdSet_p tree, Clause_p cand)
 {
+   OrdSet_p handle;
    Clause_p clause;
 
    assert(cand->weight == ClauseStandardWeight(cand));
 
-   if(!tree)
+   for(handle = OrdSetFirst(tree); handle; handle = OrdSetNext(tree, handle))
    {
-      return NULL;
+      clause = handle->key;
+      if(clause_subsumes_clause(clause,cand) &&
+         clause_subsumes_clause(cand, clause))
+      {
+         return clause;
+      }
    }
-   clause = tree->key;
-   if(clause_subsumes_clause(clause,cand) &&
-      clause_subsumes_clause(cand, clause))
-   {
-      return clause;
-   }
-   clause =  clause_tree_find_variant_clause(tree->lson, cand);
-   if(clause)
-   {
-      return clause;
-   }
-   return clause_tree_find_variant_clause(tree->rson, cand);
+   return NULL;
 }
 
 
@@ -1277,7 +1260,8 @@ Clause_p ClauseSetFindUnitSubsumedClause(ClauseSet_p set, Clause_p
 //   Remove all negative literals subsumed by the positive unit
 //   clauses in set from clause. Return true if clause is empty, false
 //   otherwise. Set has to be indexed and should contain only positive
-//   units!
+//   units! A full proof object keeps the clause before each step in
+//   step_archive.
 //
 // Global Variables: -
 //
@@ -1285,7 +1269,8 @@ Clause_p ClauseSetFindUnitSubsumedClause(ClauseSet_p set, Clause_p
 //
 /----------------------------------------------------------------------*/
 
-bool ClausePositiveSimplifyReflect(ClauseSet_p set, Clause_p clause)
+bool ClausePositiveSimplifyReflect(ClauseSet_p set, Clause_p clause,
+                                   ClauseSet_p step_archive)
 {
    Eqn_p   *handle = &(clause->literals);
    ClausePos_p res = NULL;
@@ -1308,6 +1293,7 @@ bool ClausePositiveSimplifyReflect(ClauseSet_p set, Clause_p clause)
       if(!SimplifyFailed(res))
       {
          ClausePos_p pos = res;
+         ClauseArchiveStep(step_archive, clause);
          ClauseRemoveLiteralRef(clause, handle);
          if(ClauseQueryProp(pos->clause, CPIsSOS))
          {
@@ -1316,7 +1302,7 @@ bool ClausePositiveSimplifyReflect(ClauseSet_p set, Clause_p clause)
          ClauseDelProp(clause, CPInitial|CPLimitedRW);
          DocClauseModificationDefault(clause, inf_simplify_reflect,
                                       pos->clause);
-         ClausePushDerivation(clause, DCSR, pos->clause, NULL);
+         ClausePushDerivation(clause, DCSR, pos->clause);
       }
       else
       {
@@ -1334,7 +1320,8 @@ bool ClausePositiveSimplifyReflect(ClauseSet_p set, Clause_p clause)
 //   Remove all positive literals subsumed by negative unit clauses
 //   in set from clause. Return true if clause is empty, false
 //   otherwise. Set has to be indexed and contain negative units
-//   only.
+//   only. A full proof object keeps the clause before each step in
+//   step_archive.
 //
 // Global Variables: -
 //
@@ -1342,7 +1329,8 @@ bool ClausePositiveSimplifyReflect(ClauseSet_p set, Clause_p clause)
 //
 /----------------------------------------------------------------------*/
 
-bool ClauseNegativeSimplifyReflect(ClauseSet_p set, Clause_p clause)
+bool ClauseNegativeSimplifyReflect(ClauseSet_p set, Clause_p clause,
+                                   ClauseSet_p step_archive)
 {
    Eqn_p   *handle = &(clause->literals);
    ClausePos_p res = NULL;
@@ -1361,6 +1349,7 @@ bool ClauseNegativeSimplifyReflect(ClauseSet_p set, Clause_p clause)
       if(!SimplifyFailed(res))
       {
          ClausePos_p pos = res;
+         ClauseArchiveStep(step_archive, clause);
          ClauseRemoveLiteralRef(clause, handle);
          if(ClauseQueryProp(pos->clause, CPIsSOS))
          {
@@ -1369,7 +1358,7 @@ bool ClauseNegativeSimplifyReflect(ClauseSet_p set, Clause_p clause)
          ClauseDelProp(clause, CPInitial|CPLimitedRW);
          DocClauseModificationDefault(clause, inf_simplify_reflect,
                                       pos->clause);
-         ClausePushDerivation(clause, DCSR, pos->clause, NULL);
+         ClausePushDerivation(clause, DCSR, pos->clause);
       }
       else
       {

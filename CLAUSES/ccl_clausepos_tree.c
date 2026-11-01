@@ -128,7 +128,10 @@ void ClauseTPosTreeFree(ClauseTPosTree_p tree)
 //
 // Function: CmpClauseTPosCells()
 //
-//   Compare two ClauseTPos cells via their clausepointers.
+//   Compare two ClauseTPos cells via the permanent identifiers of
+//   their clauses. Unlike the clause addresses, these do not depend on
+//   the memory layout, so traversals of the tree (e.g. the order in
+//   which paramodulation partners are found) are reproducible.
 //
 // Global Variables: -
 //
@@ -141,7 +144,8 @@ int CmpClauseTPosCells(const void *soc1, const void *soc2)
    const ClauseTPos_p c1 = (const ClauseTPos_p) soc1;
    const ClauseTPos_p c2 = (const ClauseTPos_p) soc2;
 
-   return PCmp(c1->clause, c2->clause);
+   return (c1->clause->perm_ident > c2->clause->perm_ident) -
+      (c1->clause->perm_ident < c2->clause->perm_ident);
 }
 
 

@@ -74,7 +74,8 @@ long ProofStateClausalPreproc(ProofState_p proofstate,
                                             proofstate->terms,
                                             h_parms->replace_inj_defs,
                                             h_parms->eqdef_incrlimit,
-                                            h_parms->eqdef_maxclauses);
+                                            h_parms->eqdef_maxclauses,
+                                            proofstate->step_archive);
       VERBOUT("Clausal preprocessing complete.\n");
    }
 
@@ -83,7 +84,9 @@ long ProofStateClausalPreproc(ProofState_p proofstate,
                                                     proofstate->archive,
                                                     proofstate->tmp_terms,
                                                     h_parms->eqdef_incrlimit,
-                                                    h_parms->eqdef_maxclauses);
+                                                    h_parms->eqdef_maxclauses,
+                                                    proofstate->step_archive,
+                                                    proofstate->step_sides);
 
    if(problemType == PROBLEM_HO && h_parms->inst_choice_max_depth >= 0)
    {
@@ -95,7 +98,8 @@ long ProofStateClausalPreproc(ProofState_p proofstate,
    if(h_parms->preinstantiate_induction)
    {
       PreinstantiateInduction(proofstate->f_ax_archive, proofstate->axioms,
-                              proofstate->archive, proofstate->terms);
+                              proofstate->archive, proofstate->terms,
+                              proofstate->step_archive);
    }
 
    if(problemType == PROBLEM_FO && h_parms->bce)

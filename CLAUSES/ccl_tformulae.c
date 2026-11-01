@@ -500,6 +500,60 @@ static TFormula_p clause_tform_tstp_parse(Scanner_p in, TB_p terms)
 
 /*-----------------------------------------------------------------------
 //
+// Function: absorb_infix_eqn_tstp_parse()
+//
+//   If the next token is '=' or '!=', parse the right hand side and
+//   combine it with lhs into the corresponding (dis)equation.
+//   Otherwise return lhs unchanged.
+//
+//   This is used for the body of a binder only. Per the TPTP BNF, the
+//   body of a quantification is a <thf_unit_formula>, and one of its
+//   alternatives is <thf_defined_infix>, i.e. "s = t". So the equation
+//   has to be pulled into the scope of the binder: "![X]:X=a" is
+//   "![X]:(X=a)", not "(![X]:X)=a". Only a single infix step is
+//   absorbed, so anything after it still associates outside the binder:
+//   "![X]:X=a & q" is "(![X]:(X=a)) & q".
+//
+//   This applies to every TPTP syntax (FOF/TFF/TFX/THF). In most FO cases
+//   it is simply inert: EqnParseInfix() has already consumed the equation
+//   while parsing the body, so no '=' is left to absorb. It does fire for
+//   a body that EqnParseInfix() returns without looking for '=', namely a
+//   predicate with fixed type (see the shortcut in ccl_eqn.c) and a
+//   parenthesized formula -- these are the TFX cases, e.g.
+//   "? [X:$o] : p = X".
+//
+// Global Variables: -
+//
+// Side Effects    : Input, memory operations
+//
+/----------------------------------------------------------------------*/
+
+static TFormula_p absorb_infix_eqn_tstp_parse(Scanner_p in, TB_p terms,
+                                              TFormula_p lhs)
+{
+   Sig_p      sig = terms->sig;
+   TFormula_p rhs;
+   FunCode    op;
+
+   if(!TestInpTok(in, EqualSign|NegEqualSign))
+   {
+      return lhs;
+   }
+   op  = tptp_operator_parse(sig, in);
+   rhs = literal_tform_tstp_parse(in, terms);
+
+   /* Same encoding as in TFormulaTSTPParse(): an equation between two
+      formulas is an equivalence, a disequation an exclusive or. */
+   if(lhs->type == sig->type_bank->bool_type)
+   {
+      op = (op == sig->eqn_code) ? sig->equiv_code : sig->xor_code;
+   }
+   return TFormulaFCodeAlloc(terms, op, lhs, rhs);
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: quantified_tform_tstp_parse()
 //
 //   Parse a quantified TSTP formula. At this point, the quantor
@@ -563,6 +617,7 @@ static TFormula_p quantified_tform_tstp_parse(Scanner_p in,
       else
       {
          rest = literal_tform_tstp_parse(in, terms);
+         rest = absorb_infix_eqn_tstp_parse(in, terms, rest);
       }
    }
    res = TFormulaFCodeAlloc(terms, quantor, var, rest);
@@ -625,7 +680,15 @@ static TFormula_p applied_tform_tstp_parse(Scanner_p in, TB_p terms, TFormula_p 
 
    // printf("applied_tform_tstp_parse()...\n");
    const Type_p hd_type = GetHeadType(terms->sig, head);
-   assert(hd_type);
+   if(!hd_type)
+   {
+      /* GetHeadType() has no type to return for a polymorphic head, i.e.
+         for an equation - including one that EncodePredicateAsEqn() has
+         just built out of a Boolean atom, as in "p @ q". Such a head is
+         saturated by construction, so applying anything to it is an
+         error rather than something to compute a max arity from. */
+      AktTokenError(in, " Too many arguments applied to the term", false);
+   }
    const int max_args = TypeGetMaxArity(hd_type);
    int i = 0;
    const TermRef args = TermArgTmpArrayAlloc(max_args);
@@ -805,7 +868,7 @@ static TFormula_p literal_tform_tstp_parse(Scanner_p in, TB_p terms)
 //
 /----------------------------------------------------------------------*/
 
-static void tformula_collect_freevars(TB_p bank, TFormula_p form, PTree_p *vars)
+static void tformula_collect_freevars(TB_p bank, TFormula_p form, OrdSet_p *vars)
 {
    TermProperties old_prop;
 
@@ -828,7 +891,7 @@ static void tformula_collect_freevars(TB_p bank, TFormula_p form, PTree_p *vars)
    {
       if(TermCellQueryProp(form, TPIsFreeVar))
       {
-         PTreeStore(vars, form);
+         OrdSetStore(vars, form);
       }
    }
    else
@@ -838,7 +901,7 @@ static void tformula_collect_freevars(TB_p bank, TFormula_p form, PTree_p *vars)
          if(TermIsFreeVar(form->args[i]) &&
             TermCellQueryProp(form->args[i], TPIsFreeVar))
          {
-            PTreeStore(vars, form->args[i]);
+            OrdSetStore(vars, form->args[i]);
          }
          else
          {
@@ -1088,6 +1151,8 @@ Term_p unbind_loose(TB_p terms, IntMap_p db_map, long depth, Term_p t)
 //   Convert lambda term: ^[...bound vars...]:s[...free vars...]
 //   into a definiton f ..free vars.. ..bound vars.. = s
 //
+//   StS: This function is much to long!
+//
 // Global Variables: -
 //
 // Side Effects    : -
@@ -1104,11 +1169,11 @@ Term_p lift_lambda(TB_p terms, PStack_p bound_vars, Term_p body,
    assert(!TermHasLambdaSubterm(body)); // LiftLambda recursively called before
 
    // storing all free variables of body in free_var_stack
-   PTree_p free_vars = NULL;
+   OrdSet_p free_vars = NULL;
    TFormulaCollectFreeVars(terms, body, &free_vars);
    PStack_p free_var_stack = PStackAlloc();
-   PTreeToPStack(free_var_stack, free_vars);
-   PTreeFree(free_vars);
+   OrdSetToPStack(free_var_stack, free_vars);
+   OrdSetFree(free_vars);
 
    // creating a stack of fresh variables that correspond to the
    // the lambda prefix of the term
@@ -1180,7 +1245,8 @@ Term_p lift_lambda(TB_p terms, PStack_p bound_vars, Term_p body,
                                PStackGetSP(lb_stack_db_vars), closed->type));
       TypeArgArrayFree(lift_sym_ty_args, PStackGetSP(lb_stack_db_vars));
 
-      Term_p def_head =  TermAllocNewSkolem(terms->sig, free_var_stack, res_ty);
+      Term_p def_head = TermAllocNewSkolem(terms->sig, free_var_stack, res_ty);
+      FunCode def_symbol = def_head->f_code;
       def_head = TBTermTopInsert(terms, def_head);
 
       Term_p repl_t = ApplyTerms(terms, def_head, lb_stack_db_vars);
@@ -1216,7 +1282,9 @@ Term_p lift_lambda(TB_p terms, PStack_p bound_vars, Term_p body,
       DBGTermCheckUnownedSubterm(stdout, def_f, "lift_lambda(def)");
       WFormula_p def = WTFormulaAlloc(terms, def_f);
       DocFormulaCreationDefault(def, inf_fof_intro_def, NULL, NULL);
-      WFormulaPushDerivation(def, DCIntroDef, NULL, NULL);
+      FORMULA_OR_CLAUSE_ENSURE_DERIVATION(def);
+      PStackPushInt(def->derivation, DCIntroDef);
+      PStackPushInt(def->derivation, def_symbol);
 
       // NB: we are storing the definition of the kind
       // lift_name(FREE_VARS, LOOSE_BOUND_VARS) = %x. BODY
@@ -2210,7 +2278,7 @@ bool TFormulaVarIsFree(TB_p bank, TFormula_p form, Term_p var)
 //
 /----------------------------------------------------------------------*/
 
-void TFormulaCollectFreeVars(TB_p bank, TFormula_p form, PTree_p *vars)
+void TFormulaCollectFreeVars(TB_p bank, TFormula_p form, OrdSet_p *vars)
 {
    VarBankVarsSetProp(bank->vars, TPIsFreeVar);
    tformula_collect_freevars(bank, form, vars);
@@ -2230,10 +2298,10 @@ void TFormulaCollectFreeVars(TB_p bank, TFormula_p form, PTree_p *vars)
 
 bool TFormulaIsClosed(TB_p bank, TFormula_p form)
 {
-   PTree_p vars = NULL;
+   OrdSet_p vars = NULL;
    TFormulaCollectFreeVars(bank, form, &vars);
    bool ans  = vars == NULL;
-   PTreeFree(vars);
+   OrdSetFree(vars);
    return ans;
 }
 
@@ -2254,16 +2322,114 @@ bool TFormulaIsClosed(TB_p bank, TFormula_p form)
 TFormula_p TFormulaHasFreeVars(TB_p bank, TFormula_p form)
 {
    TFormula_p res = NULL;
-   PTree_p dummy = NULL;
+   OrdSet_p dummy = NULL;
 
    TFormulaCollectFreeVars(bank, form, &dummy);
    if (dummy!=NULL)
    {
-      res = dummy->key;
+      res = OrdSetFirst(dummy)->key;
    }
-   PTreeFree(dummy);
+   OrdSetFree(dummy);
    return res;
 }
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: tform_find_nonbool()
+//
+//   Recursive worker for TFormulaHasNonBoolSubForm(). Descends through
+//   the whole term, and wherever it meets a propositional connective or
+//   a quantifier, checks that the arguments that have to be Boolean
+//   are.
+//
+//   The descent cannot stop at the formula skeleton. A term may contain
+//   a formula again - most obviously the body of a lambda, but also an
+//   $ite branch - so e.g. "hq @ (^[X:$o]:(p & (f @ a)))" hides an
+//   ill-typed "&" below an application and a binder.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static TFormula_p tform_find_nonbool(Sig_p sig, TFormula_p form)
+{
+   Type_p     bool_type = sig->type_bank->bool_type;
+   TFormula_p res       = NULL;
+   int        i;
+
+   if(TermIsAnyVar(form))
+   {
+      /* A variable is a perfectly good atom, and has no f_code that
+         could be looked up in the signature. */
+      return NULL;
+   }
+   if(TFormulaHasSubForm1(sig, form))
+   {
+      if(form->args[0]->type != bool_type)
+      {
+         return form->args[0];
+      }
+      if(TFormulaHasSubForm2(sig, form) && (form->args[1]->type != bool_type))
+      {
+         return form->args[1];
+      }
+   }
+   else if(TFormulaIsQuantifiedNL(sig, form) && (form->arity == 2))
+   {
+      if(form->args[1]->type != bool_type)
+      {
+         return form->args[1];
+      }
+   }
+   for(i=0; i<form->arity; i++)
+   {
+      res = tform_find_nonbool(sig, form->args[i]);
+      if(res)
+      {
+         break;
+      }
+   }
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: TFormulaHasNonBoolSubForm()
+//
+//   Check that every position of form that has to be Boolean actually
+//   is, i.e. form itself, the arguments of every propositional
+//   connective, and the body of every quantifier. If so, return NULL,
+//   otherwise return the offending subformula.
+//
+//   Positions that are terms rather than formulas - the sides of a
+//   (dis)equation, the arguments of an application, the body of a
+//   lambda - are not required to be Boolean, but are still descended
+//   into, because a formula can occur inside them again.
+//
+//   In LFHO a partially applied term can end up in formula position,
+//   where the FO parser would already have rejected it - see e.g.
+//   "^[X:$o]:(p & X)", which has type $o>$o, not $o. Without this
+//   check such a formula reaches clausification and crashes it.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+TFormula_p TFormulaHasNonBoolSubForm(Sig_p sig, TFormula_p form)
+{
+   if(form->type != sig->type_bank->bool_type)
+   {
+      return form;
+   }
+   return tform_find_nonbool(sig, form);
+}
+
 
 /*-----------------------------------------------------------------------
 //
@@ -2304,14 +2470,15 @@ TFormula_p TFormulaAddQuantor(TB_p bank, TFormula_p form, bool universal, Term_p
 /----------------------------------------------------------------------*/
 
 TFormula_p TFormulaAddQuantors(TB_p bank, TFormula_p form, bool universal,
-                               PTree_p vars)
+                               OrdSet_p vars)
 {
    PStack_p var_stack = PStackAlloc();
    PStackPointer i;
    Term_p var;
 
-   PTreeToPStack(var_stack,vars);
-   for(i=0; i<PStackGetSP(var_stack); i++)
+   OrdSetToPStack(var_stack,vars);
+   /* Innermost quantor first, so that X1 ends up outermost */
+   for(i=PStackGetSP(var_stack)-1; i>=0; i--)
    {
       var = PStackElementP(var_stack, i);
       form = TFormulaAddQuantor(bank, form, universal, var);
@@ -2335,12 +2502,12 @@ TFormula_p TFormulaAddQuantors(TB_p bank, TFormula_p form, bool universal,
 
 TFormula_p TFormulaClosure(TB_p bank, TFormula_p form, bool universal)
 {
-   PTree_p vars = NULL;
+   OrdSet_p vars = NULL;
 
    VarBankVarsSetProp(bank->vars, TPIsFreeVar);
    TFormulaCollectFreeVars(bank, form, &vars);
    form = TFormulaAddQuantors(bank, form, universal, vars);
-   PTreeFree(vars);
+   OrdSetFree(vars);
 
    return form;
 }
@@ -2362,13 +2529,13 @@ TFormula_p TFormulaClosure(TB_p bank, TFormula_p form, bool universal)
 TFormula_p TFormulaCreateDef(TB_p bank, TFormula_p def_atom, TFormula_p defined,
                              int polarity)
 {
-   PTree_p vars=NULL;
+   OrdSet_p vars=NULL;
    TFormula_p res = NULL;
 
    switch(polarity)
    {
    case -1:
-         res = TFormulaFCodeAlloc(bank, bank->sig->impl_code, defined, def_atom);
+         res = TFormulaFCodeAlloc(bank, bank->sig->bimpl_code, def_atom, defined);
          assert(!TermCellQueryProp(defined, TPPosPolarity));
          break;
    case 0:
@@ -2386,10 +2553,70 @@ TFormula_p TFormulaCreateDef(TB_p bank, TFormula_p def_atom, TFormula_p defined,
    TermCollectVariables(def_atom, &vars);
    //TFormulaCollectFreeVars(bank, def_atom, &vars);
    res = TFormulaAddQuantors(bank, res, true, vars);
-   PTreeFree(vars);
+   OrdSetFree(vars);
 
    return res;
 }
+
+/*-----------------------------------------------------------------------
+//
+// Function: TFormulaFindDefSymbol()
+//
+//   Given a definition (a universally quantified =, ->, <- or <=>
+//   formula, return the top symbol of the left argument term or
+//   formula.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+FunCode TFormulaFindDefSymbol(TB_p bank, TFormula_p definition)
+{
+   TFormula_p def = definition;
+   FunCode res = 0;
+
+   while(def->f_code == bank->sig->qall_code)
+   {
+      def = def->args[1];
+   }
+   if(def->f_code==bank->sig->eqn_code ||
+      def->f_code==bank->sig->equiv_code||
+      def->f_code==bank->sig->impl_code||
+      def->f_code==bank->sig->bimpl_code)
+   {
+      if(def->args[0]->f_code == bank->sig->eqn_code)
+      { /* Literal encoded as an equation */
+         res = def->args[0]->args[0]->f_code;
+      }
+      else
+      {
+         res = def->args[0]->f_code;
+      }
+      /* printf("%% Hack %ld, %s, %ld, %s: ", */
+      /*        res, */
+      /*        SigFindName(bank->sig, res), */
+      /*        def->args[1]->f_code, */
+      /*        SigFindName(bank->sig, def->args[1]->f_code)); */
+      /* TFormulaTPTPPrint(stdout, bank, def, true, false); */
+      /* printf("\n"); */
+      /* printf("%% %ld ", def->args[0]->f_code); */
+      /* TFormulaTPTPPrint(stdout, bank, def->args[0], true, false); */
+      /* printf("\n"); */
+   }
+   else
+   {
+      fprintf(stderr, "Internal error: ");
+      TFormulaTPTPPrint(stderr, bank, definition, true, false);
+      fprintf(stderr, " is not a proper definition\n");
+      exit(INTERNAL_ERROR);
+   }
+   return res;
+}
+
+
+
 
 
 /*-----------------------------------------------------------------------

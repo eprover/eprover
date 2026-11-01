@@ -58,7 +58,7 @@ void print_prec_array(FILE* out, Sig_p sig, FCodeFeatureArray_p array)
    FunCode i;
    char *del = "";
 
-   fprintf(out, COMCHAR" Ordering precedence: ");
+   CommentPrint(out, " Ordering precedence: ");
    for(i = sig->f_count; i > 0; i--)
    {
       if(!SigIsSpecial(sig, array->array[i].symbol))

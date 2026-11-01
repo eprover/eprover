@@ -316,12 +316,20 @@ void SigFree(Sig_p junk)
    FunCode i;
 
    /* names are shared with junk->f_index and are free()ed by the
-      StrTreeFree() call below! */
-   for(i=0; i<= junk->f_count; i++)
+      StrTreeFree() call below! Entry 0 is unused (and
+      uninitialized). */
+   for(i=1; i<= junk->f_count; i++)
    {
       if(junk->f_info[i].pname)
       {
          FREE(junk->f_info[i].pname);
+      }
+      /* Types of app-encoding symbols are not shared via the type
+         bank, but owned by the signature (see SigGetTypedApp()). */
+      if(SigQueryFuncProp(junk, i, FPTypedApplication) &&
+         junk->f_info[i].type)
+      {
+         TypeFree(junk->f_info[i].type);
       }
    }
    FREE(junk->f_info);
@@ -887,9 +895,9 @@ void SigPrint(FILE* out, Sig_p sig)
 {
    FunCode i;
 
-   fprintf(out, COMCHAR" Signature (%2ld symbols out of %2ld allocated):\n",
-           sig->f_count, sig->size);
-   fprintf(out, COMCHAR"     -Symbol-    -Arity- -Encoding-\n");
+   CommentPrint(out, " Signature (%2ld symbols out of %2ld allocated):\n",
+                sig->f_count, sig->size);
+   CommentPrint(out, "     -Symbol-    -Arity- -Encoding-\n");
 
    for(i=1; i<=sig->f_count; i++)
    {
@@ -945,17 +953,17 @@ void SigPrintACStatus(FILE* out, Sig_p sig)
    {
       if(SigQueryFuncProp(sig, i, FPIsAC))
       {
-         fprintf(out, COMCHAR" %s is AC\n", sig->f_info[i].name);
+         CommentPrint(out, " %s is AC\n", sig->f_info[i].name);
          continue;
       }
       if(SigQueryFuncProp(sig, i, FPAssociative))
       {
-         fprintf(out, COMCHAR" %s is associative\n", sig->f_info[i].name);
+         CommentPrint(out, " %s is associative\n", sig->f_info[i].name);
          continue;
       }
       if(SigQueryFuncProp(sig, i, FPCommutative))
       {
-         fprintf(out, COMCHAR" %s is commutative\n", sig->f_info[i].name);
+         CommentPrint(out, " %s is commutative\n", sig->f_info[i].name);
          continue;
       }
    }
@@ -1567,8 +1575,8 @@ void SigDeclareType(Sig_p sig, FunCode f, Type_p type)
          {
             if(Verbose>=3)
             {
-               fprintf(stderr, COMCHAR" Type conflict for %s between ",
-                       SigFindName(sig, f));
+               CommentPrint(stderr, " Type conflict for %s between ",
+                            SigFindName(sig, f));
                TypePrintTSTP(stderr, sig->type_bank, fun->type);
                fprintf(stderr, " and ");
                TypePrintTSTP(stderr, sig->type_bank, type);
@@ -1580,7 +1588,7 @@ void SigDeclareType(Sig_p sig, FunCode f, Type_p type)
          {
             if(Verbose >= 2)
             {
-               fprintf(stderr, COMCHAR" type re-declaration %s: ", SigFindName(sig, f));
+               CommentPrint(stderr, " type re-declaration %s: ", SigFindName(sig, f));
                TypePrintTSTP(stderr, sig->type_bank, type);
                fprintf(stderr, "\n");
             }
@@ -1592,7 +1600,7 @@ void SigDeclareType(Sig_p sig, FunCode f, Type_p type)
    {
       if(Verbose >= 2)
       {
-         fprintf(stderr, COMCHAR" type declaration %s: ", SigFindName(sig, f));
+         CommentPrint(stderr, " type declaration %s: ", SigFindName(sig, f));
          TypePrintTSTP(stderr, sig->type_bank, type);
          fprintf(stderr, "\n");
       }
@@ -1924,7 +1932,7 @@ bool SigHasUnimplementedInterpretedSymbols(Sig_p sig)
 //
 /----------------------------------------------------------------------*/
 
-long SigFCodesCollectTypes(Sig_p sig, NumTree_p fcodes, PTree_p *types)
+long SigFCodesCollectTypes(Sig_p sig, NumTree_p fcodes, OrdSet_p *types)
 {
    long res = 0;
    PStack_p to_process = PStackAlloc(), iter;
@@ -1947,17 +1955,17 @@ long SigFCodesCollectTypes(Sig_p sig, NumTree_p fcodes, PTree_p *types)
    while(!PStackEmpty(to_process))
    {
       type = PStackPopP(to_process);
-      if(!PTreeFind(types, type))
+      if(!OrdSetFind(types, type))
       {
          res++;
-         PTreeStore(types, type);
+         OrdSetStore(types, type);
          for(int i=0; i<type->arity; i++)
          {
             PStackPushP(to_process, type->args[i]);
          }
       }
    }
-   PTreeTraverseExit(to_process);
+   PStackFree(to_process);
    return res;
 }
 
@@ -2032,13 +2040,15 @@ FunCode SigGetTypedApp(Sig_p sig, Type_p arg1, Type_p arg2, Type_p ret)
    FunCode ret_fcode = SigInsertId(sig, DStrView(typed_app_name), 2, false);
    if(!sig->f_info[ret_fcode].type)
    {
+      /* app_type is not shared via the type bank, so the signature
+         owns it (see SigFree()). */
       sig->f_info[ret_fcode].type = app_type;
+      SigSetFuncProp(sig, ret_fcode, FPTypedApplication);
    }
    else
    {
       TypeFree(app_type);
    }
-   SigSetFuncProp(sig, ret_fcode, FPTypedApplication);
 
    DStrFree(typed_app_name);
 
@@ -2084,6 +2094,7 @@ void SigPrintAppEncodedDecls(FILE* out, Sig_p sig)
          DStr_p typename = TypeAppEncodedName(t);
 
          fprintf(out, "%s", DStrView(typename));
+         DStrFree(typename);
       }
       fprintf(out, ").\n");
    }

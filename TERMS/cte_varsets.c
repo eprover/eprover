@@ -116,7 +116,7 @@ VarSet_p VarSetAlloc(Term_p term)
 
 void VarSetReset(VarSet_p set)
 {
-   PTreeFree(set->vars);
+   OrdSetFree(set->vars);
    set->vars = NULL;
 }
 
@@ -159,7 +159,7 @@ void VarSetFree(VarSet_p set)
 
 bool VarSetInsert(VarSet_p set, Term_p var)
 {
-   return PTreeStore(&set->vars, var);
+   return OrdSetStore(&set->vars, var);
 }
 
 /*-----------------------------------------------------------------------
@@ -176,7 +176,7 @@ bool VarSetInsert(VarSet_p set, Term_p var)
 
 void VarSetInsertVarSet(VarSet_p set, VarSet_p vars)
 {
-   PTreeInsertTree(&set->vars, vars->vars);
+   OrdSetInsertSet(&set->vars, vars->vars);
 }
 
 
@@ -195,7 +195,7 @@ void VarSetInsertVarSet(VarSet_p set, VarSet_p vars)
 
 bool VarSetDeleteVar(VarSet_p set, Term_p var)
 {
-   return PTreeExtractKey(&set->vars, var) != NULL;
+   return OrdSetExtractKey(&set->vars, var) != NULL;
 }
 
 
@@ -213,7 +213,7 @@ bool VarSetDeleteVar(VarSet_p set, Term_p var)
 
 bool VarSetContains(VarSet_p set, Term_p var)
 {
-   return PTreeFind(&set->vars, var) != NULL;
+   return OrdSetFind(&set->vars, var) != NULL;
 }
 
 /*-----------------------------------------------------------------------
@@ -252,8 +252,8 @@ void VarSetCollectVars(VarSet_p set)
 void VarSetUnion(VarSet_p set, VarSet_p set1, VarSet_p set2)
 {
    VarSetReset(set);
-   set->vars = PTreeCopy(set1->vars);
-   PTreeMerge(&set->vars, set2->vars);
+   set->vars = OrdSetCopy(set1->vars);
+   OrdSetMerge(&set->vars, set2->vars);
 }
 
 
@@ -271,7 +271,7 @@ void VarSetUnion(VarSet_p set, VarSet_p set1, VarSet_p set2)
 
 void VarSetMerge(VarSet_p set, VarSet_p set1)
 {
-   PTreeMerge(&(set->vars), set1->vars);
+   OrdSetMerge(&(set->vars), set1->vars);
    VarSetFree(set1);
 }
 
